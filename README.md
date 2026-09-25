@@ -8,7 +8,7 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 ## Status
 
-<a href="https://anpage.github.io/demech2/progress/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/progress/MW2SHELLPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/progress/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/progress/MW2PROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
 
 This project is in its early stages. `MW2SHELL.DLL` and `MW2.DLL` are being decompiled with the goal of eventually reaching full accuracy against the original binaries. Contributions are welcome.
 
