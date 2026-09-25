@@ -22,7 +22,9 @@ jobs:
 
           {
             echo "entries=$entries"
-            echo "matrix=$(printf '%s\n' $entries | cut -d: -f1 | jq -Rn '[inputs]')"
+            # -c: $GITHUB_OUTPUT parsing requires one key=value pair per line,
+            # so the JSON array must stay on a single line.
+            echo "matrix=$(printf '%s\n' $entries | cut -d: -f1 | jq -cRn '[inputs]')"
           } >> "$GITHUB_OUTPUT"
 
   fetch-deps:
@@ -53,11 +55,16 @@ jobs:
 
       - name: Build
         run: |
+          # Pin both compilers to cl: with only CXX pinned, CMake picks clang
+          # from PATH (the LLVM install below) for C, and CMake >= 4.4 refuses
+          # to configure a Clang/MSVC mix. clang-tidy still runs via
+          # ENABLE_CLANG_TIDY.
           cmake -S . -B build -GNinja `
+            -DCMAKE_C_COMPILER=cl `
             -DCMAKE_CXX_COMPILER=cl `
             -DCMAKE_BUILD_TYPE=Debug `
             -DENABLE_CLANG_TIDY=ON `
-            -Werror=dev
+            -Werror=author
           cmake --build build -- -k0
 
   build:

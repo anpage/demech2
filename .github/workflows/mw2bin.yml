@@ -31,18 +31,15 @@ jobs:
           wget https://archive.org/download/mw2patch/MW2PATCH.EXE \
             || wget https://web.archive.org/web/19961025085815/http://www2.activision.com/CustomerSupport/MW2PATCH.EXE
 
-          # MW2PATCH.EXE is a self-extractor built around two single-entry ARJ
-          # archives at fixed offsets (verified against the archive.org copy;
-          # these are the offsets the demech2 Phase 0 tooling uses):
-          #   0x1853  -> MW2SHELL.DLL
-          #   0x9e311 -> MW2.DLL
+          # MW2PATCH.EXE is a self-extractor built around a single 14-entry
+          # ARJ archive at a fixed offset (verified against the archive.org
+          # copy): the archive at 0x1853 contains the whole patch payload,
+          # including both MW2SHELL.DLL and MW2.DLL.
           sudo apt-get update -y
           sudo apt-get install -y arj
-          tail -c +$((0x1853 + 1)) MW2PATCH.EXE > mw2shell.arj
-          tail -c +$((0x9e311 + 1)) MW2PATCH.EXE > mw2.arj
-          arj e -y mw2shell.arj
-          arj e -y mw2.arj
-          rm -f MW2PATCH.EXE mw2shell.arj mw2.arj
+          tail -c +$((0x1853 + 1)) MW2PATCH.EXE > mw2patch.arj
+          arj e -y mw2patch.arj
+          rm -f MW2PATCH.EXE mw2patch.arj
 
           # Whatever the archive entries were named, normalize to the canonical
           # file names by content hash, then verify against the target hashes.
@@ -55,6 +52,10 @@ jobs:
               mv -f "$f" MW2.DLL
             fi
           done
+
+          # Keep only the two target DLLs; the rest of the patch payload
+          # (InstallShield setup stubs, README, ...) is not needed.
+          find . -maxdepth 1 -type f ! -name MW2SHELL.DLL ! -name MW2.DLL -delete
 
           echo "$MW2SHELL_SHA256  MW2SHELL.DLL" | sha256sum --check
           echo "$MW2_SHA256  MW2.DLL" | sha256sum --check
