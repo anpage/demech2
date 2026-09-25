@@ -1,0 +1,3 @@
+# Names to exempt from ncc validation (name: 'reason').
+# Empty: no MechWarrior 2-specific exemptions yet.
+{}

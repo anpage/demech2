@@ -1,0 +1,372 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  targets:
+    name: reccmp targets
+    runs-on: ubuntu-latest
+    outputs:
+      entries: ${{ steps.list.outputs.entries }}
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - name: List reccmp targets
+        id: list
+        run: |
+          # One line per reccmp target: "TARGET:--total", where --total is the
+          # number of non-library functions in the original binary (game code
+          # only; CRT and import thunks excluded). Every per-target step below
+          # is driven from this list, so adding NETMECHW later is a one-line
+          # change here, next to reccmp-project.yml and CMakeLists.txt.
+          entries="MW2SHELL:770 MW2:1534"
+
+          {
+            echo "entries=$entries"
+            echo "matrix=$(printf '%s\n' $entries | cut -d: -f1 | jq -Rn '[inputs]')"
+          } >> "$GITHUB_OUTPUT"
+
+  fetch-deps:
+    name: Download original binaries
+    uses: ./.github/workflows/mw2bin.yml
+
+  build-current-toolchain:
+    name: Current MSVC
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2
+
+      - name: Setup Ninja
+        uses: ./.github/actions/setup-ninja
+
+      - name: Setup vcvars
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64_x86
+
+      - name: Install LLVM
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "21"
+
+      - name: Build
+        run: |
+          cmake -S . -B build -GNinja `
+            -DCMAKE_CXX_COMPILER=cl `
+            -DCMAKE_BUILD_TYPE=Debug `
+            -DENABLE_CLANG_TIDY=ON `
+            -Werror=dev
+          cmake --build build -- -k0
+
+  build:
+    name: "MSVC 4.1"
+    runs-on: windows-latest
+
+    steps:
+      - name: "Checkout demech2 sources"
+        uses: actions/checkout@v6
+
+      - name: "Checkout MSVC 4.1 toolchain"
+        uses: actions/checkout@v6
+        with:
+          repository: madebr/msvc410
+          path: msvc410
+
+      - name: "Setup cmake"
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          # 3.26.6 is the version known to drive the VC++ 4.1 NMake generator
+          # (the Docker image uses the same version).
+          cmake-version: 3.26.6
+
+      - name: Build
+        shell: cmd
+        run: |
+          rem The shell's icon 103 is deliberately left out of CI builds: CMake
+          rem takes it from the original MW2SHELL.DLL when that file is present
+          rem and otherwise builds without it. The icon is a resource, so
+          rem nothing reccmp compares is affected.
+          call .\msvc410\bin\VCVARS32.BAT x86
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles"
+          cmake --build build
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: Win32
+          path: |
+            build/*.dll
+            build/*.pdb
+            build/*.map
+
+  verify:
+    name: Verify decomp
+    needs: [build, fetch-deps, targets]
+    runs-on: windows-latest
+    permissions:
+      actions: read
+      issues: write
+      pull-requests: write
+    env:
+      TARGET_ENTRIES: ${{ needs.targets.outputs.entries }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: Win32
+          path: build
+
+      - name: Restore cached original binaries
+        id: cache-original-binaries
+        uses: actions/cache/restore@v5
+        with:
+          enableCrossOsArchive: true
+          path: mw2bin
+          key: mw2bin
+
+      - name: Install python packages
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+
+      - name: Detect binaries
+        id: detection
+        run: |
+          reccmp-project detect --what original   --search-path mw2bin
+          reccmp-project detect --what recompiled --search-path build
+
+      - name: Summarize Accuracy
+        shell: bash
+        run: |
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+            total="${entry##*:}"
+            reccmp-reccmp -S "${target}PROGRESS.SVG" --target "$target" --total "$total" --json "${target}PROGRESS.json" --html "${target}PROGRESS.HTML"
+          done
+
+      - name: Compare Accuracy With Current Master
+        shell: bash
+        env:
+          RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
+        run: |
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+
+            curl -fLSs -o "${target}PROGRESS-old.json" "$RELEASE_URL/${target}PROGRESS.json" || echo "" >"${target}PROGRESS-old.json"
+
+            (reccmp-reccmp --target "$target" --diff "${target}PROGRESS-old.json" || echo "Current master not found")>"${target}-diff.txt"
+
+            cat "${target}-diff.txt"
+          done
+
+      - name: Check Vtables
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          for entry in $TARGET_ENTRIES; do
+            reccmp-vtable --target "${entry%%:*}"
+          done
+
+      - name: Check Variables
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          for entry in $TARGET_ENTRIES; do
+            reccmp-datacmp --target "${entry%%:*}"
+          done
+
+      - name: Check Folding
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          for entry in $TARGET_ENTRIES; do
+            python tools/check_folded.py --target "${entry%%:*}"
+          done
+
+      - name: "Create comment on PR"
+        if: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          section() {
+            echo "## $1"
+            echo '```'
+            if [ -f "$2" ]; then
+              sed -i -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "$2"
+              python -c "print(open('$2').read().strip())";
+            else
+              echo '(no diff available)';
+            fi
+            echo '```'
+          }
+
+          {
+            echo '# reccmp report'
+            for entry in $TARGET_ENTRIES; do
+              target="${entry%%:*}"
+              section "$target ($target.DLL)" "$target-diff.txt"
+            done
+          } >reccmp-pr-message.txt
+
+          echo "${{ github.event.number }}" >pr-number.txt
+
+          cat reccmp-pr-message.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: Accuracy Report
+          path: |
+            *PROGRESS*
+
+      - name: Upload PR comment payload
+        if: ${{ github.event_name == 'pull_request' && always() }}
+        uses: actions/upload-artifact@main
+        with:
+          name: reccmp-pr-comment
+          path: |
+            reccmp-pr-message.txt
+            pr-number.txt
+
+  upload:
+    name: Upload artifacts
+    needs: [verify, targets]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'anpage/demech2' }}
+    permissions:
+      contents: write
+    env:
+      TARGET_ENTRIES: ${{ needs.targets.outputs.entries }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: Win32
+          path: build
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: Accuracy Report
+
+      - name: Upload Continuous Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The README embeds the progress SVGs from this release. The assets are
+          # uploaded with gh (not probonopd/uploadtool, which would serve them as
+          # application/octet-stream) so that .svg is stored as image/svg+xml
+          # and renders in <img> tags.
+          gh release view continuous --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create continuous --repo "$GITHUB_REPOSITORY" --title "Continuous build" --prerelease --target "$GITHUB_SHA"
+
+          files=()
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+            files+=(
+              "build/${target}.dll"
+              "build/${target}.pdb"
+              "build/${target}.map"
+              "${target}PROGRESS.SVG"
+              "${target}PROGRESS.HTML"
+              "${target}PROGRESS.json"
+            )
+          done
+
+          gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+
+  decomplint:
+    name: ${{ matrix.target }} annotations
+    runs-on: ubuntu-latest
+    needs: [targets]
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install python libraries
+        id: install
+        run: |
+          pip install -r tools/requirements.txt
+
+      - name: Run decomplint
+        if: ${{ steps.install.conclusion == 'success' && always() }}
+        run: |
+          reccmp-decomplint ${{ matrix.target }} --module ${{ matrix.target }} --warnfail
+
+      - name: Check address padding
+        if: ${{ steps.install.conclusion == 'success' && always() }}
+        run: |
+          python tools/reccmp_addr_padding.py
+
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run clang-format
+        run: |
+          find MW2SHELL MW2 tools \( -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' \) -print0 | xargs -0 -r \
+          pipx run "clang-format>=22,<23" \
+            --style=file \
+            -i
+          git diff --color --exit-code
+
+  naming:
+    name: Naming conventions
+    runs-on: ubuntu-latest
+    needs: [targets]
+    env:
+      TARGET_ENTRIES: ${{ needs.targets.outputs.entries }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "21"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install python libraries
+        run: |
+          pip install clang==21.* pyyaml
+
+      - name: Run ncc
+        run: |
+          # ncc validates the whole source tree. MECH2 joins --path when its
+          # sources land, even though it is not a reccmp target.
+          includes=(util)
+          paths=()
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+            if [ -d "$target/include" ]; then
+              includes+=("$target/include")
+            fi
+            includes+=("$target")
+            paths+=("$target")
+          done
+
+          python3 tools/ncc/ncc.py \
+            --clang-lib ${{ env.LLVM_PATH }}/lib/libclang.so \
+            --recurse \
+            --style tools/ncc/ncc.style \
+            --skip tools/ncc/skip.yml \
+            --definition DEFINE_GUID PASCAL WINAPI FAR BOOL=int CALLBACK HWND__=HWND \
+            --include "${includes[@]}" \
+            --path "${paths[@]}"

@@ -1,0 +1,68 @@
+name: Download mw2bin
+
+on:
+  workflow_call:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Restore cached original binaries
+        id: cache-original-binaries
+        uses: actions/cache/restore@v5
+        with:
+          enableCrossOsArchive: true
+          path: mw2bin
+          key: mw2bin
+
+      - name: Download and extract original MW2 binaries
+        if: ${{ !steps.cache-original-binaries.outputs.cache-hit }}
+        env:
+          MW2SHELL_SHA256: 1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879
+          MW2_SHA256: 6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5
+        run: |
+          set -ex
+          mkdir -p mw2bin
+          cd mw2bin
+
+          # The 1.1 patch is freely downloadable. Primary: archive.org.
+          # Fallback: the archived Activision support URL.
+          wget https://archive.org/download/mw2patch/MW2PATCH.EXE \
+            || wget https://web.archive.org/web/19961025085815/http://www2.activision.com/CustomerSupport/MW2PATCH.EXE
+
+          # MW2PATCH.EXE is a self-extractor built around two single-entry ARJ
+          # archives at fixed offsets (verified against the archive.org copy;
+          # these are the offsets the demech2 Phase 0 tooling uses):
+          #   0x1853  -> MW2SHELL.DLL
+          #   0x9e311 -> MW2.DLL
+          sudo apt-get update -y
+          sudo apt-get install -y arj
+          tail -c +$((0x1853 + 1)) MW2PATCH.EXE > mw2shell.arj
+          tail -c +$((0x9e311 + 1)) MW2PATCH.EXE > mw2.arj
+          arj e -y mw2shell.arj
+          arj e -y mw2.arj
+          rm -f MW2PATCH.EXE mw2shell.arj mw2.arj
+
+          # Whatever the archive entries were named, normalize to the canonical
+          # file names by content hash, then verify against the target hashes.
+          for f in *; do
+            [ -f "$f" ] || continue
+            hash=$(sha256sum "$f" | cut -d' ' -f1)
+            if [ "$hash" = "$MW2SHELL_SHA256" ] && [ "$f" != MW2SHELL.DLL ]; then
+              mv -f "$f" MW2SHELL.DLL
+            elif [ "$hash" = "$MW2_SHA256" ] && [ "$f" != MW2.DLL ]; then
+              mv -f "$f" MW2.DLL
+            fi
+          done
+
+          echo "$MW2SHELL_SHA256  MW2SHELL.DLL" | sha256sum --check
+          echo "$MW2_SHA256  MW2.DLL" | sha256sum --check
+
+      - name: Cache original binaries
+        if: ${{ !steps.cache-original-binaries.outputs.cache-hit }}
+        uses: actions/cache/save@v5
+        with:
+          enableCrossOsArchive: true
+          path: mw2bin
+          key: mw2bin

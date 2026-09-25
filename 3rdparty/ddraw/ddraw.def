@@ -1,0 +1,5 @@
+; Import library for DDRAW.DLL: both game DLLs import DirectDrawCreate by its undecorated name;
+; LIB takes the __stdcall symbol from ddraw.c.
+LIBRARY DDRAW
+EXPORTS
+    DirectDrawCreate

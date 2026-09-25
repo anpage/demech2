@@ -1,0 +1,4 @@
+LIBRARY mw2shell
+EXPORTS
+    ShellMain @1
+    ShellWindowProc @2

@@ -1,0 +1,336 @@
+// MW2SHELL.DLL resources: only what the shell needs to run. The shell loads its dialogs
+// (DialogBoxParam) and menus 103/104 (LoadMenu); dialogs 101, 102, 128 and 129 show icon
+// 103. The original's other icon groups and its VERSIONINFO are left out.
+//
+// Recovered from the original binary; RC 4.1 compiles each resource byte-identical to the
+// original's. Resource and control IDs stay numeric until their names are known.
+//
+// Icon 103 is not in the repository: the build extracts it from the original DLL and
+// defines DEMECH2_ORIGINAL_ICON. Without it the dialogs' icon controls stay empty.
+
+#include <winres.h>
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+#ifdef DEMECH2_ORIGINAL_ICON
+103 ICON DISCARDABLE "mw2shell.ico"
+#endif
+
+103 MENU DISCARDABLE
+BEGIN
+    POPUP "Clan"
+    BEGIN
+        MENUITEM "New Allegiance", 40001
+        MENUITEM "Hall of Honor", 40002
+        MENUITEM "Flee to Windows", 40003
+    END
+    POPUP "Combat"
+    BEGIN
+        MENUITEM "Audio...", 40083
+        POPUP "Difficulty"
+        BEGIN
+            MENUITEM "Hard", 40019, GRAYED
+            MENUITEM "Medium", 40020, CHECKED
+            MENUITEM "Easy", 40021, GRAYED
+        END
+        MENUITEM "QuickTips", 40050, CHECKED
+        MENUITEM "Heat Tracking", 40051, CHECKED
+        POPUP "Detail"
+        BEGIN
+            MENUITEM "Object Textures", 40047, CHECKED
+            MENUITEM "Terrain Textures", 40048, CHECKED
+            POPUP "Display Detail"
+            BEGIN
+                MENUITEM "High", 40036, CHECKED
+                MENUITEM "Low", 40037, GRAYED
+            END
+            POPUP "Object Density"
+            BEGIN
+                MENUITEM "High", 40038, CHECKED
+                MENUITEM "Low", 40039, GRAYED
+            END
+            MENUITEM "Chunky Explosions", 40049, CHECKED
+            POPUP "Resolution"
+            BEGIN
+                MENUITEM "320 X 200", 40042, GRAYED
+                MENUITEM "640 X 480", 40043, CHECKED
+            END
+        END
+        POPUP "Altered Reality"
+        BEGIN
+            MENUITEM "Invulnerability", 40044, CHECKED
+            MENUITEM "Unlimited Ammo", 40045, CHECKED
+            MENUITEM "No Collision Damage", 40046, CHECKED
+        END
+    END
+    POPUP "Cockpit Controls"
+    BEGIN
+        MENUITEM "Configure...", 40011
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "MechWarrior 2 Help Contents", 40012
+        MENUITEM "Search for Help On...", 40014
+        MENUITEM "The Keshik", 40082
+    END
+END
+
+104 MENU DISCARDABLE
+BEGIN
+    POPUP "&Clan"
+    BEGIN
+        MENUITEM "&New Allegiance", 40001, GRAYED
+        MENUITEM "&Hall of Honor", 40002, GRAYED
+        MENUITEM "&QuickTips", 40050, CHECKED
+        MENUITEM SEPARATOR
+        MENUITEM "&Flee to Windows", 40003
+    END
+    POPUP "&Options", GRAYED
+    BEGIN
+        MENUITEM "Combat &Variables...", 40084, GRAYED
+        MENUITEM "Cock&pit Controls...", 40011, GRAYED
+        MENUITEM "&Movie Playback...", 40086, GRAYED
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Codes and Procedures", 40012
+        MENUITEM "&Technical Help", 40085
+        MENUITEM SEPARATOR
+        MENUITEM "The &Keshik", 40082, GRAYED
+    END
+END
+
+101 DIALOG DISCARDABLE  55, 60, 320, 146
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "SIBKO IDENTITY REGISTRATION - CLAN JADE FALCON"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,139,120,50,14
+    LTEXT           "Welcome to Clan Jade Falcon, MechWarrior.  You must now face the false-hearted Wolves.  ",IDC_STATIC,54,14,243,18
+    LTEXT           "If you are untried in combat, select ""Play with QuickTips."" If you are confident enough in your abilities to enter the war for the Inner Sphere without aid, select ""Play without QuickTips"" to embark on your sacred mission.",IDC_STATIC,19,37,282,27
+    CONTROL         "Play with QuickTips",1000,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,69,86,9
+    CONTROL         "Play without QuickTips",1001,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,83,87,9
+    CONTROL         "Do not show me this box again (QuickTips may be accessed from the Clan menu item)",1002,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,101,301,8
+    ICON            103,IDC_STATIC,21,10,18,20
+END
+
+102 DIALOG DISCARDABLE  55, 60, 320, 146
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "SIBKO IDENTITY REGISTRATION - CLAN WOLF"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,139,120,50,14
+    LTEXT           "Welcome to Clan Wolf, MechWarrior.  ",IDC_STATIC,49,21,192,10
+    LTEXT           "Since you are a new recruit, you are encouraged to select ""Play with QuickTips.""  If, however, you have tasted combat and are ready to serve your Clan without further instruction, select, ""Play without QuickTips.""  The shrieki \nng Jade Falcons await you.",IDC_STATIC,19,34,286,27
+    CONTROL         "Play with QuickTips",1000,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,69,86,9
+    CONTROL         "Play without QuickTips",1001,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,83,87,9
+    CONTROL         "Do not show me this box again (QuickTips may be accessed from the Clan menu item)",1002,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,101,301,8
+    ICON            103,IDC_STATIC,21,8,18,20
+END
+
+104 DIALOG DISCARDABLE  10, 10, 280, 205
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "CADET TRAINING"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,114,181,50,14
+    LTEXT           "These six missions allow you to familiarize yourself with the controls and sensors of your BattleMech.  Each provides instruction in the skills essential to achieving greatness as a MechWarrior.",IDC_STATIC,14,9,252,25
+    LTEXT           "NAV COMPUTER teaches you to locate Nav Points and to adjust the speed and direction of your 'Mech.",IDC_STATIC,25,45,228,17
+    LTEXT           "'MECH HANDLING requires you to use your newfound abilities to pilot your 'Mech through a series of obstacles.",IDC_STATIC,25,67,228,17
+    LTEXT           "WEAPONS USAGE offers stationary and mobile targets to hone your aim and maneuvering skills.",IDC_STATIC,26,89,228,17
+    LTEXT           "HUNTING is your first battle against a 'Mech.",IDC_STATIC,26,111,228,9
+    LTEXT           "INSPECTION instructs you in the use of your other instruments, including the external camera and image enhancer.",IDC_STATIC,26,125,228,18
+    LTEXT           "TRIAL OF POSITION pits you against an experienced MechWarrior.  This is your final test; if you vanquish your opponent, you are worthy of the warrior caste.",IDC_STATIC,25,147,228,26
+END
+
+111 DIALOG DISCARDABLE  70, 70, 280, 135
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "TRIALS OF GRIEVANCE"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,115,108,50,14
+    LTEXT           "The Trial of Grievance is a ritual battle to resolve conflicts between warriors.  Once called to a Trial of Grievance, the participants enter the Circle of Equals to immediately begin combat.",IDC_STATIC,13,14,251,25
+    LTEXT           "You may select your Clan affiliation and that of your opponent, the number of 'Mechs in the star you will lead, their configurations, and the planet where the combat will take place.  Each planet has different terrain.",IDC_STATIC,13,44,253,25
+    LTEXT           "Although the trial does not affect a MechWarrior's ranking, the victor is honored while the vanquished suffers the ignominy of defeat.",IDC_STATIC,13,75,250,25
+END
+
+112 DIALOG DISCARDABLE  60, 60, 286, 150
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "COMBAT READY ROOM"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,118,123,50,14
+    LTEXT           "Welcome to the Combat Ready Room.  You will return here before each mission.  There are four sites in the Ready Room which you may visit.",IDC_STATIC,19,9,252,17
+    LTEXT           "The MECH LAB allows you to select and customize your BattleMech.",IDC_STATIC,42,34,209,17
+    LTEXT           "STAR CONFIGURATION allows you to adjust the formation of the other units in your squadron for missions which involve team combat.",IDC_STATIC,42,55,209,26
+    LTEXT           "Selecting CLAN HALL returns you there.",IDC_STATIC,42,83,209,10
+    LTEXT           "MISSION BRIEFING provides the mission objectives and intelligence reports which you will need to succeed",IDC_STATIC,42,95,209,24
+END
+
+113 DIALOG DISCARDABLE  60, 60, 320, 126
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "'MECH LAB"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,134,99,50,14
+    LTEXT           "As a MechWarrior you wil ride in the cockpit of a BattleMech, a machine which can weigh up to 100 tons and stand 40 meters high. ",IDC_STATIC,19,11,279,16
+    LTEXT           "A neuro-helmet connects you with your 'Mech and allows you to operate as a single cyborg with the mind of a human and the metal body of a monster.  You may now instruct your tech to select and customize your war machine.",IDC_STATIC,20,32,279,27
+    LTEXT           "Certain 'Mechs are better suited to different terrain and conditions.  If you do not specify one, your tech will choose one for you based on her years of experience.  Your tech is very skilled; rely on her wisdom unless you are co \nnfident in your own.",IDC_STATIC,20,64,279,27
+END
+
+114 DIALOG DISCARDABLE  80, 80, 261, 93
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "CUSTOMIZE 'MECH"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,105,68,50,14
+    LTEXT           "In choosing the different components of your 'Mech, you must obey the weight and space limitations of the 'Mech you have selected.  You must evenly distribute the components throughout your 'Mech. ",IDC_STATIC,21,9,217,26
+    LTEXT           "After choosing each attribute, select the portion of the 'Mech which will carry it, keeping in mind the critical slot limitations for each segment of your 'Mech.",IDC_STATIC,22,37,217,26
+END
+
+115 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "ENGINE"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,36,50,14
+    LTEXT           "Different engines offer different speed, weight, and critical space.",IDC_STATIC,18,11,148,18
+END
+
+116 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "HEAT SINKS"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,35,50,14
+    LTEXT           "Heat sinks decrease heat level during combat, but take up valuable space.",IDC_STATIC,9,10,166,19
+END
+
+117 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "JUMP JETS"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,37,50,14
+    LTEXT           "Mounted in the Leg and Torso areas, they allow jump capabilities for those 'Mechs able to leap.",IDC_STATIC,12,11,160,18
+END
+
+118 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "INTERNALS"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,35,50,14
+    LTEXT           "Different internal structures exchange higher weight for lower volume.",IDC_STATIC,18,11,151,18
+END
+
+119 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "ARMOR"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,34,50,14
+    LTEXT           "Lighter armor requires more critical space.",IDC_STATIC,25,14,134,11
+END
+
+120 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "WEAPONS"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,36,50,14
+    LTEXT           "Select weapons based on what ammunition they require and the range of combat they are designed for.",IDC_STATIC,17,7,151,26
+END
+
+121 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "AMMUNITION"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,39,50,14
+    LTEXT           "All weapons aside from energy weapons require ammunition which takes up critical slots in your 'Mech's internal structure.",IDC_STATIC,13,7,155,26
+END
+
+122 DIALOG DISCARDABLE  0, 0, 185, 60
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "EQUIPMENT"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,39,50,14
+    LTEXT           "Different equipment provides your 'Mech with different capabilities, but takes up critical space and adds weight.",IDC_STATIC,15,8,155,26
+END
+
+123 DIALOG DISCARDABLE  0, 0, 185, 69
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "EQUIPMENT"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,67,47,50,14
+    LTEXT           "All components of a 'Mech must be assigned to critical slots within its internal structure.  The number of critical slots limits the configuration of weapons and equipment with which each 'Mech can be outfitted.",IDC_STATIC,8,8,170,35
+END
+
+124 DIALOG DISCARDABLE  80, 80, 252, 93
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "STAR CONFIGURATION"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,101,72,50,14
+    LTEXT           "Some missions require you to command the other units in your star.  Here you are able to select the 'Mechs you wish your starmates to pilot and the formation of your attack.",IDC_STATIC,17,11,217,26
+    LTEXT           "You can also add or delete star members.  The holoprojector shows the recommended 'Mech deployment and informs you of the maximum number of 'Mechs allowed in the mission.",IDC_STATIC,18,39,217,26
+END
+
+126 DIALOG DISCARDABLE  0, 0, 251, 134
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "SOUND"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,13,108,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,186,108,50,14
+    CONTROL         "Generic1",1003,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,94,44,138,15
+    CONTROL         "Generic1",1004,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,94,63,138,15
+    CONTROL         "Generic1",1005,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,94,83,138,15
+    LTEXT           "Minimum",IDC_STATIC,88,34,28,9
+    LTEXT           "Maximum",IDC_STATIC,210,34,32,9
+    LTEXT           "Music",IDC_STATIC,31,44,62,8
+    LTEXT           "Sound Effects",IDC_STATIC,30,63,62,8
+    LTEXT           "Voice",IDC_STATIC,32,83,62,8
+    LTEXT           "Set relative sound levels here. Click on ""OK"" to accept, or click ""Cancel"" to return to game.",IDC_STATIC,24,9,202,20
+END
+
+128 DIALOG DISCARDABLE  125, 90, 172, 85
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "MECHWARRIOR 2"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "&Yes",IDYES,26,59,50,14
+    PUSHBUTTON      "&No",IDNO,94,59,50,14
+    LTEXT           "first line of groovy text",1005,62,15,103,9
+    LTEXT           "Embrace Cowardice?",1006,62,26,103,7
+    LTEXT           "third line of groovy text",1007,62,37,103,10
+    ICON            103,IDC_STATIC,27,20,18,20
+END
+
+129 DIALOG DISCARDABLE  125, 90, 171, 84
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "MECHWARRIOR 2"
+FONT 9, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,60,57,50,14
+    LTEXT           "first line of groovy text",1005,59,14,112,9
+    LTEXT           "Cockpit Control Configured.",1006,59,25,112,9
+    LTEXT           "third line of groovy text",1007,59,37,112,9
+    ICON            103,IDC_STATIC,25,19,18,20
+END
+
+138 DIALOG DISCARDABLE  95, 90, 230, 109
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION
+CAPTION "Movie Playback"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,58,83,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,121,83,50,14
+    CTEXT           "Select your movie playback resolution.",IDC_STATIC,52,6,125,10
+    CONTROL         " 320 x 200 (pixels) Original movie resolution; Best performance",1000,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,24,207,10
+    CONTROL         " 640 x 480 (pixels) Images stretched to fill 640 x 480 screen",1001,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,39,210,10
+    CTEXT           "CAUTION: Movie playback at 640 x 480 may not perform properly if you do not have a full-blown MechWarrior 2 installation.",IDC_STATIC,7,58,215,19
+END

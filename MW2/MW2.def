@@ -1,0 +1,4 @@
+LIBRARY mw2
+EXPORTS
+    SimMain @1
+    SimWindowProc @2

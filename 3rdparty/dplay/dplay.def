@@ -1,0 +1,6 @@
+; Import library for DPLAY.DLL (DirectPlay 1): MW2.DLL imports both functions by ordinal.
+; LIB takes the __stdcall symbols from dplay.c.
+LIBRARY DPLAY
+EXPORTS
+    DirectPlayCreate @1 NONAME
+    DirectPlayEnumerate @2 NONAME
