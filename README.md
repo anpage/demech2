@@ -46,7 +46,7 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
 2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder.
 
-The build configuration was identified during the project's Phase 0 investigation:
+The build configuration identified during the project's initial investigation:
 
 | Target         | Language           | `cl` flags                              | CRT                   | Link                          |
 | -------------- | ------------------ | --------------------------------------- | --------------------- | ----------------------------- |
