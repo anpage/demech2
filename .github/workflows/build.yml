@@ -159,7 +159,7 @@ jobs:
             reccmp-reccmp -S "${target}PROGRESS.SVG" --target "$target" --total "$total" --json "${target}PROGRESS.json" --html "${target}PROGRESS.HTML"
           done
 
-      - name: Compare Accuracy With Current Master
+      - name: Compare Accuracy With Current Main
         shell: bash
         env:
           RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
@@ -169,7 +169,7 @@ jobs:
 
             curl -fLSs -o "${target}PROGRESS-old.json" "$RELEASE_URL/${target}PROGRESS.json" || echo "" >"${target}PROGRESS-old.json"
 
-            (reccmp-reccmp --target "$target" --diff "${target}PROGRESS-old.json" || echo "Current master not found")>"${target}-diff.txt"
+            (reccmp-reccmp --target "$target" --diff "${target}PROGRESS-old.json" || echo "Current main not found")>"${target}-diff.txt"
 
             cat "${target}-diff.txt"
           done
@@ -248,7 +248,7 @@ jobs:
     name: Upload artifacts
     needs: [verify, targets]
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'anpage/demech2' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'anpage/demech2' }}
     permissions:
       contents: write
     env:
