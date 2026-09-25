@@ -35,7 +35,7 @@ Build configuration:
 
 The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiThreadedDebug` for MW2, `MultiThreaded` for MW2SHELL). No CRT patching is needed: the originals match 4.1's `LIBCMTD.LIB` (MW2) and `LIBCMT.LIB` (MW2SHELL) as-is.
 
-The shell's icon 103 (shown by four dialogs) is not committed: CMake builds `tools/extract_icon` and extracts it from the original `MW2SHELL.DLL` (`DEMECH2_MW2SHELL_ORIGINAL`, default: the repository root; SHA-256 checked). Without the original, `mw2shell.rc` builds without the icon.
+The shell's icon 103 (shown by four dialogs) is not committed: CMake builds `tools/extract_icon` and extracts it from the original `MW2SHELL.DLL` (`DEMECH2_MW2SHELL_ORIGINAL`, default: the repository root; SHA-256 checked). Without the original, `mw2shell.rc` builds without the icon. The launcher's window icons 103 and 108 (NetMech) work the same way, from the original `MECH2.EXE` (`DEMECH2_MECH2_ORIGINAL`) into `mech2.rc`.
 
 Source order in each target must follow the **original link order** (object order determines function addresses).
 

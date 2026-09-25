@@ -1,0 +1,15 @@
+// MECH2.EXE resources: only what the launcher needs. The game window's class takes
+// icon 103, or icon 108 for NetMech (LoadIcon). The original's icon groups 104 and 107
+// are left out.
+//
+// The icons are not in the repository: the build extracts them from the original
+// MECH2.EXE and defines DEMECH2_ORIGINAL_ICONS. Without them the window has no icon.
+
+#include <winres.h>
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+#ifdef DEMECH2_ORIGINAL_ICONS
+103 ICON DISCARDABLE "mech2_103.ico"
+108 ICON DISCARDABLE "mech2_108.ico"
+#endif

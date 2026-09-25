@@ -109,6 +109,7 @@ jobs:
           name: Win32
           path: |
             build/*.dll
+            build/MECH2.exe
             build/*.pdb
             build/*.map
 
@@ -352,7 +353,7 @@ jobs:
 
       - name: Run clang-format
         run: |
-          find MW2SHELL MW2 tools \( -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' \) -print0 | xargs -0 -r \
+          find MECH2 MW2SHELL MW2 tools \( -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' \) -print0 | xargs -0 -r \
           pipx run "clang-format>=22,<23" \
             --style=file \
             -i
@@ -382,10 +383,10 @@ jobs:
 
       - name: Run ncc
         run: |
-          # ncc validates the whole source tree. MECH2 joins --path when its
-          # sources land, even though it is not a reccmp target.
-          includes=(util)
-          paths=()
+          # ncc validates the whole source tree: MECH2 too, even though it is
+          # not a reccmp target.
+          includes=(util MECH2/include MECH2)
+          paths=(MECH2)
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
             if [ -d "$target/include" ]; then
