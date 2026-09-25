@@ -251,6 +251,8 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'anpage/demech2' }}
     permissions:
       contents: write
+      pages: write
+      id-token: write
     env:
       TARGET_ENTRIES: ${{ needs.targets.outputs.entries }}
     steps:
@@ -267,10 +269,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # The README embeds the progress SVGs from this release. The assets are
-          # uploaded with gh (not probonopd/uploadtool, which would serve them as
-          # application/octet-stream) so that .svg is stored as image/svg+xml
-          # and renders in <img> tags.
+          # The release distributes the built DLLs and progress reports; the
+          # verify job's compare-with-master step also downloads
+          # ${target}PROGRESS.json from here. The README does not embed the
+          # SVGs from release assets (GitHub serves them with a content type
+          # browsers refuse for SVG in <img> tags); the Pages deployment
+          # below publishes them for that.
           gh release view continuous --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
             || gh release create continuous --repo "$GITHUB_REPOSITORY" --title "Continuous build" --prerelease --target "$GITHUB_SHA"
 
@@ -288,6 +292,22 @@ jobs:
           done
 
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+
+      - name: Prepare Pages
+        run: |
+          mkdir -p progress
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+            cp "${target}PROGRESS.SVG" progress/
+            cp "${target}PROGRESS.HTML" progress/
+          done
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: progress/
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v5
 
   decomplint:
     name: ${{ matrix.target }} annotations
