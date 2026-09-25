@@ -1432,4 +1432,9 @@
 // LIBRARY: MW2SHELL 0x10057830 SYMBOL
 // __filelength
 
+// _file.obj
+
+// GLOBAL: MW2SHELL 0x10074a60
+// _iob
+
 #endif

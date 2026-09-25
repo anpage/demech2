@@ -7,6 +7,7 @@
 #include "types.h"
 
 class CopperLedger0x04;
+class EmberGlyph0x3e;
 class TMPackDataBase;
 
 #pragma pack(1)
@@ -55,10 +56,10 @@ public:
 		MechS32 p_width,
 		MechS32 p_height
 	);
-	void FUN_100076e8(undefined4 p_item, MechS32 p_unk0x16);
-	void FUN_1000772d(undefined4 p_item);
+	void FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16);
+	void FUN_1000772d(EmberGlyph0x3e* p_item);
 	void FUN_10007763(MechS32 p_unk0x16);
-	void FUN_100077b4(MechS8 p_unk0x00);
+	void FUN_100077b4(MechU8 p_delete);
 	void ActivateFramebuffer();
 
 private:

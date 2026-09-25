@@ -59,7 +59,7 @@ MechS32 g_menuDialogOpen = 0;
 MechS32 g_unk0x1006a9f0 = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9f4
-HANDLE g_hPrimaryHeap = NULL;
+extern "C" HANDLE g_hPrimaryHeap = NULL;
 
 // GLOBAL: MW2SHELL 0x1006e19c
 char* g_unk0x1006e19c = "DATABASE.MW2";

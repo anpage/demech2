@@ -6,7 +6,7 @@
 
 DECOMP_SIZE_ASSERT(AudioSubsystem, 0x15)
 
-extern HANDLE g_hPrimaryHeap;
+extern "C" HANDLE g_hPrimaryHeap;
 extern MechS32 g_fAudio;
 extern MechS32 g_fDigitalAudio;
 
