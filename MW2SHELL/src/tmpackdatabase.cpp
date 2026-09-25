@@ -21,6 +21,13 @@ void TMPackDataBase::GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size)
 	STUB(0x10048051);
 }
 
+// STUB: MW2SHELL 0x1004813f
+MechS32 TMPackDataBase::GetDBItemLZ(MechS32 p_id, void** p_data, MechS32* p_size)
+{
+	STUB(0x1004813f);
+	return 0;
+}
+
 // FUNCTION: MW2SHELL 0x100485a1
 TMPackDataBase::TMPackDBEntry::TMPackDBEntry(undefined4 p_unk0x00, undefined4 p_unk0x04)
 {
