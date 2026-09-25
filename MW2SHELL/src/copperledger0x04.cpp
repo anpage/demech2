@@ -1,12 +1,11 @@
 #include "copperledger0x04.h"
 
 #include "emberglyph0x3e.h"
+#include "shellmain.h"
 
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(CopperLedger0x04, 0x04)
-
-extern "C" HANDLE g_hPrimaryHeap;
 
 // FUNCTION: MW2SHELL 0x1003e100
 CopperLedger0x04::CopperLedger0x04()

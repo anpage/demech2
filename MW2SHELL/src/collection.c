@@ -1,14 +1,13 @@
 #include "collection.h"
 
 #include "decomp.h"
+#include "shellmain.h"
 #include "types.h"
 
 #include <search.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-
-extern HANDLE g_hPrimaryHeap;
 
 // The original frees through a macro: its trailing empty `else` emits a `jmp` to the next statement.
 #define HEAP_FREE(p_mem)                                                                                               \

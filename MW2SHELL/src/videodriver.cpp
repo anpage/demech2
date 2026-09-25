@@ -4,6 +4,7 @@
 #include "copperledger0x04.h"
 #include "drawmode.h"
 #include "drawmodeextension.h"
+#include "shellmain.h"
 #include "tmpackdatabase.h"
 
 #include <stdlib.h>
@@ -15,7 +16,6 @@ DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
 DECOMP_SIZE_ASSERT(PixelView, 0x14)
 
 extern MechS32 g_fWindowActive;
-extern "C" HANDLE g_hPrimaryHeap;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern TMPackDataBase* g_pDatabaseMw2;
 extern MechS32 g_unk0x100965d8;
