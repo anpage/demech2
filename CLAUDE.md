@@ -57,7 +57,7 @@ reccmp-decomplint --module MW2SHELL --warnfail <path-to-MW2SHELL>
 reccmp-decomplint --module MW2 --warnfail <path-to-MW2>
 ```
 
-`reccmp-user.yml` (gitignored) points to the original binaries for local comparison. The `--total` for progress SVGs is the count of **non-library** functions (the raw Ghidra counts, 1263 for MW2SHELL and 2162 for MW2, include the CRT and import thunks): **770** for MW2SHELL and **1534** for MW2, counted from the Ghidra originals as the functions below the CRT region. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
+`reccmp-user.yml` (gitignored) points to the original binaries for local comparison. The `--total` for progress SVGs is the **total** function count from the Ghidra originals, CRT and import thunks included: **1263** for MW2SHELL and **2162** for MW2. The denominator must include the LIBRARY functions because reccmp counts them as matched (we link the original CRT), and `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
 
 Linux notes: reccmp runs `wine cvdump.exe` and `winepath`; `winepath` must be on PATH, tool output must go to a file rather than a pipe, and a persistent wineserver avoids per-call stalls. When CMake itself runs under Wine, the generated `reccmp-build.yml` holds Wine paths (`Z:/…`) that Linux reccmp misreads — run reccmp through the same Wine or rewrite them.
 

@@ -14,11 +14,15 @@ jobs:
         id: list
         run: |
           # One line per reccmp target: "TARGET:--total", where --total is the
-          # number of non-library functions in the original binary (game code
-          # only; CRT and import thunks excluded). Every per-target step below
-          # is driven from this list, so adding NETMECHW later is a one-line
-          # change here, next to reccmp-project.yml and CMakeLists.txt.
-          entries="MW2SHELL:770 MW2:1534"
+          # total function count from the Ghidra original (game code, CRT and
+          # import thunks alike). The denominator must include the LIBRARY
+          # functions because reccmp counts them as matched (we link the
+          # original CRT), and --total is only a floor: reccmp uses whichever
+          # is larger, the annotated function count or --total. Every
+          # per-target step below is driven from this list, so adding NETMECHW
+          # later is a one-line change here, next to reccmp-project.yml and
+          # CMakeLists.txt.
+          entries="MW2SHELL:1263 MW2:2162"
 
           {
             echo "entries=$entries"
