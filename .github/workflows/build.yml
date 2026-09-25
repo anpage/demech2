@@ -170,10 +170,11 @@ jobs:
         run: |
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
+            total="${entry##*:}"
 
             curl -fLSs -o "${target}PROGRESS-old.json" "$RELEASE_URL/${target}PROGRESS.json" || echo "" >"${target}PROGRESS-old.json"
 
-            (reccmp-reccmp --target "$target" --diff "${target}PROGRESS-old.json" || echo "Current main not found")>"${target}-diff.txt"
+            (reccmp-reccmp --target "$target" --total "$total" --diff "${target}PROGRESS-old.json" || echo "Current main not found")>"${target}-diff.txt"
 
             cat "${target}-diff.txt"
           done
