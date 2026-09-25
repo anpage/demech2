@@ -238,11 +238,11 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		if (g_pVideoDriver) {
 			g_pVideoDriver->UpdatePalette();
 			if (g_fDrawFmv) {
-				g_pVideoDriver->ShrinkRect(0, 0, 320, 200);
+				g_pVideoDriver->ExpandRectBySize(0, 0, 320, 200);
 				g_pVideoDriver->DrawFmv();
 			}
 			else {
-				g_pVideoDriver->ShrinkRect(0, 0, 640, 480);
+				g_pVideoDriver->ExpandRectBySize(0, 0, 640, 480);
 				g_pVideoDriver->DrawShell();
 			}
 			return 1;
@@ -254,7 +254,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		BeginPaint(p_hWnd, &paint);
 		if (g_pVideoDriver) {
 			if (g_fDrawFmv) {
-				g_pVideoDriver->ShrinkRect(0, 0, 320, 200);
+				g_pVideoDriver->ExpandRectBySize(0, 0, 320, 200);
 				g_pVideoDriver->DrawFmv();
 			}
 			else {
@@ -323,7 +323,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			if (ShowDialog("Embrace cowardice?#Yes|No", 1) == 0) {
 				ClearRegisteredMenuFunction();
 				g_pVideoDriver->ActivateFramebuffer();
-				memset(g_pVideoDriver->m_backBuffer, 0, 640 * 480);
+				memset(g_pVideoDriver->m_backBuffer.m_pixels, 0, 640 * 480);
 				if (g_pShellCallback) {
 					g_pShellCallback(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, 0x402);
 				}

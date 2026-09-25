@@ -21,6 +21,7 @@ public:
 	~TMPackDataBase();
 
 	void GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size);
+	MechS32 GetDBItemLZ(MechS32 p_id, void** p_data, MechS32* p_size);
 
 private:
 	undefined m_unk0x00[0x8c]; // 0x00
