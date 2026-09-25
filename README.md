@@ -41,7 +41,7 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo
 - Replace `<path-to-source>` with the source repository. This can be `..` if your build folder is inside the source repository.
 - `RelWithDebInfo` is recommended because it will produce debug symbols useful for further decompilation work.
 - `NMake Makefiles` is most recommended because it will be immediately compatible with Visual C++ 4.1.
-- The shell's dialogs show an icon that is not included in this repository. If the original 1.1 `MW2SHELL.DLL` is in the repository root, the build takes the icon from it; point `-DDEMECH2_MW2SHELL_ORIGINAL=<path>` at a copy elsewhere. Without it, the shell still builds and runs, and those dialogs just show no icon.
+- The shell's dialogs show an icon that is not included in this repository. If the original 1.1 `MW2SHELL.DLL` is in the repository root, the build takes the icon from it; point `-DDEMECH2_MW2SHELL_ORIGINAL=<path>` at a copy elsewhere. Without it, the shell still builds and runs, and those dialogs just show no icon. The same goes for the launcher's window icons and the original `MECH2.EXE` (`-DDEMECH2_MECH2_ORIGINAL=<path>`).
 
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
 2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder.

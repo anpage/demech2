@@ -229,6 +229,16 @@ demech2_add_dll(mw2shell
   LIBRARIES winmm.lib ddraw wail32 smackw32 kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
 
+# Build-time helper that extracts an icon group from an original binary, shared by the
+# shell and the launcher.
+function(demech2_add_extract_icon)
+  if (NOT TARGET extract_icon)
+    add_executable(extract_icon tools/extract_icon/extract_icon.c)
+    set_target_properties(extract_icon PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreaded)
+    target_link_libraries(extract_icon PRIVATE kernel32.lib)
+  endif()
+endfunction()
+
 # The shell's dialogs show icon 103, which stays out of the repository: it is extracted
 # from the original MW2SHELL.DLL at build time. Without the original, the dialogs build
 # with an empty icon slot.
@@ -247,9 +257,7 @@ if (EXISTS "${DEMECH2_MW2SHELL_ORIGINAL}")
 endif()
 if (mw2shell_icon)
   message(STATUS "Shell icon: from ${DEMECH2_MW2SHELL_ORIGINAL}")
-  add_executable(extract_icon tools/extract_icon/extract_icon.c)
-  set_target_properties(extract_icon PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreaded)
-  target_link_libraries(extract_icon PRIVATE kernel32.lib)
+  demech2_add_extract_icon()
   set(icon_dir "${CMAKE_CURRENT_BINARY_DIR}/MW2SHELL")
   add_custom_command(OUTPUT "${icon_dir}/mw2shell.ico"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${icon_dir}"
@@ -332,7 +340,63 @@ demech2_add_dll(mw2
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
 
-# MECH2.EXE (source only, not a reccmp target) is added with its source.
+# MECH2.EXE, the launcher: source only, not a reccmp target. The original was built with
+# VC++ 2.x (and its single-threaded LIBC), so it can't byte-match; it is built with the
+# same toolchain as the DLLs so the recompiled DLLs can be launched.
+add_executable(mech2 WIN32
+  MECH2/src/winmain.c
+  MECH2/src/cdcheck.c
+  MECH2/src/debug.c
+  MECH2/mech2.rc
+)
+set_target_properties(mech2 PROPERTIES
+  OUTPUT_NAME MECH2
+  MSVC_RUNTIME_LIBRARY MultiThreaded
+)
+target_include_directories(mech2 PRIVATE
+  "${PROJECT_SOURCE_DIR}/util"
+  "${PROJECT_SOURCE_DIR}/MECH2/include"
+)
+target_link_libraries(mech2 PRIVATE kernel32.lib user32.lib gdi32.lib)
+
+# The launcher's window icons (103, and 108 for NetMech) stay out of the repository, like
+# the shell's: they are extracted from the original MECH2.EXE at build time. Without the
+# original, the window has no icon.
+set(DEMECH2_MECH2_ORIGINAL "${PROJECT_SOURCE_DIR}/MECH2.EXE" CACHE FILEPATH
+  "Original MECH2.EXE (1.1 patch) to take the launcher's icons from")
+set(mech2_original_sha256 064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c)
+set(mech2_icons FALSE)
+if (EXISTS "${DEMECH2_MECH2_ORIGINAL}")
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${DEMECH2_MECH2_ORIGINAL}")
+  file(SHA256 "${DEMECH2_MECH2_ORIGINAL}" sha256)
+  if (sha256 STREQUAL mech2_original_sha256)
+    set(mech2_icons TRUE)
+  else()
+    message(WARNING "${DEMECH2_MECH2_ORIGINAL} is not the 1.1 MECH2.EXE; building the launcher without its icons")
+  endif()
+endif()
+if (mech2_icons)
+  message(STATUS "Launcher icons: from ${DEMECH2_MECH2_ORIGINAL}")
+  demech2_add_extract_icon()
+  set(icon_dir "${CMAKE_CURRENT_BINARY_DIR}/MECH2")
+  set(icon_files "")
+  foreach(icon 103 108)
+    add_custom_command(OUTPUT "${icon_dir}/mech2_${icon}.ico"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${icon_dir}"
+      COMMAND extract_icon "${DEMECH2_MECH2_ORIGINAL}" ${icon} "${icon_dir}/mech2_${icon}.ico"
+      DEPENDS extract_icon "${DEMECH2_MECH2_ORIGINAL}"
+      VERBATIM
+    )
+    list(APPEND icon_files "${icon_dir}/mech2_${icon}.ico")
+  endforeach()
+  set_source_files_properties(MECH2/mech2.rc PROPERTIES
+    COMPILE_DEFINITIONS DEMECH2_ORIGINAL_ICONS
+    INCLUDE_DIRECTORIES "${icon_dir}"
+    OBJECT_DEPENDS "${icon_files}"
+  )
+else()
+  message(STATUS "Launcher icons: none (no original MECH2.EXE at ${DEMECH2_MECH2_ORIGINAL})")
+endif()
 
 # --- Modern compiler compatibility ---
 if (MSVC)
