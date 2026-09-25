@@ -1,0 +1,46 @@
+name: Docker
+
+# Publishes the VC++ 4.1 + CMake-under-Wine build image (docker/) to the
+# GitHub Container Registry as ghcr.io/anpage/demech2, which the README's
+# Docker section documents. Rebuilds only when the image recipe changes;
+# workflow_dispatch allows refreshing it when the base image or the
+# upstream msvc410 toolchain moves on.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docker/**
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Build and publish image
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'anpage/demech2' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Log in to the GitHub Container Registry
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GH_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push image
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          # GHCR requires lowercase image names.
+          image="$(printf '%s' "$IMAGE" | tr '[:upper:]' '[:lower:]')"
+          sha="${GITHUB_SHA::7}"
+
+          # The image bakes in the msvc410 checkout and CMake download, so
+          # tag it with the commit that built it for traceability; :latest
+          # always points at the most recent build.
+          docker build docker --tag "$image:latest" --tag "$image:$sha"
+          docker push "$image:latest"
+          docker push "$image:$sha"
