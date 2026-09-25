@@ -59,7 +59,7 @@ reccmp-decomplint --module MW2 --warnfail <path-to-MW2>
 
 `reccmp-user.yml` (gitignored) points to the original binaries for local comparison. The `--total` for progress SVGs is the **total** function count from the Ghidra originals, CRT and import thunks included: **1263** for MW2SHELL and **2162** for MW2. The denominator must include the LIBRARY functions because reccmp counts them as matched (we link the original CRT), and `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
 
-Linux notes: reccmp runs `wine cvdump.exe` and `winepath`; `winepath` must be on PATH, tool output must go to a file rather than a pipe, and a persistent wineserver avoids per-call stalls. When CMake itself runs under Wine, the generated `reccmp-build.yml` holds Wine paths (`Z:/…`) that Linux reccmp misreads — run reccmp through the same Wine or rewrite them.
+Linux notes: reccmp runs `wine cvdump.exe` and `winepath`; `winepath` must be on PATH, tool output must go to a file rather than a pipe, and a persistent wineserver avoids per-call stalls. Run reccmp from the build directory: it finds `reccmp-build.yml` by searching the current directory and its parents. A build under Wine (e.g. the Docker image) writes `project: 'Z:/…'` into `reccmp-build.yml`, but the target paths are relative to the file, so Linux reccmp can read the build as long as the build directory sits inside the repository (it finds `reccmp-project.yml` by searching upward). A build directory outside the repository needs its `project:` path rewritten.
 
 ## Annotations
 
@@ -186,6 +186,7 @@ typedef char MechChar;        /* plain char for text */
 7. **Validate vtables** (MW2SHELL): `reccmp-reccmp --verbose 0xVTABLE_ADDR`. Every declared virtual needs a matching annotation with its real address from the original binary.
 8. **Check for regressions.** Re-verify previously matched functions that touch modified classes.
 9. **Lint.** `reccmp-decomplint` from `build/`, passing the source directory as a path argument.
+10. **Sync Ghidra** through the Ghidra MCP server, if available: push the matched names and types (see "Ghidra ↔ Source").
 
 **Language oracle.** At `/Od` the C++ front end ends a `void` function with a `jmp` to the epilogue; the C front end doesn't. Functions that return a value compile identically either way. Use this to decide `.c` vs `.cpp` when a unit is ambiguous.
 
@@ -318,7 +319,8 @@ The upstream LEGO Racers decomp documented extensive `cl` 12.00 `/O2` codegen lo
 
 - **Bootstrap is minimal.** Don't import Ghidra names wholesale. Start with `// LIBRARY:` annotations for identified CRT functions plus the export entry points (`ShellMain`, `ShellWindowProc`, `SimMain`, `SimWindowProc`) as the first units to decompile. No generated `// STUB:` skeletons — stubs are written by hand as callees of the function being worked on.
 - **Bring Ghidra names over, but don't treat them as gospel.** When a function is decompiled, its Ghidra names come with it, translated into NCC form. They are provisional: rename freely when the code contradicts a name; prefer names corroborated in the binary (e.g. a debug string naming the callee — `DebugLog("LoadWorld()\n")` just before the call); treat an uncorroborated Ghidra name as a working label, not a finding. Types and struct layouts still need the usual corroboration.
-- **Source is authoritative for anything annotated.** Push source names into Ghidra with `reccmp-ghidra-import`, wired up in `cmake/reccmp.cmake` (the `RECCMP_<ID>_GHIDRA_LOCAL_PROJECT_PATH` / `_FILE` cache variables). Make a backup of the Ghidra project before the first import (it overwrites existing names), and push only what matched code backs.
+- **Source is authoritative for anything annotated.** Push only what matched code backs. Agents: if the Ghidra MCP server is available, keep Ghidra in sync as you work: after a match, rename the functions, globals, parameters and locals, and apply the corroborated types, prototypes and struct layouts through the MCP tools. Don't run `reccmp-ghidra-import` (or its `reccmp-import-ghidra` build targets).
+- **Bulk import (humans only).** `reccmp-ghidra-import` is wired up in `cmake/reccmp.cmake` (the `RECCMP_<ID>_GHIDRA_LOCAL_PROJECT_PATH` / `_FILE` cache variables). It overwrites existing names, so back up the Ghidra project before the first import.
 
 ## Prioritize Constructors, Destructors, and SDDs (MW2SHELL)
 
