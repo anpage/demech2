@@ -113,6 +113,7 @@ jobs:
     needs: [build, fetch-deps, targets]
     runs-on: windows-latest
     permissions:
+      contents: read
       actions: read
       issues: write
       pull-requests: write
