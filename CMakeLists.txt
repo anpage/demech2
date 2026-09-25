@@ -221,6 +221,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/unk10046e80.cpp
     MW2SHELL/src/unk10047370.cpp
     MW2SHELL/src/tmpackdatabase.cpp
+    MW2SHELL/src/unk100485f0.cpp
     MW2SHELL/MW2SHELL.def
     MW2SHELL/mw2shell.rc
   COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:CXX>:/GX>" "$<$<COMPILE_LANGUAGE:CXX>:/Ob1>"
@@ -276,6 +277,7 @@ demech2_add_dll(mw2
   OUTPUT_NAME MW2
   RUNTIME MultiThreadedDebug
   SOURCES
+    MW2/src/object.c
     MW2/src/palette.c
     MW2/src/fixedmul.c
     MW2/src/muldiv.c
@@ -286,9 +288,11 @@ demech2_add_dll(mw2
     MW2/src/missionaudio.c
     MW2/src/pausebanner.c
     MW2/src/world.c
+    MW2/src/transform.c
     MW2/src/network.c
     MW2/src/eyepoint.c
     MW2/src/render.c
+    MW2/src/fixedsqrt.c
     MW2/src/loadres.c
     MW2/src/objective.c
     MW2/src/cmdline.c
