@@ -7,6 +7,8 @@ targets:
       sha256: 1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879
     data-sources:
       - reccmp/mw2shell-ascii.csv
+    report:
+      icon: assets/dll.png
   MW2:
     filename: MW2.DLL
     source-root:
@@ -15,4 +17,6 @@ targets:
       sha256: 6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5
     data-sources:
       - reccmp/mw2-ascii.csv
+    report:
+      icon: assets/dll.png
   # NETMECHW: added once a version is chosen
