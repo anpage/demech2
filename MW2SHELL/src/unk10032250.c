@@ -1,6 +1,7 @@
 /* Hand-written assembly (originally a MASM object): every routine in this file is a whole
    assembly routine, transcribed as a __declspec(naked) function whose body is one __asm
-   block. The object starts at 0x10032250, flush against the compiled C code that ends at
+   block (modern compilers, COMPAT_MODE, get STUB() bodies instead: x86_64 has no naked
+   functions). The object starts at 0x10032250, flush against the compiled C code that ends at
    0x1003224f; nothing from 0x10032250 to 0x10037bd2 has a compiler frame. The evidence:
 
    - The `add esp, -N` locals allocation is MASM PROC style. The VC++ 4.1 front ends emit
@@ -26,6 +27,7 @@
    (rel32) jumps (0x10034fe9, 0x10035120, 0x1003512c) stay plain label jumps, which the
    inline assembler encodes identically. `loop` has no rel32 form, so FUN_10037096's loop
    keeps a plain label jump. */
+#include "compat.h"
 #include "decomp.h"
 #include "pixelview.h"
 #include "types.h"
@@ -50,6 +52,13 @@ undefined g_unk0x10068d45[0x400] = {0};
 
 // Calls the function pointer at the start of its argument, copies the string it returns
 // into g_unk0x10068800 and returns that buffer.
+#ifdef COMPAT_MODE
+MechChar* FUN_10032250(undefined4* p_unk0x00)
+{
+	STUB(0x10032250);
+	return NULL;
+}
+#else
 // FUNCTION: MW2SHELL 0x10032250
 __declspec(naked) MechChar* FUN_10032250(undefined4* p_unk0x00)
 {
@@ -83,7 +92,14 @@ jmp_10032264:
 		ret
 	}
 }
+#endif
 
+#ifdef COMPAT_MODE
+void FUN_10032279(undefined4* p_unk0x00)
+{
+	STUB(0x10032279);
+}
+#else
 // FUNCTION: MW2SHELL 0x10032279
 __declspec(naked) void FUN_10032279(undefined4* p_unk0x00)
 {
@@ -109,9 +125,17 @@ __declspec(naked) void FUN_10032279(undefined4* p_unk0x00)
 		ret
 	}
 }
+#endif
 
 // Writes one pixel at (p_x, p_y), relative to the view, and returns the pixel it replaced.
 // Returns -1 for an empty buffer, -2 for an empty view and -3 when the point is clipped.
+#ifdef COMPAT_MODE
+MechS32 FUN_10032298(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
+{
+	STUB(0x10032298);
+	return 0;
+}
+#else
 // FUNCTION: MW2SHELL 0x10032298
 __declspec(naked) MechS32 FUN_10032298(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
 {
@@ -242,6 +266,7 @@ jmp_10032368:
 		ret
 	}
 }
+#endif
 
 // STUB: MW2SHELL 0x10032449
 void FUN_10032449(
@@ -263,6 +288,12 @@ void FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08,
 	STUB(0x10032f84);
 }
 
+#ifdef COMPAT_MODE
+void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04)
+{
+	STUB(0x10034e15);
+}
+#else
 // FUNCTION: MW2SHELL 0x10034e15
 __declspec(naked) void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04)
 {
@@ -414,7 +445,22 @@ jmp_10034f10:
 		ret
 	}
 }
+#endif
 
+#ifdef COMPAT_MODE
+void FUN_10034f18(
+	PixelView* p_unk0x00,
+	MechS32 p_unk0x04,
+	MechS32 p_unk0x08,
+	PixelView* p_unk0x0c,
+	MechS32 p_unk0x10,
+	MechS32 p_unk0x14,
+	MechS32 p_unk0x18
+)
+{
+	STUB(0x10034f18);
+}
+#else
 // FUNCTION: MW2SHELL 0x10034f18
 __declspec(naked) void FUN_10034f18(
 	PixelView* p_unk0x00,
@@ -834,6 +880,7 @@ jmp_100352a9:
 		ret
 	}
 }
+#endif
 
 // STUB: MW2SHELL 0x10036c9e
 void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
@@ -841,6 +888,12 @@ void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32
 	STUB(0x10036c9e);
 }
 
+#ifdef COMPAT_MODE
+void FUN_10037014(PixelView* p_view, undefined* p_data)
+{
+	STUB(0x10037014);
+}
+#else
 // FUNCTION: MW2SHELL 0x10037014
 __declspec(naked) void FUN_10037014(PixelView* p_view, undefined* p_data)
 {
@@ -909,7 +962,14 @@ jmp_1003706f:
 		ret
 	}
 }
+#endif
 
+#ifdef COMPAT_MODE
+void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette)
+{
+	STUB(0x10037096);
+}
+#else
 // FUNCTION: MW2SHELL 0x10037096
 __declspec(naked) void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette)
 {
@@ -941,7 +1001,15 @@ jmp_100370b4:
 		ret
 	}
 }
+#endif
 
+#ifdef COMPAT_MODE
+MechS32 FUN_100370c1(undefined* p_data)
+{
+	STUB(0x100370c1);
+	return 0;
+}
+#else
 // FUNCTION: MW2SHELL 0x100370c1
 __declspec(naked) MechS32 FUN_100370c1(undefined* p_data)
 {
@@ -968,3 +1036,4 @@ __declspec(naked) MechS32 FUN_100370c1(undefined* p_data)
 		ret
 	}
 }
+#endif
