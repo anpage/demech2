@@ -883,7 +883,8 @@ EmberGlyph0x3e* FUN_10008e4f(SlateTab0x2c* p_tab)
 	MechS32 value;
 
 	value = *p_tab->m_unk0x24;
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, value >= 10000 ? "XL" : "Std", p_tab->m_unk0x14);
+	return g_unk0x1007120c
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value >= 10000 ? "XL" : "Std"), p_tab->m_unk0x14);
 }
 
 // FUNCTION: MW2SHELL 0x10008eaa
