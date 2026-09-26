@@ -80,9 +80,6 @@ DECOMP_SIZE_ASSERT(Unk0x10138830, 0x3c0a)
 // The globals SimMain and SimWindowProc use are defined here until the objects that own
 // them are decompiled.
 
-// GLOBAL: MW2 0x10138820
-MechS32 g_objectiveCount; // defined first for the operand order of the DoFirstObjtv loop test
-
 // GLOBAL: MW2 0x100a175c
 MechS32 g_isNetworkGame = 0;
 
@@ -244,6 +241,9 @@ undefined g_mainPixelBuffer[4]; // size unknown
 
 // GLOBAL: MW2 0x10181b40
 MechU32 g_paletteResourceIds[20];
+
+// GLOBAL: MW2 0x10138820
+MechS32 g_objectiveCount; // defined last for the operand order of the DoFirstObjtv loop test
 
 void ApplyPendingPalette(void);
 void UpdatePaletteFade(void);
