@@ -148,6 +148,10 @@ class VariableNameRule(object):
             sys.exit(1)
 
     def get_scope_prefix(self, node, scope=None):
+        # A linkage specification (extern "C") does not introduce a scope: its
+        # declarations are at file scope.
+        if scope is CursorKind.LINKAGE_SPEC:
+            scope = None
         if node.storage_class == StorageClass.STATIC:
             return self.scope_prefix_rule.static_prefix
         elif (scope is None) and (node.storage_class == StorageClass.EXTERN or

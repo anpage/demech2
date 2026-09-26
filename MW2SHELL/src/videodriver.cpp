@@ -4,6 +4,7 @@
 #include "copperledger0x04.h"
 #include "drawmode.h"
 #include "drawmodeextension.h"
+#include "shellmain.h"
 #include "tmpackdatabase.h"
 
 #include <stdlib.h>
@@ -15,7 +16,6 @@ DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
 DECOMP_SIZE_ASSERT(PixelView, 0x14)
 
 extern MechS32 g_fWindowActive;
-extern HANDLE g_hPrimaryHeap;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern TMPackDataBase* g_pDatabaseMw2;
 extern MechS32 g_unk0x100965d8;
@@ -530,7 +530,7 @@ void VideoDriver::FUN_10007430(
 }
 
 // FUNCTION: MW2SHELL 0x100076e8
-void VideoDriver::FUN_100076e8(undefined4 p_item, MechS32 p_unk0x16)
+void VideoDriver::FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16)
 {
 	if (p_unk0x16) {
 		m_unk0x16->FUN_1003e171(p_item);
@@ -541,7 +541,7 @@ void VideoDriver::FUN_100076e8(undefined4 p_item, MechS32 p_unk0x16)
 }
 
 // FUNCTION: MW2SHELL 0x1000772d
-void VideoDriver::FUN_1000772d(undefined4 p_item)
+void VideoDriver::FUN_1000772d(EmberGlyph0x3e* p_item)
 {
 	m_unk0x16->FUN_1003e19b(p_item);
 	m_unk0x1a->FUN_1003e19b(p_item);
@@ -563,10 +563,10 @@ void VideoDriver::FUN_10007763(MechS32 p_unk0x16)
 }
 
 // FUNCTION: MW2SHELL 0x100077b4
-void VideoDriver::FUN_100077b4(MechS8 p_unk0x00)
+void VideoDriver::FUN_100077b4(MechU8 p_delete)
 {
-	m_unk0x16->FUN_1003e1e6(p_unk0x00);
-	m_unk0x1a->FUN_1003e1e6(p_unk0x00);
+	m_unk0x16->FUN_1003e1e6(p_delete);
+	m_unk0x1a->FUN_1003e1e6(p_delete);
 }
 
 // FUNCTION: MW2SHELL 0x100077ea

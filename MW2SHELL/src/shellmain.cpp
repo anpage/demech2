@@ -1,3 +1,5 @@
+#include "shellmain.h"
+
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "cedarknot0x10.h"
