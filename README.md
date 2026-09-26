@@ -10,6 +10,8 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 <a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
 
+Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
+
 This project is in its early stages. `MW2SHELL.DLL` and `MW2.DLL` are being decompiled with the goal of eventually reaching full accuracy against the original binaries. Contributions are welcome.
 
 ## Building
@@ -48,10 +50,10 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
 The build configuration for each binary:
 
-| Target         | Language           | `cl` flags                                      | CRT                   | Link                          |
-| -------------- | ------------------ | ----------------------------------------------- | --------------------- | ----------------------------- |
-| `MW2.DLL`      | C                  | `/Od /Oi`                                       | `/MTd` (static debug) | `/DLL /DEBUG /INCREMENTAL:no` |
-| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`)      | `/MT` (static)        | `/DLL`                        |
+| Target         | Language           | `cl` flags                                 | CRT                   | Link                          |
+| -------------- | ------------------ | ------------------------------------------ | --------------------- | ----------------------------- |
+| `MW2.DLL`      | C                  | `/Od /Oi`                                  | `/MTd` (static debug) | `/DLL /DEBUG /INCREMENTAL:no` |
+| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)        | `/DLL`                        |
 
 ### Docker
 
