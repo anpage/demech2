@@ -157,6 +157,14 @@ void FUN_10016c3e()
 	g_unk0x100641a8[0].m_unk0x3c++;
 }
 
+// FUNCTION: MW2SHELL 0x10016d27
+void FUN_10016d27(MechS32 p_index)
+{
+	if (p_index >= 0 && p_index < 0x20 && (g_unk0x100641a8[p_index].m_unk0x1c & 0x20)) {
+		g_unk0x100641a8[p_index].m_unk0x1c = g_unk0x100641a8[p_index].m_unk0x1c & ~0x20 | 0x100;
+	}
+}
+
 // FUNCTION: MW2SHELL 0x10016d90
 void FUN_10016d90(MechS32 p_index)
 {
@@ -201,6 +209,20 @@ void FUN_10016f45()
 	}
 }
 
+// FUNCTION: MW2SHELL 0x10016f82
+void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top)
+{
+	if (p_index >= 0 && p_index < 0x20 && (g_unk0x100641a8[p_index].m_unk0x1c & 0x80000000)) {
+		if (g_unk0x100641a8[p_index].m_unk0x1c & 0x80) {
+			p_left -= g_unk0x100641a8[p_index].m_width / 2;
+			p_top -= g_unk0x100641a8[p_index].m_height;
+		}
+
+		g_unk0x100641a8[p_index].m_left = p_left;
+		g_unk0x100641a8[p_index].m_top = p_top;
+	}
+}
+
 // STUB: MW2SHELL 0x10017460
 MechS32 FUN_10017460(
 	MechS32 p_index,
@@ -213,4 +235,17 @@ MechS32 FUN_10017460(
 {
 	STUB(0x10017460);
 	return -1;
+}
+
+// FUNCTION: MW2SHELL 0x10017698
+void FUN_10017698(MechS32 p_index, MechS32 p_frame)
+{
+	if (p_index >= 0 && p_index < 0x20) {
+		if (p_frame >= g_unk0x100641a8[p_index].m_unk0x40) {
+			p_frame = 0;
+		}
+
+		g_unk0x100641a8[p_index].m_unk0x3c = p_frame;
+		g_unk0x100641a8[p_index].m_unk0x38 = -1;
+	}
 }
