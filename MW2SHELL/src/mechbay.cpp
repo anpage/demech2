@@ -6,6 +6,7 @@
 #include "types.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <windows.h>
 
 // The mech bay: the variant being edited, its engine, weapons and armor, and the fields that
@@ -32,7 +33,7 @@ struct TinLattice0x28 {
 	MechS32 m_unk0x14;    // 0x14
 	MechS32 m_unk0x18;    // 0x18
 	undefined4 m_unk0x1c; // 0x1c
-	undefined4 m_unk0x20; // 0x20
+	MechS32 m_unk0x20;    // 0x20 — rounds per ton of ammo, 0 for weapons without ammo
 	MechChar* m_name;     // 0x24
 };
 
@@ -48,11 +49,12 @@ struct QuartzHelm0xf50 {
 	};
 
 	// SIZE 0x10
+	// One location's armor. The tab callbacks index the array through its base at 0x710.
 	struct Armor {
-		MechS32 m_unk0x00;    // 0x00
-		MechS32 m_unk0x04;    // 0x04 — negative when the location has no rear armor
-		undefined4 m_unk0x08; // 0x08
-		undefined4 m_unk0x0c; // 0x0c
+		undefined4 m_unk0x00; // 0x00
+		MechS32 m_unk0x04;    // 0x04
+		MechS32 m_unk0x08;    // 0x08 — front armor
+		MechS32 m_unk0x0c;    // 0x0c — rear armor, negative when the location has none
 	};
 
 	undefined4 m_unk0x00;                // 0x00
@@ -94,15 +96,14 @@ struct QuartzHelm0xf50 {
 	MechS32 m_unk0x280;                  // 0x280
 	MechS32 m_unk0x284[25];              // 0x284 — ids, -1 past the last
 	MechS32 m_unk0x2e8[10];              // 0x2e8 — ids, -1 past the last
-	undefined4 m_unk0x310;               // 0x310
-	MechS32 m_unk0x314;                  // 0x314
+	MechS32 m_unk0x310;                  // 0x310 — highlighted item id, -1 for none
+	MechS32 m_unk0x314;                  // 0x314 — selected location
 	MechS32 m_unk0x318[8][12];           // 0x318 — item ids per location and slot, 0 when free
 	undefined4 m_unk0x498;               // 0x498
 	MechS32 m_unk0x49c;                  // 0x49c — used entries of m_unk0x4a0
 	Slot m_unk0x4a0[78];                 // 0x4a0
-	undefined m_unk0x710[0x718 - 0x710]; // 0x710
-	Armor m_unk0x718[8];                 // 0x718
-	undefined m_unk0x798[0xf50 - 0x798]; // 0x798
+	Armor m_unk0x710[8];                 // 0x710
+	undefined m_unk0x790[0xf50 - 0x790]; // 0x790
 };
 
 DECOMP_SIZE_ASSERT(SlateTab0x2c, 0x2c)
@@ -117,6 +118,10 @@ extern BrassLantern0x414* g_unk0x1007120c;
 void FUN_10016d27(MechS32 p_index);
 void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top);
 void FUN_10017698(MechS32 p_index, MechS32 p_frame);
+
+// GLOBAL: MW2SHELL 0x1005c4f0
+MechChar* g_unk0x1005c4f0[8] =
+	{"Head", "Right Torso", "Center Torso", "Left Torso", "Right Arm", "Left Arm", "Right Leg", "Left Leg"};
 
 // GLOBAL: MW2SHELL 0x1005c640
 QuartzHelm0xf50 g_unk0x1005c640 = {0};
@@ -180,6 +185,9 @@ TinLattice0x28 g_unk0x1005d950[] = {
 	{0, 0, -1, -1, -1, -1, 0, 1, 0, "Nuke"},
 };
 
+// GLOBAL: MW2SHELL 0x1005de28
+SlateTab0x2c* g_unk0x1005de28 = NULL;
+
 // GLOBAL: MW2SHELL 0x1005de30
 MechS32 g_unk0x1005de30 = 0;
 
@@ -194,6 +202,9 @@ MechChar g_szTempBuffer[0x100];
 
 // GLOBAL: MW2SHELL 0x1007c960
 undefined g_unk0x1007c960[0x100];
+
+// GLOBAL: MW2SHELL 0x1007ca60
+undefined g_unk0x1007ca60[0x100];
 
 // FUNCTION: MW2SHELL 0x10007850
 MechS32 FUN_10007850(MechS32 p_value)
@@ -771,15 +782,15 @@ void FUN_10008a16()
 
 	g_unk0x1005c640.m_unk0x25c = 0;
 	for (i = 0; i < 8; i++) {
-		g_unk0x1005c640.m_unk0x25c += g_unk0x1005c640.m_unk0x718[i].m_unk0x00;
-		if (g_unk0x1005c640.m_unk0x718[i].m_unk0x04 >= 0) {
-			g_unk0x1005c640.m_unk0x25c += g_unk0x1005c640.m_unk0x718[i].m_unk0x04;
+		g_unk0x1005c640.m_unk0x25c += g_unk0x1005c640.m_unk0x710[i].m_unk0x08;
+		if (g_unk0x1005c640.m_unk0x710[i].m_unk0x0c >= 0) {
+			g_unk0x1005c640.m_unk0x25c += g_unk0x1005c640.m_unk0x710[i].m_unk0x0c;
 		}
 	}
 
 	while (g_unk0x1005c640.m_unk0x25c > g_unk0x1005c640.m_unk0x258) {
-		if (g_unk0x1005c640.m_unk0x718[g_unk0x1005de30].m_unk0x00 > 0) {
-			g_unk0x1005c640.m_unk0x718[g_unk0x1005de30].m_unk0x00--;
+		if (g_unk0x1005c640.m_unk0x710[g_unk0x1005de30].m_unk0x08 > 0) {
+			g_unk0x1005c640.m_unk0x710[g_unk0x1005de30].m_unk0x08--;
 			g_unk0x1005c640.m_unk0x25c--;
 		}
 
@@ -787,8 +798,8 @@ void FUN_10008a16()
 			break;
 		}
 
-		if (g_unk0x1005c640.m_unk0x718[g_unk0x1005de30].m_unk0x04 > 0) {
-			g_unk0x1005c640.m_unk0x718[g_unk0x1005de30].m_unk0x04--;
+		if (g_unk0x1005c640.m_unk0x710[g_unk0x1005de30].m_unk0x0c > 0) {
+			g_unk0x1005c640.m_unk0x710[g_unk0x1005de30].m_unk0x0c--;
 			g_unk0x1005c640.m_unk0x25c--;
 		}
 
@@ -836,7 +847,7 @@ EmberGlyph0x3e* FUN_10008c30(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
@@ -847,7 +858,7 @@ EmberGlyph0x3e* FUN_10008cb0(SlateTab0x2c* p_tab)
 	MechS32 value;
 	undefined* colors;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	colors = p_tab->m_unk0x14;
 	if (value > g_unk0x1005c640.m_unk0x200) {
 		colors = g_unk0x1007c960;
@@ -862,7 +873,7 @@ EmberGlyph0x3e* FUN_10008d4c(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
@@ -872,7 +883,7 @@ EmberGlyph0x3e* FUN_10008dcc(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	sprintf(g_szTempBuffer, value >= 10000 ? "%dXL" : "%d", g_unk0x1005d590[value % 10000].m_rating);
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
@@ -882,7 +893,7 @@ EmberGlyph0x3e* FUN_10008e4f(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	return g_unk0x1007120c
 		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value >= 10000 ? "XL" : "Std"), p_tab->m_unk0x14);
 }
@@ -892,7 +903,7 @@ EmberGlyph0x3e* FUN_10008eaa(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	sprintf(g_szTempBuffer, "%s", g_unk0x1005d590[value % 10000].m_name);
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
@@ -902,7 +913,7 @@ EmberGlyph0x3e* FUN_10008f14(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	sprintf(g_szTempBuffer, "%1.1f kph", value * 10.8);
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
@@ -912,7 +923,7 @@ EmberGlyph0x3e* FUN_10008f7d(SlateTab0x2c* p_tab)
 {
 	MechS32 value;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	sprintf(g_szTempBuffer, "%d m", value * 30);
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
@@ -923,7 +934,7 @@ EmberGlyph0x3e* FUN_10008fdd(SlateTab0x2c* p_tab)
 	MechS32 value;
 	MechS32 count;
 
-	value = *p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_unk0x24;
 	count = (g_unk0x1005c640.m_unk0x22c + 50) / 100 + 10;
 	if (value == 1) {
 		sprintf(g_szTempBuffer, "%d", count);
@@ -933,6 +944,341 @@ EmberGlyph0x3e* FUN_10008fdd(SlateTab0x2c* p_tab)
 	}
 
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+extern BrassLantern0x414* g_unk0x10071214;
+
+void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
+
+// FUNCTION: MW2SHELL 0x10009076
+EmberGlyph0x3e* FUN_10009076(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	return g_unk0x1007120c
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value == 1 ? "Single" : "Double"), p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x100090ce
+EmberGlyph0x3e* FUN_100090ce(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	sprintf(g_szTempBuffer, "%d", value);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x10009126
+EmberGlyph0x3e* FUN_10009126(SlateTab0x2c* p_tab)
+{
+	MechChar* text;
+
+	if (p_tab->m_unk0x24 == NULL) {
+		return NULL;
+	}
+
+	text = *(MechChar**) p_tab->m_unk0x24;
+	if (text == NULL) {
+		return NULL;
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x1000918c
+EmberGlyph0x3e* FUN_1000918c(SlateTab0x2c* p_tab)
+{
+	MechChar* text;
+
+	text = (MechChar*) p_tab->m_unk0x24;
+	if (text == NULL) {
+		return NULL;
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x100091dc
+EmberGlyph0x3e* FUN_100091dc(SlateTab0x2c* p_tab)
+{
+	MechChar* text;
+
+	text = (MechChar*) p_tab->m_unk0x24;
+	if (text == NULL) {
+		return NULL;
+	}
+
+	return g_unk0x10071214->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x1000922c
+EmberGlyph0x3e* FUN_1000922c(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	return g_unk0x1007120c
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Endo-S" : "Std"), p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x10009284
+EmberGlyph0x3e* FUN_10009284(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	return g_unk0x1007120c
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Ferro-F" : "Std"), p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x100092dc
+EmberGlyph0x3e* FUN_100092dc(SlateTab0x2c* p_tab)
+{
+	QuartzHelm0xf50::Armor* armor;
+
+	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
+	if (p_tab->m_unk0x24) {
+		if (armor->m_unk0x0c >= 0) {
+			sprintf(g_szTempBuffer, "~%d", armor->m_unk0x0c);
+		}
+		else {
+			strcpy(g_szTempBuffer, "~--");
+		}
+	}
+	else {
+		sprintf(g_szTempBuffer, "~%d", armor->m_unk0x08);
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x100093a7
+EmberGlyph0x3e* FUN_100093a7(SlateTab0x2c* p_tab)
+{
+	QuartzHelm0xf50::Armor* armor;
+
+	armor = &g_unk0x1005c640.m_unk0x710[(MechS32) p_tab->m_unk0x24];
+	if (armor->m_unk0x0c >= 0) {
+		sprintf(g_szTempBuffer, "~%d/%d", armor->m_unk0x08, armor->m_unk0x0c);
+	}
+	else {
+		sprintf(g_szTempBuffer, "~%d", armor->m_unk0x08);
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x1000943f
+EmberGlyph0x3e* FUN_1000943f(SlateTab0x2c* p_tab)
+{
+	MechS32 location;
+
+	location = (MechS32) p_tab->m_unk0x24;
+	if (location == -1) {
+		return NULL;
+	}
+
+	sprintf(g_szTempBuffer, "%s (%d)", g_unk0x1005c4f0[location], g_unk0x1005c640.m_unk0x710[location].m_unk0x04);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x100094ba
+EmberGlyph0x3e* FUN_100094ba(SlateTab0x2c* p_tab)
+{
+	MechS32 location;
+
+	location = *(MechS32*) p_tab->m_unk0x24;
+	if (location == -1) {
+		return NULL;
+	}
+
+	sprintf(g_szTempBuffer, "%s (%d)", g_unk0x1005c4f0[location], g_unk0x1005c640.m_unk0x710[location].m_unk0x04);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x10009537
+EmberGlyph0x3e* FUN_10009537(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+	MechS32 count;
+	undefined* colors;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	colors = p_tab->m_unk0x14;
+	if (value == -1) {
+		strcpy(g_szTempBuffer, "-");
+	}
+	else {
+		if (g_unk0x1005d950[value / 100].m_unk0x20) {
+			count = FUN_10008254(value);
+			sprintf(
+				g_szTempBuffer,
+				"%s #%d (ammo %dT/%d)",
+				g_unk0x1005d950[value / 100].m_name,
+				value % 100,
+				count,
+				g_unk0x1005d950[value / 100].m_unk0x20 * count
+			);
+		}
+		else {
+			sprintf(g_szTempBuffer, "%s #%d", g_unk0x1005d950[value / 100].m_name, value % 100);
+		}
+
+		if (g_unk0x1005c640.m_unk0x310 == value) {
+			colors = g_unk0x1007ca60;
+		}
+	}
+
+	if (p_tab->m_left >= 0x1b4) {
+		return g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+	}
+	else {
+		return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+	}
+}
+
+// FUNCTION: MW2SHELL 0x100096bd
+EmberGlyph0x3e* FUN_100096bd(SlateTab0x2c* p_tab)
+{
+	MechS32 index;
+	undefined* colors;
+
+	index = (MechS32) p_tab->m_unk0x24;
+	colors = p_tab->m_unk0x14;
+	if (index == -1) {
+		return NULL;
+	}
+
+	if (g_unk0x1005c640.m_unk0x310 == index * 100) {
+		colors = g_unk0x1007ca60;
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005d950[index].m_name, colors);
+}
+
+// FUNCTION: MW2SHELL 0x1000973c
+EmberGlyph0x3e* FUN_1000973c(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	if (value == -1) {
+		return NULL;
+	}
+
+	return g_unk0x1007120c
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005d950[value / 100].m_name, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x10009d50
+EmberGlyph0x3e* FUN_10009d50(SlateTab0x2c* p_tab)
+{
+	MechS32 location;
+
+	location = *(MechS32*) p_tab->m_unk0x24;
+	if (location == -1) {
+		return NULL;
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005c4f0[location], p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x1000a161
+EmberGlyph0x3e* FUN_1000a161(SlateTab0x2c* p_tab)
+{
+	if (g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00 <= 0) {
+		return NULL;
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, "More...", p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x1000a1b0
+EmberGlyph0x3e* FUN_1000a1b0(SlateTab0x2c* p_tab)
+{
+	MechS32 value;
+
+	value = *(MechS32*) p_tab->m_unk0x24;
+	return g_unk0x1007120c
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Yes" : "No"), p_tab->m_unk0x14);
+}
+
+// Stack-slot permutation: id and text.
+// FUNCTION: MW2SHELL 0x1000a208
+EmberGlyph0x3e* FUN_1000a208(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+	MechChar* text;
+
+	id = (MechS32) p_tab->m_unk0x24;
+	switch (id) {
+	case 5000:
+		text = "MASC";
+		break;
+	case 5401:
+		text = "Right Lower Arm Actuator";
+		break;
+	case 5402:
+		text = "Left Lower Arm Actuator";
+		break;
+	case 5451:
+		text = "Right Hand Actuator";
+		break;
+	case 5452:
+		text = "Left Hand Actuator";
+		break;
+	default:
+		text = "";
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+}
+
+// FUNCTION: MW2SHELL 0x1000a2eb
+void FUN_1000a2eb(SlateTab0x2c* p_tab)
+{
+	SlateTab0x2c* tabs;
+
+	tabs = p_tab->m_unk0x28;
+	FUN_10016cc0(10, 0x20, 0x20);
+	FUN_10016cc0(11, 0x20, 0x20);
+	FUN_10016cc0(12, 0x20, 0x20);
+	FUN_10016cc0(13, 0x20, 0x20);
+	FUN_10016d27(14);
+	FUN_10007ac8(g_unk0x1005de28);
+	g_unk0x1005de28 = tabs;
+	FUN_100078cd(g_unk0x1005de28);
+}
+
+// FUNCTION: MW2SHELL 0x1000a36d
+void FUN_1000a36d(SlateTab0x2c* p_tab)
+{
+	g_unk0x1005c640.m_unk0x310 = -1;
+	FUN_1000a2eb(p_tab);
+	FUN_10016d27(11);
+	FUN_10016d27(13);
+	FUN_10016cc0(14, 0x20, 0x20);
+}
+
+// FUNCTION: MW2SHELL 0x1000a3b5
+void FUN_1000a3b5(SlateTab0x2c* p_tab)
+{
+	FUN_1000a2eb(p_tab);
+	FUN_10016d27(10);
+	FUN_10016d27(12);
+	FUN_10016cc0(14, 0x20, 0x20);
+}
+
+// FUNCTION: MW2SHELL 0x1000a3f3
+void FUN_1000a3f3(SlateTab0x2c* p_tab)
+{
+	FUN_1000a2eb(p_tab);
+	FUN_10016d27(10);
+	FUN_10016d27(11);
+	FUN_10016d27(12);
+	FUN_10016cc0(14, 0x20, 0x20);
 }
 
 // STUB: MW2SHELL 0x1000d0d4
