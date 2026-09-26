@@ -14,15 +14,16 @@ jobs:
         id: list
         run: |
           # One line per reccmp target: "TARGET:--total", where --total is the
-          # total function count from the Ghidra original (game code, CRT and
-          # import thunks alike). The denominator must include the LIBRARY
-          # functions because reccmp counts them as matched (we link the
-          # original CRT), and --total is only a floor: reccmp uses whichever
-          # is larger, the annotated function count or --total. Every
+          # game-code function count from the Ghidra original: everything
+          # below the import thunks (MW2SHELL, 0x100492a2) or the CRT (MW2,
+          # 0x10080490). Progress is game code only: reccmp runs with --nolib,
+          # which drops the LIBRARY entries from both sides of the ratio.
+          # --total is only a floor: reccmp uses whichever is larger, the
+          # annotated function count or --total. Every
           # per-target step below is driven from this list, so adding NETMECHW
           # later is a one-line change here, next to reccmp-project.yml and
           # CMakeLists.txt.
-          entries="MW2SHELL:1263 MW2:2162"
+          entries="MW2SHELL:770 MW2:1537"
 
           {
             echo "entries=$entries"
@@ -161,7 +162,7 @@ jobs:
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
             total="${entry##*:}"
-            reccmp-reccmp -S "${target}PROGRESS.SVG" --target "$target" --total "$total" --json "${target}PROGRESS.json" --html "${target}PROGRESS.HTML"
+            reccmp-reccmp -S "${target}PROGRESS.SVG" --target "$target" --nolib --total "$total" --json "${target}PROGRESS.json" --html "${target}PROGRESS.HTML"
           done
 
       - name: Compare Accuracy With Current Main
@@ -175,7 +176,7 @@ jobs:
 
             curl -fLSs -o "${target}PROGRESS-old.json" "$RELEASE_URL/${target}PROGRESS.json" || echo "" >"${target}PROGRESS-old.json"
 
-            (reccmp-reccmp --target "$target" --total "$total" --diff "${target}PROGRESS-old.json" || echo "Current main not found")>"${target}-diff.txt"
+            (reccmp-reccmp --target "$target" --nolib --total "$total" --diff "${target}PROGRESS-old.json" || echo "Current main not found")>"${target}-diff.txt"
 
             cat "${target}-diff.txt"
           done

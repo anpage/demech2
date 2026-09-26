@@ -52,6 +52,10 @@ pip install -r tools/requirements.txt
 reccmp-reccmp --target MW2SHELL --print-rec-addr
 reccmp-reccmp --target MW2 --verbose 0x10003580 --print-rec-addr
 
+# Game-code progress, as CI reports it
+reccmp-reccmp --target MW2SHELL --silent --nolib --total 770
+reccmp-reccmp --target MW2 --silent --nolib --total 1537
+
 # Compare global variable data values
 reccmp-datacmp --target MW2SHELL --verbose --print-rec-addr
 reccmp-datacmp --target MW2 --verbose --print-rec-addr
@@ -61,7 +65,7 @@ reccmp-decomplint --module MW2SHELL --warnfail <path-to-MW2SHELL>
 reccmp-decomplint --module MW2 --warnfail <path-to-MW2>
 ```
 
-`reccmp-user.yml` (gitignored) points to the original binaries for local comparison. The `--total` for progress SVGs is the **total** function count from the Ghidra originals, CRT and import thunks included: **1263** for MW2SHELL and **2162** for MW2. The denominator must include the LIBRARY functions because reccmp counts them as matched (we link the original CRT), and `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
+`reccmp-user.yml` (gitignored) points to the original binaries for local comparison. Progress counts **game code only**: `--nolib` drops the `LIBRARY` entries from both the matched count and the denominator, and `--total` is the Ghidra original's game-code function count, everything below the shell's import thunks (`0x100492a2`) or MW2's CRT (`0x10080490`): **770** for MW2SHELL and **1537** for MW2. Without these flags, reccmp divides by the annotated functions only, which overstates progress. `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The CRT is left out until the game code is done: its `LIBRARY` entries only match once the game code that calls them is linked. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
 
 Linux notes: reccmp runs `wine cvdump.exe` and `winepath`; `winepath` must be on PATH, tool output must go to a file rather than a pipe, and a persistent wineserver avoids per-call stalls. Run reccmp from the build directory: it finds `reccmp-build.yml` by searching the current directory and its parents. A build under Wine (e.g. the Docker image) writes `project: 'Z:/…'` into `reccmp-build.yml`, but the target paths are relative to the file, so Linux reccmp can read the build as long as the build directory sits inside the repository (it finds `reccmp-project.yml` by searching upward). A build directory outside the repository needs its `project:` path rewritten.
 
