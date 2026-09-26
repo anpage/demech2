@@ -15,11 +15,11 @@ DECOMP_SIZE_ASSERT(VideoDriver, 0x3ae)
 DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
 DECOMP_SIZE_ASSERT(PixelView, 0x14)
 
-extern MechS32 g_fWindowActive;
+extern "C" MechS32 g_fWindowActive;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern TMPackDataBase* g_pDatabaseMw2;
-extern MechS32 g_unk0x100965d8;
-extern MechS32 g_unk0x100965dc;
+extern "C" MechS32 g_windowHeight;
+extern "C" MechS32 g_windowWidth;
 
 // The draw mode table lives in the draw mode unit, a C translation unit.
 extern "C"
@@ -114,12 +114,12 @@ VideoDriver::VideoDriver()
 {
 	MechS32 i;
 
-	if (!InitDrawMode(5, 0, &m_screenBuffer, g_unk0x100965dc, g_unk0x100965d8, 1)) {
+	if (!InitDrawMode(5, 0, &m_screenBuffer, g_windowWidth, g_windowHeight, 1)) {
 		QuitWithVDriverError(1);
 	}
 
-	m_width = g_unk0x100965dc;
-	m_height = g_unk0x100965d8;
+	m_width = g_windowWidth;
+	m_height = g_windowHeight;
 	m_unk0x39a = m_width - 1;
 	m_unk0x39e = m_height - 1;
 	m_screenBuffer.m_maxX = m_backBuffer.m_maxX = m_width - 1;

@@ -12,7 +12,7 @@
 extern "C" HWND g_pWnd;
 extern HMENU g_windowMenu;
 extern MechU8 g_fDrawFmv;
-extern MechS32 g_fWindowActive;
+extern "C" MechS32 g_fWindowActive;
 extern MechS32 g_unk0x1006a9f0;
 extern VideoDriver* g_pVideoDriver;
 extern MechChar g_szDataDrivePath[];
