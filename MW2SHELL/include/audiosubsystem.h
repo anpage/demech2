@@ -14,15 +14,22 @@ public:
 	AudioSubsystem();
 	~AudioSubsystem();
 
+	HDIGDRIVER GetDigitalDriver();
+	void CloseDigitalDriver();
+	undefined IsAnySamplePlaying();
+	undefined IsAnySequencePlaying();
+	void ApplyMidiVolume();
 	MechS32 GetMidiVolume();
+	MechS32 GetEffectsVolume();
+	void StopMidiSequence();
 
 	friend class MidiSequence;
 
 private:
 	MechU8 m_milesStarted;               // 0x00
 	HMDIDRIVER m_midiDriver;             // 0x01
-	undefined4 m_unk0x05;                // 0x05
-	undefined4 m_unk0x09;                // 0x09
+	HDIGDRIVER m_digitalDriver;          // 0x05
+	LPHWAVEOUT m_waveOut;                // 0x09
 	MidiSequence* m_currentMidiSequence; // 0x0d
 	undefined4 m_unk0x11;                // 0x11
 };

@@ -1,21 +1,228 @@
 #include "mousestate.h"
 
+#include "brasslantern0x414.h"
+#include "videodriver.h"
+
+#include <stdio.h>
+#include <windows.h>
+
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
 
-// STUB: MW2SHELL 0x1003a790
-MouseState::MouseState(VideoDriver* p_videoDriver, BrassLantern0x414* p_unk0x08, void* p_unk0x0c)
+extern MechS32 g_fWindowActive;
+extern MechS32 g_unk0x10071240;
+extern MechS32 g_unk0x100965d8;
+extern MechS32 g_unk0x100965dc;
+extern "C" HWND g_pWnd;
+
+// GLOBAL: MW2SHELL 0x100904a8
+MechChar g_unk0x100904a8[0x20];
+
+// ReadMouseState's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
+inline MechS32 IsInsideWindow(POINT& p_point)
 {
-	STUB(0x1003a790);
+	if (p_point.x < 0 || p_point.x >= g_unk0x100965dc) {
+		return FALSE;
+	}
+	if (p_point.y < 0 || p_point.y >= g_unk0x100965d8) {
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
-// STUB: MW2SHELL 0x1003a8d8
+// FUNCTION: MW2SHELL 0x1003a790
+MouseState::MouseState(VideoDriver* p_videoDriver, BrassLantern0x414* p_unk0x08, void* p_unk0x00)
+{
+	m_videoDriver = p_videoDriver;
+	m_unk0x08 = p_unk0x08;
+	m_unk0x00 = p_unk0x00;
+
+	m_leftDown = m_leftPressed = 0;
+	m_rightDown = m_rightPressed = 0;
+	m_middleDown = m_middlePressed = 0;
+	m_doubleClicked = m_unk0x1d = m_unk0x1e = 0;
+	m_lastClickTime = m_unk0x23 = m_unk0x27 = 0;
+	m_unk0x0c = 0;
+	m_x = 0;
+	m_y = 0;
+	m_unk0x3f = 0;
+	m_unk0x3f = 1;
+
+	FUN_1003a91c(0);
+}
+
+// FUNCTION: MW2SHELL 0x1003a884
+void MouseState::MoveCursorTo(MechS32 p_x, MechS32 p_y)
+{
+	POINT point;
+
+	if (!m_unk0x3f) {
+		return;
+	}
+
+	point.x = p_x;
+	point.y = p_y;
+	ClientToScreen(g_pWnd, &point);
+	SetCursorPos(point.x, point.y);
+}
+
+// FUNCTION: MW2SHELL 0x1003a8d8
 MouseState::~MouseState()
 {
-	STUB(0x1003a8d8);
+	if (!m_unk0x3f) {
+		return;
+	}
 }
 
-// STUB: MW2SHELL 0x1003aac5
+// FUNCTION: MW2SHELL 0x1003a900
+undefined MouseState::GetDoubleClicked()
+{
+	return m_doubleClicked;
+}
+
+// FUNCTION: MW2SHELL 0x1003a91c
+void MouseState::FUN_1003a91c(undefined4)
+{
+}
+
+// FUNCTION: MW2SHELL 0x1003a934
+undefined4 MouseState::GetLeftPressed()
+{
+	return m_leftPressed;
+}
+
+// FUNCTION: MW2SHELL 0x1003a950
+undefined4 MouseState::GetRightPressed()
+{
+	return m_rightPressed;
+}
+
+// FUNCTION: MW2SHELL 0x1003a96c
+undefined4 MouseState::GetMiddlePressed()
+{
+	return m_middlePressed;
+}
+
+// FUNCTION: MW2SHELL 0x1003a988
+void MouseState::FUN_1003a988()
+{
+	if (m_rightDown == 1) {
+		sprintf(g_unk0x100904a8, "(%d,%d)", m_x, m_y);
+
+		if (m_unk0x0c) {
+			m_videoDriver->FUN_100071ad(0x230, 0x14, m_unk0x0c, m_unk0x08->m_unk0x40c);
+		}
+
+		m_unk0x0c = m_videoDriver->FUN_100074d2(0x230, 0x14, m_unk0x08->m_unk0x408, g_unk0x100904a8, NULL);
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1003aa2a
+void MouseState::FUN_1003aa2a(MechS32 p_button)
+{
+	switch (p_button) {
+	case 0:
+		m_leftDown = 1;
+		m_leftPressed = 1;
+		break;
+	case 1:
+		m_middleDown = 1;
+		m_middlePressed = 1;
+		break;
+	case 2:
+		m_rightDown = 1;
+		m_rightPressed = 1;
+		break;
+	default:
+		break;
+	}
+}
+
+// The only diff is a stack-slot permutation of point, leftDown, rightDown and middleDown.
+// FUNCTION: MW2SHELL 0x1003aac5
 void MouseState::ReadMouseState()
 {
-	STUB(0x1003aac5);
+	POINT point;
+	undefined4 middleDown;
+	undefined4 leftDown;
+	undefined4 rightDown;
+
+	if (!g_fWindowActive) {
+		return;
+	}
+
+	if (!g_unk0x10071240) {
+		FUN_1003a988();
+	}
+
+	leftDown = m_leftDown;
+	rightDown = m_rightDown;
+	middleDown = m_middleDown;
+
+	if (m_unk0x3f && GetCursorPos(&point)) {
+		ScreenToClient(g_pWnd, &point);
+
+		if (IsInsideWindow(point)) {
+			m_x = point.x;
+			m_y = point.y;
+
+			if (GetAsyncKeyState(VK_LBUTTON) & 0x8000) {
+				m_leftDown = 1;
+			}
+			else {
+				m_leftDown = 0;
+			}
+
+			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000) {
+				m_rightDown = 1;
+			}
+			else {
+				m_rightDown = 0;
+			}
+
+			if (GetAsyncKeyState(VK_MBUTTON) & 0x8000) {
+				m_middleDown = 1;
+			}
+			else {
+				m_middleDown = 0;
+			}
+		}
+	}
+
+	if (m_leftDown == 1 && leftDown == 0) {
+		m_leftPressed = 1;
+	}
+	else {
+		m_leftPressed = 0;
+	}
+
+	if (m_rightDown == 1 && rightDown == 0) {
+		m_rightPressed = 1;
+	}
+	else {
+		m_rightPressed = 0;
+	}
+
+	if (m_middleDown == 1 && middleDown == 0) {
+		m_middlePressed = 1;
+	}
+	else {
+		m_middlePressed = 0;
+	}
+
+	m_doubleClicked = 0;
+	if (m_leftDown == 1 && leftDown == 0) {
+		if (timeGetTime() - m_lastClickTime <= 200) {
+			m_doubleClicked = 1;
+		}
+		else {
+			m_lastClickTime = timeGetTime();
+		}
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1003ad20
+MechS32 GetJoystickDeviceCount()
+{
+	return joyGetNumDevs();
 }

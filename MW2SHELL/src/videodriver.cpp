@@ -105,6 +105,10 @@ void ClearPalette()
 	g_currentDrawModeExtension->m_setPalette(0, 0x100, g_unk0x10079698, 1);
 }
 
+// Matches except for the operand order of m_width * m_height in the back buffer allocation
+// (the original loads m_height first). It tracks the number of symbols declared ahead of this
+// unit: declaring AudioSubsystem's seventh new method flipped it (while fixing FUN_100071ad's
+// additions); neither the declaration order nor the source operand order flips it back.
 // FUNCTION: MW2SHELL 0x10005f21
 VideoDriver::VideoDriver()
 {
@@ -449,9 +453,6 @@ void VideoDriver::FUN_10007112(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 	}
 }
 
-// Matches except for the operand order of the two additions (the original loads p_width and
-// p_height first). It flipped when FUN_100074d2 and FUN_10007603 were declared; neither moving
-// those declarations nor unnaming their parameters flips it back.
 // FUNCTION: MW2SHELL 0x100071ad
 void VideoDriver::FUN_100071ad(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {

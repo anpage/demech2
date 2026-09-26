@@ -17,10 +17,11 @@ public:
 
 private:
 	undefined4 m_unk0x00;              // 0x00
-	undefined m_unk0x04[0x40c - 0x04]; // 0x04
+	undefined m_unk0x04[0x408 - 0x04]; // 0x04
 
 public:
-	// EmberGlyph0x3e's constructor reads these directly: an inline accessor would leave a jmp at /Ob1.
+	// EmberGlyph0x3e and MouseState read these directly: an inline accessor would leave a jmp at /Ob1.
+	undefined4 m_unk0x408;      // 0x408
 	MechS32 m_unk0x40c;         // 0x40c
 	VideoDriver* m_videoDriver; // 0x410
 };
