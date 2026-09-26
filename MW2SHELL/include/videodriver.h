@@ -56,6 +56,8 @@ public:
 		MechS32 p_width,
 		MechS32 p_height
 	);
+	MechS32 FUN_100074d2(MechS32 p_left, MechS32 p_top, undefined4 p_unk0x08, MechChar* p_text, undefined* p_unk0x10);
+	MechS32 FUN_10007603(MechS32 p_left, MechS32 p_top, undefined4 p_unk0x08, MechS32 p_char, undefined* p_unk0x10);
 	void FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16);
 	void FUN_1000772d(EmberGlyph0x3e* p_item);
 	void FUN_10007763(MechS32 p_unk0x16);

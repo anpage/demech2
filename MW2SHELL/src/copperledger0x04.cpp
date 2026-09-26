@@ -49,7 +49,7 @@ void CopperLedger0x04::FUN_1003e1e6(MechU8 p_delete)
 				delete item;
 			}
 			else {
-				item->FUN_10047b03();
+				item->Shutdown();
 			}
 		}
 	}

@@ -35,7 +35,7 @@ Build configuration:
 | Target   | Language                 | `cl` flags         | CRT                                        | Link                                                |
 | -------- | ------------------------ | ------------------ | ------------------------------------------ | --------------------------------------------------- |
 | MW2      | C                        | `/Od /Oi`          | `/MTd` (static debug, predefines `_DEBUG`) | `/DLL /DEBUG /INCREMENTAL:no`                       |
-| MW2SHELL | C++ (C files: `/Od /Oi`) | `/Od /Oi /GX /Ob1` | `/MT` (static)                             | `/DLL` (comparison build adds `/DEBUG` for the PDB) |
+| MW2SHELL | C++ (C files: `/Od /Oi /G5`) | `/Od /Oi /G5 /GX /Ob1` | `/MT` (static)                             | `/DLL` (comparison build adds `/DEBUG` for the PDB) |
 
 The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiThreadedDebug` for MW2, `MultiThreaded` for MW2SHELL). No CRT patching is needed: the originals match 4.1's `LIBCMTD.LIB` (MW2) and `LIBCMT.LIB` (MW2SHELL) as-is.
 
@@ -306,6 +306,7 @@ This section only grows as patterns are **proven by matches**:
 - **Stack-slot permutation:** 4.1's slot assignment reacts to tiny source changes, and a function can match except for a consistent permutation of `[ebp-N]` slots. reccmp scores every permuted access as a diff. Declaration order doesn't steer it (`SimMain`, `ShellMain`, `ShellWindowProc`, `CreateCollection`); probe compiles show the slots follow the locals' _names_, but no usable rule has come out of investigating it. **It is a closed question: don't reorder declarations, rename locals, or write probe compiles to fix a slot permutation.** Once the only remaining diff is permuted `[ebp-N]` slots, name the permuted locals in a comment above the annotation and move on.
 - **An `/Ob1`-expanded inline function keeps its `return` as a `jmp`.** A class-body getter (`GetBackBuffer()`) expands to the member load plus a `jmp` past it, so it doesn't compile like direct member access (`ShellWindowProc`'s `memset` of `VideoDriver::m_backBuffer`).
 - **Globals the original initializes live in raw `.data`; give them explicit initializers.** An address below the end of the section's raw data (e.g. MW2 `0x100bce00`) was defined with an initializer, even `= 0`. Datacmp reports an uninitialized (BSS) definition there as a diff. Past the raw end, leave the definition uninitialized. A nonzero byte partway through a "buffer" means the buffer is shorter (`g_paletteColors` is `0x300` bytes, not `0x400`).
+- **`/G5` picks the short shift encoding.** 4.1 compiles signed `x / 2` to `cdq; sub eax, edx; sar eax, 1` and encodes the shift as `c1 f8 01`, or as `d1 f8` under `/G5`. Every site in MW2SHELL (and in MW2's game code) uses `d1 f8`, so MW2SHELL builds with `/G5` (`EmberGlyph0x3e::EmberGlyph0x3e`; the flag changed no other shell function). MW2 still builds without it until a match needs it.
 - **Switch jump tables** are embedded in the function body inside `.text` (e.g. the 5-entry table at `0x10006824` in `FUN_10006760`); at `/Od` a sparse switch becomes a compare tree on a stack temporary.
 
 Float-literal and folding behavior are **not** documented here — they must be re-derived for VC++ 4.1 at `/Od` from matches before any rule is written down.
