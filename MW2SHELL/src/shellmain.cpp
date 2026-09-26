@@ -46,6 +46,9 @@ MechS32 g_nWindowMode = 0;
 // GLOBAL: MW2SHELL 0x1006a9c0
 char g_unk0x1006a9c0[0x10] = "MECHWARRIOR 2";
 
+// The C mouse unit (mouse.c) reads the window state and size.
+extern "C" MechS32 g_fWindowActive;
+
 // GLOBAL: MW2SHELL 0x1006a9d0
 MechS32 g_fWindowActive = 1;
 
@@ -150,11 +153,14 @@ MechS32 g_nSelectedCampaign;
 // GLOBAL: MW2SHELL 0x1007cc8c
 MechU8 g_fPilotChosen;
 
+extern "C" MechS32 g_windowHeight;
+extern "C" MechS32 g_windowWidth;
+
 // GLOBAL: MW2SHELL 0x100965d8
-MechS32 g_unk0x100965d8;
+MechS32 g_windowHeight;
 
 // GLOBAL: MW2SHELL 0x100965dc
-MechS32 g_unk0x100965dc;
+MechS32 g_windowWidth;
 
 // GLOBAL: MW2SHELL 0x100965e0
 HINSTANCE g_pModule;
@@ -579,8 +585,8 @@ extern "C" int __stdcall ShellMain(
 
 	g_pDatabaseMw2 = new TMPackDataBase(g_unk0x1006e19c);
 	g_pAudioSubsystem = new AudioSubsystem();
-	g_unk0x100965dc = 640;
-	g_unk0x100965d8 = 480;
+	g_windowWidth = 640;
+	g_windowHeight = 480;
 	g_pVideoDriver = new VideoDriver();
 
 	g_windowMenu = LoadMenu(g_pModule, MAKEINTRESOURCE(0x68));

@@ -177,7 +177,8 @@ function(demech2_add_dll TARGET)
   reccmp_add_target(${TARGET} ID ${ARGS_ID})
 endfunction()
 
-# MW2SHELL.DLL: C++ at /Od /Oi /GX /Ob1, C at /Od /Oi, both /G5, the release CRT (4.1's LIBCMT).
+# MW2SHELL.DLL: /Od /Oi /G5 /Ob1 (C++ adds /GX), the release CRT (4.1's LIBCMT). The C units
+# need /Ob1 too: mouse.c expands an __inline bounds test, with a jmp per return.
 # /G5 shows in the shift encoding: the original's signed `/ 2` is `sar eax, 1` in the short
 # form (d1 f8) at every site, which 4.1 only emits under /G5 (c1 f8 01 otherwise).
 # The original is a plain /DLL link. /DEBUG gives reccmp its PDB, at the cost of a debug
@@ -231,13 +232,14 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/options.cpp
     MW2SHELL/src/hollowreed0x110.cpp
     MW2SHELL/src/unk10046200.cpp
+    MW2SHELL/src/mouse.c
     MW2SHELL/src/unk10046e80.cpp
     MW2SHELL/src/unk10047370.cpp
     MW2SHELL/src/tmpackdatabase.cpp
     MW2SHELL/src/unk100485f0.cpp
     MW2SHELL/MW2SHELL.def
     MW2SHELL/mw2shell.rc
-  COMPILE_OPTIONS "/G5" "$<$<COMPILE_LANGUAGE:CXX>:/GX>" "$<$<COMPILE_LANGUAGE:CXX>:/Ob1>"
+  COMPILE_OPTIONS "/G5" "/Ob1" "$<$<COMPILE_LANGUAGE:CXX>:/GX>"
   LINK_OPTIONS ${mw2shell_link_options}
   LIBRARIES winmm.lib ddraw wail32 smackw32 kernel32.lib user32.lib gdi32.lib advapi32.lib
 )

@@ -8,10 +8,10 @@
 
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
 
-extern MechS32 g_fWindowActive;
+extern "C" MechS32 g_fWindowActive;
 extern MechS32 g_unk0x10071240;
-extern MechS32 g_unk0x100965d8;
-extern MechS32 g_unk0x100965dc;
+extern "C" MechS32 g_windowHeight;
+extern "C" MechS32 g_windowWidth;
 extern "C" HWND g_pWnd;
 
 // GLOBAL: MW2SHELL 0x100904a8
@@ -20,10 +20,10 @@ MechChar g_unk0x100904a8[0x20];
 // ReadMouseState's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
 inline MechS32 IsInsideWindow(POINT& p_point)
 {
-	if (p_point.x < 0 || p_point.x >= g_unk0x100965dc) {
+	if (p_point.x < 0 || p_point.x >= g_windowWidth) {
 		return FALSE;
 	}
-	if (p_point.y < 0 || p_point.y >= g_unk0x100965d8) {
+	if (p_point.y < 0 || p_point.y >= g_windowHeight) {
 		return FALSE;
 	}
 

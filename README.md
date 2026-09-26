@@ -51,7 +51,7 @@ The build configuration for each binary:
 | Target         | Language           | `cl` flags                                      | CRT                   | Link                          |
 | -------------- | ------------------ | ----------------------------------------------- | --------------------- | ----------------------------- |
 | `MW2.DLL`      | C                  | `/Od /Oi`                                       | `/MTd` (static debug) | `/DLL /DEBUG /INCREMENTAL:no` |
-| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /GX /Ob1` (C files: `/Od /Oi /G5`) | `/MT` (static)        | `/DLL`                        |
+| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`)      | `/MT` (static)        | `/DLL`                        |
 
 ### Docker
 

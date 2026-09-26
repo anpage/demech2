@@ -1,8 +1,11 @@
 #ifndef TMPACKDATABASE_H
 #define TMPACKDATABASE_H
 
+#include "collection.h"
 #include "decomp.h"
 #include "types.h"
+
+#include <stdio.h>
 
 // SIZE 0x8c
 class TMPackDataBase {
@@ -10,21 +13,30 @@ public:
 	// SIZE 0x08
 	class TMPackDBEntry {
 	public:
-		TMPackDBEntry(undefined4 p_unk0x00, undefined4 p_unk0x04);
+		TMPackDBEntry(undefined4 p_offset, undefined4 p_size);
+		~TMPackDBEntry();
 
-	private:
-		undefined4 m_unk0x00; // 0x00
-		undefined4 m_unk0x04; // 0x04
+		undefined4 m_offset; // 0x00
+		undefined4 m_size;   // 0x04
 	};
 
 	TMPackDataBase(char* p_name);
 	~TMPackDataBase();
 
-	void GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size);
+	void FUN_10047bc0();
+	MechS32 FUN_10047fd4();
+	TMPackDBEntry* GetEntry(MechS32 p_id);
+	MechS32 GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size);
 	MechS32 GetDBItemLZ(MechS32 p_id, void** p_data, MechS32* p_size);
+	MechS32 FUN_100483c8(MechS32 p_id, MechS32 p_offset, void* p_buffer, size_t p_size);
+	MechS32 FUN_1004843e(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer);
+	MechS32 FUN_10048501(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer);
 
 private:
-	undefined m_unk0x00[0x8c]; // 0x00
+	MechChar m_name[0x80]; // 0x00
+	FILE* m_file;          // 0x80
+	MechS32 m_numEntries;  // 0x84
+	Collection* m_entries; // 0x88
 };
 
 #endif // TMPACKDATABASE_H
