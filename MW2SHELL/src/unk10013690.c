@@ -1,6 +1,12 @@
 #include "decomp.h"
 #include "types.h"
 
+// STUB: MW2SHELL 0x1001385c
+void FUN_1001385c(void)
+{
+	STUB(0x1001385c);
+}
+
 // STUB: MW2SHELL 0x10013907
 void FUN_10013907(void)
 {

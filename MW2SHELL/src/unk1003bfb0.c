@@ -8,7 +8,7 @@ void FUN_10013907(void);
 void* FUN_10013fa9(undefined4 p_size);
 void FUN_1002fb90(void* (*p_alloc)(undefined4), void (*p_free)(void*));
 MechS32 FUN_1002fcdc(char* p_name, undefined p_unk0x04);
-void FUN_1002ffc9(MechS32 p_handle);
+MechS32 FUN_1002ffc9(MechS32 p_handle);
 MechS32 FUN_1003024f(MechS32 p_handle);
 char* FUN_10031a8f(char* p_name);
 void* FUN_1003c061(undefined4 p_size);

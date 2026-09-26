@@ -1,4 +1,5 @@
 #include "decomp.h"
+#include "oakentune0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
 
@@ -8,4 +9,10 @@
 void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam)
 {
 	STUB(0x1003c7e0);
+}
+
+// STUB: MW2SHELL 0x1003da54
+OakenTune0x10::~OakenTune0x10()
+{
+	STUB(0x1003da54);
 }

@@ -11,6 +11,12 @@ void FUN_10017710(void)
 	memmove((void*) 0xb0000, (void*) 0xb00a0, 0xf00);
 }
 
+// STUB: MW2SHELL 0x100178cc
+void FUN_100178cc(MechS32 p_mode)
+{
+	STUB(0x100178cc);
+}
+
 // STUB: MW2SHELL 0x10017982
 void DebugPrintInternal(MechChar* p_message)
 {

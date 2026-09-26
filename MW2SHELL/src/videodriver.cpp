@@ -20,43 +20,54 @@ extern AudioSubsystem* g_pAudioSubsystem;
 extern TMPackDataBase* g_pDatabaseMw2;
 extern MechS32 g_unk0x100965d8;
 extern MechS32 g_unk0x100965dc;
-extern DrawModeExtension* g_currentDrawModeExtension;
-extern DrawMode* g_currentDrawMode;
+
+// The draw mode table lives in the draw mode unit, a C translation unit.
+extern "C"
+{
+	extern DrawModeExtension* g_currentDrawModeExtension;
+	extern DrawMode* g_currentDrawMode;
+
+	MechS32 InitDrawMode(
+		MechS32 p_unk0x00,
+		MechS32 p_unk0x04,
+		PixelBuffer* p_buffer,
+		MechS32 p_width,
+		MechS32 p_height,
+		MechS32 p_unk0x14
+	);
+	void FUN_10010d49();
+}
 
 extern "C" void DebugPrint(const MechChar* p_format, ...);
-MechS32 InitDrawMode(
-	MechS32 p_unk0x00,
-	MechS32 p_unk0x04,
-	PixelBuffer* p_buffer,
-	MechS32 p_width,
-	MechS32 p_height,
-	MechS32 p_unk0x14
-);
-void FUN_10010d49();
 void FUN_10016f45();
-void FUN_10032449(
-	PixelView* p_view,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechS32 p_right,
-	MechS32 p_bottom,
-	MechS32 p_unk0x14,
-	MechS32 p_color
-);
-void FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
-void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
-void FUN_10034f18(
-	PixelView* p_unk0x00,
-	MechS32 p_unk0x04,
-	MechS32 p_unk0x08,
-	PixelView* p_unk0x0c,
-	MechS32 p_unk0x10,
-	MechS32 p_unk0x14,
-	MechS32 p_unk0x18
-);
-void FUN_10037014(PixelView* p_view, undefined* p_data);
-void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette);
-MechS32 FUN_100370c1(undefined* p_data);
+
+// The blit routines live in the blit unit, a C translation unit (hand-written assembly).
+extern "C"
+{
+	void FUN_10032449(
+		PixelView* p_view,
+		MechS32 p_left,
+		MechS32 p_top,
+		MechS32 p_right,
+		MechS32 p_bottom,
+		MechS32 p_unk0x14,
+		MechS32 p_color
+	);
+	void FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
+	void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
+	void FUN_10034f18(
+		PixelView* p_unk0x00,
+		MechS32 p_unk0x04,
+		MechS32 p_unk0x08,
+		PixelView* p_unk0x0c,
+		MechS32 p_unk0x10,
+		MechS32 p_unk0x14,
+		MechS32 p_unk0x18
+	);
+	void FUN_10037014(PixelView* p_view, undefined* p_data);
+	void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette);
+	MechS32 FUN_100370c1(undefined* p_data);
+}
 
 // GLOBAL: MW2SHELL 0x1005c2a0
 MechS32 g_unk0x1005c2a0 = 0;

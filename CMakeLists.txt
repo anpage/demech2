@@ -161,6 +161,7 @@ function(demech2_add_dll TARGET)
   target_include_directories(${TARGET} SYSTEM PRIVATE
     "${PROJECT_SOURCE_DIR}/3rdparty/dx2/INC"
     "${PROJECT_SOURCE_DIR}/3rdparty/miles"
+    "${PROJECT_SOURCE_DIR}/3rdparty/smacker"
   )
   target_compile_options(${TARGET} PRIVATE ${ARGS_COMPILE_OPTIONS})
   if (DEMECH2_DECOMP_ASSERT)
@@ -198,7 +199,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/videodriver.cpp
     MW2SHELL/src/mechbay.cpp
     MW2SHELL/src/shellmain.cpp
-    MW2SHELL/src/unk10010a30.cpp
+    MW2SHELL/src/unk10010a30.c
     MW2SHELL/src/unk10013690.c
     MW2SHELL/src/clanhall.cpp
     MW2SHELL/src/unk10014b60.cpp
@@ -210,7 +211,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/unk1002fb90.c
     MW2SHELL/src/cdcheck.cpp
     MW2SHELL/src/unk10031970.c
-    MW2SHELL/src/unk10031bf0.cpp
+    MW2SHELL/src/unk10032250.c
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/simhandoff.cpp
     MW2SHELL/src/unk10039de0.cpp

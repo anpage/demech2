@@ -11,7 +11,10 @@ public:
 	~CedarKnot0x10();
 
 private:
-	undefined m_unk0x00[0x10]; // 0x00
+	MechS32 m_unk0x00;    // 0x00
+	undefined4 m_unk0x04; // 0x04
+	undefined4 m_unk0x08; // 0x08
+	undefined4 m_unk0x0c; // 0x0c
 };
 
 #endif // CEDARKNOT0X10_H

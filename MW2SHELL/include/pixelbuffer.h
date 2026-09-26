@@ -13,6 +13,7 @@ struct PixelBuffer {
 	undefined4 m_unk0x0c; // 0x0c
 	undefined4 m_unk0x10; // 0x10
 };
+typedef struct PixelBuffer PixelBuffer;
 #pragma pack()
 
 #endif // PIXELBUFFER_H
