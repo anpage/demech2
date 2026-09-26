@@ -11,9 +11,16 @@
 #include "types.h"
 #include "videodriver.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
+
+// The debug print and debug output units are C translation units.
+extern "C" void DebugPrint(const MechChar* p_format, ...);
+extern "C" void FUN_100178cc(MechS32 p_mode);
+
+void FUN_1001661b();
 
 // GLOBAL: MW2SHELL 0x10062978
 void (*g_pShellCallback)(
@@ -43,7 +50,7 @@ char g_unk0x1006a9c0[0x10] = "MECHWARRIOR 2";
 MechS32 g_fWindowActive = 1;
 
 // GLOBAL: MW2SHELL 0x1006a9dc
-MechS32 g_fQuickTips = 1;
+MechU32 g_fQuickTips = 1;
 
 // GLOBAL: MW2SHELL 0x1006a9e0
 MechS32 g_unk0x1006a9e0 = 1;
@@ -147,6 +154,9 @@ MechS32 g_unk0x100965dc;
 // GLOBAL: MW2SHELL 0x100965e0
 HINSTANCE g_pModule;
 
+// The C debug print unit (debugprint.c) shows its message boxes over the shell window.
+extern "C" HWND g_pWnd;
+
 // GLOBAL: MW2SHELL 0x100965ec
 HWND g_pWnd;
 
@@ -160,14 +170,16 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign);
 void ParseCommandLineFlags(char* p_cmdLine);
 void FUN_1001023c(HMENU p_menu);
-void LoadSettingsFromRegistry(MechS32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08);
-void FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
+void FUN_10010320(HMENU p_menu);
+MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08);
+MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
+void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
 BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void FUN_1001093e();
 void ClearRegisteredMenuFunction();
 void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8 p_pilotChosen, WPARAM p_wParam);
 void FUN_10015008(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char** p_scenario);
-void FUN_10015f58(const char* p_name, MechS32 p_unk0x04, MechS32 p_unk0x08);
+MechS32 FUN_10015f58(const char* p_name, MechS32 p_msg, MechS32 p_wParam);
 MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_unk0x04, MechS32 p_unk0x08);
 MechS32 FUN_10016be7();
 void FUN_10016c1d();
@@ -682,45 +694,244 @@ void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 	STUB(0x1000fe86);
 }
 
-// STUB: MW2SHELL 0x10010137
+// FUNCTION: MW2SHELL 0x10010137
 void ParseCommandLineFlags(char* p_cmdLine)
 {
-	STUB(0x10010137);
+	char* token;
+
+	token = strtok(p_cmdLine, " ");
+	while (token != NULL) {
+		if (token[0] == '-') {
+			switch (toupper(token[1])) {
+			case 'X':
+				if (token[2] == '=') {
+					switch (toupper(token[3])) {
+					case 'F':
+						FUN_100178cc(4);
+						break;
+					case 'S':
+						FUN_100178cc(2);
+						break;
+					case 'M':
+						FUN_100178cc(1);
+						break;
+					}
+				}
+				break;
+			}
+		}
+		token = strtok(NULL, " ");
+	}
 }
 
-// STUB: MW2SHELL 0x1001023c
+// FUNCTION: MW2SHELL 0x1001023c
 void FUN_1001023c(HMENU p_menu)
 {
-	STUB(0x1001023c);
+	MechS32 result;
+
+	result = EnableMenuItem(p_menu, 1, 0x400);
+	result = EnableMenuItem(p_menu, 0x9c41, 0);
+	result = EnableMenuItem(p_menu, 0x9c42, 0);
+	result = EnableMenuItem(p_menu, 0x9c72, 0);
+	CheckMenuItem(p_menu, 0x9c72, g_fQuickTips ? MF_CHECKED : MF_UNCHECKED);
+	result = EnableMenuItem(p_menu, 0x9c94, 0);
+	result = EnableMenuItem(p_menu, 0x9c4b, 0);
+	result = EnableMenuItem(p_menu, 0x9c96, 0);
+	result = EnableMenuItem(p_menu, 0x9c92, 0);
+	result = DrawMenuBar(g_pWnd);
 }
 
-// STUB: MW2SHELL 0x100103e2
-void LoadSettingsFromRegistry(MechS32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08)
+// FUNCTION: MW2SHELL 0x10010320
+void FUN_10010320(HMENU p_menu)
 {
-	STUB(0x100103e2);
+	MechS32 result;
+
+	result = EnableMenuItem(p_menu, 1, 0x401);
+	result = EnableMenuItem(p_menu, 0x9c41, 1);
+	result = EnableMenuItem(p_menu, 0x9c42, 1);
+	result = EnableMenuItem(p_menu, 0x9c72, 1);
+	result = EnableMenuItem(p_menu, 0x9c94, 1);
+	result = EnableMenuItem(p_menu, 0x9c4b, 1);
+	result = EnableMenuItem(p_menu, 0x9c96, 1);
+	result = EnableMenuItem(p_menu, 0x9c92, 1);
+	result = DrawMenuBar(g_pWnd);
 }
 
-// STUB: MW2SHELL 0x1001053e
-void FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
+// Stack-slot permutation: value and result swap [ebp-N] slots with the original.
+// FUNCTION: MW2SHELL 0x100103e2
+MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08)
 {
-	STUB(0x1001053e);
+	DWORD size;
+	MechS32 value;
+	MechS32 result;
+	HKEY key;
+	DWORD type;
+
+	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Activision\\MechWarrior 2\\1.0", 0, KEY_QUERY_VALUE, &key);
+	if (result != 0) {
+		DebugPrint("Could not open registry MechWarrior2 key: %d\n", result);
+		return 0;
+	}
+
+	size = 4;
+	type = 4;
+	result = RegQueryValueEx(key, "QuickTips", NULL, &type, (LPBYTE) &value, &size);
+	if (result == 0) {
+		*p_quickTips = value;
+	}
+	else {
+		*p_quickTips = 1;
+	}
+
+	size = 4;
+	type = 4;
+	result = RegQueryValueEx(key, "ShowDialog", NULL, &type, (LPBYTE) &value, &size);
+	if (result == 0) {
+		*p_unk0x04 = value;
+	}
+	else {
+		*p_unk0x04 = 1;
+	}
+
+	size = 4;
+	type = 4;
+	result = RegQueryValueEx(key, "LittleMovies", NULL, &type, (LPBYTE) &value, &size);
+	if (result == 0 && value != -1) {
+		*p_unk0x08 = value;
+	}
+	else {
+		*p_unk0x08 = 1;
+	}
+
+	RegCloseKey(key);
+	return (MechU8) (result == 0);
 }
 
-// STUB: MW2SHELL 0x10010724
+// Stack-slot permutation: value and result swap [ebp-N] slots with the original.
+// FUNCTION: MW2SHELL 0x1001053e
+MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
+{
+	MechS32 result;
+	MechS32 value;
+	HKEY key;
+
+	result = RegCreateKeyEx(
+		HKEY_LOCAL_MACHINE,
+		"Software\\Activision\\MechWarrior 2\\1.0",
+		0,
+		NULL,
+		0,
+		KEY_ALL_ACCESS,
+		NULL,
+		&key,
+		(LPDWORD) &value
+	);
+	if (result != 0) {
+		DebugPrint("Could not open registry MechWarrior2 key: %d\n", result);
+		return 0;
+	}
+
+	value = p_quickTips;
+	result = RegSetValueEx(key, "QuickTips", 0, REG_DWORD, (const BYTE*) &value, 4);
+	if (result != 0) {
+		DebugPrint("Could not save quickTips registry MechWarrior2 key: %d\n", result);
+		return 0;
+	}
+
+	value = p_unk0x04;
+	result = RegSetValueEx(key, "ShowDialog", 0, REG_DWORD, (const BYTE*) &value, 4);
+	if (result != 0) {
+		DebugPrint("Could not save showDialog registry MechWarrior2 key: %d\n", result);
+		return 0;
+	}
+
+	value = p_unk0x08;
+	result = RegSetValueEx(key, "LittleMovies", 0, REG_DWORD, (const BYTE*) &value, 4);
+	if (result != 0) {
+		DebugPrint("Could not save littleMovies registry MechWarrior2 key: %d\n", result);
+		return 0;
+	}
+
+	RegCloseKey(key);
+	return (MechU8) (result == 0);
+}
+
+// FUNCTION: MW2SHELL 0x10010724
 BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
-	STUB(0x10010724);
-	return FALSE;
+	UINT command;
+
+	switch (p_msg) {
+	case WM_INITDIALOG:
+		if (g_unk0x1006a9f0 != 0) {
+			CheckDlgButton(p_hWnd, 0x3e8, 1);
+		}
+		else {
+			CheckDlgButton(p_hWnd, 0x3e9, 1);
+		}
+		SetFocus(GetDlgItem(p_hWnd, 1));
+		return 0;
+	case WM_COMMAND:
+		command = LOWORD(p_wParam);
+		switch (command) {
+		case 0x3e8:
+			if (IsDlgButtonChecked(p_hWnd, 0x3e8) == 1) {
+				CheckDlgButton(p_hWnd, 0x3e9, 0);
+			}
+			else {
+				CheckDlgButton(p_hWnd, 0x3e9, 1);
+			}
+			break;
+		case 0x3e9:
+			if (IsDlgButtonChecked(p_hWnd, 0x3e9) == 1) {
+				CheckDlgButton(p_hWnd, 0x3e8, 0);
+			}
+			else {
+				CheckDlgButton(p_hWnd, 0x3e8, 1);
+			}
+			break;
+		case 1:
+			if (IsDlgButtonChecked(p_hWnd, 0x3e8) == 1) {
+				g_unk0x1006a9f0 = 1;
+			}
+			else {
+				g_unk0x1006a9f0 = 0;
+			}
+			// fall through to EndDialog
+		case 2:
+			EndDialog(p_hWnd, 0);
+			break;
+		}
+		return 1;
+	}
+
+	return 0;
 }
 
-// STUB: MW2SHELL 0x1001093e
+// FUNCTION: MW2SHELL 0x100108e5
+void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32))
+{
+	g_pShellCallback = p_callback;
+}
+
+// FUNCTION: MW2SHELL 0x1001093e
 void FUN_1001093e()
 {
-	STUB(0x1001093e);
+	if (g_unk0x1006297c != NULL) {
+		g_unk0x1006297c(1);
+	}
+	else {
+		if (g_pShellCallback != NULL) {
+			g_pShellCallback(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, 0x404);
+			FUN_1001661b();
+		}
+	}
 }
 
-// STUB: MW2SHELL 0x100109f9
+// FUNCTION: MW2SHELL 0x100109f9
 void ClearRegisteredMenuFunction()
 {
-	STUB(0x100109f9);
+	if (g_unk0x1006297c != NULL) {
+		g_unk0x1006297c(0);
+	}
 }

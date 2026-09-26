@@ -2,7 +2,7 @@
 ; imports them by ordinal; the ordinals and __cdecl names are those of SMACKW32.DLL's export table.
 LIBRARY smackw32
 EXPORTS
-    SmackClose @14 NONAME
+    SmackBufferNewPalette @14 NONAME
     SmackDoFrame @17 NONAME
     SmackGetTrackData @19 NONAME
     SmackGoto @20 NONAME

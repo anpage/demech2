@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-struct PixelBuffer;
+typedef struct PixelBuffer PixelBuffer;
 
 #pragma pack(1)
 // A rectangle of a PixelBuffer; the blit routines take views, not buffers.
@@ -16,6 +16,7 @@ struct PixelView {
 	MechS32 m_right;       // 0x0c
 	MechS32 m_bottom;      // 0x10
 };
+typedef struct PixelView PixelView;
 #pragma pack()
 
 #endif // PIXELVIEW_H

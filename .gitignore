@@ -1,5 +1,6 @@
 reccmp-user.yml
 reccmp-build.yml
+CLAUDE.local.md
 Debug/
 Release/
 *.ncb

@@ -15,6 +15,10 @@ Future target: `NETMECHW.DLL` (NetMech shell counterpart) — the layout, CMake 
 
 Not targets: the third-party DLLs `WAIL32.DLL` (Miles Sound System) and `SMACKW32.DLL` (Smacker), which we only link against.
 
+## Local Instructions
+
+Machine-specific instructions live in `CLAUDE.local.md` at the repository root (gitignored): how to invoke the toolchain and reccmp on this machine (Wine build, prefix, paths), where the originals live, which tools are available, and the contributor's workflow preferences. **Agents: if `CLAUDE.local.md` exists, read it before building or running reccmp; where it conflicts with the generic instructions here, it wins.** Claude Code loads it automatically; other agents reading `AGENTS.md` must open it themselves. Contributors: create it to fit your environment; it is never committed.
+
 ## Building
 
 ```
