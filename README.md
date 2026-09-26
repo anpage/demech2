@@ -46,12 +46,12 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
 2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder.
 
-The build configuration identified during the project's initial investigation:
+The build configuration for each binary:
 
-| Target         | Language           | `cl` flags                              | CRT                   | Link                          |
-| -------------- | ------------------ | --------------------------------------- | --------------------- | ----------------------------- |
-| `MW2.DLL`      | C                  | `/Od /Oi`                               | `/MTd` (static debug) | `/DLL /DEBUG /INCREMENTAL:no` |
-| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /GX /Ob1` (C files: `/Od /Oi`) | `/MT` (static)        | `/DLL`                        |
+| Target         | Language           | `cl` flags                                      | CRT                   | Link                          |
+| -------------- | ------------------ | ----------------------------------------------- | --------------------- | ----------------------------- |
+| `MW2.DLL`      | C                  | `/Od /Oi`                                       | `/MTd` (static debug) | `/DLL /DEBUG /INCREMENTAL:no` |
+| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /GX /Ob1` (C files: `/Od /Oi /G5`) | `/MT` (static)        | `/DLL`                        |
 
 ### Docker
 
