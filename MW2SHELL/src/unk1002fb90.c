@@ -1,10 +1,81 @@
 #include "decomp.h"
 #include "types.h"
 
-// STUB: MW2SHELL 0x1002fb90
+#include <io.h>
+
+// The heap callbacks the archive unit allocates through, registered by FUN_1002fb90
+// (CedarKnot0x10 passes FUN_1002e302 and FUN_1002e324).
+// GLOBAL: MW2SHELL 0x10066da0
+void* (*g_unk0x10066da0)(undefined4) = NULL;
+
+// GLOBAL: MW2SHELL 0x10066da4
+void (*g_unk0x10066da4)(void*) = NULL;
+
+// FUNCTION: MW2SHELL 0x1002fb90
 void FUN_1002fb90(void* (*p_alloc)(undefined4), void (*p_free)(void*))
 {
-	STUB(0x1002fb90);
+	g_unk0x10066da0 = p_alloc;
+	g_unk0x10066da4 = p_free;
+}
+
+// FUNCTION: MW2SHELL 0x1002fbab
+void* FUN_1002fbab(undefined4 p_size)
+{
+	return g_unk0x10066da0(p_size);
+}
+
+// FUNCTION: MW2SHELL 0x1002fbc8
+void FUN_1002fbc8(void* p_block)
+{
+	g_unk0x10066da4(p_block);
+}
+
+// Writes p_size bytes in chunks of at most 0x4000. Returns p_size, or -1 on a short write.
+// Stack-slot permutation: remaining and chunk swap homes.
+// FUNCTION: MW2SHELL 0x1002fbe0
+MechS32 FUN_1002fbe0(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
+{
+	MechU8* buffer;
+	MechU32 remaining;
+	MechU32 chunk;
+
+	remaining = p_size;
+	buffer = p_buffer;
+	while (remaining > 0) {
+		chunk = remaining < 0x4000 ? remaining : 0x4000;
+		if (_write(p_fd, buffer, chunk) != chunk) {
+			return -1;
+		}
+
+		remaining -= chunk;
+		buffer += chunk;
+	}
+
+	return p_size;
+}
+
+// Reads p_size bytes in chunks of at most 0x4000. Returns p_size, or -1 on a short read.
+// Stack-slot permutation: remaining and chunk swap homes.
+// FUNCTION: MW2SHELL 0x1002fc5e
+MechS32 FUN_1002fc5e(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
+{
+	MechU8* buffer;
+	MechU32 remaining;
+	MechU32 chunk;
+
+	remaining = p_size;
+	buffer = p_buffer;
+	while (remaining > 0) {
+		chunk = remaining < 0x4000 ? remaining : 0x4000;
+		if (_read(p_fd, buffer, chunk) != chunk) {
+			return -1;
+		}
+
+		remaining -= chunk;
+		buffer += chunk;
+	}
+
+	return p_size;
 }
 
 // STUB: MW2SHELL 0x1002fcdc
