@@ -177,7 +177,9 @@ function(demech2_add_dll TARGET)
   reccmp_add_target(${TARGET} ID ${ARGS_ID})
 endfunction()
 
-# MW2SHELL.DLL: C++ at /Od /Oi /GX /Ob1, C at /Od /Oi, the release CRT (4.1's LIBCMT).
+# MW2SHELL.DLL: C++ at /Od /Oi /GX /Ob1, C at /Od /Oi, both /G5, the release CRT (4.1's LIBCMT).
+# /G5 shows in the shift encoding: the original's signed `/ 2` is `sar eax, 1` in the short
+# form (d1 f8) at every site, which 4.1 only emits under /G5 (c1 f8 01 otherwise).
 # The original is a plain /DLL link. /DEBUG gives reccmp its PDB, at the cost of a debug
 # directory the original doesn't have; /OPT:REF keeps the plain link's CRT shape, which
 # /DEBUG would otherwise turn off, and /INCREMENTAL:no the direct exports.
@@ -209,6 +211,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/cedarknot0x10.cpp
     MW2SHELL/src/unk1002fb90.c
+    MW2SHELL/src/unk10030900.c
     MW2SHELL/src/cdcheck.cpp
     MW2SHELL/src/unk10031970.c
     MW2SHELL/src/unk10032250.c
@@ -234,7 +237,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/unk100485f0.cpp
     MW2SHELL/MW2SHELL.def
     MW2SHELL/mw2shell.rc
-  COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:CXX>:/GX>" "$<$<COMPILE_LANGUAGE:CXX>:/Ob1>"
+  COMPILE_OPTIONS "/G5" "$<$<COMPILE_LANGUAGE:CXX>:/GX>" "$<$<COMPILE_LANGUAGE:CXX>:/Ob1>"
   LINK_OPTIONS ${mw2shell_link_options}
   LIBRARIES winmm.lib ddraw wail32 smackw32 kernel32.lib user32.lib gdi32.lib advapi32.lib
 )

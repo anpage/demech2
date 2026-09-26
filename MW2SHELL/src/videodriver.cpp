@@ -449,6 +449,9 @@ void VideoDriver::FUN_10007112(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 	}
 }
 
+// Matches except for the operand order of the two additions (the original loads p_width and
+// p_height first). It flipped when FUN_100074d2 and FUN_10007603 were declared; neither moving
+// those declarations nor unnaming their parameters flips it back.
 // FUNCTION: MW2SHELL 0x100071ad
 void VideoDriver::FUN_100071ad(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
@@ -538,6 +541,32 @@ void VideoDriver::FUN_10007430(
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
+}
+
+// STUB: MW2SHELL 0x100074d2
+MechS32 VideoDriver::FUN_100074d2(
+	MechS32 p_left,
+	MechS32 p_top,
+	undefined4 p_unk0x08,
+	MechChar* p_text,
+	undefined* p_unk0x10
+)
+{
+	STUB(0x100074d2);
+	return 0;
+}
+
+// STUB: MW2SHELL 0x10007603
+MechS32 VideoDriver::FUN_10007603(
+	MechS32 p_left,
+	MechS32 p_top,
+	undefined4 p_unk0x08,
+	MechS32 p_char,
+	undefined* p_unk0x10
+)
+{
+	STUB(0x10007603);
+	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x100076e8

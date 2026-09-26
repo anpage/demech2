@@ -70,6 +70,11 @@ MechS32 g_unk0x1006a9f0 = 0;
 // GLOBAL: MW2SHELL 0x1006a9f4
 HANDLE g_hPrimaryHeap = NULL;
 
+// Tab stops for the "\T" text escape, in pixels from the left edge.
+// GLOBAL: MW2SHELL 0x1006e150
+MechS32 g_unk0x1006e150[19] =
+	{0, 36, 72, 108, 144, 180, 216, 252, 288, 324, 360, 396, 432, 468, 504, 540, 576, 612, 640};
+
 // GLOBAL: MW2SHELL 0x1006e19c
 char* g_unk0x1006e19c = "DATABASE.MW2";
 
