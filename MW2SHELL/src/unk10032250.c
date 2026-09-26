@@ -882,6 +882,72 @@ jmp_100352a9:
 }
 #endif
 
+// Returns the dword at +0x8 of the font data (BrassLantern0x414 keeps it as the line height).
+#ifdef COMPAT_MODE
+MechS32 FUN_10036aa9(void* p_data)
+{
+	STUB(0x10036aa9);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10036aa9
+__declspec(naked) MechS32 FUN_10036aa9(void* p_data)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0x8]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Looks up p_char in the font data's offset table at +0x10 and returns the dword at that
+// offset (BrassLantern0x414 sums it as the character's width).
+#ifdef COMPAT_MODE
+MechS32 FUN_10036abc(void* p_data, MechS32 p_char)
+{
+	STUB(0x10036abc);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10036abc
+__declspec(naked) MechS32 FUN_10036abc(void* p_data, MechS32 p_char)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x2
+		add eax, dword ptr [ebp+0x8]
+		add eax, 0x10
+		mov esi, dword ptr [eax]
+		add esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
 // STUB: MW2SHELL 0x10036c9e
 void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
 {

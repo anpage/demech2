@@ -1,6 +1,7 @@
 #include "cedarknot0x10.h"
 
 #include "decomp.h"
+#include "shellmain.h"
 #include "types.h"
 
 DECOMP_SIZE_ASSERT(CedarKnot0x10, 0x10)
@@ -40,17 +41,16 @@ CedarKnot0x10::CedarKnot0x10(const char* p_name)
 	FUN_1003024f(g_unk0x1006aac4);
 }
 
-// STUB: MW2SHELL 0x1002e302
+// FUNCTION: MW2SHELL 0x1002e302
 void* FUN_1002e302(undefined4 p_size)
 {
-	STUB(0x1002e302);
-	return NULL;
+	return HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
 }
 
-// STUB: MW2SHELL 0x1002e324
+// FUNCTION: MW2SHELL 0x1002e324
 void FUN_1002e324(void* p_block)
 {
-	STUB(0x1002e324);
+	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_block);
 }
 
 // FUNCTION: MW2SHELL 0x1002e638
