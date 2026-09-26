@@ -4,6 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
+class EmberGlyph0x3e;
 class VideoDriver;
 
 // SIZE 0x414
@@ -12,6 +13,7 @@ public:
 	BrassLantern0x414(void* p_data, VideoDriver* p_videoDriver);
 
 	MechS32 FUN_100053be(MechChar* p_text);
+	EmberGlyph0x3e* FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10);
 	MechS32 FUN_100056b9(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10);
 	MechS32 FUN_100056f5(MechS32 p_left, MechS32 p_top, MechS32 p_char, undefined* p_unk0x10);
 

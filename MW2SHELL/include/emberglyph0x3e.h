@@ -31,15 +31,20 @@ private:
 	MechU8 m_unk0x14;             // 0x14
 	undefined4 m_unk0x15;         // 0x15
 	MechChar* m_text;             // 0x19
-	MechS32 m_height;             // 0x1d
-	MechS32 m_width;              // 0x21
-	MechS32 m_left;               // 0x25
-	MechS32 m_top;                // 0x29
-	MechS32 m_right;              // 0x2d
-	MechS32 m_bottom;             // 0x31
-	MechU8 m_unk0x35;             // 0x35
-	MechS32 m_cursorX;            // 0x36
-	MechS32 m_textIndex;          // 0x3a
+
+public:
+	// The shell's field tables read the size directly: an inline accessor would leave a jmp at /Ob1.
+	MechS32 m_height; // 0x1d
+	MechS32 m_width;  // 0x21
+
+private:
+	MechS32 m_left;      // 0x25
+	MechS32 m_top;       // 0x29
+	MechS32 m_right;     // 0x2d
+	MechS32 m_bottom;    // 0x31
+	MechU8 m_unk0x35;    // 0x35
+	MechS32 m_cursorX;   // 0x36
+	MechS32 m_textIndex; // 0x3a
 };
 #pragma pack()
 
