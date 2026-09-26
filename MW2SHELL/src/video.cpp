@@ -157,6 +157,18 @@ void FUN_10016c3e()
 	g_unk0x100641a8[0].m_unk0x3c++;
 }
 
+// The original loads p_mask before p_value in p_mask & p_value; swapping the operands didn't flip it.
+// The first statement reloads and stores the flags instead of and-ing them in place: an unsigned
+// operation on a signed field does that, which is why the mask is cast.
+// FUNCTION: MW2SHELL 0x10016cc0
+void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value)
+{
+	if (p_index >= 0 && p_index < 0x20) {
+		g_unk0x100641a8[p_index].m_unk0x1c &= ~(MechU32) p_mask;
+		g_unk0x100641a8[p_index].m_unk0x1c |= p_mask & p_value;
+	}
+}
+
 // FUNCTION: MW2SHELL 0x10016d27
 void FUN_10016d27(MechS32 p_index)
 {

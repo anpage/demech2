@@ -17,7 +17,7 @@ struct CopperFinch0x4c {
 	undefined4 m_unk0x10;             // 0x10
 	void* m_unk0x14;                  // 0x14 — Miles-locked buffer
 	void* m_unk0x18;                  // 0x18 — Miles-locked buffer
-	MechU32 m_unk0x1c;                // 0x1c — flags, see above
+	MechS32 m_unk0x1c;                // 0x1c — flags, see above
 	MechS32 m_left;                   // 0x20
 	MechS32 m_top;                    // 0x24
 	MechS32 m_width;                  // 0x28

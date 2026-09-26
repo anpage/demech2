@@ -52,6 +52,21 @@ MechS32 BrassLantern0x414::FUN_10005424(MechS32 p_char)
 	return FUN_10036abc(m_unk0x00, p_char);
 }
 
+// FUNCTION: MW2SHELL 0x1000544e
+EmberGlyph0x3e* BrassLantern0x414::FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
+{
+	EmberGlyph0x3e* glyph;
+
+	if (p_text == NULL) {
+		p_text = "";
+	}
+
+	glyph = new EmberGlyph0x3e(p_text, p_left, p_top, p_unk0x10, this);
+	m_videoDriver->FUN_100076e8(glyph, 0);
+	glyph->FUN_10047425();
+	return glyph;
+}
+
 // FUNCTION: MW2SHELL 0x10005522
 EmberGlyph0x3e* BrassLantern0x414::FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
 {
