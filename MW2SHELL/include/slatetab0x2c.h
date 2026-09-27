@@ -19,7 +19,7 @@ struct SlateTab0x2c {
 	undefined* m_unk0x14;                        // 0x14 — color map for the glyph
 	EmberGlyph0x3e* m_glyph;                     // 0x18
 	EmberGlyph0x3e* (*m_unk0x1c)(SlateTab0x2c*); // 0x1c
-	undefined4 m_unk0x20;                        // 0x20
+	void (*m_unk0x20)(SlateTab0x2c*);            // 0x20 — click callback
 	void* m_unk0x24;                             // 0x24 — the callback's data, see above
 	SlateTab0x2c* m_unk0x28;                     // 0x28 — the table to switch to
 };
