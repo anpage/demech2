@@ -83,7 +83,7 @@ void FUN_10013935(void)
 }
 
 // STUB: MW2SHELL 0x10013940
-DrawCacheEntry* FUN_10013940(MechS32 p_id, MechS32* p_type)
+DrawCacheEntry* FUN_10013940(MechS32 p_id, char* p_type)
 {
 	STUB(0x10013940);
 	return NULL;
@@ -101,7 +101,7 @@ void FUN_10013c6e(void)
 }
 
 // FUNCTION: MW2SHELL 0x10013c79
-void FUN_10013c79(MechS32 p_id, MechS32* p_type)
+void FUN_10013c79(MechS32 p_id, char* p_type)
 {
 	DrawCacheEntry* entry = FUN_10013940(p_id, p_type);
 	if (entry == NULL) {
@@ -112,14 +112,14 @@ void FUN_10013c79(MechS32 p_id, MechS32* p_type)
 }
 
 // STUB: MW2SHELL 0x10013cb5
-void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, MechS32* p_type, MechS32 p_unk0x0c)
+void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
 {
 	STUB(0x10013cb5);
 	return NULL;
 }
 
 // FUNCTION: MW2SHELL 0x10013ef4
-void FUN_10013ef4(MechS32 p_id, MechS32* p_type)
+void FUN_10013ef4(MechS32 p_id, char* p_type)
 {
 	DrawCacheEntry* entry = FUN_10013940(p_id, p_type);
 	if (entry == NULL) {
@@ -141,7 +141,7 @@ undefined4 FUN_10013f3b(undefined4 p_value)
 }
 
 // FUNCTION: MW2SHELL 0x10013f4e
-void* FUN_10013f4e(MechS32 p_id, MechS32* p_type)
+void* FUN_10013f4e(MechS32 p_id, char* p_type)
 {
 	return FUN_10013cb5(0, p_id, p_type, 0);
 }

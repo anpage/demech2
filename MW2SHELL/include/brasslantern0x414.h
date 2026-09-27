@@ -18,11 +18,15 @@ public:
 	EmberGlyph0x3e* FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10);
 	EmberGlyph0x3e* FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10);
 	MechS32 FUN_100056b9(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10);
+	EmberGlyph0x3e* FUN_100055f6(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10);
 	MechS32 FUN_100056f5(MechS32 p_left, MechS32 p_top, MechS32 p_char, undefined* p_unk0x10);
+	void FUN_10005731(MechS32 p_left, MechS32 p_top, MechS32 p_key, undefined* p_unk0x10);
+	void FUN_10005913();
 
 private:
-	void* m_unk0x00;                   // 0x00
-	undefined m_unk0x04[0x408 - 0x04]; // 0x04
+	void* m_unk0x00;          // 0x00
+	MechS32 m_unk0x04[0x100]; // 0x04
+	MechS32 m_unk0x404;       // 0x404
 
 public:
 	// EmberGlyph0x3e and MouseState read these directly: an inline accessor would leave a jmp at /Ob1.
