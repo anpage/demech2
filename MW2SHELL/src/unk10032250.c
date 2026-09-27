@@ -1028,6 +1028,63 @@ void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32
 	STUB(0x10036c9e);
 }
 
+// Scan big-endian IFF chunks for a four-byte tag and return its data pointer.
+#ifdef COMPAT_MODE
+undefined* FUN_10036dad(const void* p_tag, const void* p_chunks)
+{
+	STUB(0x10036dad);
+	return NULL;
+}
+#else
+// FUNCTION: MW2SHELL 0x10036dad
+__declspec(naked) undefined* FUN_10036dad(const void* p_tag, const void* p_chunks)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0xc]
+		add esi, 0xc
+jmp_10036dbd:
+		cmp byte ptr [esi], 0x0
+		_emit 0x75 /* jnz jmp_10036dc5 */
+		_emit 0x03
+		inc esi
+		_emit 0xeb /* jmp jmp_10036dbd */
+		_emit 0xf8
+jmp_10036dc5:
+		mov ecx, 0x2
+		mov edi, dword ptr [ebp+0x8]
+		mov eax, esi
+		repe cmpsw
+		_emit 0x74 /* jz jmp_10036de6 */
+		_emit 0x12
+		mov esi, eax
+		add esi, 0x6
+		lodsw
+		xchg ah, al
+		and eax, 0xffff
+		add esi, eax
+		_emit 0xeb /* jmp jmp_10036dbd */
+		_emit 0xd7
+jmp_10036de6:
+		add eax, 0x8
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
 #ifdef COMPAT_MODE
 void FUN_10037014(PixelView* p_view, undefined* p_data)
 {

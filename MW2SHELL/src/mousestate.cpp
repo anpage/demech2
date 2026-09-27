@@ -6,6 +6,7 @@
 #include "videodriver.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
@@ -243,10 +244,33 @@ MechS32 FUN_1003b246()
 	return 0;
 }
 
-// STUB: MW2SHELL 0x1003b7cf
-MechS32 FUN_1003b7cf(void*)
+// FUNCTION: MW2SHELL 0x1003b7cf
+MechS32 FUN_1003b7cf(InputDeviceInfo* p_device)
 {
-	STUB(0x1003b7cf);
+	if (p_device != NULL) {
+		if (p_device->m_axisNames != NULL) {
+			free(p_device->m_axisNames);
+		}
+		if (p_device->m_axisShortNames != NULL) {
+			free(p_device->m_axisShortNames);
+		}
+		if (p_device->m_buttonNames != NULL) {
+			if (p_device->m_buttonNames[0] != NULL) {
+				free(p_device->m_buttonNames[0]);
+			}
+			free(p_device->m_buttonNames);
+		}
+		if (p_device->m_buttonShortNames != NULL) {
+			if (p_device->m_buttonShortNames[0] != NULL) {
+				free(p_device->m_buttonShortNames[0]);
+			}
+			free(p_device->m_buttonShortNames);
+		}
+		if (p_device->m_driverData != NULL) {
+			free(p_device->m_driverData);
+		}
+	}
+
 	return 0;
 }
 

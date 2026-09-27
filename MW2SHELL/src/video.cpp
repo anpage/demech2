@@ -123,13 +123,13 @@ SilverReel0x18::SilverReel0x18(MechChar*, MechS32, MechS32)
 }
 
 // FUNCTION: MW2SHELL 0x100161a8
-void __fastcall FUN_100161a8(Smack** p_buffer)
+SilverReel0x18::~SilverReel0x18()
 {
-	if (*p_buffer == NULL) {
+	if (m_smack == NULL) {
 		return;
 	}
 
-	SmackBufferNewPalette(*p_buffer);
+	SmackClose(m_smack);
 }
 
 // FUNCTION: MW2SHELL 0x100162d3
@@ -144,10 +144,28 @@ void FUN_100162ef(void* p_block)
 	free(p_block);
 }
 
-// STUB: MW2SHELL 0x1001630b
+// FUNCTION: MW2SHELL 0x1001630b
 void SilverReel0x18::FUN_1001630b()
 {
-	STUB(0x1001630b);
+	if (m_smack == NULL) {
+		return;
+	}
+	if (SmackWait(m_smack)) {
+		return;
+	}
+
+	if ((g_fWindowActive ? g_currentDrawModeExtension->m_acquireFramebuffer() : -1) == 0) {
+		m_frame++;
+		if (m_smack->Frames < m_frame) {
+			m_frame = 1;
+			SmackGoto(m_smack, m_frame);
+		}
+		else {
+			SmackNextFrame(m_smack);
+		}
+		SmackDoFrame(m_smack);
+		g_pVideoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
+	}
 }
 
 struct VideoPlaybackTimer {
@@ -271,7 +289,7 @@ void FUN_10016d90(MechS32 p_index)
 	}
 
 	if (g_unk0x100641a8[p_index].m_unk0x00 != NULL) {
-		SmackBufferNewPalette(g_unk0x100641a8[p_index].m_unk0x00);
+		SmackClose(g_unk0x100641a8[p_index].m_unk0x00);
 	}
 
 	if (g_unk0x100641a8[p_index].m_unk0x04 != NULL) {

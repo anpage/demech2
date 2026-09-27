@@ -942,6 +942,18 @@ void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**,
 	g_pShellCallback = p_callback;
 }
 
+// FUNCTION: MW2SHELL 0x100108fd
+void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32))
+{
+	g_pShellCallback = p_callback;
+	if (g_pShellCallback != NULL) {
+		g_pShellCallback = NULL;
+	}
+	else {
+		DebugPrint("UnregisterScreenFunction: pointer mismatch!\n");
+	}
+}
+
 // FUNCTION: MW2SHELL 0x1001093e
 void FUN_1001093e()
 {
@@ -953,6 +965,24 @@ void FUN_1001093e()
 			g_pShellCallback(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, 0x404);
 			FUN_1001661b();
 		}
+	}
+}
+
+// FUNCTION: MW2SHELL 0x100109a0
+void FUN_100109a0(void (*p_callback)(MechS32))
+{
+	g_unk0x1006297c = p_callback;
+}
+
+// FUNCTION: MW2SHELL 0x100109b8
+void FUN_100109b8(void (*p_callback)(MechS32))
+{
+	g_unk0x1006297c = p_callback;
+	if (g_unk0x1006297c != NULL) {
+		g_unk0x1006297c = NULL;
+	}
+	else {
+		DebugPrint("UnregisterMenuFunction: pointer mismatch!\n");
 	}
 }
 

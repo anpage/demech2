@@ -40,9 +40,28 @@ void FUN_10010d49()
 	g_unk0x10063000 = 1;
 }
 
-// STUB: MW2SHELL 0x10011450
+#pragma pack(1)
+typedef struct PaletteColor {
+	MechU16 m_color;    // 0x00
+	MechU8 m_intensity; // 0x02
+} PaletteColor;
+#pragma pack()
+
+// GLOBAL: MW2SHELL 0x10062ce0
+PaletteColor g_unk0x10062ce0[0x100] = {0};
+
+// FUNCTION: MW2SHELL 0x10011450
 MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, MechU8* p_palette)
 {
-	STUB(0x10011450);
+	MechS32 i;
+
+	if (p_palette == NULL || p_first < 0 || p_first > 0xff || p_count <= 0 || p_count > 0x100 - p_first) {
+		return -1;
+	}
+
+	for (i = 0; i < p_count; i++) {
+		((PaletteColor*) p_palette)[i] = g_unk0x10062ce0[p_first + i];
+	}
+
 	return 0;
 }
