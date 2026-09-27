@@ -962,7 +962,7 @@ MechS32 FUN_10036adc(
 	return 0;
 }
 
-// STUB: MW2SHELL 0x10036c67
+#ifdef COMPAT_MODE
 void FUN_10036c67(
 	PixelView* p_view,
 	MechS32 p_left,
@@ -974,6 +974,53 @@ void FUN_10036c67(
 {
 	STUB(0x10036c67);
 }
+#else
+// FUNCTION: MW2SHELL 0x10036c67
+__declspec(naked) void FUN_10036c67(
+	PixelView* p_view,
+	MechS32 p_left,
+	MechS32 p_top,
+	void* p_font,
+	MechChar* p_text,
+	undefined* p_palette
+)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x18]
+		mov edi, dword ptr [ebp+0xc]
+	jmp_10036c77:
+		movzx eax, byte ptr [esi]
+		push dword ptr [ebp+0x1c]
+		push eax
+		push dword ptr [ebp+0x14]
+		push dword ptr [ebp+0x10]
+		push edi
+		push dword ptr [ebp+0x8]
+		call FUN_10036adc
+		add esp, 0x18
+		add edi, eax
+		inc esi
+		cmp byte ptr [esi], 0x0
+		_emit 0x75 /* jnz jmp_10036c77 */
+		_emit 0xdf
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
 
 // STUB: MW2SHELL 0x10036c9e
 void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
@@ -1131,6 +1178,160 @@ __declspec(naked) MechS32 FUN_100370c1(undefined* p_data)
 }
 #endif
 
+// Internal assembly helper: initializes the code tables using ECX and EDI.
+#ifdef COMPAT_MODE
+void FUN_100370e8(void)
+{
+	STUB(0x100370e8);
+}
+#else
+// FUNCTION: MW2SHELL 0x100370e8
+__declspec(naked) void FUN_100370e8(void)
+{
+	__asm {
+		mov ebx, 0x0
+		mov eax, ecx
+		add eax, 0x2
+		mov dword ptr [edi], eax
+		mov eax, ecx
+		shl eax, 0x1
+		mov dword ptr [edi+0x4], eax
+	jmp_100370fb:
+		cmp ebx, ecx
+		_emit 0x7d /* jge jmp_1003711a */
+		_emit 0x1b
+		mov byte ptr [ebx+edi+0x102e], bl
+		mov byte ptr [ebx+edi+0x202e], bl
+		mov word ptr [edi+ebx*2+0x302e], 0xffff
+		inc ebx
+		_emit 0xeb /* jmp jmp_100370fb */
+		_emit 0xe1
+	jmp_1003711a:
+		cmp ebx, 0x1000
+		_emit 0x7d /* jge jmp_1003712f */
+		_emit 0x0d
+		mov word ptr [edi+ebx*2+0x302e], 0xfffe
+		inc ebx
+		_emit 0xeb /* jmp jmp_1003711a */
+		_emit 0xeb
+	jmp_1003712f:
+		ret
+	}
+}
+#endif
+
+// Internal assembly helper: reads a byte from ESI, tracking the run in EDI.
+#ifdef COMPAT_MODE
+MechU32 FUN_10037130(void)
+{
+	STUB(0x10037130);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10037130
+__declspec(naked) MechU32 FUN_10037130(void)
+{
+	__asm {
+		cmp dword ptr [edi+0x10], 0x0
+		_emit 0x75 /* jnz jmp_1003713f */
+		_emit 0x09
+		lodsb
+		and eax, 0xff
+		mov dword ptr [edi+0x10], eax
+	jmp_1003713f:
+		lodsb
+		and eax, 0xff
+		dec dword ptr [edi+0x10]
+		ret
+	}
+}
+#endif
+
+// Internal assembly helper: installs a code and grows the code table when full.
+#ifdef COMPAT_MODE
+void FUN_1003718f(void)
+{
+	STUB(0x1003718f);
+}
+#else
+// FUNCTION: MW2SHELL 0x1003718f
+__declspec(naked) void FUN_1003718f(void)
+{
+	__asm {
+		push ebx
+		mov ebx, dword ptr [edi]
+		mov word ptr [edi+ebx*2+0x302e], cx
+		pop ebx
+		push ebx
+		mov al, byte ptr [ebx+edi+0x102e]
+		mov ebx, dword ptr [edi]
+		mov byte ptr [ebx+edi+0x202e], al
+		mov ebx, ecx
+		mov al, byte ptr [ebx+edi+0x102e]
+		mov ebx, dword ptr [edi]
+		mov byte ptr [ebx+edi+0x102e], al
+		pop ebx
+		inc dword ptr [edi]
+		mov eax, dword ptr [edi]
+		cmp eax, dword ptr [edi+0x4]
+		_emit 0x75 /* jnz jmp_100371d4 */
+		_emit 0x0c
+		cmp dword ptr [edi+0x1c], 0xc
+		_emit 0x7d /* jge jmp_100371d4 */
+		_emit 0x06
+		inc dword ptr [edi+0x1c]
+		shl dword ptr [edi+0x4], 0x1
+	jmp_100371d4:
+		ret
+	}
+}
+#endif
+
+// Returns the two dimensions packed into a dword from the image header.
+#ifdef COMPAT_MODE
+MechU32 FUN_100374cc(undefined* p_data)
+{
+	STUB(0x100374cc);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100374cc
+__declspec(naked) MechU32 FUN_100374cc(undefined* p_data)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		mov al, byte ptr [esi+0xa]
+		mov cl, al
+		and cl, 0x7
+		inc cl
+		mov ebx, 0x1
+		shl ebx, cl
+		add esi, 0xd
+		test al, 0x80
+		_emit 0x74 /* jz jmp_100374f3 */
+		_emit 0x05
+		imul ebx, ebx, 0x3
+		add esi, ebx
+	jmp_100374f3:
+		mov ax, word ptr [esi+0x5]
+		shl eax, 0x10
+		mov ax, word ptr [esi+0x7]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
 // Returns the first dword in an entry selected from the offset table at data + 8.
 #ifdef COMPAT_MODE
 MechS32 FUN_10037504(void* p_data, MechS32 p_index)
@@ -1274,6 +1475,184 @@ __declspec(naked) MechU32 FUN_1003757d(void* p_data, MechS32 p_index)
 		mov eax, dword ptr [esi+0x8]
 		shl eax, 0x10
 		mov ax, word ptr [esi+0xc]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Applies a list of three-byte palette updates from an entry.
+#ifdef COMPAT_MODE
+void FUN_100375a7(undefined* p_data, MechS32 p_index, undefined* p_palette)
+{
+	STUB(0x100375a7);
+}
+#else
+// FUNCTION: MW2SHELL 0x100375a7
+__declspec(naked) void FUN_100375a7(undefined* p_data, MechS32 p_index, undefined* p_palette)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		add esi, 0x4
+		mov esi, dword ptr [esi]
+		cmp esi, 0x0
+		_emit 0x74 /* jz jmp_100375ec */
+		_emit 0x23
+		add esi, dword ptr [ebp+0x8]
+		lodsd
+		mov ecx, eax
+		mov edi, dword ptr [ebp+0x10]
+	jmp_100375d2:
+		lodsb
+		and eax, 0xff
+		mov ebx, eax
+		shl ebx, 0x1
+		add ebx, eax
+		lodsb
+		mov byte ptr [ebx+edi], al
+		inc ebx
+		lodsw
+		mov word ptr [ebx+edi], ax
+		dec ecx
+		_emit 0x75 /* jnz jmp_100375d2 */
+		_emit 0xe6
+	jmp_100375ec:
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Copies the entry's dword array into the supplied destination, if present.
+#ifdef COMPAT_MODE
+MechS32 FUN_100375f2(undefined* p_data, MechS32 p_index, undefined4* p_destination)
+{
+	STUB(0x100375f2);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100375f2
+__declspec(naked) MechS32 FUN_100375f2(undefined* p_data, MechS32 p_index, undefined4* p_destination)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		add esi, 0x4
+		mov esi, dword ptr [esi]
+		cmp esi, 0x0
+		_emit 0x75 /* jnz jmp_1003761b */
+		_emit 0x07
+		mov eax, 0x0
+		_emit 0xeb /* jmp jmp_10037634 */
+		_emit 0x19
+	jmp_1003761b:
+		add esi, dword ptr [ebp+0x8]
+		lodsd
+		mov ebx, eax
+		mov edi, dword ptr [ebp+0x10]
+		or edi, edi
+		_emit 0x74 /* jz jmp_10037634 */
+		_emit 0x0c
+		mov ecx, ebx
+		mov eax, 0x0
+	jmp_1003762f:
+		movsd
+		loop jmp_1003762f
+		mov eax, ebx
+	jmp_10037634:
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Writes the entry's dword array back from the supplied source, if present.
+#ifdef COMPAT_MODE
+MechS32 FUN_1003763a(undefined* p_data, MechS32 p_index, undefined4* p_source)
+{
+	STUB(0x1003763a);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x1003763a
+__declspec(naked) MechS32 FUN_1003763a(undefined* p_data, MechS32 p_index, undefined4* p_source)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		add esi, 0x4
+		mov esi, dword ptr [esi]
+		cmp esi, 0x0
+		_emit 0x75 /* jnz jmp_10037663 */
+		_emit 0x07
+		mov eax, 0x0
+		_emit 0xeb /* jmp jmp_1003767e */
+		_emit 0x1b
+	jmp_10037663:
+		add esi, dword ptr [ebp+0x8]
+		lodsd
+		mov ebx, eax
+		mov edi, esi
+		mov esi, dword ptr [ebp+0x10]
+		or esi, esi
+		_emit 0x74 /* jz jmp_1003767e */
+		_emit 0x0c
+		mov ecx, ebx
+		mov eax, 0x0
+	jmp_10037679:
+		movsd
+		loop jmp_10037679
+		mov eax, ebx
+	jmp_1003767e:
 		pop es
 		pop edi
 		pop esi

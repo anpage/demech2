@@ -7,6 +7,7 @@
 #include "videodriver.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
 
 extern "C" HWND g_pWnd;
@@ -110,6 +111,46 @@ MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 	FUN_10010320(g_windowMenu);
 	g_fDrawFmv = TRUE;
 	return 1;
+}
+
+// FUNCTION: MW2SHELL 0x100161a8
+void __fastcall FUN_100161a8(Smack** p_buffer)
+{
+	if (*p_buffer == NULL) {
+		return;
+	}
+
+	SmackBufferNewPalette(*p_buffer);
+}
+
+// FUNCTION: MW2SHELL 0x100162d3
+void FUN_100162d3(size_t p_size)
+{
+	malloc(p_size);
+}
+
+// FUNCTION: MW2SHELL 0x100162ef
+void FUN_100162ef(void* p_block)
+{
+	free(p_block);
+}
+
+struct VideoPlaybackTimer {
+	MechU32 m_interval; // 0x44 in the video slot
+	MechU32 m_next;     // 0x48 in the video slot
+};
+
+// FUNCTION: MW2SHELL 0x100163ff
+MechS32 FUN_100163ff(CopperFinch0x4c* p_video, MechU32 p_time)
+{
+	if (p_time >= ((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next) {
+		((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next =
+			((VideoPlaybackTimer*) p_video->m_unk0x44)->m_interval + p_time;
+		return 0;
+	}
+	else {
+		return -1;
+	}
 }
 
 // STUB: MW2SHELL 0x1001661b

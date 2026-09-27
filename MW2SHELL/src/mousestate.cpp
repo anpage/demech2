@@ -227,6 +227,12 @@ MechS32 GetJoystickDeviceCount()
 	return joyGetNumDevs();
 }
 
+// FUNCTION: MW2SHELL 0x1003b8b7
+MechS32 FUN_1003b8b7()
+{
+	return 0;
+}
+
 // FUNCTION: MW2SHELL 0x1003bba0
 MechS32 FUN_1003bba0()
 {
