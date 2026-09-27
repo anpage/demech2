@@ -2,7 +2,21 @@
 #include "inputdriver.h"
 #include "types.h"
 
+#include <stdio.h>
 #include <windows.h>
+
+typedef struct MouseDeviceInfo {
+	MechChar m_name[0x0c];                // 0x00
+	MechChar m_displayName[0x40];         // 0x0c
+	MechChar m_typeName[0x0c];            // 0x4c
+	MechS32 m_axisCount;                  // 0x58
+	MechS32 m_buttonCount;                // 0x5c
+	const MechChar* const* m_axisNames;   // 0x60
+	const MechChar* const* m_axisTypes;   // 0x64
+	const MechChar* const* m_buttonNames; // 0x68
+	const MechChar* const* m_buttonTypes; // 0x6c
+	undefined4 m_unk0x70;                 // 0x70
+} MouseDeviceInfo;
 
 extern MechS32 g_fWindowActive;
 extern MechS32 g_windowHeight;
@@ -22,6 +36,18 @@ __inline MechS32 IsInsideWindow(POINT* p_point)
 	return TRUE;
 }
 
+// GLOBAL: MW2SHELL 0x10071d18
+const MechChar* g_mouseAxisNames[] = {"Mouse Down/Up Movement", "Mouse Left/Right Movement"};
+
+// GLOBAL: MW2SHELL 0x10071d20
+const MechChar* g_mouseAxisTypes[] = {"Down/Up", "Left/Right"};
+
+// GLOBAL: MW2SHELL 0x10071d28
+const MechChar* g_mouseButtonNames[] = {"Left button", "Middle button", "Right button", NULL};
+
+// GLOBAL: MW2SHELL 0x10071d38
+const MechChar* g_mouseButtonTypes[] = {"LeftBtn", "MiddleBtn", "RightBtn", NULL};
+
 // GLOBAL: MW2SHELL 0x10071d44
 BOOL g_cursorClipped = FALSE;
 
@@ -29,7 +55,7 @@ BOOL g_cursorClipped = FALSE;
 undefined4 g_unk0x10071d48 = 0;
 
 MechS32 GetMouseDeviceCount(void);
-MechS32 FillMouseDeviceInfo(MechS32 p_index, void* p_info);
+MechS32 FillMouseDeviceInfo(MechS32 p_index, MouseDeviceInfo* p_info);
 MechS32 FUN_10046b16(void);
 MechS32 FUN_10046b28(void);
 MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis);
@@ -50,6 +76,15 @@ InputDriverModule g_mouseDriver = {
 	FUN_10046e01,
 };
 
+// GLOBAL: MW2SHELL 0x10071d70
+MechChar g_mouseDeviceName[8] = "mouse";
+
+// GLOBAL: MW2SHELL 0x10071d78
+MechChar g_mouseDisplayName[8] = "Mouse";
+
+// GLOBAL: MW2SHELL 0x10071d80
+MechChar g_mouseTypeName[8] = "mouse";
+
 // GLOBAL: MW2SHELL 0x10095ec0
 RECT g_cursorClipRect;
 
@@ -59,10 +94,20 @@ MechS32 GetMouseDeviceCount(void)
 	return 1;
 }
 
-// STUB: MW2SHELL 0x10046a85
-MechS32 FillMouseDeviceInfo(MechS32 p_index, void* p_info)
+// FUNCTION: MW2SHELL 0x10046a85
+MechS32 FillMouseDeviceInfo(MechS32 p_index, MouseDeviceInfo* p_info)
 {
-	STUB(0x10046a85);
+	p_info->m_axisCount = 2;
+	p_info->m_buttonCount = 3;
+	sprintf(p_info->m_name, g_mouseDeviceName);
+	sprintf(p_info->m_displayName, g_mouseDisplayName);
+	sprintf(p_info->m_typeName, g_mouseTypeName);
+	p_info->m_axisNames = g_mouseAxisNames;
+	p_info->m_axisTypes = g_mouseAxisTypes;
+	p_info->m_buttonNames = g_mouseButtonNames;
+	p_info->m_buttonTypes = g_mouseButtonTypes;
+	p_info->m_unk0x70 = 0;
+
 	return 0;
 }
 

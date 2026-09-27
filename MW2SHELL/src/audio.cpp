@@ -1,9 +1,17 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "midisequence.h"
+#include "oakentune0x10.h"
 #include "shellmain.h"
 
 #include <windows.h>
+
+extern "C"
+{
+	AILIMPORT MechS32 AILCALL AIL_sample_buffer_ready(HSAMPLE p_sample);
+	AILIMPORT void AILCALL
+	AIL_load_sample_buffer(HSAMPLE p_sample, MechU32 p_bufferNum, void* p_buffer, MechU32 p_size);
+}
 
 DECOMP_SIZE_ASSERT(AudioSubsystem, 0x15)
 DECOMP_SIZE_ASSERT(AudioSample, 0x2c)
@@ -385,5 +393,48 @@ void AudioSample::SetLoopCount(MechS32 p_loopCount)
 	m_loopCount = p_loopCount;
 	if (m_sample) {
 		AIL_set_sample_loop_count(m_sample, m_loopCount);
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1003dad5
+undefined4 OakenTune0x10::FUN_1003dad5()
+{
+	if (m_unk0x04) {
+		if (m_unk0x10 == -1) {
+			m_unk0x10 = AIL_sample_buffer_ready((HSAMPLE) m_unk0x04);
+		}
+		if (m_unk0x10 != -1) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+// FUNCTION: MW2SHELL 0x1003db31
+void* OakenTune0x10::FUN_1003db31()
+{
+	if (m_unk0x04) {
+		if (m_unk0x10 == -1) {
+			m_unk0x10 = AIL_sample_buffer_ready((HSAMPLE) m_unk0x04);
+		}
+		if (m_unk0x10 != -1) {
+			return (&m_unk0x08)[m_unk0x10];
+		}
+	}
+
+	return NULL;
+}
+
+// FUNCTION: MW2SHELL 0x1003db95
+void OakenTune0x10::FUN_1003db95(void* p_buffer, MechU32 p_size)
+{
+	// The two adjacent buffer fields are selected by Miles' ready-buffer index.
+	if (m_unk0x04) {
+		if (m_unk0x10 == -1 || (&m_unk0x08)[m_unk0x10] != p_buffer) {
+			return;
+		}
+		AIL_load_sample_buffer((HSAMPLE) m_unk0x04, m_unk0x10, p_buffer, p_size);
+		m_unk0x10 = -1;
 	}
 }
