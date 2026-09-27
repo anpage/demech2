@@ -26,15 +26,15 @@ private:
 
 extern void FUN_100078cd(SlateTab0x2c* p_clickables);
 void CalledWhenCombatVarsOptionClicked(MechS32);
-extern SlateTab0x2c ClickableThing_ARRAY_10070da8[15];
+extern SlateTab0x2c g_unk0x10070da8[15];
 extern MechS32 g_effectsVolume;
 extern MechS32 g_midiVolume;
 
 // GLOBAL: MW2SHELL 0x10070d90
-void* DAT_10070d90 = NULL;
+void* g_unk0x10070d90 = NULL;
 
 // GLOBAL: MW2SHELL 0x1007116c
-MechChar s_amwlogo1_1007116c[0x10] = "amwlogo1";
+MechChar g_unk0x1007116c[0x10] = "amwlogo1";
 
 // GLOBAL: MW2SHELL 0x10071680
 MechS32 g_unk0x10071680 = 0x10000;
@@ -53,11 +53,11 @@ MechS32 g_unk0x1007169c = 1;
 MechS32 g_unk0x100716a4 = 0;
 
 // GLOBAL: MW2SHELL 0x10092c18
-AudioSample* DAT_10092c18;
+AudioSample* g_unk0x10092c18;
 // GLOBAL: MW2SHELL 0x10092c30
 undefined g_unk0x10092c30[0x300];
 // GLOBAL: MW2SHELL 0x10092f30
-void* DAT_10092f30;
+void* g_unk0x10092f30;
 
 // GLOBAL: MW2SHELL 0x100716b8
 undefined g_unk0x100716b8[0x17] = {0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
@@ -216,19 +216,19 @@ void FUN_10043a72()
 	void* audioData;
 	MechS32 audioSize;
 	g_pVideoDriver->GetPalette(g_unk0x10092c30);
-	g_pDatabaseMw2->GetDBItem(8, &DAT_10092f30, &paletteSize);
+	g_pDatabaseMw2->GetDBItem(8, &g_unk0x10092f30, &paletteSize);
 	g_pDatabaseMw2->GetDBItem(0x66, &audioData, &audioSize);
-	DAT_10092c18 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
-	DAT_10092c18->SetVolume(0x32);
+	g_unk0x10092c18 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_unk0x10092c18->SetVolume(0x32);
 	g_pVideoDriver->LoadPalette(3);
 	*(MechS32*) ((MechU8*) g_pVideoDriver + 0x3a6) = 0;
 	g_pVideoDriver->FUN_100071ad(0x177, 0x7c, 0x102, 0x160);
-	DAT_10070d90 = NULL;
-	DAT_10070d90 = new RandomName0x18(s_amwlogo1_1007116c, 0x78, 4);
+	g_unk0x10070d90 = NULL;
+	g_unk0x10070d90 = new RandomName0x18(g_unk0x1007116c, 0x78, 4);
 	g_unk0x100711f8->FUN_100440ed();
 	FUN_10043926();
 	FUN_10043979();
-	FUN_100078cd(ClickableThing_ARRAY_10070da8);
+	FUN_100078cd(g_unk0x10070da8);
 	FUN_100109a0(CalledWhenCombatVarsOptionClicked);
 }
 
@@ -243,7 +243,7 @@ void CalledWhenCombatVarsOptionClicked(MechS32)
 #define OPTION_BAR(x, y, width, height, draw, click, value)                                                            \
 	{x, y, width, height, 0, NULL, NULL, draw, click, value, NULL}
 // GLOBAL: MW2SHELL 0x10070da8
-SlateTab0x2c ClickableThing_ARRAY_10070da8[15] = {
+SlateTab0x2c g_unk0x10070da8[15] = {
 	OPTION_ROW(0x189, 0xdb, 100, FUN_1004338a, FUN_10043651, g_unk0x100716b8 + 5),
 	OPTION_ROW(0x189, 0xef, 100, FUN_1004343c, FUN_100436c7, g_unk0x100716b8 + 4),
 	OPTION_ROW(0x189, 0x115, 100, FUN_100433dc, FUN_10043688, &g_unk0x1007168c),

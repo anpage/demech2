@@ -6,7 +6,9 @@
 #include "types.h"
 #include "videodriver.h"
 
-void* operator new(unsigned int);
+#include <stddef.h>
+
+void* operator new(size_t);
 
 extern AudioSubsystem* g_pAudioSubsystem;
 extern VideoDriver* g_pVideoDriver;
@@ -16,10 +18,10 @@ extern BrassLantern0x414* g_unk0x1007120c;
 void* g_unk0x1006ae74 = NULL;
 
 // GLOBAL: MW2SHELL 0x1006ae7c
-AudioSample* MechwarriorSample = NULL;
+AudioSample* g_unk0x1006ae7c = NULL;
 
 // GLOBAL: MW2SHELL 0x1006ae84
-MechChar s_amwlogo1_1006ae84[] = "amwlogo1";
+MechChar g_unk0x1006ae84[] = "amwlogo1";
 
 // GLOBAL: MW2SHELL 0x10070820
 MechChar g_unk0x10070820[0x18] = "~TRIALS OF GRIEVANCE";
@@ -92,14 +94,14 @@ void FUN_1003dc10(TMPackDataBase* p_database, MechS32*)
 
 	FUN_10003175(1, 0, 0, 0, 100);
 	p_database->GetDBItem(104, &audioData, &audioSize);
-	MechwarriorSample = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_unk0x1006ae7c = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 
 	g_pVideoDriver->FUN_10006c50(p_database, 1);
 	g_unk0x1006ae74 = new RandomName0x10d(g_pVideoDriver, g_unk0x1007120c, 0, g_mainMenuButtons, 3);
 
-	FUN_100175e2(s_amwlogo1_1006ae84, 0x6f, 0x21, 10, 0);
-	MechwarriorSample->SetVolume(0x78);
-	MechwarriorSample->Start();
+	FUN_100175e2(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
+	g_unk0x1006ae7c->SetVolume(0x78);
+	g_unk0x1006ae7c->Start();
 	FUN_100108e5(MainMenuCallback);
 }
 
