@@ -1,6 +1,7 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
+#include "campaignmission.h"
 #include "decomp.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -49,6 +50,51 @@ MainMenuButton g_mainMenuButtons[4] = {
 	{0x0a, 0xc5, 0xc8, 0x172, 0x7c, 0x176, g_unk0x10070848},
 	{0, 0x1c2, 0x27f, 0x1df, 0x140, 0x1c7, g_unk0x10070860},
 };
+
+// GLOBAL: MW2SHELL 0x1006fc90
+CampaignMission g_unk0x1006fc90[17] = {
+	{"yellSCN1", 0, "Pyre Light"},
+	{"oranSCN1", 0, "Flame Tongue "},
+	{"tealSCN1", 0, "Blade Splint"},
+	{"taupSCN1", 0, "Temper Edge"},
+	{"jennSCN1", 1, "Trial 1"},
+	{"sablSCN1", 0, "Sable Flame"},
+	{"greySCN1", 0, "Burning Chrome"},
+	{"browSCN1", 0, "Scorching Sand"},
+	{"amy_SCN1", 1, "Trial 2"},
+	{"silvSCN1", 0, "Silver Staff"},
+	{"aquaSCN1", 0, "Aquiline Fire"},
+	{"kim_SCN1", 1, "Trial 3"},
+	{"cyanSCN1", 0, "Cold Crescent"},
+	{"maroSCN1", 0, "Velvet Hammer"},
+	{"goldSCN1", 0, "Golden Spade"},
+	{"irenSCN1", 1, "Trial 4"},
+	{NULL, 0, "Retired"},
+};
+
+// GLOBAL: MW2SHELL 0x1006fd30
+CampaignMission g_unk0x1006fd30[17] = {
+	{"pinkSCN1", 0, "Silent Thunder"},
+	{"greeSCN1", 0, "Arkham Bridge"},
+	{"red_SCN1", 0, "Mirror Cage"},
+	{"fuchSCN1", 0, "Bone Machine"},
+	{"cindSCN1", 1, "Trial 1"},
+	{"rustSCN1", 0, "Bouk Obelisk"},
+	{"umbeSCN1", 0, "Umber Wall"},
+	{"tan_SCN1", 0, "Rogue Chariot"},
+	{"heidSCN1", 1, "Trial 2"},
+	{"plumSCN1", 0, "Plum Wine"},
+	{"whitSCN1", 0, "Rust Heart"},
+	{"jillSCN1", 1, "Trial 3"},
+	{"puceSCN1", 0, "Armor Veil"},
+	{"blonSCN1", 0, "Iron Piston"},
+	{"bronSCN1", 0, "Bronze Anvil"},
+	{"marySCN1", 1, "Trial 4"},
+	{NULL, 0, "Retired"},
+};
+
+// GLOBAL: MW2SHELL 0x1006fdd0
+CampaignMission* g_campaignMissions[2] = {g_unk0x1006fc90, g_unk0x1006fd30};
 
 // STUB: MW2SHELL 0x10003175
 void FUN_10003175(MechS32, MechS32, MechS32, MechS32, MechS32)

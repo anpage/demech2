@@ -231,6 +231,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/cockpitcontrols.cpp
     MW2SHELL/src/options.cpp
     MW2SHELL/src/hollowreed0x110.cpp
+    MW2SHELL/src/unk100460a0.c
     MW2SHELL/src/unk10046200.cpp
     MW2SHELL/src/mouse.c
     MW2SHELL/src/unk10046e80.cpp
