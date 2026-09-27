@@ -1,6 +1,7 @@
 #include "cedarknot0x10.h"
 
 #include "decomp.h"
+#include "sableroster0x24.h"
 #include "shellmain.h"
 #include "types.h"
 
@@ -55,13 +56,6 @@ struct BwdNameNode {
 	MechS32 m_size;    // 0x04
 	MechS16 m_unk0x08; // 0x08
 	char m_name[1];    // 0x0a
-};
-
-// SIZE 0x24
-struct SableRoster0x24 {
-	MechS32 m_unk0x00;    // 0x00
-	char m_unk0x04[0x10]; // 0x04
-	char m_unk0x14[0x10]; // 0x14
 };
 
 // Heap callbacks registered with the archive unit (unk1002fb90.c); the file unit's

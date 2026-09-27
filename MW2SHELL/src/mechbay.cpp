@@ -1,5 +1,6 @@
 #include "audiosample.h"
 #include "brasslantern0x414.h"
+#include "cedarknot0x10.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
 #include "mousestate.h"
@@ -59,8 +60,7 @@ struct QuartzHelm0xf50 {
 		MechS32 m_unk0x0c;    // 0x0c — rear armor, negative when the location has none
 	};
 
-	undefined4 m_unk0x00;                // 0x00
-	undefined m_unk0x04[0x100 - 0x04];   // 0x04
+	MechChar m_unk0x00[0x100];           // 0x00 — '~' and the mech's name
 	MechChar m_unk0x100[0x40];           // 0x100 — variant name
 	undefined m_unk0x140[0x200 - 0x140]; // 0x140
 	MechS32 m_unk0x200;                  // 0x200 — maximum weight
@@ -105,7 +105,31 @@ struct QuartzHelm0xf50 {
 	MechS32 m_unk0x49c;                  // 0x49c — used entries of m_unk0x4a0
 	Slot m_unk0x4a0[78];                 // 0x4a0
 	Armor m_unk0x710[8];                 // 0x710
-	undefined m_unk0x790[0xf50 - 0x790]; // 0x790
+	undefined m_unk0x790[0x7a4 - 0x790]; // 0x790
+	MechS32 m_unk0x7a4;                  // 0x7a4 — items 5001 and up to add or remove together
+	undefined m_unk0x7a8[0xf50 - 0x7a8]; // 0x7a8
+};
+
+// SIZE 0x18
+// A mech the bay can load. The table ends with a zeroed entry; only the first 15 are offered.
+struct GraniteMast0x18 {
+	MechChar* m_unk0x00; // 0x00 — code of the mech's video, "awomp%s"
+	MechChar* m_unk0x04; // 0x04 — prefix of its variant files
+	MechChar* m_unk0x08; // 0x08
+	MechChar* m_unk0x0c; // 0x0c — name
+	MechS32 m_unk0x10;   // 0x10
+	MechS32 m_unk0x14;   // 0x14 — database item of the name sample, -1 for none
+};
+
+// SIZE 0x28
+// One location's critical slots in the image of a .mek file.
+struct AmberCrate0x28 {
+	undefined4 m_unk0x00;  // 0x00
+	undefined4 m_unk0x04;  // 0x04
+	undefined4 m_unk0x08;  // 0x08
+	MechU16 m_unk0x0c[12]; // 0x0c — item ids
+	MechS16 m_unk0x24;     // 0x24 — slots in use
+	undefined2 m_unk0x26;  // 0x26
 };
 
 DECOMP_SIZE_ASSERT(SlateTab0x2c, 0x2c)
@@ -114,12 +138,25 @@ DECOMP_SIZE_ASSERT(TinLattice0x28, 0x28)
 DECOMP_SIZE_ASSERT(QuartzHelm0xf50::Slot, 0x08)
 DECOMP_SIZE_ASSERT(QuartzHelm0xf50::Armor, 0x10)
 DECOMP_SIZE_ASSERT(QuartzHelm0xf50, 0xf50)
+DECOMP_SIZE_ASSERT(GraniteMast0x18, 0x18)
+DECOMP_SIZE_ASSERT(AmberCrate0x28, 0x28)
 
-extern BrassLantern0x414* g_unk0x1007120c;
+extern AudioSubsystem* g_pAudioSubsystem;
 extern MouseState* g_pMouseState;
+extern BrassLantern0x414* g_unk0x1007120c;
+extern TMPackDataBase* g_pDatabaseMw2;
+extern CedarKnot0x10* g_unk0x10071230;
 
 void FUN_10016d27(MechS32 p_index);
 void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top);
+MechS32 FUN_10017460(
+	MechS32 p_index,
+	const char* p_name,
+	undefined4 p_unk0x08,
+	undefined4 p_unk0x0c,
+	MechU32 p_unk0x10,
+	MechU32 p_unk0x14
+);
 void FUN_10017698(MechS32 p_index, MechS32 p_frame);
 MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
 MechS32 FUN_10044451(
@@ -216,14 +253,85 @@ MechS32 g_unk0x1005de58[8] = {171, 206, 206, 206, 204, 204, 310, 310};
 // GLOBAL: MW2SHELL 0x1005de78
 AudioSample* g_unk0x1005de78 = NULL;
 
+// GLOBAL: MW2SHELL 0x10061560
+GraniteMast0x18 g_unk0x10061560[] = {
+	{"ds", "frm", "firemoth", "Firemoth", 20, 85},
+	{"kf", "ktf", "kitfox", "Kit Fox", 30, 89},
+	{"jn", "jnr", "jenner", "Jenner IIC", 35, 88},
+	{"bh", "nva", "nova", "Nova", 50, 92},
+	{"sc", "stm", "strmcrow", "Stormcrow", 55, 94},
+	{"md", "mdg", "maddog", "Mad Dog", 60, 90},
+	{"lo", "hlb", "hellbrgr", "Hellbringer", 65, 87},
+	{"rf", "rfl", "rifleman", "Rifleman IIC", 65, 93},
+	{"su", "smn", "summoner", "Summoner", 70, 95},
+	{"mc", "tbr", "timbrwlf", "Timber Wolf", 75, 96},
+	{"mw", "grg", "gargoyle", "Gargoyle", 80, 86},
+	{"wh", "whm", "warhammr", "Warhammer IIC", 80, 97},
+	{"mr", "mrd", "marauder", "Marauder IIC ", 85, 91},
+	{"ms", "whk", "warhawk", "Warhawk", 85, 98},
+	{"da", "drw", "direwolf", "Dire Wolf", 100, 83},
+	{"el", "ele", "elementl", "Elemental", 100, 84},
+	{"ta", "tar", "tarantul", "Tarantula", 100, -1},
+	{"bm", "btm", "btllmstr", "Battle Master IIC", 100, 99},
+	{NULL, NULL, NULL, NULL, 0, 0},
+};
+
+// GLOBAL: MW2SHELL 0x10061728
+MechS32 g_unk0x10061728 = 15;
+
+// GLOBAL: MW2SHELL 0x10061730
+MechChar g_unk0x10061730[] = "awomp%s";
+
+// GLOBAL: MW2SHELL 0x10061738
+MechChar g_unk0x10061738[] = "ajfmp%s";
+
+// GLOBAL: MW2SHELL 0x10061740
+MechChar g_unk0x10061740[] = "aiamp%s";
+
+// GLOBAL: MW2SHELL 0x10061748
+MechChar* g_unk0x10061748 = g_unk0x10061730;
+
+// GLOBAL: MW2SHELL 0x1006176c
+MechS32 g_unk0x1006176c = 7;
+
+// GLOBAL: MW2SHELL 0x10061770
+AudioSample* g_unk0x10061770 = NULL;
+
+// GLOBAL: MW2SHELL 0x10079a98
+undefined4 g_unk0x10079a98;
+
+// GLOBAL: MW2SHELL 0x10079a9c
+undefined4 g_unk0x10079a9c;
+
+// GLOBAL: MW2SHELL 0x10079aa8
+MechChar g_unk0x10079aa8[0x20];
+
 // GLOBAL: MW2SHELL 0x10079b50
 MechChar g_szTempBuffer[0x100];
+
+// GLOBAL: MW2SHELL 0x10079d38
+MechChar g_unk0x10079d38[0x48];
+
+// GLOBAL: MW2SHELL 0x10079d80
+MechChar g_unk0x10079d80[200][13];
+
+// GLOBAL: MW2SHELL 0x1007a800
+MechChar g_unk0x1007a800[0x20];
+
+// GLOBAL: MW2SHELL 0x1007a820
+undefined g_unk0x1007a820[0x800];
+
+// GLOBAL: MW2SHELL 0x1007c820
+AmberCrate0x28 g_unk0x1007c820[8];
 
 // GLOBAL: MW2SHELL 0x1007c960
 undefined g_unk0x1007c960[0x100];
 
 // GLOBAL: MW2SHELL 0x1007ca60
 undefined g_unk0x1007ca60[0x100];
+
+// GLOBAL: MW2SHELL 0x1007cc80
+MechS32 g_unk0x1007cc80;
 
 // FUNCTION: MW2SHELL 0x10007850
 MechS32 FUN_10007850(MechS32 p_value)
@@ -1781,6 +1889,529 @@ void FUN_1000b0c2(SlateTab0x2c* p_tab)
 {
 	if (p_tab) {
 	}
+}
+
+// FUNCTION: MW2SHELL 0x1000b0dc
+void FUN_1000b0dc(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+
+	if (g_unk0x1005c640.m_unk0x314 < 0) {
+		return;
+	}
+
+	id = g_unk0x1005c640.m_unk0x318[g_unk0x1005c640.m_unk0x314][(MechS32) p_tab->m_unk0x24];
+	if (id < 0) {
+		return;
+	}
+
+	if (id >= 5300 && id < 6000) {
+		ShowDialog("Selected critical|can not be removed.#Ok", 0);
+		return;
+	}
+
+	FUN_10007df0(id);
+}
+
+// Comparison operand order: the original loads m_unk0x25c into eax and compares m_unk0x258 with
+// it, the reverse of ours; flipping the source didn't change it.
+// FUNCTION: MW2SHELL 0x1000b166
+void FUN_1000b166(SlateTab0x2c* p_tab)
+{
+	QuartzHelm0xf50::Armor* armor;
+
+	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x25c >= g_unk0x1005c640.m_unk0x258) {
+		if (armor->m_unk0x0c > 0) {
+			armor->m_unk0x08++;
+			armor->m_unk0x0c--;
+		}
+	}
+	else if (armor->m_unk0x0c < 0) {
+		if (armor->m_unk0x04 > armor->m_unk0x08) {
+			armor->m_unk0x08++;
+			g_unk0x1005c640.m_unk0x25c++;
+		}
+	}
+	else if (armor->m_unk0x08 + armor->m_unk0x0c < armor->m_unk0x04) {
+		armor->m_unk0x08++;
+		g_unk0x1005c640.m_unk0x25c++;
+	}
+	else if (armor->m_unk0x0c) {
+		armor->m_unk0x08++;
+		armor->m_unk0x0c--;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000b239
+void FUN_1000b239(SlateTab0x2c* p_tab)
+{
+	QuartzHelm0xf50::Armor* armor;
+
+	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
+	if (p_tab) {
+	}
+
+	if (armor->m_unk0x08 > 0) {
+		armor->m_unk0x08--;
+		g_unk0x1005c640.m_unk0x25c--;
+	}
+}
+
+// Comparison operand order: the original loads m_unk0x25c into eax and compares m_unk0x258 with
+// it, the reverse of ours; flipping the source didn't change it.
+// FUNCTION: MW2SHELL 0x1000b284
+void FUN_1000b284(SlateTab0x2c* p_tab)
+{
+	QuartzHelm0xf50::Armor* armor;
+
+	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
+	if (p_tab) {
+	}
+
+	if (armor->m_unk0x0c < 0) {
+		return;
+	}
+
+	if (g_unk0x1005c640.m_unk0x25c >= g_unk0x1005c640.m_unk0x258) {
+		if (armor->m_unk0x08 > 0) {
+			armor->m_unk0x08--;
+			armor->m_unk0x0c++;
+		}
+	}
+	else if (armor->m_unk0x08 + armor->m_unk0x0c < armor->m_unk0x04) {
+		armor->m_unk0x0c++;
+		g_unk0x1005c640.m_unk0x25c++;
+	}
+	else if (armor->m_unk0x08) {
+		armor->m_unk0x08--;
+		armor->m_unk0x0c++;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000b339
+void FUN_1000b339(SlateTab0x2c* p_tab)
+{
+	QuartzHelm0xf50::Armor* armor;
+
+	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
+	if (p_tab) {
+	}
+
+	if (armor->m_unk0x0c > 0) {
+		armor->m_unk0x0c--;
+		g_unk0x1005c640.m_unk0x25c--;
+	}
+}
+
+// Toggles the flag at m_unk0x24 and adds or removes the item id held in m_unk0x28. The arm
+// actuators (5401, 5402, 5451, 5452) take a fixed slot in the arms, replacing what is there.
+// FUNCTION: MW2SHELL 0x1000b384
+void FUN_1000b384(SlateTab0x2c* p_tab)
+{
+	MechS32* flag;
+	MechS32 i;
+
+	flag = (MechS32*) p_tab->m_unk0x24;
+	if (*flag == 0) {
+		*flag = 1;
+	}
+	else {
+		*flag = 0;
+	}
+
+	if (*flag) {
+		switch ((MechS32) p_tab->m_unk0x28) {
+		case 5000:
+			for (i = 1; i <= g_unk0x1005c640.m_unk0x7a4; i++) {
+				FUN_10007d9e(i + 5000, 1);
+			}
+			g_unk0x1005c640.m_unk0x270 = g_unk0x1005c640.m_unk0x7a4 * 100;
+			FUN_10008989();
+			break;
+		case 5401:
+			if (g_unk0x1005c640.m_unk0x318[4][2] > 0) {
+				FUN_10007df0(g_unk0x1005c640.m_unk0x318[4][2]);
+			}
+			g_unk0x1005c640.m_unk0x318[4][2] = 5401;
+			break;
+		case 5451:
+			if (g_unk0x1005c640.m_unk0x318[4][3] > 0) {
+				FUN_10007df0(g_unk0x1005c640.m_unk0x318[4][3]);
+			}
+			g_unk0x1005c640.m_unk0x318[4][3] = 5451;
+			break;
+		case 5402:
+			if (g_unk0x1005c640.m_unk0x318[5][2] > 0) {
+				FUN_10007df0(g_unk0x1005c640.m_unk0x318[5][2]);
+			}
+			g_unk0x1005c640.m_unk0x318[5][2] = 5402;
+			break;
+		case 5452:
+			if (g_unk0x1005c640.m_unk0x318[5][3] > 0) {
+				FUN_10007df0(g_unk0x1005c640.m_unk0x318[5][3]);
+			}
+			g_unk0x1005c640.m_unk0x318[5][3] = 5452;
+			break;
+		}
+	}
+	else {
+		switch ((MechS32) p_tab->m_unk0x28) {
+		case 5000:
+			for (i = 1; i <= g_unk0x1005c640.m_unk0x7a4; i++) {
+				FUN_10007e90(i + 5000);
+			}
+			g_unk0x1005c640.m_unk0x270 = 0;
+			FUN_10008989();
+			break;
+		case 5401:
+		case 5402:
+		case 5451:
+		case 5452:
+			FUN_10007e90((MechS32) p_tab->m_unk0x28);
+			break;
+		}
+	}
+}
+
+// Returns the first tab with a click callback that contains the point.
+// Operand order: the original loads m_width before m_left; swapping them in the source didn't
+// change it.
+// FUNCTION: MW2SHELL 0x1000b5ed
+SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y)
+{
+	if (p_tabs) {
+		while (p_tabs->m_left != -1) {
+			if (p_tabs->m_unk0x20 != NULL && p_tabs->m_left <= p_x && p_x < p_tabs->m_left + p_tabs->m_width &&
+				p_tabs->m_top <= p_y && p_y < p_tabs->m_top + p_tabs->m_height) {
+				return p_tabs;
+			}
+
+			p_tabs++;
+		}
+	}
+
+	return NULL;
+}
+
+// FUNCTION: MW2SHELL 0x1000b679
+MechS32 FUN_1000b679(MechS32 p_id, MechS32 p_location, MechS32* p_slot)
+{
+	MechS32 i;
+
+	for (i = 0; i < g_unk0x1007c820[p_location].m_unk0x24; i++) {
+		if (g_unk0x1007c820[p_location].m_unk0x0c[i] == p_id) {
+			if (p_slot != NULL) {
+				*p_slot = i;
+			}
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+// Stack-slot permutation: location and slot.
+// FUNCTION: MW2SHELL 0x1000b6f4
+MechS32 FUN_1000b6f4(MechS32 p_id, MechS32* p_location, MechS32* p_slot)
+{
+	MechS32 location;
+	MechS32 slot;
+
+	for (location = 0; location < 8; location++) {
+		if (FUN_1000b679(p_id, location, &slot)) {
+			if (p_location != NULL) {
+				*p_location = location;
+			}
+			if (p_slot != NULL) {
+				*p_slot = slot;
+			}
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+// STUB: MW2SHELL 0x1000b771
+MechS32 FUN_1000b771(MechChar* p_name)
+{
+	STUB(0x1000b771);
+	return 0;
+}
+
+// Returns the image of a .mek file: a user variant from the mek directory, or a standard one
+// ("…std") from the project file.
+// FUNCTION: MW2SHELL 0x1000bce5
+void* FUN_1000bce5(MechChar* p_name)
+{
+	FILE* file;
+	MechChar path[0x20];
+
+	if (_strnicmp(p_name + 5, "std", 3)) {
+		strcpy(path, "mek\\");
+		strcat(path, p_name);
+		if (strchr(p_name, '.') == NULL) {
+			strcat(path, ".mek");
+		}
+
+		file = fopen(path, "rb");
+		if (file == NULL) {
+			return NULL;
+		}
+
+		fread(g_unk0x1007a820, 1, sizeof(g_unk0x1007a820), file);
+		fclose(file);
+		return g_unk0x1007a820;
+	}
+
+	return g_unk0x10071230->FUN_1002e3cf(p_name, 6, "MEK");
+}
+
+// FUNCTION: MW2SHELL 0x1000be09
+void FUN_1000be09(MechChar* p_name)
+{
+	if (!_strnicmp(p_name + 5, "std", 3)) {
+		g_unk0x10071230->FUN_1002e445(p_name, 6, "MEK");
+	}
+}
+
+// Copies p_size bytes and returns the source position after them.
+// FUNCTION: MW2SHELL 0x1000be4d
+undefined* FUN_1000be4d(undefined* p_dst, undefined* p_src, MechU32 p_size)
+{
+	memcpy(p_dst, p_src, p_size);
+	return p_src + p_size;
+}
+
+// FUNCTION: MW2SHELL 0x1000be7a
+void FUN_1000be7a(MechS32 p_location, MechS32 p_slot, MechS32 p_id)
+{
+	MechS32 count;
+	MechS32 id;
+
+	id = g_unk0x1005c640.m_unk0x318[p_location][p_slot];
+	if (id) {
+		count = FUN_10007b4d(id);
+	}
+
+	g_unk0x1005c640.m_unk0x318[p_location][p_slot] = p_id;
+	if (!FUN_10007bee(p_location, id, count)) {
+		FUN_10007d9e(id, count);
+	}
+}
+
+// STUB: MW2SHELL 0x1000befe
+void FUN_1000befe(MechChar* p_name)
+{
+	STUB(0x1000befe);
+}
+
+// Lists the variants of a mech: the standard ones from the project file in 1-99 (and the name
+// of the first in 0), the user's from the mek directory in 100-199.
+// FUNCTION: MW2SHELL 0x1000c8b8
+void LoadMechBuildList(MechChar* p_prefix)
+{
+	MechS32 i;
+	HANDLE findFile;
+	WIN32_FIND_DATA findData;
+
+	memset(g_unk0x10079d80, 0, sizeof(g_unk0x10079d80));
+	sprintf(g_unk0x1007a800, "%s%02dstd", p_prefix, 0);
+	strcpy(g_unk0x10079d80[0], g_unk0x1007a800);
+
+	for (i = 1; i < 100; i++) {
+		sprintf(g_unk0x1007a800, "%s%02dstd", p_prefix, i);
+		if (g_unk0x10071230->FUN_1002e346(g_unk0x1007a800, 6) >= 0) {
+			strcpy(g_unk0x10079d80[i], g_unk0x1007a800);
+		}
+	}
+
+	sprintf(g_unk0x1007a800, "mek\\%s??usr.mek", p_prefix);
+	findFile = FindFirstFile(g_unk0x1007a800, &findData);
+	if (findFile == INVALID_HANDLE_VALUE) {
+		return;
+	}
+
+	for (;;) {
+		i = (findData.cAlternateFileName[3] - '0') * 10 + findData.cAlternateFileName[4] - '0' + 100;
+		strncpy(g_unk0x10079d80[i], findData.cAlternateFileName, 8);
+		g_unk0x10079d80[i][8] = '\0';
+		if (!FindNextFile(findFile, &findData)) {
+			break;
+		}
+	}
+
+	FindClose(findFile);
+}
+
+// FUNCTION: MW2SHELL 0x1000ca74
+void FUN_1000ca74()
+{
+	sprintf(g_unk0x10079d38, g_unk0x10061748, g_unk0x10061560[g_unk0x1006176c].m_unk0x00);
+	FUN_10016cc0(0x10, 0x40000000, 0x40000000);
+	FUN_10017460(0x10, g_unk0x10079d38, g_unk0x10079a98, g_unk0x10079a9c, 0x88, 0xe);
+	LoadMechBuildList(g_unk0x10061560[g_unk0x1006176c].m_unk0x04);
+	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
+	g_unk0x1005c640.m_unk0x00[0] = '~';
+	strcpy(&g_unk0x1005c640.m_unk0x00[1], g_unk0x10061560[g_unk0x1006176c].m_unk0x0c);
+}
+
+// FUNCTION: MW2SHELL 0x1000cb4b
+void FUN_1000cb4b()
+{
+	FUN_10016cc0(0x10, 0x40000000, 0x40000000);
+}
+
+// FUNCTION: MW2SHELL 0x1000cb6f
+void FUN_1000cb6f()
+{
+	FUN_10016d27(0x10);
+}
+
+// FUNCTION: MW2SHELL 0x1000cb89
+void FUN_1000cb89()
+{
+	FUN_10016cc0(0x10, 0x20, 0x20);
+}
+
+// Plays the selected mech's name. Stack-slot permutation: audioData and audioSize.
+// FUNCTION: MW2SHELL 0x1000cba7
+void FUN_1000cba7()
+{
+	void* audioData;
+	MechS32 audioSize;
+
+	if (g_unk0x10061560[g_unk0x1006176c].m_unk0x14 < 0) {
+		return;
+	}
+
+	g_pDatabaseMw2->GetDBItem(g_unk0x10061560[g_unk0x1006176c].m_unk0x14, &audioData, &audioSize);
+	if (g_unk0x10061770 != NULL) {
+		g_unk0x10061770->Stop();
+		delete g_unk0x10061770;
+	}
+
+	g_unk0x10061770 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_unk0x10061770->SetVolume(40);
+	g_unk0x10061770->Start();
+}
+
+// Comparison operand order: the original loads g_unk0x10061728 into eax and compares
+// g_unk0x1006176c with it, the reverse of ours; flipping the source didn't change it.
+// FUNCTION: MW2SHELL 0x1000cce5
+void FUN_1000cce5()
+{
+	g_unk0x1006176c++;
+	if (g_unk0x1006176c >= g_unk0x10061728) {
+		g_unk0x1006176c = 0;
+	}
+
+	g_unk0x1007cc80 = 0;
+	FUN_1000cba7();
+	FUN_1000ca74();
+}
+
+// FUNCTION: MW2SHELL 0x1000cd2a
+void FUN_1000cd2a()
+{
+	g_unk0x1006176c--;
+	if (g_unk0x1006176c < 0) {
+		g_unk0x1006176c = g_unk0x10061728 - 1;
+	}
+
+	g_unk0x1007cc80 = 0;
+	FUN_1000cba7();
+	FUN_1000ca74();
+}
+
+// FUNCTION: MW2SHELL 0x1000cd65
+void FUN_1000cd65()
+{
+	for (g_unk0x1007cc80++; g_unk0x1007cc80 < 200; g_unk0x1007cc80++) {
+		if (g_unk0x10079d80[g_unk0x1007cc80][0]) {
+			break;
+		}
+	}
+
+	if (g_unk0x1007cc80 >= 200) {
+		g_unk0x1007cc80 = 0;
+	}
+
+	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
+	g_unk0x1005c640.m_unk0x00[0] = '~';
+	strcpy(&g_unk0x1005c640.m_unk0x00[1], g_unk0x10061560[g_unk0x1006176c].m_unk0x0c);
+	FUN_10007ac8(g_unk0x1005de28);
+	g_unk0x1005de28 = NULL;
+	FUN_100079f8(g_unk0x1005de2c);
+}
+
+// FUNCTION: MW2SHELL 0x1000ce50
+void FUN_1000ce50()
+{
+	if (g_unk0x1007cc80 == 0) {
+		g_unk0x1007cc80 = 200;
+	}
+
+	for (g_unk0x1007cc80--; g_unk0x1007cc80 >= 0; g_unk0x1007cc80--) {
+		if (g_unk0x10079d80[g_unk0x1007cc80][0]) {
+			break;
+		}
+	}
+
+	if (g_unk0x1007cc80 < 0) {
+		g_unk0x1007cc80 = 0;
+	}
+
+	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
+	g_unk0x1005c640.m_unk0x00[0] = '~';
+	strcpy(&g_unk0x1005c640.m_unk0x00[1], g_unk0x10061560[g_unk0x1006176c].m_unk0x0c);
+	FUN_10007ac8(g_unk0x1005de28);
+	g_unk0x1005de28 = NULL;
+	FUN_100079f8(g_unk0x1005de2c);
+}
+
+// Saves the variant under the first free user slot. Returns FALSE when the variant is invalid.
+// FUNCTION: MW2SHELL 0x1000cf4c
+MechS32 FUN_1000cf4c()
+{
+	MechS32 i;
+
+	if (g_unk0x1005c640.m_unk0x4a0[0].m_unk0x00 != -1) {
+		ShowDialog("Invalid 'Mech specification:|Unassigned criticals detected.#Ok", 0);
+		return FALSE;
+	}
+
+	if (g_unk0x1005c640.m_unk0x204 > g_unk0x1005c640.m_unk0x200) {
+		ShowDialog("Invalid 'Mech specification:|Chassis can not support|current mass.#Ok", 0);
+		return FALSE;
+	}
+
+	for (i = 100; i < 200; i++) {
+		if (!g_unk0x10079d80[i][0]) {
+			break;
+		}
+	}
+
+	if (i >= 200) {
+		ShowDialog("Error: Too many mechs|of this variant to save.#Ok", 0);
+		return TRUE;
+	}
+
+	sprintf(g_unk0x10079aa8, "%s%02dusr.mek", g_unk0x10061560[g_unk0x1006176c].m_unk0x04, i - 100);
+	strcpy(g_unk0x10079d80[i], g_unk0x10079aa8);
+	strncpy(g_unk0x10079d80[i], g_unk0x10079aa8, 8);
+	g_unk0x10079d80[i][8] = '\0';
+	if (!FUN_1000b771(g_unk0x10079aa8)) {
+		ShowDialog("Error saving 'Mech.#Ok", 0);
+		return TRUE;
+	}
+
+	g_unk0x1007cc80 = i;
+	return TRUE;
 }
 
 // STUB: MW2SHELL 0x1000d0d4
