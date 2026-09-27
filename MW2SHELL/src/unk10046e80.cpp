@@ -1,8 +1,8 @@
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
-#include "silverreel0x18.h"
 #include "mousestate.h"
+#include "silverreel0x18.h"
 #include "types.h"
 #include "videodriver.h"
 
