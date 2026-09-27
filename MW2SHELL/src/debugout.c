@@ -32,10 +32,60 @@ void FUN_10017710(void)
 	memmove((void*) 0xb0000, (void*) 0xb00a0, 0xf00);
 }
 
-// STUB: MW2SHELL 0x100177e9
+// FUNCTION: MW2SHELL 0x10017732
+void FUN_10017732(void)
+{
+	MechS32 pixelAddress = 0xb0f00;
+
+	while (pixelAddress < 0xb0fa0) {
+		*(MechS32*) pixelAddress = *(MechS32*) pixelAddress & 0xff00ff00;
+		pixelAddress += 4;
+	}
+}
+
+// Stack-slot permutation: original source/destination/length/index are at
+// [ebp-0xc]/[ebp-4]/[ebp-0x10]/[ebp-8]; VC++ assigns
+// [ebp-4]/[ebp-0x10]/[ebp-8]/[ebp-0xc] here.
+// FUNCTION: MW2SHELL 0x1001776c
+void FUN_1001776c(MechChar* p_message)
+{
+	MechChar* source = p_message;
+	MechChar* destination = (MechChar*) 0xb0f00;
+	MechS32 length = strlen(p_message);
+	MechS32 index;
+
+	if (length > 0x50) {
+		length = 0x50;
+	}
+
+	FUN_10017710();
+	FUN_10017732();
+	for (index = 0; index < length; index++) {
+		*destination = *source;
+		source++;
+		destination++;
+		destination++;
+	}
+}
+
+// Stack-slot permutation: original length/offset are at [ebp-8]/[ebp-4];
+// VC++ assigns [ebp-4]/[ebp-8] here.
+// FUNCTION: MW2SHELL 0x100177e9
 void FUN_100177e9(MechChar* p_message)
 {
-	STUB(0x100177e9);
+	MechS32 length = strlen(p_message);
+	MechS32 offset = 0;
+
+	while (offset < length) {
+		FUN_1001776c(p_message + offset);
+		offset += 0x50;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x10017836
+void FUN_10017836(void)
+{
+	g_unk0x10064b7c = fopen(g_unk0x10064b80, "wt");
 }
 
 // FUNCTION: MW2SHELL 0x10017858

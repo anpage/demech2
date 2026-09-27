@@ -118,6 +118,32 @@ void FUN_1001661b()
 	STUB(0x1001661b);
 }
 
+// FUNCTION: MW2SHELL 0x10016b11
+MechS32 FUN_10016b11(MechS32 p_index)
+{
+	if (p_index >= 0 && p_index < 0x20 && (g_unk0x100641a8[p_index].m_unk0x1c & 0x80000000) &&
+		!(g_unk0x100641a8[p_index].m_unk0x1c & 1)) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x10016b78
+MechS32 FUN_10016b78()
+{
+	MechS32 i;
+
+	for (i = 0; i < 0x20; i++) {
+		if ((g_unk0x100641a8[i].m_unk0x1c & 0x80000000) && (g_unk0x100641a8[i].m_unk0x1c & 0x2000)) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 // FUNCTION: MW2SHELL 0x10016be7
 MechS32 FUN_10016be7()
 {
@@ -247,6 +273,17 @@ MechS32 FUN_10017460(
 {
 	STUB(0x10017460);
 	return -1;
+}
+
+// FUNCTION: MW2SHELL 0x10017656
+MechS32 FUN_10017656(MechS32 p_index)
+{
+	if (p_index >= 0 && p_index < 0x20) {
+		return g_unk0x100641a8[p_index].m_unk0x3c;
+	}
+	else {
+		return 0;
+	}
 }
 
 // FUNCTION: MW2SHELL 0x10017698

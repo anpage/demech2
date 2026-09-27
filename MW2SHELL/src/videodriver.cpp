@@ -64,10 +64,33 @@ extern "C"
 		MechS32 p_unk0x14,
 		MechS32 p_unk0x18
 	);
+	MechS32 FUN_10036abc(void* p_font, MechS32 p_char);
+	MechS32 FUN_10036adc(
+		PixelView* p_view,
+		MechS32 p_left,
+		MechS32 p_top,
+		void* p_font,
+		MechS32 p_char,
+		undefined* p_palette
+	);
+	void FUN_10036c67(
+		PixelView* p_view,
+		MechS32 p_left,
+		MechS32 p_top,
+		void* p_font,
+		MechChar* p_text,
+		undefined* p_palette
+	);
 	void FUN_10037014(PixelView* p_view, undefined* p_data);
 	void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette);
 	MechS32 FUN_100370c1(undefined* p_data);
 }
+
+// Only the height field of the font data header is used by the text drawing wrappers.
+struct VideoFontHeader {
+	undefined m_unk0x00[8]; // 0x00
+	MechS32 m_height;       // 0x08
+};
 
 // GLOBAL: MW2SHELL 0x1005c2a0
 MechS32 g_unk0x1005c2a0 = 0;
@@ -544,7 +567,9 @@ void VideoDriver::FUN_10007430(
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
 }
 
-// STUB: MW2SHELL 0x100074d2
+// Only the stack slots differ: the original puts cursor at [ebp-4] and acquired at [ebp-0xc];
+// VC++ 4.1 assigns them [ebp-0xc] and [ebp-4] here. width stays at [ebp-8].
+// FUNCTION: MW2SHELL 0x100074d2
 MechS32 VideoDriver::FUN_100074d2(
 	MechS32 p_left,
 	MechS32 p_top,
@@ -553,15 +578,64 @@ MechS32 VideoDriver::FUN_100074d2(
 	undefined* p_unk0x10
 )
 {
-	STUB(0x100074d2);
-	return 0;
+	MechChar* cursor;
+	MechS32 width;
+	MechS32 acquired;
+
+	if (p_text == NULL) {
+		return 0;
+	}
+
+	width = 0;
+	for (cursor = p_text; *cursor != '\0'; cursor++) {
+		width += FUN_10036abc(p_unk0x08, *cursor);
+	}
+
+	if (width == 0) {
+		return width;
+	}
+
+	if (g_unk0x1005c2a0 && !IntersectsRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height)) {
+		return width;
+	}
+
+	if (p_unk0x10 == NULL) {
+		p_unk0x10 = g_unk0x10079998;
+	}
+
+	acquired = ACQUIRE_FRAMEBUFFER();
+	if (acquired == 0) {
+		FUN_10036c67(&m_screenView, p_left, p_top, p_unk0x08, p_text, p_unk0x10);
+	}
+
+	ExpandRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height);
+	return width;
 }
 
-// STUB: MW2SHELL 0x10007603
-MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechS32 p_char, undefined* p_unk0x10)
+// Only the stack slots differ: the original puts width at [ebp-4] and acquired at [ebp-8];
+// VC++ 4.1 assigns them [ebp-8] and [ebp-4] here.
+// FUNCTION: MW2SHELL 0x10007603
+MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10)
 {
-	STUB(0x10007603);
-	return 0;
+	MechS32 width;
+	MechS32 acquired;
+
+	width = FUN_10036abc(p_unk0x08, p_char);
+	if (g_unk0x1005c2a0 && !IntersectsRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height)) {
+		return width;
+	}
+
+	if (p_unk0x10 == NULL) {
+		p_unk0x10 = g_unk0x10079998;
+	}
+
+	acquired = ACQUIRE_FRAMEBUFFER();
+	if (acquired == 0) {
+		FUN_10036adc(&m_screenView, p_left, p_top, p_unk0x08, p_char, p_unk0x10);
+	}
+
+	ExpandRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height);
+	return width;
 }
 
 // FUNCTION: MW2SHELL 0x100076e8

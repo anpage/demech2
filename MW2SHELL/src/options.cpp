@@ -1,5 +1,6 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
+#include "brasslantern0x414.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
 #include "slatetab0x2c.h"
@@ -12,6 +13,7 @@
 extern AudioSubsystem* g_pAudioSubsystem;
 extern TMPackDataBase* g_pDatabaseMw2;
 extern HollowReed0x110* g_unk0x100711f8;
+extern BrassLantern0x414* g_unk0x10071214;
 extern VideoDriver* g_pVideoDriver;
 
 extern void* AllocateAllowNew(MechS32 p_size);
@@ -118,17 +120,33 @@ EmberGlyph0x3e* FUN_10043589(SlateTab0x2c*)
 	return NULL;
 }
 
-// STUB: MW2SHELL 0x100435e9
-EmberGlyph0x3e* FUN_100435e9(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x100435e9
+EmberGlyph0x3e* FUN_100435e9(SlateTab0x2c* p_option)
 {
-	STUB(0x100435e9);
-	return NULL;
+	MechChar* value;
+	MechChar* label;
+
+	value = (MechChar*) p_option->m_unk0x24;
+	if (*value == '\0') {
+		label = "~320x200";
+	}
+	else {
+		label = "~640x480";
+	}
+
+	return g_unk0x10071214->FUN_1000544e(p_option->m_left + p_option->m_width / 2, p_option->m_top, label, NULL);
 }
 
-// STUB: MW2SHELL 0x10043651
-void FUN_10043651(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x10043651
+void FUN_10043651(SlateTab0x2c* p_option)
 {
-	STUB(0x10043651);
+	MechU8* value;
+
+	value = (MechU8*) p_option->m_unk0x24;
+	++*value;
+	if (*value >= 3) {
+		*value = 0;
+	}
 }
 
 // FUNCTION: MW2SHELL 0x10043688
@@ -145,10 +163,18 @@ void FUN_10043688(SlateTab0x2c* p_toggle)
 	}
 }
 
-// STUB: MW2SHELL 0x100436c7
-void FUN_100436c7(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x100436c7
+void FUN_100436c7(SlateTab0x2c* p_option)
 {
-	STUB(0x100436c7);
+	MechU8* value;
+
+	value = (MechU8*) p_option->m_unk0x24;
+	if (*value) {
+		*value = 0;
+	}
+	else {
+		*value = 1;
+	}
 }
 
 // STUB: MW2SHELL 0x10043703
@@ -157,17 +183,38 @@ void FUN_10043703(SlateTab0x2c*)
 	STUB(0x10043703);
 }
 
-// STUB: MW2SHELL 0x10043758
-EmberGlyph0x3e* FUN_10043758(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x10043758
+EmberGlyph0x3e* FUN_10043758(SlateTab0x2c* p_option)
 {
-	STUB(0x10043758);
+	g_pVideoDriver->FUN_100071ad(p_option->m_left, p_option->m_top, p_option->m_width, p_option->m_height);
+
 	return NULL;
 }
 
-// STUB: MW2SHELL 0x10043790
-EmberGlyph0x3e* FUN_10043790(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x10043790
+EmberGlyph0x3e* FUN_10043790(SlateTab0x2c* p_option)
 {
-	STUB(0x10043790);
+	MechS32 position;
+
+	position = *(MechS32*) p_option->m_unk0x24;
+	position /= 0x100;
+	g_pVideoDriver->FUN_100073b3(
+		(undefined4) g_unk0x10092f30,
+		1,
+		p_option->m_left,
+		p_option->m_top,
+		p_option->m_width,
+		p_option->m_height
+	);
+	g_pVideoDriver->FUN_100073b3(
+		(undefined4) g_unk0x10092f30,
+		0,
+		p_option->m_left + position + 8,
+		p_option->m_top - 1,
+		0xf,
+		0x1d
+	);
+
 	return NULL;
 }
 

@@ -948,6 +948,33 @@ __declspec(naked) MechS32 FUN_10036abc(void* p_data, MechS32 p_char)
 }
 #endif
 
+// STUB: MW2SHELL 0x10036adc
+MechS32 FUN_10036adc(
+	PixelView* p_view,
+	MechS32 p_left,
+	MechS32 p_top,
+	void* p_font,
+	MechS32 p_char,
+	undefined* p_palette
+)
+{
+	STUB(0x10036adc);
+	return 0;
+}
+
+// STUB: MW2SHELL 0x10036c67
+void FUN_10036c67(
+	PixelView* p_view,
+	MechS32 p_left,
+	MechS32 p_top,
+	void* p_font,
+	MechChar* p_text,
+	undefined* p_palette
+)
+{
+	STUB(0x10036c67);
+}
+
 // STUB: MW2SHELL 0x10036c9e
 void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
 {
@@ -1094,6 +1121,189 @@ __declspec(naked) MechS32 FUN_100370c1(undefined* p_data)
 		mov ax, word ptr [esi+0xa]
 		sub ax, word ptr [esi+0x6]
 		inc ax
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Returns the first dword in an entry selected from the offset table at data + 8.
+#ifdef COMPAT_MODE
+MechS32 FUN_10037504(void* p_data, MechS32 p_index)
+{
+	STUB(0x10037504);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10037504
+__declspec(naked) MechS32 FUN_10037504(void* p_data, MechS32 p_index)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		mov esi, dword ptr [esi]
+		add esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Returns the second dword in an entry selected from the offset table at data + 8.
+#ifdef COMPAT_MODE
+MechS32 FUN_10037526(void* p_data, MechS32 p_index)
+{
+	STUB(0x10037526);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10037526
+__declspec(naked) MechS32 FUN_10037526(void* p_data, MechS32 p_index)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		mov esi, dword ptr [esi]
+		add esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0x4]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Returns the entry's inclusive horizontal and vertical spans packed into a dword.
+#ifdef COMPAT_MODE
+MechU32 FUN_10037549(void* p_data, MechS32 p_index)
+{
+	STUB(0x10037549);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10037549
+__declspec(naked) MechU32 FUN_10037549(void* p_data, MechS32 p_index)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		mov esi, dword ptr [esi]
+		add esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0x10]
+		sub eax, dword ptr [esi+0x8]
+		inc eax
+		mov ebx, dword ptr [esi+0x14]
+		sub ebx, dword ptr [esi+0xc]
+		inc ebx
+		shl eax, 0x10
+		mov ax, bx
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Returns the entry's two coordinate fields at +8 and +c packed into a dword.
+#ifdef COMPAT_MODE
+MechU32 FUN_1003757d(void* p_data, MechS32 p_index)
+{
+	STUB(0x1003757d);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x1003757d
+__declspec(naked) MechU32 FUN_1003757d(void* p_data, MechS32 p_index)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		add esi, 0x8
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		add esi, eax
+		mov esi, dword ptr [esi]
+		add esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0x8]
+		shl eax, 0x10
+		mov ax, word ptr [esi+0xc]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Returns the dword at +4 in the data header.
+#ifdef COMPAT_MODE
+MechS32 FUN_10037684(void* p_data)
+{
+	STUB(0x10037684);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10037684
+__declspec(naked) MechS32 FUN_10037684(void* p_data)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0x4]
 		pop es
 		pop edi
 		pop esi
