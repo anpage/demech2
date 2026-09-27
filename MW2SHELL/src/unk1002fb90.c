@@ -2,6 +2,45 @@
 #include "types.h"
 
 #include <io.h>
+#include <stdio.h>
+#include <string.h>
+
+#pragma pack(1)
+typedef struct ArchiveEntry {
+	MechChar m_name[4];               // 0x00
+	MechU32 m_offset;                 // 0x04
+	MechU32 m_size;                   // 0x08
+	undefined m_unk0x0c[0x14 - 0x0c]; // 0x0c
+	MechU16 m_baseOffset;             // 0x14
+	undefined m_unk0x16[0x18 - 0x16]; // 0x16
+} ArchiveEntry;
+
+typedef struct ArchiveHeader {
+	undefined m_unk0x00[0x0c]; // 0x00
+	MechU16 m_entryCount;      // 0x0c
+	ArchiveEntry m_entries[1]; // 0x0e
+} ArchiveHeader;
+
+typedef struct ArchiveSlotEntry {
+	void* m_data;    // 0x00
+	void* m_unk0x04; // 0x04
+} ArchiveSlotEntry;
+
+typedef struct ArchiveSlot {
+	MechS32 m_fd;                     // 0x00
+	MechU16 m_open;                   // 0x04
+	ArchiveHeader* m_header;          // 0x06
+	undefined m_unk0x0a[0x2a - 0x0a]; // 0x0a
+	ArchiveSlotEntry m_entries[0x20]; // 0x2a
+	MechChar m_name[0x20];            // 0x12a
+} ArchiveSlot;
+#pragma pack()
+
+DECOMP_SIZE_ASSERT(ArchiveEntry, 0x18)
+DECOMP_SIZE_ASSERT(ArchiveSlot, 0x14a)
+
+// GLOBAL: MW2SHELL 0x10096610
+ArchiveSlot g_unk0x10096610[3];
 
 // The heap callbacks the archive unit allocates through, registered by FUN_1002fb90
 // (CedarKnot0x10 passes FUN_1002e302 and FUN_1002e324).
@@ -85,17 +124,233 @@ MechS32 FUN_1002fcdc(char* p_name, undefined p_unk0x04)
 	return 0;
 }
 
-// Returns a status: ~CedarKnot0x10 compares the result against 0.
-// STUB: MW2SHELL 0x1002ffc9
+// Release the header and cached archive entries, then close its file descriptor.
+// FUNCTION: MW2SHELL 0x1002ffc9
 MechS32 FUN_1002ffc9(MechS32 p_handle)
 {
-	STUB(0x1002ffc9);
+	MechU16 index;
+
+	FUN_1002fbc8(g_unk0x10096610[p_handle].m_header);
+	g_unk0x10096610[p_handle].m_header = NULL;
+	for (index = 0; index < 0x20; index++) {
+		if (g_unk0x10096610[p_handle].m_entries[index].m_data != NULL) {
+			FUN_1002fbc8(g_unk0x10096610[p_handle].m_entries[index].m_data);
+			g_unk0x10096610[p_handle].m_entries[index].m_data = NULL;
+		}
+		if (g_unk0x10096610[p_handle].m_entries[index].m_unk0x04 != NULL) {
+			FUN_1002fbc8(g_unk0x10096610[p_handle].m_entries[index].m_unk0x04);
+			g_unk0x10096610[p_handle].m_entries[index].m_unk0x04 = NULL;
+		}
+	}
+
+	g_unk0x10096610[p_handle].m_open = 0;
+	_strnset(g_unk0x10096610[p_handle].m_name, 0, 0x20);
+	return _close(g_unk0x10096610[p_handle].m_fd);
+}
+
+// Find an archive entry by its four-byte type tag. Returns 0xffff if absent.
+// Stack-slot permutation: count and entries.
+// FUNCTION: MW2SHELL 0x10030177
+MechU16 FUN_10030177(MechS32 p_handle, MechChar* p_name)
+{
+	MechChar found;
+	MechU16 index;
+	MechU16 count;
+	ArchiveEntry* entries;
+
+	found = 0;
+	count = g_unk0x10096610[p_handle].m_header->m_entryCount;
+	entries = g_unk0x10096610[p_handle].m_header->m_entries;
+	index = 0;
+	while ((count > index) & !found) {
+		if (strncmp(entries[index].m_name, p_name, 4) == 0) {
+			found = 1;
+		}
+		else {
+			index++;
+		}
+	}
+
+	if (found) {
+		return index;
+	}
+	else {
+		return 0xffff;
+	}
+}
+
+// Read and cache every archive entry whose on-disk data offset is nonzero.
+// Stack-slot permutation: count, index and size.
+// FUNCTION: MW2SHELL 0x1003024f
+MechS32 FUN_1003024f(MechS32 p_handle)
+{
+	MechU16 count;
+	ArchiveEntry* entries;
+	MechU16 index;
+	MechU32 size;
+	void* data;
+
+	count = g_unk0x10096610[p_handle].m_header->m_entryCount;
+	entries = g_unk0x10096610[p_handle].m_header->m_entries;
+	for (index = 0; index < count; index++) {
+		if (entries[index].m_offset != 0) {
+			size = entries[index].m_size;
+			data = FUN_1002fbab(size);
+			if (data == NULL) {
+				return -1;
+			}
+
+			_lseek(g_unk0x10096610[p_handle].m_fd, entries[index].m_offset, SEEK_SET);
+			if (FUN_1002fc5e(g_unk0x10096610[p_handle].m_fd, (MechU8*) data, size) != size) {
+				FUN_1002fbc8(data);
+				return -1;
+			}
+
+			g_unk0x10096610[p_handle].m_entries[index].m_data = data;
+		}
+	}
+
 	return 0;
 }
 
-// STUB: MW2SHELL 0x1003024f
-MechS32 FUN_1003024f(MechS32 p_handle)
+// Compute a cached subresource length, clamping non-positive lengths to zero.
+// Stack-slot permutation: offsets, entries and length.
+// FUNCTION: MW2SHELL 0x100303b5
+MechS32 FUN_100303b5(MechS32 p_handle, MechChar* p_name, MechU16 p_index)
 {
-	STUB(0x1003024f);
+	MechS16 entry;
+	MechU16 index;
+	MechS32* offsets;
+	ArchiveEntry* entries;
+	MechS32 length;
+
+	if (p_index == 0) {
+		return -1;
+	}
+
+	entry = FUN_10030177(p_handle, p_name);
+	if (entry >= 0) {
+		if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+			return -1;
+		}
+
+		index = p_index;
+		offsets = (MechS32*) ((MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16);
+		entries = g_unk0x10096610[p_handle].m_header->m_entries;
+		length = offsets[index * 2 + 1] - entries[entry].m_baseOffset;
+		return length > 0 ? length : 0;
+	}
+	else {
+		return -1;
+	}
+}
+
+// Look up a subresource's byte offset and length in the cached archive entry.
+// Stack-slot permutation: offsets and entries.
+// FUNCTION: MW2SHELL 0x100304c5
+MechS32 FUN_100304c5(MechS32 p_handle, MechChar* p_name, MechU32 p_index, void** p_offset, MechS32* p_size)
+{
+	MechU16 entry;
+	ArchiveEntry* entries;
+	MechU8* offsets;
+	MechS32 offset;
+
+	entry = FUN_10030177(p_handle, p_name);
+	if ((MechS32) entry == -1) {
+		return -1;
+	}
+	if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+		return -1;
+	}
+
+	offsets = (MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16;
+	entries = g_unk0x10096610[p_handle].m_header->m_entries;
+	offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + (p_index & 0xffff) * 8);
+	if (p_offset != NULL) {
+		*p_offset = (void*) offset;
+	}
+	if (p_size != NULL) {
+		*p_size = *(MechS32*) (offsets + (p_index & 0xffff) * 8 + 4) - entries[entry].m_baseOffset;
+	}
+
+	_lseek(g_unk0x10096610[p_handle].m_fd, offset, SEEK_SET);
 	return 0;
+}
+
+// Read p_size bytes after selecting the archive descriptor and offset.
+// FUNCTION: MW2SHELL 0x10030620
+void FUN_10030620(void* p_data, MechS32 p_handle, void* p_offset, MechU32 p_size)
+{
+	p_handle = g_unk0x10096610[p_handle].m_fd;
+	_lseek(p_handle, (MechS32) p_offset, SEEK_SET);
+	FUN_1002fc5e(p_handle, (MechU8*) p_data, p_size);
+	return;
+}
+
+// Read a cached archive subresource into the caller's buffer.
+// Stack-slot permutation: entry, offsets, entries, offset and size.
+// FUNCTION: MW2SHELL 0x1003066e
+MechS32 FUN_1003066e(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* p_data)
+{
+	MechS16 entry;
+	MechU16 index;
+	ArchiveEntry* entries;
+	MechU8* offsets;
+	MechU32 size;
+	MechS32 offset;
+
+	entry = FUN_10030177(p_handle, p_name);
+	if (entry != -1) {
+		if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+			return -1;
+		}
+
+		index = p_index;
+		offsets = (MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16;
+		entries = g_unk0x10096610[p_handle].m_header->m_entries;
+		offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + index * 8);
+		size = *(MechU32*) (offsets + index * 8 + 4) - entries[entry].m_baseOffset;
+		if (_lseek(g_unk0x10096610[p_handle].m_fd, offset, SEEK_SET) == -1) {
+			return -1;
+		}
+
+		if (FUN_1002fc5e(g_unk0x10096610[p_handle].m_fd, (MechU8*) p_data, size) != size) {
+			return -1;
+		}
+		else {
+			return 0;
+		}
+	}
+	else {
+		return -1;
+	}
+}
+
+// Return the archive offset and descriptor of a cached subresource.
+// Stack-slot permutation: offsets and entries.
+// FUNCTION: MW2SHELL 0x100307f4
+MechS32 FUN_100307f4(MechS32 p_handle, MechChar* p_name, MechU16 p_index, MechS32* p_fd)
+{
+	MechS16 entry;
+	MechU16 index;
+	MechU8* offsets;
+	ArchiveEntry* entries;
+	MechS32 offset;
+
+	entry = FUN_10030177(p_handle, p_name);
+	if (entry != -1) {
+		if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+			return 0;
+		}
+
+		index = p_index;
+		offsets = (MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16;
+		entries = g_unk0x10096610[p_handle].m_header->m_entries;
+		offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + index * 8);
+		*p_fd = g_unk0x10096610[p_handle].m_fd;
+		return offset;
+	}
+	else {
+		return 0;
+	}
 }

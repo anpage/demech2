@@ -14,8 +14,10 @@ typedef struct DrawCacheEntry {
 	struct DrawCacheEntry* m_unk0x10;
 } DrawCacheEntry;
 
+void FUN_100139e7(DrawCacheEntry* p_entry);
+
 // GLOBAL: MW2SHELL 0x10063a54
-undefined4* g_unk0x10063a54 = NULL;
+DrawCacheEntry** g_unk0x10063a54 = NULL;
 
 // GLOBAL: MW2SHELL 0x10096860
 undefined4 g_unk0x10096860;
@@ -26,10 +28,23 @@ DrawCacheEntry* g_unk0x10096864;
 // GLOBAL: MW2SHELL 0x10096868
 DrawCacheEntry* g_unk0x10096868;
 
-// STUB: MW2SHELL 0x10013690
+// FUNCTION: MW2SHELL 0x10013690
 void FUN_10013690(DrawCacheEntry* p_entry)
 {
-	STUB(0x10013690);
+	if (p_entry->m_unk0x02 == 0) {
+		return;
+	}
+
+	p_entry->m_unk0x02 = 0;
+	if (g_unk0x10096868 != NULL) {
+		g_unk0x10096868->m_unk0x0c = p_entry;
+	}
+	p_entry->m_unk0x10 = g_unk0x10096868;
+	g_unk0x10096868 = p_entry;
+	p_entry->m_unk0x0c = NULL;
+	if (g_unk0x10096864 == NULL) {
+		g_unk0x10096864 = p_entry;
+	}
 }
 
 // FUNCTION: MW2SHELL 0x10013703
@@ -59,13 +74,48 @@ void FUN_10013703(DrawCacheEntry* p_entry)
 // FUNCTION: MW2SHELL 0x100137aa
 void FUN_100137aa(void)
 {
-	g_unk0x10063a54 = (undefined4*) calloc(0x3f1, 4);
+	g_unk0x10063a54 = (DrawCacheEntry**) calloc(0x3f1, 4);
 }
 
-// STUB: MW2SHELL 0x1001385c
+// FUNCTION: MW2SHELL 0x100137c9
+void FUN_100137c9(void)
+{
+	MechS32 i;
+	DrawCacheEntry* entry;
+
+	g_unk0x10096864 = NULL;
+	g_unk0x10096868 = NULL;
+	for (i = 0; i < 0x3f1; i++) {
+		for (entry = g_unk0x10063a54[i]; entry != NULL; entry = entry->m_unk0x08) {
+			if (entry->m_unk0x02 == 0) {
+				entry->m_unk0x02 = 1;
+				FUN_10013690(entry);
+			}
+		}
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1001385c
 void FUN_1001385c(void)
 {
-	STUB(0x1001385c);
+	MechS32 i;
+	DrawCacheEntry* entry;
+	DrawCacheEntry* next;
+
+	if (g_unk0x10063a54 == NULL) {
+		return;
+	}
+
+	for (i = 0; i < 0x3f1; i++) {
+		for (entry = g_unk0x10063a54[i]; entry != NULL; entry = next) {
+			next = entry->m_unk0x08;
+			FUN_100139e7(entry);
+		}
+	}
+	g_unk0x10096860 = 0;
+	g_unk0x10096864 = NULL;
+	g_unk0x10096868 = NULL;
+	free(g_unk0x10063a54);
 }
 
 // FUNCTION: MW2SHELL 0x10013907
@@ -82,17 +132,68 @@ void FUN_10013935(void)
 {
 }
 
-// STUB: MW2SHELL 0x10013940
+// Stack-slot permutation: bucket and entry exchange [ebp-8] and [ebp-4]. The hash
+// loads type[3] before type[2] in the recompilation; reversing their source order
+// does not change VC++ 4.1's load order.
+// FUNCTION: MW2SHELL 0x10013940
 DrawCacheEntry* FUN_10013940(MechS32 p_id, char* p_type)
 {
-	STUB(0x10013940);
-	return NULL;
+	MechS32 bucket;
+	DrawCacheEntry* entry;
+
+	if (p_id < 0) {
+		return NULL;
+	}
+
+	bucket = ((MechS8) p_type[3] + (MechS8) p_type[2] + (MechS8) p_type[0] + (MechS8) p_type[1] + p_id) % 0x3f1;
+	for (entry = g_unk0x10063a54[bucket]; entry != NULL; entry = entry->m_unk0x08) {
+		if (entry->m_unk0x00 == p_id && entry->m_unk0x04 == *(undefined4*) p_type) {
+			break;
+		}
+	}
+
+	return entry;
 }
 
-// STUB: MW2SHELL 0x100139e7
+// Stack-slot permutation only: entry uses [ebp-10] instead of [ebp-4], the
+// four type bytes use [ebp-8..-5] instead of [ebp-c..-9], the terminator uses
+// [ebp-4] instead of [ebp-8], and bucket uses [ebp-c] instead of [ebp-10].
+// FUNCTION: MW2SHELL 0x100139e7
 void FUN_100139e7(DrawCacheEntry* p_entry)
 {
-	STUB(0x100139e7);
+	MechS32 bucket;
+	DrawCacheEntry* entry;
+	MechChar type[5];
+
+	entry = NULL;
+	if (p_entry == NULL) {
+		return;
+	}
+
+	p_entry->m_unk0x02 = 0;
+	FUN_10013703(p_entry);
+	type[4] = '\0';
+	*(undefined4*) type = p_entry->m_unk0x04;
+	bucket = ((MechS8) type[2] + (MechS8) type[3] + (MechS8) type[0] + (MechS8) type[1] + p_entry->m_unk0x00) % 0x3f1;
+	if (g_unk0x10063a54[bucket] == p_entry) {
+		g_unk0x10063a54[bucket] = p_entry->m_unk0x08;
+	}
+	else {
+		for (entry = g_unk0x10063a54[bucket]; entry != NULL && entry->m_unk0x08 != NULL; entry = entry->m_unk0x08) {
+			if (entry->m_unk0x08 == p_entry) {
+				break;
+			}
+		}
+		if (entry != NULL && entry->m_unk0x08 != NULL) {
+			entry->m_unk0x08 = entry->m_unk0x08->m_unk0x08;
+		}
+		else {
+			return;
+		}
+	}
+
+	free(p_entry);
+	g_unk0x10096860--;
 }
 
 // FUNCTION: MW2SHELL 0x10013c6e

@@ -10,12 +10,18 @@ extern "C"
 {
 #endif
 
-	typedef struct SMACK_TAG Smack;
+	typedef struct SMACK_TAG {
+		unsigned int Version; /* 0x00 */
+		unsigned int Width;   /* 0x04 */
+		unsigned int Height;  /* 0x08 */
+		int Frames;           /* 0x0c: signed in the game's frame-loop comparison */
+	} Smack;
 
 	void SmackGoto(Smack* p_smack, int p_frame);
 	void SmackDoFrame(Smack* p_smack);
 	void SmackNextFrame(Smack* p_smack);
-	void SmackBufferNewPalette(Smack* p_smack);
+	void SmackClose(Smack* p_smack);
+	unsigned short SmackWait(Smack* p_smack);
 
 #ifdef __cplusplus
 }

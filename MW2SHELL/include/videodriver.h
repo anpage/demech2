@@ -93,8 +93,13 @@ private:
 	MechS32 m_unk0x39a;         // 0x39a
 	MechS32 m_unk0x39e;         // 0x39e
 	undefined4 m_unk0x3a2;      // 0x3a2
-	MechS32 m_unk0x3a6;         // 0x3a6
-	undefined4 m_unk0x3aa;      // 0x3aa
+
+public:
+	// The leaderboard and credits screens set the draw mode directly.
+	MechS32 m_unk0x3a6; // 0x3a6
+
+private:
+	undefined4 m_unk0x3aa; // 0x3aa
 };
 #pragma pack()
 

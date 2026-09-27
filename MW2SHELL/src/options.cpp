@@ -19,17 +19,22 @@ extern BrassLantern0x414* g_unk0x10071214;
 extern VideoDriver* g_pVideoDriver;
 
 extern void* AllocateAllowNew(MechS32 p_size);
+
 extern void FUN_100078cd(SlateTab0x2c* p_clickables);
 void CalledWhenCombatVarsOptionClicked(MechS32);
 extern SlateTab0x2c g_unk0x10070da8[15];
 extern MechS32 g_effectsVolume;
 extern MechS32 g_midiVolume;
+void FUN_100109a0(void (*p_callback)(MechS32));
 
 // GLOBAL: MW2SHELL 0x10070d90
 void* g_unk0x10070d90 = NULL;
 
 // GLOBAL: MW2SHELL 0x1007116c
 MechChar g_unk0x1007116c[0x10] = "amwlogo1";
+
+// GLOBAL: MW2SHELL 0x10071678
+MechS32 g_unk0x10071678 = 0x10000;
 
 // GLOBAL: MW2SHELL 0x10071680
 MechS32 g_unk0x10071680 = 0x10000;
@@ -56,12 +61,6 @@ void* g_unk0x10092f30;
 
 // GLOBAL: MW2SHELL 0x100716b8
 undefined g_unk0x100716b8[0x17] = {0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
-
-// STUB: MW2SHELL 0x100109a0
-void FUN_100109a0(void (*)(MechS32))
-{
-	STUB(0x100109a0);
-}
 
 // GLOBAL: MW2SHELL 0x10070d98
 MechChar* g_unk0x10070d98[] = {"~EASY", "~MEDIUM", "~HARD"};
@@ -250,10 +249,16 @@ void FUN_1004381b(SlateTab0x2c*)
 	STUB(0x1004381b);
 }
 
-// STUB: MW2SHELL 0x10043926
+// FUNCTION: MW2SHELL 0x10043926
 void FUN_10043926()
 {
-	STUB(0x10043926);
+	FILE* file;
+
+	file = fopen("MW2SND.CFG", "rb");
+	if (file != NULL) {
+		fread(&g_unk0x10071678, 0x3c, 1, file);
+		fclose(file);
+	}
 }
 
 // FUNCTION: MW2SHELL 0x10043979
@@ -294,7 +299,7 @@ void FUN_10043a72()
 	g_unk0x10092c18 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	g_unk0x10092c18->SetVolume(0x32);
 	g_pVideoDriver->LoadPalette(3);
-	*(MechS32*) ((MechU8*) g_pVideoDriver + 0x3a6) = 0;
+	g_pVideoDriver->m_unk0x3a6 = 0;
 	g_pVideoDriver->FUN_100071ad(0x177, 0x7c, 0x102, 0x160);
 	g_unk0x10070d90 = NULL;
 	g_unk0x10070d90 = new SilverReel0x18(g_unk0x1007116c, 0x78, 4);
