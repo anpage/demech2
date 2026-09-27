@@ -1,6 +1,8 @@
+#include "audiosample.h"
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
+#include "mousestate.h"
 #include "slatetab0x2c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -114,10 +116,21 @@ DECOMP_SIZE_ASSERT(QuartzHelm0xf50::Armor, 0x10)
 DECOMP_SIZE_ASSERT(QuartzHelm0xf50, 0xf50)
 
 extern BrassLantern0x414* g_unk0x1007120c;
+extern MouseState* g_pMouseState;
 
 void FUN_10016d27(MechS32 p_index);
 void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top);
 void FUN_10017698(MechS32 p_index, MechS32 p_frame);
+MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
+MechS32 FUN_10044451(
+	BrassLantern0x414* p_unk0x00,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechChar* p_text,
+	undefined* p_unk0x10,
+	MechS32 p_unk0x14,
+	MechS32 p_width
+);
 
 // GLOBAL: MW2SHELL 0x1005c4f0
 MechChar* g_unk0x1005c4f0[8] =
@@ -188,6 +201,9 @@ TinLattice0x28 g_unk0x1005d950[] = {
 // GLOBAL: MW2SHELL 0x1005de28
 SlateTab0x2c* g_unk0x1005de28 = NULL;
 
+// GLOBAL: MW2SHELL 0x1005de2c
+SlateTab0x2c* g_unk0x1005de2c = NULL;
+
 // GLOBAL: MW2SHELL 0x1005de30
 MechS32 g_unk0x1005de30 = 0;
 
@@ -196,6 +212,9 @@ MechS32 g_unk0x1005de38[8] = {75, 46, 86, 126, 10, 162, 39, 109};
 
 // GLOBAL: MW2SHELL 0x1005de58
 MechS32 g_unk0x1005de58[8] = {171, 206, 206, 206, 204, 204, 310, 310};
+
+// GLOBAL: MW2SHELL 0x1005de78
+AudioSample* g_unk0x1005de78 = NULL;
 
 // GLOBAL: MW2SHELL 0x10079b50
 MechChar g_szTempBuffer[0x100];
@@ -1281,8 +1300,506 @@ void FUN_1000a3f3(SlateTab0x2c* p_tab)
 	FUN_10016cc0(14, 0x20, 0x20);
 }
 
+// FUNCTION: MW2SHELL 0x1000a43b
+void FUN_1000a43b(SlateTab0x2c* p_tab)
+{
+	if (p_tab->m_glyph != NULL) {
+		delete p_tab->m_glyph;
+	}
+
+	FUN_10044451(
+		g_unk0x1007120c,
+		p_tab->m_left,
+		p_tab->m_top,
+		(MechChar*) p_tab->m_unk0x24,
+		p_tab->m_unk0x14,
+		0x1c,
+		p_tab->m_width
+	);
+	p_tab->m_glyph =
+		g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_unk0x24, p_tab->m_unk0x14);
+}
+
+// The rating product differs only in evaluation order: the original loads m_unk0x278 + 1 before
+// dividing m_unk0x200, as FUN_1000a5a3 does not (VC++ 4.1 symbol ordering; a probe TU gives the
+// original order for every operand arrangement).
+// FUNCTION: MW2SHELL 0x1000a4f0
+void FUN_1000a4f0(SlateTab0x2c* p_tab)
+{
+	MechS32 rating;
+
+	if (p_tab) {
+	}
+
+	rating = ((g_unk0x1005c640.m_unk0x278 + 1) * (g_unk0x1005c640.m_unk0x200 / 100) * 5 + 4) / 5;
+	if (rating < 10) {
+		return;
+	}
+	if (rating > 400) {
+		return;
+	}
+
+	rating = (rating - 10) / 5;
+	if (g_unk0x1005c640.m_unk0x20c >= 10000) {
+		g_unk0x1005c640.m_unk0x20c = rating + 10000;
+	}
+	else {
+		g_unk0x1005c640.m_unk0x20c = rating;
+	}
+
+	FUN_1000884c();
+	FUN_10008786();
+	FUN_100088ec();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a5a3
+void FUN_1000a5a3(SlateTab0x2c* p_tab)
+{
+	MechS32 rating;
+
+	if (p_tab) {
+	}
+
+	if (!g_unk0x1005c640.m_unk0x278) {
+		return;
+	}
+
+	rating = ((g_unk0x1005c640.m_unk0x278 - 1) * (g_unk0x1005c640.m_unk0x200 / 100) * 5 + 4) / 5;
+	if (rating < 10) {
+		return;
+	}
+	if (rating > 400) {
+		return;
+	}
+
+	rating = (rating - 10) / 5;
+	if (g_unk0x1005c640.m_unk0x20c >= 10000) {
+		g_unk0x1005c640.m_unk0x20c = rating + 10000;
+	}
+	else {
+		g_unk0x1005c640.m_unk0x20c = rating;
+	}
+
+	FUN_1000884c();
+	FUN_10008786();
+	FUN_100088ec();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a668
+void FUN_1000a668(SlateTab0x2c* p_tab)
+{
+	MechS32 i;
+
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x20c >= 10000) {
+		g_unk0x1005c640.m_unk0x20c -= 10000;
+		for (i = 0; i < 12; i++) {
+			if (g_unk0x1005c640.m_unk0x318[1][i] == 5850) {
+				g_unk0x1005c640.m_unk0x318[1][i] = 0;
+			}
+			if (g_unk0x1005c640.m_unk0x318[3][i] == 5850) {
+				g_unk0x1005c640.m_unk0x318[3][i] = 0;
+			}
+		}
+	}
+	else {
+		g_unk0x1005c640.m_unk0x20c += 10000;
+		if (g_unk0x1005c640.m_unk0x318[3][0] > 0) {
+			FUN_10007df0(g_unk0x1005c640.m_unk0x318[3][0]);
+		}
+		if (g_unk0x1005c640.m_unk0x318[3][1] > 0) {
+			FUN_10007df0(g_unk0x1005c640.m_unk0x318[3][1]);
+		}
+		if (g_unk0x1005c640.m_unk0x318[1][0] > 0) {
+			FUN_10007df0(g_unk0x1005c640.m_unk0x318[1][0]);
+		}
+		if (g_unk0x1005c640.m_unk0x318[1][1] > 0) {
+			FUN_10007df0(g_unk0x1005c640.m_unk0x318[1][1]);
+		}
+
+		g_unk0x1005c640.m_unk0x318[3][0] = 5850;
+		g_unk0x1005c640.m_unk0x318[3][1] = 5850;
+		g_unk0x1005c640.m_unk0x318[1][0] = 5850;
+		g_unk0x1005c640.m_unk0x318[1][1] = 5850;
+	}
+
+	FUN_1000884c();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a7ae
+void FUN_1000a7ae(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x280 >= g_unk0x1005c640.m_unk0x278) {
+		return;
+	}
+
+	g_unk0x1005c640.m_unk0x280++;
+	FUN_10007d9e(g_unk0x1005c640.m_unk0x280 + 7000, 1);
+	FUN_100088ec();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a803
+void FUN_1000a803(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x280) {
+		FUN_10007e90(g_unk0x1005c640.m_unk0x280 + 7000);
+		g_unk0x1005c640.m_unk0x280--;
+	}
+
+	FUN_100088ec();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a84d
+void FUN_1000a84d(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	g_unk0x1005c640.m_unk0x22c += 100;
+	FUN_10008786();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a878
+void FUN_1000a878(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x22c) {
+		g_unk0x1005c640.m_unk0x22c -= 100;
+	}
+
+	FUN_10008786();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a8b0
+void FUN_1000a8b0(SlateTab0x2c* p_tab)
+{
+	MechS32 i;
+
+	if (p_tab) {
+	}
+
+	g_unk0x1005c640.m_unk0x228 = 3 - g_unk0x1005c640.m_unk0x228;
+	FUN_10008786();
+	for (i = 1; i <= g_unk0x1005c640.m_unk0x230; i++) {
+		FUN_10007e90(i + 6000);
+	}
+	for (i = 1; i <= g_unk0x1005c640.m_unk0x230; i++) {
+		FUN_10007d9e(i + 6000, g_unk0x1005c640.m_unk0x228);
+	}
+
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a955
+void FUN_1000a955(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	g_unk0x1005c640.m_unk0x250 += 50;
+	FUN_10008a16();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a980
+void FUN_1000a980(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x250) {
+		g_unk0x1005c640.m_unk0x250 -= 50;
+	}
+
+	FUN_10008a16();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000a9b8
+void FUN_1000a9b8(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	g_unk0x1005c640.m_unk0x24c = 1 - g_unk0x1005c640.m_unk0x24c;
+	if (!g_unk0x1005c640.m_unk0x24c) {
+		FUN_10007e90(9001);
+		FUN_10007e90(9002);
+		FUN_10007e90(9003);
+		FUN_10007e90(9004);
+		FUN_10007e90(9005);
+		FUN_10007e90(9006);
+		FUN_10007e90(9007);
+	}
+	else {
+		FUN_10007d9e(9001, 1);
+		FUN_10007d9e(9002, 1);
+		FUN_10007d9e(9003, 1);
+		FUN_10007d9e(9004, 1);
+		FUN_10007d9e(9005, 1);
+		FUN_10007d9e(9006, 1);
+		FUN_10007d9e(9007, 1);
+	}
+
+	FUN_10008a16();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000aac2
+void FUN_1000aac2(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	g_unk0x1005c640.m_unk0x240 = 1 - g_unk0x1005c640.m_unk0x240;
+	if (!g_unk0x1005c640.m_unk0x240) {
+		FUN_10007e90(8001);
+		FUN_10007e90(8002);
+		FUN_10007e90(8003);
+		FUN_10007e90(8004);
+		FUN_10007e90(8005);
+		FUN_10007e90(8006);
+		FUN_10007e90(8007);
+	}
+	else {
+		FUN_10007d9e(8001, 1);
+		FUN_10007d9e(8002, 1);
+		FUN_10007d9e(8003, 1);
+		FUN_10007d9e(8004, 1);
+		FUN_10007d9e(8005, 1);
+		FUN_10007d9e(8006, 1);
+		FUN_10007d9e(8007, 1);
+	}
+
+	FUN_10008a16();
+	FUN_10008989();
+	FUN_100079f8(g_unk0x1005de28);
+	FUN_100079f8(g_unk0x1005de2c);
+}
+
+// FUNCTION: MW2SHELL 0x1000abe8
+void FUN_1000abe8(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x310 < 0) {
+		return;
+	}
+
+	id = FUN_100083d6(g_unk0x1005c640.m_unk0x310);
+	if (id) {
+		FUN_10007d9e(id, g_unk0x1005d950[id / 100].m_unk0x1c);
+		if (FUN_10008254(id) >= 10) {
+			return;
+		}
+
+		if (g_unk0x1005d950[id / 100].m_unk0x20) {
+			id = FUN_1000819f(id * 100 + 10000);
+			FUN_10007d9e(id, 1);
+		}
+
+		FUN_100089a8();
+		FUN_10008b76();
+		FUN_10008989();
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000acc4
+void FUN_1000acc4(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x310 < 0) {
+		return;
+	}
+	if (!(g_unk0x1005c640.m_unk0x310 % 100)) {
+		return;
+	}
+
+	FUN_10008470(g_unk0x1005c640.m_unk0x310);
+	FUN_10007e90(g_unk0x1005c640.m_unk0x310);
+	g_unk0x1005c640.m_unk0x310 = g_unk0x1005c640.m_unk0x2e8[0];
+	FUN_100089a8();
+	FUN_10008b76();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000ad3f
+void FUN_1000ad3f(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x310 < 0) {
+		return;
+	}
+	if (!(g_unk0x1005c640.m_unk0x310 % 100)) {
+		return;
+	}
+	if (FUN_10008254(g_unk0x1005c640.m_unk0x310) >= 10) {
+		return;
+	}
+
+	if (g_unk0x1005d950[g_unk0x1005c640.m_unk0x310 / 100].m_unk0x20) {
+		id = FUN_1000819f(g_unk0x1005c640.m_unk0x310 * 100 + 10000);
+		FUN_10007d9e(id, 1);
+		FUN_10008b76();
+		FUN_10008989();
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000adf9
+void FUN_1000adf9(SlateTab0x2c* p_tab)
+{
+	MechS32 count;
+
+	if (p_tab) {
+	}
+
+	if (g_unk0x1005c640.m_unk0x310 < 0) {
+		return;
+	}
+	if (!(g_unk0x1005c640.m_unk0x310 % 100)) {
+		return;
+	}
+
+	count = FUN_10008254(g_unk0x1005c640.m_unk0x310);
+	if (!count) {
+		return;
+	}
+
+	FUN_100082de(g_unk0x1005c640.m_unk0x310 * 100 + count + 10000);
+	FUN_10007e90(g_unk0x1005c640.m_unk0x310 * 100 + count + 10000);
+	FUN_10008b76();
+	FUN_10008989();
+}
+
+// FUNCTION: MW2SHELL 0x1000aeaa
+void FUN_1000aeaa(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+
+	id = *(MechS32*) p_tab->m_unk0x24;
+	if (id < 0) {
+		return;
+	}
+
+	if (g_unk0x1005c640.m_unk0x310 == id && g_pMouseState->GetDoubleClicked()) {
+		FUN_1000acc4(p_tab);
+	}
+
+	g_unk0x1005c640.m_unk0x310 = *(MechS32*) p_tab->m_unk0x24;
+}
+
+// FUNCTION: MW2SHELL 0x1000af16
+void FUN_1000af16(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	if ((MechS32) p_tab->m_unk0x24 * 100 == g_unk0x1005c640.m_unk0x310) {
+		if (g_pMouseState->GetDoubleClicked()) {
+			FUN_1000abe8(p_tab);
+		}
+	}
+	else {
+		g_unk0x1005c640.m_unk0x310 = (MechS32) p_tab->m_unk0x24 * 100;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000af87
+void FUN_1000af87(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+
+	g_unk0x1005de78->Start();
+	g_unk0x1005c640.m_unk0x314++;
+	if (g_unk0x1005c640.m_unk0x314 >= 8) {
+		g_unk0x1005c640.m_unk0x314 = 0;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000afc9
+void FUN_1000afc9(SlateTab0x2c* p_tab)
+{
+	g_unk0x1005de78->Start();
+	g_unk0x1005c640.m_unk0x314 = (MechS32) p_tab->m_unk0x24;
+}
+
+// Stack-slot permutation: id and count.
+// FUNCTION: MW2SHELL 0x1000afef
+void FUN_1000afef(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+	MechS32 count;
+
+	id = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00;
+	count = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x04;
+	if (id < 0) {
+		return;
+	}
+
+	if (g_unk0x1005c640.m_unk0x314 >= 0) {
+		if (id - id % 100 == 7000 &&
+			(g_unk0x1005c640.m_unk0x314 == 0 || g_unk0x1005c640.m_unk0x314 == 4 || g_unk0x1005c640.m_unk0x314 == 5)) {
+			ShowDialog("Jump Jets may only|be assigned to torso|or leg sections.#Ok", 0);
+			return;
+		}
+
+		if (!FUN_10007e3b(g_unk0x1005c640.m_unk0x314, id, count)) {
+			ShowDialog("Insufficient criticals|for item placement.#Ok", 0);
+		}
+	}
+}
+
+// FUNCTION: MW2SHELL 0x1000b0c2
+void FUN_1000b0c2(SlateTab0x2c* p_tab)
+{
+	if (p_tab) {
+	}
+}
+
 // STUB: MW2SHELL 0x1000d0d4
 void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
 	STUB(0x1000d0d4);
+}
+
+// STUB: MW2SHELL 0x10044451
+MechS32 FUN_10044451(
+	BrassLantern0x414* p_unk0x00,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechChar* p_text,
+	undefined* p_unk0x10,
+	MechS32 p_unk0x14,
+	MechS32 p_width
+)
+{
+	STUB(0x10044451);
+	return 0;
 }
