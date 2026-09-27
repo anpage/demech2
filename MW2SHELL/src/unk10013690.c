@@ -1,7 +1,9 @@
+#include "compat.h"
 #include "decomp.h"
 #include "types.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct DrawCacheEntry {
 	MechS16 m_unk0x00;
@@ -30,7 +32,6 @@ void FUN_10013690(DrawCacheEntry* p_entry)
 	STUB(0x10013690);
 }
 
-// The two head/tail equality tests differ only in comparison operand order (VC++ 4.1 symbol ordering).
 // FUNCTION: MW2SHELL 0x10013703
 void FUN_10013703(DrawCacheEntry* p_entry)
 {
@@ -117,6 +118,17 @@ void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, MechS32* p_type, MechS32 p_u
 	return NULL;
 }
 
+// FUNCTION: MW2SHELL 0x10013ef4
+void FUN_10013ef4(MechS32 p_id, MechS32* p_type)
+{
+	DrawCacheEntry* entry = FUN_10013940(p_id, p_type);
+	if (entry == NULL) {
+		return;
+	}
+
+	FUN_100139e7(entry);
+}
+
 // FUNCTION: MW2SHELL 0x10013f30
 void FUN_10013f30(void)
 {
@@ -149,6 +161,59 @@ MechS32 FUN_10013f72(void)
 void* FUN_10013fa9(undefined4 p_size)
 {
 	return calloc(p_size, 1);
+}
+
+// FUN_10013fc7 and FUN_10013ff1 are memcpy and memset written as inline __asm: rep movsd/stosd
+// for the dwords, then rep movsb/stosb for the rest. Modern compilers (COMPAT_MODE) call the CRT.
+
+// FUNCTION: MW2SHELL 0x10013fc7
+void* FUN_10013fc7(void* p_destination, void* p_source, MechU32 p_size)
+{
+#ifdef COMPAT_MODE
+	memcpy(p_destination, p_source, p_size);
+#else
+	__asm {
+		mov eax, p_size
+		mov edi, p_destination
+		mov esi, p_source
+		mov ecx, eax
+		shr ecx, 2
+		rep movsd
+		mov ecx, eax
+		and ecx, 3
+		rep movsb
+	}
+#endif
+
+	return p_destination;
+}
+
+// FUNCTION: MW2SHELL 0x10013ff1
+void* FUN_10013ff1(void* p_destination, MechS32 p_value, MechU32 p_size)
+{
+#ifdef COMPAT_MODE
+	memset(p_destination, p_value, p_size);
+#else
+	__asm {
+		mov edx, p_size
+		mov eax, p_value
+		mov cl, al
+		mov ch, cl
+		mov cl, al
+		mov eax, ecx
+		shl eax, 16
+		mov ax, cx
+		mov edi, p_destination
+		mov ecx, edx
+		shr ecx, 2
+		rep stosd
+		mov ecx, edx
+		and ecx, 3
+		rep stosb
+	}
+#endif
+
+	return p_destination;
 }
 
 // FUNCTION: MW2SHELL 0x10014029

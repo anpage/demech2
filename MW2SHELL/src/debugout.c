@@ -115,6 +115,34 @@ MechS32 FUN_100178cc(MechS32 p_mode)
 	}
 }
 
+// FUNCTION: MW2SHELL 0x10017909
+void FUN_10017909(HWND p_hWnd)
+{
+	g_unk0x10064b74 = p_hWnd;
+}
+
+// FUNCTION: MW2SHELL 0x1001791c
+void FUN_1001791c(UINT p_type)
+{
+	g_unk0x10064b78 = p_type;
+}
+
+// FUNCTION: MW2SHELL 0x1001792f
+void FUN_1001792f(MechChar* p_format, ...)
+{
+	va_list args;
+
+	va_start(args, p_format);
+	_vsnprintf(g_unk0x10064c80, 0x50, p_format, args);
+	va_end(args);
+}
+
+// FUNCTION: MW2SHELL 0x10017961
+void FUN_10017961(MechChar* p_fileName)
+{
+	strncpy(g_unk0x10064b80, p_fileName, 0x100);
+}
+
 // Stack-slot permutation: original message is at [ebp-0x100] and args at [ebp-0x104];
 // VC++ assigns them [ebp-0x104] and [ebp-4] here.
 // FUNCTION: MW2SHELL 0x10017982
