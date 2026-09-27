@@ -9,6 +9,12 @@ targets:
       - reccmp/mw2shell-ascii.csv
     report:
       icon: assets/dll.png
+      # The cockpit controls field tables keep integer indices in SlateTab0x2c's pointer members
+      # (m_unk0x24, m_unk0x28). datacmp reports every such field as a diff even when both sides
+      # hold the same value, so the tables are left out. They matched field for field when added.
+      ignore-variables:
+        - g_unk0x1006b0d8
+        - g_unk0x1006cde8
   MW2:
     filename: MW2.DLL
     source-root:

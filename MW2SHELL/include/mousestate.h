@@ -41,10 +41,16 @@ private:
 	undefined4 m_unk0x27;         // 0x27
 	MechS32 m_x;                  // 0x2b
 	MechS32 m_y;                  // 0x2f
-	undefined4 m_leftDown;        // 0x33
-	undefined4 m_rightDown;       // 0x37
-	undefined4 m_middleDown;      // 0x3b
-	undefined4 m_unk0x3f;         // 0x3f
+
+public:
+	// The cockpit controls screen's scroll arrows repeat while a button is held and read these
+	// directly: an inline accessor would leave a jmp at /Ob1.
+	undefined4 m_leftDown;  // 0x33
+	undefined4 m_rightDown; // 0x37
+
+private:
+	undefined4 m_middleDown; // 0x3b
+	undefined4 m_unk0x3f;    // 0x3f
 };
 
 #pragma pack()

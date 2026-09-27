@@ -3,6 +3,7 @@
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
+#include "silverreel0x18.h"
 #include "slatetab0x2c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -18,15 +19,6 @@ extern BrassLantern0x414* g_unk0x10071214;
 extern VideoDriver* g_pVideoDriver;
 
 extern void* AllocateAllowNew(MechS32 p_size);
-// SIZE 0x18
-class RandomName0x18 {
-public:
-	RandomName0x18(MechChar* p_image, MechS32 p_width, MechS32 p_height);
-
-private:
-	undefined m_unk0x00[0x18]; // 0x00
-};
-
 extern void FUN_100078cd(SlateTab0x2c* p_clickables);
 void CalledWhenCombatVarsOptionClicked(MechS32);
 extern SlateTab0x2c g_unk0x10070da8[15];
@@ -69,14 +61,6 @@ undefined g_unk0x100716b8[0x17] = {0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
 void FUN_100109a0(void (*)(MechS32))
 {
 	STUB(0x100109a0);
-}
-
-DECOMP_SIZE_ASSERT(RandomName0x18, 0x18)
-
-// STUB: MW2SHELL 0x1001603a
-RandomName0x18::RandomName0x18(MechChar*, MechS32, MechS32)
-{
-	STUB(0x1001603a);
 }
 
 // GLOBAL: MW2SHELL 0x10070d98
@@ -313,7 +297,7 @@ void FUN_10043a72()
 	*(MechS32*) ((MechU8*) g_pVideoDriver + 0x3a6) = 0;
 	g_pVideoDriver->FUN_100071ad(0x177, 0x7c, 0x102, 0x160);
 	g_unk0x10070d90 = NULL;
-	g_unk0x10070d90 = new RandomName0x18(g_unk0x1007116c, 0x78, 4);
+	g_unk0x10070d90 = new SilverReel0x18(g_unk0x1007116c, 0x78, 4);
 	g_unk0x100711f8->FUN_100440ed();
 	FUN_10043926();
 	FUN_10043979();
