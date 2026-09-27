@@ -72,8 +72,14 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 };
 // clang-format on
 
-// The original's key names live in .rdata, where the linker pooled some of the empty names into
-// the zero bytes of neighbouring data; datacmp reports those entries (not the strings) as diffs.
+// Two entries of each key-name table share an empty name that precedes the table's strings in
+// the original, instead of an empty literal of their own.
+// GLOBAL: MW2SHELL 0x10058030
+MechChar g_unk0x10058030[] = "";
+
+// GLOBAL: MW2SHELL 0x1005842c
+MechChar g_unk0x1005842c[] = "";
+
 // clang-format off
 // The short name of each key, as INPUT.MAP writes it.
 // GLOBAL: MW2SHELL 0x1005bb08
@@ -87,7 +93,8 @@ MechChar* g_keyShortNames[0x79] = {
 	"End", "DownArrow", "PageDown", "Insert", "Delete", "SYSREQ", "KeypadEnter", "LeftBackSlash", "*F11", "F12",
 	"GreySlash", "PA1", "F13", "F14", "F15", "GreyHome", "GreyUpArrow", "GreyPageUp", "GreyLeftArrow", "GreyRightArrow",
 	"GreyEnd", "GreyDownArrow", "GreyPageDown", "GreyInsert", "GreyDelete", "F21", "F22", "F23", "F24", "UNNAMED_1",
-	"EraseEOF", "", "CopyPlay", "RightCtrl", "", "CRSel", "", "EXSel", "UNAMED_2", "Clear", "Shift", "Control", "",
+	"EraseEOF", g_unk0x10058030, "CopyPlay", "RightCtrl", "", "CRSel", g_unk0x10058030, "EXSel", "UNAMED_2", "Clear",
+	"Shift", "Control", "",
 };
 // clang-format on
 
@@ -109,9 +116,9 @@ MechChar* g_keyNames[0x79] = {
 	"Left Back Slash (\\) Key", "F11 Key", "F12 Key", "Grey Slash (/) Key", "PA1 Key", "F13 Key", "F14 Key", "F15 Key",
 	"Grey Home Key", "Grey Up Arrow Key", "Grey Page Up Key", "Grey Left Arrow Key", "Grey Right Arrow Key",
 	"Grey End Key", "Grey Down Arrow Key", "Grey Page Down Key", "Grey Insert Key", "Grey Delete Key", "F21 Key",
-	"F22 Key", "F23 Key", "F24 Key", "UNNAMED Key", "Erase EOF Key", "", "Copy Play Key", "Right Control Key",
-	"Right Alt Key", "CR Sel Key", "", "EX Sel Key", "UNAMED_2 Key", "Clear Key", "Any Shift Key", "Any Control Key",
-	"Any Alt Key",
+	"F22 Key", "F23 Key", "F24 Key", "UNNAMED Key", "Erase EOF Key", g_unk0x1005842c, "Copy Play Key",
+	"Right Control Key", "Right Alt Key", "CR Sel Key", g_unk0x1005842c, "EX Sel Key", "UNAMED_2 Key", "Clear Key",
+	"Any Shift Key", "Any Control Key", "Any Alt Key",
 };
 // clang-format on
 
