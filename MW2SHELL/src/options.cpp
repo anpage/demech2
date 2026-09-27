@@ -9,6 +9,7 @@
 #include "videodriver.h"
 
 #include <stdio.h>
+#include <string.h>
 
 extern AudioSubsystem* g_pAudioSubsystem;
 extern TMPackDataBase* g_pDatabaseMw2;
@@ -78,46 +79,81 @@ RandomName0x18::RandomName0x18(MechChar*, MechS32, MechS32)
 	STUB(0x1001603a);
 }
 
-// STUB: MW2SHELL 0x1004338a
-EmberGlyph0x3e* FUN_1004338a(SlateTab0x2c*)
+// GLOBAL: MW2SHELL 0x10070d98
+MechChar* g_unk0x10070d98[] = {"~EASY", "~MEDIUM", "~HARD"};
+
+// FUNCTION: MW2SHELL 0x1004338a
+EmberGlyph0x3e* FUN_1004338a(SlateTab0x2c* p_option)
 {
-	STUB(0x1004338a);
-	return NULL;
+	MechU8 value = *(MechU8*) p_option->m_unk0x24;
+
+	return g_unk0x10071214
+		->FUN_1000544e(p_option->m_left + p_option->m_width / 2, p_option->m_top, g_unk0x10070d98[value], NULL);
 }
 
-// STUB: MW2SHELL 0x100433dc
-EmberGlyph0x3e* FUN_100433dc(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x100433dc
+EmberGlyph0x3e* FUN_100433dc(SlateTab0x2c* p_option)
 {
-	STUB(0x100433dc);
-	return NULL;
+	MechS32 value = *(MechS32*) p_option->m_unk0x24;
+
+	return g_unk0x10071214->FUN_1000544e(
+		p_option->m_left + p_option->m_width / 2,
+		p_option->m_top,
+		(MechChar*) (value ? "~ON" : "~OFF"),
+		NULL
+	);
 }
 
-// STUB: MW2SHELL 0x1004343c
-EmberGlyph0x3e* FUN_1004343c(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x1004343c
+EmberGlyph0x3e* FUN_1004343c(SlateTab0x2c* p_option)
 {
-	STUB(0x1004343c);
-	return NULL;
+	MechU8 value = *(MechU8*) p_option->m_unk0x24;
+
+	return g_unk0x10071214->FUN_1000544e(
+		p_option->m_left + p_option->m_width / 2,
+		p_option->m_top,
+		(MechChar*) (value ? "~ON" : "~OFF"),
+		NULL
+	);
 }
 
-// STUB: MW2SHELL 0x1004349f
-EmberGlyph0x3e* FUN_1004349f(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x1004349f
+EmberGlyph0x3e* FUN_1004349f(SlateTab0x2c* p_option)
 {
-	STUB(0x1004349f);
-	return NULL;
+	MechU8 value = *(MechU8*) p_option->m_unk0x24;
+
+	return g_unk0x10071214->FUN_1000544e(
+		p_option->m_left + p_option->m_width / 2 - (value ? 14 : 0),
+		p_option->m_top,
+		(MechChar*) (value ? "ON (Dishonorable)" : "~OFF"),
+		NULL
+	);
 }
 
-// STUB: MW2SHELL 0x10043517
-EmberGlyph0x3e* FUN_10043517(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x10043517
+EmberGlyph0x3e* FUN_10043517(SlateTab0x2c* p_option)
 {
-	STUB(0x10043517);
-	return NULL;
+	MechU8 value = *(MechU8*) p_option->m_unk0x24;
+
+	return g_unk0x10071214->FUN_1000544e(
+		p_option->m_left + p_option->m_width / 2 - (value ? 0 : 14),
+		p_option->m_top,
+		(MechChar*) (value ? "~OFF" : "ON (Dishonorable)"),
+		NULL
+	);
 }
 
-// STUB: MW2SHELL 0x10043589
-EmberGlyph0x3e* FUN_10043589(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x10043589
+EmberGlyph0x3e* FUN_10043589(SlateTab0x2c* p_option)
 {
-	STUB(0x10043589);
-	return NULL;
+	MechS32 value = *(MechS32*) p_option->m_unk0x24;
+
+	return g_unk0x10071214->FUN_1000544e(
+		p_option->m_left + p_option->m_width / 2,
+		p_option->m_top,
+		(MechChar*) (value ? "~HIGH" : "~LOW"),
+		NULL
+	);
 }
 
 // FUNCTION: MW2SHELL 0x100435e9
@@ -177,10 +213,16 @@ void FUN_100436c7(SlateTab0x2c* p_option)
 	}
 }
 
-// STUB: MW2SHELL 0x10043703
-void FUN_10043703(SlateTab0x2c*)
+// FUNCTION: MW2SHELL 0x10043703
+void FUN_10043703(SlateTab0x2c* p_option)
 {
-	STUB(0x10043703);
+	MechChar* value = (MechChar*) p_option->m_unk0x24;
+	if (*value == '\0') {
+		strncpy(value, "vesa480.dll", 0xf);
+	}
+	else {
+		strncpy(value, "", 0xf);
+	}
 }
 
 // FUNCTION: MW2SHELL 0x10043758
