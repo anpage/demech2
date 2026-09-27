@@ -25,6 +25,7 @@ extern "C"
 
 	extern InputDriverModule g_keyboardDriver;
 	extern InputDriverModule g_mouseDriver;
+	extern InputDriverModule g_joystickDriver;
 
 #ifdef __cplusplus
 }

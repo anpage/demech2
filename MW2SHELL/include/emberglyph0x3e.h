@@ -38,9 +38,14 @@ public:
 	MechS32 m_width;  // 0x21
 
 private:
-	MechS32 m_left;      // 0x25
-	MechS32 m_top;       // 0x29
-	MechS32 m_right;     // 0x2d
+	MechS32 m_left; // 0x25
+	MechS32 m_top;  // 0x29
+
+public:
+	// The cockpit controls screen places a field after the previous one's glyph.
+	MechS32 m_right; // 0x2d
+
+private:
 	MechS32 m_bottom;    // 0x31
 	MechU8 m_unk0x35;    // 0x35
 	MechS32 m_cursorX;   // 0x36

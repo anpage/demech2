@@ -1,6 +1,8 @@
 #include "mousestate.h"
 
 #include "brasslantern0x414.h"
+#include "inputdeviceinfo.h"
+#include "inputdriver.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -227,9 +229,37 @@ MechS32 GetJoystickDeviceCount()
 	return joyGetNumDevs();
 }
 
+// STUB: MW2SHELL 0x1003ad36
+MechS32 FillJoystickDeviceInfo(MechS32, InputDeviceInfo*)
+{
+	STUB(0x1003ad36);
+	return 1;
+}
+
+// STUB: MW2SHELL 0x1003b246
+MechS32 FUN_1003b246()
+{
+	STUB(0x1003b246);
+	return 0;
+}
+
+// STUB: MW2SHELL 0x1003b7cf
+MechS32 FUN_1003b7cf(void*)
+{
+	STUB(0x1003b7cf);
+	return 0;
+}
+
 // FUNCTION: MW2SHELL 0x1003b8b7
 MechS32 FUN_1003b8b7()
 {
+	return 0;
+}
+
+// STUB: MW2SHELL 0x1003b8c9
+MechS32 FUN_1003b8c9()
+{
+	STUB(0x1003b8c9);
 	return 0;
 }
 
@@ -244,3 +274,15 @@ MechS32 FUN_1003bbb5()
 {
 	return 2;
 }
+
+// GLOBAL: MW2SHELL 0x1006a800
+InputDriverModule g_joystickDriver = {
+	GetJoystickDeviceCount,
+	(MechS32 (*)()) FillJoystickDeviceInfo,
+	FUN_1003b246,
+	(MechS32 (*)()) FUN_1003b7cf,
+	FUN_1003b8b7,
+	FUN_1003b8c9,
+	FUN_1003bba0,
+	FUN_1003bbb5,
+};

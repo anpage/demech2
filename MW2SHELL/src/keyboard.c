@@ -1,10 +1,12 @@
 /* The keyboard object is shared with MW2.DLL (KeyboardReadKeyCode is byte-identical); both
    targets keep their own copy until one source matches both. */
 #include "decomp.h"
+#include "inputdeviceinfo.h"
 #include "inputdriver.h"
 #include "types.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <windows.h>
 
 enum KeyCodeBuffer {
@@ -70,8 +72,58 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 };
 // clang-format on
 
+// Two entries of each key-name table share an empty name that precedes the table's strings in
+// the original, instead of an empty literal of their own.
+// GLOBAL: MW2SHELL 0x10058030
+MechChar g_unk0x10058030[] = "";
+
+// GLOBAL: MW2SHELL 0x1005842c
+MechChar g_unk0x1005842c[] = "";
+
+// clang-format off
+// The short name of each key, as INPUT.MAP writes it.
+// GLOBAL: MW2SHELL 0x1005bb08
+MechChar* g_keyShortNames[0x79] = {
+	"*Esc", "*One", "*Two", "*Three", "*Four", "*Five", "*Six", "*Seven", "*Eight", "*Nine", "*Zero", "Minus", "Equal",
+	"*Backspace", "Tab", "*Q", "*W", "*E", "*R", "*T", "Y", "*U", "*I", "*O", "*P", "LeftBracket", "RightBracket",
+	"Enter", "LeftControl", "*A", "*S", "D", "*F", "G", "H", "J", "*K", "*L", "*Semicolon", "*Quote", "*BackQuote",
+	"LeftShift", "*BackSlash", "Z", "*X", "*C", "*V", "*B", "*N", "*M", "Comma", "Period", "*Slash", "RightShift",
+	"GreyStar", "", "Space", "CAPSLock", "*F1", "*F2", "*F3", "*F4", "*F5", "*F6", "*F7", "*F8", "*F9", "*F10",
+	"NUMLock", "ScrollLock", "Home", "UpArrow", "PageUp", "GreyMinus", "LeftArrow", "Keypad5", "RightArrow", "GreyPlus",
+	"End", "DownArrow", "PageDown", "Insert", "Delete", "SYSREQ", "KeypadEnter", "LeftBackSlash", "*F11", "F12",
+	"GreySlash", "PA1", "F13", "F14", "F15", "GreyHome", "GreyUpArrow", "GreyPageUp", "GreyLeftArrow", "GreyRightArrow",
+	"GreyEnd", "GreyDownArrow", "GreyPageDown", "GreyInsert", "GreyDelete", "F21", "F22", "F23", "F24", "UNNAMED_1",
+	"EraseEOF", g_unk0x10058030, "CopyPlay", "RightCtrl", "", "CRSel", g_unk0x10058030, "EXSel", "UNAMED_2", "Clear",
+	"Shift", "Control", "",
+};
+// clang-format on
+
+// clang-format off
+// The display name of each key.
+// GLOBAL: MW2SHELL 0x1005bcf0
+MechChar* g_keyNames[0x79] = {
+	"Escape Key", "Number One", "Number Two", "Number Three", "Number Four", "Number Five", "Number Six",
+	"Number Seven", "Number Eight", "Number Nine", "Number Zero", "Minus (-) Key", "Equal (=) Key", "Backspace Key",
+	"Tab Key", "Q Key", "W Key", "E Key", "R Key", "T Key", "Y Key", "U Key", "I Key", "O Key", "P Key",
+	"Left Bracket ([) Key", "Right Bracket (]) Key", "Enter (CR) Key", "Left Control Key", "A Key", "S Key", "D Key",
+	"F Key", "G Key", "H Key", "J Key", "K Key", "L Key", "Semicolon (;) Key", "Quote (\") Key", "Back Quote (`) Key",
+	"Left Shift Key", "Back Slash (\\) Key", "Z Key", "X Key", "C Key", "V Key", "B Key", "N Key", "M Key",
+	"Comma (,) Key", "Period (.) Key", "Slash (/) Key", "Right Shift Key", "Grey Star (*) Key", "Left Alt Key",
+	"Spacebar", "CAPS Lock Key", "F1 Key", "F2 Key", "F3 Key", "F4 Key", "F5 Key", "F6 Key", "F7 Key", "F8 Key",
+	"F9 Key", "F10 Key", "NUM Lock Key", "Scroll Lock Key", "Home Key", "Up Arrow Key", "Page Up Key",
+	"Grey Minus (-) Key", "Left Arrow Key", "Keypad 5 Key", "Right Arrow Key", "Grey Plus (+) Key", "End Key",
+	"Down Arrow Key", "Page Down Key", "Insert Key", "Delete Key", "SYSREQ Key", "Keypad Enter Key",
+	"Left Back Slash (\\) Key", "F11 Key", "F12 Key", "Grey Slash (/) Key", "PA1 Key", "F13 Key", "F14 Key", "F15 Key",
+	"Grey Home Key", "Grey Up Arrow Key", "Grey Page Up Key", "Grey Left Arrow Key", "Grey Right Arrow Key",
+	"Grey End Key", "Grey Down Arrow Key", "Grey Page Down Key", "Grey Insert Key", "Grey Delete Key", "F21 Key",
+	"F22 Key", "F23 Key", "F24 Key", "UNNAMED Key", "Erase EOF Key", g_unk0x1005842c, "Copy Play Key",
+	"Right Control Key", "Right Alt Key", "CR Sel Key", g_unk0x1005842c, "EX Sel Key", "UNAMED_2 Key", "Clear Key",
+	"Any Shift Key", "Any Control Key", "Any Alt Key",
+};
+// clang-format on
+
 MechS32 GetKeyboardDeviceCount(void);
-MechS32 FillKeyboardDeviceInfo(MechS32 p_index, void* p_info);
+MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info);
 MechS32 FUN_10004b06(void);
 MechS32 FUN_10004b18(void);
 MechS32 FUN_10004b2a(void);
@@ -100,10 +152,19 @@ MechS32 GetKeyboardDeviceCount(void)
 	return 1;
 }
 
-// STUB: MW2SHELL 0x10004a75
-MechS32 FillKeyboardDeviceInfo(MechS32 p_index, void* p_info)
+// FUNCTION: MW2SHELL 0x10004a75
+MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
-	STUB(0x10004a75);
+	p_info->m_axisCount = 0;
+	p_info->m_buttonCount = 0x79;
+	sprintf(p_info->m_shortName, "keyboard");
+	sprintf(p_info->m_displayName, "Keyboard");
+	sprintf(p_info->m_matchName, "keyboard");
+	p_info->m_axisNames = NULL;
+	p_info->m_axisShortNames = NULL;
+	p_info->m_buttonNames = g_keyNames;
+	p_info->m_buttonShortNames = g_keyShortNames;
+	p_info->m_driverData = NULL;
 	return 0;
 }
 
