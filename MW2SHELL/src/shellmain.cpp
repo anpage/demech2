@@ -7,6 +7,7 @@
 #include "hollowreed0x110.h"
 #include "midisequence.h"
 #include "mousestate.h"
+#include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
 #include "videodriver.h"
@@ -143,6 +144,22 @@ MechU8 g_fDrawFmv = 0;
 
 // GLOBAL: MW2SHELL 0x10071250
 MechChar g_szDataDrivePath[4] = "A:\\";
+
+// GLOBAL: MW2SHELL 0x10071258
+MechChar* g_rankNames[9] = {
+	"Mechwarrior",
+	"Star Commander",
+	"Nova Commander",
+	"Star Captain",
+	"Nova Captain",
+	"Star Colonel",
+	"Nova Colonel",
+	"Galaxy Commander",
+	"Khan",
+};
+
+// GLOBAL: MW2SHELL 0x10071370
+TinWhistle0x3c* g_pCurrentPilot = NULL;
 
 // GLOBAL: MW2SHELL 0x1007cc84
 char* g_pScenario;

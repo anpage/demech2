@@ -38,14 +38,14 @@ void LoadPilotRoster()
 			else {
 				pilot->m_unk0x08 = 0;
 			}
-			pilot->m_unk0x0c = 0;
-			pilot->m_unk0x10 = 0;
-			pilot->m_unk0x14 = 0;
+			pilot->m_mission = 0;
+			pilot->m_rank = 0;
+			pilot->m_honor = 0;
 			pilot->m_unk0x18 = 0;
 			pilot->m_unk0x1c = 0;
 			pilot->m_unk0x20 = 0;
 			pilot->m_unk0x24 = 0;
-			strcpy(pilot->m_unk0x28, "");
+			strcpy(pilot->m_callsign, "");
 		}
 	}
 	else {
@@ -55,7 +55,7 @@ void LoadPilotRoster()
 
 	for (i = 0; i < 20; i++) {
 		pilot = &g_pilotRoster[i];
-		pilot->m_unk0x38 = 0;
+		pilot->m_glyph = NULL;
 	}
 }
 

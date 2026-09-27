@@ -39,3 +39,10 @@ void FUN_10010d49()
 
 	g_unk0x10063000 = 1;
 }
+
+// STUB: MW2SHELL 0x10011450
+MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, MechU8* p_palette)
+{
+	STUB(0x10011450);
+	return 0;
+}
