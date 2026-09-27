@@ -96,11 +96,7 @@ CampaignMission g_unk0x1006fd30[17] = {
 // GLOBAL: MW2SHELL 0x1006fdd0
 CampaignMission* g_campaignMissions[2] = {g_unk0x1006fc90, g_unk0x1006fd30};
 
-// STUB: MW2SHELL 0x10003175
-void FUN_10003175(MechS32, MechS32, MechS32, MechS32, MechS32)
-{
-	STUB(0x10003175);
-}
+void FUN_10003175(MechS32, MechS32, MechS32, MechS32, MechS32);
 
 // The original 0x10049c60 is the CRT operator new, already annotated in library_msvc.h.
 void* AllocateAllowNew(MechS32 p_size)
