@@ -2,6 +2,7 @@
 #include "decomp.h"
 #include "drawmodeextension.h"
 #include "mss.h"
+#include "silverreel0x18.h"
 #include "tmpackdatabase.h"
 #include "types.h"
 #include "videodriver.h"
@@ -113,6 +114,14 @@ MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 	return 1;
 }
 
+DECOMP_SIZE_ASSERT(SilverReel0x18, 0x18)
+
+// STUB: MW2SHELL 0x1001603a
+SilverReel0x18::SilverReel0x18(MechChar*, MechS32, MechS32)
+{
+	STUB(0x1001603a);
+}
+
 // FUNCTION: MW2SHELL 0x100161a8
 void __fastcall FUN_100161a8(Smack** p_buffer)
 {
@@ -133,6 +142,12 @@ void FUN_100162d3(size_t p_size)
 void FUN_100162ef(void* p_block)
 {
 	free(p_block);
+}
+
+// STUB: MW2SHELL 0x1001630b
+void SilverReel0x18::FUN_1001630b()
+{
+	STUB(0x1001630b);
 }
 
 struct VideoPlaybackTimer {

@@ -229,10 +229,10 @@
 // LIBRARY: MW2SHELL 0x1004a606 SYMBOL
 // ___from_strstr_to_strchr
 
-// rmdir.obj
+// unlink.obj
 
 // LIBRARY: MW2SHELL 0x1004a6c0 SYMBOL
-// __rmdir
+// _remove
 
 // strstr.obj
 
