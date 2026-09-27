@@ -198,7 +198,9 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debrief.cpp
     MW2SHELL/src/mechvariant.cpp
     MW2SHELL/src/keyboard.c
+    MW2SHELL/src/unk100050f0.c
     MW2SHELL/src/brasslantern0x414.cpp
+    MW2SHELL/src/unk10005970.c
     MW2SHELL/src/videodriver.cpp
     MW2SHELL/src/mechbay.cpp
     MW2SHELL/src/shellmain.cpp

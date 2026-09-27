@@ -82,6 +82,17 @@ EmberGlyph0x3e* BrassLantern0x414::FUN_10005522(MechS32 p_left, MechS32 p_top, M
 	return glyph;
 }
 
+// FUNCTION: MW2SHELL 0x100055f6
+EmberGlyph0x3e* BrassLantern0x414::FUN_100055f6(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
+{
+	EmberGlyph0x3e* glyph;
+
+	glyph = new EmberGlyph0x3e(p_text, p_left, p_top, p_unk0x10, this);
+	m_videoDriver->FUN_100076e8(glyph, 0);
+	glyph->FUN_1004795e();
+	return glyph;
+}
+
 // FUNCTION: MW2SHELL 0x100056b9
 MechS32 BrassLantern0x414::FUN_100056b9(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
 {
@@ -92,4 +103,74 @@ MechS32 BrassLantern0x414::FUN_100056b9(MechS32 p_left, MechS32 p_top, MechChar*
 MechS32 BrassLantern0x414::FUN_100056f5(MechS32 p_left, MechS32 p_top, MechS32 p_char, undefined* p_unk0x10)
 {
 	return m_videoDriver->FUN_10007603(p_left, p_top, m_unk0x00, p_char, p_unk0x10);
+}
+
+// Text entry: m_unk0x04 holds the right edge of each typed character, m_unk0x404 their count.
+// FUNCTION: MW2SHELL 0x10005731
+void BrassLantern0x414::FUN_10005731(MechS32 p_left, MechS32 p_top, MechS32 p_key, undefined* p_unk0x10)
+{
+	MechS32 width;
+	MechS32 x;
+	MechS32 end;
+
+	switch (p_key) {
+	case '\b':
+		m_unk0x404--;
+		if (m_unk0x404 < 0) {
+			m_unk0x404 = 0;
+		}
+
+		if (m_unk0x404 == 0) {
+			if (m_unk0x04[m_unk0x404] == 0) {
+				return;
+			}
+
+			x = p_left;
+			end = m_unk0x04[m_unk0x404] + p_left;
+		}
+		else {
+			x = m_unk0x04[m_unk0x404 - 1] + p_left;
+			end = m_unk0x04[m_unk0x404] + p_left;
+		}
+
+		m_unk0x04[m_unk0x404] = 0;
+		while (x < end) {
+			x += FUN_100056f5(x, p_top, ' ', p_unk0x10);
+		}
+		break;
+	case '\r':
+		break;
+	case '\x1b':
+		FUN_10005913();
+		break;
+	default:
+		if (m_unk0x404 == 0) {
+			x = 0;
+		}
+		else {
+			x = m_unk0x04[m_unk0x404 - 1];
+		}
+
+		width = FUN_100056f5(x + p_left, p_top, p_key, p_unk0x10);
+		if (m_unk0x404 > 0) {
+			m_unk0x04[m_unk0x404] = m_unk0x04[m_unk0x404 - 1] + width;
+		}
+		else {
+			m_unk0x04[m_unk0x404] = width;
+		}
+
+		m_unk0x404++;
+		break;
+	}
+}
+
+// FUNCTION: MW2SHELL 0x10005913
+void BrassLantern0x414::FUN_10005913()
+{
+	MechS32 i;
+
+	m_unk0x404 = 0;
+	for (i = 0; i < 0x100; i++) {
+		m_unk0x04[i] = 0;
+	}
 }
