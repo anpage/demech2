@@ -281,15 +281,15 @@ void ShowFormationNames()
 	if (g_unk0x1006a2a4) {
 		delete g_unk0x1006a2a4;
 	}
-	pos = &g_unk0x1006f618[6].m_textPos;
-	g_unk0x1006a2a4 = g_textFont->AddText(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x1009016c].m_unk0x04, g_unk0x10090058);
+	pos = &g_missionBriefingButtons[6].m_textPos;
+	g_unk0x1006a2a4 = g_textFont->AddText(pos->x, pos->y, g_formations[g_unk0x1009016c].m_name, g_unk0x10090058);
 
 	g_unk0x10090178 = GetStarFormation(1);
 	if (g_unk0x1006a2a0) {
 		delete g_unk0x1006a2a0;
 	}
-	pos = &g_unk0x1006f618[17].m_textPos;
-	g_unk0x1006a2a0 = g_textFont->AddText(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x10090178].m_unk0x04, g_unk0x10090058);
+	pos = &g_missionBriefingButtons[17].m_textPos;
+	g_unk0x1006a2a0 = g_textFont->AddText(pos->x, pos->y, g_formations[g_unk0x10090178].m_name, g_unk0x10090058);
 }
 
 // Picks a value by the pilot of the player's first mech: 0x12 for Enzo, 0x11 for Hobbes, 0x10
@@ -340,7 +340,7 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 		g_unk0x1006a2b4 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	}
 
-	g_unk0x1006a2a8 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_unk0x1006f618, 0x19);
+	g_unk0x1006a2a8 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_missionBriefingButtons, 0x19);
 	for (i = 0; i < 3; i++) {
 		g_unk0x10090160[i] = NULL;
 	}
@@ -360,12 +360,12 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 
 	for (i = 0; i < 3; i++) {
 		g_playerMechTags[i].m_glyph = NULL;
-		pos = &g_unk0x1006f618[i + 3].m_textPos;
+		pos = &g_missionBriefingButtons[i + 3].m_textPos;
 		SelectStar(0, -1, -1, -1, -1);
 		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 
 		g_enemyMechTags[i].m_glyph = NULL;
-		pos = &g_unk0x1006f618[i + 0xe].m_textPos;
+		pos = &g_missionBriefingButtons[i + 0xe].m_textPos;
 		SelectStar(1, -1, -1, -1, -1);
 		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 	}
@@ -437,11 +437,11 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		*p_scenario = g_unk0x1006a220[g_unk0x10090280];
 		ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], 1, 1);
 		for (i = 0; i < 3; i++) {
-			pos = &g_unk0x1006f618[i + 3].m_textPos;
+			pos = &g_missionBriefingButtons[i + 3].m_textPos;
 			SelectStar(0, -1, -1, -1, -1);
 			ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 
-			pos = &g_unk0x1006f618[i + 0xe].m_textPos;
+			pos = &g_missionBriefingButtons[i + 0xe].m_textPos;
 			SelectStar(1, -1, -1, -1, -1);
 			ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		}
@@ -486,7 +486,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		pos = &g_unk0x1006f618[button].m_textPos;
+		pos = &g_missionBriefingButtons[button].m_textPos;
 		i = button - 3;
 		do {
 			g_playerMechTags[i].m_type++;
@@ -507,7 +507,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		pos = &g_unk0x1006f618[button - 4].m_textPos;
+		pos = &g_missionBriefingButtons[button - 4].m_textPos;
 		i = button - 7;
 		do {
 			g_playerMechTags[i].m_type--;
@@ -530,7 +530,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		pos = &g_unk0x1006f618[button].m_textPos;
+		pos = &g_missionBriefingButtons[button].m_textPos;
 		i = button - 14;
 		do {
 			g_enemyMechTags[i].m_type++;
@@ -551,7 +551,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		pos = &g_unk0x1006f618[button - 4].m_textPos;
+		pos = &g_missionBriefingButtons[button - 4].m_textPos;
 		i = button - 18;
 		do {
 			g_enemyMechTags[i].m_type--;

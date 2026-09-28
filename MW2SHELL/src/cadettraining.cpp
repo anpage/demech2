@@ -58,8 +58,8 @@ void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS
 void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
 {
 	g_unk0x1009066c = p_wParam;
-	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_unk0x1006ffc0[p_campaign].m_buttons, 1);
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ffc0[p_campaign].m_picture);
+	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_cadetTrainingScreens[p_campaign].m_buttons, 1);
+	g_pVideoDriver->LoadBackground(p_database, g_cadetTrainingScreens[p_campaign].m_picture);
 
 	switch (p_campaign) {
 	case 0:
@@ -105,8 +105,8 @@ void CadetTrainingCallback(
 
 	if (!g_unk0x1006acd0 && !IsVideoPlaying(0)) {
 		g_unk0x1006acd0 = 1;
-		for (i = 1; i < g_unk0x1006ffc0[*p_campaign].m_count; i++) {
-			g_unk0x10090668->AddButton(g_unk0x1006ffc0[*p_campaign].m_buttons[i], i, FALSE);
+		for (i = 1; i < g_cadetTrainingScreens[*p_campaign].m_count; i++) {
+			g_unk0x10090668->AddButton(g_cadetTrainingScreens[*p_campaign].m_buttons[i], i, FALSE);
 		}
 
 		p_database->GetDBItem(0x4c, &data, &size);
@@ -148,7 +148,7 @@ void CadetTrainingCallback(
 			if (button == -1 || g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			*p_scenario = g_unk0x1006fe08[*p_campaign][button - 1];
+			*p_scenario = g_trainingScenarios[*p_campaign][button - 1];
 			ShellApplyMissionUiInfo(*p_scenario, 0, 0);
 			delete g_unk0x1006acd8;
 			g_unk0x1006acd8 = NULL;

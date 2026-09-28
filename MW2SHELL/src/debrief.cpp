@@ -634,9 +634,9 @@ MechS32 GetTrialRank(MissionResults* p_results, undefined* p_options)
 	MechS32 count;
 	MechS32 i;
 
-	if (g_pCurrentPilot->m_unk0x08 != 2 &&
-		g_campaignMissions[g_pCurrentPilot->m_unk0x08][g_pCurrentPilot->m_mission].m_unk0x04 == 1 &&
-		!HasEasyOptions() && p_results->m_unk0x10 == 2 && p_options[4] == 1) {
+	if (g_pCurrentPilot->m_clan != 2 &&
+		g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1 && !HasEasyOptions() &&
+		p_results->m_unk0x10 == 2 && p_options[4] == 1) {
 		count = 0;
 		for (i = 0; i < p_results->m_unk0x04; i++) {
 			if (p_results->m_unk0x14[i].m_unk0x04 == 1 && p_results->m_unk0x14[i].m_unk0x00 == 1) {
@@ -664,7 +664,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	CareerRecord career;
 	MechChar name[0x10];
 
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ff00[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_debriefScreens[p_campaign].m_picture);
 	switch (p_campaign) {
 	case 0:
 		left = 0x58;
@@ -700,8 +700,8 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 		g_pVideoDriver,
 		g_defaultFont,
 		FALSE,
-		g_unk0x1006ff00[p_campaign].m_buttons,
-		g_unk0x1006ff00[p_campaign].m_count
+		g_debriefScreens[p_campaign].m_buttons,
+		g_debriefScreens[p_campaign].m_count
 	);
 
 	if (p_campaign != 2) {
@@ -775,7 +775,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 					p_msg = 0x416;
 				}
 				else {
-					*p_scenario = g_campaignMissions[*p_campaign][g_pCurrentPilot->m_mission].m_unk0x00;
+					*p_scenario = g_campaignMissions[*p_campaign][g_pCurrentPilot->m_mission].m_scenario;
 				}
 			}
 			break;
@@ -792,8 +792,8 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 				FALSE,
 				NULL,
 				g_unk0x1005b048,
-				g_unk0x1006ff30[*p_campaign].m_buttons,
-				g_unk0x1006ff30[*p_campaign].m_count
+				g_aftermathScreens[*p_campaign].m_buttons,
+				g_aftermathScreens[*p_campaign].m_count
 			);
 			break;
 		case 2:
@@ -833,8 +833,8 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 				g_pVideoDriver,
 				g_defaultFont,
 				FALSE,
-				g_unk0x1006ff00[*p_campaign].m_buttons,
-				g_unk0x1006ff00[*p_campaign].m_count
+				g_debriefScreens[*p_campaign].m_buttons,
+				g_debriefScreens[*p_campaign].m_count
 			);
 			g_unk0x1005b044->Restart();
 		}

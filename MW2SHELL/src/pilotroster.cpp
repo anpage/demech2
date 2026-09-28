@@ -24,10 +24,10 @@ void LoadPilotRoster()
 			pilot->m_unk0x00 = 0;
 			pilot->m_unk0x04 = 0;
 			if (i >= 10) {
-				pilot->m_unk0x08 = 1;
+				pilot->m_clan = 1;
 			}
 			else {
-				pilot->m_unk0x08 = 0;
+				pilot->m_clan = 0;
 			}
 			pilot->m_mission = 0;
 			pilot->m_rank = 0;

@@ -38,7 +38,7 @@ extern MechU32 g_unk0x10071248;
 extern MechU8 g_fDrawFmv;
 extern MechChar g_szDataDrivePath[4];
 extern MechChar* g_rankNames[10];
-extern MechChar* g_unk0x10071280[6];
+extern MechChar* g_clanNames[6];
 extern MechS32 g_unk0x10071298[18];
 extern MechS32 g_unk0x100712e0[18];
 extern MechS32 g_unk0x10071328[18];

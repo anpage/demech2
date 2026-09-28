@@ -72,7 +72,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		}
 	}
 
-	g_unk0x10063b70 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_unk0x1006fe10[p_campaign].m_buttons, 4);
+	g_unk0x10063b70 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_clanHallScreens[p_campaign].m_buttons, 4);
 
 	switch (p_campaign) {
 	case 0:
@@ -103,7 +103,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	}
 
 	RegisterScreenFunction(ClanHallCallback);
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fe10[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_clanHallScreens[p_campaign].m_picture);
 	UpdateVideos();
 	g_pVideoDriver->DrawShell();
 	if (g_unk0x10063b74) {

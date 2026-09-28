@@ -69,20 +69,20 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	void* audioData;
 	MechS32 audioSize;
 
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fe70[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_archiveScreens[p_campaign].m_picture);
 	p_database->GetDBItem(103, &audioData, &audioSize);
 	g_unk0x10066600 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	g_unk0x10066600->SetVolume(0x32);
 	g_unk0x10066600->Start();
 
 	g_unk0x100665f8 = new ArchiveReader(
-		g_unk0x1006e1a0[p_campaign],
+		g_archiveNames[p_campaign],
 		g_archiveFont,
 		1,
 		TRUE,
 		NULL,
 		NULL,
-		g_unk0x1006fe70[p_campaign].m_buttons,
+		g_archiveScreens[p_campaign].m_buttons,
 		1
 	);
 	g_unk0x100665fc = p_wParam;

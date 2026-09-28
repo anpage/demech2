@@ -109,7 +109,7 @@ MechChar* g_rankNames[10] = {
 };
 
 // GLOBAL: MW2SHELL 0x10071280
-MechChar* g_unk0x10071280[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jaguar", "Nova Cat", "Steel Vipers"};
+MechChar* g_clanNames[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jaguar", "Nova Cat", "Steel Vipers"};
 
 // The song of each shell message from 0x406 up, per campaign: a database item (plus the base),
 // 0 to keep the current one, 0x20000000 to stop the music. 0x10000000 restarts the song.

@@ -458,7 +458,7 @@ extern "C" int __stdcall ShellMain(
 
 	InitTextColorMaps();
 
-	g_pDatabaseMw2 = new TMPackDataBase(g_unk0x1006e19c);
+	g_pDatabaseMw2 = new TMPackDataBase(g_databaseName);
 	g_pAudioSubsystem = new AudioSubsystem();
 	g_windowWidth = 640;
 	g_windowHeight = 480;

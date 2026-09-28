@@ -96,7 +96,7 @@ void DrawHallOfHonor()
 		}
 
 		g_pVideoDriver->DrawString(0, top, g_defaultFont->m_unk0x408, pilots[i]->m_callsign, NULL);
-		g_pVideoDriver->DrawString(0x7d, top, g_defaultFont->m_unk0x408, g_unk0x10071280[pilots[i]->m_unk0x08], NULL);
+		g_pVideoDriver->DrawString(0x7d, top, g_defaultFont->m_unk0x408, g_clanNames[pilots[i]->m_clan], NULL);
 		g_pVideoDriver->DrawString(200, top, g_defaultFont->m_unk0x408, g_rankNames[pilots[i]->m_rank], NULL);
 		sprintf(g_unk0x10090670, "%d", pilots[i]->m_honor);
 		g_pVideoDriver->DrawString(0x145, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
@@ -117,7 +117,7 @@ void DrawHallOfHonor()
 				0x208,
 				top,
 				g_defaultFont->m_unk0x408,
-				g_campaignMissions[pilots[i]->m_unk0x08][pilots[i]->m_mission - 1].m_title,
+				g_campaignMissions[pilots[i]->m_clan][pilots[i]->m_mission - 1].m_title,
 				NULL
 			);
 		}
