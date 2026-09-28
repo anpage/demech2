@@ -2,6 +2,7 @@
 
 #include "audiosubsystem.h"
 #include "decomp.h"
+#include "difficultyconfig.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "mousestate.h"
@@ -173,10 +174,11 @@ PaletteColor g_unk0x10071378[0x100] = {0};
 
 // The sound settings (MW2SND.CFG).
 // GLOBAL: MW2SHELL 0x10071678
-SoundConfig g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 0xf, 1, 1, 1, 1, 1, 8, 0, {0}};
+SoundConfig g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 0xf, 1, 1, 1, 1, 1, 8, {0}};
 
+// The difficulty settings (MW2DIF.CFG).
 // GLOBAL: MW2SHELL 0x100716b8
-undefined g_unk0x100716b8[0x17] = {0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
+DifficultyConfig g_difficultyConfig = {0, 0, 1, 1, 1, 1, {0, 0, 0, 1}};
 
 // GLOBAL: MW2SHELL 0x100946d0
 PilotRecord g_pilotRoster[20];

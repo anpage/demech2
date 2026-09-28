@@ -100,10 +100,10 @@ void DrawHallOfHonor()
 		g_pVideoDriver->DrawString(200, top, g_defaultFont->m_unk0x408, g_rankNames[pilots[i]->m_rank], NULL);
 		sprintf(g_unk0x10090670, "%d", pilots[i]->m_honor);
 		g_pVideoDriver->DrawString(0x145, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
-		sprintf(g_unk0x10090670, "%d", pilots[i]->m_unk0x18);
+		sprintf(g_unk0x10090670, "%d", pilots[i]->m_kills);
 		g_pVideoDriver->DrawString(400, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
-		if (pilots[i]->m_unk0x20 != 0) {
-			sprintf(g_unk0x10090670, "%d%%", (MechS32) pilots[i]->m_unk0x1c * 100 / (MechS32) pilots[i]->m_unk0x20);
+		if (pilots[i]->m_shotsFired != 0) {
+			sprintf(g_unk0x10090670, "%d%%", (MechS32) pilots[i]->m_hits * 100 / (MechS32) pilots[i]->m_shotsFired);
 		}
 		else {
 			strcpy(g_unk0x10090670, "-");

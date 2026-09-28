@@ -1,6 +1,7 @@
 #include "projectarchive.h"
 
 #include "decomp.h"
+#include "difficultyconfig.h"
 #include "mechbay.h"
 #include "mechchassis.h"
 #include "mw2prj.h"
@@ -451,7 +452,7 @@ void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCo
 	MechS32 level;
 	MechS32 difficulty;
 	char fileName[0x10];
-	MechU8 settings[0x17];
+	DifficultyConfig settings;
 
 	BwdInitRegistry();
 	for (i = 0; i < p_count; i++) {
@@ -464,12 +465,12 @@ void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCo
 	difficulty = g_unk0x10066a44 - 2;
 	file = fopen("MW2DIF.CFG", "rb");
 	if (file != NULL) {
-		fread(settings, 0x17, 1, file);
+		fread(&settings, sizeof(settings), 1, file);
 		fclose(file);
-		if (settings[5] == 0) {
+		if (settings.m_enemySkill == 0) {
 			difficulty++;
 		}
-		else if (settings[5] == 2) {
+		else if (settings.m_enemySkill == 2) {
 			difficulty--;
 		}
 	}

@@ -25,7 +25,7 @@
 // The clan hall screen.
 
 // GLOBAL: MW2SHELL 0x10063b70
-ButtonMenu* g_unk0x10063b70 = NULL;
+ButtonMenu* g_clanHallMenu = NULL;
 
 // The room's ambience and the sound ClanHallCallback starts once the videos 2 and 3 are done.
 // GLOBAL: MW2SHELL 0x10063b74
@@ -72,7 +72,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		}
 	}
 
-	g_unk0x10063b70 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_clanHallScreens[p_campaign].m_buttons, 4);
+	g_clanHallMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_clanHallScreens[p_campaign].m_buttons, 4);
 
 	switch (p_campaign) {
 	case 0:
@@ -138,7 +138,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 	}
 
 	if (g_unk0x10063b80 == -1) {
-		button = g_unk0x10063b70->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_clanHallMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -242,7 +242,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
-		delete g_unk0x10063b70;
+		delete g_clanHallMenu;
 		if (g_unk0x10063b74) {
 			delete g_unk0x10063b74;
 			g_unk0x10063b74 = NULL;

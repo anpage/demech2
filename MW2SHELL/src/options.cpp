@@ -3,6 +3,7 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "decomp.h"
+#include "difficultyconfig.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "loopingmovie.h"
@@ -25,7 +26,7 @@
 #include <string.h>
 
 void OptionsCallback(MechS32);
-extern ScreenField g_unk0x10070da8[15];
+extern ScreenField g_optionFields[15];
 
 // A button with a centered caption. Nothing calls its two functions.
 // SIZE 0x9c
@@ -43,30 +44,31 @@ struct PewterPlaque0x9c {
 DECOMP_SIZE_ASSERT(PewterPlaque0x9c, 0x9c)
 
 // GLOBAL: MW2SHELL 0x10070d90
-LoopingMovie* g_unk0x10070d90 = NULL;
+LoopingMovie* g_optionsMovie = NULL;
 
 // GLOBAL: MW2SHELL 0x1007116c
-MechChar g_unk0x1007116c[0x10] = "amwlogo1";
+MechChar g_optionsMovieName[0x10] = "amwlogo1";
 
 DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
+DECOMP_SIZE_ASSERT(DifficultyConfig, 0x17)
 
 // GLOBAL: MW2SHELL 0x10092c18
-AudioSample* g_unk0x10092c18;
+AudioSample* g_volumeTestSample;
 // GLOBAL: MW2SHELL 0x10092c30
-PaletteColor g_unk0x10092c30[0x100];
+PaletteColor g_savedPalette[0x100];
 // GLOBAL: MW2SHELL 0x10092f30
-void* g_unk0x10092f30;
+void* g_sliderImages;
 
 // The lines of ShowDialog's message box...
 // GLOBAL: MW2SHELL 0x10092c20
-MechChar* g_unk0x10092c20[3];
+MechChar* g_dialogLines[3];
 
 // ...and the text they point into.
 // GLOBAL: MW2SHELL 0x10092f38
-MechChar g_unk0x10092f38[0x200];
+MechChar g_dialogText[0x200];
 
 // GLOBAL: MW2SHELL 0x10070d98
-MechChar* g_unk0x10070d98[] = {"~EASY", "~MEDIUM", "~HARD"};
+MechChar* g_skillNames[] = {"~EASY", "~MEDIUM", "~HARD"};
 
 // Lay out a button: its rectangle around a center, and its caption centered in it.
 // FUNCTION: MW2SHELL 0x10043280
@@ -98,16 +100,15 @@ MechS32 FUN_10043333(PewterPlaque0x9c* p_plaque, MechS32 p_x, MechS32 p_y)
 }
 
 // FUNCTION: MW2SHELL 0x1004338a
-TextGlyph* FUN_1004338a(ScreenField* p_option)
+TextGlyph* DrawSkillOption(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
-	return g_titleFont
-		->AddText(p_option->m_left + p_option->m_width / 2, p_option->m_top, g_unk0x10070d98[value], NULL);
+	return g_titleFont->AddText(p_option->m_left + p_option->m_width / 2, p_option->m_top, g_skillNames[value], NULL);
 }
 
 // FUNCTION: MW2SHELL 0x100433dc
-TextGlyph* FUN_100433dc(ScreenField* p_option)
+TextGlyph* DrawIntToggle(ScreenField* p_option)
 {
 	MechS32 value = *(MechS32*) p_option->m_data;
 
@@ -120,7 +121,7 @@ TextGlyph* FUN_100433dc(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x1004343c
-TextGlyph* FUN_1004343c(ScreenField* p_option)
+TextGlyph* DrawByteToggle(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
@@ -133,7 +134,7 @@ TextGlyph* FUN_1004343c(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x1004349f
-TextGlyph* FUN_1004349f(ScreenField* p_option)
+TextGlyph* DrawDishonorableToggle(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
@@ -146,7 +147,7 @@ TextGlyph* FUN_1004349f(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x10043517
-TextGlyph* FUN_10043517(ScreenField* p_option)
+TextGlyph* DrawInvertedDishonorableToggle(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
@@ -159,7 +160,7 @@ TextGlyph* FUN_10043517(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x10043589
-TextGlyph* FUN_10043589(ScreenField* p_option)
+TextGlyph* DrawHighLowToggle(ScreenField* p_option)
 {
 	MechS32 value = *(MechS32*) p_option->m_data;
 
@@ -172,7 +173,7 @@ TextGlyph* FUN_10043589(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x100435e9
-TextGlyph* FUN_100435e9(ScreenField* p_option)
+TextGlyph* DrawResolutionOption(ScreenField* p_option)
 {
 	MechChar* value;
 	MechChar* label;
@@ -241,7 +242,7 @@ void ToggleVesaDriver(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x10043758
-TextGlyph* FUN_10043758(ScreenField* p_option)
+TextGlyph* RestoreFieldBackground(ScreenField* p_option)
 {
 	g_pVideoDriver->RestoreBackground(p_option->m_left, p_option->m_top, p_option->m_width, p_option->m_height);
 
@@ -249,28 +250,22 @@ TextGlyph* FUN_10043758(ScreenField* p_option)
 }
 
 // FUNCTION: MW2SHELL 0x10043790
-TextGlyph* FUN_10043790(ScreenField* p_option)
+TextGlyph* DrawVolumeSlider(ScreenField* p_option)
 {
 	MechS32 position;
 
 	position = *(MechS32*) p_option->m_data;
 	position /= 0x100;
 	g_pVideoDriver->FUN_100073b3(
-		(undefined4) g_unk0x10092f30,
+		(undefined4) g_sliderImages,
 		1,
 		p_option->m_left,
 		p_option->m_top,
 		p_option->m_width,
 		p_option->m_height
 	);
-	g_pVideoDriver->FUN_100073b3(
-		(undefined4) g_unk0x10092f30,
-		0,
-		p_option->m_left + position + 8,
-		p_option->m_top - 1,
-		0xf,
-		0x1d
-	);
+	g_pVideoDriver
+		->FUN_100073b3((undefined4) g_sliderImages, 0, p_option->m_left + position + 8, p_option->m_top - 1, 0xf, 0x1d);
 
 	return NULL;
 }
@@ -301,13 +296,13 @@ void DragVolumeSlider(ScreenField* p_option)
 			previous = *value;
 			volume = g_soundConfig.m_effectsVolume;
 			g_soundConfig.m_effectsVolume = previous;
-			g_unk0x10092c18->Start();
+			g_volumeTestSample->Start();
 			g_soundConfig.m_effectsVolume = volume;
 		}
 
-		RedrawFields(g_unk0x10070da8);
-		if (g_unk0x10070d90) {
-			g_unk0x10070d90->Update();
+		RedrawFields(g_optionFields);
+		if (g_optionsMovie) {
+			g_optionsMovie->Update();
 		}
 		g_pMouseState->ReadMouseState();
 		g_pVideoDriver->DrawShell();
@@ -334,7 +329,7 @@ void LoadDifficultyConfig()
 
 	file = fopen("MW2DIF.CFG", "rb");
 	if (file != NULL) {
-		fread(g_unk0x100716b8, 0x17, 1, file);
+		fread(&g_difficultyConfig, sizeof(g_difficultyConfig), 1, file);
 		fclose(file);
 	}
 }
@@ -346,7 +341,7 @@ void SaveDifficultyConfig()
 
 	file = fopen("MW2DIF.CFG", "wb");
 	if (file != NULL) {
-		fwrite(g_unk0x100716b8, 0x17, 1, file);
+		fwrite(&g_difficultyConfig, sizeof(g_difficultyConfig), 1, file);
 		fclose(file);
 	}
 }
@@ -371,20 +366,20 @@ void DrawOptions()
 	MechS32 paletteSize;
 	void* audioData;
 	MechS32 audioSize;
-	g_pVideoDriver->GetPalette(g_unk0x10092c30);
-	g_pDatabaseMw2->GetDBItem(8, &g_unk0x10092f30, &paletteSize);
+	g_pVideoDriver->GetPalette(g_savedPalette);
+	g_pDatabaseMw2->GetDBItem(8, &g_sliderImages, &paletteSize);
 	g_pDatabaseMw2->GetDBItem(0x66, &audioData, &audioSize);
-	g_unk0x10092c18 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
-	g_unk0x10092c18->SetVolume(0x32);
+	g_volumeTestSample = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_volumeTestSample->SetVolume(0x32);
 	g_pVideoDriver->LoadPalette(3);
 	g_pVideoDriver->m_unk0x3a6 = 0;
 	g_pVideoDriver->RestoreBackground(0x177, 0x7c, 0x102, 0x160);
-	g_unk0x10070d90 = NULL;
-	g_unk0x10070d90 = new LoopingMovie(g_unk0x1007116c, 0x78, 4);
+	g_optionsMovie = NULL;
+	g_optionsMovie = new LoopingMovie(g_optionsMovieName, 0x78, 4);
 	g_keyboardInput->FlushKeys();
 	LoadSoundConfig();
 	LoadDifficultyConfig();
-	ShowFields(g_unk0x10070da8);
+	ShowFields(g_optionFields);
 	RegisterMenuFunction(OptionsCallback);
 }
 
@@ -396,15 +391,15 @@ void OptionsCallback(MechS32 p_active)
 	ScreenField* option;
 
 	if (p_active) {
-		if (g_unk0x10070d90) {
-			g_unk0x10070d90->Update();
+		if (g_optionsMovie) {
+			g_optionsMovie->Update();
 		}
 
 		if (g_pMouseState->GetLeftPressed() == 1) {
-			option = FindFieldAt(g_unk0x10070da8, g_pMouseState->m_x, g_pMouseState->m_y);
+			option = FindFieldAt(g_optionFields, g_pMouseState->m_x, g_pMouseState->m_y);
 			if (option && option->m_click) {
 				option->m_click(option);
-				RedrawFields(g_unk0x10070da8);
+				RedrawFields(g_optionFields);
 			}
 		}
 	}
@@ -413,21 +408,21 @@ void OptionsCallback(MechS32 p_active)
 		UnregisterMenuFunction(OptionsCallback);
 		EnableMenuItem(g_windowMenu, 0x9c94, MF_ENABLED);
 		g_menuDialogOpen = 0;
-		HideFields(g_unk0x10070da8);
+		HideFields(g_optionFields);
 		SaveSoundConfig();
 		SaveDifficultyConfig();
 
-		if (g_unk0x10070d90) {
-			delete g_unk0x10070d90;
+		if (g_optionsMovie) {
+			delete g_optionsMovie;
 		}
-		if (g_unk0x10092c18) {
-			delete g_unk0x10092c18;
+		if (g_volumeTestSample) {
+			delete g_volumeTestSample;
 		}
 
 		g_pVideoDriver->m_unk0x3a6 = -1;
 		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
-		g_pVideoDriver->SetPalette(g_unk0x10092c30, 1);
+		g_pVideoDriver->SetPalette(g_savedPalette, 1);
 
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
@@ -442,22 +437,29 @@ void OptionsCallback(MechS32 p_active)
 #define OPTION_BAR(x, y, width, height, draw, click, value)                                                            \
 	{x, y, width, height, 0, NULL, NULL, draw, click, value, NULL}
 // GLOBAL: MW2SHELL 0x10070da8
-ScreenField g_unk0x10070da8[15] = {
-	OPTION_ROW(0x189, 0xdb, 100, FUN_1004338a, CycleByteOption, g_unk0x100716b8 + 5),
-	OPTION_ROW(0x189, 0xef, 100, FUN_1004343c, ToggleByteOption, g_unk0x100716b8 + 4),
-	OPTION_ROW(0x189, 0x115, 100, FUN_100433dc, ToggleIntOption, &g_soundConfig.m_unk0x14),
-	OPTION_ROW(0x189, 0x129, 100, FUN_100433dc, ToggleIntOption, &g_soundConfig.m_unk0x18),
-	OPTION_ROW(0x189, 0x13d, 100, FUN_10043589, ToggleIntOption, &g_soundConfig.m_unk0x1c),
-	OPTION_ROW(0x189, 0x151, 100, FUN_10043589, ToggleIntOption, &g_soundConfig.m_unk0x20),
-	OPTION_ROW(0x189, 0x165, 100, FUN_100433dc, ToggleIntOption, &g_soundConfig.m_unk0x24),
-	OPTION_ROW(0x189, 0x179, 100, FUN_100435e9, ToggleVesaDriver, &g_soundConfig.m_unk0x2c),
-	OPTION_ROW(0x189, 0x1a0, 100, FUN_1004349f, ToggleByteOption, g_unk0x100716b8 + 1),
-	OPTION_ROW(0x189, 0x1b4, 100, FUN_1004349f, ToggleByteOption, g_unk0x100716b8),
-	OPTION_ROW(0x189, 0x1c8, 100, FUN_10043517, ToggleByteOption, g_unk0x100716b8 + 3),
-	OPTION_BAR(0x14f, 0x80, 0x11d, 0x4e, FUN_10043758, NULL, NULL),
-	OPTION_BAR(0x14f, 0x80, 0x11d, 0x15, FUN_10043790, DragVolumeSlider, &g_soundConfig.m_midiVolume),
-	OPTION_BAR(0x14f, 0x98, 0x11d, 0x15, FUN_10043790, DragVolumeSlider, &g_soundConfig.m_effectsVolume),
-	OPTION_BAR(0x14f, 0xb0, 0x11d, 0x15, FUN_10043790, DragVolumeSlider, &g_soundConfig.m_unk0x08),
+ScreenField g_optionFields[15] = {
+	OPTION_ROW(0x189, 0xdb, 100, DrawSkillOption, CycleByteOption, &g_difficultyConfig.m_enemySkill),
+	OPTION_ROW(0x189, 0xef, 100, DrawByteToggle, ToggleByteOption, &g_difficultyConfig.m_heatTracking),
+	OPTION_ROW(0x189, 0x115, 100, DrawIntToggle, ToggleIntOption, &g_soundConfig.m_unk0x14),
+	OPTION_ROW(0x189, 0x129, 100, DrawIntToggle, ToggleIntOption, &g_soundConfig.m_unk0x18),
+	OPTION_ROW(0x189, 0x13d, 100, DrawHighLowToggle, ToggleIntOption, &g_soundConfig.m_unk0x1c),
+	OPTION_ROW(0x189, 0x151, 100, DrawHighLowToggle, ToggleIntOption, &g_soundConfig.m_unk0x20),
+	OPTION_ROW(0x189, 0x165, 100, DrawIntToggle, ToggleIntOption, &g_soundConfig.m_unk0x24),
+	OPTION_ROW(0x189, 0x179, 100, DrawResolutionOption, ToggleVesaDriver, g_soundConfig.m_videoDriver),
+	OPTION_ROW(0x189, 0x1a0, 100, DrawDishonorableToggle, ToggleByteOption, &g_difficultyConfig.m_invulnerability),
+	OPTION_ROW(0x189, 0x1b4, 100, DrawDishonorableToggle, ToggleByteOption, &g_difficultyConfig.m_unlimitedAmmo),
+	OPTION_ROW(
+		0x189,
+		0x1c8,
+		100,
+		DrawInvertedDishonorableToggle,
+		ToggleByteOption,
+		&g_difficultyConfig.m_collisionDamage
+	),
+	OPTION_BAR(0x14f, 0x80, 0x11d, 0x4e, RestoreFieldBackground, NULL, NULL),
+	OPTION_BAR(0x14f, 0x80, 0x11d, 0x15, DrawVolumeSlider, DragVolumeSlider, &g_soundConfig.m_midiVolume),
+	OPTION_BAR(0x14f, 0x98, 0x11d, 0x15, DrawVolumeSlider, DragVolumeSlider, &g_soundConfig.m_effectsVolume),
+	OPTION_BAR(0x14f, 0xb0, 0x11d, 0x15, DrawVolumeSlider, DragVolumeSlider, &g_soundConfig.m_unk0x08),
 };
 #undef OPTION_ROW
 #undef OPTION_BAR
@@ -475,12 +477,12 @@ MechS32 ShowDialog(const char* p_text, MechS32)
 	MechChar* line;
 	MechS32 id;
 
-	line = g_unk0x10092f38;
-	g_unk0x10092c20[0] = g_unk0x10092c20[1] = g_unk0x10092c20[2] = NULL;
+	line = g_dialogText;
+	g_dialogLines[0] = g_dialogLines[1] = g_dialogLines[2] = NULL;
 
 	count = 0;
 	while (*p_text != '\0' && *p_text != '#') {
-		g_unk0x10092c20[count] = line;
+		g_dialogLines[count] = line;
 		count++;
 
 		while (*p_text != '\0' && *p_text != '|' && *p_text != '#') {
@@ -496,8 +498,8 @@ MechS32 ShowDialog(const char* p_text, MechS32)
 	}
 
 	if (count == 1) {
-		g_unk0x10092c20[1] = g_unk0x10092c20[0];
-		g_unk0x10092c20[0] = NULL;
+		g_dialogLines[1] = g_dialogLines[0];
+		g_dialogLines[0] = NULL;
 	}
 
 	count = 0;
@@ -524,9 +526,9 @@ BOOL CALLBACK ShowDialogProc(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
 
 	switch (p_msg) {
 	case WM_INITDIALOG:
-		SetDlgItemText(p_hDlg, 0x3ed, g_unk0x10092c20[0]);
-		SetDlgItemText(p_hDlg, 0x3ee, g_unk0x10092c20[1]);
-		SetDlgItemText(p_hDlg, 0x3ef, g_unk0x10092c20[2]);
+		SetDlgItemText(p_hDlg, 0x3ed, g_dialogLines[0]);
+		SetDlgItemText(p_hDlg, 0x3ee, g_dialogLines[1]);
+		SetDlgItemText(p_hDlg, 0x3ef, g_dialogLines[2]);
 		return TRUE;
 	case WM_COMMAND:
 		id = LOWORD(p_wParam);

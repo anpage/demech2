@@ -47,7 +47,7 @@ AudioSample* g_unk0x1006a590 = NULL;
 MechS32 g_unk0x1006a594 = 0;
 
 // GLOBAL: MW2SHELL 0x100904a0
-ButtonMenu* g_unk0x100904a0;
+ButtonMenu* g_readyRoomMenu;
 
 // GLOBAL: MW2SHELL 0x100904a4
 WPARAM g_unk0x100904a4;
@@ -89,7 +89,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 	g_pVideoDriver->LoadBackground(p_database, g_readyRoomScreens[p_campaign].m_picture);
 
 	if (!strcmp(g_pCurrentPilot->m_callsign, "FREEBIRTHTOAD")) {
-		g_unk0x100904a0 = new ButtonMenu(
+		g_readyRoomMenu = new ButtonMenu(
 			g_pVideoDriver,
 			g_defaultFont,
 			FALSE,
@@ -98,7 +98,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 		);
 	}
 	else {
-		g_unk0x100904a0 =
+		g_readyRoomMenu =
 			new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_readyRoomScreens[p_campaign].m_buttons, 4);
 	}
 
@@ -142,7 +142,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 
 	if (g_unk0x1006a588 == -1) {
 		PlayReadyRoomGrid(*p_campaign);
-		button = g_unk0x100904a0->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_readyRoomMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case -1:
 			break;
@@ -245,7 +245,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
-		delete g_unk0x100904a0;
+		delete g_readyRoomMenu;
 		if (g_unk0x1006a590) {
 			delete g_unk0x1006a590;
 		}

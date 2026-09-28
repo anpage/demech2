@@ -15,9 +15,9 @@ struct PilotRecord {
 	MechS32 m_mission;         // 0x0c — missions completed, the index of the next
 	MechS32 m_rank;            // 0x10 — index into g_rankNames
 	MechS32 m_honor;           // 0x14
-	undefined4 m_unk0x18;      // 0x18
-	undefined4 m_unk0x1c;      // 0x1c
-	undefined4 m_unk0x20;      // 0x20
+	undefined4 m_kills;        // 0x18 — mechs and vehicles
+	undefined4 m_hits;         // 0x1c
+	undefined4 m_shotsFired;   // 0x20
 	undefined4 m_unk0x24;      // 0x24
 	MechChar m_callsign[0x10]; // 0x28
 	TextGlyph* m_glyph;        // 0x38 — the callsign on the roster screen, not saved
