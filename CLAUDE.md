@@ -69,6 +69,9 @@ reccmp-decomplint --module MW2 --warnfail <path-to-MW2>
 # libclang Python bindings)
 python ../tools/check_block_layout.py --target MW2SHELL
 python tools/check_block_sizes.py --msvc-include <path-to-msvc410>/include MW2SHELL MW2 MECH2
+
+# The source split against the original's object layout (from build/; see "Decompilation Principles")
+python ../tools/check_units.py --target MW2SHELL
 ```
 
 `reccmp-user.yml` (gitignored) points to the original binaries for local comparison. Progress counts **game code only**: `--nolib` drops the `LIBRARY` entries from both the matched count and the denominator, and `--total` is the Ghidra original's game-code function count, everything below the shell's import thunks (`0x100492a2`) or MW2's CRT (`0x10080490`): **770** for MW2SHELL and **1537** for MW2. Without these flags, reccmp divides by the annotated functions only, which overstates progress. `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The CRT is left out until the game code is done: its `LIBRARY` entries only match once the game code that calls them is linked. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
@@ -360,7 +363,7 @@ When starting a new class, match ctor + dtor + scalar-deleting-destructor first.
 
 - **Every type must be corroborated by matched code.** A type is proven only when a `// FUNCTION:` using it reaches 100%, or its only remaining diff is a documented compiler artifact. Until then, `undefined`/`undefined4`.
 - **No raw pointer arithmetic as a substitute for types.** Casts + subtractions mean the types are wrong; find the real class so the cast is legitimate C++.
-- **Split mixed compilation units until unexplained address gaps are gone.** A large address jump usually means a function is assigned to the wrong file, or multiple classes are mashed into one source unit. A 16-aligned start with `0xCC` padding before it is an object boundary; use the boundaries to draft the file split (about 150 TUs in MW2, 51 in MW2SHELL). Never split one class's methods across `.cpp` files just to tidy address order.
+- **Split mixed compilation units until unexplained address gaps are gone.** A large address jump usually means a function is assigned to the wrong file, or multiple classes are mashed into one source unit. A 16-aligned start with `0xCC` padding before it is an object boundary; use the boundaries to draft the file split (about 150 TUs in MW2, 51 in MW2SHELL). Never split one class's methods across `.cpp` files just to tidy address order. CI checks the split (`tools/check_units.py`): each object's functions, initialized data and `.bss` must each form one run in the original, in the build's link order; a padding boundary inside a file, a file starting mid-object, a `const` mismatch between `.rdata` and `.data`, and a C tentative definition the original allocates among the objects' own `.bss` (it was `static`) all fail. Known findings are listed with a reason in `tools/check_units_expected.txt`; the check also fails on an entry that no longer occurs, so remove it with the fix.
 - **One root type per header.** A header should define at most one top-level class or struct; forward declarations do not count.
 - **Nest one-owner helper types.** Loader params, callback shims and small related records belong inside the primary class that owns them.
 - **Ground polymorphic classes.** When a concrete polymorphic class is identified, add its `VTABLE`, ctor, dtor, and scalar-deleting-destructor annotations instead of leaving it as an unannotated interface shape.

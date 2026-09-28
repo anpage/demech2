@@ -216,6 +216,17 @@ jobs:
             python tools/check_block_layout.py --target "${entry%%:*}"
           done
 
+      - name: Check Units
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          # Each function and global must sit in the source file the original's
+          # object layout implies; known exceptions are listed in
+          # tools/check_units_expected.txt (tools/check_units.py).
+          for entry in $TARGET_ENTRIES; do
+            python tools/check_units.py --target "${entry%%:*}"
+          done
+
       - name: "Create comment on PR"
         if: ${{ github.event_name == 'pull_request' }}
         shell: bash

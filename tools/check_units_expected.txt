@@ -1,0 +1,42 @@
+# Known findings of tools/check_units.py: <target> <kind> <address>  # reason
+# `<target> complete` declares every game function of the target annotated, so the
+# function before an object's first one is known to be the previous annotated one.
+# The check fails on a finding not listed here, and on a listed one that no longer occurs.
+
+MW2SHELL complete
+
+# Hand-written assembly: MASM objects don't start on the compiler's 16-byte boundaries.
+MW2SHELL start 0x100286a6  # the object starts at the .text table 0x10017a7c; the code before this routine isn't transcribed
+MW2SHELL start 0x1002a968  # MASM object aligned to 4 or 8, not 16: the compiled code before it ends at 0x1002a966
+
+# Code in the wrong unit (to fix).
+MW2SHELL split 0x100114f0  # unk10010a30.c: DirectDraw back end (DdrawStop onward) is its own object
+MW2SHELL order 0x1002da80  # pilotroster.cpp: LoadPilotRoster onward follows the assembly object
+MW2SHELL split 0x1002dc60  # pilotroster.cpp: FUN_1002dc60 onward is a third object
+MW2SHELL split 0x10031bf0  # unk10031970.c: the input device table (InputEnumDevices onward) is its own object
+MW2SHELL order 0x1003da54  # OakenTune0x10::~OakenTune0x10 belongs in audio.cpp
+MW2SHELL start 0x1003da54  # same
+MW2SHELL start 0x1003dad5  # same
+MW2SHELL split 0x1003e2f0  # FUN_1003e2f0 belongs in unk1003e2f0.cpp
+MW2SHELL start 0x1003e3c9  # same
+MW2SHELL split 0x10043280  # FUN_10043280 and FUN_10043333 belong in options.cpp
+MW2SHELL start 0x1004338a  # same
+
+# Globals in the wrong unit (to fix).
+MW2SHELL section 0x10058030  # const in the original
+MW2SHELL section 0x1005842c  # const in the original
+MW2SHELL order 0x10062ffc  # g_nWindowMode belongs in unk10010a30.c
+MW2SHELL order 0x1006a9c0  # shellmain.cpp's window globals sit in unk1003bf90.c's slot
+MW2SHELL order 0x1006e150  # the menu tables: one object's data, in the slot of the object at 0x10043280 (options.cpp)
+MW2SHELL order 0x100711f8  # shell globals, clan names, palette, sound config: glassbanner0x35c.cpp's or unk100460a0.c's slot
+MW2SHELL order 0x100946d0  # g_pilotRoster is defined in a later object (or is communal)
+MW2SHELL order 0x100965d8  # shellmain.cpp's window globals are communal: defined in a C unit
+MW2SHELL static 0x1007968c  # static in the original
+MW2SHELL static 0x10079690  # static in the original
+MW2SHELL static 0x1007cc90  # static in the original
+MW2SHELL static 0x1008ff58  # static in the original
+MW2SHELL static 0x10090528  # static in the original
+MW2SHELL static 0x10090568  # static in the original
+
+# MW2 globals parked in simmain.c until the units that define them are decompiled.
+MW2 order 0x100a1498
