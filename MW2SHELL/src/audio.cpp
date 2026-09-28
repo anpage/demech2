@@ -1,5 +1,6 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
+#include "chimeledger0x3c.h"
 #include "midisequence.h"
 #include "oakentune0x10.h"
 #include "shellmain.h"
@@ -29,11 +30,7 @@ DECOMP_SIZE_ASSERT(AudioSample, 0x2c)
 extern MechS32 g_fAudio;
 extern MechS32 g_fDigitalAudio;
 
-// GLOBAL: MW2SHELL 0x1007167c
-MechS32 g_effectsVolume = 0x10000;
-
-// GLOBAL: MW2SHELL 0x10071684
-MechS32 g_midiVolume = 0x10000;
+extern ChimeLedger0x3c g_soundConfig;
 
 // FUNCTION: MW2SHELL 0x1003ceb0
 AudioSubsystem::AudioSubsystem()
@@ -141,13 +138,13 @@ void AudioSubsystem::ApplyMidiVolume()
 // FUNCTION: MW2SHELL 0x1003d12a
 MechS32 AudioSubsystem::GetMidiVolume()
 {
-	return g_midiVolume;
+	return g_soundConfig.m_midiVolume;
 }
 
 // FUNCTION: MW2SHELL 0x1003d145
 MechS32 AudioSubsystem::GetEffectsVolume()
 {
-	return g_effectsVolume;
+	return g_soundConfig.m_effectsVolume;
 }
 
 // FUNCTION: MW2SHELL 0x1003d160

@@ -205,6 +205,16 @@ jobs:
             python tools/check_folded.py --target "${entry%%:*}"
           done
 
+      - name: Check Block Layout
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          # The original's fread/fwrite/memcpy/memset... of a global must fit in
+          # the recompiled object at that address (tools/check_block_layout.py).
+          for entry in $TARGET_ENTRIES; do
+            python tools/check_block_layout.py --target "${entry%%:*}"
+          done
+
       - name: "Create comment on PR"
         if: ${{ github.event_name == 'pull_request' }}
         shell: bash
@@ -405,3 +415,48 @@ jobs:
             --definition DEFINE_GUID PASCAL WINAPI FAR BOOL=int CALLBACK HWND__=HWND AILIMPORT AILCALL \
             --include "${includes[@]}" \
             --path "${paths[@]}"
+
+  block-sizes:
+    name: Block sizes
+    runs-on: ubuntu-latest
+    needs: [targets]
+    env:
+      TARGET_ENTRIES: ${{ needs.targets.outputs.entries }}
+    steps:
+      - uses: actions/checkout@v6
+
+      # The sources are parsed against the headers they are built with.
+      - name: Checkout MSVC 4.1 toolchain
+        uses: actions/checkout@v6
+        with:
+          repository: madebr/msvc410
+          path: msvc410
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "21"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install python libraries
+        run: |
+          pip install clang==21.*
+
+      - name: Check block operations against their objects
+        run: |
+          # fread/fwrite/memcpy/memset... of a constant size must fit in the
+          # object they are given: a run of globals the original handles as
+          # one block has to be one struct here (tools/check_block_sizes.py).
+          paths=(MECH2)
+          for entry in $TARGET_ENTRIES; do
+            paths+=("${entry%%:*}")
+          done
+
+          python3 tools/check_block_sizes.py \
+            --clang-lib ${{ env.LLVM_PATH }}/lib/libclang.so \
+            --msvc-include msvc410/include \
+            --verbose \
+            "${paths[@]}"
