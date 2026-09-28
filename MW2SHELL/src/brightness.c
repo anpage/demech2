@@ -1,9 +1,9 @@
 #include "brightness.h"
 
 #include "decomp.h"
-#include "drawmode.h"
-#include "drawmodeextension.h"
+#include "displaybackend.h"
 #include "palettecolor.h"
+#include "refreshmode.h"
 #include "types.h"
 
 #include <math.h>
@@ -55,7 +55,7 @@ void FUN_10046166(MechS32 p_brightness)
 
 	brightness = g_displayBrightness;
 	g_displayBrightness = p_brightness;
-	g_currentDrawModeExtension->m_setPaletteWithBrightness(g_paletteColorsPreBrightness);
+	g_currentDisplayBackend->m_setPaletteWithBrightness(g_paletteColorsPreBrightness);
 	g_displayBrightness = brightness;
 }
 

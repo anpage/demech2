@@ -1,16 +1,16 @@
-#include "drawmode.h"
+#include "refreshmode.h"
 
 #include "debugprint.h"
 #include "decomp.h"
 #include "directdraw.h"
 #include "dispdibmode.h"
+#include "displaybackend.h"
 #include "drawbitmapinfo.h"
-#include "drawmode.h"
-#include "drawmodeextension.h"
 #include "gdi.h"
 #include "mouse.h"
 #include "palettecolor.h"
 #include "pixelbuffer.h"
+#include "refreshmode.h"
 #include "types.h"
 #include "unk1003bf90.h"
 
@@ -19,54 +19,54 @@
 #include <string.h>
 #include <windows.h>
 
-// The draw mode manager. The DirectDraw back end lives in directdraw.c, the DisplayDib one in
+// The refresh mode manager. The DirectDraw back end lives in directdraw.c, the DisplayDib one in
 // dispdib.c, the GDI one in gdi.c.
 
-void FUN_10010f83();
+void SelectFastestRefreshMode();
 
 // The original declares a function the shell never defines: the linker binds the calls to the
 // variable of the same name (gdi.c), so they land in BSS. The debug strings call it pause_timer.
 void PauseTimer(MechS32 p_flags, MechS32 p_pause);
 
-// Indexed by DrawModeExtension::m_id.
+// Indexed by DisplayBackend::m_id.
 // GLOBAL: MW2SHELL 0x10062ca0
-DrawModeExtension* g_drawModeExtensions[3] = {&g_unk0x10063230, &g_dispDibDrawModeExtension, &g_gdiDrawModeExtension};
+DisplayBackend* g_displayBackends[3] = {&g_directDrawBackend, &g_dispDibBackend, &g_gdiBackend};
 
 // GLOBAL: MW2SHELL 0x10062cb0
-DrawMode* g_drawModes[6] = {
-	&g_unk0x10063258,
-	&g_unk0x10063280,
-	&g_unk0x100632a8,
-	&g_unk0x100632d0,
-	&g_dispDibDrawMode,
-	&g_gdiDrawMode,
+RefreshMode* g_refreshModes[6] = {
+	&g_ddrawFlipRefreshMode,
+	&g_ddrawBlitFlipRefreshMode,
+	&g_ddrawVideoMemoryRefreshMode,
+	&g_ddrawSystemMemoryRefreshMode,
+	&g_dispDibRefreshMode,
+	&g_gdiRefreshMode,
 };
 
 // GLOBAL: MW2SHELL 0x10062cc8
-DrawModeExtension* g_currentDrawModeExtension = NULL;
+DisplayBackend* g_currentDisplayBackend = NULL;
 
 // GLOBAL: MW2SHELL 0x10062ccc
-DrawMode* g_currentDrawMode = NULL;
+RefreshMode* g_currentRefreshMode = NULL;
 
-// The fastest draw mode found by the profiling, the one to return to from windowed mode.
+// The fastest refresh mode found by the profiling, the one to return to from windowed mode.
 // GLOBAL: MW2SHELL 0x10062cd0
-DrawMode* g_unk0x10062cd0 = NULL;
+RefreshMode* g_fastestRefreshMode = NULL;
 
 // GLOBAL: MW2SHELL 0x10062cd4
-MechS32 g_drawModeFallback = FALSE;
+MechS32 g_refreshModeFallback = FALSE;
 
-// The last draw mode the profiling tries.
+// The last refresh mode the profiling tries.
 // GLOBAL: MW2SHELL 0x10062cd8
-MechS32 g_lastProfiledDrawMode = 4;
+MechS32 g_lastProfiledRefreshMode = 4;
 
-// The buffer the active draw mode renders into.
+// The buffer the active refresh mode renders into.
 // GLOBAL: MW2SHELL 0x10062cdc
-PixelBuffer* g_unk0x10062cdc = NULL;
+PixelBuffer* g_refreshModeBuffer = NULL;
 
 // GLOBAL: MW2SHELL 0x10062ce0
 PaletteColor g_paletteColors[0x100] = {0};
 
-// The DIB bits of the GDI and DisplayDib back ends, restored into g_unk0x10062cdc by
+// The DIB bits of the GDI and DisplayDib back ends, restored into g_refreshModeBuffer by
 // m_acquireFramebuffer.
 // GLOBAL: MW2SHELL 0x10062fe0
 undefined* g_unk0x10062fe0 = NULL;
@@ -75,7 +75,7 @@ undefined* g_unk0x10062fe0 = NULL;
 MechS32 g_nWindowMode = 0;
 
 // GLOBAL: MW2SHELL 0x10063000
-MechS32 g_unk0x10063000 = 1;
+MechS32 g_refreshModeInactive = 1;
 
 // GLOBAL: MW2SHELL 0x10063004
 MechS32 g_profileFrame = 0;
@@ -118,18 +118,18 @@ DrawBitmapInfo g_bitmapInfo;
 MechS32 g_unk0x10096e88;
 
 // GLOBAL: MW2SHELL 0x10096e8c
-MechS32 g_drawModeWidth;
+MechS32 g_refreshModeWidth;
 
 // GLOBAL: MW2SHELL 0x10096e90
-MechS32 g_drawModeHeight;
+MechS32 g_refreshModeHeight;
 
-// Switches to draw mode p_mode (-1: the first), falling through the later modes while a mode
+// Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
 // is unavailable if p_allowFallback is set. The window covers the screen unless p_width x
 // p_height is smaller.
-// Stack-slot permutation: mode, extension, screenWidth and unused. The original also compares
+// Stack-slot permutation: mode, backend, screenWidth and unused. The original also compares
 // the screen size against p_width and p_height the other way round.
 // FUNCTION: MW2SHELL 0x10010a30
-MechS32 InitDrawMode(
+MechS32 InitRefreshMode(
 	MechS32 p_mode,
 	MechS32 p_allowFallback,
 	PixelBuffer* p_buffer,
@@ -140,23 +140,23 @@ MechS32 InitDrawMode(
 {
 	MechS32 unused;
 	MechS32 screenHeight;
-	DrawMode* mode;
-	DrawModeExtension* extension;
+	RefreshMode* mode;
+	DisplayBackend* backend;
 	MechS32 screenWidth;
 	RECT rect;
 
 	if (p_mode == -1) {
-		mode = g_drawModes[0];
+		mode = g_refreshModes[0];
 	}
 	else if (p_mode >= 0 && p_mode < 6) {
-		mode = g_drawModes[p_mode];
+		mode = g_refreshModes[p_mode];
 	}
 	else {
 		return 0;
 	}
 
-	extension = g_drawModeExtensions[mode->m_extension];
-	g_drawModeFallback = p_allowFallback;
+	backend = g_displayBackends[mode->m_backend];
+	g_refreshModeFallback = p_allowFallback;
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
@@ -165,20 +165,20 @@ MechS32 InitDrawMode(
 	g_unk0x10096a50.right = p_width;
 	g_unk0x10096a50.bottom = p_height;
 	if (screenWidth <= p_width && screenHeight <= p_height) {
-		g_gdiDrawModeExtension.m_style = WS_POPUP;
+		g_gdiBackend.m_style = WS_POPUP;
 		g_nWindowMode = c_windowModeFullscreen;
 	}
 	else {
-		g_gdiDrawModeExtension.m_style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		AdjustWindowRect(&g_unk0x10096a50, g_gdiDrawModeExtension.m_style, p_menu);
+		g_gdiBackend.m_style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		AdjustWindowRect(&g_unk0x10096a50, g_gdiBackend.m_style, p_menu);
 		g_unk0x10096a50.right -= g_unk0x10096a50.left;
 		g_unk0x10096a50.bottom -= g_unk0x10096a50.top;
 		g_unk0x10096a50.top = (screenHeight - g_unk0x10096a50.bottom) / 2;
 		g_unk0x10096a50.left = (screenWidth - g_unk0x10096a50.right) / 2;
-		g_nWindowMode = extension->m_windowMode;
+		g_nWindowMode = backend->m_windowMode;
 	}
 
-	if (extension->m_windowMode == c_windowModeFullscreen) {
+	if (backend->m_windowMode == c_windowModeFullscreen) {
 		rect.left = 0;
 		rect.top = 0;
 		rect.right = GetSystemMetrics(SM_CXSCREEN);
@@ -190,68 +190,68 @@ MechS32 InitDrawMode(
 		unused = 0;
 	}
 
-	if (g_unk0x10063000) {
-		g_drawModeWidth = p_width;
-		g_drawModeHeight = p_height;
-		AdjustWindowSize(extension);
-		g_currentDrawModeExtension = extension;
+	if (g_refreshModeInactive) {
+		g_refreshModeWidth = p_width;
+		g_refreshModeHeight = p_height;
+		AdjustWindowSize(backend);
+		g_currentDisplayBackend = backend;
 	}
-	else if (mode != g_currentDrawMode || g_drawModeWidth != p_width || g_drawModeHeight != p_height) {
-		AdjustWindowSize(extension);
-		g_currentDrawMode->m_end();
+	else if (mode != g_currentRefreshMode || g_refreshModeWidth != p_width || g_refreshModeHeight != p_height) {
+		AdjustWindowSize(backend);
+		g_currentRefreshMode->m_end();
 	}
 
-	g_currentDrawMode = mode;
-	g_drawModeWidth = p_width;
-	g_drawModeHeight = p_height;
+	g_currentRefreshMode = mode;
+	g_refreshModeWidth = p_width;
+	g_refreshModeHeight = p_height;
 	g_unk0x10096e88 = p_height * p_width;
-	g_unk0x10062cdc = p_buffer;
+	g_refreshModeBuffer = p_buffer;
 
-	while (g_currentDrawMode->m_available && g_currentDrawMode->m_begin(p_buffer, p_width, p_height)) {
-		DebugPrint("RefreshMode %d not available\n", g_currentDrawMode->m_index);
-		g_currentDrawMode->m_available = FALSE;
-		if (!g_drawModeFallback || g_currentDrawMode->m_index == 5) {
+	while (g_currentRefreshMode->m_available && g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
+		DebugPrint("RefreshMode %d not available\n", g_currentRefreshMode->m_index);
+		g_currentRefreshMode->m_available = FALSE;
+		if (!g_refreshModeFallback || g_currentRefreshMode->m_index == 5) {
 			return 0;
 		}
 
-		g_currentDrawMode = g_drawModes[g_currentDrawMode->m_index + 1];
+		g_currentRefreshMode = g_refreshModes[g_currentRefreshMode->m_index + 1];
 	}
 
-	if (g_unk0x10063000 && extension->m_id != c_drawModeExtensionGdi) {
+	if (g_refreshModeInactive && backend->m_id != c_displayBackendGdi) {
 		ShowWindow(g_pWnd, SW_SHOWDEFAULT);
 		UpdateWindow(g_pWnd);
 	}
 
-	g_unk0x10063000 = 0;
+	g_refreshModeInactive = 0;
 	return 1;
 }
 
 // FUNCTION: MW2SHELL 0x10010d49
-void FUN_10010d49()
+void ShutdownRefreshMode()
 {
-	if (g_currentDrawMode != NULL) {
-		g_currentDrawMode->m_end();
+	if (g_currentRefreshMode != NULL) {
+		g_currentRefreshMode->m_end();
 	}
-	if (g_currentDrawModeExtension != NULL) {
-		g_currentDrawModeExtension->m_end();
+	if (g_currentDisplayBackend != NULL) {
+		g_currentDisplayBackend->m_end();
 	}
 
-	g_unk0x10063000 = 1;
+	g_refreshModeInactive = 1;
 }
 
-// Called once a frame while the draw modes are profiled: times four frames of the current mode,
-// then moves to the next one; after the last, FUN_10010f83 picks the fastest.
+// Called once a frame while the refresh modes are profiled: times four frames of the current mode,
+// then moves to the next one; after the last, SelectFastestRefreshMode picks the fastest.
 // FUNCTION: MW2SHELL 0x10010d88
-void FUN_10010d88()
+void ProfileRefreshModes()
 {
 	LARGE_INTEGER end;
 
-	if (g_currentDrawMode->m_index > g_lastProfiledDrawMode) {
-		g_drawModeFallback = FALSE;
+	if (g_currentRefreshMode->m_index > g_lastProfiledRefreshMode) {
+		g_refreshModeFallback = FALSE;
 	}
 	else if (g_profileFrame == 1) {
 		if (!QueryPerformanceCounter(&g_profileStart)) {
-			g_drawModeFallback = FALSE;
+			g_refreshModeFallback = FALSE;
 			return;
 		}
 
@@ -259,50 +259,50 @@ void FUN_10010d88()
 	}
 	else if (g_profileFrame == 5) {
 		if (!QueryPerformanceCounter(&end)) {
-			g_drawModeFallback = FALSE;
+			g_refreshModeFallback = FALSE;
 			return;
 		}
 
 		if (end.HighPart != g_profileStart.HighPart) {
-			g_currentDrawMode->m_profileTime = ~g_profileStart.LowPart + end.LowPart + 1;
+			g_currentRefreshMode->m_profileTime = ~g_profileStart.LowPart + end.LowPart + 1;
 		}
 		else {
-			g_currentDrawMode->m_profileTime = end.LowPart - g_profileStart.LowPart;
+			g_currentRefreshMode->m_profileTime = end.LowPart - g_profileStart.LowPart;
 		}
 
 		DebugPrint(
 			"Refresh mode %d start=(%u,%d) end=(%u,%d) diff=%u\n",
-			g_currentDrawMode->m_index,
+			g_currentRefreshMode->m_index,
 			g_profileStart.LowPart,
 			g_profileStart.HighPart,
 			end.LowPart,
 			end.HighPart,
-			g_currentDrawMode->m_profileTime
+			g_currentRefreshMode->m_profileTime
 		);
-		if (g_currentDrawMode->m_index == g_lastProfiledDrawMode) {
-			g_drawModeFallback = FALSE;
+		if (g_currentRefreshMode->m_index == g_lastProfiledRefreshMode) {
+			g_refreshModeFallback = FALSE;
 		}
 		else {
-			while (g_currentDrawMode->m_index < g_lastProfiledDrawMode) {
-				g_currentDrawMode->m_end();
-				g_currentDrawMode = g_drawModes[g_currentDrawMode->m_index + 1];
-				if (g_currentDrawMode->m_available &&
-					!g_currentDrawMode->m_begin(g_unk0x10062cdc, g_drawModeWidth, g_drawModeHeight)) {
+			while (g_currentRefreshMode->m_index < g_lastProfiledRefreshMode) {
+				g_currentRefreshMode->m_end();
+				g_currentRefreshMode = g_refreshModes[g_currentRefreshMode->m_index + 1];
+				if (g_currentRefreshMode->m_available &&
+					!g_currentRefreshMode->m_begin(g_refreshModeBuffer, g_refreshModeWidth, g_refreshModeHeight)) {
 					g_profileFrame = 0;
 					break;
 				}
 				else {
-					DebugPrint("Refresh mode %d not available\n", g_currentDrawMode->m_index);
-					g_currentDrawMode->m_available = FALSE;
-					if (g_currentDrawMode->m_index == g_lastProfiledDrawMode) {
-						g_drawModeFallback = FALSE;
+					DebugPrint("Refresh mode %d not available\n", g_currentRefreshMode->m_index);
+					g_currentRefreshMode->m_available = FALSE;
+					if (g_currentRefreshMode->m_index == g_lastProfiledRefreshMode) {
+						g_refreshModeFallback = FALSE;
 					}
 				}
 			}
 		}
 
-		if (!g_drawModeFallback) {
-			FUN_10010f83();
+		if (!g_refreshModeFallback) {
+			SelectFastestRefreshMode();
 		}
 	}
 	else {
@@ -310,59 +310,57 @@ void FUN_10010d88()
 	}
 }
 
-// Switches to the available draw mode with the shortest profile time.
-// Operand order: the original compares best != g_currentDrawMode with g_currentDrawMode loaded
-// first.
+// Switches to the available refresh mode with the shortest profile time.
 // FUNCTION: MW2SHELL 0x10010f83
-void FUN_10010f83()
+void SelectFastestRefreshMode()
 {
 	MechS32 i;
-	DrawMode* best;
+	RefreshMode* best;
 
 	best = NULL;
 	for (i = 0; i < 6; i++) {
-		if (g_drawModes[i]->m_available && g_drawModes[i]->m_profileTime > 0 &&
-			(best == NULL || g_drawModes[i]->m_profileTime < best->m_profileTime)) {
-			best = g_drawModes[i];
+		if (g_refreshModes[i]->m_available && g_refreshModes[i]->m_profileTime > 0 &&
+			(best == NULL || g_refreshModes[i]->m_profileTime < best->m_profileTime)) {
+			best = g_refreshModes[i];
 		}
 	}
 
-	if (best != g_currentDrawMode) {
-		g_currentDrawMode->m_end();
-		g_currentDrawMode = best;
-		g_currentDrawMode->m_begin(g_unk0x10062cdc, g_drawModeWidth, g_drawModeHeight);
+	if (best != g_currentRefreshMode) {
+		g_currentRefreshMode->m_end();
+		g_currentRefreshMode = best;
+		g_currentRefreshMode->m_begin(g_refreshModeBuffer, g_refreshModeWidth, g_refreshModeHeight);
 	}
 
-	g_unk0x10062cd0 = g_currentDrawMode;
+	g_fastestRefreshMode = g_currentRefreshMode;
 	DebugPrint(
 		"Refresh mode %d selected with profile time: %u\n",
-		g_currentDrawMode->m_index,
-		g_currentDrawMode->m_profileTime
+		g_currentRefreshMode->m_index,
+		g_currentRefreshMode->m_profileTime
 	);
 }
 
-// Switches between fullscreen and the first available windowed draw mode, or back to the
+// Switches between fullscreen and the first available windowed refresh mode, or back to the
 // fullscreen mode last selected.
-// Not 100%: the stack slots of i, mode and extension are permuted.
+// Not 100%: the stack slots of i, mode and backend are permuted.
 // FUNCTION: MW2SHELL 0x10011071
 void ToggleFullScreen()
 {
 	MechS32 i;
-	DrawMode* mode;
-	DrawModeExtension* extension;
+	RefreshMode* mode;
+	DisplayBackend* backend;
 
-	if (g_drawModeFallback) {
+	if (g_refreshModeFallback) {
 		return;
 	}
 
 	DebugPrint("ToggleFullScreen(1): pause_timer(TRUE)");
 	PauseTimer(0x80, TRUE);
 
-	if (g_currentDrawModeExtension->m_windowMode == c_windowModeFullscreen) {
+	if (g_currentDisplayBackend->m_windowMode == c_windowModeFullscreen) {
 		for (i = 0; i < 6; i++) {
-			mode = g_drawModes[i];
-			extension = g_drawModeExtensions[mode->m_extension];
-			if (mode->m_available && extension->m_windowMode == c_windowModeWindowed) {
+			mode = g_refreshModes[i];
+			backend = g_displayBackends[mode->m_backend];
+			if (mode->m_available && backend->m_windowMode == c_windowModeWindowed) {
 				break;
 			}
 		}
@@ -377,7 +375,7 @@ void ToggleFullScreen()
 		}
 	}
 	else {
-		if (!g_unk0x10062cd0) {
+		if (!g_fastestRefreshMode) {
 			FUN_10015c90(
 				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
 			);
@@ -388,7 +386,7 @@ void ToggleFullScreen()
 			return;
 		}
 		else {
-			mode = g_unk0x10062cd0;
+			mode = g_fastestRefreshMode;
 		}
 
 		GetWindowRect(g_pWnd, &g_unk0x10096a50);
@@ -396,10 +394,10 @@ void ToggleFullScreen()
 		g_unk0x10096a50.bottom -= g_unk0x10096a50.top;
 	}
 
-	g_currentDrawMode->m_end();
-	g_currentDrawMode = mode;
-	g_currentDrawMode->m_begin(g_unk0x10062cdc, g_drawModeWidth, g_drawModeHeight);
-	g_currentDrawModeExtension->m_setPalette(0, 0x100, g_paletteColors, TRUE);
+	g_currentRefreshMode->m_end();
+	g_currentRefreshMode = mode;
+	g_currentRefreshMode->m_begin(g_refreshModeBuffer, g_refreshModeWidth, g_refreshModeHeight);
+	g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, TRUE);
 	g_unk0x10071d48 = 1;
 	if (!g_unk0x1006a9d8) {
 		DebugPrint("ToggleFullScreen(4): pause_timer(FALSE)");
@@ -424,24 +422,24 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 	g_bitmapInfo.m_header.biClrImportant = 0;
 }
 
-// Restyles the shell window for p_extension's window mode, and sets g_nWindowMode: a mode that
+// Restyles the shell window for p_backend's window mode, and sets g_nWindowMode: a mode that
 // covers the whole screen counts as fullscreen.
 // FUNCTION: MW2SHELL 0x100112da
-void AdjustWindowSize(DrawModeExtension* p_extension)
+void AdjustWindowSize(DisplayBackend* p_backend)
 {
-	if (p_extension == NULL) {
+	if (p_backend == NULL) {
 		return;
 	}
 
-	if (p_extension->m_windowMode == c_windowModeWindowed) {
-		SetWindowLong(g_pWnd, GWL_STYLE, p_extension->m_style | WS_VISIBLE);
+	if (p_backend->m_windowMode == c_windowModeWindowed) {
+		SetWindowLong(g_pWnd, GWL_STYLE, p_backend->m_style | WS_VISIBLE);
 	}
 	else {
-		SetWindowLong(g_pWnd, GWL_STYLE, (p_extension->m_style | WS_VISIBLE) & ~WS_SYSMENU);
+		SetWindowLong(g_pWnd, GWL_STYLE, (p_backend->m_style | WS_VISIBLE) & ~WS_SYSMENU);
 	}
 
-	if (p_extension->m_windowMode == c_windowModeWindowed) {
-		if (g_currentDrawModeExtension != NULL && g_currentDrawModeExtension->m_id == c_drawModeExtensionDirectDraw) {
+	if (p_backend->m_windowMode == c_windowModeWindowed) {
+		if (g_currentDisplayBackend != NULL && g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
 			g_unk0x100965d0 = timeGetTime();
 			g_unk0x100965e8 = g_unk0x100965d0 + 3000;
 			g_unk0x100965e4 = 1;
@@ -466,11 +464,11 @@ void AdjustWindowSize(DrawModeExtension* p_extension)
 		}
 	}
 
-	if (GetSystemMetrics(SM_CXSCREEN) <= g_drawModeWidth && GetSystemMetrics(SM_CYSCREEN) <= g_drawModeHeight) {
+	if (GetSystemMetrics(SM_CXSCREEN) <= g_refreshModeWidth && GetSystemMetrics(SM_CYSCREEN) <= g_refreshModeHeight) {
 		g_nWindowMode = c_windowModeFullscreen;
 	}
 	else {
-		g_nWindowMode = p_extension->m_windowMode;
+		g_nWindowMode = p_backend->m_windowMode;
 	}
 }
 

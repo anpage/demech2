@@ -6,7 +6,7 @@
 
 #include <windows.h>
 
-// The 8-bit DIB format shared by the GDI and DisplayDib draw modes: a BITMAPINFO with a full
+// The 8-bit DIB format shared by the GDI and DisplayDib back ends: a BITMAPINFO with a full
 // 256-entry color table. GDI fills the table with palette indices (DIB_PAL_COLORS).
 // SIZE 0x428
 struct DrawBitmapInfo {

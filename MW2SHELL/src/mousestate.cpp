@@ -1,9 +1,9 @@
 #include "mousestate.h"
 
-#include "drawmode.h"
 #include "font.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "unk1003bf90.h"
 #include "videodriver.h"

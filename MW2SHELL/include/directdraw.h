@@ -1,8 +1,8 @@
 #ifndef DIRECTDRAW_H
 #define DIRECTDRAW_H
 
-#include "drawmode.h"
-#include "drawmodeextension.h"
+#include "displaybackend.h"
+#include "refreshmode.h"
 #include "types.h"
 
 // The functions and globals of directdraw.c that other units use.
@@ -11,11 +11,11 @@ extern "C"
 {
 #endif
 
-	extern DrawModeExtension g_unk0x10063230;
-	extern DrawMode g_unk0x10063258;
-	extern DrawMode g_unk0x10063280;
-	extern DrawMode g_unk0x100632a8;
-	extern DrawMode g_unk0x100632d0;
+	extern DisplayBackend g_directDrawBackend;
+	extern RefreshMode g_ddrawFlipRefreshMode;
+	extern RefreshMode g_ddrawBlitFlipRefreshMode;
+	extern RefreshMode g_ddrawVideoMemoryRefreshMode;
+	extern RefreshMode g_ddrawSystemMemoryRefreshMode;
 
 #ifdef __cplusplus
 }

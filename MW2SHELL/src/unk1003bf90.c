@@ -15,7 +15,7 @@ char g_unk0x1006a9c0[0x10] = "MECHWARRIOR 2";
 // GLOBAL: MW2SHELL 0x1006a9d0
 MechS32 g_fWindowActive = 1;
 
-// Read by the draw mode unit (drawmode.c) when it restyles the window.
+// Read by the refresh mode unit (refreshmode.c) when it restyles the window.
 // GLOBAL: MW2SHELL 0x1006a9d8
 MechS32 g_unk0x1006a9d8 = 0;
 

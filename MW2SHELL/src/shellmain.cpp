@@ -12,7 +12,6 @@
 #include "debugout.h"
 #include "debugprint.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "formation.h"
 #include "hallofhonor.h"
@@ -30,6 +29,7 @@
 #include "pilotroster.h"
 #include "projectarchive.h"
 #include "readyroom.h"
+#include "refreshmode.h"
 #include "rosterscreen.h"
 #include "shellglobals.h"
 #include "simhandoff.h"
@@ -90,9 +90,7 @@ BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lP
 void FUN_1001093e();
 void ClearRegisteredMenuFunction();
 
-// Matches except for the stack slots of helpFile, msg and mouseY (a consistent permutation) and
-// the operand order of the WM_PALETTECHANGED comparison (the original loads p_hWnd first; moving,
-// renaming or re-declaring g_pWnd and renaming p_hWnd don't flip it).
+// Matches except for the stack slots of helpFile, msg and mouseY (a consistent permutation).
 // FUNCTION: MW2SHELL 0x1000e670
 extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {

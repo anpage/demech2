@@ -3,9 +3,9 @@
 #include "audiosubsystem.h"
 #include "blit.h"
 #include "debugprint.h"
-#include "drawmode.h"
-#include "drawmodeextension.h"
+#include "displaybackend.h"
 #include "gdi.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "textglyphlist.h"
 #include "tmpackdatabase.h"
@@ -39,12 +39,12 @@ PaletteColor g_unk0x10079698[0x100];
 MechU8 g_unk0x10079998[0x100];
 
 // 0 once the framebuffer can be drawn to; -1 while the window is inactive.
-#define ACQUIRE_FRAMEBUFFER() (g_fWindowActive ? g_currentDrawModeExtension->m_acquireFramebuffer() : -1)
+#define ACQUIRE_FRAMEBUFFER() (g_fWindowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1)
 
 // FUNCTION: MW2SHELL 0x10005e70
 void QuitWithVDriverError(MechS32 p_code)
 {
-	FUN_10010d49();
+	ShutdownRefreshMode();
 
 	if (g_pAudioSubsystem) {
 		delete g_pAudioSubsystem;
@@ -59,7 +59,7 @@ void QuitWithVDriverError(MechS32 p_code)
 void ClearPalette()
 {
 	memset(g_unk0x10079698, 0, sizeof(g_unk0x10079698));
-	g_currentDrawModeExtension->m_setPalette(0, 0x100, g_unk0x10079698, 1);
+	g_currentDisplayBackend->m_setPalette(0, 0x100, g_unk0x10079698, 1);
 }
 
 // Matches except for the operand order of m_width * m_height in the back buffer allocation
@@ -71,7 +71,7 @@ VideoDriver::VideoDriver()
 {
 	MechS32 i;
 
-	if (!InitDrawMode(5, 0, &m_screenBuffer, g_windowWidth, g_windowHeight, 1)) {
+	if (!InitRefreshMode(5, 0, &m_screenBuffer, g_windowWidth, g_windowHeight, 1)) {
 		QuitWithVDriverError(1);
 	}
 
@@ -120,7 +120,7 @@ VideoDriver::~VideoDriver()
 	delete m_unk0x16;
 	delete m_unk0x1a;
 	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_backBuffer.m_pixels);
-	FUN_10010d49();
+	ShutdownRefreshMode();
 }
 
 // FUNCTION: MW2SHELL 0x100062a0
@@ -190,7 +190,7 @@ MechS32 VideoDriver::IntersectsRectBySize(MechS32 p_left, MechS32 p_top, MechS32
 // FUNCTION: MW2SHELL 0x100064ca
 void VideoDriver::UpdatePalette()
 {
-	g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+	g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
 }
 
 // Presents the frame: reloads the palette if it changed (redrawing the whole screen), otherwise
@@ -215,29 +215,29 @@ void VideoDriver::DrawShell()
 		if (m_unk0x22) {
 			if (g_unk0x1005c2a4) {
 				ClearPalette();
-				g_currentDrawMode->m_flip();
-				g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
-				g_currentDrawMode->m_flip();
+				g_currentRefreshMode->m_flip();
+				g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+				g_currentRefreshMode->m_flip();
 				g_unk0x1005c2a4 = 0;
 			}
 			else {
 				ActivateFramebuffer();
-				g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+				g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
 				memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
-				g_currentDrawMode->m_flip();
+				g_currentRefreshMode->m_flip();
 			}
 		}
 		else if (m_unk0x3aa) {
 			memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
 			ActivateFramebuffer();
-			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
 			memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
-			g_currentDrawMode->m_flip();
+			g_currentRefreshMode->m_flip();
 			m_unk0x3aa = 0;
 		}
 		else {
-			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
-			g_currentDrawMode
+			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			g_currentRefreshMode
 				->m_blitRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
 		}
 
@@ -248,7 +248,7 @@ void VideoDriver::DrawShell()
 			FUN_10031001(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 		else {
-			g_currentDrawMode
+			g_currentRefreshMode
 				->m_blitRect(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 	}
@@ -270,12 +270,12 @@ void VideoDriver::DrawFmv()
 		if (m_unk0x3aa) {
 			memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
 			ActivateFramebuffer();
-			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
 			memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
 			m_unk0x3aa = 0;
 		}
 		else {
-			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_unk0x22);
 		}
 
 		m_unk0x1e = 0;
@@ -286,7 +286,7 @@ void VideoDriver::DrawFmv()
 			FUN_10031106(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 		else {
-			g_currentDrawMode
+			g_currentRefreshMode
 				->m_stretchBlit(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 	}
@@ -711,5 +711,5 @@ void VideoDriver::ActivateFramebuffer()
 		FUN_10034e15(&m_screenView, 0);
 	}
 
-	g_currentDrawMode->m_flip();
+	g_currentRefreshMode->m_flip();
 }

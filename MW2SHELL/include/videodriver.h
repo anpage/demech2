@@ -103,7 +103,7 @@ private:
 	undefined4 m_unk0x3a2;         // 0x3a2
 
 public:
-	// The leaderboard and credits screens set the draw mode directly.
+	// The leaderboard and credits screens set the refresh mode directly.
 	MechS32 m_unk0x3a6; // 0x3a6
 
 	// Set by the full-screen video player on its first frame.

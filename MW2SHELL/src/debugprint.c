@@ -1,7 +1,7 @@
 #include "debugprint.h"
 
 #include "debugout.h"
-#include "drawmode.h"
+#include "refreshmode.h"
 #include "types.h"
 
 #include <stdarg.h>

@@ -205,7 +205,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/videodriver.cpp
     MW2SHELL/src/mechbay.cpp
     MW2SHELL/src/shellmain.cpp
-    MW2SHELL/src/drawmode.c
+    MW2SHELL/src/refreshmode.c
     MW2SHELL/src/directdraw.c
     MW2SHELL/src/resourcecache.c
     MW2SHELL/src/clanhall.cpp

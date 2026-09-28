@@ -1,9 +1,9 @@
 #include "simhandoff.h"
 
 #include "decomp.h"
-#include "drawmode.h"
 #include "mechvariant.h"
 #include "pilotrecord.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "simhandoffstate.h"
 #include "types.h"

@@ -2,7 +2,6 @@
 
 #include "debugprint.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "input.h"
 #include "inputdevice.h"
@@ -11,6 +10,7 @@
 #include "mechbay.h"
 #include "mousestate.h"
 #include "options.h"
+#include "refreshmode.h"
 #include "screenfield.h"
 #include "shellglobals.h"
 #include "shellmain.h"

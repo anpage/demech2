@@ -3,13 +3,13 @@
 #include "audiosubsystem.h"
 #include "blit.h"
 #include "decomp.h"
-#include "drawmode.h"
-#include "drawmodeextension.h"
+#include "displaybackend.h"
 #include "fmvslot.h"
 #include "keyboardinput.h"
 #include "loopingmovie.h"
 #include "mousestate.h"
 #include "mss.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "tmpackdatabase.h"
@@ -170,7 +170,7 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 	m_frame = 1;
 
 	if (g_fWindowActive != 0) {
-		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
 		result = -1;
@@ -212,7 +212,7 @@ void LoopingMovie::FUN_100161dd(MechS32 p_left, MechS32 p_top)
 	m_left = p_left;
 	m_top = p_top;
 	if (g_fWindowActive != 0) {
-		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
 		result = -1;
@@ -247,7 +247,7 @@ void LoopingMovie::FUN_1001630b()
 		return;
 	}
 
-	if ((g_fWindowActive ? g_currentDrawModeExtension->m_acquireFramebuffer() : -1) == 0) {
+	if ((g_fWindowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 		m_frame++;
 		if (m_smack->Frames < m_frame) {
 			m_frame = 1;
@@ -328,7 +328,7 @@ void FUN_100164f2()
 		}
 
 		if (g_fWindowActive) {
-			result = g_currentDrawModeExtension->m_acquireFramebuffer();
+			result = g_currentDisplayBackend->m_acquireFramebuffer();
 		}
 		else {
 			result = -1;
@@ -560,7 +560,7 @@ void FUN_10016c3e()
 	SmackGoto(g_unk0x100641a8[0].m_unk0x00, g_unk0x100641a8[0].m_unk0x3c);
 	g_pVideoDriver->FUN_10007293();
 	if (g_fWindowActive != 0) {
-		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
 		result = -1;
@@ -703,7 +703,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 	if (p_slot->m_unk0x1c & 0x1000) {
 		p_slot->m_unk0x3c = 1;
 		if (g_fWindowActive != 0) {
-			result = g_currentDrawModeExtension->m_acquireFramebuffer();
+			result = g_currentDisplayBackend->m_acquireFramebuffer();
 		}
 		else {
 			result = -1;

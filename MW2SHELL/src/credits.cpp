@@ -1,11 +1,11 @@
 #include "credits.h"
 
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "loopingmovie.h"
 #include "mousestate.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "types.h"

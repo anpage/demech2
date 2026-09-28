@@ -1,8 +1,8 @@
 #include "mouse.h"
 
 #include "decomp.h"
-#include "drawmode.h"
 #include "inputdriver.h"
+#include "refreshmode.h"
 #include "types.h"
 #include "unk1003bf90.h"
 
