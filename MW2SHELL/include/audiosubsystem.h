@@ -32,7 +32,7 @@ private:
 	HDIGDRIVER m_digitalDriver;          // 0x05
 	LPHWAVEOUT m_waveOut;                // 0x09
 	MidiSequence* m_currentMidiSequence; // 0x0d
-	undefined4 m_unk0x11;                // 0x11
+	undefined4 m_playbackRate;           // 0x11 — VideoSound passes it to AIL_minimum_sample_buffer_size
 };
 #pragma pack()
 

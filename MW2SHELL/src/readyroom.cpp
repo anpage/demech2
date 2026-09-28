@@ -56,13 +56,13 @@ WPARAM g_unk0x100904a4;
 // FUNCTION: MW2SHELL 0x10039de0
 void FUN_10039de0(MechS32 p_campaign)
 {
-	if (!FUN_10016b11(0)) {
+	if (!IsVideoPlaying(0)) {
 		switch (p_campaign) {
 		case 0:
-			FUN_10017460(0, "awogrid2", 0x12f, 0x149, 0x48, 0);
+			PlayVideo(0, "awogrid2", 0x12f, 0x149, 0x48, 0);
 			break;
 		case 1:
-			FUN_10017460(0, "ajfgrid2", 0x115, 0x155, 0x48, 0);
+			PlayVideo(0, "ajfgrid2", 0x115, 0x155, 0x48, 0);
 		default:
 			break;
 		}
@@ -104,13 +104,13 @@ void FUN_10039e72(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scena
 
 	switch (p_campaign) {
 	case 0:
-		FUN_10017460(0, "awogrid1", 0x12f, 0x149, 0x44, 0);
+		PlayVideo(0, "awogrid1", 0x12f, 0x149, 0x44, 0);
 		g_pMouseState->MoveCursorTo(0x1b3, 0x168);
 		break;
 	case 1:
-		FUN_10017460(0, "ajfgrid1", 0x115, 0x155, 0x44, 0);
+		PlayVideo(0, "ajfgrid1", 0x115, 0x155, 0x44, 0);
 		if (p_wParam == 0x407) {
-			FUN_10017460(0x10, "ajfv8trd", 1, 0x6c, 2, 0);
+			PlayVideo(0x10, "ajfv8trd", 1, 0x6c, 2, 0);
 		}
 		break;
 	}
@@ -135,7 +135,7 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_unk0x1006a594 && g_unk0x100904a4 == 0x407 && !FUN_10016b11(0x10)) {
+	if (g_fQuickTips && !g_unk0x1006a594 && g_unk0x100904a4 == 0x407 && !IsVideoPlaying(0x10)) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x70), g_pWnd, (DLGPROC) FUN_1001067f, 0);
 		g_unk0x1006a594 = 1;
 	}
@@ -156,22 +156,22 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 			}
 			switch (*p_campaign) {
 			case 0:
-				FUN_10016cc0(0, 0x40000000, 0x40000000);
+				SetVideoFlags(0, 0x40000000, 0x40000000);
 				type = FUN_1000307c(-1);
 				if (type < 0) {
 					type = 7;
 				}
 				sprintf(name, "awo%stbl", g_unk0x10061560[type].m_unk0x00);
-				g_unk0x1006a588 = FUN_10017460(0, name, 0x131, 0xb9, 6, 0);
+				g_unk0x1006a588 = PlayVideo(0, name, 0x131, 0xb9, 6, 0);
 				break;
 			case 1:
-				FUN_10016cc0(0, 0x40000000, 0x40000000);
+				SetVideoFlags(0, 0x40000000, 0x40000000);
 				type = FUN_1000307c(-1);
 				if (type < 0) {
 					type = 7;
 				}
 				sprintf(name, "ajf%stbl", g_unk0x10061560[type].m_unk0x00);
-				g_unk0x1006a588 = FUN_10017460(0, name, 0x114, 0xa4, 6, 0);
+				g_unk0x1006a588 = PlayVideo(0, name, 0x114, 0xa4, 6, 0);
 				break;
 			}
 			p_database->GetDBItem(0x64, &data, &size);
@@ -210,10 +210,10 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 		briefing:
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x1006a588 = FUN_100175e2("awobrief", 0x69, 0x64, 6, 0);
+				g_unk0x1006a588 = PlayVideoInFreeSlot("awobrief", 0x69, 0x64, 6, 0);
 				break;
 			case 1:
-				g_unk0x1006a588 = FUN_100175e2("ajfbrief", 0x6b, 0x69, 6, 0);
+				g_unk0x1006a588 = PlayVideoInFreeSlot("ajfbrief", 0x6b, 0x69, 6, 0);
 				break;
 			}
 			g_unk0x1006a58c = 0x406;
@@ -230,9 +230,9 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 			goto briefing;
 		}
 	}
-	else if (!FUN_10016b11(g_unk0x1006a588)) {
+	else if (!IsVideoPlaying(g_unk0x1006a588)) {
 		if (g_unk0x1006a58c == 0x404) {
-			g_unk0x1006a588 = FUN_10017460(0x10, "ajfv8tru", 1, 0x6c, 2, 0);
+			g_unk0x1006a588 = PlayVideo(0x10, "ajfv8tru", 1, 0x6c, 2, 0);
 			g_unk0x1006a58c = 0x407;
 		}
 		else {
@@ -244,7 +244,7 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x100904a0;
 		if (g_unk0x1006a590) {
 			delete g_unk0x1006a590;

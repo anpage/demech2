@@ -131,7 +131,7 @@ void FUN_1003e3c9()
 void FUN_1003e86b(MechS32 p_active)
 {
 	if (p_active && g_unk0x1006aeac != NULL) {
-		g_unk0x1006aeac->FUN_1001630b();
+		g_unk0x1006aeac->Update();
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
 		g_keyboardInput->PollKey() != 0) {
@@ -144,12 +144,12 @@ void FUN_1003e86b(MechS32 p_active)
 		g_unk0x1006aeac = NULL;
 		g_pVideoDriver->m_unk0x3a6 = -1;
 		g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
-		FUN_1001661b();
+		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_unk0x10071378, TRUE);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
 			g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
-			FUN_1001661b();
+			UpdateVideos();
 		}
 	}
 }

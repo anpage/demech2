@@ -62,7 +62,7 @@ void FUN_1003dc10(TMPackDataBase* p_database, MechS32*)
 	g_pVideoDriver->FUN_10006c50(p_database, 1);
 	g_unk0x1006ae74 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_mainMenuButtons, 3);
 
-	FUN_100175e2(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
+	PlayVideoInFreeSlot(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
 	g_unk0x1006ae7c->SetVolume(0x78);
 	g_unk0x1006ae7c->Start();
 	FUN_100108e5(MainMenuCallback);
@@ -133,7 +133,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x1006ae74;
 		g_unk0x1006ae74 = NULL;
 		delete g_unk0x1006ae78;

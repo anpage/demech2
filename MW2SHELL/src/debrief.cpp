@@ -807,7 +807,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 					p_msg = 0x406;
 				}
 				else {
-					FUN_1001661b();
+					UpdateVideos();
 				}
 			}
 			else {

@@ -50,7 +50,7 @@ void QuitWithVDriverError(MechS32 p_code)
 		delete g_pAudioSubsystem;
 	}
 
-	FUN_10016f45();
+	CloseAllVideos();
 	DebugPrint("vdriver error\n");
 	exit(p_code + 1);
 }

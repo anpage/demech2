@@ -307,7 +307,7 @@ void FUN_1004381b(ScreenField* p_option)
 
 		FUN_100079f8(g_unk0x10070da8);
 		if (g_unk0x10070d90) {
-			g_unk0x10070d90->FUN_1001630b();
+			g_unk0x10070d90->Update();
 		}
 		g_pMouseState->ReadMouseState();
 		g_pVideoDriver->DrawShell();
@@ -397,7 +397,7 @@ void CalledWhenCombatVarsOptionClicked(MechS32 p_active)
 
 	if (p_active) {
 		if (g_unk0x10070d90) {
-			g_unk0x10070d90->FUN_1001630b();
+			g_unk0x10070d90->Update();
 		}
 
 		if (g_pMouseState->GetLeftPressed() == 1) {
@@ -426,13 +426,13 @@ void CalledWhenCombatVarsOptionClicked(MechS32 p_active)
 
 		g_pVideoDriver->m_unk0x3a6 = -1;
 		g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
-		FUN_1001661b();
+		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_unk0x10092c30, 1);
 
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
 			g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
-			FUN_1001661b();
+			UpdateVideos();
 		}
 	}
 }

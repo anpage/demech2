@@ -108,7 +108,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 	case WM_ACTIVATEAPP:
 		g_fWindowActive = p_wParam;
 		if (g_fWindowActive) {
-			if (FUN_10016be7()) {
+			if (IsFullscreenVideoPlaying()) {
 				FUN_10016c3e();
 			}
 
@@ -119,7 +119,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			SetFocus(g_pWnd);
 		}
 		else {
-			if (FUN_10016be7()) {
+			if (IsFullscreenVideoPlaying()) {
 				FUN_10016c1d();
 			}
 
@@ -171,7 +171,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		}
 		return 0;
 	case WM_MOUSEMOVE:
-		if (FUN_10016be7() && !g_fCursorHidden) {
+		if (IsFullscreenVideoPlaying() && !g_fCursorHidden) {
 			while (ShowCursor(FALSE) >= 0)
 				;
 			g_fCursorHidden = TRUE;
@@ -182,7 +182,9 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			SetMenu(p_hWnd, NULL);
 			g_menuVisible = FALSE;
 		}
-		else if (g_nWindowMode == 1 && !g_menuVisible && !FUN_10016be7() && GetSystemMetrics(SM_CYMENU) >= mouseY) {
+		else if (
+			g_nWindowMode == 1 && !g_menuVisible && !IsFullscreenVideoPlaying() && GetSystemMetrics(SM_CYMENU) >= mouseY
+		) {
 			SetMenu(p_hWnd, g_windowMenu);
 			g_menuVisible = TRUE;
 			g_pVideoDriver->ExpandRect(0, 0, 640, 480);
@@ -193,8 +195,8 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		PostQuitMessage(0);
 		return 0;
 	case WM_COMMAND:
-		if (FUN_10016be7()) {
-			FUN_10016d90(0);
+		if (IsFullscreenVideoPlaying()) {
+			CloseVideo(0);
 		}
 
 		switch (LOWORD(p_wParam)) {
@@ -291,10 +293,10 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		if (!g_fPilotChosen) {
 			switch (g_nSelectedCampaign) {
 			case 0:
-				FUN_10015f58("aworgstr", 0x412, 0x407);
+				BeginFullscreenVideo("aworgstr", 0x412, 0x407);
 				break;
 			case 1:
-				FUN_10015f58("ajfrgstr", 0x412, 0x407);
+				BeginFullscreenVideo("ajfrgstr", 0x412, 0x407);
 				break;
 			}
 			return 0;
@@ -548,7 +550,7 @@ extern "C" int __stdcall ShellMain(
 		g_pShellCallback(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, 0x402);
 	}
 
-	FUN_10016f45();
+	CloseAllVideos();
 
 	delete g_projectArchive;
 	delete g_pDatabaseMw2;
@@ -928,7 +930,7 @@ void FUN_1001093e()
 	else {
 		if (g_pShellCallback != NULL) {
 			g_pShellCallback(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, 0x404);
-			FUN_1001661b();
+			UpdateVideos();
 		}
 	}
 }

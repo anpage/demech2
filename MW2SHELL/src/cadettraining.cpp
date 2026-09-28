@@ -63,12 +63,12 @@ void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM
 
 	switch (p_campaign) {
 	case 0:
-		FUN_10017460(0, "awotrnwn", 0x1c5, 0, 0x42, 0);
-		FUN_10017460(3, "awotrnwa", 0x48, 0xe0, 2, 0);
+		PlayVideo(0, "awotrnwn", 0x1c5, 0, 0x42, 0);
+		PlayVideo(3, "awotrnwa", 0x48, 0xe0, 2, 0);
 		break;
 	case 1:
-		FUN_10017460(0, "ajftrnwn", 0x1a0, 0, 0x42, 0);
-		FUN_10017460(3, "ajftrnwa", 0x48, 0xe0, 2, 0);
+		PlayVideo(0, "ajftrnwn", 0x1a0, 0, 0x42, 0);
+		PlayVideo(3, "ajftrnwa", 0x48, 0xe0, 2, 0);
 		break;
 	}
 
@@ -97,7 +97,7 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 		g_unk0x1006acdc = 1;
 	}
 
-	if (!g_unk0x1006acd0 && !FUN_10016b11(0)) {
+	if (!g_unk0x1006acd0 && !IsVideoPlaying(0)) {
 		g_unk0x1006acd0 = 1;
 		for (i = 1; i < g_unk0x1006ffc0[*p_campaign].m_count; i++) {
 			g_unk0x10090668->FUN_10048b95(g_unk0x1006ffc0[*p_campaign].m_buttons[i], i, FALSE);
@@ -110,15 +110,15 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 		g_unk0x1006acd8->Start();
 	}
 
-	if (!FUN_10016b11(3)) {
+	if (!IsVideoPlaying(3)) {
 		if (!g_unk0x1006accc) {
 			switch (*p_campaign) {
 			case 0:
-				FUN_10017460(3, g_unk0x1006acc8 ? "awotrnwa" : "awotrnwb", 0x48, 0xe0, 2, 0);
+				PlayVideo(3, g_unk0x1006acc8 ? "awotrnwa" : "awotrnwb", 0x48, 0xe0, 2, 0);
 				g_unk0x1006acc8 = 1 - g_unk0x1006acc8;
 				break;
 			case 1:
-				FUN_10017460(3, g_unk0x1006acc8 ? "ajftrnwa" : "ajftrnwb", 0x48, 0xe0, 2, 0);
+				PlayVideo(3, g_unk0x1006acc8 ? "ajftrnwa" : "ajftrnwb", 0x48, 0xe0, 2, 0);
 				g_unk0x1006acc8 = 1 - g_unk0x1006acc8;
 				break;
 			}
@@ -148,23 +148,23 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 			g_unk0x1006acd8 = NULL;
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x1006acd4 = FUN_10017460(0x10, "awotrndr", 0x230, 0xa8, 2, 0);
+				g_unk0x1006acd4 = PlayVideo(0x10, "awotrndr", 0x230, 0xa8, 2, 0);
 				break;
 			case 1:
-				g_unk0x1006acd4 = FUN_10017460(0x10, "ajftrndr", 0x21c, 0xa8, 2, 0);
+				g_unk0x1006acd4 = PlayVideo(0x10, "ajftrndr", 0x21c, 0xa8, 2, 0);
 				break;
 			}
 			break;
 		}
 	}
-	else if (!FUN_10016b11(g_unk0x1006acd4)) {
+	else if (!IsVideoPlaying(g_unk0x1006acd4)) {
 		g_unk0x1006acd4 = -1;
 		p_msg = 0x410;
 	}
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x10090668;
 		delete g_unk0x1006acd8;
 		g_unk0x1006acd8 = NULL;

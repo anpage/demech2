@@ -186,7 +186,7 @@ MechS32 EditTextField(
 	glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
 
 	for (;;) {
-		FUN_1001661b();
+		UpdateVideos();
 		g_pVideoDriver->DrawShell();
 		g_pMouseState->ReadMouseState();
 

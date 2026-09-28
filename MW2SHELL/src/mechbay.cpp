@@ -182,7 +182,7 @@ DECOMP_SIZE_ASSERT(Equipment, 0x08)
 DECOMP_SIZE_ASSERT(InternalStructure, 0x10)
 DECOMP_SIZE_ASSERT(MekHeader, 0x18)
 
-MechS32 FUN_10017460(
+MechS32 PlayVideo(
 	MechS32 p_index,
 	const char* p_name,
 	undefined4 p_unk0x08,
@@ -1082,8 +1082,8 @@ TextGlyph* FUN_10008bce(ScreenField* p_tab)
 	if (p_tab) {
 	}
 
-	FUN_10017698(12, g_unk0x1005c640.m_unk0x314);
-	FUN_10016f82(
+	SetVideoFrame(12, g_unk0x1005c640.m_unk0x314);
+	MoveVideo(
 		12,
 		g_unk0x1005de38[g_unk0x1005c640.m_unk0x314] + 0xd8,
 		g_unk0x1005de58[g_unk0x1005c640.m_unk0x314] + 0x34
@@ -1689,10 +1689,10 @@ void FUN_1000a2eb(ScreenField* p_tab)
 	ScreenField* tabs;
 
 	tabs = p_tab->m_unk0x28;
-	FUN_10016cc0(10, 0x20, 0x20);
-	FUN_10016cc0(11, 0x20, 0x20);
-	FUN_10016cc0(12, 0x20, 0x20);
-	FUN_10016cc0(13, 0x20, 0x20);
+	SetVideoFlags(10, 0x20, 0x20);
+	SetVideoFlags(11, 0x20, 0x20);
+	SetVideoFlags(12, 0x20, 0x20);
+	SetVideoFlags(13, 0x20, 0x20);
 	FUN_10016d27(14);
 	FUN_10007ac8(g_unk0x1005de28);
 	g_unk0x1005de28 = tabs;
@@ -1706,7 +1706,7 @@ void FUN_1000a36d(ScreenField* p_tab)
 	FUN_1000a2eb(p_tab);
 	FUN_10016d27(11);
 	FUN_10016d27(13);
-	FUN_10016cc0(14, 0x20, 0x20);
+	SetVideoFlags(14, 0x20, 0x20);
 }
 
 // FUNCTION: MW2SHELL 0x1000a3b5
@@ -1715,7 +1715,7 @@ void FUN_1000a3b5(ScreenField* p_tab)
 	FUN_1000a2eb(p_tab);
 	FUN_10016d27(10);
 	FUN_10016d27(12);
-	FUN_10016cc0(14, 0x20, 0x20);
+	SetVideoFlags(14, 0x20, 0x20);
 }
 
 // FUNCTION: MW2SHELL 0x1000a3f3
@@ -1725,7 +1725,7 @@ void FUN_1000a3f3(ScreenField* p_tab)
 	FUN_10016d27(10);
 	FUN_10016d27(11);
 	FUN_10016d27(12);
-	FUN_10016cc0(14, 0x20, 0x20);
+	SetVideoFlags(14, 0x20, 0x20);
 }
 
 // FUNCTION: MW2SHELL 0x1000a43b
@@ -2906,8 +2906,8 @@ void LoadMechBuildList(MechChar* p_prefix)
 void FUN_1000ca74()
 {
 	sprintf(g_unk0x10079d38, g_unk0x10061748, g_unk0x10061560[g_unk0x1006176c].m_unk0x00);
-	FUN_10016cc0(0x10, 0x40000000, 0x40000000);
-	FUN_10017460(0x10, g_unk0x10079d38, g_unk0x10079a98, g_unk0x10079a9c, 0x88, 0xe);
+	SetVideoFlags(0x10, 0x40000000, 0x40000000);
+	PlayVideo(0x10, g_unk0x10079d38, g_unk0x10079a98, g_unk0x10079a9c, 0x88, 0xe);
 	LoadMechBuildList(g_unk0x10061560[g_unk0x1006176c].m_unk0x04);
 	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
 	g_unk0x1005c640.m_unk0x00[0] = '~';
@@ -2917,7 +2917,7 @@ void FUN_1000ca74()
 // FUNCTION: MW2SHELL 0x1000cb4b
 void FUN_1000cb4b()
 {
-	FUN_10016cc0(0x10, 0x40000000, 0x40000000);
+	SetVideoFlags(0x10, 0x40000000, 0x40000000);
 }
 
 // FUNCTION: MW2SHELL 0x1000cb6f
@@ -2929,7 +2929,7 @@ void FUN_1000cb6f()
 // FUNCTION: MW2SHELL 0x1000cb89
 void FUN_1000cb89()
 {
-	FUN_10016cc0(0x10, 0x20, 0x20);
+	SetVideoFlags(0x10, 0x20, 0x20);
 }
 
 // Plays the selected mech's name. Stack-slot permutation: audioData and audioSize.
@@ -3765,61 +3765,61 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 			g_unk0x10061778->FUN_10048d65(10);
 		}
 	}
-	FUN_10016f45();
+	CloseAllVideos();
 
 	switch (p_campaign) {
 	case 0:
-		FUN_10017460(0, "awogrid", 0x8c, 0x136, 0x4a, 0);
-		FUN_10017460(1, "wwomp1", 0xc, 0x34, 0x42, 0);
-		FUN_10017460(10, "wwomp4ar", 0xd8, 0x34, 0x64, 0);
-		FUN_10017460(11, "wwomp7cr", 0x1b4, 0x34, 0x64, 0);
-		FUN_10017460(12, "wwomp4mp", 0x4b, 0xab, 0x21, 0);
-		FUN_10017460(13, "wwomp5wa", 0xd8, 0x34, 0x64, 0);
-		FUN_10017460(14, "wwomp1es", 0x1b4, 0x34, 0x42, 0);
-		FUN_10017460(4, "wwobkg", 0xdb, 0x1ad, 2, 0);
-		FUN_10017460(5, "wwostar", 0x197, 0x19a, 0x4a, 0);
-		FUN_10017460(6, "wwocn", 0x122, 0x1b1, 0x64, 0);
-		FUN_10017460(7, "wwocp", 0xf0, 0x1b3, 0x64, 0);
-		FUN_10017460(8, "wwovn", 0x12c, 0x1ad, 0x64, 0);
-		FUN_10017460(9, "wwovp", 0xdc, 0x1b0, 0x64, 0);
+		PlayVideo(0, "awogrid", 0x8c, 0x136, 0x4a, 0);
+		PlayVideo(1, "wwomp1", 0xc, 0x34, 0x42, 0);
+		PlayVideo(10, "wwomp4ar", 0xd8, 0x34, 0x64, 0);
+		PlayVideo(11, "wwomp7cr", 0x1b4, 0x34, 0x64, 0);
+		PlayVideo(12, "wwomp4mp", 0x4b, 0xab, 0x21, 0);
+		PlayVideo(13, "wwomp5wa", 0xd8, 0x34, 0x64, 0);
+		PlayVideo(14, "wwomp1es", 0x1b4, 0x34, 0x42, 0);
+		PlayVideo(4, "wwobkg", 0xdb, 0x1ad, 2, 0);
+		PlayVideo(5, "wwostar", 0x197, 0x19a, 0x4a, 0);
+		PlayVideo(6, "wwocn", 0x122, 0x1b1, 0x64, 0);
+		PlayVideo(7, "wwocp", 0xf0, 0x1b3, 0x64, 0);
+		PlayVideo(8, "wwovn", 0x12c, 0x1ad, 0x64, 0);
+		PlayVideo(9, "wwovp", 0xdc, 0x1b0, 0x64, 0);
 		g_unk0x10061748 = g_unk0x10061730;
 		g_unk0x10079a98 = 0x146;
 		g_unk0x10079a9c = 0x17f;
 		g_unk0x1007c960[1] = 0x17;
 		break;
 	case 1:
-		FUN_10017460(0, "ajfgrid", 0x6c, 0x132, 0x4a, 0);
-		FUN_10017460(1, "wjfmp1", 0xc, 0x34, 0x42, 0);
-		FUN_10017460(10, "wjfmp4ar", 0xd8, 0x34, 0x64, 0);
-		FUN_10017460(11, "wjfmp7cr", 0x1b4, 0x34, 0x64, 0);
-		FUN_10017460(12, "wjfmp4mp", 0x4b, 0xab, 0x21, 0);
-		FUN_10017460(13, "wjfmp5wa", 0xd8, 0x34, 0x64, 0);
-		FUN_10017460(14, "wjfmp1es", 0x1b4, 0x34, 0x42, 0);
-		FUN_10017460(4, "wjfbkg", 0xd8, 0x1b2, 2, 0);
-		FUN_10017460(5, "wjfstar", 0x171, 0x1a0, 8, 0);
-		FUN_10017460(6, "wjfcn", 0x11e, 0x1b6, 0x64, 0);
-		FUN_10017460(7, "wjfcp", 0xf2, 0x1b6, 0x64, 0);
-		FUN_10017460(8, "wjfvn", 0x128, 0x1b2, 0x64, 0);
-		FUN_10017460(9, "wjfvp", 0xdc, 0x1b5, 0x64, 0);
+		PlayVideo(0, "ajfgrid", 0x6c, 0x132, 0x4a, 0);
+		PlayVideo(1, "wjfmp1", 0xc, 0x34, 0x42, 0);
+		PlayVideo(10, "wjfmp4ar", 0xd8, 0x34, 0x64, 0);
+		PlayVideo(11, "wjfmp7cr", 0x1b4, 0x34, 0x64, 0);
+		PlayVideo(12, "wjfmp4mp", 0x4b, 0xab, 0x21, 0);
+		PlayVideo(13, "wjfmp5wa", 0xd8, 0x34, 0x64, 0);
+		PlayVideo(14, "wjfmp1es", 0x1b4, 0x34, 0x42, 0);
+		PlayVideo(4, "wjfbkg", 0xd8, 0x1b2, 2, 0);
+		PlayVideo(5, "wjfstar", 0x171, 0x1a0, 8, 0);
+		PlayVideo(6, "wjfcn", 0x11e, 0x1b6, 0x64, 0);
+		PlayVideo(7, "wjfcp", 0xf2, 0x1b6, 0x64, 0);
+		PlayVideo(8, "wjfvn", 0x128, 0x1b2, 0x64, 0);
+		PlayVideo(9, "wjfvp", 0xdc, 0x1b5, 0x64, 0);
 		g_unk0x10061748 = g_unk0x10061738;
 		g_unk0x10079a98 = 0x146;
 		g_unk0x10079a9c = 0x17f;
 		g_unk0x1007c960[1] = 0x17;
 		break;
 	case 2:
-		FUN_10017460(0, "aiagrid", 0x6c, 0x132, 0x4a, 0);
-		FUN_10017460(1, "wiamp1", 0xc, 0x34, 0x42, 0);
-		FUN_10017460(10, "wiamp4ar", 0xd8, 0x34, 0x64, 0);
-		FUN_10017460(11, "wiamp7cr", 0x1b4, 0x34, 0x64, 0);
-		FUN_10017460(12, "wiamp4mp", 0x4b, 0xab, 0x21, 0);
-		FUN_10017460(13, "wiamp5wa", 0xd8, 0x34, 0x64, 0);
-		FUN_10017460(14, "wiamp1es", 0x1b4, 0x34, 0x42, 0);
-		FUN_10017460(4, "wiabkg1", 0xdb, 0x19e, 4, 0);
-		FUN_10017460(5, "wiastar", 0x19d, 0x1a1, 0x24, 0);
-		FUN_10017460(6, "wiacn", 0x109, 0x1ae, 0x24, 0);
-		FUN_10017460(7, "wiacp", 0xee, 0x1b5, 0x24, 0);
-		FUN_10017460(8, "wiavn", 0x12e, 0x1af, 0x24, 0);
-		FUN_10017460(9, "wiavp", 0xdf, 0x1b5, 0x24, 0);
+		PlayVideo(0, "aiagrid", 0x6c, 0x132, 0x4a, 0);
+		PlayVideo(1, "wiamp1", 0xc, 0x34, 0x42, 0);
+		PlayVideo(10, "wiamp4ar", 0xd8, 0x34, 0x64, 0);
+		PlayVideo(11, "wiamp7cr", 0x1b4, 0x34, 0x64, 0);
+		PlayVideo(12, "wiamp4mp", 0x4b, 0xab, 0x21, 0);
+		PlayVideo(13, "wiamp5wa", 0xd8, 0x34, 0x64, 0);
+		PlayVideo(14, "wiamp1es", 0x1b4, 0x34, 0x42, 0);
+		PlayVideo(4, "wiabkg1", 0xdb, 0x19e, 4, 0);
+		PlayVideo(5, "wiastar", 0x19d, 0x1a1, 0x24, 0);
+		PlayVideo(6, "wiacn", 0x109, 0x1ae, 0x24, 0);
+		PlayVideo(7, "wiacp", 0xee, 0x1b5, 0x24, 0);
+		PlayVideo(8, "wiavn", 0x12e, 0x1af, 0x24, 0);
+		PlayVideo(9, "wiavp", 0xdf, 0x1b5, 0x24, 0);
 		g_unk0x10061748 = g_unk0x10061740;
 		g_unk0x10079a98 = 0x136;
 		g_unk0x10079a9c = 0x17f;
@@ -3874,7 +3874,7 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 	FUN_100078cd(g_unk0x1005de2c);
 	g_unk0x10061780 = p_wParam;
 	FUN_100108e5(MechbayClickCallback);
-	FUN_1001661b();
+	UpdateVideos();
 }
 
 // The mech bay's frame: the fields' clicks and the menu (EXIT LAB, STAR CONFIG, the chassis and
@@ -3916,15 +3916,15 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 
 	button = g_unk0x10061778->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
 	if (*p_campaign == 2) {
-		FUN_10016cc0(5, 0x20, 0x20);
+		SetVideoFlags(5, 0x20, 0x20);
 	}
 	else {
-		FUN_10016cc0(5, 1, 1);
+		SetVideoFlags(5, 1, 1);
 	}
-	FUN_10016cc0(6, 0x20, 0x20);
-	FUN_10016cc0(7, 0x20, 0x20);
-	FUN_10016cc0(8, 0x20, 0x20);
-	FUN_10016cc0(9, 0x20, 0x20);
+	SetVideoFlags(6, 0x20, 0x20);
+	SetVideoFlags(7, 0x20, 0x20);
+	SetVideoFlags(8, 0x20, 0x20);
+	SetVideoFlags(9, 0x20, 0x20);
 
 	switch (button) {
 	case 0:
@@ -3938,7 +3938,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 			FUN_10016d27(5);
 		}
 		else {
-			FUN_10016cc0(5, 1, 0);
+			SetVideoFlags(5, 1, 0);
 		}
 		if (pressed != 1) {
 			break;
@@ -4058,7 +4058,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 			break;
 		}
 		sprintf(g_unk0x1005c640.m_unk0x100, "User Variant #%d", i - 99);
-		FUN_10016cc0(0, 1, 1);
+		SetVideoFlags(0, 1, 1);
 		FUN_1000cb4b();
 		FUN_10007ac8(g_unk0x1005de2c);
 		g_unk0x1005de2c = g_unk0x10060698;
@@ -4102,10 +4102,10 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		if (button == 8 && !FUN_1000cf4c()) {
 			break;
 		}
-		FUN_10016cc0(10, 0x20, 0x20);
-		FUN_10016cc0(11, 0x20, 0x20);
-		FUN_10016cc0(12, 0x20, 0x20);
-		FUN_10016cc0(13, 0x20, 0x20);
+		SetVideoFlags(10, 0x20, 0x20);
+		SetVideoFlags(11, 0x20, 0x20);
+		SetVideoFlags(12, 0x20, 0x20);
+		SetVideoFlags(13, 0x20, 0x20);
 		FUN_10016d27(14);
 		FUN_1000ca74();
 		FUN_10007ac8(g_unk0x1005de28);
@@ -4113,7 +4113,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		FUN_10007ac8(g_unk0x1005de2c);
 		g_unk0x1005de2c = g_unk0x10060d20;
 		FUN_100078cd(g_unk0x1005de2c);
-		FUN_10016cc0(0, 1, 0);
+		SetVideoFlags(0, 1, 0);
 		FUN_1000cb6f();
 		g_unk0x10061778->FUN_10048cc1(0);
 		g_unk0x10061778->FUN_10048cc1(1);
@@ -4138,7 +4138,7 @@ done:
 	if (p_msg != 0x404) {
 		FUN_10007ac8(g_unk0x1005de2c);
 		FUN_10007ac8(g_unk0x1005de28);
-		FUN_10016f45();
+		CloseAllVideos();
 		if (g_unk0x1006177c) {
 			delete g_unk0x1006177c;
 		}

@@ -478,7 +478,7 @@ MechS32 CpcEditTextField(
 
 	for (;;) {
 		if (g_cpcLogoMovie) {
-			g_cpcLogoMovie->FUN_1001630b();
+			g_cpcLogoMovie->Update();
 		}
 
 		if (!FUN_1000fe0d()) {
@@ -1170,7 +1170,7 @@ void CpcScrollButtons(ScreenField* p_tab)
 
 		FUN_100079f8(g_cpcBindingsFields);
 		if (g_cpcLogoMovie != NULL) {
-			g_cpcLogoMovie->FUN_1001630b();
+			g_cpcLogoMovie->Update();
 		}
 
 		g_pMouseState->ReadMouseState();
@@ -2329,7 +2329,7 @@ void CpcScreenTick(MechS32 p_active)
 
 	if (p_active) {
 		if (g_cpcLogoMovie) {
-			g_cpcLogoMovie->FUN_1001630b();
+			g_cpcLogoMovie->Update();
 		}
 
 		if (g_pMouseState->GetLeftPressed() == 1 || (g_cpcBindingsPage == 1 && g_pMouseState->GetRightPressed() == 1)) {
@@ -2358,12 +2358,12 @@ void CpcScreenTick(MechS32 p_active)
 		InputFreeDevices();
 		g_pVideoDriver->m_unk0x3a6 = -1;
 		g_pVideoDriver->FUN_100071ad(0, 0, 640, 480);
-		FUN_1001661b();
+		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_unk0x10071378, 1);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
 			g_pVideoDriver->FUN_100071ad(0, 0, 640, 480);
-			FUN_1001661b();
+			UpdateVideos();
 		}
 	}
 }

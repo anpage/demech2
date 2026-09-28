@@ -65,7 +65,7 @@ DECOMP_SIZE_ASSERT(MechChassis, 0x18)
 DECOMP_SIZE_ASSERT(MenuScreen, 0x10)
 DECOMP_SIZE_ASSERT(MainMenuButton, 0x1c)
 
-MechS32 FUN_10017460(
+MechS32 PlayVideo(
 	MechS32 p_index,
 	const char* p_name,
 	undefined4 p_unk0x08,
@@ -513,8 +513,8 @@ void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 	mech = STAR_LAYOUT(p_formation, p_position).m_mech;
 	p_menu->FUN_10048d65(label + 6);
 	if (mech >= g_unk0x1005b818->m_unk0x0c) {
-		FUN_10016cc0(p_position + 10, 0x40000000, 0x40000000);
-		FUN_10016cc0(label + 1, 0x20, 0x20);
+		SetVideoFlags(p_position + 10, 0x40000000, 0x40000000);
+		SetVideoFlags(label + 1, 0x20, 0x20);
 		return;
 	}
 
@@ -525,7 +525,7 @@ void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 	left = STAR_LAYOUT(g_unk0x1005b818->m_unk0x00, p_position).m_left;
 	top = STAR_LAYOUT(g_unk0x1005b818->m_unk0x00, p_position).m_top;
 	sprintf(name, g_unk0x10079688, g_unk0x10061560[type].m_unk0x00);
-	FUN_10017460(p_position + 10, name, left, top, 0x88, 0);
+	PlayVideo(p_position + 10, name, left, top, 0x88, 0);
 
 	left = g_unk0x1007957c[label];
 	top = g_unk0x10079578[label];
@@ -606,48 +606,48 @@ void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign)
 
 	switch (p_campaign) {
 	case 0:
-		FUN_10017460(0, "awogrid", 0x8c, 0x136, 0x4a, 0);
-		FUN_10017460(1, "awostr1", 0x49, 0x9e, 0x44, 0);
-		FUN_10017460(2, "awostr2", 0x131, 0x7d, 0x44, 0);
-		FUN_10017460(3, "awostr3", 500, 0xb5, 0x44, 0);
-		FUN_10017460(4, "wwobkg", 0xdb, 0x1ad, 2, 0);
-		FUN_10017460(5, "wwodsgn", 0x197, 0x19a, 0x4a, 0);
-		FUN_10017460(6, "wwocn", 0x122, 0x1b1, 100, 0);
-		FUN_10017460(7, "wwocp", 0xf0, 0x1b3, 100, 0);
-		FUN_10017460(8, "wwovn", 300, 0x1ad, 100, 0);
-		FUN_10017460(9, "wwovp", 0xdc, 0x1b0, 100, 0);
+		PlayVideo(0, "awogrid", 0x8c, 0x136, 0x4a, 0);
+		PlayVideo(1, "awostr1", 0x49, 0x9e, 0x44, 0);
+		PlayVideo(2, "awostr2", 0x131, 0x7d, 0x44, 0);
+		PlayVideo(3, "awostr3", 500, 0xb5, 0x44, 0);
+		PlayVideo(4, "wwobkg", 0xdb, 0x1ad, 2, 0);
+		PlayVideo(5, "wwodsgn", 0x197, 0x19a, 0x4a, 0);
+		PlayVideo(6, "wwocn", 0x122, 0x1b1, 100, 0);
+		PlayVideo(7, "wwocp", 0xf0, 0x1b3, 100, 0);
+		PlayVideo(8, "wwovn", 300, 0x1ad, 100, 0);
+		PlayVideo(9, "wwovp", 0xdc, 0x1b0, 100, 0);
 		g_unk0x1007946c = g_unk0x1005b4c0;
 		g_unk0x10079688 = g_unk0x1005b700;
 		g_unk0x1007957c = g_unk0x1005b850;
 		g_unk0x10079578 = g_unk0x1005b860;
 		break;
 	case 1:
-		FUN_10017460(0, "ajfgrid", 0x6c, 0x132, 0x4a, 0);
-		FUN_10017460(1, "ajfstr1", 0x27, 0xa4, 0x44, 0);
-		FUN_10017460(2, "ajfstr2", 0x110, 0x77, 0x44, 0);
-		FUN_10017460(3, "ajfstr3", 0x1e7, 0xd1, 0x44, 0);
-		FUN_10017460(4, "wjfbkg", 0xd8, 0x1b2, 2, 0);
-		FUN_10017460(5, "wjfdsgn", 0x171, 0x1a0, 0x48, 0);
-		FUN_10017460(6, "wjfcn", 0x11e, 0x1b6, 100, 0);
-		FUN_10017460(7, "wjfcp", 0xf2, 0x1b6, 100, 0);
-		FUN_10017460(8, "wjfvn", 0x128, 0x1b2, 100, 0);
-		FUN_10017460(9, "wjfvp", 0xdc, 0x1b5, 100, 0);
+		PlayVideo(0, "ajfgrid", 0x6c, 0x132, 0x4a, 0);
+		PlayVideo(1, "ajfstr1", 0x27, 0xa4, 0x44, 0);
+		PlayVideo(2, "ajfstr2", 0x110, 0x77, 0x44, 0);
+		PlayVideo(3, "ajfstr3", 0x1e7, 0xd1, 0x44, 0);
+		PlayVideo(4, "wjfbkg", 0xd8, 0x1b2, 2, 0);
+		PlayVideo(5, "wjfdsgn", 0x171, 0x1a0, 0x48, 0);
+		PlayVideo(6, "wjfcn", 0x11e, 0x1b6, 100, 0);
+		PlayVideo(7, "wjfcp", 0xf2, 0x1b6, 100, 0);
+		PlayVideo(8, "wjfvn", 0x128, 0x1b2, 100, 0);
+		PlayVideo(9, "wjfvp", 0xdc, 0x1b5, 100, 0);
 		g_unk0x1007946c = g_unk0x1005b5e0;
 		g_unk0x10079688 = g_unk0x1005b708;
 		g_unk0x1007957c = g_unk0x1005b870;
 		g_unk0x10079578 = g_unk0x1005b880;
 		break;
 	case 2:
-		FUN_10017460(0, "aiagrid", 0x6c, 0x132, 0x4a, 0);
-		FUN_10017460(1, "aiastr1", 0x49, 0x9e, 0x44, 0);
-		FUN_10017460(2, "aiastr1", 0x131, 0x7d, 0x44, 0);
-		FUN_10017460(3, "aiastr1", 500, 0xb5, 0x44, 0);
-		FUN_10017460(4, "wiabkg2", 0xdb, 0x19e, 4, 0);
-		FUN_10017460(5, "wiadsgn", 0x19f, 0x1a1, 0x24, 0);
-		FUN_10017460(6, "wiacn", 0x109, 0x1ae, 0x24, 0);
-		FUN_10017460(7, "wiacp", 0xee, 0x1b5, 0x24, 0);
-		FUN_10017460(8, "wiavn", 0x12e, 0x1af, 0x24, 0);
-		FUN_10017460(9, "wiavp", 0xdf, 0x1b5, 0x24, 0);
+		PlayVideo(0, "aiagrid", 0x6c, 0x132, 0x4a, 0);
+		PlayVideo(1, "aiastr1", 0x49, 0x9e, 0x44, 0);
+		PlayVideo(2, "aiastr1", 0x131, 0x7d, 0x44, 0);
+		PlayVideo(3, "aiastr1", 500, 0xb5, 0x44, 0);
+		PlayVideo(4, "wiabkg2", 0xdb, 0x19e, 4, 0);
+		PlayVideo(5, "wiadsgn", 0x19f, 0x1a1, 0x24, 0);
+		PlayVideo(6, "wiacn", 0x109, 0x1ae, 0x24, 0);
+		PlayVideo(7, "wiacp", 0xee, 0x1b5, 0x24, 0);
+		PlayVideo(8, "wiavn", 0x12e, 0x1af, 0x24, 0);
+		PlayVideo(9, "wiavp", 0xdf, 0x1b5, 0x24, 0);
 		g_unk0x1007946c = g_unk0x1005b4c0;
 		g_unk0x10079688 = g_unk0x1005b710;
 		g_unk0x1007957c = g_unk0x1005b850;
@@ -697,7 +697,7 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 	}
 
 	if (g_fQuickTips && !g_unk0x1005b8a0) {
-		FUN_1001661b();
+		UpdateVideos();
 		g_pVideoDriver->DrawShell();
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x7c), g_pWnd, (DLGPROC) FUN_1001067f, 0);
 		g_unk0x1005b8a0 = 1;
@@ -705,15 +705,15 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 
 	button = g_unk0x10079584->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
 	if (*p_campaign == 2) {
-		FUN_10016cc0(5, 0x20, 0x20);
+		SetVideoFlags(5, 0x20, 0x20);
 	}
 	else {
-		FUN_10016cc0(5, 1, 1);
+		SetVideoFlags(5, 1, 1);
 	}
-	FUN_10016cc0(6, 0x20, 0x20);
-	FUN_10016cc0(7, 0x20, 0x20);
-	FUN_10016cc0(8, 0x20, 0x20);
-	FUN_10016cc0(9, 0x20, 0x20);
+	SetVideoFlags(6, 0x20, 0x20);
+	SetVideoFlags(7, 0x20, 0x20);
+	SetVideoFlags(8, 0x20, 0x20);
+	SetVideoFlags(9, 0x20, 0x20);
 
 	switch (button) {
 	case 0:
@@ -727,7 +727,7 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 			FUN_10016d27(5);
 		}
 		else {
-			FUN_10016cc0(5, 1, 0);
+			SetVideoFlags(5, 1, 0);
 		}
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
@@ -834,7 +834,7 @@ done:
 		delete g_unk0x10079584;
 		delete g_unk0x10079470;
 		delete g_unk0x10079580;
-		FUN_10016f45();
+		CloseAllVideos();
 		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_unk0x1005b8a0 = 0;
 		PostMessage(g_pWnd, p_msg, 0x413, 0);

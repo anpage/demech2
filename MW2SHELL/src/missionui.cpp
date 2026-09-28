@@ -52,7 +52,7 @@ struct BwdStar {
 DECOMP_SIZE_ASSERT(MechNameTag, 0x08)
 DECOMP_SIZE_ASSERT(Formation, 0x08)
 
-MechS32 FUN_10017460(
+MechS32 PlayVideo(
 	MechS32 p_index,
 	const char* p_name,
 	undefined4 p_unk0x08,
@@ -229,7 +229,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 				g_unk0x1006a29c = 0;
 			}
 
-			FUN_10017460(0, g_unk0x1006a1c0[g_unk0x1006a29c][0], 0x19e, 10, 0x42, 0);
+			PlayVideo(0, g_unk0x1006a1c0[g_unk0x1006a29c][0], 0x19e, 10, 0x42, 0);
 
 			pos = 0;
 			for (i = 0; i < 3; i++, pos++) {
@@ -357,9 +357,9 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 	ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], p_wParam == 0x40e, 1);
 
 	g_unk0x10090170 = 0;
-	FUN_10017460(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
+	PlayVideo(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
 	g_unk0x10090158 = 1;
-	FUN_10017460(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+	PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
 
 	for (i = 0; i < 3; i++) {
 		g_unk0x1006a268[i].m_glyph = NULL;
@@ -383,10 +383,10 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 		g_unk0x1006a2b4->Start();
 	}
 
-	FUN_10017460(0x10, "wialanch", 0xd1, 0x173, 0x24, 0);
+	PlayVideo(0x10, "wialanch", 0xd1, 0x173, 0x24, 0);
 	FUN_100108e5(FUN_10038744);
 	g_pVideoDriver->FUN_10006c50(p_database, 9);
-	FUN_1001661b();
+	UpdateVideos();
 	g_pVideoDriver->DrawShell();
 }
 
@@ -418,8 +418,8 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 			break;
 		}
 		FUN_10016d27(0x10);
-		FUN_1001661b();
-		g_unk0x1006a2b0->FUN_1003d709();
+		UpdateVideos();
+		g_unk0x1006a2b0->PlayAndWait();
 		PrjBuildPlayerStarTemplates(g_unk0x10090170, g_unk0x10090158);
 		p_msg = 0x410;
 		break;
@@ -465,7 +465,7 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (g_unk0x10090170 >= 6) {
 			g_unk0x10090170 = 0;
 		}
-		FUN_10017460(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
+		PlayVideo(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
 		break;
 	case 22:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -481,7 +481,7 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (g_unk0x10090158 >= 6) {
 			g_unk0x10090158 = 0;
 		}
-		FUN_10017460(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+		PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
 		break;
 	case 3:
 	case 4:
@@ -645,13 +645,13 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		break;
 	}
 
-	if (!FUN_10016b11(0)) {
-		FUN_10017460(0, g_unk0x1006a1c0[g_unk0x1006a29c][1], 0x19e, 10, 0x4a, 0);
+	if (!IsVideoPlaying(0)) {
+		PlayVideo(0, g_unk0x1006a1c0[g_unk0x1006a29c][1], 0x19e, 10, 0x4a, 0);
 	}
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x1006a2a8;
 		delete g_unk0x1006a2b0;
 		if (g_unk0x1006a2b4) {
