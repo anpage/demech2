@@ -63,6 +63,12 @@ reccmp-datacmp --target MW2 --verbose --print-rec-addr
 # Lint annotations (pass source dirs to avoid scanning gitignored files)
 reccmp-decomplint --module MW2SHELL --warnfail <path-to-MW2SHELL>
 reccmp-decomplint --module MW2 --warnfail <path-to-MW2>
+
+# Blocks of globals (see "Annotations"): the original's block operations against the
+# recompiled layout (from build/), and the source's (from the repository root; needs the
+# libclang Python bindings)
+python ../tools/check_block_layout.py --target MW2SHELL
+python tools/check_block_sizes.py --msvc-include <path-to-msvc410>/include MW2SHELL MW2 MECH2
 ```
 
 `reccmp-user.yml` (gitignored) points to the original binaries for local comparison. Progress counts **game code only**: `--nolib` drops the `LIBRARY` entries from both the matched count and the denominator, and `--total` is the Ghidra original's game-code function count, everything below the shell's import thunks (`0x100492a2`) or MW2's CRT (`0x10080490`): **770** for MW2SHELL and **1537** for MW2. Without these flags, reccmp divides by the annotated functions only, which overstates progress. `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The CRT is left out until the game code is done: its `LIBRARY` entries only match once the game code that calls them is linked. The workflow keeps the list in `.github/workflows/build.yml` (`targets` job).
@@ -88,6 +94,8 @@ Functions in a compilation unit must be ordered by address (ascending). Object b
 A `// GLOBAL:` marks the address of the pointer variable itself. If the variable points at data (e.g. a `char*` string literal), the data address belongs in a `reccmp/` data-source CSV (added as needed, following the reccmp convention).
 
 Run `reccmp-datacmp` after adding/modifying globals with non-zero initial values to verify they match.
+
+**Blocks of globals are one struct.** When the original reads, writes, copies or clears a run of globals as one unit (`fread(&first, 0x3c, 1, file)`), declare the run as a single struct global. Separate globals only sit together by accident, in the declared order and within one translation unit, and not at all in the modern-compiler builds; datacmp and reccmp compare symbol by symbol and pass either way. `ChimeLedger0x3c g_soundConfig` (MW2SND.CFG) is the example. CI enforces this from both sides: `tools/check_block_sizes.py` checks the source's constant-size block calls against their objects, and `tools/check_block_layout.py` checks the original's block calls and inline `rep stos`/`rep movs` against the recompiled object at each address.
 
 When a shared function carries annotations for both DLLs, MW2SHELL's annotation comes first (the target order in `reccmp-project.yml`).
 
