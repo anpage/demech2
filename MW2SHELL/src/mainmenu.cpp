@@ -5,7 +5,6 @@
 #include "buttonmenu.h"
 #include "campaignmission.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "mainmenubutton.h"
 #include "mechvariant.h"
@@ -14,6 +13,7 @@
 #include "mousestate.h"
 #include "mss.h"
 #include "options.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "tmpackdatabase.h"
@@ -50,22 +50,22 @@ void* AllocateAllowNew(MechS32 p_size)
 void MainMenuCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
 // FUNCTION: MW2SHELL 0x1003dc10
-void FUN_1003dc10(TMPackDataBase* p_database, MechS32*)
+void DrawMainMenu(TMPackDataBase* p_database, MechS32*)
 {
 	void* audioData = NULL;
 	MechS32 audioSize;
 
-	FUN_10003175(1, 0, 0, 0, 100);
+	SelectStar(1, 0, 0, 0, 100);
 	p_database->GetDBItem(104, &audioData, &audioSize);
 	g_unk0x1006ae7c = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 
-	g_pVideoDriver->FUN_10006c50(p_database, 1);
+	g_pVideoDriver->LoadBackground(p_database, 1);
 	g_unk0x1006ae74 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_mainMenuButtons, 3);
 
-	FUN_100175e2(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
+	PlayVideoInFreeSlot(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
 	g_unk0x1006ae7c->SetVolume(0x78);
 	g_unk0x1006ae7c->Start();
-	FUN_100108e5(MainMenuCallback);
+	RegisterScreenFunction(MainMenuCallback);
 }
 
 // The main menu's frame: the trials of grievance, the two clan halls and EXIT.
@@ -79,7 +79,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 
 	AIL_serve();
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
@@ -96,7 +96,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 		g_unk0x1006ae78->DoFade();
 	}
 
-	button = g_unk0x1006ae74->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_unk0x1006ae74->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	switch (button) {
 	case 0:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -133,7 +133,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x1006ae74;
 		g_unk0x1006ae74 = NULL;
 		delete g_unk0x1006ae78;
@@ -142,6 +142,6 @@ done:
 		g_unk0x1006ae7c = NULL;
 		g_unk0x1006ae80 = 0;
 		PostMessage(g_pWnd, p_msg, 0x40e, 0);
-		FUN_100108fd(MainMenuCallback);
+		UnregisterScreenFunction(MainMenuCallback);
 	}
 }

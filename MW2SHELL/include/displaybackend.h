@@ -1,19 +1,19 @@
-#ifndef DRAWMODEEXTENSION_H
-#define DRAWMODEEXTENSION_H
+#ifndef DISPLAYBACKEND_H
+#define DISPLAYBACKEND_H
 
 #include "decomp.h"
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
 
-// DrawModeExtension::m_id, the index in g_drawModeExtensions.
-enum DrawModeExtensionId {
-	c_drawModeExtensionDirectDraw = 0,
-	c_drawModeExtensionDisplayDib = 1,
-	c_drawModeExtensionGdi = 2
+// DisplayBackend::m_id, the index in g_displayBackends.
+enum DisplayBackendId {
+	c_displayBackendDirectDraw = 0,
+	c_displayBackendDisplayDib = 1,
+	c_displayBackendGdi = 2
 };
 
-// DrawModeExtension::m_windowMode and g_nWindowMode.
+// DisplayBackend::m_windowMode and g_nWindowMode.
 enum WindowMode {
 	c_windowModeFullscreen = 1,
 	c_windowModeWindowed = 2
@@ -22,8 +22,8 @@ enum WindowMode {
 #pragma pack(1)
 // Function table of the active display back end (DirectDraw, DisplayDib or GDI).
 // SIZE 0x28
-struct DrawModeExtension {
-	MechS32 m_id;                                                                 // 0x00 — DrawModeExtensionId
+struct DisplayBackend {
+	MechS32 m_id;                                                                 // 0x00 — DisplayBackendId
 	MechS32 m_windowMode;                                                         // 0x04 — WindowMode
 	MechU32 m_style;                                                              // 0x08 — the shell window's style
 	MechS32 (*m_begin)(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height); // 0x0c
@@ -35,7 +35,7 @@ struct DrawModeExtension {
 	MechS32 (*m_acquireFramebuffer)(); // 0x20
 	undefined4 m_unk0x24;              // 0x24
 };
-typedef struct DrawModeExtension DrawModeExtension;
+typedef struct DisplayBackend DisplayBackend;
 #pragma pack()
 
-#endif // DRAWMODEEXTENSION_H
+#endif // DISPLAYBACKEND_H

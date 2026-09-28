@@ -16,7 +16,7 @@ DECOMP_SIZE_ASSERT(TokenStream, 0x14)
 // at its end.
 // Stack-slot permutation: token and count.
 // FUNCTION: MW2SHELL 0x10039280
-MechS32 FUN_10039280(TokenStream* p_stream)
+MechS32 ReadTokens(TokenStream* p_stream)
 {
 	MechChar token[500];
 	MechS32 count;
@@ -65,7 +65,7 @@ TokenStream* CreateTokenStream(FILE* p_file)
 	}
 
 	stream->m_tokens = tokens;
-	FUN_10039280(stream);
+	ReadTokens(stream);
 
 	return stream;
 }
@@ -144,7 +144,7 @@ MechS32 ReadFileToken(FILE* p_file, MechChar* p_token)
 
 // Refills the stream once every token has been handed out.
 // FUNCTION: MW2SHELL 0x100396c2
-MechS32 FUN_100396c2(TokenStream* p_stream)
+MechS32 RefillTokens(TokenStream* p_stream)
 {
 	MechS32 result;
 
@@ -155,7 +155,7 @@ MechS32 FUN_100396c2(TokenStream* p_stream)
 		else {
 			p_stream->m_index = 0;
 			p_stream->m_count = 0;
-			result = FUN_10039280(p_stream);
+			result = ReadTokens(p_stream);
 		}
 	}
 
@@ -166,9 +166,9 @@ MechS32 FUN_100396c2(TokenStream* p_stream)
 // p_value. Line ends are skipped unless p_key is one. A mismatch leaves the token in place, still
 // copied, and returns c_tokenMismatch.
 // FUNCTION: MW2SHELL 0x1003972c
-MechS32 FUN_1003972c(TokenStream* p_stream, MechChar* p_key, MechChar* p_value)
+MechS32 TakeToken(TokenStream* p_stream, MechChar* p_key, MechChar* p_value)
 {
-	if (FUN_100396c2(p_stream) == c_tokenEndOfFile) {
+	if (RefillTokens(p_stream) == c_tokenEndOfFile) {
 		return c_tokenEndOfFile;
 	}
 
@@ -185,7 +185,7 @@ MechS32 FUN_1003972c(TokenStream* p_stream, MechChar* p_key, MechChar* p_value)
 			free(p_stream->m_tokens[p_stream->m_index]);
 			p_stream->m_tokens[p_stream->m_index] = NULL;
 			p_stream->m_index++;
-			if (FUN_100396c2(p_stream) == c_tokenEndOfFile) {
+			if (RefillTokens(p_stream) == c_tokenEndOfFile) {
 				return c_tokenEndOfFile;
 			}
 		}
@@ -228,33 +228,33 @@ void AddToken(TokenStream* p_stream, MechChar* p_token)
 	}
 
 	tokens = p_stream->m_tokens;
-	copy = FUN_10030900(p_token);
+	copy = AllocateString(p_token);
 	tokens[p_stream->m_count] = copy;
 	p_stream->m_count++;
 }
 
 // Skips the tokens up to the next line end.
 // FUNCTION: MW2SHELL 0x100399fd
-void FUN_100399fd(TokenStream* p_stream)
+void SkipLine(TokenStream* p_stream)
 {
 	MechChar value[512];
 	MechS32 result;
 
 	result = c_tokenOk;
 	while (result == c_tokenOk) {
-		result = FUN_1003972c(p_stream, "\n", NULL);
+		result = TakeToken(p_stream, "\n", NULL);
 		if (result == c_tokenOk) {
 			result = c_tokenDone;
 		}
 		else {
-			result = FUN_1003972c(p_stream, "", value);
+			result = TakeToken(p_stream, "", value);
 		}
 	}
 }
 
 // Joins the tokens up to the next line end into p_line, each followed by a space.
 // FUNCTION: MW2SHELL 0x10039a6b
-void FUN_10039a6b(TokenStream* p_stream, MechChar* p_line)
+void ReadLine(TokenStream* p_stream, MechChar* p_line)
 {
 	MechChar value[512];
 	MechS32 result;
@@ -262,12 +262,12 @@ void FUN_10039a6b(TokenStream* p_stream, MechChar* p_line)
 	strcpy(p_line, "");
 	result = c_tokenOk;
 	while (result == c_tokenOk) {
-		result = FUN_1003972c(p_stream, "\n", NULL);
+		result = TakeToken(p_stream, "\n", NULL);
 		if (result == c_tokenOk || result == c_tokenEndOfFile) {
 			result = c_tokenDone;
 		}
 		else if (p_line) {
-			result = FUN_1003972c(p_stream, "", value);
+			result = TakeToken(p_stream, "", value);
 			strcat(p_line, value);
 			strcat(p_line, " ");
 		}

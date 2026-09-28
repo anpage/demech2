@@ -10,16 +10,16 @@
 
 // String collections: Collections of heap-copied strings, ordered by strcmp when sorted.
 
-MechU8 FUN_10005a21(Collection* p_collection, MechChar* p_string, MechChar** p_found);
-int FUN_10005df8(const void* p_a, const void* p_b);
+MechU8 FindString(Collection* p_collection, MechChar* p_string, MechChar** p_found);
+int CompareStringEntries(const void* p_a, const void* p_b);
 
 // FUNCTION: MW2SHELL 0x10005970
-Collection* FUN_10005970(MechS32 p_flags)
+Collection* CreateStringCollection(MechS32 p_flags)
 {
 	Collection* collection;
 	MechS32 result;
 
-	result = CreateCollection(&collection, 10, free, (MechU8) p_flags, FUN_10005df8);
+	result = CreateCollection(&collection, 10, free, (MechU8) p_flags, CompareStringEntries);
 	if (result != 0) {
 		return NULL;
 	}
@@ -28,7 +28,7 @@ Collection* FUN_10005970(MechS32 p_flags)
 }
 
 // FUNCTION: MW2SHELL 0x100059b6
-MechU8 FUN_100059b6(Collection* p_collection, MechChar* p_string)
+MechU8 AddUniqueString(Collection* p_collection, MechChar* p_string)
 {
 	MechChar* copy;
 
@@ -36,24 +36,24 @@ MechU8 FUN_100059b6(Collection* p_collection, MechChar* p_string)
 		return TRUE;
 	}
 
-	if (FUN_10005a21(p_collection, p_string, NULL) == TRUE) {
+	if (FindString(p_collection, p_string, NULL) == TRUE) {
 		return FALSE;
 	}
 
-	copy = FUN_10030900(p_string);
+	copy = AllocateString(p_string);
 	ExpandCollection(p_collection, copy);
 	return TRUE;
 }
 
 // FUNCTION: MW2SHELL 0x10005a21
-MechU8 FUN_10005a21(Collection* p_collection, MechChar* p_string, MechChar** p_found)
+MechU8 FindString(Collection* p_collection, MechChar* p_string, MechChar** p_found)
 {
 	MechS32 i;
 	MechChar** entry;
 	MechChar* item;
 
 	if (p_collection->m_flags & c_collectionSorted) {
-		FUN_1003c59e(p_collection);
+		EnsureCollectionSorted(p_collection);
 		entry =
 			bsearch(&p_string, p_collection->m_items, p_collection->m_count, sizeof(void*), p_collection->m_compare);
 		if (entry == NULL) {
@@ -87,7 +87,7 @@ MechU8 FUN_10005a21(Collection* p_collection, MechChar* p_string, MechChar** p_f
 
 // Moves every string of p_source into p_collection, freeing the ones it already holds.
 // FUNCTION: MW2SHELL 0x10005b4f
-void FUN_10005b4f(Collection* p_collection, Collection* p_source)
+void MoveStrings(Collection* p_collection, Collection* p_source)
 {
 	MechS32 i;
 	MechChar* item;
@@ -95,7 +95,7 @@ void FUN_10005b4f(Collection* p_collection, Collection* p_source)
 	for (i = 0; i < p_source->m_count; i++) {
 		item = CollectionGet(p_source, i);
 		p_source->m_items[i] = NULL;
-		if (!FUN_100059b6(p_collection, item)) {
+		if (!AddUniqueString(p_collection, item)) {
 			p_source->m_destroyItem(item);
 			p_source->m_items[i] = NULL;
 		}
@@ -105,22 +105,22 @@ void FUN_10005b4f(Collection* p_collection, Collection* p_source)
 }
 
 // FUNCTION: MW2SHELL 0x10005be8
-void FUN_10005be8(Collection* p_collection, MechChar* p_string)
+void RemoveString(Collection* p_collection, MechChar* p_string)
 {
-	FUN_1003c3ba(p_collection, p_string, TRUE);
+	CollectionRemove(p_collection, p_string, TRUE);
 }
 
 // FUNCTION: MW2SHELL 0x10005c05
-void FUN_10005c05(Collection* p_collection, MechChar* p_string)
+void AddString(Collection* p_collection, MechChar* p_string)
 {
 	MechChar* copy;
 
-	copy = FUN_10030900(p_string);
+	copy = AllocateString(p_string);
 	ExpandCollection(p_collection, copy);
 }
 
 // FUNCTION: MW2SHELL 0x10005c32
-MechU8 FUN_10005c32(Collection* p_a, MechS32 p_indexA, Collection* p_b, MechS32 p_indexB)
+MechU8 StringsEqualAt(Collection* p_a, MechS32 p_indexA, Collection* p_b, MechS32 p_indexB)
 {
 	MechChar* a;
 	MechChar* b;
@@ -135,7 +135,7 @@ MechU8 FUN_10005c32(Collection* p_a, MechS32 p_indexA, Collection* p_b, MechS32 
 }
 
 // FUNCTION: MW2SHELL 0x10005cba
-void FUN_10005cba(MechChar* p_title, Collection* p_collection)
+void DumpStrings(MechChar* p_title, Collection* p_collection)
 {
 	MechS32 i;
 
@@ -152,17 +152,17 @@ void FUN_10005cba(MechChar* p_title, Collection* p_collection)
 
 // Stack-slot permutation: copy, i, collection and item.
 // FUNCTION: MW2SHELL 0x10005d79
-Collection* FUN_10005d79(Collection* p_source)
+Collection* CopyStringCollection(Collection* p_source)
 {
 	MechChar* copy;
 	MechS32 i;
 	Collection* collection;
 	MechChar* item;
 
-	collection = FUN_10005970(p_source->m_flags);
+	collection = CreateStringCollection(p_source->m_flags);
 	for (i = 0; i < p_source->m_count; i++) {
 		item = CollectionGet(p_source, i);
-		copy = FUN_10030900(item);
+		copy = AllocateString(item);
 		ExpandCollection(collection, copy);
 	}
 
@@ -171,7 +171,7 @@ Collection* FUN_10005d79(Collection* p_source)
 
 // Stack-slot permutation: a, b, entryA and entryB.
 // FUNCTION: MW2SHELL 0x10005df8
-int FUN_10005df8(const void* p_a, const void* p_b)
+int CompareStringEntries(const void* p_a, const void* p_b)
 {
 	MechChar* a;
 	MechChar* b;

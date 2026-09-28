@@ -1,11 +1,11 @@
 #include "credits.h"
 
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "loopingmovie.h"
 #include "mousestate.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "types.h"
@@ -17,7 +17,7 @@
 
 void operator delete(void*);
 
-void FUN_10046fa8(MechS32 p_active);
+void CreditsCallback(MechS32 p_active);
 
 // GLOBAL: MW2SHELL 0x10071db0
 MechChar* g_unk0x10071db0[0x21f] = {
@@ -583,13 +583,13 @@ undefined g_unk0x10094b88[0x100];
 MechS32 g_unk0x10094c88;
 
 // FUNCTION: MW2SHELL 0x10046e80
-void FUN_10046e80()
+void DrawCredits()
 {
 	MechS32 i;
 
 	g_unk0x10094b80 = 0;
 	g_pVideoDriver->GetPalette(g_unk0x10071378);
-	g_unk0x100711f8->FUN_100440ed();
+	g_keyboardInput->FlushKeys();
 	g_pVideoDriver->LoadPalette(5);
 	g_pVideoDriver->m_unk0x3a6 = 0;
 	g_unk0x1007262c = new LoopingMovie(g_unk0x10074648, 0x78, 4);
@@ -600,19 +600,19 @@ void FUN_10046e80()
 		g_unk0x10094b88[i] = (MechU8) i;
 	}
 	g_unk0x10094c88 = 0x1cc;
-	FUN_100109a0(FUN_10046fa8);
+	RegisterMenuFunction(CreditsCallback);
 }
 
 // Scroll the credits, and restore the shell once dismissed by a key or mouse click.
 // FUNCTION: MW2SHELL 0x10046fa8
-void FUN_10046fa8(MechS32 p_active)
+void CreditsCallback(MechS32 p_active)
 {
 	MechU32 index;
 	MechS32 top;
 	MechS32 width;
 
 	if (p_active) {
-		g_pVideoDriver->FUN_100071ad(0, 0x7d, 0x280, 0x14f);
+		g_pVideoDriver->RestoreBackground(0, 0x7d, 0x280, 0x14f);
 		top = g_unk0x10094b80 * 0x14 + g_unk0x10094c88;
 		g_unk0x10094c88--;
 		for (index = g_unk0x10094b80; index < 0x21f && top < 0x1cc; index++) {
@@ -621,18 +621,18 @@ void FUN_10046fa8(MechS32 p_active)
 					// A blank line.
 				}
 				else if (g_unk0x10071db0[index][0] == '<') {
-					width = 0x140 - g_unk0x10071214->FUN_100053be(g_unk0x10071db0[index] + 1) / 2;
+					width = 0x140 - g_unk0x10071214->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
 					g_pVideoDriver
-						->FUN_100074d2(width, top, g_unk0x10071214->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
+						->DrawString(width, top, g_unk0x10071214->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
 				}
 				else if (g_unk0x10071db0[index][0] == '>') {
-					width = 0x140 - g_unk0x10071218->FUN_100053be(g_unk0x10071db0[index] + 1) / 2;
+					width = 0x140 - g_unk0x10071218->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
 					g_pVideoDriver
-						->FUN_100074d2(width, top, g_unk0x10071218->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
+						->DrawString(width, top, g_unk0x10071218->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
 				}
 				else if (g_unk0x10071db0[index][0] == '~') {
-					width = 0x140 - g_unk0x10071214->FUN_100053be(g_unk0x10071db0[index] + 1) / 2;
-					g_pVideoDriver->FUN_100074d2(
+					width = 0x140 - g_unk0x10071214->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
+					g_pVideoDriver->DrawString(
 						width,
 						top,
 						g_unk0x10071214->m_unk0x408,
@@ -641,8 +641,8 @@ void FUN_10046fa8(MechS32 p_active)
 					);
 				}
 				else {
-					width = 0x140 - g_unk0x10071210->FUN_100053be(g_unk0x10071db0[index]) / 2;
-					g_pVideoDriver->FUN_100074d2(width, top, g_unk0x10071210->m_unk0x408, g_unk0x10071db0[index], NULL);
+					width = 0x140 - g_unk0x10071210->GetTextWidth(g_unk0x10071db0[index]) / 2;
+					g_pVideoDriver->DrawString(width, top, g_unk0x10071210->m_unk0x408, g_unk0x10071db0[index], NULL);
 				}
 			}
 			else {
@@ -650,15 +650,15 @@ void FUN_10046fa8(MechS32 p_active)
 			}
 			top += 0x14;
 		}
-		g_pVideoDriver->FUN_100071ad(0, 0x69, 0x280, 0x14);
-		g_pVideoDriver->FUN_100071ad(0, 0x1cc, 0x280, 0x14);
+		g_pVideoDriver->RestoreBackground(0, 0x69, 0x280, 0x14);
+		g_pVideoDriver->RestoreBackground(0, 0x1cc, 0x280, 0x14);
 		if (g_unk0x1007262c != NULL) {
-			g_unk0x1007262c->FUN_1001630b();
+			g_unk0x1007262c->Update();
 		}
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
-		g_unk0x100711f8->FUN_10044189() != 0) {
-		FUN_100109b8(FUN_10046fa8);
+		g_keyboardInput->PollKey() != 0) {
+		UnregisterMenuFunction(CreditsCallback);
 		EnableMenuItem(g_windowMenu, 0x9c92, MF_ENABLED);
 		g_menuDialogOpen = FALSE;
 		if (g_unk0x1007262c != NULL) {
@@ -666,13 +666,13 @@ void FUN_10046fa8(MechS32 p_active)
 		}
 		g_unk0x1007262c = NULL;
 		g_pVideoDriver->m_unk0x3a6 = -1;
-		g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
-		FUN_1001661b();
+		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
+		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_unk0x10071378, TRUE);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
-			g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
-			FUN_1001661b();
+			g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
+			UpdateVideos();
 		}
 	}
 }

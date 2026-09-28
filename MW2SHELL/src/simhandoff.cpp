@@ -1,9 +1,9 @@
 #include "simhandoff.h"
 
 #include "decomp.h"
-#include "drawmode.h"
 #include "mechvariant.h"
 #include "pilotrecord.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "simhandoffstate.h"
 #include "types.h"
@@ -25,7 +25,7 @@ SimHandoffState g_unk0x10090288;
 // message to the shell window; otherwise it returns to the campaign's start (2, no pilot, no
 // scenario).
 // FUNCTION: MW2SHELL 0x10039b50
-void FUN_10039b50(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, char** p_scenario)
+void ReadSimHandoff(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, char** p_scenario)
 {
 	MechS32 i;
 	FILE* file;
@@ -54,7 +54,7 @@ void FUN_10039b50(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, ch
 	else {
 		g_pCurrentPilot = NULL;
 	}
-	FUN_10002d8d();
+	RestoreStars();
 
 	if (p_fromSim) {
 		PostMessage(g_pWnd, g_unk0x10090288.m_unk0x00, 0x410, 0);
@@ -87,10 +87,10 @@ void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const
 	else {
 		g_unk0x10090288.m_unk0x114 = -1;
 	}
-	FUN_10002d30();
+	SaveStars();
 
 	if (p_msg != 0x414 && p_msg != 0x402) {
-		FUN_10003221();
+		WriteStarFiles();
 	}
 
 	file = fopen("mw2prm.cfg", "wb");

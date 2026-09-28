@@ -9,8 +9,8 @@ extern "C"
 {
 #endif
 
-	extern char* g_unk0x1006a9f8[26];
-	extern MechS32 g_unk0x1006aac4;
+	extern char* g_resourceTypeTags[26];
+	extern MechS32 g_mw2PrjHandle;
 
 #ifdef __cplusplus
 }

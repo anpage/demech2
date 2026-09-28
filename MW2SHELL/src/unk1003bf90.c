@@ -10,12 +10,12 @@
 
 // The window class name.
 // GLOBAL: MW2SHELL 0x1006a9c0
-char g_unk0x1006a9c0[0x10] = "MECHWARRIOR 2";
+char g_windowClassName[0x10] = "MECHWARRIOR 2";
 
 // GLOBAL: MW2SHELL 0x1006a9d0
 MechS32 g_fWindowActive = 1;
 
-// Read by the draw mode unit (drawmode.c) when it restyles the window.
+// Read by the refresh mode unit (refreshmode.c) when it restyles the window.
 // GLOBAL: MW2SHELL 0x1006a9d8
 MechS32 g_unk0x1006a9d8 = 0;
 
@@ -23,7 +23,7 @@ MechS32 g_unk0x1006a9d8 = 0;
 MechU32 g_fQuickTips = 1;
 
 // GLOBAL: MW2SHELL 0x1006a9e0
-MechS32 g_unk0x1006a9e0 = 1;
+MechS32 g_showDialog = 1;
 
 // GLOBAL: MW2SHELL 0x1006a9e4
 MechS32 g_menuVisible = 0;
@@ -35,7 +35,7 @@ MechS32 g_fHelpRegistered = 0;
 MechS32 g_menuDialogOpen = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9f0
-MechS32 g_unk0x1006a9f0 = 0;
+MechS32 g_littleMovies = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9f4
 HANDLE g_hPrimaryHeap = NULL;

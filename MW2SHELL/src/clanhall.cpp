@@ -4,7 +4,6 @@
 #include "audiosubsystem.h"
 #include "buttonmenu.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "mainmenubutton.h"
 #include "mechvariant.h"
@@ -13,6 +12,7 @@
 #include "mousestate.h"
 #include "options.h"
 #include "pilotrecord.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "tmpackdatabase.h"
@@ -27,7 +27,7 @@
 // GLOBAL: MW2SHELL 0x10063b70
 ButtonMenu* g_unk0x10063b70 = NULL;
 
-// The room's ambience and the sound FUN_1001445c starts once the videos 2 and 3 are done.
+// The room's ambience and the sound ClanHallCallback starts once the videos 2 and 3 are done.
 // GLOBAL: MW2SHELL 0x10063b74
 AudioSample* g_unk0x10063b74 = NULL;
 
@@ -44,7 +44,7 @@ MechS32 g_unk0x10063b80 = -1;
 // GLOBAL: MW2SHELL 0x10063b84
 MechS32 g_unk0x10063b84 = 0x404;
 
-void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
+void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
 // Opens the clan hall. Coming back from registering a pilot (0x412) sets up the new pilot's
 // star first.
@@ -57,8 +57,8 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	MechS32 size;
 
 	if (p_wParam == 0x412) {
-		FUN_10003175(0, 0, 3, 1, 100);
-		FUN_10002de7(0, NULL, g_pCurrentPilot->m_callsign);
+		SelectStar(0, 0, 3, 1, 100);
+		SetStarMech(0, NULL, g_pCurrentPilot->m_callsign);
 		if (g_unk0x10071374) {
 			if (p_campaign == 0) {
 				g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
@@ -76,11 +76,11 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 
 	switch (p_campaign) {
 	case 0:
-		FUN_10017460(0, "awoball", 0x5b, 0x17c, 0xa, 0);
-		FUN_10017460(1, "awoarcht", 0x148, 0x14c, 0x4a, 0);
-		FUN_10017460(2, "awolite1", 0, 0x118, 0x4a, 0);
-		FUN_10017460(3, "awolite2", 0x9e, 0x12c, 0x4a, 0);
-		FUN_10017460(4, "awolite3", 0x244, 0x113, 0x4a, 0);
+		PlayVideo(0, "awoball", 0x5b, 0x17c, 0xa, 0);
+		PlayVideo(1, "awoarcht", 0x148, 0x14c, 0x4a, 0);
+		PlayVideo(2, "awolite1", 0, 0x118, 0x4a, 0);
+		PlayVideo(3, "awolite2", 0x9e, 0x12c, 0x4a, 0);
+		PlayVideo(4, "awolite3", 0x244, 0x113, 0x4a, 0);
 		p_database->GetDBItem(0x4f, &data, &size);
 		g_unk0x10063b74 = new AudioSample(g_pAudioSubsystem, data, size);
 		g_unk0x10063b74->SetVolume(0x32);
@@ -88,23 +88,23 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		break;
 	case 1:
 		if (p_wParam == 0x414) {
-			FUN_10017460(2, "ajf8orl1", 0, 0, 2, 0);
+			PlayVideo(2, "ajf8orl1", 0, 0, 2, 0);
 		}
 		else if (p_wParam == 0x411) {
-			FUN_10017460(3, "ajf8orr1", 0x194, 1, 2, 0);
+			PlayVideo(3, "ajf8orr1", 0x194, 1, 2, 0);
 		}
 		else if (p_wParam == 0x412) {
-			FUN_10017460(2, "ajf8orl1", 0, 0, 0x42, 0);
-			FUN_10017460(3, "ajf8orr1", 0x194, 1, 2, 0);
+			PlayVideo(2, "ajf8orl1", 0, 0, 0x42, 0);
+			PlayVideo(3, "ajf8orr1", 0x194, 1, 2, 0);
 		}
-		FUN_10017460(1, "ajfarcht", 0xdc, 0x118, 0x4a, 0);
-		FUN_10017460(0, "ajfball", 0x190, 0x180, 0x4a, 0);
+		PlayVideo(1, "ajfarcht", 0xdc, 0x118, 0x4a, 0);
+		PlayVideo(0, "ajfball", 0x190, 0x180, 0x4a, 0);
 		break;
 	}
 
-	FUN_100108e5(FUN_1001445c);
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fe10[p_campaign].m_picture);
-	FUN_1001661b();
+	RegisterScreenFunction(ClanHallCallback);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fe10[p_campaign].m_picture);
+	UpdateVideos();
 	g_pVideoDriver->DrawShell();
 	if (g_unk0x10063b74) {
 		g_unk0x10063b74->Start();
@@ -118,18 +118,18 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 // The Jade Falcon hall plays a door video before moving on.
 // Not 100%: the stack slots of data, button and size are permuted.
 // FUNCTION: MW2SHELL 0x1001445c
-void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
+void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {
 	void* data = NULL;
 	MechS32 button;
 	MechS32 size;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
-	if (g_unk0x10063b7c && !FUN_10016b11(2) && !FUN_10016b11(3)) {
+	if (g_unk0x10063b7c && !IsVideoPlaying(2) && !IsVideoPlaying(3)) {
 		g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
 		g_unk0x10063b78 = new AudioSample(g_pAudioSubsystem, data, size);
 		g_unk0x10063b78->SetVolume(0x7f);
@@ -138,7 +138,7 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 	}
 
 	if (g_unk0x10063b80 == -1) {
-		button = g_unk0x10063b70->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_unk0x10063b70->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -149,7 +149,7 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 				p_msg = 0x414;
 				break;
 			case 1:
-				FUN_10016d90(0);
+				CloseVideo(0);
 				g_unk0x10063b80 = 2;
 				break;
 			}
@@ -167,13 +167,13 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 				delete g_unk0x10063b78;
 				g_unk0x10063b78 = NULL;
 			}
-			FUN_10016d90(0);
+			CloseVideo(0);
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x10063b80 = FUN_10017460(1, "awoholop", 0x14c, 0xe8, 2, 0);
+				g_unk0x10063b80 = PlayVideo(1, "awoholop", 0x14c, 0xe8, 2, 0);
 				break;
 			case 1:
-				g_unk0x10063b80 = FUN_10017460(1, "ajfholop", 0xd1, 0xca, 2, 0);
+				g_unk0x10063b80 = PlayVideo(1, "ajfholop", 0xd1, 0xca, 2, 0);
 				break;
 			}
 			break;
@@ -211,7 +211,7 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 			break;
 		}
 	}
-	else if (!FUN_10016b11(g_unk0x10063b80)) {
+	else if (!IsVideoPlaying(g_unk0x10063b80)) {
 		if (g_unk0x10063b84 == 0x404) {
 			if (g_unk0x10063b74) {
 				delete g_unk0x10063b74;
@@ -221,14 +221,14 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 				delete g_unk0x10063b78;
 				g_unk0x10063b78 = NULL;
 			}
-			FUN_10016d90(0);
+			CloseVideo(0);
 			switch (g_unk0x10063b80) {
 			case 2:
-				g_unk0x10063b80 = FUN_100175e2("ajf8torl", 0, 0, 2, 0);
+				g_unk0x10063b80 = PlayVideoInFreeSlot("ajf8torl", 0, 0, 2, 0);
 				g_unk0x10063b84 = 0x414;
 				break;
 			case 3:
-				g_unk0x10063b80 = FUN_100175e2("ajf8torr", 0x194, 1, 2, 0);
+				g_unk0x10063b80 = PlayVideoInFreeSlot("ajf8torr", 0x194, 1, 2, 0);
 				g_unk0x10063b84 = 0x411;
 			}
 		}
@@ -241,7 +241,7 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x10063b70;
 		if (g_unk0x10063b74) {
 			delete g_unk0x10063b74;
@@ -251,14 +251,14 @@ done:
 			delete g_unk0x10063b78;
 			g_unk0x10063b78 = NULL;
 		}
-		FUN_100108fd(FUN_1001445c);
+		UnregisterScreenFunction(ClanHallCallback);
 		if (p_msg == 0x412) {
 			switch (*p_campaign) {
 			case 0:
-				FUN_10015f58("aworgstr", 0x412, 0x407);
+				BeginFullscreenVideo("aworgstr", 0x412, 0x407);
 				break;
 			case 1:
-				FUN_10015f58("ajfrgstr", 0x412, 0x407);
+				BeginFullscreenVideo("ajfrgstr", 0x412, 0x407);
 				break;
 			}
 		}

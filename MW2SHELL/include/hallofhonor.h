@@ -4,6 +4,6 @@
 #include "types.h"
 
 // The functions and globals of hallofhonor.cpp that other units use.
-void FUN_1003e3c9();
+void DrawHallOfHonor();
 
 #endif // HALLOFHONOR_H

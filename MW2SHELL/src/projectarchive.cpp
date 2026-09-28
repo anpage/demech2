@@ -17,7 +17,7 @@
 DECOMP_SIZE_ASSERT(ProjectArchive, 0x10)
 DECOMP_SIZE_ASSERT(MechChassis, 0x18)
 
-// Every node of a .bwd file starts with a type tag from g_unk0x100668c0 and the node's
+// Every node of a .bwd file starts with a type tag from g_bwdTags and the node's
 // size in bytes. The shell assembles .bwd files for the simulator in g_bwdTemplateRegistry.
 
 enum BwdTag {
@@ -69,7 +69,7 @@ struct BwdGpsNode {
 	MechU8 m_unk0x0d;                 // 0x0d — 1 for the star's first mech
 	MechU8 m_unk0x0e;                 // 0x0e
 	undefined m_unk0x0f;              // 0x0f
-	MechS16 m_unk0x10[5];             // 0x10 — from g_unk0x100669e8 by difficulty
+	MechS16 m_unk0x10[5];             // 0x10 — from g_bwdDifficultySettings by difficulty
 	MechS16 m_unk0x1a;                // 0x1a
 	MechS16 m_unk0x1c;                // 0x1c
 	MechS16 m_unk0x1e;                // 0x1e
@@ -91,8 +91,8 @@ struct BwdNameNode {
 
 // Heap callbacks registered with the archive unit (prjfile.c); the file unit's
 // allocator calls them instead of the CRT heap.
-void* FUN_1002e302(undefined4 p_size);
-void FUN_1002e324(void* p_block);
+void* PrjHeapAlloc(undefined4 p_size);
+void PrjHeapFree(void* p_block);
 
 void BwdAddRegistryTemplate(void* p_node, MechS32 p_size);
 void BwdInitRegistry();
@@ -100,7 +100,7 @@ void BwdWriteRegistry(char* p_fileName);
 void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index, MechS32 p_level, MechS32 p_difficulty);
 
 // GLOBAL: MW2SHELL 0x100668c0
-char g_unk0x100668c0[][4] = {
+char g_bwdTags[][4] = {
 	{'B', 'W', 'D', 0},   {'R', 'E', 'V', 0},   {'D', 'T', 'B', 'L'}, {'P', 'L', 'N', 'T'}, {'P', 'A', 'L', 'G'},
 	{'T', 'E', 'R', 'R'}, {'C', 'L', 'I', 'M'}, {'L', 'I', 'T', 'E'}, {'V', 'W', 'S', 'P'}, {'V', 'W', 'S', 'T'},
 	{'I', 'N', 'I', 'T'}, {'S', 'T', 'B', 'L'}, {'M', 'T', 'B', 'L'}, {'G', 'T', 'B', 'L'}, {'B', 'M', 'P', 'J'},
@@ -119,13 +119,13 @@ char g_unk0x100668c0[][4] = {
 };
 
 // GLOBAL: MW2SHELL 0x100669e0
-MechS32 g_unk0x100669e0 = 0;
+MechS32 g_bwdRegistrySize = 0;
 
 // GLOBAL: MW2SHELL 0x100669e4
-MechS32 g_unk0x100669e4 = 0;
+MechS32 g_bwdLargestTemplate = 0;
 
 // GLOBAL: MW2SHELL 0x100669e8
-MechS16 g_unk0x100669e8[9][5] = {
+MechS16 g_bwdDifficultySettings[9][5] = {
 	{0, 0, 0, 0, 0},
 	{1, 850, 1, 850, 1},
 	{2, 700, 1, 700, 2},
@@ -149,35 +149,35 @@ MechS32 g_bwdTemplateRegistry[0x200];
 // FUNCTION: MW2SHELL 0x1002e280
 ProjectArchive::ProjectArchive(const char* p_name)
 {
-	m_unk0x04 = 0xe;
-	m_unk0x08 = NULL;
-	FUN_1002fb90(FUN_1002e302, FUN_1002e324);
-	FUN_10013907();
-	m_unk0x00 = FUN_1002fcdc((char*) p_name, '\0');
-	if (m_unk0x00 < 0) {
+	m_bwdTable = 0xe;
+	m_bwd = NULL;
+	SetArchiveAllocator(PrjHeapAlloc, PrjHeapFree);
+	InitializeResourceCache();
+	m_handle = OpenArchive((char*) p_name, '\0');
+	if (m_handle < 0) {
 		return;
 	}
 
-	g_unk0x1006aac4 = m_unk0x00;
-	FUN_1003024f(g_unk0x1006aac4);
+	g_mw2PrjHandle = m_handle;
+	LoadArchiveEntries(g_mw2PrjHandle);
 }
 
 // FUNCTION: MW2SHELL 0x1002e302
-void* FUN_1002e302(undefined4 p_size)
+void* PrjHeapAlloc(undefined4 p_size)
 {
 	return HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
 }
 
 // FUNCTION: MW2SHELL 0x1002e324
-void FUN_1002e324(void* p_block)
+void PrjHeapFree(void* p_block)
 {
 	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_block);
 }
 
 // FUNCTION: MW2SHELL 0x1002e346
-MechS32 ProjectArchive::FUN_1002e346(char* p_name, MechS32 p_type)
+MechS32 ProjectArchive::FindResourceId(char* p_name, MechS32 p_type)
 {
-	if (m_unk0x00 < 0) {
+	if (m_handle < 0) {
 		return -1;
 	}
 
@@ -185,46 +185,46 @@ MechS32 ProjectArchive::FUN_1002e346(char* p_name, MechS32 p_type)
 }
 
 // FUNCTION: MW2SHELL 0x1002e384
-void* ProjectArchive::FUN_1002e384(MechS32 p_id, char* p_tag)
+void* ProjectArchive::GetResource(MechS32 p_id, char* p_tag)
 {
 	if (p_id == -1 || p_id == -2) {
 		return NULL;
 	}
 
-	return FUN_10013cb5(m_unk0x00, p_id, p_tag, 0);
+	return LoadCachedResource(m_handle, p_id, p_tag, 0);
 }
 
 // FUNCTION: MW2SHELL 0x1002e3cf
-void* ProjectArchive::FUN_1002e3cf(char* p_name, MechS32 p_type, char* p_tag)
+void* ProjectArchive::GetResourceByName(char* p_name, MechS32 p_type, char* p_tag)
 {
-	return FUN_1002e384(FUN_1002e346(p_name, p_type), p_tag);
+	return GetResource(FindResourceId(p_name, p_type), p_tag);
 }
 
 // FUNCTION: MW2SHELL 0x1002e404
-void ProjectArchive::FUN_1002e404(MechS32 p_id, char* p_tag)
+void ProjectArchive::ReleaseResource(MechS32 p_id, char* p_tag)
 {
 	if (p_id == -1 || p_id == -2) {
 		return;
 	}
 
-	FUN_10013ef4(p_id, p_tag);
+	FreeCachedResource(p_id, p_tag);
 }
 
 // FUNCTION: MW2SHELL 0x1002e445
-void ProjectArchive::FUN_1002e445(char* p_name, MechS32 p_type, char* p_tag)
+void ProjectArchive::ReleaseResourceByName(char* p_name, MechS32 p_type, char* p_tag)
 {
-	FUN_1002e404(FUN_1002e346(p_name, p_type), p_tag);
+	ReleaseResource(FindResourceId(p_name, p_type), p_tag);
 }
 
 // Stack-slot permutation: node and end.
 // FUNCTION: MW2SHELL 0x1002e47a
-MechS32* ProjectArchive::FUN_1002e47a(MechS32* p_list, MechS32 p_index, MechS32* p_previous)
+MechS32* ProjectArchive::FindNextBwdNode(MechS32* p_list, MechS32 p_index, MechS32* p_previous)
 {
 	MechS32* node;
 	MechS32* end;
 	MechS32 type;
 
-	type = *(MechS32*) g_unk0x100668c0[p_index];
+	type = *(MechS32*) g_bwdTags[p_index];
 	end = (MechS32*) ((char*) p_list + p_list[1]);
 	if (p_previous != NULL) {
 		node = (MechS32*) ((char*) p_previous + p_previous[1]);
@@ -243,25 +243,25 @@ MechS32* ProjectArchive::FUN_1002e47a(MechS32* p_list, MechS32 p_index, MechS32*
 }
 
 // FUNCTION: MW2SHELL 0x1002e512
-MechU8 ProjectArchive::FUN_1002e512(char* p_name)
+MechU8 ProjectArchive::LoadBwd(char* p_name)
 {
 	MechS32 id;
 
-	m_unk0x0c = 0;
-	if (m_unk0x00 < 0) {
+	m_bwdSize = 0;
+	if (m_handle < 0) {
 		return FALSE;
 	}
 
-	id = FindResourceIdByName(m_unk0x04, p_name);
+	id = FindResourceIdByName(m_bwdTable, p_name);
 	switch (id) {
 	case -1:
 		return FALSE;
 	case -2:
 		return FALSE;
 	default:
-		m_unk0x08 = (MechS32*) FUN_10013cb5(m_unk0x00, id, "BWD", 0);
-		m_unk0x0c = m_unk0x08[1];
-		if (m_unk0x08 == NULL) {
+		m_bwd = (MechS32*) LoadCachedResource(m_handle, id, "BWD", 0);
+		m_bwdSize = m_bwd[1];
+		if (m_bwd == NULL) {
 			return FALSE;
 		}
 	}
@@ -270,14 +270,14 @@ MechU8 ProjectArchive::FUN_1002e512(char* p_name)
 }
 
 // FUNCTION: MW2SHELL 0x1002e5d8
-MechS32* ProjectArchive::FUN_1002e5d8(MechS32 p_type)
+MechS32* ProjectArchive::FindBwdNode(MechS32 p_type)
 {
 	MechS32* node;
 	MechS32 offset;
 
 	offset = 0xc;
-	while (offset < m_unk0x0c) {
-		node = (MechS32*) ((char*) m_unk0x08 + offset);
+	while (offset < m_bwdSize) {
+		node = (MechS32*) ((char*) m_bwd + offset);
 		if (*node == p_type) {
 			return node;
 		}
@@ -293,32 +293,32 @@ ProjectArchive::~ProjectArchive()
 {
 	MechS32 result;
 
-	FUN_1001385c();
-	if (m_unk0x00 < 0) {
+	ShutdownResourceCache();
+	if (m_handle < 0) {
 		return;
 	}
 
-	result = FUN_1002ffc9(m_unk0x00);
+	result = CloseArchive(m_handle);
 	if (result < 0) {
 	}
 }
 
-// Operand order: the original loads g_unk0x100669e4 first for p_size > g_unk0x100669e4.
+// Operand order: the original loads g_bwdLargestTemplate first for p_size > g_bwdLargestTemplate.
 // FUNCTION: MW2SHELL 0x1002e67f
 void BwdAddRegistryTemplate(void* p_node, MechS32 p_size)
 {
 	char* destination;
 
-	destination = (char*) g_bwdTemplateRegistry + g_unk0x100669e0;
-	if (g_unk0x100669e0 + p_size > (MechS32) sizeof(g_bwdTemplateRegistry)) {
+	destination = (char*) g_bwdTemplateRegistry + g_bwdRegistrySize;
+	if (g_bwdRegistrySize + p_size > (MechS32) sizeof(g_bwdTemplateRegistry)) {
 		return;
 	}
 
 	memcpy(destination, p_node, p_size);
 	p_size = (p_size + 3) & ~3;
-	g_unk0x100669e0 += p_size;
-	if (p_size > g_unk0x100669e4) {
-		g_bwdTemplateRegistry[2] = g_unk0x100669e4 = p_size;
+	g_bwdRegistrySize += p_size;
+	if (p_size > g_bwdLargestTemplate) {
+		g_bwdTemplateRegistry[2] = g_bwdLargestTemplate = p_size;
 	}
 }
 
@@ -331,15 +331,15 @@ void BwdInitRegistry()
 	BwdTableNode table;
 
 	memset(g_bwdTemplateRegistry, 0, sizeof(g_bwdTemplateRegistry));
-	g_unk0x100669e0 = 0;
-	g_unk0x100669e4 = 0;
+	g_bwdRegistrySize = 0;
+	g_bwdLargestTemplate = 0;
 
-	root.m_type = *(MechS32*) g_unk0x100668c0[c_tagBwd];
+	root.m_type = *(MechS32*) g_bwdTags[c_tagBwd];
 	root.m_size = 0;
 	root.m_unk0x08 = 0;
 	BwdAddRegistryTemplate(&root, sizeof(root));
 
-	revision.m_type = *(MechS32*) g_unk0x100668c0[c_tagRev];
+	revision.m_type = *(MechS32*) g_bwdTags[c_tagRev];
 	revision.m_size = sizeof(revision);
 	revision.m_revision[0] = '1';
 	revision.m_revision[1] = '.';
@@ -347,7 +347,7 @@ void BwdInitRegistry()
 	revision.m_revision[3] = '2';
 	BwdAddRegistryTemplate(&revision, sizeof(revision));
 
-	table.m_type = *(MechS32*) g_unk0x100668c0[c_tagDtbl];
+	table.m_type = *(MechS32*) g_bwdTags[c_tagDtbl];
 	table.m_size = sizeof(table);
 	memset(table.m_unk0x08, 0, sizeof(table.m_unk0x08));
 	BwdAddRegistryTemplate(&table, sizeof(table));
@@ -358,13 +358,13 @@ void BwdWriteRegistry(char* p_fileName)
 {
 	FILE* file;
 
-	g_bwdTemplateRegistry[1] = g_unk0x100669e0;
+	g_bwdTemplateRegistry[1] = g_bwdRegistrySize;
 	file = fopen(p_fileName, "wb");
 	if (file == NULL) {
 		return;
 	}
 
-	fwrite(g_bwdTemplateRegistry, 1, g_unk0x100669e0, file);
+	fwrite(g_bwdTemplateRegistry, 1, g_bwdRegistrySize, file);
 	fclose(file);
 }
 
@@ -378,13 +378,13 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	BwdGpsNode node;
 	MechS16 variant;
 
-	for (i = 0; g_unk0x10061560[i].m_unk0x04; i++) {
-		if (!_strnicmp(p_mech, g_unk0x10061560[i].m_unk0x04, 3)) {
+	for (i = 0; g_mechChassis[i].m_prefix; i++) {
+		if (!_strnicmp(p_mech, g_mechChassis[i].m_prefix, 3)) {
 			break;
 		}
 	}
 
-	if (!g_unk0x10061560[i].m_unk0x04) {
+	if (!g_mechChassis[i].m_prefix) {
 		return;
 	}
 
@@ -399,11 +399,11 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	}
 
 	memset(&node, 0, 0x5a);
-	node.m_type = *(MechS32*) g_unk0x100668c0[c_tagGps];
+	node.m_type = *(MechS32*) g_bwdTags[c_tagGps];
 	node.m_size = sizeof(node);
 	strncpy(node.m_mech, p_mech, 8);
 	node.m_mech[8] = '\0';
-	strncpy(node.m_chassis, g_unk0x10061560[i].m_unk0x08, 8);
+	strncpy(node.m_chassis, g_mechChassis[i].m_chassis, 8);
 	node.m_chassis[8] = '\0';
 	strncpy(node.m_variant, p_variant, 15);
 	node.m_variant[15] = '\0';
@@ -429,11 +429,11 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	else {
 		node.m_unk0x0e = 2;
 	}
-	node.m_unk0x10[0] = g_unk0x100669e8[p_difficulty][0];
-	node.m_unk0x10[1] = g_unk0x100669e8[p_difficulty][1];
-	node.m_unk0x10[2] = g_unk0x100669e8[p_difficulty][2];
-	node.m_unk0x10[3] = g_unk0x100669e8[p_difficulty][3];
-	node.m_unk0x10[4] = g_unk0x100669e8[p_difficulty][4];
+	node.m_unk0x10[0] = g_bwdDifficultySettings[p_difficulty][0];
+	node.m_unk0x10[1] = g_bwdDifficultySettings[p_difficulty][1];
+	node.m_unk0x10[2] = g_bwdDifficultySettings[p_difficulty][2];
+	node.m_unk0x10[3] = g_bwdDifficultySettings[p_difficulty][3];
+	node.m_unk0x10[4] = g_bwdDifficultySettings[p_difficulty][4];
 	node.m_unk0x1a = 0;
 	node.m_unk0x1c = 0;
 	node.m_unk0x1e = 0;
@@ -444,7 +444,7 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 // Operand order: the original loads i first for both i < count comparisons; the locals
 // also take different [ebp-N] slots.
 // FUNCTION: MW2SHELL 0x1002ea62
-void FUN_1002ea62(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCount, StarMech* p_enemies)
+void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCount, StarMech* p_enemies)
 {
 	FILE* file;
 	MechS32 i;
@@ -455,8 +455,8 @@ void FUN_1002ea62(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCount, Star
 
 	BwdInitRegistry();
 	for (i = 0; i < p_count; i++) {
-		if (p_mechs[i].m_unk0x00 >= 0) {
-			PrjBuildMechVariantTemplate(p_mechs[i].m_unk0x04, p_mechs[i].m_unk0x14, i, 0, 0);
+		if (p_mechs[i].m_chassis >= 0) {
+			PrjBuildMechVariantTemplate(p_mechs[i].m_variant, p_mechs[i].m_pilot, i, 0, 0);
 		}
 	}
 	BwdWriteRegistry("userstar.bwd");
@@ -477,8 +477,8 @@ void FUN_1002ea62(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCount, Star
 	for (level = 1; level <= 5; level++, difficulty--) {
 		BwdInitRegistry();
 		for (i = 0; i < p_enemyCount; i++) {
-			if (p_enemies[i].m_unk0x00 >= 0) {
-				PrjBuildMechVariantTemplate(p_enemies[i].m_unk0x04, p_enemies[i].m_unk0x14, i, level, difficulty);
+			if (p_enemies[i].m_chassis >= 0) {
+				PrjBuildMechVariantTemplate(p_enemies[i].m_variant, p_enemies[i].m_pilot, i, level, difficulty);
 			}
 		}
 
@@ -497,8 +497,8 @@ void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival)
 	BwdLinkNode link;
 
 	node = (BwdNameNode*) buffer;
-	node->m_type = *(MechS32*) g_unk0x100668c0[c_tagBmpj];
-	link.m_type = *(MechS32*) g_unk0x100668c0[c_tagBmid];
+	node->m_type = *(MechS32*) g_bwdTags[c_tagBmpj];
+	link.m_type = *(MechS32*) g_bwdTags[c_tagBmid];
 	link.m_size = sizeof(link);
 	link.m_unk0x08 = 0;
 	link.m_unk0x0a = -1;

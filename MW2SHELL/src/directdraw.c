@@ -3,11 +3,11 @@
 #include "brightness.h"
 #include "debugprint.h"
 #include "decomp.h"
+#include "displaybackend.h"
 #include "drawbitmapinfo.h"
-#include "drawmode.h"
-#include "drawmodeextension.h"
 #include "palettecolor.h"
 #include "pixelbuffer.h"
+#include "refreshmode.h"
 #include "types.h"
 
 #include <ddraw.h>
@@ -15,9 +15,9 @@
 #include <string.h>
 #include <windows.h>
 
-// The DirectDraw back end of the draw modes (drawmode.c). Its functions are named after their
+// The DirectDraw back end of the refresh modes (refreshmode.c). Its functions are named after their
 // debug messages, "DDRAW_Flip" and so on: the frame is drawn into g_ddrawBuffer, an offscreen
-// surface (or the back buffer when the draw mode flips), then blitted or flipped to the primary
+// surface (or the back buffer when the refresh mode flips), then blitted or flipped to the primary
 // surface.
 
 void DdrawStop();
@@ -66,8 +66,8 @@ MechS32 g_ddrawLocked = FALSE;
 MechS32 g_ddrawInitialized = FALSE;
 
 // GLOBAL: MW2SHELL 0x10063230
-DrawModeExtension g_unk0x10063230 = {
-	c_drawModeExtensionDirectDraw,
+DisplayBackend g_directDrawBackend = {
+	c_displayBackendDirectDraw,
 	c_windowModeFullscreen,
 	WS_POPUP,
 	DdrawInit,
@@ -79,21 +79,62 @@ DrawModeExtension g_unk0x10063230 = {
 	0
 };
 
+// Draws into the back buffer and flips.
 // GLOBAL: MW2SHELL 0x10063258
-DrawMode g_unk0x10063258 =
-	{0, 0, 1, 0, DdrawInit, (MechS32 (*)()) DdrawDestroySurfaces, DdrawFlip, DdrawBlitRect, DdrawStretchBlit};
+RefreshMode g_ddrawFlipRefreshMode = {
+	0,
+	c_displayBackendDirectDraw,
+	1,
+	0,
+	DdrawInit,
+	(MechS32 (*)()) DdrawDestroySurfaces,
+	DdrawFlip,
+	DdrawBlitRect,
+	DdrawStretchBlit
+};
 
+// Draws into an offscreen surface in system memory, blits it to the back buffer and flips.
 // GLOBAL: MW2SHELL 0x10063280
-DrawMode g_unk0x10063280 =
-	{1, 0, 1, 0, DdrawInit, (MechS32 (*)()) DdrawDestroySurfaces, DdrawBlitFlip, DdrawBlitRect, DdrawStretchBlit};
+RefreshMode g_ddrawBlitFlipRefreshMode = {
+	1,
+	c_displayBackendDirectDraw,
+	1,
+	0,
+	DdrawInit,
+	(MechS32 (*)()) DdrawDestroySurfaces,
+	DdrawBlitFlip,
+	DdrawBlitRect,
+	DdrawStretchBlit
+};
 
+// Draws into an offscreen surface in video memory and blits it to the primary surface.
 // GLOBAL: MW2SHELL 0x100632a8
-DrawMode g_unk0x100632a8 =
-	{2, 0, 1, 0, DdrawInit, (MechS32 (*)()) DdrawDestroySurfaces, DdrawBlit, DdrawBlitRect, DdrawStretchBlit};
+RefreshMode g_ddrawVideoMemoryRefreshMode = {
+	2,
+	c_displayBackendDirectDraw,
+	1,
+	0,
+	DdrawInit,
+	(MechS32 (*)()) DdrawDestroySurfaces,
+	DdrawBlit,
+	DdrawBlitRect,
+	DdrawStretchBlit
+};
 
+// Draws into an offscreen surface in system memory and blits it to the primary surface; the
+// primary falls back to system memory when video memory fails.
 // GLOBAL: MW2SHELL 0x100632d0
-DrawMode g_unk0x100632d0 =
-	{3, 0, 1, 0, DdrawInit, (MechS32 (*)()) DdrawDestroySurfaces, DdrawBlit, DdrawBlitRect, DdrawStretchBlit};
+RefreshMode g_ddrawSystemMemoryRefreshMode = {
+	3,
+	c_displayBackendDirectDraw,
+	1,
+	0,
+	DdrawInit,
+	(MechS32 (*)()) DdrawDestroySurfaces,
+	DdrawBlit,
+	DdrawBlitRect,
+	DdrawStretchBlit
+};
 
 // GLOBAL: MW2SHELL 0x10096870
 RECT g_ddrawScreenRect;
@@ -121,7 +162,7 @@ __inline static HRESULT DdrawUnlock()
 {
 	if (g_ddrawLocked) {
 		g_ddrawResult = IDirectDrawSurface_Unlock(g_ddrawBuffer, g_ddrawBufferDesc.lpSurface);
-		g_unk0x10062cdc->m_pixels = NULL;
+		g_refreshModeBuffer->m_pixels = NULL;
 		g_ddrawLocked = FALSE;
 		return g_ddrawResult;
 	}
@@ -165,18 +206,18 @@ void DdrawStop()
 // FUNCTION: MW2SHELL 0x10011580
 void DdrawDestroySurfaces()
 {
-	g_unk0x10062cdc->m_pixels = NULL;
+	g_refreshModeBuffer->m_pixels = NULL;
 	if (g_ddrawPrimary != NULL) {
 		IDirectDrawSurface_Release(g_ddrawPrimary);
 		g_ddrawPrimary = NULL;
 		g_ddrawBack = NULL;
 		g_ddrawStretch = NULL;
-		if (g_currentDrawMode->m_index == 0) {
+		if (g_currentRefreshMode->m_index == 0) {
 			g_ddrawBuffer = NULL;
 		}
 	}
 
-	if (g_ddrawBuffer != NULL && (g_drawModeWidth != 320 || g_drawModeHeight != 200)) {
+	if (g_ddrawBuffer != NULL && (g_refreshModeWidth != 320 || g_refreshModeHeight != 200)) {
 		IDirectDrawSurface_Release(g_ddrawBuffer);
 		g_ddrawBuffer = NULL;
 	}
@@ -191,7 +232,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 	MechS32 flip = FALSE;
 
 	if (p_width == 320 && p_height == 200) {
-		if (g_currentDrawMode->m_index == 2 || g_currentDrawMode->m_index == 3) {
+		if (g_currentRefreshMode->m_index == 2 || g_currentRefreshMode->m_index == 3) {
 			return -1;
 		}
 
@@ -221,7 +262,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 		}
 	}
 	else {
-		if (g_currentDrawMode->m_index == 0 || g_currentDrawMode->m_index == 1) {
+		if (g_currentRefreshMode->m_index == 0 || g_currentRefreshMode->m_index == 1) {
 			flip = TRUE;
 		}
 
@@ -241,7 +282,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 				g_ddrawPrimaryDesc.dwBackBufferCount = 1;
 				g_ddrawResult = IDirectDraw_CreateSurface(g_ddraw, &g_ddrawPrimaryDesc, &g_ddrawPrimary, NULL);
 			}
-			else if (g_currentDrawMode->m_index == 3) {
+			else if (g_currentRefreshMode->m_index == 3) {
 				DebugPrint("DDRAW_CreateSurfaces primary failed; trying system memory\n");
 				g_ddrawPrimaryDesc.ddsCaps.dwCaps &= ~DDSCAPS_VIDEOMEMORY;
 				g_ddrawResult = IDirectDraw_CreateSurface(g_ddraw, &g_ddrawPrimaryDesc, &g_ddrawPrimary, NULL);
@@ -261,7 +302,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 			}
 		}
 
-		if (g_currentDrawMode->m_index == 0) {
+		if (g_currentRefreshMode->m_index == 0) {
 			g_ddrawBuffer = g_ddrawBack;
 		}
 		else {
@@ -270,7 +311,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 			g_ddrawBufferDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 			g_ddrawBufferDesc.dwWidth = p_width;
 			g_ddrawBufferDesc.dwHeight = p_height;
-			if (g_currentDrawMode->m_index == 2) {
+			if (g_currentRefreshMode->m_index == 2) {
 				g_ddrawBufferDesc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
 			}
 			else {
@@ -294,11 +335,11 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	LPPALETTEENTRY entries;
 	DDCAPS caps;
 
-	if (g_currentDrawModeExtension->m_id != c_drawModeExtensionDirectDraw) {
-		g_currentDrawModeExtension->m_end();
-		g_currentDrawModeExtension = g_drawModeExtensions[c_drawModeExtensionDirectDraw];
-		if (g_currentDrawModeExtension->m_windowMode != g_nWindowMode) {
-			AdjustWindowSize(g_currentDrawModeExtension);
+	if (g_currentDisplayBackend->m_id != c_displayBackendDirectDraw) {
+		g_currentDisplayBackend->m_end();
+		g_currentDisplayBackend = g_displayBackends[c_displayBackendDirectDraw];
+		if (g_currentDisplayBackend->m_windowMode != g_nWindowMode) {
+			AdjustWindowSize(g_currentDisplayBackend);
 		}
 	}
 
@@ -327,7 +368,7 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	memset(&caps, 0, sizeof(caps));
 	caps.dwSize = sizeof(caps);
 	if (IDirectDraw_GetCaps(g_ddraw, &caps, NULL) == DD_OK && (caps.dwCaps & DDCAPS_BANKSWITCHED) &&
-		(g_currentDrawMode->m_index == 0 || g_currentDrawMode->m_index == 2)) {
+		(g_currentRefreshMode->m_index == 0 || g_currentRefreshMode->m_index == 2)) {
 		DebugPrint("DDRAW_Init: bank-switched video card.\n");
 		return 1;
 	}
@@ -343,7 +384,7 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 		return 1;
 	}
 
-	if (g_currentDrawMode->m_flip()) {
+	if (g_currentRefreshMode->m_flip()) {
 		DdrawDestroySurfaces();
 		return 1;
 	}
@@ -392,7 +433,7 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	}
 
 	if (p_width == 320 && p_height == 200) {
-		g_currentDrawMode->m_stretchBlit = DdrawStretchBlit320;
+		g_currentRefreshMode->m_stretchBlit = DdrawStretchBlit320;
 	}
 
 	g_ddrawInitialized = TRUE;
@@ -531,7 +572,7 @@ MechS32 DdrawBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_
 {
 	RECT rect;
 
-	if (g_currentDrawMode->m_index == 0) {
+	if (g_currentRefreshMode->m_index == 0) {
 		return DdrawFlip();
 	}
 
@@ -549,7 +590,7 @@ MechS32 DdrawBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_
 	rect.top = p_top;
 	rect.right = p_right;
 	rect.bottom = p_bottom;
-	if (g_currentDrawMode->m_index == 1) {
+	if (g_currentRefreshMode->m_index == 1) {
 		g_ddrawResult = IDirectDrawSurface_BltFast(g_ddrawBack, 0, 0, g_ddrawBuffer, &rect, DDBLTFAST_WAIT);
 		if (g_ddrawResult != DD_OK) {
 			DebugPrint("DDRAW_BlitRect BltFast(): %d\n", g_ddrawResult & 0xfff);
@@ -786,7 +827,7 @@ MechS32 DdrawLockBuffer()
 		g_ddrawLocked = TRUE;
 	}
 
-	g_unk0x10062cdc->m_pixels = g_ddrawBufferDesc.lpSurface;
-	g_unk0x10062cdc->m_maxX = g_ddrawBufferDesc.lPitch - 1;
+	g_refreshModeBuffer->m_pixels = g_ddrawBufferDesc.lpSurface;
+	g_refreshModeBuffer->m_maxX = g_ddrawBufferDesc.lPitch - 1;
 	return 0;
 }

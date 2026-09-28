@@ -10,133 +10,136 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct DrawCacheEntry {
-	MechS16 m_unk0x00;
-	MechS16 m_unk0x02;
-	undefined4 m_unk0x04;
-	struct DrawCacheEntry* m_unk0x08;
-	struct DrawCacheEntry* m_unk0x0c;
-	struct DrawCacheEntry* m_unk0x10;
-} DrawCacheEntry;
+// A cached resource, followed by its data. DumpResourceCache prints the fields as "ID", "Type"
+// and "Lock". Unlocked entries sit on the purge list, oldest first.
+// SIZE 0x14
+typedef struct ResourceCacheEntry {
+	MechS16 m_id;                           // 0x00
+	MechS16 m_lock;                         // 0x02
+	undefined4 m_type;                      // 0x04 — the four-character type tag
+	struct ResourceCacheEntry* m_next;      // 0x08 — in the g_cacheTable bucket
+	struct ResourceCacheEntry* m_purgeNext; // 0x0c — toward g_purgeListTail
+	struct ResourceCacheEntry* m_purgePrev; // 0x10
+} ResourceCacheEntry;
 
-void FUN_100139e7(DrawCacheEntry* p_entry);
+void FreeCacheEntry(ResourceCacheEntry* p_entry);
 
 // GLOBAL: MW2SHELL 0x10063a54
-DrawCacheEntry** g_unk0x10063a54 = NULL;
+ResourceCacheEntry** g_cacheTable = NULL;
 
-// The number of the next dump FUN_10013b11 writes.
+// The number of the next dump DumpResourceCache writes.
 // GLOBAL: MW2SHELL 0x10063a58
-MechS32 g_unk0x10063a58 = 0;
+MechS32 g_cacheDumpNumber = 0;
 
 // The number of entries.
 // GLOBAL: MW2SHELL 0x10096860
-MechS32 g_unk0x10096860;
+MechS32 g_cacheEntryCount;
 
 // GLOBAL: MW2SHELL 0x10096864
-DrawCacheEntry* g_unk0x10096864;
+ResourceCacheEntry* g_purgeListHead;
 
 // GLOBAL: MW2SHELL 0x10096868
-DrawCacheEntry* g_unk0x10096868;
+ResourceCacheEntry* g_purgeListTail;
 
 // FUNCTION: MW2SHELL 0x10013690
-void FUN_10013690(DrawCacheEntry* p_entry)
+void UnlockCacheEntry(ResourceCacheEntry* p_entry)
 {
-	if (p_entry->m_unk0x02 == 0) {
+	if (p_entry->m_lock == 0) {
 		return;
 	}
 
-	p_entry->m_unk0x02 = 0;
-	if (g_unk0x10096868 != NULL) {
-		g_unk0x10096868->m_unk0x0c = p_entry;
+	p_entry->m_lock = 0;
+	if (g_purgeListTail != NULL) {
+		g_purgeListTail->m_purgeNext = p_entry;
 	}
-	p_entry->m_unk0x10 = g_unk0x10096868;
-	g_unk0x10096868 = p_entry;
-	p_entry->m_unk0x0c = NULL;
-	if (g_unk0x10096864 == NULL) {
-		g_unk0x10096864 = p_entry;
+	p_entry->m_purgePrev = g_purgeListTail;
+	g_purgeListTail = p_entry;
+	p_entry->m_purgeNext = NULL;
+	if (g_purgeListHead == NULL) {
+		g_purgeListHead = p_entry;
 	}
 }
 
-// Operand order: the original compares p_entry against g_unk0x10096864 and g_unk0x10096868 with
+// Operand order: the original compares p_entry against g_purgeListHead and g_purgeListTail with
 // the globals loaded first; it follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10013703
-void FUN_10013703(DrawCacheEntry* p_entry)
+void LockCacheEntry(ResourceCacheEntry* p_entry)
 {
-	if (p_entry->m_unk0x02 == 1) {
+	if (p_entry->m_lock == 1) {
 		return;
 	}
 
-	p_entry->m_unk0x02 = 1;
-	if (p_entry->m_unk0x0c != NULL) {
-		p_entry->m_unk0x0c->m_unk0x10 = p_entry->m_unk0x10;
+	p_entry->m_lock = 1;
+	if (p_entry->m_purgeNext != NULL) {
+		p_entry->m_purgeNext->m_purgePrev = p_entry->m_purgePrev;
 	}
-	if (p_entry->m_unk0x10 != NULL) {
-		p_entry->m_unk0x10->m_unk0x0c = p_entry->m_unk0x0c;
+	if (p_entry->m_purgePrev != NULL) {
+		p_entry->m_purgePrev->m_purgeNext = p_entry->m_purgeNext;
 	}
-	if (p_entry == g_unk0x10096864) {
-		g_unk0x10096864 = p_entry->m_unk0x0c;
+	if (p_entry == g_purgeListHead) {
+		g_purgeListHead = p_entry->m_purgeNext;
 	}
-	if (p_entry == g_unk0x10096868) {
-		g_unk0x10096868 = p_entry->m_unk0x10;
+	if (p_entry == g_purgeListTail) {
+		g_purgeListTail = p_entry->m_purgePrev;
 	}
-	p_entry->m_unk0x0c = NULL;
-	p_entry->m_unk0x10 = NULL;
+	p_entry->m_purgeNext = NULL;
+	p_entry->m_purgePrev = NULL;
 }
 
 // FUNCTION: MW2SHELL 0x100137aa
-void FUN_100137aa(void)
+void AllocateCacheTable(void)
 {
-	g_unk0x10063a54 = (DrawCacheEntry**) calloc(0x3f1, 4);
+	g_cacheTable = (ResourceCacheEntry**) calloc(0x3f1, 4);
 }
 
 // FUNCTION: MW2SHELL 0x100137c9
-void FUN_100137c9(void)
+void RebuildPurgeList(void)
 {
 	MechS32 i;
-	DrawCacheEntry* entry;
+	ResourceCacheEntry* entry;
 
-	g_unk0x10096864 = NULL;
-	g_unk0x10096868 = NULL;
+	g_purgeListHead = NULL;
+	g_purgeListTail = NULL;
 	for (i = 0; i < 0x3f1; i++) {
-		for (entry = g_unk0x10063a54[i]; entry != NULL; entry = entry->m_unk0x08) {
-			if (entry->m_unk0x02 == 0) {
-				entry->m_unk0x02 = 1;
-				FUN_10013690(entry);
+		for (entry = g_cacheTable[i]; entry != NULL; entry = entry->m_next) {
+			if (entry->m_lock == 0) {
+				entry->m_lock = 1;
+				UnlockCacheEntry(entry);
 			}
 		}
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1001385c
-void FUN_1001385c(void)
+void ShutdownResourceCache(void)
 {
 	MechS32 i;
-	DrawCacheEntry* entry;
-	DrawCacheEntry* next;
+	ResourceCacheEntry* entry;
+	ResourceCacheEntry* next;
 
-	if (g_unk0x10063a54 == NULL) {
+	if (g_cacheTable == NULL) {
 		return;
 	}
 
 	for (i = 0; i < 0x3f1; i++) {
-		for (entry = g_unk0x10063a54[i]; entry != NULL; entry = next) {
-			next = entry->m_unk0x08;
-			FUN_100139e7(entry);
+		for (entry = g_cacheTable[i]; entry != NULL; entry = next) {
+			next = entry->m_next;
+			FreeCacheEntry(entry);
 		}
 	}
-	g_unk0x10096860 = 0;
-	g_unk0x10096864 = NULL;
-	g_unk0x10096868 = NULL;
-	free(g_unk0x10063a54);
+	g_cacheEntryCount = 0;
+	g_purgeListHead = NULL;
+	g_purgeListTail = NULL;
+	free(g_cacheTable);
 }
 
 // FUNCTION: MW2SHELL 0x10013907
-void FUN_10013907(void)
+void InitializeResourceCache(void)
 {
-	g_unk0x10096860 = 0;
-	g_unk0x10096864 = 0;
-	g_unk0x10096868 = 0;
-	FUN_100137aa();
+	g_cacheEntryCount = 0;
+	g_purgeListHead = 0;
+	g_purgeListTail = 0;
+	AllocateCacheTable();
 }
 
 // FUNCTION: MW2SHELL 0x10013935
@@ -148,18 +151,18 @@ void FUN_10013935(void)
 // loads type[3] before type[2] in the recompilation; reversing their source order
 // does not change VC++ 4.1's load order.
 // FUNCTION: MW2SHELL 0x10013940
-DrawCacheEntry* FUN_10013940(MechS32 p_id, char* p_type)
+ResourceCacheEntry* FindCacheEntry(MechS32 p_id, char* p_type)
 {
 	MechS32 bucket;
-	DrawCacheEntry* entry;
+	ResourceCacheEntry* entry;
 
 	if (p_id < 0) {
 		return NULL;
 	}
 
 	bucket = ((MechS8) p_type[3] + (MechS8) p_type[2] + (MechS8) p_type[0] + (MechS8) p_type[1] + p_id) % 0x3f1;
-	for (entry = g_unk0x10063a54[bucket]; entry != NULL; entry = entry->m_unk0x08) {
-		if (entry->m_unk0x00 == p_id && entry->m_unk0x04 == *(undefined4*) p_type) {
+	for (entry = g_cacheTable[bucket]; entry != NULL; entry = entry->m_next) {
+		if (entry->m_id == p_id && entry->m_type == *(undefined4*) p_type) {
 			break;
 		}
 	}
@@ -171,10 +174,10 @@ DrawCacheEntry* FUN_10013940(MechS32 p_id, char* p_type)
 // four type bytes use [ebp-8..-5] instead of [ebp-c..-9], the terminator uses
 // [ebp-4] instead of [ebp-8], and bucket uses [ebp-c] instead of [ebp-10].
 // FUNCTION: MW2SHELL 0x100139e7
-void FUN_100139e7(DrawCacheEntry* p_entry)
+void FreeCacheEntry(ResourceCacheEntry* p_entry)
 {
 	MechS32 bucket;
-	DrawCacheEntry* entry;
+	ResourceCacheEntry* entry;
 	MechChar type[5];
 
 	entry = NULL;
@@ -182,22 +185,22 @@ void FUN_100139e7(DrawCacheEntry* p_entry)
 		return;
 	}
 
-	p_entry->m_unk0x02 = 0;
-	FUN_10013703(p_entry);
+	p_entry->m_lock = 0;
+	LockCacheEntry(p_entry);
 	type[4] = '\0';
-	*(undefined4*) type = p_entry->m_unk0x04;
-	bucket = ((MechS8) type[2] + (MechS8) type[3] + (MechS8) type[0] + (MechS8) type[1] + p_entry->m_unk0x00) % 0x3f1;
-	if (g_unk0x10063a54[bucket] == p_entry) {
-		g_unk0x10063a54[bucket] = p_entry->m_unk0x08;
+	*(undefined4*) type = p_entry->m_type;
+	bucket = ((MechS8) type[2] + (MechS8) type[3] + (MechS8) type[0] + (MechS8) type[1] + p_entry->m_id) % 0x3f1;
+	if (g_cacheTable[bucket] == p_entry) {
+		g_cacheTable[bucket] = p_entry->m_next;
 	}
 	else {
-		for (entry = g_unk0x10063a54[bucket]; entry != NULL && entry->m_unk0x08 != NULL; entry = entry->m_unk0x08) {
-			if (entry->m_unk0x08 == p_entry) {
+		for (entry = g_cacheTable[bucket]; entry != NULL && entry->m_next != NULL; entry = entry->m_next) {
+			if (entry->m_next == p_entry) {
 				break;
 			}
 		}
-		if (entry != NULL && entry->m_unk0x08 != NULL) {
-			entry->m_unk0x08 = entry->m_unk0x08->m_unk0x08;
+		if (entry != NULL && entry->m_next != NULL) {
+			entry->m_next = entry->m_next->m_next;
 		}
 		else {
 			return;
@@ -205,42 +208,35 @@ void FUN_100139e7(DrawCacheEntry* p_entry)
 	}
 
 	free(p_entry);
-	g_unk0x10096860--;
+	g_cacheEntryCount--;
 }
 
 // Writes the cache to dbugcch<n>.log: every entry by bucket, then the purge list.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10013b11
-void FUN_10013b11(void)
+void DumpResourceCache(void)
 {
 	MechChar name[100];
-	DrawCacheEntry* entry;
+	ResourceCacheEntry* entry;
 	MechChar type[5];
 	MechS32 i;
 	FILE* file;
 
-	sprintf(name, "dbugcch%d.log", g_unk0x10063a58++);
+	sprintf(name, "dbugcch%d.log", g_cacheDumpNumber++);
 	file = fopen(name, "w");
 	type[4] = '\0';
 	fprintf(file, "Cache table\n-----------------------\n");
 	for (i = 0; i < 0x3f1; i++) {
-		for (entry = g_unk0x10063a54[i]; entry != NULL; entry = entry->m_unk0x08) {
-			*(undefined4*) type = entry->m_unk0x04;
-			fprintf(
-				file,
-				"ID=%5d  Type=%4s  Lock=%d  Size=%7d\n",
-				entry->m_unk0x00,
-				type,
-				entry->m_unk0x02,
-				_msize(entry)
-			);
+		for (entry = g_cacheTable[i]; entry != NULL; entry = entry->m_next) {
+			*(undefined4*) type = entry->m_type;
+			fprintf(file, "ID=%5d  Type=%4s  Lock=%d  Size=%7d\n", entry->m_id, type, entry->m_lock, _msize(entry));
 		}
 	}
 
 	fprintf(file, "\nPurge list\n-----------------------\n");
-	for (entry = g_unk0x10096864; entry != NULL; entry = entry->m_unk0x0c) {
-		*(undefined4*) type = entry->m_unk0x04;
-		fprintf(file, "ID=%5d  Type=%4s  Lock=%d  Size=%7d\n", entry->m_unk0x00, type, entry->m_unk0x02, _msize(entry));
+	for (entry = g_purgeListHead; entry != NULL; entry = entry->m_purgeNext) {
+		*(undefined4*) type = entry->m_type;
+		fprintf(file, "ID=%5d  Type=%4s  Lock=%d  Size=%7d\n", entry->m_id, type, entry->m_lock, _msize(entry));
 	}
 
 	fclose(file);
@@ -252,24 +248,24 @@ void FUN_10013c6e(void)
 }
 
 // FUNCTION: MW2SHELL 0x10013c79
-void FUN_10013c79(MechS32 p_id, char* p_type)
+void UnlockCachedResource(MechS32 p_id, char* p_type)
 {
-	DrawCacheEntry* entry = FUN_10013940(p_id, p_type);
+	ResourceCacheEntry* entry = FindCacheEntry(p_id, p_type);
 	if (entry == NULL) {
 		return;
 	}
 
-	FUN_10013690(entry);
+	UnlockCacheEntry(entry);
 }
 
 // Returns the data of p_type item p_id of p_handle, loading it into the cache when needed and
 // purging the least recently used entries to make room.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10013cb5
-void* FUN_10013cb5(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
+void* LoadCachedResource(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
 {
-	DrawCacheEntry* entry;
-	DrawCacheEntry* block;
+	ResourceCacheEntry* entry;
+	ResourceCacheEntry* block;
 	MechS32 bucket;
 	MechS32 size;
 	FILE* log;
@@ -279,22 +275,22 @@ void* FUN_10013cb5(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x
 		return NULL;
 	}
 
-	entry = FUN_10013940(p_id, p_type);
+	entry = FindCacheEntry(p_id, p_type);
 	if (entry != NULL) {
-		FUN_10013703(entry);
+		LockCacheEntry(entry);
 		return entry + 1;
 	}
 
-	if (g_unk0x10096860 >= 1000) {
-		if (g_unk0x10096864 != NULL) {
-			FUN_100139e7(g_unk0x10096864);
+	if (g_cacheEntryCount >= 1000) {
+		if (g_purgeListHead != NULL) {
+			FreeCacheEntry(g_purgeListHead);
 		}
 		else {
 			return NULL;
 		}
 	}
 
-	size = FUN_100303b5(p_handle, p_type, p_id);
+	size = GetArchiveItemSize(p_handle, p_type, p_id);
 	if (size <= 0) {
 		log = fopen("symlog.txt", "a");
 		if (log != NULL) {
@@ -304,16 +300,16 @@ void* FUN_10013cb5(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x
 		return NULL;
 	}
 
-	while ((block = (DrawCacheEntry*) malloc(size + sizeof(DrawCacheEntry))) == NULL) {
-		if (g_unk0x10096864 != NULL) {
-			FUN_100139e7(g_unk0x10096864);
+	while ((block = (ResourceCacheEntry*) malloc(size + sizeof(ResourceCacheEntry))) == NULL) {
+		if (g_purgeListHead != NULL) {
+			FreeCacheEntry(g_purgeListHead);
 		}
 		else {
 			return NULL;
 		}
 	}
 
-	if (FUN_1003066e(p_handle, p_type, p_id, block + 1) == -1) {
+	if (ReadArchiveItem(p_handle, p_type, p_id, block + 1) == -1) {
 		file = fopen("symlog.txt", "a");
 		if (file != NULL) {
 			fprintf(file, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
@@ -323,26 +319,26 @@ void* FUN_10013cb5(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x
 	}
 
 	bucket = ((MechS8) p_type[2] + (MechS8) p_type[3] + (MechS8) p_type[0] + (MechS8) p_type[1] + p_id) % 0x3f1;
-	block->m_unk0x08 = g_unk0x10063a54[bucket];
-	g_unk0x10063a54[bucket] = block;
-	block->m_unk0x02 = 1;
-	block->m_unk0x00 = p_id;
-	block->m_unk0x04 = *(undefined4*) p_type;
-	block->m_unk0x0c = NULL;
-	block->m_unk0x10 = NULL;
-	g_unk0x10096860++;
+	block->m_next = g_cacheTable[bucket];
+	g_cacheTable[bucket] = block;
+	block->m_lock = 1;
+	block->m_id = p_id;
+	block->m_type = *(undefined4*) p_type;
+	block->m_purgeNext = NULL;
+	block->m_purgePrev = NULL;
+	g_cacheEntryCount++;
 	return block + 1;
 }
 
 // FUNCTION: MW2SHELL 0x10013ef4
-void FUN_10013ef4(MechS32 p_id, char* p_type)
+void FreeCachedResource(MechS32 p_id, char* p_type)
 {
-	DrawCacheEntry* entry = FUN_10013940(p_id, p_type);
+	ResourceCacheEntry* entry = FindCacheEntry(p_id, p_type);
 	if (entry == NULL) {
 		return;
 	}
 
-	FUN_100139e7(entry);
+	FreeCacheEntry(entry);
 }
 
 // FUNCTION: MW2SHELL 0x10013f30
@@ -359,14 +355,14 @@ undefined4 FUN_10013f3b(undefined4 p_value)
 // FUNCTION: MW2SHELL 0x10013f4e
 void* FUN_10013f4e(MechS32 p_id, char* p_type)
 {
-	return FUN_10013cb5(0, p_id, p_type, 0);
+	return LoadCachedResource(0, p_id, p_type, 0);
 }
 
 // FUNCTION: MW2SHELL 0x10013f72
-MechS32 FUN_10013f72(void)
+MechS32 PurgeOldestCacheEntry(void)
 {
-	if (g_unk0x10096864 != NULL) {
-		FUN_100139e7(g_unk0x10096864);
+	if (g_purgeListHead != NULL) {
+		FreeCacheEntry(g_purgeListHead);
 		return 1;
 	}
 

@@ -21,24 +21,24 @@ TextGlyphList::~TextGlyphList()
 }
 
 // FUNCTION: MW2SHELL 0x1003e171
-void TextGlyphList::FUN_1003e171(TextGlyph* p_item)
+void TextGlyphList::Add(TextGlyph* p_item)
 {
 	ExpandCollection(m_items, p_item);
 }
 
 // FUNCTION: MW2SHELL 0x1003e19b
-void TextGlyphList::FUN_1003e19b(TextGlyph* p_item)
+void TextGlyphList::Remove(TextGlyph* p_item)
 {
 	MechS32 index;
 
-	index = FUN_1003c45f(m_items, p_item);
+	index = CollectionFind(m_items, p_item);
 	if (index >= 0) {
-		FUN_1003c3ba(m_items, p_item, FALSE);
+		CollectionRemove(m_items, p_item, FALSE);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1003e1e6
-void TextGlyphList::FUN_1003e1e6(MechU8 p_delete)
+void TextGlyphList::Clear(MechU8 p_delete)
 {
 	TextGlyph* item;
 
@@ -56,7 +56,7 @@ void TextGlyphList::FUN_1003e1e6(MechU8 p_delete)
 }
 
 // FUNCTION: MW2SHELL 0x1003e286
-void TextGlyphList::FUN_1003e286()
+void TextGlyphList::DrawAll()
 {
 	MechS32 i;
 	TextGlyph* item;
@@ -64,7 +64,7 @@ void TextGlyphList::FUN_1003e286()
 	for (i = 0; i < m_items->m_count; i++) {
 		item = (TextGlyph*) CollectionGet(m_items, i);
 		if (item != NULL) {
-			item->FUN_10047425();
+			item->Draw();
 		}
 	}
 }

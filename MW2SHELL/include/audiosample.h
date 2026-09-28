@@ -17,7 +17,7 @@ public:
 	void DoFade();
 	void EnableLoop();
 	void Start();
-	void FUN_1003d709();
+	void PlayAndWait();
 	void Stop();
 	undefined IsPlaying();
 	void SetVolume(MechS32 p_volume);

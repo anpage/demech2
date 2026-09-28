@@ -63,11 +63,11 @@ public:
 	MechS32 AppendWord(MechChar* p_line, MechChar* p_word, MechS32 p_width);
 	MechChar* Layout(MechChar* p_text);
 	void AddGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top);
-	void FUN_100458ff();
-	void FUN_1004596f();
-	void FUN_10045a2b();
-	void FUN_10045ab0();
-	void FUN_10045b38(undefined* p_data, MechS32 p_size);
+	void Show();
+	void Restart();
+	void TypeStep();
+	void Hide();
+	void SetBanner(undefined* p_data, MechS32 p_size);
 
 private:
 	Collection* m_glyphs;       // 0x00

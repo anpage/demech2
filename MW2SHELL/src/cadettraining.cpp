@@ -4,12 +4,12 @@
 #include "audiosubsystem.h"
 #include "buttonmenu.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "mainmenubutton.h"
 #include "menudata.h"
 #include "menuscreen.h"
 #include "missionui.h"
 #include "mousestate.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "tmpackdatabase.h"
@@ -50,57 +50,63 @@ ButtonMenu* g_unk0x10090668;
 // GLOBAL: MW2SHELL 0x1009066c
 WPARAM g_unk0x1009066c;
 
-void FUN_1003c966(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
+void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
 // Sets up the campaign's training screen: its first button, its background and the videos of
 // the trainer.
 // FUNCTION: MW2SHELL 0x1003c7e0
-void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
+void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
 {
 	g_unk0x1009066c = p_wParam;
 	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006ffc0[p_campaign].m_buttons, 1);
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ffc0[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ffc0[p_campaign].m_picture);
 
 	switch (p_campaign) {
 	case 0:
-		FUN_10017460(0, "awotrnwn", 0x1c5, 0, 0x42, 0);
-		FUN_10017460(3, "awotrnwa", 0x48, 0xe0, 2, 0);
+		PlayVideo(0, "awotrnwn", 0x1c5, 0, 0x42, 0);
+		PlayVideo(3, "awotrnwa", 0x48, 0xe0, 2, 0);
 		break;
 	case 1:
-		FUN_10017460(0, "ajftrnwn", 0x1a0, 0, 0x42, 0);
-		FUN_10017460(3, "ajftrnwa", 0x48, 0xe0, 2, 0);
+		PlayVideo(0, "ajftrnwn", 0x1a0, 0, 0x42, 0);
+		PlayVideo(3, "ajftrnwa", 0x48, 0xe0, 2, 0);
 		break;
 	}
 
 	srand(clock());
-	FUN_100108e5(FUN_1003c966);
+	RegisterScreenFunction(CadetTrainingCallback);
 }
 
 // The training screen's frame: once the trainer's welcome is over, the mission buttons and the
 // room's sound; EXIT, or a training mission after the trainer's video.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003c966
-void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg)
+void CadetTrainingCallback(
+	TMPackDataBase* p_database,
+	MechS32* p_campaign,
+	MechU8*,
+	MechChar** p_scenario,
+	MechS32 p_msg
+)
 {
 	void* data = NULL;
 	MechS32 i;
 	MechS32 button;
 	MechS32 size;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (g_fQuickTips && !g_unk0x1006acdc && g_unk0x1009066c == 0x407 && g_unk0x1006acd0) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_unk0x1006acdc = 1;
 	}
 
-	if (!g_unk0x1006acd0 && !FUN_10016b11(0)) {
+	if (!g_unk0x1006acd0 && !IsVideoPlaying(0)) {
 		g_unk0x1006acd0 = 1;
 		for (i = 1; i < g_unk0x1006ffc0[*p_campaign].m_count; i++) {
-			g_unk0x10090668->FUN_10048b95(g_unk0x1006ffc0[*p_campaign].m_buttons[i], i, FALSE);
+			g_unk0x10090668->AddButton(g_unk0x1006ffc0[*p_campaign].m_buttons[i], i, FALSE);
 		}
 
 		p_database->GetDBItem(0x4c, &data, &size);
@@ -110,15 +116,15 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 		g_unk0x1006acd8->Start();
 	}
 
-	if (!FUN_10016b11(3)) {
+	if (!IsVideoPlaying(3)) {
 		if (!g_unk0x1006accc) {
 			switch (*p_campaign) {
 			case 0:
-				FUN_10017460(3, g_unk0x1006acc8 ? "awotrnwa" : "awotrnwb", 0x48, 0xe0, 2, 0);
+				PlayVideo(3, g_unk0x1006acc8 ? "awotrnwa" : "awotrnwb", 0x48, 0xe0, 2, 0);
 				g_unk0x1006acc8 = 1 - g_unk0x1006acc8;
 				break;
 			case 1:
-				FUN_10017460(3, g_unk0x1006acc8 ? "ajftrnwa" : "ajftrnwb", 0x48, 0xe0, 2, 0);
+				PlayVideo(3, g_unk0x1006acc8 ? "ajftrnwa" : "ajftrnwb", 0x48, 0xe0, 2, 0);
 				g_unk0x1006acc8 = 1 - g_unk0x1006acc8;
 				break;
 			}
@@ -130,7 +136,7 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 	}
 
 	if (g_unk0x1006acd4 == -1) {
-		button = g_unk0x10090668->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_unk0x10090668->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -148,23 +154,23 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 			g_unk0x1006acd8 = NULL;
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x1006acd4 = FUN_10017460(0x10, "awotrndr", 0x230, 0xa8, 2, 0);
+				g_unk0x1006acd4 = PlayVideo(0x10, "awotrndr", 0x230, 0xa8, 2, 0);
 				break;
 			case 1:
-				g_unk0x1006acd4 = FUN_10017460(0x10, "ajftrndr", 0x21c, 0xa8, 2, 0);
+				g_unk0x1006acd4 = PlayVideo(0x10, "ajftrndr", 0x21c, 0xa8, 2, 0);
 				break;
 			}
 			break;
 		}
 	}
-	else if (!FUN_10016b11(g_unk0x1006acd4)) {
+	else if (!IsVideoPlaying(g_unk0x1006acd4)) {
 		g_unk0x1006acd4 = -1;
 		p_msg = 0x410;
 	}
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x10090668;
 		delete g_unk0x1006acd8;
 		g_unk0x1006acd8 = NULL;
@@ -173,6 +179,6 @@ done:
 		g_unk0x1006accc = -1;
 		g_unk0x1006acd0 = 0;
 		PostMessage(g_pWnd, p_msg, 0x414, 0);
-		FUN_100108fd(FUN_1003c966);
+		UnregisterScreenFunction(CadetTrainingCallback);
 	}
 }

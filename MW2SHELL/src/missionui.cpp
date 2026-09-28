@@ -4,7 +4,6 @@
 #include "buttonmenu.h"
 #include "customstar.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "formation.h"
 #include "mainmenubutton.h"
@@ -14,6 +13,7 @@
 #include "menudata.h"
 #include "mousestate.h"
 #include "projectarchive.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "simhandoff.h"
@@ -35,24 +35,24 @@
 // A mech's name on the briefing screen: its glyph and the mech type it shows.
 struct MechNameTag {
 	TextGlyph* m_glyph; // 0x00
-	MechS32 m_type;     // 0x04 — an index into g_unk0x10061560, negative for none
+	MechS32 m_type;     // 0x04 — an index into g_mechChassis, negative for none
 };
 
 // SIZE 0x20
 // A star in a mission's BWD file (node type 0x46). Its mechs' variant names follow, one per
 // mech of the star's size.
 struct BwdStar {
-	MechS32 m_unk0x00;           // 0x00
-	MechS32 m_unk0x04;           // 0x04 — tonnage
-	MechS32 m_unk0x08;           // 0x08 — mechs
-	MechS32 m_unk0x0c;           // 0x0c — size
-	MechChar m_unk0x10[1][0x10]; // 0x10 — variant names
+	MechS32 m_unk0x00;            // 0x00
+	MechS32 m_tonnage;            // 0x04
+	MechS32 m_count;              // 0x08
+	MechS32 m_size;               // 0x0c
+	MechChar m_variants[1][0x10]; // 0x10
 };
 
 DECOMP_SIZE_ASSERT(MechNameTag, 0x08)
 DECOMP_SIZE_ASSERT(Formation, 0x08)
 
-MechS32 FUN_10017460(
+MechS32 PlayVideo(
 	MechS32 p_index,
 	const char* p_name,
 	undefined4 p_unk0x08,
@@ -60,7 +60,7 @@ MechS32 FUN_10017460(
 	MechU32 p_unk0x10,
 	MechU32 p_unk0x14
 );
-void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
+void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
 // The briefing videos of the missions, each with its looping continuation.
 // GLOBAL: MW2SHELL 0x1006a1c0
@@ -98,14 +98,14 @@ MechChar* g_unk0x1006a250[6] = {"wiawolf", "wiajf", "wiaghost", "wiasmoke", "wia
 
 // The names of the mechs of the player's star...
 // GLOBAL: MW2SHELL 0x1006a268
-MechNameTag g_unk0x1006a268[3] = {0};
+MechNameTag g_playerMechTags[3] = {0};
 
 // ...and of the enemy's.
 // GLOBAL: MW2SHELL 0x1006a280
-MechNameTag g_unk0x1006a280[3] = {0};
+MechNameTag g_enemyMechTags[3] = {0};
 
 // GLOBAL: MW2SHELL 0x1006a298
-MechS32 g_unk0x1006a298 = 0xf;
+MechS32 g_briefingChassisCount = 0xf;
 
 // The briefing video, an index into g_unk0x1006a1c0.
 // GLOBAL: MW2SHELL 0x1006a29c
@@ -165,15 +165,15 @@ MechS32 g_unk0x10090280;
 
 // Sets up a star from a BWD star node, and registers its mechs' variants.
 // FUNCTION: MW2SHELL 0x10037c60
-void FUN_10037c60(MechS32 p_star, BwdStar* p_data)
+void LoadStar(MechS32 p_star, BwdStar* p_data)
 {
 	MechS32 i;
 
-	FUN_10003175(p_star, 0, p_data->m_unk0x0c, p_data->m_unk0x08, p_data->m_unk0x04);
-	for (i = 0; i < p_data->m_unk0x0c; i++) {
-		FUN_10002de7(i, p_data->m_unk0x10[i], NULL);
+	SelectStar(p_star, 0, p_data->m_size, p_data->m_count, p_data->m_tonnage);
+	for (i = 0; i < p_data->m_size; i++) {
+		SetStarMech(i, p_data->m_variants[i], NULL);
 	}
-	FUN_10003175(p_star, 0, p_data->m_unk0x0c, p_data->m_unk0x08, p_data->m_unk0x04);
+	SelectStar(p_star, 0, p_data->m_size, p_data->m_count, p_data->m_tonnage);
 }
 
 // Reads the mission's BWD file (the scenario's first four letters + "brf2"): its briefing
@@ -195,41 +195,41 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 	name[4] = '\0';
 	strcat(name, "brf2");
 
-	file = (MechS32*) g_unk0x10071230->FUN_1002e3cf(name, 0xe, "BWD");
+	file = (MechS32*) g_projectArchive->GetResourceByName(name, 0xe, "BWD");
 	if (!file) {
 		return;
 	}
 
-	title = g_unk0x10071230->FUN_1002e47a(file, 0x47, NULL);
+	title = g_projectArchive->FindNextBwdNode(file, 0x47, NULL);
 	if (title) {
 		strcpy(g_unk0x1006a550, (MechChar*) (title + 2));
 	}
 
 	if (p_stars) {
-		star = g_unk0x10071230->FUN_1002e47a(file, 0x46, NULL);
+		star = g_projectArchive->FindNextBwdNode(file, 0x46, NULL);
 		if (star) {
-			FUN_10037c60(0, (BwdStar*) (star + 2));
+			LoadStar(0, (BwdStar*) (star + 2));
 		}
 
-		star = g_unk0x10071230->FUN_1002e47a(file, 0x46, star);
+		star = g_projectArchive->FindNextBwdNode(file, 0x46, star);
 		if (star) {
-			FUN_10037c60(1, (BwdStar*) (star + 2));
+			LoadStar(1, (BwdStar*) (star + 2));
 			g_unk0x10066a44 = star[2];
 		}
 	}
 
-	FUN_10003175(0, -1, -1, -1, -1);
-	FUN_10002de7(0, NULL, NULL);
+	SelectStar(0, -1, -1, -1, -1);
+	SetStarMech(0, NULL, NULL);
 
 	if (p_video) {
-		briefing = g_unk0x10071230->FUN_1002e47a(file, 0x45, NULL);
+		briefing = g_projectArchive->FindNextBwdNode(file, 0x45, NULL);
 		if (briefing) {
 			g_unk0x1006a29c = briefing[2] - 1;
 			if (g_unk0x1006a29c < 0 || g_unk0x1006a29c >= 12) {
 				g_unk0x1006a29c = 0;
 			}
 
-			FUN_10017460(0, g_unk0x1006a1c0[g_unk0x1006a29c][0], 0x19e, 10, 0x42, 0);
+			PlayVideo(0, g_unk0x1006a1c0[g_unk0x1006a29c][0], 0x19e, 10, 0x42, 0);
 
 			pos = 0;
 			for (i = 0; i < 3; i++, pos++) {
@@ -247,13 +247,13 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 		}
 	}
 
-	g_unk0x10071230->FUN_1002e445(name, 0xe, "BWD");
+	g_projectArchive->ReleaseResourceByName(name, 0xe, "BWD");
 }
 
 // Shows the name of mech type p_type at (p_left, p_top), replacing the tag's previous glyph.
 // Not 100%: the stack slot of text is permuted with the delete temporaries.
 // FUNCTION: MW2SHELL 0x10037feb
-void FUN_10037feb(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_top)
+void ShowMechName(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_top)
 {
 	MechChar* text;
 
@@ -263,7 +263,7 @@ void FUN_10037feb(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_
 	}
 
 	if (p_type >= 0) {
-		text = g_unk0x10061560[p_tag->m_type].m_unk0x0c;
+		text = g_mechChassis[p_tag->m_type].m_name;
 	}
 	else {
 		text = "[none]";
@@ -274,11 +274,11 @@ void FUN_10037feb(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_
 
 // Shows the formation names of both stars.
 // FUNCTION: MW2SHELL 0x10038093
-void FUN_10038093()
+void ShowFormationNames()
 {
 	POINT* pos;
 
-	g_unk0x1009016c = FUN_100030e5(0);
+	g_unk0x1009016c = GetStarFormation(0);
 	if (g_unk0x1006a2a4) {
 		delete g_unk0x1006a2a4;
 	}
@@ -286,7 +286,7 @@ void FUN_10038093()
 	g_unk0x1006a2a4 =
 		g_unk0x10071210->FUN_1000544e(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x1009016c].m_unk0x04, g_unk0x10090058);
 
-	g_unk0x10090178 = FUN_100030e5(1);
+	g_unk0x10090178 = GetStarFormation(1);
 	if (g_unk0x1006a2a0) {
 		delete g_unk0x1006a2a0;
 	}
@@ -298,18 +298,18 @@ void FUN_10038093()
 // Picks a value by the pilot of the player's first mech: 0x12 for Enzo, 0x11 for Hobbes, 0x10
 // for Calvin and 0xf for anyone else.
 // FUNCTION: MW2SHELL 0x100381c2
-MechS32 FUN_100381c2()
+MechS32 GetChassisCount()
 {
 	CustomStar* star;
 
-	star = FUN_1000312e(0);
-	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Enzo")) {
+	star = GetStar(0);
+	if (!strcmp(star->m_mechs[0].m_pilot, "Enzo")) {
 		return 0x12;
 	}
-	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Hobbes")) {
+	if (!strcmp(star->m_mechs[0].m_pilot, "Hobbes")) {
 		return 0x11;
 	}
-	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Calvin")) {
+	if (!strcmp(star->m_mechs[0].m_pilot, "Calvin")) {
 		return 0x10;
 	}
 
@@ -319,7 +319,7 @@ MechS32 FUN_100381c2()
 // Sets up the mission briefing screen. p_wParam is WM_USER + 0xe for a trial.
 // Not 100%: the stack slots of pos, audioData, i and audioSize are permuted.
 // FUNCTION: MW2SHELL 0x100382e6
-void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wParam)
+void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wParam)
 {
 	POINT* pos;
 	void* audioData = NULL;
@@ -327,7 +327,7 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 	MechS32 audioSize;
 
 	g_unk0x10090174 = p_wParam;
-	g_unk0x1006a298 = FUN_100381c2();
+	g_briefingChassisCount = GetChassisCount();
 
 	for (i = 1; i < 0x100; i++) {
 		g_unk0x10090058[i] = i;
@@ -357,36 +357,36 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 	ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], p_wParam == 0x40e, 1);
 
 	g_unk0x10090170 = 0;
-	FUN_10017460(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
+	PlayVideo(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
 	g_unk0x10090158 = 1;
-	FUN_10017460(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+	PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
 
 	for (i = 0; i < 3; i++) {
-		g_unk0x1006a268[i].m_glyph = NULL;
+		g_playerMechTags[i].m_glyph = NULL;
 		pos = &g_unk0x1006f618[i + 3].m_textPos;
-		FUN_10003175(0, -1, -1, -1, -1);
-		FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+		SelectStar(0, -1, -1, -1, -1);
+		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 
-		g_unk0x1006a280[i].m_glyph = NULL;
+		g_enemyMechTags[i].m_glyph = NULL;
 		pos = &g_unk0x1006f618[i + 0xe].m_textPos;
-		FUN_10003175(1, -1, -1, -1, -1);
-		FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		SelectStar(1, -1, -1, -1, -1);
+		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 	}
-	FUN_10003175(0, -1, -1, -1, -1);
+	SelectStar(0, -1, -1, -1, -1);
 
 	g_unk0x1006a2a0 = NULL;
 	g_unk0x1006a2a4 = NULL;
-	FUN_10038093();
+	ShowFormationNames();
 
 	if (g_unk0x1006a2b4) {
 		g_unk0x1006a2b4->SetVolume(0x1e);
 		g_unk0x1006a2b4->Start();
 	}
 
-	FUN_10017460(0x10, "wialanch", 0xd1, 0x173, 0x24, 0);
-	FUN_100108e5(FUN_10038744);
-	g_pVideoDriver->FUN_10006c50(p_database, 9);
-	FUN_1001661b();
+	PlayVideo(0x10, "wialanch", 0xd1, 0x173, 0x24, 0);
+	RegisterScreenFunction(MissionBriefingCallback);
+	g_pVideoDriver->LoadBackground(p_database, 9);
+	UpdateVideos();
 	g_pVideoDriver->DrawShell();
 }
 
@@ -394,32 +394,32 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 // and formations of both stars (next and previous), and the two stars' accept and config.
 // Not 100%: the stack slots of pos, variant, i and button are permuted.
 // FUNCTION: MW2SHELL 0x10038744
-void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, MechS32 p_msg)
+void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, MechS32 p_msg)
 {
 	POINT* pos;
 	MechChar* variant;
 	MechS32 i;
 	MechS32 button;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (g_fQuickTips && !g_unk0x1006a2b8 && g_unk0x10090174 == 0x40e) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x6f), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x6f), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_unk0x1006a2b8 = 1;
 	}
 
-	button = g_unk0x1006a2a8->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_unk0x1006a2a8->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	switch (button) {
 	case 0:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		FUN_10016d27(0x10);
-		FUN_1001661b();
-		g_unk0x1006a2b0->FUN_1003d709();
+		UpdateVideos();
+		g_unk0x1006a2b0->PlayAndWait();
 		PrjBuildPlayerStarTemplates(g_unk0x10090170, g_unk0x10090158);
 		p_msg = 0x410;
 		break;
@@ -441,15 +441,15 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], 1, 1);
 		for (i = 0; i < 3; i++) {
 			pos = &g_unk0x1006f618[i + 3].m_textPos;
-			FUN_10003175(0, -1, -1, -1, -1);
-			FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+			SelectStar(0, -1, -1, -1, -1);
+			ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 
 			pos = &g_unk0x1006f618[i + 0xe].m_textPos;
-			FUN_10003175(1, -1, -1, -1, -1);
-			FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+			SelectStar(1, -1, -1, -1, -1);
+			ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		}
-		FUN_10003175(0, -1, -1, -1, -1);
-		FUN_10038093();
+		SelectStar(0, -1, -1, -1, -1);
+		ShowFormationNames();
 		break;
 	case 11:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -465,7 +465,7 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (g_unk0x10090170 >= 6) {
 			g_unk0x10090170 = 0;
 		}
-		FUN_10017460(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
+		PlayVideo(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
 		break;
 	case 22:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -481,7 +481,7 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (g_unk0x10090158 >= 6) {
 			g_unk0x10090158 = 0;
 		}
-		FUN_10017460(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+		PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
 		break;
 	case 3:
 	case 4:
@@ -492,17 +492,17 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		pos = &g_unk0x1006f618[button].m_textPos;
 		i = button - 3;
 		do {
-			g_unk0x1006a268[i].m_type++;
-			if (g_unk0x1006a268[i].m_type >= g_unk0x1006a298) {
-				g_unk0x1006a268[i].m_type = -1;
+			g_playerMechTags[i].m_type++;
+			if (g_playerMechTags[i].m_type >= g_briefingChassisCount) {
+				g_playerMechTags[i].m_type = -1;
 				variant = "";
 			}
 			else {
-				variant = g_unk0x10061560[g_unk0x1006a268[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_playerMechTags[i].m_type].m_prefix;
 			}
-			FUN_10003175(0, -1, -1, -1, -1);
-		} while (!FUN_10002de7(i, variant, NULL));
-		FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+			SelectStar(0, -1, -1, -1, -1);
+		} while (!SetStarMech(i, variant, NULL));
+		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 7:
 	case 8:
@@ -513,19 +513,19 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		pos = &g_unk0x1006f618[button - 4].m_textPos;
 		i = button - 7;
 		do {
-			g_unk0x1006a268[i].m_type--;
-			if (g_unk0x1006a268[i].m_type == -1) {
+			g_playerMechTags[i].m_type--;
+			if (g_playerMechTags[i].m_type == -1) {
 				variant = "";
 			}
 			else {
-				if (g_unk0x1006a268[i].m_type == -2) {
-					g_unk0x1006a268[i].m_type = g_unk0x1006a298 - 1;
+				if (g_playerMechTags[i].m_type == -2) {
+					g_playerMechTags[i].m_type = g_briefingChassisCount - 1;
 				}
-				variant = g_unk0x10061560[g_unk0x1006a268[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_playerMechTags[i].m_type].m_prefix;
 			}
-			FUN_10003175(0, -1, -1, -1, -1);
-		} while (!FUN_10002de7(i, variant, NULL));
-		FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+			SelectStar(0, -1, -1, -1, -1);
+		} while (!SetStarMech(i, variant, NULL));
+		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 14:
 	case 15:
@@ -536,17 +536,17 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		pos = &g_unk0x1006f618[button].m_textPos;
 		i = button - 14;
 		do {
-			g_unk0x1006a280[i].m_type++;
-			if (g_unk0x1006a280[i].m_type >= g_unk0x1006a298) {
-				g_unk0x1006a280[i].m_type = -1;
+			g_enemyMechTags[i].m_type++;
+			if (g_enemyMechTags[i].m_type >= g_briefingChassisCount) {
+				g_enemyMechTags[i].m_type = -1;
 				variant = "";
 			}
 			else {
-				variant = g_unk0x10061560[g_unk0x1006a280[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_enemyMechTags[i].m_type].m_prefix;
 			}
-			FUN_10003175(1, -1, -1, -1, -1);
-		} while (!FUN_10002de7(i, variant, NULL));
-		FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+			SelectStar(1, -1, -1, -1, -1);
+		} while (!SetStarMech(i, variant, NULL));
+		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 18:
 	case 19:
@@ -557,19 +557,19 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		pos = &g_unk0x1006f618[button - 4].m_textPos;
 		i = button - 18;
 		do {
-			g_unk0x1006a280[i].m_type--;
-			if (g_unk0x1006a280[i].m_type == -1) {
+			g_enemyMechTags[i].m_type--;
+			if (g_enemyMechTags[i].m_type == -1) {
 				variant = "";
 			}
 			else {
-				if (g_unk0x1006a280[i].m_type == -2) {
-					g_unk0x1006a280[i].m_type = g_unk0x1006a298 - 1;
+				if (g_enemyMechTags[i].m_type == -2) {
+					g_enemyMechTags[i].m_type = g_briefingChassisCount - 1;
 				}
-				variant = g_unk0x10061560[g_unk0x1006a280[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_enemyMechTags[i].m_type].m_prefix;
 			}
-			FUN_10003175(1, -1, -1, -1, -1);
-		} while (!FUN_10002de7(i, variant, NULL));
-		FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+			SelectStar(1, -1, -1, -1, -1);
+		} while (!SetStarMech(i, variant, NULL));
+		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 6:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -579,8 +579,8 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (g_unk0x1009016c >= 6) {
 			g_unk0x1009016c = 0;
 		}
-		FUN_10003175(0, g_unk0x1009016c, -1, -1, -1);
-		FUN_10038093();
+		SelectStar(0, g_unk0x1009016c, -1, -1, -1);
+		ShowFormationNames();
 		break;
 	case 10:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -589,8 +589,8 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (--g_unk0x1009016c < 0) {
 			g_unk0x1009016c = 5;
 		}
-		FUN_10003175(0, g_unk0x1009016c, -1, -1, -1);
-		FUN_10038093();
+		SelectStar(0, g_unk0x1009016c, -1, -1, -1);
+		ShowFormationNames();
 		break;
 	case 17:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -600,8 +600,8 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (g_unk0x10090178 >= 6) {
 			g_unk0x10090178 = 0;
 		}
-		FUN_10003175(1, g_unk0x10090178, -1, -1, -1);
-		FUN_10038093();
+		SelectStar(1, g_unk0x10090178, -1, -1, -1);
+		ShowFormationNames();
 		break;
 	case 21:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -610,58 +610,58 @@ void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, Mec
 		if (--g_unk0x10090178 < 0) {
 			g_unk0x10090178 = 5;
 		}
-		FUN_10003175(1, g_unk0x10090178, -1, -1, -1);
-		FUN_10038093();
+		SelectStar(1, g_unk0x10090178, -1, -1, -1);
+		ShowFormationNames();
 		break;
 	case 13:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = 0x413;
-		FUN_10003175(0, -1, -1, -1, -1);
+		SelectStar(0, -1, -1, -1, -1);
 		break;
 	case 24:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = 0x413;
-		FUN_10003175(1, -1, -1, -1, -1);
+		SelectStar(1, -1, -1, -1, -1);
 		break;
 	case 12:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = 0x40f;
-		FUN_10003175(0, -1, -1, -1, -1);
+		SelectStar(0, -1, -1, -1, -1);
 		break;
 	case 23:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = 0x40f;
-		FUN_10003175(1, -1, -1, -1, -1);
+		SelectStar(1, -1, -1, -1, -1);
 		break;
 	default:
 		break;
 	}
 
-	if (!FUN_10016b11(0)) {
-		FUN_10017460(0, g_unk0x1006a1c0[g_unk0x1006a29c][1], 0x19e, 10, 0x4a, 0);
+	if (!IsVideoPlaying(0)) {
+		PlayVideo(0, g_unk0x1006a1c0[g_unk0x1006a29c][1], 0x19e, 10, 0x4a, 0);
 	}
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10016f45();
+		CloseAllVideos();
 		delete g_unk0x1006a2a8;
 		delete g_unk0x1006a2b0;
 		if (g_unk0x1006a2b4) {
 			delete g_unk0x1006a2b4;
 			g_unk0x1006a2b4 = NULL;
 		}
-		g_pVideoDriver->FUN_100077b4(TRUE);
+		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_unk0x10090288.m_unk0x110 = g_unk0x10090280;
 		g_unk0x1006a2b8 = 0;
 		PostMessage(g_pWnd, p_msg, 0x40d, 0);
-		FUN_100108fd(FUN_10038744);
+		UnregisterScreenFunction(MissionBriefingCallback);
 	}
 }

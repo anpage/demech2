@@ -4,6 +4,6 @@
 #include "types.h"
 
 // The functions and globals of credits.cpp that other units use.
-void FUN_10046e80();
+void DrawCredits();
 
 #endif // CREDITS_H

@@ -12,7 +12,7 @@
 
 // Returns a copy of the string on the primary heap, or NULL for an empty string.
 // FUNCTION: MW2SHELL 0x10030900
-MechChar* FUN_10030900(MechChar* p_string)
+MechChar* AllocateString(MechChar* p_string)
 {
 	MechChar* copy;
 
@@ -33,7 +33,7 @@ MechChar* FUN_10030900(MechChar* p_string)
 
 // Uppercases a string in place and returns the same pointer.
 // FUNCTION: MW2SHELL 0x100309b6
-MechChar* FUN_100309b6(MechChar* p_string)
+MechChar* UppercaseString(MechChar* p_string)
 {
 	MechU32 i;
 

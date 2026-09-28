@@ -5,7 +5,7 @@
 #include "types.h"
 
 #pragma pack(1)
-// One palette entry, 6 bits per component (the draw modes scale them by 4 for Windows).
+// One palette entry, 6 bits per component (the display back ends scale them by 4 for Windows).
 // SIZE 0x03
 struct PaletteColor {
 	MechU8 m_red;   // 0x00

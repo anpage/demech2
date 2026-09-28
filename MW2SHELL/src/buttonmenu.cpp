@@ -19,7 +19,7 @@ DECOMP_SIZE_ASSERT(HitRect, 0x10)
 struct MenuEntry {
 	MechChar* m_text;    // 0x00
 	POINT m_textPos;     // 0x04
-	MechS32 m_unk0x0c;   // 0x0c
+	MechS32 m_bottom;    // 0x0c
 	Font* m_font;        // 0x10
 	undefined* m_colors; // 0x14
 	HitRect* m_rect;     // 0x18
@@ -44,8 +44,8 @@ struct MenuEntry {
 		MechU8 p_enabled
 	);
 	~MenuEntry();
-	void FUN_10049003(VideoDriver* p_videoDriver);
-	MechU8 FUN_1004902a(MechS32 p_x, MechS32 p_y);
+	void DrawRect(VideoDriver* p_videoDriver);
+	MechU8 HitTest(MechS32 p_x, MechS32 p_y);
 };
 #pragma pack()
 
@@ -126,7 +126,7 @@ ButtonMenu::~ButtonMenu()
 }
 
 // FUNCTION: MW2SHELL 0x100488ed
-void ButtonMenu::FUN_100488ed(MechS32 p_id)
+void ButtonMenu::RemoveButtonsFrom(MechS32 p_id)
 {
 	Collection* retained;
 	MechS32 i;
@@ -145,13 +145,13 @@ void ButtonMenu::FUN_100488ed(MechS32 p_id)
 	}
 
 	ClearCollection(m_items);
-	FUN_1003c638(m_items, retained);
+	MoveCollectionItems(m_items, retained);
 	DestroyCollection(retained);
 }
 
 // Stack-slot permutation: i and item exchange [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x100489e9
-MechS32 ButtonMenu::FUN_100489e9(MechS32 p_x, MechS32 p_y)
+MechS32 ButtonMenu::HitTest(MechS32 p_x, MechS32 p_y)
 {
 	MechS32 id;
 	MechS32 i;
@@ -160,7 +160,7 @@ MechS32 ButtonMenu::FUN_100489e9(MechS32 p_x, MechS32 p_y)
 	id = -1;
 	for (i = 0; i < m_items->m_count; i++) {
 		item = (MenuEntry*) CollectionGet(m_items, i);
-		if (item->FUN_1004902a(p_x, p_y) == TRUE && item->m_enabled == TRUE) {
+		if (item->HitTest(p_x, p_y) == TRUE && item->m_enabled == TRUE) {
 			id = item->m_id;
 		}
 	}
@@ -170,7 +170,7 @@ MechS32 ButtonMenu::FUN_100489e9(MechS32 p_x, MechS32 p_y)
 
 // Stack-slot permutation: i and item exchange [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x10048a7c
-void ButtonMenu::FUN_10048a7c()
+void ButtonMenu::DrawRects()
 {
 	MechS32 i;
 	MenuEntry* item;
@@ -178,13 +178,13 @@ void ButtonMenu::FUN_10048a7c()
 	for (i = 0; i < m_items->m_count; i++) {
 		item = (MenuEntry*) CollectionGet(m_items, i);
 		if (item->m_drawRect == TRUE) {
-			item->FUN_10049003(m_videoDriver);
+			item->DrawRect(m_videoDriver);
 		}
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10048aec
-void ButtonMenu::FUN_10048aec(MechS32 p_id)
+void ButtonMenu::RemoveButton(MechS32 p_id)
 {
 	MechS32 i;
 	MenuEntry* item;
@@ -192,7 +192,7 @@ void ButtonMenu::FUN_10048aec(MechS32 p_id)
 	for (i = 0; i < m_items->m_count; i++) {
 		item = (MenuEntry*) CollectionGet(m_items, i);
 		if (item->m_id == p_id) {
-			FUN_1003c3ba(m_items, item, FALSE);
+			CollectionRemove(m_items, item, FALSE);
 			delete item;
 		}
 	}
@@ -200,7 +200,7 @@ void ButtonMenu::FUN_10048aec(MechS32 p_id)
 
 // Adds one button.
 // FUNCTION: MW2SHELL 0x10048b95
-void ButtonMenu::FUN_10048b95(MainMenuButton p_button, MechS32 p_id, MechU8 p_drawRect)
+void ButtonMenu::AddButton(MainMenuButton p_button, MechS32 p_id, MechU8 p_drawRect)
 {
 	TextGlyph* label = NULL;
 	MechChar* text = p_button.m_text;
@@ -230,7 +230,7 @@ void ButtonMenu::FUN_10048b95(MainMenuButton p_button, MechS32 p_id, MechU8 p_dr
 }
 
 // FUNCTION: MW2SHELL 0x10048cc1
-void ButtonMenu::FUN_10048cc1(MechS32 p_id)
+void ButtonMenu::EnableButton(MechS32 p_id)
 {
 	MechS32 i;
 	MenuEntry* item;
@@ -240,15 +240,15 @@ void ButtonMenu::FUN_10048cc1(MechS32 p_id)
 		if (item->m_id == p_id && !item->m_enabled) {
 			item->m_enabled = TRUE;
 			if (item->m_label != NULL) {
-				m_videoDriver->FUN_100076e8(item->m_label, 1);
-				item->m_label->FUN_10047425();
+				m_videoDriver->AddGlyph(item->m_label, 1);
+				item->m_label->Draw();
 			}
 		}
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10048d65
-void ButtonMenu::FUN_10048d65(MechS32 p_id)
+void ButtonMenu::DisableButton(MechS32 p_id)
 {
 	MechS32 i;
 	MenuEntry* item;
@@ -290,12 +290,12 @@ MenuEntry::MenuEntry(
 	m_textPos = p_textPos;
 	m_hover = NULL;
 	m_font = p_font;
-	m_unk0x0c = -1;
+	m_bottom = -1;
 	m_colors = p_colors;
 	m_enabled = p_enabled;
 	m_rect = new HitRect(p_left, p_top, p_right, p_bottom);
 	if (m_drawRect == TRUE) {
-		FUN_10049003(p_videoDriver);
+		DrawRect(p_videoDriver);
 	}
 }
 
@@ -311,15 +311,15 @@ MenuEntry::~MenuEntry()
 }
 
 // FUNCTION: MW2SHELL 0x10049003
-void MenuEntry::FUN_10049003(VideoDriver* p_videoDriver)
+void MenuEntry::DrawRect(VideoDriver* p_videoDriver)
 {
-	m_rect->FUN_10049199(p_videoDriver);
+	m_rect->Draw(p_videoDriver);
 }
 
 // FUNCTION: MW2SHELL 0x1004902a
-MechU8 MenuEntry::FUN_1004902a(MechS32 p_x, MechS32 p_y)
+MechU8 MenuEntry::HitTest(MechS32 p_x, MechS32 p_y)
 {
-	if (m_enabled && m_rect->FUN_10049245(p_x, p_y)) {
+	if (m_enabled && m_rect->Contains(p_x, p_y)) {
 		if (m_hover == NULL && m_text != NULL && strlen(m_text) != 0) {
 			m_hover = m_font->FUN_10005522(m_textPos.x, m_textPos.y, m_text, m_colors);
 		}
@@ -330,7 +330,7 @@ MechU8 MenuEntry::FUN_1004902a(MechS32 p_x, MechS32 p_y)
 			delete m_hover;
 			m_hover = NULL;
 			if (m_label != NULL) {
-				m_label->FUN_10047425();
+				m_label->Draw();
 			}
 		}
 
@@ -339,12 +339,12 @@ MechU8 MenuEntry::FUN_1004902a(MechS32 p_x, MechS32 p_y)
 }
 
 // FUNCTION: MW2SHELL 0x10049145
-HitRect::HitRect(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4 p_unk0x08, undefined4 p_unk0x0c)
+HitRect::HitRect(undefined4 p_left, undefined4 p_top, undefined4 p_right, undefined4 p_bottom)
 {
-	m_unk0x00 = p_unk0x00;
-	m_unk0x04 = p_unk0x04;
-	m_unk0x08 = p_unk0x08;
-	m_unk0x0c = p_unk0x0c;
+	m_left = p_left;
+	m_top = p_top;
+	m_right = p_right;
+	m_bottom = p_bottom;
 }
 
 // FUNCTION: MW2SHELL 0x10049183
@@ -353,18 +353,18 @@ void HitRect::FUN_10049183()
 }
 
 // FUNCTION: MW2SHELL 0x10049199
-void HitRect::FUN_10049199(VideoDriver* p_videoDriver)
+void HitRect::Draw(VideoDriver* p_videoDriver)
 {
-	p_videoDriver->FUN_10006e51(m_unk0x00, m_unk0x0c, m_unk0x08, m_unk0x0c, 1);
-	p_videoDriver->FUN_10006e51(m_unk0x00, m_unk0x04, m_unk0x08, m_unk0x04, 1);
-	p_videoDriver->FUN_10006e51(m_unk0x08, m_unk0x04, m_unk0x08, m_unk0x0c, 1);
-	p_videoDriver->FUN_10006e51(m_unk0x00, m_unk0x0c, m_unk0x00, m_unk0x04, 1);
+	p_videoDriver->DrawLine(m_left, m_bottom, m_right, m_bottom, 1);
+	p_videoDriver->DrawLine(m_left, m_top, m_right, m_top, 1);
+	p_videoDriver->DrawLine(m_right, m_top, m_right, m_bottom, 1);
+	p_videoDriver->DrawLine(m_left, m_bottom, m_left, m_top, 1);
 }
 
 // FUNCTION: MW2SHELL 0x10049245
-MechU8 HitRect::FUN_10049245(MechS32 p_x, MechS32 p_y)
+MechU8 HitRect::Contains(MechS32 p_x, MechS32 p_y)
 {
-	if (m_unk0x0c >= p_y && m_unk0x04 <= p_y && m_unk0x08 >= p_x && m_unk0x00 <= p_x) {
+	if (m_bottom >= p_y && m_top <= p_y && m_right >= p_x && m_left <= p_x) {
 		return TRUE;
 	}
 

@@ -4,7 +4,6 @@
 #include "buttonmenu.h"
 #include "collection.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "mainmenubutton.h"
@@ -13,6 +12,7 @@
 #include "mousestate.h"
 #include "page.h"
 #include "pilotrecord.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "stringutil.h"
@@ -42,14 +42,14 @@ Collection* g_unk0x10071ce4 = NULL;
 // GLOBAL: MW2SHELL 0x10071ce8
 ArchiveReader* g_unk0x10071ce8 = NULL;
 
-void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
+void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
 // Opens the briefing screen: lays the scenario's briefing text (its first four letters, padded
 // with '_', plus "BRF1") out on pages under the menu. A campaign's last mission briefs from
 // KTWOBRF1/KTJFBRF1 once the pilot's rank is high enough.
 // Not 100%: the stack slots of left, top, width, height and i are permuted.
 // FUNCTION: MW2SHELL 0x10046200
-void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign)
+void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign)
 {
 	MechS32 left;
 	MechS32 top;
@@ -104,8 +104,8 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		strcat(name, "BRF1");
 	}
 
-	FUN_100309b6(name);
-	FUN_1002e1b1(g_unk0x10071ce4, left, top, width, height, name, g_unk0x10071228, g_unk0x10071cd8);
+	UppercaseString(name);
+	LoadTextPages(g_unk0x10071ce4, left, top, width, height, name, g_unk0x10071228, g_unk0x10071cd8);
 
 	g_unk0x10071ce0 = (Page*) CollectionGet(g_unk0x10071ce4, 0);
 	if (!g_unk0x10071ce0) {
@@ -113,9 +113,9 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		return;
 	}
 
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ff60[p_campaign].m_picture);
-	FUN_1003c3ba(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
-	g_unk0x100711f8->FUN_100440ed();
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ff60[p_campaign].m_picture);
+	CollectionRemove(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
+	g_keyboardInput->FlushKeys();
 
 	if (strcmp(g_pCurrentPilot->m_callsign, "FERRARI")) {
 		g_unk0x1006ff60[p_campaign].m_count = 3;
@@ -129,27 +129,27 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	);
 
 	if (!g_unk0x10071ce4->m_count) {
-		g_unk0x10071cdc->FUN_10048d65(1);
+		g_unk0x10071cdc->DisableButton(1);
 	}
-	g_unk0x10071ce0->FUN_1004596f();
-	FUN_100108e5(FUN_10046653);
+	g_unk0x10071ce0->Restart();
+	RegisterScreenFunction(BriefingCallback);
 }
 
 // The briefing screen's frame: ABORT, SITUATION (the text in a reader), LAUNCH and SKIP.
 // FUNCTION: MW2SHELL 0x10046653
-void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
+void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {
 	MechS32 result;
 	MechS32 button;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (!g_unk0x10071ce8) {
-		g_unk0x10071ce0->FUN_10045a2b();
-		button = g_unk0x10071cdc->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		g_unk0x10071ce0->TypeStep();
+		button = g_unk0x10071cdc->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 2:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -173,7 +173,7 @@ void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			g_unk0x10071ce0->FUN_10045ab0();
+			g_unk0x10071ce0->Hide();
 			delete g_unk0x10071cdc;
 			g_unk0x10071ce8 = new ArchiveReader(
 				"",
@@ -208,7 +208,7 @@ void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 				g_unk0x1006ff60[*p_campaign].m_buttons,
 				g_unk0x1006ff60[*p_campaign].m_count
 			);
-			g_unk0x10071ce0->FUN_1004596f();
+			g_unk0x10071ce0->Restart();
 		}
 	}
 
@@ -221,6 +221,6 @@ done:
 		delete g_unk0x10071ce0;
 		delete g_unk0x10071cdc;
 		PostMessage(g_pWnd, p_msg, 0x406, 0);
-		FUN_100108fd(FUN_10046653);
+		UnregisterScreenFunction(BriefingCallback);
 	}
 }

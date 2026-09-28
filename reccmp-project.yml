@@ -10,17 +10,17 @@ targets:
     report:
       icon: assets/dll.png
       # The cockpit controls field tables keep integer indices in ScreenField's pointer members
-      # (m_unk0x24, m_unk0x28). datacmp reports every such field as a diff even when both sides
+      # (m_data, m_unk0x28). datacmp reports every such field as a diff even when both sides
       # hold the same value, so the tables are left out. They matched field for field when added.
       ignore-variables:
-        - g_unk0x1006b0d8
-        - g_unk0x1006cde8
+        - g_cpcBindingsFields
+        - g_cpcDevicesFields
         # The mech bay's field tables that keep integers in the same members (mechbay.cpp),
         # generated field for field from the original.
-        - g_unk0x1005e820
-        - g_unk0x1005efe0
-        - g_unk0x1005f248
-        - g_unk0x1005fc70
+        - g_armorFields
+        - g_equipmentFields
+        - g_weaponFields
+        - g_criticalFields
         # The pilot roster's mission list (rosterscreen.cpp), likewise.
         - g_unk0x10063dd8
         # The routine table and the self-modifying code block in unk10017a7c.c live in the

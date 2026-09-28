@@ -4,7 +4,6 @@
 #include "buttonmenu.h"
 #include "collection.h"
 #include "decomp.h"
-#include "drawmode.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "mainmenubutton.h"
@@ -12,6 +11,7 @@
 #include "menuscreen.h"
 #include "mousestate.h"
 #include "page.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "stringutil.h"
@@ -60,16 +60,16 @@ MainMenuButton g_unk0x1008d230;
 // GLOBAL: MW2SHELL 0x1008d250
 MechChar g_unk0x1008d250[0x100];
 
-void FUN_10029181(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg);
+void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg);
 
 // Opens the clan hall archive of a campaign.
 // FUNCTION: MW2SHELL 0x10029010
-void FUN_10029010(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
+void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
 	void* audioData;
 	MechS32 audioSize;
 
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fe70[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fe70[p_campaign].m_picture);
 	p_database->GetDBItem(103, &audioData, &audioSize);
 	g_unk0x10066600 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	g_unk0x10066600->SetVolume(0x32);
@@ -86,11 +86,11 @@ void FUN_10029010(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 		1
 	);
 	g_unk0x100665fc = p_wParam;
-	FUN_100108e5(FUN_10029181);
+	RegisterScreenFunction(ArchiveCallback);
 }
 
 // FUNCTION: MW2SHELL 0x10029181
-void FUN_10029181(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
+void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 {
 	if (p_msg == 0x404) {
 		p_msg = g_unk0x100665f8->Run();
@@ -111,7 +111,7 @@ void FUN_10029181(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 		else {
 			PostMessage(g_pWnd, p_msg, 0x40b, 0);
 		}
-		FUN_100108fd(FUN_10029181);
+		UnregisterScreenFunction(ArchiveCallback);
 	}
 }
 
@@ -129,7 +129,7 @@ void ArchiveReader::AddTopic(MechS16 p_entry, MechS32 p_index)
 // FUNCTION: MW2SHELL 0x1002931d
 void ArchiveReader::FUN_1002931d()
 {
-	g_pVideoDriver->FUN_100077b4(FALSE);
+	g_pVideoDriver->ClearGlyphs(FALSE);
 }
 
 // FUNCTION: MW2SHELL 0x10029340
@@ -138,14 +138,14 @@ void ArchiveReader::FirstPage()
 	Page* page = NULL;
 
 	if (m_pages->m_count == 1) {
-		m_menu->FUN_10048aec(c_buttonNextPage);
+		m_menu->RemoveButton(c_buttonNextPage);
 	}
 
 	if (m_page > 0 && m_page < m_pages->m_count) {
 		page = (Page*) CollectionGet(m_pages, m_page);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
-			m_menu->FUN_100488ed(c_buttonTopic);
+			m_menu->RemoveButtonsFrom(c_buttonTopic);
 		}
 	}
 
@@ -165,17 +165,17 @@ void ArchiveReader::PrevPage()
 
 	button->m_textPos.x = 0;
 	button->m_textPos.y = 0;
-	button->m_text = FUN_10030900("");
+	button->m_text = AllocateString("");
 
 	if (m_pages->m_count == 1) {
-		m_menu->FUN_10048aec(c_buttonNextPage);
+		m_menu->RemoveButton(c_buttonNextPage);
 	}
 
 	if (m_page > 0 && m_page < m_pages->m_count) {
 		page = (Page*) CollectionGet(m_pages, m_page);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
-			m_menu->FUN_100488ed(c_buttonTopic);
+			m_menu->RemoveButtonsFrom(c_buttonTopic);
 		}
 	}
 
@@ -185,7 +185,7 @@ void ArchiveReader::PrevPage()
 	}
 
 	if (m_page == 0) {
-		m_menu->FUN_10048aec(c_buttonPrevPage);
+		m_menu->RemoveButton(c_buttonPrevPage);
 		if (m_titleGlyph) {
 			delete m_titleGlyph;
 		}
@@ -193,8 +193,8 @@ void ArchiveReader::PrevPage()
 	}
 
 	if (m_page < m_pages->m_count && m_pages->m_count > 1) {
-		m_menu->FUN_10048aec(c_buttonNextPage);
-		m_menu->FUN_10048b95(m_buttons[c_buttonNextPage], c_buttonNextPage, m_menu->m_drawRect);
+		m_menu->RemoveButton(c_buttonNextPage);
+		m_menu->AddButton(m_buttons[c_buttonNextPage], c_buttonNextPage, m_menu->m_drawRect);
 	}
 
 	if (m_pages->m_count > 0) {
@@ -205,9 +205,9 @@ void ArchiveReader::PrevPage()
 			button->m_top = link->m_top;
 			button->m_right = link->m_right;
 			button->m_bottom = link->m_bottom;
-			m_menu->FUN_10048b95(g_unk0x1008d210, link->m_id + c_buttonTopic, m_menu->m_drawRect);
+			m_menu->AddButton(g_unk0x1008d210, link->m_id + c_buttonTopic, m_menu->m_drawRect);
 		}
-		m_currentPage->FUN_1004596f();
+		m_currentPage->Restart();
 	}
 }
 
@@ -222,13 +222,13 @@ void ArchiveReader::NextPage()
 
 	button->m_textPos.x = 0;
 	button->m_textPos.y = 0;
-	button->m_text = FUN_10030900("");
+	button->m_text = AllocateString("");
 
 	if (m_page >= 0 && m_page < m_pages->m_count - 1) {
 		page = (Page*) CollectionGet(m_pages, m_page);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
-			m_menu->FUN_100488ed(c_buttonTopic);
+			m_menu->RemoveButtonsFrom(c_buttonTopic);
 		}
 	}
 
@@ -238,12 +238,12 @@ void ArchiveReader::NextPage()
 	}
 
 	if (m_page == m_pages->m_count - 1) {
-		m_menu->FUN_10048aec(c_buttonNextPage);
+		m_menu->RemoveButton(c_buttonNextPage);
 	}
 
 	if (m_page > 0) {
-		m_menu->FUN_10048aec(c_buttonPrevPage);
-		m_menu->FUN_10048b95(m_buttons[c_buttonPrevPage], c_buttonPrevPage, m_menu->m_drawRect);
+		m_menu->RemoveButton(c_buttonPrevPage);
+		m_menu->AddButton(m_buttons[c_buttonPrevPage], c_buttonPrevPage, m_menu->m_drawRect);
 	}
 
 	m_currentPage = (Page*) CollectionGet(m_pages, m_page);
@@ -253,9 +253,9 @@ void ArchiveReader::NextPage()
 		button->m_top = link->m_top;
 		button->m_right = link->m_right;
 		button->m_bottom = link->m_bottom;
-		m_menu->FUN_10048b95(g_unk0x1008d230, link->m_id + c_buttonTopic, m_menu->m_drawRect);
+		m_menu->AddButton(g_unk0x1008d230, link->m_id + c_buttonTopic, m_menu->m_drawRect);
 	}
-	m_currentPage->FUN_1004596f();
+	m_currentPage->Restart();
 }
 
 // Follows a topic link: opens its entry in a child reader.
@@ -269,7 +269,7 @@ void ArchiveReader::OpenTopic(MechS32 p_id)
 	MechS32 i;
 
 	page = (Page*) CollectionGet(m_pages, m_page);
-	page->FUN_10045ab0();
+	page->Hide();
 
 	for (i = 0; i < m_topics->m_count; i++) {
 		topic = (Topic*) CollectionGet(m_topics, i);
@@ -316,27 +316,27 @@ MechS32 ArchiveReader::Run()
 	}
 
 	if (m_currentPage) {
-		m_currentPage->FUN_10045a2b();
+		m_currentPage->TypeStep();
 	}
 
 	if (!m_titleGlyph) {
 		m_titleGlyph = g_unk0x10071214->FUN_1000544e(0x140, 0x32, m_title, NULL);
 	}
 
-	button = m_menu->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
-	if (g_unk0x100711f8->m_key) {
-		switch (g_unk0x100711f8->m_key) {
+	button = m_menu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	if (g_keyboardInput->m_key) {
+		switch (g_keyboardInput->m_key) {
 		case 0xc4:
 			button = c_buttonPrevPage;
-			g_pMouseState->FUN_1003aa2a(0);
+			g_pMouseState->PressButton(0);
 			break;
 		case 0xc5:
 			button = c_buttonNextPage;
-			g_pMouseState->FUN_1003aa2a(0);
+			g_pMouseState->PressButton(0);
 			break;
 		case 0xc2:
 			button = c_buttonBack;
-			g_pMouseState->FUN_1003aa2a(0);
+			g_pMouseState->PressButton(0);
 			break;
 		default:
 			break;
@@ -511,7 +511,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 				page = new Page(m_font, g_pVideoDriver, m_colors, 0x58, 0x46, 0x1d2, 0xde);
 				ExpandCollection(m_pages, page);
 			}
-			page->FUN_10045b38((undefined*) data, size);
+			page->SetBanner((undefined*) data, size);
 			break;
 		case -0x100:
 			break;
@@ -555,7 +555,7 @@ ArchiveReader::ArchiveReader(
 	FUN_1002931d();
 
 	m_menu = new ButtonMenu(g_pVideoDriver, m_font, 0, m_buttons, p_count);
-	m_menu->FUN_10048b95(p_buttons[c_buttonBack], c_buttonBack, m_menu->m_drawRect);
+	m_menu->AddButton(p_buttons[c_buttonBack], c_buttonBack, m_menu->m_drawRect);
 
 	if (m_ownsDatabase == TRUE) {
 		m_database = new TMPackDataBase(m_title);
@@ -595,7 +595,7 @@ ArchiveReader::~ArchiveReader()
 
 	for (i = 0; i < m_pages->m_count; i++) {
 		page = (Page*) CollectionGet(m_pages, i);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
 			delete page;
 		}

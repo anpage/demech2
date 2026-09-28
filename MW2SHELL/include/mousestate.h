@@ -12,7 +12,7 @@ class VideoDriver;
 // SIZE 0x43
 class MouseState {
 public:
-	MouseState(VideoDriver* p_videoDriver, Font* p_unk0x08, void* p_unk0x00);
+	MouseState(VideoDriver* p_videoDriver, Font* p_font, void* p_unk0x00);
 	~MouseState();
 
 	void MoveCursorTo(MechS32 p_x, MechS32 p_y);
@@ -21,14 +21,14 @@ public:
 	undefined4 GetLeftPressed();
 	undefined4 GetRightPressed();
 	undefined4 GetMiddlePressed();
-	void FUN_1003a988();
-	void FUN_1003aa2a(MechS32 p_button);
+	void DrawCursorPosition();
+	void PressButton(MechS32 p_button);
 	void ReadMouseState();
 
 private:
 	void* m_unk0x00;            // 0x00
 	VideoDriver* m_videoDriver; // 0x04
-	Font* m_unk0x08;            // 0x08
+	Font* m_font;               // 0x08
 	MechS32 m_unk0x0c;          // 0x0c
 	undefined4 m_leftPressed;   // 0x10
 	undefined4 m_rightPressed;  // 0x14
@@ -51,7 +51,7 @@ public:
 
 private:
 	undefined4 m_middleDown; // 0x3b
-	undefined4 m_unk0x3f;    // 0x3f
+	undefined4 m_enabled;    // 0x3f
 };
 
 #pragma pack()

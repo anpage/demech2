@@ -25,7 +25,7 @@ PopupPicture::PopupPicture(
 	m_size = p_size;
 	m_videoDriver = p_videoDriver;
 	m_sample = p_sample;
-	m_videoDriver->FUN_10006a99(&m_width, &m_height, m_data, m_size, 2);
+	m_videoDriver->ReadPictureSize(&m_width, &m_height, m_data, m_size, 2);
 
 	size = FUN_10037504(p_data, 0);
 	m_width = (size >> 16) + 2;
@@ -51,7 +51,7 @@ PopupPicture::PopupPicture(
 	m_screenView.m_bottom = m_height + m_top - 1;
 	m_screenView.m_buffer = &m_videoDriver->m_backBuffer;
 
-	FUN_10034f18(&m_screenView, 0, 0, &m_savedView, 0, 0, -1);
+	BlitView(&m_screenView, 0, 0, &m_savedView, 0, 0, -1);
 }
 
 // FUNCTION: MW2SHELL 0x10045f19
@@ -73,16 +73,16 @@ void PopupPicture::Show()
 	}
 
 	FUN_10032f84(&m_videoDriver->m_backView, (undefined4) m_data, 0, 319, 239);
-	m_videoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
-	m_videoDriver->FUN_10007763(0);
-	m_videoDriver->FUN_10007763(1);
+	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
+	m_videoDriver->RedrawGlyphs(0);
+	m_videoDriver->RedrawGlyphs(1);
 }
 
 // FUNCTION: MW2SHELL 0x1004601c
 void PopupPicture::Hide()
 {
-	FUN_10034f18(&m_savedView, 0, 0, &m_screenView, 0, 0, -1);
-	m_videoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
-	m_videoDriver->FUN_10007763(0);
-	m_videoDriver->FUN_10007763(1);
+	BlitView(&m_savedView, 0, 0, &m_screenView, 0, 0, -1);
+	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
+	m_videoDriver->RedrawGlyphs(0);
+	m_videoDriver->RedrawGlyphs(1);
 }

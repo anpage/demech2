@@ -7,6 +7,6 @@
 #include <windows.h>
 
 // The functions and globals of cadettraining.cpp that other units use.
-void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam);
+void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam);
 
 #endif // CADETTRAINING_H

@@ -10,7 +10,7 @@
 struct MenuScreen {
 	MainMenuButton* m_buttons; // 0x00
 	MechS32 m_count;           // 0x04
-	MechS32 m_picture;         // 0x08 — for VideoDriver::FUN_10006c50
+	MechS32 m_picture;         // 0x08 — for VideoDriver::LoadBackground
 	MechS32 m_unk0x0c;         // 0x0c
 };
 

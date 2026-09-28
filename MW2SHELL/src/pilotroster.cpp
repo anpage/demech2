@@ -57,7 +57,7 @@ void SavePilotRoster()
 
 	file = fopen("MW2REG.CFG", "wb");
 	if (file == NULL) {
-		FUN_10015c90("Error Writing Career File\n");
+		ShowMessage("Error Writing Career File\n");
 		return;
 	}
 

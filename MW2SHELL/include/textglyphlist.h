@@ -13,10 +13,10 @@ public:
 	TextGlyphList();
 	~TextGlyphList();
 
-	void FUN_1003e171(TextGlyph* p_item);
-	void FUN_1003e19b(TextGlyph* p_item);
-	void FUN_1003e1e6(MechU8 p_delete);
-	void FUN_1003e286();
+	void Add(TextGlyph* p_item);
+	void Remove(TextGlyph* p_item);
+	void Clear(MechU8 p_delete);
+	void DrawAll();
 
 private:
 	Collection* m_items; // 0x00

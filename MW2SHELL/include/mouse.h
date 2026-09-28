@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-	extern undefined4 g_unk0x10071d48;
+	extern undefined4 g_reclipCursor;
 
 #ifdef __cplusplus
 }

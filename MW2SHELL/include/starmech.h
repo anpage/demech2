@@ -5,11 +5,11 @@
 #include "types.h"
 
 // SIZE 0x24
-// One mech of a star: a negative m_unk0x00 leaves the slot empty.
+// One mech of a star: a negative m_chassis leaves the slot empty.
 struct StarMech {
-	MechS32 m_unk0x00;    // 0x00
-	char m_unk0x04[0x10]; // 0x04 — variant file name
-	char m_unk0x14[0x10]; // 0x14 — pilot name
+	MechS32 m_chassis;    // 0x00 — an index into g_mechChassis (mechbay.cpp)
+	char m_variant[0x10]; // 0x04 — variant file name
+	char m_pilot[0x10];   // 0x14 — pilot name
 };
 
 #endif // STARMECH_H

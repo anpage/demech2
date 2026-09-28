@@ -44,39 +44,39 @@ DECOMP_SIZE_ASSERT(ArchiveSlot, 0x14a)
 
 // One slot: the dispdib globals follow in the original.
 // GLOBAL: MW2SHELL 0x10096610
-ArchiveSlot g_unk0x10096610[1];
+ArchiveSlot g_archiveSlots[1];
 
-// The heap callbacks the archive unit allocates through, registered by FUN_1002fb90
-// (ProjectArchive passes FUN_1002e302 and FUN_1002e324).
+// The heap callbacks the archive unit allocates through, registered by SetArchiveAllocator
+// (ProjectArchive passes PrjHeapAlloc and PrjHeapFree).
 // GLOBAL: MW2SHELL 0x10066da0
-void* (*g_unk0x10066da0)(undefined4) = NULL;
+void* (*g_archiveAlloc)(undefined4) = NULL;
 
 // GLOBAL: MW2SHELL 0x10066da4
-void (*g_unk0x10066da4)(void*) = NULL;
+void (*g_archiveFree)(void*) = NULL;
 
 // FUNCTION: MW2SHELL 0x1002fb90
-void FUN_1002fb90(void* (*p_alloc)(undefined4), void (*p_free)(void*))
+void SetArchiveAllocator(void* (*p_alloc)(undefined4), void (*p_free)(void*))
 {
-	g_unk0x10066da0 = p_alloc;
-	g_unk0x10066da4 = p_free;
+	g_archiveAlloc = p_alloc;
+	g_archiveFree = p_free;
 }
 
 // FUNCTION: MW2SHELL 0x1002fbab
-void* FUN_1002fbab(undefined4 p_size)
+void* ArchiveAlloc(undefined4 p_size)
 {
-	return g_unk0x10066da0(p_size);
+	return g_archiveAlloc(p_size);
 }
 
 // FUNCTION: MW2SHELL 0x1002fbc8
-void FUN_1002fbc8(void* p_block)
+void ArchiveFree(void* p_block)
 {
-	g_unk0x10066da4(p_block);
+	g_archiveFree(p_block);
 }
 
 // Writes p_size bytes in chunks of at most 0x4000. Returns p_size, or -1 on a short write.
 // Stack-slot permutation: remaining and chunk swap homes.
 // FUNCTION: MW2SHELL 0x1002fbe0
-MechS32 FUN_1002fbe0(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
+MechS32 ArchiveWrite(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 {
 	MechU8* buffer;
 	MechU32 remaining;
@@ -100,7 +100,7 @@ MechS32 FUN_1002fbe0(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 // Reads p_size bytes in chunks of at most 0x4000. Returns p_size, or -1 on a short read.
 // Stack-slot permutation: remaining and chunk swap homes.
 // FUNCTION: MW2SHELL 0x1002fc5e
-MechS32 FUN_1002fc5e(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
+MechS32 ArchiveRead(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 {
 	MechU8* buffer;
 	MechU32 remaining;
@@ -125,7 +125,7 @@ MechS32 FUN_1002fc5e(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 // marked 0xfe returns -2), 0 for reading. Loads its header and returns the slot, or -1.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1002fcdc
-MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode)
+MechS32 OpenArchive(char* p_name, MechChar p_mode)
 {
 	ArchiveHeader* header;
 	MechU16 slot;
@@ -133,7 +133,7 @@ MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode)
 	MechS32 fd;
 	MechU8 tag[12];
 
-	for (slot = 0; slot < 1 && g_unk0x10096610[slot].m_open; slot++) {
+	for (slot = 0; slot < 1 && g_archiveSlots[slot].m_open; slot++) {
 	}
 
 	if (slot >= 1) {
@@ -174,58 +174,58 @@ MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode)
 	}
 
 	_lseek(fd, 0x10, SEEK_SET);
-	if (FUN_1002fc5e(fd, (MechU8*) &size, 4) != 4) {
+	if (ArchiveRead(fd, (MechU8*) &size, 4) != 4) {
 		return -1;
 	}
 
 	size += 8;
-	header = (ArchiveHeader*) FUN_1002fbab(size);
+	header = (ArchiveHeader*) ArchiveAlloc(size);
 	if (header == NULL) {
 		return -1;
 	}
 
 	_lseek(fd, 0xc, SEEK_SET);
-	if (FUN_1002fc5e(fd, (MechU8*) header, size) != size) {
-		FUN_1002fbc8(header);
+	if (ArchiveRead(fd, (MechU8*) header, size) != size) {
+		ArchiveFree(header);
 		return -1;
 	}
 
-	g_unk0x10096610[slot].m_fd = fd;
-	g_unk0x10096610[slot].m_header = header;
-	g_unk0x10096610[slot].m_open = 1;
-	_strnset(g_unk0x10096610[slot].m_name, 0, sizeof(g_unk0x10096610[slot].m_name));
-	strncpy(g_unk0x10096610[slot].m_name, p_name, sizeof(g_unk0x10096610[slot].m_name));
+	g_archiveSlots[slot].m_fd = fd;
+	g_archiveSlots[slot].m_header = header;
+	g_archiveSlots[slot].m_open = 1;
+	_strnset(g_archiveSlots[slot].m_name, 0, sizeof(g_archiveSlots[slot].m_name));
+	strncpy(g_archiveSlots[slot].m_name, p_name, sizeof(g_archiveSlots[slot].m_name));
 	return slot;
 }
 
 // Release the header and cached archive entries, then close its file descriptor.
 // FUNCTION: MW2SHELL 0x1002ffc9
-MechS32 FUN_1002ffc9(MechS32 p_handle)
+MechS32 CloseArchive(MechS32 p_handle)
 {
 	MechU16 index;
 
-	FUN_1002fbc8(g_unk0x10096610[p_handle].m_header);
-	g_unk0x10096610[p_handle].m_header = NULL;
+	ArchiveFree(g_archiveSlots[p_handle].m_header);
+	g_archiveSlots[p_handle].m_header = NULL;
 	for (index = 0; index < 0x20; index++) {
-		if (g_unk0x10096610[p_handle].m_entries[index].m_data != NULL) {
-			FUN_1002fbc8(g_unk0x10096610[p_handle].m_entries[index].m_data);
-			g_unk0x10096610[p_handle].m_entries[index].m_data = NULL;
+		if (g_archiveSlots[p_handle].m_entries[index].m_data != NULL) {
+			ArchiveFree(g_archiveSlots[p_handle].m_entries[index].m_data);
+			g_archiveSlots[p_handle].m_entries[index].m_data = NULL;
 		}
-		if (g_unk0x10096610[p_handle].m_entries[index].m_unk0x04 != NULL) {
-			FUN_1002fbc8(g_unk0x10096610[p_handle].m_entries[index].m_unk0x04);
-			g_unk0x10096610[p_handle].m_entries[index].m_unk0x04 = NULL;
+		if (g_archiveSlots[p_handle].m_entries[index].m_unk0x04 != NULL) {
+			ArchiveFree(g_archiveSlots[p_handle].m_entries[index].m_unk0x04);
+			g_archiveSlots[p_handle].m_entries[index].m_unk0x04 = NULL;
 		}
 	}
 
-	g_unk0x10096610[p_handle].m_open = 0;
-	_strnset(g_unk0x10096610[p_handle].m_name, 0, 0x20);
-	return _close(g_unk0x10096610[p_handle].m_fd);
+	g_archiveSlots[p_handle].m_open = 0;
+	_strnset(g_archiveSlots[p_handle].m_name, 0, 0x20);
+	return _close(g_archiveSlots[p_handle].m_fd);
 }
 
 // Find an archive entry by its four-byte type tag. Returns 0xffff if absent.
 // Stack-slot permutation: count and entries.
 // FUNCTION: MW2SHELL 0x10030177
-MechU16 FUN_10030177(MechS32 p_handle, MechChar* p_name)
+MechU16 FindArchiveEntry(MechS32 p_handle, MechChar* p_name)
 {
 	MechChar found;
 	MechU16 index;
@@ -233,8 +233,8 @@ MechU16 FUN_10030177(MechS32 p_handle, MechChar* p_name)
 	ArchiveEntry* entries;
 
 	found = 0;
-	count = g_unk0x10096610[p_handle].m_header->m_entryCount;
-	entries = g_unk0x10096610[p_handle].m_header->m_entries;
+	count = g_archiveSlots[p_handle].m_header->m_entryCount;
+	entries = g_archiveSlots[p_handle].m_header->m_entries;
 	index = 0;
 	while ((count > index) & !found) {
 		if (strncmp(entries[index].m_name, p_name, 4) == 0) {
@@ -256,7 +256,7 @@ MechU16 FUN_10030177(MechS32 p_handle, MechChar* p_name)
 // Read and cache every archive entry whose on-disk data offset is nonzero.
 // Stack-slot permutation: count, index and size.
 // FUNCTION: MW2SHELL 0x1003024f
-MechS32 FUN_1003024f(MechS32 p_handle)
+MechS32 LoadArchiveEntries(MechS32 p_handle)
 {
 	MechU16 count;
 	ArchiveEntry* entries;
@@ -264,23 +264,23 @@ MechS32 FUN_1003024f(MechS32 p_handle)
 	MechU32 size;
 	void* data;
 
-	count = g_unk0x10096610[p_handle].m_header->m_entryCount;
-	entries = g_unk0x10096610[p_handle].m_header->m_entries;
+	count = g_archiveSlots[p_handle].m_header->m_entryCount;
+	entries = g_archiveSlots[p_handle].m_header->m_entries;
 	for (index = 0; index < count; index++) {
 		if (entries[index].m_offset != 0) {
 			size = entries[index].m_size;
-			data = FUN_1002fbab(size);
+			data = ArchiveAlloc(size);
 			if (data == NULL) {
 				return -1;
 			}
 
-			_lseek(g_unk0x10096610[p_handle].m_fd, entries[index].m_offset, SEEK_SET);
-			if (FUN_1002fc5e(g_unk0x10096610[p_handle].m_fd, (MechU8*) data, size) != size) {
-				FUN_1002fbc8(data);
+			_lseek(g_archiveSlots[p_handle].m_fd, entries[index].m_offset, SEEK_SET);
+			if (ArchiveRead(g_archiveSlots[p_handle].m_fd, (MechU8*) data, size) != size) {
+				ArchiveFree(data);
 				return -1;
 			}
 
-			g_unk0x10096610[p_handle].m_entries[index].m_data = data;
+			g_archiveSlots[p_handle].m_entries[index].m_data = data;
 		}
 	}
 
@@ -290,7 +290,7 @@ MechS32 FUN_1003024f(MechS32 p_handle)
 // Compute a cached subresource length, clamping non-positive lengths to zero.
 // Stack-slot permutation: offsets, entries and length.
 // FUNCTION: MW2SHELL 0x100303b5
-MechS32 FUN_100303b5(MechS32 p_handle, MechChar* p_name, MechU16 p_index)
+MechS32 GetArchiveItemSize(MechS32 p_handle, MechChar* p_name, MechU16 p_index)
 {
 	MechS16 entry;
 	MechU16 index;
@@ -302,15 +302,15 @@ MechS32 FUN_100303b5(MechS32 p_handle, MechChar* p_name, MechU16 p_index)
 		return -1;
 	}
 
-	entry = FUN_10030177(p_handle, p_name);
+	entry = FindArchiveEntry(p_handle, p_name);
 	if (entry >= 0) {
-		if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+		if (g_archiveSlots[p_handle].m_entries[entry].m_data == NULL && LoadArchiveEntries(p_handle) == -1) {
 			return -1;
 		}
 
 		index = p_index;
-		offsets = (MechS32*) ((MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16);
-		entries = g_unk0x10096610[p_handle].m_header->m_entries;
+		offsets = (MechS32*) ((MechU8*) g_archiveSlots[p_handle].m_entries[entry].m_data + 0x16);
+		entries = g_archiveSlots[p_handle].m_header->m_entries;
 		length = offsets[index * 2 + 1] - entries[entry].m_baseOffset;
 		return length > 0 ? length : 0;
 	}
@@ -322,23 +322,23 @@ MechS32 FUN_100303b5(MechS32 p_handle, MechChar* p_name, MechU16 p_index)
 // Look up a subresource's byte offset and length in the cached archive entry.
 // Stack-slot permutation: offsets and entries.
 // FUNCTION: MW2SHELL 0x100304c5
-MechS32 FUN_100304c5(MechS32 p_handle, MechChar* p_name, MechU32 p_index, void** p_offset, MechS32* p_size)
+MechS32 SeekArchiveItem(MechS32 p_handle, MechChar* p_name, MechU32 p_index, void** p_offset, MechS32* p_size)
 {
 	MechU16 entry;
 	ArchiveEntry* entries;
 	MechU8* offsets;
 	MechS32 offset;
 
-	entry = FUN_10030177(p_handle, p_name);
+	entry = FindArchiveEntry(p_handle, p_name);
 	if ((MechS32) entry == -1) {
 		return -1;
 	}
-	if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+	if (g_archiveSlots[p_handle].m_entries[entry].m_data == NULL && LoadArchiveEntries(p_handle) == -1) {
 		return -1;
 	}
 
-	offsets = (MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16;
-	entries = g_unk0x10096610[p_handle].m_header->m_entries;
+	offsets = (MechU8*) g_archiveSlots[p_handle].m_entries[entry].m_data + 0x16;
+	entries = g_archiveSlots[p_handle].m_header->m_entries;
 	offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + (p_index & 0xffff) * 8);
 	if (p_offset != NULL) {
 		*p_offset = (void*) offset;
@@ -347,24 +347,24 @@ MechS32 FUN_100304c5(MechS32 p_handle, MechChar* p_name, MechU32 p_index, void**
 		*p_size = *(MechS32*) (offsets + (p_index & 0xffff) * 8 + 4) - entries[entry].m_baseOffset;
 	}
 
-	_lseek(g_unk0x10096610[p_handle].m_fd, offset, SEEK_SET);
+	_lseek(g_archiveSlots[p_handle].m_fd, offset, SEEK_SET);
 	return 0;
 }
 
 // Read p_size bytes after selecting the archive descriptor and offset.
 // FUNCTION: MW2SHELL 0x10030620
-void FUN_10030620(void* p_data, MechS32 p_handle, void* p_offset, MechU32 p_size)
+void ReadArchiveAt(void* p_data, MechS32 p_handle, void* p_offset, MechU32 p_size)
 {
-	p_handle = g_unk0x10096610[p_handle].m_fd;
+	p_handle = g_archiveSlots[p_handle].m_fd;
 	_lseek(p_handle, (MechS32) p_offset, SEEK_SET);
-	FUN_1002fc5e(p_handle, (MechU8*) p_data, p_size);
+	ArchiveRead(p_handle, (MechU8*) p_data, p_size);
 	return;
 }
 
 // Read a cached archive subresource into the caller's buffer.
 // Stack-slot permutation: entry, offsets, entries, offset and size.
 // FUNCTION: MW2SHELL 0x1003066e
-MechS32 FUN_1003066e(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* p_data)
+MechS32 ReadArchiveItem(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* p_data)
 {
 	MechS16 entry;
 	MechU16 index;
@@ -373,22 +373,22 @@ MechS32 FUN_1003066e(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* 
 	MechU32 size;
 	MechS32 offset;
 
-	entry = FUN_10030177(p_handle, p_name);
+	entry = FindArchiveEntry(p_handle, p_name);
 	if (entry != -1) {
-		if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+		if (g_archiveSlots[p_handle].m_entries[entry].m_data == NULL && LoadArchiveEntries(p_handle) == -1) {
 			return -1;
 		}
 
 		index = p_index;
-		offsets = (MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16;
-		entries = g_unk0x10096610[p_handle].m_header->m_entries;
+		offsets = (MechU8*) g_archiveSlots[p_handle].m_entries[entry].m_data + 0x16;
+		entries = g_archiveSlots[p_handle].m_header->m_entries;
 		offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + index * 8);
 		size = *(MechU32*) (offsets + index * 8 + 4) - entries[entry].m_baseOffset;
-		if (_lseek(g_unk0x10096610[p_handle].m_fd, offset, SEEK_SET) == -1) {
+		if (_lseek(g_archiveSlots[p_handle].m_fd, offset, SEEK_SET) == -1) {
 			return -1;
 		}
 
-		if (FUN_1002fc5e(g_unk0x10096610[p_handle].m_fd, (MechU8*) p_data, size) != size) {
+		if (ArchiveRead(g_archiveSlots[p_handle].m_fd, (MechU8*) p_data, size) != size) {
 			return -1;
 		}
 		else {
@@ -403,7 +403,7 @@ MechS32 FUN_1003066e(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* 
 // Return the archive offset and descriptor of a cached subresource.
 // Stack-slot permutation: offsets and entries.
 // FUNCTION: MW2SHELL 0x100307f4
-MechS32 FUN_100307f4(MechS32 p_handle, MechChar* p_name, MechU16 p_index, MechS32* p_fd)
+MechS32 GetArchiveItemOffset(MechS32 p_handle, MechChar* p_name, MechU16 p_index, MechS32* p_fd)
 {
 	MechS16 entry;
 	MechU16 index;
@@ -411,17 +411,17 @@ MechS32 FUN_100307f4(MechS32 p_handle, MechChar* p_name, MechU16 p_index, MechS3
 	ArchiveEntry* entries;
 	MechS32 offset;
 
-	entry = FUN_10030177(p_handle, p_name);
+	entry = FindArchiveEntry(p_handle, p_name);
 	if (entry != -1) {
-		if (g_unk0x10096610[p_handle].m_entries[entry].m_data == NULL && FUN_1003024f(p_handle) == -1) {
+		if (g_archiveSlots[p_handle].m_entries[entry].m_data == NULL && LoadArchiveEntries(p_handle) == -1) {
 			return 0;
 		}
 
 		index = p_index;
-		offsets = (MechU8*) g_unk0x10096610[p_handle].m_entries[entry].m_data + 0x16;
-		entries = g_unk0x10096610[p_handle].m_header->m_entries;
+		offsets = (MechU8*) g_archiveSlots[p_handle].m_entries[entry].m_data + 0x16;
+		entries = g_archiveSlots[p_handle].m_header->m_entries;
 		offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + index * 8);
-		*p_fd = g_unk0x10096610[p_handle].m_fd;
+		*p_fd = g_archiveSlots[p_handle].m_fd;
 		return offset;
 	}
 	else {

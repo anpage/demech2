@@ -337,7 +337,7 @@ void AudioSample::Start()
 }
 
 // FUNCTION: MW2SHELL 0x1003d709
-void AudioSample::FUN_1003d709()
+void AudioSample::PlayAndWait()
 {
 	if (m_sample) {
 		Start();
@@ -400,18 +400,18 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 	MechS32 minimum;
 	MechS32 format;
 
-	m_unk0x00 = p_subsystem;
-	m_unk0x04 = 0;
-	m_unk0x08 = NULL;
-	m_unk0x0c = NULL;
-	m_unk0x10 = -1;
+	m_subsystem = p_subsystem;
+	m_sample = 0;
+	m_buffer0 = NULL;
+	m_buffer1 = NULL;
+	m_readyBuffer = -1;
 
-	if (!m_unk0x00->m_digitalDriver) {
+	if (!m_subsystem->m_digitalDriver) {
 		return;
 	}
 
-	m_unk0x04 = (undefined4) AIL_allocate_sample_handle(m_unk0x00->m_digitalDriver);
-	if (!m_unk0x04) {
+	m_sample = (undefined4) AIL_allocate_sample_handle(m_subsystem->m_digitalDriver);
+	if (!m_sample) {
 		return;
 	}
 
@@ -430,7 +430,7 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 		format = c_formatMono8;
 	}
 
-	minimum = AIL_minimum_sample_buffer_size(m_unk0x00->m_digitalDriver, m_unk0x00->m_unk0x11, format);
+	minimum = AIL_minimum_sample_buffer_size(m_subsystem->m_digitalDriver, m_subsystem->m_playbackRate, format);
 	if (minimum <= p_size) {
 		if (format == c_formatStereo16) {
 			p_size <<= 2;
@@ -439,16 +439,16 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 			p_size <<= 1;
 		}
 
-		m_unk0x08 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
-		m_unk0x0c = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+		m_buffer0 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+		m_buffer1 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
 	}
 
-	if (!m_unk0x08 || !m_unk0x0c) {
-		if (m_unk0x08) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x08);
+	if (!m_buffer0 || !m_buffer1) {
+		if (m_buffer0) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
 		}
-		AIL_release_sample_handle((HSAMPLE) m_unk0x04);
-		if (!m_unk0x04) {
+		AIL_release_sample_handle((HSAMPLE) m_sample);
+		if (!m_sample) {
 			// Both branches are empty in the original.
 		}
 		else {
@@ -456,33 +456,33 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 		return;
 	}
 
-	AIL_init_sample((HSAMPLE) m_unk0x04);
-	AIL_set_sample_type((HSAMPLE) m_unk0x04, format, p_wide != 0);
+	AIL_init_sample((HSAMPLE) m_sample);
+	AIL_set_sample_type((HSAMPLE) m_sample, format, p_wide != 0);
 }
 
 // FUNCTION: MW2SHELL 0x1003da54
 VideoSound::~VideoSound()
 {
-	if (m_unk0x04 != 0) {
-		AIL_end_sample((HSAMPLE) m_unk0x04);
-		AIL_release_sample_handle((HSAMPLE) m_unk0x04);
-		if (m_unk0x08 != NULL) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x08);
+	if (m_sample != 0) {
+		AIL_end_sample((HSAMPLE) m_sample);
+		AIL_release_sample_handle((HSAMPLE) m_sample);
+		if (m_buffer0 != NULL) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
 		}
-		if (m_unk0x0c != NULL) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x0c);
+		if (m_buffer1 != NULL) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_buffer1);
 		}
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1003dad5
-undefined4 VideoSound::FUN_1003dad5()
+undefined4 VideoSound::IsBufferReady()
 {
-	if (m_unk0x04) {
-		if (m_unk0x10 == -1) {
-			m_unk0x10 = AIL_sample_buffer_ready((HSAMPLE) m_unk0x04);
+	if (m_sample) {
+		if (m_readyBuffer == -1) {
+			m_readyBuffer = AIL_sample_buffer_ready((HSAMPLE) m_sample);
 		}
-		if (m_unk0x10 != -1) {
+		if (m_readyBuffer != -1) {
 			return TRUE;
 		}
 	}
@@ -491,14 +491,14 @@ undefined4 VideoSound::FUN_1003dad5()
 }
 
 // FUNCTION: MW2SHELL 0x1003db31
-void* VideoSound::FUN_1003db31()
+void* VideoSound::GetReadyBuffer()
 {
-	if (m_unk0x04) {
-		if (m_unk0x10 == -1) {
-			m_unk0x10 = AIL_sample_buffer_ready((HSAMPLE) m_unk0x04);
+	if (m_sample) {
+		if (m_readyBuffer == -1) {
+			m_readyBuffer = AIL_sample_buffer_ready((HSAMPLE) m_sample);
 		}
-		if (m_unk0x10 != -1) {
-			return (&m_unk0x08)[m_unk0x10];
+		if (m_readyBuffer != -1) {
+			return (&m_buffer0)[m_readyBuffer];
 		}
 	}
 
@@ -506,14 +506,14 @@ void* VideoSound::FUN_1003db31()
 }
 
 // FUNCTION: MW2SHELL 0x1003db95
-void VideoSound::FUN_1003db95(void* p_buffer, MechU32 p_size)
+void VideoSound::LoadBuffer(void* p_buffer, MechU32 p_size)
 {
 	// The two adjacent buffer fields are selected by Miles' ready-buffer index.
-	if (m_unk0x04) {
-		if (m_unk0x10 == -1 || (&m_unk0x08)[m_unk0x10] != p_buffer) {
+	if (m_sample) {
+		if (m_readyBuffer == -1 || (&m_buffer0)[m_readyBuffer] != p_buffer) {
 			return;
 		}
-		AIL_load_sample_buffer((HSAMPLE) m_unk0x04, m_unk0x10, p_buffer, p_size);
-		m_unk0x10 = -1;
+		AIL_load_sample_buffer((HSAMPLE) m_sample, m_readyBuffer, p_buffer, p_size);
+		m_readyBuffer = -1;
 	}
 }

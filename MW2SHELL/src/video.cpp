@@ -3,13 +3,13 @@
 #include "audiosubsystem.h"
 #include "blit.h"
 #include "decomp.h"
-#include "drawmode.h"
-#include "drawmodeextension.h"
+#include "displaybackend.h"
 #include "fmvslot.h"
 #include "keyboardinput.h"
 #include "loopingmovie.h"
 #include "mousestate.h"
 #include "mss.h"
+#include "refreshmode.h"
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "tmpackdatabase.h"
@@ -22,63 +22,63 @@
 #include <windows.h>
 
 // GLOBAL: MW2SHELL 0x100641a8
-FmvSlot g_unk0x100641a8[32] = {0};
+FmvSlot g_fmvSlots[32] = {0};
 
 // GLOBAL: MW2SHELL 0x10064b28
-undefined4 g_unk0x10064b28 = 0;
+undefined4 g_videoOnDataDrive = 0;
 
 // GLOBAL: MW2SHELL 0x10064b2c
-MechS32 g_unk0x10064b2c = 0x404;
+MechS32 g_fullscreenVideoMsg = 0x404;
 
 // GLOBAL: MW2SHELL 0x10064b30
-MechS32 g_unk0x10064b30 = 0x404;
+MechS32 g_fullscreenVideoWParam = 0x404;
 
 // GLOBAL: MW2SHELL 0x1007cdd0
-MechChar g_unk0x1007cdd0[0x20];
+MechChar g_videoPath[0x20];
 
 // GLOBAL: MW2SHELL 0x1007cdf0
-MechChar g_unk0x1007cdf0[0x20];
+MechChar g_shpPath[0x20];
 
 // FUNCTION: MW2SHELL 0x10015d30
 MechChar* GetPathToVideo(const MechChar* p_name)
 {
-	if (g_unk0x10064b28 && g_szDataDrivePath[0]) {
-		sprintf(g_unk0x1007cdd0, "%ssmk\\%s.smk", g_szDataDrivePath, p_name);
+	if (g_videoOnDataDrive && g_szDataDrivePath[0]) {
+		sprintf(g_videoPath, "%ssmk\\%s.smk", g_szDataDrivePath, p_name);
 	}
 	else {
-		sprintf(g_unk0x1007cdd0, "smk\\%s.smk", p_name);
+		sprintf(g_videoPath, "smk\\%s.smk", p_name);
 	}
 
-	g_unk0x10064b28 = 0;
-	return g_unk0x1007cdd0;
+	g_videoOnDataDrive = 0;
+	return g_videoPath;
 }
 
 // FUNCTION: MW2SHELL 0x10015da1
 MechChar* GetPathToShp(const MechChar* p_name)
 {
-	if (g_unk0x10064b28 && g_szDataDrivePath[0]) {
-		sprintf(g_unk0x1007cdf0, "%ssmk\\%s.shp", g_szDataDrivePath, p_name);
+	if (g_videoOnDataDrive && g_szDataDrivePath[0]) {
+		sprintf(g_shpPath, "%ssmk\\%s.shp", g_szDataDrivePath, p_name);
 	}
 	else {
-		sprintf(g_unk0x1007cdf0, "smk\\%s.shp", p_name);
+		sprintf(g_shpPath, "smk\\%s.shp", p_name);
 	}
 
-	g_unk0x10064b28 = 0;
-	return g_unk0x1007cdf0;
+	g_videoOnDataDrive = 0;
+	return g_shpPath;
 }
 
 // Looks for the video on the hard disk, then on the data drive; a video found there keeps
-// g_unk0x10064b28 set for the next GetPathToVideo.
+// g_videoOnDataDrive set for the next GetPathToVideo.
 // FUNCTION: MW2SHELL 0x10015e12
 BOOL CheckVideoExists(const MechChar* p_name)
 {
 	if (GetFileAttributes(GetPathToVideo(p_name)) == 0xffffffff) {
-		g_unk0x10064b28 = 1;
+		g_videoOnDataDrive = 1;
 		if (GetFileAttributes(GetPathToVideo(p_name)) == 0xffffffff) {
 			return FALSE;
 		}
 		else {
-			g_unk0x10064b28 = 1;
+			g_videoOnDataDrive = 1;
 			return TRUE;
 		}
 	}
@@ -90,64 +90,64 @@ BOOL CheckVideoExists(const MechChar* p_name)
 // The screen callback while a full-screen video plays: a click, a key or any other message ends
 // it.
 // FUNCTION: MW2SHELL 0x10015e8e
-void FUN_10015e8e(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
+void FullscreenVideoCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 {
 	FmvSlot* video;
 	MechS32 msg;
 
-	video = &g_unk0x100641a8[0];
-	if (!FUN_10016b11(0) || g_pMouseState->GetLeftPressed() == 1 || g_unk0x100711f8->FUN_10044189() || p_msg != 0x404) {
-		FUN_10016d90(0);
-		FUN_100108fd(FUN_10015e8e);
+	video = &g_fmvSlots[0];
+	if (!IsVideoPlaying(0) || g_pMouseState->GetLeftPressed() == 1 || g_keyboardInput->PollKey() || p_msg != 0x404) {
+		CloseVideo(0);
+		UnregisterScreenFunction(FullscreenVideoCallback);
 		if (p_msg == 0x404) {
-			msg = g_unk0x10064b2c;
+			msg = g_fullscreenVideoMsg;
 		}
 		else {
 			msg = p_msg;
 		}
 
-		PostMessage(g_pWnd, msg, g_unk0x10064b30, 0);
-		g_unk0x10064b2c = g_unk0x10064b30 = 0x404;
+		PostMessage(g_pWnd, msg, g_fullscreenVideoWParam, 0);
+		g_fullscreenVideoMsg = g_fullscreenVideoWParam = 0x404;
 		g_fDrawFmv = FALSE;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10015f58
-MechS32 FUN_10015f58(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
+MechS32 BeginFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 {
 	MechS32 result;
 
-	FUN_10016f45();
-	result = FUN_10017460(0, p_name, 0, 0, 0x1000, 0);
+	CloseAllVideos();
+	result = PlayVideo(0, p_name, 0, 0, 0x1000, 0);
 	if (result == -1) {
 		PostMessage(g_pWnd, p_msg, p_wParam, 0);
 		return 0;
 	}
 
-	if (g_unk0x1006a9f0 != 0) {
+	if (g_littleMovies != 0) {
 		g_pVideoDriver->ActivateFramebuffer();
 	}
-	g_unk0x10064b2c = p_msg;
-	g_unk0x10064b30 = p_wParam;
-	FUN_100108e5(FUN_10015e8e);
+	g_fullscreenVideoMsg = p_msg;
+	g_fullscreenVideoWParam = p_wParam;
+	RegisterScreenFunction(FullscreenVideoCallback);
 	return 1;
 }
 
 // FUNCTION: MW2SHELL 0x10015fed
 MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 {
-	if (FUN_10015f58(p_name, p_msg, p_wParam) == 0) {
+	if (BeginFullscreenVideo(p_name, p_msg, p_wParam) == 0) {
 		return 0;
 	}
 
-	FUN_10010320(g_windowMenu);
+	DisableShellMenu(g_windowMenu);
 	g_fDrawFmv = TRUE;
 	return 1;
 }
 
 DECOMP_SIZE_ASSERT(LoopingMovie, 0x18)
 
-// Opens the movie p_name (retrying once, after setting g_unk0x10064b28) and draws its first
+// Opens the movie p_name (retrying once, after setting g_videoOnDataDrive) and draws its first
 // frame at (p_left, p_top). Without a framebuffer it closes the movie again.
 // FUNCTION: MW2SHELL 0x1001603a
 LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
@@ -156,7 +156,7 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 
 	m_smack = SmackOpen(GetPathToVideo(p_name), g_unk0x10071248, 0);
 	if (m_smack == NULL) {
-		g_unk0x10064b28 = 1;
+		g_videoOnDataDrive = 1;
 		m_smack = SmackOpen(GetPathToVideo(p_name), g_unk0x10071248, 0);
 		if (m_smack == NULL) {
 			return;
@@ -170,7 +170,7 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 	m_frame = 1;
 
 	if (g_fWindowActive != 0) {
-		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
 		result = -1;
@@ -200,7 +200,7 @@ LoopingMovie::~LoopingMovie()
 // Moves the movie: restores the background under the old rectangle and draws the current
 // frame at the new position.
 // FUNCTION: MW2SHELL 0x100161dd
-void LoopingMovie::FUN_100161dd(MechS32 p_left, MechS32 p_top)
+void LoopingMovie::MoveTo(MechS32 p_left, MechS32 p_top)
 {
 	MechS32 result;
 
@@ -208,11 +208,11 @@ void LoopingMovie::FUN_100161dd(MechS32 p_left, MechS32 p_top)
 		return;
 	}
 
-	g_pVideoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
+	g_pVideoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 	m_left = p_left;
 	m_top = p_top;
 	if (g_fWindowActive != 0) {
-		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
 		result = -1;
@@ -238,7 +238,7 @@ void FUN_100162ef(void* p_block)
 }
 
 // FUNCTION: MW2SHELL 0x1001630b
-void LoopingMovie::FUN_1001630b()
+void LoopingMovie::Update()
 {
 	if (m_smack == NULL) {
 		return;
@@ -247,7 +247,7 @@ void LoopingMovie::FUN_1001630b()
 		return;
 	}
 
-	if ((g_fWindowActive ? g_currentDrawModeExtension->m_acquireFramebuffer() : -1) == 0) {
+	if ((g_fWindowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 		m_frame++;
 		if (m_smack->Frames < m_frame) {
 			m_frame = 1;
@@ -267,7 +267,7 @@ struct VideoPlaybackTimer {
 };
 
 // FUNCTION: MW2SHELL 0x100163ff
-MechS32 FUN_100163ff(FmvSlot* p_video, MechU32 p_time)
+MechS32 IsVideoFrameDue(FmvSlot* p_video, MechU32 p_time)
 {
 	if (p_time >= ((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next) {
 		((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next =
@@ -281,23 +281,23 @@ MechS32 FUN_100163ff(FmvSlot* p_video, MechU32 p_time)
 
 // The largest sound chunk streamed so far.
 // GLOBAL: MW2SHELL 0x10064b34
-MechS32 g_unk0x10064b34 = 0;
+MechS32 g_largestSoundChunk = 0;
 
 // Streams the next chunk of a video's sound track to its sound object once it wants one.
 // FUNCTION: MW2SHELL 0x1001643e
-void FUN_1001643e(FmvSlot* p_video)
+void StreamVideoSound(FmvSlot* p_video)
 {
 	AIL_serve();
-	if (p_video->m_unk0x04 != NULL && p_video->m_unk0x10) {
-		if (p_video->m_unk0x04->FUN_1003dad5()) {
-			p_video->m_unk0x08 = p_video->m_unk0x04->FUN_1003db31();
-			p_video->m_unk0x0c = SmackGetTrackData(p_video->m_unk0x00, p_video->m_unk0x08, 0x200);
-			if (p_video->m_unk0x0c > g_unk0x10064b34) {
-				g_unk0x10064b34 = p_video->m_unk0x0c;
+	if (p_video->m_sound != NULL && p_video->m_soundPending) {
+		if (p_video->m_sound->IsBufferReady()) {
+			p_video->m_soundBuffer = p_video->m_sound->GetReadyBuffer();
+			p_video->m_soundSize = SmackGetTrackData(p_video->m_smack, p_video->m_soundBuffer, 0x200);
+			if (p_video->m_soundSize > g_largestSoundChunk) {
+				g_largestSoundChunk = p_video->m_soundSize;
 			}
 
-			p_video->m_unk0x04->FUN_1003db95(p_video->m_unk0x08, p_video->m_unk0x0c);
-			p_video->m_unk0x10 = 0;
+			p_video->m_sound->LoadBuffer(p_video->m_soundBuffer, p_video->m_soundSize);
+			p_video->m_soundPending = 0;
 		}
 	}
 }
@@ -305,46 +305,46 @@ void FUN_1001643e(FmvSlot* p_video)
 // Plays the next frame of the full-screen video in slot 0, closing it after the last.
 // Stack-slot permutation: video, palette and result.
 // FUNCTION: MW2SHELL 0x100164f2
-void FUN_100164f2()
+void PlayFullscreenVideoFrame()
 {
 	MechS32 result;
 	PaletteColor* palette;
 	FmvSlot* video;
 
-	video = &g_unk0x100641a8[0];
-	if (!SmackWait(video->m_unk0x00)) {
-		if (video->m_unk0x3c == 1) {
+	video = &g_fmvSlots[0];
+	if (!SmackWait(video->m_smack)) {
+		if (video->m_frame == 1) {
 			g_pVideoDriver->m_unk0x3aa = 1;
 		}
 
-		if (video->m_unk0x00->NewPalette) {
-			if (video->m_unk0x00->PalType == 1) {
-				palette = (PaletteColor*) video->m_unk0x00->Palette;
+		if (video->m_smack->NewPalette) {
+			if (video->m_smack->PalType == 1) {
+				palette = (PaletteColor*) video->m_smack->Palette;
 			}
 			else {
-				palette = (PaletteColor*) video->m_unk0x00->AlternatePalette;
+				palette = (PaletteColor*) video->m_smack->AlternatePalette;
 			}
 			g_pVideoDriver->SetPalette(palette, 0);
 		}
 
 		if (g_fWindowActive) {
-			result = g_currentDrawModeExtension->m_acquireFramebuffer();
+			result = g_currentDisplayBackend->m_acquireFramebuffer();
 		}
 		else {
 			result = -1;
 		}
 
 		if (result == 0) {
-			SmackDoFrame(video->m_unk0x00);
+			SmackDoFrame(video->m_smack);
 			g_pVideoDriver->ExpandRectBySize(0, 0, video->m_width, video->m_height);
 		}
 
-		video->m_unk0x3c++;
-		if (video->m_unk0x3c > video->m_unk0x40) {
-			FUN_10016d90(0);
+		video->m_frame++;
+		if (video->m_frame > video->m_frameCount) {
+			CloseVideo(0);
 		}
 		else {
-			SmackNextFrame(video->m_unk0x00);
+			SmackNextFrame(video->m_smack);
 		}
 	}
 }
@@ -352,10 +352,10 @@ void FUN_100164f2()
 // Advances and draws the videos of all slots: Smacker videos frame by frame, sprite sheets
 // (m_unk0x14) on their timer. A video past its last frame stops (flag 4), loops (flag 8) or
 // closes.
-// Not 100%: the stack slots of video and i are permuted, and m_unk0x34 != m_top loads m_unk0x34
+// Not 100%: the stack slots of video and i are permuted, and m_drawnTop != m_top loads m_drawnTop
 // first (reversing the operands or retyping the member doesn't flip it).
 // FUNCTION: MW2SHELL 0x1001661b
-void FUN_1001661b()
+void UpdateVideos()
 {
 	FmvSlot* video;
 	MechS32 i;
@@ -368,51 +368,52 @@ void FUN_1001661b()
 		return;
 	}
 
-	video = g_unk0x100641a8;
-	if (video->m_unk0x1c & 0x80000000 && video->m_unk0x1c & 0x1000) {
-		FUN_100164f2();
+	video = g_fmvSlots;
+	if (video->m_flags & 0x80000000 && video->m_flags & 0x1000) {
+		PlayFullscreenVideoFrame();
 		return;
 	}
 
-	for (i = 0, video = g_unk0x100641a8; i < 32; i++, video++) {
-		if (video->m_unk0x1c & 0x80000000) {
-			if (video->m_unk0x00 && !video->m_unk0x3c && !(video->m_unk0x1c & 1)) {
-				SmackDoFrame(video->m_unk0x00);
-				if (video->m_unk0x1c & 2) {
-					video->m_unk0x1c |= 0x10;
+	for (i = 0, video = g_fmvSlots; i < 32; i++, video++) {
+		if (video->m_flags & 0x80000000) {
+			if (video->m_smack && !video->m_frame && !(video->m_flags & 1)) {
+				SmackDoFrame(video->m_smack);
+				if (video->m_flags & 2) {
+					video->m_flags |= 0x10;
 				}
-				video->m_unk0x3c = 1;
+				video->m_frame = 1;
 			}
 
-			if (video->m_unk0x00 && !(video->m_unk0x1c & 2)) {
-				video->m_unk0x38 = video->m_unk0x3c;
+			if (video->m_smack && !(video->m_flags & 2)) {
+				video->m_drawnFrame = video->m_frame;
 			}
 
-			if (video->m_unk0x30 != video->m_left || video->m_unk0x34 != video->m_top ||
-				video->m_unk0x38 != video->m_unk0x3c || video->m_unk0x1c & 0x40000020) {
-				if (video->m_unk0x1c & 0x10) {
-					g_pVideoDriver->FUN_100071ad(video->m_unk0x30, video->m_unk0x34, video->m_width, video->m_height);
+			if (video->m_drawnLeft != video->m_left || video->m_drawnTop != video->m_top ||
+				video->m_drawnFrame != video->m_frame || video->m_flags & 0x40000020) {
+				if (video->m_flags & 0x10) {
+					g_pVideoDriver
+						->RestoreBackground(video->m_drawnLeft, video->m_drawnTop, video->m_width, video->m_height);
 				}
-				video->m_unk0x1c |= 0x100;
+				video->m_flags |= 0x100;
 			}
 
-			video->m_unk0x30 = video->m_left;
-			video->m_unk0x34 = video->m_top;
-			video->m_unk0x38 = video->m_unk0x3c;
-			video->m_unk0x1c &= ~0x10;
-			if (video->m_unk0x1c & 0x40000000) {
-				FUN_10016d90(i);
+			video->m_drawnLeft = video->m_left;
+			video->m_drawnTop = video->m_top;
+			video->m_drawnFrame = video->m_frame;
+			video->m_flags &= ~0x10;
+			if (video->m_flags & 0x40000000) {
+				CloseVideo(i);
 			}
 		}
 	}
 
-	g_pVideoDriver->FUN_10007763(0);
-	for (i = 0, video = g_unk0x100641a8; i < 32; i++, video++) {
-		if (video->m_unk0x1c & 0x80000000) {
-			if (video->m_unk0x00) {
-				if (video->m_unk0x18 && !(video->m_unk0x1c & 0x20)) {
-					video->m_unk0x1c |= 0x10;
-					if (video->m_unk0x1c & 0x100) {
+	g_pVideoDriver->RedrawGlyphs(0);
+	for (i = 0, video = g_fmvSlots; i < 32; i++, video++) {
+		if (video->m_flags & 0x80000000) {
+			if (video->m_smack) {
+				if (video->m_unk0x18 && !(video->m_flags & 0x20)) {
+					video->m_flags |= 0x10;
+					if (video->m_flags & 0x100) {
 						g_pVideoDriver->FUN_10006ed4(
 							(undefined*) video->m_unk0x18,
 							video->m_left,
@@ -430,44 +431,44 @@ void FUN_1001661b()
 							video->m_height
 						);
 					}
-					video->m_unk0x1c &= ~0x100;
+					video->m_flags &= ~0x100;
 				}
 
-				if (!(video->m_unk0x1c & 1) && !SmackWait(video->m_unk0x00)) {
-					video->m_unk0x3c++;
-					if (video->m_unk0x3c > video->m_unk0x40) {
-						video->m_unk0x3c--;
-						if (video->m_unk0x1c & 4) {
-							video->m_unk0x1c |= 1;
+				if (!(video->m_flags & 1) && !SmackWait(video->m_smack)) {
+					video->m_frame++;
+					if (video->m_frame > video->m_frameCount) {
+						video->m_frame--;
+						if (video->m_flags & 4) {
+							video->m_flags |= 1;
 							continue;
 						}
-						else if (video->m_unk0x1c & 8) {
-							video->m_unk0x3c = 1;
-							SmackGoto(video->m_unk0x00, video->m_unk0x3c);
+						else if (video->m_flags & 8) {
+							video->m_frame = 1;
+							SmackGoto(video->m_smack, video->m_frame);
 						}
 						else {
-							video->m_unk0x1c |= 0x40000001;
+							video->m_flags |= 0x40000001;
 							continue;
 						}
 					}
-					else if (video->m_unk0x3c != 1) {
-						SmackNextFrame(video->m_unk0x00);
+					else if (video->m_frame != 1) {
+						SmackNextFrame(video->m_smack);
 					}
 
-					SmackDoFrame(video->m_unk0x00);
-					video->m_unk0x1c |= 0x100;
-					if (video->m_unk0x1c & 2) {
-						video->m_unk0x1c |= 0x10;
+					SmackDoFrame(video->m_smack);
+					video->m_flags |= 0x100;
+					if (video->m_flags & 2) {
+						video->m_flags |= 0x10;
 					}
 				}
 			}
 			else if (video->m_unk0x14) {
-				if (!(video->m_unk0x1c & 0x20)) {
-					video->m_unk0x1c |= 0x10;
-					if (video->m_unk0x1c & 0x100) {
+				if (!(video->m_flags & 0x20)) {
+					video->m_flags |= 0x10;
+					if (video->m_flags & 0x100) {
 						g_pVideoDriver->FUN_100073b3(
 							(undefined4) video->m_unk0x14,
-							video->m_unk0x3c,
+							video->m_frame,
 							video->m_left,
 							video->m_top,
 							video->m_width,
@@ -477,43 +478,43 @@ void FUN_1001661b()
 					else {
 						g_pVideoDriver->FUN_10007430(
 							(undefined4) video->m_unk0x14,
-							video->m_unk0x3c,
+							video->m_frame,
 							video->m_left,
 							video->m_top,
 							video->m_width,
 							video->m_height
 						);
 					}
-					video->m_unk0x1c &= ~0x100;
+					video->m_flags &= ~0x100;
 				}
 
-				if (!(video->m_unk0x1c & 1) && !FUN_100163ff(video, timeGetTime())) {
-					video->m_unk0x3c++;
-					if (video->m_unk0x3c >= video->m_unk0x40) {
-						video->m_unk0x3c--;
-						if (video->m_unk0x1c & 4) {
-							video->m_unk0x1c |= 1;
+				if (!(video->m_flags & 1) && !IsVideoFrameDue(video, timeGetTime())) {
+					video->m_frame++;
+					if (video->m_frame >= video->m_frameCount) {
+						video->m_frame--;
+						if (video->m_flags & 4) {
+							video->m_flags |= 1;
 						}
-						else if (video->m_unk0x1c & 8) {
-							video->m_unk0x3c = 0;
+						else if (video->m_flags & 8) {
+							video->m_frame = 0;
 						}
 						else {
-							video->m_unk0x1c |= 0x40000001;
+							video->m_flags |= 0x40000001;
 						}
 					}
-					video->m_unk0x1c |= 0x100;
+					video->m_flags |= 0x100;
 				}
 			}
 		}
 	}
-	g_pVideoDriver->FUN_10007763(1);
+	g_pVideoDriver->RedrawGlyphs(1);
 }
 
 // FUNCTION: MW2SHELL 0x10016b11
-MechS32 FUN_10016b11(MechS32 p_index)
+MechS32 IsVideoPlaying(MechS32 p_index)
 {
-	if (p_index >= 0 && p_index < 0x20 && (g_unk0x100641a8[p_index].m_unk0x1c & 0x80000000) &&
-		!(g_unk0x100641a8[p_index].m_unk0x1c & 1)) {
+	if (p_index >= 0 && p_index < 0x20 && (g_fmvSlots[p_index].m_flags & 0x80000000) &&
+		!(g_fmvSlots[p_index].m_flags & 1)) {
 		return 1;
 	}
 	else {
@@ -527,7 +528,7 @@ MechS32 FUN_10016b78()
 	MechS32 i;
 
 	for (i = 0; i < 0x20; i++) {
-		if ((g_unk0x100641a8[i].m_unk0x1c & 0x80000000) && (g_unk0x100641a8[i].m_unk0x1c & 0x2000)) {
+		if ((g_fmvSlots[i].m_flags & 0x80000000) && (g_fmvSlots[i].m_flags & 0x2000)) {
 			return 1;
 		}
 	}
@@ -536,9 +537,9 @@ MechS32 FUN_10016b78()
 }
 
 // FUNCTION: MW2SHELL 0x10016be7
-MechS32 FUN_10016be7()
+MechS32 IsFullscreenVideoPlaying()
 {
-	if ((g_unk0x100641a8[0].m_unk0x1c & 0x80000000) && (g_unk0x100641a8[0].m_unk0x1c & 0x1000)) {
+	if ((g_fmvSlots[0].m_flags & 0x80000000) && (g_fmvSlots[0].m_flags & 0x1000)) {
 		return 1;
 	}
 
@@ -548,8 +549,8 @@ MechS32 FUN_10016be7()
 // FUNCTION: MW2SHELL 0x10016c1d
 void FUN_10016c1d()
 {
-	g_unk0x100641a8[0].m_unk0x3c--;
-	g_pVideoDriver->FUN_1000725d();
+	g_fmvSlots[0].m_frame--;
+	g_pVideoDriver->CopyScreenToBackground();
 }
 
 // FUNCTION: MW2SHELL 0x10016c3e
@@ -557,98 +558,98 @@ void FUN_10016c3e()
 {
 	MechS32 result;
 
-	SmackGoto(g_unk0x100641a8[0].m_unk0x00, g_unk0x100641a8[0].m_unk0x3c);
-	g_pVideoDriver->FUN_10007293();
+	SmackGoto(g_fmvSlots[0].m_smack, g_fmvSlots[0].m_frame);
+	g_pVideoDriver->CopyBackgroundToScreen();
 	if (g_fWindowActive != 0) {
-		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
 		result = -1;
 	}
 
 	if (result == 0) {
-		SmackDoFrame(g_unk0x100641a8[0].m_unk0x00);
+		SmackDoFrame(g_fmvSlots[0].m_smack);
 	}
 
-	SmackNextFrame(g_unk0x100641a8[0].m_unk0x00);
-	g_unk0x100641a8[0].m_unk0x3c++;
+	SmackNextFrame(g_fmvSlots[0].m_smack);
+	g_fmvSlots[0].m_frame++;
 }
 
 // The original loads p_mask before p_value in p_mask & p_value; swapping the operands didn't flip it.
 // The first statement reloads and stores the flags instead of and-ing them in place: an unsigned
 // operation on a signed field does that, which is why the mask is cast.
 // FUNCTION: MW2SHELL 0x10016cc0
-void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value)
+void SetVideoFlags(MechS32 p_index, MechS32 p_mask, MechS32 p_value)
 {
 	if (p_index >= 0 && p_index < 0x20) {
-		g_unk0x100641a8[p_index].m_unk0x1c &= ~(MechU32) p_mask;
-		g_unk0x100641a8[p_index].m_unk0x1c |= p_mask & p_value;
+		g_fmvSlots[p_index].m_flags &= ~(MechU32) p_mask;
+		g_fmvSlots[p_index].m_flags |= p_mask & p_value;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10016d27
 void FUN_10016d27(MechS32 p_index)
 {
-	if (p_index >= 0 && p_index < 0x20 && (g_unk0x100641a8[p_index].m_unk0x1c & 0x20)) {
-		g_unk0x100641a8[p_index].m_unk0x1c = g_unk0x100641a8[p_index].m_unk0x1c & ~0x20 | 0x100;
+	if (p_index >= 0 && p_index < 0x20 && (g_fmvSlots[p_index].m_flags & 0x20)) {
+		g_fmvSlots[p_index].m_flags = g_fmvSlots[p_index].m_flags & ~0x20 | 0x100;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10016d90
-void FUN_10016d90(MechS32 p_index)
+void CloseVideo(MechS32 p_index)
 {
 	if (p_index < 0 || p_index >= 0x20) {
 		return;
 	}
 
-	if (g_unk0x100641a8[p_index].m_unk0x1c & 0x1000) {
-		FUN_1001023c(g_windowMenu);
+	if (g_fmvSlots[p_index].m_flags & 0x1000) {
+		EnableShellMenu(g_windowMenu);
 	}
 
-	if (g_unk0x100641a8[p_index].m_unk0x00 != NULL) {
-		SmackClose(g_unk0x100641a8[p_index].m_unk0x00);
+	if (g_fmvSlots[p_index].m_smack != NULL) {
+		SmackClose(g_fmvSlots[p_index].m_smack);
 	}
 
-	if (g_unk0x100641a8[p_index].m_unk0x04 != NULL) {
-		delete g_unk0x100641a8[p_index].m_unk0x04;
+	if (g_fmvSlots[p_index].m_sound != NULL) {
+		delete g_fmvSlots[p_index].m_sound;
 	}
 
-	if (g_unk0x100641a8[p_index].m_unk0x14 != NULL) {
-		MEM_free_lock(g_unk0x100641a8[p_index].m_unk0x14);
+	if (g_fmvSlots[p_index].m_unk0x14 != NULL) {
+		MEM_free_lock(g_fmvSlots[p_index].m_unk0x14);
 	}
 
-	if (g_unk0x100641a8[p_index].m_unk0x18 != NULL) {
-		MEM_free_lock(g_unk0x100641a8[p_index].m_unk0x18);
+	if (g_fmvSlots[p_index].m_unk0x18 != NULL) {
+		MEM_free_lock(g_fmvSlots[p_index].m_unk0x18);
 	}
 
-	g_unk0x100641a8[p_index].m_unk0x00 = NULL;
-	g_unk0x100641a8[p_index].m_unk0x04 = NULL;
-	g_unk0x100641a8[p_index].m_unk0x14 = NULL;
-	ZeroMemory(&g_unk0x100641a8[p_index].m_unk0x1c, 4);
-	g_unk0x100641a8[p_index].m_unk0x18 = NULL;
+	g_fmvSlots[p_index].m_smack = NULL;
+	g_fmvSlots[p_index].m_sound = NULL;
+	g_fmvSlots[p_index].m_unk0x14 = NULL;
+	ZeroMemory(&g_fmvSlots[p_index].m_flags, 4);
+	g_fmvSlots[p_index].m_unk0x18 = NULL;
 }
 
 // FUNCTION: MW2SHELL 0x10016f45
-void FUN_10016f45()
+void CloseAllVideos()
 {
 	MechS32 i;
 
 	for (i = 0; i < 0x20; i++) {
-		FUN_10016d90(i);
+		CloseVideo(i);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10016f82
-void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top)
+void MoveVideo(MechS32 p_index, MechS32 p_left, MechS32 p_top)
 {
-	if (p_index >= 0 && p_index < 0x20 && (g_unk0x100641a8[p_index].m_unk0x1c & 0x80000000)) {
-		if (g_unk0x100641a8[p_index].m_unk0x1c & 0x80) {
-			p_left -= g_unk0x100641a8[p_index].m_width / 2;
-			p_top -= g_unk0x100641a8[p_index].m_height;
+	if (p_index >= 0 && p_index < 0x20 && (g_fmvSlots[p_index].m_flags & 0x80000000)) {
+		if (g_fmvSlots[p_index].m_flags & 0x80) {
+			p_left -= g_fmvSlots[p_index].m_width / 2;
+			p_top -= g_fmvSlots[p_index].m_height;
 		}
 
-		g_unk0x100641a8[p_index].m_left = p_left;
-		g_unk0x100641a8[p_index].m_top = p_top;
+		g_fmvSlots[p_index].m_left = p_left;
+		g_fmvSlots[p_index].m_top = p_top;
 	}
 }
 
@@ -662,48 +663,48 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 	undefined4 dataDrive;
 	MechS32 result;
 
-	dataDrive = g_unk0x10064b28;
-	p_slot->m_unk0x00 = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_unk0x1c & 0x40) >> 1) | 0xfe00, 0);
-	if (!p_slot->m_unk0x00) {
+	dataDrive = g_videoOnDataDrive;
+	p_slot->m_smack = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_flags & 0x40) >> 1) | 0xfe00, 0);
+	if (!p_slot->m_smack) {
 		return FALSE;
 	}
 
-	if (g_pAudioSubsystem && SmackSoundInTrack(p_slot->m_unk0x00, 0x200)) {
-		SmackClose(p_slot->m_unk0x00);
+	if (g_pAudioSubsystem && SmackSoundInTrack(p_slot->m_smack, 0x200)) {
+		SmackClose(p_slot->m_smack);
 		g_pAudioSubsystem->CloseDigitalDriver();
-		g_unk0x10064b28 = dataDrive;
-		p_slot->m_unk0x00 = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_unk0x1c & 0x40) >> 1) | 0xfe00, 0);
-		if (!p_slot->m_unk0x00) {
+		g_videoOnDataDrive = dataDrive;
+		p_slot->m_smack = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_flags & 0x40) >> 1) | 0xfe00, 0);
+		if (!p_slot->m_smack) {
 			return FALSE;
 		}
 
-		p_slot->m_unk0x1c |= 0x2000;
+		p_slot->m_flags |= 0x2000;
 	}
 	else {
-		SmackClose(p_slot->m_unk0x00);
-		g_unk0x10064b28 = dataDrive;
-		p_slot->m_unk0x00 = SmackOpen(GetPathToVideo(p_name), (p_slot->m_unk0x1c & 0x40) >> 1, 0);
-		if (!p_slot->m_unk0x00) {
+		SmackClose(p_slot->m_smack);
+		g_videoOnDataDrive = dataDrive;
+		p_slot->m_smack = SmackOpen(GetPathToVideo(p_name), (p_slot->m_flags & 0x40) >> 1, 0);
+		if (!p_slot->m_smack) {
 			return FALSE;
 		}
 	}
 
-	p_slot->m_width = p_slot->m_unk0x00->Width;
-	p_slot->m_height = p_slot->m_unk0x00->Height;
-	if (p_slot->m_unk0x1c & 0x80) {
+	p_slot->m_width = p_slot->m_smack->Width;
+	p_slot->m_height = p_slot->m_smack->Height;
+	if (p_slot->m_flags & 0x80) {
 		p_slot->m_left -= p_slot->m_width / 2;
 		p_slot->m_top -= p_slot->m_height;
 	}
 
-	p_slot->m_unk0x3c = 0;
-	p_slot->m_unk0x40 = p_slot->m_unk0x00->Frames;
-	p_slot->m_unk0x38 = p_slot->m_unk0x3c;
+	p_slot->m_frame = 0;
+	p_slot->m_frameCount = p_slot->m_smack->Frames;
+	p_slot->m_drawnFrame = p_slot->m_frame;
 	p_slot->m_unk0x18 = NULL;
 
-	if (p_slot->m_unk0x1c & 0x1000) {
-		p_slot->m_unk0x3c = 1;
+	if (p_slot->m_flags & 0x1000) {
+		p_slot->m_frame = 1;
 		if (g_fWindowActive != 0) {
-			result = g_currentDrawModeExtension->m_acquireFramebuffer();
+			result = g_currentDisplayBackend->m_acquireFramebuffer();
 		}
 		else {
 			result = -1;
@@ -711,7 +712,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 
 		if (result == 0) {
 			SmackToBuffer(
-				p_slot->m_unk0x00,
+				p_slot->m_smack,
 				p_slot->m_left,
 				p_slot->m_top,
 				0x280,
@@ -721,17 +722,17 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 			);
 		}
 		else {
-			if (p_slot->m_unk0x04) {
-				delete p_slot->m_unk0x04;
+			if (p_slot->m_sound) {
+				delete p_slot->m_sound;
 			}
-			p_slot->m_unk0x04 = NULL;
-			SmackClose(p_slot->m_unk0x00);
+			p_slot->m_sound = NULL;
+			SmackClose(p_slot->m_smack);
 			return FALSE;
 		}
 	}
-	else if (p_slot->m_unk0x1c & 2) {
+	else if (p_slot->m_flags & 2) {
 		SmackToBuffer(
-			p_slot->m_unk0x00,
+			p_slot->m_smack,
 			p_slot->m_left,
 			p_slot->m_top,
 			0x280,
@@ -742,7 +743,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 	}
 	else {
 		p_slot->m_unk0x18 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_slot->m_width * p_slot->m_height);
-		SmackToBuffer(p_slot->m_unk0x00, 0, 0, p_slot->m_width, p_slot->m_height, p_slot->m_unk0x18, 0);
+		SmackToBuffer(p_slot->m_smack, 0, 0, p_slot->m_width, p_slot->m_height, p_slot->m_unk0x18, 0);
 	}
 
 	return TRUE;
@@ -762,14 +763,14 @@ BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 	size = FUN_10037504(p_slot->m_unk0x14, 0);
 	p_slot->m_width = (size >> 16) + 1;
 	p_slot->m_height = (size & 0xffff) + 1;
-	if (p_slot->m_unk0x1c & 0x80) {
+	if (p_slot->m_flags & 0x80) {
 		p_slot->m_left -= p_slot->m_width / 2;
 		p_slot->m_top -= p_slot->m_height;
 	}
 
-	p_slot->m_unk0x3c = 0;
-	p_slot->m_unk0x40 = FUN_10037684(p_slot->m_unk0x14);
-	p_slot->m_unk0x38 = p_slot->m_unk0x3c;
+	p_slot->m_frame = 0;
+	p_slot->m_frameCount = FUN_10037684(p_slot->m_unk0x14);
+	p_slot->m_drawnFrame = p_slot->m_frame;
 	p_slot->m_unk0x18 = NULL;
 	((VideoPlaybackTimer*) p_slot->m_unk0x44)->m_next = 0;
 
@@ -779,7 +780,7 @@ BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 // Plays the video or SHP animation p_name in slot p_index at (p_left, p_top), p_fps frames a
 // second (10 for 0), replacing what the slot played. Returns the slot, or -1.
 // FUNCTION: MW2SHELL 0x10017460
-MechS32 FUN_10017460(
+MechS32 PlayVideo(
 	MechS32 p_index,
 	const char* p_name,
 	undefined4 p_left,
@@ -788,22 +789,22 @@ MechS32 FUN_10017460(
 	MechU32 p_fps
 )
 {
-	FmvSlot* slot = &g_unk0x100641a8[p_index];
+	FmvSlot* slot = &g_fmvSlots[p_index];
 
 	if (p_index < 0 || p_index >= 0x20) {
 		return -1;
 	}
 
-	if (slot->m_unk0x1c & 0x80000000) {
-		if (slot->m_unk0x1c & 0x10) {
-			g_pVideoDriver->FUN_100071ad(slot->m_unk0x30, slot->m_unk0x34, slot->m_width, slot->m_height);
+	if (slot->m_flags & 0x80000000) {
+		if (slot->m_flags & 0x10) {
+			g_pVideoDriver->RestoreBackground(slot->m_drawnLeft, slot->m_drawnTop, slot->m_width, slot->m_height);
 		}
-		FUN_10016d90(p_index);
+		CloseVideo(p_index);
 	}
 
 	slot->m_left = p_left;
 	slot->m_top = p_top;
-	slot->m_unk0x1c = p_flags | 0x80000100;
+	slot->m_flags = p_flags | 0x80000100;
 	if (!p_fps) {
 		p_fps = 10;
 	}
@@ -811,33 +812,33 @@ MechS32 FUN_10017460(
 
 	if (CheckVideoExists(p_name)) {
 		if (!LoadVideoFile(slot, p_name)) {
-			slot->m_unk0x1c = 0;
+			slot->m_flags = 0;
 			return -1;
 		}
 	}
 	else if (!LoadShpFile(slot, p_name)) {
-		g_unk0x10064b28 = 1;
+		g_videoOnDataDrive = 1;
 		if (!LoadShpFile(slot, p_name)) {
-			slot->m_unk0x1c = 0;
+			slot->m_flags = 0;
 			return -1;
 		}
 	}
 
-	slot->m_unk0x30 = slot->m_left;
-	slot->m_unk0x34 = slot->m_top;
+	slot->m_drawnLeft = slot->m_left;
+	slot->m_drawnTop = slot->m_top;
 
 	return p_index;
 }
 
 // Plays a video in the first free slot.
 // FUNCTION: MW2SHELL 0x100175e2
-MechS32 FUN_100175e2(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14)
+MechS32 PlayVideoInFreeSlot(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14)
 {
 	MechS32 i;
 
 	for (i = 0; i < 0x20; i++) {
-		if (!(g_unk0x100641a8[i].m_unk0x1c & 0x80000000)) {
-			return FUN_10017460(i, p_name, p_left, p_top, p_flags, p_unk0x14);
+		if (!(g_fmvSlots[i].m_flags & 0x80000000)) {
+			return PlayVideo(i, p_name, p_left, p_top, p_flags, p_unk0x14);
 		}
 	}
 
@@ -845,10 +846,10 @@ MechS32 FUN_100175e2(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_
 }
 
 // FUNCTION: MW2SHELL 0x10017656
-MechS32 FUN_10017656(MechS32 p_index)
+MechS32 GetVideoFrame(MechS32 p_index)
 {
 	if (p_index >= 0 && p_index < 0x20) {
-		return g_unk0x100641a8[p_index].m_unk0x3c;
+		return g_fmvSlots[p_index].m_frame;
 	}
 	else {
 		return 0;
@@ -856,14 +857,14 @@ MechS32 FUN_10017656(MechS32 p_index)
 }
 
 // FUNCTION: MW2SHELL 0x10017698
-void FUN_10017698(MechS32 p_index, MechS32 p_frame)
+void SetVideoFrame(MechS32 p_index, MechS32 p_frame)
 {
 	if (p_index >= 0 && p_index < 0x20) {
-		if (p_frame >= g_unk0x100641a8[p_index].m_unk0x40) {
+		if (p_frame >= g_fmvSlots[p_index].m_frameCount) {
 			p_frame = 0;
 		}
 
-		g_unk0x100641a8[p_index].m_unk0x3c = p_frame;
-		g_unk0x100641a8[p_index].m_unk0x38 = -1;
+		g_fmvSlots[p_index].m_frame = p_frame;
+		g_fmvSlots[p_index].m_drawnFrame = -1;
 	}
 }

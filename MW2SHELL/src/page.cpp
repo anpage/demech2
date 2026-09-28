@@ -47,7 +47,7 @@ MechChar g_unk0x10094278[0x400];
 		}                                                                                                              \
 		else {                                                                                                         \
 			rect->m_left = m_left + lineWidth - (WORD_WIDTH);                                                          \
-			rect->m_top = m_font->m_unk0x40c + m_top;                                                                  \
+			rect->m_top = m_font->m_height + m_top;                                                                    \
 			rect->m_right = rect->m_left + (WORD_WIDTH);                                                               \
 			rect->m_bottom = rect->m_top + m_lineHeight;                                                               \
 		}                                                                                                              \
@@ -94,7 +94,7 @@ Page::Page(
 
 	m_banner = NULL;
 	m_colors = p_colors;
-	m_lineHeight = m_font->m_unk0x40c + 2;
+	m_lineHeight = m_font->m_height + 2;
 	m_top -= m_lineHeight;
 
 	result = CreateCollection(&glyphs, 0x32, NULL, 4, NULL);
@@ -268,7 +268,7 @@ MechS32 Page::FlushLine(MechChar* p_line, MechChar* p_word)
 	}
 
 	strcpy(p_line, p_word);
-	return m_font->FUN_100053be(p_word);
+	return m_font->GetTextWidth(p_word);
 }
 
 // Returns the width p_word adds, measuring it unless p_width gives it.
@@ -280,7 +280,7 @@ MechS32 Page::AppendWord(MechChar* p_line, MechChar* p_word, MechS32 p_width)
 		return p_width;
 	}
 
-	return m_font->FUN_100053be(p_word);
+	return m_font->GetTextWidth(p_word);
 }
 
 // Lays out p_text until the page is full or a \S code. Returns where the next page starts, or
@@ -326,7 +326,7 @@ MechChar* Page::Layout(MechChar* p_text)
 
 		switch (token) {
 		case c_tokenWord:
-			width = m_font->FUN_100053be(g_unk0x10093a78);
+			width = m_font->GetTextWidth(g_unk0x10093a78);
 			strcpy(g_unk0x10094278, g_unk0x10093a78);
 			strcpy(g_unk0x10093a78, "");
 			for (i = 0; i < tabs; i++) {
@@ -344,7 +344,7 @@ MechChar* Page::Layout(MechChar* p_text)
 				offset = -1;
 			}
 
-			if (lineWidth + m_font->FUN_100053be(g_unk0x10093a78) <= m_width) {
+			if (lineWidth + m_font->GetTextWidth(g_unk0x10093a78) <= m_width) {
 				lineWidth += AppendWord(g_unk0x10093e78, g_unk0x10093a78, width);
 				wrapped = FALSE;
 			}
@@ -353,7 +353,7 @@ MechChar* Page::Layout(MechChar* p_text)
 				wrapped = TRUE;
 			}
 
-			PAGE_ADD_LINK(m_font->FUN_100053be(g_unk0x10093a78));
+			PAGE_ADD_LINK(m_font->GetTextWidth(g_unk0x10093a78));
 
 			if (m_bottom > 0 && m_lineHeight + m_top > m_bottom) {
 				return wordStart;
@@ -363,12 +363,12 @@ MechChar* Page::Layout(MechChar* p_text)
 			center = TRUE;
 			break;
 		case c_tokenNewLine:
-			width = m_font->FUN_100053be(g_unk0x10093a78);
+			width = m_font->GetTextWidth(g_unk0x10093a78);
 			if (center == TRUE) {
 				center = FALSE;
 				gap = m_width - lineWidth;
 				half = gap / 2;
-				count = half / m_font->FUN_100053be(" ");
+				count = half / m_font->GetTextWidth(" ");
 				strcpy(g_unk0x10094278, g_unk0x10093e78);
 				strcpy(g_unk0x10093e78, "");
 				for (i = 0; i < count; i++) {
@@ -396,12 +396,12 @@ MechChar* Page::Layout(MechChar* p_text)
 			tabs++;
 			for (stop = 0; stop < 19; stop++) {
 				if (stop == 18) {
-					lineWidth = g_unk0x1006e150[18];
+					lineWidth = g_textTabStops[18];
 					break;
 				}
 
-				if (g_unk0x1006e150[stop] > lineWidth) {
-					lineWidth = g_unk0x1006e150[stop];
+				if (g_textTabStops[stop] > lineWidth) {
+					lineWidth = g_textTabStops[stop];
 					break;
 				}
 			}
@@ -413,7 +413,7 @@ MechChar* Page::Layout(MechChar* p_text)
 		}
 	}
 
-	width = m_font->FUN_100053be(g_unk0x10093a78);
+	width = m_font->GetTextWidth(g_unk0x10093a78);
 	if (strlen(g_unk0x10093a78)) {
 		lineWidth += AppendWord(g_unk0x10093e78, g_unk0x10093a78, width);
 	}
@@ -434,7 +434,7 @@ void Page::AddGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top)
 }
 
 // FUNCTION: MW2SHELL 0x100458ff
-void Page::FUN_100458ff()
+void Page::Show()
 {
 	TextGlyph* glyph;
 	MechS32 i;
@@ -445,13 +445,13 @@ void Page::FUN_100458ff()
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
 		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
-		glyph->FUN_10047425();
+		glyph->Draw();
 	}
 }
 
 // Starts typing the page out again.
 // FUNCTION: MW2SHELL 0x1004596f
-void Page::FUN_1004596f()
+void Page::Restart()
 {
 	TextGlyph* glyph;
 	MechS32 i;
@@ -466,24 +466,24 @@ void Page::FUN_1004596f()
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
 		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
-		glyph->m_unk0x35 = FALSE;
+		glyph->m_done = FALSE;
 		glyph->m_cursorX = -1;
 		glyph->m_textIndex = -1;
-		glyph->FUN_10047404(1);
+		glyph->SetTyped(1);
 	}
 }
 
 // Advances the first glyph that is still typing; once all are done, stops the sound.
 // FUNCTION: MW2SHELL 0x10045a2b
-void Page::FUN_10045a2b()
+void Page::TypeStep()
 {
 	TextGlyph* glyph;
 	MechS32 i;
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
 		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
-		if (!glyph->m_unk0x35) {
-			glyph->FUN_1004795e();
+		if (!glyph->m_done) {
+			glyph->TypeStep();
 			return;
 		}
 	}
@@ -494,7 +494,7 @@ void Page::FUN_10045a2b()
 }
 
 // FUNCTION: MW2SHELL 0x10045ab0
-void Page::FUN_10045ab0()
+void Page::Hide()
 {
 	TextGlyph* glyph;
 	MechS32 i;
@@ -514,7 +514,7 @@ void Page::FUN_10045ab0()
 }
 
 // FUNCTION: MW2SHELL 0x10045b38
-void Page::FUN_10045b38(undefined* p_data, MechS32 p_size)
+void Page::SetBanner(undefined* p_data, MechS32 p_size)
 {
 	m_banner = new PopupPicture(p_data, p_size, m_videoDriver, 0, 0, m_sample);
 }

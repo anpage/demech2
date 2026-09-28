@@ -6,22 +6,22 @@
 
 class AudioSubsystem;
 
-// Per-video sound object held by the FMV slot table (FmvSlot::m_unk0x04).
+// Per-video sound object held by the FMV slot table (FmvSlot::m_sound).
 // The matched streaming methods establish a 0x14-byte floor, not the full size.
 class VideoSound {
 public:
 	VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size);
 	~VideoSound();
-	undefined4 FUN_1003dad5();
-	void* FUN_1003db31();
-	void FUN_1003db95(void* p_buffer, MechU32 p_size);
+	undefined4 IsBufferReady();
+	void* GetReadyBuffer();
+	void LoadBuffer(void* p_buffer, MechU32 p_size);
 
 private:
-	AudioSubsystem* m_unk0x00; // 0x00
-	undefined4 m_unk0x04;      // 0x04 — Miles sample handle
-	void* m_unk0x08;           // 0x08 — heap buffer
-	void* m_unk0x0c;           // 0x0c — heap buffer
-	MechS32 m_unk0x10;         // 0x10 — ready buffer index, -1 until queried
+	AudioSubsystem* m_subsystem; // 0x00
+	undefined4 m_sample;         // 0x04 — Miles sample handle
+	void* m_buffer0;             // 0x08 — heap buffer
+	void* m_buffer1;             // 0x0c — heap buffer
+	MechS32 m_readyBuffer;       // 0x10 — ready buffer index, -1 until queried
 };
 
 #endif // VIDEOSOUND_H

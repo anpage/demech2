@@ -122,13 +122,13 @@ MechS32 ExpandCollection(Collection* p_collection, void* p_item)
 
 // Stack-slot permutation: index and item swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x1003c3ba
-void FUN_1003c3ba(Collection* p_collection, void* p_item, MechU8 p_destroy)
+void CollectionRemove(Collection* p_collection, void* p_item, MechU8 p_destroy)
 {
 	MechS32 index;
 	MechS32 i;
 	void* item;
 
-	index = FUN_1003c45f(p_collection, p_item);
+	index = CollectionFind(p_collection, p_item);
 	if (index != -1) {
 		p_collection->m_count--;
 
@@ -147,7 +147,7 @@ void FUN_1003c3ba(Collection* p_collection, void* p_item, MechU8 p_destroy)
 
 // Stack-slot permutation: found, item, key and i take different [ebp-N] slots than the original.
 // FUNCTION: MW2SHELL 0x1003c45f
-MechS32 FUN_1003c45f(Collection* p_collection, void* p_item)
+MechS32 CollectionFind(Collection* p_collection, void* p_item)
 {
 	void** found;
 	void* item;
@@ -155,7 +155,7 @@ MechS32 FUN_1003c45f(Collection* p_collection, void* p_item)
 	MechS32 i;
 
 	if (p_collection->m_flags & c_collectionSorted) {
-		FUN_1003c59e(p_collection);
+		EnsureCollectionSorted(p_collection);
 		found = (void**)
 			bsearch(&p_item, p_collection->m_items, p_collection->m_count, sizeof(void*), p_collection->m_compare);
 		if (found != NULL) {
@@ -182,7 +182,7 @@ MechS32 FUN_1003c45f(Collection* p_collection, void* p_item)
 }
 
 // FUNCTION: MW2SHELL 0x1003c55d
-void FUN_1003c55d(Collection* p_collection)
+void SortCollection(Collection* p_collection)
 {
 	if (p_collection->m_unsorted == 1) {
 		qsort(p_collection->m_items, p_collection->m_count, sizeof(void*), p_collection->m_compare);
@@ -191,7 +191,7 @@ void FUN_1003c55d(Collection* p_collection)
 }
 
 // FUNCTION: MW2SHELL 0x1003c59e
-void FUN_1003c59e(Collection* p_collection)
+void EnsureCollectionSorted(Collection* p_collection)
 {
 	if ((p_collection->m_flags & c_collectionSorted) && p_collection->m_unsorted == 1) {
 		qsort(p_collection->m_items, p_collection->m_count, sizeof(void*), p_collection->m_compare);
@@ -202,7 +202,7 @@ void FUN_1003c59e(Collection* p_collection)
 // FUNCTION: MW2SHELL 0x1003c5f0
 void* CollectionGet(Collection* p_collection, MechS32 p_index)
 {
-	FUN_1003c59e(p_collection);
+	EnsureCollectionSorted(p_collection);
 
 	if (p_collection->m_count < p_index || p_index < 0) {
 		return NULL;
@@ -212,7 +212,7 @@ void* CollectionGet(Collection* p_collection, MechS32 p_index)
 }
 
 // FUNCTION: MW2SHELL 0x1003c638
-void FUN_1003c638(Collection* p_collection, Collection* p_source)
+void MoveCollectionItems(Collection* p_collection, Collection* p_source)
 {
 	MechS32 i;
 
