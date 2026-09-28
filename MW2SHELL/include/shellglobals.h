@@ -3,6 +3,7 @@
 
 #include "audiosubsystem.h"
 #include "decomp.h"
+#include "difficultyconfig.h"
 #include "font.h"
 #include "keyboardinput.h"
 #include "mousestate.h"
@@ -46,7 +47,7 @@ extern PilotRecord* g_pCurrentPilot;
 extern MechS32 g_unk0x10071374;
 extern PaletteColor g_unk0x10071378[0x100];
 extern SoundConfig g_soundConfig;
-extern undefined g_unk0x100716b8[0x17];
+extern DifficultyConfig g_difficultyConfig;
 extern PilotRecord g_pilotRoster[20];
 
 #endif // SHELLGLOBALS_H

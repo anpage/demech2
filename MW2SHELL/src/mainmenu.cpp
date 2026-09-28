@@ -26,7 +26,7 @@
 void* operator new(size_t);
 
 // GLOBAL: MW2SHELL 0x1006ae74
-ButtonMenu* g_unk0x1006ae74 = NULL;
+ButtonMenu* g_mainMenu = NULL;
 
 // The main menu's music, started once the intro sound (g_unk0x1006ae7c) is over, and fading in.
 // GLOBAL: MW2SHELL 0x1006ae78
@@ -60,7 +60,7 @@ void DrawMainMenu(TMPackDataBase* p_database, MechS32*)
 	g_unk0x1006ae7c = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 
 	g_pVideoDriver->LoadBackground(p_database, 1);
-	g_unk0x1006ae74 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_mainMenuButtons, 3);
+	g_mainMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_mainMenuButtons, 3);
 
 	PlayVideoInFreeSlot(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
 	g_unk0x1006ae7c->SetVolume(0x78);
@@ -96,7 +96,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 		g_unk0x1006ae78->DoFade();
 	}
 
-	button = g_unk0x1006ae74->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_mainMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	switch (button) {
 	case 0:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -134,8 +134,8 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
-		delete g_unk0x1006ae74;
-		g_unk0x1006ae74 = NULL;
+		delete g_mainMenu;
+		g_mainMenu = NULL;
 		delete g_unk0x1006ae78;
 		g_unk0x1006ae78 = NULL;
 		delete g_unk0x1006ae7c;

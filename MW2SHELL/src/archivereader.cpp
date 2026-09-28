@@ -30,7 +30,7 @@ DECOMP_SIZE_ASSERT(ArchiveReader, 0x1b9)
 DECOMP_SIZE_ASSERT(ArchiveReader::Topic, 0x06)
 
 // GLOBAL: MW2SHELL 0x100665f8
-ArchiveReader* g_unk0x100665f8 = NULL;
+ArchiveReader* g_archiveReader = NULL;
 
 // The message to post when the archive is left.
 // GLOBAL: MW2SHELL 0x100665fc
@@ -75,7 +75,7 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	g_unk0x10066600->SetVolume(0x32);
 	g_unk0x10066600->Start();
 
-	g_unk0x100665f8 = new ArchiveReader(
+	g_archiveReader = new ArchiveReader(
 		g_archiveNames[p_campaign],
 		g_archiveFont,
 		1,
@@ -93,12 +93,12 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 {
 	if (p_msg == 0x404) {
-		p_msg = g_unk0x100665f8->Run();
+		p_msg = g_archiveReader->Run();
 	}
 
 	if (p_msg != 0x40b) {
-		delete g_unk0x100665f8;
-		g_unk0x100665f8 = NULL;
+		delete g_archiveReader;
+		g_archiveReader = NULL;
 		delete g_unk0x10066600;
 		g_unk0x10066600 = NULL;
 

@@ -45,7 +45,7 @@ AudioSample* g_unk0x1006acd8 = NULL;
 MechS32 g_unk0x1006acdc = 0;
 
 // GLOBAL: MW2SHELL 0x10090668
-ButtonMenu* g_unk0x10090668;
+ButtonMenu* g_cadetTrainingMenu;
 
 // GLOBAL: MW2SHELL 0x1009066c
 WPARAM g_unk0x1009066c;
@@ -58,7 +58,8 @@ void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS
 void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
 {
 	g_unk0x1009066c = p_wParam;
-	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_cadetTrainingScreens[p_campaign].m_buttons, 1);
+	g_cadetTrainingMenu =
+		new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_cadetTrainingScreens[p_campaign].m_buttons, 1);
 	g_pVideoDriver->LoadBackground(p_database, g_cadetTrainingScreens[p_campaign].m_picture);
 
 	switch (p_campaign) {
@@ -106,7 +107,7 @@ void CadetTrainingCallback(
 	if (!g_unk0x1006acd0 && !IsVideoPlaying(0)) {
 		g_unk0x1006acd0 = 1;
 		for (i = 1; i < g_cadetTrainingScreens[*p_campaign].m_count; i++) {
-			g_unk0x10090668->AddButton(g_cadetTrainingScreens[*p_campaign].m_buttons[i], i, FALSE);
+			g_cadetTrainingMenu->AddButton(g_cadetTrainingScreens[*p_campaign].m_buttons[i], i, FALSE);
 		}
 
 		p_database->GetDBItem(0x4c, &data, &size);
@@ -136,7 +137,7 @@ void CadetTrainingCallback(
 	}
 
 	if (g_unk0x1006acd4 == -1) {
-		button = g_unk0x10090668->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_cadetTrainingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -171,7 +172,7 @@ void CadetTrainingCallback(
 done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
-		delete g_unk0x10090668;
+		delete g_cadetTrainingMenu;
 		delete g_unk0x1006acd8;
 		g_unk0x1006acd8 = NULL;
 		g_unk0x1006acdc = 0;

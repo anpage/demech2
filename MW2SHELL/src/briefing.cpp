@@ -30,17 +30,17 @@
 MechChar g_unk0x10071cd8[0x04] = "";
 
 // GLOBAL: MW2SHELL 0x10071cdc
-ButtonMenu* g_unk0x10071cdc = NULL;
+ButtonMenu* g_briefingMenu = NULL;
 
 // GLOBAL: MW2SHELL 0x10071ce0
-Page* g_unk0x10071ce0 = NULL;
+Page* g_briefingPage = NULL;
 
 // GLOBAL: MW2SHELL 0x10071ce4
-Collection* g_unk0x10071ce4 = NULL;
+Collection* g_briefingPages = NULL;
 
 // The situation reader, while it is open.
 // GLOBAL: MW2SHELL 0x10071ce8
-ArchiveReader* g_unk0x10071ce8 = NULL;
+ArchiveReader* g_situationReader = NULL;
 
 void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
@@ -58,7 +58,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	MechS32 i;
 	MechChar name[0x80];
 
-	CreateCollection(&g_unk0x10071ce4, 10, NULL, 4, NULL);
+	CreateCollection(&g_briefingPages, 10, NULL, 4, NULL);
 	switch (p_campaign) {
 	case 0:
 		left = 0x58;
@@ -105,22 +105,22 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	}
 
 	UppercaseString(name);
-	LoadTextPages(g_unk0x10071ce4, left, top, width, height, name, g_bodyFont, g_unk0x10071cd8);
+	LoadTextPages(g_briefingPages, left, top, width, height, name, g_bodyFont, g_unk0x10071cd8);
 
-	g_unk0x10071ce0 = (Page*) CollectionGet(g_unk0x10071ce4, 0);
-	if (!g_unk0x10071ce0) {
+	g_briefingPage = (Page*) CollectionGet(g_briefingPages, 0);
+	if (!g_briefingPage) {
 		PostMessage(g_pWnd, 0x410, 0x406, 0);
 		return;
 	}
 
 	g_pVideoDriver->LoadBackground(p_database, g_briefingScreens[p_campaign].m_picture);
-	CollectionRemove(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
+	CollectionRemove(g_briefingPages, g_briefingPage, FALSE);
 	g_keyboardInput->FlushKeys();
 
 	if (strcmp(g_pCurrentPilot->m_callsign, "FERRARI")) {
 		g_briefingScreens[p_campaign].m_count = 3;
 	}
-	g_unk0x10071cdc = new ButtonMenu(
+	g_briefingMenu = new ButtonMenu(
 		g_pVideoDriver,
 		g_bodyFont,
 		FALSE,
@@ -128,10 +128,10 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		g_briefingScreens[p_campaign].m_count
 	);
 
-	if (!g_unk0x10071ce4->m_count) {
-		g_unk0x10071cdc->DisableButton(1);
+	if (!g_briefingPages->m_count) {
+		g_briefingMenu->DisableButton(1);
 	}
-	g_unk0x10071ce0->Restart();
+	g_briefingPage->Restart();
 	RegisterScreenFunction(BriefingCallback);
 }
 
@@ -147,9 +147,9 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 		goto done;
 	}
 
-	if (!g_unk0x10071ce8) {
-		g_unk0x10071ce0->TypeStep();
-		button = g_unk0x10071cdc->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	if (!g_situationReader) {
+		g_briefingPage->TypeStep();
+		button = g_briefingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 2:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -173,15 +173,15 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			g_unk0x10071ce0->Hide();
-			delete g_unk0x10071cdc;
-			g_unk0x10071ce8 = new ArchiveReader(
+			g_briefingPage->Hide();
+			delete g_briefingMenu;
+			g_situationReader = new ArchiveReader(
 				"",
 				g_archiveFont,
 				-1,
 				FALSE,
 				NULL,
-				g_unk0x10071ce4,
+				g_briefingPages,
 				g_situationScreens[*p_campaign].m_buttons,
 				g_situationScreens[*p_campaign].m_count
 			);
@@ -191,7 +191,7 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 		}
 	}
 	else {
-		result = g_unk0x10071ce8->Run();
+		result = g_situationReader->Run();
 		if (result == 0x402) {
 			p_msg = 0x402;
 		}
@@ -199,27 +199,27 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			p_msg = 0x40e;
 		}
 		if (result != 0x40b) {
-			delete g_unk0x10071ce8;
-			g_unk0x10071ce8 = NULL;
-			g_unk0x10071cdc = new ButtonMenu(
+			delete g_situationReader;
+			g_situationReader = NULL;
+			g_briefingMenu = new ButtonMenu(
 				g_pVideoDriver,
 				g_defaultFont,
 				FALSE,
 				g_briefingScreens[*p_campaign].m_buttons,
 				g_briefingScreens[*p_campaign].m_count
 			);
-			g_unk0x10071ce0->Restart();
+			g_briefingPage->Restart();
 		}
 	}
 
 done:
 	if (p_msg != 0x404) {
-		if (g_unk0x10071ce8) {
-			delete g_unk0x10071ce8;
+		if (g_situationReader) {
+			delete g_situationReader;
 		}
-		g_unk0x10071ce8 = NULL;
-		delete g_unk0x10071ce0;
-		delete g_unk0x10071cdc;
+		g_situationReader = NULL;
+		delete g_briefingPage;
+		delete g_briefingMenu;
 		PostMessage(g_pWnd, p_msg, 0x406, 0);
 		UnregisterScreenFunction(BriefingCallback);
 	}

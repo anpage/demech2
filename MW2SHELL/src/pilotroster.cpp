@@ -32,9 +32,9 @@ void LoadPilotRoster()
 			pilot->m_mission = 0;
 			pilot->m_rank = 0;
 			pilot->m_honor = 0;
-			pilot->m_unk0x18 = 0;
-			pilot->m_unk0x1c = 0;
-			pilot->m_unk0x20 = 0;
+			pilot->m_kills = 0;
+			pilot->m_hits = 0;
+			pilot->m_shotsFired = 0;
 			pilot->m_unk0x24 = 0;
 			strcpy(pilot->m_callsign, "");
 		}

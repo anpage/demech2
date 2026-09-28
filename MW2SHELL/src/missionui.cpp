@@ -120,7 +120,7 @@ TextGlyph* g_unk0x1006a2a0 = NULL;
 TextGlyph* g_unk0x1006a2a4 = NULL;
 
 // GLOBAL: MW2SHELL 0x1006a2a8
-ButtonMenu* g_unk0x1006a2a8 = NULL;
+ButtonMenu* g_missionBriefingMenu = NULL;
 
 // GLOBAL: MW2SHELL 0x1006a2b0
 AudioSample* g_unk0x1006a2b0 = NULL;
@@ -340,7 +340,7 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 		g_unk0x1006a2b4 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	}
 
-	g_unk0x1006a2a8 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_missionBriefingButtons, 0x19);
+	g_missionBriefingMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_missionBriefingButtons, 0x19);
 	for (i = 0; i < 3; i++) {
 		g_unk0x10090160[i] = NULL;
 	}
@@ -408,7 +408,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		g_unk0x1006a2b8 = 1;
 	}
 
-	button = g_unk0x1006a2a8->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_missionBriefingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	switch (button) {
 	case 0:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -649,7 +649,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
-		delete g_unk0x1006a2a8;
+		delete g_missionBriefingMenu;
 		delete g_unk0x1006a2b0;
 		if (g_unk0x1006a2b4) {
 			delete g_unk0x1006a2b4;

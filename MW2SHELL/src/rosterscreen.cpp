@@ -245,7 +245,7 @@ MechS32 g_unk0x10064124 = 0;
 MechS32 g_unk0x10064128 = 0;
 
 // GLOBAL: MW2SHELL 0x1007cda0
-ButtonMenu* g_unk0x1007cda0;
+ButtonMenu* g_rosterMenu;
 
 void PilotRosterCallback(
 	TMPackDataBase*,
@@ -300,19 +300,19 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 		}
 	}
 
-	g_unk0x1007cda0 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_rosterScreens[p_campaign].m_buttons, 15);
+	g_rosterMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_rosterScreens[p_campaign].m_buttons, 15);
 	ShowPilotCallsigns();
 	if (!g_pCurrentPilot) {
-		g_unk0x1007cda0->DisableButton(11);
-		g_unk0x1007cda0->DisableButton(12);
-		g_unk0x1007cda0->DisableButton(13);
-		g_unk0x1007cda0->DisableButton(14);
+		g_rosterMenu->DisableButton(11);
+		g_rosterMenu->DisableButton(12);
+		g_rosterMenu->DisableButton(13);
+		g_rosterMenu->DisableButton(14);
 	}
 	else {
 		ShowFields(g_unk0x10063c78);
-		g_unk0x1007cda0->DisableButton(14);
+		g_rosterMenu->DisableButton(14);
 		if (!g_pCurrentPilot->m_mission) {
-			g_unk0x1007cda0->DisableButton(13);
+			g_rosterMenu->DisableButton(13);
 		}
 	}
 
@@ -348,7 +348,7 @@ void PilotRosterCallback(
 		goto done;
 	}
 
-	button = g_unk0x1007cda0->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_rosterMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	if (g_showDialog && ((g_unk0x1007cc98 == 1 && !g_unk0x10064124) || (g_unk0x1007cc98 == 0 && !g_unk0x10064128))) {
 		switch (g_unk0x1007cc98) {
 		case 1:
@@ -394,10 +394,10 @@ void PilotRosterCallback(
 			HideFields(g_unk0x10063dd8);
 			g_unk0x10064120 = 0;
 			g_pCurrentPilot = NULL;
-			g_unk0x1007cda0->DisableButton(11);
-			g_unk0x1007cda0->DisableButton(12);
-			g_unk0x1007cda0->DisableButton(13);
-			g_unk0x1007cda0->DisableButton(14);
+			g_rosterMenu->DisableButton(11);
+			g_rosterMenu->DisableButton(12);
+			g_rosterMenu->DisableButton(13);
+			g_rosterMenu->DisableButton(14);
 			break;
 		case 1:
 		case 2:
@@ -418,25 +418,25 @@ void PilotRosterCallback(
 					p_msg = 0x407;
 					break;
 				}
-				g_unk0x1007cda0->EnableButton(11);
-				g_unk0x1007cda0->EnableButton(12);
+				g_rosterMenu->EnableButton(11);
+				g_rosterMenu->EnableButton(12);
 				if (g_pCurrentPilot->m_mission) {
-					g_unk0x1007cda0->EnableButton(13);
+					g_rosterMenu->EnableButton(13);
 				}
 				else {
-					g_unk0x1007cda0->DisableButton(13);
+					g_rosterMenu->DisableButton(13);
 				}
-				g_unk0x1007cda0->DisableButton(14);
+				g_rosterMenu->DisableButton(14);
 				HideFields(g_unk0x10063dd8);
 				g_unk0x10064120 = 0;
 				HideFields(g_unk0x10063c78);
 				ShowFields(g_unk0x10063c78);
 			}
 			else {
-				g_unk0x1007cda0->DisableButton(11);
-				g_unk0x1007cda0->DisableButton(12);
-				g_unk0x1007cda0->DisableButton(13);
-				g_unk0x1007cda0->DisableButton(14);
+				g_rosterMenu->DisableButton(11);
+				g_rosterMenu->DisableButton(12);
+				g_rosterMenu->DisableButton(13);
+				g_rosterMenu->DisableButton(14);
 				HideFields(g_unk0x10063dd8);
 				g_unk0x10064120 = 0;
 				HideFields(g_unk0x10063c78);
@@ -450,20 +450,20 @@ void PilotRosterCallback(
 					pilot->m_mission = 0;
 					pilot->m_rank = 0;
 					pilot->m_honor = (MechS32) (rand() / 32767.0 * 1000.0 + 1000.0);
-					pilot->m_unk0x18 = 0;
-					pilot->m_unk0x1c = 0;
-					pilot->m_unk0x20 = 0;
+					pilot->m_kills = 0;
+					pilot->m_hits = 0;
+					pilot->m_shotsFired = 0;
 					pilot->m_unk0x24 = 0;
 					SetActivePilot(pilot);
 					ShowPilotCallsigns();
-					g_unk0x1007cda0->EnableButton(11);
-					g_unk0x1007cda0->EnableButton(12);
+					g_rosterMenu->EnableButton(11);
+					g_rosterMenu->EnableButton(12);
 					ShowFields(g_unk0x10063c78);
 					g_unk0x10071374 = 1;
 				}
 
 				if (g_pMouseState->m_leftDown == 1) {
-					button = g_unk0x1007cda0->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+					button = g_rosterMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 					goto again;
 				}
 			}
@@ -475,17 +475,17 @@ void PilotRosterCallback(
 			}
 			break;
 		case 13:
-			g_unk0x1007cda0->DisableButton(13);
-			g_unk0x1007cda0->EnableButton(14);
+			g_rosterMenu->DisableButton(13);
+			g_rosterMenu->EnableButton(14);
 			HideFields(g_unk0x10063c78);
 			ShowFields(g_unk0x10063dd8);
 			g_unk0x10064120 = 1;
 			break;
 		case 14:
 			if (g_pCurrentPilot->m_mission) {
-				g_unk0x1007cda0->EnableButton(13);
+				g_rosterMenu->EnableButton(13);
 			}
-			g_unk0x1007cda0->DisableButton(14);
+			g_rosterMenu->DisableButton(14);
 			HideFields(g_unk0x10063dd8);
 			g_unk0x10064120 = 0;
 			ShowFields(g_unk0x10063c78);
@@ -498,7 +498,7 @@ done:
 		HideFields(g_unk0x10063dd8);
 		HideFields(g_unk0x10063c78);
 		SavePilotRoster();
-		delete g_unk0x1007cda0;
+		delete g_rosterMenu;
 		delete g_unk0x1006411c;
 		HidePilotCallsigns();
 		PostMessage(g_pWnd, p_msg, 0x412, 0);
