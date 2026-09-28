@@ -621,7 +621,7 @@ void LayoutDebriefPages(
 		break;
 	}
 
-	FUN_100309b6(p_name);
+	UppercaseString(p_name);
 	LoadTextPages(p_pages, p_left, p_top, p_width, p_height, p_name, g_unk0x10071228, p_text);
 }
 
@@ -738,7 +738,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 		g_unk0x1005b044 = new Page(g_unk0x10071228, g_pVideoDriver, NULL, 0, 0, 100, 100);
 	}
 	else {
-		FUN_1003c3ba(g_unk0x1005b048, g_unk0x1005b044, FALSE);
+		CollectionRemove(g_unk0x1005b048, g_unk0x1005b044, FALSE);
 	}
 
 	if (!g_unk0x1005b048->m_count || g_unk0x100780e0.m_unk0x10 != 2) {

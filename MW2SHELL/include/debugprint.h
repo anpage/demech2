@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	void FUN_10015c90(const MechChar* p_format, ...);
+	void ShowMessage(const MechChar* p_format, ...);
 	void DebugPrint(const MechChar* p_format, ...);
 
 #ifdef __cplusplus

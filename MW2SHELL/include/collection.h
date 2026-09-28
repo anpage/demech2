@@ -37,12 +37,12 @@ extern "C"
 	);
 	MechS32 DestroyCollection(Collection* p_collection);
 	MechS32 ExpandCollection(Collection* p_collection, void* p_item);
-	void FUN_1003c3ba(Collection* p_collection, void* p_item, MechU8 p_destroy);
-	MechS32 FUN_1003c45f(Collection* p_collection, void* p_item);
-	void FUN_1003c55d(Collection* p_collection);
-	void FUN_1003c59e(Collection* p_collection);
+	void CollectionRemove(Collection* p_collection, void* p_item, MechU8 p_destroy);
+	MechS32 CollectionFind(Collection* p_collection, void* p_item);
+	void SortCollection(Collection* p_collection);
+	void EnsureCollectionSorted(Collection* p_collection);
 	void* CollectionGet(Collection* p_collection, MechS32 p_index);
-	void FUN_1003c638(Collection* p_collection, Collection* p_source);
+	void MoveCollectionItems(Collection* p_collection, Collection* p_source);
 	void ClearCollection(Collection* p_collection);
 
 #ifdef __cplusplus

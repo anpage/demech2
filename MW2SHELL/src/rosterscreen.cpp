@@ -443,7 +443,7 @@ void PilotRosterCallback(
 				g_pCurrentPilot = NULL;
 				pilot->m_callsign[0] = '\0';
 				EditTextField(g_unk0x10071214, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
-				FUN_100309b6(pilot->m_callsign);
+				UppercaseString(pilot->m_callsign);
 				if (pilot->m_callsign[0]) {
 					g_pCurrentPilot = pilot;
 					pilot->m_unk0x00 = 1;

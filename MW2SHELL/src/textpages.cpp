@@ -119,7 +119,7 @@ MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 	file = fopen("tmp.out", "wb");
 	fwrite(p_text, 1, strlen(p_text), file);
 	fclose(file);
-	return FUN_10030900(g_expandedText);
+	return AllocateString(g_expandedText);
 }
 
 // Lays out p_text (p_size bytes, the last of which becomes its terminator) on as many pages as

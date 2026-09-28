@@ -8,26 +8,28 @@
 #include <string.h>
 #include <windows.h>
 
+// Where DebugPrintInternal sends messages: 1 the monochrome display (text memory at 0xb0000),
+// 2 OutputDebugString, 3 a message box, 4 the log file; anything else drops them.
 // GLOBAL: MW2SHELL 0x10064b70
-MechS32 g_unk0x10064b70 = 0;
+MechS32 g_debugOutputMode = 0;
 
 // GLOBAL: MW2SHELL 0x10064b74
-HWND g_unk0x10064b74 = NULL;
+HWND g_debugWindow = NULL;
 
 // GLOBAL: MW2SHELL 0x10064b78
-UINT g_unk0x10064b78 = MB_ICONASTERISK;
+UINT g_debugMessageBoxType = MB_ICONASTERISK;
 
 // GLOBAL: MW2SHELL 0x10064b7c
-FILE* g_unk0x10064b7c = NULL;
+FILE* g_debugLogFile = NULL;
 
 // GLOBAL: MW2SHELL 0x10064b80
-MechChar g_unk0x10064b80[0x100] = "debug.log";
+MechChar g_debugLogName[0x100] = "debug.log";
 
 // GLOBAL: MW2SHELL 0x10064c80
-MechChar g_unk0x10064c80[0x50] = "DEBUG Message";
+MechChar g_debugMessageTitle[0x50] = "DEBUG Message";
 
 // FUNCTION: MW2SHELL 0x10017710
-void FUN_10017710(void)
+void ScrollMonoDisplay(void)
 {
 	// The ranges overlap (dst 0xb0000 < src 0xb00a0), so this is memmove: /Oi would expand
 	// memcpy inline even at this constant size.
@@ -35,7 +37,7 @@ void FUN_10017710(void)
 }
 
 // FUNCTION: MW2SHELL 0x10017732
-void FUN_10017732(void)
+void ClearMonoLastLine(void)
 {
 	MechS32 pixelAddress = 0xb0f00;
 
@@ -49,7 +51,7 @@ void FUN_10017732(void)
 // [ebp-0xc]/[ebp-4]/[ebp-0x10]/[ebp-8]; VC++ assigns
 // [ebp-4]/[ebp-0x10]/[ebp-8]/[ebp-0xc] here.
 // FUNCTION: MW2SHELL 0x1001776c
-void FUN_1001776c(MechChar* p_message)
+void PrintMonoLine(MechChar* p_message)
 {
 	MechChar* source = p_message;
 	MechChar* destination = (MechChar*) 0xb0f00;
@@ -60,8 +62,8 @@ void FUN_1001776c(MechChar* p_message)
 		length = 0x50;
 	}
 
-	FUN_10017710();
-	FUN_10017732();
+	ScrollMonoDisplay();
+	ClearMonoLastLine();
 	for (index = 0; index < length; index++) {
 		*destination = *source;
 		source++;
@@ -73,42 +75,42 @@ void FUN_1001776c(MechChar* p_message)
 // Stack-slot permutation: original length/offset are at [ebp-8]/[ebp-4];
 // VC++ assigns [ebp-4]/[ebp-8] here.
 // FUNCTION: MW2SHELL 0x100177e9
-void FUN_100177e9(MechChar* p_message)
+void PrintMono(MechChar* p_message)
 {
 	MechS32 length = strlen(p_message);
 	MechS32 offset = 0;
 
 	while (offset < length) {
-		FUN_1001776c(p_message + offset);
+		PrintMonoLine(p_message + offset);
 		offset += 0x50;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10017836
-void FUN_10017836(void)
+void CreateDebugLog(void)
 {
-	g_unk0x10064b7c = fopen(g_unk0x10064b80, "wt");
+	g_debugLogFile = fopen(g_debugLogName, "wt");
 }
 
 // FUNCTION: MW2SHELL 0x10017858
-void FUN_10017858(MechChar* p_message)
+void AppendDebugLog(MechChar* p_message)
 {
-	if (g_unk0x10064b7c == NULL) {
-		g_unk0x10064b7c = fopen(g_unk0x10064b80, "at");
+	if (g_debugLogFile == NULL) {
+		g_debugLogFile = fopen(g_debugLogName, "at");
 	}
-	if (g_unk0x10064b7c != NULL) {
-		fputs(p_message, g_unk0x10064b7c);
-		fflush(g_unk0x10064b7c);
-		fclose(g_unk0x10064b7c);
-		g_unk0x10064b7c = NULL;
+	if (g_debugLogFile != NULL) {
+		fputs(p_message, g_debugLogFile);
+		fflush(g_debugLogFile);
+		fclose(g_debugLogFile);
+		g_debugLogFile = NULL;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x100178cc
-MechS32 FUN_100178cc(MechS32 p_mode)
+MechS32 SetDebugOutputMode(MechS32 p_mode)
 {
 	if (p_mode >= 0 && p_mode <= 4) {
-		g_unk0x10064b70 = p_mode;
+		g_debugOutputMode = p_mode;
 
 		return 0;
 	}
@@ -118,31 +120,31 @@ MechS32 FUN_100178cc(MechS32 p_mode)
 }
 
 // FUNCTION: MW2SHELL 0x10017909
-void FUN_10017909(HWND p_hWnd)
+void SetDebugWindow(HWND p_hWnd)
 {
-	g_unk0x10064b74 = p_hWnd;
+	g_debugWindow = p_hWnd;
 }
 
 // FUNCTION: MW2SHELL 0x1001791c
-void FUN_1001791c(UINT p_type)
+void SetDebugMessageBoxType(UINT p_type)
 {
-	g_unk0x10064b78 = p_type;
+	g_debugMessageBoxType = p_type;
 }
 
 // FUNCTION: MW2SHELL 0x1001792f
-void FUN_1001792f(MechChar* p_format, ...)
+void SetDebugMessageTitle(MechChar* p_format, ...)
 {
 	va_list args;
 
 	va_start(args, p_format);
-	_vsnprintf(g_unk0x10064c80, 0x50, p_format, args);
+	_vsnprintf(g_debugMessageTitle, 0x50, p_format, args);
 	va_end(args);
 }
 
 // FUNCTION: MW2SHELL 0x10017961
-void FUN_10017961(MechChar* p_fileName)
+void SetDebugLogName(MechChar* p_fileName)
 {
-	strncpy(g_unk0x10064b80, p_fileName, 0x100);
+	strncpy(g_debugLogName, p_fileName, 0x100);
 }
 
 // Stack-slot permutation: original message is at [ebp-0x100] and args at [ebp-0x104];
@@ -157,19 +159,19 @@ void DebugPrintInternal(MechChar* p_message, ...)
 	_vsnprintf(message, sizeof(message), p_message, args);
 	va_end(args);
 
-	switch (g_unk0x10064b70) {
+	switch (g_debugOutputMode) {
 	case 1:
-		FUN_100177e9(message);
+		PrintMono(message);
 		break;
 	case 2:
 		OutputDebugString(message);
 		break;
 	case 4:
-		FUN_10017858(message);
+		AppendDebugLog(message);
 		break;
 	case 3:
-		if (g_unk0x10064b74 != NULL) {
-			MessageBox(g_unk0x10064b74, message, g_unk0x10064c80, g_unk0x10064b78);
+		if (g_debugWindow != NULL) {
+			MessageBox(g_debugWindow, message, g_debugMessageTitle, g_debugMessageBoxType);
 		}
 		break;
 	}

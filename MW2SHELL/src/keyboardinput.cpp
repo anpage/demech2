@@ -148,7 +148,7 @@ MechS32 KeyboardInput::EditText(MechChar* p_text, MechU8 p_upperCase)
 			m_length++;
 			m_text[m_length] = '\0';
 			if (p_upperCase == TRUE) {
-				FUN_100309b6(m_text);
+				UppercaseString(m_text);
 			}
 
 			return 1;

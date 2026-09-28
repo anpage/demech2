@@ -145,7 +145,7 @@ void ButtonMenu::RemoveButtonsFrom(MechS32 p_id)
 	}
 
 	ClearCollection(m_items);
-	FUN_1003c638(m_items, retained);
+	MoveCollectionItems(m_items, retained);
 	DestroyCollection(retained);
 }
 
@@ -192,7 +192,7 @@ void ButtonMenu::RemoveButton(MechS32 p_id)
 	for (i = 0; i < m_items->m_count; i++) {
 		item = (MenuEntry*) CollectionGet(m_items, i);
 		if (item->m_id == p_id) {
-			FUN_1003c3ba(m_items, item, FALSE);
+			CollectionRemove(m_items, item, FALSE);
 			delete item;
 		}
 	}

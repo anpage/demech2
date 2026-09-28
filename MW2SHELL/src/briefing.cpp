@@ -104,7 +104,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		strcat(name, "BRF1");
 	}
 
-	FUN_100309b6(name);
+	UppercaseString(name);
 	LoadTextPages(g_unk0x10071ce4, left, top, width, height, name, g_unk0x10071228, g_unk0x10071cd8);
 
 	g_unk0x10071ce0 = (Page*) CollectionGet(g_unk0x10071ce4, 0);
@@ -114,7 +114,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	}
 
 	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ff60[p_campaign].m_picture);
-	FUN_1003c3ba(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
+	CollectionRemove(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
 	g_keyboardInput->FlushKeys();
 
 	if (strcmp(g_pCurrentPilot->m_callsign, "FERRARI")) {

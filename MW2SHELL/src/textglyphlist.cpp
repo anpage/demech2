@@ -31,9 +31,9 @@ void TextGlyphList::Remove(TextGlyph* p_item)
 {
 	MechS32 index;
 
-	index = FUN_1003c45f(m_items, p_item);
+	index = CollectionFind(m_items, p_item);
 	if (index >= 0) {
-		FUN_1003c3ba(m_items, p_item, FALSE);
+		CollectionRemove(m_items, p_item, FALSE);
 	}
 }
 

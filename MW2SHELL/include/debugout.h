@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_100178cc(MechS32 p_mode);
+	MechS32 SetDebugOutputMode(MechS32 p_mode);
 	void DebugPrintInternal(MechChar* p_message, ...);
 
 #ifdef __cplusplus

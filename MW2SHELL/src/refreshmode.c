@@ -367,7 +367,7 @@ void ToggleFullScreen()
 		}
 
 		if (i == 6) {
-			FUN_10015c90("MechWarrior2 cannot run in a window in the current resolution on your video hardware");
+			ShowMessage("MechWarrior2 cannot run in a window in the current resolution on your video hardware");
 			if (!g_unk0x1006a9d8) {
 				DebugPrint("ToggleFullScreen(2): pause_timer(FALSE)");
 				PauseTimer(0x80, FALSE);
@@ -377,7 +377,7 @@ void ToggleFullScreen()
 	}
 	else {
 		if (!g_fastestRefreshMode) {
-			FUN_10015c90(
+			ShowMessage(
 				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
 			);
 			if (!g_unk0x1006a9d8) {

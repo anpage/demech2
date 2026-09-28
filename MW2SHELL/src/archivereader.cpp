@@ -165,7 +165,7 @@ void ArchiveReader::PrevPage()
 
 	button->m_textPos.x = 0;
 	button->m_textPos.y = 0;
-	button->m_text = FUN_10030900("");
+	button->m_text = AllocateString("");
 
 	if (m_pages->m_count == 1) {
 		m_menu->RemoveButton(c_buttonNextPage);
@@ -222,7 +222,7 @@ void ArchiveReader::NextPage()
 
 	button->m_textPos.x = 0;
 	button->m_textPos.y = 0;
-	button->m_text = FUN_10030900("");
+	button->m_text = AllocateString("");
 
 	if (m_page >= 0 && m_page < m_pages->m_count - 1) {
 		page = (Page*) CollectionGet(m_pages, m_page);

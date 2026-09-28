@@ -190,10 +190,10 @@ TextGlyph::TextGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top, undefined*
 
 	// A leading '~' centers the text on p_left.
 	if (*p_text == '~') {
-		m_text = FUN_10030900(p_text + 1);
+		m_text = AllocateString(p_text + 1);
 	}
 	else {
-		m_text = FUN_10030900(p_text);
+		m_text = AllocateString(p_text);
 	}
 
 	m_width = m_font->GetTextWidth(m_text);

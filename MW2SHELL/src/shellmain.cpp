@@ -84,8 +84,8 @@ MechU8 g_fPilotChosen;
 
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign);
 void ParseCommandLineFlags(char* p_cmdLine);
-MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08);
-MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
+MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_showDialog, MechS32* p_littleMovies);
+MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_showDialog, MechS32 p_littleMovies);
 BOOL CALLBACK LittleMoviesDialogProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void RunScreenFrame();
 void ClearRegisteredMenuFunction();
@@ -679,13 +679,13 @@ void ParseCommandLineFlags(char* p_cmdLine)
 				if (token[2] == '=') {
 					switch (toupper(token[3])) {
 					case 'F':
-						FUN_100178cc(4);
+						SetDebugOutputMode(4);
 						break;
 					case 'S':
-						FUN_100178cc(2);
+						SetDebugOutputMode(2);
 						break;
 					case 'M':
-						FUN_100178cc(1);
+						SetDebugOutputMode(1);
 						break;
 					}
 				}
@@ -731,7 +731,7 @@ void DisableShellMenu(HMENU p_menu)
 
 // Stack-slot permutation: value and result swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x100103e2
-MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08)
+MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_showDialog, MechS32* p_littleMovies)
 {
 	DWORD size;
 	MechS32 value;
@@ -759,20 +759,20 @@ MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS
 	type = 4;
 	result = RegQueryValueEx(key, "ShowDialog", NULL, &type, (LPBYTE) &value, &size);
 	if (result == 0) {
-		*p_unk0x04 = value;
+		*p_showDialog = value;
 	}
 	else {
-		*p_unk0x04 = 1;
+		*p_showDialog = 1;
 	}
 
 	size = 4;
 	type = 4;
 	result = RegQueryValueEx(key, "LittleMovies", NULL, &type, (LPBYTE) &value, &size);
 	if (result == 0 && value != -1) {
-		*p_unk0x08 = value;
+		*p_littleMovies = value;
 	}
 	else {
-		*p_unk0x08 = 1;
+		*p_littleMovies = 1;
 	}
 
 	RegCloseKey(key);
@@ -781,7 +781,7 @@ MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS
 
 // Stack-slot permutation: value and result swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x1001053e
-MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
+MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_showDialog, MechS32 p_littleMovies)
 {
 	MechS32 result;
 	MechS32 value;
@@ -810,14 +810,14 @@ MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p
 		return 0;
 	}
 
-	value = p_unk0x04;
+	value = p_showDialog;
 	result = RegSetValueEx(key, "ShowDialog", 0, REG_DWORD, (const BYTE*) &value, 4);
 	if (result != 0) {
 		DebugPrint("Could not save showDialog registry MechWarrior2 key: %d\n", result);
 		return 0;
 	}
 
-	value = p_unk0x08;
+	value = p_littleMovies;
 	result = RegSetValueEx(key, "LittleMovies", 0, REG_DWORD, (const BYTE*) &value, 4);
 	if (result != 0) {
 		DebugPrint("Could not save littleMovies registry MechWarrior2 key: %d\n", result);

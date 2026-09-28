@@ -30,15 +30,15 @@ extern "C"
 		MechChar** m_tokens; // 0x10
 	} TokenStream;
 
-	MechS32 FUN_10039280(TokenStream* p_stream);
+	MechS32 ReadTokens(TokenStream* p_stream);
 	TokenStream* CreateTokenStream(FILE* p_file);
 	void SkipBlanks(FILE* p_file);
 	MechS32 ReadFileToken(FILE* p_file, MechChar* p_token);
-	MechS32 FUN_100396c2(TokenStream* p_stream);
-	MechS32 FUN_1003972c(TokenStream* p_stream, MechChar* p_key, MechChar* p_value);
+	MechS32 RefillTokens(TokenStream* p_stream);
+	MechS32 TakeToken(TokenStream* p_stream, MechChar* p_key, MechChar* p_value);
 	void AddToken(TokenStream* p_stream, MechChar* p_token);
-	void FUN_100399fd(TokenStream* p_stream);
-	void FUN_10039a6b(TokenStream* p_stream, MechChar* p_line);
+	void SkipLine(TokenStream* p_stream);
+	void ReadLine(TokenStream* p_stream, MechChar* p_line);
 
 #ifdef __cplusplus
 }
