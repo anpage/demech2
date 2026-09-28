@@ -21,7 +21,7 @@
 MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 DispDibEnd();
 MechS32 DispDibFlip();
-MechS32 FUN_1002f395(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
+MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
 MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
 MechS32 DispDibAcquireFramebuffer();
 MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors);
@@ -72,7 +72,7 @@ DisplayBackend g_dispDibBackend = {
 
 // GLOBAL: MW2SHELL 0x10066b60
 RefreshMode g_dispDibRefreshMode =
-	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, FUN_1002f395, DispDibStretchBlit};
+	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
 // GLOBAL: MW2SHELL 0x1009675c
 MechS32 g_dispDibResult;
@@ -161,7 +161,7 @@ MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	p_buffer->m_maxY = p_height - 1;
 	p_buffer->m_unk0x10 = 0;
 	p_buffer->m_bitmapInfo = &g_bitmapInfo;
-	g_unk0x10062fe0 = p_buffer->m_pixels;
+	g_dibBits = p_buffer->m_pixels;
 	g_dispDibInitialized = TRUE;
 
 	if (DispDibSetPalette(0, 0x100, g_paletteColors, TRUE)) {
@@ -206,7 +206,7 @@ MechS32 DispDibEnd()
 		g_dispDibWindow = NULL;
 		g_dispDibWindowDc = g_dispDibDc = g_dispDibStretchDc = NULL;
 		g_dispDibBitmap = g_dispDibStretchBitmap = NULL;
-		g_refreshModeBuffer->m_pixels = g_unk0x10062fe0 = g_dispDibStretchBits = NULL;
+		g_refreshModeBuffer->m_pixels = g_dibBits = g_dispDibStretchBits = NULL;
 	}
 
 	return 0;
@@ -215,7 +215,7 @@ MechS32 DispDibEnd()
 // FUNCTION: MW2SHELL 0x1002f2f5
 MechS32 DispDibFlip()
 {
-	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_unk0x10062fe0, g_unk0x10096e88);
+	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
 	if (g_dispDibResult) {
 		DebugPrint("DisplayDibWindowDraw err: %hd\n", g_dispDibResult);
 	}
@@ -226,9 +226,9 @@ MechS32 DispDibFlip()
 
 // DisplayDib can't draw part of the screen: the rectangle is ignored and the whole frame drawn.
 // FUNCTION: MW2SHELL 0x1002f395
-MechS32 FUN_1002f395(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
+MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
-	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_unk0x10062fe0, g_unk0x10096e88);
+	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
 	if (g_dispDibResult) {
 		DebugPrint("DisplayDibWindowDraw err: %hd\n", g_dispDibResult);
 	}
@@ -258,7 +258,8 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 		DebugPrint("StretchBlt err: %d\n", g_dispDibResult);
 	}
 
-	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dispDibStretchBits, g_unk0x10096e88);
+	g_dispDibResult =
+		DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dispDibStretchBits, g_refreshModePixelCount);
 	if (g_dispDibResult) {
 		DebugPrint("DISPDIB_StretchBlit DisplayDibWindowDraw err: %hd\n", g_dispDibResult);
 	}
@@ -270,7 +271,7 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 // FUNCTION: MW2SHELL 0x1002f544
 MechS32 DispDibAcquireFramebuffer()
 {
-	g_refreshModeBuffer->m_pixels = g_unk0x10062fe0;
+	g_refreshModeBuffer->m_pixels = g_dibBits;
 	return 0;
 }
 

@@ -44,7 +44,7 @@ void FUN_100460a0()
 // FUNCTION: MW2SHELL 0x10046147
 void FUN_10046147()
 {
-	FUN_10011450(0, 0x100, g_paletteColorsPreBrightness);
+	GetPaletteColors(0, 0x100, g_paletteColorsPreBrightness);
 }
 
 // Sets the palette at brightness p_brightness without changing g_displayBrightness.

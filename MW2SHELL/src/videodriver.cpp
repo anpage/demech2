@@ -245,7 +245,7 @@ void VideoDriver::DrawShell()
 	}
 	else if (m_dirtyView.m_right >= m_dirtyView.m_left && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
 		if (g_menuVisible) {
-			FUN_10031001(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+			GdiBitBltRectWithMenu(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 		else {
 			g_currentRefreshMode

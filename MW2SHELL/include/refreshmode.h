@@ -39,7 +39,7 @@ extern "C"
 	extern RefreshMode* g_currentRefreshMode;
 	extern PixelBuffer* g_refreshModeBuffer;
 	extern PaletteColor g_paletteColors[0x100];
-	extern undefined* g_unk0x10062fe0;
+	extern undefined* g_dibBits;
 	extern MechS32 g_nWindowMode;
 	extern MechS32 g_windowHeight;
 	extern MechS32 g_windowWidth;
@@ -47,13 +47,13 @@ extern "C"
 	extern HWND g_pWnd;
 	extern HMENU g_windowMenu;
 	extern DrawBitmapInfo g_bitmapInfo;
-	extern MechS32 g_unk0x10096e88;
+	extern MechS32 g_refreshModePixelCount;
 	extern MechS32 g_refreshModeWidth;
 	extern MechS32 g_refreshModeHeight;
 
 	void InitBitmapInfo(MechS32 p_width, MechS32 p_height);
 	void AdjustWindowSize(DisplayBackend* p_backend);
-	MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette);
+	MechS32 GetPaletteColors(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette);
 	MechS32 InitRefreshMode(
 		MechS32 p_mode,
 		MechS32 p_allowFallback,

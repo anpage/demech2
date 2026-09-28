@@ -20,12 +20,12 @@
 
 MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 GdiEnd();
-MechS32 FUN_10030e3a();
+MechS32 GdiUpdateDibSection();
 MechS32 GdiBlitFlip();
 MechS32 GdiBitBltRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
 MechS32 GdiStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
-MechS32 FUN_10031171(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors);
-void FUN_10031424();
+MechS32 GdiRealizePalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors);
+void GdiLoadStaticColors();
 MechS32 GdiSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors);
 MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette);
 MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps);
@@ -90,7 +90,7 @@ RefreshMode g_gdiRefreshMode =
 
 // The p_allColors of the last GdiSetPalette.
 // GLOBAL: MW2SHELL 0x1006766c
-MechS32 g_unk0x1006766c = TRUE;
+MechS32 g_gdiAllColors = TRUE;
 
 // Not a function: refreshmode.c calls it as one (see there), and the linker binds the calls here.
 // GLOBAL: MW2SHELL 0x100965d4
@@ -136,8 +136,8 @@ MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 		colors[i] = i;
 	}
 
-	FUN_10031424();
-	if (!FUN_10031171(0, 0x100, g_paletteColors, FALSE)) {
+	GdiLoadStaticColors();
+	if (!GdiRealizePalette(0, 0x100, g_paletteColors, FALSE)) {
 		return -1;
 	}
 
@@ -147,7 +147,7 @@ MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 		return 0;
 	}
 
-	if (!FUN_10030e3a()) {
+	if (!GdiUpdateDibSection()) {
 		return -1;
 	}
 
@@ -194,14 +194,14 @@ MechS32 GdiEnd()
 	g_unk0x10067200 = NULL;
 	g_gdiMemoryDc = NULL;
 	g_gdiDibSection = NULL;
-	g_refreshModeBuffer->m_pixels = g_unk0x10062fe0 = NULL;
+	g_refreshModeBuffer->m_pixels = g_dibBits = NULL;
 	g_unk0x1006720c = 0;
 	return 0;
 }
 
 // Creates the DIB section on the first call, then only reloads its color table.
 // FUNCTION: MW2SHELL 0x10030e3a
-MechS32 FUN_10030e3a()
+MechS32 GdiUpdateDibSection()
 {
 	if (g_gdiDibSection != NULL) {
 		g_gdiResult = SetDIBColorTable(g_gdiMemoryDc, 0, 0x100, g_gdiColorTable);
@@ -220,7 +220,7 @@ MechS32 FUN_10030e3a()
 			return FALSE;
 		}
 
-		g_unk0x10062fe0 = g_refreshModeBuffer->m_pixels;
+		g_dibBits = g_refreshModeBuffer->m_pixels;
 		g_gdiOldBitmap = SelectObject(g_gdiMemoryDc, g_gdiDibSection);
 	}
 
@@ -262,7 +262,7 @@ MechS32 GdiBitBltRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_
 // GdiBitBltRect for a window with its menu bar shown: the client area starts one menu height
 // lower.
 // FUNCTION: MW2SHELL 0x10031001
-MechS32 FUN_10031001(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
+MechS32 GdiBitBltRectWithMenu(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = BitBlt(
 		g_gdiWindowDc,
@@ -324,7 +324,7 @@ MechS32 FUN_10031106(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_b
 // Copies p_count colors into g_paletteColors from p_first and realizes the logical palette,
 // either all 256 entries or only those between the static colors.
 // FUNCTION: MW2SHELL 0x10031171
-MechS32 FUN_10031171(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
+MechS32 GdiRealizePalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 i;
 
@@ -378,7 +378,7 @@ MechS32 FUN_10031171(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, 
 // Operand order: the original compares i < g_gdiStaticColorCount as
 // `cmp [g_gdiStaticColorCount], eax`; one declaration-order attempt didn't flip it.
 // FUNCTION: MW2SHELL 0x10031424
-void FUN_10031424()
+void GdiLoadStaticColors()
 {
 	MechS32 i;
 
@@ -420,17 +420,17 @@ MechS32 GdiSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette,
 		return -1;
 	}
 
-	result = FUN_10031171(p_first, p_count, p_palette, p_allColors);
+	result = GdiRealizePalette(p_first, p_count, p_palette, p_allColors);
 	if (!result) {
 		return -1;
 	}
 
-	if (!p_allColors && g_unk0x1006766c) {
-		FUN_10031424();
+	if (!p_allColors && g_gdiAllColors) {
+		GdiLoadStaticColors();
 	}
-	g_unk0x1006766c = p_allColors;
+	g_gdiAllColors = p_allColors;
 
-	result = FUN_10030e3a();
+	result = GdiUpdateDibSection();
 	if (!result) {
 		return -1;
 	}
@@ -448,9 +448,9 @@ MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 		CopyPaletteColorWithBrightness(&p_palette[i], &g_paletteColors[i]);
 	}
 
-	FUN_10031171(0, 0x100, g_paletteColors, FALSE);
+	GdiRealizePalette(0, 0x100, g_paletteColors, FALSE);
 	GdiBlitFlip();
-	g_refreshModeBuffer->m_pixels = g_unk0x10062fe0;
+	g_refreshModeBuffer->m_pixels = g_dibBits;
 	return 0;
 }
 
@@ -483,17 +483,17 @@ MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 			p_palette[j].m_blue = (MechU8) ((p_steps - i) * deltas[j][2]) + g_paletteColorsPreBrightness[j].m_blue;
 		}
 
-		FUN_10031171(0, 0x100, p_palette, FALSE);
+		GdiRealizePalette(0, 0x100, p_palette, FALSE);
 		GdiBlitFlip();
 	}
 
-	g_refreshModeBuffer->m_pixels = g_unk0x10062fe0;
+	g_refreshModeBuffer->m_pixels = g_dibBits;
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10031948
 MechS32 GdiAcquireFramebuffer()
 {
-	g_refreshModeBuffer->m_pixels = g_unk0x10062fe0;
+	g_refreshModeBuffer->m_pixels = g_dibBits;
 	return 0;
 }

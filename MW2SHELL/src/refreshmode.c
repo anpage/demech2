@@ -69,7 +69,7 @@ PaletteColor g_paletteColors[0x100] = {0};
 // The DIB bits of the GDI and DisplayDib back ends, restored into g_refreshModeBuffer by
 // m_acquireFramebuffer.
 // GLOBAL: MW2SHELL 0x10062fe0
-undefined* g_unk0x10062fe0 = NULL;
+undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2SHELL 0x10062ffc
 MechS32 g_nWindowMode = 0;
@@ -109,13 +109,14 @@ HMENU g_windowMenu;
 
 // The shell window's position and size in windowed mode (SetWindowPos arguments, not corners).
 // GLOBAL: MW2SHELL 0x10096a50
-RECT g_unk0x10096a50;
+RECT g_windowedRect;
 
 // GLOBAL: MW2SHELL 0x10096a60
 DrawBitmapInfo g_bitmapInfo;
 
+// The frame's size in pixels, p_width * p_height of InitRefreshMode.
 // GLOBAL: MW2SHELL 0x10096e88
-MechS32 g_unk0x10096e88;
+MechS32 g_refreshModePixelCount;
 
 // GLOBAL: MW2SHELL 0x10096e8c
 MechS32 g_refreshModeWidth;
@@ -160,21 +161,21 @@ MechS32 InitRefreshMode(
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-	g_unk0x10096a50.left = 0;
-	g_unk0x10096a50.top = 0;
-	g_unk0x10096a50.right = p_width;
-	g_unk0x10096a50.bottom = p_height;
+	g_windowedRect.left = 0;
+	g_windowedRect.top = 0;
+	g_windowedRect.right = p_width;
+	g_windowedRect.bottom = p_height;
 	if (screenWidth <= p_width && screenHeight <= p_height) {
 		g_gdiBackend.m_style = WS_POPUP;
 		g_nWindowMode = c_windowModeFullscreen;
 	}
 	else {
 		g_gdiBackend.m_style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		AdjustWindowRect(&g_unk0x10096a50, g_gdiBackend.m_style, p_menu);
-		g_unk0x10096a50.right -= g_unk0x10096a50.left;
-		g_unk0x10096a50.bottom -= g_unk0x10096a50.top;
-		g_unk0x10096a50.top = (screenHeight - g_unk0x10096a50.bottom) / 2;
-		g_unk0x10096a50.left = (screenWidth - g_unk0x10096a50.right) / 2;
+		AdjustWindowRect(&g_windowedRect, g_gdiBackend.m_style, p_menu);
+		g_windowedRect.right -= g_windowedRect.left;
+		g_windowedRect.bottom -= g_windowedRect.top;
+		g_windowedRect.top = (screenHeight - g_windowedRect.bottom) / 2;
+		g_windowedRect.left = (screenWidth - g_windowedRect.right) / 2;
 		g_nWindowMode = backend->m_windowMode;
 	}
 
@@ -186,7 +187,7 @@ MechS32 InitRefreshMode(
 		unused = 8;
 	}
 	else {
-		rect = g_unk0x10096a50;
+		rect = g_windowedRect;
 		unused = 0;
 	}
 
@@ -204,7 +205,7 @@ MechS32 InitRefreshMode(
 	g_currentRefreshMode = mode;
 	g_refreshModeWidth = p_width;
 	g_refreshModeHeight = p_height;
-	g_unk0x10096e88 = p_height * p_width;
+	g_refreshModePixelCount = p_height * p_width;
 	g_refreshModeBuffer = p_buffer;
 
 	while (g_currentRefreshMode->m_available && g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
@@ -389,9 +390,9 @@ void ToggleFullScreen()
 			mode = g_fastestRefreshMode;
 		}
 
-		GetWindowRect(g_pWnd, &g_unk0x10096a50);
-		g_unk0x10096a50.right -= g_unk0x10096a50.left;
-		g_unk0x10096a50.bottom -= g_unk0x10096a50.top;
+		GetWindowRect(g_pWnd, &g_windowedRect);
+		g_windowedRect.right -= g_windowedRect.left;
+		g_windowedRect.bottom -= g_windowedRect.top;
 	}
 
 	g_currentRefreshMode->m_end();
@@ -448,10 +449,10 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 		SetWindowPos(
 			g_pWnd,
 			HWND_NOTOPMOST,
-			g_unk0x10096a50.left,
-			g_unk0x10096a50.top,
-			g_unk0x10096a50.right,
-			g_unk0x10096a50.bottom,
+			g_windowedRect.left,
+			g_windowedRect.top,
+			g_windowedRect.right,
+			g_windowedRect.bottom,
 			SWP_NOACTIVATE
 		);
 		if (g_unk0x1006a9d8 && !FUN_1003bf90(4)) {
@@ -472,10 +473,11 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 	}
 }
 
+// Copies p_count colors of g_paletteColors from p_first into p_palette.
 // Operand order: the original compares i < p_count as `cmp [p_count], eax` and adds p_first + i
 // with p_first loaded first; the order follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10011450
-MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)
+MechS32 GetPaletteColors(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)
 {
 	MechS32 i;
 
