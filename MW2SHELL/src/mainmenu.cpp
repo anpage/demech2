@@ -196,6 +196,135 @@ MainMenuButton g_unk0x1006f330[9] = {
 	{573, 246, 601, 280, 487, 285, g_unk0x10070780},
 };
 
+// The training screen.
+// GLOBAL: MW2SHELL 0x1007018c
+MechChar g_unk0x1007018c[0x0c] = "CLAN HALL";
+// GLOBAL: MW2SHELL 0x10070198
+MechChar g_unk0x10070198[0x10] = "<~NAV COMPUTER";
+// GLOBAL: MW2SHELL 0x100701a8
+MechChar g_unk0x100701a8[0x10] = "<~MECH HANDLING";
+// GLOBAL: MW2SHELL 0x100701b8
+MechChar g_unk0x100701b8[0x10] = "<~WEAPONS USAGE";
+// GLOBAL: MW2SHELL 0x100701c8
+MechChar g_unk0x100701c8[0x0c] = "<~HUNTING";
+// GLOBAL: MW2SHELL 0x100701d4
+MechChar g_unk0x100701d4[0x10] = "<~INSPECTION";
+// GLOBAL: MW2SHELL 0x100701e4
+MechChar g_unk0x100701e4[0x08] = "<~TRIAL";
+
+// GLOBAL: MW2SHELL 0x10070554
+MechChar g_unk0x10070554[0x0c] = "CLAN HALL";
+// GLOBAL: MW2SHELL 0x10070560
+MechChar g_unk0x10070560[0x10] = "<~NAV COMPUTER";
+// GLOBAL: MW2SHELL 0x10070570
+MechChar g_unk0x10070570[0x10] = "<~MECH HANDLING";
+// GLOBAL: MW2SHELL 0x10070580
+MechChar g_unk0x10070580[0x10] = "<~WEAPONS USAGE";
+// GLOBAL: MW2SHELL 0x10070590
+MechChar g_unk0x10070590[0x0c] = "<~HUNTING";
+// GLOBAL: MW2SHELL 0x1007059c
+MechChar g_unk0x1007059c[0x10] = "<~INSPECTION";
+// GLOBAL: MW2SHELL 0x100705ac
+MechChar g_unk0x100705ac[0x08] = "<~TRIAL";
+
+// GLOBAL: MW2SHELL 0x1006e510
+MainMenuButton g_unk0x1006e510[7] = {
+	{5, 149, 57, 440, 18, 203, g_unk0x1007018c},
+	{450, 13, 629, 37, 540, 18, g_unk0x10070198},
+	{450, 38, 629, 62, 540, 43, g_unk0x100701a8},
+	{450, 63, 629, 87, 540, 68, g_unk0x100701b8},
+	{450, 88, 629, 112, 540, 93, g_unk0x100701c8},
+	{450, 113, 629, 137, 540, 118, g_unk0x100701d4},
+	{450, 138, 629, 162, 540, 143, g_unk0x100701e4},
+};
+
+// GLOBAL: MW2SHELL 0x1006ee90
+MainMenuButton g_unk0x1006ee90[7] = {
+	{5, 149, 57, 440, 18, 203, g_unk0x10070554},
+	{450, 13, 629, 37, 540, 18, g_unk0x10070560},
+	{450, 38, 629, 62, 540, 43, g_unk0x10070570},
+	{450, 63, 629, 87, 540, 68, g_unk0x10070580},
+	{450, 88, 629, 112, 540, 93, g_unk0x10070590},
+	{450, 113, 629, 137, 540, 118, g_unk0x1007059c},
+	{450, 138, 629, 162, 540, 143, g_unk0x100705ac},
+};
+
+// GLOBAL: MW2SHELL 0x1006ffc0
+TallowSign0x10 g_unk0x1006ffc0[3] = {
+	{g_unk0x1006e510, 7, 13, 38},
+	{g_unk0x1006ee90, 7, 20, 41},
+	{NULL, 0, 0, 0},
+};
+
+// The mission briefing screen.
+// GLOBAL: MW2SHELL 0x1007088c
+MechChar g_unk0x1007088c[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070890
+MechChar g_unk0x10070890[0x08] = "<~EXIT";
+// GLOBAL: MW2SHELL 0x10070898
+MechChar g_unk0x10070898[0x04] = "";
+// GLOBAL: MW2SHELL 0x1007089c
+MechChar g_unk0x1007089c[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708a0
+MechChar g_unk0x100708a0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708a4
+MechChar g_unk0x100708a4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708a8
+MechChar g_unk0x100708a8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708ac
+MechChar g_unk0x100708ac[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708b0
+MechChar g_unk0x100708b0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708b4
+MechChar g_unk0x100708b4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708b8
+MechChar g_unk0x100708b8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708bc
+MechChar g_unk0x100708bc[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708c0
+MechChar g_unk0x100708c0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708c4
+MechChar g_unk0x100708c4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708c8
+MechChar g_unk0x100708c8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708cc
+MechChar g_unk0x100708cc[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708d0
+MechChar g_unk0x100708d0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708d4
+MechChar g_unk0x100708d4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708d8
+MechChar g_unk0x100708d8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708dc
+MechChar g_unk0x100708dc[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708e0
+MechChar g_unk0x100708e0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708e4
+MechChar g_unk0x100708e4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708e8
+MechChar g_unk0x100708e8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708ec
+MechChar g_unk0x100708ec[0x04] = "";
+// GLOBAL: MW2SHELL 0x100708f0
+MechChar g_unk0x100708f0[0x04] = "";
+
+// GLOBAL: MW2SHELL 0x1006f618
+MainMenuButton g_unk0x1006f618[0x19] = {
+	{209, 371, 420, 452, 0, 0, g_unk0x1007088c},     {50, 445, 149, 469, 100, 450, g_unk0x10070890},
+	{238, 67, 400, 102, 239, 69, g_unk0x10070898},   {13, 124, 103, 137, 29, 126, g_unk0x1007089c},
+	{13, 138, 103, 151, 29, 140, g_unk0x100708a0},   {13, 152, 103, 165, 29, 154, g_unk0x100708a4},
+	{13, 181, 103, 194, 29, 183, g_unk0x100708a8},   {4, 124, 12, 137, 29, 126, g_unk0x100708ac},
+	{4, 138, 12, 151, 29, 140, g_unk0x100708b0},     {4, 152, 12, 165, 29, 154, g_unk0x100708b4},
+	{4, 181, 12, 194, 29, 183, g_unk0x100708b8},     {13, 205, 160, 352, 0, 0, g_unk0x100708bc},
+	{134, 122, 172, 166, 0, 0, g_unk0x100708c0},     {134, 168, 172, 200, 0, 0, g_unk0x100708c4},
+	{481, 249, 572, 262, 498, 251, g_unk0x100708c8}, {481, 263, 572, 276, 498, 265, g_unk0x100708cc},
+	{481, 277, 572, 290, 498, 279, g_unk0x100708d0}, {481, 306, 572, 319, 498, 308, g_unk0x100708d4},
+	{472, 249, 480, 262, 498, 251, g_unk0x100708d8}, {472, 263, 480, 276, 498, 265, g_unk0x100708dc},
+	{472, 277, 480, 290, 498, 279, g_unk0x100708e0}, {472, 306, 480, 319, 498, 308, g_unk0x100708e4},
+	{482, 330, 629, 477, 0, 0, g_unk0x100708e8},     {583, 247, 621, 291, 0, 0, g_unk0x100708ec},
+	{583, 293, 621, 325, 0, 0, g_unk0x100708f0},
+};
+
 // GLOBAL: MW2SHELL 0x1006fea0
 TallowSign0x10 g_unk0x1006fea0[3] = {
 	{g_unk0x1006e9b0, 9, 15, -1},

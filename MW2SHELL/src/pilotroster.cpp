@@ -1,6 +1,7 @@
 #include "archivereader.h"
 #include "audiosample.h"
 #include "brasslantern0x414.h"
+#include "cedarknot0x10.h"
 #include "collection.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
@@ -34,6 +35,13 @@ extern HollowReed0x110* g_unk0x100711f8;
 extern BrassLantern0x414* g_unk0x10071214;
 extern BrassLantern0x414* g_unk0x10071224;
 extern MechChar* g_unk0x1006e1a0[2];
+extern CedarKnot0x10* g_unk0x10071230;
+extern char g_unk0x100668c0[][4];
+
+// The index of the HTXT tag in g_unk0x100668c0 (cedarknot0x10.cpp).
+enum {
+	c_tagHtxt = 62
+};
 extern TallowSign0x10 g_unk0x1006fe70[3];
 
 void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
@@ -678,4 +686,97 @@ void SavePilotRoster()
 
 	fwrite(g_pilotRoster, 0x3c, 20, file);
 	fclose(file);
+}
+
+// The colors of the pages FUN_1002e1b1 lays out.
+// GLOBAL: MW2SHELL 0x1008f658
+MechU8 g_unk0x1008f658[0x100];
+
+// STUB: MW2SHELL 0x1002dc60
+MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
+{
+	STUB(0x1002dc60);
+	return p_text;
+}
+
+// Lays out p_text (p_size bytes, the last of which becomes its terminator) on as many pages as
+// it takes, adding them to p_pages. With p_quote, the text's escapes are expanded first.
+// Not 100%: the stack slots of page, text and the new temporaries are permuted.
+// FUNCTION: MW2SHELL 0x1002e09b
+void FUN_1002e09b(
+	MechChar* p_text,
+	MechS32 p_size,
+	Collection* p_pages,
+	BrassLantern0x414* p_font,
+	undefined* p_colors,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechS32 p_width,
+	MechS32 p_height,
+	MechChar* p_quote
+)
+{
+	Page* page;
+	MechChar* text;
+
+	p_text[p_size - 1] = '\0';
+	if (p_quote) {
+		text = FUN_1002dc60(p_text, p_quote);
+	}
+	else {
+		text = p_text;
+	}
+
+	do {
+		page = new Page(p_font, g_pVideoDriver, p_colors, p_left, p_top, p_width, p_height);
+		text = page->Layout(text);
+		ExpandCollection(p_pages, page);
+	} while (text);
+
+	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, text);
+}
+
+// Lays out the text (HTXT node) of the project file p_name on pages, in colors that draw 0
+// transparent and everything else in color 1.
+// Not 100%: the stack slots of node and i are permuted.
+// FUNCTION: MW2SHELL 0x1002e1b1
+void FUN_1002e1b1(
+	Collection* p_pages,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechS32 p_width,
+	MechS32 p_height,
+	MechChar* p_name,
+	BrassLantern0x414* p_font,
+	MechChar* p_quote
+)
+{
+	MechS32* node = NULL;
+	MechS32 i;
+
+	g_unk0x1008f658[0] = 0xff;
+	g_unk0x1008f658[1] = 1;
+	for (i = 2; i < 0x100; i++) {
+		g_unk0x1008f658[i] = 0xff;
+	}
+
+	if (!g_unk0x10071230->FUN_1002e512(p_name)) {
+		// The original does nothing about a missing file.
+	}
+
+	node = g_unk0x10071230->FUN_1002e5d8(*(MechS32*) g_unk0x100668c0[c_tagHtxt]);
+	if (node) {
+		FUN_1002e09b(
+			(MechChar*) (node + 2),
+			node[1] - 8,
+			p_pages,
+			p_font,
+			g_unk0x1008f658,
+			p_left,
+			p_top,
+			p_width,
+			p_height,
+			p_quote
+		);
+	}
 }
