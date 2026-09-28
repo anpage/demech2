@@ -449,8 +449,9 @@ MechChar g_variantFiles[200][13];
 // GLOBAL: MW2SHELL 0x1007a7a8
 MekItem g_mekWeapons[10];
 
+// DrawMechBay's p_wParam. Never read.
 // GLOBAL: MW2SHELL 0x1007a7f8
-MechS32 g_unk0x1007a7f8;
+MechS32 g_mechBayMessage;
 
 // GLOBAL: MW2SHELL 0x1007a800
 MechChar g_variantFileName[0x20];
@@ -1116,7 +1117,7 @@ TextGlyph* DrawLocationMap(ScreenField* p_tab)
 		g_locationMapLefts[g_variant.m_selectedLocation] + 0xd8,
 		g_locationMapTops[g_variant.m_selectedLocation] + 0x34
 	);
-	FUN_10016d27(12);
+	ShowVideo(12);
 	return NULL;
 }
 
@@ -1146,8 +1147,9 @@ TextGlyph* DrawUsedMass(ScreenField* p_tab)
 	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
 }
 
+// Draws a mass in hundredths of a ton. Unused.
 // FUNCTION: MW2SHELL 0x10008d4c
-TextGlyph* FUN_10008d4c(ScreenField* p_tab)
+TextGlyph* DrawTons(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1244,8 +1246,9 @@ TextGlyph* DrawNumber(ScreenField* p_tab)
 	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
+// DrawLabel for a field whose data points at the string. Unused.
 // FUNCTION: MW2SHELL 0x10009126
-TextGlyph* FUN_10009126(ScreenField* p_tab)
+TextGlyph* DrawIndirectLabel(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -1432,8 +1435,9 @@ TextGlyph* DrawWeaponTableEntry(ScreenField* p_tab)
 	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_weapons[index].m_name, colors);
 }
 
+// Draws the name of the weapon the field's data holds (times 100, -1 for none). Unused.
 // FUNCTION: MW2SHELL 0x1000973c
-TextGlyph* FUN_1000973c(ScreenField* p_tab)
+TextGlyph* DrawWeaponName(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1715,7 +1719,7 @@ void ShowComponent(ScreenField* p_tab)
 	SetVideoFlags(11, 0x20, 0x20);
 	SetVideoFlags(12, 0x20, 0x20);
 	SetVideoFlags(13, 0x20, 0x20);
-	FUN_10016d27(14);
+	ShowVideo(14);
 	HideFields(g_componentFields);
 	g_componentFields = tabs;
 	ShowFields(g_componentFields);
@@ -1726,8 +1730,8 @@ void ShowWeapons(ScreenField* p_tab)
 {
 	g_variant.m_selectedWeapon = -1;
 	ShowComponent(p_tab);
-	FUN_10016d27(11);
-	FUN_10016d27(13);
+	ShowVideo(11);
+	ShowVideo(13);
 	SetVideoFlags(14, 0x20, 0x20);
 }
 
@@ -1735,8 +1739,8 @@ void ShowWeapons(ScreenField* p_tab)
 void ShowArmor(ScreenField* p_tab)
 {
 	ShowComponent(p_tab);
-	FUN_10016d27(10);
-	FUN_10016d27(12);
+	ShowVideo(10);
+	ShowVideo(12);
 	SetVideoFlags(14, 0x20, 0x20);
 }
 
@@ -1744,9 +1748,9 @@ void ShowArmor(ScreenField* p_tab)
 void ShowCriticals(ScreenField* p_tab)
 {
 	ShowComponent(p_tab);
-	FUN_10016d27(10);
-	FUN_10016d27(11);
-	FUN_10016d27(12);
+	ShowVideo(10);
+	ShowVideo(11);
+	ShowVideo(12);
 	SetVideoFlags(14, 0x20, 0x20);
 }
 
@@ -2934,9 +2938,9 @@ void HideChassisVideo()
 }
 
 // FUNCTION: MW2SHELL 0x1000cb6f
-void FUN_1000cb6f()
+void ShowChassisVideo()
 {
-	FUN_10016d27(0x10);
+	ShowVideo(0x10);
 }
 
 // FUNCTION: MW2SHELL 0x1000cb89
@@ -3557,7 +3561,7 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	MechChar* variant;
 	MechS32 size;
 
-	g_unk0x1007a7f8 = p_wParam;
+	g_mechBayMessage = p_wParam;
 	if (g_pickStarMech && p_wParam == 0x413) {
 		g_pickingStarMech = 1;
 	}
@@ -3773,7 +3777,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		break;
 	case 1:
 		if (*p_campaign == 2) {
-			FUN_10016d27(5);
+			ShowVideo(5);
 		}
 		else {
 			SetVideoFlags(5, 1, 0);
@@ -3796,7 +3800,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		break;
 	case 2:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(8);
+			ShowVideo(8);
 		}
 		if (pressed != 1) {
 			break;
@@ -3815,7 +3819,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		break;
 	case 3:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(9);
+			ShowVideo(9);
 		}
 		if (pressed != 1) {
 			break;
@@ -3834,7 +3838,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		break;
 	case 4:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(6);
+			ShowVideo(6);
 		}
 		if (pressed != 1) {
 			break;
@@ -3850,7 +3854,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		break;
 	case 5:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(7);
+			ShowVideo(7);
 		}
 		if (pressed != 1) {
 			break;
@@ -3944,7 +3948,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		SetVideoFlags(11, 0x20, 0x20);
 		SetVideoFlags(12, 0x20, 0x20);
 		SetVideoFlags(13, 0x20, 0x20);
-		FUN_10016d27(14);
+		ShowVideo(14);
 		LoadChassis();
 		HideFields(g_componentFields);
 		g_componentFields = NULL;
@@ -3952,7 +3956,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		g_screenFields = g_mechBayFields;
 		ShowFields(g_screenFields);
 		SetVideoFlags(0, 1, 0);
-		FUN_1000cb6f();
+		ShowChassisVideo();
 		g_mechBayMenu->EnableButton(0);
 		g_mechBayMenu->EnableButton(1);
 		g_mechBayMenu->EnableButton(2);

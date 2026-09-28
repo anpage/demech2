@@ -14,12 +14,13 @@
 
 DECOMP_SIZE_ASSERT(SimHandoffState, 0x218)
 
-// The mission's name, from its briefing file.
+// The mission's name, from its BWD file (ShellApplyMissionUiInfo), passed to the simulator as
+// "-b=".
 // GLOBAL: MW2SHELL 0x1006a550
-MechChar g_unk0x1006a550[0x10] = "xxxxxxxx.xxx";
+MechChar g_missionName[0x10] = "xxxxxxxx.xxx";
 
 // GLOBAL: MW2SHELL 0x10090288
-SimHandoffState g_unk0x10090288;
+SimHandoffState g_simHandoff;
 
 // Reads the shell's state back from mw2prm.cfg after a mission. With p_fromSim, posts the saved
 // message to the shell window; otherwise it returns to the campaign's start (2, no pilot, no
@@ -35,21 +36,21 @@ void ReadSimHandoff(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, 
 		return;
 	}
 
-	if (fread(&g_unk0x10090288, sizeof(g_unk0x10090288), 1, file) != 1) {
+	if (fread(&g_simHandoff, sizeof(g_simHandoff), 1, file) != 1) {
 		fclose(file);
 		return;
 	}
 	fclose(file);
 
-	*p_campaign = g_unk0x10090288.m_unk0x04;
-	*p_pilotChosen = g_unk0x10090288.m_unk0x08;
-	*p_scenario = g_unk0x10090288.m_unk0x118;
-	for (i = 0; g_unk0x10090288.m_unk0x118[i] > ' '; i++) {
+	*p_campaign = g_simHandoff.m_campaign;
+	*p_pilotChosen = g_simHandoff.m_pilotChosen;
+	*p_scenario = g_simHandoff.m_cmdLine;
+	for (i = 0; g_simHandoff.m_cmdLine[i] > ' '; i++) {
 	}
-	g_unk0x10090288.m_unk0x118[i] = '\0';
+	g_simHandoff.m_cmdLine[i] = '\0';
 
-	if (g_unk0x10090288.m_unk0x114 >= 0) {
-		g_pCurrentPilot = &g_pilotRoster[g_unk0x10090288.m_unk0x114];
+	if (g_simHandoff.m_pilot >= 0) {
+		g_pCurrentPilot = &g_pilotRoster[g_simHandoff.m_pilot];
 	}
 	else {
 		g_pCurrentPilot = NULL;
@@ -57,7 +58,7 @@ void ReadSimHandoff(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, 
 	RestoreStars();
 
 	if (p_fromSim) {
-		PostMessage(g_pWnd, g_unk0x10090288.m_unk0x00, 0x410, 0);
+		PostMessage(g_pWnd, g_simHandoff.m_msg, 0x410, 0);
 	}
 	else {
 		*p_campaign = 2;
@@ -74,18 +75,18 @@ void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const
 {
 	FILE* file;
 
-	g_unk0x10090288.m_unk0x00 = p_msg;
-	g_unk0x10090288.m_unk0x04 = p_campaign;
-	g_unk0x10090288.m_unk0x08 = p_pilotChosen;
-	strcpy(g_unk0x10090288.m_unk0x118, p_scenario);
-	strcat(g_unk0x10090288.m_unk0x118, " -b=");
-	strcat(g_unk0x10090288.m_unk0x118, g_unk0x1006a550);
+	g_simHandoff.m_msg = p_msg;
+	g_simHandoff.m_campaign = p_campaign;
+	g_simHandoff.m_pilotChosen = p_pilotChosen;
+	strcpy(g_simHandoff.m_cmdLine, p_scenario);
+	strcat(g_simHandoff.m_cmdLine, " -b=");
+	strcat(g_simHandoff.m_cmdLine, g_missionName);
 
 	if (g_pCurrentPilot) {
-		g_unk0x10090288.m_unk0x114 = g_pCurrentPilot - g_pilotRoster;
+		g_simHandoff.m_pilot = g_pCurrentPilot - g_pilotRoster;
 	}
 	else {
-		g_unk0x10090288.m_unk0x114 = -1;
+		g_simHandoff.m_pilot = -1;
 	}
 	SaveStars();
 
@@ -98,6 +99,6 @@ void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const
 		return;
 	}
 
-	fwrite(&g_unk0x10090288, sizeof(g_unk0x10090288), 1, file);
+	fwrite(&g_simHandoff, sizeof(g_simHandoff), 1, file);
 	fclose(file);
 }

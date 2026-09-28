@@ -23,14 +23,14 @@ public:
 	TMPackDataBase(char* p_name);
 	~TMPackDataBase();
 
-	void FUN_10047bc0();
-	MechS32 FUN_10047fd4();
+	void DumpEntries();
+	MechS32 GetEntryCount();
 	TMPackDBEntry* GetEntry(MechS32 p_id);
 	MechS32 GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size);
 	MechS32 GetDBItemLZ(MechS32 p_id, void** p_data, MechS32* p_size);
-	MechS32 FUN_100483c8(MechS32 p_id, MechS32 p_offset, void* p_buffer, size_t p_size);
-	MechS32 FUN_1004843e(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer);
-	MechS32 FUN_10048501(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer);
+	MechS32 ReadDBItemData(MechS32 p_id, MechS32 p_offset, void* p_buffer, size_t p_size);
+	MechS32 ReadDBItemLine(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer);
+	MechS32 ReadDBItemString(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer);
 
 private:
 	MechChar m_name[0x80]; // 0x00

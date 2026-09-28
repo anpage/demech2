@@ -34,31 +34,33 @@ ArchiveReader* g_archiveReader = NULL;
 
 // The message to post when the archive is left.
 // GLOBAL: MW2SHELL 0x100665fc
-WPARAM g_unk0x100665fc = 0;
+WPARAM g_archiveReturnMessage = 0;
 
-// Plays while an entry loads.
+// Database item 103: started when the archive opens, and again once a long entry's text has
+// been read.
 // GLOBAL: MW2SHELL 0x10066600
-AudioSample* g_unk0x10066600 = NULL;
+AudioSample* g_archiveSound = NULL;
 
 // The text of the entry being loaded.
 // GLOBAL: MW2SHELL 0x1007ce10
-MechChar g_unk0x1007ce10[0x10000];
+MechChar g_archiveText[0x10000];
 
+// The entry's title, the topic link names and the text line being read.
 // GLOBAL: MW2SHELL 0x1008ce10
-MechChar g_unk0x1008ce10[0x200];
+MechChar g_archiveTitle[0x200];
 
 // GLOBAL: MW2SHELL 0x1008d010
-MechChar g_unk0x1008d010[0x200];
+MechChar g_archiveTopicName[0x200];
 
 // The link buttons of PrevPage and NextPage.
 // GLOBAL: MW2SHELL 0x1008d210
-MainMenuButton g_unk0x1008d210;
+MainMenuButton g_prevPageLinkButton;
 
 // GLOBAL: MW2SHELL 0x1008d230
-MainMenuButton g_unk0x1008d230;
+MainMenuButton g_nextPageLinkButton;
 
 // GLOBAL: MW2SHELL 0x1008d250
-MechChar g_unk0x1008d250[0x100];
+MechChar g_archiveLine[0x100];
 
 void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg);
 
@@ -71,9 +73,9 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 
 	g_pVideoDriver->LoadBackground(p_database, g_archiveScreens[p_campaign].m_picture);
 	p_database->GetDBItem(103, &audioData, &audioSize);
-	g_unk0x10066600 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
-	g_unk0x10066600->SetVolume(0x32);
-	g_unk0x10066600->Start();
+	g_archiveSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_archiveSound->SetVolume(0x32);
+	g_archiveSound->Start();
 
 	g_archiveReader = new ArchiveReader(
 		g_archiveNames[p_campaign],
@@ -85,7 +87,7 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 		g_archiveScreens[p_campaign].m_buttons,
 		1
 	);
-	g_unk0x100665fc = p_wParam;
+	g_archiveReturnMessage = p_wParam;
 	RegisterScreenFunction(ArchiveCallback);
 }
 
@@ -99,14 +101,14 @@ void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 	if (p_msg != 0x40b) {
 		delete g_archiveReader;
 		g_archiveReader = NULL;
-		delete g_unk0x10066600;
-		g_unk0x10066600 = NULL;
+		delete g_archiveSound;
+		g_archiveSound = NULL;
 
 		if (p_msg == 0x402) {
 			PostMessage(g_pWnd, 0x402, 0x40b, 0);
 		}
 		else if (p_msg == 0x403 || p_msg == 0x405) {
-			PostMessage(g_pWnd, g_unk0x100665fc, 0x40b, 0);
+			PostMessage(g_pWnd, g_archiveReturnMessage, 0x40b, 0);
 		}
 		else {
 			PostMessage(g_pWnd, p_msg, 0x40b, 0);
@@ -126,8 +128,9 @@ void ArchiveReader::AddTopic(MechS16 p_entry, MechS32 p_index)
 	ExpandCollection(m_topics, topic);
 }
 
+// Clears the screen's glyphs, without deleting them.
 // FUNCTION: MW2SHELL 0x1002931d
-void ArchiveReader::FUN_1002931d()
+void ArchiveReader::ClearGlyphs()
 {
 	g_pVideoDriver->ClearGlyphs(FALSE);
 }
@@ -160,7 +163,7 @@ void ArchiveReader::PrevPage()
 	Page* page = NULL;
 	undefined4 unused = 0;
 	Page::Link* link = NULL;
-	MainMenuButton* button = &g_unk0x1008d210;
+	MainMenuButton* button = &g_prevPageLinkButton;
 	MechS32 i;
 
 	button->m_textPos.x = 0;
@@ -205,7 +208,7 @@ void ArchiveReader::PrevPage()
 			button->m_top = link->m_top;
 			button->m_right = link->m_right;
 			button->m_bottom = link->m_bottom;
-			m_menu->AddButton(g_unk0x1008d210, link->m_id + c_buttonTopic, m_menu->m_drawRect);
+			m_menu->AddButton(g_prevPageLinkButton, link->m_id + c_buttonTopic, m_menu->m_drawRect);
 		}
 		m_currentPage->Restart();
 	}
@@ -216,7 +219,7 @@ void ArchiveReader::PrevPage()
 void ArchiveReader::NextPage()
 {
 	Page* page = NULL;
-	MainMenuButton* button = &g_unk0x1008d230;
+	MainMenuButton* button = &g_nextPageLinkButton;
 	MechS32 i;
 	Page::Link* link;
 
@@ -253,7 +256,7 @@ void ArchiveReader::NextPage()
 		button->m_top = link->m_top;
 		button->m_right = link->m_right;
 		button->m_bottom = link->m_bottom;
-		m_menu->AddButton(g_unk0x1008d230, link->m_id + c_buttonTopic, m_menu->m_drawRect);
+		m_menu->AddButton(g_nextPageLinkButton, link->m_id + c_buttonTopic, m_menu->m_drawRect);
 	}
 	m_currentPage->Restart();
 }
@@ -412,7 +415,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 	length = 0;
 	offset = 0;
 
-	result = m_database->FUN_100483c8(p_entry, offset, &command, 2);
+	result = m_database->ReadDBItemData(p_entry, offset, &command, 2);
 	offset += 2;
 	if (result) {
 		delete g_pVideoDriver;
@@ -429,35 +432,35 @@ void ArchiveReader::Load(MechS32 p_entry)
 		exit(1);
 	}
 
-	result = m_database->FUN_10048501(p_entry, offset, g_unk0x1008ce10);
-	offset += (MechS32) strlen(g_unk0x1008ce10) + 1;
+	result = m_database->ReadDBItemString(p_entry, offset, g_archiveTitle);
+	offset += (MechS32) strlen(g_archiveTitle) + 1;
 	strcpy(m_title, "~");
-	strcat(m_title, g_unk0x1008ce10);
+	strcat(m_title, g_archiveTitle);
 
 	command = -1;
 	while (command != -0x100) {
 		g_pMouseState->ReadMouseState();
-		result = m_database->FUN_100483c8(p_entry, offset, &command, 2);
+		result = m_database->ReadDBItemData(p_entry, offset, &command, 2);
 		offset += 2;
 
 		switch (command) {
 		case 0x200:
-			strcpy(g_unk0x1007ce10, "");
-			text = g_unk0x1007ce10;
+			strcpy(g_archiveText, "");
+			text = g_archiveText;
 			do {
-				result = m_database->FUN_1004843e(p_entry, offset, g_unk0x1008d250);
+				result = m_database->ReadDBItemLine(p_entry, offset, g_archiveLine);
 				g_pMouseState->ReadMouseState();
 				if (result != 2) {
-					wordLength = strlen(g_unk0x1008d250);
+					wordLength = strlen(g_archiveLine);
 					length += wordLength;
 					offset += wordLength + 1;
-					g_unk0x1008d250[wordLength] = ' ';
-					g_unk0x1008d250[wordLength + 1] = '\0';
+					g_archiveLine[wordLength] = ' ';
+					g_archiveLine[wordLength + 1] = '\0';
 					if (!soundStarted && length >= 0x800) {
-						g_unk0x10066600->Start();
+						g_archiveSound->Start();
 						soundStarted = TRUE;
 					}
-					strcpy(text, g_unk0x1008d250);
+					strcpy(text, g_archiveLine);
 					text += wordLength;
 				}
 			} while (result != 2);
@@ -481,22 +484,22 @@ void ArchiveReader::Load(MechS32 p_entry)
 					rest = page->Layout(rest);
 				}
 				else {
-					rest = page->Layout(g_unk0x1007ce10);
+					rest = page->Layout(g_archiveText);
 				}
 			} while (rest != NULL);
 			page = NULL;
 			break;
 		case 0x400:
-			result = m_database->FUN_100483c8(p_entry, offset, &topicEntry, 2);
+			result = m_database->ReadDBItemData(p_entry, offset, &topicEntry, 2);
 			offset += 2;
-			result = m_database->FUN_10048501(p_entry, offset, g_unk0x1008d010);
-			offset += (MechS32) strlen(g_unk0x1008d010) + 1;
+			result = m_database->ReadDBItemString(p_entry, offset, g_archiveTopicName);
+			offset += (MechS32) strlen(g_archiveTopicName) + 1;
 			AddTopic(topicEntry, topics++);
 			break;
 		case 0x300:
-			result = m_database->FUN_100483c8(p_entry, offset, &picture, 1);
+			result = m_database->ReadDBItemData(p_entry, offset, &picture, 1);
 			offset++;
-			result = m_database->FUN_100483c8(p_entry, offset, &unk0x2c, 1);
+			result = m_database->ReadDBItemData(p_entry, offset, &unk0x2c, 1);
 			offset++;
 			result = m_database->GetDBItem(picture, &data, &size);
 			if (page == NULL) {
@@ -544,7 +547,7 @@ ArchiveReader::ArchiveReader(
 	m_child = NULL;
 	CreateCollection(&m_pages, 10, NULL, 4, NULL);
 	CreateCollection(&m_topics, 3, NULL, 4, NULL);
-	FUN_1002931d();
+	ClearGlyphs();
 
 	m_menu = new ButtonMenu(g_pVideoDriver, m_font, 0, m_buttons, p_count);
 	m_menu->AddButton(p_buttons[c_buttonBack], c_buttonBack, m_menu->m_drawRect);

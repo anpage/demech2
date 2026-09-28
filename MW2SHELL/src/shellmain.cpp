@@ -109,7 +109,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		g_fWindowActive = p_wParam;
 		if (g_fWindowActive) {
 			if (IsFullscreenVideoPlaying()) {
-				FUN_10016c3e();
+				ResumeFullscreenVideo();
 			}
 
 			if (g_midiBackgroundMusic) {
@@ -120,7 +120,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		}
 		else {
 			if (IsFullscreenVideoPlaying()) {
-				FUN_10016c1d();
+				PauseFullscreenVideo();
 			}
 
 			if (g_midiBackgroundMusic) {
@@ -351,7 +351,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			msg = p_wParam;
 		}
 
-		if (g_unk0x10071240) {
+		if (g_fRunSim) {
 			WriteSimHandoff(msg, g_nSelectedCampaign, g_fPilotChosen, g_pScenario);
 			PostQuitMessage(0x401);
 			return 0;
@@ -444,7 +444,7 @@ extern "C" int __stdcall ShellMain(
 		g_fDigitalAudio = 0;
 		g_fAudio = 0;
 		g_unk0x1007123c = 0;
-		g_unk0x10071240 = 0;
+		g_fRunSim = 0;
 	}
 	else if (strstr(p_cmdLine, "sim") != NULL) {
 		fromSim = TRUE;
@@ -613,13 +613,13 @@ void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 
 	switch (p_campaign) {
 	case 0:
-		song = g_unk0x100712e0[p_msg - 0x406];
+		song = g_wolfSongs[p_msg - 0x406];
 		break;
 	case 1:
-		song = g_unk0x10071328[p_msg - 0x406];
+		song = g_jadeFalconSongs[p_msg - 0x406];
 		break;
 	default:
-		song = g_unk0x10071298[p_msg - 0x406];
+		song = g_trialsSongs[p_msg - 0x406];
 		break;
 	}
 

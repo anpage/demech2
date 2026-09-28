@@ -34,23 +34,25 @@
 
 // The video playing before the screen moves on, -1 for none, and the message it moves on with.
 // GLOBAL: MW2SHELL 0x1006a588
-MechS32 g_unk0x1006a588 = -1;
+MechS32 g_readyRoomExitVideo = -1;
 
 // GLOBAL: MW2SHELL 0x1006a58c
-MechS32 g_unk0x1006a58c = 0x404;
+MechS32 g_readyRoomExitMessage = 0x404;
 
+// Database item 0x64, played with the mech bay's video.
 // GLOBAL: MW2SHELL 0x1006a590
-AudioSample* g_unk0x1006a590 = NULL;
+AudioSample* g_readyRoomSound = NULL;
 
 // Set once the ready room's quick tips have been shown.
 // GLOBAL: MW2SHELL 0x1006a594
-MechS32 g_unk0x1006a594 = 0;
+MechS32 g_readyRoomTipsShown = 0;
 
 // GLOBAL: MW2SHELL 0x100904a0
 ButtonMenu* g_readyRoomMenu;
 
+// DrawReadyRoom's p_wParam: the quick tips show when it is 0x407 (from the pilot roster).
 // GLOBAL: MW2SHELL 0x100904a4
-WPARAM g_unk0x100904a4;
+WPARAM g_readyRoomMessage;
 
 // Play the second faction grid animation only when video slot zero is idle.
 // FUNCTION: MW2SHELL 0x10039de0
@@ -82,7 +84,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 		ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 	}
 
-	g_unk0x100904a4 = p_wParam;
+	g_readyRoomMessage = p_wParam;
 	SelectStar(1, 0, 0, 0, 100);
 	SelectStar(0, -1, -1, -1, -1);
 	SetStarMech(0, NULL, NULL);
@@ -135,12 +137,12 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_unk0x1006a594 && g_unk0x100904a4 == 0x407 && !IsVideoPlaying(0x10)) {
+	if (g_fQuickTips && !g_readyRoomTipsShown && g_readyRoomMessage == 0x407 && !IsVideoPlaying(0x10)) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x70), g_pWnd, (DLGPROC) OkDialogProc, 0);
-		g_unk0x1006a594 = 1;
+		g_readyRoomTipsShown = 1;
 	}
 
-	if (g_unk0x1006a588 == -1) {
+	if (g_readyRoomExitVideo == -1) {
 		PlayReadyRoomGrid(*p_campaign);
 		button = g_readyRoomMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
@@ -162,7 +164,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 					type = 7;
 				}
 				sprintf(name, "awo%stbl", g_mechChassis[type].m_code);
-				g_unk0x1006a588 = PlayVideo(0, name, 0x131, 0xb9, 6, 0);
+				g_readyRoomExitVideo = PlayVideo(0, name, 0x131, 0xb9, 6, 0);
 				break;
 			case 1:
 				SetVideoFlags(0, 0x40000000, 0x40000000);
@@ -171,14 +173,14 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 					type = 7;
 				}
 				sprintf(name, "ajf%stbl", g_mechChassis[type].m_code);
-				g_unk0x1006a588 = PlayVideo(0, name, 0x114, 0xa4, 6, 0);
+				g_readyRoomExitVideo = PlayVideo(0, name, 0x114, 0xa4, 6, 0);
 				break;
 			}
 			p_database->GetDBItem(0x64, &data, &size);
-			g_unk0x1006a590 = new AudioSample(g_pAudioSubsystem, data, size);
-			g_unk0x1006a590->SetVolume(0x32);
-			g_unk0x1006a590->Start();
-			g_unk0x1006a58c = 0x40f;
+			g_readyRoomSound = new AudioSample(g_pAudioSubsystem, data, size);
+			g_readyRoomSound->SetVolume(0x32);
+			g_readyRoomSound->Start();
+			g_readyRoomExitMessage = 0x40f;
 			break;
 		case 2:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -199,7 +201,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 				p_msg = 0x407;
 				break;
 			case 1:
-				g_unk0x1006a588 = 0x10;
+				g_readyRoomExitVideo = 0x10;
 				break;
 			}
 			break;
@@ -210,13 +212,13 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 		briefing:
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x1006a588 = PlayVideoInFreeSlot("awobrief", 0x69, 0x64, 6, 0);
+				g_readyRoomExitVideo = PlayVideoInFreeSlot("awobrief", 0x69, 0x64, 6, 0);
 				break;
 			case 1:
-				g_unk0x1006a588 = PlayVideoInFreeSlot("ajfbrief", 0x6b, 0x69, 6, 0);
+				g_readyRoomExitVideo = PlayVideoInFreeSlot("ajfbrief", 0x6b, 0x69, 6, 0);
 				break;
 			}
-			g_unk0x1006a58c = 0x406;
+			g_readyRoomExitMessage = 0x406;
 			break;
 		default:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -230,15 +232,15 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			goto briefing;
 		}
 	}
-	else if (!IsVideoPlaying(g_unk0x1006a588)) {
-		if (g_unk0x1006a58c == 0x404) {
-			g_unk0x1006a588 = PlayVideo(0x10, "ajfv8tru", 1, 0x6c, 2, 0);
-			g_unk0x1006a58c = 0x407;
+	else if (!IsVideoPlaying(g_readyRoomExitVideo)) {
+		if (g_readyRoomExitMessage == 0x404) {
+			g_readyRoomExitVideo = PlayVideo(0x10, "ajfv8tru", 1, 0x6c, 2, 0);
+			g_readyRoomExitMessage = 0x407;
 		}
 		else {
-			p_msg = g_unk0x1006a58c;
-			g_unk0x1006a588 = -1;
-			g_unk0x1006a58c = 0x404;
+			p_msg = g_readyRoomExitMessage;
+			g_readyRoomExitVideo = -1;
+			g_readyRoomExitMessage = 0x404;
 		}
 	}
 
@@ -246,11 +248,11 @@ done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
 		delete g_readyRoomMenu;
-		if (g_unk0x1006a590) {
-			delete g_unk0x1006a590;
+		if (g_readyRoomSound) {
+			delete g_readyRoomSound;
 		}
-		g_unk0x1006a590 = NULL;
-		g_unk0x1006a594 = 0;
+		g_readyRoomSound = NULL;
+		g_readyRoomTipsShown = 0;
 		PostMessage(g_pWnd, p_msg, 0x411, 0);
 		UnregisterScreenFunction(ReadyRoomCallback);
 	}

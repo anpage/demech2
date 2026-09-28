@@ -9,8 +9,8 @@ class TextGlyph;
 // SIZE 0x3c
 // One pilot career record; the roster file MW2REG.CFG holds 20 of them.
 struct PilotRecord {
-	undefined4 m_unk0x00;      // 0x00
-	undefined4 m_unk0x04;      // 0x04
+	undefined4 m_inUse;        // 0x00 — 1 for a registered pilot, 0 for an empty slot
+	undefined4 m_active;       // 0x04 — the pilot last selected on the roster
 	undefined4 m_clan;         // 0x08 — index into g_clanNames: 0 Wolf, 1 Jade Falcon
 	MechS32 m_mission;         // 0x0c — missions completed, the index of the next
 	MechS32 m_rank;            // 0x10 — index into g_rankNames

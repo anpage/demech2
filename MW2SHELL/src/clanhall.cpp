@@ -27,22 +27,24 @@
 // GLOBAL: MW2SHELL 0x10063b70
 ButtonMenu* g_clanHallMenu = NULL;
 
-// The room's ambience and the sound ClanHallCallback starts once the videos 2 and 3 are done.
+// The Wolf hall's ambience.
 // GLOBAL: MW2SHELL 0x10063b74
-AudioSample* g_unk0x10063b74 = NULL;
+AudioSample* g_clanHallAmbience = NULL;
 
+// The welcome for a newly registered pilot (g_newPilotRegistered), database item 0x69.
 // GLOBAL: MW2SHELL 0x10063b78
-AudioSample* g_unk0x10063b78 = NULL;
+AudioSample* g_welcomeSound = NULL;
 
+// The Jade Falcon hall holds the welcome back until its door videos (2 and 3) are done.
 // GLOBAL: MW2SHELL 0x10063b7c
-MechS32 g_unk0x10063b7c = 0;
+MechS32 g_welcomePending = 0;
 
 // The video playing before the screen moves on, -1 for none, and the message it moves on with.
 // GLOBAL: MW2SHELL 0x10063b80
-MechS32 g_unk0x10063b80 = -1;
+MechS32 g_clanHallExitVideo = -1;
 
 // GLOBAL: MW2SHELL 0x10063b84
-MechS32 g_unk0x10063b84 = 0x404;
+MechS32 g_clanHallExitMessage = 0x404;
 
 void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
@@ -59,16 +61,16 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	if (p_wParam == 0x412) {
 		SelectStar(0, 0, 3, 1, 100);
 		SetStarMech(0, NULL, g_pCurrentPilot->m_callsign);
-		if (g_unk0x10071374) {
+		if (g_newPilotRegistered) {
 			if (p_campaign == 0) {
 				g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
-				g_unk0x10063b78 = new AudioSample(g_pAudioSubsystem, data, size);
-				g_unk0x10063b78->SetVolume(0x7f);
+				g_welcomeSound = new AudioSample(g_pAudioSubsystem, data, size);
+				g_welcomeSound->SetVolume(0x7f);
 			}
 			else {
-				g_unk0x10063b7c = 1;
+				g_welcomePending = 1;
 			}
-			g_unk0x10071374 = 0;
+			g_newPilotRegistered = 0;
 		}
 	}
 
@@ -82,9 +84,9 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		PlayVideo(3, "awolite2", 0x9e, 0x12c, 0x4a, 0);
 		PlayVideo(4, "awolite3", 0x244, 0x113, 0x4a, 0);
 		p_database->GetDBItem(0x4f, &data, &size);
-		g_unk0x10063b74 = new AudioSample(g_pAudioSubsystem, data, size);
-		g_unk0x10063b74->SetVolume(0x32);
-		g_unk0x10063b74->EnableLoop();
+		g_clanHallAmbience = new AudioSample(g_pAudioSubsystem, data, size);
+		g_clanHallAmbience->SetVolume(0x32);
+		g_clanHallAmbience->EnableLoop();
 		break;
 	case 1:
 		if (p_wParam == 0x414) {
@@ -106,11 +108,11 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	g_pVideoDriver->LoadBackground(p_database, g_clanHallScreens[p_campaign].m_picture);
 	UpdateVideos();
 	g_pVideoDriver->DrawShell();
-	if (g_unk0x10063b74) {
-		g_unk0x10063b74->Start();
+	if (g_clanHallAmbience) {
+		g_clanHallAmbience->Start();
 	}
-	if (g_unk0x10063b78) {
-		g_unk0x10063b78->Start();
+	if (g_welcomeSound) {
+		g_welcomeSound->Start();
 	}
 }
 
@@ -129,15 +131,15 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 		goto done;
 	}
 
-	if (g_unk0x10063b7c && !IsVideoPlaying(2) && !IsVideoPlaying(3)) {
+	if (g_welcomePending && !IsVideoPlaying(2) && !IsVideoPlaying(3)) {
 		g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
-		g_unk0x10063b78 = new AudioSample(g_pAudioSubsystem, data, size);
-		g_unk0x10063b78->SetVolume(0x7f);
-		g_unk0x10063b78->Start();
-		g_unk0x10063b7c = 0;
+		g_welcomeSound = new AudioSample(g_pAudioSubsystem, data, size);
+		g_welcomeSound->SetVolume(0x7f);
+		g_welcomeSound->Start();
+		g_welcomePending = 0;
 	}
 
-	if (g_unk0x10063b80 == -1) {
+	if (g_clanHallExitVideo == -1) {
 		button = g_clanHallMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
@@ -150,7 +152,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 				break;
 			case 1:
 				CloseVideo(0);
-				g_unk0x10063b80 = 2;
+				g_clanHallExitVideo = 2;
 				break;
 			}
 			break;
@@ -158,22 +160,22 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			g_unk0x10063b84 = 0x40b;
-			if (g_unk0x10063b74) {
-				delete g_unk0x10063b74;
-				g_unk0x10063b74 = NULL;
+			g_clanHallExitMessage = 0x40b;
+			if (g_clanHallAmbience) {
+				delete g_clanHallAmbience;
+				g_clanHallAmbience = NULL;
 			}
-			if (g_unk0x10063b78) {
-				delete g_unk0x10063b78;
-				g_unk0x10063b78 = NULL;
+			if (g_welcomeSound) {
+				delete g_welcomeSound;
+				g_welcomeSound = NULL;
 			}
 			CloseVideo(0);
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x10063b80 = PlayVideo(1, "awoholop", 0x14c, 0xe8, 2, 0);
+				g_clanHallExitVideo = PlayVideo(1, "awoholop", 0x14c, 0xe8, 2, 0);
 				break;
 			case 1:
-				g_unk0x10063b80 = PlayVideo(1, "ajfholop", 0xd1, 0xca, 2, 0);
+				g_clanHallExitVideo = PlayVideo(1, "ajfholop", 0xd1, 0xca, 2, 0);
 				break;
 			}
 			break;
@@ -191,7 +193,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 				p_msg = 0x411;
 				break;
 			case 1:
-				g_unk0x10063b80 = 3;
+				g_clanHallExitVideo = 3;
 				break;
 			}
 			break;
@@ -211,31 +213,31 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			break;
 		}
 	}
-	else if (!IsVideoPlaying(g_unk0x10063b80)) {
-		if (g_unk0x10063b84 == 0x404) {
-			if (g_unk0x10063b74) {
-				delete g_unk0x10063b74;
-				g_unk0x10063b74 = NULL;
+	else if (!IsVideoPlaying(g_clanHallExitVideo)) {
+		if (g_clanHallExitMessage == 0x404) {
+			if (g_clanHallAmbience) {
+				delete g_clanHallAmbience;
+				g_clanHallAmbience = NULL;
 			}
-			if (g_unk0x10063b78) {
-				delete g_unk0x10063b78;
-				g_unk0x10063b78 = NULL;
+			if (g_welcomeSound) {
+				delete g_welcomeSound;
+				g_welcomeSound = NULL;
 			}
 			CloseVideo(0);
-			switch (g_unk0x10063b80) {
+			switch (g_clanHallExitVideo) {
 			case 2:
-				g_unk0x10063b80 = PlayVideoInFreeSlot("ajf8torl", 0, 0, 2, 0);
-				g_unk0x10063b84 = 0x414;
+				g_clanHallExitVideo = PlayVideoInFreeSlot("ajf8torl", 0, 0, 2, 0);
+				g_clanHallExitMessage = 0x414;
 				break;
 			case 3:
-				g_unk0x10063b80 = PlayVideoInFreeSlot("ajf8torr", 0x194, 1, 2, 0);
-				g_unk0x10063b84 = 0x411;
+				g_clanHallExitVideo = PlayVideoInFreeSlot("ajf8torr", 0x194, 1, 2, 0);
+				g_clanHallExitMessage = 0x411;
 			}
 		}
 		else {
-			p_msg = g_unk0x10063b84;
-			g_unk0x10063b80 = -1;
-			g_unk0x10063b84 = 0x404;
+			p_msg = g_clanHallExitMessage;
+			g_clanHallExitVideo = -1;
+			g_clanHallExitMessage = 0x404;
 		}
 	}
 
@@ -243,13 +245,13 @@ done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
 		delete g_clanHallMenu;
-		if (g_unk0x10063b74) {
-			delete g_unk0x10063b74;
-			g_unk0x10063b74 = NULL;
+		if (g_clanHallAmbience) {
+			delete g_clanHallAmbience;
+			g_clanHallAmbience = NULL;
 		}
-		if (g_unk0x10063b78) {
-			delete g_unk0x10063b78;
-			g_unk0x10063b78 = NULL;
+		if (g_welcomeSound) {
+			delete g_welcomeSound;
+			g_welcomeSound = NULL;
 		}
 		UnregisterScreenFunction(ClanHallCallback);
 		if (p_msg == 0x412) {

@@ -113,7 +113,7 @@ void MouseState::DrawCursorPosition()
 			m_videoDriver->RestoreBackground(0x230, 0x14, m_unk0x0c, m_font->m_height);
 		}
 
-		m_unk0x0c = m_videoDriver->DrawString(0x230, 0x14, m_font->m_unk0x408, g_cursorPositionText, NULL);
+		m_unk0x0c = m_videoDriver->DrawString(0x230, 0x14, m_font->m_dataCopy, g_cursorPositionText, NULL);
 	}
 }
 
@@ -151,7 +151,7 @@ void MouseState::ReadMouseState()
 		return;
 	}
 
-	if (!g_unk0x10071240) {
+	if (!g_fRunSim) {
 		DrawCursorPosition();
 	}
 

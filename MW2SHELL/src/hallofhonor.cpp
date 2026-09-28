@@ -56,10 +56,10 @@ MechS32 ComparePilotRecords(const PilotRecord** p_first, const PilotRecord** p_s
 void HallOfHonorCallback(MechS32 p_active);
 
 // GLOBAL: MW2SHELL 0x1006aeac
-LoopingMovie* g_unk0x1006aeac = NULL;
+LoopingMovie* g_hallOfHonorMovie = NULL;
 
 // GLOBAL: MW2SHELL 0x10090670
-MechChar g_unk0x10090670[0x20];
+MechChar g_hallOfHonorText[0x20];
 
 // Draw the eight highest-ranking active pilots from both clan rosters.
 // FUNCTION: MW2SHELL 0x1003e3c9
@@ -69,11 +69,11 @@ void DrawHallOfHonor()
 	MechS32 i;
 	MechS32 top;
 
-	g_pVideoDriver->GetPalette(g_unk0x10071378);
+	g_pVideoDriver->GetPalette(g_savedScreenPalette);
 	g_keyboardInput->FlushKeys();
 	g_pVideoDriver->LoadPalette(2);
-	g_pVideoDriver->m_unk0x3a6 = 0;
-	g_unk0x1006aeac = new LoopingMovie("amwlogo1", 0x78, 4);
+	g_pVideoDriver->m_restoreColor = 0;
+	g_hallOfHonorMovie = new LoopingMovie("amwlogo1", 0x78, 4);
 
 	for (i = 0; i < 20; i++) {
 		pilots[i] = &g_pilotRoster[i];
@@ -81,42 +81,42 @@ void DrawHallOfHonor()
 	qsort(pilots, 20, sizeof(pilots[0]), (int (*)(const void*, const void*)) ComparePilotRecords);
 
 	top = 0x96;
-	g_pVideoDriver->DrawString(0, top, g_buttonFont->m_unk0x408, "Pilot", NULL);
-	g_pVideoDriver->DrawString(0x7d, top, g_buttonFont->m_unk0x408, "Clan", NULL);
-	g_pVideoDriver->DrawString(200, top, g_buttonFont->m_unk0x408, "Rank", NULL);
-	g_pVideoDriver->DrawString(0x145, top, g_buttonFont->m_unk0x408, "Honor", NULL);
-	g_pVideoDriver->DrawString(400, top, g_buttonFont->m_unk0x408, "Kills", NULL);
-	g_pVideoDriver->DrawString(0x1cc, top, g_buttonFont->m_unk0x408, "Hit %", NULL);
-	g_pVideoDriver->DrawString(0x208, top, g_buttonFont->m_unk0x408, "Last Mission", NULL);
+	g_pVideoDriver->DrawString(0, top, g_buttonFont->m_dataCopy, "Pilot", NULL);
+	g_pVideoDriver->DrawString(0x7d, top, g_buttonFont->m_dataCopy, "Clan", NULL);
+	g_pVideoDriver->DrawString(200, top, g_buttonFont->m_dataCopy, "Rank", NULL);
+	g_pVideoDriver->DrawString(0x145, top, g_buttonFont->m_dataCopy, "Honor", NULL);
+	g_pVideoDriver->DrawString(400, top, g_buttonFont->m_dataCopy, "Kills", NULL);
+	g_pVideoDriver->DrawString(0x1cc, top, g_buttonFont->m_dataCopy, "Hit %", NULL);
+	g_pVideoDriver->DrawString(0x208, top, g_buttonFont->m_dataCopy, "Last Mission", NULL);
 	top += 0x20;
 
 	for (i = 0; i < 8; i++) {
-		if (!pilots[i]->m_unk0x00) {
+		if (!pilots[i]->m_inUse) {
 			continue;
 		}
 
-		g_pVideoDriver->DrawString(0, top, g_defaultFont->m_unk0x408, pilots[i]->m_callsign, NULL);
-		g_pVideoDriver->DrawString(0x7d, top, g_defaultFont->m_unk0x408, g_clanNames[pilots[i]->m_clan], NULL);
-		g_pVideoDriver->DrawString(200, top, g_defaultFont->m_unk0x408, g_rankNames[pilots[i]->m_rank], NULL);
-		sprintf(g_unk0x10090670, "%d", pilots[i]->m_honor);
-		g_pVideoDriver->DrawString(0x145, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
-		sprintf(g_unk0x10090670, "%d", pilots[i]->m_kills);
-		g_pVideoDriver->DrawString(400, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
+		g_pVideoDriver->DrawString(0, top, g_defaultFont->m_dataCopy, pilots[i]->m_callsign, NULL);
+		g_pVideoDriver->DrawString(0x7d, top, g_defaultFont->m_dataCopy, g_clanNames[pilots[i]->m_clan], NULL);
+		g_pVideoDriver->DrawString(200, top, g_defaultFont->m_dataCopy, g_rankNames[pilots[i]->m_rank], NULL);
+		sprintf(g_hallOfHonorText, "%d", pilots[i]->m_honor);
+		g_pVideoDriver->DrawString(0x145, top, g_defaultFont->m_dataCopy, g_hallOfHonorText, NULL);
+		sprintf(g_hallOfHonorText, "%d", pilots[i]->m_kills);
+		g_pVideoDriver->DrawString(400, top, g_defaultFont->m_dataCopy, g_hallOfHonorText, NULL);
 		if (pilots[i]->m_shotsFired != 0) {
-			sprintf(g_unk0x10090670, "%d%%", (MechS32) pilots[i]->m_hits * 100 / (MechS32) pilots[i]->m_shotsFired);
+			sprintf(g_hallOfHonorText, "%d%%", (MechS32) pilots[i]->m_hits * 100 / (MechS32) pilots[i]->m_shotsFired);
 		}
 		else {
-			strcpy(g_unk0x10090670, "-");
+			strcpy(g_hallOfHonorText, "-");
 		}
-		g_pVideoDriver->DrawString(0x1cc, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
+		g_pVideoDriver->DrawString(0x1cc, top, g_defaultFont->m_dataCopy, g_hallOfHonorText, NULL);
 		if (pilots[i]->m_mission == 0) {
-			g_pVideoDriver->DrawString(0x208, top, g_defaultFont->m_unk0x408, "----", NULL);
+			g_pVideoDriver->DrawString(0x208, top, g_defaultFont->m_dataCopy, "----", NULL);
 		}
 		else {
 			g_pVideoDriver->DrawString(
 				0x208,
 				top,
-				g_defaultFont->m_unk0x408,
+				g_defaultFont->m_dataCopy,
 				g_campaignMissions[pilots[i]->m_clan][pilots[i]->m_mission - 1].m_title,
 				NULL
 			);
@@ -130,22 +130,22 @@ void DrawHallOfHonor()
 // FUNCTION: MW2SHELL 0x1003e86b
 void HallOfHonorCallback(MechS32 p_active)
 {
-	if (p_active && g_unk0x1006aeac != NULL) {
-		g_unk0x1006aeac->Update();
+	if (p_active && g_hallOfHonorMovie != NULL) {
+		g_hallOfHonorMovie->Update();
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
 		g_keyboardInput->PollKey() != 0) {
 		UnregisterMenuFunction(HallOfHonorCallback);
 		EnableMenuItem(g_windowMenu, 0x9c42, MF_ENABLED);
 		g_menuDialogOpen = FALSE;
-		if (g_unk0x1006aeac != NULL) {
-			delete g_unk0x1006aeac;
+		if (g_hallOfHonorMovie != NULL) {
+			delete g_hallOfHonorMovie;
 		}
-		g_unk0x1006aeac = NULL;
-		g_pVideoDriver->m_unk0x3a6 = -1;
+		g_hallOfHonorMovie = NULL;
+		g_pVideoDriver->m_restoreColor = -1;
 		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
-		g_pVideoDriver->SetPalette(g_unk0x10071378, TRUE);
+		g_pVideoDriver->SetPalette(g_savedScreenPalette, TRUE);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
 			g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);

@@ -51,7 +51,7 @@ public:
 	~ArchiveReader();
 
 	void AddTopic(MechS16 p_entry, MechS32 p_index);
-	void FUN_1002931d();
+	void ClearGlyphs();
 	void FirstPage();
 	void PrevPage();
 	void NextPage();

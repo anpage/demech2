@@ -26,39 +26,45 @@ public:
 	void DrawShell();
 	void DrawFmv();
 	void GetPalette(PaletteColor* p_palette);
-	void SetPalette(PaletteColor* p_palette, undefined4 p_unk0x22);
+	void SetPalette(PaletteColor* p_palette, undefined4 p_allColors);
 	void LoadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
 	void ReadPictureSize(MechS32* p_maxX, MechS32* p_maxY, undefined* p_data, MechS32 p_size, MechS32 p_type);
-	void FUN_10006b21(undefined* p_unk0x0a, MechS32 p_unk0x0e, MechS32 p_unk0x12, MechU8 p_unk0x08, MechU8 p_unk0x09);
+	void ShowPicture(
+		undefined* p_picture,
+		MechS32 p_pictureLength,
+		MechS32 p_pictureType,
+		MechU8 p_unk0x08,
+		MechU8 p_unk0x09
+	);
 	void LoadBackground(TMPackDataBase* p_database, MechS32 p_id);
 	void DrawPicture(undefined* p_data, MechS32 p_type, PixelView* p_view);
 	void DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color);
-	void FUN_10006ed4(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
-	void FUN_10006f87(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
+	void DrawPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
+	void DrawPixelsClipped(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void ReadPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void RestoreBackground(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void CopyScreenToBackground();
 	void CopyBackgroundToScreen();
 	void LoadPalette(MechS32 p_id);
-	void FUN_100073b3(
-		undefined4 p_unk0x00,
-		undefined4 p_unk0x04,
+	void DrawShpFrame(
+		undefined4 p_shp,
+		undefined4 p_frame,
 		MechS32 p_left,
 		MechS32 p_top,
 		MechS32 p_width,
 		MechS32 p_height
 	);
-	void FUN_10007430(
-		undefined4 p_unk0x00,
-		undefined4 p_unk0x04,
+	void DrawShpFrameClipped(
+		undefined4 p_shp,
+		undefined4 p_frame,
 		MechS32 p_left,
 		MechS32 p_top,
 		MechS32 p_width,
 		MechS32 p_height
 	);
-	MechS32 DrawString(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar* p_text, undefined* p_unk0x10);
-	MechS32 DrawChar(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10);
+	MechS32 DrawString(MechS32 p_left, MechS32 p_top, void* p_font, MechChar* p_text, undefined* p_colorMap);
+	MechS32 DrawChar(MechS32 p_left, MechS32 p_top, void* p_font, MechChar p_char, undefined* p_colorMap);
 	void AddGlyph(TextGlyph* p_item, MechS32 p_overlay);
 	void RemoveGlyph(TextGlyph* p_item);
 	void RedrawGlyphs(MechS32 p_overlay);
@@ -66,17 +72,17 @@ public:
 	void ActivateFramebuffer();
 
 private:
-	MechS32 m_unk0x00;                // 0x00
+	MechS32 m_pictureSize;            // 0x00 — the last picture's, see GetPictureSize
 	undefined4 m_unk0x04;             // 0x04
 	MechU8 m_unk0x08;                 // 0x08
 	MechU8 m_unk0x09;                 // 0x09
-	undefined* m_unk0x0a;             // 0x0a
-	MechS32 m_unk0x0e;                // 0x0e
-	MechS32 m_unk0x12;                // 0x12
+	undefined* m_picture;             // 0x0a — ShowPicture's
+	MechS32 m_pictureLength;          // 0x0e
+	MechS32 m_pictureType;            // 0x12 — 2, the only type ReadPictureSize knows
 	TextGlyphList* m_overlayGlyphs;   // 0x16 — redrawn after the videos' frames
 	TextGlyphList* m_glyphs;          // 0x1a — redrawn before them
-	undefined4 m_unk0x1e;             // 0x1e
-	undefined4 m_unk0x22;             // 0x22
+	undefined4 m_paletteChanged;      // 0x1e — the next draw loads m_palette
+	undefined4 m_allColors;           // 0x22 — for m_setPalette
 	undefined m_unk0x26[0x2e - 0x26]; // 0x26
 
 public:
@@ -98,16 +104,18 @@ private:
 	PaletteColor m_palette[0x100]; // 0x92
 	MechS32 m_width;               // 0x392
 	MechS32 m_height;              // 0x396
-	MechS32 m_unk0x39a;            // 0x39a
-	MechS32 m_unk0x39e;            // 0x39e
+	MechS32 m_pictureMaxX;         // 0x39a
+	MechS32 m_pictureMaxY;         // 0x39e
 	undefined4 m_unk0x3a2;         // 0x3a2
 
 public:
-	// The leaderboard and credits screens set the refresh mode directly.
-	MechS32 m_unk0x3a6; // 0x3a6
+	// The color RestoreBackground fills with instead of copying the background, -1 to copy.
+	// The options, leaderboard, credits and cockpit controls screens set it to 0 directly.
+	MechS32 m_restoreColor; // 0x3a6
 
-	// Set by the full-screen video player on its first frame.
-	undefined4 m_unk0x3aa; // 0x3aa
+	// Set by the full-screen video player on its first frame: the next draw keeps the frame as
+	// the background before loading the palette.
+	undefined4 m_fmvFirstFrame; // 0x3aa
 };
 #pragma pack()
 

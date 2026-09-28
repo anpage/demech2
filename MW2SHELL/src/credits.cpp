@@ -19,8 +19,10 @@ void operator delete(void*);
 
 void CreditsCallback(MechS32 p_active);
 
+// The lines of the credits: '<' marks a title, '>' a heading, '~' a title in
+// g_creditsTitleColors, and NULL a blank line.
 // GLOBAL: MW2SHELL 0x10071db0
-MechChar* g_unk0x10071db0[0x21f] = {
+MechChar* g_creditLines[0x21f] = {
 	"<ACTIVISION presents",
 	NULL,
 	"<MECHWARRIOR 2",
@@ -568,38 +570,40 @@ MechChar* g_unk0x10071db0[0x21f] = {
 };
 
 // GLOBAL: MW2SHELL 0x1007262c
-LoopingMovie* g_unk0x1007262c = NULL;
+LoopingMovie* g_creditsMovie = NULL;
 
 // GLOBAL: MW2SHELL 0x10074648
-MechChar g_unk0x10074648[0x10] = "amwlogo1";
+MechChar g_creditsMovieName[0x10] = "amwlogo1";
 
+// The first line still on screen.
 // GLOBAL: MW2SHELL 0x10094b80
-MechS32 g_unk0x10094b80;
+MechS32 g_creditsFirstLine;
 
 // GLOBAL: MW2SHELL 0x10094b88
-undefined g_unk0x10094b88[0x100];
+undefined g_creditsTitleColors[0x100];
 
+// The screen position of line 0, a pixel higher each frame.
 // GLOBAL: MW2SHELL 0x10094c88
-MechS32 g_unk0x10094c88;
+MechS32 g_creditsScrollTop;
 
 // FUNCTION: MW2SHELL 0x10046e80
 void DrawCredits()
 {
 	MechS32 i;
 
-	g_unk0x10094b80 = 0;
-	g_pVideoDriver->GetPalette(g_unk0x10071378);
+	g_creditsFirstLine = 0;
+	g_pVideoDriver->GetPalette(g_savedScreenPalette);
 	g_keyboardInput->FlushKeys();
 	g_pVideoDriver->LoadPalette(5);
-	g_pVideoDriver->m_unk0x3a6 = 0;
-	g_unk0x1007262c = new LoopingMovie(g_unk0x10074648, 0x78, 4);
+	g_pVideoDriver->m_restoreColor = 0;
+	g_creditsMovie = new LoopingMovie(g_creditsMovieName, 0x78, 4);
 
-	g_unk0x10094b88[0] = 0xff;
-	g_unk0x10094b88[1] = 0x10;
+	g_creditsTitleColors[0] = 0xff;
+	g_creditsTitleColors[1] = 0x10;
 	for (i = 2; i < 0x100; i++) {
-		g_unk0x10094b88[i] = (MechU8) i;
+		g_creditsTitleColors[i] = (MechU8) i;
 	}
-	g_unk0x10094c88 = 0x1cc;
+	g_creditsScrollTop = 0x1cc;
 	RegisterMenuFunction(CreditsCallback);
 }
 
@@ -613,40 +617,45 @@ void CreditsCallback(MechS32 p_active)
 
 	if (p_active) {
 		g_pVideoDriver->RestoreBackground(0, 0x7d, 0x280, 0x14f);
-		top = g_unk0x10094b80 * 0x14 + g_unk0x10094c88;
-		g_unk0x10094c88--;
-		for (index = g_unk0x10094b80; index < 0x21f && top < 0x1cc; index++) {
+		top = g_creditsFirstLine * 0x14 + g_creditsScrollTop;
+		g_creditsScrollTop--;
+		for (index = g_creditsFirstLine; index < 0x21f && top < 0x1cc; index++) {
 			if (top >= 0x69) {
-				if (g_unk0x10071db0[index] == NULL) {
+				if (g_creditLines[index] == NULL) {
 					// A blank line.
 				}
-				else if (g_unk0x10071db0[index][0] == '<') {
-					width = 0x140 - g_titleFont->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
-					g_pVideoDriver->DrawString(width, top, g_titleFont->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
+				else if (g_creditLines[index][0] == '<') {
+					width = 0x140 - g_titleFont->GetTextWidth(g_creditLines[index] + 1) / 2;
+					g_pVideoDriver->DrawString(width, top, g_titleFont->m_dataCopy, g_creditLines[index] + 1, NULL);
 				}
-				else if (g_unk0x10071db0[index][0] == '>') {
-					width = 0x140 - g_buttonFont->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
-					g_pVideoDriver->DrawString(width, top, g_buttonFont->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
+				else if (g_creditLines[index][0] == '>') {
+					width = 0x140 - g_buttonFont->GetTextWidth(g_creditLines[index] + 1) / 2;
+					g_pVideoDriver->DrawString(width, top, g_buttonFont->m_dataCopy, g_creditLines[index] + 1, NULL);
 				}
-				else if (g_unk0x10071db0[index][0] == '~') {
-					width = 0x140 - g_titleFont->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
-					g_pVideoDriver
-						->DrawString(width, top, g_titleFont->m_unk0x408, g_unk0x10071db0[index] + 1, g_unk0x10094b88);
+				else if (g_creditLines[index][0] == '~') {
+					width = 0x140 - g_titleFont->GetTextWidth(g_creditLines[index] + 1) / 2;
+					g_pVideoDriver->DrawString(
+						width,
+						top,
+						g_titleFont->m_dataCopy,
+						g_creditLines[index] + 1,
+						g_creditsTitleColors
+					);
 				}
 				else {
-					width = 0x140 - g_textFont->GetTextWidth(g_unk0x10071db0[index]) / 2;
-					g_pVideoDriver->DrawString(width, top, g_textFont->m_unk0x408, g_unk0x10071db0[index], NULL);
+					width = 0x140 - g_textFont->GetTextWidth(g_creditLines[index]) / 2;
+					g_pVideoDriver->DrawString(width, top, g_textFont->m_dataCopy, g_creditLines[index], NULL);
 				}
 			}
 			else {
-				g_unk0x10094b80 = index;
+				g_creditsFirstLine = index;
 			}
 			top += 0x14;
 		}
 		g_pVideoDriver->RestoreBackground(0, 0x69, 0x280, 0x14);
 		g_pVideoDriver->RestoreBackground(0, 0x1cc, 0x280, 0x14);
-		if (g_unk0x1007262c != NULL) {
-			g_unk0x1007262c->Update();
+		if (g_creditsMovie != NULL) {
+			g_creditsMovie->Update();
 		}
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
@@ -654,14 +663,14 @@ void CreditsCallback(MechS32 p_active)
 		UnregisterMenuFunction(CreditsCallback);
 		EnableMenuItem(g_windowMenu, 0x9c92, MF_ENABLED);
 		g_menuDialogOpen = FALSE;
-		if (g_unk0x1007262c != NULL) {
-			delete g_unk0x1007262c;
+		if (g_creditsMovie != NULL) {
+			delete g_creditsMovie;
 		}
-		g_unk0x1007262c = NULL;
-		g_pVideoDriver->m_unk0x3a6 = -1;
+		g_creditsMovie = NULL;
+		g_pVideoDriver->m_restoreColor = -1;
 		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
-		g_pVideoDriver->SetPalette(g_unk0x10071378, TRUE);
+		g_pVideoDriver->SetPalette(g_savedScreenPalette, TRUE);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
 			g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);

@@ -12,7 +12,7 @@ Font::Font(void* p_data, VideoDriver* p_videoDriver)
 {
 	m_videoDriver = p_videoDriver;
 	m_data = p_data;
-	m_unk0x408 = m_data;
+	m_dataCopy = m_data;
 	m_height = FontGetHeight(m_data);
 }
 
