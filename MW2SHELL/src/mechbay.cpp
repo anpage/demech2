@@ -3,6 +3,7 @@
 #include "cedarknot0x10.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
+#include "granitemast0x18.h"
 #include "mousestate.h"
 #include "slatetab0x2c.h"
 #include "tmpackdatabase.h"
@@ -108,17 +109,6 @@ struct QuartzHelm0xf50 {
 	undefined m_unk0x790[0x7a4 - 0x790]; // 0x790
 	MechS32 m_unk0x7a4;                  // 0x7a4 — items 5001 and up to add or remove together
 	undefined m_unk0x7a8[0xf50 - 0x7a8]; // 0x7a8
-};
-
-// SIZE 0x18
-// A mech the bay can load. The table ends with a zeroed entry; only the first 15 are offered.
-struct GraniteMast0x18 {
-	MechChar* m_unk0x00; // 0x00 — code of the mech's video, "awomp%s"
-	MechChar* m_unk0x04; // 0x04 — prefix of its variant files
-	MechChar* m_unk0x08; // 0x08
-	MechChar* m_unk0x0c; // 0x0c — name
-	MechS32 m_unk0x10;   // 0x10
-	MechS32 m_unk0x14;   // 0x14 — database item of the name sample, -1 for none
 };
 
 // SIZE 0x28
@@ -296,6 +286,9 @@ MechS32 g_unk0x1006176c = 7;
 
 // GLOBAL: MW2SHELL 0x10061770
 AudioSample* g_unk0x10061770 = NULL;
+
+// GLOBAL: MW2SHELL 0x10061774
+MechS32 g_unk0x10061774 = 0;
 
 // GLOBAL: MW2SHELL 0x10079a98
 undefined4 g_unk0x10079a98;

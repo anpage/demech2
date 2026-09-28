@@ -82,7 +82,10 @@ private:
 	VideoDriver* m_videoDriver; // 0x24
 	AudioSample* m_sample;      // 0x28
 	undefined4 m_unk0x2c;       // 0x2c
-	Collection* m_links;        // 0x30
+
+public:
+	// The archive reader turns the links into buttons.
+	Collection* m_links; // 0x30
 };
 
 #endif // PAGE_H

@@ -11,10 +11,15 @@ extern "C"
 #endif
 
 	typedef struct SMACK_TAG {
-		unsigned int Version; /* 0x00 */
-		unsigned int Width;   /* 0x04 */
-		unsigned int Height;  /* 0x08 */
-		int Frames;           /* 0x0c: signed in the game's frame-loop comparison */
+		unsigned int Version;                  /* 0x00 */
+		unsigned int Width;                    /* 0x04 */
+		unsigned int Height;                   /* 0x08 */
+		int Frames;                            /* 0x0c: signed in the game's frame-loop comparison */
+		unsigned char Unknown10[0x68 - 0x10];  /* 0x10 */
+		unsigned int NewPalette;               /* 0x68: set when the frame changed the palette */
+		unsigned int PalType;                  /* 0x6c: 1 when Palette holds the palette */
+		unsigned char Palette[0x374 - 0x70];   /* 0x70 */
+		unsigned char AlternatePalette[0x300]; /* 0x374: used when PalType isn't 1 */
 	} Smack;
 
 	void SmackGoto(Smack* p_smack, int p_frame);
@@ -22,6 +27,16 @@ extern "C"
 	void SmackNextFrame(Smack* p_smack);
 	void SmackClose(Smack* p_smack);
 	unsigned short SmackWait(Smack* p_smack);
+	void SmackToBuffer(
+		Smack* p_smack,
+		unsigned int p_left,
+		unsigned int p_top,
+		unsigned int p_pitch,
+		unsigned int p_height,
+		void* p_buffer,
+		unsigned int p_flags
+	);
+	unsigned int SmackGetTrackData(Smack* p_smack, void* p_buffer, unsigned int p_track);
 
 #ifdef __cplusplus
 }

@@ -1,3 +1,5 @@
 address,type,x-text
 0x10070020,string,"DATABASE.MW2"
+0x10070030,string,"ARCHWO.MW2"
+0x1007003c,string,"ARCHJF.MW2"
 0x10066d90,string,""

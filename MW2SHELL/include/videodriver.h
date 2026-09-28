@@ -78,9 +78,11 @@ private:
 	undefined4 m_unk0x1e;             // 0x1e
 	undefined4 m_unk0x22;             // 0x22
 	undefined m_unk0x26[0x2e - 0x26]; // 0x26
-	PixelBuffer m_screenBuffer;       // 0x2e
 
 public:
+	// SilverReel0x18 decodes into m_screenBuffer.m_pixels directly.
+	PixelBuffer m_screenBuffer; // 0x2e
+
 	// ShellWindowProc clears m_backBuffer.m_pixels directly: an inline accessor would leave a jmp at /Ob1.
 	PixelBuffer m_backBuffer; // 0x42
 
@@ -104,7 +106,7 @@ public:
 	// The leaderboard and credits screens set the draw mode directly.
 	MechS32 m_unk0x3a6; // 0x3a6
 
-private:
+	// Set by the full-screen video player on its first frame.
 	undefined4 m_unk0x3aa; // 0x3aa
 };
 #pragma pack()

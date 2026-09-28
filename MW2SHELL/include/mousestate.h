@@ -39,12 +39,13 @@ private:
 	undefined4 m_lastClickTime;   // 0x1f
 	undefined4 m_unk0x23;         // 0x23
 	undefined4 m_unk0x27;         // 0x27
-	MechS32 m_x;                  // 0x2b
-	MechS32 m_y;                  // 0x2f
 
 public:
-	// The cockpit controls screen's scroll arrows repeat while a button is held and read these
-	// directly: an inline accessor would leave a jmp at /Ob1.
+	// The screens read the cursor position and the cockpit controls screen's scroll arrows
+	// repeat while a button is held; they read these directly: an inline accessor would leave a
+	// jmp at /Ob1.
+	MechS32 m_x;            // 0x2b
+	MechS32 m_y;            // 0x2f
 	undefined4 m_leftDown;  // 0x33
 	undefined4 m_rightDown; // 0x37
 
