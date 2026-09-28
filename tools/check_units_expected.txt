@@ -1,0 +1,13 @@
+# Known findings of tools/check_units.py: <target> <kind> <address>  # reason
+# `<target> complete` declares every game function of the target annotated, so the
+# function before an object's first one is known to be the previous annotated one.
+# The check fails on a finding not listed here, and on a listed one that no longer occurs.
+
+MW2SHELL complete
+
+# Hand-written assembly: MASM objects don't start on the compiler's 16-byte boundaries.
+MW2SHELL start 0x100286a6  # the object starts at the .text table 0x10017a7c; the code before this routine isn't transcribed
+MW2SHELL start 0x1002a968  # MASM object aligned to 4 or 8, not 16: the compiled code before it ends at 0x1002a966
+
+# MW2 globals parked in simmain.c until the units that define them are decompiled.
+MW2 order 0x100a1498

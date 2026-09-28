@@ -1,17 +1,28 @@
+#include "missionui.h"
+
 #include "audiosample.h"
-#include "brasslantern0x414.h"
-#include "cedarknot0x10.h"
+#include "buttonmenu.h"
+#include "customstar.h"
 #include "decomp.h"
-#include "emberglyph0x3e.h"
-#include "granitemast0x18.h"
-#include "hazelstar0x80.h"
-#include "linenpacket0x218.h"
+#include "drawmode.h"
+#include "font.h"
+#include "formation.h"
 #include "mainmenubutton.h"
-#include "menulist0x10d.h"
+#include "mechbay.h"
+#include "mechchassis.h"
+#include "mechvariant.h"
+#include "menudata.h"
 #include "mousestate.h"
-#include "ravenmark0x08.h"
+#include "projectarchive.h"
+#include "shellglobals.h"
+#include "shellmain.h"
+#include "simhandoff.h"
+#include "simhandoffstate.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk1003bf90.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <string.h>
@@ -22,15 +33,15 @@
 
 // SIZE 0x08
 // A mech's name on the briefing screen: its glyph and the mech type it shows.
-struct WillowTag0x08 {
-	EmberGlyph0x3e* m_glyph; // 0x00
-	MechS32 m_type;          // 0x04 — an index into g_unk0x10061560, negative for none
+struct MechNameTag {
+	TextGlyph* m_glyph; // 0x00
+	MechS32 m_type;     // 0x04 — an index into g_unk0x10061560, negative for none
 };
 
 // SIZE 0x20
 // A star in a mission's BWD file (node type 0x46). Its mechs' variant names follow, one per
 // mech of the star's size.
-struct FernStar0x20 {
+struct BwdStar {
 	MechS32 m_unk0x00;           // 0x00
 	MechS32 m_unk0x04;           // 0x04 — tonnage
 	MechS32 m_unk0x08;           // 0x08 — mechs
@@ -38,38 +49,9 @@ struct FernStar0x20 {
 	MechChar m_unk0x10[1][0x10]; // 0x10 — variant names
 };
 
-DECOMP_SIZE_ASSERT(WillowTag0x08, 0x08)
-DECOMP_SIZE_ASSERT(RavenMark0x08, 0x08)
+DECOMP_SIZE_ASSERT(MechNameTag, 0x08)
+DECOMP_SIZE_ASSERT(Formation, 0x08)
 
-extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
-extern MouseState* g_pMouseState;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071210;
-extern CedarKnot0x10* g_unk0x10071230;
-extern MechS32 g_unk0x10066a44;
-extern GraniteMast0x18 g_unk0x10061560[];
-extern RavenMark0x08 g_unk0x1006e1a8[6];
-extern MainMenuButton g_unk0x1006f618[0x19];
-extern LinenPacket0x218 g_unk0x10090288;
-extern MechChar g_unk0x1006a550[];
-
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-MechS32 FUN_1000307c(MechS32 p_index);
-MechS32 FUN_100030e5(MechS32 p_star);
-HazelStar0x80* FUN_1000312e(MechS32 p_star);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_1001661b();
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016d27(MechS32 p_index);
-void FUN_10016f45();
-void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival);
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
@@ -116,11 +98,11 @@ MechChar* g_unk0x1006a250[6] = {"wiawolf", "wiajf", "wiaghost", "wiasmoke", "wia
 
 // The names of the mechs of the player's star...
 // GLOBAL: MW2SHELL 0x1006a268
-WillowTag0x08 g_unk0x1006a268[3] = {0};
+MechNameTag g_unk0x1006a268[3] = {0};
 
 // ...and of the enemy's.
 // GLOBAL: MW2SHELL 0x1006a280
-WillowTag0x08 g_unk0x1006a280[3] = {0};
+MechNameTag g_unk0x1006a280[3] = {0};
 
 // GLOBAL: MW2SHELL 0x1006a298
 MechS32 g_unk0x1006a298 = 0xf;
@@ -131,14 +113,14 @@ MechS32 g_unk0x1006a29c = 0;
 
 // The formation names of the enemy's star...
 // GLOBAL: MW2SHELL 0x1006a2a0
-EmberGlyph0x3e* g_unk0x1006a2a0 = NULL;
+TextGlyph* g_unk0x1006a2a0 = NULL;
 
 // ...and of the player's.
 // GLOBAL: MW2SHELL 0x1006a2a4
-EmberGlyph0x3e* g_unk0x1006a2a4 = NULL;
+TextGlyph* g_unk0x1006a2a4 = NULL;
 
 // GLOBAL: MW2SHELL 0x1006a2a8
-MenuList0x10d* g_unk0x1006a2a8 = NULL;
+ButtonMenu* g_unk0x1006a2a8 = NULL;
 
 // GLOBAL: MW2SHELL 0x1006a2b0
 AudioSample* g_unk0x1006a2b0 = NULL;
@@ -160,7 +142,7 @@ MechS32 g_unk0x10090170;
 
 // The three lines of briefing text.
 // GLOBAL: MW2SHELL 0x10090160
-EmberGlyph0x3e* g_unk0x10090160[3];
+TextGlyph* g_unk0x10090160[3];
 
 // GLOBAL: MW2SHELL 0x1009016c
 MechS32 g_unk0x1009016c;
@@ -183,7 +165,7 @@ MechS32 g_unk0x10090280;
 
 // Sets up a star from a BWD star node, and registers its mechs' variants.
 // FUNCTION: MW2SHELL 0x10037c60
-void FUN_10037c60(MechS32 p_star, FernStar0x20* p_data)
+void FUN_10037c60(MechS32 p_star, BwdStar* p_data)
 {
 	MechS32 i;
 
@@ -226,12 +208,12 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 	if (p_stars) {
 		star = g_unk0x10071230->FUN_1002e47a(file, 0x46, NULL);
 		if (star) {
-			FUN_10037c60(0, (FernStar0x20*) (star + 2));
+			FUN_10037c60(0, (BwdStar*) (star + 2));
 		}
 
 		star = g_unk0x10071230->FUN_1002e47a(file, 0x46, star);
 		if (star) {
-			FUN_10037c60(1, (FernStar0x20*) (star + 2));
+			FUN_10037c60(1, (BwdStar*) (star + 2));
 			g_unk0x10066a44 = star[2];
 		}
 	}
@@ -271,7 +253,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 // Shows the name of mech type p_type at (p_left, p_top), replacing the tag's previous glyph.
 // Not 100%: the stack slot of text is permuted with the delete temporaries.
 // FUNCTION: MW2SHELL 0x10037feb
-void FUN_10037feb(WillowTag0x08* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_top)
+void FUN_10037feb(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_top)
 {
 	MechChar* text;
 
@@ -318,7 +300,7 @@ void FUN_10038093()
 // FUNCTION: MW2SHELL 0x100381c2
 MechS32 FUN_100381c2()
 {
-	HazelStar0x80* star;
+	CustomStar* star;
 
 	star = FUN_1000312e(0);
 	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Enzo")) {
@@ -361,7 +343,7 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 		g_unk0x1006a2b4 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	}
 
-	g_unk0x1006a2a8 = new MenuList0x10d(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006f618, 0x19);
+	g_unk0x1006a2a8 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006f618, 0x19);
 	for (i = 0; i < 3; i++) {
 		g_unk0x10090160[i] = NULL;
 	}

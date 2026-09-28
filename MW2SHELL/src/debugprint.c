@@ -1,3 +1,7 @@
+#include "debugprint.h"
+
+#include "debugout.h"
+#include "drawmode.h"
 #include "types.h"
 
 #include <stdarg.h>
@@ -6,10 +10,6 @@
 
 // GLOBAL: MW2SHELL 0x10096760
 MechChar g_unk0x10096760[0x100];
-
-extern HWND g_pWnd;
-
-void DebugPrintInternal(MechChar* p_message);
 
 // FUNCTION: MW2SHELL 0x10015c90
 void FUN_10015c90(const MechChar* p_format, ...)

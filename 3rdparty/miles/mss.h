@@ -53,6 +53,18 @@ extern "C"
 	AILIMPORT void AILCALL AIL_set_sample_volume(HSAMPLE p_sample, int p_volume);
 	AILIMPORT void AILCALL AIL_set_sample_loop_count(HSAMPLE p_sample, int p_loopCount);
 
+	AILIMPORT void AILCALL AIL_serve(void);
+
+	AILIMPORT int AILCALL AIL_minimum_sample_buffer_size(HDIGDRIVER p_driver, int p_rate, int p_format);
+	AILIMPORT void AILCALL AIL_set_sample_type(HSAMPLE p_sample, int p_format, unsigned int p_flags);
+	AILIMPORT int AILCALL AIL_sample_buffer_ready(HSAMPLE p_sample);
+	AILIMPORT void AILCALL
+	AIL_load_sample_buffer(HSAMPLE p_sample, unsigned int p_bufferNum, void* p_buffer, unsigned int p_size);
+
+	/* The original imports it under its Miles name (wail32.def: _MEM_free_lock@4). */
+	AILIMPORT void AILCALL MEM_free_lock(void* p_block);
+	AILIMPORT void* AILCALL FILE_read(const char* p_filename, void* p_dest);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,63 +1,28 @@
+#include "video.h"
+
 #include "audiosubsystem.h"
-#include "copperfinch0x4c.h"
+#include "blit.h"
 #include "decomp.h"
+#include "drawmode.h"
 #include "drawmodeextension.h"
-#include "hollowreed0x110.h"
+#include "fmvslot.h"
+#include "keyboardinput.h"
+#include "loopingmovie.h"
 #include "mousestate.h"
 #include "mss.h"
+#include "shellglobals.h"
 #include "shellmain.h"
-#include "silverreel0x18.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk1003bf90.h"
 #include "videodriver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 
-extern "C" HWND g_pWnd;
-extern HMENU g_windowMenu;
-extern MechU8 g_fDrawFmv;
-extern "C" MechS32 g_fWindowActive;
-extern MechS32 g_unk0x1006a9f0;
-extern VideoDriver* g_pVideoDriver;
-extern MechChar g_szDataDrivePath[];
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern MechU32 g_unk0x10071248;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern MechS32 g_menuDialogOpen;
-
-// The original imports this one under its Miles name (wail32.def: _MEM_free_lock@4). It is
-// declared here rather than in mss.h: one more symbol there flips a comparison in MW2's
-// SimWindowProc.
-extern "C" AILIMPORT void AILCALL MEM_free_lock(void* p_block);
-extern "C" AILIMPORT void AILCALL AIL_serve();
-extern "C" AILIMPORT void* AILCALL FILE_read(const char* p_filename, void* p_dest);
-
-// The draw mode table lives in the draw mode unit, a C translation unit.
-extern "C" DrawModeExtension* g_currentDrawModeExtension;
-
-void FUN_1001023c(HMENU p_menu);
-void FUN_10010320(HMENU p_menu);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-extern "C" MechS32 FUN_10037504(void* p_data, MechS32 p_index);
-extern "C" MechS32 FUN_10037684(void* p_data);
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016d90(MechS32 p_index);
-void FUN_10016f45();
-MechS32 FUN_10017460(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	MechU32 p_unk0x10,
-	MechU32 p_unk0x14
-);
-
 // GLOBAL: MW2SHELL 0x100641a8
-CopperFinch0x4c g_unk0x100641a8[32] = {0};
+FmvSlot g_unk0x100641a8[32] = {0};
 
 // GLOBAL: MW2SHELL 0x10064b28
 undefined4 g_unk0x10064b28 = 0;
@@ -127,7 +92,7 @@ BOOL CheckVideoExists(const MechChar* p_name)
 // FUNCTION: MW2SHELL 0x10015e8e
 void FUN_10015e8e(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 {
-	CopperFinch0x4c* video;
+	FmvSlot* video;
 	MechS32 msg;
 
 	video = &g_unk0x100641a8[0];
@@ -180,12 +145,12 @@ MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 	return 1;
 }
 
-DECOMP_SIZE_ASSERT(SilverReel0x18, 0x18)
+DECOMP_SIZE_ASSERT(LoopingMovie, 0x18)
 
 // Opens the movie p_name (retrying once, after setting g_unk0x10064b28) and draws its first
 // frame at (p_left, p_top). Without a framebuffer it closes the movie again.
 // FUNCTION: MW2SHELL 0x1001603a
-SilverReel0x18::SilverReel0x18(MechChar* p_name, MechS32 p_left, MechS32 p_top)
+LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 {
 	MechS32 result;
 
@@ -223,7 +188,7 @@ SilverReel0x18::SilverReel0x18(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 }
 
 // FUNCTION: MW2SHELL 0x100161a8
-SilverReel0x18::~SilverReel0x18()
+LoopingMovie::~LoopingMovie()
 {
 	if (m_smack == NULL) {
 		return;
@@ -235,7 +200,7 @@ SilverReel0x18::~SilverReel0x18()
 // Moves the movie: restores the background under the old rectangle and draws the current
 // frame at the new position.
 // FUNCTION: MW2SHELL 0x100161dd
-void SilverReel0x18::FUN_100161dd(MechS32 p_left, MechS32 p_top)
+void LoopingMovie::FUN_100161dd(MechS32 p_left, MechS32 p_top)
 {
 	MechS32 result;
 
@@ -273,7 +238,7 @@ void FUN_100162ef(void* p_block)
 }
 
 // FUNCTION: MW2SHELL 0x1001630b
-void SilverReel0x18::FUN_1001630b()
+void LoopingMovie::FUN_1001630b()
 {
 	if (m_smack == NULL) {
 		return;
@@ -302,7 +267,7 @@ struct VideoPlaybackTimer {
 };
 
 // FUNCTION: MW2SHELL 0x100163ff
-MechS32 FUN_100163ff(CopperFinch0x4c* p_video, MechU32 p_time)
+MechS32 FUN_100163ff(FmvSlot* p_video, MechU32 p_time)
 {
 	if (p_time >= ((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next) {
 		((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next =
@@ -320,7 +285,7 @@ MechS32 g_unk0x10064b34 = 0;
 
 // Streams the next chunk of a video's sound track to its sound object once it wants one.
 // FUNCTION: MW2SHELL 0x1001643e
-void FUN_1001643e(CopperFinch0x4c* p_video)
+void FUN_1001643e(FmvSlot* p_video)
 {
 	AIL_serve();
 	if (p_video->m_unk0x04 != NULL && p_video->m_unk0x10) {
@@ -344,7 +309,7 @@ void FUN_100164f2()
 {
 	MechS32 result;
 	PaletteColor* palette;
-	CopperFinch0x4c* video;
+	FmvSlot* video;
 
 	video = &g_unk0x100641a8[0];
 	if (!SmackWait(video->m_unk0x00)) {
@@ -392,7 +357,7 @@ void FUN_100164f2()
 // FUNCTION: MW2SHELL 0x1001661b
 void FUN_1001661b()
 {
-	CopperFinch0x4c* video;
+	FmvSlot* video;
 	MechS32 i;
 
 	if (g_pAudioSubsystem) {
@@ -692,7 +657,7 @@ void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top)
 // flag 2 to the back buffer, otherwise to a buffer of its own.
 // Not 100%: the stack slots of dataDrive, result and the delete temporaries are permuted.
 // FUNCTION: MW2SHELL 0x1001703b
-BOOL LoadVideoFile(CopperFinch0x4c* p_slot, const MechChar* p_name)
+BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 {
 	undefined4 dataDrive;
 	MechS32 result;
@@ -785,7 +750,7 @@ BOOL LoadVideoFile(CopperFinch0x4c* p_slot, const MechChar* p_name)
 
 // Loads the SHP animation p_name into the slot.
 // FUNCTION: MW2SHELL 0x10017376
-BOOL LoadShpFile(CopperFinch0x4c* p_slot, const MechChar* p_name)
+BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 {
 	MechS32 size;
 
@@ -823,7 +788,7 @@ MechS32 FUN_10017460(
 	MechU32 p_fps
 )
 {
-	CopperFinch0x4c* slot = &g_unk0x100641a8[p_index];
+	FmvSlot* slot = &g_unk0x100641a8[p_index];
 
 	if (p_index < 0 || p_index >= 0x20) {
 		return -1;

@@ -1,8 +1,9 @@
 #include "tokenstream.h"
 
 #include "decomp.h"
-#include "shellmain.h"
+#include "stringutil.h"
 #include "types.h"
+#include "unk1003bf90.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,8 +11,6 @@
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(TokenStream, 0x14)
-
-MechChar* FUN_10030900(MechChar* p_string);
 
 // Reads up to 100 more tokens from the file. Returns c_tokenEndOfFile when the file is already
 // at its end.

@@ -1,11 +1,16 @@
 #include "videodriver.h"
 
 #include "audiosubsystem.h"
-#include "copperledger0x04.h"
+#include "blit.h"
+#include "debugprint.h"
 #include "drawmode.h"
 #include "drawmodeextension.h"
-#include "shellmain.h"
+#include "gdi.h"
+#include "shellglobals.h"
+#include "textglyphlist.h"
 #include "tmpackdatabase.h"
+#include "unk1003bf90.h"
+#include "video.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,84 +19,6 @@
 DECOMP_SIZE_ASSERT(VideoDriver, 0x3ae)
 DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
 DECOMP_SIZE_ASSERT(PixelView, 0x14)
-
-extern "C" MechS32 g_fWindowActive;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern "C" MechS32 g_windowHeight;
-extern "C" MechS32 g_windowWidth;
-
-// The draw mode table lives in the draw mode unit, a C translation unit.
-extern "C"
-{
-	extern DrawModeExtension* g_currentDrawModeExtension;
-	extern DrawMode* g_currentDrawMode;
-
-	MechS32 InitDrawMode(
-		MechS32 p_unk0x00,
-		MechS32 p_unk0x04,
-		PixelBuffer* p_buffer,
-		MechS32 p_width,
-		MechS32 p_height,
-		MechS32 p_unk0x14
-	);
-	void FUN_10010d49();
-
-	// The GDI back end's blits that bypass the draw mode table (gdi.c).
-	MechS32 FUN_10031001(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
-	MechS32 FUN_10031106(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
-}
-
-extern MechS32 g_menuVisible;
-extern MechS32 g_unk0x1006a9f0;
-
-extern "C" void DebugPrint(const MechChar* p_format, ...);
-void FUN_10016f45();
-
-// The blit routines live in the blit unit, a C translation unit (hand-written assembly).
-extern "C"
-{
-	MechS32 FUN_10032449(
-		PixelView* p_view,
-		MechS32 p_left,
-		MechS32 p_top,
-		MechS32 p_right,
-		MechS32 p_bottom,
-		MechS32 p_unk0x14,
-		MechS32 p_color
-	);
-	MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
-	void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
-	void FUN_10034f18(
-		PixelView* p_unk0x00,
-		MechS32 p_unk0x04,
-		MechS32 p_unk0x08,
-		PixelView* p_unk0x0c,
-		MechS32 p_unk0x10,
-		MechS32 p_unk0x14,
-		MechS32 p_unk0x18
-	);
-	MechS32 FUN_10036abc(void* p_font, MechS32 p_char);
-	MechS32 FUN_10036adc(
-		PixelView* p_view,
-		MechS32 p_left,
-		MechS32 p_top,
-		void* p_font,
-		MechS32 p_char,
-		undefined* p_palette
-	);
-	void FUN_10036c67(
-		PixelView* p_view,
-		MechS32 p_left,
-		MechS32 p_top,
-		void* p_font,
-		MechChar* p_text,
-		undefined* p_palette
-	);
-	void FUN_10037014(PixelView* p_view, undefined* p_data);
-	void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
-	MechS32 FUN_100370c1(undefined* p_data);
-}
 
 // Only the height field of the font data header is used by the text drawing wrappers.
 struct VideoFontHeader {
@@ -175,8 +102,8 @@ VideoDriver::VideoDriver()
 	m_dirtyView.m_bottom = m_screenView.m_top;
 	m_dirtyView.m_buffer = m_screenView.m_buffer;
 
-	m_unk0x16 = new CopperLedger0x04();
-	m_unk0x1a = new CopperLedger0x04();
+	m_unk0x16 = new TextGlyphList();
+	m_unk0x1a = new TextGlyphList();
 
 	g_unk0x10079998[0] = 0xff;
 	for (i = 1; i < 0x100; i++) {
@@ -738,7 +665,7 @@ MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08
 }
 
 // FUNCTION: MW2SHELL 0x100076e8
-void VideoDriver::FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16)
+void VideoDriver::FUN_100076e8(TextGlyph* p_item, MechS32 p_unk0x16)
 {
 	if (p_unk0x16) {
 		m_unk0x16->FUN_1003e171(p_item);
@@ -749,7 +676,7 @@ void VideoDriver::FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16)
 }
 
 // FUNCTION: MW2SHELL 0x1000772d
-void VideoDriver::FUN_1000772d(EmberGlyph0x3e* p_item)
+void VideoDriver::FUN_1000772d(TextGlyph* p_item)
 {
 	m_unk0x16->FUN_1003e19b(p_item);
 	m_unk0x1a->FUN_1003e19b(p_item);

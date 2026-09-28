@@ -1,8 +1,8 @@
 #include "collection.h"
 
 #include "decomp.h"
-#include "shellmain.h"
 #include "types.h"
+#include "unk1003bf90.h"
 
 #include <search.h>
 #include <stdio.h>
@@ -199,7 +199,6 @@ void FUN_1003c59e(Collection* p_collection)
 	}
 }
 
-// Operand order: the original loads p_index before m_items for m_items[p_index].
 // FUNCTION: MW2SHELL 0x1003c5f0
 void* CollectionGet(Collection* p_collection, MechS32 p_index)
 {

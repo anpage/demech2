@@ -1,20 +1,13 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
-#include "chimeledger0x3c.h"
 #include "midisequence.h"
-#include "oakentune0x10.h"
-#include "shellmain.h"
+#include "mss.h"
+#include "shellglobals.h"
+#include "soundconfig.h"
+#include "unk1003bf90.h"
+#include "videosound.h"
 
 #include <windows.h>
-
-extern "C"
-{
-	AILIMPORT MechS32 AILCALL AIL_sample_buffer_ready(HSAMPLE p_sample);
-	AILIMPORT void AILCALL
-	AIL_load_sample_buffer(HSAMPLE p_sample, MechU32 p_bufferNum, void* p_buffer, MechU32 p_size);
-	AILIMPORT MechS32 AILCALL AIL_minimum_sample_buffer_size(HDIGDRIVER p_driver, MechS32 p_rate, MechS32 p_format);
-	AILIMPORT void AILCALL AIL_set_sample_type(HSAMPLE p_sample, MechS32 p_format, MechU32 p_flags);
-}
 
 // Miles sample formats (DIG_F_*).
 enum {
@@ -26,11 +19,6 @@ enum {
 
 DECOMP_SIZE_ASSERT(AudioSubsystem, 0x15)
 DECOMP_SIZE_ASSERT(AudioSample, 0x2c)
-
-extern MechS32 g_fAudio;
-extern MechS32 g_fDigitalAudio;
-
-extern ChimeLedger0x3c g_soundConfig;
 
 // FUNCTION: MW2SHELL 0x1003ceb0
 AudioSubsystem::AudioSubsystem()
@@ -407,7 +395,7 @@ void AudioSample::SetLoopCount(MechS32 p_loopCount)
 // p_size samples. Without a digital driver, a sample or the buffers, it stays silent.
 // Not 100%: the stack slots of minimum and format are permuted.
 // FUNCTION: MW2SHELL 0x1003d884
-OakenTune0x10::OakenTune0x10(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size)
+VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size)
 {
 	MechS32 minimum;
 	MechS32 format;
@@ -472,8 +460,23 @@ OakenTune0x10::OakenTune0x10(AudioSubsystem* p_subsystem, MechS32 p_stereo, Mech
 	AIL_set_sample_type((HSAMPLE) m_unk0x04, format, p_wide != 0);
 }
 
+// FUNCTION: MW2SHELL 0x1003da54
+VideoSound::~VideoSound()
+{
+	if (m_unk0x04 != 0) {
+		AIL_end_sample((HSAMPLE) m_unk0x04);
+		AIL_release_sample_handle((HSAMPLE) m_unk0x04);
+		if (m_unk0x08 != NULL) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x08);
+		}
+		if (m_unk0x0c != NULL) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x0c);
+		}
+	}
+}
+
 // FUNCTION: MW2SHELL 0x1003dad5
-undefined4 OakenTune0x10::FUN_1003dad5()
+undefined4 VideoSound::FUN_1003dad5()
 {
 	if (m_unk0x04) {
 		if (m_unk0x10 == -1) {
@@ -488,7 +491,7 @@ undefined4 OakenTune0x10::FUN_1003dad5()
 }
 
 // FUNCTION: MW2SHELL 0x1003db31
-void* OakenTune0x10::FUN_1003db31()
+void* VideoSound::FUN_1003db31()
 {
 	if (m_unk0x04) {
 		if (m_unk0x10 == -1) {
@@ -503,7 +506,7 @@ void* OakenTune0x10::FUN_1003db31()
 }
 
 // FUNCTION: MW2SHELL 0x1003db95
-void OakenTune0x10::FUN_1003db95(void* p_buffer, MechU32 p_size)
+void VideoSound::FUN_1003db95(void* p_buffer, MechU32 p_size)
 {
 	// The two adjacent buffer fields are selected by Miles' ready-buffer index.
 	if (m_unk0x04) {

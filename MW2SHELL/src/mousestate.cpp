@@ -1,8 +1,11 @@
 #include "mousestate.h"
 
-#include "brasslantern0x414.h"
+#include "drawmode.h"
+#include "font.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
+#include "shellglobals.h"
+#include "unk1003bf90.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -10,12 +13,6 @@
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
-
-extern "C" MechS32 g_fWindowActive;
-extern MechS32 g_unk0x10071240;
-extern "C" MechS32 g_windowHeight;
-extern "C" MechS32 g_windowWidth;
-extern "C" HWND g_pWnd;
 
 // GLOBAL: MW2SHELL 0x100904a8
 MechChar g_unk0x100904a8[0x20];
@@ -34,7 +31,7 @@ inline MechS32 IsInsideWindow(POINT& p_point)
 }
 
 // FUNCTION: MW2SHELL 0x1003a790
-MouseState::MouseState(VideoDriver* p_videoDriver, BrassLantern0x414* p_unk0x08, void* p_unk0x00)
+MouseState::MouseState(VideoDriver* p_videoDriver, Font* p_unk0x08, void* p_unk0x00)
 {
 	m_videoDriver = p_videoDriver;
 	m_unk0x08 = p_unk0x08;

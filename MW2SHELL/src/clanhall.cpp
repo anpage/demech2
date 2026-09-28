@@ -1,51 +1,31 @@
+#include "clanhall.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
-#include "brasslantern0x414.h"
+#include "buttonmenu.h"
 #include "decomp.h"
+#include "drawmode.h"
+#include "font.h"
 #include "mainmenubutton.h"
-#include "menulist0x10d.h"
+#include "mechvariant.h"
+#include "menudata.h"
+#include "menuscreen.h"
 #include "mousestate.h"
-#include "tallowsign0x10.h"
-#include "tinwhistle0x3c.h"
+#include "options.h"
+#include "pilotrecord.h"
+#include "shellglobals.h"
+#include "shellmain.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <windows.h>
 
 // The clan hall screen.
 
-extern "C" HWND g_pWnd;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern MechS32 g_unk0x10071374;
-
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-MechS32 FUN_10015f58(const char* p_name, MechS32 p_msg, MechS32 p_wParam);
-void FUN_1001661b();
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016d90(MechS32 p_index);
-void FUN_10016f45();
-MechS32 FUN_10017460(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	MechU32 p_unk0x10,
-	MechU32 p_unk0x14
-);
-MechS32 FUN_100175e2(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14);
-MechS32 ShowDialog(const char* p_text, MechS32);
-
 // GLOBAL: MW2SHELL 0x10063b70
-MenuList0x10d* g_unk0x10063b70 = NULL;
+ButtonMenu* g_unk0x10063b70 = NULL;
 
 // The room's ambience and the sound FUN_1001445c starts once the videos 2 and 3 are done.
 // GLOBAL: MW2SHELL 0x10063b74
@@ -63,52 +43,6 @@ MechS32 g_unk0x10063b80 = -1;
 
 // GLOBAL: MW2SHELL 0x10063b84
 MechS32 g_unk0x10063b84 = 0x404;
-
-// GLOBAL: MW2SHELL 0x10070094
-MechChar g_unk0x10070094[0x10] = "CADET TRAINING";
-// GLOBAL: MW2SHELL 0x100700a4
-MechChar g_unk0x100700a4[0x18] = "ARCHIVE HOLOPROJECTOR";
-// GLOBAL: MW2SHELL 0x100700bc
-MechChar g_unk0x100700bc[0x0c] = "READY ROOM";
-// GLOBAL: MW2SHELL 0x100700c8
-MechChar g_unk0x100700c8[0x0c] = "REGISTER";
-// GLOBAL: MW2SHELL 0x100700d4
-MechChar g_unk0x100700d4[0x08] = "~EXIT";
-// GLOBAL: MW2SHELL 0x1007045c
-MechChar g_unk0x1007045c[0x10] = "CADET TRAINING";
-// GLOBAL: MW2SHELL 0x1007046c
-MechChar g_unk0x1007046c[0x18] = "ARCHIVE HOLOPROJECTOR";
-// GLOBAL: MW2SHELL 0x10070484
-MechChar g_unk0x10070484[0x0c] = "READY ROOM";
-// GLOBAL: MW2SHELL 0x10070490
-MechChar g_unk0x10070490[0x0c] = "REGISTER";
-// GLOBAL: MW2SHELL 0x1007049c
-MechChar g_unk0x1007049c[0x08] = "~EXIT";
-
-// GLOBAL: MW2SHELL 0x1006e268
-MainMenuButton g_unk0x1006e268[5] = {
-	{185, 280, 240, 400, 197, 327, g_unk0x10070094},
-	{320, 300, 470, 400, 246, 371, g_unk0x100700a4},
-	{20, 245, 90, 411, 25, 307, g_unk0x100700bc},
-	{95, 385, 180, 479, 80, 455, g_unk0x100700c8},
-	{0, 0, 639, 40, 320, 15, g_unk0x100700d4},
-};
-
-// GLOBAL: MW2SHELL 0x1006ebe8
-MainMenuButton g_unk0x1006ebe8[5] = {
-	{66, 167, 152, 303, 69, 187, g_unk0x1007045c},
-	{160, 290, 375, 322, 110, 340, g_unk0x1007046c},
-	{523, 154, 636, 332, 450, 200, g_unk0x10070484},
-	{397, 385, 492, 466, 397, 443, g_unk0x10070490},
-	{0, 0, 639, 40, 320, 15, g_unk0x1007049c},
-};
-
-// GLOBAL: MW2SHELL 0x1006fe10
-TallowSign0x10 g_unk0x1006fe10[3] = {
-	{g_unk0x1006e268, 5, 11, 0x24},
-	{g_unk0x1006ebe8, 5, 18, 0x27},
-	{NULL, 0, 0, 0},
-};
 
 void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
@@ -138,8 +72,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		}
 	}
 
-	g_unk0x10063b70 =
-		new MenuList0x10d(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fe10[p_campaign].m_buttons, 4);
+	g_unk0x10063b70 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fe10[p_campaign].m_buttons, 4);
 
 	switch (p_campaign) {
 	case 0:

@@ -1,29 +1,27 @@
 /* The joystick input driver (g_joystickDriver): joystick devices through the multimedia
    joystick API. A C unit: FUN_1003bdea, a void function, ends without the C++ front end's jmp
    to the epilogue. It starts on the 16-byte boundary right after MouseState's code. */
+#include "debugprint.h"
 #include "decomp.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
 #include "types.h"
+#include "unk1003bf90.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
 
-extern MechS32 g_fWindowActive;
-
-void DebugPrint(const MechChar* p_format, ...);
-
 // GLOBAL: MW2SHELL 0x10090528
-MechChar g_unk0x10090528[0x40];
+static MechChar g_unk0x10090528[0x40];
 
 // GLOBAL: MW2SHELL 0x10090568
-MechChar g_unk0x10090568[0x100];
+static MechChar g_unk0x10090568[0x100];
 
 // SIZE 0x88
 // The joystick driver's data for one device (InputDeviceInfo::m_driverData).
-typedef struct QuartzStick0x88 {
+typedef struct JoystickData {
 	UINT m_id;              // 0x00 — joystick id for joyGetPosEx
 	DWORD m_flags;          // 0x04 — JOY_RETURN* flags
 	MechS32 m_center[6];    // 0x08 — per axis: x, y, z, r, u, v
@@ -31,9 +29,9 @@ typedef struct QuartzStick0x88 {
 	MechDouble m_scale[6];  // 0x38
 	MechS32 m_povButton[4]; // 0x68 — the button word each POV direction sets...
 	MechU32 m_povMask[4];   // 0x78 — ...and its bits
-} QuartzStick0x88;
+} JoystickData;
 
-DECOMP_SIZE_ASSERT(QuartzStick0x88, 0x88)
+DECOMP_SIZE_ASSERT(JoystickData, 0x88)
 
 // FUNCTION: MW2SHELL 0x1003ad20
 MechS32 GetJoystickDeviceCount()
@@ -57,7 +55,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 	MechS32 count;
 	MechChar** axisNames;
 	MechChar** buttonShortNames;
-	QuartzStick0x88* data;
+	JoystickData* data;
 
 	if (joyGetDevCaps(p_index, &caps, sizeof(caps))) {
 		return 1;
@@ -72,7 +70,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 		return 1;
 	}
 
-	data = (QuartzStick0x88*) calloc(1, sizeof(QuartzStick0x88));
+	data = (JoystickData*) calloc(1, sizeof(JoystickData));
 	if (!data) {
 		return 1;
 	}
@@ -167,9 +165,9 @@ MechS32 FUN_1003b246(InputDeviceInfo* p_info)
 	MechDouble range;
 	JOYINFO info;
 	MechS32 button;
-	QuartzStick0x88* data;
+	JoystickData* data;
 
-	data = (QuartzStick0x88*) p_info->m_driverData;
+	data = (JoystickData*) p_info->m_driverData;
 	if (!data) {
 		return 1;
 	}
@@ -303,7 +301,7 @@ MechS32 FUN_1003bbca(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, Mech
 // buttons, with the POV hat's directions mapped to buttons, into p_buttons.
 // Not 100%: the stack slots of info and i are permuted.
 // FUNCTION: MW2SHELL 0x1003b8c9
-MechS32 FUN_1003b8c9(QuartzStick0x88* p_data, MechS32* p_axes, MechU32* p_buttons)
+MechS32 FUN_1003b8c9(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
 	JOYINFOEX info;
 	MechS32 i;

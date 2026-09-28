@@ -1,3 +1,5 @@
+#include "debugout.h"
+
 #include "decomp.h"
 #include "types.h"
 

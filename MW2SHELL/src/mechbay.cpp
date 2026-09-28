@@ -1,17 +1,30 @@
+#include "mechbay.h"
+
 #include "audiosample.h"
-#include "brasslantern0x414.h"
-#include "cedarknot0x10.h"
+#include "buttonmenu.h"
+#include "customstar.h"
+#include "debugprint.h"
 #include "decomp.h"
-#include "emberglyph0x3e.h"
-#include "granitemast0x18.h"
-#include "hazelstar0x80.h"
+#include "drawmode.h"
+#include "font.h"
+#include "keyboardinput.h"
 #include "mainmenubutton.h"
-#include "menulist0x10d.h"
+#include "mechchassis.h"
+#include "mechvariant.h"
+#include "menudata.h"
+#include "menuscreen.h"
+#include "missionui.h"
 #include "mousestate.h"
-#include "slatetab0x2c.h"
-#include "tallowsign0x10.h"
+#include "options.h"
+#include "projectarchive.h"
+#include "screenfield.h"
+#include "shellglobals.h"
+#include "shellmain.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk1003bf90.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -24,7 +37,7 @@
 // An engine: its rating, its weight (in 1/100 t) and its maker. Ids from 10000 up are XL
 // engines at half the weight.
 // SIZE 0x0c
-struct CobaltSpur0x0c {
+struct EngineType {
 	MechS32 m_rating; // 0x00
 	MechS32 m_weight; // 0x04
 	MechChar* m_name; // 0x08
@@ -33,7 +46,7 @@ struct CobaltSpur0x0c {
 // A weapon; the weight (in 1/100 t) is at 0x18. The table holds negative values in the fields
 // up to 0x14, so those are signed.
 // SIZE 0x28
-struct TinLattice0x28 {
+struct Weapon {
 	MechS32 m_unk0x00;    // 0x00
 	MechS32 m_unk0x04;    // 0x04
 	MechS32 m_unk0x08;    // 0x08
@@ -48,7 +61,7 @@ struct TinLattice0x28 {
 
 // SIZE 0x10
 // The internal structure of a weight class (20 to 110 tons in steps of 5) per location.
-struct MossGauge0x10 {
+struct InternalStructure {
 	MechS32 m_unk0x00; // 0x00 — center torso
 	MechS32 m_unk0x04; // 0x04 — side torsos
 	MechS32 m_unk0x08; // 0x08 — arms
@@ -57,7 +70,7 @@ struct MossGauge0x10 {
 
 // SIZE 0x08
 // A piece of equipment other than a weapon: ids come in steps of 50 from 5000.
-struct IronToken0x08 {
+struct Equipment {
 	MechS32 m_unk0x00; // 0x00 — id
 	MechChar* m_name;  // 0x04
 };
@@ -66,7 +79,7 @@ struct IronToken0x08 {
 // The variant being edited. 0x10007e90 copies an m_unk0x4a0 entry through the struct base
 // (0x1005c640 + 0x4a0), which places the start; FUN_1000befe copies the whole struct to the
 // backup at 0x1005cde8 (0x7a8 bytes further), which bounds it.
-struct QuartzHelm0x7a8 {
+struct MekVariant {
 	// SIZE 0x08
 	struct Slot {
 		MechS32 m_unk0x00; // 0x00 — item id, -1 when free
@@ -137,7 +150,7 @@ struct QuartzHelm0x7a8 {
 
 // SIZE 0x28
 // One location's critical slots in the image of a .mek file.
-struct AmberCrate0x28 {
+struct MekCriticalSlots {
 	MechS32 m_unk0x00;     // 0x00 — front armor
 	MechS32 m_unk0x04;     // 0x04 — rear armor
 	MechS32 m_unk0x08;     // 0x08 — internal structure
@@ -148,7 +161,7 @@ struct AmberCrate0x28 {
 
 // SIZE 0x18
 // The header of a .mek file.
-struct LoamLedger0x18 {
+struct MekHeader {
 	MechS32 m_unk0x00; // 0x00 — maximum weight in tons
 	MechS32 m_unk0x04; // 0x04
 	MechS32 m_unk0x08; // 0x08
@@ -157,42 +170,18 @@ struct LoamLedger0x18 {
 	MechS32 m_unk0x14; // 0x14 — ammunition entries
 };
 
-DECOMP_SIZE_ASSERT(SlateTab0x2c, 0x2c)
-DECOMP_SIZE_ASSERT(CobaltSpur0x0c, 0x0c)
-DECOMP_SIZE_ASSERT(TinLattice0x28, 0x28)
-DECOMP_SIZE_ASSERT(QuartzHelm0x7a8::Slot, 0x08)
-DECOMP_SIZE_ASSERT(QuartzHelm0x7a8::Armor, 0x10)
-DECOMP_SIZE_ASSERT(QuartzHelm0x7a8, 0x7a8)
-DECOMP_SIZE_ASSERT(GraniteMast0x18, 0x18)
-DECOMP_SIZE_ASSERT(AmberCrate0x28, 0x28)
-DECOMP_SIZE_ASSERT(IronToken0x08, 0x08)
-DECOMP_SIZE_ASSERT(MossGauge0x10, 0x10)
-DECOMP_SIZE_ASSERT(LoamLedger0x18, 0x18)
+DECOMP_SIZE_ASSERT(ScreenField, 0x2c)
+DECOMP_SIZE_ASSERT(EngineType, 0x0c)
+DECOMP_SIZE_ASSERT(Weapon, 0x28)
+DECOMP_SIZE_ASSERT(MekVariant::Slot, 0x08)
+DECOMP_SIZE_ASSERT(MekVariant::Armor, 0x10)
+DECOMP_SIZE_ASSERT(MekVariant, 0x7a8)
+DECOMP_SIZE_ASSERT(MechChassis, 0x18)
+DECOMP_SIZE_ASSERT(MekCriticalSlots, 0x28)
+DECOMP_SIZE_ASSERT(Equipment, 0x08)
+DECOMP_SIZE_ASSERT(InternalStructure, 0x10)
+DECOMP_SIZE_ASSERT(MekHeader, 0x18)
 
-extern "C" void DebugPrint(const MechChar* p_format, ...);
-
-extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern CedarKnot0x10* g_unk0x10071230;
-
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-MechChar* FUN_10003013(MechS32 p_index);
-MechS32 FUN_1000307c(MechS32 p_index);
-MechS32 FUN_100381c2();
-HazelStar0x80* FUN_1000312e(MechS32 p_star);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_1001661b();
-void FUN_10016d27(MechS32 p_index);
-void FUN_10016f45();
-void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top);
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
@@ -201,20 +190,9 @@ MechS32 FUN_10017460(
 	MechU32 p_unk0x10,
 	MechU32 p_unk0x14
 );
-void FUN_10017698(MechS32 p_index, MechS32 p_frame);
-MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
-MechS32 FUN_10044451(
-	BrassLantern0x414* p_font,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechChar* p_text,
-	undefined* p_colors,
-	MechS32 p_maxLength,
-	MechS32 p_width
-);
 
 // GLOBAL: MW2SHELL 0x1005c438
-IronToken0x08 g_unk0x1005c438[23] = {
+Equipment g_unk0x1005c438[23] = {
 	{5000, "MASC"},
 	{5050, "Targeting Computer"},
 	{5100, "ECM"},
@@ -245,7 +223,7 @@ MechChar* g_unk0x1005c4f0[8] =
 	{"Head", "Right Torso", "Center Torso", "Left Torso", "Right Arm", "Left Arm", "Right Leg", "Left Leg"};
 
 // GLOBAL: MW2SHELL 0x1005c510
-MossGauge0x10 g_unk0x1005c510[19] = {
+InternalStructure g_unk0x1005c510[19] = {
 	{4, 3, 1, 2},     {5, 4, 2, 3},     {6, 5, 3, 4},     {8, 6, 4, 6},     {10, 7, 5, 7},
 	{11, 8, 6, 8},    {12, 10, 6, 10},  {14, 11, 7, 11},  {16, 12, 8, 12},  {18, 13, 9, 13},
 	{20, 14, 10, 14}, {21, 15, 10, 15}, {22, 15, 11, 15}, {23, 16, 12, 16}, {25, 17, 13, 17},
@@ -253,14 +231,14 @@ MossGauge0x10 g_unk0x1005c510[19] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005c640
-QuartzHelm0x7a8 g_unk0x1005c640 = {0};
+MekVariant g_unk0x1005c640 = {0};
 
 // The variant as loaded, before any change.
 // GLOBAL: MW2SHELL 0x1005cde8
-QuartzHelm0x7a8 g_unk0x1005cde8 = {0};
+MekVariant g_unk0x1005cde8 = {0};
 
 // GLOBAL: MW2SHELL 0x1005d590
-CobaltSpur0x0c g_unk0x1005d590[] = {
+EngineType g_unk0x1005d590[] = {
 	{10, 50, "Omni"},      {15, 50, "GM"},          {20, 50, "Pitban"},    {25, 50, "Omni"},
 	{30, 100, "Nissan"},   {35, 100, "VOX"},        {40, 100, "GM"},       {45, 100, "GM"},
 	{50, 150, "DAV"},      {55, 150, "VOX"},        {60, 150, "Leenex"},   {65, 200, "Nissan"},
@@ -284,7 +262,7 @@ CobaltSpur0x0c g_unk0x1005d590[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005d950
-TinLattice0x28 g_unk0x1005d950[] = {
+Weapon g_unk0x1005d950[] = {
 	{6, -1, -1, 7, 14, 1000, 500, 4, 6, "LRM 20"},
 	{5, -1, -1, 7, 14, 1000, 350, 2, 8, "LRM 15"},
 	{4, -1, -1, 7, 14, 1000, 250, 1, 12, "LRM 10"},
@@ -319,10 +297,10 @@ TinLattice0x28 g_unk0x1005d950[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005de28
-SlateTab0x2c* g_unk0x1005de28 = NULL;
+ScreenField* g_unk0x1005de28 = NULL;
 
 // GLOBAL: MW2SHELL 0x1005de2c
-SlateTab0x2c* g_unk0x1005de2c = NULL;
+ScreenField* g_unk0x1005de2c = NULL;
 
 // GLOBAL: MW2SHELL 0x1005de30
 MechS32 g_unk0x1005de30 = 0;
@@ -337,7 +315,7 @@ MechS32 g_unk0x1005de58[8] = {171, 206, 206, 206, 204, 204, 310, 310};
 AudioSample* g_unk0x1005de78 = NULL;
 
 // GLOBAL: MW2SHELL 0x10061560
-GraniteMast0x18 g_unk0x10061560[] = {
+MechChassis g_unk0x10061560[] = {
 	{"ds", "frm", "firemoth", "Firemoth", 20, 85},
 	{"kf", "ktf", "kitfox", "Kit Fox", 30, 89},
 	{"jn", "jnr", "jenner", "Jenner IIC", 35, 88},
@@ -384,7 +362,7 @@ AudioSample* g_unk0x10061770 = NULL;
 MechS32 g_unk0x10061774 = 0;
 
 // GLOBAL: MW2SHELL 0x10061778
-MenuList0x10d* g_unk0x10061778 = NULL;
+ButtonMenu* g_unk0x10061778 = NULL;
 
 // GLOBAL: MW2SHELL 0x1006177c
 AudioSample* g_unk0x1006177c = NULL;
@@ -428,13 +406,13 @@ MechChar g_szTempBuffer[0x100];
 // The image of a .mek file, besides g_unk0x1007c820: its header, the ammunition (id and
 // rounds), the weapons (id and -1) and the variant name.
 // GLOBAL: MW2SHELL 0x10079c50
-QuartzHelm0x7a8::Slot g_unk0x10079c50[25];
+MekVariant::Slot g_unk0x10079c50[25];
 
 // GLOBAL: MW2SHELL 0x10079d18
 AudioSample* g_unk0x10079d18;
 
 // GLOBAL: MW2SHELL 0x10079d20
-LoamLedger0x18 g_unk0x10079d20;
+MekHeader g_unk0x10079d20;
 
 // GLOBAL: MW2SHELL 0x10079d38
 MechChar g_unk0x10079d38[0x10];
@@ -446,7 +424,7 @@ MechChar g_unk0x10079d48[0x32];
 MechChar g_unk0x10079d80[200][13];
 
 // GLOBAL: MW2SHELL 0x1007a7a8
-QuartzHelm0x7a8::Slot g_unk0x1007a7a8[10];
+MekVariant::Slot g_unk0x1007a7a8[10];
 
 // GLOBAL: MW2SHELL 0x1007a7f8
 MechS32 g_unk0x1007a7f8;
@@ -458,7 +436,7 @@ MechChar g_unk0x1007a800[0x20];
 undefined g_unk0x1007a820[0x800];
 
 // GLOBAL: MW2SHELL 0x1007c820
-AmberCrate0x28 g_unk0x1007c820[8];
+MekCriticalSlots g_unk0x1007c820[8];
 
 // GLOBAL: MW2SHELL 0x1007c960
 undefined g_unk0x1007c960[0x100];
@@ -499,7 +477,7 @@ MechS32 FUN_100078ae(MechS32 p_value)
 
 // Stack-slot permutation: top and height.
 // FUNCTION: MW2SHELL 0x100078cd
-void FUN_100078cd(SlateTab0x2c* p_tabs)
+void FUN_100078cd(ScreenField* p_tabs)
 {
 	MechS32 top;
 	MechS32 height;
@@ -545,9 +523,9 @@ void FUN_100078cd(SlateTab0x2c* p_tabs)
 }
 
 // FUNCTION: MW2SHELL 0x100079f8
-void FUN_100079f8(SlateTab0x2c* p_tabs)
+void FUN_100079f8(ScreenField* p_tabs)
 {
-	SlateTab0x2c* tab;
+	ScreenField* tab;
 
 	if (p_tabs == NULL) {
 		return;
@@ -568,7 +546,7 @@ void FUN_100079f8(SlateTab0x2c* p_tabs)
 }
 
 // FUNCTION: MW2SHELL 0x10007ac8
-void FUN_10007ac8(SlateTab0x2c* p_tabs)
+void FUN_10007ac8(ScreenField* p_tabs)
 {
 	if (p_tabs == NULL) {
 		return;
@@ -927,6 +905,8 @@ void FUN_10008470(MechS32 p_id)
 	}
 }
 
+// Operand order: the original adds m_unk0x214 last in the m_unk0x204 sum; it follows the unit's
+// symbol table.
 // FUNCTION: MW2SHELL 0x10008686
 void FUN_10008686()
 {
@@ -1096,7 +1076,7 @@ void FUN_10008b76()
 }
 
 // FUNCTION: MW2SHELL 0x10008bce
-EmberGlyph0x3e* FUN_10008bce(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008bce(ScreenField* p_tab)
 {
 	// An empty test of the unused parameter: the original compiles it to a cmp with a zero-length je.
 	if (p_tab) {
@@ -1113,7 +1093,7 @@ EmberGlyph0x3e* FUN_10008bce(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008c30
-EmberGlyph0x3e* FUN_10008c30(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008c30(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1123,7 +1103,7 @@ EmberGlyph0x3e* FUN_10008c30(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008cb0
-EmberGlyph0x3e* FUN_10008cb0(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008cb0(ScreenField* p_tab)
 {
 	MechS32 value;
 	undefined* colors;
@@ -1139,7 +1119,7 @@ EmberGlyph0x3e* FUN_10008cb0(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008d4c
-EmberGlyph0x3e* FUN_10008d4c(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008d4c(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1149,7 +1129,7 @@ EmberGlyph0x3e* FUN_10008d4c(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008dcc
-EmberGlyph0x3e* FUN_10008dcc(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008dcc(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1159,7 +1139,7 @@ EmberGlyph0x3e* FUN_10008dcc(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008e4f
-EmberGlyph0x3e* FUN_10008e4f(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008e4f(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1169,7 +1149,7 @@ EmberGlyph0x3e* FUN_10008e4f(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008eaa
-EmberGlyph0x3e* FUN_10008eaa(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008eaa(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1179,7 +1159,7 @@ EmberGlyph0x3e* FUN_10008eaa(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008f14
-EmberGlyph0x3e* FUN_10008f14(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008f14(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1189,7 +1169,7 @@ EmberGlyph0x3e* FUN_10008f14(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008f7d
-EmberGlyph0x3e* FUN_10008f7d(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008f7d(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1199,7 +1179,7 @@ EmberGlyph0x3e* FUN_10008f7d(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10008fdd
-EmberGlyph0x3e* FUN_10008fdd(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10008fdd(ScreenField* p_tab)
 {
 	MechS32 value;
 	MechS32 count;
@@ -1216,12 +1196,8 @@ EmberGlyph0x3e* FUN_10008fdd(SlateTab0x2c* p_tab)
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
 
-extern BrassLantern0x414* g_unk0x10071214;
-
-void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
-
 // FUNCTION: MW2SHELL 0x10009076
-EmberGlyph0x3e* FUN_10009076(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009076(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1231,7 +1207,7 @@ EmberGlyph0x3e* FUN_10009076(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x100090ce
-EmberGlyph0x3e* FUN_100090ce(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100090ce(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1241,7 +1217,7 @@ EmberGlyph0x3e* FUN_100090ce(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10009126
-EmberGlyph0x3e* FUN_10009126(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009126(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -1258,7 +1234,7 @@ EmberGlyph0x3e* FUN_10009126(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000918c
-EmberGlyph0x3e* FUN_1000918c(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000918c(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -1271,7 +1247,7 @@ EmberGlyph0x3e* FUN_1000918c(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x100091dc
-EmberGlyph0x3e* FUN_100091dc(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100091dc(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -1284,7 +1260,7 @@ EmberGlyph0x3e* FUN_100091dc(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000922c
-EmberGlyph0x3e* FUN_1000922c(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000922c(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1294,7 +1270,7 @@ EmberGlyph0x3e* FUN_1000922c(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10009284
-EmberGlyph0x3e* FUN_10009284(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009284(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1304,9 +1280,9 @@ EmberGlyph0x3e* FUN_10009284(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x100092dc
-EmberGlyph0x3e* FUN_100092dc(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100092dc(ScreenField* p_tab)
 {
-	QuartzHelm0x7a8::Armor* armor;
+	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab->m_unk0x24) {
@@ -1325,9 +1301,9 @@ EmberGlyph0x3e* FUN_100092dc(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x100093a7
-EmberGlyph0x3e* FUN_100093a7(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100093a7(ScreenField* p_tab)
 {
-	QuartzHelm0x7a8::Armor* armor;
+	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[(MechS32) p_tab->m_unk0x24];
 	if (armor->m_unk0x0c >= 0) {
@@ -1341,7 +1317,7 @@ EmberGlyph0x3e* FUN_100093a7(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000943f
-EmberGlyph0x3e* FUN_1000943f(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000943f(ScreenField* p_tab)
 {
 	MechS32 location;
 
@@ -1355,7 +1331,7 @@ EmberGlyph0x3e* FUN_1000943f(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x100094ba
-EmberGlyph0x3e* FUN_100094ba(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100094ba(ScreenField* p_tab)
 {
 	MechS32 location;
 
@@ -1369,7 +1345,7 @@ EmberGlyph0x3e* FUN_100094ba(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10009537
-EmberGlyph0x3e* FUN_10009537(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009537(ScreenField* p_tab)
 {
 	MechS32 value;
 	MechS32 count;
@@ -1410,7 +1386,7 @@ EmberGlyph0x3e* FUN_10009537(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x100096bd
-EmberGlyph0x3e* FUN_100096bd(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100096bd(ScreenField* p_tab)
 {
 	MechS32 index;
 	undefined* colors;
@@ -1429,7 +1405,7 @@ EmberGlyph0x3e* FUN_100096bd(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000973c
-EmberGlyph0x3e* FUN_1000973c(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000973c(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1444,7 +1420,7 @@ EmberGlyph0x3e* FUN_1000973c(SlateTab0x2c* p_tab)
 
 // Draws one statistic (p_tab->m_unk0x24) of the highlighted weapon.
 // FUNCTION: MW2SHELL 0x100097a0
-EmberGlyph0x3e* FUN_100097a0(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100097a0(ScreenField* p_tab)
 {
 	MechS32 weapon;
 
@@ -1553,7 +1529,7 @@ EmberGlyph0x3e* FUN_100097a0(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10009d50
-EmberGlyph0x3e* FUN_10009d50(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009d50(ScreenField* p_tab)
 {
 	MechS32 location;
 
@@ -1569,7 +1545,7 @@ EmberGlyph0x3e* FUN_10009d50(SlateTab0x2c* p_tab)
 // piece of equipment or ammunition (ids from 10000 up).
 // Not 100%: the stack slots of id and i are permuted.
 // FUNCTION: MW2SHELL 0x10009da9
-EmberGlyph0x3e* FUN_10009da9(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009da9(ScreenField* p_tab)
 {
 	MechS32 id;
 	MechS32 i;
@@ -1612,7 +1588,7 @@ EmberGlyph0x3e* FUN_10009da9(SlateTab0x2c* p_tab)
 // Draws one entry (p_tab->m_unk0x24) of the items list with its count, like FUN_10009da9.
 // Not 100%: the stack slots of id, count and i are permuted.
 // FUNCTION: MW2SHELL 0x10009f92
-EmberGlyph0x3e* FUN_10009f92(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10009f92(ScreenField* p_tab)
 {
 	MechS32 id;
 	MechS32 count;
@@ -1657,7 +1633,7 @@ EmberGlyph0x3e* FUN_10009f92(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a161
-EmberGlyph0x3e* FUN_1000a161(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000a161(ScreenField* p_tab)
 {
 	if (g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00 <= 0) {
 		return NULL;
@@ -1667,7 +1643,7 @@ EmberGlyph0x3e* FUN_1000a161(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a1b0
-EmberGlyph0x3e* FUN_1000a1b0(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000a1b0(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -1678,7 +1654,7 @@ EmberGlyph0x3e* FUN_1000a1b0(SlateTab0x2c* p_tab)
 
 // Stack-slot permutation: id and text.
 // FUNCTION: MW2SHELL 0x1000a208
-EmberGlyph0x3e* FUN_1000a208(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1000a208(ScreenField* p_tab)
 {
 	MechS32 id;
 	MechChar* text;
@@ -1708,9 +1684,9 @@ EmberGlyph0x3e* FUN_1000a208(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a2eb
-void FUN_1000a2eb(SlateTab0x2c* p_tab)
+void FUN_1000a2eb(ScreenField* p_tab)
 {
-	SlateTab0x2c* tabs;
+	ScreenField* tabs;
 
 	tabs = p_tab->m_unk0x28;
 	FUN_10016cc0(10, 0x20, 0x20);
@@ -1724,7 +1700,7 @@ void FUN_1000a2eb(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a36d
-void FUN_1000a36d(SlateTab0x2c* p_tab)
+void FUN_1000a36d(ScreenField* p_tab)
 {
 	g_unk0x1005c640.m_unk0x310 = -1;
 	FUN_1000a2eb(p_tab);
@@ -1734,7 +1710,7 @@ void FUN_1000a36d(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a3b5
-void FUN_1000a3b5(SlateTab0x2c* p_tab)
+void FUN_1000a3b5(ScreenField* p_tab)
 {
 	FUN_1000a2eb(p_tab);
 	FUN_10016d27(10);
@@ -1743,7 +1719,7 @@ void FUN_1000a3b5(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a3f3
-void FUN_1000a3f3(SlateTab0x2c* p_tab)
+void FUN_1000a3f3(ScreenField* p_tab)
 {
 	FUN_1000a2eb(p_tab);
 	FUN_10016d27(10);
@@ -1753,7 +1729,7 @@ void FUN_1000a3f3(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a43b
-void FUN_1000a43b(SlateTab0x2c* p_tab)
+void FUN_1000a43b(ScreenField* p_tab)
 {
 	if (p_tab->m_glyph != NULL) {
 		delete p_tab->m_glyph;
@@ -1772,11 +1748,8 @@ void FUN_1000a43b(SlateTab0x2c* p_tab)
 		g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_unk0x24, p_tab->m_unk0x14);
 }
 
-// The rating product differs only in evaluation order: the original loads m_unk0x278 + 1 before
-// dividing m_unk0x200, as FUN_1000a5a3 does not (VC++ 4.1 symbol ordering; a probe TU gives the
-// original order for every operand arrangement).
 // FUNCTION: MW2SHELL 0x1000a4f0
-void FUN_1000a4f0(SlateTab0x2c* p_tab)
+void FUN_1000a4f0(ScreenField* p_tab)
 {
 	MechS32 rating;
 
@@ -1805,8 +1778,11 @@ void FUN_1000a4f0(SlateTab0x2c* p_tab)
 	FUN_10008989();
 }
 
+// The rating product differs only in evaluation order: the original divides m_unk0x200 before
+// loading m_unk0x278 - 1, as FUN_1000a4f0 does; the order follows the unit's symbol table (it has
+// flipped between the two functions as declarations moved).
 // FUNCTION: MW2SHELL 0x1000a5a3
-void FUN_1000a5a3(SlateTab0x2c* p_tab)
+void FUN_1000a5a3(ScreenField* p_tab)
 {
 	MechS32 rating;
 
@@ -1840,7 +1816,7 @@ void FUN_1000a5a3(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a668
-void FUN_1000a668(SlateTab0x2c* p_tab)
+void FUN_1000a668(ScreenField* p_tab)
 {
 	MechS32 i;
 
@@ -1884,7 +1860,7 @@ void FUN_1000a668(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a7ae
-void FUN_1000a7ae(SlateTab0x2c* p_tab)
+void FUN_1000a7ae(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -1900,7 +1876,7 @@ void FUN_1000a7ae(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a803
-void FUN_1000a803(SlateTab0x2c* p_tab)
+void FUN_1000a803(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -1915,7 +1891,7 @@ void FUN_1000a803(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a84d
-void FUN_1000a84d(SlateTab0x2c* p_tab)
+void FUN_1000a84d(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -1926,7 +1902,7 @@ void FUN_1000a84d(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a878
-void FUN_1000a878(SlateTab0x2c* p_tab)
+void FUN_1000a878(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -1940,7 +1916,7 @@ void FUN_1000a878(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a8b0
-void FUN_1000a8b0(SlateTab0x2c* p_tab)
+void FUN_1000a8b0(ScreenField* p_tab)
 {
 	MechS32 i;
 
@@ -1960,7 +1936,7 @@ void FUN_1000a8b0(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a955
-void FUN_1000a955(SlateTab0x2c* p_tab)
+void FUN_1000a955(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -1971,7 +1947,7 @@ void FUN_1000a955(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a980
-void FUN_1000a980(SlateTab0x2c* p_tab)
+void FUN_1000a980(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -1985,7 +1961,7 @@ void FUN_1000a980(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000a9b8
-void FUN_1000a9b8(SlateTab0x2c* p_tab)
+void FUN_1000a9b8(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2015,7 +1991,7 @@ void FUN_1000a9b8(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000aac2
-void FUN_1000aac2(SlateTab0x2c* p_tab)
+void FUN_1000aac2(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2047,7 +2023,7 @@ void FUN_1000aac2(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000abe8
-void FUN_1000abe8(SlateTab0x2c* p_tab)
+void FUN_1000abe8(ScreenField* p_tab)
 {
 	MechS32 id;
 
@@ -2077,7 +2053,7 @@ void FUN_1000abe8(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000acc4
-void FUN_1000acc4(SlateTab0x2c* p_tab)
+void FUN_1000acc4(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2098,7 +2074,7 @@ void FUN_1000acc4(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000ad3f
-void FUN_1000ad3f(SlateTab0x2c* p_tab)
+void FUN_1000ad3f(ScreenField* p_tab)
 {
 	MechS32 id;
 
@@ -2124,7 +2100,7 @@ void FUN_1000ad3f(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000adf9
-void FUN_1000adf9(SlateTab0x2c* p_tab)
+void FUN_1000adf9(ScreenField* p_tab)
 {
 	MechS32 count;
 
@@ -2150,7 +2126,7 @@ void FUN_1000adf9(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000aeaa
-void FUN_1000aeaa(SlateTab0x2c* p_tab)
+void FUN_1000aeaa(ScreenField* p_tab)
 {
 	MechS32 id;
 
@@ -2167,7 +2143,7 @@ void FUN_1000aeaa(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000af16
-void FUN_1000af16(SlateTab0x2c* p_tab)
+void FUN_1000af16(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2183,7 +2159,7 @@ void FUN_1000af16(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000af87
-void FUN_1000af87(SlateTab0x2c* p_tab)
+void FUN_1000af87(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2196,7 +2172,7 @@ void FUN_1000af87(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000afc9
-void FUN_1000afc9(SlateTab0x2c* p_tab)
+void FUN_1000afc9(ScreenField* p_tab)
 {
 	g_unk0x1005de78->Start();
 	g_unk0x1005c640.m_unk0x314 = (MechS32) p_tab->m_unk0x24;
@@ -2204,7 +2180,7 @@ void FUN_1000afc9(SlateTab0x2c* p_tab)
 
 // Stack-slot permutation: id and count.
 // FUNCTION: MW2SHELL 0x1000afef
-void FUN_1000afef(SlateTab0x2c* p_tab)
+void FUN_1000afef(ScreenField* p_tab)
 {
 	MechS32 id;
 	MechS32 count;
@@ -2229,14 +2205,14 @@ void FUN_1000afef(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000b0c2
-void FUN_1000b0c2(SlateTab0x2c* p_tab)
+void FUN_1000b0c2(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1000b0dc
-void FUN_1000b0dc(SlateTab0x2c* p_tab)
+void FUN_1000b0dc(ScreenField* p_tab)
 {
 	MechS32 id;
 
@@ -2260,9 +2236,9 @@ void FUN_1000b0dc(SlateTab0x2c* p_tab)
 // Comparison operand order: the original loads m_unk0x25c into eax and compares m_unk0x258 with
 // it, the reverse of ours; flipping the source didn't change it.
 // FUNCTION: MW2SHELL 0x1000b166
-void FUN_1000b166(SlateTab0x2c* p_tab)
+void FUN_1000b166(ScreenField* p_tab)
 {
-	QuartzHelm0x7a8::Armor* armor;
+	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -2291,9 +2267,9 @@ void FUN_1000b166(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000b239
-void FUN_1000b239(SlateTab0x2c* p_tab)
+void FUN_1000b239(ScreenField* p_tab)
 {
-	QuartzHelm0x7a8::Armor* armor;
+	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -2308,9 +2284,9 @@ void FUN_1000b239(SlateTab0x2c* p_tab)
 // Comparison operand order: the original loads m_unk0x25c into eax and compares m_unk0x258 with
 // it, the reverse of ours; flipping the source didn't change it.
 // FUNCTION: MW2SHELL 0x1000b284
-void FUN_1000b284(SlateTab0x2c* p_tab)
+void FUN_1000b284(ScreenField* p_tab)
 {
-	QuartzHelm0x7a8::Armor* armor;
+	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -2337,9 +2313,9 @@ void FUN_1000b284(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1000b339
-void FUN_1000b339(SlateTab0x2c* p_tab)
+void FUN_1000b339(ScreenField* p_tab)
 {
-	QuartzHelm0x7a8::Armor* armor;
+	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -2354,7 +2330,7 @@ void FUN_1000b339(SlateTab0x2c* p_tab)
 // Toggles the flag at m_unk0x24 and adds or removes the item id held in m_unk0x28. The arm
 // actuators (5401, 5402, 5451, 5452) take a fixed slot in the arms, replacing what is there.
 // FUNCTION: MW2SHELL 0x1000b384
-void FUN_1000b384(SlateTab0x2c* p_tab)
+void FUN_1000b384(ScreenField* p_tab)
 {
 	MechS32* flag;
 	MechS32 i;
@@ -2425,7 +2401,7 @@ void FUN_1000b384(SlateTab0x2c* p_tab)
 // Operand order: the original loads m_width before m_left; swapping them in the source didn't
 // change it.
 // FUNCTION: MW2SHELL 0x1000b5ed
-SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y)
+ScreenField* FUN_1000b5ed(ScreenField* p_tabs, MechS32 p_x, MechS32 p_y)
 {
 	if (p_tabs) {
 		while (p_tabs->m_left != -1) {
@@ -3094,25 +3070,25 @@ MechS32 FUN_1000cf4c()
 
 // The mech bay's field tables: the bay's own (g_unk0x10060d20), the customize screen's
 // (g_unk0x10060698) and the ones its components switch to on the right.
-// A field's m_top: a packed row and offset below the previous field (see SlateTab0x2c).
+// A field's m_top: a packed row and offset below the previous field (see ScreenField).
 #define MB_ROW(row, offset) ((MechS32) (0x80000000 | ((row) << 4) | (offset)))
 #define MB_TAB(left, top, width, height, colors, draw, click, data, next)                                              \
 	{left, top, width, height, 0, colors, NULL, draw, click, (void*) (data), next}
 #define MB_END {-1, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL}
 
-extern SlateTab0x2c g_unk0x1005de80[];
-extern SlateTab0x2c g_unk0x1005e140[];
-extern SlateTab0x2c g_unk0x1005e2f8[];
-extern SlateTab0x2c g_unk0x1005e458[];
-extern SlateTab0x2c g_unk0x1005e820[];
-extern SlateTab0x2c g_unk0x1005efe0[];
-extern SlateTab0x2c g_unk0x1005f248[];
-extern SlateTab0x2c g_unk0x1005fc70[];
-extern SlateTab0x2c g_unk0x10060698[];
-extern SlateTab0x2c g_unk0x10060d20[];
+extern ScreenField g_unk0x1005de80[];
+extern ScreenField g_unk0x1005e140[];
+extern ScreenField g_unk0x1005e2f8[];
+extern ScreenField g_unk0x1005e458[];
+extern ScreenField g_unk0x1005e820[];
+extern ScreenField g_unk0x1005efe0[];
+extern ScreenField g_unk0x1005f248[];
+extern ScreenField g_unk0x1005fc70[];
+extern ScreenField g_unk0x10060698[];
+extern ScreenField g_unk0x10060d20[];
 
 // GLOBAL: MW2SHELL 0x1005de80
-SlateTab0x2c g_unk0x1005de80[] = {
+ScreenField g_unk0x1005de80[] = {
 	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "ENGINE", NULL),
 	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Rating", NULL),
 	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008dcc, NULL, &g_unk0x1005c640.m_unk0x20c, NULL),
@@ -3132,7 +3108,7 @@ SlateTab0x2c g_unk0x1005de80[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005e140
-SlateTab0x2c g_unk0x1005e140[] = {
+ScreenField g_unk0x1005e140[] = {
 	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "HEAT SINKS", NULL),
 	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Count", NULL),
 	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008fdd, NULL, &g_unk0x1005c640.m_unk0x228, NULL),
@@ -3146,7 +3122,7 @@ SlateTab0x2c g_unk0x1005e140[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005e2f8
-SlateTab0x2c g_unk0x1005e2f8[] = {
+ScreenField g_unk0x1005e2f8[] = {
 	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "JUMP JETS", NULL),
 	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Count", NULL),
 	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x280, NULL),
@@ -3158,7 +3134,7 @@ SlateTab0x2c g_unk0x1005e2f8[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005e458
-SlateTab0x2c g_unk0x1005e458[] = {
+ScreenField g_unk0x1005e458[] = {
 	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "INTERNAL STRUCTURE", NULL),
 	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Type", NULL),
 	MB_TAB(544, MB_ROW(0, 0), 50, -1, g_unk0x1007ca60, FUN_1000922c, FUN_1000aac2, &g_unk0x1005c640.m_unk0x240, NULL),
@@ -3184,7 +3160,7 @@ SlateTab0x2c g_unk0x1005e458[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005e820
-SlateTab0x2c g_unk0x1005e820[] = {
+ScreenField g_unk0x1005e820[] = {
 	MB_TAB(0, 0, -1, -1, g_unk0x1007cb60, FUN_10008bce, NULL, 0, NULL),
 	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "ARMOR", NULL),
 	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Factor", NULL),
@@ -3233,7 +3209,7 @@ SlateTab0x2c g_unk0x1005e820[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005efe0
-SlateTab0x2c g_unk0x1005efe0[] = {
+ScreenField g_unk0x1005efe0[] = {
 	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "EQUIPMENT", NULL),
 	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Yes", NULL),
 	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "CASE", NULL),
@@ -3246,7 +3222,7 @@ SlateTab0x2c g_unk0x1005efe0[] = {
 		FUN_1000a1b0,
 		FUN_1000b384,
 		&g_unk0x1005c640.m_unk0x790,
-		(SlateTab0x2c*) 5000
+		(ScreenField*) 5000
 	),
 	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5000, NULL),
 	MB_TAB(
@@ -3258,7 +3234,7 @@ SlateTab0x2c g_unk0x1005efe0[] = {
 		FUN_1000a1b0,
 		FUN_1000b384,
 		&g_unk0x1005c640.m_unk0x794,
-		(SlateTab0x2c*) 5401
+		(ScreenField*) 5401
 	),
 	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5401, NULL),
 	MB_TAB(
@@ -3270,7 +3246,7 @@ SlateTab0x2c g_unk0x1005efe0[] = {
 		FUN_1000a1b0,
 		FUN_1000b384,
 		&g_unk0x1005c640.m_unk0x798,
-		(SlateTab0x2c*) 5451
+		(ScreenField*) 5451
 	),
 	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5451, NULL),
 	MB_TAB(
@@ -3282,7 +3258,7 @@ SlateTab0x2c g_unk0x1005efe0[] = {
 		FUN_1000a1b0,
 		FUN_1000b384,
 		&g_unk0x1005c640.m_unk0x79c,
-		(SlateTab0x2c*) 5402
+		(ScreenField*) 5402
 	),
 	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5402, NULL),
 	MB_TAB(
@@ -3294,14 +3270,14 @@ SlateTab0x2c g_unk0x1005efe0[] = {
 		FUN_1000a1b0,
 		FUN_1000b384,
 		&g_unk0x1005c640.m_unk0x7a0,
-		(SlateTab0x2c*) 5452
+		(ScreenField*) 5452
 	),
 	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5452, NULL),
 	MB_END,
 };
 
 // GLOBAL: MW2SHELL 0x1005f248
-SlateTab0x2c g_unk0x1005f248[] = {
+ScreenField g_unk0x1005f248[] = {
 	MB_TAB(224, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "WEAPONS AND AMMO", NULL),
 	MB_TAB(
 		224,
@@ -3464,7 +3440,7 @@ SlateTab0x2c g_unk0x1005f248[] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005fc70
-SlateTab0x2c g_unk0x1005fc70[] = {
+ScreenField g_unk0x1005fc70[] = {
 	MB_TAB(0, 0, -1, -1, g_unk0x1007cb60, FUN_10008bce, NULL, 0, NULL),
 	MB_TAB(224, 64, 100, -1, g_unk0x1007ca60, FUN_10009d50, FUN_1000af87, &g_unk0x1005c640.m_unk0x314, NULL),
 	MB_TAB(224, MB_ROW(1, 5), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 0, NULL),
@@ -3527,7 +3503,7 @@ SlateTab0x2c g_unk0x1005fc70[] = {
 };
 
 // GLOBAL: MW2SHELL 0x10060698
-SlateTab0x2c g_unk0x10060698[] = {
+ScreenField g_unk0x10060698[] = {
 	MB_TAB(320, 4, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, "~CUSTOMIZING", NULL),
 	MB_TAB(320, 28, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, g_unk0x1005c640.m_unk0x00, NULL),
 	MB_TAB(20, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Variant:", NULL),
@@ -3569,7 +3545,7 @@ SlateTab0x2c g_unk0x10060698[] = {
 };
 
 // GLOBAL: MW2SHELL 0x10060d20
-SlateTab0x2c g_unk0x10060d20[] = {
+ScreenField g_unk0x10060d20[] = {
 	MB_TAB(320, 4, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, g_unk0x10079ad0, NULL),
 	MB_TAB(320, 28, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, g_unk0x1005c640.m_unk0x00, NULL),
 	MB_TAB(20, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Variant:", NULL),
@@ -3724,89 +3700,6 @@ SlateTab0x2c g_unk0x10060d20[] = {
 #undef MB_TAB
 #undef MB_END
 
-// The mech bay screen of each campaign.
-// GLOBAL: MW2SHELL 0x100703c8
-MechChar g_unk0x100703c8[0x0c] = "<~EXIT LAB";
-// GLOBAL: MW2SHELL 0x100703d4
-MechChar g_unk0x100703d4[0x10] = "~STAR CONFIG";
-// GLOBAL: MW2SHELL 0x100703e4
-MechChar g_unk0x100703e4[0x10] = "NEXT CHASSIS";
-// GLOBAL: MW2SHELL 0x100703f4
-MechChar g_unk0x100703f4[0x10] = "PREV CHASSIS";
-// GLOBAL: MW2SHELL 0x10070404
-MechChar g_unk0x10070404[0x10] = "NEXT VARIANT";
-// GLOBAL: MW2SHELL 0x10070414
-MechChar g_unk0x10070414[0x10] = "PREV VARIANT";
-// GLOBAL: MW2SHELL 0x10070424
-MechChar g_unk0x10070424[0x0c] = "<~CUSTOMIZE";
-// GLOBAL: MW2SHELL 0x10070430
-MechChar g_unk0x10070430[0x10] = "<~ACCEPT MECH";
-// GLOBAL: MW2SHELL 0x10070440
-MechChar g_unk0x10070440[0x08] = "<~SAVE";
-// GLOBAL: MW2SHELL 0x10070448
-MechChar g_unk0x10070448[0x08] = "<~ABORT";
-// GLOBAL: MW2SHELL 0x10070450
-MechChar g_unk0x10070450[0x0c] = "<~DELETE";
-// GLOBAL: MW2SHELL 0x1007078c
-MechChar g_unk0x1007078c[0x0c] = "<~EXIT LAB";
-// GLOBAL: MW2SHELL 0x10070798
-MechChar g_unk0x10070798[0x10] = "~STAR CONFIG";
-// GLOBAL: MW2SHELL 0x100707a8
-MechChar g_unk0x100707a8[0x10] = "NEXT CHASSIS";
-// GLOBAL: MW2SHELL 0x100707b8
-MechChar g_unk0x100707b8[0x10] = "PREV CHASSIS";
-// GLOBAL: MW2SHELL 0x100707c8
-MechChar g_unk0x100707c8[0x10] = "NEXT VARIANT";
-// GLOBAL: MW2SHELL 0x100707d8
-MechChar g_unk0x100707d8[0x10] = "PREV VARIANT";
-// GLOBAL: MW2SHELL 0x100707e8
-MechChar g_unk0x100707e8[0x0c] = "<~CUSTOMIZE";
-// GLOBAL: MW2SHELL 0x100707f4
-MechChar g_unk0x100707f4[0x10] = "<~ACCEPT MECH";
-// GLOBAL: MW2SHELL 0x10070804
-MechChar g_unk0x10070804[0x08] = "<~SAVE";
-// GLOBAL: MW2SHELL 0x1007080c
-MechChar g_unk0x1007080c[0x08] = "<~ABORT";
-// GLOBAL: MW2SHELL 0x10070814
-MechChar g_unk0x10070814[0x0c] = "<~DELETE";
-
-// GLOBAL: MW2SHELL 0x1006eab0
-MainMenuButton g_unk0x1006eab0[11] = {
-	{50, 445, 149, 469, 100, 450, g_unk0x100703c8},
-	{404, 414, 474, 474, 440, 460, g_unk0x100703d4},
-	{303, 425, 330, 469, 300, 465, g_unk0x100703e4},
-	{200, 425, 236, 469, 240, 465, g_unk0x100703f4},
-	{263, 425, 302, 469, 280, 465, g_unk0x10070404},
-	{237, 425, 262, 469, 260, 465, g_unk0x10070414},
-	{50, 420, 149, 444, 100, 425, g_unk0x10070424},
-	{50, 395, 149, 419, 100, 400, g_unk0x10070430},
-	{50, 420, 149, 444, 100, 425, g_unk0x10070440},
-	{50, 445, 149, 469, 100, 450, g_unk0x10070448},
-	{490, 445, 589, 469, 540, 450, g_unk0x10070450},
-};
-
-// GLOBAL: MW2SHELL 0x1006f430
-MainMenuButton g_unk0x1006f430[11] = {
-	{50, 445, 149, 469, 100, 450, g_unk0x1007078c},
-	{404, 414, 474, 474, 440, 460, g_unk0x10070798},
-	{303, 425, 330, 469, 300, 465, g_unk0x100707a8},
-	{200, 425, 236, 469, 240, 465, g_unk0x100707b8},
-	{263, 425, 302, 469, 280, 465, g_unk0x100707c8},
-	{237, 425, 262, 469, 260, 465, g_unk0x100707d8},
-	{50, 420, 149, 444, 100, 425, g_unk0x100707e8},
-	{50, 395, 149, 419, 100, 400, g_unk0x100707f4},
-	{50, 420, 149, 444, 100, 425, g_unk0x10070804},
-	{50, 445, 149, 469, 100, 450, g_unk0x1007080c},
-	{490, 445, 589, 469, 540, 450, g_unk0x10070814},
-};
-
-// GLOBAL: MW2SHELL 0x1006fff0
-TallowSign0x10 g_unk0x1006fff0[3] = {
-	{g_unk0x1006eab0, 11, 15, -1},
-	{g_unk0x1006f430, 11, 22, -1},
-	{g_unk0x1006eab0, 11, 10, -1},
-};
-
 void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
 
 // Opens the mech bay: its sounds, color maps, menu and videos, the chassis and variant of the
@@ -3815,7 +3708,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 // FUNCTION: MW2SHELL 0x1000d0d4
 void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
-	HazelStar0x80* star;
+	CustomStar* star;
 	void* data;
 	MechS32 i;
 	MechChar* variant;
@@ -3849,7 +3742,7 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 	g_unk0x1007c960[1] = 8;
 
 	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fff0[p_campaign].m_picture);
-	g_unk0x10061778 = new MenuList0x10d(
+	g_unk0x10061778 = new ButtonMenu(
 		g_pVideoDriver,
 		g_unk0x1007120c,
 		FALSE,
@@ -3993,7 +3886,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 	MechS32 pressed;
 	MechS32 i;
 	MechS32 button;
-	SlateTab0x2c* tab;
+	ScreenField* tab;
 
 	// The original skips the frame's work with a goto, like FUN_100043c2.
 	if (p_msg != 0x404) {

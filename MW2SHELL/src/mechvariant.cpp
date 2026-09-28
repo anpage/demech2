@@ -1,18 +1,30 @@
+#include "mechvariant.h"
+
 #include "audiosample.h"
-#include "brasslantern0x414.h"
+#include "buttonmenu.h"
 #include "campaignmission.h"
+#include "customstar.h"
 #include "decomp.h"
-#include "emberglyph0x3e.h"
-#include "granitemast0x18.h"
-#include "hazelstar0x80.h"
-#include "linenpacket0x218.h"
-#include "menulist0x10d.h"
+#include "drawmode.h"
+#include "font.h"
+#include "keyboardinput.h"
+#include "mechbay.h"
+#include "mechchassis.h"
+#include "menudata.h"
+#include "menuscreen.h"
 #include "mousestate.h"
-#include "sableroster0x24.h"
-#include "tallowsign0x10.h"
-#include "tinwhistle0x3c.h"
+#include "pilotrecord.h"
+#include "projectarchive.h"
+#include "shellglobals.h"
+#include "shellmain.h"
+#include "simhandoff.h"
+#include "simhandoffstate.h"
+#include "starmech.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk1003bf90.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -23,7 +35,7 @@
 
 // SIZE 0x08
 // A formation: its label and its simulator option.
-struct AshCord0x08 {
+struct FormationOption {
 	MechChar* m_unk0x00; // 0x00
 	MechChar* m_unk0x04; // 0x04
 };
@@ -31,7 +43,7 @@ struct AshCord0x08 {
 // SIZE 0x10
 // A mech's place in a formation on the star screen: the star's mech it shows, where its video
 // plays and which label position its name takes.
-struct CopperPost0x10 {
+struct FormationSlot {
 	MechS32 m_mech;  // 0x00
 	MechS32 m_left;  // 0x04
 	MechS32 m_top;   // 0x08
@@ -40,44 +52,19 @@ struct CopperPost0x10 {
 
 // SIZE 0x30
 // A formation's three positions.
-struct CopperFormation0x30 {
-	CopperPost0x10 m_posts[3]; // 0x00
+struct FormationPositions {
+	FormationSlot m_posts[3]; // 0x00
 };
 
-DECOMP_SIZE_ASSERT(SableRoster0x24, 0x24)
-DECOMP_SIZE_ASSERT(HazelStar0x80, 0x80)
-DECOMP_SIZE_ASSERT(AshCord0x08, 0x08)
-DECOMP_SIZE_ASSERT(CopperPost0x10, 0x10)
-DECOMP_SIZE_ASSERT(CopperFormation0x30, 0x30)
-DECOMP_SIZE_ASSERT(GraniteMast0x18, 0x18)
-DECOMP_SIZE_ASSERT(TallowSign0x10, 0x10)
+DECOMP_SIZE_ASSERT(StarMech, 0x24)
+DECOMP_SIZE_ASSERT(CustomStar, 0x80)
+DECOMP_SIZE_ASSERT(FormationOption, 0x08)
+DECOMP_SIZE_ASSERT(FormationSlot, 0x10)
+DECOMP_SIZE_ASSERT(FormationPositions, 0x30)
+DECOMP_SIZE_ASSERT(MechChassis, 0x18)
+DECOMP_SIZE_ASSERT(MenuScreen, 0x10)
 DECOMP_SIZE_ASSERT(MainMenuButton, 0x1c)
 
-extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
-extern LinenPacket0x218 g_unk0x10090288;
-extern GraniteMast0x18 g_unk0x10061560[];
-extern MechS32 g_unk0x10061774;
-extern TallowSign0x10 g_unk0x1006fea0[3];
-extern VideoDriver* g_pVideoDriver;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern MouseState* g_pMouseState;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071210;
-extern BrassLantern0x414* g_unk0x10071214;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern CampaignMission* g_campaignMissions[2];
-
-void FUN_1002ea62(MechS32 p_count, SableRoster0x24* p_mechs, MechS32 p_enemyCount, SableRoster0x24* p_enemies);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_1001661b();
-void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
-void FUN_10016d27(MechS32 p_index);
-void FUN_10016f45();
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
@@ -86,20 +73,11 @@ MechS32 FUN_10017460(
 	MechU32 p_unk0x10,
 	MechU32 p_unk0x14
 );
-MechS32 FUN_10044451(
-	BrassLantern0x414* p_font,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechChar* p_text,
-	undefined* p_colors,
-	MechS32 p_maxLength,
-	MechS32 p_width
-);
 
 // The formations of the Wolf and Inner Sphere stars (Jade Falcon's differ): six formations of
 // three mechs.
 // GLOBAL: MW2SHELL 0x1005b4c0
-CopperFormation0x30 g_unk0x1005b4c0[6] = {
+FormationPositions g_unk0x1005b4c0[6] = {
 	{{{2, 430, 346, 2}, {1, 333, 353, 1}, {0, 204, 359, 0}}},
 	{{{2, 295, 330, 0}, {1, 332, 352, 1}, {0, 385, 395, 2}}},
 	{{{2, 245, 341, 0}, {0, 343, 355, 1}, {1, 418, 363, 2}}},
@@ -109,7 +87,7 @@ CopperFormation0x30 g_unk0x1005b4c0[6] = {
 };
 
 // GLOBAL: MW2SHELL 0x1005b5e0
-CopperFormation0x30 g_unk0x1005b5e0[6] = {
+FormationPositions g_unk0x1005b5e0[6] = {
 	{{{2, 425, 345, 2}, {1, 325, 354, 1}, {0, 181, 362, 0}}},
 	{{{2, 297, 329, 0}, {1, 325, 354, 1}, {0, 377, 408, 2}}},
 	{{{2, 251, 341, 0}, {0, 330, 350, 1}, {1, 410, 366, 2}}},
@@ -128,18 +106,18 @@ MechChar g_unk0x1005b708[] = "ajfsc%s";
 MechChar g_unk0x1005b710[] = "aiasc%s";
 
 // GLOBAL: MW2SHELL 0x1005b718
-HazelStar0x80 g_unk0x1005b718 =
+CustomStar g_unk0x1005b718 =
 	{0, 0, 3, 3, 100, {{12, "tbr00std", "MechWarrior"}, {0, "drw00std", "Friend 1"}, {1, "frm00std", "Friend 2"}}};
 
 // GLOBAL: MW2SHELL 0x1005b798
-HazelStar0x80 g_unk0x1005b798 =
+CustomStar g_unk0x1005b798 =
 	{0, 0, 3, 3, 100, {{12, "tbr00std", "Enemy 1"}, {0, "drw00std", "Enemy 2"}, {1, "frm00std", "Enemy 3"}}};
 
 // GLOBAL: MW2SHELL 0x1005b818
-HazelStar0x80* g_unk0x1005b818 = &g_unk0x1005b718;
+CustomStar* g_unk0x1005b818 = &g_unk0x1005b718;
 
 // GLOBAL: MW2SHELL 0x1005b820
-AshCord0x08 g_unk0x1005b820[6] = {
+FormationOption g_unk0x1005b820[6] = {
 	{"~Echelon Left", "echelonl"},
 	{"~Echelon Right", "echelonr"},
 	{"~Line Abreast", "lineabreast"},
@@ -164,33 +142,33 @@ MechS32 g_unk0x1005b880[3] = {172, 127, 217};
 
 // The formation, mission, star size, tonnage limit and star mass lines.
 // GLOBAL: MW2SHELL 0x1005b88c
-EmberGlyph0x3e* g_unk0x1005b88c = NULL;
+TextGlyph* g_unk0x1005b88c = NULL;
 
 // GLOBAL: MW2SHELL 0x1005b890
-EmberGlyph0x3e* g_unk0x1005b890 = NULL;
+TextGlyph* g_unk0x1005b890 = NULL;
 
 // GLOBAL: MW2SHELL 0x1005b894
-EmberGlyph0x3e* g_unk0x1005b894 = NULL;
+TextGlyph* g_unk0x1005b894 = NULL;
 
 // GLOBAL: MW2SHELL 0x1005b898
-EmberGlyph0x3e* g_unk0x1005b898 = NULL;
+TextGlyph* g_unk0x1005b898 = NULL;
 
 // GLOBAL: MW2SHELL 0x1005b89c
-EmberGlyph0x3e* g_unk0x1005b89c = NULL;
+TextGlyph* g_unk0x1005b89c = NULL;
 
 // GLOBAL: MW2SHELL 0x1005b8a0
 MechS32 g_unk0x1005b8a0 = 0;
 
 // Per position: the name, type and mass glyphs.
 // GLOBAL: MW2SHELL 0x10079438
-EmberGlyph0x3e* g_unk0x10079438[3][3];
+TextGlyph* g_unk0x10079438[3][3];
 
 // The mass of each mech of the star.
 // GLOBAL: MW2SHELL 0x10079460
 MechS32 g_unk0x10079460[3];
 
 // GLOBAL: MW2SHELL 0x1007946c
-CopperFormation0x30* g_unk0x1007946c;
+FormationPositions* g_unk0x1007946c;
 
 // GLOBAL: MW2SHELL 0x10079470
 AudioSample* g_unk0x10079470;
@@ -208,7 +186,7 @@ MechS32* g_unk0x1007957c;
 AudioSample* g_unk0x10079580;
 
 // GLOBAL: MW2SHELL 0x10079584
-MenuList0x10d* g_unk0x10079584;
+ButtonMenu* g_unk0x10079584;
 
 // GLOBAL: MW2SHELL 0x10079588
 MechChar g_unk0x10079588[0x100];
@@ -350,7 +328,7 @@ MechS32 FUN_100030e5(MechS32 p_star)
 }
 
 // FUNCTION: MW2SHELL 0x1000312e
-HazelStar0x80* FUN_1000312e(MechS32 p_star)
+CustomStar* FUN_1000312e(MechS32 p_star)
 {
 	if (p_star < 0) {
 		return g_unk0x1005b818;
@@ -447,7 +425,7 @@ MechS32 FUN_10003320(MechS32 p_x, MechS32 p_y)
 // Stack-slot permutation: out and width. The original compares p_width against width; the
 // declaration order doesn't flip it.
 // FUNCTION: MW2SHELL 0x1000345a
-MechChar* FUN_1000345a(MechChar* p_text, BrassLantern0x414* p_font, MechS32 p_width)
+MechChar* FUN_1000345a(MechChar* p_text, Font* p_font, MechS32 p_width)
 {
 	MechChar* out = g_unk0x10079588;
 	MechS32 width = 0;
@@ -509,7 +487,7 @@ void FUN_100034de(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 // position when the star has fewer mechs.
 // Stack-slot permutation: label, type and mech.
 // FUNCTION: MW2SHELL 0x10003690
-void FUN_10003690(MechS32 p_formation, MechS32 p_position, MenuList0x10d* p_menu)
+void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 {
 	MechS32 label;
 	MechS32 type;
@@ -624,7 +602,7 @@ void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign)
 	MechS32 audioSize;
 
 	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fea0[p_campaign].m_picture);
-	g_unk0x10079584 = new MenuList0x10d(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006fea0[p_campaign].m_buttons, 9);
+	g_unk0x10079584 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006fea0[p_campaign].m_buttons, 9);
 
 	switch (p_campaign) {
 	case 0:

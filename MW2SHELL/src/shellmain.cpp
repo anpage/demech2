@@ -1,28 +1,49 @@
 #include "shellmain.h"
 
+#include "archivereader.h"
 #include "audiosubsystem.h"
-#include "brasslantern0x414.h"
-#include "cedarknot0x10.h"
+#include "briefing.h"
+#include "cadettraining.h"
+#include "cdcheck.h"
+#include "clanhall.h"
+#include "cockpitcontrols.h"
+#include "credits.h"
+#include "debrief.h"
+#include "debugout.h"
+#include "debugprint.h"
 #include "decomp.h"
-#include "hollowreed0x110.h"
+#include "drawmode.h"
+#include "font.h"
+#include "formation.h"
+#include "hallofhonor.h"
+#include "keyboard.h"
+#include "keyboardinput.h"
+#include "mainmenu.h"
+#include "mechbay.h"
+#include "mechvariant.h"
+#include "menudata.h"
 #include "midisequence.h"
+#include "missionui.h"
 #include "mousestate.h"
-#include "ravenmark0x08.h"
-#include "tinwhistle0x3c.h"
+#include "options.h"
+#include "pilotrecord.h"
+#include "pilotroster.h"
+#include "projectarchive.h"
+#include "readyroom.h"
+#include "rosterscreen.h"
+#include "shellglobals.h"
+#include "simhandoff.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk1003bf90.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-
-// The debug print and debug output units are C translation units.
-extern "C" void DebugPrint(const MechChar* p_format, ...);
-extern "C" void FUN_100178cc(MechS32 p_mode);
-
-void FUN_1001661b();
 
 // GLOBAL: MW2SHELL 0x10062978
 void (*g_pShellCallback)(
@@ -52,179 +73,6 @@ MechS32 g_unk0x1006298c = 0;
 // GLOBAL: MW2SHELL 0x10062990
 MechS32 g_unk0x10062990 = 0;
 
-// The C draw mode units (gdi.c) read the window mode.
-extern "C" MechS32 g_nWindowMode;
-
-// GLOBAL: MW2SHELL 0x10062ffc
-MechS32 g_nWindowMode = 0;
-
-// GLOBAL: MW2SHELL 0x1006a9c0
-char g_unk0x1006a9c0[0x10] = "MECHWARRIOR 2";
-
-// The C mouse unit (mouse.c) reads the window state and size.
-extern "C" MechS32 g_fWindowActive;
-
-// GLOBAL: MW2SHELL 0x1006a9d0
-MechS32 g_fWindowActive = 1;
-
-// Read by the draw mode unit (unk10010a30.c) when it restyles the window.
-extern "C" MechS32 g_unk0x1006a9d8;
-
-// GLOBAL: MW2SHELL 0x1006a9d8
-MechS32 g_unk0x1006a9d8 = 0;
-
-// GLOBAL: MW2SHELL 0x1006a9dc
-MechU32 g_fQuickTips = 1;
-
-// GLOBAL: MW2SHELL 0x1006a9e0
-MechS32 g_unk0x1006a9e0 = 1;
-
-// GLOBAL: MW2SHELL 0x1006a9e4
-MechS32 g_menuVisible = 0;
-
-// GLOBAL: MW2SHELL 0x1006a9e8
-MechS32 g_fHelpRegistered = 0;
-
-// GLOBAL: MW2SHELL 0x1006a9ec
-MechS32 g_menuDialogOpen = 0;
-
-// GLOBAL: MW2SHELL 0x1006a9f0
-MechS32 g_unk0x1006a9f0 = 0;
-
-// GLOBAL: MW2SHELL 0x1006a9f4
-HANDLE g_hPrimaryHeap = NULL;
-
-// Tab stops for the "\T" text escape, in pixels from the left edge.
-// GLOBAL: MW2SHELL 0x1006e150
-MechS32 g_unk0x1006e150[19] =
-	{0, 36, 72, 108, 144, 180, 216, 252, 288, 324, 360, 396, 432, 468, 504, 540, 576, 612, 640};
-
-// GLOBAL: MW2SHELL 0x1006e19c
-char* g_unk0x1006e19c = "DATABASE.MW2";
-
-// The clan hall archives, by campaign.
-// GLOBAL: MW2SHELL 0x1006e1a0
-MechChar* g_unk0x1006e1a0[2] = {"ARCHWO.MW2", "ARCHJF.MW2"};
-
-// The positions of each formation's mechs.
-// GLOBAL: MW2SHELL 0x1006e1d8
-MechS32 g_unk0x1006e1d8[6] = {285, 176, 344, 222, 450, 320};
-
-// GLOBAL: MW2SHELL 0x1006e1f0
-MechS32 g_unk0x1006e1f0[6] = {520, 212, 342, 225, 143, 253};
-
-// GLOBAL: MW2SHELL 0x1006e208
-MechS32 g_unk0x1006e208[6] = {222, 199, 341, 216, 498, 242};
-
-// GLOBAL: MW2SHELL 0x1006e220
-MechS32 g_unk0x1006e220[6] = {385, 184, 343, 221, 264, 290};
-
-// GLOBAL: MW2SHELL 0x1006e238
-MechS32 g_unk0x1006e238[6] = {269, 176, 506, 205, 269, 283};
-
-// GLOBAL: MW2SHELL 0x1006e250
-MechS32 g_unk0x1006e250[6] = {376, 186, 139, 254, 452, 325};
-
-// The star formations, as the mission briefing screen names them.
-// GLOBAL: MW2SHELL 0x1006e1a8
-RavenMark0x08 g_unk0x1006e1a8[6] = {
-	{g_unk0x1006e1d8, "Echelon Left"},
-	{g_unk0x1006e1f0, "Echelon Right"},
-	{g_unk0x1006e208, "Line Abreast"},
-	{g_unk0x1006e220, "Line Astern"},
-	{g_unk0x1006e238, "V-Form"},
-	{g_unk0x1006e250, "Wedge"},
-};
-
-// GLOBAL: MW2SHELL 0x100711f8
-HollowReed0x110* g_unk0x100711f8 = NULL;
-
-// GLOBAL: MW2SHELL 0x100711fc
-AudioSubsystem* g_pAudioSubsystem = NULL;
-
-// GLOBAL: MW2SHELL 0x10071200
-void* g_unk0x10071200 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071204
-MouseState* g_pMouseState = NULL;
-
-// GLOBAL: MW2SHELL 0x10071208
-VideoDriver* g_pVideoDriver = NULL;
-
-// GLOBAL: MW2SHELL 0x1007120c
-BrassLantern0x414* g_unk0x1007120c = NULL;
-
-// GLOBAL: MW2SHELL 0x10071210
-BrassLantern0x414* g_unk0x10071210 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071214
-BrassLantern0x414* g_unk0x10071214 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071218
-BrassLantern0x414* g_unk0x10071218 = NULL;
-
-// GLOBAL: MW2SHELL 0x1007121c
-BrassLantern0x414* g_unk0x1007121c = NULL;
-
-// GLOBAL: MW2SHELL 0x10071220
-BrassLantern0x414* g_unk0x10071220 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071224
-BrassLantern0x414* g_unk0x10071224 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071228
-BrassLantern0x414* g_unk0x10071228 = NULL;
-
-// GLOBAL: MW2SHELL 0x1007122c
-TMPackDataBase* g_pDatabaseMw2 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071230
-CedarKnot0x10* g_unk0x10071230 = NULL;
-
-// GLOBAL: MW2SHELL 0x10071234
-MechS32 g_fAudio = 1;
-
-// GLOBAL: MW2SHELL 0x10071238
-MechS32 g_fDigitalAudio = 1;
-
-// GLOBAL: MW2SHELL 0x1007123c
-MechS32 g_unk0x1007123c = 1;
-
-// GLOBAL: MW2SHELL 0x10071240
-MechS32 g_unk0x10071240 = 1;
-
-// The flags the shell opens Smacker movies with.
-// GLOBAL: MW2SHELL 0x10071248
-MechU32 g_unk0x10071248 = 0;
-
-// GLOBAL: MW2SHELL 0x1007124c
-MechU8 g_fDrawFmv = 0;
-
-// GLOBAL: MW2SHELL 0x10071250
-MechChar g_szDataDrivePath[4] = "A:\\";
-
-// The pilot roster clamps rank + 1 and rank + 2 to index 9: the NULL after Khan.
-// GLOBAL: MW2SHELL 0x10071258
-MechChar* g_rankNames[10] = {
-	"Mechwarrior",
-	"Star Commander",
-	"Nova Commander",
-	"Star Captain",
-	"Nova Captain",
-	"Star Colonel",
-	"Nova Colonel",
-	"Galaxy Commander",
-	"Khan",
-	NULL,
-};
-
-// GLOBAL: MW2SHELL 0x10071370
-TinWhistle0x3c* g_pCurrentPilot = NULL;
-
-// Set when a new pilot is registered, for the clan hall's welcome.
-// GLOBAL: MW2SHELL 0x10071374
-MechS32 g_unk0x10071374 = 0;
-
 // GLOBAL: MW2SHELL 0x1007cc84
 char* g_pScenario;
 
@@ -234,67 +82,13 @@ MechS32 g_nSelectedCampaign;
 // GLOBAL: MW2SHELL 0x1007cc8c
 MechU8 g_fPilotChosen;
 
-extern "C" MechS32 g_windowHeight;
-extern "C" MechS32 g_windowWidth;
-
-// GLOBAL: MW2SHELL 0x100965d8
-MechS32 g_windowHeight;
-
-// GLOBAL: MW2SHELL 0x100965dc
-MechS32 g_windowWidth;
-
-// GLOBAL: MW2SHELL 0x100965e0
-HINSTANCE g_pModule;
-
-// The C debug print unit (debugprint.c) shows its message boxes over the shell window.
-extern "C" HWND g_pWnd;
-
-// GLOBAL: MW2SHELL 0x100965ec
-HWND g_pWnd;
-
-// GLOBAL: MW2SHELL 0x100965f0
-HMENU g_windowMenu;
-
-void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario);
-void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign);
-extern "C" void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
-void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign);
 void ParseCommandLineFlags(char* p_cmdLine);
-void FUN_1001023c(HMENU p_menu);
-void FUN_10010320(HMENU p_menu);
 MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08);
 MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
 BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void FUN_1001093e();
 void ClearRegisteredMenuFunction();
-void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8 p_pilotChosen, WPARAM p_wParam);
-void FUN_10015008(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char** p_scenario);
-MechS32 FUN_10015f58(const char* p_name, MechS32 p_msg, MechS32 p_wParam);
-MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_unk0x04, MechS32 p_unk0x08);
-MechS32 FUN_10016be7();
-void FUN_10016c1d();
-void FUN_10016c3e();
-void FUN_10016d90(MechS32 p_unk0x00);
-void FUN_10016f45();
-void FUN_10029010(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
-void LoadPilotRoster();
-char CdCheck();
-void FUN_100382e6(TMPackDataBase* p_database, char** p_scenario, WPARAM p_wParam);
-void FUN_10039b50(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, char** p_scenario);
-void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const char* p_scenario);
-void FUN_10039e72(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam);
-void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam);
-void FUN_1003dc10(TMPackDataBase* p_database, MechS32* p_campaign);
-void FUN_1003e3c9();
-void OpenCockpitControls();
-void FUN_10043979();
-void FUN_10043a72();
-MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
-void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign);
-void FUN_10046e80();
-void FUN_10047370();
 
 // Matches except for the stack slots of helpFile, msg and mouseY (a consistent permutation) and
 // the operand order of the WM_PALETTECHANGED comparison (the original loads p_hWnd first; moving,
@@ -681,26 +475,26 @@ extern "C" int __stdcall ShellMain(
 	}
 
 	g_pDatabaseMw2->GetDBItem(0x1a, &itemData, &itemSize);
-	g_unk0x10071210 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071210 = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1b, &itemData, &itemSize);
-	g_unk0x10071214 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071214 = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1c, &itemData, &itemSize);
-	g_unk0x10071218 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071218 = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1e, &itemData, &itemSize);
-	g_unk0x1007121c = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x1007121c = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1f, &itemData, &itemSize);
-	g_unk0x10071220 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071220 = new Font(itemData, g_pVideoDriver);
 	g_unk0x1007120c = g_unk0x10071210;
 	g_pDatabaseMw2->GetDBItem(0x20, &itemData, &itemSize);
-	g_unk0x10071228 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071228 = new Font(itemData, g_pVideoDriver);
 	g_unk0x10071224 = g_unk0x10071228;
 	g_unk0x10071210 = g_unk0x10071228;
 	g_unk0x1007120c = g_unk0x10071210;
 
 	g_pDatabaseMw2->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
 	g_pMouseState = new MouseState(g_pVideoDriver, g_unk0x1007120c, g_unk0x10071200);
-	g_unk0x100711f8 = new HollowReed0x110();
-	g_unk0x10071230 = new CedarKnot0x10("MW2.PRJ");
+	g_unk0x100711f8 = new KeyboardInput();
+	g_unk0x10071230 = new ProjectArchive("MW2.PRJ");
 
 	LoadPilotRoster();
 	FUN_10043979();
@@ -804,56 +598,6 @@ MechS32 FUN_1000fe0d()
 
 	return 1;
 }
-
-// The song of each shell message from 0x406 up, per campaign: a database item (plus the base),
-// 0 to keep the current one, 0x20000000 to stop the music. 0x10000000 restarts the song.
-// GLOBAL: MW2SHELL 0x10071298
-MechS32 g_unk0x10071298[18] =
-	{0x23, 0, 0, 0, 0x20000000, 0, 0, 0x23, 0x20000000, 0x23, 0x20000000, 0, 0, 0x23, 0, 0x20000000, 0x20000000, 0};
-
-// GLOBAL: MW2SHELL 0x100712e0
-MechS32 g_unk0x100712e0[18] = {
-	0x25,
-	0x24,
-	0,
-	0,
-	0x20000000,
-	0x24,
-	0,
-	0x23,
-	0x20000000,
-	0x25,
-	0x20000000,
-	0x25,
-	0x24,
-	0x25,
-	0x26,
-	0x20000000,
-	0x20000000,
-	0
-};
-
-// GLOBAL: MW2SHELL 0x10071328
-MechS32 g_unk0x10071328[18] = {
-	0x28,
-	0x27,
-	0,
-	0,
-	0x20000000,
-	0x27,
-	0,
-	0x23,
-	0x20000000,
-	0x28,
-	0x20000000,
-	0x28,
-	0x27,
-	0x28,
-	0x29,
-	0x20000000,
-	0x20000000,
-	0
-};
 
 // Starts the song of the shell message p_msg for the campaign, unless it is already playing.
 // Not 100%: the stack slots of size, data and result are permuted, and the table loads'
