@@ -11,7 +11,7 @@ class TextGlyph;
 struct PilotRecord {
 	undefined4 m_unk0x00;      // 0x00
 	undefined4 m_unk0x04;      // 0x04
-	undefined4 m_unk0x08;      // 0x08
+	undefined4 m_clan;         // 0x08 — index into g_clanNames: 0 Wolf, 1 Jade Falcon
 	MechS32 m_mission;         // 0x0c — missions completed, the index of the next
 	MechS32 m_rank;            // 0x10 — index into g_rankNames
 	MechS32 m_honor;           // 0x14

@@ -269,7 +269,7 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 
 	g_unk0x1007cc98 = p_campaign;
 	srand(clock());
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fe40[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_rosterScreens[p_campaign].m_picture);
 	LoadPilotRoster();
 	g_pCurrentPilot = NULL;
 
@@ -300,7 +300,7 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 		}
 	}
 
-	g_unk0x1007cda0 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_unk0x1006fe40[p_campaign].m_buttons, 15);
+	g_unk0x1007cda0 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_rosterScreens[p_campaign].m_buttons, 15);
 	ShowPilotCallsigns();
 	if (!g_pCurrentPilot) {
 		g_unk0x1007cda0->DisableButton(11);
@@ -366,7 +366,7 @@ void PilotRosterCallback(
 		if (g_unk0x10064120) {
 			tab = FindFieldAt(g_unk0x10063dd8, g_pMouseState->m_x, g_pMouseState->m_y);
 			if (tab && tab->m_click && g_pCurrentPilot->m_mission > (MechS32) tab->m_data) {
-				*p_scenario = g_campaignMissions[*p_campaign][(MechS32) tab->m_data].m_unk0x00;
+				*p_scenario = g_campaignMissions[*p_campaign][(MechS32) tab->m_data].m_scenario;
 				SelectStar(0, 0, 3, 1, 100);
 				ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 				SelectStar(1, 0, 0, 0, 100);

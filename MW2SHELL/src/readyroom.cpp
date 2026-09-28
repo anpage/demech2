@@ -78,7 +78,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 {
 	if (p_wParam == 0x407 || p_wParam == 0x409) {
 		SelectStar(0, 0, 3, 1, 100);
-		*p_scenario = g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_unk0x00;
+		*p_scenario = g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_scenario;
 		ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 	}
 
@@ -86,20 +86,20 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 	SelectStar(1, 0, 0, 0, 100);
 	SelectStar(0, -1, -1, -1, -1);
 	SetStarMech(0, NULL, NULL);
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fed0[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_readyRoomScreens[p_campaign].m_picture);
 
 	if (!strcmp(g_pCurrentPilot->m_callsign, "FREEBIRTHTOAD")) {
 		g_unk0x100904a0 = new ButtonMenu(
 			g_pVideoDriver,
 			g_defaultFont,
 			FALSE,
-			g_unk0x1006fed0[p_campaign].m_buttons,
-			g_unk0x1006fed0[p_campaign].m_count
+			g_readyRoomScreens[p_campaign].m_buttons,
+			g_readyRoomScreens[p_campaign].m_count
 		);
 	}
 	else {
 		g_unk0x100904a0 =
-			new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_unk0x1006fed0[p_campaign].m_buttons, 4);
+			new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_readyRoomScreens[p_campaign].m_buttons, 4);
 	}
 
 	switch (p_campaign) {
@@ -150,7 +150,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			if (g_campaignMissions[g_pCurrentPilot->m_unk0x08][g_pCurrentPilot->m_mission].m_unk0x04 == 1) {
+			if (g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1) {
 				ShowDialog("Trial Protocol: X0769-Q|Keshik to determine appropriate|'Mech for trial.#Ok", 0);
 				break;
 			}
@@ -184,7 +184,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			if (g_campaignMissions[g_pCurrentPilot->m_unk0x08][g_pCurrentPilot->m_mission].m_unk0x04 == 1) {
+			if (g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1) {
 				ShowDialog("Your 'Mech has been|selected for you.|Prepare for Trial!#Ok", 0);
 				break;
 			}
@@ -224,7 +224,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			}
 			g_pCurrentPilot->m_mission = button - 4;
 			SavePilotRoster();
-			*p_scenario = g_campaignMissions[*p_campaign][button - 4].m_unk0x00;
+			*p_scenario = g_campaignMissions[*p_campaign][button - 4].m_scenario;
 			SelectStar(0, 0, 3, 1, 100);
 			ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 			goto briefing;

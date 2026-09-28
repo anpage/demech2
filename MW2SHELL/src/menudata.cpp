@@ -10,6 +10,11 @@
 // The menu screens' layouts and the campaigns' tables. The original links this data as an object
 // of its own, between cockpitcontrols.cpp and options.cpp, with no code: the tables come first,
 // then the strings they point to (from 0x10070020), which are defined first here.
+//
+// Each screen has a MenuScreen table indexed by campaign: Wolf (0), Jade Falcon (1) and, where
+// the screen has one, the Trials of Grievance (2), which reuse Wolf's buttons. The button labels
+// follow in the order of the button tables: Wolf's, Jade Falcon's, the main menu's and the
+// mission briefing's.
 
 extern MechS32 g_unk0x1006e1d8[6];
 extern MechS32 g_unk0x1006e1f0[6];
@@ -78,7 +83,6 @@ MechChar g_unk0x1007013c[0x18] = "<~LAUNCH OLD MISSION";
 // GLOBAL: MW2SHELL 0x10070154
 MechChar g_unk0x10070154[0x10] = "<~PILOT INFO";
 
-// The clan hall archive screen.
 // GLOBAL: MW2SHELL 0x10070164
 MechChar g_unk0x10070164[0x08] = "~EXIT";
 
@@ -91,7 +95,6 @@ MechChar g_unk0x10070178[0x0c] = "~NEXT PAGE";
 // GLOBAL: MW2SHELL 0x10070184
 MechChar g_unk0x10070184[0x08] = "~BACK";
 
-// The training screen.
 // GLOBAL: MW2SHELL 0x1007018c
 MechChar g_unk0x1007018c[0x0c] = "CLAN HALL";
 
@@ -218,7 +221,6 @@ MechChar g_unk0x10070338[0x0c] = "<~NEXT PAGE";
 // GLOBAL: MW2SHELL 0x10070344
 MechChar g_unk0x10070344[0x04] = "";
 
-// The custom battle's star screen.
 // GLOBAL: MW2SHELL 0x10070348
 MechChar g_unk0x10070348[0x10] = "<~EXIT CONFIG";
 
@@ -246,7 +248,6 @@ MechChar g_unk0x100703b0[0x0c] = "CHANGE MECH";
 // GLOBAL: MW2SHELL 0x100703bc
 MechChar g_unk0x100703bc[0x0c] = "CHANGE MECH";
 
-// The mech bay screen of each campaign.
 // GLOBAL: MW2SHELL 0x100703c8
 MechChar g_unk0x100703c8[0x0c] = "<~EXIT LAB";
 
@@ -550,7 +551,6 @@ MechChar g_unk0x10070848[0x18] = "~JADE FALCON CLAN HALL";
 // GLOBAL: MW2SHELL 0x10070860
 MechChar g_unk0x10070860[0x08] = "~EXIT";
 
-// The mission briefing screen.
 // GLOBAL: MW2SHELL 0x1007088c
 MechChar g_unk0x1007088c[0x04] = "";
 
@@ -631,16 +631,17 @@ MechChar g_unk0x100708f0[0x04] = "";
 MechS32 g_textTabStops[19] =
 	{0, 36, 72, 108, 144, 180, 216, 252, 288, 324, 360, 396, 432, 468, 504, 540, 576, 612, 640};
 
+// The shell's database, for TMPackDataBase.
 // GLOBAL: MW2SHELL 0x1006e19c
-char* g_unk0x1006e19c = "DATABASE.MW2";
+char* g_databaseName = "DATABASE.MW2";
 
 // The clan hall archives, by campaign.
 // GLOBAL: MW2SHELL 0x1006e1a0
-MechChar* g_unk0x1006e1a0[2] = {"ARCHWO.MW2", "ARCHJF.MW2"};
+MechChar* g_archiveNames[2] = {"ARCHWO.MW2", "ARCHJF.MW2"};
 
 // The star formations, as the mission briefing screen names them.
 // GLOBAL: MW2SHELL 0x1006e1a8
-Formation g_unk0x1006e1a8[6] = {
+Formation g_formations[6] = {
 	{g_unk0x1006e1d8, "Echelon Left"},
 	{g_unk0x1006e1f0, "Echelon Right"},
 	{g_unk0x1006e208, "Line Abreast"},
@@ -649,7 +650,7 @@ Formation g_unk0x1006e1a8[6] = {
 	{g_unk0x1006e250, "Wedge"},
 };
 
-// The positions of each formation's mechs.
+// Three x, y pairs per formation; nothing reads them.
 // GLOBAL: MW2SHELL 0x1006e1d8
 MechS32 g_unk0x1006e1d8[6] = {285, 176, 344, 222, 450, 320};
 
@@ -668,8 +669,9 @@ MechS32 g_unk0x1006e238[6] = {269, 176, 506, 205, 269, 283};
 // GLOBAL: MW2SHELL 0x1006e250
 MechS32 g_unk0x1006e250[6] = {376, 186, 139, 254, 452, 325};
 
+// The buttons of each screen, Wolf's first. The Trials of Grievance use Wolf's.
 // GLOBAL: MW2SHELL 0x1006e268
-MainMenuButton g_unk0x1006e268[5] = {
+MainMenuButton g_wolfClanHallButtons[5] = {
 	{185, 280, 240, 400, 197, 327, g_unk0x10070094},
 	{320, 300, 470, 400, 246, 371, g_unk0x100700a4},
 	{20, 245, 90, 411, 25, 307, g_unk0x100700bc},
@@ -678,7 +680,7 @@ MainMenuButton g_unk0x1006e268[5] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e2f8
-MainMenuButton g_unk0x1006e2f8[15] = {
+MainMenuButton g_wolfRosterButtons[15] = {
 	{466, 450, 619, 474, 543, 455, g_unk0x100700dc},
 	{32, 83, 297, 116, 41, 91, g_unk0x100700f0},
 	{32, 117, 297, 151, 41, 125, g_unk0x100700f4},
@@ -697,7 +699,7 @@ MainMenuButton g_unk0x1006e2f8[15] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e4a0
-MainMenuButton g_unk0x1006e4a0[4] = {
+MainMenuButton g_wolfArchiveButtons[4] = {
 	{0, 440, 639, 479, 320, 455, g_unk0x10070164},
 	{405, 372, 479, 405, 449, 354, g_unk0x1007016c},
 	{480, 372, 556, 405, 511, 408, g_unk0x10070178},
@@ -705,7 +707,7 @@ MainMenuButton g_unk0x1006e4a0[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e510
-MainMenuButton g_unk0x1006e510[7] = {
+MainMenuButton g_wolfCadetTrainingButtons[7] = {
 	{5, 149, 57, 440, 18, 203, g_unk0x1007018c},
 	{450, 13, 629, 37, 540, 18, g_unk0x10070198},
 	{450, 38, 629, 62, 540, 43, g_unk0x100701a8},
@@ -716,7 +718,7 @@ MainMenuButton g_unk0x1006e510[7] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e5d8
-MainMenuButton g_unk0x1006e5d8[20] = {
+MainMenuButton g_wolfReadyRoomButtons[20] = {
 	{0, 0, 130, 479, 56, 223, g_unk0x100701ec},      {300, 320, 559, 419, 450, 364, g_unk0x100701f8},
 	{510, 420, 559, 469, 542, 455, g_unk0x10070204}, {140, 90, 399, 313, 265, 226, g_unk0x10070214},
 	{400, 25, 519, 49, 460, 30, g_unk0x10070228},    {400, 55, 519, 79, 460, 60, g_unk0x10070234},
@@ -730,7 +732,7 @@ MainMenuButton g_unk0x1006e5d8[20] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e808
-MainMenuButton g_unk0x1006e808[4] = {
+MainMenuButton g_wolfBriefingButtons[4] = {
 	{430, 450, 529, 474, 480, 455, g_unk0x100702b8},
 	{110, 450, 209, 474, 160, 455, g_unk0x100702c0},
 	{270, 450, 369, 474, 320, 455, g_unk0x100702cc},
@@ -738,7 +740,7 @@ MainMenuButton g_unk0x1006e808[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e878
-MainMenuButton g_unk0x1006e878[4] = {
+MainMenuButton g_wolfSituationButtons[4] = {
 	{110, 450, 209, 474, 160, 455, g_unk0x100702e0},
 	{270, 450, 369, 474, 320, 455, g_unk0x100702e8},
 	{430, 450, 529, 474, 480, 455, g_unk0x100702f4},
@@ -746,14 +748,14 @@ MainMenuButton g_unk0x1006e878[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e8e8
-MainMenuButton g_unk0x1006e8e8[3] = {
+MainMenuButton g_wolfDebriefButtons[3] = {
 	{270, 450, 369, 474, 320, 455, g_unk0x10070304},
 	{110, 450, 209, 474, 160, 455, g_unk0x1007030c},
 	{430, 450, 529, 474, 480, 455, g_unk0x10070318},
 };
 
 // GLOBAL: MW2SHELL 0x1006e940
-MainMenuButton g_unk0x1006e940[4] = {
+MainMenuButton g_wolfAftermathButtons[4] = {
 	{110, 450, 209, 474, 160, 455, g_unk0x10070324},
 	{270, 450, 369, 474, 320, 455, g_unk0x1007032c},
 	{430, 450, 529, 474, 480, 455, g_unk0x10070338},
@@ -761,7 +763,7 @@ MainMenuButton g_unk0x1006e940[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006e9b0
-MainMenuButton g_unk0x1006e9b0[9] = {
+MainMenuButton g_wolfStarConfigButtons[9] = {
 	{50, 445, 149, 469, 100, 450, g_unk0x10070348},
 	{404, 414, 474, 474, 440, 460, g_unk0x10070358},
 	{263, 425, 302, 469, 280, 465, g_unk0x10070364},
@@ -774,7 +776,7 @@ MainMenuButton g_unk0x1006e9b0[9] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006eab0
-MainMenuButton g_unk0x1006eab0[11] = {
+MainMenuButton g_wolfMechBayButtons[11] = {
 	{50, 445, 149, 469, 100, 450, g_unk0x100703c8},
 	{404, 414, 474, 474, 440, 460, g_unk0x100703d4},
 	{303, 425, 330, 469, 300, 465, g_unk0x100703e4},
@@ -789,7 +791,7 @@ MainMenuButton g_unk0x1006eab0[11] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006ebe8
-MainMenuButton g_unk0x1006ebe8[5] = {
+MainMenuButton g_jadeFalconClanHallButtons[5] = {
 	{66, 167, 152, 303, 69, 187, g_unk0x1007045c},
 	{160, 290, 375, 322, 110, 340, g_unk0x1007046c},
 	{523, 154, 636, 332, 450, 200, g_unk0x10070484},
@@ -798,7 +800,7 @@ MainMenuButton g_unk0x1006ebe8[5] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006ec78
-MainMenuButton g_unk0x1006ec78[15] = {
+MainMenuButton g_jadeFalconRosterButtons[15] = {
 	{466, 450, 619, 474, 543, 455, g_unk0x100704a4},
 	{32, 83, 297, 116, 41, 91, g_unk0x100704b8},
 	{32, 117, 297, 151, 41, 125, g_unk0x100704bc},
@@ -817,7 +819,7 @@ MainMenuButton g_unk0x1006ec78[15] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006ee20
-MainMenuButton g_unk0x1006ee20[4] = {
+MainMenuButton g_jadeFalconArchiveButtons[4] = {
 	{0, 440, 639, 479, 320, 455, g_unk0x1007052c},
 	{405, 364, 479, 397, 449, 346, g_unk0x10070534},
 	{480, 364, 556, 397, 511, 400, g_unk0x10070540},
@@ -825,7 +827,7 @@ MainMenuButton g_unk0x1006ee20[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006ee90
-MainMenuButton g_unk0x1006ee90[7] = {
+MainMenuButton g_jadeFalconCadetTrainingButtons[7] = {
 	{5, 149, 57, 440, 18, 203, g_unk0x10070554},
 	{450, 13, 629, 37, 540, 18, g_unk0x10070560},
 	{450, 38, 629, 62, 540, 43, g_unk0x10070570},
@@ -836,7 +838,7 @@ MainMenuButton g_unk0x1006ee90[7] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006ef58
-MainMenuButton g_unk0x1006ef58[20] = {
+MainMenuButton g_jadeFalconReadyRoomButtons[20] = {
 	{0, 0, 130, 479, 56, 223, g_unk0x100705b4},      {280, 340, 534, 439, 415, 370, g_unk0x100705c0},
 	{432, 440, 482, 479, 464, 460, g_unk0x100705cc}, {140, 90, 399, 313, 277, 226, g_unk0x100705dc},
 	{400, 25, 519, 49, 460, 30, g_unk0x100705f0},    {400, 55, 519, 79, 460, 60, g_unk0x100705f8},
@@ -850,7 +852,7 @@ MainMenuButton g_unk0x1006ef58[20] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006f188
-MainMenuButton g_unk0x1006f188[4] = {
+MainMenuButton g_jadeFalconBriefingButtons[4] = {
 	{430, 450, 529, 474, 480, 455, g_unk0x1007067c},
 	{110, 450, 209, 474, 160, 455, g_unk0x10070684},
 	{270, 450, 369, 474, 320, 455, g_unk0x10070690},
@@ -858,7 +860,7 @@ MainMenuButton g_unk0x1006f188[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006f1f8
-MainMenuButton g_unk0x1006f1f8[4] = {
+MainMenuButton g_jadeFalconSituationButtons[4] = {
 	{110, 450, 209, 474, 160, 455, g_unk0x100706a4},
 	{270, 450, 369, 474, 320, 455, g_unk0x100706ac},
 	{430, 450, 529, 474, 480, 455, g_unk0x100706b8},
@@ -866,14 +868,14 @@ MainMenuButton g_unk0x1006f1f8[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006f268
-MainMenuButton g_unk0x1006f268[3] = {
+MainMenuButton g_jadeFalconDebriefButtons[3] = {
 	{270, 450, 369, 474, 320, 455, g_unk0x100706c8},
 	{110, 450, 209, 474, 160, 455, g_unk0x100706d0},
 	{430, 450, 529, 474, 480, 455, g_unk0x100706dc},
 };
 
 // GLOBAL: MW2SHELL 0x1006f2c0
-MainMenuButton g_unk0x1006f2c0[4] = {
+MainMenuButton g_jadeFalconAftermathButtons[4] = {
 	{110, 450, 209, 474, 160, 455, g_unk0x100706e8},
 	{270, 450, 369, 474, 320, 455, g_unk0x100706f0},
 	{430, 450, 529, 474, 480, 455, g_unk0x100706fc},
@@ -881,7 +883,7 @@ MainMenuButton g_unk0x1006f2c0[4] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006f330
-MainMenuButton g_unk0x1006f330[9] = {
+MainMenuButton g_jadeFalconStarConfigButtons[9] = {
 	{50, 445, 149, 469, 100, 450, g_unk0x1007070c},
 	{404, 414, 474, 474, 440, 460, g_unk0x1007071c},
 	{263, 425, 302, 469, 280, 465, g_unk0x10070728},
@@ -894,7 +896,7 @@ MainMenuButton g_unk0x1006f330[9] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006f430
-MainMenuButton g_unk0x1006f430[11] = {
+MainMenuButton g_jadeFalconMechBayButtons[11] = {
 	{50, 445, 149, 469, 100, 450, g_unk0x1007078c},
 	{404, 414, 474, 474, 440, 460, g_unk0x10070798},
 	{303, 425, 330, 469, 300, 465, g_unk0x100707a8},
@@ -916,8 +918,9 @@ MainMenuButton g_mainMenuButtons[4] = {
 	{0, 0x1c2, 0x27f, 0x1df, 0x140, 0x1c7, g_unk0x10070860},
 };
 
+// The mission briefing screen (missionui.cpp): both stars' mechs and formations.
 // GLOBAL: MW2SHELL 0x1006f618
-MainMenuButton g_unk0x1006f618[0x19] = {
+MainMenuButton g_missionBriefingButtons[0x19] = {
 	{209, 371, 420, 452, 0, 0, g_unk0x1007088c},     {50, 445, 149, 469, 100, 450, g_unk0x10070890},
 	{238, 67, 400, 102, 239, 69, g_unk0x10070898},   {13, 124, 103, 137, 29, 126, g_unk0x1007089c},
 	{13, 138, 103, 151, 29, 140, g_unk0x100708a0},   {13, 152, 103, 165, 29, 154, g_unk0x100708a4},
@@ -933,8 +936,9 @@ MainMenuButton g_unk0x1006f618[0x19] = {
 	{583, 293, 621, 325, 0, 0, g_unk0x100708f0},
 };
 
+// The missions of each campaign.
 // GLOBAL: MW2SHELL 0x1006fc90
-CampaignMission g_unk0x1006fc90[17] = {
+CampaignMission g_wolfMissions[17] = {
 	{"yellSCN1", 0, "Pyre Light"},
 	{"oranSCN1", 0, "Flame Tongue "},
 	{"tealSCN1", 0, "Blade Splint"},
@@ -955,7 +959,7 @@ CampaignMission g_unk0x1006fc90[17] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006fd30
-CampaignMission g_unk0x1006fd30[17] = {
+CampaignMission g_jadeFalconMissions[17] = {
 	{"pinkSCN1", 0, "Silent Thunder"},
 	{"greeSCN1", 0, "Arkham Bridge"},
 	{"red_SCN1", 0, "Mirror Cage"},
@@ -976,96 +980,97 @@ CampaignMission g_unk0x1006fd30[17] = {
 };
 
 // GLOBAL: MW2SHELL 0x1006fdd0
-CampaignMission* g_campaignMissions[2] = {g_unk0x1006fc90, g_unk0x1006fd30};
+CampaignMission* g_campaignMissions[2] = {g_wolfMissions, g_jadeFalconMissions};
 
 // The training missions of each campaign, one per button from the second.
 // GLOBAL: MW2SHELL 0x1006fdd8
-MechChar* g_unk0x1006fdd8[6] = {"tnw1SCN1", "tnw2SCN1", "tnw3SCN1", "tnw4SCN1", "tnw5SCN1", "tnw6SCN1"};
+MechChar* g_wolfTrainingScenarios[6] = {"tnw1SCN1", "tnw2SCN1", "tnw3SCN1", "tnw4SCN1", "tnw5SCN1", "tnw6SCN1"};
 
 // GLOBAL: MW2SHELL 0x1006fdf0
-MechChar* g_unk0x1006fdf0[6] = {"tnj1SCN1", "tnj2SCN1", "tnj3SCN1", "tnj4SCN1", "tnj5SCN1", "tnj6SCN1"};
+MechChar* g_jadeFalconTrainingScenarios[6] = {"tnj1SCN1", "tnj2SCN1", "tnj3SCN1", "tnj4SCN1", "tnj5SCN1", "tnj6SCN1"};
 
 // GLOBAL: MW2SHELL 0x1006fe08
-MechChar** g_unk0x1006fe08[2] = {g_unk0x1006fdd8, g_unk0x1006fdf0};
+MechChar** g_trainingScenarios[2] = {g_wolfTrainingScenarios, g_jadeFalconTrainingScenarios};
 
+// The screens' MenuScreen tables, by campaign.
 // GLOBAL: MW2SHELL 0x1006fe10
-MenuScreen g_unk0x1006fe10[3] = {
-	{g_unk0x1006e268, 5, 11, 0x24},
-	{g_unk0x1006ebe8, 5, 18, 0x27},
+MenuScreen g_clanHallScreens[3] = {
+	{g_wolfClanHallButtons, 5, 11, 0x24},
+	{g_jadeFalconClanHallButtons, 5, 18, 0x27},
 	{NULL, 0, 0, 0},
 };
 
 // GLOBAL: MW2SHELL 0x1006fe40
-MenuScreen g_unk0x1006fe40[3] = {
-	{g_unk0x1006e2f8, 15, 17, -1},
-	{g_unk0x1006ec78, 15, 24, -1},
+MenuScreen g_rosterScreens[3] = {
+	{g_wolfRosterButtons, 15, 17, -1},
+	{g_jadeFalconRosterButtons, 15, 24, -1},
 	{NULL, 0, 0, 0},
 };
 
 // GLOBAL: MW2SHELL 0x1006fe70
-MenuScreen g_unk0x1006fe70[3] = {
-	{g_unk0x1006e4a0, 4, 12, -1},
-	{g_unk0x1006ee20, 4, 19, -1},
+MenuScreen g_archiveScreens[3] = {
+	{g_wolfArchiveButtons, 4, 12, -1},
+	{g_jadeFalconArchiveButtons, 4, 19, -1},
 	{NULL, 0, 0, 0},
 };
 
 // GLOBAL: MW2SHELL 0x1006fea0
-MenuScreen g_unk0x1006fea0[3] = {
-	{g_unk0x1006e9b0, 9, 15, -1},
-	{g_unk0x1006f330, 9, 22, -1},
-	{g_unk0x1006e9b0, 9, 10, -1},
+MenuScreen g_starConfigScreens[3] = {
+	{g_wolfStarConfigButtons, 9, 15, -1},
+	{g_jadeFalconStarConfigButtons, 9, 22, -1},
+	{g_wolfStarConfigButtons, 9, 10, -1},
 };
 
 // GLOBAL: MW2SHELL 0x1006fed0
-MenuScreen g_unk0x1006fed0[3] = {
-	{g_unk0x1006e5d8, 20, 14, 0x25},
-	{g_unk0x1006ef58, 20, 21, 0x28},
+MenuScreen g_readyRoomScreens[3] = {
+	{g_wolfReadyRoomButtons, 20, 14, 0x25},
+	{g_jadeFalconReadyRoomButtons, 20, 21, 0x28},
 	{NULL, 0, 0, 0},
 };
 
 // The debriefing screen of each campaign.
 // GLOBAL: MW2SHELL 0x1006ff00
-MenuScreen g_unk0x1006ff00[3] = {
-	{g_unk0x1006e8e8, 3, 16, -1},
-	{g_unk0x1006f268, 3, 23, -1},
-	{g_unk0x1006e8e8, 3, 10, -1},
+MenuScreen g_debriefScreens[3] = {
+	{g_wolfDebriefButtons, 3, 16, -1},
+	{g_jadeFalconDebriefButtons, 3, 23, -1},
+	{g_wolfDebriefButtons, 3, 10, -1},
 };
 
 // The aftermath reader of each campaign.
 // GLOBAL: MW2SHELL 0x1006ff30
-MenuScreen g_unk0x1006ff30[3] = {
-	{g_unk0x1006e940, 4, 16, -1},
-	{g_unk0x1006f2c0, 4, 23, -1},
-	{g_unk0x1006e940, 4, 10, -1},
+MenuScreen g_aftermathScreens[3] = {
+	{g_wolfAftermathButtons, 4, 16, -1},
+	{g_jadeFalconAftermathButtons, 4, 23, -1},
+	{g_wolfAftermathButtons, 4, 10, -1},
 };
 
 // The briefing screen of each campaign. SKIP (the fourth button) is dropped for every pilot
 // but FERRARI.
 // GLOBAL: MW2SHELL 0x1006ff60
-MenuScreen g_unk0x1006ff60[3] = {
-	{g_unk0x1006e808, 4, 16, -1},
-	{g_unk0x1006f188, 4, 23, -1},
-	{g_unk0x1006e808, 4, 10, -1},
+MenuScreen g_briefingScreens[3] = {
+	{g_wolfBriefingButtons, 4, 16, -1},
+	{g_jadeFalconBriefingButtons, 4, 23, -1},
+	{g_wolfBriefingButtons, 4, 10, -1},
 };
 
 // The situation reader of each campaign.
 // GLOBAL: MW2SHELL 0x1006ff90
-MenuScreen g_unk0x1006ff90[3] = {
-	{g_unk0x1006e878, 4, 16, -1},
-	{g_unk0x1006f1f8, 4, 23, -1},
-	{g_unk0x1006e878, 4, 10, -1},
+MenuScreen g_situationScreens[3] = {
+	{g_wolfSituationButtons, 4, 16, -1},
+	{g_jadeFalconSituationButtons, 4, 23, -1},
+	{g_wolfSituationButtons, 4, 10, -1},
 };
 
 // GLOBAL: MW2SHELL 0x1006ffc0
-MenuScreen g_unk0x1006ffc0[3] = {
-	{g_unk0x1006e510, 7, 13, 38},
-	{g_unk0x1006ee90, 7, 20, 41},
+MenuScreen g_cadetTrainingScreens[3] = {
+	{g_wolfCadetTrainingButtons, 7, 13, 38},
+	{g_jadeFalconCadetTrainingButtons, 7, 20, 41},
 	{NULL, 0, 0, 0},
 };
 
 // GLOBAL: MW2SHELL 0x1006fff0
-MenuScreen g_unk0x1006fff0[3] = {
-	{g_unk0x1006eab0, 11, 15, -1},
-	{g_unk0x1006f430, 11, 22, -1},
-	{g_unk0x1006eab0, 11, 10, -1},
+MenuScreen g_mechBayScreens[3] = {
+	{g_wolfMechBayButtons, 11, 15, -1},
+	{g_jadeFalconMechBayButtons, 11, 22, -1},
+	{g_wolfMechBayButtons, 11, 10, -1},
 };

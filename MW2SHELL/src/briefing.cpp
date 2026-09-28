@@ -113,19 +113,19 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		return;
 	}
 
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ff60[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_briefingScreens[p_campaign].m_picture);
 	CollectionRemove(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
 	g_keyboardInput->FlushKeys();
 
 	if (strcmp(g_pCurrentPilot->m_callsign, "FERRARI")) {
-		g_unk0x1006ff60[p_campaign].m_count = 3;
+		g_briefingScreens[p_campaign].m_count = 3;
 	}
 	g_unk0x10071cdc = new ButtonMenu(
 		g_pVideoDriver,
 		g_bodyFont,
 		FALSE,
-		g_unk0x1006ff60[p_campaign].m_buttons,
-		g_unk0x1006ff60[p_campaign].m_count
+		g_briefingScreens[p_campaign].m_buttons,
+		g_briefingScreens[p_campaign].m_count
 	);
 
 	if (!g_unk0x10071ce4->m_count) {
@@ -182,8 +182,8 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 				FALSE,
 				NULL,
 				g_unk0x10071ce4,
-				g_unk0x1006ff90[*p_campaign].m_buttons,
-				g_unk0x1006ff90[*p_campaign].m_count
+				g_situationScreens[*p_campaign].m_buttons,
+				g_situationScreens[*p_campaign].m_count
 			);
 			break;
 		default:
@@ -205,8 +205,8 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 				g_pVideoDriver,
 				g_defaultFont,
 				FALSE,
-				g_unk0x1006ff60[*p_campaign].m_buttons,
-				g_unk0x1006ff60[*p_campaign].m_count
+				g_briefingScreens[*p_campaign].m_buttons,
+				g_briefingScreens[*p_campaign].m_count
 			);
 			g_unk0x10071ce0->Restart();
 		}

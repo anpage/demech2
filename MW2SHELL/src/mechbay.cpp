@@ -3584,13 +3584,13 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	g_activeColors[1] = 1;
 	g_warningColors[1] = 8;
 
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fff0[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_mechBayScreens[p_campaign].m_picture);
 	g_mechBayMenu = new ButtonMenu(
 		g_pVideoDriver,
 		g_defaultFont,
 		FALSE,
-		g_unk0x1006fff0[p_campaign].m_buttons,
-		g_unk0x1006fff0[p_campaign].m_count
+		g_mechBayScreens[p_campaign].m_buttons,
+		g_mechBayScreens[p_campaign].m_count
 	);
 	g_mechBayMenu->DisableButton(8);
 	g_mechBayMenu->DisableButton(9);

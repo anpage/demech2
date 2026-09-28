@@ -590,8 +590,8 @@ void DrawStarConfig(TMPackDataBase* p_database, MechS32 p_campaign)
 	MechS32 i;
 	MechS32 audioSize;
 
-	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fea0[p_campaign].m_picture);
-	g_starMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_unk0x1006fea0[p_campaign].m_buttons, 9);
+	g_pVideoDriver->LoadBackground(p_database, g_starConfigScreens[p_campaign].m_picture);
+	g_starMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_starConfigScreens[p_campaign].m_buttons, 9);
 
 	switch (p_campaign) {
 	case 0:
