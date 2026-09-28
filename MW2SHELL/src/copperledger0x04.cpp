@@ -1,7 +1,7 @@
 #include "copperledger0x04.h"
 
 #include "emberglyph0x3e.h"
-#include "shellmain.h"
+#include "unk1003bf90.h"
 
 #include <windows.h>
 

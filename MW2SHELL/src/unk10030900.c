@@ -1,6 +1,8 @@
+#include "unk10030900.h"
+
 #include "decomp.h"
-#include "shellmain.h"
 #include "types.h"
+#include "unk1003bf90.h"
 
 #include <ctype.h>
 #include <stdio.h>

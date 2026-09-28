@@ -718,6 +718,9 @@ int __stdcall SimMain(
 	return result;
 }
 
+// Operand order: the timer test compares g_unk0x100e933c > g_unk0x100e9240 and
+// time < g_unk0x100e9240 with g_unk0x100e9240 loaded first in the original. It follows the
+// unit's symbol table and flipped when the shell's Miles declarations joined mss.h.
 // FUNCTION: MW2 0x10067757
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {

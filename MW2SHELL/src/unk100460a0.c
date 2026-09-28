@@ -1,15 +1,14 @@
+#include "unk100460a0.h"
+
 #include "decomp.h"
 #include "drawmodeextension.h"
 #include "palettecolor.h"
 #include "types.h"
+#include "unk10010a30.h"
 
 #include <math.h>
 
 // Display brightness: a gamma table with one row per brightness level, applied to the palette.
-
-extern DrawModeExtension* g_currentDrawModeExtension;
-
-MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette);
 
 // GLOBAL: MW2SHELL 0x100717a4
 MechS32 g_displayBrightness = 9;

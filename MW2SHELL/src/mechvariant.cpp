@@ -1,18 +1,30 @@
+#include "mechvariant.h"
+
 #include "audiosample.h"
 #include "brasslantern0x414.h"
 #include "campaignmission.h"
+#include "cedarknot0x10.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
 #include "granitemast0x18.h"
 #include "hazelstar0x80.h"
+#include "hollowreed0x110.h"
 #include "linenpacket0x218.h"
+#include "mechbay.h"
 #include "menulist0x10d.h"
 #include "mousestate.h"
 #include "sableroster0x24.h"
+#include "shellmain.h"
+#include "simhandoff.h"
 #include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -53,31 +65,6 @@ DECOMP_SIZE_ASSERT(GraniteMast0x18, 0x18)
 DECOMP_SIZE_ASSERT(TallowSign0x10, 0x10)
 DECOMP_SIZE_ASSERT(MainMenuButton, 0x1c)
 
-extern "C" HWND g_pWnd;
-extern "C" HINSTANCE g_pModule;
-extern "C" MechU32 g_fQuickTips;
-extern LinenPacket0x218 g_unk0x10090288;
-extern GraniteMast0x18 g_unk0x10061560[];
-extern MechS32 g_unk0x10061774;
-extern TallowSign0x10 g_unk0x1006fea0[3];
-extern VideoDriver* g_pVideoDriver;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern MouseState* g_pMouseState;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071210;
-extern BrassLantern0x414* g_unk0x10071214;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern CampaignMission* g_campaignMissions[2];
-
-void FUN_1002ea62(MechS32 p_count, SableRoster0x24* p_mechs, MechS32 p_enemyCount, SableRoster0x24* p_enemies);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_1001661b();
-void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
-void FUN_10016d27(MechS32 p_index);
-void FUN_10016f45();
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
@@ -85,15 +72,6 @@ MechS32 FUN_10017460(
 	undefined4 p_unk0x0c,
 	MechU32 p_unk0x10,
 	MechU32 p_unk0x14
-);
-MechS32 FUN_10044451(
-	BrassLantern0x414* p_font,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechChar* p_text,
-	undefined* p_colors,
-	MechS32 p_maxLength,
-	MechS32 p_width
 );
 
 // The formations of the Wolf and Inner Sphere stars (Jade Falcon's differ): six formations of

@@ -2,19 +2,12 @@
 #include "audiosubsystem.h"
 #include "chimeledger0x3c.h"
 #include "midisequence.h"
+#include "mss.h"
 #include "oakentune0x10.h"
-#include "shellmain.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
 
 #include <windows.h>
-
-extern "C"
-{
-	AILIMPORT MechS32 AILCALL AIL_sample_buffer_ready(HSAMPLE p_sample);
-	AILIMPORT void AILCALL
-	AIL_load_sample_buffer(HSAMPLE p_sample, MechU32 p_bufferNum, void* p_buffer, MechU32 p_size);
-	AILIMPORT MechS32 AILCALL AIL_minimum_sample_buffer_size(HDIGDRIVER p_driver, MechS32 p_rate, MechS32 p_format);
-	AILIMPORT void AILCALL AIL_set_sample_type(HSAMPLE p_sample, MechS32 p_format, MechU32 p_flags);
-}
 
 // Miles sample formats (DIG_F_*).
 enum {
@@ -26,11 +19,6 @@ enum {
 
 DECOMP_SIZE_ASSERT(AudioSubsystem, 0x15)
 DECOMP_SIZE_ASSERT(AudioSample, 0x2c)
-
-extern MechS32 g_fAudio;
-extern MechS32 g_fDigitalAudio;
-
-extern ChimeLedger0x3c g_soundConfig;
 
 // FUNCTION: MW2SHELL 0x1003ceb0
 AudioSubsystem::AudioSubsystem()

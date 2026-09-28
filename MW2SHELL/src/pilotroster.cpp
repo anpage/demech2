@@ -1,12 +1,13 @@
+#include "pilotroster.h"
+
+#include "debugprint.h"
 #include "decomp.h"
 #include "tinwhistle0x3c.h"
 #include "types.h"
+#include "unk100711f8.h"
 
 #include <stdio.h>
 #include <string.h>
-
-extern "C" void FUN_10015c90(const MechChar* p_format, ...);
-extern TinWhistle0x3c g_pilotRoster[20];
 
 // Stack-slot permutation: file and i swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x1002da80

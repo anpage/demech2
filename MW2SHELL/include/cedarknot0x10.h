@@ -2,6 +2,7 @@
 #define CEDARKNOT0X10_H
 
 #include "decomp.h"
+#include "sableroster0x24.h"
 #include "types.h"
 
 // SIZE 0x10
@@ -25,5 +26,12 @@ private:
 	MechS32* m_unk0x08;   // 0x08
 	MechS32 m_unk0x0c;    // 0x0c
 };
+
+// The functions and globals of cedarknot0x10.cpp that other units use.
+extern char g_unk0x100668c0[][4];
+extern MechS32 g_unk0x10066a44;
+
+void FUN_1002ea62(MechS32 p_count, SableRoster0x24* p_mechs, MechS32 p_enemyCount, SableRoster0x24* p_enemies);
+void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival);
 
 #endif // CEDARKNOT0X10_H

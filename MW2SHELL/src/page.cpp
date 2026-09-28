@@ -4,8 +4,10 @@
 #include "brasslantern0x414.h"
 #include "emberglyph0x3e.h"
 #include "glassbanner0x35c.h"
-#include "shellmain.h"
 #include "tmpackdatabase.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,10 +16,6 @@
 
 DECOMP_SIZE_ASSERT(Page, 0x34)
 DECOMP_SIZE_ASSERT(Page::Link, 0x14)
-
-extern AudioSubsystem* g_pAudioSubsystem;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern MechS32 g_unk0x1006e150[19];
 
 // GLOBAL: MW2SHELL 0x10071180
 MechU8 g_unk0x10071180 = FALSE;

@@ -1,17 +1,31 @@
+#include "unk10014b60.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "campaignmission.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
+#include "hollowreed0x110.h"
 #include "mainmenubutton.h"
+#include "mechbay.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
+#include "missionui.h"
 #include "mousestate.h"
+#include "options.h"
+#include "pilotroster.h"
+#include "shellmain.h"
 #include "slatetab0x2c.h"
 #include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk10030900.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -22,47 +36,6 @@
 
 // The pilot roster screen of a clan hall: ten pilot slots, the selected pilot's record and the
 // mission list.
-
-extern BrassLantern0x414* g_unk0x10071210;
-extern BrassLantern0x414* g_unk0x10071214;
-extern BrassLantern0x414* g_unk0x10071218;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern MechChar* g_rankNames[10];
-extern CampaignMission* g_campaignMissions[2];
-extern "C" HWND g_pWnd;
-extern "C" HINSTANCE g_pModule;
-extern "C" HMENU g_windowMenu;
-extern "C" MechU32 g_fQuickTips;
-extern "C" MechS32 g_unk0x1006a9e0;
-extern MechS32 g_unk0x10071374;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TinWhistle0x3c g_pilotRoster[20];
-
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
-void FUN_100078cd(SlateTab0x2c* p_tabs);
-void FUN_10007ac8(SlateTab0x2c* p_tabs);
-SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void LoadPilotRoster();
-void SavePilotRoster();
-extern "C" MechChar* FUN_100309b6(MechChar* p_string);
-void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_video);
-MechS32 ShowDialog(const char* p_text, MechS32);
-MechS32 FUN_10044451(
-	BrassLantern0x414* p_font,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechChar* p_text,
-	undefined* p_colors,
-	MechS32 p_maxLength,
-	MechS32 p_width
-);
 
 // GLOBAL: MW2SHELL 0x1007cc98
 MechS32 g_unk0x1007cc98;
@@ -150,8 +123,6 @@ EmberGlyph0x3e* FUN_10014dc4(SlateTab0x2c* p_tab)
 }
 
 // The mission list: the tab's data is the mission index. Missions the pilot hasn't reached stay blank.
-// The original loads the mission index ahead of the campaign's table; reordering the declarations
-// doesn't flip it.
 // FUNCTION: MW2SHELL 0x10014dfe
 EmberGlyph0x3e* FUN_10014dfe(SlateTab0x2c* p_tab)
 {
@@ -275,8 +246,6 @@ MechS32 g_unk0x10064128 = 0;
 
 // GLOBAL: MW2SHELL 0x1007cda0
 MenuList0x10d* g_unk0x1007cda0;
-
-extern TallowSign0x10 g_unk0x1006fe40[3];
 
 void FUN_1001534c(TMPackDataBase*, MechS32* p_campaign, MechU8* p_pilotChosen, MechChar** p_scenario, MechS32 p_msg);
 BOOL CALLBACK FUN_10015a6c(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);

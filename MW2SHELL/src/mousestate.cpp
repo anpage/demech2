@@ -3,6 +3,9 @@
 #include "brasslantern0x414.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -10,12 +13,6 @@
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
-
-extern "C" MechS32 g_fWindowActive;
-extern MechS32 g_unk0x10071240;
-extern "C" MechS32 g_windowHeight;
-extern "C" MechS32 g_windowWidth;
-extern "C" HWND g_pWnd;
 
 // GLOBAL: MW2SHELL 0x100904a8
 MechChar g_unk0x100904a8[0x20];

@@ -1,43 +1,26 @@
+#include "unk1003c7e0.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "decomp.h"
 #include "mainmenubutton.h"
 #include "menulist0x10d.h"
+#include "missionui.h"
 #include "mousestate.h"
+#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h>
-
-extern "C" HWND g_pWnd;
-extern "C" HINSTANCE g_pModule;
-extern "C" MechU32 g_fQuickTips;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern MouseState* g_pMouseState;
-extern VideoDriver* g_pVideoDriver;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TallowSign0x10 g_unk0x1006ffc0[3];
-
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016f45();
-void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_video);
-MechS32 FUN_10017460(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_left,
-	undefined4 p_top,
-	MechU32 p_flags,
-	MechU32 p_fps
-);
-
-extern MechChar** g_unk0x1006fe08[2];
 
 // The trainer's idle video alternates between two takes; a countdown to the next.
 // GLOBAL: MW2SHELL 0x1006acc8

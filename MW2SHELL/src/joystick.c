@@ -1,19 +1,17 @@
 /* The joystick input driver (g_joystickDriver): joystick devices through the multimedia
    joystick API. A C unit: FUN_1003bdea, a void function, ends without the C++ front end's jmp
    to the epilogue. It starts on the 16-byte boundary right after MouseState's code. */
+#include "debugprint.h"
 #include "decomp.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
 #include "types.h"
+#include "unk1003bf90.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-extern MechS32 g_fWindowActive;
-
-void DebugPrint(const MechChar* p_format, ...);
 
 // GLOBAL: MW2SHELL 0x10090528
 static MechChar g_unk0x10090528[0x40];

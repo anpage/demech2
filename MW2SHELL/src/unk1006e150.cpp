@@ -1,3 +1,5 @@
+#include "unk1006e150.h"
+
 #include "campaignmission.h"
 #include "decomp.h"
 #include "mainmenubutton.h"

@@ -1,3 +1,5 @@
+#include "video.h"
+
 #include "audiosubsystem.h"
 #include "copperfinch0x4c.h"
 #include "decomp.h"
@@ -9,52 +11,15 @@
 #include "silverreel0x18.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk10032250.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-
-extern "C" HWND g_pWnd;
-extern "C" HMENU g_windowMenu;
-extern MechU8 g_fDrawFmv;
-extern "C" MechS32 g_fWindowActive;
-extern "C" MechS32 g_unk0x1006a9f0;
-extern VideoDriver* g_pVideoDriver;
-extern MechChar g_szDataDrivePath[];
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern MechU32 g_unk0x10071248;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern "C" MechS32 g_menuDialogOpen;
-
-// The original imports this one under its Miles name (wail32.def: _MEM_free_lock@4). It is
-// declared here rather than in mss.h: one more symbol there flips a comparison in MW2's
-// SimWindowProc.
-extern "C" AILIMPORT void AILCALL MEM_free_lock(void* p_block);
-extern "C" AILIMPORT void AILCALL AIL_serve();
-extern "C" AILIMPORT void* AILCALL FILE_read(const char* p_filename, void* p_dest);
-
-// The draw mode table lives in the draw mode unit, a C translation unit.
-extern "C" DrawModeExtension* g_currentDrawModeExtension;
-
-void FUN_1001023c(HMENU p_menu);
-void FUN_10010320(HMENU p_menu);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-extern "C" MechS32 FUN_10037504(void* p_data, MechS32 p_index);
-extern "C" MechS32 FUN_10037684(void* p_data);
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016d90(MechS32 p_index);
-void FUN_10016f45();
-MechS32 FUN_10017460(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	MechU32 p_unk0x10,
-	MechU32 p_unk0x14
-);
 
 // GLOBAL: MW2SHELL 0x100641a8
 CopperFinch0x4c g_unk0x100641a8[32] = {0};

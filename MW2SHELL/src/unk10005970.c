@@ -1,6 +1,7 @@
 #include "collection.h"
 #include "decomp.h"
 #include "types.h"
+#include "unk10030900.h"
 
 #include <search.h>
 #include <stdio.h>
@@ -8,8 +9,6 @@
 #include <string.h>
 
 // String collections: Collections of heap-copied strings, ordered by strcmp when sorted.
-
-MechChar* FUN_10030900(MechChar* p_string);
 
 MechU8 FUN_10005a21(Collection* p_collection, MechChar* p_string, MechChar** p_found);
 int FUN_10005df8(const void* p_a, const void* p_b);
@@ -87,7 +86,6 @@ MechU8 FUN_10005a21(Collection* p_collection, MechChar* p_string, MechChar** p_f
 }
 
 // Moves every string of p_source into p_collection, freeing the ones it already holds.
-// Operand order: the original loads m_items before i for m_items[i].
 // FUNCTION: MW2SHELL 0x10005b4f
 void FUN_10005b4f(Collection* p_collection, Collection* p_source)
 {

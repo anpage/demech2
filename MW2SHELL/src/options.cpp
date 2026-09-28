@@ -1,43 +1,31 @@
+#include "options.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "chimeledger0x3c.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
+#include "mainmenu.h"
+#include "mechbay.h"
 #include "mousestate.h"
+#include "shellmain.h"
 #include "silverreel0x18.h"
 #include "slatetab0x2c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-extern AudioSubsystem* g_pAudioSubsystem;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern HollowReed0x110* g_unk0x100711f8;
-extern BrassLantern0x414* g_unk0x10071214;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern "C" HINSTANCE g_pModule;
-extern "C" HWND g_pWnd;
-extern "C" HMENU g_windowMenu;
-extern "C" MechS32 g_menuDialogOpen;
-
-void FUN_100079f8(SlateTab0x2c* p_tabs);
-void FUN_10007ac8(SlateTab0x2c* p_tabs);
-SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y);
-void FUN_100109b8(void (*p_callback)(MechS32));
-void FUN_1001661b();
-
-extern void* AllocateAllowNew(MechS32 p_size);
-
-extern void FUN_100078cd(SlateTab0x2c* p_clickables);
 void CalledWhenCombatVarsOptionClicked(MechS32);
 extern SlateTab0x2c g_unk0x10070da8[15];
-void FUN_100109a0(void (*p_callback)(MechS32));
 
 // A button with a centered caption. Nothing calls its two functions.
 // SIZE 0x9c
@@ -62,8 +50,6 @@ MechChar g_unk0x1007116c[0x10] = "amwlogo1";
 
 DECOMP_SIZE_ASSERT(ChimeLedger0x3c, 0x3c)
 
-extern ChimeLedger0x3c g_soundConfig;
-
 // GLOBAL: MW2SHELL 0x10092c18
 AudioSample* g_unk0x10092c18;
 // GLOBAL: MW2SHELL 0x10092c30
@@ -78,8 +64,6 @@ MechChar* g_unk0x10092c20[3];
 // ...and the text they point into.
 // GLOBAL: MW2SHELL 0x10092f38
 MechChar g_unk0x10092f38[0x200];
-
-extern undefined g_unk0x100716b8[0x17];
 
 // GLOBAL: MW2SHELL 0x10070d98
 MechChar* g_unk0x10070d98[] = {"~EASY", "~MEDIUM", "~HARD"};

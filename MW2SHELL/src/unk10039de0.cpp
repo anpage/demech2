@@ -1,3 +1,5 @@
+#include "unk10039de0.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
@@ -5,12 +7,23 @@
 #include "decomp.h"
 #include "granitemast0x18.h"
 #include "mainmenubutton.h"
+#include "mechbay.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
+#include "missionui.h"
 #include "mousestate.h"
+#include "options.h"
+#include "pilotroster.h"
+#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -18,39 +31,6 @@
 #include <windows.h>
 
 // The ready room screen.
-
-extern "C" HWND g_pWnd;
-extern "C" HINSTANCE g_pModule;
-extern "C" MechU32 g_fQuickTips;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern CampaignMission* g_campaignMissions[2];
-extern GraniteMast0x18 g_unk0x10061560[];
-
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
-MechS32 FUN_1000307c(MechS32 p_index);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
-void FUN_10016f45();
-MechS32 FUN_100175e2(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14);
-void SavePilotRoster();
-void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_video);
-MechS32 ShowDialog(const char* p_text, MechS32);
-MechS32 FUN_10016b11(MechS32 p_index);
-MechS32 FUN_10017460(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_x,
-	undefined4 p_y,
-	MechU32 p_flags,
-	MechU32 p_unk0x14
-);
 
 // The video playing before the screen moves on, -1 for none, and the message it moves on with.
 // GLOBAL: MW2SHELL 0x1006a588
@@ -71,8 +51,6 @@ MenuList0x10d* g_unk0x100904a0;
 
 // GLOBAL: MW2SHELL 0x100904a4
 WPARAM g_unk0x100904a4;
-
-extern TallowSign0x10 g_unk0x1006fed0[3];
 
 // Play the second faction grid animation only when video slot zero is idle.
 // FUNCTION: MW2SHELL 0x10039de0

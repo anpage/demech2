@@ -1,3 +1,6 @@
+#include "gdi.h"
+
+#include "debugprint.h"
 #include "decomp.h"
 #include "drawbitmapinfo.h"
 #include "drawmode.h"
@@ -5,6 +8,8 @@
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk100460a0.h"
 
 #include <string.h>
 #include <windows.h>
@@ -13,23 +18,6 @@
 // then blitted to the window. The DIB's color table holds palette indices (DIB_PAL_COLORS) into
 // a logical palette realized in the window DC; the lower and upper halves of the system's static
 // colors are left alone unless SetPalette asks for all 256.
-
-extern HWND g_pWnd;
-extern MechS32 g_nWindowMode;
-extern DrawModeExtension* g_drawModeExtensions[3];
-extern DrawModeExtension* g_currentDrawModeExtension;
-extern PixelBuffer* g_unk0x10062cdc;
-extern PaletteColor g_paletteColors[0x100];
-extern undefined* g_unk0x10062fe0;
-extern DrawBitmapInfo g_bitmapInfo;
-extern MechS32 g_drawModeWidth;
-extern MechS32 g_drawModeHeight;
-extern PaletteColor g_paletteColorsPreBrightness[0x100];
-
-void DebugPrint(const MechChar* p_format, ...);
-void InitBitmapInfo(MechS32 p_width, MechS32 p_height);
-void AdjustWindowSize(DrawModeExtension* p_extension);
-void CopyPaletteColorWithBrightness(PaletteColor* p_src, PaletteColor* p_dst);
 
 MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 GdiEnd();

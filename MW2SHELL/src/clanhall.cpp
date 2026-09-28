@@ -1,48 +1,28 @@
+#include "clanhall.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "mainmenubutton.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
 #include "mousestate.h"
+#include "options.h"
+#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <windows.h>
 
 // The clan hall screen.
-
-extern "C" HWND g_pWnd;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern MechS32 g_unk0x10071374;
-
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-MechS32 FUN_10015f58(const char* p_name, MechS32 p_msg, MechS32 p_wParam);
-void FUN_1001661b();
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016d90(MechS32 p_index);
-void FUN_10016f45();
-MechS32 FUN_10017460(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	MechU32 p_unk0x10,
-	MechU32 p_unk0x14
-);
-MechS32 FUN_100175e2(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14);
-MechS32 ShowDialog(const char* p_text, MechS32);
 
 // GLOBAL: MW2SHELL 0x10063b70
 MenuList0x10d* g_unk0x10063b70 = NULL;
@@ -63,8 +43,6 @@ MechS32 g_unk0x10063b80 = -1;
 
 // GLOBAL: MW2SHELL 0x10063b84
 MechS32 g_unk0x10063b84 = 0x404;
-
-extern TallowSign0x10 g_unk0x1006fe10[3];
 
 void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 

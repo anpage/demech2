@@ -1,28 +1,49 @@
 #include "shellmain.h"
 
+#include "archivereader.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
+#include "cdcheck.h"
 #include "cedarknot0x10.h"
+#include "clanhall.h"
+#include "cockpitcontrols.h"
+#include "debrief.h"
+#include "debugout.h"
+#include "debugprint.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
+#include "keyboard.h"
+#include "mainmenu.h"
+#include "mechbay.h"
+#include "mechvariant.h"
 #include "midisequence.h"
+#include "missionui.h"
 #include "mousestate.h"
+#include "options.h"
+#include "pilotroster.h"
 #include "ravenmark0x08.h"
+#include "simhandoff.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk10014b60.h"
+#include "unk10039de0.h"
+#include "unk1003bf90.h"
+#include "unk1003c7e0.h"
+#include "unk1003e2f0.h"
+#include "unk10046200.h"
+#include "unk10046e80.h"
+#include "unk10047370.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-
-// The debug print and debug output units are C translation units.
-extern "C" void DebugPrint(const MechChar* p_format, ...);
-extern "C" void FUN_100178cc(MechS32 p_mode);
-
-void FUN_1001661b();
 
 // GLOBAL: MW2SHELL 0x10062978
 void (*g_pShellCallback)(
@@ -52,62 +73,6 @@ MechS32 g_unk0x1006298c = 0;
 // GLOBAL: MW2SHELL 0x10062990
 MechS32 g_unk0x10062990 = 0;
 
-// Defined in C units: the draw mode (unk10010a30.c) and unk1003bf90.c.
-extern "C" MechS32 g_nWindowMode;
-extern "C" char g_unk0x1006a9c0[0x10];
-extern "C" MechS32 g_fWindowActive;
-extern "C" MechS32 g_unk0x1006a9d8;
-extern "C" MechU32 g_fQuickTips;
-extern "C" MechS32 g_unk0x1006a9e0;
-extern "C" MechS32 g_menuVisible;
-extern "C" MechS32 g_fHelpRegistered;
-extern "C" MechS32 g_menuDialogOpen;
-extern "C" MechS32 g_unk0x1006a9f0;
-
-extern char* g_unk0x1006e19c;
-
-extern HollowReed0x110* g_unk0x100711f8;
-
-extern AudioSubsystem* g_pAudioSubsystem;
-
-extern void* g_unk0x10071200;
-
-extern MouseState* g_pMouseState;
-
-extern VideoDriver* g_pVideoDriver;
-
-extern BrassLantern0x414* g_unk0x1007120c;
-
-extern BrassLantern0x414* g_unk0x10071210;
-
-extern BrassLantern0x414* g_unk0x10071214;
-
-extern BrassLantern0x414* g_unk0x10071218;
-
-extern BrassLantern0x414* g_unk0x1007121c;
-
-extern BrassLantern0x414* g_unk0x10071220;
-
-extern BrassLantern0x414* g_unk0x10071224;
-
-extern BrassLantern0x414* g_unk0x10071228;
-
-extern TMPackDataBase* g_pDatabaseMw2;
-
-extern CedarKnot0x10* g_unk0x10071230;
-
-extern MechS32 g_fAudio;
-
-extern MechS32 g_fDigitalAudio;
-
-extern MechS32 g_unk0x1007123c;
-
-extern MechS32 g_unk0x10071240;
-
-extern MechU8 g_fDrawFmv;
-
-extern MechChar g_szDataDrivePath[4];
-
 // GLOBAL: MW2SHELL 0x1007cc84
 char* g_pScenario;
 
@@ -117,52 +82,13 @@ MechS32 g_nSelectedCampaign;
 // GLOBAL: MW2SHELL 0x1007cc8c
 MechU8 g_fPilotChosen;
 
-extern "C" MechS32 g_windowHeight;
-extern "C" MechS32 g_windowWidth;
-extern "C" HINSTANCE g_pModule;
-extern "C" HWND g_pWnd;
-extern "C" HMENU g_windowMenu;
-
-void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario);
-void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign);
-extern "C" void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
-void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign);
 void ParseCommandLineFlags(char* p_cmdLine);
-void FUN_1001023c(HMENU p_menu);
-void FUN_10010320(HMENU p_menu);
 MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08);
 MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
 BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void FUN_1001093e();
 void ClearRegisteredMenuFunction();
-void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8 p_pilotChosen, WPARAM p_wParam);
-void FUN_10015008(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char** p_scenario);
-MechS32 FUN_10015f58(const char* p_name, MechS32 p_msg, MechS32 p_wParam);
-MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_unk0x04, MechS32 p_unk0x08);
-MechS32 FUN_10016be7();
-void FUN_10016c1d();
-void FUN_10016c3e();
-void FUN_10016d90(MechS32 p_unk0x00);
-void FUN_10016f45();
-void FUN_10029010(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
-void LoadPilotRoster();
-char CdCheck();
-void FUN_100382e6(TMPackDataBase* p_database, char** p_scenario, WPARAM p_wParam);
-void FUN_10039b50(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, char** p_scenario);
-void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const char* p_scenario);
-void FUN_10039e72(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam);
-void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam);
-void FUN_1003dc10(TMPackDataBase* p_database, MechS32* p_campaign);
-void FUN_1003e3c9();
-void OpenCockpitControls();
-void FUN_10043979();
-void FUN_10043a72();
-MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
-void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign);
-void FUN_10046e80();
-void FUN_10047370();
 
 // Matches except for the stack slots of helpFile, msg and mouseY (a consistent permutation) and
 // the operand order of the WM_PALETTECHANGED comparison (the original loads p_hWnd first; moving,
@@ -672,10 +598,6 @@ MechS32 FUN_1000fe0d()
 
 	return 1;
 }
-
-extern MechS32 g_unk0x10071298[18];
-extern MechS32 g_unk0x100712e0[18];
-extern MechS32 g_unk0x10071328[18];
 
 // Starts the song of the shell message p_msg for the campaign, unless it is already playing.
 // Not 100%: the stack slots of size, data and result are permuted, and the table loads'

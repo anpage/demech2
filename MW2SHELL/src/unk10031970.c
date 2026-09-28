@@ -1,3 +1,5 @@
+#include "unk10031970.h"
+
 #include "decomp.h"
 #include "types.h"
 

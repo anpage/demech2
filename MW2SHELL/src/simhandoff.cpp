@@ -1,19 +1,16 @@
+#include "simhandoff.h"
+
 #include "decomp.h"
 #include "linenpacket0x218.h"
+#include "mechvariant.h"
 #include "tinwhistle0x3c.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk100711f8.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-
-extern "C" HWND g_pWnd;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern TinWhistle0x3c g_pilotRoster[20];
-
-void FUN_10002d30();
-void FUN_10002d8d();
-void FUN_10003221();
 
 DECOMP_SIZE_ASSERT(LinenPacket0x218, 0x218)
 

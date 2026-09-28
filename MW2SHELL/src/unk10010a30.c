@@ -1,10 +1,18 @@
+#include "unk10010a30.h"
+
+#include "debugprint.h"
 #include "decomp.h"
+#include "dispdibmode.h"
 #include "drawbitmapinfo.h"
 #include "drawmode.h"
 #include "drawmodeextension.h"
+#include "gdi.h"
+#include "mouse.h"
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
+#include "unk100114f0.h"
+#include "unk1003bf90.h"
 
 #include <ddraw.h>
 #include <stdlib.h>
@@ -14,29 +22,11 @@
 // The draw mode manager. The DirectDraw back end lives in unk100114f0.c, the DisplayDib one in
 // dispdib.c, the GDI one in gdi.c.
 
-extern MechS32 g_unk0x1006a9d8;
-extern undefined4 g_unk0x10071d48;
-
-undefined4 FUN_1003bf90(MechS32 p_unk0x00);
-void DebugPrint(const MechChar* p_format, ...);
-
-extern DrawModeExtension g_dispDibDrawModeExtension;
-extern DrawModeExtension g_gdiDrawModeExtension;
 void FUN_10010f83();
-void FUN_10015c90(const MechChar* p_format, ...);
 
 // The original declares a function the shell never defines: the linker binds the calls to the
 // variable of the same name (gdi.c), so they land in BSS. The debug strings call it pause_timer.
 void PauseTimer(MechS32 p_flags, MechS32 p_pause);
-void AdjustWindowSize(DrawModeExtension* p_extension);
-extern DrawMode g_dispDibDrawMode;
-extern DrawMode g_gdiDrawMode;
-
-extern DrawModeExtension g_unk0x10063230;
-extern DrawMode g_unk0x10063258;
-extern DrawMode g_unk0x10063280;
-extern DrawMode g_unk0x100632a8;
-extern DrawMode g_unk0x100632d0;
 
 // Indexed by DrawModeExtension::m_id.
 // GLOBAL: MW2SHELL 0x10062ca0
@@ -485,9 +475,7 @@ void AdjustWindowSize(DrawModeExtension* p_extension)
 }
 
 // Operand order: the original compares i < p_count as `cmp [p_count], eax` and adds p_first + i
-// with p_first loaded first; here both come out the other way round since the draw mode tables
-// joined this unit, and still since the DirectDraw back end left it (one declaration-order
-// attempt didn't flip them either time).
+// with p_first loaded first; the order follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10011450
 MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)
 {

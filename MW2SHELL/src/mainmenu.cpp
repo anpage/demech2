@@ -1,33 +1,29 @@
+#include "mainmenu.h"
+
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "campaignmission.h"
 #include "decomp.h"
 #include "mainmenubutton.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
 #include "mousestate.h"
 #include "mss.h"
+#include "options.h"
+#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stddef.h>
 
 void* operator new(size_t);
-
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern "C" HWND g_pWnd;
-extern MouseState* g_pMouseState;
-
-// Declared here like video.cpp does, rather than in mss.h.
-extern "C" AILIMPORT void AILCALL AIL_serve();
-
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_10016f45();
-MechS32 ShowDialog(const char* p_text, MechS32);
 
 // GLOBAL: MW2SHELL 0x1006ae74
 MenuList0x10d* g_unk0x1006ae74 = NULL;
@@ -45,18 +41,12 @@ MechS32 g_unk0x1006ae80 = 0;
 // GLOBAL: MW2SHELL 0x1006ae84
 MechChar g_unk0x1006ae84[] = "amwlogo1";
 
-extern MainMenuButton g_mainMenuButtons[4];
-
-void FUN_10003175(MechS32, MechS32, MechS32, MechS32, MechS32);
-
 // The original 0x10049c60 is the CRT operator new, already annotated in library_msvc.h.
 void* AllocateAllowNew(MechS32 p_size)
 {
 	return ::operator new(p_size);
 }
-MechS32 FUN_100175e2(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14);
 
-extern void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
 void MainMenuCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
 // FUNCTION: MW2SHELL 0x1003dc10

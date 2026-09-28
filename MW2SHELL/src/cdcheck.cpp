@@ -1,3 +1,5 @@
+#include "cdcheck.h"
+
 #include "decomp.h"
 #include "types.h"
 

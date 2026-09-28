@@ -1,14 +1,11 @@
+#include "unk10031bf0.h"
+
 #include "decomp.h"
 #include "inputdevice.h"
-#include "shellmain.h"
 #include "types.h"
+#include "unk1003bf90.h"
 
-// fcntl.h, io.h and stdlib.h go unused here, but the symbols they declare keep InputFreeDevices'
-// comparison operand order (the original loads g_inputDeviceCount first).
-#include <fcntl.h>
-#include <io.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <windows.h>
 

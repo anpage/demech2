@@ -1,24 +1,21 @@
+#include "unk1002dc60.h"
+
 #include "brasslantern0x414.h"
 #include "cedarknot0x10.h"
 #include "collection.h"
 #include "decomp.h"
 #include "page.h"
-#include "shellmain.h"
 #include "tinwhistle0x3c.h"
 #include "types.h"
+#include "unk10030900.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-extern "C" MechChar* FUN_10030900(MechChar* p_string);
-extern MechChar* g_rankNames[10];
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern VideoDriver* g_pVideoDriver;
-extern CedarKnot0x10* g_unk0x10071230;
-extern char g_unk0x100668c0[][4];
 
 // The index of the HTXT tag in g_unk0x100668c0 (cedarknot0x10.cpp).
 enum {

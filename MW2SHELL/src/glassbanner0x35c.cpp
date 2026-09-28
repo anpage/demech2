@@ -1,31 +1,14 @@
 #include "glassbanner0x35c.h"
 
 #include "audiosample.h"
-#include "shellmain.h"
+#include "unk10032250.h"
+#include "unk1003bf90.h"
 #include "videodriver.h"
 
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(GlassBanner0x35c, 0x35c)
 
-// The blit routines live in the blit unit, a C translation unit (hand-written assembly).
-extern "C"
-{
-	MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
-	void FUN_10034f18(
-		PixelView* p_unk0x00,
-		MechS32 p_unk0x04,
-		MechS32 p_unk0x08,
-		PixelView* p_unk0x0c,
-		MechS32 p_unk0x10,
-		MechS32 p_unk0x14,
-		MechS32 p_unk0x18
-	);
-	MechS32 FUN_10037504(void* p_data, MechS32 p_index);
-}
-
-// The only diffs are operand order: m_width * m_height and m_width + m_left load m_width
-// first in the original, and swapping them in the source doesn't change the output.
 // FUNCTION: MW2SHELL 0x10045d60
 GlassBanner0x35c::GlassBanner0x35c(
 	undefined* p_data,

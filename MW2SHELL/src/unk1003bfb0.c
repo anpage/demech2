@@ -1,16 +1,14 @@
+#include "unk1003bfb0.h"
+
 #include "decomp.h"
 #include "types.h"
+#include "unk10013690.h"
+#include "unk1002fb90.h"
+#include "unk10031970.h"
 
 #include <mbstring.h>
 #include <stdlib.h>
 
-void FUN_10013907(void);
-void* FUN_10013fa9(undefined4 p_size);
-void FUN_1002fb90(void* (*p_alloc)(undefined4), void (*p_free)(void*));
-MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode);
-MechS32 FUN_1002ffc9(MechS32 p_handle);
-MechS32 FUN_1003024f(MechS32 p_handle);
-char* FUN_10031a8f(char* p_name);
 void* FUN_1003c061(undefined4 p_size);
 void FUN_1003c07d(void* p_mem);
 

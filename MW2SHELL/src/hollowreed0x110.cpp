@@ -3,24 +3,19 @@
 #include "brasslantern0x414.h"
 #include "emberglyph0x3e.h"
 #include "inputdriver.h"
+#include "keyboard.h"
 #include "mousestate.h"
+#include "shellmain.h"
+#include "unk10030900.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <ctype.h>
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(HollowReed0x110, 0x110)
-
-extern "C" MechS16 KeyboardPollKeyCode();
-extern "C" MechChar* FUN_100309b6(MechChar* p_string);
-
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern "C" MechS32 g_menuDialogOpen;
-
-MechS32 FUN_1000fe0d();
-void FUN_1001661b();
 
 enum {
 	c_keyBackspace = 0x08,

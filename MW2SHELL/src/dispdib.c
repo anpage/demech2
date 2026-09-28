@@ -1,36 +1,22 @@
 #include "dispdib.h"
 
+#include "debugprint.h"
 #include "decomp.h"
+#include "dispdibmode.h"
 #include "drawbitmapinfo.h"
 #include "drawmode.h"
 #include "drawmodeextension.h"
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk100460a0.h"
 
 #include <windows.h>
 
 // The DisplayDib draw mode back end: 320x200 fullscreen through a DisplayDibWindow. The frame is
 // drawn into a DIB section and handed to the window with DDM_DRAW; the palette travels in the DIB
 // format's color table (DDM_SETFMT). A second DIB section receives StretchBlt'ed movie frames.
-
-extern HWND g_pWnd;
-extern MechS32 g_nWindowMode;
-extern DrawModeExtension* g_drawModeExtensions[3];
-extern DrawModeExtension* g_currentDrawModeExtension;
-extern PixelBuffer* g_unk0x10062cdc;
-extern PaletteColor g_paletteColors[0x100];
-extern undefined* g_unk0x10062fe0;
-extern DrawBitmapInfo g_bitmapInfo;
-extern MechS32 g_unk0x10096e88;
-extern MechS32 g_drawModeWidth;
-extern MechS32 g_drawModeHeight;
-extern PaletteColor g_paletteColorsPreBrightness[0x100];
-
-void DebugPrint(const MechChar* p_format, ...);
-void InitBitmapInfo(MechS32 p_width, MechS32 p_height);
-void AdjustWindowSize(DrawModeExtension* p_extension);
-void CopyPaletteColorWithBrightness(PaletteColor* p_src, PaletteColor* p_dst);
 
 MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 DispDibEnd();

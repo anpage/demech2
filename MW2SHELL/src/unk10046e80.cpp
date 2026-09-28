@@ -1,28 +1,21 @@
+#include "unk10046e80.h"
+
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
 #include "mousestate.h"
+#include "shellmain.h"
 #include "silverreel0x18.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <windows.h>
 
 void operator delete(void*);
-
-extern VideoDriver* g_pVideoDriver;
-extern HollowReed0x110* g_unk0x100711f8;
-extern MouseState* g_pMouseState;
-extern BrassLantern0x414* g_unk0x10071210;
-extern BrassLantern0x414* g_unk0x10071214;
-extern BrassLantern0x414* g_unk0x10071218;
-extern "C" HMENU g_windowMenu;
-extern "C" MechS32 g_menuDialogOpen;
-extern PaletteColor g_unk0x10071378[0x100];
-
-extern void FUN_1001661b();
-extern void FUN_100109a0(void (*p_callback)(MechS32));
-extern void FUN_100109b8(void (*p_callback)(MechS32));
 
 void FUN_10046fa8(MechS32 p_active);
 

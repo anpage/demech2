@@ -1,17 +1,30 @@
+#include "mechbay.h"
+
 #include "audiosample.h"
 #include "brasslantern0x414.h"
 #include "cedarknot0x10.h"
+#include "debugprint.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
 #include "granitemast0x18.h"
 #include "hazelstar0x80.h"
+#include "hollowreed0x110.h"
 #include "mainmenubutton.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
+#include "missionui.h"
 #include "mousestate.h"
+#include "options.h"
+#include "shellmain.h"
 #include "slatetab0x2c.h"
 #include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -169,30 +182,6 @@ DECOMP_SIZE_ASSERT(IronToken0x08, 0x08)
 DECOMP_SIZE_ASSERT(MossGauge0x10, 0x10)
 DECOMP_SIZE_ASSERT(LoamLedger0x18, 0x18)
 
-extern "C" void DebugPrint(const MechChar* p_format, ...);
-
-extern "C" HWND g_pWnd;
-extern "C" HINSTANCE g_pModule;
-extern "C" MechU32 g_fQuickTips;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern TMPackDataBase* g_pDatabaseMw2;
-extern CedarKnot0x10* g_unk0x10071230;
-
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-MechChar* FUN_10003013(MechS32 p_index);
-MechS32 FUN_1000307c(MechS32 p_index);
-MechS32 FUN_100381c2();
-HazelStar0x80* FUN_1000312e(MechS32 p_star);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_1001661b();
-void FUN_10016d27(MechS32 p_index);
-void FUN_10016f45();
-void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top);
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
@@ -200,17 +189,6 @@ MechS32 FUN_10017460(
 	undefined4 p_unk0x0c,
 	MechU32 p_unk0x10,
 	MechU32 p_unk0x14
-);
-void FUN_10017698(MechS32 p_index, MechS32 p_frame);
-MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
-MechS32 FUN_10044451(
-	BrassLantern0x414* p_font,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechChar* p_text,
-	undefined* p_colors,
-	MechS32 p_maxLength,
-	MechS32 p_width
 );
 
 // GLOBAL: MW2SHELL 0x1005c438
@@ -927,6 +905,8 @@ void FUN_10008470(MechS32 p_id)
 	}
 }
 
+// Operand order: the original adds m_unk0x214 last in the m_unk0x204 sum; it follows the unit's
+// symbol table.
 // FUNCTION: MW2SHELL 0x10008686
 void FUN_10008686()
 {
@@ -1215,10 +1195,6 @@ EmberGlyph0x3e* FUN_10008fdd(SlateTab0x2c* p_tab)
 
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
-
-extern BrassLantern0x414* g_unk0x10071214;
-
-void FUN_10016cc0(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
 
 // FUNCTION: MW2SHELL 0x10009076
 EmberGlyph0x3e* FUN_10009076(SlateTab0x2c* p_tab)
@@ -1772,9 +1748,6 @@ void FUN_1000a43b(SlateTab0x2c* p_tab)
 		g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_unk0x24, p_tab->m_unk0x14);
 }
 
-// The rating product differs only in evaluation order: the original loads m_unk0x278 + 1 before
-// dividing m_unk0x200, as FUN_1000a5a3 does not (VC++ 4.1 symbol ordering; a probe TU gives the
-// original order for every operand arrangement).
 // FUNCTION: MW2SHELL 0x1000a4f0
 void FUN_1000a4f0(SlateTab0x2c* p_tab)
 {
@@ -1805,6 +1778,9 @@ void FUN_1000a4f0(SlateTab0x2c* p_tab)
 	FUN_10008989();
 }
 
+// The rating product differs only in evaluation order: the original divides m_unk0x200 before
+// loading m_unk0x278 - 1, as FUN_1000a4f0 does; the order follows the unit's symbol table (it has
+// flipped between the two functions as declarations moved).
 // FUNCTION: MW2SHELL 0x1000a5a3
 void FUN_1000a5a3(SlateTab0x2c* p_tab)
 {
@@ -3723,8 +3699,6 @@ SlateTab0x2c g_unk0x10060d20[] = {
 #undef MB_ROW
 #undef MB_TAB
 #undef MB_END
-
-extern TallowSign0x10 g_unk0x1006fff0[3];
 
 void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
 

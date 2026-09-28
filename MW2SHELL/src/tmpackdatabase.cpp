@@ -1,6 +1,6 @@
 #include "tmpackdatabase.h"
 
-#include "shellmain.h"
+#include "unk1003bf90.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,5 @@
+#include "unk1002fb90.h"
+
 #include "decomp.h"
 #include "types.h"
 

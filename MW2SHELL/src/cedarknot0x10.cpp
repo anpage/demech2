@@ -2,9 +2,14 @@
 
 #include "decomp.h"
 #include "granitemast0x18.h"
+#include "mechbay.h"
 #include "sableroster0x24.h"
-#include "shellmain.h"
 #include "types.h"
+#include "unk100050f0.h"
+#include "unk10013690.h"
+#include "unk1002fb90.h"
+#include "unk1003bf90.h"
+#include "unk1003bfb0.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -93,25 +98,6 @@ void BwdAddRegistryTemplate(void* p_node, MechS32 p_size);
 void BwdInitRegistry();
 void BwdWriteRegistry(char* p_fileName);
 void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index, MechS32 p_level, MechS32 p_difficulty);
-
-// The resource, archive and shell object units are C translation units.
-extern "C"
-{
-	MechS32 FindResourceIdByName(MechS32 p_type, char* p_name);
-	void FUN_1002fb90(void* (*p_alloc)(undefined4), void (*p_free)(void*));
-	void FUN_10013907();
-	void FUN_1001385c();
-	void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, char* p_type, MechS32 p_unk0x0c);
-	void FUN_10013ef4(MechS32 p_id, char* p_type);
-	MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode);
-	MechS32 FUN_1003024f(MechS32 p_handle);
-	MechS32 FUN_1002ffc9(MechS32 p_handle);
-}
-
-extern GraniteMast0x18 g_unk0x10061560[];
-
-// The current project handle lives in the mw2.prj loader unit (unk1003bfb0.c).
-extern "C" MechS32 g_unk0x1006aac4;
 
 // GLOBAL: MW2SHELL 0x100668c0
 char g_unk0x100668c0[][4] = {

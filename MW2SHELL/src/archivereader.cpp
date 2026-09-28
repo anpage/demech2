@@ -14,6 +14,11 @@
 #include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk10030900.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -23,21 +28,6 @@
 
 DECOMP_SIZE_ASSERT(ArchiveReader, 0x1b9)
 DECOMP_SIZE_ASSERT(ArchiveReader::Topic, 0x06)
-
-extern "C" MechChar* FUN_10030900(MechChar* p_string);
-extern "C" HWND g_pWnd;
-extern VideoDriver* g_pVideoDriver;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern BrassLantern0x414* g_unk0x10071214;
-extern BrassLantern0x414* g_unk0x10071224;
-extern MechChar* g_unk0x1006e1a0[2];
-
-extern TallowSign0x10 g_unk0x1006fe70[3];
-
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
 
 // GLOBAL: MW2SHELL 0x100665f8
 ArchiveReader* g_unk0x100665f8 = NULL;

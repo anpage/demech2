@@ -1,5 +1,7 @@
 /* The keyboard object is shared with MW2.DLL (KeyboardReadKeyCode is byte-identical); both
    targets keep their own copy until one source matches both. */
+#include "keyboard.h"
+
 #include "decomp.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
@@ -135,7 +137,6 @@ MechS32 FUN_10004b2a(void);
 MechS32 FUN_10004b3c(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates);
 MechS32 KeyboardReadKeyCode(MechS16* p_keyCode);
 MechS32 KeyboardFlushKeyCodes(void);
-void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void KeyboardQueueKeyCode(WPARAM p_virtualKey, LPARAM p_lParam);
 void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_pressed);
 

@@ -1,6 +1,10 @@
+#include "mouse.h"
+
 #include "decomp.h"
 #include "inputdriver.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
 
 #include <stdio.h>
 #include <windows.h>
@@ -17,11 +21,6 @@ typedef struct MouseDeviceInfo {
 	const MechChar* const* m_buttonTypes; // 0x6c
 	undefined4 m_unk0x70;                 // 0x70
 } MouseDeviceInfo;
-
-extern MechS32 g_fWindowActive;
-extern MechS32 g_windowHeight;
-extern MechS32 g_windowWidth;
-extern HWND g_pWnd;
 
 // FUN_10046bd9's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
 __inline MechS32 IsInsideWindow(POINT* p_point)

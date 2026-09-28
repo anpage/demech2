@@ -1,3 +1,5 @@
+#include "unk10046200.h"
+
 #include "archivereader.h"
 #include "brasslantern0x414.h"
 #include "collection.h"
@@ -7,39 +9,22 @@
 #include "menulist0x10d.h"
 #include "mousestate.h"
 #include "page.h"
+#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1002dc60.h"
+#include "unk10030900.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <string.h>
 #include <windows.h>
 
 // The mission briefing screen.
-
-extern "C" HWND g_pWnd;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071224;
-extern BrassLantern0x414* g_unk0x10071228;
-
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-extern "C" MechChar* FUN_100309b6(MechChar* p_string);
-void FUN_1002e1b1(
-	Collection* p_pages,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechS32 p_width,
-	MechS32 p_height,
-	MechChar* p_name,
-	BrassLantern0x414* p_font,
-	MechChar* p_quote
-);
 
 // GLOBAL: MW2SHELL 0x10071cd8
 MechChar g_unk0x10071cd8[0x04] = "";
@@ -56,10 +41,6 @@ Collection* g_unk0x10071ce4 = NULL;
 // The situation reader, while it is open.
 // GLOBAL: MW2SHELL 0x10071ce8
 ArchiveReader* g_unk0x10071ce8 = NULL;
-
-extern TallowSign0x10 g_unk0x1006ff60[3];
-
-extern TallowSign0x10 g_unk0x1006ff90[3];
 
 void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 

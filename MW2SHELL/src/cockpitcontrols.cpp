@@ -1,13 +1,23 @@
+#include "cockpitcontrols.h"
+
 #include "brasslantern0x414.h"
+#include "debugprint.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
 #include "hollowreed0x110.h"
 #include "inputdevice.h"
+#include "mechbay.h"
 #include "mousestate.h"
+#include "options.h"
 #include "shellmain.h"
 #include "silverreel0x18.h"
 #include "slatetab0x2c.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk10031bf0.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -64,28 +74,7 @@ enum CpcMessage {
 // Not an enumerator: the unsigned constant makes `^=` on the signed flags a load, xor and store.
 #define CPC_FLAG_INVERTED 0x80000000
 
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071210;
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern "C" HMENU g_windowMenu;
-extern "C" MechS32 g_menuDialogOpen;
-extern PaletteColor g_unk0x10071378[0x100];
-extern VideoDriver* g_pVideoDriver;
-extern "C" HWND g_pWnd;
-
-extern "C" void DebugPrint(const MechChar* p_format, ...);
-MechS32 FUN_1000fe0d();
-void FUN_100109a0(void (*p_callback)(MechS32));
-void FUN_100109b8(void (*p_callback)(MechS32));
-void FUN_1001661b();
 void CpcScreenTick(MechS32 p_active);
-SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y);
-extern "C" void InputFreeDevices(void);
-void FUN_100078cd(SlateTab0x2c* p_tabs);
-void FUN_100079f8(SlateTab0x2c* p_tabs);
-void FUN_10007ac8(SlateTab0x2c* p_tabs);
-MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
 
 EmberGlyph0x3e* FUN_1003e9d0(SlateTab0x2c* p_tab);
 MechS32 FUN_1003ea0f(
@@ -1023,6 +1012,8 @@ void FUN_1003fbb3(SlateTab0x2c* p_tab)
 }
 
 // An axis of the current device.
+// Operand order: the original loads the index p_tab->m_unk0x24 before the name tables; it follows
+// the unit's symbol table.
 // FUNCTION: MW2SHELL 0x1003fe7b
 EmberGlyph0x3e* FUN_1003fe7b(SlateTab0x2c* p_tab)
 {
@@ -1428,8 +1419,8 @@ EmberGlyph0x3e* FUN_10040b32(SlateTab0x2c* p_tab)
 }
 
 // Enumerate the devices again, and explain when there is no joystick.
-// Operand order: the original compares count <= g_curInputDeviceIdx with count loaded first;
-// it flipped when the button functions moved to options.cpp.
+// Operand order: the original compares count <= g_curInputDeviceIdx with count loaded first; it
+// follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10040b8e
 void FUN_10040b8e(SlateTab0x2c*)
 {

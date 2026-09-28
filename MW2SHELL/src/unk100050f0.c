@@ -1,5 +1,9 @@
+#include "unk100050f0.h"
+
 #include "decomp.h"
 #include "types.h"
+#include "unk10013690.h"
+#include "unk1003bfb0.h"
 
 #include <string.h>
 
@@ -21,12 +25,6 @@ typedef struct ResourceTable {
 	undefined2 m_unk0x0a;       // 0x0a
 	ResourceEntry m_entries[1]; // 0x0c
 } ResourceTable;
-
-void FUN_10013c79(MechS32 p_id, char* p_type);
-void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, char* p_type, MechS32 p_unk0x0c);
-
-extern char* g_unk0x1006a9f8[26];
-extern MechS32 g_unk0x1006aac4;
 
 // Stack-slot permutation: every local, name included, takes a different [ebp-N] slot. The
 // original side also can't name g_unk0x1006a9f8 until it is annotated (see unk1003bfb0.c).

@@ -1,6 +1,9 @@
+#include "unk10013690.h"
+
 #include "compat.h"
 #include "decomp.h"
 #include "types.h"
+#include "unk1002fb90.h"
 
 #include <malloc.h>
 #include <stdio.h>
@@ -17,8 +20,6 @@ typedef struct DrawCacheEntry {
 } DrawCacheEntry;
 
 void FUN_100139e7(DrawCacheEntry* p_entry);
-MechS32 FUN_100303b5(MechS32 p_handle, MechChar* p_name, MechU16 p_index);
-MechS32 FUN_1003066e(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* p_data);
 
 // GLOBAL: MW2SHELL 0x10063a54
 DrawCacheEntry** g_unk0x10063a54 = NULL;
@@ -56,6 +57,8 @@ void FUN_10013690(DrawCacheEntry* p_entry)
 	}
 }
 
+// Operand order: the original compares p_entry against g_unk0x10096864 and g_unk0x10096868 with
+// the globals loaded first; it follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10013703
 void FUN_10013703(DrawCacheEntry* p_entry)
 {

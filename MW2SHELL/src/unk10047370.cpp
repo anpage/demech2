@@ -1,8 +1,12 @@
+#include "unk10047370.h"
+
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
-#include "shellmain.h"
 #include "types.h"
+#include "unk10030900.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
 #include "videodriver.h"
 
 #include <stdlib.h>
@@ -10,13 +14,6 @@
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(EmberGlyph0x3e, 0x3e)
-
-// Tab stops for the "\T" text escape, defined in shellmain.cpp. Declared here rather than in
-// shellmain.h: an extra declaration there flips an operand order in collection.c's FUN_1003c638.
-extern MechS32 g_unk0x1006e150[19];
-
-// The string copy lives in a C translation unit.
-extern "C" MechChar* FUN_10030900(MechChar* p_string);
 
 // Color remap tables for BrassLantern0x414 text, selected by the "\A" text escape.
 // GLOBAL: MW2SHELL 0x10074658

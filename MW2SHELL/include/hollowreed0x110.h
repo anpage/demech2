@@ -1,6 +1,7 @@
 #ifndef HOLLOWREED0X110_H
 #define HOLLOWREED0X110_H
 
+#include "brasslantern0x414.h"
 #include "decomp.h"
 #include "types.h"
 
@@ -28,5 +29,16 @@ private:
 	MechChar m_text[0x100]; // 0x0c
 	undefined4 m_unk0x10c;  // 0x10c
 };
+
+// The functions and globals of hollowreed0x110.cpp that other units use.
+MechS32 FUN_10044451(
+	BrassLantern0x414* p_font,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechChar* p_text,
+	undefined* p_colors,
+	MechS32 p_maxLength,
+	MechS32 p_width
+);
 
 #endif // HOLLOWREED0X110_H

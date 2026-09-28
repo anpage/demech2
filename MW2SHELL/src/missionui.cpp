@@ -1,3 +1,5 @@
+#include "missionui.h"
+
 #include "audiosample.h"
 #include "brasslantern0x414.h"
 #include "cedarknot0x10.h"
@@ -7,11 +9,20 @@
 #include "hazelstar0x80.h"
 #include "linenpacket0x218.h"
 #include "mainmenubutton.h"
+#include "mechbay.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
 #include "mousestate.h"
 #include "ravenmark0x08.h"
+#include "shellmain.h"
+#include "simhandoff.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <string.h>
@@ -41,35 +52,6 @@ struct FernStar0x20 {
 DECOMP_SIZE_ASSERT(WillowTag0x08, 0x08)
 DECOMP_SIZE_ASSERT(RavenMark0x08, 0x08)
 
-extern "C" HWND g_pWnd;
-extern "C" HINSTANCE g_pModule;
-extern "C" MechU32 g_fQuickTips;
-extern MouseState* g_pMouseState;
-extern AudioSubsystem* g_pAudioSubsystem;
-extern VideoDriver* g_pVideoDriver;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071210;
-extern CedarKnot0x10* g_unk0x10071230;
-extern MechS32 g_unk0x10066a44;
-extern GraniteMast0x18 g_unk0x10061560[];
-extern RavenMark0x08 g_unk0x1006e1a8[6];
-extern MainMenuButton g_unk0x1006f618[0x19];
-extern LinenPacket0x218 g_unk0x10090288;
-extern MechChar g_unk0x1006a550[];
-
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
-MechS32 FUN_1000307c(MechS32 p_index);
-MechS32 FUN_100030e5(MechS32 p_star);
-HazelStar0x80* FUN_1000312e(MechS32 p_star);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
-void FUN_1001661b();
-MechS32 FUN_10016b11(MechS32 p_index);
-void FUN_10016d27(MechS32 p_index);
-void FUN_10016f45();
-void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival);
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,

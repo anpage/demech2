@@ -1,17 +1,11 @@
 #include "brasslantern0x414.h"
 
 #include "emberglyph0x3e.h"
-#include "shellmain.h"
+#include "unk10032250.h"
+#include "unk1003bf90.h"
 #include "videodriver.h"
 
 DECOMP_SIZE_ASSERT(BrassLantern0x414, 0x414)
-
-// Font data readers: assembly routines in unk10032250.c.
-extern "C"
-{
-	MechS32 FUN_10036aa9(void* p_data);
-	MechS32 FUN_10036abc(void* p_data, MechS32 p_char);
-}
 
 // FUNCTION: MW2SHELL 0x10005340
 BrassLantern0x414::BrassLantern0x414(void* p_data, VideoDriver* p_videoDriver)

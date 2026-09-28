@@ -36,6 +36,8 @@
    name: the fixed-point cosine table at 0x10035af0 (FUN_10036904) and the IFF chunk tags that
    follow FUN_10036c9e (FUN_10036def, FUN_10036fb6, FUN_10036fe7), and the LFSR tap table at
    0x1003775b, between FUN_100376f9 and FUN_100377d7 (FUN_100377d7). */
+#include "unk10032250.h"
+
 #include "compat.h"
 #include "decomp.h"
 #include "palettecolor.h"
@@ -62,7 +64,6 @@ MechS32 FUN_10033980(
 );
 void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left);
 void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left);
-void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
 void FUN_100369e2(
 	MechS32* p_point,
 	MechS32* p_result,

@@ -4,7 +4,8 @@
 #include "frostpebble0x10.h"
 #include "mainmenubutton.h"
 #include "menulist0x10d.h"
-#include "shellmain.h"
+#include "unk1003bf90.h"
+#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <string.h>
@@ -50,8 +51,6 @@ struct MenuEntry0x2a {
 DECOMP_SIZE_ASSERT(MenuEntry0x2a, 0x2a)
 
 DECOMP_SIZE_ASSERT(MenuList0x10d, 0x10d)
-
-extern BrassLantern0x414* g_unk0x10071218;
 
 // The font argument is ignored: the buttons always use g_unk0x10071218. m_colors maps colour 0
 // to 0xff and 1 to 6, and leaves the others as they are.

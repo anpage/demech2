@@ -2,7 +2,10 @@
 #define ARCHIVEREADER_H
 
 #include "decomp.h"
+#include "tmpackdatabase.h"
 #include "types.h"
+
+#include <windows.h>
 
 class BrassLantern0x414;
 class EmberGlyph0x3e;
@@ -76,5 +79,8 @@ private:
 };
 
 #pragma pack()
+
+// The functions and globals of archivereader.cpp that other units use.
+void FUN_10029010(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
 
 #endif // ARCHIVEREADER_H

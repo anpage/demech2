@@ -1,3 +1,5 @@
+#include "unk100711f8.h"
+
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "cedarknot0x10.h"

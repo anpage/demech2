@@ -1,11 +1,19 @@
+#include "unk1003e2f0.h"
+
 #include "brasslantern0x414.h"
 #include "campaignmission.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
 #include "mousestate.h"
+#include "shellmain.h"
 #include "silverreel0x18.h"
 #include "tinwhistle0x3c.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1003bf90.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 void operator delete(void*);
@@ -45,28 +53,10 @@ MechS32 FUN_1003e2f0(const TinWhistle0x3c** p_first, const TinWhistle0x3c** p_se
 	return 0;
 }
 
-extern VideoDriver* g_pVideoDriver;
-extern HollowReed0x110* g_unk0x100711f8;
-extern MouseState* g_pMouseState;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071218;
-extern MechChar* g_rankNames[10];
-extern CampaignMission* g_campaignMissions[2];
-extern TinWhistle0x3c g_pilotRoster[20];
-extern "C" HMENU g_windowMenu;
-extern "C" MechS32 g_menuDialogOpen;
-
-extern void FUN_1001661b();
-extern void FUN_100109a0(void (*p_callback)(MechS32));
-extern void FUN_100109b8(void (*p_callback)(MechS32));
 void FUN_1003e86b(MechS32 p_active);
 
 // GLOBAL: MW2SHELL 0x1006aeac
 SilverReel0x18* g_unk0x1006aeac = NULL;
-
-extern MechChar* g_unk0x10071280[6];
-
-extern PaletteColor g_unk0x10071378[0x100];
 
 // GLOBAL: MW2SHELL 0x10090670
 MechChar g_unk0x10090670[0x20];

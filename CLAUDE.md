@@ -157,6 +157,7 @@ undefined m_unk0x92c[0x944 - 0x92c]; // 0x92c
 - **Enums for magic numbers:** hoist fixed enumerations (flag bits, event tags, state codes) into a named `enum` at class or namespace scope. `c_camelCase` per NCC.
 - **No leading `const` on return-by-value** (`const RetType Get() const` — meaningless, trips NCC).
 - **Language per translation unit.** A unit is `.c` or `.cpp`, decided by which one matches — not by target. If a unit won't match as C, try C++ (and vice versa) before contorting the source.
+- **Declarations live in headers.** A unit whose functions or globals other units use has a header named after it (`video.cpp` → `video.h`; a class unit adds them to its class header), declaring them as the definitions do. The unit includes its own header, and C units' headers wrap the declarations in `extern "C"` guards. Source files don't redeclare another unit's functions or globals. Adding a declaration can flip a comparison's operand order in any unit that includes the header (see "Codegen Patterns"), so rerun the full compare after header changes.
 - **clang-format the files you touch.** NCC naming runs in CI only.
 
 ## Naming Conventions

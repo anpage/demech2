@@ -1,3 +1,5 @@
+#include "debrief.h"
+
 #include "archivereader.h"
 #include "brasslantern0x414.h"
 #include "campaignmission.h"
@@ -7,13 +9,24 @@
 #include "hazelstar0x80.h"
 #include "hollowreed0x110.h"
 #include "mainmenubutton.h"
+#include "mechbay.h"
+#include "mechvariant.h"
 #include "menulist0x10d.h"
 #include "mousestate.h"
+#include "options.h"
 #include "page.h"
+#include "pilotroster.h"
+#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk1002dc60.h"
+#include "unk10030900.h"
+#include "unk1006e150.h"
+#include "unk100711f8.h"
+#include "video.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -68,18 +81,6 @@ DECOMP_SIZE_ASSERT(FlintMark0x34, 0x34)
 DECOMP_SIZE_ASSERT(SlateLedger0x9d4, 0x9d4)
 DECOMP_SIZE_ASSERT(RustAbacus0x50, 0x50)
 
-extern "C" HWND g_pWnd;
-extern TinWhistle0x3c* g_pCurrentPilot;
-extern CampaignMission* g_campaignMissions[2];
-extern undefined g_unk0x100716b8[0x17];
-extern VideoDriver* g_pVideoDriver;
-extern MouseState* g_pMouseState;
-extern HollowReed0x110* g_unk0x100711f8;
-extern BrassLantern0x414* g_unk0x1007120c;
-extern BrassLantern0x414* g_unk0x10071224;
-extern BrassLantern0x414* g_unk0x10071228;
-extern GraniteMast0x18 g_unk0x10061560[];
-
 // The debriefing screen.
 // GLOBAL: MW2SHELL 0x1005b040
 MenuList0x10d* g_unk0x1005b040 = NULL;
@@ -93,10 +94,6 @@ Collection* g_unk0x1005b048 = NULL;
 // The aftermath reader, while it is open.
 // GLOBAL: MW2SHELL 0x1005b04c
 ArchiveReader* g_unk0x1005b04c = NULL;
-
-extern TallowSign0x10 g_unk0x1006ff00[3];
-
-extern TallowSign0x10 g_unk0x1006ff30[3];
 
 // The debriefing's text buffers.
 // GLOBAL: MW2SHELL 0x10076860
@@ -146,25 +143,7 @@ MechChar g_unk0x100791b8[0x200];
 // GLOBAL: MW2SHELL 0x100793b8
 MechChar g_unk0x100793b8[0x80];
 
-HazelStar0x80* FUN_1000312e(MechS32 p_star);
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
-void FUN_1001661b();
-MechS32 ShowDialog(const char* p_text, MechS32);
-void LoadPilotRoster();
-void SavePilotRoster();
 void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
-extern "C" MechChar* FUN_100309b6(MechChar* p_string);
-void FUN_1002e1b1(
-	Collection* p_pages,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechS32 p_width,
-	MechS32 p_height,
-	MechChar* p_name,
-	BrassLantern0x414* p_font,
-	MechChar* p_quote
-);
 
 // Returns TRUE when one of the options that makes a trial easier is set.
 // FUNCTION: MW2SHELL 0x10001000

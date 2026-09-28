@@ -1,3 +1,6 @@
+#include "unk100114f0.h"
+
+#include "debugprint.h"
 #include "decomp.h"
 #include "drawbitmapinfo.h"
 #include "drawmode.h"
@@ -5,6 +8,8 @@
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
+#include "unk10010a30.h"
+#include "unk100460a0.h"
 
 #include <ddraw.h>
 #include <stdlib.h>
@@ -31,24 +36,6 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette);
 MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps);
 MechS32 DdrawLockBuffer();
-
-extern HWND g_pWnd;
-extern MechS32 g_nWindowMode;
-
-void DebugPrint(const MechChar* p_format, ...);
-void CopyPaletteColorWithBrightness(PaletteColor* p_src, PaletteColor* p_dst);
-void AdjustWindowSize(DrawModeExtension* p_extension);
-
-extern PaletteColor g_paletteColorsPreBrightness[0x100];
-
-extern DrawModeExtension* g_drawModeExtensions[3];
-extern DrawModeExtension* g_currentDrawModeExtension;
-extern DrawMode* g_currentDrawMode;
-extern PixelBuffer* g_unk0x10062cdc;
-extern PaletteColor g_paletteColors[0x100];
-extern DrawBitmapInfo g_bitmapInfo;
-extern MechS32 g_drawModeWidth;
-extern MechS32 g_drawModeHeight;
 
 // GLOBAL: MW2SHELL 0x10063208
 LPDIRECTDRAW g_ddraw = NULL;
