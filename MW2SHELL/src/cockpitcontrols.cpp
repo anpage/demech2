@@ -1,6 +1,7 @@
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
+#include "hollowreed0x110.h"
 #include "inputdevice.h"
 #include "mousestate.h"
 #include "shellmain.h"
@@ -81,17 +82,28 @@ enum CpcMessage {
 extern BrassLantern0x414* g_unk0x1007120c;
 extern BrassLantern0x414* g_unk0x10071210;
 extern MouseState* g_pMouseState;
+extern HollowReed0x110* g_unk0x100711f8;
+extern HMENU g_windowMenu;
+extern MechS32 g_menuDialogOpen;
+extern PaletteColor g_unk0x10071378[0x100];
 extern VideoDriver* g_pVideoDriver;
 extern "C" HWND g_pWnd;
 
 extern "C" void DebugPrint(const MechChar* p_format, ...);
+MechS32 FUN_1000fe0d();
+void FUN_100109a0(void (*p_callback)(MechS32));
+void FUN_100109b8(void (*p_callback)(MechS32));
+void FUN_1001661b();
+void CpcScreenTick(MechS32 p_active);
+SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y);
+extern "C" void InputFreeDevices(void);
 void FUN_100078cd(SlateTab0x2c* p_tabs);
 void FUN_100079f8(SlateTab0x2c* p_tabs);
 void FUN_10007ac8(SlateTab0x2c* p_tabs);
 MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
 
 EmberGlyph0x3e* FUN_1003e9d0(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003ea0f(
+MechS32 FUN_1003ea0f(
 	BrassLantern0x414* p_font,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -162,6 +174,42 @@ MechChar* g_unk0x1006af28[c_bindingCount] = {
 	"Next Nav Point",
 };
 
+// The sim's name of each control, for input.map.
+// GLOBAL: MW2SHELL 0x1006afc0
+MechChar* g_unk0x1006afc0[c_bindingCount] = {
+	"throttle",
+	"legs_pan_delta",
+	"torso_pan",
+	"torso_tilt",
+	"pilot_pan",
+	"pilot_tilt",
+	"zoom_factor",
+	"torso_tilt_reset",
+	"glance_left",
+	"glance_right",
+	"glance_up",
+	"glance_down",
+	"jumpjet_enabled",
+	"jumpjet_fire_forward",
+	"jumpjet_fire_backward",
+	"jumpjet_fire_left",
+	"jumpjet_fire_right",
+	"weapon_fire",
+	"weapon_cycle",
+	"weapon_cycle_group",
+	"weapon_fire_group_1",
+	"weapon_fire_group_2",
+	"weapon_fire_group_3",
+	"toggle_group_fire",
+	"advance_target",
+	"previous_target",
+	"target_reticle",
+	"target_friendly",
+	"nearest_enemy",
+	"inspect_target",
+	"advance_nav",
+};
+
 // The configuration shown.
 // GLOBAL: MW2SHELL 0x1006b054
 MechS32 g_unk0x1006b054 = 0;
@@ -191,6 +239,10 @@ MechS32 g_unk0x1006b06c = 0;
 
 // GLOBAL: MW2SHELL 0x1006b070
 MechS32 g_activeInputDeviceCount = 0;
+
+// The device slot of the bindings CpcCheckControlCount adds for the legs' pan.
+// GLOBAL: MW2SHELL 0x1006b074
+MechS32 g_unk0x1006b074 = -1;
 
 // GLOBAL: MW2SHELL 0x1006b078
 MechChar* g_unk0x1006b078[c_configCount] =
@@ -419,11 +471,125 @@ EmberGlyph0x3e* FUN_1003e9d0(SlateTab0x2c* p_tab)
 	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
 }
 
-// STUB: MW2SHELL 0x1003ea0f
-EmberGlyph0x3e* FUN_1003ea0f(BrassLantern0x414*, MechS32, MechS32, MechChar*, undefined*, MechS32, MechS32)
+// The text being edited by FUN_1003ea0f, with its cursor.
+// GLOBAL: MW2SHELL 0x100926d8
+MechChar g_unk0x100926d8[0x100];
+
+// Edits p_text with a cursor ('_') drawn after it, like FUN_10044451 but keeping the screen's
+// video running. Return or a click store the text and return 1; Escape stores it and returns
+// 0. When the window closes it gives up without a return value.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x1003ea0f
+MechS32 FUN_1003ea0f(
+	BrassLantern0x414* p_font,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechChar* p_text,
+	undefined* p_colors,
+	MechS32 p_maxLength,
+	MechS32 p_maxWidth
+)
 {
-	STUB(0x1003ea0f);
-	return NULL;
+	MechS32 key;
+	MechS32 width;
+	MechS32 length;
+	EmberGlyph0x3e* glyph;
+
+	glyph = NULL;
+	length = strlen(p_text);
+	strcpy(g_unk0x100926d8, p_text);
+	strcat(g_unk0x100926d8, "_");
+	width = p_font->FUN_100053be(g_unk0x100926d8);
+	glyph = p_font->FUN_10005522(p_left, p_top, g_unk0x100926d8, p_colors);
+
+	for (;;) {
+		if (g_unk0x100918b0) {
+			g_unk0x100918b0->FUN_1001630b();
+		}
+
+		if (!FUN_1000fe0d()) {
+			break;
+		}
+
+		g_pMouseState->ReadMouseState();
+		g_pVideoDriver->DrawShell();
+		if (g_pMouseState->GetLeftPressed() == 1) {
+			g_unk0x100926d8[length] = '\0';
+			if (glyph) {
+				delete glyph;
+			}
+
+			strcpy(p_text, g_unk0x100926d8);
+			return 1;
+		}
+
+		if (g_unk0x100711f8->FUN_10044189()) {
+			switch (g_unk0x100711f8->m_key) {
+			case 8:
+				if (length == 0) {
+					break;
+				}
+
+				length--;
+				g_unk0x100926d8[length] = '_';
+				g_unk0x100926d8[length + 1] = '\0';
+				if (glyph) {
+					delete glyph;
+				}
+
+				glyph = p_font->FUN_10005522(p_left, p_top, g_unk0x100926d8, p_colors);
+				break;
+			case 0x0d:
+				g_unk0x100926d8[length] = '\0';
+				if (glyph) {
+					delete glyph;
+				}
+
+				strcpy(p_text, g_unk0x100926d8);
+				return 1;
+			case 0x1b:
+				g_unk0x100926d8[length] = '\0';
+				if (glyph) {
+					delete glyph;
+				}
+
+				strcpy(p_text, g_unk0x100926d8);
+				return 0;
+			default:
+				key = g_unk0x100711f8->m_key;
+				if (key < 0x20 || key > 0x7f || key == 0x7e) {
+					break;
+				}
+
+				if (length == p_maxLength) {
+					break;
+				}
+
+				if (!p_font->FUN_10005424(key)) {
+					break;
+				}
+
+				g_unk0x100926d8[length] = key;
+				length++;
+				g_unk0x100926d8[length] = '_';
+				g_unk0x100926d8[length + 1] = '\0';
+
+				if (p_font->FUN_100053be(g_unk0x100926d8) < p_maxWidth) {
+					if (glyph) {
+						delete glyph;
+					}
+
+					glyph = p_font->FUN_10005522(p_left, p_top, g_unk0x100926d8, p_colors);
+				}
+				else {
+					length--;
+					g_unk0x100926d8[length] = '_';
+					g_unk0x100926d8[length + 1] = '\0';
+				}
+				break;
+			}
+		}
+	}
 }
 
 // Edit a field's text in place, then show it.
@@ -1513,11 +1679,127 @@ void FUN_10041168(FILE* p_file, MechChar* p_name, CpcBinding* p_binding)
 	}
 }
 
-// STUB: MW2SHELL 0x1004154b
+// Works out the modifier flags each binding must exclude (the modifiers of the other bindings of
+// the same axis or button), writes the bindings to temp.map, and returns whether the sim can
+// take their analog and discrete counts.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x1004154b
 MechS32 CpcCheckControlCount()
 {
-	STUB(0x1004154b);
-	return 0;
+	MechS32 mask;
+	CpcBinding binding;
+	MechU32 i;
+	MechU32 j;
+	FILE* file;
+
+	for (i = 0; i < c_configCount * c_bindingCount; i++) {
+		switch (g_cpcBindings[i].m_channelKind) {
+		case 0:
+		case 1:
+			g_cpcBindings[i].m_modeFlags = 0;
+			break;
+		case 2:
+			if (g_cpcBindings[i].m_mode == g_cpcBindings[i].m_controlIndex) {
+				g_cpcBindings[i].m_modeFlags = (g_cpcBindings[i].m_flags << 4) & 0x70;
+			}
+			else {
+				g_cpcBindings[i].m_modeFlags = g_cpcBindings[i].m_flags;
+			}
+		}
+	}
+
+	for (i = 0; i < c_configCount * c_bindingCount; i++) {
+		if (g_cpcBindings[i].m_deviceSlot < 0) {
+			continue;
+		}
+
+		mask = (g_cpcBindings[i].m_flags << 4) & 0x70;
+		if (mask) {
+			switch (g_cpcBindings[i].m_channelKind) {
+			case 0:
+				for (j = 0; j < c_configCount * c_bindingCount; j++) {
+					if (j == i) {
+						continue;
+					}
+					if (g_cpcBindings[j].m_deviceSlot < 0) {
+						continue;
+					}
+					if (g_cpcBindings[j].m_channelKind != 0) {
+						continue;
+					}
+					if (g_cpcBindings[j].m_controlIndex != g_cpcBindings[i].m_controlIndex) {
+						continue;
+					}
+
+					g_cpcBindings[j].m_flags |= mask;
+				}
+				break;
+			case 1:
+			case 2:
+				for (j = 0; j < c_configCount * c_bindingCount; j++) {
+					if (j == i) {
+						continue;
+					}
+					if (g_cpcBindings[j].m_deviceSlot < 0) {
+						continue;
+					}
+					if (g_cpcBindings[j].m_channelKind == 0) {
+						continue;
+					}
+
+					if (g_cpcBindings[j].m_controlIndex == g_cpcBindings[i].m_controlIndex) {
+						g_cpcBindings[j].m_flags |= mask;
+					}
+					if (g_cpcBindings[j].m_channelKind == 2 &&
+						g_cpcBindings[j].m_mode == g_cpcBindings[i].m_controlIndex) {
+						g_cpcBindings[j].m_modeFlags |= mask;
+					}
+					if (g_cpcBindings[j].m_channelKind == 2 &&
+						g_cpcBindings[i].m_mode == g_cpcBindings[j].m_controlIndex) {
+						g_cpcBindings[j].m_flags |= (g_cpcBindings[i].m_modeFlags << 4) & 0x70;
+					}
+					if (g_cpcBindings[j].m_channelKind == 2 && g_cpcBindings[j].m_mode == g_cpcBindings[i].m_mode) {
+						g_cpcBindings[j].m_modeFlags |= (g_cpcBindings[i].m_modeFlags << 4) & 0x70;
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	file = fopen("temp.map", "w");
+	g_cpcAnalogCount = 0;
+	g_cpcDiscreteCount = 0;
+	if (file) {
+		fprintf(file, "# mw2shell CockPit Config generated map file\n");
+		for (i = 0; i < c_configCount * c_bindingCount; i++) {
+			if (g_cpcBindings[i].m_deviceSlot >= 0) {
+				FUN_10041168(file, g_unk0x1006afc0[i % c_bindingCount], &g_cpcBindings[i]);
+				g_cpcBindings[i].m_flags &= CPC_FLAG_INVERTED | c_flagModifierMask;
+				g_cpcBindings[i].m_modeFlags = 0;
+			}
+		}
+
+		binding.m_channelKind = 1;
+		binding.m_deviceSlot = g_unk0x1006b074;
+		binding.m_flags = 0;
+		binding.m_mode = -1;
+		binding.m_modeFlags = -1;
+		binding.m_controlIndex = 0x66;
+		FUN_10041168(file, "legs_pan_minus", &binding);
+		FUN_10041168(file, "jumpjet_enabled", &binding);
+		binding.m_controlIndex = 0x64;
+		FUN_10041168(file, "legs_pan_plus", &binding);
+		FUN_10041168(file, "jumpjet_enabled", &binding);
+		fprintf(file, "# analog count = %d\n", g_cpcAnalogCount);
+		fprintf(file, "# discrete count = %d\n", g_cpcDiscreteCount);
+		fclose(file);
+	}
+	else {
+		ShowDialog("Error: Could not write map file.#Ok", 0);
+	}
+
+	return g_cpcAnalogCount <= 40 && g_cpcDiscreteCount <= 90;
 }
 
 // Mark the keyboard and the devices the bindings use active, drop the bindings of missing
@@ -1563,10 +1845,110 @@ void CpcValidateActiveDevices()
 	}
 }
 
-// STUB: MW2SHELL 0x10041c7e
-void CpcRemapDeviceSlots(CpcBinding*)
+// Maps the device slots of loaded bindings onto the devices present: by name, then for a
+// missing joystick onto an unused one (explaining either way), and drops the bindings whose
+// device, axis or button is gone. Then records the present devices in the slots.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x10041c7e
+void CpcRemapDeviceSlots(CpcBinding* p_bindings)
 {
-	STUB(0x10041c7e);
+	InputDevice* device;
+	MechU32 i;
+	MechS32 j;
+	MechS32 k;
+	MechS32 missing[c_deviceSlotCount];
+
+	for (i = 0; (MechS32) i < c_deviceSlotCount; i++) {
+		if (g_cpcDeviceSlots[i].m_deviceId != -1) {
+			missing[i] = 1;
+			g_cpcDeviceSlots[i].m_deviceId = -1;
+		}
+		else {
+			missing[i] = 0;
+		}
+	}
+
+	for (i = 0; (MechS32) i < c_deviceSlotCount; i++) {
+		device = InputGetDevice(i);
+		if (!device) {
+			break;
+		}
+
+		for (j = 0; j < c_deviceSlotCount; j++) {
+			if (!device->m_info.m_matchName[0]) {
+				break;
+			}
+
+			if (!_strcmpi(g_cpcDeviceSlots[j].m_name, device->m_info.m_matchName) &&
+				g_cpcDeviceSlots[i].m_deviceId == -1) {
+				g_cpcDeviceSlots[j].m_deviceId = i;
+				break;
+			}
+		}
+	}
+
+	for (i = 0; (MechS32) i < c_deviceSlotCount; i++) {
+		if (missing[i] && g_cpcDeviceSlots[i].m_deviceId == -1 && g_cpcDeviceSlots[i].m_name[0]) {
+			for (j = 0; j < c_deviceSlotCount; j++) {
+				device = InputGetDevice(j);
+				if (device && device->m_info.m_shortName[0] == 'j') {
+					for (k = 0; k < c_deviceSlotCount; k++) {
+						if (g_cpcDeviceSlots[k].m_deviceId == j) {
+							break;
+						}
+					}
+
+					if (k == c_deviceSlotCount) {
+						FUN_100431b4(
+							c_messageRemapJoystick,
+							(undefined4) g_cpcDeviceSlots[i].m_name,
+							device->m_info.m_displayName
+						);
+						g_cpcDeviceSlots[i].m_deviceId = j;
+						break;
+					}
+				}
+			}
+
+			if (j == c_deviceSlotCount) {
+				FUN_100431b4(c_messageMissingJoystick, (undefined4) g_cpcDeviceSlots[i].m_name, NULL);
+			}
+		}
+	}
+
+	for (i = 0; i < c_configCount * c_bindingCount; i++) {
+		if (p_bindings[i].m_deviceSlot >= 0) {
+			device = InputGetDevice(g_cpcDeviceSlots[p_bindings[i].m_deviceSlot].m_deviceId);
+			if (device) {
+				if (p_bindings[i].m_channelKind == 0 && p_bindings[i].m_mode == -1) {
+					if (p_bindings[i].m_controlIndex >= device->m_info.m_axisCount) {
+						p_bindings[i].m_deviceSlot = -1;
+					}
+				}
+				else {
+					if (p_bindings[i].m_controlIndex >= device->m_info.m_buttonCount) {
+						p_bindings[i].m_deviceSlot = -1;
+					}
+				}
+
+				if (p_bindings[i].m_deviceSlot >= 0) {
+					p_bindings[i].m_deviceSlot = g_cpcDeviceSlots[p_bindings[i].m_deviceSlot].m_deviceId;
+				}
+			}
+		}
+	}
+
+	for (i = 0; (MechS32) i < c_deviceSlotCount; i++) {
+		device = InputGetDevice(i);
+		if (device) {
+			g_cpcDeviceSlots[i].m_deviceId = i;
+			strncpy(g_cpcDeviceSlots[i].m_name, device->m_info.m_matchName, 0x10);
+		}
+		else {
+			g_cpcDeviceSlots[i].m_deviceId = -1;
+			g_cpcDeviceSlots[i].m_name[0] = '\0';
+		}
+	}
 }
 
 // Reset a binding: the first seven controls are axes, the rest buttons.
@@ -1883,10 +2265,128 @@ void FUN_10042b99(SlateTab0x2c* p_tab)
 	}
 }
 
-// STUB: MW2SHELL 0x10042bcf
+// Opens the cockpit controls screen over the current one: its palette and logo, the devices
+// (the keyboard is required), the configuration of the first slot, and its fields.
+// FUNCTION: MW2SHELL 0x10042bcf
 void OpenCockpitControls()
 {
-	STUB(0x10042bcf);
+	InputDevice* device;
+	MechS32 i;
+
+	g_pVideoDriver->GetPalette(g_unk0x10071378);
+	g_pVideoDriver->LoadPalette(4);
+	g_pVideoDriver->ActivateFramebuffer();
+	g_unk0x100918b0 = NULL;
+	g_unk0x100918b0 = new SilverReel0x18("amwlogo1", 0x78, 4);
+	g_pVideoDriver->DrawShell();
+	g_pVideoDriver->m_unk0x3a6 = 0;
+	g_curCpcConfigSlot = 0;
+	if (!InputEnumDevices(1)) {
+		return;
+	}
+
+	g_unk0x1006b074 = -1;
+	for (i = 0; i < c_deviceSlotCount; i++) {
+		device = InputGetDevice(i);
+		if (device) {
+			g_cpcDeviceSlots[i].m_deviceId = i;
+			strcpy(g_cpcDeviceSlots[i].m_name, device->m_info.m_matchName);
+			if (!strcmp(device->m_info.m_matchName, "keyboard")) {
+				g_unk0x1006b074 = i;
+				g_curInputDeviceIdx = i;
+				g_inputDeviceActive[i] = 1;
+			}
+			else {
+				g_inputDeviceActive[i] = 0;
+			}
+		}
+		else {
+			g_cpcDeviceSlots[i].m_deviceId = -1;
+			strcpy(g_cpcDeviceSlots[i].m_name, "");
+			g_inputDeviceActive[i] = 0;
+		}
+	}
+
+	if (g_unk0x1006b074 < 0) {
+		ShowDialog("Error: keyboard not initialized.#Ok", 0);
+		InputFreeDevices();
+		return;
+	}
+
+	strcpy(g_cpcConfigName, "NO CONFIG");
+	FUN_100420eb(NULL);
+	CpcLoadConfigSlot(NULL);
+	CpcValidateActiveDevices();
+	g_unk0x1006b05c = 0;
+	g_unk0x1006af18 = -1;
+	g_unk0x1006af1c = 0;
+	g_unk0x1006b054 = 0;
+	g_pCpcBindings = &g_cpcBindings[g_unk0x1006b054 * c_bindingCount];
+	g_unk0x100711f8->FUN_100440ed();
+
+	g_unk0x10092b18[0] = 0xff;
+	g_unk0x10092b18[1] = 0x10;
+	g_unk0x10092a18[0] = 0xff;
+	g_unk0x10092a18[1] = 7;
+	for (i = 2; i < 0x100; i++) {
+		g_unk0x10092b18[i] = i;
+		g_unk0x10092a18[i] = i;
+	}
+
+	FUN_100078cd(g_unk0x1006cde8);
+	g_unk0x1006b06c = 0;
+	g_cpcConfigured = 0;
+	g_inputConfigChanged = 0;
+	FUN_100109a0(CpcScreenTick);
+}
+
+// The cockpit controls screen's frame, run over the screen below: the clicks on its fields (the
+// right button too on the bindings page, g_unk0x1006b06c). Closes the screen when p_active is
+// cleared, once configured, on the key code 3 or on a right click on the first page.
+// FUNCTION: MW2SHELL 0x10042f65
+void CpcScreenTick(MechS32 p_active)
+{
+	SlateTab0x2c* tab;
+
+	if (p_active) {
+		if (g_unk0x100918b0) {
+			g_unk0x100918b0->FUN_1001630b();
+		}
+
+		if (g_pMouseState->GetLeftPressed() == 1 || (g_unk0x1006b06c == 1 && g_pMouseState->GetRightPressed() == 1)) {
+			tab = FUN_1000b5ed(
+				g_unk0x1006b06c ? g_unk0x1006b0d8 : g_unk0x1006cde8,
+				g_pMouseState->m_x,
+				g_pMouseState->m_y
+			);
+			if (tab && tab->m_unk0x20) {
+				tab->m_unk0x20(tab);
+				FUN_100079f8(g_unk0x1006b06c ? g_unk0x1006b0d8 : g_unk0x1006cde8);
+			}
+		}
+	}
+
+	if (!p_active || g_cpcConfigured || g_unk0x100711f8->FUN_10044189() == 3 ||
+		(!g_unk0x1006b06c && g_pMouseState->GetRightPressed() == 1)) {
+		FUN_100109b8(CpcScreenTick);
+		EnableMenuItem(g_windowMenu, 0x9c4b, MF_ENABLED);
+		g_menuDialogOpen = 0;
+		FUN_10007ac8(g_unk0x1006b06c ? g_unk0x1006b0d8 : g_unk0x1006cde8);
+		if (g_unk0x100918b0) {
+			delete g_unk0x100918b0;
+		}
+		g_unk0x100918b0 = NULL;
+		InputFreeDevices();
+		g_pVideoDriver->m_unk0x3a6 = -1;
+		g_pVideoDriver->FUN_100071ad(0, 0, 640, 480);
+		FUN_1001661b();
+		g_pVideoDriver->SetPalette(g_unk0x10071378, 1);
+		if (p_active) {
+			g_pVideoDriver->DrawShell();
+			g_pVideoDriver->FUN_100071ad(0, 0, 640, 480);
+			FUN_1001661b();
+		}
+	}
 }
 
 // Explain a problem with the input devices in a message box.

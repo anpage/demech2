@@ -1,6 +1,7 @@
 #include "cedarknot0x10.h"
 
 #include "decomp.h"
+#include "granitemast0x18.h"
 #include "sableroster0x24.h"
 #include "shellmain.h"
 #include "types.h"
@@ -9,6 +10,7 @@
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(CedarKnot0x10, 0x10)
+DECOMP_SIZE_ASSERT(GraniteMast0x18, 0x18)
 
 // Every node of a .bwd file starts with a type tag from g_unk0x100668c0 and the node's
 // size in bytes. The shell assembles .bwd files for the simulator in g_bwdTemplateRegistry.
@@ -18,7 +20,8 @@ enum BwdTag {
 	c_tagRev = 1,
 	c_tagDtbl = 2,
 	c_tagBmpj = 14,
-	c_tagBmid = 15
+	c_tagBmid = 15,
+	c_tagGps = 52
 };
 
 // SIZE 0x0c
@@ -50,6 +53,29 @@ struct BwdLinkNode {
 	MechS16 m_unk0x0a; // 0x0a
 };
 
+// SIZE 0x5c
+// One mech of a star; the registry takes its first 0x5a bytes.
+struct BwdGpsNode {
+	MechS32 m_type;                   // 0x00
+	MechS32 m_size;                   // 0x04
+	MechS16 m_unk0x08;                // 0x08 — the variant's resource, -2 for a user variant
+	MechS16 m_unk0x0a;                // 0x0a — the chassis' resource
+	MechU8 m_unk0x0c;                 // 0x0c — level
+	MechU8 m_unk0x0d;                 // 0x0d — 1 for the star's first mech
+	MechU8 m_unk0x0e;                 // 0x0e
+	undefined m_unk0x0f;              // 0x0f
+	MechS16 m_unk0x10[5];             // 0x10 — from g_unk0x100669e8 by difficulty
+	MechS16 m_unk0x1a;                // 0x1a
+	MechS16 m_unk0x1c;                // 0x1c
+	MechS16 m_unk0x1e;                // 0x1e
+	MechS16 m_unk0x20;                // 0x20
+	MechS16 m_unk0x22;                // 0x22
+	char m_chassis[9];                // 0x24
+	char m_mech[9];                   // 0x2d
+	char m_variant[16];               // 0x36
+	undefined m_unk0x46[0x5c - 0x46]; // 0x46
+};
+
 // A node whose size depends on the name it carries.
 struct BwdNameNode {
 	MechS32 m_type;    // 0x00
@@ -77,10 +103,12 @@ extern "C"
 	void FUN_1001385c();
 	void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, char* p_type, MechS32 p_unk0x0c);
 	void FUN_10013ef4(MechS32 p_id, char* p_type);
-	MechS32 FUN_1002fcdc(char* p_name, undefined p_unk0x04);
+	MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode);
 	MechS32 FUN_1003024f(MechS32 p_handle);
 	MechS32 FUN_1002ffc9(MechS32 p_handle);
 }
+
+extern GraniteMast0x18 g_unk0x10061560[];
 
 // The current project handle lives in the mw2.prj loader unit (unk1003bfb0.c).
 extern "C" MechS32 g_unk0x1006aac4;
@@ -354,10 +382,77 @@ void BwdWriteRegistry(char* p_fileName)
 	fclose(file);
 }
 
-// STUB: MW2SHELL 0x1002e830
+// Adds the template of one mech of a star to the registry: its chassis and variant, and the
+// settings of p_difficulty (1 to 8; 0 for a mech without a level).
+// Not 100%: the stack slots of i and variant are permuted.
+// FUNCTION: MW2SHELL 0x1002e830
 void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index, MechS32 p_level, MechS32 p_difficulty)
 {
-	STUB(0x1002e830);
+	MechS32 i;
+	BwdGpsNode node;
+	MechS16 variant;
+
+	for (i = 0; g_unk0x10061560[i].m_unk0x04; i++) {
+		if (!_strnicmp(p_mech, g_unk0x10061560[i].m_unk0x04, 3)) {
+			break;
+		}
+	}
+
+	if (!g_unk0x10061560[i].m_unk0x04) {
+		return;
+	}
+
+	if (p_difficulty < 1) {
+		p_difficulty = 1;
+	}
+	if (p_difficulty > 8) {
+		p_difficulty = 8;
+	}
+	if (!p_level) {
+		p_difficulty = 0;
+	}
+
+	memset(&node, 0, 0x5a);
+	node.m_type = *(MechS32*) g_unk0x100668c0[c_tagGps];
+	node.m_size = sizeof(node);
+	strncpy(node.m_mech, p_mech, 8);
+	node.m_mech[8] = '\0';
+	strncpy(node.m_chassis, g_unk0x10061560[i].m_unk0x08, 8);
+	node.m_chassis[8] = '\0';
+	strncpy(node.m_variant, p_variant, 15);
+	node.m_variant[15] = '\0';
+	node.m_unk0x22 = 0x400;
+	if (_strnicmp(p_mech + 5, "std", 3)) {
+		variant = -2;
+	}
+	else {
+		variant = FindResourceIdByName(6, node.m_mech);
+	}
+	node.m_unk0x08 = variant;
+	node.m_unk0x0a = FindResourceIdByName(14, node.m_chassis);
+	node.m_unk0x0c = p_level;
+	if (p_index == 0) {
+		node.m_unk0x0d = 1;
+	}
+	else {
+		node.m_unk0x0d = 0;
+	}
+	if (p_index == 0 && p_level == 0) {
+		node.m_unk0x0e = 0;
+	}
+	else {
+		node.m_unk0x0e = 2;
+	}
+	node.m_unk0x10[0] = g_unk0x100669e8[p_difficulty][0];
+	node.m_unk0x10[1] = g_unk0x100669e8[p_difficulty][1];
+	node.m_unk0x10[2] = g_unk0x100669e8[p_difficulty][2];
+	node.m_unk0x10[3] = g_unk0x100669e8[p_difficulty][3];
+	node.m_unk0x10[4] = g_unk0x100669e8[p_difficulty][4];
+	node.m_unk0x1a = 0;
+	node.m_unk0x1c = 0;
+	node.m_unk0x1e = 0;
+	node.m_unk0x20 = 6;
+	BwdAddRegistryTemplate(&node, 0x5a);
 }
 
 // Operand order: the original loads i first for both i < count comparisons; the locals

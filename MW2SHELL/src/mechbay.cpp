@@ -4,10 +4,15 @@
 #include "decomp.h"
 #include "emberglyph0x3e.h"
 #include "granitemast0x18.h"
+#include "hazelstar0x80.h"
+#include "mainmenubutton.h"
+#include "menulist0x10d.h"
 #include "mousestate.h"
 #include "slatetab0x2c.h"
+#include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "videodriver.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -41,11 +46,27 @@ struct TinLattice0x28 {
 	MechChar* m_name;     // 0x24
 };
 
-// SIZE 0xf50
+// SIZE 0x10
+// The internal structure of a weight class (20 to 110 tons in steps of 5) per location.
+struct MossGauge0x10 {
+	MechS32 m_unk0x00; // 0x00 — center torso
+	MechS32 m_unk0x04; // 0x04 — side torsos
+	MechS32 m_unk0x08; // 0x08 — arms
+	MechS32 m_unk0x0c; // 0x0c — legs
+};
+
+// SIZE 0x08
+// A piece of equipment other than a weapon: ids come in steps of 50 from 5000.
+struct IronToken0x08 {
+	MechS32 m_unk0x00; // 0x00 — id
+	MechChar* m_name;  // 0x04
+};
+
+// SIZE 0x7a8
 // The variant being edited. 0x10007e90 copies an m_unk0x4a0 entry through the struct base
-// (0x1005c640 + 0x4a0), which places the start. The size is a bound, not a proven size: the
-// engine table follows at 0x1005d590.
-struct QuartzHelm0xf50 {
+// (0x1005c640 + 0x4a0), which places the start; FUN_1000befe copies the whole struct to the
+// backup at 0x1005cde8 (0x7a8 bytes further), which bounds it.
+struct QuartzHelm0x7a8 {
 	// SIZE 0x08
 	struct Slot {
 		MechS32 m_unk0x00; // 0x00 — item id, -1 when free
@@ -55,10 +76,10 @@ struct QuartzHelm0xf50 {
 	// SIZE 0x10
 	// One location's armor. The tab callbacks index the array through its base at 0x710.
 	struct Armor {
-		undefined4 m_unk0x00; // 0x00
-		MechS32 m_unk0x04;    // 0x04
-		MechS32 m_unk0x08;    // 0x08 — front armor
-		MechS32 m_unk0x0c;    // 0x0c — rear armor, negative when the location has none
+		MechS32 m_unk0x00; // 0x00 — internal structure
+		MechS32 m_unk0x04; // 0x04
+		MechS32 m_unk0x08; // 0x08 — front armor
+		MechS32 m_unk0x0c; // 0x0c — rear armor, negative when the location has none
 	};
 
 	MechChar m_unk0x00[0x100];           // 0x00 — '~' and the mech's name
@@ -106,38 +127,71 @@ struct QuartzHelm0xf50 {
 	MechS32 m_unk0x49c;                  // 0x49c — used entries of m_unk0x4a0
 	Slot m_unk0x4a0[78];                 // 0x4a0
 	Armor m_unk0x710[8];                 // 0x710
-	undefined m_unk0x790[0x7a4 - 0x790]; // 0x790
+	MechS32 m_unk0x790;                  // 0x790
+	MechS32 m_unk0x794;                  // 0x794
+	MechS32 m_unk0x798;                  // 0x798
+	MechS32 m_unk0x79c;                  // 0x79c
+	MechS32 m_unk0x7a0;                  // 0x7a0
 	MechS32 m_unk0x7a4;                  // 0x7a4 — items 5001 and up to add or remove together
-	undefined m_unk0x7a8[0xf50 - 0x7a8]; // 0x7a8
 };
 
 // SIZE 0x28
 // One location's critical slots in the image of a .mek file.
 struct AmberCrate0x28 {
-	undefined4 m_unk0x00;  // 0x00
-	undefined4 m_unk0x04;  // 0x04
-	undefined4 m_unk0x08;  // 0x08
+	MechS32 m_unk0x00;     // 0x00 — front armor
+	MechS32 m_unk0x04;     // 0x04 — rear armor
+	MechS32 m_unk0x08;     // 0x08 — internal structure
 	MechU16 m_unk0x0c[12]; // 0x0c — item ids
 	MechS16 m_unk0x24;     // 0x24 — slots in use
 	undefined2 m_unk0x26;  // 0x26
 };
 
+// SIZE 0x18
+// The header of a .mek file.
+struct LoamLedger0x18 {
+	MechS32 m_unk0x00; // 0x00 — maximum weight in tons
+	MechS32 m_unk0x04; // 0x04
+	MechS32 m_unk0x08; // 0x08
+	MechS32 m_unk0x0c; // 0x0c
+	MechS32 m_unk0x10; // 0x10 — weapons
+	MechS32 m_unk0x14; // 0x14 — ammunition entries
+};
+
 DECOMP_SIZE_ASSERT(SlateTab0x2c, 0x2c)
 DECOMP_SIZE_ASSERT(CobaltSpur0x0c, 0x0c)
 DECOMP_SIZE_ASSERT(TinLattice0x28, 0x28)
-DECOMP_SIZE_ASSERT(QuartzHelm0xf50::Slot, 0x08)
-DECOMP_SIZE_ASSERT(QuartzHelm0xf50::Armor, 0x10)
-DECOMP_SIZE_ASSERT(QuartzHelm0xf50, 0xf50)
+DECOMP_SIZE_ASSERT(QuartzHelm0x7a8::Slot, 0x08)
+DECOMP_SIZE_ASSERT(QuartzHelm0x7a8::Armor, 0x10)
+DECOMP_SIZE_ASSERT(QuartzHelm0x7a8, 0x7a8)
 DECOMP_SIZE_ASSERT(GraniteMast0x18, 0x18)
 DECOMP_SIZE_ASSERT(AmberCrate0x28, 0x28)
+DECOMP_SIZE_ASSERT(IronToken0x08, 0x08)
+DECOMP_SIZE_ASSERT(MossGauge0x10, 0x10)
+DECOMP_SIZE_ASSERT(LoamLedger0x18, 0x18)
 
+extern "C" void DebugPrint(const MechChar* p_format, ...);
+
+extern "C" HWND g_pWnd;
+extern HINSTANCE g_pModule;
+extern MechU32 g_fQuickTips;
 extern AudioSubsystem* g_pAudioSubsystem;
+extern VideoDriver* g_pVideoDriver;
 extern MouseState* g_pMouseState;
 extern BrassLantern0x414* g_unk0x1007120c;
 extern TMPackDataBase* g_pDatabaseMw2;
 extern CedarKnot0x10* g_unk0x10071230;
 
+MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
+MechChar* FUN_10003013(MechS32 p_index);
+MechS32 FUN_1000307c(MechS32 p_index);
+MechS32 FUN_100381c2();
+HazelStar0x80* FUN_1000312e(MechS32 p_star);
+void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
+void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
+BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
+void FUN_1001661b();
 void FUN_10016d27(MechS32 p_index);
+void FUN_10016f45();
 void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top);
 MechS32 FUN_10017460(
 	MechS32 p_index,
@@ -159,12 +213,51 @@ MechS32 FUN_10044451(
 	MechS32 p_width
 );
 
+// GLOBAL: MW2SHELL 0x1005c438
+IronToken0x08 g_unk0x1005c438[23] = {
+	{5000, "MASC"},
+	{5050, "Targeting Computer"},
+	{5100, "ECM"},
+	{5150, "Artemis IV"},
+	{5200, "Beagle Active Probe"},
+	{5250, "TAG"},
+	{5300, "Shoulder"},
+	{5350, "Upper Arm Actuator"},
+	{5400, "Lower Arm Actuator"},
+	{5450, "Hand Actuator"},
+	{5500, "Hip"},
+	{5550, "Upper Leg Actuator"},
+	{5600, "Lower Leg Actuator"},
+	{5650, "Foot Actuator"},
+	{5700, "Sensors"},
+	{5750, "Cockpit"},
+	{5800, "Gyro"},
+	{5850, "Engine"},
+	{5900, "Life Support"},
+	{6000, "Heat Sink"},
+	{7000, "Jump Jet"},
+	{8000, "Endo Steel"},
+	{9000, "Ferro-Fibrous"},
+};
+
 // GLOBAL: MW2SHELL 0x1005c4f0
 MechChar* g_unk0x1005c4f0[8] =
 	{"Head", "Right Torso", "Center Torso", "Left Torso", "Right Arm", "Left Arm", "Right Leg", "Left Leg"};
 
+// GLOBAL: MW2SHELL 0x1005c510
+MossGauge0x10 g_unk0x1005c510[19] = {
+	{4, 3, 1, 2},     {5, 4, 2, 3},     {6, 5, 3, 4},     {8, 6, 4, 6},     {10, 7, 5, 7},
+	{11, 8, 6, 8},    {12, 10, 6, 10},  {14, 11, 7, 11},  {16, 12, 8, 12},  {18, 13, 9, 13},
+	{20, 14, 10, 14}, {21, 15, 10, 15}, {22, 15, 11, 15}, {23, 16, 12, 16}, {25, 17, 13, 17},
+	{27, 18, 14, 18}, {29, 19, 15, 19}, {30, 20, 16, 20}, {31, 21, 17, 21},
+};
+
 // GLOBAL: MW2SHELL 0x1005c640
-QuartzHelm0xf50 g_unk0x1005c640 = {0};
+QuartzHelm0x7a8 g_unk0x1005c640 = {0};
+
+// The variant as loaded, before any change.
+// GLOBAL: MW2SHELL 0x1005cde8
+QuartzHelm0x7a8 g_unk0x1005cde8 = {0};
 
 // GLOBAL: MW2SHELL 0x1005d590
 CobaltSpur0x0c g_unk0x1005d590[] = {
@@ -290,23 +383,73 @@ AudioSample* g_unk0x10061770 = NULL;
 // GLOBAL: MW2SHELL 0x10061774
 MechS32 g_unk0x10061774 = 0;
 
+// GLOBAL: MW2SHELL 0x10061778
+MenuList0x10d* g_unk0x10061778 = NULL;
+
+// GLOBAL: MW2SHELL 0x1006177c
+AudioSample* g_unk0x1006177c = NULL;
+
+// The wParam the screen was opened with.
+// GLOBAL: MW2SHELL 0x10061780
+MechS32 g_unk0x10061780 = 0x404;
+
+// Set once the bay's and the customize screen's quick tips have been shown.
+// GLOBAL: MW2SHELL 0x10061784
+MechS32 g_unk0x10061784 = 0;
+
+// GLOBAL: MW2SHELL 0x10061788
+MechS32 g_unk0x10061788 = 0;
+
+// GLOBAL: MW2SHELL 0x1006178c
+MechS32 g_unk0x1006178c = 1;
+
 // GLOBAL: MW2SHELL 0x10079a98
 undefined4 g_unk0x10079a98;
 
 // GLOBAL: MW2SHELL 0x10079a9c
 undefined4 g_unk0x10079a9c;
 
+// GLOBAL: MW2SHELL 0x10079aa0
+MechS32 g_unk0x10079aa0;
+
 // GLOBAL: MW2SHELL 0x10079aa8
 MechChar g_unk0x10079aa8[0x20];
+
+// GLOBAL: MW2SHELL 0x10079ac8
+AudioSample* g_unk0x10079ac8;
+
+// The pilot's callsign and the star's maximum weight.
+// GLOBAL: MW2SHELL 0x10079ad0
+MechChar g_unk0x10079ad0[0x80];
 
 // GLOBAL: MW2SHELL 0x10079b50
 MechChar g_szTempBuffer[0x100];
 
+// The image of a .mek file, besides g_unk0x1007c820: its header, the ammunition (id and
+// rounds), the weapons (id and -1) and the variant name.
+// GLOBAL: MW2SHELL 0x10079c50
+QuartzHelm0x7a8::Slot g_unk0x10079c50[25];
+
+// GLOBAL: MW2SHELL 0x10079d18
+AudioSample* g_unk0x10079d18;
+
+// GLOBAL: MW2SHELL 0x10079d20
+LoamLedger0x18 g_unk0x10079d20;
+
 // GLOBAL: MW2SHELL 0x10079d38
-MechChar g_unk0x10079d38[0x48];
+MechChar g_unk0x10079d38[0x10];
+
+// GLOBAL: MW2SHELL 0x10079d48
+MechChar g_unk0x10079d48[0x32];
 
 // GLOBAL: MW2SHELL 0x10079d80
 MechChar g_unk0x10079d80[200][13];
+
+// GLOBAL: MW2SHELL 0x1007a7a8
+QuartzHelm0x7a8::Slot g_unk0x1007a7a8[10];
+
+// GLOBAL: MW2SHELL 0x1007a7f8
+MechS32 g_unk0x1007a7f8;
 
 // GLOBAL: MW2SHELL 0x1007a800
 MechChar g_unk0x1007a800[0x20];
@@ -322,6 +465,13 @@ undefined g_unk0x1007c960[0x100];
 
 // GLOBAL: MW2SHELL 0x1007ca60
 undefined g_unk0x1007ca60[0x100];
+
+// The path of the .mek file being saved.
+// GLOBAL: MW2SHELL 0x1007cb60
+undefined g_unk0x1007cb60[0x100];
+
+// GLOBAL: MW2SHELL 0x1007cc60
+MechChar g_unk0x1007cc60[0x20];
 
 // GLOBAL: MW2SHELL 0x1007cc80
 MechS32 g_unk0x1007cc80;
@@ -1156,7 +1306,7 @@ EmberGlyph0x3e* FUN_10009284(SlateTab0x2c* p_tab)
 // FUNCTION: MW2SHELL 0x100092dc
 EmberGlyph0x3e* FUN_100092dc(SlateTab0x2c* p_tab)
 {
-	QuartzHelm0xf50::Armor* armor;
+	QuartzHelm0x7a8::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab->m_unk0x24) {
@@ -1177,7 +1327,7 @@ EmberGlyph0x3e* FUN_100092dc(SlateTab0x2c* p_tab)
 // FUNCTION: MW2SHELL 0x100093a7
 EmberGlyph0x3e* FUN_100093a7(SlateTab0x2c* p_tab)
 {
-	QuartzHelm0xf50::Armor* armor;
+	QuartzHelm0x7a8::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[(MechS32) p_tab->m_unk0x24];
 	if (armor->m_unk0x0c >= 0) {
@@ -1292,6 +1442,116 @@ EmberGlyph0x3e* FUN_1000973c(SlateTab0x2c* p_tab)
 		->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005d950[value / 100].m_name, p_tab->m_unk0x14);
 }
 
+// Draws one statistic (p_tab->m_unk0x24) of the highlighted weapon.
+// FUNCTION: MW2SHELL 0x100097a0
+EmberGlyph0x3e* FUN_100097a0(SlateTab0x2c* p_tab)
+{
+	MechS32 weapon;
+
+	if (g_unk0x1005c640.m_unk0x310 == -1) {
+		return NULL;
+	}
+
+	weapon = g_unk0x1005c640.m_unk0x310 / 100;
+	switch ((MechS32) p_tab->m_unk0x24) {
+	case 0:
+		if (g_unk0x1005c640.m_unk0x310 % 100) {
+			sprintf(g_szTempBuffer, "%s #%d", g_unk0x1005d950[weapon].m_name, g_unk0x1005c640.m_unk0x310 % 100);
+		}
+		else {
+			sprintf(g_szTempBuffer, "%s", g_unk0x1005d950[weapon].m_name);
+		}
+		break;
+	case 1:
+		sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x00);
+		break;
+	case 2:
+		if (g_unk0x1005d950[weapon].m_unk0x04 == 0) {
+			strcpy(g_szTempBuffer, "-");
+		}
+		else if (g_unk0x1005d950[weapon].m_unk0x04 < 0) {
+			sprintf(g_szTempBuffer, "%d/missile", -g_unk0x1005d950[weapon].m_unk0x04);
+		}
+		else {
+			sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x04);
+		}
+		break;
+	case 3:
+		if (g_unk0x1005d950[weapon].m_unk0x08 >= 0) {
+			sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x08);
+		}
+		else {
+			strcpy(g_szTempBuffer, "-");
+		}
+		break;
+	case 4:
+		if (g_unk0x1005d950[weapon].m_unk0x0c == -1) {
+			strcpy(g_szTempBuffer, "-");
+		}
+		else if (g_unk0x1005d950[weapon].m_unk0x0c == 1) {
+			strcpy(g_szTempBuffer, "1");
+		}
+		else {
+			sprintf(g_szTempBuffer, "1-%d", g_unk0x1005d950[weapon].m_unk0x0c);
+		}
+		break;
+	case 5:
+		if (g_unk0x1005d950[weapon].m_unk0x10 == -1) {
+			strcpy(g_szTempBuffer, "-");
+		}
+		else if (g_unk0x1005d950[weapon].m_unk0x0c + 1 == g_unk0x1005d950[weapon].m_unk0x10) {
+			sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x10);
+		}
+		else {
+			sprintf(g_szTempBuffer, "%d-%d", g_unk0x1005d950[weapon].m_unk0x0c + 1, g_unk0x1005d950[weapon].m_unk0x10);
+		}
+		break;
+	case 6:
+		if (g_unk0x1005d950[weapon].m_unk0x14 == -1) {
+			strcpy(g_szTempBuffer, "-");
+		}
+		else {
+			sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x14);
+		}
+		break;
+	case 7:
+		if (g_unk0x1005d950[weapon].m_unk0x18 % 10) {
+			sprintf(
+				g_szTempBuffer,
+				"%d.%d%dT",
+				g_unk0x1005d950[weapon].m_unk0x18 / 100,
+				g_unk0x1005d950[weapon].m_unk0x18 / 10 % 10,
+				g_unk0x1005d950[weapon].m_unk0x18 % 10
+			);
+		}
+		else if (g_unk0x1005d950[weapon].m_unk0x18 % 100) {
+			sprintf(
+				g_szTempBuffer,
+				"%d.%dT",
+				g_unk0x1005d950[weapon].m_unk0x18 / 100,
+				g_unk0x1005d950[weapon].m_unk0x18 / 10 % 10
+			);
+		}
+		else {
+			sprintf(g_szTempBuffer, "%dT", g_unk0x1005d950[weapon].m_unk0x18 / 100);
+		}
+		break;
+	case 8:
+		sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x1c);
+		break;
+	case 9:
+		if (g_unk0x1005d950[weapon].m_unk0x20) {
+			sprintf(g_szTempBuffer, "%d", g_unk0x1005d950[weapon].m_unk0x20);
+		}
+		else {
+			strcpy(g_szTempBuffer, "-");
+		}
+		break;
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
 // FUNCTION: MW2SHELL 0x10009d50
 EmberGlyph0x3e* FUN_10009d50(SlateTab0x2c* p_tab)
 {
@@ -1303,6 +1563,97 @@ EmberGlyph0x3e* FUN_10009d50(SlateTab0x2c* p_tab)
 	}
 
 	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005c4f0[location], p_tab->m_unk0x14);
+}
+
+// Draws the item in one critical slot (p_tab->m_unk0x24) of the selected location: a weapon, a
+// piece of equipment or ammunition (ids from 10000 up).
+// Not 100%: the stack slots of id and i are permuted.
+// FUNCTION: MW2SHELL 0x10009da9
+EmberGlyph0x3e* FUN_10009da9(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+	MechS32 i;
+
+	if (g_unk0x1005c640.m_unk0x314 == -1) {
+		return NULL;
+	}
+
+	id = g_unk0x1005c640.m_unk0x318[g_unk0x1005c640.m_unk0x314][(MechS32) p_tab->m_unk0x24];
+	if (id == -1) {
+		return NULL;
+	}
+
+	id &= ~0x80000000;
+	if (id == 0) {
+		strcpy(g_szTempBuffer, "-");
+	}
+	else if (id < 5000) {
+		sprintf(g_szTempBuffer, "%s #%d", g_unk0x1005d950[id / 100].m_name, id % 100);
+	}
+	else if (id < 10000) {
+		for (i = 22; i >= 0; i--) {
+			if (g_unk0x1005c438[i].m_unk0x00 / 50 == id / 50) {
+				sprintf(g_szTempBuffer, "%s", g_unk0x1005c438[i].m_name);
+				break;
+			}
+		}
+		if (i < 0) {
+			sprintf(g_szTempBuffer, "BAD CRITICAL %d", id);
+		}
+	}
+	else {
+		id -= 10000;
+		sprintf(g_szTempBuffer, "Ammo (%s #%d) #%d", g_unk0x1005d950[id / 10000].m_name, id / 100 % 100, id % 100);
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+}
+
+// Draws one entry (p_tab->m_unk0x24) of the items list with its count, like FUN_10009da9.
+// Not 100%: the stack slots of id, count and i are permuted.
+// FUNCTION: MW2SHELL 0x10009f92
+EmberGlyph0x3e* FUN_10009f92(SlateTab0x2c* p_tab)
+{
+	MechS32 id;
+	MechS32 count;
+	MechS32 i;
+
+	if (g_unk0x1005c640.m_unk0x314 == -1) {
+		return NULL;
+	}
+
+	id = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00;
+	count = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x04;
+	if (id == -1 || id == 0 || count == 0) {
+		return NULL;
+	}
+	else if (id < 5000) {
+		sprintf(g_szTempBuffer, "%s #%d (%d)", g_unk0x1005d950[id / 100].m_name, id % 100, count);
+	}
+	else if (id < 10000) {
+		for (i = 22; i >= 0; i--) {
+			if (g_unk0x1005c438[i].m_unk0x00 / 50 == id / 50) {
+				sprintf(g_szTempBuffer, "%s (%d)", g_unk0x1005c438[i].m_name, count);
+				break;
+			}
+		}
+		if (i < 0) {
+			sprintf(g_szTempBuffer, "BAD CRITICAL %d", id);
+		}
+	}
+	else {
+		id -= 10000;
+		sprintf(
+			g_szTempBuffer,
+			"Ammo (%s #%d) #%d (%d)",
+			g_unk0x1005d950[id / 10000].m_name,
+			id / 100 % 100,
+			id % 100,
+			count
+		);
+	}
+
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
 }
 
 // FUNCTION: MW2SHELL 0x1000a161
@@ -1911,7 +2262,7 @@ void FUN_1000b0dc(SlateTab0x2c* p_tab)
 // FUNCTION: MW2SHELL 0x1000b166
 void FUN_1000b166(SlateTab0x2c* p_tab)
 {
-	QuartzHelm0xf50::Armor* armor;
+	QuartzHelm0x7a8::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -1942,7 +2293,7 @@ void FUN_1000b166(SlateTab0x2c* p_tab)
 // FUNCTION: MW2SHELL 0x1000b239
 void FUN_1000b239(SlateTab0x2c* p_tab)
 {
-	QuartzHelm0xf50::Armor* armor;
+	QuartzHelm0x7a8::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -1959,7 +2310,7 @@ void FUN_1000b239(SlateTab0x2c* p_tab)
 // FUNCTION: MW2SHELL 0x1000b284
 void FUN_1000b284(SlateTab0x2c* p_tab)
 {
-	QuartzHelm0xf50::Armor* armor;
+	QuartzHelm0x7a8::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -1988,7 +2339,7 @@ void FUN_1000b284(SlateTab0x2c* p_tab)
 // FUNCTION: MW2SHELL 0x1000b339
 void FUN_1000b339(SlateTab0x2c* p_tab)
 {
-	QuartzHelm0xf50::Armor* armor;
+	QuartzHelm0x7a8::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
 	if (p_tab) {
@@ -2129,11 +2480,123 @@ MechS32 FUN_1000b6f4(MechS32 p_id, MechS32* p_location, MechS32* p_slot)
 	return FALSE;
 }
 
-// STUB: MW2SHELL 0x1000b771
+// Saves the variant being edited to the .mek file p_name in the mek directory, creating the
+// directory if needed. Returns 1, or 0 on failure.
+// Not 100%: m_unk0x318[i][j] loads the index before the base in the two tests of the slot loop.
+// FUNCTION: MW2SHELL 0x1000b771
 MechS32 FUN_1000b771(MechChar* p_name)
 {
-	STUB(0x1000b771);
-	return 0;
+	MechS32 ammo;
+	MechS32 i;
+	MechS32 j;
+	MechS32 k;
+	FILE* file;
+
+	memset(&g_unk0x10079d20, 0, sizeof(g_unk0x10079d20));
+	memset(g_unk0x1007c820, 0, sizeof(g_unk0x1007c820));
+	memset(g_unk0x1007a7a8, 0, sizeof(g_unk0x1007a7a8));
+	memset(g_unk0x10079c50, 0, sizeof(g_unk0x10079c50));
+	memset(g_unk0x10079d48, 0, sizeof(g_unk0x10079d48));
+
+	for (i = 0; i < 10; i++) {
+		if (g_unk0x1005c640.m_unk0x2e8[i] == -1) {
+			break;
+		}
+		g_unk0x1007a7a8[i].m_unk0x00 = g_unk0x1005c640.m_unk0x2e8[i];
+		g_unk0x1007a7a8[i].m_unk0x04 = -1;
+	}
+	g_unk0x10079d20.m_unk0x10 = i;
+
+	for (i = 0; i < 25; i++) {
+		if (g_unk0x1005c640.m_unk0x284[i] == -1) {
+			break;
+		}
+		ammo = (g_unk0x1005c640.m_unk0x284[i] - 10000) / 10000;
+		ammo = ammo * 100 + 10001;
+		for (j = 0; j < 25; j++) {
+			if (g_unk0x10079c50[j].m_unk0x00 == 0) {
+				break;
+			}
+			if (g_unk0x10079c50[j].m_unk0x00 == ammo) {
+				ammo++;
+			}
+		}
+		g_unk0x10079c50[i].m_unk0x00 = ammo;
+		g_unk0x10079c50[i].m_unk0x04 = (g_unk0x1005c640.m_unk0x284[i] - 10000) / 100;
+	}
+	g_unk0x10079d20.m_unk0x14 = i;
+
+	for (i = 0; i < 8; i++) {
+		g_unk0x1007c820[i].m_unk0x26 = 1;
+		g_unk0x1007c820[i].m_unk0x24 = 12;
+		for (j = 0; j < 12; j++) {
+			if (g_unk0x1005c640.m_unk0x318[i][j] == -1) {
+				g_unk0x1007c820[i].m_unk0x24 = 6;
+				g_unk0x1007c820[i].m_unk0x0c[j] = 0;
+			}
+			else if (g_unk0x1005c640.m_unk0x318[i][j] < 10000) {
+				g_unk0x1007c820[i].m_unk0x0c[j] = g_unk0x1005c640.m_unk0x318[i][j];
+			}
+			else {
+				for (k = 0; k < 25; k++) {
+					if (g_unk0x1005c640.m_unk0x318[i][j] == g_unk0x1005c640.m_unk0x284[k]) {
+						g_unk0x1007c820[i].m_unk0x0c[j] = g_unk0x10079c50[k].m_unk0x00;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	g_unk0x1007c820[0].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[0].m_unk0x00;
+	g_unk0x1007c820[1].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[1].m_unk0x00;
+	g_unk0x1007c820[2].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[2].m_unk0x00;
+	g_unk0x1007c820[3].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[3].m_unk0x00;
+	g_unk0x1007c820[4].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[4].m_unk0x00;
+	g_unk0x1007c820[5].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[5].m_unk0x00;
+	g_unk0x1007c820[6].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[6].m_unk0x00;
+	g_unk0x1007c820[7].m_unk0x08 = (MechS16) g_unk0x1005c640.m_unk0x710[7].m_unk0x00;
+	g_unk0x1007c820[0].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[0].m_unk0x08;
+	g_unk0x1007c820[1].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[1].m_unk0x08;
+	g_unk0x1007c820[2].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[2].m_unk0x08;
+	g_unk0x1007c820[3].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[3].m_unk0x08;
+	g_unk0x1007c820[4].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[4].m_unk0x08;
+	g_unk0x1007c820[5].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[5].m_unk0x08;
+	g_unk0x1007c820[6].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[6].m_unk0x08;
+	g_unk0x1007c820[7].m_unk0x00 = (MechS16) g_unk0x1005c640.m_unk0x710[7].m_unk0x08;
+	g_unk0x1007c820[1].m_unk0x04 = (MechS16) g_unk0x1005c640.m_unk0x710[1].m_unk0x0c;
+	g_unk0x1007c820[2].m_unk0x04 = (MechS16) g_unk0x1005c640.m_unk0x710[2].m_unk0x0c;
+	g_unk0x1007c820[3].m_unk0x04 = (MechS16) g_unk0x1005c640.m_unk0x710[3].m_unk0x0c;
+
+	g_unk0x10079d20.m_unk0x00 = (g_unk0x1005c640.m_unk0x200 + 50) / 100;
+	g_unk0x10079d20.m_unk0x04 = g_unk0x1005c640.m_unk0x278;
+	g_unk0x10079d20.m_unk0x08 = g_unk0x1005c640.m_unk0x280;
+	g_unk0x10079d20.m_unk0x0c = ((g_unk0x1005c640.m_unk0x22c + 50) / 100 + 10) * g_unk0x1005c640.m_unk0x228;
+	strcpy(g_unk0x10079d48, g_unk0x1005c640.m_unk0x100);
+
+	sprintf(g_unk0x1007cc60, "mek\\%s", p_name);
+	file = fopen(g_unk0x1007cc60, "wb");
+	if (file == NULL) {
+		sprintf(g_unk0x1007cc60, "mek\\");
+		if (!CreateDirectory(g_unk0x1007cc60, NULL)) {
+			DebugPrint("CreateDirectory mek failed: %d\n", GetLastError());
+			return 0;
+		}
+
+		sprintf(g_unk0x1007cc60, "mek\\%s", p_name);
+		file = fopen(g_unk0x1007cc60, "wb");
+		if (file == NULL) {
+			return 0;
+		}
+	}
+
+	fwrite(&g_unk0x10079d20, 0x18, 1, file);
+	fwrite(g_unk0x1007c820, 0x28, 8, file);
+	fwrite(g_unk0x1007a7a8, 8, g_unk0x10079d20.m_unk0x10, file);
+	fwrite(g_unk0x10079c50, 8, g_unk0x10079d20.m_unk0x14, file);
+	fwrite(g_unk0x10079d48, 0x32, 1, file);
+	fclose(file);
+	return 1;
 }
 
 // Returns the image of a .mek file: a user variant from the mek directory, or a standard one
@@ -2197,10 +2660,232 @@ void FUN_1000be7a(MechS32 p_location, MechS32 p_slot, MechS32 p_id)
 	}
 }
 
-// STUB: MW2SHELL 0x1000befe
+// Loads the .mek file p_name into the variant being edited, keeping the previous variant in
+// g_unk0x1005cde8, and derives the engine, armor and internal structure from it.
+// Not 100%: the stack slots of the locals are permuted, and m_unk0x0c[j] of the crate loads the
+// base before the index.
+// FUNCTION: MW2SHELL 0x1000befe
 void FUN_1000befe(MechChar* p_name)
 {
-	STUB(0x1000befe);
+	MechS32 id;
+	undefined* data;
+	MechS32 i;
+	MechS32 j;
+	MechS32 k;
+
+	data = (undefined*) FUN_1000bce5(p_name);
+	if (data == NULL) {
+		return;
+	}
+
+	g_unk0x1005cde8 = g_unk0x1005c640;
+	memset(&g_unk0x10079d20, 0, sizeof(g_unk0x10079d20));
+	memset(g_unk0x1007c820, 0, sizeof(g_unk0x1007c820));
+	memset(g_unk0x1007a7a8, 0, sizeof(g_unk0x1007a7a8));
+	memset(g_unk0x10079c50, 0, sizeof(g_unk0x10079c50));
+	memset(g_unk0x10079d48, 0, sizeof(g_unk0x10079d48));
+
+	data = FUN_1000be4d((undefined*) &g_unk0x10079d20, data, 0x18);
+	data = FUN_1000be4d((undefined*) g_unk0x1007c820, data, 0x140);
+	FUN_1000be4d(
+		(undefined*) g_unk0x1007a7a8,
+		data,
+		(g_unk0x10079d20.m_unk0x10 < 10 ? g_unk0x10079d20.m_unk0x10 : 10) * 8
+	);
+	data += g_unk0x10079d20.m_unk0x10 * 8;
+	FUN_1000be4d(
+		(undefined*) g_unk0x10079c50,
+		data,
+		(g_unk0x10079d20.m_unk0x14 < 25 ? g_unk0x10079d20.m_unk0x14 : 25) * 8
+	);
+	data += g_unk0x10079d20.m_unk0x14 * 8;
+	data = FUN_1000be4d((undefined*) g_unk0x10079d48, data, 0x32);
+	FUN_1000be09(p_name);
+
+	memset(&g_unk0x1005c640, 0, sizeof(g_unk0x1005c640));
+	for (i = 0; i < 78; i++) {
+		g_unk0x1005c640.m_unk0x4a0[i].m_unk0x00 = -1;
+	}
+
+	for (i = 0; i < 10; i++) {
+		if (i < g_unk0x10079d20.m_unk0x10) {
+			g_unk0x1005c640.m_unk0x2e8[i] = g_unk0x1007a7a8[i].m_unk0x00;
+		}
+		else {
+			g_unk0x1005c640.m_unk0x2e8[i] = -1;
+		}
+	}
+
+	for (i = 0; i < 25; i++) {
+		g_unk0x1005c640.m_unk0x284[i] = -1;
+	}
+	for (i = 0; i < g_unk0x10079d20.m_unk0x14; i++) {
+		FUN_1000819f(g_unk0x10079c50[i].m_unk0x04 * 100 + 10001);
+		g_unk0x1005c640.m_unk0x268 += 100;
+	}
+
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 12; j++) {
+			if (g_unk0x1007c820[i].m_unk0x24 > j) {
+				id = g_unk0x1007c820[i].m_unk0x0c[j];
+				if (id >= 10000) {
+					for (k = 0; k < 25; k++) {
+						if (g_unk0x10079c50[k].m_unk0x00 == id) {
+							id = g_unk0x1005c640.m_unk0x284[k];
+							break;
+						}
+					}
+				}
+				g_unk0x1005c640.m_unk0x318[i][j] = id;
+			}
+			else {
+				g_unk0x1005c640.m_unk0x318[i][j] = -1;
+			}
+		}
+	}
+
+	strcpy(g_unk0x1005c640.m_unk0x100, g_unk0x10079d48);
+	g_unk0x1005c640.m_unk0x200 = g_unk0x10079d20.m_unk0x00 * 100;
+	g_unk0x1005c640.m_unk0x278 = g_unk0x10079d20.m_unk0x04;
+	g_unk0x1005c640.m_unk0x280 = g_unk0x10079d20.m_unk0x08;
+	g_unk0x1005c640.m_unk0x22c = (g_unk0x10079d20.m_unk0x0c - 10) * 100;
+	g_unk0x1005c640.m_unk0x210 = (g_unk0x10079d20.m_unk0x04 * g_unk0x10079d20.m_unk0x00 * 5 + 4) / 5;
+	if (g_unk0x1005c640.m_unk0x210 < 10) {
+		g_unk0x1005c640.m_unk0x210 = 10;
+	}
+	if (g_unk0x1005c640.m_unk0x210 > 400) {
+		g_unk0x1005c640.m_unk0x210 = 400;
+	}
+	g_unk0x1005c640.m_unk0x20c = (g_unk0x1005c640.m_unk0x210 - 10) / 5;
+	if (FUN_1000b679(5850, 1, NULL)) {
+		g_unk0x1005c640.m_unk0x20c += 10000;
+	}
+
+	if (FUN_1000b6f4(8001, NULL, NULL)) {
+		g_unk0x1005c640.m_unk0x240 = 1;
+	}
+	if (FUN_1000b6f4(9001, NULL, NULL)) {
+		g_unk0x1005c640.m_unk0x24c = 1;
+	}
+
+	g_unk0x1005c640.m_unk0x258 = 0;
+	for (i = 0; i < 8; i++) {
+		g_unk0x1005c640.m_unk0x258 += g_unk0x1007c820[i].m_unk0x04 + g_unk0x1007c820[i].m_unk0x00;
+	}
+	if (g_unk0x1005c640.m_unk0x24c == 1) {
+		g_unk0x1005c640.m_unk0x250 = (MechS32) (g_unk0x1005c640.m_unk0x258 / 19.2 * 100.0);
+	}
+	else {
+		g_unk0x1005c640.m_unk0x250 = (MechS32) (g_unk0x1005c640.m_unk0x258 / 16.0 * 100.0);
+	}
+	g_unk0x1005c640.m_unk0x250 = FUN_100078ae(g_unk0x1005c640.m_unk0x250 * 2) / 2;
+	g_unk0x1005c640.m_unk0x25c = g_unk0x1005c640.m_unk0x258;
+
+	i = (g_unk0x1005c640.m_unk0x200 / 100 - 10) / 5;
+	g_unk0x1005c640.m_unk0x710[0].m_unk0x00 = 3;
+	g_unk0x1005c640.m_unk0x710[1].m_unk0x00 = g_unk0x1005c510[i].m_unk0x04;
+	g_unk0x1005c640.m_unk0x710[2].m_unk0x00 = g_unk0x1005c510[i].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[3].m_unk0x00 = g_unk0x1005c510[i].m_unk0x04;
+	g_unk0x1005c640.m_unk0x710[4].m_unk0x00 = g_unk0x1005c510[i].m_unk0x08;
+	g_unk0x1005c640.m_unk0x710[5].m_unk0x00 = g_unk0x1005c510[i].m_unk0x08;
+	g_unk0x1005c640.m_unk0x710[6].m_unk0x00 = g_unk0x1005c510[i].m_unk0x0c;
+	g_unk0x1005c640.m_unk0x710[7].m_unk0x00 = g_unk0x1005c510[i].m_unk0x0c;
+	g_unk0x1005c640.m_unk0x710[0].m_unk0x04 = 9;
+	g_unk0x1005c640.m_unk0x710[1].m_unk0x04 = g_unk0x1005c640.m_unk0x710[1].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[2].m_unk0x04 = g_unk0x1005c640.m_unk0x710[2].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[3].m_unk0x04 = g_unk0x1005c640.m_unk0x710[3].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[4].m_unk0x04 = g_unk0x1005c640.m_unk0x710[4].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[5].m_unk0x04 = g_unk0x1005c640.m_unk0x710[5].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[6].m_unk0x04 = g_unk0x1005c640.m_unk0x710[6].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[7].m_unk0x04 = g_unk0x1005c640.m_unk0x710[7].m_unk0x00 * 2;
+	g_unk0x1005c640.m_unk0x710[0].m_unk0x08 = g_unk0x1007c820[0].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[1].m_unk0x08 = g_unk0x1007c820[1].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[2].m_unk0x08 = g_unk0x1007c820[2].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[3].m_unk0x08 = g_unk0x1007c820[3].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[4].m_unk0x08 = g_unk0x1007c820[4].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[5].m_unk0x08 = g_unk0x1007c820[5].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[6].m_unk0x08 = g_unk0x1007c820[6].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[7].m_unk0x08 = g_unk0x1007c820[7].m_unk0x00;
+	g_unk0x1005c640.m_unk0x710[0].m_unk0x0c = -1;
+	g_unk0x1005c640.m_unk0x710[1].m_unk0x0c = g_unk0x1007c820[1].m_unk0x04;
+	g_unk0x1005c640.m_unk0x710[2].m_unk0x0c = g_unk0x1007c820[2].m_unk0x04;
+	g_unk0x1005c640.m_unk0x710[3].m_unk0x0c = g_unk0x1007c820[3].m_unk0x04;
+	g_unk0x1005c640.m_unk0x710[4].m_unk0x0c = -1;
+	g_unk0x1005c640.m_unk0x710[5].m_unk0x0c = -1;
+	g_unk0x1005c640.m_unk0x710[6].m_unk0x0c = -1;
+	g_unk0x1005c640.m_unk0x710[7].m_unk0x0c = -1;
+	g_unk0x1005c640.m_unk0x314 = 0;
+
+	g_unk0x1005c640.m_unk0x790 = 0;
+	g_unk0x1005c640.m_unk0x794 = 0;
+	g_unk0x1005c640.m_unk0x798 = 0;
+	g_unk0x1005c640.m_unk0x79c = 0;
+	g_unk0x1005c640.m_unk0x7a0 = 0;
+	g_unk0x1005c640.m_unk0x7a4 = (g_unk0x1005c640.m_unk0x200 / 25 + 50) / 100;
+	if (FUN_1000b6f4(5001, NULL, NULL)) {
+		g_unk0x1005c640.m_unk0x270 = g_unk0x1005c640.m_unk0x7a4 * 100;
+		g_unk0x1005c640.m_unk0x790 = 1;
+	}
+
+	FUN_10007b4d(5301);
+	FUN_10007b4d(5351);
+	g_unk0x1005c640.m_unk0x794 = FUN_10007b4d(5401);
+	g_unk0x1005c640.m_unk0x798 = FUN_10007b4d(5451);
+	FUN_10007b4d(5302);
+	FUN_10007b4d(5352);
+	g_unk0x1005c640.m_unk0x79c = FUN_10007b4d(5402);
+	g_unk0x1005c640.m_unk0x7a0 = FUN_10007b4d(5452);
+	FUN_1000be7a(4, 0, 5301);
+	FUN_1000be7a(4, 1, 5351);
+	if (g_unk0x1005c640.m_unk0x794) {
+		FUN_1000be7a(4, 2, 5401);
+	}
+	if (g_unk0x1005c640.m_unk0x798) {
+		FUN_1000be7a(4, 3, 5451);
+	}
+	FUN_1000be7a(5, 0, 5302);
+	FUN_1000be7a(5, 1, 5352);
+	if (g_unk0x1005c640.m_unk0x79c) {
+		FUN_1000be7a(5, 2, 5402);
+	}
+	if (g_unk0x1005c640.m_unk0x7a0) {
+		FUN_1000be7a(5, 3, 5452);
+	}
+
+	FUN_1000884c();
+	FUN_100088ec();
+	FUN_100089a8();
+	FUN_10008989();
+
+	g_unk0x1005c640.m_unk0x228 = 0;
+	if (FUN_1000b6f4(6001, &i, &j)) {
+		g_unk0x1005c640.m_unk0x318[i][j] = 0;
+		if (FUN_1000b6f4(6001, NULL, NULL)) {
+			g_unk0x1005c640.m_unk0x228 = 2;
+		}
+		else {
+			g_unk0x1005c640.m_unk0x228 = 1;
+		}
+		g_unk0x1005c640.m_unk0x318[i][j] = 6001;
+	}
+
+	if (g_unk0x1005c640.m_unk0x228 == 0) {
+		if (g_unk0x1005c640.m_unk0x204 > g_unk0x1005c640.m_unk0x200 && g_unk0x1005c640.m_unk0x22c >= 1000 &&
+			g_unk0x1005c640.m_unk0x22c / 2 % 100 == 0) {
+			g_unk0x1005c640.m_unk0x228 = 2;
+		}
+		else {
+			g_unk0x1005c640.m_unk0x228 = 1;
+		}
+	}
+
+	if (g_unk0x1005c640.m_unk0x228 == 2) {
+		g_unk0x1005c640.m_unk0x22c = g_unk0x1005c640.m_unk0x22c / 2 - 500;
+		FUN_10008989();
+	}
+
+	g_unk0x1005c640.m_unk0x230 = -1;
+	FUN_10008786();
 }
 
 // Lists the variants of a mech: the standard ones from the project file in 1-99 (and the name
@@ -2407,8 +3092,1177 @@ MechS32 FUN_1000cf4c()
 	return TRUE;
 }
 
-// STUB: MW2SHELL 0x1000d0d4
+// The mech bay's field tables: the bay's own (g_unk0x10060d20), the customize screen's
+// (g_unk0x10060698) and the ones its components switch to on the right.
+// A field's m_top: a packed row and offset below the previous field (see SlateTab0x2c).
+#define MB_ROW(row, offset) ((MechS32) (0x80000000 | ((row) << 4) | (offset)))
+#define MB_TAB(left, top, width, height, colors, draw, click, data, next)                                              \
+	{left, top, width, height, 0, colors, NULL, draw, click, (void*) (data), next}
+#define MB_END {-1, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL}
+
+extern SlateTab0x2c g_unk0x1005de80[];
+extern SlateTab0x2c g_unk0x1005e140[];
+extern SlateTab0x2c g_unk0x1005e2f8[];
+extern SlateTab0x2c g_unk0x1005e458[];
+extern SlateTab0x2c g_unk0x1005e820[];
+extern SlateTab0x2c g_unk0x1005efe0[];
+extern SlateTab0x2c g_unk0x1005f248[];
+extern SlateTab0x2c g_unk0x1005fc70[];
+extern SlateTab0x2c g_unk0x10060698[];
+extern SlateTab0x2c g_unk0x10060d20[];
+
+// GLOBAL: MW2SHELL 0x1005de80
+SlateTab0x2c g_unk0x1005de80[] = {
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "ENGINE", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Rating", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008dcc, NULL, &g_unk0x1005c640.m_unk0x20c, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Type", NULL),
+	MB_TAB(544, MB_ROW(0, 0), 50, -1, g_unk0x1007ca60, FUN_10008e4f, FUN_1000a668, &g_unk0x1005c640.m_unk0x20c, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Manufactur", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008eaa, NULL, &g_unk0x1005c640.m_unk0x20c, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Mass", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x214, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Walking Speed", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008f14, NULL, &g_unk0x1005c640.m_unk0x278, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Running Speed", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008f14, NULL, &g_unk0x1005c640.m_unk0x27c, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a4f0, "FASTER", NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a5a3, "SLOWER", NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005e140
+SlateTab0x2c g_unk0x1005e140[] = {
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "HEAT SINKS", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Count", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008fdd, NULL, &g_unk0x1005c640.m_unk0x228, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Type", NULL),
+	MB_TAB(544, MB_ROW(0, 0), 50, -1, g_unk0x1007ca60, FUN_10009076, FUN_1000a8b0, &g_unk0x1005c640.m_unk0x228, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Mass", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x22c, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a84d, "ADD", NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a878, "DELETE", NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005e2f8
+SlateTab0x2c g_unk0x1005e2f8[] = {
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "JUMP JETS", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Count", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x280, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Mass", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x238, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a7ae, "ADD", NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a803, "DELETE", NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005e458
+SlateTab0x2c g_unk0x1005e458[] = {
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "INTERNAL STRUCTURE", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Type", NULL),
+	MB_TAB(544, MB_ROW(0, 0), 50, -1, g_unk0x1007ca60, FUN_1000922c, FUN_1000aac2, &g_unk0x1005c640.m_unk0x240, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Mass", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x244, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Head", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[0], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Right Torso", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[1], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Center Torso", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[2], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Left Torso", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[3], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Right Arm", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[4], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Left Arm", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[5], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Right Leg", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[6], NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Left Leg", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x710[7], NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005e820
+SlateTab0x2c g_unk0x1005e820[] = {
+	MB_TAB(0, 0, -1, -1, g_unk0x1007cb60, FUN_10008bce, NULL, 0, NULL),
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "ARMOR", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Factor", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x258, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Allocated", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x25c, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Mass", NULL),
+	MB_TAB(544, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x250, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Type", NULL),
+	MB_TAB(544, MB_ROW(0, 0), 100, -1, g_unk0x1007ca60, FUN_10009284, FUN_1000a9b8, &g_unk0x1005c640.m_unk0x24c, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a955, "ADD", NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a980, "DELETE", NULL),
+	MB_TAB(444, MB_ROW(3, 3), 100, -1, g_unk0x1007ca60, FUN_100094ba, FUN_1000af87, &g_unk0x1005c640.m_unk0x314, NULL),
+	MB_TAB(554, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100092dc, NULL, 0, NULL),
+	MB_TAB(584, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100092dc, NULL, 1, NULL),
+	MB_TAB(551, 168, -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000b166, "", NULL),
+	MB_TAB(581, MB_ROW(0, 0), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000b284, "", NULL),
+	MB_TAB(551, 202, -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000b239, "", NULL),
+	MB_TAB(581, MB_ROW(0, 0), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000b339, "", NULL),
+	MB_TAB(224, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "ARMOR ALLOCATION", NULL),
+	MB_TAB(224, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 0, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 0, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 1, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 1, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 2, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 2, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 3, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 3, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 4, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 4, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 5, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 5, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 6, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 6, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000943f, NULL, 7, NULL),
+	MB_TAB(344, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100093a7, NULL, 7, NULL),
+	MB_TAB(291, 223, 100, 34, g_unk0x1007cb60, NULL, FUN_1000afc9, 0, NULL),
+	MB_TAB(262, 258, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 1, NULL),
+	MB_TAB(301, 258, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 2, NULL),
+	MB_TAB(342, 258, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 3, NULL),
+	MB_TAB(226, 256, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 4, NULL),
+	MB_TAB(378, 256, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 5, NULL),
+	MB_TAB(255, 362, 60, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 6, NULL),
+	MB_TAB(325, 362, 60, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 7, NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005efe0
+SlateTab0x2c g_unk0x1005efe0[] = {
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "EQUIPMENT", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Yes", NULL),
+	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "CASE", NULL),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		100,
+		-1,
+		g_unk0x1007ca60,
+		FUN_1000a1b0,
+		FUN_1000b384,
+		&g_unk0x1005c640.m_unk0x790,
+		(SlateTab0x2c*) 5000
+	),
+	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5000, NULL),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		100,
+		-1,
+		g_unk0x1007ca60,
+		FUN_1000a1b0,
+		FUN_1000b384,
+		&g_unk0x1005c640.m_unk0x794,
+		(SlateTab0x2c*) 5401
+	),
+	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5401, NULL),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		100,
+		-1,
+		g_unk0x1007ca60,
+		FUN_1000a1b0,
+		FUN_1000b384,
+		&g_unk0x1005c640.m_unk0x798,
+		(SlateTab0x2c*) 5451
+	),
+	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5451, NULL),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		100,
+		-1,
+		g_unk0x1007ca60,
+		FUN_1000a1b0,
+		FUN_1000b384,
+		&g_unk0x1005c640.m_unk0x79c,
+		(SlateTab0x2c*) 5402
+	),
+	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5402, NULL),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		100,
+		-1,
+		g_unk0x1007ca60,
+		FUN_1000a1b0,
+		FUN_1000b384,
+		&g_unk0x1005c640.m_unk0x7a0,
+		(SlateTab0x2c*) 5452
+	),
+	MB_TAB(474, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000a208, NULL, 5452, NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005f248
+SlateTab0x2c g_unk0x1005f248[] = {
+	MB_TAB(224, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "WEAPONS AND AMMO", NULL),
+	MB_TAB(
+		224,
+		MB_ROW(2, 2),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[0],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[1],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[2],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[3],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[4],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[5],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[6],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[7],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[8],
+		NULL
+	),
+	MB_TAB(
+		224,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[9],
+		NULL
+	),
+	MB_TAB(224, MB_ROW(2, 2), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000abe8, "ADD WEAPON", NULL),
+	MB_TAB(324, MB_ROW(0, 0), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000ad3f, "ADD AMMO", NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000acc4, "DELETE WEAPON", NULL),
+	MB_TAB(324, MB_ROW(0, 0), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000adf9, "DELETE AMMO", NULL),
+	MB_TAB(224, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "WEAPON INFO", NULL),
+	MB_TAB(224, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Type", NULL),
+	MB_TAB(264, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 0, NULL),
+	MB_TAB(224, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Heat", NULL),
+	MB_TAB(274, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 1, NULL),
+	MB_TAB(324, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Mass", NULL),
+	MB_TAB(374, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 7, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Damage", NULL),
+	MB_TAB(274, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 2, NULL),
+	MB_TAB(324, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Crit", NULL),
+	MB_TAB(374, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 8, NULL),
+	MB_TAB(224, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Range", NULL),
+	MB_TAB(274, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 6, NULL),
+	MB_TAB(324, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Ammo", NULL),
+	MB_TAB(374, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100097a0, NULL, 9, NULL),
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "WEAPONS TABLE", NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 22, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 23, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 24, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 21, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 25, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 26, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 27, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 11, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 12, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 13, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 14, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 15, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 10, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 16, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 17, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 18, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 19, NULL),
+	MB_TAB(444, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 6, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 5, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 4, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 9, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 8, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 7, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 3, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 2, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 1, NULL),
+	MB_TAB(444, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_100096bd, FUN_1000af16, 0, NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x1005fc70
+SlateTab0x2c g_unk0x1005fc70[] = {
+	MB_TAB(0, 0, -1, -1, g_unk0x1007cb60, FUN_10008bce, NULL, 0, NULL),
+	MB_TAB(224, 64, 100, -1, g_unk0x1007ca60, FUN_10009d50, FUN_1000af87, &g_unk0x1005c640.m_unk0x314, NULL),
+	MB_TAB(224, MB_ROW(1, 5), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 0, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 1, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 2, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 3, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 4, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 5, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 6, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 7, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 8, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 9, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 10, NULL),
+	MB_TAB(224, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009da9, FUN_1000b0dc, 11, NULL),
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "UNASSIGNED CRITICALS", NULL),
+	MB_TAB(444, MB_ROW(2, 2), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 0, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 1, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 2, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 3, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 4, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 5, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 6, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 7, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 8, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 9, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 10, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 11, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 12, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 13, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 14, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 15, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 16, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 17, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 18, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 19, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 20, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 21, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 22, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 23, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 24, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 25, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 26, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 27, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 28, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 29, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 30, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 31, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 32, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_10009f92, FUN_1000afef, 33, NULL),
+	MB_TAB(444, MB_ROW(1, 1), 100, -1, g_unk0x1007cb60, FUN_1000a161, FUN_1000b0c2, 34, NULL),
+	MB_TAB(291, 223, 100, 34, g_unk0x1007cb60, NULL, FUN_1000afc9, 0, NULL),
+	MB_TAB(262, 258, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 1, NULL),
+	MB_TAB(301, 258, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 2, NULL),
+	MB_TAB(342, 258, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 3, NULL),
+	MB_TAB(226, 256, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 4, NULL),
+	MB_TAB(378, 256, 35, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 5, NULL),
+	MB_TAB(255, 362, 60, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 6, NULL),
+	MB_TAB(325, 362, 60, 100, g_unk0x1007cb60, NULL, FUN_1000afc9, 7, NULL),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x10060698
+SlateTab0x2c g_unk0x10060698[] = {
+	MB_TAB(320, 4, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, "~CUSTOMIZING", NULL),
+	MB_TAB(320, 28, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, g_unk0x1005c640.m_unk0x00, NULL),
+	MB_TAB(20, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Variant:", NULL),
+	MB_TAB(65, 64, 130, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a43b, g_unk0x1005c640.m_unk0x100, NULL),
+	MB_TAB(20, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "COMPONENT", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "MASS", NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "NOTES", NULL),
+	MB_TAB(20, MB_ROW(2, 2), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a2eb, "Engine", g_unk0x1005de80),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x214, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008dcc, NULL, &g_unk0x1005c640.m_unk0x20c, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Gyro", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x220, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Cockpit", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x224, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a2eb, "Heat Sinks", g_unk0x1005e140),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x22c, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008fdd, NULL, &g_unk0x1005c640.m_unk0x228, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a2eb, "Jump Jets", g_unk0x1005e2f8),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x238, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x280, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a2eb, "Internal", g_unk0x1005e458),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x244, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000922c, NULL, &g_unk0x1005c640.m_unk0x240, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a3b5, "Armor", g_unk0x1005e820),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x250, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10009284, NULL, &g_unk0x1005c640.m_unk0x24c, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a36d, "Weapons", g_unk0x1005f248),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x260, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a36d, "Ammo", g_unk0x1005f248),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x268, NULL),
+	MB_TAB(20, MB_ROW(1, 1), 100, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a2eb, "Equipment", g_unk0x1005efe0),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x270, NULL),
+	MB_TAB(20, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Used Mass", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008cb0, NULL, &g_unk0x1005c640.m_unk0x204, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Max Mass", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x200, NULL),
+	MB_TAB(20, MB_ROW(2, 2), -1, -1, g_unk0x1007ca60, FUN_1000918c, FUN_1000a3f3, "Assign Criticals", g_unk0x1005fc70),
+	MB_END,
+};
+
+// GLOBAL: MW2SHELL 0x10060d20
+SlateTab0x2c g_unk0x10060d20[] = {
+	MB_TAB(320, 4, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, g_unk0x10079ad0, NULL),
+	MB_TAB(320, 28, -1, -1, g_unk0x1007cb60, FUN_100091dc, NULL, g_unk0x1005c640.m_unk0x00, NULL),
+	MB_TAB(20, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Variant:", NULL),
+	MB_TAB(65, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, g_unk0x1005c640.m_unk0x100, NULL),
+	MB_TAB(20, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "COMPONENT", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "MASS", NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "NOTES", NULL),
+	MB_TAB(20, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Engine", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x214, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008dcc, NULL, &g_unk0x1005c640.m_unk0x20c, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Gyro", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x220, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Cockpit", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x224, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Heat Sinks", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x22c, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008fdd, NULL, &g_unk0x1005c640.m_unk0x228, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Jump Jets", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x238, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_100090ce, NULL, &g_unk0x1005c640.m_unk0x280, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Internal", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x244, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_1000922c, NULL, &g_unk0x1005c640.m_unk0x240, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Armor", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x250, NULL),
+	MB_TAB(147, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10009284, NULL, &g_unk0x1005c640.m_unk0x24c, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Weapons", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x260, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Ammo", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x268, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Equipment", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x270, NULL),
+	MB_TAB(20, MB_ROW(2, 2), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Used Mass", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008cb0, NULL, &g_unk0x1005c640.m_unk0x204, NULL),
+	MB_TAB(20, MB_ROW(1, 1), -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "Max Mass", NULL),
+	MB_TAB(98, MB_ROW(0, 0), -1, -1, g_unk0x1007cb60, FUN_10008c30, NULL, &g_unk0x1005c640.m_unk0x200, NULL),
+	MB_TAB(444, 64, -1, -1, g_unk0x1007cb60, FUN_1000918c, NULL, "WEAPONS AND AMMO", NULL),
+	MB_TAB(
+		444,
+		MB_ROW(2, 2),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[0],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[1],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[2],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[3],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[4],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[5],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[6],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[7],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[8],
+		NULL
+	),
+	MB_TAB(
+		444,
+		MB_ROW(1, 1),
+		130,
+		-1,
+		g_unk0x1007cb60,
+		FUN_10009537,
+		FUN_1000aeaa,
+		&g_unk0x1005c640.m_unk0x2e8[9],
+		NULL
+	),
+	MB_END,
+};
+
+#undef MB_ROW
+#undef MB_TAB
+#undef MB_END
+
+// The mech bay screen of each campaign.
+// GLOBAL: MW2SHELL 0x100703c8
+MechChar g_unk0x100703c8[0x0c] = "<~EXIT LAB";
+// GLOBAL: MW2SHELL 0x100703d4
+MechChar g_unk0x100703d4[0x10] = "~STAR CONFIG";
+// GLOBAL: MW2SHELL 0x100703e4
+MechChar g_unk0x100703e4[0x10] = "NEXT CHASSIS";
+// GLOBAL: MW2SHELL 0x100703f4
+MechChar g_unk0x100703f4[0x10] = "PREV CHASSIS";
+// GLOBAL: MW2SHELL 0x10070404
+MechChar g_unk0x10070404[0x10] = "NEXT VARIANT";
+// GLOBAL: MW2SHELL 0x10070414
+MechChar g_unk0x10070414[0x10] = "PREV VARIANT";
+// GLOBAL: MW2SHELL 0x10070424
+MechChar g_unk0x10070424[0x0c] = "<~CUSTOMIZE";
+// GLOBAL: MW2SHELL 0x10070430
+MechChar g_unk0x10070430[0x10] = "<~ACCEPT MECH";
+// GLOBAL: MW2SHELL 0x10070440
+MechChar g_unk0x10070440[0x08] = "<~SAVE";
+// GLOBAL: MW2SHELL 0x10070448
+MechChar g_unk0x10070448[0x08] = "<~ABORT";
+// GLOBAL: MW2SHELL 0x10070450
+MechChar g_unk0x10070450[0x0c] = "<~DELETE";
+// GLOBAL: MW2SHELL 0x1007078c
+MechChar g_unk0x1007078c[0x0c] = "<~EXIT LAB";
+// GLOBAL: MW2SHELL 0x10070798
+MechChar g_unk0x10070798[0x10] = "~STAR CONFIG";
+// GLOBAL: MW2SHELL 0x100707a8
+MechChar g_unk0x100707a8[0x10] = "NEXT CHASSIS";
+// GLOBAL: MW2SHELL 0x100707b8
+MechChar g_unk0x100707b8[0x10] = "PREV CHASSIS";
+// GLOBAL: MW2SHELL 0x100707c8
+MechChar g_unk0x100707c8[0x10] = "NEXT VARIANT";
+// GLOBAL: MW2SHELL 0x100707d8
+MechChar g_unk0x100707d8[0x10] = "PREV VARIANT";
+// GLOBAL: MW2SHELL 0x100707e8
+MechChar g_unk0x100707e8[0x0c] = "<~CUSTOMIZE";
+// GLOBAL: MW2SHELL 0x100707f4
+MechChar g_unk0x100707f4[0x10] = "<~ACCEPT MECH";
+// GLOBAL: MW2SHELL 0x10070804
+MechChar g_unk0x10070804[0x08] = "<~SAVE";
+// GLOBAL: MW2SHELL 0x1007080c
+MechChar g_unk0x1007080c[0x08] = "<~ABORT";
+// GLOBAL: MW2SHELL 0x10070814
+MechChar g_unk0x10070814[0x0c] = "<~DELETE";
+
+// GLOBAL: MW2SHELL 0x1006eab0
+MainMenuButton g_unk0x1006eab0[11] = {
+	{50, 445, 149, 469, 100, 450, g_unk0x100703c8},
+	{404, 414, 474, 474, 440, 460, g_unk0x100703d4},
+	{303, 425, 330, 469, 300, 465, g_unk0x100703e4},
+	{200, 425, 236, 469, 240, 465, g_unk0x100703f4},
+	{263, 425, 302, 469, 280, 465, g_unk0x10070404},
+	{237, 425, 262, 469, 260, 465, g_unk0x10070414},
+	{50, 420, 149, 444, 100, 425, g_unk0x10070424},
+	{50, 395, 149, 419, 100, 400, g_unk0x10070430},
+	{50, 420, 149, 444, 100, 425, g_unk0x10070440},
+	{50, 445, 149, 469, 100, 450, g_unk0x10070448},
+	{490, 445, 589, 469, 540, 450, g_unk0x10070450},
+};
+
+// GLOBAL: MW2SHELL 0x1006f430
+MainMenuButton g_unk0x1006f430[11] = {
+	{50, 445, 149, 469, 100, 450, g_unk0x1007078c},
+	{404, 414, 474, 474, 440, 460, g_unk0x10070798},
+	{303, 425, 330, 469, 300, 465, g_unk0x100707a8},
+	{200, 425, 236, 469, 240, 465, g_unk0x100707b8},
+	{263, 425, 302, 469, 280, 465, g_unk0x100707c8},
+	{237, 425, 262, 469, 260, 465, g_unk0x100707d8},
+	{50, 420, 149, 444, 100, 425, g_unk0x100707e8},
+	{50, 395, 149, 419, 100, 400, g_unk0x100707f4},
+	{50, 420, 149, 444, 100, 425, g_unk0x10070804},
+	{50, 445, 149, 469, 100, 450, g_unk0x1007080c},
+	{490, 445, 589, 469, 540, 450, g_unk0x10070814},
+};
+
+// GLOBAL: MW2SHELL 0x1006fff0
+TallowSign0x10 g_unk0x1006fff0[3] = {
+	{g_unk0x1006eab0, 11, 15, -1},
+	{g_unk0x1006f430, 11, 22, -1},
+	{g_unk0x1006eab0, 11, 10, -1},
+};
+
+void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
+
+// Opens the mech bay: its sounds, color maps, menu and videos, the chassis and variant of the
+// current star's selected mech, and its fields.
+// Not 100%: the stack slots of data, i and size are permuted.
+// FUNCTION: MW2SHELL 0x1000d0d4
 void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
-	STUB(0x1000d0d4);
+	HazelStar0x80* star;
+	void* data;
+	MechS32 i;
+	MechChar* variant;
+	MechS32 size;
+
+	g_unk0x1007a7f8 = p_wParam;
+	if (g_unk0x10061774 && p_wParam == 0x413) {
+		g_unk0x10079aa0 = 1;
+	}
+	else {
+		g_unk0x10079aa0 = 0;
+	}
+	g_unk0x10061774 = 0;
+	g_unk0x10061770 = NULL;
+
+	g_pDatabaseMw2->GetDBItem(0x50, &data, &size);
+	g_unk0x1005de78 = new AudioSample(g_pAudioSubsystem, data, size);
+	g_unk0x1005de78->SetVolume(0x28);
+	p_database->GetDBItem(0x4b, &data, &size);
+	g_unk0x1006177c = new AudioSample(g_pAudioSubsystem, data, size);
+	g_unk0x1006177c->EnableLoop();
+
+	g_unk0x1007cb60[0] = 0xff;
+	g_unk0x1007ca60[0] = 0xff;
+	g_unk0x1007c960[0] = 0xff;
+	for (i = 1; i < 0x100; i++) {
+		g_unk0x1007cb60[i] = g_unk0x1007ca60[i] = g_unk0x1007c960[i] = i;
+	}
+	g_unk0x1007cb60[1] = 6;
+	g_unk0x1007ca60[1] = 1;
+	g_unk0x1007c960[1] = 8;
+
+	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fff0[p_campaign].m_picture);
+	g_unk0x10061778 = new MenuList0x10d(
+		g_pVideoDriver,
+		g_unk0x1007120c,
+		FALSE,
+		g_unk0x1006fff0[p_campaign].m_buttons,
+		g_unk0x1006fff0[p_campaign].m_count
+	);
+	g_unk0x10061778->FUN_10048d65(8);
+	g_unk0x10061778->FUN_10048d65(9);
+	if (g_unk0x10079aa0) {
+		g_unk0x10061778->FUN_10048d65(0);
+		g_unk0x10061778->FUN_10048d65(6);
+		g_unk0x10061778->FUN_10048d65(7);
+		g_unk0x10061778->FUN_10048d65(10);
+	}
+	else {
+		if (g_unk0x1006176c >= 15) {
+			g_unk0x10061778->FUN_10048d65(6);
+		}
+		if (g_unk0x1007cc80 < 100) {
+			g_unk0x10061778->FUN_10048d65(10);
+		}
+	}
+	FUN_10016f45();
+
+	switch (p_campaign) {
+	case 0:
+		FUN_10017460(0, "awogrid", 0x8c, 0x136, 0x4a, 0);
+		FUN_10017460(1, "wwomp1", 0xc, 0x34, 0x42, 0);
+		FUN_10017460(10, "wwomp4ar", 0xd8, 0x34, 0x64, 0);
+		FUN_10017460(11, "wwomp7cr", 0x1b4, 0x34, 0x64, 0);
+		FUN_10017460(12, "wwomp4mp", 0x4b, 0xab, 0x21, 0);
+		FUN_10017460(13, "wwomp5wa", 0xd8, 0x34, 0x64, 0);
+		FUN_10017460(14, "wwomp1es", 0x1b4, 0x34, 0x42, 0);
+		FUN_10017460(4, "wwobkg", 0xdb, 0x1ad, 2, 0);
+		FUN_10017460(5, "wwostar", 0x197, 0x19a, 0x4a, 0);
+		FUN_10017460(6, "wwocn", 0x122, 0x1b1, 0x64, 0);
+		FUN_10017460(7, "wwocp", 0xf0, 0x1b3, 0x64, 0);
+		FUN_10017460(8, "wwovn", 0x12c, 0x1ad, 0x64, 0);
+		FUN_10017460(9, "wwovp", 0xdc, 0x1b0, 0x64, 0);
+		g_unk0x10061748 = g_unk0x10061730;
+		g_unk0x10079a98 = 0x146;
+		g_unk0x10079a9c = 0x17f;
+		g_unk0x1007c960[1] = 0x17;
+		break;
+	case 1:
+		FUN_10017460(0, "ajfgrid", 0x6c, 0x132, 0x4a, 0);
+		FUN_10017460(1, "wjfmp1", 0xc, 0x34, 0x42, 0);
+		FUN_10017460(10, "wjfmp4ar", 0xd8, 0x34, 0x64, 0);
+		FUN_10017460(11, "wjfmp7cr", 0x1b4, 0x34, 0x64, 0);
+		FUN_10017460(12, "wjfmp4mp", 0x4b, 0xab, 0x21, 0);
+		FUN_10017460(13, "wjfmp5wa", 0xd8, 0x34, 0x64, 0);
+		FUN_10017460(14, "wjfmp1es", 0x1b4, 0x34, 0x42, 0);
+		FUN_10017460(4, "wjfbkg", 0xd8, 0x1b2, 2, 0);
+		FUN_10017460(5, "wjfstar", 0x171, 0x1a0, 8, 0);
+		FUN_10017460(6, "wjfcn", 0x11e, 0x1b6, 0x64, 0);
+		FUN_10017460(7, "wjfcp", 0xf2, 0x1b6, 0x64, 0);
+		FUN_10017460(8, "wjfvn", 0x128, 0x1b2, 0x64, 0);
+		FUN_10017460(9, "wjfvp", 0xdc, 0x1b5, 0x64, 0);
+		g_unk0x10061748 = g_unk0x10061738;
+		g_unk0x10079a98 = 0x146;
+		g_unk0x10079a9c = 0x17f;
+		g_unk0x1007c960[1] = 0x17;
+		break;
+	case 2:
+		FUN_10017460(0, "aiagrid", 0x6c, 0x132, 0x4a, 0);
+		FUN_10017460(1, "wiamp1", 0xc, 0x34, 0x42, 0);
+		FUN_10017460(10, "wiamp4ar", 0xd8, 0x34, 0x64, 0);
+		FUN_10017460(11, "wiamp7cr", 0x1b4, 0x34, 0x64, 0);
+		FUN_10017460(12, "wiamp4mp", 0x4b, 0xab, 0x21, 0);
+		FUN_10017460(13, "wiamp5wa", 0xd8, 0x34, 0x64, 0);
+		FUN_10017460(14, "wiamp1es", 0x1b4, 0x34, 0x42, 0);
+		FUN_10017460(4, "wiabkg1", 0xdb, 0x19e, 4, 0);
+		FUN_10017460(5, "wiastar", 0x19d, 0x1a1, 0x24, 0);
+		FUN_10017460(6, "wiacn", 0x109, 0x1ae, 0x24, 0);
+		FUN_10017460(7, "wiacp", 0xee, 0x1b5, 0x24, 0);
+		FUN_10017460(8, "wiavn", 0x12e, 0x1af, 0x24, 0);
+		FUN_10017460(9, "wiavp", 0xdf, 0x1b5, 0x24, 0);
+		g_unk0x10061748 = g_unk0x10061740;
+		g_unk0x10079a98 = 0x136;
+		g_unk0x10079a9c = 0x17f;
+		g_unk0x1007c960[1] = 0xca;
+		break;
+	}
+
+	if (!g_unk0x10079aa0) {
+		FUN_10002de7(0, NULL, NULL);
+	}
+
+	if (p_campaign == 2) {
+		g_unk0x10061728 = FUN_100381c2();
+	}
+	else {
+		g_unk0x10061728 = 15;
+	}
+
+	g_unk0x1007cc80 = 0;
+	g_unk0x1006176c = FUN_1000307c(-1);
+	if (g_unk0x1006176c >= 0) {
+		variant = FUN_10003013(-1);
+		g_unk0x1007cc80 = (variant[3] - '0') * 10 + variant[4] - '0';
+		if (_strnicmp(variant + 5, "std", 3)) {
+			g_unk0x1007cc80 += 100;
+		}
+	}
+	else {
+		g_unk0x1006176c = 0;
+	}
+	if (g_unk0x1006176c >= g_unk0x10061728) {
+		g_unk0x1006176c = 0;
+	}
+
+	g_pDatabaseMw2->GetDBItem(0x65, &data, &size);
+	g_unk0x10079d18 = new AudioSample(g_pAudioSubsystem, data, size);
+	g_unk0x10079d18->SetVolume(0x32);
+	g_pDatabaseMw2->GetDBItem(0x66, &data, &size);
+	g_unk0x10079ac8 = new AudioSample(g_pAudioSubsystem, data, size);
+	g_unk0x10079ac8->SetVolume(0x32);
+
+	star = FUN_1000312e(-1);
+	sprintf(
+		g_unk0x10079ad0,
+		"~CALLSIGN: %s (%d.00 T MAX)",
+		star->m_unk0x14[star->m_unk0x04].m_unk0x14,
+		star->m_unk0x10
+	);
+	FUN_1000cba7();
+	FUN_1000ca74();
+	g_unk0x1005de2c = g_unk0x10060d20;
+	FUN_100078cd(g_unk0x1005de2c);
+	g_unk0x10061780 = p_wParam;
+	FUN_100108e5(MechbayClickCallback);
+	FUN_1001661b();
+}
+
+// The mech bay's frame: the fields' clicks and the menu (EXIT LAB, STAR CONFIG, the chassis and
+// variant arrows, CUSTOMIZE, ACCEPT MECH, SAVE, ABORT and DELETE).
+// Not 100%: the stack slots of the locals and the delete temporaries are permuted.
+// FUNCTION: MW2SHELL 0x1000db35
+void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
+{
+	MechS32 pressed;
+	MechS32 i;
+	MechS32 button;
+	SlateTab0x2c* tab;
+
+	// The original skips the frame's work with a goto, like FUN_100043c2.
+	if (p_msg != 0x404) {
+		goto done;
+	}
+
+	if (g_fQuickTips && !g_unk0x10061784 && !g_unk0x10061770->IsPlaying()) {
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x71), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		g_unk0x10061784 = 1;
+	}
+
+	pressed = g_pMouseState->GetLeftPressed();
+	if (pressed == 1) {
+		tab = FUN_1000b5ed(g_unk0x1005de2c, g_pMouseState->m_x, g_pMouseState->m_y);
+		if (tab && tab->m_unk0x20) {
+			tab->m_unk0x20(tab);
+		}
+		else if (g_unk0x1005de28) {
+			tab = FUN_1000b5ed(g_unk0x1005de28, g_pMouseState->m_x, g_pMouseState->m_y);
+			if (tab && tab->m_unk0x20) {
+				tab->m_unk0x20(tab);
+				FUN_100079f8(g_unk0x1005de28);
+				FUN_100079f8(g_unk0x1005de2c);
+			}
+		}
+	}
+
+	button = g_unk0x10061778->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	if (*p_campaign == 2) {
+		FUN_10016cc0(5, 0x20, 0x20);
+	}
+	else {
+		FUN_10016cc0(5, 1, 1);
+	}
+	FUN_10016cc0(6, 0x20, 0x20);
+	FUN_10016cc0(7, 0x20, 0x20);
+	FUN_10016cc0(8, 0x20, 0x20);
+	FUN_10016cc0(9, 0x20, 0x20);
+
+	switch (button) {
+	case 0:
+		if (pressed != 1) {
+			break;
+		}
+		p_msg = 0x411;
+		break;
+	case 1:
+		if (*p_campaign == 2) {
+			FUN_10016d27(5);
+		}
+		else {
+			FUN_10016cc0(5, 1, 0);
+		}
+		if (pressed != 1) {
+			break;
+		}
+		g_unk0x10079ac8->Start();
+		if (g_unk0x10079aa0) {
+			if (!FUN_10002de7(-1, g_unk0x10079d80[g_unk0x1007cc80], NULL)) {
+				ShowDialog("'Mech exceeds|Keshik Defined Maximum Tonnage (KDMT)|for mission.#Ok", 0);
+			}
+			else {
+				p_msg = 0x413;
+			}
+		}
+		else {
+			p_msg = 0x413;
+		}
+		break;
+	case 2:
+		if (g_pMouseState->m_leftDown == 1) {
+			FUN_10016d27(8);
+		}
+		if (pressed != 1) {
+			break;
+		}
+		FUN_1000cce5();
+		FUN_10007ac8(g_unk0x1005de28);
+		g_unk0x1005de28 = NULL;
+		FUN_100079f8(g_unk0x1005de2c);
+		if (g_unk0x1006176c >= 15) {
+			g_unk0x10061778->FUN_10048d65(6);
+		}
+		else if (!g_unk0x10079aa0) {
+			g_unk0x10061778->FUN_10048cc1(6);
+		}
+		g_unk0x10061778->FUN_10048d65(10);
+		break;
+	case 3:
+		if (g_pMouseState->m_leftDown == 1) {
+			FUN_10016d27(9);
+		}
+		if (pressed != 1) {
+			break;
+		}
+		FUN_1000cd2a();
+		FUN_10007ac8(g_unk0x1005de28);
+		g_unk0x1005de28 = NULL;
+		FUN_100079f8(g_unk0x1005de2c);
+		if (g_unk0x1006176c >= 15) {
+			g_unk0x10061778->FUN_10048d65(6);
+		}
+		else if (!g_unk0x10079aa0) {
+			g_unk0x10061778->FUN_10048cc1(6);
+		}
+		g_unk0x10061778->FUN_10048d65(10);
+		break;
+	case 4:
+		if (g_pMouseState->m_leftDown == 1) {
+			FUN_10016d27(6);
+		}
+		if (pressed != 1) {
+			break;
+		}
+		g_unk0x10079d18->Start();
+		FUN_1000cd65();
+		if (g_unk0x1007cc80 < 100) {
+			g_unk0x10061778->FUN_10048d65(10);
+		}
+		else {
+			g_unk0x10061778->FUN_10048cc1(10);
+		}
+		break;
+	case 5:
+		if (g_pMouseState->m_leftDown == 1) {
+			FUN_10016d27(7);
+		}
+		if (pressed != 1) {
+			break;
+		}
+		g_unk0x10079d18->Start();
+		FUN_1000ce50();
+		if (g_unk0x1007cc80 < 100) {
+			g_unk0x10061778->FUN_10048d65(10);
+		}
+		else {
+			g_unk0x10061778->FUN_10048cc1(10);
+		}
+		break;
+	case 10:
+		if (pressed != 1) {
+			break;
+		}
+		if (ShowDialog("Delete this 'Mech?|Are you sure?#Yes|No", 1) == 1) {
+			break;
+		}
+		sprintf(g_szTempBuffer, "mek\\%s.mek", g_unk0x10079d80[g_unk0x1007cc80]);
+		remove(g_szTempBuffer);
+		g_unk0x10079d80[g_unk0x1007cc80][0] = '\0';
+		FUN_1000cd65();
+		if (g_unk0x1007cc80 < 100) {
+			g_unk0x10061778->FUN_10048d65(10);
+		}
+		else {
+			g_unk0x10061778->FUN_10048cc1(10);
+		}
+		break;
+	case 6:
+		if (pressed != 1) {
+			break;
+		}
+		for (i = 100; i < 200; i++) {
+			if (!g_unk0x10079d80[i][0]) {
+				break;
+			}
+		}
+		if (i >= 200) {
+			ShowDialog("Error: Too many mechs|of this variant to save.#Ok", 0);
+			break;
+		}
+		sprintf(g_unk0x1005c640.m_unk0x100, "User Variant #%d", i - 99);
+		FUN_10016cc0(0, 1, 1);
+		FUN_1000cb4b();
+		FUN_10007ac8(g_unk0x1005de2c);
+		g_unk0x1005de2c = g_unk0x10060698;
+		FUN_100078cd(g_unk0x1005de2c);
+		FUN_10007ac8(g_unk0x1005de28);
+		g_unk0x1005de28 = g_unk0x1005de80;
+		FUN_100078cd(g_unk0x1005de28);
+		g_unk0x10061778->FUN_10048d65(0);
+		g_unk0x10061778->FUN_10048d65(1);
+		g_unk0x10061778->FUN_10048d65(2);
+		g_unk0x10061778->FUN_10048d65(3);
+		g_unk0x10061778->FUN_10048d65(4);
+		g_unk0x10061778->FUN_10048d65(5);
+		g_unk0x10061778->FUN_10048d65(6);
+		g_unk0x10061778->FUN_10048d65(7);
+		g_unk0x10061778->FUN_10048d65(10);
+		g_unk0x10061778->FUN_10048cc1(8);
+		g_unk0x10061778->FUN_10048cc1(9);
+		if (g_fQuickTips && !g_unk0x10061788) {
+			g_pVideoDriver->DrawShell();
+			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x72), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+			g_unk0x10061788 = 1;
+		}
+		break;
+	case 7:
+		if (pressed != 1) {
+			break;
+		}
+		if (!FUN_10002de7(-1, g_unk0x10079d80[g_unk0x1007cc80], NULL)) {
+			ShowDialog("'Mech exceeds|Keshik Defined Maximum Tonnage (KDMT)|for mission.#Ok", 0);
+		}
+		else {
+			p_msg = g_unk0x10061780;
+		}
+		break;
+	case 8:
+	case 9:
+		if (pressed != 1) {
+			break;
+		}
+		if (button == 8 && !FUN_1000cf4c()) {
+			break;
+		}
+		FUN_10016cc0(10, 0x20, 0x20);
+		FUN_10016cc0(11, 0x20, 0x20);
+		FUN_10016cc0(12, 0x20, 0x20);
+		FUN_10016cc0(13, 0x20, 0x20);
+		FUN_10016d27(14);
+		FUN_1000ca74();
+		FUN_10007ac8(g_unk0x1005de28);
+		g_unk0x1005de28 = NULL;
+		FUN_10007ac8(g_unk0x1005de2c);
+		g_unk0x1005de2c = g_unk0x10060d20;
+		FUN_100078cd(g_unk0x1005de2c);
+		FUN_10016cc0(0, 1, 0);
+		FUN_1000cb6f();
+		g_unk0x10061778->FUN_10048cc1(0);
+		g_unk0x10061778->FUN_10048cc1(1);
+		g_unk0x10061778->FUN_10048cc1(2);
+		g_unk0x10061778->FUN_10048cc1(3);
+		g_unk0x10061778->FUN_10048cc1(4);
+		g_unk0x10061778->FUN_10048cc1(5);
+		g_unk0x10061778->FUN_10048cc1(6);
+		g_unk0x10061778->FUN_10048cc1(7);
+		g_unk0x10061778->FUN_10048d65(8);
+		g_unk0x10061778->FUN_10048d65(9);
+		if (g_unk0x1007cc80 < 100) {
+			g_unk0x10061778->FUN_10048d65(10);
+		}
+		else {
+			g_unk0x10061778->FUN_10048cc1(10);
+		}
+		break;
+	}
+
+done:
+	if (p_msg != 0x404) {
+		FUN_10007ac8(g_unk0x1005de2c);
+		FUN_10007ac8(g_unk0x1005de28);
+		FUN_10016f45();
+		if (g_unk0x1006177c) {
+			delete g_unk0x1006177c;
+		}
+		if (g_unk0x10061770) {
+			delete g_unk0x10061770;
+		}
+		if (g_unk0x1005de78) {
+			delete g_unk0x1005de78;
+		}
+		g_unk0x1006177c = g_unk0x10061770 = g_unk0x1005de78 = NULL;
+		g_unk0x10061784 = 0;
+		g_unk0x10061788 = 0;
+		g_unk0x1006178c = 1;
+		delete g_unk0x10079ac8;
+		delete g_unk0x10079d18;
+		delete g_unk0x10061778;
+		PostMessage(g_pWnd, p_msg, 0x40f, 0);
+		FUN_100108fd(MechbayClickCallback);
+	}
 }

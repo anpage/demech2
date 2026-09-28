@@ -26,6 +26,7 @@ extern MouseState* g_pMouseState;
 extern HollowReed0x110* g_unk0x100711f8;
 extern MechU32 g_unk0x10071248;
 extern AudioSubsystem* g_pAudioSubsystem;
+extern MechS32 g_menuDialogOpen;
 
 // The original imports this one under its Miles name (wail32.def: _MEM_free_lock@4). It is
 // declared here rather than in mss.h: one more symbol there flips a comparison in MW2's
@@ -383,10 +384,164 @@ void FUN_100164f2()
 	}
 }
 
-// STUB: MW2SHELL 0x1001661b
+// Advances and draws the videos of all slots: Smacker videos frame by frame, sprite sheets
+// (m_unk0x14) on their timer. A video past its last frame stops (flag 4), loops (flag 8) or
+// closes.
+// Not 100%: the stack slots of video and i are permuted, and m_unk0x34 != m_top loads m_unk0x34
+// first (reversing the operands or retyping the member doesn't flip it).
+// FUNCTION: MW2SHELL 0x1001661b
 void FUN_1001661b()
 {
-	STUB(0x1001661b);
+	CopperFinch0x4c* video;
+	MechS32 i;
+
+	if (g_pAudioSubsystem) {
+		AIL_serve();
+	}
+
+	if (g_menuDialogOpen) {
+		return;
+	}
+
+	video = g_unk0x100641a8;
+	if (video->m_unk0x1c & 0x80000000 && video->m_unk0x1c & 0x1000) {
+		FUN_100164f2();
+		return;
+	}
+
+	for (i = 0, video = g_unk0x100641a8; i < 32; i++, video++) {
+		if (video->m_unk0x1c & 0x80000000) {
+			if (video->m_unk0x00 && !video->m_unk0x3c && !(video->m_unk0x1c & 1)) {
+				SmackDoFrame(video->m_unk0x00);
+				if (video->m_unk0x1c & 2) {
+					video->m_unk0x1c |= 0x10;
+				}
+				video->m_unk0x3c = 1;
+			}
+
+			if (video->m_unk0x00 && !(video->m_unk0x1c & 2)) {
+				video->m_unk0x38 = video->m_unk0x3c;
+			}
+
+			if (video->m_unk0x30 != video->m_left || video->m_unk0x34 != video->m_top ||
+				video->m_unk0x38 != video->m_unk0x3c || video->m_unk0x1c & 0x40000020) {
+				if (video->m_unk0x1c & 0x10) {
+					g_pVideoDriver->FUN_100071ad(video->m_unk0x30, video->m_unk0x34, video->m_width, video->m_height);
+				}
+				video->m_unk0x1c |= 0x100;
+			}
+
+			video->m_unk0x30 = video->m_left;
+			video->m_unk0x34 = video->m_top;
+			video->m_unk0x38 = video->m_unk0x3c;
+			video->m_unk0x1c &= ~0x10;
+			if (video->m_unk0x1c & 0x40000000) {
+				FUN_10016d90(i);
+			}
+		}
+	}
+
+	g_pVideoDriver->FUN_10007763(0);
+	for (i = 0, video = g_unk0x100641a8; i < 32; i++, video++) {
+		if (video->m_unk0x1c & 0x80000000) {
+			if (video->m_unk0x00) {
+				if (video->m_unk0x18 && !(video->m_unk0x1c & 0x20)) {
+					video->m_unk0x1c |= 0x10;
+					if (video->m_unk0x1c & 0x100) {
+						g_pVideoDriver->FUN_10006ed4(
+							(undefined*) video->m_unk0x18,
+							video->m_left,
+							video->m_top,
+							video->m_width,
+							video->m_height
+						);
+					}
+					else {
+						g_pVideoDriver->FUN_10006f87(
+							(undefined*) video->m_unk0x18,
+							video->m_left,
+							video->m_top,
+							video->m_width,
+							video->m_height
+						);
+					}
+					video->m_unk0x1c &= ~0x100;
+				}
+
+				if (!(video->m_unk0x1c & 1) && !SmackWait(video->m_unk0x00)) {
+					video->m_unk0x3c++;
+					if (video->m_unk0x3c > video->m_unk0x40) {
+						video->m_unk0x3c--;
+						if (video->m_unk0x1c & 4) {
+							video->m_unk0x1c |= 1;
+							continue;
+						}
+						else if (video->m_unk0x1c & 8) {
+							video->m_unk0x3c = 1;
+							SmackGoto(video->m_unk0x00, video->m_unk0x3c);
+						}
+						else {
+							video->m_unk0x1c |= 0x40000001;
+							continue;
+						}
+					}
+					else if (video->m_unk0x3c != 1) {
+						SmackNextFrame(video->m_unk0x00);
+					}
+
+					SmackDoFrame(video->m_unk0x00);
+					video->m_unk0x1c |= 0x100;
+					if (video->m_unk0x1c & 2) {
+						video->m_unk0x1c |= 0x10;
+					}
+				}
+			}
+			else if (video->m_unk0x14) {
+				if (!(video->m_unk0x1c & 0x20)) {
+					video->m_unk0x1c |= 0x10;
+					if (video->m_unk0x1c & 0x100) {
+						g_pVideoDriver->FUN_100073b3(
+							(undefined4) video->m_unk0x14,
+							video->m_unk0x3c,
+							video->m_left,
+							video->m_top,
+							video->m_width,
+							video->m_height
+						);
+					}
+					else {
+						g_pVideoDriver->FUN_10007430(
+							(undefined4) video->m_unk0x14,
+							video->m_unk0x3c,
+							video->m_left,
+							video->m_top,
+							video->m_width,
+							video->m_height
+						);
+					}
+					video->m_unk0x1c &= ~0x100;
+				}
+
+				if (!(video->m_unk0x1c & 1) && !FUN_100163ff(video, timeGetTime())) {
+					video->m_unk0x3c++;
+					if (video->m_unk0x3c >= video->m_unk0x40) {
+						video->m_unk0x3c--;
+						if (video->m_unk0x1c & 4) {
+							video->m_unk0x1c |= 1;
+						}
+						else if (video->m_unk0x1c & 8) {
+							video->m_unk0x3c = 0;
+						}
+						else {
+							video->m_unk0x1c |= 0x40000001;
+						}
+					}
+					video->m_unk0x1c |= 0x100;
+				}
+			}
+		}
+	}
+	g_pVideoDriver->FUN_10007763(1);
 }
 
 // FUNCTION: MW2SHELL 0x10016b11

@@ -41,17 +41,223 @@ MechS32 GetJoystickDeviceCount()
 	return joyGetNumDevs();
 }
 
-// STUB: MW2SHELL 0x1003ad36
+BOOL GetJoystickRegistryName(MechS32 p_index, const MechChar* p_driver, MechChar* p_name, size_t p_size);
+void FUN_1003bdea(InputDeviceInfo* p_info, JOYCAPS* p_caps);
+MechS32 FUN_1003b7cf(InputDeviceInfo* p_device);
+
+// Fills in joystick p_index: its names, its axes (a tracker's third axis is its head roll) and
+// its buttons and POV hat. Returns 0, or 1 on failure.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x1003ad36
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
-	STUB(0x1003ad36);
-	return 1;
+	JOYCAPS caps;
+	MechChar** axisShortNames;
+	MechChar** buttonNames;
+	MechS32 count;
+	MechChar** axisNames;
+	MechChar** buttonShortNames;
+	QuartzStick0x88* data;
+
+	if (joyGetDevCaps(p_index, &caps, sizeof(caps))) {
+		return 1;
+	}
+
+	p_info->m_axisNames = axisNames = (MechChar**) calloc(6, sizeof(MechChar*));
+	p_info->m_axisShortNames = axisShortNames = (MechChar**) calloc(6, sizeof(MechChar*));
+	p_info->m_buttonNames = buttonNames = (MechChar**) calloc(0x24, sizeof(MechChar*));
+	p_info->m_buttonShortNames = buttonShortNames = (MechChar**) calloc(0x24, sizeof(MechChar*));
+	if (!axisNames || !axisShortNames || !buttonNames || !buttonShortNames) {
+		FUN_1003b7cf(p_info);
+		return 1;
+	}
+
+	data = (QuartzStick0x88*) calloc(1, sizeof(QuartzStick0x88));
+	if (!data) {
+		return 1;
+	}
+	else {
+		data->m_id = p_index;
+		p_info->m_driverData = data;
+	}
+
+	if (!GetJoystickRegistryName(p_index, caps.szRegKey, p_info->m_displayName, sizeof(p_info->m_displayName))) {
+		sprintf(p_info->m_displayName, "Joystick %d", p_index + 1);
+	}
+	sprintf(p_info->m_shortName, "joystick%d", p_index + 1);
+	FUN_1003bdea(p_info, &caps);
+
+	axisNames[0] = "Down/Up Movement";
+	axisShortNames[0] = "Down/Up";
+	axisNames[1] = "Left/Right Movement";
+	axisShortNames[1] = "Left/Right";
+	count = 2;
+	if (caps.wCaps & JOYCAPS_HASZ) {
+		if (!memcmp(p_info->m_matchName, "tracker", 8)) {
+			axisNames[count] = "Left/Right Head Roll";
+			axisShortNames[count] = "HeadRoll";
+			count++;
+		}
+		else {
+			axisNames[count] = "Throttle Control";
+			axisShortNames[count] = "Throttle";
+			count++;
+		}
+	}
+	if (caps.wCaps & JOYCAPS_HASR) {
+		axisNames[count] = "Rudder Movement";
+		axisShortNames[count] = "Rudder";
+		count++;
+	}
+	if (caps.wCaps & JOYCAPS_HASU) {
+		axisNames[count] = "5th axis Movement";
+		axisShortNames[count] = "5thAxis";
+		count++;
+	}
+	if (caps.wCaps & JOYCAPS_HASV) {
+		axisNames[count] = "6th axis Movement";
+		axisShortNames[count] = "6thAxis";
+		count++;
+	}
+	p_info->m_axisCount = count;
+
+	buttonNames[0] = (MechChar*) calloc(0x20, 0xc);
+	buttonShortNames[0] = (MechChar*) calloc(0x20, 0xc);
+	if (!buttonNames[0] || !buttonShortNames[0]) {
+		FUN_1003b7cf(p_info);
+		return 1;
+	}
+
+	for (count = 0; count < (MechS32) caps.wNumButtons; count++) {
+		sprintf(buttonNames[count], "Button %d", count + 1);
+		sprintf(buttonShortNames[count], "Button%d", count + 1);
+		buttonNames[count + 1] = buttonNames[count] + 0xc;
+		buttonShortNames[count + 1] = buttonShortNames[count] + 0xc;
+	}
+
+	count = caps.wNumButtons;
+	if (caps.wCaps & JOYCAPS_HASPOV) {
+		buttonNames[count] = "Hat Up";
+		buttonShortNames[count] = "HatUp";
+		count++;
+		buttonNames[count] = "Hat Right";
+		buttonShortNames[count] = "HatRight";
+		count++;
+		buttonNames[count] = "Hat Down";
+		buttonShortNames[count] = "HatDown";
+		count++;
+		buttonNames[count] = "Hat Left";
+		buttonShortNames[count] = "HatLeft";
+		count++;
+	}
+	p_info->m_buttonCount = count;
+
+	return 0;
 }
 
-// STUB: MW2SHELL 0x1003b246
-MechS32 FUN_1003b246()
+// Reads joystick p_info's capabilities: the axes it reports, their centers, dead zones and
+// scales, and the button words and bits of the POV hat's four directions. Returns 0, or 1
+// when the joystick is missing or unplugged.
+// Not 100%: the stack slots of the locals are permuted (which also changes their encodings).
+// FUNCTION: MW2SHELL 0x1003b246
+MechS32 FUN_1003b246(InputDeviceInfo* p_info)
 {
-	STUB(0x1003b246);
+	JOYINFOEX infoEx;
+	JOYCAPS caps;
+	MechDouble range;
+	JOYINFO info;
+	MechS32 button;
+	QuartzStick0x88* data;
+
+	data = (QuartzStick0x88*) p_info->m_driverData;
+	if (!data) {
+		return 1;
+	}
+
+	if (joyGetDevCaps(data->m_id, &caps, sizeof(caps))) {
+		return 1;
+	}
+
+	if (caps.wNumAxes <= 3 && caps.wMaxButtons <= 4) {
+		if (joyGetPos(data->m_id, &info) == JOYERR_UNPLUGGED) {
+			return 1;
+		}
+	}
+	else {
+		memset(&infoEx, 0, sizeof(infoEx));
+		infoEx.dwSize = sizeof(infoEx);
+		if (joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
+			return 1;
+		}
+	}
+
+	data->m_flags = JOY_RETURNX | JOY_RETURNY | JOY_RETURNBUTTONS | JOY_RETURNCENTERED;
+	data->m_center[0] = caps.wXmin + (MechS32) ((range = caps.wXmax - caps.wXmin + 1) / 2.0);
+	data->m_deadZone[0] = (MechS32) (range / 16.0);
+	data->m_scale[0] = 131072.0 / range;
+	data->m_center[1] = caps.wYmin + (MechS32) ((range = caps.wYmax - caps.wYmin + 1) / 2.0);
+	data->m_deadZone[1] = (MechS32) (range / 16.0);
+	data->m_scale[1] = 131072.0 / range;
+	if (caps.wCaps & JOYCAPS_HASZ) {
+		data->m_flags |= JOY_RETURNZ;
+		data->m_center[2] = caps.wZmin + (MechS32) ((range = caps.wZmax - caps.wZmin + 1) / 2.0);
+		data->m_deadZone[2] = (MechS32) (range / 16.0);
+		data->m_scale[2] = 131072.0 / range;
+	}
+	if (caps.wCaps & JOYCAPS_HASR) {
+		data->m_flags |= JOY_RETURNR;
+		data->m_center[3] = caps.wRmin + (MechS32) ((range = caps.wRmax - caps.wRmin + 1) / 2.0);
+		data->m_deadZone[3] = (MechS32) (range / 8.0);
+		data->m_scale[3] = 131072.0 / range;
+	}
+	if (caps.wCaps & JOYCAPS_HASU) {
+		data->m_flags |= JOY_RETURNU;
+		data->m_center[4] = caps.wUmin + (MechS32) ((range = caps.wUmax - caps.wUmin + 1) / 2.0);
+		data->m_deadZone[4] = (MechS32) (range / 16.0);
+		data->m_scale[4] = 131072.0 / range;
+	}
+	if (caps.wCaps & JOYCAPS_HASV) {
+		data->m_flags |= JOY_RETURNV;
+		data->m_center[5] = caps.wVmin + (MechS32) ((range = caps.wVmax - caps.wVmin + 1) / 2.0);
+		data->m_deadZone[5] = (MechS32) (range / 16.0);
+		data->m_scale[5] = 131072.0 / range;
+	}
+	if (caps.wCaps & JOYCAPS_HASPOV) {
+		data->m_flags |= JOY_RETURNPOV;
+		button = caps.wNumButtons;
+		if (button >= 32) {
+			data->m_povButton[0] = 1;
+		}
+		else {
+			data->m_povButton[0] = 0;
+		}
+		data->m_povMask[0] = 1 << button % 32;
+		button++;
+		if (button >= 32) {
+			data->m_povButton[1] = 1;
+		}
+		else {
+			data->m_povButton[1] = 0;
+		}
+		data->m_povMask[1] = 1 << button % 32;
+		button++;
+		if (button >= 32) {
+			data->m_povButton[2] = 1;
+		}
+		else {
+			data->m_povButton[2] = 0;
+		}
+		data->m_povMask[2] = 1 << button % 32;
+		button++;
+		if (button >= 32) {
+			data->m_povButton[3] = 1;
+		}
+		else {
+			data->m_povButton[3] = 0;
+		}
+		data->m_povMask[3] = 1 << button % 32;
+	}
+
 	return 0;
 }
 
@@ -291,7 +497,7 @@ void FUN_1003bdea(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 InputDriverModule g_joystickDriver = {
 	GetJoystickDeviceCount,
 	(MechS32 (*)()) FillJoystickDeviceInfo,
-	FUN_1003b246,
+	(MechS32 (*)()) FUN_1003b246,
 	(MechS32 (*)()) FUN_1003b7cf,
 	FUN_1003b8b7,
 	(MechS32 (*)()) FUN_1003b8c9,

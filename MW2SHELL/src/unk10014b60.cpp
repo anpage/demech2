@@ -1,14 +1,24 @@
+#include "audiosample.h"
+#include "audiosubsystem.h"
 #include "brasslantern0x414.h"
 #include "campaignmission.h"
 #include "decomp.h"
 #include "emberglyph0x3e.h"
+#include "mainmenubutton.h"
+#include "menulist0x10d.h"
+#include "mousestate.h"
 #include "slatetab0x2c.h"
+#include "tallowsign0x10.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "videodriver.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <windows.h>
 
 // The pilot roster screen of a clan hall: ten pilot slots, the selected pilot's record and the
 // mission list.
@@ -19,6 +29,40 @@ extern BrassLantern0x414* g_unk0x10071218;
 extern TinWhistle0x3c* g_pCurrentPilot;
 extern MechChar* g_rankNames[9];
 extern CampaignMission* g_campaignMissions[2];
+extern "C" HWND g_pWnd;
+extern HINSTANCE g_pModule;
+extern HMENU g_windowMenu;
+extern MechU32 g_fQuickTips;
+extern MechS32 g_unk0x1006a9e0;
+extern MechS32 g_unk0x10071374;
+extern AudioSubsystem* g_pAudioSubsystem;
+extern VideoDriver* g_pVideoDriver;
+extern MouseState* g_pMouseState;
+extern TMPackDataBase* g_pDatabaseMw2;
+extern BrassLantern0x414* g_unk0x1007120c;
+extern TinWhistle0x3c g_pilotRoster[20];
+
+MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name);
+void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage);
+void FUN_100078cd(SlateTab0x2c* p_tabs);
+void FUN_10007ac8(SlateTab0x2c* p_tabs);
+SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y);
+void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
+void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
+void LoadPilotRoster();
+void SavePilotRoster();
+extern "C" MechChar* FUN_100309b6(MechChar* p_string);
+void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_video);
+MechS32 ShowDialog(const char* p_text, MechS32);
+MechS32 FUN_10044451(
+	BrassLantern0x414* p_font,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechChar* p_text,
+	undefined* p_colors,
+	MechS32 p_maxLength,
+	MechS32 p_width
+);
 
 // GLOBAL: MW2SHELL 0x1007cc98
 MechS32 g_unk0x1007cc98;
@@ -187,12 +231,464 @@ SlateTab0x2c g_unk0x10063c78[8] = {
 	ROSTER_END,
 };
 
+// The mission list.
+// GLOBAL: MW2SHELL 0x10063dd8
+SlateTab0x2c g_unk0x10063dd8[] = {
+	ROSTER_TAB(0x1d4, 0x5c, -1, FUN_10014e83, NULL, NULL),
+	ROSTER_TAB(0x1d4, 0xc8, -1, FUN_10014dc4, NULL, "~Select Mission"),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 3), 100, FUN_10014dfe, FUN_10014fee, 0),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 1),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 2),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 3),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 4),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 5),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 6),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 7),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 8),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 9),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 10),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 11),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 12),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 13),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 14),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 15),
+	ROSTER_END,
+};
+
 #undef TAB_BELOW
 #undef ROSTER_TAB
 #undef ROSTER_END
 
-// STUB: MW2SHELL 0x10015008
-void FUN_10015008(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char** p_scenario)
+// GLOBAL: MW2SHELL 0x1006411c
+AudioSample* g_unk0x1006411c = NULL;
+
+// Set while the mission list shows instead of the pilot's record.
+// GLOBAL: MW2SHELL 0x10064120
+MechS32 g_unk0x10064120 = 0;
+
+// Set once each campaign's quick tips have been shown.
+// GLOBAL: MW2SHELL 0x10064124
+MechS32 g_unk0x10064124 = 0;
+
+// GLOBAL: MW2SHELL 0x10064128
+MechS32 g_unk0x10064128 = 0;
+
+// GLOBAL: MW2SHELL 0x1007cda0
+MenuList0x10d* g_unk0x1007cda0;
+
+// GLOBAL: MW2SHELL 0x100700dc
+MechChar g_unk0x100700dc[0x14] = "<~NEW ALLEGIANCE";
+// GLOBAL: MW2SHELL 0x100700f0
+MechChar g_unk0x100700f0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100700f4
+MechChar g_unk0x100700f4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100700f8
+MechChar g_unk0x100700f8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100700fc
+MechChar g_unk0x100700fc[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070100
+MechChar g_unk0x10070100[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070104
+MechChar g_unk0x10070104[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070108
+MechChar g_unk0x10070108[0x04] = "";
+// GLOBAL: MW2SHELL 0x1007010c
+MechChar g_unk0x1007010c[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070110
+MechChar g_unk0x10070110[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070114
+MechChar g_unk0x10070114[0x04] = "";
+// GLOBAL: MW2SHELL 0x10070118
+MechChar g_unk0x10070118[0x0c] = "<~ACCEPT";
+// GLOBAL: MW2SHELL 0x10070124
+MechChar g_unk0x10070124[0x18] = "<~DELETE MECHWARRIOR";
+// GLOBAL: MW2SHELL 0x1007013c
+MechChar g_unk0x1007013c[0x18] = "<~LAUNCH OLD MISSION";
+// GLOBAL: MW2SHELL 0x10070154
+MechChar g_unk0x10070154[0x10] = "<~PILOT INFO";
+// GLOBAL: MW2SHELL 0x100704a4
+MechChar g_unk0x100704a4[0x14] = "<~NEW ALLEGIANCE";
+// GLOBAL: MW2SHELL 0x100704b8
+MechChar g_unk0x100704b8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704bc
+MechChar g_unk0x100704bc[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704c0
+MechChar g_unk0x100704c0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704c4
+MechChar g_unk0x100704c4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704c8
+MechChar g_unk0x100704c8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704cc
+MechChar g_unk0x100704cc[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704d0
+MechChar g_unk0x100704d0[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704d4
+MechChar g_unk0x100704d4[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704d8
+MechChar g_unk0x100704d8[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704dc
+MechChar g_unk0x100704dc[0x04] = "";
+// GLOBAL: MW2SHELL 0x100704e0
+MechChar g_unk0x100704e0[0x0c] = "<~ACCEPT";
+// GLOBAL: MW2SHELL 0x100704ec
+MechChar g_unk0x100704ec[0x18] = "<~DELETE MECHWARRIOR";
+// GLOBAL: MW2SHELL 0x10070504
+MechChar g_unk0x10070504[0x18] = "<~LAUNCH OLD MISSION";
+// GLOBAL: MW2SHELL 0x1007051c
+MechChar g_unk0x1007051c[0x10] = "<~PILOT INFO";
+
+// GLOBAL: MW2SHELL 0x1006e2f8
+MainMenuButton g_unk0x1006e2f8[15] = {
+	{466, 450, 619, 474, 543, 455, g_unk0x100700dc},
+	{32, 83, 297, 116, 41, 91, g_unk0x100700f0},
+	{32, 117, 297, 151, 41, 125, g_unk0x100700f4},
+	{32, 152, 297, 186, 41, 160, g_unk0x100700f8},
+	{32, 187, 297, 221, 41, 195, g_unk0x100700fc},
+	{32, 222, 297, 256, 41, 230, g_unk0x10070100},
+	{32, 257, 297, 291, 41, 265, g_unk0x10070104},
+	{32, 292, 297, 326, 41, 300, g_unk0x10070108},
+	{32, 327, 297, 361, 41, 335, g_unk0x1007010c},
+	{32, 362, 297, 397, 41, 370, g_unk0x10070110},
+	{32, 398, 297, 432, 41, 406, g_unk0x10070114},
+	{294, 450, 393, 474, 344, 455, g_unk0x10070118},
+	{20, 450, 221, 474, 121, 455, g_unk0x10070124},
+	{373, 403, 562, 427, 468, 408, g_unk0x1007013c},
+	{418, 403, 517, 427, 468, 408, g_unk0x10070154},
+};
+
+// GLOBAL: MW2SHELL 0x1006ec78
+MainMenuButton g_unk0x1006ec78[15] = {
+	{466, 450, 619, 474, 543, 455, g_unk0x100704a4},
+	{32, 83, 297, 116, 41, 91, g_unk0x100704b8},
+	{32, 117, 297, 151, 41, 125, g_unk0x100704bc},
+	{32, 152, 297, 186, 41, 160, g_unk0x100704c0},
+	{32, 187, 297, 221, 41, 195, g_unk0x100704c4},
+	{32, 222, 297, 256, 41, 230, g_unk0x100704c8},
+	{32, 257, 297, 291, 41, 265, g_unk0x100704cc},
+	{32, 292, 297, 326, 41, 300, g_unk0x100704d0},
+	{32, 327, 297, 361, 41, 335, g_unk0x100704d4},
+	{32, 362, 297, 397, 41, 370, g_unk0x100704d8},
+	{32, 398, 297, 432, 41, 406, g_unk0x100704dc},
+	{294, 450, 393, 474, 344, 455, g_unk0x100704e0},
+	{20, 450, 221, 474, 121, 455, g_unk0x100704ec},
+	{373, 403, 562, 427, 468, 408, g_unk0x10070504},
+	{418, 403, 517, 427, 468, 408, g_unk0x1007051c},
+};
+
+// GLOBAL: MW2SHELL 0x1006fe40
+TallowSign0x10 g_unk0x1006fe40[3] = {
+	{g_unk0x1006e2f8, 15, 17, -1},
+	{g_unk0x1006ec78, 15, 24, -1},
+	{NULL, 0, 0, 0},
+};
+
+void FUN_1001534c(TMPackDataBase*, MechS32* p_campaign, MechU8* p_pilotChosen, MechChar** p_scenario, MechS32 p_msg);
+BOOL CALLBACK FUN_10015a6c(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
+
+// Opens the pilot roster of the campaign's clan hall: the ten pilot slots, the active pilot's
+// record, and the menu.
+// Not 100%: the stack slots of data, slot, i and size are permuted.
+// FUNCTION: MW2SHELL 0x10015008
+void FUN_10015008(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char**)
 {
-	STUB(0x10015008);
+	void* data = NULL;
+	MechS32 slot;
+	MechS32 i;
+	MechS32 size;
+
+	g_unk0x1007cc98 = p_campaign;
+	srand(clock());
+	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fe40[p_campaign].m_picture);
+	LoadPilotRoster();
+	g_pCurrentPilot = NULL;
+
+	switch (p_campaign) {
+	case 0:
+		slot = 0;
+		break;
+	case 1:
+		slot = 10;
+		break;
+	default:
+		slot = 0;
+		break;
+	}
+
+	for (i = 0; i < 10; i++, slot++) {
+		g_unk0x1007cda8[i] = &g_pilotRoster[slot];
+		if (g_pCurrentPilot) {
+			g_pilotRoster[slot].m_unk0x04 = 0;
+		}
+		else if (g_pilotRoster[slot].m_unk0x04) {
+			if (g_pilotRoster[slot].m_unk0x00 == 1) {
+				g_pCurrentPilot = &g_pilotRoster[slot];
+			}
+			else {
+				g_pilotRoster[slot].m_unk0x04 = 0;
+			}
+		}
+	}
+
+	g_unk0x1007cda0 =
+		new MenuList0x10d(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fe40[p_campaign].m_buttons, 15);
+	FUN_10014b60();
+	if (!g_pCurrentPilot) {
+		g_unk0x1007cda0->FUN_10048d65(11);
+		g_unk0x1007cda0->FUN_10048d65(12);
+		g_unk0x1007cda0->FUN_10048d65(13);
+		g_unk0x1007cda0->FUN_10048d65(14);
+	}
+	else {
+		FUN_100078cd(g_unk0x10063c78);
+		g_unk0x1007cda0->FUN_10048d65(14);
+		if (!g_pCurrentPilot->m_mission) {
+			g_unk0x1007cda0->FUN_10048d65(13);
+		}
+	}
+
+	g_pDatabaseMw2->GetDBItem(0x51, &data, &size);
+	g_unk0x1006411c = new AudioSample(g_pAudioSubsystem, data, size);
+	g_unk0x1006411c->SetVolume(0x1e);
+	g_unk0x1006411c->Start();
+	*p_pilotChosen = 0;
+	FUN_100108e5(FUN_1001534c);
+	g_pVideoDriver->DrawShell();
+	g_pVideoDriver->ExpandRectBySize(0, 0, 640, 480);
+}
+
+// The pilot roster's frame: EXIT, the ten pilot slots (an empty one asks for a callsign),
+// ACCEPT, DELETE MECHWARRIOR, LAUNCH OLD MISSION and PILOT INFO.
+// Not 100%: the stack slots are permuted, and the mission test loads the tab before the pilot
+// (reversing the comparison's operands doesn't flip it).
+// FUNCTION: MW2SHELL 0x1001534c
+void FUN_1001534c(TMPackDataBase*, MechS32* p_campaign, MechU8* p_pilotChosen, MechChar** p_scenario, MechS32 p_msg)
+{
+	TinWhistle0x3c* pilot;
+	MechS32 button;
+	SlateTab0x2c* tab;
+
+	// The original skips the frame's work with a goto, like FUN_100043c2.
+	if (p_msg != 0x404) {
+		goto done;
+	}
+
+	button = g_unk0x1007cda0->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	if (g_unk0x1006a9e0 && ((g_unk0x1007cc98 == 1 && !g_unk0x10064124) || (g_unk0x1007cc98 == 0 && !g_unk0x10064128))) {
+		switch (g_unk0x1007cc98) {
+		case 1:
+			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x65), g_pWnd, (DLGPROC) FUN_10015a6c, 0);
+			g_unk0x10064124 = 1;
+			break;
+		case 0:
+			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x66), g_pWnd, (DLGPROC) FUN_10015a6c, 0);
+			g_unk0x10064128 = 1;
+			break;
+		}
+	}
+
+	if (g_pMouseState->GetLeftPressed() == 1) {
+		if (g_unk0x10064120) {
+			tab = FUN_1000b5ed(g_unk0x10063dd8, g_pMouseState->m_x, g_pMouseState->m_y);
+			if (tab && tab->m_unk0x20 && g_pCurrentPilot->m_mission > (MechS32) tab->m_unk0x24) {
+				*p_scenario = g_campaignMissions[*p_campaign][(MechS32) tab->m_unk0x24].m_unk0x00;
+				FUN_10003175(0, 0, 3, 1, 100);
+				ShellApplyMissionUiInfo(*p_scenario, 1, 0);
+				FUN_10003175(1, 0, 0, 0, 100);
+				FUN_10003175(0, -1, -1, -1, -1);
+				FUN_10002de7(0, NULL, g_pCurrentPilot->m_callsign);
+				p_msg = 0x410;
+			}
+		}
+
+	again:
+		switch (button) {
+		case 0:
+			g_pCurrentPilot = NULL;
+			p_msg = 0x40e;
+			break;
+		case 12:
+			if (g_pCurrentPilot && ShowDialog("Terminate MechWarrior?#Yes|No", 1) == 1) {
+				break;
+			}
+			FUN_10014caa(g_pCurrentPilot);
+			if (g_unk0x10071374) {
+				g_unk0x10071374 = 0;
+			}
+			FUN_10007ac8(g_unk0x10063c78);
+			FUN_10007ac8(g_unk0x10063dd8);
+			g_unk0x10064120 = 0;
+			g_pCurrentPilot = NULL;
+			g_unk0x1007cda0->FUN_10048d65(11);
+			g_unk0x1007cda0->FUN_10048d65(12);
+			g_unk0x1007cda0->FUN_10048d65(13);
+			g_unk0x1007cda0->FUN_10048d65(14);
+			break;
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+			pilot = g_unk0x1007cda8[button - 1];
+			if (pilot->m_unk0x00) {
+				g_pCurrentPilot = pilot;
+				FUN_10014d3e(pilot);
+				if (g_pMouseState->GetDoubleClicked()) {
+					*p_pilotChosen = 1;
+					p_msg = 0x407;
+					break;
+				}
+				g_unk0x1007cda0->FUN_10048cc1(11);
+				g_unk0x1007cda0->FUN_10048cc1(12);
+				if (g_pCurrentPilot->m_mission) {
+					g_unk0x1007cda0->FUN_10048cc1(13);
+				}
+				else {
+					g_unk0x1007cda0->FUN_10048d65(13);
+				}
+				g_unk0x1007cda0->FUN_10048d65(14);
+				FUN_10007ac8(g_unk0x10063dd8);
+				g_unk0x10064120 = 0;
+				FUN_10007ac8(g_unk0x10063c78);
+				FUN_100078cd(g_unk0x10063c78);
+			}
+			else {
+				g_unk0x1007cda0->FUN_10048d65(11);
+				g_unk0x1007cda0->FUN_10048d65(12);
+				g_unk0x1007cda0->FUN_10048d65(13);
+				g_unk0x1007cda0->FUN_10048d65(14);
+				FUN_10007ac8(g_unk0x10063dd8);
+				g_unk0x10064120 = 0;
+				FUN_10007ac8(g_unk0x10063c78);
+				g_pCurrentPilot = NULL;
+				pilot->m_callsign[0] = '\0';
+				FUN_10044451(g_unk0x10071214, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
+				FUN_100309b6(pilot->m_callsign);
+				if (pilot->m_callsign[0]) {
+					g_pCurrentPilot = pilot;
+					pilot->m_unk0x00 = 1;
+					pilot->m_mission = 0;
+					pilot->m_rank = 0;
+					pilot->m_honor = (MechS32) (rand() / 32767.0 * 1000.0 + 1000.0);
+					pilot->m_unk0x18 = 0;
+					pilot->m_unk0x1c = 0;
+					pilot->m_unk0x20 = 0;
+					pilot->m_unk0x24 = 0;
+					FUN_10014d3e(pilot);
+					FUN_10014b60();
+					g_unk0x1007cda0->FUN_10048cc1(11);
+					g_unk0x1007cda0->FUN_10048cc1(12);
+					FUN_100078cd(g_unk0x10063c78);
+					g_unk0x10071374 = 1;
+				}
+
+				if (g_pMouseState->m_leftDown == 1) {
+					button = g_unk0x1007cda0->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+					goto again;
+				}
+			}
+			break;
+		case 11:
+			if (g_pCurrentPilot) {
+				*p_pilotChosen = 1;
+				p_msg = 0x407;
+			}
+			break;
+		case 13:
+			g_unk0x1007cda0->FUN_10048d65(13);
+			g_unk0x1007cda0->FUN_10048cc1(14);
+			FUN_10007ac8(g_unk0x10063c78);
+			FUN_100078cd(g_unk0x10063dd8);
+			g_unk0x10064120 = 1;
+			break;
+		case 14:
+			if (g_pCurrentPilot->m_mission) {
+				g_unk0x1007cda0->FUN_10048cc1(13);
+			}
+			g_unk0x1007cda0->FUN_10048d65(14);
+			FUN_10007ac8(g_unk0x10063dd8);
+			g_unk0x10064120 = 0;
+			FUN_100078cd(g_unk0x10063c78);
+			break;
+		}
+	}
+
+done:
+	if (p_msg != 0x404) {
+		FUN_10007ac8(g_unk0x10063dd8);
+		FUN_10007ac8(g_unk0x10063c78);
+		SavePilotRoster();
+		delete g_unk0x1007cda0;
+		delete g_unk0x1006411c;
+		FUN_10014c1e();
+		PostMessage(g_pWnd, p_msg, 0x412, 0);
+		FUN_100108fd(FUN_1001534c);
+	}
+}
+
+// The quick tips dialog of the pilot roster: whether the quick tips show, and a checkbox for
+// g_unk0x1006a9e0.
+// FUNCTION: MW2SHELL 0x10015a6c
+BOOL CALLBACK FUN_10015a6c(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
+{
+	UINT command;
+
+	switch (p_msg) {
+	case WM_INITDIALOG:
+		if (g_fQuickTips) {
+			CheckDlgButton(p_hDlg, 0x3e8, 1);
+		}
+		else {
+			CheckDlgButton(p_hDlg, 0x3e9, 1);
+		}
+		SetFocus(GetDlgItem(p_hDlg, 1));
+		return FALSE;
+	case WM_COMMAND:
+		command = LOWORD(p_wParam);
+		switch (command) {
+		case 0x3e8:
+			if (IsDlgButtonChecked(p_hDlg, 0x3e8) == 1) {
+				CheckDlgButton(p_hDlg, 0x3e9, 0);
+			}
+			else {
+				CheckDlgButton(p_hDlg, 0x3e9, 1);
+			}
+			break;
+		case 0x3e9:
+			if (IsDlgButtonChecked(p_hDlg, 0x3e9) == 1) {
+				CheckDlgButton(p_hDlg, 0x3e8, 0);
+			}
+			else {
+				CheckDlgButton(p_hDlg, 0x3e8, 1);
+			}
+			break;
+		case 0x3ea:
+			if (IsDlgButtonChecked(p_hDlg, 0x3ea) == 1) {
+				g_unk0x1006a9e0 = 0;
+			}
+			else {
+				g_unk0x1006a9e0 = 1;
+			}
+			break;
+		case 1:
+			EndDialog(p_hDlg, 0);
+			break;
+		}
+
+		if (IsDlgButtonChecked(p_hDlg, 0x3e8) == 1) {
+			g_fQuickTips = 1;
+			CheckMenuItem(g_windowMenu, 0x9c72, MF_CHECKED);
+		}
+		else {
+			g_fQuickTips = 0;
+			CheckMenuItem(g_windowMenu, 0x9c72, MF_UNCHECKED);
+		}
+		return TRUE;
+	}
+
+	return FALSE;
 }

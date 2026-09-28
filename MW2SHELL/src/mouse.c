@@ -39,8 +39,15 @@ __inline MechS32 IsInsideWindow(POINT* p_point)
 // GLOBAL: MW2SHELL 0x10071d18
 const MechChar* g_mouseAxisNames[] = {"Mouse Down/Up Movement", "Mouse Left/Right Movement"};
 
+// Named, since the joystick unit has strings with the same text.
+// GLOBAL: MW2SHELL 0x10058b78
+const MechChar g_unk0x10058b78[] = "Down/Up";
+
+// GLOBAL: MW2SHELL 0x10058b80
+const MechChar g_unk0x10058b80[] = "Left/Right";
+
 // GLOBAL: MW2SHELL 0x10071d20
-const MechChar* g_mouseAxisTypes[] = {"Down/Up", "Left/Right"};
+const MechChar* g_mouseAxisTypes[] = {g_unk0x10058b78, g_unk0x10058b80};
 
 // GLOBAL: MW2SHELL 0x10071d28
 const MechChar* g_mouseButtonNames[] = {"Left button", "Middle button", "Right button", NULL};
