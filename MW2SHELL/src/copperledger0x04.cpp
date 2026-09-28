@@ -2,7 +2,6 @@
 
 #include "emberglyph0x3e.h"
 #include "shellmain.h"
-#include "tinwhistle0x3c.h"
 
 #include <windows.h>
 
@@ -68,34 +67,4 @@ void CopperLedger0x04::FUN_1003e286()
 			item->FUN_10047425();
 		}
 	}
-}
-
-// FUNCTION: MW2SHELL 0x1003e2f0
-MechS32 FUN_1003e2f0(const TinWhistle0x3c** p_first, const TinWhistle0x3c** p_second)
-{
-	const TinWhistle0x3c** firstParam = p_first;
-	const TinWhistle0x3c** secondParam = p_second;
-	const TinWhistle0x3c* first = *firstParam;
-	const TinWhistle0x3c* second = *secondParam;
-
-	if (second->m_rank < first->m_rank) {
-		return -1;
-	}
-	if (second->m_rank > first->m_rank) {
-		return 1;
-	}
-	if (second->m_honor < first->m_honor) {
-		return -1;
-	}
-	if (second->m_honor > first->m_honor) {
-		return 1;
-	}
-	if (second->m_mission < first->m_mission) {
-		return -1;
-	}
-	if (second->m_mission > first->m_mission) {
-		return 1;
-	}
-
-	return 0;
 }

@@ -21,10 +21,10 @@ extern HollowReed0x110* g_unk0x100711f8;
 extern BrassLantern0x414* g_unk0x10071214;
 extern VideoDriver* g_pVideoDriver;
 extern MouseState* g_pMouseState;
-extern HINSTANCE g_pModule;
+extern "C" HINSTANCE g_pModule;
 extern "C" HWND g_pWnd;
-extern HMENU g_windowMenu;
-extern MechS32 g_menuDialogOpen;
+extern "C" HMENU g_windowMenu;
+extern "C" MechS32 g_menuDialogOpen;
 
 void FUN_100079f8(SlateTab0x2c* p_tabs);
 void FUN_10007ac8(SlateTab0x2c* p_tabs);
@@ -39,6 +39,21 @@ void CalledWhenCombatVarsOptionClicked(MechS32);
 extern SlateTab0x2c g_unk0x10070da8[15];
 void FUN_100109a0(void (*p_callback)(MechS32));
 
+// A button with a centered caption. Nothing calls its two functions.
+// SIZE 0x9c
+struct PewterPlaque0x9c {
+	MechS32 m_left;        // 0x00
+	MechS32 m_top;         // 0x04
+	MechS32 m_right;       // 0x08
+	MechS32 m_bottom;      // 0x0c
+	MechS32 m_textLeft;    // 0x10
+	MechS32 m_textTop;     // 0x14
+	MechChar m_text[0x80]; // 0x18
+	undefined4 m_unk0x98;  // 0x98
+};
+
+DECOMP_SIZE_ASSERT(PewterPlaque0x9c, 0x9c)
+
 // GLOBAL: MW2SHELL 0x10070d90
 SilverReel0x18* g_unk0x10070d90 = NULL;
 
@@ -47,9 +62,7 @@ MechChar g_unk0x1007116c[0x10] = "amwlogo1";
 
 DECOMP_SIZE_ASSERT(ChimeLedger0x3c, 0x3c)
 
-// The sound settings (MW2SND.CFG).
-// GLOBAL: MW2SHELL 0x10071678
-ChimeLedger0x3c g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 0xf, 1, 1, 1, 1, 1, 8, 0, {0}};
+extern ChimeLedger0x3c g_soundConfig;
 
 // GLOBAL: MW2SHELL 0x10092c18
 AudioSample* g_unk0x10092c18;
@@ -66,11 +79,39 @@ MechChar* g_unk0x10092c20[3];
 // GLOBAL: MW2SHELL 0x10092f38
 MechChar g_unk0x10092f38[0x200];
 
-// GLOBAL: MW2SHELL 0x100716b8
-undefined g_unk0x100716b8[0x17] = {0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
+extern undefined g_unk0x100716b8[0x17];
 
 // GLOBAL: MW2SHELL 0x10070d98
 MechChar* g_unk0x10070d98[] = {"~EASY", "~MEDIUM", "~HARD"};
+
+// Lay out a button: its rectangle around a center, and its caption centered in it.
+// FUNCTION: MW2SHELL 0x10043280
+void FUN_10043280(
+	PewterPlaque0x9c* p_plaque,
+	MechS32 p_centerX,
+	MechS32 p_centerY,
+	MechS32 p_width,
+	MechS32 p_height,
+	BrassLantern0x414* p_font
+)
+{
+	p_plaque->m_textLeft = p_centerX;
+	p_plaque->m_textTop = p_centerY;
+	p_plaque->m_left = p_plaque->m_textLeft - p_width / 2;
+	p_plaque->m_right = p_plaque->m_left + p_width - 1;
+	p_plaque->m_top = p_plaque->m_textTop - p_height / 2;
+	p_plaque->m_bottom = p_plaque->m_top + p_height - 1;
+	p_plaque->m_textTop -= p_font->m_unk0x40c / 2;
+	p_plaque->m_textLeft -= p_font->FUN_100053be(p_plaque->m_text) / 2;
+	p_plaque->m_unk0x98 = 0;
+}
+
+// Whether a point lies in a button.
+// FUNCTION: MW2SHELL 0x10043333
+MechS32 FUN_10043333(PewterPlaque0x9c* p_plaque, MechS32 p_x, MechS32 p_y)
+{
+	return p_x >= p_plaque->m_left && p_x <= p_plaque->m_right && p_y >= p_plaque->m_top && p_y <= p_plaque->m_bottom;
+}
 
 // FUNCTION: MW2SHELL 0x1004338a
 EmberGlyph0x3e* FUN_1004338a(SlateTab0x2c* p_option)

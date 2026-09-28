@@ -16,8 +16,8 @@ extern MouseState* g_pMouseState;
 extern BrassLantern0x414* g_unk0x10071210;
 extern BrassLantern0x414* g_unk0x10071214;
 extern BrassLantern0x414* g_unk0x10071218;
-extern HMENU g_windowMenu;
-extern MechS32 g_menuDialogOpen;
+extern "C" HMENU g_windowMenu;
+extern "C" MechS32 g_menuDialogOpen;
 extern PaletteColor g_unk0x10071378[0x100];
 
 extern void FUN_1001661b();

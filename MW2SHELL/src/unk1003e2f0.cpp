@@ -15,6 +15,36 @@ void operator delete(void*);
 #include <string.h>
 #include <windows.h>
 
+// FUNCTION: MW2SHELL 0x1003e2f0
+MechS32 FUN_1003e2f0(const TinWhistle0x3c** p_first, const TinWhistle0x3c** p_second)
+{
+	const TinWhistle0x3c** firstParam = p_first;
+	const TinWhistle0x3c** secondParam = p_second;
+	const TinWhistle0x3c* first = *firstParam;
+	const TinWhistle0x3c* second = *secondParam;
+
+	if (second->m_rank < first->m_rank) {
+		return -1;
+	}
+	if (second->m_rank > first->m_rank) {
+		return 1;
+	}
+	if (second->m_honor < first->m_honor) {
+		return -1;
+	}
+	if (second->m_honor > first->m_honor) {
+		return 1;
+	}
+	if (second->m_mission < first->m_mission) {
+		return -1;
+	}
+	if (second->m_mission > first->m_mission) {
+		return 1;
+	}
+
+	return 0;
+}
+
 extern VideoDriver* g_pVideoDriver;
 extern HollowReed0x110* g_unk0x100711f8;
 extern MouseState* g_pMouseState;
@@ -23,23 +53,20 @@ extern BrassLantern0x414* g_unk0x10071218;
 extern MechChar* g_rankNames[10];
 extern CampaignMission* g_campaignMissions[2];
 extern TinWhistle0x3c g_pilotRoster[20];
-extern HMENU g_windowMenu;
-extern MechS32 g_menuDialogOpen;
+extern "C" HMENU g_windowMenu;
+extern "C" MechS32 g_menuDialogOpen;
 
 extern void FUN_1001661b();
 extern void FUN_100109a0(void (*p_callback)(MechS32));
 extern void FUN_100109b8(void (*p_callback)(MechS32));
-extern MechS32 FUN_1003e2f0(const TinWhistle0x3c** p_first, const TinWhistle0x3c** p_second);
 void FUN_1003e86b(MechS32 p_active);
 
 // GLOBAL: MW2SHELL 0x1006aeac
 SilverReel0x18* g_unk0x1006aeac = NULL;
 
-// GLOBAL: MW2SHELL 0x10071280
-MechChar* g_unk0x10071280[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jaguar", "Nova Cat", "Steel Vipers"};
+extern MechChar* g_unk0x10071280[6];
 
-// GLOBAL: MW2SHELL 0x10071378
-PaletteColor g_unk0x10071378[0x100] = {0};
+extern PaletteColor g_unk0x10071378[0x100];
 
 // GLOBAL: MW2SHELL 0x10090670
 MechChar g_unk0x10090670[0x20];

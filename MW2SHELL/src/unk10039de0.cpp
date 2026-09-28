@@ -20,8 +20,8 @@
 // The ready room screen.
 
 extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
+extern "C" HINSTANCE g_pModule;
+extern "C" MechU32 g_fQuickTips;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern VideoDriver* g_pVideoDriver;
 extern MouseState* g_pMouseState;
@@ -72,121 +72,7 @@ MenuList0x10d* g_unk0x100904a0;
 // GLOBAL: MW2SHELL 0x100904a4
 WPARAM g_unk0x100904a4;
 
-// GLOBAL: MW2SHELL 0x100701ec
-MechChar g_unk0x100701ec[0x0c] = "CLAN HALL";
-// GLOBAL: MW2SHELL 0x100701f8
-MechChar g_unk0x100701f8[0x0c] = "~MECH LAB";
-// GLOBAL: MW2SHELL 0x10070204
-MechChar g_unk0x10070204[0x10] = "~STAR CONFIG";
-// GLOBAL: MW2SHELL 0x10070214
-MechChar g_unk0x10070214[0x14] = "~MISSION BRIEFING";
-// GLOBAL: MW2SHELL 0x10070228
-MechChar g_unk0x10070228[0x0c] = "<~YELLOW";
-// GLOBAL: MW2SHELL 0x10070234
-MechChar g_unk0x10070234[0x0c] = "<~ORANGE";
-// GLOBAL: MW2SHELL 0x10070240
-MechChar g_unk0x10070240[0x08] = "<~TEAL";
-// GLOBAL: MW2SHELL 0x10070248
-MechChar g_unk0x10070248[0x08] = "<~TAUPE";
-// GLOBAL: MW2SHELL 0x10070250
-MechChar g_unk0x10070250[0x08] = "<~JENNY";
-// GLOBAL: MW2SHELL 0x10070258
-MechChar g_unk0x10070258[0x08] = "<~SABLE";
-// GLOBAL: MW2SHELL 0x10070260
-MechChar g_unk0x10070260[0x08] = "<~GREY";
-// GLOBAL: MW2SHELL 0x10070268
-MechChar g_unk0x10070268[0x08] = "<~BROWN";
-// GLOBAL: MW2SHELL 0x10070270
-MechChar g_unk0x10070270[0x08] = "<~AMY";
-// GLOBAL: MW2SHELL 0x10070278
-MechChar g_unk0x10070278[0x0c] = "<~SILVER";
-// GLOBAL: MW2SHELL 0x10070284
-MechChar g_unk0x10070284[0x08] = "<~AQUA";
-// GLOBAL: MW2SHELL 0x1007028c
-MechChar g_unk0x1007028c[0x08] = "<~KIM";
-// GLOBAL: MW2SHELL 0x10070294
-MechChar g_unk0x10070294[0x08] = "<~CYAN";
-// GLOBAL: MW2SHELL 0x1007029c
-MechChar g_unk0x1007029c[0x0c] = "<~MAROON";
-// GLOBAL: MW2SHELL 0x100702a8
-MechChar g_unk0x100702a8[0x08] = "<~GOLD";
-// GLOBAL: MW2SHELL 0x100702b0
-MechChar g_unk0x100702b0[0x08] = "<~IRENE";
-// GLOBAL: MW2SHELL 0x100705b4
-MechChar g_unk0x100705b4[0x0c] = "CLAN HALL";
-// GLOBAL: MW2SHELL 0x100705c0
-MechChar g_unk0x100705c0[0x0c] = "~MECH LAB";
-// GLOBAL: MW2SHELL 0x100705cc
-MechChar g_unk0x100705cc[0x10] = "~STAR CONFIG";
-// GLOBAL: MW2SHELL 0x100705dc
-MechChar g_unk0x100705dc[0x14] = "~MISSION BRIEFING";
-// GLOBAL: MW2SHELL 0x100705f0
-MechChar g_unk0x100705f0[0x08] = "<~PINK";
-// GLOBAL: MW2SHELL 0x100705f8
-MechChar g_unk0x100705f8[0x08] = "<~GREEN";
-// GLOBAL: MW2SHELL 0x10070600
-MechChar g_unk0x10070600[0x08] = "<~RED";
-// GLOBAL: MW2SHELL 0x10070608
-MechChar g_unk0x10070608[0x0c] = "<~FUCHSIA";
-// GLOBAL: MW2SHELL 0x10070614
-MechChar g_unk0x10070614[0x08] = "<~CINDY";
-// GLOBAL: MW2SHELL 0x1007061c
-MechChar g_unk0x1007061c[0x08] = "<~RUST";
-// GLOBAL: MW2SHELL 0x10070624
-MechChar g_unk0x10070624[0x08] = "<~UMBER";
-// GLOBAL: MW2SHELL 0x1007062c
-MechChar g_unk0x1007062c[0x08] = "<~TAN";
-// GLOBAL: MW2SHELL 0x10070634
-MechChar g_unk0x10070634[0x08] = "<~HEIDI";
-// GLOBAL: MW2SHELL 0x1007063c
-MechChar g_unk0x1007063c[0x08] = "<~PLUM";
-// GLOBAL: MW2SHELL 0x10070644
-MechChar g_unk0x10070644[0x08] = "<~WHITE";
-// GLOBAL: MW2SHELL 0x1007064c
-MechChar g_unk0x1007064c[0x08] = "<~JILL";
-// GLOBAL: MW2SHELL 0x10070654
-MechChar g_unk0x10070654[0x08] = "<~PUCE";
-// GLOBAL: MW2SHELL 0x1007065c
-MechChar g_unk0x1007065c[0x0c] = "<~BLONDE";
-// GLOBAL: MW2SHELL 0x10070668
-MechChar g_unk0x10070668[0x0c] = "<~BRONZE";
-// GLOBAL: MW2SHELL 0x10070674
-MechChar g_unk0x10070674[0x08] = "<~MARY";
-
-// GLOBAL: MW2SHELL 0x1006e5d8
-MainMenuButton g_unk0x1006e5d8[20] = {
-	{0, 0, 130, 479, 56, 223, g_unk0x100701ec},      {300, 320, 559, 419, 450, 364, g_unk0x100701f8},
-	{510, 420, 559, 469, 542, 455, g_unk0x10070204}, {140, 90, 399, 313, 265, 226, g_unk0x10070214},
-	{400, 25, 519, 49, 460, 30, g_unk0x10070228},    {400, 55, 519, 79, 460, 60, g_unk0x10070234},
-	{400, 85, 519, 109, 460, 90, g_unk0x10070240},   {400, 115, 519, 139, 460, 120, g_unk0x10070248},
-	{400, 145, 519, 169, 460, 150, g_unk0x10070250}, {400, 175, 519, 199, 460, 180, g_unk0x10070258},
-	{400, 205, 519, 229, 460, 210, g_unk0x10070260}, {400, 235, 519, 259, 460, 240, g_unk0x10070268},
-	{520, 25, 639, 49, 580, 30, g_unk0x10070270},    {520, 55, 639, 79, 580, 60, g_unk0x10070278},
-	{520, 85, 639, 109, 580, 90, g_unk0x10070284},   {520, 115, 639, 139, 580, 120, g_unk0x1007028c},
-	{520, 145, 639, 169, 580, 150, g_unk0x10070294}, {520, 175, 639, 199, 580, 180, g_unk0x1007029c},
-	{520, 205, 639, 229, 580, 210, g_unk0x100702a8}, {520, 235, 639, 259, 580, 240, g_unk0x100702b0},
-};
-
-// GLOBAL: MW2SHELL 0x1006ef58
-MainMenuButton g_unk0x1006ef58[20] = {
-	{0, 0, 130, 479, 56, 223, g_unk0x100705b4},      {280, 340, 534, 439, 415, 370, g_unk0x100705c0},
-	{432, 440, 482, 479, 464, 460, g_unk0x100705cc}, {140, 90, 399, 313, 277, 226, g_unk0x100705dc},
-	{400, 25, 519, 49, 460, 30, g_unk0x100705f0},    {400, 55, 519, 79, 460, 60, g_unk0x100705f8},
-	{400, 85, 519, 109, 460, 90, g_unk0x10070600},   {400, 115, 519, 139, 460, 120, g_unk0x10070608},
-	{400, 145, 519, 169, 460, 150, g_unk0x10070614}, {400, 175, 519, 199, 460, 180, g_unk0x1007061c},
-	{400, 205, 519, 229, 460, 210, g_unk0x10070624}, {400, 235, 519, 259, 460, 240, g_unk0x1007062c},
-	{520, 25, 639, 49, 580, 30, g_unk0x10070634},    {520, 55, 639, 79, 580, 60, g_unk0x1007063c},
-	{520, 85, 639, 109, 580, 90, g_unk0x10070644},   {520, 115, 639, 139, 580, 120, g_unk0x1007064c},
-	{520, 145, 639, 169, 580, 150, g_unk0x10070654}, {520, 175, 639, 199, 580, 180, g_unk0x1007065c},
-	{520, 205, 639, 229, 580, 210, g_unk0x10070668}, {520, 235, 639, 259, 580, 240, g_unk0x10070674},
-};
-
-// GLOBAL: MW2SHELL 0x1006fed0
-TallowSign0x10 g_unk0x1006fed0[3] = {
-	{g_unk0x1006e5d8, 20, 14, 0x25},
-	{g_unk0x1006ef58, 20, 21, 0x28},
-	{NULL, 0, 0, 0},
-};
+extern TallowSign0x10 g_unk0x1006fed0[3];
 
 // Play the second faction grid animation only when video slot zero is idle.
 // FUNCTION: MW2SHELL 0x10039de0

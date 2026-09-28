@@ -64,51 +64,7 @@ MechS32 g_unk0x10063b80 = -1;
 // GLOBAL: MW2SHELL 0x10063b84
 MechS32 g_unk0x10063b84 = 0x404;
 
-// GLOBAL: MW2SHELL 0x10070094
-MechChar g_unk0x10070094[0x10] = "CADET TRAINING";
-// GLOBAL: MW2SHELL 0x100700a4
-MechChar g_unk0x100700a4[0x18] = "ARCHIVE HOLOPROJECTOR";
-// GLOBAL: MW2SHELL 0x100700bc
-MechChar g_unk0x100700bc[0x0c] = "READY ROOM";
-// GLOBAL: MW2SHELL 0x100700c8
-MechChar g_unk0x100700c8[0x0c] = "REGISTER";
-// GLOBAL: MW2SHELL 0x100700d4
-MechChar g_unk0x100700d4[0x08] = "~EXIT";
-// GLOBAL: MW2SHELL 0x1007045c
-MechChar g_unk0x1007045c[0x10] = "CADET TRAINING";
-// GLOBAL: MW2SHELL 0x1007046c
-MechChar g_unk0x1007046c[0x18] = "ARCHIVE HOLOPROJECTOR";
-// GLOBAL: MW2SHELL 0x10070484
-MechChar g_unk0x10070484[0x0c] = "READY ROOM";
-// GLOBAL: MW2SHELL 0x10070490
-MechChar g_unk0x10070490[0x0c] = "REGISTER";
-// GLOBAL: MW2SHELL 0x1007049c
-MechChar g_unk0x1007049c[0x08] = "~EXIT";
-
-// GLOBAL: MW2SHELL 0x1006e268
-MainMenuButton g_unk0x1006e268[5] = {
-	{185, 280, 240, 400, 197, 327, g_unk0x10070094},
-	{320, 300, 470, 400, 246, 371, g_unk0x100700a4},
-	{20, 245, 90, 411, 25, 307, g_unk0x100700bc},
-	{95, 385, 180, 479, 80, 455, g_unk0x100700c8},
-	{0, 0, 639, 40, 320, 15, g_unk0x100700d4},
-};
-
-// GLOBAL: MW2SHELL 0x1006ebe8
-MainMenuButton g_unk0x1006ebe8[5] = {
-	{66, 167, 152, 303, 69, 187, g_unk0x1007045c},
-	{160, 290, 375, 322, 110, 340, g_unk0x1007046c},
-	{523, 154, 636, 332, 450, 200, g_unk0x10070484},
-	{397, 385, 492, 466, 397, 443, g_unk0x10070490},
-	{0, 0, 639, 40, 320, 15, g_unk0x1007049c},
-};
-
-// GLOBAL: MW2SHELL 0x1006fe10
-TallowSign0x10 g_unk0x1006fe10[3] = {
-	{g_unk0x1006e268, 5, 11, 0x24},
-	{g_unk0x1006ebe8, 5, 18, 0x27},
-	{NULL, 0, 0, 0},
-};
+extern TallowSign0x10 g_unk0x1006fe10[3];
 
 void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 

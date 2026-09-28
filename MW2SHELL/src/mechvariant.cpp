@@ -54,8 +54,8 @@ DECOMP_SIZE_ASSERT(TallowSign0x10, 0x10)
 DECOMP_SIZE_ASSERT(MainMenuButton, 0x1c)
 
 extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
+extern "C" HINSTANCE g_pModule;
+extern "C" MechU32 g_fQuickTips;
 extern LinenPacket0x218 g_unk0x10090288;
 extern GraniteMast0x18 g_unk0x10061560[];
 extern MechS32 g_unk0x10061774;

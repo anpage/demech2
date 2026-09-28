@@ -41,21 +41,6 @@ struct CpcDeviceSlot {
 
 DECOMP_SIZE_ASSERT(CpcDeviceSlot, 0x10)
 
-// A button with a centered caption. Nothing calls its two functions.
-// SIZE 0x9c
-struct PewterPlaque0x9c {
-	MechS32 m_left;        // 0x00
-	MechS32 m_top;         // 0x04
-	MechS32 m_right;       // 0x08
-	MechS32 m_bottom;      // 0x0c
-	MechS32 m_textLeft;    // 0x10
-	MechS32 m_textTop;     // 0x14
-	MechChar m_text[0x80]; // 0x18
-	undefined4 m_unk0x98;  // 0x98
-};
-
-DECOMP_SIZE_ASSERT(PewterPlaque0x9c, 0x9c)
-
 enum CpcConfig {
 	c_configCount = 4,
 	c_bindingCount = 0x25,
@@ -83,8 +68,8 @@ extern BrassLantern0x414* g_unk0x1007120c;
 extern BrassLantern0x414* g_unk0x10071210;
 extern MouseState* g_pMouseState;
 extern HollowReed0x110* g_unk0x100711f8;
-extern HMENU g_windowMenu;
-extern MechS32 g_menuDialogOpen;
+extern "C" HMENU g_windowMenu;
+extern "C" MechS32 g_menuDialogOpen;
 extern PaletteColor g_unk0x10071378[0x100];
 extern VideoDriver* g_pVideoDriver;
 extern "C" HWND g_pWnd;
@@ -1107,8 +1092,6 @@ EmberGlyph0x3e* FUN_1003ff95(SlateTab0x2c* p_tab)
 }
 
 // Bind the selected control to an axis of the current device.
-// The original loads the index before the name table in m_axisShortNames[...] and m_axisNames[...];
-// it matched until the unit grew, so the order follows the unit's symbol count.
 // FUNCTION: MW2SHELL 0x100400b7
 void FUN_100400b7(SlateTab0x2c* p_tab)
 {
@@ -1445,6 +1428,8 @@ EmberGlyph0x3e* FUN_10040b32(SlateTab0x2c* p_tab)
 }
 
 // Enumerate the devices again, and explain when there is no joystick.
+// Operand order: the original compares count <= g_curInputDeviceIdx with count loaded first;
+// it flipped when the button functions moved to options.cpp.
 // FUNCTION: MW2SHELL 0x10040b8e
 void FUN_10040b8e(SlateTab0x2c*)
 {
@@ -1466,7 +1451,6 @@ void FUN_10040b8e(SlateTab0x2c*)
 }
 
 // Enumerate the devices again; the current device falls back to the last one.
-// The original loads g_curInputDeviceIdx for the comparison; swapping the operands didn't flip it.
 // FUNCTION: MW2SHELL 0x10040c21
 void FUN_10040c21(SlateTab0x2c*)
 {
@@ -2431,33 +2415,4 @@ void FUN_100431b4(MechS32 p_message, undefined4, MechChar* p_name)
 	}
 
 	MessageBox(g_pWnd, g_unk0x100906d0, "MechWarrior 2 Message", MB_ICONASTERISK);
-}
-
-// Lay out a button: its rectangle around a center, and its caption centered in it.
-// FUNCTION: MW2SHELL 0x10043280
-void FUN_10043280(
-	PewterPlaque0x9c* p_plaque,
-	MechS32 p_centerX,
-	MechS32 p_centerY,
-	MechS32 p_width,
-	MechS32 p_height,
-	BrassLantern0x414* p_font
-)
-{
-	p_plaque->m_textLeft = p_centerX;
-	p_plaque->m_textTop = p_centerY;
-	p_plaque->m_left = p_plaque->m_textLeft - p_width / 2;
-	p_plaque->m_right = p_plaque->m_left + p_width - 1;
-	p_plaque->m_top = p_plaque->m_textTop - p_height / 2;
-	p_plaque->m_bottom = p_plaque->m_top + p_height - 1;
-	p_plaque->m_textTop -= p_font->m_unk0x40c / 2;
-	p_plaque->m_textLeft -= p_font->FUN_100053be(p_plaque->m_text) / 2;
-	p_plaque->m_unk0x98 = 0;
-}
-
-// Whether a point lies in a button.
-// FUNCTION: MW2SHELL 0x10043333
-MechS32 FUN_10043333(PewterPlaque0x9c* p_plaque, MechS32 p_x, MechS32 p_y)
-{
-	return p_x >= p_plaque->m_left && p_x <= p_plaque->m_right && p_y >= p_plaque->m_top && p_y <= p_plaque->m_bottom;
 }

@@ -16,17 +16,17 @@
 #include <windows.h>
 
 extern "C" HWND g_pWnd;
-extern HMENU g_windowMenu;
+extern "C" HMENU g_windowMenu;
 extern MechU8 g_fDrawFmv;
 extern "C" MechS32 g_fWindowActive;
-extern MechS32 g_unk0x1006a9f0;
+extern "C" MechS32 g_unk0x1006a9f0;
 extern VideoDriver* g_pVideoDriver;
 extern MechChar g_szDataDrivePath[];
 extern MouseState* g_pMouseState;
 extern HollowReed0x110* g_unk0x100711f8;
 extern MechU32 g_unk0x10071248;
 extern AudioSubsystem* g_pAudioSubsystem;
-extern MechS32 g_menuDialogOpen;
+extern "C" MechS32 g_menuDialogOpen;
 
 // The original imports this one under its Miles name (wail32.def: _MEM_free_lock@4). It is
 // declared here rather than in mss.h: one more symbol there flips a comparison in MW2's

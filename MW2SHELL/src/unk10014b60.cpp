@@ -30,10 +30,10 @@ extern TinWhistle0x3c* g_pCurrentPilot;
 extern MechChar* g_rankNames[10];
 extern CampaignMission* g_campaignMissions[2];
 extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern HMENU g_windowMenu;
-extern MechU32 g_fQuickTips;
-extern MechS32 g_unk0x1006a9e0;
+extern "C" HINSTANCE g_pModule;
+extern "C" HMENU g_windowMenu;
+extern "C" MechU32 g_fQuickTips;
+extern "C" MechS32 g_unk0x1006a9e0;
 extern MechS32 g_unk0x10071374;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern VideoDriver* g_pVideoDriver;
@@ -276,111 +276,7 @@ MechS32 g_unk0x10064128 = 0;
 // GLOBAL: MW2SHELL 0x1007cda0
 MenuList0x10d* g_unk0x1007cda0;
 
-// GLOBAL: MW2SHELL 0x100700dc
-MechChar g_unk0x100700dc[0x14] = "<~NEW ALLEGIANCE";
-// GLOBAL: MW2SHELL 0x100700f0
-MechChar g_unk0x100700f0[0x04] = "";
-// GLOBAL: MW2SHELL 0x100700f4
-MechChar g_unk0x100700f4[0x04] = "";
-// GLOBAL: MW2SHELL 0x100700f8
-MechChar g_unk0x100700f8[0x04] = "";
-// GLOBAL: MW2SHELL 0x100700fc
-MechChar g_unk0x100700fc[0x04] = "";
-// GLOBAL: MW2SHELL 0x10070100
-MechChar g_unk0x10070100[0x04] = "";
-// GLOBAL: MW2SHELL 0x10070104
-MechChar g_unk0x10070104[0x04] = "";
-// GLOBAL: MW2SHELL 0x10070108
-MechChar g_unk0x10070108[0x04] = "";
-// GLOBAL: MW2SHELL 0x1007010c
-MechChar g_unk0x1007010c[0x04] = "";
-// GLOBAL: MW2SHELL 0x10070110
-MechChar g_unk0x10070110[0x04] = "";
-// GLOBAL: MW2SHELL 0x10070114
-MechChar g_unk0x10070114[0x04] = "";
-// GLOBAL: MW2SHELL 0x10070118
-MechChar g_unk0x10070118[0x0c] = "<~ACCEPT";
-// GLOBAL: MW2SHELL 0x10070124
-MechChar g_unk0x10070124[0x18] = "<~DELETE MECHWARRIOR";
-// GLOBAL: MW2SHELL 0x1007013c
-MechChar g_unk0x1007013c[0x18] = "<~LAUNCH OLD MISSION";
-// GLOBAL: MW2SHELL 0x10070154
-MechChar g_unk0x10070154[0x10] = "<~PILOT INFO";
-// GLOBAL: MW2SHELL 0x100704a4
-MechChar g_unk0x100704a4[0x14] = "<~NEW ALLEGIANCE";
-// GLOBAL: MW2SHELL 0x100704b8
-MechChar g_unk0x100704b8[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704bc
-MechChar g_unk0x100704bc[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704c0
-MechChar g_unk0x100704c0[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704c4
-MechChar g_unk0x100704c4[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704c8
-MechChar g_unk0x100704c8[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704cc
-MechChar g_unk0x100704cc[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704d0
-MechChar g_unk0x100704d0[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704d4
-MechChar g_unk0x100704d4[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704d8
-MechChar g_unk0x100704d8[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704dc
-MechChar g_unk0x100704dc[0x04] = "";
-// GLOBAL: MW2SHELL 0x100704e0
-MechChar g_unk0x100704e0[0x0c] = "<~ACCEPT";
-// GLOBAL: MW2SHELL 0x100704ec
-MechChar g_unk0x100704ec[0x18] = "<~DELETE MECHWARRIOR";
-// GLOBAL: MW2SHELL 0x10070504
-MechChar g_unk0x10070504[0x18] = "<~LAUNCH OLD MISSION";
-// GLOBAL: MW2SHELL 0x1007051c
-MechChar g_unk0x1007051c[0x10] = "<~PILOT INFO";
-
-// GLOBAL: MW2SHELL 0x1006e2f8
-MainMenuButton g_unk0x1006e2f8[15] = {
-	{466, 450, 619, 474, 543, 455, g_unk0x100700dc},
-	{32, 83, 297, 116, 41, 91, g_unk0x100700f0},
-	{32, 117, 297, 151, 41, 125, g_unk0x100700f4},
-	{32, 152, 297, 186, 41, 160, g_unk0x100700f8},
-	{32, 187, 297, 221, 41, 195, g_unk0x100700fc},
-	{32, 222, 297, 256, 41, 230, g_unk0x10070100},
-	{32, 257, 297, 291, 41, 265, g_unk0x10070104},
-	{32, 292, 297, 326, 41, 300, g_unk0x10070108},
-	{32, 327, 297, 361, 41, 335, g_unk0x1007010c},
-	{32, 362, 297, 397, 41, 370, g_unk0x10070110},
-	{32, 398, 297, 432, 41, 406, g_unk0x10070114},
-	{294, 450, 393, 474, 344, 455, g_unk0x10070118},
-	{20, 450, 221, 474, 121, 455, g_unk0x10070124},
-	{373, 403, 562, 427, 468, 408, g_unk0x1007013c},
-	{418, 403, 517, 427, 468, 408, g_unk0x10070154},
-};
-
-// GLOBAL: MW2SHELL 0x1006ec78
-MainMenuButton g_unk0x1006ec78[15] = {
-	{466, 450, 619, 474, 543, 455, g_unk0x100704a4},
-	{32, 83, 297, 116, 41, 91, g_unk0x100704b8},
-	{32, 117, 297, 151, 41, 125, g_unk0x100704bc},
-	{32, 152, 297, 186, 41, 160, g_unk0x100704c0},
-	{32, 187, 297, 221, 41, 195, g_unk0x100704c4},
-	{32, 222, 297, 256, 41, 230, g_unk0x100704c8},
-	{32, 257, 297, 291, 41, 265, g_unk0x100704cc},
-	{32, 292, 297, 326, 41, 300, g_unk0x100704d0},
-	{32, 327, 297, 361, 41, 335, g_unk0x100704d4},
-	{32, 362, 297, 397, 41, 370, g_unk0x100704d8},
-	{32, 398, 297, 432, 41, 406, g_unk0x100704dc},
-	{294, 450, 393, 474, 344, 455, g_unk0x100704e0},
-	{20, 450, 221, 474, 121, 455, g_unk0x100704ec},
-	{373, 403, 562, 427, 468, 408, g_unk0x10070504},
-	{418, 403, 517, 427, 468, 408, g_unk0x1007051c},
-};
-
-// GLOBAL: MW2SHELL 0x1006fe40
-TallowSign0x10 g_unk0x1006fe40[3] = {
-	{g_unk0x1006e2f8, 15, 17, -1},
-	{g_unk0x1006ec78, 15, 24, -1},
-	{NULL, 0, 0, 0},
-};
+extern TallowSign0x10 g_unk0x1006fe40[3];
 
 void FUN_1001534c(TMPackDataBase*, MechS32* p_campaign, MechU8* p_pilotChosen, MechChar** p_scenario, MechS32 p_msg);
 BOOL CALLBACK FUN_10015a6c(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);

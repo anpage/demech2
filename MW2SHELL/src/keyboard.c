@@ -34,10 +34,10 @@ enum KeyStateWord {
 };
 
 // GLOBAL: MW2SHELL 0x10079690
-undefined4 g_keyCodeWriteIndex;
+static undefined4 g_keyCodeWriteIndex;
 
 // GLOBAL: MW2SHELL 0x1007968c
-undefined4 g_keyCodeReadIndex;
+static undefined4 g_keyCodeReadIndex;
 
 // A ring buffer of key codes, filled by KeyboardQueueKeyCode.
 // GLOBAL: MW2SHELL 0x10096eb0
@@ -78,12 +78,12 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 // clang-format on
 
 // Two entries of each key-name table share an empty name that precedes the table's strings in
-// the original, instead of an empty literal of their own.
+// the original, instead of an empty literal of their own. Like the strings, it is const data.
 // GLOBAL: MW2SHELL 0x10058030
-MechChar g_unk0x10058030[] = "";
+const MechChar g_unk0x10058030[] = "";
 
 // GLOBAL: MW2SHELL 0x1005842c
-MechChar g_unk0x1005842c[] = "";
+const MechChar g_unk0x1005842c[] = "";
 
 // clang-format off
 // The short name of each key, as INPUT.MAP writes it.
@@ -98,7 +98,7 @@ MechChar* g_keyShortNames[0x79] = {
 	"End", "DownArrow", "PageDown", "Insert", "Delete", "SYSREQ", "KeypadEnter", "LeftBackSlash", "*F11", "F12",
 	"GreySlash", "PA1", "F13", "F14", "F15", "GreyHome", "GreyUpArrow", "GreyPageUp", "GreyLeftArrow", "GreyRightArrow",
 	"GreyEnd", "GreyDownArrow", "GreyPageDown", "GreyInsert", "GreyDelete", "F21", "F22", "F23", "F24", "UNNAMED_1",
-	"EraseEOF", g_unk0x10058030, "CopyPlay", "RightCtrl", "", "CRSel", g_unk0x10058030, "EXSel", "UNAMED_2", "Clear",
+	"EraseEOF", (MechChar*) g_unk0x10058030, "CopyPlay", "RightCtrl", "", "CRSel", (MechChar*) g_unk0x10058030, "EXSel", "UNAMED_2", "Clear",
 	"Shift", "Control", "",
 };
 // clang-format on
@@ -121,8 +121,8 @@ MechChar* g_keyNames[0x79] = {
 	"Left Back Slash (\\) Key", "F11 Key", "F12 Key", "Grey Slash (/) Key", "PA1 Key", "F13 Key", "F14 Key", "F15 Key",
 	"Grey Home Key", "Grey Up Arrow Key", "Grey Page Up Key", "Grey Left Arrow Key", "Grey Right Arrow Key",
 	"Grey End Key", "Grey Down Arrow Key", "Grey Page Down Key", "Grey Insert Key", "Grey Delete Key", "F21 Key",
-	"F22 Key", "F23 Key", "F24 Key", "UNNAMED Key", "Erase EOF Key", g_unk0x1005842c, "Copy Play Key",
-	"Right Control Key", "Right Alt Key", "CR Sel Key", g_unk0x1005842c, "EX Sel Key", "UNAMED_2 Key", "Clear Key",
+	"F22 Key", "F23 Key", "F24 Key", "UNNAMED Key", "Erase EOF Key", (MechChar*) g_unk0x1005842c, "Copy Play Key",
+	"Right Control Key", "Right Alt Key", "CR Sel Key", (MechChar*) g_unk0x1005842c, "EX Sel Key", "UNAMED_2 Key", "Clear Key",
 	"Any Shift Key", "Any Control Key", "Any Alt Key",
 };
 // clang-format on

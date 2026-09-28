@@ -3,7 +3,7 @@
 
 #include <windows.h>
 
-// Globals defined in shellmain.cpp and shared with other units, C and C++ alike.
+// Shell globals shared by C and C++ units (g_hPrimaryHeap is defined in unk1003bf90.c).
 #ifdef __cplusplus
 extern "C"
 {

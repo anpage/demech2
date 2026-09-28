@@ -472,6 +472,21 @@ OakenTune0x10::OakenTune0x10(AudioSubsystem* p_subsystem, MechS32 p_stereo, Mech
 	AIL_set_sample_type((HSAMPLE) m_unk0x04, format, p_wide != 0);
 }
 
+// FUNCTION: MW2SHELL 0x1003da54
+OakenTune0x10::~OakenTune0x10()
+{
+	if (m_unk0x04 != 0) {
+		AIL_end_sample((HSAMPLE) m_unk0x04);
+		AIL_release_sample_handle((HSAMPLE) m_unk0x04);
+		if (m_unk0x08 != NULL) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x08);
+		}
+		if (m_unk0x0c != NULL) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x0c);
+		}
+	}
+}
+
 // FUNCTION: MW2SHELL 0x1003dad5
 undefined4 OakenTune0x10::FUN_1003dad5()
 {

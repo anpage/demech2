@@ -94,81 +94,9 @@ Collection* g_unk0x1005b048 = NULL;
 // GLOBAL: MW2SHELL 0x1005b04c
 ArchiveReader* g_unk0x1005b04c = NULL;
 
-// GLOBAL: MW2SHELL 0x10070304
-MechChar g_unk0x10070304[0x08] = "<~EXIT";
-// GLOBAL: MW2SHELL 0x1007030c
-MechChar g_unk0x1007030c[0x0c] = "<~AFTERMATH";
-// GLOBAL: MW2SHELL 0x10070318
-MechChar g_unk0x10070318[0x0c] = "<~REPLAY";
-// GLOBAL: MW2SHELL 0x10070324
-MechChar g_unk0x10070324[0x08] = "<~EXIT";
-// GLOBAL: MW2SHELL 0x1007032c
-MechChar g_unk0x1007032c[0x0c] = "<~PREV PAGE";
-// GLOBAL: MW2SHELL 0x10070338
-MechChar g_unk0x10070338[0x0c] = "<~NEXT PAGE";
-// GLOBAL: MW2SHELL 0x10070344
-MechChar g_unk0x10070344[0x04] = "";
+extern TallowSign0x10 g_unk0x1006ff00[3];
 
-// GLOBAL: MW2SHELL 0x100706c8
-MechChar g_unk0x100706c8[0x08] = "<~EXIT";
-// GLOBAL: MW2SHELL 0x100706d0
-MechChar g_unk0x100706d0[0x0c] = "<~AFTERMATH";
-// GLOBAL: MW2SHELL 0x100706dc
-MechChar g_unk0x100706dc[0x0c] = "<~REPLAY";
-// GLOBAL: MW2SHELL 0x100706e8
-MechChar g_unk0x100706e8[0x08] = "<~EXIT";
-// GLOBAL: MW2SHELL 0x100706f0
-MechChar g_unk0x100706f0[0x0c] = "<~PREV PAGE";
-// GLOBAL: MW2SHELL 0x100706fc
-MechChar g_unk0x100706fc[0x0c] = "<~NEXT PAGE";
-// GLOBAL: MW2SHELL 0x10070708
-MechChar g_unk0x10070708[0x04] = "";
-
-// GLOBAL: MW2SHELL 0x1006e8e8
-MainMenuButton g_unk0x1006e8e8[3] = {
-	{270, 450, 369, 474, 320, 455, g_unk0x10070304},
-	{110, 450, 209, 474, 160, 455, g_unk0x1007030c},
-	{430, 450, 529, 474, 480, 455, g_unk0x10070318},
-};
-
-// GLOBAL: MW2SHELL 0x1006e940
-MainMenuButton g_unk0x1006e940[4] = {
-	{110, 450, 209, 474, 160, 455, g_unk0x10070324},
-	{270, 450, 369, 474, 320, 455, g_unk0x1007032c},
-	{430, 450, 529, 474, 480, 455, g_unk0x10070338},
-	{510, 550, 609, 574, 560, 555, g_unk0x10070344},
-};
-
-// GLOBAL: MW2SHELL 0x1006f268
-MainMenuButton g_unk0x1006f268[3] = {
-	{270, 450, 369, 474, 320, 455, g_unk0x100706c8},
-	{110, 450, 209, 474, 160, 455, g_unk0x100706d0},
-	{430, 450, 529, 474, 480, 455, g_unk0x100706dc},
-};
-
-// GLOBAL: MW2SHELL 0x1006f2c0
-MainMenuButton g_unk0x1006f2c0[4] = {
-	{110, 450, 209, 474, 160, 455, g_unk0x100706e8},
-	{270, 450, 369, 474, 320, 455, g_unk0x100706f0},
-	{430, 450, 529, 474, 480, 455, g_unk0x100706fc},
-	{510, 550, 609, 574, 560, 555, g_unk0x10070708},
-};
-
-// The debriefing screen of each campaign.
-// GLOBAL: MW2SHELL 0x1006ff00
-TallowSign0x10 g_unk0x1006ff00[3] = {
-	{g_unk0x1006e8e8, 3, 16, -1},
-	{g_unk0x1006f268, 3, 23, -1},
-	{g_unk0x1006e8e8, 3, 10, -1},
-};
-
-// The aftermath reader of each campaign.
-// GLOBAL: MW2SHELL 0x1006ff30
-TallowSign0x10 g_unk0x1006ff30[3] = {
-	{g_unk0x1006e940, 4, 16, -1},
-	{g_unk0x1006f2c0, 4, 23, -1},
-	{g_unk0x1006e940, 4, 10, -1},
-};
+extern TallowSign0x10 g_unk0x1006ff30[3];
 
 // The debriefing's text buffers.
 // GLOBAL: MW2SHELL 0x10076860

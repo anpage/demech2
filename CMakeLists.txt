@@ -206,6 +206,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/mechbay.cpp
     MW2SHELL/src/shellmain.cpp
     MW2SHELL/src/unk10010a30.c
+    MW2SHELL/src/unk100114f0.c
     MW2SHELL/src/unk10013690.c
     MW2SHELL/src/clanhall.cpp
     MW2SHELL/src/unk10014b60.cpp
@@ -213,8 +214,10 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
     MW2SHELL/src/unk10017a7c.c
-    MW2SHELL/src/pilotroster.cpp
+    MW2SHELL/src/archivereader.cpp
     MW2SHELL/src/unk1002a968.c
+    MW2SHELL/src/pilotroster.cpp
+    MW2SHELL/src/unk1002dc60.cpp
     MW2SHELL/src/cedarknot0x10.cpp
     MW2SHELL/src/dispdib.c
     MW2SHELL/src/unk1002fb90.c
@@ -222,6 +225,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/cdcheck.cpp
     MW2SHELL/src/gdi.c
     MW2SHELL/src/unk10031970.c
+    MW2SHELL/src/unk10031bf0.c
     MW2SHELL/src/unk10032250.c
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
@@ -238,9 +242,11 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/copperledger0x04.cpp
     MW2SHELL/src/unk1003e2f0.cpp
     MW2SHELL/src/cockpitcontrols.cpp
+    MW2SHELL/src/unk1006e150.cpp
     MW2SHELL/src/options.cpp
     MW2SHELL/src/hollowreed0x110.cpp
     MW2SHELL/src/page.cpp
+    MW2SHELL/src/unk100711f8.cpp
     MW2SHELL/src/glassbanner0x35c.cpp
     MW2SHELL/src/unk100460a0.c
     MW2SHELL/src/unk10046200.cpp

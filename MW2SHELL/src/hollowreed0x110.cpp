@@ -17,7 +17,7 @@ extern "C" MechChar* FUN_100309b6(MechChar* p_string);
 extern VideoDriver* g_pVideoDriver;
 extern MouseState* g_pMouseState;
 extern HollowReed0x110* g_unk0x100711f8;
-extern MechS32 g_menuDialogOpen;
+extern "C" MechS32 g_menuDialogOpen;
 
 MechS32 FUN_1000fe0d();
 void FUN_1001661b();

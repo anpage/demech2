@@ -16,10 +16,10 @@ extern MechS32 g_fWindowActive;
 void DebugPrint(const MechChar* p_format, ...);
 
 // GLOBAL: MW2SHELL 0x10090528
-MechChar g_unk0x10090528[0x40];
+static MechChar g_unk0x10090528[0x40];
 
 // GLOBAL: MW2SHELL 0x10090568
-MechChar g_unk0x10090568[0x100];
+static MechChar g_unk0x10090568[0x100];
 
 // SIZE 0x88
 // The joystick driver's data for one device (InputDeviceInfo::m_driverData).

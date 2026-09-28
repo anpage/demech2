@@ -42,8 +42,8 @@ extern "C"
 	MechS32 FUN_10031106(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
 }
 
-extern MechS32 g_menuVisible;
-extern MechS32 g_unk0x1006a9f0;
+extern "C" MechS32 g_menuVisible;
+extern "C" MechS32 g_unk0x1006a9f0;
 
 extern "C" void DebugPrint(const MechChar* p_format, ...);
 void FUN_10016f45();

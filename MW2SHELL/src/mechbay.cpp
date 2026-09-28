@@ -172,8 +172,8 @@ DECOMP_SIZE_ASSERT(LoamLedger0x18, 0x18)
 extern "C" void DebugPrint(const MechChar* p_format, ...);
 
 extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
+extern "C" HINSTANCE g_pModule;
+extern "C" MechU32 g_fQuickTips;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern VideoDriver* g_pVideoDriver;
 extern MouseState* g_pMouseState;
@@ -3724,88 +3724,7 @@ SlateTab0x2c g_unk0x10060d20[] = {
 #undef MB_TAB
 #undef MB_END
 
-// The mech bay screen of each campaign.
-// GLOBAL: MW2SHELL 0x100703c8
-MechChar g_unk0x100703c8[0x0c] = "<~EXIT LAB";
-// GLOBAL: MW2SHELL 0x100703d4
-MechChar g_unk0x100703d4[0x10] = "~STAR CONFIG";
-// GLOBAL: MW2SHELL 0x100703e4
-MechChar g_unk0x100703e4[0x10] = "NEXT CHASSIS";
-// GLOBAL: MW2SHELL 0x100703f4
-MechChar g_unk0x100703f4[0x10] = "PREV CHASSIS";
-// GLOBAL: MW2SHELL 0x10070404
-MechChar g_unk0x10070404[0x10] = "NEXT VARIANT";
-// GLOBAL: MW2SHELL 0x10070414
-MechChar g_unk0x10070414[0x10] = "PREV VARIANT";
-// GLOBAL: MW2SHELL 0x10070424
-MechChar g_unk0x10070424[0x0c] = "<~CUSTOMIZE";
-// GLOBAL: MW2SHELL 0x10070430
-MechChar g_unk0x10070430[0x10] = "<~ACCEPT MECH";
-// GLOBAL: MW2SHELL 0x10070440
-MechChar g_unk0x10070440[0x08] = "<~SAVE";
-// GLOBAL: MW2SHELL 0x10070448
-MechChar g_unk0x10070448[0x08] = "<~ABORT";
-// GLOBAL: MW2SHELL 0x10070450
-MechChar g_unk0x10070450[0x0c] = "<~DELETE";
-// GLOBAL: MW2SHELL 0x1007078c
-MechChar g_unk0x1007078c[0x0c] = "<~EXIT LAB";
-// GLOBAL: MW2SHELL 0x10070798
-MechChar g_unk0x10070798[0x10] = "~STAR CONFIG";
-// GLOBAL: MW2SHELL 0x100707a8
-MechChar g_unk0x100707a8[0x10] = "NEXT CHASSIS";
-// GLOBAL: MW2SHELL 0x100707b8
-MechChar g_unk0x100707b8[0x10] = "PREV CHASSIS";
-// GLOBAL: MW2SHELL 0x100707c8
-MechChar g_unk0x100707c8[0x10] = "NEXT VARIANT";
-// GLOBAL: MW2SHELL 0x100707d8
-MechChar g_unk0x100707d8[0x10] = "PREV VARIANT";
-// GLOBAL: MW2SHELL 0x100707e8
-MechChar g_unk0x100707e8[0x0c] = "<~CUSTOMIZE";
-// GLOBAL: MW2SHELL 0x100707f4
-MechChar g_unk0x100707f4[0x10] = "<~ACCEPT MECH";
-// GLOBAL: MW2SHELL 0x10070804
-MechChar g_unk0x10070804[0x08] = "<~SAVE";
-// GLOBAL: MW2SHELL 0x1007080c
-MechChar g_unk0x1007080c[0x08] = "<~ABORT";
-// GLOBAL: MW2SHELL 0x10070814
-MechChar g_unk0x10070814[0x0c] = "<~DELETE";
-
-// GLOBAL: MW2SHELL 0x1006eab0
-MainMenuButton g_unk0x1006eab0[11] = {
-	{50, 445, 149, 469, 100, 450, g_unk0x100703c8},
-	{404, 414, 474, 474, 440, 460, g_unk0x100703d4},
-	{303, 425, 330, 469, 300, 465, g_unk0x100703e4},
-	{200, 425, 236, 469, 240, 465, g_unk0x100703f4},
-	{263, 425, 302, 469, 280, 465, g_unk0x10070404},
-	{237, 425, 262, 469, 260, 465, g_unk0x10070414},
-	{50, 420, 149, 444, 100, 425, g_unk0x10070424},
-	{50, 395, 149, 419, 100, 400, g_unk0x10070430},
-	{50, 420, 149, 444, 100, 425, g_unk0x10070440},
-	{50, 445, 149, 469, 100, 450, g_unk0x10070448},
-	{490, 445, 589, 469, 540, 450, g_unk0x10070450},
-};
-
-// GLOBAL: MW2SHELL 0x1006f430
-MainMenuButton g_unk0x1006f430[11] = {
-	{50, 445, 149, 469, 100, 450, g_unk0x1007078c},
-	{404, 414, 474, 474, 440, 460, g_unk0x10070798},
-	{303, 425, 330, 469, 300, 465, g_unk0x100707a8},
-	{200, 425, 236, 469, 240, 465, g_unk0x100707b8},
-	{263, 425, 302, 469, 280, 465, g_unk0x100707c8},
-	{237, 425, 262, 469, 260, 465, g_unk0x100707d8},
-	{50, 420, 149, 444, 100, 425, g_unk0x100707e8},
-	{50, 395, 149, 419, 100, 400, g_unk0x100707f4},
-	{50, 420, 149, 444, 100, 425, g_unk0x10070804},
-	{50, 445, 149, 469, 100, 450, g_unk0x1007080c},
-	{490, 445, 589, 469, 540, 450, g_unk0x10070814},
-};
-
-// GLOBAL: MW2SHELL 0x1006fff0
-TallowSign0x10 g_unk0x1006fff0[3] = {
-	{g_unk0x1006eab0, 11, 15, -1},
-	{g_unk0x1006f430, 11, 22, -1},
-	{g_unk0x1006eab0, 11, 10, -1},
-};
+extern TallowSign0x10 g_unk0x1006fff0[3];
 
 void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
 

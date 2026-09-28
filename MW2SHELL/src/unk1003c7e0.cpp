@@ -4,9 +4,6 @@
 #include "mainmenubutton.h"
 #include "menulist0x10d.h"
 #include "mousestate.h"
-#include "mss.h"
-#include "oakentune0x10.h"
-#include "shellmain.h"
 #include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -17,8 +14,8 @@
 #include <windows.h>
 
 extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
+extern "C" HINSTANCE g_pModule;
+extern "C" MechU32 g_fQuickTips;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern MouseState* g_pMouseState;
 extern VideoDriver* g_pVideoDriver;
@@ -40,15 +37,7 @@ MechS32 FUN_10017460(
 	MechU32 p_fps
 );
 
-// The training missions of each campaign, one per button from the second.
-// GLOBAL: MW2SHELL 0x1006fdd8
-MechChar* g_unk0x1006fdd8[6] = {"tnw1SCN1", "tnw2SCN1", "tnw3SCN1", "tnw4SCN1", "tnw5SCN1", "tnw6SCN1"};
-
-// GLOBAL: MW2SHELL 0x1006fdf0
-MechChar* g_unk0x1006fdf0[6] = {"tnj1SCN1", "tnj2SCN1", "tnj3SCN1", "tnj4SCN1", "tnj5SCN1", "tnj6SCN1"};
-
-// GLOBAL: MW2SHELL 0x1006fe08
-MechChar** g_unk0x1006fe08[2] = {g_unk0x1006fdd8, g_unk0x1006fdf0};
+extern MechChar** g_unk0x1006fe08[2];
 
 // The trainer's idle video alternates between two takes; a countdown to the next.
 // GLOBAL: MW2SHELL 0x1006acc8
@@ -202,20 +191,5 @@ done:
 		g_unk0x1006acd0 = 0;
 		PostMessage(g_pWnd, p_msg, 0x414, 0);
 		FUN_100108fd(FUN_1003c966);
-	}
-}
-
-// FUNCTION: MW2SHELL 0x1003da54
-OakenTune0x10::~OakenTune0x10()
-{
-	if (m_unk0x04 != 0) {
-		AIL_end_sample((HSAMPLE) m_unk0x04);
-		AIL_release_sample_handle((HSAMPLE) m_unk0x04);
-		if (m_unk0x08 != NULL) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x08);
-		}
-		if (m_unk0x0c != NULL) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x0c);
-		}
 	}
 }

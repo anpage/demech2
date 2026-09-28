@@ -57,88 +57,9 @@ Collection* g_unk0x10071ce4 = NULL;
 // GLOBAL: MW2SHELL 0x10071ce8
 ArchiveReader* g_unk0x10071ce8 = NULL;
 
-// GLOBAL: MW2SHELL 0x100702b8
-MechChar g_unk0x100702b8[0x08] = "<~ABORT";
-// GLOBAL: MW2SHELL 0x100702c0
-MechChar g_unk0x100702c0[0x0c] = "<~SITUATION";
-// GLOBAL: MW2SHELL 0x100702cc
-MechChar g_unk0x100702cc[0x0c] = "<~LAUNCH";
-// GLOBAL: MW2SHELL 0x100702d8
-MechChar g_unk0x100702d8[0x08] = "<~SKIP";
-// GLOBAL: MW2SHELL 0x100702e0
-MechChar g_unk0x100702e0[0x08] = "<~EXIT";
-// GLOBAL: MW2SHELL 0x100702e8
-MechChar g_unk0x100702e8[0x0c] = "<~PREV PAGE";
-// GLOBAL: MW2SHELL 0x100702f4
-MechChar g_unk0x100702f4[0x0c] = "<~NEXT PAGE";
-// GLOBAL: MW2SHELL 0x10070300
-MechChar g_unk0x10070300[0x04] = "";
+extern TallowSign0x10 g_unk0x1006ff60[3];
 
-// GLOBAL: MW2SHELL 0x1007067c
-MechChar g_unk0x1007067c[0x08] = "<~ABORT";
-// GLOBAL: MW2SHELL 0x10070684
-MechChar g_unk0x10070684[0x0c] = "<~SITUATION";
-// GLOBAL: MW2SHELL 0x10070690
-MechChar g_unk0x10070690[0x0c] = "<~LAUNCH";
-// GLOBAL: MW2SHELL 0x1007069c
-MechChar g_unk0x1007069c[0x08] = "<~SKIP";
-// GLOBAL: MW2SHELL 0x100706a4
-MechChar g_unk0x100706a4[0x08] = "<~EXIT";
-// GLOBAL: MW2SHELL 0x100706ac
-MechChar g_unk0x100706ac[0x0c] = "<~PREV PAGE";
-// GLOBAL: MW2SHELL 0x100706b8
-MechChar g_unk0x100706b8[0x0c] = "<~NEXT PAGE";
-// GLOBAL: MW2SHELL 0x100706c4
-MechChar g_unk0x100706c4[0x04] = "";
-
-// GLOBAL: MW2SHELL 0x1006e808
-MainMenuButton g_unk0x1006e808[4] = {
-	{430, 450, 529, 474, 480, 455, g_unk0x100702b8},
-	{110, 450, 209, 474, 160, 455, g_unk0x100702c0},
-	{270, 450, 369, 474, 320, 455, g_unk0x100702cc},
-	{540, 450, 639, 474, 590, 455, g_unk0x100702d8},
-};
-
-// GLOBAL: MW2SHELL 0x1006e878
-MainMenuButton g_unk0x1006e878[4] = {
-	{110, 450, 209, 474, 160, 455, g_unk0x100702e0},
-	{270, 450, 369, 474, 320, 455, g_unk0x100702e8},
-	{430, 450, 529, 474, 480, 455, g_unk0x100702f4},
-	{510, 550, 609, 574, 560, 555, g_unk0x10070300},
-};
-
-// GLOBAL: MW2SHELL 0x1006f188
-MainMenuButton g_unk0x1006f188[4] = {
-	{430, 450, 529, 474, 480, 455, g_unk0x1007067c},
-	{110, 450, 209, 474, 160, 455, g_unk0x10070684},
-	{270, 450, 369, 474, 320, 455, g_unk0x10070690},
-	{540, 450, 639, 474, 590, 455, g_unk0x1007069c},
-};
-
-// GLOBAL: MW2SHELL 0x1006f1f8
-MainMenuButton g_unk0x1006f1f8[4] = {
-	{110, 450, 209, 474, 160, 455, g_unk0x100706a4},
-	{270, 450, 369, 474, 320, 455, g_unk0x100706ac},
-	{430, 450, 529, 474, 480, 455, g_unk0x100706b8},
-	{510, 550, 609, 574, 560, 555, g_unk0x100706c4},
-};
-
-// The briefing screen of each campaign. SKIP (the fourth button) is dropped for every pilot
-// but FERRARI.
-// GLOBAL: MW2SHELL 0x1006ff60
-TallowSign0x10 g_unk0x1006ff60[3] = {
-	{g_unk0x1006e808, 4, 16, -1},
-	{g_unk0x1006f188, 4, 23, -1},
-	{g_unk0x1006e808, 4, 10, -1},
-};
-
-// The situation reader of each campaign.
-// GLOBAL: MW2SHELL 0x1006ff90
-TallowSign0x10 g_unk0x1006ff90[3] = {
-	{g_unk0x1006e878, 4, 16, -1},
-	{g_unk0x1006f1f8, 4, 23, -1},
-	{g_unk0x1006e878, 4, 10, -1},
-};
+extern TallowSign0x10 g_unk0x1006ff90[3];
 
 void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 

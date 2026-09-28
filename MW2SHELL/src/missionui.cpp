@@ -42,8 +42,8 @@ DECOMP_SIZE_ASSERT(WillowTag0x08, 0x08)
 DECOMP_SIZE_ASSERT(RavenMark0x08, 0x08)
 
 extern "C" HWND g_pWnd;
-extern HINSTANCE g_pModule;
-extern MechU32 g_fQuickTips;
+extern "C" HINSTANCE g_pModule;
+extern "C" MechU32 g_fQuickTips;
 extern MouseState* g_pMouseState;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern VideoDriver* g_pVideoDriver;
