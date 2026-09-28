@@ -475,7 +475,7 @@ void FUN_100034de(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 				delete g_unk0x10079438[i][0];
 			}
 
-			FUN_10044451(g_unk0x1007120c, left, top, g_unk0x1005b818->m_unk0x14[mech].m_unk0x14, NULL, 0xf, 100);
+			EditTextField(g_unk0x1007120c, left, top, g_unk0x1005b818->m_unk0x14[mech].m_unk0x14, NULL, 0xf, 100);
 			g_unk0x10079438[i][0] =
 				g_unk0x10071210->FUN_10005522(left, top, g_unk0x1005b818->m_unk0x14[mech].m_unk0x14, NULL);
 			return;

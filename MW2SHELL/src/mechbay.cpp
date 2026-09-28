@@ -1735,7 +1735,7 @@ void FUN_1000a43b(ScreenField* p_tab)
 		delete p_tab->m_glyph;
 	}
 
-	FUN_10044451(
+	EditTextField(
 		g_unk0x1007120c,
 		p_tab->m_left,
 		p_tab->m_top,

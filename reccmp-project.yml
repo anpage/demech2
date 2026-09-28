@@ -13,8 +13,8 @@ targets:
       # (m_unk0x24, m_unk0x28). datacmp reports every such field as a diff even when both sides
       # hold the same value, so the tables are left out. They matched field for field when added.
       ignore-variables:
-        - g_unk0x1006b0d8
-        - g_unk0x1006cde8
+        - g_cpcBindingsFields
+        - g_cpcDevicesFields
         # The mech bay's field tables that keep integers in the same members (mechbay.cpp),
         # generated field for field from the original.
         - g_unk0x1005e820

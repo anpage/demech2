@@ -22,7 +22,7 @@ typedef struct MouseDeviceInfo {
 	undefined4 m_unk0x70;                 // 0x70
 } MouseDeviceInfo;
 
-// FUN_10046bd9's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
+// MousePoll's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
 __inline MechS32 IsInsideWindow(POINT* p_point)
 {
 	if (p_point->x < 0 || p_point->x >= g_windowWidth) {
@@ -40,13 +40,13 @@ const MechChar* g_mouseAxisNames[] = {"Mouse Down/Up Movement", "Mouse Left/Righ
 
 // Named, since the joystick unit has strings with the same text.
 // GLOBAL: MW2SHELL 0x10058b78
-const MechChar g_unk0x10058b78[] = "Down/Up";
+const MechChar g_axisTypeDownUp[] = "Down/Up";
 
 // GLOBAL: MW2SHELL 0x10058b80
-const MechChar g_unk0x10058b80[] = "Left/Right";
+const MechChar g_axisTypeLeftRight[] = "Left/Right";
 
 // GLOBAL: MW2SHELL 0x10071d20
-const MechChar* g_mouseAxisTypes[] = {g_unk0x10058b78, g_unk0x10058b80};
+const MechChar* g_mouseAxisTypes[] = {g_axisTypeDownUp, g_axisTypeLeftRight};
 
 // GLOBAL: MW2SHELL 0x10071d28
 const MechChar* g_mouseButtonNames[] = {"Left button", "Middle button", "Right button", NULL};
@@ -59,28 +59,28 @@ const MechChar* g_mouseButtonTypes[] = {"LeftBtn", "MiddleBtn", "RightBtn"};
 BOOL g_cursorClipped = FALSE;
 
 // GLOBAL: MW2SHELL 0x10071d48
-undefined4 g_unk0x10071d48 = 0;
+undefined4 g_reclipCursor = 0;
 
 MechS32 GetMouseDeviceCount(void);
 MechS32 FillMouseDeviceInfo(MechS32 p_index, MouseDeviceInfo* p_info);
-MechS32 FUN_10046b16(void);
-MechS32 FUN_10046b28(void);
+MechS32 MouseOpenDevice(void);
+MechS32 MouseCloseDevice(void);
 MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis);
-MechS32 FUN_10046bd9(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons);
-MechS32 FUN_10046def(void);
-MechS32 FUN_10046e01(void);
-void FUN_10046e13(RECT* p_rect, MechS32 p_width, MechS32 p_height);
+MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons);
+MechS32 MouseReadKeyCode(void);
+MechS32 MouseFlushKeyCodes(void);
+void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height);
 
 // GLOBAL: MW2SHELL 0x10071d50
 InputDriverModule g_mouseDriver = {
 	GetMouseDeviceCount,
 	FillMouseDeviceInfo,
-	FUN_10046b16,
-	FUN_10046b28,
+	MouseOpenDevice,
+	MouseCloseDevice,
 	CenterCursor,
-	FUN_10046bd9,
-	FUN_10046def,
-	FUN_10046e01,
+	MousePoll,
+	MouseReadKeyCode,
+	MouseFlushKeyCodes,
 };
 
 // GLOBAL: MW2SHELL 0x10071d70
@@ -119,13 +119,13 @@ MechS32 FillMouseDeviceInfo(MechS32 p_index, MouseDeviceInfo* p_info)
 }
 
 // FUNCTION: MW2SHELL 0x10046b16
-MechS32 FUN_10046b16(void)
+MechS32 MouseOpenDevice(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10046b28
-MechS32 FUN_10046b28(void)
+MechS32 MouseCloseDevice(void)
 {
 	ClipCursor(NULL);
 	g_cursorClipped = FALSE;
@@ -155,7 +155,7 @@ MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 }
 
 // FUNCTION: MW2SHELL 0x10046bd9
-MechS32 FUN_10046bd9(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
+MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 {
 	MechS16 left;
 	MechS16 middle;
@@ -163,13 +163,13 @@ MechS32 FUN_10046bd9(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_butto
 	MechS16 right;
 
 	if (g_fWindowActive) {
-		if (!g_cursorClipped || g_unk0x10071d48) {
-			FUN_10046e13(&g_cursorClipRect, g_windowWidth, g_windowHeight);
+		if (!g_cursorClipped || g_reclipCursor) {
+			GetClientScreenRect(&g_cursorClipRect, g_windowWidth, g_windowHeight);
 			ClipCursor(&g_cursorClipRect);
 			CenterCursor(p_unk0x00, 0);
 			CenterCursor(p_unk0x00, 1);
 			g_cursorClipped = TRUE;
-			g_unk0x10071d48 = 0;
+			g_reclipCursor = 0;
 		}
 
 		if (p_buttons) {
@@ -217,19 +217,19 @@ MechS32 FUN_10046bd9(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_butto
 }
 
 // FUNCTION: MW2SHELL 0x10046def
-MechS32 FUN_10046def(void)
+MechS32 MouseReadKeyCode(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10046e01
-MechS32 FUN_10046e01(void)
+MechS32 MouseFlushKeyCodes(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10046e13
-void FUN_10046e13(RECT* p_rect, MechS32 p_width, MechS32 p_height)
+void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height)
 {
 	POINT point;
 

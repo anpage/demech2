@@ -115,7 +115,7 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 
 	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ff60[p_campaign].m_picture);
 	FUN_1003c3ba(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
-	g_unk0x100711f8->FUN_100440ed();
+	g_keyboardInput->FlushKeys();
 
 	if (strcmp(g_pCurrentPilot->m_callsign, "FERRARI")) {
 		g_unk0x1006ff60[p_campaign].m_count = 3;

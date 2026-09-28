@@ -131,10 +131,10 @@ MechChar* g_keyNames[0x79] = {
 
 MechS32 GetKeyboardDeviceCount(void);
 MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info);
-MechS32 FUN_10004b06(void);
-MechS32 FUN_10004b18(void);
-MechS32 FUN_10004b2a(void);
-MechS32 FUN_10004b3c(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates);
+MechS32 KeyboardOpenDevice(void);
+MechS32 KeyboardCloseDevice(void);
+MechS32 KeyboardCenterAxis(void);
+MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates);
 MechS32 KeyboardReadKeyCode(MechS16* p_keyCode);
 MechS32 KeyboardFlushKeyCodes(void);
 void KeyboardQueueKeyCode(WPARAM p_virtualKey, LPARAM p_lParam);
@@ -144,10 +144,10 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 InputDriverModule g_keyboardDriver = {
 	GetKeyboardDeviceCount,
 	FillKeyboardDeviceInfo,
-	FUN_10004b06,
-	FUN_10004b18,
-	FUN_10004b2a,
-	FUN_10004b3c,
+	KeyboardOpenDevice,
+	KeyboardCloseDevice,
+	KeyboardCenterAxis,
+	KeyboardPoll,
 	KeyboardReadKeyCode,
 	KeyboardFlushKeyCodes,
 };
@@ -175,25 +175,25 @@ MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 }
 
 // FUNCTION: MW2SHELL 0x10004b06
-MechS32 FUN_10004b06(void)
+MechS32 KeyboardOpenDevice(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10004b18
-MechS32 FUN_10004b18(void)
+MechS32 KeyboardCloseDevice(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10004b2a
-MechS32 FUN_10004b2a(void)
+MechS32 KeyboardCenterAxis(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10004b3c
-MechS32 FUN_10004b3c(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates)
+MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates)
 {
 	MechS32 i;
 
@@ -360,7 +360,7 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 }
 
 // FUNCTION: MW2SHELL 0x10005045
-void FUN_10005045(void)
+void KeyboardClearKeyStates(void)
 {
 	MechS32 i;
 

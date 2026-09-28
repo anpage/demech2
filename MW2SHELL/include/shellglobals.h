@@ -15,7 +15,7 @@
 #include "videodriver.h"
 
 // The functions and globals of shellglobals.cpp that other units use.
-extern KeyboardInput* g_unk0x100711f8;
+extern KeyboardInput* g_keyboardInput;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern void* g_unk0x10071200;
 extern MouseState* g_pMouseState;

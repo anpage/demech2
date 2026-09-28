@@ -15,7 +15,7 @@
 DECOMP_SIZE_ASSERT(MouseState, 0x43)
 
 // GLOBAL: MW2SHELL 0x100904a8
-MechChar g_unk0x100904a8[0x20];
+MechChar g_cursorPositionText[0x20];
 
 // ReadMouseState's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
 inline MechS32 IsInsideWindow(POINT& p_point)
@@ -31,10 +31,10 @@ inline MechS32 IsInsideWindow(POINT& p_point)
 }
 
 // FUNCTION: MW2SHELL 0x1003a790
-MouseState::MouseState(VideoDriver* p_videoDriver, Font* p_unk0x08, void* p_unk0x00)
+MouseState::MouseState(VideoDriver* p_videoDriver, Font* p_font, void* p_unk0x00)
 {
 	m_videoDriver = p_videoDriver;
-	m_unk0x08 = p_unk0x08;
+	m_font = p_font;
 	m_unk0x00 = p_unk0x00;
 
 	m_leftDown = m_leftPressed = 0;
@@ -45,8 +45,8 @@ MouseState::MouseState(VideoDriver* p_videoDriver, Font* p_unk0x08, void* p_unk0
 	m_unk0x0c = 0;
 	m_x = 0;
 	m_y = 0;
-	m_unk0x3f = 0;
-	m_unk0x3f = 1;
+	m_enabled = 0;
+	m_enabled = 1;
 
 	FUN_1003a91c(0);
 }
@@ -56,7 +56,7 @@ void MouseState::MoveCursorTo(MechS32 p_x, MechS32 p_y)
 {
 	POINT point;
 
-	if (!m_unk0x3f) {
+	if (!m_enabled) {
 		return;
 	}
 
@@ -69,7 +69,7 @@ void MouseState::MoveCursorTo(MechS32 p_x, MechS32 p_y)
 // FUNCTION: MW2SHELL 0x1003a8d8
 MouseState::~MouseState()
 {
-	if (!m_unk0x3f) {
+	if (!m_enabled) {
 		return;
 	}
 }
@@ -104,21 +104,21 @@ undefined4 MouseState::GetMiddlePressed()
 }
 
 // FUNCTION: MW2SHELL 0x1003a988
-void MouseState::FUN_1003a988()
+void MouseState::DrawCursorPosition()
 {
 	if (m_rightDown == 1) {
-		sprintf(g_unk0x100904a8, "(%d,%d)", m_x, m_y);
+		sprintf(g_cursorPositionText, "(%d,%d)", m_x, m_y);
 
 		if (m_unk0x0c) {
-			m_videoDriver->FUN_100071ad(0x230, 0x14, m_unk0x0c, m_unk0x08->m_unk0x40c);
+			m_videoDriver->FUN_100071ad(0x230, 0x14, m_unk0x0c, m_font->m_unk0x40c);
 		}
 
-		m_unk0x0c = m_videoDriver->FUN_100074d2(0x230, 0x14, m_unk0x08->m_unk0x408, g_unk0x100904a8, NULL);
+		m_unk0x0c = m_videoDriver->FUN_100074d2(0x230, 0x14, m_font->m_unk0x408, g_cursorPositionText, NULL);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1003aa2a
-void MouseState::FUN_1003aa2a(MechS32 p_button)
+void MouseState::PressButton(MechS32 p_button)
 {
 	switch (p_button) {
 	case 0:
@@ -152,14 +152,14 @@ void MouseState::ReadMouseState()
 	}
 
 	if (!g_unk0x10071240) {
-		FUN_1003a988();
+		DrawCursorPosition();
 	}
 
 	leftDown = m_leftDown;
 	rightDown = m_rightDown;
 	middleDown = m_middleDown;
 
-	if (m_unk0x3f && GetCursorPos(&point)) {
+	if (m_enabled && GetCursorPos(&point)) {
 		ScreenToClient(g_pWnd, &point);
 
 		if (IsInsideWindow(point)) {

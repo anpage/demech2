@@ -430,7 +430,7 @@ void FUN_1001534c(TMPackDataBase*, MechS32* p_campaign, MechU8* p_pilotChosen, M
 				FUN_10007ac8(g_unk0x10063c78);
 				g_pCurrentPilot = NULL;
 				pilot->m_callsign[0] = '\0';
-				FUN_10044451(g_unk0x10071214, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
+				EditTextField(g_unk0x10071214, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
 				FUN_100309b6(pilot->m_callsign);
 				if (pilot->m_callsign[0]) {
 					g_pCurrentPilot = pilot;

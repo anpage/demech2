@@ -28,14 +28,14 @@ enum {
 };
 
 // GLOBAL: MW2SHELL 0x10093978
-MechChar g_unk0x10093978[0x100];
+MechChar g_editTextBuffer[0x100];
 
 // FUNCTION: MW2SHELL 0x100440a0
 KeyboardInput::KeyboardInput()
 {
 	m_key = 0;
-	FUN_10044230(0x100);
-	FUN_100440ed();
+	ResetText(0x100);
+	FlushKeys();
 }
 
 // FUNCTION: MW2SHELL 0x100440d7
@@ -44,19 +44,19 @@ KeyboardInput::~KeyboardInput()
 }
 
 // FUNCTION: MW2SHELL 0x100440ed
-void KeyboardInput::FUN_100440ed()
+void KeyboardInput::FlushKeys()
 {
-	g_keyboardDriver.m_unk0x1c();
+	g_keyboardDriver.m_flushKeyCodes();
 	m_key = 0;
 }
 
 // FUNCTION: MW2SHELL 0x10044112
-MechS32 KeyboardInput::FUN_10044112()
+MechS32 KeyboardInput::WaitForKey()
 {
-	while (!FUN_10044189()) {
+	while (!PollKey()) {
 	}
 
-	m_unk0x10c = 1;
+	m_keyPressed = 1;
 	if (m_key == c_keyEscape) {
 		return 3;
 	}
@@ -66,18 +66,18 @@ MechS32 KeyboardInput::FUN_10044112()
 }
 
 // FUNCTION: MW2SHELL 0x1004416a
-undefined4 KeyboardInput::FUN_1004416a()
+undefined4 KeyboardInput::GetKeyPressed()
 {
-	return m_unk0x10c;
+	return m_keyPressed;
 }
 
 // Returns 0 without a key, 3 for Escape and 1 for any other key.
 // FUNCTION: MW2SHELL 0x10044189
-MechS32 KeyboardInput::FUN_10044189()
+MechS32 KeyboardInput::PollKey()
 {
 	m_key = KeyboardPollKeyCode();
 	if (m_key != 0) {
-		m_unk0x10c = 1;
+		m_keyPressed = 1;
 		m_key &= ~c_keyCodeControl;
 		if (m_key & c_keyCodeShift) {
 			m_key &= ~c_keyCodeShift;
@@ -92,13 +92,13 @@ MechS32 KeyboardInput::FUN_10044189()
 		}
 	}
 	else {
-		m_unk0x10c = 0;
+		m_keyPressed = 0;
 		return 0;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10044230
-void KeyboardInput::FUN_10044230(undefined4 p_maxLength)
+void KeyboardInput::ResetText(undefined4 p_maxLength)
 {
 	m_key = 0;
 	m_length = 0;
@@ -107,7 +107,7 @@ void KeyboardInput::FUN_10044230(undefined4 p_maxLength)
 }
 
 // FUNCTION: MW2SHELL 0x1004428e
-void KeyboardInput::FUN_1004428e(undefined4 p_maxLength, const MechChar* p_text)
+void KeyboardInput::SetText(undefined4 p_maxLength, const MechChar* p_text)
 {
 	strcpy(m_text, p_text);
 	m_key = 0;
@@ -117,9 +117,9 @@ void KeyboardInput::FUN_1004428e(undefined4 p_maxLength, const MechChar* p_text)
 
 // Returns 1 after an edit, 2 when Return copies the text out, 3 for Escape and 0 otherwise.
 // FUNCTION: MW2SHELL 0x100442f7
-MechS32 KeyboardInput::FUN_100442f7(MechChar* p_text, MechU8 p_upperCase)
+MechS32 KeyboardInput::EditText(MechChar* p_text, MechU8 p_upperCase)
 {
-	if (FUN_10044189() == 1) {
+	if (PollKey() == 1) {
 		switch (m_key) {
 		case c_keyBackspace:
 			m_length--;
@@ -163,7 +163,7 @@ MechS32 KeyboardInput::FUN_100442f7(MechChar* p_text, MechU8 p_upperCase)
 // Stack-slot permutation: key and glyph. The p_maxLength == length comparison also loads its
 // operands in the opposite order, and swapping them in the source doesn't change the output.
 // FUNCTION: MW2SHELL 0x10044451
-MechS32 FUN_10044451(
+MechS32 EditTextField(
 	Font* p_font,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -180,10 +180,10 @@ MechS32 FUN_10044451(
 
 	glyph = NULL;
 	length = strlen(p_text);
-	strcpy(g_unk0x10093978, p_text);
-	strcat(g_unk0x10093978, "_");
-	width = p_font->FUN_100053be(g_unk0x10093978);
-	glyph = p_font->FUN_10005522(p_left, p_top, g_unk0x10093978, p_colors);
+	strcpy(g_editTextBuffer, p_text);
+	strcat(g_editTextBuffer, "_");
+	width = p_font->FUN_100053be(g_editTextBuffer);
+	glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
 
 	for (;;) {
 		FUN_1001661b();
@@ -191,49 +191,49 @@ MechS32 FUN_10044451(
 		g_pMouseState->ReadMouseState();
 
 		if (!FUN_1000fe0d() || g_menuDialogOpen || g_pMouseState->GetLeftPressed() == 1) {
-			g_unk0x10093978[length] = '\0';
+			g_editTextBuffer[length] = '\0';
 			if (glyph) {
 				delete glyph;
 			}
 
-			strcpy(p_text, g_unk0x10093978);
+			strcpy(p_text, g_editTextBuffer);
 			return 1;
 		}
 
-		if (g_unk0x100711f8->FUN_10044189()) {
-			switch (g_unk0x100711f8->m_key) {
+		if (g_keyboardInput->PollKey()) {
+			switch (g_keyboardInput->m_key) {
 			case c_keyBackspace:
 				if (length == 0) {
 					break;
 				}
 
 				length--;
-				g_unk0x10093978[length] = '_';
-				g_unk0x10093978[length + 1] = '\0';
+				g_editTextBuffer[length] = '_';
+				g_editTextBuffer[length + 1] = '\0';
 				if (glyph) {
 					delete glyph;
 				}
 
-				glyph = p_font->FUN_10005522(p_left, p_top, g_unk0x10093978, p_colors);
+				glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
 				break;
 			case c_keyReturn:
-				g_unk0x10093978[length] = '\0';
+				g_editTextBuffer[length] = '\0';
 				if (glyph) {
 					delete glyph;
 				}
 
-				strcpy(p_text, g_unk0x10093978);
+				strcpy(p_text, g_editTextBuffer);
 				return 1;
 			case c_keyEscape:
-				g_unk0x10093978[length] = '\0';
+				g_editTextBuffer[length] = '\0';
 				if (glyph) {
 					delete glyph;
 				}
 
-				strcpy(p_text, g_unk0x10093978);
+				strcpy(p_text, g_editTextBuffer);
 				return 0;
 			default:
-				key = g_unk0x100711f8->m_key;
+				key = g_keyboardInput->m_key;
 				if (key < 0x20 || key > 0x7f || key == c_keyTilde) {
 					break;
 				}
@@ -246,22 +246,22 @@ MechS32 FUN_10044451(
 					break;
 				}
 
-				g_unk0x10093978[length] = key;
+				g_editTextBuffer[length] = key;
 				length++;
-				g_unk0x10093978[length] = '_';
-				g_unk0x10093978[length + 1] = '\0';
+				g_editTextBuffer[length] = '_';
+				g_editTextBuffer[length + 1] = '\0';
 
-				if (p_font->FUN_100053be(g_unk0x10093978) < p_width) {
+				if (p_font->FUN_100053be(g_editTextBuffer) < p_width) {
 					if (glyph) {
 						delete glyph;
 					}
 
-					glyph = p_font->FUN_10005522(p_left, p_top, g_unk0x10093978, p_colors);
+					glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
 				}
 				else {
 					length--;
-					g_unk0x10093978[length] = '_';
-					g_unk0x10093978[length + 1] = '\0';
+					g_editTextBuffer[length] = '_';
+					g_editTextBuffer[length + 1] = '\0';
 				}
 				break;
 			}

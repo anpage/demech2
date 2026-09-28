@@ -324,19 +324,19 @@ MechS32 ArchiveReader::Run()
 	}
 
 	button = m_menu->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
-	if (g_unk0x100711f8->m_key) {
-		switch (g_unk0x100711f8->m_key) {
+	if (g_keyboardInput->m_key) {
+		switch (g_keyboardInput->m_key) {
 		case 0xc4:
 			button = c_buttonPrevPage;
-			g_pMouseState->FUN_1003aa2a(0);
+			g_pMouseState->PressButton(0);
 			break;
 		case 0xc5:
 			button = c_buttonNextPage;
-			g_pMouseState->FUN_1003aa2a(0);
+			g_pMouseState->PressButton(0);
 			break;
 		case 0xc2:
 			button = c_buttonBack;
-			g_pMouseState->FUN_1003aa2a(0);
+			g_pMouseState->PressButton(0);
 			break;
 		default:
 			break;

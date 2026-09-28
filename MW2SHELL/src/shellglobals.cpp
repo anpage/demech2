@@ -18,7 +18,7 @@
 // its globals, then the rank and clan names they point to; the pilot roster is its .bss.
 
 // GLOBAL: MW2SHELL 0x100711f8
-KeyboardInput* g_unk0x100711f8 = NULL;
+KeyboardInput* g_keyboardInput = NULL;
 
 // GLOBAL: MW2SHELL 0x100711fc
 AudioSubsystem* g_pAudioSubsystem = NULL;

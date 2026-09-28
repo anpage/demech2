@@ -589,7 +589,7 @@ void FUN_10046e80()
 
 	g_unk0x10094b80 = 0;
 	g_pVideoDriver->GetPalette(g_unk0x10071378);
-	g_unk0x100711f8->FUN_100440ed();
+	g_keyboardInput->FlushKeys();
 	g_pVideoDriver->LoadPalette(5);
 	g_pVideoDriver->m_unk0x3a6 = 0;
 	g_unk0x1007262c = new LoopingMovie(g_unk0x10074648, 0x78, 4);
@@ -657,7 +657,7 @@ void FUN_10046fa8(MechS32 p_active)
 		}
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
-		g_unk0x100711f8->FUN_10044189() != 0) {
+		g_keyboardInput->PollKey() != 0) {
 		FUN_100109b8(FUN_10046fa8);
 		EnableMenuItem(g_windowMenu, 0x9c92, MF_ENABLED);
 		g_menuDialogOpen = FALSE;

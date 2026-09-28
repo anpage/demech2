@@ -695,7 +695,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	ReadMissionResults(&g_unk0x100780e0);
 
 	CreateCollection(&g_unk0x1005b048, 10, NULL, 4, NULL);
-	g_unk0x100711f8->FUN_100440ed();
+	g_keyboardInput->FlushKeys();
 	g_unk0x1005b040 = new ButtonMenu(
 		g_pVideoDriver,
 		g_unk0x1007120c,

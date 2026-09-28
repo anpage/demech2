@@ -96,7 +96,7 @@ void FUN_10015e8e(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 	MechS32 msg;
 
 	video = &g_unk0x100641a8[0];
-	if (!FUN_10016b11(0) || g_pMouseState->GetLeftPressed() == 1 || g_unk0x100711f8->FUN_10044189() || p_msg != 0x404) {
+	if (!FUN_10016b11(0) || g_pMouseState->GetLeftPressed() == 1 || g_keyboardInput->PollKey() || p_msg != 0x404) {
 		FUN_10016d90(0);
 		FUN_100108fd(FUN_10015e8e);
 		if (p_msg == 0x404) {

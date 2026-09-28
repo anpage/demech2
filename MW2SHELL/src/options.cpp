@@ -381,7 +381,7 @@ void FUN_10043a72()
 	g_pVideoDriver->FUN_100071ad(0x177, 0x7c, 0x102, 0x160);
 	g_unk0x10070d90 = NULL;
 	g_unk0x10070d90 = new LoopingMovie(g_unk0x1007116c, 0x78, 4);
-	g_unk0x100711f8->FUN_100440ed();
+	g_keyboardInput->FlushKeys();
 	FUN_10043926();
 	FUN_10043979();
 	FUN_100078cd(g_unk0x10070da8);
@@ -409,7 +409,7 @@ void CalledWhenCombatVarsOptionClicked(MechS32 p_active)
 		}
 	}
 
-	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_unk0x100711f8->FUN_10044189()) {
+	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_keyboardInput->PollKey()) {
 		FUN_100109b8(CalledWhenCombatVarsOptionClicked);
 		EnableMenuItem(g_windowMenu, 0x9c94, MF_ENABLED);
 		g_menuDialogOpen = 0;

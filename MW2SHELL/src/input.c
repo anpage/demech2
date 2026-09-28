@@ -46,13 +46,13 @@ DECOMP_SIZE_ASSERT(InputModifier, 0x0c)
 DECOMP_SIZE_ASSERT(InputControl, 0x29)
 
 MechS32 InputGrowDeviceTable(void);
-void FUN_1003210d(InputControl* p_control);
-void FUN_1003215d(InputControl* p_control);
-void FUN_100321ad(MechS32* p_modifiers);
+void InputWriteAxisBinding(InputControl* p_control);
+void InputWriteButtonBinding(InputControl* p_control);
+void InputWriteModifiers(MechS32* p_modifiers);
 
 // INPUT.MAP stream shared by the input-map writers.
 // GLOBAL: MW2SHELL 0x10067840
-FILE* g_unk0x10067840 = NULL;
+FILE* g_inputMapFile = NULL;
 
 // GLOBAL: MW2SHELL 0x10067844
 MechS32 g_inputDeviceCount = 0;
@@ -196,7 +196,7 @@ void InputFreeDevices(void)
 
 	for (i = 0; i < g_inputDeviceCount; i++) {
 		if (g_inputDevices[i].m_driver != NULL) {
-			g_inputDevices[i].m_driver->m_unk0x0c(g_inputDevices[i].m_info.m_driverData);
+			g_inputDevices[i].m_driver->m_closeDevice(g_inputDevices[i].m_info.m_driverData);
 		}
 	}
 
@@ -210,14 +210,14 @@ void InputFreeDevices(void)
 }
 
 // FUNCTION: MW2SHELL 0x10031e32
-MechS32 FUN_10031e32(void)
+MechS32 InputGetModifierCount(void)
 {
 	return 5;
 }
 
 // The modifier table accepts one index past its end.
 // FUNCTION: MW2SHELL 0x10031e47
-InputModifier* FUN_10031e47(MechS32 p_index)
+InputModifier* InputGetModifier(MechS32 p_index)
 {
 	if (p_index < 0 || p_index > c_modifierCount) {
 		return NULL;
@@ -227,13 +227,13 @@ InputModifier* FUN_10031e47(MechS32 p_index)
 }
 
 // FUNCTION: MW2SHELL 0x10031e7f
-MechS32 FUN_10031e7f(void)
+MechS32 InputGetControlCount(void)
 {
 	return 0x35;
 }
 
 // FUNCTION: MW2SHELL 0x10031e94
-InputControl* FUN_10031e94(MechS32 p_index)
+InputControl* InputGetControl(MechS32 p_index)
 {
 	if (p_index < 0 || p_index >= sizeof(g_inputControls) / sizeof(g_inputControls[0])) {
 		return NULL;
@@ -243,20 +243,20 @@ InputControl* FUN_10031e94(MechS32 p_index)
 }
 
 // FUNCTION: MW2SHELL 0x10031ece
-void FUN_10031ece(void)
+void InputOpenMap(void)
 {
-	if (g_unk0x10067840 != NULL) {
+	if (g_inputMapFile != NULL) {
 		return;
 	}
 
-	g_unk0x10067840 = fopen("INPUT.MAP", "w");
+	g_inputMapFile = fopen("INPUT.MAP", "w");
 }
 
 // Write one control's binding to INPUT.MAP.
 // FUNCTION: MW2SHELL 0x10031f02
-void FUN_10031f02(InputControl* p_control)
+void InputWriteControl(InputControl* p_control)
 {
-	if (g_unk0x10067840 == NULL) {
+	if (g_inputMapFile == NULL) {
 		return;
 	}
 	if (p_control->m_device == NULL) {
@@ -264,34 +264,34 @@ void FUN_10031f02(InputControl* p_control)
 	}
 
 	if (p_control->m_name[0] == '#' && p_control->m_name[1] == 'j' && p_control->m_name[2] == ' ') {
-		fprintf(g_unk0x10067840, "jumpjet_enable {\n");
-		FUN_1003215d(p_control);
-		fprintf(g_unk0x10067840, "}\n");
-		fprintf(g_unk0x10067840, "%s {\n", p_control->m_name + 3);
-		FUN_1003215d(p_control);
-		fprintf(g_unk0x10067840, "}\n");
+		fprintf(g_inputMapFile, "jumpjet_enable {\n");
+		InputWriteButtonBinding(p_control);
+		fprintf(g_inputMapFile, "}\n");
+		fprintf(g_inputMapFile, "%s {\n", p_control->m_name + 3);
+		InputWriteButtonBinding(p_control);
+		fprintf(g_inputMapFile, "}\n");
 	}
 	else {
-		fprintf(g_unk0x10067840, "%s {\n", p_control->m_name);
+		fprintf(g_inputMapFile, "%s {\n", p_control->m_name);
 		if (!p_control->m_isButton) {
-			FUN_1003210d(p_control);
+			InputWriteAxisBinding(p_control);
 		}
 		else {
-			FUN_1003215d(p_control);
+			InputWriteButtonBinding(p_control);
 		}
-		fprintf(g_unk0x10067840, "}\n");
+		fprintf(g_inputMapFile, "}\n");
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10032033
-void FUN_10032033(void)
+void InputCloseMap(void)
 {
-	if (g_unk0x10067840 == NULL) {
+	if (g_inputMapFile == NULL) {
 		return;
 	}
 
-	fclose(g_unk0x10067840);
-	g_unk0x10067840 = NULL;
+	fclose(g_inputMapFile);
+	g_inputMapFile = NULL;
 }
 
 // FUNCTION: MW2SHELL 0x10032068
@@ -321,39 +321,39 @@ MechS32 InputGrowDeviceTable(void)
 
 // Write an axis binding and its modifiers.
 // FUNCTION: MW2SHELL 0x1003210d
-void FUN_1003210d(InputControl* p_control)
+void InputWriteAxisBinding(InputControl* p_control)
 {
 	InputDevice* device;
 
 	device = p_control->m_device;
 	fprintf(
-		g_unk0x10067840,
+		g_inputMapFile,
 		"\t+ %s\t%s\n",
 		device->m_info.m_shortName,
 		device->m_info.m_axisShortNames[p_control->m_index]
 	);
-	FUN_100321ad(p_control->m_modifiers);
+	InputWriteModifiers(p_control->m_modifiers);
 }
 
 // Write a button binding and its modifiers.
 // FUNCTION: MW2SHELL 0x1003215d
-void FUN_1003215d(InputControl* p_control)
+void InputWriteButtonBinding(InputControl* p_control)
 {
 	InputDevice* device;
 
 	device = p_control->m_device;
 	fprintf(
-		g_unk0x10067840,
+		g_inputMapFile,
 		"\t+ %s\t%s\n",
 		device->m_info.m_shortName,
 		device->m_info.m_buttonShortNames[p_control->m_index]
 	);
-	FUN_100321ad(p_control->m_modifiers);
+	InputWriteModifiers(p_control->m_modifiers);
 }
 
 // Stack-slot permutation: i and device.
 // FUNCTION: MW2SHELL 0x100321ad
-void FUN_100321ad(MechS32* p_modifiers)
+void InputWriteModifiers(MechS32* p_modifiers)
 {
 	MechS32 i;
 	InputDevice* device;
@@ -364,7 +364,7 @@ void FUN_100321ad(MechS32* p_modifiers)
 		button = g_inputModifiers[i].m_button;
 		if (p_modifiers[i] != 2 && device != NULL) {
 			fprintf(
-				g_unk0x10067840,
+				g_inputMapFile,
 				"\t%c %s\t%s\n",
 				p_modifiers[i] == 1 ? '+' : '-',
 				device->m_info.m_shortName,

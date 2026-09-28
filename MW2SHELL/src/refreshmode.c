@@ -399,7 +399,7 @@ void ToggleFullScreen()
 	g_currentRefreshMode = mode;
 	g_currentRefreshMode->m_begin(g_refreshModeBuffer, g_refreshModeWidth, g_refreshModeHeight);
 	g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, TRUE);
-	g_unk0x10071d48 = 1;
+	g_reclipCursor = 1;
 	if (!g_unk0x1006a9d8) {
 		DebugPrint("ToggleFullScreen(4): pause_timer(FALSE)");
 		PauseTimer(0x80, FALSE);

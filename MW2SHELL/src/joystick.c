@@ -1,5 +1,5 @@
 /* The joystick input driver (g_joystickDriver): joystick devices through the multimedia
-   joystick API. A C unit: FUN_1003bdea, a void function, ends without the C++ front end's jmp
+   joystick API. A C unit: JoystickSetMatchName, a void function, ends without the C++ front end's jmp
    to the epilogue. It starts on the 16-byte boundary right after MouseState's code. */
 #include "debugprint.h"
 #include "decomp.h"
@@ -14,10 +14,10 @@
 #include <windows.h>
 
 // GLOBAL: MW2SHELL 0x10090528
-static MechChar g_unk0x10090528[0x40];
+static MechChar g_joystickOemName[0x40];
 
 // GLOBAL: MW2SHELL 0x10090568
-static MechChar g_unk0x10090568[0x100];
+static MechChar g_joystickRegistryKey[0x100];
 
 // SIZE 0x88
 // The joystick driver's data for one device (InputDeviceInfo::m_driverData).
@@ -40,8 +40,8 @@ MechS32 GetJoystickDeviceCount()
 }
 
 BOOL GetJoystickRegistryName(MechS32 p_index, const MechChar* p_driver, MechChar* p_name, size_t p_size);
-void FUN_1003bdea(InputDeviceInfo* p_info, JOYCAPS* p_caps);
-MechS32 FUN_1003b7cf(InputDeviceInfo* p_device);
+void JoystickSetMatchName(InputDeviceInfo* p_info, JOYCAPS* p_caps);
+MechS32 JoystickCloseDevice(InputDeviceInfo* p_device);
 
 // Fills in joystick p_index: its names, its axes (a tracker's third axis is its head roll) and
 // its buttons and POV hat. Returns 0, or 1 on failure.
@@ -66,7 +66,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 	p_info->m_buttonNames = buttonNames = (MechChar**) calloc(0x24, sizeof(MechChar*));
 	p_info->m_buttonShortNames = buttonShortNames = (MechChar**) calloc(0x24, sizeof(MechChar*));
 	if (!axisNames || !axisShortNames || !buttonNames || !buttonShortNames) {
-		FUN_1003b7cf(p_info);
+		JoystickCloseDevice(p_info);
 		return 1;
 	}
 
@@ -83,7 +83,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 		sprintf(p_info->m_displayName, "Joystick %d", p_index + 1);
 	}
 	sprintf(p_info->m_shortName, "joystick%d", p_index + 1);
-	FUN_1003bdea(p_info, &caps);
+	JoystickSetMatchName(p_info, &caps);
 
 	axisNames[0] = "Down/Up Movement";
 	axisShortNames[0] = "Down/Up";
@@ -122,7 +122,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 	buttonNames[0] = (MechChar*) calloc(0x20, 0xc);
 	buttonShortNames[0] = (MechChar*) calloc(0x20, 0xc);
 	if (!buttonNames[0] || !buttonShortNames[0]) {
-		FUN_1003b7cf(p_info);
+		JoystickCloseDevice(p_info);
 		return 1;
 	}
 
@@ -158,7 +158,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // when the joystick is missing or unplugged.
 // Not 100%: the stack slots of the locals are permuted (which also changes their encodings).
 // FUNCTION: MW2SHELL 0x1003b246
-MechS32 FUN_1003b246(InputDeviceInfo* p_info)
+MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JOYINFOEX infoEx;
 	JOYCAPS caps;
@@ -260,7 +260,7 @@ MechS32 FUN_1003b246(InputDeviceInfo* p_info)
 }
 
 // FUNCTION: MW2SHELL 0x1003b7cf
-MechS32 FUN_1003b7cf(InputDeviceInfo* p_device)
+MechS32 JoystickCloseDevice(InputDeviceInfo* p_device)
 {
 	if (p_device != NULL) {
 		if (p_device->m_axisNames != NULL) {
@@ -290,18 +290,18 @@ MechS32 FUN_1003b7cf(InputDeviceInfo* p_device)
 }
 
 // FUNCTION: MW2SHELL 0x1003b8b7
-MechS32 FUN_1003b8b7()
+MechS32 JoystickCenterAxis()
 {
 	return 0;
 }
 
-MechS32 FUN_1003bbca(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale);
+MechS32 JoystickScaleAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale);
 
 // Polls a joystick: its six axes into p_axes (y and x first, then the ones it has) and its
 // buttons, with the POV hat's directions mapped to buttons, into p_buttons.
 // Not 100%: the stack slots of info and i are permuted.
 // FUNCTION: MW2SHELL 0x1003b8c9
-MechS32 FUN_1003b8c9(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
+MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
 	JOYINFOEX info;
 	MechS32 i;
@@ -343,24 +343,24 @@ MechS32 FUN_1003b8c9(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 			}
 		}
 
-		p_axes[0] = FUN_1003bbca(info.dwYpos, p_data->m_deadZone[1], p_data->m_center[1], p_data->m_scale[1]);
-		p_axes[1] = FUN_1003bbca(info.dwXpos, p_data->m_deadZone[0], p_data->m_center[0], p_data->m_scale[0]);
+		p_axes[0] = JoystickScaleAxis(info.dwYpos, p_data->m_deadZone[1], p_data->m_center[1], p_data->m_scale[1]);
+		p_axes[1] = JoystickScaleAxis(info.dwXpos, p_data->m_deadZone[0], p_data->m_center[0], p_data->m_scale[0]);
 		i = 2;
 
 		if (p_data->m_flags & JOY_RETURNZ) {
-			p_axes[i] = FUN_1003bbca(info.dwZpos, p_data->m_deadZone[2], p_data->m_center[2], p_data->m_scale[2]);
+			p_axes[i] = JoystickScaleAxis(info.dwZpos, p_data->m_deadZone[2], p_data->m_center[2], p_data->m_scale[2]);
 			i++;
 		}
 		if (p_data->m_flags & JOY_RETURNR) {
-			p_axes[i] = FUN_1003bbca(info.dwRpos, p_data->m_deadZone[3], p_data->m_center[3], p_data->m_scale[3]);
+			p_axes[i] = JoystickScaleAxis(info.dwRpos, p_data->m_deadZone[3], p_data->m_center[3], p_data->m_scale[3]);
 			i++;
 		}
 		if (p_data->m_flags & JOY_RETURNU) {
-			p_axes[i] = FUN_1003bbca(info.dwUpos, p_data->m_deadZone[4], p_data->m_center[4], p_data->m_scale[4]);
+			p_axes[i] = JoystickScaleAxis(info.dwUpos, p_data->m_deadZone[4], p_data->m_center[4], p_data->m_scale[4]);
 			i++;
 		}
 		if (p_data->m_flags & JOY_RETURNV) {
-			p_axes[i] = FUN_1003bbca(info.dwVpos, p_data->m_deadZone[5], p_data->m_center[5], p_data->m_scale[5]);
+			p_axes[i] = JoystickScaleAxis(info.dwVpos, p_data->m_deadZone[5], p_data->m_center[5], p_data->m_scale[5]);
 			i++;
 		}
 	}
@@ -369,20 +369,20 @@ MechS32 FUN_1003b8c9(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 }
 
 // FUNCTION: MW2SHELL 0x1003bba0
-MechS32 FUN_1003bba0()
+MechS32 JoystickReadKeyCode()
 {
 	return 2;
 }
 
 // FUNCTION: MW2SHELL 0x1003bbb5
-MechS32 FUN_1003bbb5()
+MechS32 JoystickFlushKeyCodes()
 {
 	return 2;
 }
 
 // Maps an axis reading to -0x10000..0x10000 around p_center, with a dead zone of p_deadZone.
 // FUNCTION: MW2SHELL 0x1003bbca
-MechS32 FUN_1003bbca(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale)
+MechS32 JoystickScaleAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale)
 {
 	if ((p_value -= p_center) < 0) {
 		if (-p_deadZone > p_value) {
@@ -421,33 +421,33 @@ BOOL GetJoystickRegistryName(MechS32 p_index, const MechChar* p_driver, MechChar
 	HKEY key;
 
 	sprintf(
-		g_unk0x10090568,
+		g_joystickRegistryKey,
 		"System\\CurrentControlSet\\Control\\MediaResources\\Joystick\\%s\\CurrentJoystickSettings",
 		p_driver
 	);
-	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_unk0x10090568, 0, KEY_QUERY_VALUE, &key);
+	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_joystickRegistryKey, 0, KEY_QUERY_VALUE, &key);
 	if (result != ERROR_SUCCESS) {
 		DebugPrint("Could not open registry joystick current config: %d\n", result);
 		return FALSE;
 	}
 
-	sprintf(g_unk0x10090568, "Joystick%dOEMName", p_index + 1);
-	size = sizeof(g_unk0x10090528);
+	sprintf(g_joystickRegistryKey, "Joystick%dOEMName", p_index + 1);
+	size = sizeof(g_joystickOemName);
 	type = REG_SZ;
-	result = RegQueryValueEx(key, g_unk0x10090568, NULL, &type, (LPBYTE) g_unk0x10090528, &size);
+	result = RegQueryValueEx(key, g_joystickRegistryKey, NULL, &type, (LPBYTE) g_joystickOemName, &size);
 	if (result == ERROR_SUCCESS) {
 		RegCloseKey(key);
 		sprintf(
-			g_unk0x10090568,
+			g_joystickRegistryKey,
 			"System\\CurrentControlSet\\Control\\MediaProperties\\PrivateProperties\\Joystick\\OEM\\%s",
-			g_unk0x10090528
+			g_joystickOemName
 		);
-		result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_unk0x10090568, 0, KEY_QUERY_VALUE, &key);
+		result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_joystickRegistryKey, 0, KEY_QUERY_VALUE, &key);
 		if (result == ERROR_SUCCESS) {
-			size = sizeof(g_unk0x10090528);
-			result = RegQueryValueEx(key, "OEMName", NULL, &type, (LPBYTE) g_unk0x10090528, &size);
+			size = sizeof(g_joystickOemName);
+			result = RegQueryValueEx(key, "OEMName", NULL, &type, (LPBYTE) g_joystickOemName, &size);
 			if (result == ERROR_SUCCESS) {
-				strncpy(p_name, g_unk0x10090528, p_size);
+				strncpy(p_name, g_joystickOemName, p_size);
 			}
 		}
 	}
@@ -459,7 +459,7 @@ BOOL GetJoystickRegistryName(MechS32 p_index, const MechChar* p_driver, MechChar
 // Picks the name INPUT.MAP matches the joystick by, from its OEM name or failing that from
 // its capabilities.
 // FUNCTION: MW2SHELL 0x1003bdea
-void FUN_1003bdea(InputDeviceInfo* p_info, JOYCAPS* p_caps)
+void JoystickSetMatchName(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 {
 	MechU16 caps;
 
@@ -495,10 +495,10 @@ void FUN_1003bdea(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 InputDriverModule g_joystickDriver = {
 	GetJoystickDeviceCount,
 	(MechS32 (*)()) FillJoystickDeviceInfo,
-	(MechS32 (*)()) FUN_1003b246,
-	(MechS32 (*)()) FUN_1003b7cf,
-	FUN_1003b8b7,
-	(MechS32 (*)()) FUN_1003b8c9,
-	FUN_1003bba0,
-	FUN_1003bbb5,
+	(MechS32 (*)()) JoystickOpenDevice,
+	(MechS32 (*)()) JoystickCloseDevice,
+	JoystickCenterAxis,
+	(MechS32 (*)()) JoystickPoll,
+	JoystickReadKeyCode,
+	JoystickFlushKeyCodes,
 };
