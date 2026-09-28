@@ -22,11 +22,13 @@ extern "C"
 		unsigned char AlternatePalette[0x300]; /* 0x374: used when PalType isn't 1 */
 	} Smack;
 
+	Smack* SmackOpen(const char* p_name, unsigned int p_flags, unsigned int p_extraBuffers);
 	void SmackGoto(Smack* p_smack, int p_frame);
 	void SmackDoFrame(Smack* p_smack);
 	void SmackNextFrame(Smack* p_smack);
 	void SmackClose(Smack* p_smack);
 	unsigned short SmackWait(Smack* p_smack);
+	unsigned short SmackSoundInTrack(Smack* p_smack, unsigned int p_track);
 	void SmackToBuffer(
 		Smack* p_smack,
 		unsigned int p_left,

@@ -28,14 +28,14 @@
    inline assembler encodes identically. `loop` and `jecxz` have no rel32 form, so their
    label jumps stay plain.
 
-   The inline assembler also encodes `xchg r32, r32` and `test r8, r8` with the two registers
+   The inline assembler also encodes `xchg r, r` and `test r8, r8` with the two registers
    the other way round in the ModRM byte (87 da for `xchg ebx, edx`, where the original has
    87 d3), so those few instructions are _emit bytes too.
 
-   Not yet transcribed: FUN_10036904 indexes the fixed-point sine table at 0x10035af0, which
-   lives in .text; FUN_10036def, FUN_10036fb6 and FUN_10036fe7 push the addresses of the IFF
-   chunk tags that follow FUN_10036c9e; FUN_100376f9 jumps through a table of its own labels.
-   Each needs a symbol inside .text. */
+   Data the original keeps in .text is split out into globals, which the routines reference by
+   name: the fixed-point cosine table at 0x10035af0 (FUN_10036904) and the IFF chunk tags that
+   follow FUN_10036c9e (FUN_10036def, FUN_10036fb6, FUN_10036fe7), and the LFSR tap table at
+   0x1003775b, between FUN_100376f9 and FUN_100377d7 (FUN_100377d7). */
 #include "compat.h"
 #include "decomp.h"
 #include "palettecolor.h"
@@ -60,6 +60,19 @@ MechS32 FUN_10033980(
 	undefined4 p_unk0x0c,
 	undefined4 p_unk0x10
 );
+void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left);
+void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left);
+void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
+void FUN_100369e2(
+	MechS32* p_point,
+	MechS32* p_result,
+	MechS32* p_origin,
+	MechS32 p_angle,
+	MechS32 p_scaleX,
+	MechS32 p_scaleY
+);
+MechU32 FUN_10037549(void* p_data, MechS32 p_index);
+MechU32 FUN_1003757d(void* p_data, MechS32 p_index);
 
 // 13 dwords that FUN_10032279 copies in from its argument.
 // GLOBAL: MW2SHELL 0x100687cc
@@ -70,7 +83,41 @@ undefined4 g_unk0x100687cc[0xd] = {0};
 // GLOBAL: MW2SHELL 0x10068800
 MechChar g_unk0x10068800[0xd] = "MCGA.DLL";
 
-// A dword table that FUN_100376f9 fills and reads. The next variable starts at 0x10068d45.
+// The run-length encoder's state (FUN_1003479a, FUN_10034aaf, FUN_10034c38): the output
+// buffer (NULL only measures), the pending skip, the row and run pointers, the output
+// cursor and the start of the current run.
+// GLOBAL: MW2SHELL 0x1006880d
+undefined4 g_unk0x1006880d = 0;
+
+// GLOBAL: MW2SHELL 0x10068811
+undefined4 g_unk0x10068811 = 0;
+
+// GLOBAL: MW2SHELL 0x10068815
+undefined4 g_unk0x10068815 = 0;
+
+// GLOBAL: MW2SHELL 0x10068819
+undefined4 g_unk0x10068819 = 0;
+
+// GLOBAL: MW2SHELL 0x1006881d
+undefined4 g_unk0x1006881d = 0;
+
+// GLOBAL: MW2SHELL 0x10068821
+undefined4 g_unk0x10068821 = 0;
+
+// The bounding box of the opaque pixels that FUN_1003479a finds: left, top, right, bottom.
+// GLOBAL: MW2SHELL 0x10068835
+undefined4 g_unk0x10068835 = 0;
+
+// GLOBAL: MW2SHELL 0x10068839
+undefined4 g_unk0x10068839 = 0;
+
+// GLOBAL: MW2SHELL 0x1006883d
+undefined4 g_unk0x1006883d = 0;
+
+// GLOBAL: MW2SHELL 0x10068841
+undefined4 g_unk0x10068841 = 0;
+
+// A dword table that FUN_100377d7 fills and reads. The next variable starts at 0x10068d45.
 // GLOBAL: MW2SHELL 0x10068845
 undefined4 g_unk0x10068845[0x140] = {0};
 
@@ -89,7 +136,7 @@ undefined g_unk0x10069045[0x100] = {0};
 // GLOBAL: MW2SHELL 0x10069145
 undefined g_unk0x10069145[0x300] = {0};
 
-// A second dword table of FUN_100376f9. The next variable starts at 0x10069a45.
+// A second dword table of FUN_100377d7. The next variable starts at 0x10069a45.
 // GLOBAL: MW2SHELL 0x10069445
 undefined4 g_unk0x10069445[0x180] = {0};
 
@@ -121,6 +168,14 @@ PixelView* g_unk0x1006a058 = NULL;
 // The color remap table that FUN_100334fb loads and FUN_10033980 and FUN_10034a1d apply.
 // GLOBAL: MW2SHELL 0x1006a05c
 MechU8 g_unk0x1006a05c[0x100] = {0};
+
+// FUN_10033a76's four transformed corners, five dwords each.
+// GLOBAL: MW2SHELL 0x1006a15c
+undefined4 g_unk0x1006a15c[0x14] = {0};
+
+// FUN_10033a76's per-corner steps, indexed by corner.
+// GLOBAL: MW2SHELL 0x1006a1ac
+undefined4 g_unk0x1006a1ac[4] = {0};
 
 // Calls the function pointer at the start of its argument, copies the string it returns
 // into g_unk0x10068800 and returns that buffer.
@@ -329,6 +384,145 @@ jmp_1003232d:
 		leave
 		ret
 jmp_10032368:
+		mov eax, 0xfffffffd
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Reads the pixel at (p_x, p_y), relative to the view. Returns -1 for an empty buffer, -2 for
+// an empty view and -3 when the point is clipped.
+#ifdef COMPAT_MODE
+MechS32 FUN_10032373(PixelView* p_view, MechS32 p_x, MechS32 p_y)
+{
+	STUB(0x10032373);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10032373
+__declspec(naked) MechS32 FUN_10032373(PixelView* p_view, MechS32 p_x, MechS32 p_y)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x20
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0x18], eax
+		_emit 0x7e /* jle jmp_100323f2 */
+		_emit 0x64
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		_emit 0x7e /* jle jmp_100323f2 */
+		_emit 0x5c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x1c], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_100323a6 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_100323a6:
+		mov dword ptr [ebp-0x4], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x20], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_100323b9 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_100323b9:
+		mov dword ptr [ebp-0x8], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0x18]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_100323c9 */
+		_emit 0x02
+		mov eax, edx
+jmp_100323c9:
+		mov dword ptr [ebp-0xc], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_100323d8 */
+		_emit 0x02
+		mov eax, edx
+jmp_100323d8:
+		mov dword ptr [ebp-0x10], eax
+		mov eax, dword ptr [ebp-0xc]
+		cmp eax, dword ptr [ebp-0x4]
+		_emit 0x7c /* jl jmp_100323fd */
+		_emit 0x1a
+		mov eax, dword ptr [ebp-0x10]
+		cmp eax, dword ptr [ebp-0x8]
+		_emit 0x7c /* jl jmp_100323fd */
+		_emit 0x12
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x14], eax
+		_emit 0xeb /* jmp jmp_10032408 */
+		_emit 0x16
+jmp_100323f2:
+		mov eax, 0xffffffff
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_100323fd:
+		mov eax, 0xfffffffe
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10032408:
+		mov ecx, dword ptr [ebp+0xc]
+		mov ebx, dword ptr [ebp+0x10]
+		add ecx, dword ptr [ebp-0x1c]
+		add ebx, dword ptr [ebp-0x20]
+		cmp ecx, dword ptr [ebp-0x4]
+		_emit 0x7c /* jl jmp_1003243e */
+		_emit 0x25
+		cmp ecx, dword ptr [ebp-0xc]
+		_emit 0x7f /* jg jmp_1003243e */
+		_emit 0x20
+		cmp ebx, dword ptr [ebp-0x8]
+		_emit 0x7c /* jl jmp_1003243e */
+		_emit 0x1b
+		cmp ebx, dword ptr [ebp-0x10]
+		_emit 0x7f /* jg jmp_1003243e */
+		_emit 0x16
+		mov eax, ebx
+		imul dword ptr [ebp-0x18]
+		add eax, dword ptr [ebp-0x14]
+		add eax, ecx
+		mov ebx, eax
+		xor eax, eax
+		mov al, byte ptr [ebx]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_1003243e:
 		mov eax, 0xfffffffd
 		pop es
 		pop edi
@@ -3399,6 +3593,1037 @@ FUN_10033980(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, unde
 }
 #endif
 
+// Blits with rotation (p_angle) and 16.16 scaling (p_scaleX, p_scaleY). The rotated corners
+// go into g_unk0x1006a15c; with no rotation and unit scale, it takes a plain copy path.
+#ifdef COMPAT_MODE
+MechS32 FUN_10033a76(
+	PixelView* p_view,
+	undefined4 p_unk0x04,
+	undefined4 p_unk0x08,
+	undefined4 p_unk0x0c,
+	undefined4 p_unk0x10,
+	undefined4 p_unk0x14,
+	undefined4 p_unk0x18,
+	MechS32 p_angle,
+	MechS32 p_scaleX,
+	MechS32 p_scaleY
+)
+{
+	STUB(0x10033a76);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10033a76
+__declspec(naked) MechS32 FUN_10033a76(
+	PixelView* p_view,
+	undefined4 p_unk0x04,
+	undefined4 p_unk0x08,
+	undefined4 p_unk0x0c,
+	undefined4 p_unk0x10,
+	undefined4 p_unk0x14,
+	undefined4 p_unk0x18,
+	MechS32 p_angle,
+	MechS32 p_scaleX,
+	MechS32 p_scaleY
+)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, 0xffffff10
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		cmp dword ptr [ebp+0x24], 0x10000
+		_emit 0x75 /* jne jmp_10033aa2 */
+		_emit 0x13
+		cmp dword ptr [ebp+0x28], 0x10000
+		_emit 0x75 /* jne jmp_10033aa2 */
+		_emit 0x0a
+		cmp dword ptr [ebp+0x20], 0x0
+		je jmp_100345e0
+jmp_10033aa2:
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		call FUN_10037549
+		add esp, 0x8
+		mov ecx, eax
+		shr eax, 0x10
+		dec eax
+		mov dword ptr [ebp-0x44], eax
+		and ecx, 0xffff
+		dec ecx
+		mov dword ptr [ebp-0x48], ecx
+		lea ebx, [ebp-0x14]
+		lea esi, [ebp-0x28]
+		mov dword ptr [esi], ebx
+		mov edx, dword ptr [ebp+0x1c]
+		mov dword ptr [ebx], edx
+		mov dword ptr [esi+0x4], 0x0
+		mov dword ptr [g_unk0x1006a15c+0xc], 0x0
+		mov dword ptr [g_unk0x1006a15c+0x48], 0x0
+		mov dword ptr [esi+0x8], 0x0
+		mov dword ptr [g_unk0x1006a15c+0x10], 0x0
+		mov dword ptr [g_unk0x1006a15c+0x24], 0x0
+		mov dword ptr [ebx+0x4], eax
+		mov dword ptr [esi+0xc], eax
+		mov dword ptr [g_unk0x1006a15c+0x20], eax
+		mov dword ptr [g_unk0x1006a15c+0x34], eax
+		mov dword ptr [ebx+0x8], ecx
+		mov dword ptr [esi+0x10], ecx
+		mov dword ptr [g_unk0x1006a15c+0x38], ecx
+		mov dword ptr [g_unk0x1006a15c+0x4c], ecx
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		call FUN_1003757d
+		add esp, 0x8
+		mov ebx, eax
+		cwde
+		neg eax
+		mov dword ptr [ebp-0x3c], eax
+		sar ebx, 0x10
+		neg ebx
+		mov dword ptr [ebp-0x40], ebx
+		test dword ptr [ebp+0x2c], 0x2
+		_emit 0x75 /* jne jmp_10033b9b */
+		_emit 0x4c
+		push 0xff
+		lea eax, [ebp-0x28]
+		push eax
+		call FUN_10034e15
+		add esp, 0x8
+		test dword ptr [ebp+0x2c], 0x1
+		_emit 0x74 /* je jmp_10033b83 */
+		_emit 0x1a
+		push dword ptr [ebp-0x3c]
+		push dword ptr [ebp-0x40]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		lea eax, [ebp-0x28]
+		push eax
+		call FUN_1003351a
+		add esp, 0x14
+		_emit 0xeb /* jmp jmp_10033b9b */
+		_emit 0x18
+jmp_10033b83:
+		push dword ptr [ebp-0x3c]
+		push dword ptr [ebp-0x40]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		lea eax, [ebp-0x28]
+		push eax
+		call FUN_10032f84
+		add esp, 0x14
+jmp_10033b9b:
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0xe8], eax
+		jle jmp_10033c3c
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		jle jmp_10033c3c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0xec], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10033bcf */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10033bcf:
+		mov dword ptr [ebp-0xd4], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0xf0], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10033be8 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10033be8:
+		mov dword ptr [ebp-0xd8], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0xe8]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10033bfe */
+		_emit 0x02
+		mov eax, edx
+jmp_10033bfe:
+		mov dword ptr [ebp-0xdc], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10033c10 */
+		_emit 0x02
+		mov eax, edx
+jmp_10033c10:
+		mov dword ptr [ebp-0xe0], eax
+		mov eax, dword ptr [ebp-0xdc]
+		cmp eax, dword ptr [ebp-0xd4]
+		_emit 0x7c /* jl jmp_10033c47 */
+		_emit 0x23
+		mov eax, dword ptr [ebp-0xe0]
+		cmp eax, dword ptr [ebp-0xd8]
+		_emit 0x7c /* jl jmp_10033c47 */
+		_emit 0x15
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0xe4], eax
+		_emit 0xeb /* jmp jmp_10033c52 */
+		_emit 0x16
+jmp_10033c3c:
+		mov eax, 0xffffffff
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10033c47:
+		mov eax, 0xfffffffe
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10033c52:
+		mov eax, dword ptr [ebp+0x14]
+		sub eax, dword ptr [ebp-0x40]
+		mov dword ptr [ebp-0x4c], eax
+		mov eax, dword ptr [ebp+0x18]
+		sub eax, dword ptr [ebp-0x3c]
+		mov dword ptr [ebp-0x50], eax
+		mov dword ptr [ebp-0x30], 0x0
+		mov dword ptr [ebp-0x2c], 0x0
+		push dword ptr [ebp+0x28]
+		push dword ptr [ebp+0x24]
+		push dword ptr [ebp+0x20]
+		lea eax, [ebp-0x40]
+		push eax
+		lea eax, [ebp-0x38]
+		push eax
+		lea eax, [ebp-0x30]
+		push eax
+		call FUN_100369e2
+		add esp, 0x18
+		mov eax, dword ptr [ebp-0x38]
+		add eax, dword ptr [ebp-0x4c]
+		mov dword ptr [g_unk0x1006a15c], eax
+		mov eax, dword ptr [ebp-0x34]
+		add eax, dword ptr [ebp-0x50]
+		mov dword ptr [g_unk0x1006a15c+0x4], eax
+		mov eax, dword ptr [ebp-0x44]
+		mov dword ptr [ebp-0x30], eax
+		mov dword ptr [ebp-0x2c], 0x0
+		push dword ptr [ebp+0x28]
+		push dword ptr [ebp+0x24]
+		push dword ptr [ebp+0x20]
+		lea eax, [ebp-0x40]
+		push eax
+		lea eax, [ebp-0x38]
+		push eax
+		lea eax, [ebp-0x30]
+		push eax
+		call FUN_100369e2
+		add esp, 0x18
+		mov eax, dword ptr [ebp-0x38]
+		add eax, dword ptr [ebp-0x4c]
+		mov dword ptr [g_unk0x1006a15c+0x14], eax
+		mov eax, dword ptr [ebp-0x34]
+		add eax, dword ptr [ebp-0x50]
+		mov dword ptr [g_unk0x1006a15c+0x18], eax
+		mov eax, dword ptr [ebp-0xec]
+		add dword ptr [g_unk0x1006a15c], eax
+		add dword ptr [g_unk0x1006a15c+0x14], eax
+		mov eax, dword ptr [ebp-0xf0]
+		add dword ptr [g_unk0x1006a15c+0x4], eax
+		add dword ptr [g_unk0x1006a15c+0x18], eax
+		mov eax, dword ptr [ebp-0x44]
+		mov ebx, dword ptr [ebp-0x48]
+		mov dword ptr [ebp-0x30], eax
+		mov dword ptr [ebp-0x2c], ebx
+		push dword ptr [ebp+0x28]
+		push dword ptr [ebp+0x24]
+		push dword ptr [ebp+0x20]
+		lea eax, [ebp-0x40]
+		push eax
+		lea eax, [ebp-0x38]
+		push eax
+		lea eax, [ebp-0x30]
+		push eax
+		call FUN_100369e2
+		add esp, 0x18
+		mov eax, dword ptr [ebp-0x38]
+		add eax, dword ptr [ebp-0x4c]
+		mov dword ptr [g_unk0x1006a15c+0x28], eax
+		mov eax, dword ptr [ebp-0x34]
+		add eax, dword ptr [ebp-0x50]
+		mov dword ptr [g_unk0x1006a15c+0x2c], eax
+		mov eax, dword ptr [ebp-0x48]
+		mov dword ptr [ebp-0x30], 0x0
+		mov dword ptr [ebp-0x2c], eax
+		push dword ptr [ebp+0x28]
+		push dword ptr [ebp+0x24]
+		push dword ptr [ebp+0x20]
+		lea eax, [ebp-0x40]
+		push eax
+		lea eax, [ebp-0x38]
+		push eax
+		lea eax, [ebp-0x30]
+		push eax
+		call FUN_100369e2
+		add esp, 0x18
+		mov eax, dword ptr [ebp-0x38]
+		add eax, dword ptr [ebp-0x4c]
+		mov dword ptr [g_unk0x1006a15c+0x3c], eax
+		mov eax, dword ptr [ebp-0x34]
+		add eax, dword ptr [ebp-0x50]
+		mov dword ptr [g_unk0x1006a15c+0x40], eax
+		mov eax, dword ptr [ebp-0xec]
+		add dword ptr [g_unk0x1006a15c+0x28], eax
+		add dword ptr [g_unk0x1006a15c+0x3c], eax
+		mov eax, dword ptr [ebp-0xf0]
+		add dword ptr [g_unk0x1006a15c+0x2c], eax
+		add dword ptr [g_unk0x1006a15c+0x40], eax
+		lea ebx, [ebp-0x14]
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x58], eax
+		mov ecx, dword ptr [ebx+0x4]
+		inc ecx
+		mov dword ptr [ebp-0x54], ecx
+		push ds
+		pop es
+		mov ebx, offset g_unk0x1006a15c
+		mov eax, ebx
+		add eax, 0x50
+		mov dword ptr [ebp-0x64], ebx
+		mov dword ptr [ebp-0x68], eax
+		mov esi, 0x7fff
+		mov edi, 0xffff8000
+		mov ecx, 0xf
+jmp_10033ddc:
+		mov edx, 0x0
+		mov eax, dword ptr [ebx]
+		sub eax, dword ptr [ebp-0xd4]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [ebp-0xdc]
+		sub eax, dword ptr [ebx]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [ebx+0x4]
+		sub eax, dword ptr [ebp-0xd8]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [ebp-0xe0]
+		sub eax, dword ptr [ebx+0x4]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [ebx+0x4]
+		cmp eax, esi
+		_emit 0x7f /* jg jmp_10033e1f */
+		_emit 0x05
+		mov esi, eax
+		mov dword ptr [ebp-0x6c], ebx
+jmp_10033e1f:
+		cmp eax, edi
+		_emit 0x7c /* jl jmp_10033e25 */
+		_emit 0x02
+		mov edi, eax
+jmp_10033e25:
+		and ecx, edx
+		add ebx, 0x14
+		cmp ebx, dword ptr [ebp-0x68]
+		_emit 0x75 /* jne jmp_10033ddc */
+		_emit 0xad
+		or ecx, ecx
+		jne jmp_10034411
+		mov eax, dword ptr [ebp-0x6c]
+		mov dword ptr [ebp-0x78], eax
+		mov dword ptr [ebp-0x7c], eax
+		mov dword ptr [ebp-0x8c], esi
+		cmp edi, esi
+		je jmp_10034411
+jmp_10033e4e:
+		mov ebx, dword ptr [ebp-0x78]
+		mov dword ptr [ebp-0x70], ebx
+		mov esi, ebx
+		sub esi, 0x14
+		cmp esi, dword ptr [ebp-0x64]
+		_emit 0x7d /* jge jmp_10033e64 */
+		_emit 0x06
+		mov esi, dword ptr [ebp-0x68]
+		sub esi, 0x14
+jmp_10033e64:
+		mov dword ptr [ebp-0x78], esi
+		mov ecx, dword ptr [esi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		cmp edx, dword ptr [ebp-0xd8]
+		_emit 0x7d /* jge jmp_10033e7d */
+		_emit 0x08
+		cmp ecx, dword ptr [ebp-0xd8]
+		_emit 0x7e /* jle jmp_10033e4e */
+		_emit 0xd1
+jmp_10033e7d:
+		sub ecx, edx
+		_emit 0x74 /* je jmp_10033e4e */
+		_emit 0xcd
+		mov dword ptr [ebp-0x80], ecx
+		mov edx, dword ptr [esi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xa8], eax
+		mov ecx, dword ptr [ebp-0x80]
+		mov edx, dword ptr [esi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xb0], eax
+		mov ecx, dword ptr [ebp-0x80]
+		mov edx, dword ptr [esi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xb8], eax
+		mov edx, dword ptr [ebx]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [ebp-0x90], edx
+		mov edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [ebp-0x98], edx
+		mov edx, dword ptr [ebx+0x10]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [ebp-0xa0], edx
+jmp_10033f14:
+		mov ebx, dword ptr [ebp-0x7c]
+		mov dword ptr [ebp-0x74], ebx
+		mov esi, ebx
+		add esi, 0x14
+		cmp esi, dword ptr [ebp-0x68]
+		_emit 0x7c /* jl jmp_10033f27 */
+		_emit 0x03
+		mov esi, dword ptr [ebp-0x64]
+jmp_10033f27:
+		mov dword ptr [ebp-0x7c], esi
+		mov ecx, dword ptr [esi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		cmp edx, dword ptr [ebp-0xd8]
+		_emit 0x7d /* jge jmp_10033f40 */
+		_emit 0x08
+		cmp ecx, dword ptr [ebp-0xd8]
+		_emit 0x7e /* jle jmp_10033f14 */
+		_emit 0xd4
+jmp_10033f40:
+		sub ecx, edx
+		_emit 0x74 /* je jmp_10033f14 */
+		_emit 0xd0
+		mov dword ptr [ebp-0x84], ecx
+		mov edx, dword ptr [esi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xac], eax
+		mov ecx, dword ptr [ebp-0x84]
+		mov edx, dword ptr [esi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xb4], eax
+		mov ecx, dword ptr [ebp-0x84]
+		mov edx, dword ptr [esi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xbc], eax
+		mov edx, dword ptr [ebx]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [ebp-0x94], edx
+		mov edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [ebp-0x9c], edx
+		mov edx, dword ptr [ebx+0x10]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [ebp-0xa4], edx
+		mov eax, dword ptr [ebp-0xe0]
+		sub eax, dword ptr [ebp-0x8c]
+		sub edi, dword ptr [ebp-0xe0]
+		_emit 0x7f /* jg jmp_10033ff6 */
+		_emit 0x02
+		add eax, edi
+jmp_10033ff6:
+		mov dword ptr [ebp-0x88], eax
+		mov eax, dword ptr [ebp-0xd8]
+		sub eax, dword ptr [ebp-0x8c]
+		jle jmp_100340ad
+		sub dword ptr [ebp-0x88], eax
+		mov ecx, dword ptr [ebp-0xd8]
+		mov dword ptr [ebp-0x8c], ecx
+		mov ebx, dword ptr [ebp-0x70]
+		sub ecx, dword ptr [ebx+0x4]
+		sub dword ptr [ebp-0x80], ecx
+		shl ecx, 0x10
+		mov eax, dword ptr [ebp-0xa8]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0x90], eax
+		mov eax, dword ptr [ebp-0xb0]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0x98], eax
+		mov eax, dword ptr [ebp-0xb8]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0xa0], eax
+		mov ecx, dword ptr [ebp-0xd8]
+		mov ebx, dword ptr [ebp-0x74]
+		sub ecx, dword ptr [ebx+0x4]
+		sub dword ptr [ebp-0x84], ecx
+		shl ecx, 0x10
+		mov eax, dword ptr [ebp-0xac]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0x94], eax
+		mov eax, dword ptr [ebp-0xb4]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0x9c], eax
+		mov eax, dword ptr [ebp-0xbc]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0xa4], eax
+jmp_100340ad:
+		mov eax, dword ptr [ebp-0x8c]
+		imul dword ptr [ebp-0xe8]
+		add eax, dword ptr [ebp-0xe4]
+		add eax, 0x0
+		mov dword ptr [ebp-0x5c], eax
+		mov eax, dword ptr [ebp-0x90]
+		mov ebx, dword ptr [ebp-0x94]
+		mov ecx, dword ptr [ebp-0x98]
+		mov edx, dword ptr [ebp-0x9c]
+		mov esi, dword ptr [ebp-0xa0]
+		mov edi, dword ptr [ebp-0xa4]
+jmp_100340e9:
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		cmp ebx, eax
+		_emit 0x7f /* jg jmp_100340f8 */
+		_emit 0x05
+		xchg ebx, eax
+		_emit 0x87 /* xchg edx, ecx: the inline assembler encodes the operands the other way */
+		_emit 0xca
+		_emit 0x87 /* xchg edi, esi: the inline assembler encodes the operands the other way */
+		_emit 0xf7
+jmp_100340f8:
+		sar eax, 0x10
+		cmp eax, dword ptr [ebp-0xdc]
+		jg jmp_100343ba
+		sar ebx, 0x10
+		cmp ebx, dword ptr [ebp-0xd4]
+		jl jmp_100343ba
+		mov dword ptr [ebp-0xc0], eax
+		mov dword ptr [ebp-0xc4], ebx
+		mov dword ptr [ebp-0xd0], ecx
+		sub ebx, eax
+		je jmp_100341fd
+		push ebx
+		sub edx, ecx
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ebx, 0x10
+		sar edx, 0x10
+		idiv ebx
+		mov dword ptr [ebp-0xc8], eax
+		shld edx, eax, 0x10
+		pop ebx
+		and eax, 0xffff
+		and edx, 0xffff
+		mov ecx, 0x1
+		test edx, 0x8000
+		_emit 0x74 /* je jmp_10034172 */
+		_emit 0x0e
+		or edx, 0xffff0000
+		neg ecx
+		cmp eax, 0x1
+		sbb edx, -0x1
+jmp_10034172:
+		add ecx, edx
+		push ecx
+		push edx
+		sub edi, esi
+		mov edx, edi
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ebx, 0x10
+		sar edx, 0x10
+		idiv ebx
+		mov dword ptr [ebp-0xcc], eax
+		shld edx, eax, 0x10
+		and eax, 0xffff
+		and edx, 0xffff
+		mov ecx, dword ptr [ebp-0x54]
+		test edx, 0x8000
+		_emit 0x74 /* je jmp_100341b0 */
+		_emit 0x08
+		neg ecx
+		cmp eax, 0x1
+		sbb edx, -0x1
+jmp_100341b0:
+		mov eax, dword ptr [ebp-0x54]
+		imul dx
+		cwde
+		pop edx
+		pop ebx
+		add edx, eax
+		mov dword ptr [g_unk0x1006a1ac], edx
+		add edx, ecx
+		mov dword ptr [g_unk0x1006a1ac+0x4], edx
+		add ebx, eax
+		mov dword ptr [g_unk0x1006a1ac+0x8], ebx
+		add ebx, ecx
+		mov dword ptr [g_unk0x1006a1ac+0xc], ebx
+		mov ecx, dword ptr [ebp-0xd4]
+		sub ecx, dword ptr [ebp-0xc0]
+		jg jmp_10034440
+jmp_100341eb:
+		mov eax, dword ptr [ebp-0xc4]
+		sub eax, dword ptr [ebp-0xdc]
+		jg jmp_1003446e
+jmp_100341fd:
+		mov ecx, esi
+		shr esi, 0x10
+		mov eax, esi
+		mul dword ptr [ebp-0x54]
+		add eax, dword ptr [ebp-0x58]
+		mov esi, dword ptr [ebp-0xd0]
+		shr esi, 0x10
+		add esi, eax
+		mov eax, dword ptr [ebp-0xc0]
+		mov edi, dword ptr [ebp-0x5c]
+		add edi, eax
+		mov ebx, dword ptr [ebp-0xc4]
+		sub ebx, eax
+		push ebp
+		mov edx, dword ptr [ebp-0xd0]
+		mov eax, dword ptr [ebp-0xc8]
+		or eax, eax
+		_emit 0x79 /* jns jmp_1003423d */
+		_emit 0x04
+		neg eax
+		not edx
+jmp_1003423d:
+		shl eax, 0x10
+		shl edx, 0x10
+		mov ebp, dword ptr [ebp-0xcc]
+		or ebp, ebp
+		_emit 0x79 /* jns jmp_10034251 */
+		_emit 0x04
+		neg ebp
+		not ecx
+jmp_10034251:
+		shl ebp, 0x10
+		shl ecx, 0x10
+		push ebx
+		xor ebx, ebx
+		cmp dword ptr [esp], 0x5
+		jl jmp_1003431c
+jmp_10034264:
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1003426d */
+		_emit 0x02
+		mov byte ptr [edi], bl
+jmp_1003426d:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_10034288 */
+		_emit 0x03
+		mov byte ptr [edi+0x1], bl
+jmp_10034288:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_100342a3 */
+		_emit 0x03
+		mov byte ptr [edi+0x2], bl
+jmp_100342a3:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_100342be */
+		_emit 0x03
+		mov byte ptr [edi+0x3], bl
+jmp_100342be:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_100342d9 */
+		_emit 0x03
+		mov byte ptr [edi+0x4], bl
+jmp_100342d9:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_100342f4 */
+		_emit 0x03
+		mov byte ptr [edi+0x5], bl
+jmp_100342f4:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add edi, 0x6
+		sub dword ptr [esp], 0x6
+		js jmp_100343b6
+		cmp dword ptr [esp], 0x5
+		jge jmp_10034264
+jmp_1003431c:
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_10034325 */
+		_emit 0x02
+		mov byte ptr [edi], bl
+jmp_10034325:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_100343b6 */
+		_emit 0x7b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_10034345 */
+		_emit 0x03
+		mov byte ptr [edi+0x1], bl
+jmp_10034345:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_100343b6 */
+		_emit 0x5b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_10034365 */
+		_emit 0x03
+		mov byte ptr [edi+0x2], bl
+jmp_10034365:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_100343b6 */
+		_emit 0x3b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_10034385 */
+		_emit 0x03
+		mov byte ptr [edi+0x3], bl
+jmp_10034385:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_100343b6 */
+		_emit 0x1b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_100343a5 */
+		_emit 0x03
+		mov byte ptr [edi+0x4], bl
+jmp_100343a5:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+jmp_100343b6:
+		add esp, 0x4
+		pop ebp
+jmp_100343ba:
+		mov edi, dword ptr [ebp-0xe8]
+		add dword ptr [ebp-0x5c], edi
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		dec dword ptr [ebp-0x88]
+		_emit 0x78 /* js jmp_10034411 */
+		_emit 0x40
+		_emit 0x74 /* je jmp_10034417 */
+		_emit 0x44
+		dec dword ptr [ebp-0x80]
+		je jmp_10034479
+		add eax, dword ptr [ebp-0xa8]
+		add ecx, dword ptr [ebp-0xb0]
+		add esi, dword ptr [ebp-0xb8]
+jmp_100343ee:
+		dec dword ptr [ebp-0x84]
+		je jmp_10034529
+		add ebx, dword ptr [ebp-0xac]
+		add edx, dword ptr [ebp-0xb4]
+		add edi, dword ptr [ebp-0xbc]
+		jmp jmp_100340e9
+jmp_10034411:
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10034417:
+		add eax, dword ptr [ebp-0xa8]
+		add ecx, dword ptr [ebp-0xb0]
+		add esi, dword ptr [ebp-0xb8]
+		add ebx, dword ptr [ebp-0xac]
+		add edx, dword ptr [ebp-0xb4]
+		add edi, dword ptr [ebp-0xbc]
+		jmp jmp_100340e9
+jmp_10034440:
+		add dword ptr [ebp-0xc0], ecx
+		shl ecx, 0x10
+		mov eax, dword ptr [ebp-0xc8]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [ebp-0xd0], eax
+		mov eax, dword ptr [ebp-0xcc]
+		imul ecx
+		shrd eax, edx, 0x10
+		add esi, eax
+		jmp jmp_100341eb
+jmp_1003446e:
+		sub dword ptr [ebp-0xc4], eax
+		jmp jmp_100341fd
+jmp_10034479:
+		push ebx
+		push edx
+		mov ebx, dword ptr [ebp-0x78]
+		mov dword ptr [ebp-0x70], ebx
+		mov esi, ebx
+		sub esi, 0x14
+		cmp esi, dword ptr [ebp-0x64]
+		_emit 0x7d /* jge jmp_10034491 */
+		_emit 0x06
+		mov esi, dword ptr [ebp-0x68]
+		sub esi, 0x14
+jmp_10034491:
+		mov dword ptr [ebp-0x78], esi
+		mov ecx, dword ptr [esi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		sub ecx, edx
+		cmp ecx, 0x1
+		adc ecx, 0x0
+		mov dword ptr [ebp-0x80], ecx
+		mov edx, dword ptr [esi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xa8], eax
+		mov ecx, dword ptr [ebp-0x80]
+		mov edx, dword ptr [esi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xb0], eax
+		mov ecx, dword ptr [ebp-0x80]
+		mov edx, dword ptr [esi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xb8], eax
+		mov eax, dword ptr [ebx]
+		shl eax, 0x10
+		add eax, 0x8000
+		mov ecx, dword ptr [ebx+0xc]
+		shl ecx, 0x10
+		add ecx, 0x8000
+		mov esi, dword ptr [ebx+0x10]
+		shl esi, 0x10
+		add esi, 0x8000
+		pop edx
+		pop ebx
+		jmp jmp_100343ee
+jmp_10034529:
+		push eax
+		push ecx
+		mov ebx, dword ptr [ebp-0x7c]
+		mov dword ptr [ebp-0x74], ebx
+		mov edi, ebx
+		add edi, 0x14
+		cmp edi, dword ptr [ebp-0x68]
+		_emit 0x7c /* jl jmp_1003453e */
+		_emit 0x03
+		mov edi, dword ptr [ebp-0x64]
+jmp_1003453e:
+		mov dword ptr [ebp-0x7c], edi
+		mov ecx, dword ptr [edi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		sub ecx, edx
+		cmp ecx, 0x1
+		adc ecx, 0x0
+		mov dword ptr [ebp-0x84], ecx
+		mov edx, dword ptr [edi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xac], eax
+		mov ecx, dword ptr [ebp-0x84]
+		mov edx, dword ptr [edi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xb4], eax
+		mov ecx, dword ptr [ebp-0x84]
+		mov edx, dword ptr [edi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [ebp-0xbc], eax
+		mov edx, dword ptr [ebx+0xc]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov edi, dword ptr [ebx+0x10]
+		shl edi, 0x10
+		add edi, 0x8000
+		mov ebx, dword ptr [ebx]
+		shl ebx, 0x10
+		add ebx, 0x8000
+		pop ecx
+		pop eax
+		jmp jmp_100340e9
+jmp_100345e0:
+		test dword ptr [ebp+0x2c], 0x1
+		_emit 0x74 /* je jmp_10034605 */
+		_emit 0x1c
+		push dword ptr [ebp+0x18]
+		push dword ptr [ebp+0x14]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push dword ptr [ebp+0x8]
+		call FUN_1003351a
+		add esp, 0x14
+		jmp jmp_10034411
+jmp_10034605:
+		push dword ptr [ebp+0x18]
+		push dword ptr [ebp+0x14]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push dword ptr [ebp+0x8]
+		call FUN_10032f84
+		add esp, 0x14
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
 #ifdef COMPAT_MODE
 MechS32 FUN_10034622(
 	void* p_data,
@@ -3613,6 +4838,282 @@ __declspec(naked) MechS32 FUN_10034622(
 }
 #endif
 
+// Run-length encodes the view, skipping pixels equal to p_transparent: finds the bounding box of
+// the opaque pixels, writes a 0x18-byte header to p_out (when not NULL) followed by the rows
+// (FUN_10034aaf) and returns the encoded size.
+#ifdef COMPAT_MODE
+MechS32 FUN_1003479a(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
+{
+	STUB(0x1003479a);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x1003479a
+__declspec(naked) MechS32
+FUN_1003479a(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x38
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0x30], eax
+		_emit 0x7e /* jle jmp_10034819 */
+		_emit 0x64
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		_emit 0x7e /* jle jmp_10034819 */
+		_emit 0x5c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x34], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_100347cd */
+		_emit 0x05
+		mov eax, 0x0
+jmp_100347cd:
+		mov dword ptr [ebp-0x1c], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x38], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_100347e0 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_100347e0:
+		mov dword ptr [ebp-0x20], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0x30]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_100347f0 */
+		_emit 0x02
+		mov eax, edx
+jmp_100347f0:
+		mov dword ptr [ebp-0x24], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_100347ff */
+		_emit 0x02
+		mov eax, edx
+jmp_100347ff:
+		mov dword ptr [ebp-0x28], eax
+		mov eax, dword ptr [ebp-0x24]
+		cmp eax, dword ptr [ebp-0x1c]
+		_emit 0x7c /* jl jmp_10034824 */
+		_emit 0x1a
+		mov eax, dword ptr [ebp-0x28]
+		cmp eax, dword ptr [ebp-0x20]
+		_emit 0x7c /* jl jmp_10034824 */
+		_emit 0x12
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x2c], eax
+		_emit 0xeb /* jmp jmp_1003482f */
+		_emit 0x16
+jmp_10034819:
+		mov eax, 0xffffffff
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10034824:
+		mov eax, 0xfffffffe
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_1003482f:
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov edi, dword ptr [ebp+0x18]
+		mov dword ptr [g_unk0x1006880d], edi
+		or edi, edi
+		_emit 0x74 /* je jmp_1003487d */
+		_emit 0x3c
+		mov eax, dword ptr [esi+0xc]
+		sub eax, dword ptr [esi+0x4]
+		shl eax, 0x10
+		mov ax, word ptr [esi+0x10]
+		sub ax, word ptr [esi+0x8]
+		mov dword ptr [edi], eax
+		add edi, 0x4
+		mov eax, dword ptr [ebp+0x10]
+		shl eax, 0x10
+		mov ax, word ptr [ebp+0x14]
+		mov dword ptr [edi], eax
+		add edi, 0x4
+		xor eax, eax
+		mov dword ptr [edi], eax
+		add edi, 0x4
+		mov dword ptr [edi], eax
+		add edi, 0x4
+		dec eax
+		mov dword ptr [edi], eax
+		add edi, 0x4
+		mov dword ptr [edi], eax
+		add edi, 0x4
+jmp_1003487d:
+		mov eax, dword ptr [ebp-0x34]
+		add dword ptr [ebp+0x10], eax
+		mov eax, dword ptr [ebp-0x38]
+		add dword ptr [ebp+0x14], eax
+		mov eax, dword ptr [ebp-0x24]
+		inc eax
+		sub eax, dword ptr [ebp-0x1c]
+		mov dword ptr [ebp-0x8], eax
+		mov eax, dword ptr [ebp-0x24]
+		inc eax
+		sub eax, dword ptr [ebp-0x1c]
+		mov dword ptr [ebp-0xc], eax
+		mov eax, 0x7fffffff
+		mov dword ptr [g_unk0x10068835], eax
+		mov dword ptr [g_unk0x10068839], eax
+		neg eax
+		mov dword ptr [g_unk0x1006883d], eax
+		mov dword ptr [g_unk0x10068841], eax
+		mov eax, dword ptr [ebp-0x20]
+		imul dword ptr [ebp-0x30]
+		add eax, dword ptr [ebp-0x2c]
+		add eax, dword ptr [ebp-0x1c]
+		mov dword ptr [g_unk0x10068815], eax
+		mov esi, eax
+		mov eax, dword ptr [ebp-0x20]
+		mov dword ptr [ebp-0x10], eax
+		jmp jmp_1003496d
+jmp_100348d6:
+		mov edi, dword ptr [g_unk0x10068815]
+		mov dword ptr [g_unk0x10068819], edi
+		mov ecx, dword ptr [ebp-0x8]
+		mov dword ptr [ebp-0x14], ecx
+		mov al, byte ptr [ebp+0xc]
+		repe scasb
+		_emit 0x74 /* je jmp_10034961 */
+		_emit 0x72
+		mov eax, dword ptr [g_unk0x10068839]
+		cmp eax, dword ptr [ebp-0x10]
+		_emit 0x7c /* jl jmp_100348fc */
+		_emit 0x03
+		mov eax, dword ptr [ebp-0x10]
+jmp_100348fc:
+		mov dword ptr [g_unk0x10068839], eax
+		mov eax, dword ptr [g_unk0x10068841]
+		cmp eax, dword ptr [ebp-0x10]
+		_emit 0x7f /* jg jmp_1003490e */
+		_emit 0x03
+		mov eax, dword ptr [ebp-0x10]
+jmp_1003490e:
+		mov dword ptr [g_unk0x10068841], eax
+		mov eax, dword ptr [ebp-0x24]
+		sub eax, ecx
+		cmp eax, dword ptr [g_unk0x10068835]
+		_emit 0x7c /* jl jmp_10034925 */
+		_emit 0x05
+		mov eax, dword ptr [g_unk0x10068835]
+jmp_10034925:
+		mov dword ptr [g_unk0x10068835], eax
+		mov eax, dword ptr [g_unk0x10068815]
+		add eax, dword ptr [ebp-0x8]
+		dec eax
+		mov edi, eax
+		mov dword ptr [g_unk0x10068819], edi
+		mov ecx, dword ptr [ebp-0x8]
+		mov dword ptr [ebp-0x14], ecx
+		mov al, byte ptr [ebp+0xc]
+		std
+		repe scasb
+		cld
+		_emit 0x74 /* je jmp_10034961 */
+		_emit 0x17
+		mov eax, dword ptr [ebp-0x1c]
+		add eax, ecx
+		cmp eax, dword ptr [g_unk0x1006883d]
+		_emit 0x7f /* jg jmp_1003495c */
+		_emit 0x05
+		mov eax, dword ptr [g_unk0x1006883d]
+jmp_1003495c:
+		mov dword ptr [g_unk0x1006883d], eax
+jmp_10034961:
+		mov eax, dword ptr [ebp-0x30]
+		add dword ptr [g_unk0x10068815], eax
+		inc dword ptr [ebp-0x10]
+jmp_1003496d:
+		mov eax, dword ptr [ebp-0x10]
+		cmp eax, dword ptr [ebp-0x28]
+		jle jmp_100348d6
+		mov edi, dword ptr [ebp+0x18]
+		or edi, edi
+		_emit 0x74 /* je jmp_100349ac */
+		_emit 0x2c
+		mov eax, dword ptr [g_unk0x10068835]
+		sub eax, dword ptr [ebp+0x10]
+		mov dword ptr [edi+0x8], eax
+		mov eax, dword ptr [g_unk0x10068839]
+		sub eax, dword ptr [ebp+0x14]
+		mov dword ptr [edi+0xc], eax
+		mov eax, dword ptr [g_unk0x1006883d]
+		sub eax, dword ptr [ebp+0x10]
+		mov dword ptr [edi+0x10], eax
+		mov eax, dword ptr [g_unk0x10068841]
+		sub eax, dword ptr [ebp+0x14]
+		mov dword ptr [edi+0x14], eax
+jmp_100349ac:
+		add edi, 0x18
+		mov dword ptr [g_unk0x1006881d], edi
+		mov eax, dword ptr [g_unk0x1006883d]
+		inc eax
+		sub eax, dword ptr [g_unk0x10068835]
+		mov dword ptr [ebp-0x18], eax
+		mov eax, dword ptr [g_unk0x10068839]
+		imul dword ptr [ebp-0x30]
+		add eax, dword ptr [ebp-0x2c]
+		add eax, dword ptr [g_unk0x10068835]
+		mov esi, eax
+		mov dword ptr [g_unk0x10068815], esi
+		mov eax, dword ptr [g_unk0x10068839]
+		mov dword ptr [ebp-0x10], eax
+		_emit 0xeb /* jmp jmp_10034a04 */
+		_emit 0x1d
+jmp_100349e7:
+		push dword ptr [ebp-0x1c]
+		push dword ptr [ebp+0xc]
+		push dword ptr [ebp-0x18]
+		call FUN_10034aaf
+		add esp, 0xc
+		mov eax, dword ptr [ebp-0x30]
+		add dword ptr [g_unk0x10068815], eax
+		inc dword ptr [ebp-0x10]
+jmp_10034a04:
+		mov eax, dword ptr [ebp-0x10]
+		cmp eax, dword ptr [g_unk0x10068841]
+		_emit 0x7e /* jle jmp_100349e7 */
+		_emit 0xd8
+		mov eax, dword ptr [g_unk0x1006881d]
+		sub eax, dword ptr [ebp+0x18]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
 // Maps the pixels of an entry of the data's offset table through the color remap table, in
 // place, following its run-length codes.
 #ifdef COMPAT_MODE
@@ -3714,6 +5215,413 @@ __declspec(naked) MechS32 FUN_10034a1d(void* p_data, MechS32 p_index)
 		_emit 0xa1
 	jmp_10034aa7:
 		xor eax, eax
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Encodes one row of p_count pixels at g_unk0x10068815 for FUN_1003479a.
+#ifdef COMPAT_MODE
+void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
+{
+	STUB(0x10034aaf);
+}
+#else
+// FUNCTION: MW2SHELL 0x10034aaf
+__declspec(naked) void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x4
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [g_unk0x10068815]
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x0
+		push 0x0
+		call FUN_10034c38
+		add esp, 0xc
+		mov dword ptr [ebp-0x4], 0x5
+		mov ecx, dword ptr [ebp+0x8]
+		or ecx, ecx
+		je jmp_10034c0d
+		mov al, byte ptr [esi]
+		inc esi
+		dec ecx
+		mov ah, al
+		cmp ah, byte ptr [ebp+0xc]
+		je jmp_10034bde
+jmp_10034af8:
+		mov dword ptr [ebp-0x4], 0x1
+		or ecx, ecx
+		je jmp_10034c0d
+		mov al, byte ptr [esi]
+		inc esi
+		dec ecx
+		xor al, ah
+		xor ah, al
+		or al, al
+		je jmp_10034bab
+		cmp ah, byte ptr [ebp+0xc]
+		_emit 0x75 /* jne jmp_10034b36 */
+		_emit 0x1a
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x1
+		push 0x1
+		call FUN_10034c38
+		add esp, 0xc
+		jmp jmp_10034bde
+jmp_10034b36:
+		or ecx, ecx
+		je jmp_10034c0d
+		mov al, byte ptr [esi]
+		inc esi
+		dec ecx
+		xor al, ah
+		xor ah, al
+		cmp ah, byte ptr [ebp+0xc]
+		_emit 0x75 /* jne jmp_10034b62 */
+		_emit 0x17
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x1
+		push 0x1
+		call FUN_10034c38
+		add esp, 0xc
+		_emit 0xeb /* jmp jmp_10034bde */
+		_emit 0x7c
+jmp_10034b62:
+		or al, al
+		_emit 0x75 /* jne jmp_10034b36 */
+		_emit 0xd0
+		or ecx, ecx
+		je jmp_10034c0d
+		mov al, byte ptr [esi]
+		inc esi
+		dec ecx
+		xor al, ah
+		xor ah, al
+		cmp ah, byte ptr [ebp+0xc]
+		_emit 0x75 /* jne jmp_10034b92 */
+		_emit 0x17
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x1
+		push 0x1
+		call FUN_10034c38
+		add esp, 0xc
+		_emit 0xeb /* jmp jmp_10034bde */
+		_emit 0x4c
+jmp_10034b92:
+		or al, al
+		_emit 0x75 /* jne jmp_10034b36 */
+		_emit 0xa0
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x3
+		push 0x1
+		call FUN_10034c38
+		add esp, 0xc
+jmp_10034bab:
+		mov dword ptr [ebp-0x4], 0x2
+		or ecx, ecx
+		_emit 0x74 /* je jmp_10034c0d */
+		_emit 0x57
+		mov al, byte ptr [esi]
+		inc esi
+		dec ecx
+		xor al, ah
+		_emit 0x74 /* je jmp_10034bab */
+		_emit 0xed
+		xor ah, al
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x1
+		push 0x2
+		call FUN_10034c38
+		add esp, 0xc
+		cmp ah, byte ptr [ebp+0xc]
+		jne jmp_10034af8
+jmp_10034bde:
+		mov dword ptr [ebp-0x4], 0x3
+		or ecx, ecx
+		_emit 0x74 /* je jmp_10034c0d */
+		_emit 0x24
+		mov al, byte ptr [esi]
+		inc esi
+		dec ecx
+		xor al, ah
+		_emit 0x74 /* je jmp_10034bde */
+		_emit 0xed
+		xor ah, al
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x1
+		push 0x3
+		call FUN_10034c38
+		add esp, 0xc
+		jmp jmp_10034af8
+jmp_10034c0d:
+		mov dword ptr [g_unk0x10068819], esi
+		push dword ptr [ebp+0x10]
+		push 0x0
+		push dword ptr [ebp-0x4]
+		call FUN_10034c38
+		add esp, 0xc
+		push dword ptr [ebp+0x10]
+		push 0x0
+		push 0x4
+		call FUN_10034c38
+		add esp, 0xc
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Emits one run of FUN_10034aaf's row encoding; p_op selects the kind (0 starts a row, 1 a
+// literal run, 2 a repeated run, 3 a skip, 4 ends the row).
+#ifdef COMPAT_MODE
+void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left)
+{
+	STUB(0x10034c38);
+}
+#else
+// FUNCTION: MW2SHELL 0x10034c38
+__declspec(naked) void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		push eax
+		push ecx
+		mov esi, dword ptr [g_unk0x10068821]
+		mov edi, dword ptr [g_unk0x1006881d]
+		mov eax, dword ptr [ebp+0x8]
+		cmp eax, 0x2
+		_emit 0x74 /* je jmp_10034c94 */
+		_emit 0x3c
+		cmp eax, 0x1
+		je jmp_10034d3b
+		cmp eax, 0x3
+		je jmp_10034de0
+		cmp eax, 0x4
+		je jmp_10034df3
+		cmp eax, 0x0
+		jne jmp_10034e01
+		xor eax, eax
+		mov dword ptr [g_unk0x10068811], eax
+		mov esi, dword ptr [g_unk0x10068819]
+		mov dword ptr [g_unk0x10068821], esi
+		jmp jmp_10034e01
+jmp_10034c94:
+		mov ebx, dword ptr [g_unk0x10068811]
+		or ebx, ebx
+		_emit 0x74 /* je jmp_10034cd3 */
+		_emit 0x35
+jmp_10034c9e:
+		mov ecx, ebx
+		cmp ecx, 0xff
+		_emit 0x7c /* jl jmp_10034cad */
+		_emit 0x05
+		mov ecx, 0xff
+jmp_10034cad:
+		sub ebx, ecx
+		cmp dword ptr [g_unk0x1006880d], 0x0
+		_emit 0x74 /* je jmp_10034cc4 */
+		_emit 0x0c
+		mov al, 0x1
+		mov byte ptr [edi], al
+		inc edi
+		mov al, cl
+		mov byte ptr [edi], al
+		inc edi
+		_emit 0xeb /* jmp jmp_10034cc7 */
+		_emit 0x03
+jmp_10034cc4:
+		add edi, 0x2
+jmp_10034cc7:
+		add esi, ecx
+		or ebx, ebx
+		_emit 0x75 /* jne jmp_10034c9e */
+		_emit 0xd1
+		mov dword ptr [g_unk0x10068811], ebx
+jmp_10034cd3:
+		mov ebx, dword ptr [g_unk0x10068819]
+		sub ebx, esi
+		sub ebx, dword ptr [ebp+0xc]
+		mov eax, dword ptr [ebp+0x10]
+		add eax, esi
+		sub eax, dword ptr [g_unk0x10068815]
+		cmp eax, dword ptr [g_unk0x10068835]
+		_emit 0x7d /* jge jmp_10034cf6 */
+		_emit 0x05
+		mov dword ptr [g_unk0x10068835], eax
+jmp_10034cf6:
+		add eax, ebx
+		dec eax
+		cmp eax, dword ptr [g_unk0x1006883d]
+		_emit 0x7e /* jle jmp_10034d08 */
+		_emit 0x07
+		mov dword ptr [g_unk0x1006883d], eax
+		_emit 0xeb /* jmp jmp_10034d32 */
+		_emit 0x2a
+jmp_10034d08:
+		mov ecx, ebx
+		cmp ecx, 0x7f
+		_emit 0x7c /* jl jmp_10034d14 */
+		_emit 0x05
+		mov ecx, 0x7f
+jmp_10034d14:
+		cmp dword ptr [g_unk0x1006880d], 0x0
+		_emit 0x74 /* je jmp_10034d2b */
+		_emit 0x0e
+		mov al, cl
+		add al, al
+		mov byte ptr [edi], al
+		inc edi
+		mov al, byte ptr [esi]
+		mov byte ptr [edi], al
+		inc edi
+		_emit 0xeb /* jmp jmp_10034d2e */
+		_emit 0x03
+jmp_10034d2b:
+		add edi, 0x2
+jmp_10034d2e:
+		add esi, ecx
+		sub ebx, ecx
+jmp_10034d32:
+		or ebx, ebx
+		_emit 0x75 /* jne jmp_10034d08 */
+		_emit 0xd2
+		jmp jmp_10034e01
+jmp_10034d3b:
+		mov ebx, dword ptr [g_unk0x10068811]
+		or ebx, ebx
+		_emit 0x74 /* je jmp_10034d7a */
+		_emit 0x35
+jmp_10034d45:
+		mov ecx, ebx
+		cmp ecx, 0xff
+		_emit 0x7c /* jl jmp_10034d54 */
+		_emit 0x05
+		mov ecx, 0xff
+jmp_10034d54:
+		sub ebx, ecx
+		cmp dword ptr [g_unk0x1006880d], 0x0
+		_emit 0x74 /* je jmp_10034d6b */
+		_emit 0x0c
+		mov al, 0x1
+		mov byte ptr [edi], al
+		inc edi
+		mov al, cl
+		mov byte ptr [edi], al
+		inc edi
+		_emit 0xeb /* jmp jmp_10034d6e */
+		_emit 0x03
+jmp_10034d6b:
+		add edi, 0x2
+jmp_10034d6e:
+		add esi, ecx
+		or ebx, ebx
+		_emit 0x75 /* jne jmp_10034d45 */
+		_emit 0xd1
+		mov dword ptr [g_unk0x10068811], ebx
+jmp_10034d7a:
+		mov ebx, dword ptr [g_unk0x10068819]
+		sub ebx, esi
+		sub ebx, dword ptr [ebp+0xc]
+		mov eax, dword ptr [ebp+0x10]
+		add eax, esi
+		sub eax, dword ptr [g_unk0x10068815]
+		cmp eax, dword ptr [g_unk0x10068835]
+		_emit 0x7d /* jge jmp_10034d9d */
+		_emit 0x05
+		mov dword ptr [g_unk0x10068835], eax
+jmp_10034d9d:
+		add eax, ebx
+		dec eax
+		cmp eax, dword ptr [g_unk0x1006883d]
+		_emit 0x7e /* jle jmp_10034daf */
+		_emit 0x07
+		mov dword ptr [g_unk0x1006883d], eax
+		_emit 0xeb /* jmp jmp_10034dda */
+		_emit 0x2b
+jmp_10034daf:
+		mov ecx, ebx
+		cmp ecx, 0x7f
+		_emit 0x7c /* jl jmp_10034dbb */
+		_emit 0x05
+		mov ecx, 0x7f
+jmp_10034dbb:
+		mov edx, ecx
+		mov al, cl
+		add al, al
+		inc al
+		cmp dword ptr [g_unk0x1006880d], 0x0
+		_emit 0x74 /* je jmp_10034dd3 */
+		_emit 0x07
+		mov byte ptr [edi], al
+		inc edi
+		rep movsb
+		_emit 0xeb /* jmp jmp_10034dd8 */
+		_emit 0x05
+jmp_10034dd3:
+		inc edi
+		add esi, ecx
+		add edi, ecx
+jmp_10034dd8:
+		sub ebx, edx
+jmp_10034dda:
+		or ebx, ebx
+		_emit 0x75 /* jne jmp_10034daf */
+		_emit 0xd1
+		_emit 0xeb /* jmp jmp_10034e01 */
+		_emit 0x21
+jmp_10034de0:
+		mov ebx, dword ptr [g_unk0x10068819]
+		sub ebx, esi
+		sub ebx, dword ptr [ebp+0xc]
+		mov dword ptr [g_unk0x10068811], ebx
+		_emit 0xeb /* jmp jmp_10034e01 */
+		_emit 0x0e
+jmp_10034df3:
+		xor eax, eax
+		cmp dword ptr [g_unk0x1006880d], 0x0
+		_emit 0x74 /* je jmp_10034e00 */
+		_emit 0x02
+		mov byte ptr [edi], al
+jmp_10034e00:
+		inc edi
+jmp_10034e01:
+		mov dword ptr [g_unk0x1006881d], edi
+		mov dword ptr [g_unk0x10068821], esi
+		pop ecx
+		pop eax
 		pop es
 		pop edi
 		pop esi
@@ -4318,13 +6226,1173 @@ jmp_100352a9:
 }
 #endif
 
-// Looks up the 16.16 sine and cosine of p_angle (in tenths of a degree) in the fixed-point
-// table at 0x10035af0, which the source doesn't reproduce yet.
-// STUB: MW2SHELL 0x10036904
-void FUN_10036904(MechS32 p_angle, MechS32* p_sin, MechS32* p_cos)
+// Scrolls the view by (p_dx, p_dy) with wrap-around, through nine FUN_10034f18 blits.
+#ifdef COMPAT_MODE
+MechS32 FUN_100352b4(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
+{
+	STUB(0x100352b4);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100352b4
+__declspec(naked) MechS32
+FUN_100352b4(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x44
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0xc]
+		inc eax
+		sub eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x30], eax
+		jle jmp_100354a6
+		mov edx, dword ptr [esi+0x10]
+		inc edx
+		sub edx, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x34], edx
+		jle jmp_100354a6
+		neg eax
+		mov dword ptr [ebp-0x38], eax
+		neg edx
+		mov dword ptr [ebp-0x3c], edx
+		cmp dword ptr [ebp+0x14], 0x1
+		_emit 0x74 /* je jmp_1003533b */
+		_emit 0x47
+		mov eax, dword ptr [ebp+0xc]
+		cdq
+		xor eax, edx
+		sub eax, edx
+		cmp eax, dword ptr [ebp-0x30]
+		_emit 0x7d /* jge jmp_1003531f */
+		_emit 0x1e
+		mov eax, dword ptr [ebp+0x10]
+		cdq
+		xor eax, edx
+		sub eax, edx
+		cmp eax, dword ptr [ebp-0x34]
+		_emit 0x7d /* jge jmp_1003531f */
+		_emit 0x11
+		mov eax, dword ptr [ebp+0x8]
+		mov dword ptr [ebp-0x2c], eax
+		mov eax, dword ptr [ebp+0x18]
+		mov dword ptr [ebp-0x44], eax
+		jmp jmp_100353a6
+jmp_1003531f:
+		mov eax, dword ptr [ebp+0x18]
+		push 0x0
+		movzx ax, al
+		push ax
+		push dword ptr [ebp+0x8]
+		call FUN_10034e15
+		add esp, 0x8
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_1003533b:
+		cmp dword ptr [ebp+0x18], 0x0
+		je jmp_1003549a
+		lea eax, [ebp-0x28]
+		mov dword ptr [ebp-0x2c], eax
+		mov eax, dword ptr [ebp+0x18]
+		mov dword ptr [ebp-0x14], eax
+		lea eax, [ebp-0x14]
+		mov dword ptr [ebp-0x28], eax
+		xor eax, eax
+		mov dword ptr [ebp-0x24], eax
+		mov dword ptr [ebp-0x20], eax
+		mov eax, dword ptr [ebp-0x30]
+		dec eax
+		mov dword ptr [ebp-0x10], eax
+		mov dword ptr [ebp-0x1c], eax
+		mov eax, dword ptr [ebp-0x34]
+		dec eax
+		mov dword ptr [ebp-0xc], eax
+		mov dword ptr [ebp-0x18], eax
+		push -0x1
+		push 0x0
+		push 0x0
+		push dword ptr [ebp-0x2c]
+		push 0x0
+		push 0x0
+		push dword ptr [ebp+0x8]
+		call FUN_10034f18
+		add esp, 0x1c
+		mov eax, dword ptr [ebp+0xc]
+		cdq
+		idiv dword ptr [ebp-0x30]
+		mov dword ptr [ebp+0xc], edx
+		mov eax, dword ptr [ebp+0x10]
+		cdq
+		idiv dword ptr [ebp-0x34]
+		mov dword ptr [ebp+0x10], edx
+		mov dword ptr [ebp-0x44], 0xffffffff
+jmp_100353a6:
+		mov eax, dword ptr [ebp+0xc]
+		or eax, dword ptr [ebp+0x10]
+		je jmp_10035492
+		mov esi, dword ptr [ebp-0x2c]
+		mov edi, dword ptr [ebp+0x8]
+		push -0x1
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push 0x0
+		push 0x0
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push dword ptr [ebp-0x34]
+		push dword ptr [ebp-0x30]
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push 0x0
+		push dword ptr [ebp-0x30]
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push dword ptr [ebp-0x3c]
+		push dword ptr [ebp-0x30]
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push dword ptr [ebp-0x34]
+		push 0x0
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push dword ptr [ebp-0x3c]
+		push 0x0
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push dword ptr [ebp-0x34]
+		push dword ptr [ebp-0x38]
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push 0x0
+		push dword ptr [ebp-0x38]
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+		push dword ptr [ebp-0x44]
+		push dword ptr [ebp+0x10]
+		push dword ptr [ebp+0xc]
+		push edi
+		push dword ptr [ebp-0x3c]
+		push dword ptr [ebp-0x38]
+		push esi
+		call FUN_10034f18
+		add esp, 0x1c
+jmp_10035492:
+		xor eax, eax
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_1003549a:
+		mov eax, dword ptr [ebp-0x30]
+		mul dword ptr [ebp-0x34]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_100354a6:
+		mov eax, 0xfffffffe
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Draws the outline of an ellipse centered on (p_x, p_y), clipped to the view.
+#ifdef COMPAT_MODE
+MechS32 FUN_100354b1(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+{
+	STUB(0x100354b1);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100354b1
+__declspec(naked) MechS32
+FUN_100354b1(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x54
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		cmp dword ptr [ebp+0x14], 0x0
+		_emit 0x74 /* je jmp_100354ca */
+		_emit 0x06
+		cmp dword ptr [ebp+0x18], 0x0
+		_emit 0x75 /* jne jmp_100354fb */
+		_emit 0x31
+jmp_100354ca:
+		mov eax, dword ptr [ebp+0x10]
+		add eax, dword ptr [ebp+0x18]
+		mov ebx, dword ptr [ebp+0xc]
+		add ebx, dword ptr [ebp+0x14]
+		mov ecx, dword ptr [ebp+0x10]
+		sub ecx, dword ptr [ebp+0x18]
+		mov edx, dword ptr [ebp+0xc]
+		sub edx, dword ptr [ebp+0x14]
+		push dword ptr [ebp+0x1c]
+		push 0x0
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push dword ptr [ebp+0x8]
+		call FUN_10032449
+		add esp, 0x1c
+		jmp jmp_100357ec
+jmp_100354fb:
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0x4c], eax
+		_emit 0x7e /* jle jmp_1003556d */
+		_emit 0x64
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		_emit 0x7e /* jle jmp_1003556d */
+		_emit 0x5c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x50], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10035521 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10035521:
+		mov dword ptr [ebp-0x38], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x54], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10035534 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10035534:
+		mov dword ptr [ebp-0x3c], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0x4c]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10035544 */
+		_emit 0x02
+		mov eax, edx
+jmp_10035544:
+		mov dword ptr [ebp-0x40], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10035553 */
+		_emit 0x02
+		mov eax, edx
+jmp_10035553:
+		mov dword ptr [ebp-0x44], eax
+		mov eax, dword ptr [ebp-0x40]
+		cmp eax, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_10035578 */
+		_emit 0x1a
+		mov eax, dword ptr [ebp-0x44]
+		cmp eax, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_10035578 */
+		_emit 0x12
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x48], eax
+		_emit 0xeb /* jmp jmp_10035583 */
+		_emit 0x16
+jmp_1003556d:
+		mov eax, 0xffffffff
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10035578:
+		mov eax, 0xfffffffe
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_10035583:
+		mov eax, dword ptr [ebp+0x1c]
+		mov ah, al
+		mov dword ptr [ebp+0x1c], eax
+		mov word ptr [ebp+0x1e], ax
+		mov eax, dword ptr [ebp-0x50]
+		add dword ptr [ebp+0xc], eax
+		mov eax, dword ptr [ebp-0x54]
+		add dword ptr [ebp+0x10], eax
+		mov eax, dword ptr [ebp+0xc]
+		mov dword ptr [ebp-0x4], eax
+		mov eax, dword ptr [ebp+0x10]
+		mov dword ptr [ebp-0x8], eax
+		mov dword ptr [ebp-0xc], 0x0
+		mov eax, dword ptr [ebp+0x18]
+		mov dword ptr [ebp-0x10], eax
+		mul eax
+		mov dword ptr [ebp-0x1c], eax
+		shl eax, 0x1
+		mov dword ptr [ebp-0x20], eax
+		mov eax, dword ptr [ebp+0x14]
+		mul eax
+		mov dword ptr [ebp-0x14], eax
+		shl eax, 0x1
+		mov dword ptr [ebp-0x18], eax
+		mov dword ptr [ebp-0x24], 0x0
+		mov eax, dword ptr [ebp-0x18]
+		mul dword ptr [ebp+0x18]
+		mov dword ptr [ebp-0x28], eax
+		mov eax, dword ptr [ebp-0x14]
+		shr eax, 0x2
+		add eax, dword ptr [ebp-0x1c]
+		mov dword ptr [ebp-0x2c], eax
+		mov eax, dword ptr [ebp-0x14]
+		mul dword ptr [ebp+0x18]
+		sub dword ptr [ebp-0x2c], eax
+		mov ebx, dword ptr [ebp+0x18]
+jmp_100355f3:
+		mov eax, dword ptr [ebp-0x24]
+		sub eax, dword ptr [ebp-0x28]
+		jns jmp_100356e9
+		push ebx
+		mov ecx, dword ptr [ebp+0x1c]
+		mov edi, dword ptr [ebp-0x4]
+		add edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		add edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_10035631 */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_10035631 */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_10035631 */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_10035631 */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_10035631:
+		mov edi, dword ptr [ebp-0x4]
+		add edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		sub edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_1003565f */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_1003565f */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_1003565f */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_1003565f */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_1003565f:
+		mov edi, dword ptr [ebp-0x4]
+		sub edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		add edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_1003568d */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_1003568d */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_1003568d */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_1003568d */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_1003568d:
+		mov edi, dword ptr [ebp-0x4]
+		sub edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		sub edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_100356bb */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_100356bb */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_100356bb */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_100356bb */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_100356bb:
+		pop ebx
+		cmp dword ptr [ebp-0x2c], 0x0
+		_emit 0x78 /* js jmp_100356d2 */
+		_emit 0x10
+		dec dword ptr [ebp-0x10]
+		dec ebx
+		mov eax, dword ptr [ebp-0x28]
+		sub eax, dword ptr [ebp-0x18]
+		mov dword ptr [ebp-0x28], eax
+		sub dword ptr [ebp-0x2c], eax
+jmp_100356d2:
+		inc dword ptr [ebp-0xc]
+		mov eax, dword ptr [ebp-0x24]
+		add eax, dword ptr [ebp-0x20]
+		mov dword ptr [ebp-0x24], eax
+		add eax, dword ptr [ebp-0x1c]
+		add dword ptr [ebp-0x2c], eax
+		jmp jmp_100355f3
+jmp_100356e9:
+		mov eax, dword ptr [ebp-0x14]
+		sub eax, dword ptr [ebp-0x1c]
+		mov edx, eax
+		sar eax, 0x1
+		add eax, edx
+		sub eax, dword ptr [ebp-0x24]
+		sub eax, dword ptr [ebp-0x28]
+		sar eax, 0x1
+		add dword ptr [ebp-0x2c], eax
+jmp_10035700:
+		push ebx
+		mov ecx, dword ptr [ebp+0x1c]
+		mov edi, dword ptr [ebp-0x4]
+		add edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		add edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_10035732 */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_10035732 */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_10035732 */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_10035732 */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_10035732:
+		mov edi, dword ptr [ebp-0x4]
+		add edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		sub edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_10035760 */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_10035760 */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_10035760 */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_10035760 */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_10035760:
+		mov edi, dword ptr [ebp-0x4]
+		sub edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		add edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_1003578e */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_1003578e */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_1003578e */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_1003578e */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_1003578e:
+		mov edi, dword ptr [ebp-0x4]
+		sub edi, dword ptr [ebp-0xc]
+		mov edx, dword ptr [ebp-0x8]
+		sub edx, dword ptr [ebp-0x10]
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_100357bc */
+		_emit 0x1d
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_100357bc */
+		_emit 0x18
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_100357bc */
+		_emit 0x13
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_100357bc */
+		_emit 0x0e
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov byte ptr [edi], cl
+jmp_100357bc:
+		pop ebx
+		cmp dword ptr [ebp-0x2c], 0x0
+		_emit 0x79 /* jns jmp_100357d2 */
+		_emit 0x0f
+		inc dword ptr [ebp-0xc]
+		mov eax, dword ptr [ebp-0x24]
+		add eax, dword ptr [ebp-0x20]
+		mov dword ptr [ebp-0x24], eax
+		add dword ptr [ebp-0x2c], eax
+jmp_100357d2:
+		dec dword ptr [ebp-0x10]
+		mov eax, dword ptr [ebp-0x28]
+		sub eax, dword ptr [ebp-0x18]
+		mov dword ptr [ebp-0x28], eax
+		sub eax, dword ptr [ebp-0x14]
+		sub dword ptr [ebp-0x2c], eax
+		dec ebx
+		_emit 0x78 /* js jmp_100357ec */
+		_emit 0x05
+		jmp jmp_10035700
+jmp_100357ec:
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Fills an ellipse centered on (p_x, p_y), clipped to the view.
+#ifdef COMPAT_MODE
+MechS32 FUN_100357f2(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+{
+	STUB(0x100357f2);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100357f2
+__declspec(naked) MechS32
+FUN_100357f2(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x54
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		cmp dword ptr [ebp+0x14], 0x0
+		_emit 0x74 /* je jmp_1003580b */
+		_emit 0x06
+		cmp dword ptr [ebp+0x18], 0x0
+		_emit 0x75 /* jne jmp_1003583c */
+		_emit 0x31
+jmp_1003580b:
+		mov eax, dword ptr [ebp+0x10]
+		add eax, dword ptr [ebp+0x18]
+		mov ebx, dword ptr [ebp+0xc]
+		add ebx, dword ptr [ebp+0x14]
+		mov ecx, dword ptr [ebp+0x10]
+		sub ecx, dword ptr [ebp+0x18]
+		mov edx, dword ptr [ebp+0xc]
+		sub edx, dword ptr [ebp+0x14]
+		push dword ptr [ebp+0x1c]
+		push 0x0
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push dword ptr [ebp+0x8]
+		call FUN_10032449
+		add esp, 0x1c
+		jmp jmp_10035aea
+jmp_1003583c:
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0x4c], eax
+		_emit 0x7e /* jle jmp_100358ae */
+		_emit 0x64
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		_emit 0x7e /* jle jmp_100358ae */
+		_emit 0x5c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x50], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10035862 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10035862:
+		mov dword ptr [ebp-0x38], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x54], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10035875 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10035875:
+		mov dword ptr [ebp-0x3c], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0x4c]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10035885 */
+		_emit 0x02
+		mov eax, edx
+jmp_10035885:
+		mov dword ptr [ebp-0x40], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10035894 */
+		_emit 0x02
+		mov eax, edx
+jmp_10035894:
+		mov dword ptr [ebp-0x44], eax
+		mov eax, dword ptr [ebp-0x40]
+		cmp eax, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_100358b9 */
+		_emit 0x1a
+		mov eax, dword ptr [ebp-0x44]
+		cmp eax, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_100358b9 */
+		_emit 0x12
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x48], eax
+		_emit 0xeb /* jmp jmp_100358c4 */
+		_emit 0x16
+jmp_100358ae:
+		mov eax, 0xffffffff
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_100358b9:
+		mov eax, 0xfffffffe
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_100358c4:
+		mov eax, dword ptr [ebp+0x1c]
+		mov ah, al
+		mov dword ptr [ebp+0x1c], eax
+		mov word ptr [ebp+0x1e], ax
+		mov eax, dword ptr [ebp-0x50]
+		add dword ptr [ebp+0xc], eax
+		mov eax, dword ptr [ebp-0x54]
+		add dword ptr [ebp+0x10], eax
+		mov eax, dword ptr [ebp+0xc]
+		mov dword ptr [ebp-0x4], eax
+		mov eax, dword ptr [ebp+0x10]
+		mov dword ptr [ebp-0x8], eax
+		mov dword ptr [ebp-0xc], 0x0
+		mov eax, dword ptr [ebp+0x18]
+		mov dword ptr [ebp-0x10], eax
+		mul eax
+		mov dword ptr [ebp-0x1c], eax
+		shl eax, 0x1
+		mov dword ptr [ebp-0x20], eax
+		mov eax, dword ptr [ebp+0x14]
+		mul eax
+		mov dword ptr [ebp-0x14], eax
+		shl eax, 0x1
+		mov dword ptr [ebp-0x18], eax
+		mov dword ptr [ebp-0x24], 0x0
+		mov eax, dword ptr [ebp-0x18]
+		mul dword ptr [ebp+0x18]
+		mov dword ptr [ebp-0x28], eax
+		mov eax, dword ptr [ebp-0x14]
+		shr eax, 0x2
+		add eax, dword ptr [ebp-0x1c]
+		mov dword ptr [ebp-0x2c], eax
+		mov eax, dword ptr [ebp-0x14]
+		mul dword ptr [ebp+0x18]
+		sub dword ptr [ebp-0x2c], eax
+		mov ebx, dword ptr [ebp+0x18]
+jmp_10035934:
+		mov eax, dword ptr [ebp-0x24]
+		sub eax, dword ptr [ebp-0x28]
+		_emit 0x78 /* js jmp_10035941 */
+		_emit 0x05
+		jmp jmp_10035a09
+jmp_10035941:
+		mov edi, dword ptr [ebp-0x4]
+		add edi, dword ptr [ebp-0xc]
+		cmp edi, dword ptr [ebp-0x38]
+		jl jmp_100359dc
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7c /* jl jmp_10035958 */
+		_emit 0x03
+		mov edi, dword ptr [ebp-0x40]
+jmp_10035958:
+		mov dword ptr [ebp-0x34], edi
+		mov edi, dword ptr [ebp-0x4]
+		sub edi, dword ptr [ebp-0xc]
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_100359dc */
+		_emit 0x76
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7f /* jg jmp_1003596e */
+		_emit 0x03
+		mov edi, dword ptr [ebp-0x38]
+jmp_1003596e:
+		mov dword ptr [ebp-0x30], edi
+		mov edx, dword ptr [ebp-0x8]
+		add edx, dword ptr [ebp-0x10]
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_100359dc */
+		_emit 0x60
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_100359a5 */
+		_emit 0x24
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov ecx, dword ptr [ebp-0x34]
+		sub ecx, dword ptr [ebp-0x30]
+		inc ecx
+		mov eax, dword ptr [ebp+0x1c]
+		mov edx, ecx
+		and edx, 0x3
+		shr ecx, 0x2
+		rep stosd
+		mov ecx, edx
+		rep stosb
+jmp_100359a5:
+		mov edi, dword ptr [ebp-0x30]
+		mov edx, dword ptr [ebp-0x8]
+		sub edx, dword ptr [ebp-0x10]
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_100359dc */
+		_emit 0x29
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_100359dc */
+		_emit 0x24
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov ecx, dword ptr [ebp-0x34]
+		sub ecx, dword ptr [ebp-0x30]
+		inc ecx
+		mov eax, dword ptr [ebp+0x1c]
+		mov edx, ecx
+		and edx, 0x3
+		shr ecx, 0x2
+		rep stosd
+		mov ecx, edx
+		rep stosb
+jmp_100359dc:
+		cmp dword ptr [ebp-0x2c], 0x0
+		_emit 0x78 /* js jmp_100359f2 */
+		_emit 0x10
+		dec dword ptr [ebp-0x10]
+		dec ebx
+		mov eax, dword ptr [ebp-0x28]
+		sub eax, dword ptr [ebp-0x18]
+		mov dword ptr [ebp-0x28], eax
+		sub dword ptr [ebp-0x2c], eax
+jmp_100359f2:
+		inc dword ptr [ebp-0xc]
+		mov eax, dword ptr [ebp-0x24]
+		add eax, dword ptr [ebp-0x20]
+		mov dword ptr [ebp-0x24], eax
+		add eax, dword ptr [ebp-0x1c]
+		add dword ptr [ebp-0x2c], eax
+		jmp jmp_10035934
+jmp_10035a09:
+		mov eax, dword ptr [ebp-0x14]
+		sub eax, dword ptr [ebp-0x1c]
+		mov edx, eax
+		sar eax, 0x1
+		add eax, edx
+		sub eax, dword ptr [ebp-0x24]
+		sub eax, dword ptr [ebp-0x28]
+		sar eax, 0x1
+		add dword ptr [ebp-0x2c], eax
+jmp_10035a20:
+		mov edi, dword ptr [ebp-0x4]
+		add edi, dword ptr [ebp-0xc]
+		cmp edi, dword ptr [ebp-0x38]
+		jl jmp_10035abb
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7c /* jl jmp_10035a37 */
+		_emit 0x03
+		mov edi, dword ptr [ebp-0x40]
+jmp_10035a37:
+		mov dword ptr [ebp-0x34], edi
+		mov edi, dword ptr [ebp-0x4]
+		sub edi, dword ptr [ebp-0xc]
+		cmp edi, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_10035abb */
+		_emit 0x76
+		cmp edi, dword ptr [ebp-0x38]
+		_emit 0x7f /* jg jmp_10035a4d */
+		_emit 0x03
+		mov edi, dword ptr [ebp-0x38]
+jmp_10035a4d:
+		mov dword ptr [ebp-0x30], edi
+		mov edx, dword ptr [ebp-0x8]
+		add edx, dword ptr [ebp-0x10]
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_10035abb */
+		_emit 0x60
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_10035a84 */
+		_emit 0x24
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov ecx, dword ptr [ebp-0x34]
+		sub ecx, dword ptr [ebp-0x30]
+		inc ecx
+		mov eax, dword ptr [ebp+0x1c]
+		mov edx, ecx
+		and edx, 0x3
+		shr ecx, 0x2
+		rep stosd
+		mov ecx, edx
+		rep stosb
+jmp_10035a84:
+		mov edi, dword ptr [ebp-0x30]
+		mov edx, dword ptr [ebp-0x8]
+		sub edx, dword ptr [ebp-0x10]
+		cmp edx, dword ptr [ebp-0x3c]
+		_emit 0x7c /* jl jmp_10035abb */
+		_emit 0x29
+		cmp edx, dword ptr [ebp-0x44]
+		_emit 0x7f /* jg jmp_10035abb */
+		_emit 0x24
+		mov eax, edx
+		imul dword ptr [ebp-0x4c]
+		add eax, dword ptr [ebp-0x48]
+		add eax, edi
+		mov edi, eax
+		mov ecx, dword ptr [ebp-0x34]
+		sub ecx, dword ptr [ebp-0x30]
+		inc ecx
+		mov eax, dword ptr [ebp+0x1c]
+		mov edx, ecx
+		and edx, 0x3
+		shr ecx, 0x2
+		rep stosd
+		mov ecx, edx
+		rep stosb
+jmp_10035abb:
+		cmp dword ptr [ebp-0x2c], 0x0
+		_emit 0x79 /* jns jmp_10035ad0 */
+		_emit 0x0f
+		inc dword ptr [ebp-0xc]
+		mov eax, dword ptr [ebp-0x24]
+		add eax, dword ptr [ebp-0x20]
+		mov dword ptr [ebp-0x24], eax
+		add dword ptr [ebp-0x2c], eax
+jmp_10035ad0:
+		dec dword ptr [ebp-0x10]
+		mov eax, dword ptr [ebp-0x28]
+		sub eax, dword ptr [ebp-0x18]
+		mov dword ptr [ebp-0x28], eax
+		sub eax, dword ptr [ebp-0x14]
+		sub dword ptr [ebp-0x2c], eax
+		dec ebx
+		_emit 0x78 /* js jmp_10035aea */
+		_emit 0x05
+		jmp jmp_10035a20
+jmp_10035aea:
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// The 16.16 cosine of 0 to 90 degrees in tenths of a degree; read backwards, the sine. The
+// original keeps it in .text, between FUN_100357f2 and FUN_10036904.
+// GLOBAL: MW2SHELL 0x10035af0
+MechS32 g_unk0x10035af0[0x385] = {
+	0x10000, 0x10000, 0x10000, 0xffff, 0xfffe, 0xfffe, 0xfffc, 0xfffb, 0xfffa, 0xfff8, 0xfff6, 0xfff4, 0xfff2, 0xffef,
+	0xffec,  0xffea,  0xffe6,  0xffe3, 0xffe0, 0xffdc, 0xffd8, 0xffd4, 0xffd0, 0xffcb, 0xffc7, 0xffc2, 0xffbd, 0xffb7,
+	0xffb2,  0xffac,  0xffa6,  0xffa0, 0xff9a, 0xff93, 0xff8d, 0xff86, 0xff7f, 0xff77, 0xff70, 0xff68, 0xff60, 0xff58,
+	0xff50,  0xff48,  0xff3f,  0xff36, 0xff2d, 0xff24, 0xff1a, 0xff10, 0xff07, 0xfefd, 0xfef2, 0xfee8, 0xfedd, 0xfed2,
+	0xfec7,  0xfebc,  0xfeb1,  0xfea5, 0xfe99, 0xfe8d, 0xfe81, 0xfe74, 0xfe68, 0xfe5b, 0xfe4e, 0xfe40, 0xfe33, 0xfe25,
+	0xfe18,  0xfe09,  0xfdfb,  0xfded, 0xfdde, 0xfdcf, 0xfdc0, 0xfdb1, 0xfda2, 0xfd92, 0xfd82, 0xfd72, 0xfd62, 0xfd52,
+	0xfd41,  0xfd30,  0xfd1f,  0xfd0e, 0xfcfd, 0xfceb, 0xfcd9, 0xfcc7, 0xfcb5, 0xfca3, 0xfc90, 0xfc7d, 0xfc6a, 0xfc57,
+	0xfc44,  0xfc30,  0xfc1c,  0xfc08, 0xfbf4, 0xfbe0, 0xfbcb, 0xfbb7, 0xfba2, 0xfb8d, 0xfb77, 0xfb62, 0xfb4c, 0xfb36,
+	0xfb20,  0xfb0a,  0xfaf3,  0xfadc, 0xfac5, 0xfaae, 0xfa97, 0xfa80, 0xfa68, 0xfa50, 0xfa38, 0xfa20, 0xfa07, 0xf9ef,
+	0xf9d6,  0xf9bd,  0xf9a3,  0xf98a, 0xf970, 0xf956, 0xf93c, 0xf922, 0xf908, 0xf8ed, 0xf8d2, 0xf8b7, 0xf89c, 0xf881,
+	0xf865,  0xf84a,  0xf82e,  0xf811, 0xf7f5, 0xf7d9, 0xf7bc, 0xf79f, 0xf782, 0xf764, 0xf747, 0xf729, 0xf70b, 0xf6ed,
+	0xf6cf,  0xf6b0,  0xf692,  0xf673, 0xf654, 0xf635, 0xf615, 0xf5f6, 0xf5d6, 0xf5b6, 0xf596, 0xf575, 0xf555, 0xf534,
+	0xf513,  0xf4f2,  0xf4d0,  0xf4af, 0xf48d, 0xf46b, 0xf449, 0xf427, 0xf404, 0xf3e2, 0xf3bf, 0xf39c, 0xf378, 0xf355,
+	0xf331,  0xf30e,  0xf2ea,  0xf2c5, 0xf2a1, 0xf27c, 0xf258, 0xf233, 0xf20e, 0xf1e8, 0xf1c3, 0xf19d, 0xf177, 0xf151,
+	0xf12b,  0xf104,  0xf0de,  0xf0b7, 0xf090, 0xf068, 0xf041, 0xf019, 0xeff2, 0xefca, 0xefa2, 0xef79, 0xef51, 0xef28,
+	0xeeff,  0xeed6,  0xeead,  0xee83, 0xee5a, 0xee30, 0xee06, 0xeddc, 0xedb1, 0xed87, 0xed5c, 0xed31, 0xed06, 0xecdb,
+	0xecaf,  0xec83,  0xec58,  0xec2b, 0xebff, 0xebd3, 0xeba6, 0xeb79, 0xeb4c, 0xeb1f, 0xeaf2, 0xeac4, 0xea97, 0xea69,
+	0xea3b,  0xea0d,  0xe9de,  0xe9b0, 0xe981, 0xe952, 0xe923, 0xe8f3, 0xe8c4, 0xe894, 0xe864, 0xe834, 0xe804, 0xe7d3,
+	0xe7a3,  0xe772,  0xe741,  0xe710, 0xe6de, 0xe6ad, 0xe67b, 0xe649, 0xe617, 0xe5e5, 0xe5b3, 0xe580, 0xe54d, 0xe51a,
+	0xe4e7,  0xe4b4,  0xe481,  0xe44d, 0xe419, 0xe3e5, 0xe3b1, 0xe37c, 0xe348, 0xe313, 0xe2de, 0xe2a9, 0xe274, 0xe23e,
+	0xe209,  0xe1d3,  0xe19d,  0xe167, 0xe131, 0xe0fa, 0xe0c3, 0xe08d, 0xe056, 0xe01e, 0xdfe7, 0xdfb0, 0xdf78, 0xdf40,
+	0xdf08,  0xded0,  0xde97,  0xde5f, 0xde26, 0xdded, 0xddb4, 0xdd7b, 0xdd41, 0xdd07, 0xdcce, 0xdc94, 0xdc5a, 0xdc1f,
+	0xdbe5,  0xdbaa,  0xdb6f,  0xdb34, 0xdaf9, 0xdabe, 0xda82, 0xda47, 0xda0b, 0xd9cf, 0xd993, 0xd956, 0xd91a, 0xd8dd,
+	0xd8a0,  0xd863,  0xd826,  0xd7e9, 0xd7ab, 0xd76d, 0xd72f, 0xd6f1, 0xd6b3, 0xd675, 0xd636, 0xd5f7, 0xd5b9, 0xd57a,
+	0xd53a,  0xd4fb,  0xd4bb,  0xd47c, 0xd43c, 0xd3fc, 0xd3bc, 0xd37b, 0xd33b, 0xd2fa, 0xd2b9, 0xd278, 0xd237, 0xd1f5,
+	0xd1b4,  0xd172,  0xd130,  0xd0ee, 0xd0ac, 0xd06a, 0xd027, 0xcfe5, 0xcfa2, 0xcf5f, 0xcf1c, 0xced8, 0xce95, 0xce51,
+	0xce0e,  0xcdca,  0xcd85,  0xcd41, 0xccfd, 0xccb8, 0xcc73, 0xcc2e, 0xcbe9, 0xcba4, 0xcb5f, 0xcb19, 0xcad3, 0xca8e,
+	0xca48,  0xca01,  0xc9bb,  0xc975, 0xc92e, 0xc8e7, 0xc8a0, 0xc859, 0xc812, 0xc7ca, 0xc783, 0xc73b, 0xc6f3, 0xc6ab,
+	0xc663,  0xc61a,  0xc5d2,  0xc589, 0xc540, 0xc4f7, 0xc4ae, 0xc465, 0xc41b, 0xc3d2, 0xc388, 0xc33e, 0xc2f4, 0xc2aa,
+	0xc260,  0xc215,  0xc1ca,  0xc180, 0xc135, 0xc0ea, 0xc09e, 0xc053, 0xc007, 0xbfbc, 0xbf70, 0xbf24, 0xbed8, 0xbe8b,
+	0xbe3f,  0xbdf2,  0xbda5,  0xbd58, 0xbd0b, 0xbcbe, 0xbc71, 0xbc23, 0xbbd6, 0xbb88, 0xbb3a, 0xbaec, 0xba9e, 0xba4f,
+	0xba01,  0xb9b2,  0xb963,  0xb914, 0xb8c5, 0xb876, 0xb827, 0xb7d7, 0xb787, 0xb738, 0xb6e8, 0xb698, 0xb647, 0xb5f7,
+	0xb5a6,  0xb556,  0xb505,  0xb4b4, 0xb463, 0xb412, 0xb3c0, 0xb36f, 0xb31d, 0xb2cb, 0xb279, 0xb227, 0xb1d5, 0xb183,
+	0xb130,  0xb0de,  0xb08b,  0xb038, 0xafe5, 0xaf92, 0xaf3e, 0xaeeb, 0xae97, 0xae44, 0xadf0, 0xad9c, 0xad48, 0xacf3,
+	0xac9f,  0xac4b,  0xabf6,  0xaba1, 0xab4c, 0xaaf7, 0xaaa2, 0xaa4d, 0xa9f7, 0xa9a1, 0xa94c, 0xa8f6, 0xa8a0, 0xa84a,
+	0xa7f3,  0xa79d,  0xa747,  0xa6f0, 0xa699, 0xa642, 0xa5eb, 0xa594, 0xa53d, 0xa4e5, 0xa48e, 0xa436, 0xa3de, 0xa386,
+	0xa32e,  0xa2d6,  0xa27e,  0xa225, 0xa1cd, 0xa174, 0xa11b, 0xa0c2, 0xa069, 0xa010, 0x9fb7, 0x9f5d, 0x9f04, 0x9eaa,
+	0x9e50,  0x9df6,  0x9d9c,  0x9d42, 0x9ce7, 0x9c8d, 0x9c32, 0x9bd8, 0x9b7d, 0x9b22, 0x9ac7, 0x9a6c, 0x9a11, 0x99b5,
+	0x995a,  0x98fe,  0x98a2,  0x9846, 0x97ea, 0x978e, 0x9732, 0x96d6, 0x9679, 0x961c, 0x95c0, 0x9563, 0x9506, 0x94a9,
+	0x944c,  0x93ee,  0x9391,  0x9334, 0x92d6, 0x9278, 0x921a, 0x91bc, 0x915e, 0x9100, 0x90a2, 0x9043, 0x8fe5, 0x8f86,
+	0x8f27,  0x8ec8,  0x8e69,  0x8e0a, 0x8dab, 0x8d4c, 0x8cec, 0x8c8d, 0x8c2d, 0x8bcd, 0x8b6d, 0x8b0d, 0x8aad, 0x8a4d,
+	0x89ed,  0x898c,  0x892c,  0x88cb, 0x886b, 0x880a, 0x87a9, 0x8748, 0x86e7, 0x8685, 0x8624, 0x85c2, 0x8561, 0x84ff,
+	0x849d,  0x843c,  0x83da,  0x8377, 0x8315, 0x82b3, 0x8251, 0x81ee, 0x818b, 0x8129, 0x80c6, 0x8063, 0x8000, 0x7f9d,
+	0x7f3a,  0x7ed6,  0x7e73,  0x7e0f, 0x7dac, 0x7d48, 0x7ce4, 0x7c80, 0x7c1c, 0x7bb8, 0x7b54, 0x7af0, 0x7a8c, 0x7a27,
+	0x79c3,  0x795e,  0x78f9,  0x7894, 0x782f, 0x77ca, 0x7765, 0x7700, 0x769b, 0x7635, 0x75d0, 0x756a, 0x7504, 0x749f,
+	0x7439,  0x73d3,  0x736d,  0x7307, 0x72a0, 0x723a, 0x71d4, 0x716d, 0x7107, 0x70a0, 0x7039, 0x6fd2, 0x6f6b, 0x6f04,
+	0x6e9d,  0x6e36,  0x6dcf,  0x6d67, 0x6d00, 0x6c98, 0x6c31, 0x6bc9, 0x6b61, 0x6af9, 0x6a91, 0x6a29, 0x69c1, 0x6959,
+	0x68f1,  0x6888,  0x6820,  0x67b7, 0x674f, 0x66e6, 0x667d, 0x6614, 0x65ab, 0x6542, 0x64d9, 0x6470, 0x6407, 0x639e,
+	0x6334,  0x62cb,  0x6261,  0x61f8, 0x618e, 0x6124, 0x60ba, 0x6050, 0x5fe6, 0x5f7c, 0x5f12, 0x5ea8, 0x5e3d, 0x5dd3,
+	0x5d69,  0x5cfe,  0x5c93,  0x5c29, 0x5bbe, 0x5b53, 0x5ae8, 0x5a7d, 0x5a12, 0x59a7, 0x593c, 0x58d1, 0x5865, 0x57fa,
+	0x578f,  0x5723,  0x56b8,  0x564c, 0x55e0, 0x5574, 0x5509, 0x549d, 0x5431, 0x53c5, 0x5358, 0x52ec, 0x5280, 0x5214,
+	0x51a7,  0x513b,  0x50ce,  0x5062, 0x4ff5, 0x4f88, 0x4f1c, 0x4eaf, 0x4e42, 0x4dd5, 0x4d68, 0x4cfb, 0x4c8e, 0x4c21,
+	0x4bb4,  0x4b46,  0x4ad9,  0x4a6b, 0x49fe, 0x4990, 0x4923, 0x48b5, 0x4848, 0x47da, 0x476c, 0x46fe, 0x4690, 0x4622,
+	0x45b4,  0x4546,  0x44d8,  0x446a, 0x43fb, 0x438d, 0x431f, 0x42b0, 0x4242, 0x41d3, 0x4165, 0x40f6, 0x4088, 0x4019,
+	0x3faa,  0x3f3b,  0x3ecc,  0x3e5e, 0x3def, 0x3d80, 0x3d11, 0x3ca1, 0x3c32, 0x3bc3, 0x3b54, 0x3ae5, 0x3a75, 0x3a06,
+	0x3996,  0x3927,  0x38b7,  0x3848, 0x37d8, 0x3769, 0x36f9, 0x3689, 0x3619, 0x35aa, 0x353a, 0x34ca, 0x345a, 0x33ea,
+	0x337a,  0x330a,  0x329a,  0x322a, 0x31b9, 0x3149, 0x30d9, 0x3069, 0x2ff8, 0x2f88, 0x2f17, 0x2ea7, 0x2e37, 0x2dc6,
+	0x2d55,  0x2ce5,  0x2c74,  0x2c04, 0x2b93, 0x2b22, 0x2ab1, 0x2a41, 0x29d0, 0x295f, 0x28ee, 0x287d, 0x280c, 0x279b,
+	0x272a,  0x26b9,  0x2648,  0x25d7, 0x2566, 0x24f5, 0x2483, 0x2412, 0x23a1, 0x2330, 0x22be, 0x224d, 0x21dc, 0x216a,
+	0x20f9,  0x2087,  0x2016,  0x1fa4, 0x1f33, 0x1ec1, 0x1e50, 0x1dde, 0x1d6d, 0x1cfb, 0x1c89, 0x1c18, 0x1ba6, 0x1b34,
+	0x1ac2,  0x1a51,  0x19df,  0x196d, 0x18fb, 0x1889, 0x1817, 0x17a6, 0x1734, 0x16c2, 0x1650, 0x15de, 0x156c, 0x14fa,
+	0x1488,  0x1416,  0x13a4,  0x1332, 0x12c0, 0x124e, 0x11dc, 0x1169, 0x10f7, 0x1085, 0x1013, 0xfa1,  0xf2f,  0xebd,
+	0xe4a,   0xdd8,   0xd66,   0xcf4,  0xc81,  0xc0f,  0xb9d,  0xb2b,  0xab8,  0xa46,  0x9d4,  0x961,  0x8ef,  0x87d,
+	0x80b,   0x798,   0x726,   0x6b4,  0x641,  0x5cf,  0x55c,  0x4ea,  0x478,  0x405,  0x393,  0x321,  0x2ae,  0x23c,
+	0x1ca,   0x157,   0xe5,    0x72,   0x0
+};
+
+// Looks up the 16.16 cosine and sine of p_angle (in tenths of a degree) in g_unk0x10035af0.
+#ifdef COMPAT_MODE
+void FUN_10036904(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
 {
 	STUB(0x10036904);
 }
+#else
+// FUNCTION: MW2SHELL 0x10036904
+__declspec(naked) void FUN_10036904(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov ebx, dword ptr [ebp+0x8]
+		and ebx, ebx
+		_emit 0x79 /* jns jmp_10036922 */
+		_emit 0x10
+jmp_10036912:
+		add ebx, 0xe10
+		_emit 0x78 /* js jmp_10036912 */
+		_emit 0xf8
+		_emit 0xeb /* jmp jmp_10036922 */
+		_emit 0x06
+jmp_1003691c:
+		sub ebx, 0xe10
+jmp_10036922:
+		cmp ebx, 0xe10
+		_emit 0x7f /* jg jmp_1003691c */
+		_emit 0xf2
+		cmp ebx, 0x708
+		_emit 0x77 /* ja jmp_1003696a */
+		_emit 0x38
+		cmp ebx, 0x384
+		_emit 0x77 /* ja jmp_1003694d */
+		_emit 0x13
+		shl ebx, 0x2
+		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		neg ebx
+		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		_emit 0xeb /* jmp jmp_100369ac */
+		_emit 0x5f
+jmp_1003694d:
+		neg ebx
+		add ebx, 0x708
+		shl ebx, 0x2
+		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		neg eax
+		neg ebx
+		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		_emit 0xeb /* jmp jmp_100369ac */
+		_emit 0x42
+jmp_1003696a:
+		neg ebx
+		add ebx, 0xe10
+		cmp ebx, 0x384
+		_emit 0x77 /* ja jmp_1003698f */
+		_emit 0x15
+		shl ebx, 0x2
+		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		neg ebx
+		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		neg edx
+		_emit 0xeb /* jmp jmp_100369ac */
+		_emit 0x1d
+jmp_1003698f:
+		neg ebx
+		add ebx, 0x708
+		shl ebx, 0x2
+		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		neg eax
+		neg ebx
+		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		neg edx
+jmp_100369ac:
+		mov ebx, dword ptr [ebp+0xc]
+		mov dword ptr [ebx], eax
+		mov ebx, dword ptr [ebp+0x10]
+		mov dword ptr [ebx], edx
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
 
 // Multiplies two 16.16 fixed-point values, rounding, into *p_result.
 #ifdef COMPAT_MODE
@@ -4822,8 +7890,18 @@ __declspec(naked) void FUN_10036c67(
 }
 #endif
 
-// Copies p_count pixels into row p_index of the view, clipped. The IFF chunk tags that
-// FUN_10036def, FUN_10036fb6 and FUN_10036fe7 look up follow the routine.
+// The IFF chunk tags that FUN_10036def, FUN_10036fb6 and FUN_10036fe7 look up. The original
+// keeps them in .text, right after FUN_10036c9e's ret.
+// GLOBAL: MW2SHELL 0x10036da1
+MechChar g_unk0x10036da1[4] = {'B', 'M', 'H', 'D'};
+
+// GLOBAL: MW2SHELL 0x10036da5
+MechChar g_unk0x10036da5[4] = {'C', 'M', 'A', 'P'};
+
+// GLOBAL: MW2SHELL 0x10036da9
+MechChar g_unk0x10036da9[4] = {'B', 'O', 'D', 'Y'};
+
+// Copies p_count pixels into row p_index of the view, clipped.
 #ifdef COMPAT_MODE
 void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
 {
@@ -4973,21 +8051,6 @@ __declspec(naked) void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefine
 		pop ebx
 		leave
 		ret
-									/* "BMHD" */
-		_emit 0x42
-		_emit 0x4d
-		_emit 0x48
-		_emit 0x44
-									/* "CMAP" */
-		_emit 0x43
-		_emit 0x4d
-		_emit 0x41
-		_emit 0x50
-									/* "BODY" */
-		_emit 0x42
-		_emit 0x4f
-		_emit 0x44
-		_emit 0x59
 	}
 }
 #endif
@@ -5017,7 +8080,7 @@ __declspec(naked) undefined* FUN_10036dad(const void* p_tag, const void* p_chunk
 		add esi, 0xc
 jmp_10036dbd:
 		cmp byte ptr [esi], 0x0
-		_emit 0x75 /* jnz jmp_10036dc5 */
+		_emit 0x75 /* jne jmp_10036dc5 */
 		_emit 0x03
 		inc esi
 		_emit 0xeb /* jmp jmp_10036dbd */
@@ -5027,18 +8090,323 @@ jmp_10036dc5:
 		mov edi, dword ptr [ebp+0x8]
 		mov eax, esi
 		repe cmpsw
-		_emit 0x74 /* jz jmp_10036de6 */
+		_emit 0x74 /* je jmp_10036de6 */
 		_emit 0x12
 		mov esi, eax
 		add esi, 0x6
 		lodsw
-		xchg ah, al
+		_emit 0x86 /* xchg ah, al: the inline assembler encodes the operands the other way */
+		_emit 0xc4
 		and eax, 0xffff
 		add esi, eax
 		_emit 0xeb /* jmp jmp_10036dbd */
 		_emit 0xd7
 jmp_10036de6:
 		add eax, 0x8
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Decodes the BODY chunk of an IFF ILBM or PBM image (p_data) into the view, one row at a
+// time through FUN_10036c9e. Returns the BMHD compression byte.
+#ifdef COMPAT_MODE
+MechS32 FUN_10036def(PixelView* p_view, undefined* p_data)
+{
+	STUB(0x10036def);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10036def
+__declspec(naked) MechS32 FUN_10036def(PixelView* p_view, undefined* p_data)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x3c
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		mov edi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [edi+0xc]
+		sub eax, dword ptr [edi+0x4]
+		inc eax
+		mov dword ptr [ebp-0x24], eax
+		mov eax, dword ptr [edi+0x10]
+		sub eax, dword ptr [edi+0x8]
+		inc eax
+		mov dword ptr [ebp-0x20], eax
+		mov edi, dword ptr [edi]
+		mov edi, dword ptr [edi]
+		mov dword ptr [ebp-0x3c], edi
+		mov dword ptr [ebp-0x28], 0x0
+		mov edi, dword ptr [ebp+0xc]
+		mov eax, dword ptr [edi+0x8]
+		xor eax, 0x4d424c49
+		mov dword ptr [ebp-0x4], eax
+		push dword ptr [ebp+0xc]
+		push offset g_unk0x10036da1
+		call FUN_10036dad
+		add esp, 0x8
+		mov esi, eax
+		lodsw
+		_emit 0x86 /* xchg ah, al: the inline assembler encodes the operands the other way */
+		_emit 0xc4
+		and eax, 0xffff
+		mov dword ptr [ebp-0xc], eax
+		lodsw
+		_emit 0x86 /* xchg ah, al: the inline assembler encodes the operands the other way */
+		_emit 0xc4
+		and eax, 0xffff
+		cmp eax, dword ptr [ebp-0x20]
+		_emit 0x7c /* jl jmp_10036e5e */
+		_emit 0x03
+		mov eax, dword ptr [ebp-0x20]
+jmp_10036e5e:
+		mov dword ptr [ebp-0x8], eax
+		add esi, 0x5
+		lodsb
+		cmp al, 0x1
+		je jmp_10036fad
+		mov eax, 0x0
+		lodsb
+		mov dword ptr [ebp-0x2c], eax
+		add esi, 0x2
+		mov eax, 0x0
+		lodsb
+		mov dword ptr [ebp-0x38], eax
+		mov eax, dword ptr [ebp-0xc]
+		mov ebx, eax
+		shr eax, 0x3
+		and ebx, 0x7
+		cmp ebx, 0x1
+		sbb eax, -0x1
+		mov ebx, eax
+		and eax, 0x1
+		add ebx, eax
+		mov dword ptr [ebp-0x30], ebx
+		mov eax, dword ptr [ebp-0xc]
+		and eax, 0x1
+		add eax, dword ptr [ebp-0xc]
+		mov dword ptr [ebp-0x34], eax
+		mov eax, dword ptr [ebp-0xc]
+		cmp eax, dword ptr [ebp-0x24]
+		_emit 0x7c /* jl jmp_10036eb4 */
+		_emit 0x03
+		mov eax, dword ptr [ebp-0x24]
+jmp_10036eb4:
+		mov dword ptr [ebp-0xc], eax
+		push dword ptr [ebp+0xc]
+		push offset g_unk0x10036da9
+		call FUN_10036dad
+		add esp, 0x8
+		mov dword ptr [ebp-0x10], eax
+jmp_10036eca:
+		mov esi, dword ptr [ebp-0x10]
+		cmp dword ptr [ebp-0x2c], 0x1
+		_emit 0x75 /* jne jmp_10036f25 */
+		_emit 0x52
+		mov edi, offset g_unk0x10069a45
+		mov edx, dword ptr [ebp-0x34]
+		add edx, edi
+jmp_10036edd:
+		cmp edi, edx
+		_emit 0x73 /* jae jmp_10036f1b */
+		_emit 0x3a
+		lodsb
+		movzx ecx, al
+		cmp ecx, 0x80
+		_emit 0x74 /* je jmp_10036edd */
+		_emit 0xf0
+		_emit 0x77 /* ja jmp_10036efe */
+		_emit 0x0f
+		inc ecx
+		push ecx
+		and ecx, 0x3
+		rep movsb
+		pop ecx
+		shr ecx, 0x2
+		rep movsd
+		_emit 0xeb /* jmp jmp_10036edd */
+		_emit 0xdf
+jmp_10036efe:
+		lodsb
+		mov ah, al
+		mov ebx, eax
+		shl eax, 0x10
+		mov ax, bx
+		neg cl
+		inc cl
+		push ecx
+		and ecx, 0x3
+		rep stosb
+		pop ecx
+		shr ecx, 0x2
+		rep stosd
+		_emit 0xeb /* jmp jmp_10036edd */
+		_emit 0xc2
+jmp_10036f1b:
+		mov dword ptr [ebp-0x10], esi
+		mov esi, offset g_unk0x10069a45
+		_emit 0xeb /* jmp jmp_10036f2d */
+		_emit 0x08
+jmp_10036f25:
+		mov eax, esi
+		add eax, dword ptr [ebp-0x34]
+		mov dword ptr [ebp-0x10], eax
+jmp_10036f2d:
+		cmp dword ptr [ebp-0x4], 0x0
+		_emit 0x75 /* jne jmp_10036f8f */
+		_emit 0x5c
+		mov edi, offset g_unk0x10068d45
+		mov eax, dword ptr [ebp-0x30]
+		mov dword ptr [ebp-0x18], eax
+		mov dword ptr [ebp-0x1c], eax
+		mov eax, dword ptr [ebp-0xc]
+		mov dword ptr [ebp-0x14], eax
+jmp_10036f47:
+		mov edx, 0x80
+jmp_10036f4c:
+		mov ebx, 0x0
+		mov eax, 0x100
+jmp_10036f56:
+		movzx ecx, byte ptr [esi+ebx]
+		and ecx, edx
+		_emit 0x74 /* je jmp_10036f60 */
+		_emit 0x02
+		or al, ah
+jmp_10036f60:
+		add ebx, dword ptr [ebp-0x1c]
+		shl ah, 0x1
+		_emit 0x75 /* jne jmp_10036f56 */
+		_emit 0xef
+		stosb
+		dec dword ptr [ebp-0x14]
+		_emit 0x74 /* je jmp_10036f77 */
+		_emit 0x0a
+		shr dl, 0x1
+		_emit 0x75 /* jne jmp_10036f4c */
+		_emit 0xdb
+		inc esi
+		dec dword ptr [ebp-0x18]
+		_emit 0x75 /* jne jmp_10036f47 */
+		_emit 0xd0
+jmp_10036f77:
+		push dword ptr [ebp-0xc]
+		push offset g_unk0x10068d45
+		push dword ptr [ebp-0x28]
+		push dword ptr [ebp+0x8]
+		call FUN_10036c9e
+		add esp, 0x10
+		_emit 0xeb /* jmp jmp_10036fa1 */
+		_emit 0x12
+jmp_10036f8f:
+		push dword ptr [ebp-0xc]
+		push esi
+		push dword ptr [ebp-0x28]
+		push dword ptr [ebp+0x8]
+		call FUN_10036c9e
+		add esp, 0x10
+jmp_10036fa1:
+		inc dword ptr [ebp-0x28]
+		dec dword ptr [ebp-0x8]
+		jne jmp_10036eca
+jmp_10036fad:
+		mov eax, dword ptr [ebp-0x38]
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Copies the IFF image's CMAP chunk into p_palette as 6-bit components.
+#ifdef COMPAT_MODE
+void FUN_10036fb6(undefined* p_data, MechU8* p_palette)
+{
+	STUB(0x10036fb6);
+}
+#else
+// FUNCTION: MW2SHELL 0x10036fb6
+__declspec(naked) void FUN_10036fb6(undefined* p_data, MechU8* p_palette)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		push dword ptr [ebp+0x8]
+		push offset g_unk0x10036da5
+		call FUN_10036dad
+		add esp, 0x8
+		mov esi, eax
+		mov edi, dword ptr [ebp+0xc]
+		mov ecx, 0x300
+jmp_10036fda:
+		lodsb
+		shr al, 0x2
+		stosb
+		loop jmp_10036fda
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Returns the IFF image's BMHD width and height, packed as width << 16 | height.
+#ifdef COMPAT_MODE
+MechU32 FUN_10036fe7(undefined* p_data)
+{
+	STUB(0x10036fe7);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x10036fe7
+__declspec(naked) MechU32 FUN_10036fe7(undefined* p_data)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		cld
+		push ds
+		pop es
+		push dword ptr [ebp+0x8]
+		push offset g_unk0x10036da1
+		call FUN_10036dad
+		add esp, 0x8
+		mov esi, eax
+		lodsw
+		_emit 0x86 /* xchg ah, al: the inline assembler encodes the operands the other way */
+		_emit 0xc4
+		shl eax, 0x10
+		lodsw
+		_emit 0x86 /* xchg ah, al: the inline assembler encodes the operands the other way */
+		_emit 0xc4
 		pop es
 		pop edi
 		pop esi
@@ -6201,6 +9569,421 @@ __declspec(naked) MechS32 FUN_10037697(void* p_data, MechS32* p_indices)
 		pop edi
 		pop esi
 		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// Counts the distinct first dwords among the data's 8-byte entries (the count at +4, the
+// entries from +0xc). When p_out isn't NULL, stores the index of each entry that starts a new
+// value there. Returns the count.
+#ifdef COMPAT_MODE
+MechS32 FUN_100376f9(undefined* p_data, MechU32* p_out)
+{
+	STUB(0x100376f9);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100376f9
+__declspec(naked) MechS32 FUN_100376f9(undefined* p_data, MechU32* p_out)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x4
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		mov ecx, dword ptr [esi+0x4]
+		dec ecx
+		add esi, 0xc
+		mov dword ptr [ebp-0x4], esi
+		mov ebx, 0x1
+		mov edx, dword ptr [ebp+0xc]
+		cmp edx, 0x0
+		_emit 0x74 /* je jmp_10037726 */
+		_emit 0x09
+		mov dword ptr [edx], 0x0
+		add edx, 0x4
+jmp_10037726:
+		cmp ecx, 0x0
+		_emit 0x74 /* je jmp_10037753 */
+		_emit 0x28
+jmp_1003772b:
+		add esi, 0x8
+		mov eax, dword ptr [esi]
+		mov edi, dword ptr [ebp-0x4]
+jmp_10037733:
+		cmp eax, dword ptr [edi]
+		_emit 0x74 /* je jmp_10037751 */
+		_emit 0x1a
+		add edi, 0x8
+		cmp edi, esi
+		_emit 0x7c /* jl jmp_10037733 */
+		_emit 0xf5
+		cmp edx, 0x0
+		_emit 0x74 /* je jmp_10037750 */
+		_emit 0x0d
+		mov eax, esi
+		sub eax, dword ptr [ebp-0x4]
+		shr eax, 0x3
+		mov dword ptr [edx], eax
+		add edx, 0x4
+jmp_10037750:
+		inc ebx
+jmp_10037751:
+		loop jmp_1003772b
+jmp_10037753:
+		mov eax, ebx
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+	}
+}
+#endif
+
+// The tap masks of maximal-length LFSRs, for 2 to 32 bits. The original keeps the table in
+// .text, between FUN_100376f9 and FUN_100377d7.
+// GLOBAL: MW2SHELL 0x1003775b
+MechU32 g_unk0x1003775b[0x1f] = {0x3,        0x6,        0xc,       0x14,      0x30,      0x60,      0xb8,
+								 0x110,      0x240,      0x500,     0xca0,     0x1b00,    0x3500,    0x6000,
+								 0xb400,     0x12000,    0x20400,   0x72000,   0x90000,   0x140000,  0x300000,
+								 0x420000,   0xd80000,   0x1200000, 0x3880000, 0x7200000, 0x9000000, 0x14000000,
+								 0x32800000, 0x48000000, 0xa3000000};
+
+// Dissolves p_src into p_dest: copies up to p_count pixels, in the order of a maximal-length
+// LFSR over the pixel indices (taps from g_unk0x1003775b), starting from p_state (0 starts a
+// new dissolve). Returns the LFSR state to continue from.
+// Not 100%: the tap lookup indexes from g_unk0x1003775b - 8 (the bit count starts at 2). In the
+// original that address is inside FUN_100376f9 and has no symbol; here it falls in whichever
+// global precedes the table, so reccmp names the two sides differently.
+#ifdef COMPAT_MODE
+MechU32 FUN_100377d7(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
+{
+	STUB(0x100377d7);
+	return 0;
+}
+#else
+// FUNCTION: MW2SHELL 0x100377d7
+__declspec(naked) MechU32 FUN_100377d7(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		add esp, -0x70
+		push es
+		push ebx
+		push esi
+		push edi
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0x44], eax
+		_emit 0x7e /* jle jmp_10037853 */
+		_emit 0x64
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		_emit 0x7e /* jle jmp_10037853 */
+		_emit 0x5c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x4c], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_10037807 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_10037807:
+		mov dword ptr [ebp-0x34], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x50], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_1003781a */
+		_emit 0x05
+		mov eax, 0x0
+jmp_1003781a:
+		mov dword ptr [ebp-0x38], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0x44]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_1003782a */
+		_emit 0x02
+		mov eax, edx
+jmp_1003782a:
+		mov dword ptr [ebp-0x3c], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_10037839 */
+		_emit 0x02
+		mov eax, edx
+jmp_10037839:
+		mov dword ptr [ebp-0x40], eax
+		mov eax, dword ptr [ebp-0x3c]
+		cmp eax, dword ptr [ebp-0x34]
+		_emit 0x7c /* jl jmp_1003785e */
+		_emit 0x1a
+		mov eax, dword ptr [ebp-0x40]
+		cmp eax, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_1003785e */
+		_emit 0x12
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x48], eax
+		_emit 0xeb /* jmp jmp_10037869 */
+		_emit 0x16
+jmp_10037853:
+		mov eax, 0xffffffff
+		pop edi
+		pop esi
+		pop ebx
+		pop es
+		leave
+		ret
+jmp_1003785e:
+		mov eax, 0xfffffffe
+		pop edi
+		pop esi
+		pop ebx
+		pop es
+		leave
+		ret
+jmp_10037869:
+		mov esi, dword ptr [ebp+0x8]
+		mov eax, dword ptr [esi+0xc]
+		sub eax, dword ptr [esi+0x4]
+		inc eax
+		mov dword ptr [ebp-0x24], eax
+		mov eax, dword ptr [esi+0x10]
+		sub eax, dword ptr [esi+0x8]
+		inc eax
+		mov dword ptr [ebp-0x28], eax
+		mov eax, dword ptr [ebp-0x50]
+		imul dword ptr [ebp-0x44]
+		add eax, dword ptr [ebp-0x48]
+		add eax, dword ptr [ebp-0x4c]
+		mov edi, eax
+		xor ebx, ebx
+		mov ecx, dword ptr [ebp-0x28]
+jmp_10037893:
+		mov dword ptr [g_unk0x10068845+ebx*0x4], edi
+		inc ebx
+		add edi, dword ptr [ebp-0x44]
+		loop jmp_10037893
+		mov esi, dword ptr [ebp+0xc]
+		mov ebx, dword ptr [esi]
+		mov eax, dword ptr [ebx+0x4]
+		inc eax
+		mov dword ptr [ebp-0x68], eax
+		_emit 0x7e /* jle jmp_10037912 */
+		_emit 0x64
+		mov eax, dword ptr [ebx+0x8]
+		inc eax
+		mov ecx, eax
+		_emit 0x7e /* jle jmp_10037912 */
+		_emit 0x5c
+		mov eax, dword ptr [esi+0x4]
+		mov dword ptr [ebp-0x6c], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_100378c6 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_100378c6:
+		mov dword ptr [ebp-0x54], eax
+		mov eax, dword ptr [esi+0x8]
+		mov dword ptr [ebp-0x70], eax
+		cmp eax, 0x0
+		_emit 0x7f /* jg jmp_100378d9 */
+		_emit 0x05
+		mov eax, 0x0
+jmp_100378d9:
+		mov dword ptr [ebp-0x58], eax
+		mov eax, dword ptr [esi+0xc]
+		mov edx, dword ptr [ebp-0x68]
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_100378e9 */
+		_emit 0x02
+		mov eax, edx
+jmp_100378e9:
+		mov dword ptr [ebp-0x5c], eax
+		mov eax, dword ptr [esi+0x10]
+		mov edx, ecx
+		dec edx
+		cmp eax, edx
+		_emit 0x7c /* jl jmp_100378f8 */
+		_emit 0x02
+		mov eax, edx
+jmp_100378f8:
+		mov dword ptr [ebp-0x60], eax
+		mov eax, dword ptr [ebp-0x5c]
+		cmp eax, dword ptr [ebp-0x54]
+		_emit 0x7c /* jl jmp_1003791d */
+		_emit 0x1a
+		mov eax, dword ptr [ebp-0x60]
+		cmp eax, dword ptr [ebp-0x58]
+		_emit 0x7c /* jl jmp_1003791d */
+		_emit 0x12
+		mov eax, dword ptr [ebx]
+		mov dword ptr [ebp-0x64], eax
+		_emit 0xeb /* jmp jmp_10037928 */
+		_emit 0x16
+jmp_10037912:
+		mov eax, 0xffffffff
+		pop edi
+		pop esi
+		pop ebx
+		pop es
+		leave
+		ret
+jmp_1003791d:
+		mov eax, 0xfffffffe
+		pop edi
+		pop esi
+		pop ebx
+		pop es
+		leave
+		ret
+jmp_10037928:
+		mov esi, dword ptr [ebp+0xc]
+		mov eax, dword ptr [esi+0xc]
+		sub eax, dword ptr [esi+0x4]
+		inc eax
+		mov dword ptr [ebp-0x2c], eax
+		mov eax, dword ptr [esi+0x10]
+		sub eax, dword ptr [esi+0x8]
+		inc eax
+		mov dword ptr [ebp-0x30], eax
+		mov eax, dword ptr [ebp-0x70]
+		imul dword ptr [ebp-0x68]
+		add eax, dword ptr [ebp-0x64]
+		add eax, dword ptr [ebp-0x6c]
+		mov edi, eax
+		xor ebx, ebx
+		mov ecx, dword ptr [ebp-0x30]
+jmp_10037952:
+		mov dword ptr [g_unk0x10069445+ebx*0x4], edi
+		inc ebx
+		add edi, dword ptr [ebp-0x68]
+		loop jmp_10037952
+		mov eax, dword ptr [ebp-0x28]
+		cmp eax, dword ptr [ebp-0x30]
+		_emit 0x7c /* jl jmp_1003796a */
+		_emit 0x03
+		mov eax, dword ptr [ebp-0x30]
+jmp_1003796a:
+		mov dword ptr [ebp-0x4], eax
+		mov eax, dword ptr [ebp-0x24]
+		mov ebx, dword ptr [ebp-0x2c]
+		cmp ebx, eax
+		_emit 0x7f /* jg jmp_10037979 */
+		_emit 0x02
+		mov eax, ebx
+jmp_10037979:
+		mov dword ptr [ebp-0x8], eax
+		xor ebx, ebx
+		mov dword ptr [ebp-0x20], ebx
+		mov eax, dword ptr [ebp-0x4]
+jmp_10037984:
+		inc ebx
+		stc
+		rcl dword ptr [ebp-0x20], 0x1
+		shr eax, 0x1
+		_emit 0x75 /* jne jmp_10037984 */
+		_emit 0xf7
+		mov dword ptr [ebp-0x1c], ebx
+		mov eax, dword ptr [ebp-0x8]
+jmp_10037993:
+		inc ebx
+		shr eax, 0x1
+		_emit 0x75 /* jne jmp_10037993 */
+		_emit 0xfb
+		mov eax, dword ptr [g_unk0x1003775b+ebx*0x4-0x8]
+		mov dword ptr [ebp-0x10], eax
+		cmp dword ptr [ebp+0x14], 0x0
+		_emit 0x75 /* jne jmp_100379bb */
+		_emit 0x13
+		mov dword ptr [ebp+0x14], 0x1
+		mov ebx, 0x0
+		mov esi, 0x0
+		_emit 0xeb /* jmp jmp_100379e9 */
+		_emit 0x2e
+jmp_100379bb:
+		mov esi, dword ptr [ebp+0x14]
+		shr esi, 0x1
+		_emit 0x73 /* jae jmp_100379c5 */
+		_emit 0x03
+		xor esi, dword ptr [ebp-0x10]
+jmp_100379c5:
+		mov dword ptr [ebp+0x14], esi
+		cmp esi, 0x1
+		_emit 0x75 /* jne jmp_100379d4 */
+		_emit 0x07
+		mov dword ptr [ebp+0x10], 0x0
+jmp_100379d4:
+		mov ecx, dword ptr [ebp-0x1c]
+		shr esi, cl
+		cmp esi, dword ptr [ebp-0x8]
+		_emit 0x73 /* jae jmp_100379bb */
+		_emit 0xdd
+		mov ebx, dword ptr [ebp+0x14]
+		and ebx, dword ptr [ebp-0x20]
+		cmp ebx, dword ptr [ebp-0x4]
+		_emit 0x73 /* jae jmp_100379bb */
+		_emit 0xd2
+jmp_100379e9:
+		dec dword ptr [ebp+0x10]
+		mov eax, esi
+		add eax, dword ptr [ebp-0x6c]
+		cmp eax, dword ptr [ebp-0x54]
+		_emit 0x7c /* jl jmp_100379bb */
+		_emit 0xc5
+		cmp eax, dword ptr [ebp-0x5c]
+		_emit 0x7f /* jg jmp_100379bb */
+		_emit 0xc0
+		mov eax, esi
+		add eax, dword ptr [ebp-0x4c]
+		cmp eax, dword ptr [ebp-0x34]
+		_emit 0x7c /* jl jmp_100379bb */
+		_emit 0xb6
+		cmp eax, dword ptr [ebp-0x3c]
+		_emit 0x7f /* jg jmp_100379bb */
+		_emit 0xb1
+		mov eax, ebx
+		add eax, dword ptr [ebp-0x70]
+		cmp eax, dword ptr [ebp-0x58]
+		_emit 0x7c /* jl jmp_100379bb */
+		_emit 0xa7
+		cmp eax, dword ptr [ebp-0x60]
+		_emit 0x7f /* jg jmp_100379bb */
+		_emit 0xa2
+		mov eax, ebx
+		add eax, dword ptr [ebp-0x50]
+		cmp eax, dword ptr [ebp-0x38]
+		_emit 0x7c /* jl jmp_100379bb */
+		_emit 0x98
+		cmp eax, dword ptr [ebp-0x40]
+		_emit 0x7f /* jg jmp_100379bb */
+		_emit 0x93
+		mov edi, dword ptr [g_unk0x10069445+ebx*0x4]
+		add edi, esi
+		mov eax, dword ptr [g_unk0x10068845+ebx*0x4]
+		add esi, eax
+		movsb
+		cmp dword ptr [ebp+0x10], 0x0
+		jge jmp_100379bb
+		mov eax, dword ptr [ebp+0x14]
+		pop edi
+		pop esi
+		pop ebx
+		pop es
 		leave
 		ret
 	}

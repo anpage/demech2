@@ -11,7 +11,17 @@ extern "C"
 	AILIMPORT MechS32 AILCALL AIL_sample_buffer_ready(HSAMPLE p_sample);
 	AILIMPORT void AILCALL
 	AIL_load_sample_buffer(HSAMPLE p_sample, MechU32 p_bufferNum, void* p_buffer, MechU32 p_size);
+	AILIMPORT MechS32 AILCALL AIL_minimum_sample_buffer_size(HDIGDRIVER p_driver, MechS32 p_rate, MechS32 p_format);
+	AILIMPORT void AILCALL AIL_set_sample_type(HSAMPLE p_sample, MechS32 p_format, MechU32 p_flags);
 }
+
+// Miles sample formats (DIG_F_*).
+enum {
+	c_formatMono8 = 0,
+	c_formatMono16 = 1,
+	c_formatStereo8 = 2,
+	c_formatStereo16 = 3
+};
 
 DECOMP_SIZE_ASSERT(AudioSubsystem, 0x15)
 DECOMP_SIZE_ASSERT(AudioSample, 0x2c)
@@ -394,6 +404,75 @@ void AudioSample::SetLoopCount(MechS32 p_loopCount)
 	if (m_sample) {
 		AIL_set_sample_loop_count(m_sample, m_loopCount);
 	}
+}
+
+// Allocates a Miles sample for streaming stereo or mono, 16-bit (p_wide) or 8-bit samples, with two buffers of at least
+// p_size samples. Without a digital driver, a sample or the buffers, it stays silent.
+// Not 100%: the stack slots of minimum and format are permuted.
+// FUNCTION: MW2SHELL 0x1003d884
+OakenTune0x10::OakenTune0x10(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size)
+{
+	MechS32 minimum;
+	MechS32 format;
+
+	m_unk0x00 = p_subsystem;
+	m_unk0x04 = 0;
+	m_unk0x08 = NULL;
+	m_unk0x0c = NULL;
+	m_unk0x10 = -1;
+
+	if (!m_unk0x00->m_digitalDriver) {
+		return;
+	}
+
+	m_unk0x04 = (undefined4) AIL_allocate_sample_handle(m_unk0x00->m_digitalDriver);
+	if (!m_unk0x04) {
+		return;
+	}
+
+	if (p_stereo) {
+		if (p_wide) {
+			format = c_formatStereo16;
+		}
+		else {
+			format = c_formatStereo8;
+		}
+	}
+	else if (p_wide) {
+		format = c_formatMono16;
+	}
+	else {
+		format = c_formatMono8;
+	}
+
+	minimum = AIL_minimum_sample_buffer_size(m_unk0x00->m_digitalDriver, m_unk0x00->m_unk0x11, format);
+	if (minimum <= p_size) {
+		if (format == c_formatStereo16) {
+			p_size <<= 2;
+		}
+		else if (format != c_formatMono8) {
+			p_size <<= 1;
+		}
+
+		m_unk0x08 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+		m_unk0x0c = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+	}
+
+	if (!m_unk0x08 || !m_unk0x0c) {
+		if (m_unk0x08) {
+			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x08);
+		}
+		AIL_release_sample_handle((HSAMPLE) m_unk0x04);
+		if (!m_unk0x04) {
+			// Both branches are empty in the original.
+		}
+		else {
+		}
+		return;
+	}
+
+	AIL_init_sample((HSAMPLE) m_unk0x04);
+	AIL_set_sample_type((HSAMPLE) m_unk0x04, format, p_wide != 0);
 }
 
 // FUNCTION: MW2SHELL 0x1003dad5

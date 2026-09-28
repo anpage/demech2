@@ -3,6 +3,7 @@
 #include "brasslantern0x414.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
+#include "mousestate.h"
 #include "silverreel0x18.h"
 #include "slatetab0x2c.h"
 #include "tmpackdatabase.h"
@@ -10,6 +11,7 @@
 #include "videodriver.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 extern AudioSubsystem* g_pAudioSubsystem;
@@ -17,6 +19,17 @@ extern TMPackDataBase* g_pDatabaseMw2;
 extern HollowReed0x110* g_unk0x100711f8;
 extern BrassLantern0x414* g_unk0x10071214;
 extern VideoDriver* g_pVideoDriver;
+extern MouseState* g_pMouseState;
+extern HINSTANCE g_pModule;
+extern "C" HWND g_pWnd;
+extern HMENU g_windowMenu;
+extern MechS32 g_menuDialogOpen;
+
+void FUN_100079f8(SlateTab0x2c* p_tabs);
+void FUN_10007ac8(SlateTab0x2c* p_tabs);
+SlateTab0x2c* FUN_1000b5ed(SlateTab0x2c* p_tabs, MechS32 p_x, MechS32 p_y);
+void FUN_100109b8(void (*p_callback)(MechS32));
+void FUN_1001661b();
 
 extern void* AllocateAllowNew(MechS32 p_size);
 
@@ -28,7 +41,7 @@ extern MechS32 g_midiVolume;
 void FUN_100109a0(void (*p_callback)(MechS32));
 
 // GLOBAL: MW2SHELL 0x10070d90
-void* g_unk0x10070d90 = NULL;
+SilverReel0x18* g_unk0x10070d90 = NULL;
 
 // GLOBAL: MW2SHELL 0x1007116c
 MechChar g_unk0x1007116c[0x10] = "amwlogo1";
@@ -58,6 +71,14 @@ AudioSample* g_unk0x10092c18;
 PaletteColor g_unk0x10092c30[0x100];
 // GLOBAL: MW2SHELL 0x10092f30
 void* g_unk0x10092f30;
+
+// The lines of ShowDialog's message box...
+// GLOBAL: MW2SHELL 0x10092c20
+MechChar* g_unk0x10092c20[3];
+
+// ...and the text they point into.
+// GLOBAL: MW2SHELL 0x10092f38
+MechChar g_unk0x10092f38[0x200];
 
 // GLOBAL: MW2SHELL 0x100716b8
 undefined g_unk0x100716b8[0x17] = {0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
@@ -243,10 +264,44 @@ EmberGlyph0x3e* FUN_10043790(SlateTab0x2c* p_option)
 	return NULL;
 }
 
-// STUB: MW2SHELL 0x1004381b
-void FUN_1004381b(SlateTab0x2c*)
+// Drags a volume slider while the left button is held: the value follows the mouse, and a
+// change of 0xa00 or more plays the test sample at the new volume.
+// Not 100%: the stack slots of previous, value and volume are permuted.
+// FUNCTION: MW2SHELL 0x1004381b
+void FUN_1004381b(SlateTab0x2c* p_option)
 {
-	STUB(0x1004381b);
+	MechS32 previous;
+	MechS32* value;
+	MechS32 volume;
+
+	value = (MechS32*) p_option->m_unk0x24;
+	previous = *value;
+	do {
+		*value = g_pMouseState->m_x - (p_option->m_left + 0xf);
+		if (*value < 0) {
+			*value = 0;
+		}
+		else if (*value > 0x100) {
+			*value = 0x100;
+		}
+		*value <<= 8;
+
+		if (abs(previous - *value) >= 0xa00) {
+			previous = *value;
+			volume = g_effectsVolume;
+			g_effectsVolume = previous;
+			g_unk0x10092c18->Start();
+			g_effectsVolume = volume;
+		}
+
+		FUN_100079f8(g_unk0x10070da8);
+		if (g_unk0x10070d90) {
+			g_unk0x10070d90->FUN_1001630b();
+		}
+		g_pMouseState->ReadMouseState();
+		g_pVideoDriver->DrawShell();
+		g_pAudioSubsystem->ApplyMidiVolume();
+	} while (g_pMouseState->m_leftDown == 1);
 }
 
 // FUNCTION: MW2SHELL 0x10043926
@@ -285,6 +340,18 @@ void FUN_100439cc()
 	}
 }
 
+// FUNCTION: MW2SHELL 0x10043a1f
+void FUN_10043a1f()
+{
+	FILE* file;
+
+	file = fopen("MW2SND.CFG", "wb");
+	if (file != NULL) {
+		fwrite(&g_unk0x10071678, 0x3c, 1, file);
+		fclose(file);
+	}
+}
+
 // Stack-slot permutation: original paletteSize is at [ebp-0x10] and audioSize at
 // [ebp-0x14]; VC++ assigns them [ebp-0x14] and [ebp-0x10] here.
 // FUNCTION: MW2SHELL 0x10043a72
@@ -310,10 +377,53 @@ void FUN_10043a72()
 	FUN_100109a0(CalledWhenCombatVarsOptionClicked);
 }
 
-// STUB: MW2SHELL 0x10043c1f
-void CalledWhenCombatVarsOptionClicked(MechS32)
+// The options screen's per-frame callback: handles clicks on the options, and closes the
+// screen on a right click, a key, or when called with p_active FALSE, saving the settings.
+// FUNCTION: MW2SHELL 0x10043c1f
+void CalledWhenCombatVarsOptionClicked(MechS32 p_active)
 {
-	STUB(0x10043c1f);
+	SlateTab0x2c* option;
+
+	if (p_active) {
+		if (g_unk0x10070d90) {
+			g_unk0x10070d90->FUN_1001630b();
+		}
+
+		if (g_pMouseState->GetLeftPressed() == 1) {
+			option = FUN_1000b5ed(g_unk0x10070da8, g_pMouseState->m_x, g_pMouseState->m_y);
+			if (option && option->m_unk0x20) {
+				option->m_unk0x20(option);
+				FUN_100079f8(g_unk0x10070da8);
+			}
+		}
+	}
+
+	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_unk0x100711f8->FUN_10044189()) {
+		FUN_100109b8(CalledWhenCombatVarsOptionClicked);
+		EnableMenuItem(g_windowMenu, 0x9c94, MF_ENABLED);
+		g_menuDialogOpen = 0;
+		FUN_10007ac8(g_unk0x10070da8);
+		FUN_10043a1f();
+		FUN_100439cc();
+
+		if (g_unk0x10070d90) {
+			delete g_unk0x10070d90;
+		}
+		if (g_unk0x10092c18) {
+			delete g_unk0x10092c18;
+		}
+
+		g_pVideoDriver->m_unk0x3a6 = -1;
+		g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
+		FUN_1001661b();
+		g_pVideoDriver->SetPalette(g_unk0x10092c30, 1);
+
+		if (p_active) {
+			g_pVideoDriver->DrawShell();
+			g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
+			FUN_1001661b();
+		}
+	}
 }
 
 // Callbacks and value pointers come from the original 15-entry options table.
@@ -341,9 +451,85 @@ SlateTab0x2c g_unk0x10070da8[15] = {
 #undef OPTION_ROW
 #undef OPTION_BAR
 
-// STUB: MW2SHELL 0x10043e25
-MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04)
+BOOL CALLBACK FUN_10043f9a(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
+
+// Shows a message box. p_text holds up to three lines separated by '|', then after a '#' the
+// buttons, also separated by '|': two buttons pick the yes/no dialog (0x80), anything else the
+// OK dialog (0x81). A single line goes in the middle. Returns the dialog's result (0 for yes).
+// Not 100%: the stack slots of count, line, id and the p_text++ temporary are permuted.
+// FUNCTION: MW2SHELL 0x10043e25
+MechS32 ShowDialog(const char* p_text, MechS32)
 {
-	STUB(0x10043e25);
-	return 0;
+	MechS32 count;
+	MechChar* line;
+	MechS32 id;
+
+	line = g_unk0x10092f38;
+	g_unk0x10092c20[0] = g_unk0x10092c20[1] = g_unk0x10092c20[2] = NULL;
+
+	count = 0;
+	while (*p_text != '\0' && *p_text != '#') {
+		g_unk0x10092c20[count] = line;
+		count++;
+
+		while (*p_text != '\0' && *p_text != '|' && *p_text != '#') {
+			*line = *p_text;
+			p_text++;
+			line++;
+		}
+		if (*p_text == '|') {
+			p_text++;
+		}
+		*line = '\0';
+		line++;
+	}
+
+	if (count == 1) {
+		g_unk0x10092c20[1] = g_unk0x10092c20[0];
+		g_unk0x10092c20[0] = NULL;
+	}
+
+	count = 0;
+	while (*p_text++ != '\0') {
+		for (; *p_text != '\0' && *p_text != '|'; p_text++) {
+		}
+		count++;
+	}
+
+	if (count == 2) {
+		id = 0x80;
+	}
+	else {
+		id = 0x81;
+	}
+
+	return DialogBoxParam(g_pModule, MAKEINTRESOURCE(id), g_pWnd, (DLGPROC) FUN_10043f9a, 0);
+}
+
+// FUNCTION: MW2SHELL 0x10043f9a
+BOOL CALLBACK FUN_10043f9a(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
+{
+	MechS32 id;
+
+	switch (p_msg) {
+	case WM_INITDIALOG:
+		SetDlgItemText(p_hDlg, 0x3ed, g_unk0x10092c20[0]);
+		SetDlgItemText(p_hDlg, 0x3ee, g_unk0x10092c20[1]);
+		SetDlgItemText(p_hDlg, 0x3ef, g_unk0x10092c20[2]);
+		return TRUE;
+	case WM_COMMAND:
+		id = LOWORD(p_wParam);
+		switch (id) {
+		case IDOK:
+		case IDYES:
+			EndDialog(p_hDlg, 0);
+			return TRUE;
+		case IDNO:
+			EndDialog(p_hDlg, 1);
+			return TRUE;
+		}
+		break;
+	}
+
+	return FALSE;
 }

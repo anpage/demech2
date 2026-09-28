@@ -1,9 +1,11 @@
+#include "audiosubsystem.h"
 #include "copperfinch0x4c.h"
 #include "decomp.h"
 #include "drawmodeextension.h"
 #include "hollowreed0x110.h"
 #include "mousestate.h"
 #include "mss.h"
+#include "shellmain.h"
 #include "silverreel0x18.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -22,12 +24,15 @@ extern VideoDriver* g_pVideoDriver;
 extern MechChar g_szDataDrivePath[];
 extern MouseState* g_pMouseState;
 extern HollowReed0x110* g_unk0x100711f8;
+extern MechU32 g_unk0x10071248;
+extern AudioSubsystem* g_pAudioSubsystem;
 
 // The original imports this one under its Miles name (wail32.def: _MEM_free_lock@4). It is
 // declared here rather than in mss.h: one more symbol there flips a comparison in MW2's
 // SimWindowProc.
 extern "C" AILIMPORT void AILCALL MEM_free_lock(void* p_block);
 extern "C" AILIMPORT void AILCALL AIL_serve();
+extern "C" AILIMPORT void* AILCALL FILE_read(const char* p_filename, void* p_dest);
 
 // The draw mode table lives in the draw mode unit, a C translation unit.
 extern "C" DrawModeExtension* g_currentDrawModeExtension;
@@ -36,6 +41,8 @@ void FUN_1001023c(HMENU p_menu);
 void FUN_10010320(HMENU p_menu);
 void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
 void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32));
+extern "C" MechS32 FUN_10037504(void* p_data, MechS32 p_index);
+extern "C" MechS32 FUN_10037684(void* p_data);
 MechS32 FUN_10016b11(MechS32 p_index);
 void FUN_10016d90(MechS32 p_index);
 void FUN_10016f45();
@@ -174,10 +181,44 @@ MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 
 DECOMP_SIZE_ASSERT(SilverReel0x18, 0x18)
 
-// STUB: MW2SHELL 0x1001603a
-SilverReel0x18::SilverReel0x18(MechChar*, MechS32, MechS32)
+// Opens the movie p_name (retrying once, after setting g_unk0x10064b28) and draws its first
+// frame at (p_left, p_top). Without a framebuffer it closes the movie again.
+// FUNCTION: MW2SHELL 0x1001603a
+SilverReel0x18::SilverReel0x18(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 {
-	STUB(0x1001603a);
+	MechS32 result;
+
+	m_smack = SmackOpen(GetPathToVideo(p_name), g_unk0x10071248, 0);
+	if (m_smack == NULL) {
+		g_unk0x10064b28 = 1;
+		m_smack = SmackOpen(GetPathToVideo(p_name), g_unk0x10071248, 0);
+		if (m_smack == NULL) {
+			return;
+		}
+	}
+
+	m_left = p_left;
+	m_top = p_top;
+	m_width = m_smack->Width;
+	m_height = m_smack->Height;
+	m_frame = 1;
+
+	if (g_fWindowActive != 0) {
+		result = g_currentDrawModeExtension->m_acquireFramebuffer();
+	}
+	else {
+		result = -1;
+	}
+
+	if (result == 0) {
+		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_pVideoDriver->m_screenBuffer.m_pixels, 0);
+		SmackDoFrame(m_smack);
+		g_pVideoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
+	}
+	else {
+		SmackClose(m_smack);
+		m_smack = NULL;
+	}
 }
 
 // FUNCTION: MW2SHELL 0x100161a8
@@ -491,18 +532,181 @@ void FUN_10016f82(MechS32 p_index, MechS32 p_left, MechS32 p_top)
 	}
 }
 
-// STUB: MW2SHELL 0x10017460
+// Opens the video p_name in the slot. A video with sound that the audio subsystem can play gets
+// Smacker's sound (flag 0x2000). With flag 0x1000 the first frame goes straight to the screen, with
+// flag 2 to the back buffer, otherwise to a buffer of its own.
+// Not 100%: the stack slots of dataDrive, result and the delete temporaries are permuted.
+// FUNCTION: MW2SHELL 0x1001703b
+BOOL LoadVideoFile(CopperFinch0x4c* p_slot, const MechChar* p_name)
+{
+	undefined4 dataDrive;
+	MechS32 result;
+
+	dataDrive = g_unk0x10064b28;
+	p_slot->m_unk0x00 = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_unk0x1c & 0x40) >> 1) | 0xfe00, 0);
+	if (!p_slot->m_unk0x00) {
+		return FALSE;
+	}
+
+	if (g_pAudioSubsystem && SmackSoundInTrack(p_slot->m_unk0x00, 0x200)) {
+		SmackClose(p_slot->m_unk0x00);
+		g_pAudioSubsystem->CloseDigitalDriver();
+		g_unk0x10064b28 = dataDrive;
+		p_slot->m_unk0x00 = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_unk0x1c & 0x40) >> 1) | 0xfe00, 0);
+		if (!p_slot->m_unk0x00) {
+			return FALSE;
+		}
+
+		p_slot->m_unk0x1c |= 0x2000;
+	}
+	else {
+		SmackClose(p_slot->m_unk0x00);
+		g_unk0x10064b28 = dataDrive;
+		p_slot->m_unk0x00 = SmackOpen(GetPathToVideo(p_name), (p_slot->m_unk0x1c & 0x40) >> 1, 0);
+		if (!p_slot->m_unk0x00) {
+			return FALSE;
+		}
+	}
+
+	p_slot->m_width = p_slot->m_unk0x00->Width;
+	p_slot->m_height = p_slot->m_unk0x00->Height;
+	if (p_slot->m_unk0x1c & 0x80) {
+		p_slot->m_left -= p_slot->m_width / 2;
+		p_slot->m_top -= p_slot->m_height;
+	}
+
+	p_slot->m_unk0x3c = 0;
+	p_slot->m_unk0x40 = p_slot->m_unk0x00->Frames;
+	p_slot->m_unk0x38 = p_slot->m_unk0x3c;
+	p_slot->m_unk0x18 = NULL;
+
+	if (p_slot->m_unk0x1c & 0x1000) {
+		p_slot->m_unk0x3c = 1;
+		if (g_fWindowActive != 0) {
+			result = g_currentDrawModeExtension->m_acquireFramebuffer();
+		}
+		else {
+			result = -1;
+		}
+
+		if (result == 0) {
+			SmackToBuffer(
+				p_slot->m_unk0x00,
+				p_slot->m_left,
+				p_slot->m_top,
+				0x280,
+				0x1e0,
+				g_pVideoDriver->m_screenBuffer.m_pixels,
+				0
+			);
+		}
+		else {
+			if (p_slot->m_unk0x04) {
+				delete p_slot->m_unk0x04;
+			}
+			p_slot->m_unk0x04 = NULL;
+			SmackClose(p_slot->m_unk0x00);
+			return FALSE;
+		}
+	}
+	else if (p_slot->m_unk0x1c & 2) {
+		SmackToBuffer(
+			p_slot->m_unk0x00,
+			p_slot->m_left,
+			p_slot->m_top,
+			0x280,
+			0x1e0,
+			g_pVideoDriver->m_backBuffer.m_pixels,
+			0
+		);
+	}
+	else {
+		p_slot->m_unk0x18 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_slot->m_width * p_slot->m_height);
+		SmackToBuffer(p_slot->m_unk0x00, 0, 0, p_slot->m_width, p_slot->m_height, p_slot->m_unk0x18, 0);
+	}
+
+	return TRUE;
+}
+
+// Loads the SHP animation p_name into the slot.
+// FUNCTION: MW2SHELL 0x10017376
+BOOL LoadShpFile(CopperFinch0x4c* p_slot, const MechChar* p_name)
+{
+	MechS32 size;
+
+	p_slot->m_unk0x14 = FILE_read(GetPathToShp(p_name), NULL);
+	if (!p_slot->m_unk0x14) {
+		return FALSE;
+	}
+
+	size = FUN_10037504(p_slot->m_unk0x14, 0);
+	p_slot->m_width = (size >> 16) + 1;
+	p_slot->m_height = (size & 0xffff) + 1;
+	if (p_slot->m_unk0x1c & 0x80) {
+		p_slot->m_left -= p_slot->m_width / 2;
+		p_slot->m_top -= p_slot->m_height;
+	}
+
+	p_slot->m_unk0x3c = 0;
+	p_slot->m_unk0x40 = FUN_10037684(p_slot->m_unk0x14);
+	p_slot->m_unk0x38 = p_slot->m_unk0x3c;
+	p_slot->m_unk0x18 = NULL;
+	((VideoPlaybackTimer*) p_slot->m_unk0x44)->m_next = 0;
+
+	return TRUE;
+}
+
+// Plays the video or SHP animation p_name in slot p_index at (p_left, p_top), p_fps frames a
+// second (10 for 0), replacing what the slot played. Returns the slot, or -1.
+// FUNCTION: MW2SHELL 0x10017460
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	MechU32 p_unk0x10,
-	MechU32 p_unk0x14
+	undefined4 p_left,
+	undefined4 p_top,
+	MechU32 p_flags,
+	MechU32 p_fps
 )
 {
-	STUB(0x10017460);
-	return -1;
+	CopperFinch0x4c* slot = &g_unk0x100641a8[p_index];
+
+	if (p_index < 0 || p_index >= 0x20) {
+		return -1;
+	}
+
+	if (slot->m_unk0x1c & 0x80000000) {
+		if (slot->m_unk0x1c & 0x10) {
+			g_pVideoDriver->FUN_100071ad(slot->m_unk0x30, slot->m_unk0x34, slot->m_width, slot->m_height);
+		}
+		FUN_10016d90(p_index);
+	}
+
+	slot->m_left = p_left;
+	slot->m_top = p_top;
+	slot->m_unk0x1c = p_flags | 0x80000100;
+	if (!p_fps) {
+		p_fps = 10;
+	}
+	((VideoPlaybackTimer*) slot->m_unk0x44)->m_interval = 1000 / p_fps;
+
+	if (CheckVideoExists(p_name)) {
+		if (!LoadVideoFile(slot, p_name)) {
+			slot->m_unk0x1c = 0;
+			return -1;
+		}
+	}
+	else if (!LoadShpFile(slot, p_name)) {
+		g_unk0x10064b28 = 1;
+		if (!LoadShpFile(slot, p_name)) {
+			slot->m_unk0x1c = 0;
+			return -1;
+		}
+	}
+
+	slot->m_unk0x30 = slot->m_left;
+	slot->m_unk0x34 = slot->m_top;
+
+	return p_index;
 }
 
 // Plays a video in the first free slot.

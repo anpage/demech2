@@ -56,7 +56,4 @@ private:
 
 #pragma pack()
 
-// Free function sharing MouseState's unit.
-MechS32 GetJoystickDeviceCount();
-
 #endif // MOUSESTATE_H

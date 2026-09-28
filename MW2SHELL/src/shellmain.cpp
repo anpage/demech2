@@ -7,6 +7,7 @@
 #include "hollowreed0x110.h"
 #include "midisequence.h"
 #include "mousestate.h"
+#include "ravenmark0x08.h"
 #include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -95,6 +96,36 @@ char* g_unk0x1006e19c = "DATABASE.MW2";
 // GLOBAL: MW2SHELL 0x1006e1a0
 MechChar* g_unk0x1006e1a0[2] = {"ARCHWO.MW2", "ARCHJF.MW2"};
 
+// The positions of each formation's mechs.
+// GLOBAL: MW2SHELL 0x1006e1d8
+MechS32 g_unk0x1006e1d8[6] = {285, 176, 344, 222, 450, 320};
+
+// GLOBAL: MW2SHELL 0x1006e1f0
+MechS32 g_unk0x1006e1f0[6] = {520, 212, 342, 225, 143, 253};
+
+// GLOBAL: MW2SHELL 0x1006e208
+MechS32 g_unk0x1006e208[6] = {222, 199, 341, 216, 498, 242};
+
+// GLOBAL: MW2SHELL 0x1006e220
+MechS32 g_unk0x1006e220[6] = {385, 184, 343, 221, 264, 290};
+
+// GLOBAL: MW2SHELL 0x1006e238
+MechS32 g_unk0x1006e238[6] = {269, 176, 506, 205, 269, 283};
+
+// GLOBAL: MW2SHELL 0x1006e250
+MechS32 g_unk0x1006e250[6] = {376, 186, 139, 254, 452, 325};
+
+// The star formations, as the mission briefing screen names them.
+// GLOBAL: MW2SHELL 0x1006e1a8
+RavenMark0x08 g_unk0x1006e1a8[6] = {
+	{g_unk0x1006e1d8, "Echelon Left"},
+	{g_unk0x1006e1f0, "Echelon Right"},
+	{g_unk0x1006e208, "Line Abreast"},
+	{g_unk0x1006e220, "Line Astern"},
+	{g_unk0x1006e238, "V-Form"},
+	{g_unk0x1006e250, "Wedge"},
+};
+
 // GLOBAL: MW2SHELL 0x100711f8
 HollowReed0x110* g_unk0x100711f8 = NULL;
 
@@ -151,6 +182,10 @@ MechS32 g_unk0x1007123c = 1;
 
 // GLOBAL: MW2SHELL 0x10071240
 MechS32 g_unk0x10071240 = 1;
+
+// The flags the shell opens Smacker movies with.
+// GLOBAL: MW2SHELL 0x10071248
+MechU32 g_unk0x10071248 = 0;
 
 // GLOBAL: MW2SHELL 0x1007124c
 MechU8 g_fDrawFmv = 0;

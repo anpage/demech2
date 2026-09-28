@@ -15,8 +15,8 @@ struct LinenPacket0x218 {
 	MechS32 m_unk0x0c;          // 0x0c — TRUE when the player's star was selected
 	HazelStar0x80 m_unk0x10;    // 0x10 — the player's star
 	HazelStar0x80 m_unk0x90;    // 0x90 — the enemy's star
-	undefined4 m_unk0x110;      // 0x110
-	undefined4 m_unk0x114;      // 0x114 — pilot index, -1 for none
+	undefined4 m_unk0x110;      // 0x110 — mission, an index into g_unk0x1006a220 (missionui.cpp)
+	MechS32 m_unk0x114;         // 0x114 — pilot index, -1 for none
 	MechChar m_unk0x118[0x100]; // 0x118 — the simulator's command line
 };
 
