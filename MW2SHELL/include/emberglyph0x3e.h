@@ -46,7 +46,10 @@ public:
 	MechS32 m_right; // 0x2d
 
 private:
-	MechS32 m_bottom;    // 0x31
+	MechS32 m_bottom; // 0x31
+
+public:
+	// Page restarts the typing and checks for the end directly.
 	MechU8 m_unk0x35;    // 0x35
 	MechS32 m_cursorX;   // 0x36
 	MechS32 m_textIndex; // 0x3a

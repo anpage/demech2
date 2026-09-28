@@ -725,6 +725,31 @@ extern "C" int __stdcall ShellMain(
 	}
 }
 
+// Handles one pending message, waiting for one while the window is inactive. Returns 0 on
+// WM_QUIT (posting it again), 1 otherwise.
+// FUNCTION: MW2SHELL 0x1000fe0d
+MechS32 FUN_1000fe0d()
+{
+	MSG msg;
+
+	if (!g_fWindowActive) {
+		WaitMessage();
+	}
+
+	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (msg.message == WM_QUIT) {
+			PostQuitMessage(msg.wParam);
+			return 0;
+		}
+		else {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	return 1;
+}
+
 // STUB: MW2SHELL 0x1000fe86
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 {
@@ -891,6 +916,29 @@ MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
 
 	RegCloseKey(key);
 	return (MechU8) (result == 0);
+}
+
+// FUNCTION: MW2SHELL 0x1001067f
+BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
+{
+	MechS32 id;
+
+	switch (p_msg) {
+	case WM_INITDIALOG:
+		SetFocus(GetDlgItem(p_hDlg, IDOK));
+		return FALSE;
+	case WM_COMMAND:
+		id = LOWORD(p_wParam);
+		switch (id) {
+		case IDOK:
+			EndDialog(p_hDlg, 0);
+			break;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 // FUNCTION: MW2SHELL 0x10010724
