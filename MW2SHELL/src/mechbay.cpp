@@ -160,12 +160,12 @@ MechS32 FUN_10017460(
 void FUN_10017698(MechS32 p_index, MechS32 p_frame);
 MechS32 ShowDialog(const char* p_text, MechS32 p_unk0x04);
 MechS32 FUN_10044451(
-	BrassLantern0x414* p_unk0x00,
+	BrassLantern0x414* p_font,
 	MechS32 p_left,
 	MechS32 p_top,
 	MechChar* p_text,
-	undefined* p_unk0x10,
-	MechS32 p_unk0x14,
+	undefined* p_colors,
+	MechS32 p_maxLength,
 	MechS32 p_width
 );
 
@@ -2418,19 +2418,4 @@ MechS32 FUN_1000cf4c()
 void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
 	STUB(0x1000d0d4);
-}
-
-// STUB: MW2SHELL 0x10044451
-MechS32 FUN_10044451(
-	BrassLantern0x414* p_unk0x00,
-	MechS32 p_left,
-	MechS32 p_top,
-	MechChar* p_text,
-	undefined* p_unk0x10,
-	MechS32 p_unk0x14,
-	MechS32 p_width
-)
-{
-	STUB(0x10044451);
-	return 0;
 }

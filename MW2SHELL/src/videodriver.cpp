@@ -51,7 +51,7 @@ void FUN_10016f45();
 // The blit routines live in the blit unit, a C translation unit (hand-written assembly).
 extern "C"
 {
-	void FUN_10032449(
+	MechS32 FUN_10032449(
 		PixelView* p_view,
 		MechS32 p_left,
 		MechS32 p_top,
@@ -60,7 +60,7 @@ extern "C"
 		MechS32 p_unk0x14,
 		MechS32 p_color
 	);
-	void FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
+	MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
 	void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
 	void FUN_10034f18(
 		PixelView* p_unk0x00,

@@ -222,6 +222,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/unk10031970.c
     MW2SHELL/src/unk10032250.c
     MW2SHELL/src/missionui.cpp
+    MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp
     MW2SHELL/src/unk10039de0.cpp
     MW2SHELL/src/mousestate.cpp
@@ -236,6 +237,8 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/cockpitcontrols.cpp
     MW2SHELL/src/options.cpp
     MW2SHELL/src/hollowreed0x110.cpp
+    MW2SHELL/src/page.cpp
+    MW2SHELL/src/glassbanner0x35c.cpp
     MW2SHELL/src/unk100460a0.c
     MW2SHELL/src/unk10046200.cpp
     MW2SHELL/src/mouse.c

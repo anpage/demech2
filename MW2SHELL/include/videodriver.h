@@ -85,8 +85,13 @@ public:
 	PixelBuffer m_backBuffer; // 0x42
 
 private:
-	PixelView m_screenView;        // 0x56
-	PixelView m_backView;          // 0x6a
+	PixelView m_screenView; // 0x56
+
+public:
+	// GlassBanner0x35c draws into m_backView directly.
+	PixelView m_backView; // 0x6a
+
+private:
 	PixelView m_dirtyView;         // 0x7e
 	PaletteColor m_palette[0x100]; // 0x92
 	MechS32 m_width;               // 0x392
