@@ -13,6 +13,8 @@ public:
 	SilverReel0x18(MechChar* p_name, MechS32 p_unk0x04, MechS32 p_unk0x08);
 	~SilverReel0x18();
 
+	void FUN_100161dd(MechS32 p_left, MechS32 p_top);
+
 	void FUN_1001630b();
 
 private:

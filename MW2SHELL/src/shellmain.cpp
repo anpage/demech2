@@ -91,6 +91,10 @@ MechS32 g_unk0x1006e150[19] =
 // GLOBAL: MW2SHELL 0x1006e19c
 char* g_unk0x1006e19c = "DATABASE.MW2";
 
+// The clan hall archives, by campaign.
+// GLOBAL: MW2SHELL 0x1006e1a0
+MechChar* g_unk0x1006e1a0[2] = {"ARCHWO.MW2", "ARCHJF.MW2"};
+
 // GLOBAL: MW2SHELL 0x100711f8
 HollowReed0x110* g_unk0x100711f8 = NULL;
 
