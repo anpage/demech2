@@ -46,8 +46,9 @@ MechS32 Font::GetCharacterWidth(MechS32 p_char)
 	return FontGetCharWidth(m_data, p_char);
 }
 
+// Draws p_text and keeps its glyph among the glyphs drawn under the videos.
 // FUNCTION: MW2SHELL 0x1000544e
-TextGlyph* Font::FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
+TextGlyph* Font::AddText(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
 	TextGlyph* glyph;
 
@@ -61,8 +62,9 @@ TextGlyph* Font::FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, u
 	return glyph;
 }
 
+// Draws p_text and keeps its glyph among the glyphs drawn over the videos.
 // FUNCTION: MW2SHELL 0x10005522
-TextGlyph* Font::FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
+TextGlyph* Font::AddOverlayText(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
 	TextGlyph* glyph;
 
@@ -76,8 +78,9 @@ TextGlyph* Font::FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, u
 	return glyph;
 }
 
+// Like AddText, but starts typing the text out (TextGlyph::TypeStep) instead of drawing it whole.
 // FUNCTION: MW2SHELL 0x100055f6
-TextGlyph* Font::FUN_100055f6(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
+TextGlyph* Font::AddTypedText(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
 	TextGlyph* glyph;
 

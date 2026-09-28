@@ -15,10 +15,10 @@ public:
 
 	MechS32 GetTextWidth(MechChar* p_text);
 	MechS32 GetCharacterWidth(MechS32 p_char);
-	TextGlyph* FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
-	TextGlyph* FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
+	TextGlyph* AddText(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
+	TextGlyph* AddOverlayText(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
 	MechS32 DrawString(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
-	TextGlyph* FUN_100055f6(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
+	TextGlyph* AddTypedText(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors);
 	MechS32 DrawChar(MechS32 p_left, MechS32 p_top, MechS32 p_char, undefined* p_colors);
 	void TypeKey(MechS32 p_left, MechS32 p_top, MechS32 p_key, undefined* p_colors);
 	void ResetTyping();

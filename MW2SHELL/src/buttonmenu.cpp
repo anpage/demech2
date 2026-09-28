@@ -53,7 +53,7 @@ DECOMP_SIZE_ASSERT(MenuEntry, 0x2a)
 
 DECOMP_SIZE_ASSERT(ButtonMenu, 0x10d)
 
-// The font argument is ignored: the buttons always use g_unk0x10071218. m_colors maps colour 0
+// The font argument is ignored: the buttons always use g_buttonFont. m_colors maps colour 0
 // to 0xff and 1 to 6, and leaves the others as they are.
 // FUNCTION: MW2SHELL 0x100485f0
 ButtonMenu::ButtonMenu(
@@ -69,7 +69,7 @@ ButtonMenu::ButtonMenu(
 	MechChar* text;
 	MenuEntry* item;
 
-	p_font = g_unk0x10071218;
+	p_font = g_buttonFont;
 	m_drawRect = p_drawRect;
 	m_videoDriver = p_videoDriver;
 	m_font = p_font;
@@ -85,7 +85,7 @@ ButtonMenu::ButtonMenu(
 		text = p_buttons[i].m_text;
 		if (text != NULL && *text == '<') {
 			text++;
-			label = m_font->FUN_10005522(p_buttons[i].m_textPos.x, p_buttons[i].m_textPos.y, text, m_colors);
+			label = m_font->AddOverlayText(p_buttons[i].m_textPos.x, p_buttons[i].m_textPos.y, text, m_colors);
 		}
 		else {
 			label = NULL;
@@ -208,7 +208,7 @@ void ButtonMenu::AddButton(MainMenuButton p_button, MechS32 p_id, MechU8 p_drawR
 
 	if (text != NULL && *text == '<') {
 		text++;
-		label = m_font->FUN_10005522(p_button.m_textPos.x, p_button.m_textPos.y, text, m_colors);
+		label = m_font->AddOverlayText(p_button.m_textPos.x, p_button.m_textPos.y, text, m_colors);
 	}
 
 	item = new MenuEntry(
@@ -321,7 +321,7 @@ MechU8 MenuEntry::HitTest(MechS32 p_x, MechS32 p_y)
 {
 	if (m_enabled && m_rect->Contains(p_x, p_y)) {
 		if (m_hover == NULL && m_text != NULL && strlen(m_text) != 0) {
-			m_hover = m_font->FUN_10005522(m_textPos.x, m_textPos.y, m_text, m_colors);
+			m_hover = m_font->AddOverlayText(m_textPos.x, m_textPos.y, m_text, m_colors);
 		}
 		return TRUE;
 	}

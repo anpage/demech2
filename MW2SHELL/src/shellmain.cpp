@@ -475,24 +475,24 @@ extern "C" int __stdcall ShellMain(
 	}
 
 	g_pDatabaseMw2->GetDBItem(0x1a, &itemData, &itemSize);
-	g_unk0x10071210 = new Font(itemData, g_pVideoDriver);
+	g_textFont = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1b, &itemData, &itemSize);
-	g_unk0x10071214 = new Font(itemData, g_pVideoDriver);
+	g_titleFont = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1c, &itemData, &itemSize);
-	g_unk0x10071218 = new Font(itemData, g_pVideoDriver);
+	g_buttonFont = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1e, &itemData, &itemSize);
 	g_unk0x1007121c = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1f, &itemData, &itemSize);
 	g_unk0x10071220 = new Font(itemData, g_pVideoDriver);
-	g_unk0x1007120c = g_unk0x10071210;
+	g_defaultFont = g_textFont;
 	g_pDatabaseMw2->GetDBItem(0x20, &itemData, &itemSize);
-	g_unk0x10071228 = new Font(itemData, g_pVideoDriver);
-	g_unk0x10071224 = g_unk0x10071228;
-	g_unk0x10071210 = g_unk0x10071228;
-	g_unk0x1007120c = g_unk0x10071210;
+	g_bodyFont = new Font(itemData, g_pVideoDriver);
+	g_archiveFont = g_bodyFont;
+	g_textFont = g_bodyFont;
+	g_defaultFont = g_textFont;
 
 	g_pDatabaseMw2->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
-	g_pMouseState = new MouseState(g_pVideoDriver, g_unk0x1007120c, g_unk0x10071200);
+	g_pMouseState = new MouseState(g_pVideoDriver, g_defaultFont, g_unk0x10071200);
 	g_keyboardInput = new KeyboardInput();
 	g_projectArchive = new ProjectArchive("MW2.PRJ");
 

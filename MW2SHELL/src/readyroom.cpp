@@ -91,7 +91,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 	if (!strcmp(g_pCurrentPilot->m_callsign, "FREEBIRTHTOAD")) {
 		g_unk0x100904a0 = new ButtonMenu(
 			g_pVideoDriver,
-			g_unk0x1007120c,
+			g_defaultFont,
 			FALSE,
 			g_unk0x1006fed0[p_campaign].m_buttons,
 			g_unk0x1006fed0[p_campaign].m_count
@@ -99,7 +99,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 	}
 	else {
 		g_unk0x100904a0 =
-			new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fed0[p_campaign].m_buttons, 4);
+			new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_unk0x1006fed0[p_campaign].m_buttons, 4);
 	}
 
 	switch (p_campaign) {

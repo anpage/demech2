@@ -60,7 +60,7 @@ void DrawMainMenu(TMPackDataBase* p_database, MechS32*)
 	g_unk0x1006ae7c = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 
 	g_pVideoDriver->LoadBackground(p_database, 1);
-	g_unk0x1006ae74 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_mainMenuButtons, 3);
+	g_unk0x1006ae74 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_mainMenuButtons, 3);
 
 	PlayVideoInFreeSlot(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
 	g_unk0x1006ae7c->SetVolume(0x78);

@@ -105,7 +105,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	}
 
 	UppercaseString(name);
-	LoadTextPages(g_unk0x10071ce4, left, top, width, height, name, g_unk0x10071228, g_unk0x10071cd8);
+	LoadTextPages(g_unk0x10071ce4, left, top, width, height, name, g_bodyFont, g_unk0x10071cd8);
 
 	g_unk0x10071ce0 = (Page*) CollectionGet(g_unk0x10071ce4, 0);
 	if (!g_unk0x10071ce0) {
@@ -122,7 +122,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	}
 	g_unk0x10071cdc = new ButtonMenu(
 		g_pVideoDriver,
-		g_unk0x10071228,
+		g_bodyFont,
 		FALSE,
 		g_unk0x1006ff60[p_campaign].m_buttons,
 		g_unk0x1006ff60[p_campaign].m_count
@@ -177,7 +177,7 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			delete g_unk0x10071cdc;
 			g_unk0x10071ce8 = new ArchiveReader(
 				"",
-				g_unk0x10071224,
+				g_archiveFont,
 				-1,
 				FALSE,
 				NULL,
@@ -203,7 +203,7 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			g_unk0x10071ce8 = NULL;
 			g_unk0x10071cdc = new ButtonMenu(
 				g_pVideoDriver,
-				g_unk0x1007120c,
+				g_defaultFont,
 				FALSE,
 				g_unk0x1006ff60[*p_campaign].m_buttons,
 				g_unk0x1006ff60[*p_campaign].m_count

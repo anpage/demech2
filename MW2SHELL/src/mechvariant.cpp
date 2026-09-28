@@ -470,9 +470,8 @@ void EditPilotName(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 				delete g_positionGlyphs[i][0];
 			}
 
-			EditTextField(g_unk0x1007120c, left, top, g_selectedStar->m_mechs[mech].m_pilot, NULL, 0xf, 100);
-			g_positionGlyphs[i][0] =
-				g_unk0x10071210->FUN_10005522(left, top, g_selectedStar->m_mechs[mech].m_pilot, NULL);
+			EditTextField(g_defaultFont, left, top, g_selectedStar->m_mechs[mech].m_pilot, NULL, 0xf, 100);
+			g_positionGlyphs[i][0] = g_textFont->AddOverlayText(left, top, g_selectedStar->m_mechs[mech].m_pilot, NULL);
 			return;
 		}
 	}
@@ -524,17 +523,14 @@ void ShowFormationMech(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_me
 
 	left = g_labelLefts[label];
 	top = g_labelTops[label];
-	strcpy(
-		g_selectedStar->m_mechs[mech].m_pilot,
-		FitText(g_selectedStar->m_mechs[mech].m_pilot, g_unk0x10071210, 0x5c)
-	);
+	strcpy(g_selectedStar->m_mechs[mech].m_pilot, FitText(g_selectedStar->m_mechs[mech].m_pilot, g_textFont, 0x5c));
 	g_positionGlyphs[p_position][0] =
-		g_unk0x10071210->FUN_10005522(left, top, g_selectedStar->m_mechs[mech].m_pilot, NULL);
-	g_positionGlyphs[p_position][1] = g_unk0x10071210->FUN_10005522(left, top + 0xc, g_mechChassis[type].m_name, NULL);
+		g_textFont->AddOverlayText(left, top, g_selectedStar->m_mechs[mech].m_pilot, NULL);
+	g_positionGlyphs[p_position][1] = g_textFont->AddOverlayText(left, top + 0xc, g_mechChassis[type].m_name, NULL);
 
 	g_mechMasses[mech] = g_mechChassis[type].m_tonnage;
 	sprintf(name, "%d.00 T", g_mechChassis[type].m_tonnage);
-	g_positionGlyphs[p_position][2] = g_unk0x10071210->FUN_10005522(left, top + 0x18, name, NULL);
+	g_positionGlyphs[p_position][2] = g_textFont->AddOverlayText(left, top + 0x18, name, NULL);
 }
 
 // Redraws the formation, mission, star size, tonnage limit and star mass lines.
@@ -548,8 +544,7 @@ void DrawStarInfo(MechS32 p_campaign)
 	if (g_formationLine) {
 		delete g_formationLine;
 	}
-	g_formationLine =
-		g_unk0x10071214->FUN_1000544e(0x140, 4, g_formationOptions[g_selectedStar->m_formation].m_label, NULL);
+	g_formationLine = g_titleFont->AddText(0x140, 4, g_formationOptions[g_selectedStar->m_formation].m_label, NULL);
 
 	if (g_missionLine) {
 		delete g_missionLine;
@@ -560,19 +555,19 @@ void DrawStarInfo(MechS32 p_campaign)
 	else {
 		sprintf(g_starInfoText, "~Mission: %s", g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_title);
 	}
-	g_missionLine = g_unk0x10071210->FUN_1000544e(0x140, 0x23, g_starInfoText, NULL);
+	g_missionLine = g_textFont->AddText(0x140, 0x23, g_starInfoText, NULL);
 
 	if (g_starSizeLine) {
 		delete g_starSizeLine;
 	}
 	sprintf(g_starInfoText, "~Maximum 'Mechs in current Star: %d", g_selectedStar->m_size);
-	g_starSizeLine = g_unk0x10071210->FUN_1000544e(0x140, 0x32, g_starInfoText, NULL);
+	g_starSizeLine = g_textFont->AddText(0x140, 0x32, g_starInfoText, NULL);
 
 	if (g_tonnageLine) {
 		delete g_tonnageLine;
 	}
 	sprintf(g_starInfoText, "~Keshik Defined Maximum Tonnage (KDMT) per 'Mech: %d.00 T", g_selectedStar->m_tonnage);
-	g_tonnageLine = g_unk0x10071210->FUN_1000544e(0x140, 0x41, g_starInfoText, NULL);
+	g_tonnageLine = g_textFont->AddText(0x140, 0x41, g_starInfoText, NULL);
 
 	if (g_starMassLine) {
 		delete g_starMassLine;
@@ -582,7 +577,7 @@ void DrawStarInfo(MechS32 p_campaign)
 		mass += g_mechMasses[i];
 	}
 	sprintf(g_starInfoText, "~Current Total Mass of the Star: %d.00 T", mass);
-	g_starMassLine = g_unk0x10071210->FUN_1000544e(0x140, 0x50, g_starInfoText, NULL);
+	g_starMassLine = g_textFont->AddText(0x140, 0x50, g_starInfoText, NULL);
 }
 
 void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32 p_msg);
@@ -596,7 +591,7 @@ void DrawStarConfig(TMPackDataBase* p_database, MechS32 p_campaign)
 	MechS32 audioSize;
 
 	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fea0[p_campaign].m_picture);
-	g_starMenu = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006fea0[p_campaign].m_buttons, 9);
+	g_starMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_unk0x1006fea0[p_campaign].m_buttons, 9);
 
 	switch (p_campaign) {
 	case 0:

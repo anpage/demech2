@@ -59,9 +59,9 @@ public:
 	);
 	MechS32 DrawString(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar* p_text, undefined* p_unk0x10);
 	MechS32 DrawChar(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10);
-	void AddGlyph(TextGlyph* p_item, MechS32 p_unk0x16);
+	void AddGlyph(TextGlyph* p_item, MechS32 p_overlay);
 	void RemoveGlyph(TextGlyph* p_item);
-	void RedrawGlyphs(MechS32 p_unk0x16);
+	void RedrawGlyphs(MechS32 p_overlay);
 	void ClearGlyphs(MechU8 p_delete);
 	void ActivateFramebuffer();
 
@@ -73,8 +73,8 @@ private:
 	undefined* m_unk0x0a;             // 0x0a
 	MechS32 m_unk0x0e;                // 0x0e
 	MechS32 m_unk0x12;                // 0x12
-	TextGlyphList* m_unk0x16;         // 0x16
-	TextGlyphList* m_unk0x1a;         // 0x1a
+	TextGlyphList* m_overlayGlyphs;   // 0x16 — redrawn after the videos' frames
+	TextGlyphList* m_glyphs;          // 0x1a — redrawn before them
 	undefined4 m_unk0x1e;             // 0x1e
 	undefined4 m_unk0x22;             // 0x22
 	undefined m_unk0x26[0x2e - 0x26]; // 0x26

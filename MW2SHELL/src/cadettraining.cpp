@@ -58,7 +58,7 @@ void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS
 void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
 {
 	g_unk0x1009066c = p_wParam;
-	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006ffc0[p_campaign].m_buttons, 1);
+	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_unk0x1006ffc0[p_campaign].m_buttons, 1);
 	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ffc0[p_campaign].m_picture);
 
 	switch (p_campaign) {
