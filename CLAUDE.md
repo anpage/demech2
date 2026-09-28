@@ -206,7 +206,6 @@ typedef char MechChar;        /* plain char for text */
 7. **Validate vtables** (MW2SHELL): `reccmp-reccmp --verbose 0xVTABLE_ADDR`. Every declared virtual needs a matching annotation with its real address from the original binary.
 8. **Check for regressions.** Re-verify previously matched functions that touch modified classes.
 9. **Lint.** `reccmp-decomplint` from `build/`, passing the source directory as a path argument.
-10. **Sync Ghidra** through the Ghidra MCP server, if available: push the matched names and types (see "Ghidra ↔ Source").
 
 **Language oracle.** At `/Od` the C++ front end ends a `void` function with a `jmp` to the epilogue; the C front end doesn't, unless the source has an explicit `return;` (`dispdib.c`'s empty `FUN_1002ee30` is `{ return; }`). Functions that return a value compile identically either way, except around `/Ob1`-expanded inline functions (see "Inline expansion" below). Use this to decide `.c` vs `.cpp` when a unit is ambiguous.
 
@@ -353,7 +352,7 @@ The upstream LEGO Racers decomp documented extensive `cl` 12.00 `/O2` codegen lo
 
 - **Bootstrap is minimal.** Don't import Ghidra names wholesale. Start with `// LIBRARY:` annotations for identified CRT functions plus the export entry points (`ShellMain`, `ShellWindowProc`, `SimMain`, `SimWindowProc`) as the first units to decompile. No generated `// STUB:` skeletons — stubs are written by hand as callees of the function being worked on.
 - **Bring Ghidra names over, but don't treat them as gospel.** When a function is decompiled, its Ghidra names come with it, translated into NCC form. They are provisional: rename freely when the code contradicts a name; prefer names corroborated in the binary (e.g. a debug string naming the callee — `DebugLog("LoadWorld()\n")` just before the call); treat an uncorroborated Ghidra name as a working label, not a finding. Types and struct layouts still need the usual corroboration.
-- **Source is authoritative for anything annotated.** Push only what matched code backs. Agents: if the Ghidra MCP server is available, keep Ghidra in sync as you work: after a match, rename the functions, globals, parameters and locals, and apply the corroborated types, prototypes and struct layouts through the MCP tools. Don't run `reccmp-ghidra-import` (or its `reccmp-import-ghidra` build targets).
+- **Source is authoritative for anything annotated.** Names and types reach Ghidra from the source through `reccmp-ghidra-import`, which a human runs (below). Agents don't write to Ghidra: use the Ghidra MCP server, if available, to read the binary only (no renames, types or comments), and don't run `reccmp-ghidra-import` (or its `reccmp-import-ghidra` build targets).
 - **Bulk import (humans only).** `reccmp-ghidra-import` is wired up in `cmake/reccmp.cmake` (the `RECCMP_<ID>_GHIDRA_LOCAL_PROJECT_PATH` / `_FILE` cache variables). It overwrites existing names, so back up the Ghidra project before the first import.
 
 ## Prioritize Constructors, Destructors, and SDDs (MW2SHELL)
