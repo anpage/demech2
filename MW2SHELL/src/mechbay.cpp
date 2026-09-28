@@ -77,7 +77,7 @@ struct Equipment {
 
 // SIZE 0x7a8
 // The variant being edited. 0x10007e90 copies an m_unk0x4a0 entry through the struct base
-// (0x1005c640 + 0x4a0), which places the start; FUN_1000befe copies the whole struct to the
+// (0x1005c640 + 0x4a0), which places the start; LoadMekFile copies the whole struct to the
 // backup at 0x1005cde8 (0x7a8 bytes further), which bounds it.
 struct MekVariant {
 	// SIZE 0x08
@@ -477,7 +477,7 @@ MechS32 FUN_100078ae(MechS32 p_value)
 
 // Stack-slot permutation: top and height.
 // FUNCTION: MW2SHELL 0x100078cd
-void FUN_100078cd(ScreenField* p_tabs)
+void ShowFields(ScreenField* p_tabs)
 {
 	MechS32 top;
 	MechS32 height;
@@ -493,8 +493,8 @@ void FUN_100078cd(ScreenField* p_tabs)
 			p_tabs->m_top = ((p_tabs->m_top & 0xff0) >> 4) * height + (p_tabs->m_top & 0xf) + top;
 		}
 
-		if (p_tabs->m_unk0x1c != NULL) {
-			p_tabs->m_glyph = p_tabs->m_unk0x1c(p_tabs);
+		if (p_tabs->m_draw != NULL) {
+			p_tabs->m_glyph = p_tabs->m_draw(p_tabs);
 		}
 		else {
 			p_tabs->m_glyph = NULL;
@@ -523,7 +523,7 @@ void FUN_100078cd(ScreenField* p_tabs)
 }
 
 // FUNCTION: MW2SHELL 0x100079f8
-void FUN_100079f8(ScreenField* p_tabs)
+void RedrawFields(ScreenField* p_tabs)
 {
 	ScreenField* tab;
 
@@ -539,14 +539,14 @@ void FUN_100079f8(ScreenField* p_tabs)
 	}
 
 	for (tab = p_tabs; tab->m_left != -1; tab++) {
-		if (tab->m_unk0x1c != NULL) {
-			tab->m_glyph = tab->m_unk0x1c(tab);
+		if (tab->m_draw != NULL) {
+			tab->m_glyph = tab->m_draw(tab);
 		}
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10007ac8
-void FUN_10007ac8(ScreenField* p_tabs)
+void HideFields(ScreenField* p_tabs)
 {
 	if (p_tabs == NULL) {
 		return;
@@ -1097,9 +1097,9 @@ TextGlyph* FUN_10008c30(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008cb0
@@ -1108,8 +1108,8 @@ TextGlyph* FUN_10008cb0(ScreenField* p_tab)
 	MechS32 value;
 	undefined* colors;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
-	colors = p_tab->m_unk0x14;
+	value = *(MechS32*) p_tab->m_data;
+	colors = p_tab->m_colors;
 	if (value > g_unk0x1005c640.m_unk0x200) {
 		colors = g_unk0x1007c960;
 	}
@@ -1123,9 +1123,9 @@ TextGlyph* FUN_10008d4c(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008dcc
@@ -1133,9 +1133,9 @@ TextGlyph* FUN_10008dcc(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, value >= 10000 ? "%dXL" : "%d", g_unk0x1005d590[value % 10000].m_rating);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008e4f
@@ -1143,9 +1143,9 @@ TextGlyph* FUN_10008e4f(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value >= 10000 ? "XL" : "Std"), p_tab->m_unk0x14);
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value >= 10000 ? "XL" : "Std"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008eaa
@@ -1153,9 +1153,9 @@ TextGlyph* FUN_10008eaa(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%s", g_unk0x1005d590[value % 10000].m_name);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008f14
@@ -1163,9 +1163,9 @@ TextGlyph* FUN_10008f14(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%1.1f kph", value * 10.8);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008f7d
@@ -1173,9 +1173,9 @@ TextGlyph* FUN_10008f7d(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d m", value * 30);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008fdd
@@ -1184,7 +1184,7 @@ TextGlyph* FUN_10008fdd(ScreenField* p_tab)
 	MechS32 value;
 	MechS32 count;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	count = (g_unk0x1005c640.m_unk0x22c + 50) / 100 + 10;
 	if (value == 1) {
 		sprintf(g_szTempBuffer, "%d", count);
@@ -1193,7 +1193,7 @@ TextGlyph* FUN_10008fdd(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "%d (%d)", count, count * 2);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009076
@@ -1201,9 +1201,9 @@ TextGlyph* FUN_10009076(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value == 1 ? "Single" : "Double"), p_tab->m_unk0x14);
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value == 1 ? "Single" : "Double"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100090ce
@@ -1211,9 +1211,9 @@ TextGlyph* FUN_100090ce(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d", value);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009126
@@ -1221,16 +1221,16 @@ TextGlyph* FUN_10009126(ScreenField* p_tab)
 {
 	MechChar* text;
 
-	if (p_tab->m_unk0x24 == NULL) {
+	if (p_tab->m_data == NULL) {
 		return NULL;
 	}
 
-	text = *(MechChar**) p_tab->m_unk0x24;
+	text = *(MechChar**) p_tab->m_data;
 	if (text == NULL) {
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000918c
@@ -1238,12 +1238,12 @@ TextGlyph* FUN_1000918c(ScreenField* p_tab)
 {
 	MechChar* text;
 
-	text = (MechChar*) p_tab->m_unk0x24;
+	text = (MechChar*) p_tab->m_data;
 	if (text == NULL) {
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100091dc
@@ -1251,12 +1251,12 @@ TextGlyph* FUN_100091dc(ScreenField* p_tab)
 {
 	MechChar* text;
 
-	text = (MechChar*) p_tab->m_unk0x24;
+	text = (MechChar*) p_tab->m_data;
 	if (text == NULL) {
 		return NULL;
 	}
 
-	return g_unk0x10071214->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+	return g_unk0x10071214->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000922c
@@ -1264,9 +1264,9 @@ TextGlyph* FUN_1000922c(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Endo-S" : "Std"), p_tab->m_unk0x14);
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Endo-S" : "Std"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009284
@@ -1274,9 +1274,9 @@ TextGlyph* FUN_10009284(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Ferro-F" : "Std"), p_tab->m_unk0x14);
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Ferro-F" : "Std"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100092dc
@@ -1285,7 +1285,7 @@ TextGlyph* FUN_100092dc(ScreenField* p_tab)
 	MekVariant::Armor* armor;
 
 	armor = &g_unk0x1005c640.m_unk0x710[g_unk0x1005c640.m_unk0x314];
-	if (p_tab->m_unk0x24) {
+	if (p_tab->m_data) {
 		if (armor->m_unk0x0c >= 0) {
 			sprintf(g_szTempBuffer, "~%d", armor->m_unk0x0c);
 		}
@@ -1297,7 +1297,7 @@ TextGlyph* FUN_100092dc(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "~%d", armor->m_unk0x08);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100093a7
@@ -1305,7 +1305,7 @@ TextGlyph* FUN_100093a7(ScreenField* p_tab)
 {
 	MekVariant::Armor* armor;
 
-	armor = &g_unk0x1005c640.m_unk0x710[(MechS32) p_tab->m_unk0x24];
+	armor = &g_unk0x1005c640.m_unk0x710[(MechS32) p_tab->m_data];
 	if (armor->m_unk0x0c >= 0) {
 		sprintf(g_szTempBuffer, "~%d/%d", armor->m_unk0x08, armor->m_unk0x0c);
 	}
@@ -1313,7 +1313,7 @@ TextGlyph* FUN_100093a7(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "~%d", armor->m_unk0x08);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000943f
@@ -1321,13 +1321,13 @@ TextGlyph* FUN_1000943f(ScreenField* p_tab)
 {
 	MechS32 location;
 
-	location = (MechS32) p_tab->m_unk0x24;
+	location = (MechS32) p_tab->m_data;
 	if (location == -1) {
 		return NULL;
 	}
 
 	sprintf(g_szTempBuffer, "%s (%d)", g_unk0x1005c4f0[location], g_unk0x1005c640.m_unk0x710[location].m_unk0x04);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100094ba
@@ -1335,13 +1335,13 @@ TextGlyph* FUN_100094ba(ScreenField* p_tab)
 {
 	MechS32 location;
 
-	location = *(MechS32*) p_tab->m_unk0x24;
+	location = *(MechS32*) p_tab->m_data;
 	if (location == -1) {
 		return NULL;
 	}
 
 	sprintf(g_szTempBuffer, "%s (%d)", g_unk0x1005c4f0[location], g_unk0x1005c640.m_unk0x710[location].m_unk0x04);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009537
@@ -1351,8 +1351,8 @@ TextGlyph* FUN_10009537(ScreenField* p_tab)
 	MechS32 count;
 	undefined* colors;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
-	colors = p_tab->m_unk0x14;
+	value = *(MechS32*) p_tab->m_data;
+	colors = p_tab->m_colors;
 	if (value == -1) {
 		strcpy(g_szTempBuffer, "-");
 	}
@@ -1391,8 +1391,8 @@ TextGlyph* FUN_100096bd(ScreenField* p_tab)
 	MechS32 index;
 	undefined* colors;
 
-	index = (MechS32) p_tab->m_unk0x24;
-	colors = p_tab->m_unk0x14;
+	index = (MechS32) p_tab->m_data;
+	colors = p_tab->m_colors;
 	if (index == -1) {
 		return NULL;
 	}
@@ -1409,16 +1409,16 @@ TextGlyph* FUN_1000973c(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	if (value == -1) {
 		return NULL;
 	}
 
 	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005d950[value / 100].m_name, p_tab->m_unk0x14);
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005d950[value / 100].m_name, p_tab->m_colors);
 }
 
-// Draws one statistic (p_tab->m_unk0x24) of the highlighted weapon.
+// Draws one statistic (p_tab->m_data) of the highlighted weapon.
 // FUNCTION: MW2SHELL 0x100097a0
 TextGlyph* FUN_100097a0(ScreenField* p_tab)
 {
@@ -1429,7 +1429,7 @@ TextGlyph* FUN_100097a0(ScreenField* p_tab)
 	}
 
 	weapon = g_unk0x1005c640.m_unk0x310 / 100;
-	switch ((MechS32) p_tab->m_unk0x24) {
+	switch ((MechS32) p_tab->m_data) {
 	case 0:
 		if (g_unk0x1005c640.m_unk0x310 % 100) {
 			sprintf(g_szTempBuffer, "%s #%d", g_unk0x1005d950[weapon].m_name, g_unk0x1005c640.m_unk0x310 % 100);
@@ -1525,7 +1525,7 @@ TextGlyph* FUN_100097a0(ScreenField* p_tab)
 		break;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009d50
@@ -1533,15 +1533,15 @@ TextGlyph* FUN_10009d50(ScreenField* p_tab)
 {
 	MechS32 location;
 
-	location = *(MechS32*) p_tab->m_unk0x24;
+	location = *(MechS32*) p_tab->m_data;
 	if (location == -1) {
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005c4f0[location], p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_unk0x1005c4f0[location], p_tab->m_colors);
 }
 
-// Draws the item in one critical slot (p_tab->m_unk0x24) of the selected location: a weapon, a
+// Draws the item in one critical slot (p_tab->m_data) of the selected location: a weapon, a
 // piece of equipment or ammunition (ids from 10000 up).
 // Not 100%: the stack slots of id and i are permuted.
 // FUNCTION: MW2SHELL 0x10009da9
@@ -1554,7 +1554,7 @@ TextGlyph* FUN_10009da9(ScreenField* p_tab)
 		return NULL;
 	}
 
-	id = g_unk0x1005c640.m_unk0x318[g_unk0x1005c640.m_unk0x314][(MechS32) p_tab->m_unk0x24];
+	id = g_unk0x1005c640.m_unk0x318[g_unk0x1005c640.m_unk0x314][(MechS32) p_tab->m_data];
 	if (id == -1) {
 		return NULL;
 	}
@@ -1582,10 +1582,10 @@ TextGlyph* FUN_10009da9(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "Ammo (%s #%d) #%d", g_unk0x1005d950[id / 10000].m_name, id / 100 % 100, id % 100);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
-// Draws one entry (p_tab->m_unk0x24) of the items list with its count, like FUN_10009da9.
+// Draws one entry (p_tab->m_data) of the items list with its count, like FUN_10009da9.
 // Not 100%: the stack slots of id, count and i are permuted.
 // FUNCTION: MW2SHELL 0x10009f92
 TextGlyph* FUN_10009f92(ScreenField* p_tab)
@@ -1598,8 +1598,8 @@ TextGlyph* FUN_10009f92(ScreenField* p_tab)
 		return NULL;
 	}
 
-	id = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00;
-	count = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x04;
+	id = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_data].m_unk0x00;
+	count = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_data].m_unk0x04;
 	if (id == -1 || id == 0 || count == 0) {
 		return NULL;
 	}
@@ -1629,17 +1629,17 @@ TextGlyph* FUN_10009f92(ScreenField* p_tab)
 		);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a161
 TextGlyph* FUN_1000a161(ScreenField* p_tab)
 {
-	if (g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00 <= 0) {
+	if (g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_data].m_unk0x00 <= 0) {
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, "More...", p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, "More...", p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a1b0
@@ -1647,9 +1647,9 @@ TextGlyph* FUN_1000a1b0(ScreenField* p_tab)
 {
 	MechS32 value;
 
-	value = *(MechS32*) p_tab->m_unk0x24;
+	value = *(MechS32*) p_tab->m_data;
 	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Yes" : "No"), p_tab->m_unk0x14);
+		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Yes" : "No"), p_tab->m_colors);
 }
 
 // Stack-slot permutation: id and text.
@@ -1659,7 +1659,7 @@ TextGlyph* FUN_1000a208(ScreenField* p_tab)
 	MechS32 id;
 	MechChar* text;
 
-	id = (MechS32) p_tab->m_unk0x24;
+	id = (MechS32) p_tab->m_data;
 	switch (id) {
 	case 5000:
 		text = "MASC";
@@ -1680,7 +1680,7 @@ TextGlyph* FUN_1000a208(ScreenField* p_tab)
 		text = "";
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_unk0x14);
+	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a2eb
@@ -1694,9 +1694,9 @@ void FUN_1000a2eb(ScreenField* p_tab)
 	SetVideoFlags(12, 0x20, 0x20);
 	SetVideoFlags(13, 0x20, 0x20);
 	FUN_10016d27(14);
-	FUN_10007ac8(g_unk0x1005de28);
+	HideFields(g_unk0x1005de28);
 	g_unk0x1005de28 = tabs;
-	FUN_100078cd(g_unk0x1005de28);
+	ShowFields(g_unk0x1005de28);
 }
 
 // FUNCTION: MW2SHELL 0x1000a36d
@@ -1739,13 +1739,13 @@ void FUN_1000a43b(ScreenField* p_tab)
 		g_unk0x1007120c,
 		p_tab->m_left,
 		p_tab->m_top,
-		(MechChar*) p_tab->m_unk0x24,
-		p_tab->m_unk0x14,
+		(MechChar*) p_tab->m_data,
+		p_tab->m_colors,
 		0x1c,
 		p_tab->m_width
 	);
 	p_tab->m_glyph =
-		g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_unk0x24, p_tab->m_unk0x14);
+		g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a4f0
@@ -2018,8 +2018,8 @@ void FUN_1000aac2(ScreenField* p_tab)
 
 	FUN_10008a16();
 	FUN_10008989();
-	FUN_100079f8(g_unk0x1005de28);
-	FUN_100079f8(g_unk0x1005de2c);
+	RedrawFields(g_unk0x1005de28);
+	RedrawFields(g_unk0x1005de2c);
 }
 
 // FUNCTION: MW2SHELL 0x1000abe8
@@ -2130,7 +2130,7 @@ void FUN_1000aeaa(ScreenField* p_tab)
 {
 	MechS32 id;
 
-	id = *(MechS32*) p_tab->m_unk0x24;
+	id = *(MechS32*) p_tab->m_data;
 	if (id < 0) {
 		return;
 	}
@@ -2139,7 +2139,7 @@ void FUN_1000aeaa(ScreenField* p_tab)
 		FUN_1000acc4(p_tab);
 	}
 
-	g_unk0x1005c640.m_unk0x310 = *(MechS32*) p_tab->m_unk0x24;
+	g_unk0x1005c640.m_unk0x310 = *(MechS32*) p_tab->m_data;
 }
 
 // FUNCTION: MW2SHELL 0x1000af16
@@ -2148,13 +2148,13 @@ void FUN_1000af16(ScreenField* p_tab)
 	if (p_tab) {
 	}
 
-	if ((MechS32) p_tab->m_unk0x24 * 100 == g_unk0x1005c640.m_unk0x310) {
+	if ((MechS32) p_tab->m_data * 100 == g_unk0x1005c640.m_unk0x310) {
 		if (g_pMouseState->GetDoubleClicked()) {
 			FUN_1000abe8(p_tab);
 		}
 	}
 	else {
-		g_unk0x1005c640.m_unk0x310 = (MechS32) p_tab->m_unk0x24 * 100;
+		g_unk0x1005c640.m_unk0x310 = (MechS32) p_tab->m_data * 100;
 	}
 }
 
@@ -2175,7 +2175,7 @@ void FUN_1000af87(ScreenField* p_tab)
 void FUN_1000afc9(ScreenField* p_tab)
 {
 	g_unk0x1005de78->Start();
-	g_unk0x1005c640.m_unk0x314 = (MechS32) p_tab->m_unk0x24;
+	g_unk0x1005c640.m_unk0x314 = (MechS32) p_tab->m_data;
 }
 
 // Stack-slot permutation: id and count.
@@ -2185,8 +2185,8 @@ void FUN_1000afef(ScreenField* p_tab)
 	MechS32 id;
 	MechS32 count;
 
-	id = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x00;
-	count = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_unk0x24].m_unk0x04;
+	id = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_data].m_unk0x00;
+	count = g_unk0x1005c640.m_unk0x4a0[(MechS32) p_tab->m_data].m_unk0x04;
 	if (id < 0) {
 		return;
 	}
@@ -2220,7 +2220,7 @@ void FUN_1000b0dc(ScreenField* p_tab)
 		return;
 	}
 
-	id = g_unk0x1005c640.m_unk0x318[g_unk0x1005c640.m_unk0x314][(MechS32) p_tab->m_unk0x24];
+	id = g_unk0x1005c640.m_unk0x318[g_unk0x1005c640.m_unk0x314][(MechS32) p_tab->m_data];
 	if (id < 0) {
 		return;
 	}
@@ -2327,7 +2327,7 @@ void FUN_1000b339(ScreenField* p_tab)
 	}
 }
 
-// Toggles the flag at m_unk0x24 and adds or removes the item id held in m_unk0x28. The arm
+// Toggles the flag at m_data and adds or removes the item id held in m_unk0x28. The arm
 // actuators (5401, 5402, 5451, 5452) take a fixed slot in the arms, replacing what is there.
 // FUNCTION: MW2SHELL 0x1000b384
 void FUN_1000b384(ScreenField* p_tab)
@@ -2335,7 +2335,7 @@ void FUN_1000b384(ScreenField* p_tab)
 	MechS32* flag;
 	MechS32 i;
 
-	flag = (MechS32*) p_tab->m_unk0x24;
+	flag = (MechS32*) p_tab->m_data;
 	if (*flag == 0) {
 		*flag = 1;
 	}
@@ -2401,11 +2401,11 @@ void FUN_1000b384(ScreenField* p_tab)
 // Operand order: the original loads m_width before m_left; swapping them in the source didn't
 // change it.
 // FUNCTION: MW2SHELL 0x1000b5ed
-ScreenField* FUN_1000b5ed(ScreenField* p_tabs, MechS32 p_x, MechS32 p_y)
+ScreenField* FindFieldAt(ScreenField* p_tabs, MechS32 p_x, MechS32 p_y)
 {
 	if (p_tabs) {
 		while (p_tabs->m_left != -1) {
-			if (p_tabs->m_unk0x20 != NULL && p_tabs->m_left <= p_x && p_x < p_tabs->m_left + p_tabs->m_width &&
+			if (p_tabs->m_click != NULL && p_tabs->m_left <= p_x && p_x < p_tabs->m_left + p_tabs->m_width &&
 				p_tabs->m_top <= p_y && p_y < p_tabs->m_top + p_tabs->m_height) {
 				return p_tabs;
 			}
@@ -2460,7 +2460,7 @@ MechS32 FUN_1000b6f4(MechS32 p_id, MechS32* p_location, MechS32* p_slot)
 // directory if needed. Returns 1, or 0 on failure.
 // Not 100%: m_unk0x318[i][j] loads the index before the base in the two tests of the slot loop.
 // FUNCTION: MW2SHELL 0x1000b771
-MechS32 FUN_1000b771(MechChar* p_name)
+MechS32 SaveMekFile(MechChar* p_name)
 {
 	MechS32 ammo;
 	MechS32 i;
@@ -2578,7 +2578,7 @@ MechS32 FUN_1000b771(MechChar* p_name)
 // Returns the image of a .mek file: a user variant from the mek directory, or a standard one
 // ("…std") from the project file.
 // FUNCTION: MW2SHELL 0x1000bce5
-void* FUN_1000bce5(MechChar* p_name)
+void* LoadMekImage(MechChar* p_name)
 {
 	FILE* file;
 	MechChar path[0x20];
@@ -2604,7 +2604,7 @@ void* FUN_1000bce5(MechChar* p_name)
 }
 
 // FUNCTION: MW2SHELL 0x1000be09
-void FUN_1000be09(MechChar* p_name)
+void ReleaseMekImage(MechChar* p_name)
 {
 	if (!_strnicmp(p_name + 5, "std", 3)) {
 		g_projectArchive->ReleaseResourceByName(p_name, 6, "MEK");
@@ -2613,7 +2613,7 @@ void FUN_1000be09(MechChar* p_name)
 
 // Copies p_size bytes and returns the source position after them.
 // FUNCTION: MW2SHELL 0x1000be4d
-undefined* FUN_1000be4d(undefined* p_dst, undefined* p_src, MechU32 p_size)
+undefined* ReadBytes(undefined* p_dst, undefined* p_src, MechU32 p_size)
 {
 	memcpy(p_dst, p_src, p_size);
 	return p_src + p_size;
@@ -2641,7 +2641,7 @@ void FUN_1000be7a(MechS32 p_location, MechS32 p_slot, MechS32 p_id)
 // Not 100%: the stack slots of the locals are permuted, and m_unk0x0c[j] of the crate loads the
 // base before the index.
 // FUNCTION: MW2SHELL 0x1000befe
-void FUN_1000befe(MechChar* p_name)
+void LoadMekFile(MechChar* p_name)
 {
 	MechS32 id;
 	undefined* data;
@@ -2649,7 +2649,7 @@ void FUN_1000befe(MechChar* p_name)
 	MechS32 j;
 	MechS32 k;
 
-	data = (undefined*) FUN_1000bce5(p_name);
+	data = (undefined*) LoadMekImage(p_name);
 	if (data == NULL) {
 		return;
 	}
@@ -2661,22 +2661,22 @@ void FUN_1000befe(MechChar* p_name)
 	memset(g_unk0x10079c50, 0, sizeof(g_unk0x10079c50));
 	memset(g_unk0x10079d48, 0, sizeof(g_unk0x10079d48));
 
-	data = FUN_1000be4d((undefined*) &g_unk0x10079d20, data, 0x18);
-	data = FUN_1000be4d((undefined*) g_unk0x1007c820, data, 0x140);
-	FUN_1000be4d(
+	data = ReadBytes((undefined*) &g_unk0x10079d20, data, 0x18);
+	data = ReadBytes((undefined*) g_unk0x1007c820, data, 0x140);
+	ReadBytes(
 		(undefined*) g_unk0x1007a7a8,
 		data,
 		(g_unk0x10079d20.m_unk0x10 < 10 ? g_unk0x10079d20.m_unk0x10 : 10) * 8
 	);
 	data += g_unk0x10079d20.m_unk0x10 * 8;
-	FUN_1000be4d(
+	ReadBytes(
 		(undefined*) g_unk0x10079c50,
 		data,
 		(g_unk0x10079d20.m_unk0x14 < 25 ? g_unk0x10079d20.m_unk0x14 : 25) * 8
 	);
 	data += g_unk0x10079d20.m_unk0x14 * 8;
-	data = FUN_1000be4d((undefined*) g_unk0x10079d48, data, 0x32);
-	FUN_1000be09(p_name);
+	data = ReadBytes((undefined*) g_unk0x10079d48, data, 0x32);
+	ReleaseMekImage(p_name);
 
 	memset(&g_unk0x1005c640, 0, sizeof(g_unk0x1005c640));
 	for (i = 0; i < 78; i++) {
@@ -2909,7 +2909,7 @@ void FUN_1000ca74()
 	SetVideoFlags(0x10, 0x40000000, 0x40000000);
 	PlayVideo(0x10, g_unk0x10079d38, g_unk0x10079a98, g_unk0x10079a9c, 0x88, 0xe);
 	LoadMechBuildList(g_unk0x10061560[g_unk0x1006176c].m_unk0x04);
-	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
+	LoadMekFile(g_unk0x10079d80[g_unk0x1007cc80]);
 	g_unk0x1005c640.m_unk0x00[0] = '~';
 	strcpy(&g_unk0x1005c640.m_unk0x00[1], g_unk0x10061560[g_unk0x1006176c].m_unk0x0c);
 }
@@ -2995,12 +2995,12 @@ void FUN_1000cd65()
 		g_unk0x1007cc80 = 0;
 	}
 
-	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
+	LoadMekFile(g_unk0x10079d80[g_unk0x1007cc80]);
 	g_unk0x1005c640.m_unk0x00[0] = '~';
 	strcpy(&g_unk0x1005c640.m_unk0x00[1], g_unk0x10061560[g_unk0x1006176c].m_unk0x0c);
-	FUN_10007ac8(g_unk0x1005de28);
+	HideFields(g_unk0x1005de28);
 	g_unk0x1005de28 = NULL;
-	FUN_100079f8(g_unk0x1005de2c);
+	RedrawFields(g_unk0x1005de2c);
 }
 
 // FUNCTION: MW2SHELL 0x1000ce50
@@ -3020,17 +3020,17 @@ void FUN_1000ce50()
 		g_unk0x1007cc80 = 0;
 	}
 
-	FUN_1000befe(g_unk0x10079d80[g_unk0x1007cc80]);
+	LoadMekFile(g_unk0x10079d80[g_unk0x1007cc80]);
 	g_unk0x1005c640.m_unk0x00[0] = '~';
 	strcpy(&g_unk0x1005c640.m_unk0x00[1], g_unk0x10061560[g_unk0x1006176c].m_unk0x0c);
-	FUN_10007ac8(g_unk0x1005de28);
+	HideFields(g_unk0x1005de28);
 	g_unk0x1005de28 = NULL;
-	FUN_100079f8(g_unk0x1005de2c);
+	RedrawFields(g_unk0x1005de2c);
 }
 
 // Saves the variant under the first free user slot. Returns FALSE when the variant is invalid.
 // FUNCTION: MW2SHELL 0x1000cf4c
-MechS32 FUN_1000cf4c()
+MechS32 SaveUserVariant()
 {
 	MechS32 i;
 
@@ -3059,7 +3059,7 @@ MechS32 FUN_1000cf4c()
 	strcpy(g_unk0x10079d80[i], g_unk0x10079aa8);
 	strncpy(g_unk0x10079d80[i], g_unk0x10079aa8, 8);
 	g_unk0x10079d80[i][8] = '\0';
-	if (!FUN_1000b771(g_unk0x10079aa8)) {
+	if (!SaveMekFile(g_unk0x10079aa8)) {
 		ShowDialog("Error saving 'Mech.#Ok", 0);
 		return TRUE;
 	}
@@ -3700,13 +3700,13 @@ ScreenField g_unk0x10060d20[] = {
 #undef MB_TAB
 #undef MB_END
 
-void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
+void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
 
 // Opens the mech bay: its sounds, color maps, menu and videos, the chassis and variant of the
 // current star's selected mech, and its fields.
 // Not 100%: the stack slots of data, i and size are permuted.
 // FUNCTION: MW2SHELL 0x1000d0d4
-void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
+void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
 	CustomStar* star;
 	void* data;
@@ -3741,7 +3741,7 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 	g_unk0x1007ca60[1] = 1;
 	g_unk0x1007c960[1] = 8;
 
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fff0[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fff0[p_campaign].m_picture);
 	g_unk0x10061778 = new ButtonMenu(
 		g_pVideoDriver,
 		g_unk0x1007120c,
@@ -3749,20 +3749,20 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 		g_unk0x1006fff0[p_campaign].m_buttons,
 		g_unk0x1006fff0[p_campaign].m_count
 	);
-	g_unk0x10061778->FUN_10048d65(8);
-	g_unk0x10061778->FUN_10048d65(9);
+	g_unk0x10061778->DisableButton(8);
+	g_unk0x10061778->DisableButton(9);
 	if (g_unk0x10079aa0) {
-		g_unk0x10061778->FUN_10048d65(0);
-		g_unk0x10061778->FUN_10048d65(6);
-		g_unk0x10061778->FUN_10048d65(7);
-		g_unk0x10061778->FUN_10048d65(10);
+		g_unk0x10061778->DisableButton(0);
+		g_unk0x10061778->DisableButton(6);
+		g_unk0x10061778->DisableButton(7);
+		g_unk0x10061778->DisableButton(10);
 	}
 	else {
 		if (g_unk0x1006176c >= 15) {
-			g_unk0x10061778->FUN_10048d65(6);
+			g_unk0x10061778->DisableButton(6);
 		}
 		if (g_unk0x1007cc80 < 100) {
-			g_unk0x10061778->FUN_10048d65(10);
+			g_unk0x10061778->DisableButton(10);
 		}
 	}
 	CloseAllVideos();
@@ -3828,7 +3828,7 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 	}
 
 	if (!g_unk0x10079aa0) {
-		FUN_10002de7(0, NULL, NULL);
+		SetStarMech(0, NULL, NULL);
 	}
 
 	if (p_campaign == 2) {
@@ -3871,9 +3871,9 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 	FUN_1000cba7();
 	FUN_1000ca74();
 	g_unk0x1005de2c = g_unk0x10060d20;
-	FUN_100078cd(g_unk0x1005de2c);
+	ShowFields(g_unk0x1005de2c);
 	g_unk0x10061780 = p_wParam;
-	FUN_100108e5(MechbayClickCallback);
+	RegisterScreenFunction(MechBayCallback);
 	UpdateVideos();
 }
 
@@ -3881,40 +3881,40 @@ void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wPara
 // variant arrows, CUSTOMIZE, ACCEPT MECH, SAVE, ABORT and DELETE).
 // Not 100%: the stack slots of the locals and the delete temporaries are permuted.
 // FUNCTION: MW2SHELL 0x1000db35
-void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
+void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {
 	MechS32 pressed;
 	MechS32 i;
 	MechS32 button;
 	ScreenField* tab;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (g_fQuickTips && !g_unk0x10061784 && !g_unk0x10061770->IsPlaying()) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x71), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x71), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_unk0x10061784 = 1;
 	}
 
 	pressed = g_pMouseState->GetLeftPressed();
 	if (pressed == 1) {
-		tab = FUN_1000b5ed(g_unk0x1005de2c, g_pMouseState->m_x, g_pMouseState->m_y);
-		if (tab && tab->m_unk0x20) {
-			tab->m_unk0x20(tab);
+		tab = FindFieldAt(g_unk0x1005de2c, g_pMouseState->m_x, g_pMouseState->m_y);
+		if (tab && tab->m_click) {
+			tab->m_click(tab);
 		}
 		else if (g_unk0x1005de28) {
-			tab = FUN_1000b5ed(g_unk0x1005de28, g_pMouseState->m_x, g_pMouseState->m_y);
-			if (tab && tab->m_unk0x20) {
-				tab->m_unk0x20(tab);
-				FUN_100079f8(g_unk0x1005de28);
-				FUN_100079f8(g_unk0x1005de2c);
+			tab = FindFieldAt(g_unk0x1005de28, g_pMouseState->m_x, g_pMouseState->m_y);
+			if (tab && tab->m_click) {
+				tab->m_click(tab);
+				RedrawFields(g_unk0x1005de28);
+				RedrawFields(g_unk0x1005de2c);
 			}
 		}
 	}
 
-	button = g_unk0x10061778->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_unk0x10061778->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	if (*p_campaign == 2) {
 		SetVideoFlags(5, 0x20, 0x20);
 	}
@@ -3945,7 +3945,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		}
 		g_unk0x10079ac8->Start();
 		if (g_unk0x10079aa0) {
-			if (!FUN_10002de7(-1, g_unk0x10079d80[g_unk0x1007cc80], NULL)) {
+			if (!SetStarMech(-1, g_unk0x10079d80[g_unk0x1007cc80], NULL)) {
 				ShowDialog("'Mech exceeds|Keshik Defined Maximum Tonnage (KDMT)|for mission.#Ok", 0);
 			}
 			else {
@@ -3964,16 +3964,16 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 			break;
 		}
 		FUN_1000cce5();
-		FUN_10007ac8(g_unk0x1005de28);
+		HideFields(g_unk0x1005de28);
 		g_unk0x1005de28 = NULL;
-		FUN_100079f8(g_unk0x1005de2c);
+		RedrawFields(g_unk0x1005de2c);
 		if (g_unk0x1006176c >= 15) {
-			g_unk0x10061778->FUN_10048d65(6);
+			g_unk0x10061778->DisableButton(6);
 		}
 		else if (!g_unk0x10079aa0) {
-			g_unk0x10061778->FUN_10048cc1(6);
+			g_unk0x10061778->EnableButton(6);
 		}
-		g_unk0x10061778->FUN_10048d65(10);
+		g_unk0x10061778->DisableButton(10);
 		break;
 	case 3:
 		if (g_pMouseState->m_leftDown == 1) {
@@ -3983,16 +3983,16 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 			break;
 		}
 		FUN_1000cd2a();
-		FUN_10007ac8(g_unk0x1005de28);
+		HideFields(g_unk0x1005de28);
 		g_unk0x1005de28 = NULL;
-		FUN_100079f8(g_unk0x1005de2c);
+		RedrawFields(g_unk0x1005de2c);
 		if (g_unk0x1006176c >= 15) {
-			g_unk0x10061778->FUN_10048d65(6);
+			g_unk0x10061778->DisableButton(6);
 		}
 		else if (!g_unk0x10079aa0) {
-			g_unk0x10061778->FUN_10048cc1(6);
+			g_unk0x10061778->EnableButton(6);
 		}
-		g_unk0x10061778->FUN_10048d65(10);
+		g_unk0x10061778->DisableButton(10);
 		break;
 	case 4:
 		if (g_pMouseState->m_leftDown == 1) {
@@ -4004,10 +4004,10 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		g_unk0x10079d18->Start();
 		FUN_1000cd65();
 		if (g_unk0x1007cc80 < 100) {
-			g_unk0x10061778->FUN_10048d65(10);
+			g_unk0x10061778->DisableButton(10);
 		}
 		else {
-			g_unk0x10061778->FUN_10048cc1(10);
+			g_unk0x10061778->EnableButton(10);
 		}
 		break;
 	case 5:
@@ -4020,10 +4020,10 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		g_unk0x10079d18->Start();
 		FUN_1000ce50();
 		if (g_unk0x1007cc80 < 100) {
-			g_unk0x10061778->FUN_10048d65(10);
+			g_unk0x10061778->DisableButton(10);
 		}
 		else {
-			g_unk0x10061778->FUN_10048cc1(10);
+			g_unk0x10061778->EnableButton(10);
 		}
 		break;
 	case 10:
@@ -4038,10 +4038,10 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		g_unk0x10079d80[g_unk0x1007cc80][0] = '\0';
 		FUN_1000cd65();
 		if (g_unk0x1007cc80 < 100) {
-			g_unk0x10061778->FUN_10048d65(10);
+			g_unk0x10061778->DisableButton(10);
 		}
 		else {
-			g_unk0x10061778->FUN_10048cc1(10);
+			g_unk0x10061778->EnableButton(10);
 		}
 		break;
 	case 6:
@@ -4060,26 +4060,26 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		sprintf(g_unk0x1005c640.m_unk0x100, "User Variant #%d", i - 99);
 		SetVideoFlags(0, 1, 1);
 		FUN_1000cb4b();
-		FUN_10007ac8(g_unk0x1005de2c);
+		HideFields(g_unk0x1005de2c);
 		g_unk0x1005de2c = g_unk0x10060698;
-		FUN_100078cd(g_unk0x1005de2c);
-		FUN_10007ac8(g_unk0x1005de28);
+		ShowFields(g_unk0x1005de2c);
+		HideFields(g_unk0x1005de28);
 		g_unk0x1005de28 = g_unk0x1005de80;
-		FUN_100078cd(g_unk0x1005de28);
-		g_unk0x10061778->FUN_10048d65(0);
-		g_unk0x10061778->FUN_10048d65(1);
-		g_unk0x10061778->FUN_10048d65(2);
-		g_unk0x10061778->FUN_10048d65(3);
-		g_unk0x10061778->FUN_10048d65(4);
-		g_unk0x10061778->FUN_10048d65(5);
-		g_unk0x10061778->FUN_10048d65(6);
-		g_unk0x10061778->FUN_10048d65(7);
-		g_unk0x10061778->FUN_10048d65(10);
-		g_unk0x10061778->FUN_10048cc1(8);
-		g_unk0x10061778->FUN_10048cc1(9);
+		ShowFields(g_unk0x1005de28);
+		g_unk0x10061778->DisableButton(0);
+		g_unk0x10061778->DisableButton(1);
+		g_unk0x10061778->DisableButton(2);
+		g_unk0x10061778->DisableButton(3);
+		g_unk0x10061778->DisableButton(4);
+		g_unk0x10061778->DisableButton(5);
+		g_unk0x10061778->DisableButton(6);
+		g_unk0x10061778->DisableButton(7);
+		g_unk0x10061778->DisableButton(10);
+		g_unk0x10061778->EnableButton(8);
+		g_unk0x10061778->EnableButton(9);
 		if (g_fQuickTips && !g_unk0x10061788) {
 			g_pVideoDriver->DrawShell();
-			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x72), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x72), g_pWnd, (DLGPROC) OkDialogProc, 0);
 			g_unk0x10061788 = 1;
 		}
 		break;
@@ -4087,7 +4087,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		if (pressed != 1) {
 			break;
 		}
-		if (!FUN_10002de7(-1, g_unk0x10079d80[g_unk0x1007cc80], NULL)) {
+		if (!SetStarMech(-1, g_unk0x10079d80[g_unk0x1007cc80], NULL)) {
 			ShowDialog("'Mech exceeds|Keshik Defined Maximum Tonnage (KDMT)|for mission.#Ok", 0);
 		}
 		else {
@@ -4099,7 +4099,7 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		if (pressed != 1) {
 			break;
 		}
-		if (button == 8 && !FUN_1000cf4c()) {
+		if (button == 8 && !SaveUserVariant()) {
 			break;
 		}
 		SetVideoFlags(10, 0x20, 0x20);
@@ -4108,36 +4108,36 @@ void MechbayClickCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechCha
 		SetVideoFlags(13, 0x20, 0x20);
 		FUN_10016d27(14);
 		FUN_1000ca74();
-		FUN_10007ac8(g_unk0x1005de28);
+		HideFields(g_unk0x1005de28);
 		g_unk0x1005de28 = NULL;
-		FUN_10007ac8(g_unk0x1005de2c);
+		HideFields(g_unk0x1005de2c);
 		g_unk0x1005de2c = g_unk0x10060d20;
-		FUN_100078cd(g_unk0x1005de2c);
+		ShowFields(g_unk0x1005de2c);
 		SetVideoFlags(0, 1, 0);
 		FUN_1000cb6f();
-		g_unk0x10061778->FUN_10048cc1(0);
-		g_unk0x10061778->FUN_10048cc1(1);
-		g_unk0x10061778->FUN_10048cc1(2);
-		g_unk0x10061778->FUN_10048cc1(3);
-		g_unk0x10061778->FUN_10048cc1(4);
-		g_unk0x10061778->FUN_10048cc1(5);
-		g_unk0x10061778->FUN_10048cc1(6);
-		g_unk0x10061778->FUN_10048cc1(7);
-		g_unk0x10061778->FUN_10048d65(8);
-		g_unk0x10061778->FUN_10048d65(9);
+		g_unk0x10061778->EnableButton(0);
+		g_unk0x10061778->EnableButton(1);
+		g_unk0x10061778->EnableButton(2);
+		g_unk0x10061778->EnableButton(3);
+		g_unk0x10061778->EnableButton(4);
+		g_unk0x10061778->EnableButton(5);
+		g_unk0x10061778->EnableButton(6);
+		g_unk0x10061778->EnableButton(7);
+		g_unk0x10061778->DisableButton(8);
+		g_unk0x10061778->DisableButton(9);
 		if (g_unk0x1007cc80 < 100) {
-			g_unk0x10061778->FUN_10048d65(10);
+			g_unk0x10061778->DisableButton(10);
 		}
 		else {
-			g_unk0x10061778->FUN_10048cc1(10);
+			g_unk0x10061778->EnableButton(10);
 		}
 		break;
 	}
 
 done:
 	if (p_msg != 0x404) {
-		FUN_10007ac8(g_unk0x1005de2c);
-		FUN_10007ac8(g_unk0x1005de28);
+		HideFields(g_unk0x1005de2c);
+		HideFields(g_unk0x1005de28);
 		CloseAllVideos();
 		if (g_unk0x1006177c) {
 			delete g_unk0x1006177c;
@@ -4156,6 +4156,6 @@ done:
 		delete g_unk0x10079d18;
 		delete g_unk0x10061778;
 		PostMessage(g_pWnd, p_msg, 0x40f, 0);
-		FUN_100108fd(MechbayClickCallback);
+		UnregisterScreenFunction(MechBayCallback);
 	}
 }

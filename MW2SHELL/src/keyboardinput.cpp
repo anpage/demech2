@@ -190,7 +190,7 @@ MechS32 EditTextField(
 		g_pVideoDriver->DrawShell();
 		g_pMouseState->ReadMouseState();
 
-		if (!FUN_1000fe0d() || g_menuDialogOpen || g_pMouseState->GetLeftPressed() == 1) {
+		if (!PumpMessage() || g_menuDialogOpen || g_pMouseState->GetLeftPressed() == 1) {
 			g_editTextBuffer[length] = '\0';
 			if (glyph) {
 				delete glyph;

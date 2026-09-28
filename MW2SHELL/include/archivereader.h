@@ -81,6 +81,6 @@ private:
 #pragma pack()
 
 // The functions and globals of archivereader.cpp that other units use.
-void FUN_10029010(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
+void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
 
 #endif // ARCHIVEREADER_H

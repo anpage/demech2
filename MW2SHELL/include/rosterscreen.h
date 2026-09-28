@@ -5,6 +5,6 @@
 #include "types.h"
 
 // The functions and globals of rosterscreen.cpp that other units use.
-void FUN_10015008(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char**);
+void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_pilotChosen, char**);
 
 #endif // ROSTERSCREEN_H

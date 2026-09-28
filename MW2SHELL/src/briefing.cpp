@@ -42,14 +42,14 @@ Collection* g_unk0x10071ce4 = NULL;
 // GLOBAL: MW2SHELL 0x10071ce8
 ArchiveReader* g_unk0x10071ce8 = NULL;
 
-void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
+void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
 // Opens the briefing screen: lays the scenario's briefing text (its first four letters, padded
 // with '_', plus "BRF1") out on pages under the menu. A campaign's last mission briefs from
 // KTWOBRF1/KTJFBRF1 once the pilot's rank is high enough.
 // Not 100%: the stack slots of left, top, width, height and i are permuted.
 // FUNCTION: MW2SHELL 0x10046200
-void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign)
+void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campaign)
 {
 	MechS32 left;
 	MechS32 top;
@@ -113,7 +113,7 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		return;
 	}
 
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ff60[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ff60[p_campaign].m_picture);
 	FUN_1003c3ba(g_unk0x10071ce4, g_unk0x10071ce0, FALSE);
 	g_keyboardInput->FlushKeys();
 
@@ -129,27 +129,27 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	);
 
 	if (!g_unk0x10071ce4->m_count) {
-		g_unk0x10071cdc->FUN_10048d65(1);
+		g_unk0x10071cdc->DisableButton(1);
 	}
 	g_unk0x10071ce0->Restart();
-	FUN_100108e5(FUN_10046653);
+	RegisterScreenFunction(BriefingCallback);
 }
 
 // The briefing screen's frame: ABORT, SITUATION (the text in a reader), LAUNCH and SKIP.
 // FUNCTION: MW2SHELL 0x10046653
-void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
+void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {
 	MechS32 result;
 	MechS32 button;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (!g_unk0x10071ce8) {
 		g_unk0x10071ce0->TypeStep();
-		button = g_unk0x10071cdc->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_unk0x10071cdc->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 2:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -221,6 +221,6 @@ done:
 		delete g_unk0x10071ce0;
 		delete g_unk0x10071cdc;
 		PostMessage(g_pWnd, p_msg, 0x406, 0);
-		FUN_100108fd(FUN_10046653);
+		UnregisterScreenFunction(BriefingCallback);
 	}
 }

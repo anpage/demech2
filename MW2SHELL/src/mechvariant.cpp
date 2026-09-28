@@ -194,10 +194,10 @@ MechChar g_unk0x10079588[0x100];
 // GLOBAL: MW2SHELL 0x10079688
 MechChar* g_unk0x10079688;
 
-// Saves both stars and which one is selected in the mw2prm.cfg record, for FUN_10002d8d to
+// Saves both stars and which one is selected in the mw2prm.cfg record, for RestoreStars to
 // restore.
 // FUNCTION: MW2SHELL 0x10002d30
-void FUN_10002d30()
+void SaveStars()
 {
 	if (g_unk0x1005b818 == &g_unk0x1005b718) {
 		g_unk0x10090288.m_unk0x0c = TRUE;
@@ -211,7 +211,7 @@ void FUN_10002d30()
 }
 
 // FUNCTION: MW2SHELL 0x10002d8d
-void FUN_10002d8d()
+void RestoreStars()
 {
 	if (g_unk0x10090288.m_unk0x0c) {
 		g_unk0x1005b818 = &g_unk0x1005b718;
@@ -227,7 +227,7 @@ void FUN_10002d8d()
 // Sets a mech of the selected star: its pilot name and its variant file. A three-letter variant
 // name is the mech's standard variant. Returns 0 when the mech is too heavy for the star.
 // FUNCTION: MW2SHELL 0x10002de7
-MechS32 FUN_10002de7(MechS32 p_index, MechChar* p_variant, MechChar* p_name)
+MechS32 SetStarMech(MechS32 p_index, MechChar* p_variant, MechChar* p_name)
 {
 	MechS32 type;
 
@@ -314,7 +314,7 @@ MechS32 FUN_1000307c(MechS32 p_index)
 // Returns a star's formation: the selected star's for a negative p_star, else the player's (0) or
 // the enemy's.
 // FUNCTION: MW2SHELL 0x100030e5
-MechS32 FUN_100030e5(MechS32 p_star)
+MechS32 GetStarFormation(MechS32 p_star)
 {
 	if (p_star < 0) {
 		return g_unk0x1005b818->m_unk0x00;
@@ -344,7 +344,7 @@ CustomStar* FUN_1000312e(MechS32 p_star)
 // Selects a star (negative arguments leave the setting alone) and sets its formation, its size,
 // its mech count and its tonnage limit.
 // FUNCTION: MW2SHELL 0x10003175
-void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage)
+void SelectStar(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_count, MechS32 p_tonnage)
 {
 	if (p_star >= 0) {
 		if (p_star == 0) {
@@ -374,7 +374,7 @@ void FUN_10003175(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p
 
 // Adds the formations to the simulator's command line and writes the stars' .bwd files.
 // FUNCTION: MW2SHELL 0x10003221
-void FUN_10003221()
+void WriteStarFiles()
 {
 	strcat(g_unk0x10090288.m_unk0x118, " -of=");
 	strcat(g_unk0x10090288.m_unk0x118, g_unk0x1005b820[g_unk0x1005b718.m_unk0x00].m_unk0x04);
@@ -396,7 +396,7 @@ void FUN_10003221()
 // Returns the mech whose video is under a point, or -1.
 // Stack-slot permutation: mech, left, right, i, top and bottom.
 // FUNCTION: MW2SHELL 0x10003320
-MechS32 FUN_10003320(MechS32 p_x, MechS32 p_y)
+MechS32 FindMechAt(MechS32 p_x, MechS32 p_y)
 {
 	MechS32 mech;
 	MechS32 left;
@@ -425,7 +425,7 @@ MechS32 FUN_10003320(MechS32 p_x, MechS32 p_y)
 // Stack-slot permutation: out and width. The original compares p_width against width; the
 // declaration order doesn't flip it.
 // FUNCTION: MW2SHELL 0x1000345a
-MechChar* FUN_1000345a(MechChar* p_text, Font* p_font, MechS32 p_width)
+MechChar* FitText(MechChar* p_text, Font* p_font, MechS32 p_width)
 {
 	MechChar* out = g_unk0x10079588;
 	MechS32 width = 0;
@@ -450,7 +450,7 @@ MechChar* FUN_1000345a(MechChar* p_text, Font* p_font, MechS32 p_width)
 // Stack-slot permutation: i, mech, label, left and top. The original loads left and top ahead of
 // p_x and p_y in the bounds test; the declaration order doesn't flip it.
 // FUNCTION: MW2SHELL 0x100034de
-void FUN_100034de(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
+void EditPilotName(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 {
 	MechS32 i;
 	MechS32 mech;
@@ -487,7 +487,7 @@ void FUN_100034de(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 // position when the star has fewer mechs.
 // Stack-slot permutation: label, type and mech.
 // FUNCTION: MW2SHELL 0x10003690
-void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
+void ShowFormationMech(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 {
 	MechS32 label;
 	MechS32 type;
@@ -511,7 +511,7 @@ void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 
 	label = STAR_LAYOUT(g_unk0x1005b818->m_unk0x00, p_position).m_label;
 	mech = STAR_LAYOUT(p_formation, p_position).m_mech;
-	p_menu->FUN_10048d65(label + 6);
+	p_menu->DisableButton(label + 6);
 	if (mech >= g_unk0x1005b818->m_unk0x0c) {
 		SetVideoFlags(p_position + 10, 0x40000000, 0x40000000);
 		SetVideoFlags(label + 1, 0x20, 0x20);
@@ -519,7 +519,7 @@ void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 	}
 
 	FUN_10016d27(label + 1);
-	p_menu->FUN_10048cc1(label + 6);
+	p_menu->EnableButton(label + 6);
 
 	type = g_unk0x1005b818->m_unk0x14[mech].m_unk0x00;
 	left = STAR_LAYOUT(g_unk0x1005b818->m_unk0x00, p_position).m_left;
@@ -531,7 +531,7 @@ void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 	top = g_unk0x10079578[label];
 	strcpy(
 		g_unk0x1005b818->m_unk0x14[mech].m_unk0x14,
-		FUN_1000345a(g_unk0x1005b818->m_unk0x14[mech].m_unk0x14, g_unk0x10071210, 0x5c)
+		FitText(g_unk0x1005b818->m_unk0x14[mech].m_unk0x14, g_unk0x10071210, 0x5c)
 	);
 	g_unk0x10079438[p_position][0] =
 		g_unk0x10071210->FUN_10005522(left, top, g_unk0x1005b818->m_unk0x14[mech].m_unk0x14, NULL);
@@ -546,7 +546,7 @@ void FUN_10003690(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 // Redraws the formation, mission, star size, tonnage limit and star mass lines.
 // Stack-slot permutation: i and mass.
 // FUNCTION: MW2SHELL 0x10003a4e
-void FUN_10003a4e(MechS32 p_campaign)
+void DrawStarInfo(MechS32 p_campaign)
 {
 	MechS32 i;
 	MechS32 mass;
@@ -591,17 +591,17 @@ void FUN_10003a4e(MechS32 p_campaign)
 	g_unk0x1005b89c = g_unk0x10071210->FUN_1000544e(0x140, 0x50, g_unk0x10079478, NULL);
 }
 
-void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32 p_msg);
+void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32 p_msg);
 
 // Opens the star screen of a campaign (2: a trial of grievance).
 // FUNCTION: MW2SHELL 0x10003d3a
-void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign)
+void DrawStarConfig(TMPackDataBase* p_database, MechS32 p_campaign)
 {
 	void* audioData;
 	MechS32 i;
 	MechS32 audioSize;
 
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fea0[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fea0[p_campaign].m_picture);
 	g_unk0x10079584 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006fea0[p_campaign].m_buttons, 9);
 
 	switch (p_campaign) {
@@ -659,7 +659,7 @@ void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign)
 		g_unk0x10079438[i][0] = NULL;
 		g_unk0x10079438[i][1] = NULL;
 		g_unk0x10079438[i][2] = NULL;
-		FUN_10003690(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
+		ShowFormationMech(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
 	}
 
 	g_unk0x1005b88c = NULL;
@@ -675,8 +675,8 @@ void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign)
 	g_unk0x10079470 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	g_unk0x10079470->SetVolume(0x32);
 
-	FUN_10003a4e(p_campaign);
-	FUN_100108e5(FUN_100043c2);
+	DrawStarInfo(p_campaign);
+	RegisterScreenFunction(StarConfigCallback);
 }
 
 // The star screen's buttons: 0 exits, 1 opens the mech lab, 2 and 3 cycle the formation, 4 and 5
@@ -684,7 +684,7 @@ void FUN_10003d3a(TMPackDataBase* p_database, MechS32 p_campaign)
 // changes it too.
 // Stack-slot permutation: i, button and mech.
 // FUNCTION: MW2SHELL 0x100043c2
-void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32 p_msg)
+void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32 p_msg)
 {
 	MechS32 i;
 	MechS32 button;
@@ -699,11 +699,11 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 	if (g_fQuickTips && !g_unk0x1005b8a0) {
 		UpdateVideos();
 		g_pVideoDriver->DrawShell();
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x7c), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x7c), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_unk0x1005b8a0 = 1;
 	}
 
-	button = g_unk0x10079584->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_unk0x10079584->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 	if (*p_campaign == 2) {
 		SetVideoFlags(5, 0x20, 0x20);
 	}
@@ -749,9 +749,9 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 			g_unk0x1005b818->m_unk0x00 = 0;
 		}
 		for (i = 0; i < 3; i++) {
-			FUN_10003690(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
+			ShowFormationMech(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
 		}
-		FUN_10003a4e(*p_campaign);
+		DrawStarInfo(*p_campaign);
 		break;
 	case 3:
 		if (g_pMouseState->m_leftDown == 1) {
@@ -766,9 +766,9 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 			g_unk0x1005b818->m_unk0x00 = 5;
 		}
 		for (i = 0; i < 3; i++) {
-			FUN_10003690(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
+			ShowFormationMech(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
 		}
-		FUN_10003a4e(*p_campaign);
+		DrawStarInfo(*p_campaign);
 		break;
 	case 4:
 		if (g_pMouseState->m_leftDown == 1) {
@@ -782,9 +782,9 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 			g_unk0x1005b818->m_unk0x0c++;
 		}
 		for (i = 0; i < 3; i++) {
-			FUN_10003690(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
+			ShowFormationMech(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
 		}
-		FUN_10003a4e(*p_campaign);
+		DrawStarInfo(*p_campaign);
 		break;
 	case 5:
 		if (g_pMouseState->m_leftDown == 1) {
@@ -798,9 +798,9 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 			g_unk0x1005b818->m_unk0x0c--;
 		}
 		for (i = 0; i < 3; i++) {
-			FUN_10003690(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
+			ShowFormationMech(g_unk0x1005b818->m_unk0x00, i, g_unk0x10079584);
 		}
-		FUN_10003a4e(*p_campaign);
+		DrawStarInfo(*p_campaign);
 		break;
 	case 6:
 	case 7:
@@ -820,10 +820,10 @@ void FUN_100043c2(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32
 	}
 
 	if (g_pMouseState->GetLeftPressed() == 1) {
-		FUN_100034de(g_pMouseState->m_x, g_pMouseState->m_y, *p_campaign);
+		EditPilotName(g_pMouseState->m_x, g_pMouseState->m_y, *p_campaign);
 	}
 
-	if (g_pMouseState->GetDoubleClicked() && (mech = FUN_10003320(g_pMouseState->m_x, g_pMouseState->m_y)) >= 0) {
+	if (g_pMouseState->GetDoubleClicked() && (mech = FindMechAt(g_pMouseState->m_x, g_pMouseState->m_y)) >= 0) {
 		g_unk0x1005b818->m_unk0x04 = mech;
 		g_unk0x10061774 = 1;
 		p_msg = 0x40f;
@@ -838,7 +838,7 @@ done:
 		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_unk0x1005b8a0 = 0;
 		PostMessage(g_pWnd, p_msg, 0x413, 0);
-		FUN_100108fd(FUN_100043c2);
+		UnregisterScreenFunction(StarConfigCallback);
 	}
 }
 

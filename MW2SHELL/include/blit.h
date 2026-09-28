@@ -17,7 +17,7 @@ extern "C"
 	MechS32 FontGetHeight(void* p_data);
 	MechS32 FontGetCharWidth(void* p_data, MechS32 p_char);
 	MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
-	void FUN_10034f18(
+	void BlitView(
 		PixelView* p_unk0x00,
 		MechS32 p_unk0x04,
 		MechS32 p_unk0x08,
@@ -26,7 +26,7 @@ extern "C"
 		MechS32 p_unk0x14,
 		MechS32 p_unk0x18
 	);
-	MechS32 FUN_10032449(
+	MechS32 BlitLine(
 		PixelView* p_view,
 		MechS32 p_left,
 		MechS32 p_top,
@@ -52,9 +52,9 @@ extern "C"
 		MechChar* p_text,
 		undefined* p_palette
 	);
-	void FUN_10037014(PixelView* p_view, undefined* p_data);
-	void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
-	MechS32 FUN_100370c1(undefined* p_data);
+	void BlitPicture(PixelView* p_view, undefined* p_data);
+	void ReadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
+	MechS32 GetPictureSize(undefined* p_data);
 
 #ifdef __cplusplus
 }

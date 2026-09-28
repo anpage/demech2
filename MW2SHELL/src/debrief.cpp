@@ -102,7 +102,7 @@ MechChar g_unk0x10076860[0x80];
 // GLOBAL: MW2SHELL 0x100768e0
 MechChar g_unk0x100768e0[0x1000];
 
-// The mission's objectives, in the order FUN_10001056 sorts them.
+// The mission's objectives, in the order CompareObjectives sorts them.
 // GLOBAL: MW2SHELL 0x100778e0
 MissionObjective* g_unk0x100778e0[48];
 
@@ -147,7 +147,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 
 // Returns TRUE when one of the options that makes a trial easier is set.
 // FUNCTION: MW2SHELL 0x10001000
-MechU8 FUN_10001000()
+MechU8 HasEasyOptions()
 {
 	if (g_unk0x100716b8[0] == 1) {
 		return TRUE;
@@ -166,7 +166,7 @@ MechU8 FUN_10001000()
 // reached last.
 // Not 100%: the stack slots of a, b, first and second are permuted.
 // FUNCTION: MW2SHELL 0x10001056
-int FUN_10001056(const void* p_a, const void* p_b)
+int CompareObjectives(const void* p_a, const void* p_b)
 {
 	MissionObjective** a = (MissionObjective**) p_a;
 	MissionObjective** b = (MissionObjective**) p_b;
@@ -192,7 +192,7 @@ int FUN_10001056(const void* p_a, const void* p_b)
 // Appends the honor breakdown of the mission to p_text and returns the honor it earns.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x100010ed
-MechS32 FUN_100010ed(undefined* p_options, CareerRecord* p_career, MissionResults* p_results, MechChar* p_text)
+MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, MissionResults* p_results, MechChar* p_text)
 {
 	MechS32 honor = 0;
 	MissionObjective* objective = NULL;
@@ -424,7 +424,7 @@ MechS32 FUN_100010ed(undefined* p_options, CareerRecord* p_career, MissionResult
 		strcat(p_text, g_unk0x100791b8);
 	}
 
-	if (FUN_10001000() == 1) {
+	if (HasEasyOptions() == 1) {
 		strcpy(g_unk0x100791b8, "\\n\\cNo Career Advancement with Altered Reality Enabled\\n");
 		strcat(p_text, g_unk0x100791b8);
 		honor = 0;
@@ -441,7 +441,7 @@ MechS32 FUN_100010ed(undefined* p_options, CareerRecord* p_career, MissionResult
 
 // Copies p_src to p_dst with every run of spaces and control characters turned into one space.
 // FUNCTION: MW2SHELL 0x10001c28
-void FUN_10001c28(MechChar* p_dst, MechChar* p_src)
+void CollapseWhitespace(MechChar* p_dst, MechChar* p_src)
 {
 	MechS32 space = FALSE;
 
@@ -465,7 +465,7 @@ void FUN_10001c28(MechChar* p_dst, MechChar* p_src)
 // breakdown, whose honor a completed mission adds to the pilot's.
 // Not 100%: the stack slots of i, seconds, minutes, honor and width are permuted.
 // FUNCTION: MW2SHELL 0x10001ca0
-void FUN_10001ca0(CareerRecord* p_career, MissionResults* p_results, MechChar* p_text, undefined* p_options)
+void BuildDebriefText(CareerRecord* p_career, MissionResults* p_results, MechChar* p_text, undefined* p_options)
 {
 	MechS32 i;
 	MechS32 time;
@@ -484,7 +484,7 @@ void FUN_10001ca0(CareerRecord* p_career, MissionResults* p_results, MechChar* p
 	for (i = 0; i < p_results->m_unk0x04; i++) {
 		g_unk0x100778e0[i] = &p_results->m_unk0x14[i];
 	}
-	qsort(g_unk0x100778e0, p_results->m_unk0x04, sizeof(MissionObjective*), FUN_10001056);
+	qsort(g_unk0x100778e0, p_results->m_unk0x04, sizeof(MissionObjective*), CompareObjectives);
 
 	strcat(p_text, "Time\\g050Type\\g170Objective\\g370Status\\n\\n");
 	for (i = 0; i < p_results->m_unk0x04; i++) {
@@ -521,7 +521,7 @@ void FUN_10001ca0(CareerRecord* p_career, MissionResults* p_results, MechChar* p
 			break;
 		}
 
-		FUN_10001c28(g_unk0x10078ab8, g_unk0x100778e0[i]->m_unk0x14);
+		CollapseWhitespace(g_unk0x10078ab8, g_unk0x100778e0[i]->m_unk0x14);
 
 		if (g_unk0x100778e0[i]->m_unk0x0c < 0) {
 			strcpy(g_unk0x100793b8, "DNF");
@@ -547,7 +547,7 @@ void FUN_10001ca0(CareerRecord* p_career, MissionResults* p_results, MechChar* p
 		strcat(p_text, g_unk0x100779a0);
 	}
 
-	honor = FUN_100010ed(p_options, p_career, p_results, p_text);
+	honor = AppendHonorBreakdown(p_options, p_career, p_results, p_text);
 	if (p_results->m_unk0x10 == 2) {
 		g_pCurrentPilot->m_honor += honor;
 	}
@@ -577,7 +577,7 @@ void ReadMissionResults(void* p_results)
 // letters and DBFS after a completed mission, DBFF otherwise; a pilot of the highest rank gets
 // the clan's own).
 // FUNCTION: MW2SHELL 0x10002207
-void FUN_10002207(
+void LayoutDebriefPages(
 	MissionResults* p_results,
 	MechChar* p_name,
 	ButtonMenu*,
@@ -629,14 +629,14 @@ void FUN_10002207(
 // completed a trial without the options that make it easier (p_options, g_unk0x100716b8).
 // Not 100%: the stack slots of count and i are permuted.
 // FUNCTION: MW2SHELL 0x100023bf
-MechS32 FUN_100023bf(MissionResults* p_results, undefined* p_options)
+MechS32 GetTrialRank(MissionResults* p_results, undefined* p_options)
 {
 	MechS32 count;
 	MechS32 i;
 
 	if (g_pCurrentPilot->m_unk0x08 != 2 &&
-		g_campaignMissions[g_pCurrentPilot->m_unk0x08][g_pCurrentPilot->m_mission].m_unk0x04 == 1 && !FUN_10001000() &&
-		p_results->m_unk0x10 == 2 && p_options[4] == 1) {
+		g_campaignMissions[g_pCurrentPilot->m_unk0x08][g_pCurrentPilot->m_mission].m_unk0x04 == 1 &&
+		!HasEasyOptions() && p_results->m_unk0x10 == 2 && p_options[4] == 1) {
 		count = 0;
 		for (i = 0; i < p_results->m_unk0x04; i++) {
 			if (p_results->m_unk0x14[i].m_unk0x04 == 1 && p_results->m_unk0x14[i].m_unk0x00 == 1) {
@@ -664,7 +664,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	CareerRecord career;
 	MechChar name[0x10];
 
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ff00[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ff00[p_campaign].m_picture);
 	switch (p_campaign) {
 	case 0:
 		left = 0x58;
@@ -707,18 +707,18 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	if (p_campaign != 2) {
 		g_unk0x10077fa0 = *g_pCurrentPilot;
 	}
-	FUN_10001ca0(&career, &g_unk0x100780e0, g_unk0x100768e0, g_unk0x100716b8);
+	BuildDebriefText(&career, &g_unk0x100780e0, g_unk0x100768e0, g_unk0x100716b8);
 
 	if (p_campaign != 2) {
-		g_pCurrentPilot->m_rank += FUN_100023bf(&g_unk0x100780e0, g_unk0x100716b8);
+		g_pCurrentPilot->m_rank += GetTrialRank(&g_unk0x100780e0, g_unk0x100716b8);
 		if (g_pCurrentPilot->m_rank >= 8) {
 			g_pCurrentPilot->m_rank = 8;
 		}
-		if (g_unk0x100780e0.m_unk0x10 == 2 && !FUN_10001000()) {
+		if (g_unk0x100780e0.m_unk0x10 == 2 && !HasEasyOptions()) {
 			g_pCurrentPilot->m_mission++;
 		}
 		SavePilotRoster();
-		FUN_10002207(
+		LayoutDebriefPages(
 			&g_unk0x100780e0,
 			name,
 			g_unk0x1005b040,
@@ -742,10 +742,10 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	}
 
 	if (!g_unk0x1005b048->m_count || g_unk0x100780e0.m_unk0x10 != 2) {
-		g_unk0x1005b040->FUN_10048d65(1);
+		g_unk0x1005b040->DisableButton(1);
 	}
 	g_unk0x1005b044->Restart();
-	FUN_100108e5(MissionDebriefCallback);
+	RegisterScreenFunction(MissionDebriefCallback);
 }
 
 // The debriefing screen's frame: EXIT (on to the next mission once one is completed),
@@ -756,14 +756,14 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 	MechS32 result;
 	MechS32 button;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (!g_unk0x1005b04c) {
 		g_unk0x1005b044->TypeStep();
-		button = g_unk0x1005b040->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_unk0x1005b040->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -850,6 +850,6 @@ done:
 		g_unk0x1005b04c = NULL;
 		g_pVideoDriver->ClearGlyphs(TRUE);
 		PostMessage(g_pWnd, p_msg, 0x409, 0);
-		FUN_100108fd(MissionDebriefCallback);
+		UnregisterScreenFunction(MissionDebriefCallback);
 	}
 }

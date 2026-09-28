@@ -24,7 +24,7 @@ void operator delete(void*);
 #include <windows.h>
 
 // FUNCTION: MW2SHELL 0x1003e2f0
-MechS32 FUN_1003e2f0(const PilotRecord** p_first, const PilotRecord** p_second)
+MechS32 ComparePilotRecords(const PilotRecord** p_first, const PilotRecord** p_second)
 {
 	const PilotRecord** firstParam = p_first;
 	const PilotRecord** secondParam = p_second;
@@ -53,7 +53,7 @@ MechS32 FUN_1003e2f0(const PilotRecord** p_first, const PilotRecord** p_second)
 	return 0;
 }
 
-void FUN_1003e86b(MechS32 p_active);
+void HallOfHonorCallback(MechS32 p_active);
 
 // GLOBAL: MW2SHELL 0x1006aeac
 LoopingMovie* g_unk0x1006aeac = NULL;
@@ -63,7 +63,7 @@ MechChar g_unk0x10090670[0x20];
 
 // Draw the eight highest-ranking active pilots from both clan rosters.
 // FUNCTION: MW2SHELL 0x1003e3c9
-void FUN_1003e3c9()
+void DrawHallOfHonor()
 {
 	PilotRecord* pilots[20];
 	MechS32 i;
@@ -78,7 +78,7 @@ void FUN_1003e3c9()
 	for (i = 0; i < 20; i++) {
 		pilots[i] = &g_pilotRoster[i];
 	}
-	qsort(pilots, 20, sizeof(pilots[0]), (int (*)(const void*, const void*)) FUN_1003e2f0);
+	qsort(pilots, 20, sizeof(pilots[0]), (int (*)(const void*, const void*)) ComparePilotRecords);
 
 	top = 0x96;
 	g_pVideoDriver->DrawString(0, top, g_unk0x10071218->m_unk0x408, "Pilot", NULL);
@@ -124,18 +124,18 @@ void FUN_1003e3c9()
 		top += 0x10;
 	}
 
-	FUN_100109a0(FUN_1003e86b);
+	RegisterMenuFunction(HallOfHonorCallback);
 }
 
 // FUNCTION: MW2SHELL 0x1003e86b
-void FUN_1003e86b(MechS32 p_active)
+void HallOfHonorCallback(MechS32 p_active)
 {
 	if (p_active && g_unk0x1006aeac != NULL) {
 		g_unk0x1006aeac->Update();
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
 		g_keyboardInput->PollKey() != 0) {
-		FUN_100109b8(FUN_1003e86b);
+		UnregisterMenuFunction(HallOfHonorCallback);
 		EnableMenuItem(g_windowMenu, 0x9c42, MF_ENABLED);
 		g_menuDialogOpen = FALSE;
 		if (g_unk0x1006aeac != NULL) {
@@ -143,12 +143,12 @@ void FUN_1003e86b(MechS32 p_active)
 		}
 		g_unk0x1006aeac = NULL;
 		g_pVideoDriver->m_unk0x3a6 = -1;
-		g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
+		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_unk0x10071378, TRUE);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
-			g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
+			g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 			UpdateVideos();
 		}
 	}

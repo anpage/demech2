@@ -50,16 +50,16 @@ ButtonMenu* g_unk0x10090668;
 // GLOBAL: MW2SHELL 0x1009066c
 WPARAM g_unk0x1009066c;
 
-void FUN_1003c966(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
+void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
 // Sets up the campaign's training screen: its first button, its background and the videos of
 // the trainer.
 // FUNCTION: MW2SHELL 0x1003c7e0
-void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
+void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
 {
 	g_unk0x1009066c = p_wParam;
 	g_unk0x10090668 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006ffc0[p_campaign].m_buttons, 1);
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ffc0[p_campaign].m_picture);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006ffc0[p_campaign].m_picture);
 
 	switch (p_campaign) {
 	case 0:
@@ -73,34 +73,40 @@ void FUN_1003c7e0(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM
 	}
 
 	srand(clock());
-	FUN_100108e5(FUN_1003c966);
+	RegisterScreenFunction(CadetTrainingCallback);
 }
 
 // The training screen's frame: once the trainer's welcome is over, the mission buttons and the
 // room's sound; EXIT, or a training mission after the trainer's video.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003c966
-void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg)
+void CadetTrainingCallback(
+	TMPackDataBase* p_database,
+	MechS32* p_campaign,
+	MechU8*,
+	MechChar** p_scenario,
+	MechS32 p_msg
+)
 {
 	void* data = NULL;
 	MechS32 i;
 	MechS32 button;
 	MechS32 size;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (g_fQuickTips && !g_unk0x1006acdc && g_unk0x1009066c == 0x407 && g_unk0x1006acd0) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_unk0x1006acdc = 1;
 	}
 
 	if (!g_unk0x1006acd0 && !IsVideoPlaying(0)) {
 		g_unk0x1006acd0 = 1;
 		for (i = 1; i < g_unk0x1006ffc0[*p_campaign].m_count; i++) {
-			g_unk0x10090668->FUN_10048b95(g_unk0x1006ffc0[*p_campaign].m_buttons[i], i, FALSE);
+			g_unk0x10090668->AddButton(g_unk0x1006ffc0[*p_campaign].m_buttons[i], i, FALSE);
 		}
 
 		p_database->GetDBItem(0x4c, &data, &size);
@@ -130,7 +136,7 @@ void FUN_1003c966(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 	}
 
 	if (g_unk0x1006acd4 == -1) {
-		button = g_unk0x10090668->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_unk0x10090668->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -173,6 +179,6 @@ done:
 		g_unk0x1006accc = -1;
 		g_unk0x1006acd0 = 0;
 		PostMessage(g_pWnd, p_msg, 0x414, 0);
-		FUN_100108fd(FUN_1003c966);
+		UnregisterScreenFunction(CadetTrainingCallback);
 	}
 }

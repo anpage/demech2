@@ -55,7 +55,7 @@ void (*g_pShellCallback)(
 ) = NULL;
 
 // GLOBAL: MW2SHELL 0x1006297c
-void (*g_unk0x1006297c)(MechS32 p_unk0x00) = NULL;
+void (*g_menuFunction)(MechS32 p_unk0x00) = NULL;
 
 // GLOBAL: MW2SHELL 0x10062980
 MidiSequence* g_midiBackgroundMusic = NULL;
@@ -65,13 +65,13 @@ MechS32 g_fCursorHidden = 0;
 
 // PlayMidiSong's state: whether the base song id is set, the base, and the song playing.
 // GLOBAL: MW2SHELL 0x10062988
-MechU8 g_unk0x10062988 = 0;
+MechU8 g_midiSongBaseSet = 0;
 
 // GLOBAL: MW2SHELL 0x1006298c
-MechS32 g_unk0x1006298c = 0;
+MechS32 g_midiSongBase = 0;
 
 // GLOBAL: MW2SHELL 0x10062990
-MechS32 g_unk0x10062990 = 0;
+MechS32 g_midiSongPlaying = 0;
 
 // GLOBAL: MW2SHELL 0x1007cc84
 char* g_pScenario;
@@ -85,9 +85,9 @@ MechU8 g_fPilotChosen;
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign);
 void ParseCommandLineFlags(char* p_cmdLine);
 MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS32* p_unk0x08);
-MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
-BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
-void FUN_1001093e();
+MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08);
+BOOL CALLBACK LittleMoviesDialogProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
+void RunScreenFrame();
 void ClearRegisteredMenuFunction();
 
 // Matches except for the stack slots of helpFile, msg and mouseY (a consistent permutation).
@@ -212,7 +212,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		case 0x9c42:
 			ClearRegisteredMenuFunction();
 			EnableMenuItem(g_windowMenu, 0x9c42, MF_GRAYED);
-			FUN_1003e3c9();
+			DrawHallOfHonor();
 			g_menuDialogOpen = TRUE;
 			break;
 		case 0x9c72:
@@ -236,7 +236,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		case 0x9c94:
 			ClearRegisteredMenuFunction();
 			EnableMenuItem(g_windowMenu, 0x9c94, MF_GRAYED);
-			FUN_10043a72();
+			DrawOptions();
 			g_menuDialogOpen = TRUE;
 			break;
 		case 0x9c4b:
@@ -246,12 +246,12 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			g_menuDialogOpen = TRUE;
 			break;
 		case 0x9c96:
-			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x8a), g_pWnd, (DLGPROC) FUN_10010724, 0);
+			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x8a), g_pWnd, (DLGPROC) LittleMoviesDialogProc, 0);
 			break;
 		case 0x9c92:
 			ClearRegisteredMenuFunction();
 			EnableMenuItem(g_windowMenu, 0x9c92, MF_GRAYED);
-			FUN_10046e80();
+			DrawCredits();
 			g_menuDialogOpen = TRUE;
 			break;
 		case 0x9c4c:
@@ -278,7 +278,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		return 0;
 	case 0x40e:
 		g_fPilotChosen = FALSE;
-		FUN_1003dc10(g_pDatabaseMw2, &g_nSelectedCampaign);
+		DrawMainMenu(g_pDatabaseMw2, &g_nSelectedCampaign);
 		if (g_fCursorHidden) {
 			while (ShowCursor(TRUE) < 0)
 				;
@@ -287,7 +287,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		break;
 	case 0x40d:
 		g_nSelectedCampaign = 2;
-		FUN_100382e6(g_pDatabaseMw2, &g_pScenario, p_wParam);
+		DrawMissionBriefing(g_pDatabaseMw2, &g_pScenario, p_wParam);
 		break;
 	case 0x407:
 		if (!g_fPilotChosen) {
@@ -318,30 +318,30 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			g_fCursorHidden = FALSE;
 		}
 
-		FUN_10015008(g_pDatabaseMw2, g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario);
+		DrawPilotRoster(g_pDatabaseMw2, g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario);
 		break;
 	case 0x40b:
-		FUN_10029010(g_pDatabaseMw2, g_nSelectedCampaign, p_wParam);
+		DrawArchive(g_pDatabaseMw2, g_nSelectedCampaign, p_wParam);
 		break;
 	case 0x414:
-		FUN_1003c7e0(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario, p_wParam);
+		DrawCadetTraining(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario, p_wParam);
 		break;
 	case 0x411:
 		if (g_nSelectedCampaign == 2) {
-			FUN_100382e6(g_pDatabaseMw2, &g_pScenario, p_wParam);
+			DrawMissionBriefing(g_pDatabaseMw2, &g_pScenario, p_wParam);
 		}
 		else {
-			FUN_10039e72(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario, p_wParam);
+			DrawReadyRoom(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario, p_wParam);
 		}
 		break;
 	case 0x40f:
-		FUN_1000d0d4(g_pDatabaseMw2, g_nSelectedCampaign, p_wParam);
+		DrawMechBay(g_pDatabaseMw2, g_nSelectedCampaign, p_wParam);
 		break;
 	case 0x413:
-		FUN_10003d3a(g_pDatabaseMw2, g_nSelectedCampaign);
+		DrawStarConfig(g_pDatabaseMw2, g_nSelectedCampaign);
 		break;
 	case 0x406:
-		FUN_10046200(g_pDatabaseMw2, g_pScenario, g_nSelectedCampaign);
+		DrawBriefing(g_pDatabaseMw2, g_pScenario, g_nSelectedCampaign);
 		break;
 	case 0x410:
 		if (p_wParam == 0x406) {
@@ -433,7 +433,7 @@ extern "C" int __stdcall ShellMain(
 
 	g_hPrimaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
 	if (g_hPrimaryHeap == NULL) {
-		MessageBox(NULL, "Insufficient memory available.", g_unk0x1006a9c0, MB_ICONEXCLAMATION);
+		MessageBox(NULL, "Insufficient memory available.", g_windowClassName, MB_ICONEXCLAMATION);
 		return 0xff;
 	}
 
@@ -469,7 +469,7 @@ extern "C" int __stdcall ShellMain(
 		SetMenu(g_pWnd, g_windowMenu);
 	}
 
-	LoadSettingsFromRegistry(&g_fQuickTips, &g_unk0x1006a9e0, &g_unk0x1006a9f0);
+	LoadSettingsFromRegistry(&g_fQuickTips, &g_showDialog, &g_littleMovies);
 	if (!fromSim) {
 		PlayFullscreenVideo("mintro", 0x40e, 0x40e);
 	}
@@ -497,12 +497,12 @@ extern "C" int __stdcall ShellMain(
 	g_projectArchive = new ProjectArchive("MW2.PRJ");
 
 	LoadPilotRoster();
-	FUN_10043979();
-	FUN_10039b50(fromSim, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario);
+	LoadDifficultyConfig();
+	ReadSimHandoff(fromSim, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario);
 	ClipCursor(NULL);
 
 	if (fromSim) {
-		FUN_1001023c(g_windowMenu);
+		EnableShellMenu(g_windowMenu);
 		while (ShowCursor(TRUE) < 0)
 			;
 		g_fCursorHidden = FALSE;
@@ -527,7 +527,7 @@ extern "C" int __stdcall ShellMain(
 
 		if (g_fWindowActive) {
 			g_pMouseState->ReadMouseState();
-			FUN_1001093e();
+			RunScreenFrame();
 			if (g_fDrawFmv) {
 				g_pVideoDriver->DrawFmv();
 			}
@@ -539,11 +539,11 @@ extern "C" int __stdcall ShellMain(
 
 	SendMessage(g_pWnd, 0x41e, 0, 0);
 	SetMenu(g_pWnd, NULL);
-	FUN_1001053e(g_fQuickTips, g_unk0x1006a9e0, g_unk0x1006a9f0);
+	SaveSettingsToRegistry(g_fQuickTips, g_showDialog, g_littleMovies);
 	g_pVideoDriver->ActivateFramebuffer();
 
-	if (g_unk0x1006297c) {
-		g_unk0x1006297c(0);
+	if (g_menuFunction) {
+		g_menuFunction(0);
 	}
 
 	if (g_pShellCallback) {
@@ -577,7 +577,7 @@ extern "C" int __stdcall ShellMain(
 // Handles one pending message, waiting for one while the window is inactive. Returns 0 on
 // WM_QUIT (posting it again), 1 otherwise.
 // FUNCTION: MW2SHELL 0x1000fe0d
-MechS32 FUN_1000fe0d()
+MechS32 PumpMessage()
 {
 	MSG msg;
 
@@ -632,7 +632,7 @@ void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 			delete g_midiBackgroundMusic;
 			g_midiBackgroundMusic = NULL;
 		}
-		g_unk0x10062990 = 0;
+		g_midiSongPlaying = 0;
 		return;
 	}
 
@@ -641,25 +641,25 @@ void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 			delete g_midiBackgroundMusic;
 			g_midiBackgroundMusic = NULL;
 		}
-		g_unk0x10062990 = 0;
+		g_midiSongPlaying = 0;
 	}
 
 	song &= 0xffffff;
-	if (!g_unk0x10062988) {
-		g_unk0x10062988 = 1;
-		g_unk0x1006298c = 8;
+	if (!g_midiSongBaseSet) {
+		g_midiSongBaseSet = 1;
+		g_midiSongBase = 8;
 	}
-	song += g_unk0x1006298c;
+	song += g_midiSongBase;
 
-	if (g_midiBackgroundMusic && g_midiBackgroundMusic->IsAnySequencePlaying() && song == g_unk0x10062990) {
+	if (g_midiBackgroundMusic && g_midiBackgroundMusic->IsAnySequencePlaying() && song == g_midiSongPlaying) {
 		return;
 	}
 
 	if (g_midiBackgroundMusic) {
 		delete g_midiBackgroundMusic;
 	}
-	g_unk0x10062990 = song;
-	result = g_pDatabaseMw2->GetDBItemLZ(g_unk0x10062990, &data, &size);
+	g_midiSongPlaying = song;
+	result = g_pDatabaseMw2->GetDBItemLZ(g_midiSongPlaying, &data, &size);
 	if (result != 1) {
 		g_midiBackgroundMusic = new MidiSequence(g_pAudioSubsystem, data, size);
 		g_midiBackgroundMusic->Start();
@@ -697,7 +697,7 @@ void ParseCommandLineFlags(char* p_cmdLine)
 }
 
 // FUNCTION: MW2SHELL 0x1001023c
-void FUN_1001023c(HMENU p_menu)
+void EnableShellMenu(HMENU p_menu)
 {
 	MechS32 result;
 
@@ -714,7 +714,7 @@ void FUN_1001023c(HMENU p_menu)
 }
 
 // FUNCTION: MW2SHELL 0x10010320
-void FUN_10010320(HMENU p_menu)
+void DisableShellMenu(HMENU p_menu)
 {
 	MechS32 result;
 
@@ -781,7 +781,7 @@ MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_unk0x04, MechS
 
 // Stack-slot permutation: value and result swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x1001053e
-MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
+MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
 {
 	MechS32 result;
 	MechS32 value;
@@ -829,7 +829,7 @@ MechS32 FUN_1001053e(MechS32 p_quickTips, MechS32 p_unk0x04, MechS32 p_unk0x08)
 }
 
 // FUNCTION: MW2SHELL 0x1001067f
-BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
+BOOL CALLBACK OkDialogProc(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
 {
 	MechS32 id;
 
@@ -852,13 +852,13 @@ BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM)
 }
 
 // FUNCTION: MW2SHELL 0x10010724
-BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
+BOOL CALLBACK LittleMoviesDialogProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	UINT command;
 
 	switch (p_msg) {
 	case WM_INITDIALOG:
-		if (g_unk0x1006a9f0 != 0) {
+		if (g_littleMovies != 0) {
 			CheckDlgButton(p_hWnd, 0x3e8, 1);
 		}
 		else {
@@ -887,10 +887,10 @@ BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lP
 			break;
 		case 1:
 			if (IsDlgButtonChecked(p_hWnd, 0x3e8) == 1) {
-				g_unk0x1006a9f0 = 1;
+				g_littleMovies = 1;
 			}
 			else {
-				g_unk0x1006a9f0 = 0;
+				g_littleMovies = 0;
 			}
 			// fall through to EndDialog
 		case 2:
@@ -904,13 +904,13 @@ BOOL CALLBACK FUN_10010724(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lP
 }
 
 // FUNCTION: MW2SHELL 0x100108e5
-void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32))
+void RegisterScreenFunction(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32))
 {
 	g_pShellCallback = p_callback;
 }
 
 // FUNCTION: MW2SHELL 0x100108fd
-void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32))
+void UnregisterScreenFunction(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32))
 {
 	g_pShellCallback = p_callback;
 	if (g_pShellCallback != NULL) {
@@ -922,10 +922,10 @@ void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, char**,
 }
 
 // FUNCTION: MW2SHELL 0x1001093e
-void FUN_1001093e()
+void RunScreenFrame()
 {
-	if (g_unk0x1006297c != NULL) {
-		g_unk0x1006297c(1);
+	if (g_menuFunction != NULL) {
+		g_menuFunction(1);
 	}
 	else {
 		if (g_pShellCallback != NULL) {
@@ -936,17 +936,17 @@ void FUN_1001093e()
 }
 
 // FUNCTION: MW2SHELL 0x100109a0
-void FUN_100109a0(void (*p_callback)(MechS32))
+void RegisterMenuFunction(void (*p_callback)(MechS32))
 {
-	g_unk0x1006297c = p_callback;
+	g_menuFunction = p_callback;
 }
 
 // FUNCTION: MW2SHELL 0x100109b8
-void FUN_100109b8(void (*p_callback)(MechS32))
+void UnregisterMenuFunction(void (*p_callback)(MechS32))
 {
-	g_unk0x1006297c = p_callback;
-	if (g_unk0x1006297c != NULL) {
-		g_unk0x1006297c = NULL;
+	g_menuFunction = p_callback;
+	if (g_menuFunction != NULL) {
+		g_menuFunction = NULL;
 	}
 	else {
 		DebugPrint("UnregisterMenuFunction: pointer mismatch!\n");
@@ -956,7 +956,7 @@ void FUN_100109b8(void (*p_callback)(MechS32))
 // FUNCTION: MW2SHELL 0x100109f9
 void ClearRegisteredMenuFunction()
 {
-	if (g_unk0x1006297c != NULL) {
-		g_unk0x1006297c(0);
+	if (g_menuFunction != NULL) {
+		g_menuFunction(0);
 	}
 }

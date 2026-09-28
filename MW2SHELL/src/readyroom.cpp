@@ -54,7 +54,7 @@ WPARAM g_unk0x100904a4;
 
 // Play the second faction grid animation only when video slot zero is idle.
 // FUNCTION: MW2SHELL 0x10039de0
-void FUN_10039de0(MechS32 p_campaign)
+void PlayReadyRoomGrid(MechS32 p_campaign)
 {
 	if (!IsVideoPlaying(0)) {
 		switch (p_campaign) {
@@ -69,24 +69,24 @@ void FUN_10039de0(MechS32 p_campaign)
 	}
 }
 
-void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
+void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
 
 // Opens the ready room. Coming from the pilot roster (0x407) or a mission (0x409) sets up the
 // pilot's next mission first; only the pilot FREEBIRTHTOAD gets the mission buttons.
 // FUNCTION: MW2SHELL 0x10039e72
-void FUN_10039e72(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam)
+void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam)
 {
 	if (p_wParam == 0x407 || p_wParam == 0x409) {
-		FUN_10003175(0, 0, 3, 1, 100);
+		SelectStar(0, 0, 3, 1, 100);
 		*p_scenario = g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_unk0x00;
 		ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 	}
 
 	g_unk0x100904a4 = p_wParam;
-	FUN_10003175(1, 0, 0, 0, 100);
-	FUN_10003175(0, -1, -1, -1, -1);
-	FUN_10002de7(0, NULL, NULL);
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fed0[p_campaign].m_picture);
+	SelectStar(1, 0, 0, 0, 100);
+	SelectStar(0, -1, -1, -1, -1);
+	SetStarMech(0, NULL, NULL);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fed0[p_campaign].m_picture);
 
 	if (!strcmp(g_pCurrentPilot->m_callsign, "FREEBIRTHTOAD")) {
 		g_unk0x100904a0 = new ButtonMenu(
@@ -115,14 +115,14 @@ void FUN_10039e72(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scena
 		break;
 	}
 
-	FUN_100108e5(FUN_1003a151);
+	RegisterScreenFunction(ReadyRoomCallback);
 }
 
 // The ready room's frame: CLAN HALL, MECH LAB, STAR CONFIG, MISSION BRIEFING, and for
 // FREEBIRTHTOAD the missions. The mech lab and briefing play a video before moving on.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003a151
-void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg)
+void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg)
 {
 	void* data = NULL;
 	MechChar name[16];
@@ -130,19 +130,19 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 	MechS32 button;
 	MechS32 size;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
 
 	if (g_fQuickTips && !g_unk0x1006a594 && g_unk0x100904a4 == 0x407 && !IsVideoPlaying(0x10)) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x70), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x70), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_unk0x1006a594 = 1;
 	}
 
 	if (g_unk0x1006a588 == -1) {
-		FUN_10039de0(*p_campaign);
-		button = g_unk0x100904a0->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		PlayReadyRoomGrid(*p_campaign);
+		button = g_unk0x100904a0->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case -1:
 			break;
@@ -225,7 +225,7 @@ void FUN_1003a151(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, Mech
 			g_pCurrentPilot->m_mission = button - 4;
 			SavePilotRoster();
 			*p_scenario = g_campaignMissions[*p_campaign][button - 4].m_unk0x00;
-			FUN_10003175(0, 0, 3, 1, 100);
+			SelectStar(0, 0, 3, 1, 100);
 			ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 			goto briefing;
 		}
@@ -252,6 +252,6 @@ done:
 		g_unk0x1006a590 = NULL;
 		g_unk0x1006a594 = 0;
 		PostMessage(g_pWnd, p_msg, 0x411, 0);
-		FUN_100108fd(FUN_1003a151);
+		UnregisterScreenFunction(ReadyRoomCallback);
 	}
 }

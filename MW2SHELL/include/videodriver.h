@@ -27,19 +27,19 @@ public:
 	void DrawFmv();
 	void GetPalette(PaletteColor* p_palette);
 	void SetPalette(PaletteColor* p_palette, undefined4 p_unk0x22);
-	void FUN_10006a6d(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
-	void FUN_10006a99(MechS32* p_maxX, MechS32* p_maxY, undefined* p_data, MechS32 p_size, MechS32 p_type);
+	void LoadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
+	void ReadPictureSize(MechS32* p_maxX, MechS32* p_maxY, undefined* p_data, MechS32 p_size, MechS32 p_type);
 	void FUN_10006b21(undefined* p_unk0x0a, MechS32 p_unk0x0e, MechS32 p_unk0x12, MechU8 p_unk0x08, MechU8 p_unk0x09);
-	void FUN_10006c50(TMPackDataBase* p_database, MechS32 p_id);
-	void FUN_10006da9(undefined* p_data, MechS32 p_type, PixelView* p_view);
-	void FUN_10006e51(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color);
+	void LoadBackground(TMPackDataBase* p_database, MechS32 p_id);
+	void DrawPicture(undefined* p_data, MechS32 p_type, PixelView* p_view);
+	void DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color);
 	void FUN_10006ed4(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void FUN_10006f87(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
-	void FUN_10007112(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
-	void FUN_100071ad(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
-	void FUN_1000725d();
-	void FUN_10007293();
+	void ReadPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
+	void RestoreBackground(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
+	void CopyScreenToBackground();
+	void CopyBackgroundToScreen();
 	void LoadPalette(MechS32 p_id);
 	void FUN_100073b3(
 		undefined4 p_unk0x00,

@@ -64,7 +64,7 @@ void ClearPalette()
 
 // Matches except for the operand order of m_width * m_height in the back buffer allocation
 // (the original loads m_height first). It tracks the number of symbols declared ahead of this
-// unit: declaring AudioSubsystem's seventh new method flipped it (while fixing FUN_100071ad's
+// unit: declaring AudioSubsystem's seventh new method flipped it (while fixing RestoreBackground's
 // additions); neither the declaration order nor the source operand order flips it back.
 // FUNCTION: MW2SHELL 0x10005f21
 VideoDriver::VideoDriver()
@@ -260,7 +260,7 @@ void VideoDriver::DrawShell()
 }
 
 // DrawShell for movie frames: the dirty rectangle is stretched to the screen, or drawn unscaled
-// at (160, 140) with g_unk0x1006a9f0.
+// at (160, 140) with g_littleMovies.
 // Operand order: the original loads m_height first in both m_width * m_height (as in
 // FUN_10005f21; the source operand order doesn't flip it).
 // FUNCTION: MW2SHELL 0x10006842
@@ -282,7 +282,7 @@ void VideoDriver::DrawFmv()
 	}
 
 	if (m_dirtyView.m_left <= m_dirtyView.m_right && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
-		if (g_unk0x1006a9f0) {
+		if (g_littleMovies) {
 			FUN_10031106(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 		else {
@@ -312,20 +312,20 @@ void VideoDriver::SetPalette(PaletteColor* p_palette, undefined4 p_unk0x22)
 }
 
 // FUNCTION: MW2SHELL 0x10006a6d
-void VideoDriver::FUN_10006a6d(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
+void VideoDriver::LoadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
-	FUN_10037096(p_data, p_size, p_palette);
+	ReadPicturePalette(p_data, p_size, p_palette);
 }
 
 // FUNCTION: MW2SHELL 0x10006a99
-void VideoDriver::FUN_10006a99(MechS32* p_maxX, MechS32* p_maxY, undefined* p_data, MechS32 p_size, MechS32 p_type)
+void VideoDriver::ReadPictureSize(MechS32* p_maxX, MechS32* p_maxY, undefined* p_data, MechS32 p_size, MechS32 p_type)
 {
 	if (p_size) {
 	}
 
 	switch (p_type) {
 	case 2:
-		m_unk0x00 = FUN_100370c1(p_data);
+		m_unk0x00 = GetPictureSize(p_data);
 		break;
 	default:
 		m_unk0x00 = 0;
@@ -351,21 +351,21 @@ void VideoDriver::FUN_10006b21(
 	m_unk0x08 = p_unk0x08;
 	m_unk0x09 = p_unk0x09;
 
-	FUN_10006a99(&m_unk0x39a, &m_unk0x39e, m_unk0x0a, m_unk0x0e, m_unk0x12);
-	FUN_10006a6d(m_unk0x0a, m_unk0x0e, m_palette);
+	ReadPictureSize(&m_unk0x39a, &m_unk0x39e, m_unk0x0a, m_unk0x0e, m_unk0x12);
+	LoadPicturePalette(m_unk0x0a, m_unk0x0e, m_palette);
 	m_unk0x1e = 1;
 	m_unk0x22 = 1;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10037014(&m_screenView, m_unk0x0a);
-		FUN_10034f18(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
+		BlitPicture(&m_screenView, m_unk0x0a);
+		BlitView(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
 	}
 
 	ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
 }
 
 // FUNCTION: MW2SHELL 0x10006c50
-void VideoDriver::FUN_10006c50(TMPackDataBase* p_database, MechS32 p_id)
+void VideoDriver::LoadBackground(TMPackDataBase* p_database, MechS32 p_id)
 {
 	MechS32 size;
 	undefined* data;
@@ -374,7 +374,7 @@ void VideoDriver::FUN_10006c50(TMPackDataBase* p_database, MechS32 p_id)
 		return;
 	}
 
-	FUN_10037096(data, size, g_unk0x10079698);
+	ReadPicturePalette(data, size, g_unk0x10079698);
 	if (memcmp(g_unk0x10079698, m_palette, sizeof(m_palette))) {
 		memcpy(m_palette, g_unk0x10079698, sizeof(m_palette));
 		m_unk0x1e = 1;
@@ -382,11 +382,11 @@ void VideoDriver::FUN_10006c50(TMPackDataBase* p_database, MechS32 p_id)
 	}
 
 	if (m_unk0x1e) {
-		FUN_10037014(&m_backView, data);
+		BlitPicture(&m_backView, data);
 		DrawShell();
 	}
 	else if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10037014(&m_screenView, data);
+		BlitPicture(&m_screenView, data);
 		memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
 		ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
 	}
@@ -395,12 +395,12 @@ void VideoDriver::FUN_10006c50(TMPackDataBase* p_database, MechS32 p_id)
 }
 
 // FUNCTION: MW2SHELL 0x10006da9
-void VideoDriver::FUN_10006da9(undefined* p_data, MechS32 p_type, PixelView* p_view)
+void VideoDriver::DrawPicture(undefined* p_data, MechS32 p_type, PixelView* p_view)
 {
 	switch (p_type) {
 	case 2:
 		if (ACQUIRE_FRAMEBUFFER() == 0) {
-			FUN_10037014(p_view, p_data);
+			BlitPicture(p_view, p_data);
 		}
 		break;
 	default:
@@ -411,10 +411,10 @@ void VideoDriver::FUN_10006da9(undefined* p_data, MechS32 p_type, PixelView* p_v
 }
 
 // FUNCTION: MW2SHELL 0x10006e51
-void VideoDriver::FUN_10006e51(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color)
+void VideoDriver::DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color)
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10032449(&m_screenView, p_left, p_top, p_right, p_bottom, 0, p_color);
+		BlitLine(&m_screenView, p_left, p_top, p_right, p_bottom, 0, p_color);
 	}
 
 	ExpandRect(p_left, p_top, p_right, p_bottom);
@@ -434,7 +434,7 @@ void VideoDriver::FUN_10006ed4(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 	buffer.m_pixels = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10034f18(&view, 0, 0, &m_screenView, p_left, p_top, -1);
+		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, -1);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -458,7 +458,7 @@ void VideoDriver::FUN_10006f87(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 	buffer.m_pixels = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10034f18(&view, 0, 0, &m_screenView, p_left, p_top, -1);
+		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, -1);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -478,14 +478,14 @@ void VideoDriver::FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 	buffer.m_pixels = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10034f18(&view, 0, 0, &m_screenView, p_left, p_top, -1);
+		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, -1);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
 }
 
 // FUNCTION: MW2SHELL 0x10007112
-void VideoDriver::FUN_10007112(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
+void VideoDriver::ReadPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
 	PixelView view;
 	PixelBuffer buffer;
@@ -498,12 +498,12 @@ void VideoDriver::FUN_10007112(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 	buffer.m_pixels = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10034f18(&m_screenView, p_left, p_top, &view, 0, 0, -1);
+		BlitView(&m_screenView, p_left, p_top, &view, 0, 0, -1);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x100071ad
-void VideoDriver::FUN_100071ad(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
+void VideoDriver::RestoreBackground(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
 	PixelView view;
 
@@ -514,22 +514,22 @@ void VideoDriver::FUN_100071ad(MechS32 p_left, MechS32 p_top, MechS32 p_width, M
 	view.m_buffer = &m_backBuffer;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10034f18(&view, 0, 0, &m_screenView, p_left, p_top, m_unk0x3a6);
+		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, m_unk0x3a6);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
 }
 
 // FUNCTION: MW2SHELL 0x1000725d
-void VideoDriver::FUN_1000725d()
+void VideoDriver::CopyScreenToBackground()
 {
-	FUN_10034f18(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
+	BlitView(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
 }
 
 // FUNCTION: MW2SHELL 0x10007293
-void VideoDriver::FUN_10007293()
+void VideoDriver::CopyBackgroundToScreen()
 {
-	FUN_10034f18(&m_backView, 0, 0, &m_screenView, 0, 0, -1);
+	BlitView(&m_backView, 0, 0, &m_screenView, 0, 0, -1);
 }
 
 // FUNCTION: MW2SHELL 0x100072c9
@@ -542,10 +542,10 @@ void VideoDriver::LoadPalette(MechS32 p_id)
 		return;
 	}
 
-	FUN_10037096(data, size, m_palette);
+	ReadPicturePalette(data, size, m_palette);
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10037014(&m_screenView, data);
+		BlitPicture(&m_screenView, data);
 	}
 
 	ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);

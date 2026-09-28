@@ -12,10 +12,10 @@
 extern MechChassis g_unk0x10061560[];
 extern MechS32 g_unk0x10061774;
 
-void FUN_100078cd(ScreenField* p_tabs);
-void FUN_100079f8(ScreenField* p_tabs);
-void FUN_10007ac8(ScreenField* p_tabs);
-ScreenField* FUN_1000b5ed(ScreenField* p_tabs, MechS32 p_x, MechS32 p_y);
-void FUN_1000d0d4(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
+void ShowFields(ScreenField* p_tabs);
+void RedrawFields(ScreenField* p_tabs);
+void HideFields(ScreenField* p_tabs);
+ScreenField* FindFieldAt(ScreenField* p_tabs, MechS32 p_x, MechS32 p_y);
+void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam);
 
 #endif // MECHBAY_H

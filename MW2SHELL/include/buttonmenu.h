@@ -19,13 +19,13 @@ class ButtonMenu {
 public:
 	ButtonMenu(VideoDriver* p_videoDriver, Font* p_font, MechU8 p_drawRect, MainMenuButton* p_buttons, MechS32 p_count);
 	~ButtonMenu();
-	void FUN_100488ed(MechS32 p_id);
-	MechS32 FUN_100489e9(MechS32 p_x, MechS32 p_y);
-	void FUN_10048a7c();
-	void FUN_10048aec(MechS32 p_id);
-	void FUN_10048b95(MainMenuButton p_button, MechS32 p_id, MechU8 p_drawRect);
-	void FUN_10048cc1(MechS32 p_id);
-	void FUN_10048d65(MechS32 p_id);
+	void RemoveButtonsFrom(MechS32 p_id);
+	MechS32 HitTest(MechS32 p_x, MechS32 p_y);
+	void DrawRects();
+	void RemoveButton(MechS32 p_id);
+	void AddButton(MainMenuButton p_button, MechS32 p_id, MechU8 p_drawRect);
+	void EnableButton(MechS32 p_id);
+	void DisableButton(MechS32 p_id);
 
 private:
 	Collection* m_items;        // 0x00

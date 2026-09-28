@@ -23,7 +23,7 @@
    The inline assembler emits only near (rel32) jumps to __asm labels — never the 2-byte
    short form, not even for backward jumps (every label jump below grew 3-4 bytes in the
    first build). So each original short jump is reproduced byte-exactly with _emit (opcode
-   + displacement from the original listing); only FUN_10034f18's three original far
+   + displacement from the original listing); only BlitView's three original far
    (rel32) jumps (0x10034fe9, 0x10035120, 0x1003512c) stay plain label jumps, which the
    inline assembler encodes identically. `loop` and `jecxz` have no rel32 form, so their
    label jumps stay plain.
@@ -122,7 +122,7 @@ undefined4 g_unk0x10068841 = 0;
 // GLOBAL: MW2SHELL 0x10068845
 undefined4 g_unk0x10068845[0x140] = {0};
 
-// Scanline buffer: FUN_10037014 decodes one RLE scanline (up to the ushort width at data
+// Scanline buffer: BlitPicture decodes one RLE scanline (up to the ushort width at data
 // header +0x42) into it, and FUN_100371d5 collects one GIF row, before blitting it through
 // FUN_10036c9e. FUN_10037a4e also keeps its working palette here. The next variable starts at
 // 0x10069045.
@@ -539,7 +539,7 @@ jmp_1003243e:
 // modes p_color is a callback the routine calls. Returns a negative code when the view is empty
 // or the rectangle is fully clipped.
 #ifdef COMPAT_MODE
-MechS32 FUN_10032449(
+MechS32 BlitLine(
 	PixelView* p_view,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -554,7 +554,7 @@ MechS32 FUN_10032449(
 }
 #else
 // FUNCTION: MW2SHELL 0x10032449
-__declspec(naked) MechS32 FUN_10032449(
+__declspec(naked) MechS32 BlitLine(
 	PixelView* p_view,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -5793,7 +5793,7 @@ jmp_10034f10:
 #endif
 
 #ifdef COMPAT_MODE
-void FUN_10034f18(
+void BlitView(
 	PixelView* p_unk0x00,
 	MechS32 p_unk0x04,
 	MechS32 p_unk0x08,
@@ -5807,7 +5807,7 @@ void FUN_10034f18(
 }
 #else
 // FUNCTION: MW2SHELL 0x10034f18
-__declspec(naked) void FUN_10034f18(
+__declspec(naked) void BlitView(
 	PixelView* p_unk0x00,
 	MechS32 p_unk0x04,
 	MechS32 p_unk0x08,
@@ -6227,7 +6227,7 @@ jmp_100352a9:
 }
 #endif
 
-// Scrolls the view by (p_dx, p_dy) with wrap-around, through nine FUN_10034f18 blits.
+// Scrolls the view by (p_dx, p_dy) with wrap-around, through nine BlitView blits.
 #ifdef COMPAT_MODE
 MechS32 FUN_100352b4(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
 {
@@ -6328,7 +6328,7 @@ jmp_1003533b:
 		push 0x0
 		push 0x0
 		push dword ptr [ebp+0x8]
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		mov eax, dword ptr [ebp+0xc]
 		cdq
@@ -6352,7 +6352,7 @@ jmp_100353a6:
 		push 0x0
 		push 0x0
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6361,7 +6361,7 @@ jmp_100353a6:
 		push dword ptr [ebp-0x34]
 		push dword ptr [ebp-0x30]
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6370,7 +6370,7 @@ jmp_100353a6:
 		push 0x0
 		push dword ptr [ebp-0x30]
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6379,7 +6379,7 @@ jmp_100353a6:
 		push dword ptr [ebp-0x3c]
 		push dword ptr [ebp-0x30]
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6388,7 +6388,7 @@ jmp_100353a6:
 		push dword ptr [ebp-0x34]
 		push 0x0
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6397,7 +6397,7 @@ jmp_100353a6:
 		push dword ptr [ebp-0x3c]
 		push 0x0
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6406,7 +6406,7 @@ jmp_100353a6:
 		push dword ptr [ebp-0x34]
 		push dword ptr [ebp-0x38]
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6415,7 +6415,7 @@ jmp_100353a6:
 		push 0x0
 		push dword ptr [ebp-0x38]
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 		push dword ptr [ebp-0x44]
 		push dword ptr [ebp+0x10]
@@ -6424,7 +6424,7 @@ jmp_100353a6:
 		push dword ptr [ebp-0x3c]
 		push dword ptr [ebp-0x38]
 		push esi
-		call FUN_10034f18
+		call BlitView
 		add esp, 0x1c
 jmp_10035492:
 		xor eax, eax
@@ -6500,7 +6500,7 @@ jmp_100354ca:
 		push ecx
 		push edx
 		push dword ptr [ebp+0x8]
-		call FUN_10032449
+		call BlitLine
 		add esp, 0x1c
 		jmp jmp_100357ec
 jmp_100354fb:
@@ -6912,7 +6912,7 @@ jmp_1003580b:
 		push ecx
 		push edx
 		push dword ptr [ebp+0x8]
-		call FUN_10032449
+		call BlitLine
 		add esp, 0x1c
 		jmp jmp_10035aea
 jmp_1003583c:
@@ -8405,13 +8405,13 @@ __declspec(naked) MechU32 FUN_10036fe7(undefined* p_data)
 #endif
 
 #ifdef COMPAT_MODE
-void FUN_10037014(PixelView* p_view, undefined* p_data)
+void BlitPicture(PixelView* p_view, undefined* p_data)
 {
 	STUB(0x10037014);
 }
 #else
 // FUNCTION: MW2SHELL 0x10037014
-__declspec(naked) void FUN_10037014(PixelView* p_view, undefined* p_data)
+__declspec(naked) void BlitPicture(PixelView* p_view, undefined* p_data)
 {
 	__asm {
 		push ebp
@@ -8481,13 +8481,13 @@ jmp_1003706f:
 #endif
 
 #ifdef COMPAT_MODE
-void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
+void ReadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
 	STUB(0x10037096);
 }
 #else
 // FUNCTION: MW2SHELL 0x10037096
-__declspec(naked) void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
+__declspec(naked) void ReadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
 	__asm {
 		push ebp
@@ -8520,14 +8520,14 @@ jmp_100370b4:
 #endif
 
 #ifdef COMPAT_MODE
-MechS32 FUN_100370c1(undefined* p_data)
+MechS32 GetPictureSize(undefined* p_data)
 {
 	STUB(0x100370c1);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x100370c1
-__declspec(naked) MechS32 FUN_100370c1(undefined* p_data)
+__declspec(naked) MechS32 GetPictureSize(undefined* p_data)
 {
 	__asm {
 		push ebp

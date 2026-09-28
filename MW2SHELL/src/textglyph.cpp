@@ -228,7 +228,7 @@ void TextGlyph::Shutdown()
 	m_textIndex = -1;
 	m_videoDriver->RemoveGlyph(this);
 	m_registered = 0;
-	m_videoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
+	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 }
 
 // FUNCTION: MW2SHELL 0x10047b71

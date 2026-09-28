@@ -27,7 +27,7 @@
 // GLOBAL: MW2SHELL 0x10063b70
 ButtonMenu* g_unk0x10063b70 = NULL;
 
-// The room's ambience and the sound FUN_1001445c starts once the videos 2 and 3 are done.
+// The room's ambience and the sound ClanHallCallback starts once the videos 2 and 3 are done.
 // GLOBAL: MW2SHELL 0x10063b74
 AudioSample* g_unk0x10063b74 = NULL;
 
@@ -44,7 +44,7 @@ MechS32 g_unk0x10063b80 = -1;
 // GLOBAL: MW2SHELL 0x10063b84
 MechS32 g_unk0x10063b84 = 0x404;
 
-void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
+void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
 // Opens the clan hall. Coming back from registering a pilot (0x412) sets up the new pilot's
 // star first.
@@ -57,8 +57,8 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	MechS32 size;
 
 	if (p_wParam == 0x412) {
-		FUN_10003175(0, 0, 3, 1, 100);
-		FUN_10002de7(0, NULL, g_pCurrentPilot->m_callsign);
+		SelectStar(0, 0, 3, 1, 100);
+		SetStarMech(0, NULL, g_pCurrentPilot->m_callsign);
 		if (g_unk0x10071374) {
 			if (p_campaign == 0) {
 				g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
@@ -102,8 +102,8 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		break;
 	}
 
-	FUN_100108e5(FUN_1001445c);
-	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006fe10[p_campaign].m_picture);
+	RegisterScreenFunction(ClanHallCallback);
+	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fe10[p_campaign].m_picture);
 	UpdateVideos();
 	g_pVideoDriver->DrawShell();
 	if (g_unk0x10063b74) {
@@ -118,13 +118,13 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 // The Jade Falcon hall plays a door video before moving on.
 // Not 100%: the stack slots of data, button and size are permuted.
 // FUNCTION: MW2SHELL 0x1001445c
-void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
+void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {
 	void* data = NULL;
 	MechS32 button;
 	MechS32 size;
 
-	// The original skips the frame's work with a goto, like FUN_100043c2.
+	// The original skips the frame's work with a goto, like StarConfigCallback.
 	if (p_msg != 0x404) {
 		goto done;
 	}
@@ -138,7 +138,7 @@ void FUN_1001445c(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 	}
 
 	if (g_unk0x10063b80 == -1) {
-		button = g_unk0x10063b70->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_unk0x10063b70->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -251,7 +251,7 @@ done:
 			delete g_unk0x10063b78;
 			g_unk0x10063b78 = NULL;
 		}
-		FUN_100108fd(FUN_1001445c);
+		UnregisterScreenFunction(ClanHallCallback);
 		if (p_msg == 0x412) {
 			switch (*p_campaign) {
 			case 0:

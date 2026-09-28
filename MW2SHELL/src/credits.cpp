@@ -17,7 +17,7 @@
 
 void operator delete(void*);
 
-void FUN_10046fa8(MechS32 p_active);
+void CreditsCallback(MechS32 p_active);
 
 // GLOBAL: MW2SHELL 0x10071db0
 MechChar* g_unk0x10071db0[0x21f] = {
@@ -583,7 +583,7 @@ undefined g_unk0x10094b88[0x100];
 MechS32 g_unk0x10094c88;
 
 // FUNCTION: MW2SHELL 0x10046e80
-void FUN_10046e80()
+void DrawCredits()
 {
 	MechS32 i;
 
@@ -600,19 +600,19 @@ void FUN_10046e80()
 		g_unk0x10094b88[i] = (MechU8) i;
 	}
 	g_unk0x10094c88 = 0x1cc;
-	FUN_100109a0(FUN_10046fa8);
+	RegisterMenuFunction(CreditsCallback);
 }
 
 // Scroll the credits, and restore the shell once dismissed by a key or mouse click.
 // FUNCTION: MW2SHELL 0x10046fa8
-void FUN_10046fa8(MechS32 p_active)
+void CreditsCallback(MechS32 p_active)
 {
 	MechU32 index;
 	MechS32 top;
 	MechS32 width;
 
 	if (p_active) {
-		g_pVideoDriver->FUN_100071ad(0, 0x7d, 0x280, 0x14f);
+		g_pVideoDriver->RestoreBackground(0, 0x7d, 0x280, 0x14f);
 		top = g_unk0x10094b80 * 0x14 + g_unk0x10094c88;
 		g_unk0x10094c88--;
 		for (index = g_unk0x10094b80; index < 0x21f && top < 0x1cc; index++) {
@@ -650,15 +650,15 @@ void FUN_10046fa8(MechS32 p_active)
 			}
 			top += 0x14;
 		}
-		g_pVideoDriver->FUN_100071ad(0, 0x69, 0x280, 0x14);
-		g_pVideoDriver->FUN_100071ad(0, 0x1cc, 0x280, 0x14);
+		g_pVideoDriver->RestoreBackground(0, 0x69, 0x280, 0x14);
+		g_pVideoDriver->RestoreBackground(0, 0x1cc, 0x280, 0x14);
 		if (g_unk0x1007262c != NULL) {
 			g_unk0x1007262c->Update();
 		}
 	}
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
 		g_keyboardInput->PollKey() != 0) {
-		FUN_100109b8(FUN_10046fa8);
+		UnregisterMenuFunction(CreditsCallback);
 		EnableMenuItem(g_windowMenu, 0x9c92, MF_ENABLED);
 		g_menuDialogOpen = FALSE;
 		if (g_unk0x1007262c != NULL) {
@@ -666,12 +666,12 @@ void FUN_10046fa8(MechS32 p_active)
 		}
 		g_unk0x1007262c = NULL;
 		g_pVideoDriver->m_unk0x3a6 = -1;
-		g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
+		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_unk0x10071378, TRUE);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
-			g_pVideoDriver->FUN_100071ad(0, 0, 0x280, 0x1e0);
+			g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 			UpdateVideos();
 		}
 	}

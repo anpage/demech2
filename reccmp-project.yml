@@ -10,7 +10,7 @@ targets:
     report:
       icon: assets/dll.png
       # The cockpit controls field tables keep integer indices in ScreenField's pointer members
-      # (m_unk0x24, m_unk0x28). datacmp reports every such field as a diff even when both sides
+      # (m_data, m_unk0x28). datacmp reports every such field as a diff even when both sides
       # hold the same value, so the tables are left out. They matched field for field when added.
       ignore-variables:
         - g_cpcBindingsFields

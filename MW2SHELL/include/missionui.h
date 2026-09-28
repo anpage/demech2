@@ -9,6 +9,6 @@
 // The functions and globals of missionui.cpp that other units use.
 void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_video);
 MechS32 FUN_100381c2();
-void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wParam);
+void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wParam);
 
 #endif // MISSIONUI_H
