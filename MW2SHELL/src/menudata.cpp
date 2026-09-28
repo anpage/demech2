@@ -628,7 +628,7 @@ MechChar g_unk0x100708f0[0x04] = "";
 
 // Tab stops for the "\T" text escape, in pixels from the left edge.
 // GLOBAL: MW2SHELL 0x1006e150
-MechS32 g_unk0x1006e150[19] =
+MechS32 g_textTabStops[19] =
 	{0, 36, 72, 108, 144, 180, 216, 252, 288, 324, 360, 396, 432, 468, 504, 540, 576, 612, 640};
 
 // GLOBAL: MW2SHELL 0x1006e19c

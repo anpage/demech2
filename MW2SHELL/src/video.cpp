@@ -406,7 +406,7 @@ void FUN_1001661b()
 		}
 	}
 
-	g_pVideoDriver->FUN_10007763(0);
+	g_pVideoDriver->RedrawGlyphs(0);
 	for (i = 0, video = g_unk0x100641a8; i < 32; i++, video++) {
 		if (video->m_unk0x1c & 0x80000000) {
 			if (video->m_unk0x00) {
@@ -506,7 +506,7 @@ void FUN_1001661b()
 			}
 		}
 	}
-	g_pVideoDriver->FUN_10007763(1);
+	g_pVideoDriver->RedrawGlyphs(1);
 }
 
 // FUNCTION: MW2SHELL 0x10016b11

@@ -658,7 +658,7 @@ done:
 			delete g_unk0x1006a2b4;
 			g_unk0x1006a2b4 = NULL;
 		}
-		g_pVideoDriver->FUN_100077b4(TRUE);
+		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_unk0x10090288.m_unk0x110 = g_unk0x10090280;
 		g_unk0x1006a2b8 = 0;
 		PostMessage(g_pWnd, p_msg, 0x40d, 0);

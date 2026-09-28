@@ -11,20 +11,20 @@ DECOMP_SIZE_ASSERT(Font, 0x414)
 Font::Font(void* p_data, VideoDriver* p_videoDriver)
 {
 	m_videoDriver = p_videoDriver;
-	m_unk0x00 = p_data;
-	m_unk0x408 = m_unk0x00;
-	m_unk0x40c = FUN_10036aa9(m_unk0x00);
+	m_data = p_data;
+	m_unk0x408 = m_data;
+	m_height = FontGetHeight(m_data);
 }
 
 // Nothing in the shell deletes a Font, so the destructor has no callers.
 // FUNCTION: MW2SHELL 0x10005394
 Font::~Font()
 {
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_unk0x00);
+	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_data);
 }
 
 // FUNCTION: MW2SHELL 0x100053be
-MechS32 Font::FUN_100053be(MechChar* p_text)
+MechS32 Font::GetTextWidth(MechChar* p_text)
 {
 	MechS32 width;
 
@@ -34,20 +34,20 @@ MechS32 Font::FUN_100053be(MechChar* p_text)
 
 	width = 0;
 	for (; *p_text != '\0'; p_text++) {
-		width += FUN_10036abc(m_unk0x00, *p_text);
+		width += FontGetCharWidth(m_data, *p_text);
 	}
 
 	return width;
 }
 
 // FUNCTION: MW2SHELL 0x10005424
-MechS32 Font::FUN_10005424(MechS32 p_char)
+MechS32 Font::GetCharacterWidth(MechS32 p_char)
 {
-	return FUN_10036abc(m_unk0x00, p_char);
+	return FontGetCharWidth(m_data, p_char);
 }
 
 // FUNCTION: MW2SHELL 0x1000544e
-TextGlyph* Font::FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
+TextGlyph* Font::FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
 	TextGlyph* glyph;
 
@@ -55,14 +55,14 @@ TextGlyph* Font::FUN_1000544e(MechS32 p_left, MechS32 p_top, MechChar* p_text, u
 		p_text = "";
 	}
 
-	glyph = new TextGlyph(p_text, p_left, p_top, p_unk0x10, this);
-	m_videoDriver->FUN_100076e8(glyph, 0);
-	glyph->FUN_10047425();
+	glyph = new TextGlyph(p_text, p_left, p_top, p_colors, this);
+	m_videoDriver->AddGlyph(glyph, 0);
+	glyph->Draw();
 	return glyph;
 }
 
 // FUNCTION: MW2SHELL 0x10005522
-TextGlyph* Font::FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
+TextGlyph* Font::FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
 	TextGlyph* glyph;
 
@@ -70,38 +70,38 @@ TextGlyph* Font::FUN_10005522(MechS32 p_left, MechS32 p_top, MechChar* p_text, u
 		p_text = "";
 	}
 
-	glyph = new TextGlyph(p_text, p_left, p_top, p_unk0x10, this);
-	m_videoDriver->FUN_100076e8(glyph, 1);
-	glyph->FUN_10047425();
+	glyph = new TextGlyph(p_text, p_left, p_top, p_colors, this);
+	m_videoDriver->AddGlyph(glyph, 1);
+	glyph->Draw();
 	return glyph;
 }
 
 // FUNCTION: MW2SHELL 0x100055f6
-TextGlyph* Font::FUN_100055f6(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
+TextGlyph* Font::FUN_100055f6(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
 	TextGlyph* glyph;
 
-	glyph = new TextGlyph(p_text, p_left, p_top, p_unk0x10, this);
-	m_videoDriver->FUN_100076e8(glyph, 0);
-	glyph->FUN_1004795e();
+	glyph = new TextGlyph(p_text, p_left, p_top, p_colors, this);
+	m_videoDriver->AddGlyph(glyph, 0);
+	glyph->TypeStep();
 	return glyph;
 }
 
 // FUNCTION: MW2SHELL 0x100056b9
-MechS32 Font::FUN_100056b9(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_unk0x10)
+MechS32 Font::DrawString(MechS32 p_left, MechS32 p_top, MechChar* p_text, undefined* p_colors)
 {
-	return m_videoDriver->FUN_100074d2(p_left, p_top, m_unk0x00, p_text, p_unk0x10);
+	return m_videoDriver->DrawString(p_left, p_top, m_data, p_text, p_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100056f5
-MechS32 Font::FUN_100056f5(MechS32 p_left, MechS32 p_top, MechS32 p_char, undefined* p_unk0x10)
+MechS32 Font::DrawChar(MechS32 p_left, MechS32 p_top, MechS32 p_char, undefined* p_colors)
 {
-	return m_videoDriver->FUN_10007603(p_left, p_top, m_unk0x00, p_char, p_unk0x10);
+	return m_videoDriver->DrawChar(p_left, p_top, m_data, p_char, p_colors);
 }
 
-// Text entry: m_unk0x04 holds the right edge of each typed character, m_unk0x404 their count.
+// Text entry: m_typedRight holds the right edge of each typed character, m_typedCount their count.
 // FUNCTION: MW2SHELL 0x10005731
-void Font::FUN_10005731(MechS32 p_left, MechS32 p_top, MechS32 p_key, undefined* p_unk0x10)
+void Font::TypeKey(MechS32 p_left, MechS32 p_top, MechS32 p_key, undefined* p_colors)
 {
 	MechS32 width;
 	MechS32 x;
@@ -109,62 +109,62 @@ void Font::FUN_10005731(MechS32 p_left, MechS32 p_top, MechS32 p_key, undefined*
 
 	switch (p_key) {
 	case '\b':
-		m_unk0x404--;
-		if (m_unk0x404 < 0) {
-			m_unk0x404 = 0;
+		m_typedCount--;
+		if (m_typedCount < 0) {
+			m_typedCount = 0;
 		}
 
-		if (m_unk0x404 == 0) {
-			if (m_unk0x04[m_unk0x404] == 0) {
+		if (m_typedCount == 0) {
+			if (m_typedRight[m_typedCount] == 0) {
 				return;
 			}
 
 			x = p_left;
-			end = m_unk0x04[m_unk0x404] + p_left;
+			end = m_typedRight[m_typedCount] + p_left;
 		}
 		else {
-			x = m_unk0x04[m_unk0x404 - 1] + p_left;
-			end = m_unk0x04[m_unk0x404] + p_left;
+			x = m_typedRight[m_typedCount - 1] + p_left;
+			end = m_typedRight[m_typedCount] + p_left;
 		}
 
-		m_unk0x04[m_unk0x404] = 0;
+		m_typedRight[m_typedCount] = 0;
 		while (x < end) {
-			x += FUN_100056f5(x, p_top, ' ', p_unk0x10);
+			x += DrawChar(x, p_top, ' ', p_colors);
 		}
 		break;
 	case '\r':
 		break;
 	case '\x1b':
-		FUN_10005913();
+		ResetTyping();
 		break;
 	default:
-		if (m_unk0x404 == 0) {
+		if (m_typedCount == 0) {
 			x = 0;
 		}
 		else {
-			x = m_unk0x04[m_unk0x404 - 1];
+			x = m_typedRight[m_typedCount - 1];
 		}
 
-		width = FUN_100056f5(x + p_left, p_top, p_key, p_unk0x10);
-		if (m_unk0x404 > 0) {
-			m_unk0x04[m_unk0x404] = m_unk0x04[m_unk0x404 - 1] + width;
+		width = DrawChar(x + p_left, p_top, p_key, p_colors);
+		if (m_typedCount > 0) {
+			m_typedRight[m_typedCount] = m_typedRight[m_typedCount - 1] + width;
 		}
 		else {
-			m_unk0x04[m_unk0x404] = width;
+			m_typedRight[m_typedCount] = width;
 		}
 
-		m_unk0x404++;
+		m_typedCount++;
 		break;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x10005913
-void Font::FUN_10005913()
+void Font::ResetTyping()
 {
 	MechS32 i;
 
-	m_unk0x404 = 0;
+	m_typedCount = 0;
 	for (i = 0; i < 0x100; i++) {
-		m_unk0x04[i] = 0;
+		m_typedRight[i] = 0;
 	}
 }

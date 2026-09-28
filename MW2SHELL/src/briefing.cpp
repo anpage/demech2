@@ -105,7 +105,7 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	}
 
 	FUN_100309b6(name);
-	FUN_1002e1b1(g_unk0x10071ce4, left, top, width, height, name, g_unk0x10071228, g_unk0x10071cd8);
+	LoadTextPages(g_unk0x10071ce4, left, top, width, height, name, g_unk0x10071228, g_unk0x10071cd8);
 
 	g_unk0x10071ce0 = (Page*) CollectionGet(g_unk0x10071ce4, 0);
 	if (!g_unk0x10071ce0) {
@@ -131,7 +131,7 @@ void FUN_10046200(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 	if (!g_unk0x10071ce4->m_count) {
 		g_unk0x10071cdc->FUN_10048d65(1);
 	}
-	g_unk0x10071ce0->FUN_1004596f();
+	g_unk0x10071ce0->Restart();
 	FUN_100108e5(FUN_10046653);
 }
 
@@ -148,7 +148,7 @@ void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 	}
 
 	if (!g_unk0x10071ce8) {
-		g_unk0x10071ce0->FUN_10045a2b();
+		g_unk0x10071ce0->TypeStep();
 		button = g_unk0x10071cdc->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 2:
@@ -173,7 +173,7 @@ void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			g_unk0x10071ce0->FUN_10045ab0();
+			g_unk0x10071ce0->Hide();
 			delete g_unk0x10071cdc;
 			g_unk0x10071ce8 = new ArchiveReader(
 				"",
@@ -208,7 +208,7 @@ void FUN_10046653(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, Mec
 				g_unk0x1006ff60[*p_campaign].m_buttons,
 				g_unk0x1006ff60[*p_campaign].m_count
 			);
-			g_unk0x10071ce0->FUN_1004596f();
+			g_unk0x10071ce0->Restart();
 		}
 	}
 

@@ -8,7 +8,7 @@
 #include "types.h"
 
 // The functions and globals of menudata.cpp that other units use.
-extern MechS32 g_unk0x1006e150[19];
+extern MechS32 g_textTabStops[19];
 extern char* g_unk0x1006e19c;
 extern MechChar* g_unk0x1006e1a0[2];
 extern Formation g_unk0x1006e1a8[6];

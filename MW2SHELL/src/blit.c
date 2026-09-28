@@ -7538,14 +7538,14 @@ __declspec(naked) void FUN_100369e2(
 
 // Returns the dword at +0x8 of the font data (Font keeps it as the line height).
 #ifdef COMPAT_MODE
-MechS32 FUN_10036aa9(void* p_data)
+MechS32 FontGetHeight(void* p_data)
 {
 	STUB(0x10036aa9);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10036aa9
-__declspec(naked) MechS32 FUN_10036aa9(void* p_data)
+__declspec(naked) MechS32 FontGetHeight(void* p_data)
 {
 	__asm {
 		push ebp
@@ -7569,14 +7569,14 @@ __declspec(naked) MechS32 FUN_10036aa9(void* p_data)
 // Looks up p_char in the font data's offset table at +0x10 and returns the dword at that
 // offset (Font sums it as the character's width).
 #ifdef COMPAT_MODE
-MechS32 FUN_10036abc(void* p_data, MechS32 p_char)
+MechS32 FontGetCharWidth(void* p_data, MechS32 p_char)
 {
 	STUB(0x10036abc);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10036abc
-__declspec(naked) MechS32 FUN_10036abc(void* p_data, MechS32 p_char)
+__declspec(naked) MechS32 FontGetCharWidth(void* p_data, MechS32 p_char)
 {
 	__asm {
 		push ebp
@@ -7605,14 +7605,7 @@ __declspec(naked) MechS32 FUN_10036abc(void* p_data, MechS32 p_char)
 // Draws one character of the font data into the view, clipped; a palette maps its pixels and
 // skips 0xff. Returns the character's advance, -1 for an empty view or -2 when fully clipped.
 #ifdef COMPAT_MODE
-MechS32 FUN_10036adc(
-	PixelView* p_view,
-	MechS32 p_left,
-	MechS32 p_top,
-	void* p_font,
-	MechS32 p_char,
-	undefined* p_palette
-)
+MechS32 BlitChar(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechS32 p_char, undefined* p_palette)
 {
 	STUB(0x10036adc);
 	return 0;
@@ -7620,7 +7613,7 @@ MechS32 FUN_10036adc(
 #else
 // FUNCTION: MW2SHELL 0x10036adc
 __declspec(naked) MechS32
-FUN_10036adc(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechS32 p_char, undefined* p_palette)
+BlitChar(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechS32 p_char, undefined* p_palette)
 {
 	__asm {
 		push ebp
@@ -7832,20 +7825,13 @@ FUN_10036adc(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, Mec
 #endif
 
 #ifdef COMPAT_MODE
-void FUN_10036c67(
-	PixelView* p_view,
-	MechS32 p_left,
-	MechS32 p_top,
-	void* p_font,
-	MechChar* p_text,
-	undefined* p_palette
-)
+void BlitString(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechChar* p_text, undefined* p_palette)
 {
 	STUB(0x10036c67);
 }
 #else
 // FUNCTION: MW2SHELL 0x10036c67
-__declspec(naked) void FUN_10036c67(
+__declspec(naked) void BlitString(
 	PixelView* p_view,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -7874,7 +7860,7 @@ __declspec(naked) void FUN_10036c67(
 		push dword ptr [ebp+0x10]
 		push edi
 		push dword ptr [ebp+0x8]
-		call FUN_10036adc
+		call BlitChar
 		add esp, 0x18
 		add edi, eax
 		inc esi

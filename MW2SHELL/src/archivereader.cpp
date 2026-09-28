@@ -129,7 +129,7 @@ void ArchiveReader::AddTopic(MechS16 p_entry, MechS32 p_index)
 // FUNCTION: MW2SHELL 0x1002931d
 void ArchiveReader::FUN_1002931d()
 {
-	g_pVideoDriver->FUN_100077b4(FALSE);
+	g_pVideoDriver->ClearGlyphs(FALSE);
 }
 
 // FUNCTION: MW2SHELL 0x10029340
@@ -143,7 +143,7 @@ void ArchiveReader::FirstPage()
 
 	if (m_page > 0 && m_page < m_pages->m_count) {
 		page = (Page*) CollectionGet(m_pages, m_page);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
 			m_menu->FUN_100488ed(c_buttonTopic);
 		}
@@ -173,7 +173,7 @@ void ArchiveReader::PrevPage()
 
 	if (m_page > 0 && m_page < m_pages->m_count) {
 		page = (Page*) CollectionGet(m_pages, m_page);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
 			m_menu->FUN_100488ed(c_buttonTopic);
 		}
@@ -207,7 +207,7 @@ void ArchiveReader::PrevPage()
 			button->m_bottom = link->m_bottom;
 			m_menu->FUN_10048b95(g_unk0x1008d210, link->m_id + c_buttonTopic, m_menu->m_drawRect);
 		}
-		m_currentPage->FUN_1004596f();
+		m_currentPage->Restart();
 	}
 }
 
@@ -226,7 +226,7 @@ void ArchiveReader::NextPage()
 
 	if (m_page >= 0 && m_page < m_pages->m_count - 1) {
 		page = (Page*) CollectionGet(m_pages, m_page);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
 			m_menu->FUN_100488ed(c_buttonTopic);
 		}
@@ -255,7 +255,7 @@ void ArchiveReader::NextPage()
 		button->m_bottom = link->m_bottom;
 		m_menu->FUN_10048b95(g_unk0x1008d230, link->m_id + c_buttonTopic, m_menu->m_drawRect);
 	}
-	m_currentPage->FUN_1004596f();
+	m_currentPage->Restart();
 }
 
 // Follows a topic link: opens its entry in a child reader.
@@ -269,7 +269,7 @@ void ArchiveReader::OpenTopic(MechS32 p_id)
 	MechS32 i;
 
 	page = (Page*) CollectionGet(m_pages, m_page);
-	page->FUN_10045ab0();
+	page->Hide();
 
 	for (i = 0; i < m_topics->m_count; i++) {
 		topic = (Topic*) CollectionGet(m_topics, i);
@@ -316,7 +316,7 @@ MechS32 ArchiveReader::Run()
 	}
 
 	if (m_currentPage) {
-		m_currentPage->FUN_10045a2b();
+		m_currentPage->TypeStep();
 	}
 
 	if (!m_titleGlyph) {
@@ -511,7 +511,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 				page = new Page(m_font, g_pVideoDriver, m_colors, 0x58, 0x46, 0x1d2, 0xde);
 				ExpandCollection(m_pages, page);
 			}
-			page->FUN_10045b38((undefined*) data, size);
+			page->SetBanner((undefined*) data, size);
 			break;
 		case -0x100:
 			break;
@@ -595,7 +595,7 @@ ArchiveReader::~ArchiveReader()
 
 	for (i = 0; i < m_pages->m_count; i++) {
 		page = (Page*) CollectionGet(m_pages, i);
-		page->FUN_10045ab0();
+		page->Hide();
 		if (m_database) {
 			delete page;
 		}

@@ -454,7 +454,7 @@ extern "C" int __stdcall ShellMain(
 		g_szDataDrivePath[0] = '\0';
 	}
 
-	FUN_10047370();
+	InitTextColorMaps();
 
 	g_pDatabaseMw2 = new TMPackDataBase(g_unk0x1006e19c);
 	g_pAudioSubsystem = new AudioSubsystem();

@@ -22,20 +22,20 @@ enum {
 	c_tagHtxt = 62
 };
 
-// The colors of the pages FUN_1002e1b1 lays out.
+// The colors of the pages LoadTextPages lays out.
 // GLOBAL: MW2SHELL 0x1008f658
-MechU8 g_unk0x1008f658[0x100];
+MechU8 g_textPageColors[0x100];
 
 // The text with its escapes expanded: \\Q the quote, \\R0 to \\R2 the pilot's rank and the next
 // two, \\H the pilot's honor. The original also writes the unexpanded text to tmp.out.
 // GLOBAL: MW2SHELL 0x1008d658
-MechChar g_unk0x1008d658[0x2000];
+MechChar g_expandedText[0x2000];
 
-// Expands the escapes of p_text into g_unk0x1008d658 and returns a copy of the result.
+// Expands the escapes of p_text into g_expandedText and returns a copy of the result.
 // Not 100%: the stack slots of the locals are permuted (i and length move past the buffer, which
 // lengthens their encodings).
 // FUNCTION: MW2SHELL 0x1002dc60
-MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
+MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 {
 	MechS32 i;
 	MechS32 length;
@@ -54,20 +54,20 @@ MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
 			case 'Q':
 			case 'q':
 				i++;
-				g_unk0x1008d658[length] = '\0';
-				strcat(g_unk0x1008d658, p_quote);
-				length = strlen(g_unk0x1008d658);
+				g_expandedText[length] = '\0';
+				strcat(g_expandedText, p_quote);
+				length = strlen(g_expandedText);
 				break;
 			case 'R':
 			case 'r':
 				i++;
-				g_unk0x1008d658[length] = '\0';
+				g_expandedText[length] = '\0';
 				switch (p_text[i]) {
 				case '0':
 					i++;
 					rank = g_pCurrentPilot->m_rank;
-					strcat(g_unk0x1008d658, g_rankNames[rank]);
-					length = strlen(g_unk0x1008d658);
+					strcat(g_expandedText, g_rankNames[rank]);
+					length = strlen(g_expandedText);
 					break;
 				case '1':
 					i++;
@@ -75,8 +75,8 @@ MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
 					if (rank > 9) {
 						rank = 9;
 					}
-					strcat(g_unk0x1008d658, g_rankNames[rank]);
-					length = strlen(g_unk0x1008d658);
+					strcat(g_expandedText, g_rankNames[rank]);
+					length = strlen(g_expandedText);
 					break;
 				case '2':
 					i++;
@@ -84,8 +84,8 @@ MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
 					if (rank > 9) {
 						rank = 9;
 					}
-					strcat(g_unk0x1008d658, g_rankNames[rank]);
-					length = strlen(g_unk0x1008d658);
+					strcat(g_expandedText, g_rankNames[rank]);
+					length = strlen(g_expandedText);
 					break;
 				default:
 					break;
@@ -94,39 +94,39 @@ MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
 			case 'H':
 			case 'h':
 				i++;
-				g_unk0x1008d658[length] = '\0';
+				g_expandedText[length] = '\0';
 				sprintf(number, "%d", g_pCurrentPilot->m_honor);
-				strcat(g_unk0x1008d658, number);
-				length = strlen(g_unk0x1008d658);
+				strcat(g_expandedText, number);
+				length = strlen(g_expandedText);
 				break;
 			default:
-				g_unk0x1008d658[length] = '\\';
+				g_expandedText[length] = '\\';
 				length++;
-				g_unk0x1008d658[length] = p_text[i];
+				g_expandedText[length] = p_text[i];
 				i++;
 				length++;
 				break;
 			}
 		}
 		else {
-			g_unk0x1008d658[length] = p_text[i];
+			g_expandedText[length] = p_text[i];
 			i++;
 			length++;
 		}
 	}
 
-	g_unk0x1008d658[length] = '\0';
+	g_expandedText[length] = '\0';
 	file = fopen("tmp.out", "wb");
 	fwrite(p_text, 1, strlen(p_text), file);
 	fclose(file);
-	return FUN_10030900(g_unk0x1008d658);
+	return FUN_10030900(g_expandedText);
 }
 
 // Lays out p_text (p_size bytes, the last of which becomes its terminator) on as many pages as
 // it takes, adding them to p_pages. With p_quote, the text's escapes are expanded first.
 // Not 100%: the stack slots of page, text and the new temporaries are permuted.
 // FUNCTION: MW2SHELL 0x1002e09b
-void FUN_1002e09b(
+void LayoutTextPages(
 	MechChar* p_text,
 	MechS32 p_size,
 	Collection* p_pages,
@@ -144,7 +144,7 @@ void FUN_1002e09b(
 
 	p_text[p_size - 1] = '\0';
 	if (p_quote) {
-		text = FUN_1002dc60(p_text, p_quote);
+		text = ExpandTextEscapes(p_text, p_quote);
 	}
 	else {
 		text = p_text;
@@ -163,7 +163,7 @@ void FUN_1002e09b(
 // transparent and everything else in color 1.
 // Not 100%: the stack slots of node and i are permuted.
 // FUNCTION: MW2SHELL 0x1002e1b1
-void FUN_1002e1b1(
+void LoadTextPages(
 	Collection* p_pages,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -177,10 +177,10 @@ void FUN_1002e1b1(
 	MechS32* node = NULL;
 	MechS32 i;
 
-	g_unk0x1008f658[0] = 0xff;
-	g_unk0x1008f658[1] = 1;
+	g_textPageColors[0] = 0xff;
+	g_textPageColors[1] = 1;
 	for (i = 2; i < 0x100; i++) {
-		g_unk0x1008f658[i] = 0xff;
+		g_textPageColors[i] = 0xff;
 	}
 
 	if (!g_projectArchive->LoadBwd(p_name)) {
@@ -189,12 +189,12 @@ void FUN_1002e1b1(
 
 	node = g_projectArchive->FindBwdNode(*(MechS32*) g_bwdTags[c_tagHtxt]);
 	if (node) {
-		FUN_1002e09b(
+		LayoutTextPages(
 			(MechChar*) (node + 2),
 			node[1] - 8,
 			p_pages,
 			p_font,
-			g_unk0x1008f658,
+			g_textPageColors,
 			p_left,
 			p_top,
 			p_width,

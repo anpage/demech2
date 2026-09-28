@@ -240,8 +240,8 @@ void ButtonMenu::FUN_10048cc1(MechS32 p_id)
 		if (item->m_id == p_id && !item->m_enabled) {
 			item->m_enabled = TRUE;
 			if (item->m_label != NULL) {
-				m_videoDriver->FUN_100076e8(item->m_label, 1);
-				item->m_label->FUN_10047425();
+				m_videoDriver->AddGlyph(item->m_label, 1);
+				item->m_label->Draw();
 			}
 		}
 	}
@@ -330,7 +330,7 @@ MechU8 MenuEntry::FUN_1004902a(MechS32 p_x, MechS32 p_y)
 			delete m_hover;
 			m_hover = NULL;
 			if (m_label != NULL) {
-				m_label->FUN_10047425();
+				m_label->Draw();
 			}
 		}
 

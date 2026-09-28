@@ -7,7 +7,7 @@
 #include "types.h"
 
 // The functions and globals of textpages.cpp that other units use.
-void FUN_1002e1b1(
+void LoadTextPages(
 	Collection* p_pages,
 	MechS32 p_left,
 	MechS32 p_top,

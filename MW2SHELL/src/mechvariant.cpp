@@ -435,7 +435,7 @@ MechChar* FUN_1000345a(MechChar* p_text, Font* p_font, MechS32 p_width)
 	}
 
 	while (*p_text) {
-		width += p_font->FUN_10005424(*p_text);
+		width += p_font->GetCharacterWidth(*p_text);
 		if (width > p_width) {
 			break;
 		}
@@ -835,7 +835,7 @@ done:
 		delete g_unk0x10079470;
 		delete g_unk0x10079580;
 		FUN_10016f45();
-		g_pVideoDriver->FUN_100077b4(TRUE);
+		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_unk0x1005b8a0 = 0;
 		PostMessage(g_pWnd, p_msg, 0x413, 0);
 		FUN_100108fd(FUN_100043c2);

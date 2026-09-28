@@ -596,13 +596,7 @@ void VideoDriver::FUN_10007430(
 // Only the stack slots differ: the original puts cursor at [ebp-4] and acquired at [ebp-0xc];
 // VC++ 4.1 assigns them [ebp-0xc] and [ebp-4] here. width stays at [ebp-8].
 // FUNCTION: MW2SHELL 0x100074d2
-MechS32 VideoDriver::FUN_100074d2(
-	MechS32 p_left,
-	MechS32 p_top,
-	void* p_unk0x08,
-	MechChar* p_text,
-	undefined* p_unk0x10
-)
+MechS32 VideoDriver::DrawString(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar* p_text, undefined* p_unk0x10)
 {
 	MechChar* cursor;
 	MechS32 width;
@@ -614,7 +608,7 @@ MechS32 VideoDriver::FUN_100074d2(
 
 	width = 0;
 	for (cursor = p_text; *cursor != '\0'; cursor++) {
-		width += FUN_10036abc(p_unk0x08, *cursor);
+		width += FontGetCharWidth(p_unk0x08, *cursor);
 	}
 
 	if (width == 0) {
@@ -631,7 +625,7 @@ MechS32 VideoDriver::FUN_100074d2(
 
 	acquired = ACQUIRE_FRAMEBUFFER();
 	if (acquired == 0) {
-		FUN_10036c67(&m_screenView, p_left, p_top, p_unk0x08, p_text, p_unk0x10);
+		BlitString(&m_screenView, p_left, p_top, p_unk0x08, p_text, p_unk0x10);
 	}
 
 	ExpandRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height);
@@ -641,12 +635,12 @@ MechS32 VideoDriver::FUN_100074d2(
 // Only the stack slots differ: the original puts width at [ebp-4] and acquired at [ebp-8];
 // VC++ 4.1 assigns them [ebp-8] and [ebp-4] here.
 // FUNCTION: MW2SHELL 0x10007603
-MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10)
+MechS32 VideoDriver::DrawChar(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10)
 {
 	MechS32 width;
 	MechS32 acquired;
 
-	width = FUN_10036abc(p_unk0x08, p_char);
+	width = FontGetCharWidth(p_unk0x08, p_char);
 	if (g_unk0x1005c2a0 && !IntersectsRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height)) {
 		return width;
 	}
@@ -657,7 +651,7 @@ MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08
 
 	acquired = ACQUIRE_FRAMEBUFFER();
 	if (acquired == 0) {
-		FUN_10036adc(&m_screenView, p_left, p_top, p_unk0x08, p_char, p_unk0x10);
+		BlitChar(&m_screenView, p_left, p_top, p_unk0x08, p_char, p_unk0x10);
 	}
 
 	ExpandRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_unk0x08)->m_height);
@@ -665,43 +659,43 @@ MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08
 }
 
 // FUNCTION: MW2SHELL 0x100076e8
-void VideoDriver::FUN_100076e8(TextGlyph* p_item, MechS32 p_unk0x16)
+void VideoDriver::AddGlyph(TextGlyph* p_item, MechS32 p_unk0x16)
 {
 	if (p_unk0x16) {
-		m_unk0x16->FUN_1003e171(p_item);
+		m_unk0x16->Add(p_item);
 	}
 	else {
-		m_unk0x1a->FUN_1003e171(p_item);
+		m_unk0x1a->Add(p_item);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1000772d
-void VideoDriver::FUN_1000772d(TextGlyph* p_item)
+void VideoDriver::RemoveGlyph(TextGlyph* p_item)
 {
-	m_unk0x16->FUN_1003e19b(p_item);
-	m_unk0x1a->FUN_1003e19b(p_item);
+	m_unk0x16->Remove(p_item);
+	m_unk0x1a->Remove(p_item);
 }
 
 // FUNCTION: MW2SHELL 0x10007763
-void VideoDriver::FUN_10007763(MechS32 p_unk0x16)
+void VideoDriver::RedrawGlyphs(MechS32 p_unk0x16)
 {
 	g_unk0x1005c2a0 = 1;
 
 	if (p_unk0x16) {
-		m_unk0x16->FUN_1003e286();
+		m_unk0x16->DrawAll();
 	}
 	else {
-		m_unk0x1a->FUN_1003e286();
+		m_unk0x1a->DrawAll();
 	}
 
 	g_unk0x1005c2a0 = 0;
 }
 
 // FUNCTION: MW2SHELL 0x100077b4
-void VideoDriver::FUN_100077b4(MechU8 p_delete)
+void VideoDriver::ClearGlyphs(MechU8 p_delete)
 {
-	m_unk0x16->FUN_1003e1e6(p_delete);
-	m_unk0x1a->FUN_1003e1e6(p_delete);
+	m_unk0x16->Clear(p_delete);
+	m_unk0x1a->Clear(p_delete);
 }
 
 // FUNCTION: MW2SHELL 0x100077ea

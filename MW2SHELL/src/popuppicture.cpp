@@ -74,8 +74,8 @@ void PopupPicture::Show()
 
 	FUN_10032f84(&m_videoDriver->m_backView, (undefined4) m_data, 0, 319, 239);
 	m_videoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
-	m_videoDriver->FUN_10007763(0);
-	m_videoDriver->FUN_10007763(1);
+	m_videoDriver->RedrawGlyphs(0);
+	m_videoDriver->RedrawGlyphs(1);
 }
 
 // FUNCTION: MW2SHELL 0x1004601c
@@ -83,6 +83,6 @@ void PopupPicture::Hide()
 {
 	FUN_10034f18(&m_savedView, 0, 0, &m_screenView, 0, 0, -1);
 	m_videoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
-	m_videoDriver->FUN_10007763(0);
-	m_videoDriver->FUN_10007763(1);
+	m_videoDriver->RedrawGlyphs(0);
+	m_videoDriver->RedrawGlyphs(1);
 }

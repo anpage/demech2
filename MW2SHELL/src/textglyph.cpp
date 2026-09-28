@@ -26,7 +26,7 @@ undefined g_unk0x10074758[256] = {0xff, 5};
 undefined g_unk0x10074858[256] = {0xff, 8};
 
 // FUNCTION: MW2SHELL 0x10047370
-void FUN_10047370()
+void InitTextColorMaps()
 {
 	MechS32 i;
 
@@ -41,63 +41,63 @@ void FUN_10047370()
 }
 
 // FUNCTION: MW2SHELL 0x10047404
-void TextGlyph::FUN_10047404(undefined4 p_unk0x10)
+void TextGlyph::SetTyped(undefined4 p_typed)
 {
-	m_unk0x10 = p_unk0x10;
+	m_typed = p_typed;
 }
 
 // FUNCTION: MW2SHELL 0x10047425
-void TextGlyph::FUN_10047425()
+void TextGlyph::Draw()
 {
 	if (m_text != NULL && strlen(m_text) != 0) {
-		if (m_unk0x10 == 1) {
-			FUN_100474ab();
+		if (m_typed == 1) {
+			DrawAllChars();
 		}
 		else {
-			m_unk0x00->FUN_100056b9(m_left, m_top, m_text, m_unk0x04);
-			m_unk0x35 = 1;
+			m_font->DrawString(m_left, m_top, m_text, m_colors);
+			m_done = 1;
 		}
 	}
 }
 
 // FUNCTION: MW2SHELL 0x100474ab
-void TextGlyph::FUN_100474ab()
+void TextGlyph::DrawAllChars()
 {
 	MechS32 textIndex;
 
 	textIndex = m_textIndex;
 	m_textIndex = -1;
 	while (m_textIndex < textIndex) {
-		FUN_100474f0();
+		DrawNextChar();
 	}
 }
 
 // Draws the next character of the text, or handles the escape sequence starting at it.
 // FUNCTION: MW2SHELL 0x100474f0
-MechU8 TextGlyph::FUN_100474f0()
+MechU8 TextGlyph::DrawNextChar()
 {
 	MechS32 i;
 	MechChar number[0x80];
 
-	if (!m_unk0x14) {
-		m_videoDriver->FUN_100076e8(this, 1);
-		m_unk0x14 = 1;
+	if (!m_registered) {
+		m_videoDriver->AddGlyph(this, 1);
+		m_registered = 1;
 	}
 
 	if (m_textIndex < 0) {
-		m_unk0x08 = m_unk0x04;
+		m_currentColors = m_colors;
 		m_textIndex = 0;
 		m_cursorX = m_left;
 	}
 
 	if (strlen(m_text) <= m_textIndex) {
-		m_unk0x08 = m_unk0x04;
-		m_unk0x35 = 1;
+		m_currentColors = m_colors;
+		m_done = 1;
 		return TRUE;
 	}
 
 	if (m_text[m_textIndex] == '\\') {
-		m_unk0x08 = m_unk0x04;
+		m_currentColors = m_colors;
 		m_textIndex++;
 
 		if (strlen(m_text) > m_textIndex) {
@@ -106,8 +106,8 @@ MechU8 TextGlyph::FUN_100474f0()
 			case 't':
 				m_textIndex++;
 				for (i = 0; i < 19; i++) {
-					if (m_cursorX - m_left < g_unk0x1006e150[i]) {
-						m_cursorX = g_unk0x1006e150[i] + m_left;
+					if (m_cursorX - m_left < g_textTabStops[i]) {
+						m_cursorX = g_textTabStops[i] + m_left;
 						break;
 					}
 				}
@@ -139,7 +139,7 @@ MechU8 TextGlyph::FUN_100474f0()
 			case 'A':
 			case 'a':
 				m_textIndex++;
-				m_unk0x08 = g_unk0x10074658;
+				m_currentColors = g_unk0x10074658;
 				break;
 			default:
 				break;
@@ -148,10 +148,10 @@ MechU8 TextGlyph::FUN_100474f0()
 	}
 	else {
 		if (m_text[m_textIndex] == ' ') {
-			m_unk0x08 = m_unk0x04;
+			m_currentColors = m_colors;
 		}
 
-		m_cursorX += m_unk0x00->FUN_100056f5(m_cursorX, m_top, m_text[m_textIndex], m_unk0x08);
+		m_cursorX += m_font->DrawChar(m_cursorX, m_top, m_text[m_textIndex], m_currentColors);
 		m_textIndex++;
 	}
 
@@ -163,9 +163,9 @@ MechU8 TextGlyph::FUN_100474f0()
 }
 
 // FUNCTION: MW2SHELL 0x1004795e
-MechU8 TextGlyph::FUN_1004795e()
+MechU8 TextGlyph::TypeStep()
 {
-	if (m_unk0x35 == 1) {
+	if (m_done == 1) {
 		return TRUE;
 	}
 
@@ -173,16 +173,16 @@ MechU8 TextGlyph::FUN_1004795e()
 		return TRUE;
 	}
 
-	return FUN_100474f0();
+	return DrawNextChar();
 }
 
 // Operand order: the original computes m_right from m_left + m_width with m_left loaded first; it
 // follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x100479b7
-TextGlyph::TextGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top, undefined* p_unk0x04, Font* p_unk0x00)
+TextGlyph::TextGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top, undefined* p_colors, Font* p_font)
 {
-	m_unk0x00 = p_unk0x00;
-	m_videoDriver = p_unk0x00->m_videoDriver;
+	m_font = p_font;
+	m_videoDriver = p_font->m_videoDriver;
 
 	if (p_text == NULL) {
 		p_text = "";
@@ -196,8 +196,8 @@ TextGlyph::TextGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top, undefined*
 		m_text = FUN_10030900(p_text);
 	}
 
-	m_width = m_unk0x00->FUN_100053be(m_text);
-	m_height = m_unk0x00->m_unk0x40c;
+	m_width = m_font->GetTextWidth(m_text);
+	m_height = m_font->m_height;
 
 	if (*p_text == '~') {
 		m_left = p_left - m_width / 2;
@@ -209,25 +209,25 @@ TextGlyph::TextGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top, undefined*
 	m_top = p_top;
 	m_right = m_left + m_width;
 	m_bottom = m_top + m_height;
-	m_unk0x35 = 0;
+	m_done = 0;
 	m_cursorX = -1;
 	m_textIndex = -1;
-	m_unk0x10 = 0;
-	m_unk0x14 = 0;
+	m_typed = 0;
+	m_registered = 0;
 	m_unk0x15 = 0;
-	m_unk0x04 = p_unk0x04;
-	m_unk0x08 = p_unk0x04;
+	m_colors = p_colors;
+	m_currentColors = p_colors;
 }
 
 // Restores the background under the text and rewinds it.
 // FUNCTION: MW2SHELL 0x10047b03
 void TextGlyph::Shutdown()
 {
-	m_unk0x35 = 0;
+	m_done = 0;
 	m_cursorX = -1;
 	m_textIndex = -1;
-	m_videoDriver->FUN_1000772d(this);
-	m_unk0x14 = 0;
+	m_videoDriver->RemoveGlyph(this);
+	m_registered = 0;
 	m_videoDriver->FUN_100071ad(m_left, m_top, m_width, m_height);
 }
 

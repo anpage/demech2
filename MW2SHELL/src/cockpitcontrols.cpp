@@ -473,7 +473,7 @@ MechS32 CpcEditTextField(
 	length = strlen(p_text);
 	strcpy(g_cpcEditText, p_text);
 	strcat(g_cpcEditText, "_");
-	width = p_font->FUN_100053be(g_cpcEditText);
+	width = p_font->GetTextWidth(g_cpcEditText);
 	glyph = p_font->FUN_10005522(p_left, p_top, g_cpcEditText, p_colors);
 
 	for (;;) {
@@ -539,7 +539,7 @@ MechS32 CpcEditTextField(
 					break;
 				}
 
-				if (!p_font->FUN_10005424(key)) {
+				if (!p_font->GetCharacterWidth(key)) {
 					break;
 				}
 
@@ -548,7 +548,7 @@ MechS32 CpcEditTextField(
 				g_cpcEditText[length] = '_';
 				g_cpcEditText[length + 1] = '\0';
 
-				if (p_font->FUN_100053be(g_cpcEditText) < p_maxWidth) {
+				if (p_font->GetTextWidth(g_cpcEditText) < p_maxWidth) {
 					if (glyph) {
 						delete glyph;
 					}
@@ -1289,7 +1289,7 @@ TextGlyph* CpcDrawBindingDevice(ScreenField* p_tab)
 		return NULL;
 	}
 
-	while (g_unk0x10071210->FUN_100053be(device->m_info.m_displayName) > 175) {
+	while (g_unk0x10071210->GetTextWidth(device->m_info.m_displayName) > 175) {
 		strcpy(device->m_info.m_displayName + strlen(device->m_info.m_displayName) - 4, "...");
 	}
 
@@ -1324,7 +1324,7 @@ TextGlyph* CpcDrawDeviceEntry(ScreenField* p_tab)
 		return NULL;
 	}
 
-	while (g_unk0x10071210->FUN_100053be(device->m_info.m_displayName) > 175) {
+	while (g_unk0x10071210->GetTextWidth(device->m_info.m_displayName) > 175) {
 		strcpy(device->m_info.m_displayName + strlen(device->m_info.m_displayName) - 4, "...");
 	}
 

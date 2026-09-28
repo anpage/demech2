@@ -14,8 +14,8 @@ extern "C"
 
 	MechS32 FUN_10037504(void* p_data, MechS32 p_index);
 	MechS32 FUN_10037684(void* p_data);
-	MechS32 FUN_10036aa9(void* p_data);
-	MechS32 FUN_10036abc(void* p_data, MechS32 p_char);
+	MechS32 FontGetHeight(void* p_data);
+	MechS32 FontGetCharWidth(void* p_data, MechS32 p_char);
 	MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
 	void FUN_10034f18(
 		PixelView* p_unk0x00,
@@ -36,7 +36,7 @@ extern "C"
 		MechS32 p_color
 	);
 	void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
-	MechS32 FUN_10036adc(
+	MechS32 BlitChar(
 		PixelView* p_view,
 		MechS32 p_left,
 		MechS32 p_top,
@@ -44,7 +44,7 @@ extern "C"
 		MechS32 p_char,
 		undefined* p_palette
 	);
-	void FUN_10036c67(
+	void BlitString(
 		PixelView* p_view,
 		MechS32 p_left,
 		MechS32 p_top,

@@ -110,10 +110,10 @@ void MouseState::DrawCursorPosition()
 		sprintf(g_cursorPositionText, "(%d,%d)", m_x, m_y);
 
 		if (m_unk0x0c) {
-			m_videoDriver->FUN_100071ad(0x230, 0x14, m_unk0x0c, m_font->m_unk0x40c);
+			m_videoDriver->FUN_100071ad(0x230, 0x14, m_unk0x0c, m_font->m_height);
 		}
 
-		m_unk0x0c = m_videoDriver->FUN_100074d2(0x230, 0x14, m_font->m_unk0x408, g_cursorPositionText, NULL);
+		m_unk0x0c = m_videoDriver->DrawString(0x230, 0x14, m_font->m_unk0x408, g_cursorPositionText, NULL);
 	}
 }
 

@@ -182,7 +182,7 @@ MechS32 EditTextField(
 	length = strlen(p_text);
 	strcpy(g_editTextBuffer, p_text);
 	strcat(g_editTextBuffer, "_");
-	width = p_font->FUN_100053be(g_editTextBuffer);
+	width = p_font->GetTextWidth(g_editTextBuffer);
 	glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
 
 	for (;;) {
@@ -242,7 +242,7 @@ MechS32 EditTextField(
 					break;
 				}
 
-				if (!p_font->FUN_10005424(key)) {
+				if (!p_font->GetCharacterWidth(key)) {
 					break;
 				}
 
@@ -251,7 +251,7 @@ MechS32 EditTextField(
 				g_editTextBuffer[length] = '_';
 				g_editTextBuffer[length + 1] = '\0';
 
-				if (p_font->FUN_100053be(g_editTextBuffer) < p_width) {
+				if (p_font->GetTextWidth(g_editTextBuffer) < p_width) {
 					if (glyph) {
 						delete glyph;
 					}

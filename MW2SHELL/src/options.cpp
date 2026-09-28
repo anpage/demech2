@@ -85,8 +85,8 @@ void FUN_10043280(
 	p_plaque->m_right = p_plaque->m_left + p_width - 1;
 	p_plaque->m_top = p_plaque->m_textTop - p_height / 2;
 	p_plaque->m_bottom = p_plaque->m_top + p_height - 1;
-	p_plaque->m_textTop -= p_font->m_unk0x40c / 2;
-	p_plaque->m_textLeft -= p_font->FUN_100053be(p_plaque->m_text) / 2;
+	p_plaque->m_textTop -= p_font->m_height / 2;
+	p_plaque->m_textLeft -= p_font->GetTextWidth(p_plaque->m_text) / 2;
 	p_plaque->m_unk0x98 = 0;
 }
 

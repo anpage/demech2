@@ -621,18 +621,18 @@ void FUN_10046fa8(MechS32 p_active)
 					// A blank line.
 				}
 				else if (g_unk0x10071db0[index][0] == '<') {
-					width = 0x140 - g_unk0x10071214->FUN_100053be(g_unk0x10071db0[index] + 1) / 2;
+					width = 0x140 - g_unk0x10071214->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
 					g_pVideoDriver
-						->FUN_100074d2(width, top, g_unk0x10071214->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
+						->DrawString(width, top, g_unk0x10071214->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
 				}
 				else if (g_unk0x10071db0[index][0] == '>') {
-					width = 0x140 - g_unk0x10071218->FUN_100053be(g_unk0x10071db0[index] + 1) / 2;
+					width = 0x140 - g_unk0x10071218->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
 					g_pVideoDriver
-						->FUN_100074d2(width, top, g_unk0x10071218->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
+						->DrawString(width, top, g_unk0x10071218->m_unk0x408, g_unk0x10071db0[index] + 1, NULL);
 				}
 				else if (g_unk0x10071db0[index][0] == '~') {
-					width = 0x140 - g_unk0x10071214->FUN_100053be(g_unk0x10071db0[index] + 1) / 2;
-					g_pVideoDriver->FUN_100074d2(
+					width = 0x140 - g_unk0x10071214->GetTextWidth(g_unk0x10071db0[index] + 1) / 2;
+					g_pVideoDriver->DrawString(
 						width,
 						top,
 						g_unk0x10071214->m_unk0x408,
@@ -641,8 +641,8 @@ void FUN_10046fa8(MechS32 p_active)
 					);
 				}
 				else {
-					width = 0x140 - g_unk0x10071210->FUN_100053be(g_unk0x10071db0[index]) / 2;
-					g_pVideoDriver->FUN_100074d2(width, top, g_unk0x10071210->m_unk0x408, g_unk0x10071db0[index], NULL);
+					width = 0x140 - g_unk0x10071210->GetTextWidth(g_unk0x10071db0[index]) / 2;
+					g_pVideoDriver->DrawString(width, top, g_unk0x10071210->m_unk0x408, g_unk0x10071db0[index], NULL);
 				}
 			}
 			else {

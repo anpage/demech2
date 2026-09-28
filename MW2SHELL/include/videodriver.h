@@ -57,12 +57,12 @@ public:
 		MechS32 p_width,
 		MechS32 p_height
 	);
-	MechS32 FUN_100074d2(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar* p_text, undefined* p_unk0x10);
-	MechS32 FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10);
-	void FUN_100076e8(TextGlyph* p_item, MechS32 p_unk0x16);
-	void FUN_1000772d(TextGlyph* p_item);
-	void FUN_10007763(MechS32 p_unk0x16);
-	void FUN_100077b4(MechU8 p_delete);
+	MechS32 DrawString(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar* p_text, undefined* p_unk0x10);
+	MechS32 DrawChar(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10);
+	void AddGlyph(TextGlyph* p_item, MechS32 p_unk0x16);
+	void RemoveGlyph(TextGlyph* p_item);
+	void RedrawGlyphs(MechS32 p_unk0x16);
+	void ClearGlyphs(MechU8 p_delete);
 	void ActivateFramebuffer();
 
 private:
