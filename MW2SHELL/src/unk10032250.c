@@ -29,6 +29,7 @@
    keeps a plain label jump. */
 #include "compat.h"
 #include "decomp.h"
+#include "palettecolor.h"
 #include "pixelview.h"
 #include "types.h"
 
@@ -1162,13 +1163,13 @@ jmp_1003706f:
 #endif
 
 #ifdef COMPAT_MODE
-void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette)
+void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
 	STUB(0x10037096);
 }
 #else
 // FUNCTION: MW2SHELL 0x10037096
-__declspec(naked) void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette)
+__declspec(naked) void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
 	__asm {
 		push ebp

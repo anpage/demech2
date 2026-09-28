@@ -41,6 +41,9 @@ MidiSequence* g_midiBackgroundMusic = NULL;
 // GLOBAL: MW2SHELL 0x10062984
 MechS32 g_fCursorHidden = 0;
 
+// The C draw mode units (gdi.c) read the window mode.
+extern "C" MechS32 g_nWindowMode;
+
 // GLOBAL: MW2SHELL 0x10062ffc
 MechS32 g_nWindowMode = 0;
 
@@ -52,6 +55,12 @@ extern "C" MechS32 g_fWindowActive;
 
 // GLOBAL: MW2SHELL 0x1006a9d0
 MechS32 g_fWindowActive = 1;
+
+// Read by the draw mode unit (unk10010a30.c) when it restyles the window.
+extern "C" MechS32 g_unk0x1006a9d8;
+
+// GLOBAL: MW2SHELL 0x1006a9d8
+MechS32 g_unk0x1006a9d8 = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9dc
 MechU32 g_fQuickTips = 1;
