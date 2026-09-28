@@ -2,9 +2,9 @@
 
 #include "debugprint.h"
 #include "decomp.h"
-#include "tinwhistle0x3c.h"
+#include "pilotrecord.h"
+#include "shellglobals.h"
 #include "types.h"
-#include "unk100711f8.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +13,7 @@
 // FUNCTION: MW2SHELL 0x1002da80
 void LoadPilotRoster()
 {
-	TinWhistle0x3c* pilot;
+	PilotRecord* pilot;
 	FILE* file;
 	MechS32 i;
 

@@ -1,11 +1,11 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
-#include "chimeledger0x3c.h"
 #include "midisequence.h"
 #include "mss.h"
-#include "oakentune0x10.h"
+#include "shellglobals.h"
+#include "soundconfig.h"
 #include "unk1003bf90.h"
-#include "unk100711f8.h"
+#include "videosound.h"
 
 #include <windows.h>
 
@@ -395,7 +395,7 @@ void AudioSample::SetLoopCount(MechS32 p_loopCount)
 // p_size samples. Without a digital driver, a sample or the buffers, it stays silent.
 // Not 100%: the stack slots of minimum and format are permuted.
 // FUNCTION: MW2SHELL 0x1003d884
-OakenTune0x10::OakenTune0x10(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size)
+VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size)
 {
 	MechS32 minimum;
 	MechS32 format;
@@ -461,7 +461,7 @@ OakenTune0x10::OakenTune0x10(AudioSubsystem* p_subsystem, MechS32 p_stereo, Mech
 }
 
 // FUNCTION: MW2SHELL 0x1003da54
-OakenTune0x10::~OakenTune0x10()
+VideoSound::~VideoSound()
 {
 	if (m_unk0x04 != 0) {
 		AIL_end_sample((HSAMPLE) m_unk0x04);
@@ -476,7 +476,7 @@ OakenTune0x10::~OakenTune0x10()
 }
 
 // FUNCTION: MW2SHELL 0x1003dad5
-undefined4 OakenTune0x10::FUN_1003dad5()
+undefined4 VideoSound::FUN_1003dad5()
 {
 	if (m_unk0x04) {
 		if (m_unk0x10 == -1) {
@@ -491,7 +491,7 @@ undefined4 OakenTune0x10::FUN_1003dad5()
 }
 
 // FUNCTION: MW2SHELL 0x1003db31
-void* OakenTune0x10::FUN_1003db31()
+void* VideoSound::FUN_1003db31()
 {
 	if (m_unk0x04) {
 		if (m_unk0x10 == -1) {
@@ -506,7 +506,7 @@ void* OakenTune0x10::FUN_1003db31()
 }
 
 // FUNCTION: MW2SHELL 0x1003db95
-void OakenTune0x10::FUN_1003db95(void* p_buffer, MechU32 p_size)
+void VideoSound::FUN_1003db95(void* p_buffer, MechU32 p_size)
 {
 	// The two adjacent buffer fields are selected by Miles' ready-buffer index.
 	if (m_unk0x04) {

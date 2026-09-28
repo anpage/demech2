@@ -1,25 +1,25 @@
 #include "simhandoff.h"
 
 #include "decomp.h"
-#include "linenpacket0x218.h"
+#include "drawmode.h"
 #include "mechvariant.h"
-#include "tinwhistle0x3c.h"
+#include "pilotrecord.h"
+#include "shellglobals.h"
+#include "simhandoffstate.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk100711f8.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
 
-DECOMP_SIZE_ASSERT(LinenPacket0x218, 0x218)
+DECOMP_SIZE_ASSERT(SimHandoffState, 0x218)
 
 // The mission's name, from its briefing file.
 // GLOBAL: MW2SHELL 0x1006a550
 MechChar g_unk0x1006a550[0x10] = "xxxxxxxx.xxx";
 
 // GLOBAL: MW2SHELL 0x10090288
-LinenPacket0x218 g_unk0x10090288;
+SimHandoffState g_unk0x10090288;
 
 // Reads the shell's state back from mw2prm.cfg after a mission. With p_fromSim, posts the saved
 // message to the shell window; otherwise it returns to the campaign's start (2, no pilot, no

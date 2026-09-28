@@ -1,24 +1,24 @@
 #include "archivereader.h"
 
 #include "audiosample.h"
-#include "brasslantern0x414.h"
+#include "buttonmenu.h"
 #include "collection.h"
 #include "decomp.h"
-#include "emberglyph0x3e.h"
-#include "hollowreed0x110.h"
+#include "drawmode.h"
+#include "font.h"
+#include "keyboardinput.h"
 #include "mainmenubutton.h"
-#include "menulist0x10d.h"
+#include "menudata.h"
+#include "menuscreen.h"
 #include "mousestate.h"
 #include "page.h"
+#include "shellglobals.h"
 #include "shellmain.h"
-#include "tallowsign0x10.h"
+#include "stringutil.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk10030900.h"
 #include "unk1003bf90.h"
-#include "unk1006e150.h"
-#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -528,7 +528,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 // FUNCTION: MW2SHELL 0x1002a490
 ArchiveReader::ArchiveReader(
 	MechChar* p_name,
-	BrassLantern0x414* p_font,
+	Font* p_font,
 	MechS32 p_entry,
 	MechU8 p_ownsDatabase,
 	TMPackDataBase* p_database,
@@ -554,7 +554,7 @@ ArchiveReader::ArchiveReader(
 	CreateCollection(&m_topics, 3, NULL, 4, NULL);
 	FUN_1002931d();
 
-	m_menu = new MenuList0x10d(g_pVideoDriver, m_font, 0, m_buttons, p_count);
+	m_menu = new ButtonMenu(g_pVideoDriver, m_font, 0, m_buttons, p_count);
 	m_menu->FUN_10048b95(p_buttons[c_buttonBack], c_buttonBack, m_menu->m_drawRect);
 
 	if (m_ownsDatabase == TRUE) {

@@ -199,62 +199,62 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debrief.cpp
     MW2SHELL/src/mechvariant.cpp
     MW2SHELL/src/keyboard.c
-    MW2SHELL/src/unk100050f0.c
-    MW2SHELL/src/brasslantern0x414.cpp
-    MW2SHELL/src/unk10005970.c
+    MW2SHELL/src/resourcename.c
+    MW2SHELL/src/font.cpp
+    MW2SHELL/src/stringcollection.c
     MW2SHELL/src/videodriver.cpp
     MW2SHELL/src/mechbay.cpp
     MW2SHELL/src/shellmain.cpp
-    MW2SHELL/src/unk10010a30.c
-    MW2SHELL/src/unk100114f0.c
-    MW2SHELL/src/unk10013690.c
+    MW2SHELL/src/drawmode.c
+    MW2SHELL/src/directdraw.c
+    MW2SHELL/src/resourcecache.c
     MW2SHELL/src/clanhall.cpp
-    MW2SHELL/src/unk10014b60.cpp
+    MW2SHELL/src/rosterscreen.cpp
     MW2SHELL/src/debugprint.c
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
     MW2SHELL/src/unk10017a7c.c
     MW2SHELL/src/archivereader.cpp
-    MW2SHELL/src/unk1002a968.c
+    MW2SHELL/src/polyfill.c
     MW2SHELL/src/pilotroster.cpp
-    MW2SHELL/src/unk1002dc60.cpp
-    MW2SHELL/src/cedarknot0x10.cpp
+    MW2SHELL/src/textpages.cpp
+    MW2SHELL/src/projectarchive.cpp
     MW2SHELL/src/dispdib.c
-    MW2SHELL/src/unk1002fb90.c
-    MW2SHELL/src/unk10030900.c
+    MW2SHELL/src/prjfile.c
+    MW2SHELL/src/stringutil.c
     MW2SHELL/src/cdcheck.cpp
     MW2SHELL/src/gdi.c
-    MW2SHELL/src/unk10031970.c
-    MW2SHELL/src/unk10031bf0.c
-    MW2SHELL/src/unk10032250.c
+    MW2SHELL/src/resourcefile.c
+    MW2SHELL/src/input.c
+    MW2SHELL/src/blit.c
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp
-    MW2SHELL/src/unk10039de0.cpp
+    MW2SHELL/src/readyroom.cpp
     MW2SHELL/src/mousestate.cpp
     MW2SHELL/src/joystick.c
     MW2SHELL/src/unk1003bf90.c
-    MW2SHELL/src/unk1003bfb0.c
+    MW2SHELL/src/mw2prj.c
     MW2SHELL/src/collection.c
-    MW2SHELL/src/unk1003c7e0.cpp
+    MW2SHELL/src/cadettraining.cpp
     MW2SHELL/src/audio.cpp
     MW2SHELL/src/mainmenu.cpp
-    MW2SHELL/src/copperledger0x04.cpp
-    MW2SHELL/src/unk1003e2f0.cpp
+    MW2SHELL/src/textglyphlist.cpp
+    MW2SHELL/src/hallofhonor.cpp
     MW2SHELL/src/cockpitcontrols.cpp
-    MW2SHELL/src/unk1006e150.cpp
+    MW2SHELL/src/menudata.cpp
     MW2SHELL/src/options.cpp
-    MW2SHELL/src/hollowreed0x110.cpp
+    MW2SHELL/src/keyboardinput.cpp
     MW2SHELL/src/page.cpp
-    MW2SHELL/src/unk100711f8.cpp
-    MW2SHELL/src/glassbanner0x35c.cpp
-    MW2SHELL/src/unk100460a0.c
-    MW2SHELL/src/unk10046200.cpp
+    MW2SHELL/src/shellglobals.cpp
+    MW2SHELL/src/popuppicture.cpp
+    MW2SHELL/src/brightness.c
+    MW2SHELL/src/briefing.cpp
     MW2SHELL/src/mouse.c
-    MW2SHELL/src/unk10046e80.cpp
-    MW2SHELL/src/unk10047370.cpp
+    MW2SHELL/src/credits.cpp
+    MW2SHELL/src/textglyph.cpp
     MW2SHELL/src/tmpackdatabase.cpp
-    MW2SHELL/src/unk100485f0.cpp
+    MW2SHELL/src/buttonmenu.cpp
     MW2SHELL/MW2SHELL.def
     MW2SHELL/mw2shell.rc
   COMPILE_OPTIONS "/G5" "/Ob1" "$<$<COMPILE_LANGUAGE:CXX>:/GX>"

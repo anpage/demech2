@@ -1,4 +1,4 @@
-/* Hand-written assembly (originally a MASM object), transcribed like unk10032250.c. The object
+/* Hand-written assembly (originally a MASM object), transcribed like blit.c. The object
    starts at 0x10017a7c, right after debugout.c, with a 0x2000-byte table and a large block of
    code that patches itself at run time (0x10019a7c onward, through 0x100286a5); only the
    routines after it that touch neither are transcribed here. MASM pads between some routines

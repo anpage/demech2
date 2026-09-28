@@ -1,16 +1,15 @@
 #include "videodriver.h"
 
 #include "audiosubsystem.h"
-#include "copperledger0x04.h"
+#include "blit.h"
 #include "debugprint.h"
 #include "drawmode.h"
 #include "drawmodeextension.h"
 #include "gdi.h"
+#include "shellglobals.h"
+#include "textglyphlist.h"
 #include "tmpackdatabase.h"
-#include "unk10010a30.h"
-#include "unk10032250.h"
 #include "unk1003bf90.h"
-#include "unk100711f8.h"
 #include "video.h"
 
 #include <stdlib.h>
@@ -103,8 +102,8 @@ VideoDriver::VideoDriver()
 	m_dirtyView.m_bottom = m_screenView.m_top;
 	m_dirtyView.m_buffer = m_screenView.m_buffer;
 
-	m_unk0x16 = new CopperLedger0x04();
-	m_unk0x1a = new CopperLedger0x04();
+	m_unk0x16 = new TextGlyphList();
+	m_unk0x1a = new TextGlyphList();
 
 	g_unk0x10079998[0] = 0xff;
 	for (i = 1; i < 0x100; i++) {
@@ -666,7 +665,7 @@ MechS32 VideoDriver::FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08
 }
 
 // FUNCTION: MW2SHELL 0x100076e8
-void VideoDriver::FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16)
+void VideoDriver::FUN_100076e8(TextGlyph* p_item, MechS32 p_unk0x16)
 {
 	if (p_unk0x16) {
 		m_unk0x16->FUN_1003e171(p_item);
@@ -677,7 +676,7 @@ void VideoDriver::FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16)
 }
 
 // FUNCTION: MW2SHELL 0x1000772d
-void VideoDriver::FUN_1000772d(EmberGlyph0x3e* p_item)
+void VideoDriver::FUN_1000772d(TextGlyph* p_item)
 {
 	m_unk0x16->FUN_1003e19b(p_item);
 	m_unk0x1a->FUN_1003e19b(p_item);

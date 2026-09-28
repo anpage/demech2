@@ -1,11 +1,11 @@
 #include "mousestate.h"
 
-#include "brasslantern0x414.h"
+#include "drawmode.h"
+#include "font.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
-#include "unk10010a30.h"
+#include "shellglobals.h"
 #include "unk1003bf90.h"
-#include "unk100711f8.h"
 #include "videodriver.h"
 
 #include <stdio.h>
@@ -31,7 +31,7 @@ inline MechS32 IsInsideWindow(POINT& p_point)
 }
 
 // FUNCTION: MW2SHELL 0x1003a790
-MouseState::MouseState(VideoDriver* p_videoDriver, BrassLantern0x414* p_unk0x08, void* p_unk0x00)
+MouseState::MouseState(VideoDriver* p_videoDriver, Font* p_unk0x08, void* p_unk0x00)
 {
 	m_videoDriver = p_videoDriver;
 	m_unk0x08 = p_unk0x08;

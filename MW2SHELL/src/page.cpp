@@ -1,13 +1,13 @@
 #include "page.h"
 
 #include "audiosample.h"
-#include "brasslantern0x414.h"
-#include "emberglyph0x3e.h"
-#include "glassbanner0x35c.h"
+#include "font.h"
+#include "menudata.h"
+#include "popuppicture.h"
+#include "shellglobals.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "unk1003bf90.h"
-#include "unk1006e150.h"
-#include "unk100711f8.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,7 +60,7 @@ MechChar g_unk0x10094278[0x400];
 // Stack-slot permutation: glyphs, result, data and size.
 // FUNCTION: MW2SHELL 0x10044880
 Page::Page(
-	BrassLantern0x414* p_font,
+	Font* p_font,
 	VideoDriver* p_videoDriver,
 	undefined* p_colors,
 	MechS32 p_left,
@@ -427,16 +427,16 @@ MechChar* Page::Layout(MechChar* p_text)
 // FUNCTION: MW2SHELL 0x10045844
 void Page::AddGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top)
 {
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 
-	glyph = new EmberGlyph0x3e(p_text, p_left, p_top, m_colors, m_font);
+	glyph = new TextGlyph(p_text, p_left, p_top, m_colors, m_font);
 	ExpandCollection(m_glyphs, glyph);
 }
 
 // FUNCTION: MW2SHELL 0x100458ff
 void Page::FUN_100458ff()
 {
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechS32 i;
 
 	if (m_banner) {
@@ -444,7 +444,7 @@ void Page::FUN_100458ff()
 	}
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
-		glyph = (EmberGlyph0x3e*) CollectionGet(m_glyphs, i);
+		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
 		glyph->FUN_10047425();
 	}
 }
@@ -453,7 +453,7 @@ void Page::FUN_100458ff()
 // FUNCTION: MW2SHELL 0x1004596f
 void Page::FUN_1004596f()
 {
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechS32 i;
 
 	if (m_banner) {
@@ -465,7 +465,7 @@ void Page::FUN_1004596f()
 	}
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
-		glyph = (EmberGlyph0x3e*) CollectionGet(m_glyphs, i);
+		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
 		glyph->m_unk0x35 = FALSE;
 		glyph->m_cursorX = -1;
 		glyph->m_textIndex = -1;
@@ -477,11 +477,11 @@ void Page::FUN_1004596f()
 // FUNCTION: MW2SHELL 0x10045a2b
 void Page::FUN_10045a2b()
 {
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechS32 i;
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
-		glyph = (EmberGlyph0x3e*) CollectionGet(m_glyphs, i);
+		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
 		if (!glyph->m_unk0x35) {
 			glyph->FUN_1004795e();
 			return;
@@ -496,7 +496,7 @@ void Page::FUN_10045a2b()
 // FUNCTION: MW2SHELL 0x10045ab0
 void Page::FUN_10045ab0()
 {
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechS32 i;
 
 	if (m_banner) {
@@ -508,7 +508,7 @@ void Page::FUN_10045ab0()
 	}
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
-		glyph = (EmberGlyph0x3e*) CollectionGet(m_glyphs, i);
+		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
 		glyph->Shutdown();
 	}
 }
@@ -516,13 +516,13 @@ void Page::FUN_10045ab0()
 // FUNCTION: MW2SHELL 0x10045b38
 void Page::FUN_10045b38(undefined* p_data, MechS32 p_size)
 {
-	m_banner = new GlassBanner0x35c(p_data, p_size, m_videoDriver, 0, 0, m_sample);
+	m_banner = new PopupPicture(p_data, p_size, m_videoDriver, 0, 0, m_sample);
 }
 
 // FUNCTION: MW2SHELL 0x10045be7
 Page::~Page()
 {
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechS32 i;
 
 	if (m_banner) {
@@ -535,7 +535,7 @@ Page::~Page()
 	}
 
 	for (i = 0; i < m_glyphs->m_count; i++) {
-		glyph = (EmberGlyph0x3e*) CollectionGet(m_glyphs, i);
+		glyph = (TextGlyph*) CollectionGet(m_glyphs, i);
 		delete glyph;
 	}
 

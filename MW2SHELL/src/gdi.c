@@ -1,5 +1,6 @@
 #include "gdi.h"
 
+#include "brightness.h"
 #include "debugprint.h"
 #include "decomp.h"
 #include "drawbitmapinfo.h"
@@ -8,8 +9,6 @@
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk100460a0.h"
 
 #include <string.h>
 #include <windows.h>
@@ -93,7 +92,7 @@ DrawMode g_gdiDrawMode =
 // GLOBAL: MW2SHELL 0x1006766c
 MechS32 g_unk0x1006766c = TRUE;
 
-// Not a function: unk10010a30.c calls it as one (see there), and the linker binds the calls here.
+// Not a function: drawmode.c calls it as one (see there), and the linker binds the calls here.
 // GLOBAL: MW2SHELL 0x100965d4
 undefined4 PauseTimer;
 

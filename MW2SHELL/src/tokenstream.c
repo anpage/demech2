@@ -1,8 +1,8 @@
 #include "tokenstream.h"
 
 #include "decomp.h"
+#include "stringutil.h"
 #include "types.h"
-#include "unk10030900.h"
 #include "unk1003bf90.h"
 
 #include <stdio.h>

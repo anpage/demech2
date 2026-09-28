@@ -1,31 +1,31 @@
 #include "debrief.h"
 
 #include "archivereader.h"
-#include "brasslantern0x414.h"
+#include "buttonmenu.h"
 #include "campaignmission.h"
 #include "collection.h"
+#include "customstar.h"
 #include "decomp.h"
-#include "granitemast0x18.h"
-#include "hazelstar0x80.h"
-#include "hollowreed0x110.h"
+#include "drawmode.h"
+#include "font.h"
+#include "keyboardinput.h"
 #include "mainmenubutton.h"
 #include "mechbay.h"
+#include "mechchassis.h"
 #include "mechvariant.h"
-#include "menulist0x10d.h"
+#include "menudata.h"
+#include "menuscreen.h"
 #include "mousestate.h"
 #include "options.h"
 #include "page.h"
+#include "pilotrecord.h"
 #include "pilotroster.h"
+#include "shellglobals.h"
 #include "shellmain.h"
-#include "tallowsign0x10.h"
-#include "tinwhistle0x3c.h"
+#include "stringutil.h"
+#include "textpages.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk1002dc60.h"
-#include "unk10030900.h"
-#include "unk1006e150.h"
-#include "unk100711f8.h"
 #include "video.h"
 #include "videodriver.h"
 
@@ -36,7 +36,7 @@
 
 // SIZE 0x34
 // One objective of the mission results.
-struct FlintMark0x34 {
+struct MissionObjective {
 	MechS32 m_unk0x00;        // 0x00 — 0 failed, 1 successful
 	MechS32 m_unk0x04;        // 0x04 — type: 1 primary, 2 secondary, 4 tertiary, 8 return
 	undefined4 m_unk0x08;     // 0x08
@@ -47,19 +47,19 @@ struct FlintMark0x34 {
 
 // SIZE 0x9d4
 // The simulator's mission results (MW2MSN.CFG).
-struct SlateLedger0x9d4 {
-	undefined4 m_unk0x00;        // 0x00
-	MechS32 m_unk0x04;           // 0x04 — objectives
-	undefined4 m_unk0x08;        // 0x08
-	undefined4 m_unk0x0c;        // 0x0c
-	MechS32 m_unk0x10;           // 0x10 — outcome, 2 for a completed mission
-	FlintMark0x34 m_unk0x14[48]; // 0x14
+struct MissionResults {
+	undefined4 m_unk0x00;           // 0x00
+	MechS32 m_unk0x04;              // 0x04 — objectives
+	undefined4 m_unk0x08;           // 0x08
+	undefined4 m_unk0x0c;           // 0x0c
+	MechS32 m_unk0x10;              // 0x10 — outcome, 2 for a completed mission
+	MissionObjective m_unk0x14[48]; // 0x14
 };
 
 #pragma pack(1)
 // SIZE 0x50
 // The simulator's career record (MW2CAR.CFG): the last mission's statistics.
-struct RustAbacus0x50 {
+struct CareerRecord {
 	undefined m_unk0x00[0x07 - 0x00]; // 0x00
 	MechU16 m_unk0x07;                // 0x07 — enemy mechs destroyed
 	undefined m_unk0x09[0x13 - 0x09]; // 0x09
@@ -77,13 +77,13 @@ struct RustAbacus0x50 {
 };
 #pragma pack()
 
-DECOMP_SIZE_ASSERT(FlintMark0x34, 0x34)
-DECOMP_SIZE_ASSERT(SlateLedger0x9d4, 0x9d4)
-DECOMP_SIZE_ASSERT(RustAbacus0x50, 0x50)
+DECOMP_SIZE_ASSERT(MissionObjective, 0x34)
+DECOMP_SIZE_ASSERT(MissionResults, 0x9d4)
+DECOMP_SIZE_ASSERT(CareerRecord, 0x50)
 
 // The debriefing screen.
 // GLOBAL: MW2SHELL 0x1005b040
-MenuList0x10d* g_unk0x1005b040 = NULL;
+ButtonMenu* g_unk0x1005b040 = NULL;
 
 // GLOBAL: MW2SHELL 0x1005b044
 Page* g_unk0x1005b044 = NULL;
@@ -104,7 +104,7 @@ MechChar g_unk0x100768e0[0x1000];
 
 // The mission's objectives, in the order FUN_10001056 sorts them.
 // GLOBAL: MW2SHELL 0x100778e0
-FlintMark0x34* g_unk0x100778e0[48];
+MissionObjective* g_unk0x100778e0[48];
 
 // GLOBAL: MW2SHELL 0x100779a0
 MechChar g_unk0x100779a0[0x400];
@@ -114,13 +114,13 @@ MechChar g_unk0x10077da0[0x200];
 
 // The pilot as the mission found them, restored by a replay.
 // GLOBAL: MW2SHELL 0x10077fa0
-TinWhistle0x3c g_unk0x10077fa0;
+PilotRecord g_unk0x10077fa0;
 
 // GLOBAL: MW2SHELL 0x10077fe0
 undefined g_unk0x10077fe0[0x100];
 
 // GLOBAL: MW2SHELL 0x100780e0
-SlateLedger0x9d4 g_unk0x100780e0;
+MissionResults g_unk0x100780e0;
 
 // GLOBAL: MW2SHELL 0x10078ab8
 MechChar g_unk0x10078ab8[0x80];
@@ -168,10 +168,10 @@ MechU8 FUN_10001000()
 // FUNCTION: MW2SHELL 0x10001056
 int FUN_10001056(const void* p_a, const void* p_b)
 {
-	FlintMark0x34** a = (FlintMark0x34**) p_a;
-	FlintMark0x34** b = (FlintMark0x34**) p_b;
-	FlintMark0x34* first = *a;
-	FlintMark0x34* second = *b;
+	MissionObjective** a = (MissionObjective**) p_a;
+	MissionObjective** b = (MissionObjective**) p_b;
+	MissionObjective* first = *a;
+	MissionObjective* second = *b;
 
 	if (first->m_unk0x0c < 0) {
 		return 1;
@@ -192,16 +192,16 @@ int FUN_10001056(const void* p_a, const void* p_b)
 // Appends the honor breakdown of the mission to p_text and returns the honor it earns.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x100010ed
-MechS32 FUN_100010ed(undefined* p_options, RustAbacus0x50* p_career, SlateLedger0x9d4* p_results, MechChar* p_text)
+MechS32 FUN_100010ed(undefined* p_options, CareerRecord* p_career, MissionResults* p_results, MechChar* p_text)
 {
 	MechS32 honor = 0;
-	FlintMark0x34* objective = NULL;
+	MissionObjective* objective = NULL;
 	MechS32 points = 5000;
 	MechS32 i;
 	MechS32 width;
 	MechS32 secondary;
 	MechS32 tertiary;
-	HazelStar0x80* star;
+	CustomStar* star;
 	MechS32 tons;
 	MechDouble hit;
 	MechS32 hitBonus;
@@ -465,7 +465,7 @@ void FUN_10001c28(MechChar* p_dst, MechChar* p_src)
 // breakdown, whose honor a completed mission adds to the pilot's.
 // Not 100%: the stack slots of i, seconds, minutes, honor and width are permuted.
 // FUNCTION: MW2SHELL 0x10001ca0
-void FUN_10001ca0(RustAbacus0x50* p_career, SlateLedger0x9d4* p_results, MechChar* p_text, undefined* p_options)
+void FUN_10001ca0(CareerRecord* p_career, MissionResults* p_results, MechChar* p_text, undefined* p_options)
 {
 	MechS32 i;
 	MechS32 time;
@@ -484,7 +484,7 @@ void FUN_10001ca0(RustAbacus0x50* p_career, SlateLedger0x9d4* p_results, MechCha
 	for (i = 0; i < p_results->m_unk0x04; i++) {
 		g_unk0x100778e0[i] = &p_results->m_unk0x14[i];
 	}
-	qsort(g_unk0x100778e0, p_results->m_unk0x04, sizeof(FlintMark0x34*), FUN_10001056);
+	qsort(g_unk0x100778e0, p_results->m_unk0x04, sizeof(MissionObjective*), FUN_10001056);
 
 	strcat(p_text, "Time\\g050Type\\g170Objective\\g370Status\\n\\n");
 	for (i = 0; i < p_results->m_unk0x04; i++) {
@@ -578,9 +578,9 @@ void ReadMissionResults(void* p_results)
 // the clan's own).
 // FUNCTION: MW2SHELL 0x10002207
 void FUN_10002207(
-	SlateLedger0x9d4* p_results,
+	MissionResults* p_results,
 	MechChar* p_name,
-	MenuList0x10d*,
+	ButtonMenu*,
 	MechS32 p_left,
 	MechS32 p_top,
 	MechS32 p_width,
@@ -629,7 +629,7 @@ void FUN_10002207(
 // completed a trial without the options that make it easier (p_options, g_unk0x100716b8).
 // Not 100%: the stack slots of count and i are permuted.
 // FUNCTION: MW2SHELL 0x100023bf
-MechS32 FUN_100023bf(SlateLedger0x9d4* p_results, undefined* p_options)
+MechS32 FUN_100023bf(MissionResults* p_results, undefined* p_options)
 {
 	MechS32 count;
 	MechS32 i;
@@ -661,7 +661,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	MechS32 top;
 	MechS32 width;
 	MechS32 height;
-	RustAbacus0x50 career;
+	CareerRecord career;
 	MechChar name[0x10];
 
 	g_pVideoDriver->FUN_10006c50(p_database, g_unk0x1006ff00[p_campaign].m_picture);
@@ -696,7 +696,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 
 	CreateCollection(&g_unk0x1005b048, 10, NULL, 4, NULL);
 	g_unk0x100711f8->FUN_100440ed();
-	g_unk0x1005b040 = new MenuList0x10d(
+	g_unk0x1005b040 = new ButtonMenu(
 		g_pVideoDriver,
 		g_unk0x1007120c,
 		FALSE,
@@ -829,7 +829,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 		if (result != 0x40b) {
 			delete g_unk0x1005b04c;
 			g_unk0x1005b04c = NULL;
-			g_unk0x1005b040 = new MenuList0x10d(
+			g_unk0x1005b040 = new ButtonMenu(
 				g_pVideoDriver,
 				g_unk0x1007120c,
 				FALSE,

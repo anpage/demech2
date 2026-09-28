@@ -2,21 +2,21 @@
 
 #include "audiosample.h"
 #include "audiosubsystem.h"
-#include "brasslantern0x414.h"
+#include "buttonmenu.h"
 #include "decomp.h"
+#include "drawmode.h"
+#include "font.h"
 #include "mainmenubutton.h"
 #include "mechvariant.h"
-#include "menulist0x10d.h"
+#include "menudata.h"
+#include "menuscreen.h"
 #include "mousestate.h"
 #include "options.h"
+#include "pilotrecord.h"
+#include "shellglobals.h"
 #include "shellmain.h"
-#include "tallowsign0x10.h"
-#include "tinwhistle0x3c.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk1006e150.h"
-#include "unk100711f8.h"
 #include "video.h"
 #include "videodriver.h"
 
@@ -25,7 +25,7 @@
 // The clan hall screen.
 
 // GLOBAL: MW2SHELL 0x10063b70
-MenuList0x10d* g_unk0x10063b70 = NULL;
+ButtonMenu* g_unk0x10063b70 = NULL;
 
 // The room's ambience and the sound FUN_1001445c starts once the videos 2 and 3 are done.
 // GLOBAL: MW2SHELL 0x10063b74
@@ -72,8 +72,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		}
 	}
 
-	g_unk0x10063b70 =
-		new MenuList0x10d(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fe10[p_campaign].m_buttons, 4);
+	g_unk0x10063b70 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fe10[p_campaign].m_buttons, 4);
 
 	switch (p_campaign) {
 	case 0:

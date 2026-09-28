@@ -1,5 +1,6 @@
 #include "dispdib.h"
 
+#include "brightness.h"
 #include "debugprint.h"
 #include "decomp.h"
 #include "dispdibmode.h"
@@ -9,8 +10,6 @@
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk100460a0.h"
 
 #include <windows.h>
 

@@ -7,9 +7,9 @@
 
 #include <windows.h>
 
-class BrassLantern0x414;
-class EmberGlyph0x3e;
-class MenuList0x10d;
+class Font;
+class TextGlyph;
+class ButtonMenu;
 class Page;
 class TMPackDataBase;
 struct Collection;
@@ -40,7 +40,7 @@ public:
 
 	ArchiveReader(
 		MechChar* p_name,
-		BrassLantern0x414* p_font,
+		Font* p_font,
 		MechS32 p_entry,
 		MechU8 p_ownsDatabase,
 		TMPackDataBase* p_database,
@@ -60,13 +60,13 @@ public:
 	void Load(MechS32 p_entry);
 
 private:
-	MenuList0x10d* m_menu;            // 0x00
+	ButtonMenu* m_menu;               // 0x00
 	TMPackDataBase* m_database;       // 0x04
 	undefined4 m_unk0x08;             // 0x08
-	BrassLantern0x414* m_font;        // 0x0c
+	Font* m_font;                     // 0x0c
 	ArchiveReader* m_child;           // 0x10
 	undefined m_unk0x14[0x1c - 0x14]; // 0x14
-	EmberGlyph0x3e* m_titleGlyph;     // 0x1c
+	TextGlyph* m_titleGlyph;          // 0x1c
 	Collection* m_topics;             // 0x20
 	undefined m_colors[0x100];        // 0x24
 	MechU8 m_ownsDatabase;            // 0x124

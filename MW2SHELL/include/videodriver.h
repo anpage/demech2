@@ -7,8 +7,8 @@
 #include "pixelview.h"
 #include "types.h"
 
-class CopperLedger0x04;
-class EmberGlyph0x3e;
+class TextGlyphList;
+class TextGlyph;
 class TMPackDataBase;
 
 #pragma pack(1)
@@ -59,8 +59,8 @@ public:
 	);
 	MechS32 FUN_100074d2(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar* p_text, undefined* p_unk0x10);
 	MechS32 FUN_10007603(MechS32 p_left, MechS32 p_top, void* p_unk0x08, MechChar p_char, undefined* p_unk0x10);
-	void FUN_100076e8(EmberGlyph0x3e* p_item, MechS32 p_unk0x16);
-	void FUN_1000772d(EmberGlyph0x3e* p_item);
+	void FUN_100076e8(TextGlyph* p_item, MechS32 p_unk0x16);
+	void FUN_1000772d(TextGlyph* p_item);
 	void FUN_10007763(MechS32 p_unk0x16);
 	void FUN_100077b4(MechU8 p_delete);
 	void ActivateFramebuffer();
@@ -73,14 +73,14 @@ private:
 	undefined* m_unk0x0a;             // 0x0a
 	MechS32 m_unk0x0e;                // 0x0e
 	MechS32 m_unk0x12;                // 0x12
-	CopperLedger0x04* m_unk0x16;      // 0x16
-	CopperLedger0x04* m_unk0x1a;      // 0x1a
+	TextGlyphList* m_unk0x16;         // 0x16
+	TextGlyphList* m_unk0x1a;         // 0x1a
 	undefined4 m_unk0x1e;             // 0x1e
 	undefined4 m_unk0x22;             // 0x22
 	undefined m_unk0x26[0x2e - 0x26]; // 0x26
 
 public:
-	// SilverReel0x18 decodes into m_screenBuffer.m_pixels directly.
+	// LoopingMovie decodes into m_screenBuffer.m_pixels directly.
 	PixelBuffer m_screenBuffer; // 0x2e
 
 	// ShellWindowProc clears m_backBuffer.m_pixels directly: an inline accessor would leave a jmp at /Ob1.
@@ -90,7 +90,7 @@ private:
 	PixelView m_screenView; // 0x56
 
 public:
-	// GlassBanner0x35c draws into m_backView directly.
+	// PopupPicture draws into m_backView directly.
 	PixelView m_backView; // 0x6a
 
 private:

@@ -1,8 +1,8 @@
 #include "debugprint.h"
 
 #include "debugout.h"
+#include "drawmode.h"
 #include "types.h"
-#include "unk10010a30.h"
 
 #include <stdarg.h>
 #include <stdio.h>

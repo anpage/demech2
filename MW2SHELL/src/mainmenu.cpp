@@ -2,22 +2,22 @@
 
 #include "audiosample.h"
 #include "audiosubsystem.h"
-#include "brasslantern0x414.h"
+#include "buttonmenu.h"
 #include "campaignmission.h"
 #include "decomp.h"
+#include "drawmode.h"
+#include "font.h"
 #include "mainmenubutton.h"
 #include "mechvariant.h"
-#include "menulist0x10d.h"
+#include "menudata.h"
+#include "menuscreen.h"
 #include "mousestate.h"
 #include "mss.h"
 #include "options.h"
+#include "shellglobals.h"
 #include "shellmain.h"
-#include "tallowsign0x10.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk1006e150.h"
-#include "unk100711f8.h"
 #include "video.h"
 #include "videodriver.h"
 
@@ -26,7 +26,7 @@
 void* operator new(size_t);
 
 // GLOBAL: MW2SHELL 0x1006ae74
-MenuList0x10d* g_unk0x1006ae74 = NULL;
+ButtonMenu* g_unk0x1006ae74 = NULL;
 
 // The main menu's music, started once the intro sound (g_unk0x1006ae7c) is over, and fading in.
 // GLOBAL: MW2SHELL 0x1006ae78
@@ -60,7 +60,7 @@ void FUN_1003dc10(TMPackDataBase* p_database, MechS32*)
 	g_unk0x1006ae7c = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 
 	g_pVideoDriver->FUN_10006c50(p_database, 1);
-	g_unk0x1006ae74 = new MenuList0x10d(g_pVideoDriver, g_unk0x1007120c, 0, g_mainMenuButtons, 3);
+	g_unk0x1006ae74 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_mainMenuButtons, 3);
 
 	FUN_100175e2(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
 	g_unk0x1006ae7c->SetVolume(0x78);

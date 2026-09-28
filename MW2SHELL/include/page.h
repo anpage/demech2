@@ -6,13 +6,13 @@
 #include "types.h"
 
 class AudioSample;
-class BrassLantern0x414;
-class GlassBanner0x35c;
+class Font;
+class PopupPicture;
 class VideoDriver;
 
 // A page of text laid out from a string with escape codes: \N ends a line, \C centers the next
 // one, \T moves to the next tab stop, \S ends the page, \Ann makes the next word a link with id
-// nn, and \Bnnn/\Gnnn pass through to the glyphs. The lines become EmberGlyph0x3e items that
+// nn, and \Bnnn/\Gnnn pass through to the glyphs. The lines become TextGlyph items that
 // type themselves out to a looping sound.
 // SIZE 0x34
 class Page {
@@ -40,7 +40,7 @@ public:
 	};
 
 	Page(
-		BrassLantern0x414* p_font,
+		Font* p_font,
 		VideoDriver* p_videoDriver,
 		undefined* p_colors,
 		MechS32 p_left,
@@ -72,13 +72,13 @@ public:
 private:
 	Collection* m_glyphs;       // 0x00
 	undefined* m_colors;        // 0x04
-	BrassLantern0x414* m_font;  // 0x08
+	Font* m_font;               // 0x08
 	MechS32 m_left;             // 0x0c
 	MechS32 m_top;              // 0x10
 	MechS32 m_width;            // 0x14
 	MechS32 m_bottom;           // 0x18
 	MechS32 m_lineHeight;       // 0x1c
-	GlassBanner0x35c* m_banner; // 0x20
+	PopupPicture* m_banner;     // 0x20
 	VideoDriver* m_videoDriver; // 0x24
 	AudioSample* m_sample;      // 0x28
 	undefined4 m_unk0x2c;       // 0x2c

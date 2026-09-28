@@ -6,7 +6,7 @@
 #include <windows.h>
 
 // The shell window's state. The original keeps these in this object's data, between joystick.c's
-// and unk1003bfb0.c's.
+// and mw2prj.c's.
 
 // The window class name.
 // GLOBAL: MW2SHELL 0x1006a9c0
@@ -15,7 +15,7 @@ char g_unk0x1006a9c0[0x10] = "MECHWARRIOR 2";
 // GLOBAL: MW2SHELL 0x1006a9d0
 MechS32 g_fWindowActive = 1;
 
-// Read by the draw mode unit (unk10010a30.c) when it restyles the window.
+// Read by the draw mode unit (drawmode.c) when it restyles the window.
 // GLOBAL: MW2SHELL 0x1006a9d8
 MechS32 g_unk0x1006a9d8 = 0;
 

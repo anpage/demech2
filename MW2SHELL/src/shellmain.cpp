@@ -2,41 +2,41 @@
 
 #include "archivereader.h"
 #include "audiosubsystem.h"
-#include "brasslantern0x414.h"
+#include "briefing.h"
+#include "cadettraining.h"
 #include "cdcheck.h"
-#include "cedarknot0x10.h"
 #include "clanhall.h"
 #include "cockpitcontrols.h"
+#include "credits.h"
 #include "debrief.h"
 #include "debugout.h"
 #include "debugprint.h"
 #include "decomp.h"
-#include "hollowreed0x110.h"
+#include "drawmode.h"
+#include "font.h"
+#include "formation.h"
+#include "hallofhonor.h"
 #include "keyboard.h"
+#include "keyboardinput.h"
 #include "mainmenu.h"
 #include "mechbay.h"
 #include "mechvariant.h"
+#include "menudata.h"
 #include "midisequence.h"
 #include "missionui.h"
 #include "mousestate.h"
 #include "options.h"
+#include "pilotrecord.h"
 #include "pilotroster.h"
-#include "ravenmark0x08.h"
+#include "projectarchive.h"
+#include "readyroom.h"
+#include "rosterscreen.h"
+#include "shellglobals.h"
 #include "simhandoff.h"
-#include "tinwhistle0x3c.h"
+#include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk10014b60.h"
-#include "unk10039de0.h"
 #include "unk1003bf90.h"
-#include "unk1003c7e0.h"
-#include "unk1003e2f0.h"
-#include "unk10046200.h"
-#include "unk10046e80.h"
-#include "unk10047370.h"
-#include "unk1006e150.h"
-#include "unk100711f8.h"
 #include "video.h"
 #include "videodriver.h"
 
@@ -475,26 +475,26 @@ extern "C" int __stdcall ShellMain(
 	}
 
 	g_pDatabaseMw2->GetDBItem(0x1a, &itemData, &itemSize);
-	g_unk0x10071210 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071210 = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1b, &itemData, &itemSize);
-	g_unk0x10071214 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071214 = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1c, &itemData, &itemSize);
-	g_unk0x10071218 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071218 = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1e, &itemData, &itemSize);
-	g_unk0x1007121c = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x1007121c = new Font(itemData, g_pVideoDriver);
 	g_pDatabaseMw2->GetDBItem(0x1f, &itemData, &itemSize);
-	g_unk0x10071220 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071220 = new Font(itemData, g_pVideoDriver);
 	g_unk0x1007120c = g_unk0x10071210;
 	g_pDatabaseMw2->GetDBItem(0x20, &itemData, &itemSize);
-	g_unk0x10071228 = new BrassLantern0x414(itemData, g_pVideoDriver);
+	g_unk0x10071228 = new Font(itemData, g_pVideoDriver);
 	g_unk0x10071224 = g_unk0x10071228;
 	g_unk0x10071210 = g_unk0x10071228;
 	g_unk0x1007120c = g_unk0x10071210;
 
 	g_pDatabaseMw2->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
 	g_pMouseState = new MouseState(g_pVideoDriver, g_unk0x1007120c, g_unk0x10071200);
-	g_unk0x100711f8 = new HollowReed0x110();
-	g_unk0x10071230 = new CedarKnot0x10("MW2.PRJ");
+	g_unk0x100711f8 = new KeyboardInput();
+	g_unk0x10071230 = new ProjectArchive("MW2.PRJ");
 
 	LoadPilotRoster();
 	FUN_10043979();

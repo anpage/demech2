@@ -1,22 +1,22 @@
 #include "cockpitcontrols.h"
 
-#include "brasslantern0x414.h"
 #include "debugprint.h"
 #include "decomp.h"
-#include "emberglyph0x3e.h"
-#include "hollowreed0x110.h"
+#include "drawmode.h"
+#include "font.h"
+#include "input.h"
 #include "inputdevice.h"
+#include "keyboardinput.h"
+#include "loopingmovie.h"
 #include "mechbay.h"
 #include "mousestate.h"
 #include "options.h"
+#include "screenfield.h"
+#include "shellglobals.h"
 #include "shellmain.h"
-#include "silverreel0x18.h"
-#include "slatetab0x2c.h"
+#include "textglyph.h"
 #include "types.h"
-#include "unk10010a30.h"
-#include "unk10031bf0.h"
 #include "unk1003bf90.h"
-#include "unk100711f8.h"
 #include "video.h"
 #include "videodriver.h"
 
@@ -76,9 +76,9 @@ enum CpcMessage {
 
 void CpcScreenTick(MechS32 p_active);
 
-EmberGlyph0x3e* FUN_1003e9d0(SlateTab0x2c* p_tab);
+TextGlyph* FUN_1003e9d0(ScreenField* p_tab);
 MechS32 FUN_1003ea0f(
-	BrassLantern0x414* p_font,
+	Font* p_font,
 	MechS32 p_left,
 	MechS32 p_top,
 	MechChar* p_text,
@@ -86,45 +86,45 @@ MechS32 FUN_1003ea0f(
 	MechS32 p_maxLength,
 	MechS32 p_maxWidth
 );
-void FUN_1003ee3e(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003ef32(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003f136(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003f283(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003f30f(SlateTab0x2c* p_tab);
-void FUN_1003f34b(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003f39e(SlateTab0x2c* p_tab);
-void FUN_1003f42e(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003f469(SlateTab0x2c* p_tab);
-void FUN_1003f4be(SlateTab0x2c* p_tab);
-void FUN_1003f576(SlateTab0x2c* p_tab);
-void FUN_1003f78e(SlateTab0x2c* p_tab);
-void FUN_1003fbb3(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003fe7b(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1003ff95(SlateTab0x2c* p_tab);
-void FUN_100400b7(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_100401b8(SlateTab0x2c* p_tab);
-void FUN_10040272(SlateTab0x2c* p_tab);
-void FUN_1004034e(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1004059e(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1004067c(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_1004079f(SlateTab0x2c* p_tab);
-void InputToggleDeviceActive(SlateTab0x2c* p_tab);
-void FUN_10040a0d(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_10040a5d(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_10040a94(SlateTab0x2c* p_tab);
-void FUN_10040af7(SlateTab0x2c* p_tab);
-EmberGlyph0x3e* FUN_10040b32(SlateTab0x2c* p_tab);
-void FUN_10040b8e(SlateTab0x2c* p_tab);
-void FUN_10040c21(SlateTab0x2c* p_tab);
-void FUN_10040c72(SlateTab0x2c* p_tab);
-void FUN_10040cc7(SlateTab0x2c* p_tab);
+void FUN_1003ee3e(ScreenField* p_tab);
+TextGlyph* FUN_1003ef32(ScreenField* p_tab);
+TextGlyph* FUN_1003f136(ScreenField* p_tab);
+TextGlyph* FUN_1003f283(ScreenField* p_tab);
+TextGlyph* FUN_1003f30f(ScreenField* p_tab);
+void FUN_1003f34b(ScreenField* p_tab);
+TextGlyph* FUN_1003f39e(ScreenField* p_tab);
+void FUN_1003f42e(ScreenField* p_tab);
+TextGlyph* FUN_1003f469(ScreenField* p_tab);
+void FUN_1003f4be(ScreenField* p_tab);
+void FUN_1003f576(ScreenField* p_tab);
+void FUN_1003f78e(ScreenField* p_tab);
+void FUN_1003fbb3(ScreenField* p_tab);
+TextGlyph* FUN_1003fe7b(ScreenField* p_tab);
+TextGlyph* FUN_1003ff95(ScreenField* p_tab);
+void FUN_100400b7(ScreenField* p_tab);
+TextGlyph* FUN_100401b8(ScreenField* p_tab);
+void FUN_10040272(ScreenField* p_tab);
+void FUN_1004034e(ScreenField* p_tab);
+TextGlyph* FUN_1004059e(ScreenField* p_tab);
+TextGlyph* FUN_1004067c(ScreenField* p_tab);
+TextGlyph* FUN_1004079f(ScreenField* p_tab);
+void InputToggleDeviceActive(ScreenField* p_tab);
+void FUN_10040a0d(ScreenField* p_tab);
+TextGlyph* FUN_10040a5d(ScreenField* p_tab);
+TextGlyph* FUN_10040a94(ScreenField* p_tab);
+void FUN_10040af7(ScreenField* p_tab);
+TextGlyph* FUN_10040b32(ScreenField* p_tab);
+void FUN_10040b8e(ScreenField* p_tab);
+void FUN_10040c21(ScreenField* p_tab);
+void FUN_10040c72(ScreenField* p_tab);
+void FUN_10040cc7(ScreenField* p_tab);
 MechS32 CpcCheckControlCount();
 void CpcRemapDeviceSlots(CpcBinding* p_bindings);
 void FUN_1004207e(MechS32 p_index, CpcBinding* p_binding);
-void CpcLoadConfigSlot(SlateTab0x2c* p_tab);
-void CpcSaveConfigSlot(SlateTab0x2c* p_tab);
-void CpcLoadActiveDevices(SlateTab0x2c* p_tab);
-void CpcAcceptAndCommit(SlateTab0x2c* p_tab);
+void CpcLoadConfigSlot(ScreenField* p_tab);
+void CpcSaveConfigSlot(ScreenField* p_tab);
+void CpcLoadActiveDevices(ScreenField* p_tab);
+void CpcAcceptAndCommit(ScreenField* p_tab);
 void FUN_100431b4(MechS32 p_message, undefined4 p_unk0x04, MechChar* p_name);
 
 // The binding selected for editing, -1 for none.
@@ -240,7 +240,7 @@ MechChar g_cpcConfigName[0x40];
 MechChar g_unk0x100906d0[0x400];
 
 // GLOBAL: MW2SHELL 0x100918b0
-SilverReel0x18* g_unk0x100918b0;
+LoopingMovie* g_unk0x100918b0;
 
 // GLOBAL: MW2SHELL 0x100918b8
 MechChar g_unk0x100918b8[0x40];
@@ -266,10 +266,10 @@ undefined g_unk0x10092a18[0x100];
 // GLOBAL: MW2SHELL 0x10092b18
 undefined g_unk0x10092b18[0x100];
 
-// A field's m_top: a packed row and offset below the previous field (see SlateTab0x2c).
+// A field's m_top: a packed row and offset below the previous field (see ScreenField).
 #define CPC_ROW(row, offset) ((MechS32) (0x80000000 | ((row) << 4) | (offset)))
 #define CPC_TAB(left, top, width, draw, click, data, next)                                                             \
-	{left, top, width, -1, 0, NULL, NULL, draw, click, (void*) (data), (SlateTab0x2c*) (next)}
+	{left, top, width, -1, 0, NULL, NULL, draw, click, (void*) (data), (ScreenField*) (next)}
 #define CPC_TEXT(left, top, width, draw, click, data)                                                                  \
 	{left, top, width, -1, 0, g_unk0x10092a18, NULL, draw, click, (void*) (data), NULL}
 #define CPC_END {-1, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL}
@@ -295,7 +295,7 @@ undefined g_unk0x10092b18[0x100];
 
 // The bindings screen.
 // GLOBAL: MW2SHELL 0x1006b0d8
-SlateTab0x2c g_unk0x1006b0d8[169] = {
+ScreenField g_unk0x1006b0d8[169] = {
 	CPC_TEXT(172, 0x78, -1, FUN_10040a5d, NULL, 1),
 	CPC_TEXT(477, 0x78, -1, FUN_10040a5d, NULL, 1),
 	CPC_TEXT(175, 0x6e, -1, FUN_1003e9d0, NULL, "GAME CONTROLS"),
@@ -393,7 +393,7 @@ SlateTab0x2c g_unk0x1006b0d8[169] = {
 
 // The input devices screen.
 // GLOBAL: MW2SHELL 0x1006cde8
-SlateTab0x2c g_unk0x1006cde8[24] = {
+ScreenField g_unk0x1006cde8[24] = {
 	CPC_TEXT(172, 0x78, -1, FUN_10040a5d, NULL, 1),
 	CPC_TEXT(477, 0x78, -1, FUN_10040a5d, NULL, 1),
 	CPC_TEXT(0, 0x6e, -1, FUN_1003e9d0, NULL, "Current Config:"),
@@ -437,7 +437,7 @@ MechS32 g_cpcAnalogCount = 0;
 MechS32 g_cpcDiscreteCount = 0;
 
 // FUNCTION: MW2SHELL 0x1003e9d0
-EmberGlyph0x3e* FUN_1003e9d0(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003e9d0(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -455,7 +455,7 @@ MechChar g_unk0x100926d8[0x100];
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003ea0f
 MechS32 FUN_1003ea0f(
-	BrassLantern0x414* p_font,
+	Font* p_font,
 	MechS32 p_left,
 	MechS32 p_top,
 	MechChar* p_text,
@@ -467,7 +467,7 @@ MechS32 FUN_1003ea0f(
 	MechS32 key;
 	MechS32 width;
 	MechS32 length;
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 
 	glyph = NULL;
 	length = strlen(p_text);
@@ -568,7 +568,7 @@ MechS32 FUN_1003ea0f(
 
 // Edit a field's text in place, then show it.
 // FUNCTION: MW2SHELL 0x1003ee3e
-void FUN_1003ee3e(SlateTab0x2c* p_tab)
+void FUN_1003ee3e(ScreenField* p_tab)
 {
 	if (p_tab->m_glyph != NULL) {
 		delete p_tab->m_glyph;
@@ -588,7 +588,7 @@ void FUN_1003ee3e(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1003eef3
-EmberGlyph0x3e* FUN_1003eef3(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003eef3(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -599,10 +599,10 @@ EmberGlyph0x3e* FUN_1003eef3(SlateTab0x2c* p_tab)
 // The device and axis or button bound to a control.
 // Stack-slot permutation: device, label, colors and control.
 // FUNCTION: MW2SHELL 0x1003ef32
-EmberGlyph0x3e* FUN_1003ef32(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003ef32(ScreenField* p_tab)
 {
 	InputDevice* device;
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechChar* label;
 	undefined* colors;
 	MechS32 control;
@@ -654,10 +654,10 @@ EmberGlyph0x3e* FUN_1003ef32(SlateTab0x2c* p_tab)
 // The button of a control bound to an axis with a button, placed after the previous field.
 // Stack-slot permutation: device, glyph, colors and button.
 // FUNCTION: MW2SHELL 0x1003f136
-EmberGlyph0x3e* FUN_1003f136(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003f136(ScreenField* p_tab)
 {
 	InputDevice* device;
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 	MechChar* label;
 	undefined* colors;
 	MechS32 button;
@@ -693,21 +693,21 @@ EmberGlyph0x3e* FUN_1003f136(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1003f283
-EmberGlyph0x3e* FUN_1003f283(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003f283(ScreenField* p_tab)
 {
 	return g_unk0x10071210
 		->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_unk0x1006af28[(MechS32) p_tab->m_unk0x24], p_tab->m_unk0x14);
 }
 
 // FUNCTION: MW2SHELL 0x1003f2c0
-EmberGlyph0x3e* FUN_1003f2c0(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003f2c0(ScreenField* p_tab)
 {
 	sprintf(g_unk0x10092818, "%d", *(MechS32*) p_tab->m_unk0x24);
 	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_unk0x10092818, p_tab->m_unk0x14);
 }
 
 // FUNCTION: MW2SHELL 0x1003f30f
-EmberGlyph0x3e* FUN_1003f30f(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003f30f(ScreenField* p_tab)
 {
 	return g_unk0x10071210
 		->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_unk0x1006b078[g_unk0x1006b054], p_tab->m_unk0x14);
@@ -715,7 +715,7 @@ EmberGlyph0x3e* FUN_1003f30f(SlateTab0x2c* p_tab)
 
 // Show the next configuration.
 // FUNCTION: MW2SHELL 0x1003f34b
-void FUN_1003f34b(SlateTab0x2c* p_tab)
+void FUN_1003f34b(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -731,10 +731,10 @@ void FUN_1003f34b(SlateTab0x2c* p_tab)
 // An axis's direction, placed after the previous field.
 // Stack-slot permutation: inverted and glyph.
 // FUNCTION: MW2SHELL 0x1003f39e
-EmberGlyph0x3e* FUN_1003f39e(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003f39e(ScreenField* p_tab)
 {
 	MechS32 inverted;
-	EmberGlyph0x3e* glyph;
+	TextGlyph* glyph;
 
 	inverted = g_pCpcBindings[(MechS32) p_tab->m_unk0x24].m_flags & CPC_FLAG_INVERTED ? 1 : 0;
 	if (p_tab[-1].m_glyph != NULL) {
@@ -748,13 +748,13 @@ EmberGlyph0x3e* FUN_1003f39e(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1003f42e
-void FUN_1003f42e(SlateTab0x2c* p_tab)
+void FUN_1003f42e(ScreenField* p_tab)
 {
 	g_pCpcBindings[(MechS32) p_tab->m_unk0x24].m_flags ^= CPC_FLAG_INVERTED;
 }
 
 // FUNCTION: MW2SHELL 0x1003f469
-EmberGlyph0x3e* FUN_1003f469(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003f469(ScreenField* p_tab)
 {
 	return g_unk0x10071210->FUN_1000544e(
 		p_tab->m_left + p_tab->m_width / 2,
@@ -766,7 +766,7 @@ EmberGlyph0x3e* FUN_1003f469(SlateTab0x2c* p_tab)
 
 // Cycle a binding's modifier: none, 1, 4, none.
 // FUNCTION: MW2SHELL 0x1003f4be
-void FUN_1003f4be(SlateTab0x2c* p_tab)
+void FUN_1003f4be(ScreenField* p_tab)
 {
 	switch (g_pCpcBindings[(MechS32) p_tab->m_unk0x24].m_flags & c_flagModifierMask) {
 	case 0:
@@ -783,7 +783,7 @@ void FUN_1003f4be(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x1003f576
-void FUN_1003f576(SlateTab0x2c*)
+void FUN_1003f576(ScreenField*)
 {
 	g_cpcConfigured = 1;
 }
@@ -867,7 +867,7 @@ void FUN_1003f677(CpcBinding* p_binding, MechS32 p_mode)
 // Click on a binding's axis or button: select it, or advance it to the current device's next one.
 // A right click clears the binding.
 // FUNCTION: MW2SHELL 0x1003f78e
-void FUN_1003f78e(SlateTab0x2c* p_tab)
+void FUN_1003f78e(ScreenField* p_tab)
 {
 	InputDevice* device;
 
@@ -955,7 +955,7 @@ void FUN_1003f78e(SlateTab0x2c* p_tab)
 // Click on the button of a binding to an axis with a button: select it, or advance it to the
 // current device's next button. A right click clears the binding.
 // FUNCTION: MW2SHELL 0x1003fbb3
-void FUN_1003fbb3(SlateTab0x2c* p_tab)
+void FUN_1003fbb3(ScreenField* p_tab)
 {
 	InputDevice* device;
 
@@ -1015,7 +1015,7 @@ void FUN_1003fbb3(SlateTab0x2c* p_tab)
 // Operand order: the original loads the index p_tab->m_unk0x24 before the name tables; it follows
 // the unit's symbol table.
 // FUNCTION: MW2SHELL 0x1003fe7b
-EmberGlyph0x3e* FUN_1003fe7b(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003fe7b(ScreenField* p_tab)
 {
 	InputDevice* device;
 	undefined* colors;
@@ -1048,7 +1048,7 @@ EmberGlyph0x3e* FUN_1003fe7b(SlateTab0x2c* p_tab)
 
 // A button of the current device, in the scrolled list.
 // FUNCTION: MW2SHELL 0x1003ff95
-EmberGlyph0x3e* FUN_1003ff95(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1003ff95(ScreenField* p_tab)
 {
 	InputDevice* device;
 	MechS32 index;
@@ -1084,7 +1084,7 @@ EmberGlyph0x3e* FUN_1003ff95(SlateTab0x2c* p_tab)
 
 // Bind the selected control to an axis of the current device.
 // FUNCTION: MW2SHELL 0x100400b7
-void FUN_100400b7(SlateTab0x2c* p_tab)
+void FUN_100400b7(ScreenField* p_tab)
 {
 	InputDevice* device;
 
@@ -1112,7 +1112,7 @@ void FUN_100400b7(SlateTab0x2c* p_tab)
 // The button list's scroll arrows: up for a negative step, down otherwise.
 // Stack-slot permutation: colors and count.
 // FUNCTION: MW2SHELL 0x100401b8
-EmberGlyph0x3e* FUN_100401b8(SlateTab0x2c* p_tab)
+TextGlyph* FUN_100401b8(ScreenField* p_tab)
 {
 	undefined* colors;
 	MechS32 count;
@@ -1143,7 +1143,7 @@ EmberGlyph0x3e* FUN_100401b8(SlateTab0x2c* p_tab)
 // Scroll the button list while a mouse button is held; the right button scrolls twice as fast.
 // Stack-slot permutation: count and step.
 // FUNCTION: MW2SHELL 0x10040272
-void FUN_10040272(SlateTab0x2c* p_tab)
+void FUN_10040272(ScreenField* p_tab)
 {
 	MechS32 count;
 	MechS32 step;
@@ -1176,7 +1176,7 @@ void FUN_10040272(SlateTab0x2c* p_tab)
 
 // Bind the selected control, or the selected axis's button, to a button of the current device.
 // FUNCTION: MW2SHELL 0x1004034e
-void FUN_1004034e(SlateTab0x2c* p_tab)
+void FUN_1004034e(ScreenField* p_tab)
 {
 	InputDevice* device;
 	MechS32 index;
@@ -1233,7 +1233,7 @@ void FUN_1004034e(SlateTab0x2c* p_tab)
 // The current device's name: "Joystick N" for a joystick.
 // Stack-slot permutation: name and number.
 // FUNCTION: MW2SHELL 0x1004059e
-EmberGlyph0x3e* FUN_1004059e(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1004059e(ScreenField* p_tab)
 {
 	undefined* colors; // Set and never read.
 	size_t number;
@@ -1259,7 +1259,7 @@ EmberGlyph0x3e* FUN_1004059e(SlateTab0x2c* p_tab)
 
 // An input device of the bindings screen, its name shortened to fit.
 // FUNCTION: MW2SHELL 0x1004067c
-EmberGlyph0x3e* FUN_1004067c(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1004067c(ScreenField* p_tab)
 {
 	InputDevice* device;
 	undefined* colors;
@@ -1294,7 +1294,7 @@ EmberGlyph0x3e* FUN_1004067c(SlateTab0x2c* p_tab)
 
 // An input device of the devices screen: highlighted when active, disabled while four are.
 // FUNCTION: MW2SHELL 0x1004079f
-EmberGlyph0x3e* FUN_1004079f(SlateTab0x2c* p_tab)
+TextGlyph* FUN_1004079f(ScreenField* p_tab)
 {
 	InputDevice* device;
 	undefined* colors;
@@ -1329,7 +1329,7 @@ EmberGlyph0x3e* FUN_1004079f(SlateTab0x2c* p_tab)
 
 // Activate or deactivate a device; the keyboard stays as it is, and at most four are active.
 // FUNCTION: MW2SHELL 0x100408c2
-void InputToggleDeviceActive(SlateTab0x2c* p_tab)
+void InputToggleDeviceActive(ScreenField* p_tab)
 {
 	MechS32 count;
 
@@ -1361,7 +1361,7 @@ void InputToggleDeviceActive(SlateTab0x2c* p_tab)
 
 // Make an active device current.
 // FUNCTION: MW2SHELL 0x10040a0d
-void FUN_10040a0d(SlateTab0x2c* p_tab)
+void FUN_10040a0d(ScreenField* p_tab)
 {
 	if (g_inputDeviceActive[(MechS32) p_tab->m_unk0x24]) {
 		if (InputGetDevice((MechS32) p_tab->m_unk0x24) != NULL) {
@@ -1372,14 +1372,14 @@ void FUN_10040a0d(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10040a5d
-EmberGlyph0x3e* FUN_10040a5d(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10040a5d(ScreenField* p_tab)
 {
 	g_pVideoDriver->FUN_10006e51(p_tab->m_left, p_tab->m_top, p_tab->m_left, 0x1d6, 0x10);
 	return NULL;
 }
 
 // FUNCTION: MW2SHELL 0x10040a94
-EmberGlyph0x3e* FUN_10040a94(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10040a94(ScreenField* p_tab)
 {
 	MechS32 index;
 
@@ -1392,7 +1392,7 @@ EmberGlyph0x3e* FUN_10040a94(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10040af7
-void FUN_10040af7(SlateTab0x2c*)
+void FUN_10040af7(ScreenField*)
 {
 	if (g_inputConfigChanged) {
 		CpcLoadActiveDevices(NULL);
@@ -1404,7 +1404,7 @@ void FUN_10040af7(SlateTab0x2c*)
 
 // Text shown only while fewer than three devices are enumerated.
 // FUNCTION: MW2SHELL 0x10040b32
-EmberGlyph0x3e* FUN_10040b32(SlateTab0x2c* p_tab)
+TextGlyph* FUN_10040b32(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -1422,7 +1422,7 @@ EmberGlyph0x3e* FUN_10040b32(SlateTab0x2c* p_tab)
 // Operand order: the original compares count <= g_curInputDeviceIdx with count loaded first; it
 // follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10040b8e
-void FUN_10040b8e(SlateTab0x2c*)
+void FUN_10040b8e(ScreenField*)
 {
 	MechS32 count;
 
@@ -1443,7 +1443,7 @@ void FUN_10040b8e(SlateTab0x2c*)
 
 // Enumerate the devices again; the current device falls back to the last one.
 // FUNCTION: MW2SHELL 0x10040c21
-void FUN_10040c21(SlateTab0x2c*)
+void FUN_10040c21(ScreenField*)
 {
 	MechS32 count;
 
@@ -1458,7 +1458,7 @@ void FUN_10040c21(SlateTab0x2c*)
 
 // Leave the devices screen for the bindings screen.
 // FUNCTION: MW2SHELL 0x10040c72
-void FUN_10040c72(SlateTab0x2c*)
+void FUN_10040c72(ScreenField*)
 {
 	if (g_inputConfigChanged) {
 		CpcLoadActiveDevices(NULL);
@@ -1473,7 +1473,7 @@ void FUN_10040c72(SlateTab0x2c*)
 // Open the Windows joystick control panel.
 // Stack-slot permutation: created and processInfo.
 // FUNCTION: MW2SHELL 0x10040cc7
-void FUN_10040cc7(SlateTab0x2c*)
+void FUN_10040cc7(ScreenField*)
 {
 	STARTUPINFO startupInfo;
 	BOOL created;
@@ -1948,7 +1948,7 @@ void FUN_1004207e(MechS32 p_index, CpcBinding* p_binding)
 
 // Reset every binding of the four configurations.
 // FUNCTION: MW2SHELL 0x100420eb
-void FUN_100420eb(SlateTab0x2c* p_tab)
+void FUN_100420eb(ScreenField* p_tab)
 {
 	MechS32 config;
 	MechU32 index;
@@ -1969,7 +1969,7 @@ void FUN_100420eb(SlateTab0x2c* p_tab)
 
 // Reset the bindings to the current device.
 // FUNCTION: MW2SHELL 0x10042199
-void FUN_10042199(SlateTab0x2c* p_tab)
+void FUN_10042199(ScreenField* p_tab)
 {
 	MechS32 config;
 	MechU32 index;
@@ -2005,7 +2005,7 @@ void FUN_10042199(SlateTab0x2c* p_tab)
 // Load the current device's .cpc file and merge its bindings into the free ones.
 // Stack-slot permutation: path, other, config, index and binding.
 // FUNCTION: MW2SHELL 0x10042314
-void CpcLoadDeviceFile(SlateTab0x2c* p_tab)
+void CpcLoadDeviceFile(ScreenField* p_tab)
 {
 	FILE* file;
 	MechChar path[32];
@@ -2065,7 +2065,7 @@ void CpcLoadDeviceFile(SlateTab0x2c* p_tab)
 // Load giddi\configNN.cpc: slot 0 without a field, the field's slot, or the current slot.
 // Stack-slot permutation: path and slot.
 // FUNCTION: MW2SHELL 0x100425d3
-void CpcLoadConfigSlot(SlateTab0x2c* p_tab)
+void CpcLoadConfigSlot(ScreenField* p_tab)
 {
 	FILE* file;
 	MechChar path[32];
@@ -2099,7 +2099,7 @@ void CpcLoadConfigSlot(SlateTab0x2c* p_tab)
 
 // Save giddi\configNN.cpc, naming a custom slot's configuration after the slot.
 // FUNCTION: MW2SHELL 0x100426e7
-void CpcSaveConfigSlot(SlateTab0x2c* p_tab)
+void CpcSaveConfigSlot(ScreenField* p_tab)
 {
 	FILE* file;
 	MechS32 slot;
@@ -2141,7 +2141,7 @@ void CpcSaveConfigSlot(SlateTab0x2c* p_tab)
 
 // Reset the bindings and load the .cpc file of every active device.
 // FUNCTION: MW2SHELL 0x1004289c
-void CpcLoadActiveDevices(SlateTab0x2c* p_tab)
+void CpcLoadActiveDevices(ScreenField* p_tab)
 {
 	MechS32 current;
 
@@ -2162,7 +2162,7 @@ void CpcLoadActiveDevices(SlateTab0x2c* p_tab)
 
 // Install the new input.map (keeping the old one as input.bak) and save the configuration.
 // FUNCTION: MW2SHELL 0x10042940
-void CpcAcceptAndCommit(SlateTab0x2c* p_tab)
+void CpcAcceptAndCommit(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2183,7 +2183,7 @@ void CpcAcceptAndCommit(SlateTab0x2c* p_tab)
 // Save the current device's bindings to its .cpc file.
 // Stack-slot permutation: path, config, index and binding.
 // FUNCTION: MW2SHELL 0x100429cf
-void CpcSaveDeviceFile(SlateTab0x2c* p_tab)
+void CpcSaveDeviceFile(ScreenField* p_tab)
 {
 	FILE* file;
 	MechChar path[32];
@@ -2230,7 +2230,7 @@ void CpcSaveDeviceFile(SlateTab0x2c* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10042b99
-void FUN_10042b99(SlateTab0x2c* p_tab)
+void FUN_10042b99(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -2252,7 +2252,7 @@ void OpenCockpitControls()
 	g_pVideoDriver->LoadPalette(4);
 	g_pVideoDriver->ActivateFramebuffer();
 	g_unk0x100918b0 = NULL;
-	g_unk0x100918b0 = new SilverReel0x18("amwlogo1", 0x78, 4);
+	g_unk0x100918b0 = new LoopingMovie("amwlogo1", 0x78, 4);
 	g_pVideoDriver->DrawShell();
 	g_pVideoDriver->m_unk0x3a6 = 0;
 	g_curCpcConfigSlot = 0;
@@ -2321,7 +2321,7 @@ void OpenCockpitControls()
 // FUNCTION: MW2SHELL 0x10042f65
 void CpcScreenTick(MechS32 p_active)
 {
-	SlateTab0x2c* tab;
+	ScreenField* tab;
 
 	if (p_active) {
 		if (g_unk0x100918b0) {

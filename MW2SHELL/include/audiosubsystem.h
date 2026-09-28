@@ -24,7 +24,7 @@ public:
 	void StopMidiSequence();
 
 	friend class MidiSequence;
-	friend class OakenTune0x10;
+	friend class VideoSound;
 
 private:
 	MechU8 m_milesStarted;               // 0x00

@@ -1,2 +1,2 @@
 # Names to exempt from ncc validation (name: 'reason').
-PauseTimer: 'the variable (gdi.c) that the original links the PauseTimer calls (unk10010a30.c) to'
+PauseTimer: 'the variable (gdi.c) that the original links the PauseTimer calls (drawmode.c) to'
