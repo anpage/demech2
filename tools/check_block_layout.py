@@ -17,6 +17,12 @@ address has room for the size the original uses:
   original has more room for, before the next known object, than the
   recompiled declaration. The room is often data nobody has annotated yet, so
   these need a look rather than fail the check.
+It also checks every annotated global's recompiled size against the room the
+original has for it before the next known address: a declaration larger than
+that overlaps its neighbour, so code reaching its last elements reads or
+writes the neighbour in the original and something else in the recompiled
+build (the modifier bits kept in the last word of the key states, a NULL
+terminator added to a table the original ends without one).
 
 tools/check_block_sizes.py checks the same calls in the source; this tool also
 covers calls whose size the source computes (`sizeof` of the wrong object).
@@ -134,6 +140,21 @@ class Layout:
 def describe(entity, addr: int) -> str:
     offset = addr - entity.orig_addr
     return entity.name + ("+%#x" % offset if offset else "")
+
+
+def check_overlaps(layout, findings, checked):
+    """Each annotated global's recompiled size against the original's room for it."""
+    for entity in layout.variables:
+        size = entity.size(ImageId.RECOMP)
+        room = layout.orig_room(entity)
+        checked.append("%#x: %s: %#x bytes declared, %#x available" % (entity.orig_addr, entity.name, size, room))
+        if size > room:
+            neighbour = layout.by_addr.get(entity.orig_addr + room)
+            after = neighbour.name if neighbour is not None else "the end of the section"
+            findings.append(
+                "%#x: %s is declared %#x bytes, but the original has %#x before %s"
+                % (entity.orig_addr, entity.name, size, room, after)
+            )
 
 
 def scan_function(md, orig_bin, layout, function, findings, warnings, checked):
@@ -287,12 +308,16 @@ def main():
     findings: list[str] = []
     warnings: list[str] = []
     checked: list[str] = []
+    overlaps: list[str] = []
+    check_overlaps(layout, findings, overlaps)
     for entity in layout.by_addr.values():
         if entity.entity_type != EntityType.FUNCTION or entity.get("library") or entity.get("stub"):
             continue
         scan_function(md, compare.orig_bin, layout, entity, findings, warnings, checked)
 
     if args.verbose:
+        for line in sorted(overlaps):
+            print("  sized " + line)
         for line in sorted(checked):
             print("  checked " + line)
     for line in sorted(set(warnings)):
@@ -300,8 +325,8 @@ def main():
     for line in sorted(findings):
         print(line)
     print(
-        "%d block operations checked, %d problems; %d array accesses to review"
-        % (len(checked), len(findings), len(set(warnings)))
+        "%d globals sized, %d block operations checked, %d problems; %d array accesses to review"
+        % (len(overlaps), len(checked), len(findings), len(set(warnings)))
     )
     return 1 if findings else 0
 

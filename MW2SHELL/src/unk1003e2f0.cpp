@@ -20,7 +20,7 @@ extern HollowReed0x110* g_unk0x100711f8;
 extern MouseState* g_pMouseState;
 extern BrassLantern0x414* g_unk0x1007120c;
 extern BrassLantern0x414* g_unk0x10071218;
-extern MechChar* g_rankNames[9];
+extern MechChar* g_rankNames[10];
 extern CampaignMission* g_campaignMissions[2];
 extern TinWhistle0x3c g_pilotRoster[20];
 extern HMENU g_windowMenu;
@@ -42,7 +42,7 @@ MechChar* g_unk0x10071280[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jagu
 PaletteColor g_unk0x10071378[0x100] = {0};
 
 // GLOBAL: MW2SHELL 0x10090670
-MechChar g_unk0x10090670[0x100];
+MechChar g_unk0x10090670[0x20];
 
 // Draw the eight highest-ranking active pilots from both clan rosters.
 // FUNCTION: MW2SHELL 0x1003e3c9

@@ -210,7 +210,8 @@ jobs:
         shell: bash
         run: |
           # The original's fread/fwrite/memcpy/memset... of a global must fit in
-          # the recompiled object at that address (tools/check_block_layout.py).
+          # the recompiled object at that address, and no global may be declared
+          # larger than the original's room for it (tools/check_block_layout.py).
           for entry in $TARGET_ENTRIES; do
             python tools/check_block_layout.py --target "${entry%%:*}"
           done

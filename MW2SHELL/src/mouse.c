@@ -52,8 +52,9 @@ const MechChar* g_mouseAxisTypes[] = {g_unk0x10058b78, g_unk0x10058b80};
 // GLOBAL: MW2SHELL 0x10071d28
 const MechChar* g_mouseButtonNames[] = {"Left button", "Middle button", "Right button", NULL};
 
+// Three entries, no terminator: g_cursorClipped follows in the original.
 // GLOBAL: MW2SHELL 0x10071d38
-const MechChar* g_mouseButtonTypes[] = {"LeftBtn", "MiddleBtn", "RightBtn", NULL};
+const MechChar* g_mouseButtonTypes[] = {"LeftBtn", "MiddleBtn", "RightBtn"};
 
 // GLOBAL: MW2SHELL 0x10071d44
 BOOL g_cursorClipped = FALSE;

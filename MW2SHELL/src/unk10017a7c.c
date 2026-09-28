@@ -6,7 +6,15 @@
    at the end of the routine before it.
 
    Not yet transcribed: the table and the code block (declared as data below, so the routines
-   can reference them) and FUN_100287e0 (calls through the table). */
+   can reference them) and FUN_100287e0 (calls through the table).
+
+   The untranscribed code is believed to be dead, so its absence should not affect the
+   recompiled DLL: the original's relocation table holds no absolute reference into
+   0x10017a7c-0x1002900f from outside it (no function pointer or `offset` operand names any
+   of it), Ghidra finds no call or jump into the block or to the routines here from any
+   other function, and .text is read-only with no VirtualProtect import, so the block could
+   not patch itself in a Win32 process anyway. It reads as a DOS-era renderer left in the
+   link. */
 #include "compat.h"
 #include "decomp.h"
 #include "pixelview.h"
