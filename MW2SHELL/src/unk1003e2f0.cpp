@@ -39,7 +39,7 @@ SilverReel0x18* g_unk0x1006aeac = NULL;
 MechChar* g_unk0x10071280[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jaguar", "Nova Cat", "Steel Vipers"};
 
 // GLOBAL: MW2SHELL 0x10071378
-undefined g_unk0x10071378[0x300] = {0};
+PaletteColor g_unk0x10071378[0x100] = {0};
 
 // GLOBAL: MW2SHELL 0x10090670
 MechChar g_unk0x10090670[0x100];

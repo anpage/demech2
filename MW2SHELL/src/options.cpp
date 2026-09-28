@@ -55,7 +55,7 @@ MechS32 g_unk0x100716a4 = 0;
 // GLOBAL: MW2SHELL 0x10092c18
 AudioSample* g_unk0x10092c18;
 // GLOBAL: MW2SHELL 0x10092c30
-undefined g_unk0x10092c30[0x300];
+PaletteColor g_unk0x10092c30[0x100];
 // GLOBAL: MW2SHELL 0x10092f30
 void* g_unk0x10092f30;
 

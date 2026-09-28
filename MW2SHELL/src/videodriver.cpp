@@ -36,7 +36,14 @@ extern "C"
 		MechS32 p_unk0x14
 	);
 	void FUN_10010d49();
+
+	// The GDI back end's blits that bypass the draw mode table (gdi.c).
+	MechS32 FUN_10031001(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
+	MechS32 FUN_10031106(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
 }
+
+extern MechS32 g_menuVisible;
+extern MechS32 g_unk0x1006a9f0;
 
 extern "C" void DebugPrint(const MechChar* p_format, ...);
 void FUN_10016f45();
@@ -82,7 +89,7 @@ extern "C"
 		undefined* p_palette
 	);
 	void FUN_10037014(PixelView* p_view, undefined* p_data);
-	void FUN_10037096(undefined* p_data, MechS32 p_size, undefined* p_palette);
+	void FUN_10037096(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
 	MechS32 FUN_100370c1(undefined* p_data);
 }
 
@@ -99,7 +106,7 @@ MechS32 g_unk0x1005c2a0 = 0;
 MechS32 g_unk0x1005c2a4 = 0;
 
 // GLOBAL: MW2SHELL 0x10079698
-undefined g_unk0x10079698[0x300];
+PaletteColor g_unk0x10079698[0x100];
 
 // GLOBAL: MW2SHELL 0x10079998
 MechU8 g_unk0x10079998[0x100];
@@ -259,26 +266,118 @@ void VideoDriver::UpdatePalette()
 	g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
 }
 
-// STUB: MW2SHELL 0x10006502
+// Presents the frame: reloads the palette if it changed (redrawing the whole screen), otherwise
+// blits the dirty rectangle, then empties it.
+// FUNCTION: MW2SHELL 0x10006502
 void VideoDriver::DrawShell()
 {
-	STUB(0x10006502);
+	if (m_screenView.m_left > m_dirtyView.m_left) {
+		m_dirtyView.m_left = m_screenView.m_left;
+	}
+	if (m_dirtyView.m_top < m_screenView.m_top) {
+		m_dirtyView.m_top = m_screenView.m_top;
+	}
+	if (m_dirtyView.m_right > m_screenView.m_right) {
+		m_dirtyView.m_right = m_screenView.m_right;
+	}
+	if (m_dirtyView.m_bottom > m_screenView.m_bottom) {
+		m_dirtyView.m_bottom = m_screenView.m_bottom;
+	}
+
+	if (m_unk0x1e) {
+		if (m_unk0x22) {
+			if (g_unk0x1005c2a4) {
+				ClearPalette();
+				g_currentDrawMode->m_flip();
+				g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+				g_currentDrawMode->m_flip();
+				g_unk0x1005c2a4 = 0;
+			}
+			else {
+				ActivateFramebuffer();
+				g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+				memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
+				g_currentDrawMode->m_flip();
+			}
+		}
+		else if (m_unk0x3aa) {
+			memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
+			ActivateFramebuffer();
+			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
+			g_currentDrawMode->m_flip();
+			m_unk0x3aa = 0;
+		}
+		else {
+			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			g_currentDrawMode
+				->m_blitRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
+		}
+
+		m_unk0x1e = 0;
+	}
+	else if (m_dirtyView.m_right >= m_dirtyView.m_left && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
+		if (g_menuVisible) {
+			FUN_10031001(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+		}
+		else {
+			g_currentDrawMode
+				->m_blitRect(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+		}
+	}
+
+	m_dirtyView.m_left = m_screenView.m_right;
+	m_dirtyView.m_top = m_screenView.m_bottom;
+	m_dirtyView.m_right = m_screenView.m_left;
+	m_dirtyView.m_bottom = m_screenView.m_top;
 }
 
-// STUB: MW2SHELL 0x10006842
+// DrawShell for movie frames: the dirty rectangle is stretched to the screen, or drawn unscaled
+// at (160, 140) with g_unk0x1006a9f0.
+// Operand order: the original loads m_height first in both m_width * m_height (as in
+// FUN_10005f21; the source operand order doesn't flip it).
+// FUNCTION: MW2SHELL 0x10006842
 void VideoDriver::DrawFmv()
 {
-	STUB(0x10006842);
+	if (m_unk0x1e) {
+		if (m_unk0x3aa) {
+			memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
+			ActivateFramebuffer();
+			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+			memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
+			m_unk0x3aa = 0;
+		}
+		else {
+			g_currentDrawModeExtension->m_setPalette(0, 0x100, m_palette, m_unk0x22);
+		}
+
+		m_unk0x1e = 0;
+	}
+
+	if (m_dirtyView.m_left <= m_dirtyView.m_right && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
+		if (g_unk0x1006a9f0) {
+			FUN_10031106(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+		}
+		else {
+			g_currentDrawMode
+				->m_stretchBlit(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+		}
+	}
+
+	m_dirtyView.m_left = m_screenView.m_right;
+	m_dirtyView.m_top = m_screenView.m_bottom;
+	m_dirtyView.m_right = m_screenView.m_left;
+	m_dirtyView.m_bottom = m_screenView.m_top;
 }
 
 // FUNCTION: MW2SHELL 0x10006a04
-void VideoDriver::GetPalette(undefined* p_palette)
+void VideoDriver::GetPalette(PaletteColor* p_palette)
 {
 	memcpy(p_palette, m_palette, sizeof(m_palette));
 }
 
 // FUNCTION: MW2SHELL 0x10006a2f
-void VideoDriver::SetPalette(undefined* p_palette, undefined4 p_unk0x22)
+void VideoDriver::SetPalette(PaletteColor* p_palette, undefined4 p_unk0x22)
 {
 	memcpy(m_palette, p_palette, sizeof(m_palette));
 	m_unk0x1e = 1;
@@ -286,7 +385,7 @@ void VideoDriver::SetPalette(undefined* p_palette, undefined4 p_unk0x22)
 }
 
 // FUNCTION: MW2SHELL 0x10006a6d
-void VideoDriver::FUN_10006a6d(undefined* p_data, MechS32 p_size, undefined* p_palette)
+void VideoDriver::FUN_10006a6d(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
 	FUN_10037096(p_data, p_size, p_palette);
 }
@@ -685,5 +784,5 @@ void VideoDriver::ActivateFramebuffer()
 		FUN_10034e15(&m_screenView, 0);
 	}
 
-	g_currentDrawMode->m_unk0x18();
+	g_currentDrawMode->m_flip();
 }

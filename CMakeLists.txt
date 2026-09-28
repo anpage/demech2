@@ -159,6 +159,7 @@ function(demech2_add_dll TARGET)
     "${PROJECT_SOURCE_DIR}/${ARGS_ID}/include"
   )
   target_include_directories(${TARGET} SYSTEM PRIVATE
+    "${PROJECT_SOURCE_DIR}/3rdparty/dispdib"
     "${PROJECT_SOURCE_DIR}/3rdparty/dx2/INC"
     "${PROJECT_SOURCE_DIR}/3rdparty/miles"
     "${PROJECT_SOURCE_DIR}/3rdparty/smacker"
@@ -213,9 +214,11 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugout.c
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/cedarknot0x10.cpp
+    MW2SHELL/src/dispdib.c
     MW2SHELL/src/unk1002fb90.c
     MW2SHELL/src/unk10030900.c
     MW2SHELL/src/cdcheck.cpp
+    MW2SHELL/src/gdi.c
     MW2SHELL/src/unk10031970.c
     MW2SHELL/src/unk10032250.c
     MW2SHELL/src/missionui.cpp

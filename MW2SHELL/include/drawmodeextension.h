@@ -2,17 +2,35 @@
 #define DRAWMODEEXTENSION_H
 
 #include "decomp.h"
+#include "palettecolor.h"
+#include "pixelbuffer.h"
 #include "types.h"
 
+// DrawModeExtension::m_id, the index in g_drawModeExtensions.
+enum DrawModeExtensionId {
+	c_drawModeExtensionDirectDraw = 0,
+	c_drawModeExtensionDisplayDib = 1,
+	c_drawModeExtensionGdi = 2
+};
+
+// DrawModeExtension::m_windowMode and g_nWindowMode.
+enum WindowMode {
+	c_windowModeFullscreen = 1,
+	c_windowModeWindowed = 2
+};
+
 #pragma pack(1)
-// Function table of the active draw mode (GDI or DirectDraw).
+// Function table of the active display back end (DirectDraw, DisplayDib or GDI).
 // SIZE 0x28
 struct DrawModeExtension {
-	undefined m_unk0x00[0x10 - 0x00];                                                                   // 0x00
-	void (*m_unk0x10)();                                                                                // 0x10
-	void (*m_setPalette)(MechS32 p_first, MechS32 p_count, undefined* p_palette, undefined4 p_unk0x0c); // 0x14
-	void (*m_setPaletteWithBrightness)(MechU8* p_palette);                                              // 0x18
-	undefined m_unk0x1c[0x20 - 0x1c];                                                                   // 0x1c
+	MechS32 m_id;                                                                 // 0x00 — DrawModeExtensionId
+	MechS32 m_windowMode;                                                         // 0x04 — WindowMode
+	MechU32 m_style;                                                              // 0x08 — the shell window's style
+	MechS32 (*m_begin)(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height); // 0x0c
+	MechS32 (*m_end)();                                                           // 0x10
+	MechS32 (*m_setPalette)(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors); // 0x14
+	MechS32 (*m_setPaletteWithBrightness)(PaletteColor* p_palette);                                          // 0x18
+	MechS32 (*m_blendPalettes)(PaletteColor* p_palette, MechS32 p_steps);                                    // 0x1c
 	// Returns 0 once the framebuffer can be drawn to (GDI: points the output buffer at the DIB bits).
 	MechS32 (*m_acquireFramebuffer)(); // 0x20
 	undefined4 m_unk0x24;              // 0x24

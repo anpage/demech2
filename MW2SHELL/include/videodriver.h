@@ -2,6 +2,7 @@
 #define VIDEODRIVER_H
 
 #include "decomp.h"
+#include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "pixelview.h"
 #include "types.h"
@@ -24,9 +25,9 @@ public:
 	void UpdatePalette();
 	void DrawShell();
 	void DrawFmv();
-	void GetPalette(undefined* p_palette);
-	void SetPalette(undefined* p_palette, undefined4 p_unk0x22);
-	void FUN_10006a6d(undefined* p_data, MechS32 p_size, undefined* p_palette);
+	void GetPalette(PaletteColor* p_palette);
+	void SetPalette(PaletteColor* p_palette, undefined4 p_unk0x22);
+	void FUN_10006a6d(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
 	void FUN_10006a99(MechS32* p_maxX, MechS32* p_maxY, undefined* p_data, MechS32 p_size, MechS32 p_type);
 	void FUN_10006b21(undefined* p_unk0x0a, MechS32 p_unk0x0e, MechS32 p_unk0x12, MechU8 p_unk0x08, MechU8 p_unk0x09);
 	void FUN_10006c50(TMPackDataBase* p_database, MechS32 p_id);
@@ -84,15 +85,15 @@ public:
 	PixelBuffer m_backBuffer; // 0x42
 
 private:
-	PixelView m_screenView;     // 0x56
-	PixelView m_backView;       // 0x6a
-	PixelView m_dirtyView;      // 0x7e
-	undefined m_palette[0x300]; // 0x92
-	MechS32 m_width;            // 0x392
-	MechS32 m_height;           // 0x396
-	MechS32 m_unk0x39a;         // 0x39a
-	MechS32 m_unk0x39e;         // 0x39e
-	undefined4 m_unk0x3a2;      // 0x3a2
+	PixelView m_screenView;        // 0x56
+	PixelView m_backView;          // 0x6a
+	PixelView m_dirtyView;         // 0x7e
+	PaletteColor m_palette[0x100]; // 0x92
+	MechS32 m_width;               // 0x392
+	MechS32 m_height;              // 0x396
+	MechS32 m_unk0x39a;            // 0x39a
+	MechS32 m_unk0x39e;            // 0x39e
+	undefined4 m_unk0x3a2;         // 0x3a2
 
 public:
 	// The leaderboard and credits screens set the draw mode directly.

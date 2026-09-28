@@ -1,5 +1,6 @@
 #include "decomp.h"
 #include "drawmodeextension.h"
+#include "palettecolor.h"
 #include "types.h"
 
 #include <math.h>
@@ -8,13 +9,13 @@
 
 extern DrawModeExtension* g_currentDrawModeExtension;
 
-MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, MechU8* p_palette);
+MechS32 FUN_10011450(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette);
 
 // GLOBAL: MW2SHELL 0x100717a4
 MechS32 g_displayBrightness = 9;
 
 // GLOBAL: MW2SHELL 0x10095ed0
-MechU8 g_paletteColorsPreBrightness[0x300];
+PaletteColor g_paletteColorsPreBrightness[0x100];
 
 // GLOBAL: MW2SHELL 0x100961d0
 MechU8 g_gammaTable[16][64];
@@ -60,12 +61,12 @@ void FUN_10046166(MechS32 p_brightness)
 }
 
 // FUNCTION: MW2SHELL 0x1004619c
-void CopyPaletteColorWithBrightness(MechU8* p_src, MechU8* p_dst)
+void CopyPaletteColorWithBrightness(PaletteColor* p_src, PaletteColor* p_dst)
 {
 	MechU8* row;
 
 	row = g_gammaTable[g_displayBrightness];
-	p_dst[0] = row[p_src[0]];
-	p_dst[1] = row[p_src[1]];
-	p_dst[2] = row[p_src[2]];
+	p_dst->m_red = row[p_src->m_red];
+	p_dst->m_green = row[p_src->m_green];
+	p_dst->m_blue = row[p_src->m_blue];
 }
