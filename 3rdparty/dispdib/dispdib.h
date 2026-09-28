@@ -17,6 +17,13 @@
 #define DDM_DRAW (WM_USER + 1)
 #define DDM_CLOSE (WM_USER + 2)
 
+// windowsx.h's GetWindowInstance. 64-bit SDKs only define the pointer-sized form.
+#ifdef GWLP_HINSTANCE
+#define DisplayDibGetWindowInstance(hwnd) ((HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE))
+#else
+#define DisplayDibGetWindowInstance(hwnd) ((HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE))
+#endif
+
 // Sends a DDM_ message whose lParam is a pointer, through WM_COPYDATA.
 __inline UINT DisplayDibWindowMessage(HWND p_hwnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam, DWORD p_size)
 {
@@ -49,7 +56,7 @@ __inline HWND DisplayDibWindowCreateEx(HWND p_hwndParent, HINSTANCE p_hInstance,
 		GetSystemMetrics(SM_CYSCREEN),
 		p_hwndParent,
 		NULL,
-		(p_hInstance ? p_hInstance : (HINSTANCE) GetWindowLong(p_hwndParent, GWL_HINSTANCE)),
+		(p_hInstance ? p_hInstance : DisplayDibGetWindowInstance(p_hwndParent)),
 		NULL
 	);
 }
