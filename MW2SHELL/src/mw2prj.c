@@ -9,43 +9,43 @@
 #include <mbstring.h>
 #include <stdlib.h>
 
-void* FUN_1003c061(undefined4 p_size);
-void FUN_1003c07d(void* p_mem);
+void* Mw2PrjAlloc(undefined4 p_size);
+void Mw2PrjFree(void* p_mem);
 
 // Resource type tags in the mw2.prj archive (0x1006a9f8) and their file extensions (0x1006aa60).
 // Not annotated yet: reccmp pairs strings by text, and the original's earlier "MEK", ".mek"
 // and "BWD" literals in units not decompiled yet take the matches for these tables' entries,
 // so datacmp would report those entries as diffs.
-char* g_unk0x1006a9f8[26] = {"SNDS", "CEL",  "XYC",  "SHP",  "FONT", "MENU", "DISP", "XMID", "PAL",
-							 "TABL", "POLY", "TEXT", "ANIM", "MGEO", "HUD",  "CPIT", "VPT",  "MPIT",
-							 "BWD",  "VER",  "AIT",  "MEK",  "LUMA", "MUS",  "GIF",  "NTXT"};
+char* g_resourceTypeTags[26] = {"SNDS", "CEL",  "XYC",  "SHP",  "FONT", "MENU", "DISP", "XMID", "PAL",
+								"TABL", "POLY", "TEXT", "ANIM", "MGEO", "HUD",  "CPIT", "VPT",  "MPIT",
+								"BWD",  "VER",  "AIT",  "MEK",  "LUMA", "MUS",  "GIF",  "NTXT"};
 
-char* g_unk0x1006aa60[25] = {".sfl", ".xel", ".xyc", ".shp", ".fnt", ".dll", ".dll", ".xmi", ".col",
-							 ".tbl", ".wtb", ".xxt", ".3di", ".mgi", ".hdi", ".cpi", ".vpi", ".pit",
-							 ".bwd", ".ait", ".mek", ".lum", ".mus", ".gif", ".txt"};
+char* g_resourceTypeExtensions[25] = {".sfl", ".xel", ".xyc", ".shp", ".fnt", ".dll", ".dll", ".xmi", ".col",
+									  ".tbl", ".wtb", ".xxt", ".3di", ".mgi", ".hdi", ".cpi", ".vpi", ".pit",
+									  ".bwd", ".ait", ".mek", ".lum", ".mus", ".gif", ".txt"};
 
 // GLOBAL: MW2SHELL 0x1006aac4
-MechS32 g_unk0x1006aac4 = -1;
+MechS32 g_mw2PrjHandle = -1;
 
 // GLOBAL: MW2SHELL 0x1006aac8
-char* g_unk0x1006aac8 = NULL;
+char* g_mw2PrjPath = NULL;
 
 // FUNCTION: MW2SHELL 0x1003bfb0
-MechS32 FUN_1003bfb0(void)
+MechS32 InitializeMw2Prj(void)
 {
 	MechS32 result;
 
 	result = TRUE;
-	FUN_1002fb90(FUN_1003c061, FUN_1003c07d);
-	FUN_10013907();
+	SetArchiveAllocator(Mw2PrjAlloc, Mw2PrjFree);
+	InitializeResourceCache();
 
-	if (g_unk0x1006aac8 == NULL) {
-		g_unk0x1006aac8 = (char*) _mbsdup((unsigned char*) FUN_10031a8f("mw2.prj"));
+	if (g_mw2PrjPath == NULL) {
+		g_mw2PrjPath = (char*) _mbsdup((unsigned char*) MakeResourcePath("mw2.prj"));
 	}
 
-	g_unk0x1006aac4 = FUN_1002fcdc(g_unk0x1006aac8, 0);
-	if (g_unk0x1006aac4 != -1) {
-		FUN_1003024f(g_unk0x1006aac4);
+	g_mw2PrjHandle = OpenArchive(g_mw2PrjPath, 0);
+	if (g_mw2PrjHandle != -1) {
+		LoadArchiveEntries(g_mw2PrjHandle);
 	}
 	else {
 		result = FALSE;
@@ -55,19 +55,19 @@ MechS32 FUN_1003bfb0(void)
 }
 
 // FUNCTION: MW2SHELL 0x1003c048
-void FUN_1003c048(void)
+void ShutdownMw2Prj(void)
 {
-	FUN_1002ffc9(g_unk0x1006aac4);
+	CloseArchive(g_mw2PrjHandle);
 }
 
 // FUNCTION: MW2SHELL 0x1003c061
-void* FUN_1003c061(undefined4 p_size)
+void* Mw2PrjAlloc(undefined4 p_size)
 {
 	return FUN_10013fa9(p_size);
 }
 
 // FUNCTION: MW2SHELL 0x1003c07d
-void FUN_1003c07d(void* p_mem)
+void Mw2PrjFree(void* p_mem)
 {
 	free(p_mem);
 }

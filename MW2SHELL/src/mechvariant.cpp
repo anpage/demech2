@@ -383,7 +383,7 @@ void FUN_10003221()
 		strcat(g_unk0x10090288.m_unk0x118, g_unk0x1005b820[g_unk0x1005b798.m_unk0x00].m_unk0x04);
 	}
 
-	FUN_1002ea62(
+	PrjWriteStarTemplates(
 		g_unk0x1005b718.m_unk0x0c,
 		g_unk0x1005b718.m_unk0x14,
 		g_unk0x1005b798.m_unk0x0c,

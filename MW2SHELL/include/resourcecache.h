@@ -10,12 +10,12 @@ extern "C"
 {
 #endif
 
-	void FUN_10013907(void);
-	void FUN_10013c79(MechS32 p_id, char* p_type);
-	void* FUN_10013cb5(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c);
+	void InitializeResourceCache(void);
+	void UnlockCachedResource(MechS32 p_id, char* p_type);
+	void* LoadCachedResource(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c);
 	void* FUN_10013fa9(undefined4 p_size);
-	void FUN_1001385c(void);
-	void FUN_10013ef4(MechS32 p_id, char* p_type);
+	void ShutdownResourceCache(void);
+	void FreeCachedResource(MechS32 p_id, char* p_type);
 
 #ifdef __cplusplus
 }

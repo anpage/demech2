@@ -60,7 +60,7 @@ Font* g_unk0x10071228 = NULL;
 TMPackDataBase* g_pDatabaseMw2 = NULL;
 
 // GLOBAL: MW2SHELL 0x10071230
-ProjectArchive* g_unk0x10071230 = NULL;
+ProjectArchive* g_projectArchive = NULL;
 
 // GLOBAL: MW2SHELL 0x10071234
 MechS32 g_fAudio = 1;

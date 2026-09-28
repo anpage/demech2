@@ -492,7 +492,7 @@ extern "C" int __stdcall ShellMain(
 	g_pDatabaseMw2->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
 	g_pMouseState = new MouseState(g_pVideoDriver, g_unk0x1007120c, g_unk0x10071200);
 	g_unk0x100711f8 = new KeyboardInput();
-	g_unk0x10071230 = new ProjectArchive("MW2.PRJ");
+	g_projectArchive = new ProjectArchive("MW2.PRJ");
 
 	LoadPilotRoster();
 	FUN_10043979();
@@ -550,7 +550,7 @@ extern "C" int __stdcall ShellMain(
 
 	FUN_10016f45();
 
-	delete g_unk0x10071230;
+	delete g_projectArchive;
 	delete g_pDatabaseMw2;
 	delete g_pMouseState;
 	delete g_unk0x100711f8;

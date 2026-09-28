@@ -195,23 +195,23 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 	name[4] = '\0';
 	strcat(name, "brf2");
 
-	file = (MechS32*) g_unk0x10071230->FUN_1002e3cf(name, 0xe, "BWD");
+	file = (MechS32*) g_projectArchive->GetResourceByName(name, 0xe, "BWD");
 	if (!file) {
 		return;
 	}
 
-	title = g_unk0x10071230->FUN_1002e47a(file, 0x47, NULL);
+	title = g_projectArchive->FindNextBwdNode(file, 0x47, NULL);
 	if (title) {
 		strcpy(g_unk0x1006a550, (MechChar*) (title + 2));
 	}
 
 	if (p_stars) {
-		star = g_unk0x10071230->FUN_1002e47a(file, 0x46, NULL);
+		star = g_projectArchive->FindNextBwdNode(file, 0x46, NULL);
 		if (star) {
 			FUN_10037c60(0, (BwdStar*) (star + 2));
 		}
 
-		star = g_unk0x10071230->FUN_1002e47a(file, 0x46, star);
+		star = g_projectArchive->FindNextBwdNode(file, 0x46, star);
 		if (star) {
 			FUN_10037c60(1, (BwdStar*) (star + 2));
 			g_unk0x10066a44 = star[2];
@@ -222,7 +222,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 	FUN_10002de7(0, NULL, NULL);
 
 	if (p_video) {
-		briefing = g_unk0x10071230->FUN_1002e47a(file, 0x45, NULL);
+		briefing = g_projectArchive->FindNextBwdNode(file, 0x45, NULL);
 		if (briefing) {
 			g_unk0x1006a29c = briefing[2] - 1;
 			if (g_unk0x1006a29c < 0 || g_unk0x1006a29c >= 12) {
@@ -247,7 +247,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 		}
 	}
 
-	g_unk0x10071230->FUN_1002e445(name, 0xe, "BWD");
+	g_projectArchive->ReleaseResourceByName(name, 0xe, "BWD");
 }
 
 // Shows the name of mech type p_type at (p_left, p_top), replacing the tag's previous glyph.

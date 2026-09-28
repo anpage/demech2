@@ -27,7 +27,7 @@ typedef struct ResourceTable {
 } ResourceTable;
 
 // Stack-slot permutation: every local, name included, takes a different [ebp-N] slot. The
-// original side also can't name g_unk0x1006a9f8 until it is annotated (see mw2prj.c).
+// original side also can't name g_resourceTypeTags until it is annotated (see mw2prj.c).
 // FUNCTION: MW2SHELL 0x100050f0
 MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 {
@@ -41,7 +41,7 @@ MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 	char name[12];
 
 	id = -1;
-	data = FUN_10013cb5(g_unk0x1006aac4, p_type, g_unk0x1006a9f8[c_tagTable], 1);
+	data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_tagTable], 1);
 	if (data != NULL) {
 		table = data;
 		entry = data->m_entries;
@@ -66,16 +66,16 @@ MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 			id = entry->m_id;
 		}
 
-		FUN_10013c79(p_type, g_unk0x1006a9f8[c_tagTable]);
+		UnlockCachedResource(p_type, g_resourceTypeTags[c_tagTable]);
 	}
 
 	return id;
 }
 
 // Stack-slot permutation: j, table, data, entry, result, i and c. The original side also
-// can't name g_unk0x1006a9f8 until it is annotated (see mw2prj.c).
+// can't name g_resourceTypeTags until it is annotated (see mw2prj.c).
 // FUNCTION: MW2SHELL 0x10005232
-char* FUN_10005232(MechS32 p_type, MechS32 p_id, char* p_buffer)
+char* FindResourceNameById(MechS32 p_type, MechS32 p_id, char* p_buffer)
 {
 	MechS32 j;
 	ResourceTable* table;
@@ -87,7 +87,7 @@ char* FUN_10005232(MechS32 p_type, MechS32 p_id, char* p_buffer)
 
 	result = NULL;
 	if (p_buffer != NULL) {
-		data = FUN_10013cb5(g_unk0x1006aac4, p_type, g_unk0x1006a9f8[c_tagTable], 1);
+		data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_tagTable], 1);
 		if (data != NULL) {
 			table = data;
 			entry = data->m_entries;
@@ -107,7 +107,7 @@ char* FUN_10005232(MechS32 p_type, MechS32 p_id, char* p_buffer)
 				result[8] = '\0';
 			}
 
-			FUN_10013c79(p_type, g_unk0x1006a9f8[c_tagTable]);
+			UnlockCachedResource(p_type, g_resourceTypeTags[c_tagTable]);
 		}
 	}
 

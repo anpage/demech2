@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechChar* FUN_10031a8f(MechChar* p_name);
+	MechChar* MakeResourcePath(MechChar* p_name);
 
 #ifdef __cplusplus
 }

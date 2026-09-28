@@ -2600,14 +2600,14 @@ void* FUN_1000bce5(MechChar* p_name)
 		return g_unk0x1007a820;
 	}
 
-	return g_unk0x10071230->FUN_1002e3cf(p_name, 6, "MEK");
+	return g_projectArchive->GetResourceByName(p_name, 6, "MEK");
 }
 
 // FUNCTION: MW2SHELL 0x1000be09
 void FUN_1000be09(MechChar* p_name)
 {
 	if (!_strnicmp(p_name + 5, "std", 3)) {
-		g_unk0x10071230->FUN_1002e445(p_name, 6, "MEK");
+		g_projectArchive->ReleaseResourceByName(p_name, 6, "MEK");
 	}
 }
 
@@ -2879,7 +2879,7 @@ void LoadMechBuildList(MechChar* p_prefix)
 
 	for (i = 1; i < 100; i++) {
 		sprintf(g_unk0x1007a800, "%s%02dstd", p_prefix, i);
-		if (g_unk0x10071230->FUN_1002e346(g_unk0x1007a800, 6) >= 0) {
+		if (g_projectArchive->FindResourceId(g_unk0x1007a800, 6) >= 0) {
 			strcpy(g_unk0x10079d80[i], g_unk0x1007a800);
 		}
 	}

@@ -17,7 +17,7 @@
 #include <string.h>
 #include <windows.h>
 
-// The index of the HTXT tag in g_unk0x100668c0 (projectarchive.cpp).
+// The index of the HTXT tag in g_bwdTags (projectarchive.cpp).
 enum {
 	c_tagHtxt = 62
 };
@@ -183,11 +183,11 @@ void FUN_1002e1b1(
 		g_unk0x1008f658[i] = 0xff;
 	}
 
-	if (!g_unk0x10071230->FUN_1002e512(p_name)) {
+	if (!g_projectArchive->LoadBwd(p_name)) {
 		// The original does nothing about a missing file.
 	}
 
-	node = g_unk0x10071230->FUN_1002e5d8(*(MechS32*) g_unk0x100668c0[c_tagHtxt]);
+	node = g_projectArchive->FindBwdNode(*(MechS32*) g_bwdTags[c_tagHtxt]);
 	if (node) {
 		FUN_1002e09b(
 			(MechChar*) (node + 2),

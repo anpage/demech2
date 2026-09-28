@@ -29,7 +29,7 @@ extern Font* g_unk0x10071220;
 extern Font* g_unk0x10071224;
 extern Font* g_unk0x10071228;
 extern TMPackDataBase* g_pDatabaseMw2;
-extern ProjectArchive* g_unk0x10071230;
+extern ProjectArchive* g_projectArchive;
 extern MechS32 g_fAudio;
 extern MechS32 g_fDigitalAudio;
 extern MechS32 g_unk0x1007123c;
