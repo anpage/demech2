@@ -442,7 +442,7 @@ TextGlyph* FUN_1003e9d0(ScreenField* p_tab)
 	MechChar* text;
 
 	text = (MechChar*) p_tab->m_data;
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // The text being edited by CpcEditTextField, with its cursor.
@@ -474,7 +474,7 @@ MechS32 CpcEditTextField(
 	strcpy(g_cpcEditText, p_text);
 	strcat(g_cpcEditText, "_");
 	width = p_font->GetTextWidth(g_cpcEditText);
-	glyph = p_font->FUN_10005522(p_left, p_top, g_cpcEditText, p_colors);
+	glyph = p_font->AddOverlayText(p_left, p_top, g_cpcEditText, p_colors);
 
 	for (;;) {
 		if (g_cpcLogoMovie) {
@@ -511,7 +511,7 @@ MechS32 CpcEditTextField(
 					delete glyph;
 				}
 
-				glyph = p_font->FUN_10005522(p_left, p_top, g_cpcEditText, p_colors);
+				glyph = p_font->AddOverlayText(p_left, p_top, g_cpcEditText, p_colors);
 				break;
 			case 0x0d:
 				g_cpcEditText[length] = '\0';
@@ -553,7 +553,7 @@ MechS32 CpcEditTextField(
 						delete glyph;
 					}
 
-					glyph = p_font->FUN_10005522(p_left, p_top, g_cpcEditText, p_colors);
+					glyph = p_font->AddOverlayText(p_left, p_top, g_cpcEditText, p_colors);
 				}
 				else {
 					length--;
@@ -575,7 +575,7 @@ void CpcEditField(ScreenField* p_tab)
 	}
 
 	CpcEditTextField(
-		g_unk0x1007120c,
+		g_defaultFont,
 		p_tab->m_left,
 		p_tab->m_top,
 		(MechChar*) p_tab->m_data,
@@ -583,8 +583,7 @@ void CpcEditField(ScreenField* p_tab)
 		0x3e,
 		p_tab->m_width
 	);
-	p_tab->m_glyph =
-		g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
+	p_tab->m_glyph = g_textFont->AddText(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1003eef3
@@ -593,7 +592,7 @@ TextGlyph* FUN_1003eef3(ScreenField* p_tab)
 	MechChar* text;
 
 	text = (MechChar*) p_tab->m_data;
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // The device and axis or button bound to a control.
@@ -640,7 +639,7 @@ TextGlyph* CpcDrawBinding(ScreenField* p_tab)
 		);
 	}
 
-	glyph = g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_cpcFieldText, colors);
+	glyph = g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcFieldText, colors);
 	if (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind != 2) {
 		p_tab->m_width = 100;
 	}
@@ -688,29 +687,28 @@ TextGlyph* CpcDrawAxisButton(ScreenField* p_tab)
 	}
 
 	sprintf(g_cpcFieldText, "/%s", label);
-	glyph = g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_cpcFieldText, colors);
+	glyph = g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcFieldText, colors);
 	return glyph;
 }
 
 // FUNCTION: MW2SHELL 0x1003f283
 TextGlyph* CpcDrawControlName(ScreenField* p_tab)
 {
-	return g_unk0x10071210
-		->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_cpcControlLabels[(MechS32) p_tab->m_data], p_tab->m_colors);
+	return g_textFont
+		->AddText(p_tab->m_left, p_tab->m_top, g_cpcControlLabels[(MechS32) p_tab->m_data], p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1003f2c0
 TextGlyph* CpcDrawNumber(ScreenField* p_tab)
 {
 	sprintf(g_cpcFieldText, "%d", *(MechS32*) p_tab->m_data);
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_cpcFieldText, p_tab->m_colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcFieldText, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1003f30f
 TextGlyph* CpcDrawConfigName(ScreenField* p_tab)
 {
-	return g_unk0x10071210
-		->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_cpcConfigNames[g_cpcConfigShown], p_tab->m_colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcConfigNames[g_cpcConfigShown], p_tab->m_colors);
 }
 
 // Show the next configuration.
@@ -741,12 +739,8 @@ TextGlyph* CpcDrawAxisDirection(ScreenField* p_tab)
 		p_tab->m_left = p_tab[-1].m_glyph->m_right + 1;
 	}
 
-	glyph = g_unk0x10071210->FUN_1000544e(
-		p_tab->m_left,
-		p_tab->m_top,
-		g_cpcAxisDirections[(MechS32) p_tab->m_unk0x28][inverted],
-		NULL
-	);
+	glyph = g_textFont
+				->AddText(p_tab->m_left, p_tab->m_top, g_cpcAxisDirections[(MechS32) p_tab->m_unk0x28][inverted], NULL);
 	return glyph;
 }
 
@@ -759,7 +753,7 @@ void CpcToggleInverted(ScreenField* p_tab)
 // FUNCTION: MW2SHELL 0x1003f469
 TextGlyph* CpcDrawModifier(ScreenField* p_tab)
 {
-	return g_unk0x10071210->FUN_1000544e(
+	return g_textFont->AddText(
 		p_tab->m_left + p_tab->m_width / 2,
 		p_tab->m_top,
 		g_cpcModifierNames[g_pCpcBindings[(MechS32) p_tab->m_data].m_flags & c_flagModifierMask],
@@ -1045,8 +1039,8 @@ TextGlyph* CpcDrawDeviceAxis(ScreenField* p_tab)
 		colors = g_cpcDisabledColors;
 	}
 
-	return g_unk0x10071210
-		->FUN_1000544e(p_tab->m_left, p_tab->m_top, device->m_info.m_axisNames[(MechS32) p_tab->m_data], colors);
+	return g_textFont
+		->AddText(p_tab->m_left, p_tab->m_top, device->m_info.m_axisNames[(MechS32) p_tab->m_data], colors);
 }
 
 // A button of the current device, in the scrolled list.
@@ -1082,7 +1076,7 @@ TextGlyph* CpcDrawDeviceButton(ScreenField* p_tab)
 		colors = g_cpcDisabledColors;
 	}
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, label, colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, label, colors);
 }
 
 // Bind the selected control to an axis of the current device.
@@ -1135,12 +1129,8 @@ TextGlyph* CpcDrawScrollArrow(ScreenField* p_tab)
 		colors = g_cpcDisabledColors;
 	}
 
-	return g_unk0x10071210->FUN_1000544e(
-		p_tab->m_left,
-		p_tab->m_top,
-		(MechChar*) ((MechS32) p_tab->m_data >= 0 ? "\x02" : "\x01"),
-		colors
-	);
+	return g_textFont
+		->AddText(p_tab->m_left, p_tab->m_top, (MechChar*) ((MechS32) p_tab->m_data >= 0 ? "\x02" : "\x01"), colors);
 }
 
 // Scroll the button list while a mouse button is held; the right button scrolls twice as fast.
@@ -1258,7 +1248,7 @@ TextGlyph* CpcDrawDeviceName(ScreenField* p_tab)
 		strcpy(name, device->m_info.m_displayName);
 	}
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, name, p_tab->m_colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, name, p_tab->m_colors);
 }
 
 // An input device of the bindings screen, its name shortened to fit.
@@ -1289,11 +1279,11 @@ TextGlyph* CpcDrawBindingDevice(ScreenField* p_tab)
 		return NULL;
 	}
 
-	while (g_unk0x10071210->GetTextWidth(device->m_info.m_displayName) > 175) {
+	while (g_textFont->GetTextWidth(device->m_info.m_displayName) > 175) {
 		strcpy(device->m_info.m_displayName + strlen(device->m_info.m_displayName) - 4, "...");
 	}
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, device->m_info.m_displayName, colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, device->m_info.m_displayName, colors);
 }
 
 // An input device of the devices screen: highlighted when active, disabled while four are.
@@ -1324,11 +1314,11 @@ TextGlyph* CpcDrawDeviceEntry(ScreenField* p_tab)
 		return NULL;
 	}
 
-	while (g_unk0x10071210->GetTextWidth(device->m_info.m_displayName) > 175) {
+	while (g_textFont->GetTextWidth(device->m_info.m_displayName) > 175) {
 		strcpy(device->m_info.m_displayName + strlen(device->m_info.m_displayName) - 4, "...");
 	}
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, device->m_info.m_displayName, colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, device->m_info.m_displayName, colors);
 }
 
 // Activate or deactivate a device; the keyboard stays as it is, and at most four are active.
@@ -1392,7 +1382,7 @@ TextGlyph* CpcDrawSlotName(ScreenField* p_tab)
 		index = 0;
 	}
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_cpcSlotNames[index], p_tab->m_colors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcSlotNames[index], p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10040af7
@@ -1419,7 +1409,7 @@ TextGlyph* FUN_10040b32(ScreenField* p_tab)
 		text = NULL;
 	}
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, text, g_cpcSelectedColors);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, text, g_cpcSelectedColors);
 }
 
 // Enumerate the devices again, and explain when there is no joystick.

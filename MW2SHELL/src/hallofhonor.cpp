@@ -81,13 +81,13 @@ void DrawHallOfHonor()
 	qsort(pilots, 20, sizeof(pilots[0]), (int (*)(const void*, const void*)) ComparePilotRecords);
 
 	top = 0x96;
-	g_pVideoDriver->DrawString(0, top, g_unk0x10071218->m_unk0x408, "Pilot", NULL);
-	g_pVideoDriver->DrawString(0x7d, top, g_unk0x10071218->m_unk0x408, "Clan", NULL);
-	g_pVideoDriver->DrawString(200, top, g_unk0x10071218->m_unk0x408, "Rank", NULL);
-	g_pVideoDriver->DrawString(0x145, top, g_unk0x10071218->m_unk0x408, "Honor", NULL);
-	g_pVideoDriver->DrawString(400, top, g_unk0x10071218->m_unk0x408, "Kills", NULL);
-	g_pVideoDriver->DrawString(0x1cc, top, g_unk0x10071218->m_unk0x408, "Hit %", NULL);
-	g_pVideoDriver->DrawString(0x208, top, g_unk0x10071218->m_unk0x408, "Last Mission", NULL);
+	g_pVideoDriver->DrawString(0, top, g_buttonFont->m_unk0x408, "Pilot", NULL);
+	g_pVideoDriver->DrawString(0x7d, top, g_buttonFont->m_unk0x408, "Clan", NULL);
+	g_pVideoDriver->DrawString(200, top, g_buttonFont->m_unk0x408, "Rank", NULL);
+	g_pVideoDriver->DrawString(0x145, top, g_buttonFont->m_unk0x408, "Honor", NULL);
+	g_pVideoDriver->DrawString(400, top, g_buttonFont->m_unk0x408, "Kills", NULL);
+	g_pVideoDriver->DrawString(0x1cc, top, g_buttonFont->m_unk0x408, "Hit %", NULL);
+	g_pVideoDriver->DrawString(0x208, top, g_buttonFont->m_unk0x408, "Last Mission", NULL);
 	top += 0x20;
 
 	for (i = 0; i < 8; i++) {
@@ -95,28 +95,28 @@ void DrawHallOfHonor()
 			continue;
 		}
 
-		g_pVideoDriver->DrawString(0, top, g_unk0x1007120c->m_unk0x408, pilots[i]->m_callsign, NULL);
-		g_pVideoDriver->DrawString(0x7d, top, g_unk0x1007120c->m_unk0x408, g_unk0x10071280[pilots[i]->m_unk0x08], NULL);
-		g_pVideoDriver->DrawString(200, top, g_unk0x1007120c->m_unk0x408, g_rankNames[pilots[i]->m_rank], NULL);
+		g_pVideoDriver->DrawString(0, top, g_defaultFont->m_unk0x408, pilots[i]->m_callsign, NULL);
+		g_pVideoDriver->DrawString(0x7d, top, g_defaultFont->m_unk0x408, g_unk0x10071280[pilots[i]->m_unk0x08], NULL);
+		g_pVideoDriver->DrawString(200, top, g_defaultFont->m_unk0x408, g_rankNames[pilots[i]->m_rank], NULL);
 		sprintf(g_unk0x10090670, "%d", pilots[i]->m_honor);
-		g_pVideoDriver->DrawString(0x145, top, g_unk0x1007120c->m_unk0x408, g_unk0x10090670, NULL);
+		g_pVideoDriver->DrawString(0x145, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
 		sprintf(g_unk0x10090670, "%d", pilots[i]->m_unk0x18);
-		g_pVideoDriver->DrawString(400, top, g_unk0x1007120c->m_unk0x408, g_unk0x10090670, NULL);
+		g_pVideoDriver->DrawString(400, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
 		if (pilots[i]->m_unk0x20 != 0) {
 			sprintf(g_unk0x10090670, "%d%%", (MechS32) pilots[i]->m_unk0x1c * 100 / (MechS32) pilots[i]->m_unk0x20);
 		}
 		else {
 			strcpy(g_unk0x10090670, "-");
 		}
-		g_pVideoDriver->DrawString(0x1cc, top, g_unk0x1007120c->m_unk0x408, g_unk0x10090670, NULL);
+		g_pVideoDriver->DrawString(0x1cc, top, g_defaultFont->m_unk0x408, g_unk0x10090670, NULL);
 		if (pilots[i]->m_mission == 0) {
-			g_pVideoDriver->DrawString(0x208, top, g_unk0x1007120c->m_unk0x408, "----", NULL);
+			g_pVideoDriver->DrawString(0x208, top, g_defaultFont->m_unk0x408, "----", NULL);
 		}
 		else {
 			g_pVideoDriver->DrawString(
 				0x208,
 				top,
-				g_unk0x1007120c->m_unk0x408,
+				g_defaultFont->m_unk0x408,
 				g_campaignMissions[pilots[i]->m_unk0x08][pilots[i]->m_mission - 1].m_title,
 				NULL
 			);

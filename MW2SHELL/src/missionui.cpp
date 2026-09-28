@@ -241,8 +241,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 				if (g_unk0x10090160[i]) {
 					delete g_unk0x10090160[i];
 				}
-				g_unk0x10090160[i] =
-					g_unk0x10071210->FUN_1000544e(0xef, i * 12 + 0x45, g_unk0x10090180, g_unk0x10090058);
+				g_unk0x10090160[i] = g_textFont->AddText(0xef, i * 12 + 0x45, g_unk0x10090180, g_unk0x10090058);
 			}
 		}
 	}
@@ -269,7 +268,7 @@ void ShowMechName(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_
 		text = "[none]";
 	}
 
-	p_tag->m_glyph = g_unk0x10071210->FUN_1000544e(p_left, p_top, text, g_unk0x10090058);
+	p_tag->m_glyph = g_textFont->AddText(p_left, p_top, text, g_unk0x10090058);
 }
 
 // Shows the formation names of both stars.
@@ -283,16 +282,14 @@ void ShowFormationNames()
 		delete g_unk0x1006a2a4;
 	}
 	pos = &g_unk0x1006f618[6].m_textPos;
-	g_unk0x1006a2a4 =
-		g_unk0x10071210->FUN_1000544e(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x1009016c].m_unk0x04, g_unk0x10090058);
+	g_unk0x1006a2a4 = g_textFont->AddText(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x1009016c].m_unk0x04, g_unk0x10090058);
 
 	g_unk0x10090178 = GetStarFormation(1);
 	if (g_unk0x1006a2a0) {
 		delete g_unk0x1006a2a0;
 	}
 	pos = &g_unk0x1006f618[17].m_textPos;
-	g_unk0x1006a2a0 =
-		g_unk0x10071210->FUN_1000544e(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x10090178].m_unk0x04, g_unk0x10090058);
+	g_unk0x1006a2a0 = g_textFont->AddText(pos->x, pos->y, g_unk0x1006e1a8[g_unk0x10090178].m_unk0x04, g_unk0x10090058);
 }
 
 // Picks a value by the pilot of the player's first mech: 0x12 for Enzo, 0x11 for Hobbes, 0x10
@@ -343,7 +340,7 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 		g_unk0x1006a2b4 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	}
 
-	g_unk0x1006a2a8 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, 0, g_unk0x1006f618, 0x19);
+	g_unk0x1006a2a8 = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_unk0x1006f618, 0x19);
 	for (i = 0; i < 3; i++) {
 		g_unk0x10090160[i] = NULL;
 	}

@@ -102,8 +102,8 @@ TextGlyph* FUN_1004338a(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
-	return g_unk0x10071214
-		->FUN_1000544e(p_option->m_left + p_option->m_width / 2, p_option->m_top, g_unk0x10070d98[value], NULL);
+	return g_titleFont
+		->AddText(p_option->m_left + p_option->m_width / 2, p_option->m_top, g_unk0x10070d98[value], NULL);
 }
 
 // FUNCTION: MW2SHELL 0x100433dc
@@ -111,7 +111,7 @@ TextGlyph* FUN_100433dc(ScreenField* p_option)
 {
 	MechS32 value = *(MechS32*) p_option->m_data;
 
-	return g_unk0x10071214->FUN_1000544e(
+	return g_titleFont->AddText(
 		p_option->m_left + p_option->m_width / 2,
 		p_option->m_top,
 		(MechChar*) (value ? "~ON" : "~OFF"),
@@ -124,7 +124,7 @@ TextGlyph* FUN_1004343c(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
-	return g_unk0x10071214->FUN_1000544e(
+	return g_titleFont->AddText(
 		p_option->m_left + p_option->m_width / 2,
 		p_option->m_top,
 		(MechChar*) (value ? "~ON" : "~OFF"),
@@ -137,7 +137,7 @@ TextGlyph* FUN_1004349f(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
-	return g_unk0x10071214->FUN_1000544e(
+	return g_titleFont->AddText(
 		p_option->m_left + p_option->m_width / 2 - (value ? 14 : 0),
 		p_option->m_top,
 		(MechChar*) (value ? "ON (Dishonorable)" : "~OFF"),
@@ -150,7 +150,7 @@ TextGlyph* FUN_10043517(ScreenField* p_option)
 {
 	MechU8 value = *(MechU8*) p_option->m_data;
 
-	return g_unk0x10071214->FUN_1000544e(
+	return g_titleFont->AddText(
 		p_option->m_left + p_option->m_width / 2 - (value ? 0 : 14),
 		p_option->m_top,
 		(MechChar*) (value ? "~OFF" : "ON (Dishonorable)"),
@@ -163,7 +163,7 @@ TextGlyph* FUN_10043589(ScreenField* p_option)
 {
 	MechS32 value = *(MechS32*) p_option->m_data;
 
-	return g_unk0x10071214->FUN_1000544e(
+	return g_titleFont->AddText(
 		p_option->m_left + p_option->m_width / 2,
 		p_option->m_top,
 		(MechChar*) (value ? "~HIGH" : "~LOW"),
@@ -185,7 +185,7 @@ TextGlyph* FUN_100435e9(ScreenField* p_option)
 		label = "~640x480";
 	}
 
-	return g_unk0x10071214->FUN_1000544e(p_option->m_left + p_option->m_width / 2, p_option->m_top, label, NULL);
+	return g_titleFont->AddText(p_option->m_left + p_option->m_width / 2, p_option->m_top, label, NULL);
 }
 
 // FUNCTION: MW2SHELL 0x10043651

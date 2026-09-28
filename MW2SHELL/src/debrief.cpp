@@ -216,7 +216,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 	}
 
 	sprintf(g_unk0x10078b38, "%d", points);
-	width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+	width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 	sprintf(g_unk0x100791b8, "\\nMission Completion:\\g%03d\\b%03d%s\\n", 350, width, g_unk0x10078b38);
 	strcat(p_text, g_unk0x100791b8);
 	honor += points;
@@ -245,7 +245,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 		points = secondary * 1500;
 		honor += points;
 		sprintf(g_unk0x10078b38, "%d", points);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		sprintf(
 			g_unk0x100791b8,
 			"Secondary Objective Completed:\\t\\t%d\\t(x%d)\\g%03d\\b%03d%s\\n",
@@ -262,7 +262,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 		points = tertiary * 500;
 		honor += points;
 		sprintf(g_unk0x10078b38, "%d", points);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		sprintf(
 			g_unk0x100791b8,
 			"Tertiary Objective Completed:\\t\\t%d\\t(x%d)\\g%03d\\b%03d%s\\n",
@@ -279,7 +279,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 		points = p_career->m_unk0x34 * -4000;
 		honor += points;
 		sprintf(g_unk0x10078b38, "%d", points);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		sprintf(
 			g_unk0x100791b8,
 			"Wingman Deaths:\\t\\t\\t\\t%d\\t(x%d)\\g%03d\\b%03d%s\\n",
@@ -298,7 +298,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 	points = p_career->m_unk0x1e * 250;
 	g_pCurrentPilot->m_unk0x18 += p_career->m_unk0x1e;
 	sprintf(g_unk0x10078b38, "%d", points);
-	width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+	width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 	honor += points;
 	sprintf(
 		g_unk0x100791b8,
@@ -314,7 +314,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 	points = p_career->m_unk0x4a * 125;
 	g_pCurrentPilot->m_unk0x18 += p_career->m_unk0x44;
 	sprintf(g_unk0x10078b38, "%d", points);
-	width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+	width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 	honor += points;
 	sprintf(
 		g_unk0x100791b8,
@@ -336,7 +336,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 	if (tons > 0) {
 		points = tons * 25;
 		sprintf(g_unk0x10078b38, "%d", points);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		honor += points;
 		sprintf(
 			g_unk0x100791b8,
@@ -366,7 +366,7 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 
 	if (hit <= 1.0) {
 		sprintf(g_unk0x10078b38, "%d", hitBonus);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		sprintf(
 			g_unk0x100791b8,
 			"Hit Percentage:\\t\\t\\t\\t%3.1f\\g%03d\\b%03d%s\\n",
@@ -404,14 +404,14 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 	}
 	else if (p_results->m_unk0x10 == 2) {
 		sprintf(g_unk0x10078b38, "%d", honor);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		sprintf(g_unk0x100791b8, "\\nMission Honor:\\g%03d\\b%03d%s\\n", 350, width, g_unk0x10078b38);
 		strcat(p_text, g_unk0x100791b8);
 
 		bonus = (MechS32) (honor * multiplier) - honor;
 		honor += bonus;
 		sprintf(g_unk0x10078b38, "%d", honor);
-		width = g_unk0x10071228->GetTextWidth(g_unk0x10078b38);
+		width = g_bodyFont->GetTextWidth(g_unk0x10078b38);
 		sprintf(
 			g_unk0x100791b8,
 			"Difficulty Multiplier:\\t(%s = %1.1f)\\g%03d\\b%03d%s\\n",
@@ -553,7 +553,7 @@ void BuildDebriefText(CareerRecord* p_career, MissionResults* p_results, MechCha
 	}
 
 	sprintf(g_unk0x10077da0, "%d", g_pCurrentPilot->m_honor);
-	width = g_unk0x10071228->GetTextWidth(g_unk0x10077da0);
+	width = g_bodyFont->GetTextWidth(g_unk0x10077da0);
 	sprintf(g_unk0x10078fb8, "\\nCareer Honor:\\g%03d\\b%03d%s\\n", 350, width, g_unk0x10077da0);
 	strcat(p_text, g_unk0x10078fb8);
 }
@@ -622,7 +622,7 @@ void LayoutDebriefPages(
 	}
 
 	UppercaseString(p_name);
-	LoadTextPages(p_pages, p_left, p_top, p_width, p_height, p_name, g_unk0x10071228, p_text);
+	LoadTextPages(p_pages, p_left, p_top, p_width, p_height, p_name, g_bodyFont, p_text);
 }
 
 // Returns the rank a trial earns: its successful primary objectives, when a clan pilot has
@@ -698,7 +698,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	g_keyboardInput->FlushKeys();
 	g_unk0x1005b040 = new ButtonMenu(
 		g_pVideoDriver,
-		g_unk0x1007120c,
+		g_defaultFont,
 		FALSE,
 		g_unk0x1006ff00[p_campaign].m_buttons,
 		g_unk0x1006ff00[p_campaign].m_count
@@ -735,7 +735,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 
 	g_unk0x1005b044 = (Page*) CollectionGet(g_unk0x1005b048, 0);
 	if (!g_unk0x1005b044) {
-		g_unk0x1005b044 = new Page(g_unk0x10071228, g_pVideoDriver, NULL, 0, 0, 100, 100);
+		g_unk0x1005b044 = new Page(g_bodyFont, g_pVideoDriver, NULL, 0, 0, 100, 100);
 	}
 	else {
 		CollectionRemove(g_unk0x1005b048, g_unk0x1005b044, FALSE);
@@ -787,7 +787,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			delete g_unk0x1005b040;
 			g_unk0x1005b04c = new ArchiveReader(
 				"",
-				g_unk0x10071224,
+				g_archiveFont,
 				-1,
 				FALSE,
 				NULL,
@@ -831,7 +831,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			g_unk0x1005b04c = NULL;
 			g_unk0x1005b040 = new ButtonMenu(
 				g_pVideoDriver,
-				g_unk0x1007120c,
+				g_defaultFont,
 				FALSE,
 				g_unk0x1006ff00[*p_campaign].m_buttons,
 				g_unk0x1006ff00[*p_campaign].m_count

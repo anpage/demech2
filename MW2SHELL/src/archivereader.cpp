@@ -77,7 +77,7 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 
 	g_unk0x100665f8 = new ArchiveReader(
 		g_unk0x1006e1a0[p_campaign],
-		g_unk0x10071224,
+		g_archiveFont,
 		1,
 		TRUE,
 		NULL,
@@ -189,7 +189,7 @@ void ArchiveReader::PrevPage()
 		if (m_titleGlyph) {
 			delete m_titleGlyph;
 		}
-		m_titleGlyph = g_unk0x10071214->FUN_1000544e(0x140, 0x32, m_title, NULL);
+		m_titleGlyph = g_titleFont->AddText(0x140, 0x32, m_title, NULL);
 	}
 
 	if (m_page < m_pages->m_count && m_pages->m_count > 1) {
@@ -279,16 +279,8 @@ void ArchiveReader::OpenTopic(MechS32 p_id)
 				m_titleGlyph = NULL;
 			}
 
-			m_child = new ArchiveReader(
-				m_title,
-				g_unk0x10071224,
-				topic->m_entry,
-				FALSE,
-				m_database,
-				NULL,
-				m_buttons,
-				m_count
-			);
+			m_child =
+				new ArchiveReader(m_title, g_archiveFont, topic->m_entry, FALSE, m_database, NULL, m_buttons, m_count);
 			break;
 		}
 	}
@@ -320,7 +312,7 @@ MechS32 ArchiveReader::Run()
 	}
 
 	if (!m_titleGlyph) {
-		m_titleGlyph = g_unk0x10071214->FUN_1000544e(0x140, 0x32, m_title, NULL);
+		m_titleGlyph = g_titleFont->AddText(0x140, 0x32, m_title, NULL);
 	}
 
 	button = m_menu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);

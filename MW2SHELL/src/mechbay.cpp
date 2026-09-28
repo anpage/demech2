@@ -1127,7 +1127,7 @@ TextGlyph* DrawMass(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008cb0
@@ -1143,7 +1143,7 @@ TextGlyph* DrawUsedMass(ScreenField* p_tab)
 	}
 
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008d4c
@@ -1153,7 +1153,7 @@ TextGlyph* FUN_10008d4c(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008dcc
@@ -1163,7 +1163,7 @@ TextGlyph* DrawEngineRating(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, value >= 10000 ? "%dXL" : "%d", g_engines[value % 10000].m_rating);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008e4f
@@ -1172,8 +1172,8 @@ TextGlyph* DrawEngineType(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value >= 10000 ? "XL" : "Std"), p_tab->m_colors);
+	return g_defaultFont
+		->AddOverlayText(p_tab->m_left, p_tab->m_top, (MechChar*) (value >= 10000 ? "XL" : "Std"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008eaa
@@ -1183,7 +1183,7 @@ TextGlyph* DrawEngineMaker(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%s", g_engines[value % 10000].m_name);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008f14
@@ -1193,7 +1193,7 @@ TextGlyph* DrawSpeed(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%1.1f kph", value * 10.8);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008f7d
@@ -1203,7 +1203,7 @@ TextGlyph* FUN_10008f7d(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d m", value * 30);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008fdd
@@ -1221,7 +1221,7 @@ TextGlyph* DrawHeatSinkCount(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "%d (%d)", count, count * 2);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009076
@@ -1230,8 +1230,8 @@ TextGlyph* DrawHeatSinkType(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value == 1 ? "Single" : "Double"), p_tab->m_colors);
+	return g_defaultFont
+		->AddOverlayText(p_tab->m_left, p_tab->m_top, (MechChar*) (value == 1 ? "Single" : "Double"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100090ce
@@ -1241,7 +1241,7 @@ TextGlyph* DrawNumber(ScreenField* p_tab)
 
 	value = *(MechS32*) p_tab->m_data;
 	sprintf(g_szTempBuffer, "%d", value);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009126
@@ -1258,7 +1258,7 @@ TextGlyph* FUN_10009126(ScreenField* p_tab)
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000918c
@@ -1271,7 +1271,7 @@ TextGlyph* DrawLabel(ScreenField* p_tab)
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100091dc
@@ -1284,7 +1284,7 @@ TextGlyph* DrawTitle(ScreenField* p_tab)
 		return NULL;
 	}
 
-	return g_unk0x10071214->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
+	return g_titleFont->AddOverlayText(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000922c
@@ -1293,8 +1293,8 @@ TextGlyph* DrawInternalType(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Endo-S" : "Std"), p_tab->m_colors);
+	return g_defaultFont
+		->AddOverlayText(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Endo-S" : "Std"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009284
@@ -1303,8 +1303,8 @@ TextGlyph* DrawArmorType(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Ferro-F" : "Std"), p_tab->m_colors);
+	return g_defaultFont
+		->AddOverlayText(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Ferro-F" : "Std"), p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100092dc
@@ -1325,7 +1325,7 @@ TextGlyph* DrawLocationArmor(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "~%d", armor->m_front);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100093a7
@@ -1341,7 +1341,7 @@ TextGlyph* DrawArmorAllocation(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "~%d", armor->m_front);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000943f
@@ -1355,7 +1355,7 @@ TextGlyph* DrawLocationMaxArmor(ScreenField* p_tab)
 	}
 
 	sprintf(g_szTempBuffer, "%s (%d)", g_locationNames[location], g_variant.m_armor[location].m_maxArmor);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100094ba
@@ -1369,7 +1369,7 @@ TextGlyph* DrawSelectedLocation(ScreenField* p_tab)
 	}
 
 	sprintf(g_szTempBuffer, "%s (%d)", g_locationNames[location], g_variant.m_armor[location].m_maxArmor);
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009537
@@ -1406,10 +1406,10 @@ TextGlyph* DrawWeaponEntry(ScreenField* p_tab)
 	}
 
 	if (p_tab->m_left >= 0x1b4) {
-		return g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+		return g_defaultFont->AddText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
 	}
 	else {
-		return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+		return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
 	}
 }
 
@@ -1429,7 +1429,7 @@ TextGlyph* DrawWeaponTableEntry(ScreenField* p_tab)
 		colors = g_activeColors;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_weapons[index].m_name, colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_weapons[index].m_name, colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000973c
@@ -1442,7 +1442,7 @@ TextGlyph* FUN_1000973c(ScreenField* p_tab)
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_weapons[value / 100].m_name, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_weapons[value / 100].m_name, p_tab->m_colors);
 }
 
 // Draws one statistic (p_tab->m_data) of the highlighted weapon.
@@ -1547,7 +1547,7 @@ TextGlyph* DrawWeaponInfo(ScreenField* p_tab)
 		break;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009d50
@@ -1560,7 +1560,7 @@ TextGlyph* DrawLocationName(ScreenField* p_tab)
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_locationNames[location], p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_locationNames[location], p_tab->m_colors);
 }
 
 // Draws the item in one critical slot (p_tab->m_data) of the selected location: a weapon, a
@@ -1604,7 +1604,7 @@ TextGlyph* DrawCritical(ScreenField* p_tab)
 		sprintf(g_szTempBuffer, "Ammo (%s #%d) #%d", g_weapons[id / 10000].m_name, id / 100 % 100, id % 100);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // Draws one entry (p_tab->m_data) of the items list with its count, like DrawCritical.
@@ -1651,7 +1651,7 @@ TextGlyph* DrawUnassigned(ScreenField* p_tab)
 		);
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a161
@@ -1661,7 +1661,7 @@ TextGlyph* DrawMore(ScreenField* p_tab)
 		return NULL;
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, "More...", p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, "More...", p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a1b0
@@ -1670,8 +1670,8 @@ TextGlyph* DrawYesNo(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	return g_unk0x1007120c
-		->FUN_10005522(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Yes" : "No"), p_tab->m_colors);
+	return g_defaultFont
+		->AddOverlayText(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Yes" : "No"), p_tab->m_colors);
 }
 
 // Stack-slot permutation: id and text.
@@ -1702,7 +1702,7 @@ TextGlyph* DrawEquipmentName(ScreenField* p_tab)
 		text = "";
 	}
 
-	return g_unk0x1007120c->FUN_10005522(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, text, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a2eb
@@ -1758,7 +1758,7 @@ void EditVariantName(ScreenField* p_tab)
 	}
 
 	EditTextField(
-		g_unk0x1007120c,
+		g_defaultFont,
 		p_tab->m_left,
 		p_tab->m_top,
 		(MechChar*) p_tab->m_data,
@@ -1766,8 +1766,7 @@ void EditVariantName(ScreenField* p_tab)
 		0x1c,
 		p_tab->m_width
 	);
-	p_tab->m_glyph =
-		g_unk0x1007120c->FUN_1000544e(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
+	p_tab->m_glyph = g_defaultFont->AddText(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a4f0
@@ -3588,7 +3587,7 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	g_pVideoDriver->LoadBackground(p_database, g_unk0x1006fff0[p_campaign].m_picture);
 	g_mechBayMenu = new ButtonMenu(
 		g_pVideoDriver,
-		g_unk0x1007120c,
+		g_defaultFont,
 		FALSE,
 		g_unk0x1006fff0[p_campaign].m_buttons,
 		g_unk0x1006fff0[p_campaign].m_count

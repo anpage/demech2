@@ -65,7 +65,7 @@ void ShowPilotCallsigns()
 		if (pilot->m_glyph) {
 			delete pilot->m_glyph;
 		}
-		pilot->m_glyph = g_unk0x10071214->FUN_1000544e(0x2a, top, pilot->m_callsign, NULL);
+		pilot->m_glyph = g_titleFont->AddText(0x2a, top, pilot->m_callsign, NULL);
 	}
 }
 
@@ -111,7 +111,7 @@ TextGlyph* FUN_10014d8a(ScreenField* p_tab)
 {
 	MechChar* text = (MechChar*) p_tab->m_data;
 
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left, p_tab->m_top, text, NULL);
+	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, text, NULL);
 }
 
 // FUNCTION: MW2SHELL 0x10014dc4
@@ -119,7 +119,7 @@ TextGlyph* FUN_10014dc4(ScreenField* p_tab)
 {
 	MechChar* text = (MechChar*) p_tab->m_data;
 
-	return g_unk0x10071218->FUN_1000544e(p_tab->m_left, p_tab->m_top, text, NULL);
+	return g_buttonFont->AddText(p_tab->m_left, p_tab->m_top, text, NULL);
 }
 
 // The mission list: the tab's data is the mission index. Missions the pilot hasn't reached stay blank.
@@ -131,7 +131,7 @@ TextGlyph* FUN_10014dfe(ScreenField* p_tab)
 	}
 
 	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_unk0x1007cc98][(MechS32) p_tab->m_data].m_title);
-	return g_unk0x10071210->FUN_1000544e(p_tab->m_left + p_tab->m_width / 2, p_tab->m_top, g_rosterFieldText, NULL);
+	return g_textFont->AddText(p_tab->m_left + p_tab->m_width / 2, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
 // The pilot record callbacks below open with a test of p_tab that does nothing.
@@ -143,7 +143,7 @@ TextGlyph* DrawPilotCallsign(ScreenField* p_tab)
 	}
 
 	sprintf(g_rosterFieldText, "~%s", g_pCurrentPilot->m_callsign);
-	return g_unk0x10071214->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
+	return g_titleFont->AddText(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
 // FUNCTION: MW2SHELL 0x10014ed7
@@ -153,7 +153,7 @@ TextGlyph* DrawPilotRank(ScreenField* p_tab)
 	}
 
 	sprintf(g_rosterFieldText, "~%s", g_rankNames[g_pCurrentPilot->m_rank]);
-	return g_unk0x10071214->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
+	return g_titleFont->AddText(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
 // FUNCTION: MW2SHELL 0x10014f32
@@ -163,7 +163,7 @@ TextGlyph* DrawPilotHonor(ScreenField* p_tab)
 	}
 
 	sprintf(g_rosterFieldText, "~%d", g_pCurrentPilot->m_honor);
-	return g_unk0x10071214->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
+	return g_titleFont->AddText(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
 // FUNCTION: MW2SHELL 0x10014f86
@@ -173,7 +173,7 @@ TextGlyph* DrawPilotMission(ScreenField* p_tab)
 	}
 
 	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_unk0x1007cc98][g_pCurrentPilot->m_mission].m_title);
-	return g_unk0x10071214->FUN_1000544e(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
+	return g_titleFont->AddText(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
 // The mission list's click callback.
@@ -300,7 +300,7 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 		}
 	}
 
-	g_unk0x1007cda0 = new ButtonMenu(g_pVideoDriver, g_unk0x1007120c, FALSE, g_unk0x1006fe40[p_campaign].m_buttons, 15);
+	g_unk0x1007cda0 = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_unk0x1006fe40[p_campaign].m_buttons, 15);
 	ShowPilotCallsigns();
 	if (!g_pCurrentPilot) {
 		g_unk0x1007cda0->DisableButton(11);
@@ -442,7 +442,7 @@ void PilotRosterCallback(
 				HideFields(g_unk0x10063c78);
 				g_pCurrentPilot = NULL;
 				pilot->m_callsign[0] = '\0';
-				EditTextField(g_unk0x10071214, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
+				EditTextField(g_titleFont, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
 				UppercaseString(pilot->m_callsign);
 				if (pilot->m_callsign[0]) {
 					g_pCurrentPilot = pilot;

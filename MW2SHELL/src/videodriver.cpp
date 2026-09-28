@@ -102,8 +102,8 @@ VideoDriver::VideoDriver()
 	m_dirtyView.m_bottom = m_screenView.m_top;
 	m_dirtyView.m_buffer = m_screenView.m_buffer;
 
-	m_unk0x16 = new TextGlyphList();
-	m_unk0x1a = new TextGlyphList();
+	m_overlayGlyphs = new TextGlyphList();
+	m_glyphs = new TextGlyphList();
 
 	g_unk0x10079998[0] = 0xff;
 	for (i = 1; i < 0x100; i++) {
@@ -117,8 +117,8 @@ VideoDriver::VideoDriver()
 // FUNCTION: MW2SHELL 0x10006202
 VideoDriver::~VideoDriver()
 {
-	delete m_unk0x16;
-	delete m_unk0x1a;
+	delete m_overlayGlyphs;
+	delete m_glyphs;
 	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_backBuffer.m_pixels);
 	ShutdownRefreshMode();
 }
@@ -659,33 +659,33 @@ MechS32 VideoDriver::DrawChar(MechS32 p_left, MechS32 p_top, void* p_unk0x08, Me
 }
 
 // FUNCTION: MW2SHELL 0x100076e8
-void VideoDriver::AddGlyph(TextGlyph* p_item, MechS32 p_unk0x16)
+void VideoDriver::AddGlyph(TextGlyph* p_item, MechS32 p_overlay)
 {
-	if (p_unk0x16) {
-		m_unk0x16->Add(p_item);
+	if (p_overlay) {
+		m_overlayGlyphs->Add(p_item);
 	}
 	else {
-		m_unk0x1a->Add(p_item);
+		m_glyphs->Add(p_item);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x1000772d
 void VideoDriver::RemoveGlyph(TextGlyph* p_item)
 {
-	m_unk0x16->Remove(p_item);
-	m_unk0x1a->Remove(p_item);
+	m_overlayGlyphs->Remove(p_item);
+	m_glyphs->Remove(p_item);
 }
 
 // FUNCTION: MW2SHELL 0x10007763
-void VideoDriver::RedrawGlyphs(MechS32 p_unk0x16)
+void VideoDriver::RedrawGlyphs(MechS32 p_overlay)
 {
 	g_unk0x1005c2a0 = 1;
 
-	if (p_unk0x16) {
-		m_unk0x16->DrawAll();
+	if (p_overlay) {
+		m_overlayGlyphs->DrawAll();
 	}
 	else {
-		m_unk0x1a->DrawAll();
+		m_glyphs->DrawAll();
 	}
 
 	g_unk0x1005c2a0 = 0;
@@ -694,8 +694,8 @@ void VideoDriver::RedrawGlyphs(MechS32 p_unk0x16)
 // FUNCTION: MW2SHELL 0x100077b4
 void VideoDriver::ClearGlyphs(MechU8 p_delete)
 {
-	m_unk0x16->Clear(p_delete);
-	m_unk0x1a->Clear(p_delete);
+	m_overlayGlyphs->Clear(p_delete);
+	m_glyphs->Clear(p_delete);
 }
 
 // FUNCTION: MW2SHELL 0x100077ea

@@ -183,7 +183,7 @@ MechS32 EditTextField(
 	strcpy(g_editTextBuffer, p_text);
 	strcat(g_editTextBuffer, "_");
 	width = p_font->GetTextWidth(g_editTextBuffer);
-	glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
+	glyph = p_font->AddOverlayText(p_left, p_top, g_editTextBuffer, p_colors);
 
 	for (;;) {
 		UpdateVideos();
@@ -214,7 +214,7 @@ MechS32 EditTextField(
 					delete glyph;
 				}
 
-				glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
+				glyph = p_font->AddOverlayText(p_left, p_top, g_editTextBuffer, p_colors);
 				break;
 			case c_keyReturn:
 				g_editTextBuffer[length] = '\0';
@@ -256,7 +256,7 @@ MechS32 EditTextField(
 						delete glyph;
 					}
 
-					glyph = p_font->FUN_10005522(p_left, p_top, g_editTextBuffer, p_colors);
+					glyph = p_font->AddOverlayText(p_left, p_top, g_editTextBuffer, p_colors);
 				}
 				else {
 					length--;

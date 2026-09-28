@@ -32,29 +32,38 @@ MouseState* g_pMouseState = NULL;
 // GLOBAL: MW2SHELL 0x10071208
 VideoDriver* g_pVideoDriver = NULL;
 
+// The shell's fonts, loaded by ShellMain from the database. ShellMain loads item 0x1a into
+// g_textFont, then points g_defaultFont, g_textFont and g_archiveFont at g_bodyFont (item 0x20),
+// so those four draw in the same typeface; the first item 0x1a font is leaked.
+// The body text: most likely Eurostile Regular or Square 721 Roman.
 // GLOBAL: MW2SHELL 0x1007120c
-Font* g_unk0x1007120c = NULL;
+Font* g_defaultFont = NULL;
 
 // GLOBAL: MW2SHELL 0x10071210
-Font* g_unk0x10071210 = NULL;
+Font* g_textFont = NULL;
 
+// Titles and headings (item 0x1b): Helvetica Bold.
 // GLOBAL: MW2SHELL 0x10071214
-Font* g_unk0x10071214 = NULL;
+Font* g_titleFont = NULL;
 
+// The menu buttons (item 0x1c): Bank Gothic Bold. ButtonMenu always uses it.
 // GLOBAL: MW2SHELL 0x10071218
-Font* g_unk0x10071218 = NULL;
+Font* g_buttonFont = NULL;
 
+// Items 0x1e and 0x1f: loaded, never used.
 // GLOBAL: MW2SHELL 0x1007121c
 Font* g_unk0x1007121c = NULL;
 
 // GLOBAL: MW2SHELL 0x10071220
 Font* g_unk0x10071220 = NULL;
 
+// The archive reader's font, in the archive, the briefing and the debriefing.
 // GLOBAL: MW2SHELL 0x10071224
-Font* g_unk0x10071224 = NULL;
+Font* g_archiveFont = NULL;
 
+// Item 0x20, the body text font the others alias.
 // GLOBAL: MW2SHELL 0x10071228
-Font* g_unk0x10071228 = NULL;
+Font* g_bodyFont = NULL;
 
 // GLOBAL: MW2SHELL 0x1007122c
 TMPackDataBase* g_pDatabaseMw2 = NULL;
