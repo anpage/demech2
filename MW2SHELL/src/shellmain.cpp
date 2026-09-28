@@ -42,6 +42,16 @@ MidiSequence* g_midiBackgroundMusic = NULL;
 // GLOBAL: MW2SHELL 0x10062984
 MechS32 g_fCursorHidden = 0;
 
+// PlayMidiSong's state: whether the base song id is set, the base, and the song playing.
+// GLOBAL: MW2SHELL 0x10062988
+MechU8 g_unk0x10062988 = 0;
+
+// GLOBAL: MW2SHELL 0x1006298c
+MechS32 g_unk0x1006298c = 0;
+
+// GLOBAL: MW2SHELL 0x10062990
+MechS32 g_unk0x10062990 = 0;
+
 // The C draw mode units (gdi.c) read the window mode.
 extern "C" MechS32 g_nWindowMode;
 
@@ -208,6 +218,10 @@ MechChar* g_rankNames[9] = {
 
 // GLOBAL: MW2SHELL 0x10071370
 TinWhistle0x3c* g_pCurrentPilot = NULL;
+
+// Set when a new pilot is registered, for the clan hall's welcome.
+// GLOBAL: MW2SHELL 0x10071374
+MechS32 g_unk0x10071374 = 0;
 
 // GLOBAL: MW2SHELL 0x1007cc84
 char* g_pScenario;
@@ -789,10 +803,121 @@ MechS32 FUN_1000fe0d()
 	return 1;
 }
 
-// STUB: MW2SHELL 0x1000fe86
+// The song of each shell message from 0x406 up, per campaign: a database item (plus the base),
+// 0 to keep the current one, 0x20000000 to stop the music. 0x10000000 restarts the song.
+// GLOBAL: MW2SHELL 0x10071298
+MechS32 g_unk0x10071298[18] =
+	{0x23, 0, 0, 0, 0x20000000, 0, 0, 0x23, 0x20000000, 0x23, 0x20000000, 0, 0, 0x23, 0, 0x20000000, 0x20000000, 0};
+
+// GLOBAL: MW2SHELL 0x100712e0
+MechS32 g_unk0x100712e0[18] = {
+	0x25,
+	0x24,
+	0,
+	0,
+	0x20000000,
+	0x24,
+	0,
+	0x23,
+	0x20000000,
+	0x25,
+	0x20000000,
+	0x25,
+	0x24,
+	0x25,
+	0x26,
+	0x20000000,
+	0x20000000,
+	0
+};
+
+// GLOBAL: MW2SHELL 0x10071328
+MechS32 g_unk0x10071328[18] = {
+	0x28,
+	0x27,
+	0,
+	0,
+	0x20000000,
+	0x27,
+	0,
+	0x23,
+	0x20000000,
+	0x28,
+	0x20000000,
+	0x28,
+	0x27,
+	0x28,
+	0x29,
+	0x20000000,
+	0x20000000,
+	0
+};
+
+// Starts the song of the shell message p_msg for the campaign, unless it is already playing.
+// Not 100%: the stack slots of size, data and result are permuted, and the table loads'
+// displacements (each table less 0x406 entries) land on unrelated data, which reccmp names
+// after whatever symbol is there on each side.
+// FUNCTION: MW2SHELL 0x1000fe86
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 {
-	STUB(0x1000fe86);
+	MechS32 size;
+	void* data;
+	MechS32 result;
+	MechS32 song;
+
+	switch (p_campaign) {
+	case 0:
+		song = g_unk0x100712e0[p_msg - 0x406];
+		break;
+	case 1:
+		song = g_unk0x10071328[p_msg - 0x406];
+		break;
+	default:
+		song = g_unk0x10071298[p_msg - 0x406];
+		break;
+	}
+
+	if (!song) {
+		return;
+	}
+
+	if (song & 0x20000000) {
+		if (g_midiBackgroundMusic) {
+			delete g_midiBackgroundMusic;
+			g_midiBackgroundMusic = NULL;
+		}
+		g_unk0x10062990 = 0;
+		return;
+	}
+
+	if (song & 0x10000000) {
+		if (g_midiBackgroundMusic) {
+			delete g_midiBackgroundMusic;
+			g_midiBackgroundMusic = NULL;
+		}
+		g_unk0x10062990 = 0;
+	}
+
+	song &= 0xffffff;
+	if (!g_unk0x10062988) {
+		g_unk0x10062988 = 1;
+		g_unk0x1006298c = 8;
+	}
+	song += g_unk0x1006298c;
+
+	if (g_midiBackgroundMusic && g_midiBackgroundMusic->IsAnySequencePlaying() && song == g_unk0x10062990) {
+		return;
+	}
+
+	if (g_midiBackgroundMusic) {
+		delete g_midiBackgroundMusic;
+	}
+	g_unk0x10062990 = song;
+	result = g_pDatabaseMw2->GetDBItemLZ(g_unk0x10062990, &data, &size);
+	if (result != 1) {
+		g_midiBackgroundMusic = new MidiSequence(g_pAudioSubsystem, data, size);
+		g_midiBackgroundMusic->Start();
+	}
 }
 
 // FUNCTION: MW2SHELL 0x10010137

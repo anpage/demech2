@@ -22,9 +22,9 @@ struct CopperFinch0x4c {
 	MechS32 m_top;                    // 0x24
 	MechS32 m_width;                  // 0x28
 	MechS32 m_height;                 // 0x2c
-	undefined4 m_unk0x30;             // 0x30
-	undefined4 m_unk0x34;             // 0x34
-	MechS32 m_unk0x38;                // 0x38
+	MechS32 m_unk0x30;                // 0x30 — m_left when last drawn
+	MechS32 m_unk0x34;                // 0x34 — m_top when last drawn
+	MechS32 m_unk0x38;                // 0x38 — m_unk0x3c when last drawn
 	MechS32 m_unk0x3c;                // 0x3c — current frame
 	MechS32 m_unk0x40;                // 0x40 — frame count
 	undefined m_unk0x44[0x4c - 0x44]; // 0x44

@@ -5,8 +5,12 @@
    that ends at 0x1002a966; its routines fill polygons given as arrays of six-dword vertices
    (x and y first) and share the working variables in g_unk0x100666a0.
 
-   Not yet transcribed: FUN_1002cd5d loads its per-mode entry points from a table of its own
-   labels (0x1002d2a0). */
+   FUN_1002cd5d loads its per-mode span routines from a table of its own labels, which the
+   original keeps inside the routine (0x1002d2a0). The inline assembler has no data directives,
+   so the table is split out as g_unk0x1002d2a0, 16 filler bytes keep its place, and the code
+   after it is split at the table's entries into the span routines FUN_1002d2b0, FUN_1002d457,
+   FUN_1002d5c3 and FUN_1002d724. Jumps between the pieces are _emit bytes: their displacements
+   hold because the pieces are laid out back to back as in the original. */
 #include "compat.h"
 #include "decomp.h"
 #include "pixelview.h"
@@ -19,6 +23,16 @@
 // FUN_1002cd3d fills the 0x40 dwords at +0xd0.
 // GLOBAL: MW2SHELL 0x100666a0
 undefined4 g_unk0x100666a0[0x74] = {0};
+
+void FUN_1002d2b0(void);
+void FUN_1002d457(void);
+void FUN_1002d5c3(void);
+void FUN_1002d724(void);
+
+// FUN_1002cd5d's span routines, one per mode. The original keeps the table inside FUN_1002cd5d,
+// between the routine and the span routines.
+// GLOBAL: MW2SHELL 0x1002d2a0
+void (*g_unk0x1002d2a0[4])(void) = {FUN_1002d724, FUN_1002d457, FUN_1002d5c3, FUN_1002d2b0};
 
 // Fills a polygon in one color (the third dword of the first vertex, 16.16), clipped to the view.
 #ifdef COMPAT_MODE
@@ -3351,6 +3365,1323 @@ __declspec(naked) void FUN_1002cd3d(undefined4* p_table)
 		pop ebx
 		leave
 		ret
+	}
+}
+#endif
+
+// Fills a textured polygon, clipped to the view: p_unk0x10 points at the texture (its pixels and
+// width minus one), and p_mode picks the span routine from g_unk0x1002d2a0. It ends by jumping
+// to that routine; the routines jump back into it for each scan line.
+#ifdef COMPAT_MODE
+void FUN_1002cd5d(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4* p_unk0x10, MechS32 p_mode)
+{
+	STUB(0x1002cd5d);
+}
+#else
+// FUNCTION: MW2SHELL 0x1002cd5d
+__declspec(naked) void FUN_1002cd5d(
+	PixelView* p_view,
+	MechS32 p_count,
+	MechS32* p_vertices,
+	undefined4* p_unk0x10,
+	MechS32 p_mode
+)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push esi
+		push edi
+		push es
+		mov esi, dword ptr [ebp+0x8]
+		mov ebx, dword ptr [esi]
+		mov ecx, dword ptr [ebx+0x4]
+		inc ecx
+		mov dword ptr [g_unk0x100666a0+0xc], ecx
+		mov eax, dword ptr [esi+0xc]
+		mov ecx, dword ptr [ebx+0x4]
+		cmp ecx, eax
+		_emit 0x7c /* jl jmp_1002cd7f */
+		_emit 0x02
+		mov ecx, eax
+jmp_1002cd7f:
+		mov eax, dword ptr [esi+0x4]
+		mov edi, 0x0
+		cmp edi, eax
+		_emit 0x7f /* jg jmp_1002cd8d */
+		_emit 0x02
+		mov edi, eax
+jmp_1002cd8d:
+		sub ecx, edi
+		_emit 0x0f /* jl 0x1002d8aa, outside this routine */
+		_emit 0x8c
+		_emit 0x15
+		_emit 0x0b
+		_emit 0x00
+		_emit 0x00
+		mov dword ptr [g_unk0x100666a0], ecx
+		mov eax, dword ptr [esi+0x10]
+		mov ecx, dword ptr [ebx+0x8]
+		cmp ecx, eax
+		_emit 0x7c /* jl jmp_1002cda7 */
+		_emit 0x02
+		mov ecx, eax
+jmp_1002cda7:
+		mov edx, dword ptr [esi+0x8]
+		mov eax, 0x0
+		cmp eax, edx
+		_emit 0x7f /* jg jmp_1002cdb5 */
+		_emit 0x02
+		mov eax, edx
+jmp_1002cdb5:
+		sub ecx, eax
+		_emit 0x0f /* jl 0x1002d8aa, outside this routine */
+		_emit 0x8c
+		_emit 0xed
+		_emit 0x0a
+		_emit 0x00
+		_emit 0x00
+		mov dword ptr [g_unk0x100666a0+0x4], ecx
+		mul dword ptr [g_unk0x100666a0+0xc]
+		add eax, edi
+		add eax, dword ptr [ebx]
+		mov dword ptr [g_unk0x100666a0+0x8], eax
+		mov ebx, dword ptr [ebp+0x14]
+		mov eax, dword ptr [ebx]
+		mov dword ptr [g_unk0x100666a0+0x14], eax
+		mov ecx, dword ptr [ebx+0x4]
+		inc ecx
+		mov dword ptr [g_unk0x100666a0+0x10], ecx
+		push ds
+		pop es
+		mov ebx, dword ptr [ebp+0x10]
+		mov eax, dword ptr [ebp+0xc]
+		shl eax, 0x3
+		mov edx, eax
+		shl eax, 0x1
+		add eax, edx
+		add eax, ebx
+		mov dword ptr [g_unk0x100666a0+0x24], ebx
+		mov dword ptr [g_unk0x100666a0+0x28], eax
+		mov esi, 0x7fff
+		mov edi, 0xffff8000
+		mov ecx, 0xf
+jmp_1002ce13:
+		mov edx, 0x0
+		mov eax, dword ptr [ebx]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [g_unk0x100666a0]
+		sub eax, dword ptr [ebx]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [ebx+0x4]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [g_unk0x100666a0+0x4]
+		sub eax, dword ptr [ebx+0x4]
+		shld edx, eax, 0x1
+		mov eax, dword ptr [ebx+0x4]
+		cmp eax, esi
+		_emit 0x7f /* jg jmp_1002ce4b */
+		_emit 0x08
+		mov esi, eax
+		mov dword ptr [g_unk0x100666a0+0x2c], ebx
+jmp_1002ce4b:
+		cmp eax, edi
+		_emit 0x7c /* jl jmp_1002ce51 */
+		_emit 0x02
+		mov edi, eax
+jmp_1002ce51:
+		and ecx, edx
+		add ebx, 0x18
+		cmp ebx, dword ptr [g_unk0x100666a0+0x28]
+		_emit 0x75 /* jne jmp_1002ce13 */
+		_emit 0xb5
+		or ecx, ecx
+		_emit 0x0f /* jne 0x1002d8aa, outside this routine */
+		_emit 0x85
+		_emit 0x44
+		_emit 0x0a
+		_emit 0x00
+		_emit 0x00
+		mov eax, dword ptr [g_unk0x100666a0+0x2c]
+		mov dword ptr [g_unk0x100666a0+0x38], eax
+		mov dword ptr [g_unk0x100666a0+0x3c], eax
+		mov dword ptr [g_unk0x100666a0+0x4c], esi
+		cmp edi, esi
+		_emit 0x0f /* je 0x1002d8aa, outside this routine */
+		_emit 0x84
+		_emit 0x27
+		_emit 0x0a
+		_emit 0x00
+		_emit 0x00
+jmp_1002ce83:
+		mov ebx, dword ptr [g_unk0x100666a0+0x38]
+		mov dword ptr [g_unk0x100666a0+0x30], ebx
+		mov esi, ebx
+		sub esi, 0x18
+		cmp esi, dword ptr [g_unk0x100666a0+0x24]
+		_emit 0x7d /* jge jmp_1002cea5 */
+		_emit 0x09
+		mov esi, dword ptr [g_unk0x100666a0+0x28]
+		sub esi, 0x18
+jmp_1002cea5:
+		mov dword ptr [g_unk0x100666a0+0x38], esi
+		mov ecx, dword ptr [esi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		cmp edx, 0x0
+		_emit 0x7d /* jge jmp_1002cebb */
+		_emit 0x05
+		cmp ecx, 0x0
+		_emit 0x7e /* jle jmp_1002ce83 */
+		_emit 0xc8
+jmp_1002cebb:
+		sub ecx, edx
+		_emit 0x74 /* je jmp_1002ce83 */
+		_emit 0xc4
+		mov dword ptr [g_unk0x100666a0+0x40], ecx
+		mov edx, dword ptr [esi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x70], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x40]
+		mov edx, dword ptr [esi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x80], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x40]
+		mov edx, dword ptr [esi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x88], eax
+		mov edx, dword ptr [ebx]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [g_unk0x100666a0+0x50], edx
+		mov edx, dword ptr [ebx+0xc]
+		add edx, 0x8000
+		mov dword ptr [g_unk0x100666a0+0x60], edx
+		mov edx, dword ptr [ebx+0x10]
+		add edx, 0x8000
+		mov dword ptr [g_unk0x100666a0+0x68], edx
+jmp_1002cf4c:
+		mov ebx, dword ptr [g_unk0x100666a0+0x3c]
+		mov dword ptr [g_unk0x100666a0+0x34], ebx
+		mov esi, ebx
+		add esi, 0x18
+		cmp esi, dword ptr [g_unk0x100666a0+0x28]
+		_emit 0x7c /* jl jmp_1002cf6b */
+		_emit 0x06
+		mov esi, dword ptr [g_unk0x100666a0+0x24]
+jmp_1002cf6b:
+		mov dword ptr [g_unk0x100666a0+0x3c], esi
+		mov ecx, dword ptr [esi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		cmp edx, 0x0
+		_emit 0x7d /* jge jmp_1002cf81 */
+		_emit 0x05
+		cmp ecx, 0x0
+		_emit 0x7e /* jle jmp_1002cf4c */
+		_emit 0xcb
+jmp_1002cf81:
+		sub ecx, edx
+		_emit 0x74 /* je jmp_1002cf4c */
+		_emit 0xc7
+		mov dword ptr [g_unk0x100666a0+0x44], ecx
+		mov edx, dword ptr [esi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x74], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x44]
+		mov edx, dword ptr [esi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x84], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x44]
+		mov edx, dword ptr [esi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x8c], eax
+		mov edx, dword ptr [ebx]
+		shl edx, 0x10
+		add edx, 0x8000
+		mov dword ptr [g_unk0x100666a0+0x54], edx
+		mov edx, dword ptr [ebx+0xc]
+		add edx, 0x8000
+		mov dword ptr [g_unk0x100666a0+0x64], edx
+		mov edx, dword ptr [ebx+0x10]
+		add edx, 0x8000
+		mov dword ptr [g_unk0x100666a0+0x6c], edx
+		mov eax, dword ptr [g_unk0x100666a0+0x4]
+		sub eax, dword ptr [g_unk0x100666a0+0x4c]
+		sub edi, dword ptr [g_unk0x100666a0+0x4]
+		_emit 0x7f /* jg jmp_1002d027 */
+		_emit 0x02
+		add eax, edi
+jmp_1002d027:
+		mov dword ptr [g_unk0x100666a0+0x48], eax
+		mov eax, 0x0
+		sub eax, dword ptr [g_unk0x100666a0+0x4c]
+		jle jmp_1002d0dd
+		sub dword ptr [g_unk0x100666a0+0x48], eax
+		mov ecx, 0x0
+		mov dword ptr [g_unk0x100666a0+0x4c], ecx
+		mov ebx, dword ptr [g_unk0x100666a0+0x30]
+		sub ecx, dword ptr [ebx+0x4]
+		sub dword ptr [g_unk0x100666a0+0x40], ecx
+		shl ecx, 0x10
+		mov eax, dword ptr [g_unk0x100666a0+0x70]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0x50], eax
+		mov eax, dword ptr [g_unk0x100666a0+0x80]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0x60], eax
+		mov eax, dword ptr [g_unk0x100666a0+0x88]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0x68], eax
+		mov ecx, 0x0
+		mov ebx, dword ptr [g_unk0x100666a0+0x34]
+		sub ecx, dword ptr [ebx+0x4]
+		sub dword ptr [g_unk0x100666a0+0x44], ecx
+		shl ecx, 0x10
+		mov eax, dword ptr [g_unk0x100666a0+0x74]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0x54], eax
+		mov eax, dword ptr [g_unk0x100666a0+0x84]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0x64], eax
+		mov eax, dword ptr [g_unk0x100666a0+0x8c]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0x6c], eax
+jmp_1002d0dd:
+		mov eax, dword ptr [g_unk0x100666a0+0x4c]
+		mul dword ptr [g_unk0x100666a0+0xc]
+		add eax, dword ptr [g_unk0x100666a0+0x8]
+		mov dword ptr [g_unk0x100666a0+0x18], eax
+		mov eax, dword ptr [ebp+0x18]
+		mov eax, dword ptr [g_unk0x1002d2a0+eax*0x4]
+		mov dword ptr [g_unk0x100666a0+0xac], eax
+		mov eax, dword ptr [g_unk0x100666a0+0x50]
+		mov ebx, dword ptr [g_unk0x100666a0+0x54]
+		mov ecx, dword ptr [g_unk0x100666a0+0x60]
+		mov edx, dword ptr [g_unk0x100666a0+0x64]
+		mov esi, dword ptr [g_unk0x100666a0+0x68]
+		mov edi, dword ptr [g_unk0x100666a0+0x6c]
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		cmp ebx, eax
+		_emit 0x7f /* jg jmp_1002d134 */
+		_emit 0x05
+		xchg ebx, eax
+		_emit 0x87 /* xchg edx, ecx: the inline assembler encodes the operands the other way */
+		_emit 0xca
+		_emit 0x87 /* xchg edi, esi: the inline assembler encodes the operands the other way */
+		_emit 0xf7
+jmp_1002d134:
+		sar eax, 0x10
+		cmp eax, dword ptr [g_unk0x100666a0]
+		_emit 0x0f /* jg 0x1002d84d, outside this routine */
+		_emit 0x8f
+		_emit 0x0a
+		_emit 0x07
+		_emit 0x00
+		_emit 0x00
+		sar ebx, 0x10
+		cmp ebx, 0x0
+		_emit 0x0f /* jl 0x1002d84d, outside this routine */
+		_emit 0x8c
+		_emit 0xfe
+		_emit 0x06
+		_emit 0x00
+		_emit 0x00
+		mov dword ptr [g_unk0x100666a0+0x90], eax
+		mov dword ptr [g_unk0x100666a0+0x94], ebx
+		mov dword ptr [g_unk0x100666a0+0xa4], ecx
+		sub ebx, eax
+		je jmp_1002d236
+		push ebx
+		sub edx, ecx
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ebx, 0x10
+		sar edx, 0x10
+		idiv ebx
+		mov dword ptr [g_unk0x100666a0+0x9c], eax
+		shld edx, eax, 0x10
+		pop ebx
+		and eax, 0xffff
+		and edx, 0xffff
+		mov ecx, 0x1
+		test edx, 0x8000
+		_emit 0x74 /* je jmp_1002d1a9 */
+		_emit 0x0e
+		or edx, 0xffff0000
+		neg ecx
+		cmp eax, 0x1
+		sbb edx, -0x1
+jmp_1002d1a9:
+		add ecx, edx
+		push ecx
+		push edx
+		sub edi, esi
+		mov edx, edi
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ebx, 0x10
+		sar edx, 0x10
+		idiv ebx
+		mov dword ptr [g_unk0x100666a0+0xa0], eax
+		shld edx, eax, 0x10
+		and eax, 0xffff
+		and edx, 0xffff
+		mov ecx, dword ptr [g_unk0x100666a0+0x10]
+		test edx, 0x8000
+		_emit 0x74 /* je jmp_1002d1e9 */
+		_emit 0x08
+		neg ecx
+		cmp eax, 0x1
+		sbb edx, -0x1
+jmp_1002d1e9:
+		mov eax, dword ptr [g_unk0x100666a0+0x10]
+		imul dx
+		cwde
+		pop edx
+		pop ebx
+		add edx, eax
+		mov dword ptr [g_unk0x100666a0+0xc0], edx
+		add edx, ecx
+		mov dword ptr [g_unk0x100666a0+0xc4], edx
+		add ebx, eax
+		mov dword ptr [g_unk0x100666a0+0xc8], ebx
+		add ebx, ecx
+		mov dword ptr [g_unk0x100666a0+0xcc], ebx
+		mov ecx, 0x0
+		sub ecx, dword ptr [g_unk0x100666a0+0x90]
+		_emit 0x0f /* jg 0x1002d8d9, outside this routine */
+		_emit 0x8f
+		_emit 0xb4
+		_emit 0x06
+		_emit 0x00
+		_emit 0x00
+		mov eax, dword ptr [g_unk0x100666a0+0x94]
+		sub eax, dword ptr [g_unk0x100666a0]
+		_emit 0x0f /* jg 0x1002d905, outside this routine */
+		_emit 0x8f
+		_emit 0xcf
+		_emit 0x06
+		_emit 0x00
+		_emit 0x00
+jmp_1002d236:
+		mov ecx, esi
+		shr esi, 0x10
+		mov eax, esi
+		mul dword ptr [g_unk0x100666a0+0x10]
+		add eax, dword ptr [g_unk0x100666a0+0x14]
+		mov esi, dword ptr [g_unk0x100666a0+0xa4]
+		shr esi, 0x10
+		add esi, eax
+		mov eax, dword ptr [g_unk0x100666a0+0x90]
+		mov edi, dword ptr [g_unk0x100666a0+0x18]
+		add edi, eax
+		mov ebx, dword ptr [g_unk0x100666a0+0x94]
+		sub ebx, eax
+		push ebp
+		mov edx, dword ptr [g_unk0x100666a0+0xa4]
+		mov eax, dword ptr [g_unk0x100666a0+0x9c]
+		or eax, eax
+		_emit 0x79 /* jns jmp_1002d27d */
+		_emit 0x04
+		neg eax
+		not edx
+jmp_1002d27d:
+		shl eax, 0x10
+		shl edx, 0x10
+		mov ebp, dword ptr [g_unk0x100666a0+0xa0]
+		or ebp, ebp
+		_emit 0x79 /* jns jmp_1002d291 */
+		_emit 0x04
+		neg ebp
+		not ecx
+jmp_1002d291:
+		shl ebp, 0x10
+		shl ecx, 0x10
+		push ebx
+		xor ebx, ebx
+		jmp dword ptr [g_unk0x100666a0+0xac]
+	}
+}
+#endif
+
+// The 16 bytes where the original keeps g_unk0x1002d2a0, so that the span routines' jumps into
+// FUN_1002cd5d and back keep their displacements.
+#ifndef COMPAT_MODE
+__declspec(naked) void FUN_1002d2a0(void)
+{
+	__asm {
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+		_emit 0x00
+	}
+}
+#endif
+
+// A span routine of FUN_1002cd5d (a g_unk0x1002d2a0 entry); register-based, entered by jmp.
+#ifdef COMPAT_MODE
+void FUN_1002d2b0(void)
+{
+	STUB(0x1002d2b0);
+}
+#else
+// FUNCTION: MW2SHELL 0x1002d2b0
+__declspec(naked) void FUN_1002d2b0(void)
+{
+	__asm {
+		cmp dword ptr [esp], 0x5
+		jl jmp_1002d396
+jmp_1002d2ba:
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d2c9 */
+		_emit 0x02
+		mov byte ptr [edi], bl
+jmp_1002d2c9:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d2ea */
+		_emit 0x03
+		mov byte ptr [edi+0x1], bl
+jmp_1002d2ea:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d30b */
+		_emit 0x03
+		mov byte ptr [edi+0x2], bl
+jmp_1002d30b:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d32c */
+		_emit 0x03
+		mov byte ptr [edi+0x3], bl
+jmp_1002d32c:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d34d */
+		_emit 0x03
+		mov byte ptr [edi+0x4], bl
+jmp_1002d34d:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d36e */
+		_emit 0x03
+		mov byte ptr [edi+0x5], bl
+jmp_1002d36e:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		add edi, 0x6
+		sub dword ptr [esp], 0x6
+		js jmp_1002d452
+		cmp dword ptr [esp], 0x5
+		jge jmp_1002d2ba
+jmp_1002d396:
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d3a5 */
+		_emit 0x02
+		mov byte ptr [edi], bl
+jmp_1002d3a5:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		js jmp_1002d452
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d3cf */
+		_emit 0x03
+		mov byte ptr [edi+0x1], bl
+jmp_1002d3cf:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d452 */
+		_emit 0x6d
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d3f5 */
+		_emit 0x03
+		mov byte ptr [edi+0x2], bl
+jmp_1002d3f5:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d452 */
+		_emit 0x47
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d41b */
+		_emit 0x03
+		mov byte ptr [edi+0x3], bl
+jmp_1002d41b:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d452 */
+		_emit 0x21
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d441 */
+		_emit 0x03
+		mov byte ptr [edi+0x4], bl
+jmp_1002d441:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+jmp_1002d452:
+		_emit 0xe9 /* jmp 0x1002d849, outside this routine */
+		_emit 0xf2
+		_emit 0x03
+		_emit 0x00
+		_emit 0x00
+	}
+}
+#endif
+
+// A span routine of FUN_1002cd5d (a g_unk0x1002d2a0 entry); register-based, entered by jmp.
+#ifdef COMPAT_MODE
+void FUN_1002d457(void)
+{
+	STUB(0x1002d457);
+}
+#else
+// FUNCTION: MW2SHELL 0x1002d457
+__declspec(naked) void FUN_1002d457(void)
+{
+	__asm {
+		cmp dword ptr [esp], 0x5
+		jl jmp_1002d51f
+jmp_1002d461:
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x1], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x2], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x3], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x4], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x5], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		add edi, 0x6
+		sub dword ptr [esp], 0x6
+		js jmp_1002d5be
+		cmp dword ptr [esp], 0x5
+		jge jmp_1002d461
+jmp_1002d51f:
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d5be */
+		_emit 0x7f
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x1], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d5be */
+		_emit 0x5e
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x2], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d5be */
+		_emit 0x3d
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x3], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d5be */
+		_emit 0x1c
+		mov bl, byte ptr [esi]
+		mov bl, byte ptr [g_unk0x100666a0+ebx+0xd0]
+		mov byte ptr [edi+0x4], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+jmp_1002d5be:
+		_emit 0xe9 /* jmp 0x1002d849, outside this routine */
+		_emit 0x86
+		_emit 0x02
+		_emit 0x00
+		_emit 0x00
+	}
+}
+#endif
+
+// A span routine of FUN_1002cd5d (a g_unk0x1002d2a0 entry); register-based, entered by jmp.
+#ifdef COMPAT_MODE
+void FUN_1002d5c3(void)
+{
+	STUB(0x1002d5c3);
+}
+#else
+// FUNCTION: MW2SHELL 0x1002d5c3
+__declspec(naked) void FUN_1002d5c3(void)
+{
+	__asm {
+		cmp dword ptr [esp], 0x5
+		jl jmp_1002d685
+jmp_1002d5cd:
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d5d6 */
+		_emit 0x02
+		mov byte ptr [edi], bl
+jmp_1002d5d6:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d5f1 */
+		_emit 0x03
+		mov byte ptr [edi+0x1], bl
+jmp_1002d5f1:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d60c */
+		_emit 0x03
+		mov byte ptr [edi+0x2], bl
+jmp_1002d60c:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d627 */
+		_emit 0x03
+		mov byte ptr [edi+0x3], bl
+jmp_1002d627:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d642 */
+		_emit 0x03
+		mov byte ptr [edi+0x4], bl
+jmp_1002d642:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d65d */
+		_emit 0x03
+		mov byte ptr [edi+0x5], bl
+jmp_1002d65d:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		add edi, 0x6
+		sub dword ptr [esp], 0x6
+		js jmp_1002d71f
+		cmp dword ptr [esp], 0x5
+		jge jmp_1002d5cd
+jmp_1002d685:
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d68e */
+		_emit 0x02
+		mov byte ptr [edi], bl
+jmp_1002d68e:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d71f */
+		_emit 0x7b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d6ae */
+		_emit 0x03
+		mov byte ptr [edi+0x1], bl
+jmp_1002d6ae:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d71f */
+		_emit 0x5b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d6ce */
+		_emit 0x03
+		mov byte ptr [edi+0x2], bl
+jmp_1002d6ce:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d71f */
+		_emit 0x3b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d6ee */
+		_emit 0x03
+		mov byte ptr [edi+0x3], bl
+jmp_1002d6ee:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d71f */
+		_emit 0x1b
+		mov bl, byte ptr [esi]
+		cmp bl, 0xff
+		_emit 0x74 /* je jmp_1002d70e */
+		_emit 0x03
+		mov byte ptr [edi+0x4], bl
+jmp_1002d70e:
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+jmp_1002d71f:
+		_emit 0xe9 /* jmp 0x1002d849, outside this routine */
+		_emit 0x25
+		_emit 0x01
+		_emit 0x00
+		_emit 0x00
+	}
+}
+#endif
+
+// A span routine of FUN_1002cd5d (a g_unk0x1002d2a0 entry); register-based, entered by jmp.
+// It also holds the scan-line stepping the other span routines jump to.
+#ifdef COMPAT_MODE
+void FUN_1002d724(void)
+{
+	STUB(0x1002d724);
+}
+#else
+// FUNCTION: MW2SHELL 0x1002d724
+__declspec(naked) void FUN_1002d724(void)
+{
+	__asm {
+		cmp dword ptr [esp], 0x5
+		jl jmp_1002d7c8
+jmp_1002d72e:
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x1], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x2], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x3], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x4], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x5], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		add edi, 0x6
+		sub dword ptr [esp], 0x6
+		js jmp_1002d849
+		cmp dword ptr [esp], 0x5
+		jge jmp_1002d72e
+jmp_1002d7c8:
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d849 */
+		_emit 0x67
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x1], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d849 */
+		_emit 0x4c
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x2], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d849 */
+		_emit 0x31
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x3], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+		dec dword ptr [esp]
+		_emit 0x78 /* js jmp_1002d849 */
+		_emit 0x16
+		mov bl, byte ptr [esi]
+		mov byte ptr [edi+0x4], bl
+		xor ebx, ebx
+		add edx, eax
+		adc ebx, ebx
+		add ecx, ebp
+		adc ebx, ebx
+		add esi, dword ptr [g_unk0x100666a0+ebx*0x4+0xc0]
+jmp_1002d849:
+		add esp, 0x4
+		pop ebp
+		mov edi, dword ptr [g_unk0x100666a0+0xc]
+		add dword ptr [g_unk0x100666a0+0x18], edi
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		dec dword ptr [g_unk0x100666a0+0x48]
+		_emit 0x78 /* js jmp_1002d8aa */
+		_emit 0x43
+		_emit 0x74 /* je jmp_1002d8b0 */
+		_emit 0x47
+		dec dword ptr [g_unk0x100666a0+0x40]
+		je jmp_1002d910
+		add eax, dword ptr [g_unk0x100666a0+0x70]
+		add ecx, dword ptr [g_unk0x100666a0+0x80]
+		add esi, dword ptr [g_unk0x100666a0+0x88]
+jmp_1002d887:
+		dec dword ptr [g_unk0x100666a0+0x44]
+		je jmp_1002d9c9
+		add ebx, dword ptr [g_unk0x100666a0+0x74]
+		add edx, dword ptr [g_unk0x100666a0+0x84]
+		add edi, dword ptr [g_unk0x100666a0+0x8c]
+		_emit 0xe9 /* jmp 0x1002d125, outside this routine */
+		_emit 0x7b
+		_emit 0xf8
+		_emit 0xff
+		_emit 0xff
+jmp_1002d8aa:
+		pop es
+		pop edi
+		pop esi
+		pop ebx
+		leave
+		ret
+jmp_1002d8b0:
+		add eax, dword ptr [g_unk0x100666a0+0x70]
+		add ecx, dword ptr [g_unk0x100666a0+0x80]
+		add esi, dword ptr [g_unk0x100666a0+0x88]
+		add ebx, dword ptr [g_unk0x100666a0+0x74]
+		add edx, dword ptr [g_unk0x100666a0+0x84]
+		add edi, dword ptr [g_unk0x100666a0+0x8c]
+		_emit 0xe9 /* jmp 0x1002d125, outside this routine */
+		_emit 0x4c
+		_emit 0xf8
+		_emit 0xff
+		_emit 0xff
+		add dword ptr [g_unk0x100666a0+0x90], ecx
+		shl ecx, 0x10
+		mov eax, dword ptr [g_unk0x100666a0+0x9c]
+		imul ecx
+		shrd eax, edx, 0x10
+		add dword ptr [g_unk0x100666a0+0xa4], eax
+		mov eax, dword ptr [g_unk0x100666a0+0xa0]
+		imul ecx
+		shrd eax, edx, 0x10
+		add esi, eax
+		_emit 0xe9 /* jmp 0x1002d225, outside this routine */
+		_emit 0x20
+		_emit 0xf9
+		_emit 0xff
+		_emit 0xff
+		sub dword ptr [g_unk0x100666a0+0x94], eax
+		_emit 0xe9 /* jmp 0x1002d236, outside this routine */
+		_emit 0x26
+		_emit 0xf9
+		_emit 0xff
+		_emit 0xff
+jmp_1002d910:
+		push ebx
+		push edx
+		mov ebx, dword ptr [g_unk0x100666a0+0x38]
+		mov dword ptr [g_unk0x100666a0+0x30], ebx
+		mov esi, ebx
+		sub esi, 0x18
+		cmp esi, dword ptr [g_unk0x100666a0+0x24]
+		_emit 0x7d /* jge jmp_1002d934 */
+		_emit 0x09
+		mov esi, dword ptr [g_unk0x100666a0+0x28]
+		sub esi, 0x18
+jmp_1002d934:
+		mov dword ptr [g_unk0x100666a0+0x38], esi
+		mov ecx, dword ptr [esi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		sub ecx, edx
+		cmp ecx, 0x1
+		adc ecx, 0x0
+		mov dword ptr [g_unk0x100666a0+0x40], ecx
+		mov edx, dword ptr [esi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x70], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x40]
+		mov edx, dword ptr [esi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x80], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x40]
+		mov edx, dword ptr [esi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x88], eax
+		mov eax, dword ptr [ebx]
+		shl eax, 0x10
+		add eax, 0x8000
+		mov ecx, dword ptr [ebx+0xc]
+		add ecx, 0x8000
+		mov esi, dword ptr [ebx+0x10]
+		add esi, 0x8000
+		pop edx
+		pop ebx
+		jmp jmp_1002d887
+jmp_1002d9c9:
+		push eax
+		push ecx
+		mov ebx, dword ptr [g_unk0x100666a0+0x3c]
+		mov dword ptr [g_unk0x100666a0+0x34], ebx
+		mov edi, ebx
+		add edi, 0x18
+		cmp edi, dword ptr [g_unk0x100666a0+0x28]
+		_emit 0x7c /* jl jmp_1002d9ea */
+		_emit 0x06
+		mov edi, dword ptr [g_unk0x100666a0+0x24]
+jmp_1002d9ea:
+		mov dword ptr [g_unk0x100666a0+0x3c], edi
+		mov ecx, dword ptr [edi+0x4]
+		mov edx, dword ptr [ebx+0x4]
+		sub ecx, edx
+		cmp ecx, 0x1
+		adc ecx, 0x0
+		mov dword ptr [g_unk0x100666a0+0x44], ecx
+		mov edx, dword ptr [edi]
+		sub edx, dword ptr [ebx]
+		shl edx, 0x10
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x74], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x44]
+		mov edx, dword ptr [edi+0xc]
+		sub edx, dword ptr [ebx+0xc]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x84], eax
+		mov ecx, dword ptr [g_unk0x100666a0+0x44]
+		mov edx, dword ptr [edi+0x10]
+		sub edx, dword ptr [ebx+0x10]
+		xor eax, eax
+		shrd eax, edx, 0x10
+		shl ecx, 0x10
+		sar edx, 0x10
+		idiv ecx
+		mov dword ptr [g_unk0x100666a0+0x8c], eax
+		mov edx, dword ptr [ebx+0xc]
+		add edx, 0x8000
+		mov edi, dword ptr [ebx+0x10]
+		add edi, 0x8000
+		mov ebx, dword ptr [ebx]
+		shl ebx, 0x10
+		add ebx, 0x8000
+		pop ecx
+		pop eax
+		_emit 0xe9 /* jmp 0x1002d125, outside this routine */
+		_emit 0xa5
+		_emit 0xf6
+		_emit 0xff
+		_emit 0xff
 	}
 }
 #endif

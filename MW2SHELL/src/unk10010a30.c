@@ -33,6 +33,7 @@ MechS32 DdrawLockBuffer();
 extern HWND g_pWnd;
 extern MechS32 g_nWindowMode;
 extern MechS32 g_unk0x1006a9d8;
+extern undefined4 g_unk0x10071d48;
 
 undefined4 FUN_1003bf90(MechS32 p_unk0x00);
 void DebugPrint(const MechChar* p_format, ...);
@@ -43,6 +44,11 @@ extern PaletteColor g_paletteColorsPreBrightness[0x100];
 extern DrawModeExtension g_dispDibDrawModeExtension;
 extern DrawModeExtension g_gdiDrawModeExtension;
 void FUN_10010f83();
+void FUN_10015c90(const MechChar* p_format, ...);
+
+// The original declares a function the shell never defines: the linker binds the calls to the
+// variable of the same name (gdi.c), so they land in BSS. The debug strings call it pause_timer.
+void PauseTimer(MechS32 p_flags, MechS32 p_pause);
 void AdjustWindowSize(DrawModeExtension* p_extension);
 extern DrawMode g_dispDibDrawMode;
 extern DrawMode g_gdiDrawMode;
@@ -429,6 +435,72 @@ void FUN_10010f83()
 		g_currentDrawMode->m_index,
 		g_currentDrawMode->m_profileTime
 	);
+}
+
+// Switches between fullscreen and the first available windowed draw mode, or back to the
+// fullscreen mode last selected.
+// Not 100%: the stack slots of i, mode and extension are permuted.
+// FUNCTION: MW2SHELL 0x10011071
+void ToggleFullScreen()
+{
+	MechS32 i;
+	DrawMode* mode;
+	DrawModeExtension* extension;
+
+	if (g_drawModeFallback) {
+		return;
+	}
+
+	DebugPrint("ToggleFullScreen(1): pause_timer(TRUE)");
+	PauseTimer(0x80, TRUE);
+
+	if (g_currentDrawModeExtension->m_windowMode == c_windowModeFullscreen) {
+		for (i = 0; i < 6; i++) {
+			mode = g_drawModes[i];
+			extension = g_drawModeExtensions[mode->m_extension];
+			if (mode->m_available && extension->m_windowMode == c_windowModeWindowed) {
+				break;
+			}
+		}
+
+		if (i == 6) {
+			FUN_10015c90("MechWarrior2 cannot run in a window in the current resolution on your video hardware");
+			if (!g_unk0x1006a9d8) {
+				DebugPrint("ToggleFullScreen(2): pause_timer(FALSE)");
+				PauseTimer(0x80, FALSE);
+			}
+			return;
+		}
+	}
+	else {
+		if (!g_unk0x10062cd0) {
+			FUN_10015c90(
+				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
+			);
+			if (!g_unk0x1006a9d8) {
+				DebugPrint("ToggleFullScreen(3): pause_timer(FALSE)");
+				PauseTimer(0x80, FALSE);
+			}
+			return;
+		}
+		else {
+			mode = g_unk0x10062cd0;
+		}
+
+		GetWindowRect(g_pWnd, &g_unk0x10096a50);
+		g_unk0x10096a50.right -= g_unk0x10096a50.left;
+		g_unk0x10096a50.bottom -= g_unk0x10096a50.top;
+	}
+
+	g_currentDrawMode->m_end();
+	g_currentDrawMode = mode;
+	g_currentDrawMode->m_begin(g_unk0x10062cdc, g_drawModeWidth, g_drawModeHeight);
+	g_currentDrawModeExtension->m_setPalette(0, 0x100, g_paletteColors, TRUE);
+	g_unk0x10071d48 = 1;
+	if (!g_unk0x1006a9d8) {
+		DebugPrint("ToggleFullScreen(4): pause_timer(FALSE)");
+		PauseTimer(0x80, FALSE);
+	}
 }
 
 // A top-down 8-bit DIB of p_width x p_height.
@@ -1028,9 +1100,7 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 
 	if (g_ddrawLocked) {
 		relock = TRUE;
-		g_ddrawResult = IDirectDrawSurface_Unlock(g_ddrawBuffer, g_ddrawBufferDesc.lpSurface);
-		g_unk0x10062cdc->m_pixels = NULL;
-		g_ddrawLocked = FALSE;
+		g_ddrawResult = DdrawUnlock();
 		if (g_ddrawResult != DD_OK) {
 			DebugPrint("DDRAW_WritePaletteEntries Unlock(): %d\n", g_ddrawResult & 0xfff);
 		}
@@ -1078,9 +1148,7 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 
 	if (g_ddrawLocked) {
 		relock = TRUE;
-		g_ddrawResult = IDirectDrawSurface_Unlock(g_ddrawBuffer, g_ddrawBufferDesc.lpSurface);
-		g_unk0x10062cdc->m_pixels = NULL;
-		g_ddrawLocked = FALSE;
+		g_ddrawResult = DdrawUnlock();
 		if (g_ddrawResult != DD_OK) {
 			DebugPrint("DDRAW_WritePaletteGamma Unlock(): %d\n", g_ddrawResult & 0xfff);
 		}
@@ -1105,10 +1173,69 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 	return 0;
 }
 
-// STUB: MW2SHELL 0x10013068
+// Fades the palette from g_paletteColors to p_palette in p_steps steps, a step every 16 ms.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x10013068
 MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 {
-	STUB(0x10013068);
+	PALETTEENTRY entries[0x100];
+	MechS32 i;
+	MechS32 j;
+	MechDouble deltas[0x100][3];
+	MechS32 relock;
+
+	relock = FALSE;
+	if (g_ddrawPalette == NULL || p_palette == NULL) {
+		return -1;
+	}
+
+	if (g_ddrawLocked) {
+		relock = TRUE;
+		g_ddrawResult = DdrawUnlock();
+		if (g_ddrawResult != DD_OK) {
+			DebugPrint("DDRAW_PaletteFade Unlock(): %d\n", g_ddrawResult & 0xfff);
+		}
+	}
+
+	g_ddrawResult = DdrawRestore();
+	if (g_ddrawResult != DD_OK) {
+		DebugPrint("DDRAW_PaletteFade Restore(): %d\n", g_ddrawResult & 0xfff);
+	}
+
+	for (i = 0; i < 0x100; i++) {
+		deltas[i][0] = (MechDouble) ((p_palette[i].m_red - g_paletteColors[i].m_red) * 4) / p_steps;
+		deltas[i][1] = (MechDouble) ((p_palette[i].m_green - g_paletteColors[i].m_green) * 4) / p_steps;
+		deltas[i][2] = (MechDouble) ((p_palette[i].m_blue - g_paletteColors[i].m_blue) * 4) / p_steps;
+	}
+
+	i = p_steps;
+	while (i--) {
+		j = 0x100;
+		while (j--) {
+			entries[j].peRed = (MechU8) ((p_steps - i) * deltas[j][0]) + g_paletteColors[j].m_red * 4;
+			entries[j].peGreen = (MechU8) ((p_steps - i) * deltas[j][1]) + g_paletteColors[j].m_green * 4;
+			entries[j].peBlue = (MechU8) ((p_steps - i) * deltas[j][2]) + g_paletteColors[j].m_blue * 4;
+			if (i == 0) {
+				g_paletteColors[j].m_red = entries[j].peRed >> 2;
+				g_paletteColors[j].m_green = entries[j].peGreen >> 2;
+				g_paletteColors[j].m_blue = entries[j].peBlue >> 2;
+			}
+		}
+
+		g_ddrawResult = IDirectDrawPalette_SetEntries(g_ddrawPalette, 0, 0, 0x100, entries);
+		if (g_ddrawResult != DD_OK) {
+			DebugPrint("DDRAW_PaletteFade SetEntries(): %d\n", g_ddrawResult & 0xfff);
+			return -1;
+		}
+
+		Sleep(0x10);
+	}
+
+	if (relock && (g_ddrawResult = DdrawLockBuffer()) != DD_OK) {
+		DebugPrint("DDRAW_PaletteFade LockBuffer(): %d\n", g_ddrawResult & 0xfff);
+		return -1;
+	}
+
 	return 0;
 }
 

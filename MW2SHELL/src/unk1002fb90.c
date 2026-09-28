@@ -1,6 +1,7 @@
 #include "decomp.h"
 #include "types.h"
 
+#include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
@@ -117,11 +118,81 @@ MechS32 FUN_1002fc5e(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 	return p_size;
 }
 
-// STUB: MW2SHELL 0x1002fcdc
-MechS32 FUN_1002fcdc(char* p_name, undefined p_unk0x04)
+// Opens the project archive p_name in a free slot: p_mode 2 for reading and writing (a project
+// marked 0xfe returns -2), 0 for reading. Loads its header and returns the slot, or -1.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x1002fcdc
+MechS32 FUN_1002fcdc(char* p_name, MechChar p_mode)
 {
-	STUB(0x1002fcdc);
-	return 0;
+	ArchiveHeader* header;
+	MechU16 slot;
+	MechU32 size;
+	MechS32 fd;
+	MechU8 tag[12];
+
+	for (slot = 0; slot < 1 && g_unk0x10096610[slot].m_open; slot++) {
+	}
+
+	if (slot >= 1) {
+		return -1;
+	}
+
+	if (p_mode == 2) {
+		fd = _open(p_name, _O_RDWR | _O_BINARY);
+		if (fd == -1) {
+			return -1;
+		}
+		else {
+			_read(fd, tag, sizeof(tag));
+			if (_strnicmp((char*) tag, "PROJ", 4)) {
+				return -1;
+			}
+
+			if (tag[8] == 0xfe) {
+				_close(fd);
+				return -2;
+			}
+		}
+	}
+	else if (p_mode == 0) {
+		fd = _open(p_name, _O_RDONLY | _O_BINARY);
+		if (fd == -1) {
+			return -1;
+		}
+		else {
+			_read(fd, tag, sizeof(tag));
+			if (_strnicmp((char*) tag, "PROJ", 4)) {
+				return -1;
+			}
+		}
+	}
+	else {
+		return -1;
+	}
+
+	_lseek(fd, 0x10, SEEK_SET);
+	if (FUN_1002fc5e(fd, (MechU8*) &size, 4) != 4) {
+		return -1;
+	}
+
+	size += 8;
+	header = (ArchiveHeader*) FUN_1002fbab(size);
+	if (header == NULL) {
+		return -1;
+	}
+
+	_lseek(fd, 0xc, SEEK_SET);
+	if (FUN_1002fc5e(fd, (MechU8*) header, size) != size) {
+		FUN_1002fbc8(header);
+		return -1;
+	}
+
+	g_unk0x10096610[slot].m_fd = fd;
+	g_unk0x10096610[slot].m_header = header;
+	g_unk0x10096610[slot].m_open = 1;
+	_strnset(g_unk0x10096610[slot].m_name, 0, sizeof(g_unk0x10096610[slot].m_name));
+	strncpy(g_unk0x10096610[slot].m_name, p_name, sizeof(g_unk0x10096610[slot].m_name));
+	return slot;
 }
 
 // Release the header and cached archive entries, then close its file descriptor.

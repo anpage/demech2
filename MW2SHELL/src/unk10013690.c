@@ -2,6 +2,8 @@
 #include "decomp.h"
 #include "types.h"
 
+#include <malloc.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -15,12 +17,19 @@ typedef struct DrawCacheEntry {
 } DrawCacheEntry;
 
 void FUN_100139e7(DrawCacheEntry* p_entry);
+MechS32 FUN_100303b5(MechS32 p_handle, MechChar* p_name, MechU16 p_index);
+MechS32 FUN_1003066e(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* p_data);
 
 // GLOBAL: MW2SHELL 0x10063a54
 DrawCacheEntry** g_unk0x10063a54 = NULL;
 
+// The number of the next dump FUN_10013b11 writes.
+// GLOBAL: MW2SHELL 0x10063a58
+MechS32 g_unk0x10063a58 = 0;
+
+// The number of entries.
 // GLOBAL: MW2SHELL 0x10096860
-undefined4 g_unk0x10096860;
+MechS32 g_unk0x10096860;
 
 // GLOBAL: MW2SHELL 0x10096864
 DrawCacheEntry* g_unk0x10096864;
@@ -196,6 +205,44 @@ void FUN_100139e7(DrawCacheEntry* p_entry)
 	g_unk0x10096860--;
 }
 
+// Writes the cache to dbugcch<n>.log: every entry by bucket, then the purge list.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x10013b11
+void FUN_10013b11(void)
+{
+	MechChar name[100];
+	DrawCacheEntry* entry;
+	MechChar type[5];
+	MechS32 i;
+	FILE* file;
+
+	sprintf(name, "dbugcch%d.log", g_unk0x10063a58++);
+	file = fopen(name, "w");
+	type[4] = '\0';
+	fprintf(file, "Cache table\n-----------------------\n");
+	for (i = 0; i < 0x3f1; i++) {
+		for (entry = g_unk0x10063a54[i]; entry != NULL; entry = entry->m_unk0x08) {
+			*(undefined4*) type = entry->m_unk0x04;
+			fprintf(
+				file,
+				"ID=%5d  Type=%4s  Lock=%d  Size=%7d\n",
+				entry->m_unk0x00,
+				type,
+				entry->m_unk0x02,
+				_msize(entry)
+			);
+		}
+	}
+
+	fprintf(file, "\nPurge list\n-----------------------\n");
+	for (entry = g_unk0x10096864; entry != NULL; entry = entry->m_unk0x0c) {
+		*(undefined4*) type = entry->m_unk0x04;
+		fprintf(file, "ID=%5d  Type=%4s  Lock=%d  Size=%7d\n", entry->m_unk0x00, type, entry->m_unk0x02, _msize(entry));
+	}
+
+	fclose(file);
+}
+
 // FUNCTION: MW2SHELL 0x10013c6e
 void FUN_10013c6e(void)
 {
@@ -212,11 +259,76 @@ void FUN_10013c79(MechS32 p_id, char* p_type)
 	FUN_10013690(entry);
 }
 
-// STUB: MW2SHELL 0x10013cb5
-void* FUN_10013cb5(MechS32 p_unk0x00, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
+// Returns the data of p_type item p_id of p_handle, loading it into the cache when needed and
+// purging the least recently used entries to make room.
+// Not 100%: the stack slots of the locals are permuted.
+// FUNCTION: MW2SHELL 0x10013cb5
+void* FUN_10013cb5(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
 {
-	STUB(0x10013cb5);
-	return NULL;
+	DrawCacheEntry* entry;
+	DrawCacheEntry* block;
+	MechS32 bucket;
+	MechS32 size;
+	FILE* log;
+	FILE* file;
+
+	if (p_id < 0) {
+		return NULL;
+	}
+
+	entry = FUN_10013940(p_id, p_type);
+	if (entry != NULL) {
+		FUN_10013703(entry);
+		return entry + 1;
+	}
+
+	if (g_unk0x10096860 >= 1000) {
+		if (g_unk0x10096864 != NULL) {
+			FUN_100139e7(g_unk0x10096864);
+		}
+		else {
+			return NULL;
+		}
+	}
+
+	size = FUN_100303b5(p_handle, p_type, p_id);
+	if (size <= 0) {
+		log = fopen("symlog.txt", "a");
+		if (log != NULL) {
+			fprintf(log, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
+		}
+		fclose(log);
+		return NULL;
+	}
+
+	while ((block = (DrawCacheEntry*) malloc(size + sizeof(DrawCacheEntry))) == NULL) {
+		if (g_unk0x10096864 != NULL) {
+			FUN_100139e7(g_unk0x10096864);
+		}
+		else {
+			return NULL;
+		}
+	}
+
+	if (FUN_1003066e(p_handle, p_type, p_id, block + 1) == -1) {
+		file = fopen("symlog.txt", "a");
+		if (file != NULL) {
+			fprintf(file, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
+		}
+		fclose(file);
+		return NULL;
+	}
+
+	bucket = ((MechS8) p_type[2] + (MechS8) p_type[3] + (MechS8) p_type[0] + (MechS8) p_type[1] + p_id) % 0x3f1;
+	block->m_unk0x08 = g_unk0x10063a54[bucket];
+	g_unk0x10063a54[bucket] = block;
+	block->m_unk0x02 = 1;
+	block->m_unk0x00 = p_id;
+	block->m_unk0x04 = *(undefined4*) p_type;
+	block->m_unk0x0c = NULL;
+	block->m_unk0x10 = NULL;
+	g_unk0x10096860++;
+	return block + 1;
 }
 
 // FUNCTION: MW2SHELL 0x10013ef4

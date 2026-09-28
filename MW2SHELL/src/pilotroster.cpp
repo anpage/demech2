@@ -27,6 +27,8 @@ DECOMP_SIZE_ASSERT(ArchiveReader::Topic, 0x06)
 
 extern "C" void FUN_10015c90(const MechChar* p_format, ...);
 extern "C" MechChar* FUN_10030900(MechChar* p_string);
+extern MechChar* g_rankNames[9];
+extern TinWhistle0x3c* g_pCurrentPilot;
 extern "C" HWND g_pWnd;
 extern VideoDriver* g_pVideoDriver;
 extern AudioSubsystem* g_pAudioSubsystem;
@@ -692,11 +694,100 @@ void SavePilotRoster()
 // GLOBAL: MW2SHELL 0x1008f658
 MechU8 g_unk0x1008f658[0x100];
 
-// STUB: MW2SHELL 0x1002dc60
+// The text with its escapes expanded: \\Q the quote, \\R0 to \\R2 the pilot's rank and the next
+// two, \\H the pilot's honor. The original also writes the unexpanded text to tmp.out.
+// GLOBAL: MW2SHELL 0x1008d658
+MechChar g_unk0x1008d658[0x2000];
+
+// Expands the escapes of p_text into g_unk0x1008d658 and returns a copy of the result.
+// Not 100%: the stack slots of the locals are permuted (i and length move past the buffer, which
+// lengthens their encodings).
+// FUNCTION: MW2SHELL 0x1002dc60
 MechChar* FUN_1002dc60(MechChar* p_text, MechChar* p_quote)
 {
-	STUB(0x1002dc60);
-	return p_text;
+	MechS32 i;
+	MechS32 length;
+	MechChar number[0x80];
+	MechS32 textLength;
+	MechS32 rank;
+	FILE* file;
+
+	textLength = strlen(p_text);
+	i = 0;
+	length = 0;
+	while (i < textLength) {
+		if (p_text[i] == '\\') {
+			i++;
+			switch (p_text[i]) {
+			case 'Q':
+			case 'q':
+				i++;
+				g_unk0x1008d658[length] = '\0';
+				strcat(g_unk0x1008d658, p_quote);
+				length = strlen(g_unk0x1008d658);
+				break;
+			case 'R':
+			case 'r':
+				i++;
+				g_unk0x1008d658[length] = '\0';
+				switch (p_text[i]) {
+				case '0':
+					i++;
+					rank = g_pCurrentPilot->m_rank;
+					strcat(g_unk0x1008d658, g_rankNames[rank]);
+					length = strlen(g_unk0x1008d658);
+					break;
+				case '1':
+					i++;
+					rank = g_pCurrentPilot->m_rank + 1;
+					if (rank > 9) {
+						rank = 9;
+					}
+					strcat(g_unk0x1008d658, g_rankNames[rank]);
+					length = strlen(g_unk0x1008d658);
+					break;
+				case '2':
+					i++;
+					rank = g_pCurrentPilot->m_rank + 2;
+					if (rank > 9) {
+						rank = 9;
+					}
+					strcat(g_unk0x1008d658, g_rankNames[rank]);
+					length = strlen(g_unk0x1008d658);
+					break;
+				default:
+					break;
+				}
+				break;
+			case 'H':
+			case 'h':
+				i++;
+				g_unk0x1008d658[length] = '\0';
+				sprintf(number, "%d", g_pCurrentPilot->m_honor);
+				strcat(g_unk0x1008d658, number);
+				length = strlen(g_unk0x1008d658);
+				break;
+			default:
+				g_unk0x1008d658[length] = '\\';
+				length++;
+				g_unk0x1008d658[length] = p_text[i];
+				i++;
+				length++;
+				break;
+			}
+		}
+		else {
+			g_unk0x1008d658[length] = p_text[i];
+			i++;
+			length++;
+		}
+	}
+
+	g_unk0x1008d658[length] = '\0';
+	file = fopen("tmp.out", "wb");
+	fwrite(p_text, 1, strlen(p_text), file);
+	fclose(file);
+	return FUN_10030900(g_unk0x1008d658);
 }
 
 // Lays out p_text (p_size bytes, the last of which becomes its terminator) on as many pages as

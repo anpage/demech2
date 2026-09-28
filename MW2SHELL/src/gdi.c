@@ -105,6 +105,10 @@ DrawMode g_gdiDrawMode =
 // GLOBAL: MW2SHELL 0x1006766c
 MechS32 g_unk0x1006766c = TRUE;
 
+// Not a function: unk10010a30.c calls it as one (see there), and the linker binds the calls here.
+// GLOBAL: MW2SHELL 0x100965d4
+undefined4 PauseTimer;
+
 // GLOBAL: MW2SHELL 0x100965f4
 MechS32 g_gdiResult;
 

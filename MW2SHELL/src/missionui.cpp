@@ -8,6 +8,7 @@
 #include "linenpacket0x218.h"
 #include "mainmenubutton.h"
 #include "menulist0x10d.h"
+#include "mousestate.h"
 #include "ravenmark0x08.h"
 #include "tmpackdatabase.h"
 #include "types.h"
@@ -40,6 +41,10 @@ struct FernStar0x20 {
 DECOMP_SIZE_ASSERT(WillowTag0x08, 0x08)
 DECOMP_SIZE_ASSERT(RavenMark0x08, 0x08)
 
+extern "C" HWND g_pWnd;
+extern HINSTANCE g_pModule;
+extern MechU32 g_fQuickTips;
+extern MouseState* g_pMouseState;
 extern AudioSubsystem* g_pAudioSubsystem;
 extern VideoDriver* g_pVideoDriver;
 extern BrassLantern0x414* g_unk0x1007120c;
@@ -58,7 +63,13 @@ MechS32 FUN_1000307c(MechS32 p_index);
 MechS32 FUN_100030e5(MechS32 p_star);
 HazelStar0x80* FUN_1000312e(MechS32 p_star);
 void FUN_100108e5(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
+void FUN_100108fd(void (*p_callback)(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32));
+BOOL CALLBACK FUN_1001067f(HWND p_hDlg, UINT p_msg, WPARAM p_wParam, LPARAM);
 void FUN_1001661b();
+MechS32 FUN_10016b11(MechS32 p_index);
+void FUN_10016d27(MechS32 p_index);
+void FUN_10016f45();
+void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival);
 MechS32 FUN_10017460(
 	MechS32 p_index,
 	const char* p_name,
@@ -136,12 +147,16 @@ AudioSample* g_unk0x1006a2b0 = NULL;
 // GLOBAL: MW2SHELL 0x1006a2b4
 AudioSample* g_unk0x1006a2b4 = NULL;
 
+// Set once the briefing's quick tips have been shown.
+// GLOBAL: MW2SHELL 0x1006a2b8
+MechS32 g_unk0x1006a2b8 = 0;
+
 // The text colors: each color maps to itself, but 0 is transparent and 1 is drawn in 0x22.
 // GLOBAL: MW2SHELL 0x10090058
 MechU8 g_unk0x10090058[0x100];
 
-// GLOBAL: MW2SHELL 0x10090158
-MechS32 g_unk0x10090158;
+// GLOBAL: MW2SHELL 0x10090170
+MechS32 g_unk0x10090170;
 
 // The three lines of briefing text.
 // GLOBAL: MW2SHELL 0x10090160
@@ -150,8 +165,8 @@ EmberGlyph0x3e* g_unk0x10090160[3];
 // GLOBAL: MW2SHELL 0x1009016c
 MechS32 g_unk0x1009016c;
 
-// GLOBAL: MW2SHELL 0x10090170
-MechS32 g_unk0x10090170;
+// GLOBAL: MW2SHELL 0x10090158
+MechS32 g_unk0x10090158;
 
 // GLOBAL: MW2SHELL 0x10090174
 WPARAM g_unk0x10090174;
@@ -393,8 +408,278 @@ void FUN_100382e6(TMPackDataBase* p_database, MechChar** p_scenario, WPARAM p_wP
 	g_pVideoDriver->DrawShell();
 }
 
-// STUB: MW2SHELL 0x10038744
-void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32)
+// The mission briefing's frame: LAUNCH, EXIT, the next mission, both clans' videos, the mechs
+// and formations of both stars (next and previous), and the two stars' accept and config.
+// Not 100%: the stack slots of pos, variant, i and button are permuted.
+// FUNCTION: MW2SHELL 0x10038744
+void FUN_10038744(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, MechS32 p_msg)
 {
-	STUB(0x10038744);
+	POINT* pos;
+	MechChar* variant;
+	MechS32 i;
+	MechS32 button;
+
+	// The original skips the frame's work with a goto, like FUN_100043c2.
+	if (p_msg != 0x404) {
+		goto done;
+	}
+
+	if (g_fQuickTips && !g_unk0x1006a2b8 && g_unk0x10090174 == 0x40e) {
+		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x6f), g_pWnd, (DLGPROC) FUN_1001067f, 0);
+		g_unk0x1006a2b8 = 1;
+	}
+
+	button = g_unk0x1006a2a8->FUN_100489e9(g_pMouseState->m_x, g_pMouseState->m_y);
+	switch (button) {
+	case 0:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		FUN_10016d27(0x10);
+		FUN_1001661b();
+		g_unk0x1006a2b0->FUN_1003d709();
+		PrjBuildPlayerStarTemplates(g_unk0x10090170, g_unk0x10090158);
+		p_msg = 0x410;
+		break;
+	case 1:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		p_msg = 0x40e;
+		break;
+	case 2:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		g_unk0x10090280++;
+		if (!g_unk0x1006a220[g_unk0x10090280]) {
+			g_unk0x10090280 = 0;
+		}
+		*p_scenario = g_unk0x1006a220[g_unk0x10090280];
+		ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], 1, 1);
+		for (i = 0; i < 3; i++) {
+			pos = &g_unk0x1006f618[i + 3].m_textPos;
+			FUN_10003175(0, -1, -1, -1, -1);
+			FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+
+			pos = &g_unk0x1006f618[i + 0xe].m_textPos;
+			FUN_10003175(1, -1, -1, -1, -1);
+			FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		}
+		FUN_10003175(0, -1, -1, -1, -1);
+		FUN_10038093();
+		break;
+	case 11:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		g_unk0x10090170++;
+		if (g_unk0x10090170 >= 6) {
+			g_unk0x10090170 = 0;
+		}
+		if (g_unk0x10090158 == g_unk0x10090170) {
+			g_unk0x10090170++;
+		}
+		if (g_unk0x10090170 >= 6) {
+			g_unk0x10090170 = 0;
+		}
+		FUN_10017460(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
+		break;
+	case 22:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		g_unk0x10090158++;
+		if (g_unk0x10090158 >= 6) {
+			g_unk0x10090158 = 0;
+		}
+		if (g_unk0x10090158 == g_unk0x10090170) {
+			g_unk0x10090158++;
+		}
+		if (g_unk0x10090158 >= 6) {
+			g_unk0x10090158 = 0;
+		}
+		FUN_10017460(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+		break;
+	case 3:
+	case 4:
+	case 5:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		pos = &g_unk0x1006f618[button].m_textPos;
+		i = button - 3;
+		do {
+			g_unk0x1006a268[i].m_type++;
+			if (g_unk0x1006a268[i].m_type >= g_unk0x1006a298) {
+				g_unk0x1006a268[i].m_type = -1;
+				variant = "";
+			}
+			else {
+				variant = g_unk0x10061560[g_unk0x1006a268[i].m_type].m_unk0x04;
+			}
+			FUN_10003175(0, -1, -1, -1, -1);
+		} while (!FUN_10002de7(i, variant, NULL));
+		FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+		break;
+	case 7:
+	case 8:
+	case 9:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		pos = &g_unk0x1006f618[button - 4].m_textPos;
+		i = button - 7;
+		do {
+			g_unk0x1006a268[i].m_type--;
+			if (g_unk0x1006a268[i].m_type == -1) {
+				variant = "";
+			}
+			else {
+				if (g_unk0x1006a268[i].m_type == -2) {
+					g_unk0x1006a268[i].m_type = g_unk0x1006a298 - 1;
+				}
+				variant = g_unk0x10061560[g_unk0x1006a268[i].m_type].m_unk0x04;
+			}
+			FUN_10003175(0, -1, -1, -1, -1);
+		} while (!FUN_10002de7(i, variant, NULL));
+		FUN_10037feb(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+		break;
+	case 14:
+	case 15:
+	case 16:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		pos = &g_unk0x1006f618[button].m_textPos;
+		i = button - 14;
+		do {
+			g_unk0x1006a280[i].m_type++;
+			if (g_unk0x1006a280[i].m_type >= g_unk0x1006a298) {
+				g_unk0x1006a280[i].m_type = -1;
+				variant = "";
+			}
+			else {
+				variant = g_unk0x10061560[g_unk0x1006a280[i].m_type].m_unk0x04;
+			}
+			FUN_10003175(1, -1, -1, -1, -1);
+		} while (!FUN_10002de7(i, variant, NULL));
+		FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		break;
+	case 18:
+	case 19:
+	case 20:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		pos = &g_unk0x1006f618[button - 4].m_textPos;
+		i = button - 18;
+		do {
+			g_unk0x1006a280[i].m_type--;
+			if (g_unk0x1006a280[i].m_type == -1) {
+				variant = "";
+			}
+			else {
+				if (g_unk0x1006a280[i].m_type == -2) {
+					g_unk0x1006a280[i].m_type = g_unk0x1006a298 - 1;
+				}
+				variant = g_unk0x10061560[g_unk0x1006a280[i].m_type].m_unk0x04;
+			}
+			FUN_10003175(1, -1, -1, -1, -1);
+		} while (!FUN_10002de7(i, variant, NULL));
+		FUN_10037feb(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		break;
+	case 6:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		g_unk0x1009016c++;
+		if (g_unk0x1009016c >= 6) {
+			g_unk0x1009016c = 0;
+		}
+		FUN_10003175(0, g_unk0x1009016c, -1, -1, -1);
+		FUN_10038093();
+		break;
+	case 10:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		if (--g_unk0x1009016c < 0) {
+			g_unk0x1009016c = 5;
+		}
+		FUN_10003175(0, g_unk0x1009016c, -1, -1, -1);
+		FUN_10038093();
+		break;
+	case 17:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		g_unk0x10090178++;
+		if (g_unk0x10090178 >= 6) {
+			g_unk0x10090178 = 0;
+		}
+		FUN_10003175(1, g_unk0x10090178, -1, -1, -1);
+		FUN_10038093();
+		break;
+	case 21:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		if (--g_unk0x10090178 < 0) {
+			g_unk0x10090178 = 5;
+		}
+		FUN_10003175(1, g_unk0x10090178, -1, -1, -1);
+		FUN_10038093();
+		break;
+	case 13:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		p_msg = 0x413;
+		FUN_10003175(0, -1, -1, -1, -1);
+		break;
+	case 24:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		p_msg = 0x413;
+		FUN_10003175(1, -1, -1, -1, -1);
+		break;
+	case 12:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		p_msg = 0x40f;
+		FUN_10003175(0, -1, -1, -1, -1);
+		break;
+	case 23:
+		if (g_pMouseState->GetLeftPressed() != 1) {
+			break;
+		}
+		p_msg = 0x40f;
+		FUN_10003175(1, -1, -1, -1, -1);
+		break;
+	default:
+		break;
+	}
+
+	if (!FUN_10016b11(0)) {
+		FUN_10017460(0, g_unk0x1006a1c0[g_unk0x1006a29c][1], 0x19e, 10, 0x4a, 0);
+	}
+
+done:
+	if (p_msg != 0x404) {
+		FUN_10016f45();
+		delete g_unk0x1006a2a8;
+		delete g_unk0x1006a2b0;
+		if (g_unk0x1006a2b4) {
+			delete g_unk0x1006a2b4;
+			g_unk0x1006a2b4 = NULL;
+		}
+		g_pVideoDriver->FUN_100077b4(TRUE);
+		g_unk0x10090288.m_unk0x110 = g_unk0x10090280;
+		g_unk0x1006a2b8 = 0;
+		PostMessage(g_pWnd, p_msg, 0x40d, 0);
+		FUN_100108fd(FUN_10038744);
+	}
 }
