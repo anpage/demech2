@@ -27,7 +27,7 @@ DECOMP_SIZE_ASSERT(ArchiveReader::Topic, 0x06)
 
 extern "C" void FUN_10015c90(const MechChar* p_format, ...);
 extern "C" MechChar* FUN_10030900(MechChar* p_string);
-extern MechChar* g_rankNames[9];
+extern MechChar* g_rankNames[10];
 extern TinWhistle0x3c* g_pCurrentPilot;
 extern "C" HWND g_pWnd;
 extern VideoDriver* g_pVideoDriver;

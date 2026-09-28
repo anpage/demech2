@@ -203,8 +203,9 @@ MechU8 g_fDrawFmv = 0;
 // GLOBAL: MW2SHELL 0x10071250
 MechChar g_szDataDrivePath[4] = "A:\\";
 
+// The pilot roster clamps rank + 1 and rank + 2 to index 9: the NULL after Khan.
 // GLOBAL: MW2SHELL 0x10071258
-MechChar* g_rankNames[9] = {
+MechChar* g_rankNames[10] = {
 	"Mechwarrior",
 	"Star Commander",
 	"Nova Commander",
@@ -214,6 +215,7 @@ MechChar* g_rankNames[9] = {
 	"Nova Colonel",
 	"Galaxy Commander",
 	"Khan",
+	NULL,
 };
 
 // GLOBAL: MW2SHELL 0x10071370

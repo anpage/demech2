@@ -185,7 +185,7 @@ FlintMark0x34* g_unk0x100778e0[48];
 MechChar g_unk0x100779a0[0x400];
 
 // GLOBAL: MW2SHELL 0x10077da0
-MechChar g_unk0x10077da0[0x240];
+MechChar g_unk0x10077da0[0x200];
 
 // The pilot as the mission found them, restored by a replay.
 // GLOBAL: MW2SHELL 0x10077fa0

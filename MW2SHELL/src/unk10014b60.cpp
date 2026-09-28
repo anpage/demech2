@@ -27,7 +27,7 @@ extern BrassLantern0x414* g_unk0x10071210;
 extern BrassLantern0x414* g_unk0x10071214;
 extern BrassLantern0x414* g_unk0x10071218;
 extern TinWhistle0x3c* g_pCurrentPilot;
-extern MechChar* g_rankNames[9];
+extern MechChar* g_rankNames[10];
 extern CampaignMission* g_campaignMissions[2];
 extern "C" HWND g_pWnd;
 extern HINSTANCE g_pModule;

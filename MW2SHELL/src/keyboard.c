@@ -20,11 +20,17 @@ enum KeyCodeModifier {
 	c_keyCodeAlt = 0x400
 };
 
-// g_keyModifiers bits.
+// The modifier bits: the state bits of the virtual keys 118 to 120, "Any Shift Key", "Any
+// Control Key" and "Any Alt Key", in word c_modifierWord of g_keyStates.
 enum KeyModifier {
 	c_modifierShift = 0x400000,
 	c_modifierControl = 0x800000,
 	c_modifierAlt = 0x1000000
+};
+
+// The word of g_keyStates that holds the modifier bits.
+enum KeyStateWord {
+	c_modifierWord = 3
 };
 
 // GLOBAL: MW2SHELL 0x10079690
@@ -37,12 +43,11 @@ undefined4 g_keyCodeReadIndex;
 // GLOBAL: MW2SHELL 0x10096eb0
 MechS16 g_keyCodes[c_keyCodeBufferSize];
 
-// One bit per (remapped) scan code, set while the key is down.
+// One bit per (remapped) scan code, set while the key is down. Word 3 also holds the modifier
+// bits (see KeyModifier): the original keeps them in the same memory, so clearing the states
+// clears the modifiers too, and a copy of the states carries them.
 // GLOBAL: MW2SHELL 0x10096ea0
 undefined4 g_keyStates[4];
-
-// GLOBAL: MW2SHELL 0x10096eac
-undefined4 g_keyModifiers;
 
 // clang-format off
 // The key code for each virtual key; 0 falls back to MapVirtualKey.
@@ -191,7 +196,7 @@ MechS32 FUN_10004b3c(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_k
 {
 	MechS32 i;
 
-	if (!(g_keyModifiers & c_modifierAlt) && p_keyStates) {
+	if (!(g_keyStates[c_modifierWord] & c_modifierAlt) && p_keyStates) {
 		for (i = 0; i < 4; i++) {
 			p_keyStates[i] = g_keyStates[i];
 		}
@@ -325,28 +330,28 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 		case 0x29:
 		case 0x35:
 			if (p_pressed) {
-				g_keyModifiers |= c_modifierShift;
+				g_keyStates[c_modifierWord] |= c_modifierShift;
 			}
 			else {
-				g_keyModifiers &= ~c_modifierShift;
+				g_keyStates[c_modifierWord] &= ~c_modifierShift;
 			}
 			break;
 		case 0x1c:
 		case 0x6f:
 			if (p_pressed) {
-				g_keyModifiers |= c_modifierControl;
+				g_keyStates[c_modifierWord] |= c_modifierControl;
 			}
 			else {
-				g_keyModifiers &= ~c_modifierControl;
+				g_keyStates[c_modifierWord] &= ~c_modifierControl;
 			}
 			break;
 		case 0x37:
 		case 0x70:
 			if (p_pressed) {
-				g_keyModifiers |= c_modifierAlt;
+				g_keyStates[c_modifierWord] |= c_modifierAlt;
 			}
 			else {
-				g_keyModifiers &= ~c_modifierAlt;
+				g_keyStates[c_modifierWord] &= ~c_modifierAlt;
 			}
 			break;
 		}

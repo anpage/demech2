@@ -40,8 +40,9 @@ typedef struct ArchiveSlot {
 DECOMP_SIZE_ASSERT(ArchiveEntry, 0x18)
 DECOMP_SIZE_ASSERT(ArchiveSlot, 0x14a)
 
+// One slot: the dispdib globals follow in the original.
 // GLOBAL: MW2SHELL 0x10096610
-ArchiveSlot g_unk0x10096610[3];
+ArchiveSlot g_unk0x10096610[1];
 
 // The heap callbacks the archive unit allocates through, registered by FUN_1002fb90
 // (CedarKnot0x10 passes FUN_1002e302 and FUN_1002e324).
