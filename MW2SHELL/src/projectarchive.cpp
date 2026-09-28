@@ -378,13 +378,13 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	BwdGpsNode node;
 	MechS16 variant;
 
-	for (i = 0; g_unk0x10061560[i].m_unk0x04; i++) {
-		if (!_strnicmp(p_mech, g_unk0x10061560[i].m_unk0x04, 3)) {
+	for (i = 0; g_mechChassis[i].m_prefix; i++) {
+		if (!_strnicmp(p_mech, g_mechChassis[i].m_prefix, 3)) {
 			break;
 		}
 	}
 
-	if (!g_unk0x10061560[i].m_unk0x04) {
+	if (!g_mechChassis[i].m_prefix) {
 		return;
 	}
 
@@ -403,7 +403,7 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	node.m_size = sizeof(node);
 	strncpy(node.m_mech, p_mech, 8);
 	node.m_mech[8] = '\0';
-	strncpy(node.m_chassis, g_unk0x10061560[i].m_unk0x08, 8);
+	strncpy(node.m_chassis, g_mechChassis[i].m_chassis, 8);
 	node.m_chassis[8] = '\0';
 	strncpy(node.m_variant, p_variant, 15);
 	node.m_variant[15] = '\0';
@@ -455,8 +455,8 @@ void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCo
 
 	BwdInitRegistry();
 	for (i = 0; i < p_count; i++) {
-		if (p_mechs[i].m_unk0x00 >= 0) {
-			PrjBuildMechVariantTemplate(p_mechs[i].m_unk0x04, p_mechs[i].m_unk0x14, i, 0, 0);
+		if (p_mechs[i].m_chassis >= 0) {
+			PrjBuildMechVariantTemplate(p_mechs[i].m_variant, p_mechs[i].m_pilot, i, 0, 0);
 		}
 	}
 	BwdWriteRegistry("userstar.bwd");
@@ -477,8 +477,8 @@ void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCo
 	for (level = 1; level <= 5; level++, difficulty--) {
 		BwdInitRegistry();
 		for (i = 0; i < p_enemyCount; i++) {
-			if (p_enemies[i].m_unk0x00 >= 0) {
-				PrjBuildMechVariantTemplate(p_enemies[i].m_unk0x04, p_enemies[i].m_unk0x14, i, level, difficulty);
+			if (p_enemies[i].m_chassis >= 0) {
+				PrjBuildMechVariantTemplate(p_enemies[i].m_variant, p_enemies[i].m_pilot, i, level, difficulty);
 			}
 		}
 

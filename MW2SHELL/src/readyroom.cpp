@@ -157,20 +157,20 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			switch (*p_campaign) {
 			case 0:
 				SetVideoFlags(0, 0x40000000, 0x40000000);
-				type = FUN_1000307c(-1);
+				type = GetStarMechChassis(-1);
 				if (type < 0) {
 					type = 7;
 				}
-				sprintf(name, "awo%stbl", g_unk0x10061560[type].m_unk0x00);
+				sprintf(name, "awo%stbl", g_mechChassis[type].m_code);
 				g_unk0x1006a588 = PlayVideo(0, name, 0x131, 0xb9, 6, 0);
 				break;
 			case 1:
 				SetVideoFlags(0, 0x40000000, 0x40000000);
-				type = FUN_1000307c(-1);
+				type = GetStarMechChassis(-1);
 				if (type < 0) {
 					type = 7;
 				}
-				sprintf(name, "ajf%stbl", g_unk0x10061560[type].m_unk0x00);
+				sprintf(name, "ajf%stbl", g_mechChassis[type].m_code);
 				g_unk0x1006a588 = PlayVideo(0, name, 0x114, 0xa4, 6, 0);
 				break;
 			}

@@ -17,10 +17,10 @@ targets:
         - g_cpcDevicesFields
         # The mech bay's field tables that keep integers in the same members (mechbay.cpp),
         # generated field for field from the original.
-        - g_unk0x1005e820
-        - g_unk0x1005efe0
-        - g_unk0x1005f248
-        - g_unk0x1005fc70
+        - g_armorFields
+        - g_equipmentFields
+        - g_weaponFields
+        - g_criticalFields
         # The pilot roster's mission list (rosterscreen.cpp), likewise.
         - g_unk0x10063dd8
         # The routine table and the self-modifying code block in unk10017a7c.c live in the

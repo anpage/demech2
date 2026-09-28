@@ -9,8 +9,8 @@
 #include <windows.h>
 
 // The functions and globals of mechbay.cpp that other units use.
-extern MechChassis g_unk0x10061560[];
-extern MechS32 g_unk0x10061774;
+extern MechChassis g_mechChassis[];
+extern MechS32 g_pickStarMech;
 
 void ShowFields(ScreenField* p_tabs);
 void RedrawFields(ScreenField* p_tabs);

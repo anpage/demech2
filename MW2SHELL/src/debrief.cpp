@@ -327,10 +327,10 @@ MechS32 AppendHonorBreakdown(undefined* p_options, CareerRecord* p_career, Missi
 	);
 	strcat(p_text, g_unk0x100791b8);
 
-	star = FUN_1000312e(0);
-	tons = star->m_unk0x08 * star->m_unk0x10;
-	for (i = 0; i < star->m_unk0x0c; i++) {
-		tons -= g_unk0x10061560[star->m_unk0x14[i].m_unk0x00].m_unk0x10;
+	star = GetStar(0);
+	tons = star->m_size * star->m_tonnage;
+	for (i = 0; i < star->m_count; i++) {
+		tons -= g_mechChassis[star->m_mechs[i].m_chassis].m_tonnage;
 	}
 
 	if (tons > 0) {

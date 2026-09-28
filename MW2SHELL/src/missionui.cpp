@@ -35,18 +35,18 @@
 // A mech's name on the briefing screen: its glyph and the mech type it shows.
 struct MechNameTag {
 	TextGlyph* m_glyph; // 0x00
-	MechS32 m_type;     // 0x04 — an index into g_unk0x10061560, negative for none
+	MechS32 m_type;     // 0x04 — an index into g_mechChassis, negative for none
 };
 
 // SIZE 0x20
 // A star in a mission's BWD file (node type 0x46). Its mechs' variant names follow, one per
 // mech of the star's size.
 struct BwdStar {
-	MechS32 m_unk0x00;           // 0x00
-	MechS32 m_unk0x04;           // 0x04 — tonnage
-	MechS32 m_unk0x08;           // 0x08 — mechs
-	MechS32 m_unk0x0c;           // 0x0c — size
-	MechChar m_unk0x10[1][0x10]; // 0x10 — variant names
+	MechS32 m_unk0x00;            // 0x00
+	MechS32 m_tonnage;            // 0x04
+	MechS32 m_count;              // 0x08
+	MechS32 m_size;               // 0x0c
+	MechChar m_variants[1][0x10]; // 0x10
 };
 
 DECOMP_SIZE_ASSERT(MechNameTag, 0x08)
@@ -98,14 +98,14 @@ MechChar* g_unk0x1006a250[6] = {"wiawolf", "wiajf", "wiaghost", "wiasmoke", "wia
 
 // The names of the mechs of the player's star...
 // GLOBAL: MW2SHELL 0x1006a268
-MechNameTag g_unk0x1006a268[3] = {0};
+MechNameTag g_playerMechTags[3] = {0};
 
 // ...and of the enemy's.
 // GLOBAL: MW2SHELL 0x1006a280
-MechNameTag g_unk0x1006a280[3] = {0};
+MechNameTag g_enemyMechTags[3] = {0};
 
 // GLOBAL: MW2SHELL 0x1006a298
-MechS32 g_unk0x1006a298 = 0xf;
+MechS32 g_briefingChassisCount = 0xf;
 
 // The briefing video, an index into g_unk0x1006a1c0.
 // GLOBAL: MW2SHELL 0x1006a29c
@@ -169,11 +169,11 @@ void LoadStar(MechS32 p_star, BwdStar* p_data)
 {
 	MechS32 i;
 
-	SelectStar(p_star, 0, p_data->m_unk0x0c, p_data->m_unk0x08, p_data->m_unk0x04);
-	for (i = 0; i < p_data->m_unk0x0c; i++) {
-		SetStarMech(i, p_data->m_unk0x10[i], NULL);
+	SelectStar(p_star, 0, p_data->m_size, p_data->m_count, p_data->m_tonnage);
+	for (i = 0; i < p_data->m_size; i++) {
+		SetStarMech(i, p_data->m_variants[i], NULL);
 	}
-	SelectStar(p_star, 0, p_data->m_unk0x0c, p_data->m_unk0x08, p_data->m_unk0x04);
+	SelectStar(p_star, 0, p_data->m_size, p_data->m_count, p_data->m_tonnage);
 }
 
 // Reads the mission's BWD file (the scenario's first four letters + "brf2"): its briefing
@@ -263,7 +263,7 @@ void ShowMechName(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_
 	}
 
 	if (p_type >= 0) {
-		text = g_unk0x10061560[p_tag->m_type].m_unk0x0c;
+		text = g_mechChassis[p_tag->m_type].m_name;
 	}
 	else {
 		text = "[none]";
@@ -298,18 +298,18 @@ void ShowFormationNames()
 // Picks a value by the pilot of the player's first mech: 0x12 for Enzo, 0x11 for Hobbes, 0x10
 // for Calvin and 0xf for anyone else.
 // FUNCTION: MW2SHELL 0x100381c2
-MechS32 FUN_100381c2()
+MechS32 GetChassisCount()
 {
 	CustomStar* star;
 
-	star = FUN_1000312e(0);
-	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Enzo")) {
+	star = GetStar(0);
+	if (!strcmp(star->m_mechs[0].m_pilot, "Enzo")) {
 		return 0x12;
 	}
-	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Hobbes")) {
+	if (!strcmp(star->m_mechs[0].m_pilot, "Hobbes")) {
 		return 0x11;
 	}
-	if (!strcmp(star->m_unk0x14[0].m_unk0x14, "Calvin")) {
+	if (!strcmp(star->m_mechs[0].m_pilot, "Calvin")) {
 		return 0x10;
 	}
 
@@ -327,7 +327,7 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 	MechS32 audioSize;
 
 	g_unk0x10090174 = p_wParam;
-	g_unk0x1006a298 = FUN_100381c2();
+	g_briefingChassisCount = GetChassisCount();
 
 	for (i = 1; i < 0x100; i++) {
 		g_unk0x10090058[i] = i;
@@ -362,15 +362,15 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 	PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
 
 	for (i = 0; i < 3; i++) {
-		g_unk0x1006a268[i].m_glyph = NULL;
+		g_playerMechTags[i].m_glyph = NULL;
 		pos = &g_unk0x1006f618[i + 3].m_textPos;
 		SelectStar(0, -1, -1, -1, -1);
-		ShowMechName(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 
-		g_unk0x1006a280[i].m_glyph = NULL;
+		g_enemyMechTags[i].m_glyph = NULL;
 		pos = &g_unk0x1006f618[i + 0xe].m_textPos;
 		SelectStar(1, -1, -1, -1, -1);
-		ShowMechName(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 	}
 	SelectStar(0, -1, -1, -1, -1);
 
@@ -442,11 +442,11 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		for (i = 0; i < 3; i++) {
 			pos = &g_unk0x1006f618[i + 3].m_textPos;
 			SelectStar(0, -1, -1, -1, -1);
-			ShowMechName(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+			ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 
 			pos = &g_unk0x1006f618[i + 0xe].m_textPos;
 			SelectStar(1, -1, -1, -1, -1);
-			ShowMechName(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+			ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		}
 		SelectStar(0, -1, -1, -1, -1);
 		ShowFormationNames();
@@ -492,17 +492,17 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		pos = &g_unk0x1006f618[button].m_textPos;
 		i = button - 3;
 		do {
-			g_unk0x1006a268[i].m_type++;
-			if (g_unk0x1006a268[i].m_type >= g_unk0x1006a298) {
-				g_unk0x1006a268[i].m_type = -1;
+			g_playerMechTags[i].m_type++;
+			if (g_playerMechTags[i].m_type >= g_briefingChassisCount) {
+				g_playerMechTags[i].m_type = -1;
 				variant = "";
 			}
 			else {
-				variant = g_unk0x10061560[g_unk0x1006a268[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_playerMechTags[i].m_type].m_prefix;
 			}
 			SelectStar(0, -1, -1, -1, -1);
 		} while (!SetStarMech(i, variant, NULL));
-		ShowMechName(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 7:
 	case 8:
@@ -513,19 +513,19 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		pos = &g_unk0x1006f618[button - 4].m_textPos;
 		i = button - 7;
 		do {
-			g_unk0x1006a268[i].m_type--;
-			if (g_unk0x1006a268[i].m_type == -1) {
+			g_playerMechTags[i].m_type--;
+			if (g_playerMechTags[i].m_type == -1) {
 				variant = "";
 			}
 			else {
-				if (g_unk0x1006a268[i].m_type == -2) {
-					g_unk0x1006a268[i].m_type = g_unk0x1006a298 - 1;
+				if (g_playerMechTags[i].m_type == -2) {
+					g_playerMechTags[i].m_type = g_briefingChassisCount - 1;
 				}
-				variant = g_unk0x10061560[g_unk0x1006a268[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_playerMechTags[i].m_type].m_prefix;
 			}
 			SelectStar(0, -1, -1, -1, -1);
 		} while (!SetStarMech(i, variant, NULL));
-		ShowMechName(&g_unk0x1006a268[i], FUN_1000307c(i), pos->x, pos->y);
+		ShowMechName(&g_playerMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 14:
 	case 15:
@@ -536,17 +536,17 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		pos = &g_unk0x1006f618[button].m_textPos;
 		i = button - 14;
 		do {
-			g_unk0x1006a280[i].m_type++;
-			if (g_unk0x1006a280[i].m_type >= g_unk0x1006a298) {
-				g_unk0x1006a280[i].m_type = -1;
+			g_enemyMechTags[i].m_type++;
+			if (g_enemyMechTags[i].m_type >= g_briefingChassisCount) {
+				g_enemyMechTags[i].m_type = -1;
 				variant = "";
 			}
 			else {
-				variant = g_unk0x10061560[g_unk0x1006a280[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_enemyMechTags[i].m_type].m_prefix;
 			}
 			SelectStar(1, -1, -1, -1, -1);
 		} while (!SetStarMech(i, variant, NULL));
-		ShowMechName(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 18:
 	case 19:
@@ -557,19 +557,19 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		pos = &g_unk0x1006f618[button - 4].m_textPos;
 		i = button - 18;
 		do {
-			g_unk0x1006a280[i].m_type--;
-			if (g_unk0x1006a280[i].m_type == -1) {
+			g_enemyMechTags[i].m_type--;
+			if (g_enemyMechTags[i].m_type == -1) {
 				variant = "";
 			}
 			else {
-				if (g_unk0x1006a280[i].m_type == -2) {
-					g_unk0x1006a280[i].m_type = g_unk0x1006a298 - 1;
+				if (g_enemyMechTags[i].m_type == -2) {
+					g_enemyMechTags[i].m_type = g_briefingChassisCount - 1;
 				}
-				variant = g_unk0x10061560[g_unk0x1006a280[i].m_type].m_unk0x04;
+				variant = g_mechChassis[g_enemyMechTags[i].m_type].m_prefix;
 			}
 			SelectStar(1, -1, -1, -1, -1);
 		} while (!SetStarMech(i, variant, NULL));
-		ShowMechName(&g_unk0x1006a280[i], FUN_1000307c(i), pos->x, pos->y);
+		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 6:
 		if (g_pMouseState->GetLeftPressed() != 1) {
