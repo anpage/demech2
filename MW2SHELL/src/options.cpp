@@ -1,6 +1,7 @@
 #include "audiosample.h"
 #include "audiosubsystem.h"
 #include "brasslantern0x414.h"
+#include "chimeledger0x3c.h"
 #include "decomp.h"
 #include "hollowreed0x110.h"
 #include "mousestate.h"
@@ -36,8 +37,6 @@ extern void* AllocateAllowNew(MechS32 p_size);
 extern void FUN_100078cd(SlateTab0x2c* p_clickables);
 void CalledWhenCombatVarsOptionClicked(MechS32);
 extern SlateTab0x2c g_unk0x10070da8[15];
-extern MechS32 g_effectsVolume;
-extern MechS32 g_midiVolume;
 void FUN_100109a0(void (*p_callback)(MechS32));
 
 // GLOBAL: MW2SHELL 0x10070d90
@@ -46,24 +45,11 @@ SilverReel0x18* g_unk0x10070d90 = NULL;
 // GLOBAL: MW2SHELL 0x1007116c
 MechChar g_unk0x1007116c[0x10] = "amwlogo1";
 
+DECOMP_SIZE_ASSERT(ChimeLedger0x3c, 0x3c)
+
+// The sound settings (MW2SND.CFG).
 // GLOBAL: MW2SHELL 0x10071678
-MechS32 g_unk0x10071678 = 0x10000;
-
-// GLOBAL: MW2SHELL 0x10071680
-MechS32 g_unk0x10071680 = 0x10000;
-
-// GLOBAL: MW2SHELL 0x1007168c
-MechS32 g_unk0x1007168c = 1;
-// GLOBAL: MW2SHELL 0x10071690
-MechS32 g_unk0x10071690 = 1;
-// GLOBAL: MW2SHELL 0x10071694
-MechS32 g_unk0x10071694 = 1;
-// GLOBAL: MW2SHELL 0x10071698
-MechS32 g_unk0x10071698 = 1;
-// GLOBAL: MW2SHELL 0x1007169c
-MechS32 g_unk0x1007169c = 1;
-// GLOBAL: MW2SHELL 0x100716a4
-MechS32 g_unk0x100716a4 = 0;
+ChimeLedger0x3c g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 0xf, 1, 1, 1, 1, 1, 8, 0, {0}};
 
 // GLOBAL: MW2SHELL 0x10092c18
 AudioSample* g_unk0x10092c18;
@@ -288,10 +274,10 @@ void FUN_1004381b(SlateTab0x2c* p_option)
 
 		if (abs(previous - *value) >= 0xa00) {
 			previous = *value;
-			volume = g_effectsVolume;
-			g_effectsVolume = previous;
+			volume = g_soundConfig.m_effectsVolume;
+			g_soundConfig.m_effectsVolume = previous;
 			g_unk0x10092c18->Start();
-			g_effectsVolume = volume;
+			g_soundConfig.m_effectsVolume = volume;
 		}
 
 		FUN_100079f8(g_unk0x10070da8);
@@ -311,7 +297,7 @@ void FUN_10043926()
 
 	file = fopen("MW2SND.CFG", "rb");
 	if (file != NULL) {
-		fread(&g_unk0x10071678, 0x3c, 1, file);
+		fread(&g_soundConfig, sizeof(g_soundConfig), 1, file);
 		fclose(file);
 	}
 }
@@ -347,7 +333,7 @@ void FUN_10043a1f()
 
 	file = fopen("MW2SND.CFG", "wb");
 	if (file != NULL) {
-		fwrite(&g_unk0x10071678, 0x3c, 1, file);
+		fwrite(&g_soundConfig, sizeof(g_soundConfig), 1, file);
 		fclose(file);
 	}
 }
@@ -434,19 +420,19 @@ void CalledWhenCombatVarsOptionClicked(MechS32 p_active)
 SlateTab0x2c g_unk0x10070da8[15] = {
 	OPTION_ROW(0x189, 0xdb, 100, FUN_1004338a, FUN_10043651, g_unk0x100716b8 + 5),
 	OPTION_ROW(0x189, 0xef, 100, FUN_1004343c, FUN_100436c7, g_unk0x100716b8 + 4),
-	OPTION_ROW(0x189, 0x115, 100, FUN_100433dc, FUN_10043688, &g_unk0x1007168c),
-	OPTION_ROW(0x189, 0x129, 100, FUN_100433dc, FUN_10043688, &g_unk0x10071690),
-	OPTION_ROW(0x189, 0x13d, 100, FUN_10043589, FUN_10043688, &g_unk0x10071694),
-	OPTION_ROW(0x189, 0x151, 100, FUN_10043589, FUN_10043688, &g_unk0x10071698),
-	OPTION_ROW(0x189, 0x165, 100, FUN_100433dc, FUN_10043688, &g_unk0x1007169c),
-	OPTION_ROW(0x189, 0x179, 100, FUN_100435e9, FUN_10043703, &g_unk0x100716a4),
+	OPTION_ROW(0x189, 0x115, 100, FUN_100433dc, FUN_10043688, &g_soundConfig.m_unk0x14),
+	OPTION_ROW(0x189, 0x129, 100, FUN_100433dc, FUN_10043688, &g_soundConfig.m_unk0x18),
+	OPTION_ROW(0x189, 0x13d, 100, FUN_10043589, FUN_10043688, &g_soundConfig.m_unk0x1c),
+	OPTION_ROW(0x189, 0x151, 100, FUN_10043589, FUN_10043688, &g_soundConfig.m_unk0x20),
+	OPTION_ROW(0x189, 0x165, 100, FUN_100433dc, FUN_10043688, &g_soundConfig.m_unk0x24),
+	OPTION_ROW(0x189, 0x179, 100, FUN_100435e9, FUN_10043703, &g_soundConfig.m_unk0x2c),
 	OPTION_ROW(0x189, 0x1a0, 100, FUN_1004349f, FUN_100436c7, g_unk0x100716b8 + 1),
 	OPTION_ROW(0x189, 0x1b4, 100, FUN_1004349f, FUN_100436c7, g_unk0x100716b8),
 	OPTION_ROW(0x189, 0x1c8, 100, FUN_10043517, FUN_100436c7, g_unk0x100716b8 + 3),
 	OPTION_BAR(0x14f, 0x80, 0x11d, 0x4e, FUN_10043758, NULL, NULL),
-	OPTION_BAR(0x14f, 0x80, 0x11d, 0x15, FUN_10043790, FUN_1004381b, &g_midiVolume),
-	OPTION_BAR(0x14f, 0x98, 0x11d, 0x15, FUN_10043790, FUN_1004381b, &g_effectsVolume),
-	OPTION_BAR(0x14f, 0xb0, 0x11d, 0x15, FUN_10043790, FUN_1004381b, &g_unk0x10071680),
+	OPTION_BAR(0x14f, 0x80, 0x11d, 0x15, FUN_10043790, FUN_1004381b, &g_soundConfig.m_midiVolume),
+	OPTION_BAR(0x14f, 0x98, 0x11d, 0x15, FUN_10043790, FUN_1004381b, &g_soundConfig.m_effectsVolume),
+	OPTION_BAR(0x14f, 0xb0, 0x11d, 0x15, FUN_10043790, FUN_1004381b, &g_soundConfig.m_unk0x08),
 };
 #undef OPTION_ROW
 #undef OPTION_BAR
