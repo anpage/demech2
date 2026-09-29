@@ -16,3 +16,10 @@ MW2 order 0x100a6be0
 MW2 order 0x100a8684  # the parked run 0x100a8684-0x100a8740 flags staticmem.c's data after it too
 MW2 order 0x100adf58
 MW2 order 0x100b1350
+
+# MW2 builds without /Ob1, so __inline functions are emitted out of line after the unit's
+# functions, each in its own 16-aligned section with 0xCC padding before it.
+MW2 split 0x1004f2d0  # DisplayDibWindowMessage, from the DisplayDib header (dispdib.c; the build emits DisplayDibWindowCreateEx first)
+MW2 split 0x10068cb0  # IsInsideWindow (mouse.c)
+MW2 split 0x10079240  # DdrawUnlock (directdraw.c)
+MW2 split 0x100792b0  # DdrawRestore (directdraw.c)
