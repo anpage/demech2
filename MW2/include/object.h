@@ -9,6 +9,7 @@
 typedef struct AmberWillow0x7c AmberWillow0x7c;
 
 typedef void (*ShapeCallback)(ScarletOrchid0x4c* p_shape);
+typedef void (*ObjectCallback)(AmberWillow0x7c* p_obj);
 
 /* A node of the scene tree: its transform relative to the parent, the world transform
    FUN_10001c3f derives from it, and an optional shape. FUN_100012d0 allocates it. */

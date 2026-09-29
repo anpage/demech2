@@ -4,8 +4,10 @@
 #include "palette.h"
 #include "refreshmode.h"
 #include "rendertarget.h"
+#include "setres.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk10065f10.h"
 
 #include <windows.h>
 
@@ -67,11 +69,28 @@ MechS32 InitGameWindowGeometry(void)
 	return 1;
 }
 
-// STUB: MW2 0x10012802
+// FUNCTION: MW2 0x10012802
 MechS32 InitDisplayGeometry(void)
 {
-	STUB(0x10012802);
-	return 0;
+	MechS32 result;
+
+	result = 0;
+	if (InitGameWindowGeometry()) {
+		FUN_1005d44e(g_gameWindowGeometry);
+		FUN_1005d410(g_gameWindowGeometry);
+		g_currentRenderTarget.m_buffer = &g_mainPixelBuffer;
+		g_currentRenderTarget.m_left = 0;
+		g_currentRenderTarget.m_top = 0;
+		g_currentRenderTarget.m_right = g_gameWindowGeometry->m_width - 1;
+		g_currentRenderTarget.m_bottom = g_gameWindowGeometry->m_height - 1;
+		g_unk0x100bdff8 = g_currentRenderTarget;
+		result = 1;
+		InitRenderTargets(&g_currentRenderTarget);
+		FUN_10065f10();
+		g_unk0x100a2464 = 1;
+	}
+
+	return result;
 }
 
 // STUB: MW2 0x100128b5

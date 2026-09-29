@@ -1,0 +1,22 @@
+#ifndef SHAPELISTHEAD_H
+#define SHAPELISTHEAD_H
+
+#include "types.h"
+
+struct ScarletOrchid0x4c;
+
+// The head of a list of shapes: the first 0x18 bytes of a ScarletOrchid0x4c, which the list
+// code links and unlinks as if it were a shape (unk1006d680.c).
+// SIZE 0x18
+typedef struct ShapeListHead {
+	MechU16 m_unk0x00;                   // 0x00
+	MechU16 m_unk0x02;                   // 0x02
+	struct ScarletOrchid0x4c* m_unk0x04; // 0x04
+	struct ScarletOrchid0x4c* m_unk0x08; // 0x08 — the first shape in the list
+	struct ScarletOrchid0x4c* m_unk0x0c; // 0x0c
+	struct ScarletOrchid0x4c* m_unk0x10; // 0x10 — the first shape in the second list
+	MechU16 m_unk0x14;                   // 0x14
+	MechU16 m_unk0x16;                   // 0x16
+} ShapeListHead;
+
+#endif // SHAPELISTHEAD_H

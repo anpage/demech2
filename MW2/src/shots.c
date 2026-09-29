@@ -124,6 +124,39 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	SetObjRotation(p_shot->m_object, targetX, targetY, 0, 0);
 }
 
+// FUNCTION: MW2 0x1006b152
+void FUN_1006b152(
+	MechS32 p_unk0x00,
+	MechS32 p_unk0x04,
+	MechS32 p_unk0x08,
+	MechS32 p_unk0x0c,
+	MechS32 p_unk0x10,
+	MechS32 p_unk0x14,
+	MechS32 p_unk0x18,
+	MechS32 p_unk0x1c
+)
+{
+	FUN_1006b1fb(p_unk0x00, p_unk0x04, p_unk0x08, p_unk0x0c, p_unk0x10, p_unk0x14, p_unk0x18, p_unk0x1c, 0, 0, 0);
+}
+
+// STUB: MW2 0x1006b1fb
+void FUN_1006b1fb(
+	MechS32 p_unk0x00,
+	MechS32 p_unk0x04,
+	MechS32 p_unk0x08,
+	MechS32 p_unk0x0c,
+	MechS32 p_unk0x10,
+	MechS32 p_unk0x14,
+	MechS32 p_unk0x18,
+	MechS32 p_unk0x1c,
+	MechS32 p_unk0x20,
+	MechS32 p_unk0x24,
+	MechS32 p_unk0x28
+)
+{
+	STUB(0x1006b1fb);
+}
+
 // STUB: MW2 0x1006b99a
 void UpdateEffects(void)
 {

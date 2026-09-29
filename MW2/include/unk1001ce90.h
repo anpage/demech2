@@ -5,6 +5,8 @@
 #include "types.h"
 #include "unk1003a530.h"
 
+struct AmberWillow0x7c;
+
 // The functions and globals of unk1001ce90.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -12,7 +14,7 @@ extern "C"
 #endif
 
 	void FUN_1001da44(void);
-	void FUN_1001ddf2(ScarletOrchid0x4c* p_shape);
+	void FUN_1001ddf2(struct AmberWillow0x7c* p_obj);
 
 #ifdef __cplusplus
 }

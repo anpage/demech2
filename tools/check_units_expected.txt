@@ -16,6 +16,7 @@ MW2 order 0x100a554c
 MW2 order 0x100a59e0
 MW2 order 0x100a6be0
 MW2 order 0x100a8680  # the parked run 0x100a8680-0x100a8740 flags staticmem.c's data after it too
+MW2 order 0x100aa2ac  # g_missionTimerStopped and g_unk0x100aa2c0, before setres.c's data
 MW2 order 0x100adf58
 MW2 order 0x100b1350
 

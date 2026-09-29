@@ -1,5 +1,6 @@
 #include "debugprint.h"
 
+#include "logwindow.h"
 #include "simmain.h"
 #include "types.h"
 
@@ -9,8 +10,6 @@
 
 // GLOBAL: MW2 0x100ea3f0
 MechChar g_debugPrintBuffer[0x100];
-
-void FUN_1003a432(MechChar* p_message);
 
 // FUNCTION: MW2 0x10050900
 void ShowMessage(const MechChar* p_format, ...)

@@ -414,7 +414,7 @@ MechU32 FUN_1003adae(ScarletOrchid0x4c* p_shape)
 }
 
 // FUNCTION: MW2 0x1003adc9
-undefined4 FUN_1003adc9(ScarletOrchid0x4c* p_shape, undefined4* p_unk0x34, undefined4* p_unk0x38, undefined4* p_unk0x3c)
+MechS32 FUN_1003adc9(ScarletOrchid0x4c* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c)
 {
 	if (p_unk0x34) {
 		*p_unk0x34 = p_shape->m_unk0x34;

@@ -10,6 +10,9 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100ba600;
+	extern MechS32 g_unk0x100ba604;
+
 	void FirstEnvironment(void);
 	void FUN_1007d6bb(void);
 	void FUN_1007d7e3(MechS32 p_index);

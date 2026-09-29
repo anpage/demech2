@@ -49,6 +49,7 @@ extern "C"
 	MenuDefinition* GetOpenMenu(void);
 	void UpdateMenus(void);
 	MechS32 GetMenuSlotState(MechS32 p_id);
+	void RequestMenuClose(MechS32 p_id);
 
 #ifdef __cplusplus
 }
