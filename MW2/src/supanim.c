@@ -1,5 +1,6 @@
 #include "decomp.h"
 #include "displaybackend.h"
+#include "mss.h"
 #include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "rendertarget.h"
@@ -7,6 +8,9 @@
 #include "types.h"
 
 // The dropship animation of the loading screen ("sup anim"), drawn by an AIL timer.
+
+// GLOBAL: MW2 0x100a0150
+HTIMER g_supAnimTimer = -1;
 
 // GLOBAL: MW2 0x100a0154
 void* g_supAnimBackdrop = NULL;
@@ -60,8 +64,23 @@ void SupAnimTimerCallback(void)
 	}
 }
 
-// STUB: MW2 0x10004031
+// Releases the timer and frees the backdrop and the dropship.
+// FUNCTION: MW2 0x10004031
 void StopSupAnim(void)
 {
-	STUB(0x10004031);
+	if (g_supAnimTimer != -1) {
+		AIL_release_timer_handle(g_supAnimTimer);
+		g_supAnimTimer = -1;
+	}
+
+	if (g_supAnimBackdrop) {
+		MEM_free_lock(g_supAnimBackdrop);
+		g_supAnimBackdrop = NULL;
+	}
+
+	if (g_supAnimShape) {
+		MEM_free_lock(g_supAnimShape);
+		g_supAnimShape = NULL;
+		g_supAnimFrameCount = 0;
+	}
 }

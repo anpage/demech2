@@ -54,14 +54,24 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x10109c5c;
+	extern MechS32 g_unk0x10109c60;
 	extern MechS32 g_cockpitLayoutIndex;
+	extern MechS32 g_unk0x10109c68;
+	extern MechS32 g_unk0x10109c6c;
 
 	void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout);
+	void FUN_1003dd82(void);
+	MechS32 FUN_1003ddd7(void);
+	void FUN_1003e03c(void);
+	void FUN_1003e06c(void);
 	void DrawMapViewText(CockpitLayout* p_layout);
+	void FUN_1003ee26(void);
 	MechS32 FUN_1003ee69(void);
 	void FUN_1003ee92(void);
 	void FUN_1003eeaf(void);
 	void FUN_1003ef07(MechS32 p_unk0x00);
+	void FUN_1003f8d1(void);
 
 #ifdef __cplusplus
 }

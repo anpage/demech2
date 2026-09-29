@@ -1,3 +1,4 @@
+/* Hand-written assembly: FUN_10038ced is a C function with an __asm body. */
 #include "unk10036230.h"
 
 #include "decomp.h"
@@ -6,6 +7,10 @@
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
+
+// The luma table FUN_10038d0d draws through, copied in by FUN_10038ced.
+// GLOBAL: MW2 0x100a5630
+MechU16 g_lumaTable[0x80] = {0};
 
 // FUNCTION: MW2 0x10036853
 void FUN_10036853(MechU32 p_flags)
@@ -47,10 +52,21 @@ void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable)
 	}
 }
 
-// STUB: MW2 0x10038ced
+// Copies the 0x80-entry luma table p_table into g_lumaTable. A C function with an __asm body.
+// FUNCTION: MW2 0x10038ced
 void FUN_10038ced(MechU16* p_table)
 {
-	STUB(0x10038ced);
+	__asm {
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, p_table
+		lea edi, g_lumaTable
+		mov ecx, 0x40
+		rep movsd
+		pop es
+	}
 }
 
 // STUB: MW2 0x10038d0d

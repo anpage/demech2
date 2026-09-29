@@ -34,7 +34,7 @@ typedef struct Mech {
 	MechS32 m_deltaHeat;               // 0x94 — heat added this tick
 	MechS32 m_unk0x98;                 // 0x98
 	MechS32 m_unk0x9c;                 // 0x9c
-	MechU32 m_unk0xa0;                 // 0xa0
+	MechS32 m_unk0xa0;                 // 0xa0
 	MechS32 m_unk0xa4;                 // 0xa4
 	undefined m_unk0xa8[0xe8 - 0xa8];  // 0xa8
 	MechS32 m_radius;                  // 0xe8 — splash damage reaches it this much further

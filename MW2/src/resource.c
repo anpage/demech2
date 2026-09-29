@@ -17,6 +17,41 @@
 #include <stdio.h>
 #include <windows.h>
 
+// GLOBAL: MW2 0x100a8608
+void* g_unk0x100a8608 = NULL;
+
+// GLOBAL: MW2 0x100a860c
+void* g_unk0x100a860c = NULL;
+
+// GLOBAL: MW2 0x100ea500
+void* g_unk0x100ea500[16];
+
+// Frees the mission tables' blocks.
+// FUNCTION: MW2 0x1004fd55
+void FUN_1004fd55(void)
+{
+	MechS32 i;
+
+	if (g_unk0x100a8608) {
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_unk0x100a8608);
+	}
+
+	g_unk0x100a8608 = NULL;
+	for (i = 0; i < 16; i++) {
+		if (g_unk0x100ea500[i]) {
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_unk0x100ea500[i]);
+		}
+
+		g_unk0x100ea500[i] = NULL;
+	}
+
+	if (g_unk0x100a860c) {
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_unk0x100a860c);
+	}
+
+	g_unk0x100a860c = NULL;
+}
+
 // STUB: MW2 0x1004fe85
 void FUN_1004fe85(
 	MechFloat p_unk0x00,

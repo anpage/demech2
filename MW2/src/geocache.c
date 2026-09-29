@@ -2,12 +2,14 @@
 
 #include "audio.h"
 #include "callbacks.h"
+#include "debris.h"
 #include "decomp.h"
 #include "error.h"
 #include "gamething.h"
 #include "hollowspire.h"
 #include "loadres.h"
 #include "object.h"
+#include "players.h"
 #include "quietmarsh.h"
 #include "simmain.h"
 #include "soundconfig.h"
@@ -438,10 +440,41 @@ void FUN_100201c1(MechS32 p_index, MechU32 p_unk0x0c)
 	entry->m_unk0x0c |= (p_unk0x0c << 12) & 0xf000;
 }
 
-// STUB: MW2 0x10020429
+// STUB: MW2 0x10020292
+MechS32 FUN_10020292(MechS32 p_index)
+{
+	STUB(0x10020292);
+	return -1;
+}
+
+// Marks p_thing's cache entry (flag 0x200) and has FUN_10020292 replace it. When the replacement's
+// game thing has flag 0x8000, its object tree is handed to FUN_100044f3 and FUN_10021314.
+// Stack-slot permutation: index, current and entry.
+// FUNCTION: MW2 0x10020429
 void FUN_10020429(GameThing* p_thing)
 {
-	STUB(0x10020429);
+	MechS32 index;
+	MechS32 current;
+	GameThing* thing;
+	HollowSpire0x7c* entry;
+
+	index = -1;
+	entry = &g_unk0x1010c630[p_thing->m_unk0x04];
+	entry->m_unk0x0c |= 0x200;
+	current = p_thing->m_unk0x04;
+	if (current != -1) {
+		index = FUN_10020292(current);
+	}
+
+	if (index != -1) {
+		thing = &g_gameThings[g_unk0x1010c630[index].m_unk0x18];
+		if (thing->m_unk0x00 & 0x8000) {
+			FUN_100044f3(g_unk0x1010c630[index].m_unk0x20, FUN_100213cf, 0);
+			FUN_10021314(index);
+		}
+	}
+
+	FUN_100204e8();
 }
 
 // STUB: MW2 0x100204e8
@@ -496,10 +529,44 @@ ScarletOrchid0x4c* FUN_10020c26(MechS32 p_index)
 	return result;
 }
 
-// STUB: MW2 0x10020c6f
-void FUN_10020c6f(MechS32 p_id, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// Returns a cache entry's position: its shape's, or its object's. A bad index (the test lets
+// g_unk0x100a3874 itself through) or an empty entry gives 0, 0, 0.
+// Stack-slot permutation: obj and entry. Operand order: p_index > g_unk0x100a3874 loads
+// g_unk0x100a3874 first in the original.
+// FUNCTION: MW2 0x10020c6f
+void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	STUB(0x10020c6f);
+	struct AmberWillow0x7c* obj;
+	HollowSpire0x7c* entry;
+	ScarletOrchid0x4c* shape;
+
+	if (p_index > g_unk0x100a3874 || p_index < 0) {
+		*p_x = *p_y = *p_z = 0;
+	}
+	else {
+		entry = &g_unk0x1010c630[p_index];
+		shape = entry->m_unk0x1c;
+		if (shape) {
+			*p_x = shape->m_unk0x34;
+			*p_y = shape->m_unk0x38;
+			*p_z = shape->m_unk0x3c;
+		}
+		else {
+			obj = entry->m_unk0x20;
+			if (obj) {
+				GetObjPosition(obj, p_x, p_y, p_z);
+			}
+			else {
+				*p_x = *p_y = *p_z = 0;
+			}
+		}
+	}
+}
+
+// STUB: MW2 0x10021314
+void FUN_10021314(MechS32 p_index)
+{
+	STUB(0x10021314);
 }
 
 // Frees a scene object tree, and the shapes on it when the object has one.

@@ -1,6 +1,7 @@
 #ifndef OBJECTIVE_H
 #define OBJECTIVE_H
 
+#include "decomp.h"
 #include "starmission.h"
 #include "types.h"
 
@@ -16,7 +17,8 @@ extern "C"
 	void EndTheMission2(void);
 	void FUN_1001cc5c(MechS32 p_player);
 	void FUN_1001cdd1(void);
-	MechS32 FUN_1001cdf6(MechS32 p_team);
+	MechS32 FUN_1001cde1(undefined4 p_unk0x00);
+	MechU16 GetTeamHomeTarget(MechS32 p_team);
 
 #ifdef __cplusplus
 }

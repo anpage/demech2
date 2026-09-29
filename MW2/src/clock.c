@@ -2,7 +2,7 @@
 
 #include "debugprint.h"
 #include "decomp.h"
-#include "msstimer.h"
+#include "mss.h"
 #include "simmain.h"
 #include "transform.h"
 #include "types.h"

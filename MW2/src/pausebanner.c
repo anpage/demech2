@@ -1,22 +1,47 @@
+/* The "paused" banner and the pause and resume sounds. */
 #include "pausebanner.h"
 
 #include "decomp.h"
+#include "loadres.h"
+#include "rendertarget.h"
+#include "screenscale.h"
+#include "simmain.h"
+#include "soundfx.h"
 #include "types.h"
 
-// STUB: MW2 0x10009e50
+// The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
+// GLOBAL: MW2 0x100a15e0
+RenderTarget g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
+
+// GLOBAL: MW2 0x100a15f4
+MechS32 g_pausedBannerUnscaled = 1;
+
+// FUNCTION: MW2 0x10009e50
 void DrawPausedBanner(void)
 {
-	STUB(0x10009e50);
+	void* shape;
+
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x5e, g_unk0x100a8680, 0);
+	if (shape) {
+		if (g_pausedBannerUnscaled) {
+			g_pausedBannerRect.m_buffer = &g_mainPixelBuffer;
+			ScaleRectToScreen(&g_mainPixelBuffer, &g_pausedBannerRect, &g_pausedBannerRect);
+			FUN_10056fcf(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
+			g_pausedBannerUnscaled = 0;
+		}
+
+		DrawShapeFrame(&g_pausedBannerRect, shape, 0, 0, 0);
+	}
 }
 
-// STUB: MW2 0x10009ef1
-void FUN_10009ef1(void)
+// FUNCTION: MW2 0x10009ef1
+void PlayPauseSound(void)
 {
-	STUB(0x10009ef1);
+	FUN_1007ea11(0xc6, 100, 0x40, RandomSampleRate());
 }
 
-// STUB: MW2 0x10009f13
-void FUN_10009f13(void)
+// FUNCTION: MW2 0x10009f13
+void PlayResumeSound(void)
 {
-	STUB(0x10009f13);
+	FUN_1007ea11(0xf1, 0x32, 0x40, RandomSampleRate());
 }

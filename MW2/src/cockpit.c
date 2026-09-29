@@ -1,6 +1,8 @@
 #include "cockpit.h"
 
+#include "cobaltharbor.h"
 #include "decomp.h"
+#include "environment.h"
 #include "fixeddiv.h"
 #include "loadres.h"
 #include "palette.h"
@@ -13,8 +15,21 @@
 
 #include <stdio.h>
 
+// GLOBAL: MW2 0x10109c5c
+MechS32 g_unk0x10109c5c;
+
+// GLOBAL: MW2 0x10109c60
+MechS32 g_unk0x10109c60;
+
 // GLOBAL: MW2 0x10109c64
 MechS32 g_cockpitLayoutIndex;
+
+// GLOBAL: MW2 0x10109c68
+MechS32 g_unk0x10109c68;
+
+// The view g_cockpitLayoutIndex switches to; 3 and 5 enter and leave the satellite view (4).
+// GLOBAL: MW2 0x10109c6c
+MechS32 g_unk0x10109c6c;
 
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
 // and for the normal cockpit also in g_unk0x100adf58), its points and extra rectangles, and its
@@ -79,6 +94,44 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	index = (MechS32) p_layout->m_gauges[3];
 	p_layout->m_gauges[3] = g_cockpitGauges[index];
 	FUN_1003ef07(0);
+}
+
+// FUNCTION: MW2 0x1003dd82
+void FUN_1003dd82(void)
+{
+	g_unk0x10109c60 = g_unk0x10109c68;
+	g_unk0x10109c68 = 4;
+	if (g_cockpitLayoutIndex <= 2) {
+		FUN_1003e03c();
+	}
+	else if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c <= 2) {
+		FUN_1003ddd7();
+	}
+}
+
+// STUB: MW2 0x1003ddd7
+MechS32 FUN_1003ddd7(void)
+{
+	STUB(0x1003ddd7);
+	return 0;
+}
+
+// FUNCTION: MW2 0x1003e03c
+void FUN_1003e03c(void)
+{
+	FUN_1003ddd7();
+	if (g_unk0x100c3280->m_unk0x06) {
+		FUN_1003f8d1();
+	}
+	else {
+		FUN_1003e06c();
+	}
+}
+
+// STUB: MW2 0x1003e06c
+void FUN_1003e06c(void)
+{
+	STUB(0x1003e06c);
 }
 
 // Draws the view's range readout and, in the satellite view, the heading readout, formatting them
@@ -147,6 +200,16 @@ void DrawMapViewText(CockpitLayout* p_layout)
 	}
 }
 
+// Cycles the three cockpit views.
+// FUNCTION: MW2 0x1003ee26
+void FUN_1003ee26(void)
+{
+	if (g_cockpitLayoutIndex <= 2 && g_unk0x10109c6c <= 2) {
+		g_unk0x10109c6c = g_cockpitLayoutIndex + 1;
+		g_unk0x10109c6c %= 3;
+	}
+}
+
 // FUNCTION: MW2 0x1003ee69
 MechS32 FUN_1003ee69(void)
 {
@@ -161,14 +224,26 @@ void FUN_1003ee92(void)
 	}
 }
 
-// STUB: MW2 0x1003eeaf
+// Leaves the satellite view, or else enters it from a cockpit view.
+// FUNCTION: MW2 0x1003eeaf
 void FUN_1003eeaf(void)
 {
-	STUB(0x1003eeaf);
+	if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c == 4) {
+		g_unk0x10109c6c = 5;
+	}
+	else if (g_cockpitLayoutIndex <= 2 && g_unk0x10109c6c <= 2) {
+		g_unk0x10109c6c = 3;
+	}
 }
 
 // STUB: MW2 0x1003ef07
 void FUN_1003ef07(MechS32 p_unk0x00)
 {
 	STUB(0x1003ef07);
+}
+
+// STUB: MW2 0x1003f8d1
+void FUN_1003f8d1(void)
+{
+	STUB(0x1003f8d1);
 }

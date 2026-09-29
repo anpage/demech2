@@ -117,6 +117,18 @@ EffectInfo g_effectInfo[0x20] = {
 // GLOBAL: MW2 0x100a175c
 MechS32 g_isNetworkGame = 0;
 
+// GLOBAL: MW2 0x100a178c
+void* g_unk0x100a178c = NULL;
+
+// GLOBAL: MW2 0x100a1794
+void* g_unk0x100a1794 = NULL;
+
+// GLOBAL: MW2 0x100a1798
+void* g_unk0x100a1798 = NULL;
+
+// GLOBAL: MW2 0x100a179c
+MechS32 g_unk0x100a179c = 0;
+
 // GLOBAL: MW2 0x100a17a0
 MechS32 g_unk0x100a17a0 = 0;
 
@@ -143,6 +155,9 @@ MechS32 g_drawModeIndex = -1;
 
 // GLOBAL: MW2 0x100a2450
 MechS32 g_initDrawModeParam2 = 1;
+
+// GLOBAL: MW2 0x100a245c
+void* g_unk0x100a245c = NULL;
 
 // GLOBAL: MW2 0x100a2460
 MechS32 g_unk0x100a2460 = 1;
@@ -250,6 +265,9 @@ const char* g_unk0x100a8680 = "SHP";
 
 // GLOBAL: MW2 0x100a8684
 const char* g_unk0x100a8684 = "FONT";
+
+// GLOBAL: MW2 0x100a8690
+const char* g_unk0x100a8690 = "XMID";
 
 // GLOBAL: MW2 0x100a8694
 const char* g_unk0x100a8694 = "PAL";
@@ -407,6 +425,12 @@ RenderTarget g_currentRenderTarget;
 
 // GLOBAL: MW2 0x10176ef0
 PixelBuffer g_mainPixelBuffer;
+
+// GLOBAL: MW2 0x101770a0
+void* g_unk0x101770a0;
+
+// GLOBAL: MW2 0x101770cc
+void* g_unk0x101770cc;
 
 // The two tick counters GameTickTimerCallback advances, and the start values of each counter's
 // handles (0: free).
@@ -985,7 +1009,7 @@ void UpdatePauseState(void)
 {
 	if (g_pauseRequested) {
 		if (g_simPaused && g_keyCode) {
-			FUN_10009f13();
+			PlayResumeSound();
 			g_keyCode = 0;
 			g_pauseRequested = FALSE;
 		}
@@ -1009,7 +1033,7 @@ void UpdatePauseState(void)
 	}
 	else if (!g_simPaused && !g_unk0x100a17a0) {
 		if (g_pauseRequested) {
-			FUN_10009ef1();
+			PlayPauseSound();
 			g_keyCode = 0;
 		}
 

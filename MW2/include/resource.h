@@ -9,6 +9,7 @@ extern "C"
 {
 #endif
 
+	void FUN_1004fd55(void);
 	MechS32 MapResourceId(MechS32 p_id);
 	void SetMangleBase(MechS32 p_base);
 	MechS32 FUN_1005072f(void);

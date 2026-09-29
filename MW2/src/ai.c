@@ -1944,7 +1944,7 @@ MechS16 FUN_10054043(Player* p_player, MechS16 p_target, MechS16 p_previous)
 	else if (p_target & c_aiTargetNav) {
 		switch (p_target) {
 		case c_aiTargetHome:
-			home = FUN_1001cdf6(p_player->m_team);
+			home = GetTeamHomeTarget(p_player->m_team);
 			result = home;
 			break;
 		case c_aiTargetRbAnchor:

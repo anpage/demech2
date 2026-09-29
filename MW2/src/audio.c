@@ -81,7 +81,7 @@ void PauseMusic(void)
 {
 	if (!g_audioPaused) {
 		if (g_midiSequence != -1 && (g_soundConfig.m_unk0x10 & 4)) {
-			FUN_1002152b();
+			PauseMidiSequences();
 		}
 
 		if (g_cdTrack != -1 && (g_soundConfig.m_unk0x10 & 8)) {
@@ -97,7 +97,7 @@ void ResumeMusic(void)
 {
 	if (g_audioPaused) {
 		if (g_midiSequence != -1 && (g_soundConfig.m_unk0x10 & 4)) {
-			FUN_100215a4();
+			ResumeMidiSequences();
 		}
 
 		if (g_cdTrack != -1 && (g_soundConfig.m_unk0x10 & 8)) {
@@ -116,7 +116,7 @@ void StopMusic(void)
 	}
 
 	if (g_midiSequence != -1) {
-		FUN_10021460();
+		StopMidiSequences();
 	}
 }
 
@@ -135,7 +135,7 @@ void LoopCdMusic(void)
 MechS32 FirstAudio(void)
 {
 	InitializeDigitalAudio(8);
-	FUN_1002161d();
+	InitializeMidi();
 	StartCdAudio();
 	FUN_10013370();
 	g_nextEngageCheck = g_currentClock + 0x389;
@@ -178,7 +178,7 @@ void ShutdownAudio(void)
 {
 	StopMusic();
 	DeInitCdAudio();
-	FUN_1002187c();
+	ShutdownMidi();
 	ShutdownDigitalAudio();
 	SaveSndCfg("mw2snd.cfg", g_mw2SndCfgData);
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_mw2SndCfgData);
