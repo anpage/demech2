@@ -16,7 +16,7 @@
 
 DECOMP_SIZE_ASSERT(DifficultyCfg, 0x17)
 
-enum {
+enum FilePermission {
 	c_permissionWrite = 0x80 // _S_IWRITE (sys/stat.h)
 };
 
