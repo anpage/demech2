@@ -28,10 +28,10 @@ FmvSlot g_fmvSlots[32] = {0};
 undefined4 g_videoOnDataDrive = 0;
 
 // GLOBAL: MW2SHELL 0x10064b2c
-MechS32 g_fullscreenVideoMsg = 0x404;
+MechS32 g_fullscreenVideoMsg = c_msgScreenFrame;
 
 // GLOBAL: MW2SHELL 0x10064b30
-MechS32 g_fullscreenVideoWParam = 0x404;
+MechS32 g_fullscreenVideoWParam = c_msgScreenFrame;
 
 // GLOBAL: MW2SHELL 0x1007cdd0
 MechChar g_videoPath[0x20];
@@ -96,10 +96,11 @@ void FullscreenVideoCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32
 	MechS32 msg;
 
 	video = &g_fmvSlots[0];
-	if (!IsVideoPlaying(0) || g_pMouseState->GetLeftPressed() == 1 || g_keyboardInput->PollKey() || p_msg != 0x404) {
+	if (!IsVideoPlaying(0) || g_pMouseState->GetLeftPressed() == 1 || g_keyboardInput->PollKey() ||
+		p_msg != c_msgScreenFrame) {
 		CloseVideo(0);
 		UnregisterScreenFunction(FullscreenVideoCallback);
-		if (p_msg == 0x404) {
+		if (p_msg == c_msgScreenFrame) {
 			msg = g_fullscreenVideoMsg;
 		}
 		else {
@@ -107,7 +108,7 @@ void FullscreenVideoCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32
 		}
 
 		PostMessage(g_pWnd, msg, g_fullscreenVideoWParam, 0);
-		g_fullscreenVideoMsg = g_fullscreenVideoWParam = 0x404;
+		g_fullscreenVideoMsg = g_fullscreenVideoWParam = c_msgScreenFrame;
 		g_fDrawFmv = FALSE;
 	}
 }

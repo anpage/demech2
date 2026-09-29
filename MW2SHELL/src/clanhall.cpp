@@ -44,12 +44,12 @@ MechS32 g_welcomePending = 0;
 MechS32 g_clanHallExitVideo = -1;
 
 // GLOBAL: MW2SHELL 0x10063b84
-MechS32 g_clanHallExitMessage = 0x404;
+MechS32 g_clanHallExitMessage = c_msgScreenFrame;
 
 void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg);
 
-// Opens the clan hall. Coming back from registering a pilot (0x412) sets up the new pilot's
-// star first.
+// Opens the clan hall. Coming back from registering a pilot (c_msgPilotRoster) sets up the new
+// pilot's star first.
 // Not 100%: the stack slots of unused, data and size are permuted.
 // FUNCTION: MW2SHELL 0x10014040
 void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM p_wParam)
@@ -58,7 +58,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	void* data = NULL;
 	MechS32 size;
 
-	if (p_wParam == 0x412) {
+	if (p_wParam == c_msgPilotRoster) {
 		SelectStar(0, 0, 3, 1, 100);
 		SetStarMech(0, NULL, g_pCurrentPilot->m_callsign);
 		if (g_newPilotRegistered) {
@@ -89,13 +89,13 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		g_clanHallAmbience->EnableLoop();
 		break;
 	case 1:
-		if (p_wParam == 0x414) {
+		if (p_wParam == c_msgCadetTraining) {
 			PlayVideo(2, "ajf8orl1", 0, 0, 2, 0);
 		}
-		else if (p_wParam == 0x411) {
+		else if (p_wParam == c_msgReadyRoom) {
 			PlayVideo(3, "ajf8orr1", 0x194, 1, 2, 0);
 		}
-		else if (p_wParam == 0x412) {
+		else if (p_wParam == c_msgPilotRoster) {
 			PlayVideo(2, "ajf8orl1", 0, 0, 0x42, 0);
 			PlayVideo(3, "ajf8orr1", 0x194, 1, 2, 0);
 		}
@@ -127,7 +127,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 	MechS32 size;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -148,7 +148,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			}
 			switch (*p_campaign) {
 			case 0:
-				p_msg = 0x414;
+				p_msg = c_msgCadetTraining;
 				break;
 			case 1:
 				CloseVideo(0);
@@ -160,7 +160,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			g_clanHallExitMessage = 0x40b;
+			g_clanHallExitMessage = c_msgArchive;
 			if (g_clanHallAmbience) {
 				delete g_clanHallAmbience;
 				g_clanHallAmbience = NULL;
@@ -185,12 +185,12 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			}
 			if (g_pCurrentPilot->m_mission >= 16) {
 				ShowDialog("This pilot has|already won the game.#Finale", 0);
-				p_msg = 0x416;
+				p_msg = c_msgEndingVideo;
 				break;
 			}
 			switch (*p_campaign) {
 			case 0:
-				p_msg = 0x411;
+				p_msg = c_msgReadyRoom;
 				break;
 			case 1:
 				g_clanHallExitVideo = 3;
@@ -201,20 +201,20 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x412;
+			p_msg = c_msgPilotRoster;
 			break;
 		case 4:
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x40e;
+			p_msg = c_msgMainMenu;
 			break;
 		default:
 			break;
 		}
 	}
 	else if (!IsVideoPlaying(g_clanHallExitVideo)) {
-		if (g_clanHallExitMessage == 0x404) {
+		if (g_clanHallExitMessage == c_msgScreenFrame) {
 			if (g_clanHallAmbience) {
 				delete g_clanHallAmbience;
 				g_clanHallAmbience = NULL;
@@ -227,22 +227,22 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			switch (g_clanHallExitVideo) {
 			case 2:
 				g_clanHallExitVideo = PlayVideoInFreeSlot("ajf8torl", 0, 0, 2, 0);
-				g_clanHallExitMessage = 0x414;
+				g_clanHallExitMessage = c_msgCadetTraining;
 				break;
 			case 3:
 				g_clanHallExitVideo = PlayVideoInFreeSlot("ajf8torr", 0x194, 1, 2, 0);
-				g_clanHallExitMessage = 0x411;
+				g_clanHallExitMessage = c_msgReadyRoom;
 			}
 		}
 		else {
 			p_msg = g_clanHallExitMessage;
 			g_clanHallExitVideo = -1;
-			g_clanHallExitMessage = 0x404;
+			g_clanHallExitMessage = c_msgScreenFrame;
 		}
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		CloseAllVideos();
 		delete g_clanHallMenu;
 		if (g_clanHallAmbience) {
@@ -254,18 +254,18 @@ done:
 			g_welcomeSound = NULL;
 		}
 		UnregisterScreenFunction(ClanHallCallback);
-		if (p_msg == 0x412) {
+		if (p_msg == c_msgPilotRoster) {
 			switch (*p_campaign) {
 			case 0:
-				BeginFullscreenVideo("aworgstr", 0x412, 0x407);
+				BeginFullscreenVideo("aworgstr", c_msgPilotRoster, c_msgClanHall);
 				break;
 			case 1:
-				BeginFullscreenVideo("ajfrgstr", 0x412, 0x407);
+				BeginFullscreenVideo("ajfrgstr", c_msgPilotRoster, c_msgClanHall);
 				break;
 			}
 		}
 		else {
-			PostMessage(g_pWnd, p_msg, 0x407, 0);
+			PostMessage(g_pWnd, p_msg, c_msgClanHall, 0);
 		}
 	}
 }

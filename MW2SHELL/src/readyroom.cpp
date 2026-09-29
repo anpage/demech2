@@ -37,7 +37,7 @@
 MechS32 g_readyRoomExitVideo = -1;
 
 // GLOBAL: MW2SHELL 0x1006a58c
-MechS32 g_readyRoomExitMessage = 0x404;
+MechS32 g_readyRoomExitMessage = c_msgScreenFrame;
 
 // Database item 0x64, played with the mech bay's video.
 // GLOBAL: MW2SHELL 0x1006a590
@@ -50,7 +50,7 @@ MechS32 g_readyRoomTipsShown = 0;
 // GLOBAL: MW2SHELL 0x100904a0
 ButtonMenu* g_readyRoomMenu;
 
-// DrawReadyRoom's p_wParam: the quick tips show when it is 0x407 (from the pilot roster).
+// DrawReadyRoom's p_wParam: the quick tips show when it comes from the clan hall (c_msgClanHall).
 // GLOBAL: MW2SHELL 0x100904a4
 WPARAM g_readyRoomMessage;
 
@@ -73,12 +73,12 @@ void PlayReadyRoomGrid(MechS32 p_campaign)
 
 void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, MechChar** p_scenario, MechS32 p_msg);
 
-// Opens the ready room. Coming from the pilot roster (0x407) or a mission (0x409) sets up the
-// pilot's next mission first; only the pilot FREEBIRTHTOAD gets the mission buttons.
+// Opens the ready room. Coming from the clan hall (c_msgClanHall) or a mission (c_msgDebrief) sets
+// up the pilot's next mission first; only the pilot FREEBIRTHTOAD gets the mission buttons.
 // FUNCTION: MW2SHELL 0x10039e72
 void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scenario, WPARAM p_wParam)
 {
-	if (p_wParam == 0x407 || p_wParam == 0x409) {
+	if (p_wParam == c_msgClanHall || p_wParam == c_msgDebrief) {
 		SelectStar(0, 0, 3, 1, 100);
 		*p_scenario = g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_scenario;
 		ShellApplyMissionUiInfo(*p_scenario, 1, 0);
@@ -111,7 +111,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 		break;
 	case 1:
 		PlayVideo(0, "ajfgrid1", 0x115, 0x155, 0x44, 0);
-		if (p_wParam == 0x407) {
+		if (p_wParam == c_msgClanHall) {
 			PlayVideo(0x10, "ajfv8trd", 1, 0x6c, 2, 0);
 		}
 		break;
@@ -133,11 +133,11 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 	MechS32 size;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_readyRoomTipsShown && g_readyRoomMessage == 0x407 && !IsVideoPlaying(0x10)) {
+	if (g_fQuickTips && !g_readyRoomTipsShown && g_readyRoomMessage == c_msgClanHall && !IsVideoPlaying(0x10)) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x70), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_readyRoomTipsShown = 1;
 	}
@@ -180,7 +180,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			g_readyRoomSound = new AudioSample(g_pAudioSubsystem, data, size);
 			g_readyRoomSound->SetVolume(0x32);
 			g_readyRoomSound->Start();
-			g_readyRoomExitMessage = 0x40f;
+			g_readyRoomExitMessage = c_msgMechBay;
 			break;
 		case 2:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -190,7 +190,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 				ShowDialog("Your 'Mech has been|selected for you.|Prepare for Trial!#Ok", 0);
 				break;
 			}
-			p_msg = 0x413;
+			p_msg = c_msgStarConfig;
 			break;
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -198,7 +198,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			}
 			switch (*p_campaign) {
 			case 0:
-				p_msg = 0x407;
+				p_msg = c_msgClanHall;
 				break;
 			case 1:
 				g_readyRoomExitVideo = 0x10;
@@ -218,7 +218,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 				g_readyRoomExitVideo = PlayVideoInFreeSlot("ajfbrief", 0x6b, 0x69, 6, 0);
 				break;
 			}
-			g_readyRoomExitMessage = 0x406;
+			g_readyRoomExitMessage = c_msgBriefing;
 			break;
 		default:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -233,19 +233,19 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 		}
 	}
 	else if (!IsVideoPlaying(g_readyRoomExitVideo)) {
-		if (g_readyRoomExitMessage == 0x404) {
+		if (g_readyRoomExitMessage == c_msgScreenFrame) {
 			g_readyRoomExitVideo = PlayVideo(0x10, "ajfv8tru", 1, 0x6c, 2, 0);
-			g_readyRoomExitMessage = 0x407;
+			g_readyRoomExitMessage = c_msgClanHall;
 		}
 		else {
 			p_msg = g_readyRoomExitMessage;
 			g_readyRoomExitVideo = -1;
-			g_readyRoomExitMessage = 0x404;
+			g_readyRoomExitMessage = c_msgScreenFrame;
 		}
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		CloseAllVideos();
 		delete g_readyRoomMenu;
 		if (g_readyRoomSound) {
@@ -253,7 +253,7 @@ done:
 		}
 		g_readyRoomSound = NULL;
 		g_readyRoomTipsShown = 0;
-		PostMessage(g_pWnd, p_msg, 0x411, 0);
+		PostMessage(g_pWnd, p_msg, c_msgReadyRoom, 0);
 		UnregisterScreenFunction(ReadyRoomCallback);
 	}
 }

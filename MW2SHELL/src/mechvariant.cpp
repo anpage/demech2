@@ -681,7 +681,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 
 	// The original skips the frame's work with a goto: the jump it compiles to leaves a stub
 	// after the function's end.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -709,7 +709,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x411;
+		p_msg = c_msgReadyRoom;
 		break;
 	case 1:
 		if (*p_campaign == 2) {
@@ -723,7 +723,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		}
 		g_mechLabSound->Start();
 		g_pickStarMech = 0;
-		p_msg = 0x40f;
+		p_msg = c_msgMechBay;
 		break;
 	case 2:
 		if (g_pMouseState->m_leftDown == 1) {
@@ -802,7 +802,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 			if (STAR_LAYOUT(g_selectedStar->m_formation, i).m_label == button - 6) {
 				g_selectedStar->m_selected = STAR_LAYOUT(g_selectedStar->m_formation, i).m_mech;
 				g_pickStarMech = 1;
-				p_msg = 0x40f;
+				p_msg = c_msgMechBay;
 			}
 		}
 		break;
@@ -815,18 +815,18 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 	if (g_pMouseState->GetDoubleClicked() && (mech = FindMechAt(g_pMouseState->m_x, g_pMouseState->m_y)) >= 0) {
 		g_selectedStar->m_selected = mech;
 		g_pickStarMech = 1;
-		p_msg = 0x40f;
+		p_msg = c_msgMechBay;
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		delete g_starMenu;
 		delete g_mechLabSound;
 		delete g_starSound;
 		CloseAllVideos();
 		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_starTipShown = 0;
-		PostMessage(g_pWnd, p_msg, 0x413, 0);
+		PostMessage(g_pWnd, p_msg, c_msgStarConfig, 0);
 		UnregisterScreenFunction(StarConfigCallback);
 	}
 }

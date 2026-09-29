@@ -48,7 +48,8 @@ MechS32 g_trainingTipsShown = 0;
 // GLOBAL: MW2SHELL 0x10090668
 ButtonMenu* g_cadetTrainingMenu;
 
-// DrawCadetTraining's p_wParam: the quick tips show when it is 0x407 (from the clan hall).
+// DrawCadetTraining's p_wParam: the quick tips show when it comes from the clan hall
+// (c_msgClanHall).
 // GLOBAL: MW2SHELL 0x1009066c
 WPARAM g_trainingMessage;
 
@@ -97,11 +98,11 @@ void CadetTrainingCallback(
 	MechS32 size;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_trainingTipsShown && g_trainingMessage == 0x407 && g_trainingButtonsShown) {
+	if (g_fQuickTips && !g_trainingTipsShown && g_trainingMessage == c_msgClanHall && g_trainingButtonsShown) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_trainingTipsShown = 1;
 	}
@@ -145,7 +146,7 @@ void CadetTrainingCallback(
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x407;
+			p_msg = c_msgClanHall;
 			break;
 		default:
 			if (button == -1 || g_pMouseState->GetLeftPressed() != 1) {
@@ -168,11 +169,11 @@ void CadetTrainingCallback(
 	}
 	else if (!IsVideoPlaying(g_trainingExitVideo)) {
 		g_trainingExitVideo = -1;
-		p_msg = 0x410;
+		p_msg = c_msgLaunchSim;
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		CloseAllVideos();
 		delete g_cadetTrainingMenu;
 		delete g_trainingAmbience;
@@ -181,7 +182,7 @@ done:
 		g_trainerTake = 0;
 		g_trainerIdleCountdown = -1;
 		g_trainingButtonsShown = 0;
-		PostMessage(g_pWnd, p_msg, 0x414, 0);
+		PostMessage(g_pWnd, p_msg, c_msgCadetTraining, 0);
 		UnregisterScreenFunction(CadetTrainingCallback);
 	}
 }
