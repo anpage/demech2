@@ -15,3 +15,9 @@ void FUN_1001ddf2(struct AmberWillow0x7c* p_obj)
 {
 	STUB(0x1001ddf2);
 }
+
+// STUB: MW2 0x1001de84
+void FUN_1001de84(struct AmberWillow0x7c* p_obj)
+{
+	STUB(0x1001de84);
+}

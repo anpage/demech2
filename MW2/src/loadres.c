@@ -285,3 +285,10 @@ void MemFree(void* p_block)
 {
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 }
+
+// STUB: MW2 0x1001a63c
+MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state)
+{
+	STUB(0x1001a63c);
+	return NULL;
+}

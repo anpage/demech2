@@ -41,6 +41,7 @@ extern "C"
 	void FUN_1001a521(undefined4 p_unk0x00);
 	undefined4 FUN_1001a52c(undefined4 p_unk0x00);
 	void* FUN_1001a53f(MechS32 p_id, const char* p_type);
+	MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state);
 	MechS32 FUN_1001a563(void);
 	void* MemAlloc(MechU32 p_size);
 	void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size);

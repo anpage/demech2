@@ -1917,4 +1917,19 @@
 // LIBRARY: MW2 0x1009c460 SYMBOL
 // ___termcon
 
+// CRT data the game reads (the ctype.h macros)
+
+// ctype.obj
+
+// GLOBAL: MW2 0x100bad40
+// _pctype
+
+// GLOBAL: MW2 0x100bad48
+// _ctype
+
+// nlsdata1.obj
+
+// GLOBAL: MW2 0x100baf4c
+// __mb_cur_max
+
 #endif

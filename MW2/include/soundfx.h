@@ -1,7 +1,11 @@
 #ifndef SOUNDFX_H
 #define SOUNDFX_H
 
+#include "ambientsound.h"
+#include "audioengine.h"
 #include "decomp.h"
+#include "mss.h"
+#include "soundinfo.h"
 #include "types.h"
 
 // The functions and globals of soundfx.c that other units use.
@@ -10,22 +14,56 @@ extern "C"
 {
 #endif
 
-	void FUN_1007eb23(
-		undefined4 p_unk0x00,
-		undefined4 p_unk0x04,
-		undefined4 p_unk0x08,
-		undefined4 p_unk0x0c,
-		undefined4 p_unk0x10
+	extern MechS32 g_unk0x100ba620;
+	extern MechS32 g_unk0x100ba624;
+	extern MechS32 g_sampleRates[10];
+	extern AudioEngine* g_audioEngine;
+	extern SoundInfo g_soundInfo[1200];
+
+	MechS32 InitializeDigitalAudio(MechU32 p_numSamples);
+	void ShutdownDigitalAudio(void);
+	void ServeSamples(void);
+	MechS32 PlaySample(
+		MechS32 p_delay,
+		MechS32 p_bearing,
+		MechS32 p_id,
+		void* p_data,
+		MechU32 p_volume,
+		MechS32 p_volumeScale,
+		MechS32 p_pan,
+		MechS32 p_rate,
+		MechS32* p_userData,
+		MechU16 p_flags
 	);
-	void FUN_1007eb64(
-		undefined4 p_unk0x00,
-		undefined4 p_unk0x04,
-		undefined4 p_unk0x08,
-		undefined4 p_unk0x0c,
-		undefined4 p_unk0x10,
-		undefined4 p_unk0x14
+	MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot, MechS32* p_userData);
+	void AILCALLBACK SampleEosCallback(HSAMPLE p_sample);
+	void FUN_1007e9dc(void);
+	MechS32 FUN_1007ea11(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate);
+	MechS32 FUN_1007ea4c(
+		MechS32 p_delay,
+		MechS32 p_bearing,
+		MechS32 p_id,
+		MechU32 p_volume,
+		MechS32 p_pan,
+		MechU16 p_flags
 	);
-	void FUN_1007ebd1(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, undefined4 p_unk0x10);
+	MechS32 FUN_1007ea8c(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, MechS32 p_half);
+	MechS32 FUN_1007eb23(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags);
+	MechS32 FUN_1007eb64(
+		MechS32 p_delay,
+		MechS32 p_bearing,
+		MechS32 p_id,
+		MechU32 p_volume,
+		MechS32 p_pan,
+		MechU16 p_flags
+	);
+	MechS32 FUN_1007ebd1(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, MechS32 p_half);
+	MechS32 CalculateSamplePan(MechS32 p_bearing);
+	MechS32 RandomSampleRate(void);
+	void StopSamples(MechS32 p_all);
+	void UpdateAmbientSound(AmbientSound* p_sound);
+	void StopAmbientSound(AmbientSound* p_sound);
+	MechS32 FUN_1007f0d9(MechS32 p_distance);
 
 #ifdef __cplusplus
 }

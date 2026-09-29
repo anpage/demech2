@@ -376,8 +376,10 @@ demech2_add_dll(mw2
     MW2/src/eyepoint.c
     MW2/src/recttransition.c
     MW2/src/render.c
+    MW2/src/unk10013370.c
     MW2/src/unk10013430.c
     MW2/src/fixedsqrt.c
+    MW2/src/unk10016ad0.c
     MW2/src/unk10019ad0.c
     MW2/src/loadres.c
     MW2/src/objective.c
@@ -385,6 +387,7 @@ demech2_add_dll(mw2
     MW2/src/unk1001df00.c
     MW2/src/cmdline.c
     MW2/src/geocache.c
+    MW2/src/unk10021460.c
     MW2/src/unk10034a40.c
     MW2/src/unk10036230.c
     MW2/src/logwindow.c
@@ -421,6 +424,7 @@ demech2_add_dll(mw2
     MW2/src/cdaudio.c
     MW2/src/gamekeys.c
     MW2/src/setres.c
+    MW2/src/unk1005d6d0.c
     MW2/src/rendertarget.c
     MW2/src/unk10065f10.c
     MW2/src/unk10065f50.c
@@ -456,6 +460,8 @@ demech2_add_dll(mw2
     MW2/src/callbacks.c
     MW2/src/environment.c
     MW2/src/soundfx.c
+    MW2/src/unk1007f140.c
+    MW2/src/unk1007fbe0.c
     MW2/MW2.def
   COMPILE_OPTIONS "/G5"
   LINK_OPTIONS ${mw2_link_options}

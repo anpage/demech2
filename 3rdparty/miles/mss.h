@@ -23,6 +23,9 @@ extern "C"
 
 #define SMP_PLAYING 4
 
+#define AILCALLBACK __stdcall
+	typedef void(AILCALLBACK* AILSAMPLECB)(HSAMPLE p_sample);
+
 	AILIMPORT void AILCALL AIL_startup(void);
 	AILIMPORT void AILCALL AIL_shutdown(void);
 
@@ -48,10 +51,17 @@ extern "C"
 	AILIMPORT int AILCALL AIL_set_sample_file(HSAMPLE p_sample, void* p_fileImage, int p_block);
 	AILIMPORT void AILCALL AIL_start_sample(HSAMPLE p_sample);
 	AILIMPORT void AILCALL AIL_stop_sample(HSAMPLE p_sample);
+	AILIMPORT void AILCALL AIL_resume_sample(HSAMPLE p_sample);
 	AILIMPORT void AILCALL AIL_end_sample(HSAMPLE p_sample);
 	AILIMPORT unsigned int AILCALL AIL_sample_status(HSAMPLE p_sample);
 	AILIMPORT void AILCALL AIL_set_sample_volume(HSAMPLE p_sample, int p_volume);
 	AILIMPORT void AILCALL AIL_set_sample_loop_count(HSAMPLE p_sample, int p_loopCount);
+	AILIMPORT void AILCALL AIL_set_sample_pan(HSAMPLE p_sample, int p_pan);
+	AILIMPORT void AILCALL AIL_set_sample_playback_rate(HSAMPLE p_sample, int p_rate);
+	AILIMPORT void AILCALL AIL_set_sample_user_data(HSAMPLE p_sample, unsigned int p_index, int p_value);
+	AILIMPORT int AILCALL AIL_sample_user_data(HSAMPLE p_sample, unsigned int p_index);
+	AILIMPORT AILSAMPLECB AILCALL AIL_register_EOS_callback(HSAMPLE p_sample, AILSAMPLECB p_callback);
+	AILIMPORT HSAMPLE AILCALL AIL_allocate_file_sample(HDIGDRIVER p_driver, void* p_fileImage, int p_block);
 
 	AILIMPORT void AILCALL AIL_serve(void);
 

@@ -282,7 +282,7 @@ DuskMoth0x24* FUN_1003aab5(ScarletOrchid0x4c* p_shape, MechU16 p_unk0x00, MechU8
 
 // Appends a vertex index to a face of the selected model.
 // FUNCTION: MW2 0x1003ab34
-void FUN_1003ab34(ScarletOrchid0x4c* p_shape, DuskMoth0x24* p_face, MechU8 p_index)
+void FUN_1003ab34(ScarletOrchid0x4c* p_shape, DuskMoth0x24* p_face, MechU32 p_index)
 {
 	GraniteLattice0x18* model;
 
@@ -291,7 +291,7 @@ void FUN_1003ab34(ScarletOrchid0x4c* p_shape, DuskMoth0x24* p_face, MechU8 p_ind
 		return;
 	}
 
-	((MechU8*) p_face)[p_face->m_unk0x04 + p_face->m_unk0x02] = p_index;
+	((MechU8*) p_face)[p_face->m_unk0x04 + p_face->m_unk0x02] = (MechU8) p_index;
 	p_face->m_unk0x02++;
 }
 

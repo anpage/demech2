@@ -72,7 +72,7 @@ extern "C"
 		undefined4 p_unk0x1c
 	);
 	struct DuskMoth0x24* FUN_1003aab5(ScarletOrchid0x4c* p_shape, MechU16 p_unk0x00, MechU8* p_indices);
-	void FUN_1003ab34(ScarletOrchid0x4c* p_shape, struct DuskMoth0x24* p_face, MechU8 p_index);
+	void FUN_1003ab34(ScarletOrchid0x4c* p_shape, struct DuskMoth0x24* p_face, MechU32 p_index);
 	void FUN_1003ab79(GraniteLattice0x18* p_model);
 	void FUN_1003aba5(ScarletOrchid0x4c* p_shape);
 	void FUN_1003ac5f(ScarletOrchid0x4c* p_shape);

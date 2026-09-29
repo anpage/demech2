@@ -23,14 +23,14 @@ extern "C"
 
 	extern MechS32 g_isNetworkGame;
 	extern MechS32 g_unk0x100a17a0;
-	extern SoundConfig g_soundConfig;
-	extern SoundConfig* g_mw2SndCfgData;
 	extern MechS32 g_normalFov;
 	extern MechS32 g_zoomFov;
 	extern MechS32 g_unk0x100a2414;
 	extern undefined4 g_unk0x100a2420;
 	extern MechS32 g_unk0x100a2424;
 	extern MechS32 g_unk0x100a2c04;
+	extern MechS32 g_unk0x100a2c10;
+	extern MechS32 g_unk0x100a2c18;
 	extern MechS32 g_unk0x100a2460;
 	extern MechS32 g_unk0x100a2464;
 	extern Eyepoint* g_eyepoint;
@@ -44,6 +44,7 @@ extern "C"
 	extern const char* g_unk0x100a86a0;
 	extern const char* g_unk0x100a86bc;
 	extern char g_unk0x100a87c0[];
+	extern MechS32 g_unk0x100e9340;
 	extern undefined g_unk0x100e9350[0x100];
 	extern MechS32 g_unk0x100e9614;
 	extern undefined4 g_unk0x100a8740;
@@ -59,6 +60,8 @@ extern "C"
 	extern StarMission g_objectiveTable[16];
 	extern MechS32 g_objectiveCount;
 	extern const char* g_unk0x100a86c4;
+	extern const char* g_unk0x100a86d0;
+	extern const char* g_unk0x100a8674;
 	extern const char* g_unk0x100a8678;
 	extern const char* g_unk0x100a86cc;
 	extern HANDLE g_primaryHeap;

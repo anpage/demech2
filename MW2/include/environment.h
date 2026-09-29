@@ -10,6 +10,7 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100ba5fc;
 	extern MechS32 g_unk0x100ba600;
 	extern MechS32 g_unk0x100ba604;
 

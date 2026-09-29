@@ -6,6 +6,11 @@
 
 #include <stdio.h>
 
+// A string FUN_100063cd uses, defined here until that function is decompiled: as a literal
+// nobody references yet, reccmp would pair it with the first "MASC" of speech.c's tables.
+// GLOBAL: MW2 0x100a1458
+MechChar g_unk0x100a1458[] = "MASC";
+
 // GLOBAL: MW2 0x100bcd88
 static MechChar g_unk0x100bcd88[16];
 

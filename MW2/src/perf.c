@@ -1,5 +1,6 @@
 #include "perf.h"
 
+#include "audio.h"
 #include "decomp.h"
 #include "geocache.h"
 #include "simmain.h"

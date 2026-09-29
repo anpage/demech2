@@ -28,6 +28,12 @@ void EndTheMission2(void)
 	STUB(0x1001c9f7);
 }
 
+// STUB: MW2 0x1001cc5c
+void FUN_1001cc5c(MechS32 p_player)
+{
+	STUB(0x1001cc5c);
+}
+
 // STUB: MW2 0x1001cdf6
 MechS32 FUN_1001cdf6(MechS32 p_team)
 {
