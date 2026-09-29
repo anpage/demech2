@@ -1,6 +1,7 @@
 #ifndef CLOCK_H
 #define CLOCK_H
 
+#include "transform.h"
 #include "types.h"
 
 #include <windows.h>
@@ -19,6 +20,7 @@ extern "C"
 	MechS32 FUN_1007c930(void);
 	MechS32 FUN_1007c9e3(void);
 	MechS32 FUN_1007ca8e(void);
+	void FUN_1007cbf1(Matrix* p_matrix);
 	void FirstClock(void);
 	void NextClock(void);
 	void StopTimers(void);

@@ -337,9 +337,13 @@ demech2_add_dll(mw2
     MW2/src/fixedsqrt.c
     MW2/src/loadres.c
     MW2/src/objective.c
+    MW2/src/unk1001ce90.c
     MW2/src/cmdline.c
     MW2/src/geocache.c
+    MW2/src/unk10034a40.c
+    MW2/src/unk10036230.c
     MW2/src/logwindow.c
+    MW2/src/unk1003a530.c
     MW2/src/error.c
     MW2/src/menu.c
     MW2/src/keyboard.c
@@ -357,6 +361,7 @@ demech2_add_dll(mw2
     MW2/src/animation.c
     MW2/src/shots.c
     MW2/src/players.c
+    MW2/src/unk1006d680.c
     MW2/src/timedoverlays.c
     MW2/src/config.c
     MW2/src/startup.c
