@@ -1,10 +1,58 @@
 #include "rendertarget.h"
 
 #include "decomp.h"
+#include "players.h"
 #include "types.h"
 
 DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
 DECOMP_SIZE_ASSERT(RenderTarget, 0x14)
+DECOMP_SIZE_ASSERT(NavPoint, 0x54)
+
+// GLOBAL: MW2 0x100aaba4
+MechS32 g_navCount = 0;
+
+// GLOBAL: MW2 0x10177160
+NavPoint g_navTable[128];
+
+// STUB: MW2 0x1005ec80
+MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+{
+	STUB(0x1005ec80);
+	return 0;
+}
+
+// STUB: MW2 0x1005ed4f
+void FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
+{
+	STUB(0x1005ed4f);
+}
+
+// STUB: MW2 0x1005fa22
+MechS32 FUN_1005fa22(Player* p_player)
+{
+	STUB(0x1005fa22);
+	return 0;
+}
+
+// STUB: MW2 0x10060197
+void FUN_10060197(
+	MechS32 p_dx,
+	MechS32 p_dy,
+	MechS32 p_dz,
+	MechS32* p_unk0x0c,
+	MechS32* p_unk0x10,
+	MechU32* p_distance,
+	MechS32* p_unk0x18
+)
+{
+	STUB(0x10060197);
+}
+
+// STUB: MW2 0x100602b2
+void FUN_100602b2(Player* p_player, MechS32 p_unk0x04, MechS32 p_unk0x08)
+{
+	STUB(0x100602b2);
+}
 
 // Returns the pixel at (p_x, p_y) of a render target, relative to its top left, or a negative
 // value outside it.

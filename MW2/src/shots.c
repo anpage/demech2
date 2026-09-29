@@ -199,8 +199,27 @@ void UpdateEffects(void)
 	STUB(0x1006b99a);
 }
 
+// STUB: MW2 0x1006beb5
+MechS32* FUN_1006beb5(void)
+{
+	STUB(0x1006beb5);
+	return NULL;
+}
+
+// STUB: MW2 0x1006bf05
+void FUN_1006bf05(void)
+{
+	STUB(0x1006bf05);
+}
+
 // STUB: MW2 0x1006c345
 void SaveCarCfg(void)
 {
 	STUB(0x1006c345);
+}
+
+// STUB: MW2 0x1006c4e2
+void FUN_1006c4e2(Player* p_player)
+{
+	STUB(0x1006c4e2);
 }

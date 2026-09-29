@@ -367,6 +367,7 @@ demech2_add_dll(mw2
     MW2/src/missionaudio.c
     MW2/src/anim2d.c
     MW2/src/pausebanner.c
+    MW2/src/debugbreak.c
     MW2/src/world.c
     MW2/src/transform.c
     MW2/src/network.c
@@ -375,6 +376,7 @@ demech2_add_dll(mw2
     MW2/src/eyepoint.c
     MW2/src/recttransition.c
     MW2/src/render.c
+    MW2/src/unk10013430.c
     MW2/src/fixedsqrt.c
     MW2/src/unk10019ad0.c
     MW2/src/loadres.c
@@ -392,11 +394,15 @@ demech2_add_dll(mw2
     MW2/src/menu.c
     MW2/src/cockpit.c
     MW2/src/bwd.c
+    MW2/src/unk10040020.c
+    MW2/src/unk10040b30.c
     MW2/src/unk10041fa0.c
     MW2/src/keyboard.c
+    MW2/src/unk10044740.c
     MW2/src/ramp.c
     MW2/src/staticmem.c
     MW2/src/unk1004b130.c
+    MW2/src/unk1004b5a0.c
     MW2/src/unk1004b980.c
     MW2/src/unk1004c800.c
     MW2/src/unk1004c820.c
@@ -404,6 +410,7 @@ demech2_add_dll(mw2
     MW2/src/dispdib.c
     MW2/src/resource.c
     MW2/src/debugprint.c
+    MW2/src/unk100509a0.c
     MW2/src/ai.c
     MW2/src/unk100563d0.c
     MW2/src/screenscale.c
@@ -423,9 +430,11 @@ demech2_add_dll(mw2
     MW2/src/animation.c
     MW2/src/unk100696c0.c
     MW2/src/shots.c
+    MW2/src/unk1006ca60.c
     MW2/src/screenshot.c
     MW2/src/players.c
     MW2/src/unk1006d680.c
+    MW2/src/unk1006dd50.c
     MW2/src/gdi.c
     MW2/src/unk1006e970.c
     MW2/src/timedoverlays.c

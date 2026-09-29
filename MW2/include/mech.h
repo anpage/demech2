@@ -5,8 +5,10 @@
 #include "types.h"
 
 // A player's mech. Only the members matched code reaches are laid out.
+struct Player;
+
 typedef struct Mech {
-	undefined4 m_unk0x00;             // 0x00
+	struct Player* m_player;          // 0x00
 	MechS32 m_unk0x04;                // 0x04
 	undefined m_unk0x08[0x50 - 0x08]; // 0x08
 	MechS32 m_unk0x50;                // 0x50
@@ -18,8 +20,11 @@ typedef struct Mech {
 	MechS32 m_unk0x88;                // 0x88
 	MechS32 m_unk0x8c;                // 0x8c
 	MechS32 m_unk0x90;                // 0x90
-	undefined m_unk0x94[0x9c - 0x94]; // 0x94
+	undefined m_unk0x94[0x98 - 0x94]; // 0x94
+	MechS32 m_unk0x98;                // 0x98
 	MechS32 m_unk0x9c;                // 0x9c
+	MechU32 m_unk0xa0;                // 0xa0
+	MechS32 m_unk0xa4;                // 0xa4
 } Mech;
 
 #endif // MECH_H

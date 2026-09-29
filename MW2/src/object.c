@@ -11,6 +11,7 @@
 #include "unk10034a40.h"
 #include "unk10036230.h"
 #include "unk1003a530.h"
+#include "unk100563d0.h"
 #include "unk1006d680.h"
 
 #include <mbstring.h>

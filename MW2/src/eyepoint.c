@@ -80,6 +80,12 @@ void ApplyCameraFov(MechS32 p_reset)
 	}
 }
 
+// STUB: MW2 0x100114ea
+void FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view)
+{
+	STUB(0x100114ea);
+}
+
 // Returns the eyepoint's base position (0x00-0x08) and orientation (0x0c-0x14), without the
 // camera shake.
 // STUB: MW2 0x10011e45

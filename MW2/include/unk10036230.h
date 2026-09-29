@@ -2,6 +2,8 @@
 #define UNK10036230_H
 
 #include "decomp.h"
+#include "pixelbuffer.h"
+#include "rendertarget.h"
 #include "transform.h"
 #include "types.h"
 
@@ -37,6 +39,14 @@ extern "C"
 	void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable);
 	void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix);
 	void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix);
+	void FUN_10038ced(MechU16* p_table);
+	void FUN_10038d0d(
+		RenderTarget* p_target,
+		MechS32 p_count,
+		MechU32* p_points,
+		PixelBuffer* p_source,
+		MechS32 p_mode
+	);
 
 #ifdef __cplusplus
 }

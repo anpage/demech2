@@ -9,6 +9,12 @@ void AdvanceSpeechQueue(void)
 	STUB(0x10059827);
 }
 
+// STUB: MW2 0x10059e63
+void FUN_10059e63(MechS32 p_message, MechS32 p_slot)
+{
+	STUB(0x10059e63);
+}
+
 // STUB: MW2 0x10059ed2
 void FUN_10059ed2(MechS32 p_formation)
 {

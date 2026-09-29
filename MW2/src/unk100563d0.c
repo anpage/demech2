@@ -5,6 +5,14 @@
 
 DECOMP_SIZE_ASSERT(StaticPoolSize, 0x08)
 
+// One of the pool's block tags ("SEG").
+// GLOBAL: MW2 0x100a9430
+MechU32 g_unk0x100a9430 = 0x474553;
+
+// One of the pool's block tags ("TLIS").
+// GLOBAL: MW2 0x100a9434
+MechU32 g_unk0x100a9434 = 0x53494c54;
+
 // The mission's static memory table, which FUN_1005640e fills.
 // GLOBAL: MW2 0x100e9dc0
 StaticPoolSize g_staticPoolSizes[10];

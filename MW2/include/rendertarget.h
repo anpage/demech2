@@ -2,6 +2,7 @@
 #define RENDERTARGET_H
 
 #include "decomp.h"
+#include "navpoint.h"
 #include "pixelbuffer.h"
 #include "types.h"
 
@@ -16,11 +17,16 @@ typedef struct RenderTarget {
 	MechS32 m_bottom;      // 0x10
 } RenderTarget;
 
+struct Player;
+
 // The functions and globals of rendertarget.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+	extern MechS32 g_navCount;
+	extern NavPoint g_navTable[128];
 
 	MechS32 FUN_10060617(RenderTarget* p_target, MechS32 p_x, MechS32 p_y);
 	MechS32 FUN_100606ed(
@@ -75,6 +81,19 @@ extern "C"
 	MechS32 FUN_10065821(void* p_shape, MechS32 p_frame);
 	MechS32 GetShapeFrameCount(void* p_shape);
 	MechS32 FUN_10065a7b(RenderTarget* p_dst, RenderTarget* p_src, MechS32 p_unk0x08, MechS32 p_unk0x0c);
+	MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav);
+	MechS32 FUN_1005fa22(struct Player* p_player);
+	void FUN_10060197(
+		MechS32 p_dx,
+		MechS32 p_dy,
+		MechS32 p_dz,
+		MechS32* p_unk0x0c,
+		MechS32* p_unk0x10,
+		MechU32* p_distance,
+		MechS32* p_unk0x18
+	);
+	void FUN_100602b2(struct Player* p_player, MechS32 p_unk0x04, MechS32 p_unk0x08);
 
 #ifdef __cplusplus
 }

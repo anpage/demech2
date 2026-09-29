@@ -10,6 +10,7 @@
 #include "rendertarget.h"
 #include "slateheron.h"
 #include "soundconfig.h"
+#include "starmission.h"
 #include "types.h"
 
 #include <windows.h>
@@ -46,8 +47,20 @@ extern "C"
 	extern undefined g_unk0x100e9350[0x100];
 	extern MechS32 g_unk0x100e9614;
 	extern undefined4 g_unk0x100a8740;
+	extern MechChar* g_unk0x100a8744;
 	extern MechS32 g_missionTimerStopped;
 	extern MechS32 g_localPlayerId;
+	extern struct Player* g_localPlayer;
+	extern MechS32 g_missionTime;
+	extern MechS32 g_unk0x100aa2a4;
+	extern MechS32 g_unk0x100c3358;
+	extern MechS32 g_unk0x100ea3e4;
+	extern MechS32 g_currentObjective[64];
+	extern StarMission g_objectiveTable[16];
+	extern MechS32 g_objectiveCount;
+	extern const char* g_unk0x100a86c4;
+	extern const char* g_unk0x100a8678;
+	extern const char* g_unk0x100a86cc;
 	extern HANDLE g_primaryHeap;
 	extern MechS32 g_gameWindowWidth;
 	extern MechS32 g_gameWindowHeight;
