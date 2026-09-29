@@ -13,7 +13,7 @@
 #include "debugprint.h"
 #include "decomp.h"
 #include "directdraw.h"
-#include "dispdib.h"
+#include "dispdibmode.h"
 #include "displaybackend.h"
 #include "environment.h"
 #include "error.h"
@@ -28,6 +28,7 @@
 #include "palette.h"
 #include "palettecolor.h"
 #include "pausebanner.h"
+#include "perf.h"
 #include "players.h"
 #include "point.h"
 #include "random.h"
@@ -204,13 +205,10 @@ Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6cc8
 SlateHeron0x68 g_unk0x100a6cc8 =
-	{{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0xe0, 0xef, 1, 0, 0, 0, 0, 0x186a0, 0x10000, 0, 0}, NULL, NULL, NULL, {0, 0}};
+	{{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0xe0, 0xef, 1, 0, 0, 0, 0, 0x186a0, 0x10000}, 0, 0, NULL, NULL, NULL, {0, 0}};
 
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
-
-// GLOBAL: MW2 0x100a712c
-MechS32 g_unk0x100a712c = 1;
 
 // GLOBAL: MW2 0x100a8684
 const char* g_unk0x100a8684 = "FONT";
@@ -289,9 +287,6 @@ MechS32 g_mouseOutsideClientWindow = 0;
 
 // GLOBAL: MW2 0x100acb98
 MechS32 g_goLaunch = 0;
-
-// GLOBAL: MW2 0x100ad248
-undefined4 g_reclipCursor = 0;
 
 // GLOBAL: MW2 0x100adf58
 RenderTarget g_unk0x100adf58 = {&g_mainPixelBuffer, 13, 10, 80, 60};
@@ -402,7 +397,6 @@ MechS32 LoadSndCfg(const char* p_unk0x00, SoundConfig** p_unk0x04);
 MechS32 StartupCheckStub(void);
 void OpenMw2Log(void);
 void CloseMw2Log(void);
-MechS32 FirstPerfSetting(void);
 
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
 // assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The

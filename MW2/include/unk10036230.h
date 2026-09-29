@@ -25,6 +25,11 @@ extern "C"
 {
 #endif
 
+	void FUN_10036853(MechU32 p_flags);
+	MechS32 FUN_10036867(MechU32 p_flags);
+	void FUN_10036891(MechU32 p_flags, MechS32 p_enable);
+	MechS32 FUN_100368bf(undefined4 p_unk0x00);
+	void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable);
 	void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix);
 	void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix);
 

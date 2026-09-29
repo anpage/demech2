@@ -15,6 +15,7 @@ extern "C"
 	void FUN_1006d989(ScarletOrchid0x4c* p_shape);
 	void FUN_1006da2d(ScarletOrchid0x4c* p_shape);
 	void FUN_1006daa0(ScarletOrchid0x4c* p_shape);
+	void FUN_1006dc7d(MechS32 p_enable);
 
 #ifdef __cplusplus
 }

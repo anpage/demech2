@@ -1,6 +1,8 @@
 #include "geocache.h"
 
 #include "decomp.h"
+#include "simmain.h"
+#include "soundconfig.h"
 #include "types.h"
 
 // GLOBAL: MW2 0x100a3860
@@ -14,6 +16,9 @@ MechS32 g_unk0x100a3874 = 0;
 
 // GLOBAL: MW2 0x100a3878
 undefined4 g_unk0x100a3878 = 0;
+
+// GLOBAL: MW2 0x100a38d4
+MechS32 g_explosionChunks = 1;
 
 // GLOBAL: MW2 0x1012b7b4
 MechS32 g_unk0x1012b7b4;
@@ -65,4 +70,11 @@ void FirstStaticCache(void)
 void FUN_10020c6f(MechS32 p_id, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	STUB(0x10020c6f);
+}
+
+// FUNCTION: MW2 0x10021438
+void SetExplosionChunks(undefined4 p_unk0x00, MechS32 p_explosionChunks)
+{
+	g_explosionChunks = p_explosionChunks;
+	g_mw2SndCfgData->m_explosionChunks = p_explosionChunks;
 }
