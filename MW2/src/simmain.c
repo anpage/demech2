@@ -5,25 +5,37 @@
 #include "simmain.h"
 
 #include "audio.h"
+#include "brightness.h"
 #include "callbacks.h"
 #include "clock.h"
+#include "cockpit.h"
 #include "compat.h"
+#include "debugprint.h"
 #include "decomp.h"
-#include "drawmode.h"
-#include "drawmodeext.h"
+#include "directdraw.h"
+#include "dispdib.h"
+#include "displaybackend.h"
 #include "environment.h"
 #include "error.h"
 #include "eyepoint.h"
+#include "gdi.h"
 #include "gpanim.h"
 #include "input.h"
+#include "keyboard.h"
 #include "loadres.h"
 #include "menu.h"
 #include "mss.h"
 #include "palette.h"
+#include "palettecolor.h"
 #include "pausebanner.h"
 #include "players.h"
+#include "point.h"
+#include "random.h"
+#include "refreshmode.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "resource.h"
+#include "screenscale.h"
 #include "speech.h"
 #include "staticmem.h"
 #include "types.h"
@@ -32,22 +44,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-// SIZE 0x3c
-typedef struct Unk0x100a14d4 {
-	undefined4 m_unk0x00;        // 0x00
-	undefined4 m_unk0x04;        // 0x04
-	undefined4 m_unk0x08;        // 0x08
-	undefined4 m_unk0x0c;        // 0x0c
-	undefined4 m_unk0x10;        // 0x10
-	undefined4 m_unk0x14;        // 0x14
-	undefined4 m_unk0x18;        // 0x18
-	undefined4 m_unk0x1c;        // 0x1c
-	undefined4 m_unk0x20;        // 0x20
-	undefined4 m_unk0x24;        // 0x24
-	MechS32 m_displayBrightness; // 0x28
-	char m_unk0x2c[0x3c - 0x2c]; // 0x2c
-} Unk0x100a14d4;
 
 typedef struct NetLaunchInfo {
 	void* m_directPlay;               // 0x00
@@ -71,7 +67,7 @@ typedef struct Unk0x10138830 {
 
 typedef struct DifficultyCfg DifficultyCfg;
 
-DECOMP_SIZE_ASSERT(Unk0x100a14d4, 0x3c)
+DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
 DECOMP_SIZE_ASSERT(Unk0x10138830, 0x3c0a)
 
 // The globals SimMain and SimWindowProc use are defined here until the objects that own
@@ -84,13 +80,25 @@ MechS32 g_isNetworkGame = 0;
 MechS32 g_unk0x100a17a0 = 0;
 
 // GLOBAL: MW2 0x100a1498
-Unk0x100a14d4 g_unk0x100a1498 = {0x10000, 0x10000, 0x10000, 0x10000, 11, 1, 1, 1, 1, 1, 9, "mcga.dll"};
+SoundConfig g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 11, 1, 1, 1, 1, 1, 9, "mcga.dll"};
 
 // GLOBAL: MW2 0x100a14d4
-Unk0x100a14d4* g_mw2SndCfgData = NULL;
+SoundConfig* g_mw2SndCfgData = NULL;
+
+// GLOBAL: MW2 0x100a2400
+MechS32 g_normalFov = 0x10000;
+
+// GLOBAL: MW2 0x100a2404
+MechS32 g_zoomFov = 0x10000;
+
+// GLOBAL: MW2 0x100a2414
+MechS32 g_unk0x100a2414 = 0;
 
 // GLOBAL: MW2 0x100a2420
 undefined4 g_unk0x100a2420 = 0;
+
+// GLOBAL: MW2 0x100a2424
+MechS32 g_unk0x100a2424 = -1;
 
 // GLOBAL: MW2 0x100a244c
 MechS32 g_drawModeIndex = -1;
@@ -101,20 +109,91 @@ MechS32 g_initDrawModeParam2 = 1;
 // GLOBAL: MW2 0x100a2460
 MechS32 g_unk0x100a2460 = 1;
 
+// GLOBAL: MW2 0x100a2464
+MechS32 g_unk0x100a2464 = 0;
+
+// GLOBAL: MW2 0x100a2c04
+MechS32 g_unk0x100a2c04 = 0;
+
 // GLOBAL: MW2 0x100a554c
 undefined4 g_unk0x100a554c = 0xef;
+
+// GLOBAL: MW2 0x100a59e0
+MechS32 g_menuRepeatTimer = -1;
+
+// GLOBAL: MW2 0x100a5a24
+undefined4 g_unk0x100a5a24 = 1;
+
+// The gauge functions of the cockpit layouts, by index.
+// GLOBAL: MW2 0x100a5a40
+CockpitGaugeFn g_cockpitGauges[10] = {
+	NULL,
+	FUN_100570e9,
+	FUN_10057e56,
+	NULL,
+	FUN_10057fbe,
+	FUN_10057a03,
+	FUN_1005806a,
+	FUN_10057ac4,
+	FUN_1005816f,
+	NULL
+};
+
+// GLOBAL: MW2 0x100a5a68
+RenderTarget g_unk0x100a5a68[5] = {
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0}
+};
+
+// GLOBAL: MW2 0x100a5ad0
+RenderTarget g_unk0x100a5ad0[8] = {
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0}
+};
+
+// GLOBAL: MW2 0x100a5b70
+Point g_unk0x100a5b70[4] = {0};
+
+// GLOBAL: MW2 0x100a5b90
+Point g_unk0x100a5b90[4] = {0};
+
+// GLOBAL: MW2 0x100a5bb0
+Point g_unk0x100a5bb0 = {0, 0};
+
+// GLOBAL: MW2 0x100a5bb8
+void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
+
+// GLOBAL: MW2 0x100a5ee8
+Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0}, {0, 0}};
+
+// GLOBAL: MW2 0x100a5f18
+undefined4 g_unk0x100a5f18 = 1;
 
 // GLOBAL: MW2 0x100a6be0
 Eyepoint g_unk0x100a6be0 = {
 	0,
 	0,
 	0,
-	{0, 0, 0, 0x10000, 1000, 10000, (undefined4) -1000, 0x480001},
+	{0, 0, 0},
+	0x10000,
+	{1000, 10000, (undefined4) -1000, 0x480001},
 	0,
 	319,
 	0,
 	199,
-	{0x40, 0x249f0, 0, 0},
+	0x40,
+	0x249f0,
+	0,
+	0,
 	0,
 	0,
 	{0}
@@ -123,20 +202,24 @@ Eyepoint g_unk0x100a6be0 = {
 // GLOBAL: MW2 0x100a6cc0
 Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
-// GLOBAL: MW2 0x100a6d1c
-void (*g_frameDrawCallback)(void) = NULL;
+// GLOBAL: MW2 0x100a6cc8
+SlateHeron0x68 g_unk0x100a6cc8 =
+	{{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0xe0, 0xef, 1, 0, 0, 0, 0, 0x186a0, 0x10000, 0, 0}, NULL, NULL, NULL, {0, 0}};
+
+// GLOBAL: MW2 0x100a6d30
+MechS32 g_unk0x100a6d30 = 0x24;
+
+// GLOBAL: MW2 0x100a712c
+MechS32 g_unk0x100a712c = 1;
+
+// GLOBAL: MW2 0x100a8684
+const char* g_unk0x100a8684 = "FONT";
 
 // GLOBAL: MW2 0x100a8694
 const char* g_unk0x100a8694 = "PAL";
 
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;
-
-// GLOBAL: MW2 0x100a9468
-MechS32 g_displayBrightness = 9;
-
-// GLOBAL: MW2 0x100a946c
-MechS32 g_unk0x100a946c = 9;
 
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
@@ -199,7 +282,7 @@ MechS32 g_simPaused = 0;
 MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
-undefined4 g_unk0x100acb90 = 0;
+undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
 MechS32 g_mouseOutsideClientWindow = 0;
@@ -207,38 +290,32 @@ MechS32 g_mouseOutsideClientWindow = 0;
 // GLOBAL: MW2 0x100acb98
 MechS32 g_goLaunch = 0;
 
+// GLOBAL: MW2 0x100ad248
+undefined4 g_reclipCursor = 0;
+
+// GLOBAL: MW2 0x100adf58
+RenderTarget g_unk0x100adf58 = {&g_mainPixelBuffer, 13, 10, 80, 60};
+
 // GLOBAL: MW2 0x100ae400
 char g_gameDir[256] = {0};
 
 // GLOBAL: MW2 0x100ae6d4
 MechS32 g_logFileEnabled = 0;
 
-// GLOBAL: MW2 0x100b1770
-DrawModeExtension* g_currentDrawModeExtension = NULL;
-
-// GLOBAL: MW2 0x100b1774
-DrawMode* g_currentDrawMode = NULL;
-
-// GLOBAL: MW2 0x100b177c
-MechS32 g_allowDrawModeFallback = 0;
-
 // GLOBAL: MW2 0x100b1350
 MechS32 g_unk0x100b1350 = 0;
 
-// GLOBAL: MW2 0x100b1788
-undefined g_paletteColors[0x300] = {0};
+// GLOBAL: MW2 0x100bdff8
+RenderTarget g_unk0x100bdff8;
 
-// GLOBAL: MW2 0x100b1aa4
-WindowMode g_windowMode = c_windowModeUnknown;
+// GLOBAL: MW2 0x100bfd60
+MechS32 g_unk0x100bfd60[800];
 
-// GLOBAL: MW2 0x100c2890
-RECT g_gameWindowRect;
-
-// GLOBAL: MW2 0x100c2cc8
-MechS32 g_drawModeNumPixels;
+// GLOBAL: MW2 0x100c09e0
+MechS32 g_unk0x100c09e0[800];
 
 // GLOBAL: MW2 0x100e9240
-MechU32 g_unk0x100e9240;
+MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2 0x100e926d
 MechU8 g_unk0x100e926d;
@@ -247,7 +324,13 @@ MechU8 g_unk0x100e926d;
 MechS32 g_unk0x100e9322;
 
 // GLOBAL: MW2 0x100e933c
-MechU32 g_unk0x100e933c;
+MechU32 g_windowedSwitchDeadline;
+
+// GLOBAL: MW2 0x100e9350
+undefined g_unk0x100e9350[1]; // length unknown
+
+// GLOBAL: MW2 0x100e9614
+MechS32 g_unk0x100e9614;
 
 // GLOBAL: MW2 0x1012b7c0
 Unk0x1012b7c0 g_unk0x1012b7c0;
@@ -295,11 +378,6 @@ void UpdateNetwork(void);
 void ShutdownNetwork(void);
 void FirstEyepoint(void);
 void UpdateEyepoint(void);
-MechS32 InitDisplayGeometry(void);
-void FirstRender(void);
-void SecondRender(void);
-void Blit(void);
-void ShutdownRender(void);
 void DoFirstObjtv(Unk0x10138830* p_unk0x00, MechS32 p_unk0x04);
 void UpdateObjectives(void);
 void EndTheMission1(void);
@@ -307,11 +385,8 @@ void EndTheMission2(void);
 MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x08);
 void UpdateGeoCache(void);
 void FirstStaticCache(void);
-void HandleInput(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
-void FUN_10042d55(void);
 void FadeToEndPalette(MechS32 p_unk0x00);
 void FirstAI(void);
-void GenerateGammas(void);
 void FUN_10058750(void);
 void SimEntranceDbug(char* p_unk0x00, MechS32 p_unk0x04);
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
@@ -323,29 +398,16 @@ void UpdateEffects(void);
 void SaveCarCfg(void);
 void DrawTimedOverlays(void);
 MechS32 LoadDifficultyCfg(const char* p_unk0x00, DifficultyCfg** p_unk0x04);
-MechS32 LoadSndCfg(const char* p_unk0x00, Unk0x100a14d4** p_unk0x04);
+MechS32 LoadSndCfg(const char* p_unk0x00, SoundConfig** p_unk0x04);
 MechS32 StartupCheckStub(void);
 void OpenMw2Log(void);
 void CloseMw2Log(void);
-void InitRandom(MechS32 p_unk0x00);
 MechS32 FirstPerfSetting(void);
-MechS32 InitDrawMode(
-	MechS32 p_unk0x00,
-	MechS32 p_unk0x04,
-	void* p_unk0x08,
-	MechS32 p_unk0x0c,
-	MechS32 p_unk0x10,
-	MechS32 p_unk0x14
-);
-void ProfileDrawModePerformance(void);
-void ToggleFullScreen(void);
-void DdrawFill(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, undefined4 p_unk0x10);
 
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
-// assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source) and the
-// operand order of the network start test (g_unk0x100acb2c < g_unk0x100ba54c), which the
-// original compares with g_unk0x100ba54c in eax. Defining g_unk0x100ba54c ahead of
-// g_unk0x100acb2c matched it while simmain.c defined it; clock.c does now.
+// assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The
+// operand order of the DoFirstObjtv loop test and of the network start test follows the unit's
+// symbol table: both have flipped back and forth as declarations moved between units.
 // FUNCTION: MW2 0x10066a50
 int __stdcall SimMain(
 	HINSTANCE p_module,
@@ -389,22 +451,22 @@ int __stdcall SimMain(
 			Error(0x11, "%s", "mw2snd.cfg");
 		}
 		else {
-			*g_mw2SndCfgData = g_unk0x100a1498;
+			*g_mw2SndCfgData = g_soundConfig;
 		}
 	}
 	else {
-		g_unk0x100a1498 = *g_mw2SndCfgData;
+		g_soundConfig = *g_mw2SndCfgData;
 	}
 
 	g_displayBrightness = g_unk0x100a946c = g_mw2SndCfgData->m_displayBrightness;
 	g_unk0x1012b7c0.m_unk0x00 = 0;
-	if (g_mw2SndCfgData->m_unk0x2c[0]) {
+	if (g_mw2SndCfgData->m_videoDriver[0]) {
 		g_unk0x1012b7c0.m_unk0x00 |= 1;
-		if (_stricmp(g_mw2SndCfgData->m_unk0x2c, "scan") == 0) {
+		if (_stricmp(g_mw2SndCfgData->m_videoDriver, "scan") == 0) {
 			g_unk0x1012b7c0.m_unk0x04[0] = 0;
 		}
 		else {
-			strncpy(g_unk0x1012b7c0.m_unk0x04, g_mw2SndCfgData->m_unk0x2c, 12);
+			strncpy(g_unk0x1012b7c0.m_unk0x04, g_mw2SndCfgData->m_videoDriver, 12);
 			g_unk0x1012b7c0.m_unk0x04[12] = 0;
 		}
 	}
@@ -422,7 +484,7 @@ int __stdcall SimMain(
 		OpenMw2Log();
 	}
 
-	InitDrawMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
+	InitRefreshMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
 	SendMessage(g_gameWindow, 0x41f, 0, 0);
 	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
 	if (!InitDisplayGeometry()) {
@@ -449,94 +511,94 @@ int __stdcall SimMain(
 		}
 	}
 
-	DebugLog("FirstClock()\n");
+	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
-		DebugLog("StartSupAnim()\n");
+		DebugPrint("StartSupAnim()\n");
 		StartSupAnim(GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
-		DebugLog("FirstResource()\n");
+		DebugPrint("FirstResource()\n");
 		FirstResource();
-		DebugLog("InitStaticMem()\n");
+		DebugPrint("InitStaticMem()\n");
 		InitStaticMem(missionName);
-		DebugLog("generate_gammas()\n");
-		GenerateGammas();
-		DebugLog("InitRandom()\n");
+		DebugPrint("generate_gammas()\n");
+		InitGammaTable();
+		DebugPrint("InitRandom()\n");
 		InitRandom(seed);
-		DebugLog("FirstAudio()\n");
+		DebugPrint("FirstAudio()\n");
 		FirstAudio();
-		DebugLog("FirstRender()\n");
+		DebugPrint("FirstRender()\n");
 		FirstRender();
-		DebugLog("FirstNetwork()\n");
+		DebugPrint("FirstNetwork()\n");
 		FirstNetwork(p_netLaunch);
-		DebugLog("ResetClocks()\n");
+		DebugPrint("ResetClocks()\n");
 		ResetClocks();
-		DebugLog("WinMain(1): pause_timer(TRUE)");
+		DebugPrint("WinMain(1): pause_timer(TRUE)");
 		PauseTimer(0x80, TRUE);
-		DebugLog("FirstShots()\n");
+		DebugPrint("FirstShots()\n");
 		FirstShots();
-		DebugLog("ZeroGamethings()\n");
+		DebugPrint("ZeroGamethings()\n");
 		ZeroGamethings();
-		DebugLog("ZeroChunx()\n");
+		DebugPrint("ZeroChunx()\n");
 		ZeroChunx();
-		DebugLog("LoadWorld()\n");
+		DebugPrint("LoadWorld()\n");
 		LoadWorld(missionName);
-		DebugLog("CollectMissionAudio()\n");
+		DebugPrint("CollectMissionAudio()\n");
 		CollectMissionAudio();
-		DebugLog("SetRes()\n");
+		DebugPrint("SetRes()\n");
 		SetRes();
-		DebugLog("FirstEnvironment()\n");
+		DebugPrint("FirstEnvironment()\n");
 		FirstEnvironment();
-		DebugLog("FirstStaticCache()\n");
+		DebugPrint("FirstStaticCache()\n");
 		FirstStaticCache();
-		DebugLog("CachePreloads()\n");
+		DebugPrint("CachePreloads()\n");
 		CachePreloads();
-		DebugLog("AfterWorldLoader()\n");
+		DebugPrint("AfterWorldLoader()\n");
 		AfterWorldLoader();
-		DebugLog("FirstGPAnim()\n");
+		DebugPrint("FirstGPAnim()\n");
 		FirstGPAnim();
-		DebugLog("FirstEyepoint()\n");
+		DebugPrint("FirstEyepoint()\n");
 		FirstEyepoint();
-		DebugLog("FirstInputs()\n");
+		DebugPrint("FirstInputs()\n");
 		FirstInputs();
-		DebugLog("FirstMenu()\n");
+		DebugPrint("FirstMenu()\n");
 		FirstMenu();
-		DebugLog("RegisterMenu()...\n");
+		DebugPrint("RegisterMenu()...\n");
 		RegisterMenu(4);
 		RegisterMenu(5);
 		RegisterMenu(1);
 		RegisterMenu(7);
 		RegisterMenu(8);
 		RegisterMenu(3);
-		DebugLog("DoFirstObjtv()...\n");
+		DebugPrint("DoFirstObjtv()...\n");
 		for (i = 0; i < g_objectiveCount; i++) {
 			DoFirstObjtv(&g_objectiveTable[i], i);
 		}
 
-		DebugLog("FirstClassFunctions()\n");
+		DebugPrint("FirstClassFunctions()\n");
 		FirstClassFunctions();
-		DebugLog("FirstAI()\n");
+		DebugPrint("FirstAI()\n");
 		FirstAI();
-		DebugLog("FirstExternalCtrl()\n");
+		DebugPrint("FirstExternalCtrl()\n");
 		if (!FirstExternalCtrl()) {
 			g_shouldQuit = 1;
 			g_quitStage = 3;
 		}
 
-		DebugLog("UpdateGeoCache()\n");
+		DebugPrint("UpdateGeoCache()\n");
 		UpdateGeoCache();
-		DebugLog("SecondRender()\n");
+		DebugPrint("SecondRender()\n");
 		SecondRender();
-		DebugLog("FirstPerfSetting()\n");
+		DebugPrint("FirstPerfSetting()\n");
 		FirstPerfSetting();
 		if (g_missionTimerStopped) {
-			DebugLog("SimEntranceDbug()\n");
+			DebugPrint("SimEntranceDbug()\n");
 			SimEntranceDbug(missionName, 0);
 		}
 
-		DebugLog("StopSupAnim()\n");
+		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
 		if (GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
-			DebugLog("StartPalettes()\n");
+			DebugPrint("StartPalettes()\n");
 			StartPalettes(0);
 		}
 		else {
@@ -544,14 +606,14 @@ int __stdcall SimMain(
 			if (hasPalette) {
 				palette = FUN_1001a19f(g_unk0x100a8740, hasPalette, g_unk0x100a8694, 0);
 				if (palette) {
-					g_currentDrawModeExtension->m_setPalette(0, 0x100, palette, 1);
+					g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
 				}
 			}
 		}
 
 		g_unk0x100acb78 = 1;
-		DebugLog("InitDrawMode()\n");
-		if (!InitDrawMode(
+		DebugPrint("InitDrawMode()\n");
+		if (!InitRefreshMode(
 				g_drawModeIndex,
 				g_initDrawModeParam2,
 				&g_mainPixelBuffer,
@@ -566,7 +628,7 @@ int __stdcall SimMain(
 		}
 
 		g_mouseOutsideClientWindow = 0;
-		if (!g_allowDrawModeFallback) {
+		if (!g_refreshModeFallback) {
 			g_goLaunch |= 2;
 		}
 
@@ -574,9 +636,9 @@ int __stdcall SimMain(
 		g_unk0x100e9322 = -1;
 		while (g_quitStage < 3) {
 			if (g_goLaunch == 3) {
-				DebugLog("GoLaunch == GO_READY\n");
+				DebugPrint("GoLaunch == GO_READY\n");
 				g_goLaunch |= 0x80000000;
-				DebugLog("WinMain(2): pause_timer(false)");
+				DebugPrint("WinMain(2): pause_timer(false)");
 				PauseTimer(0x80, FALSE);
 				StartMissionMusic();
 				g_unk0x100aa2c0 = 0;
@@ -607,14 +669,14 @@ int __stdcall SimMain(
 			UpdateLocalPlayer();
 			LateUpdateAllPlayers();
 			UpdateDebris();
-			if (g_allowDrawModeFallback) {
-				while (g_allowDrawModeFallback) {
-					if (g_currentDrawModeExtension->m_index == 0) {
+			if (g_refreshModeFallback) {
+				while (g_refreshModeFallback) {
+					if (g_currentDisplayBackend->m_id == 0) {
 						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
 					}
 
-					if ((g_windowActive ? g_currentDrawModeExtension->m_lockBuffer() : -1) == 0) {
-						g_frameDrawCallback();
+					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+						g_unk0x100a6cc8.m_frameDrawCallback();
 						DrawLocalPlayer();
 						UpdateMenus();
 						DrawTimedOverlays();
@@ -622,7 +684,7 @@ int __stdcall SimMain(
 					}
 
 					Blit();
-					ProfileDrawModePerformance();
+					ProfileRefreshModes();
 				}
 			}
 
@@ -633,12 +695,12 @@ int __stdcall SimMain(
 			AdvanceAnimations();
 			UpdatePaletteFade();
 			ApplyPendingPalette();
-			if (g_windowActive && g_currentDrawModeExtension->m_index == 0) {
+			if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
 				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
 			}
 
-			if ((g_windowActive ? g_currentDrawModeExtension->m_lockBuffer() : -1) == 0) {
-				g_frameDrawCallback();
+			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+				g_unk0x100a6cc8.m_frameDrawCallback();
 				DrawLocalPlayer();
 				UpdateMenus();
 				DrawTimedOverlays();
@@ -668,11 +730,11 @@ int __stdcall SimMain(
 		}
 
 		FadeToEndPalette(g_unk0x100e926d & 4);
-		if ((g_windowActive ? g_currentDrawModeExtension->m_lockBuffer() : -1) == 0) {
+		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 			FillRenderTargetRect(&g_currentRenderTarget, 0);
 		}
 
-		DebugLog("Calling Blit()\n");
+		DebugPrint("Calling Blit()\n");
 		Blit();
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		}
@@ -691,7 +753,7 @@ int __stdcall SimMain(
 			CloseMw2Log();
 		}
 
-		DebugLog("Calling EndTheMission()\n");
+		DebugPrint("Calling EndTheMission()\n");
 		EndTheMission1();
 		EndTheMission2();
 	}
@@ -712,8 +774,8 @@ int __stdcall SimMain(
 	return result;
 }
 
-// Operand order: the timer test's time > g_unk0x100e933c loads g_unk0x100e933c first in the
-// original. The test's comparisons follow the unit's symbol table: the other two flipped when
+// Operand order: the timer test's time > g_windowedSwitchDeadline loads g_windowedSwitchDeadline
+// first in the original. The test's comparisons follow the unit's symbol table: the other two flipped when
 // the shell's Miles declarations joined mss.h and back when the unit's declarations moved into
 // headers.
 // FUNCTION: MW2 0x10067757
@@ -722,7 +784,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	WINDOWPOS* windowPos;
 
 	if (p_msg >= WM_KEYFIRST && p_msg <= WM_KEYLAST) {
-		HandleInput(p_msg, p_wParam, p_lParam);
+		HandleKeyboardMessages(p_msg, p_wParam, p_lParam);
 		return 0;
 	}
 
@@ -734,14 +796,14 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 		g_windowActive = p_wParam;
 		if (g_windowActive == TRUE) {
-			FUN_10042d55();
+			KeyboardClearKeyStates();
 			if (g_desktopWidth <= 640 && g_desktopHeight <= 480) {
 				if (g_shouldToggleFullscreen == TRUE) {
 					ToggleFullScreen();
 					g_shouldToggleFullscreen = FALSE;
 					ShowWindow(g_gameWindow, SW_RESTORE);
 				}
-				else if (g_currentDrawModeExtension && g_currentDrawModeExtension->m_index == 1) {
+				else if (g_currentDisplayBackend && g_currentDisplayBackend->m_id == 1) {
 					ShowWindow(g_gameWindow, SW_SHOWNOACTIVATE);
 				}
 			}
@@ -753,13 +815,13 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 		}
 		else {
 			if (g_desktopWidth <= 640 && g_desktopHeight <= 480) {
-				if (g_currentDrawModeExtension && g_currentDrawModeExtension->m_index == 0 &&
+				if (g_currentDisplayBackend && g_currentDisplayBackend->m_id == 0 &&
 					g_shouldToggleFullscreen == FALSE) {
 					ShowWindow(g_gameWindow, SW_MINIMIZE);
 					g_shouldToggleFullscreen = TRUE;
 					ToggleFullScreen();
 				}
-				else if (g_currentDrawModeExtension && g_currentDrawModeExtension->m_index == 1) {
+				else if (g_currentDisplayBackend && g_currentDisplayBackend->m_id == 1) {
 					ShowWindow(g_gameWindow, SW_HIDE);
 				}
 			}
@@ -770,13 +832,13 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			}
 		}
 
-		if (g_currentDrawModeExtension) {
-			g_currentDrawModeExtension->m_setPalette(0, 0x100, g_paletteColors, 1);
+		if (g_currentDisplayBackend) {
+			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 		}
 		return 0;
 	case WM_PAINT:
 		if (g_unk0x100acb78 && g_windowMode == c_windowModeWindowed) {
-			g_currentDrawMode->m_blitFlip();
+			g_currentRefreshMode->m_flip();
 			ValidateRect(p_hWnd, NULL);
 			return 0;
 		}
@@ -801,18 +863,19 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 		return 0;
 	case WM_WINDOWPOSCHANGING:
 		windowPos = (WINDOWPOS*) p_lParam;
-		if (g_unk0x100acb90) {
+		if (g_windowedSwitchPending) {
 			LONG time;
 
 			time = GetMessageTime();
-			if (time > g_unk0x100e933c && (g_unk0x100e933c > g_unk0x100e9240 || time < g_unk0x100e9240)) {
-				g_unk0x100acb90 = FALSE;
+			if (time > g_windowedSwitchDeadline &&
+				(g_windowedSwitchDeadline > g_windowedSwitchTime || time < g_windowedSwitchTime)) {
+				g_windowedSwitchPending = FALSE;
 			}
 			else {
-				windowPos->x = g_gameWindowRect.left;
-				windowPos->y = g_gameWindowRect.top;
-				windowPos->cx = g_gameWindowRect.right;
-				windowPos->cy = g_gameWindowRect.bottom;
+				windowPos->x = g_windowedRect.left;
+				windowPos->y = g_windowedRect.top;
+				windowPos->cx = g_windowedRect.right;
+				windowPos->cy = g_windowedRect.bottom;
 			}
 			return 0;
 		}
@@ -820,8 +883,8 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			break;
 		}
 	case WM_QUERYNEWPALETTE:
-		if (g_currentDrawModeExtension) {
-			g_currentDrawModeExtension->m_setPalette(0, 0x100, g_paletteColors, 1);
+		if (g_currentDisplayBackend) {
+			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 			return 1;
 		}
 		else {
@@ -884,7 +947,7 @@ void UpdatePauseState(void)
 			}
 
 			g_mouseOutsideClientWindow = FALSE;
-			DebugLog("WinMain(3): pause_timer(false)");
+			DebugPrint("WinMain(3): pause_timer(false)");
 			PauseTimer(0x80, FALSE);
 			FUN_10007064();
 			EnableGameplayInput();
@@ -904,7 +967,7 @@ void UpdatePauseState(void)
 			g_mouseOutsideClientWindow = TRUE;
 		}
 
-		DebugLog("WinMain(4): pause_timer(TRUE)");
+		DebugPrint("WinMain(4): pause_timer(TRUE)");
 		PauseTimer(0x80, TRUE);
 		FUN_10007040();
 		DisableGameplayInput();

@@ -331,6 +331,9 @@ This section only grows as patterns are **proven by matches**:
 - **`&=` with an unsigned constant round-trips.** On a signed local, `id &= 0x7fffffff` compiles to a direct `and dword ptr [ebp-N]`; `id &= ~0x80000000` gives `mov`/`and`/`mov` (`FUN_10009da9`).
 - **A named local, not a conditional, stores both arms to a word slot.** `v = c ? -2 : f(); n.x = v;` with `MechS16 v`; a bare conditional assigned to a member stores straight into the member (`PrjBuildMechVariantTemplate`).
 - **A `default: break;` adds a `jmp`** after the last case's `break`, while the dispatch still jumps straight to the switch's end (`FUN_100010ed`).
+- **A dispatch jumps past a case that only breaks.** In a compare-tree switch, the test for a case whose body is just `break` jumps straight to the switch's end, though the body's `jmp` is still emitted (`FUN_1005b22f`, `PlayNewCdAudio`).
+- **An array member of a global decays with `mov` + `add`.** `(MechU16*) g_bitmapInfo.m_colors` and `g_gdiLogPalette.m_entries` compile to `mov eax, OFFSET g; add eax, N`, not the `lea` of a scalar member (`GdiBegin`, `GdiRealizePalette`).
+- **A narrowing cast loads narrow.** `(MechS16) p->m_int` assigned to an `int` compiles to `movsx eax, word ptr [...]`: `FUN_1004bc2e` reads the eyepoint's `0x4c`/`0x50` as words, `FUN_100024f0` as dwords.
 - **Switch jump tables** are embedded in the function body inside `.text` (e.g. the 5-entry table at `0x10006824` in `FUN_10006760`); at `/Od` a sparse switch becomes a compare tree on a stack temporary.
 
 Float-literal and folding behavior are **not** documented here — they must be re-derived for VC++ 4.1 at `/Od` from matches before any rule is written down.

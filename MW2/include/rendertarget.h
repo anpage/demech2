@@ -22,8 +22,17 @@ extern "C"
 {
 #endif
 
+	void DrawShapeFrame(RenderTarget* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
 	void FillRenderTargetRect(RenderTarget* p_target, MechS32 p_color);
 	MechS32 FUN_10064d60(undefined4 p_font, MechS32 p_char);
+	void FUN_10064f0b(
+		RenderTarget* p_target,
+		MechS32 p_x,
+		MechS32 p_y,
+		void* p_font,
+		MechChar* p_text,
+		void* p_unk0x14
+	);
 	MechS32 FUN_10065a7b(RenderTarget* p_dst, RenderTarget* p_src, MechS32 p_unk0x08, MechS32 p_unk0x0c);
 
 #ifdef __cplusplus

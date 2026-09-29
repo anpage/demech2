@@ -1,3 +1,5 @@
+#include "overlay.h"
+
 #include "decomp.h"
 #include "types.h"
 
@@ -5,6 +7,12 @@
 void FUN_10058750(void)
 {
 	STUB(0x10058750);
+}
+
+// STUB: MW2 0x100592b0
+void FUN_100592b0(void)
+{
+	STUB(0x100592b0);
 }
 
 // STUB: MW2 0x10059300

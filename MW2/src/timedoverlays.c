@@ -1,5 +1,13 @@
+#include "timedoverlays.h"
+
 #include "decomp.h"
 #include "types.h"
+
+// STUB: MW2 0x1006ee60
+void FUN_1006ee60(void)
+{
+	STUB(0x1006ee60);
+}
 
 // STUB: MW2 0x1006f179
 void DrawTimedOverlays(void)

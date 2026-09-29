@@ -1,8 +1,8 @@
 #include "clock.h"
 
+#include "debugprint.h"
 #include "decomp.h"
 #include "msstimer.h"
-#include "resource.h"
 #include "simmain.h"
 #include "types.h"
 
@@ -122,7 +122,7 @@ void NextClock(void)
 		if (g_unk0x100ba558) {
 			g_unk0x100ba580 = g_unk0x100ba554;
 			g_unk0x100ba554 = 3;
-			DebugLog("NextClock(1): pause_timer(TRUE)");
+			DebugPrint("NextClock(1): pause_timer(TRUE)");
 			PauseTimer(0x80, TRUE);
 		}
 	}
@@ -130,7 +130,7 @@ void NextClock(void)
 		g_currentClock += 12;
 		if (!g_unk0x100ba558) {
 			g_unk0x100ba554 = g_unk0x100ba580;
-			DebugLog("NextClock(2): pause_timer(FALSE)");
+			DebugPrint("NextClock(2): pause_timer(FALSE)");
 			PauseTimer(0x80, FALSE);
 			SetTicks(g_clockHandle, g_currentClock);
 		}

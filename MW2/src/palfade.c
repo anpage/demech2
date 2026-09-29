@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "palcycle.h"
+#include "refreshmode.h"
 #include "simmain.h"
 #include "types.h"
 
@@ -58,7 +59,7 @@ void RotatePaletteCycle(PaletteCycle* p_cycle)
 		*p++ = first[i];
 	}
 
-	g_currentDrawModeExtension->m_setPaletteWithBrightness(p_cycle->m_working);
+	g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) p_cycle->m_working);
 }
 
 // FUNCTION: MW2 0x10010c3d
@@ -69,7 +70,7 @@ void FreePaletteCycle(PaletteCycle* p_cycle)
 		p_cycle->m_working = NULL;
 	}
 
-	g_currentDrawModeExtension->m_setPaletteWithBrightness(p_cycle->m_original);
+	g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) p_cycle->m_original);
 }
 
 // Matches except for the stack slots of i and accum (a consistent permutation).
@@ -134,7 +135,7 @@ void StepPaletteFade(PaletteFade* p_fade)
 		*accum %= p_fade->m_steps;
 	}
 
-	g_currentDrawModeExtension->m_setPaletteWithBrightness(p_fade->m_palette);
+	g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) p_fade->m_palette);
 	p_fade->m_step++;
 	if (p_fade->m_step >= p_fade->m_steps && p_fade->m_palette) {
 		if (p_fade->m_palette) {

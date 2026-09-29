@@ -1,3 +1,5 @@
+#include "geocache.h"
+
 #include "decomp.h"
 #include "types.h"
 
@@ -57,4 +59,10 @@ void FUN_1001ffda(void)
 void FirstStaticCache(void)
 {
 	STUB(0x10020029);
+}
+
+// STUB: MW2 0x10020c6f
+void FUN_10020c6f(MechS32 p_id, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+{
+	STUB(0x10020c6f);
 }
