@@ -11,7 +11,7 @@ void FUN_1001da44(void)
 }
 
 // STUB: MW2 0x1001ddf2
-void FUN_1001ddf2(ScarletOrchid0x4c* p_shape)
+void FUN_1001ddf2(struct AmberWillow0x7c* p_obj)
 {
 	STUB(0x1001ddf2);
 }

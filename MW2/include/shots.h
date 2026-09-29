@@ -45,6 +45,29 @@ extern "C"
 	void UpdateAllShots(void);
 	void UpdateShot(MechS32 p_index);
 	void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void FUN_1006b152(
+		MechS32 p_unk0x00,
+		MechS32 p_unk0x04,
+		MechS32 p_unk0x08,
+		MechS32 p_unk0x0c,
+		MechS32 p_unk0x10,
+		MechS32 p_unk0x14,
+		MechS32 p_unk0x18,
+		MechS32 p_unk0x1c
+	);
+	void FUN_1006b1fb(
+		MechS32 p_unk0x00,
+		MechS32 p_unk0x04,
+		MechS32 p_unk0x08,
+		MechS32 p_unk0x0c,
+		MechS32 p_unk0x10,
+		MechS32 p_unk0x14,
+		MechS32 p_unk0x18,
+		MechS32 p_unk0x1c,
+		MechS32 p_unk0x20,
+		MechS32 p_unk0x24,
+		MechS32 p_unk0x28
+	);
 	void UpdateEffects(void);
 	void SaveCarCfg(void);
 

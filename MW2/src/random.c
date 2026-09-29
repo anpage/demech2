@@ -14,6 +14,14 @@ MechS32 g_randomIndex = 0;
 // GLOBAL: MW2 0x100ae750
 MechS32 g_normalRandomIndex = 0;
 
+// A second pair of indices, so a second stream of callers doesn't disturb the first.
+
+// GLOBAL: MW2 0x100ae754
+MechS32 g_randomIndex2 = 0;
+
+// GLOBAL: MW2 0x100ae758
+MechS32 g_normalRandomIndex2 = 0;
+
 // GLOBAL: MW2 0x100c2d20
 MechS32 g_normalRandomInts[127];
 
@@ -66,4 +74,38 @@ MechS32 FUN_100736f5(void)
 	g_normalRandomIndex++;
 	g_normalRandomIndex %= 127;
 	return value;
+}
+
+// FUNCTION: MW2 0x10073733
+MechS32 FUN_10073733(MechS32 p_max)
+{
+	MechS32 value;
+
+	value = g_randomInts[g_randomIndex2] % p_max;
+	g_randomIndex2++;
+	g_randomIndex2 %= 127;
+	return value;
+}
+
+// FUNCTION: MW2 0x10073775
+MechS32 FUN_10073775(void)
+{
+	MechS32 value;
+
+	value = g_normalRandomInts[g_normalRandomIndex2];
+	g_normalRandomIndex2++;
+	g_normalRandomIndex2 %= 127;
+	return value;
+}
+
+// FUNCTION: MW2 0x100737b3
+MechS32 FUN_100737b3(void)
+{
+	return 0;
+}
+
+// FUNCTION: MW2 0x100737c5
+MechS32 FUN_100737c5(void)
+{
+	return 0x400;
 }

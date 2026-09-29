@@ -4,7 +4,10 @@
 #include "decomp.h"
 #include "msstimer.h"
 #include "simmain.h"
+#include "transform.h"
 #include "types.h"
+
+#include <math.h>
 
 // The game clock, in ticks of the 181 Hz Miles timer FirstClock registers.
 
@@ -56,31 +59,118 @@ MechS32 g_unk0x100ba580 = 0;
 // GLOBAL: MW2 0x100ba584
 BOOL g_ticksTimerInitialized = FALSE;
 
-// STUB: MW2 0x1007c930
+// GLOBAL: MW2 0x100bfd54
+MechS16* g_sqrtTable;
+
+// GLOBAL: MW2 0x100c1660
+MechS32 g_sinTable[0x102];
+
+// GLOBAL: MW2 0x100c1a80
+MechS16 g_sqrtTableData[0x400];
+
+// GLOBAL: MW2 0x100c2290
+MechS32 g_atanTable[0x102];
+
+// A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
+// 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
+// FUNCTION: MW2 0x1007c930
 MechS32 FUN_1007c930(void)
 {
-	STUB(0x1007c930);
-	return 0;
+	MechS32 i;
+
+	for (i = 0; i < 0x100; i++) {
+		g_sinTable[i] = (MechS32) (sin(i * (3.14159265 / 512)) * 536870912.0);
+		g_atanTable[i] = (MechS32) (atan(i / 256.0) * 3754936.210460003);
+	}
+
+	g_sinTable[0x100] = g_sinTable[0x101] = 0x20000000;
+	g_atanTable[0x100] = g_atanTable[0x101] = 0x2d0000;
+	return TRUE;
 }
 
-// STUB: MW2 0x1007c9e3
+// The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16 (2.29).
+// Stack-slot permutation: i and cosine.
+// FUNCTION: MW2 0x1007c9e3
 MechS32 FUN_1007c9e3(void)
 {
-	STUB(0x1007c9e3);
-	return 0;
+	MechS32 i;
+	MechDouble cosine;
+
+	for (i = 0; i < 800; i++) {
+		g_unk0x100c09e0[i] = (MechS32) ((cosine = 1.0 / sqrt(i / 16.0 * (i / 16.0) + 1.0)) * 536870912.0);
+		g_unk0x100bfd60[i] = (MechS32) (i / 16.0 * cosine * 536870912.0);
+	}
+
+	return TRUE;
 }
 
-// STUB: MW2 0x1007ca8e
+// The square roots of 0 to 1023 (6.10 fixed point).
+// FUNCTION: MW2 0x1007ca8e
 MechS32 FUN_1007ca8e(void)
 {
-	STUB(0x1007ca8e);
-	return 0;
+	MechS32 i;
+
+	g_sqrtTable = g_sqrtTableData;
+	for (i = 0; i < 0x400; i++) {
+		g_sqrtTable[i] = (MechS16) (sqrt(i) * 1024.0);
+	}
+
+	return TRUE;
 }
 
-// STUB: MW2 0x1007cbf1
+// FUNCTION: MW2 0x1007caf7
+MechS32 FUN_1007caf7(MechS32 p_x, MechS32 p_y)
+{
+	MechS32 length;
+	MechDouble x;
+	MechDouble y;
+
+	x = p_x;
+	length = (MechS32) sqrt((y = p_y) * y + x * x);
+	return length;
+}
+
+// Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
+// Operand order: the original loads the squares of p_x, p_z and p_y in that order; this
+// build loads p_z, p_y and p_x, and swaps the stack slots of pitch and yaw.
+// FUNCTION: MW2 0x1007cb3d
+void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+{
+	MechDouble pitch;
+	MechDouble yaw;
+
+	yaw = atan2(p_x, p_z);
+	pitch = -asin(p_y / sqrt((MechDouble) p_x * p_x + (MechDouble) p_y * p_y + (MechDouble) p_z * p_z));
+	FUN_1000e2b9(p_matrix, (MechS32) (pitch * 3754939.378), (MechS32) (yaw * 3754939.378), 0, 0, 0, 0);
+}
+
+// Normalizes the rows and columns of the rotation (2.29 fixed point).
+// FUNCTION: MW2 0x1007cbf1
 void FUN_1007cbf1(Matrix* p_matrix)
 {
-	STUB(0x1007cbf1);
+	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
+	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
+	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
+	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
+	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
+	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+}
+
+// Scales (*p_x, *p_y, *p_z) to length p_length.
+// FUNCTION: MW2 0x1007ccc2
+void FUN_1007ccc2(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+{
+	MechDouble scale;
+	MechDouble x;
+	MechDouble y;
+	MechDouble z;
+
+	x = *p_x;
+	y = *p_y;
+	z = *p_z;
+	*p_x = (MechS32) ((scale = p_length / sqrt(x * x + y * y + z * z)) * x);
+	*p_y = (MechS32) (y * scale);
+	*p_z = (MechS32) (z * scale);
 }
 
 // FUNCTION: MW2 0x1007cd50

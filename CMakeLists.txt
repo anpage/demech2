@@ -382,6 +382,8 @@ demech2_add_dll(mw2
     MW2/src/gamekeys.c
     MW2/src/setres.c
     MW2/src/rendertarget.c
+    MW2/src/unk10065f10.c
+    MW2/src/unk10065f50.c
     MW2/src/simmain.c
     MW2/src/mouse.c
     MW2/src/animation.c
@@ -397,6 +399,7 @@ demech2_add_dll(mw2
     MW2/src/startup.c
     MW2/src/mw2log.c
     MW2/src/random.c
+    MW2/src/unk100746c0.c
     MW2/src/perf.c
     MW2/src/refreshmode.c
     MW2/src/directdraw.c

@@ -30,10 +30,10 @@ struct ScarletOrchid0x4c {
 	undefined4 m_unk0x28;                // 0x28
 	undefined4 m_unk0x2c;                // 0x2c
 	undefined4 m_unk0x30;                // 0x30
-	undefined4 m_unk0x34;                // 0x34
-	undefined4 m_unk0x38;                // 0x38
-	undefined4 m_unk0x3c;                // 0x3c
-	undefined4 m_unk0x40;                // 0x40
+	MechS32 m_unk0x34;                   // 0x34
+	MechS32 m_unk0x38;                   // 0x38
+	MechS32 m_unk0x3c;                   // 0x3c
+	MechS32 m_unk0x40;                   // 0x40 — a radius (debris.c)
 	void* m_unk0x44;                     // 0x44 — FUN_1006e9e6's bounding box when m_unk0x24 is 0
 	undefined4 m_unk0x48;                // 0x48
 };
@@ -84,12 +84,7 @@ extern "C"
 	MechU32 FUN_1003ad78(ScarletOrchid0x4c* p_shape);
 	MechU32 FUN_1003ad93(ScarletOrchid0x4c* p_shape);
 	MechU32 FUN_1003adae(ScarletOrchid0x4c* p_shape);
-	undefined4 FUN_1003adc9(
-		ScarletOrchid0x4c* p_shape,
-		undefined4* p_unk0x34,
-		undefined4* p_unk0x38,
-		undefined4* p_unk0x3c
-	);
+	MechS32 FUN_1003adc9(ScarletOrchid0x4c* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c);
 	void FUN_1003ae1e(ScarletOrchid0x4c* p_shape);
 	void FUN_1003ae96(ScarletOrchid0x4c* p_shape);
 	void FUN_1003b0e4(struct DuskMoth0x24* p_face, struct EmberFern0x2c* p_vertices);

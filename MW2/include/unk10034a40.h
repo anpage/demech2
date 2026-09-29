@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 	void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24);
+	MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z);
 
 #ifdef __cplusplus

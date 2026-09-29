@@ -3,6 +3,7 @@
 #include "environment.h"
 
 #include "clock.h"
+#include "cobaltharbor.h"
 #include "decomp.h"
 #include "fixeddiv.h"
 #include "mech.h"
@@ -16,11 +17,6 @@ typedef struct TimeOfDayPhase {
 	MechS32 m_palette;  // 0x00
 	MechS32 m_duration; // 0x04
 } TimeOfDayPhase;
-
-typedef struct Unk0x100c3280 {
-	undefined m_unk0x00[0x06]; // 0x00
-	MechS16 m_unk0x06;         // 0x06
-} Unk0x100c3280;
 
 DECOMP_SIZE_ASSERT(TimeOfDayPhase, 0x08)
 
@@ -73,7 +69,7 @@ MechS32 g_unk0x100bfd4c;
 MechS32 g_unk0x100bfd50;
 
 // GLOBAL: MW2 0x100c3280
-Unk0x100c3280* g_unk0x100c3280;
+CobaltHarbor0x88* g_unk0x100c3280;
 
 // FUNCTION: MW2 0x1007d610
 void FirstEnvironment(void)

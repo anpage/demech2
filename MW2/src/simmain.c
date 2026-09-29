@@ -336,7 +336,7 @@ MechS32 g_unk0x100e9322;
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2 0x100e9350
-undefined g_unk0x100e9350[1]; // length unknown
+undefined g_unk0x100e9350[0x100];
 
 // GLOBAL: MW2 0x100e9614
 MechS32 g_unk0x100e9614;

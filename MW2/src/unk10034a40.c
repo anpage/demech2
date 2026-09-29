@@ -18,6 +18,13 @@ void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24)
 	}
 }
 
+// STUB: MW2 0x10034b30
+MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z)
+{
+	STUB(0x10034b30);
+	return 0;
+}
+
 // STUB: MW2 0x10034cbc
 MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
