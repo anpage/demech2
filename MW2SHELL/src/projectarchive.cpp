@@ -64,13 +64,13 @@ struct BwdLinkNode {
 struct BwdGpsNode {
 	MechS32 m_type;                   // 0x00
 	MechS32 m_size;                   // 0x04
-	MechS16 m_unk0x08;                // 0x08 — the variant's resource, -2 for a user variant
-	MechS16 m_unk0x0a;                // 0x0a — the chassis' resource
-	MechU8 m_unk0x0c;                 // 0x0c — level
-	MechU8 m_unk0x0d;                 // 0x0d — 1 for the star's first mech
+	MechS16 m_variantId;              // 0x08 — the variant's resource, -2 for a user variant
+	MechS16 m_chassisId;              // 0x0a — the chassis' resource
+	MechU8 m_level;                   // 0x0c
+	MechU8 m_firstInStar;             // 0x0d
 	MechU8 m_unk0x0e;                 // 0x0e
 	undefined m_unk0x0f;              // 0x0f
-	MechS16 m_unk0x10[5];             // 0x10 — from g_bwdDifficultySettings by difficulty
+	MechS16 m_difficultySettings[5];  // 0x10 — g_bwdDifficultySettings' row
 	MechS16 m_unk0x1a;                // 0x1a
 	MechS16 m_unk0x1c;                // 0x1c
 	MechS16 m_unk0x1e;                // 0x1e
@@ -84,10 +84,10 @@ struct BwdGpsNode {
 
 // A node whose size depends on the name it carries.
 struct BwdNameNode {
-	MechS32 m_type;    // 0x00
-	MechS32 m_size;    // 0x04
-	MechS16 m_unk0x08; // 0x08
-	char m_name[1];    // 0x0a
+	MechS32 m_type;       // 0x00
+	MechS32 m_size;       // 0x04
+	MechS16 m_resourceId; // 0x08
+	char m_name[1];       // 0x0a
 };
 
 // Heap callbacks registered with the archive unit (prjfile.c); the file unit's
@@ -143,8 +143,9 @@ MechS16 g_bwdDifficultySettings[9][5] = {
 // GLOBAL: MW2SHELL 0x10066a44
 MechS32 g_enemyStarDifficulty = 8;
 
+// The clans' type 8 resources, by clan; the player's clan and rival go into instmap1.bwd.
 // GLOBAL: MW2SHELL 0x10066a48
-char* g_unk0x10066a48[] = {"l1wolfcl", "l1jadefn", "l1gostbr", "l1smojag", "l1novact", "l1steelv"};
+char* g_clanBitmapNames[] = {"l1wolfcl", "l1jadefn", "l1gostbr", "l1smojag", "l1novact", "l1steelv"};
 
 // GLOBAL: MW2SHELL 0x1008f758
 MechS32 g_bwdTemplateRegistry[0x200];
@@ -417,14 +418,14 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	else {
 		variant = FindResourceIdByName(6, node.m_mech);
 	}
-	node.m_unk0x08 = variant;
-	node.m_unk0x0a = FindResourceIdByName(14, node.m_chassis);
-	node.m_unk0x0c = p_level;
+	node.m_variantId = variant;
+	node.m_chassisId = FindResourceIdByName(14, node.m_chassis);
+	node.m_level = p_level;
 	if (p_index == 0) {
-		node.m_unk0x0d = 1;
+		node.m_firstInStar = 1;
 	}
 	else {
-		node.m_unk0x0d = 0;
+		node.m_firstInStar = 0;
 	}
 	if (p_index == 0 && p_level == 0) {
 		node.m_unk0x0e = 0;
@@ -432,11 +433,11 @@ void PrjBuildMechVariantTemplate(char* p_mech, char* p_variant, MechS32 p_index,
 	else {
 		node.m_unk0x0e = 2;
 	}
-	node.m_unk0x10[0] = g_bwdDifficultySettings[p_difficulty][0];
-	node.m_unk0x10[1] = g_bwdDifficultySettings[p_difficulty][1];
-	node.m_unk0x10[2] = g_bwdDifficultySettings[p_difficulty][2];
-	node.m_unk0x10[3] = g_bwdDifficultySettings[p_difficulty][3];
-	node.m_unk0x10[4] = g_bwdDifficultySettings[p_difficulty][4];
+	node.m_difficultySettings[0] = g_bwdDifficultySettings[p_difficulty][0];
+	node.m_difficultySettings[1] = g_bwdDifficultySettings[p_difficulty][1];
+	node.m_difficultySettings[2] = g_bwdDifficultySettings[p_difficulty][2];
+	node.m_difficultySettings[3] = g_bwdDifficultySettings[p_difficulty][3];
+	node.m_difficultySettings[4] = g_bwdDifficultySettings[p_difficulty][4];
 	node.m_unk0x1a = 0;
 	node.m_unk0x1c = 0;
 	node.m_unk0x1e = 0;
@@ -507,23 +508,23 @@ void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival)
 	link.m_unk0x0a = -1;
 	BwdInitRegistry();
 
-	node->m_unk0x08 = FindResourceIdByName(8, g_unk0x10066a48[p_clan]);
-	strcpy(node->m_name, g_unk0x10066a48[p_clan]);
-	size = strlen(g_unk0x10066a48[p_clan]) + 0x14;
+	node->m_resourceId = FindResourceIdByName(8, g_clanBitmapNames[p_clan]);
+	strcpy(node->m_name, g_clanBitmapNames[p_clan]);
+	size = strlen(g_clanBitmapNames[p_clan]) + 0x14;
 	node->m_size = (size + 3) & ~3;
 	BwdAddRegistryTemplate(node, (size + 3) & ~3);
 	link.m_unk0x08 = 0x114;
 	BwdAddRegistryTemplate(&link, sizeof(link));
 
-	node->m_unk0x08 = FindResourceIdByName(8, g_unk0x10066a48[p_rival]);
-	strcpy(node->m_name, g_unk0x10066a48[p_rival]);
-	size = strlen(g_unk0x10066a48[p_rival]) + 0x14;
+	node->m_resourceId = FindResourceIdByName(8, g_clanBitmapNames[p_rival]);
+	strcpy(node->m_name, g_clanBitmapNames[p_rival]);
+	size = strlen(g_clanBitmapNames[p_rival]) + 0x14;
 	node->m_size = (size + 3) & ~3;
 	BwdAddRegistryTemplate(node, (size + 3) & ~3);
 	link.m_unk0x08 = 0x115;
 	BwdAddRegistryTemplate(&link, sizeof(link));
 
-	node->m_unk0x08 = FindResourceIdByName(8, "jscamoia");
+	node->m_resourceId = FindResourceIdByName(8, "jscamoia");
 	strcpy(node->m_name, "jscamoia");
 	size = strlen("jscamoia") + 0x14;
 	node->m_size = (size + 3) & ~3;

@@ -302,9 +302,10 @@ MechS32 GdiStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p
 	return g_refreshModeHeight == g_gdiResult ? 0 : -1;
 }
 
-// Blits a square of side p_right - p_left + 1 to (160, 140); p_bottom is ignored.
+// Blits unscaled into the middle of the window, a square of side p_right - p_left + 1 at
+// (160, 140); p_bottom is ignored.
 // FUNCTION: MW2SHELL 0x10031106
-MechS32 FUN_10031106(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
+MechS32 GdiBlitCentered(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = BitBlt(
 		g_gdiWindowDc,

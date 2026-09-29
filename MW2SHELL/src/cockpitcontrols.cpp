@@ -76,7 +76,7 @@ enum CpcMessage {
 
 void CpcScreenTick(MechS32 p_active);
 
-TextGlyph* FUN_1003e9d0(ScreenField* p_tab);
+TextGlyph* CpcDrawText(ScreenField* p_tab);
 MechS32 CpcEditTextField(
 	Font* p_font,
 	MechS32 p_left,
@@ -96,7 +96,7 @@ TextGlyph* CpcDrawAxisDirection(ScreenField* p_tab);
 void CpcToggleInverted(ScreenField* p_tab);
 TextGlyph* CpcDrawModifier(ScreenField* p_tab);
 void CpcCycleModifier(ScreenField* p_tab);
-void FUN_1003f576(ScreenField* p_tab);
+void CpcAbort(ScreenField* p_tab);
 void CpcClickBinding(ScreenField* p_tab);
 void CpcClickAxisButton(ScreenField* p_tab);
 TextGlyph* CpcDrawDeviceAxis(ScreenField* p_tab);
@@ -110,12 +110,12 @@ TextGlyph* CpcDrawBindingDevice(ScreenField* p_tab);
 TextGlyph* CpcDrawDeviceEntry(ScreenField* p_tab);
 void InputToggleDeviceActive(ScreenField* p_tab);
 void CpcSelectDevice(ScreenField* p_tab);
-TextGlyph* FUN_10040a5d(ScreenField* p_tab);
+TextGlyph* CpcDrawDivider(ScreenField* p_tab);
 TextGlyph* CpcDrawSlotName(ScreenField* p_tab);
-void FUN_10040af7(ScreenField* p_tab);
-TextGlyph* FUN_10040b32(ScreenField* p_tab);
-void FUN_10040b8e(ScreenField* p_tab);
-void FUN_10040c21(ScreenField* p_tab);
+void CpcAcceptDevices(ScreenField* p_tab);
+TextGlyph* CpcDrawNoJoysticks(ScreenField* p_tab);
+void CpcCheckJoysticks(ScreenField* p_tab);
+void CpcRefreshDevices(ScreenField* p_tab);
 void CpcShowBindingsPage(ScreenField* p_tab);
 void CpcOpenJoystickControlPanel(ScreenField* p_tab);
 MechS32 CpcCheckControlCount();
@@ -236,14 +236,16 @@ MechChar* g_cpcSlotNames[5] = {"Default", "Custom 1", "Custom 2", "Custom 3", "C
 // GLOBAL: MW2SHELL 0x10090690
 MechChar g_cpcConfigName[0x40];
 
+// The text of CpcShowDeviceMessage's message box.
 // GLOBAL: MW2SHELL 0x100906d0
-MechChar g_unk0x100906d0[0x400];
+MechChar g_cpcMessageText[0x400];
 
 // GLOBAL: MW2SHELL 0x100918b0
 LoopingMovie* g_cpcLogoMovie;
 
+// CpcSaveConfigSlot's file name, then its "Saved" dialog.
 // GLOBAL: MW2SHELL 0x100918b8
-MechChar g_unk0x100918b8[0x40];
+MechChar g_cpcSlotText[0x40];
 
 // The bindings of one device's .cpc file.
 // GLOBAL: MW2SHELL 0x100918f8
@@ -296,9 +298,9 @@ undefined g_cpcSelectedColors[0x100];
 // The bindings screen.
 // GLOBAL: MW2SHELL 0x1006b0d8
 ScreenField g_cpcBindingsFields[169] = {
-	CPC_TEXT(172, 0x78, -1, FUN_10040a5d, NULL, 1),
-	CPC_TEXT(477, 0x78, -1, FUN_10040a5d, NULL, 1),
-	CPC_TEXT(175, 0x6e, -1, FUN_1003e9d0, NULL, "GAME CONTROLS"),
+	CPC_TEXT(172, 0x78, -1, CpcDrawDivider, NULL, 1),
+	CPC_TEXT(477, 0x78, -1, CpcDrawDivider, NULL, 1),
+	CPC_TEXT(175, 0x6e, -1, CpcDrawText, NULL, "GAME CONTROLS"),
 	CPC_TAB(325, CPC_ROW(0, 0), -1, CpcDrawConfigName, CpcNextConfig, 0, 0),
 	CPC_AXIS_BINDING(CPC_ROW(2, 2), 0, 0),
 	CPC_AXIS_BINDING(CPC_ROW(1, 1), 1, 1),
@@ -332,7 +334,7 @@ ScreenField g_cpcBindingsFields[169] = {
 	CPC_BUTTON_BINDING(29),
 	CPC_BUTTON_BINDING(30),
 	CPC_TEXT(480, 0x6e, -1, CpcDrawDeviceName, NULL, -1),
-	CPC_TEXT(480, CPC_ROW(2, 2), -1, FUN_1003e9d0, NULL, "Directional"),
+	CPC_TEXT(480, CPC_ROW(2, 2), -1, CpcDrawText, NULL, "Directional"),
 	CPC_LIST(CPC_ROW(2, 2), CpcDrawDeviceAxis, CpcBindAxis, 0),
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceAxis, CpcBindAxis, 1),
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceAxis, CpcBindAxis, 2),
@@ -340,7 +342,7 @@ ScreenField g_cpcBindingsFields[169] = {
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceAxis, CpcBindAxis, 4),
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceAxis, CpcBindAxis, 5),
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceAxis, CpcBindAxis, 6),
-	CPC_TEXT(480, CPC_ROW(2, 2), -1, FUN_1003e9d0, NULL, "Buttons"),
+	CPC_TEXT(480, CPC_ROW(2, 2), -1, CpcDrawText, NULL, "Buttons"),
 	CPC_TAB(600, CPC_ROW(2, 2), 10, CpcDrawScrollArrow, CpcScrollButtons, -1, 0),
 	CPC_LIST(CPC_ROW(0, 0), CpcDrawDeviceButton, CpcBindButton, 0),
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceButton, CpcBindButton, 1),
@@ -361,7 +363,7 @@ ScreenField g_cpcBindingsFields[169] = {
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceButton, CpcBindButton, 16),
 	CPC_LIST(CPC_ROW(1, 1), CpcDrawDeviceButton, CpcBindButton, 17),
 	CPC_TAB(600, CPC_ROW(0, 0), 10, CpcDrawScrollArrow, CpcScrollButtons, 1, 0),
-	CPC_TEXT(0, 0x6e, -1, FUN_1003e9d0, NULL, "INPUT DEVICES"),
+	CPC_TEXT(0, 0x6e, -1, CpcDrawText, NULL, "INPUT DEVICES"),
 	CPC_DEVICE(0, CPC_ROW(2, 2), CpcDrawBindingDevice, CpcSelectDevice, 0),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawBindingDevice, CpcSelectDevice, 1),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawBindingDevice, CpcSelectDevice, 2),
@@ -374,31 +376,31 @@ ScreenField g_cpcBindingsFields[169] = {
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawBindingDevice, CpcSelectDevice, 9),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawBindingDevice, CpcSelectDevice, 10),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawBindingDevice, CpcSelectDevice, 11),
-	CPC_TEXT(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, NULL, "Current Config:"),
+	CPC_TEXT(0, CPC_ROW(2, 2), -1, CpcDrawText, NULL, "Current Config:"),
 	CPC_TEXT(90, CPC_ROW(0, 0), -1, CpcDrawSlotName, NULL, &g_curCpcConfigSlot),
-	CPC_TAB(20, CPC_ROW(1, 1), 150, FUN_1003e9d0, CpcEditField, g_cpcConfigName, 0),
-	CPC_TAB(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, CpcLoadActiveDevices, "RESET DEFAULTS", 0),
-	CPC_TAB(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, CpcLoadConfigSlot, "Load Custom 1", 1),
-	CPC_TAB(0, CPC_ROW(1, 1), -1, FUN_1003e9d0, CpcLoadConfigSlot, "Load Custom 2", 2),
-	CPC_TAB(0, CPC_ROW(1, 1), -1, FUN_1003e9d0, CpcLoadConfigSlot, "Load Custom 3", 3),
-	CPC_TAB(0, CPC_ROW(1, 1), -1, FUN_1003e9d0, CpcLoadConfigSlot, "Load Custom 4", 4),
-	CPC_TAB(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, CpcSaveConfigSlot, "Save Custom 1", 1),
-	CPC_TAB(0, CPC_ROW(1, 1), -1, FUN_1003e9d0, CpcSaveConfigSlot, "Save Custom 2", 2),
-	CPC_TAB(0, CPC_ROW(1, 1), -1, FUN_1003e9d0, CpcSaveConfigSlot, "Save Custom 3", 3),
-	CPC_TAB(0, CPC_ROW(1, 1), -1, FUN_1003e9d0, CpcSaveConfigSlot, "Save Custom 4", 4),
-	CPC_TAB(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, CpcAcceptAndCommit, "ACCEPT CONFIG AND EXIT", 0),
-	CPC_TAB(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, FUN_1003f576, "ABORT", 0),
+	CPC_TAB(20, CPC_ROW(1, 1), 150, CpcDrawText, CpcEditField, g_cpcConfigName, 0),
+	CPC_TAB(0, CPC_ROW(2, 2), -1, CpcDrawText, CpcLoadActiveDevices, "RESET DEFAULTS", 0),
+	CPC_TAB(0, CPC_ROW(2, 2), -1, CpcDrawText, CpcLoadConfigSlot, "Load Custom 1", 1),
+	CPC_TAB(0, CPC_ROW(1, 1), -1, CpcDrawText, CpcLoadConfigSlot, "Load Custom 2", 2),
+	CPC_TAB(0, CPC_ROW(1, 1), -1, CpcDrawText, CpcLoadConfigSlot, "Load Custom 3", 3),
+	CPC_TAB(0, CPC_ROW(1, 1), -1, CpcDrawText, CpcLoadConfigSlot, "Load Custom 4", 4),
+	CPC_TAB(0, CPC_ROW(2, 2), -1, CpcDrawText, CpcSaveConfigSlot, "Save Custom 1", 1),
+	CPC_TAB(0, CPC_ROW(1, 1), -1, CpcDrawText, CpcSaveConfigSlot, "Save Custom 2", 2),
+	CPC_TAB(0, CPC_ROW(1, 1), -1, CpcDrawText, CpcSaveConfigSlot, "Save Custom 3", 3),
+	CPC_TAB(0, CPC_ROW(1, 1), -1, CpcDrawText, CpcSaveConfigSlot, "Save Custom 4", 4),
+	CPC_TAB(0, CPC_ROW(2, 2), -1, CpcDrawText, CpcAcceptAndCommit, "ACCEPT CONFIG AND EXIT", 0),
+	CPC_TAB(0, CPC_ROW(2, 2), -1, CpcDrawText, CpcAbort, "ABORT", 0),
 	CPC_END,
 };
 
 // The input devices screen.
 // GLOBAL: MW2SHELL 0x1006cde8
 ScreenField g_cpcDevicesFields[24] = {
-	CPC_TEXT(172, 0x78, -1, FUN_10040a5d, NULL, 1),
-	CPC_TEXT(477, 0x78, -1, FUN_10040a5d, NULL, 1),
-	CPC_TEXT(0, 0x6e, -1, FUN_1003e9d0, NULL, "Current Config:"),
-	CPC_TEXT(80, CPC_ROW(0, 0), -1, FUN_1003e9d0, NULL, g_cpcConfigName),
-	CPC_TEXT(0, CPC_ROW(2, 2), -1, FUN_1003e9d0, NULL, "SELECT INPUT DEVICES"),
+	CPC_TEXT(172, 0x78, -1, CpcDrawDivider, NULL, 1),
+	CPC_TEXT(477, 0x78, -1, CpcDrawDivider, NULL, 1),
+	CPC_TEXT(0, 0x6e, -1, CpcDrawText, NULL, "Current Config:"),
+	CPC_TEXT(80, CPC_ROW(0, 0), -1, CpcDrawText, NULL, g_cpcConfigName),
+	CPC_TEXT(0, CPC_ROW(2, 2), -1, CpcDrawText, NULL, "SELECT INPUT DEVICES"),
 	CPC_DEVICE(0, CPC_ROW(2, 2), CpcDrawDeviceEntry, InputToggleDeviceActive, 0),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawDeviceEntry, InputToggleDeviceActive, 1),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawDeviceEntry, InputToggleDeviceActive, 2),
@@ -411,12 +413,12 @@ ScreenField g_cpcDevicesFields[24] = {
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawDeviceEntry, InputToggleDeviceActive, 9),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawDeviceEntry, InputToggleDeviceActive, 10),
 	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawDeviceEntry, InputToggleDeviceActive, 11),
-	CPC_DEVICE(0, CPC_ROW(1, 1), FUN_10040b32, FUN_10040b8e, "No joysticks configured"),
-	CPC_DEVICE(0, CPC_ROW(2, 2), FUN_1003e9d0, CpcOpenJoystickControlPanel, "JOYSTICK CONTROL PANEL"),
-	CPC_DEVICE(0, CPC_ROW(2, 2), FUN_1003e9d0, FUN_10040c21, "REFRESH"),
-	CPC_DEVICE(0, 0x190, FUN_1003e9d0, FUN_10040af7, "ACCEPT"),
-	CPC_DEVICE(0, 0x1a4, FUN_1003e9d0, CpcShowBindingsPage, "CUSTOM CONFIGURATION"),
-	CPC_DEVICE(0, 0x1b8, FUN_1003e9d0, FUN_1003f576, "ABORT"),
+	CPC_DEVICE(0, CPC_ROW(1, 1), CpcDrawNoJoysticks, CpcCheckJoysticks, "No joysticks configured"),
+	CPC_DEVICE(0, CPC_ROW(2, 2), CpcDrawText, CpcOpenJoystickControlPanel, "JOYSTICK CONTROL PANEL"),
+	CPC_DEVICE(0, CPC_ROW(2, 2), CpcDrawText, CpcRefreshDevices, "REFRESH"),
+	CPC_DEVICE(0, 0x190, CpcDrawText, CpcAcceptDevices, "ACCEPT"),
+	CPC_DEVICE(0, 0x1a4, CpcDrawText, CpcShowBindingsPage, "CUSTOM CONFIGURATION"),
+	CPC_DEVICE(0, 0x1b8, CpcDrawText, CpcAbort, "ABORT"),
 	CPC_END,
 };
 
@@ -437,7 +439,7 @@ MechS32 g_cpcAnalogCount = 0;
 MechS32 g_cpcDiscreteCount = 0;
 
 // FUNCTION: MW2SHELL 0x1003e9d0
-TextGlyph* FUN_1003e9d0(ScreenField* p_tab)
+TextGlyph* CpcDrawText(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -586,6 +588,7 @@ void CpcEditField(ScreenField* p_tab)
 	p_tab->m_glyph = g_textFont->AddText(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
 }
 
+// The same as CpcDrawText. Unused.
 // FUNCTION: MW2SHELL 0x1003eef3
 TextGlyph* FUN_1003eef3(ScreenField* p_tab)
 {
@@ -779,8 +782,9 @@ void CpcCycleModifier(ScreenField* p_tab)
 	}
 }
 
+// Leave the screen without committing the configuration.
 // FUNCTION: MW2SHELL 0x1003f576
-void FUN_1003f576(ScreenField*)
+void CpcAbort(ScreenField*)
 {
 	g_cpcConfigured = 1;
 }
@@ -1365,8 +1369,9 @@ void CpcSelectDevice(ScreenField* p_tab)
 	}
 }
 
+// A vertical line from the field down to the bottom of the panel.
 // FUNCTION: MW2SHELL 0x10040a5d
-TextGlyph* FUN_10040a5d(ScreenField* p_tab)
+TextGlyph* CpcDrawDivider(ScreenField* p_tab)
 {
 	g_pVideoDriver->DrawLine(p_tab->m_left, p_tab->m_top, p_tab->m_left, 0x1d6, 0x10);
 	return NULL;
@@ -1386,7 +1391,7 @@ TextGlyph* CpcDrawSlotName(ScreenField* p_tab)
 }
 
 // FUNCTION: MW2SHELL 0x10040af7
-void FUN_10040af7(ScreenField*)
+void CpcAcceptDevices(ScreenField*)
 {
 	if (g_inputConfigChanged) {
 		CpcLoadActiveDevices(NULL);
@@ -1398,7 +1403,7 @@ void FUN_10040af7(ScreenField*)
 
 // Text shown only while fewer than three devices are enumerated.
 // FUNCTION: MW2SHELL 0x10040b32
-TextGlyph* FUN_10040b32(ScreenField* p_tab)
+TextGlyph* CpcDrawNoJoysticks(ScreenField* p_tab)
 {
 	MechChar* text;
 
@@ -1416,7 +1421,7 @@ TextGlyph* FUN_10040b32(ScreenField* p_tab)
 // Operand order: the original compares count <= g_curInputDeviceIdx with count loaded first; it
 // follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10040b8e
-void FUN_10040b8e(ScreenField*)
+void CpcCheckJoysticks(ScreenField*)
 {
 	MechS32 count;
 
@@ -1437,7 +1442,7 @@ void FUN_10040b8e(ScreenField*)
 
 // Enumerate the devices again; the current device falls back to the last one.
 // FUNCTION: MW2SHELL 0x10040c21
-void FUN_10040c21(ScreenField*)
+void CpcRefreshDevices(ScreenField*)
 {
 	MechS32 count;
 
@@ -2108,7 +2113,7 @@ void CpcSaveConfigSlot(ScreenField* p_tab)
 		slot = g_curCpcConfigSlot = (MechS32) p_tab->m_unk0x28;
 	}
 
-	sprintf(g_unk0x100918b8, "giddi\\config%02d.cpc", slot);
+	sprintf(g_cpcSlotText, "giddi\\config%02d.cpc", slot);
 	if (slot != 0) {
 		if (!strcmp("Default Config", g_cpcConfigName)) {
 			sprintf(g_cpcConfigName, "Custom Config #%d", slot);
@@ -2118,7 +2123,7 @@ void CpcSaveConfigSlot(ScreenField* p_tab)
 		}
 	}
 
-	file = fopen(g_unk0x100918b8, "wb");
+	file = fopen(g_cpcSlotText, "wb");
 	if (file != NULL) {
 		fwrite(g_cpcConfigName, sizeof(g_cpcConfigName), 1, file);
 		fwrite(g_cpcDeviceSlots, sizeof(CpcDeviceSlot), c_deviceSlotCount, file);
@@ -2128,8 +2133,8 @@ void CpcSaveConfigSlot(ScreenField* p_tab)
 
 	fclose(file);
 	if (slot != 0) {
-		sprintf(g_unk0x100918b8, "Configuration %d Saved.#Ok", slot);
-		ShowDialog(g_unk0x100918b8, 0);
+		sprintf(g_cpcSlotText, "Configuration %d Saved.#Ok", slot);
+		ShowDialog(g_cpcSlotText, 0);
 	}
 }
 
@@ -2368,14 +2373,14 @@ void CpcShowDeviceMessage(MechS32 p_message, undefined4, MechChar* p_name)
 	switch (p_message) {
 	case c_messageNoJoysticks:
 		sprintf(
-			g_unk0x100906d0,
+			g_cpcMessageText,
 			"There are no joystick devices currently configured in the Windows Joystick Control Panel.  You must "
 			"configure, calibrate, and test your joystick in the Control Panel before MechWarrior 2 can use it."
 		);
 		break;
 	case c_messageMissingJoystick:
 		sprintf(
-			g_unk0x100906d0,
+			g_cpcMessageText,
 			"The current Cockpit Controls configuration includes a joystick which no longer exists in the system "
 			"or is not configured properly.\n\nTo eliminate the problem, you can chose \"ABORT\" from the Cockpit "
 			"Controls screen and check the Windows Joystick Control Panel settings.\n\nOtherwise, this device will "
@@ -2384,7 +2389,7 @@ void CpcShowDeviceMessage(MechS32 p_message, undefined4, MechChar* p_name)
 		break;
 	case c_messageRemapJoystick:
 		sprintf(
-			g_unk0x100906d0,
+			g_cpcMessageText,
 			"The current Cockpit Controls configuration includes a joystick which no longer exists in the "
 			"system.\n\nMechWarrior 2 will attempt to remap its controls to the \"%s\" from the Windows Joystick "
 			"Control Panel.",
@@ -2393,11 +2398,11 @@ void CpcShowDeviceMessage(MechS32 p_message, undefined4, MechChar* p_name)
 		break;
 	default:
 		sprintf(
-			g_unk0x100906d0,
+			g_cpcMessageText,
 			"An input device has caused an undefined error. Sorry, no other information is available."
 		);
 		break;
 	}
 
-	MessageBox(g_pWnd, g_unk0x100906d0, "MechWarrior 2 Message", MB_ICONASTERISK);
+	MessageBox(g_pWnd, g_cpcMessageText, "MechWarrior 2 Message", MB_ICONASTERISK);
 }

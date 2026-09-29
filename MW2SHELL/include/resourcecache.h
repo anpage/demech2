@@ -13,7 +13,7 @@ extern "C"
 	void InitializeResourceCache(void);
 	void UnlockCachedResource(MechS32 p_id, char* p_type);
 	void* LoadCachedResource(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c);
-	void* FUN_10013fa9(undefined4 p_size);
+	void* AllocateMemory(undefined4 p_size);
 	void ShutdownResourceCache(void);
 	void FreeCachedResource(MechS32 p_id, char* p_type);
 

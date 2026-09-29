@@ -1198,8 +1198,9 @@ TextGlyph* DrawSpeed(ScreenField* p_tab)
 	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
 }
 
+// Draws the field's data times 30 as meters. Unused.
 // FUNCTION: MW2SHELL 0x10008f7d
-TextGlyph* FUN_10008f7d(ScreenField* p_tab)
+TextGlyph* DrawMeters(ScreenField* p_tab)
 {
 	MechS32 value;
 
@@ -2931,8 +2932,9 @@ void LoadChassis()
 	strcpy(&g_variant.m_title[1], g_mechChassis[g_selectedChassis].m_name);
 }
 
+// Closes the chassis video after its next frame.
 // FUNCTION: MW2SHELL 0x1000cb4b
-void HideChassisVideo()
+void CloseChassisVideo()
 {
 	SetVideoFlags(0x10, 0x40000000, 0x40000000);
 }
@@ -2943,8 +2945,9 @@ void ShowChassisVideo()
 	ShowVideo(0x10);
 }
 
+// Unused.
 // FUNCTION: MW2SHELL 0x1000cb89
-void FUN_1000cb89()
+void HideChassisVideo()
 {
 	SetVideoFlags(0x10, 0x20, 0x20);
 }
@@ -3901,7 +3904,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		}
 		sprintf(g_variant.m_variantName, "User Variant #%d", i - 99);
 		SetVideoFlags(0, 1, 1);
-		HideChassisVideo();
+		CloseChassisVideo();
 		HideFields(g_screenFields);
 		g_screenFields = g_customizeFields;
 		ShowFields(g_screenFields);

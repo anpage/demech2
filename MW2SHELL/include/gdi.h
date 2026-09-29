@@ -15,7 +15,7 @@ extern "C"
 	extern DisplayBackend g_gdiBackend;
 	extern RefreshMode g_gdiRefreshMode;
 	MechS32 GdiBitBltRectWithMenu(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
-	MechS32 FUN_10031106(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
+	MechS32 GdiBlitCentered(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
 
 #ifdef __cplusplus
 }

@@ -42,7 +42,7 @@ MouseState::MouseState(VideoDriver* p_videoDriver, Font* p_font, void* p_unk0x00
 	m_middleDown = m_middlePressed = 0;
 	m_doubleClicked = m_unk0x1d = m_unk0x1e = 0;
 	m_lastClickTime = m_unk0x23 = m_unk0x27 = 0;
-	m_unk0x0c = 0;
+	m_positionTextWidth = 0;
 	m_x = 0;
 	m_y = 0;
 	m_enabled = 0;
@@ -109,11 +109,11 @@ void MouseState::DrawCursorPosition()
 	if (m_rightDown == 1) {
 		sprintf(g_cursorPositionText, "(%d,%d)", m_x, m_y);
 
-		if (m_unk0x0c) {
-			m_videoDriver->RestoreBackground(0x230, 0x14, m_unk0x0c, m_font->m_height);
+		if (m_positionTextWidth) {
+			m_videoDriver->RestoreBackground(0x230, 0x14, m_positionTextWidth, m_font->m_height);
 		}
 
-		m_unk0x0c = m_videoDriver->DrawString(0x230, 0x14, m_font->m_dataCopy, g_cursorPositionText, NULL);
+		m_positionTextWidth = m_videoDriver->DrawString(0x230, 0x14, m_font->m_dataCopy, g_cursorPositionText, NULL);
 	}
 }
 

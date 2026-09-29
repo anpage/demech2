@@ -12,7 +12,8 @@ class VideoDriver;
 
 // A page of text laid out from a string with escape codes: \N ends a line, \C centers the next
 // one, \T moves to the next tab stop, \S ends the page, \Ann makes the next word a link with id
-// nn, and \Bnnn/\Gnnn pass through to the glyphs. The lines become TextGlyph items that
+// nn, and \Bnnn (back nnn pixels) and \Gnnn (to nnn pixels from the left) pass through to the
+// glyphs. The lines become TextGlyph items that
 // type themselves out to a looping sound.
 // SIZE 0x34
 class Page {
@@ -25,8 +26,8 @@ public:
 		c_tokenWord = 4,
 		c_tokenTab = 5,
 		c_tokenLink = 6,
-		c_tokenB = 7,
-		c_tokenG = 8
+		c_tokenBackUp = 7,
+		c_tokenGoTo = 8
 	};
 
 	// SIZE 0x14
