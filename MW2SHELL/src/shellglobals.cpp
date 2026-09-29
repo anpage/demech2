@@ -24,6 +24,8 @@ KeyboardInput* g_keyboardInput = NULL;
 // GLOBAL: MW2SHELL 0x100711fc
 AudioSubsystem* g_audioSubsystem = NULL;
 
+// Database item 0x19. ShellMain loads it and passes it to MouseState, which stores it
+// (m_unk0x00) and never reads it. Perhaps the cursor's image; nothing confirms it.
 // GLOBAL: MW2SHELL 0x10071200
 void* g_unk0x10071200 = NULL;
 
@@ -51,7 +53,7 @@ Font* g_titleFont = NULL;
 // GLOBAL: MW2SHELL 0x10071218
 Font* g_buttonFont = NULL;
 
-// Items 0x1e and 0x1f: loaded, never used.
+// Items 0x1e and 0x1f: loaded, never used, so they keep their placeholders.
 // GLOBAL: MW2SHELL 0x1007121c
 Font* g_unk0x1007121c = NULL;
 
@@ -78,6 +80,7 @@ MechS32 g_midiAudio = 1;
 // GLOBAL: MW2SHELL 0x10071238
 MechS32 g_digitalAudio = 1;
 
+// Cleared with the audio flags when there is no command line; nothing reads it.
 // GLOBAL: MW2SHELL 0x1007123c
 MechS32 g_unk0x1007123c = 1;
 

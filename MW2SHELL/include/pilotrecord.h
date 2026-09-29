@@ -18,7 +18,7 @@ struct PilotRecord {
 	undefined4 m_kills;        // 0x18 — mechs and vehicles
 	undefined4 m_hits;         // 0x1c
 	undefined4 m_shotsFired;   // 0x20
-	undefined4 m_unk0x24;      // 0x24
+	undefined4 m_unk0x24;      // 0x24 — only cleared, with the statistics before it
 	MechChar m_callsign[0x10]; // 0x28
 	TextGlyph* m_glyph;        // 0x38 — the callsign on the roster screen, not saved
 };

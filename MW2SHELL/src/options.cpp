@@ -38,7 +38,7 @@ struct PewterPlaque0x9c {
 	MechS32 m_textLeft;    // 0x10
 	MechS32 m_textTop;     // 0x14
 	MechChar m_text[0x80]; // 0x18
-	undefined4 m_unk0x98;  // 0x98
+	undefined4 m_unk0x98;  // 0x98 — only cleared, by LayoutButton
 };
 
 DECOMP_SIZE_ASSERT(PewterPlaque0x9c, 0x9c)

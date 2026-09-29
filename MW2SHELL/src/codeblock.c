@@ -32,7 +32,8 @@ undefined4 g_codeBlockRoutines[0x800];
 // GLOBAL: MW2SHELL 0x10019a7c
 undefined g_codeBlock[1];
 
-// The pair FUN_100286a6 sets.
+// The pair FUN_100286a6 sets. Only the untranscribed code block reads them, so they stay unnamed
+// until it is understood.
 // GLOBAL: MW2SHELL 0x10064cd8
 undefined4 g_unk0x10064cd8 = 0x8000;
 
@@ -44,6 +45,8 @@ undefined4 g_unk0x10064cdc = 0;
 // GLOBAL: MW2SHELL 0x10064ce0
 undefined4 g_codeBlockVars[0x43] = {0};
 
+// Stores its arguments in g_unk0x10064cd8 and g_unk0x10064cdc. Nothing calls it, and only the
+// untranscribed code block reads the pair, so it stays unnamed with them.
 #ifdef COMPAT_MODE
 void FUN_100286a6(undefined4 p_unk0x00, undefined4 p_unk0x04)
 {

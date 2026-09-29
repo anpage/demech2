@@ -20,9 +20,9 @@ typedef struct ResourceEntry {
 } ResourceEntry;
 
 typedef struct ResourceTable {
-	undefined m_unk0x00[0x08];  // 0x00
+	undefined m_unk0x00[0x08];  // 0x00 — never accessed
 	MechS16 m_count;            // 0x08
-	undefined2 m_unk0x0a;       // 0x0a
+	undefined2 m_unk0x0a;       // 0x0a — never accessed
 	ResourceEntry m_entries[1]; // 0x0c
 } ResourceTable;
 

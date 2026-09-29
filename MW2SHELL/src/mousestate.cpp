@@ -80,6 +80,8 @@ undefined MouseState::GetDoubleClicked()
 	return m_doubleClicked;
 }
 
+// Empty. The constructor calls it with 0, but neither the body nor the call says what it was
+// for, so it keeps its placeholder.
 // FUNCTION: MW2SHELL 0x1003a91c
 void MouseState::FUN_1003a91c(undefined4)
 {

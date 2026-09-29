@@ -14,7 +14,7 @@ struct DifficultyConfig {
 	MechU8 m_collisionDamage;         // 0x03 — dishonorable when clear
 	MechU8 m_heatTracking;            // 0x04 — no honor when clear
 	MechU8 m_enemySkill;              // 0x05 — 0 easy, 1 medium, 2 hard
-	undefined m_unk0x06[0x17 - 0x06]; // 0x06
+	undefined m_unk0x06[0x17 - 0x06]; // 0x06 — the rest of the simulator's settings; the shell never accesses them
 };
 
 #endif // DIFFICULTYCONFIG_H

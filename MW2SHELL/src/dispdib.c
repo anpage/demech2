@@ -77,6 +77,7 @@ RefreshMode g_dispDibRefreshMode =
 // GLOBAL: MW2SHELL 0x1009675c
 MechS32 g_dispDibResult;
 
+// Empty and never called: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x1002ee30
 void FUN_1002ee30()
 {

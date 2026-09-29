@@ -9,7 +9,7 @@
 // sliders and rows point at the members. The names come from the simulator's in-mission menus
 // ("SET AUDIO VOLUME", "COMBAT VARIABLES"), which edit the same record.
 struct SoundConfig {
-	MechS32 m_unk0x00;                   // 0x00
+	MechS32 m_unk0x00; // 0x00 — the shell never accesses it; the simulator's audio setter handles it with no menu entry
 	MechS32 m_effectsVolume;             // 0x04
 	MechS32 m_voiceVolume;               // 0x08
 	MechS32 m_midiVolume;                // 0x0c

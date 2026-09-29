@@ -482,6 +482,8 @@ jmp_1002adef:
 }
 #endif
 
+// Another of the polygon fillers, over the same vertex lists. How it colors the spans hasn't been
+// worked out from the assembly, so it keeps its placeholder.
 #ifdef COMPAT_MODE
 void FUN_1002ae41(PixelView* p_view, MechS32 p_count, MechS32* p_vertices)
 {
@@ -1267,6 +1269,8 @@ jmp_1002b610:
 }
 #endif
 
+// Another of the polygon fillers, over the same vertex lists. How it colors the spans hasn't been
+// worked out from the assembly, so it keeps its placeholder.
 #ifdef COMPAT_MODE
 void FUN_1002b68b(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c)
 {
@@ -2059,6 +2063,8 @@ jmp_1002bebe:
 }
 #endif
 
+// Another of the polygon fillers, over the same vertex lists. How it colors the spans hasn't been
+// worked out from the assembly, so it keeps its placeholder.
 #ifdef COMPAT_MODE
 void FUN_1002bf39(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c)
 {
@@ -2541,6 +2547,8 @@ jmp_1002c448:
 }
 #endif
 
+// Another of the polygon fillers, over the same vertex lists. How it colors the spans hasn't been
+// worked out from the assembly, so it keeps its placeholder.
 #ifdef COMPAT_MODE
 void FUN_1002c48d(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c)
 {
@@ -3335,7 +3343,8 @@ jmp_1002ccc2:
 }
 #endif
 
-// Copies a 0x40-dword table into the working variables.
+// Copies a 0x40-dword table into the working variables. What the table holds isn't known, so it
+// keeps its placeholder.
 #ifdef COMPAT_MODE
 void FUN_1002cd3d(undefined4* p_table)
 {
@@ -3874,7 +3883,7 @@ __declspec(naked) void FUN_1002d2a0(void)
 #endif
 
 // A span routine of FillPolygonTextured (a g_polySpanRoutines entry); register-based, entered by
-// jmp.
+// jmp. The span modes aren't known, so the four keep their placeholders.
 #ifdef COMPAT_MODE
 void FUN_1002d2b0(void)
 {
@@ -4059,7 +4068,7 @@ jmp_1002d452:
 #endif
 
 // A span routine of FillPolygonTextured (a g_polySpanRoutines entry); register-based, entered by
-// jmp.
+// jmp. The span modes aren't known, so the four keep their placeholders.
 #ifdef COMPAT_MODE
 void FUN_1002d457(void)
 {
@@ -4201,7 +4210,7 @@ jmp_1002d5be:
 #endif
 
 // A span routine of FillPolygonTextured (a g_polySpanRoutines entry); register-based, entered by
-// jmp.
+// jmp. The span modes aren't known, so the four keep their placeholders.
 #ifdef COMPAT_MODE
 void FUN_1002d5c3(void)
 {
@@ -4376,7 +4385,8 @@ jmp_1002d71f:
 #endif
 
 // A span routine of FillPolygonTextured (a g_polySpanRoutines entry); register-based, entered by
-// jmp. It also holds the scan-line stepping the other span routines jump to.
+// jmp. It also holds the scan-line stepping the other span routines jump to. The span modes aren't
+// known, so the four keep their placeholders.
 #ifdef COMPAT_MODE
 void FUN_1002d724(void)
 {

@@ -39,19 +39,19 @@
 struct MissionObjective {
 	MechS32 m_status;             // 0x00 — 0 failed, 1 successful
 	MechS32 m_type;               // 0x04 — 1 primary, 2 secondary, 4 tertiary, 8 return
-	undefined4 m_unk0x08;         // 0x08
+	undefined4 m_unk0x08;         // 0x08 — the simulator's; the debriefing doesn't read it
 	MechS32 m_time;               // 0x0c — in seconds, negative when never reached
-	undefined4 m_unk0x10;         // 0x10
+	undefined4 m_unk0x10;         // 0x10 — the simulator's; the debriefing doesn't read it
 	MechChar m_description[0x20]; // 0x14
 };
 
 // SIZE 0x9d4
 // The simulator's mission results (MW2MSN.CFG).
 struct MissionResults {
-	undefined4 m_unk0x00;              // 0x00
+	undefined4 m_unk0x00;              // 0x00 — the simulator's; the debriefing doesn't read it
 	MechS32 m_objectiveCount;          // 0x04
-	undefined4 m_unk0x08;              // 0x08
-	undefined4 m_unk0x0c;              // 0x0c
+	undefined4 m_unk0x08;              // 0x08 — the simulator's; the debriefing doesn't read it
+	undefined4 m_unk0x0c;              // 0x0c — the simulator's; the debriefing doesn't read it
 	MechS32 m_outcome;                 // 0x10 — 2 completed, 3 failed
 	MissionObjective m_objectives[48]; // 0x14
 };
@@ -62,20 +62,20 @@ struct MissionResults {
 // counts a kill in the "direct" members when the player made it, and in the totals for every
 // enemy destroyed; the debriefing prints them in that order.
 struct CareerRecord {
-	undefined m_unk0x00[0x07 - 0x00]; // 0x00
+	undefined m_unk0x00[0x07 - 0x00]; // 0x00 — the simulator's; the debriefing doesn't read it
 	MechU16 m_directMechKills;        // 0x07
-	undefined m_unk0x09[0x13 - 0x09]; // 0x09
+	undefined m_unk0x09[0x13 - 0x09]; // 0x09 — the simulator's; the debriefing doesn't read it
 	MechU16 m_shotsFired;             // 0x13
 	MechU16 m_hits;                   // 0x15
-	undefined m_unk0x17[0x1e - 0x17]; // 0x17
+	undefined m_unk0x17[0x1e - 0x17]; // 0x17 — the simulator's; the debriefing doesn't read it
 	MechU16 m_mechKills;              // 0x1e
-	undefined m_unk0x20[0x34 - 0x20]; // 0x20
+	undefined m_unk0x20[0x34 - 0x20]; // 0x20 — the simulator's; the debriefing doesn't read it
 	MechU16 m_wingmenLost;            // 0x34
-	undefined m_unk0x36[0x44 - 0x36]; // 0x36
+	undefined m_unk0x36[0x44 - 0x36]; // 0x36 — the simulator's; the debriefing doesn't read it
 	MechU16 m_directVehicleKills;     // 0x44
-	undefined m_unk0x46[0x4a - 0x46]; // 0x46
+	undefined m_unk0x46[0x4a - 0x46]; // 0x46 — the simulator's; the debriefing doesn't read it
 	MechU16 m_vehicleKills;           // 0x4a
-	undefined m_unk0x4c[0x50 - 0x4c]; // 0x4c
+	undefined m_unk0x4c[0x50 - 0x4c]; // 0x4c — the simulator's; the debriefing doesn't read it
 };
 #pragma pack()
 
@@ -118,6 +118,7 @@ MechChar g_careerHonor[0x200];
 // GLOBAL: MW2SHELL 0x10077fa0
 PilotRecord g_pilotBeforeMission;
 
+// An identity color map (0 maps to 0xff) that BuildDebriefText builds and nothing reads.
 // GLOBAL: MW2SHELL 0x10077fe0
 undefined g_unk0x10077fe0[0x100];
 

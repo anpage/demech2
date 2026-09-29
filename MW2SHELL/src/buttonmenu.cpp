@@ -347,6 +347,7 @@ HitRect::HitRect(undefined4 p_left, undefined4 p_top, undefined4 p_right, undefi
 	m_bottom = p_bottom;
 }
 
+// Empty, and nothing in the original calls it: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x10049183
 void HitRect::FUN_10049183()
 {

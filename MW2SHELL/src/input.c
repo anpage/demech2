@@ -35,7 +35,7 @@ typedef struct InputControl {
 	MechS32 m_isButton;                   // 0x08 — 0: bound to an axis
 	InputDevice* m_device;                // 0x0c
 	MechS32 m_index;                      // 0x10 — the axis or button
-	MechU8 m_unk0x14;                     // 0x14
+	MechU8 m_unk0x14;                     // 0x14 — never accessed
 	MechS32 m_modifiers[c_modifierCount]; // 0x15 — per modifier: 1 held, 2 ignored, else released
 } InputControl;
 #pragma pack()

@@ -120,6 +120,7 @@ undefined4 g_rleRight = 0;
 undefined4 g_rleBottom = 0;
 
 // A dword table that DissolveView fills and reads. The next variable starts at 0x10068d45.
+// What its entries hold hasn't been worked out, so it and the second table keep placeholders.
 // GLOBAL: MW2SHELL 0x10068845
 undefined4 g_unk0x10068845[0x140] = {0};
 
@@ -143,7 +144,7 @@ undefined g_fadeDistances[0x300] = {0};
 undefined4 g_unk0x10069445[0x180] = {0};
 
 // Flags per color index (FadeViewColors, CountViewColors), then FadeViewColors's per-component
-// directions.
+// directions. It serves the two routines differently, so no one name fits.
 // GLOBAL: MW2SHELL 0x10069a45
 undefined g_unk0x10069a45[0x300] = {0};
 
@@ -1797,6 +1798,8 @@ __declspec(naked) MechS32 BlitLine(
 #endif
 
 // Returns 0 when drawn, or a negative code when the view is empty or everything is clipped.
+// Nothing calls it, and what it draws hasn't been worked out from the assembly, so it keeps its
+// placeholder.
 #ifdef COMPAT_MODE
 MechS32 FUN_10032e4b(
 	PixelView* p_view,
@@ -4648,6 +4651,9 @@ jmp_10034605:
 }
 #endif
 
+// Takes an offset-table resource and an index, like the SHP helpers, and four more arguments.
+// Nothing calls it, and what it does hasn't been worked out from the assembly, so it keeps its
+// placeholder.
 #ifdef COMPAT_MODE
 MechS32 FUN_10034622(
 	void* p_data,
@@ -9192,7 +9198,8 @@ __declspec(naked) MechS32 GetShpFrameSize(void* p_data, MechS32 p_index)
 }
 #endif
 
-// Returns the second dword in an entry selected from the offset table at data + 8.
+// Returns the second dword in an entry selected from the offset table at data + 8. What that
+// dword means isn't known, so it keeps its placeholder.
 #ifdef COMPAT_MODE
 MechS32 FUN_10037526(void* p_data, MechS32 p_index)
 {
@@ -9309,7 +9316,8 @@ __declspec(naked) MechU32 GetShpFrameOrigin(void* p_data, MechS32 p_index)
 }
 #endif
 
-// Applies a list of three-byte palette updates from an entry.
+// Applies a list of three-byte palette updates from an entry. The entry's format isn't pinned
+// down, so this and the two routines after it keep their placeholders.
 #ifdef COMPAT_MODE
 void FUN_100375a7(undefined* p_data, MechS32 p_index, undefined* p_palette)
 {
@@ -9591,7 +9599,8 @@ __declspec(naked) MechS32 CountShpUniqueFrames(void* p_data, MechS32* p_indices)
 
 // Counts the distinct first dwords among the data's 8-byte entries (the count at +4, the
 // entries from +0xc). When p_out isn't NULL, stores the index of each entry that starts a new
-// value there. Returns the count.
+// value there. Returns the count. The container it reads isn't identified, so it keeps its
+// placeholder.
 #ifdef COMPAT_MODE
 MechS32 FUN_100376f9(undefined* p_data, MechU32* p_out)
 {

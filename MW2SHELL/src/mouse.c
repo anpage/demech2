@@ -19,7 +19,7 @@ typedef struct MouseDeviceInfo {
 	const MechChar* const* m_axisTypes;   // 0x64
 	const MechChar* const* m_buttonNames; // 0x68
 	const MechChar* const* m_buttonTypes; // 0x6c
-	undefined4 m_unk0x70;                 // 0x70
+	void* m_driverData;                   // 0x70 — InputDeviceInfo's; the mouse needs none
 } MouseDeviceInfo;
 
 // MousePoll's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
@@ -113,7 +113,7 @@ MechS32 FillMouseDeviceInfo(MechS32 p_index, MouseDeviceInfo* p_info)
 	p_info->m_axisTypes = g_mouseAxisTypes;
 	p_info->m_buttonNames = g_mouseButtonNames;
 	p_info->m_buttonTypes = g_mouseButtonTypes;
-	p_info->m_unk0x70 = 0;
+	p_info->m_driverData = NULL;
 
 	return 0;
 }

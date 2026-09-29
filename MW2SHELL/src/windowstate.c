@@ -43,7 +43,7 @@ MechS32 g_littleMovies = 0;
 HANDLE g_primaryHeap = NULL;
 
 // Always 0. Where the simulator's copy of AdjustWindowSize calls this, it asks for a field of
-// the entry for id 4 of its menu list.
+// the entry for id 4 of its menu list. That field has no name yet, so this keeps its placeholder.
 // FUNCTION: MW2SHELL 0x1003bf90
 undefined4 FUN_1003bf90(MechS32 p_unk0x00)
 {

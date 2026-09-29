@@ -26,6 +26,8 @@
 
 // The mission briefing screen.
 
+// The briefing's p_quote for LoadTextPages: empty, so the quote escapes in a briefing's text
+// expand to nothing. That is its only use, and it gives no name.
 // GLOBAL: MW2SHELL 0x10071cd8
 MechChar g_unk0x10071cd8[0x04] = "";
 

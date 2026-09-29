@@ -52,6 +52,7 @@ LPDIRECTDRAWSURFACE g_ddrawBuffer = NULL;
 // GLOBAL: MW2SHELL 0x10063218
 LPDIRECTDRAWSURFACE g_ddrawStretch = NULL;
 
+// Never accessed: there is nothing to name it after.
 // GLOBAL: MW2SHELL 0x1006321c
 undefined4 g_unk0x1006321c = 0;
 

@@ -588,7 +588,7 @@ void CpcEditField(ScreenField* p_tab)
 	p_tab->m_glyph = g_textFont->AddText(p_tab->m_left, p_tab->m_top, (MechChar*) p_tab->m_data, p_tab->m_colors);
 }
 
-// The same as CpcDrawText. Unused.
+// The same as CpcDrawText. Unused: a duplicate keeps its placeholder rather than a second name.
 // FUNCTION: MW2SHELL 0x1003eef3
 TextGlyph* FUN_1003eef3(ScreenField* p_tab)
 {

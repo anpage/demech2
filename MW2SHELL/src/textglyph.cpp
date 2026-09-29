@@ -20,6 +20,8 @@ DECOMP_SIZE_ASSERT(TextGlyph, 0x3e)
 // GLOBAL: MW2SHELL 0x10074658
 undefined g_linkColorMap[256] = {0xff, 1};
 
+// Two more color maps like g_linkColorMap, mapping color 1 to 5 and to 8. InitTextColorMaps
+// builds them and nothing reads them, so nothing says what they were for.
 // GLOBAL: MW2SHELL 0x10074758
 undefined g_unk0x10074758[256] = {0xff, 5};
 

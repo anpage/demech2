@@ -477,7 +477,7 @@ void VideoDriver::DrawPixelsClipped(
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
 }
 
-// The same as DrawPixels.
+// The same as DrawPixels. Unused: a duplicate keeps its placeholder rather than a second name.
 // FUNCTION: MW2SHELL 0x1000705f
 void VideoDriver::FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {

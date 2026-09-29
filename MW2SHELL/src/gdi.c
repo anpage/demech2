@@ -51,7 +51,7 @@ HPALETTE g_gdiPalette = NULL;
 // GLOBAL: MW2SHELL 0x10066e00
 RGBQUAD g_gdiColorTable[0x100] = {0};
 
-// Closed by GdiEnd, never opened.
+// Closed by GdiEnd, never opened: nothing says what it held.
 // GLOBAL: MW2SHELL 0x10067200
 HANDLE g_unk0x10067200 = NULL;
 
@@ -61,6 +61,7 @@ HDC g_gdiMemoryDc = NULL;
 // GLOBAL: MW2SHELL 0x10067208
 HBITMAP g_gdiDibSection = NULL;
 
+// Only cleared (GdiEnd); nothing reads it.
 // GLOBAL: MW2SHELL 0x1006720c
 undefined4 g_unk0x1006720c = 0;
 

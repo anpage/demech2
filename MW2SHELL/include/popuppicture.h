@@ -38,7 +38,7 @@ private:
 	PixelView m_savedView;             // 0x1c
 	PixelView m_screenView;            // 0x30
 	PixelBuffer m_saved;               // 0x44
-	undefined m_unk0x58[0x358 - 0x58]; // 0x58
+	undefined m_unk0x58[0x358 - 0x58]; // 0x58 — never accessed; 0x300 bytes, a palette's size
 	AudioSample* m_sample;             // 0x358
 };
 
