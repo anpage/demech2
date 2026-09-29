@@ -428,7 +428,7 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 			g_windowedRect.bottom,
 			SWP_NOACTIVATE
 		);
-		if (g_simPaused && !FUN_1003da65(4)) {
+		if (g_simPaused && !GetMenuSlotState(4)) {
 			while (ShowCursor(TRUE) < 0) {
 			}
 		}

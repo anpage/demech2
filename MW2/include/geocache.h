@@ -4,6 +4,13 @@
 #include "decomp.h"
 #include "types.h"
 
+// An entry of the class table: an ID and its class.
+// SIZE 0x08
+typedef struct GeoClass {
+	MechS32 m_id;       // 0x00
+	undefined4 m_class; // 0x04
+} GeoClass;
+
 // The functions and globals of geocache.c that other units use.
 #ifdef __cplusplus
 extern "C"

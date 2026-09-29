@@ -20,7 +20,7 @@ extern "C"
 	RenderTarget* FUN_10056ce9(RenderTarget* p_src, RenderTarget* p_dst);
 	Point* FUN_10056ddd(Point* p_src, Point* p_dst);
 	RenderTarget* CenterRectOnScreen(PixelBuffer* p_buffer, RenderTarget* p_src, RenderTarget* p_dst);
-	void FUN_100570e9(void);
+	void FUN_100570e9(RenderTarget* p_target, MechS32 p_unk0x04);
 	void FUN_10057a03(void);
 	void FUN_10057ac4(void);
 	void FUN_10057e56(void);

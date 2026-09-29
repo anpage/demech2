@@ -28,6 +28,7 @@ extern "C"
 	extern MechS32 g_screenWidthMinus1;
 	extern MechS32 g_screenHalfWidth;
 	extern MechS32 g_screenHalfHeight;
+	extern MechS32 g_unk0x10176ebc;
 
 	MechS32 InitGameWindowGeometry(void);
 	MechS32 InitDisplayGeometry(void);

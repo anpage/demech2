@@ -358,6 +358,7 @@ demech2_add_dll(mw2
     MW2/src/error.c
     MW2/src/menu.c
     MW2/src/cockpit.c
+    MW2/src/bwd.c
     MW2/src/unk10041fa0.c
     MW2/src/keyboard.c
     MW2/src/staticmem.c
@@ -370,6 +371,7 @@ demech2_add_dll(mw2
     MW2/src/resource.c
     MW2/src/debugprint.c
     MW2/src/ai.c
+    MW2/src/unk100563d0.c
     MW2/src/screenscale.c
     MW2/src/brightness.c
     MW2/src/overlay.c

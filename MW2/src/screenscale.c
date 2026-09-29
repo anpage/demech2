@@ -150,7 +150,7 @@ RenderTarget* FUN_10056ec5(RenderTarget* p_src, RenderTarget* p_dst, MechS32 p_s
 }
 
 // STUB: MW2 0x100570e9
-void FUN_100570e9(void)
+void FUN_100570e9(RenderTarget* p_target, MechS32 p_unk0x04)
 {
 	STUB(0x100570e9);
 }
