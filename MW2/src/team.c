@@ -5,6 +5,7 @@
 #include "gamething.h"
 #include "object.h"
 #include "players.h"
+#include "rendertarget.h"
 #include "speech.h"
 #include "transform.h"
 #include "types.h"
@@ -293,11 +294,18 @@ MechS32 FUN_1003c30e(MechS32 p_thing)
 	}
 }
 
-// STUB: MW2 0x1003c353
-MechS32 FUN_1003c353(MechU32 p_unk0x00)
+// The side of the team that owns nav p_nav; 2 past the first 16 navs.
+// FUNCTION: MW2 0x1003c353
+MechS32 GetNavSide(MechU32 p_nav)
 {
-	STUB(0x1003c353);
-	return 2;
+	MechS32 side;
+
+	side = 2;
+	if (p_nav < 16) {
+		side = g_teams[g_navTable[p_nav].m_team].m_side;
+	}
+
+	return side;
 }
 
 // FUNCTION: MW2 0x1003c39d

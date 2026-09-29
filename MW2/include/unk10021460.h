@@ -2,6 +2,7 @@
 #define UNK10021460_H
 
 #include "decomp.h"
+#include "mss.h"
 #include "types.h"
 
 // The functions and globals of unk10021460.c that other units use.
@@ -10,11 +11,22 @@ extern "C"
 {
 #endif
 
-	void FUN_10021460(void);
-	void FUN_1002152b(void);
-	void FUN_100215a4(void);
-	void FUN_1002161d(void);
-	void FUN_1002187c(void);
+	extern MechS8 g_lockedChannel;
+	extern HMDIDRIVER g_midiDriver;
+	extern MechS32 g_midiShutDown;
+	extern MechS32 g_midiInitialized;
+	extern MechS16 g_midiSequenceIds[8];
+	extern HSEQUENCE g_midiSequences[8];
+
+	void StopMidiSequences(void);
+	void PauseMidiSequences(void);
+	void ResumeMidiSequences(void);
+	MechS32 InitializeMidi(void);
+	MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceNum);
+	void ShutdownMidi(void);
+	MechS16 FUN_100218bf(void);
+	void SetMidiVolume(MechS16 p_volume);
+	void FUN_100219ea(void);
 	MechS32 FUN_100219f5(
 		MechS32 p_delay,
 		MechS32 p_bearing,
@@ -23,7 +35,11 @@ extern "C"
 		MechS32 p_pan,
 		MechS32 p_flags
 	);
+	void FUN_10021a07(void);
+	void FUN_10021b2a(MechU32 p_pitch);
+	void FUN_10021be2(void);
 	void FUN_10021c49(void);
+	void FUN_10021c94(void);
 
 #ifdef __cplusplus
 }

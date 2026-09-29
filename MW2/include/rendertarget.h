@@ -66,6 +66,14 @@ extern "C"
 	);
 	MechS32 FUN_10064d4d(void* p_font);
 	MechS32 FUN_10064d60(void* p_font, MechS32 p_char);
+	MechS32 FUN_10064d80(
+		RenderTarget* p_target,
+		MechS32 p_x,
+		MechS32 p_y,
+		void* p_font,
+		MechS32 p_char,
+		void* p_unk0x14
+	);
 	void FUN_10064f0b(
 		RenderTarget* p_target,
 		MechS32 p_x,
@@ -83,6 +91,7 @@ extern "C"
 	MechS32 FUN_10065a7b(RenderTarget* p_dst, RenderTarget* p_src, MechS32 p_unk0x08, MechS32 p_unk0x0c);
 	MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav);
+	void FUN_1005ef5e(struct Player* p_player, MechS32 p_step, MechU32 p_flags);
 	MechS32 FUN_1005fa22(struct Player* p_player);
 	void FUN_10060197(
 		MechS32 p_dx,
@@ -93,7 +102,7 @@ extern "C"
 		MechU32* p_distance,
 		MechS32* p_unk0x18
 	);
-	void FUN_100602b2(struct Player* p_player, MechS32 p_unk0x04, MechS32 p_unk0x08);
+	void FUN_100602b2(struct Player* p_player, MechS32 p_step, MechS32 p_unk0x08);
 
 #ifdef __cplusplus
 }

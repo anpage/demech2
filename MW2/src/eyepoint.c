@@ -80,10 +80,23 @@ void ApplyCameraFov(MechS32 p_reset)
 	}
 }
 
-// STUB: MW2 0x100114ea
-void FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view)
+// Saves the eyepoint's position and orientation (0x00-0x14) to p_view, marking it (p_view[6])
+// as set. Returns 0 without both.
+// FUNCTION: MW2 0x100114ea
+MechS32 FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view)
 {
-	STUB(0x100114ea);
+	if (p_view == NULL || p_eyepoint == NULL) {
+		return 0;
+	}
+
+	p_view[0] = p_eyepoint->m_unk0x00;
+	p_view[1] = p_eyepoint->m_unk0x04;
+	p_view[2] = p_eyepoint->m_unk0x08;
+	p_view[3] = p_eyepoint->m_unk0x0c;
+	p_view[4] = p_eyepoint->m_unk0x10;
+	p_view[5] = p_eyepoint->m_unk0x14;
+	p_view[6] = 1;
+	return 1;
 }
 
 // Returns the eyepoint's base position (0x00-0x08) and orientation (0x0c-0x14), without the

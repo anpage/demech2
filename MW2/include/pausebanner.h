@@ -10,8 +10,8 @@ extern "C"
 #endif
 
 	void DrawPausedBanner(void);
-	void FUN_10009ef1(void);
-	void FUN_10009f13(void);
+	void PlayPauseSound(void);
+	void PlayResumeSound(void);
 
 #ifdef __cplusplus
 }

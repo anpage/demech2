@@ -8,6 +8,8 @@
 #include "simmain.h"
 #include "types.h"
 #include "unk10065f10.h"
+#include "unk1006d680.h"
+#include "unk1007d120.h"
 
 #include <windows.h>
 
@@ -147,8 +149,22 @@ void Blit(void)
 	}
 }
 
-// STUB: MW2 0x10012e91
+// FUNCTION: MW2 0x10012e91
 void ShutdownRender(void)
 {
-	STUB(0x10012e91);
+	FUN_1006db28();
+	FUN_1007d120();
+	if (g_unk0x100a245c && g_currentRenderTarget.m_buffer) {
+		FillRenderTargetRect(&g_currentRenderTarget, 0);
+		if (g_windowActive) {
+			g_currentRefreshMode->m_flip();
+		}
+	}
+
+	if (g_unk0x100a245c) {
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_unk0x100a245c);
+	}
+
+	g_unk0x100a2464 = 0;
+	ShutdownRefreshMode();
 }

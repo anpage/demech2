@@ -27,6 +27,10 @@ extern "C"
 
 	extern EffectInfo g_effectInfo[0x20];
 	extern MechS32 g_isNetworkGame;
+	extern void* g_unk0x100a178c;
+	extern void* g_unk0x100a1794;
+	extern void* g_unk0x100a1798;
+	extern MechS32 g_unk0x100a179c;
 	extern MechS32 g_unk0x100a17a0;
 	extern MechS32 g_normalFov;
 	extern MechS32 g_zoomFov;
@@ -36,6 +40,7 @@ extern "C"
 	extern MechS32 g_unk0x100a2c04;
 	extern MechS32 g_unk0x100a2c10;
 	extern MechS32 g_unk0x100a2c18;
+	extern void* g_unk0x100a245c;
 	extern MechS32 g_unk0x100a2460;
 	extern MechS32 g_unk0x100a2464;
 	extern Eyepoint* g_eyepoint;
@@ -45,6 +50,7 @@ extern "C"
 	extern MechS32 g_unk0x100c09e0[800];
 	extern const char* g_unk0x100a8680;
 	extern const char* g_unk0x100a8684;
+	extern const char* g_unk0x100a8690;
 	extern const char* g_unk0x100a8694;
 	extern const char* g_unk0x100a8698;
 	extern const char* g_unk0x100a86a0;
@@ -97,6 +103,8 @@ extern "C"
 	extern RenderTarget g_unk0x100bdff8;
 	extern RenderTarget g_currentRenderTarget;
 	extern PixelBuffer g_mainPixelBuffer;
+	extern void* g_unk0x101770a0;
+	extern void* g_unk0x101770cc;
 
 	void HandleMessages(void);
 	void UpdatePauseState(void);

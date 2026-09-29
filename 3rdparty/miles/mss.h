@@ -20,17 +20,28 @@ extern "C"
 	typedef struct _SEQUENCE* HSEQUENCE;
 	typedef struct _SAMPLE* HSAMPLE;
 	typedef struct _DIG_DRIVER* HDIGDRIVER;
+	typedef long HTIMER;
 
 #define SMP_PLAYING 4
 
+#define SEQ_DONE 2
+#define SEQ_PLAYING 4
+#define SEQ_STOPPED 8
+
 #define AILCALLBACK __stdcall
 	typedef void(AILCALLBACK* AILSAMPLECB)(HSAMPLE p_sample);
+	typedef void (*AILTIMERCB)(unsigned int p_user);
 
 	AILIMPORT void AILCALL AIL_startup(void);
 	AILIMPORT void AILCALL AIL_shutdown(void);
 
 	AILIMPORT int AILCALL AIL_midiOutOpen(HMDIDRIVER* p_driver, LPHMIDIOUT* p_midiOut, int p_deviceId);
 	AILIMPORT int AILCALL AIL_active_sequence_count(HMDIDRIVER p_driver);
+	AILIMPORT int AILCALL AIL_set_preference(unsigned int p_number, int p_value);
+	AILIMPORT int AILCALL AIL_lock_channel(HMDIDRIVER p_driver);
+	AILIMPORT void AILCALL AIL_release_channel(HMDIDRIVER p_driver, int p_channel);
+	AILIMPORT void AILCALL
+	AIL_send_channel_voice_message(HMDIDRIVER p_driver, HSEQUENCE p_sequence, int p_status, int p_data1, int p_data2);
 
 	AILIMPORT int AILCALL
 	AIL_waveOutOpen(HDIGDRIVER* p_driver, LPHWAVEOUT* p_waveOut, int p_deviceId, LPWAVEFORMAT p_format);
@@ -42,6 +53,8 @@ extern "C"
 	AILIMPORT int AILCALL AIL_init_sequence(HSEQUENCE p_sequence, void* p_start, int p_sequenceNum);
 	AILIMPORT void AILCALL AIL_start_sequence(HSEQUENCE p_sequence);
 	AILIMPORT void AILCALL AIL_stop_sequence(HSEQUENCE p_sequence);
+	AILIMPORT void AILCALL AIL_resume_sequence(HSEQUENCE p_sequence);
+	AILIMPORT int AILCALL AIL_sequence_status(HSEQUENCE p_sequence);
 	AILIMPORT void AILCALL AIL_set_sequence_volume(HSEQUENCE p_sequence, int p_volume, int p_milliseconds);
 	AILIMPORT void AILCALL AIL_set_sequence_loop_count(HSEQUENCE p_sequence, int p_loopCount);
 
@@ -64,6 +77,11 @@ extern "C"
 	AILIMPORT HSAMPLE AILCALL AIL_allocate_file_sample(HDIGDRIVER p_driver, void* p_fileImage, int p_block);
 
 	AILIMPORT void AILCALL AIL_serve(void);
+
+	AILIMPORT HTIMER AILCALL AIL_register_timer(AILTIMERCB p_callback);
+	AILIMPORT void AILCALL AIL_set_timer_divisor(HTIMER p_timer, unsigned int p_divisor);
+	AILIMPORT void AILCALL AIL_start_timer(HTIMER p_timer);
+	AILIMPORT void AILCALL AIL_release_timer_handle(HTIMER p_timer);
 
 	AILIMPORT int AILCALL AIL_minimum_sample_buffer_size(HDIGDRIVER p_driver, int p_rate, int p_format);
 	AILIMPORT void AILCALL AIL_set_sample_type(HSAMPLE p_sample, int p_format, unsigned int p_flags);

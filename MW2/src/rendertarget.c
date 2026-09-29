@@ -1,3 +1,6 @@
+/* Hand-written assembly: the font and shape accessors (FUN_10064d4d through GetShapeFrameCount)
+   are C functions with __asm bodies. Their short jumps are _emit pairs: the inline assembler
+   encodes them as rel32. */
 #include "rendertarget.h"
 
 #include "decomp.h"
@@ -27,6 +30,12 @@ void FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
 	STUB(0x1005ed4f);
 }
 
+// STUB: MW2 0x1005ef5e
+void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
+{
+	STUB(0x1005ef5e);
+}
+
 // STUB: MW2 0x1005fa22
 MechS32 FUN_1005fa22(Player* p_player)
 {
@@ -48,10 +57,18 @@ void FUN_10060197(
 	STUB(0x10060197);
 }
 
-// STUB: MW2 0x100602b2
-void FUN_100602b2(Player* p_player, MechS32 p_unk0x04, MechS32 p_unk0x08)
+// Steps p_player's selected target by p_step, with bit 0x100 of the flags set when p_unk0x08.
+// FUNCTION: MW2 0x100602b2
+void FUN_100602b2(Player* p_player, MechS32 p_step, MechS32 p_unk0x08)
 {
-	STUB(0x100602b2);
+	MechU32 flags;
+
+	flags = 1;
+	if (p_unk0x08) {
+		flags |= 0x100;
+	}
+
+	FUN_1005ef5e(p_player, p_step, flags);
 }
 
 // Returns the pixel at (p_x, p_y) of a render target, relative to its top left, or a negative
@@ -129,45 +146,125 @@ void FUN_10063a96(
 	STUB(0x10063a96);
 }
 
-// STUB: MW2 0x10064d4d
+// The font and shape accessors' bodies are __asm blocks. A font has its height at 0x08 and a
+// table of glyph offsets (4 bytes each) at 0x10, each glyph starting with its width. A shape
+// starts with its frame count at 0x04 and a table of frame offsets (8 bytes each) at 0x08; a
+// frame has its bounds at 0x08-0x14.
+#pragma warning(disable : 4035) /* no return value: the result is left in eax */
+#pragma warning(disable : 4102) /* the labels mark the targets of the _emit short jumps */
+
+// Returns a font's height.
+// FUNCTION: MW2 0x10064d4d
 MechS32 FUN_10064d4d(void* p_font)
 {
-	STUB(0x10064d4d);
-	return 0;
+	__asm {
+		push es
+		mov esi, p_font
+		mov eax, [esi + 8]
+		pop es
+	}
 }
 
-// STUB: MW2 0x10064d60
+// Returns the width of glyph p_char of a font.
+// FUNCTION: MW2 0x10064d60
 MechS32 FUN_10064d60(void* p_font, MechS32 p_char)
 {
-	STUB(0x10064d60);
+	__asm {
+		push es
+		mov eax, p_char
+		shl eax, 2
+		add eax, p_font
+		add eax, 0x10
+		mov esi, [eax]
+		add esi, p_font
+		mov eax, [esi]
+		pop es
+	}
+}
+
+// STUB: MW2 0x10064d80
+MechS32 FUN_10064d80(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_char, void* p_unk0x14)
+{
+	STUB(0x10064d80);
 	return 0;
 }
 
-// STUB: MW2 0x10064f0b
+// Draws the non-empty string p_text, each glyph through FUN_10064d80, which returns its width.
+// FUNCTION: MW2 0x10064f0b
 void FUN_10064f0b(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font, MechChar* p_text, void* p_unk0x14)
 {
-	STUB(0x10064f0b);
+	__asm {
+		push es
+		cld
+		push ds
+		pop es
+		mov esi, p_text
+		mov edi, p_x
+jmp_10064f1b:
+		movzx eax, byte ptr [esi]
+		push p_unk0x14
+		push eax
+		push p_font
+		push p_y
+		push edi
+		push p_target
+		call FUN_10064d80
+		add esp, 0x18
+		add edi, eax
+		inc esi
+		cmp byte ptr [esi], 0
+		_emit 0x75 /* jne jmp_10064f1b */
+		_emit 0xdf
+		pop es
+	}
 }
 
-// Returns a shape's size: the width in the high word, the height in the low word.
-// STUB: MW2 0x10065770
+// Returns a shape's size from its header: the width in the high word, the height in the low
+// word. The header is followed by a palette of 2^(n+1) entries when bit 7 of its byte 0x0a is set.
+// FUNCTION: MW2 0x10065770
 MechS32 FUN_10065770(void* p_shape)
 {
-	STUB(0x10065770);
-	return 0;
+	__asm {
+		push es
+		mov esi, p_shape
+		mov al, [esi + 0xa]
+		mov cl, al
+		and cl, 7
+		inc cl
+		mov ebx, 1
+		shl ebx, cl
+		add esi, 0xd
+		test al, 0x80
+		_emit 0x74 /* je jmp_10065797 */
+		_emit 0x05
+		imul ebx, ebx, 3
+		add esi, ebx
+jmp_10065797:
+		mov ax, [esi + 5]
+		shl eax, 16
+		mov ax, [esi + 7]
+		pop es
+	}
 }
 
-// Returns a shape frame's size: the width in the high word, the height in the low word.
-// STUB: MW2 0x100657a8
+// Returns a shape frame's size, stored at its start: the width in the high word, the height in
+// the low word.
+// FUNCTION: MW2 0x100657a8
 MechS32 FUN_100657a8(void* p_shape, MechS32 p_frame)
 {
-	STUB(0x100657a8);
-	return 0;
+	__asm {
+		push es
+		mov esi, p_shape
+		add esi, 8
+		mov eax, p_frame
+		shl eax, 3
+		add esi, eax
+		mov esi, [esi]
+		add esi, p_shape
+		mov eax, [esi]
+		pop es
+	}
 }
-
-// The shape accessors' bodies are __asm blocks. A shape starts with its frame count at 0x04 and a
-// table of frame offsets (8 bytes each) at 0x08; a frame has its bounds at 0x08-0x14.
-#pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // Returns the value at 0x04 of a shape frame.
 // FUNCTION: MW2 0x100657ca

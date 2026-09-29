@@ -65,7 +65,7 @@ extern "C"
 		MechS32* p_z
 	);
 	MechS32 FUN_10011440(void);
-	void FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view);
+	MechS32 FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view);
 
 #ifdef __cplusplus
 }

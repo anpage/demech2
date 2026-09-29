@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-	void FUN_10041f06(MechS32 p_x, MechS32 p_unk0x04, MechS32 p_unk0x08, RenderTarget* p_target);
+	void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target);
 
 #ifdef __cplusplus
 }

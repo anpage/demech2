@@ -1,7 +1,14 @@
 #include "unk100563d0.h"
 
+#include "bwd.h"
+#include "bwdnames.h"
 #include "decomp.h"
+#include "resource.h"
 #include "types.h"
+
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 DECOMP_SIZE_ASSERT(StaticPoolSize, 0x08)
 
@@ -31,10 +38,59 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 	return size;
 }
 
-// Reads a mission's static memory table (seven tag and size pairs), or returns NULL.
-// STUB: MW2 0x1005640e
+// The key OpenBwdStream looks a stream up by: a resource id, or -1 to use the name.
+typedef struct BwdStreamKey {
+	MechS16 m_id;          // 0x00
+	MechChar m_name[0x0e]; // 0x02
+} BwdStreamKey;
+
+// Reads a mission's static memory table (seven tag and size pairs), or returns NULL. A mission
+// named by a number is looked up by that resource id.
+// Stack-slot permutation: result, key, keyData and buffer.
+// FUNCTION: MW2 0x1005640e
 MechS32* FUN_1005640e(char* p_mission)
 {
-	STUB(0x1005640e);
+	BwdStream* stream;
+	BwdStreamKey* key;
+	MechS32* result;
+	BwdStreamKey keyData;
+	undefined buffer[0x20];
+
+	result = NULL;
+	key = &keyData;
+	strncpy(key->m_name, p_mission, 0xc);
+	key->m_name[0xc] = '\0';
+	if (isdigit(*p_mission)) {
+		key->m_id = atoi(p_mission);
+	}
+	else {
+		key->m_id = -1;
+	}
+
+	stream = OpenBwdStream(&key->m_id, buffer);
+	if (stream) {
+		if (FUN_10056503(stream)) {
+			result = FUN_100567ed();
+		}
+
+		UnloadResource(stream);
+		FUN_100586ec();
+		FUN_1004fd55();
+	}
+
+	return result;
+}
+
+// STUB: MW2 0x10056503
+MechS32 FUN_10056503(BwdStream* p_stream)
+{
+	STUB(0x10056503);
+	return 0;
+}
+
+// STUB: MW2 0x100567ed
+MechS32* FUN_100567ed(void)
+{
+	STUB(0x100567ed);
 	return NULL;
 }
