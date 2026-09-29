@@ -1,0 +1,29 @@
+#ifndef UNK1007FBE0_H
+#define UNK1007FBE0_H
+
+#include "decomp.h"
+#include "mech.h"
+#include "mechsegment.h"
+#include "object.h"
+#include "rememberedmech.h"
+#include "types.h"
+
+// The functions and globals of unk1007fbe0.c that other units use.
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+	extern MechS32 g_reloadingPlayer;
+
+	MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force);
+	void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechChar* p_unk0x0c);
+	void RememberMechSegments(Mech* p_mech);
+	AmberWillow0x7c* RestoreMechSegments(MechSegment* p_segment);
+	MechSegment* SaveMechSegments(AmberWillow0x7c* p_obj);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UNK1007FBE0_H

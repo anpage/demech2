@@ -1,5 +1,6 @@
 #include "brightnessmenu.h"
 
+#include "audio.h"
 #include "brightness.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"

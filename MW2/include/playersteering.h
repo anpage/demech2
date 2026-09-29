@@ -16,8 +16,17 @@ typedef struct PlayerSteering {
 	MechS8 m_unk0x1f;                 // 0x1f
 	MechS8 m_unk0x20;                 // 0x20
 	MechS8 m_unk0x21;                 // 0x21
-	undefined m_unk0x22[0x25 - 0x22]; // 0x22
+	undefined m_unk0x22[0x24 - 0x22]; // 0x22
+	MechS8 m_unk0x24;                 // 0x24
 	MechS8 m_unk0x25;                 // 0x25
+	MechS8 m_unk0x26;                 // 0x26
+	undefined m_unk0x27[0x2d - 0x27]; // 0x27
+	MechS8 m_unk0x2d;                 // 0x2d
+	MechS8 m_unk0x2e;                 // 0x2e
+	MechS8 m_unk0x2f;                 // 0x2f
+	MechS8 m_unk0x30;                 // 0x30
+	undefined m_unk0x31[0x42 - 0x31]; // 0x31
+	MechS8 m_unk0x42;                 // 0x42
 } PlayerSteering;
 
 #endif // PLAYERSTEERING_H

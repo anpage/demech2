@@ -424,7 +424,7 @@ jobs:
             --recurse \
             --style tools/ncc/ncc.style \
             --skip tools/ncc/skip.yml \
-            --definition DEFINE_GUID PASCAL WINAPI FAR BOOL=int CALLBACK HWND__=HWND AILIMPORT AILCALL \
+            --definition DEFINE_GUID PASCAL WINAPI FAR BOOL=int CALLBACK HWND__=HWND AILIMPORT AILCALL AILCALLBACK \
             --include "${includes[@]}" \
             --path "${paths[@]}"
 

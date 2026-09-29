@@ -1,5 +1,6 @@
 #include "cdaudio.h"
 
+#include "audio.h"
 #include "gamecd.h"
 #include "simmain.h"
 #include "types.h"

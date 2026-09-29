@@ -26,7 +26,8 @@ struct Player {
 	MechS32 m_slot;                           // 0x0c — the player's place in its team's formation
 	MechS32 m_unk0x10;                        // 0x10 — 2 for an AI-driven player
 	MechS16 m_flags;                          // 0x14
-	undefined m_unk0x16[0x20 - 0x16];         // 0x16
+	undefined m_unk0x16[0x1c - 0x16];         // 0x16
+	MechS32 m_unk0x1c;                        // 0x1c
 	Mech* m_mech;                             // 0x20
 	undefined4 m_unk0x24;                     // 0x24
 	void (*m_firstClassFn)(Player* p_player); // 0x28

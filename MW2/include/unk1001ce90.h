@@ -15,6 +15,7 @@ extern "C"
 
 	void FUN_1001da44(void);
 	void FUN_1001ddf2(struct AmberWillow0x7c* p_obj);
+	void FUN_1001de84(struct AmberWillow0x7c* p_obj);
 
 #ifdef __cplusplus
 }

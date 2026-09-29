@@ -1,5 +1,6 @@
 #include "geocache.h"
 
+#include "audio.h"
 #include "callbacks.h"
 #include "decomp.h"
 #include "error.h"

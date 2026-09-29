@@ -81,12 +81,6 @@ MechS32 g_isNetworkGame = 0;
 // GLOBAL: MW2 0x100a17a0
 MechS32 g_unk0x100a17a0 = 0;
 
-// GLOBAL: MW2 0x100a1498
-SoundConfig g_soundConfig = {0x10000, 0x10000, 0x10000, 0x10000, 11, 1, 1, 1, 1, 1, 9, "mcga.dll"};
-
-// GLOBAL: MW2 0x100a14d4
-SoundConfig* g_mw2SndCfgData = NULL;
-
 // GLOBAL: MW2 0x100a2400
 MechS32 g_normalFov = 0x10000;
 
@@ -119,6 +113,12 @@ MechS32 g_unk0x100a2464 = 0;
 
 // GLOBAL: MW2 0x100a2c04
 MechS32 g_unk0x100a2c04 = 0;
+
+// GLOBAL: MW2 0x100a2c10
+MechS32 g_unk0x100a2c10 = 0;
+
+// GLOBAL: MW2 0x100a2c18
+MechS32 g_unk0x100a2c18 = 0;
 
 // GLOBAL: MW2 0x100a554c
 undefined4 g_unk0x100a554c = 0xef;
@@ -216,6 +216,9 @@ SlateHeron0x68 g_unk0x100a6cc8 =
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
 
+// GLOBAL: MW2 0x100a8674
+const char* g_unk0x100a8674 = "SNDS";
+
 // GLOBAL: MW2 0x100a8678
 const char* g_unk0x100a8678 = "CEL";
 
@@ -242,6 +245,9 @@ const char* g_unk0x100a86c4 = "AIT";
 
 // GLOBAL: MW2 0x100a86cc
 const char* g_unk0x100a86cc = "LUMA";
+
+// GLOBAL: MW2 0x100a86d0
+const char* g_unk0x100a86d0 = "MUS";
 
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;
@@ -350,6 +356,10 @@ MechS32 g_unk0x100e9322;
 
 // GLOBAL: MW2 0x100e933c
 MechU32 g_windowedSwitchDeadline;
+
+// The mission's "MUS" resource.
+// GLOBAL: MW2 0x100e9340
+MechS32 g_unk0x100e9340;
 
 // GLOBAL: MW2 0x100e9350
 undefined g_unk0x100e9350[0x100];
@@ -975,7 +985,7 @@ void UpdatePauseState(void)
 			g_mouseOutsideClientWindow = FALSE;
 			DebugPrint("WinMain(3): pause_timer(false)");
 			PauseTimer(0x80, FALSE);
-			FUN_10007064();
+			ResumeAudio();
 			EnableGameplayInput();
 			g_simPaused = FALSE;
 		}
@@ -995,7 +1005,7 @@ void UpdatePauseState(void)
 
 		DebugPrint("WinMain(4): pause_timer(TRUE)");
 		PauseTimer(0x80, TRUE);
-		FUN_10007040();
+		PauseAudio();
 		DisableGameplayInput();
 		g_simPaused = TRUE;
 	}

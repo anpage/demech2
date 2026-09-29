@@ -1,6 +1,8 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include "mss.h"
+#include "soundconfig.h"
 #include "types.h"
 
 // The functions and globals of audio.c that other units use.
@@ -9,13 +11,24 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_cdTrack;
+	extern MechS32 g_midiSequence;
+	extern SoundConfig g_soundConfig;
+	extern SoundConfig* g_mw2SndCfgData;
+	extern MechS32 g_audioPaused;
+
 	void StartMissionMusic(void);
+	void PauseMusic(void);
+	void ResumeMusic(void);
+	void StopMusic(void);
 	void LoopCdMusic(void);
-	void FirstAudio(void);
+	MechS32 FirstAudio(void);
 	void DoAudio(void);
 	void ShutdownAudio(void);
-	void FUN_10007040(void);
-	void FUN_10007064(void);
+	void PauseAudio(void);
+	void ResumeAudio(void);
+	HDIGDRIVER OpenDigitalDriver(void);
+	HMDIDRIVER OpenMidiDriver(void);
 
 #ifdef __cplusplus
 }
