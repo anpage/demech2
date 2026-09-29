@@ -7,6 +7,7 @@
 #include "audio.h"
 #include "callbacks.h"
 #include "clock.h"
+#include "compat.h"
 #include "decomp.h"
 #include "environment.h"
 #include "error.h"
