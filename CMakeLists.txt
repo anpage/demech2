@@ -89,10 +89,14 @@ if (MSVC_FOR_DECOMP)
     set(CMAKE_${lang}_FLAGS_MINSIZEREL "/DNDEBUG")
     set(CMAKE_${lang}_STANDARD_LIBRARIES "")
   endforeach()
-  # LINK 3.10 crashes ("Internal error during Pass1", at a different object from run to run)
-  # on Windows once a response-file line passes 4K, which CMake's one-line objects1.rsp did
-  # at 100 MW2 objects; Wine's LINK survived it. The DLLs read their objects from a response
-  # file with one object per line instead (demech2_add_dll writes it).
+  # LINK 3.10 crashes on Windows ("Internal error during Pass1", at a varying object) once
+  # the object names it is given total about 4K: MW2's 100 objects as CMakeFiles\mw2.dir\...
+  # paths did (4226 bytes; 91 linked at 3843), and so did MW2SHELL's 60 as absolute paths
+  # (5016 bytes; 3309 as relative ones linked). Response-file lines are not the limit (the
+  # linker allows 16K per line), and Wine's LINK, which runs on Wine's C runtime instead of
+  # the system's MSVCRT40, links them all. So the DLLs are linked from copies of their
+  # objects in a flat directory under their base names (o\MW2\overlay.c.obj), which
+  # demech2_add_dll copies before each link, and the response file lists those.
   foreach(lang C CXX)
     string(REPLACE "<OBJECTS>" "@<TARGET_BASE>.objects.rsp"
       CMAKE_${lang}_CREATE_SHARED_LIBRARY "${CMAKE_${lang}_CREATE_SHARED_LIBRARY}")
@@ -184,10 +188,21 @@ function(demech2_add_dll TARGET)
   endif()
   target_link_libraries(${TARGET} PRIVATE ${ARGS_LIBRARIES})
   if (MSVC_FOR_DECOMP)
-    # The objects, one per line, in link order (see CMAKE_<LANG>_CREATE_SHARED_LIBRARY).
-    set(objects_rsp "$<TARGET_FILE_DIR:${TARGET}>/$<TARGET_FILE_BASE_NAME:${TARGET}>.objects.rsp")
-    file(GENERATE OUTPUT "${objects_rsp}" CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
-    set_property(TARGET ${TARGET} APPEND PROPERTY LINK_DEPENDS "${objects_rsp}")
+    # The objects, in link order, for cmake/link_objects.cmake: it copies them to
+    # o/<name>/ under their base names and writes <name>.objects.rsp, which
+    # CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads instead of <OBJECTS>.
+    set(dir "$<TARGET_FILE_DIR:${TARGET}>")
+    set(name "$<TARGET_FILE_BASE_NAME:${TARGET}>")
+    file(GENERATE OUTPUT "${dir}/${name}.objects.list"
+      CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
+    add_custom_command(TARGET ${TARGET} PRE_LINK
+      COMMAND "${CMAKE_COMMAND}"
+        "-DLIST=${dir}/${name}.objects.list" "-DDEST=${dir}/o/${name}"
+        "-DRSP=${dir}/${name}.objects.rsp" "-DPREFIX=o\\${name}"
+        -P "${PROJECT_SOURCE_DIR}/cmake/link_objects.cmake"
+      COMMENT "Copying ${ARGS_OUTPUT_NAME} objects to o/${name}"
+      VERBATIM
+    )
   endif()
   reccmp_add_target(${TARGET} ID ${ARGS_ID})
 endfunction()
