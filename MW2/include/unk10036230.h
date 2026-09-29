@@ -14,9 +14,14 @@ typedef struct GraniteLattice0x18 GraniteLattice0x18;
 
 // SIZE 0x18
 struct GraniteLattice0x18 {
-	undefined m_unk0x00[0x10 - 0x00]; // 0x00
+	MechS32 m_unk0x00;                // 0x00 — the list is sorted by it, ascending
+	MechS16 m_unk0x04;                // 0x04 — vertices
+	MechS16 m_unk0x06;                // 0x06 — faces
+	MechU32 m_unk0x08;                // 0x08 — offset of the faces
+	GraniteLattice0x18* m_unk0x0c;    // 0x0c — the next model in the list
 	undefined4 m_unk0x10;             // 0x10
-	undefined m_unk0x14[0x18 - 0x14]; // 0x14
+	MechU16 m_unk0x14;                // 0x14
+	undefined m_unk0x16[0x18 - 0x16]; // 0x16
 };
 
 // The functions and globals of unk10036230.c that other units use.

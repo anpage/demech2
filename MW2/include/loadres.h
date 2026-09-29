@@ -4,12 +4,34 @@
 #include "decomp.h"
 #include "types.h"
 
+// The header of a cached resource: its ID, type and lock count (the cache log prints
+// "ID %5d Type %4s Lock %d Size %7d"), its hash chain in g_cacheTable and its place in the
+// purge list of unlocked items. The resource data follows.
+// SIZE 0x14
+typedef struct CacheItem {
+	MechS16 m_id;                  // 0x00
+	MechS16 m_lock;                // 0x02
+	MechS32 m_type;                // 0x04 — four characters
+	struct CacheItem* m_next;      // 0x08
+	struct CacheItem* m_purgeNext; // 0x0c
+	struct CacheItem* m_purgePrev; // 0x10
+} CacheItem;
+
 // The functions and globals of loadres.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+	void FUN_10019af0(CacheItem* p_item);
+	void FUN_10019b63(CacheItem* p_item);
+	void FUN_10019c0c(void);
+	void FUN_10019c2f(void);
+	void FUN_10019cc2(void);
+	void FUN_10019d73(void);
+	void FUN_10019da1(void);
+	CacheItem* FUN_10019dac(MechS32 p_id, const char* p_type);
+	void FUN_10019e53(CacheItem* p_item);
 	void FUN_1001a158(void);
 	void FUN_1001a163(MechS32 p_id, const char* p_type);
 	void* FUN_1001a19f(undefined4 p_unk0x00, MechS32 p_unk0x04, const char* p_unk0x08, undefined4 p_unk0x0c);

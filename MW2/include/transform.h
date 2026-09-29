@@ -19,6 +19,7 @@ extern "C"
 {
 #endif
 
+	void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08);
 	void FUN_1000dbba(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08);
 	void FUN_1000dcbd(Matrix* p_unk0x00, Matrix* p_unk0x04);
