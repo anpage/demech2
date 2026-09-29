@@ -366,6 +366,7 @@ demech2_add_dll(mw2
     MW2/src/audio.c
     MW2/src/missionaudio.c
     MW2/src/anim2d.c
+    MW2/src/unk100079d0.c
     MW2/src/pausebanner.c
     MW2/src/debugbreak.c
     MW2/src/world.c
@@ -433,7 +434,9 @@ demech2_add_dll(mw2
     MW2/src/mouse.c
     MW2/src/animation.c
     MW2/src/unk100696c0.c
+    MW2/src/unk100699a0.c
     MW2/src/shots.c
+    MW2/src/unk1006c6c0.c
     MW2/src/unk1006ca60.c
     MW2/src/screenshot.c
     MW2/src/players.c

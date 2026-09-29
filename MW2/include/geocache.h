@@ -7,6 +7,8 @@
 #include "types.h"
 #include "unk1003a530.h"
 
+struct GameThing;
+
 struct AmberWillow0x7c;
 
 // An entry of the class table: an ID and its class.
@@ -36,6 +38,7 @@ extern "C"
 	void FUN_1002015f(MechS32 p_index);
 	void FUN_10020190(MechS32 p_index);
 	void FUN_100201c1(MechS32 p_index, MechU32 p_unk0x0c);
+	void FUN_10020429(struct GameThing* p_thing);
 	void FUN_100204e8(void);
 	undefined4 FUN_10020704(MechS32 p_index, MechS32 p_block);
 	void FUN_10020b95(MechS32 p_index);

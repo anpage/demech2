@@ -14,6 +14,10 @@
 // GLOBAL: MW2 0x100a2468
 MechS32 g_unk0x100a2468 = 0;
 
+// Cleared while an effect has the camera, set again when it gives it back.
+// GLOBAL: MW2 0x100a2470
+MechS32 g_unk0x100a2470 = 1;
+
 // GLOBAL: MW2 0x100a2480
 MechS32 g_unk0x100a2480 = 0;
 

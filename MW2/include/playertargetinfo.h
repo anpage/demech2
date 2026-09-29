@@ -3,6 +3,7 @@
 
 #include "decomp.h"
 #include "types.h"
+#include "vector3.h"
 
 #pragma pack(push, 1)
 
@@ -11,7 +12,7 @@
 typedef struct PlayerTargetInfo {
 	MechS32 m_distance;               // 0x00 — to the target, in world units
 	MechS32 m_unk0x04;                // 0x04 — a distance: DoAudio warns within 150000
-	undefined m_unk0x08[0x14 - 0x08]; // 0x08
+	Vector3 m_position;               // 0x08 — the target's
 	MechS32 m_heading;                // 0x14 — 16.16 degrees, towards the target
 	MechS32 m_unk0x18;                // 0x18
 	MechS32 m_target;                 // 0x1c — an AI target id (see ai.h)

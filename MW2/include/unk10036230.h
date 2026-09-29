@@ -7,6 +7,7 @@
 #include "transform.h"
 #include "types.h"
 
+struct Ray;
 struct ScarletOrchid0x4c;
 
 /* One level of detail of a shape's model (the list at ScarletOrchid0x4c::m_unk0x1c): the
@@ -39,6 +40,16 @@ extern "C"
 	void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable);
 	void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix);
 	void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix);
+	MechS32 FUN_10039c96(
+		MechS32 p_normalX,
+		MechS32 p_normalY,
+		MechS32 p_normalZ,
+		MechS32 p_unk0x0c,
+		MechS32 p_dx,
+		MechS32 p_dz
+	);
+	MechS32 FUN_10039ccc(struct ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_1003a096(struct ScarletOrchid0x4c* p_shape, struct Ray* p_ray);
 	void FUN_10038ced(MechU16* p_table);
 	void FUN_10038d0d(
 		RenderTarget* p_target,

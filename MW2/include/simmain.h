@@ -4,6 +4,7 @@
 #include "cockpit.h"
 #include "decomp.h"
 #include "displaybackend.h"
+#include "effectinfo.h"
 #include "eyepoint.h"
 #include "pixelbuffer.h"
 #include "point.h"
@@ -15,12 +16,16 @@
 
 #include <windows.h>
 
+struct DifficultyCfg;
+struct ScarletOrchid0x4c;
+
 // The functions and globals of simmain.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+	extern EffectInfo g_effectInfo[0x20];
 	extern MechS32 g_isNetworkGame;
 	extern MechS32 g_unk0x100a17a0;
 	extern MechS32 g_normalFov;
@@ -34,6 +39,7 @@ extern "C"
 	extern MechS32 g_unk0x100a2460;
 	extern MechS32 g_unk0x100a2464;
 	extern Eyepoint* g_eyepoint;
+	extern struct DifficultyCfg* g_difficulty;
 	extern SlateHeron0x68 g_unk0x100a6cc8;
 	extern MechS32 g_unk0x100bfd60[800];
 	extern MechS32 g_unk0x100c09e0[800];
@@ -85,6 +91,7 @@ extern "C"
 	extern void* g_unk0x100a5bb8[4];
 	extern Point g_unk0x100a5ee8[6];
 	extern MechS32 g_unk0x100a6d30;
+	extern struct ScarletOrchid0x4c* g_unk0x100a6d34;
 	extern undefined4 g_unk0x100a5a24;
 	extern undefined4 g_unk0x100a5f18;
 	extern RenderTarget g_unk0x100bdff8;

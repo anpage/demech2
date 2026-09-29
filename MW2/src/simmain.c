@@ -17,6 +17,7 @@
 #include "directdraw.h"
 #include "dispdibmode.h"
 #include "displaybackend.h"
+#include "effectinfo.h"
 #include "environment.h"
 #include "error.h"
 #include "eyepoint.h"
@@ -42,6 +43,7 @@
 #include "rendertarget.h"
 #include "resource.h"
 #include "screenscale.h"
+#include "shots.h"
 #include "speech.h"
 #include "startup.h"
 #include "staticmem.h"
@@ -74,6 +76,43 @@ DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 
 // The globals SimMain and SimWindowProc use are defined here until the objects that own
 // them are decompiled.
+
+// The effect types, among the weapon definitions of an object that isn't decompiled yet.
+// GLOBAL: MW2 0x100a0d00
+EffectInfo g_effectInfo[0x20] = {
+	{271, -1, 251, -1, 0, 1, 0},  // 0x00
+	{271, -1, 251, -1, 0, 1, 0},  // 0x01
+	{271, -1, 251, -1, 0, 1, 0},  // 0x02
+	{253, 1, 210, -1, 1, 1, 1},   // 0x03
+	{253, 1, 210, -1, 1, 1, 1},   // 0x04
+	{90, -1, 250, -1, 0, 1, 0},   // 0x05
+	{579, 2, 235, -1, 1, 1, 1},   // 0x06
+	{398, 1, 188, -1, 0, 1, 1},   // 0x07
+	{90, -1, 248, -1, 0, 1, 0},   // 0x08
+	{162, -1, 239, 10, 0, 1, 0},  // 0x09
+	{0, -1, -1, -1, 0, 0, 0},     // 0x0a
+	{1810, -1, -1, -1, 0, 1, 0},  // 0x0b
+	{398, 1, 210, -1, 1, 1, 1},   // 0x0c
+	{579, 1, 246, -1, 1, 1, 1},   // 0x0d
+	{72, -1, 249, -1, 0, 1, 0},   // 0x0e
+	{72, -1, 249, -1, 0, 1, 0},   // 0x0f
+	{72, -1, 249, -1, 0, 1, 0},   // 0x10
+	{108, 1, 255, -1, 1, 1, 1},   // 0x11
+	{144, -1, 252, -1, 0, 1, 0},  // 0x12
+	{362, 1, 210, -1, 1, 1, 1},   // 0x13
+	{362, 1, 210, -1, 1, 1, 1},   // 0x14
+	{579, 2, 235, -1, 1, 1, 1},   // 0x15
+	{5430, -1, 209, -1, 1, 1, 1}, // 0x16
+	{36, -1, -1, -1, 0, 1, 0},    // 0x17
+	{36, -1, -1, -1, 0, 1, 0},    // 0x18
+	{72, -1, -1, -1, 0, 1, 0},    // 0x19
+	{36, -1, -1, -1, 0, 1, 0},    // 0x1a
+	{36, -1, -1, -1, 0, 1, 0},    // 0x1b
+	{36, -1, -1, -1, 0, 1, 0},    // 0x1c
+	{36, -1, -1, -1, 0, 1, 0},    // 0x1d
+	{36, -1, -1, -1, 0, 1, 0},    // 0x1e
+	{36, -1, -1, -1, 0, 1, 0},    // 0x1f
+};
 
 // GLOBAL: MW2 0x100a175c
 MechS32 g_isNetworkGame = 0;
@@ -184,37 +223,21 @@ Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0
 undefined4 g_unk0x100a5f18 = 1;
 
 // GLOBAL: MW2 0x100a6be0
-Eyepoint g_unk0x100a6be0 = {
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0x10000,
-	{1000, 10000, (undefined4) -1000, 0x480001},
-	0,
-	319,
-	0,
-	199,
-	0x40,
-	0x249f0,
-	0,
-	0,
-	0,
-	0,
-	{0}
-};
+Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
+							0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
 
 // GLOBAL: MW2 0x100a6cc0
 Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6cc8
 SlateHeron0x68 g_unk0x100a6cc8 =
-	{{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0xe0, 0xef, 1, 0, 0, 0, 0, 0x186a0, 0x10000}, 0, 0, NULL, NULL, NULL, {0, 0}};
+	{{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0xe0, 0xef, 1, 0, 0}, 0, {0, 0x186a0, 0x10000}, 0, 0, NULL, NULL, NULL, {0, 0}};
 
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
+
+// GLOBAL: MW2 0x100a6d34
+struct ScarletOrchid0x4c* g_unk0x100a6d34 = NULL;
 
 // GLOBAL: MW2 0x100a8674
 const char* g_unk0x100a8674 = "SNDS";
@@ -347,12 +370,6 @@ MechS32 g_unk0x100c09e0[800];
 
 // GLOBAL: MW2 0x100e9240
 MechU32 g_windowedSwitchTime;
-
-// GLOBAL: MW2 0x100e926d
-MechU8 g_unk0x100e926d;
-
-// GLOBAL: MW2 0x100e9322
-MechS32 g_unk0x100e9322;
 
 // GLOBAL: MW2 0x100e933c
 MechU32 g_windowedSwitchDeadline;
@@ -668,8 +685,8 @@ int __stdcall SimMain(
 			g_goLaunch |= 2;
 		}
 
-		g_unk0x100e926d = 1;
-		g_unk0x100e9322 = -1;
+		g_carCfg.m_unk0x1d = 1;
+		g_carCfg.m_unk0xd2 = -1;
 		while (g_quitStage < 3) {
 			if (g_goLaunch == 3) {
 				DebugPrint("GoLaunch == GO_READY\n");
@@ -765,7 +782,7 @@ int __stdcall SimMain(
 			g_goLaunch |= 2;
 		}
 
-		FadeToEndPalette(g_unk0x100e926d & 4);
+		FadeToEndPalette(g_carCfg.m_unk0x1d & 4);
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 			FillRenderTargetRect(&g_currentRenderTarget, 0);
 		}

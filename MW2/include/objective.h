@@ -15,6 +15,7 @@ extern "C"
 	void EndTheMission1(void);
 	void EndTheMission2(void);
 	void FUN_1001cc5c(MechS32 p_player);
+	void FUN_1001cdd1(void);
 	MechS32 FUN_1001cdf6(MechS32 p_team);
 
 #ifdef __cplusplus

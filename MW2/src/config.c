@@ -172,9 +172,9 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 	}
 
 	if (g_isNetworkGame > 1) {
-		(*p_cfg)->m_unk0x04 = 1;
+		(*p_cfg)->m_heatTracking = 1;
 		(*p_cfg)->m_unk0x00 = 0;
-		(*p_cfg)->m_unk0x02 = 1;
+		(*p_cfg)->m_splashDamage = 1;
 		(*p_cfg)->m_unk0x03 = 1;
 	}
 

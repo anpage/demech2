@@ -2,7 +2,9 @@
 #define UNK1001DF00_H
 
 #include "decomp.h"
+#include "ray.h"
 #include "types.h"
+#include "unk10036230.h"
 
 // A quadtree node: its bounds, its four children (m_unk0x18 == 0) and m_unk0x18 entries
 // after the header (undefined4 each). FUN_1001e429 allocates it; ScarletOrchid0x4c::m_unk0x44 holds the root
@@ -35,6 +37,16 @@ extern "C"
 		MechS32 p_unk0x18
 	);
 	void FUN_1001e50d(AzureThicket0x2c* p_node);
+	MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray);
+	MechS32 FUN_1001ebfa(
+		AzureThicket0x2c* p_node,
+		GraniteLattice0x18* p_model,
+		MechS32 p_x,
+		MechS32 p_y,
+		MechS32 p_z,
+		MechS32* p_top
+	);
 	void FUN_1001edfa(void);
 	MechS32 FUN_1001ee0f(AzureThicket0x2c* p_node);
 

@@ -1769,9 +1769,9 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 			(p_player->m_nav & 0x1000) &&
 			(nav = FUN_1005ec80(
 				 p_player->m_index,
-				 p_player->m_position[0],
-				 p_player->m_position[1],
-				 p_player->m_position[2]
+				 p_player->m_position.m_x,
+				 p_player->m_position.m_y,
+				 p_player->m_position.m_z
 			 )) != -1) {
 			g_navTable[nav].m_flags |= 1;
 			g_navTable[nav].m_owner = p_player->m_index | c_aiTargetPlayer;
@@ -2164,9 +2164,9 @@ void FUN_10054851(Player* p_player)
 		break;
 	case c_aiTargetPlayer:
 		player = g_players[index];
-		x = player->m_position[0];
-		y = player->m_position[1];
-		z = player->m_position[2];
+		x = player->m_position.m_x;
+		y = player->m_position.m_y;
+		z = player->m_position.m_z;
 		break;
 	case c_aiTargetNav:
 		nav = &g_navTable[index];

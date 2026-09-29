@@ -95,9 +95,9 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 	case 4:
 		FUN_100114ea(g_eyepoint, view);
 		FUN_10050dc3(&saved);
-		view[0] = mech->m_player->m_position[0];
-		view[1] = mech->m_player->m_position[1];
-		view[2] = mech->m_player->m_position[2];
+		view[0] = mech->m_player->m_position.m_x;
+		view[1] = mech->m_player->m_position.m_y;
+		view[2] = mech->m_player->m_position.m_z;
 		view[4] = 0x5a0000;
 		view[5] = 0;
 		FUN_100018ca(mech->m_player->m_obj);
