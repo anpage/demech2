@@ -138,10 +138,10 @@ MechS32 g_unk0x100a9538 = 0;
 
 // The debug build drew each text it formatted while g_unk0x100e9630 was set; the release
 // build keeps only the test.
-#define DRAW_DEBUG_TEXT() \
-	do { \
-		if (g_unk0x100e9630) { \
-		} \
+#define DRAW_DEBUG_TEXT()                                                                                              \
+	do {                                                                                                               \
+		if (g_unk0x100e9630) {                                                                                         \
+		}                                                                                                              \
 	} while (0)
 
 // GLOBAL: MW2 0x100bea00
@@ -397,13 +397,7 @@ void FUN_10058d90(Eyepoint* p_eyepoint)
 		return;
 	}
 
-	sprintf(
-		text,
-		"txyz: %04.4ld %04.4ld %04.4ld",
-		p_eyepoint->m_unk0x00,
-		p_eyepoint->m_unk0x04,
-		p_eyepoint->m_unk0x08
-	);
+	sprintf(text, "txyz: %04.4ld %04.4ld %04.4ld", p_eyepoint->m_unk0x00, p_eyepoint->m_unk0x04, p_eyepoint->m_unk0x08);
 	DRAW_DEBUG_TEXT();
 	sprintf(
 		text,

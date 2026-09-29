@@ -280,14 +280,7 @@ void FUN_1005718d(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font
 // Underlines text drawn at p_x, p_y.
 // Stack-slot permutation: width, height and i.
 // FUNCTION: MW2 0x100571ea
-void FUN_100571ea(
-	RenderTarget* p_target,
-	MechChar* p_text,
-	MechS32 p_x,
-	MechS32 p_y,
-	void* p_font,
-	MechS32 p_color
-)
+void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_color)
 {
 	MechS32 width;
 	MechS32 height;
@@ -306,14 +299,7 @@ void FUN_100571ea(
 // Draws a box around text drawn at p_x, p_y.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057282
-void FUN_10057282(
-	RenderTarget* p_target,
-	MechChar* p_text,
-	MechS32 p_x,
-	MechS32 p_y,
-	void* p_font,
-	MechS32 p_color
-)
+void FUN_10057282(RenderTarget* p_target, MechChar* p_text, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_color)
 {
 	MechS32 left;
 	MechS32 top;
