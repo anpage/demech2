@@ -661,7 +661,7 @@ void CreditsCallback(MechS32 p_active)
 	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
 		g_keyboardInput->PollKey() != 0) {
 		UnregisterMenuFunction(CreditsCallback);
-		EnableMenuItem(g_windowMenu, 0x9c92, MF_ENABLED);
+		EnableMenuItem(g_windowMenu, c_menuKeshik, MF_ENABLED);
 		g_menuDialogOpen = FALSE;
 		if (g_creditsMovie != NULL) {
 			delete g_creditsMovie;
