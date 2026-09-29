@@ -1,8 +1,10 @@
 /* The "paused" banner and the pause and resume sounds. */
 #include "pausebanner.h"
 
+#include "audio.h"
 #include "decomp.h"
 #include "loadres.h"
+#include "network.h"
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
@@ -44,4 +46,24 @@ void PlayPauseSound(void)
 void PlayResumeSound(void)
 {
 	FUN_1007ea11(0xf1, 0x32, 0x40, RandomSampleRate());
+}
+
+// Pauses the clock and the audio, outside a network game.
+// FUNCTION: MW2 0x10009f35
+void FUN_10009f35(void)
+{
+	if (!g_netRole) {
+		PauseTimer(0x80, 1);
+		PauseAudio();
+	}
+}
+
+// Resumes the clock and the audio, outside a network game.
+// FUNCTION: MW2 0x10009f61
+void FUN_10009f61(void)
+{
+	if (!g_netRole) {
+		PauseTimer(0x80, 0);
+		ResumeAudio();
+	}
 }

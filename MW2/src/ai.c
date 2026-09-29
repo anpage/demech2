@@ -7,6 +7,7 @@
 #include "geocache.h"
 #include "loadres.h"
 #include "mw2log.h"
+#include "network.h"
 #include "objective.h"
 #include "overlay.h"
 #include "players.h"
@@ -2237,7 +2238,7 @@ void FUN_10054b50(MechS32 p_index, MechU32 p_attacker)
 	MechChar line[80];
 	Player* player;
 
-	if (p_index == g_localPlayerId || g_unk0x100a17a0) {
+	if (p_index == g_localPlayerId || g_netRole) {
 		player = g_players[p_index];
 		if (player->m_aiTarget != (p_attacker | c_aiTargetPlayer) || player->m_aiState != c_aiStateAttack) {
 			sprintf(

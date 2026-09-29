@@ -348,6 +348,7 @@ demech2_add_dll(mw2
   OUTPUT_NAME MW2
   RUNTIME MultiThreadedDebug
   SOURCES
+    MW2/src/netio.c
     MW2/src/object.c
     MW2/src/palette.c
     MW2/src/fixeddiv.c
@@ -454,6 +455,7 @@ demech2_add_dll(mw2
     MW2/src/brightnessmenu.c
     MW2/src/unk100746c0.c
     MW2/src/gifsave.c
+    MW2/src/unk100758a0.c
     MW2/src/perf.c
     MW2/src/refreshmode.c
     MW2/src/directdraw.c

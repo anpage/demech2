@@ -4,7 +4,10 @@
 #include "rendertarget.h"
 
 #include "decomp.h"
+#include "geocache.h"
+#include "object.h"
 #include "players.h"
+#include "simmain.h"
 #include "types.h"
 
 DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
@@ -36,11 +39,104 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 	STUB(0x1005ef5e);
 }
 
+// Marks the local player's target (bit 0x1000).
+// FUNCTION: MW2 0x1005f284
+void FUN_1005f284(void)
+{
+	Player* player;
+
+	player = g_players[g_localPlayerId];
+	player->m_targetInfo.m_target |= 0x1000;
+}
+
 // STUB: MW2 0x1005fa22
 MechS32 FUN_1005fa22(Player* p_player)
 {
 	STUB(0x1005fa22);
 	return 0;
+}
+
+// Returns the player the local player targets, or -1.
+// The only diff is a stack-slot permutation of index, player and kind.
+// FUNCTION: MW2 0x1005fe63
+MechS32 FUN_1005fe63(void)
+{
+	MechS32 index;
+	Player* player;
+	MechS32 kind;
+
+	player = g_players[g_localPlayerId];
+	kind = player->m_targetInfo.m_target & 0xf00;
+	index = player->m_targetInfo.m_target & 0xff;
+	if (kind != 0x200) {
+		index = -1;
+	}
+
+	return index;
+}
+
+// Returns the game thing the local player targets, or -1.
+// The only diff is a stack-slot permutation of index, player and kind.
+// FUNCTION: MW2 0x1005febe
+MechS32 FUN_1005febe(void)
+{
+	MechS32 index;
+	Player* player;
+	MechS32 kind;
+
+	player = g_players[g_localPlayerId];
+	kind = player->m_targetInfo.m_target & 0xf00;
+	index = player->m_targetInfo.m_target & 0xff;
+	if (kind != 0x400) {
+		index = -1;
+	}
+
+	return index;
+}
+
+// Returns the shape of the local player's target, or NULL.
+// FUNCTION: MW2 0x1005ff19
+ScarletOrchid0x4c* FUN_1005ff19(void)
+{
+	AmberWillow0x7c* obj;
+
+	obj = FUN_1005ff56();
+	if (obj) {
+		return FUN_1000154d(obj);
+	}
+	else {
+		return NULL;
+	}
+}
+
+// Returns the scene object of the local player's target: a player's or a game thing's.
+// The only diff is a stack-slot permutation of index, player, obj, kind and id.
+// FUNCTION: MW2 0x1005ff56
+AmberWillow0x7c* FUN_1005ff56(void)
+{
+	MechS32 index;
+	Player* player;
+	AmberWillow0x7c* obj;
+	MechS32 kind;
+	MechS32 id;
+
+	obj = NULL;
+	player = g_players[g_localPlayerId];
+	kind = player->m_targetInfo.m_target & 0xf00;
+	index = player->m_targetInfo.m_target & 0xff;
+	switch (kind) {
+	case 0x200:
+		obj = g_players[index]->m_obj;
+		break;
+	case 0x400:
+		id = g_gameThings[index].m_unk0x04;
+		obj = FUN_10020bdd(id);
+		break;
+	default:
+		break;
+	}
+
+	return obj;
 }
 
 // STUB: MW2 0x10060197
@@ -69,6 +165,42 @@ void FUN_100602b2(Player* p_player, MechS32 p_step, MechS32 p_unk0x08)
 	}
 
 	FUN_1005ef5e(p_player, p_step, flags);
+}
+
+// FUNCTION: MW2 0x100602ec
+void FUN_100602ec(MechS32 p_step)
+{
+	Player* player;
+
+	player = g_players[g_localPlayerId];
+	FUN_1005ef5e(player, p_step, 4);
+}
+
+// FUNCTION: MW2 0x1006031b
+void FUN_1006031b(MechS32 p_step)
+{
+	Player* player;
+
+	player = g_players[g_localPlayerId];
+	FUN_1005ef5e(player, p_step, 2);
+}
+
+// FUNCTION: MW2 0x1006034a
+void FUN_1006034a(MechS32 p_step)
+{
+	Player* player;
+
+	player = g_players[g_localPlayerId];
+	FUN_1005ef5e(player, p_step, 0x20008);
+}
+
+// FUNCTION: MW2 0x1006037c
+void FUN_1006037c(MechS32 p_step)
+{
+	Player* player;
+
+	player = g_players[g_localPlayerId];
+	FUN_1005ef5e(player, p_step, 0x40008);
 }
 
 // Returns the pixel at (p_x, p_y) of a render target, relative to its top left, or a negative

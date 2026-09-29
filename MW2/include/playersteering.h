@@ -27,6 +27,7 @@ typedef struct PlayerSteering {
 	MechS8 m_unk0x30;                 // 0x30
 	undefined m_unk0x31[0x42 - 0x31]; // 0x31
 	MechS8 m_unk0x42;                 // 0x42
+	MechS8 m_unk0x43;                 // 0x43
 } PlayerSteering;
 
 #endif // PLAYERSTEERING_H

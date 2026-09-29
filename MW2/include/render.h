@@ -29,6 +29,7 @@ extern "C"
 	extern MechS32 g_screenWidthMinus1;
 	extern MechS32 g_screenHalfWidth;
 	extern MechS32 g_screenHalfHeight;
+	extern undefined4 g_unk0x10176eb0;
 	extern MechS32 g_unk0x10176ebc;
 	extern MechS32 g_unk0x100a2468;
 	extern MechS32 g_unk0x100a2480;
@@ -41,6 +42,8 @@ extern "C"
 	void FUN_10012e00(void);
 	void Blit(void);
 	void ShutdownRender(void);
+	undefined4 FUN_10012f14(void);
+	void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value);
 
 #ifdef __cplusplus
 }

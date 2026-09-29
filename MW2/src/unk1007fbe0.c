@@ -7,6 +7,7 @@
 #include "decomp.h"
 #include "gpanim.h"
 #include "mech.h"
+#include "network.h"
 #include "object.h"
 #include "objective.h"
 #include "players.h"
@@ -99,7 +100,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	}
 
 	// gpanim.c's Mech is the player
-	FUN_10003a10((Mech*) mech->m_player);
+	FUN_10003a10(mech->m_player);
 	FUN_10016ad0(mech->m_player);
 
 	if (g_localPlayerId == p_player) {

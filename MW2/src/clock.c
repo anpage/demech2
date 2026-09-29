@@ -3,6 +3,7 @@
 #include "debugprint.h"
 #include "decomp.h"
 #include "mss.h"
+#include "network.h"
 #include "simmain.h"
 #include "transform.h"
 #include "types.h"

@@ -26,12 +26,6 @@ extern "C"
 #endif
 
 	extern EffectInfo g_effectInfo[0x20];
-	extern MechS32 g_isNetworkGame;
-	extern void* g_unk0x100a178c;
-	extern void* g_unk0x100a1794;
-	extern void* g_unk0x100a1798;
-	extern MechS32 g_unk0x100a179c;
-	extern MechS32 g_unk0x100a17a0;
 	extern MechS32 g_normalFov;
 	extern MechS32 g_zoomFov;
 	extern MechS32 g_unk0x100a2414;
@@ -62,10 +56,14 @@ extern "C"
 	extern undefined4 g_unk0x100a8740;
 	extern MechChar* g_unk0x100a8744;
 	extern MechS32 g_missionTimerStopped;
+	extern MechS32 g_shouldQuit;
+	extern MechS32 g_goLaunch;
+	extern MechS32 g_quitStage;
 	extern MechS32 g_localPlayerId;
 	extern struct Player* g_localPlayer;
 	extern MechS32 g_missionTime;
 	extern MechS32 g_unk0x100aa2a4;
+	extern MechS32 g_unk0x100aa2bc;
 	extern MechS32 g_unk0x100c3358;
 	extern MechS32 g_unk0x100ea3e4;
 	extern MechS32 g_currentObjective[64];
@@ -103,8 +101,6 @@ extern "C"
 	extern RenderTarget g_unk0x100bdff8;
 	extern RenderTarget g_currentRenderTarget;
 	extern PixelBuffer g_mainPixelBuffer;
-	extern void* g_unk0x101770a0;
-	extern void* g_unk0x101770cc;
 
 	void HandleMessages(void);
 	void UpdatePauseState(void);

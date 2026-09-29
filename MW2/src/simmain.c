@@ -30,6 +30,8 @@
 #include "menu.h"
 #include "mss.h"
 #include "mw2log.h"
+#include "netlaunchinfo.h"
+#include "network.h"
 #include "overlay.h"
 #include "palette.h"
 #include "palettecolor.h"
@@ -54,16 +56,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-typedef struct NetLaunchInfo {
-	void* m_directPlay;               // 0x00
-	MechS32 m_localPlayerId;          // 0x04
-	undefined4 m_unk0x08;             // 0x08
-	undefined4 m_unk0x0c;             // 0x0c
-	MechS32* m_playerIds;             // 0x10
-	undefined m_unk0x14[0x24 - 0x14]; // 0x14
-	char* m_missionName;              // 0x24
-} NetLaunchInfo;
 
 typedef struct Unk0x1012b7c0 {
 	MechU32 m_unk0x00;  // 0x00
@@ -113,24 +105,6 @@ EffectInfo g_effectInfo[0x20] = {
 	{36, -1, -1, -1, 0, 1, 0},    // 0x1e
 	{36, -1, -1, -1, 0, 1, 0},    // 0x1f
 };
-
-// GLOBAL: MW2 0x100a175c
-MechS32 g_isNetworkGame = 0;
-
-// GLOBAL: MW2 0x100a178c
-void* g_unk0x100a178c = NULL;
-
-// GLOBAL: MW2 0x100a1794
-void* g_unk0x100a1794 = NULL;
-
-// GLOBAL: MW2 0x100a1798
-void* g_unk0x100a1798 = NULL;
-
-// GLOBAL: MW2 0x100a179c
-MechS32 g_unk0x100a179c = 0;
-
-// GLOBAL: MW2 0x100a17a0
-MechS32 g_unk0x100a17a0 = 0;
 
 // GLOBAL: MW2 0x100a2400
 MechS32 g_normalFov = 0x10000;
@@ -305,6 +279,9 @@ MechS32 g_unk0x100aa2a4 = 1;
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
 
+// GLOBAL: MW2 0x100aa2bc
+MechS32 g_unk0x100aa2bc = 0;
+
 // GLOBAL: MW2 0x100aa2c0
 MechS32 g_unk0x100aa2c0 = 0;
 
@@ -426,12 +403,6 @@ RenderTarget g_currentRenderTarget;
 // GLOBAL: MW2 0x10176ef0
 PixelBuffer g_mainPixelBuffer;
 
-// GLOBAL: MW2 0x101770a0
-void* g_unk0x101770a0;
-
-// GLOBAL: MW2 0x101770cc
-void* g_unk0x101770cc;
-
 // The two tick counters GameTickTimerCallback advances, and the start values of each counter's
 // handles (0: free).
 
@@ -460,10 +431,6 @@ void ZeroChunx(void);
 void CollectMissionAudio(void);
 void LoadWorld(char* p_unk0x00);
 void AfterWorldLoader(void);
-void FirstNetwork(NetLaunchInfo* p_unk0x00);
-MechS32 FirstExternalCtrl(void);
-void UpdateNetwork(void);
-void ShutdownNetwork(void);
 void FirstEyepoint(void);
 void UpdateEyepoint(void);
 void DoFirstObjtv(StarMission* p_unk0x00, MechS32 p_unk0x04);
@@ -571,10 +538,10 @@ int __stdcall SimMain(
 	if (p_netLaunch) {
 		g_isNetworkGame = 1;
 		if (p_netLaunch->m_localPlayerId == 1) {
-			g_unk0x100a17a0 = 1;
+			g_netRole = 1;
 		}
 		else {
-			g_unk0x100a17a0 = 2;
+			g_netRole = 2;
 		}
 
 		strncpy(missionName, p_netLaunch->m_missionName, sizeof(missionName));
@@ -1013,7 +980,7 @@ void UpdatePauseState(void)
 			g_keyCode = 0;
 			g_pauseRequested = FALSE;
 		}
-		else if (g_unk0x100a17a0 || GetMenuSlotState(4)) {
+		else if (g_netRole || GetMenuSlotState(4)) {
 			g_pauseRequested = FALSE;
 		}
 	}
@@ -1031,7 +998,7 @@ void UpdatePauseState(void)
 			g_simPaused = FALSE;
 		}
 	}
-	else if (!g_simPaused && !g_unk0x100a17a0) {
+	else if (!g_simPaused && !g_netRole) {
 		if (g_pauseRequested) {
 			PlayPauseSound();
 			g_keyCode = 0;
