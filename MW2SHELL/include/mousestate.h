@@ -26,19 +26,19 @@ public:
 	void ReadMouseState();
 
 private:
-	void* m_unk0x00;            // 0x00
-	VideoDriver* m_videoDriver; // 0x04
-	Font* m_font;               // 0x08
-	MechS32 m_unk0x0c;          // 0x0c
-	undefined4 m_leftPressed;   // 0x10
-	undefined4 m_rightPressed;  // 0x14
-	undefined4 m_middlePressed; // 0x18
-	undefined m_doubleClicked;  // 0x1c
-	undefined m_unk0x1d;        // 0x1d
-	undefined m_unk0x1e;        // 0x1e
-	undefined4 m_lastClickTime; // 0x1f
-	undefined4 m_unk0x23;       // 0x23
-	undefined4 m_unk0x27;       // 0x27
+	void* m_unk0x00;             // 0x00
+	VideoDriver* m_videoDriver;  // 0x04
+	Font* m_font;                // 0x08
+	MechS32 m_positionTextWidth; // 0x0c — DrawCursorPosition's, restored before the next
+	undefined4 m_leftPressed;    // 0x10
+	undefined4 m_rightPressed;   // 0x14
+	undefined4 m_middlePressed;  // 0x18
+	undefined m_doubleClicked;   // 0x1c
+	undefined m_unk0x1d;         // 0x1d
+	undefined m_unk0x1e;         // 0x1e
+	undefined4 m_lastClickTime;  // 0x1f
+	undefined4 m_unk0x23;        // 0x23
+	undefined4 m_unk0x27;        // 0x27
 
 public:
 	// The screens read the cursor position and the cockpit controls screen's scroll arrows

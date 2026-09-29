@@ -10,8 +10,9 @@
 // GLOBAL: MW2SHELL 0x10066ddc
 MechChar g_cdDriveLetter = '\0';
 
+// The game CD's drive among the CD-ROM drives, from 1; 0 if not found.
 // GLOBAL: MW2SHELL 0x10066de0
-MechS32 g_unk0x10066de0 = 0;
+MechS32 g_cdDriveNumber = 0;
 
 // FUNCTION: MW2SHELL 0x10030a20
 char CdCheck()
@@ -31,10 +32,10 @@ char CdCheck()
 	sprintf(path, " :\\OLD_HERC.DRV");
 
 	drive = driveStrings;
-	g_unk0x10066de0 = 0;
+	g_cdDriveNumber = 0;
 	while (*drive != '\0') {
 		if (GetDriveType(drive) == DRIVE_CDROM) {
-			g_unk0x10066de0++;
+			g_cdDriveNumber++;
 			path[0] = *drive;
 			hFindFile = FindFirstFile(path, &findData);
 			if (hFindFile != INVALID_HANDLE_VALUE) {
@@ -49,19 +50,20 @@ char CdCheck()
 		g_cdDriveLetter = *drive;
 	}
 	else {
-		g_unk0x10066de0 = 0;
+		g_cdDriveNumber = 0;
 	}
 
 	free(driveStrings);
 	return g_cdDriveLetter;
 }
 
+// Unused.
 // FUNCTION: MW2SHELL 0x10030b5b
-MechS32 FUN_10030b5b()
+MechS32 GetCdDriveNumber()
 {
-	if (g_unk0x10066de0 == 0) {
+	if (g_cdDriveNumber == 0) {
 		CdCheck();
 	}
 
-	return g_unk0x10066de0;
+	return g_cdDriveNumber;
 }

@@ -63,7 +63,7 @@ void ShutdownMw2Prj(void)
 // FUNCTION: MW2SHELL 0x1003c061
 void* Mw2PrjAlloc(undefined4 p_size)
 {
-	return FUN_10013fa9(p_size);
+	return AllocateMemory(p_size);
 }
 
 // FUNCTION: MW2SHELL 0x1003c07d

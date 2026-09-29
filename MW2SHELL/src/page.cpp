@@ -17,23 +17,26 @@
 DECOMP_SIZE_ASSERT(Page, 0x34)
 DECOMP_SIZE_ASSERT(Page::Link, 0x14)
 
+// Set by a \A escape and never read.
 // GLOBAL: MW2SHELL 0x10071180
-MechU8 g_unk0x10071180 = FALSE;
+MechU8 g_pageLinkRead = FALSE;
 
+// A \B or \G escape was read: the next ReadToken passes it on to the glyph as a word.
 // GLOBAL: MW2SHELL 0x10071184
-MechU8 g_unk0x10071184 = FALSE;
+MechU8 g_pageBackUpPending = FALSE;
 
 // GLOBAL: MW2SHELL 0x10071188
-MechU8 g_unk0x10071188 = FALSE;
+MechU8 g_pageGoToPending = FALSE;
 
+// Layout's word, line and scratch buffers.
 // GLOBAL: MW2SHELL 0x10093a78
-MechChar g_unk0x10093a78[0x400];
+MechChar g_pageWord[0x400];
 
 // GLOBAL: MW2SHELL 0x10093e78
-MechChar g_unk0x10093e78[0x400];
+MechChar g_pageLine[0x400];
 
 // GLOBAL: MW2SHELL 0x10094278
-MechChar g_unk0x10094278[0x400];
+MechChar g_pageTemp[0x400];
 
 // Records the area of the link word just placed. Layout does this in three places.
 #define PAGE_ADD_LINK(WORD_WIDTH)                                                                                      \
@@ -142,14 +145,14 @@ MechS32 Page::ReadToken(
 		return c_tokenEnd;
 	}
 
-	if (g_unk0x10071184 == TRUE) {
-		g_unk0x10071184 = FALSE;
+	if (g_pageBackUpPending == TRUE) {
+		g_pageBackUpPending = FALSE;
 		sprintf(p_word, "\\b%03d", *p_offset);
 		return c_tokenWord;
 	}
 
-	if (g_unk0x10071188 == TRUE) {
-		g_unk0x10071188 = FALSE;
+	if (g_pageGoToPending == TRUE) {
+		g_pageGoToPending = FALSE;
 		sprintf(p_word, "\\g%03d", *p_offset);
 		return c_tokenWord;
 	}
@@ -211,7 +214,7 @@ nextChar:
 			number[1] = p_text[++i];
 			i++;
 			number[2] = '\0';
-			g_unk0x10071180 = TRUE;
+			g_pageLinkRead = TRUE;
 			*p_link = atoi(number);
 			*p_pos = i;
 			SkipSpaces(p_text, p_pos, p_end);
@@ -223,11 +226,11 @@ nextChar:
 			number[2] = p_text[++i];
 			i++;
 			number[3] = '\0';
-			g_unk0x10071184 = TRUE;
+			g_pageBackUpPending = TRUE;
 			*p_offset = atoi(number);
 			*p_pos = i;
 			SkipSpaces(p_text, p_pos, p_end);
-			return c_tokenB;
+			return c_tokenBackUp;
 		case 'G':
 		case 'g':
 			number[0] = p_text[++i];
@@ -235,11 +238,11 @@ nextChar:
 			number[2] = p_text[++i];
 			i++;
 			number[3] = '\0';
-			g_unk0x10071188 = TRUE;
+			g_pageGoToPending = TRUE;
 			*p_offset = atoi(number);
 			*p_pos = i;
 			SkipSpaces(p_text, p_pos, p_end);
-			return c_tokenG;
+			return c_tokenGoTo;
 		default:
 			i++;
 			p_word[j] = '\\';
@@ -312,7 +315,7 @@ MechChar* Page::Layout(MechChar* p_text)
 	length = strlen(p_text);
 	pos = 0;
 	lineWidth = 0;
-	strcpy(g_unk0x10093e78, "");
+	strcpy(g_pageLine, "");
 	center = FALSE;
 	tabs = 0;
 	link = -1;
@@ -321,39 +324,39 @@ MechChar* Page::Layout(MechChar* p_text)
 
 	while (token != c_tokenEnd) {
 		wordStart = p_text + pos;
-		token = ReadToken(p_text, g_unk0x10093a78, &pos, length, &link, &offset);
+		token = ReadToken(p_text, g_pageWord, &pos, length, &link, &offset);
 		wrapped = FALSE;
 
 		switch (token) {
 		case c_tokenWord:
-			width = m_font->GetTextWidth(g_unk0x10093a78);
-			strcpy(g_unk0x10094278, g_unk0x10093a78);
-			strcpy(g_unk0x10093a78, "");
+			width = m_font->GetTextWidth(g_pageWord);
+			strcpy(g_pageTemp, g_pageWord);
+			strcpy(g_pageWord, "");
 			for (i = 0; i < tabs; i++) {
-				strcat(g_unk0x10093a78, "\\t");
+				strcat(g_pageWord, "\\t");
 			}
 
 			tabs = 0;
 			if (link != -1) {
-				strcat(g_unk0x10093a78, "\\a");
+				strcat(g_pageWord, "\\a");
 			}
 
-			strcat(g_unk0x10093a78, g_unk0x10094278);
+			strcat(g_pageWord, g_pageTemp);
 			if (offset != -1) {
 				lineWidth -= offset;
 				offset = -1;
 			}
 
-			if (lineWidth + m_font->GetTextWidth(g_unk0x10093a78) <= m_width) {
-				lineWidth += AppendWord(g_unk0x10093e78, g_unk0x10093a78, width);
+			if (lineWidth + m_font->GetTextWidth(g_pageWord) <= m_width) {
+				lineWidth += AppendWord(g_pageLine, g_pageWord, width);
 				wrapped = FALSE;
 			}
 			else {
-				lineWidth = FlushLine(g_unk0x10093e78, g_unk0x10093a78);
+				lineWidth = FlushLine(g_pageLine, g_pageWord);
 				wrapped = TRUE;
 			}
 
-			PAGE_ADD_LINK(m_font->GetTextWidth(g_unk0x10093a78));
+			PAGE_ADD_LINK(m_font->GetTextWidth(g_pageWord));
 
 			if (m_bottom > 0 && m_lineHeight + m_top > m_bottom) {
 				return wordStart;
@@ -363,34 +366,34 @@ MechChar* Page::Layout(MechChar* p_text)
 			center = TRUE;
 			break;
 		case c_tokenNewLine:
-			width = m_font->GetTextWidth(g_unk0x10093a78);
+			width = m_font->GetTextWidth(g_pageWord);
 			if (center == TRUE) {
 				center = FALSE;
 				gap = m_width - lineWidth;
 				half = gap / 2;
 				count = half / m_font->GetTextWidth(" ");
-				strcpy(g_unk0x10094278, g_unk0x10093e78);
-				strcpy(g_unk0x10093e78, "");
+				strcpy(g_pageTemp, g_pageLine);
+				strcpy(g_pageLine, "");
 				for (i = 0; i < count; i++) {
-					strcat(g_unk0x10093e78, " ");
+					strcat(g_pageLine, " ");
 				}
 
-				strcat(g_unk0x10093e78, g_unk0x10094278);
+				strcat(g_pageLine, g_pageTemp);
 			}
 
 			if (m_bottom > 0 && m_lineHeight + m_top > m_bottom) {
 				return p_text + pos;
 			}
 
-			lineWidth = FlushLine(g_unk0x10093e78, NULL);
+			lineWidth = FlushLine(g_pageLine, NULL);
 			PAGE_ADD_LINK(width);
 			break;
 		case c_tokenPageBreak:
 			return p_text + pos;
 		case c_tokenLink:
 			break;
-		case c_tokenB:
-		case c_tokenG:
+		case c_tokenBackUp:
+		case c_tokenGoTo:
 			break;
 		case c_tokenTab:
 			tabs++;
@@ -407,18 +410,18 @@ MechChar* Page::Layout(MechChar* p_text)
 			}
 			break;
 		default:
-			strcpy(g_unk0x10093a78, "");
+			strcpy(g_pageWord, "");
 			tabs = 0;
 			break;
 		}
 	}
 
-	width = m_font->GetTextWidth(g_unk0x10093a78);
-	if (strlen(g_unk0x10093a78)) {
-		lineWidth += AppendWord(g_unk0x10093e78, g_unk0x10093a78, width);
+	width = m_font->GetTextWidth(g_pageWord);
+	if (strlen(g_pageWord)) {
+		lineWidth += AppendWord(g_pageLine, g_pageWord, width);
 	}
 
-	FlushLine(g_unk0x10093e78, NULL);
+	FlushLine(g_pageLine, NULL);
 	PAGE_ADD_LINK(width);
 
 	return NULL;

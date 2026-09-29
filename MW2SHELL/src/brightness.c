@@ -20,9 +20,9 @@ PaletteColor g_paletteColorsPreBrightness[0x100];
 MechU8 g_gammaTable[16][64];
 
 // Row i maps a 6-bit color component c to 63 * (c / 63) ^ (1 / (0.5 + i / 16)).
-// Stack-slot permutation: i, j, row, x and exponent.
+// Unused. Stack-slot permutation: i, j, row, x and exponent.
 // FUNCTION: MW2SHELL 0x100460a0
-void FUN_100460a0()
+void InitGammaTable()
 {
 	double x;
 	MechS32 j;
@@ -41,15 +41,16 @@ void FUN_100460a0()
 	}
 }
 
+// Unused.
 // FUNCTION: MW2SHELL 0x10046147
-void FUN_10046147()
+void SavePreBrightnessPalette()
 {
 	GetPaletteColors(0, 0x100, g_paletteColorsPreBrightness);
 }
 
-// Sets the palette at brightness p_brightness without changing g_displayBrightness.
+// Sets the palette at brightness p_brightness without changing g_displayBrightness. Unused.
 // FUNCTION: MW2SHELL 0x10046166
-void FUN_10046166(MechS32 p_brightness)
+void PreviewBrightness(MechS32 p_brightness)
 {
 	MechS32 brightness;
 

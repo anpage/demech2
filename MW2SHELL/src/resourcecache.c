@@ -369,17 +369,18 @@ MechS32 PurgeOldestCacheEntry(void)
 	return 0;
 }
 
+// Zeroed, with calloc.
 // FUNCTION: MW2SHELL 0x10013fa9
-void* FUN_10013fa9(undefined4 p_size)
+void* AllocateMemory(undefined4 p_size)
 {
 	return calloc(p_size, 1);
 }
 
-// FUN_10013fc7 and FUN_10013ff1 are memcpy and memset written as inline __asm: rep movsd/stosd
+// CopyMemoryFast and FillMemoryFast (both unused) are memcpy and memset written as inline __asm: rep movsd/stosd
 // for the dwords, then rep movsb/stosb for the rest. Modern compilers (COMPAT_MODE) call the CRT.
 
 // FUNCTION: MW2SHELL 0x10013fc7
-void* FUN_10013fc7(void* p_destination, void* p_source, MechU32 p_size)
+void* CopyMemoryFast(void* p_destination, void* p_source, MechU32 p_size)
 {
 #ifdef COMPAT_MODE
 	memcpy(p_destination, p_source, p_size);
@@ -401,7 +402,7 @@ void* FUN_10013fc7(void* p_destination, void* p_source, MechU32 p_size)
 }
 
 // FUNCTION: MW2SHELL 0x10013ff1
-void* FUN_10013ff1(void* p_destination, MechS32 p_value, MechU32 p_size)
+void* FillMemoryFast(void* p_destination, MechS32 p_value, MechU32 p_size)
 {
 #ifdef COMPAT_MODE
 	memset(p_destination, p_value, p_size);
@@ -428,8 +429,9 @@ void* FUN_10013ff1(void* p_destination, MechS32 p_value, MechU32 p_size)
 	return p_destination;
 }
 
+// Unused.
 // FUNCTION: MW2SHELL 0x10014029
-void FUN_10014029(void* p_buffer)
+void FreeMemory(void* p_buffer)
 {
 	free(p_buffer);
 }

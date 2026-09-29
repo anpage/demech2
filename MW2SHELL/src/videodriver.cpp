@@ -287,7 +287,7 @@ void VideoDriver::DrawFmv()
 
 	if (m_dirtyView.m_left <= m_dirtyView.m_right && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
 		if (g_littleMovies) {
-			FUN_10031106(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+			GdiBlitCentered(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
 		}
 		else {
 			g_currentRefreshMode

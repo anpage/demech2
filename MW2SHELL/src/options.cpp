@@ -70,9 +70,9 @@ MechChar g_dialogText[0x200];
 // GLOBAL: MW2SHELL 0x10070d98
 MechChar* g_skillNames[] = {"~EASY", "~MEDIUM", "~HARD"};
 
-// Lay out a button: its rectangle around a center, and its caption centered in it.
+// Lay out a button: its rectangle around a center, and its caption centered in it. Unused.
 // FUNCTION: MW2SHELL 0x10043280
-void FUN_10043280(
+void LayoutButton(
 	PewterPlaque0x9c* p_plaque,
 	MechS32 p_centerX,
 	MechS32 p_centerY,
@@ -92,9 +92,9 @@ void FUN_10043280(
 	p_plaque->m_unk0x98 = 0;
 }
 
-// Whether a point lies in a button.
+// Whether a point lies in a button. Unused.
 // FUNCTION: MW2SHELL 0x10043333
-MechS32 FUN_10043333(PewterPlaque0x9c* p_plaque, MechS32 p_x, MechS32 p_y)
+MechS32 IsPointInButton(PewterPlaque0x9c* p_plaque, MechS32 p_x, MechS32 p_y)
 {
 	return p_x >= p_plaque->m_left && p_x <= p_plaque->m_right && p_y >= p_plaque->m_top && p_y <= p_plaque->m_bottom;
 }

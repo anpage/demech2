@@ -15,9 +15,10 @@
 
 DECOMP_SIZE_ASSERT(TextGlyph, 0x3e)
 
-// Color remap tables for Font text, selected by the "\A" text escape.
+// Color remap tables for Font text. The first colors a link word, from its "\A" escape to the
+// next space.
 // GLOBAL: MW2SHELL 0x10074658
-undefined g_unk0x10074658[256] = {0xff, 1};
+undefined g_linkColorMap[256] = {0xff, 1};
 
 // GLOBAL: MW2SHELL 0x10074758
 undefined g_unk0x10074758[256] = {0xff, 5};
@@ -30,13 +31,13 @@ void InitTextColorMaps()
 {
 	MechS32 i;
 
-	g_unk0x10074758[0] = g_unk0x10074658[0] = g_unk0x10074858[0] = 0xff;
+	g_unk0x10074758[0] = g_linkColorMap[0] = g_unk0x10074858[0] = 0xff;
 	for (i = 1; i < 256; i++) {
-		g_unk0x10074758[i] = g_unk0x10074658[i] = g_unk0x10074858[i] = i;
+		g_unk0x10074758[i] = g_linkColorMap[i] = g_unk0x10074858[i] = i;
 	}
 
 	g_unk0x10074758[1] = 5;
-	g_unk0x10074658[1] = 1;
+	g_linkColorMap[1] = 1;
 	g_unk0x10074858[1] = 8;
 }
 
@@ -139,7 +140,7 @@ MechU8 TextGlyph::DrawNextChar()
 			case 'A':
 			case 'a':
 				m_textIndex++;
-				m_currentColors = g_unk0x10074658;
+				m_currentColors = g_linkColorMap;
 				break;
 			default:
 				break;
