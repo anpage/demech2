@@ -9,6 +9,7 @@ extern "C"
 {
 #endif
 
+	extern MechU32 g_unk0x100a9430;
 	extern MechU32 g_unk0x100a9434;
 
 	void InitStaticMem(char* p_unk0x00);

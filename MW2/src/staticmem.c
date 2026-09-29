@@ -3,6 +3,10 @@
 #include "decomp.h"
 #include "types.h"
 
+// One of the pool's block tags ("SEG").
+// GLOBAL: MW2 0x100a9430
+MechU32 g_unk0x100a9430 = 0x474553;
+
 // One of the pool's block tags ("TLIS").
 // GLOBAL: MW2 0x100a9434
 MechU32 g_unk0x100a9434 = 0x53494c54;

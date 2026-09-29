@@ -77,6 +77,12 @@ MechS32 FUN_1007ca8e(void)
 	return 0;
 }
 
+// STUB: MW2 0x1007cbf1
+void FUN_1007cbf1(Matrix* p_matrix)
+{
+	STUB(0x1007cbf1);
+}
+
 // FUNCTION: MW2 0x1007cd50
 void FirstClock(void)
 {
