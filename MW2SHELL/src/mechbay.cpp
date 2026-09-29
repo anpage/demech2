@@ -23,9 +23,9 @@
 #include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -49,7 +49,7 @@ struct EngineType {
 struct Weapon {
 	MechS32 m_heat;         // 0x00
 	MechS32 m_damage;       // 0x04 — negative: per missile
-	MechS32 m_unk0x08;      // 0x08 — shown as a number, "-" when negative
+	MechS32 m_minimumRange; // 0x08 — -1 for none
 	MechS32 m_shortRange;   // 0x0c — -1 for none
 	MechS32 m_mediumRange;  // 0x10 — -1 for none
 	MechS32 m_range;        // 0x14 — -1 for none
@@ -1485,8 +1485,8 @@ TextGlyph* DrawWeaponInfo(ScreenField* p_tab)
 		}
 		break;
 	case 3:
-		if (g_weapons[weapon].m_unk0x08 >= 0) {
-			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_unk0x08);
+		if (g_weapons[weapon].m_minimumRange >= 0) {
+			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_minimumRange);
 		}
 		else {
 			strcpy(g_szTempBuffer, "-");
@@ -1715,7 +1715,7 @@ void ShowComponent(ScreenField* p_tab)
 {
 	ScreenField* tabs;
 
-	tabs = p_tab->m_unk0x28;
+	tabs = p_tab->m_arg;
 	SetVideoFlags(10, 0x20, 0x20);
 	SetVideoFlags(11, 0x20, 0x20);
 	SetVideoFlags(12, 0x20, 0x20);
@@ -2353,7 +2353,7 @@ void RemoveRearArmor(ScreenField* p_tab)
 	}
 }
 
-// Toggles the flag at m_data and adds or removes the item id held in m_unk0x28. The arm
+// Toggles the flag at m_data and adds or removes the item id held in m_arg. The arm
 // actuators (5401, 5402, 5451, 5452) take a fixed slot in the arms, replacing what is there.
 // FUNCTION: MW2SHELL 0x1000b384
 void ToggleEquipment(ScreenField* p_tab)
@@ -2370,7 +2370,7 @@ void ToggleEquipment(ScreenField* p_tab)
 	}
 
 	if (*flag) {
-		switch ((MechS32) p_tab->m_unk0x28) {
+		switch ((MechS32) p_tab->m_arg) {
 		case 5000:
 			for (i = 1; i <= g_variant.m_mascCriticals; i++) {
 				AddUnassigned(i + 5000, 1);
@@ -2405,7 +2405,7 @@ void ToggleEquipment(ScreenField* p_tab)
 		}
 	}
 	else {
-		switch ((MechS32) p_tab->m_unk0x28) {
+		switch ((MechS32) p_tab->m_arg) {
 		case 5000:
 			for (i = 1; i <= g_variant.m_mascCriticals; i++) {
 				DeleteItem(i + 5000);
@@ -2417,7 +2417,7 @@ void ToggleEquipment(ScreenField* p_tab)
 		case 5402:
 		case 5451:
 		case 5452:
-			DeleteItem((MechS32) p_tab->m_unk0x28);
+			DeleteItem((MechS32) p_tab->m_arg);
 			break;
 		}
 	}

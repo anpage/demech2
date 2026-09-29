@@ -3,7 +3,7 @@
 #include "decomp.h"
 #include "inputdevice.h"
 #include "types.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <string.h>

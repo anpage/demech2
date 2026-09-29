@@ -2,8 +2,8 @@
 
 #include "blit.h"
 #include "textglyph.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 DECOMP_SIZE_ASSERT(Font, 0x414)
 

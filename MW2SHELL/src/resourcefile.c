@@ -79,7 +79,7 @@ MechChar* MakeResourcePath(MechChar* p_name)
 
 // Prefix a name with the base directory without checking for path separators.
 // FUNCTION: MW2SHELL 0x10031b51
-MechChar* FUN_10031b51(MechChar* p_name)
+MechChar* MakeResourcePathUnchecked(MechChar* p_name)
 {
 	MechS32 i;
 

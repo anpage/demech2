@@ -213,7 +213,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugprint.c
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
-    MW2SHELL/src/unk10017a7c.c
+    MW2SHELL/src/codeblock.c
     MW2SHELL/src/archivereader.cpp
     MW2SHELL/src/polyfill.c
     MW2SHELL/src/pilotroster.cpp
@@ -233,7 +233,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/readyroom.cpp
     MW2SHELL/src/mousestate.cpp
     MW2SHELL/src/joystick.c
-    MW2SHELL/src/unk1003bf90.c
+    MW2SHELL/src/windowstate.c
     MW2SHELL/src/mw2prj.c
     MW2SHELL/src/collection.c
     MW2SHELL/src/cadettraining.cpp

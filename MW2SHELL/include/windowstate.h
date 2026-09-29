@@ -1,12 +1,12 @@
-#ifndef UNK1003BF90_H
-#define UNK1003BF90_H
+#ifndef WINDOWSTATE_H
+#define WINDOWSTATE_H
 
 #include "decomp.h"
 #include "types.h"
 
 #include <windows.h>
 
-// The functions and globals of unk1003bf90.c that other units use.
+// The functions and globals of windowstate.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,7 +14,7 @@ extern "C"
 
 	extern char g_windowClassName[0x10];
 	extern MechS32 g_fWindowActive;
-	extern MechS32 g_unk0x1006a9d8;
+	extern MechS32 g_paused;
 	extern MechU32 g_fQuickTips;
 	extern MechS32 g_showDialog;
 	extern MechS32 g_menuVisible;
@@ -29,4 +29,4 @@ extern "C"
 }
 #endif
 
-#endif // UNK1003BF90_H
+#endif // WINDOWSTATE_H

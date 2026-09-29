@@ -21,7 +21,7 @@ struct ScreenField {
 	TextGlyph* (*m_draw)(ScreenField*); // 0x1c
 	void (*m_click)(ScreenField*);      // 0x20 — click callback
 	void* m_data;                       // 0x24 — the callback's data, see above
-	ScreenField* m_unk0x28;             // 0x28 — the table to switch to, or an integer (an item id, an axis kind)
+	ScreenField* m_arg;                 // 0x28 — the table to switch to, or an integer (an item id, an axis kind)
 };
 
 #endif // SCREENFIELD_H

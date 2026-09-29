@@ -1,7 +1,7 @@
 #include "textglyphlist.h"
 
 #include "textglyph.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <windows.h>
 

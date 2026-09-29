@@ -5,8 +5,8 @@
 #include "inputdriver.h"
 #include "refreshmode.h"
 #include "shellglobals.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -4,8 +4,8 @@
 #include "mss.h"
 #include "shellglobals.h"
 #include "soundconfig.h"
-#include "unk1003bf90.h"
 #include "videosound.h"
+#include "windowstate.h"
 
 #include <windows.h>
 

@@ -8,9 +8,9 @@
 #include "shellmain.h"
 #include "stringutil.h"
 #include "textglyph.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <ctype.h>
 #include <string.h>

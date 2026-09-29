@@ -12,7 +12,7 @@
 #include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "types.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <ddraw.h>
 #include <stdlib.h>
@@ -83,8 +83,11 @@ MechS32 g_profileFrame = 0;
 // GLOBAL: MW2SHELL 0x1007cc90
 static LARGE_INTEGER g_profileStart;
 
+// When AdjustWindowSize last switched DirectDraw to a window (timeGetTime), with
+// g_windowedSwitchDeadline three seconds later and g_windowedSwitchPending set. Nothing reads
+// the three.
 // GLOBAL: MW2SHELL 0x100965d0
-MechU32 g_unk0x100965d0;
+MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2SHELL 0x100965d8
 MechS32 g_windowHeight;
@@ -96,10 +99,10 @@ MechS32 g_windowWidth;
 HINSTANCE g_pModule;
 
 // GLOBAL: MW2SHELL 0x100965e4
-MechS32 g_unk0x100965e4;
+MechS32 g_windowedSwitchPending;
 
 // GLOBAL: MW2SHELL 0x100965e8
-MechU32 g_unk0x100965e8;
+MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2SHELL 0x100965ec
 HWND g_pWnd;
@@ -368,7 +371,7 @@ void ToggleFullScreen()
 
 		if (i == 6) {
 			ShowMessage("MechWarrior2 cannot run in a window in the current resolution on your video hardware");
-			if (!g_unk0x1006a9d8) {
+			if (!g_paused) {
 				DebugPrint("ToggleFullScreen(2): pause_timer(FALSE)");
 				PauseTimer(0x80, FALSE);
 			}
@@ -380,7 +383,7 @@ void ToggleFullScreen()
 			ShowMessage(
 				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
 			);
-			if (!g_unk0x1006a9d8) {
+			if (!g_paused) {
 				DebugPrint("ToggleFullScreen(3): pause_timer(FALSE)");
 				PauseTimer(0x80, FALSE);
 			}
@@ -400,7 +403,7 @@ void ToggleFullScreen()
 	g_currentRefreshMode->m_begin(g_refreshModeBuffer, g_refreshModeWidth, g_refreshModeHeight);
 	g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, TRUE);
 	g_reclipCursor = 1;
-	if (!g_unk0x1006a9d8) {
+	if (!g_paused) {
 		DebugPrint("ToggleFullScreen(4): pause_timer(FALSE)");
 		PauseTimer(0x80, FALSE);
 	}
@@ -441,9 +444,9 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 
 	if (p_backend->m_windowMode == c_windowModeWindowed) {
 		if (g_currentDisplayBackend != NULL && g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
-			g_unk0x100965d0 = timeGetTime();
-			g_unk0x100965e8 = g_unk0x100965d0 + 3000;
-			g_unk0x100965e4 = 1;
+			g_windowedSwitchTime = timeGetTime();
+			g_windowedSwitchDeadline = g_windowedSwitchTime + 3000;
+			g_windowedSwitchPending = 1;
 		}
 
 		SetWindowPos(
@@ -455,12 +458,12 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 			g_windowedRect.bottom,
 			SWP_NOACTIVATE
 		);
-		if (g_unk0x1006a9d8 && !FUN_1003bf90(4)) {
+		if (g_paused && !FUN_1003bf90(4)) {
 			while (ShowCursor(TRUE) < 0) {
 			}
 		}
 	}
-	else if (g_unk0x1006a9d8) {
+	else if (g_paused) {
 		while (ShowCursor(FALSE) >= 0) {
 		}
 	}

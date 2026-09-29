@@ -33,9 +33,9 @@
    87 d3), so those few instructions are _emit bytes too.
 
    Data the original keeps in .text is split out into globals, which the routines reference by
-   name: the fixed-point cosine table at 0x10035af0 (FUN_10036904) and the IFF chunk tags that
-   follow FUN_10036c9e (FUN_10036def, FUN_10036fb6, FUN_10036fe7), and the LFSR tap table at
-   0x1003775b, between FUN_100376f9 and FUN_100377d7 (FUN_100377d7). */
+   name: the fixed-point cosine table at 0x10035af0 (GetCosSin) and the IFF chunk tags that
+   follow WriteViewRow (BlitIff, ReadIffPalette, GetIffSize), and the LFSR tap table at
+   0x1003775b, between FUN_100376f9 and DissolveView (DissolveView). */
 #include "blit.h"
 
 #include "compat.h"
@@ -48,23 +48,23 @@
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // Routines that earlier routines call.
-MechS32 FUN_100333f8(
+MechS32 BlitShpFrameUnclipped(
 	PixelView* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
 	undefined4 p_unk0x0c,
 	undefined4 p_unk0x10
 );
-MechS32 FUN_10033980(
+MechS32 BlitShpFrameRemappedUnclipped(
 	PixelView* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
 	undefined4 p_unk0x0c,
 	undefined4 p_unk0x10
 );
-void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left);
-void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left);
-void FUN_100369e2(
+void EncodeRleRow(MechS32 p_count, MechU8 p_transparent, MechS32 p_left);
+void EmitRleRun(MechS32 p_op, MechS32 p_back, MechS32 p_left);
+void RotateScalePoint(
 	MechS32* p_point,
 	MechS32* p_result,
 	MechS32* p_origin,
@@ -72,123 +72,125 @@ void FUN_100369e2(
 	MechS32 p_scaleX,
 	MechS32 p_scaleY
 );
-MechU32 FUN_10037549(void* p_data, MechS32 p_index);
-MechU32 FUN_1003757d(void* p_data, MechS32 p_index);
+MechU32 GetShpFrameExtent(void* p_data, MechS32 p_index);
+MechU32 GetShpFrameOrigin(void* p_data, MechS32 p_index);
 
-// 13 dwords that FUN_10032279 copies in from its argument.
+// The display driver's 13 entry points (SetDisplayDriver). The first returns the driver's name
+// (GetDisplayDriverName); FadeViewColors calls others.
 // GLOBAL: MW2SHELL 0x100687cc
-undefined4 g_unk0x100687cc[0xd] = {0};
+undefined4 g_displayDriver[0xd] = {0};
 
-// FUN_10032250 copies a name into it and returns it. The next variable the assembly
-// references starts at 0x1006880d, so the buffer is 0xd bytes.
+// The display driver's name: GetDisplayDriverName copies it in and returns it. The next variable
+// the assembly references starts at 0x1006880d, so the buffer is 0xd bytes.
 // GLOBAL: MW2SHELL 0x10068800
-MechChar g_unk0x10068800[0xd] = "MCGA.DLL";
+MechChar g_displayDriverName[0xd] = "MCGA.DLL";
 
-// The run-length encoder's state (FUN_1003479a, FUN_10034aaf, FUN_10034c38): the output
+// The run-length encoder's state (EncodeViewRle, EncodeRleRow, EmitRleRun): the output
 // buffer (NULL only measures), the pending skip, the row and run pointers, the output
 // cursor and the start of the current run.
 // GLOBAL: MW2SHELL 0x1006880d
-undefined4 g_unk0x1006880d = 0;
+undefined4 g_rleOutput = 0;
 
 // GLOBAL: MW2SHELL 0x10068811
-undefined4 g_unk0x10068811 = 0;
+undefined4 g_rleSkip = 0;
 
 // GLOBAL: MW2SHELL 0x10068815
-undefined4 g_unk0x10068815 = 0;
+undefined4 g_rleRow = 0;
 
 // GLOBAL: MW2SHELL 0x10068819
-undefined4 g_unk0x10068819 = 0;
+undefined4 g_rleRun = 0;
 
 // GLOBAL: MW2SHELL 0x1006881d
-undefined4 g_unk0x1006881d = 0;
+undefined4 g_rleCursor = 0;
 
 // GLOBAL: MW2SHELL 0x10068821
-undefined4 g_unk0x10068821 = 0;
+undefined4 g_rleRunStart = 0;
 
-// The bounding box of the opaque pixels that FUN_1003479a finds: left, top, right, bottom.
+// The bounding box of the opaque pixels that EncodeViewRle finds: left, top, right, bottom.
 // GLOBAL: MW2SHELL 0x10068835
-undefined4 g_unk0x10068835 = 0;
+undefined4 g_rleLeft = 0;
 
 // GLOBAL: MW2SHELL 0x10068839
-undefined4 g_unk0x10068839 = 0;
+undefined4 g_rleTop = 0;
 
 // GLOBAL: MW2SHELL 0x1006883d
-undefined4 g_unk0x1006883d = 0;
+undefined4 g_rleRight = 0;
 
 // GLOBAL: MW2SHELL 0x10068841
-undefined4 g_unk0x10068841 = 0;
+undefined4 g_rleBottom = 0;
 
-// A dword table that FUN_100377d7 fills and reads. The next variable starts at 0x10068d45.
+// A dword table that DissolveView fills and reads. The next variable starts at 0x10068d45.
 // GLOBAL: MW2SHELL 0x10068845
 undefined4 g_unk0x10068845[0x140] = {0};
 
 // Scanline buffer: BlitPicture decodes one RLE scanline (up to the ushort width at data
-// header +0x42) into it, and FUN_100371d5 collects one GIF row, before blitting it through
-// FUN_10036c9e. FUN_10037a4e also keeps its working palette here. The next variable starts at
+// header +0x42) into it, and GifPutPixel collects one GIF row, before blitting it through
+// WriteViewRow. FadeViewColors also keeps its working palette here. The next variable starts at
 // 0x10069045.
 // GLOBAL: MW2SHELL 0x10068d45
-undefined g_unk0x10068d45[0x300] = {0};
+undefined g_scanline[0x300] = {0};
 
-// The colors FUN_10037a4e found in the view.
+// The colors FadeViewColors found in the view.
 // GLOBAL: MW2SHELL 0x10069045
-undefined g_unk0x10069045[0x100] = {0};
+undefined g_fadeColors[0x100] = {0};
 
-// FUN_10037a4e's per-component distances to the target palette.
+// FadeViewColors's per-component distances to the target palette.
 // GLOBAL: MW2SHELL 0x10069145
-undefined g_unk0x10069145[0x300] = {0};
+undefined g_fadeDistances[0x300] = {0};
 
-// A second dword table of FUN_100377d7. The next variable starts at 0x10069a45.
+// A second dword table of DissolveView. The next variable starts at 0x10069a45.
 // GLOBAL: MW2SHELL 0x10069445
 undefined4 g_unk0x10069445[0x180] = {0};
 
-// Flags per color index (FUN_10037a4e, FUN_10037bd2), then FUN_10037a4e's per-component
+// Flags per color index (FadeViewColors, CountViewColors), then FadeViewColors's per-component
 // directions.
 // GLOBAL: MW2SHELL 0x10069a45
 undefined g_unk0x10069a45[0x300] = {0};
 
-// FUN_10037a4e's per-component error accumulators.
+// FadeViewColors's per-component error accumulators.
 // GLOBAL: MW2SHELL 0x10069d45
-undefined g_unk0x10069d45[0x300] = {0};
+undefined g_fadeErrors[0x300] = {0};
 
 // Masks of the low n bits, indexed by the code width.
 // GLOBAL: MW2SHELL 0x1006a045
-MechU8 g_unk0x1006a045[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
+MechU8 g_gifCodeMasks[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
 
 // GIF interlacing: the row step of each pass...
 // GLOBAL: MW2SHELL 0x1006a04e
-MechU8 g_unk0x1006a04e[5] = {8, 8, 4, 2, 0};
+MechU8 g_gifPassSteps[5] = {8, 8, 4, 2, 0};
 
 // ...and the first row of the next pass.
 // GLOBAL: MW2SHELL 0x1006a053
-MechU8 g_unk0x1006a053[5] = {0, 4, 2, 1, 0};
+MechU8 g_gifPassStarts[5] = {0, 4, 2, 1, 0};
 
-// The view FUN_10037252 decodes into.
+// The view BlitGif decodes into.
 // GLOBAL: MW2SHELL 0x1006a058
-PixelView* g_unk0x1006a058 = NULL;
+PixelView* g_gifView = NULL;
 
-// The color remap table that FUN_100334fb loads and FUN_10033980 and FUN_10034a1d apply.
+// The color remap table that SetRemapTable loads and BlitShpFrameRemappedUnclipped and
+// RemapShpFrame apply.
 // GLOBAL: MW2SHELL 0x1006a05c
-MechU8 g_unk0x1006a05c[0x100] = {0};
+MechU8 g_remapTable[0x100] = {0};
 
-// FUN_10033a76's four transformed corners, five dwords each.
+// BlitRotated's four transformed corners, five dwords each.
 // GLOBAL: MW2SHELL 0x1006a15c
-undefined4 g_unk0x1006a15c[0x14] = {0};
+undefined4 g_rotatedCorners[0x14] = {0};
 
-// FUN_10033a76's per-corner steps, indexed by corner.
+// BlitRotated's per-corner steps, indexed by corner.
 // GLOBAL: MW2SHELL 0x1006a1ac
-undefined4 g_unk0x1006a1ac[4] = {0};
+undefined4 g_rotatedCornerSteps[4] = {0};
 
-// Calls the function pointer at the start of its argument, copies the string it returns
-// into g_unk0x10068800 and returns that buffer.
+// Returns the name of a display driver: calls its first entry point and copies the string it
+// returns into g_displayDriverName.
 #ifdef COMPAT_MODE
-MechChar* FUN_10032250(undefined4* p_unk0x00)
+MechChar* GetDisplayDriverName(undefined4* p_driver)
 {
 	STUB(0x10032250);
 	return NULL;
 }
 #else
 // FUNCTION: MW2SHELL 0x10032250
-__declspec(naked) MechChar* FUN_10032250(undefined4* p_unk0x00)
+__declspec(naked) MechChar* GetDisplayDriverName(undefined4* p_driver)
 {
 	__asm {
 		push ebp
@@ -202,7 +204,7 @@ __declspec(naked) MechChar* FUN_10032250(undefined4* p_unk0x00)
 		pop es
 		mov esi, dword ptr [ebp+0x8]
 		call dword ptr [esi]
-		mov edi, offset g_unk0x10068800
+		mov edi, offset g_displayDriverName
 jmp_10032264:
 		mov bl, byte ptr [eax]
 		mov byte ptr [edi], bl
@@ -211,7 +213,7 @@ jmp_10032264:
 		or bl, bl
 		_emit 0x75 /* jnz jmp_10032264 */
 		_emit 0xf6
-		mov eax, offset g_unk0x10068800
+		mov eax, offset g_displayDriverName
 		pop es
 		pop edi
 		pop esi
@@ -222,14 +224,15 @@ jmp_10032264:
 }
 #endif
 
+// Installs a display driver: copies its 13 entry points into g_displayDriver.
 #ifdef COMPAT_MODE
-void FUN_10032279(undefined4* p_unk0x00)
+void SetDisplayDriver(undefined4* p_driver)
 {
 	STUB(0x10032279);
 }
 #else
 // FUNCTION: MW2SHELL 0x10032279
-__declspec(naked) void FUN_10032279(undefined4* p_unk0x00)
+__declspec(naked) void SetDisplayDriver(undefined4* p_driver)
 {
 	__asm {
 		push ebp
@@ -242,7 +245,7 @@ __declspec(naked) void FUN_10032279(undefined4* p_unk0x00)
 		push ds
 		pop es
 		mov esi, dword ptr [ebp+0x8]
-		mov edi, offset g_unk0x100687cc
+		mov edi, offset g_displayDriver
 		mov ecx, 0xd
 		rep movsd
 		pop es
@@ -258,14 +261,14 @@ __declspec(naked) void FUN_10032279(undefined4* p_unk0x00)
 // Writes one pixel at (p_x, p_y), relative to the view, and returns the pixel it replaced.
 // Returns -1 for an empty buffer, -2 for an empty view and -3 when the point is clipped.
 #ifdef COMPAT_MODE
-MechS32 FUN_10032298(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
+MechS32 PutViewPixel(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
 {
 	STUB(0x10032298);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10032298
-__declspec(naked) MechS32 FUN_10032298(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
+__declspec(naked) MechS32 PutViewPixel(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
 {
 	__asm {
 		push ebp
@@ -399,14 +402,14 @@ jmp_10032368:
 // Reads the pixel at (p_x, p_y), relative to the view. Returns -1 for an empty buffer, -2 for
 // an empty view and -3 when the point is clipped.
 #ifdef COMPAT_MODE
-MechS32 FUN_10032373(PixelView* p_view, MechS32 p_x, MechS32 p_y)
+MechS32 GetViewPixel(PixelView* p_view, MechS32 p_x, MechS32 p_y)
 {
 	STUB(0x10032373);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10032373
-__declspec(naked) MechS32 FUN_10032373(PixelView* p_view, MechS32 p_x, MechS32 p_y)
+__declspec(naked) MechS32 GetViewPixel(PixelView* p_view, MechS32 p_x, MechS32 p_y)
 {
 	__asm {
 		push ebp
@@ -2004,8 +2007,9 @@ __declspec(naked) MechS32 FUN_10032e4b(
 }
 #endif
 
-// Draws frame p_frame of an SHP animation into the view, clipped, through FUN_100333f8. Returns 0
-// when drawn, or a negative code when the view is empty or everything is clipped.
+// Draws frame p_frame of an SHP animation into the view, clipped; a frame that lies wholly inside
+// the view goes through BlitShpFrameUnclipped. Returns 0 when drawn, or a negative code when the
+// view is empty or everything is clipped.
 #ifdef COMPAT_MODE
 MechS32 BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_left, MechS32 p_top)
 {
@@ -2183,7 +2187,7 @@ BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_
 		push dword ptr [ebp+0x14]
 		push dword ptr [ebp-0x30]
 		push dword ptr [ebp+0x8]
-		call FUN_100333f8
+		call BlitShpFrameUnclipped
 		add esp, 0x14
 		jmp jmp_100333da
 	jmp_10033104:
@@ -2623,8 +2627,9 @@ BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_
 }
 #endif
 
+// BlitShpFrame's path for a frame that lies wholly inside the view.
 #ifdef COMPAT_MODE
-MechS32 FUN_100333f8(
+MechS32 BlitShpFrameUnclipped(
 	PixelView* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -2637,8 +2642,13 @@ MechS32 FUN_100333f8(
 }
 #else
 // FUNCTION: MW2SHELL 0x100333f8
-__declspec(naked) MechS32
-FUN_100333f8(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, undefined4 p_unk0x0c, undefined4 p_unk0x10)
+__declspec(naked) MechS32 BlitShpFrameUnclipped(
+	PixelView* p_view,
+	undefined4 p_unk0x04,
+	undefined4 p_unk0x08,
+	undefined4 p_unk0x0c,
+	undefined4 p_unk0x10
+)
 {
 	__asm {
 		push ebp
@@ -2786,13 +2796,13 @@ FUN_100333f8(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, unde
 
 // Loads the 256-entry color remap table from p_table.
 #ifdef COMPAT_MODE
-void FUN_100334fb(undefined* p_table)
+void SetRemapTable(undefined* p_table)
 {
 	STUB(0x100334fb);
 }
 #else
 // FUNCTION: MW2SHELL 0x100334fb
-__declspec(naked) void FUN_100334fb(undefined* p_table)
+__declspec(naked) void SetRemapTable(undefined* p_table)
 {
 	__asm {
 		push ebp
@@ -2805,7 +2815,7 @@ __declspec(naked) void FUN_100334fb(undefined* p_table)
 		push ds
 		pop es
 		mov esi, dword ptr [ebp+0x8]
-		mov edi, offset g_unk0x1006a05c
+		mov edi, offset g_remapTable
 		mov ecx, 0x40
 		rep movsd
 		pop es
@@ -2818,9 +2828,16 @@ __declspec(naked) void FUN_100334fb(undefined* p_table)
 }
 #endif
 
-// BlitShpFrame with the pixels mapped through the color remap table (FUN_10033980).
+// BlitShpFrame with the pixels mapped through the color remap table (through
+// BlitShpFrameRemappedUnclipped when the frame lies wholly inside the view).
 #ifdef COMPAT_MODE
-MechS32 FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top)
+MechS32 BlitShpFrameRemapped(
+	PixelView* p_view,
+	undefined4 p_unk0x04,
+	undefined4 p_unk0x08,
+	MechS32 p_left,
+	MechS32 p_top
+)
 {
 	STUB(0x1003351a);
 	return 0;
@@ -2828,7 +2845,7 @@ MechS32 FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x
 #else
 // FUNCTION: MW2SHELL 0x1003351a
 __declspec(naked) MechS32
-FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top)
+BlitShpFrameRemapped(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top)
 {
 	__asm {
 		push ebp
@@ -2996,7 +3013,7 @@ FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, Mech
 		push dword ptr [ebp+0x14]
 		push dword ptr [ebp-0x30]
 		push dword ptr [ebp+0x8]
-		call FUN_10033980
+		call BlitShpFrameRemappedUnclipped
 		add esp, 0x14
 		jmp jmp_10033962
 	jmp_1003369a:
@@ -3082,7 +3099,7 @@ FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, Mech
 		xor eax, eax
 		mov al, byte ptr [esi]
 		inc esi
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		cmp ecx, 0x4
 		_emit 0x7e /* jle jmp_1003376f */
 		_emit 0x27
@@ -3125,7 +3142,7 @@ FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, Mech
 	jmp_10033785:
 		mov al, byte ptr [esi]
 		inc esi
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		mov byte ptr [edi], al
 		inc edi
 		dec ecx
@@ -3268,7 +3285,7 @@ FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, Mech
 		xor eax, eax
 		mov al, byte ptr [esi]
 		inc esi
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		cmp ecx, 0x4
 		_emit 0x7e /* jle jmp_100338b0 */
 		_emit 0x27
@@ -3323,7 +3340,7 @@ FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, Mech
 	jmp_100338dc:
 		mov al, byte ptr [esi]
 		inc esi
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		mov byte ptr [edi], al
 		inc edi
 		dec ecx
@@ -3433,8 +3450,9 @@ FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, Mech
 }
 #endif
 
+// BlitShpFrameRemapped's path for a frame that lies wholly inside the view.
 #ifdef COMPAT_MODE
-MechS32 FUN_10033980(
+MechS32 BlitShpFrameRemappedUnclipped(
 	PixelView* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -3447,8 +3465,13 @@ MechS32 FUN_10033980(
 }
 #else
 // FUNCTION: MW2SHELL 0x10033980
-__declspec(naked) MechS32
-FUN_10033980(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, undefined4 p_unk0x0c, undefined4 p_unk0x10)
+__declspec(naked) MechS32 BlitShpFrameRemappedUnclipped(
+	PixelView* p_view,
+	undefined4 p_unk0x04,
+	undefined4 p_unk0x08,
+	undefined4 p_unk0x0c,
+	undefined4 p_unk0x10
+)
 {
 	__asm {
 		push ebp
@@ -3519,7 +3542,7 @@ FUN_10033980(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, unde
 		xor eax, eax
 		mov al, byte ptr [esi]
 		inc esi
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		cmp ecx, 0x4
 		_emit 0x7e /* jle jmp_10033a32 */
 		_emit 0x27
@@ -3561,7 +3584,7 @@ FUN_10033980(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, unde
 	jmp_10033a48:
 		mov al, byte ptr [esi]
 		inc esi
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		mov byte ptr [edi], al
 		inc edi
 		dec ecx
@@ -3595,9 +3618,9 @@ FUN_10033980(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, unde
 #endif
 
 // Blits with rotation (p_angle) and 16.16 scaling (p_scaleX, p_scaleY). The rotated corners
-// go into g_unk0x1006a15c; with no rotation and unit scale, it takes a plain copy path.
+// go into g_rotatedCorners; with no rotation and unit scale, it takes a plain copy path.
 #ifdef COMPAT_MODE
-MechS32 FUN_10033a76(
+MechS32 BlitRotated(
 	PixelView* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -3615,7 +3638,7 @@ MechS32 FUN_10033a76(
 }
 #else
 // FUNCTION: MW2SHELL 0x10033a76
-__declspec(naked) MechS32 FUN_10033a76(
+__declspec(naked) MechS32 BlitRotated(
 	PixelView* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -3650,7 +3673,7 @@ __declspec(naked) MechS32 FUN_10033a76(
 jmp_10033aa2:
 		push dword ptr [ebp+0x10]
 		push dword ptr [ebp+0xc]
-		call FUN_10037549
+		call GetShpFrameExtent
 		add esp, 0x8
 		mov ecx, eax
 		shr eax, 0x10
@@ -3665,22 +3688,22 @@ jmp_10033aa2:
 		mov edx, dword ptr [ebp+0x1c]
 		mov dword ptr [ebx], edx
 		mov dword ptr [esi+0x4], 0x0
-		mov dword ptr [g_unk0x1006a15c+0xc], 0x0
-		mov dword ptr [g_unk0x1006a15c+0x48], 0x0
+		mov dword ptr [g_rotatedCorners+0xc], 0x0
+		mov dword ptr [g_rotatedCorners+0x48], 0x0
 		mov dword ptr [esi+0x8], 0x0
-		mov dword ptr [g_unk0x1006a15c+0x10], 0x0
-		mov dword ptr [g_unk0x1006a15c+0x24], 0x0
+		mov dword ptr [g_rotatedCorners+0x10], 0x0
+		mov dword ptr [g_rotatedCorners+0x24], 0x0
 		mov dword ptr [ebx+0x4], eax
 		mov dword ptr [esi+0xc], eax
-		mov dword ptr [g_unk0x1006a15c+0x20], eax
-		mov dword ptr [g_unk0x1006a15c+0x34], eax
+		mov dword ptr [g_rotatedCorners+0x20], eax
+		mov dword ptr [g_rotatedCorners+0x34], eax
 		mov dword ptr [ebx+0x8], ecx
 		mov dword ptr [esi+0x10], ecx
-		mov dword ptr [g_unk0x1006a15c+0x38], ecx
-		mov dword ptr [g_unk0x1006a15c+0x4c], ecx
+		mov dword ptr [g_rotatedCorners+0x38], ecx
+		mov dword ptr [g_rotatedCorners+0x4c], ecx
 		push dword ptr [ebp+0x10]
 		push dword ptr [ebp+0xc]
-		call FUN_1003757d
+		call GetShpFrameOrigin
 		add esp, 0x8
 		mov ebx, eax
 		cwde
@@ -3695,7 +3718,7 @@ jmp_10033aa2:
 		push 0xff
 		lea eax, [ebp-0x28]
 		push eax
-		call FUN_10034e15
+		call FillView
 		add esp, 0x8
 		test dword ptr [ebp+0x2c], 0x1
 		_emit 0x74 /* je jmp_10033b83 */
@@ -3706,7 +3729,7 @@ jmp_10033aa2:
 		push dword ptr [ebp+0xc]
 		lea eax, [ebp-0x28]
 		push eax
-		call FUN_1003351a
+		call BlitShpFrameRemapped
 		add esp, 0x14
 		_emit 0xeb /* jmp jmp_10033b9b */
 		_emit 0x18
@@ -3810,14 +3833,14 @@ jmp_10033c52:
 		push eax
 		lea eax, [ebp-0x30]
 		push eax
-		call FUN_100369e2
+		call RotateScalePoint
 		add esp, 0x18
 		mov eax, dword ptr [ebp-0x38]
 		add eax, dword ptr [ebp-0x4c]
-		mov dword ptr [g_unk0x1006a15c], eax
+		mov dword ptr [g_rotatedCorners], eax
 		mov eax, dword ptr [ebp-0x34]
 		add eax, dword ptr [ebp-0x50]
-		mov dword ptr [g_unk0x1006a15c+0x4], eax
+		mov dword ptr [g_rotatedCorners+0x4], eax
 		mov eax, dword ptr [ebp-0x44]
 		mov dword ptr [ebp-0x30], eax
 		mov dword ptr [ebp-0x2c], 0x0
@@ -3830,20 +3853,20 @@ jmp_10033c52:
 		push eax
 		lea eax, [ebp-0x30]
 		push eax
-		call FUN_100369e2
+		call RotateScalePoint
 		add esp, 0x18
 		mov eax, dword ptr [ebp-0x38]
 		add eax, dword ptr [ebp-0x4c]
-		mov dword ptr [g_unk0x1006a15c+0x14], eax
+		mov dword ptr [g_rotatedCorners+0x14], eax
 		mov eax, dword ptr [ebp-0x34]
 		add eax, dword ptr [ebp-0x50]
-		mov dword ptr [g_unk0x1006a15c+0x18], eax
+		mov dword ptr [g_rotatedCorners+0x18], eax
 		mov eax, dword ptr [ebp-0xec]
-		add dword ptr [g_unk0x1006a15c], eax
-		add dword ptr [g_unk0x1006a15c+0x14], eax
+		add dword ptr [g_rotatedCorners], eax
+		add dword ptr [g_rotatedCorners+0x14], eax
 		mov eax, dword ptr [ebp-0xf0]
-		add dword ptr [g_unk0x1006a15c+0x4], eax
-		add dword ptr [g_unk0x1006a15c+0x18], eax
+		add dword ptr [g_rotatedCorners+0x4], eax
+		add dword ptr [g_rotatedCorners+0x18], eax
 		mov eax, dword ptr [ebp-0x44]
 		mov ebx, dword ptr [ebp-0x48]
 		mov dword ptr [ebp-0x30], eax
@@ -3857,14 +3880,14 @@ jmp_10033c52:
 		push eax
 		lea eax, [ebp-0x30]
 		push eax
-		call FUN_100369e2
+		call RotateScalePoint
 		add esp, 0x18
 		mov eax, dword ptr [ebp-0x38]
 		add eax, dword ptr [ebp-0x4c]
-		mov dword ptr [g_unk0x1006a15c+0x28], eax
+		mov dword ptr [g_rotatedCorners+0x28], eax
 		mov eax, dword ptr [ebp-0x34]
 		add eax, dword ptr [ebp-0x50]
-		mov dword ptr [g_unk0x1006a15c+0x2c], eax
+		mov dword ptr [g_rotatedCorners+0x2c], eax
 		mov eax, dword ptr [ebp-0x48]
 		mov dword ptr [ebp-0x30], 0x0
 		mov dword ptr [ebp-0x2c], eax
@@ -3877,20 +3900,20 @@ jmp_10033c52:
 		push eax
 		lea eax, [ebp-0x30]
 		push eax
-		call FUN_100369e2
+		call RotateScalePoint
 		add esp, 0x18
 		mov eax, dword ptr [ebp-0x38]
 		add eax, dword ptr [ebp-0x4c]
-		mov dword ptr [g_unk0x1006a15c+0x3c], eax
+		mov dword ptr [g_rotatedCorners+0x3c], eax
 		mov eax, dword ptr [ebp-0x34]
 		add eax, dword ptr [ebp-0x50]
-		mov dword ptr [g_unk0x1006a15c+0x40], eax
+		mov dword ptr [g_rotatedCorners+0x40], eax
 		mov eax, dword ptr [ebp-0xec]
-		add dword ptr [g_unk0x1006a15c+0x28], eax
-		add dword ptr [g_unk0x1006a15c+0x3c], eax
+		add dword ptr [g_rotatedCorners+0x28], eax
+		add dword ptr [g_rotatedCorners+0x3c], eax
 		mov eax, dword ptr [ebp-0xf0]
-		add dword ptr [g_unk0x1006a15c+0x2c], eax
-		add dword ptr [g_unk0x1006a15c+0x40], eax
+		add dword ptr [g_rotatedCorners+0x2c], eax
+		add dword ptr [g_rotatedCorners+0x40], eax
 		lea ebx, [ebp-0x14]
 		mov eax, dword ptr [ebx]
 		mov dword ptr [ebp-0x58], eax
@@ -3899,7 +3922,7 @@ jmp_10033c52:
 		mov dword ptr [ebp-0x54], ecx
 		push ds
 		pop es
-		mov ebx, offset g_unk0x1006a15c
+		mov ebx, offset g_rotatedCorners
 		mov eax, ebx
 		add eax, 0x50
 		mov dword ptr [ebp-0x64], ebx
@@ -4212,13 +4235,13 @@ jmp_100341b0:
 		pop edx
 		pop ebx
 		add edx, eax
-		mov dword ptr [g_unk0x1006a1ac], edx
+		mov dword ptr [g_rotatedCornerSteps], edx
 		add edx, ecx
-		mov dword ptr [g_unk0x1006a1ac+0x4], edx
+		mov dword ptr [g_rotatedCornerSteps+0x4], edx
 		add ebx, eax
-		mov dword ptr [g_unk0x1006a1ac+0x8], ebx
+		mov dword ptr [g_rotatedCornerSteps+0x8], ebx
 		add ebx, ecx
-		mov dword ptr [g_unk0x1006a1ac+0xc], ebx
+		mov dword ptr [g_rotatedCornerSteps+0xc], ebx
 		mov ecx, dword ptr [ebp-0xd4]
 		sub ecx, dword ptr [ebp-0xc0]
 		jg jmp_10034440
@@ -4276,7 +4299,7 @@ jmp_1003426d:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		mov bl, byte ptr [esi]
 		cmp bl, 0xff
 		_emit 0x74 /* je jmp_10034288 */
@@ -4288,7 +4311,7 @@ jmp_10034288:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		mov bl, byte ptr [esi]
 		cmp bl, 0xff
 		_emit 0x74 /* je jmp_100342a3 */
@@ -4300,7 +4323,7 @@ jmp_100342a3:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		mov bl, byte ptr [esi]
 		cmp bl, 0xff
 		_emit 0x74 /* je jmp_100342be */
@@ -4312,7 +4335,7 @@ jmp_100342be:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		mov bl, byte ptr [esi]
 		cmp bl, 0xff
 		_emit 0x74 /* je jmp_100342d9 */
@@ -4324,7 +4347,7 @@ jmp_100342d9:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		mov bl, byte ptr [esi]
 		cmp bl, 0xff
 		_emit 0x74 /* je jmp_100342f4 */
@@ -4336,7 +4359,7 @@ jmp_100342f4:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		add edi, 0x6
 		sub dword ptr [esp], 0x6
 		js jmp_100343b6
@@ -4354,7 +4377,7 @@ jmp_10034325:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		dec dword ptr [esp]
 		_emit 0x78 /* js jmp_100343b6 */
 		_emit 0x7b
@@ -4369,7 +4392,7 @@ jmp_10034345:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		dec dword ptr [esp]
 		_emit 0x78 /* js jmp_100343b6 */
 		_emit 0x5b
@@ -4384,7 +4407,7 @@ jmp_10034365:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		dec dword ptr [esp]
 		_emit 0x78 /* js jmp_100343b6 */
 		_emit 0x3b
@@ -4399,7 +4422,7 @@ jmp_10034385:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 		dec dword ptr [esp]
 		_emit 0x78 /* js jmp_100343b6 */
 		_emit 0x1b
@@ -4414,7 +4437,7 @@ jmp_100343a5:
 		adc ebx, ebx
 		add ecx, ebp
 		adc ebx, ebx
-		add esi, dword ptr [g_unk0x1006a1ac+ebx*0x4]
+		add esi, dword ptr [g_rotatedCornerSteps+ebx*0x4]
 jmp_100343b6:
 		add esp, 0x4
 		pop ebp
@@ -4604,7 +4627,7 @@ jmp_100345e0:
 		push dword ptr [ebp+0x10]
 		push dword ptr [ebp+0xc]
 		push dword ptr [ebp+0x8]
-		call FUN_1003351a
+		call BlitShpFrameRemapped
 		add esp, 0x14
 		jmp jmp_10034411
 jmp_10034605:
@@ -4841,9 +4864,9 @@ __declspec(naked) MechS32 FUN_10034622(
 
 // Run-length encodes the view, skipping pixels equal to p_transparent: finds the bounding box of
 // the opaque pixels, writes a 0x18-byte header to p_out (when not NULL) followed by the rows
-// (FUN_10034aaf) and returns the encoded size.
+// (EncodeRleRow) and returns the encoded size.
 #ifdef COMPAT_MODE
-MechS32 FUN_1003479a(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
+MechS32 EncodeViewRle(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
 {
 	STUB(0x1003479a);
 	return 0;
@@ -4851,7 +4874,7 @@ MechS32 FUN_1003479a(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS
 #else
 // FUNCTION: MW2SHELL 0x1003479a
 __declspec(naked) MechS32
-FUN_1003479a(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
+EncodeViewRle(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
 {
 	__asm {
 		push ebp
@@ -4942,7 +4965,7 @@ jmp_1003482f:
 		mov esi, dword ptr [ebp+0x8]
 		mov ebx, dword ptr [esi]
 		mov edi, dword ptr [ebp+0x18]
-		mov dword ptr [g_unk0x1006880d], edi
+		mov dword ptr [g_rleOutput], edi
 		or edi, edi
 		_emit 0x74 /* je jmp_1003487d */
 		_emit 0x3c
@@ -4982,56 +5005,56 @@ jmp_1003487d:
 		sub eax, dword ptr [ebp-0x1c]
 		mov dword ptr [ebp-0xc], eax
 		mov eax, 0x7fffffff
-		mov dword ptr [g_unk0x10068835], eax
-		mov dword ptr [g_unk0x10068839], eax
+		mov dword ptr [g_rleLeft], eax
+		mov dword ptr [g_rleTop], eax
 		neg eax
-		mov dword ptr [g_unk0x1006883d], eax
-		mov dword ptr [g_unk0x10068841], eax
+		mov dword ptr [g_rleRight], eax
+		mov dword ptr [g_rleBottom], eax
 		mov eax, dword ptr [ebp-0x20]
 		imul dword ptr [ebp-0x30]
 		add eax, dword ptr [ebp-0x2c]
 		add eax, dword ptr [ebp-0x1c]
-		mov dword ptr [g_unk0x10068815], eax
+		mov dword ptr [g_rleRow], eax
 		mov esi, eax
 		mov eax, dword ptr [ebp-0x20]
 		mov dword ptr [ebp-0x10], eax
 		jmp jmp_1003496d
 jmp_100348d6:
-		mov edi, dword ptr [g_unk0x10068815]
-		mov dword ptr [g_unk0x10068819], edi
+		mov edi, dword ptr [g_rleRow]
+		mov dword ptr [g_rleRun], edi
 		mov ecx, dword ptr [ebp-0x8]
 		mov dword ptr [ebp-0x14], ecx
 		mov al, byte ptr [ebp+0xc]
 		repe scasb
 		_emit 0x74 /* je jmp_10034961 */
 		_emit 0x72
-		mov eax, dword ptr [g_unk0x10068839]
+		mov eax, dword ptr [g_rleTop]
 		cmp eax, dword ptr [ebp-0x10]
 		_emit 0x7c /* jl jmp_100348fc */
 		_emit 0x03
 		mov eax, dword ptr [ebp-0x10]
 jmp_100348fc:
-		mov dword ptr [g_unk0x10068839], eax
-		mov eax, dword ptr [g_unk0x10068841]
+		mov dword ptr [g_rleTop], eax
+		mov eax, dword ptr [g_rleBottom]
 		cmp eax, dword ptr [ebp-0x10]
 		_emit 0x7f /* jg jmp_1003490e */
 		_emit 0x03
 		mov eax, dword ptr [ebp-0x10]
 jmp_1003490e:
-		mov dword ptr [g_unk0x10068841], eax
+		mov dword ptr [g_rleBottom], eax
 		mov eax, dword ptr [ebp-0x24]
 		sub eax, ecx
-		cmp eax, dword ptr [g_unk0x10068835]
+		cmp eax, dword ptr [g_rleLeft]
 		_emit 0x7c /* jl jmp_10034925 */
 		_emit 0x05
-		mov eax, dword ptr [g_unk0x10068835]
+		mov eax, dword ptr [g_rleLeft]
 jmp_10034925:
-		mov dword ptr [g_unk0x10068835], eax
-		mov eax, dword ptr [g_unk0x10068815]
+		mov dword ptr [g_rleLeft], eax
+		mov eax, dword ptr [g_rleRow]
 		add eax, dword ptr [ebp-0x8]
 		dec eax
 		mov edi, eax
-		mov dword ptr [g_unk0x10068819], edi
+		mov dword ptr [g_rleRun], edi
 		mov ecx, dword ptr [ebp-0x8]
 		mov dword ptr [ebp-0x14], ecx
 		mov al, byte ptr [ebp+0xc]
@@ -5042,15 +5065,15 @@ jmp_10034925:
 		_emit 0x17
 		mov eax, dword ptr [ebp-0x1c]
 		add eax, ecx
-		cmp eax, dword ptr [g_unk0x1006883d]
+		cmp eax, dword ptr [g_rleRight]
 		_emit 0x7f /* jg jmp_1003495c */
 		_emit 0x05
-		mov eax, dword ptr [g_unk0x1006883d]
+		mov eax, dword ptr [g_rleRight]
 jmp_1003495c:
-		mov dword ptr [g_unk0x1006883d], eax
+		mov dword ptr [g_rleRight], eax
 jmp_10034961:
 		mov eax, dword ptr [ebp-0x30]
-		add dword ptr [g_unk0x10068815], eax
+		add dword ptr [g_rleRow], eax
 		inc dword ptr [ebp-0x10]
 jmp_1003496d:
 		mov eax, dword ptr [ebp-0x10]
@@ -5060,32 +5083,32 @@ jmp_1003496d:
 		or edi, edi
 		_emit 0x74 /* je jmp_100349ac */
 		_emit 0x2c
-		mov eax, dword ptr [g_unk0x10068835]
+		mov eax, dword ptr [g_rleLeft]
 		sub eax, dword ptr [ebp+0x10]
 		mov dword ptr [edi+0x8], eax
-		mov eax, dword ptr [g_unk0x10068839]
+		mov eax, dword ptr [g_rleTop]
 		sub eax, dword ptr [ebp+0x14]
 		mov dword ptr [edi+0xc], eax
-		mov eax, dword ptr [g_unk0x1006883d]
+		mov eax, dword ptr [g_rleRight]
 		sub eax, dword ptr [ebp+0x10]
 		mov dword ptr [edi+0x10], eax
-		mov eax, dword ptr [g_unk0x10068841]
+		mov eax, dword ptr [g_rleBottom]
 		sub eax, dword ptr [ebp+0x14]
 		mov dword ptr [edi+0x14], eax
 jmp_100349ac:
 		add edi, 0x18
-		mov dword ptr [g_unk0x1006881d], edi
-		mov eax, dword ptr [g_unk0x1006883d]
+		mov dword ptr [g_rleCursor], edi
+		mov eax, dword ptr [g_rleRight]
 		inc eax
-		sub eax, dword ptr [g_unk0x10068835]
+		sub eax, dword ptr [g_rleLeft]
 		mov dword ptr [ebp-0x18], eax
-		mov eax, dword ptr [g_unk0x10068839]
+		mov eax, dword ptr [g_rleTop]
 		imul dword ptr [ebp-0x30]
 		add eax, dword ptr [ebp-0x2c]
-		add eax, dword ptr [g_unk0x10068835]
+		add eax, dword ptr [g_rleLeft]
 		mov esi, eax
-		mov dword ptr [g_unk0x10068815], esi
-		mov eax, dword ptr [g_unk0x10068839]
+		mov dword ptr [g_rleRow], esi
+		mov eax, dword ptr [g_rleTop]
 		mov dword ptr [ebp-0x10], eax
 		_emit 0xeb /* jmp jmp_10034a04 */
 		_emit 0x1d
@@ -5093,17 +5116,17 @@ jmp_100349e7:
 		push dword ptr [ebp-0x1c]
 		push dword ptr [ebp+0xc]
 		push dword ptr [ebp-0x18]
-		call FUN_10034aaf
+		call EncodeRleRow
 		add esp, 0xc
 		mov eax, dword ptr [ebp-0x30]
-		add dword ptr [g_unk0x10068815], eax
+		add dword ptr [g_rleRow], eax
 		inc dword ptr [ebp-0x10]
 jmp_10034a04:
 		mov eax, dword ptr [ebp-0x10]
-		cmp eax, dword ptr [g_unk0x10068841]
+		cmp eax, dword ptr [g_rleBottom]
 		_emit 0x7e /* jle jmp_100349e7 */
 		_emit 0xd8
-		mov eax, dword ptr [g_unk0x1006881d]
+		mov eax, dword ptr [g_rleCursor]
 		sub eax, dword ptr [ebp+0x18]
 		pop es
 		pop edi
@@ -5118,14 +5141,14 @@ jmp_10034a04:
 // Maps the pixels of an entry of the data's offset table through the color remap table, in
 // place, following its run-length codes.
 #ifdef COMPAT_MODE
-MechS32 FUN_10034a1d(void* p_data, MechS32 p_index)
+MechS32 RemapShpFrame(void* p_data, MechS32 p_index)
 {
 	STUB(0x10034a1d);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10034a1d
-__declspec(naked) MechS32 FUN_10034a1d(void* p_data, MechS32 p_index)
+__declspec(naked) MechS32 RemapShpFrame(void* p_data, MechS32 p_index)
 {
 	__asm {
 		push ebp
@@ -5180,7 +5203,7 @@ __declspec(naked) MechS32 FUN_10034a1d(void* p_data, MechS32 p_index)
 		movzx ecx, al
 		mov eax, 0x0
 		mov al, byte ptr [esi]
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		mov byte ptr [esi], al
 		inc esi
 		mov al, byte ptr [esi]
@@ -5197,7 +5220,7 @@ __declspec(naked) MechS32 FUN_10034a1d(void* p_data, MechS32 p_index)
 		mov eax, 0x0
 	jmp_10034a8c:
 		mov al, byte ptr [esi]
-		mov al, byte ptr [g_unk0x1006a05c+eax]
+		mov al, byte ptr [g_remapTable+eax]
 		mov byte ptr [esi], al
 		inc esi
 		loop jmp_10034a8c
@@ -5226,15 +5249,15 @@ __declspec(naked) MechS32 FUN_10034a1d(void* p_data, MechS32 p_index)
 }
 #endif
 
-// Encodes one row of p_count pixels at g_unk0x10068815 for FUN_1003479a.
+// Encodes one row of p_count pixels at g_rleRow for EncodeViewRle.
 #ifdef COMPAT_MODE
-void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
+void EncodeRleRow(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
 {
 	STUB(0x10034aaf);
 }
 #else
 // FUNCTION: MW2SHELL 0x10034aaf
-__declspec(naked) void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
+__declspec(naked) void EncodeRleRow(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
 {
 	__asm {
 		push ebp
@@ -5247,12 +5270,12 @@ __declspec(naked) void FUN_10034aaf(MechS32 p_count, MechU8 p_transparent, MechS
 		cld
 		push ds
 		pop es
-		mov esi, dword ptr [g_unk0x10068815]
-		mov dword ptr [g_unk0x10068819], esi
+		mov esi, dword ptr [g_rleRow]
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x0
 		push 0x0
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		mov dword ptr [ebp-0x4], 0x5
 		mov ecx, dword ptr [ebp+0x8]
@@ -5278,11 +5301,11 @@ jmp_10034af8:
 		cmp ah, byte ptr [ebp+0xc]
 		_emit 0x75 /* jne jmp_10034b36 */
 		_emit 0x1a
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x1
 		push 0x1
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		jmp jmp_10034bde
 jmp_10034b36:
@@ -5296,11 +5319,11 @@ jmp_10034b36:
 		cmp ah, byte ptr [ebp+0xc]
 		_emit 0x75 /* jne jmp_10034b62 */
 		_emit 0x17
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x1
 		push 0x1
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		_emit 0xeb /* jmp jmp_10034bde */
 		_emit 0x7c
@@ -5318,11 +5341,11 @@ jmp_10034b62:
 		cmp ah, byte ptr [ebp+0xc]
 		_emit 0x75 /* jne jmp_10034b92 */
 		_emit 0x17
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x1
 		push 0x1
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		_emit 0xeb /* jmp jmp_10034bde */
 		_emit 0x4c
@@ -5330,11 +5353,11 @@ jmp_10034b92:
 		or al, al
 		_emit 0x75 /* jne jmp_10034b36 */
 		_emit 0xa0
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x3
 		push 0x1
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 jmp_10034bab:
 		mov dword ptr [ebp-0x4], 0x2
@@ -5348,11 +5371,11 @@ jmp_10034bab:
 		_emit 0x74 /* je jmp_10034bab */
 		_emit 0xed
 		xor ah, al
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x1
 		push 0x2
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		cmp ah, byte ptr [ebp+0xc]
 		jne jmp_10034af8
@@ -5368,24 +5391,24 @@ jmp_10034bde:
 		_emit 0x74 /* je jmp_10034bde */
 		_emit 0xed
 		xor ah, al
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x1
 		push 0x3
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		jmp jmp_10034af8
 jmp_10034c0d:
-		mov dword ptr [g_unk0x10068819], esi
+		mov dword ptr [g_rleRun], esi
 		push dword ptr [ebp+0x10]
 		push 0x0
 		push dword ptr [ebp-0x4]
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		push dword ptr [ebp+0x10]
 		push 0x0
 		push 0x4
-		call FUN_10034c38
+		call EmitRleRun
 		add esp, 0xc
 		pop es
 		pop edi
@@ -5397,16 +5420,16 @@ jmp_10034c0d:
 }
 #endif
 
-// Emits one run of FUN_10034aaf's row encoding; p_op selects the kind (0 starts a row, 1 a
+// Emits one run of EncodeRleRow's row encoding; p_op selects the kind (0 starts a row, 1 a
 // literal run, 2 a repeated run, 3 a skip, 4 ends the row).
 #ifdef COMPAT_MODE
-void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left)
+void EmitRleRun(MechS32 p_op, MechS32 p_back, MechS32 p_left)
 {
 	STUB(0x10034c38);
 }
 #else
 // FUNCTION: MW2SHELL 0x10034c38
-__declspec(naked) void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left)
+__declspec(naked) void EmitRleRun(MechS32 p_op, MechS32 p_back, MechS32 p_left)
 {
 	__asm {
 		push ebp
@@ -5420,8 +5443,8 @@ __declspec(naked) void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left
 		pop es
 		push eax
 		push ecx
-		mov esi, dword ptr [g_unk0x10068821]
-		mov edi, dword ptr [g_unk0x1006881d]
+		mov esi, dword ptr [g_rleRunStart]
+		mov edi, dword ptr [g_rleCursor]
 		mov eax, dword ptr [ebp+0x8]
 		cmp eax, 0x2
 		_emit 0x74 /* je jmp_10034c94 */
@@ -5435,12 +5458,12 @@ __declspec(naked) void FUN_10034c38(MechS32 p_op, MechS32 p_back, MechS32 p_left
 		cmp eax, 0x0
 		jne jmp_10034e01
 		xor eax, eax
-		mov dword ptr [g_unk0x10068811], eax
-		mov esi, dword ptr [g_unk0x10068819]
-		mov dword ptr [g_unk0x10068821], esi
+		mov dword ptr [g_rleSkip], eax
+		mov esi, dword ptr [g_rleRun]
+		mov dword ptr [g_rleRunStart], esi
 		jmp jmp_10034e01
 jmp_10034c94:
-		mov ebx, dword ptr [g_unk0x10068811]
+		mov ebx, dword ptr [g_rleSkip]
 		or ebx, ebx
 		_emit 0x74 /* je jmp_10034cd3 */
 		_emit 0x35
@@ -5452,7 +5475,7 @@ jmp_10034c9e:
 		mov ecx, 0xff
 jmp_10034cad:
 		sub ebx, ecx
-		cmp dword ptr [g_unk0x1006880d], 0x0
+		cmp dword ptr [g_rleOutput], 0x0
 		_emit 0x74 /* je jmp_10034cc4 */
 		_emit 0x0c
 		mov al, 0x1
@@ -5470,25 +5493,25 @@ jmp_10034cc7:
 		or ebx, ebx
 		_emit 0x75 /* jne jmp_10034c9e */
 		_emit 0xd1
-		mov dword ptr [g_unk0x10068811], ebx
+		mov dword ptr [g_rleSkip], ebx
 jmp_10034cd3:
-		mov ebx, dword ptr [g_unk0x10068819]
+		mov ebx, dword ptr [g_rleRun]
 		sub ebx, esi
 		sub ebx, dword ptr [ebp+0xc]
 		mov eax, dword ptr [ebp+0x10]
 		add eax, esi
-		sub eax, dword ptr [g_unk0x10068815]
-		cmp eax, dword ptr [g_unk0x10068835]
+		sub eax, dword ptr [g_rleRow]
+		cmp eax, dword ptr [g_rleLeft]
 		_emit 0x7d /* jge jmp_10034cf6 */
 		_emit 0x05
-		mov dword ptr [g_unk0x10068835], eax
+		mov dword ptr [g_rleLeft], eax
 jmp_10034cf6:
 		add eax, ebx
 		dec eax
-		cmp eax, dword ptr [g_unk0x1006883d]
+		cmp eax, dword ptr [g_rleRight]
 		_emit 0x7e /* jle jmp_10034d08 */
 		_emit 0x07
-		mov dword ptr [g_unk0x1006883d], eax
+		mov dword ptr [g_rleRight], eax
 		_emit 0xeb /* jmp jmp_10034d32 */
 		_emit 0x2a
 jmp_10034d08:
@@ -5498,7 +5521,7 @@ jmp_10034d08:
 		_emit 0x05
 		mov ecx, 0x7f
 jmp_10034d14:
-		cmp dword ptr [g_unk0x1006880d], 0x0
+		cmp dword ptr [g_rleOutput], 0x0
 		_emit 0x74 /* je jmp_10034d2b */
 		_emit 0x0e
 		mov al, cl
@@ -5521,7 +5544,7 @@ jmp_10034d32:
 		_emit 0xd2
 		jmp jmp_10034e01
 jmp_10034d3b:
-		mov ebx, dword ptr [g_unk0x10068811]
+		mov ebx, dword ptr [g_rleSkip]
 		or ebx, ebx
 		_emit 0x74 /* je jmp_10034d7a */
 		_emit 0x35
@@ -5533,7 +5556,7 @@ jmp_10034d45:
 		mov ecx, 0xff
 jmp_10034d54:
 		sub ebx, ecx
-		cmp dword ptr [g_unk0x1006880d], 0x0
+		cmp dword ptr [g_rleOutput], 0x0
 		_emit 0x74 /* je jmp_10034d6b */
 		_emit 0x0c
 		mov al, 0x1
@@ -5551,25 +5574,25 @@ jmp_10034d6e:
 		or ebx, ebx
 		_emit 0x75 /* jne jmp_10034d45 */
 		_emit 0xd1
-		mov dword ptr [g_unk0x10068811], ebx
+		mov dword ptr [g_rleSkip], ebx
 jmp_10034d7a:
-		mov ebx, dword ptr [g_unk0x10068819]
+		mov ebx, dword ptr [g_rleRun]
 		sub ebx, esi
 		sub ebx, dword ptr [ebp+0xc]
 		mov eax, dword ptr [ebp+0x10]
 		add eax, esi
-		sub eax, dword ptr [g_unk0x10068815]
-		cmp eax, dword ptr [g_unk0x10068835]
+		sub eax, dword ptr [g_rleRow]
+		cmp eax, dword ptr [g_rleLeft]
 		_emit 0x7d /* jge jmp_10034d9d */
 		_emit 0x05
-		mov dword ptr [g_unk0x10068835], eax
+		mov dword ptr [g_rleLeft], eax
 jmp_10034d9d:
 		add eax, ebx
 		dec eax
-		cmp eax, dword ptr [g_unk0x1006883d]
+		cmp eax, dword ptr [g_rleRight]
 		_emit 0x7e /* jle jmp_10034daf */
 		_emit 0x07
-		mov dword ptr [g_unk0x1006883d], eax
+		mov dword ptr [g_rleRight], eax
 		_emit 0xeb /* jmp jmp_10034dda */
 		_emit 0x2b
 jmp_10034daf:
@@ -5583,7 +5606,7 @@ jmp_10034dbb:
 		mov al, cl
 		add al, al
 		inc al
-		cmp dword ptr [g_unk0x1006880d], 0x0
+		cmp dword ptr [g_rleOutput], 0x0
 		_emit 0x74 /* je jmp_10034dd3 */
 		_emit 0x07
 		mov byte ptr [edi], al
@@ -5604,23 +5627,23 @@ jmp_10034dda:
 		_emit 0xeb /* jmp jmp_10034e01 */
 		_emit 0x21
 jmp_10034de0:
-		mov ebx, dword ptr [g_unk0x10068819]
+		mov ebx, dword ptr [g_rleRun]
 		sub ebx, esi
 		sub ebx, dword ptr [ebp+0xc]
-		mov dword ptr [g_unk0x10068811], ebx
+		mov dword ptr [g_rleSkip], ebx
 		_emit 0xeb /* jmp jmp_10034e01 */
 		_emit 0x0e
 jmp_10034df3:
 		xor eax, eax
-		cmp dword ptr [g_unk0x1006880d], 0x0
+		cmp dword ptr [g_rleOutput], 0x0
 		_emit 0x74 /* je jmp_10034e00 */
 		_emit 0x02
 		mov byte ptr [edi], al
 jmp_10034e00:
 		inc edi
 jmp_10034e01:
-		mov dword ptr [g_unk0x1006881d], edi
-		mov dword ptr [g_unk0x10068821], esi
+		mov dword ptr [g_rleCursor], edi
+		mov dword ptr [g_rleRunStart], esi
 		pop ecx
 		pop eax
 		pop es
@@ -5633,14 +5656,16 @@ jmp_10034e01:
 }
 #endif
 
+// Fills the view's rectangle, clipped to its buffer, with p_color. Leaves -1 in eax for an empty
+// buffer, -2 for an empty rectangle, else 0.
 #ifdef COMPAT_MODE
-void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04)
+void FillView(PixelView* p_view, MechS32 p_color)
 {
 	STUB(0x10034e15);
 }
 #else
 // FUNCTION: MW2SHELL 0x10034e15
-__declspec(naked) void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04)
+__declspec(naked) void FillView(PixelView* p_view, MechS32 p_color)
 {
 	__asm {
 		push ebp
@@ -6231,15 +6256,14 @@ jmp_100352a9:
 
 // Scrolls the view by (p_dx, p_dy) with wrap-around, through nine BlitView blits.
 #ifdef COMPAT_MODE
-MechS32 FUN_100352b4(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
+MechS32 ScrollView(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
 {
 	STUB(0x100352b4);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x100352b4
-__declspec(naked) MechS32
-FUN_100352b4(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
+__declspec(naked) MechS32 ScrollView(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
 {
 	__asm {
 		push ebp
@@ -6295,7 +6319,7 @@ jmp_1003531f:
 		movzx ax, al
 		push ax
 		push dword ptr [ebp+0x8]
-		call FUN_10034e15
+		call FillView
 		add esp, 0x8
 		pop es
 		pop edi
@@ -6459,7 +6483,7 @@ jmp_100354a6:
 
 // Draws the outline of an ellipse centered on (p_x, p_y), clipped to the view.
 #ifdef COMPAT_MODE
-MechS32 FUN_100354b1(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+MechS32 DrawEllipse(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
 {
 	STUB(0x100354b1);
 	return 0;
@@ -6467,7 +6491,7 @@ MechS32 FUN_100354b1(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radi
 #else
 // FUNCTION: MW2SHELL 0x100354b1
 __declspec(naked) MechS32
-FUN_100354b1(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+DrawEllipse(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
 {
 	__asm {
 		push ebp
@@ -6871,7 +6895,7 @@ jmp_100357ec:
 
 // Fills an ellipse centered on (p_x, p_y), clipped to the view.
 #ifdef COMPAT_MODE
-MechS32 FUN_100357f2(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+MechS32 FillEllipse(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
 {
 	STUB(0x100357f2);
 	return 0;
@@ -6879,7 +6903,7 @@ MechS32 FUN_100357f2(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radi
 #else
 // FUNCTION: MW2SHELL 0x100357f2
 __declspec(naked) MechS32
-FUN_100357f2(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+FillEllipse(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
 {
 	__asm {
 		push ebp
@@ -7235,9 +7259,9 @@ jmp_10035aea:
 #endif
 
 // The 16.16 cosine of 0 to 90 degrees in tenths of a degree; read backwards, the sine. The
-// original keeps it in .text, between FUN_100357f2 and FUN_10036904.
+// original keeps it in .text, between FillEllipse and GetCosSin.
 // GLOBAL: MW2SHELL 0x10035af0
-MechS32 g_unk0x10035af0[0x385] = {
+MechS32 g_cosTable[0x385] = {
 	0x10000, 0x10000, 0x10000, 0xffff, 0xfffe, 0xfffe, 0xfffc, 0xfffb, 0xfffa, 0xfff8, 0xfff6, 0xfff4, 0xfff2, 0xffef,
 	0xffec,  0xffea,  0xffe6,  0xffe3, 0xffe0, 0xffdc, 0xffd8, 0xffd4, 0xffd0, 0xffcb, 0xffc7, 0xffc2, 0xffbd, 0xffb7,
 	0xffb2,  0xffac,  0xffa6,  0xffa0, 0xff9a, 0xff93, 0xff8d, 0xff86, 0xff7f, 0xff77, 0xff70, 0xff68, 0xff60, 0xff58,
@@ -7305,15 +7329,15 @@ MechS32 g_unk0x10035af0[0x385] = {
 	0x1ca,   0x157,   0xe5,    0x72,   0x0
 };
 
-// Looks up the 16.16 cosine and sine of p_angle (in tenths of a degree) in g_unk0x10035af0.
+// Looks up the 16.16 cosine and sine of p_angle (in tenths of a degree) in g_cosTable.
 #ifdef COMPAT_MODE
-void FUN_10036904(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
+void GetCosSin(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
 {
 	STUB(0x10036904);
 }
 #else
 // FUNCTION: MW2SHELL 0x10036904
-__declspec(naked) void FUN_10036904(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
+__declspec(naked) void GetCosSin(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
 {
 	__asm {
 		push ebp
@@ -7345,19 +7369,19 @@ jmp_10036922:
 		_emit 0x77 /* ja jmp_1003694d */
 		_emit 0x13
 		shl ebx, 0x2
-		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		mov eax, dword ptr [g_cosTable+ebx]
 		neg ebx
-		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		mov edx, dword ptr [g_cosTable+ebx+0xe10]
 		_emit 0xeb /* jmp jmp_100369ac */
 		_emit 0x5f
 jmp_1003694d:
 		neg ebx
 		add ebx, 0x708
 		shl ebx, 0x2
-		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		mov eax, dword ptr [g_cosTable+ebx]
 		neg eax
 		neg ebx
-		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		mov edx, dword ptr [g_cosTable+ebx+0xe10]
 		_emit 0xeb /* jmp jmp_100369ac */
 		_emit 0x42
 jmp_1003696a:
@@ -7367,9 +7391,9 @@ jmp_1003696a:
 		_emit 0x77 /* ja jmp_1003698f */
 		_emit 0x15
 		shl ebx, 0x2
-		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		mov eax, dword ptr [g_cosTable+ebx]
 		neg ebx
-		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		mov edx, dword ptr [g_cosTable+ebx+0xe10]
 		neg edx
 		_emit 0xeb /* jmp jmp_100369ac */
 		_emit 0x1d
@@ -7377,10 +7401,10 @@ jmp_1003698f:
 		neg ebx
 		add ebx, 0x708
 		shl ebx, 0x2
-		mov eax, dword ptr [g_unk0x10035af0+ebx]
+		mov eax, dword ptr [g_cosTable+ebx]
 		neg eax
 		neg ebx
-		mov edx, dword ptr [g_unk0x10035af0+ebx+0xe10]
+		mov edx, dword ptr [g_cosTable+ebx+0xe10]
 		neg edx
 jmp_100369ac:
 		mov ebx, dword ptr [ebp+0xc]
@@ -7399,13 +7423,13 @@ jmp_100369ac:
 
 // Multiplies two 16.16 fixed-point values, rounding, into *p_result.
 #ifdef COMPAT_MODE
-void FUN_100369bc(MechS32 p_a, MechS32 p_b, MechS32* p_result)
+void FixedMul16(MechS32 p_a, MechS32 p_b, MechS32* p_result)
 {
 	STUB(0x100369bc);
 }
 #else
 // FUNCTION: MW2SHELL 0x100369bc
-__declspec(naked) void FUN_100369bc(MechS32 p_a, MechS32 p_b, MechS32* p_result)
+__declspec(naked) void FixedMul16(MechS32 p_a, MechS32 p_b, MechS32* p_result)
 {
 	__asm {
 		push ebp
@@ -7435,7 +7459,7 @@ __declspec(naked) void FUN_100369bc(MechS32 p_a, MechS32 p_b, MechS32* p_result)
 // Rotates the point p_point about p_origin by p_angle (in tenths of a degree) and scales it
 // by the 16.16 factors p_scaleX and p_scaleY, storing the result in p_result.
 #ifdef COMPAT_MODE
-void FUN_100369e2(
+void RotateScalePoint(
 	MechS32* p_point,
 	MechS32* p_result,
 	MechS32* p_origin,
@@ -7448,7 +7472,7 @@ void FUN_100369e2(
 }
 #else
 // FUNCTION: MW2SHELL 0x100369e2
-__declspec(naked) void FUN_100369e2(
+__declspec(naked) void RotateScalePoint(
 	MechS32* p_point,
 	MechS32* p_result,
 	MechS32* p_origin,
@@ -7473,7 +7497,7 @@ __declspec(naked) void FUN_100369e2(
 		lea eax, [ebp-0x4]
 		push eax
 		push dword ptr [ebp+0x14]
-		call FUN_10036904
+		call GetCosSin
 		add esp, 0xc
 		mov esi, dword ptr [ebp+0x8]
 		mov edi, dword ptr [ebp+0x10]
@@ -7879,26 +7903,26 @@ __declspec(naked) void BlitString(
 }
 #endif
 
-// The IFF chunk tags that FUN_10036def, FUN_10036fb6 and FUN_10036fe7 look up. The original
-// keeps them in .text, right after FUN_10036c9e's ret.
+// The IFF chunk tags that BlitIff, ReadIffPalette and GetIffSize look up. The original
+// keeps them in .text, right after WriteViewRow's ret.
 // GLOBAL: MW2SHELL 0x10036da1
-MechChar g_unk0x10036da1[4] = {'B', 'M', 'H', 'D'};
+MechChar g_iffBmhdTag[4] = {'B', 'M', 'H', 'D'};
 
 // GLOBAL: MW2SHELL 0x10036da5
-MechChar g_unk0x10036da5[4] = {'C', 'M', 'A', 'P'};
+MechChar g_iffCmapTag[4] = {'C', 'M', 'A', 'P'};
 
 // GLOBAL: MW2SHELL 0x10036da9
-MechChar g_unk0x10036da9[4] = {'B', 'O', 'D', 'Y'};
+MechChar g_iffBodyTag[4] = {'B', 'O', 'D', 'Y'};
 
 // Copies p_count pixels into row p_index of the view, clipped.
 #ifdef COMPAT_MODE
-void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
+void WriteViewRow(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
 {
 	STUB(0x10036c9e);
 }
 #else
 // FUNCTION: MW2SHELL 0x10036c9e
-__declspec(naked) void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
+__declspec(naked) void WriteViewRow(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
 {
 	__asm {
 		push ebp
@@ -8046,14 +8070,14 @@ __declspec(naked) void FUN_10036c9e(PixelView* p_view, MechS32 p_index, undefine
 
 // Scan big-endian IFF chunks for a four-byte tag and return its data pointer.
 #ifdef COMPAT_MODE
-undefined* FUN_10036dad(const void* p_tag, const void* p_chunks)
+undefined* FindIffChunk(const void* p_tag, const void* p_chunks)
 {
 	STUB(0x10036dad);
 	return NULL;
 }
 #else
 // FUNCTION: MW2SHELL 0x10036dad
-__declspec(naked) undefined* FUN_10036dad(const void* p_tag, const void* p_chunks)
+__declspec(naked) undefined* FindIffChunk(const void* p_tag, const void* p_chunks)
 {
 	__asm {
 		push ebp
@@ -8103,16 +8127,16 @@ jmp_10036de6:
 #endif
 
 // Decodes the BODY chunk of an IFF ILBM or PBM image (p_data) into the view, one row at a
-// time through FUN_10036c9e. Returns the BMHD compression byte.
+// time through WriteViewRow. Returns the BMHD compression byte.
 #ifdef COMPAT_MODE
-MechS32 FUN_10036def(PixelView* p_view, undefined* p_data)
+MechS32 BlitIff(PixelView* p_view, undefined* p_data)
 {
 	STUB(0x10036def);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10036def
-__declspec(naked) MechS32 FUN_10036def(PixelView* p_view, undefined* p_data)
+__declspec(naked) MechS32 BlitIff(PixelView* p_view, undefined* p_data)
 {
 	__asm {
 		push ebp
@@ -8143,8 +8167,8 @@ __declspec(naked) MechS32 FUN_10036def(PixelView* p_view, undefined* p_data)
 		xor eax, 0x4d424c49
 		mov dword ptr [ebp-0x4], eax
 		push dword ptr [ebp+0xc]
-		push offset g_unk0x10036da1
-		call FUN_10036dad
+		push offset g_iffBmhdTag
+		call FindIffChunk
 		add esp, 0x8
 		mov esi, eax
 		lodsw
@@ -8195,8 +8219,8 @@ jmp_10036e5e:
 jmp_10036eb4:
 		mov dword ptr [ebp-0xc], eax
 		push dword ptr [ebp+0xc]
-		push offset g_unk0x10036da9
-		call FUN_10036dad
+		push offset g_iffBodyTag
+		call FindIffChunk
 		add esp, 0x8
 		mov dword ptr [ebp-0x10], eax
 jmp_10036eca:
@@ -8256,7 +8280,7 @@ jmp_10036f2d:
 		cmp dword ptr [ebp-0x4], 0x0
 		_emit 0x75 /* jne jmp_10036f8f */
 		_emit 0x5c
-		mov edi, offset g_unk0x10068d45
+		mov edi, offset g_scanline
 		mov eax, dword ptr [ebp-0x30]
 		mov dword ptr [ebp-0x18], eax
 		mov dword ptr [ebp-0x1c], eax
@@ -8291,10 +8315,10 @@ jmp_10036f60:
 		_emit 0xd0
 jmp_10036f77:
 		push dword ptr [ebp-0xc]
-		push offset g_unk0x10068d45
+		push offset g_scanline
 		push dword ptr [ebp-0x28]
 		push dword ptr [ebp+0x8]
-		call FUN_10036c9e
+		call WriteViewRow
 		add esp, 0x10
 		_emit 0xeb /* jmp jmp_10036fa1 */
 		_emit 0x12
@@ -8303,7 +8327,7 @@ jmp_10036f8f:
 		push esi
 		push dword ptr [ebp-0x28]
 		push dword ptr [ebp+0x8]
-		call FUN_10036c9e
+		call WriteViewRow
 		add esp, 0x10
 jmp_10036fa1:
 		inc dword ptr [ebp-0x28]
@@ -8323,13 +8347,13 @@ jmp_10036fad:
 
 // Copies the IFF image's CMAP chunk into p_palette as 6-bit components.
 #ifdef COMPAT_MODE
-void FUN_10036fb6(undefined* p_data, MechU8* p_palette)
+void ReadIffPalette(undefined* p_data, MechU8* p_palette)
 {
 	STUB(0x10036fb6);
 }
 #else
 // FUNCTION: MW2SHELL 0x10036fb6
-__declspec(naked) void FUN_10036fb6(undefined* p_data, MechU8* p_palette)
+__declspec(naked) void ReadIffPalette(undefined* p_data, MechU8* p_palette)
 {
 	__asm {
 		push ebp
@@ -8342,8 +8366,8 @@ __declspec(naked) void FUN_10036fb6(undefined* p_data, MechU8* p_palette)
 		push ds
 		pop es
 		push dword ptr [ebp+0x8]
-		push offset g_unk0x10036da5
-		call FUN_10036dad
+		push offset g_iffCmapTag
+		call FindIffChunk
 		add esp, 0x8
 		mov esi, eax
 		mov edi, dword ptr [ebp+0xc]
@@ -8365,14 +8389,14 @@ jmp_10036fda:
 
 // Returns the IFF image's BMHD width and height, packed as width << 16 | height.
 #ifdef COMPAT_MODE
-MechU32 FUN_10036fe7(undefined* p_data)
+MechU32 GetIffSize(undefined* p_data)
 {
 	STUB(0x10036fe7);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10036fe7
-__declspec(naked) MechU32 FUN_10036fe7(undefined* p_data)
+__declspec(naked) MechU32 GetIffSize(undefined* p_data)
 {
 	__asm {
 		push ebp
@@ -8385,8 +8409,8 @@ __declspec(naked) MechU32 FUN_10036fe7(undefined* p_data)
 		push ds
 		pop es
 		push dword ptr [ebp+0x8]
-		push offset g_unk0x10036da1
-		call FUN_10036dad
+		push offset g_iffBmhdTag
+		call FindIffChunk
 		add esp, 0x8
 		mov esi, eax
 		lodsw
@@ -8439,7 +8463,7 @@ __declspec(naked) void BlitPicture(PixelView* p_view, undefined* p_data)
 		mov dword ptr [ebp-0x4], eax
 		add esi, 0x80
 jmp_1003704f:
-		mov edi, offset g_unk0x10068d45
+		mov edi, offset g_scanline
 		mov edx, edi
 		add edx, dword ptr [ebp-0x4]
 jmp_10037059:
@@ -8462,10 +8486,10 @@ jmp_1003706f:
 		_emit 0x7c /* jl jmp_10037059 */
 		_emit 0xe6
 		push dword ptr [ebp-0x4]
-		push offset g_unk0x10068d45
+		push offset g_scanline
 		push ebx
 		push dword ptr [ebp+0x8]
-		call FUN_10036c9e
+		call WriteViewRow
 		add esp, 0x10
 		inc ebx
 		cmp ebx, dword ptr [ebp-0x8]
@@ -8558,13 +8582,13 @@ __declspec(naked) MechS32 GetPictureSize(undefined* p_data)
 
 // Internal assembly helper: initializes the code tables using ECX and EDI.
 #ifdef COMPAT_MODE
-void FUN_100370e8(void)
+void GifInitCodes(void)
 {
 	STUB(0x100370e8);
 }
 #else
 // FUNCTION: MW2SHELL 0x100370e8
-__declspec(naked) void FUN_100370e8(void)
+__declspec(naked) void GifInitCodes(void)
 {
 	__asm {
 		mov ebx, 0x0
@@ -8600,14 +8624,14 @@ __declspec(naked) void FUN_100370e8(void)
 
 // Internal assembly helper: reads a byte from ESI, tracking the run in EDI.
 #ifdef COMPAT_MODE
-MechU32 FUN_10037130(void)
+MechU32 GifReadByte(void)
 {
 	STUB(0x10037130);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037130
-__declspec(naked) MechU32 FUN_10037130(void)
+__declspec(naked) MechU32 GifReadByte(void)
 {
 	__asm {
 		cmp dword ptr [edi+0x10], 0x0
@@ -8627,20 +8651,20 @@ __declspec(naked) MechU32 FUN_10037130(void)
 
 // Internal assembly helper: returns the next EDX bits of the LZW code stream in EDI.
 #ifdef COMPAT_MODE
-MechU32 FUN_10037149(void)
+MechU32 GifReadCode(void)
 {
 	STUB(0x10037149);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037149
-__declspec(naked) MechU32 FUN_10037149(void)
+__declspec(naked) MechU32 GifReadCode(void)
 {
 	__asm {
 		cmp dword ptr [edi+0x18], 0x0
 		_emit 0x75 /* jnz jmp_1003715e */
 		_emit 0x0f
-		call FUN_10037130
+		call GifReadByte
 		mov dword ptr [edi+0x14], eax
 		mov dword ptr [edi+0x18], 0x8
 	jmp_1003715e:
@@ -8648,14 +8672,14 @@ __declspec(naked) MechU32 FUN_10037149(void)
 		cmp dword ptr [edi+0x18], eax
 		_emit 0x7d /* jge jmp_10037176 */
 		_emit 0x11
-		call FUN_10037130
+		call GifReadByte
 		mov ecx, dword ptr [edi+0x18]
 		shl eax, cl
 		or dword ptr [edi+0x14], eax
 		add dword ptr [edi+0x18], 0x8
 	jmp_10037176:
 		mov ebx, edx
-		movzx eax, byte ptr [g_unk0x1006a045+ebx]
+		movzx eax, byte ptr [g_gifCodeMasks+ebx]
 		mov ebx, dword ptr [edi+0x14]
 		and ebx, eax
 		push ebx
@@ -8670,13 +8694,13 @@ __declspec(naked) MechU32 FUN_10037149(void)
 
 // Internal assembly helper: installs a code and grows the code table when full.
 #ifdef COMPAT_MODE
-void FUN_1003718f(void)
+void GifAddCode(void)
 {
 	STUB(0x1003718f);
 }
 #else
 // FUNCTION: MW2SHELL 0x1003718f
-__declspec(naked) void FUN_1003718f(void)
+__declspec(naked) void GifAddCode(void)
 {
 	__asm {
 		push ebx
@@ -8711,27 +8735,27 @@ __declspec(naked) void FUN_1003718f(void)
 // Internal assembly helper: appends the pixel in AL to the row buffer and, when the row is
 // full, draws it and moves to the next row (in GIF interlace order when enabled).
 #ifdef COMPAT_MODE
-void FUN_100371d5(void)
+void GifPutPixel(void)
 {
 	STUB(0x100371d5);
 }
 #else
 // FUNCTION: MW2SHELL 0x100371d5
-__declspec(naked) void FUN_100371d5(void)
+__declspec(naked) void GifPutPixel(void)
 {
 	__asm {
 		mov ebx, dword ptr [edi+0x8]
-		mov byte ptr [g_unk0x10068d45+ebx], al
+		mov byte ptr [g_scanline+ebx], al
 		inc dword ptr [edi+0x8]
 		dec dword ptr [edi+0x20]
 		cmp dword ptr [edi+0x20], 0x0
 		_emit 0x75 /* jnz jmp_10037251 */
 		_emit 0x67
 		push dword ptr [edi+0x24]
-		push offset g_unk0x10068d45
+		push offset g_scanline
 		push dword ptr [edi+0xc]
-		push dword ptr [g_unk0x1006a058]
-		call FUN_10036c9e
+		push dword ptr [g_gifView]
+		call WriteViewRow
 		add esp, 0x10
 		mov dword ptr [edi+0x8], 0x0
 		mov eax, dword ptr [edi+0x24]
@@ -8740,7 +8764,7 @@ __declspec(naked) void FUN_100371d5(void)
 		_emit 0x74 /* jz jmp_1003723f */
 		_emit 0x29
 		movzx ebx, byte ptr [edi+0x2d]
-		movzx eax, byte ptr [g_unk0x1006a04e+ebx]
+		movzx eax, byte ptr [g_gifPassSteps+ebx]
 		add dword ptr [edi+0xc], eax
 		mov eax, dword ptr [edi+0xc]
 		cmp eax, dword ptr [edi+0x28]
@@ -8748,7 +8772,7 @@ __declspec(naked) void FUN_100371d5(void)
 		_emit 0x11
 		inc byte ptr [edi+0x2d]
 		movzx ebx, byte ptr [edi+0x2d]
-		movzx eax, byte ptr [g_unk0x1006a053+ebx]
+		movzx eax, byte ptr [g_gifPassStarts+ebx]
 		mov dword ptr [edi+0xc], eax
 	jmp_1003723d:
 		_emit 0xeb /* jmp jmp_10037251 */
@@ -8769,14 +8793,14 @@ __declspec(naked) void FUN_100371d5(void)
 // Decodes the LZW image data of a GIF into the view, using p_state as the decoder state.
 // Returns the background color index.
 #ifdef COMPAT_MODE
-MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, undefined* p_state)
+MechS32 BlitGif(PixelView* p_view, undefined* p_data, undefined* p_state)
 {
 	STUB(0x10037252);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037252
-__declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, undefined* p_state)
+__declspec(naked) MechS32 BlitGif(PixelView* p_view, undefined* p_data, undefined* p_state)
 {
 	__asm {
 		push ebp
@@ -8790,7 +8814,7 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		push ds
 		pop es
 		mov edi, dword ptr [ebp+0x8]
-		mov dword ptr [g_unk0x1006a058], edi
+		mov dword ptr [g_gifView], edi
 		mov edi, dword ptr [ebp+0x10]
 		mov eax, 0x0
 		mov ecx, 0x2e
@@ -8850,7 +8874,7 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		inc ecx
 		mov dword ptr [edi+0x1c], ecx
 		mov ecx, dword ptr [ebp-0x4]
-		call FUN_100370e8
+		call GifInitCodes
 		mov dword ptr [ebp-0x10], 0xffff
 		mov dword ptr [ebp-0x14], 0x0
 		mov byte ptr [edi+0x2d], 0x0
@@ -8868,19 +8892,19 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		_emit 0x7f /* jg jmp_10037347 */
 		_emit 0x09
 		push edx
-		call FUN_10037149
+		call GifReadCode
 		pop edx
 		_emit 0xeb /* jmp jmp_10037364 */
 		_emit 0x1d
 	jmp_10037347:
 		push edx
 		mov edx, 0x8
-		call FUN_10037149
+		call GifReadCode
 		pop edx
 		push eax
 		push edx
 		sub edx, 0x8
-		call FUN_10037149
+		call GifReadCode
 		pop edx
 		shl eax, 0x8
 		pop ebx
@@ -8895,7 +8919,7 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		push ecx
 		push edx
 		mov ecx, dword ptr [ebp-0x4]
-		call FUN_100370e8
+		call GifInitCodes
 		pop edx
 		pop ecx
 		mov eax, ecx
@@ -8935,7 +8959,7 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		push ecx
 		push edx
 		mov ecx, dword ptr [ebp-0x10]
-		call FUN_1003718f
+		call GifAddCode
 		pop edx
 		pop ecx
 	jmp_100373db:
@@ -8946,7 +8970,7 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		push edx
 		mov ebx, dword ptr [ebp-0x10]
 		mov ecx, dword ptr [ebp-0x10]
-		call FUN_1003718f
+		call GifAddCode
 		pop edx
 		pop ecx
 	jmp_100373ec:
@@ -8974,13 +8998,13 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		mov al, byte ptr [esi]
 		and eax, 0x1
 		push ecx
-		call FUN_100371d5
+		call GifPutPixel
 		pop ecx
 		mov al, byte ptr [esi]
 		and eax, 0xff
 		shr eax, 0x1
 		push ecx
-		call FUN_100371d5
+		call GifPutPixel
 		pop ecx
 		loop jmp_1003741c
 		_emit 0xeb /* jmp jmp_1003744e */
@@ -8990,7 +9014,7 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 		mov al, byte ptr [esi]
 		and eax, 0xff
 		push ecx
-		call FUN_100371d5
+		call GifPutPixel
 		pop ecx
 		loop jmp_1003743d
 	jmp_1003744e:
@@ -9019,13 +9043,13 @@ __declspec(naked) MechS32 FUN_10037252(PixelView* p_view, undefined* p_data, und
 // Copies the GIF's global color table, and then its local one, into p_palette as 6-bit
 // components.
 #ifdef COMPAT_MODE
-void FUN_1003746b(undefined* p_data, undefined* p_palette)
+void ReadGifPalette(undefined* p_data, undefined* p_palette)
 {
 	STUB(0x1003746b);
 }
 #else
 // FUNCTION: MW2SHELL 0x1003746b
-__declspec(naked) void FUN_1003746b(undefined* p_data, undefined* p_palette)
+__declspec(naked) void ReadGifPalette(undefined* p_data, undefined* p_palette)
 {
 	__asm {
 		push ebp
@@ -9086,16 +9110,16 @@ __declspec(naked) void FUN_1003746b(undefined* p_data, undefined* p_palette)
 }
 #endif
 
-// Returns the two dimensions packed into a dword from the image header.
+// Returns the width and height of a GIF's first image, packed as width << 16 | height.
 #ifdef COMPAT_MODE
-MechU32 FUN_100374cc(undefined* p_data)
+MechU32 GetGifSize(undefined* p_data)
 {
 	STUB(0x100374cc);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x100374cc
-__declspec(naked) MechU32 FUN_100374cc(undefined* p_data)
+__declspec(naked) MechU32 GetGifSize(undefined* p_data)
 {
 	__asm {
 		push ebp
@@ -9206,14 +9230,14 @@ __declspec(naked) MechS32 FUN_10037526(void* p_data, MechS32 p_index)
 
 // Returns the entry's inclusive horizontal and vertical spans packed into a dword.
 #ifdef COMPAT_MODE
-MechU32 FUN_10037549(void* p_data, MechS32 p_index)
+MechU32 GetShpFrameExtent(void* p_data, MechS32 p_index)
 {
 	STUB(0x10037549);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037549
-__declspec(naked) MechU32 FUN_10037549(void* p_data, MechS32 p_index)
+__declspec(naked) MechU32 GetShpFrameExtent(void* p_data, MechS32 p_index)
 {
 	__asm {
 		push ebp
@@ -9249,14 +9273,14 @@ __declspec(naked) MechU32 FUN_10037549(void* p_data, MechS32 p_index)
 
 // Returns the entry's two coordinate fields at +8 and +c packed into a dword.
 #ifdef COMPAT_MODE
-MechU32 FUN_1003757d(void* p_data, MechS32 p_index)
+MechU32 GetShpFrameOrigin(void* p_data, MechS32 p_index)
 {
 	STUB(0x1003757d);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x1003757d
-__declspec(naked) MechU32 FUN_1003757d(void* p_data, MechS32 p_index)
+__declspec(naked) MechU32 GetShpFrameOrigin(void* p_data, MechS32 p_index)
 {
 	__asm {
 		push ebp
@@ -9496,14 +9520,14 @@ __declspec(naked) MechS32 GetShpFrameCount(void* p_data)
 // Counts the distinct entries of the data's offset table, storing the index of each first
 // occurrence in p_indices when given.
 #ifdef COMPAT_MODE
-MechS32 FUN_10037697(void* p_data, MechS32* p_indices)
+MechS32 CountShpUniqueFrames(void* p_data, MechS32* p_indices)
 {
 	STUB(0x10037697);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037697
-__declspec(naked) MechS32 FUN_10037697(void* p_data, MechS32* p_indices)
+__declspec(naked) MechS32 CountShpUniqueFrames(void* p_data, MechS32* p_indices)
 {
 	__asm {
 		push ebp
@@ -9639,29 +9663,29 @@ jmp_10037753:
 #endif
 
 // The tap masks of maximal-length LFSRs, for 2 to 32 bits. The original keeps the table in
-// .text, between FUN_100376f9 and FUN_100377d7.
+// .text, between FUN_100376f9 and DissolveView.
 // GLOBAL: MW2SHELL 0x1003775b
-MechU32 g_unk0x1003775b[0x1f] = {0x3,        0x6,        0xc,       0x14,      0x30,      0x60,      0xb8,
-								 0x110,      0x240,      0x500,     0xca0,     0x1b00,    0x3500,    0x6000,
-								 0xb400,     0x12000,    0x20400,   0x72000,   0x90000,   0x140000,  0x300000,
-								 0x420000,   0xd80000,   0x1200000, 0x3880000, 0x7200000, 0x9000000, 0x14000000,
-								 0x32800000, 0x48000000, 0xa3000000};
+MechU32 g_dissolveTaps[0x1f] = {0x3,        0x6,        0xc,       0x14,      0x30,      0x60,      0xb8,
+								0x110,      0x240,      0x500,     0xca0,     0x1b00,    0x3500,    0x6000,
+								0xb400,     0x12000,    0x20400,   0x72000,   0x90000,   0x140000,  0x300000,
+								0x420000,   0xd80000,   0x1200000, 0x3880000, 0x7200000, 0x9000000, 0x14000000,
+								0x32800000, 0x48000000, 0xa3000000};
 
 // Dissolves p_src into p_dest: copies up to p_count pixels, in the order of a maximal-length
-// LFSR over the pixel indices (taps from g_unk0x1003775b), starting from p_state (0 starts a
+// LFSR over the pixel indices (taps from g_dissolveTaps), starting from p_state (0 starts a
 // new dissolve). Returns the LFSR state to continue from.
-// Not 100%: the tap lookup indexes from g_unk0x1003775b - 8 (the bit count starts at 2). In the
+// Not 100%: the tap lookup indexes from g_dissolveTaps - 8 (the bit count starts at 2). In the
 // original that address is inside FUN_100376f9 and has no symbol; here it falls in whichever
 // global precedes the table, so reccmp names the two sides differently.
 #ifdef COMPAT_MODE
-MechU32 FUN_100377d7(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
+MechU32 DissolveView(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
 {
 	STUB(0x100377d7);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x100377d7
-__declspec(naked) MechU32 FUN_100377d7(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
+__declspec(naked) MechU32 DissolveView(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
 {
 	__asm {
 		push ebp
@@ -9895,7 +9919,7 @@ jmp_10037993:
 		shr eax, 0x1
 		_emit 0x75 /* jne jmp_10037993 */
 		_emit 0xfb
-		mov eax, dword ptr [g_unk0x1003775b+ebx*0x4-0x8]
+		mov eax, dword ptr [g_dissolveTaps+ebx*0x4-0x8]
 		mov dword ptr [ebp-0x10], eax
 		cmp dword ptr [ebp+0x14], 0x0
 		_emit 0x75 /* jne jmp_100379bb */
@@ -9981,15 +10005,15 @@ jmp_100379e9:
 #endif
 
 // Fades the colors used in the view toward p_palette in p_steps steps, through the
-// callbacks in g_unk0x100687cc.
+// callbacks in g_displayDriver.
 #ifdef COMPAT_MODE
-void FUN_10037a4e(PixelView* p_view, undefined* p_palette, MechS32 p_steps)
+void FadeViewColors(PixelView* p_view, undefined* p_palette, MechS32 p_steps)
 {
 	STUB(0x10037a4e);
 }
 #else
 // FUNCTION: MW2SHELL 0x10037a4e
-__declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, MechS32 p_steps)
+__declspec(naked) void FadeViewColors(PixelView* p_view, undefined* p_palette, MechS32 p_steps)
 {
 	__asm {
 		push ebp
@@ -10013,7 +10037,7 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 		inc ecx
 		imul ecx, eax
 		mov esi, dword ptr [esi]
-		mov edi, offset g_unk0x10069045
+		mov edi, offset g_fadeColors
 		mov dword ptr [ebp-0x4], 0xffffffff
 	jmp_10037a88:
 		mov eax, 0x0
@@ -10027,11 +10051,11 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 		mov ebx, eax
 		shl ebx, 0x1
 		add ebx, eax
-		add ebx, offset g_unk0x10068d45
+		add ebx, offset g_scanline
 		push ecx
 		push ebx
 		push eax
-		call dword ptr [g_unk0x100687cc+0x20]
+		call dword ptr [g_displayDriver+0x20]
 		add esp, 0x8
 		pop ecx
 	jmp_10037abb:
@@ -10043,14 +10067,14 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 		mov ebx, 0x0
 		mov esi, dword ptr [ebp+0xc]
 	jmp_10037ad0:
-		movzx eax, byte ptr [g_unk0x10069045+ecx]
+		movzx eax, byte ptr [g_fadeColors+ecx]
 		mov ebx, eax
 		shl ebx, 0x1
 		add ebx, eax
 		mov edx, 0x2
 	jmp_10037ae2:
 		mov ah, 0xff
-		mov al, byte ptr [g_unk0x10068d45+ebx]
+		mov al, byte ptr [g_scanline+ebx]
 		sub al, byte ptr [ebx+esi]
 		_emit 0x7d /* jge jmp_10037af3 */
 		_emit 0x04
@@ -10058,7 +10082,7 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 		neg al
 	jmp_10037af3:
 		mov byte ptr [g_unk0x10069a45+ebx], ah
-		mov byte ptr [g_unk0x10069145+ebx], al
+		mov byte ptr [g_fadeDistances+ebx], al
 		cmp al, byte ptr [ebp-0x8]
 		_emit 0x7e /* jle jmp_10037b07 */
 		_emit 0x03
@@ -10072,7 +10096,7 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 		_emit 0x79 /* jns jmp_10037ad0 */
 		_emit 0xc2
 		mov ecx, dword ptr [ebp-0x4]
-		mov edi, offset g_unk0x10069d45
+		mov edi, offset g_fadeErrors
 		mov al, byte ptr [ebp-0x8]
 		shr al, 0x1
 		mov ah, al
@@ -10093,32 +10117,32 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 	jmp_10037b4f:
 		mov ecx, dword ptr [ebp-0x4]
 	jmp_10037b52:
-		movzx eax, byte ptr [g_unk0x10069045+ecx]
+		movzx eax, byte ptr [g_fadeColors+ecx]
 		mov ebx, eax
 		shl ebx, 0x1
 		add ebx, eax
 		mov edx, 0x2
 	jmp_10037b64:
-		mov al, byte ptr [g_unk0x10069d45+edx+ebx]
-		add al, byte ptr [g_unk0x10069145+edx+ebx]
+		mov al, byte ptr [g_fadeErrors+edx+ebx]
+		add al, byte ptr [g_fadeDistances+edx+ebx]
 		cmp al, byte ptr [ebp-0x8]
 		_emit 0x7c /* jl jmp_10037b88 */
 		_emit 0x11
 		sub al, byte ptr [ebp-0x8]
 		mov ah, byte ptr [g_unk0x10069a45+edx+ebx]
-		add byte ptr [g_unk0x10068d45+edx+ebx], ah
+		add byte ptr [g_scanline+edx+ebx], ah
 	jmp_10037b88:
-		mov byte ptr [g_unk0x10069d45+edx+ebx], al
+		mov byte ptr [g_fadeErrors+edx+ebx], al
 		dec edx
 		_emit 0x79 /* jns jmp_10037b64 */
 		_emit 0xd2
 		push ecx
 		mov eax, ebx
-		add eax, offset g_unk0x10068d45
+		add eax, offset g_scanline
 		push eax
-		movzx eax, byte ptr [g_unk0x10069045+ecx]
+		movzx eax, byte ptr [g_fadeColors+ecx]
 		push eax
-		call dword ptr [g_unk0x100687cc+0x24]
+		call dword ptr [g_displayDriver+0x24]
 		add esp, 0x8
 		pop ecx
 		dec ecx
@@ -10130,7 +10154,7 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 		_emit 0x7c /* jl jmp_10037bc9 */
 		_emit 0x0c
 	jmp_10037bbd:
-		call dword ptr [g_unk0x100687cc+0x14]
+		call dword ptr [g_displayDriver+0x14]
 		dec word ptr [ebp-0xe]
 		_emit 0x75 /* jnz jmp_10037bbd */
 		_emit 0xf4
@@ -10151,14 +10175,14 @@ __declspec(naked) void FUN_10037a4e(PixelView* p_view, undefined* p_palette, Mec
 
 // Counts the distinct colors in the view, storing each one in p_colors when given.
 #ifdef COMPAT_MODE
-MechS32 FUN_10037bd2(PixelView* p_view, MechU32* p_colors)
+MechS32 CountViewColors(PixelView* p_view, MechU32* p_colors)
 {
 	STUB(0x10037bd2);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037bd2
-__declspec(naked) MechS32 FUN_10037bd2(PixelView* p_view, MechU32* p_colors)
+__declspec(naked) MechS32 CountViewColors(PixelView* p_view, MechU32* p_colors)
 {
 	__asm {
 		push ebp

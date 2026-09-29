@@ -7,7 +7,7 @@
 #include "shellglobals.h"
 #include "textglyph.h"
 #include "tmpackdatabase.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <stdlib.h>

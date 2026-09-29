@@ -9,8 +9,8 @@
 #include "shellglobals.h"
 #include "textglyphlist.h"
 #include "tmpackdatabase.h"
-#include "unk1003bf90.h"
 #include "video.h"
+#include "windowstate.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -718,7 +718,7 @@ void VideoDriver::ClearGlyphs(MechU8 p_delete)
 void VideoDriver::ActivateFramebuffer()
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FUN_10034e15(&m_screenView, 0);
+		FillView(&m_screenView, 0);
 	}
 
 	g_currentRefreshMode->m_flip();

@@ -36,9 +36,9 @@
 #include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <ctype.h>
 #include <stdio.h>

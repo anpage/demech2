@@ -16,9 +16,9 @@
 #include "shellmain.h"
 #include "textglyph.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -742,8 +742,8 @@ TextGlyph* CpcDrawAxisDirection(ScreenField* p_tab)
 		p_tab->m_left = p_tab[-1].m_glyph->m_right + 1;
 	}
 
-	glyph = g_textFont
-				->AddText(p_tab->m_left, p_tab->m_top, g_cpcAxisDirections[(MechS32) p_tab->m_unk0x28][inverted], NULL);
+	glyph =
+		g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcAxisDirections[(MechS32) p_tab->m_arg][inverted], NULL);
 	return glyph;
 }
 
@@ -2073,11 +2073,11 @@ void CpcLoadConfigSlot(ScreenField* p_tab)
 	if (p_tab == NULL) {
 		slot = 0;
 	}
-	else if ((MechS32) p_tab->m_unk0x28 < 0) {
+	else if ((MechS32) p_tab->m_arg < 0) {
 		slot = g_curCpcConfigSlot;
 	}
 	else {
-		slot = g_curCpcConfigSlot = (MechS32) p_tab->m_unk0x28;
+		slot = g_curCpcConfigSlot = (MechS32) p_tab->m_arg;
 	}
 
 	sprintf(path, "giddi\\config%02d.cpc", slot);
@@ -2106,11 +2106,11 @@ void CpcSaveConfigSlot(ScreenField* p_tab)
 	if (p_tab == NULL) {
 		slot = 0;
 	}
-	else if ((MechS32) p_tab->m_unk0x28 < 0) {
+	else if ((MechS32) p_tab->m_arg < 0) {
 		slot = g_curCpcConfigSlot;
 	}
 	else {
-		slot = g_curCpcConfigSlot = (MechS32) p_tab->m_unk0x28;
+		slot = g_curCpcConfigSlot = (MechS32) p_tab->m_arg;
 	}
 
 	sprintf(g_cpcSlotText, "giddi\\config%02d.cpc", slot);
