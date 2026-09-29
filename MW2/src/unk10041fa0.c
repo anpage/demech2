@@ -55,9 +55,9 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_unk0x10109bb4 = p_far;
 	g_unk0x10109ab0 = g_palettePending;
 	g_unk0x10109ac0 = *g_eyepoint;
-	g_eyepoint->m_unk0x0c[0] = p_pose[3];
-	g_eyepoint->m_unk0x0c[1] = p_pose[4];
-	g_eyepoint->m_unk0x0c[2] = p_pose[5];
+	g_eyepoint->m_unk0x0c = p_pose[3];
+	g_eyepoint->m_unk0x10 = p_pose[4];
+	g_eyepoint->m_unk0x14 = p_pose[5];
 	g_eyepoint->m_unk0x00 = p_pose[0];
 	g_eyepoint->m_unk0x04 = p_pose[1];
 	g_eyepoint->m_unk0x08 = p_pose[2];

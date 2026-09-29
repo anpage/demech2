@@ -45,7 +45,7 @@ MechChar* FUN_10004ff5(MechS32 p_seconds)
 // Matches except for the stack slots of width and c (a consistent permutation).
 // Returns the width of p_text in p_font.
 // FUNCTION: MW2 0x1000507d
-MechS32 FUN_1000507d(const MechChar* p_text, undefined4 p_font)
+MechS32 FUN_1000507d(const MechChar* p_text, void* p_font)
 {
 	MechS32 width;
 	const MechChar* c;

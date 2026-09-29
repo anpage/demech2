@@ -35,6 +35,7 @@ extern "C"
 #endif
 
 	extern MechS32 g_playerCount;
+	extern MechS32 g_gameThingCount;
 	extern Player* g_players[];
 	extern GameThing g_gameThings[254];
 

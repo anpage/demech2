@@ -205,7 +205,7 @@ void FUN_1001a4e5(MechS32 p_id, const char* p_type)
 }
 
 // FUNCTION: MW2 0x1001a521
-void FUN_1001a521(void)
+void FUN_1001a521(undefined4 p_unk0x00)
 {
 }
 

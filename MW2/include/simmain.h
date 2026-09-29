@@ -40,11 +40,13 @@ extern "C"
 	extern const char* g_unk0x100a8684;
 	extern const char* g_unk0x100a8694;
 	extern const char* g_unk0x100a8698;
+	extern const char* g_unk0x100a86a0;
 	extern const char* g_unk0x100a86bc;
 	extern char g_unk0x100a87c0[];
 	extern undefined g_unk0x100e9350[1];
 	extern MechS32 g_unk0x100e9614;
 	extern undefined4 g_unk0x100a8740;
+	extern MechS32 g_missionTimerStopped;
 	extern MechS32 g_localPlayerId;
 	extern HANDLE g_primaryHeap;
 	extern MechS32 g_gameWindowWidth;
