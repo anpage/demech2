@@ -345,6 +345,8 @@ This section only grows as patterns are **proven by matches**:
 - **C bitfields read back through `and`/`shl`/`or`.** Assigning a call result to a 1-bit field stores the result in a stack temporary, then `and eax, 1; shl eax, n; mov ecx, [f]; and ecx, ~mask; or eax, ecx`; setting the bit to 1 is `mov`/`or`/`mov`, clearing it a direct `and dword ptr [f], ~mask` (`GaugeQuadrant` in `FUN_10057ac4`).
 - **A search loop's test sits in the `for` condition.** `for (i = 0; i < n && a[i].m_obj; i++) { }` compiles to `jge exit; cmp; je exit; jmp inc`; the same test as `if (!a[i].m_obj) { break; }` in the body adds a `jne`/`jmp` pair (`debris.c`'s slot searches).
 - **`va_end` emits a store:** `mov dword ptr [args], 0` after the call (`FUN_1003a3df`, `FUN_1003a432`).
+- **A right shift compared with a constant becomes a masked compare.** `(abs(t) >> 16) > 45` compiles to `and eax, 0xffff0000; mov ecx, 0x2d0000; and ecx, 0xffff0000; cmp eax, ecx; jle`, with the constant's mask left unfolded (`FUN_10053811`).
+- **reccmp can't name a table in an indexed call.** `call dword ptr [eax*4 + table]` keeps raw addresses on both sides (its call operand regex only matches a bare `[address]`), so a call through a function-pointer table always scores as a diff; say so above the annotation (`ai.c`'s `g_aiStateFns`).
 - **Switch jump tables** are embedded in the function body inside `.text` (e.g. the 5-entry table at `0x10006824` in `FUN_10006760`); at `/Od` a sparse switch becomes a compare tree on a stack temporary.
 
 Float-literal and folding behavior are **not** documented here — they must be re-derived for VC++ 4.1 at `/Od` from matches before any rule is written down.

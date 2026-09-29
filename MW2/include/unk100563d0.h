@@ -16,6 +16,9 @@ extern "C"
 {
 #endif
 
+	extern MechU32 g_unk0x100a9430;
+	extern MechU32 g_unk0x100a9434;
+
 	MechU32 GetStaticPoolSize(MechS32 p_index);
 	MechS32* FUN_1005640e(char* p_mission);
 

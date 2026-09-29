@@ -46,6 +46,18 @@ void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable)
 	}
 }
 
+// STUB: MW2 0x10038ced
+void FUN_10038ced(MechU16* p_table)
+{
+	STUB(0x10038ced);
+}
+
+// STUB: MW2 0x10038d0d
+void FUN_10038d0d(RenderTarget* p_target, MechS32 p_count, MechU32* p_points, PixelBuffer* p_source, MechS32 p_mode)
+{
+	STUB(0x10038d0d);
+}
+
 // STUB: MW2 0x10039a30
 void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 {

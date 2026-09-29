@@ -33,6 +33,8 @@ typedef struct Shot {
 	undefined4 m_unk0x40[(0x50 - 0x40) / 4]; // 0x40
 } Shot;
 
+struct Player;
+
 // The functions and globals of shots.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -81,6 +83,9 @@ extern "C"
 	);
 	void UpdateEffects(void);
 	void SaveCarCfg(void);
+	void FUN_1006c4e2(struct Player* p_player);
+	MechS32* FUN_1006beb5(void);
+	void FUN_1006bf05(void);
 
 #ifdef __cplusplus
 }

@@ -4,6 +4,7 @@
    assembler never emits, so each short jump is an _emit pair. */
 #include "simmain.h"
 
+#include "animation.h"
 #include "audio.h"
 #include "brightness.h"
 #include "callbacks.h"
@@ -67,13 +68,9 @@ typedef struct Unk0x1012b7c0 {
 	char m_unk0x04[13]; // 0x04
 } Unk0x1012b7c0;
 
-// SIZE 0x3c0a
-typedef struct Unk0x10138830 {
-	undefined m_unk0x00[0x3c0a]; // 0x00
-} Unk0x10138830;
-
 DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
-DECOMP_SIZE_ASSERT(Unk0x10138830, 0x3c0a)
+DECOMP_SIZE_ASSERT(StarMission, 0x3c0a)
+DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 
 // The globals SimMain and SimWindowProc use are defined here until the objects that own
 // them are decompiled.
@@ -104,6 +101,9 @@ undefined4 g_unk0x100a2420 = 0;
 
 // GLOBAL: MW2 0x100a2424
 MechS32 g_unk0x100a2424 = -1;
+
+// GLOBAL: MW2 0x100a242c
+struct Player* g_localPlayer = NULL;
 
 // GLOBAL: MW2 0x100a244c
 MechS32 g_drawModeIndex = -1;
@@ -216,6 +216,9 @@ SlateHeron0x68 g_unk0x100a6cc8 =
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
 
+// GLOBAL: MW2 0x100a8678
+const char* g_unk0x100a8678 = "CEL";
+
 // GLOBAL: MW2 0x100a8680
 const char* g_unk0x100a8680 = "SHP";
 
@@ -234,11 +237,23 @@ const char* g_unk0x100a86a0 = "TEXT";
 // GLOBAL: MW2 0x100a86bc
 const char* g_unk0x100a86bc = g_unk0x100a87c0;
 
+// GLOBAL: MW2 0x100a86c4
+const char* g_unk0x100a86c4 = "AIT";
+
+// GLOBAL: MW2 0x100a86cc
+const char* g_unk0x100a86cc = "LUMA";
+
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;
 
+// GLOBAL: MW2 0x100a8744
+MechChar* g_unk0x100a8744 = NULL;
+
 // GLOBAL: MW2 0x100a87c0
 char g_unk0x100a87c0[] = "BWD";
+
+// GLOBAL: MW2 0x100aa2a4
+MechS32 g_unk0x100aa2a4 = 1;
 
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
@@ -345,8 +360,20 @@ MechS32 g_unk0x100e9614;
 // GLOBAL: MW2 0x1012b7c0
 Unk0x1012b7c0 g_unk0x1012b7c0;
 
+// GLOBAL: MW2 0x100c3358
+MechS32 g_unk0x100c3358;
+
+// GLOBAL: MW2 0x100ea3e4
+MechS32 g_unk0x100ea3e4;
+
+// GLOBAL: MW2 0x10138710
+MechS32 g_missionTime;
+
+// GLOBAL: MW2 0x10138720
+MechS32 g_currentObjective[64]; // by team; length unknown
+
 // GLOBAL: MW2 0x10138830
-Unk0x10138830 g_objectiveTable[1]; // length unknown
+StarMission g_objectiveTable[16];
 
 // GLOBAL: MW2 0x10176ed0
 RenderTarget g_currentRenderTarget;
@@ -388,7 +415,7 @@ void UpdateNetwork(void);
 void ShutdownNetwork(void);
 void FirstEyepoint(void);
 void UpdateEyepoint(void);
-void DoFirstObjtv(Unk0x10138830* p_unk0x00, MechS32 p_unk0x04);
+void DoFirstObjtv(StarMission* p_unk0x00, MechS32 p_unk0x04);
 void UpdateObjectives(void);
 void EndTheMission1(void);
 void EndTheMission2(void);
@@ -398,7 +425,6 @@ void FirstStaticCache(void);
 void FirstAI(void);
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 void SetRes(void);
-void AdvanceAnimations(void);
 void FirstShots(void);
 void UpdateAllShots(void);
 void UpdateEffects(void);

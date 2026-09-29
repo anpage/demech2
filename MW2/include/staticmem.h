@@ -28,9 +28,6 @@ extern "C"
 {
 #endif
 
-	extern MechU32 g_unk0x100a9430;
-	extern MechU32 g_unk0x100a9434;
-
 	MechS32 InitStaticMem(char* p_mission);
 	void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag);
 	void FreeStaticMem(void);

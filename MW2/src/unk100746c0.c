@@ -2,6 +2,7 @@
 
 #include "cobaltharbor.h"
 #include "decomp.h"
+#include "recttransition.h"
 #include "rendertarget.h"
 #include "types.h"
 
@@ -28,7 +29,7 @@ void FUN_100746c0(CobaltHarbor0x88* p_panel)
 	p_panel->m_setName = FUN_100747fc;
 	p_panel->m_setTarget = FUN_10074823;
 	p_panel->m_setUnk0x34 = FUN_10074879;
-	p_panel->m_setUnk0x38 = FUN_1007488d;
+	p_panel->m_setTransition = FUN_1007488d;
 	p_panel->m_setRect = FUN_100748a1;
 	p_panel->m_setUnk0x06 = FUN_100748d4;
 	p_panel->m_enable = FUN_100748e9;
@@ -80,9 +81,9 @@ void FUN_10074879(CobaltHarbor0x88* p_panel, undefined4 p_unk0x34)
 }
 
 // FUNCTION: MW2 0x1007488d
-void FUN_1007488d(CobaltHarbor0x88* p_panel, undefined4 p_unk0x38)
+void FUN_1007488d(CobaltHarbor0x88* p_panel, RectTransition* p_transition)
 {
-	p_panel->m_unk0x38 = p_unk0x38;
+	p_panel->m_transition = p_transition;
 }
 
 // FUNCTION: MW2 0x100748a1

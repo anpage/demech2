@@ -15,14 +15,6 @@
 DECOMP_SIZE_ASSERT(StaticPool, 0x14)
 DECOMP_SIZE_ASSERT(StaticPoolGroup, 0x0c)
 
-// One of the pool's block tags ("SEG").
-// GLOBAL: MW2 0x100a9430
-MechU32 g_unk0x100a9430 = 0x474553;
-
-// One of the pool's block tags ("TLIS").
-// GLOBAL: MW2 0x100a9434
-MechU32 g_unk0x100a9434 = 0x53494c54;
-
 // GLOBAL: MW2 0x100a6ddc
 MechS32 g_staticPoolGroupCount = 0;
 
