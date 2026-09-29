@@ -39,19 +39,19 @@
 struct MissionObjective {
 	MechS32 m_status;             // 0x00 — 0 failed, 1 successful
 	MechS32 m_type;               // 0x04 — 1 primary, 2 secondary, 4 tertiary, 8 return
-	undefined4 m_unk0x08;         // 0x08
+	undefined4 m_unk0x08;         // 0x08 — the simulator's; the debriefing doesn't read it
 	MechS32 m_time;               // 0x0c — in seconds, negative when never reached
-	undefined4 m_unk0x10;         // 0x10
+	undefined4 m_unk0x10;         // 0x10 — the simulator's; the debriefing doesn't read it
 	MechChar m_description[0x20]; // 0x14
 };
 
 // SIZE 0x9d4
 // The simulator's mission results (MW2MSN.CFG).
 struct MissionResults {
-	undefined4 m_unk0x00;              // 0x00
+	undefined4 m_unk0x00;              // 0x00 — the simulator's; the debriefing doesn't read it
 	MechS32 m_objectiveCount;          // 0x04
-	undefined4 m_unk0x08;              // 0x08
-	undefined4 m_unk0x0c;              // 0x0c
+	undefined4 m_unk0x08;              // 0x08 — the simulator's; the debriefing doesn't read it
+	undefined4 m_unk0x0c;              // 0x0c — the simulator's; the debriefing doesn't read it
 	MechS32 m_outcome;                 // 0x10 — 2 completed, 3 failed
 	MissionObjective m_objectives[48]; // 0x14
 };
@@ -62,20 +62,20 @@ struct MissionResults {
 // counts a kill in the "direct" members when the player made it, and in the totals for every
 // enemy destroyed; the debriefing prints them in that order.
 struct CareerRecord {
-	undefined m_unk0x00[0x07 - 0x00]; // 0x00
+	undefined m_unk0x00[0x07 - 0x00]; // 0x00 — the simulator's; the debriefing doesn't read it
 	MechU16 m_directMechKills;        // 0x07
-	undefined m_unk0x09[0x13 - 0x09]; // 0x09
+	undefined m_unk0x09[0x13 - 0x09]; // 0x09 — the simulator's; the debriefing doesn't read it
 	MechU16 m_shotsFired;             // 0x13
 	MechU16 m_hits;                   // 0x15
-	undefined m_unk0x17[0x1e - 0x17]; // 0x17
+	undefined m_unk0x17[0x1e - 0x17]; // 0x17 — the simulator's; the debriefing doesn't read it
 	MechU16 m_mechKills;              // 0x1e
-	undefined m_unk0x20[0x34 - 0x20]; // 0x20
+	undefined m_unk0x20[0x34 - 0x20]; // 0x20 — the simulator's; the debriefing doesn't read it
 	MechU16 m_wingmenLost;            // 0x34
-	undefined m_unk0x36[0x44 - 0x36]; // 0x36
+	undefined m_unk0x36[0x44 - 0x36]; // 0x36 — the simulator's; the debriefing doesn't read it
 	MechU16 m_directVehicleKills;     // 0x44
-	undefined m_unk0x46[0x4a - 0x46]; // 0x46
+	undefined m_unk0x46[0x4a - 0x46]; // 0x46 — the simulator's; the debriefing doesn't read it
 	MechU16 m_vehicleKills;           // 0x4a
-	undefined m_unk0x4c[0x50 - 0x4c]; // 0x4c
+	undefined m_unk0x4c[0x50 - 0x4c]; // 0x4c — the simulator's; the debriefing doesn't read it
 };
 #pragma pack()
 
@@ -118,6 +118,7 @@ MechChar g_careerHonor[0x200];
 // GLOBAL: MW2SHELL 0x10077fa0
 PilotRecord g_pilotBeforeMission;
 
+// An identity color map (0 maps to 0xff) that BuildDebriefText builds and nothing reads.
 // GLOBAL: MW2SHELL 0x10077fe0
 undefined g_unk0x10077fe0[0x100];
 
@@ -303,7 +304,7 @@ MechS32 AppendHonorBreakdown(
 	strcat(p_text, g_honorLine);
 
 	points = p_career->m_mechKills * 250;
-	g_pCurrentPilot->m_kills += p_career->m_mechKills;
+	g_currentPilot->m_kills += p_career->m_mechKills;
 	sprintf(g_honorPoints, "%d", points);
 	width = g_bodyFont->GetTextWidth(g_honorPoints);
 	honor += points;
@@ -319,7 +320,7 @@ MechS32 AppendHonorBreakdown(
 	strcat(p_text, g_honorLine);
 
 	points = p_career->m_vehicleKills * 125;
-	g_pCurrentPilot->m_kills += p_career->m_directVehicleKills;
+	g_currentPilot->m_kills += p_career->m_directVehicleKills;
 	sprintf(g_honorPoints, "%d", points);
 	width = g_bodyFont->GetTextWidth(g_honorPoints);
 	honor += points;
@@ -386,8 +387,8 @@ MechS32 AppendHonorBreakdown(
 		honor += hitBonus;
 	}
 
-	g_pCurrentPilot->m_hits += p_career->m_hits;
-	g_pCurrentPilot->m_shotsFired += p_career->m_shotsFired;
+	g_currentPilot->m_hits += p_career->m_hits;
+	g_currentPilot->m_shotsFired += p_career->m_shotsFired;
 
 	switch (p_difficulty->m_enemySkill) {
 	case 0:
@@ -561,10 +562,10 @@ void BuildDebriefText(
 
 	honor = AppendHonorBreakdown(p_difficulty, p_career, p_results, p_text);
 	if (p_results->m_outcome == 2) {
-		g_pCurrentPilot->m_honor += honor;
+		g_currentPilot->m_honor += honor;
 	}
 
-	sprintf(g_careerHonor, "%d", g_pCurrentPilot->m_honor);
+	sprintf(g_careerHonor, "%d", g_currentPilot->m_honor);
 	width = g_bodyFont->GetTextWidth(g_careerHonor);
 	sprintf(g_careerHonorLine, "\\nCareer Honor:\\g%03d\\b%03d%s\\n", 350, width, g_careerHonor);
 	strcat(p_text, g_careerHonorLine);
@@ -616,7 +617,7 @@ void LayoutDebriefPages(
 
 	switch (p_results->m_outcome) {
 	case 2:
-		if (g_pCurrentPilot->m_rank >= 8) {
+		if (g_currentPilot->m_rank >= 8) {
 			switch (p_campaign) {
 			case 0:
 				strcpy(p_name, "KTWO");
@@ -646,8 +647,8 @@ MechS32 GetTrialRank(MissionResults* p_results, DifficultyConfig* p_difficulty)
 	MechS32 count;
 	MechS32 i;
 
-	if (g_pCurrentPilot->m_clan != 2 &&
-		g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1 && !HasEasyOptions() &&
+	if (g_currentPilot->m_clan != 2 &&
+		g_campaignMissions[g_currentPilot->m_clan][g_currentPilot->m_mission].m_trial == 1 && !HasEasyOptions() &&
 		p_results->m_outcome == 2 && p_difficulty->m_heatTracking == 1) {
 		count = 0;
 		for (i = 0; i < p_results->m_objectiveCount; i++) {
@@ -676,7 +677,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	CareerRecord career;
 	MechChar name[0x10];
 
-	g_pVideoDriver->LoadBackground(p_database, g_debriefScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_debriefScreens[p_campaign].m_picture);
 	switch (p_campaign) {
 	case 0:
 		left = 0x58;
@@ -709,7 +710,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	CreateCollection(&g_debriefPages, 10, NULL, 4, NULL);
 	g_keyboardInput->FlushKeys();
 	g_debriefMenu = new ButtonMenu(
-		g_pVideoDriver,
+		g_videoDriver,
 		g_defaultFont,
 		FALSE,
 		g_debriefScreens[p_campaign].m_buttons,
@@ -717,17 +718,17 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	);
 
 	if (p_campaign != 2) {
-		g_pilotBeforeMission = *g_pCurrentPilot;
+		g_pilotBeforeMission = *g_currentPilot;
 	}
 	BuildDebriefText(&career, &g_missionResults, g_debriefText, &g_difficultyConfig);
 
 	if (p_campaign != 2) {
-		g_pCurrentPilot->m_rank += GetTrialRank(&g_missionResults, &g_difficultyConfig);
-		if (g_pCurrentPilot->m_rank >= 8) {
-			g_pCurrentPilot->m_rank = 8;
+		g_currentPilot->m_rank += GetTrialRank(&g_missionResults, &g_difficultyConfig);
+		if (g_currentPilot->m_rank >= 8) {
+			g_currentPilot->m_rank = 8;
 		}
 		if (g_missionResults.m_outcome == 2 && !HasEasyOptions()) {
-			g_pCurrentPilot->m_mission++;
+			g_currentPilot->m_mission++;
 		}
 		SavePilotRoster();
 		LayoutDebriefPages(
@@ -747,7 +748,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 
 	g_debriefPage = (Page*) CollectionGet(g_debriefPages, 0);
 	if (!g_debriefPage) {
-		g_debriefPage = new Page(g_bodyFont, g_pVideoDriver, NULL, 0, 0, 100, 100);
+		g_debriefPage = new Page(g_bodyFont, g_videoDriver, NULL, 0, 0, 100, 100);
 	}
 	else {
 		CollectionRemove(g_debriefPages, g_debriefPage, FALSE);
@@ -775,24 +776,24 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 
 	if (!g_aftermathReader) {
 		g_debriefPage->TypeStep();
-		button = g_debriefMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_debriefMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 		switch (button) {
 		case 0:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgReadyRoom;
 			if (*p_campaign != 2 && g_missionResults.m_outcome == 2) {
-				if (g_pCurrentPilot->m_mission >= 16) {
+				if (g_currentPilot->m_mission >= 16) {
 					p_msg = c_msgEndingVideo;
 				}
 				else {
-					*p_scenario = g_campaignMissions[*p_campaign][g_pCurrentPilot->m_mission].m_scenario;
+					*p_scenario = g_campaignMissions[*p_campaign][g_currentPilot->m_mission].m_scenario;
 				}
 			}
 			break;
 		case 1:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			g_debriefPage->Hide();
@@ -809,12 +810,12 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			);
 			break;
 		case 2:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			if (g_missionResults.m_outcome == 2) {
 				if (!ShowDialog("Are you Sure?#Yes|No", 1)) {
-					*g_pCurrentPilot = g_pilotBeforeMission;
+					*g_currentPilot = g_pilotBeforeMission;
 					SavePilotRoster();
 					p_msg = c_msgBriefing;
 				}
@@ -842,7 +843,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			delete g_aftermathReader;
 			g_aftermathReader = NULL;
 			g_debriefMenu = new ButtonMenu(
-				g_pVideoDriver,
+				g_videoDriver,
 				g_defaultFont,
 				FALSE,
 				g_debriefScreens[*p_campaign].m_buttons,
@@ -860,8 +861,8 @@ done:
 			delete g_aftermathReader;
 		}
 		g_aftermathReader = NULL;
-		g_pVideoDriver->ClearGlyphs(TRUE);
-		PostMessage(g_pWnd, p_msg, c_msgDebrief, 0);
+		g_videoDriver->ClearGlyphs(TRUE);
+		PostMessage(g_gameWindow, p_msg, c_msgDebrief, 0);
 		UnregisterScreenFunction(MissionDebriefCallback);
 	}
 }

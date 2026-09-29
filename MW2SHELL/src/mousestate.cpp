@@ -5,8 +5,8 @@
 #include "inputdriver.h"
 #include "refreshmode.h"
 #include "shellglobals.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +62,7 @@ void MouseState::MoveCursorTo(MechS32 p_x, MechS32 p_y)
 
 	point.x = p_x;
 	point.y = p_y;
-	ClientToScreen(g_pWnd, &point);
+	ClientToScreen(g_gameWindow, &point);
 	SetCursorPos(point.x, point.y);
 }
 
@@ -80,6 +80,8 @@ undefined MouseState::GetDoubleClicked()
 	return m_doubleClicked;
 }
 
+// Empty. The constructor calls it with 0, but neither the body nor the call says what it was
+// for, so it keeps its placeholder.
 // FUNCTION: MW2SHELL 0x1003a91c
 void MouseState::FUN_1003a91c(undefined4)
 {
@@ -147,11 +149,11 @@ void MouseState::ReadMouseState()
 	undefined4 leftDown;
 	undefined4 rightDown;
 
-	if (!g_fWindowActive) {
+	if (!g_windowActive) {
 		return;
 	}
 
-	if (!g_fRunSim) {
+	if (!g_runSim) {
 		DrawCursorPosition();
 	}
 
@@ -160,7 +162,7 @@ void MouseState::ReadMouseState()
 	middleDown = m_middleDown;
 
 	if (m_enabled && GetCursorPos(&point)) {
-		ScreenToClient(g_pWnd, &point);
+		ScreenToClient(g_gameWindow, &point);
 
 		if (IsInsideWindow(point)) {
 			m_x = point.x;

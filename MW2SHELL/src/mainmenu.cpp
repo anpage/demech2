@@ -58,10 +58,10 @@ void DrawMainMenu(TMPackDataBase* p_database, MechS32*)
 
 	SelectStar(1, 0, 0, 0, 100);
 	p_database->GetDBItem(104, &audioData, &audioSize);
-	g_mainMenuIntro = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_mainMenuIntro = new AudioSample(g_audioSubsystem, audioData, audioSize);
 
-	g_pVideoDriver->LoadBackground(p_database, 1);
-	g_mainMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_mainMenuButtons, 3);
+	g_videoDriver->LoadBackground(p_database, 1);
+	g_mainMenu = new ButtonMenu(g_videoDriver, g_defaultFont, 0, g_mainMenuButtons, 3);
 
 	PlayVideoInFreeSlot(g_mainMenuLogoVideo, 0x6f, 0x21, 10, 0);
 	g_mainMenuIntro->SetVolume(0x78);
@@ -87,7 +87,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 
 	if (!g_mainMenuMusicStarted && !g_mainMenuIntro->IsPlaying()) {
 		p_database->GetDBItem(0x4a, &data, &size);
-		g_mainMenuMusic = new AudioSample(g_pAudioSubsystem, data, size);
+		g_mainMenuMusic = new AudioSample(g_audioSubsystem, data, size);
 		g_mainMenuMusic->EnableLoop();
 		g_mainMenuMusic->Start();
 		g_mainMenuMusic->SetFade(500, 1000, 0, 0x1e);
@@ -97,31 +97,31 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 		g_mainMenuMusic->DoFade();
 	}
 
-	button = g_mainMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_mainMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 	switch (button) {
 	case 0:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgTrials;
 		*p_campaign = 2;
 		break;
 	case 1:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgLandingVideo;
 		*p_campaign = 0;
 		break;
 	case 2:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgLandingVideo;
 		*p_campaign = 1;
 		break;
 	case 3:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		if (!ShowDialog("Embrace cowardice?#Yes|No", 1)) {
@@ -142,7 +142,7 @@ done:
 		delete g_mainMenuIntro;
 		g_mainMenuIntro = NULL;
 		g_mainMenuMusicStarted = 0;
-		PostMessage(g_pWnd, p_msg, c_msgMainMenu, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgMainMenu, 0);
 		UnregisterScreenFunction(MainMenuCallback);
 	}
 }

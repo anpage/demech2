@@ -52,6 +52,7 @@ LPDIRECTDRAWSURFACE g_ddrawBuffer = NULL;
 // GLOBAL: MW2SHELL 0x10063218
 LPDIRECTDRAWSURFACE g_ddrawStretch = NULL;
 
+// Never accessed: there is nothing to name it after.
 // GLOBAL: MW2SHELL 0x1006321c
 undefined4 g_unk0x1006321c = 0;
 
@@ -192,7 +193,7 @@ void DdrawStop()
 	g_ddrawInitialized = FALSE;
 	if (g_ddraw != NULL) {
 		DdrawDestroySurfaces();
-		IDirectDraw_SetCooperativeLevel(g_ddraw, g_pWnd, DDSCL_NORMAL);
+		IDirectDraw_SetCooperativeLevel(g_ddraw, g_gameWindow, DDSCL_NORMAL);
 		IDirectDraw_RestoreDisplayMode(g_ddraw);
 		if (g_ddrawPalette != NULL) {
 			IDirectDrawPalette_Release(g_ddrawPalette);
@@ -338,7 +339,7 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	if (g_currentDisplayBackend->m_id != c_displayBackendDirectDraw) {
 		g_currentDisplayBackend->m_end();
 		g_currentDisplayBackend = g_displayBackends[c_displayBackendDirectDraw];
-		if (g_currentDisplayBackend->m_windowMode != g_nWindowMode) {
+		if (g_currentDisplayBackend->m_windowMode != g_windowMode) {
 			AdjustWindowSize(g_currentDisplayBackend);
 		}
 	}
@@ -350,7 +351,8 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 			return 1;
 		}
 
-		g_ddrawResult = IDirectDraw_SetCooperativeLevel(g_ddraw, g_pWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | 0x40);
+		g_ddrawResult =
+			IDirectDraw_SetCooperativeLevel(g_ddraw, g_gameWindow, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | 0x40);
 		if (g_ddrawResult != DD_OK) {
 			DebugPrint("DDRAW_Init SetCooperativeLevel(): %d\n", g_ddrawResult & 0xfff);
 			DdrawStop();

@@ -4,7 +4,7 @@
 #include "inputdriver.h"
 #include "refreshmode.h"
 #include "types.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <windows.h>
@@ -19,7 +19,7 @@ typedef struct MouseDeviceInfo {
 	const MechChar* const* m_axisTypes;   // 0x64
 	const MechChar* const* m_buttonNames; // 0x68
 	const MechChar* const* m_buttonTypes; // 0x6c
-	undefined4 m_unk0x70;                 // 0x70
+	void* m_driverData;                   // 0x70 — InputDeviceInfo's; the mouse needs none
 } MouseDeviceInfo;
 
 // MousePoll's bounds test keeps a jmp per return: an /Ob1-expanded inline function.
@@ -113,7 +113,7 @@ MechS32 FillMouseDeviceInfo(MechS32 p_index, MouseDeviceInfo* p_info)
 	p_info->m_axisTypes = g_mouseAxisTypes;
 	p_info->m_buttonNames = g_mouseButtonNames;
 	p_info->m_buttonTypes = g_mouseButtonTypes;
-	p_info->m_unk0x70 = 0;
+	p_info->m_driverData = NULL;
 
 	return 0;
 }
@@ -137,9 +137,9 @@ MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 {
 	POINT point;
 
-	if (g_fWindowActive) {
+	if (g_windowActive) {
 		GetCursorPos(&point);
-		ScreenToClient(g_pWnd, &point);
+		ScreenToClient(g_gameWindow, &point);
 		if (p_axis == 0) {
 			point.y = g_windowHeight / 2;
 		}
@@ -147,7 +147,7 @@ MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 			point.x = g_windowWidth / 2;
 		}
 
-		ClientToScreen(g_pWnd, &point);
+		ClientToScreen(g_gameWindow, &point);
 		SetCursorPos(point.x, point.y);
 	}
 
@@ -162,7 +162,7 @@ MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 	POINT point;
 	MechS16 right;
 
-	if (g_fWindowActive) {
+	if (g_windowActive) {
 		if (!g_cursorClipped || g_reclipCursor) {
 			GetClientScreenRect(&g_cursorClipRect, g_windowWidth, g_windowHeight);
 			ClipCursor(&g_cursorClipRect);
@@ -196,7 +196,7 @@ MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 		}
 
 		if (p_position && GetCursorPos(&point)) {
-			ScreenToClient(g_pWnd, &point);
+			ScreenToClient(g_gameWindow, &point);
 			if (IsInsideWindow(&point)) {
 				p_position[0] = ((point.y * 2 - g_windowHeight) << 16) / g_windowHeight;
 				p_position[1] = ((point.x * 2 - g_windowWidth) << 16) / g_windowWidth;
@@ -234,13 +234,13 @@ void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height)
 	POINT point;
 
 	point.x = point.y = 0;
-	ClientToScreen(g_pWnd, &point);
+	ClientToScreen(g_gameWindow, &point);
 	p_rect->left = point.x;
 	p_rect->top = point.y;
 
 	point.x = p_width - 1;
 	point.y = p_height - 1;
-	ClientToScreen(g_pWnd, &point);
+	ClientToScreen(g_gameWindow, &point);
 	p_rect->right = point.x;
 	p_rect->bottom = point.y;
 }

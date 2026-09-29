@@ -26,7 +26,7 @@ public:
 	void ReadMouseState();
 
 private:
-	void* m_unk0x00;             // 0x00
+	void* m_unk0x00;             // 0x00 — the constructor's third argument (database item 0x19), never read
 	VideoDriver* m_videoDriver;  // 0x04
 	Font* m_font;                // 0x08
 	MechS32 m_positionTextWidth; // 0x0c — DrawCursorPosition's, restored before the next
@@ -34,11 +34,11 @@ private:
 	undefined4 m_rightPressed;   // 0x14
 	undefined4 m_middlePressed;  // 0x18
 	undefined m_doubleClicked;   // 0x1c
-	undefined m_unk0x1d;         // 0x1d
-	undefined m_unk0x1e;         // 0x1e
+	undefined m_unk0x1d;         // 0x1d — only cleared, by the constructor
+	undefined m_unk0x1e;         // 0x1e — only cleared, by the constructor
 	undefined4 m_lastClickTime;  // 0x1f
-	undefined4 m_unk0x23;        // 0x23
-	undefined4 m_unk0x27;        // 0x27
+	undefined4 m_unk0x23;        // 0x23 — only cleared, by the constructor
+	undefined4 m_unk0x27;        // 0x27 — only cleared, by the constructor
 
 public:
 	// The screens read the cursor position and the cockpit controls screen's scroll arrows

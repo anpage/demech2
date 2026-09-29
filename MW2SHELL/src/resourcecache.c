@@ -142,6 +142,7 @@ void InitializeResourceCache(void)
 	AllocateCacheTable();
 }
 
+// Empty and never called: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x10013935
 void FUN_10013935(void)
 {
@@ -242,6 +243,7 @@ void DumpResourceCache(void)
 	fclose(file);
 }
 
+// Empty and never called: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x10013c6e
 void FUN_10013c6e(void)
 {
@@ -259,7 +261,8 @@ void UnlockCachedResource(MechS32 p_id, char* p_type)
 }
 
 // Returns the data of p_type item p_id of p_handle, loading it into the cache when needed and
-// purging the least recently used entries to make room.
+// purging the least recently used entries to make room. p_unk0x0c is ignored (the name tables
+// pass 1), so nothing gives it a name.
 // Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10013cb5
 void* LoadCachedResource(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
@@ -341,17 +344,21 @@ void FreeCachedResource(MechS32 p_id, char* p_type)
 	FreeCacheEntry(entry);
 }
 
+// Empty and never called: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x10013f30
 void FUN_10013f30(void)
 {
 }
 
+// Returns its argument. Never called, and the body gives no name.
 // FUNCTION: MW2SHELL 0x10013f3b
 undefined4 FUN_10013f3b(undefined4 p_value)
 {
 	return p_value;
 }
 
+// LoadCachedResource from archive handle 0. Never called; it keeps its placeholder because what
+// handle 0 stands for here isn't known.
 // FUNCTION: MW2SHELL 0x10013f4e
 void* FUN_10013f4e(MechS32 p_id, char* p_type)
 {

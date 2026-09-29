@@ -81,6 +81,7 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 
 // Two entries of each key-name table share an empty name that precedes the table's strings in
 // the original, instead of an empty literal of their own. Like the strings, it is const data.
+// Being the empty string is their only role, so they keep their placeholders.
 // GLOBAL: MW2SHELL 0x10058030
 const MechChar g_unk0x10058030[] = "";
 

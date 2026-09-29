@@ -51,15 +51,15 @@ void ReadSimHandoff(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, 
 	g_simHandoff.m_cmdLine[i] = '\0';
 
 	if (g_simHandoff.m_pilot >= 0) {
-		g_pCurrentPilot = &g_pilotRoster[g_simHandoff.m_pilot];
+		g_currentPilot = &g_pilotRoster[g_simHandoff.m_pilot];
 	}
 	else {
-		g_pCurrentPilot = NULL;
+		g_currentPilot = NULL;
 	}
 	RestoreStars();
 
 	if (p_fromSim) {
-		PostMessage(g_pWnd, g_simHandoff.m_msg, c_msgLaunchSim, 0);
+		PostMessage(g_gameWindow, g_simHandoff.m_msg, c_msgLaunchSim, 0);
 	}
 	else {
 		*p_campaign = 2;
@@ -83,8 +83,8 @@ void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const
 	strcat(g_simHandoff.m_cmdLine, " -b=");
 	strcat(g_simHandoff.m_cmdLine, g_missionName);
 
-	if (g_pCurrentPilot) {
-		g_simHandoff.m_pilot = g_pCurrentPilot - g_pilotRoster;
+	if (g_currentPilot) {
+		g_simHandoff.m_pilot = g_currentPilot - g_pilotRoster;
 	}
 	else {
 		g_simHandoff.m_pilot = -1;

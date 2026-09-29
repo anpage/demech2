@@ -2,8 +2,8 @@
 
 #include "audiosample.h"
 #include "blit.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <windows.h>
 
@@ -37,7 +37,7 @@ PopupPicture::PopupPicture(
 
 	m_saved.m_maxX = m_width - 1;
 	m_saved.m_maxY = m_height - 1;
-	m_saved.m_pixels = (undefined*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_width * m_height);
+	m_saved.m_pixels = (undefined*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, m_width * m_height);
 
 	m_savedView.m_left = 0;
 	m_savedView.m_top = 0;
@@ -58,7 +58,7 @@ PopupPicture::PopupPicture(
 PopupPicture::~PopupPicture()
 {
 	Hide();
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_data);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_data);
 
 	if (m_sample) {
 		m_sample->Stop();

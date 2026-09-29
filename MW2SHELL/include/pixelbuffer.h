@@ -13,7 +13,7 @@ struct PixelBuffer {
 	MechS32 m_maxX;               // 0x04
 	MechS32 m_maxY;               // 0x08
 	DrawBitmapInfo* m_bitmapInfo; // 0x0c
-	undefined4 m_unk0x10;         // 0x10
+	undefined4 m_unk0x10;         // 0x10 — only cleared, by the back ends' begin functions
 };
 typedef struct PixelBuffer PixelBuffer;
 #pragma pack()

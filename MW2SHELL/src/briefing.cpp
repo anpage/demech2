@@ -26,6 +26,8 @@
 
 // The mission briefing screen.
 
+// The briefing's p_quote for LoadTextPages: empty, so the quote escapes in a briefing's text
+// expand to nothing. That is its only use, and it gives no name.
 // GLOBAL: MW2SHELL 0x10071cd8
 MechChar g_unk0x10071cd8[0x04] = "";
 
@@ -80,7 +82,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 		break;
 	}
 
-	if (g_pCurrentPilot->m_mission == 15 && g_pCurrentPilot->m_rank >= 6) {
+	if (g_currentPilot->m_mission == 15 && g_currentPilot->m_rank >= 6) {
 		switch (p_campaign) {
 		case 0:
 			strcpy(name, "KTWOBRF1");
@@ -109,19 +111,19 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 
 	g_briefingPage = (Page*) CollectionGet(g_briefingPages, 0);
 	if (!g_briefingPage) {
-		PostMessage(g_pWnd, c_msgLaunchSim, c_msgBriefing, 0);
+		PostMessage(g_gameWindow, c_msgLaunchSim, c_msgBriefing, 0);
 		return;
 	}
 
-	g_pVideoDriver->LoadBackground(p_database, g_briefingScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_briefingScreens[p_campaign].m_picture);
 	CollectionRemove(g_briefingPages, g_briefingPage, FALSE);
 	g_keyboardInput->FlushKeys();
 
-	if (strcmp(g_pCurrentPilot->m_callsign, "FERRARI")) {
+	if (strcmp(g_currentPilot->m_callsign, "FERRARI")) {
 		g_briefingScreens[p_campaign].m_count = 3;
 	}
 	g_briefingMenu = new ButtonMenu(
-		g_pVideoDriver,
+		g_videoDriver,
 		g_bodyFont,
 		FALSE,
 		g_briefingScreens[p_campaign].m_buttons,
@@ -149,28 +151,28 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 
 	if (!g_situationReader) {
 		g_briefingPage->TypeStep();
-		button = g_briefingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_briefingMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 		switch (button) {
 		case 2:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgLaunchSim;
 			break;
 		case 0:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgReadyRoom;
 			break;
 		case 3:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgDebrief;
 			break;
 		case 1:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			g_briefingPage->Hide();
@@ -202,7 +204,7 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			delete g_situationReader;
 			g_situationReader = NULL;
 			g_briefingMenu = new ButtonMenu(
-				g_pVideoDriver,
+				g_videoDriver,
 				g_defaultFont,
 				FALSE,
 				g_briefingScreens[*p_campaign].m_buttons,
@@ -220,7 +222,7 @@ done:
 		g_situationReader = NULL;
 		delete g_briefingPage;
 		delete g_briefingMenu;
-		PostMessage(g_pWnd, p_msg, c_msgBriefing, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgBriefing, 0);
 		UnregisterScreenFunction(BriefingCallback);
 	}
 }

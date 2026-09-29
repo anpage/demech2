@@ -23,9 +23,9 @@
 #include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -49,7 +49,7 @@ struct EngineType {
 struct Weapon {
 	MechS32 m_heat;         // 0x00
 	MechS32 m_damage;       // 0x04 — negative: per missile
-	MechS32 m_unk0x08;      // 0x08 — shown as a number, "-" when negative
+	MechS32 m_minimumRange; // 0x08 — -1 for none
 	MechS32 m_shortRange;   // 0x0c — -1 for none
 	MechS32 m_mediumRange;  // 0x10 — -1 for none
 	MechS32 m_range;        // 0x14 — -1 for none
@@ -102,15 +102,15 @@ struct MekVariant {
 
 	MechChar m_title[0x100];             // 0x00 — '~' and the mech's name
 	MechChar m_variantName[0x40];        // 0x100
-	undefined m_unk0x140[0x200 - 0x140]; // 0x140
+	undefined m_unk0x140[0x200 - 0x140]; // 0x140 — never accessed on its own
 	MechS32 m_maxMass;                   // 0x200
 	MechS32 m_usedMass;                  // 0x204
 	MechS32 m_freeMass;                  // 0x208
 	MechS32 m_engine;                    // 0x20c — index into g_engines, + 10000 for an XL engine
 	MechS32 m_engineRating;              // 0x210
 	MechS32 m_engineMass;                // 0x214
-	MechS32 m_unk0x218;                  // 0x218 — 7 for an XL engine, else 0
-	MechS32 m_unk0x21c;                  // 0x21c — m_maxMass less m_engineMass
+	MechS32 m_unk0x218;                  // 0x218 — 7 for an XL engine, else 0; never read
+	MechS32 m_unk0x21c;                  // 0x21c — m_maxMass less m_engineMass; never read
 	MechS32 m_gyroMass;                  // 0x220
 	MechS32 m_cockpitMass;               // 0x224
 	MechS32 m_heatSinkType;              // 0x228 — 1 single, 2 double
@@ -118,21 +118,21 @@ struct MekVariant {
 	MechS32 m_externalHeatSinks;         // 0x230 — heat sinks the engine can't hold, which take slots
 	MechS32 m_jumpJetUnitMass;           // 0x234 — mass of one jump jet
 	MechS32 m_jumpJetMass;               // 0x238
-	undefined4 m_unk0x23c;               // 0x23c
+	undefined4 m_unk0x23c;               // 0x23c — never accessed on its own
 	MechS32 m_endoSteel;                 // 0x240
 	MechS32 m_internalMass;              // 0x244
-	undefined4 m_unk0x248;               // 0x248
+	undefined4 m_unk0x248;               // 0x248 — never accessed on its own
 	MechS32 m_ferroFibrous;              // 0x24c
 	MechS32 m_armorMass;                 // 0x250
-	undefined4 m_unk0x254;               // 0x254
+	undefined4 m_unk0x254;               // 0x254 — never accessed on its own
 	MechS32 m_armorFactor;               // 0x258 — armor points m_armorMass buys
 	MechS32 m_armorAllocated;            // 0x25c
 	MechS32 m_weaponMass;                // 0x260
-	undefined4 m_unk0x264;               // 0x264
+	undefined4 m_unk0x264;               // 0x264 — never accessed on its own
 	MechS32 m_ammoMass;                  // 0x268
-	undefined4 m_unk0x26c;               // 0x26c
+	undefined4 m_unk0x26c;               // 0x26c — never accessed on its own
 	MechS32 m_equipmentMass;             // 0x270
-	undefined4 m_unk0x274;               // 0x274
+	undefined4 m_unk0x274;               // 0x274 — never accessed on its own
 	MechS32 m_walkingSpeed;              // 0x278 — shown as 10.8 kph per point
 	MechS32 m_runningSpeed;              // 0x27c
 	MechS32 m_jumpJets;                  // 0x280
@@ -141,7 +141,7 @@ struct MekVariant {
 	MechS32 m_selectedWeapon;            // 0x310 — a weapon id, or a weapon type * 100; -1 for none
 	MechS32 m_selectedLocation;          // 0x314 — index into g_locationNames
 	MechS32 m_criticals[8][12];          // 0x318 — item ids per location and slot, 0 when free
-	undefined4 m_unk0x498;               // 0x498
+	undefined4 m_unk0x498;               // 0x498 — never accessed on its own
 	MechS32 m_unassignedCount;           // 0x49c
 	Item m_unassigned[78];               // 0x4a0
 	Armor m_armor[8];                    // 0x710
@@ -161,7 +161,7 @@ struct MekLocation {
 	MechS32 m_internal;   // 0x08
 	MechU16 m_items[12];  // 0x0c — item ids, ammunition as g_mekAmmo ids
 	MechS16 m_slotCount;  // 0x24 — 12, or 6 for the head and legs
-	undefined2 m_unk0x26; // 0x26
+	undefined2 m_unk0x26; // 0x26 — always 1 in a saved .mek file, never read
 };
 
 // SIZE 0x18
@@ -398,6 +398,7 @@ MechS32 g_mechBayTipShown = 0;
 // GLOBAL: MW2SHELL 0x10061788
 MechS32 g_customizeTipShown = 0;
 
+// Set to 1 when the mech bay closes; nothing reads it.
 // GLOBAL: MW2SHELL 0x1006178c
 MechS32 g_unk0x1006178c = 1;
 
@@ -423,7 +424,7 @@ AudioSample* g_acceptSound;
 MechChar g_callsignLine[0x80];
 
 // GLOBAL: MW2SHELL 0x10079b50
-MechChar g_szTempBuffer[0x100];
+MechChar g_tempBuffer[0x100];
 
 // The image of a .mek file, besides g_mekLocations: its header, the ammunition and weapons
 // and the variant name.
@@ -956,6 +957,8 @@ void UpdateSpeed()
 	g_variant.m_runningSpeed = (g_variant.m_walkingSpeed * 3 + 2) / 2;
 }
 
+// Empty. UpdateStats calls it after UpdateSpeed, so it is probably an update step whose body
+// was removed; nothing says which.
 // FUNCTION: MW2SHELL 0x10008776
 void FUN_10008776()
 {
@@ -1127,8 +1130,8 @@ TextGlyph* DrawMass(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008cb0
@@ -1143,8 +1146,8 @@ TextGlyph* DrawUsedMass(ScreenField* p_tab)
 		colors = g_warningColors;
 	}
 
-	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+	sprintf(g_tempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, colors);
 }
 
 // Draws a mass in hundredths of a ton. Unused.
@@ -1154,8 +1157,8 @@ TextGlyph* DrawTons(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%d.%d%d T", value / 100, value / 10 % 10, value % 10);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008dcc
@@ -1164,8 +1167,8 @@ TextGlyph* DrawEngineRating(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, value >= 10000 ? "%dXL" : "%d", g_engines[value % 10000].m_rating);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, value >= 10000 ? "%dXL" : "%d", g_engines[value % 10000].m_rating);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008e4f
@@ -1184,8 +1187,8 @@ TextGlyph* DrawEngineMaker(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, "%s", g_engines[value % 10000].m_name);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%s", g_engines[value % 10000].m_name);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008f14
@@ -1194,8 +1197,8 @@ TextGlyph* DrawSpeed(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, "%1.1f kph", value * 10.8);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%1.1f kph", value * 10.8);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // Draws the field's data times 30 as meters. Unused.
@@ -1205,8 +1208,8 @@ TextGlyph* DrawMeters(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, "%d m", value * 30);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%d m", value * 30);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10008fdd
@@ -1218,13 +1221,13 @@ TextGlyph* DrawHeatSinkCount(ScreenField* p_tab)
 	value = *(MechS32*) p_tab->m_data;
 	count = (g_variant.m_heatSinkMass + 50) / 100 + 10;
 	if (value == 1) {
-		sprintf(g_szTempBuffer, "%d", count);
+		sprintf(g_tempBuffer, "%d", count);
 	}
 	else {
-		sprintf(g_szTempBuffer, "%d (%d)", count, count * 2);
+		sprintf(g_tempBuffer, "%d (%d)", count, count * 2);
 	}
 
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009076
@@ -1243,8 +1246,8 @@ TextGlyph* DrawNumber(ScreenField* p_tab)
 	MechS32 value;
 
 	value = *(MechS32*) p_tab->m_data;
-	sprintf(g_szTempBuffer, "%d", value);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%d", value);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // DrawLabel for a field whose data points at the string. Unused.
@@ -1319,17 +1322,17 @@ TextGlyph* DrawLocationArmor(ScreenField* p_tab)
 	armor = &g_variant.m_armor[g_variant.m_selectedLocation];
 	if (p_tab->m_data) {
 		if (armor->m_rear >= 0) {
-			sprintf(g_szTempBuffer, "~%d", armor->m_rear);
+			sprintf(g_tempBuffer, "~%d", armor->m_rear);
 		}
 		else {
-			strcpy(g_szTempBuffer, "~--");
+			strcpy(g_tempBuffer, "~--");
 		}
 	}
 	else {
-		sprintf(g_szTempBuffer, "~%d", armor->m_front);
+		sprintf(g_tempBuffer, "~%d", armor->m_front);
 	}
 
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100093a7
@@ -1339,13 +1342,13 @@ TextGlyph* DrawArmorAllocation(ScreenField* p_tab)
 
 	armor = &g_variant.m_armor[(MechS32) p_tab->m_data];
 	if (armor->m_rear >= 0) {
-		sprintf(g_szTempBuffer, "~%d/%d", armor->m_front, armor->m_rear);
+		sprintf(g_tempBuffer, "~%d/%d", armor->m_front, armor->m_rear);
 	}
 	else {
-		sprintf(g_szTempBuffer, "~%d", armor->m_front);
+		sprintf(g_tempBuffer, "~%d", armor->m_front);
 	}
 
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000943f
@@ -1358,8 +1361,8 @@ TextGlyph* DrawLocationMaxArmor(ScreenField* p_tab)
 		return NULL;
 	}
 
-	sprintf(g_szTempBuffer, "%s (%d)", g_locationNames[location], g_variant.m_armor[location].m_maxArmor);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%s (%d)", g_locationNames[location], g_variant.m_armor[location].m_maxArmor);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x100094ba
@@ -1372,8 +1375,8 @@ TextGlyph* DrawSelectedLocation(ScreenField* p_tab)
 		return NULL;
 	}
 
-	sprintf(g_szTempBuffer, "%s (%d)", g_locationNames[location], g_variant.m_armor[location].m_maxArmor);
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	sprintf(g_tempBuffer, "%s (%d)", g_locationNames[location], g_variant.m_armor[location].m_maxArmor);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009537
@@ -1386,13 +1389,13 @@ TextGlyph* DrawWeaponEntry(ScreenField* p_tab)
 	value = *(MechS32*) p_tab->m_data;
 	colors = p_tab->m_colors;
 	if (value == -1) {
-		strcpy(g_szTempBuffer, "-");
+		strcpy(g_tempBuffer, "-");
 	}
 	else {
 		if (g_weapons[value / 100].m_ammoPerTon) {
 			count = CountAmmo(value);
 			sprintf(
-				g_szTempBuffer,
+				g_tempBuffer,
 				"%s #%d (ammo %dT/%d)",
 				g_weapons[value / 100].m_name,
 				value % 100,
@@ -1401,7 +1404,7 @@ TextGlyph* DrawWeaponEntry(ScreenField* p_tab)
 			);
 		}
 		else {
-			sprintf(g_szTempBuffer, "%s #%d", g_weapons[value / 100].m_name, value % 100);
+			sprintf(g_tempBuffer, "%s #%d", g_weapons[value / 100].m_name, value % 100);
 		}
 
 		if (g_variant.m_selectedWeapon == value) {
@@ -1410,10 +1413,10 @@ TextGlyph* DrawWeaponEntry(ScreenField* p_tab)
 	}
 
 	if (p_tab->m_left >= 0x1b4) {
-		return g_defaultFont->AddText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+		return g_defaultFont->AddText(p_tab->m_left, p_tab->m_top, g_tempBuffer, colors);
 	}
 	else {
-		return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, colors);
+		return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, colors);
 	}
 }
 
@@ -1464,68 +1467,68 @@ TextGlyph* DrawWeaponInfo(ScreenField* p_tab)
 	switch ((MechS32) p_tab->m_data) {
 	case 0:
 		if (g_variant.m_selectedWeapon % 100) {
-			sprintf(g_szTempBuffer, "%s #%d", g_weapons[weapon].m_name, g_variant.m_selectedWeapon % 100);
+			sprintf(g_tempBuffer, "%s #%d", g_weapons[weapon].m_name, g_variant.m_selectedWeapon % 100);
 		}
 		else {
-			sprintf(g_szTempBuffer, "%s", g_weapons[weapon].m_name);
+			sprintf(g_tempBuffer, "%s", g_weapons[weapon].m_name);
 		}
 		break;
 	case 1:
-		sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_heat);
+		sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_heat);
 		break;
 	case 2:
 		if (g_weapons[weapon].m_damage == 0) {
-			strcpy(g_szTempBuffer, "-");
+			strcpy(g_tempBuffer, "-");
 		}
 		else if (g_weapons[weapon].m_damage < 0) {
-			sprintf(g_szTempBuffer, "%d/missile", -g_weapons[weapon].m_damage);
+			sprintf(g_tempBuffer, "%d/missile", -g_weapons[weapon].m_damage);
 		}
 		else {
-			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_damage);
+			sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_damage);
 		}
 		break;
 	case 3:
-		if (g_weapons[weapon].m_unk0x08 >= 0) {
-			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_unk0x08);
+		if (g_weapons[weapon].m_minimumRange >= 0) {
+			sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_minimumRange);
 		}
 		else {
-			strcpy(g_szTempBuffer, "-");
+			strcpy(g_tempBuffer, "-");
 		}
 		break;
 	case 4:
 		if (g_weapons[weapon].m_shortRange == -1) {
-			strcpy(g_szTempBuffer, "-");
+			strcpy(g_tempBuffer, "-");
 		}
 		else if (g_weapons[weapon].m_shortRange == 1) {
-			strcpy(g_szTempBuffer, "1");
+			strcpy(g_tempBuffer, "1");
 		}
 		else {
-			sprintf(g_szTempBuffer, "1-%d", g_weapons[weapon].m_shortRange);
+			sprintf(g_tempBuffer, "1-%d", g_weapons[weapon].m_shortRange);
 		}
 		break;
 	case 5:
 		if (g_weapons[weapon].m_mediumRange == -1) {
-			strcpy(g_szTempBuffer, "-");
+			strcpy(g_tempBuffer, "-");
 		}
 		else if (g_weapons[weapon].m_shortRange + 1 == g_weapons[weapon].m_mediumRange) {
-			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_mediumRange);
+			sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_mediumRange);
 		}
 		else {
-			sprintf(g_szTempBuffer, "%d-%d", g_weapons[weapon].m_shortRange + 1, g_weapons[weapon].m_mediumRange);
+			sprintf(g_tempBuffer, "%d-%d", g_weapons[weapon].m_shortRange + 1, g_weapons[weapon].m_mediumRange);
 		}
 		break;
 	case 6:
 		if (g_weapons[weapon].m_range == -1) {
-			strcpy(g_szTempBuffer, "-");
+			strcpy(g_tempBuffer, "-");
 		}
 		else {
-			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_range);
+			sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_range);
 		}
 		break;
 	case 7:
 		if (g_weapons[weapon].m_mass % 10) {
 			sprintf(
-				g_szTempBuffer,
+				g_tempBuffer,
 				"%d.%d%dT",
 				g_weapons[weapon].m_mass / 100,
 				g_weapons[weapon].m_mass / 10 % 10,
@@ -1533,26 +1536,26 @@ TextGlyph* DrawWeaponInfo(ScreenField* p_tab)
 			);
 		}
 		else if (g_weapons[weapon].m_mass % 100) {
-			sprintf(g_szTempBuffer, "%d.%dT", g_weapons[weapon].m_mass / 100, g_weapons[weapon].m_mass / 10 % 10);
+			sprintf(g_tempBuffer, "%d.%dT", g_weapons[weapon].m_mass / 100, g_weapons[weapon].m_mass / 10 % 10);
 		}
 		else {
-			sprintf(g_szTempBuffer, "%dT", g_weapons[weapon].m_mass / 100);
+			sprintf(g_tempBuffer, "%dT", g_weapons[weapon].m_mass / 100);
 		}
 		break;
 	case 8:
-		sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_criticals);
+		sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_criticals);
 		break;
 	case 9:
 		if (g_weapons[weapon].m_ammoPerTon) {
-			sprintf(g_szTempBuffer, "%d", g_weapons[weapon].m_ammoPerTon);
+			sprintf(g_tempBuffer, "%d", g_weapons[weapon].m_ammoPerTon);
 		}
 		else {
-			strcpy(g_szTempBuffer, "-");
+			strcpy(g_tempBuffer, "-");
 		}
 		break;
 	}
 
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x10009d50
@@ -1588,28 +1591,28 @@ TextGlyph* DrawCritical(ScreenField* p_tab)
 
 	id &= ~0x80000000;
 	if (id == 0) {
-		strcpy(g_szTempBuffer, "-");
+		strcpy(g_tempBuffer, "-");
 	}
 	else if (id < 5000) {
-		sprintf(g_szTempBuffer, "%s #%d", g_weapons[id / 100].m_name, id % 100);
+		sprintf(g_tempBuffer, "%s #%d", g_weapons[id / 100].m_name, id % 100);
 	}
 	else if (id < 10000) {
 		for (i = 22; i >= 0; i--) {
 			if (g_equipment[i].m_id / 50 == id / 50) {
-				sprintf(g_szTempBuffer, "%s", g_equipment[i].m_name);
+				sprintf(g_tempBuffer, "%s", g_equipment[i].m_name);
 				break;
 			}
 		}
 		if (i < 0) {
-			sprintf(g_szTempBuffer, "BAD CRITICAL %d", id);
+			sprintf(g_tempBuffer, "BAD CRITICAL %d", id);
 		}
 	}
 	else {
 		id -= 10000;
-		sprintf(g_szTempBuffer, "Ammo (%s #%d) #%d", g_weapons[id / 10000].m_name, id / 100 % 100, id % 100);
+		sprintf(g_tempBuffer, "Ammo (%s #%d) #%d", g_weapons[id / 10000].m_name, id / 100 % 100, id % 100);
 	}
 
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // Draws one entry (p_tab->m_data) of the items list with its count, like DrawCritical.
@@ -1631,32 +1634,25 @@ TextGlyph* DrawUnassigned(ScreenField* p_tab)
 		return NULL;
 	}
 	else if (id < 5000) {
-		sprintf(g_szTempBuffer, "%s #%d (%d)", g_weapons[id / 100].m_name, id % 100, count);
+		sprintf(g_tempBuffer, "%s #%d (%d)", g_weapons[id / 100].m_name, id % 100, count);
 	}
 	else if (id < 10000) {
 		for (i = 22; i >= 0; i--) {
 			if (g_equipment[i].m_id / 50 == id / 50) {
-				sprintf(g_szTempBuffer, "%s (%d)", g_equipment[i].m_name, count);
+				sprintf(g_tempBuffer, "%s (%d)", g_equipment[i].m_name, count);
 				break;
 			}
 		}
 		if (i < 0) {
-			sprintf(g_szTempBuffer, "BAD CRITICAL %d", id);
+			sprintf(g_tempBuffer, "BAD CRITICAL %d", id);
 		}
 	}
 	else {
 		id -= 10000;
-		sprintf(
-			g_szTempBuffer,
-			"Ammo (%s #%d) #%d (%d)",
-			g_weapons[id / 10000].m_name,
-			id / 100 % 100,
-			id % 100,
-			count
-		);
+		sprintf(g_tempBuffer, "Ammo (%s #%d) #%d (%d)", g_weapons[id / 10000].m_name, id / 100 % 100, id % 100, count);
 	}
 
-	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_szTempBuffer, p_tab->m_colors);
+	return g_defaultFont->AddOverlayText(p_tab->m_left, p_tab->m_top, g_tempBuffer, p_tab->m_colors);
 }
 
 // FUNCTION: MW2SHELL 0x1000a161
@@ -1715,7 +1711,7 @@ void ShowComponent(ScreenField* p_tab)
 {
 	ScreenField* tabs;
 
-	tabs = p_tab->m_unk0x28;
+	tabs = p_tab->m_arg;
 	SetVideoFlags(10, 0x20, 0x20);
 	SetVideoFlags(11, 0x20, 0x20);
 	SetVideoFlags(12, 0x20, 0x20);
@@ -2161,7 +2157,7 @@ void SelectWeapon(ScreenField* p_tab)
 		return;
 	}
 
-	if (g_variant.m_selectedWeapon == id && g_pMouseState->GetDoubleClicked()) {
+	if (g_variant.m_selectedWeapon == id && g_mouseState->GetDoubleClicked()) {
 		ClickDeleteWeapon(p_tab);
 	}
 
@@ -2175,7 +2171,7 @@ void SelectWeaponType(ScreenField* p_tab)
 	}
 
 	if ((MechS32) p_tab->m_data * 100 == g_variant.m_selectedWeapon) {
-		if (g_pMouseState->GetDoubleClicked()) {
+		if (g_mouseState->GetDoubleClicked()) {
 			ClickAddWeapon(p_tab);
 		}
 	}
@@ -2353,7 +2349,7 @@ void RemoveRearArmor(ScreenField* p_tab)
 	}
 }
 
-// Toggles the flag at m_data and adds or removes the item id held in m_unk0x28. The arm
+// Toggles the flag at m_data and adds or removes the item id held in m_arg. The arm
 // actuators (5401, 5402, 5451, 5452) take a fixed slot in the arms, replacing what is there.
 // FUNCTION: MW2SHELL 0x1000b384
 void ToggleEquipment(ScreenField* p_tab)
@@ -2370,7 +2366,7 @@ void ToggleEquipment(ScreenField* p_tab)
 	}
 
 	if (*flag) {
-		switch ((MechS32) p_tab->m_unk0x28) {
+		switch ((MechS32) p_tab->m_arg) {
 		case 5000:
 			for (i = 1; i <= g_variant.m_mascCriticals; i++) {
 				AddUnassigned(i + 5000, 1);
@@ -2405,7 +2401,7 @@ void ToggleEquipment(ScreenField* p_tab)
 		}
 	}
 	else {
-		switch ((MechS32) p_tab->m_unk0x28) {
+		switch ((MechS32) p_tab->m_arg) {
 		case 5000:
 			for (i = 1; i <= g_variant.m_mascCriticals; i++) {
 				DeleteItem(i + 5000);
@@ -2417,7 +2413,7 @@ void ToggleEquipment(ScreenField* p_tab)
 		case 5402:
 		case 5451:
 		case 5452:
-			DeleteItem((MechS32) p_tab->m_unk0x28);
+			DeleteItem((MechS32) p_tab->m_arg);
 			break;
 		}
 	}
@@ -2963,13 +2959,13 @@ void PlayChassisName()
 		return;
 	}
 
-	g_pDatabaseMw2->GetDBItem(g_mechChassis[g_selectedChassis].m_nameSample, &audioData, &audioSize);
+	g_mw2Database->GetDBItem(g_mechChassis[g_selectedChassis].m_nameSample, &audioData, &audioSize);
 	if (g_chassisNameSound != NULL) {
 		g_chassisNameSound->Stop();
 		delete g_chassisNameSound;
 	}
 
-	g_chassisNameSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_chassisNameSound = new AudioSample(g_audioSubsystem, audioData, audioSize);
 	g_chassisNameSound->SetVolume(40);
 	g_chassisNameSound->Start();
 }
@@ -3574,11 +3570,11 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	g_pickStarMech = 0;
 	g_chassisNameSound = NULL;
 
-	g_pDatabaseMw2->GetDBItem(0x50, &data, &size);
-	g_locationSound = new AudioSample(g_pAudioSubsystem, data, size);
+	g_mw2Database->GetDBItem(0x50, &data, &size);
+	g_locationSound = new AudioSample(g_audioSubsystem, data, size);
 	g_locationSound->SetVolume(0x28);
 	p_database->GetDBItem(0x4b, &data, &size);
-	g_mechBayAmbience = new AudioSample(g_pAudioSubsystem, data, size);
+	g_mechBayAmbience = new AudioSample(g_audioSubsystem, data, size);
 	g_mechBayAmbience->EnableLoop();
 
 	g_textColors[0] = 0xff;
@@ -3591,9 +3587,9 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	g_activeColors[1] = 1;
 	g_warningColors[1] = 8;
 
-	g_pVideoDriver->LoadBackground(p_database, g_mechBayScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_mechBayScreens[p_campaign].m_picture);
 	g_mechBayMenu = new ButtonMenu(
-		g_pVideoDriver,
+		g_videoDriver,
 		g_defaultFont,
 		FALSE,
 		g_mechBayScreens[p_campaign].m_buttons,
@@ -3704,11 +3700,11 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 		g_selectedChassis = 0;
 	}
 
-	g_pDatabaseMw2->GetDBItem(0x65, &data, &size);
-	g_variantSound = new AudioSample(g_pAudioSubsystem, data, size);
+	g_mw2Database->GetDBItem(0x65, &data, &size);
+	g_variantSound = new AudioSample(g_audioSubsystem, data, size);
 	g_variantSound->SetVolume(0x32);
-	g_pDatabaseMw2->GetDBItem(0x66, &data, &size);
-	g_acceptSound = new AudioSample(g_pAudioSubsystem, data, size);
+	g_mw2Database->GetDBItem(0x66, &data, &size);
+	g_acceptSound = new AudioSample(g_audioSubsystem, data, size);
 	g_acceptSound->SetVolume(0x32);
 
 	star = GetStar(-1);
@@ -3738,19 +3734,19 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_mechBayTipShown && !g_chassisNameSound->IsPlaying()) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x71), g_pWnd, (DLGPROC) OkDialogProc, 0);
+	if (g_quickTips && !g_mechBayTipShown && !g_chassisNameSound->IsPlaying()) {
+		DialogBoxParam(g_module, MAKEINTRESOURCE(0x71), g_gameWindow, (DLGPROC) OkDialogProc, 0);
 		g_mechBayTipShown = 1;
 	}
 
-	pressed = g_pMouseState->GetLeftPressed();
+	pressed = g_mouseState->GetLeftPressed();
 	if (pressed == 1) {
-		tab = FindFieldAt(g_screenFields, g_pMouseState->m_x, g_pMouseState->m_y);
+		tab = FindFieldAt(g_screenFields, g_mouseState->m_x, g_mouseState->m_y);
 		if (tab && tab->m_click) {
 			tab->m_click(tab);
 		}
 		else if (g_componentFields) {
-			tab = FindFieldAt(g_componentFields, g_pMouseState->m_x, g_pMouseState->m_y);
+			tab = FindFieldAt(g_componentFields, g_mouseState->m_x, g_mouseState->m_y);
 			if (tab && tab->m_click) {
 				tab->m_click(tab);
 				RedrawFields(g_componentFields);
@@ -3759,7 +3755,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		}
 	}
 
-	button = g_mechBayMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_mechBayMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 	if (*p_campaign == 2) {
 		SetVideoFlags(5, 0x20, 0x20);
 	}
@@ -3802,7 +3798,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		}
 		break;
 	case 2:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(8);
 		}
 		if (pressed != 1) {
@@ -3821,7 +3817,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		g_mechBayMenu->DisableButton(10);
 		break;
 	case 3:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(9);
 		}
 		if (pressed != 1) {
@@ -3840,7 +3836,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		g_mechBayMenu->DisableButton(10);
 		break;
 	case 4:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(6);
 		}
 		if (pressed != 1) {
@@ -3856,7 +3852,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		}
 		break;
 	case 5:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(7);
 		}
 		if (pressed != 1) {
@@ -3878,8 +3874,8 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		if (ShowDialog("Delete this 'Mech?|Are you sure?#Yes|No", 1) == 1) {
 			break;
 		}
-		sprintf(g_szTempBuffer, "mek\\%s.mek", g_variantFiles[g_selectedVariant]);
-		remove(g_szTempBuffer);
+		sprintf(g_tempBuffer, "mek\\%s.mek", g_variantFiles[g_selectedVariant]);
+		remove(g_tempBuffer);
 		g_variantFiles[g_selectedVariant][0] = '\0';
 		NextVariant();
 		if (g_selectedVariant < 100) {
@@ -3922,9 +3918,9 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		g_mechBayMenu->DisableButton(10);
 		g_mechBayMenu->EnableButton(8);
 		g_mechBayMenu->EnableButton(9);
-		if (g_fQuickTips && !g_customizeTipShown) {
-			g_pVideoDriver->DrawShell();
-			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x72), g_pWnd, (DLGPROC) OkDialogProc, 0);
+		if (g_quickTips && !g_customizeTipShown) {
+			g_videoDriver->DrawShell();
+			DialogBoxParam(g_module, MAKEINTRESOURCE(0x72), g_gameWindow, (DLGPROC) OkDialogProc, 0);
 			g_customizeTipShown = 1;
 		}
 		break;
@@ -4000,7 +3996,7 @@ done:
 		delete g_acceptSound;
 		delete g_variantSound;
 		delete g_mechBayMenu;
-		PostMessage(g_pWnd, p_msg, c_msgMechBay, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgMechBay, 0);
 		UnregisterScreenFunction(MechBayCallback);
 	}
 }

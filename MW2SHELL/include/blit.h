@@ -35,7 +35,7 @@ extern "C"
 		MechS32 p_unk0x14,
 		MechS32 p_color
 	);
-	void FUN_10034e15(PixelView* p_view, MechS32 p_unk0x04);
+	void FillView(PixelView* p_view, MechS32 p_color);
 	MechS32 BlitChar(
 		PixelView* p_view,
 		MechS32 p_left,

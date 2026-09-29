@@ -73,9 +73,9 @@ public:
 
 private:
 	MechS32 m_pictureSize;            // 0x00 — the last picture's, see GetPictureSize
-	undefined4 m_unk0x04;             // 0x04
-	MechU8 m_unk0x08;                 // 0x08
-	MechU8 m_unk0x09;                 // 0x09
+	undefined4 m_unk0x04;             // 0x04 — never accessed
+	MechU8 m_unk0x08;                 // 0x08 — ShowPicture stores it, nothing reads it
+	MechU8 m_unk0x09;                 // 0x09 — ShowPicture stores it, nothing reads it
 	undefined* m_picture;             // 0x0a — ShowPicture's
 	MechS32 m_pictureLength;          // 0x0e
 	MechS32 m_pictureType;            // 0x12 — 2, the only type ReadPictureSize knows
@@ -83,7 +83,7 @@ private:
 	TextGlyphList* m_glyphs;          // 0x1a — redrawn before them
 	undefined4 m_paletteChanged;      // 0x1e — the next draw loads m_palette
 	undefined4 m_allColors;           // 0x22 — for m_setPalette
-	undefined m_unk0x26[0x2e - 0x26]; // 0x26
+	undefined m_unk0x26[0x2e - 0x26]; // 0x26 — never accessed
 
 public:
 	// LoopingMovie decodes into m_screenBuffer.m_pixels directly.
@@ -106,7 +106,7 @@ private:
 	MechS32 m_height;              // 0x396
 	MechS32 m_pictureMaxX;         // 0x39a
 	MechS32 m_pictureMaxY;         // 0x39e
-	undefined4 m_unk0x3a2;         // 0x3a2
+	undefined4 m_unk0x3a2;         // 0x3a2 — only cleared, by the constructor
 
 public:
 	// The color RestoreBackground fills with instead of copying the background, -1 to copy.

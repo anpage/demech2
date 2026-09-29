@@ -9,9 +9,9 @@
 #include "shellglobals.h"
 #include "shellmain.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <windows.h>
 
@@ -592,10 +592,10 @@ void DrawCredits()
 	MechS32 i;
 
 	g_creditsFirstLine = 0;
-	g_pVideoDriver->GetPalette(g_savedScreenPalette);
+	g_videoDriver->GetPalette(g_savedScreenPalette);
 	g_keyboardInput->FlushKeys();
-	g_pVideoDriver->LoadPalette(5);
-	g_pVideoDriver->m_restoreColor = 0;
+	g_videoDriver->LoadPalette(5);
+	g_videoDriver->m_restoreColor = 0;
 	g_creditsMovie = new LoopingMovie(g_creditsMovieName, 0x78, 4);
 
 	g_creditsTitleColors[0] = 0xff;
@@ -616,7 +616,7 @@ void CreditsCallback(MechS32 p_active)
 	MechS32 width;
 
 	if (p_active) {
-		g_pVideoDriver->RestoreBackground(0, 0x7d, 0x280, 0x14f);
+		g_videoDriver->RestoreBackground(0, 0x7d, 0x280, 0x14f);
 		top = g_creditsFirstLine * 0x14 + g_creditsScrollTop;
 		g_creditsScrollTop--;
 		for (index = g_creditsFirstLine; index < 0x21f && top < 0x1cc; index++) {
@@ -626,15 +626,15 @@ void CreditsCallback(MechS32 p_active)
 				}
 				else if (g_creditLines[index][0] == '<') {
 					width = 0x140 - g_titleFont->GetTextWidth(g_creditLines[index] + 1) / 2;
-					g_pVideoDriver->DrawString(width, top, g_titleFont->m_dataCopy, g_creditLines[index] + 1, NULL);
+					g_videoDriver->DrawString(width, top, g_titleFont->m_dataCopy, g_creditLines[index] + 1, NULL);
 				}
 				else if (g_creditLines[index][0] == '>') {
 					width = 0x140 - g_buttonFont->GetTextWidth(g_creditLines[index] + 1) / 2;
-					g_pVideoDriver->DrawString(width, top, g_buttonFont->m_dataCopy, g_creditLines[index] + 1, NULL);
+					g_videoDriver->DrawString(width, top, g_buttonFont->m_dataCopy, g_creditLines[index] + 1, NULL);
 				}
 				else if (g_creditLines[index][0] == '~') {
 					width = 0x140 - g_titleFont->GetTextWidth(g_creditLines[index] + 1) / 2;
-					g_pVideoDriver->DrawString(
+					g_videoDriver->DrawString(
 						width,
 						top,
 						g_titleFont->m_dataCopy,
@@ -644,7 +644,7 @@ void CreditsCallback(MechS32 p_active)
 				}
 				else {
 					width = 0x140 - g_textFont->GetTextWidth(g_creditLines[index]) / 2;
-					g_pVideoDriver->DrawString(width, top, g_textFont->m_dataCopy, g_creditLines[index], NULL);
+					g_videoDriver->DrawString(width, top, g_textFont->m_dataCopy, g_creditLines[index], NULL);
 				}
 			}
 			else {
@@ -652,13 +652,13 @@ void CreditsCallback(MechS32 p_active)
 			}
 			top += 0x14;
 		}
-		g_pVideoDriver->RestoreBackground(0, 0x69, 0x280, 0x14);
-		g_pVideoDriver->RestoreBackground(0, 0x1cc, 0x280, 0x14);
+		g_videoDriver->RestoreBackground(0, 0x69, 0x280, 0x14);
+		g_videoDriver->RestoreBackground(0, 0x1cc, 0x280, 0x14);
 		if (g_creditsMovie != NULL) {
 			g_creditsMovie->Update();
 		}
 	}
-	if (!p_active || g_pMouseState->GetRightPressed() == 1 || g_pMouseState->GetLeftPressed() == 1 ||
+	if (!p_active || g_mouseState->GetRightPressed() == 1 || g_mouseState->GetLeftPressed() == 1 ||
 		g_keyboardInput->PollKey() != 0) {
 		UnregisterMenuFunction(CreditsCallback);
 		EnableMenuItem(g_windowMenu, c_menuKeshik, MF_ENABLED);
@@ -667,13 +667,13 @@ void CreditsCallback(MechS32 p_active)
 			delete g_creditsMovie;
 		}
 		g_creditsMovie = NULL;
-		g_pVideoDriver->m_restoreColor = -1;
-		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
+		g_videoDriver->m_restoreColor = -1;
+		g_videoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
-		g_pVideoDriver->SetPalette(g_savedScreenPalette, TRUE);
+		g_videoDriver->SetPalette(g_savedScreenPalette, TRUE);
 		if (p_active) {
-			g_pVideoDriver->DrawShell();
-			g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
+			g_videoDriver->DrawShell();
+			g_videoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 			UpdateVideos();
 		}
 	}

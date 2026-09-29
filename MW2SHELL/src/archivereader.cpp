@@ -18,8 +18,8 @@
 #include "textglyph.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,9 +71,9 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	void* audioData;
 	MechS32 audioSize;
 
-	g_pVideoDriver->LoadBackground(p_database, g_archiveScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_archiveScreens[p_campaign].m_picture);
 	p_database->GetDBItem(103, &audioData, &audioSize);
-	g_archiveSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_archiveSound = new AudioSample(g_audioSubsystem, audioData, audioSize);
 	g_archiveSound->SetVolume(0x32);
 	g_archiveSound->Start();
 
@@ -105,13 +105,13 @@ void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 		g_archiveSound = NULL;
 
 		if (p_msg == c_msgQuit) {
-			PostMessage(g_pWnd, c_msgQuit, c_msgArchive, 0);
+			PostMessage(g_gameWindow, c_msgQuit, c_msgArchive, 0);
 		}
 		else if (p_msg == c_msgReaderBack || p_msg == c_msgReaderExit) {
-			PostMessage(g_pWnd, g_archiveReturnMessage, c_msgArchive, 0);
+			PostMessage(g_gameWindow, g_archiveReturnMessage, c_msgArchive, 0);
 		}
 		else {
-			PostMessage(g_pWnd, p_msg, c_msgArchive, 0);
+			PostMessage(g_gameWindow, p_msg, c_msgArchive, 0);
 		}
 		UnregisterScreenFunction(ArchiveCallback);
 	}
@@ -122,7 +122,7 @@ void ArchiveReader::AddTopic(MechS16 p_entry, MechS32 p_index)
 {
 	Topic* topic = NULL;
 
-	topic = (Topic*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, sizeof(Topic));
+	topic = (Topic*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(Topic));
 	topic->m_id = p_index + c_buttonTopic;
 	topic->m_entry = p_entry;
 	ExpandCollection(m_topics, topic);
@@ -132,7 +132,7 @@ void ArchiveReader::AddTopic(MechS16 p_entry, MechS32 p_index)
 // FUNCTION: MW2SHELL 0x1002931d
 void ArchiveReader::ClearGlyphs()
 {
-	g_pVideoDriver->ClearGlyphs(FALSE);
+	g_videoDriver->ClearGlyphs(FALSE);
 }
 
 // FUNCTION: MW2SHELL 0x10029340
@@ -318,20 +318,20 @@ MechS32 ArchiveReader::Run()
 		m_titleGlyph = g_titleFont->AddText(0x140, 0x32, m_title, NULL);
 	}
 
-	button = m_menu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = m_menu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 	if (g_keyboardInput->m_key) {
 		switch (g_keyboardInput->m_key) {
 		case 0xc4:
 			button = c_buttonPrevPage;
-			g_pMouseState->PressButton(0);
+			g_mouseState->PressButton(0);
 			break;
 		case 0xc5:
 			button = c_buttonNextPage;
-			g_pMouseState->PressButton(0);
+			g_mouseState->PressButton(0);
 			break;
 		case 0xc2:
 			button = c_buttonBack;
-			g_pMouseState->PressButton(0);
+			g_mouseState->PressButton(0);
 			break;
 		default:
 			break;
@@ -340,24 +340,24 @@ MechS32 ArchiveReader::Run()
 
 	switch (button) {
 	case c_buttonExit:
-		if (g_pMouseState->GetLeftPressed() == 1) {
+		if (g_mouseState->GetLeftPressed() == 1) {
 			return c_msgReaderExit;
 		}
 		break;
 	case c_buttonNextPage:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		NextPage();
 		break;
 	case c_buttonPrevPage:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		PrevPage();
 		break;
 	case c_buttonBack:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		if (m_page == 0) {
@@ -369,7 +369,7 @@ MechS32 ArchiveReader::Run()
 		break;
 	default:
 		if (m_database) {
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			if (button != -1) {
@@ -418,14 +418,14 @@ void ArchiveReader::Load(MechS32 p_entry)
 	result = m_database->ReadDBItemData(p_entry, offset, &command, 2);
 	offset += 2;
 	if (result) {
-		delete g_pVideoDriver;
+		delete g_videoDriver;
 		fprintf(stderr, "Could not access Archive DB entry\n");
 		fflush(stderr);
 		exit(1);
 	}
 
 	if (command != 0x100) {
-		delete g_pVideoDriver;
+		delete g_videoDriver;
 		fprintf(stderr, "Cmd Title not found\n");
 		fprintf(stderr, "Found: %d\n", command);
 		fflush(stderr);
@@ -439,7 +439,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 
 	command = -1;
 	while (command != -0x100) {
-		g_pMouseState->ReadMouseState();
+		g_mouseState->ReadMouseState();
 		result = m_database->ReadDBItemData(p_entry, offset, &command, 2);
 		offset += 2;
 
@@ -449,7 +449,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 			text = g_archiveText;
 			do {
 				result = m_database->ReadDBItemLine(p_entry, offset, g_archiveLine);
-				g_pMouseState->ReadMouseState();
+				g_mouseState->ReadMouseState();
 				if (result != 2) {
 					wordLength = strlen(g_archiveLine);
 					length += wordLength;
@@ -475,11 +475,11 @@ void ArchiveReader::Load(MechS32 p_entry)
 			rest = NULL;
 			do {
 				if (page == NULL || rest != NULL) {
-					page = new Page(m_font, g_pVideoDriver, m_colors, 0x58, 0x46, 0x1d2, 0xde);
+					page = new Page(m_font, g_videoDriver, m_colors, 0x58, 0x46, 0x1d2, 0xde);
 					ExpandCollection(m_pages, page);
 				}
 
-				g_pMouseState->ReadMouseState();
+				g_mouseState->ReadMouseState();
 				if (rest != NULL) {
 					rest = page->Layout(rest);
 				}
@@ -503,7 +503,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 			offset++;
 			result = m_database->GetDBItem(picture, &data, &size);
 			if (page == NULL) {
-				page = new Page(m_font, g_pVideoDriver, m_colors, 0x58, 0x46, 0x1d2, 0xde);
+				page = new Page(m_font, g_videoDriver, m_colors, 0x58, 0x46, 0x1d2, 0xde);
 				ExpandCollection(m_pages, page);
 			}
 			page->SetBanner((undefined*) data, size);
@@ -511,7 +511,7 @@ void ArchiveReader::Load(MechS32 p_entry)
 		case -0x100:
 			break;
 		default:
-			delete g_pVideoDriver;
+			delete g_videoDriver;
 			fprintf(stderr, "Unknown Archive Command Code\n");
 			fflush(stderr);
 			exit(1);
@@ -549,13 +549,13 @@ ArchiveReader::ArchiveReader(
 	CreateCollection(&m_topics, 3, NULL, 4, NULL);
 	ClearGlyphs();
 
-	m_menu = new ButtonMenu(g_pVideoDriver, m_font, 0, m_buttons, p_count);
+	m_menu = new ButtonMenu(g_videoDriver, m_font, 0, m_buttons, p_count);
 	m_menu->AddButton(p_buttons[c_buttonBack], c_buttonBack, m_menu->m_drawRect);
 
 	if (m_ownsDatabase == TRUE) {
 		m_database = new TMPackDataBase(m_title);
 		if (m_database == NULL) {
-			delete g_pVideoDriver;
+			delete g_videoDriver;
 			fprintf(stderr, "Could not open archive database\n");
 			fflush(stderr);
 			exit(1);

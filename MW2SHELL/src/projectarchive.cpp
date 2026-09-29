@@ -10,7 +10,7 @@
 #include "resourcename.h"
 #include "starmech.h"
 #include "types.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -34,7 +34,7 @@ enum BwdTag {
 struct BwdRootNode {
 	MechS32 m_type;       // 0x00
 	MechS32 m_size;       // 0x04
-	undefined4 m_unk0x08; // 0x08
+	undefined4 m_unk0x08; // 0x08 — written as 0 for the simulator
 };
 
 // SIZE 0x0c
@@ -48,15 +48,15 @@ struct BwdRevisionNode {
 struct BwdTableNode {
 	MechS32 m_type;          // 0x00
 	MechS32 m_size;          // 0x04
-	undefined4 m_unk0x08[5]; // 0x08
+	undefined4 m_unk0x08[5]; // 0x08 — written as zeros for the simulator
 };
 
 // SIZE 0x0c
 struct BwdLinkNode {
 	MechS32 m_type;    // 0x00
 	MechS32 m_size;    // 0x04
-	MechS16 m_unk0x08; // 0x08
-	MechS16 m_unk0x0a; // 0x0a
+	MechS16 m_unk0x08; // 0x08 — 0x114, 0x115 or 0x101 after each bitmap name node
+	MechS16 m_unk0x0a; // 0x0a — written as -1 for the simulator
 };
 
 // SIZE 0x5c
@@ -68,18 +68,18 @@ struct BwdGpsNode {
 	MechS16 m_chassisId;              // 0x0a — the chassis' resource
 	MechU8 m_level;                   // 0x0c
 	MechU8 m_firstInStar;             // 0x0d
-	MechU8 m_unk0x0e;                 // 0x0e
-	undefined m_unk0x0f;              // 0x0f
+	MechU8 m_unk0x0e;                 // 0x0e — 0 for a star's leader at level 0, else 2; written for the simulator
+	undefined m_unk0x0f;              // 0x0f — never written, the node is cleared first
 	MechS16 m_difficultySettings[5];  // 0x10 — g_bwdDifficultySettings' row
-	MechS16 m_unk0x1a;                // 0x1a
-	MechS16 m_unk0x1c;                // 0x1c
-	MechS16 m_unk0x1e;                // 0x1e
-	MechS16 m_unk0x20;                // 0x20
-	MechS16 m_unk0x22;                // 0x22
+	MechS16 m_unk0x1a;                // 0x1a — written as 0 for the simulator
+	MechS16 m_unk0x1c;                // 0x1c — written as 0 for the simulator
+	MechS16 m_unk0x1e;                // 0x1e — written as 0 for the simulator
+	MechS16 m_unk0x20;                // 0x20 — written as 6 for the simulator
+	MechS16 m_unk0x22;                // 0x22 — written as 0x400 for the simulator
 	char m_chassis[9];                // 0x24
 	char m_mech[9];                   // 0x2d
 	char m_variant[16];               // 0x36
-	undefined m_unk0x46[0x5c - 0x46]; // 0x46
+	undefined m_unk0x46[0x5c - 0x46]; // 0x46 — cleared, never written
 };
 
 // A node whose size depends on the name it carries.
@@ -169,13 +169,13 @@ ProjectArchive::ProjectArchive(const char* p_name)
 // FUNCTION: MW2SHELL 0x1002e302
 void* PrjHeapAlloc(undefined4 p_size)
 {
-	return HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+	return HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_size);
 }
 
 // FUNCTION: MW2SHELL 0x1002e324
 void PrjHeapFree(void* p_block)
 {
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_block);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 }
 
 // FUNCTION: MW2SHELL 0x1002e346

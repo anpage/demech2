@@ -6,8 +6,8 @@
 #include "stringutil.h"
 #include "textglyph.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +20,8 @@ DECOMP_SIZE_ASSERT(TextGlyph, 0x3e)
 // GLOBAL: MW2SHELL 0x10074658
 undefined g_linkColorMap[256] = {0xff, 1};
 
+// Two more color maps like g_linkColorMap, mapping color 1 to 5 and to 8. InitTextColorMaps
+// builds them and nothing reads them, so nothing says what they were for.
 // GLOBAL: MW2SHELL 0x10074758
 undefined g_unk0x10074758[256] = {0xff, 5};
 
@@ -238,6 +240,6 @@ TextGlyph::~TextGlyph()
 	Shutdown();
 
 	if (m_text != NULL) {
-		HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_text);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_text);
 	}
 }

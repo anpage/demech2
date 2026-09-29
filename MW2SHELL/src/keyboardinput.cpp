@@ -8,9 +8,9 @@
 #include "shellmain.h"
 #include "stringutil.h"
 #include "textglyph.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -187,10 +187,10 @@ MechS32 EditTextField(
 
 	for (;;) {
 		UpdateVideos();
-		g_pVideoDriver->DrawShell();
-		g_pMouseState->ReadMouseState();
+		g_videoDriver->DrawShell();
+		g_mouseState->ReadMouseState();
 
-		if (!PumpMessage() || g_menuDialogOpen || g_pMouseState->GetLeftPressed() == 1) {
+		if (!PumpMessage() || g_menuDialogOpen || g_mouseState->GetLeftPressed() == 1) {
 			g_editTextBuffer[length] = '\0';
 			if (glyph) {
 				delete glyph;

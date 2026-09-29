@@ -2,8 +2,8 @@
 
 #include "blit.h"
 #include "textglyph.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 DECOMP_SIZE_ASSERT(Font, 0x414)
 
@@ -20,7 +20,7 @@ Font::Font(void* p_data, VideoDriver* p_videoDriver)
 // FUNCTION: MW2SHELL 0x10005394
 Font::~Font()
 {
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_data);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_data);
 }
 
 // FUNCTION: MW2SHELL 0x100053be

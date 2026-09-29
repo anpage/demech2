@@ -12,7 +12,7 @@
 #include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "types.h"
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include <ddraw.h>
 #include <stdlib.h>
@@ -72,7 +72,7 @@ PaletteColor g_paletteColors[0x100] = {0};
 undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2SHELL 0x10062ffc
-MechS32 g_nWindowMode = 0;
+MechS32 g_windowMode = 0;
 
 // GLOBAL: MW2SHELL 0x10063000
 MechS32 g_refreshModeInactive = 1;
@@ -83,8 +83,11 @@ MechS32 g_profileFrame = 0;
 // GLOBAL: MW2SHELL 0x1007cc90
 static LARGE_INTEGER g_profileStart;
 
+// When AdjustWindowSize last switched DirectDraw to a window (timeGetTime), with
+// g_windowedSwitchDeadline three seconds later and g_windowedSwitchPending set. Nothing reads
+// the three.
 // GLOBAL: MW2SHELL 0x100965d0
-MechU32 g_unk0x100965d0;
+MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2SHELL 0x100965d8
 MechS32 g_windowHeight;
@@ -93,16 +96,16 @@ MechS32 g_windowHeight;
 MechS32 g_windowWidth;
 
 // GLOBAL: MW2SHELL 0x100965e0
-HINSTANCE g_pModule;
+HINSTANCE g_module;
 
 // GLOBAL: MW2SHELL 0x100965e4
-MechS32 g_unk0x100965e4;
+MechS32 g_windowedSwitchPending;
 
 // GLOBAL: MW2SHELL 0x100965e8
-MechU32 g_unk0x100965e8;
+MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2SHELL 0x100965ec
-HWND g_pWnd;
+HWND g_gameWindow;
 
 // GLOBAL: MW2SHELL 0x100965f0
 HMENU g_windowMenu;
@@ -167,7 +170,7 @@ MechS32 InitRefreshMode(
 	g_windowedRect.bottom = p_height;
 	if (screenWidth <= p_width && screenHeight <= p_height) {
 		g_gdiBackend.m_style = WS_POPUP;
-		g_nWindowMode = c_windowModeFullscreen;
+		g_windowMode = c_windowModeFullscreen;
 	}
 	else {
 		g_gdiBackend.m_style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
@@ -176,7 +179,7 @@ MechS32 InitRefreshMode(
 		g_windowedRect.bottom -= g_windowedRect.top;
 		g_windowedRect.top = (screenHeight - g_windowedRect.bottom) / 2;
 		g_windowedRect.left = (screenWidth - g_windowedRect.right) / 2;
-		g_nWindowMode = backend->m_windowMode;
+		g_windowMode = backend->m_windowMode;
 	}
 
 	if (backend->m_windowMode == c_windowModeFullscreen) {
@@ -219,8 +222,8 @@ MechS32 InitRefreshMode(
 	}
 
 	if (g_refreshModeInactive && backend->m_id != c_displayBackendGdi) {
-		ShowWindow(g_pWnd, SW_SHOWDEFAULT);
-		UpdateWindow(g_pWnd);
+		ShowWindow(g_gameWindow, SW_SHOWDEFAULT);
+		UpdateWindow(g_gameWindow);
 	}
 
 	g_refreshModeInactive = 0;
@@ -368,7 +371,7 @@ void ToggleFullScreen()
 
 		if (i == 6) {
 			ShowMessage("MechWarrior2 cannot run in a window in the current resolution on your video hardware");
-			if (!g_unk0x1006a9d8) {
+			if (!g_paused) {
 				DebugPrint("ToggleFullScreen(2): pause_timer(FALSE)");
 				PauseTimer(0x80, FALSE);
 			}
@@ -380,7 +383,7 @@ void ToggleFullScreen()
 			ShowMessage(
 				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
 			);
-			if (!g_unk0x1006a9d8) {
+			if (!g_paused) {
 				DebugPrint("ToggleFullScreen(3): pause_timer(FALSE)");
 				PauseTimer(0x80, FALSE);
 			}
@@ -390,7 +393,7 @@ void ToggleFullScreen()
 			mode = g_fastestRefreshMode;
 		}
 
-		GetWindowRect(g_pWnd, &g_windowedRect);
+		GetWindowRect(g_gameWindow, &g_windowedRect);
 		g_windowedRect.right -= g_windowedRect.left;
 		g_windowedRect.bottom -= g_windowedRect.top;
 	}
@@ -400,7 +403,7 @@ void ToggleFullScreen()
 	g_currentRefreshMode->m_begin(g_refreshModeBuffer, g_refreshModeWidth, g_refreshModeHeight);
 	g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, TRUE);
 	g_reclipCursor = 1;
-	if (!g_unk0x1006a9d8) {
+	if (!g_paused) {
 		DebugPrint("ToggleFullScreen(4): pause_timer(FALSE)");
 		PauseTimer(0x80, FALSE);
 	}
@@ -423,7 +426,7 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 	g_bitmapInfo.m_header.biClrImportant = 0;
 }
 
-// Restyles the shell window for p_backend's window mode, and sets g_nWindowMode: a mode that
+// Restyles the shell window for p_backend's window mode, and sets g_windowMode: a mode that
 // covers the whole screen counts as fullscreen.
 // FUNCTION: MW2SHELL 0x100112da
 void AdjustWindowSize(DisplayBackend* p_backend)
@@ -433,21 +436,21 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 	}
 
 	if (p_backend->m_windowMode == c_windowModeWindowed) {
-		SetWindowLong(g_pWnd, GWL_STYLE, p_backend->m_style | WS_VISIBLE);
+		SetWindowLong(g_gameWindow, GWL_STYLE, p_backend->m_style | WS_VISIBLE);
 	}
 	else {
-		SetWindowLong(g_pWnd, GWL_STYLE, (p_backend->m_style | WS_VISIBLE) & ~WS_SYSMENU);
+		SetWindowLong(g_gameWindow, GWL_STYLE, (p_backend->m_style | WS_VISIBLE) & ~WS_SYSMENU);
 	}
 
 	if (p_backend->m_windowMode == c_windowModeWindowed) {
 		if (g_currentDisplayBackend != NULL && g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
-			g_unk0x100965d0 = timeGetTime();
-			g_unk0x100965e8 = g_unk0x100965d0 + 3000;
-			g_unk0x100965e4 = 1;
+			g_windowedSwitchTime = timeGetTime();
+			g_windowedSwitchDeadline = g_windowedSwitchTime + 3000;
+			g_windowedSwitchPending = 1;
 		}
 
 		SetWindowPos(
-			g_pWnd,
+			g_gameWindow,
 			HWND_NOTOPMOST,
 			g_windowedRect.left,
 			g_windowedRect.top,
@@ -455,21 +458,21 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 			g_windowedRect.bottom,
 			SWP_NOACTIVATE
 		);
-		if (g_unk0x1006a9d8 && !FUN_1003bf90(4)) {
+		if (g_paused && !FUN_1003bf90(4)) {
 			while (ShowCursor(TRUE) < 0) {
 			}
 		}
 	}
-	else if (g_unk0x1006a9d8) {
+	else if (g_paused) {
 		while (ShowCursor(FALSE) >= 0) {
 		}
 	}
 
 	if (GetSystemMetrics(SM_CXSCREEN) <= g_refreshModeWidth && GetSystemMetrics(SM_CYSCREEN) <= g_refreshModeHeight) {
-		g_nWindowMode = c_windowModeFullscreen;
+		g_windowMode = c_windowModeFullscreen;
 	}
 	else {
-		g_nWindowMode = p_backend->m_windowMode;
+		g_windowMode = p_backend->m_windowMode;
 	}
 }
 

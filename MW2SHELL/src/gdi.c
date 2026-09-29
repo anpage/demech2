@@ -51,7 +51,7 @@ HPALETTE g_gdiPalette = NULL;
 // GLOBAL: MW2SHELL 0x10066e00
 RGBQUAD g_gdiColorTable[0x100] = {0};
 
-// Closed by GdiEnd, never opened.
+// Closed by GdiEnd, never opened: nothing says what it held.
 // GLOBAL: MW2SHELL 0x10067200
 HANDLE g_unk0x10067200 = NULL;
 
@@ -61,6 +61,7 @@ HDC g_gdiMemoryDc = NULL;
 // GLOBAL: MW2SHELL 0x10067208
 HBITMAP g_gdiDibSection = NULL;
 
+// Only cleared (GdiEnd); nothing reads it.
 // GLOBAL: MW2SHELL 0x1006720c
 undefined4 g_unk0x1006720c = 0;
 
@@ -122,13 +123,13 @@ MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 
 	if (g_currentDisplayBackend->m_id != c_displayBackendGdi) {
 		g_currentDisplayBackend->m_end();
-		if (g_gdiBackend.m_windowMode != g_nWindowMode) {
+		if (g_gdiBackend.m_windowMode != g_windowMode) {
 			AdjustWindowSize(&g_gdiBackend);
 		}
 		g_currentDisplayBackend = g_displayBackends[c_displayBackendGdi];
 	}
 
-	g_gdiWindowDc = GetDC(g_pWnd);
+	g_gdiWindowDc = GetDC(g_gameWindow);
 	InitBitmapInfo(p_width, p_height);
 
 	colors = (MechU16*) g_bitmapInfo.m_colors;
@@ -186,7 +187,7 @@ MechS32 GdiEnd()
 			}
 		}
 
-		ReleaseDC(g_pWnd, g_gdiWindowDc);
+		ReleaseDC(g_gameWindow, g_gdiWindowDc);
 	}
 
 	g_gdiWindowDc = NULL;

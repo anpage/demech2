@@ -77,6 +77,7 @@ RefreshMode g_dispDibRefreshMode =
 // GLOBAL: MW2SHELL 0x1009675c
 MechS32 g_dispDibResult;
 
+// Empty and never called: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x1002ee30
 void FUN_1002ee30()
 {
@@ -97,13 +98,13 @@ MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	if (g_currentDisplayBackend->m_id != c_displayBackendDisplayDib) {
 		g_currentDisplayBackend->m_end();
 		g_currentDisplayBackend = g_displayBackends[c_displayBackendDisplayDib];
-		if (g_currentDisplayBackend->m_windowMode != g_nWindowMode) {
+		if (g_currentDisplayBackend->m_windowMode != g_windowMode) {
 			AdjustWindowSize(g_currentDisplayBackend);
 		}
 	}
 
 	InitBitmapInfo(p_width, p_height);
-	g_dispDibWindow = DisplayDibWindowCreate(g_pWnd, NULL);
+	g_dispDibWindow = DisplayDibWindowCreate(g_gameWindow, NULL);
 	if (g_dispDibWindow == NULL) {
 		DebugPrint("DisplayDibWindowCreate err: null hwnd\n");
 		return 1;

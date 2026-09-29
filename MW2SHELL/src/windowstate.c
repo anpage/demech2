@@ -1,4 +1,4 @@
-#include "unk1003bf90.h"
+#include "windowstate.h"
 
 #include "decomp.h"
 #include "types.h"
@@ -13,14 +13,16 @@
 char g_windowClassName[0x10] = "MECHWARRIOR 2";
 
 // GLOBAL: MW2SHELL 0x1006a9d0
-MechS32 g_fWindowActive = 1;
+MechS32 g_windowActive = 1;
 
-// Read by the refresh mode unit (refreshmode.c) when it restyles the window.
+// Whether the game is paused: ToggleFullScreen then leaves the timer paused, and
+// AdjustWindowSize shows the cursor in a window and hides it full screen. The simulator's copy of
+// the refresh mode code reads its pause flag here (g_simPaused); the shell never sets it.
 // GLOBAL: MW2SHELL 0x1006a9d8
-MechS32 g_unk0x1006a9d8 = 0;
+MechS32 g_paused = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9dc
-MechU32 g_fQuickTips = 1;
+MechU32 g_quickTips = 1;
 
 // GLOBAL: MW2SHELL 0x1006a9e0
 MechS32 g_showDialog = 1;
@@ -29,7 +31,7 @@ MechS32 g_showDialog = 1;
 MechS32 g_menuVisible = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9e8
-MechS32 g_fHelpRegistered = 0;
+MechS32 g_helpRegistered = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9ec
 MechS32 g_menuDialogOpen = 0;
@@ -38,8 +40,10 @@ MechS32 g_menuDialogOpen = 0;
 MechS32 g_littleMovies = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9f4
-HANDLE g_hPrimaryHeap = NULL;
+HANDLE g_primaryHeap = NULL;
 
+// Always 0. Where the simulator's copy of AdjustWindowSize calls this, it asks for a field of
+// the entry for id 4 of its menu list. That field has no name yet, so this keeps its placeholder.
 // FUNCTION: MW2SHELL 0x1003bf90
 undefined4 FUN_1003bf90(MechS32 p_unk0x00)
 {

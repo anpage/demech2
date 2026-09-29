@@ -14,9 +14,9 @@
 #include "shellmain.h"
 #include "tmpackdatabase.h"
 #include "types.h"
-#include "unk1003bf90.h"
 #include "video.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -62,8 +62,8 @@ void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, W
 {
 	g_trainingMessage = p_wParam;
 	g_cadetTrainingMenu =
-		new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_cadetTrainingScreens[p_campaign].m_buttons, 1);
-	g_pVideoDriver->LoadBackground(p_database, g_cadetTrainingScreens[p_campaign].m_picture);
+		new ButtonMenu(g_videoDriver, g_defaultFont, 0, g_cadetTrainingScreens[p_campaign].m_buttons, 1);
+	g_videoDriver->LoadBackground(p_database, g_cadetTrainingScreens[p_campaign].m_picture);
 
 	switch (p_campaign) {
 	case 0:
@@ -102,8 +102,8 @@ void CadetTrainingCallback(
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_trainingTipsShown && g_trainingMessage == c_msgClanHall && g_trainingButtonsShown) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) OkDialogProc, 0);
+	if (g_quickTips && !g_trainingTipsShown && g_trainingMessage == c_msgClanHall && g_trainingButtonsShown) {
+		DialogBoxParam(g_module, MAKEINTRESOURCE(0x68), g_gameWindow, (DLGPROC) OkDialogProc, 0);
 		g_trainingTipsShown = 1;
 	}
 
@@ -114,7 +114,7 @@ void CadetTrainingCallback(
 		}
 
 		p_database->GetDBItem(0x4c, &data, &size);
-		g_trainingAmbience = new AudioSample(g_pAudioSubsystem, data, size);
+		g_trainingAmbience = new AudioSample(g_audioSubsystem, data, size);
 		g_trainingAmbience->SetVolume(0x32);
 		g_trainingAmbience->EnableLoop();
 		g_trainingAmbience->Start();
@@ -140,16 +140,16 @@ void CadetTrainingCallback(
 	}
 
 	if (g_trainingExitVideo == -1) {
-		button = g_cadetTrainingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_cadetTrainingMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 		switch (button) {
 		case 0:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgClanHall;
 			break;
 		default:
-			if (button == -1 || g_pMouseState->GetLeftPressed() != 1) {
+			if (button == -1 || g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			*p_scenario = g_trainingScenarios[*p_campaign][button - 1];
@@ -182,7 +182,7 @@ done:
 		g_trainerTake = 0;
 		g_trainerIdleCountdown = -1;
 		g_trainingButtonsShown = 0;
-		PostMessage(g_pWnd, p_msg, c_msgCadetTraining, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgCadetTraining, 0);
 		UnregisterScreenFunction(CadetTrainingCallback);
 	}
 }

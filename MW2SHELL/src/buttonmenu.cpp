@@ -6,8 +6,8 @@
 #include "mainmenubutton.h"
 #include "shellglobals.h"
 #include "textglyph.h"
-#include "unk1003bf90.h"
 #include "videodriver.h"
+#include "windowstate.h"
 
 #include <string.h>
 #include <windows.h>
@@ -121,8 +121,8 @@ ButtonMenu::~ButtonMenu()
 		delete item;
 	}
 
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_items);
 }
 
 // FUNCTION: MW2SHELL 0x100488ed
@@ -347,6 +347,7 @@ HitRect::HitRect(undefined4 p_left, undefined4 p_top, undefined4 p_right, undefi
 	m_bottom = p_bottom;
 }
 
+// Empty, and nothing in the original calls it: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x10049183
 void HitRect::FUN_10049183()
 {
