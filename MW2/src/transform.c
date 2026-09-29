@@ -22,10 +22,45 @@ void FUN_1000dbba(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 	STUB(0x1000dbba);
 }
 
-// STUB: MW2 0x1000dcbd
-void FUN_1000dcbd(Matrix* p_unk0x00, Matrix* p_unk0x04)
+// Transposes the rotation of p_src into p_dst.
+// FUNCTION: MW2 0x1000dc33
+void FUN_1000dc33(Matrix* p_src, Matrix* p_dst)
 {
-	STUB(0x1000dcbd);
+	MechS32 temp;
+
+	p_dst->m_rows[0][0] = p_src->m_rows[0][0];
+	p_dst->m_rows[1][1] = p_src->m_rows[1][1];
+	p_dst->m_rows[2][2] = p_src->m_rows[2][2];
+	temp = p_src->m_rows[0][1];
+	p_dst->m_rows[0][1] = p_src->m_rows[1][0];
+	p_dst->m_rows[1][0] = temp;
+	temp = p_src->m_rows[2][0];
+	p_dst->m_rows[2][0] = p_src->m_rows[0][2];
+	p_dst->m_rows[0][2] = temp;
+	temp = p_src->m_rows[2][1];
+	p_dst->m_rows[2][1] = p_src->m_rows[1][2];
+	p_dst->m_rows[1][2] = temp;
+}
+
+// Inverts a rigid transform: the transposed rotation, and the negated translation rotated by it.
+// FUNCTION: MW2 0x1000dcbd
+void FUN_1000dcbd(Matrix* p_src, Matrix* p_dst)
+{
+	MechS32 z;
+	MechS32 y;
+	MechS32 x;
+
+	x = -p_src->m_rows[3][0];
+	y = -p_src->m_rows[3][1];
+	z = -p_src->m_rows[3][2];
+	FUN_1000dc33(p_src, p_dst);
+	p_dst->m_rows[3][0] = 0;
+	p_dst->m_rows[3][1] = 0;
+	p_dst->m_rows[3][2] = 0;
+	FUN_1000d650(p_dst, &x, &y, &z);
+	p_dst->m_rows[3][0] = x;
+	p_dst->m_rows[3][1] = y;
+	p_dst->m_rows[3][2] = z;
 }
 
 // FUNCTION: MW2 0x1000dd4d

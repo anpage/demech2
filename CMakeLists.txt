@@ -375,6 +375,7 @@ demech2_add_dll(mw2
     MW2/src/unk100563d0.c
     MW2/src/screenscale.c
     MW2/src/brightness.c
+    MW2/src/bwdnames.c
     MW2/src/overlay.c
     MW2/src/speech.c
     MW2/src/cdaudio.c

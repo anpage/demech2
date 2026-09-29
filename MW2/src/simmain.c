@@ -27,6 +27,7 @@
 #include "menu.h"
 #include "mss.h"
 #include "mw2log.h"
+#include "overlay.h"
 #include "palette.h"
 #include "palettecolor.h"
 #include "pausebanner.h"
@@ -42,6 +43,7 @@
 #include "speech.h"
 #include "startup.h"
 #include "staticmem.h"
+#include "timedoverlays.h"
 #include "types.h"
 
 #include <excpt.h>
@@ -130,14 +132,14 @@ undefined4 g_unk0x100a5a24 = 1;
 // GLOBAL: MW2 0x100a5a40
 CockpitGaugeFn g_cockpitGauges[10] = {
 	NULL,
-	FUN_100570e9,
-	FUN_10057e56,
+	(CockpitGaugeFn) FUN_100570e9,
+	(CockpitGaugeFn) FUN_10057e56,
 	NULL,
-	FUN_10057fbe,
-	FUN_10057a03,
-	FUN_1005806a,
-	FUN_10057ac4,
-	FUN_1005816f,
+	(CockpitGaugeFn) FUN_10057fbe,
+	(CockpitGaugeFn) FUN_10057a03,
+	(CockpitGaugeFn) FUN_1005806a,
+	(CockpitGaugeFn) FUN_10057ac4,
+	(CockpitGaugeFn) FUN_1005816f,
 	NULL
 };
 
@@ -185,7 +187,9 @@ Eyepoint g_unk0x100a6be0 = {
 	0,
 	0,
 	0,
-	{0, 0, 0},
+	0,
+	0,
+	0,
 	0x10000,
 	{1000, 10000, (undefined4) -1000, 0x480001},
 	0,
@@ -222,6 +226,9 @@ const char* g_unk0x100a8694 = "PAL";
 
 // GLOBAL: MW2 0x100a8698
 const char* g_unk0x100a8698 = "TABL";
+
+// GLOBAL: MW2 0x100a86a0
+const char* g_unk0x100a86a0 = "TEXT";
 
 // GLOBAL: MW2 0x100a86bc
 const char* g_unk0x100a86bc = g_unk0x100a87c0;
@@ -389,8 +396,6 @@ void UpdateGeoCache(void);
 void FirstStaticCache(void);
 void FadeToEndPalette(MechS32 p_unk0x00);
 void FirstAI(void);
-void FUN_10058750(void);
-void SimEntranceDbug(char* p_unk0x00, MechS32 p_unk0x04);
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 void SetRes(void);
 void AdvanceAnimations(void);
@@ -398,7 +403,6 @@ void FirstShots(void);
 void UpdateAllShots(void);
 void UpdateEffects(void);
 void SaveCarCfg(void);
-void DrawTimedOverlays(void);
 
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
 // assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The

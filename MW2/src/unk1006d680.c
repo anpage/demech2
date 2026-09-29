@@ -6,6 +6,12 @@
 
 #include <stddef.h>
 
+// GLOBAL: MW2 0x100ad5e8
+ScarletOrchid0x4c* g_unk0x100ad5e8 = NULL;
+
+// GLOBAL: MW2 0x100ad5ec
+ScarletOrchid0x4c* g_unk0x100ad5ec = NULL;
+
 // GLOBAL: MW2 0x100bef18
 ScarletOrchid0x4c* g_unk0x100bef18;
 

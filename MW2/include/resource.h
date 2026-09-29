@@ -9,6 +9,9 @@ extern "C"
 {
 #endif
 
+	MechS32 MapResourceId(MechS32 p_id);
+	void SetMangleBase(MechS32 p_base);
+	MechS32 FUN_1005072f(void);
 	void FirstResource(void);
 	void CloseResourceFile(void);
 	void CachePreloads(void);

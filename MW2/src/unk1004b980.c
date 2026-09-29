@@ -5,6 +5,7 @@
 #include "fixedmul.h"
 #include "muldiv.h"
 #include "simmain.h"
+#include "transform.h"
 #include "types.h"
 #include "unk10019ad0.h"
 #include "unk1004c800.h"
@@ -14,6 +15,18 @@
 
 // GLOBAL: MW2 0x100a712c
 MechS32 g_unk0x100a712c = 1;
+
+// GLOBAL: MW2 0x100ea820
+MechS32 g_unk0x100ea820;
+
+// GLOBAL: MW2 0x100ea82c
+MechS32 g_unk0x100ea82c;
+
+// GLOBAL: MW2 0x100ea860
+MechS32 g_unk0x100ea860;
+
+// GLOBAL: MW2 0x100ea8d0
+MechS32 g_unk0x100ea8d0;
 
 // STUB: MW2 0x1004b980
 void FUN_1004b980(Eyepoint* p_eyepoint)
@@ -109,10 +122,86 @@ void FUN_1004bc2e(Eyepoint* p_eyepoint)
 	eyepoint->m_unk0xb8 = low2 / (g_unk0x100a712c * 160);
 }
 
-// STUB: MW2 0x1004bfe8
+// FUNCTION: MW2 0x1004bf61
+void FUN_1004bf61(Eyepoint* p_eyepoint, MechS32 p_value)
+{
+	p_eyepoint->m_unk0x3c = g_unk0x100ea8d0 = p_value;
+	g_unk0x100ea820 = p_value << 2;
+}
+
+// FUNCTION: MW2 0x1004bf8a
+void FUN_1004bf8a(Eyepoint* p_eyepoint, MechS32 p_value)
+{
+	p_eyepoint->m_unk0x40 = g_unk0x100ea860 = p_value;
+	if (p_value < 0x1fffffff) {
+		g_unk0x100ea82c = p_value << 2;
+		p_eyepoint->m_unk0xb4 = p_value;
+	}
+	else {
+		g_unk0x100ea82c = 0x7fffffff;
+		p_eyepoint->m_unk0xb4 = 0x7fffffff;
+	}
+}
+
+// Builds the eyepoint's view rotation (at 0x54, transposed) and position (0x78) from its
+// position (0x00) and rotation (0x0c).
+// FUNCTION: MW2 0x1004bfe8
 void FUN_1004bfe8(Eyepoint* p_eyepoint)
 {
-	STUB(0x1004bfe8);
+	Matrix matrix;
+
+	FUN_1000e2b9(
+		&matrix,
+		p_eyepoint->m_unk0x10,
+		p_eyepoint->m_unk0x0c,
+		p_eyepoint->m_unk0x14,
+		p_eyepoint->m_unk0x00,
+		p_eyepoint->m_unk0x04,
+		p_eyepoint->m_unk0x08
+	);
+	FUN_1000dc33(&matrix, &p_eyepoint->m_unk0x54);
+	p_eyepoint->m_unk0x54.m_rows[3][0] = matrix.m_rows[3][0];
+	p_eyepoint->m_unk0x54.m_rows[3][1] = matrix.m_rows[3][1];
+	p_eyepoint->m_unk0x54.m_rows[3][2] = matrix.m_rows[3][2];
+}
+
+// FUNCTION: MW2 0x1004c05c
+void FUN_1004c05c(Eyepoint* p_eyepoint)
+{
+	p_eyepoint->m_unk0x4c = 0;
+	p_eyepoint->m_unk0x50 = 0;
+	FUN_1004bc2e(p_eyepoint);
+	FUN_1004bfe8(p_eyepoint);
+}
+
+// Sets the eyepoint's view from a transform.
+// FUNCTION: MW2 0x1004c093
+void FUN_1004c093(Eyepoint* p_eyepoint, Matrix* p_matrix)
+{
+	FUN_1000dc33(p_matrix, &p_eyepoint->m_unk0x54);
+	p_eyepoint->m_unk0x54.m_rows[3][0] = p_matrix->m_rows[3][0];
+	p_eyepoint->m_unk0x54.m_rows[3][1] = p_matrix->m_rows[3][1];
+	p_eyepoint->m_unk0x54.m_rows[3][2] = p_matrix->m_rows[3][2];
+}
+
+// Gets the eyepoint's view as a transform.
+// FUNCTION: MW2 0x1004c0d8
+void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix)
+{
+	FUN_1000dc33(&p_eyepoint->m_unk0x54, p_matrix);
+	p_matrix->m_rows[3][0] = p_eyepoint->m_unk0x54.m_rows[3][0];
+	p_matrix->m_rows[3][1] = p_eyepoint->m_unk0x54.m_rows[3][1];
+	p_matrix->m_rows[3][2] = p_eyepoint->m_unk0x54.m_rows[3][2];
+}
+
+// FUNCTION: MW2 0x1004c779
+MechS32 FUN_1004c779(MechU16* p_flags)
+{
+	if (*p_flags & 0x1000) {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 // FUNCTION: MW2 0x1004c7a6

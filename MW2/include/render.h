@@ -29,11 +29,15 @@ extern "C"
 	extern MechS32 g_screenHalfWidth;
 	extern MechS32 g_screenHalfHeight;
 	extern MechS32 g_unk0x10176ebc;
+	extern MechS32 g_unk0x100a2468;
+	extern MechS32 g_unk0x100a2480;
 
 	MechS32 InitGameWindowGeometry(void);
 	MechS32 InitDisplayGeometry(void);
 	void FirstRender(void);
 	void SecondRender(void);
+	void FUN_10012dca(MechS32 p_value);
+	void FUN_10012e00(void);
 	void Blit(void);
 	void ShutdownRender(void);
 

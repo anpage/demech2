@@ -2,6 +2,7 @@
 #define EYEPOINT_H
 
 #include "decomp.h"
+#include "transform.h"
 #include "types.h"
 
 // The view the scene is drawn from (g_eyepoint), at 0x00-0x08. SelectRenderTarget sizes its view rectangle
@@ -11,7 +12,9 @@ typedef struct Eyepoint {
 	MechS32 m_unk0x00;                       // 0x00
 	MechS32 m_unk0x04;                       // 0x04
 	MechS32 m_unk0x08;                       // 0x08
-	undefined4 m_unk0x0c[(0x18 - 0x0c) / 4]; // 0x0c
+	MechS32 m_unk0x0c;                       // 0x0c
+	MechS32 m_unk0x10;                       // 0x10
+	MechS32 m_unk0x14;                       // 0x14
 	MechS32 m_fovX;                          // 0x18 — 16.16
 	undefined4 m_unk0x1c[(0x2c - 0x1c) / 4]; // 0x1c
 	MechS32 m_unk0x2c;                       // 0x2c
@@ -24,7 +27,7 @@ typedef struct Eyepoint {
 	MechS32 m_unk0x48;                       // 0x48
 	MechS32 m_unk0x4c;                       // 0x4c
 	MechS32 m_unk0x50;                       // 0x50
-	undefined4 m_unk0x54[(0x84 - 0x54) / 4]; // 0x54
+	Matrix m_unk0x54;                        // 0x54
 	MechS32 m_halfWidth;                     // 0x84
 	MechS32 m_halfHeight;                    // 0x88
 	MechS32 m_centerX;                       // 0x8c

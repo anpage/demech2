@@ -10,6 +10,9 @@ extern "C"
 {
 #endif
 
+	extern ScarletOrchid0x4c* g_unk0x100ad5e8;
+	extern ScarletOrchid0x4c* g_unk0x100ad5ec;
+
 	void FUN_1006d7fb(ScarletOrchid0x4c* p_shape);
 	void FUN_1006d88a(ScarletOrchid0x4c* p_shape);
 	void FUN_1006d8d1(ScarletOrchid0x4c* p_shape);

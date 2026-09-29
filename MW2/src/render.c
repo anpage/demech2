@@ -1,12 +1,19 @@
 #include "render.h"
 
 #include "decomp.h"
+#include "palette.h"
 #include "refreshmode.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "types.h"
 
 #include <windows.h>
+
+// GLOBAL: MW2 0x100a2468
+MechS32 g_unk0x100a2468 = 0;
+
+// GLOBAL: MW2 0x100a2480
+MechS32 g_unk0x100a2480 = 0;
 
 // GLOBAL: MW2 0x10176eb4
 GameWindowGeometry* g_gameWindowGeometry;
@@ -77,6 +84,23 @@ void FirstRender(void)
 void SecondRender(void)
 {
 	STUB(0x100129b7);
+}
+
+// FUNCTION: MW2 0x10012dca
+void FUN_10012dca(MechS32 p_value)
+{
+	if (p_value >= 0 && p_value < 11) {
+		g_unk0x100a2468 = p_value;
+	}
+	else {
+		g_unk0x100a2468 = 0;
+	}
+}
+
+// FUNCTION: MW2 0x10012e00
+void FUN_10012e00(void)
+{
+	SelectRenderTarget(0);
 }
 
 // Presents the frame, or stretches the current render target over the window when a stretch is
