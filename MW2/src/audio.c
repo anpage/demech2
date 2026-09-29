@@ -1,3 +1,5 @@
+#include "audio.h"
+
 #include "decomp.h"
 #include "types.h"
 
@@ -29,4 +31,16 @@ void DoAudio(void)
 void ShutdownAudio(void)
 {
 	STUB(0x10006ffa);
+}
+
+// STUB: MW2 0x10007040
+void FUN_10007040(void)
+{
+	STUB(0x10007040);
+}
+
+// STUB: MW2 0x10007064
+void FUN_10007064(void)
+{
+	STUB(0x10007064);
 }

@@ -1,5 +1,26 @@
+/* Hand-written assembly: the tick counters (GameTickTimerCallback through PauseTimer) are whole
+   assembly routines at the end of this object, transcribed as __declspec(naked) functions. Their
+   frames save only the registers they use, and their jumps are short (rel8), which the inline
+   assembler never emits, so each short jump is an _emit pair. */
+#include "simmain.h"
+
+#include "audio.h"
+#include "callbacks.h"
+#include "clock.h"
+#include "compat.h"
 #include "decomp.h"
+#include "environment.h"
+#include "error.h"
+#include "input.h"
+#include "loadres.h"
+#include "menu.h"
 #include "mss.h"
+#include "palette.h"
+#include "pausebanner.h"
+#include "players.h"
+#include "resource.h"
+#include "speech.h"
+#include "staticmem.h"
 #include "types.h"
 
 #include <excpt.h>
@@ -129,13 +150,13 @@ MechS32 g_shouldQuit = 0;
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
-undefined g_unk0x100acb20[4] = {0};
+TimedCallback* g_unk0x100acb20 = NULL;
 
 // GLOBAL: MW2 0x100acb24
 DifficultyCfg* g_difficulty = NULL;
 
-// GLOBAL: MW2 0x100ba54c
-MechS32 g_unk0x100ba54c = 0; // declared before g_unk0x100acb2c for the comparison operand order
+// GLOBAL: MW2 0x100acb28
+MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
 MechS32 g_unk0x100acb2c = 0;
@@ -209,9 +230,6 @@ undefined g_paletteColors[0x300] = {0};
 // GLOBAL: MW2 0x100b1aa4
 WindowMode g_windowMode = c_windowModeUnknown;
 
-// GLOBAL: MW2 0x100ba584
-BOOL g_ticksTimerInitialized = 0;
-
 // GLOBAL: MW2 0x100c2890
 RECT g_gameWindowRect;
 
@@ -242,24 +260,33 @@ undefined g_mainPixelBuffer[4]; // size unknown
 // GLOBAL: MW2 0x10181b40
 MechU32 g_paletteResourceIds[20];
 
+// The two tick counters GameTickTimerCallback advances, and the start values of each counter's
+// handles (0: free).
+
+// GLOBAL: MW2 0x100ad008
+MechU32 g_ticksPaused = 0;
+
+// GLOBAL: MW2 0x100ad00c
+MechS32 g_ticks1Bases[64] = {0};
+
+// GLOBAL: MW2 0x100ad10c
+MechS32 g_ticks2Bases[64] = {0};
+
+// GLOBAL: MW2 0x100ad20c
+MechS32 g_ticks1 = 0;
+
+// GLOBAL: MW2 0x100ad210
+MechS32 g_ticks2 = 0;
+
 // GLOBAL: MW2 0x10138820
 MechS32 g_objectiveCount; // defined last for the operand order of the DoFirstObjtv loop test
 
-void ApplyPendingPalette(void);
-void UpdatePaletteFade(void);
-void StartPalettes(MechS32 p_unk0x00);
 void FirstGPAnim(void);
 void StartSupAnim(MechS32 p_unk0x00);
 void StopSupAnim(void);
 void UpdateDebris(void);
 void ZeroChunx(void);
-void StartMissionMusic(void);
-void LoopCdMusic(void);
-void FirstAudio(void);
-void DoAudio(void);
-void ShutdownAudio(void);
 void CollectMissionAudio(void);
-void DrawPausedBanner(void);
 void LoadWorld(char* p_unk0x00);
 void AfterWorldLoader(void);
 void FirstNetwork(NetLaunchInfo* p_unk0x00);
@@ -273,7 +300,6 @@ void FirstRender(void);
 void SecondRender(void);
 void Blit(void);
 void ShutdownRender(void);
-void* FUN_1001a19f(undefined4 p_unk0x00, MechS32 p_unk0x04, const char* p_unk0x08, undefined4 p_unk0x0c);
 void DoFirstObjtv(Unk0x10138830* p_unk0x00, MechS32 p_unk0x04);
 void UpdateObjectives(void);
 void EndTheMission1(void);
@@ -281,45 +307,21 @@ void EndTheMission2(void);
 MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x08);
 void UpdateGeoCache(void);
 void FirstStaticCache(void);
-void Error(MechS32 p_unk0x00, const char* p_unk0x04, ...);
-void RegisterMenu(MechS32 p_unk0x00);
-void FreeMenus(void);
-void FirstMenu(void);
-void UpdateMenuKey(void);
-void UpdateMenus(void);
-undefined4 FUN_1003da65(undefined4 p_unk0x00);
 void HandleInput(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void FUN_10042d55(void);
-void InitStaticMem(char* p_unk0x00);
 void FadeToEndPalette(MechS32 p_unk0x00);
-void FirstResource(void);
-void CloseResourceFile(void);
-void CachePreloads(void);
-void DebugLog(const char* p_format, ...);
 void FirstAI(void);
 void GenerateGammas(void);
 void FUN_10058750(void);
 void SimEntranceDbug(char* p_unk0x00, MechS32 p_unk0x04);
-void AdvanceSpeechQueue(void);
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 void SetRes(void);
 void FillRenderTargetRect(void* p_unk0x00, MechS32 p_unk0x04);
-void HandleMessages(void);
-void UpdatePauseState(void);
-void SetGameResolution(char* p_unk0x00);
-void PauseTimer(MechS32 p_unk0x00, MechS32 p_unk0x04);
 void AdvanceAnimations(void);
 void FirstShots(void);
 void UpdateAllShots(void);
 void UpdateEffects(void);
 void SaveCarCfg(void);
-void FirstClassFunctions(void);
-void UpdateAllPlayers(void);
-void LateUpdateAllPlayers(void);
-void UpdateLocalPlayer(void);
-void DrawLocalPlayer(void);
-void ShutdownAllPlayers(void);
-void ZeroGamethings(void);
 void DrawTimedOverlays(void);
 MechS32 LoadDifficultyCfg(const char* p_unk0x00, DifficultyCfg** p_unk0x04);
 MechS32 LoadSndCfg(const char* p_unk0x00, Unk0x100a14d4** p_unk0x04);
@@ -339,19 +341,12 @@ MechS32 InitDrawMode(
 void ProfileDrawModePerformance(void);
 void ToggleFullScreen(void);
 void DdrawFill(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, undefined4 p_unk0x10);
-void FirstInputs(void);
-void UpdateInputs(void);
-void CloseInputDevices(void);
-void FirstClock(void);
-void NextClock(void);
-void StopTimers(void);
-void ResetClocks(void);
-void RunTimedCallbacks(undefined* p_unk0x00);
-void FirstEnvironment(void);
-void FUN_1007d6bb(void);
 
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
-// assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source).
+// assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source) and the
+// operand order of the network start test (g_unk0x100acb2c < g_unk0x100ba54c), which the
+// original compares with g_unk0x100ba54c in eax. Defining g_unk0x100ba54c ahead of
+// g_unk0x100acb2c matched it while simmain.c defined it; clock.c does now.
 // FUNCTION: MW2 0x10066a50
 int __stdcall SimMain(
 	HINSTANCE p_module,
@@ -602,7 +597,7 @@ int __stdcall SimMain(
 			UpdateInputs();
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
-			RunTimedCallbacks(g_unk0x100acb20);
+			RunTimedCallbacks(&g_unk0x100acb20);
 			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
 				UpdateAllPlayers();
 			}
@@ -718,9 +713,10 @@ int __stdcall SimMain(
 	return result;
 }
 
-// Operand order: the timer test compares g_unk0x100e933c > g_unk0x100e9240 and
-// time < g_unk0x100e9240 with g_unk0x100e9240 loaded first in the original. It follows the
-// unit's symbol table and flipped when the shell's Miles declarations joined mss.h.
+// Operand order: the timer test's time > g_unk0x100e933c loads g_unk0x100e933c first in the
+// original. The test's comparisons follow the unit's symbol table: the other two flipped when
+// the shell's Miles declarations joined mss.h and back when the unit's declarations moved into
+// headers.
 // FUNCTION: MW2 0x10067757
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -845,26 +841,422 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
 
-// STUB: MW2 0x10067bbc
+// FUNCTION: MW2 0x10067bbc
 void HandleMessages(void)
 {
-	STUB(0x10067bbc);
+	MSG msg;
+
+	if (!g_windowActive) {
+		WaitMessage();
+	}
+
+	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
+			PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+		}
+
+		if (msg.hwnd != NULL && msg.message == WM_QUIT) {
+			g_shouldQuit = TRUE;
+		}
+		else {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 }
 
-// STUB: MW2 0x10067c79
+// FUNCTION: MW2 0x10067c79
 void UpdatePauseState(void)
 {
-	STUB(0x10067c79);
+	if (g_pauseRequested) {
+		if (g_simPaused && g_keyCode) {
+			FUN_10009f13();
+			g_keyCode = 0;
+			g_pauseRequested = FALSE;
+		}
+		else if (g_unk0x100a17a0 || FUN_1003da65(4)) {
+			g_pauseRequested = FALSE;
+		}
+	}
+
+	if (!FUN_1003da65(4) && g_windowActive && !g_pauseRequested) {
+		if (g_simPaused) {
+			while (ShowCursor(FALSE) >= 0) {
+			}
+
+			g_mouseOutsideClientWindow = FALSE;
+			DebugLog("WinMain(3): pause_timer(false)");
+			PauseTimer(0x80, FALSE);
+			FUN_10007064();
+			EnableGameplayInput();
+			g_simPaused = FALSE;
+		}
+	}
+	else if (!g_simPaused && !g_unk0x100a17a0) {
+		if (g_pauseRequested) {
+			FUN_10009ef1();
+			g_keyCode = 0;
+		}
+
+		if (!FUN_1003da65(4) && g_windowMode != c_windowModeFullscreen) {
+			while (ShowCursor(TRUE) < 0) {
+			}
+
+			g_mouseOutsideClientWindow = TRUE;
+		}
+
+		DebugLog("WinMain(4): pause_timer(TRUE)");
+		PauseTimer(0x80, TRUE);
+		FUN_10007040();
+		DisableGameplayInput();
+		g_simPaused = TRUE;
+	}
 }
 
-// STUB: MW2 0x10067e23
-void SetGameResolution(char* p_unk0x00)
+// FUNCTION: MW2 0x10067e23
+void SetGameResolution(char* p_driverName)
 {
-	STUB(0x10067e23);
+	if (_strcmpi(p_driverName, "MCGA.DLL") == 0) {
+		g_gameWindowWidth = 320;
+		g_gameWindowHeight = 200;
+	}
+	else if (_strcmpi(p_driverName, "VESA480.DLL") == 0) {
+		g_gameWindowWidth = 640;
+		g_gameWindowHeight = 480;
+	}
+	else if (_strcmpi(p_driverName, "VESA768.DLL") == 0) {
+		g_gameWindowWidth = 1024;
+		g_gameWindowHeight = 768;
+	}
+	else {
+		g_gameWindowWidth = 320;
+		g_gameWindowHeight = 200;
+	}
 }
 
-// STUB: MW2 0x10068058
-void PauseTimer(MechS32 p_unk0x00, MechS32 p_unk0x04)
+#pragma warning(disable : 4102) /* the labels mark the targets of the _emit short jumps */
+#pragma warning(disable : 4035) /* no return value: the result is left in eax */
+
+// The Miles timer that FirstClock registers (181 Hz) calls this. Each counter only runs while
+// its bit in g_ticksPaused is clear (PauseTimer).
+#ifdef COMPAT_MODE
+void GameTickTimerCallback(void)
+{
+	STUB(0x10067ed8);
+}
+#else
+// FUNCTION: MW2 0x10067ed8
+__declspec(naked) void GameTickTimerCallback(void)
+{
+	__asm {
+		push ds
+		pushad
+		test g_ticksPaused, 0x200
+		_emit 0x75 /* jne jmp_10067eec */
+		_emit 0x06
+		inc g_ticks1
+jmp_10067eec:
+		test g_ticksPaused, 0x100
+		_emit 0x75 /* jne jmp_10067efe */
+		_emit 0x06
+		inc g_ticks2
+jmp_10067efe:
+		popad
+		pop ds
+		ret
+	}
+}
+#endif
+
+// Takes a free slot (0) of the counter selected by bit 0x80 and starts it at the counter's
+// current value. Returns the handle (the slot, with 0x80 for the first counter).
+#ifdef COMPAT_MODE
+MechS16 AllocTicks(MechU32 p_flags)
+{
+	STUB(0x10067f01);
+	return 0;
+}
+#else
+// FUNCTION: MW2 0x10067f01
+__declspec(naked) MechS16 AllocTicks(MechU32 p_flags)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push ecx
+		push edx
+		mov eax, dword ptr [ebp+8]
+		test ax, 0x80
+		_emit 0x75 /* jne jmp_10067f38 */
+		_emit 0x28
+		lea ebx, g_ticks2Bases
+		xor ecx, ecx
+jmp_10067f18:
+		cmp dword ptr [ebx], 0
+		_emit 0x74 /* je jmp_10067f28 */
+		_emit 0x0b
+		cmp dword ptr [ebx], -1
+		_emit 0x74 /* je jmp_10067f64 */
+		_emit 0x42
+		inc ecx
+		add ebx, 4
+		_emit 0xeb /* jmp jmp_10067f18 */
+		_emit 0xf0
+jmp_10067f28:
+		mov eax, g_ticks2
+		or eax, eax
+		_emit 0x75 /* jne jmp_10067f32 */
+		_emit 0x01
+		inc eax
+jmp_10067f32:
+		mov dword ptr [ebx], eax
+		mov eax, ecx
+		_emit 0xeb /* jmp jmp_10067f68 */
+		_emit 0x30
+jmp_10067f38:
+		lea ebx, g_ticks1Bases
+		xor ecx, ecx
+jmp_10067f40:
+		cmp dword ptr [ebx], 0
+		_emit 0x74 /* je jmp_10067f50 */
+		_emit 0x0b
+		cmp dword ptr [ebx], -1
+		_emit 0x74 /* je jmp_10067f64 */
+		_emit 0x1a
+		inc ecx
+		add ebx, 4
+		_emit 0xeb /* jmp jmp_10067f40 */
+		_emit 0xf0
+jmp_10067f50:
+		mov eax, g_ticks1
+		or eax, eax
+		_emit 0x75 /* jne jmp_10067f5a */
+		_emit 0x01
+		inc eax
+jmp_10067f5a:
+		mov dword ptr [ebx], eax
+		mov eax, ecx
+		or ax, 0x80
+		_emit 0xeb /* jmp jmp_10067f68 */
+		_emit 0x04
+jmp_10067f64:
+		mov ax, 0xffff
+jmp_10067f68:
+		pop edx
+		pop ecx
+		pop ebx
+		mov esp, ebp
+		pop ebp
+		ret
+	}
+}
+#endif
+
+#ifdef COMPAT_MODE
+MechS32 GetTicks(MechU32 p_handle)
+{
+	STUB(0x10067f6f);
+	return 0;
+}
+#else
+// FUNCTION: MW2 0x10067f6f
+__declspec(naked) MechS32 GetTicks(MechU32 p_handle)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push ecx
+		xor ecx, ecx
+		mov ecx, dword ptr [ebp+8]
+		test cx, 0x80
+		_emit 0x75 /* jne jmp_10067f8d */
+		_emit 0x0d
+		lea ebx, g_ticks2Bases
+		mov eax, g_ticks2
+		_emit 0xeb /* jmp jmp_10067f9d */
+		_emit 0x10
+jmp_10067f8d:
+		xor cx, 0x80
+		lea ebx, g_ticks1Bases
+		mov eax, g_ticks1
+jmp_10067f9d:
+		shl ecx, 2
+		add ebx, ecx
+		sub eax, dword ptr [ebx]
+		pop ecx
+		pop ebx
+		mov esp, ebp
+		pop ebp
+		ret
+	}
+}
+#endif
+
+#ifdef COMPAT_MODE
+void ResetTicks(MechU32 p_handle)
+{
+	STUB(0x10067faa);
+}
+#else
+// FUNCTION: MW2 0x10067faa
+__declspec(naked) void ResetTicks(MechU32 p_handle)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push ecx
+		xor ecx, ecx
+		mov ecx, dword ptr [ebp+8]
+		test cx, 0x80
+		_emit 0x75 /* jne jmp_10067fc8 */
+		_emit 0x0d
+		lea ebx, g_ticks2Bases
+		mov eax, g_ticks2
+		_emit 0xeb /* jmp jmp_10067fd8 */
+		_emit 0x10
+jmp_10067fc8:
+		xor cx, 0x80
+		lea ebx, g_ticks1Bases
+		mov eax, g_ticks1
+jmp_10067fd8:
+		shl ecx, 2
+		add ebx, ecx
+		mov dword ptr [ebx], eax
+		pop ebx
+		pop ecx
+		mov esp, ebp
+		pop ebp
+		ret
+	}
+}
+#endif
+
+#ifdef COMPAT_MODE
+void SetTicks(MechU32 p_handle, MechS32 p_ticks)
+{
+	STUB(0x10067fe5);
+}
+#else
+// FUNCTION: MW2 0x10067fe5
+__declspec(naked) void SetTicks(MechU32 p_handle, MechS32 p_ticks)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push ecx
+		xor ecx, ecx
+		mov ecx, dword ptr [ebp+8]
+		test cx, 0x80
+		_emit 0x75 /* jne jmp_10068003 */
+		_emit 0x0d
+		lea ebx, g_ticks2Bases
+		mov eax, g_ticks2
+		_emit 0xeb /* jmp jmp_10068013 */
+		_emit 0x10
+jmp_10068003:
+		xor cx, 0x80
+		mov eax, g_ticks1
+		lea ebx, g_ticks1Bases
+jmp_10068013:
+		shl ecx, 2
+		add ebx, ecx
+		sub eax, dword ptr [ebp+0xc]
+		mov dword ptr [ebx], eax
+		pop ecx
+		pop ebx
+		mov esp, ebp
+		pop ebp
+		ret
+	}
+}
+#endif
+
+#ifdef COMPAT_MODE
+void FreeTicks(MechU32 p_handle)
+{
+	STUB(0x10068023);
+}
+#else
+// FUNCTION: MW2 0x10068023
+__declspec(naked) void FreeTicks(MechU32 p_handle)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		push ecx
+		xor ecx, ecx
+		mov ecx, dword ptr [ebp+8]
+		test cx, 0x80
+		_emit 0x75 /* jne jmp_1006803c */
+		_emit 0x08
+		lea ebx, g_ticks2Bases
+		_emit 0xeb /* jmp jmp_10068047 */
+		_emit 0x0b
+jmp_1006803c:
+		xor cx, 0x80
+		lea ebx, g_ticks1Bases
+jmp_10068047:
+		shl ecx, 2
+		add ebx, ecx
+		mov dword ptr [ebx], 0
+		pop ecx
+		pop ebx
+		mov esp, ebp
+		pop ebp
+		ret
+	}
+}
+#endif
+
+// Stops (p_paused) or restarts the counters selected by p_flags: 0x80 the first, 0x100 the
+// second.
+#ifdef COMPAT_MODE
+void PauseTimer(MechS32 p_flags, MechS32 p_paused)
 {
 	STUB(0x10068058);
 }
+#else
+// FUNCTION: MW2 0x10068058
+__declspec(naked) void PauseTimer(MechS32 p_flags, MechS32 p_paused)
+{
+	__asm {
+		push ebp
+		mov ebp, esp
+		push ebx
+		xor eax, eax
+		test word ptr [ebp+8], 0x80
+		_emit 0x74 /* je jmp_1006806b */
+		_emit 0x05
+		or eax, 0x200
+jmp_1006806b:
+		test word ptr [ebp+8], 0x100
+		_emit 0x74 /* je jmp_10068078 */
+		_emit 0x05
+		or eax, 0x100
+jmp_10068078:
+		mov bx, word ptr [ebp+0xc]
+		or bx, bx
+		_emit 0x74 /* je jmp_10068083 */
+		_emit 0x02
+		_emit 0xeb /* jmp jmp_1006808d */
+		_emit 0x0a
+jmp_10068083:
+		not eax
+		and g_ticksPaused, eax
+		_emit 0xeb /* jmp jmp_10068093 */
+		_emit 0x06
+jmp_1006808d:
+		or g_ticksPaused, eax
+jmp_10068093:
+		pop ebx
+		mov esp, ebp
+		pop ebp
+		ret
+	}
+}
+#endif
