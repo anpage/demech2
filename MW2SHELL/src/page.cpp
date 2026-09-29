@@ -41,7 +41,7 @@ MechChar g_pageTemp[0x400];
 // Records the area of the link word just placed. Layout does this in three places.
 #define PAGE_ADD_LINK(WORD_WIDTH)                                                                                      \
 	if (link != -1) {                                                                                                  \
-		rect = (Link*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, sizeof(Link));                                     \
+		rect = (Link*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(Link));                                      \
 		if (wrapped == TRUE) {                                                                                         \
 			rect->m_left = m_left;                                                                                     \
 			rect->m_top = m_top;                                                                                       \
@@ -83,8 +83,8 @@ Page::Page(
 	m_top = p_top;
 	m_width = p_width;
 
-	g_pDatabaseMw2->GetDBItem(0x4d, &data, &size);
-	m_sample = new AudioSample(g_pAudioSubsystem, data, size);
+	g_mw2Database->GetDBItem(0x4d, &data, &size);
+	m_sample = new AudioSample(g_audioSubsystem, data, size);
 	m_sample->EnableLoop();
 	CreateCollection(&m_links, 10, NULL, 4, NULL);
 
@@ -542,8 +542,8 @@ Page::~Page()
 		delete glyph;
 	}
 
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_glyphs->m_items);
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_glyphs);
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_links->m_items);
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_links);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_glyphs->m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_glyphs);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_links->m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_links);
 }

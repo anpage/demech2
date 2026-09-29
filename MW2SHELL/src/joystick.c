@@ -318,7 +318,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 	}
 	p_buttons[0] = p_buttons[1] = 0;
 
-	if (!g_fWindowActive) {
+	if (!g_windowActive) {
 		return 0;
 	}
 

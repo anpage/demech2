@@ -97,13 +97,13 @@ MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	if (g_currentDisplayBackend->m_id != c_displayBackendDisplayDib) {
 		g_currentDisplayBackend->m_end();
 		g_currentDisplayBackend = g_displayBackends[c_displayBackendDisplayDib];
-		if (g_currentDisplayBackend->m_windowMode != g_nWindowMode) {
+		if (g_currentDisplayBackend->m_windowMode != g_windowMode) {
 			AdjustWindowSize(g_currentDisplayBackend);
 		}
 	}
 
 	InitBitmapInfo(p_width, p_height);
-	g_dispDibWindow = DisplayDibWindowCreate(g_pWnd, NULL);
+	g_dispDibWindow = DisplayDibWindowCreate(g_gameWindow, NULL);
 	if (g_dispDibWindow == NULL) {
 		DebugPrint("DisplayDibWindowCreate err: null hwnd\n");
 		return 1;

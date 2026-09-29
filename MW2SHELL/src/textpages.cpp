@@ -65,13 +65,13 @@ MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 				switch (p_text[i]) {
 				case '0':
 					i++;
-					rank = g_pCurrentPilot->m_rank;
+					rank = g_currentPilot->m_rank;
 					strcat(g_expandedText, g_rankNames[rank]);
 					length = strlen(g_expandedText);
 					break;
 				case '1':
 					i++;
-					rank = g_pCurrentPilot->m_rank + 1;
+					rank = g_currentPilot->m_rank + 1;
 					if (rank > 9) {
 						rank = 9;
 					}
@@ -80,7 +80,7 @@ MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 					break;
 				case '2':
 					i++;
-					rank = g_pCurrentPilot->m_rank + 2;
+					rank = g_currentPilot->m_rank + 2;
 					if (rank > 9) {
 						rank = 9;
 					}
@@ -95,7 +95,7 @@ MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 			case 'h':
 				i++;
 				g_expandedText[length] = '\0';
-				sprintf(number, "%d", g_pCurrentPilot->m_honor);
+				sprintf(number, "%d", g_currentPilot->m_honor);
 				strcat(g_expandedText, number);
 				length = strlen(g_expandedText);
 				break;
@@ -151,12 +151,12 @@ void LayoutTextPages(
 	}
 
 	do {
-		page = new Page(p_font, g_pVideoDriver, p_colors, p_left, p_top, p_width, p_height);
+		page = new Page(p_font, g_videoDriver, p_colors, p_left, p_top, p_width, p_height);
 		text = page->Layout(text);
 		ExpandCollection(p_pages, page);
 	} while (text);
 
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, text);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, text);
 }
 
 // Lays out the text (HTXT node) of the project file p_name on pages, in colors that draw 0

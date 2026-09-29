@@ -45,7 +45,7 @@ TokenStream* CreateTokenStream(FILE* p_file)
 	TokenStream* stream;
 	MechChar** tokens;
 
-	stream = (TokenStream*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, sizeof(TokenStream));
+	stream = (TokenStream*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(TokenStream));
 	if (stream == NULL) {
 		fprintf(stderr, "Could not allocate token stream\n");
 		fflush(stderr);
@@ -57,7 +57,7 @@ TokenStream* CreateTokenStream(FILE* p_file)
 	stream->m_capacity = 100;
 	stream->m_file = p_file;
 
-	tokens = (MechChar**) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, stream->m_capacity * sizeof(MechChar*));
+	tokens = (MechChar**) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, stream->m_capacity * sizeof(MechChar*));
 	if (tokens == NULL) {
 		fprintf(stderr, "Could not allocate Token entry array\n");
 		fflush(stderr);

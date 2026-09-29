@@ -122,13 +122,13 @@ MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 
 	if (g_currentDisplayBackend->m_id != c_displayBackendGdi) {
 		g_currentDisplayBackend->m_end();
-		if (g_gdiBackend.m_windowMode != g_nWindowMode) {
+		if (g_gdiBackend.m_windowMode != g_windowMode) {
 			AdjustWindowSize(&g_gdiBackend);
 		}
 		g_currentDisplayBackend = g_displayBackends[c_displayBackendGdi];
 	}
 
-	g_gdiWindowDc = GetDC(g_pWnd);
+	g_gdiWindowDc = GetDC(g_gameWindow);
 	InitBitmapInfo(p_width, p_height);
 
 	colors = (MechU16*) g_bitmapInfo.m_colors;
@@ -186,7 +186,7 @@ MechS32 GdiEnd()
 			}
 		}
 
-		ReleaseDC(g_pWnd, g_gdiWindowDc);
+		ReleaseDC(g_gameWindow, g_gdiWindowDc);
 	}
 
 	g_gdiWindowDc = NULL;

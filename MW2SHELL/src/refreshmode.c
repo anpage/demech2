@@ -72,7 +72,7 @@ PaletteColor g_paletteColors[0x100] = {0};
 undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2SHELL 0x10062ffc
-MechS32 g_nWindowMode = 0;
+MechS32 g_windowMode = 0;
 
 // GLOBAL: MW2SHELL 0x10063000
 MechS32 g_refreshModeInactive = 1;
@@ -96,7 +96,7 @@ MechS32 g_windowHeight;
 MechS32 g_windowWidth;
 
 // GLOBAL: MW2SHELL 0x100965e0
-HINSTANCE g_pModule;
+HINSTANCE g_module;
 
 // GLOBAL: MW2SHELL 0x100965e4
 MechS32 g_windowedSwitchPending;
@@ -105,7 +105,7 @@ MechS32 g_windowedSwitchPending;
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2SHELL 0x100965ec
-HWND g_pWnd;
+HWND g_gameWindow;
 
 // GLOBAL: MW2SHELL 0x100965f0
 HMENU g_windowMenu;
@@ -170,7 +170,7 @@ MechS32 InitRefreshMode(
 	g_windowedRect.bottom = p_height;
 	if (screenWidth <= p_width && screenHeight <= p_height) {
 		g_gdiBackend.m_style = WS_POPUP;
-		g_nWindowMode = c_windowModeFullscreen;
+		g_windowMode = c_windowModeFullscreen;
 	}
 	else {
 		g_gdiBackend.m_style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
@@ -179,7 +179,7 @@ MechS32 InitRefreshMode(
 		g_windowedRect.bottom -= g_windowedRect.top;
 		g_windowedRect.top = (screenHeight - g_windowedRect.bottom) / 2;
 		g_windowedRect.left = (screenWidth - g_windowedRect.right) / 2;
-		g_nWindowMode = backend->m_windowMode;
+		g_windowMode = backend->m_windowMode;
 	}
 
 	if (backend->m_windowMode == c_windowModeFullscreen) {
@@ -222,8 +222,8 @@ MechS32 InitRefreshMode(
 	}
 
 	if (g_refreshModeInactive && backend->m_id != c_displayBackendGdi) {
-		ShowWindow(g_pWnd, SW_SHOWDEFAULT);
-		UpdateWindow(g_pWnd);
+		ShowWindow(g_gameWindow, SW_SHOWDEFAULT);
+		UpdateWindow(g_gameWindow);
 	}
 
 	g_refreshModeInactive = 0;
@@ -393,7 +393,7 @@ void ToggleFullScreen()
 			mode = g_fastestRefreshMode;
 		}
 
-		GetWindowRect(g_pWnd, &g_windowedRect);
+		GetWindowRect(g_gameWindow, &g_windowedRect);
 		g_windowedRect.right -= g_windowedRect.left;
 		g_windowedRect.bottom -= g_windowedRect.top;
 	}
@@ -426,7 +426,7 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 	g_bitmapInfo.m_header.biClrImportant = 0;
 }
 
-// Restyles the shell window for p_backend's window mode, and sets g_nWindowMode: a mode that
+// Restyles the shell window for p_backend's window mode, and sets g_windowMode: a mode that
 // covers the whole screen counts as fullscreen.
 // FUNCTION: MW2SHELL 0x100112da
 void AdjustWindowSize(DisplayBackend* p_backend)
@@ -436,10 +436,10 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 	}
 
 	if (p_backend->m_windowMode == c_windowModeWindowed) {
-		SetWindowLong(g_pWnd, GWL_STYLE, p_backend->m_style | WS_VISIBLE);
+		SetWindowLong(g_gameWindow, GWL_STYLE, p_backend->m_style | WS_VISIBLE);
 	}
 	else {
-		SetWindowLong(g_pWnd, GWL_STYLE, (p_backend->m_style | WS_VISIBLE) & ~WS_SYSMENU);
+		SetWindowLong(g_gameWindow, GWL_STYLE, (p_backend->m_style | WS_VISIBLE) & ~WS_SYSMENU);
 	}
 
 	if (p_backend->m_windowMode == c_windowModeWindowed) {
@@ -450,7 +450,7 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 		}
 
 		SetWindowPos(
-			g_pWnd,
+			g_gameWindow,
 			HWND_NOTOPMOST,
 			g_windowedRect.left,
 			g_windowedRect.top,
@@ -469,10 +469,10 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 	}
 
 	if (GetSystemMetrics(SM_CXSCREEN) <= g_refreshModeWidth && GetSystemMetrics(SM_CYSCREEN) <= g_refreshModeHeight) {
-		g_nWindowMode = c_windowModeFullscreen;
+		g_windowMode = c_windowModeFullscreen;
 	}
 	else {
-		g_nWindowMode = p_backend->m_windowMode;
+		g_windowMode = p_backend->m_windowMode;
 	}
 }
 

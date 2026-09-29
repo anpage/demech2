@@ -66,7 +66,7 @@ void (*g_menuFunction)(MechS32 p_active) = NULL;
 MidiSequence* g_midiBackgroundMusic = NULL;
 
 // GLOBAL: MW2SHELL 0x10062984
-MechS32 g_fCursorHidden = 0;
+MechS32 g_cursorHidden = 0;
 
 // PlayMidiSong's state: whether the base song id is set, the base, and the song playing.
 // GLOBAL: MW2SHELL 0x10062988
@@ -79,13 +79,13 @@ MechS32 g_midiSongBase = 0;
 MechS32 g_midiSongPlaying = 0;
 
 // GLOBAL: MW2SHELL 0x1007cc84
-char* g_pScenario;
+char* g_scenario;
 
 // GLOBAL: MW2SHELL 0x1007cc88
-MechS32 g_nSelectedCampaign;
+MechS32 g_selectedCampaign;
 
 // GLOBAL: MW2SHELL 0x1007cc8c
-MechU8 g_fPilotChosen;
+MechU8 g_pilotChosen;
 
 void PlayMidiSong(UINT p_msg, MechS32 p_campaign);
 void ParseCommandLineFlags(char* p_cmdLine);
@@ -111,8 +111,8 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 
 	switch (p_msg) {
 	case WM_ACTIVATEAPP:
-		g_fWindowActive = p_wParam;
-		if (g_fWindowActive) {
+		g_windowActive = p_wParam;
+		if (g_windowActive) {
 			if (IsFullscreenVideoPlaying()) {
 				ResumeFullscreenVideo();
 			}
@@ -121,7 +121,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 				g_midiBackgroundMusic->Start();
 			}
 
-			SetFocus(g_pWnd);
+			SetFocus(g_gameWindow);
 		}
 		else {
 			if (IsFullscreenVideoPlaying()) {
@@ -134,19 +134,19 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		}
 		return 0;
 	case WM_PALETTECHANGED:
-		if (g_pWnd == p_hWnd) {
+		if (g_gameWindow == p_hWnd) {
 			return 0;
 		}
 	case WM_QUERYNEWPALETTE:
-		if (g_pVideoDriver) {
-			g_pVideoDriver->UpdatePalette();
-			if (g_fDrawFmv) {
-				g_pVideoDriver->ExpandRectBySize(0, 0, 320, 200);
-				g_pVideoDriver->DrawFmv();
+		if (g_videoDriver) {
+			g_videoDriver->UpdatePalette();
+			if (g_drawFmv) {
+				g_videoDriver->ExpandRectBySize(0, 0, 320, 200);
+				g_videoDriver->DrawFmv();
 			}
 			else {
-				g_pVideoDriver->ExpandRectBySize(0, 0, 640, 480);
-				g_pVideoDriver->DrawShell();
+				g_videoDriver->ExpandRectBySize(0, 0, 640, 480);
+				g_videoDriver->DrawShell();
 			}
 			return 1;
 		}
@@ -155,45 +155,45 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		}
 	case WM_PAINT:
 		BeginPaint(p_hWnd, &paint);
-		if (g_pVideoDriver) {
-			if (g_fDrawFmv) {
-				g_pVideoDriver->ExpandRectBySize(0, 0, 320, 200);
-				g_pVideoDriver->DrawFmv();
+		if (g_videoDriver) {
+			if (g_drawFmv) {
+				g_videoDriver->ExpandRectBySize(0, 0, 320, 200);
+				g_videoDriver->DrawFmv();
 			}
 			else {
-				g_pVideoDriver
+				g_videoDriver
 					->ExpandRect(paint.rcPaint.left, paint.rcPaint.top, paint.rcPaint.right, paint.rcPaint.bottom);
-				g_pVideoDriver->DrawShell();
+				g_videoDriver->DrawShell();
 			}
 		}
 		EndPaint(p_hWnd, &paint);
 		return 0;
 	case WM_NCMOUSEMOVE:
-		if (g_fCursorHidden) {
+		if (g_cursorHidden) {
 			while (ShowCursor(TRUE) < 0)
 				;
-			g_fCursorHidden = FALSE;
+			g_cursorHidden = FALSE;
 		}
 		return 0;
 	case WM_MOUSEMOVE:
-		if (IsFullscreenVideoPlaying() && !g_fCursorHidden) {
+		if (IsFullscreenVideoPlaying() && !g_cursorHidden) {
 			while (ShowCursor(FALSE) >= 0)
 				;
-			g_fCursorHidden = TRUE;
+			g_cursorHidden = TRUE;
 		}
 
 		mouseY = ((MechU32) p_lParam >> 16) & 0xffff;
-		if (g_menuVisible && g_nWindowMode == 1 && mouseY > 2) {
+		if (g_menuVisible && g_windowMode == 1 && mouseY > 2) {
 			SetMenu(p_hWnd, NULL);
 			g_menuVisible = FALSE;
 		}
 		else if (
-			g_nWindowMode == 1 && !g_menuVisible && !IsFullscreenVideoPlaying() && GetSystemMetrics(SM_CYMENU) >= mouseY
+			g_windowMode == 1 && !g_menuVisible && !IsFullscreenVideoPlaying() && GetSystemMetrics(SM_CYMENU) >= mouseY
 		) {
 			SetMenu(p_hWnd, g_windowMenu);
 			g_menuVisible = TRUE;
-			g_pVideoDriver->ExpandRect(0, 0, 640, 480);
-			g_pVideoDriver->DrawShell();
+			g_videoDriver->ExpandRect(0, 0, 640, 480);
+			g_videoDriver->DrawShell();
 		}
 		return 0;
 	case WM_DESTROY:
@@ -208,10 +208,10 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		case c_menuNewAllegiance:
 			CloseMenuFunction();
 			if (g_screenFunction) {
-				g_screenFunction(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, c_msgMainMenu);
+				g_screenFunction(g_mw2Database, &g_selectedCampaign, &g_pilotChosen, &g_scenario, c_msgMainMenu);
 			}
 			else {
-				PostMessage(g_pWnd, c_msgMainMenu, c_msgMainMenu, 0);
+				PostMessage(g_gameWindow, c_msgMainMenu, c_msgMainMenu, 0);
 			}
 			break;
 		case c_menuHallOfHonor:
@@ -222,18 +222,18 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			break;
 		case c_menuQuickTips:
 			CheckMenuItem(g_windowMenu, p_wParam, ~GetMenuState(g_windowMenu, p_wParam, MF_BYCOMMAND) & MF_CHECKED);
-			g_fQuickTips = 1 - g_fQuickTips;
+			g_quickTips = 1 - g_quickTips;
 			break;
 		case c_menuFleeToWindows:
 			if (ShowDialog("Embrace cowardice?#Yes|No", 1) == 0) {
 				CloseMenuFunction();
-				g_pVideoDriver->ActivateFramebuffer();
-				memset(g_pVideoDriver->m_backBuffer.m_pixels, 0, 640 * 480);
+				g_videoDriver->ActivateFramebuffer();
+				memset(g_videoDriver->m_backBuffer.m_pixels, 0, 640 * 480);
 				if (g_screenFunction) {
-					g_screenFunction(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, c_msgQuit);
+					g_screenFunction(g_mw2Database, &g_selectedCampaign, &g_pilotChosen, &g_scenario, c_msgQuit);
 				}
 				else {
-					PostMessage(g_pWnd, c_msgQuit, 0, 0);
+					PostMessage(g_gameWindow, c_msgQuit, 0, 0);
 				}
 				g_menuDialogOpen = TRUE;
 			}
@@ -251,7 +251,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			g_menuDialogOpen = TRUE;
 			break;
 		case c_menuMoviePlayback:
-			DialogBoxParam(g_pModule, MAKEINTRESOURCE(138), g_pWnd, (DLGPROC) LittleMoviesDialogProc, 0);
+			DialogBoxParam(g_module, MAKEINTRESOURCE(138), g_gameWindow, (DLGPROC) LittleMoviesDialogProc, 0);
 			break;
 		case c_menuKeshik:
 			CloseMenuFunction();
@@ -262,41 +262,41 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		case c_menuHelpContents:
 			sprintf(helpFile, "%s", "mw2help.hlp");
 			if (GetFileAttributes(helpFile) == -1) {
-				sprintf(helpFile, "%s%s", g_szDataDrivePath, "mw2help.hlp");
+				sprintf(helpFile, "%s%s", g_dataDrivePath, "mw2help.hlp");
 			}
 
-			if (WinHelp(g_pWnd, helpFile, HELP_CONTENTS, 0)) {
-				g_fHelpRegistered = TRUE;
+			if (WinHelp(g_gameWindow, helpFile, HELP_CONTENTS, 0)) {
+				g_helpRegistered = TRUE;
 			}
 			break;
 		case c_menuTechnicalHelp:
 			sprintf(helpFile, "%s", "tech.hlp");
 			if (GetFileAttributes(helpFile) == -1) {
-				sprintf(helpFile, "%s%s", g_szDataDrivePath, "tech.hlp");
+				sprintf(helpFile, "%s%s", g_dataDrivePath, "tech.hlp");
 			}
 
-			if (WinHelp(g_pWnd, helpFile, HELP_CONTENTS, 0)) {
-				g_fHelpRegistered = TRUE;
+			if (WinHelp(g_gameWindow, helpFile, HELP_CONTENTS, 0)) {
+				g_helpRegistered = TRUE;
 			}
 			break;
 		}
 		return 0;
 	case c_msgMainMenu:
-		g_fPilotChosen = FALSE;
-		DrawMainMenu(g_pDatabaseMw2, &g_nSelectedCampaign);
-		if (g_fCursorHidden) {
+		g_pilotChosen = FALSE;
+		DrawMainMenu(g_mw2Database, &g_selectedCampaign);
+		if (g_cursorHidden) {
 			while (ShowCursor(TRUE) < 0)
 				;
-			g_fCursorHidden = FALSE;
+			g_cursorHidden = FALSE;
 		}
 		break;
 	case c_msgTrials:
-		g_nSelectedCampaign = 2;
-		DrawMissionBriefing(g_pDatabaseMw2, &g_pScenario, p_wParam);
+		g_selectedCampaign = 2;
+		DrawMissionBriefing(g_mw2Database, &g_scenario, p_wParam);
 		break;
 	case c_msgClanHall:
-		if (!g_fPilotChosen) {
-			switch (g_nSelectedCampaign) {
+		if (!g_pilotChosen) {
+			switch (g_selectedCampaign) {
 			case 0:
 				BeginFullscreenVideo("aworgstr", c_msgPilotRoster, c_msgClanHall);
 				break;
@@ -307,46 +307,46 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			return 0;
 		}
 		else {
-			if (g_fCursorHidden) {
+			if (g_cursorHidden) {
 				while (ShowCursor(TRUE) < 0)
 					;
-				g_fCursorHidden = FALSE;
+				g_cursorHidden = FALSE;
 			}
 
-			DrawClanHall(g_pDatabaseMw2, g_nSelectedCampaign, g_fPilotChosen, p_wParam);
+			DrawClanHall(g_mw2Database, g_selectedCampaign, g_pilotChosen, p_wParam);
 		}
 		break;
 	case c_msgPilotRoster:
-		if (g_fCursorHidden) {
+		if (g_cursorHidden) {
 			while (ShowCursor(TRUE) < 0)
 				;
-			g_fCursorHidden = FALSE;
+			g_cursorHidden = FALSE;
 		}
 
-		DrawPilotRoster(g_pDatabaseMw2, g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario);
+		DrawPilotRoster(g_mw2Database, g_selectedCampaign, &g_pilotChosen, &g_scenario);
 		break;
 	case c_msgArchive:
-		DrawArchive(g_pDatabaseMw2, g_nSelectedCampaign, p_wParam);
+		DrawArchive(g_mw2Database, g_selectedCampaign, p_wParam);
 		break;
 	case c_msgCadetTraining:
-		DrawCadetTraining(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario, p_wParam);
+		DrawCadetTraining(g_mw2Database, g_selectedCampaign, &g_scenario, p_wParam);
 		break;
 	case c_msgReadyRoom:
-		if (g_nSelectedCampaign == 2) {
-			DrawMissionBriefing(g_pDatabaseMw2, &g_pScenario, p_wParam);
+		if (g_selectedCampaign == 2) {
+			DrawMissionBriefing(g_mw2Database, &g_scenario, p_wParam);
 		}
 		else {
-			DrawReadyRoom(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario, p_wParam);
+			DrawReadyRoom(g_mw2Database, g_selectedCampaign, &g_scenario, p_wParam);
 		}
 		break;
 	case c_msgMechBay:
-		DrawMechBay(g_pDatabaseMw2, g_nSelectedCampaign, p_wParam);
+		DrawMechBay(g_mw2Database, g_selectedCampaign, p_wParam);
 		break;
 	case c_msgStarConfig:
-		DrawStarConfig(g_pDatabaseMw2, g_nSelectedCampaign);
+		DrawStarConfig(g_mw2Database, g_selectedCampaign);
 		break;
 	case c_msgBriefing:
-		DrawBriefing(g_pDatabaseMw2, g_pScenario, g_nSelectedCampaign);
+		DrawBriefing(g_mw2Database, g_scenario, g_selectedCampaign);
 		break;
 	case c_msgLaunchSim:
 		if (p_wParam == c_msgBriefing) {
@@ -356,8 +356,8 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			msg = p_wParam;
 		}
 
-		if (g_fRunSim) {
-			WriteSimHandoff(msg, g_nSelectedCampaign, g_fPilotChosen, g_pScenario);
+		if (g_runSim) {
+			WriteSimHandoff(msg, g_selectedCampaign, g_pilotChosen, g_scenario);
 			PostQuitMessage(c_msgQuitToSim);
 			return 0;
 		}
@@ -366,14 +366,14 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		}
 		break;
 	case c_msgDebrief:
-		DrawMissionDebrief(g_pDatabaseMw2, g_nSelectedCampaign, &g_pScenario);
+		DrawMissionDebrief(g_mw2Database, g_selectedCampaign, &g_scenario);
 		break;
 	case c_msgLandingVideo:
 		while (ShowCursor(FALSE) >= 0)
 			;
-		g_fCursorHidden = TRUE;
+		g_cursorHidden = TRUE;
 
-		switch (g_nSelectedCampaign) {
+		switch (g_selectedCampaign) {
 		case 0:
 			if (!PlayFullscreenVideo("mwoland", c_msgClanHall, c_msgLandingVideo)) {
 				PlayFullscreenVideo("mjfland", c_msgClanHall, c_msgLandingVideo);
@@ -389,9 +389,9 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 	case c_msgEndingVideo:
 		while (ShowCursor(FALSE) >= 0)
 			;
-		g_fCursorHidden = TRUE;
+		g_cursorHidden = TRUE;
 
-		switch (g_nSelectedCampaign) {
+		switch (g_selectedCampaign) {
 		case 0:
 			if (!PlayFullscreenVideo("mend", c_msgClanHall, c_msgEndingVideo)) {
 				PlayFullscreenVideo("mend2", c_msgClanHall, c_msgEndingVideo);
@@ -405,15 +405,15 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 		}
 		break;
 	case c_msgQuit:
-		WriteSimHandoff(c_msgQuit, g_nSelectedCampaign, g_fPilotChosen, "exittos");
+		WriteSimHandoff(c_msgQuit, g_selectedCampaign, g_pilotChosen, "exittos");
 		PostQuitMessage(c_msgQuit);
 		return 0;
 	default:
 		return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 	}
 
-	if (g_fAudio) {
-		PlayMidiSong(p_msg, g_nSelectedCampaign);
+	if (g_midiAudio) {
+		PlayMidiSong(p_msg, g_selectedCampaign);
 	}
 
 	return 0;
@@ -436,89 +436,89 @@ extern "C" int __stdcall ShellMain(
 	MSG msg;
 	BOOL fromSim = FALSE;
 
-	g_hPrimaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
-	if (g_hPrimaryHeap == NULL) {
+	g_primaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
+	if (g_primaryHeap == NULL) {
 		MessageBox(NULL, "Insufficient memory available.", g_windowClassName, MB_ICONEXCLAMATION);
 		return 0xff;
 	}
 
-	g_pModule = p_hInstance;
-	g_pWnd = p_hWnd;
+	g_module = p_hInstance;
+	g_gameWindow = p_hWnd;
 
 	if (*p_cmdLine == '\0') {
-		g_fDigitalAudio = 0;
-		g_fAudio = 0;
+		g_digitalAudio = 0;
+		g_midiAudio = 0;
 		g_unk0x1007123c = 0;
-		g_fRunSim = 0;
+		g_runSim = 0;
 	}
 	else if (strstr(p_cmdLine, "sim") != NULL) {
 		fromSim = TRUE;
 	}
 
 	ParseCommandLineFlags(p_cmdLine);
-	g_szDataDrivePath[0] = CdCheck();
+	g_dataDrivePath[0] = CdCheck();
 	if (*p_cmdLine == '\0') {
-		g_szDataDrivePath[0] = '\0';
+		g_dataDrivePath[0] = '\0';
 	}
 
 	InitTextColorMaps();
 
-	g_pDatabaseMw2 = new TMPackDataBase(g_databaseName);
-	g_pAudioSubsystem = new AudioSubsystem();
+	g_mw2Database = new TMPackDataBase(g_databaseName);
+	g_audioSubsystem = new AudioSubsystem();
 	g_windowWidth = 640;
 	g_windowHeight = 480;
-	g_pVideoDriver = new VideoDriver();
+	g_videoDriver = new VideoDriver();
 
-	g_windowMenu = LoadMenu(g_pModule, MAKEINTRESOURCE(0x68));
-	if (g_nWindowMode != 1) {
-		SetMenu(g_pWnd, g_windowMenu);
+	g_windowMenu = LoadMenu(g_module, MAKEINTRESOURCE(0x68));
+	if (g_windowMode != 1) {
+		SetMenu(g_gameWindow, g_windowMenu);
 	}
 
-	LoadSettingsFromRegistry(&g_fQuickTips, &g_showDialog, &g_littleMovies);
+	LoadSettingsFromRegistry(&g_quickTips, &g_showDialog, &g_littleMovies);
 	if (!fromSim) {
 		PlayFullscreenVideo("mintro", c_msgMainMenu, c_msgMainMenu);
 	}
 
-	g_pDatabaseMw2->GetDBItem(0x1a, &itemData, &itemSize);
-	g_textFont = new Font(itemData, g_pVideoDriver);
-	g_pDatabaseMw2->GetDBItem(0x1b, &itemData, &itemSize);
-	g_titleFont = new Font(itemData, g_pVideoDriver);
-	g_pDatabaseMw2->GetDBItem(0x1c, &itemData, &itemSize);
-	g_buttonFont = new Font(itemData, g_pVideoDriver);
-	g_pDatabaseMw2->GetDBItem(0x1e, &itemData, &itemSize);
-	g_unk0x1007121c = new Font(itemData, g_pVideoDriver);
-	g_pDatabaseMw2->GetDBItem(0x1f, &itemData, &itemSize);
-	g_unk0x10071220 = new Font(itemData, g_pVideoDriver);
+	g_mw2Database->GetDBItem(0x1a, &itemData, &itemSize);
+	g_textFont = new Font(itemData, g_videoDriver);
+	g_mw2Database->GetDBItem(0x1b, &itemData, &itemSize);
+	g_titleFont = new Font(itemData, g_videoDriver);
+	g_mw2Database->GetDBItem(0x1c, &itemData, &itemSize);
+	g_buttonFont = new Font(itemData, g_videoDriver);
+	g_mw2Database->GetDBItem(0x1e, &itemData, &itemSize);
+	g_unk0x1007121c = new Font(itemData, g_videoDriver);
+	g_mw2Database->GetDBItem(0x1f, &itemData, &itemSize);
+	g_unk0x10071220 = new Font(itemData, g_videoDriver);
 	g_defaultFont = g_textFont;
-	g_pDatabaseMw2->GetDBItem(0x20, &itemData, &itemSize);
-	g_bodyFont = new Font(itemData, g_pVideoDriver);
+	g_mw2Database->GetDBItem(0x20, &itemData, &itemSize);
+	g_bodyFont = new Font(itemData, g_videoDriver);
 	g_archiveFont = g_bodyFont;
 	g_textFont = g_bodyFont;
 	g_defaultFont = g_textFont;
 
-	g_pDatabaseMw2->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
-	g_pMouseState = new MouseState(g_pVideoDriver, g_defaultFont, g_unk0x10071200);
+	g_mw2Database->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
+	g_mouseState = new MouseState(g_videoDriver, g_defaultFont, g_unk0x10071200);
 	g_keyboardInput = new KeyboardInput();
 	g_projectArchive = new ProjectArchive("MW2.PRJ");
 
 	LoadPilotRoster();
 	LoadDifficultyConfig();
-	ReadSimHandoff(fromSim, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario);
+	ReadSimHandoff(fromSim, &g_selectedCampaign, &g_pilotChosen, &g_scenario);
 	ClipCursor(NULL);
 
 	if (fromSim) {
 		EnableShellMenu(g_windowMenu);
 		while (ShowCursor(TRUE) < 0)
 			;
-		g_fCursorHidden = FALSE;
+		g_cursorHidden = FALSE;
 	}
 	else {
 		while (ShowCursor(FALSE) >= 0)
 			;
-		g_fCursorHidden = TRUE;
+		g_cursorHidden = TRUE;
 	}
 
-	SendMessage(g_pWnd, c_msgActivateShell, 0, 0);
+	SendMessage(g_gameWindow, c_msgActivateShell, 0, 0);
 
 	for (;;) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -530,46 +530,46 @@ extern "C" int __stdcall ShellMain(
 			DispatchMessage(&msg);
 		}
 
-		if (g_fWindowActive) {
-			g_pMouseState->ReadMouseState();
+		if (g_windowActive) {
+			g_mouseState->ReadMouseState();
 			RunScreenFrame();
-			if (g_fDrawFmv) {
-				g_pVideoDriver->DrawFmv();
+			if (g_drawFmv) {
+				g_videoDriver->DrawFmv();
 			}
 			else {
-				g_pVideoDriver->DrawShell();
+				g_videoDriver->DrawShell();
 			}
 		}
 	}
 
-	SendMessage(g_pWnd, c_msgActivateLauncher, 0, 0);
-	SetMenu(g_pWnd, NULL);
-	SaveSettingsToRegistry(g_fQuickTips, g_showDialog, g_littleMovies);
-	g_pVideoDriver->ActivateFramebuffer();
+	SendMessage(g_gameWindow, c_msgActivateLauncher, 0, 0);
+	SetMenu(g_gameWindow, NULL);
+	SaveSettingsToRegistry(g_quickTips, g_showDialog, g_littleMovies);
+	g_videoDriver->ActivateFramebuffer();
 
 	if (g_menuFunction) {
 		g_menuFunction(FALSE);
 	}
 
 	if (g_screenFunction) {
-		g_screenFunction(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, c_msgQuit);
+		g_screenFunction(g_mw2Database, &g_selectedCampaign, &g_pilotChosen, &g_scenario, c_msgQuit);
 	}
 
 	CloseAllVideos();
 
 	delete g_projectArchive;
-	delete g_pDatabaseMw2;
-	delete g_pMouseState;
+	delete g_mw2Database;
+	delete g_mouseState;
 	delete g_keyboardInput;
-	delete g_pVideoDriver;
-	delete g_pAudioSubsystem;
+	delete g_videoDriver;
+	delete g_audioSubsystem;
 
-	if (g_fHelpRegistered) {
-		WinHelp(g_pWnd, NULL, HELP_QUIT, 0);
+	if (g_helpRegistered) {
+		WinHelp(g_gameWindow, NULL, HELP_QUIT, 0);
 	}
 
-	HeapDestroy(g_hPrimaryHeap);
-	g_hPrimaryHeap = NULL;
+	HeapDestroy(g_primaryHeap);
+	g_primaryHeap = NULL;
 
 	if (msg.wParam == c_msgQuitToSim) {
 		return 3;
@@ -586,7 +586,7 @@ MechS32 PumpMessage()
 {
 	MSG msg;
 
-	if (!g_fWindowActive) {
+	if (!g_windowActive) {
 		WaitMessage();
 	}
 
@@ -664,9 +664,9 @@ void PlayMidiSong(UINT p_msg, MechS32 p_campaign)
 		delete g_midiBackgroundMusic;
 	}
 	g_midiSongPlaying = song;
-	result = g_pDatabaseMw2->GetDBItemLZ(g_midiSongPlaying, &data, &size);
+	result = g_mw2Database->GetDBItemLZ(g_midiSongPlaying, &data, &size);
 	if (result != 1) {
-		g_midiBackgroundMusic = new MidiSequence(g_pAudioSubsystem, data, size);
+		g_midiBackgroundMusic = new MidiSequence(g_audioSubsystem, data, size);
 		g_midiBackgroundMusic->Start();
 	}
 }
@@ -710,12 +710,12 @@ void EnableShellMenu(HMENU p_menu)
 	result = EnableMenuItem(p_menu, c_menuNewAllegiance, MF_ENABLED);
 	result = EnableMenuItem(p_menu, c_menuHallOfHonor, MF_ENABLED);
 	result = EnableMenuItem(p_menu, c_menuQuickTips, MF_ENABLED);
-	CheckMenuItem(p_menu, c_menuQuickTips, g_fQuickTips ? MF_CHECKED : MF_UNCHECKED);
+	CheckMenuItem(p_menu, c_menuQuickTips, g_quickTips ? MF_CHECKED : MF_UNCHECKED);
 	result = EnableMenuItem(p_menu, c_menuCombatVariables, MF_ENABLED);
 	result = EnableMenuItem(p_menu, c_menuCockpitControls, MF_ENABLED);
 	result = EnableMenuItem(p_menu, c_menuMoviePlayback, MF_ENABLED);
 	result = EnableMenuItem(p_menu, c_menuKeshik, MF_ENABLED);
-	result = DrawMenuBar(g_pWnd);
+	result = DrawMenuBar(g_gameWindow);
 }
 
 // FUNCTION: MW2SHELL 0x10010320
@@ -731,7 +731,7 @@ void DisableShellMenu(HMENU p_menu)
 	result = EnableMenuItem(p_menu, c_menuCockpitControls, MF_GRAYED);
 	result = EnableMenuItem(p_menu, c_menuMoviePlayback, MF_GRAYED);
 	result = EnableMenuItem(p_menu, c_menuKeshik, MF_GRAYED);
-	result = DrawMenuBar(g_pWnd);
+	result = DrawMenuBar(g_gameWindow);
 }
 
 // Stack-slot permutation: value and result swap [ebp-N] slots with the original.
@@ -940,7 +940,7 @@ void RunScreenFrame()
 	}
 	else {
 		if (g_screenFunction != NULL) {
-			g_screenFunction(g_pDatabaseMw2, &g_nSelectedCampaign, &g_fPilotChosen, &g_pScenario, c_msgScreenFrame);
+			g_screenFunction(g_mw2Database, &g_selectedCampaign, &g_pilotChosen, &g_scenario, c_msgScreenFrame);
 			UpdateVideos();
 		}
 	}

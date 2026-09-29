@@ -20,7 +20,7 @@ void ShowMessage(const MechChar* p_format, ...)
 	_vsnprintf(g_debugPrintBuffer, sizeof(g_debugPrintBuffer), p_format, args);
 	va_end(args);
 	OutputDebugString(g_debugPrintBuffer);
-	MessageBox(g_pWnd, g_debugPrintBuffer, "MechWarrior2 Message", MB_ICONASTERISK);
+	MessageBox(g_gameWindow, g_debugPrintBuffer, "MechWarrior2 Message", MB_ICONASTERISK);
 }
 
 // FUNCTION: MW2SHELL 0x10015ce8

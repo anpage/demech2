@@ -303,7 +303,7 @@ MechS32 AppendHonorBreakdown(
 	strcat(p_text, g_honorLine);
 
 	points = p_career->m_mechKills * 250;
-	g_pCurrentPilot->m_kills += p_career->m_mechKills;
+	g_currentPilot->m_kills += p_career->m_mechKills;
 	sprintf(g_honorPoints, "%d", points);
 	width = g_bodyFont->GetTextWidth(g_honorPoints);
 	honor += points;
@@ -319,7 +319,7 @@ MechS32 AppendHonorBreakdown(
 	strcat(p_text, g_honorLine);
 
 	points = p_career->m_vehicleKills * 125;
-	g_pCurrentPilot->m_kills += p_career->m_directVehicleKills;
+	g_currentPilot->m_kills += p_career->m_directVehicleKills;
 	sprintf(g_honorPoints, "%d", points);
 	width = g_bodyFont->GetTextWidth(g_honorPoints);
 	honor += points;
@@ -386,8 +386,8 @@ MechS32 AppendHonorBreakdown(
 		honor += hitBonus;
 	}
 
-	g_pCurrentPilot->m_hits += p_career->m_hits;
-	g_pCurrentPilot->m_shotsFired += p_career->m_shotsFired;
+	g_currentPilot->m_hits += p_career->m_hits;
+	g_currentPilot->m_shotsFired += p_career->m_shotsFired;
 
 	switch (p_difficulty->m_enemySkill) {
 	case 0:
@@ -561,10 +561,10 @@ void BuildDebriefText(
 
 	honor = AppendHonorBreakdown(p_difficulty, p_career, p_results, p_text);
 	if (p_results->m_outcome == 2) {
-		g_pCurrentPilot->m_honor += honor;
+		g_currentPilot->m_honor += honor;
 	}
 
-	sprintf(g_careerHonor, "%d", g_pCurrentPilot->m_honor);
+	sprintf(g_careerHonor, "%d", g_currentPilot->m_honor);
 	width = g_bodyFont->GetTextWidth(g_careerHonor);
 	sprintf(g_careerHonorLine, "\\nCareer Honor:\\g%03d\\b%03d%s\\n", 350, width, g_careerHonor);
 	strcat(p_text, g_careerHonorLine);
@@ -616,7 +616,7 @@ void LayoutDebriefPages(
 
 	switch (p_results->m_outcome) {
 	case 2:
-		if (g_pCurrentPilot->m_rank >= 8) {
+		if (g_currentPilot->m_rank >= 8) {
 			switch (p_campaign) {
 			case 0:
 				strcpy(p_name, "KTWO");
@@ -646,8 +646,8 @@ MechS32 GetTrialRank(MissionResults* p_results, DifficultyConfig* p_difficulty)
 	MechS32 count;
 	MechS32 i;
 
-	if (g_pCurrentPilot->m_clan != 2 &&
-		g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1 && !HasEasyOptions() &&
+	if (g_currentPilot->m_clan != 2 &&
+		g_campaignMissions[g_currentPilot->m_clan][g_currentPilot->m_mission].m_trial == 1 && !HasEasyOptions() &&
 		p_results->m_outcome == 2 && p_difficulty->m_heatTracking == 1) {
 		count = 0;
 		for (i = 0; i < p_results->m_objectiveCount; i++) {
@@ -676,7 +676,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	CareerRecord career;
 	MechChar name[0x10];
 
-	g_pVideoDriver->LoadBackground(p_database, g_debriefScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_debriefScreens[p_campaign].m_picture);
 	switch (p_campaign) {
 	case 0:
 		left = 0x58;
@@ -709,7 +709,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	CreateCollection(&g_debriefPages, 10, NULL, 4, NULL);
 	g_keyboardInput->FlushKeys();
 	g_debriefMenu = new ButtonMenu(
-		g_pVideoDriver,
+		g_videoDriver,
 		g_defaultFont,
 		FALSE,
 		g_debriefScreens[p_campaign].m_buttons,
@@ -717,17 +717,17 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 	);
 
 	if (p_campaign != 2) {
-		g_pilotBeforeMission = *g_pCurrentPilot;
+		g_pilotBeforeMission = *g_currentPilot;
 	}
 	BuildDebriefText(&career, &g_missionResults, g_debriefText, &g_difficultyConfig);
 
 	if (p_campaign != 2) {
-		g_pCurrentPilot->m_rank += GetTrialRank(&g_missionResults, &g_difficultyConfig);
-		if (g_pCurrentPilot->m_rank >= 8) {
-			g_pCurrentPilot->m_rank = 8;
+		g_currentPilot->m_rank += GetTrialRank(&g_missionResults, &g_difficultyConfig);
+		if (g_currentPilot->m_rank >= 8) {
+			g_currentPilot->m_rank = 8;
 		}
 		if (g_missionResults.m_outcome == 2 && !HasEasyOptions()) {
-			g_pCurrentPilot->m_mission++;
+			g_currentPilot->m_mission++;
 		}
 		SavePilotRoster();
 		LayoutDebriefPages(
@@ -747,7 +747,7 @@ void DrawMissionDebrief(TMPackDataBase* p_database, MechS32 p_campaign, char** p
 
 	g_debriefPage = (Page*) CollectionGet(g_debriefPages, 0);
 	if (!g_debriefPage) {
-		g_debriefPage = new Page(g_bodyFont, g_pVideoDriver, NULL, 0, 0, 100, 100);
+		g_debriefPage = new Page(g_bodyFont, g_videoDriver, NULL, 0, 0, 100, 100);
 	}
 	else {
 		CollectionRemove(g_debriefPages, g_debriefPage, FALSE);
@@ -775,24 +775,24 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 
 	if (!g_aftermathReader) {
 		g_debriefPage->TypeStep();
-		button = g_debriefMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_debriefMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 		switch (button) {
 		case 0:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgReadyRoom;
 			if (*p_campaign != 2 && g_missionResults.m_outcome == 2) {
-				if (g_pCurrentPilot->m_mission >= 16) {
+				if (g_currentPilot->m_mission >= 16) {
 					p_msg = c_msgEndingVideo;
 				}
 				else {
-					*p_scenario = g_campaignMissions[*p_campaign][g_pCurrentPilot->m_mission].m_scenario;
+					*p_scenario = g_campaignMissions[*p_campaign][g_currentPilot->m_mission].m_scenario;
 				}
 			}
 			break;
 		case 1:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			g_debriefPage->Hide();
@@ -809,12 +809,12 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			);
 			break;
 		case 2:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			if (g_missionResults.m_outcome == 2) {
 				if (!ShowDialog("Are you Sure?#Yes|No", 1)) {
-					*g_pCurrentPilot = g_pilotBeforeMission;
+					*g_currentPilot = g_pilotBeforeMission;
 					SavePilotRoster();
 					p_msg = c_msgBriefing;
 				}
@@ -842,7 +842,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			delete g_aftermathReader;
 			g_aftermathReader = NULL;
 			g_debriefMenu = new ButtonMenu(
-				g_pVideoDriver,
+				g_videoDriver,
 				g_defaultFont,
 				FALSE,
 				g_debriefScreens[*p_campaign].m_buttons,
@@ -860,8 +860,8 @@ done:
 			delete g_aftermathReader;
 		}
 		g_aftermathReader = NULL;
-		g_pVideoDriver->ClearGlyphs(TRUE);
-		PostMessage(g_pWnd, p_msg, c_msgDebrief, 0);
+		g_videoDriver->ClearGlyphs(TRUE);
+		PostMessage(g_gameWindow, p_msg, c_msgDebrief, 0);
 		UnregisterScreenFunction(MissionDebriefCallback);
 	}
 }

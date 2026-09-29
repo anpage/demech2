@@ -22,16 +22,16 @@
 KeyboardInput* g_keyboardInput = NULL;
 
 // GLOBAL: MW2SHELL 0x100711fc
-AudioSubsystem* g_pAudioSubsystem = NULL;
+AudioSubsystem* g_audioSubsystem = NULL;
 
 // GLOBAL: MW2SHELL 0x10071200
 void* g_unk0x10071200 = NULL;
 
 // GLOBAL: MW2SHELL 0x10071204
-MouseState* g_pMouseState = NULL;
+MouseState* g_mouseState = NULL;
 
 // GLOBAL: MW2SHELL 0x10071208
-VideoDriver* g_pVideoDriver = NULL;
+VideoDriver* g_videoDriver = NULL;
 
 // The shell's fonts, loaded by ShellMain from the database. ShellMain loads item 0x1a into
 // g_textFont, then points g_defaultFont, g_textFont and g_archiveFont at g_bodyFont (item 0x20),
@@ -67,16 +67,16 @@ Font* g_archiveFont = NULL;
 Font* g_bodyFont = NULL;
 
 // GLOBAL: MW2SHELL 0x1007122c
-TMPackDataBase* g_pDatabaseMw2 = NULL;
+TMPackDataBase* g_mw2Database = NULL;
 
 // GLOBAL: MW2SHELL 0x10071230
 ProjectArchive* g_projectArchive = NULL;
 
 // GLOBAL: MW2SHELL 0x10071234
-MechS32 g_fAudio = 1;
+MechS32 g_midiAudio = 1;
 
 // GLOBAL: MW2SHELL 0x10071238
-MechS32 g_fDigitalAudio = 1;
+MechS32 g_digitalAudio = 1;
 
 // GLOBAL: MW2SHELL 0x1007123c
 MechS32 g_unk0x1007123c = 1;
@@ -85,17 +85,17 @@ MechS32 g_unk0x1007123c = 1;
 // simulator (ShellWindowProc posts the result message straight away) and the mouse shows its
 // position.
 // GLOBAL: MW2SHELL 0x10071240
-MechS32 g_fRunSim = 1;
+MechS32 g_runSim = 1;
 
 // The flags the shell opens Smacker movies with.
 // GLOBAL: MW2SHELL 0x10071248
 MechU32 g_movieOpenFlags = 0;
 
 // GLOBAL: MW2SHELL 0x1007124c
-MechU8 g_fDrawFmv = 0;
+MechU8 g_drawFmv = 0;
 
 // GLOBAL: MW2SHELL 0x10071250
-MechChar g_szDataDrivePath[4] = "A:\\";
+MechChar g_dataDrivePath[4] = "A:\\";
 
 // The pilot roster clamps rank + 1 and rank + 2 to index 9: the NULL after Khan.
 // GLOBAL: MW2SHELL 0x10071258
@@ -169,7 +169,7 @@ MechS32 g_jadeFalconSongs[18] = {
 };
 
 // GLOBAL: MW2SHELL 0x10071370
-PilotRecord* g_pCurrentPilot = NULL;
+PilotRecord* g_currentPilot = NULL;
 
 // Set when a new pilot is registered, for the clan hall's welcome (g_welcomeSound).
 // GLOBAL: MW2SHELL 0x10071374

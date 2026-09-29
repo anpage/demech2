@@ -336,13 +336,13 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 
 	*p_scenario = "pinkscn1";
 	p_database->GetDBItem(78, &audioData, &audioSize);
-	g_launchSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_launchSound = new AudioSample(g_audioSubsystem, audioData, audioSize);
 	if (p_wParam == c_msgMainMenu) {
 		p_database->GetDBItem(82, &audioData, &audioSize);
-		g_trialSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+		g_trialSound = new AudioSample(g_audioSubsystem, audioData, audioSize);
 	}
 
-	g_missionBriefingMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_missionBriefingButtons, 0x19);
+	g_missionBriefingMenu = new ButtonMenu(g_videoDriver, g_defaultFont, 0, g_missionBriefingButtons, 0x19);
 	for (i = 0; i < 3; i++) {
 		g_briefingLines[i] = NULL;
 	}
@@ -384,9 +384,9 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 
 	PlayVideo(0x10, "wialanch", 0xd1, 0x173, 0x24, 0);
 	RegisterScreenFunction(MissionBriefingCallback);
-	g_pVideoDriver->LoadBackground(p_database, 9);
+	g_videoDriver->LoadBackground(p_database, 9);
 	UpdateVideos();
-	g_pVideoDriver->DrawShell();
+	g_videoDriver->DrawShell();
 }
 
 // The mission briefing's frame: LAUNCH, EXIT, the next mission, both clans' videos, the mechs
@@ -405,15 +405,15 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_briefingTipsShown && g_briefingMessage == c_msgMainMenu) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x6f), g_pWnd, (DLGPROC) OkDialogProc, 0);
+	if (g_quickTips && !g_briefingTipsShown && g_briefingMessage == c_msgMainMenu) {
+		DialogBoxParam(g_module, MAKEINTRESOURCE(0x6f), g_gameWindow, (DLGPROC) OkDialogProc, 0);
 		g_briefingTipsShown = 1;
 	}
 
-	button = g_missionBriefingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_missionBriefingMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 	switch (button) {
 	case 0:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		ShowVideo(0x10);
@@ -423,13 +423,13 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		p_msg = c_msgLaunchSim;
 		break;
 	case 1:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgMainMenu;
 		break;
 	case 2:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_briefingMission++;
@@ -451,7 +451,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		ShowFormationNames();
 		break;
 	case 11:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_briefingClan++;
@@ -467,7 +467,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		PlayVideo(1, g_clanVideos[g_briefingClan], 0xd, 0xcd, 6, 0);
 		break;
 	case 22:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_briefingRival++;
@@ -485,7 +485,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	case 3:
 	case 4:
 	case 5:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		pos = &g_missionBriefingButtons[button].m_textPos;
@@ -506,7 +506,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	case 7:
 	case 8:
 	case 9:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		pos = &g_missionBriefingButtons[button - 4].m_textPos;
@@ -529,7 +529,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	case 14:
 	case 15:
 	case 16:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		pos = &g_missionBriefingButtons[button].m_textPos;
@@ -550,7 +550,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	case 18:
 	case 19:
 	case 20:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		pos = &g_missionBriefingButtons[button - 4].m_textPos;
@@ -571,7 +571,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		ShowMechName(&g_enemyMechTags[i], GetStarMechChassis(i), pos->x, pos->y);
 		break;
 	case 6:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_playerFormation++;
@@ -582,7 +582,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		ShowFormationNames();
 		break;
 	case 10:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		if (--g_playerFormation < 0) {
@@ -592,7 +592,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		ShowFormationNames();
 		break;
 	case 17:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_enemyFormation++;
@@ -603,7 +603,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		ShowFormationNames();
 		break;
 	case 21:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		if (--g_enemyFormation < 0) {
@@ -613,28 +613,28 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		ShowFormationNames();
 		break;
 	case 13:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgStarConfig;
 		SelectStar(0, -1, -1, -1, -1);
 		break;
 	case 24:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgStarConfig;
 		SelectStar(1, -1, -1, -1, -1);
 		break;
 	case 12:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgMechBay;
 		SelectStar(0, -1, -1, -1, -1);
 		break;
 	case 23:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgMechBay;
@@ -657,10 +657,10 @@ done:
 			delete g_trialSound;
 			g_trialSound = NULL;
 		}
-		g_pVideoDriver->ClearGlyphs(TRUE);
+		g_videoDriver->ClearGlyphs(TRUE);
 		g_simHandoff.m_briefingMission = g_briefingMission;
 		g_briefingTipsShown = 0;
-		PostMessage(g_pWnd, p_msg, c_msgTrials, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgTrials, 0);
 		UnregisterScreenFunction(MissionBriefingCallback);
 	}
 }

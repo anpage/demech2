@@ -13,7 +13,7 @@
 char g_windowClassName[0x10] = "MECHWARRIOR 2";
 
 // GLOBAL: MW2SHELL 0x1006a9d0
-MechS32 g_fWindowActive = 1;
+MechS32 g_windowActive = 1;
 
 // Whether the game is paused: ToggleFullScreen then leaves the timer paused, and
 // AdjustWindowSize shows the cursor in a window and hides it full screen. The simulator's copy of
@@ -22,7 +22,7 @@ MechS32 g_fWindowActive = 1;
 MechS32 g_paused = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9dc
-MechU32 g_fQuickTips = 1;
+MechU32 g_quickTips = 1;
 
 // GLOBAL: MW2SHELL 0x1006a9e0
 MechS32 g_showDialog = 1;
@@ -31,7 +31,7 @@ MechS32 g_showDialog = 1;
 MechS32 g_menuVisible = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9e8
-MechS32 g_fHelpRegistered = 0;
+MechS32 g_helpRegistered = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9ec
 MechS32 g_menuDialogOpen = 0;
@@ -40,7 +40,7 @@ MechS32 g_menuDialogOpen = 0;
 MechS32 g_littleMovies = 0;
 
 // GLOBAL: MW2SHELL 0x1006a9f4
-HANDLE g_hPrimaryHeap = NULL;
+HANDLE g_primaryHeap = NULL;
 
 // Always 0. Where the simulator's copy of AdjustWindowSize calls this, it asks for a field of
 // the entry for id 4 of its menu list.

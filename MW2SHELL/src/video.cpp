@@ -42,8 +42,8 @@ MechChar g_shpPath[0x20];
 // FUNCTION: MW2SHELL 0x10015d30
 MechChar* GetPathToVideo(const MechChar* p_name)
 {
-	if (g_videoOnDataDrive && g_szDataDrivePath[0]) {
-		sprintf(g_videoPath, "%ssmk\\%s.smk", g_szDataDrivePath, p_name);
+	if (g_videoOnDataDrive && g_dataDrivePath[0]) {
+		sprintf(g_videoPath, "%ssmk\\%s.smk", g_dataDrivePath, p_name);
 	}
 	else {
 		sprintf(g_videoPath, "smk\\%s.smk", p_name);
@@ -56,8 +56,8 @@ MechChar* GetPathToVideo(const MechChar* p_name)
 // FUNCTION: MW2SHELL 0x10015da1
 MechChar* GetPathToShp(const MechChar* p_name)
 {
-	if (g_videoOnDataDrive && g_szDataDrivePath[0]) {
-		sprintf(g_shpPath, "%ssmk\\%s.shp", g_szDataDrivePath, p_name);
+	if (g_videoOnDataDrive && g_dataDrivePath[0]) {
+		sprintf(g_shpPath, "%ssmk\\%s.shp", g_dataDrivePath, p_name);
 	}
 	else {
 		sprintf(g_shpPath, "smk\\%s.shp", p_name);
@@ -96,7 +96,7 @@ void FullscreenVideoCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32
 	MechS32 msg;
 
 	video = &g_fmvSlots[0];
-	if (!IsVideoPlaying(0) || g_pMouseState->GetLeftPressed() == 1 || g_keyboardInput->PollKey() ||
+	if (!IsVideoPlaying(0) || g_mouseState->GetLeftPressed() == 1 || g_keyboardInput->PollKey() ||
 		p_msg != c_msgScreenFrame) {
 		CloseVideo(0);
 		UnregisterScreenFunction(FullscreenVideoCallback);
@@ -107,9 +107,9 @@ void FullscreenVideoCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32
 			msg = p_msg;
 		}
 
-		PostMessage(g_pWnd, msg, g_fullscreenVideoWParam, 0);
+		PostMessage(g_gameWindow, msg, g_fullscreenVideoWParam, 0);
 		g_fullscreenVideoMsg = g_fullscreenVideoWParam = c_msgScreenFrame;
-		g_fDrawFmv = FALSE;
+		g_drawFmv = FALSE;
 	}
 }
 
@@ -121,12 +121,12 @@ MechS32 BeginFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam
 	CloseAllVideos();
 	result = PlayVideo(0, p_name, 0, 0, 0x1000, 0);
 	if (result == -1) {
-		PostMessage(g_pWnd, p_msg, p_wParam, 0);
+		PostMessage(g_gameWindow, p_msg, p_wParam, 0);
 		return 0;
 	}
 
 	if (g_littleMovies != 0) {
-		g_pVideoDriver->ActivateFramebuffer();
+		g_videoDriver->ActivateFramebuffer();
 	}
 	g_fullscreenVideoMsg = p_msg;
 	g_fullscreenVideoWParam = p_wParam;
@@ -142,7 +142,7 @@ MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 	}
 
 	DisableShellMenu(g_windowMenu);
-	g_fDrawFmv = TRUE;
+	g_drawFmv = TRUE;
 	return 1;
 }
 
@@ -170,7 +170,7 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 	m_height = m_smack->Height;
 	m_frame = 1;
 
-	if (g_fWindowActive != 0) {
+	if (g_windowActive != 0) {
 		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
@@ -178,9 +178,9 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 	}
 
 	if (result == 0) {
-		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_pVideoDriver->m_screenBuffer.m_pixels, 0);
+		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_videoDriver->m_screenBuffer.m_pixels, 0);
 		SmackDoFrame(m_smack);
-		g_pVideoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
+		g_videoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
 	}
 	else {
 		SmackClose(m_smack);
@@ -209,10 +209,10 @@ void LoopingMovie::MoveTo(MechS32 p_left, MechS32 p_top)
 		return;
 	}
 
-	g_pVideoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
+	g_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 	m_left = p_left;
 	m_top = p_top;
-	if (g_fWindowActive != 0) {
+	if (g_windowActive != 0) {
 		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
@@ -220,9 +220,9 @@ void LoopingMovie::MoveTo(MechS32 p_left, MechS32 p_top)
 	}
 
 	if (result == 0) {
-		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_pVideoDriver->m_screenBuffer.m_pixels, 0);
+		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_videoDriver->m_screenBuffer.m_pixels, 0);
 		SmackDoFrame(m_smack);
-		g_pVideoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
+		g_videoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
 	}
 }
 
@@ -248,7 +248,7 @@ void LoopingMovie::Update()
 		return;
 	}
 
-	if ((g_fWindowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+	if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 		m_frame++;
 		if (m_smack->Frames < m_frame) {
 			m_frame = 1;
@@ -258,7 +258,7 @@ void LoopingMovie::Update()
 			SmackNextFrame(m_smack);
 		}
 		SmackDoFrame(m_smack);
-		g_pVideoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
+		g_videoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
 	}
 }
 
@@ -309,7 +309,7 @@ void PlayFullscreenVideoFrame()
 	video = &g_fmvSlots[0];
 	if (!SmackWait(video->m_smack)) {
 		if (video->m_frame == 1) {
-			g_pVideoDriver->m_fmvFirstFrame = 1;
+			g_videoDriver->m_fmvFirstFrame = 1;
 		}
 
 		if (video->m_smack->NewPalette) {
@@ -319,10 +319,10 @@ void PlayFullscreenVideoFrame()
 			else {
 				palette = (PaletteColor*) video->m_smack->AlternatePalette;
 			}
-			g_pVideoDriver->SetPalette(palette, 0);
+			g_videoDriver->SetPalette(palette, 0);
 		}
 
-		if (g_fWindowActive) {
+		if (g_windowActive) {
 			result = g_currentDisplayBackend->m_acquireFramebuffer();
 		}
 		else {
@@ -331,7 +331,7 @@ void PlayFullscreenVideoFrame()
 
 		if (result == 0) {
 			SmackDoFrame(video->m_smack);
-			g_pVideoDriver->ExpandRectBySize(0, 0, video->m_width, video->m_height);
+			g_videoDriver->ExpandRectBySize(0, 0, video->m_width, video->m_height);
 		}
 
 		video->m_frame++;
@@ -355,7 +355,7 @@ void UpdateVideos()
 	FmvSlot* video;
 	MechS32 i;
 
-	if (g_pAudioSubsystem) {
+	if (g_audioSubsystem) {
 		AIL_serve();
 	}
 
@@ -386,7 +386,7 @@ void UpdateVideos()
 			if (video->m_drawnLeft != video->m_left || video->m_drawnTop != video->m_top ||
 				video->m_drawnFrame != video->m_frame || video->m_flags & 0x40000020) {
 				if (video->m_flags & 0x10) {
-					g_pVideoDriver
+					g_videoDriver
 						->RestoreBackground(video->m_drawnLeft, video->m_drawnTop, video->m_width, video->m_height);
 				}
 				video->m_flags |= 0x100;
@@ -402,14 +402,14 @@ void UpdateVideos()
 		}
 	}
 
-	g_pVideoDriver->RedrawGlyphs(0);
+	g_videoDriver->RedrawGlyphs(0);
 	for (i = 0, video = g_fmvSlots; i < 32; i++, video++) {
 		if (video->m_flags & 0x80000000) {
 			if (video->m_smack) {
 				if (video->m_frameBuffer && !(video->m_flags & 0x20)) {
 					video->m_flags |= 0x10;
 					if (video->m_flags & 0x100) {
-						g_pVideoDriver->DrawPixels(
+						g_videoDriver->DrawPixels(
 							(undefined*) video->m_frameBuffer,
 							video->m_left,
 							video->m_top,
@@ -418,7 +418,7 @@ void UpdateVideos()
 						);
 					}
 					else {
-						g_pVideoDriver->DrawPixelsClipped(
+						g_videoDriver->DrawPixelsClipped(
 							(undefined*) video->m_frameBuffer,
 							video->m_left,
 							video->m_top,
@@ -461,7 +461,7 @@ void UpdateVideos()
 				if (!(video->m_flags & 0x20)) {
 					video->m_flags |= 0x10;
 					if (video->m_flags & 0x100) {
-						g_pVideoDriver->DrawShpFrame(
+						g_videoDriver->DrawShpFrame(
 							(undefined4) video->m_shp,
 							video->m_frame,
 							video->m_left,
@@ -471,7 +471,7 @@ void UpdateVideos()
 						);
 					}
 					else {
-						g_pVideoDriver->DrawShpFrameClipped(
+						g_videoDriver->DrawShpFrameClipped(
 							(undefined4) video->m_shp,
 							video->m_frame,
 							video->m_left,
@@ -502,7 +502,7 @@ void UpdateVideos()
 			}
 		}
 	}
-	g_pVideoDriver->RedrawGlyphs(1);
+	g_videoDriver->RedrawGlyphs(1);
 }
 
 // FUNCTION: MW2SHELL 0x10016b11
@@ -548,7 +548,7 @@ MechS32 IsFullscreenVideoPlaying()
 void PauseFullscreenVideo()
 {
 	g_fmvSlots[0].m_frame--;
-	g_pVideoDriver->CopyScreenToBackground();
+	g_videoDriver->CopyScreenToBackground();
 }
 
 // Resumes the full-screen video when the shell gets the focus back: restores the screen and
@@ -559,8 +559,8 @@ void ResumeFullscreenVideo()
 	MechS32 result;
 
 	SmackGoto(g_fmvSlots[0].m_smack, g_fmvSlots[0].m_frame);
-	g_pVideoDriver->CopyBackgroundToScreen();
-	if (g_fWindowActive != 0) {
+	g_videoDriver->CopyBackgroundToScreen();
+	if (g_windowActive != 0) {
 		result = g_currentDisplayBackend->m_acquireFramebuffer();
 	}
 	else {
@@ -670,9 +670,9 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 		return FALSE;
 	}
 
-	if (g_pAudioSubsystem && SmackSoundInTrack(p_slot->m_smack, 0x200)) {
+	if (g_audioSubsystem && SmackSoundInTrack(p_slot->m_smack, 0x200)) {
 		SmackClose(p_slot->m_smack);
-		g_pAudioSubsystem->CloseDigitalDriver();
+		g_audioSubsystem->CloseDigitalDriver();
 		g_videoOnDataDrive = dataDrive;
 		p_slot->m_smack = SmackOpen(GetPathToVideo(p_name), ((p_slot->m_flags & 0x40) >> 1) | 0xfe00, 0);
 		if (!p_slot->m_smack) {
@@ -704,7 +704,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 
 	if (p_slot->m_flags & 0x1000) {
 		p_slot->m_frame = 1;
-		if (g_fWindowActive != 0) {
+		if (g_windowActive != 0) {
 			result = g_currentDisplayBackend->m_acquireFramebuffer();
 		}
 		else {
@@ -718,7 +718,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 				p_slot->m_top,
 				0x280,
 				0x1e0,
-				g_pVideoDriver->m_screenBuffer.m_pixels,
+				g_videoDriver->m_screenBuffer.m_pixels,
 				0
 			);
 		}
@@ -738,12 +738,12 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 			p_slot->m_top,
 			0x280,
 			0x1e0,
-			g_pVideoDriver->m_backBuffer.m_pixels,
+			g_videoDriver->m_backBuffer.m_pixels,
 			0
 		);
 	}
 	else {
-		p_slot->m_frameBuffer = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_slot->m_width * p_slot->m_height);
+		p_slot->m_frameBuffer = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_slot->m_width * p_slot->m_height);
 		SmackToBuffer(p_slot->m_smack, 0, 0, p_slot->m_width, p_slot->m_height, p_slot->m_frameBuffer, 0);
 	}
 
@@ -798,7 +798,7 @@ MechS32 PlayVideo(
 
 	if (slot->m_flags & 0x80000000) {
 		if (slot->m_flags & 0x10) {
-			g_pVideoDriver->RestoreBackground(slot->m_drawnLeft, slot->m_drawnTop, slot->m_width, slot->m_height);
+			g_videoDriver->RestoreBackground(slot->m_drawnLeft, slot->m_drawnTop, slot->m_width, slot->m_height);
 		}
 		CloseVideo(p_index);
 	}

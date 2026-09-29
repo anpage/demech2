@@ -553,7 +553,7 @@ void DrawStarInfo(MechS32 p_campaign)
 		strcpy(g_starInfoText, "~Mission: Trial of Grievance");
 	}
 	else {
-		sprintf(g_starInfoText, "~Mission: %s", g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_title);
+		sprintf(g_starInfoText, "~Mission: %s", g_campaignMissions[p_campaign][g_currentPilot->m_mission].m_title);
 	}
 	g_missionLine = g_textFont->AddText(0x140, 0x23, g_starInfoText, NULL);
 
@@ -590,8 +590,8 @@ void DrawStarConfig(TMPackDataBase* p_database, MechS32 p_campaign)
 	MechS32 i;
 	MechS32 audioSize;
 
-	g_pVideoDriver->LoadBackground(p_database, g_starConfigScreens[p_campaign].m_picture);
-	g_starMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_starConfigScreens[p_campaign].m_buttons, 9);
+	g_videoDriver->LoadBackground(p_database, g_starConfigScreens[p_campaign].m_picture);
+	g_starMenu = new ButtonMenu(g_videoDriver, g_defaultFont, 0, g_starConfigScreens[p_campaign].m_buttons, 9);
 
 	switch (p_campaign) {
 	case 0:
@@ -657,11 +657,11 @@ void DrawStarConfig(TMPackDataBase* p_database, MechS32 p_campaign)
 	g_tonnageLine = NULL;
 	g_starMassLine = NULL;
 
-	g_pDatabaseMw2->GetDBItem(101, &audioData, &audioSize);
-	g_starSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_mw2Database->GetDBItem(101, &audioData, &audioSize);
+	g_starSound = new AudioSample(g_audioSubsystem, audioData, audioSize);
 	g_starSound->SetVolume(0x32);
-	g_pDatabaseMw2->GetDBItem(102, &audioData, &audioSize);
-	g_mechLabSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_mw2Database->GetDBItem(102, &audioData, &audioSize);
+	g_mechLabSound = new AudioSample(g_audioSubsystem, audioData, audioSize);
 	g_mechLabSound->SetVolume(0x32);
 
 	DrawStarInfo(p_campaign);
@@ -685,14 +685,14 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_starTipShown) {
+	if (g_quickTips && !g_starTipShown) {
 		UpdateVideos();
-		g_pVideoDriver->DrawShell();
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x7c), g_pWnd, (DLGPROC) OkDialogProc, 0);
+		g_videoDriver->DrawShell();
+		DialogBoxParam(g_module, MAKEINTRESOURCE(0x7c), g_gameWindow, (DLGPROC) OkDialogProc, 0);
 		g_starTipShown = 1;
 	}
 
-	button = g_starMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+	button = g_starMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 	if (*p_campaign == 2) {
 		SetVideoFlags(5, 0x20, 0x20);
 	}
@@ -706,7 +706,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 
 	switch (button) {
 	case 0:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		p_msg = c_msgReadyRoom;
@@ -718,7 +718,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		else {
 			SetVideoFlags(5, 1, 0);
 		}
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_mechLabSound->Start();
@@ -726,10 +726,10 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		p_msg = c_msgMechBay;
 		break;
 	case 2:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(6);
 		}
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_starSound->Start();
@@ -743,10 +743,10 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		DrawStarInfo(*p_campaign);
 		break;
 	case 3:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(7);
 		}
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_starSound->Start();
@@ -760,10 +760,10 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		DrawStarInfo(*p_campaign);
 		break;
 	case 4:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(8);
 		}
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_starSound->Start();
@@ -776,10 +776,10 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		DrawStarInfo(*p_campaign);
 		break;
 	case 5:
-		if (g_pMouseState->m_leftDown == 1) {
+		if (g_mouseState->m_leftDown == 1) {
 			ShowVideo(9);
 		}
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_starSound->Start();
@@ -794,7 +794,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 	case 6:
 	case 7:
 	case 8:
-		if (g_pMouseState->GetLeftPressed() != 1) {
+		if (g_mouseState->GetLeftPressed() != 1) {
 			break;
 		}
 		g_starSound->Start();
@@ -808,11 +808,11 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		break;
 	}
 
-	if (g_pMouseState->GetLeftPressed() == 1) {
-		EditPilotName(g_pMouseState->m_x, g_pMouseState->m_y, *p_campaign);
+	if (g_mouseState->GetLeftPressed() == 1) {
+		EditPilotName(g_mouseState->m_x, g_mouseState->m_y, *p_campaign);
 	}
 
-	if (g_pMouseState->GetDoubleClicked() && (mech = FindMechAt(g_pMouseState->m_x, g_pMouseState->m_y)) >= 0) {
+	if (g_mouseState->GetDoubleClicked() && (mech = FindMechAt(g_mouseState->m_x, g_mouseState->m_y)) >= 0) {
 		g_selectedStar->m_selected = mech;
 		g_pickStarMech = 1;
 		p_msg = c_msgMechBay;
@@ -824,9 +824,9 @@ done:
 		delete g_mechLabSound;
 		delete g_starSound;
 		CloseAllVideos();
-		g_pVideoDriver->ClearGlyphs(TRUE);
+		g_videoDriver->ClearGlyphs(TRUE);
 		g_starTipShown = 0;
-		PostMessage(g_pWnd, p_msg, c_msgStarConfig, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgStarConfig, 0);
 		UnregisterScreenFunction(StarConfigCallback);
 	}
 }

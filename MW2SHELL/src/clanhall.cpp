@@ -60,11 +60,11 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 
 	if (p_wParam == c_msgPilotRoster) {
 		SelectStar(0, 0, 3, 1, 100);
-		SetStarMech(0, NULL, g_pCurrentPilot->m_callsign);
+		SetStarMech(0, NULL, g_currentPilot->m_callsign);
 		if (g_newPilotRegistered) {
 			if (p_campaign == 0) {
-				g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
-				g_welcomeSound = new AudioSample(g_pAudioSubsystem, data, size);
+				g_mw2Database->GetDBItem(0x69, &data, &size);
+				g_welcomeSound = new AudioSample(g_audioSubsystem, data, size);
 				g_welcomeSound->SetVolume(0x7f);
 			}
 			else {
@@ -74,7 +74,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		}
 	}
 
-	g_clanHallMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_clanHallScreens[p_campaign].m_buttons, 4);
+	g_clanHallMenu = new ButtonMenu(g_videoDriver, g_defaultFont, FALSE, g_clanHallScreens[p_campaign].m_buttons, 4);
 
 	switch (p_campaign) {
 	case 0:
@@ -84,7 +84,7 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 		PlayVideo(3, "awolite2", 0x9e, 0x12c, 0x4a, 0);
 		PlayVideo(4, "awolite3", 0x244, 0x113, 0x4a, 0);
 		p_database->GetDBItem(0x4f, &data, &size);
-		g_clanHallAmbience = new AudioSample(g_pAudioSubsystem, data, size);
+		g_clanHallAmbience = new AudioSample(g_audioSubsystem, data, size);
 		g_clanHallAmbience->SetVolume(0x32);
 		g_clanHallAmbience->EnableLoop();
 		break;
@@ -105,9 +105,9 @@ void DrawClanHall(TMPackDataBase* p_database, MechS32 p_campaign, MechU8, WPARAM
 	}
 
 	RegisterScreenFunction(ClanHallCallback);
-	g_pVideoDriver->LoadBackground(p_database, g_clanHallScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_clanHallScreens[p_campaign].m_picture);
 	UpdateVideos();
-	g_pVideoDriver->DrawShell();
+	g_videoDriver->DrawShell();
 	if (g_clanHallAmbience) {
 		g_clanHallAmbience->Start();
 	}
@@ -132,18 +132,18 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 	}
 
 	if (g_welcomePending && !IsVideoPlaying(2) && !IsVideoPlaying(3)) {
-		g_pDatabaseMw2->GetDBItem(0x69, &data, &size);
-		g_welcomeSound = new AudioSample(g_pAudioSubsystem, data, size);
+		g_mw2Database->GetDBItem(0x69, &data, &size);
+		g_welcomeSound = new AudioSample(g_audioSubsystem, data, size);
 		g_welcomeSound->SetVolume(0x7f);
 		g_welcomeSound->Start();
 		g_welcomePending = 0;
 	}
 
 	if (g_clanHallExitVideo == -1) {
-		button = g_clanHallMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_clanHallMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 		switch (button) {
 		case 0:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			switch (*p_campaign) {
@@ -157,7 +157,7 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			}
 			break;
 		case 1:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			g_clanHallExitMessage = c_msgArchive;
@@ -180,10 +180,10 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			}
 			break;
 		case 2:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			if (g_pCurrentPilot->m_mission >= 16) {
+			if (g_currentPilot->m_mission >= 16) {
 				ShowDialog("This pilot has|already won the game.#Finale", 0);
 				p_msg = c_msgEndingVideo;
 				break;
@@ -198,13 +198,13 @@ void ClanHallCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			}
 			break;
 		case 3:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgPilotRoster;
 			break;
 		case 4:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			p_msg = c_msgMainMenu;
@@ -265,7 +265,7 @@ done:
 			}
 		}
 		else {
-			PostMessage(g_pWnd, p_msg, c_msgClanHall, 0);
+			PostMessage(g_gameWindow, p_msg, c_msgClanHall, 0);
 		}
 	}
 }

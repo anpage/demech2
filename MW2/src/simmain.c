@@ -16,7 +16,7 @@ typedef enum {
 typedef struct {
 	MechS32 m_index;                                                                                         // 0x00
 	WindowMode m_windowMode;                                                                                 // 0x04
-	MechU32 m_gwlStyle;                                                                                      // 0x08
+	MechU32 m_windowStyle;                                                                                   // 0x08
 	void* m_drawModeBegin;                                                                                   // 0x0c
 	void* m_drawModeEnd;                                                                                     // 0x10
 	void (*m_setPalette)(undefined4 p_unk0x00, undefined4 p_unk0x04, void* p_unk0x08, undefined4 p_unk0x0c); // 0x14
@@ -147,13 +147,13 @@ HWND g_gameWindow = NULL;
 HINSTANCE g_unk0x100acb64 = NULL;
 
 // GLOBAL: MW2 0x100acb68
-HANDLE g_hPrimaryHeap = NULL;
+HANDLE g_primaryHeap = NULL;
 
 // GLOBAL: MW2 0x100acb6c
-MechS32 g_dwGameWindowWidth = 0;
+MechS32 g_gameWindowWidth = 0;
 
 // GLOBAL: MW2 0x100acb70
-MechS32 g_dwGameWindowHeight = 0;
+MechS32 g_gameWindowHeight = 0;
 
 // GLOBAL: MW2 0x100acb74
 MechS32 g_windowActive = 0;
@@ -379,8 +379,8 @@ int __stdcall SimMain(
 	g_unk0x100acb64 = p_module;
 	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
 	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
-	g_hPrimaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
-	if (g_hPrimaryHeap == NULL) {
+	g_primaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
+	if (g_primaryHeap == NULL) {
 		Error(9, "Insufficient memory available.");
 	}
 
@@ -561,8 +561,8 @@ int __stdcall SimMain(
 				g_drawModeIndex,
 				g_initDrawModeParam2,
 				g_mainPixelBuffer,
-				g_dwGameWindowWidth,
-				g_dwGameWindowHeight,
+				g_gameWindowWidth,
+				g_gameWindowHeight,
 				0
 			)) {
 			Error(0x50, "Error profiling video modes.");
@@ -616,7 +616,7 @@ int __stdcall SimMain(
 			if (g_allowDrawModeFallback) {
 				while (g_allowDrawModeFallback) {
 					if (g_currentDrawModeExtension->m_index == 0) {
-						DdrawFill(0, 0, g_dwGameWindowWidth, g_dwGameWindowHeight, g_unk0x100a554c);
+						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
 					}
 
 					if ((g_windowActive ? g_currentDrawModeExtension->m_lockBuffer() : -1) == 0) {
@@ -640,7 +640,7 @@ int __stdcall SimMain(
 			UpdatePaletteFade();
 			ApplyPendingPalette();
 			if (g_windowActive && g_currentDrawModeExtension->m_index == 0) {
-				DdrawFill(0, 0, g_dwGameWindowWidth, g_dwGameWindowHeight, g_unk0x100a554c);
+				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
 			}
 
 			if ((g_windowActive ? g_currentDrawModeExtension->m_lockBuffer() : -1) == 0) {
@@ -709,8 +709,8 @@ int __stdcall SimMain(
 		}
 	}
 
-	HeapDestroy(g_hPrimaryHeap);
-	g_hPrimaryHeap = NULL;
+	HeapDestroy(g_primaryHeap);
+	g_primaryHeap = NULL;
 	while (ShowCursor(TRUE) < 1) {
 	}
 

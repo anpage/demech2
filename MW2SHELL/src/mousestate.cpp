@@ -62,7 +62,7 @@ void MouseState::MoveCursorTo(MechS32 p_x, MechS32 p_y)
 
 	point.x = p_x;
 	point.y = p_y;
-	ClientToScreen(g_pWnd, &point);
+	ClientToScreen(g_gameWindow, &point);
 	SetCursorPos(point.x, point.y);
 }
 
@@ -147,11 +147,11 @@ void MouseState::ReadMouseState()
 	undefined4 leftDown;
 	undefined4 rightDown;
 
-	if (!g_fWindowActive) {
+	if (!g_windowActive) {
 		return;
 	}
 
-	if (!g_fRunSim) {
+	if (!g_runSim) {
 		DrawCursorPosition();
 	}
 
@@ -160,7 +160,7 @@ void MouseState::ReadMouseState()
 	middleDown = m_middleDown;
 
 	if (m_enabled && GetCursorPos(&point)) {
-		ScreenToClient(g_pWnd, &point);
+		ScreenToClient(g_gameWindow, &point);
 
 		if (IsInsideWindow(point)) {
 			m_x = point.x;

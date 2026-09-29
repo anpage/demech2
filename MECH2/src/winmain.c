@@ -88,7 +88,7 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 {
 	RECT rect;
 	DWORD style;
-	HWND hWnd;
+	HWND window;
 	WNDCLASS wndClass;
 	MechS32 screenHeight;
 	MechS32 screenWidth;
@@ -126,7 +126,7 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 		style = WS_POPUP;
 	}
 
-	hWnd = CreateWindowEx(
+	window = CreateWindowEx(
 		0,
 		"MECHWARRIOR 2",
 		"MECHWARRIOR 2",
@@ -140,14 +140,14 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 		p_hInstance,
 		NULL
 	);
-	if (hWnd == NULL) {
+	if (window == NULL) {
 		return NULL;
 	}
 
-	SetMenu(hWnd, NULL);
-	ShowWindow(hWnd, SW_SHOWDEFAULT);
-	UpdateWindow(hWnd);
-	return hWnd;
+	SetMenu(window, NULL);
+	ShowWindow(window, SW_SHOWDEFAULT);
+	UpdateWindow(window);
+	return window;
 }
 
 MechS32 StartSim(HWND p_hWnd, LPSTR p_cmdLine, NetLaunchInfo* p_netLaunch, undefined4 p_unk0x14)
@@ -247,7 +247,7 @@ void RunSetup(LPCSTR p_message)
 // goes straight to the simulator.
 int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmdLine, int p_cmdShow)
 {
-	HWND hWnd;
+	HWND window;
 	HMODULE netMechModule;
 	FILE* paramFile;
 	NetLaunchInfo netLaunch;
@@ -260,7 +260,7 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 
 	netMechModule = NULL;
 	result = 0;
-	hWnd = NULL;
+	window = NULL;
 
 	if (GetDeviceCaps(GetDC(NULL), BITSPIXEL) < 8) {
 		MessageBox(
@@ -312,10 +312,10 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 				break;
 			}
 
-			hWnd = CreateGameWindow(p_hInstance, 640, 480, TRUE);
-			result = StartSim(hWnd, p_cmdLine, &netLaunch, 1);
-			DestroyWindow(hWnd);
-			hWnd = NULL;
+			window = CreateGameWindow(p_hInstance, 640, 480, TRUE);
+			result = StartSim(window, p_cmdLine, &netLaunch, 1);
+			DestroyWindow(window);
+			window = NULL;
 			netLaunch.m_unk0x0c = 0x1006;
 		}
 
@@ -339,8 +339,8 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 		}
 		netMechModule = NULL;
 
-		hWnd = CreateGameWindow(p_hInstance, 640, 480, FALSE);
-		result = StartShell(hWnd, "intro", 1);
+		window = CreateGameWindow(p_hInstance, 640, 480, FALSE);
+		result = StartShell(window, "intro", 1);
 		for (;;) {
 			// -1: a DLL is missing; low byte 0xff: quit. (The message's typos are the original's.)
 			if (result == -1) {
@@ -369,7 +369,7 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 			}
 
 			fclose(paramFile);
-			result = StartSim(hWnd, params.m_cmdLine, NULL, 1);
+			result = StartSim(window, params.m_cmdLine, NULL, 1);
 			if (result == -1) {
 				MessageBox(
 					NULL,
@@ -384,12 +384,12 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 				break;
 			}
 
-			result = StartShell(hWnd, "sim", 1);
+			result = StartShell(window, "sim", 1);
 		}
 	}
 	else {
-		hWnd = CreateGameWindow(p_hInstance, 640, 480, FALSE);
-		result = StartSim(hWnd, p_cmdLine, NULL, 1);
+		window = CreateGameWindow(p_hInstance, 640, 480, FALSE);
+		result = StartSim(window, p_cmdLine, NULL, 1);
 	}
 
 	return result;

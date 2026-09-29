@@ -121,8 +121,8 @@ ButtonMenu::~ButtonMenu()
 		delete item;
 	}
 
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_items);
 }
 
 // FUNCTION: MW2SHELL 0x100488ed

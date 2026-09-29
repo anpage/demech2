@@ -43,15 +43,15 @@ PaletteColor g_tempPalette[0x100];
 MechU8 g_defaultColorMap[0x100];
 
 // 0 once the framebuffer can be drawn to; -1 while the window is inactive.
-#define ACQUIRE_FRAMEBUFFER() (g_fWindowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1)
+#define ACQUIRE_FRAMEBUFFER() (g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1)
 
 // FUNCTION: MW2SHELL 0x10005e70
 void QuitWithVDriverError(MechS32 p_code)
 {
 	ShutdownRefreshMode();
 
-	if (g_pAudioSubsystem) {
-		delete g_pAudioSubsystem;
+	if (g_audioSubsystem) {
+		delete g_audioSubsystem;
 	}
 
 	CloseAllVideos();
@@ -87,7 +87,7 @@ VideoDriver::VideoDriver()
 	m_screenBuffer.m_maxY = m_backBuffer.m_maxY = m_height - 1;
 
 	m_backBuffer.m_pixels =
-		(undefined*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, m_width * m_height);
+		(undefined*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, m_width * m_height);
 	if (!m_backBuffer.m_pixels) {
 		QuitWithVDriverError(1);
 	}
@@ -123,7 +123,7 @@ VideoDriver::~VideoDriver()
 {
 	delete m_overlayGlyphs;
 	delete m_glyphs;
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_backBuffer.m_pixels);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_backBuffer.m_pixels);
 	ShutdownRefreshMode();
 }
 
@@ -396,7 +396,7 @@ void VideoDriver::LoadBackground(TMPackDataBase* p_database, MechS32 p_id)
 		ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
 	}
 
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, data);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 }
 
 // FUNCTION: MW2SHELL 0x10006da9
@@ -552,7 +552,7 @@ void VideoDriver::LoadPalette(MechS32 p_id)
 	MechS32 size;
 	undefined* data;
 
-	if (g_pDatabaseMw2->GetDBItemLZ(p_id, (void**) &data, &size)) {
+	if (g_mw2Database->GetDBItemLZ(p_id, (void**) &data, &size)) {
 		return;
 	}
 
@@ -566,7 +566,7 @@ void VideoDriver::LoadPalette(MechS32 p_id)
 	m_paletteChanged = 1;
 	m_allColors = 1;
 	g_clearPaletteOnDraw = 1;
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, data);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 }
 
 // Draws frame p_frame of an SHP animation to the screen.

@@ -13,7 +13,7 @@ enum DisplayBackendId {
 	c_displayBackendGdi = 2
 };
 
-// DisplayBackend::m_windowMode and g_nWindowMode.
+// DisplayBackend::m_windowMode and g_windowMode.
 enum WindowMode {
 	c_windowModeFullscreen = 1,
 	c_windowModeWindowed = 2

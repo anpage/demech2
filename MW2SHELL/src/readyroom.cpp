@@ -80,7 +80,7 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 {
 	if (p_wParam == c_msgClanHall || p_wParam == c_msgDebrief) {
 		SelectStar(0, 0, 3, 1, 100);
-		*p_scenario = g_campaignMissions[p_campaign][g_pCurrentPilot->m_mission].m_scenario;
+		*p_scenario = g_campaignMissions[p_campaign][g_currentPilot->m_mission].m_scenario;
 		ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 	}
 
@@ -88,11 +88,11 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 	SelectStar(1, 0, 0, 0, 100);
 	SelectStar(0, -1, -1, -1, -1);
 	SetStarMech(0, NULL, NULL);
-	g_pVideoDriver->LoadBackground(p_database, g_readyRoomScreens[p_campaign].m_picture);
+	g_videoDriver->LoadBackground(p_database, g_readyRoomScreens[p_campaign].m_picture);
 
-	if (!strcmp(g_pCurrentPilot->m_callsign, "FREEBIRTHTOAD")) {
+	if (!strcmp(g_currentPilot->m_callsign, "FREEBIRTHTOAD")) {
 		g_readyRoomMenu = new ButtonMenu(
-			g_pVideoDriver,
+			g_videoDriver,
 			g_defaultFont,
 			FALSE,
 			g_readyRoomScreens[p_campaign].m_buttons,
@@ -101,13 +101,13 @@ void DrawReadyRoom(TMPackDataBase* p_database, MechS32 p_campaign, char** p_scen
 	}
 	else {
 		g_readyRoomMenu =
-			new ButtonMenu(g_pVideoDriver, g_defaultFont, FALSE, g_readyRoomScreens[p_campaign].m_buttons, 4);
+			new ButtonMenu(g_videoDriver, g_defaultFont, FALSE, g_readyRoomScreens[p_campaign].m_buttons, 4);
 	}
 
 	switch (p_campaign) {
 	case 0:
 		PlayVideo(0, "awogrid1", 0x12f, 0x149, 0x44, 0);
-		g_pMouseState->MoveCursorTo(0x1b3, 0x168);
+		g_mouseState->MoveCursorTo(0x1b3, 0x168);
 		break;
 	case 1:
 		PlayVideo(0, "ajfgrid1", 0x115, 0x155, 0x44, 0);
@@ -137,22 +137,22 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_readyRoomTipsShown && g_readyRoomMessage == c_msgClanHall && !IsVideoPlaying(0x10)) {
-		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x70), g_pWnd, (DLGPROC) OkDialogProc, 0);
+	if (g_quickTips && !g_readyRoomTipsShown && g_readyRoomMessage == c_msgClanHall && !IsVideoPlaying(0x10)) {
+		DialogBoxParam(g_module, MAKEINTRESOURCE(0x70), g_gameWindow, (DLGPROC) OkDialogProc, 0);
 		g_readyRoomTipsShown = 1;
 	}
 
 	if (g_readyRoomExitVideo == -1) {
 		PlayReadyRoomGrid(*p_campaign);
-		button = g_readyRoomMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
+		button = g_readyRoomMenu->HitTest(g_mouseState->m_x, g_mouseState->m_y);
 		switch (button) {
 		case -1:
 			break;
 		case 1:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			if (g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1) {
+			if (g_campaignMissions[g_currentPilot->m_clan][g_currentPilot->m_mission].m_trial == 1) {
 				ShowDialog("Trial Protocol: X0769-Q|Keshik to determine appropriate|'Mech for trial.#Ok", 0);
 				break;
 			}
@@ -177,23 +177,23 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 				break;
 			}
 			p_database->GetDBItem(0x64, &data, &size);
-			g_readyRoomSound = new AudioSample(g_pAudioSubsystem, data, size);
+			g_readyRoomSound = new AudioSample(g_audioSubsystem, data, size);
 			g_readyRoomSound->SetVolume(0x32);
 			g_readyRoomSound->Start();
 			g_readyRoomExitMessage = c_msgMechBay;
 			break;
 		case 2:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			if (g_campaignMissions[g_pCurrentPilot->m_clan][g_pCurrentPilot->m_mission].m_trial == 1) {
+			if (g_campaignMissions[g_currentPilot->m_clan][g_currentPilot->m_mission].m_trial == 1) {
 				ShowDialog("Your 'Mech has been|selected for you.|Prepare for Trial!#Ok", 0);
 				break;
 			}
 			p_msg = c_msgStarConfig;
 			break;
 		case 0:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 			switch (*p_campaign) {
@@ -206,7 +206,7 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			}
 			break;
 		case 3:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
 		briefing:
@@ -221,10 +221,10 @@ void ReadyRoomCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*,
 			g_readyRoomExitMessage = c_msgBriefing;
 			break;
 		default:
-			if (g_pMouseState->GetLeftPressed() != 1) {
+			if (g_mouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			g_pCurrentPilot->m_mission = button - 4;
+			g_currentPilot->m_mission = button - 4;
 			SavePilotRoster();
 			*p_scenario = g_campaignMissions[*p_campaign][button - 4].m_scenario;
 			SelectStar(0, 0, 3, 1, 100);
@@ -253,7 +253,7 @@ done:
 		}
 		g_readyRoomSound = NULL;
 		g_readyRoomTipsShown = 0;
-		PostMessage(g_pWnd, p_msg, c_msgReadyRoom, 0);
+		PostMessage(g_gameWindow, p_msg, c_msgReadyRoom, 0);
 		UnregisterScreenFunction(ReadyRoomCallback);
 	}
 }

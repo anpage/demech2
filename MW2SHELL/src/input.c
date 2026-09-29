@@ -201,7 +201,7 @@ void InputFreeDevices(void)
 	}
 
 	if (g_inputDevices != NULL) {
-		HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, g_inputDevices);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_inputDevices);
 	}
 
 	g_inputDevices = NULL;
@@ -299,11 +299,11 @@ MechS32 InputGrowDeviceTable(void)
 {
 	if (g_inputDevices == NULL) {
 		g_inputDevices =
-			(InputDevice*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, c_deviceTableGrowth * sizeof(InputDevice));
+			(InputDevice*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, c_deviceTableGrowth * sizeof(InputDevice));
 	}
 	else {
 		g_inputDevices = (InputDevice*) HeapReAlloc(
-			g_hPrimaryHeap,
+			g_primaryHeap,
 			HEAP_NO_SERIALIZE,
 			g_inputDevices,
 			(g_inputDeviceCapacity + c_deviceTableGrowth) * sizeof(InputDevice)

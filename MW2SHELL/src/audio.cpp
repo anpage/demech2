@@ -27,7 +27,7 @@ AudioSubsystem::AudioSubsystem()
 	m_midiDriver = NULL;
 	m_digitalDriver = NULL;
 
-	if (g_fAudio || g_fDigitalAudio) {
+	if (g_midiAudio || g_digitalAudio) {
 		AIL_startup();
 		m_milesStarted = 1;
 	}
@@ -35,7 +35,7 @@ AudioSubsystem::AudioSubsystem()
 		m_milesStarted = 0;
 	}
 
-	if (g_fAudio) {
+	if (g_midiAudio) {
 		if (AIL_midiOutOpen(&m_midiDriver, NULL, -1) && AIL_midiOutOpen(&m_midiDriver, NULL, 0)) {
 			m_midiDriver = NULL;
 		}
@@ -59,7 +59,7 @@ HDIGDRIVER AudioSubsystem::GetDigitalDriver()
 		return m_digitalDriver;
 	}
 
-	if (!m_milesStarted || !g_fDigitalAudio) {
+	if (!m_milesStarted || !g_digitalAudio) {
 		return NULL;
 	}
 
@@ -189,7 +189,7 @@ MidiSequence::~MidiSequence()
 		Stop();
 		m_subsystem->m_currentMidiSequence = NULL;
 		AIL_release_sequence_handle(m_sequence);
-		HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_data);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_data);
 	}
 }
 
@@ -266,7 +266,7 @@ AudioSample::~AudioSample()
 	if (m_sample) {
 		AIL_end_sample(m_sample);
 		AIL_release_sample_handle(m_sample);
-		HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_data);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_data);
 	}
 }
 
@@ -439,13 +439,13 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 			p_size <<= 1;
 		}
 
-		m_buffer0 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
-		m_buffer1 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+		m_buffer0 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_size);
+		m_buffer1 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_size);
 	}
 
 	if (!m_buffer0 || !m_buffer1) {
 		if (m_buffer0) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
 		}
 		AIL_release_sample_handle((HSAMPLE) m_sample);
 		if (!m_sample) {
@@ -467,10 +467,10 @@ VideoSound::~VideoSound()
 		AIL_end_sample((HSAMPLE) m_sample);
 		AIL_release_sample_handle((HSAMPLE) m_sample);
 		if (m_buffer0 != NULL) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
 		}
 		if (m_buffer1 != NULL) {
-			HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_buffer1);
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_buffer1);
 		}
 	}
 }

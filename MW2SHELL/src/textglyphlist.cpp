@@ -16,8 +16,8 @@ TextGlyphList::TextGlyphList()
 // FUNCTION: MW2SHELL 0x1003e12d
 TextGlyphList::~TextGlyphList()
 {
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_items->m_items);
 }
 
 // FUNCTION: MW2SHELL 0x1003e171

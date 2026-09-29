@@ -169,13 +169,13 @@ ProjectArchive::ProjectArchive(const char* p_name)
 // FUNCTION: MW2SHELL 0x1002e302
 void* PrjHeapAlloc(undefined4 p_size)
 {
-	return HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_size);
+	return HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_size);
 }
 
 // FUNCTION: MW2SHELL 0x1002e324
 void PrjHeapFree(void* p_block)
 {
-	HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_block);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 }
 
 // FUNCTION: MW2SHELL 0x1002e346

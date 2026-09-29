@@ -17,7 +17,7 @@ MechChar CdCheck(void)
 	MechChar* drive;
 	WIN32_FIND_DATA findData;
 	MechChar* driveStrings;
-	HANDLE hFind;
+	HANDLE find;
 	MechChar path[20];
 
 	if (g_cdDriveLetter == '\0') {
@@ -32,9 +32,9 @@ MechChar CdCheck(void)
 			if (driveType == DRIVE_CDROM) {
 				g_cdDriveNumber++;
 				path[0] = *drive;
-				hFind = FindFirstFile(path, &findData);
-				if (hFind != INVALID_HANDLE_VALUE) {
-					FindClose(hFind);
+				find = FindFirstFile(path, &findData);
+				if (find != INVALID_HANDLE_VALUE) {
+					FindClose(find);
 					break;
 				}
 			}

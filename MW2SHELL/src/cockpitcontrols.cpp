@@ -193,7 +193,7 @@ MechS32 g_cpcConfigShown = 0;
 CpcBinding g_cpcBindings[c_configCount * c_bindingCount];
 
 // GLOBAL: MW2SHELL 0x1006b058
-CpcBinding* g_pCpcBindings = g_cpcBindings;
+CpcBinding* g_cpcShownBindings = g_cpcBindings;
 
 // The first button shown in the device's button list.
 // GLOBAL: MW2SHELL 0x1006b05c
@@ -487,9 +487,9 @@ MechS32 CpcEditTextField(
 			break;
 		}
 
-		g_pMouseState->ReadMouseState();
-		g_pVideoDriver->DrawShell();
-		if (g_pMouseState->GetLeftPressed() == 1) {
+		g_mouseState->ReadMouseState();
+		g_videoDriver->DrawShell();
+		if (g_mouseState->GetLeftPressed() == 1) {
 			g_cpcEditText[length] = '\0';
 			if (glyph) {
 				delete glyph;
@@ -609,9 +609,9 @@ TextGlyph* CpcDrawBinding(ScreenField* p_tab)
 	undefined* colors;
 	MechS32 control;
 
-	control = g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex;
+	control = g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex;
 	colors = p_tab->m_colors;
-	device = InputGetDevice(g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot);
+	device = InputGetDevice(g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot);
 	if ((MechS32) p_tab->m_data == g_cpcSelectedBinding && g_cpcSelectedPart == 0) {
 		colors = g_cpcSelectedColors;
 	}
@@ -623,7 +623,7 @@ TextGlyph* CpcDrawBinding(ScreenField* p_tab)
 		if (control < 0) {
 			label = "----";
 		}
-		else if (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind == 0) {
+		else if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind == 0) {
 			label = device->m_info.m_axisShortNames[control];
 		}
 		else {
@@ -643,7 +643,7 @@ TextGlyph* CpcDrawBinding(ScreenField* p_tab)
 	}
 
 	glyph = g_textFont->AddText(p_tab->m_left, p_tab->m_top, g_cpcFieldText, colors);
-	if (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind != 2) {
+	if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind != 2) {
 		p_tab->m_width = 100;
 	}
 	else {
@@ -664,10 +664,10 @@ TextGlyph* CpcDrawAxisButton(ScreenField* p_tab)
 	undefined* colors;
 	MechS32 button;
 
-	button = g_pCpcBindings[(MechS32) p_tab->m_data].m_mode;
+	button = g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode;
 	colors = p_tab->m_colors;
-	device = InputGetDevice(g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot);
-	if (device == NULL || g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind != 2) {
+	device = InputGetDevice(g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot);
+	if (device == NULL || g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind != 2) {
 		return NULL;
 	}
 
@@ -726,7 +726,7 @@ void CpcNextConfig(ScreenField* p_tab)
 		g_cpcConfigShown = 0;
 	}
 
-	g_pCpcBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
+	g_cpcShownBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
 }
 
 // An axis's direction, placed after the previous field.
@@ -737,7 +737,7 @@ TextGlyph* CpcDrawAxisDirection(ScreenField* p_tab)
 	MechS32 inverted;
 	TextGlyph* glyph;
 
-	inverted = g_pCpcBindings[(MechS32) p_tab->m_data].m_flags & CPC_FLAG_INVERTED ? 1 : 0;
+	inverted = g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags & CPC_FLAG_INVERTED ? 1 : 0;
 	if (p_tab[-1].m_glyph != NULL) {
 		p_tab->m_left = p_tab[-1].m_glyph->m_right + 1;
 	}
@@ -750,7 +750,7 @@ TextGlyph* CpcDrawAxisDirection(ScreenField* p_tab)
 // FUNCTION: MW2SHELL 0x1003f42e
 void CpcToggleInverted(ScreenField* p_tab)
 {
-	g_pCpcBindings[(MechS32) p_tab->m_data].m_flags ^= CPC_FLAG_INVERTED;
+	g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags ^= CPC_FLAG_INVERTED;
 }
 
 // FUNCTION: MW2SHELL 0x1003f469
@@ -759,7 +759,7 @@ TextGlyph* CpcDrawModifier(ScreenField* p_tab)
 	return g_textFont->AddText(
 		p_tab->m_left + p_tab->m_width / 2,
 		p_tab->m_top,
-		g_cpcModifierNames[g_pCpcBindings[(MechS32) p_tab->m_data].m_flags & c_flagModifierMask],
+		g_cpcModifierNames[g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags & c_flagModifierMask],
 		NULL
 	);
 }
@@ -768,16 +768,16 @@ TextGlyph* CpcDrawModifier(ScreenField* p_tab)
 // FUNCTION: MW2SHELL 0x1003f4be
 void CpcCycleModifier(ScreenField* p_tab)
 {
-	switch (g_pCpcBindings[(MechS32) p_tab->m_data].m_flags & c_flagModifierMask) {
+	switch (g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags & c_flagModifierMask) {
 	case 0:
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_flags |= 1;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags |= 1;
 		break;
 	case 1:
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_flags &= ~1;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_flags |= 4;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags &= ~1;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags |= 4;
 		break;
 	case 4:
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_flags &= ~c_flagModifierMask;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags &= ~c_flagModifierMask;
 		break;
 	}
 }
@@ -796,13 +796,13 @@ void CpcScrollToSelection()
 	MechS32 count;
 
 	count = InputGetDevice(g_curInputDeviceIdx)->m_info.m_buttonCount;
-	if (g_pCpcBindings[g_cpcSelectedBinding].m_deviceSlot == g_curInputDeviceIdx &&
-		g_pCpcBindings[g_cpcSelectedBinding].m_channelKind != 0) {
+	if (g_cpcShownBindings[g_cpcSelectedBinding].m_deviceSlot == g_curInputDeviceIdx &&
+		g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind != 0) {
 		if (g_cpcSelectedPart == 1) {
-			g_cpcFirstButton = g_pCpcBindings[g_cpcSelectedBinding].m_mode;
+			g_cpcFirstButton = g_cpcShownBindings[g_cpcSelectedBinding].m_mode;
 		}
 		else {
-			g_cpcFirstButton = g_pCpcBindings[g_cpcSelectedBinding].m_controlIndex;
+			g_cpcFirstButton = g_cpcShownBindings[g_cpcSelectedBinding].m_controlIndex;
 		}
 
 		if (g_cpcFirstButton < 0) {
@@ -873,34 +873,34 @@ void CpcClickBinding(ScreenField* p_tab)
 	InputDevice* device;
 
 	device = InputGetDevice(g_curInputDeviceIdx);
-	if (g_pMouseState->GetRightPressed() == 1) {
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = -1;
-		if (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind == 2) {
-			g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
+	if (g_mouseState->GetRightPressed() == 1) {
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = -1;
+		if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind == 2) {
+			g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
 		}
 
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_flags = 0;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_modeFlags = 0;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_mode = -1;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags = 0;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_modeFlags = 0;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode = -1;
 		g_cpcSelectedBinding = (MechS32) p_tab->m_data;
 		g_cpcSelectedPart = 0;
 		return;
 	}
 
 	if ((MechS32) p_tab->m_data == g_cpcSelectedBinding && g_cpcSelectedPart == 0) {
-		switch (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind) {
+		switch (g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind) {
 		case 0:
 			if (device->m_info.m_axisCount == 0) {
 				break;
 			}
 
-			if (g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = 0;
+			if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = 0;
 			}
 			else {
-				CpcAdvanceBinding(&g_pCpcBindings[(MechS32) p_tab->m_data], 0);
+				CpcAdvanceBinding(&g_cpcShownBindings[(MechS32) p_tab->m_data], 0);
 			}
 			break;
 		case 1:
@@ -908,37 +908,37 @@ void CpcClickBinding(ScreenField* p_tab)
 				break;
 			}
 
-			if (g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
+			if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
 			}
 
-			CpcAdvanceBinding(&g_pCpcBindings[(MechS32) p_tab->m_data], 0);
+			CpcAdvanceBinding(&g_cpcShownBindings[(MechS32) p_tab->m_data], 0);
 			break;
 		case 2:
-			if (g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
+			if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
 				if (device->m_info.m_buttonCount != 0) {
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_mode = -1;
-					CpcAdvanceBinding(&g_pCpcBindings[(MechS32) p_tab->m_data], 0);
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode = -1;
+					CpcAdvanceBinding(&g_cpcShownBindings[(MechS32) p_tab->m_data], 0);
 				}
 				else if (device->m_info.m_axisCount != 0) {
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_mode = -1;
-					CpcAdvanceBinding(&g_pCpcBindings[(MechS32) p_tab->m_data], 0);
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode = -1;
+					CpcAdvanceBinding(&g_cpcShownBindings[(MechS32) p_tab->m_data], 0);
 				}
 			}
 			else {
-				CpcAdvanceBinding(&g_pCpcBindings[(MechS32) p_tab->m_data], 0);
-				if (g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex < 0) {
-					if (g_pCpcBindings[(MechS32) p_tab->m_data].m_mode < 0) {
-						g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
+				CpcAdvanceBinding(&g_cpcShownBindings[(MechS32) p_tab->m_data], 0);
+				if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex < 0) {
+					if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode < 0) {
+						g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
 					}
 					else {
-						g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+						g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
 					}
 				}
 			}
@@ -961,50 +961,50 @@ void CpcClickAxisButton(ScreenField* p_tab)
 	InputDevice* device;
 
 	device = InputGetDevice(g_curInputDeviceIdx);
-	if (g_pMouseState->GetRightPressed() == 1) {
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = -1;
-		if (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind == 2) {
-			g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
+	if (g_mouseState->GetRightPressed() == 1) {
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = -1;
+		if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind == 2) {
+			g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
 		}
 
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_flags = 0;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_modeFlags = 0;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
-		g_pCpcBindings[(MechS32) p_tab->m_data].m_mode = -1;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_flags = 0;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_modeFlags = 0;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
+		g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode = -1;
 		g_cpcSelectedBinding = (MechS32) p_tab->m_data;
 		g_cpcSelectedPart = 0;
 		return;
 	}
 
 	if ((MechS32) p_tab->m_data == g_cpcSelectedBinding && g_cpcSelectedPart == 1) {
-		if (g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
+		if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot != g_curInputDeviceIdx) {
 			if (device->m_info.m_buttonCount != 0) {
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_mode = 0;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = -1;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode = 0;
 			}
 			else if (device->m_info.m_axisCount != 0) {
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex = 0;
-				g_pCpcBindings[(MechS32) p_tab->m_data].m_mode = -1;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex = 0;
+				g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode = -1;
 				g_cpcSelectedPart = 0;
 			}
 		}
 		else {
-			CpcAdvanceBinding(&g_pCpcBindings[(MechS32) p_tab->m_data], 1);
-			if (g_pCpcBindings[(MechS32) p_tab->m_data].m_mode < 0) {
-				if (g_pCpcBindings[(MechS32) p_tab->m_data].m_controlIndex < 0) {
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
+			CpcAdvanceBinding(&g_cpcShownBindings[(MechS32) p_tab->m_data], 1);
+			if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_mode < 0) {
+				if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_controlIndex < 0) {
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind = 0;
 					g_cpcSelectedPart = 0;
 				}
 				else {
-					g_pCpcBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
+					g_cpcShownBindings[(MechS32) p_tab->m_data].m_deviceSlot = g_curInputDeviceIdx;
 				}
 			}
 		}
 	}
-	else if (g_pCpcBindings[(MechS32) p_tab->m_data].m_channelKind == 2) {
+	else if (g_cpcShownBindings[(MechS32) p_tab->m_data].m_channelKind == 2) {
 		g_cpcSelectedBinding = (MechS32) p_tab->m_data;
 		g_cpcSelectedPart = 1;
 	}
@@ -1039,7 +1039,7 @@ TextGlyph* CpcDrawDeviceAxis(ScreenField* p_tab)
 		return NULL;
 	}
 
-	if (g_cpcSelectedBinding < 0 || g_pCpcBindings[g_cpcSelectedBinding].m_channelKind == 1) {
+	if (g_cpcSelectedBinding < 0 || g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind == 1) {
 		colors = g_cpcDisabledColors;
 	}
 
@@ -1099,14 +1099,14 @@ void CpcBindAxis(ScreenField* p_tab)
 	if (device->m_info.m_axisNames[(MechS32) p_tab->m_data] == NULL) {
 		return;
 	}
-	if (g_pCpcBindings[g_cpcSelectedBinding].m_channelKind == 1) {
+	if (g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind == 1) {
 		return;
 	}
 
-	g_pCpcBindings[g_cpcSelectedBinding].m_channelKind = 0;
-	g_pCpcBindings[g_cpcSelectedBinding].m_deviceSlot = g_curInputDeviceIdx;
-	g_pCpcBindings[g_cpcSelectedBinding].m_controlIndex = (MechS32) p_tab->m_data;
-	g_pCpcBindings[g_cpcSelectedBinding].m_mode = -1;
+	g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind = 0;
+	g_cpcShownBindings[g_cpcSelectedBinding].m_deviceSlot = g_curInputDeviceIdx;
+	g_cpcShownBindings[g_cpcSelectedBinding].m_controlIndex = (MechS32) p_tab->m_data;
+	g_cpcShownBindings[g_cpcSelectedBinding].m_mode = -1;
 	g_cpcSelectedPart = 0;
 }
 
@@ -1147,7 +1147,7 @@ void CpcScrollButtons(ScreenField* p_tab)
 
 	count = InputGetDevice(g_curInputDeviceIdx)->m_info.m_buttonCount;
 	step = (MechS32) p_tab->m_data;
-	if (g_pMouseState->m_rightDown == 1) {
+	if (g_mouseState->m_rightDown == 1) {
 		step <<= 1;
 	}
 
@@ -1167,8 +1167,8 @@ void CpcScrollButtons(ScreenField* p_tab)
 			g_cpcLogoMovie->Update();
 		}
 
-		g_pMouseState->ReadMouseState();
-	} while (g_pMouseState->m_leftDown == 1 || g_pMouseState->m_rightDown == 1);
+		g_mouseState->ReadMouseState();
+	} while (g_mouseState->m_leftDown == 1 || g_mouseState->m_rightDown == 1);
 }
 
 // Bind the selected control, or the selected axis's button, to a button of the current device.
@@ -1200,29 +1200,29 @@ void CpcBindButton(ScreenField* p_tab)
 	}
 
 	if (g_cpcSelectedPart == 1) {
-		if (g_pCpcBindings[g_cpcSelectedBinding].m_deviceSlot != g_curInputDeviceIdx) {
-			g_pCpcBindings[g_cpcSelectedBinding].m_deviceSlot = g_curInputDeviceIdx;
-			g_pCpcBindings[g_cpcSelectedBinding].m_controlIndex = -1;
+		if (g_cpcShownBindings[g_cpcSelectedBinding].m_deviceSlot != g_curInputDeviceIdx) {
+			g_cpcShownBindings[g_cpcSelectedBinding].m_deviceSlot = g_curInputDeviceIdx;
+			g_cpcShownBindings[g_cpcSelectedBinding].m_controlIndex = -1;
 		}
 
-		g_pCpcBindings[g_cpcSelectedBinding].m_mode = index;
-		if (g_pCpcBindings[g_cpcSelectedBinding].m_controlIndex < 0) {
+		g_cpcShownBindings[g_cpcSelectedBinding].m_mode = index;
+		if (g_cpcShownBindings[g_cpcSelectedBinding].m_controlIndex < 0) {
 			g_cpcSelectedPart = 0;
 		}
 	}
 	else {
-		if (g_pCpcBindings[g_cpcSelectedBinding].m_channelKind == 0) {
-			g_pCpcBindings[g_cpcSelectedBinding].m_channelKind = 2;
-			g_pCpcBindings[g_cpcSelectedBinding].m_mode = -1;
+		if (g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind == 0) {
+			g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind = 2;
+			g_cpcShownBindings[g_cpcSelectedBinding].m_mode = -1;
 		}
-		if (g_pCpcBindings[g_cpcSelectedBinding].m_deviceSlot != g_curInputDeviceIdx) {
-			g_pCpcBindings[g_cpcSelectedBinding].m_mode = -1;
+		if (g_cpcShownBindings[g_cpcSelectedBinding].m_deviceSlot != g_curInputDeviceIdx) {
+			g_cpcShownBindings[g_cpcSelectedBinding].m_mode = -1;
 		}
 
-		g_pCpcBindings[g_cpcSelectedBinding].m_deviceSlot = g_curInputDeviceIdx;
-		g_pCpcBindings[g_cpcSelectedBinding].m_controlIndex = index;
-		if (g_pCpcBindings[g_cpcSelectedBinding].m_channelKind == 2 &&
-			g_pCpcBindings[g_cpcSelectedBinding].m_mode < 0) {
+		g_cpcShownBindings[g_cpcSelectedBinding].m_deviceSlot = g_curInputDeviceIdx;
+		g_cpcShownBindings[g_cpcSelectedBinding].m_controlIndex = index;
+		if (g_cpcShownBindings[g_cpcSelectedBinding].m_channelKind == 2 &&
+			g_cpcShownBindings[g_cpcSelectedBinding].m_mode < 0) {
 			g_cpcSelectedPart = 1;
 		}
 	}
@@ -1373,7 +1373,7 @@ void CpcSelectDevice(ScreenField* p_tab)
 // FUNCTION: MW2SHELL 0x10040a5d
 TextGlyph* CpcDrawDivider(ScreenField* p_tab)
 {
-	g_pVideoDriver->DrawLine(p_tab->m_left, p_tab->m_top, p_tab->m_left, 0x1d6, 0x10);
+	g_videoDriver->DrawLine(p_tab->m_left, p_tab->m_top, p_tab->m_left, 0x1d6, 0x10);
 	return NULL;
 }
 
@@ -1481,7 +1481,7 @@ void CpcOpenJoystickControlPanel(ScreenField*)
 
 	memset(&startupInfo, 0, sizeof(startupInfo));
 	startupInfo.cb = sizeof(startupInfo);
-	commandLine = (MechChar*) HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, MAX_PATH);
+	commandLine = (MechChar*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, MAX_PATH);
 	if (commandLine != NULL) {
 		GetWindowsDirectory(commandLine, MAX_PATH);
 		strcat(commandLine, "\\control.exe joy.cpl");
@@ -1490,7 +1490,7 @@ void CpcOpenJoystickControlPanel(ScreenField*)
 			DebugPrint("CreateProcess failed: %d\n", GetLastError());
 		}
 
-		HeapFree(g_hPrimaryHeap, HEAP_NO_SERIALIZE, commandLine);
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, commandLine);
 	}
 }
 
@@ -1962,7 +1962,7 @@ void CpcResetAllBindings(ScreenField* p_tab)
 	}
 
 	g_cpcConfigShown = 0;
-	g_pCpcBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
+	g_cpcShownBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
 	g_curCpcConfigSlot = 0;
 }
 
@@ -1998,7 +1998,7 @@ void CpcResetBindingsToDevice(ScreenField* p_tab)
 	}
 
 	g_cpcConfigShown = 0;
-	g_pCpcBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
+	g_cpcShownBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
 }
 
 // Load the current device's .cpc file and merge its bindings into the free ones.
@@ -2058,7 +2058,7 @@ void CpcLoadDeviceFile(ScreenField* p_tab)
 	}
 
 	g_cpcConfigShown = 0;
-	g_pCpcBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
+	g_cpcShownBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
 }
 
 // Load giddi\configNN.cpc: slot 0 without a field, the field's slot, or the current slot.
@@ -2093,7 +2093,7 @@ void CpcLoadConfigSlot(ScreenField* p_tab)
 	CpcRemapDeviceSlots(g_cpcBindings);
 	CpcValidateActiveDevices();
 	g_cpcConfigShown = 0;
-	g_pCpcBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
+	g_cpcShownBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
 }
 
 // Save giddi\configNN.cpc, naming a custom slot's configuration after the slot.
@@ -2247,13 +2247,13 @@ void OpenCockpitControls()
 	InputDevice* device;
 	MechS32 i;
 
-	g_pVideoDriver->GetPalette(g_savedScreenPalette);
-	g_pVideoDriver->LoadPalette(4);
-	g_pVideoDriver->ActivateFramebuffer();
+	g_videoDriver->GetPalette(g_savedScreenPalette);
+	g_videoDriver->LoadPalette(4);
+	g_videoDriver->ActivateFramebuffer();
 	g_cpcLogoMovie = NULL;
 	g_cpcLogoMovie = new LoopingMovie("amwlogo1", 0x78, 4);
-	g_pVideoDriver->DrawShell();
-	g_pVideoDriver->m_restoreColor = 0;
+	g_videoDriver->DrawShell();
+	g_videoDriver->m_restoreColor = 0;
 	g_curCpcConfigSlot = 0;
 	if (!InputEnumDevices(1)) {
 		return;
@@ -2295,7 +2295,7 @@ void OpenCockpitControls()
 	g_cpcSelectedBinding = -1;
 	g_cpcSelectedPart = 0;
 	g_cpcConfigShown = 0;
-	g_pCpcBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
+	g_cpcShownBindings = &g_cpcBindings[g_cpcConfigShown * c_bindingCount];
 	g_keyboardInput->FlushKeys();
 
 	g_cpcSelectedColors[0] = 0xff;
@@ -2327,11 +2327,11 @@ void CpcScreenTick(MechS32 p_active)
 			g_cpcLogoMovie->Update();
 		}
 
-		if (g_pMouseState->GetLeftPressed() == 1 || (g_cpcBindingsPage == 1 && g_pMouseState->GetRightPressed() == 1)) {
+		if (g_mouseState->GetLeftPressed() == 1 || (g_cpcBindingsPage == 1 && g_mouseState->GetRightPressed() == 1)) {
 			tab = FindFieldAt(
 				g_cpcBindingsPage ? g_cpcBindingsFields : g_cpcDevicesFields,
-				g_pMouseState->m_x,
-				g_pMouseState->m_y
+				g_mouseState->m_x,
+				g_mouseState->m_y
 			);
 			if (tab && tab->m_click) {
 				tab->m_click(tab);
@@ -2341,7 +2341,7 @@ void CpcScreenTick(MechS32 p_active)
 	}
 
 	if (!p_active || g_cpcConfigured || g_keyboardInput->PollKey() == 3 ||
-		(!g_cpcBindingsPage && g_pMouseState->GetRightPressed() == 1)) {
+		(!g_cpcBindingsPage && g_mouseState->GetRightPressed() == 1)) {
 		UnregisterMenuFunction(CpcScreenTick);
 		EnableMenuItem(g_windowMenu, c_menuCockpitControls, MF_ENABLED);
 		g_menuDialogOpen = 0;
@@ -2351,13 +2351,13 @@ void CpcScreenTick(MechS32 p_active)
 		}
 		g_cpcLogoMovie = NULL;
 		InputFreeDevices();
-		g_pVideoDriver->m_restoreColor = -1;
-		g_pVideoDriver->RestoreBackground(0, 0, 640, 480);
+		g_videoDriver->m_restoreColor = -1;
+		g_videoDriver->RestoreBackground(0, 0, 640, 480);
 		UpdateVideos();
-		g_pVideoDriver->SetPalette(g_savedScreenPalette, 1);
+		g_videoDriver->SetPalette(g_savedScreenPalette, 1);
 		if (p_active) {
-			g_pVideoDriver->DrawShell();
-			g_pVideoDriver->RestoreBackground(0, 0, 640, 480);
+			g_videoDriver->DrawShell();
+			g_videoDriver->RestoreBackground(0, 0, 640, 480);
 			UpdateVideos();
 		}
 	}
@@ -2404,5 +2404,5 @@ void CpcShowDeviceMessage(MechS32 p_message, undefined4, MechChar* p_name)
 		break;
 	}
 
-	MessageBox(g_pWnd, g_cpcMessageText, "MechWarrior 2 Message", MB_ICONASTERISK);
+	MessageBox(g_gameWindow, g_cpcMessageText, "MechWarrior 2 Message", MB_ICONASTERISK);
 }
