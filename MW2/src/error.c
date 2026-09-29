@@ -1,3 +1,5 @@
+#include "error.h"
+
 #include "decomp.h"
 #include "types.h"
 

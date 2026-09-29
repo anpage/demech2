@@ -320,6 +320,7 @@ demech2_add_dll(mw2
   SOURCES
     MW2/src/object.c
     MW2/src/palette.c
+    MW2/src/fixeddiv.c
     MW2/src/fixedmul.c
     MW2/src/muldiv.c
     MW2/src/gpanim.c
@@ -366,8 +367,10 @@ demech2_add_dll(mw2
     MW2/src/ddfill.c
     MW2/src/input.c
     MW2/src/clock.c
+    MW2/src/unk1007d120.c
     MW2/src/callbacks.c
     MW2/src/environment.c
+    MW2/src/soundfx.c
     MW2/MW2.def
   LINK_OPTIONS ${mw2_link_options}
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib

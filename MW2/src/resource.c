@@ -1,3 +1,5 @@
+// resource.h stays out of this unit: its declarations ahead of FUN_1005005e change that
+// function's operand order (see there).
 #include "decomp.h"
 #include "types.h"
 

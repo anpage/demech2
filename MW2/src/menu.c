@@ -1,3 +1,5 @@
+#include "menu.h"
+
 #include "decomp.h"
 #include "types.h"
 
