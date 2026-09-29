@@ -16,7 +16,11 @@ typedef struct Eyepoint {
 	MechS32 m_unk0x10;                       // 0x10
 	MechS32 m_unk0x14;                       // 0x14
 	MechS32 m_fovX;                          // 0x18 — 16.16
-	undefined4 m_unk0x1c[(0x2c - 0x1c) / 4]; // 0x1c
+	MechS32 m_unk0x1c;                       // 0x1c
+	MechS32 m_unk0x20;                       // 0x20
+	MechS32 m_unk0x24;                       // 0x24
+	MechS16 m_unk0x28;                       // 0x28
+	MechS16 m_unk0x2a;                       // 0x2a
 	MechS32 m_unk0x2c;                       // 0x2c
 	MechS32 m_unk0x30;                       // 0x30
 	MechS32 m_unk0x34;                       // 0x34
@@ -60,6 +64,7 @@ extern "C"
 		MechS32* p_y,
 		MechS32* p_z
 	);
+	MechS32 FUN_10011440(void);
 	void FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view);
 
 #ifdef __cplusplus

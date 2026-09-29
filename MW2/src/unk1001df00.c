@@ -74,6 +74,34 @@ void FUN_1001e50d(AzureThicket0x2c* p_node)
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_node);
 }
 
+// STUB: MW2 0x1001e6dc
+MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+{
+	STUB(0x1001e6dc);
+	return 0;
+}
+
+// STUB: MW2 0x1001e90f
+MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray)
+{
+	STUB(0x1001e90f);
+	return 0;
+}
+
+// STUB: MW2 0x1001ebfa
+MechS32 FUN_1001ebfa(
+	AzureThicket0x2c* p_node,
+	GraniteLattice0x18* p_model,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechS32 p_z,
+	MechS32* p_top
+)
+{
+	STUB(0x1001ebfa);
+	return 0;
+}
+
 // FUNCTION: MW2 0x1001edfa
 void FUN_1001edfa(void)
 {

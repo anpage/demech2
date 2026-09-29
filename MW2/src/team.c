@@ -161,9 +161,9 @@ MechS32 PlaceTeam(MechS32 p_team, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32
 	result = FALSE;
 	if (p_team < 16 && (leader = g_teams[p_team].m_leader) < g_playerCount) {
 		player = g_players[leader];
-		player->m_position[0] = p_x;
-		player->m_position[1] = p_y;
-		player->m_position[2] = p_z;
+		player->m_position.m_x = p_x;
+		player->m_position.m_y = p_y;
+		player->m_position.m_z = p_z;
 		player->m_heading = p_heading;
 
 		for (i = 0; i < g_playerCount; i++) {
@@ -173,9 +173,9 @@ MechS32 PlaceTeam(MechS32 p_team, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32
 				SetObjPosition(player->m_obj, x, p_y, z);
 				SetObjRotation(player->m_obj, 0, heading, 0, 0);
 				FUN_10001cf8(player->m_obj);
-				player->m_position[0] = x;
-				player->m_position[1] = p_y;
-				player->m_position[2] = z;
+				player->m_position.m_x = x;
+				player->m_position.m_y = p_y;
+				player->m_position.m_z = z;
 				player->m_heading = heading;
 			}
 		}
@@ -217,8 +217,8 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechS32* p_x, MechS32* p_z, MechS3
 		FUN_1000d650(matrix, p_x, &y, p_z);
 	}
 	else {
-		*p_x = g_players[leader]->m_position[0];
-		*p_z = g_players[leader]->m_position[2];
+		*p_x = g_players[leader]->m_position.m_x;
+		*p_z = g_players[leader]->m_position.m_z;
 		*p_heading = g_players[leader]->m_heading;
 	}
 

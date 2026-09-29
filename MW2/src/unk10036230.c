@@ -1,6 +1,7 @@
 #include "unk10036230.h"
 
 #include "decomp.h"
+#include "ray.h"
 #include "simmain.h"
 #include "slateheron.h"
 #include "transform.h"
@@ -68,4 +69,34 @@ void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
 {
 	STUB(0x10039b94);
+}
+
+// STUB: MW2 0x10039c96
+MechS32 FUN_10039c96(
+	MechS32 p_normalX,
+	MechS32 p_normalY,
+	MechS32 p_normalZ,
+	MechS32 p_unk0x0c,
+	MechS32 p_dx,
+	MechS32 p_dz
+)
+{
+	STUB(0x10039c96);
+	return 0;
+}
+
+// Returns a distance from (p_x, p_y, p_z) to the shape.
+// STUB: MW2 0x10039ccc
+MechS32 FUN_10039ccc(struct ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+{
+	STUB(0x10039ccc);
+	return 0;
+}
+
+// Returns the distance along the ray to the shape.
+// STUB: MW2 0x1003a096
+MechS32 FUN_1003a096(struct ScarletOrchid0x4c* p_shape, Ray* p_ray)
+{
+	STUB(0x1003a096);
+	return 0;
 }

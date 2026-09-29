@@ -10,6 +10,7 @@
 #include "playersteering.h"
 #include "playertargetinfo.h"
 #include "types.h"
+#include "vector3.h"
 
 struct AmberWillow0x7c;
 typedef struct Player Player;
@@ -39,7 +40,7 @@ struct Player {
 	struct AmberWillow0x7c* m_obj;            // 0x40
 	undefined m_unk0x44[0x4c - 0x44];         // 0x44
 	PlayerSteering* m_steering;               // 0x4c
-	MechS32 m_position[3];                    // 0x50
+	Vector3 m_position;                       // 0x50
 	undefined4 m_unk0x5c;                     // 0x5c
 	MechS32 m_heading;                        // 0x60 — 16.16 degrees
 	undefined m_unk0x64[0x6c - 0x64];         // 0x64

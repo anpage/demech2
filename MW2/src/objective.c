@@ -34,6 +34,12 @@ void FUN_1001cc5c(MechS32 p_player)
 	STUB(0x1001cc5c);
 }
 
+// STUB: MW2 0x1001cdd1
+void FUN_1001cdd1(void)
+{
+	STUB(0x1001cdd1);
+}
+
 // STUB: MW2 0x1001cdf6
 MechS32 FUN_1001cdf6(MechS32 p_team)
 {

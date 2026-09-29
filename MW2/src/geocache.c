@@ -4,6 +4,7 @@
 #include "callbacks.h"
 #include "decomp.h"
 #include "error.h"
+#include "gamething.h"
 #include "hollowspire.h"
 #include "loadres.h"
 #include "object.h"
@@ -435,6 +436,12 @@ void FUN_100201c1(MechS32 p_index, MechU32 p_unk0x0c)
 	entry = &g_unk0x1010c630[p_index];
 	entry->m_unk0x0c &= ~0xf000;
 	entry->m_unk0x0c |= (p_unk0x0c << 12) & 0xf000;
+}
+
+// STUB: MW2 0x10020429
+void FUN_10020429(GameThing* p_thing)
+{
+	STUB(0x10020429);
 }
 
 // STUB: MW2 0x100204e8
