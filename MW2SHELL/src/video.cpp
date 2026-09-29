@@ -154,10 +154,10 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 {
 	MechS32 result;
 
-	m_smack = SmackOpen(GetPathToVideo(p_name), g_unk0x10071248, 0);
+	m_smack = SmackOpen(GetPathToVideo(p_name), g_movieOpenFlags, 0);
 	if (m_smack == NULL) {
 		g_videoOnDataDrive = 1;
-		m_smack = SmackOpen(GetPathToVideo(p_name), g_unk0x10071248, 0);
+		m_smack = SmackOpen(GetPathToVideo(p_name), g_movieOpenFlags, 0);
 		if (m_smack == NULL) {
 			return;
 		}
@@ -261,17 +261,11 @@ void LoopingMovie::Update()
 	}
 }
 
-struct VideoPlaybackTimer {
-	MechU32 m_interval; // 0x44 in the video slot
-	MechU32 m_next;     // 0x48 in the video slot
-};
-
 // FUNCTION: MW2SHELL 0x100163ff
 MechS32 IsVideoFrameDue(FmvSlot* p_video, MechU32 p_time)
 {
-	if (p_time >= ((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next) {
-		((VideoPlaybackTimer*) p_video->m_unk0x44)->m_next =
-			((VideoPlaybackTimer*) p_video->m_unk0x44)->m_interval + p_time;
+	if (p_time >= p_video->m_nextFrameTime) {
+		p_video->m_nextFrameTime = p_video->m_frameInterval + p_time;
 		return 0;
 	}
 	else {
@@ -314,7 +308,7 @@ void PlayFullscreenVideoFrame()
 	video = &g_fmvSlots[0];
 	if (!SmackWait(video->m_smack)) {
 		if (video->m_frame == 1) {
-			g_pVideoDriver->m_unk0x3aa = 1;
+			g_pVideoDriver->m_fmvFirstFrame = 1;
 		}
 
 		if (video->m_smack->NewPalette) {
@@ -350,7 +344,7 @@ void PlayFullscreenVideoFrame()
 }
 
 // Advances and draws the videos of all slots: Smacker videos frame by frame, sprite sheets
-// (m_unk0x14) on their timer. A video past its last frame stops (flag 4), loops (flag 8) or
+// (m_shp) on their timer. A video past its last frame stops (flag 4), loops (flag 8) or
 // closes.
 // Not 100%: the stack slots of video and i are permuted, and m_drawnTop != m_top loads m_drawnTop
 // first (reversing the operands or retyping the member doesn't flip it).
@@ -411,11 +405,11 @@ void UpdateVideos()
 	for (i = 0, video = g_fmvSlots; i < 32; i++, video++) {
 		if (video->m_flags & 0x80000000) {
 			if (video->m_smack) {
-				if (video->m_unk0x18 && !(video->m_flags & 0x20)) {
+				if (video->m_frameBuffer && !(video->m_flags & 0x20)) {
 					video->m_flags |= 0x10;
 					if (video->m_flags & 0x100) {
-						g_pVideoDriver->FUN_10006ed4(
-							(undefined*) video->m_unk0x18,
+						g_pVideoDriver->DrawPixels(
+							(undefined*) video->m_frameBuffer,
 							video->m_left,
 							video->m_top,
 							video->m_width,
@@ -423,8 +417,8 @@ void UpdateVideos()
 						);
 					}
 					else {
-						g_pVideoDriver->FUN_10006f87(
-							(undefined*) video->m_unk0x18,
+						g_pVideoDriver->DrawPixelsClipped(
+							(undefined*) video->m_frameBuffer,
 							video->m_left,
 							video->m_top,
 							video->m_width,
@@ -462,12 +456,12 @@ void UpdateVideos()
 					}
 				}
 			}
-			else if (video->m_unk0x14) {
+			else if (video->m_shp) {
 				if (!(video->m_flags & 0x20)) {
 					video->m_flags |= 0x10;
 					if (video->m_flags & 0x100) {
-						g_pVideoDriver->FUN_100073b3(
-							(undefined4) video->m_unk0x14,
+						g_pVideoDriver->DrawShpFrame(
+							(undefined4) video->m_shp,
 							video->m_frame,
 							video->m_left,
 							video->m_top,
@@ -476,8 +470,8 @@ void UpdateVideos()
 						);
 					}
 					else {
-						g_pVideoDriver->FUN_10007430(
-							(undefined4) video->m_unk0x14,
+						g_pVideoDriver->DrawShpFrameClipped(
+							(undefined4) video->m_shp,
 							video->m_frame,
 							video->m_left,
 							video->m_top,
@@ -522,8 +516,9 @@ MechS32 IsVideoPlaying(MechS32 p_index)
 	}
 }
 
+// Whether any video plays Smacker's sound (flag 0x2000). Unused.
 // FUNCTION: MW2SHELL 0x10016b78
-MechS32 FUN_10016b78()
+MechS32 IsVideoSoundPlaying()
 {
 	MechS32 i;
 
@@ -546,15 +541,19 @@ MechS32 IsFullscreenVideoPlaying()
 	return 0;
 }
 
+// Pauses the full-screen video when the shell loses the focus: steps back a frame and keeps the
+// screen as the background.
 // FUNCTION: MW2SHELL 0x10016c1d
-void FUN_10016c1d()
+void PauseFullscreenVideo()
 {
 	g_fmvSlots[0].m_frame--;
 	g_pVideoDriver->CopyScreenToBackground();
 }
 
+// Resumes the full-screen video when the shell gets the focus back: restores the screen and
+// redraws the frame PauseFullscreenVideo stepped back to.
 // FUNCTION: MW2SHELL 0x10016c3e
-void FUN_10016c3e()
+void ResumeFullscreenVideo()
 {
 	MechS32 result;
 
@@ -587,8 +586,9 @@ void SetVideoFlags(MechS32 p_index, MechS32 p_mask, MechS32 p_value)
 	}
 }
 
+// Shows a video opened hidden (flag 0x20), redrawing it.
 // FUNCTION: MW2SHELL 0x10016d27
-void FUN_10016d27(MechS32 p_index)
+void ShowVideo(MechS32 p_index)
 {
 	if (p_index >= 0 && p_index < 0x20 && (g_fmvSlots[p_index].m_flags & 0x20)) {
 		g_fmvSlots[p_index].m_flags = g_fmvSlots[p_index].m_flags & ~0x20 | 0x100;
@@ -614,19 +614,19 @@ void CloseVideo(MechS32 p_index)
 		delete g_fmvSlots[p_index].m_sound;
 	}
 
-	if (g_fmvSlots[p_index].m_unk0x14 != NULL) {
-		MEM_free_lock(g_fmvSlots[p_index].m_unk0x14);
+	if (g_fmvSlots[p_index].m_shp != NULL) {
+		MEM_free_lock(g_fmvSlots[p_index].m_shp);
 	}
 
-	if (g_fmvSlots[p_index].m_unk0x18 != NULL) {
-		MEM_free_lock(g_fmvSlots[p_index].m_unk0x18);
+	if (g_fmvSlots[p_index].m_frameBuffer != NULL) {
+		MEM_free_lock(g_fmvSlots[p_index].m_frameBuffer);
 	}
 
 	g_fmvSlots[p_index].m_smack = NULL;
 	g_fmvSlots[p_index].m_sound = NULL;
-	g_fmvSlots[p_index].m_unk0x14 = NULL;
+	g_fmvSlots[p_index].m_shp = NULL;
 	ZeroMemory(&g_fmvSlots[p_index].m_flags, 4);
-	g_fmvSlots[p_index].m_unk0x18 = NULL;
+	g_fmvSlots[p_index].m_frameBuffer = NULL;
 }
 
 // FUNCTION: MW2SHELL 0x10016f45
@@ -699,7 +699,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 	p_slot->m_frame = 0;
 	p_slot->m_frameCount = p_slot->m_smack->Frames;
 	p_slot->m_drawnFrame = p_slot->m_frame;
-	p_slot->m_unk0x18 = NULL;
+	p_slot->m_frameBuffer = NULL;
 
 	if (p_slot->m_flags & 0x1000) {
 		p_slot->m_frame = 1;
@@ -742,8 +742,8 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 		);
 	}
 	else {
-		p_slot->m_unk0x18 = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_slot->m_width * p_slot->m_height);
-		SmackToBuffer(p_slot->m_smack, 0, 0, p_slot->m_width, p_slot->m_height, p_slot->m_unk0x18, 0);
+		p_slot->m_frameBuffer = HeapAlloc(g_hPrimaryHeap, HEAP_NO_SERIALIZE, p_slot->m_width * p_slot->m_height);
+		SmackToBuffer(p_slot->m_smack, 0, 0, p_slot->m_width, p_slot->m_height, p_slot->m_frameBuffer, 0);
 	}
 
 	return TRUE;
@@ -755,12 +755,12 @@ BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 {
 	MechS32 size;
 
-	p_slot->m_unk0x14 = FILE_read(GetPathToShp(p_name), NULL);
-	if (!p_slot->m_unk0x14) {
+	p_slot->m_shp = FILE_read(GetPathToShp(p_name), NULL);
+	if (!p_slot->m_shp) {
 		return FALSE;
 	}
 
-	size = FUN_10037504(p_slot->m_unk0x14, 0);
+	size = GetShpFrameSize(p_slot->m_shp, 0);
 	p_slot->m_width = (size >> 16) + 1;
 	p_slot->m_height = (size & 0xffff) + 1;
 	if (p_slot->m_flags & 0x80) {
@@ -769,10 +769,10 @@ BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 	}
 
 	p_slot->m_frame = 0;
-	p_slot->m_frameCount = FUN_10037684(p_slot->m_unk0x14);
+	p_slot->m_frameCount = GetShpFrameCount(p_slot->m_shp);
 	p_slot->m_drawnFrame = p_slot->m_frame;
-	p_slot->m_unk0x18 = NULL;
-	((VideoPlaybackTimer*) p_slot->m_unk0x44)->m_next = 0;
+	p_slot->m_frameBuffer = NULL;
+	p_slot->m_nextFrameTime = 0;
 
 	return TRUE;
 }
@@ -808,7 +808,7 @@ MechS32 PlayVideo(
 	if (!p_fps) {
 		p_fps = 10;
 	}
-	((VideoPlaybackTimer*) slot->m_unk0x44)->m_interval = 1000 / p_fps;
+	slot->m_frameInterval = 1000 / p_fps;
 
 	if (CheckVideoExists(p_name)) {
 		if (!LoadVideoFile(slot, p_name)) {
@@ -832,13 +832,13 @@ MechS32 PlayVideo(
 
 // Plays a video in the first free slot.
 // FUNCTION: MW2SHELL 0x100175e2
-MechS32 PlayVideoInFreeSlot(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14)
+MechS32 PlayVideoInFreeSlot(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_fps)
 {
 	MechS32 i;
 
 	for (i = 0; i < 0x20; i++) {
 		if (!(g_fmvSlots[i].m_flags & 0x80000000)) {
-			return PlayVideo(i, p_name, p_left, p_top, p_flags, p_unk0x14);
+			return PlayVideo(i, p_name, p_left, p_top, p_flags, p_fps);
 		}
 	}
 

@@ -18,8 +18,9 @@ enum {
 // GLOBAL: MW2SHELL 0x10094c90
 MechU8 g_lzWindow[c_lzWindowSize];
 
+// Prints the database's entries to stdout. Unused.
 // FUNCTION: MW2SHELL 0x10047bc0
-void TMPackDataBase::FUN_10047bc0()
+void TMPackDataBase::DumpEntries()
 {
 	TMPackDBEntry* entry;
 	MechS32 i;
@@ -102,7 +103,7 @@ TMPackDataBase::~TMPackDataBase()
 }
 
 // FUNCTION: MW2SHELL 0x10047fd4
-MechS32 TMPackDataBase::FUN_10047fd4()
+MechS32 TMPackDataBase::GetEntryCount()
 {
 	return m_entries->m_count;
 }
@@ -230,8 +231,9 @@ MechS32 TMPackDataBase::GetDBItemLZ(MechS32 p_id, void** p_data, MechS32* p_size
 	return 0;
 }
 
+// Reads p_size bytes of item p_id, from p_offset on.
 // FUNCTION: MW2SHELL 0x100483c8
-MechS32 TMPackDataBase::FUN_100483c8(MechS32 p_id, MechS32 p_offset, void* p_buffer, size_t p_size)
+MechS32 TMPackDataBase::ReadDBItemData(MechS32 p_id, MechS32 p_offset, void* p_buffer, size_t p_size)
 {
 	TMPackDBEntry* entry;
 
@@ -248,7 +250,7 @@ MechS32 TMPackDataBase::FUN_100483c8(MechS32 p_id, MechS32 p_offset, void* p_buf
 // Reads a line; returns 2 if it ended at a NUL rather than a newline.
 // Stack-slot permutation: entry, c and i.
 // FUNCTION: MW2SHELL 0x1004843e
-MechS32 TMPackDataBase::FUN_1004843e(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer)
+MechS32 TMPackDataBase::ReadDBItemLine(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer)
 {
 	TMPackDBEntry* entry;
 	MechChar c;
@@ -274,9 +276,10 @@ MechS32 TMPackDataBase::FUN_1004843e(MechS32 p_id, MechS32 p_offset, MechChar* p
 	return 0;
 }
 
+// Reads a NUL-terminated string.
 // Stack-slot permutation: entry, c and i.
 // FUNCTION: MW2SHELL 0x10048501
-MechS32 TMPackDataBase::FUN_10048501(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer)
+MechS32 TMPackDataBase::ReadDBItemString(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer)
 {
 	TMPackDBEntry* entry;
 	MechChar c;

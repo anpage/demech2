@@ -256,7 +256,7 @@ TextGlyph* DrawVolumeSlider(ScreenField* p_option)
 
 	position = *(MechS32*) p_option->m_data;
 	position /= 0x100;
-	g_pVideoDriver->FUN_100073b3(
+	g_pVideoDriver->DrawShpFrame(
 		(undefined4) g_sliderImages,
 		1,
 		p_option->m_left,
@@ -265,7 +265,7 @@ TextGlyph* DrawVolumeSlider(ScreenField* p_option)
 		p_option->m_height
 	);
 	g_pVideoDriver
-		->FUN_100073b3((undefined4) g_sliderImages, 0, p_option->m_left + position + 8, p_option->m_top - 1, 0xf, 0x1d);
+		->DrawShpFrame((undefined4) g_sliderImages, 0, p_option->m_left + position + 8, p_option->m_top - 1, 0xf, 0x1d);
 
 	return NULL;
 }
@@ -372,7 +372,7 @@ void DrawOptions()
 	g_volumeTestSample = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	g_volumeTestSample->SetVolume(0x32);
 	g_pVideoDriver->LoadPalette(3);
-	g_pVideoDriver->m_unk0x3a6 = 0;
+	g_pVideoDriver->m_restoreColor = 0;
 	g_pVideoDriver->RestoreBackground(0x177, 0x7c, 0x102, 0x160);
 	g_optionsMovie = NULL;
 	g_optionsMovie = new LoopingMovie(g_optionsMovieName, 0x78, 4);
@@ -419,7 +419,7 @@ void OptionsCallback(MechS32 p_active)
 			delete g_volumeTestSample;
 		}
 
-		g_pVideoDriver->m_unk0x3a6 = -1;
+		g_pVideoDriver->m_restoreColor = -1;
 		g_pVideoDriver->RestoreBackground(0, 0, 0x280, 0x1e0);
 		UpdateVideos();
 		g_pVideoDriver->SetPalette(g_savedPalette, 1);

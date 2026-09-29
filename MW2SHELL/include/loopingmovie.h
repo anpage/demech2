@@ -10,7 +10,7 @@
 // SIZE 0x18
 class LoopingMovie {
 public:
-	LoopingMovie(MechChar* p_name, MechS32 p_unk0x04, MechS32 p_unk0x08);
+	LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top);
 	~LoopingMovie();
 
 	void MoveTo(MechS32 p_left, MechS32 p_top);

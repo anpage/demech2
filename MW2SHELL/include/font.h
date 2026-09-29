@@ -30,7 +30,7 @@ private:
 
 public:
 	// TextGlyph and MouseState read these directly: an inline accessor would leave a jmp at /Ob1.
-	void* m_unk0x408;           // 0x408
+	void* m_dataCopy;           // 0x408 — m_data, for VideoDriver::DrawString
 	MechS32 m_height;           // 0x40c
 	VideoDriver* m_videoDriver; // 0x410
 };

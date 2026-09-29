@@ -24,31 +24,33 @@
 
 // The trainer's idle video alternates between two takes; a countdown to the next.
 // GLOBAL: MW2SHELL 0x1006acc8
-MechS32 g_unk0x1006acc8 = 0;
+MechS32 g_trainerTake = 0;
 
 // GLOBAL: MW2SHELL 0x1006accc
-MechS32 g_unk0x1006accc = -1;
+MechS32 g_trainerIdleCountdown = -1;
 
 // Set once the trainer's welcome video is over and the mission buttons are up.
 // GLOBAL: MW2SHELL 0x1006acd0
-MechS32 g_unk0x1006acd0 = 0;
+MechS32 g_trainingButtonsShown = 0;
 
-// The video playing before a training mission starts, -1 for none.
+// The trainer's video playing before a training mission starts, -1 for none.
 // GLOBAL: MW2SHELL 0x1006acd4
-MechS32 g_unk0x1006acd4 = -1;
+MechS32 g_trainingExitVideo = -1;
 
+// The room's sound, database item 0x4c, looped once the welcome is over.
 // GLOBAL: MW2SHELL 0x1006acd8
-AudioSample* g_unk0x1006acd8 = NULL;
+AudioSample* g_trainingAmbience = NULL;
 
 // Set once the training screen's quick tips have been shown.
 // GLOBAL: MW2SHELL 0x1006acdc
-MechS32 g_unk0x1006acdc = 0;
+MechS32 g_trainingTipsShown = 0;
 
 // GLOBAL: MW2SHELL 0x10090668
 ButtonMenu* g_cadetTrainingMenu;
 
+// DrawCadetTraining's p_wParam: the quick tips show when it is 0x407 (from the clan hall).
 // GLOBAL: MW2SHELL 0x1009066c
-WPARAM g_unk0x1009066c;
+WPARAM g_trainingMessage;
 
 void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
@@ -57,7 +59,7 @@ void CadetTrainingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS
 // FUNCTION: MW2SHELL 0x1003c7e0
 void DrawCadetTraining(TMPackDataBase* p_database, MechS32 p_campaign, char**, WPARAM p_wParam)
 {
-	g_unk0x1009066c = p_wParam;
+	g_trainingMessage = p_wParam;
 	g_cadetTrainingMenu =
 		new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_cadetTrainingScreens[p_campaign].m_buttons, 1);
 	g_pVideoDriver->LoadBackground(p_database, g_cadetTrainingScreens[p_campaign].m_picture);
@@ -99,44 +101,44 @@ void CadetTrainingCallback(
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_unk0x1006acdc && g_unk0x1009066c == 0x407 && g_unk0x1006acd0) {
+	if (g_fQuickTips && !g_trainingTipsShown && g_trainingMessage == 0x407 && g_trainingButtonsShown) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x68), g_pWnd, (DLGPROC) OkDialogProc, 0);
-		g_unk0x1006acdc = 1;
+		g_trainingTipsShown = 1;
 	}
 
-	if (!g_unk0x1006acd0 && !IsVideoPlaying(0)) {
-		g_unk0x1006acd0 = 1;
+	if (!g_trainingButtonsShown && !IsVideoPlaying(0)) {
+		g_trainingButtonsShown = 1;
 		for (i = 1; i < g_cadetTrainingScreens[*p_campaign].m_count; i++) {
 			g_cadetTrainingMenu->AddButton(g_cadetTrainingScreens[*p_campaign].m_buttons[i], i, FALSE);
 		}
 
 		p_database->GetDBItem(0x4c, &data, &size);
-		g_unk0x1006acd8 = new AudioSample(g_pAudioSubsystem, data, size);
-		g_unk0x1006acd8->SetVolume(0x32);
-		g_unk0x1006acd8->EnableLoop();
-		g_unk0x1006acd8->Start();
+		g_trainingAmbience = new AudioSample(g_pAudioSubsystem, data, size);
+		g_trainingAmbience->SetVolume(0x32);
+		g_trainingAmbience->EnableLoop();
+		g_trainingAmbience->Start();
 	}
 
 	if (!IsVideoPlaying(3)) {
-		if (!g_unk0x1006accc) {
+		if (!g_trainerIdleCountdown) {
 			switch (*p_campaign) {
 			case 0:
-				PlayVideo(3, g_unk0x1006acc8 ? "awotrnwa" : "awotrnwb", 0x48, 0xe0, 2, 0);
-				g_unk0x1006acc8 = 1 - g_unk0x1006acc8;
+				PlayVideo(3, g_trainerTake ? "awotrnwa" : "awotrnwb", 0x48, 0xe0, 2, 0);
+				g_trainerTake = 1 - g_trainerTake;
 				break;
 			case 1:
-				PlayVideo(3, g_unk0x1006acc8 ? "ajftrnwa" : "ajftrnwb", 0x48, 0xe0, 2, 0);
-				g_unk0x1006acc8 = 1 - g_unk0x1006acc8;
+				PlayVideo(3, g_trainerTake ? "ajftrnwa" : "ajftrnwb", 0x48, 0xe0, 2, 0);
+				g_trainerTake = 1 - g_trainerTake;
 				break;
 			}
 		}
 
-		if (--g_unk0x1006accc < 0) {
-			g_unk0x1006accc = 20000;
+		if (--g_trainerIdleCountdown < 0) {
+			g_trainerIdleCountdown = 20000;
 		}
 	}
 
-	if (g_unk0x1006acd4 == -1) {
+	if (g_trainingExitVideo == -1) {
 		button = g_cadetTrainingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
 		switch (button) {
 		case 0:
@@ -151,21 +153,21 @@ void CadetTrainingCallback(
 			}
 			*p_scenario = g_trainingScenarios[*p_campaign][button - 1];
 			ShellApplyMissionUiInfo(*p_scenario, 0, 0);
-			delete g_unk0x1006acd8;
-			g_unk0x1006acd8 = NULL;
+			delete g_trainingAmbience;
+			g_trainingAmbience = NULL;
 			switch (*p_campaign) {
 			case 0:
-				g_unk0x1006acd4 = PlayVideo(0x10, "awotrndr", 0x230, 0xa8, 2, 0);
+				g_trainingExitVideo = PlayVideo(0x10, "awotrndr", 0x230, 0xa8, 2, 0);
 				break;
 			case 1:
-				g_unk0x1006acd4 = PlayVideo(0x10, "ajftrndr", 0x21c, 0xa8, 2, 0);
+				g_trainingExitVideo = PlayVideo(0x10, "ajftrndr", 0x21c, 0xa8, 2, 0);
 				break;
 			}
 			break;
 		}
 	}
-	else if (!IsVideoPlaying(g_unk0x1006acd4)) {
-		g_unk0x1006acd4 = -1;
+	else if (!IsVideoPlaying(g_trainingExitVideo)) {
+		g_trainingExitVideo = -1;
 		p_msg = 0x410;
 	}
 
@@ -173,12 +175,12 @@ done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
 		delete g_cadetTrainingMenu;
-		delete g_unk0x1006acd8;
-		g_unk0x1006acd8 = NULL;
-		g_unk0x1006acdc = 0;
-		g_unk0x1006acc8 = 0;
-		g_unk0x1006accc = -1;
-		g_unk0x1006acd0 = 0;
+		delete g_trainingAmbience;
+		g_trainingAmbience = NULL;
+		g_trainingTipsShown = 0;
+		g_trainerTake = 0;
+		g_trainerIdleCountdown = -1;
+		g_trainingButtonsShown = 0;
 		PostMessage(g_pWnd, p_msg, 0x414, 0);
 		UnregisterScreenFunction(CadetTrainingCallback);
 	}

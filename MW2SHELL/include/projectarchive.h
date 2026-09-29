@@ -29,7 +29,7 @@ private:
 
 // The functions and globals of projectarchive.cpp that other units use.
 extern char g_bwdTags[][4];
-extern MechS32 g_unk0x10066a44;
+extern MechS32 g_enemyStarDifficulty;
 
 void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCount, StarMech* p_enemies);
 void PrjBuildPlayerStarTemplates(MechS32 p_clan, MechS32 p_rival);

@@ -42,7 +42,7 @@ struct MechNameTag {
 // A star in a mission's BWD file (node type 0x46). Its mechs' variant names follow, one per
 // mech of the star's size.
 struct BwdStar {
-	MechS32 m_unk0x00;            // 0x00
+	MechS32 m_difficulty;         // 0x00 — the enemy star's, see g_enemyStarDifficulty
 	MechS32 m_tonnage;            // 0x04
 	MechS32 m_count;              // 0x08
 	MechS32 m_size;               // 0x0c
@@ -52,19 +52,11 @@ struct BwdStar {
 DECOMP_SIZE_ASSERT(MechNameTag, 0x08)
 DECOMP_SIZE_ASSERT(Formation, 0x08)
 
-MechS32 PlayVideo(
-	MechS32 p_index,
-	const char* p_name,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	MechU32 p_unk0x10,
-	MechU32 p_unk0x14
-);
 void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar**, MechS32);
 
 // The briefing videos of the missions, each with its looping continuation.
 // GLOBAL: MW2SHELL 0x1006a1c0
-MechChar* g_unk0x1006a1c0[12][2] = {
+MechChar* g_briefingVideos[12][2] = {
 	{"aplan01", "aplan01c"},
 	{"aplan02", "aplan02c"},
 	{"aplan03", "aplan03c"},
@@ -79,8 +71,9 @@ MechChar* g_unk0x1006a1c0[12][2] = {
 	{"aplan12", "aplan12c"},
 };
 
+// The missions of the Trials of Grievance, in order; the list ends at the first NULL.
 // GLOBAL: MW2SHELL 0x1006a220
-MechChar* g_unk0x1006a220[12] = {
+MechChar* g_briefingScenarios[12] = {
 	"jackscn1",
 	"chedscn1",
 	"edamscn1",
@@ -93,8 +86,9 @@ MechChar* g_unk0x1006a220[12] = {
 	"swisscn1",
 };
 
+// The clans' videos, by the index into g_clanNames.
 // GLOBAL: MW2SHELL 0x1006a250
-MechChar* g_unk0x1006a250[6] = {"wiawolf", "wiajf", "wiaghost", "wiasmoke", "wianova", "wiasteel"};
+MechChar* g_clanVideos[6] = {"wiawolf", "wiajf", "wiaghost", "wiasmoke", "wianova", "wiasteel"};
 
 // The names of the mechs of the player's star...
 // GLOBAL: MW2SHELL 0x1006a268
@@ -107,61 +101,67 @@ MechNameTag g_enemyMechTags[3] = {0};
 // GLOBAL: MW2SHELL 0x1006a298
 MechS32 g_briefingChassisCount = 0xf;
 
-// The briefing video, an index into g_unk0x1006a1c0.
+// The briefing video, an index into g_briefingVideos.
 // GLOBAL: MW2SHELL 0x1006a29c
-MechS32 g_unk0x1006a29c = 0;
+MechS32 g_briefingVideo = 0;
 
 // The formation names of the enemy's star...
 // GLOBAL: MW2SHELL 0x1006a2a0
-TextGlyph* g_unk0x1006a2a0 = NULL;
+TextGlyph* g_enemyFormationName = NULL;
 
 // ...and of the player's.
 // GLOBAL: MW2SHELL 0x1006a2a4
-TextGlyph* g_unk0x1006a2a4 = NULL;
+TextGlyph* g_playerFormationName = NULL;
 
 // GLOBAL: MW2SHELL 0x1006a2a8
 ButtonMenu* g_missionBriefingMenu = NULL;
 
+// Played on LAUNCH.
 // GLOBAL: MW2SHELL 0x1006a2b0
-AudioSample* g_unk0x1006a2b0 = NULL;
+AudioSample* g_launchSound = NULL;
 
 // Only for a trial (WM_USER + 0xe).
 // GLOBAL: MW2SHELL 0x1006a2b4
-AudioSample* g_unk0x1006a2b4 = NULL;
+AudioSample* g_trialSound = NULL;
 
 // Set once the briefing's quick tips have been shown.
 // GLOBAL: MW2SHELL 0x1006a2b8
-MechS32 g_unk0x1006a2b8 = 0;
+MechS32 g_briefingTipsShown = 0;
 
 // The text colors: each color maps to itself, but 0 is transparent and 1 is drawn in 0x22.
 // GLOBAL: MW2SHELL 0x10090058
-MechU8 g_unk0x10090058[0x100];
+MechU8 g_briefingTextColors[0x100];
 
+// The player's clan and the rival clan, indices into g_clanNames and g_clanVideos. They are
+// never the same.
 // GLOBAL: MW2SHELL 0x10090170
-MechS32 g_unk0x10090170;
+MechS32 g_briefingClan;
 
 // The three lines of briefing text.
 // GLOBAL: MW2SHELL 0x10090160
-TextGlyph* g_unk0x10090160[3];
+TextGlyph* g_briefingLines[3];
 
+// The formations of the player's star and the enemy's, indices into g_formations.
 // GLOBAL: MW2SHELL 0x1009016c
-MechS32 g_unk0x1009016c;
+MechS32 g_playerFormation;
 
 // GLOBAL: MW2SHELL 0x10090158
-MechS32 g_unk0x10090158;
+MechS32 g_briefingRival;
 
+// DrawMissionBriefing's p_wParam: WM_USER + 0xe for a trial.
 // GLOBAL: MW2SHELL 0x10090174
-WPARAM g_unk0x10090174;
+WPARAM g_briefingMessage;
 
 // GLOBAL: MW2SHELL 0x10090178
-MechS32 g_unk0x10090178;
+MechS32 g_enemyFormation;
 
+// The briefing text line being built.
 // GLOBAL: MW2SHELL 0x10090180
-MechChar g_unk0x10090180[0x100];
+MechChar g_briefingLine[0x100];
 
-// The mission, an index into g_unk0x1006a220.
+// The mission, an index into g_briefingScenarios.
 // GLOBAL: MW2SHELL 0x10090280
-MechS32 g_unk0x10090280;
+MechS32 g_briefingMission;
 
 // Sets up a star from a BWD star node, and registers its mechs' variants.
 // FUNCTION: MW2SHELL 0x10037c60
@@ -202,7 +202,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 
 	title = g_projectArchive->FindNextBwdNode(file, 0x47, NULL);
 	if (title) {
-		strcpy(g_unk0x1006a550, (MechChar*) (title + 2));
+		strcpy(g_missionName, (MechChar*) (title + 2));
 	}
 
 	if (p_stars) {
@@ -214,7 +214,7 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 		star = g_projectArchive->FindNextBwdNode(file, 0x46, star);
 		if (star) {
 			LoadStar(1, (BwdStar*) (star + 2));
-			g_unk0x10066a44 = star[2];
+			g_enemyStarDifficulty = star[2];
 		}
 	}
 
@@ -224,24 +224,24 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 	if (p_video) {
 		briefing = g_projectArchive->FindNextBwdNode(file, 0x45, NULL);
 		if (briefing) {
-			g_unk0x1006a29c = briefing[2] - 1;
-			if (g_unk0x1006a29c < 0 || g_unk0x1006a29c >= 12) {
-				g_unk0x1006a29c = 0;
+			g_briefingVideo = briefing[2] - 1;
+			if (g_briefingVideo < 0 || g_briefingVideo >= 12) {
+				g_briefingVideo = 0;
 			}
 
-			PlayVideo(0, g_unk0x1006a1c0[g_unk0x1006a29c][0], 0x19e, 10, 0x42, 0);
+			PlayVideo(0, g_briefingVideos[g_briefingVideo][0], 0x19e, 10, 0x42, 0);
 
 			pos = 0;
 			for (i = 0; i < 3; i++, pos++) {
 				for (j = 0; pos < briefing[1] - 0xc && ((MechChar*) briefing)[pos + 0xc] >= ' '; pos++, j++) {
-					g_unk0x10090180[j] = ((MechChar*) briefing)[pos + 0xc];
+					g_briefingLine[j] = ((MechChar*) briefing)[pos + 0xc];
 				}
-				g_unk0x10090180[j] = '\0';
+				g_briefingLine[j] = '\0';
 
-				if (g_unk0x10090160[i]) {
-					delete g_unk0x10090160[i];
+				if (g_briefingLines[i]) {
+					delete g_briefingLines[i];
 				}
-				g_unk0x10090160[i] = g_textFont->AddText(0xef, i * 12 + 0x45, g_unk0x10090180, g_unk0x10090058);
+				g_briefingLines[i] = g_textFont->AddText(0xef, i * 12 + 0x45, g_briefingLine, g_briefingTextColors);
 			}
 		}
 	}
@@ -268,7 +268,7 @@ void ShowMechName(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_
 		text = "[none]";
 	}
 
-	p_tag->m_glyph = g_textFont->AddText(p_left, p_top, text, g_unk0x10090058);
+	p_tag->m_glyph = g_textFont->AddText(p_left, p_top, text, g_briefingTextColors);
 }
 
 // Shows the formation names of both stars.
@@ -277,19 +277,21 @@ void ShowFormationNames()
 {
 	POINT* pos;
 
-	g_unk0x1009016c = GetStarFormation(0);
-	if (g_unk0x1006a2a4) {
-		delete g_unk0x1006a2a4;
+	g_playerFormation = GetStarFormation(0);
+	if (g_playerFormationName) {
+		delete g_playerFormationName;
 	}
 	pos = &g_missionBriefingButtons[6].m_textPos;
-	g_unk0x1006a2a4 = g_textFont->AddText(pos->x, pos->y, g_formations[g_unk0x1009016c].m_name, g_unk0x10090058);
+	g_playerFormationName =
+		g_textFont->AddText(pos->x, pos->y, g_formations[g_playerFormation].m_name, g_briefingTextColors);
 
-	g_unk0x10090178 = GetStarFormation(1);
-	if (g_unk0x1006a2a0) {
-		delete g_unk0x1006a2a0;
+	g_enemyFormation = GetStarFormation(1);
+	if (g_enemyFormationName) {
+		delete g_enemyFormationName;
 	}
 	pos = &g_missionBriefingButtons[17].m_textPos;
-	g_unk0x1006a2a0 = g_textFont->AddText(pos->x, pos->y, g_formations[g_unk0x10090178].m_name, g_unk0x10090058);
+	g_enemyFormationName =
+		g_textFont->AddText(pos->x, pos->y, g_formations[g_enemyFormation].m_name, g_briefingTextColors);
 }
 
 // Picks a value by the pilot of the player's first mech: 0x12 for Enzo, 0x11 for Hobbes, 0x10
@@ -323,40 +325,40 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 	MechS32 i;
 	MechS32 audioSize;
 
-	g_unk0x10090174 = p_wParam;
+	g_briefingMessage = p_wParam;
 	g_briefingChassisCount = GetChassisCount();
 
 	for (i = 1; i < 0x100; i++) {
-		g_unk0x10090058[i] = i;
+		g_briefingTextColors[i] = i;
 	}
-	g_unk0x10090058[0] = 0xff;
-	g_unk0x10090058[1] = 0x22;
+	g_briefingTextColors[0] = 0xff;
+	g_briefingTextColors[1] = 0x22;
 
 	*p_scenario = "pinkscn1";
 	p_database->GetDBItem(78, &audioData, &audioSize);
-	g_unk0x1006a2b0 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_launchSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	if (p_wParam == 0x40e) {
 		p_database->GetDBItem(82, &audioData, &audioSize);
-		g_unk0x1006a2b4 = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+		g_trialSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	}
 
 	g_missionBriefingMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_missionBriefingButtons, 0x19);
 	for (i = 0; i < 3; i++) {
-		g_unk0x10090160[i] = NULL;
+		g_briefingLines[i] = NULL;
 	}
 
 	if (p_wParam == 0x40e) {
-		g_unk0x10090288.m_unk0x110 = 0;
+		g_simHandoff.m_briefingMission = 0;
 	}
-	g_unk0x10090280 = g_unk0x10090288.m_unk0x110;
-	g_unk0x1006a29c = 0;
-	*p_scenario = g_unk0x1006a220[g_unk0x10090280];
-	ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], p_wParam == 0x40e, 1);
+	g_briefingMission = g_simHandoff.m_briefingMission;
+	g_briefingVideo = 0;
+	*p_scenario = g_briefingScenarios[g_briefingMission];
+	ShellApplyMissionUiInfo(g_briefingScenarios[g_briefingMission], p_wParam == 0x40e, 1);
 
-	g_unk0x10090170 = 0;
-	PlayVideo(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
-	g_unk0x10090158 = 1;
-	PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+	g_briefingClan = 0;
+	PlayVideo(1, g_clanVideos[g_briefingClan], 0xd, 0xcd, 6, 0);
+	g_briefingRival = 1;
+	PlayVideo(2, g_clanVideos[g_briefingRival], 0x1e3, 0x149, 6, 0);
 
 	for (i = 0; i < 3; i++) {
 		g_playerMechTags[i].m_glyph = NULL;
@@ -371,13 +373,13 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 	}
 	SelectStar(0, -1, -1, -1, -1);
 
-	g_unk0x1006a2a0 = NULL;
-	g_unk0x1006a2a4 = NULL;
+	g_enemyFormationName = NULL;
+	g_playerFormationName = NULL;
 	ShowFormationNames();
 
-	if (g_unk0x1006a2b4) {
-		g_unk0x1006a2b4->SetVolume(0x1e);
-		g_unk0x1006a2b4->Start();
+	if (g_trialSound) {
+		g_trialSound->SetVolume(0x1e);
+		g_trialSound->Start();
 	}
 
 	PlayVideo(0x10, "wialanch", 0xd1, 0x173, 0x24, 0);
@@ -403,9 +405,9 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_unk0x1006a2b8 && g_unk0x10090174 == 0x40e) {
+	if (g_fQuickTips && !g_briefingTipsShown && g_briefingMessage == 0x40e) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x6f), g_pWnd, (DLGPROC) OkDialogProc, 0);
-		g_unk0x1006a2b8 = 1;
+		g_briefingTipsShown = 1;
 	}
 
 	button = g_missionBriefingMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
@@ -414,10 +416,10 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		FUN_10016d27(0x10);
+		ShowVideo(0x10);
 		UpdateVideos();
-		g_unk0x1006a2b0->PlayAndWait();
-		PrjBuildPlayerStarTemplates(g_unk0x10090170, g_unk0x10090158);
+		g_launchSound->PlayAndWait();
+		PrjBuildPlayerStarTemplates(g_briefingClan, g_briefingRival);
 		p_msg = 0x410;
 		break;
 	case 1:
@@ -430,12 +432,12 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		g_unk0x10090280++;
-		if (!g_unk0x1006a220[g_unk0x10090280]) {
-			g_unk0x10090280 = 0;
+		g_briefingMission++;
+		if (!g_briefingScenarios[g_briefingMission]) {
+			g_briefingMission = 0;
 		}
-		*p_scenario = g_unk0x1006a220[g_unk0x10090280];
-		ShellApplyMissionUiInfo(g_unk0x1006a220[g_unk0x10090280], 1, 1);
+		*p_scenario = g_briefingScenarios[g_briefingMission];
+		ShellApplyMissionUiInfo(g_briefingScenarios[g_briefingMission], 1, 1);
 		for (i = 0; i < 3; i++) {
 			pos = &g_missionBriefingButtons[i + 3].m_textPos;
 			SelectStar(0, -1, -1, -1, -1);
@@ -452,33 +454,33 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		g_unk0x10090170++;
-		if (g_unk0x10090170 >= 6) {
-			g_unk0x10090170 = 0;
+		g_briefingClan++;
+		if (g_briefingClan >= 6) {
+			g_briefingClan = 0;
 		}
-		if (g_unk0x10090158 == g_unk0x10090170) {
-			g_unk0x10090170++;
+		if (g_briefingRival == g_briefingClan) {
+			g_briefingClan++;
 		}
-		if (g_unk0x10090170 >= 6) {
-			g_unk0x10090170 = 0;
+		if (g_briefingClan >= 6) {
+			g_briefingClan = 0;
 		}
-		PlayVideo(1, g_unk0x1006a250[g_unk0x10090170], 0xd, 0xcd, 6, 0);
+		PlayVideo(1, g_clanVideos[g_briefingClan], 0xd, 0xcd, 6, 0);
 		break;
 	case 22:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		g_unk0x10090158++;
-		if (g_unk0x10090158 >= 6) {
-			g_unk0x10090158 = 0;
+		g_briefingRival++;
+		if (g_briefingRival >= 6) {
+			g_briefingRival = 0;
 		}
-		if (g_unk0x10090158 == g_unk0x10090170) {
-			g_unk0x10090158++;
+		if (g_briefingRival == g_briefingClan) {
+			g_briefingRival++;
 		}
-		if (g_unk0x10090158 >= 6) {
-			g_unk0x10090158 = 0;
+		if (g_briefingRival >= 6) {
+			g_briefingRival = 0;
 		}
-		PlayVideo(2, g_unk0x1006a250[g_unk0x10090158], 0x1e3, 0x149, 6, 0);
+		PlayVideo(2, g_clanVideos[g_briefingRival], 0x1e3, 0x149, 6, 0);
 		break;
 	case 3:
 	case 4:
@@ -572,42 +574,42 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		g_unk0x1009016c++;
-		if (g_unk0x1009016c >= 6) {
-			g_unk0x1009016c = 0;
+		g_playerFormation++;
+		if (g_playerFormation >= 6) {
+			g_playerFormation = 0;
 		}
-		SelectStar(0, g_unk0x1009016c, -1, -1, -1);
+		SelectStar(0, g_playerFormation, -1, -1, -1);
 		ShowFormationNames();
 		break;
 	case 10:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		if (--g_unk0x1009016c < 0) {
-			g_unk0x1009016c = 5;
+		if (--g_playerFormation < 0) {
+			g_playerFormation = 5;
 		}
-		SelectStar(0, g_unk0x1009016c, -1, -1, -1);
+		SelectStar(0, g_playerFormation, -1, -1, -1);
 		ShowFormationNames();
 		break;
 	case 17:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		g_unk0x10090178++;
-		if (g_unk0x10090178 >= 6) {
-			g_unk0x10090178 = 0;
+		g_enemyFormation++;
+		if (g_enemyFormation >= 6) {
+			g_enemyFormation = 0;
 		}
-		SelectStar(1, g_unk0x10090178, -1, -1, -1);
+		SelectStar(1, g_enemyFormation, -1, -1, -1);
 		ShowFormationNames();
 		break;
 	case 21:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		if (--g_unk0x10090178 < 0) {
-			g_unk0x10090178 = 5;
+		if (--g_enemyFormation < 0) {
+			g_enemyFormation = 5;
 		}
-		SelectStar(1, g_unk0x10090178, -1, -1, -1);
+		SelectStar(1, g_enemyFormation, -1, -1, -1);
 		ShowFormationNames();
 		break;
 	case 13:
@@ -643,21 +645,21 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	}
 
 	if (!IsVideoPlaying(0)) {
-		PlayVideo(0, g_unk0x1006a1c0[g_unk0x1006a29c][1], 0x19e, 10, 0x4a, 0);
+		PlayVideo(0, g_briefingVideos[g_briefingVideo][1], 0x19e, 10, 0x4a, 0);
 	}
 
 done:
 	if (p_msg != 0x404) {
 		CloseAllVideos();
 		delete g_missionBriefingMenu;
-		delete g_unk0x1006a2b0;
-		if (g_unk0x1006a2b4) {
-			delete g_unk0x1006a2b4;
-			g_unk0x1006a2b4 = NULL;
+		delete g_launchSound;
+		if (g_trialSound) {
+			delete g_trialSound;
+			g_trialSound = NULL;
 		}
 		g_pVideoDriver->ClearGlyphs(TRUE);
-		g_unk0x10090288.m_unk0x110 = g_unk0x10090280;
-		g_unk0x1006a2b8 = 0;
+		g_simHandoff.m_briefingMission = g_briefingMission;
+		g_briefingTipsShown = 0;
 		PostMessage(g_pWnd, p_msg, 0x40d, 0);
 		UnregisterScreenFunction(MissionBriefingCallback);
 	}

@@ -200,28 +200,28 @@ MechChar* g_starVideoFormat;
 void SaveStars()
 {
 	if (g_selectedStar == &g_playerStar) {
-		g_unk0x10090288.m_playerStarSelected = TRUE;
+		g_simHandoff.m_playerStarSelected = TRUE;
 	}
 	else {
-		g_unk0x10090288.m_playerStarSelected = FALSE;
+		g_simHandoff.m_playerStarSelected = FALSE;
 	}
 
-	g_unk0x10090288.m_playerStar = g_playerStar;
-	g_unk0x10090288.m_enemyStar = g_enemyStar;
+	g_simHandoff.m_playerStar = g_playerStar;
+	g_simHandoff.m_enemyStar = g_enemyStar;
 }
 
 // FUNCTION: MW2SHELL 0x10002d8d
 void RestoreStars()
 {
-	if (g_unk0x10090288.m_playerStarSelected) {
+	if (g_simHandoff.m_playerStarSelected) {
 		g_selectedStar = &g_playerStar;
 	}
 	else {
 		g_selectedStar = &g_enemyStar;
 	}
 
-	g_playerStar = g_unk0x10090288.m_playerStar;
-	g_enemyStar = g_unk0x10090288.m_enemyStar;
+	g_playerStar = g_simHandoff.m_playerStar;
+	g_enemyStar = g_simHandoff.m_enemyStar;
 }
 
 // Sets a mech of the selected star: its pilot name and its variant file. A three-letter variant
@@ -376,11 +376,11 @@ void SelectStar(MechS32 p_star, MechS32 p_formation, MechS32 p_size, MechS32 p_c
 // FUNCTION: MW2SHELL 0x10003221
 void WriteStarFiles()
 {
-	strcat(g_unk0x10090288.m_unk0x118, " -of=");
-	strcat(g_unk0x10090288.m_unk0x118, g_formationOptions[g_playerStar.m_formation].m_option);
+	strcat(g_simHandoff.m_cmdLine, " -of=");
+	strcat(g_simHandoff.m_cmdLine, g_formationOptions[g_playerStar.m_formation].m_option);
 	if (g_enemyStar.m_count) {
-		strcat(g_unk0x10090288.m_unk0x118, " -oe=");
-		strcat(g_unk0x10090288.m_unk0x118, g_formationOptions[g_enemyStar.m_formation].m_option);
+		strcat(g_simHandoff.m_cmdLine, " -oe=");
+		strcat(g_simHandoff.m_cmdLine, g_formationOptions[g_enemyStar.m_formation].m_option);
 	}
 
 	PrjWriteStarTemplates(g_playerStar.m_count, g_playerStar.m_mechs, g_enemyStar.m_count, g_enemyStar.m_mechs);
@@ -512,7 +512,7 @@ void ShowFormationMech(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_me
 		return;
 	}
 
-	FUN_10016d27(label + 1);
+	ShowVideo(label + 1);
 	p_menu->EnableButton(label + 6);
 
 	type = g_selectedStar->m_mechs[mech].m_chassis;
@@ -713,7 +713,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		break;
 	case 1:
 		if (*p_campaign == 2) {
-			FUN_10016d27(5);
+			ShowVideo(5);
 		}
 		else {
 			SetVideoFlags(5, 1, 0);
@@ -727,7 +727,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		break;
 	case 2:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(6);
+			ShowVideo(6);
 		}
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
@@ -744,7 +744,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		break;
 	case 3:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(7);
+			ShowVideo(7);
 		}
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
@@ -761,7 +761,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		break;
 	case 4:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(8);
+			ShowVideo(8);
 		}
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
@@ -777,7 +777,7 @@ void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, M
 		break;
 	case 5:
 		if (g_pMouseState->m_leftDown == 1) {
-			FUN_10016d27(9);
+			ShowVideo(9);
 		}
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;

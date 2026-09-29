@@ -2004,10 +2004,10 @@ __declspec(naked) MechS32 FUN_10032e4b(
 }
 #endif
 
-// Draws an image of the data into the view, clipped, through FUN_100333f8. Returns 0 when
-// drawn, or a negative code when the view is empty or everything is clipped.
+// Draws frame p_frame of an SHP animation into the view, clipped, through FUN_100333f8. Returns 0
+// when drawn, or a negative code when the view is empty or everything is clipped.
 #ifdef COMPAT_MODE
-MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top)
+MechS32 BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_left, MechS32 p_top)
 {
 	STUB(0x10032f84);
 	return 0;
@@ -2015,7 +2015,7 @@ MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x
 #else
 // FUNCTION: MW2SHELL 0x10032f84
 __declspec(naked) MechS32
-FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top)
+BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_left, MechS32 p_top)
 {
 	__asm {
 		push ebp
@@ -2818,7 +2818,7 @@ __declspec(naked) void FUN_100334fb(undefined* p_table)
 }
 #endif
 
-// FUN_10032f84 with the pixels mapped through the color remap table (FUN_10033980).
+// BlitShpFrame with the pixels mapped through the color remap table (FUN_10033980).
 #ifdef COMPAT_MODE
 MechS32 FUN_1003351a(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top)
 {
@@ -3717,7 +3717,7 @@ jmp_10033b83:
 		push dword ptr [ebp+0xc]
 		lea eax, [ebp-0x28]
 		push eax
-		call FUN_10032f84
+		call BlitShpFrame
 		add esp, 0x14
 jmp_10033b9b:
 		mov esi, dword ptr [ebp+0x8]
@@ -4613,7 +4613,7 @@ jmp_10034605:
 		push dword ptr [ebp+0x10]
 		push dword ptr [ebp+0xc]
 		push dword ptr [ebp+0x8]
-		call FUN_10032f84
+		call BlitShpFrame
 		add esp, 0x14
 		pop es
 		pop edi
@@ -5792,15 +5792,17 @@ jmp_10034f10:
 }
 #endif
 
+// Copies p_source's rectangle to p_dest at (p_destLeft, p_destTop), clipped to both views. A
+// p_fillColor from 0 to 0xff fills the rectangle with that color instead.
 #ifdef COMPAT_MODE
 void BlitView(
-	PixelView* p_unk0x00,
-	MechS32 p_unk0x04,
-	MechS32 p_unk0x08,
-	PixelView* p_unk0x0c,
-	MechS32 p_unk0x10,
-	MechS32 p_unk0x14,
-	MechS32 p_unk0x18
+	PixelView* p_source,
+	MechS32 p_sourceLeft,
+	MechS32 p_sourceTop,
+	PixelView* p_dest,
+	MechS32 p_destLeft,
+	MechS32 p_destTop,
+	MechS32 p_fillColor
 )
 {
 	STUB(0x10034f18);
@@ -5808,13 +5810,13 @@ void BlitView(
 #else
 // FUNCTION: MW2SHELL 0x10034f18
 __declspec(naked) void BlitView(
-	PixelView* p_unk0x00,
-	MechS32 p_unk0x04,
-	MechS32 p_unk0x08,
-	PixelView* p_unk0x0c,
-	MechS32 p_unk0x10,
-	MechS32 p_unk0x14,
-	MechS32 p_unk0x18
+	PixelView* p_source,
+	MechS32 p_sourceLeft,
+	MechS32 p_sourceTop,
+	PixelView* p_dest,
+	MechS32 p_destLeft,
+	MechS32 p_destTop,
+	MechS32 p_fillColor
 )
 {
 	__asm {
@@ -9129,16 +9131,17 @@ __declspec(naked) MechU32 FUN_100374cc(undefined* p_data)
 }
 #endif
 
-// Returns the first dword in an entry selected from the offset table at data + 8.
+// Returns the size of an SHP animation's frame p_index, (width - 1) << 16 | (height - 1): the
+// entry selected from the offset table at data + 8 starts with it.
 #ifdef COMPAT_MODE
-MechS32 FUN_10037504(void* p_data, MechS32 p_index)
+MechS32 GetShpFrameSize(void* p_data, MechS32 p_index)
 {
 	STUB(0x10037504);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037504
-__declspec(naked) MechS32 FUN_10037504(void* p_data, MechS32 p_index)
+__declspec(naked) MechS32 GetShpFrameSize(void* p_data, MechS32 p_index)
 {
 	__asm {
 		push ebp
@@ -9460,16 +9463,16 @@ __declspec(naked) MechS32 FUN_1003763a(undefined* p_data, MechS32 p_index, undef
 }
 #endif
 
-// Returns the dword at +4 in the data header.
+// Returns an SHP animation's frame count, the dword at +4 in its header.
 #ifdef COMPAT_MODE
-MechS32 FUN_10037684(void* p_data)
+MechS32 GetShpFrameCount(void* p_data)
 {
 	STUB(0x10037684);
 	return 0;
 }
 #else
 // FUNCTION: MW2SHELL 0x10037684
-__declspec(naked) MechS32 FUN_10037684(void* p_data)
+__declspec(naked) MechS32 GetShpFrameCount(void* p_data)
 {
 	__asm {
 		push ebp

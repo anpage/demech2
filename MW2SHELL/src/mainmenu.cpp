@@ -28,18 +28,19 @@ void* operator new(size_t);
 // GLOBAL: MW2SHELL 0x1006ae74
 ButtonMenu* g_mainMenu = NULL;
 
-// The main menu's music, started once the intro sound (g_unk0x1006ae7c) is over, and fading in.
+// The main menu's music, started once the intro sound (g_mainMenuIntro) is over, and fading in.
 // GLOBAL: MW2SHELL 0x1006ae78
-AudioSample* g_unk0x1006ae78 = NULL;
+AudioSample* g_mainMenuMusic = NULL;
 
+// Database item 104, played when the menu opens.
 // GLOBAL: MW2SHELL 0x1006ae7c
-AudioSample* g_unk0x1006ae7c = NULL;
+AudioSample* g_mainMenuIntro = NULL;
 
 // GLOBAL: MW2SHELL 0x1006ae80
-MechS32 g_unk0x1006ae80 = 0;
+MechS32 g_mainMenuMusicStarted = 0;
 
 // GLOBAL: MW2SHELL 0x1006ae84
-MechChar g_unk0x1006ae84[] = "amwlogo1";
+MechChar g_mainMenuLogoVideo[] = "amwlogo1";
 
 // The original 0x10049c60 is the CRT operator new, already annotated in library_msvc.h.
 void* AllocateAllowNew(MechS32 p_size)
@@ -57,14 +58,14 @@ void DrawMainMenu(TMPackDataBase* p_database, MechS32*)
 
 	SelectStar(1, 0, 0, 0, 100);
 	p_database->GetDBItem(104, &audioData, &audioSize);
-	g_unk0x1006ae7c = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
+	g_mainMenuIntro = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 
 	g_pVideoDriver->LoadBackground(p_database, 1);
 	g_mainMenu = new ButtonMenu(g_pVideoDriver, g_defaultFont, 0, g_mainMenuButtons, 3);
 
-	PlayVideoInFreeSlot(g_unk0x1006ae84, 0x6f, 0x21, 10, 0);
-	g_unk0x1006ae7c->SetVolume(0x78);
-	g_unk0x1006ae7c->Start();
+	PlayVideoInFreeSlot(g_mainMenuLogoVideo, 0x6f, 0x21, 10, 0);
+	g_mainMenuIntro->SetVolume(0x78);
+	g_mainMenuIntro->Start();
 	RegisterScreenFunction(MainMenuCallback);
 }
 
@@ -84,16 +85,16 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 		goto done;
 	}
 
-	if (!g_unk0x1006ae80 && !g_unk0x1006ae7c->IsPlaying()) {
+	if (!g_mainMenuMusicStarted && !g_mainMenuIntro->IsPlaying()) {
 		p_database->GetDBItem(0x4a, &data, &size);
-		g_unk0x1006ae78 = new AudioSample(g_pAudioSubsystem, data, size);
-		g_unk0x1006ae78->EnableLoop();
-		g_unk0x1006ae78->Start();
-		g_unk0x1006ae78->SetFade(500, 1000, 0, 0x1e);
-		g_unk0x1006ae80 = 1;
+		g_mainMenuMusic = new AudioSample(g_pAudioSubsystem, data, size);
+		g_mainMenuMusic->EnableLoop();
+		g_mainMenuMusic->Start();
+		g_mainMenuMusic->SetFade(500, 1000, 0, 0x1e);
+		g_mainMenuMusicStarted = 1;
 	}
-	else if (g_unk0x1006ae80) {
-		g_unk0x1006ae78->DoFade();
+	else if (g_mainMenuMusicStarted) {
+		g_mainMenuMusic->DoFade();
 	}
 
 	button = g_mainMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
@@ -136,11 +137,11 @@ done:
 		CloseAllVideos();
 		delete g_mainMenu;
 		g_mainMenu = NULL;
-		delete g_unk0x1006ae78;
-		g_unk0x1006ae78 = NULL;
-		delete g_unk0x1006ae7c;
-		g_unk0x1006ae7c = NULL;
-		g_unk0x1006ae80 = 0;
+		delete g_mainMenuMusic;
+		g_mainMenuMusic = NULL;
+		delete g_mainMenuIntro;
+		g_mainMenuIntro = NULL;
+		g_mainMenuMusicStarted = 0;
 		PostMessage(g_pWnd, p_msg, 0x40e, 0);
 		UnregisterScreenFunction(MainMenuCallback);
 	}

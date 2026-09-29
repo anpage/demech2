@@ -22,7 +22,7 @@ targets:
         - g_weaponFields
         - g_criticalFields
         # The pilot roster's mission list (rosterscreen.cpp), likewise.
-        - g_unk0x10063dd8
+        - g_missionListFields
         # The routine table and the self-modifying code block in unk10017a7c.c live in the
         # original's .text; they are declared as data only so the routines can reference them.
         - g_unk0x10017a7c

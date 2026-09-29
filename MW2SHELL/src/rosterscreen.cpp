@@ -37,15 +37,16 @@
 // The pilot roster screen of a clan hall: ten pilot slots, the selected pilot's record and the
 // mission list.
 
+// DrawPilotRoster's p_campaign.
 // GLOBAL: MW2SHELL 0x1007cc98
-MechS32 g_unk0x1007cc98;
+MechS32 g_rosterCampaign;
 
 // GLOBAL: MW2SHELL 0x1007cca0
 MechChar g_rosterFieldText[0x100];
 
 // The campaign's ten slots of g_pilotRoster.
 // GLOBAL: MW2SHELL 0x1007cda8
-PilotRecord* g_unk0x1007cda8[10];
+PilotRecord* g_rosterPilots[10];
 
 // Stack-slot permutation: top and i.
 // FUNCTION: MW2SHELL 0x10014b60
@@ -57,8 +58,8 @@ void ShowPilotCallsigns()
 
 	top = 0x5c;
 	for (i = 0; i < 10; i++, top += 0x23) {
-		pilot = g_unk0x1007cda8[i];
-		if (pilot->m_unk0x00 == 0) {
+		pilot = g_rosterPilots[i];
+		if (pilot->m_inUse == 0) {
 			continue;
 		}
 
@@ -76,7 +77,7 @@ void HidePilotCallsigns()
 	MechS32 i;
 
 	for (i = 0; i < 10; i++) {
-		pilot = g_unk0x1007cda8[i];
+		pilot = g_rosterPilots[i];
 		if (pilot->m_glyph) {
 			delete pilot->m_glyph;
 			pilot->m_glyph = NULL;
@@ -87,7 +88,7 @@ void HidePilotCallsigns()
 // FUNCTION: MW2SHELL 0x10014caa
 void ClearPilot(PilotRecord* p_pilot)
 {
-	p_pilot->m_unk0x00 = 0;
+	p_pilot->m_inUse = 0;
 	strcpy(p_pilot->m_callsign, "");
 	if (p_pilot->m_glyph) {
 		delete p_pilot->m_glyph;
@@ -101,21 +102,23 @@ void SetActivePilot(PilotRecord* p_pilot)
 	MechS32 i;
 
 	for (i = 0; i < 10; i++) {
-		g_unk0x1007cda8[i]->m_unk0x04 = 0;
+		g_rosterPilots[i]->m_active = 0;
 	}
-	p_pilot->m_unk0x04 = 1;
+	p_pilot->m_active = 1;
 }
 
+// Draws the tab's data, a string, in the text font. Unused.
 // FUNCTION: MW2SHELL 0x10014d8a
-TextGlyph* FUN_10014d8a(ScreenField* p_tab)
+TextGlyph* DrawRosterText(ScreenField* p_tab)
 {
 	MechChar* text = (MechChar*) p_tab->m_data;
 
 	return g_textFont->AddText(p_tab->m_left, p_tab->m_top, text, NULL);
 }
 
+// Draws the tab's data, a string, in the button font.
 // FUNCTION: MW2SHELL 0x10014dc4
-TextGlyph* FUN_10014dc4(ScreenField* p_tab)
+TextGlyph* DrawRosterLabel(ScreenField* p_tab)
 {
 	MechChar* text = (MechChar*) p_tab->m_data;
 
@@ -124,13 +127,13 @@ TextGlyph* FUN_10014dc4(ScreenField* p_tab)
 
 // The mission list: the tab's data is the mission index. Missions the pilot hasn't reached stay blank.
 // FUNCTION: MW2SHELL 0x10014dfe
-TextGlyph* FUN_10014dfe(ScreenField* p_tab)
+TextGlyph* DrawMissionListEntry(ScreenField* p_tab)
 {
 	if ((MechS32) p_tab->m_data >= g_pCurrentPilot->m_mission) {
 		return NULL;
 	}
 
-	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_unk0x1007cc98][(MechS32) p_tab->m_data].m_title);
+	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_rosterCampaign][(MechS32) p_tab->m_data].m_title);
 	return g_textFont->AddText(p_tab->m_left + p_tab->m_width / 2, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
@@ -172,13 +175,13 @@ TextGlyph* DrawPilotMission(ScreenField* p_tab)
 	if (p_tab) {
 	}
 
-	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_unk0x1007cc98][g_pCurrentPilot->m_mission].m_title);
+	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_rosterCampaign][g_pCurrentPilot->m_mission].m_title);
 	return g_titleFont->AddText(p_tab->m_left, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
 // The mission list's click callback.
 // FUNCTION: MW2SHELL 0x10014fee
-void FUN_10014fee(ScreenField* p_tab)
+void ClickMissionListEntry(ScreenField* p_tab)
 {
 	if (p_tab) {
 	}
@@ -191,38 +194,38 @@ void FUN_10014fee(ScreenField* p_tab)
 
 // The selected pilot's record.
 // GLOBAL: MW2SHELL 0x10063c78
-ScreenField g_unk0x10063c78[8] = {
+ScreenField g_pilotRecordFields[8] = {
 	ROSTER_TAB(0x1d4, 0x5c, -1, DrawPilotCallsign, NULL, NULL),
-	ROSTER_TAB(0x1d4, 0xd1, -1, FUN_10014dc4, NULL, "~RANK"),
+	ROSTER_TAB(0x1d4, 0xd1, -1, DrawRosterLabel, NULL, "~RANK"),
 	ROSTER_TAB(0x1d4, TAB_BELOW(1, 3), -1, DrawPilotRank, NULL, NULL),
-	ROSTER_TAB(0x1d4, TAB_BELOW(2, 2), -1, FUN_10014dc4, NULL, "~HONOR"),
+	ROSTER_TAB(0x1d4, TAB_BELOW(2, 2), -1, DrawRosterLabel, NULL, "~HONOR"),
 	ROSTER_TAB(0x1d4, TAB_BELOW(1, 3), -1, DrawPilotHonor, NULL, NULL),
-	ROSTER_TAB(0x1d4, TAB_BELOW(2, 2), -1, FUN_10014dc4, NULL, "~MISSION"),
+	ROSTER_TAB(0x1d4, TAB_BELOW(2, 2), -1, DrawRosterLabel, NULL, "~MISSION"),
 	ROSTER_TAB(0x1d4, TAB_BELOW(1, 3), -1, DrawPilotMission, NULL, NULL),
 	ROSTER_END,
 };
 
 // The mission list.
 // GLOBAL: MW2SHELL 0x10063dd8
-ScreenField g_unk0x10063dd8[] = {
+ScreenField g_missionListFields[] = {
 	ROSTER_TAB(0x1d4, 0x5c, -1, DrawPilotCallsign, NULL, NULL),
-	ROSTER_TAB(0x1d4, 0xc8, -1, FUN_10014dc4, NULL, "~Select Mission"),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 3), 100, FUN_10014dfe, FUN_10014fee, 0),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 1),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 2),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 3),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 4),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 5),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 6),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 7),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 8),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 9),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 10),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 11),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 12),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 13),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 14),
-	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, FUN_10014dfe, FUN_10014fee, 15),
+	ROSTER_TAB(0x1d4, 0xc8, -1, DrawRosterLabel, NULL, "~Select Mission"),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 3), 100, DrawMissionListEntry, ClickMissionListEntry, 0),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 1),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 2),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 3),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 4),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 5),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 6),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 7),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 8),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 9),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 10),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 11),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 12),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 13),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 14),
+	ROSTER_TAB(0x1a2, TAB_BELOW(1, 2), 100, DrawMissionListEntry, ClickMissionListEntry, 15),
 	ROSTER_END,
 };
 
@@ -230,19 +233,20 @@ ScreenField g_unk0x10063dd8[] = {
 #undef ROSTER_TAB
 #undef ROSTER_END
 
+// Database item 0x51, started when the roster opens.
 // GLOBAL: MW2SHELL 0x1006411c
-AudioSample* g_unk0x1006411c = NULL;
+AudioSample* g_rosterSound = NULL;
 
 // Set while the mission list shows instead of the pilot's record.
 // GLOBAL: MW2SHELL 0x10064120
-MechS32 g_unk0x10064120 = 0;
+MechS32 g_missionListShown = 0;
 
-// Set once each campaign's quick tips have been shown.
+// Set once each clan's quick tips have been shown.
 // GLOBAL: MW2SHELL 0x10064124
-MechS32 g_unk0x10064124 = 0;
+MechS32 g_jadeFalconTipsShown = 0;
 
 // GLOBAL: MW2SHELL 0x10064128
-MechS32 g_unk0x10064128 = 0;
+MechS32 g_wolfTipsShown = 0;
 
 // GLOBAL: MW2SHELL 0x1007cda0
 ButtonMenu* g_rosterMenu;
@@ -267,7 +271,7 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 	MechS32 i;
 	MechS32 size;
 
-	g_unk0x1007cc98 = p_campaign;
+	g_rosterCampaign = p_campaign;
 	srand(clock());
 	g_pVideoDriver->LoadBackground(p_database, g_rosterScreens[p_campaign].m_picture);
 	LoadPilotRoster();
@@ -286,16 +290,16 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 	}
 
 	for (i = 0; i < 10; i++, slot++) {
-		g_unk0x1007cda8[i] = &g_pilotRoster[slot];
+		g_rosterPilots[i] = &g_pilotRoster[slot];
 		if (g_pCurrentPilot) {
-			g_pilotRoster[slot].m_unk0x04 = 0;
+			g_pilotRoster[slot].m_active = 0;
 		}
-		else if (g_pilotRoster[slot].m_unk0x04) {
-			if (g_pilotRoster[slot].m_unk0x00 == 1) {
+		else if (g_pilotRoster[slot].m_active) {
+			if (g_pilotRoster[slot].m_inUse == 1) {
 				g_pCurrentPilot = &g_pilotRoster[slot];
 			}
 			else {
-				g_pilotRoster[slot].m_unk0x04 = 0;
+				g_pilotRoster[slot].m_active = 0;
 			}
 		}
 	}
@@ -309,7 +313,7 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 		g_rosterMenu->DisableButton(14);
 	}
 	else {
-		ShowFields(g_unk0x10063c78);
+		ShowFields(g_pilotRecordFields);
 		g_rosterMenu->DisableButton(14);
 		if (!g_pCurrentPilot->m_mission) {
 			g_rosterMenu->DisableButton(13);
@@ -317,9 +321,9 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 	}
 
 	g_pDatabaseMw2->GetDBItem(0x51, &data, &size);
-	g_unk0x1006411c = new AudioSample(g_pAudioSubsystem, data, size);
-	g_unk0x1006411c->SetVolume(0x1e);
-	g_unk0x1006411c->Start();
+	g_rosterSound = new AudioSample(g_pAudioSubsystem, data, size);
+	g_rosterSound->SetVolume(0x1e);
+	g_rosterSound->Start();
 	*p_pilotChosen = 0;
 	RegisterScreenFunction(PilotRosterCallback);
 	g_pVideoDriver->DrawShell();
@@ -349,22 +353,23 @@ void PilotRosterCallback(
 	}
 
 	button = g_rosterMenu->HitTest(g_pMouseState->m_x, g_pMouseState->m_y);
-	if (g_showDialog && ((g_unk0x1007cc98 == 1 && !g_unk0x10064124) || (g_unk0x1007cc98 == 0 && !g_unk0x10064128))) {
-		switch (g_unk0x1007cc98) {
+	if (g_showDialog &&
+		((g_rosterCampaign == 1 && !g_jadeFalconTipsShown) || (g_rosterCampaign == 0 && !g_wolfTipsShown))) {
+		switch (g_rosterCampaign) {
 		case 1:
 			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x65), g_pWnd, (DLGPROC) QuickTipsDialogProc, 0);
-			g_unk0x10064124 = 1;
+			g_jadeFalconTipsShown = 1;
 			break;
 		case 0:
 			DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x66), g_pWnd, (DLGPROC) QuickTipsDialogProc, 0);
-			g_unk0x10064128 = 1;
+			g_wolfTipsShown = 1;
 			break;
 		}
 	}
 
 	if (g_pMouseState->GetLeftPressed() == 1) {
-		if (g_unk0x10064120) {
-			tab = FindFieldAt(g_unk0x10063dd8, g_pMouseState->m_x, g_pMouseState->m_y);
+		if (g_missionListShown) {
+			tab = FindFieldAt(g_missionListFields, g_pMouseState->m_x, g_pMouseState->m_y);
 			if (tab && tab->m_click && g_pCurrentPilot->m_mission > (MechS32) tab->m_data) {
 				*p_scenario = g_campaignMissions[*p_campaign][(MechS32) tab->m_data].m_scenario;
 				SelectStar(0, 0, 3, 1, 100);
@@ -387,12 +392,12 @@ void PilotRosterCallback(
 				break;
 			}
 			ClearPilot(g_pCurrentPilot);
-			if (g_unk0x10071374) {
-				g_unk0x10071374 = 0;
+			if (g_newPilotRegistered) {
+				g_newPilotRegistered = 0;
 			}
-			HideFields(g_unk0x10063c78);
-			HideFields(g_unk0x10063dd8);
-			g_unk0x10064120 = 0;
+			HideFields(g_pilotRecordFields);
+			HideFields(g_missionListFields);
+			g_missionListShown = 0;
 			g_pCurrentPilot = NULL;
 			g_rosterMenu->DisableButton(11);
 			g_rosterMenu->DisableButton(12);
@@ -409,8 +414,8 @@ void PilotRosterCallback(
 		case 8:
 		case 9:
 		case 10:
-			pilot = g_unk0x1007cda8[button - 1];
-			if (pilot->m_unk0x00) {
+			pilot = g_rosterPilots[button - 1];
+			if (pilot->m_inUse) {
 				g_pCurrentPilot = pilot;
 				SetActivePilot(pilot);
 				if (g_pMouseState->GetDoubleClicked()) {
@@ -427,26 +432,26 @@ void PilotRosterCallback(
 					g_rosterMenu->DisableButton(13);
 				}
 				g_rosterMenu->DisableButton(14);
-				HideFields(g_unk0x10063dd8);
-				g_unk0x10064120 = 0;
-				HideFields(g_unk0x10063c78);
-				ShowFields(g_unk0x10063c78);
+				HideFields(g_missionListFields);
+				g_missionListShown = 0;
+				HideFields(g_pilotRecordFields);
+				ShowFields(g_pilotRecordFields);
 			}
 			else {
 				g_rosterMenu->DisableButton(11);
 				g_rosterMenu->DisableButton(12);
 				g_rosterMenu->DisableButton(13);
 				g_rosterMenu->DisableButton(14);
-				HideFields(g_unk0x10063dd8);
-				g_unk0x10064120 = 0;
-				HideFields(g_unk0x10063c78);
+				HideFields(g_missionListFields);
+				g_missionListShown = 0;
+				HideFields(g_pilotRecordFields);
 				g_pCurrentPilot = NULL;
 				pilot->m_callsign[0] = '\0';
 				EditTextField(g_titleFont, 0x2a, (button - 1) * 35 + 0x5c, pilot->m_callsign, NULL, 14, 300);
 				UppercaseString(pilot->m_callsign);
 				if (pilot->m_callsign[0]) {
 					g_pCurrentPilot = pilot;
-					pilot->m_unk0x00 = 1;
+					pilot->m_inUse = 1;
 					pilot->m_mission = 0;
 					pilot->m_rank = 0;
 					pilot->m_honor = (MechS32) (rand() / 32767.0 * 1000.0 + 1000.0);
@@ -458,8 +463,8 @@ void PilotRosterCallback(
 					ShowPilotCallsigns();
 					g_rosterMenu->EnableButton(11);
 					g_rosterMenu->EnableButton(12);
-					ShowFields(g_unk0x10063c78);
-					g_unk0x10071374 = 1;
+					ShowFields(g_pilotRecordFields);
+					g_newPilotRegistered = 1;
 				}
 
 				if (g_pMouseState->m_leftDown == 1) {
@@ -477,29 +482,29 @@ void PilotRosterCallback(
 		case 13:
 			g_rosterMenu->DisableButton(13);
 			g_rosterMenu->EnableButton(14);
-			HideFields(g_unk0x10063c78);
-			ShowFields(g_unk0x10063dd8);
-			g_unk0x10064120 = 1;
+			HideFields(g_pilotRecordFields);
+			ShowFields(g_missionListFields);
+			g_missionListShown = 1;
 			break;
 		case 14:
 			if (g_pCurrentPilot->m_mission) {
 				g_rosterMenu->EnableButton(13);
 			}
 			g_rosterMenu->DisableButton(14);
-			HideFields(g_unk0x10063dd8);
-			g_unk0x10064120 = 0;
-			ShowFields(g_unk0x10063c78);
+			HideFields(g_missionListFields);
+			g_missionListShown = 0;
+			ShowFields(g_pilotRecordFields);
 			break;
 		}
 	}
 
 done:
 	if (p_msg != 0x404) {
-		HideFields(g_unk0x10063dd8);
-		HideFields(g_unk0x10063c78);
+		HideFields(g_missionListFields);
+		HideFields(g_pilotRecordFields);
 		SavePilotRoster();
 		delete g_rosterMenu;
-		delete g_unk0x1006411c;
+		delete g_rosterSound;
 		HidePilotCallsigns();
 		PostMessage(g_pWnd, p_msg, 0x412, 0);
 		UnregisterScreenFunction(PilotRosterCallback);

@@ -12,19 +12,19 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_10037504(void* p_data, MechS32 p_index);
-	MechS32 FUN_10037684(void* p_data);
+	MechS32 GetShpFrameSize(void* p_data, MechS32 p_index);
+	MechS32 GetShpFrameCount(void* p_data);
 	MechS32 FontGetHeight(void* p_data);
 	MechS32 FontGetCharWidth(void* p_data, MechS32 p_char);
-	MechS32 FUN_10032f84(PixelView* p_view, undefined4 p_unk0x04, undefined4 p_unk0x08, MechS32 p_left, MechS32 p_top);
+	MechS32 BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_left, MechS32 p_top);
 	void BlitView(
-		PixelView* p_unk0x00,
-		MechS32 p_unk0x04,
-		MechS32 p_unk0x08,
-		PixelView* p_unk0x0c,
-		MechS32 p_unk0x10,
-		MechS32 p_unk0x14,
-		MechS32 p_unk0x18
+		PixelView* p_source,
+		MechS32 p_sourceLeft,
+		MechS32 p_sourceTop,
+		PixelView* p_dest,
+		MechS32 p_destLeft,
+		MechS32 p_destTop,
+		MechS32 p_fillColor
 	);
 	MechS32 BlitLine(
 		PixelView* p_view,

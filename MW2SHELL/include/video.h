@@ -10,14 +10,14 @@ MechS32 PlayFullscreenVideo(const char* p_name, MechS32 p_msg, MechS32 p_wParam)
 void UpdateVideos();
 MechS32 IsVideoPlaying(MechS32 p_index);
 MechS32 IsFullscreenVideoPlaying();
-void FUN_10016c1d();
-void FUN_10016c3e();
+void PauseFullscreenVideo();
+void ResumeFullscreenVideo();
 void SetVideoFlags(MechS32 p_index, MechS32 p_mask, MechS32 p_value);
-void FUN_10016d27(MechS32 p_index);
+void ShowVideo(MechS32 p_index);
 void CloseVideo(MechS32 p_index);
 void CloseAllVideos();
 void MoveVideo(MechS32 p_index, MechS32 p_left, MechS32 p_top);
-MechS32 PlayVideoInFreeSlot(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_unk0x14);
+MechS32 PlayVideoInFreeSlot(MechChar* p_name, MechS32 p_left, MechS32 p_top, MechU32 p_flags, MechU32 p_fps);
 void SetVideoFrame(MechS32 p_index, MechS32 p_frame);
 MechS32 PlayVideo(
 	MechS32 p_index,

@@ -21,8 +21,8 @@ void LoadPilotRoster()
 	if (file == NULL) {
 		for (i = 0; i < 20; i++) {
 			pilot = &g_pilotRoster[i];
-			pilot->m_unk0x00 = 0;
-			pilot->m_unk0x04 = 0;
+			pilot->m_inUse = 0;
+			pilot->m_active = 0;
 			if (i >= 10) {
 				pilot->m_clan = 1;
 			}

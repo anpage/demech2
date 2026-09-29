@@ -27,7 +27,7 @@ PopupPicture::PopupPicture(
 	m_sample = p_sample;
 	m_videoDriver->ReadPictureSize(&m_width, &m_height, m_data, m_size, 2);
 
-	size = FUN_10037504(p_data, 0);
+	size = GetShpFrameSize(p_data, 0);
 	m_width = (size >> 16) + 2;
 	m_height = (size & 0xffff) + 2;
 	m_left = p_left;
@@ -72,7 +72,7 @@ void PopupPicture::Show()
 		m_sample->Start();
 	}
 
-	FUN_10032f84(&m_videoDriver->m_backView, (undefined4) m_data, 0, 319, 239);
+	BlitShpFrame(&m_videoDriver->m_backView, (undefined4) m_data, 0, 319, 239);
 	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 	m_videoDriver->RedrawGlyphs(0);
 	m_videoDriver->RedrawGlyphs(1);

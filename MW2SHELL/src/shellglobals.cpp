@@ -81,12 +81,15 @@ MechS32 g_fDigitalAudio = 1;
 // GLOBAL: MW2SHELL 0x1007123c
 MechS32 g_unk0x1007123c = 1;
 
+// Cleared when the shell runs without a command line, outside MECH2.EXE: LAUNCH then skips the
+// simulator (ShellWindowProc posts the result message straight away) and the mouse shows its
+// position.
 // GLOBAL: MW2SHELL 0x10071240
-MechS32 g_unk0x10071240 = 1;
+MechS32 g_fRunSim = 1;
 
 // The flags the shell opens Smacker movies with.
 // GLOBAL: MW2SHELL 0x10071248
-MechU32 g_unk0x10071248 = 0;
+MechU32 g_movieOpenFlags = 0;
 
 // GLOBAL: MW2SHELL 0x1007124c
 MechU8 g_fDrawFmv = 0;
@@ -112,14 +115,16 @@ MechChar* g_rankNames[10] = {
 // GLOBAL: MW2SHELL 0x10071280
 MechChar* g_clanNames[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jaguar", "Nova Cat", "Steel Vipers"};
 
-// The song of each shell message from 0x406 up, per campaign: a database item (plus the base),
-// 0 to keep the current one, 0x20000000 to stop the music. 0x10000000 restarts the song.
+// The song of each shell message from 0x406 up, per campaign (PlayMidiSong): a database item
+// (plus the base), 0 to keep the current one, 0x20000000 to stop the music. 0x10000000 restarts
+// the song. The Trials of Grievance's...
 // GLOBAL: MW2SHELL 0x10071298
-MechS32 g_unk0x10071298[18] =
+MechS32 g_trialsSongs[18] =
 	{0x23, 0, 0, 0, 0x20000000, 0, 0, 0x23, 0x20000000, 0x23, 0x20000000, 0, 0, 0x23, 0, 0x20000000, 0x20000000, 0};
 
+// ...Wolf's...
 // GLOBAL: MW2SHELL 0x100712e0
-MechS32 g_unk0x100712e0[18] = {
+MechS32 g_wolfSongs[18] = {
 	0x25,
 	0x24,
 	0,
@@ -140,8 +145,9 @@ MechS32 g_unk0x100712e0[18] = {
 	0
 };
 
+// ...and Jade Falcon's.
 // GLOBAL: MW2SHELL 0x10071328
-MechS32 g_unk0x10071328[18] = {
+MechS32 g_jadeFalconSongs[18] = {
 	0x28,
 	0x27,
 	0,
@@ -165,12 +171,14 @@ MechS32 g_unk0x10071328[18] = {
 // GLOBAL: MW2SHELL 0x10071370
 PilotRecord* g_pCurrentPilot = NULL;
 
-// Set when a new pilot is registered, for the clan hall's welcome.
+// Set when a new pilot is registered, for the clan hall's welcome (g_welcomeSound).
 // GLOBAL: MW2SHELL 0x10071374
-MechS32 g_unk0x10071374 = 0;
+MechS32 g_newPilotRegistered = 0;
 
+// The palette the leaderboard, credits and cockpit controls screens, which load palettes of
+// their own, restore on exit.
 // GLOBAL: MW2SHELL 0x10071378
-PaletteColor g_unk0x10071378[0x100] = {0};
+PaletteColor g_savedScreenPalette[0x100] = {0};
 
 // The sound settings (MW2SND.CFG).
 // GLOBAL: MW2SHELL 0x10071678

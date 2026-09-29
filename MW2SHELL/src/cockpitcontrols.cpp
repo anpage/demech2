@@ -2242,13 +2242,13 @@ void OpenCockpitControls()
 	InputDevice* device;
 	MechS32 i;
 
-	g_pVideoDriver->GetPalette(g_unk0x10071378);
+	g_pVideoDriver->GetPalette(g_savedScreenPalette);
 	g_pVideoDriver->LoadPalette(4);
 	g_pVideoDriver->ActivateFramebuffer();
 	g_cpcLogoMovie = NULL;
 	g_cpcLogoMovie = new LoopingMovie("amwlogo1", 0x78, 4);
 	g_pVideoDriver->DrawShell();
-	g_pVideoDriver->m_unk0x3a6 = 0;
+	g_pVideoDriver->m_restoreColor = 0;
 	g_curCpcConfigSlot = 0;
 	if (!InputEnumDevices(1)) {
 		return;
@@ -2346,10 +2346,10 @@ void CpcScreenTick(MechS32 p_active)
 		}
 		g_cpcLogoMovie = NULL;
 		InputFreeDevices();
-		g_pVideoDriver->m_unk0x3a6 = -1;
+		g_pVideoDriver->m_restoreColor = -1;
 		g_pVideoDriver->RestoreBackground(0, 0, 640, 480);
 		UpdateVideos();
-		g_pVideoDriver->SetPalette(g_unk0x10071378, 1);
+		g_pVideoDriver->SetPalette(g_savedScreenPalette, 1);
 		if (p_active) {
 			g_pVideoDriver->DrawShell();
 			g_pVideoDriver->RestoreBackground(0, 0, 640, 480);

@@ -138,8 +138,10 @@ MechS16 g_bwdDifficultySettings[9][5] = {
 	{5, 250, 1, 250, 5}
 };
 
+// The enemy star's difficulty, from the mission's BWD file (ShellApplyMissionUiInfo).
+// PrjWriteStarTemplates starts the enemy templates at this less 2, adjusted by the enemy skill.
 // GLOBAL: MW2SHELL 0x10066a44
-MechS32 g_unk0x10066a44 = 8;
+MechS32 g_enemyStarDifficulty = 8;
 
 // GLOBAL: MW2SHELL 0x10066a48
 char* g_unk0x10066a48[] = {"l1wolfcl", "l1jadefn", "l1gostbr", "l1smojag", "l1novact", "l1steelv"};
@@ -462,7 +464,7 @@ void PrjWriteStarTemplates(MechS32 p_count, StarMech* p_mechs, MechS32 p_enemyCo
 	}
 	BwdWriteRegistry("userstar.bwd");
 
-	difficulty = g_unk0x10066a44 - 2;
+	difficulty = g_enemyStarDifficulty - 2;
 	file = fopen("MW2DIF.CFG", "rb");
 	if (file != NULL) {
 		fread(&settings, sizeof(settings), 1, file);
