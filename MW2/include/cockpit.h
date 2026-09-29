@@ -58,6 +58,9 @@ extern "C"
 
 	void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout);
 	void DrawMapViewText(CockpitLayout* p_layout);
+	MechS32 FUN_1003ee69(void);
+	void FUN_1003ee92(void);
+	void FUN_1003eeaf(void);
 	void FUN_1003ef07(MechS32 p_unk0x00);
 
 #ifdef __cplusplus

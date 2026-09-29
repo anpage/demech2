@@ -22,6 +22,7 @@ extern "C"
 {
 #endif
 
+	MechS32 FUN_10060617(RenderTarget* p_target, MechS32 p_x, MechS32 p_y);
 	MechS32 FUN_100606ed(
 		RenderTarget* p_target,
 		MechS32 p_x1,
@@ -69,6 +70,10 @@ extern "C"
 	);
 	MechS32 FUN_10065770(void* p_shape);
 	MechS32 FUN_100657a8(void* p_shape, MechS32 p_frame);
+	MechS32 FUN_100657ca(void* p_shape, MechS32 p_frame);
+	MechS32 FUN_100657ed(void* p_shape, MechS32 p_frame);
+	MechS32 FUN_10065821(void* p_shape, MechS32 p_frame);
+	MechS32 GetShapeFrameCount(void* p_shape);
 	MechS32 FUN_10065a7b(RenderTarget* p_dst, RenderTarget* p_src, MechS32 p_unk0x08, MechS32 p_unk0x0c);
 
 #ifdef __cplusplus

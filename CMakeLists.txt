@@ -89,6 +89,18 @@ if (MSVC_FOR_DECOMP)
     set(CMAKE_${lang}_FLAGS_MINSIZEREL "/DNDEBUG")
     set(CMAKE_${lang}_STANDARD_LIBRARIES "")
   endforeach()
+  # LINK 3.10 crashes on Windows ("Internal error during Pass1", at a varying object) once
+  # the object names it is given total about 4K: MW2's 100 objects as CMakeFiles\mw2.dir\...
+  # paths did (4226 bytes; 91 linked at 3843), and so did MW2SHELL's 60 as absolute paths
+  # (5016 bytes; 3309 as relative ones linked). Response-file lines are not the limit (the
+  # linker allows 16K per line), and Wine's LINK, which runs on Wine's C runtime instead of
+  # the system's MSVCRT40, links them all. So the DLLs are linked from copies of their
+  # objects in a flat directory under their base names (o\MW2\overlay.c.obj), which
+  # demech2_add_dll copies before each link, and the response file lists those.
+  foreach(lang C CXX)
+    string(REPLACE "<OBJECTS>" "@<TARGET_BASE>.objects.rsp"
+      CMAKE_${lang}_CREATE_SHARED_LIBRARY "${CMAKE_${lang}_CREATE_SHARED_LIBRARY}")
+  endforeach()
   foreach(kind SHARED EXE)
     set(CMAKE_${kind}_LINKER_FLAGS "/machine:I386")
     foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
@@ -175,6 +187,23 @@ function(demech2_add_dll TARGET)
     )
   endif()
   target_link_libraries(${TARGET} PRIVATE ${ARGS_LIBRARIES})
+  if (MSVC_FOR_DECOMP)
+    # The objects, in link order, for cmake/link_objects.cmake: it copies them to
+    # o/<name>/ under their base names and writes <name>.objects.rsp, which
+    # CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads instead of <OBJECTS>.
+    set(dir "$<TARGET_FILE_DIR:${TARGET}>")
+    set(name "$<TARGET_FILE_BASE_NAME:${TARGET}>")
+    file(GENERATE OUTPUT "${dir}/${name}.objects.list"
+      CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
+    add_custom_command(TARGET ${TARGET} PRE_LINK
+      COMMAND "${CMAKE_COMMAND}"
+        "-DLIST=${dir}/${name}.objects.list" "-DDEST=${dir}/o/${name}"
+        "-DRSP=${dir}/${name}.objects.rsp" "-DPREFIX=o\\${name}"
+        -P "${PROJECT_SOURCE_DIR}/cmake/link_objects.cmake"
+      COMMENT "Copying ${ARGS_OUTPUT_NAME} objects to o/${name}"
+      VERBATIM
+    )
+  endif()
   reccmp_add_target(${TARGET} ID ${ARGS_ID})
 endfunction()
 
@@ -336,6 +365,7 @@ demech2_add_dll(mw2
     MW2/src/unk10004f40.c
     MW2/src/audio.c
     MW2/src/missionaudio.c
+    MW2/src/anim2d.c
     MW2/src/pausebanner.c
     MW2/src/world.c
     MW2/src/transform.c
@@ -343,6 +373,7 @@ demech2_add_dll(mw2
     MW2/src/unk10010750.c
     MW2/src/palfade.c
     MW2/src/eyepoint.c
+    MW2/src/recttransition.c
     MW2/src/render.c
     MW2/src/fixedsqrt.c
     MW2/src/unk10019ad0.c
@@ -357,11 +388,13 @@ demech2_add_dll(mw2
     MW2/src/logwindow.c
     MW2/src/unk1003a530.c
     MW2/src/error.c
+    MW2/src/team.c
     MW2/src/menu.c
     MW2/src/cockpit.c
     MW2/src/bwd.c
     MW2/src/unk10041fa0.c
     MW2/src/keyboard.c
+    MW2/src/ramp.c
     MW2/src/staticmem.c
     MW2/src/unk1004b130.c
     MW2/src/unk1004b980.c
@@ -384,11 +417,13 @@ demech2_add_dll(mw2
     MW2/src/rendertarget.c
     MW2/src/unk10065f10.c
     MW2/src/unk10065f50.c
+    MW2/src/camerashake.c
     MW2/src/simmain.c
     MW2/src/mouse.c
     MW2/src/animation.c
     MW2/src/unk100696c0.c
     MW2/src/shots.c
+    MW2/src/screenshot.c
     MW2/src/players.c
     MW2/src/unk1006d680.c
     MW2/src/gdi.c
@@ -398,8 +433,11 @@ demech2_add_dll(mw2
     MW2/src/config.c
     MW2/src/startup.c
     MW2/src/mw2log.c
+    MW2/src/prjfile.c
     MW2/src/random.c
+    MW2/src/brightnessmenu.c
     MW2/src/unk100746c0.c
+    MW2/src/gifsave.c
     MW2/src/perf.c
     MW2/src/refreshmode.c
     MW2/src/directdraw.c

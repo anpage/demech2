@@ -39,12 +39,23 @@ extern "C"
 {
 #endif
 
+	extern undefined4 g_unk0x100ad450;
 	extern Shot g_shots[0xaf];
 
 	void FirstShots(void);
 	void UpdateAllShots(void);
 	void UpdateShot(MechS32 p_index);
 	void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void FUN_1006b18b(
+		MechS32 p_unk0x00,
+		MechS32 p_unk0x04,
+		MechS32 p_unk0x08,
+		MechS32 p_unk0x0c,
+		MechS32 p_unk0x10,
+		MechS32 p_unk0x14,
+		MechS32 p_unk0x18
+	);
+	void FUN_1006b1c8(MechS32 p_unk0x00, undefined4 p_unk0x04);
 	void FUN_1006b152(
 		MechS32 p_unk0x00,
 		MechS32 p_unk0x04,

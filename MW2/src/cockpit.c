@@ -147,6 +147,26 @@ void DrawMapViewText(CockpitLayout* p_layout)
 	}
 }
 
+// FUNCTION: MW2 0x1003ee69
+MechS32 FUN_1003ee69(void)
+{
+	return g_cockpitLayoutIndex == 4;
+}
+
+// FUNCTION: MW2 0x1003ee92
+void FUN_1003ee92(void)
+{
+	if (g_cockpitLayoutIndex == 4) {
+		FUN_1003eeaf();
+	}
+}
+
+// STUB: MW2 0x1003eeaf
+void FUN_1003eeaf(void)
+{
+	STUB(0x1003eeaf);
+}
+
 // STUB: MW2 0x1003ef07
 void FUN_1003ef07(MechS32 p_unk0x00)
 {

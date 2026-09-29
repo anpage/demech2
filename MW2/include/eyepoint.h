@@ -46,4 +46,23 @@ typedef struct Eyepoint {
 	undefined4 m_unk0xbc[(0xe0 - 0xbc) / 4]; // 0xbc
 } Eyepoint;
 
+// The functions of eyepoint.c that other units use.
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+	void FUN_10011e45(
+		MechS32* p_unk0x10,
+		MechS32* p_unk0x0c,
+		MechS32* p_unk0x14,
+		MechS32* p_x,
+		MechS32* p_y,
+		MechS32* p_z
+	);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // EYEPOINT_H

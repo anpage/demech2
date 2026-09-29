@@ -97,12 +97,10 @@
 // LIBRARY: MW2 0x10080e30 SYMBOL
 // _fopen
 
-// fread.obj
+// fwrite.obj
 
 // LIBRARY: MW2 0x10080e60 SYMBOL
-// _fread
-
-// fwrite.obj
+// _fwrite
 
 // LIBRARY: MW2 0x10080eb0 SYMBOL
 // __fwrite_lk
@@ -484,10 +482,8 @@
 // LIBRARY: MW2 0x10085890 SYMBOL
 // _fputc
 
-// rotl.obj
-
 // LIBRARY: MW2 0x10085940 SYMBOL
-// __lrotl
+// _putc
 
 // 87ctriga.obj
 

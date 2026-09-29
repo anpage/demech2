@@ -10,6 +10,51 @@ void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	STUB(0x1000d650);
 }
 
+// Multiplies two 2.29 fixed-point values. The body is an __asm block.
+// FUNCTION: MW2 0x1000d9a8
+MechS32 FUN_1000d9a8(MechS32 p_a, MechS32 p_b)
+{
+	MechS32 result;
+
+	__asm {
+		mov eax, p_a
+		imul p_b
+		shrd eax, edx, 29
+		adc eax, 0
+		mov result, eax
+	}
+
+	return result;
+}
+
+// The dot product of two vectors of 2.29 fixed-point values, with a 64-bit sum. The body is an
+// __asm block.
+// FUNCTION: MW2 0x1000d9ce
+MechS32 FUN_1000d9ce(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, MechS32 p_by, MechS32 p_bz)
+{
+	MechS32 result;
+
+	__asm {
+		mov eax, p_ax
+		imul p_bx
+		mov esi, eax
+		mov edi, edx
+		mov eax, p_ay
+		imul p_by
+		add esi, eax
+		adc edi, edx
+		mov eax, p_az
+		imul p_bz
+		add esi, eax
+		adc edi, edx
+		shrd esi, edi, 29
+		adc esi, 0
+		mov result, esi
+	}
+
+	return result;
+}
+
 // STUB: MW2 0x1000da0c
 void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 {
