@@ -1,12 +1,15 @@
 #ifndef SIMMAIN_H
 #define SIMMAIN_H
 
+#include "cockpit.h"
 #include "decomp.h"
-#include "drawmode.h"
-#include "drawmodeext.h"
+#include "displaybackend.h"
 #include "eyepoint.h"
 #include "pixelbuffer.h"
+#include "point.h"
 #include "rendertarget.h"
+#include "slateheron.h"
+#include "soundconfig.h"
 #include "types.h"
 
 #include <windows.h>
@@ -19,10 +22,24 @@ extern "C"
 
 	extern MechS32 g_isNetworkGame;
 	extern MechS32 g_unk0x100a17a0;
+	extern SoundConfig g_soundConfig;
+	extern MechS32 g_normalFov;
+	extern MechS32 g_zoomFov;
+	extern MechS32 g_unk0x100a2414;
 	extern undefined4 g_unk0x100a2420;
+	extern MechS32 g_unk0x100a2424;
+	extern MechS32 g_unk0x100a2c04;
 	extern MechS32 g_unk0x100a2460;
+	extern MechS32 g_unk0x100a2464;
 	extern Eyepoint* g_eyepoint;
+	extern SlateHeron0x68 g_unk0x100a6cc8;
+	extern MechS32 g_unk0x100a712c;
+	extern MechS32 g_unk0x100bfd60[800];
+	extern MechS32 g_unk0x100c09e0[800];
+	extern const char* g_unk0x100a8684;
 	extern const char* g_unk0x100a8694;
+	extern undefined g_unk0x100e9350[1];
+	extern MechS32 g_unk0x100e9614;
 	extern undefined4 g_unk0x100a8740;
 	extern MechS32 g_localPlayerId;
 	extern HANDLE g_primaryHeap;
@@ -32,9 +49,24 @@ extern "C"
 	extern MechS32 g_simPaused;
 	extern MechS32 g_pauseRequested;
 	extern MechS32 g_mouseOutsideClientWindow;
-	extern DrawModeExtension* g_currentDrawModeExtension;
-	extern DrawMode* g_currentDrawMode;
-	extern MechS32 g_drawModeNumPixels;
+	extern HWND g_gameWindow;
+	extern undefined4 g_windowedSwitchPending;
+	extern undefined4 g_shouldToggleFullscreen;
+	extern MechS32 g_desktopWidth;
+	extern MechS32 g_desktopHeight;
+	extern MechU32 g_windowedSwitchTime;
+	extern MechU32 g_windowedSwitchDeadline;
+	extern undefined4 g_reclipCursor;
+	extern MechS32 g_menuRepeatTimer;
+	extern CockpitGaugeFn g_cockpitGauges[10];
+	extern RenderTarget g_unk0x100a5a68[5];
+	extern RenderTarget g_unk0x100adf58;
+	extern void* g_unk0x100a5bb8[4];
+	extern Point g_unk0x100a5ee8[6];
+	extern MechS32 g_unk0x100a6d30;
+	extern undefined4 g_unk0x100a5a24;
+	extern undefined4 g_unk0x100a5f18;
+	extern RenderTarget g_unk0x100bdff8;
 	extern RenderTarget g_currentRenderTarget;
 	extern PixelBuffer g_mainPixelBuffer;
 

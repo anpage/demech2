@@ -12,7 +12,6 @@ extern "C"
 	void FirstResource(void);
 	void CloseResourceFile(void);
 	void CachePreloads(void);
-	void DebugLog(const MechChar* p_format, ...);
 
 #ifdef __cplusplus
 }

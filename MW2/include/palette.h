@@ -12,7 +12,9 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_palettePending;
 	extern MechS32 g_paletteResourceIds[20];
+	extern RenderTarget g_renderTargets[11];
 
 	void InitRenderTargets(RenderTarget* p_target);
 	void SelectRenderTarget(MechS32 p_index);

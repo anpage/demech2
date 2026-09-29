@@ -6,6 +6,7 @@
 #include "loadres.h"
 #include "palcycle.h"
 #include "palfade.h"
+#include "refreshmode.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "types.h"
@@ -127,7 +128,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 	if (*id > 0) {
 		palette = FUN_1001a19f(g_unk0x100a8740, *id, g_unk0x100a8694, 0);
 		if (palette) {
-			g_currentDrawModeExtension->m_setPaletteWithBrightness(palette);
+			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 			FUN_1001a163(*id, g_unk0x100a8694);
 		}
 	}
@@ -333,19 +334,19 @@ void StartPalettes(MechS32 p_dissolve)
 		palette = FUN_1001a19f(g_unk0x100a8740, hasPalette, g_unk0x100a8694, 0);
 		if (palette) {
 			if (p_dissolve == 0) {
-				g_currentDrawModeExtension->m_paletteFade(palette, 30);
+				g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
 				FUN_1001a163(hasPalette, g_unk0x100a8694);
-				g_currentDrawModeExtension->m_setPaletteWithBrightness(palette);
+				g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 			}
 			else {
-				pixels = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, g_drawModeNumPixels);
+				pixels = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, g_refreshModePixelCount);
 				if (pixels) {
 					target = g_currentRenderTarget;
 					target.m_buffer = &buffer;
 					buffer = g_mainPixelBuffer;
-					buffer.m_data = pixels;
+					buffer.m_pixels = pixels;
 					src = &g_currentRenderTarget;
-					count = (g_drawModeNumPixels * 4) / 181;
+					count = (g_refreshModePixelCount * 4) / 181;
 					handle = AllocTicks(0x100);
 					ResetTicks(handle);
 					while (ticks < 0x10f) {
@@ -354,17 +355,17 @@ void StartPalettes(MechS32 p_dissolve)
 							last = ticks + 1;
 							seed = FUN_10065a7b(&target, src, count, seed);
 							if (g_windowActive) {
-								g_currentDrawMode->m_blitFlip();
+								g_currentRefreshMode->m_flip();
 							}
 						}
 					}
 
 					FillRenderTargetRect(src, 0);
 					if (g_windowActive) {
-						g_currentDrawMode->m_blitFlip();
+						g_currentRefreshMode->m_flip();
 					}
 
-					g_currentDrawModeExtension->m_setPaletteWithBrightness(palette);
+					g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 					HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, pixels);
 					FreeTicks(handle);
 				}

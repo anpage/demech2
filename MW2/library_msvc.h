@@ -1887,12 +1887,10 @@
 // LIBRARY: MW2 0x1009c100 SYMBOL
 // __mbsdup
 
-// getch.obj
+// putch.obj
 
 // LIBRARY: MW2 0x1009c130 SYMBOL
-// __ungetch
-
-// putch.obj
+// __putch
 
 // LIBRARY: MW2 0x1009c170 SYMBOL
 // __putch_lk

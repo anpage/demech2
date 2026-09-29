@@ -345,6 +345,7 @@ demech2_add_dll(mw2
     MW2/src/eyepoint.c
     MW2/src/render.c
     MW2/src/fixedsqrt.c
+    MW2/src/unk10019ad0.c
     MW2/src/loadres.c
     MW2/src/objective.c
     MW2/src/unk1001ce90.c
@@ -356,30 +357,42 @@ demech2_add_dll(mw2
     MW2/src/unk1003a530.c
     MW2/src/error.c
     MW2/src/menu.c
+    MW2/src/cockpit.c
+    MW2/src/unk10041fa0.c
     MW2/src/keyboard.c
     MW2/src/staticmem.c
+    MW2/src/unk1004b980.c
+    MW2/src/unk1004c800.c
+    MW2/src/unk1004c820.c
     MW2/src/fadepal.c
+    MW2/src/dispdib.c
     MW2/src/resource.c
+    MW2/src/debugprint.c
     MW2/src/ai.c
-    MW2/src/gamma.c
+    MW2/src/screenscale.c
+    MW2/src/brightness.c
     MW2/src/overlay.c
     MW2/src/speech.c
+    MW2/src/cdaudio.c
     MW2/src/gamekeys.c
     MW2/src/setres.c
     MW2/src/rendertarget.c
     MW2/src/simmain.c
     MW2/src/animation.c
+    MW2/src/unk100696c0.c
     MW2/src/shots.c
     MW2/src/players.c
     MW2/src/unk1006d680.c
+    MW2/src/gdi.c
     MW2/src/timedoverlays.c
+    MW2/src/unk1006f480.c
     MW2/src/config.c
     MW2/src/startup.c
     MW2/src/mw2log.c
     MW2/src/random.c
     MW2/src/perf.c
-    MW2/src/drawmode.c
-    MW2/src/ddfill.c
+    MW2/src/refreshmode.c
+    MW2/src/directdraw.c
     MW2/src/input.c
     MW2/src/clock.c
     MW2/src/unk1007d120.c
