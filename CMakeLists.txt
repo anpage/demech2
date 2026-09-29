@@ -307,8 +307,9 @@ else()
   message(STATUS "Shell icon: none (no original MW2SHELL.DLL at ${DEMECH2_MW2SHELL_ORIGINAL})")
 endif()
 
-# MW2.DLL: C at /Od /Oi, the debug CRT (4.1's LIBCMTD; /MTd predefines _DEBUG). The
-# original was linked /DEBUG /INCREMENTAL:no in every configuration.
+# MW2.DLL: C at /Od /Oi /G5, the debug CRT (4.1's LIBCMTD; /MTd predefines _DEBUG). The
+# original was linked /DEBUG /INCREMENTAL:no in every configuration. /G5 shows in the shift
+# encoding, as in the shell: StartPaletteFade's `>>= 1` is the short form (d1 7d 0c).
 set(mw2_link_options "")
 if (MSVC_FOR_DECOMP)
   set(mw2_link_options /DEBUG /INCREMENTAL:no)
@@ -321,17 +322,26 @@ demech2_add_dll(mw2
     MW2/src/object.c
     MW2/src/palette.c
     MW2/src/fixeddiv.c
+    MW2/src/gamecd.c
+    MW2/src/ray.c
     MW2/src/fixedmul.c
     MW2/src/muldiv.c
+    MW2/src/approxlen.c
     MW2/src/gpanim.c
     MW2/src/supanim.c
     MW2/src/debris.c
+    MW2/src/integrate.c
+    MW2/src/unk10004ec0.c
+    MW2/src/unk10004f20.c
+    MW2/src/unk10004f40.c
     MW2/src/audio.c
     MW2/src/missionaudio.c
     MW2/src/pausebanner.c
     MW2/src/world.c
     MW2/src/transform.c
     MW2/src/network.c
+    MW2/src/unk10010750.c
+    MW2/src/palfade.c
     MW2/src/eyepoint.c
     MW2/src/render.c
     MW2/src/fixedsqrt.c
@@ -377,6 +387,7 @@ demech2_add_dll(mw2
     MW2/src/environment.c
     MW2/src/soundfx.c
     MW2/MW2.def
+  COMPILE_OPTIONS "/G5"
   LINK_OPTIONS ${mw2_link_options}
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )

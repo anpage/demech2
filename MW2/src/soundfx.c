@@ -14,3 +14,9 @@ void FUN_1007eb23(
 {
 	STUB(0x1007eb23);
 }
+
+// STUB: MW2 0x1007ebd1
+void FUN_1007ebd1(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, undefined4 p_unk0x10)
+{
+	STUB(0x1007ebd1);
+}

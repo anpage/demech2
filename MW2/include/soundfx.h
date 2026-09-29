@@ -17,6 +17,7 @@ extern "C"
 		undefined4 p_unk0x0c,
 		undefined4 p_unk0x10
 	);
+	void FUN_1007ebd1(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, undefined4 p_unk0x10);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,7 @@
 /* Hand-written assembly: FixedMul16 is a C function whose body is an __asm block (the /Od
    frame saves esi/edi, which the body never touches). */
+#include "fixedmul.h"
+
 #include "types.h"
 
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */

@@ -2,6 +2,8 @@
 #define PALETTE_H
 
 #include "decomp.h"
+#include "eyepoint.h"
+#include "rendertarget.h"
 #include "types.h"
 
 // The functions and globals of palette.c that other units use.
@@ -10,12 +12,23 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_paletteResourceIds[20];
+
+	void InitRenderTargets(RenderTarget* p_target);
+	void SelectRenderTarget(MechS32 p_index);
+	void FUN_100024f0(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y);
 	void ApplyPendingPalette(void);
+	void ApplyPaletteResource(MechS32 p_slot);
 	void UpdatePaletteFade(void);
-	void StartPaletteFade(MechS32 p_palette, MechS32 p_duration, undefined4 p_unk0x08);
+	MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode);
+	MechS32 FUN_1000288e(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode);
+	void StartPaletteCycle(MechU8 p_first, MechS32 p_count);
+	void StopPaletteCycle(void);
+	MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot);
 	void FUN_10002a24(MechS32 p_palette, MechS32 p_duration);
 	void FUN_10002a5a(MechS32 p_palette);
-	void StartPalettes(MechS32 p_unk0x00);
+	void StartPalettes(MechS32 p_dissolve);
+	MechS32 FUN_10002c76(void);
 
 #ifdef __cplusplus
 }

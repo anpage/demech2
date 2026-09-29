@@ -1,6 +1,12 @@
 #ifndef SIMMAIN_H
 #define SIMMAIN_H
 
+#include "decomp.h"
+#include "drawmode.h"
+#include "drawmodeext.h"
+#include "eyepoint.h"
+#include "pixelbuffer.h"
+#include "rendertarget.h"
 #include "types.h"
 
 #include <windows.h>
@@ -13,6 +19,11 @@ extern "C"
 
 	extern MechS32 g_isNetworkGame;
 	extern MechS32 g_unk0x100a17a0;
+	extern undefined4 g_unk0x100a2420;
+	extern MechS32 g_unk0x100a2460;
+	extern Eyepoint* g_eyepoint;
+	extern const char* g_unk0x100a8694;
+	extern undefined4 g_unk0x100a8740;
 	extern MechS32 g_localPlayerId;
 	extern HANDLE g_primaryHeap;
 	extern MechS32 g_gameWindowWidth;
@@ -21,6 +32,11 @@ extern "C"
 	extern MechS32 g_simPaused;
 	extern MechS32 g_pauseRequested;
 	extern MechS32 g_mouseOutsideClientWindow;
+	extern DrawModeExtension* g_currentDrawModeExtension;
+	extern DrawMode* g_currentDrawMode;
+	extern MechS32 g_drawModeNumPixels;
+	extern RenderTarget g_currentRenderTarget;
+	extern PixelBuffer g_mainPixelBuffer;
 
 	void HandleMessages(void);
 	void UpdatePauseState(void);

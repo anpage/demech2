@@ -9,8 +9,12 @@
 #include "clock.h"
 #include "compat.h"
 #include "decomp.h"
+#include "drawmode.h"
+#include "drawmodeext.h"
 #include "environment.h"
 #include "error.h"
+#include "eyepoint.h"
+#include "gpanim.h"
 #include "input.h"
 #include "loadres.h"
 #include "menu.h"
@@ -18,6 +22,7 @@
 #include "palette.h"
 #include "pausebanner.h"
 #include "players.h"
+#include "rendertarget.h"
 #include "resource.h"
 #include "speech.h"
 #include "staticmem.h"
@@ -27,35 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-typedef enum {
-	c_windowModeUnknown = 0,
-	c_windowModeFullscreen = 1,
-	c_windowModeWindowed = 2
-} WindowMode;
-
-typedef struct {
-	MechS32 m_index;                                                                                         // 0x00
-	WindowMode m_windowMode;                                                                                 // 0x04
-	MechU32 m_windowStyle;                                                                                   // 0x08
-	void* m_drawModeBegin;                                                                                   // 0x0c
-	void* m_drawModeEnd;                                                                                     // 0x10
-	void (*m_setPalette)(undefined4 p_unk0x00, undefined4 p_unk0x04, void* p_unk0x08, undefined4 p_unk0x0c); // 0x14
-	void* m_setPaletteWithBrightness;                                                                        // 0x18
-	void* m_paletteFade;                                                                                     // 0x1c
-	MechS32 (*m_lockBuffer)(void);                                                                           // 0x20
-	undefined4 m_unk0x24;                                                                                    // 0x24
-} DrawModeExtension;
-
-typedef struct {
-	MechU32 m_index;          // 0x00
-	MechS32 m_extensionIndex; // 0x04
-	MechS32 m_initialized;    // 0x08
-	MechU32 m_profileTime;    // 0x0c
-	void* m_begin;            // 0x10
-	void* m_end;              // 0x14
-	void (*m_blitFlip)(void); // 0x18
-} DrawMode;
 
 // SIZE 0x3c
 typedef struct Unk0x100a14d4 {
@@ -113,14 +89,39 @@ Unk0x100a14d4 g_unk0x100a1498 = {0x10000, 0x10000, 0x10000, 0x10000, 11, 1, 1, 1
 // GLOBAL: MW2 0x100a14d4
 Unk0x100a14d4* g_mw2SndCfgData = NULL;
 
+// GLOBAL: MW2 0x100a2420
+undefined4 g_unk0x100a2420 = 0;
+
 // GLOBAL: MW2 0x100a244c
 MechS32 g_drawModeIndex = -1;
 
 // GLOBAL: MW2 0x100a2450
 MechS32 g_initDrawModeParam2 = 1;
 
+// GLOBAL: MW2 0x100a2460
+MechS32 g_unk0x100a2460 = 1;
+
 // GLOBAL: MW2 0x100a554c
 undefined4 g_unk0x100a554c = 0xef;
+
+// GLOBAL: MW2 0x100a6be0
+Eyepoint g_unk0x100a6be0 = {
+	0,
+	0,
+	0,
+	{0, 0, 0, 0x10000, 1000, 10000, (undefined4) -1000, 0x480001},
+	0,
+	319,
+	0,
+	199,
+	{0x40, 0x249f0, 0, 0},
+	0,
+	0,
+	{0}
+};
+
+// GLOBAL: MW2 0x100a6cc0
+Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6d1c
 void (*g_frameDrawCallback)(void) = NULL;
@@ -233,6 +234,9 @@ WindowMode g_windowMode = c_windowModeUnknown;
 // GLOBAL: MW2 0x100c2890
 RECT g_gameWindowRect;
 
+// GLOBAL: MW2 0x100c2cc8
+MechS32 g_drawModeNumPixels;
+
 // GLOBAL: MW2 0x100e9240
 MechU32 g_unk0x100e9240;
 
@@ -252,13 +256,10 @@ Unk0x1012b7c0 g_unk0x1012b7c0;
 Unk0x10138830 g_objectiveTable[1]; // length unknown
 
 // GLOBAL: MW2 0x10176ed0
-undefined g_unk0x10176ed0[4]; // size unknown
+RenderTarget g_currentRenderTarget;
 
 // GLOBAL: MW2 0x10176ef0
-undefined g_mainPixelBuffer[4]; // size unknown
-
-// GLOBAL: MW2 0x10181b40
-MechU32 g_paletteResourceIds[20];
+PixelBuffer g_mainPixelBuffer;
 
 // The two tick counters GameTickTimerCallback advances, and the start values of each counter's
 // handles (0: free).
@@ -281,7 +282,6 @@ MechS32 g_ticks2 = 0;
 // GLOBAL: MW2 0x10138820
 MechS32 g_objectiveCount; // defined last for the operand order of the DoFirstObjtv loop test
 
-void FirstGPAnim(void);
 void StartSupAnim(MechS32 p_unk0x00);
 void StopSupAnim(void);
 void UpdateDebris(void);
@@ -316,7 +316,6 @@ void FUN_10058750(void);
 void SimEntranceDbug(char* p_unk0x00, MechS32 p_unk0x04);
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 void SetRes(void);
-void FillRenderTargetRect(void* p_unk0x00, MechS32 p_unk0x04);
 void AdvanceAnimations(void);
 void FirstShots(void);
 void UpdateAllShots(void);
@@ -423,7 +422,7 @@ int __stdcall SimMain(
 		OpenMw2Log();
 	}
 
-	InitDrawMode(5, 0, g_mainPixelBuffer, 640, 480, 0);
+	InitDrawMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
 	SendMessage(g_gameWindow, 0x41f, 0, 0);
 	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
 	if (!InitDisplayGeometry()) {
@@ -555,7 +554,7 @@ int __stdcall SimMain(
 		if (!InitDrawMode(
 				g_drawModeIndex,
 				g_initDrawModeParam2,
-				g_mainPixelBuffer,
+				&g_mainPixelBuffer,
 				g_gameWindowWidth,
 				g_gameWindowHeight,
 				0
@@ -670,7 +669,7 @@ int __stdcall SimMain(
 
 		FadeToEndPalette(g_unk0x100e926d & 4);
 		if ((g_windowActive ? g_currentDrawModeExtension->m_lockBuffer() : -1) == 0) {
-			FillRenderTargetRect(g_unk0x10176ed0, 0);
+			FillRenderTargetRect(&g_currentRenderTarget, 0);
 		}
 
 		DebugLog("Calling Blit()\n");
