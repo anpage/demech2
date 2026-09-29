@@ -337,6 +337,9 @@ This section only grows as patterns are **proven by matches**:
 - **A dispatch jumps past a case that only breaks.** In a compare-tree switch, the test for a case whose body is just `break` jumps straight to the switch's end, though the body's `jmp` is still emitted (`FUN_1005b22f`, `PlayNewCdAudio`).
 - **An array member of a global decays with `mov` + `add`.** `(MechU16*) g_bitmapInfo.m_colors` and `g_gdiLogPalette.m_entries` compile to `mov eax, OFFSET g; add eax, N`, not the `lea` of a scalar member (`GdiBegin`, `GdiRealizePalette`).
 - **A narrowing cast loads narrow.** `(MechS16) p->m_int` assigned to an `int` compiles to `movsx eax, word ptr [...]`: `FUN_1004bc2e` reads the eyepoint's `0x4c`/`0x50` as words, `FUN_100024f0` as dwords.
+- **An early `return` reads as `jne`/`jmp`.** `if (!p) { return; }` compiles to `cmp; jne past; jmp epilogue`, while `if (p) { … }` is a single `je` over the body. The shape code tests its selected model this way throughout (`FUN_1003a7f9`, `FUN_1006e9e6`); `if (!a || b) { return; }` jumps both tests to one shared `jmp` (`FUN_1003aba5`).
+- **A postfix decrement in a loop test goes through a temporary.** `while (n--)` and `for (n = c; n--; p++)` copy `n` to an extra stack slot, decrement, then test the copy (`FUN_1006eb80`, `FUN_1001e429`), so the frame has one slot more than the named locals.
+- **A struct assignment copies with `rep movsd`.** `g = p_xform;` for a 0x24-byte struct parameter is `lea esi, [ebp+8]; mov edi, OFFSET g; mov ecx, 9; rep movsd` (`ApplyBlockXform`).
 - **Switch jump tables** are embedded in the function body inside `.text` (e.g. the 5-entry table at `0x10006824` in `FUN_10006760`); at `/Od` a sparse switch becomes a compare tree on a stack temporary.
 
 Float-literal and folding behavior are **not** documented here — they must be re-derived for VC++ 4.1 at `/Od` from matches before any rule is written down.

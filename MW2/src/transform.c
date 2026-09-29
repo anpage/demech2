@@ -4,6 +4,12 @@
 #include "loadres.h"
 #include "types.h"
 
+// STUB: MW2 0x1000d650
+void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+{
+	STUB(0x1000d650);
+}
+
 // STUB: MW2 0x1000da0c
 void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 {

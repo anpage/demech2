@@ -12,6 +12,12 @@ ScarletOrchid0x4c* g_unk0x100bef18;
 // GLOBAL: MW2 0x100bef30
 ScarletOrchid0x4c* g_unk0x100bef30;
 
+// STUB: MW2 0x1006d7fb
+void FUN_1006d7fb(ScarletOrchid0x4c* p_shape)
+{
+	STUB(0x1006d7fb);
+}
+
 // STUB: MW2 0x1006d88a
 void FUN_1006d88a(ScarletOrchid0x4c* p_shape)
 {
