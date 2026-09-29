@@ -12,6 +12,8 @@ extern "C"
 	extern MechS32 g_unk0x100acaf0[8];
 
 	MechS32 FUN_100661ef(MechS32 p_index);
+	MechS32 FUN_10066223(void);
+	void FUN_10066241(MechS32 p_formation);
 	void FUN_10066369(MechS32 p_index);
 	void FUN_100663a4(MechS32 p_index);
 	void FUN_100663df(MechS32 p_index);

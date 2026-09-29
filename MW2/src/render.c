@@ -56,7 +56,7 @@ MechS32 InitGameWindowGeometry(void)
 	g_gameWindowGeometry->m_width = g_gameWindowWidth;
 	g_gameWindowGeometry->m_height = g_gameWindowHeight;
 	g_gameWindowGeometry->m_unk0x08 = 1;
-	g_gameWindowGeometry->m_unk0x0c = 0x100;
+	g_gameWindowGeometry->m_numColors = 0x100;
 	g_gameWindowGeometry->m_unk0x10 = 1;
 	g_gameWindowGeometry->m_unk0x14 = 0;
 	g_screenPixelCount = g_gameWindowHeight * g_gameWindowWidth;

@@ -12,6 +12,7 @@ extern "C"
 	MechS32 FUN_100696c0(MechS32 p_angle);
 	MechS32 FUN_1006973a(MechS32 p_angle);
 	MechS32 FUN_1006975b(MechS32 p_unk0x00);
+	MechS32 FUN_100698b9(MechS32 p_unk0x00);
 	MechS32 FUN_100698de(MechS32 p_x, MechS32 p_z);
 
 #ifdef __cplusplus

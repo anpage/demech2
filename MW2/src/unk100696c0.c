@@ -25,6 +25,12 @@ MechS32 FUN_1006975b(MechS32 p_unk0x00)
 	return 0;
 }
 
+// FUNCTION: MW2 0x100698b9
+MechS32 FUN_100698b9(MechS32 p_unk0x00)
+{
+	return 0x5a0000 - FUN_1006975b(p_unk0x00);
+}
+
 // STUB: MW2 0x100698de
 MechS32 FUN_100698de(MechS32 p_x, MechS32 p_z)
 {

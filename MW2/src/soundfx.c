@@ -15,6 +15,19 @@ void FUN_1007eb23(
 	STUB(0x1007eb23);
 }
 
+// STUB: MW2 0x1007eb64
+void FUN_1007eb64(
+	undefined4 p_unk0x00,
+	undefined4 p_unk0x04,
+	undefined4 p_unk0x08,
+	undefined4 p_unk0x0c,
+	undefined4 p_unk0x10,
+	undefined4 p_unk0x14
+)
+{
+	STUB(0x1007eb64);
+}
+
 // STUB: MW2 0x1007ebd1
 void FUN_1007ebd1(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, undefined4 p_unk0x10)
 {

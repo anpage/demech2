@@ -19,6 +19,7 @@
 #include "environment.h"
 #include "error.h"
 #include "eyepoint.h"
+#include "fadepal.h"
 #include "gdi.h"
 #include "gpanim.h"
 #include "input.h"
@@ -394,7 +395,6 @@ void EndTheMission2(void);
 MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x08);
 void UpdateGeoCache(void);
 void FirstStaticCache(void);
-void FadeToEndPalette(MechS32 p_unk0x00);
 void FirstAI(void);
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 void SetRes(void);

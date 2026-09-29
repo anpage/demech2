@@ -12,6 +12,9 @@
 #include "types.h"
 #include "unk100696c0.h"
 
+// GLOBAL: MW2 0x100ad450
+undefined4 g_unk0x100ad450 = 0;
+
 // GLOBAL: MW2 0x1017bac0
 Shot g_shots[0xaf];
 
@@ -137,6 +140,39 @@ void FUN_1006b152(
 )
 {
 	FUN_1006b1fb(p_unk0x00, p_unk0x04, p_unk0x08, p_unk0x0c, p_unk0x10, p_unk0x14, p_unk0x18, p_unk0x1c, 0, 0, 0);
+}
+
+// FUNCTION: MW2 0x1006b18b
+void FUN_1006b18b(
+	MechS32 p_unk0x00,
+	MechS32 p_unk0x04,
+	MechS32 p_unk0x08,
+	MechS32 p_unk0x0c,
+	MechS32 p_unk0x10,
+	MechS32 p_unk0x14,
+	MechS32 p_unk0x18
+)
+{
+	FUN_1006b1fb(
+		-2,
+		p_unk0x00,
+		p_unk0x10,
+		p_unk0x14,
+		p_unk0x18,
+		p_unk0x10,
+		p_unk0x14,
+		p_unk0x18,
+		p_unk0x04,
+		p_unk0x08,
+		p_unk0x0c
+	);
+}
+
+// FUNCTION: MW2 0x1006b1c8
+void FUN_1006b1c8(MechS32 p_unk0x00, undefined4 p_unk0x04)
+{
+	g_unk0x100ad450 = p_unk0x04;
+	FUN_1006b1fb(-2, p_unk0x00, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 // STUB: MW2 0x1006b1fb

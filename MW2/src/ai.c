@@ -9,6 +9,13 @@ void FirstAI(void)
 	STUB(0x1005166e);
 }
 
+// STUB: MW2 0x1005212a
+MechS32 FUN_1005212a(MechS32 p_team)
+{
+	STUB(0x1005212a);
+	return 0;
+}
+
 // STUB: MW2 0x10054f50
 void FUN_10054f50(MechS32 p_unk0x00, MechS32 p_unk0x04)
 {

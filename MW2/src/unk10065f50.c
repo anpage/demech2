@@ -3,6 +3,7 @@
 #include "ai.h"
 #include "decomp.h"
 #include "menu.h"
+#include "team.h"
 #include "types.h"
 
 // GLOBAL: MW2 0x100acaf0
@@ -19,6 +20,20 @@ MechS32 FUN_100661ef(MechS32 p_index)
 	}
 
 	return state;
+}
+
+// FUNCTION: MW2 0x10066223
+MechS32 FUN_10066223(void)
+{
+	return GetTeamFormation(g_unk0x100a5918);
+}
+
+// FUNCTION: MW2 0x10066241
+void FUN_10066241(MechS32 p_formation)
+{
+	g_unk0x100acaf0[0] = 0;
+	SetTeamFormation(g_unk0x100a5918, p_formation);
+	RequestMenuClose(1);
 }
 
 // FUNCTION: MW2 0x10066369
