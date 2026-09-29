@@ -89,6 +89,14 @@ if (MSVC_FOR_DECOMP)
     set(CMAKE_${lang}_FLAGS_MINSIZEREL "/DNDEBUG")
     set(CMAKE_${lang}_STANDARD_LIBRARIES "")
   endforeach()
+  # LINK 3.10 crashes ("Internal error during Pass1", at a different object from run to run)
+  # on Windows once a response-file line passes 4K, which CMake's one-line objects1.rsp did
+  # at 100 MW2 objects; Wine's LINK survived it. The DLLs read their objects from a response
+  # file with one object per line instead (demech2_add_dll writes it).
+  foreach(lang C CXX)
+    string(REPLACE "<OBJECTS>" "@<TARGET_BASE>.objects.rsp"
+      CMAKE_${lang}_CREATE_SHARED_LIBRARY "${CMAKE_${lang}_CREATE_SHARED_LIBRARY}")
+  endforeach()
   foreach(kind SHARED EXE)
     set(CMAKE_${kind}_LINKER_FLAGS "/machine:I386")
     foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
@@ -175,6 +183,12 @@ function(demech2_add_dll TARGET)
     )
   endif()
   target_link_libraries(${TARGET} PRIVATE ${ARGS_LIBRARIES})
+  if (MSVC_FOR_DECOMP)
+    # The objects, one per line, in link order (see CMAKE_<LANG>_CREATE_SHARED_LIBRARY).
+    set(objects_rsp "$<TARGET_FILE_DIR:${TARGET}>/$<TARGET_FILE_BASE_NAME:${TARGET}>.objects.rsp")
+    file(GENERATE OUTPUT "${objects_rsp}" CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
+    set_property(TARGET ${TARGET} APPEND PROPERTY LINK_DEPENDS "${objects_rsp}")
+  endif()
   reccmp_add_target(${TARGET} ID ${ARGS_ID})
 endfunction()
 
