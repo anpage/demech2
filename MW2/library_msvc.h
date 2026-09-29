@@ -1600,7 +1600,7 @@
 // read.obj
 
 // LIBRARY: MW2 0x10096210 SYMBOL
-// __read
+// _read
 
 // LIBRARY: MW2 0x100962c0 SYMBOL
 // __read_lk
@@ -1898,7 +1898,7 @@
 // flength.obj
 
 // LIBRARY: MW2 0x1009c1e0 SYMBOL
-// __filelength
+// _filelength
 
 // strnset.obj
 

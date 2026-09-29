@@ -10,6 +10,7 @@
 #include "clock.h"
 #include "cockpit.h"
 #include "compat.h"
+#include "config.h"
 #include "debugprint.h"
 #include "decomp.h"
 #include "directdraw.h"
@@ -25,6 +26,7 @@
 #include "loadres.h"
 #include "menu.h"
 #include "mss.h"
+#include "mw2log.h"
 #include "palette.h"
 #include "palettecolor.h"
 #include "pausebanner.h"
@@ -38,6 +40,7 @@
 #include "resource.h"
 #include "screenscale.h"
 #include "speech.h"
+#include "startup.h"
 #include "staticmem.h"
 #include "types.h"
 
@@ -65,8 +68,6 @@ typedef struct Unk0x1012b7c0 {
 typedef struct Unk0x10138830 {
 	undefined m_unk0x00[0x3c0a]; // 0x00
 } Unk0x10138830;
-
-typedef struct DifficultyCfg DifficultyCfg;
 
 DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
 DECOMP_SIZE_ASSERT(Unk0x10138830, 0x3c0a)
@@ -210,14 +211,26 @@ SlateHeron0x68 g_unk0x100a6cc8 =
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
 
+// GLOBAL: MW2 0x100a8680
+const char* g_unk0x100a8680 = "SHP";
+
 // GLOBAL: MW2 0x100a8684
 const char* g_unk0x100a8684 = "FONT";
 
 // GLOBAL: MW2 0x100a8694
 const char* g_unk0x100a8694 = "PAL";
 
+// GLOBAL: MW2 0x100a8698
+const char* g_unk0x100a8698 = "TABL";
+
+// GLOBAL: MW2 0x100a86bc
+const char* g_unk0x100a86bc = g_unk0x100a87c0;
+
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;
+
+// GLOBAL: MW2 0x100a87c0
+char g_unk0x100a87c0[] = "BWD";
 
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
@@ -290,12 +303,6 @@ MechS32 g_goLaunch = 0;
 
 // GLOBAL: MW2 0x100adf58
 RenderTarget g_unk0x100adf58 = {&g_mainPixelBuffer, 13, 10, 80, 60};
-
-// GLOBAL: MW2 0x100ae400
-char g_gameDir[256] = {0};
-
-// GLOBAL: MW2 0x100ae6d4
-MechS32 g_logFileEnabled = 0;
 
 // GLOBAL: MW2 0x100b1350
 MechS32 g_unk0x100b1350 = 0;
@@ -392,11 +399,6 @@ void UpdateAllShots(void);
 void UpdateEffects(void);
 void SaveCarCfg(void);
 void DrawTimedOverlays(void);
-MechS32 LoadDifficultyCfg(const char* p_unk0x00, DifficultyCfg** p_unk0x04);
-MechS32 LoadSndCfg(const char* p_unk0x00, SoundConfig** p_unk0x04);
-MechS32 StartupCheckStub(void);
-void OpenMw2Log(void);
-void CloseMw2Log(void);
 
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
 // assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The
@@ -848,7 +850,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 		break;
 	case WM_MOUSEMOVE:
 		if (g_mouseOutsideClientWindow) {
-			if (!g_simPaused || FUN_1003da65(4) == 1) {
+			if (!g_simPaused || GetMenuSlotState(4) == 1) {
 				while (ShowCursor(FALSE) >= 0) {
 				}
 				g_mouseOutsideClientWindow = FALSE;
@@ -930,12 +932,12 @@ void UpdatePauseState(void)
 			g_keyCode = 0;
 			g_pauseRequested = FALSE;
 		}
-		else if (g_unk0x100a17a0 || FUN_1003da65(4)) {
+		else if (g_unk0x100a17a0 || GetMenuSlotState(4)) {
 			g_pauseRequested = FALSE;
 		}
 	}
 
-	if (!FUN_1003da65(4) && g_windowActive && !g_pauseRequested) {
+	if (!GetMenuSlotState(4) && g_windowActive && !g_pauseRequested) {
 		if (g_simPaused) {
 			while (ShowCursor(FALSE) >= 0) {
 			}
@@ -954,7 +956,7 @@ void UpdatePauseState(void)
 			g_keyCode = 0;
 		}
 
-		if (!FUN_1003da65(4) && g_windowMode != c_windowModeFullscreen) {
+		if (!GetMenuSlotState(4) && g_windowMode != c_windowModeFullscreen) {
 			while (ShowCursor(TRUE) < 0) {
 			}
 

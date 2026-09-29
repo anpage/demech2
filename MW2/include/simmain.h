@@ -36,8 +36,12 @@ extern "C"
 	extern SlateHeron0x68 g_unk0x100a6cc8;
 	extern MechS32 g_unk0x100bfd60[800];
 	extern MechS32 g_unk0x100c09e0[800];
+	extern const char* g_unk0x100a8680;
 	extern const char* g_unk0x100a8684;
 	extern const char* g_unk0x100a8694;
+	extern const char* g_unk0x100a8698;
+	extern const char* g_unk0x100a86bc;
+	extern char g_unk0x100a87c0[];
 	extern undefined g_unk0x100e9350[1];
 	extern MechS32 g_unk0x100e9614;
 	extern undefined4 g_unk0x100a8740;

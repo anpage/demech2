@@ -11,6 +11,7 @@ extern "C"
 {
 #endif
 
+	void FUN_1001da44(void);
 	void FUN_1001ddf2(ScarletOrchid0x4c* p_shape);
 
 #ifdef __cplusplus
