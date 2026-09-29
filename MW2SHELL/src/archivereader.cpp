@@ -94,24 +94,24 @@ void DrawArchive(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 // FUNCTION: MW2SHELL 0x10029181
 void ArchiveCallback(TMPackDataBase*, MechS32*, MechU8*, char**, MechS32 p_msg)
 {
-	if (p_msg == 0x404) {
+	if (p_msg == c_msgScreenFrame) {
 		p_msg = g_archiveReader->Run();
 	}
 
-	if (p_msg != 0x40b) {
+	if (p_msg != c_msgArchive) {
 		delete g_archiveReader;
 		g_archiveReader = NULL;
 		delete g_archiveSound;
 		g_archiveSound = NULL;
 
-		if (p_msg == 0x402) {
-			PostMessage(g_pWnd, 0x402, 0x40b, 0);
+		if (p_msg == c_msgQuit) {
+			PostMessage(g_pWnd, c_msgQuit, c_msgArchive, 0);
 		}
-		else if (p_msg == 0x403 || p_msg == 0x405) {
-			PostMessage(g_pWnd, g_archiveReturnMessage, 0x40b, 0);
+		else if (p_msg == c_msgReaderBack || p_msg == c_msgReaderExit) {
+			PostMessage(g_pWnd, g_archiveReturnMessage, c_msgArchive, 0);
 		}
 		else {
-			PostMessage(g_pWnd, p_msg, 0x40b, 0);
+			PostMessage(g_pWnd, p_msg, c_msgArchive, 0);
 		}
 		UnregisterScreenFunction(ArchiveCallback);
 	}
@@ -293,7 +293,7 @@ void ArchiveReader::OpenTopic(MechS32 p_id)
 	}
 }
 
-// Returns 0x40b while the reader stays open.
+// Returns c_msgArchive while the reader stays open.
 // FUNCTION: MW2SHELL 0x10029ade
 MechS32 ArchiveReader::Run()
 {
@@ -302,12 +302,12 @@ MechS32 ArchiveReader::Run()
 
 	if (m_child) {
 		result = m_child->Run();
-		if (result != 0x40b) {
+		if (result != c_msgArchive) {
 			delete m_child;
 			m_child = NULL;
 		}
 
-		return result == 0x403 ? 0x40b : result;
+		return result == c_msgReaderBack ? c_msgArchive : result;
 	}
 
 	if (m_currentPage) {
@@ -341,7 +341,7 @@ MechS32 ArchiveReader::Run()
 	switch (button) {
 	case c_buttonExit:
 		if (g_pMouseState->GetLeftPressed() == 1) {
-			return 0x405;
+			return c_msgReaderExit;
 		}
 		break;
 	case c_buttonNextPage:
@@ -361,7 +361,7 @@ MechS32 ArchiveReader::Run()
 			break;
 		}
 		if (m_page == 0) {
-			return 0x403;
+			return c_msgReaderBack;
 		}
 		else {
 			FirstPage();
@@ -379,7 +379,7 @@ MechS32 ArchiveReader::Run()
 		break;
 	}
 
-	return 0x40b;
+	return c_msgArchive;
 }
 
 // Reads an archive entry: a title command, then text, picture and topic commands up to the end

@@ -769,7 +769,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 	MechS32 button;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -781,10 +781,10 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x411;
+			p_msg = c_msgReadyRoom;
 			if (*p_campaign != 2 && g_missionResults.m_outcome == 2) {
 				if (g_pCurrentPilot->m_mission >= 16) {
-					p_msg = 0x416;
+					p_msg = c_msgEndingVideo;
 				}
 				else {
 					*p_scenario = g_campaignMissions[*p_campaign][g_pCurrentPilot->m_mission].m_scenario;
@@ -816,14 +816,14 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 				if (!ShowDialog("Are you Sure?#Yes|No", 1)) {
 					*g_pCurrentPilot = g_pilotBeforeMission;
 					SavePilotRoster();
-					p_msg = 0x406;
+					p_msg = c_msgBriefing;
 				}
 				else {
 					UpdateVideos();
 				}
 			}
 			else {
-				p_msg = 0x406;
+				p_msg = c_msgBriefing;
 			}
 			break;
 		default:
@@ -832,13 +832,13 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 	}
 	else {
 		result = g_aftermathReader->Run();
-		if (result == 0x402) {
-			p_msg = 0x402;
+		if (result == c_msgQuit) {
+			p_msg = c_msgQuit;
 		}
-		if (result == 0x40e) {
-			p_msg = 0x40e;
+		if (result == c_msgMainMenu) {
+			p_msg = c_msgMainMenu;
 		}
-		if (result != 0x40b) {
+		if (result != c_msgArchive) {
 			delete g_aftermathReader;
 			g_aftermathReader = NULL;
 			g_debriefMenu = new ButtonMenu(
@@ -853,7 +853,7 @@ void MissionDebriefCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechC
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		delete g_debriefPage;
 		delete g_debriefMenu;
 		if (g_aftermathReader) {
@@ -861,7 +861,7 @@ done:
 		}
 		g_aftermathReader = NULL;
 		g_pVideoDriver->ClearGlyphs(TRUE);
-		PostMessage(g_pWnd, p_msg, 0x409, 0);
+		PostMessage(g_pWnd, p_msg, c_msgDebrief, 0);
 		UnregisterScreenFunction(MissionDebriefCallback);
 	}
 }

@@ -115,9 +115,9 @@ MechChar* g_rankNames[10] = {
 // GLOBAL: MW2SHELL 0x10071280
 MechChar* g_clanNames[6] = {"Wolf", "Jade Falcon", "Ghost Bear", "Smoke Jaguar", "Nova Cat", "Steel Vipers"};
 
-// The song of each shell message from 0x406 up, per campaign (PlayMidiSong): a database item
-// (plus the base), 0 to keep the current one, 0x20000000 to stop the music. 0x10000000 restarts
-// the song. The Trials of Grievance's...
+// The song of each shell message from c_msgBriefing (0x406) up, per campaign (PlayMidiSong): a
+// database item (plus the base), 0 to keep the current one, 0x20000000 to stop the music.
+// 0x10000000 restarts the song. The Trials of Grievance's...
 // GLOBAL: MW2SHELL 0x10071298
 MechS32 g_trialsSongs[18] =
 	{0x23, 0, 0, 0, 0x20000000, 0, 0, 0x23, 0x20000000, 0x23, 0x20000000, 0, 0, 0x23, 0, 0x20000000, 0x20000000, 0};

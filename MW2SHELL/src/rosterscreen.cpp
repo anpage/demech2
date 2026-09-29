@@ -348,7 +348,7 @@ void PilotRosterCallback(
 	ScreenField* tab;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -377,7 +377,7 @@ void PilotRosterCallback(
 				SelectStar(1, 0, 0, 0, 100);
 				SelectStar(0, -1, -1, -1, -1);
 				SetStarMech(0, NULL, g_pCurrentPilot->m_callsign);
-				p_msg = 0x410;
+				p_msg = c_msgLaunchSim;
 			}
 		}
 
@@ -385,7 +385,7 @@ void PilotRosterCallback(
 		switch (button) {
 		case 0:
 			g_pCurrentPilot = NULL;
-			p_msg = 0x40e;
+			p_msg = c_msgMainMenu;
 			break;
 		case 12:
 			if (g_pCurrentPilot && ShowDialog("Terminate MechWarrior?#Yes|No", 1) == 1) {
@@ -420,7 +420,7 @@ void PilotRosterCallback(
 				SetActivePilot(pilot);
 				if (g_pMouseState->GetDoubleClicked()) {
 					*p_pilotChosen = 1;
-					p_msg = 0x407;
+					p_msg = c_msgClanHall;
 					break;
 				}
 				g_rosterMenu->EnableButton(11);
@@ -476,7 +476,7 @@ void PilotRosterCallback(
 		case 11:
 			if (g_pCurrentPilot) {
 				*p_pilotChosen = 1;
-				p_msg = 0x407;
+				p_msg = c_msgClanHall;
 			}
 			break;
 		case 13:
@@ -499,14 +499,14 @@ void PilotRosterCallback(
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		HideFields(g_missionListFields);
 		HideFields(g_pilotRecordFields);
 		SavePilotRoster();
 		delete g_rosterMenu;
 		delete g_rosterSound;
 		HidePilotCallsigns();
-		PostMessage(g_pWnd, p_msg, 0x412, 0);
+		PostMessage(g_pWnd, p_msg, c_msgPilotRoster, 0);
 		UnregisterScreenFunction(PilotRosterCallback);
 	}
 }

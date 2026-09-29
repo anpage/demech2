@@ -337,7 +337,7 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 	*p_scenario = "pinkscn1";
 	p_database->GetDBItem(78, &audioData, &audioSize);
 	g_launchSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
-	if (p_wParam == 0x40e) {
+	if (p_wParam == c_msgMainMenu) {
 		p_database->GetDBItem(82, &audioData, &audioSize);
 		g_trialSound = new AudioSample(g_pAudioSubsystem, audioData, audioSize);
 	}
@@ -347,13 +347,13 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 		g_briefingLines[i] = NULL;
 	}
 
-	if (p_wParam == 0x40e) {
+	if (p_wParam == c_msgMainMenu) {
 		g_simHandoff.m_briefingMission = 0;
 	}
 	g_briefingMission = g_simHandoff.m_briefingMission;
 	g_briefingVideo = 0;
 	*p_scenario = g_briefingScenarios[g_briefingMission];
-	ShellApplyMissionUiInfo(g_briefingScenarios[g_briefingMission], p_wParam == 0x40e, 1);
+	ShellApplyMissionUiInfo(g_briefingScenarios[g_briefingMission], p_wParam == c_msgMainMenu, 1);
 
 	g_briefingClan = 0;
 	PlayVideo(1, g_clanVideos[g_briefingClan], 0xd, 0xcd, 6, 0);
@@ -401,11 +401,11 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	MechS32 button;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
-	if (g_fQuickTips && !g_briefingTipsShown && g_briefingMessage == 0x40e) {
+	if (g_fQuickTips && !g_briefingTipsShown && g_briefingMessage == c_msgMainMenu) {
 		DialogBoxParam(g_pModule, MAKEINTRESOURCE(0x6f), g_pWnd, (DLGPROC) OkDialogProc, 0);
 		g_briefingTipsShown = 1;
 	}
@@ -420,13 +420,13 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		UpdateVideos();
 		g_launchSound->PlayAndWait();
 		PrjBuildPlayerStarTemplates(g_briefingClan, g_briefingRival);
-		p_msg = 0x410;
+		p_msg = c_msgLaunchSim;
 		break;
 	case 1:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x40e;
+		p_msg = c_msgMainMenu;
 		break;
 	case 2:
 		if (g_pMouseState->GetLeftPressed() != 1) {
@@ -616,28 +616,28 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x413;
+		p_msg = c_msgStarConfig;
 		SelectStar(0, -1, -1, -1, -1);
 		break;
 	case 24:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x413;
+		p_msg = c_msgStarConfig;
 		SelectStar(1, -1, -1, -1, -1);
 		break;
 	case 12:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x40f;
+		p_msg = c_msgMechBay;
 		SelectStar(0, -1, -1, -1, -1);
 		break;
 	case 23:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x40f;
+		p_msg = c_msgMechBay;
 		SelectStar(1, -1, -1, -1, -1);
 		break;
 	default:
@@ -649,7 +649,7 @@ void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_sc
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		CloseAllVideos();
 		delete g_missionBriefingMenu;
 		delete g_launchSound;
@@ -660,7 +660,7 @@ done:
 		g_pVideoDriver->ClearGlyphs(TRUE);
 		g_simHandoff.m_briefingMission = g_briefingMission;
 		g_briefingTipsShown = 0;
-		PostMessage(g_pWnd, p_msg, 0x40d, 0);
+		PostMessage(g_pWnd, p_msg, c_msgTrials, 0);
 		UnregisterScreenFunction(MissionBriefingCallback);
 	}
 }

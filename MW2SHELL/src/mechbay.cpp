@@ -389,7 +389,7 @@ AudioSample* g_mechBayAmbience = NULL;
 
 // The wParam the screen was opened with.
 // GLOBAL: MW2SHELL 0x10061780
-MechS32 g_mechBayWParam = 0x404;
+MechS32 g_mechBayWParam = c_msgScreenFrame;
 
 // Set once the bay's and the customize screen's quick tips have been shown.
 // GLOBAL: MW2SHELL 0x10061784
@@ -3565,7 +3565,7 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 	MechS32 size;
 
 	g_mechBayMessage = p_wParam;
-	if (g_pickStarMech && p_wParam == 0x413) {
+	if (g_pickStarMech && p_wParam == c_msgStarConfig) {
 		g_pickingStarMech = 1;
 	}
 	else {
@@ -3734,7 +3734,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 	ScreenField* tab;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -3776,7 +3776,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 		if (pressed != 1) {
 			break;
 		}
-		p_msg = 0x411;
+		p_msg = c_msgReadyRoom;
 		break;
 	case 1:
 		if (*p_campaign == 2) {
@@ -3794,11 +3794,11 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 				ShowDialog("'Mech exceeds|Keshik Defined Maximum Tonnage (KDMT)|for mission.#Ok", 0);
 			}
 			else {
-				p_msg = 0x413;
+				p_msg = c_msgStarConfig;
 			}
 		}
 		else {
-			p_msg = 0x413;
+			p_msg = c_msgStarConfig;
 		}
 		break;
 	case 2:
@@ -3980,7 +3980,7 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, 
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		HideFields(g_screenFields);
 		HideFields(g_componentFields);
 		CloseAllVideos();
@@ -4000,7 +4000,7 @@ done:
 		delete g_acceptSound;
 		delete g_variantSound;
 		delete g_mechBayMenu;
-		PostMessage(g_pWnd, p_msg, 0x40f, 0);
+		PostMessage(g_pWnd, p_msg, c_msgMechBay, 0);
 		UnregisterScreenFunction(MechBayCallback);
 	}
 }

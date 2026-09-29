@@ -81,7 +81,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 	AIL_serve();
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -103,21 +103,21 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x40d;
+		p_msg = c_msgTrials;
 		*p_campaign = 2;
 		break;
 	case 1:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x415;
+		p_msg = c_msgLandingVideo;
 		*p_campaign = 0;
 		break;
 	case 2:
 		if (g_pMouseState->GetLeftPressed() != 1) {
 			break;
 		}
-		p_msg = 0x415;
+		p_msg = c_msgLandingVideo;
 		*p_campaign = 1;
 		break;
 	case 3:
@@ -125,7 +125,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 			break;
 		}
 		if (!ShowDialog("Embrace cowardice?#Yes|No", 1)) {
-			p_msg = 0x402;
+			p_msg = c_msgQuit;
 		}
 		break;
 	default:
@@ -133,7 +133,7 @@ void MainMenuCallback(TMPackDataBase* p_database, MechS32* p_campaign, MechU8*, 
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		CloseAllVideos();
 		delete g_mainMenu;
 		g_mainMenu = NULL;
@@ -142,7 +142,7 @@ done:
 		delete g_mainMenuIntro;
 		g_mainMenuIntro = NULL;
 		g_mainMenuMusicStarted = 0;
-		PostMessage(g_pWnd, p_msg, 0x40e, 0);
+		PostMessage(g_pWnd, p_msg, c_msgMainMenu, 0);
 		UnregisterScreenFunction(MainMenuCallback);
 	}
 }

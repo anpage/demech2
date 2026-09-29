@@ -5,6 +5,7 @@
 #include "pilotrecord.h"
 #include "refreshmode.h"
 #include "shellglobals.h"
+#include "shellmain.h"
 #include "simhandoffstate.h"
 #include "types.h"
 
@@ -58,7 +59,7 @@ void ReadSimHandoff(BOOL p_fromSim, MechS32* p_campaign, MechU8* p_pilotChosen, 
 	RestoreStars();
 
 	if (p_fromSim) {
-		PostMessage(g_pWnd, g_simHandoff.m_msg, 0x410, 0);
+		PostMessage(g_pWnd, g_simHandoff.m_msg, c_msgLaunchSim, 0);
 	}
 	else {
 		*p_campaign = 2;
@@ -90,7 +91,7 @@ void WriteSimHandoff(UINT p_msg, MechS32 p_campaign, MechU8 p_pilotChosen, const
 	}
 	SaveStars();
 
-	if (p_msg != 0x414 && p_msg != 0x402) {
+	if (p_msg != c_msgCadetTraining && p_msg != c_msgQuit) {
 		WriteStarFiles();
 	}
 

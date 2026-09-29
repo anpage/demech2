@@ -11,7 +11,9 @@
 enum ShellMessage {
 	c_msgQuitToSim = 0x401,   // ShellMain's exit code: run the simulator
 	c_msgQuit = 0x402,        // leave the game; also ShellMain's exit code
+	c_msgReaderBack = 0x403,  // an ArchiveReader's result: BACK on its first page
 	c_msgScreenFrame = 0x404, // the screen functions' per-frame call
+	c_msgReaderExit = 0x405,  // an ArchiveReader's result: EXIT
 	c_msgBriefing = 0x406,    // the first message with a song (PlayMidiSong)
 	c_msgClanHall = 0x407,    // or the registration video, before a pilot is chosen
 	c_msgDebrief = 0x409,

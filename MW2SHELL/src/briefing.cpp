@@ -109,7 +109,7 @@ void DrawBriefing(TMPackDataBase* p_database, char* p_scenario, MechS32 p_campai
 
 	g_briefingPage = (Page*) CollectionGet(g_briefingPages, 0);
 	if (!g_briefingPage) {
-		PostMessage(g_pWnd, 0x410, 0x406, 0);
+		PostMessage(g_pWnd, c_msgLaunchSim, c_msgBriefing, 0);
 		return;
 	}
 
@@ -143,7 +143,7 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 	MechS32 button;
 
 	// The original skips the frame's work with a goto, like StarConfigCallback.
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		goto done;
 	}
 
@@ -155,19 +155,19 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x410;
+			p_msg = c_msgLaunchSim;
 			break;
 		case 0:
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x411;
+			p_msg = c_msgReadyRoom;
 			break;
 		case 3:
 			if (g_pMouseState->GetLeftPressed() != 1) {
 				break;
 			}
-			p_msg = 0x409;
+			p_msg = c_msgDebrief;
 			break;
 		case 1:
 			if (g_pMouseState->GetLeftPressed() != 1) {
@@ -192,13 +192,13 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 	}
 	else {
 		result = g_situationReader->Run();
-		if (result == 0x402) {
-			p_msg = 0x402;
+		if (result == c_msgQuit) {
+			p_msg = c_msgQuit;
 		}
-		if (result == 0x40e) {
-			p_msg = 0x40e;
+		if (result == c_msgMainMenu) {
+			p_msg = c_msgMainMenu;
 		}
-		if (result != 0x40b) {
+		if (result != c_msgArchive) {
 			delete g_situationReader;
 			g_situationReader = NULL;
 			g_briefingMenu = new ButtonMenu(
@@ -213,14 +213,14 @@ void BriefingCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**,
 	}
 
 done:
-	if (p_msg != 0x404) {
+	if (p_msg != c_msgScreenFrame) {
 		if (g_situationReader) {
 			delete g_situationReader;
 		}
 		g_situationReader = NULL;
 		delete g_briefingPage;
 		delete g_briefingMenu;
-		PostMessage(g_pWnd, p_msg, 0x406, 0);
+		PostMessage(g_pWnd, p_msg, c_msgBriefing, 0);
 		UnregisterScreenFunction(BriefingCallback);
 	}
 }
