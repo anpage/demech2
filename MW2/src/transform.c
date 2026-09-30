@@ -4,16 +4,144 @@
 #include "loadres.h"
 #include "types.h"
 
-// STUB: MW2 0x1000d650
+// Transforms the point (*p_x, *p_y, *p_z) by p_matrix: its 2.29 rotation, then its translation.
+// The products are an __asm block.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1000d650
 void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	STUB(0x1000d650);
+	MechS32 rz;
+	MechS32 x;
+	MechS32 rx;
+	MechS32 y;
+	MechS32 z;
+	MechS32 ry;
+
+	x = *p_x;
+	y = *p_y;
+	z = *p_z;
+	__asm {
+		mov edi, p_matrix
+		mov eax, dword ptr [edi]
+		imul x
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [edi + 0x4]
+		imul y
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [edi + 0x8]
+		imul z
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, dword ptr [edi + 0x24]
+		mov rx, eax
+		mov eax, dword ptr [edi + 0xc]
+		imul x
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [edi + 0x10]
+		imul y
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [edi + 0x14]
+		imul z
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, dword ptr [edi + 0x28]
+		mov ry, eax
+		mov eax, dword ptr [edi + 0x18]
+		imul x
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [edi + 0x1c]
+		imul y
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [edi + 0x20]
+		imul z
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, dword ptr [edi + 0x2c]
+		mov rz, eax
+	}
+
+	*p_x = rx;
+	*p_y = ry;
+	*p_z = rz;
 }
 
-// STUB: MW2 0x1000d708
+// Rotates the point (*p_x, *p_y, *p_z) by p_matrix's 2.29 rotation. The products are an __asm
+// block.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1000d708
 void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	STUB(0x1000d708);
+	MechS32 rz;
+	MechS32 x;
+	MechS32 rx;
+	MechS32 y;
+	MechS32 z;
+	MechS32 ry;
+
+	x = *p_x;
+	y = *p_y;
+	z = *p_z;
+	__asm {
+		mov edi, p_matrix
+		mov eax, dword ptr [edi]
+		imul x
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [edi + 0x4]
+		imul y
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [edi + 0x8]
+		imul z
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, 0
+		mov rx, eax
+		mov eax, dword ptr [edi + 0xc]
+		imul x
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [edi + 0x10]
+		imul y
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [edi + 0x14]
+		imul z
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, 0
+		mov ry, eax
+		mov eax, dword ptr [edi + 0x18]
+		imul x
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [edi + 0x1c]
+		imul y
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [edi + 0x20]
+		imul z
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, 0
+		mov rz, eax
+	}
+
+	*p_x = rx;
+	*p_y = ry;
+	*p_z = rz;
 }
 
 // Multiplies two 2.29 fixed-point values. The body is an __asm block.
@@ -67,10 +195,25 @@ void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 	STUB(0x1000da0c);
 }
 
-// STUB: MW2 0x1000dbba
+// Composes p_unk0x04 with p_unk0x00 into p_unk0x08: the rotations' product, and p_unk0x04's
+// translation transformed by p_unk0x00.
+// FUNCTION: MW2 0x1000dbba
 void FUN_1000dbba(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 {
-	STUB(0x1000dbba);
+	MechS32 z;
+	MechS32 y;
+	MechS32 x;
+	Matrix result;
+
+	FUN_1000da0c(p_unk0x00, p_unk0x04, &result);
+	x = p_unk0x04->m_rows[3][0];
+	y = p_unk0x04->m_rows[3][1];
+	z = p_unk0x04->m_rows[3][2];
+	FUN_1000d650(p_unk0x00, &x, &y, &z);
+	result.m_rows[3][0] = x;
+	result.m_rows[3][1] = y;
+	result.m_rows[3][2] = z;
+	MemCopy(p_unk0x08, &result, sizeof(Matrix));
 }
 
 // Transposes the rotation of p_src into p_dst.

@@ -11,6 +11,7 @@
 #include "error.h"
 #include "loadres.h"
 #include "types.h"
+#include "unk100335d0.h"
 
 // GLOBAL: MW2 0x100ba5cc
 MechS32 g_unk0x100ba5cc = 0x80;
@@ -28,13 +29,13 @@ MechU8* g_unk0x100c1a6c;
 MechU8* g_unk0x100c1a70;
 
 // GLOBAL: MW2 0x100c2280
-MechU8* g_unk0x100c2280;
+AmberDune0x8* g_unk0x100c2280;
 
 // GLOBAL: MW2 0x100c2698
 MechU8* g_unk0x100c2698;
 
 // GLOBAL: MW2 0x100c269c
-MechU8* g_unk0x100c269c;
+AmberDune0x8* g_unk0x100c269c;
 
 // GLOBAL: MW2 0x1010b5ac
 MechS32 g_unk0x1010b5ac;
@@ -65,8 +66,8 @@ void FUN_1007d150(MechS32 p_unk0x00, MechS32 p_unk0x04)
 
 	MemSet(g_unk0x100ba5d0, 0, size);
 	g_unk0x100c1a6c = g_unk0x100ba5d0;
-	g_unk0x100c2280 = g_unk0x100ba5d0 + g_unk0x100ba5cc;
-	g_unk0x100c269c = g_unk0x100c2280 + (g_unk0x100c1a68 << 3);
+	g_unk0x100c2280 = (AmberDune0x8*) (g_unk0x100ba5d0 + g_unk0x100ba5cc);
+	g_unk0x100c269c = g_unk0x100c2280 + g_unk0x100c1a68;
 	g_unk0x100c2698 = g_unk0x100c1a6c;
 	g_unk0x100c1a70 = g_unk0x100c1a6c + (g_unk0x100ba5cc << 5) - 0x600;
 	FUN_1007ca8e();

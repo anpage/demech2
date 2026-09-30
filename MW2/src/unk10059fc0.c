@@ -3,7 +3,9 @@
 
 #include "decomp.h"
 #include "mech.h"
+#include "object.h"
 #include "players.h"
+#include "ramp.h"
 #include "staticmem.h"
 #include "types.h"
 #include "unk10016ad0.h"
@@ -16,10 +18,39 @@ void FUN_10059fc0(Player* p_player)
 	STUB(0x10059fc0);
 }
 
-// STUB: MW2 0x1005a203
+// Updates the mech's torso: clears the tick's heat, steps the twist and pitch ramps and turns the
+// torso objects (m_unk0x64 by the pitch, m_unk0x60 by the player's view angles with the twist).
+// FUNCTION: MW2 0x1005a203
 void FUN_1005a203(Mech* p_mech)
 {
-	STUB(0x1005a203);
+	Mech* mech;
+
+	if (!p_mech) {
+		return;
+	}
+
+	mech = p_mech;
+	mech->m_deltaHeat = 0;
+	UpdateRamp(&mech->m_unk0x04);
+	UpdateRamp(&mech->m_unk0x14);
+	if (mech->m_unk0x64) {
+		SetObjRotation(mech->m_unk0x64, mech->m_unk0x14.m_value, 0, 0, 0);
+	}
+
+	if (mech->m_unk0x60) {
+		mech->m_player->m_unk0x68 = 0;
+		mech->m_player->m_unk0x6c = mech->m_unk0x04.m_value;
+		mech->m_player->m_unk0x70 = 0;
+		SetObjRotation(
+			mech->m_unk0x60,
+			mech->m_player->m_unk0x68,
+			mech->m_player->m_unk0x6c,
+			mech->m_player->m_unk0x70,
+			0
+		);
+	}
+
+	FUN_10001cf8(mech->m_player->m_obj);
 }
 
 // STUB: MW2 0x1005a2ea
@@ -52,7 +83,7 @@ MechS32 FUN_1005a637(undefined4 p_unk0x00, Player* p_player)
 
 	p_player->m_mech = NULL;
 	size = FUN_10019a0a();
-	buffer = StaticPoolAlloc(size, g_unk0x100a942c);
+	buffer = StaticPoolAlloc(size, g_staticPoolTags[1]);
 	if (!buffer) {
 		return FALSE;
 	}

@@ -14,6 +14,8 @@ typedef struct GameWindowGeometry {
 	undefined4 m_unk0x14; // 0x14
 } GameWindowGeometry;
 
+struct ScarletOrchid0x4c;
+
 // The functions and globals of render.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -45,6 +47,7 @@ extern "C"
 	void ShutdownRender(void);
 	undefined4 FUN_10012f14(void);
 	void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value);
+	void FUN_100131f1(struct ScarletOrchid0x4c* p_root);
 
 #ifdef __cplusplus
 }

@@ -2,12 +2,31 @@
 
 #include "decomp.h"
 #include "palette.h"
+#include "simmain.h"
 #include "types.h"
 
-// STUB: MW2 0x10010750
+// Draws a polygon of p_count points in the mode in p_flags' low four bits, in the color in bits
+// 4-11: modes 0 and 3 draw it filled (FUN_100107de) when the render settings allow.
+// FUNCTION: MW2 0x10010750
 void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
 {
-	STUB(0x10010750);
+	MechU32 color;
+	MechU32 mode;
+
+	mode = p_flags & 0xf;
+	color = (p_flags & 0xff0) >> 4;
+	switch (mode) {
+	case 0:
+	case 3:
+		if (g_unk0x100a6cc8.m_unk0x10 & 1) {
+			FUN_100107de(color, p_count, p_points, p_unk0x0c, 0);
+		}
+		break;
+	case 1:
+		break;
+	default:
+		break;
+	}
 }
 
 // STUB: MW2 0x100107de

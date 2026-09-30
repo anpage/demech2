@@ -33,6 +33,20 @@ MechS32 g_sinkPilotTilt = 0;
 // GLOBAL: MW2 0x100b254c
 MechS32 g_sinkPilotPan = 0;
 
+// The outputs of INPUT.MAP's glance sinks: the cockpit view looks aside while one is held.
+
+// GLOBAL: MW2 0x100b256e
+MechS8 g_sinkGlanceLeft = 0;
+
+// GLOBAL: MW2 0x100b256f
+MechS8 g_sinkGlanceRight = 0;
+
+// GLOBAL: MW2 0x100b2570
+MechS8 g_sinkGlanceUp = 0;
+
+// GLOBAL: MW2 0x100b2571
+MechS8 g_sinkGlanceDown = 0;
+
 // The outputs of the menu bindings (INPUT.MAP's menu_ sinks).
 
 // GLOBAL: MW2 0x100b2588

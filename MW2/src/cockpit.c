@@ -26,6 +26,10 @@
 
 #include <stdio.h>
 
+// The three values of the HUD layout (FUN_10070bda).
+// GLOBAL: MW2 0x10109c30
+MechS32 g_unk0x10109c30[3];
+
 // GLOBAL: MW2 0x10109c5c
 MechS32 g_unk0x10109c5c;
 

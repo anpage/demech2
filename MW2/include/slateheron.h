@@ -14,9 +14,11 @@ typedef struct SlateHeron0x68 {
 	undefined4 m_unk0x10;                    // 0x10
 	MechS32 m_unk0x14;                       // 0x14 — two-point polygons are drawn as lines
 	MechS32 m_unk0x18;                       // 0x18 — one-point polygons are drawn as pixels
-	undefined4 m_unk0x1c[(0x34 - 0x1c) / 4]; // 0x1c
+	MechS32 m_unk0x1c;                       // 0x1c
+	MechS32 m_unk0x20;                       // 0x20
+	undefined4 m_unk0x24[(0x34 - 0x24) / 4]; // 0x24
 	MechS32 m_unk0x34;                       // 0x34 — 0 fills polygons, 1 fills and outlines, else outlines
-	undefined4 m_unk0x38;                    // 0x38
+	MechS32 m_unk0x38;                       // 0x38
 	MechS32 m_unk0x3c;                       // 0x3c — cleared while an effect has the camera
 	undefined4 m_unk0x40;                    // 0x40
 	MechS32 m_unk0x44;                       // 0x44 — FUN_100367c5's distance scale

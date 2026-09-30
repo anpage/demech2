@@ -1,6 +1,7 @@
 #include "unk100509a0.h"
 
 #include "cobaltharbor.h"
+#include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fadepal.h"
@@ -16,7 +17,6 @@
 #include "types.h"
 #include "unk10040020.h"
 #include "unk10040b30.h"
-#include "unk1006f480.h"
 
 // The handlers of the cockpit panel FUN_1006fca5 sets up second (g_unk0x100c3280[2]): it
 // cycles through five views of the local mech (FUN_100509a0), drawn into the panel's render

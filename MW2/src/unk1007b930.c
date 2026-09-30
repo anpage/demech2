@@ -1,0 +1,270 @@
+#include "unk1007b930.h"
+
+#include "cobaltharbor.h"
+#include "config.h"
+#include "decomp.h"
+#include "eyepoint.h"
+#include "fadepal.h"
+#include "loadres.h"
+#include "mech.h"
+#include "navpoint.h"
+#include "object.h"
+#include "palette.h"
+#include "players.h"
+#include "random.h"
+#include "recttransition.h"
+#include "rendertarget.h"
+#include "screenscale.h"
+#include "simmain.h"
+#include "types.h"
+#include "unk10019ad0.h"
+#include "unk1001ce90.h"
+#include "unk1003a530.h"
+#include "unk10040b30.h"
+#include "unk100509a0.h"
+#include "unk100696c0.h"
+
+// GLOBAL: MW2 0x100ba4bc
+MechS32 g_unk0x100ba4bc = 1;
+
+// The target panel flickers to static while set.
+// GLOBAL: MW2 0x100ba4cc
+MechS32 g_unk0x100ba4cc = 0;
+
+// Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
+// static while the panel is damaged (m_unk0x06).
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1007c126
+void FUN_1007c126(CobaltHarbor0x88* p_panel)
+{
+	MechS32 index;
+	MechS32 dz;
+	SlateHeron0x68 saved;
+	Player* targetPlayer;
+	MechS32 view[7];
+	AmberWillow0x7c* object;
+	MechS32 kind;
+	Mech* mech;
+	MechS32 centerX;
+	Player* player;
+	MechS32 centerY;
+	MechS32 distance;
+	MechS32 heading;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 dx;
+	MechS32 icon;
+	void* noTarget;
+	void* noObject;
+	MechS32 targetIndex;
+
+	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+		return;
+	}
+
+	p_panel->m_unk0x3c = g_unk0x100c3358;
+	if (p_panel->m_unk0x06 == 1) {
+		if (g_unk0x100ba4cc) {
+			if (RandomIntBelow(10) < 7) {
+				g_unk0x100ba4cc = 0;
+			}
+
+			FUN_1007c6df(p_panel);
+			return;
+		}
+		else {
+			if (RandomIntBelow(10) < 3) {
+				g_unk0x100ba4cc = 1;
+			}
+		}
+	}
+	else if (p_panel->m_unk0x06 > 2) {
+		FUN_1007c6df(p_panel);
+		return;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	player = mech->m_player;
+	kind = player->m_targetInfo.m_target & 0xf00;
+	index = mech->m_player->m_targetInfo.m_target & 0xff;
+	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
+		FillView(p_panel->m_target, 0);
+		FUN_100570e9(p_panel->m_target, 8);
+		return;
+	}
+
+	if (kind == 0x100) {
+		centerX = (p_panel->m_target->m_right - p_panel->m_target->m_left) / 2;
+		centerY = (p_panel->m_target->m_bottom - p_panel->m_target->m_top) / 2;
+		if (!(g_navTable[index].m_flags & 0x20)) {
+			icon = 0x100;
+		}
+		else {
+			icon = 0x103;
+		}
+
+		if (icon) {
+			FillView(p_panel->m_target, 0);
+			FUN_10041f06(centerX, centerY, icon, p_panel->m_target);
+			FUN_100570e9(p_panel->m_target, 8);
+		}
+
+		return;
+	}
+
+	if (kind == 0x200) {
+		targetPlayer = g_players[mech->m_player->m_targetInfo.m_target & 0xff];
+		FUN_1001d292(targetPlayer->m_index, 0);
+	}
+
+	FUN_100114ea(g_eyepoint, view);
+	FUN_10050dc3(&saved);
+	x = player->m_targetInfo.m_position.m_x;
+	y = player->m_targetInfo.m_position.m_y;
+	z = player->m_targetInfo.m_position.m_z;
+	heading = player->m_targetInfo.m_heading;
+	object = FUN_1005ff56();
+	if (!object) {
+		noTarget = FUN_1001a19f(g_unk0x100a8740, 0x5b, g_unk0x100a8680, 0);
+		if (noTarget) {
+			FillView(p_panel->m_target, 0);
+			BlitShpFrame(p_panel->m_target, noTarget, 0, 1, 1);
+			FUN_100570e9(p_panel->m_target, 8);
+			FUN_1001a163(0x5b, g_unk0x100a8680);
+		}
+
+		return;
+	}
+	else if (!object->m_unk0x6c) {
+		noObject = FUN_1001a19f(g_unk0x100a8740, 0x58, g_unk0x100a8680, 0);
+		if (noObject) {
+			FillView(p_panel->m_target, 0);
+			BlitShpFrame(p_panel->m_target, noObject, 0, 1, 1);
+			FUN_100570e9(p_panel->m_target, 8);
+			FUN_1001a163(0x58, g_unk0x100a8680);
+		}
+
+		return;
+	}
+
+	if (kind == 0x400) {
+		distance = FUN_1003adc9(object->m_unk0x6c, &x, &y, &z) * 3;
+	}
+	else {
+		targetIndex = player->m_targetInfo.m_target & 0xff;
+		distance = g_players[targetIndex]->m_mech->m_radius * 3;
+	}
+
+	dx = -FUN_10019ad0(FUN_100696c0(heading), distance);
+	view[0] = x + dx;
+	view[1] = y;
+	dz = -FUN_10019ad0(FUN_1006973a(heading), distance);
+	view[2] = z + dz;
+	view[3] = heading;
+	view[4] = 0;
+	view[5] = 0;
+	if (g_unk0x100ba4bc == 1) {
+		g_unk0x100a6cc8.m_unk0x34 = 1;
+		g_unk0x100a6cc8.m_unk0x38 = 0;
+	}
+	else {
+		g_unk0x100a6cc8.m_unk0x34 = 0;
+	}
+
+	g_unk0x100a6cc8.m_unk0x1c = g_unk0x100a6cc8.m_unk0x20 = 0;
+	FillView(p_panel->m_target, 0);
+	if (g_unk0x100c3358 == 2) {
+		FUN_1004c8bd(7, 0x20000, view, object);
+	}
+
+	FUN_100570e9(p_panel->m_target, 8);
+	g_unk0x100a6cc8 = saved;
+}
+
+// Draws a panel as static (animation 0).
+// FUNCTION: MW2 0x1007c6df
+void FUN_1007c6df(CobaltHarbor0x88* p_panel)
+{
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	p_panel->m_unk0x3c = g_unk0x100c3358;
+	FUN_1007079d(p_panel->m_target, 0, 0, 0);
+}
+
+// Draws the target panel while its transition opens it, the view resized to the transition's
+// rectangle (g_renderTargets[7] and the panel's target) for the frame.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1007c71e
+void FUN_1007c71e(CobaltHarbor0x88* p_panel)
+{
+	RenderTarget* rect;
+	RectTransition* transition;
+	RenderTarget savedView;
+	RenderTarget savedTarget;
+
+	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+		return;
+	}
+
+	transition = p_panel->m_transition;
+	if (transition) {
+		if (p_panel->m_unk0x3c != 1) {
+			StartRectTransition(transition);
+		}
+
+		rect = UpdateRectTransitionByAxis(0, transition);
+		if (rect) {
+			savedView = g_renderTargets[7];
+			savedTarget = *p_panel->m_target;
+			g_renderTargets[7] = *rect;
+			*p_panel->m_target = *rect;
+			FUN_1007c126(p_panel);
+			g_renderTargets[7] = savedView;
+			*p_panel->m_target = savedTarget;
+		}
+		else {
+			FUN_1007c126(p_panel);
+		}
+	}
+
+	p_panel->m_unk0x3c = g_unk0x100c3358;
+}
+
+// Draws the target panel while its transition closes it, unless the view it last drew (0, 3 or
+// 4) already had it closed.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1007c81c
+void FUN_1007c81c(CobaltHarbor0x88* p_panel)
+{
+	RenderTarget* rect;
+	RectTransition* transition;
+	RenderTarget savedView;
+	RenderTarget savedTarget;
+
+	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+		return;
+	}
+
+	transition = p_panel->m_transition;
+	if (transition) {
+		if (p_panel->m_unk0x3c != 0 && p_panel->m_unk0x3c != 3 && p_panel->m_unk0x3c != 4) {
+			StartRectTransition(transition);
+		}
+
+		rect = UpdateRectTransitionByAxis(1, transition);
+		if (rect) {
+			savedView = g_renderTargets[7];
+			savedTarget = *p_panel->m_target;
+			g_renderTargets[7] = *rect;
+			*p_panel->m_target = *rect;
+			FUN_1007c126(p_panel);
+			g_renderTargets[7] = savedView;
+			*p_panel->m_target = savedTarget;
+		}
+	}
+
+	p_panel->m_unk0x3c = g_unk0x100c3358;
+}

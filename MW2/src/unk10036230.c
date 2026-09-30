@@ -1,4 +1,5 @@
-/* Hand-written assembly: FUN_10038ced and FUN_1003a05d are C functions with __asm bodies. */
+/* Hand-written assembly: FUN_10038ced, FUN_10039b94, FUN_10039c96 and FUN_1003a05d are C functions
+   with __asm bodies. */
 #include "unk10036230.h"
 
 #include "decomp.h"
@@ -7,6 +8,7 @@
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
+#include "unk1003a530.h"
 
 // The luma table FUN_10038d0d draws through, copied in by FUN_10038ced.
 // GLOBAL: MW2 0x100a5630
@@ -120,10 +122,63 @@ void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 	STUB(0x10039a30);
 }
 
-// STUB: MW2 0x10039b94
+// Transforms the shape's position (m_unk0x28-0x30) by p_matrix into m_unk0x34-0x3c, and bumps its
+// transform count (m_unk0x48). The products are an __asm block.
+// FUNCTION: MW2 0x10039b94
 void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
 {
-	STUB(0x10039b94);
+	p_shape->m_unk0x00 &= ~0x200;
+	__asm {
+		mov esi, p_matrix
+		mov edi, p_shape
+		mov eax, dword ptr [esi]
+		imul dword ptr [edi + 0x28]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x4]
+		imul dword ptr [edi + 0x2c]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x8]
+		imul dword ptr [edi + 0x30]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, dword ptr [esi + 0x24]
+		mov dword ptr [edi + 0x34], eax
+		mov eax, dword ptr [esi + 0xc]
+		imul dword ptr [edi + 0x28]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x10]
+		imul dword ptr [edi + 0x2c]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x14]
+		imul dword ptr [edi + 0x30]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, dword ptr [esi + 0x28]
+		mov dword ptr [edi + 0x38], eax
+		mov eax, dword ptr [esi + 0x18]
+		imul dword ptr [edi + 0x28]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x1c]
+		imul dword ptr [edi + 0x2c]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x20]
+		imul dword ptr [edi + 0x30]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 29
+		adc eax, dword ptr [esi + 0x2c]
+		mov dword ptr [edi + 0x3c], eax
+	}
+
+	p_shape->m_unk0x48++;
 }
 
 // Transforms a shape and each of its models by p_matrix.
@@ -139,7 +194,9 @@ void FUN_10039c36(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
 	}
 }
 
-// STUB: MW2 0x10039c96
+// Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_unk0x0c = 0 for y at
+// (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_unk0x0c) / p_normalY, in 64 bits.
+// FUNCTION: MW2 0x10039c96
 MechS32 FUN_10039c96(
 	MechS32 p_normalX,
 	MechS32 p_normalY,
@@ -149,8 +206,24 @@ MechS32 FUN_10039c96(
 	MechS32 p_dz
 )
 {
-	STUB(0x10039c96);
-	return 0;
+	MechS32 result;
+
+	__asm {
+		mov eax, p_normalX
+		imul p_dx
+		mov esi, eax
+		mov edi, edx
+		mov eax, p_normalZ
+		imul p_dz
+		add eax, esi
+		adc edx, edi
+		add eax, p_unk0x0c
+		adc edx, 0
+		idiv p_normalY
+		mov result, eax
+	}
+
+	return result;
 }
 
 // Returns a distance from (p_x, p_y, p_z) to the shape.

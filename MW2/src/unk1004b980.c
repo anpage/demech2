@@ -19,8 +19,20 @@ MechS32 g_unk0x100a712c = 1;
 // GLOBAL: MW2 0x100ea820
 MechS32 g_unk0x100ea820;
 
+// GLOBAL: MW2 0x100ea824
+MechS32 g_unk0x100ea824;
+
+// GLOBAL: MW2 0x100ea828
+MechS32 g_unk0x100ea828;
+
 // GLOBAL: MW2 0x100ea82c
 MechS32 g_unk0x100ea82c;
+
+// GLOBAL: MW2 0x100ea834
+MechS32 g_unk0x100ea834;
+
+// GLOBAL: MW2 0x100ea858
+MechS32 g_unk0x100ea858;
 
 // GLOBAL: MW2 0x100ea860
 MechS32 g_unk0x100ea860;

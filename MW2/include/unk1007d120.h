@@ -2,12 +2,19 @@
 #define UNK1007D120_H
 
 #include "types.h"
+#include "unk100335d0.h"
 
 // The functions and globals of unk1007d120.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+	extern MechS32 g_unk0x100c1a68;
+	extern AmberDune0x8* g_unk0x100c2280;
+	extern MechU8* g_unk0x100c2698;
+	extern AmberDune0x8* g_unk0x100c269c;
+	extern MechS32 g_unk0x1010b5ac;
 
 	void FUN_1007d120(void);
 	void FUN_1007d150(MechS32 p_unk0x00, MechS32 p_unk0x04);

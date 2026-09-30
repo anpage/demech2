@@ -10,6 +10,9 @@ extern "C"
 #endif
 
 	void FUN_1004da30(void* p_table);
+	MechU32 FindEventList(MechChar* p_name);
+	void PostEventToList(MechChar* p_name, MechS32 p_types, MechU32 p_target);
+	void FlushEventLists(MechU32 p_lists);
 
 #ifdef __cplusplus
 }

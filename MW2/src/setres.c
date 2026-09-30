@@ -1,5 +1,6 @@
 #include "setres.h"
 
+#include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "muldiv.h"
@@ -13,7 +14,6 @@
 #include "timedoverlays.h"
 #include "types.h"
 #include "unk1004b980.h"
-#include "unk1006f480.h"
 
 #include <stdlib.h>
 

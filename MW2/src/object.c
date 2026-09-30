@@ -31,7 +31,7 @@ AmberWillow0x7c* FUN_100012d0(AmberWillow0x7c* p_parent, MechU32 p_flags)
 	AmberWillow0x7c* last;
 
 	if (p_flags & 2) {
-		obj = StaticPoolAlloc(sizeof(AmberWillow0x7c), g_unk0x100a9430);
+		obj = StaticPoolAlloc(sizeof(AmberWillow0x7c), g_staticPoolTags[2]);
 		if (obj == NULL) {
 			return NULL;
 		}

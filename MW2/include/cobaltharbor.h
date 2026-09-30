@@ -16,7 +16,7 @@ struct CobaltHarbor0x88 {
 	CobaltHarbor0x88* m_self;                                                 // 0x00
 	MechS16 m_enabled;                                                        // 0x04
 	MechS16 m_unk0x06;                                                        // 0x06
-	undefined4 m_unk0x08;                                                     // 0x08
+	MechS32 m_unk0x08;                                                        // 0x08
 	MechS32 m_unk0x0c;                                                        // 0x0c
 	MechChar m_name[0x20];                                                    // 0x10
 	RenderTarget* m_target;                                                   // 0x30

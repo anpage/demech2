@@ -195,6 +195,10 @@ MechS32 g_unk0x100a2440 = 0x3ca0;
 // GLOBAL: MW2 0x100a2444
 MechS32 g_unk0x100a2444 = 0;
 
+// Set while no glance key is held (FUN_10011cb0).
+// GLOBAL: MW2 0x100a2448
+MechS8 g_unk0x100a2448 = 0;
+
 // GLOBAL: MW2 0x100a244c
 MechS32 g_drawModeIndex = -1;
 
@@ -290,6 +294,10 @@ Point g_unk0x100a5bb0 = {0, 0};
 // GLOBAL: MW2 0x100a5bb8
 void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
 
+// The fifteen cockpit rectangles, in percent of the screen (FUN_10070bda).
+// GLOBAL: MW2 0x100a5cf8
+RenderTarget g_unk0x100a5cf8[15] = {0};
+
 // GLOBAL: MW2 0x100a5ee8
 Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0}, {0, 0}};
 
@@ -316,9 +324,8 @@ Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000,
 Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6cc8
-SlateHeron0x68 g_unk0x100a6cc8 = {0,    1,    1,    1, 1,       1,       1, {1, 1, 1, 0xe0, 0xef, 1},
-								  0,    0,    0,    0, 0x186a0, 0x10000, 0, 0,
-								  NULL, NULL, NULL, 0, NULL};
+SlateHeron0x68 g_unk0x100a6cc8 = {0,       1,       1, 1, 1,    1,    1,    1, 1,   {1, 0xe0, 0xef, 1}, 0, 0, 0, 0,
+								  0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
 
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
@@ -350,6 +357,18 @@ const char* g_unk0x100a869c = "POLY";
 // GLOBAL: MW2 0x100a86a0
 const char* g_unk0x100a86a0 = "TEXT";
 
+// GLOBAL: MW2 0x100a86a4
+const char* g_unk0x100a86a4 = "ANIM";
+
+// GLOBAL: MW2 0x100a86a8
+const char* g_unk0x100a86a8 = "MGEO";
+
+// GLOBAL: MW2 0x100a86ac
+const char* g_unk0x100a86ac = "HUD";
+
+// GLOBAL: MW2 0x100a86b0
+const char* g_unk0x100a86b0 = "CPIT";
+
 // GLOBAL: MW2 0x100a86bc
 const char* g_unk0x100a86bc = g_unk0x100a87c0;
 
@@ -364,6 +383,18 @@ const char* g_unk0x100a86d0 = "MUS";
 
 // GLOBAL: MW2 0x100a8704
 const char* g_unk0x100a8704 = ".wtb";
+
+// GLOBAL: MW2 0x100a870c
+const char* g_unk0x100a870c = ".3di";
+
+// GLOBAL: MW2 0x100a8710
+const char* g_unk0x100a8710 = ".mgi";
+
+// GLOBAL: MW2 0x100a8714
+const char* g_unk0x100a8714 = ".hdi";
+
+// GLOBAL: MW2 0x100a8718
+const char* g_unk0x100a8718 = ".cpi";
 
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;

@@ -56,6 +56,7 @@ extern "C"
 {
 #endif
 
+	void FUN_10011cb0(void);
 	void FUN_10011e45(
 		MechS32* p_unk0x10,
 		MechS32* p_unk0x0c,

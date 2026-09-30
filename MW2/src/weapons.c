@@ -791,7 +791,7 @@ void FUN_10045eac(Mech* p_mech)
 				yaw += 0x1680000;
 			}
 
-			pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_unk0x1c) % 0x1680000;
+			pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_unk0x14.m_value) % 0x1680000;
 		}
 
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {
@@ -910,7 +910,7 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	*p_z = 0x10000;
 	GetObjWorldPos(p_player->m_unk0x44, &x, &y, &z);
 	mech = p_player->m_mech;
-	x = mech->m_unk0x1c;
+	x = mech->m_unk0x14.m_value;
 	FUN_1000e2b9(&matrix, x, y, z, 0, 0, 0);
 	FUN_1000d708(&matrix, p_x, p_y, p_z);
 }

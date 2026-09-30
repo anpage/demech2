@@ -2,6 +2,7 @@
    loaded and its scene objects, and FUN_1007fbe0 restores both. */
 #include "unk1007fbe0.h"
 
+#include "config.h"
 #include "debris.h"
 #include "debugprint.h"
 #include "decomp.h"
@@ -17,7 +18,6 @@
 #include "unk10016ad0.h"
 #include "unk1001ce90.h"
 #include "unk1005d6d0.h"
-#include "unk1006f480.h"
 
 #include <string.h>
 #include <windows.h>
@@ -58,9 +58,9 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	}
 
 	mech->m_unk0x28 = mech->m_unk0x2c = 0;
-	mech->m_unk0x08 = mech->m_unk0x0c = 0;
+	mech->m_unk0x04.m_target = mech->m_unk0x04.m_value = 0;
 	mech->m_unk0x38 = mech->m_unk0x3c = 0;
-	mech->m_unk0x18 = mech->m_unk0x1c = 0;
+	mech->m_unk0x14.m_target = mech->m_unk0x14.m_value = 0;
 	mech->m_player->m_steering->m_throttle = 0;
 	mech->m_player->m_steering->m_unk0x24 = 1;
 	mech->m_player->m_steering->m_unk0x1d = 0;

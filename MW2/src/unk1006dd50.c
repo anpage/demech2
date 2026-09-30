@@ -1,19 +1,64 @@
 #include "unk1006dd50.h"
 
+#include "codeblock.h"
 #include "decomp.h"
+#include "simmain.h"
 #include "types.h"
 
-// STUB: MW2 0x1006dd50
+DECOMP_SIZE_ASSERT(CodeBlockTexture, 0xc)
+
+// Draws a polygon of p_count points (six dwords each) textured with the p_width by p_height
+// bitmap p_pixels, through the code block's routines.
+// The p_width/p_height comparison loads its operands in the opposite order (one attempt at
+// swapping them didn't flip it), and stack-slot permutation: i, points, rows and unk0x08.
+// FUNCTION: MW2 0x1006dd50
 void FUN_1006dd50(
 	RenderTarget* p_target,
-	MechU16* p_pixels,
-	MechU16 p_width,
-	MechU16 p_height,
+	MechU8* p_pixels,
+	MechS16 p_width,
+	MechS16 p_height,
 	MechS32 p_count,
 	MechU32* p_points,
 	MechS32 p_useLuma,
 	MechU16* p_luma
 )
 {
-	STUB(0x1006dd50);
+	CodeBlockTexture texture;
+	MechS32 mode;
+	MechU8* rows[128];
+	MechS32 i;
+	MechU32* points;
+	MechU32 unk0x08;
+
+	mode = 0x11;
+	p_useLuma = TRUE;
+	if (p_useLuma) {
+		mode |= 0x80;
+	}
+
+	if (g_unk0x100a6cc8.m_unk0x4c) {
+		mode |= 0x400;
+	}
+	else {
+		mode |= 0x600;
+	}
+
+	if (p_height > 0x80) {
+		p_height = 0x80;
+	}
+
+	if (p_width < p_height) {
+		p_height = p_width;
+	}
+
+	for (i = 0; i < p_height; i++) {
+		rows[i] = p_pixels;
+		p_pixels += p_width;
+	}
+
+	texture.m_rowCount = texture.m_height = p_height;
+	texture.m_rows = rows;
+	points = p_points;
+	unk0x08 = points[2];
+	CallCodeBlockRoutineClipped(p_target, p_points, p_count, mode, unk0x08, &texture, p_luma, 0);
 }
