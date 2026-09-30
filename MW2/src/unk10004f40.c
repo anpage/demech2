@@ -377,14 +377,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 			cursor->m_y += gap + height;
 			if (g_difficulty->m_unk0x0a) {
 				g_unk0x100e9350[0xe] = 0xe;
-				BlitString(
-					p_panel->m_target,
-					cursor->m_x,
-					cursor->m_y,
-					font,
-					" [Enter] Send to all",
-					g_unk0x100e9350
-				);
+				BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, " [Enter] Send to all", g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				cursor->m_y += height;
 				g_unk0x100e9350[0xe] = 0xe;

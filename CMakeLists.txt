@@ -41,6 +41,10 @@ message(STATUS "MSVC for decompilation: ${MSVC_FOR_DECOMP}")
 # CMAKE_ASM_MASM_COMPILER rather than putting MASM's BIN on PATH: it also holds a 16-bit LINK,
 # LIB and NMAKE that would shadow VC++ 4.1's. Other compilers build the units' C stubs instead.
 if (MSVC_FOR_DECOMP)
+  # CMake writes the path into a generated script, where a Windows path's backslashes are escapes
+  if (CMAKE_ASM_MASM_COMPILER)
+    file(TO_CMAKE_PATH "${CMAKE_ASM_MASM_COMPILER}" CMAKE_ASM_MASM_COMPILER)
+  endif()
   enable_language(ASM_MASM)
   set(CMAKE_ASM_MASM_FLAGS "/nologo /coff")
   set(CMAKE_ASM_MASM_FLAGS_DEBUG "/Zi")
