@@ -18,22 +18,16 @@ typedef struct Mech {
 	struct Player* m_player;              // 0x00
 	Ramp m_unk0x04;                       // 0x04 — the torso twist (FUN_1005a203)
 	Ramp m_unk0x14;                       // 0x14 — the torso pitch (FUN_1005a203)
-	undefined m_unk0x24[0x28 - 0x24];     // 0x24
-	MechS32 m_unk0x28;                    // 0x28
-	MechS32 m_unk0x2c;                    // 0x2c
-	undefined m_unk0x30[0x38 - 0x30];     // 0x30
-	MechS32 m_unk0x38;                    // 0x38
-	MechS32 m_unk0x3c;                    // 0x3c
-	undefined m_unk0x40[0x48 - 0x40];     // 0x40
-	MechS32 m_unk0x48;                    // 0x48
-	MechS32 m_unk0x4c;                    // 0x4c
-	undefined m_unk0x50[0x54 - 0x50];     // 0x50
+	Ramp m_unk0x24;                       // 0x24 — the position's x (FUN_1006831a)
+	Ramp m_unk0x34;                       // 0x34 — the position's z
+	Ramp m_unk0x44;                       // 0x44 — the position's y
 	WeaponSlot* m_weapons;                // 0x54 — ten
 	MechSection* m_sections;              // 0x58 — the eight sections
 	void* m_unk0x5c;                      // 0x5c — the rest of the allocation, after the sections
 	struct AmberWillow0x7c* m_unk0x60;    // 0x60
 	struct AmberWillow0x7c* m_unk0x64;    // 0x64
-	struct AmberWillow0x7c* m_objects[9]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets
+	struct AmberWillow0x7c* m_objects[8]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets
+	MechS32 m_unk0x88;                    // 0x88 — FUN_1006844e's speed towards the nav point
 	MechS32 m_unk0x8c;                    // 0x8c — the weapons' lock-on countdown (FUN_10045eac)
 	undefined m_unk0x90[0x94 - 0x90];     // 0x90
 	MechS32 m_deltaHeat;                  // 0x94 — heat added this tick
@@ -43,18 +37,20 @@ typedef struct Mech {
 	MechS32 m_unk0xa4;                    // 0xa4
 	MechS32 m_weaponCount;                // 0xa8
 	MechS32 m_selectedWeapon;             // 0xac — an index into m_weapons, or -1
-	undefined m_unk0xb0[0xb8 - 0xb0];     // 0xb0
+	MechS32 m_unk0xb0;                    // 0xb0
+	MechS32 m_unk0xb4;                    // 0xb4
 	MechS32 m_unk0xb8;                    // 0xb8
 	MechS32 m_unk0xbc;                    // 0xbc — the autopilot: 1 and 2 are on
 	MechS32 m_unk0xc0;                    // 0xc0 — the jump jets fire while it is positive
-	undefined m_unk0xc4[0xcc - 0xc4];     // 0xc4
+	undefined4 m_unk0xc4;                 // 0xc4
+	MechS32 m_unk0xc8;                    // 0xc8 — the ammunition bins at m_unk0x5c
 	MechS32 m_unk0xcc;                    // 0xcc
 	undefined m_unk0xd0[0xe0 - 0xd0];     // 0xd0
 	MechS32 m_unk0xe0;                    // 0xe0
-	undefined m_unk0xe4[0xe8 - 0xe4];     // 0xe4
+	MechS32 m_unk0xe4;                    // 0xe4 — its mass: FUN_1007669e scales collision damage by it
 	MechS32 m_radius;                     // 0xe8 — splash damage reaches it this much further
 	MechS32 m_unk0xec;                    // 0xec
-	undefined m_unk0xf0[0xf4 - 0xf0];     // 0xf0
+	MechS32 m_unk0xf0;                    // 0xf0
 	MechS32 m_unk0xf4;                    // 0xf4 — the velocity
 	MechS32 m_unk0xf8;                    // 0xf8
 	MechS32 m_unk0xfc;                    // 0xfc

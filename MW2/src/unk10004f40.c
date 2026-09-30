@@ -552,7 +552,7 @@ void FUN_10006291(CobaltHarbor0x88* p_panel)
 
 	mech = g_players[g_localPlayerId]->m_mech;
 	speed = ApproximateVectorLength(mech->m_unk0xf4, mech->m_unk0xf8, mech->m_unk0xfc) / 10002 * 1.5;
-	if (mech->m_unk0x2c < 0) {
+	if (mech->m_unk0x24.m_value < 0) {
 		speed = -speed;
 		g_unk0x100e9350[0xe] = 6;
 	}

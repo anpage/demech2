@@ -33,6 +33,10 @@ MechS32 g_sinkPilotTilt = 0;
 // GLOBAL: MW2 0x100b254c
 MechS32 g_sinkPilotPan = 0;
 
+// The view scale (16.16), reset to 1 by FirstEyepoint.
+// GLOBAL: MW2 0x100b2564
+MechS32 g_unk0x100b2564 = 0;
+
 // The outputs of INPUT.MAP's glance sinks: the cockpit view looks aside while one is held.
 
 // GLOBAL: MW2 0x100b256e

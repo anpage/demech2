@@ -1,21 +1,72 @@
 /* A mech class: its reset, update and allocation functions. */
 #include "unk10059fc0.h"
 
+#include "ai.h"
 #include "decomp.h"
 #include "mech.h"
 #include "object.h"
 #include "players.h"
+#include "playersteering.h"
 #include "ramp.h"
+#include "resource.h"
 #include "staticmem.h"
 #include "types.h"
 #include "unk10016ad0.h"
 #include "unk100563d0.h"
 #include "weaponslot.h"
 
-// STUB: MW2 0x10059fc0
+// Resets the player's mech of this class: its torso objects and ramps, state and weapons, stands
+// its object up where it is and clears the player's steering.
+// FUNCTION: MW2 0x10059fc0
 void FUN_10059fc0(Player* p_player)
 {
-	STUB(0x10059fc0);
+	Mech* mech;
+
+	mech = p_player->m_mech;
+	if (!mech) {
+		return;
+	}
+
+	mech->m_unk0x60 = FUN_100506d8();
+	mech->m_unk0x64 = FUN_100506d8();
+	StartRamp(&mech->m_unk0x04, 0, 0, 0.8);
+	StartRamp(&mech->m_unk0x14, 0, 0, 0.8);
+	mech->m_selectedWeapon = 0;
+	mech->m_unk0x98 = 0;
+	mech->m_unk0xb8 = 0;
+	mech->m_weaponCount = 10;
+	mech->m_unk0xa4 = 0;
+	mech->m_unk0x10c = 0x2000;
+	mech->m_unk0xa0 = 0;
+	mech->m_unk0x8c = 0;
+	mech->m_deltaHeat = 0;
+	mech->m_unk0xb4 = 0;
+	mech->m_unk0xbc = 0;
+	mech->m_unk0xf8 = 0;
+	mech->m_unk0xf0 = 0;
+	FUN_10001667(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
+	FUN_10001cf8(mech->m_player->m_obj);
+	GetObjWorldPos(
+		mech->m_player->m_obj,
+		&mech->m_player->m_unk0x5c,
+		&mech->m_player->m_heading,
+		&mech->m_player->m_unk0x64
+	);
+	GetObjPosition(
+		mech->m_player->m_obj,
+		&mech->m_player->m_position.m_x,
+		&mech->m_player->m_position.m_y,
+		&mech->m_player->m_position.m_z
+	);
+	mech->m_player->m_unk0x68 = mech->m_player->m_unk0x6c = mech->m_player->m_unk0x70 = 0;
+	mech->m_player->m_unk0x8c = 0;
+	mech->m_player->m_unk0x88 = -1;
+	FUN_100019f6(mech->m_player->m_obj);
+	mech->m_player->m_steering->m_unk0x42 = 0;
+	mech->m_player->m_steering->m_throttle = 0;
+	mech->m_player->m_steering->m_unk0x30 = 0;
+	FUN_100516c5(mech->m_player);
+	mech->m_unk0x88 = 0;
 }
 
 // Updates the mech's torso: clears the tick's heat, steps the twist and pitch ramps and turns the

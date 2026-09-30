@@ -1,5 +1,7 @@
 #include "unk1004b5a0.h"
 
+#include "ai.h"
+#include "clock.h"
 #include "decomp.h"
 #include "mech.h"
 #include "players.h"
@@ -13,10 +15,45 @@
 #include "weapons.h"
 #include "weaponslot.h"
 
-// STUB: MW2 0x1004b5a0
-void FUN_1004b5a0(Player* p_player, MechS32 p_heading)
+// Runs p_player's AI weapons at random intervals (up to m_unk0x158 x 22 ticks): within 10 degrees
+// of the heading p_heading (always against the local player, else one time in three) it aims at
+// its goal and may fire (FUN_1004b724). Then turns and pitches the torso. Returns whether it
+// fired.
+// Stack-slot permutation: fired, roll and delta.
+// FUNCTION: MW2 0x1004b5a0
+MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 {
-	STUB(0x1004b5a0);
+	MechS32 fired;
+	MechS32 roll;
+	MechS32 delta;
+
+	fired = FALSE;
+	if (p_player->m_unk0x15a <= g_currentClock) {
+		roll = RandomIntBelow(p_player->m_unk0x158);
+		p_player->m_unk0x15a = roll * 22 + g_currentClock;
+		delta = p_heading - p_player->m_unk0x6c;
+		if (delta < 0xa0000 && delta > -0xa0000) {
+			if ((p_player->m_aiGoal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
+				FUN_1005372c(p_player, p_player->m_aiGoal);
+				if (!roll) {
+					if (FUN_1004b724(p_player)) {
+						if (!((p_player->m_unk0x19e >> 4) & 1) || FUN_1006ca60(p_player, 1)) {
+							p_player->m_steering->m_unk0x25 = 1;
+							fired = TRUE;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (!fired) {
+		roll = 0;
+	}
+
+	p_player->m_steering->m_unk0x04 = FUN_1005391f(p_player, p_heading, roll) * 0x2d00;
+	p_player->m_steering->m_unk0x00 = -(FUN_10053954(p_player, roll) * 0xf00);
+	return fired;
 }
 
 // Decides whether p_player's AI fires its selected weapon: in range of its target, cool enough, the

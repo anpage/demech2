@@ -1,11 +1,18 @@
 #include "unk10040b30.h"
 
 #include "decomp.h"
+#include "eyepoint.h"
 #include "loadres.h"
+#include "object.h"
 #include "players.h"
 #include "ray.h"
+#include "rendertarget.h"
+#include "screenscale.h"
 #include "simmain.h"
+#include "team.h"
 #include "types.h"
+#include "unk10013340.h"
+#include "unk1003a530.h"
 #include "unk1004b980.h"
 #include "weapons.h"
 
@@ -13,7 +20,7 @@
 // (FUN_100412dd), FUN_100414ab and FUN_10040cbc.
 // FUNCTION: MW2 0x10040b30
 void FUN_10040b30(
-	RenderTarget* p_target,
+	Mech* p_mech,
 	MechS32 p_unk0x04,
 	MechS32 p_unk0x08,
 	MechS32 p_unk0x0c,
@@ -28,26 +35,26 @@ void FUN_10040b30(
 
 	if (g_unk0x100a5f24) {
 		FUN_1004183a(g_unk0x100a5ee8[0].m_x, g_unk0x100a5ee8[0].m_y, p_unk0x04, p_unk0x08);
-		FUN_1004161f(p_target, g_unk0x100a5ee8[0].m_x, g_unk0x100a5ee8[0].m_y, p_unk0x0c, p_unk0x10, p_unk0x14);
+		FUN_1004161f(p_mech, g_unk0x100a5ee8[0].m_x, g_unk0x100a5ee8[0].m_y, p_unk0x0c, p_unk0x10, p_unk0x14);
 	}
 
 	if (g_unk0x100a5f1c) {
-		FUN_100412dd(p_target, p_unk0x10, p_unk0x14, p_unk0x18);
+		FUN_100412dd(p_mech, p_unk0x10, p_unk0x14, p_unk0x18);
 	}
 
 	if (g_unk0x100a5f20) {
-		FUN_100414ab(p_target);
+		FUN_100414ab(p_mech);
 	}
 
 	if (g_unk0x100a5f2c) {
-		FUN_10040cbc(p_target, g_unk0x100a5ee8[1].m_x, g_unk0x100a5ee8[1].m_y);
+		FUN_10040cbc(p_mech, g_unk0x100a5ee8[1].m_x, g_unk0x100a5ee8[1].m_y);
 	}
 }
 
 // FUN_10040b30 with the overlays at their default places, and the radar only with p_unk0x1c.
 // FUNCTION: MW2 0x10040bfd
 void FUN_10040bfd(
-	RenderTarget* p_target,
+	Mech* p_mech,
 	MechS32 p_unk0x04,
 	MechS32 p_unk0x08,
 	MechS32 p_unk0x0c,
@@ -63,24 +70,24 @@ void FUN_10040bfd(
 
 	if (g_unk0x100a5f24) {
 		FUN_1004183a(0x73, 0x10, p_unk0x04, p_unk0x08);
-		FUN_1004161f(p_target, 0x73, 0x10, p_unk0x0c, p_unk0x10, p_unk0x14);
+		FUN_1004161f(p_mech, 0x73, 0x10, p_unk0x0c, p_unk0x10, p_unk0x14);
 	}
 
 	if (p_unk0x1c && g_unk0x100a5f1c) {
-		FUN_100412dd(p_target, p_unk0x10, p_unk0x14, p_unk0x18);
+		FUN_100412dd(p_mech, p_unk0x10, p_unk0x14, p_unk0x18);
 	}
 
 	if (g_unk0x100a5f20) {
-		FUN_100414ab(p_target);
+		FUN_100414ab(p_mech);
 	}
 
 	if (g_unk0x100a5f2c) {
-		FUN_10040cbc(p_target, 8, 0x4a);
+		FUN_10040cbc(p_mech, 8, 0x4a);
 	}
 }
 
 // STUB: MW2 0x10040cbc
-void FUN_10040cbc(RenderTarget* p_target, MechS32 p_x, MechS32 p_y)
+void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 {
 	STUB(0x10040cbc);
 }
@@ -93,26 +100,67 @@ Point* FUN_100412c8(void)
 }
 
 // STUB: MW2 0x100412dd
-void FUN_100412dd(RenderTarget* p_target, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c)
+void FUN_100412dd(Mech* p_mech, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c)
 {
 	STUB(0x100412dd);
 }
 
-// STUB: MW2 0x100414ab
-void FUN_100414ab(RenderTarget* p_target)
+// Marks the player's target on the screen: a player's or a game thing's mech with its side's
+// markers (FUN_10041a14, FUN_10041c3c), a nav with shape 0xe5, or 0xeb at the edge when it is
+// off the screen.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100414ab
+void FUN_100414ab(Mech* p_mech)
 {
-	STUB(0x100414ab);
+	MechS32 index;
+	Player* player;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 onScreen;
+	MechS32 offScreen;
+	MechS32 target;
+	Point point;
+
+	player = p_mech->m_player;
+	target = player->m_targetInfo.m_target;
+	if (!target || target & 0x1000) {
+		return;
+	}
+
+	index = target & 0xff;
+	target &= 0xf00;
+	switch (target) {
+	case 0x200:
+		FUN_10041a14(g_players[index], GetPlayerSide(index));
+		return;
+	case 0x400:
+		FUN_10041c3c(FUN_1005ff56(), FUN_1003c30e(index));
+		return;
+	case 0x100:
+		onScreen = 0xe5;
+		offScreen = 0xeb;
+		break;
+	default:
+		return;
+	}
+
+	x = player->m_targetInfo.m_position.m_x;
+	y = player->m_targetInfo.m_position.m_y;
+	z = player->m_targetInfo.m_position.m_z;
+	if (FUN_1004c11d(&x, &y, &z)) {
+		FUN_10041e98(x, y, onScreen);
+	}
+	else {
+		point.m_x = x;
+		point.m_y = y;
+		FUN_10057a03(&g_currentRenderTarget, &point, &point);
+		FUN_10041e98(point.m_x, point.m_y, offScreen);
+	}
 }
 
 // STUB: MW2 0x1004161f
-void FUN_1004161f(
-	RenderTarget* p_target,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_unk0x0c,
-	MechS32 p_unk0x10,
-	MechS32 p_unk0x14
-)
+void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, MechS32 p_unk0x10, MechS32 p_unk0x14)
 {
 	STUB(0x1004161f);
 }
@@ -144,6 +192,168 @@ MechS32 FUN_10041998(Player** p_player, MechS32* p_x, MechS32* p_y)
 	*p_x = x;
 	*p_y = y;
 	return result;
+}
+
+// Marks player p_player on the screen: brackets at the corners of its mech, sized by its radius
+// and depth, in its side's shapes; off the screen, an arrow at the edge.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10041a14
+void FUN_10041a14(Player* p_player, MechS32 p_side)
+{
+	MechS32 topLeft;
+	MechS32 topRight;
+	MechS32 bottomLeft;
+	MechS32 bottomRight;
+	MechS32 sx;
+	MechS32 sy;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 size;
+	Point point;
+
+	x = p_player->m_position.m_x;
+	y = p_player->m_position.m_y;
+	z = p_player->m_position.m_z;
+	if (!FUN_1004c11d(&x, &y, &z)) {
+		point.m_x = x;
+		point.m_y = y;
+		FUN_10057a03(&g_currentRenderTarget, &point, &point);
+		switch (p_side) {
+		case 0:
+			topLeft = 0xeb;
+			break;
+		case 2:
+			topLeft = 0xee;
+			break;
+		default:
+			topLeft = 0xe8;
+			break;
+		}
+
+		FUN_10041e98(point.m_x, point.m_y, topLeft);
+	}
+	else {
+		size = p_player->m_mech->m_radius;
+		size = FUN_10013340(g_eyepoint->m_unk0x94, size, z);
+		switch (p_side) {
+		case 0:
+			topLeft = 0xb8;
+			topRight = 0xc1;
+			bottomLeft = 0xca;
+			bottomRight = 0xd3;
+			break;
+		case 2:
+			topLeft = 0xbe;
+			topRight = 0xc7;
+			bottomLeft = 0xd0;
+			bottomRight = 0xd9;
+			break;
+		case 1:
+			topLeft = 0xbb;
+			topRight = 0xc4;
+			bottomLeft = 0xcd;
+			bottomRight = 0xd6;
+			break;
+		}
+
+		sx = x - size;
+		sy = y - size;
+		FUN_10041e98(sx, sy, topLeft);
+		sx = x + size;
+		sy = y - size;
+		FUN_10041e98(sx, sy, topRight);
+		sx = x - size;
+		sy = y + size;
+		FUN_10041e98(sx, sy, bottomLeft);
+		sx = x + size;
+		sy = y + size;
+		FUN_10041e98(sx, sy, bottomRight);
+	}
+}
+
+// Marks the object p_object on the screen like FUN_10041a14 a player: brackets around its shape,
+// at most half the screen apart, or an arrow at the edge.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10041c3c
+void FUN_10041c3c(struct AmberWillow0x7c* p_object, MechS32 p_side)
+{
+	MechS32 maxSize;
+	MechS32 topLeft;
+	MechS32 topRight;
+	MechS32 bottomLeft;
+	MechS32 bottomRight;
+	MechS32 sx;
+	MechS32 sy;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 size;
+	Point point;
+
+	if (!p_object || !p_object->m_unk0x6c) {
+		return;
+	}
+
+	size = FUN_1003adc9(p_object->m_unk0x6c, &x, &y, &z);
+	if (!FUN_1004c11d(&x, &y, &z)) {
+		point.m_x = x;
+		point.m_y = y;
+		FUN_10057a03(&g_currentRenderTarget, &point, &point);
+		switch (p_side) {
+		case 0:
+			topLeft = 0xeb;
+			break;
+		case 2:
+			topLeft = 0xee;
+			break;
+		default:
+			topLeft = 0xe8;
+			break;
+		}
+
+		FUN_10041e98(point.m_x, point.m_y, topLeft);
+	}
+	else {
+		size = FUN_10013340(g_eyepoint->m_unk0x94, size >> 1, z);
+		maxSize = g_eyepoint->m_halfWidth >> 1;
+		if (size > maxSize) {
+			size = maxSize;
+		}
+		switch (p_side) {
+		case 0:
+			topLeft = 0xb8;
+			topRight = 0xc1;
+			bottomLeft = 0xca;
+			bottomRight = 0xd3;
+			break;
+		case 2:
+			topLeft = 0xbe;
+			topRight = 0xc7;
+			bottomLeft = 0xd0;
+			bottomRight = 0xd9;
+			break;
+		case 1:
+			topLeft = 0xbb;
+			topRight = 0xc4;
+			bottomLeft = 0xcd;
+			bottomRight = 0xd6;
+			break;
+		}
+
+		sx = x - size;
+		sy = y - size;
+		FUN_10041e98(sx, sy, topLeft);
+		sx = x + size;
+		sy = y - size;
+		FUN_10041e98(sx, sy, topRight);
+		sx = x - size;
+		sy = y + size;
+		FUN_10041e98(sx, sy, bottomLeft);
+		sx = x + size;
+		sy = y + size;
+		FUN_10041e98(sx, sy, bottomRight);
+	}
 }
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_unk0x100e9614) at p_x, p_y of the

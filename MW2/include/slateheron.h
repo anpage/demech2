@@ -4,6 +4,8 @@
 #include "decomp.h"
 #include "types.h"
 
+struct CopperWren0x20;
+
 // SIZE 0x68
 // Rendering settings (g_unk0x100a6cc8) the map view saves and replaces as one block.
 typedef struct SlateHeron0x68 {
@@ -16,7 +18,8 @@ typedef struct SlateHeron0x68 {
 	MechS32 m_unk0x18;                       // 0x18 — one-point polygons are drawn as pixels
 	MechS32 m_unk0x1c;                       // 0x1c
 	MechS32 m_unk0x20;                       // 0x20
-	undefined4 m_unk0x24[(0x34 - 0x24) / 4]; // 0x24
+	undefined4 m_unk0x24[(0x30 - 0x24) / 4]; // 0x24
+	MechS32 m_unk0x30;                       // 0x30 — cleared when FirstRender finds m_unk0x1c or m_unk0x20 set
 	MechS32 m_unk0x34;                       // 0x34 — 0 fills polygons, 1 fills and outlines, else outlines
 	MechS32 m_unk0x38;                       // 0x38
 	MechS32 m_unk0x3c;                       // 0x3c — cleared while an effect has the camera
@@ -27,8 +30,8 @@ typedef struct SlateHeron0x68 {
 	MechU32 m_unk0x50;                       // 0x50 — render features switched off (FUN_10036891)
 	void (*m_frameDrawCallback)(void);       // 0x54
 	MechS32 (*m_unk0x58)();                  // 0x58 — a shape filter: nonzero skips the shape
-	void (*m_unk0x5c)();                     // 0x5c
-	undefined4 m_unk0x60;                    // 0x60
+	struct CopperWren0x20* (*m_unk0x5c)(struct CopperWren0x20* p_vertex);       // 0x5c — projects a vertex
+	MechS32 (*m_unk0x60)();                                                     // 0x60 — draws a face (FUN_10036230)
 	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags); // 0x64
 } SlateHeron0x68;
 

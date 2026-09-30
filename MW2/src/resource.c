@@ -130,7 +130,7 @@ MissionTable* g_missionTables[16];
 MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
-MechS32 g_unk0x100ea580[1]; // length unknown
+MechS32 g_unk0x100ea580[0x96];
 
 // The number of names in g_scenarios.
 // GLOBAL: MW2 0x100ea7d8
@@ -321,7 +321,7 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 	}
 
 	if (ok) {
-		stream = OpenBwdStream(&key->m_id, buffer);
+		stream = OpenBwdStream(key, (BwdStream*) buffer);
 		if (stream) {
 			result = TRUE;
 			result &= p_fn(stream);
@@ -397,7 +397,7 @@ MechS32 FUN_1004fcac(IncludeRecord2* p_record, BwdStreamFn p_fn)
 	strncpy(key->m_name, record->m_name, 0xc);
 	key->m_name[0xc] = '\0';
 	key->m_id = id;
-	stream = OpenBwdStream(&key->m_id, buffer);
+	stream = OpenBwdStream(key, (BwdStream*) buffer);
 	if (stream) {
 		result = TRUE;
 		result = p_fn(stream);

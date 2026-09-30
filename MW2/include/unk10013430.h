@@ -4,6 +4,8 @@
 #include "silverbrook.h"
 #include "types.h"
 
+struct Ray;
+
 struct Mech;
 struct Player;
 struct ScarletOrchid0x4c;
@@ -47,6 +49,14 @@ extern "C"
 	void FUN_100156f2(struct Player* p_player, MechS8 p_value);
 	MechS32 FUN_10015709(struct Player* p_player);
 	MechS32 FUN_10015b40(struct ScarletOrchid0x4c* p_shape);
+	void FUN_10015b9f(
+		struct Player* p_player,
+		struct Ray* p_ray,
+		MechS32 p_side,
+		MechS16 p_step,
+		MechS32 p_length,
+		MechS32 p_fromEdge
+	);
 	MechS16 FUN_10015d2a(
 		struct Player* p_player,
 		struct ScarletOrchid0x4c* p_shape,

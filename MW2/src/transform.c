@@ -1,8 +1,11 @@
+/* Hand-written assembly: FUN_1000da0c is a C function with an __asm body. */
 #include "transform.h"
 
+#include "clock.h"
 #include "decomp.h"
 #include "loadres.h"
 #include "types.h"
+#include "unk100696c0.h"
 
 // Transforms the point (*p_x, *p_y, *p_z) by p_matrix: its 2.29 rotation, then its translation.
 // The products are an __asm block.
@@ -189,10 +192,180 @@ MechS32 FUN_1000d9ce(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mec
 	return result;
 }
 
-// STUB: MW2 0x1000da0c
+// Multiplies the rotations of p_unk0x00 and p_unk0x04 (2.29 fixed point) into p_unk0x08. The
+// products are an __asm block.
+// Stack-slot permutation of the locals the __asm block names.
+// FUNCTION: MW2 0x1000da0c
 void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 {
-	STUB(0x1000da0c);
+	MechS32 m00;
+	MechS32 m01;
+	MechS32 m02;
+	MechS32 m10;
+	MechS32 m11;
+	MechS32 m12;
+	MechS32 m20;
+	MechS32 m21;
+	MechS32 m22;
+
+	__asm {
+		mov esi, p_unk0x00
+		mov edi, p_unk0x04
+		mov eax, dword ptr [esi]
+		imul dword ptr [edi]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 4]
+		imul dword ptr [edi + 0xc]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 8]
+		imul dword ptr [edi + 0x18]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m00, ebx
+		mov eax, dword ptr [esi]
+		imul dword ptr [edi + 4]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 4]
+		imul dword ptr [edi + 0x10]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 8]
+		imul dword ptr [edi + 0x1c]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m01, ebx
+		mov eax, dword ptr [esi]
+		imul dword ptr [edi + 8]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 4]
+		imul dword ptr [edi + 0x14]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 8]
+		imul dword ptr [edi + 0x20]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m02, ebx
+		mov eax, dword ptr [esi + 0xc]
+		imul dword ptr [edi]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 0x10]
+		imul dword ptr [edi + 0xc]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x14]
+		imul dword ptr [edi + 0x18]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m10, ebx
+		mov eax, dword ptr [esi + 0xc]
+		imul dword ptr [edi + 4]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 0x10]
+		imul dword ptr [edi + 0x10]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x14]
+		imul dword ptr [edi + 0x1c]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m11, ebx
+		mov eax, dword ptr [esi + 0xc]
+		imul dword ptr [edi + 8]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 0x10]
+		imul dword ptr [edi + 0x14]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x14]
+		imul dword ptr [edi + 0x20]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m12, ebx
+		mov eax, dword ptr [esi + 0x18]
+		imul dword ptr [edi]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 0x1c]
+		imul dword ptr [edi + 0xc]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x20]
+		imul dword ptr [edi + 0x18]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m20, ebx
+		mov eax, dword ptr [esi + 0x18]
+		imul dword ptr [edi + 4]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 0x1c]
+		imul dword ptr [edi + 0x10]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x20]
+		imul dword ptr [edi + 0x1c]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m21, ebx
+		mov eax, dword ptr [esi + 0x18]
+		imul dword ptr [edi + 8]
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, dword ptr [esi + 0x1c]
+		imul dword ptr [edi + 0x14]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x20]
+		imul dword ptr [edi + 0x20]
+		add ebx, eax
+		adc ecx, edx
+		shrd ebx, ecx, 0x1d
+		adc ebx, 0
+		mov m22, ebx
+		mov edi, p_unk0x08
+		mov eax, m00
+		mov dword ptr [edi], eax
+		mov eax, m01
+		mov dword ptr [edi + 4], eax
+		mov eax, m10
+		mov dword ptr [edi + 0xc], eax
+		mov eax, m11
+		mov dword ptr [edi + 0x10], eax
+		mov eax, m20
+		mov dword ptr [edi + 0x18], eax
+		mov eax, m21
+		mov dword ptr [edi + 0x1c], eax
+		mov eax, m02
+		mov dword ptr [edi + 8], eax
+		mov eax, m12
+		mov dword ptr [edi + 0x14], eax
+		mov eax, m22
+		mov dword ptr [edi + 0x20], eax
+	}
 }
 
 // Composes p_unk0x04 with p_unk0x00 into p_unk0x08: the rotations' product, and p_unk0x04's
@@ -308,8 +481,48 @@ void FUN_1000e2b9(
 	FUN_1000de3b(p_matrix, p_unk0x04, p_unk0x08, p_unk0x0c, p_unk0x10, p_unk0x14, p_unk0x18, 0);
 }
 
-// STUB: MW2 0x1000e2ea
+// Reads the three rotation angles (16.16 degrees) back out of p_matrix. Near straight up or down
+// (the pitch sine within 0.001 of 1), the angle comes from the other rows; with nothing to go on,
+// the yaw is taken as 90 degrees and the roll from the first row.
+// Stack-slot permutation: pitch, roll, length and yaw.
+// FUNCTION: MW2 0x1000e2ea
 void FUN_1000e2ea(Matrix* p_matrix, undefined4* p_unk0x04, undefined4* p_unk0x08, undefined4* p_unk0x0c)
 {
-	STUB(0x1000e2ea);
+	MechS32 pitch;
+	MechS32 roll;
+	MechS32 length;
+	MechS32 yaw;
+
+	if (p_matrix->m_rows[1][2] > 0x1ff7ced9 || p_matrix->m_rows[1][2] < -0x1ff7ced9) {
+		length = FUN_1007caf7(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2]);
+		if (length > 2000000) {
+			pitch = FUN_100698b9(length);
+			if (p_matrix->m_rows[1][2] < 0) {
+				pitch = -pitch;
+			}
+		}
+		else {
+			if (p_matrix->m_rows[1][2] >= 0) {
+				yaw = -0x5a0000;
+			}
+			else {
+				yaw = 0x5a0000;
+			}
+
+			pitch = 0;
+			roll = FUN_100698de(p_matrix->m_rows[0][1], p_matrix->m_rows[0][0]);
+			goto done;
+		}
+	}
+	else {
+		pitch = -FUN_1006975b(p_matrix->m_rows[1][2]);
+	}
+
+	yaw = FUN_100698de(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2]);
+	roll = FUN_100698de(p_matrix->m_rows[1][0], p_matrix->m_rows[1][1]);
+
+done:
+	*p_unk0x08 = yaw;
+	*p_unk0x04 = pitch;
+	*p_unk0x0c = roll;
 }

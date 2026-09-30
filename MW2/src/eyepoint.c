@@ -7,6 +7,7 @@
 #include "fixedmul.h"
 #include "inputmap.h"
 #include "integrate.h"
+#include "linengull.h"
 #include "object.h"
 #include "players.h"
 #include "ramp.h"
@@ -26,9 +27,24 @@
 // GLOBAL: MW2 0x10176f10
 MechS32 g_unk0x10176f10[7];
 
+// GLOBAL: MW2 0x10176f30
+Ramp g_unk0x10176f30;
+
+// GLOBAL: MW2 0x10176f40
+WrappedRamp g_unk0x10176f40;
+
+// GLOBAL: MW2 0x10176f60
+WrappedRamp g_unk0x10176f60;
+
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
 // GLOBAL: MW2 0x10176f80
 Ramp g_unk0x10176f80;
+
+// GLOBAL: MW2 0x10176f90
+Ramp g_unk0x10176f90;
+
+// GLOBAL: MW2 0x10176fa0
+LinenGull0x1c g_unk0x10176fa0[5];
 
 // The cockpit view's pan, eased toward g_sinkPilotPan.
 // GLOBAL: MW2 0x10177030
@@ -38,10 +54,38 @@ Ramp g_unk0x10177030;
 // GLOBAL: MW2 0x10177040
 Ramp g_unk0x10177040;
 
-// STUB: MW2 0x10010ee0
+// GLOBAL: MW2 0x10177050
+Ramp g_unk0x10177050;
+
+// Resets the camera: its ramps, the five camera slots and the view scale, follows the local player
+// and resets the camera shake and the zoom.
+// FUNCTION: MW2 0x10010ee0
 void FirstEyepoint(void)
 {
-	STUB(0x10010ee0);
+	MechS32 i;
+
+	StartRamp(&g_unk0x10177050, 0, 0, 0.5);
+	StartRamp(&g_unk0x10176f30, 0, 0, 0.5);
+	StartRamp(&g_unk0x10176f90, 0, 0, 0.7);
+	StartRamp(&g_unk0x10177040, 0, 0, 1.0);
+	StartRamp(&g_unk0x10177030, 0, 0, 0.2);
+	StartRamp(&g_unk0x10176f80, 0, 0, 0.2);
+	StartWrappedRamp(&g_unk0x10176f60, 0, 0, 0.2, 0x1680000);
+	StartWrappedRamp(&g_unk0x10176f40, 0, 0, 0.2, 0x1680000);
+	g_unk0x100b2564 = 0x10000;
+	for (i = 0; i < 5; i++) {
+		g_unk0x10176fa0[i].m_unk0x00 = g_unk0x10176fa0[i].m_unk0x04 = g_unk0x10176fa0[i].m_unk0x08 = 0;
+		g_unk0x10176fa0[i].m_unk0x0c = g_unk0x10176fa0[i].m_unk0x10 = g_unk0x10176fa0[i].m_unk0x14 = 0;
+		g_unk0x10176fa0[i].m_unk0x18 = 0;
+	}
+
+	if (g_players[g_localPlayerId]) {
+		g_localPlayer = g_players[g_localPlayerId];
+		g_unk0x100a2430 = g_localPlayerId;
+	}
+
+	ResetCameraShake();
+	FUN_10011401(g_unk0x100a2410);
 }
 
 // STUB: MW2 0x100110f7

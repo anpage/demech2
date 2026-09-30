@@ -2,7 +2,10 @@
    with __asm bodies. */
 #include "unk10036230.h"
 
+#include "compat.h"
 #include "decomp.h"
+#include "duskmoth.h"
+#include "emberfern.h"
 #include "ray.h"
 #include "simmain.h"
 #include "slateheron.h"
@@ -17,6 +20,14 @@ MechU16 g_lumaTable[0x80] = {0};
 // Set by FUN_1004b980: FUN_100367c5's base shade, out of 0x80.
 // GLOBAL: MW2 0x1010b540
 MechS32 g_unk0x1010b540;
+
+// Draws a face of a model (SlateHeron0x68::m_unk0x60).
+// STUB: MW2 0x10036230
+MechS32 FUN_10036230(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4 p_unk0x08, undefined4 p_unk0x0c)
+{
+	STUB(0x10036230);
+	return 0;
+}
 
 // Returns a shade from 0 to 15 for a light level p_light (out of 0x80) and a brightness
 // p_value, dimmed with the distance p_distance.
@@ -116,10 +127,145 @@ void FUN_10038d0d(RenderTarget* p_target, MechS32 p_count, MechU32* p_points, Pi
 	STUB(0x10038d0d);
 }
 
-// STUB: MW2 0x10039a30
+// Transforms p_model's vertices (their positions into m_unk0x0c-0x14) and face normals by
+// p_matrix. The products are an __asm block.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10039a30
 void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 {
+#ifdef COMPAT_MODE
 	STUB(0x10039a30);
+#else
+	DuskMoth0x24* faces;
+	MechS16 vertexCount;
+	MechS32 vertexSize;
+	EmberFern0x2c* vertices;
+	MechS16 faceCount;
+	MechS32 faceSize;
+
+	vertices = (EmberFern0x2c*) (p_model + 1);
+	faces = (DuskMoth0x24*) ((MechU8*) p_model + p_model->m_unk0x08);
+	vertexSize = sizeof(EmberFern0x2c);
+	faceSize = sizeof(DuskMoth0x24);
+	vertexCount = p_model->m_unk0x04;
+	faceCount = p_model->m_unk0x06;
+	__asm {
+		mov esi, p_matrix
+		mov edi, vertices
+	jmp_10039a78:
+		mov eax, dword ptr [esi]
+		imul dword ptr [edi]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 4]
+		imul dword ptr [edi + 4]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 8]
+		imul dword ptr [edi + 8]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 0x1d
+		adc eax, dword ptr [esi + 0x24]
+		mov dword ptr [edi + 0xc], eax
+		mov eax, dword ptr [esi + 0xc]
+		imul dword ptr [edi]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x10]
+		imul dword ptr [edi + 4]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x14]
+		imul dword ptr [edi + 8]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 0x1d
+		adc eax, dword ptr [esi + 0x28]
+		mov dword ptr [edi + 0x10], eax
+		mov eax, dword ptr [esi + 0x18]
+		imul dword ptr [edi]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x1c]
+		imul dword ptr [edi + 4]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x20]
+		imul dword ptr [edi + 8]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 0x1d
+		adc eax, dword ptr [esi + 0x2c]
+		mov dword ptr [edi + 0x14], eax
+		add edi, vertexSize
+		dec vertexCount
+		je jmp_10039afe
+		_emit 0xe9 /* jmp jmp_10039a78 */
+		_emit 0x7a
+		_emit 0xff
+		_emit 0xff
+		_emit 0xff
+	jmp_10039afe:
+		mov edi, faces
+	jmp_10039b01:
+		mov eax, dword ptr [esi]
+		imul dword ptr [edi + 8]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 4]
+		imul dword ptr [edi + 0xc]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 8]
+		imul dword ptr [edi + 0x10]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 0x1d
+		adc eax, 0
+		mov dword ptr [edi + 0x14], eax
+		mov eax, dword ptr [esi + 0xc]
+		imul dword ptr [edi + 8]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x10]
+		imul dword ptr [edi + 0xc]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x14]
+		imul dword ptr [edi + 0x10]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 0x1d
+		adc eax, 0
+		mov dword ptr [edi + 0x18], eax
+		mov eax, dword ptr [esi + 0x18]
+		imul dword ptr [edi + 8]
+		mov ecx, edx
+		mov ebx, eax
+		mov eax, dword ptr [esi + 0x1c]
+		imul dword ptr [edi + 0xc]
+		add ebx, eax
+		adc ecx, edx
+		mov eax, dword ptr [esi + 0x20]
+		imul dword ptr [edi + 0x10]
+		add eax, ebx
+		adc edx, ecx
+		shrd eax, edx, 0x1d
+		adc eax, 0
+		mov dword ptr [edi + 0x1c], eax
+		add edi, faceSize
+		dec faceCount
+		je jmp_10039b8a
+		_emit 0xe9 /* jmp jmp_10039b01 */
+		_emit 0x77
+		_emit 0xff
+		_emit 0xff
+		_emit 0xff
+	}
+
+	jmp_10039b8a : return;
+#endif
 }
 
 // Transforms the shape's position (m_unk0x28-0x30) by p_matrix into m_unk0x34-0x3c, and bumps its

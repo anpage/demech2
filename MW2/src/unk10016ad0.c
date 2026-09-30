@@ -3,7 +3,9 @@
 #include "config.h"
 #include "decomp.h"
 #include "mech.h"
+#include "mechsection.h"
 #include "players.h"
+#include "silvertern.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
@@ -78,10 +80,56 @@ MechS32 FUN_100197ca(undefined4 p_unk0x00, Player* p_player)
 	return TRUE;
 }
 
-// STUB: MW2 0x10019881
+// Lays out p_mech's allocation (its ten weapons, eight sections and 25 ammunition bins after it)
+// and empties the weapons and the bins.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10019881
 void FUN_10019881(struct Mech* p_mech)
 {
-	STUB(0x10019881);
+	SilverTern0x14* bin;
+	WeaponSlot* slot;
+	SilverTern0x14* bins = NULL;
+	MechS32 i;
+	WeaponSlot* weapons = NULL;
+	MechSection* sections = NULL;
+
+	weapons = (WeaponSlot*) (p_mech + 1);
+	sections = (MechSection*) (weapons + 10);
+	bins = (SilverTern0x14*) (sections + 8);
+	p_mech->m_weapons = weapons;
+	p_mech->m_sections = sections;
+	p_mech->m_unk0x5c = bins;
+	slot = p_mech->m_weapons;
+	for (i = 0; i < 10; i++) {
+		slot->m_unk0x00 = -1;
+		slot->m_type = -1;
+		slot->m_state = c_weaponEmpty;
+		slot->m_time = 0;
+		slot->m_unk0x14 = 0;
+		slot->m_ammo = -1;
+		slot->m_group = 0;
+		slot->m_target = -1;
+		slot->m_targetKind = 0;
+		slot->m_volley = 0;
+		slot->m_hardpoint = -1;
+		slot->m_unk0x2c = 0;
+		slot->m_binCount = 0;
+		slot->m_index = 0;
+		slot++;
+	}
+
+	bin = p_mech->m_unk0x5c;
+	for (i = 0; i < 25; i++) {
+		bin->m_unk0x00 = -1;
+		bin->m_unk0x02 = 0;
+		bin->m_weapon = -1;
+		bin->m_id = 0;
+		bin->m_unk0x08 = 0;
+		bin->m_unk0x0a = 0;
+		bin->m_unk0x0c = 0;
+		bin->m_unk0x10 = 0;
+		bin++;
+	}
 }
 
 // Returns the size of a mech's allocation: the mech, its ten weapons and eight sections, and 500

@@ -1,9 +1,16 @@
+/* Hand-written assembly: FUN_10048c50, FUN_10048d46, FUN_10048ebe and FUN_10048faf are C
+   functions with __asm bodies. */
 #include "unk10046750.h"
 
 #include "ambientsound.h"
 #include "callbacks.h"
+#include "clock.h"
+#include "compat.h"
 #include "config.h"
+#include "copperwren.h"
 #include "decomp.h"
+#include "duskmoth.h"
+#include "emberfern.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "geocache.h"
@@ -14,8 +21,10 @@
 #include "soundfx.h"
 #include "types.h"
 #include "unk1003a530.h"
+#include "unk1004b980.h"
 #include "unk100696c0.h"
 #include "unk100737e0.h"
+#include "unk1007d120.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,6 +94,24 @@ MechS32 g_unk0x100a6d70 = 0;
 // The number of entries in g_unk0x101097e0.
 // GLOBAL: MW2 0x100a6d74
 MechS32 g_unk0x100a6d74 = 0;
+
+// Set to shade from the origin rather than the light (FUN_10048faf).
+// GLOBAL: MW2 0x1010b530
+MechS32 g_unk0x1010b530;
+
+// The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
+// GLOBAL: MW2 0x1010b53c
+MechU8 g_unk0x1010b53c;
+
+// GLOBAL: MW2 0x1010b5b8
+MechU8 g_unk0x1010b5b8;
+
+// The projected vertices of the polygon being built, and their count.
+// GLOBAL: MW2 0x1010b550
+CopperWren0x20* g_unk0x1010b550[20];
+
+// GLOBAL: MW2 0x1010b5b0
+MechS32 g_unk0x1010b5b0;
 
 // GLOBAL: MW2 0x100ea8e0
 Path g_paths[0x40];
@@ -511,6 +538,470 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 	}
 
 	return 1;
+}
+
+// A timed callback (TimedCallbackFn).
+// STUB: MW2 0x10047f60
+MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+{
+	STUB(0x10047f60);
+	return 0;
+}
+
+// Returns the vertex's projected copy (m_unk0x24), transforming it into view space
+// (g_unk0x100ea864's rows, from the eyepoint g_unk0x100ea8b4) the first time. The transform is an
+// __asm block.
+// Stack-slot permutation of the locals the __asm blocks name.
+// FUNCTION: MW2 0x10048c50
+CopperWren0x20* FUN_10048c50(EmberFern0x2c* p_vertex)
+{
+#ifdef COMPAT_MODE
+	STUB(0x10048c50);
+	return NULL;
+#else
+	MechS32 u;
+	MechS32 v;
+	CopperWren0x20* result;
+	MechS32 deltaX;
+	MechS32 deltaY;
+	MechS32 deltaZ;
+
+	__asm {
+		mov ebx, p_vertex
+		mov eax, dword ptr [ebx + 0x24]
+		mov result, eax
+		or eax, eax
+		je jmp_10048c72
+	}
+
+	return result;
+
+jmp_10048c72:
+	result = FUN_1007d248();
+	__asm {
+		mov ebx, p_vertex
+		mov eax, dword ptr [ebx + 0xc]
+		sub eax, dword ptr [g_unk0x100ea8b8]
+		mov deltaX, eax
+		mov eax, dword ptr [ebx + 0x10]
+		sub eax, dword ptr [g_unk0x100ea8b4]
+		mov deltaY, eax
+		mov eax, dword ptr [ebx + 0x14]
+		sub eax, dword ptr [g_unk0x100ea8bc]
+		mov deltaZ, eax
+		mov eax, dword ptr [ebx + 0x18]
+		mov u, eax
+		mov eax, dword ptr [ebx + 0x1c]
+		mov v, eax
+		mov eax, dword ptr [g_unk0x100ea864]
+		mov edx, deltaX
+		imul edx
+		mov esi, eax
+		mov edi, edx
+		mov eax, dword ptr [g_unk0x100ea868]
+		mov edx, deltaY
+		imul edx
+		add esi, eax
+		adc edi, edx
+		mov eax, dword ptr [g_unk0x100ea86c]
+		mov edx, deltaZ
+		imul edx
+		add esi, eax
+		adc edi, edx
+		shrd esi, edi, 0x1b
+		adc esi, 0
+		mov ecx, esi
+		mov eax, dword ptr [g_unk0x100ea870]
+		mov edx, deltaX
+		imul edx
+		mov esi, eax
+		mov edi, edx
+		mov eax, dword ptr [g_unk0x100ea874]
+		mov edx, deltaY
+		imul edx
+		add esi, eax
+		adc edi, edx
+		mov eax, dword ptr [g_unk0x100ea878]
+		mov edx, deltaZ
+		imul edx
+		add esi, eax
+		adc edi, edx
+		shrd esi, edi, 0x1b
+		adc esi, 0
+		mov eax, esi
+		mov esi, result
+		mov dword ptr [ebx + 0x24], esi
+		mov esi, dword ptr [ebx + 0x20]
+		mov ebx, result
+		mov dword ptr [ebx], ecx
+		mov dword ptr [ebx + 4], eax
+		mov dword ptr [ebx + 8], esi
+		mov eax, u
+		shl eax, 0x10
+		mov dword ptr [ebx + 0x14], eax
+		mov eax, v
+		shl eax, 0x10
+		mov dword ptr [ebx + 0x18], eax
+	}
+
+	return result;
+#endif
+}
+
+// Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
+// (g_unk0x100ea820), its position and texture coordinates interpolated. The body is an __asm
+// block.
+// Stack-slot permutation of the locals the __asm block names.
+// FUNCTION: MW2 0x10048d46
+CopperWren0x20* FUN_10048d46(EmberFern0x2c* p_a, EmberFern0x2c* p_b)
+{
+	MechS32 z0;
+	MechS32 z1;
+	MechS32 u0;
+	MechS32 u1;
+	CopperWren0x20* a;
+	CopperWren0x20* b;
+	MechS32 v0;
+	CopperWren0x20* result;
+	MechS32 v1;
+	MechS32 x0;
+	MechS32 x1;
+	MechS32 y0;
+	MechS32 y1;
+
+	__asm {
+		mov ebx, p_a
+		mov eax, dword ptr [ebx + 0x24]
+		mov a, eax
+		or eax, eax
+		jne jmp_10048d6f
+		mov eax, p_a
+		push eax
+		call FUN_10048c50
+		add esp, 4
+		mov a, eax
+jmp_10048d6f:
+		mov ebx, p_b
+		mov eax, dword ptr [ebx + 0x24]
+		mov b, eax
+		or eax, eax
+		jne jmp_10048d8f
+		mov eax, p_b
+		push eax
+		call FUN_10048c50
+		add esp, 4
+		mov b, eax
+jmp_10048d8f:
+		call FUN_1007d248
+		mov result, eax
+		mov ebx, a
+		mov eax, dword ptr [ebx]
+		mov x0, eax
+		mov eax, dword ptr [ebx + 4]
+		mov y0, eax
+		mov eax, dword ptr [ebx + 0x14]
+		mov u0, eax
+		mov eax, dword ptr [ebx + 0x18]
+		mov v0, eax
+		mov eax, dword ptr [ebx + 8]
+		mov z0, eax
+		mov ebx, b
+		mov eax, dword ptr [ebx]
+		mov x1, eax
+		mov eax, dword ptr [ebx + 4]
+		mov y1, eax
+		mov eax, dword ptr [ebx + 0x14]
+		mov u1, eax
+		mov eax, dword ptr [ebx + 0x18]
+		mov v1, eax
+		mov eax, dword ptr [ebx + 8]
+		mov z1, eax
+		cmp eax, z0
+		jg jmp_10048e3a
+		mov ecx, z0
+		sub ecx, z1
+		je jmp_10048e35
+		mov edi, dword ptr [g_unk0x100ea820]
+		sub edi, z1
+		mov eax, x0
+		sub eax, x1
+		imul edi
+		idiv ecx
+		add eax, x1
+		mov x0, eax
+		mov eax, y0
+		sub eax, y1
+		imul edi
+		idiv ecx
+		add eax, y1
+		mov y0, eax
+		mov eax, u0
+		sub eax, u1
+		imul edi
+		idiv ecx
+		add eax, u1
+		mov u0, eax
+		mov eax, v0
+		sub eax, v1
+		imul edi
+		idiv ecx
+		add eax, v1
+		mov v0, eax
+jmp_10048e35:
+		jmp jmp_10048e8f
+jmp_10048e3a:
+		mov ecx, z1
+		sub ecx, z0
+		je jmp_10048e8f
+		mov edi, dword ptr [g_unk0x100ea820]
+		sub edi, z0
+		mov eax, x1
+		sub eax, x0
+		imul edi
+		idiv ecx
+		add eax, x0
+		mov x0, eax
+		mov eax, y1
+		sub eax, y0
+		imul edi
+		idiv ecx
+		add eax, y0
+		mov y0, eax
+		mov eax, u1
+		sub eax, u0
+		imul edi
+		idiv ecx
+		add eax, u0
+		mov u0, eax
+		mov eax, v1
+		sub eax, v0
+		imul edi
+		idiv ecx
+		add eax, v0
+		mov v0, eax
+jmp_10048e8f:
+		mov ebx, result
+		mov eax, x0
+		mov dword ptr [ebx], eax
+		mov eax, y0
+		mov dword ptr [ebx + 4], eax
+		mov eax, dword ptr [g_unk0x100ea820]
+		mov dword ptr [ebx + 8], eax
+		mov eax, u0
+		mov dword ptr [ebx + 0x14], eax
+		mov eax, v0
+		mov dword ptr [ebx + 0x18], eax
+	}
+
+	return result;
+}
+
+// Projects a view-space vertex onto the screen once per frame (m_unk0x1d), with its clip
+// outcodes (m_unk0x1c: 1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the
+// polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.
+// FUNCTION: MW2 0x10048ebe
+CopperWren0x20* FUN_10048ebe(CopperWren0x20* p_vertex)
+{
+#ifdef COMPAT_MODE
+	STUB(0x10048ebe);
+	return NULL;
+#else
+	__asm {
+		mov ebx, p_vertex
+		test byte ptr [ebx + 0x1d], 0xff
+		je jmp_10048ed6
+		jmp jmp_10048f61
+jmp_10048ed6:
+		xor ecx, ecx
+		mov cl, byte ptr [g_unk0x100ea824]
+		mov esi, dword ptr [ebx + 8]
+		mov eax, dword ptr [ebx]
+		cdq
+		shld edx, eax, cl
+		shl eax, cl
+		idiv esi
+		add eax, 2
+		sar eax, 2
+		add eax, dword ptr [g_unk0x100ea834]
+		mov dword ptr [ebx + 0xc], eax
+		xor ch, ch
+		cmp eax, dword ptr [g_unk0x100ea84c]
+		jle jmp_10048f0b
+		or ch, 2
+jmp_10048f0b:
+		cmp eax, dword ptr [g_unk0x100ea830]
+		jge jmp_10048f1a
+		or ch, 1
+jmp_10048f1a:
+		mov cl, byte ptr [g_unk0x100ea828]
+		mov eax, dword ptr [ebx + 4]
+		cdq
+		shld edx, eax, cl
+		shl eax, cl
+		idiv esi
+		add eax, 2
+		sar eax, 2
+		neg eax
+		add eax, dword ptr [g_unk0x100ea858]
+		mov dword ptr [ebx + 0x10], eax
+		cmp eax, dword ptr [g_unk0x100ea840]
+		jle jmp_10048f4b
+		or ch, 8
+jmp_10048f4b:
+		cmp eax, dword ptr [g_unk0x100ea850]
+		jge jmp_10048f5a
+		or ch, 4
+jmp_10048f5a:
+		mov byte ptr [ebx + 0x1c], ch
+		mov byte ptr [ebx + 0x1d], 1
+jmp_10048f61:
+		mov al, byte ptr [ebx + 0x1c]
+		or byte ptr [g_unk0x1010b53c], al
+		and byte ptr [g_unk0x1010b5b8], al
+		cmp dword ptr [g_unk0x1010b5b0], 0x14
+		jl jmp_10048f8c
+		mov dword ptr [g_unk0x1010b5ac], 0
+		jmp jmp_10048fa2
+jmp_10048f8c:
+		mov eax, p_vertex
+		mov ecx, dword ptr [g_unk0x1010b5b0]
+		mov dword ptr [g_unk0x1010b550 + ecx*4], eax
+		inc dword ptr [g_unk0x1010b5b0]
+	}
+
+	jmp_10048fa2 : return p_vertex;
+#endif
+}
+
+// Returns the shade (0x7f: full) of p_face from the angle between its normal and the direction
+// from its first vertex to the light (g_unk0x100ea8c0, or the origin with g_unk0x1010b530). The
+// shading is an __asm block.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10048faf
+MechS32 FUN_10048faf(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
+{
+#ifdef COMPAT_MODE
+	STUB(0x10048faf);
+	return 0;
+#else
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS16 shade;
+	MechS32 nx;
+	MechS32 ny;
+	MechS32 nz;
+	EmberFern0x2c* vertex;
+
+	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+	nx = p_face->m_normal[0];
+	ny = p_face->m_normal[1];
+	nz = p_face->m_normal[2];
+	x = vertex->m_unk0x0c;
+	y = vertex->m_unk0x10;
+	z = vertex->m_unk0x14;
+	if (g_unk0x1010b530) {
+		x = y = z = 0;
+	}
+
+	__asm {
+		mov eax, dword ptr [g_unk0x100ea8c4]
+		sub eax, x
+		mov ecx, eax
+		jge jmp_1004903e
+		neg ecx
+jmp_1004903e:
+		mov x, ecx
+		mov ebx, ecx
+		imul nx
+		mov edi, edx
+		mov esi, eax
+		mov eax, dword ptr [g_unk0x100ea8c8]
+		sub eax, y
+		mov ecx, eax
+		jge jmp_1004905c
+		neg ecx
+jmp_1004905c:
+		mov y, ecx
+		or ebx, ecx
+		imul ny
+		add esi, eax
+		adc edi, edx
+		mov eax, dword ptr [g_unk0x100ea8c0]
+		sub eax, z
+		mov ecx, eax
+		jge jmp_1004907a
+		neg ecx
+jmp_1004907a:
+		mov z, ecx
+		or ebx, ecx
+		jne jmp_10049092
+		mov ax, 0x7f
+		mov shade, ax
+		jmp jmp_10049147
+jmp_10049092:
+		imul nz
+		add esi, eax
+		adc edi, edx
+		shrd esi, edi, 0x10
+		sar edi, 0x10
+		xor ecx, ecx
+		test ebx, 0xff000000
+		je jmp_100490b7
+		add cx, 0x10
+		jmp jmp_100490c7
+jmp_100490b7:
+		test ebx, 0xffff0000
+		je jmp_100490c9
+		add cx, 8
+jmp_100490c7:
+		shr ebx, cl
+jmp_100490c9:
+		bsr ax, bx
+		add cx, ax
+		sub cx, 7
+		je jmp_10049103
+		jl jmp_100490f3
+		shr x, cl
+		shr y, cl
+		shr z, cl
+		shrd esi, edi, cl
+		sar edi, cl
+		jmp jmp_10049103
+jmp_100490f3:
+		neg cl
+		shl x, cl
+		shl y, cl
+		shl z, cl
+		shld edi, esi, cl
+		shl esi, cl
+jmp_10049103:
+		mov al, byte ptr x
+		mul al
+		mov bx, ax
+		xor dx, dx
+		mov al, byte ptr y
+		mul al
+		add bx, ax
+		adc dx, 0
+		mov al, byte ptr z
+		mul al
+		add bx, ax
+		adc dx, 0
+		shrd bx, dx, 7
+		and ebx, 0xfffe
+		add ebx, dword ptr [g_sqrtTable]
+		mov ax, word ptr [ebx]
+		cwde
+		mov ebx, eax
+		mov edx, edi
+		mov eax, esi
+		idiv ebx
+		mov shade, ax
+	}
+
+	jmp_10049147 : return shade;
+#endif
 }
 
 // Queues a face of a model for drawing, unless it faces away: projects the vertices it hasn't

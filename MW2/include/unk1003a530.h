@@ -27,9 +27,9 @@ struct ScarletOrchid0x4c {
 	GraniteLattice0x18* m_unk0x1c;       // 0x1c
 	GraniteLattice0x18* m_unk0x20;       // 0x20
 	MechS32 m_unk0x24;                   // 0x24
-	undefined4 m_unk0x28;                // 0x28
-	undefined4 m_unk0x2c;                // 0x2c
-	undefined4 m_unk0x30;                // 0x30
+	MechS32 m_unk0x28;                   // 0x28 — the center FUN_1003ae96 computes
+	MechS32 m_unk0x2c;                   // 0x2c
+	MechS32 m_unk0x30;                   // 0x30
 	MechS32 m_unk0x34;                   // 0x34
 	MechS32 m_unk0x38;                   // 0x38
 	MechS32 m_unk0x3c;                   // 0x3c

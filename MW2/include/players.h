@@ -63,7 +63,8 @@ struct Player {
 	undefined m_unk0x94[0x98 - 0x94];         // 0x94
 	Ramp m_aimRange;                          // 0x98 — eases towards m_unk0xa8's distance
 	Ramp m_unk0xa8;                           // 0xa8 — the distance the weapons converge at
-	undefined m_unk0xb8[0xc0 - 0xb8];         // 0xb8
+	MechS32 m_unk0xb8;                        // 0xb8 — the heading's cosine, 16.16 (FUN_1006831a)
+	MechS32 m_unk0xbc;                        // 0xbc — the heading's sine, 16.16
 	PlayerTargetInfo m_targetInfo;            // 0xc0
 	MechChar m_name[0x114 - 0xe8];            // 0xe8
 	MechS32 m_killer;                         // 0x114 — the player who destroyed its mech

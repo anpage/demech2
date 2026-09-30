@@ -40,6 +40,7 @@ import sys
 import tempfile
 
 from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+from capstone.x86 import X86_OP_MEM
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -281,6 +282,14 @@ class Instruction:
         return self.mnemonic in ("ret", "jmp", "retf", "iretd")
 
 
+def unbased_index(ins):
+    """Whether the memory operand is a SIB with an index and no base register."""
+    for op in ins.operands:
+        if op.type == X86_OP_MEM:
+            return op.mem.base == 0 and op.mem.index != 0
+    return False
+
+
 def render_memory(ins, text, namer, image, frame):
     """Rewrite capstone's memory operands and relocated immediates in MASM syntax."""
     relocated = {}
@@ -303,6 +312,9 @@ def render_memory(ins, text, namer, image, frame):
                     disp += value
             else:
                 regs.append(body)
+        # A lone index with scale 1 (SIB, no base) is written *1, or ML encodes it as the base
+        if len(regs) == 1 and "*" not in regs[0] and unbased_index(ins):
+            regs[0] += "*1"
         # ML takes the last register of an unscaled pair as the base
         if len(regs) == 2 and "*" not in regs[0] and "*" not in regs[1]:
             regs.reverse()

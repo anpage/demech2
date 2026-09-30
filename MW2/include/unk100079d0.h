@@ -12,10 +12,12 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100a1590;
 	extern MechS32 g_unk0x100a1598;
 	extern MechS32 g_unk0x100a15a0;
 
 	void FUN_10007cb5(struct Mech* p_mech);
+	void FUN_10007d06(MechS32 p_killer, struct Mech* p_mech);
 	void FUN_1000832b(MechS32 p_killer, struct Mech* p_mech);
 	void FUN_10008938(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
 	void FUN_1000899d(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);

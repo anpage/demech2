@@ -413,6 +413,7 @@ demech2_add_dll(mw2
     MW2/src/fixeddiv29.c
     MW2/src/unk10019ad0.c
     MW2/src/loadres.c
+    MW2/src/sndunpack.${asm_or_c}
     MW2/src/objective.c
     MW2/src/unk1001ce90.c
     MW2/src/unk1001df00.c
@@ -441,6 +442,7 @@ demech2_add_dll(mw2
     MW2/src/fixeddot29.c
     MW2/src/unk10042740.c
     MW2/src/keyboard.c
+    MW2/src/bwdkeywords.c
     MW2/src/unk10042e00.c
     MW2/src/fixeddivu.c
     MW2/src/fixedmul30.c
@@ -475,6 +477,7 @@ demech2_add_dll(mw2
     MW2/src/gamekeys.c
     MW2/src/setres.c
     MW2/src/unk1005d6d0.c
+    MW2/src/unk1005e9b0.c
     MW2/src/rendertarget.c
     ${mw2_shared}/blit.${asm_or_c}
     MW2/src/unk10065f10.c

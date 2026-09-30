@@ -10,6 +10,7 @@
 #include "unk1006d680.h"
 #include "unk1006e970.h"
 
+#include <math.h>
 #include <windows.h>
 
 // The flags a new shape starts with (FUN_1003a8c1).
@@ -450,10 +451,79 @@ void FUN_1003ae1e(ScarletOrchid0x4c* p_shape)
 	FUN_1003ae96(p_shape);
 }
 
-// STUB: MW2 0x1003ae96
+// Sets p_shape's center to the middle of its first model's bounding box, and its radius to the
+// distance from there to the farthest vertex.
+// Stack-slot permutation of the locals. The vertex address loads the index first where the
+// original loads the model first (index order), and 4.1 sums the squares in another order, which
+// also compares d before storing it; a probe of the same source picks yet another order.
+// FUNCTION: MW2 0x1003ae96
 void FUN_1003ae96(ScarletOrchid0x4c* p_shape)
 {
-	STUB(0x1003ae96);
+	MechDouble dz;
+	GraniteLattice0x18* model;
+	MechDouble max;
+	MechS32 minX;
+	MechS32 i;
+	MechS32 minY;
+	MechS32 minZ;
+	MechDouble d;
+	MechS32 maxX;
+	MechS32 maxY;
+	MechDouble dx;
+	MechS32 maxZ;
+	EmberFern0x2c* v;
+	MechDouble dy;
+
+	model = p_shape->m_unk0x1c;
+	if (!model) {
+		return;
+	}
+
+	i = model->m_unk0x04 - 1;
+	v = (EmberFern0x2c*) (model + 1) + i;
+	minX = maxX = v->m_unk0x0c;
+	minY = maxY = v->m_unk0x10;
+	minZ = maxZ = v->m_unk0x14;
+	while (i--) {
+		v = (EmberFern0x2c*) (model + 1) + i;
+		if (v->m_unk0x0c < minX) {
+			minX = v->m_unk0x0c;
+		}
+		if (v->m_unk0x10 < minY) {
+			minY = v->m_unk0x10;
+		}
+		if (v->m_unk0x14 < minZ) {
+			minZ = v->m_unk0x14;
+		}
+		if (v->m_unk0x0c > maxX) {
+			maxX = v->m_unk0x0c;
+		}
+		if (v->m_unk0x10 > maxY) {
+			maxY = v->m_unk0x10;
+		}
+		if (v->m_unk0x14 > maxZ) {
+			maxZ = v->m_unk0x14;
+		}
+	}
+
+	p_shape->m_unk0x28 = p_shape->m_unk0x34 = (maxX + minX) >> 1;
+	p_shape->m_unk0x2c = p_shape->m_unk0x38 = (maxY + minY) >> 1;
+	p_shape->m_unk0x30 = p_shape->m_unk0x3c = (maxZ + minZ) >> 1;
+
+	max = 0.0;
+	i = model->m_unk0x04;
+	while (i--) {
+		v = (EmberFern0x2c*) (model + 1) + i;
+		dx = v->m_unk0x0c - p_shape->m_unk0x34;
+		dy = v->m_unk0x10 - p_shape->m_unk0x38;
+		dz = v->m_unk0x14 - p_shape->m_unk0x3c;
+		d = dx * dx + dy * dy + dz * dz;
+		if (d > max) {
+			max = d;
+		}
+	}
+
+	p_shape->m_unk0x40 = (MechS32) sqrt(max);
 }
 
 // STUB: MW2 0x1003b0e4

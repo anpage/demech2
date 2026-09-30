@@ -158,6 +158,10 @@ MechS32 g_unk0x100a2408 = -1;
 // GLOBAL: MW2 0x100a240c
 MechS32 g_unk0x100a240c = -1;
 
+// The zoom FirstEyepoint starts the camera at.
+// GLOBAL: MW2 0x100a2410
+MechS32 g_unk0x100a2410 = 0;
+
 // GLOBAL: MW2 0x100a2414
 MechS32 g_unk0x100a2414 = 0;
 
@@ -227,6 +231,9 @@ MechS32 g_unk0x100a2c18 = 0;
 
 // GLOBAL: MW2 0x100a554c
 undefined4 g_unk0x100a554c = 0xef;
+
+// GLOBAL: MW2 0x100a5558
+MechS32 g_unk0x100a5558 = -1;
 
 // GLOBAL: MW2 0x100a59e0
 MechS32 g_menuRepeatTimer = -1;
@@ -320,7 +327,7 @@ Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000,
 Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6cc8
-SlateHeron0x68 g_unk0x100a6cc8 = {0,       1,       1, 1, 1,    1,    1,    1, 1,   {1, 0xe0, 0xef, 1}, 0, 0, 0, 0,
+SlateHeron0x68 g_unk0x100a6cc8 = {0,       1,       1, 1, 1,    1,    1,    1, 1,   {1, 0xe0, 0xef}, 1, 0, 0, 0, 0,
 								  0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
 
 // GLOBAL: MW2 0x100a6d30
@@ -547,11 +554,11 @@ void StopSupAnim(void);
 void UpdateDebris(void);
 void ZeroChunx(void);
 void CollectMissionAudio(void);
-void LoadWorld(char* p_unk0x00);
+MechS32 LoadWorld(char* p_unk0x00);
 void AfterWorldLoader(void);
 void FirstEyepoint(void);
 void UpdateEyepoint(void);
-void DoFirstObjtv(StarMission* p_unk0x00, MechS32 p_unk0x04);
+MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team);
 void UpdateObjectives(void);
 void EndTheMission1(void);
 void EndTheMission2(void);
