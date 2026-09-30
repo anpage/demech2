@@ -575,6 +575,12 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
     INSTALL_COMMAND ""
     BUILD_ALWAYS TRUE
   )
+  # The nested build's outputs, for reccmp-build.yml (single-configuration generators only,
+  # like the rest of this build)
+  reccmp_add_external_target(MECH2
+    PATH "${PROJECT_BINARY_DIR}/vc22/MECH2.exe"
+    PDB "${PROJECT_BINARY_DIR}/vc22/MECH2.pdb"
+  )
 else()
   if (MSVC_FOR_DECOMP)
     message(STATUS "VC++ 2.2: none (DEMECH2_MSVC22_ROOT); building MECH2.EXE with this compiler, as a launcher only")

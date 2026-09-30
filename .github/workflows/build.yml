@@ -425,8 +425,8 @@ jobs:
 
       - name: Run ncc
         run: |
-          # ncc validates the whole source tree: MECH2 too, even though it is
-          # not a reccmp target.
+          # ncc validates the whole source tree: MECH2 too, which isn't in
+          # TARGET_ENTRIES (its retail original isn't public).
           includes=(util MECH2/include MECH2)
           paths=(MECH2)
           for entry in $TARGET_ENTRIES; do

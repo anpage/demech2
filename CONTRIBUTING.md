@@ -12,11 +12,11 @@ If you feel fit to contribute, feel free to create a pull request! Someone will 
 
 Please keep your pull requests small and understandable; you may be able to shoot ahead and make a lot of progress in a short amount of time, but this is a collaborative project, so you must allow others to catch up and follow along. Large pull requests become significantly more unwieldy to review, and as such make it exponentially more likely for a mistake or error to go undetected. They also make it harder to merge other pull requests because the more files you modify, the more likely it is for a merge conflict to occur. A general guideline is to keep submissions limited to one class (or one small group of C functions) at a time. Sometimes two or more classes may be too interlinked for this to be feasible, so this is not a hard rule, however if your PR is starting to modify more than 10 or so files, it's probably getting too big.
 
-This repository currently has only one goal: accuracy to the original executables. We are byte/instruction matching as much as possible, which means the priority is making the original compiler (MSVC 4.1) produce code that matches the original game. As such, modernizations and bug fixes will probably be rejected for the time being.
+This repository currently has only one goal: accuracy to the original executables. We are byte/instruction matching as much as possible, using the original compiler for each target (MSVC 4.1 for the DLLs, MSVC 2.2 for `MECH2.EXE`). As such, modernizations and bug fixes will probably be rejected for the time being.
 
 ## Overview
 
-- [`MECH2`](/MECH2): Source of `MECH2.EXE` — no annotations, not a reccmp target.
+- [`MECH2`](/MECH2): Decompilation of the retail `MECH2.EXE` launcher — a reccmp target.
 - [`MW2SHELL`](/MW2SHELL): Decompilation of `MW2SHELL.DLL`.
 - [`MW2`](/MW2): Decompilation of `MW2.DLL`.
 - [`util`](/util): Utility headers aiding in the decompilation effort.

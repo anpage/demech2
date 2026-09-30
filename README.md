@@ -12,7 +12,7 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
-This project is in its early stages. `MW2SHELL.DLL` and `MW2.DLL` are being decompiled with the goal of eventually reaching full accuracy against the original binaries. Contributions are welcome.
+This project is in its early stages. `MW2SHELL.DLL`, `MW2.DLL` and the retail `MECH2.EXE` are reccmp targets. Contributions are welcome.
 
 ## Building
 
@@ -51,13 +51,13 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
 2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder (`MECH2.EXE` in its `vc22` subfolder when built with Visual C++ 2.2).
 
-The build configuration for each binary:
+The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for `MECH2.EXE`, so reccmp can read its PDB):
 
 | Target         | Language           | `cl` flags                                 | CRT                     | Link                          |
 | -------------- | ------------------ | ------------------------------------------ | ----------------------- | ----------------------------- |
-| `MW2.DLL`      | C                  | `/Od /Oi`                                  | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no` |
+| `MW2.DLL`      | C                  | `/Od /Oi /G5`                              | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no` |
 | `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                        |
-| `MECH2.EXE`    | C (Visual C++ 2.2) | `/Od /Oi /G5`                              | `/ML` (single-threaded) | incremental EXE               |
+| `MECH2.EXE`    | C (Visual C++ 2.2) | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`     |
 
 ### Docker
 
@@ -96,6 +96,8 @@ targets:
     path: path/to/MW2SHELL.DLL
   MW2:
     path: path/to/MW2.DLL
+  MECH2:
+    path: path/to/MECH2.EXE
 ```
 
 Then run:
@@ -103,11 +105,12 @@ Then run:
 ```
 reccmp-reccmp --target MW2SHELL -S MW2SHELLPROGRESS.SVG
 reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
+reccmp-reccmp --target MECH2 --nolib --total 21
 ```
 
 ## Project Structure
 
-- `MECH2/` - Source of `MECH2.EXE` (no annotations, not a reccmp target)
+- `MECH2/` - Decompilation of the retail `MECH2.EXE` launcher (a reccmp target with Visual C++ 2.2)
 - `MW2SHELL/` - Decompilation of `MW2SHELL.DLL`
 - `MW2/` - Decompilation of `MW2.DLL`
 - `util/` - Utility headers for decompilation
@@ -132,7 +135,7 @@ Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/deta
 | ----------- | -------- | ------------ | ------------------------------------------------------------------ | ---------------- |
 | `MECH2.EXE` | Launcher | 53,248 bytes | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
 
-`MECH2.EXE` comes from the retail release, not the patch. It is **source-only** for now: its source lives in `MECH2/` without annotations and outside reccmp. It was built with Visual C++ 2.2, an older toolchain than the DLLs', which the build uses for it when configured with `-DDEMECH2_MSVC22_ROOT`.
+`MECH2.EXE` comes from the retail release, not the patch. Its 21 game-code functions are annotated for reccmp; comparing them requires the original retail EXE and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds the launcher, but the result cannot be compared to the original.
 
 ## Contributing
 
