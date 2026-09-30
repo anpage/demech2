@@ -19,6 +19,7 @@
 #include "geocache.h"
 #include "integrate.h"
 #include "mech.h"
+#include "network.h"
 #include "object.h"
 #include "objective.h"
 #include "palette.h"
@@ -341,7 +342,7 @@ void UpdateShot(MechS32 p_index)
 				g_carCfg.m_unk0x32++;
 			}
 
-			if (!g_unk0x100a17a0 || victim == g_localPlayerId) {
+			if (!g_netRole || victim == g_localPlayerId) {
 				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
 				ApplyDamageToMech(
 					shot->m_shooter,
@@ -938,7 +939,7 @@ void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 
 	i = g_playerCount;
 	while (i--) {
-		if (g_unk0x100a17a0 && i != g_localPlayerId) {
+		if (g_netRole && i != g_localPlayerId) {
 			continue;
 		}
 
@@ -1208,7 +1209,7 @@ void FUN_1006c362(void)
 		radius = FUN_1003adc9(shape, &x, &y, &z) * 2;
 		i = g_playerCount;
 		while (i--) {
-			if (g_unk0x100a17a0 && i != g_localPlayerId) {
+			if (g_netRole && i != g_localPlayerId) {
 				continue;
 			}
 

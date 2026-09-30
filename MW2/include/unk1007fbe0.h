@@ -16,7 +16,8 @@ extern "C"
 
 	extern MechS32 g_reloadingPlayer;
 
-	MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force);
+	// Declared without a prototype: network.c calls it with two more (zero) arguments.
+	MechS32 FUN_1007fbe0();
 	void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechChar* p_unk0x0c);
 	void RememberMechSegments(Mech* p_mech);
 	AmberWillow0x7c* RestoreMechSegments(MechSegment* p_segment);

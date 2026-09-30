@@ -30,6 +30,9 @@ GameWindowGeometry* g_gameWindowGeometry;
 MechS32 g_screenHeight;
 
 // Set when the next Blit should stretch the current render target over the window.
+// GLOBAL: MW2 0x10176eb0
+undefined4 g_unk0x10176eb0;
+
 // GLOBAL: MW2 0x10176ebc
 MechS32 g_unk0x10176ebc;
 
@@ -167,4 +170,16 @@ void ShutdownRender(void)
 
 	g_unk0x100a2464 = 0;
 	ShutdownRefreshMode();
+}
+
+// FUNCTION: MW2 0x10012f14
+undefined4 FUN_10012f14(void)
+{
+	return g_unk0x10176eb0;
+}
+
+// FUNCTION: MW2 0x10012f29
+void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
+{
+	g_unk0x10176eb0 = p_value;
 }

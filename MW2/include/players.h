@@ -42,15 +42,23 @@ struct Player {
 	undefined m_unk0x44[0x4c - 0x44];         // 0x44
 	PlayerSteering* m_steering;               // 0x4c
 	Vector3 m_position;                       // 0x50
-	undefined4 m_unk0x5c;                     // 0x5c
+	MechS32 m_unk0x5c;                        // 0x5c
 	MechS32 m_heading;                        // 0x60 — 16.16 degrees
-	undefined m_unk0x64[0x6c - 0x64];         // 0x64
+	MechS32 m_unk0x64;                        // 0x64
+	undefined m_unk0x68[0x6c - 0x68];         // 0x68
 	MechS32 m_unk0x6c;                        // 0x6c — added to the heading for the forward view
-	undefined m_unk0x70[0x7c - 0x70];         // 0x70
+	undefined m_unk0x70[0x78 - 0x70];         // 0x70
+	MechS32 m_unk0x78;                        // 0x78
 	MechS32 m_unk0x7c;                        // 0x7c — a player index, or -1
-	undefined m_unk0x80[0xc0 - 0x80];         // 0x80
+	MechU32 m_unk0x80;                        // 0x80
+	MechS32 m_unk0x84;                        // 0x84
+	MechS32 m_unk0x88;                        // 0x88
+	MechS32 m_unk0x8c;                        // 0x8c
+	MechS32 m_unk0x90;                        // 0x90
+	undefined m_unk0x94[0xc0 - 0x94];         // 0x94
 	PlayerTargetInfo m_targetInfo;            // 0xc0
-	MechChar m_name[0x118 - 0xe8];            // 0xe8
+	MechChar m_name[0x114 - 0xe8];            // 0xe8
+	MechS32 m_killer;                         // 0x114 — the player who destroyed its mech
 	AiRule** m_rules;                         // 0x118 — the rules of the current state, NULL-terminated
 	MechU16* m_ruleSets[3];                   // 0x11c — AI scripts, by priority
 	AiStackEntry m_stack[1];                  // 0x128 — T_PUSH saves the state and goal here
@@ -81,13 +89,20 @@ struct Player {
 	MechS32 m_nav;                            // 0x16a — a nav target id the AI placed, or 0x1000
 	MechS16 m_unk0x16e;                       // 0x16e
 	MechS16 m_unk0x170;                       // 0x170
-	undefined m_unk0x172[0x178 - 0x172];      // 0x172
+	undefined2 m_unk0x172;                    // 0x172
+	MechS32 m_unk0x174;                       // 0x174
 	MechS32 m_unk0x178;                       // 0x178
 	undefined4 m_unk0x17c;                    // 0x17c
 	MechS32 m_unk0x180;                       // 0x180
 	undefined4 m_unk0x184;                    // 0x184
 	MechU16* m_unk0x188;                      // 0x188
-	undefined m_unk0x18c[0x1aa - 0x18c];      // 0x18c
+	undefined m_unk0x18c[0x190 - 0x18c];      // 0x18c
+	MechS16 m_unk0x190;                       // 0x190
+	undefined m_unk0x192[0x196 - 0x192];      // 0x192
+	MechS32 m_unk0x196;                       // 0x196
+	MechS32 m_unk0x19a;                       // 0x19a — the target distance at the last FUN_10016093
+	MechU32 m_unk0x19e;                       // 0x19e
+	undefined m_unk0x1a2[0x1aa - 0x1a2];      // 0x1a2
 };
 
 #pragma pack(pop)

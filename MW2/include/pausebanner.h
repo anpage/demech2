@@ -12,6 +12,8 @@ extern "C"
 	void DrawPausedBanner(void);
 	void PlayPauseSound(void);
 	void PlayResumeSound(void);
+	void FUN_10009f35(void);
+	void FUN_10009f61(void);
 
 #ifdef __cplusplus
 }

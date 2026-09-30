@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "loadres.h"
+#include "network.h"
 #include "render.h"
 #include "simmain.h"
 #include "soundconfig.h"
@@ -175,7 +176,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 		(*p_cfg)->m_heatTracking = 1;
 		(*p_cfg)->m_unk0x00 = 0;
 		(*p_cfg)->m_splashDamage = 1;
-		(*p_cfg)->m_unk0x03 = 1;
+		(*p_cfg)->m_collisionDamage = 1;
 	}
 
 	return 1;

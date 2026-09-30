@@ -3,6 +3,9 @@
 
 #include "types.h"
 
+#include <dplay.h>
+#include <windows.h>
+
 struct NetLaunchInfo;
 
 // The functions and globals of network.c that other units use.
@@ -11,11 +14,21 @@ extern "C"
 {
 #endif
 
-	void FirstNetwork(struct NetLaunchInfo* p_unk0x00);
+	extern MechS32 g_isNetworkGame;
+	extern MechS32 g_netRole;
+	extern LPDIRECTPLAY g_directPlay;
+	extern DPID g_localDpid;
+	extern MechChar* g_netRecvBuffer;
+
+	MechS32 GetPlayerSlotFromNetId(DPID p_id);
+	void FirstNetwork(struct NetLaunchInfo* p_netLaunch);
 	MechS32 FirstExternalCtrl(void);
-	void UpdateNetwork(void);
+	MechS32 UpdateNetwork(void);
 	void ShutdownNetwork(void);
-	void FUN_10010539(void);
+	MechS32 FUN_1000efa4(MechS32 p_to, MechChar* p_text);
+	MechS32 StartExternalIO(struct NetLaunchInfo* p_netLaunch);
+	MechS32 StopExternalIO(void);
+	void ElectMaster(void);
 
 #ifdef __cplusplus
 }

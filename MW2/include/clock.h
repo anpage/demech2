@@ -14,6 +14,7 @@ extern "C"
 
 	extern MechS32 g_currentClock;
 	extern MechS32 g_unk0x100ba54c;
+	extern MechS32 g_unk0x100ba554;
 	extern MechS32 g_deltaTime;
 	extern BOOL g_ticksTimerInitialized;
 	extern MechS16* g_sqrtTable;
