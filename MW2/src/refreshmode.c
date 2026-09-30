@@ -12,6 +12,7 @@
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "simmain.h"
+#include "ticks.h"
 #include "types.h"
 
 #include <windows.h>

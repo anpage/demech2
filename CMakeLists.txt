@@ -470,6 +470,7 @@ demech2_add_dll(mw2
     MW2/src/unk10065f50.c
     MW2/src/camerashake.c
     MW2/src/simmain.c
+    MW2/src/ticks.${asm_or_c}
     MW2/src/unk100680a0.c
     MW2/src/mouse.c
     MW2/src/animation.c

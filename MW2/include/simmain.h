@@ -12,6 +12,7 @@
 #include "slateheron.h"
 #include "soundconfig.h"
 #include "starmission.h"
+#include "ticks.h"
 #include "types.h"
 
 #include <windows.h>
@@ -137,13 +138,6 @@ extern "C"
 	void HandleMessages(void);
 	void UpdatePauseState(void);
 	void SetGameResolution(char* p_driverName);
-	void GameTickTimerCallback(void);
-	MechS16 AllocTicks(MechU32 p_flags);
-	MechS32 GetTicks(MechU32 p_handle);
-	void ResetTicks(MechU32 p_handle);
-	void SetTicks(MechU32 p_handle, MechS32 p_ticks);
-	void FreeTicks(MechU32 p_handle);
-	void PauseTimer(MechS32 p_flags, MechS32 p_paused);
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,7 @@
 #include "refreshmode.h"
 #include "rendertarget.h"
 #include "simmain.h"
+#include "ticks.h"
 #include "types.h"
 
 #include <string.h>

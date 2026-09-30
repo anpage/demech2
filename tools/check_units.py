@@ -23,7 +23,8 @@ original's layout against that split:
   recompiled size says so, or when the expected-findings file declares the
   target complete (every game function annotated). A 16-aligned start without
   padding before it is ambiguous (the previous object may have ended flush)
-  and is not reported.
+  and is not reported; so is a 4-aligned start of a MASM unit (.asm), whose
+  object ML aligns to 4 and which starts flush after the previous one.
 - section: a global in the original's .rdata that the build puts in writable
   data, or the reverse (a missing or extra `const`).
 - static: a C tentative definition (a communal variable, allocated after all
@@ -191,7 +192,8 @@ def check_code(compare: Compare, functions: list[Symbol], findings, ambiguous: l
     check_order("code", functions, findings)
 
     for prev, cur in zip(functions, functions[1:]):
-        aligned = cur.orig % 16 == 0
+        # ML aligns an assembled object's .text to 4, VC++ to 16
+        aligned = cur.orig % (4 if cur.unit.lower().endswith(".asm") else 16) == 0
         padded = aligned and compare.orig_bin.read(cur.orig - 1, 1)[0] == 0xCC
         if prev.obj == cur.obj and padded:
             findings.append(
