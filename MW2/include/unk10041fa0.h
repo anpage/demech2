@@ -10,6 +10,7 @@ extern "C"
 #endif
 
 	void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far);
+	void FUN_10042195(void);
 	void FUN_10042206(void);
 	void FUN_100423b3(void);
 

@@ -9,6 +9,7 @@
 #include "mech.h"
 #include "playersteering.h"
 #include "playertargetinfo.h"
+#include "ramp.h"
 #include "types.h"
 #include "vector3.h"
 
@@ -39,7 +40,8 @@ struct Player {
 	PlayerMechFn m_drawFn;                    // 0x38
 	PlayerMechFn m_shutdownFn;                // 0x3c
 	struct AmberWillow0x7c* m_obj;            // 0x40
-	undefined m_unk0x44[0x4c - 0x44];         // 0x44
+	struct AmberWillow0x7c* m_unk0x44;        // 0x44 — the object the weapons aim from
+	struct AmberWillow0x7c* m_unk0x48;        // 0x48 — the hardpoint of the weapon firing
 	PlayerSteering* m_steering;               // 0x4c
 	Vector3 m_position;                       // 0x50
 	MechS32 m_unk0x5c;                        // 0x5c
@@ -55,7 +57,10 @@ struct Player {
 	MechS32 m_unk0x88;                        // 0x88
 	MechS32 m_unk0x8c;                        // 0x8c
 	MechS32 m_unk0x90;                        // 0x90
-	undefined m_unk0x94[0xc0 - 0x94];         // 0x94
+	undefined m_unk0x94[0x98 - 0x94];         // 0x94
+	Ramp m_aimRange;                          // 0x98 — eases towards m_unk0xa8's distance
+	Ramp m_unk0xa8;                           // 0xa8 — the distance the weapons converge at
+	undefined m_unk0xb8[0xc0 - 0xb8];         // 0xb8
 	PlayerTargetInfo m_targetInfo;            // 0xc0
 	MechChar m_name[0x114 - 0xe8];            // 0xe8
 	MechS32 m_killer;                         // 0x114 — the player who destroyed its mech

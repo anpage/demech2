@@ -61,6 +61,8 @@ extern "C"
 	extern MechS32 g_quitStage;
 	extern MechS32 g_localPlayerId;
 	extern struct Player* g_localPlayer;
+	extern MechS32* g_unk0x100a2434;
+	extern MechS32 g_unk0x100a2bf8;
 	extern MechS32 g_missionTime;
 	extern MechS32 g_unk0x100aa2a4;
 	extern MechS32 g_unk0x100aa2bc;
@@ -95,7 +97,6 @@ extern "C"
 	extern void* g_unk0x100a5bb8[4];
 	extern Point g_unk0x100a5ee8[6];
 	extern MechS32 g_unk0x100a6d30;
-	extern struct ScarletOrchid0x4c* g_unk0x100a6d34;
 	extern undefined4 g_unk0x100a5a24;
 	extern undefined4 g_unk0x100a5f18;
 	extern RenderTarget g_unk0x100bdff8;

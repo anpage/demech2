@@ -1,6 +1,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include "inputdriver.h"
 #include "types.h"
 
 #include <windows.h>
@@ -10,6 +11,8 @@
 extern "C"
 {
 #endif
+
+	extern InputDriverModule g_keyboardDriver;
 
 	void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 	void KeyboardClearKeyStates(void);

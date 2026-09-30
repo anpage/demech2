@@ -35,10 +35,10 @@
 #include "unk10019ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
-#include "unk10044740.h"
 #include "unk1004b980.h"
 #include "unk100696c0.h"
 #include "unk1006d680.h"
+#include "weapons.h"
 
 #include <string.h>
 
@@ -60,7 +60,7 @@ MechS32 g_unk0x100ad448 = -1;
 MechS32 g_trackedShot = -1;
 
 // GLOBAL: MW2 0x100ad450
-undefined4 g_unk0x100ad450 = 0;
+Player* g_unk0x100ad450 = NULL;
 
 // GLOBAL: MW2 0x100ad454
 MechS32 g_unk0x100ad454 = 1;
@@ -564,9 +564,9 @@ void FUN_1006b18b(MechS32 p_type, MechS32 p_rotX, MechS32 p_rotY, MechS32 p_rotZ
 }
 
 // FUNCTION: MW2 0x1006b1c8
-void FUN_1006b1c8(MechS32 p_type, undefined4 p_unk0x04)
+void FUN_1006b1c8(MechS32 p_type, Player* p_player)
 {
-	g_unk0x100ad450 = p_unk0x04;
+	g_unk0x100ad450 = p_player;
 	FUN_1006b1fb(-2, p_type, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
@@ -762,7 +762,7 @@ void FUN_1006b1fb(
 		if (effect->m_object) {
 			if (p_type >= 0x17 && g_unk0x100ad450) {
 				FUN_10046519(g_unk0x100ad450, effect->m_object);
-				g_unk0x100ad450 = 0;
+				g_unk0x100ad450 = NULL;
 			}
 			else {
 				SetObjRotation(effect->m_object, p_rotX, p_rotY, p_rotZ, 0);

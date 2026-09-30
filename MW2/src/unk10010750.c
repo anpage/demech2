@@ -4,6 +4,12 @@
 #include "palette.h"
 #include "types.h"
 
+// STUB: MW2 0x10010750
+void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
+{
+	STUB(0x10010750);
+}
+
 // STUB: MW2 0x100107de
 MechS32 FUN_100107de(
 	undefined4 p_unk0x00,

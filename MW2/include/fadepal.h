@@ -4,6 +4,8 @@
 #include "decomp.h"
 #include "types.h"
 
+struct Mech;
+
 // The functions of fadepal.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -15,6 +17,10 @@ extern "C"
 	void FUN_1004ca0d(void);
 	void FUN_1004ca29(MechU32 p_level);
 	void FadeToEndPalette(MechS32 p_alternate);
+	void FUN_1004cb11(struct Mech* p_mech);
+	void FUN_1004cc27(struct Mech* p_mech);
+	void FUN_1004ccba(struct Mech* p_mech);
+	void FUN_1004ce3e(struct Mech* p_mech, MechS32 p_speed);
 	void PlayPlayerHitFeedback(MechS32 p_x, MechS32 p_y, MechS32 p_z);
 
 #ifdef __cplusplus

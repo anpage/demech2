@@ -106,6 +106,8 @@ When a shared function carries annotations for both DLLs, MW2SHELL's annotation 
 
 **reccmp reads annotations from the source tree, not the build**: every annotated file must be in the build, or reccmp logs errors for the functions it can't find.
 
+**Don't name a unit after a CRT source file.** reccmp matches line records by file name, so a unit sharing a name with a CRT object's source (the CRT's `input.c` is the scanf engine) picks up its line records, and a function lands in "Debug data out of sync" and drops out of the compare. MW2's input unit is `inputmap.c` for this reason.
+
 ## Class Pattern (C++, MW2SHELL)
 
 C++ exists in MW2SHELL and MECH2. MW2 is plain C — see the struct pattern below.
@@ -317,6 +319,7 @@ This section only grows as patterns are **proven by matches**:
 - **CRT data needs a library annotation too.** A CRT global renders as `<OFFSETn>` on the original side, a diff on every use, until `library_msvc.h` names it: `stderr` is `_iob + 0x40`, fixed by `// GLOBAL: MW2SHELL 0x10074a60` / `// _iob`. When the only diff is an `<OFFSETn>` against a named CRT symbol, the source is right; annotate the data.
 - **Chained assignment reloads through memory:** `a = b = x;` stores `b`, reloads it, then stores `a` (`VideoDriver::VideoDriver`, the stack views in `VideoDriver::FUN_10006ed4`). A float assignment used as an operand doesn't: `dx /= length = sqrt(...)` is `fst [length]; fdivr [dx]; fstp [dx]` (`BuildRayFloat`).
 - **Constant folding follows the grouping.** `(n - 1) * 3` folds to `lea eax, [eax + eax*2 - 3]`; `n * 3 - 3` stays `lea` then `sub eax, 3` (`RotatePaletteCycle`).
+- **A returned conditional expression goes straight to `eax`:** `return c ? i : -1;` compiles to `je; mov eax, [i]; jmp; mov eax, -1; jmp epilogue`, with no stack temporary (`FindInputDevice`); `if (c) { return i; } else { return -1; }` puts a `jmp` to the epilogue after each arm instead.
 - **A conditional expression evaluates into a stack temporary:** `(c ? f() : -1) == 0` compiles to `cmp; je; call; mov [tmp], eax; jmp; mov [tmp], -1; cmp [tmp], 0`, with no `jmp` after the false arm. That tells it apart from an `/Ob1`-expanded inline function, which keeps a `jmp` per `return` (`VideoDriver`'s `ACQUIRE_FRAMEBUFFER()` macro).
 - **Both front ends reorder commutative operands**, so source order can't be read back from the disassembly.
 - **`/Oi` expands exactly:** `strlen`, `strcpy`, `strcat`, `strcmp`, `memcmp` (`repe cmpsb`; `VideoDriver::FUN_10006c50`), `memcpy` (any size, constants included; a variable size becomes `rep movsb`), `memset` (any size), `abs` (`cdq; xor eax, edx; sub eax, edx`; `FUN_1005d44e`), and the math functions to their `__CI*` entry points: `sqrt`→`__CIsqrt`, `pow`→`__CIpow`, `sin`→`__CIsin`, `atan`→`__CIatan`, `atan2`→`__CIatan2`, `asin`→`__CIasin` (`clock.c`'s tables). `memmove`, `strncpy`, `stricmp` etc. stay calls. The `__CI*` entry points are tiny thunks; they score 0% until their targets are annotated too.

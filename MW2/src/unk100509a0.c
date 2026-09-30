@@ -142,13 +142,13 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 void FUN_10050dc3(SlateHeron0x68* p_saved)
 {
 	*p_saved = g_unk0x100a6cc8;
-	g_unk0x100a6cc8.m_unk0x00[6] = 0;
-	g_unk0x100a6cc8.m_unk0x00[2] = 0;
-	g_unk0x100a6cc8.m_unk0x00[3] = 1;
-	g_unk0x100a6cc8.m_unk0x00[1] = 1;
+	g_unk0x100a6cc8.m_unk0x18 = 0;
+	g_unk0x100a6cc8.m_unk0x08 = 0;
+	g_unk0x100a6cc8.m_unk0x0c = 1;
+	g_unk0x100a6cc8.m_unk0x04 = 1;
 	g_unk0x100a6cc8.m_unk0x50 = 0xb00;
 	g_unk0x100a6cc8.m_unk0x4c = 1;
-	g_unk0x100a6cc8.m_unk0x00[4] &= ~4;
+	g_unk0x100a6cc8.m_unk0x10 &= ~4;
 }
 
 // FUNCTION: MW2 0x10050e20

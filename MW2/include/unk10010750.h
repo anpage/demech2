@@ -10,6 +10,7 @@ extern "C"
 {
 #endif
 
+	void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c);
 	MechS32 FUN_100107de(
 		undefined4 p_unk0x00,
 		MechS32 p_unk0x04,

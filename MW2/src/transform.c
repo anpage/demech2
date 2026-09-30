@@ -10,6 +10,12 @@ void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	STUB(0x1000d650);
 }
 
+// STUB: MW2 0x1000d708
+void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+{
+	STUB(0x1000d708);
+}
+
 // Multiplies two 2.29 fixed-point values. The body is an __asm block.
 // FUNCTION: MW2 0x1000d9a8
 MechS32 FUN_1000d9a8(MechS32 p_a, MechS32 p_b)

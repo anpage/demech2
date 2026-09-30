@@ -203,6 +203,14 @@ void FUN_1006037c(MechS32 p_step)
 	FUN_1005ef5e(player, p_step, 0x40008);
 }
 
+// Sets the pixel at (p_x, p_y) of a render target, relative to its top left.
+// STUB: MW2 0x1006053c
+MechS32 FUN_1006053c(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechU32 p_color)
+{
+	STUB(0x1006053c);
+	return 0;
+}
+
 // Returns the pixel at (p_x, p_y) of a render target, relative to its top left, or a negative
 // value outside it.
 // STUB: MW2 0x10060617

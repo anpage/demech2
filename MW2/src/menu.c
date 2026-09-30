@@ -1,7 +1,7 @@
 #include "menu.h"
 
 #include "decomp.h"
-#include "input.h"
+#include "inputmap.h"
 #include "loadres.h"
 #include "render.h"
 #include "rendertarget.h"

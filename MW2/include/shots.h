@@ -60,7 +60,7 @@ extern "C"
 	extern MechS32 g_effectCameraEffect;
 	extern MechS32 g_unk0x100ad448;
 	extern MechS32 g_trackedShot;
-	extern undefined4 g_unk0x100ad450;
+	extern struct Player* g_unk0x100ad450;
 	extern MechS32 g_unk0x100ad454;
 	extern MechS32 g_lastHitShooter;
 	extern MechS32 g_nukeTimeLeft;
@@ -108,7 +108,7 @@ extern "C"
 		MechS32 p_y,
 		MechS32 p_z
 	);
-	void FUN_1006b1c8(MechS32 p_type, undefined4 p_unk0x04);
+	void FUN_1006b1c8(MechS32 p_type, struct Player* p_player);
 	void FUN_1006b1fb(
 		MechS32 p_owner,
 		MechS32 p_type,
