@@ -6,7 +6,7 @@
 MW2SHELL complete
 
 # Hand-written assembly: MASM objects don't start on the compiler's 16-byte boundaries.
-MW2SHELL start 0x100286a6  # the object starts at the .text table 0x10017a7c; the code before this routine isn't transcribed
+MW2SHELL start 0x10019a7c  # codeblock.asm starts with its routine table at 0x10017a7c, data in .text before its first routine
 MW2SHELL start 0x1002a968  # polyfill.asm: ML aligns .text to 4, not 16; the compiled code before it ends at 0x1002a966
 
 # MW2 globals parked in simmain.c until the units that define them are decompiled.

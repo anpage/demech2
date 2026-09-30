@@ -257,7 +257,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugprint.c
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
-    MW2SHELL/src/codeblock.c
+    MW2SHELL/src/codeblock.${asm_or_c}
     MW2SHELL/src/archivereader.cpp
     MW2SHELL/src/polyfill.${asm_or_c}
     MW2SHELL/src/pilotroster.cpp
@@ -270,7 +270,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/gdi.c
     MW2SHELL/src/resourcefile.c
     MW2SHELL/src/input.c
-    MW2SHELL/src/blit.c
+    MW2SHELL/src/blit.${asm_or_c}
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp

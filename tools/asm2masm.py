@@ -149,9 +149,11 @@ def annotated_symbols(module):
                     break
                 if following.lstrip().startswith("#") or following.lstrip().startswith("//") or not following.strip():
                     continue
-                n = re.search(r"([A-Za-z_]\w*)\s*(\(|\[|=|;)", following.replace("__declspec(naked)", ""))
+                k = lines.index(following, i + 1)
+                joined = " ".join(l.strip() for l in lines[k : k + 3])  # a declaration can span lines
+                n = re.search(r"([A-Za-z_]\w*)\s*(\(|\[|=|;)", joined.replace("__declspec(naked)", ""))
                 if n:
-                    symbols[address] = Symbol(address, n.group(1), kind, following.strip())
+                    symbols[address] = Symbol(address, n.group(1), kind, joined)
                 break
     return symbols
 
@@ -178,6 +180,19 @@ def declared_global(module, name):
         if m:
             return m.group(0).strip()
     return None
+
+
+def declared_size(symbol):
+    """A global's size from its C declaration, or None."""
+    if not symbol.declaration:
+        return None
+    before = symbol.declaration.replace("extern ", "").split(symbol.name)[0]
+    words = before.split()
+    element = 4 if "*" in before else ELEMENT.get(words[-1] if words else "", None)
+    if element is None:
+        return None
+    m = re.match(r"\s*\[\s*(0x[0-9a-fA-F]+|\d+)\s*\]", symbol.declaration.split(symbol.name, 1)[1])
+    return element * (int(m.group(1), 0) if m else 1)
 
 
 def data_layout(symbol, size):
@@ -232,7 +247,8 @@ class Namer:
             if i >= 0:
                 start = self.starts[i]
                 symbol = self.symbols[start]
-                if symbol.kind == "data" and address - start < 0x10000:
+                size = declared_size(symbol)
+                if symbol.kind == "data" and address - start < (size if size else 0x10000):
                     self.used.add(start)
                     return "%s+%s" % (symbol.name, hexnum(address - start))
         self.unknown.add(address)
@@ -325,6 +341,8 @@ def render(ins, namer, image, frame, start, end):
     if STRING_OP.match(mnemonic):
         return re.sub(r" .*", "", mnemonic) if not mnemonic.startswith("rep") else " ".join(mnemonic.split()[:2])
     text = render_memory(ins, ins.text, namer, image, frame)
+    if mnemonic in ("rol", "ror", "rcl", "rcr", "shl", "sal", "shr", "sar") and "," not in ins.op_str:
+        text += ", 1"  # capstone leaves out the implicit count of the D0/D1 forms
     if mnemonic in ("xchg", "test") and len(b) == 2 and b[1] >= 0xC0 and b[0] in (0x84, 0x85, 0x86, 0x87):
         # ML puts the first operand in the ModRM reg field
         a, c = [s.strip() for s in ins.op_str.split(",")]
@@ -410,7 +428,7 @@ def find_frame(instructions, params_hint):
     count = highest + 1
     names = list(params_hint or [])
     if len(names) < count:
-        names += ["p_unk0x%02x" % (8 + 4 * n) for n in range(len(names), count)]
+        names += ["p_unk0x%02x" % (4 * n) for n in range(len(names), count)]
     if has_ebp and not names and not locals_size:
         return None
     if not has_ebp and not uses:
@@ -503,6 +521,8 @@ class Transcriber:
         for a in splits:
             if a not in starts:
                 starts[a] = Symbol(a, "FUN_%08x" % a, "code")
+            elif starts[a].kind == "data":
+                starts[a] = Symbol(a, starts[a].name, "code")  # code the annotations call data
         if start not in starts:
             raise SystemExit("0x%08x (START) is not an annotated function: annotate it or pass it with --split" % start)
         ordered = sorted(starts)
@@ -518,15 +538,37 @@ class Transcriber:
                 target = ins.branch_target()
                 if target is not None and start <= target < end and target not in self.labels:
                     self.labels[target] = "jmp_%08x" % target
-        # relocated addresses inside the object that aren't item starts get labels as well
+        # relocated addresses inside the object that aren't item starts get labels as well; one
+        # inside an instruction (self-modifying code patching an operand) is named after the
+        # instruction's label
+        starts = sorted(ins.address for instructions in self.decoded.values() for ins in instructions)
+        inside = {}
+        values = []
         for instructions in self.decoded.values():
             for ins in instructions:
                 for offset in (ins.disp_offset, ins.imm_offset):
                     if offset is not None and ins.address + offset in image.relocs:
-                        value = image.dword(ins.address + offset)
-                        if start <= value < end and value not in self.labels:
-                            self.labels[value] = "jmp_%08x" % value
+                        values.append(image.dword(ins.address + offset))
+        for a, b, s in self.items:
+            if s.kind == "data":
+                values += [image.dword(r) for r in image.relocs if a <= r < b]
+        for value in values:
+            if not start <= value < end or value in self.labels or self.in_data(value):
+                continue
+            i = bisect.bisect_right(starts, value) - 1
+            if starts[i] == value:
+                self.labels[value] = "jmp_%08x" % value
+            else:
+                if starts[i] not in self.labels:
+                    self.labels[starts[i]] = "jmp_%08x" % starts[i]
+                inside[value] = starts[i]
+        for value, at in inside.items():
+            self.labels[value] = "%s+%d" % (self.labels[at], value - at)
+        self.inside = set(inside)
         self.namer = Namer(symbols, self.labels)
+
+    def in_data(self, address):
+        return any(a <= address < b for a, b, s in self.items if s.kind == "data")
 
     def routine(self, address, symbol):
         instructions = self.decoded[address]
@@ -550,7 +592,8 @@ class Transcriber:
         lines.append(("%s proc %s" % (symbol.name, head)).rstrip())
         if frame and frame.locals_size:
             slots = ["l_unk0x%02x:dword" % (4 * (n + 1)) for n in range(frame.locals_size // 4)]
-            lines.append("\tlocal " + ", ".join(slots))
+            for n in range(0, len(slots), 6):
+                lines.append("\tlocal " + ", ".join(slots[n : n + 6]))
         k = 0
         while k < len(instructions):
             ins = instructions[k]
@@ -611,7 +654,20 @@ def data_lines(image, namer, symbol, address, end):
             return lines
         type_name = symbol.name + "_t"
         lines.append("%s struct" % type_name)
-        lines += ["m_unk0x%02x %s %s" % m for m in members]
+        k = 0
+        while k < len(members):
+            offset, kind, value = members[k]
+            if kind != "dd":
+                lines.append("m_unk0x%02x %s %s" % members[k])
+                k += 1
+                continue
+            run = []
+            while k < len(members) and members[k][1] == "dd":
+                run.append(members[k][2])
+                k += 1
+            body = pack_values("dd", run, None)
+            lines.append("m_unk0x%02x %s" % (offset, body[0].strip()))
+            lines += body[1:]
         lines.append("%s ends" % type_name)
         lines.append("%s %s <>" % (symbol.name, type_name))
         return lines
@@ -831,6 +887,8 @@ def main():
         if symbol.kind == "data" and symbol.declaration is None:
             symbol.declaration = declared_global(args.target, symbol.name)
     start, end = int(args.start, 16), int(args.end, 16)
+    while end > start and image.read(end - 1, 1) == b"\xcc":
+        end -= 1  # the linker's padding before the next object
     splits = [int(a, 16) for a in args.split.split(",") if a]
     transcriber = Transcriber(args.target, image, symbols, start, end, splits)
     code = transcriber.code()
