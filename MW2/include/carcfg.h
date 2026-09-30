@@ -31,7 +31,7 @@ typedef struct CarCfg {
 	MechU16 m_unk0x32;                // 0x32 — hits taken by the local team
 	undefined m_unk0x34[0x50 - 0x34]; // 0x34
 	MechU16 m_unk0x50;                // 0x50 — the players of a network game
-	undefined m_unk0x52[0xd2 - 0x52]; // 0x52
+	MechU16 m_unk0x52[8][8];          // 0x52 — kills, by killer and victim player
 	MechS32 m_unk0xd2;                // 0xd2 — the last player whose SU message arrived
 } CarCfg;
 

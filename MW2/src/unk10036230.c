@@ -100,6 +100,19 @@ void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
 	STUB(0x10039b94);
 }
 
+// Transforms a shape and each of its models by p_matrix.
+// FUNCTION: MW2 0x10039c36
+void FUN_10039c36(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
+{
+	GraniteLattice0x18* model;
+
+	FUN_10039b94(p_shape, p_matrix);
+	for (model = p_shape->m_unk0x1c; model; model = model->m_unk0x0c) {
+		FUN_10039a30(model, p_matrix);
+		model->m_unk0x10 = p_shape->m_unk0x48;
+	}
+}
+
 // STUB: MW2 0x10039c96
 MechS32 FUN_10039c96(
 	MechS32 p_normalX,

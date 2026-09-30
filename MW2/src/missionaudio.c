@@ -1,5 +1,7 @@
 /* The mission's sound files: a table of the names in the mission's project file, hashed by
    FUN_100074e0, and the directory the files are read from. */
+#include "missionaudio.h"
+
 #include "decomp.h"
 #include "error.h"
 #include "mss.h"

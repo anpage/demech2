@@ -22,6 +22,7 @@
 #include "error.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "gamekeys.h"
 #include "gdi.h"
 #include "gpanim.h"
 #include "inputmap.h"
@@ -215,6 +216,14 @@ MechS32 g_menuRepeatTimer = -1;
 // GLOBAL: MW2 0x100a5a24
 undefined4 g_unk0x100a5a24 = 1;
 
+// The height the map view's shading starts at (FUN_1003f513).
+// GLOBAL: MW2 0x100a5a30
+MechS32 g_unk0x100a5a30 = 0;
+
+// The height range the map view's shading spans (FUN_1003f513).
+// GLOBAL: MW2 0x100a5a38
+MechS32 g_unk0x100a5a38 = 0x1900;
+
 // The gauge functions of the cockpit layouts, by index.
 // GLOBAL: MW2 0x100a5a40
 CockpitGaugeFn g_cockpitGauges[10] = {
@@ -269,6 +278,18 @@ Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0
 // GLOBAL: MW2 0x100a5f18
 undefined4 g_unk0x100a5f18 = 1;
 
+// GLOBAL: MW2 0x100a5f1c
+MechS32 g_unk0x100a5f1c = 1;
+
+// GLOBAL: MW2 0x100a5f20
+MechS32 g_unk0x100a5f20 = 1;
+
+// GLOBAL: MW2 0x100a5f24
+MechS32 g_unk0x100a5f24 = 1;
+
+// GLOBAL: MW2 0x100a5f2c
+MechS32 g_unk0x100a5f2c = 1;
+
 // GLOBAL: MW2 0x100a6be0
 Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
 							0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
@@ -304,6 +325,9 @@ const char* g_unk0x100a8694 = "PAL";
 // GLOBAL: MW2 0x100a8698
 const char* g_unk0x100a8698 = "TABL";
 
+// GLOBAL: MW2 0x100a869c
+const char* g_unk0x100a869c = "POLY";
+
 // GLOBAL: MW2 0x100a86a0
 const char* g_unk0x100a86a0 = "TEXT";
 
@@ -318,6 +342,9 @@ const char* g_unk0x100a86cc = "LUMA";
 
 // GLOBAL: MW2 0x100a86d0
 const char* g_unk0x100a86d0 = "MUS";
+
+// GLOBAL: MW2 0x100a8704
+const char* g_unk0x100a8704 = ".wtb";
 
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;
@@ -447,7 +474,7 @@ MechS32 g_unk0x100ea3e4;
 MechS32 g_missionTime;
 
 // GLOBAL: MW2 0x10138720
-MechS32 g_currentObjective[64]; // by team; length unknown
+MechS32 g_currentObjective[16]; // by team
 
 // GLOBAL: MW2 0x10138830
 StarMission g_objectiveTable[16];
@@ -476,6 +503,10 @@ MechS32 g_ticks1 = 0;
 // GLOBAL: MW2 0x100ad210
 MechS32 g_ticks2 = 0;
 
+// Whether each objective of the local team has been announced (FUN_1001b0cb).
+// GLOBAL: MW2 0x10138760
+MechS32 g_unk0x10138760[48];
+
 // GLOBAL: MW2 0x10138820
 MechS32 g_objectiveCount; // defined last for the operand order of the DoFirstObjtv loop test
 
@@ -496,7 +527,6 @@ MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x
 void UpdateGeoCache(void);
 void FirstStaticCache(void);
 void FirstAI(void);
-void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 void SetRes(void);
 void FirstShots(void);
 void UpdateAllShots(void);

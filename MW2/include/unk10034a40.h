@@ -53,7 +53,16 @@ extern "C"
 	MechS32 FUN_100352ad(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance);
 	void FUN_10035423(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance);
 	MechS32 FUN_100354d3(struct DuskMoth0x24* p_face, struct EmberFern0x2c* p_vertices, Ray* p_ray);
+	MechS32 FUN_10035722(
+		struct DuskMoth0x24* p_face,
+		struct EmberFern0x2c* p_vertices,
+		MechS32 p_x,
+		MechS32 p_y,
+		MechS32 p_z
+	);
 	MechS32 FUN_100357f8(struct DuskMoth0x24* p_face, struct EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_z);
+	MechS32 FUN_10035b5b(struct DuskMoth0x24* p_face, struct EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_y);
+	MechS32 FUN_10035ebe(struct DuskMoth0x24* p_face, struct EmberFern0x2c* p_vertices, MechS32 p_y, MechS32 p_z);
 
 #ifdef __cplusplus
 }

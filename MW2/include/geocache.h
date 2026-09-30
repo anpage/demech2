@@ -5,6 +5,7 @@
 #include "decomp.h"
 #include "twilightgrove.h"
 #include "types.h"
+#include "unk1001df00.h"
 #include "unk1003a530.h"
 
 struct GameThing;
@@ -38,15 +39,20 @@ extern "C"
 	void FUN_1002015f(MechS32 p_index);
 	void FUN_10020190(MechS32 p_index);
 	void FUN_100201c1(MechS32 p_index, MechU32 p_unk0x0c);
+	void FUN_100201fe(MechS32 p_index, MechS32 p_replacement, MechS32 p_thing);
 	MechS32 FUN_10020292(MechS32 p_index);
 	void FUN_10020429(struct GameThing* p_thing);
 	void FUN_100204e8(void);
+	MechS32 FUN_10020684(void);
 	undefined4 FUN_10020704(MechS32 p_index, MechS32 p_block);
 	void FUN_10020b95(MechS32 p_index);
 	struct AmberWillow0x7c* FUN_10020bdd(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_10020c26(MechS32 p_index);
 	void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_10021314(MechS32 p_index);
+	MechS32 FUN_10020d51(void);
+	void FUN_10021067(AzureThicket0x2c* p_root);
+	void FUN_1002116a(AzureThicket0x2c* p_node, MechU8* p_data, MechS32 p_size);
+	MechS32 FUN_10021314(MechU32 p_index);
 	void FUN_100213cf(struct AmberWillow0x7c* p_obj);
 	MechS32 FUN_10021423(void);
 	void SetExplosionChunks(undefined4 p_unk0x00, MechS32 p_explosionChunks);

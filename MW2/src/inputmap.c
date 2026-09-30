@@ -4,6 +4,7 @@
 
 #include "decomp.h"
 #include "error.h"
+#include "inputcondition.h"
 #include "inputdeviceinfo.h"
 #include "inputdriver.h"
 #include "joystick.h"
@@ -254,6 +255,28 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 			return 1;
 		}
 	}
+}
+
+// Returns whether all p_count conditions hold.
+// FUNCTION: MW2 0x1007a330
+MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
+{
+	MechS32 i;
+
+	for (i = 0; i < p_count; i++) {
+		if (p_conditions[i].m_negate == 1) {
+			if (*p_conditions[i].m_word & p_conditions[i].m_mask) {
+				return FALSE;
+			}
+		}
+		else {
+			if (!(*p_conditions[i].m_word & p_conditions[i].m_mask)) {
+				return FALSE;
+			}
+		}
+	}
+
+	return TRUE;
 }
 
 // STUB: MW2 0x1007a97a
