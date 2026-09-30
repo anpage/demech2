@@ -7,7 +7,7 @@
 // The AI's steering: how the mech's controls are set each frame.
 // SIZE 0x48
 typedef struct PlayerSteering {
-	undefined4 m_unk0x00;             // 0x00
+	MechS32 m_unk0x00;                // 0x00
 	MechS32 m_unk0x04;                // 0x04 — swept between ±45 degrees by FUN_100562b4
 	MechS32 m_throttle;               // 0x08
 	MechS32 m_turn;                   // 0x0c

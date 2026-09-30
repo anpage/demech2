@@ -29,6 +29,7 @@ extern "C"
 	MechS32 StartExternalIO(struct NetLaunchInfo* p_netLaunch);
 	MechS32 StopExternalIO(void);
 	void ElectMaster(void);
+	void FUN_1000ff29(void);
 
 #ifdef __cplusplus
 }

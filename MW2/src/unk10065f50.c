@@ -3,11 +3,99 @@
 #include "ai.h"
 #include "decomp.h"
 #include "menu.h"
+#include "menupage.h"
+#include "navpoint.h"
+#include "players.h"
+#include "rendertarget.h"
 #include "team.h"
 #include "types.h"
 
 // GLOBAL: MW2 0x100acaf0
 MechS32 g_unk0x100acaf0[8] = {7, 7, 7, 7, 7, 0, 0, 0};
+
+// Fills the page with an item per AI slot (from template 5) and a last one (template 6), marking
+// the slots whose player is in AI state 12. With no slot, or every slot marked, the page has only
+// templates 7 and 6.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10065f50
+MechS32 FUN_10065f50(undefined4 p_unk0x00, MenuPage* p_page)
+{
+	MechS32 marked;
+	MechS32 slot;
+	MechS32 count;
+	MechS32 i;
+	MechS32 index;
+	MechS32 src;
+
+	marked = 0;
+	if (!p_page) {
+		return FALSE;
+	}
+
+	count = FUN_10056230() - 1;
+	if (count) {
+		src = 5;
+		slot = count + 1;
+		p_page->m_items[slot] = p_page->m_items[src];
+		src = 6;
+		slot++;
+		p_page->m_items[slot] = p_page->m_items[src];
+		p_page->m_itemCount = slot + 1;
+		for (i = 0; i < count; i++) {
+			index = FUN_10054ccc(i + 1);
+			if (index < g_playerCount && g_players[index]->m_aiState == 12) {
+				p_page->m_items[i + 1].m_unk0x00 = 1;
+				marked++;
+			}
+		}
+	}
+
+	if (!count || marked == count) {
+		p_page->m_items[0] = p_page->m_items[7];
+		p_page->m_items[1] = p_page->m_items[6];
+		p_page->m_itemCount = 2;
+	}
+
+	return TRUE;
+}
+
+// Unless the page's AI slot holds a player outside AI state 12, keeps only the page's last two
+// items.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100660c2
+MechS32 FUN_100660c2(undefined4 p_unk0x00, MenuPage* p_page)
+{
+	MechS32 count;
+	MechS32 slot;
+	MechS32 index;
+	MechS32 src;
+	MechU32 unk0x08;
+	MechS32 valid;
+
+	if (!p_page) {
+		return FALSE;
+	}
+
+	unk0x08 = p_page->m_unk0x08;
+	count = FUN_10056230() - 1;
+	valid = unk0x08 <= count;
+	if (valid) {
+		index = FUN_10054ccc(unk0x08);
+		valid = index < g_playerCount && g_players[index]->m_aiState != 12;
+	}
+
+	if (!valid) {
+		src = p_page->m_itemCount;
+		slot = 0;
+		p_page->m_items[slot] = p_page->m_items[src];
+		src = p_page->m_itemCount - 1;
+		slot++;
+		p_page->m_items[slot] = p_page->m_items[src];
+		p_page->m_itemCount = slot + 1;
+	}
+
+	return TRUE;
+}
 
 // FUNCTION: MW2 0x100661ef
 MechS32 FUN_100661ef(MechS32 p_index)
@@ -34,6 +122,45 @@ void FUN_10066241(MechS32 p_formation)
 	g_unk0x100acaf0[0] = 0;
 	SetTeamFormation(g_unk0x100a5918, p_formation);
 	RequestMenuClose(1);
+}
+
+// FUNCTION: MW2 0x100662df
+void FUN_100662df(MenuPage* p_page, MenuItem* p_item)
+{
+	if (!p_page) {
+		return;
+	}
+
+	if (!p_item) {
+		return;
+	}
+
+	p_item->m_unk0x0c = p_page->m_unk0x08;
+}
+
+// Installs FUN_100664cb as the item's text function.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10066314
+void FUN_10066314(MenuPage* p_page, MenuItem* p_item)
+{
+	MenuItemTextFn old;
+	MenuItemTextFn* slot;
+
+	if (!p_page) {
+		return;
+	}
+
+	if (!p_item) {
+		return;
+	}
+
+	slot = p_item->m_unk0x08;
+	if (!slot) {
+		return;
+	}
+
+	old = *slot;
+	*slot = FUN_100664cb;
 }
 
 // FUNCTION: MW2 0x10066369
@@ -100,4 +227,42 @@ void FUN_10066490(MechS32 p_index)
 	}
 
 	RequestMenuClose(1);
+}
+
+// Returns the name of the goal of the item's AI player: a nav, a player or a game thing.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100664cb
+MechChar* FUN_100664cb(undefined4 p_unk0x00, MenuItem* p_item)
+{
+	MechS16 target;
+	Player* player;
+	MechS32 index;
+	MechS16 goal;
+
+	index = FUN_10054ccc(p_item->m_unk0x0c);
+	if (index >= g_playerCount) {
+		return NULL;
+	}
+
+	player = g_players[index];
+	if (player->m_aiState == 5) {
+		return NULL;
+	}
+
+	goal = player->m_aiGoal;
+	target = goal & 0xff;
+	switch (goal & 0xf00) {
+	case 0x100:
+		return g_navTable[target].m_name;
+		break;
+	case 0x400:
+		return (MechChar*) &g_gameThings[target].m_unk0x14;
+		break;
+	case 0x200:
+		return g_players[target]->m_name;
+		break;
+	default:
+		return NULL;
+		break;
+	}
 }

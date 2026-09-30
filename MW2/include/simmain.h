@@ -43,6 +43,8 @@ extern "C"
 	extern MechS32 g_unk0x100bfd60[800];
 	extern MechS32 g_unk0x100c09e0[800];
 	extern const char* g_unk0x100a8680;
+	extern const char* g_unk0x100a869c;
+	extern const char* g_unk0x100a8704;
 	extern const char* g_unk0x100a8684;
 	extern const char* g_unk0x100a8690;
 	extern const char* g_unk0x100a8694;
@@ -73,7 +75,8 @@ extern "C"
 	extern MechS32 g_unk0x100aa2bc;
 	extern MechS32 g_unk0x100c3358;
 	extern MechS32 g_unk0x100ea3e4;
-	extern MechS32 g_currentObjective[64];
+	extern MechS32 g_currentObjective[16];
+	extern MechS32 g_unk0x10138760[48];
 	extern StarMission g_objectiveTable[16];
 	extern MechS32 g_objectiveCount;
 	extern const char* g_unk0x100a86c4;
@@ -103,7 +106,14 @@ extern "C"
 	extern Point g_unk0x100a5ee8[6];
 	extern MechS32 g_unk0x100a6d30;
 	extern undefined4 g_unk0x100a5a24;
+	extern MechS32 g_unk0x100a5a30;
+	extern MechS32 g_unk0x100a5a38;
+	extern MechS32 g_unk0x100b1350;
 	extern undefined4 g_unk0x100a5f18;
+	extern MechS32 g_unk0x100a5f1c;
+	extern MechS32 g_unk0x100a5f20;
+	extern MechS32 g_unk0x100a5f24;
+	extern MechS32 g_unk0x100a5f2c;
 	extern RenderTarget g_unk0x100bdff8;
 	extern RenderTarget g_currentRenderTarget;
 	extern PixelBuffer g_mainPixelBuffer;

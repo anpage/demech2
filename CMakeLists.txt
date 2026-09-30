@@ -436,6 +436,7 @@ demech2_add_dll(mw2
     MW2/src/bwdnames.c
     MW2/src/overlay.c
     MW2/src/speech.c
+    MW2/src/unk10059fc0.c
     MW2/src/cdaudio.c
     MW2/src/cheatcodes.c
     MW2/src/gamekeys.c
@@ -446,6 +447,7 @@ demech2_add_dll(mw2
     MW2/src/unk10065f50.c
     MW2/src/camerashake.c
     MW2/src/simmain.c
+    MW2/src/unk100680a0.c
     MW2/src/mouse.c
     MW2/src/animation.c
     MW2/src/unk100696c0.c
@@ -464,8 +466,11 @@ demech2_add_dll(mw2
     MW2/src/config.c
     MW2/src/startup.c
     MW2/src/mw2log.c
+    MW2/src/unk10071930.c
     MW2/src/prjfile.c
     MW2/src/random.c
+    MW2/src/unk100737e0.c
+    MW2/src/unk10073af0.c
     MW2/src/brightnessmenu.c
     MW2/src/unk100746c0.c
     MW2/src/gifsave.c

@@ -13,6 +13,7 @@ extern "C"
 #endif
 
 	void FUN_1004b5a0(struct Player* p_player, MechS32 p_heading);
+	MechS32 FUN_1004b724(struct Player* p_player);
 
 #ifdef __cplusplus
 }

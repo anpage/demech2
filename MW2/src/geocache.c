@@ -11,15 +11,25 @@
 #include "object.h"
 #include "players.h"
 #include "quietmarsh.h"
+#include "resourceref.h"
 #include "simmain.h"
 #include "soundconfig.h"
 #include "transform.h"
 #include "twilightgrove.h"
 #include "types.h"
 #include "unk1001ce90.h"
+#include "unk1001df00.h"
+#include "unk10034a40.h"
+#include "unk10036230.h"
 #include "unk1003a530.h"
 #include "unk100563d0.h"
+#include "unk1006d680.h"
+#include "unk100737e0.h"
+#include "unk1007f140.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(GeoClass, 0x08)
@@ -95,8 +105,16 @@ MechS32 g_blockStack[32];
 // GLOBAL: MW2 0x1010b610
 MechS32 g_unk0x1010b610;
 
+// The shapes FUN_10020d51 shows for the blocks' boxes.
+// GLOBAL: MW2 0x1010b620
+ScarletOrchid0x4c* g_unk0x1010b620[32];
+
 // GLOBAL: MW2 0x1010b6a0
 MechS32 g_unk0x1010b6a0;
+
+// Whether FUN_10020d51 shows the blocks' boxes.
+// GLOBAL: MW2 0x1010b6a4
+MechS32 g_unk0x1010b6a4;
 
 // GLOBAL: MW2 0x1010b6a8
 MechS32 g_unk0x1010b6a8;
@@ -440,11 +458,91 @@ void FUN_100201c1(MechS32 p_index, MechU32 p_unk0x0c)
 	entry->m_unk0x0c |= (p_unk0x0c << 12) & 0xf000;
 }
 
-// STUB: MW2 0x10020292
+// Links cache entry p_index to its game thing and to the entry that replaces it when the thing is
+// destroyed (FUN_10020292), which stays unloaded (0x800) until then.
+// Stack-slot permutation; p_index >= g_unk0x100a3874 compares in the other operand order.
+// FUNCTION: MW2 0x100201fe
+void FUN_100201fe(MechS32 p_index, MechS32 p_replacement, MechS32 p_thing)
+{
+	HollowSpire0x7c* replacement;
+	HollowSpire0x7c* entry;
+
+	if (p_index < 0 || p_index >= g_unk0x100a3874) {
+		return;
+	}
+
+	entry = &g_unk0x1010c630[p_index];
+	entry->m_unk0x0c |= 0x400;
+	entry->m_unk0x10 |= 0x200;
+	entry->m_unk0x14 = (MechS16) p_replacement;
+	entry->m_unk0x18 = (MechS16) p_thing;
+	if (p_replacement > -1) {
+		replacement = &g_unk0x1010c630[p_replacement];
+		replacement->m_unk0x0c |= 0x800;
+		FUN_100204e8();
+	}
+}
+
+// Destroys the game thing of cache entry p_index: marks both (0x200 and 0x800, 4), frees its shape
+// and loads the entry that replaces it (m_unk0x14) where the old object was. Returns the
+// replacement's index, or -1.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10020292
 MechS32 FUN_10020292(MechS32 p_index)
 {
-	STUB(0x10020292);
-	return -1;
+	Matrix matrix;
+	MechS32 replacement;
+	struct AmberWillow0x7c* obj;
+	HollowSpire0x7c* entry;
+	ScarletOrchid0x4c* shape;
+	GameThing* thing;
+
+	obj = NULL;
+	entry = &g_unk0x1010c630[p_index];
+	if (entry->m_unk0x18 == -1) {
+		return -1;
+	}
+
+	thing = &g_gameThings[entry->m_unk0x18];
+	entry->m_unk0x0c |= 0x200;
+	entry->m_unk0x0c |= 0x800;
+	thing->m_unk0x00 |= 4;
+	thing->m_unk0x04 = -1;
+	FUN_1002015f(p_index);
+	shape = entry->m_unk0x1c;
+	if (shape) {
+		obj = entry->m_unk0x20;
+		if (obj) {
+			matrix = *FUN_10001e01(obj);
+		}
+
+		FUN_1003b78b(shape);
+		entry->m_unk0x1c = NULL;
+		entry->m_unk0x20 = NULL;
+	}
+
+	replacement = entry->m_unk0x14;
+	if (replacement != -1) {
+		entry = &g_unk0x1010c630[replacement];
+		entry->m_unk0x0c &= ~0x800;
+		if (FUN_10020704(replacement, entry->m_unk0x04)) {
+			obj = entry->m_unk0x20;
+			if (obj) {
+				FUN_10001de6(obj, &matrix);
+			}
+
+			FUN_10020190(replacement);
+			if (obj) {
+				FUN_10001c3f(obj);
+			}
+		}
+		else {
+			entry->m_unk0x0c &= 0x800;
+			replacement = -1;
+		}
+	}
+
+	return replacement;
 }
 
 // Marks p_thing's cache entry (flag 0x200) and has FUN_10020292 replace it. When the replacement's
@@ -481,6 +579,28 @@ void FUN_10020429(GameThing* p_thing)
 void FUN_100204e8(void)
 {
 	STUB(0x100204e8);
+}
+
+// Returns whether the cache is full: no entry is free (resource -1).
+// FUNCTION: MW2 0x10020684
+MechS32 FUN_10020684(void)
+{
+	MechS32 i;
+	MechS32 found;
+
+	found = FALSE;
+	for (i = 0; i < g_unk0x100a3874 && !found; i++) {
+		if (g_unk0x1010c630[i].m_unk0x00 == -1) {
+			found = TRUE;
+		}
+	}
+
+	if (found) {
+		return FALSE;
+	}
+	else {
+		return TRUE;
+	}
 }
 
 // STUB: MW2 0x10020704
@@ -563,10 +683,218 @@ void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	}
 }
 
-// STUB: MW2 0x10021314
-void FUN_10021314(MechS32 p_index)
+// Shows the static blocks' boxes (the "unitbox" model scaled to each), or frees them when they are
+// shown. Returns whether any is shown.
+// Stack-slot permutation; the loop tests compare in the other operand order.
+// FUNCTION: MW2 0x10020d51
+MechS32 FUN_10020d51(void)
 {
-	STUB(0x10021314);
+	MechS32 result;
+	MechS32 size;
+	ResourceRef* ref;
+	MechS32 dz;
+	MechS32 dy;
+	MechS32 dx;
+	MechS32 scaleZ;
+	MechS32 scaleY;
+	MechS32 scaleX;
+	MechS32 offset;
+	ScarletOrchid0x4c* shape;
+	QuietMarsh0x7c* block;
+	MechS32 i;
+	ResourceRef local;
+	Matrix matrix;
+	MechU8* data;
+	FILE* file;
+
+	result = FALSE;
+	if (!g_unk0x1010b6a4) {
+		g_unk0x1010b6a4 = TRUE;
+		ref = &local;
+		ref->m_id = -1;
+		strncpy(ref->m_name, "unitbox", 12);
+		ref->m_name[12] = '\0';
+		data = FUN_10073922(ref, g_unk0x100a869c, g_unk0x100a8704, 1, &size, NULL);
+		if (data) {
+			for (i = 0; i < g_unk0x100a387c; i++) {
+				block = &g_unk0x1010b6b0[i];
+				if (block->m_unk0x0c == block->m_unk0x00) {
+					continue;
+				}
+
+				dx = block->m_unk0x0c - block->m_unk0x00;
+				dy = block->m_unk0x10 - block->m_unk0x04;
+				dz = block->m_unk0x14 - block->m_unk0x08;
+				dx = abs(dx);
+				dy = abs(dy);
+				dz = abs(dz);
+				scaleX = (dx + 9) / 10;
+				scaleY = (dy + 9) / 10;
+				scaleZ = (dz + 9) / 10;
+				SetShapeScale(scaleX, scaleY, scaleZ);
+				SetShapeFlags(0);
+				offset = 0;
+				g_unk0x1010b620[i] = LoadShapes(data, &offset, size, NULL);
+				shape = g_unk0x1010b620[i];
+				if (shape) {
+					result = TRUE;
+					FUN_10034a40(shape, 4);
+					FUN_1000e2b9(&matrix, 0, 0, 0, block->m_unk0x18, block->m_unk0x1c, block->m_unk0x20);
+					FUN_1000dbba(&block->m_unk0x48, &matrix, &matrix);
+					FUN_10039c36(shape, &matrix);
+					FUN_1006d732(shape);
+				}
+			}
+
+			if (ref->m_id == -1) {
+				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
+			}
+			else {
+				FUN_1001a163(ref->m_id, g_unk0x100a869c);
+			}
+		}
+		else {
+			file = fopen("symlog.txt", "a");
+			if (file) {
+				fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_unk0x100a869c);
+			}
+
+			fclose(file);
+		}
+	}
+	else {
+		g_unk0x1010b6a4 = FALSE;
+		result = TRUE;
+		for (i = 0; i < g_unk0x100a387c; i++) {
+			if (g_unk0x1010b620[i]) {
+				FUN_1003b78b(g_unk0x1010b620[i]);
+				g_unk0x1010b620[i] = NULL;
+			}
+		}
+	}
+
+	return result;
+}
+
+// Loads the "unitbox" model into every box of the tree p_root.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10021067
+void FUN_10021067(AzureThicket0x2c* p_root)
+{
+	MechS32 size;
+	ResourceRef* ref;
+	ResourceRef local;
+	MechU8* data;
+	FILE* file;
+
+	ref = &local;
+	ref->m_id = -1;
+	strncpy(ref->m_name, "unitbox", 12);
+	ref->m_name[12] = '\0';
+	data = FUN_10073922(ref, g_unk0x100a869c, g_unk0x100a8704, 1, &size, NULL);
+	if (data) {
+		FUN_1002116a(p_root, data, size);
+		if (ref->m_id == -1) {
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
+		}
+		else {
+			FUN_1001a163(ref->m_id, g_unk0x100a869c);
+		}
+	}
+	else {
+		file = fopen("symlog.txt", "a");
+		if (file) {
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_unk0x100a869c);
+		}
+
+		fclose(file);
+	}
+}
+
+// Loads model p_data scaled to the box of p_node at its center, then to its children's.
+// Stack-slot permutation; the original loads m_unk0x14 first in z's sum (commutative operand order).
+// FUNCTION: MW2 0x1002116a
+void FUN_1002116a(AzureThicket0x2c* p_node, MechU8* p_data, MechS32 p_size)
+{
+	MechS32 result;
+	MechS32 dz;
+	MechS32 dy;
+	MechS32 dx;
+	MechS32 scaleZ;
+	MechS32 scaleY;
+	MechS32 scaleX;
+	MechS32 offset;
+	MechS32 x;
+	ScarletOrchid0x4c* shape;
+	MechS32 z;
+	MechS32 i;
+	MechS32 y;
+	Matrix matrix;
+
+	result = FALSE;
+	if (!p_node) {
+		return;
+	}
+
+	dx = p_node->m_unk0x04 - p_node->m_unk0x00;
+	dy = p_node->m_unk0x0c - p_node->m_unk0x08;
+	dz = p_node->m_unk0x14 - p_node->m_unk0x10;
+	dx = abs(dx);
+	dy = abs(dy);
+	dz = abs(dz);
+	scaleX = (dx + 9) / 10;
+	scaleY = (dy * 2 + 18) / 10;
+	scaleZ = (dz + 9) / 10;
+	SetShapeScale(scaleX, scaleY, scaleZ);
+	SetShapeFlags(4);
+	offset = 0;
+	shape = LoadShapes(p_data, &offset, p_size, NULL);
+	if (shape) {
+		result = TRUE;
+		FUN_10034a40(shape, 4);
+		x = (p_node->m_unk0x04 + p_node->m_unk0x00) >> 1;
+		y = (p_node->m_unk0x08 + p_node->m_unk0x0c) >> 1;
+		z = (p_node->m_unk0x14 + p_node->m_unk0x10) >> 1;
+		FUN_1000e2b9(&matrix, 0, 0, 0, x, y, z);
+		FUN_10039c36(shape, &matrix);
+		FUN_1006d732(shape);
+	}
+
+	for (i = 0; i < 4; i++) {
+		FUN_1002116a(p_node->m_children[i], p_data, p_size);
+	}
+}
+
+// Frees cache entry p_index and, first, every entry hanging from it, zeroing its game thing.
+// Returns whether p_index is an entry.
+// Stack-slot permutation; the loop test compares in the other operand order.
+// FUNCTION: MW2 0x10021314
+MechS32 FUN_10021314(MechU32 p_index)
+{
+	MechS32 result;
+	MechU32 thing;
+	MechS32 i;
+	HollowSpire0x7c* entry;
+
+	result = FALSE;
+	for (i = 0; i < g_unk0x100a3874; i++) {
+		if (g_unk0x1010c630[i].m_unk0x08 == p_index) {
+			FUN_10021314(i);
+		}
+	}
+
+	if (p_index < 0x402) {
+		entry = &g_unk0x1010c630[p_index];
+		thing = entry->m_unk0x18;
+		if (thing < 0xfe) {
+			ZeroGameThing(thing);
+		}
+
+		FUN_1001feef(p_index);
+		result = TRUE;
+	}
+
+	return result;
 }
 
 // Frees a scene object tree, and the shapes on it when the object has one.

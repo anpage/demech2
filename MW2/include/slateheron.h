@@ -22,7 +22,7 @@ typedef struct SlateHeron0x68 {
 	MechS32 m_unk0x4c;                       // 0x4c — FUN_100368e8 sets it when the display detail is low
 	MechU32 m_unk0x50;                       // 0x50 — render features switched off (FUN_10036891)
 	void (*m_frameDrawCallback)(void);       // 0x54
-	void (*m_unk0x58)();                     // 0x58
+	MechS32 (*m_unk0x58)();                  // 0x58 — a shape filter: nonzero skips the shape
 	void (*m_unk0x5c)();                     // 0x5c
 	undefined4 m_unk0x60;                    // 0x60
 	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags); // 0x64

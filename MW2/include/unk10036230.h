@@ -42,6 +42,7 @@ extern "C"
 	void FUN_1003763b(RenderTarget* p_target, MechS32 p_unk0x04, MechS32 p_count, MechU32* p_points);
 	void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix);
 	void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix);
+	void FUN_10039c36(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix);
 	MechS32 FUN_10039c96(
 		MechS32 p_normalX,
 		MechS32 p_normalY,

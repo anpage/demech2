@@ -92,13 +92,22 @@ void FUN_10042195(void)
 }
 
 // STUB: MW2 0x10042206
-void FUN_10042206(void)
+MechS32 FUN_10042206(ScarletOrchid0x4c* p_shape)
 {
 	STUB(0x10042206);
+	return 0;
 }
 
 // STUB: MW2 0x100423b3
 void FUN_100423b3(void)
 {
 	STUB(0x100423b3);
+}
+
+// Projects the world point p_point to the map view in place. Returns whether it lies in the view.
+// STUB: MW2 0x1004251e
+MechS32 FUN_1004251e(MapPoint* p_point)
+{
+	STUB(0x1004251e);
+	return 0;
 }

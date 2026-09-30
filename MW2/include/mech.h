@@ -33,7 +33,7 @@ typedef struct Mech {
 	undefined m_unk0x50[0x54 - 0x50];     // 0x50
 	WeaponSlot* m_weapons;                // 0x54 — ten
 	MechSection* m_sections;              // 0x58 — the eight sections
-	undefined m_unk0x5c[0x60 - 0x5c];     // 0x5c
+	void* m_unk0x5c;                      // 0x5c — the rest of the allocation, after the sections
 	struct AmberWillow0x7c* m_unk0x60;    // 0x60
 	struct AmberWillow0x7c* m_unk0x64;    // 0x64
 	struct AmberWillow0x7c* m_objects[9]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets

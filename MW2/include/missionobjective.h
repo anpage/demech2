@@ -30,7 +30,10 @@ typedef struct MissionObjective {
 	undefined m_unk0x75[0x79 - 0x75];   // 0x75
 	MechS32 m_requiredCount;            // 0x79 — how many targets must be done; 0 for all of them
 	MechS32 m_unk0x7d;                  // 0x7d
-	undefined m_unk0x81[0xad - 0x81];   // 0x81
+	MechS32 m_successSpeech;            // 0x81 — a sound resource, announced when successful
+	MechS32 m_failSpeech;               // 0x85 — when failed
+	MechChar m_successSound[0x10];      // 0x89 — a sound file, loaded by FUN_100073bb
+	MechChar m_failSound[0xad - 0x99];  // 0x99
 	MechChar m_name[0xee - 0xad];       // 0xad
 	MechU8 m_targetCount;               // 0xee
 	MechU16 m_targets[40];              // 0xef — AI target ids

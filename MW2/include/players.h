@@ -14,6 +14,7 @@
 #include "vector3.h"
 
 struct AmberWillow0x7c;
+struct ScarletOrchid0x4c;
 typedef struct Player Player;
 
 typedef void (*PlayerMechFn)(Mech* p_mech);
@@ -28,7 +29,7 @@ struct Player {
 	MechS32 m_slot;                           // 0x0c — the player's place in its team's formation
 	MechS32 m_unk0x10;                        // 0x10 — 2 for an AI-driven player
 	MechS16 m_flags;                          // 0x14
-	undefined2 m_unk0x16;                     // 0x16
+	MechS16 m_unk0x16;                        // 0x16 — a bit per team that reached it
 	MechS32 m_unk0x18;                        // 0x18 — a level of FUN_1001ce90's shapes
 	MechS32 m_unk0x1c;                        // 0x1c
 	Mech* m_mech;                             // 0x20
@@ -94,20 +95,20 @@ struct Player {
 	MechS32 m_nav;                            // 0x16a — a nav target id the AI placed, or 0x1000
 	MechS16 m_unk0x16e;                       // 0x16e
 	MechS16 m_unk0x170;                       // 0x170
-	undefined2 m_unk0x172;                    // 0x172
+	MechS16 m_unk0x172;                       // 0x172 — the previous maneuver, or -1
 	MechS32 m_unk0x174;                       // 0x174
 	MechS32 m_unk0x178;                       // 0x178
-	undefined4 m_unk0x17c;                    // 0x17c
+	MechS32 m_unk0x17c;                       // 0x17c — a clock time
 	MechS32 m_unk0x180;                       // 0x180
-	undefined4 m_unk0x184;                    // 0x184
-	MechU16* m_unk0x188;                      // 0x188
+	MechS32 m_unk0x184;                       // 0x184
+	struct ScarletOrchid0x4c* m_unk0x188;     // 0x188 — a shape
 	undefined m_unk0x18c[0x190 - 0x18c];      // 0x18c
 	MechS16 m_unk0x190;                       // 0x190
 	undefined m_unk0x192[0x196 - 0x192];      // 0x192
 	MechS32 m_unk0x196;                       // 0x196
 	MechS32 m_unk0x19a;                       // 0x19a — the target distance at the last FUN_10016093
 	MechU32 m_unk0x19e;                       // 0x19e
-	undefined m_unk0x1a2[0x1aa - 0x1a2];      // 0x1a2
+	MechS8 m_unk0x1a2[8];                     // 0x1a2 — the formation places around it that are taken
 };
 
 #pragma pack(pop)

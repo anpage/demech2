@@ -223,6 +223,11 @@ void FUN_1005005e(
 // GLOBAL: MW2 0x100a8628
 MechS32 g_unk0x100a8628 = 0;
 
+// CreateObjectNode's ".wtb", defined here until that function is decompiled: reccmp pairs identical
+// strings in address order, and this one comes before the resource type table's.
+// GLOBAL: MW2 0x100a8658
+MechChar g_unk0x100a8658[] = ".wtb";
+
 // The original loads p_id first; the operand order follows the symbol table.
 // FUNCTION: MW2 0x100500c3
 MechS32 MapResourceId(MechS32 p_id)

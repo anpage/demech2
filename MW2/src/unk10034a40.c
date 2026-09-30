@@ -11,6 +11,8 @@
 #include "unk100699a0.h"
 #include "unk1006d680.h"
 
+#include <stdlib.h>
+
 DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 
 // The collision tests of each shape type (ScarletOrchid0x4c::m_unk0x24).
@@ -461,10 +463,54 @@ MechS32 FUN_100354d3(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, Ray* p_ray
 	return 0;
 }
 
+// Tests whether the point (p_x, p_y, p_z) lies within the face, projected on the plane its normal
+// is closest to.
+// The comparisons with nz run in the other operand order (an effective match).
+// FUNCTION: MW2 0x10035722
+MechS32 FUN_10035722(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+{
+	MechS32 nx;
+	MechS32 ny;
+	MechS32 nz;
+
+	if (p_face->m_unk0x02 < 3) {
+		return FALSE;
+	}
+
+	nx = abs(p_face->m_normal[0]);
+	ny = abs(p_face->m_normal[1]);
+	nz = abs(p_face->m_normal[2]);
+	if (ny > nx && ny > nz) {
+		return FUN_100357f8(p_face, p_vertices, p_x, p_z);
+	}
+	else if (nz < nx) {
+		return FUN_10035ebe(p_face, p_vertices, p_y, p_z);
+	}
+	else {
+		return FUN_10035b5b(p_face, p_vertices, p_x, p_y);
+	}
+}
+
 // Tests whether (p_x, p_z) lies within the face, seen from above.
 // STUB: MW2 0x100357f8
 MechS32 FUN_100357f8(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_z)
 {
 	STUB(0x100357f8);
+	return 0;
+}
+
+// Tests whether (p_x, p_y) lies within the face, seen along z.
+// STUB: MW2 0x10035b5b
+MechS32 FUN_10035b5b(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_y)
+{
+	STUB(0x10035b5b);
+	return 0;
+}
+
+// Tests whether (p_y, p_z) lies within the face, seen along x.
+// STUB: MW2 0x10035ebe
+MechS32 FUN_10035ebe(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_y, MechS32 p_z)
+{
+	STUB(0x10035ebe);
 	return 0;
 }
