@@ -3,6 +3,7 @@
 
 #include "decomp.h"
 #include "mechsection.h"
+#include "ramp.h"
 #include "types.h"
 #include "weaponslot.h"
 
@@ -15,13 +16,9 @@ struct Player;
 // SIZE 0x10e
 typedef struct Mech {
 	struct Player* m_player;              // 0x00
-	MechS32 m_unk0x04;                    // 0x04
-	MechS32 m_unk0x08;                    // 0x08
-	MechS32 m_unk0x0c;                    // 0x0c
-	undefined m_unk0x10[0x18 - 0x10];     // 0x10
-	MechS32 m_unk0x18;                    // 0x18
-	MechS32 m_unk0x1c;                    // 0x1c
-	undefined m_unk0x20[0x28 - 0x20];     // 0x20
+	Ramp m_unk0x04;                       // 0x04 — the torso twist (FUN_1005a203)
+	Ramp m_unk0x14;                       // 0x14 — the torso pitch (FUN_1005a203)
+	undefined m_unk0x24[0x28 - 0x24];     // 0x24
 	MechS32 m_unk0x28;                    // 0x28
 	MechS32 m_unk0x2c;                    // 0x2c
 	undefined m_unk0x30[0x38 - 0x30];     // 0x30

@@ -50,6 +50,14 @@ extern "C"
 	extern const char* g_unk0x100a8694;
 	extern const char* g_unk0x100a8698;
 	extern const char* g_unk0x100a86a0;
+	extern const char* g_unk0x100a86a4;
+	extern const char* g_unk0x100a86a8;
+	extern const char* g_unk0x100a86ac;
+	extern const char* g_unk0x100a86b0;
+	extern const char* g_unk0x100a870c;
+	extern const char* g_unk0x100a8710;
+	extern const char* g_unk0x100a8714;
+	extern const char* g_unk0x100a8718;
 	extern const char* g_unk0x100a86bc;
 	extern char g_unk0x100a87c0[];
 	extern MechS32 g_unk0x100e9340;
@@ -67,6 +75,7 @@ extern "C"
 	extern MechS32 g_unk0x100a23ec;
 	extern MechS32 g_unk0x100a2408;
 	extern MechS32 g_unk0x100a241c;
+	extern MechS8 g_unk0x100a2448;
 	extern MechS32 g_unk0x100a243c;
 	extern MechS32 g_unk0x100a2440;
 	extern MechS32 g_unk0x100a2444;
@@ -108,6 +117,7 @@ extern "C"
 	extern RenderTarget g_unk0x100a5a68[5];
 	extern RenderTarget g_unk0x100adf58;
 	extern void* g_unk0x100a5bb8[4];
+	extern RenderTarget g_unk0x100a5cf8[15];
 	extern Point g_unk0x100a5ee8[6];
 	extern MechS32 g_unk0x100a6d30;
 	extern undefined4 g_unk0x100a5a24;

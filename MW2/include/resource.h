@@ -1,6 +1,7 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#include "missiontable.h"
 #include "types.h"
 
 // The functions and globals of resource.c that other units use.
@@ -8,6 +9,9 @@
 extern "C"
 {
 #endif
+
+	extern MissionTable* g_missionTables[16];
+	extern MechS32 g_missionTableCounts[16];
 
 	void FUN_1004fd55(void);
 	MechS32 MapResourceId(MechS32 p_id);

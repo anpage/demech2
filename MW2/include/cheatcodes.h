@@ -13,6 +13,7 @@ extern "C"
 
 	MechS32 FUN_1005b7c0(MechS16 p_key);
 	MechS32 FUN_1005b807(MechChar* p_code);
+	void FUN_1005bf7c(MechChar* p_char);
 
 #ifdef __cplusplus
 }

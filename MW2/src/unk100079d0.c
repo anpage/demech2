@@ -30,7 +30,7 @@ void FUN_10007cb5(Mech* p_mech)
 		return;
 	}
 
-	heading = (p_mech->m_player->m_heading + 0x1680000 + p_mech->m_unk0x0c) % 0x1680000;
+	heading = (p_mech->m_player->m_heading + 0x1680000 + p_mech->m_unk0x04.m_value) % 0x1680000;
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 

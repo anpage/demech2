@@ -394,7 +394,12 @@ demech2_add_dll(mw2
     MW2/src/cmdline.c
     MW2/src/geocache.c
     MW2/src/unk10021460.c
+    MW2/src/codeblock.c
+    MW2/src/unk10033280.c
     MW2/src/unk100335d0.c
+    MW2/src/unk10034990.c
+    MW2/src/unk100349c0.c
+    MW2/src/unk100349f0.c
     MW2/src/unk10034a40.c
     MW2/src/unk10036230.c
     MW2/src/logwindow.c
@@ -465,7 +470,6 @@ demech2_add_dll(mw2
     MW2/src/gdi.c
     MW2/src/unk1006e970.c
     MW2/src/timedoverlays.c
-    MW2/src/unk1006f480.c
     MW2/src/config.c
     MW2/src/startup.c
     MW2/src/mw2log.c
@@ -482,6 +486,7 @@ demech2_add_dll(mw2
     MW2/src/refreshmode.c
     MW2/src/directdraw.c
     MW2/src/inputmap.c
+    MW2/src/unk1007b930.c
     MW2/src/clock.c
     MW2/src/unk1007d120.c
     MW2/src/callbacks.c

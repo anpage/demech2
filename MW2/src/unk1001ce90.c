@@ -39,7 +39,7 @@ MechS32 FUN_1001ce90(Player* p_player)
 		}
 	}
 
-	buffer = StaticPoolAlloc(FUN_100023a8() * count & 0xffff, g_unk0x100a9430);
+	buffer = StaticPoolAlloc(FUN_100023a8() * count & 0xffff, g_staticPoolTags[2]);
 	if (buffer == NULL) {
 		return 0;
 	}

@@ -67,6 +67,15 @@ extern "C"
 		MechS32 p_radiusY,
 		MechS32 p_color
 	);
+	void GetCosSin(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin);
+	void RotateScalePoint(
+		MechS32* p_point,
+		MechS32* p_result,
+		MechS32* p_origin,
+		MechS32 p_angle,
+		MechS32 p_scaleX,
+		MechS32 p_scaleY
+	);
 	MechS32 FUN_10064d4d(void* p_font);
 	MechS32 FUN_10064d60(void* p_font, MechS32 p_char);
 	MechS32 BlitChar(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_char, void* p_unk0x14);
@@ -161,6 +170,7 @@ extern "C"
 	void FUN_1006031b(MechS32 p_step);
 	void FUN_1006034a(MechS32 p_step);
 	void FUN_1006037c(MechS32 p_step);
+	void FUN_100603ae(void);
 
 #ifdef __cplusplus
 }

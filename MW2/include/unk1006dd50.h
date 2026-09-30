@@ -12,9 +12,9 @@ extern "C"
 
 	void FUN_1006dd50(
 		RenderTarget* p_target,
-		MechU16* p_pixels,
-		MechU16 p_width,
-		MechU16 p_height,
+		MechU8* p_pixels,
+		MechS16 p_width,
+		MechS16 p_height,
 		MechS32 p_count,
 		MechU32* p_points,
 		MechS32 p_useLuma,

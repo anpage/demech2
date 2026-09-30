@@ -487,8 +487,8 @@ void FUN_1000ebad(void)
 	g_stateMsg->m_mechUnk0x2c = mech->m_unk0x2c;
 	g_stateMsg->m_mechUnk0x4c = mech->m_unk0x4c;
 	g_stateMsg->m_mechUnk0x38 = mech->m_unk0x38;
-	g_stateMsg->m_mechUnk0x08 = mech->m_unk0x08;
-	g_stateMsg->m_mechUnk0x18 = mech->m_unk0x18;
+	g_stateMsg->m_mechUnk0x08 = mech->m_unk0x04.m_target;
+	g_stateMsg->m_mechUnk0x18 = mech->m_unk0x14.m_target;
 	g_stateMsg->m_flags |= mech->m_unk0xa0 & 0xf;
 	if (mech->m_unk0x10c & 0x80) {
 		g_stateMsg->m_flags |= 0x800;
@@ -666,8 +666,8 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	mech->m_unk0x4c = msg->m_mechUnk0x4c;
 	mech->m_unk0x48 = msg->m_mechUnk0x4c;
 	mech->m_unk0x38 = msg->m_mechUnk0x38;
-	mech->m_unk0x08 = msg->m_mechUnk0x08;
-	mech->m_unk0x18 = msg->m_mechUnk0x18;
+	mech->m_unk0x04.m_target = msg->m_mechUnk0x08;
+	mech->m_unk0x14.m_target = msg->m_mechUnk0x18;
 	mech->m_unk0xa0 = msg->m_flags & 0xf;
 	if (msg->m_flags & 0x800) {
 		mech->m_unk0x10c |= 0x80;

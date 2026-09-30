@@ -1,12 +1,17 @@
 #include "render.h"
 
 #include "decomp.h"
+#include "eyepoint.h"
+#include "fixedmul.h"
 #include "palette.h"
 #include "refreshmode.h"
 #include "rendertarget.h"
 #include "setres.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk10013340.h"
+#include "unk1003a530.h"
+#include "unk1004b980.h"
 #include "unk10065f10.h"
 #include "unk1006d680.h"
 #include "unk1007d120.h"
@@ -189,4 +194,39 @@ undefined4 FUN_10012f14(void)
 void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 {
 	g_unk0x10176eb0 = p_value;
+}
+
+// Draws the shapes of the list p_root that are drawn as dots (flag 0x100 without 0x800, or kind
+// 0x50) as circles of their radius (m_unk0x40), in color 0xf.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100131f1
+void FUN_100131f1(ScarletOrchid0x4c* p_root)
+{
+	MechS32 color;
+	ScarletOrchid0x4c* shape;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 radius;
+	MechS32 radiusY;
+
+	if (!p_root || !p_root->m_unk0x08 || p_root->m_unk0x04 == p_root->m_unk0x08) {
+		return;
+	}
+
+	for (shape = p_root->m_unk0x08; shape; shape = shape->m_unk0x08) {
+		if ((((shape->m_unk0x02 & 0x100) && !(shape->m_unk0x00 & 0x800)) || (shape->m_unk0x02 & 0xf0) == 0x50) &&
+			!g_unk0x100a6cc8.m_unk0x58(shape)) {
+			x = shape->m_unk0x34;
+			y = shape->m_unk0x38;
+			z = shape->m_unk0x3c;
+			radius = shape->m_unk0x40;
+			color = 0xf;
+			if (FUN_1004c11d(&x, &y, &z)) {
+				radius = FUN_10013340(g_eyepoint->m_unk0x94, radius, z);
+				radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
+				DrawEllipse(&g_currentRenderTarget, x, y, radius, radiusY, color);
+			}
+		}
+	}
 }

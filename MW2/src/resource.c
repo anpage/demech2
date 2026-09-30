@@ -2,11 +2,13 @@
 // function's operand order (see there).
 #include "ai.h"
 #include "bwd.h"
+#include "bwdrecord.h"
 #include "bwdstreamkey.h"
 #include "config.h"
 #include "decomp.h"
 #include "error.h"
 #include "loadres.h"
+#include "missiontable.h"
 #include "players.h"
 #include "prjfile.h"
 #include "simmain.h"
@@ -15,7 +17,6 @@
 #include "unk1001ce90.h"
 #include "unk10046750.h"
 #include "unk1004da30.h"
-#include "unk1006f480.h"
 #include "weapons.h"
 
 #include <math.h>
@@ -24,12 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-
-// A BWD record's header. The size counts the whole record, header included.
-typedef struct BwdRecord {
-	MechU32 m_tag;  // 0x00
-	MechU32 m_size; // 0x04
-} BwdRecord;
 
 // A bitmap record: its size and palette-sized data.
 typedef struct BitmapRecord {
@@ -44,12 +39,6 @@ typedef struct ScenarioTable {
 	BwdRecord m_header;       // 0x00
 	MechChar m_names[1][0xc]; // 0x08 — up to the record's end
 } ScenarioTable;
-
-// A mission table: 0x97-byte entries, the first starting with the table's slot.
-typedef struct MissionTable {
-	BwdRecord m_header; // 0x00
-	MechS32 m_slot;     // 0x08
-} MissionTable;
 
 // A path record: the path's name and its waypoints.
 typedef struct PathRecord {
@@ -208,7 +197,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 	MechS32 slot;
 
 	result = FALSE;
-	slot = p_table->m_slot;
+	slot = p_table->m_entries[0].m_slot;
 	if (g_missionTables[slot]) {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_missionTables[slot]);
 	}
@@ -222,7 +211,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 	else {
 		result = TRUE;
 		memcpy(g_missionTables[slot], p_table, p_table->m_header.m_size);
-		g_missionTableCounts[slot] = (g_missionTables[slot]->m_header.m_size - 8) / 0x97;
+		g_missionTableCounts[slot] = (g_missionTables[slot]->m_header.m_size - 8) / sizeof(MissionEntry);
 		FUN_1004da30(g_missionTables[slot]);
 	}
 

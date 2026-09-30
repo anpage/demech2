@@ -1,5 +1,6 @@
 #include "eyepoint.h"
 
+#include "camerashake.h"
 #include "clock.h"
 #include "cockpit.h"
 #include "decomp.h"
@@ -256,6 +257,59 @@ void FUN_10011819(void)
 		if (g_unk0x100a240c == 2) {
 			FUN_1001156a(g_eyepoint, g_unk0x10176f10);
 		}
+	}
+}
+
+// Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
+// the view towards a held glance key (or back ahead once all are released), then places the
+// eyepoint unless the camera is shaking.
+// FUNCTION: MW2 0x10011cb0
+void FUN_10011cb0(void)
+{
+	if (g_unk0x100a2408) {
+		g_unk0x10177030.m_time = g_currentClock;
+		g_unk0x10177030.m_value = 0;
+		g_unk0x10176f80.m_time = g_currentClock;
+		g_unk0x10176f80.m_value = 0;
+		ClearCameraShakeKeys();
+		ApplyCameraFov(0);
+	}
+
+	g_unk0x100a2420 = 1;
+	g_unk0x100a241c = 0;
+	if (g_sinkGlanceLeft) {
+		g_sinkPilotPan = -0x460000;
+	}
+	else if (g_sinkGlanceRight) {
+		g_sinkPilotPan = 0x460000;
+	}
+	else if (g_sinkGlanceUp) {
+		g_sinkPilotTilt = -0x320000;
+	}
+	else if (g_sinkGlanceDown) {
+		g_sinkPilotTilt = 0x280000;
+	}
+	else if (!g_unk0x100a2448) {
+		g_sinkPilotPan = 0;
+		g_sinkPilotTilt = 0;
+	}
+
+	if (!g_sinkGlanceRight && !g_sinkGlanceLeft && !g_sinkGlanceUp && !g_sinkGlanceDown) {
+		g_unk0x100a2448 = 1;
+	}
+	else {
+		g_unk0x100a2448 = 0;
+	}
+
+	if (!UpdateCameraShake()) {
+		FUN_10011e45(
+			&g_eyepoint->m_unk0x10,
+			&g_eyepoint->m_unk0x0c,
+			&g_eyepoint->m_unk0x14,
+			&g_eyepoint->m_unk0x00,
+			&g_eyepoint->m_unk0x04,
+			&g_eyepoint->m_unk0x08
+		);
 	}
 }
 

@@ -128,7 +128,7 @@ MechS32 FUN_10068d10(
 
 	if (p_direct) {
 		luma = g_lumaTables + p_luma * 0x80;
-		FUN_1006dd50(&g_currentRenderTarget, data, width, height, p_count, p_points, useLuma, luma);
+		FUN_1006dd50(&g_currentRenderTarget, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
 	}
 	else {
 		if (useLuma) {

@@ -28,7 +28,7 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 {
 	TimedCallback* callback;
 
-	callback = StaticPoolAlloc(sizeof(TimedCallback), g_unk0x100a9434);
+	callback = StaticPoolAlloc(sizeof(TimedCallback), g_staticPoolTags[3]);
 	if (callback == NULL) {
 		return NULL;
 	}

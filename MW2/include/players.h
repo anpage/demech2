@@ -51,7 +51,8 @@ struct Player {
 	MechS32 m_unk0x64;                        // 0x64
 	MechS32 m_unk0x68;                        // 0x68
 	MechS32 m_unk0x6c;                        // 0x6c — added to the heading for the forward view
-	undefined m_unk0x70[0x78 - 0x70];         // 0x70
+	MechS32 m_unk0x70;                        // 0x70
+	undefined m_unk0x74[0x78 - 0x74];         // 0x74
 	MechS32 m_unk0x78;                        // 0x78
 	MechS32 m_unk0x7c;                        // 0x7c — a player index, or -1
 	MechU32 m_unk0x80;                        // 0x80

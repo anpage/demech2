@@ -188,7 +188,7 @@ MechS32 FUN_1006d340(MechS32 p_player)
 		size += sizeof(PlayerSteering);
 	}
 
-	player = StaticPoolAlloc(size, g_unk0x100a9428);
+	player = StaticPoolAlloc(size, g_staticPoolTags[0]);
 	if (!player) {
 		return FALSE;
 	}

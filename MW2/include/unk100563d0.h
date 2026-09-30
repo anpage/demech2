@@ -18,10 +18,7 @@ extern "C"
 {
 #endif
 
-	extern MechU32 g_unk0x100a9428;
-	extern MechU32 g_unk0x100a942c;
-	extern MechU32 g_unk0x100a9430;
-	extern MechU32 g_unk0x100a9434;
+	extern MechU32 g_staticPoolTags[10];
 
 	MechU32 GetStaticPoolSize(MechS32 p_index);
 	MechS32* FUN_1005640e(char* p_mission);

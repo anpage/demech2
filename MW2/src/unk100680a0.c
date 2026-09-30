@@ -52,7 +52,7 @@ MechS32 FUN_10068772(undefined4 p_unk0x00, Player* p_player)
 
 	p_player->m_mech = NULL;
 	size = FUN_10019a0a();
-	buffer = StaticPoolAlloc(size, g_unk0x100a942c);
+	buffer = StaticPoolAlloc(size, g_staticPoolTags[1]);
 	if (!buffer) {
 		return FALSE;
 	}

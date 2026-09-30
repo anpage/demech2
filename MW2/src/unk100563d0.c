@@ -13,21 +13,11 @@
 
 DECOMP_SIZE_ASSERT(StaticPoolSize, 0x08)
 
-// One of the pool's block tags ("AGP"): players.
+// The pool's block tags, four characters each: players (AGP), mechs (MGP), SEG, TLIS, ADAT, ANTK,
+// ANFL, OBJI, CID and CINS.
 // GLOBAL: MW2 0x100a9428
-MechU32 g_unk0x100a9428 = 0x504741;
-
-// One of the pool's block tags ("MGP"): mechs.
-// GLOBAL: MW2 0x100a942c
-MechU32 g_unk0x100a942c = 0x50474d;
-
-// One of the pool's block tags ("SEG").
-// GLOBAL: MW2 0x100a9430
-MechU32 g_unk0x100a9430 = 0x474553;
-
-// One of the pool's block tags ("TLIS").
-// GLOBAL: MW2 0x100a9434
-MechU32 g_unk0x100a9434 = 0x53494c54;
+MechU32 g_staticPoolTags[10] =
+	{0x504741, 0x50474d, 0x474553, 0x53494c54, 0x54414441, 0x4b544e41, 0x4c464e41, 0x494a424f, 0x444943, 0x534e4943};
 
 // The mission's static memory table, which FUN_1005640e fills.
 // GLOBAL: MW2 0x100e9dc0

@@ -13,7 +13,11 @@ extern "C"
 
 	extern MechS32 g_unk0x100a712c;
 	extern MechS32 g_unk0x100ea820;
+	extern MechS32 g_unk0x100ea824;
+	extern MechS32 g_unk0x100ea828;
 	extern MechS32 g_unk0x100ea82c;
+	extern MechS32 g_unk0x100ea834;
+	extern MechS32 g_unk0x100ea858;
 	extern MechS32 g_unk0x100ea860;
 	extern MechS32 g_unk0x100ea8d0;
 

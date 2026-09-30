@@ -28,6 +28,7 @@ extern "C"
 	void FUN_1001f5cb(void);
 	ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index);
+	MechS32 FindStarIdxById(MechS32 p_id);
 	void ApplyBlockXform(TwilightGrove0x24 p_xform);
 	void FUN_1001fea6(MechS32* p_point);
 	void FUN_1001feef(MechS32 p_index);

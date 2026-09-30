@@ -29,7 +29,7 @@ void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
 }
 
 // STUB: MW2 0x1004c8bd
-void FUN_1004c8bd(MechU32 p_target, undefined4 p_unk0x04, undefined4* p_unk0x08, undefined4 p_unk0x0c)
+void FUN_1004c8bd(MechU32 p_target, undefined4 p_unk0x04, MechS32* p_view, struct AmberWillow0x7c* p_object)
 {
 	STUB(0x1004c8bd);
 }

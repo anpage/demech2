@@ -43,3 +43,24 @@ MechS32 FUN_1005b807(MechChar* p_code)
 
 	return TRUE;
 }
+
+// Turns a typed character into the one its key gives with shift held (the US layout).
+// FUNCTION: MW2 0x1005bf7c
+void FUN_1005bf7c(MechChar* p_char)
+{
+	MechChar shifted[16] = {'<', '_', '>', '?', ')', '!', '@', '#', '$', '%', '^', '&', '*', '(', ':', ':'};
+
+	if (*p_char == '\'') {
+		*p_char = '"';
+	}
+	else if (*p_char >= ',' && *p_char <= ';') {
+		*p_char = shifted[*p_char - ','];
+	}
+	else if (*p_char >= '[' && *p_char <= ']') {
+		*p_char += 0x20;
+	}
+
+	if (*p_char == '`') {
+		*p_char = '~';
+	}
+}

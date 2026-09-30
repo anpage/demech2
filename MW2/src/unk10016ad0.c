@@ -1,5 +1,6 @@
 #include "unk10016ad0.h"
 
+#include "config.h"
 #include "decomp.h"
 #include "mech.h"
 #include "players.h"
@@ -7,7 +8,6 @@
 #include "staticmem.h"
 #include "types.h"
 #include "unk100563d0.h"
-#include "unk1006f480.h"
 #include "weaponslot.h"
 
 DECOMP_SIZE_ASSERT(Mech, 0x10e)
@@ -61,7 +61,7 @@ MechS32 FUN_100197ca(undefined4 p_unk0x00, Player* p_player)
 
 	p_player->m_mech = NULL;
 	size = FUN_10019a0a();
-	buffer = StaticPoolAlloc(size, g_unk0x100a942c);
+	buffer = StaticPoolAlloc(size, g_staticPoolTags[1]);
 	if (!buffer) {
 		return FALSE;
 	}

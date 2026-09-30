@@ -49,6 +49,7 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x10109c30[3];
 	extern MechS32 g_unk0x10109c5c;
 	extern MechS32 g_unk0x10109c60;
 	extern MechS32 g_cockpitLayoutIndex;
