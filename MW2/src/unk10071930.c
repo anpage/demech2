@@ -6,6 +6,8 @@
 #include "eyepoint.h"
 #include "types.h"
 
+/* FUN_10071930's __asm block jumps to a C label, which newer compilers reject: they build a C
+   version instead. */
 #pragma warning(disable : 4102) /* a label only the __asm block jumps to */
 
 // Returns whether the screen point (p_x, p_y) lies below the horizon of p_eyepoint's view.
@@ -28,6 +30,7 @@ MechS32 FUN_10071930(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 	a = p_eyepoint->m_unk0x54.m_rows[0][1];
 	c = p_eyepoint->m_unk0x54.m_rows[1][1];
 	e = p_eyepoint->m_unk0x54.m_rows[2][1];
+#if defined(_MSC_VER) && _MSC_VER < 1100
 	__asm {
 		mov eax, offsetX
 		imul a
@@ -47,6 +50,9 @@ MechS32 FUN_10071930(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 
 below:
 	return TRUE;
+#else
+	return (MechS32) ((__int64) offsetX * a / b) + (MechS32) ((__int64) offsetY * c / d) >= (-e >> 16);
+#endif
 }
 
 // Returns the screen y of the horizon at screen x p_x in p_eyepoint's view.
