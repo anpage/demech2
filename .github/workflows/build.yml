@@ -86,6 +86,13 @@ jobs:
           repository: madebr/msvc410
           path: msvc410
 
+      - name: "Checkout MASM 6.11"
+        uses: actions/checkout@v6
+        with:
+          repository: shengyanli1982/MASM611
+          ref: 36b14330ade0f3347d7bc7ba373304f279c81221
+          path: masm611
+
       - name: "Setup cmake"
         uses: jwlawson/actions-setup-cmake@v2
         with:
@@ -100,8 +107,10 @@ jobs:
           rem takes it from the original MW2SHELL.DLL when that file is present
           rem and otherwise builds without it. The icon is a resource, so
           rem nothing reccmp compares is affected.
+          rem ML.EXE is passed explicitly rather than put on PATH: MASM's BIN
+          rem also holds a 16-bit LINK, LIB and NMAKE.
           call .\msvc410\bin\VCVARS32.BAT x86
-          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles"
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE"
           cmake --build build
 
       - name: Upload Artifact

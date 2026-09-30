@@ -37,6 +37,21 @@ endif()
 
 message(STATUS "MSVC for decompilation: ${MSVC_FOR_DECOMP}")
 
+# The original's hand-written assembly objects are assembled with MASM 6.11 (ML). Pass ML.EXE as
+# CMAKE_ASM_MASM_COMPILER rather than putting MASM's BIN on PATH: it also holds a 16-bit LINK,
+# LIB and NMAKE that would shadow VC++ 4.1's. Other compilers build the units' C stubs instead.
+if (MSVC_FOR_DECOMP)
+  enable_language(ASM_MASM)
+  set(CMAKE_ASM_MASM_FLAGS "/nologo /coff")
+  set(CMAKE_ASM_MASM_FLAGS_DEBUG "/Zi")
+  set(CMAKE_ASM_MASM_FLAGS_RELEASE "")
+  set(CMAKE_ASM_MASM_FLAGS_RELWITHDEBINFO "/Zi")
+  set(CMAKE_ASM_MASM_FLAGS_MINSIZEREL "")
+  set(asm_or_c asm)
+else()
+  set(asm_or_c c)
+endif()
+
 option(DEMECH2_WERROR "Treat warnings as errors" OFF)
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
 
@@ -244,7 +259,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugout.c
     MW2SHELL/src/codeblock.c
     MW2SHELL/src/archivereader.cpp
-    MW2SHELL/src/polyfill.c
+    MW2SHELL/src/polyfill.${asm_or_c}
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/textpages.cpp
     MW2SHELL/src/projectarchive.cpp
@@ -286,7 +301,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/buttonmenu.cpp
     MW2SHELL/MW2SHELL.def
     MW2SHELL/mw2shell.rc
-  COMPILE_OPTIONS "/G5" "/Ob1" "$<$<COMPILE_LANGUAGE:CXX>:/GX>"
+  COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/Ob1>" "$<$<COMPILE_LANGUAGE:CXX>:/GX>"
   LINK_OPTIONS ${mw2shell_link_options}
   LIBRARIES winmm.lib ddraw wail32 smackw32 kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
