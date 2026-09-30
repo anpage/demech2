@@ -1,1 +1,3 @@
-reccmp @ git+https://github.com/isledecomp/reccmp
+# A fork of isledecomp/reccmp: it finds the thunk table of an incremental link in an image without
+# a debug directory (MECH2.EXE).
+reccmp @ git+https://github.com/anpage/reccmp@2b85e50d9828bc1088b3dc577055afa9181f1c8f

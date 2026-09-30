@@ -86,6 +86,8 @@ To verify your build against the original binaries, install the [reccmp](https:/
 pip install -r tools/requirements.txt
 ```
 
+This installs a [fork](https://github.com/anpage/reccmp) pinned to a commit: `MECH2.EXE` was linked incrementally but has no debug directory, and reccmp only looks for the incremental thunks in images that have one.
+
 Create `reccmp-user.yml` in the project root pointing to the original binaries:
 
 ```yaml
