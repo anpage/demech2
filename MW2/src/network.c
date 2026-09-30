@@ -526,19 +526,19 @@ void FUN_1000ebad(void)
 		section = &mech->m_sections[i];
 		switch (i + 1) {
 		case 4:
-			g_stateMsg->m_unk0x09 = section->m_unk0x04;
+			g_stateMsg->m_unk0x09 = section->m_armor[1];
 			break;
 		case 3:
-			g_stateMsg->m_unk0x0d = section->m_unk0x04;
+			g_stateMsg->m_unk0x0d = section->m_armor[1];
 			break;
 		case 2:
-			g_stateMsg->m_unk0x11 = section->m_unk0x04;
+			g_stateMsg->m_unk0x11 = section->m_armor[1];
 			break;
 		default:
 			break;
 		}
 
-		g_stateMsg->m_unk0x15[i] = section->m_unk0x00;
+		g_stateMsg->m_unk0x15[i] = section->m_armor[0];
 		g_stateMsg->m_unk0x35[i] = section->m_unk0x08;
 	}
 
@@ -721,31 +721,31 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	for (i = 0; i < 8; i++) {
 		damage1 = damage2 = 0;
 		section = &mech->m_sections[i];
-		section->m_unk0x00 = msg->m_unk0x15[i];
+		section->m_armor[0] = msg->m_unk0x15[i];
 		section->m_unk0x08 = msg->m_unk0x35[i];
 		switch (i + 1) {
 		case 4:
-			section->m_unk0x04 = msg->m_unk0x09;
+			section->m_armor[1] = msg->m_unk0x09;
 			levels = (section->m_unk0x26 & 0xf0) >> 4;
 			if (levels) {
 				damage2 =
-					15 - ((section->m_unk0x08 + section->m_unk0x04 / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
 			}
 			break;
 		case 3:
-			section->m_unk0x04 = msg->m_unk0x0d;
+			section->m_armor[1] = msg->m_unk0x0d;
 			levels = (section->m_unk0x26 & 0xf0) >> 4;
 			if (levels) {
 				damage2 =
-					15 - ((section->m_unk0x08 + section->m_unk0x04 / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
 			}
 			break;
 		case 2:
-			section->m_unk0x04 = msg->m_unk0x11;
+			section->m_armor[1] = msg->m_unk0x11;
 			levels = (section->m_unk0x26 & 0xf0) >> 4;
 			if (levels) {
 				damage2 =
-					15 - ((section->m_unk0x08 + section->m_unk0x04 / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
 			}
 			break;
 		default:
@@ -754,7 +754,8 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 
 		levels = section->m_unk0x26 & 0xf;
 		if (levels) {
-			damage1 = 15 - ((section->m_unk0x08 + section->m_unk0x00 / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+			damage1 =
+				15 - ((section->m_unk0x08 + section->m_armor[0] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
 		}
 
 		FUN_10002246(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);

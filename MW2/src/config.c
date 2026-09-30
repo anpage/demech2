@@ -95,6 +95,12 @@ void FUN_1006fba3(void)
 	STUB(0x1006fba3);
 }
 
+// STUB: MW2 0x1006fca5
+void FUN_1006fca5(void)
+{
+	STUB(0x1006fca5);
+}
+
 // STUB: MW2 0x1006ff7b
 void FUN_1006ff7b(void)
 {

@@ -52,7 +52,7 @@ struct Player {
 	MechS32 m_unk0x68;                        // 0x68
 	MechS32 m_unk0x6c;                        // 0x6c — added to the heading for the forward view
 	MechS32 m_unk0x70;                        // 0x70
-	undefined m_unk0x74[0x78 - 0x74];         // 0x74
+	MechS32 m_unk0x74;                        // 0x74
 	MechS32 m_unk0x78;                        // 0x78
 	MechS32 m_unk0x7c;                        // 0x7c — a player index, or -1
 	MechU32 m_unk0x80;                        // 0x80
@@ -60,7 +60,7 @@ struct Player {
 	MechS32 m_unk0x88;                        // 0x88
 	MechS32 m_unk0x8c;                        // 0x8c
 	MechS32 m_unk0x90;                        // 0x90
-	undefined m_unk0x94[0x98 - 0x94];         // 0x94
+	MechS32 m_unk0x94;                        // 0x94
 	Ramp m_aimRange;                          // 0x98 — eases towards m_unk0xa8's distance
 	Ramp m_unk0xa8;                           // 0xa8 — the distance the weapons converge at
 	MechS32 m_unk0xb8;                        // 0xb8 — the heading's cosine, 16.16 (FUN_1006831a)

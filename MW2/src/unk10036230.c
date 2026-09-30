@@ -1,5 +1,5 @@
-/* Hand-written assembly: FUN_10038ced, FUN_10039b94, FUN_10039c96 and FUN_1003a05d are C functions
-   with __asm bodies. */
+/* Hand-written assembly: FUN_10038ced, FUN_10039b94, FUN_10039c96, FUN_10039ccc, FUN_1003a05d and
+   FUN_1003a096 are C functions with __asm bodies. */
 #include "unk10036230.h"
 
 #include "compat.h"
@@ -372,11 +372,124 @@ MechS32 FUN_10039c96(
 	return result;
 }
 
-// Returns a distance from (p_x, p_y, p_z) to the shape.
-// STUB: MW2 0x10039ccc
+// Returns an approximate distance from (p_x, p_y, p_z) to the shape's center, (4 * the largest +
+// the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
+// Stack-slot permutation: radius, deltaY and deltaZ.
+// FUNCTION: MW2 0x10039ccc
 MechS32 FUN_10039ccc(struct ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
+#ifdef COMPAT_MODE
 	STUB(0x10039ccc);
+	return 0;
+#else
+	MechS32 result;
+	MechS32 radius;
+	MechS32 deltaX;
+	MechS32 deltaY;
+	MechS32 deltaZ;
+
+	deltaX = p_shape->m_unk0x34 - p_x;
+	deltaY = p_shape->m_unk0x38 - p_y;
+	deltaZ = p_shape->m_unk0x3c - p_z;
+	radius = p_shape->m_unk0x40;
+	result = 0;
+	__asm {
+		mov ebx, radius
+		mov ecx, ebx
+		neg ecx
+		mov eax, deltaX
+		cmp eax, ebx
+		jg jmp_10039d70
+		cmp eax, ecx
+		jl jmp_10039d70
+		mov eax, deltaY
+		cmp eax, ebx
+		jg jmp_10039d70
+		cmp eax, ecx
+		jl jmp_10039d70
+		mov eax, deltaZ
+		cmp eax, ebx
+		jg jmp_10039d70
+		cmp eax, ecx
+		jl jmp_10039d70
+		imul eax
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, deltaX
+		imul eax
+		add ebx, eax
+		adc ecx, edx
+		mov eax, deltaY
+		imul eax
+		add ebx, eax
+		adc ecx, edx
+		mov eax, radius
+		imul eax
+		sub eax, ebx
+		sbb edx, ecx
+		jae jmp_10039d7a
+jmp_10039d70:
+		mov eax, 0x7fffffff
+		jmp done
+jmp_10039d7a:
+		mov eax, deltaX
+		cmp eax, 0
+		jge jmp_10039d88
+		neg eax
+jmp_10039d88:
+		mov ebx, deltaY
+		cmp ebx, 0
+		jge jmp_10039d96
+		neg ebx
+jmp_10039d96:
+		cmp eax, ebx
+		jge jmp_10039da4
+		mov edx, eax
+		mov eax, ebx
+		mov ebx, edx
+jmp_10039da4:
+		mov ecx, deltaZ
+		cmp ecx, 0
+		jge jmp_10039db2
+		neg ecx
+jmp_10039db2:
+		cmp eax, ecx
+		jge jmp_10039dc0
+		mov edx, eax
+		mov eax, ecx
+		mov ecx, edx
+jmp_10039dc0:
+		shl eax, 2
+		add eax, ebx
+		add eax, ecx
+		shr eax, 2
+		mov result, eax
+	}
+
+	return result;
+done:;
+#endif
+}
+
+// The normal of the triangle (p_x0, p_y0, p_z0), (p_x1, p_y1, p_z1), (p_x2, p_y2, p_z2): the cross
+// product of its edges, scaled to 2.29 fixed point; returns the scale's exponent.
+// STUB: MW2 0x10039dda
+MechS32 FUN_10039dda(
+	MechS32 p_x0,
+	MechS32 p_y0,
+	MechS32 p_z0,
+	MechS32 p_x1,
+	MechS32 p_y1,
+	MechS32 p_z1,
+	MechS32 p_x2,
+	MechS32 p_y2,
+	MechS32 p_z2,
+	MechS32* p_nx,
+	MechS32* p_ny,
+	MechS32* p_nz
+)
+{
+	STUB(0x10039dda);
 	return 0;
 }
 
@@ -403,10 +516,90 @@ done:
 	return result;
 }
 
-// Returns the distance along the ray to the shape.
-// STUB: MW2 0x1003a096
+// Returns how far along p_ray it passes closest to the shape's center, less the radius, or
+// 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1003a096
 MechS32 FUN_1003a096(struct ScarletOrchid0x4c* p_shape, Ray* p_ray)
 {
+#ifdef COMPAT_MODE
 	STUB(0x1003a096);
 	return 0;
+#else
+	MechS32 deltaX;
+	MechS32 radius;
+	MechS32 deltaY;
+	MechS32 excess;
+	MechS32 deltaZ;
+	MechS32 t;
+
+	radius = p_shape->m_unk0x40;
+	if (radius <= 0) {
+		return 0x7fffffff;
+	}
+
+	deltaX = p_shape->m_unk0x34 - p_ray->m_x0;
+	deltaY = p_shape->m_unk0x38 - p_ray->m_y0;
+	deltaZ = p_shape->m_unk0x3c - p_ray->m_z0;
+	__asm {
+		mov eax, deltaX
+		imul eax
+		mov ebx, eax
+		mov ecx, edx
+		mov eax, deltaY
+		imul eax
+		add ebx, eax
+		adc ecx, edx
+		mov eax, deltaZ
+		imul eax
+		add ebx, eax
+		adc ecx, edx
+		mov eax, radius
+		imul eax
+		sub ebx, eax
+		sbb ecx, edx
+		jae jmp_1003a11c
+		mov eax, 10
+		jmp done
+jmp_1003a11c:
+		mov excess, ebx
+		mov ebx, p_ray
+		mov eax, deltaX
+		imul dword ptr [ebx + 0x18]
+		mov edi, eax
+		mov esi, edx
+		mov eax, deltaY
+		imul dword ptr [ebx + 0x1c]
+		add edi, eax
+		adc esi, edx
+		mov eax, deltaZ
+		imul dword ptr [ebx + 0x20]
+		add edi, eax
+		adc esi, edx
+		jae jmp_1003a150
+		mov eax, 0x7fffffff
+		jmp done
+jmp_1003a150:
+		mov edx, esi
+		mov eax, edi
+		idiv dword ptr [ebx + 0x30]
+		mov t, eax
+		mov ebx, excess
+		imul eax
+		sub eax, ebx
+		sbb edx, ecx
+		jae jmp_1003a173
+		mov eax, 0x7fffffff
+		jmp done
+jmp_1003a173:
+	}
+
+	if ((t -= radius) < 0)
+	{
+		t = 0;
+	}
+
+	return t >= GetRayLength(p_ray) ? 0x7fffffff : t;
+done:;
+#endif
 }

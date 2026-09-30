@@ -1,8 +1,14 @@
 #include "unk10040b30.h"
 
+#include "blit.h"
+#include "cobaltharbor.h"
 #include "decomp.h"
+#include "environment.h"
 #include "eyepoint.h"
+#include "fixedmul.h"
+#include "geocache.h"
 #include "loadres.h"
+#include "muldiv.h"
 #include "object.h"
 #include "players.h"
 #include "ray.h"
@@ -14,7 +20,45 @@
 #include "unk10013340.h"
 #include "unk1003a530.h"
 #include "unk1004b980.h"
+#include "unk1004d020.h"
 #include "weapons.h"
+
+// The layout of the altimeter and the compass, from their shapes' extents (FUN_10040f91).
+
+// GLOBAL: MW2 0x100be5a0
+static MechS32 g_unk0x100be5a0;
+
+// GLOBAL: MW2 0x100be5a4
+static MechS32 g_unk0x100be5a4;
+
+// GLOBAL: MW2 0x100be5a8
+static MechS32 g_unk0x100be5a8;
+
+// GLOBAL: MW2 0x100be5ac
+static MechS32 g_unk0x100be5ac;
+
+// GLOBAL: MW2 0x100be5b0
+static MechS32 g_unk0x100be5b0;
+
+// GLOBAL: MW2 0x100be5b4
+static MechS32 g_unk0x100be5b4;
+
+// The altimeter's scale: pixels per 16.16 unit of height.
+// GLOBAL: MW2 0x100be5b8
+static MechS32 g_unk0x100be5b8;
+
+// The compass's scale: pixels per degree, 16.16.
+// GLOBAL: MW2 0x100be5bc
+static MechS32 g_unk0x100be5bc;
+
+// GLOBAL: MW2 0x100be5c0
+static MechS32 g_unk0x100be5c0;
+
+// GLOBAL: MW2 0x100be5c4
+static MechS32 g_unk0x100be5c4;
+
+// GLOBAL: MW2 0x100be5c8
+static MechS32 g_unk0x100be5c8;
 
 // Draws the cockpit overlays enabled in the display options: the message boxes, the radar
 // (FUN_100412dd), FUN_100414ab and FUN_10040cbc.
@@ -86,10 +130,163 @@ void FUN_10040bfd(
 	}
 }
 
-// STUB: MW2 0x10040cbc
+// Draws the altimeter: the mech's height, the height of m_player's mark (Player::m_unk0x74) and
+// the height of the target, clamped to the gauge. p_x and p_y go unused.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10040cbc
 void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 {
-	STUB(0x10040cbc);
+	CobaltHarbor0x88* gauge;
+	MechS32 height;
+	Mech* mech;
+	MechS32 x;
+	RenderTarget* target;
+	MechS32 y;
+	MechS32 mark;
+	MechS32 unused;
+	MechS32 shape;
+	MechS32 level;
+
+	gauge = g_unk0x100c3280[23];
+	target = g_unk0x100c3280[23]->m_target;
+	height = p_mech->m_player->m_position.m_y - p_mech->m_unk0xcc;
+	level = (MulDiv64(g_unk0x100be5b8, height - 20100, 100) >> 16) + g_unk0x100a5ed8.m_y;
+	if (g_unk0x100a5ed8.m_y < level) {
+		FUN_10041f06(g_unk0x100a5ed8.m_x, g_unk0x100a5ed8.m_y, 0x115, target);
+	}
+
+	FUN_10041f06(g_unk0x100a5ed8.m_x, level, 7, target);
+	FUN_10041f06(g_unk0x100be5c4, g_unk0x100a5ed8.m_y, 1, target);
+	mark = (MulDiv64(g_unk0x100be5b8, height - p_mech->m_player->m_unk0x74, 100) >> 16) + g_unk0x100a5ed8.m_y;
+	FUN_10041f06(g_unk0x100be5b0, mark, 4, target);
+	if (!(p_mech->m_player->m_targetInfo.m_target & 0xf00) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
+		return;
+	}
+
+	x = g_unk0x100be5b4;
+	if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x200) {
+		mech = g_players[p_mech->m_player->m_targetInfo.m_target & 0xff]->m_mech;
+		y = (MulDiv64(g_unk0x100be5b8, height - (mech->m_player->m_position.m_y - mech->m_unk0xcc), 100) >> 16) +
+			g_unk0x100a5ed8.m_y;
+	}
+	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x400) {
+		FUN_10020c6f(g_gameThings[p_mech->m_player->m_targetInfo.m_target & 0xff].m_unk0x04, &unused, &y, &unused);
+		y = (MulDiv64(g_unk0x100be5b8, height - y, 100) >> 16) + g_unk0x100a5ed8.m_y;
+	}
+	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x100) {
+		y = (MulDiv64(
+				 g_unk0x100be5b8,
+				 height - g_navTable[p_mech->m_player->m_targetInfo.m_target & 0xff].m_position[1],
+				 100
+			 ) >>
+			 16) +
+			g_unk0x100a5ed8.m_y;
+	}
+	else {
+		return;
+	}
+
+	if (y < 0) {
+		y = 0;
+		shape = 0x25;
+		x += g_unk0x100a5ed0;
+	}
+	else if (gauge->m_height < y) {
+		y = gauge->m_height;
+		shape = 0x1c;
+		x += g_unk0x100a5ed0;
+	}
+	else {
+		shape = 0x1f;
+	}
+
+	FUN_10041f73(x, y, shape, target);
+}
+
+// Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
+// its extent plus its id, not by the id it was loaded with.
+// Stack-slot permutation; the second g_unk0x100a5ed0 sum loads its operands in the other order.
+// FUNCTION: MW2 0x10040f91
+void FUN_10040f91(void)
+{
+	void* shape;
+	MechS32 height;
+	MechS32 width;
+	RenderTarget* target;
+
+	target = g_unk0x100c3280[23]->m_target;
+	FUN_10056bc1(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8680, 0);
+	if (shape) {
+		MechS32 extent;
+
+		extent = GetShpFrameExtent(shape, 0);
+		g_unk0x100a5ed0 = extent >> 16;
+		g_unk0x100a5ed4 = extent & 0xffff;
+		FUN_1001a163(extent + 1, g_unk0x100a8680);
+	}
+
+	g_unk0x100be5c4 = g_unk0x100a5ed8.m_x;
+	g_unk0x100be5b0 = g_unk0x100a5ed0 + g_unk0x100be5c4;
+	g_unk0x100be5b4 = g_unk0x100a5ed0 + g_unk0x100be5b0;
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 7, g_unk0x100a8680, 0);
+	if (shape) {
+		MechS32 extent;
+
+		extent = GetShpFrameExtent(shape, 0);
+		width = extent >> 16;
+		height = extent & 0xffff;
+		g_unk0x100a5ed8.m_x -= width;
+		FUN_1001a163(extent + 7, g_unk0x100a8680);
+		g_unk0x100be5b8 = (height << 16) / 0xe8;
+	}
+
+	target = g_unk0x100c3280[24]->m_target;
+	FUN_10056bc1(target, &g_unk0x100a5ee0, &g_unk0x100a5ee0);
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x19, g_unk0x100a8680, 0);
+	if (shape) {
+		MechS32 extent;
+
+		extent = GetShpFrameExtent(shape, 0);
+		width = extent >> 16;
+		height = extent & 0xffff;
+		FUN_1001a163(extent + 0x19, g_unk0x100a8680);
+		g_unk0x100be5bc = (width << 16) / 0x168;
+	}
+
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x13, g_unk0x100a8680, 0);
+	if (shape) {
+		MechS32 extent;
+		MechS32 origin;
+
+		extent = GetShpFrameExtent(shape, 0);
+		origin = FUN_10037526(shape, 0);
+		extent &= 0xffff;
+		origin &= 0xffff;
+		g_unk0x100be5c8 = extent - origin;
+		g_unk0x100be5c0 = origin;
+		FUN_1001a163(extent + 0x13, g_unk0x100a8680);
+	}
+
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x25, g_unk0x100a8680, 0);
+	if (shape) {
+		MechS32 extent;
+
+		extent = GetShpFrameExtent(shape, 0);
+		g_unk0x100be5a0 = extent >> 16;
+		g_unk0x100be5a4 = extent & 0xffff;
+		FUN_1001a163(extent + 0x25, g_unk0x100a8680);
+	}
+
+	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x1f, g_unk0x100a8680, 0);
+	if (shape) {
+		MechS32 extent;
+
+		extent = GetShpFrameExtent(shape, 0);
+		g_unk0x100be5a8 = extent >> 16;
+		g_unk0x100be5ac = extent & 0xffff;
+		FUN_1001a163(extent + 0x1f, g_unk0x100a8680);
+	}
 }
 
 // Returns the positions of the cockpit's message boxes.
@@ -99,10 +296,72 @@ Point* FUN_100412c8(void)
 	return g_unk0x100a5ee8;
 }
 
-// STUB: MW2 0x100412dd
-void FUN_100412dd(Mech* p_mech, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c)
+// Draws the crosshair at the end of the aim ray: for a selected weapon that follows its locked
+// target, the locked shape when the target is in range and within 3 units and 3 degrees of the
+// aim (returns TRUE then); otherwise the lock or guided-state shapes, or 0x67 without a ready
+// weapon.
+// Stack-slot permutation; range > p_unk0x08 compares in the other operand order.
+// FUNCTION: MW2 0x100412dd
+MechS32 FUN_100412dd(Mech* p_mech, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c)
 {
-	STUB(0x100412dd);
+	MechS32 x;
+	MechS32 pitch;
+	MechS32 shape;
+	MechS32 shapeOut;
+	MechS32 shapeIn;
+	WeaponSlot* slot;
+	WeaponDef* def;
+	MechS32 range;
+	MechS32 result;
+	MechS32 y;
+
+	result = FALSE;
+	shape = 0x76;
+	slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
+	def = &g_weaponDefs[slot->m_type];
+	if (slot->m_state == 1) {
+		if (def->m_shotType == 3) {
+			shapeIn = 0x6a;
+			shapeOut = 0x6d;
+		}
+		else {
+			shapeOut = 0x76;
+			shapeIn = 0x73;
+		}
+
+		if (def->m_unk0x18 == 0) {
+			range = 0x30000;
+			pitch = 3;
+			if (p_mech->m_player->m_targetInfo.m_target && !(p_mech->m_player->m_targetInfo.m_target & 0x1100) &&
+				def->m_unk0x3c < p_unk0x0c && def->m_unk0x40 > p_unk0x0c && range > p_unk0x08 && -range < p_unk0x08 &&
+				pitch > p_unk0x04 && -pitch < p_unk0x04) {
+				result = TRUE;
+				shape = shapeIn;
+			}
+			else {
+				shape = shapeOut;
+			}
+		}
+		else if (p_mech->m_unk0x10c & 0x80) {
+			shape = 0x61;
+		}
+		else if (p_mech->m_unk0x10c & 0x8000) {
+			shape = 0x70;
+		}
+		else {
+			shape = 0x6d;
+		}
+	}
+	else {
+		shape = 0x67;
+	}
+
+	if (!FUN_10041998(p_mech, &x, &y)) {
+		return result;
+	}
+
+	FUN_10041e98(x, y, shape);
+	return result;
 }
 
 // Marks the player's target on the screen: a player's or a game thing's mech with its side's
@@ -159,23 +418,128 @@ void FUN_100414ab(Mech* p_mech)
 	}
 }
 
-// STUB: MW2 0x1004161f
+// Draws the compass's aim markers: the torso's offset p_unk0x0c (p_unk0x10 without a target
+// bit 0x100), and for a target the arrows above and below while p_unk0x14 is beyond 3 units.
+// p_x and p_y go unused.
+// Stack-slot permutation; the two y sums load g_unk0x100a5ee0.m_y first (commutative operands).
+// FUNCTION: MW2 0x1004161f
 void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, MechS32 p_unk0x10, MechS32 p_unk0x14)
 {
-	STUB(0x1004161f);
+	CobaltHarbor0x88* gauge;
+	RenderTarget* target;
+	MechS32 x;
+	MechS32 y;
+	MechS32 x2;
+	MechS32 y2;
+
+	gauge = g_unk0x100c3280[24];
+	target = g_unk0x100c3280[24]->m_target;
+	if (!(p_mech->m_player->m_targetInfo.m_target & 0x100)) {
+		p_unk0x0c = p_unk0x10;
+	}
+
+	if (p_mech->m_unk0xbc != 2) {
+		if (!(p_mech->m_player->m_targetInfo.m_target & 0xf00) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
+			return;
+		}
+
+		if (p_unk0x14 > -0x30000) {
+			FUN_10041f73(g_unk0x100a5ee0.m_x, g_unk0x100a5ee0.m_y - g_unk0x100be5a4 - g_unk0x100be5c0, 0x25, target);
+		}
+
+		if (p_unk0x14 < 0x30000) {
+			FUN_10041f73(g_unk0x100a5ee0.m_x, g_unk0x100be5a4 + g_unk0x100a5ee0.m_y + g_unk0x100be5c8, 0x1c, target);
+		}
+	}
+
+	if (p_unk0x0c == 0) {
+		FUN_10041f06(g_unk0x100a5ee0.m_x, g_unk0x100a5ee0.m_y, 0x10, target);
+	}
+	else {
+		FUN_10041f06(g_unk0x100a5ee0.m_x + FixedMul16(g_unk0x100be5bc, p_unk0x0c), g_unk0x100a5ee0.m_y, 0xd, target);
+	}
+
+	if (p_unk0x0c == 0) {
+		FUN_10041f06(g_unk0x100a5ee0.m_x, g_unk0x100a5ee0.m_y, 0x16, target);
+	}
+
+	if (p_unk0x0c > -3) {
+		x = gauge->m_width + g_unk0x100be5a8 - 1;
+		y = g_unk0x100a5ee0.m_y + g_unk0x100be5ac / 2;
+		FUN_10041f73(x, y, 0x22, target);
+		if (p_unk0x0c > 0x5a) {
+			FUN_10041f73(x + 1, y, 0x22, target);
+		}
+	}
+
+	if (p_unk0x0c < 3) {
+		x2 = -g_unk0x100be5a8;
+		y2 = g_unk0x100a5ee0.m_y + g_unk0x100be5ac / 2;
+		FUN_10041f73(x2, y2, 0x1f, target);
+		if (p_unk0x0c < -0x5a) {
+			FUN_10041f73(x2 - 1, y2, 0x1f, target);
+		}
+	}
 }
 
-// STUB: MW2 0x1004183a
+// Draws the compass tape at heading p_unk0x08 (degrees), twice to wrap around, and the turn rate
+// p_unk0x0c as a bar from the center. p_x and p_y go unused.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1004183a
 void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c)
 {
-	STUB(0x1004183a);
+	CobaltHarbor0x88* gauge;
+	MechS32 x2;
+	MechS32 x;
+	MechS32 heading;
+	RenderTarget* target;
+	MechS32 offset;
+
+	gauge = g_unk0x100c3280[24];
+	target = g_unk0x100c3280[24]->m_target;
+	heading = (p_unk0x08 + 360) % 360;
+	x = g_unk0x100a5ee0.m_x + FixedMul16(g_unk0x100be5bc, heading);
+	if (gauge->m_width > x) {
+		x2 = x + FixedMul16(g_unk0x100be5bc, 360);
+	}
+	else {
+		x2 = x - FixedMul16(g_unk0x100be5bc, 360);
+	}
+
+	FUN_10041f06(x, g_unk0x100a5ee0.m_y, 0x19, target);
+	FUN_10041f06(x2, g_unk0x100a5ee0.m_y, 0x19, target);
+	if (p_unk0x0c) {
+		offset = p_unk0x0c;
+		if (offset < 0) {
+			FUN_1004d8ae(
+				target,
+				g_unk0x100a5ee0.m_x + offset,
+				g_unk0x100a5ee0.m_y - g_unk0x100be5c0,
+				-offset,
+				g_unk0x100be5c0,
+				0xf
+			);
+		}
+		else {
+			FUN_1004d8ae(
+				target,
+				g_unk0x100a5ee0.m_x,
+				g_unk0x100a5ee0.m_y - g_unk0x100be5c0,
+				offset,
+				g_unk0x100be5c0,
+				0xf
+			);
+		}
+	}
+
+	FUN_10041f06(g_unk0x100a5ee0.m_x, g_unk0x100a5ee0.m_y, 0x13, target);
 }
 
-// Projects the end of the player's aim ray to the screen: returns FUN_1004c11d's result, and the
-// point in p_x and p_y.
+// Projects the end of the mech's player's aim ray to the screen: returns FUN_1004c11d's result,
+// and the point in p_x and p_y.
 // Stack-slot permutation: result, ray, x, y and z.
 // FUNCTION: MW2 0x10041998
-MechS32 FUN_10041998(Player** p_player, MechS32* p_x, MechS32* p_y)
+MechS32 FUN_10041998(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 {
 	MechS32 result;
 	Ray ray;
@@ -183,8 +547,8 @@ MechS32 FUN_10041998(Player** p_player, MechS32* p_x, MechS32* p_y)
 	MechS32 y;
 	MechS32 x;
 
-	FUN_100463e5(*p_player, &ray);
-	SetRayLength(&ray, FUN_1004635c(*p_player));
+	FUN_100463e5(p_mech->m_player, &ray);
+	SetRayLength(&ray, FUN_1004635c(p_mech->m_player));
 	x = ray.m_x1;
 	y = ray.m_y1;
 	z = ray.m_z1;

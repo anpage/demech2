@@ -15,32 +15,36 @@ typedef MechS32 (*CockpitGaugeFn)();
 
 // The layout of one cockpit view (4: the satellite view).
 typedef struct CockpitLayout {
-	RenderTarget* m_viewport;                // 0x00 — in 16.16 fractions of the screen
-	RenderTarget* m_unk0x04;                 // 0x04 — the viewport, saved while a transition moves it
-	MechS32 m_renderTargetSlot;              // 0x08 — in g_renderTargets
-	undefined4 m_unk0x0c[(0x14 - 0x0c) / 4]; // 0x0c
-	RectTransition* m_transition;            // 0x14
-	MechS32 m_unk0x18;                       // 0x18 — the range the readout shows
-	MechS32 m_unk0x1c;                       // 0x1c — the range it last formatted
-	undefined4 m_unk0x20[(0x30 - 0x20) / 4]; // 0x20
-	MechS32 m_unk0x30;                       // 0x30 — its font, from g_unk0x100e9614
-	undefined4 m_unk0x34[(0x3c - 0x34) / 4]; // 0x34
-	MechChar* m_unk0x3c;                     // 0x3c — the range label
-	MechChar* m_unk0x40;                     // 0x40 — the range text
-	MechChar* m_unk0x44;                     // 0x44 — the heading label
-	MechChar* m_unk0x48;                     // 0x48 — the heading text
-	MechS32 m_unk0x4c;                       // 0x4c — the heading it last formatted
-	MechChar* m_unk0x50;                     // 0x50 — the unit of short ranges
-	MechChar* m_unk0x54;                     // 0x54 — the unit of long ranges
-	Point m_unk0x58;                         // 0x58
-	Point m_unk0x60;                         // 0x60
-	Point m_unk0x68;                         // 0x68
-	MechS32 (*m_icons)[3];                   // 0x70 — SHP ids by row and side: 0 the center, 1 players
-	MechS32* m_colors;                       // 0x74
-	undefined4 m_unk0x78;                    // 0x78
-	CockpitGaugeFn m_gauges[4];              // 0x7c — indices in g_cockpitGauges until loaded; in the
-											 // map view, 1 tests a point, 2 clamps it to the view
-											 // and 3 projects a bearing to its edge
+	RenderTarget* m_viewport;     // 0x00 — in 16.16 fractions of the screen
+	RenderTarget* m_unk0x04;      // 0x04 — the viewport, saved while a transition moves it
+	MechS32 m_renderTargetSlot;   // 0x08 — in g_renderTargets
+	MechS32 m_unk0x0c[2];         // 0x0c — the sounds of entering and leaving the view, -1: none
+	RectTransition* m_transition; // 0x14
+	MechS32 m_unk0x18;            // 0x18 — the range the readout shows
+	MechS32 m_unk0x1c;            // 0x1c — the range it last formatted
+	MechS32 m_unk0x20;            // 0x20 — the range to start at
+	MechS32 m_unk0x24;            // 0x24 — the shortest range
+	MechS32 m_unk0x28;            // 0x28 — the longest range
+	MechS32 m_unk0x2c;            // 0x2c — the zoom: m_unk0x20 over m_unk0x18
+	MechS32 m_unk0x30;            // 0x30 — its font, from g_unk0x100e9614
+	MechChar* m_unk0x34;          // 0x34
+	MechChar* m_unk0x38;          // 0x38
+	MechChar* m_unk0x3c;          // 0x3c — the range label
+	MechChar* m_unk0x40;          // 0x40 — the range text
+	MechChar* m_unk0x44;          // 0x44 — the heading label
+	MechChar* m_unk0x48;          // 0x48 — the heading text
+	MechS32 m_unk0x4c;            // 0x4c — the heading it last formatted
+	MechChar* m_unk0x50;          // 0x50 — the unit of short ranges
+	MechChar* m_unk0x54;          // 0x54 — the unit of long ranges
+	Point m_unk0x58;              // 0x58
+	Point m_unk0x60;              // 0x60
+	Point m_unk0x68;              // 0x68
+	MechS32 (*m_icons)[3];        // 0x70 — SHP ids by row and side: 0 the center, 1 players
+	MechS32* m_colors;            // 0x74
+	MechS32* m_unk0x78;           // 0x78
+	CockpitGaugeFn m_gauges[4];   // 0x7c — indices in g_cockpitGauges until loaded; in the
+								  // map view, 1 tests a point, 2 clamps it to the view
+								  // and 3 projects a bearing to its edge
 } CockpitLayout;
 
 // The functions and globals of cockpit.c that other units use.
@@ -55,8 +59,11 @@ extern "C"
 	extern MechS32 g_cockpitLayoutIndex;
 	extern MechS32 g_unk0x10109c68;
 	extern MechS32 g_unk0x10109c6c;
+	extern MechS32 g_unk0x10109c70;
+	extern MechS32 g_unk0x10109c74;
 
 	void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout);
+	void FUN_1003dce8(void);
 	void FUN_1003dd82(void);
 	MechS32 FUN_1003ddd7(void);
 	void FUN_1003e03c(void);
@@ -73,11 +80,16 @@ extern "C"
 	MechS32 FUN_1003ee69(void);
 	void FUN_1003ee92(void);
 	void FUN_1003eeaf(void);
-	void FUN_1003ef07(MechS32 p_unk0x00);
+	void FUN_1003ef07(MechS32 p_zoom);
 	MechS32 FUN_1003f00d(ScarletOrchid0x4c* p_shape);
+	MechU32 FUN_1003f0e7(struct DuskMoth0x24* p_face, undefined4 p_unk0x04, MechU32 p_flags);
+	void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 	MechS32 FUN_1003f513(CockpitLayout* p_layout, MechS32 p_unk0x04);
 	MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_unk0x0c);
+	void FUN_1003f66d(void);
+	void FUN_1003f74e(void);
 	void FUN_1003f8d1(void);
+	void FUN_1003fa05(void);
 	void FUN_1003fad9(void);
 
 #ifdef __cplusplus

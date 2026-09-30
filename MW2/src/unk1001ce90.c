@@ -2,8 +2,12 @@
 
 #include "classentry.h"
 #include "decomp.h"
+#include "eyepoint.h"
+#include "fixedmul.h"
 #include "object.h"
 #include "players.h"
+#include "rendertarget.h"
+#include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
 #include "unk1003a530.h"
@@ -12,6 +16,14 @@
 #include "unk1007f140.h"
 
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
+
+// A player's model level as FUN_1001da44 chooses it.
+// SIZE 0x0c
+typedef struct PlayerDetail {
+	MechS32 m_distance; // 0x00 — from the eyepoint
+	MechS32 m_level;    // 0x04 — -2 until chosen by distance
+	MechS32 m_player;   // 0x08
+} PlayerDetail;
 
 // GLOBAL: MW2 0x100a37d4
 MechS32 g_classEntryCount = 0;
@@ -299,10 +311,112 @@ void FUN_1001da14(MechS32 p_index, MechU16 p_value)
 	entry->m_unk0x20 = p_value;
 }
 
-// STUB: MW2 0x1001da44
+// Chooses each player's model level (Player::m_unk0x1c) by its distance from the eyepoint: the
+// nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
+// The local player's own view (FUN_10011440 == 0) takes level 4, and dead players 0 or 1.
+// Stack-slot permutation; i == g_localPlayerId compares in the other operand order.
+// FUNCTION: MW2 0x1001da44
 void FUN_1001da44(void)
 {
-	STUB(0x1001da44);
+	MechS32 scale;
+	MechS32 third;
+	MechS32 second;
+	MechS32 range1;
+	MechS32 dz;
+	MechS32 best;
+	MechS32 unk0x18;
+	MechS32 level;
+	MechS32 range2;
+	PlayerDetail* entry;
+	MechS32 ex;
+	MechS32 range3;
+	MechS32 ground;
+	MechS32 heading;
+	MechS32 ey;
+	MechS32 range0;
+	MechS32 ez;
+	MechS32 count;
+	MechS32 length;
+	PlayerDetail entries[60];
+	MechS32 i;
+	MechS32 dx;
+	MechS32 nearest;
+	Player* player;
+	MechS32 dy;
+
+	count = 0;
+	nearest = -1;
+	second = -1;
+	third = -1;
+	scale = g_eyepoint->m_unk0xb8;
+	range0 = FixedMul16(scale, 0xe10);
+	range1 = FixedMul16(scale, 0x2134);
+	range2 = FixedMul16(scale, 0x57e4);
+	range3 = FixedMul16(scale, 40000);
+	best = range0;
+	ex = g_eyepoint->m_unk0x00;
+	ey = g_eyepoint->m_unk0x04;
+	ez = g_eyepoint->m_unk0x08;
+	for (i = 0; i < g_playerCount; i++) {
+		entry = &entries[i];
+		entry->m_player = i;
+		player = g_players[i];
+		if (i == g_localPlayerId && !FUN_10011440()) {
+			entry->m_level = 4;
+			entry->m_distance = 0;
+		}
+		else if (player->m_flags & 2) {
+			if (i == g_localPlayerId) {
+				entry->m_level = 0;
+			}
+			else {
+				entry->m_level = 1;
+			}
+		}
+		else {
+			entry->m_level = -2;
+			dx = player->m_position.m_x - ex;
+			dy = player->m_position.m_y - ey;
+			dz = player->m_position.m_z - ez;
+			FUN_10060197(dx, dy, dz, &heading, &length, (MechU32*) &ground, &unk0x18);
+			entry->m_distance = length;
+			if (ground < best) {
+				best = ground;
+				third = second;
+				second = nearest;
+				nearest = i;
+			}
+		}
+	}
+
+	for (i = 0; i < g_playerCount; i++) {
+		entry = &entries[i];
+		if (entry->m_level == -2) {
+			if (entry->m_player == nearest && entry->m_distance < range0) {
+				entry->m_level = 0;
+			}
+			else if (entry->m_player == second || (entry->m_player == third && entry->m_distance < range1)) {
+				count++;
+				entry->m_level = 1;
+			}
+			else if ((second == -1 || third == -1) && entry->m_distance < range1 && count < 3) {
+				count++;
+				entry->m_level = 1;
+			}
+			else if (entry->m_distance < range2) {
+				entry->m_level = 2;
+			}
+			else {
+				entry->m_level = 3;
+			}
+		}
+
+		player = g_players[entry->m_player];
+		level = player->m_unk0x1c;
+		if (entry->m_level >= 0 && entry->m_level != level && FUN_1001d292(player->m_index, entry->m_level)) {
+			player->m_unk0x1c = entry->m_level;
+		}
+	}
 }
 
 // Releases the shape of the entry whose object is p_obj.

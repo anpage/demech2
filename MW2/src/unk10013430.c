@@ -19,7 +19,10 @@
 #include "types.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk10040b30.h"
 #include "unk1004b5a0.h"
+#include "unk1004b980.h"
+#include "weapons.h"
 #include "weaponslot.h"
 
 #include <stdio.h>
@@ -184,10 +187,68 @@ void FUN_10014723(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS1
 	}
 }
 
-// STUB: MW2 0x100147d0
+// Finds the point p_unk0x14 units out in direction p_unk0x04 (of g_unk0x100a2900's 16) from
+// target p_unk0x00, a player (0x200) or a game thing (0x400), in world coordinates; for a player
+// *p_y takes its heading. A game thing without an object is offset from its position.
+// The empty else arms give the original's jmp to the next statement after each offset. The only
+// other diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100147d0
 void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p_z, MechS32* p_y, MechS16 p_unk0x14)
 {
-	STUB(0x100147d0);
+	MechU32 index;
+	MechS32 thing;
+	Matrix* matrix;
+	struct AmberWillow0x7c* obj;
+	MechS32 y;
+
+	y = 0;
+	index = p_unk0x00 & 0xff;
+	switch (p_unk0x00 & 0xf00) {
+	case 0x200:
+		*p_y = g_players[index]->m_heading;
+		obj = g_players[index]->m_obj;
+		break;
+	case 0x400:
+		thing = g_gameThings[index].m_unk0x04;
+		obj = FUN_10020bdd(thing);
+		if (!obj) {
+			FUN_10020c6f(thing, p_x, p_y, p_z);
+			*p_y = 0;
+			if (g_unk0x100a2900[p_unk0x04].m_x) {
+				*p_x += p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_x;
+			}
+			else {
+			}
+
+			if (g_unk0x100a2900[p_unk0x04].m_y) {
+				*p_z += p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_y;
+			}
+			else {
+			}
+
+			return;
+		}
+		break;
+	default:
+		break;
+	}
+
+	if (g_unk0x100a2900[p_unk0x04].m_x) {
+		*p_x = p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_x;
+	}
+	else {
+		*p_x = 0;
+	}
+
+	if (g_unk0x100a2900[p_unk0x04].m_y) {
+		*p_z = p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_y;
+	}
+	else {
+		*p_z = 0;
+	}
+
+	matrix = FUN_10001e01(obj);
+	FUN_1000d650(matrix, p_x, &y, p_z);
 }
 
 // Whether p_turn (16.16 degrees) is a sharp turn, past 5 degrees either way; a stopped player
@@ -917,10 +978,107 @@ ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target)
 	return obj ? obj->m_unk0x6c : NULL;
 }
 
-// STUB: MW2 0x1001632c
+// When p_mech's player fires the weapon in p_slot at another player, the target may dodge: an
+// AI player that sees the shot coming (a guided weapon or type 21, and the target inside its
+// sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
+// (state 4).
+// Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
+// FUNCTION: MW2 0x1001632c
 void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 {
-	STUB(0x1001632c);
+	MechS32 maxAngle;
+	MechS32 index;
+	MechS32 pitch;
+	MechS32 kind;
+	Player* target;
+	MechU32 id;
+	MechS32 bearing;
+	MechS32 x;
+	MechS32 y;
+	MechS32 range;
+	MechS32 sx;
+	MechS32 z;
+	MechS32 sy;
+	ScarletOrchid0x4c* hit;
+	MechS32 heading;
+	Ray ray;
+	MechS16 side;
+	MechS16 j;
+	MechS16 step;
+
+	id = 0;
+	target = NULL;
+	if (!((p_mech->m_player->m_unk0x19e >> 2) & 1) || !RandomIntBelow(3)) {
+		return;
+	}
+
+	if (!g_weaponDefs[p_slot->m_type].m_unk0x18 && p_slot->m_type != 21) {
+		return;
+	}
+
+	if (p_mech->m_player->m_unk0x10 == 2) {
+		id = p_mech->m_player->m_targetInfo.m_target;
+	}
+	else if (p_mech->m_player->m_aiGoal & 0x200) {
+		id = p_mech->m_player->m_aiGoal;
+	}
+	else {
+		id = p_mech->m_player->m_targetInfo.m_target;
+	}
+
+	kind = id & 0xf00;
+	index = id & 0xff;
+	if (!index || kind != 0x200 || g_players[index]->m_unk0x174 == 4) {
+		return;
+	}
+
+	if (p_mech->m_player->m_unk0x10 == 2) {
+		target = g_players[index];
+	}
+
+	if (!target && FUN_10041998(p_mech, &sx, &sy)) {
+		x = g_players[index]->m_position.m_x;
+		y = g_players[index]->m_position.m_y;
+		z = g_players[index]->m_position.m_z;
+		if (FUN_1004c11d(&x, &y, &z)) {
+			range = 0x30000;
+			maxAngle = 15;
+			pitch = p_mech->m_player->m_targetInfo.m_unk0x18 / 0xf00;
+			bearing = (FUN_1005432f(p_mech->m_player) >> 16) % 360;
+			if (pitch < range && -range < pitch && bearing < maxAngle && -maxAngle < bearing) {
+				target = g_players[index];
+			}
+		}
+	}
+
+	if (target && FUN_10016222(target, 0x41)) {
+		if (RandomIntBelow(3)) {
+			heading = FUN_10015dd6(target, p_mech->m_player->m_index);
+			step = FixedDiv16(heading, 0x5a0000) >> 16;
+			if (RandomIntBelow(2)) {
+				side = -1;
+			}
+			else {
+				side = 1;
+			}
+
+			step = ((step + 1) % 4) * 4;
+			for (j = 0; j < 2; j++) {
+				FUN_10015b9f(target, &ray, side, step, 5000, 0);
+				if (!TestSegmentCollision(&ray, &hit, target->m_index)) {
+					target->m_unk0x174 = 11;
+					target->m_unk0x180 = step;
+					break;
+				}
+
+				side = -side;
+			}
+		}
+
+		if (target->m_unk0x174 == 0 && ((target->m_unk0x19e >> 1) & 1)) {
+			target->m_unk0x174 = 4;
+		}
+	}
 }
 
 // Picks p_player's place around its goal player (eight places, 45 degrees apart): the one it is

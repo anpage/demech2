@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include "decomp.h"
+#include "point.h"
 #include "rendertarget.h"
 #include "types.h"
 
@@ -19,7 +20,13 @@ typedef struct MenuDefinition {
 	undefined4 m_unk0x24[(0x2c - 0x24) / 4]; // 0x24
 	MechS32 m_fontId;                        // 0x2c — a FONT resource
 	void* m_font;                            // 0x30
-	undefined4 m_unk0x34[(0x68 - 0x34) / 4]; // 0x34
+	undefined4 m_unk0x34[(0x3c - 0x34) / 4]; // 0x34
+	MechS32 m_unk0x3c;                       // 0x3c — lines, for the line spacing
+	Point m_unk0x40;                         // 0x40 — the text origin, in pixels
+	Point m_unk0x48;                         // 0x48 — m_y: half the line spacing
+	Point m_unk0x50;                         // 0x50 — m_y: the line spacing
+	Point m_unk0x58;                         // 0x58 — m_y: the line spacing
+	Point m_unk0x60;                         // 0x60 — m_y: the line spacing
 	undefined4 m_rootPage;                   // 0x68
 } MenuDefinition;
 

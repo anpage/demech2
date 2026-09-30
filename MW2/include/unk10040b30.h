@@ -32,11 +32,13 @@ extern "C"
 		MechS32 p_unk0x1c
 	);
 	void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y);
+	void FUN_10040f91(void);
 	Point* FUN_100412c8(void);
-	void FUN_100412dd(Mech* p_mech, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c);
+	MechS32 FUN_100412dd(Mech* p_mech, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c);
 	void FUN_100414ab(Mech* p_mech);
 	void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, MechS32 p_unk0x10, MechS32 p_unk0x14);
 	void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c);
+	MechS32 FUN_10041998(Mech* p_mech, MechS32* p_x, MechS32* p_y);
 	void FUN_10041a14(struct Player* p_player, MechS32 p_side);
 	void FUN_10041c3c(struct AmberWillow0x7c* p_object, MechS32 p_side);
 	void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id);

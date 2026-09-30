@@ -53,6 +53,20 @@ extern "C"
 		MechS32 p_dz
 	);
 	MechS32 FUN_10039ccc(struct ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_10039dda(
+		MechS32 p_x0,
+		MechS32 p_y0,
+		MechS32 p_z0,
+		MechS32 p_x1,
+		MechS32 p_y1,
+		MechS32 p_z1,
+		MechS32 p_x2,
+		MechS32 p_y2,
+		MechS32 p_z2,
+		MechS32* p_nx,
+		MechS32* p_ny,
+		MechS32* p_nz
+	);
 	MechS32 FUN_1003a096(struct ScarletOrchid0x4c* p_shape, struct Ray* p_ray);
 	void FUN_10038ced(MechU16* p_table);
 	void FUN_10038d0d(

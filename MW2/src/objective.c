@@ -1,12 +1,15 @@
 #include "objective.h"
 
+#include "ai.h"
 #include "carcfg.h"
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
+#include "gamekeys.h"
 #include "gamething.h"
 #include "geocache.h"
 #include "missionaudio.h"
+#include "missionresult.h"
 #include "navpoint.h"
 #include "network.h"
 #include "players.h"
@@ -24,10 +27,19 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 
 // Set once the local team's mission result has been announced (FUN_1001b3f4).
+// Set to end the mission as successful (a cheat).
+// GLOBAL: MW2 0x100a3748
+MechS32 g_unk0x100a3748 = 0;
+
 // GLOBAL: MW2 0x100a374c
 MechS32 g_unk0x100a374c = 0;
+
+// The tag of the mission result EndTheMission2 writes.
+// GLOBAL: MW2 0x100a37bc
+MechU32 g_unk0x100a37bc = 0x4d32574d;
 
 // Collapses each run of whitespace after a character of p_text into one space.
 // FUNCTION: MW2 0x1001a910
@@ -462,10 +474,94 @@ MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective)
 	}
 }
 
-// STUB: MW2 0x1001c69e
+// Updates star p_star's objective p_objective: its conditions, timers and targets.
+// STUB: MW2 0x1001b79a
+void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
+{
+	STUB(0x1001b79a);
+}
+
+// Updates every star's mission each frame: its objectives (FUN_1001b79a), then, while it is in
+// progress, whether it succeeded (every listed objective done), failed or ran out of time; and
+// its current objective, the first whose conditions hold (FUN_100551ad hears of changes).
+// FUNCTION: MW2 0x1001c69e
 void UpdateObjectives(void)
 {
-	STUB(0x1001c69e);
+	MechS32 star;
+	MechS32 i;
+	MechS32 current;
+	StarMission* mission;
+	MechS32 success;
+	MechS32 failed;
+
+	g_missionTime = g_currentClock / 181;
+	for (star = 0; star < g_objectiveCount; star++) {
+		mission = &g_objectiveTable[star];
+		for (i = 0; i < mission->m_objectiveCount; i++) {
+			FUN_1001b79a(star, i);
+		}
+
+		if (mission->m_status == 0) {
+			success = TRUE;
+			failed = FALSE;
+			for (i = 0; i < mission->m_objectiveCount; i++) {
+				if (mission->m_objectives[i].m_unk0x75) {
+					switch (mission->m_objectives[i].m_state) {
+					case 5:
+						if (success) {
+							success = TRUE;
+						}
+						else {
+							success = FALSE;
+						}
+						break;
+					case 6:
+					case 8:
+						success = FALSE;
+						failed = TRUE;
+						break;
+					default:
+						success = FALSE;
+						break;
+					}
+				}
+			}
+
+			if (success || g_unk0x100a3748) {
+				mission->m_status = 2;
+				FUN_1001b3f4(star, mission->m_status);
+				mission->m_endTime = g_missionTime;
+			}
+			else if (failed) {
+				mission->m_status = 3;
+				FUN_1001b3f4(star, mission->m_status);
+				mission->m_endTime = g_missionTime;
+			}
+			else if (mission->m_timeLimit > 0 && g_missionTime - mission->m_startTime >= mission->m_timeLimit) {
+				mission->m_status = 4;
+				FUN_1001b3f4(star, mission->m_status);
+				mission->m_endTime = g_missionTime;
+			}
+		}
+		else if (star == g_unk0x100a5918 && !g_missionTimerStopped && !g_speechQueue && !g_unk0x100aa2bc) {
+			g_unk0x100aa2bc = 1;
+			g_unk0x100aa2a8 = 0;
+			g_unk0x100aa290 = 0;
+		}
+
+		current = -1;
+		for (i = 0; i < mission->m_objectiveCount; i++) {
+			if (FUN_1001b66c(star, i) && !(g_objectiveTable[star].m_objectives[i].m_type & 0xffff0000)) {
+				current = i;
+				break;
+			}
+		}
+
+		if (g_currentObjective[star] != current) {
+			g_currentObjective[star] = current;
+			FUN_100551ad(star);
+		}
+	}
 }
 
 // Counts the mission time in seconds.
@@ -476,10 +572,54 @@ void EndTheMission1(void)
 	return;
 }
 
-// STUB: MW2 0x1001c9f7
-void EndTheMission2(void)
+// Writes the local team's mission result to mw2msn.cfg for the shell: the mission's times and
+// status and the objectives listed on the objectives panel. Returns whether it could.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001c9f7
+MechS32 EndTheMission2(void)
 {
-	STUB(0x1001c9f7);
+	FILE* file;
+	MissionResult result;
+	StarMission* mission;
+	MechS32 i;
+	MechS32 count;
+
+	count = 0;
+	mission = &g_objectiveTable[g_unk0x100a5918];
+	memset(&result, 0, sizeof(result));
+	result.m_tag = g_unk0x100a37bc;
+	result.m_startTime = mission->m_startTime;
+	result.m_endTime = mission->m_endTime;
+	result.m_status = mission->m_status;
+	for (i = 0; i < mission->m_objectiveCount; i++) {
+		if (!mission->m_objectives[i].m_unk0x74) {
+			continue;
+		}
+
+		if (mission->m_objectives[i].m_state == 5) {
+			result.m_objectives[count].m_succeeded = 1;
+		}
+		else {
+			result.m_objectives[count].m_succeeded = 0;
+		}
+
+		result.m_objectives[count].m_priority = mission->m_objectives[i].m_priority;
+		result.m_objectives[count].m_startTime = mission->m_objectives[i].m_startTime;
+		result.m_objectives[count].m_endTime = mission->m_objectives[i].m_endTime;
+		result.m_objectives[count].m_unk0x10 = mission->m_objectives[i].m_unk0x75;
+		strcpy(result.m_objectives[count].m_name, mission->m_objectives[i].m_name);
+		count++;
+	}
+
+	result.m_count = count;
+	file = fopen("mw2msn.cfg", "wb");
+	if (!file) {
+		return FALSE;
+	}
+
+	fwrite(&result, sizeof(result), 1, file);
+	fclose(file);
+	return TRUE;
 }
 
 // Restarts star p_star's mission (a player's own, in a network game): every objective goes back

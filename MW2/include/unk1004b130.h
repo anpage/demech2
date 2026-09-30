@@ -13,6 +13,8 @@ extern "C"
 	extern MechS32 g_unk0x100a7120;
 	extern AmberWillow0x7c* g_unk0x100a7128;
 
+	void FUN_1004b130(AmberWillow0x7c* p_obj);
+	void FUN_1004b344(void);
 	void FUN_1004b539(MechS32 p_enable);
 
 #ifdef __cplusplus

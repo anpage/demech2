@@ -3,9 +3,13 @@
 #include "decomp.h"
 #include "duskmoth.h"
 #include "emberfern.h"
+#include "fixeddiv.h"
+#include "fixedmul.h"
 #include "fixedsqrt.h"
+#include "muldiv.h"
 #include "ray.h"
 #include "types.h"
+#include "unk10019ad0.h"
 #include "unk10036230.h"
 #include "unk1003a530.h"
 #include "unk100699a0.h"
@@ -456,11 +460,64 @@ void FUN_10035423(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance)
 	NormalizeVectorGuarded(&g_hitNormalX, &g_hitNormalY, &g_hitNormalZ);
 }
 
-// STUB: MW2 0x100354d3
+// Intersects p_ray with the face's plane from its front side and, if the point lies within the
+// face, ends the ray there and keeps the face's normal as the hit normal.
+// The three sums of products (denom, d, num) call FUN_10019ad0 in another order than the original
+// (commutative operands), and the locals are permuted.
+// FUNCTION: MW2 0x100354d3
 MechS32 FUN_100354d3(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, Ray* p_ray)
 {
-	STUB(0x100354d3);
-	return 0;
+	MechS32 nx;
+	MechS32 denom;
+	MechS32 t;
+	MechS32 d;
+	EmberFern0x2c* vertex;
+	MechS32 ny;
+	MechS32 nz;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 num;
+
+	nx = p_face->m_normal[0];
+	ny = p_face->m_normal[1];
+	nz = p_face->m_normal[2];
+	denom = FUN_10019ad0(nx, p_ray->m_dirX) + FUN_10019ad0(ny, p_ray->m_dirY) + FUN_10019ad0(nz, p_ray->m_dirZ);
+	if (denom >= 0) {
+		return FALSE;
+	}
+
+	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+	d =
+		-(FUN_10019ad0(nx, vertex->m_unk0x0c) + FUN_10019ad0(ny, vertex->m_unk0x10) +
+		  FUN_10019ad0(nz, vertex->m_unk0x14));
+	num = FUN_10019ad0(nx, p_ray->m_x0) + FUN_10019ad0(ny, p_ray->m_y0) + FUN_10019ad0(nz, p_ray->m_z0) + d;
+	if (num <= 0) {
+		return FALSE;
+	}
+
+	t = -(num / denom);
+	if (t > 0x7fff) {
+		return FALSE;
+	}
+
+	t = FixedDiv16(-num, denom);
+	if (t <= 0 || p_ray->m_length < t) {
+		return FALSE;
+	}
+
+	x = p_ray->m_x0 + FixedMul16(p_ray->m_dirX, t);
+	y = p_ray->m_y0 + FixedMul16(p_ray->m_dirY, t);
+	z = p_ray->m_z0 + FixedMul16(p_ray->m_dirZ, t);
+	if (FUN_10035722(p_face, p_vertices, x, y, z)) {
+		SetRayEnd(p_ray, x, y, z);
+		g_hitNormalX = nx >> 13;
+		g_hitNormalY = ny >> 13;
+		g_hitNormalZ = nz >> 13;
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 // Tests whether the point (p_x, p_y, p_z) lies within the face, projected on the plane its normal
@@ -491,26 +548,423 @@ MechS32 FUN_10035722(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_
 	}
 }
 
-// Tests whether (p_x, p_z) lies within the face, seen from above.
-// STUB: MW2 0x100357f8
+// Tests whether (p_x, p_z) lies within the face, seen from above: the point must have vertices on
+// each side, and the edges crossing its z must pass it on both sides.
+// The only diff is a stack-slot permutation of the locals (vertex and prev).
+// FUNCTION: MW2 0x100357f8
 MechS32 FUN_100357f8(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_z)
 {
-	STUB(0x100357f8);
-	return 0;
+	MechS32 count;
+	EmberFern0x2c* prev;
+	MechS32 sides;
+	MechU8* indices;
+	MechS32 i;
+	MechS32 right;
+	MechS32 offset;
+	EmberFern0x2c* vertex;
+	MechS32 left;
+
+	left = FALSE;
+	right = FALSE;
+	count = p_face->m_unk0x02;
+	if (count < 3) {
+		return FALSE;
+	}
+
+	indices = (MechU8*) p_face + p_face->m_unk0x04;
+	sides = 0;
+	i = count;
+	while (i--) {
+		vertex = &p_vertices[indices[i]];
+		if (vertex->m_unk0x0c <= p_x) {
+			sides |= 1;
+		}
+		else {
+			sides |= 2;
+		}
+
+		if (vertex->m_unk0x14 <= p_z) {
+			sides |= 4;
+		}
+		else {
+			sides |= 8;
+		}
+
+		if (sides == 15) {
+			break;
+		}
+	}
+
+	if (sides != 15) {
+		return FALSE;
+	}
+
+	prev = &p_vertices[indices[0]];
+	for (i = count; i--; prev = vertex) {
+		vertex = &p_vertices[indices[i]];
+		if (vertex->m_unk0x14 < p_z && prev->m_unk0x14 < p_z) {
+			continue;
+		}
+
+		if (vertex->m_unk0x14 > p_z && prev->m_unk0x14 > p_z) {
+			continue;
+		}
+
+		if (vertex->m_unk0x14 == p_z && prev->m_unk0x14 == p_z) {
+			if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+				return FALSE;
+			}
+
+			if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+				return FALSE;
+			}
+
+			return TRUE;
+		}
+
+		if (vertex->m_unk0x14 == p_z) {
+			continue;
+		}
+
+		if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+			if (left) {
+				return FALSE;
+			}
+
+			if (right) {
+				return TRUE;
+			}
+
+			left = TRUE;
+			continue;
+		}
+
+		if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+			if (right) {
+				return FALSE;
+			}
+
+			if (left) {
+				return TRUE;
+			}
+
+			right = TRUE;
+			continue;
+		}
+
+		offset = vertex->m_unk0x0c +
+				 MulDiv64(
+					 prev->m_unk0x0c - vertex->m_unk0x0c,
+					 p_z - vertex->m_unk0x14,
+					 prev->m_unk0x14 - vertex->m_unk0x14
+				 ) -
+				 p_x;
+		if (offset < 0) {
+			if (left) {
+				return FALSE;
+			}
+
+			if (right) {
+				return TRUE;
+			}
+
+			left = TRUE;
+		}
+		else if (offset > 0) {
+			if (right) {
+				return FALSE;
+			}
+
+			if (left) {
+				return TRUE;
+			}
+
+			right = TRUE;
+		}
+		else {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 // Tests whether (p_x, p_y) lies within the face, seen along z.
-// STUB: MW2 0x10035b5b
+// The only diff is a stack-slot permutation of the locals (vertex and prev).
+// FUNCTION: MW2 0x10035b5b
 MechS32 FUN_10035b5b(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_y)
 {
-	STUB(0x10035b5b);
-	return 0;
+	MechS32 count;
+	EmberFern0x2c* prev;
+	MechS32 sides;
+	MechU8* indices;
+	MechS32 i;
+	MechS32 right;
+	MechS32 offset;
+	EmberFern0x2c* vertex;
+	MechS32 left;
+
+	left = FALSE;
+	right = FALSE;
+	count = p_face->m_unk0x02;
+	if (count < 3) {
+		return FALSE;
+	}
+
+	indices = (MechU8*) p_face + p_face->m_unk0x04;
+	sides = 0;
+	i = count;
+	while (i--) {
+		vertex = &p_vertices[indices[i]];
+		if (vertex->m_unk0x0c <= p_x) {
+			sides |= 1;
+		}
+		else {
+			sides |= 2;
+		}
+
+		if (vertex->m_unk0x10 <= p_y) {
+			sides |= 4;
+		}
+		else {
+			sides |= 8;
+		}
+
+		if (sides == 15) {
+			break;
+		}
+	}
+
+	if (sides != 15) {
+		return FALSE;
+	}
+
+	prev = &p_vertices[indices[0]];
+	for (i = count; i--; prev = vertex) {
+		vertex = &p_vertices[indices[i]];
+		if (vertex->m_unk0x10 < p_y && prev->m_unk0x10 < p_y) {
+			continue;
+		}
+
+		if (vertex->m_unk0x10 > p_y && prev->m_unk0x10 > p_y) {
+			continue;
+		}
+
+		if (vertex->m_unk0x10 == p_y && prev->m_unk0x10 == p_y) {
+			if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+				return FALSE;
+			}
+
+			if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+				return FALSE;
+			}
+
+			return TRUE;
+		}
+
+		if (vertex->m_unk0x10 == p_y) {
+			continue;
+		}
+
+		if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+			if (left) {
+				return FALSE;
+			}
+
+			if (right) {
+				return TRUE;
+			}
+
+			left = TRUE;
+			continue;
+		}
+
+		if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+			if (right) {
+				return FALSE;
+			}
+
+			if (left) {
+				return TRUE;
+			}
+
+			right = TRUE;
+			continue;
+		}
+
+		offset = vertex->m_unk0x0c +
+				 MulDiv64(
+					 prev->m_unk0x0c - vertex->m_unk0x0c,
+					 p_y - vertex->m_unk0x10,
+					 prev->m_unk0x10 - vertex->m_unk0x10
+				 ) -
+				 p_x;
+		if (offset < 0) {
+			if (left) {
+				return FALSE;
+			}
+
+			if (right) {
+				return TRUE;
+			}
+
+			left = TRUE;
+		}
+		else if (offset > 0) {
+			if (right) {
+				return FALSE;
+			}
+
+			if (left) {
+				return TRUE;
+			}
+
+			right = TRUE;
+		}
+		else {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 // Tests whether (p_y, p_z) lies within the face, seen along x.
-// STUB: MW2 0x10035ebe
+// The only diff is a stack-slot permutation of the locals (vertex and prev).
+// FUNCTION: MW2 0x10035ebe
 MechS32 FUN_10035ebe(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_y, MechS32 p_z)
 {
-	STUB(0x10035ebe);
-	return 0;
+	MechS32 count;
+	EmberFern0x2c* prev;
+	MechS32 sides;
+	MechU8* indices;
+	MechS32 i;
+	MechS32 right;
+	MechS32 offset;
+	EmberFern0x2c* vertex;
+	MechS32 left;
+
+	left = FALSE;
+	right = FALSE;
+	count = p_face->m_unk0x02;
+	if (count < 3) {
+		return FALSE;
+	}
+
+	indices = (MechU8*) p_face + p_face->m_unk0x04;
+	sides = 0;
+	i = count;
+	while (i--) {
+		vertex = &p_vertices[indices[i]];
+		if (vertex->m_unk0x10 <= p_y) {
+			sides |= 1;
+		}
+		else {
+			sides |= 2;
+		}
+
+		if (vertex->m_unk0x14 <= p_z) {
+			sides |= 4;
+		}
+		else {
+			sides |= 8;
+		}
+
+		if (sides == 15) {
+			break;
+		}
+	}
+
+	if (sides != 15) {
+		return FALSE;
+	}
+
+	prev = &p_vertices[indices[0]];
+	for (i = count; i--; prev = vertex) {
+		vertex = &p_vertices[indices[i]];
+		if (vertex->m_unk0x14 < p_z && prev->m_unk0x14 < p_z) {
+			continue;
+		}
+
+		if (vertex->m_unk0x14 > p_z && prev->m_unk0x14 > p_z) {
+			continue;
+		}
+
+		if (vertex->m_unk0x14 == p_z && prev->m_unk0x14 == p_z) {
+			if (vertex->m_unk0x10 < p_y && prev->m_unk0x10 < p_y) {
+				return FALSE;
+			}
+
+			if (vertex->m_unk0x10 > p_y && prev->m_unk0x10 > p_y) {
+				return FALSE;
+			}
+
+			return TRUE;
+		}
+
+		if (vertex->m_unk0x14 == p_z) {
+			continue;
+		}
+
+		if (vertex->m_unk0x10 < p_y && prev->m_unk0x10 < p_y) {
+			if (left) {
+				return FALSE;
+			}
+
+			if (right) {
+				return TRUE;
+			}
+
+			left = TRUE;
+			continue;
+		}
+
+		if (vertex->m_unk0x10 > p_y && prev->m_unk0x10 > p_y) {
+			if (right) {
+				return FALSE;
+			}
+
+			if (left) {
+				return TRUE;
+			}
+
+			right = TRUE;
+			continue;
+		}
+
+		offset = vertex->m_unk0x10 +
+				 MulDiv64(
+					 prev->m_unk0x10 - vertex->m_unk0x10,
+					 p_z - vertex->m_unk0x14,
+					 prev->m_unk0x14 - vertex->m_unk0x14
+				 ) -
+				 p_y;
+		if (offset < 0) {
+			if (left) {
+				return FALSE;
+			}
+
+			if (right) {
+				return TRUE;
+			}
+
+			left = TRUE;
+		}
+		else if (offset > 0) {
+			if (right) {
+				return FALSE;
+			}
+
+			if (left) {
+				return TRUE;
+			}
+
+			right = TRUE;
+		}
+		else {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }

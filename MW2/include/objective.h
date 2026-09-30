@@ -12,6 +12,7 @@ extern "C"
 #endif
 
 	void FUN_1001a910(MechChar* p_text);
+	extern MechS32 g_unk0x100a3748;
 	extern MechS32 g_unk0x100a374c;
 
 	MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team);
@@ -23,9 +24,10 @@ extern "C"
 	MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status);
 	MechS32 FUN_1001b580(MechS32 p_star, MechS32 p_objective, MechS32 p_condition);
 	MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective);
+	void FUN_1001b79a(MechS32 p_star, MechS32 p_objective);
 	void UpdateObjectives(void);
 	void EndTheMission1(void);
-	void EndTheMission2(void);
+	MechS32 EndTheMission2(void);
 	void FUN_1001cc5c(MechS32 p_star);
 	void FUN_1001cdd1(void);
 	MechS32 FUN_1001cde1(undefined4 p_unk0x00);

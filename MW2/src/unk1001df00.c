@@ -7,6 +7,7 @@
 #include "ray.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk10034a40.h"
 #include "unk10036230.h"
 #include "unk1003a530.h"
 
@@ -85,12 +86,117 @@ void FUN_1001df00(ScarletOrchid0x4c* p_shape)
 	}
 }
 
-// Builds the quadtree child p_quadrant of p_node from p_model's faces.
-// STUB: MW2 0x1001e0a7
+// Builds the quadtree child p_quadrant of p_node from p_model's faces. A leaf takes at most 25
+// faces; with more, the child is split again.
+// Stack-slot permutation; minX >= maxX, minZ >= maxZ and faceHigh > highY compare in the other
+// operand order.
+// FUNCTION: MW2 0x1001e0a7
 AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, GraniteLattice0x18* p_model)
 {
-	STUB(0x1001e0a7);
-	return NULL;
+	MechS32 j;
+	MechS32 i;
+	DuskMoth0x24* entries[25];
+	AzureThicket0x2c* node;
+	MechS32 faceLow;
+	MechS32 minX;
+	MechS32 lowY;
+	MechS32 minZ;
+	MechS32 count;
+	AzureThicket0x2c* child;
+	DuskMoth0x24* face;
+	MechS32 faceHigh;
+	MechS32 maxX;
+	MechS32 highY;
+	MechS32 maxZ;
+	DuskMoth0x24** faces;
+
+	if (p_quadrant & 1) {
+		minX = ((p_node->m_unk0x04 + p_node->m_unk0x00) >> 1) + 1;
+		maxX = p_node->m_unk0x04;
+	}
+	else {
+		minX = p_node->m_unk0x00;
+		maxX = (p_node->m_unk0x04 + p_node->m_unk0x00) >> 1;
+	}
+
+	if (p_quadrant & 2) {
+		minZ = ((p_node->m_unk0x14 + p_node->m_unk0x10) >> 1) + 1;
+		maxZ = p_node->m_unk0x14;
+	}
+	else {
+		minZ = p_node->m_unk0x10;
+		maxZ = (p_node->m_unk0x14 + p_node->m_unk0x10) >> 1;
+	}
+
+	if (minX >= maxX || minZ >= maxZ) {
+		return NULL;
+	}
+
+	count = 0;
+	lowY = 0x7fffffff;
+	highY = -0x7fffffff;
+	for (i = 0; i < p_model->m_unk0x06; i++) {
+		face = (DuskMoth0x24*) ((MechU8*) p_model + p_model->m_unk0x08) + i;
+		if (FUN_1001e57a(face, p_model, minX, maxX, minZ, maxZ, &faceLow, &faceHigh)) {
+			count++;
+			if (count > 25) {
+				lowY = 0x7fffffff;
+				highY = -0x7fffffff;
+				node = FUN_1001e429(minX, maxX, lowY, highY, minZ, maxZ, 0);
+				if (!node) {
+					return NULL;
+				}
+
+				for (j = 0; j < 4; j++) {
+					node->m_children[j] = FUN_1001e0a7(node, j, p_model);
+					child = node->m_children[j];
+					if (child) {
+						if (child->m_unk0x0c > highY) {
+							highY = child->m_unk0x0c;
+						}
+
+						if (child->m_unk0x08 < lowY) {
+							lowY = child->m_unk0x08;
+						}
+					}
+				}
+
+				node->m_unk0x0c = highY;
+				node->m_unk0x08 = lowY;
+				if (node->m_unk0x08 == 0x7fffffff) {
+					node->m_unk0x08 = node->m_unk0x0c = 0;
+				}
+
+				return node;
+			}
+
+			if (faceHigh > highY) {
+				highY = faceHigh;
+			}
+
+			if (lowY > faceLow) {
+				lowY = faceLow;
+			}
+
+			entries[count - 1] = face;
+		}
+	}
+
+	if (count == 0) {
+		lowY = highY = 0;
+	}
+
+	node = FUN_1001e429(minX, maxX, lowY, highY, minZ, maxZ, count);
+	if (!node) {
+		return NULL;
+	}
+
+	if (count > 0) {
+		faces = (DuskMoth0x24**) (node + 1);
+		memcpy(faces, entries, count * sizeof(DuskMoth0x24*));
+	}
+
+	return node;
 }
 
 // Allocates a quadtree node with room for p_unk0x18 entries, cleared.
@@ -228,18 +334,157 @@ MechS32 FUN_1001e57a(
 	return FALSE;
 }
 
-// STUB: MW2 0x1001e6dc
+// Classifies the point (p_x, p_y, p_z) against the quadtree's faces: 0 outside the tree's
+// ground area, 2 above the faces under it, 3 below one of them.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001e6dc
 MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	STUB(0x1001e6dc);
-	return 0;
+	MechS32 result;
+	EmberFern0x2c* vertices;
+	DuskMoth0x24** faces;
+	MechS32 i;
+	DuskMoth0x24* face;
+	MechS32 height;
+
+	if (!p_node) {
+		return 0;
+	}
+
+	if (p_node->m_unk0x00 > p_x || p_node->m_unk0x04 < p_x || p_node->m_unk0x10 > p_z || p_node->m_unk0x14 < p_z) {
+		return 0;
+	}
+
+	if (p_node->m_unk0x0c < p_y) {
+		return 2;
+	}
+
+	if (p_node->m_unk0x08 > p_y) {
+		return 3;
+	}
+
+	if (p_node->m_unk0x18 == 0) {
+		result = FUN_1001e6dc(p_node->m_children[0], p_model, p_x, p_y, p_z);
+		if (result) {
+			return result;
+		}
+
+		result = FUN_1001e6dc(p_node->m_children[1], p_model, p_x, p_y, p_z);
+		if (result) {
+			return result;
+		}
+
+		result = FUN_1001e6dc(p_node->m_children[2], p_model, p_x, p_y, p_z);
+		if (result) {
+			return result;
+		}
+
+		result = FUN_1001e6dc(p_node->m_children[3], p_model, p_x, p_y, p_z);
+		if (result) {
+			return result;
+		}
+
+		return 2;
+	}
+
+	vertices = (EmberFern0x2c*) (p_model + 1);
+	faces = (DuskMoth0x24**) (p_node + 1);
+	for (i = 0; i < p_node->m_unk0x18; i++) {
+		face = *faces++;
+		if (face->m_normal[1] > 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
+			if (FUN_10034a7b(face, vertices, p_x, p_y, p_z, &height)) {
+				return 3;
+			}
+			else {
+				return 2;
+			}
+		}
+	}
+
+	return 2;
 }
 
-// STUB: MW2 0x1001e90f
+// Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
+// Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
+// FUNCTION: MW2 0x1001e90f
 MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray)
 {
-	STUB(0x1001e90f);
-	return 0;
+	MechS32 tMin;
+	EmberFern0x2c* vertices;
+	MechS32 t0;
+	DuskMoth0x24** faces;
+	MechS32 i;
+	MechS32 t1;
+	MechS32 tMax;
+	DuskMoth0x24* face;
+
+	if (!p_node) {
+		return FALSE;
+	}
+
+	if (FUN_10003445(p_ray->m_x0, p_ray->m_dirX, p_node->m_unk0x00, p_node->m_unk0x04, &tMin, &tMax)) {
+		return FALSE;
+	}
+
+	if (FUN_10003445(p_ray->m_y0, p_ray->m_dirY, p_node->m_unk0x08, p_node->m_unk0x0c, &t0, &t1)) {
+		return FALSE;
+	}
+
+	if (t0 > tMin) {
+		tMin = t0;
+	}
+
+	if (t1 < tMax) {
+		tMax = t1;
+	}
+
+	if (FUN_10003445(p_ray->m_z0, p_ray->m_dirZ, p_node->m_unk0x10, p_node->m_unk0x14, &t0, &t1)) {
+		return FALSE;
+	}
+
+	if (t0 > tMin) {
+		tMin = t0;
+	}
+
+	if (t1 < tMax) {
+		tMax = t1;
+	}
+
+	if (tMax < tMin) {
+		return FALSE;
+	}
+
+	if (tMin < 0) {
+		tMin = 0;
+	}
+
+	t0 = GetRayLength(p_ray);
+	if (t0 < tMax) {
+		tMax = t0;
+	}
+
+	if (tMax < tMin) {
+		return FALSE;
+	}
+
+	if (p_node->m_unk0x18 == 0) {
+		if (FUN_1001eb25(p_node, p_model, p_ray)) {
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	vertices = (EmberFern0x2c*) (p_model + 1);
+	faces = (DuskMoth0x24**) (p_node + 1);
+	for (i = 0; i < p_node->m_unk0x18; i++) {
+		face = *faces++;
+		if (FUN_100354d3(face, vertices, p_ray)) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 // Finds the nearest hit of p_ray among p_node's children and shortens p_ray to it. Whether any
@@ -276,7 +521,10 @@ MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray*
 	return FALSE;
 }
 
-// STUB: MW2 0x1001ebfa
+// Finds the upward face of the quadtree under (p_x, p_z) and stores its height at the point in
+// p_top, or 0 if there is none. Returns FALSE outside the tree's ground area.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001ebfa
 MechS32 FUN_1001ebfa(
 	AzureThicket0x2c* p_node,
 	GraniteLattice0x18* p_model,
@@ -286,8 +534,52 @@ MechS32 FUN_1001ebfa(
 	MechS32* p_top
 )
 {
-	STUB(0x1001ebfa);
-	return 0;
+	EmberFern0x2c* vertices;
+	DuskMoth0x24** faces;
+	MechS32 i;
+	DuskMoth0x24* face;
+
+	if (!p_node) {
+		return FALSE;
+	}
+
+	if (p_node->m_unk0x00 > p_x || p_node->m_unk0x04 < p_x || p_node->m_unk0x10 > p_z || p_node->m_unk0x14 < p_z) {
+		return FALSE;
+	}
+
+	if (p_node->m_unk0x18 == 0) {
+		if (FUN_1001ebfa(p_node->m_children[0], p_model, p_x, p_y, p_z, p_top)) {
+			return TRUE;
+		}
+
+		if (FUN_1001ebfa(p_node->m_children[1], p_model, p_x, p_y, p_z, p_top)) {
+			return TRUE;
+		}
+
+		if (FUN_1001ebfa(p_node->m_children[2], p_model, p_x, p_y, p_z, p_top)) {
+			return TRUE;
+		}
+
+		if (FUN_1001ebfa(p_node->m_children[3], p_model, p_x, p_y, p_z, p_top)) {
+			return TRUE;
+		}
+
+		*p_top = 0;
+		return TRUE;
+	}
+
+	vertices = (EmberFern0x2c*) (p_model + 1);
+	faces = (DuskMoth0x24**) (p_node + 1);
+	for (i = 0; i < p_node->m_unk0x18; i++) {
+		face = *faces++;
+		if (face->m_normal[1] > 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
+			FUN_10034a7b(face, vertices, p_x, p_y, p_z, p_top);
+			return TRUE;
+		}
+	}
+
+	*p_top = 0;
+	return TRUE;
 }
 
 // FUNCTION: MW2 0x1001edfa

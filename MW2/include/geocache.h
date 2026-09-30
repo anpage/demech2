@@ -29,6 +29,18 @@ extern "C"
 	void FUN_1001f5cb(void);
 	ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index);
+	MechS32 FUN_1001f8b5(
+		MechS32 p_id,
+		MechS32 p_resource,
+		TwilightGrove0x24 p_xform,
+		MechS32 p_block,
+		MechS32 p_parent,
+		MechS32 p_unk0x3c,
+		MechU32 p_flags,
+		MechU32 p_kind,
+		undefined4 p_unk0x48
+	);
+	void BeginBlock(struct BwdBlockRecord* p_record);
 	MechS32 FindStarIdxById(MechS32 p_id);
 	void ApplyBlockXform(TwilightGrove0x24 p_xform);
 	void FUN_1001fea6(MechS32* p_point);
@@ -46,7 +58,7 @@ extern "C"
 	void FUN_10020429(struct GameThing* p_thing);
 	void FUN_100204e8(void);
 	MechS32 FUN_10020684(void);
-	undefined4 FUN_10020704(MechS32 p_index, MechS32 p_block);
+	MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block);
 	void FUN_10020b95(MechS32 p_index);
 	struct AmberWillow0x7c* FUN_10020bdd(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_10020c26(MechS32 p_index);

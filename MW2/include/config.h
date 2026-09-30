@@ -36,6 +36,7 @@ extern "C"
 #endif
 
 	extern MechChar g_gameDir[256];
+	extern MechS32 g_unk0x100ae380;
 
 	MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_poolTag);
 	MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg);
@@ -44,6 +45,7 @@ extern "C"
 	MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg);
 	MechChar* BuildGamePath(MechChar* p_name);
 	void FUN_1006fba3(void);
+	void FUN_1006fca5(void);
 	void FUN_1006ff7b(void);
 	void FUN_1007005a(struct Mech* p_mech);
 	void FUN_100704c1(void);

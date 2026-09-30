@@ -13,6 +13,7 @@ extern "C"
 #endif
 
 	void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far);
+	void FUN_1004215f(MechU32 p_flags);
 	void FUN_10042195(void);
 	MechS32 FUN_10042206(ScarletOrchid0x4c* p_shape);
 	CopperWren0x20* FUN_100423b3(CopperWren0x20* p_vertex);
