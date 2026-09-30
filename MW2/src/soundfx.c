@@ -15,6 +15,7 @@
 #include "random.h"
 #include "rendertarget.h"
 #include "simmain.h"
+#include "sndunpack.h"
 #include "soundinfo.h"
 #include "speech.h"
 #include "types.h"

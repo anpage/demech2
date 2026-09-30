@@ -3,12 +3,19 @@
 #include "compat.h"
 #include "decomp.h"
 #include "fixeddiv29.h"
+#include "gamething.h"
 #include "geocache.h"
+#include "mech.h"
 #include "object.h"
 #include "players.h"
+#include "playersteering.h"
 #include "simmain.h"
+#include "soundfx.h"
+#include "team.h"
 #include "types.h"
+#include "unk1003a530.h"
 #include "unk100696c0.h"
+#include "weapons.h"
 
 #include <stdlib.h>
 
@@ -18,6 +25,15 @@ DECOMP_SIZE_ASSERT(NavPoint, 0x54)
 
 // GLOBAL: MW2 0x100aaba4
 MechS32 g_navCount = 0;
+
+// What claiming the local player's target did (FUN_1005fa22): 1 claimed it, 2 too far, 3 already
+// claimed by the team, 0 nothing.
+// GLOBAL: MW2 0x100aaba8
+MechS32 g_unk0x100aaba8 = 0;
+
+// Set when the local player's target has changed (FUN_10060010).
+// GLOBAL: MW2 0x100aabac
+MechS32 g_unk0x100aabac = 0;
 
 // GLOBAL: MW2 0x10177160
 NavPoint g_navTable[128];
@@ -52,10 +68,61 @@ MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	return index;
 }
 
-// STUB: MW2 0x1005ed4f
-void FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
+// Removes nav p_nav (an AI target id, 0x100 | index) if player p_owner placed it: the later navs
+// move down, and so do the players' targets, goals and navs pointing past it (not the local
+// player's own target). Returns the new nav count, or -1.
+// Stack-slot permutation of the locals. Operand order: the second loop test (i < g_playerCount)
+// compares with i in eax in the original.
+// FUNCTION: MW2 0x1005ed4f
+MechS32 FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
 {
-	STUB(0x1005ed4f);
+	MechS32 index;
+	MechS32 i;
+	Player* player;
+
+	if (!(p_nav & 0x100)) {
+		return -1;
+	}
+
+	index = p_nav & 0xff;
+	if (index >= g_navCount) {
+		return -1;
+	}
+
+	if (!(g_navTable[index].m_flags & 1) || g_navTable[index].m_owner != (p_owner | 0x200)) {
+		return -1;
+	}
+
+	for (i = index; i < g_navCount - 1; i++) {
+		g_navTable[i] = g_navTable[i + 1];
+	}
+
+	for (i = 0; i < g_playerCount; i++) {
+		player = g_players[i];
+		if (!player) {
+			continue;
+		}
+
+		if (player->m_aiTarget & 0x100 && (player->m_aiTarget & 0xff) > index) {
+			player->m_aiTarget--;
+		}
+
+		if (player->m_aiGoal & 0x100 && (player->m_aiGoal & 0xff) > index) {
+			player->m_aiGoal--;
+		}
+
+		if (player->m_targetInfo.m_target & 0x100 && (player->m_targetInfo.m_target & 0xff) > index &&
+			player->m_index != g_localPlayerId) {
+			player->m_targetInfo.m_target--;
+		}
+
+		if (player->m_nav & 0x100 && (player->m_nav & 0xff) > index) {
+			player->m_nav--;
+		}
+	}
+
+	g_navCount--;
+	return g_navCount;
 }
 
 // STUB: MW2 0x1005ef5e
@@ -74,11 +141,380 @@ void FUN_1005f284(void)
 	player->m_targetInfo.m_target |= 0x1000;
 }
 
-// STUB: MW2 0x1005fa22
+// Makes nav point p_nav player p_player's target: its position, heading and distance. Returns 1,
+// or a negative code: -1 and -2 for an index out of range, -9 for flags 0xe, -3 for a free nav,
+// -4 when flag 0x10000 asks for a nav with flag 0x40, and -6 for a nav of another owner or team
+// (flag 0x100 accepts only a nav its owner placed).
+// Stack-slot permutation of the locals; p_nav >= g_navCount compares in the other operand order.
+// FUNCTION: MW2 0x1005f2ae
+MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
+{
+	Player* player;
+	NavPoint* nav;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 dx;
+	MechS32 dy;
+	MechS32 dz;
+	MechS32 heading;
+	MechS32 unk0x04;
+	MechU32 distance;
+	MechS32 unk0x18;
+
+	if (p_nav < 0) {
+		return -1;
+	}
+
+	if (p_nav >= g_navCount) {
+		return -2;
+	}
+
+	if (p_flags & 0xe) {
+		return -9;
+	}
+
+	player = g_players[p_player];
+	nav = &g_navTable[p_nav];
+	if (!nav->m_unk0x00) {
+		return -3;
+	}
+
+	if ((p_flags & 0x10000) && !(nav->m_flags & 0x40)) {
+		return -4;
+	}
+
+	if (nav->m_flags & 1) {
+		if (nav->m_owner != (p_player | 0x200)) {
+			return -6;
+		}
+	}
+	else if (p_flags & 0x100) {
+		return -6;
+	}
+
+	if (player->m_team != nav->m_team) {
+		return -6;
+	}
+
+	if (nav->m_obj) {
+		GetObjPosition(nav->m_obj, &nav->m_position[0], &nav->m_position[1], &nav->m_position[2]);
+	}
+
+	x = nav->m_position[0];
+	y = nav->m_position[1];
+	z = nav->m_position[2];
+	dx = x - player->m_position.m_x;
+	dy = y - player->m_position.m_y;
+	dz = z - player->m_position.m_z;
+	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
+	player->m_targetInfo.m_position.m_x = x;
+	player->m_targetInfo.m_position.m_y = y;
+	player->m_targetInfo.m_position.m_z = z;
+	player->m_targetInfo.m_heading = heading;
+	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_distance = distance;
+	player->m_targetInfo.m_unk0x18 = unk0x18;
+	return 1;
+}
+
+// Makes player p_index player p_player's target, like FUN_1005f2ae for a nav point. Returns 1, or
+// a negative code: -1 and -2 for an index out of range, -9 for flags 0x15 or the wrong side
+// (flags 0x20000 and 0x40000), -3 for a player that can't be targeted or is p_player, -4 when
+// flag 0x10000 asks for a player with flag 0x40, -5 and -7 for targets the local player may not
+// pick, and -8 for a player without a shape.
+// Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
+// order.
+// FUNCTION: MW2 0x1005f4ac
+MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
+{
+	MechS32 breakpoint;
+	Player* player;
+	Player* target;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 dx;
+	MechS32 dy;
+	MechS32 dz;
+	MechS32 heading;
+	MechS32 unk0x04;
+	MechU32 distance;
+	MechS32 unk0x18;
+
+	if (p_index == 1 && p_player == g_localPlayerId) {
+		breakpoint = 0;
+	}
+
+	if (p_index < 0) {
+		return -1;
+	}
+
+	if (p_index >= g_playerCount) {
+		return -2;
+	}
+
+	if (p_flags & 0x15) {
+		return -9;
+	}
+
+	player = g_players[p_player];
+	target = g_players[p_index];
+	if (!g_unk0x100aabac && (target->m_flags & 0x10) && p_player == g_localPlayerId) {
+		return -3;
+	}
+
+	if (target->m_flags & 6) {
+		return -3;
+	}
+
+	if (target->m_index == p_player) {
+		return -3;
+	}
+
+	if ((p_flags & 0x10000) && !(target->m_flags & 0x40)) {
+		return -4;
+	}
+
+	if ((p_flags & 0x20000) && GetPlayerSide(p_index)) {
+		return -9;
+	}
+
+	if ((p_flags & 0x40000) && GetPlayerSide(p_index) != 1) {
+		return -9;
+	}
+
+	if (!g_unk0x100aabac && !(target->m_flags & 0x1400) && p_player == g_localPlayerId) {
+		return -5;
+	}
+
+	if ((target->m_flags & 0x800) && p_player == g_localPlayerId) {
+		return -5;
+	}
+
+	if (!target->m_obj) {
+		return -8;
+	}
+
+	if (!FUN_1000154d(target->m_obj)) {
+		return -8;
+	}
+
+	x = target->m_position.m_x;
+	y = target->m_position.m_y;
+	z = target->m_position.m_z;
+	dx = x - player->m_position.m_x;
+	dy = y - player->m_position.m_y;
+	dz = z - player->m_position.m_z;
+	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
+	if (!(target->m_flags & 0x1000) && unk0x04 > 0x2ab98 && p_player == g_localPlayerId) {
+		return -7;
+	}
+
+	player->m_targetInfo.m_position.m_x = x;
+	player->m_targetInfo.m_position.m_y = y;
+	player->m_targetInfo.m_position.m_z = z;
+	player->m_targetInfo.m_heading = heading;
+	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_distance = distance;
+	player->m_targetInfo.m_unk0x18 = unk0x18;
+	return 1;
+}
+
+// Makes game thing p_index player p_player's target, like FUN_1005f4ac for a player. Returns 1,
+// or the same negative codes; its test of flag 0x10000 can never succeed.
+// Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
+// order.
+// FUNCTION: MW2 0x1005f798
+MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
+{
+	Player* player;
+	GameThing* thing;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 dx;
+	MechS32 dy;
+	MechS32 dz;
+	MechS32 heading;
+	MechS32 unk0x04;
+	MechU32 distance;
+	MechS32 unk0x18;
+
+	if (p_index < 0) {
+		return -1;
+	}
+
+	if (p_index >= g_gameThingCount) {
+		return -2;
+	}
+
+	if (p_flags & 0x23) {
+		return -9;
+	}
+
+	player = g_players[p_player];
+	thing = &g_gameThings[p_index];
+	if (thing->m_unk0x00 & 4) {
+		return -3;
+	}
+
+	if (p_flags & 0x10000 & !(thing->m_unk0x00 & 0x40)) {
+		return -4;
+	}
+
+	if ((p_flags & 0x20000) && FUN_1003c30e(p_index)) {
+		return -9;
+	}
+
+	if ((p_flags & 0x40000) && FUN_1003c30e(p_index) != 1) {
+		return -9;
+	}
+
+	if (!g_unk0x100aabac && !(thing->m_unk0x00 & 0x1400) && p_player == g_localPlayerId) {
+		return -5;
+	}
+
+	if ((thing->m_unk0x00 & 0x800) && p_player == g_localPlayerId) {
+		return -5;
+	}
+
+	if (!FUN_10020bdd(thing->m_unk0x04)) {
+		return -8;
+	}
+
+	if (!FUN_10020c26(thing->m_unk0x04)) {
+		return -8;
+	}
+
+	FUN_10020c6f(thing->m_unk0x04, &x, &y, &z);
+	dx = x - player->m_position.m_x;
+	dy = y - player->m_position.m_y;
+	dz = z - player->m_position.m_z;
+	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
+	if (!(thing->m_unk0x00 & 0x1000) && unk0x04 > 0x2ab98 && p_player == g_localPlayerId) {
+		return -7;
+	}
+
+	player->m_targetInfo.m_position.m_x = x;
+	player->m_targetInfo.m_position.m_y = y;
+	player->m_targetInfo.m_position.m_z = z;
+	player->m_targetInfo.m_heading = heading;
+	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_distance = distance;
+	player->m_targetInfo.m_unk0x18 = unk0x18;
+	return 1;
+}
+
+// Revalidates p_player's target (m_targetInfo.m_target: a nav, player or game thing index) and
+// updates the target info. Reaching a nav target's radius marks the nav reached by the team; with
+// the claim key (steering m_unk0x3a) pressed, a player or game thing within 20000 of its splash
+// radius is claimed for the team. Returns 0, flagging the target lost (0x1000), when it no longer
+// qualifies.
+// The only diff is a stack-slot permutation of lost, claim, index and kind.
+// FUNCTION: MW2 0x1005fa22
 MechS32 FUN_1005fa22(Player* p_player)
 {
-	STUB(0x1005fa22);
-	return 0;
+	MechS32 isLocal;
+	MechS32 claim;
+	MechS32 lost;
+	MechS32 kind;
+	MechS32 index;
+
+	lost = TRUE;
+	claim = 0;
+	isLocal = FALSE;
+	if (p_player->m_index == g_localPlayerId) {
+		isLocal = TRUE;
+	}
+
+	index = p_player->m_targetInfo.m_target & 0xff;
+	kind = p_player->m_targetInfo.m_target & 0xf00;
+	switch (kind) {
+	case 0x200:
+		if (FUN_1005f4ac(p_player->m_index, index, 0) >= 0) {
+			lost = FALSE;
+		}
+		break;
+	case 0x400:
+		if (FUN_1005f798(p_player->m_index, index, 0) >= 0) {
+			lost = FALSE;
+		}
+		break;
+	case 0x100:
+		if (FUN_1005f2ae(p_player->m_index, index, 0) >= 0) {
+			lost = FALSE;
+			if (g_navTable[index].m_radius > p_player->m_targetInfo.m_distance && p_player->m_mech->m_unk0xbc != 1 &&
+				p_player->m_index == g_localPlayerId) {
+				if (!(g_navTable[index].m_flags & 0x20)) {
+					g_navTable[index].m_flags |= 0x20;
+					g_navTable[index].m_unk0x26 |= 1 << p_player->m_team;
+					FUN_1007eb23(0xe7, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_100602b2(p_player, 1, 0);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	if (lost) {
+		p_player->m_targetInfo.m_target |= 0x1000;
+		return 0;
+	}
+
+	if (isLocal) {
+		g_unk0x100aaba8 = 0;
+	}
+
+	claim = p_player->m_steering->m_unk0x3a;
+	if (claim) {
+		p_player->m_steering->m_unk0x3a = 0;
+		switch (kind) {
+		case 0x200:
+			if (!(g_players[index]->m_unk0x16 & (1 << p_player->m_team))) {
+				if (g_players[index]->m_mech->m_radius + 20000 > p_player->m_targetInfo.m_distance) {
+					if (isLocal) {
+						g_unk0x100aaba8 = 1;
+					}
+
+					g_players[index]->m_flags |= 0x20;
+					g_players[index]->m_unk0x16 |= 1 << p_player->m_team;
+				}
+				else if (isLocal) {
+					g_unk0x100aaba8 = 2;
+				}
+			}
+			else if (isLocal) {
+				g_unk0x100aaba8 = 3;
+			}
+			break;
+		case 0x400:
+			if (!(g_gameThings[index].m_unk0x02 & (1 << p_player->m_team))) {
+				if (g_gameThings[index].m_unk0x10 + 20000 > p_player->m_targetInfo.m_distance) {
+					if (isLocal) {
+						g_unk0x100aaba8 = 1;
+					}
+
+					g_gameThings[index].m_unk0x00 |= 0x20;
+					g_gameThings[index].m_unk0x02 |= 1 << p_player->m_team;
+				}
+				else if (isLocal) {
+					g_unk0x100aaba8 = 2;
+				}
+			}
+			else if (isLocal) {
+				g_unk0x100aaba8 = 3;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	return 1;
 }
 
 // Returns the player the local player targets, or -1.
@@ -162,6 +598,59 @@ AmberWillow0x7c* FUN_1005ff56(void)
 	}
 
 	return obj;
+}
+
+// Targets the shape the local player points at (g_unk0x100a6d34): a player's mech (0x100) or a
+// game thing (0x200), when FUN_1005f4ac or FUN_1005f798 allows it. When FUN_1005fa22 rejects the
+// new target, the old one comes back, with the autopilot.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10060010
+void FUN_10060010(void)
+{
+	MechS32 autopilot;
+	Player* player;
+	MechS32 target;
+	MechS32 previous;
+	ScarletOrchid0x4c* shape;
+
+	target = -1;
+	autopilot = FALSE;
+	player = g_players[g_localPlayerId];
+	previous = player->m_targetInfo.m_target;
+	if (player->m_mech->m_unk0xbc == 1) {
+		autopilot = TRUE;
+	}
+
+	shape = g_unk0x100a6d34;
+	if (shape) {
+		if (shape->m_unk0x02 & 0x100) {
+			if (FUN_1005f4ac(g_localPlayerId, shape->m_unk0x14, 0) >= 0) {
+				target = shape->m_unk0x14 | 0x200;
+			}
+		}
+		else if (shape->m_unk0x02 & 0x200) {
+			if (FUN_1005f798(g_localPlayerId, shape->m_unk0x14, 0) >= 0) {
+				target = shape->m_unk0x14 | 0x400;
+			}
+		}
+
+		if (target != -1 && player->m_targetInfo.m_target != target) {
+			player->m_targetInfo.m_target = target;
+			if (player->m_mech->m_unk0xbc) {
+				player->m_steering->m_unk0x42 = 1;
+			}
+
+			if (!FUN_1005fa22(player)) {
+				player->m_targetInfo.m_target = previous;
+				if (autopilot) {
+					player->m_steering->m_unk0x42 = 0;
+					player->m_mech->m_unk0xbc = 1;
+				}
+			}
+		}
+	}
+
+	g_unk0x100aabac = 1;
 }
 
 // Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_unk0x0c), its length along the

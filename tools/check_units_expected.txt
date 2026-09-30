@@ -5,13 +5,13 @@
 
 MW2SHELL complete
 
-
 # MW2 globals parked in simmain.c until the units that define them are decompiled.
 MW2 order 0x100a0258  # g_weaponDefs and g_effectInfo, the tables of an object that isn't decompiled yet
 MW2 order 0x100a23ec  # the parked run after network.c's data, up to render.c's
 MW2 order 0x100a2bf0
 MW2 order 0x100a554c
 MW2 order 0x100a59e0
+MW2 order 0x100a5cf8  # the parked run after bwd.c's data, before keyboard.c's
 MW2 order 0x100a6be0
 MW2 order 0x100a8674  # the parked run 0x100a8674-0x100a87c0: resource.c's type names and project file, before unk100509a0.c's data
 MW2 order 0x100aa2a4  # g_unk0x100aa2a4, g_missionTimerStopped and g_unk0x100aa2c0, before setres.c's data

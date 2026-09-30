@@ -30,6 +30,7 @@ extern "C"
 	extern MechS32 g_normalFov;
 	extern MechS32 g_zoomFov;
 	extern MechS32 g_unk0x100a2414;
+	extern MechS32 g_unk0x100a2410;
 	extern undefined4 g_unk0x100a2420;
 	extern MechS32 g_unk0x100a2424;
 	extern MechS32 g_unk0x100a2c04;
@@ -122,6 +123,7 @@ extern "C"
 	extern Point g_unk0x100a5ee8[6];
 	extern MechS32 g_unk0x100a6d30;
 	extern undefined4 g_unk0x100a5a24;
+	extern MechS32 g_unk0x100a5558;
 	extern MechS32 g_unk0x100a5a30;
 	extern MechS32 g_unk0x100a5a38;
 	extern MechS32 g_unk0x100b1350;

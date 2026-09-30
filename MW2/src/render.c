@@ -1,8 +1,11 @@
 #include "render.h"
 
+#include "codeblock.h"
 #include "decomp.h"
+#include "error.h"
 #include "eyepoint.h"
 #include "fixedmul.h"
+#include "object.h"
 #include "palette.h"
 #include "refreshmode.h"
 #include "rendertarget.h"
@@ -10,7 +13,11 @@
 #include "simmain.h"
 #include "types.h"
 #include "unk10013340.h"
+#include "unk100335d0.h"
+#include "unk10036230.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
+#include "unk10046750.h"
 #include "unk1004b980.h"
 #include "unk10065f10.h"
 #include "unk1006d680.h"
@@ -24,6 +31,14 @@ MechS32 g_unk0x100a2468 = 0;
 // Cleared while an effect has the camera, set again when it gives it back.
 // GLOBAL: MW2 0x100a2470
 MechS32 g_unk0x100a2470 = 1;
+
+// The object of the scene's shape of kind 0x90, made by SecondRender.
+// GLOBAL: MW2 0x100a2478
+AmberWillow0x7c* g_unk0x100a2478 = NULL;
+
+// The object of the scene's shape of kind 0xa0.
+// GLOBAL: MW2 0x100a247c
+AmberWillow0x7c* g_unk0x100a247c = NULL;
 
 // GLOBAL: MW2 0x100a2480
 MechS32 g_unk0x100a2480 = 0;
@@ -107,16 +122,87 @@ MechS32 InitDisplayGeometry(void)
 	return result;
 }
 
-// STUB: MW2 0x100128b5
+// Makes the code block writable (the drawing routines patch themselves), sets up the vertex
+// buffers and the scene, and installs the normal render hooks.
+// Stack-slot permutation: size, start, segment and oldProtect.
+// FUNCTION: MW2 0x100128b5
 void FirstRender(void)
 {
-	STUB(0x100128b5);
+	MechS32 segment;
+	MechS32 size;
+	DWORD oldProtect;
+	undefined4 start;
+
+	size = 0;
+	start = 0;
+	segment = 0;
+	oldProtect = 0;
+	size = GetCodeBlock(&start, &segment);
+	if (!VirtualProtect(
+			(void*) start,
+			size,
+			(GetVersion() & 0x80000000) ? PAGE_READWRITE : PAGE_EXECUTE_READWRITE,
+			&oldProtect
+		)) {
+		Error(0x4d, NULL);
+	}
+
+	FUN_1007d150(0x80, 0x5dc);
+	g_unk0x100a54b8 = 0x578;
+	FUN_1006d680();
+	g_unk0x100a6cc8.m_frameDrawCallback = FUN_10012afe;
+	g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
+	g_unk0x100a6cc8.m_unk0x5c = FUN_10048ebe;
+	g_unk0x100a6cc8.m_unk0x60 = FUN_10036230;
+	g_unk0x100a6cc8.m_drawPolygon = FUN_10042e00;
+	g_unk0x100a5558 = 0xff;
+	if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
+		g_unk0x100a6cc8.m_unk0x30 = 0;
+	}
+
+	g_unk0x100a6cc8.m_unk0x10 |= 8;
 }
 
-// STUB: MW2 0x100129b7
+// Makes the objects of the scene's shapes of kinds 0x90 and 0xa0, and sets up its shapes of kind
+// 0x70 and type 4.
+// FUNCTION: MW2 0x100129b7
 void SecondRender(void)
 {
-	STUB(0x100129b7);
+	ScarletOrchid0x4c* root;
+	ScarletOrchid0x4c* shape;
+	ScarletOrchid0x4c* next;
+
+	root = g_unk0x100ad5e8;
+	if (!root) {
+		return;
+	}
+
+	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
+		if ((shape->m_unk0x02 & 0xf0) == 0x90) {
+			g_unk0x100a2478 = FUN_1003b6e5(shape);
+			FUN_10001a52(g_unk0x100a2478);
+			break;
+		}
+	}
+
+	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
+		if ((shape->m_unk0x02 & 0xf0) == 0xa0) {
+			g_unk0x100a247c = FUN_1003b6e5(shape);
+			break;
+		}
+	}
+
+	for (shape = root->m_unk0x08; shape; shape = next) {
+		next = shape->m_unk0x08;
+		if ((shape->m_unk0x02 & 0xf0) == 0x70) {
+			FUN_1006da2d(shape);
+			FUN_1006d989(shape);
+		}
+
+		if (shape->m_unk0x24 == 4) {
+			FUN_1006d989(shape);
+		}
+	}
 }
 
 // The normal frame draw callback: renders the 3D view.

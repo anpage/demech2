@@ -6,20 +6,45 @@
 #include "fixeddiv.h"
 #include "geocache.h"
 #include "mech.h"
+#include "mw2log.h"
 #include "object.h"
 #include "players.h"
 #include "playersteering.h"
+#include "point.h"
 #include "random.h"
 #include "ray.h"
 #include "rendertarget.h"
 #include "silverbrook.h"
+#include "transform.h"
 #include "types.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
 #include "unk1004b5a0.h"
 #include "weaponslot.h"
 
+#include <stdio.h>
 #include <stdlib.h>
+
+// Sixteen directions around a mech, as (x, z) steps: FUN_10015b9f's probe rays.
+// GLOBAL: MW2 0x100a2900
+Point g_unk0x100a2900[16] = {
+	{0, 1},
+	{2, 1},
+	{1, 1},
+	{1, 2},
+	{1, 0},
+	{1, -2},
+	{1, -1},
+	{2, -1},
+	{0, -1},
+	{-2, -1},
+	{-1, -1},
+	{-1, -2},
+	{-1, 0},
+	{-1, 2},
+	{-1, 1},
+	{-2, 1}
+};
 
 // STUB: MW2 0x10013430
 void FUN_10013430(Player* p_player, MechU16 p_target)
@@ -577,11 +602,45 @@ MechS32 FUN_10015520(Player* p_player)
 	return below;
 }
 
-// STUB: MW2 0x100155e1
+// Near the ground, sets the player's m_unk0x1d while its mech falls faster than 85% of the fall
+// damage speed and clears it once it is slower than 75%, and logs a fall faster than that speed.
+// Returns the player's m_unk0x78.
+// Stack-slot permutation: line, value and mech.
+// FUNCTION: MW2 0x100155e1
 MechS32 FUN_100155e1(Player* p_player)
 {
-	STUB(0x100155e1);
-	return 0;
+	MechChar line[80];
+	MechS16 value;
+	Mech* mech;
+
+	mech = p_player->m_mech;
+	if (mech->m_unk0xc0 < 0 || !mech->m_unk0xec) {
+		return p_player->m_unk0x78;
+	}
+
+	value = p_player->m_steering->m_unk0x1d;
+	if (p_player->m_position.m_y < 20000) {
+		if (mech->m_unk0xf8 < -0x102762 * 0.85) {
+			value = 1;
+		}
+		else if (mech->m_unk0xf8 > -0x102762 * 0.75) {
+			value = 0;
+		}
+	}
+
+	FUN_100156f2(p_player, value);
+	if (mech->m_unk0xf8 < -0x102762) {
+		sprintf(
+			line,
+			"%6ld : %2d Mech %2d has exceded fall damage speed.\n",
+			g_currentClock,
+			p_player->m_team,
+			p_player->m_index
+		);
+		WriteToMw2Log(line);
+	}
+
+	return p_player->m_unk0x78;
 }
 
 // FUNCTION: MW2 0x100156f2
@@ -606,6 +665,56 @@ MechS32 FUN_10015b40(ScarletOrchid0x4c* p_shape)
 	}
 
 	return (p_shape->m_unk0x02 & 0xf0) == 0x50;
+}
+
+// Builds a probe ray for p_player in p_ray: p_length along direction p_step (mirrored for a
+// negative p_side) in the mech's frame, from its position or, with p_fromEdge, from its side.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10015b9f
+void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, MechS32 p_length, MechS32 p_fromEdge)
+{
+	Matrix* matrix;
+	MechS32 x;
+	MechS32 y;
+	MechS32 dx;
+	MechS32 z;
+	MechS32 dz;
+	MechS32 dy;
+	Mech* mech;
+
+	dy = 0;
+	mech = p_player->m_mech;
+	matrix = FUN_10001e01(p_player->m_obj);
+	dx = g_unk0x100a2900[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_x;
+	dz = g_unk0x100a2900[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_y;
+	if (dx) {
+		dx = p_length / dx;
+	}
+
+	if (dz) {
+		dz = p_length / dz;
+	}
+
+	FUN_1000d650(matrix, &dx, &dy, &dz);
+	if (p_fromEdge) {
+		if (p_side >= 0) {
+			x = mech->m_radius - 1;
+		}
+		else {
+			x = -mech->m_radius + 1;
+		}
+
+		z = 0;
+		FUN_1000d650(matrix, &x, &dy, &z);
+		y = p_player->m_position.m_y;
+	}
+	else {
+		y = p_player->m_position.m_y;
+		x = p_player->m_position.m_x;
+		z = p_player->m_position.m_z;
+	}
+
+	BuildRayFromSegment(p_ray, x, y, z, dx, y, dz);
 }
 
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.

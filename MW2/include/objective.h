@@ -14,7 +14,7 @@ extern "C"
 	void FUN_1001a910(MechChar* p_text);
 	extern MechS32 g_unk0x100a374c;
 
-	void DoFirstObjtv(StarMission* p_unk0x00, MechS32 p_unk0x04);
+	MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team);
 	MechS32 FUN_1001ab4a(MechU8* p_target);
 	MechS32 FUN_1001ac06(MechU8* p_target, MechS32 p_team);
 	MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team);
@@ -26,7 +26,7 @@ extern "C"
 	void UpdateObjectives(void);
 	void EndTheMission1(void);
 	void EndTheMission2(void);
-	void FUN_1001cc5c(MechS32 p_player);
+	void FUN_1001cc5c(MechS32 p_star);
 	void FUN_1001cdd1(void);
 	MechS32 FUN_1001cde1(undefined4 p_unk0x00);
 	MechU16 GetTeamHomeTarget(MechS32 p_team);

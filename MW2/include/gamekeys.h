@@ -3,11 +3,13 @@
 
 #include "types.h"
 
-// The functions of gamekeys.c that other units use.
+// The functions and globals of gamekeys.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+	extern MechS32 g_unk0x100aa298;
 
 	void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
 	void FUN_1005c78a(MechS32 p_key);

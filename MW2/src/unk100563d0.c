@@ -60,7 +60,7 @@ MechS32* FUN_1005640e(char* p_mission)
 		key->m_id = -1;
 	}
 
-	stream = OpenBwdStream(&key->m_id, buffer);
+	stream = OpenBwdStream(key, (BwdStream*) buffer);
 	if (stream) {
 		if (FUN_10056503(stream)) {
 			result = FUN_100567ed();

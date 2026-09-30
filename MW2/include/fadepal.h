@@ -15,7 +15,7 @@ extern "C"
 #endif
 
 	void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08);
-	void FUN_1004c8bd(MechU32 p_target, undefined4 p_unk0x04, MechS32* p_view, struct AmberWillow0x7c* p_object);
+	void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct AmberWillow0x7c* p_object);
 	void FUN_1004ca0d(void);
 	void FUN_1004ca29(MechU32 p_level);
 	void FadeToEndPalette(MechS32 p_alternate);

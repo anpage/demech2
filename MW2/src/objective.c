@@ -54,10 +54,41 @@ void FUN_1001a910(MechChar* p_text)
 	*dst = '\0';
 }
 
-// STUB: MW2 0x1001aa02
-void DoFirstObjtv(StarMission* p_unk0x00, MechS32 p_unk0x04)
+// Starts a star's mission: stamps its start time and places the team at the nav of its first
+// objective, when that is a nav (or at the origin). Returns whether it was.
+// Stack-slot permutation of the locals. The original tests the target's kind by loading its high
+// byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
+// FUNCTION: MW2 0x1001aa02
+MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 {
-	STUB(0x1001aa02);
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechU16 nav;
+	MechS32 heading;
+	MechS32 found;
+
+	x = 0;
+	y = 0;
+	z = 0;
+	heading = 0;
+	found = FALSE;
+	g_missionTime = g_currentClock / 181;
+	if (p_mission->m_objectives[0].m_targetCount > 0 && (p_mission->m_objectives[0].m_targets[0] & 0xff00) == 0x100) {
+		nav = (MechU8) p_mission->m_objectives[0].m_targets[0];
+		if (nav < g_navCount) {
+			x = g_navTable[nav].m_position[0];
+			y = g_navTable[nav].m_position[1];
+			z = g_navTable[nav].m_position[2];
+			heading = g_navTable[nav].m_heading;
+			found = TRUE;
+		}
+	}
+
+	PlaceTeam(p_team, x, y, z, heading);
+	p_mission->m_startTime = g_missionTime;
+	p_mission->m_objectives[0].m_startTime = g_missionTime;
+	return found;
 }
 
 // Returns the state bits (0xe) of an objective target: a player's or a game thing's flags. A target
@@ -451,10 +482,37 @@ void EndTheMission2(void)
 	STUB(0x1001c9f7);
 }
 
-// STUB: MW2 0x1001cc5c
-void FUN_1001cc5c(MechS32 p_player)
+// Restarts star p_star's mission (a player's own, in a network game): every objective goes back
+// to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
+// it names is listed on the objectives panel.
+// FUNCTION: MW2 0x1001cc5c
+void FUN_1001cc5c(MechS32 p_star)
 {
-	STUB(0x1001cc5c);
+	MissionObjective* objective;
+	MechS32 i;
+	StarMission* mission;
+
+	g_missionTime = g_currentClock / 181;
+	mission = &g_objectiveTable[p_star];
+	for (i = 0; i < mission->m_objectiveCount; i++) {
+		objective = &mission->m_objectives[i];
+		if (objective->m_type == 0x40000 && objective->m_state == 5) {
+			if (!g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74) {
+				g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 1;
+			}
+			else {
+				g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 0;
+			}
+		}
+
+		objective->m_state = 3;
+		objective->m_startTime = -1;
+		objective->m_endTime = -1;
+	}
+
+	mission->m_status = 0;
+	mission->m_startTime = g_missionTime;
+	mission->m_endTime = -1;
 }
 
 // FUNCTION: MW2 0x1001cdd1

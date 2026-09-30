@@ -1,10 +1,12 @@
 #include "fadepal.h"
 
+#include "animation.h"
 #include "camerashake.h"
 #include "clock.h"
 #include "debris.h"
 #include "decomp.h"
 #include "displaybackend.h"
+#include "eyepoint.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "fixedsqrt.h"
@@ -15,10 +17,16 @@
 #include "players.h"
 #include "random.h"
 #include "refreshmode.h"
+#include "render.h"
 #include "shots.h"
 #include "simmain.h"
+#include "slateheron.h"
 #include "soundfx.h"
 #include "types.h"
+#include "unk100335d0.h"
+#include "unk10042e00.h"
+#include "unk1004b980.h"
+#include "unk1006d680.h"
 
 // FUNCTION: MW2 0x1004c890
 void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
@@ -28,10 +36,48 @@ void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
 	}
 }
 
-// STUB: MW2 0x1004c8bd
-void FUN_1004c8bd(MechU32 p_target, undefined4 p_unk0x04, MechS32* p_view, struct AmberWillow0x7c* p_object)
+// Renders the scene into render target p_target from the camera p_view with a field of view of
+// p_fovX (only the objects under p_object, if set), then restores the eyepoint, its field of view
+// and the pending palette.
+// Stack-slot permutation: palette and view.
+// FUNCTION: MW2 0x1004c8bd
+void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct AmberWillow0x7c* p_object)
 {
-	STUB(0x1004c8bd);
+	MechS32 fovX;
+	MechS32 palette;
+	MechS32 view[7];
+
+	fovX = g_eyepoint->m_fovX;
+	palette = g_palettePending;
+	FUN_100114ea(g_eyepoint, view);
+	SelectRenderTarget(p_target);
+	g_eyepoint->m_fovX = p_fovX;
+	p_view[6] = 1;
+	FUN_1001156a(g_eyepoint, p_view);
+	FUN_1004bc2e(g_eyepoint);
+	FUN_1004bfe8(g_eyepoint);
+	FUN_1004b980(g_eyepoint);
+	if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
+		FUN_1004320b(g_eyepoint);
+	}
+
+	if (p_object) {
+		FUN_10033b9e(p_object);
+	}
+	else {
+		FUN_100338bb(g_unk0x100ad5e8);
+	}
+
+	FUN_10069591();
+	g_palettePending = palette;
+	FUN_10012e00();
+	g_eyepoint->m_fovX = fovX;
+	g_unk0x100a2460 = 1;
+	FUN_1001156a(g_eyepoint, view);
+	FUN_1004bc2e(g_eyepoint);
+	FUN_1004bfe8(g_eyepoint);
+	FUN_1004b980(g_eyepoint);
+	g_unk0x100a2460 = 0;
 }
 
 // Fades to palette 0x11 over two seconds (0x16a clock ticks).

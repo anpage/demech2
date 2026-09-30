@@ -2,14 +2,21 @@
 
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixeddot27.h"
+#include "fixeddot29.h"
 #include "fixedmul.h"
 #include "muldiv.h"
 #include "simmain.h"
 #include "transform.h"
 #include "types.h"
+#include "unk10004ec0.h"
 #include "unk10019ad0.h"
+#include "unk100335d0.h"
+#include "unk1003a530.h"
+#include "unk10042740.h"
 #include "unk1004c800.h"
 #include "unk1004c820.h"
+#include "unk1004c860.h"
 
 #include <windows.h>
 
@@ -28,14 +35,98 @@ MechS32 g_unk0x100ea828;
 // GLOBAL: MW2 0x100ea82c
 MechS32 g_unk0x100ea82c;
 
+// GLOBAL: MW2 0x100ea830
+MechS32 g_unk0x100ea830;
+
 // GLOBAL: MW2 0x100ea834
 MechS32 g_unk0x100ea834;
+
+// GLOBAL: MW2 0x100ea840
+MechS32 g_unk0x100ea840;
+
+// GLOBAL: MW2 0x100ea84c
+MechS32 g_unk0x100ea84c;
+
+// GLOBAL: MW2 0x100ea850
+MechS32 g_unk0x100ea850;
 
 // GLOBAL: MW2 0x100ea858
 MechS32 g_unk0x100ea858;
 
 // GLOBAL: MW2 0x100ea860
 MechS32 g_unk0x100ea860;
+
+// GLOBAL: MW2 0x100ea864
+MechS32 g_unk0x100ea864;
+
+// GLOBAL: MW2 0x100ea868
+MechS32 g_unk0x100ea868;
+
+// GLOBAL: MW2 0x100ea86c
+MechS32 g_unk0x100ea86c;
+
+// GLOBAL: MW2 0x100ea870
+MechS32 g_unk0x100ea870;
+
+// GLOBAL: MW2 0x100ea874
+MechS32 g_unk0x100ea874;
+
+// GLOBAL: MW2 0x100ea878
+MechS32 g_unk0x100ea878;
+
+// GLOBAL: MW2 0x100ea87c
+MechS32 g_unk0x100ea87c;
+
+// GLOBAL: MW2 0x100ea880
+MechS32 g_unk0x100ea880;
+
+// GLOBAL: MW2 0x100ea884
+MechS32 g_unk0x100ea884;
+
+// GLOBAL: MW2 0x100ea890
+MechS32 g_unk0x100ea890;
+
+// GLOBAL: MW2 0x100ea894
+MechS32 g_unk0x100ea894;
+
+// GLOBAL: MW2 0x100ea898
+MechS32 g_unk0x100ea898;
+
+// GLOBAL: MW2 0x100ea89c
+MechS32 g_unk0x100ea89c;
+
+// GLOBAL: MW2 0x100ea8a0
+MechS32 g_unk0x100ea8a0;
+
+// GLOBAL: MW2 0x100ea8a4
+MechS32 g_unk0x100ea8a4;
+
+// GLOBAL: MW2 0x100ea8a8
+MechS32 g_unk0x100ea8a8;
+
+// GLOBAL: MW2 0x100ea8ac
+MechS32 g_unk0x100ea8ac;
+
+// GLOBAL: MW2 0x100ea8b0
+MechS32 g_unk0x100ea8b0;
+
+// GLOBAL: MW2 0x100ea8b4
+MechS32 g_unk0x100ea8b4;
+
+// GLOBAL: MW2 0x100ea8b8
+MechS32 g_unk0x100ea8b8;
+
+// GLOBAL: MW2 0x100ea8bc
+MechS32 g_unk0x100ea8bc;
+
+// GLOBAL: MW2 0x100ea8c0
+MechS32 g_unk0x100ea8c0;
+
+// GLOBAL: MW2 0x100ea8c4
+MechS32 g_unk0x100ea8c4;
+
+// GLOBAL: MW2 0x100ea8c8
+MechS32 g_unk0x100ea8c8;
 
 // GLOBAL: MW2 0x100ea8d0
 MechS32 g_unk0x100ea8d0;
@@ -207,10 +298,187 @@ void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix)
 }
 
 // Projects the point (p_x, p_y, p_z) through the eyepoint, in place.
-// STUB: MW2 0x1004c11d
+// Projects the world point (*p_x, *p_y, *p_z) onto the screen in place (*p_z the depth). A point
+// at or behind the near plane is projected mirrored. Returns whether it is in front and on the
+// screen.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1004c11d
 MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	STUB(0x1004c11d);
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+	MechS32 dx;
+	MechS32 dy;
+	MechS32 behind;
+	MechS32 dz;
+
+	x = *p_x;
+	y = *p_y;
+	z = *p_z;
+	dx = x - g_unk0x100ea8b8;
+	dy = y - g_unk0x100ea8b4;
+	dz = z - g_unk0x100ea8bc;
+	x = FixedDot27(dx, g_unk0x100ea864, dy, g_unk0x100ea868, dz, g_unk0x100ea86c);
+	y = FixedDot27(dx, g_unk0x100ea870, dy, g_unk0x100ea874, dz, g_unk0x100ea878);
+	z = FixedDot27(dx, g_unk0x100ea87c, dy, g_unk0x100ea880, dz, g_unk0x100ea884);
+	*p_z = z;
+	if (z <= g_unk0x100ea820) {
+		behind = TRUE;
+		if (z < 0) {
+			z = -z;
+		}
+		else if (z == 0) {
+			z = 1;
+		}
+	}
+	else {
+		behind = FALSE;
+	}
+
+	*p_x = FUN_10042740(x, z, g_unk0x100ea824, g_unk0x100ea834);
+	*p_y = g_unk0x100ea840 - g_unk0x100ea850 - FUN_10042740(y, z, g_unk0x100ea828, g_unk0x100ea858);
+	if (behind) {
+		return 0;
+	}
+
+	return *p_x >= g_unk0x100ea830 && *p_x <= g_unk0x100ea84c && *p_y >= g_unk0x100ea850 && *p_y <= g_unk0x100ea840;
+}
+
+// The scene's shape filter (SlateHeron0x68::m_unk0x58): culls a shape against the view frustum,
+// like FUN_10042206 the map view's. 1: a shape of kind 0xa0 with g_unk0x100a2420, 5: out of
+// range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1004c2ef
+MechS32 FUN_1004c2ef(ScarletOrchid0x4c* p_shape)
+{
+	MechS32 y;
+	MechS32 z;
+	MechS32 radius;
+	MechS32 limit;
+	MechS32 dx;
+	MechS32 side;
+	MechS32 dy;
+	MechS32 height;
+	MechS32 fov;
+	MechS32 dz;
+	MechS32 depth;
+	MechS32 x;
+
+	if (g_unk0x100a2420 && (p_shape->m_unk0x02 & 0xf0) == 0xa0) {
+		return 1;
+	}
+
+	x = p_shape->m_unk0x34;
+	y = p_shape->m_unk0x38;
+	z = p_shape->m_unk0x3c;
+	radius = p_shape->m_unk0x40;
+	dx = x - g_unk0x100ea8b8;
+	dy = y - g_unk0x100ea8b4;
+	dz = z - g_unk0x100ea8bc;
+	if (!FUN_10004ec0(dx, dy, dz, g_eyepoint->m_unk0xb4 + radius)) {
+		return 5;
+	}
+
+	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_unk0x100ea8a8, dy, g_unk0x100ea8ac, dz, g_unk0x100ea8b0);
+	if (radius + depth < g_unk0x100ea8d0) {
+		return 4;
+	}
+
+	if (depth - radius > g_unk0x100ea860) {
+		return 5;
+	}
+
+	side = FixedDot29(dx, g_unk0x100ea890, dy, g_unk0x100ea894, dz, g_unk0x100ea898);
+	fov = g_eyepoint->m_fovX;
+	if (side > 0) {
+		limit = FUN_1004c860(fov, side, -depth, g_eyepoint->m_unk0xa8);
+	}
+	else {
+		limit = FUN_1004c860(fov, -side, -depth, g_eyepoint->m_unk0xa8);
+	}
+
+	if (limit > radius) {
+		return 6;
+	}
+
+	height = FixedDot29(dx, g_unk0x100ea89c, dy, g_unk0x100ea8a0, dz, g_unk0x100ea8a4);
+	fov = g_eyepoint->m_fovY;
+	if (height > 0) {
+		limit = FUN_1004c860(fov, height, -depth, g_eyepoint->m_unk0xac);
+	}
+	else {
+		limit = FUN_1004c860(fov, -height, -depth, g_eyepoint->m_unk0xac);
+	}
+
+	if (limit > radius) {
+		return 7;
+	}
+
+	return 0;
+}
+
+// Culls a shape against the view frustum like FUN_1004c2ef, without its range test. 1 for a
+// hidden shape (bit 0x1000).
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1004c565
+MechS32 FUN_1004c565(ScarletOrchid0x4c* p_shape)
+{
+	MechS32 y;
+	MechS32 z;
+	MechS32 radius;
+	MechS32 limit;
+	MechS32 dx;
+	MechS32 side;
+	MechS32 dy;
+	MechS32 height;
+	MechS32 fov;
+	MechS32 dz;
+	MechS32 depth;
+	MechS32 x;
+
+	x = p_shape->m_unk0x34;
+	y = p_shape->m_unk0x38;
+	z = p_shape->m_unk0x3c;
+	radius = p_shape->m_unk0x40;
+	dx = x - g_unk0x100ea8b8;
+	dy = y - g_unk0x100ea8b4;
+	dz = z - g_unk0x100ea8bc;
+	if (p_shape->m_unk0x00 & 0x1000) {
+		return 1;
+	}
+
+	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_unk0x100ea8a8, dy, g_unk0x100ea8ac, dz, g_unk0x100ea8b0);
+	if (radius + depth < g_unk0x100ea8d0) {
+		return 4;
+	}
+
+	side = FixedDot29(dx, g_unk0x100ea890, dy, g_unk0x100ea894, dz, g_unk0x100ea898);
+	fov = g_eyepoint->m_fovX;
+	if (side > 0) {
+		limit = FUN_1004c860(fov, side, -depth, g_eyepoint->m_unk0xa8);
+	}
+	else {
+		limit = FUN_1004c860(fov, -side, -depth, g_eyepoint->m_unk0xa8);
+	}
+
+	if (limit > radius) {
+		return 6;
+	}
+
+	height = FixedDot29(dx, g_unk0x100ea89c, dy, g_unk0x100ea8a0, dz, g_unk0x100ea8a4);
+	fov = g_eyepoint->m_fovY;
+	if (height > 0) {
+		limit = FUN_1004c860(fov, height, -depth, g_eyepoint->m_unk0xac);
+	}
+	else {
+		limit = FUN_1004c860(fov, -height, -depth, g_eyepoint->m_unk0xac);
+	}
+
+	if (limit > radius) {
+		return 7;
+	}
+
 	return 0;
 }
 

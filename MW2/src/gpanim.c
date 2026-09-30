@@ -1,7 +1,9 @@
 #include "gpanim.h"
 
 #include "decomp.h"
+#include "mech.h"
 #include "players.h"
+#include "playersteering.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "types.h"
@@ -48,6 +50,63 @@ MechS32* FUN_100036c3(Player* p_player, MechS32* p_offset)
 	p_offset[1] = g_eyepoint->m_unk0x04 - p_player->m_position.m_y;
 	p_offset[2] = g_eyepoint->m_unk0x08 - p_player->m_position.m_z;
 	return p_offset;
+}
+
+// Picks the player's movement sound state from its mech's height (m_unk0x8c, m_unk0x88; m_unk0x88
+// 2 while m_unk0x2f of its steering is set), plays its pending sound m_unk0x90 once (bit 8 of
+// m_unk0x80), and for the local player updates the looping sounds (FUN_100038c2).
+// Stack-slot permutation: offset and position.
+// FUNCTION: MW2 0x10003710
+void FUN_10003710(Player* p_player)
+{
+	MechS32* offset;
+	MechS32 position[3];
+	MechS32 height;
+
+	offset = NULL;
+	if (p_player->m_mech->m_unk0x44.m_value <= 0x420) {
+		FUN_1000369e(p_player);
+	}
+	else {
+		height = p_player->m_mech->m_unk0x44.m_value - 0x400;
+		if (height < 0) {
+			height = 0;
+		}
+
+		p_player->m_unk0x88 = 0;
+		if (height < 0x100) {
+			p_player->m_unk0x8c = 1;
+		}
+		else if (height < 0x300) {
+			p_player->m_unk0x8c = 2;
+		}
+		else {
+			p_player->m_unk0x8c = 3;
+			p_player->m_unk0x88 = 1;
+		}
+
+		if (p_player->m_unk0x84 == 2 && p_player->m_unk0x8c > 2) {
+			p_player->m_unk0x8c = 2;
+		}
+
+		if (p_player->m_steering->m_unk0x2f) {
+			p_player->m_unk0x88 = 2;
+		}
+
+		if (p_player->m_unk0x00 == 4) {
+			p_player->m_unk0x84 = p_player->m_unk0x88;
+		}
+	}
+
+	if (p_player->m_unk0x90 != -1 && p_player->m_unk0x80 & 8) {
+		p_player->m_unk0x80 &= ~8;
+		offset = FUN_100036c3(p_player, position);
+		FUN_1007ebd1(position[0], position[1], position[2], p_player->m_unk0x90, g_unk0x100a2420);
+	}
+
+	if (p_player->m_index == g_localPlayerId) {
+		FUN_100038c2(p_player, g_unk0x100a0110, offset);
+	}
 }
 
 // Matches except for the stack slots of offset, sound and id (a consistent permutation) and

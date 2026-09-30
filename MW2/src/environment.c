@@ -161,7 +161,7 @@ void FUN_1007d7e3(MechS32 p_phase)
 }
 
 // FUNCTION: MW2 0x1007d875
-MechS32 FUN_1007d875(void)
+MechS32 FUN_1007d875(undefined4 p_unk0x00)
 {
 	return g_unk0x100bfd50;
 }

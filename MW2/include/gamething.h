@@ -11,7 +11,7 @@ typedef struct GameThing {
 	MechS32 m_unk0x04;                // 0x04
 	MechS32 m_unk0x08;                // 0x08 — hit points: destroyed when they run out
 	MechS32 m_unk0x0c;                // 0x0c
-	undefined m_unk0x10[0x14 - 0x10]; // 0x10
+	MechS32 m_unk0x10;                // 0x10 — its shape's radius (AfterWorldLoader)
 	MechU8 m_unk0x14;                 // 0x14
 	undefined m_unk0x15[0x40 - 0x15]; // 0x15
 } GameThing;

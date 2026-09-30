@@ -1,6 +1,7 @@
 #ifndef UNK1007D120_H
 #define UNK1007D120_H
 
+#include "copperwren.h"
 #include "types.h"
 #include "unk100335d0.h"
 
@@ -19,7 +20,7 @@ extern "C"
 	void FUN_1007d120(void);
 	void FUN_1007d150(MechS32 p_unk0x00, MechS32 p_unk0x04);
 	void FUN_1007d220(void);
-	MechU8* FUN_1007d248(void);
+	CopperWren0x20* FUN_1007d248(void);
 	MechU8* FUN_1007d296(void);
 
 #ifdef __cplusplus

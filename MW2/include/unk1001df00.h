@@ -6,6 +6,7 @@
 #include "types.h"
 
 struct DuskMoth0x24;
+struct ScarletOrchid0x4c;
 #include "unk10036230.h"
 
 // A quadtree node: its bounds, its four children (m_unk0x18 == 0) and m_unk0x18 entries
@@ -29,6 +30,8 @@ extern "C"
 {
 #endif
 
+	void FUN_1001df00(struct ScarletOrchid0x4c* p_shape);
+	AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, GraniteLattice0x18* p_model);
 	AzureThicket0x2c* FUN_1001e429(
 		undefined4 p_unk0x00,
 		undefined4 p_unk0x04,

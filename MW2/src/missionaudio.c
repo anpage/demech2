@@ -4,11 +4,14 @@
 
 #include "decomp.h"
 #include "error.h"
+#include "gamecd.h"
 #include "mss.h"
 #include "namehash.h"
 #include "types.h"
 
+#include <stdio.h>
 #include <string.h>
+#include <windows.h>
 
 // A project file entry: a sound file name, chained in its hash bucket.
 // SIZE 0x14
@@ -64,10 +67,51 @@ ProjectFileEntry* FUN_10007140(MechChar* p_name, MechS32 p_add)
 	return added;
 }
 
-// STUB: MW2 0x10007252
+// Lists the mission's sound files (keating\*.sfl, on the game CD when they aren't installed) in
+// the project file table and keeps their directory in g_unk0x100bdef0.
+// FUNCTION: MW2 0x10007252
 void CollectMissionAudio(void)
 {
-	STUB(0x10007252);
+	MechChar drive;
+	HANDLE find;
+	WIN32_FIND_DATA data;
+
+	drive = '\0';
+	sprintf(g_unk0x100bdef0, "%s\\*.sfl", "keating");
+	find = FindFirstFile(g_unk0x100bdef0, &data);
+	if (find == INVALID_HANDLE_VALUE) {
+		drive = FindGameCdDrive();
+		if (!drive) {
+			return;
+		}
+
+		sprintf(g_unk0x100bdef0, "%c:\\%s\\*.sfl", drive, "keating");
+		find = FindFirstFile(g_unk0x100bdef0, &data);
+		if (find == INVALID_HANDLE_VALUE) {
+			return;
+		}
+	}
+
+	for (;;) {
+		if (!data.cAlternateFileName[0]) {
+			FUN_10007140(data.cFileName, 1);
+		}
+		else {
+			FUN_10007140(data.cAlternateFileName, 1);
+		}
+
+		if (!FindNextFile(find, &data)) {
+			break;
+		}
+	}
+
+	FindClose(find);
+	if (drive) {
+		sprintf(g_unk0x100bdef0, "%c:\\%s", drive, "keating");
+	}
+	else {
+		sprintf(g_unk0x100bdef0, "%s", "keating");
+	}
 }
 
 // Reads the sound file p_name (".sfl" appended) from the mission's directory, if the project

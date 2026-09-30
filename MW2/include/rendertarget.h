@@ -29,17 +29,22 @@ extern "C"
 #endif
 
 	extern MechS32 g_navCount;
+	extern MechS32 g_unk0x100aabac;
 	extern NavPoint g_navTable[128];
 
 	MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	void FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav);
+	MechS32 FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav);
 	void FUN_1005ef5e(struct Player* p_player, MechS32 p_step, MechU32 p_flags);
 	void FUN_1005f284(void);
+	MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags);
+	MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags);
+	MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags);
 	MechS32 FUN_1005fa22(struct Player* p_player);
 	MechS32 FUN_1005fe63(void);
 	MechS32 FUN_1005febe(void);
 	struct ScarletOrchid0x4c* FUN_1005ff19(void);
 	struct AmberWillow0x7c* FUN_1005ff56(void);
+	void FUN_10060010(void);
 	void FUN_10060197(
 		MechS32 p_dx,
 		MechS32 p_dy,

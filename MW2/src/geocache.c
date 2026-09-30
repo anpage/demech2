@@ -575,10 +575,54 @@ void FUN_10020429(GameThing* p_thing)
 	FUN_100204e8();
 }
 
-// STUB: MW2 0x100204e8
+// Propagates the parents' states to the cache entries hanging from them: a hidden parent (0x200)
+// hides the entry (FUN_10020292); a parent flagged 0x800 flags the entry and unloads it
+// (FUN_10020b95), and an entry whose parent no longer is is loaded again (FUN_10020704), its game
+// thing's object marked when the thing has bit 0x8000.
+// Stack-slot permutation of the locals. Operand order: the loop test (i < g_unk0x100a3874)
+// loads g_unk0x100a3874 first in the original.
+// FUNCTION: MW2 0x100204e8
 void FUN_100204e8(void)
 {
-	STUB(0x100204e8);
+	GameThing* thing;
+	MechS32 i;
+	MechS32 index;
+	HollowSpire0x7c* entry;
+
+	for (i = 0; i < g_unk0x100a3874; i++) {
+		entry = &g_unk0x1010c630[i];
+		if (entry->m_unk0x08 > -1) {
+			if (g_unk0x1010c630[entry->m_unk0x08].m_unk0x0c & 0x200 && !(entry->m_unk0x0c & 0x200)) {
+				g_unk0x1010b610 = 1;
+				FUN_10020292(i);
+			}
+
+			if (g_unk0x1010c630[entry->m_unk0x08].m_unk0x0c & 0x800) {
+				if (!(entry->m_unk0x0c & 0x800)) {
+					g_unk0x1010b610 = 1;
+					entry->m_unk0x0c |= 0x800;
+					FUN_10020b95(i);
+				}
+			}
+			else if (entry->m_unk0x0c & 0x800 && !(entry->m_unk0x0c & 0x200)) {
+				g_unk0x1010b610 = 1;
+				entry->m_unk0x0c &= ~0x800;
+				if (FUN_10020704(i, entry->m_unk0x04)) {
+					index = g_unk0x1010c630[i].m_unk0x18;
+					if (index != -1) {
+						thing = &g_gameThings[index];
+						if (thing->m_unk0x00 & 0x8000) {
+							FUN_100044f3(g_unk0x1010c630[i].m_unk0x20, FUN_100213cf, 0);
+							FUN_10021314(i);
+						}
+					}
+				}
+				else {
+					entry->m_unk0x0c &= 0x800;
+				}
+			}
+		}
+	}
 }
 
 // Returns whether the cache is full: no entry is free (resource -1).

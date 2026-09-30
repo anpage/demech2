@@ -7,6 +7,8 @@
 #include "ray.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk10036230.h"
+#include "unk1003a530.h"
 
 #include <windows.h>
 
@@ -14,6 +16,82 @@ DECOMP_SIZE_ASSERT(AzureThicket0x2c, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
 MechS32 g_unk0x100a37dc = 0;
+
+// Builds p_shape's quadtree (m_unk0x44) over its model's bounds, unless g_unk0x100a37dc is set.
+// Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_unk0x14 loads
+// the vertex's first in the original.
+// FUNCTION: MW2 0x1001df00
+void FUN_1001df00(ScarletOrchid0x4c* p_shape)
+{
+	GraniteLattice0x18* model;
+	AzureThicket0x2c* root;
+	EmberFern0x2c* vertices;
+	EmberFern0x2c* vertex;
+	MechS32 i;
+	MechS32 j;
+
+	if (g_unk0x100a37dc) {
+		return;
+	}
+
+	model = p_shape->m_unk0x1c;
+	if (model) {
+		vertex = (EmberFern0x2c*) (model + 1);
+		vertices = vertex;
+		root = FUN_1001e429(
+			vertex->m_unk0x0c,
+			vertex->m_unk0x0c,
+			vertex->m_unk0x10,
+			vertex->m_unk0x10,
+			vertex->m_unk0x14,
+			vertex->m_unk0x14,
+			0
+		);
+		p_shape->m_unk0x44 = root;
+		if (!root) {
+			return;
+		}
+
+		for (i = 1; i < model->m_unk0x04; i++) {
+			vertex++;
+			if (root->m_unk0x04 < vertex->m_unk0x0c) {
+				root->m_unk0x04 = vertex->m_unk0x0c;
+			}
+
+			if (vertex->m_unk0x0c < root->m_unk0x00) {
+				root->m_unk0x00 = vertex->m_unk0x0c;
+			}
+
+			if (root->m_unk0x14 < vertex->m_unk0x14) {
+				root->m_unk0x14 = vertex->m_unk0x14;
+			}
+
+			if (vertex->m_unk0x14 < root->m_unk0x10) {
+				root->m_unk0x10 = vertex->m_unk0x14;
+			}
+
+			if (root->m_unk0x0c < vertex->m_unk0x10) {
+				root->m_unk0x0c = vertex->m_unk0x10;
+			}
+
+			if (root->m_unk0x08 > vertex->m_unk0x10) {
+				root->m_unk0x08 = vertex->m_unk0x10;
+			}
+		}
+
+		for (j = 0; j < 4; j++) {
+			root->m_children[j] = FUN_1001e0a7(root, j, model);
+		}
+	}
+}
+
+// Builds the quadtree child p_quadrant of p_node from p_model's faces.
+// STUB: MW2 0x1001e0a7
+AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, GraniteLattice0x18* p_model)
+{
+	STUB(0x1001e0a7);
+	return NULL;
+}
 
 // Allocates a quadtree node with room for p_unk0x18 entries, cleared.
 // The only diff is a stack-slot permutation of entries and node.

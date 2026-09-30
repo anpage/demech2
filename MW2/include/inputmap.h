@@ -13,6 +13,7 @@ extern "C"
 	extern PlayerSteering g_localSteering;
 	extern MechS32 g_sinkPilotTilt;
 	extern MechS32 g_sinkPilotPan;
+	extern MechS32 g_unk0x100b2564;
 	extern MechS8 g_sinkGlanceLeft;
 	extern MechS8 g_sinkGlanceRight;
 	extern MechS8 g_sinkGlanceUp;

@@ -25,6 +25,7 @@ extern "C"
 {
 #endif
 
+	MechS32 FUN_1001f3e0(void);
 	void FUN_1001f5cb(void);
 	ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index);

@@ -83,10 +83,10 @@ void FUN_1007d220(void)
 }
 
 // FUNCTION: MW2 0x1007d248
-MechU8* FUN_1007d248(void)
+CopperWren0x20* FUN_1007d248(void)
 {
 	MechS32 recordSize;
-	MechU8* record;
+	CopperWren0x20* record;
 
 	recordSize = 0x20;
 	__asm {
