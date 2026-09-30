@@ -5,6 +5,7 @@
 #include "ambientsound.h"
 #include "callbacks.h"
 #include "clock.h"
+#include "compat.h"
 #include "config.h"
 #include "copperwren.h"
 #include "decomp.h"
@@ -554,6 +555,10 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 // FUNCTION: MW2 0x10048c50
 CopperWren0x20* FUN_10048c50(EmberFern0x2c* p_vertex)
 {
+#ifdef COMPAT_MODE
+	STUB(0x10048c50);
+	return NULL;
+#else
 	MechS32 u;
 	MechS32 v;
 	CopperWren0x20* result;
@@ -640,6 +645,7 @@ jmp_10048c72:
 	}
 
 	return result;
+#endif
 }
 
 // Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
@@ -796,6 +802,10 @@ jmp_10048e8f:
 // FUNCTION: MW2 0x10048ebe
 CopperWren0x20* FUN_10048ebe(CopperWren0x20* p_vertex)
 {
+#ifdef COMPAT_MODE
+	STUB(0x10048ebe);
+	return NULL;
+#else
 	__asm {
 		mov ebx, p_vertex
 		test byte ptr [ebx + 0x1d], 0xff
@@ -860,6 +870,7 @@ jmp_10048f8c:
 	}
 
 	jmp_10048fa2 : return p_vertex;
+#endif
 }
 
 // Returns the shade (0x7f: full) of p_face from the angle between its normal and the direction
@@ -869,6 +880,10 @@ jmp_10048f8c:
 // FUNCTION: MW2 0x10048faf
 MechS32 FUN_10048faf(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 {
+#ifdef COMPAT_MODE
+	STUB(0x10048faf);
+	return 0;
+#else
 	MechS32 x;
 	MechS32 y;
 	MechS32 z;
@@ -986,6 +1001,7 @@ jmp_10049103:
 	}
 
 	jmp_10049147 : return shade;
+#endif
 }
 
 // Queues a face of a model for drawing, unless it faces away: projects the vertices it hasn't

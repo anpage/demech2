@@ -2,6 +2,7 @@
    with __asm bodies. */
 #include "unk10036230.h"
 
+#include "compat.h"
 #include "decomp.h"
 #include "duskmoth.h"
 #include "emberfern.h"
@@ -132,6 +133,9 @@ void FUN_10038d0d(RenderTarget* p_target, MechS32 p_count, MechU32* p_points, Pi
 // FUNCTION: MW2 0x10039a30
 void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 {
+#ifdef COMPAT_MODE
+	STUB(0x10039a30);
+#else
 	DuskMoth0x24* faces;
 	MechS16 vertexCount;
 	MechS32 vertexSize;
@@ -261,6 +265,7 @@ void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 	}
 
 	jmp_10039b8a : return;
+#endif
 }
 
 // Transforms the shape's position (m_unk0x28-0x30) by p_matrix into m_unk0x34-0x3c, and bumps its
