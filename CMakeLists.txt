@@ -403,15 +403,20 @@ demech2_add_dll(mw2
     MW2/src/unk10040b30.c
     MW2/src/unk10041fa0.c
     MW2/src/keyboard.c
-    MW2/src/unk10044740.c
+    MW2/src/unk10042e00.c
+    MW2/src/fixeddivu.c
+    MW2/src/fixedmul30.c
+    MW2/src/weapons.c
     MW2/src/ramp.c
     MW2/src/staticmem.c
+    MW2/src/joystick.c
     MW2/src/unk1004b130.c
     MW2/src/unk1004b5a0.c
     MW2/src/unk1004b980.c
     MW2/src/unk1004c800.c
     MW2/src/unk1004c820.c
     MW2/src/fadepal.c
+    MW2/src/unk1004d020.c
     MW2/src/dispdib.c
     MW2/src/resource.c
     MW2/src/debugprint.c
@@ -459,7 +464,7 @@ demech2_add_dll(mw2
     MW2/src/perf.c
     MW2/src/refreshmode.c
     MW2/src/directdraw.c
-    MW2/src/input.c
+    MW2/src/inputmap.c
     MW2/src/clock.c
     MW2/src/unk1007d120.c
     MW2/src/callbacks.c

@@ -1,14 +1,21 @@
 #include "fadepal.h"
 
 #include "camerashake.h"
+#include "clock.h"
+#include "debris.h"
 #include "decomp.h"
 #include "displaybackend.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "fixedsqrt.h"
 #include "loadres.h"
+#include "mech.h"
+#include "object.h"
 #include "palette.h"
+#include "players.h"
+#include "random.h"
 #include "refreshmode.h"
+#include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "types.h"
@@ -73,6 +80,126 @@ void FadeToEndPalette(MechS32 p_alternate)
 		FUN_1001a163(g_paletteResourceIds[slot], g_unk0x100a8694);
 		ApplyPaletteResource(slot);
 	}
+}
+
+// Sets off the smoke of a wrecked mech, or now and then a spark while m_unk0x8c runs.
+// FUNCTION: MW2 0x1004cb11
+void FUN_1004cb11(Mech* p_mech)
+{
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+
+	x = p_mech->m_player->m_position.m_x;
+	y = p_mech->m_player->m_position.m_y;
+	z = p_mech->m_player->m_position.m_z;
+	if (!p_mech->m_unk0x8c) {
+		FUN_1006b152(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
+	}
+	else if (RandomIntBelow(100) <= 20) {
+		x += FUN_100736f5() / 2;
+		z += FUN_100736f5() / 2;
+		if (RandomIntBelow(100) < 0x3c) {
+			FUN_1006b152(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
+		}
+		else {
+			FUN_1006b152(p_mech->m_player->m_killer, 0x10b, x, y, z, x, y, z);
+		}
+	}
+}
+
+// Breaks a destroyed mech's model into debris.
+// Stack-slot permutation: obj, upper, lower and the three indices.
+// FUNCTION: MW2 0x1004cc27
+void FUN_1004cc27(Mech* p_mech)
+{
+	AmberWillow0x7c* obj;
+	AmberWillow0x7c* upper;
+	AmberWillow0x7c* lower;
+	MechS32 upperIndex;
+	MechS32 lowerIndex;
+	MechS32 objIndex;
+
+	FUN_10001926(p_mech->m_player->m_obj);
+	obj = p_mech->m_player->m_obj;
+	upper = p_mech->m_unk0x64;
+	lower = p_mech->m_unk0x60;
+	upperIndex = FUN_10004111(upper, 1);
+	FUN_10004218(upperIndex);
+	lowerIndex = FUN_10004111(lower, 1);
+	FUN_10004218(lowerIndex);
+	objIndex = FUN_10004111(obj, 1);
+	FUN_10004218(objIndex);
+}
+
+// Sets off the flames of the jump jets and plays their sound.
+// Stack-slot permutation: x, y, z, player, jet and fired.
+// FUNCTION: MW2 0x1004ccba
+void FUN_1004ccba(Mech* p_mech)
+{
+	MechS32 z;
+	MechS32 y;
+	MechS32 x;
+	Player* player;
+	MechS32 jet;
+	MechS32 fired;
+
+	fired = FALSE;
+	player = p_mech->m_player;
+	jet = 6;
+	if (p_mech->m_objects[jet]) {
+		fired = TRUE;
+		player->m_unk0x48 = p_mech->m_objects[jet];
+		FUN_1006b1c8(0x19, p_mech->m_player);
+		GetObjPosition(player->m_unk0x48, &x, &y, &z);
+	}
+
+	jet = 7;
+	if (p_mech->m_objects[jet]) {
+		fired = TRUE;
+		player->m_unk0x48 = p_mech->m_objects[jet];
+		FUN_1006b1c8(0x19, p_mech->m_player);
+		GetObjPosition(player->m_unk0x48, &x, &y, &z);
+	}
+
+	if (fired) {
+		x -= g_eyepoint->m_unk0x00;
+		y -= g_eyepoint->m_unk0x04;
+		z -= g_eyepoint->m_unk0x08;
+		if (p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0xc0 < 0x1c4 &&
+			p_mech->m_unk0xc0 + g_deltaTime > 0x1c4) {
+			FUN_1007eb23(0xde, 100, 0x40, 5, 0x50);
+		}
+		else {
+			FUN_1007ebd1(x, y, z, 0xdf, g_unk0x100a2420);
+		}
+	}
+}
+
+// Plays a mech's landing: the thud, and the camera shake for the local player.
+// FUNCTION: MW2 0x1004ce3e
+void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
+{
+	MechS32 sound;
+
+	if (p_mech->m_player->m_index == g_localPlayerId) {
+		PlayPlayerHitFeedback(0, -p_speed, 0);
+	}
+
+	if (p_speed >= -0x102762) {
+		sound = 0xe6;
+	}
+	else {
+		sound = 0xe5;
+	}
+
+	FUN_1007ebd1(
+		p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00,
+		p_mech->m_player->m_position.m_y - p_mech->m_unk0xcc - g_eyepoint->m_unk0x04,
+		p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08,
+		sound,
+		g_unk0x100a2420
+	);
 }
 
 // Shakes the camera away from a hit's direction, unless a shake is already playing.

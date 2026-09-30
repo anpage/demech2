@@ -31,9 +31,9 @@
 #include "types.h"
 #include "unk100079d0.h"
 #include "unk10034a40.h"
-#include "unk10044740.h"
 #include "unk100758a0.h"
 #include "unk1007fbe0.h"
+#include "weapons.h"
 
 #include <stdio.h>
 #include <string.h>

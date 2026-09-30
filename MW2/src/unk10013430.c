@@ -405,3 +405,9 @@ ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target)
 
 	return obj ? obj->m_unk0x6c : NULL;
 }
+
+// STUB: MW2 0x1001632c
+void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
+{
+	STUB(0x1001632c);
+}

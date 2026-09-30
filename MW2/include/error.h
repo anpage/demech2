@@ -10,6 +10,7 @@ extern "C"
 #endif
 
 	void Error(MechS32 p_unk0x00, const char* p_unk0x04, ...);
+	void FUN_1003ba07(void);
 
 #ifdef __cplusplus
 }

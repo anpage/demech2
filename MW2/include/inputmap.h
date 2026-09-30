@@ -1,9 +1,9 @@
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef INPUTMAP_H
+#define INPUTMAP_H
 
 #include "types.h"
 
-// The functions and globals of input.c that other units use.
+// The functions and globals of inputmap.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
@@ -17,6 +17,10 @@ extern "C"
 	extern MechS8 g_sinkMenuEnter;
 	extern MechS8 g_sinkMenuAbort;
 
+	MechS32 RegisterInputDevice(MechChar* p_name);
+	MechS32 FindInputDevice(MechChar* p_name);
+	MechS32 FindInputAxis(MechS32 p_device, MechChar* p_name);
+	MechS32 FindInputButton(MechS32 p_device, MechChar* p_name);
 	MechS32 LoadInputMap(void);
 	MechS32 LoadGamekeyMap(void);
 	void FirstInputs(void);
@@ -25,9 +29,10 @@ extern "C"
 	void DisableGameplayInput(void);
 	void EnableGameplayInput(void);
 	MechS16 LookupGameKey(MechS16 p_keyCode);
+	void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // INPUT_H
+#endif // INPUTMAP_H

@@ -30,6 +30,7 @@ extern "C"
 	extern MechS32 g_navCount;
 	extern NavPoint g_navTable[128];
 
+	MechS32 FUN_1006053c(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechU32 p_color);
 	MechS32 FUN_10060617(RenderTarget* p_target, MechS32 p_x, MechS32 p_y);
 	MechS32 FUN_100606ed(
 		RenderTarget* p_target,

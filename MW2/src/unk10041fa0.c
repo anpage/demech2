@@ -3,6 +3,7 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "palette.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "slateheron.h"
@@ -71,6 +72,20 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_eyepoint->m_unk0xa4 = 3;
 	g_eyepoint->m_unk0xa0 = g_eyepoint->m_pixelAspect >> 3;
 	g_eyepoint->m_unk0xa6 = 3;
+	FUN_1004bfe8(g_eyepoint);
+	FUN_1004b980(g_eyepoint);
+	g_unk0x100a2460 = 0;
+}
+
+// Restores the eyepoint and the rendering settings FUN_10041fa0 saved.
+// FUNCTION: MW2 0x10042195
+void FUN_10042195(void)
+{
+	g_unk0x100a6cc8 = g_unk0x10109bc0;
+	*g_eyepoint = g_unk0x10109ac0;
+	g_palettePending = g_unk0x10109ab0;
+	FUN_10012e00();
+	FUN_1004bc2e(g_eyepoint);
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
 	g_unk0x100a2460 = 0;

@@ -14,7 +14,7 @@ typedef struct CarCfg {
 	MechU16 m_unk0x0d;                // 0x0d — things of side 1 the local player destroyed
 	MechU16 m_unk0x0f;                // 0x0f — side 2
 	MechU16 m_unk0x11;                // 0x11 — side 0
-	undefined m_unk0x13[0x15 - 0x13]; // 0x13
+	MechU16 m_unk0x13;                // 0x13 — shots fired by the local player
 	MechU16 m_unk0x15;                // 0x15 — hits by the local player on side 1
 	MechU16 m_unk0x17;                // 0x17 — side 2
 	MechU16 m_unk0x19;                // 0x19 — side 0
@@ -24,7 +24,7 @@ typedef struct CarCfg {
 	MechU16 m_unk0x24;                // 0x24 — things of side 1 the local team destroyed
 	MechU16 m_unk0x26;                // 0x26 — side 2
 	MechU16 m_unk0x28;                // 0x28 — side 0
-	undefined m_unk0x2a[0x2c - 0x2a]; // 0x2a
+	MechU16 m_unk0x2a;                // 0x2a — shots fired by the local team
 	MechU16 m_unk0x2c;                // 0x2c — hits by the local team on side 0
 	MechU16 m_unk0x2e;                // 0x2e — side 2
 	MechU16 m_unk0x30;                // 0x30 — side 1

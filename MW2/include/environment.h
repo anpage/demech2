@@ -14,7 +14,7 @@ extern "C"
 	extern MechS32 g_unk0x100ba5fc;
 	extern MechS32 g_unk0x100ba600;
 	extern MechS32 g_unk0x100ba604;
-	extern CobaltHarbor0x88* g_unk0x100c3280;
+	extern CobaltHarbor0x88* g_unk0x100c3280[26];
 
 	void FirstEnvironment(void);
 	void FUN_1007d6bb(void);

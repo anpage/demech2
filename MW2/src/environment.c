@@ -68,8 +68,9 @@ MechS32 g_unk0x100bfd4c;
 // GLOBAL: MW2 0x100bfd50
 MechS32 g_unk0x100bfd50;
 
+// The 26 cockpit panels FUN_1006fca5 allocates.
 // GLOBAL: MW2 0x100c3280
-CobaltHarbor0x88* g_unk0x100c3280;
+CobaltHarbor0x88* g_unk0x100c3280[26];
 
 // FUNCTION: MW2 0x1007d610
 void FirstEnvironment(void)
@@ -101,7 +102,7 @@ void FUN_1007d6bb(void)
 	MechS32 i;
 
 	phase = 3;
-	if (g_unk0x100c3280->m_unk0x06 >= 1 && g_unk0x100bfd50 == 1) {
+	if (g_unk0x100c3280[0]->m_unk0x06 >= 1 && g_unk0x100bfd50 == 1) {
 		FUN_1007d88a(0, 0);
 		g_unk0x100bfd50 = 0;
 	}
@@ -171,7 +172,7 @@ void FUN_1007d88a(undefined4 p_unk0x00, MechS32 p_state)
 {
 	if (g_unk0x100bfd50 != p_state) {
 		if (p_state == 1) {
-			if (g_unk0x100c3280->m_unk0x06 < 1) {
+			if (g_unk0x100c3280[0]->m_unk0x06 < 1) {
 				g_unk0x100bfd50 = 1;
 				g_unk0x100bfab8 = 0;
 				FUN_10002a24(12, 181);

@@ -120,7 +120,7 @@ MechS32 FUN_1003ddd7(void)
 void FUN_1003e03c(void)
 {
 	FUN_1003ddd7();
-	if (g_unk0x100c3280->m_unk0x06) {
+	if (g_unk0x100c3280[0]->m_unk0x06) {
 		FUN_1003f8d1();
 	}
 	else {

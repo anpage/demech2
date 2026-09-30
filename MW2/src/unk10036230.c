@@ -52,6 +52,19 @@ void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable)
 	}
 }
 
+// Fills a polygon of p_count points (6 dwords each) in the shade of each point.
+// STUB: MW2 0x10036918
+void FUN_10036918(RenderTarget* p_target, MechS32 p_count, MechU32* p_points)
+{
+	STUB(0x10036918);
+}
+
+// STUB: MW2 0x1003763b
+void FUN_1003763b(RenderTarget* p_target, MechS32 p_unk0x04, MechS32 p_count, MechU32* p_points)
+{
+	STUB(0x1003763b);
+}
+
 // Copies the 0x80-entry luma table p_table into g_lumaTable. A C function with an __asm body.
 // FUNCTION: MW2 0x10038ced
 void FUN_10038ced(MechU16* p_table)

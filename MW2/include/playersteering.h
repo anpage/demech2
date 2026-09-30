@@ -18,9 +18,14 @@ typedef struct PlayerSteering {
 	MechS8 m_unk0x21;                 // 0x21
 	undefined m_unk0x22[0x24 - 0x22]; // 0x22
 	MechS8 m_unk0x24;                 // 0x24
-	MechS8 m_unk0x25;                 // 0x25
+	MechS8 m_unk0x25;                 // 0x25 — fire the selected weapon
 	MechS8 m_unk0x26;                 // 0x26
-	undefined m_unk0x27[0x2d - 0x27]; // 0x27
+	MechS8 m_unk0x27;                 // 0x27 — fire every weapon
+	MechS8 m_unk0x28;                 // 0x28 — fire weapon group 0
+	MechS8 m_unk0x29;                 // 0x29 — group 1
+	MechS8 m_unk0x2a;                 // 0x2a — group 2
+	undefined m_unk0x2b;              // 0x2b
+	MechS8 m_unk0x2c;                 // 0x2c — toggles g_unk0x100a6d38
 	MechS8 m_unk0x2d;                 // 0x2d
 	MechS8 m_unk0x2e;                 // 0x2e
 	MechS8 m_unk0x2f;                 // 0x2f

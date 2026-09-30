@@ -9,8 +9,8 @@
 #include "prjfile.h"
 #include "simmain.h"
 #include "types.h"
-#include "unk10044740.h"
 #include "unk1006f480.h"
+#include "weapons.h"
 
 #include <mbstring.h>
 #include <stdarg.h>
