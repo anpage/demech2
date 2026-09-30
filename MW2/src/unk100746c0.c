@@ -75,7 +75,7 @@ void FUN_10074823(CobaltHarbor0x88* p_panel, RenderTarget* p_target)
 }
 
 // FUNCTION: MW2 0x10074879
-void FUN_10074879(CobaltHarbor0x88* p_panel, undefined4 p_unk0x34)
+void FUN_10074879(CobaltHarbor0x88* p_panel, Point* p_unk0x34)
 {
 	p_panel->m_unk0x34 = p_unk0x34;
 }

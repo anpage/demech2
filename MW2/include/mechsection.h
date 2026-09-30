@@ -12,7 +12,8 @@ typedef struct MechSection {
 	MechS32 m_unk0x00;                // 0x00
 	MechS32 m_unk0x04;                // 0x04
 	MechS32 m_unk0x08;                // 0x08
-	undefined m_unk0x0c[0x26 - 0x0c]; // 0x0c
+	undefined m_unk0x0c[0x24 - 0x0c]; // 0x0c
+	MechS16 m_unk0x24;                // 0x24
 	MechS16 m_unk0x26;                // 0x26
 } MechSection;
 

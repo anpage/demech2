@@ -9,9 +9,11 @@
 #include "prjfile.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk1001ce90.h"
 #include "unk1006f480.h"
 #include "weapons.h"
 
+#include <math.h>
 #include <mbstring.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -23,8 +25,18 @@ void* g_unk0x100a8608 = NULL;
 // GLOBAL: MW2 0x100a860c
 void* g_unk0x100a860c = NULL;
 
+// The number of entries in g_unk0x100ea580, and the next one FUN_100506d8 returns.
+// GLOBAL: MW2 0x100a8620
+MechS32 g_unk0x100a8620 = 0;
+
+// GLOBAL: MW2 0x100a8624
+MechS32 g_unk0x100a8624 = 0;
+
 // GLOBAL: MW2 0x100ea500
 void* g_unk0x100ea500[16];
+
+// GLOBAL: MW2 0x100ea580
+MechS32 g_unk0x100ea580[1]; // length unknown
 
 // Frees the mission tables' blocks.
 // FUNCTION: MW2 0x1004fd55
@@ -52,19 +64,131 @@ void FUN_1004fd55(void)
 	g_unk0x100a860c = NULL;
 }
 
-// STUB: MW2 0x1004fe85
+// Scales the vector (p_a, p_b, p_c) to integers whose absolute values add up to 2^29. A vector
+// that small is left alone.
+// FUNCTION: MW2 0x1004fe0f
+void FUN_1004fe0f(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, undefined4* p_y, undefined4* p_z)
+{
+	MechFloat scale;
+
+	scale = fabs(p_a);
+	scale += fabs(p_b);
+	if ((scale += fabs(p_c)) > 0.0001) {
+		scale /= 536870912.0;
+		*p_x = p_a / scale;
+		*p_y = p_b / scale;
+		*p_z = p_c / scale;
+	}
+}
+
+// Scales the plane (p_a, p_b, p_c, p_d) like FUN_1004fe0f.
+// FUNCTION: MW2 0x1004fe85
 void FUN_1004fe85(
-	MechFloat p_unk0x00,
-	MechFloat p_unk0x04,
-	MechFloat p_unk0x08,
-	MechFloat p_unk0x0c,
-	undefined4* p_unk0x10,
-	undefined4* p_unk0x14,
-	undefined4* p_unk0x18,
-	undefined4* p_unk0x1c
+	MechFloat p_a,
+	MechFloat p_b,
+	MechFloat p_c,
+	MechFloat p_d,
+	undefined4* p_x,
+	undefined4* p_y,
+	undefined4* p_z,
+	undefined4* p_w
 )
 {
-	STUB(0x1004fe85);
+	MechFloat scale;
+
+	scale = fabs(p_a);
+	scale += fabs(p_b);
+	scale += fabs(p_c);
+	if ((scale += fabs(p_d)) > 0.0001) {
+		scale /= 536870912.0;
+		*p_x = p_a / scale;
+		*p_y = p_b / scale;
+		*p_z = p_c / scale;
+		*p_w = p_d / scale;
+	}
+}
+
+// The normal of the triangle (p_x1, p_y1, p_z1), (p_x2, p_y2, p_z2), (p_x3, p_y3, p_z3), scaled
+// by FUN_1004fe0f.
+// Stack-slot permutation of a and c (and so the operand order of vz * ux).
+// FUNCTION: MW2 0x1004ff16
+void FUN_1004ff16(
+	MechFloat p_x1,
+	MechFloat p_y1,
+	MechFloat p_z1,
+	MechFloat p_x2,
+	MechFloat p_y2,
+	MechFloat p_z2,
+	MechFloat p_x3,
+	MechFloat p_y3,
+	MechFloat p_z3,
+	undefined4* p_x,
+	undefined4* p_y,
+	undefined4* p_z
+)
+{
+	MechFloat a;
+	MechFloat b;
+	MechFloat c;
+	MechFloat ux;
+	MechFloat uy;
+	MechFloat uz;
+	MechFloat vx;
+	MechFloat vy;
+	MechFloat vz;
+
+	ux = p_x2 - p_x1;
+	uy = p_y2 - p_y1;
+	uz = p_z2 - p_z1;
+	vx = p_x3 - p_x1;
+	vy = p_y3 - p_y1;
+	/* The original takes p_y1, not p_z1, from p_z3. */
+	a = (vz = p_z3 - p_y1) * uy - vy * uz;
+	b = vz * ux - vx * uz;
+	c = vy * ux - vx * uy;
+	FUN_1004fe0f(a, b, c, p_x, p_y, p_z);
+}
+
+// The plane of the triangle, scaled by FUN_1004fe85.
+// Stack-slot permutation of the locals, which also swaps the operands of two products.
+// FUNCTION: MW2 0x1004ffaa
+void FUN_1004ffaa(
+	MechFloat p_x1,
+	MechFloat p_y1,
+	MechFloat p_z1,
+	MechFloat p_x2,
+	MechFloat p_y2,
+	MechFloat p_z2,
+	MechFloat p_x3,
+	MechFloat p_y3,
+	MechFloat p_z3,
+	undefined4* p_x,
+	undefined4* p_y,
+	undefined4* p_z,
+	undefined4* p_w
+)
+{
+	MechFloat a;
+	MechFloat b;
+	MechFloat c;
+	MechFloat d;
+	MechFloat ux;
+	MechFloat uy;
+	MechFloat uz;
+	MechFloat vx;
+	MechFloat vy;
+	MechFloat vz;
+
+	ux = p_x2 - p_x1;
+	uy = p_y2 - p_y1;
+	uz = p_z2 - p_z1;
+	vx = p_x3 - p_x1;
+	vy = p_y3 - p_y1;
+	/* The original takes p_y1, not p_z1, from p_z3. */
+	a = (vz = p_z3 - p_y1) * uy - vy * uz;
+	b = vz * ux - vx * uz;
+	d = -((c = vy * ux - vx * uy) * p_z1 + b * p_y1 + a * p_x1);
+	FUN_1004fe85(a, b, c, d, p_x, p_y, p_z, p_w);
 }
 
 /* The only diff is the order of the three products in d (and of each product's operands), which
@@ -110,6 +234,26 @@ MechS32 MapResourceId(MechS32 p_id)
 void SetMangleBase(MechS32 p_base)
 {
 	g_unk0x100a8628 = p_base;
+}
+
+// Returns the object of the next entry of g_unk0x100ea580, or NULL after the last.
+// Stack-slot permutation of id and obj.
+// FUNCTION: MW2 0x100506d8
+struct AmberWillow0x7c* FUN_100506d8(void)
+{
+	MechS32 id;
+	struct AmberWillow0x7c* obj;
+
+	if (g_unk0x100a8624 < g_unk0x100a8620) {
+		id = g_unk0x100ea580[g_unk0x100a8624];
+		obj = FUN_1001d980(id);
+		g_unk0x100a8624++;
+	}
+	else {
+		obj = NULL;
+	}
+
+	return obj;
 }
 
 // Returns the next free game thing index, or -1 when all 254 are taken.

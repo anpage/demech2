@@ -18,6 +18,8 @@ extern "C"
 {
 #endif
 
+	extern MechU32 g_unk0x100a9428;
+	extern MechU32 g_unk0x100a942c;
 	extern MechU32 g_unk0x100a9430;
 	extern MechU32 g_unk0x100a9434;
 

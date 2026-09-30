@@ -247,3 +247,10 @@ void FUN_1003f8d1(void)
 {
 	STUB(0x1003f8d1);
 }
+
+// FUNCTION: MW2 0x1003fad9
+void FUN_1003fad9(void)
+{
+	g_unk0x10109c60 = 0;
+	g_unk0x10109c68 = 0;
+}

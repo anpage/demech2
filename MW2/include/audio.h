@@ -17,6 +17,10 @@ extern "C"
 	extern SoundConfig* g_mw2SndCfgData;
 	extern MechS32 g_audioPaused;
 
+	MechS32 FUN_10006760(MechS32 p_setting);
+	void FUN_10006845(MechS32 p_setting, MechS32 p_value);
+	void FUN_100069c9(MechS32 p_setting, MechS32 p_value);
+	void FUN_10006b3a(MechS32 p_setting);
 	void StartMissionMusic(void);
 	void PauseMusic(void);
 	void ResumeMusic(void);

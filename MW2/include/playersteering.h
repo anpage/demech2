@@ -5,6 +5,7 @@
 #include "types.h"
 
 // The AI's steering: how the mech's controls are set each frame.
+// SIZE 0x48
 typedef struct PlayerSteering {
 	undefined4 m_unk0x00;             // 0x00
 	MechS32 m_unk0x04;                // 0x04 — swept between ±45 degrees by FUN_100562b4
@@ -33,6 +34,7 @@ typedef struct PlayerSteering {
 	undefined m_unk0x31[0x42 - 0x31]; // 0x31
 	MechS8 m_unk0x42;                 // 0x42
 	MechS8 m_unk0x43;                 // 0x43
+	undefined m_unk0x44[0x48 - 0x44]; // 0x44
 } PlayerSteering;
 
 #endif // PLAYERSTEERING_H

@@ -12,6 +12,14 @@
 
 DECOMP_SIZE_ASSERT(StaticPoolSize, 0x08)
 
+// One of the pool's block tags ("AGP"): players.
+// GLOBAL: MW2 0x100a9428
+MechU32 g_unk0x100a9428 = 0x504741;
+
+// One of the pool's block tags ("MGP"): mechs.
+// GLOBAL: MW2 0x100a942c
+MechU32 g_unk0x100a942c = 0x50474d;
+
 // One of the pool's block tags ("SEG").
 // GLOBAL: MW2 0x100a9430
 MechU32 g_unk0x100a9430 = 0x474553;

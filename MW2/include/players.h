@@ -47,7 +47,7 @@ struct Player {
 	MechS32 m_unk0x5c;                        // 0x5c
 	MechS32 m_heading;                        // 0x60 — 16.16 degrees
 	MechS32 m_unk0x64;                        // 0x64
-	undefined m_unk0x68[0x6c - 0x68];         // 0x68
+	MechS32 m_unk0x68;                        // 0x68
 	MechS32 m_unk0x6c;                        // 0x6c — added to the heading for the forward view
 	undefined m_unk0x70[0x78 - 0x70];         // 0x70
 	MechS32 m_unk0x78;                        // 0x78
@@ -131,6 +131,7 @@ extern "C"
 	void ShutdownAllPlayers(void);
 	void ZeroGameThing(MechS32 p_index);
 	void ZeroGamethings(void);
+	MechS32 FUN_1006d340(MechS32 p_player);
 
 #ifdef __cplusplus
 }

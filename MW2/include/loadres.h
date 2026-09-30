@@ -34,6 +34,7 @@ extern "C"
 	void FUN_10019da1(void);
 	CacheItem* FUN_10019dac(MechS32 p_id, const char* p_type);
 	void FUN_10019e53(CacheItem* p_item);
+	void FUN_10019fef(void);
 	void FUN_1001a158(void);
 	void FUN_1001a163(MechS32 p_id, const char* p_type);
 	void* FUN_1001a19f(undefined4 p_unk0x00, MechS32 p_unk0x04, const char* p_unk0x08, undefined4 p_unk0x0c);

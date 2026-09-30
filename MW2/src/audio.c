@@ -8,6 +8,7 @@
 #include "decomp.h"
 #include "loadres.h"
 #include "mss.h"
+#include "network.h"
 #include "players.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -44,6 +45,219 @@ static PCMWAVEFORMAT g_waveFormat;
 
 // GLOBAL: MW2 0x10179e80
 MechS32 g_nextEngageCheck;
+
+// The in-mission sound menu's settings: 0 the effects volume, 1 the voice volume, 2 the music
+// volume, 3 the first word of the sound configuration, 4 whether speech is on.
+
+// Returns setting p_setting. Asking for the music volume turns the CD music on.
+// FUNCTION: MW2 0x10006760
+MechS32 FUN_10006760(MechS32 p_setting)
+{
+	MechS32 value;
+
+	value = 0;
+	if (p_setting >= 0 && p_setting < 5) {
+		switch (p_setting) {
+		case 3:
+			value = g_soundConfig.m_unk0x00;
+			break;
+		case 0:
+			value = g_soundConfig.m_effectsVolume;
+			break;
+		case 1:
+			value = g_soundConfig.m_voiceVolume;
+			break;
+		case 2:
+			value = g_soundConfig.m_midiVolume;
+			g_soundConfig.m_unk0x10 |= 8;
+			if (!g_isNetworkGame) {
+				StartMissionMusic();
+				PauseMusic();
+			}
+			break;
+		case 4:
+			value = (g_soundConfig.m_unk0x10 & 2) ? 1 : 0;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return value;
+}
+
+// Sets setting p_setting to p_value, and lets the sound system that uses it know.
+// FUNCTION: MW2 0x10006845
+void FUN_10006845(MechS32 p_setting, MechS32 p_value)
+{
+	MechS32 old;
+	void (*notify)(void);
+
+	old = 0;
+	notify = NULL;
+	if (p_setting >= 0 && p_setting < 5) {
+		if (p_setting != 2) {
+			PauseMusic();
+		}
+
+		switch (p_setting) {
+		case 3:
+			old = g_soundConfig.m_unk0x00;
+			g_soundConfig.m_unk0x00 = p_value;
+			if (g_soundConfig.m_unk0x00 != old) {
+				notify = NULL;
+			}
+			break;
+		case 0:
+			old = g_soundConfig.m_effectsVolume;
+			g_soundConfig.m_effectsVolume = p_value;
+			if (g_soundConfig.m_effectsVolume != old) {
+				notify = FUN_1007e9dc;
+			}
+			break;
+		case 1:
+			old = g_soundConfig.m_voiceVolume;
+			g_soundConfig.m_voiceVolume = p_value;
+			if (p_value) {
+				g_soundConfig.m_unk0x10 |= 2;
+			}
+			else {
+				g_soundConfig.m_unk0x10 &= ~2;
+			}
+
+			if (g_soundConfig.m_voiceVolume != old) {
+				notify = FUN_10059b7b;
+			}
+			break;
+		case 2:
+			old = g_soundConfig.m_midiVolume;
+			g_soundConfig.m_midiVolume = p_value;
+			if (g_soundConfig.m_midiVolume != old) {
+				if (FUN_1005b696()) {
+					notify = FUN_1005b7a0;
+				}
+				else {
+					notify = FUN_100219ea;
+				}
+
+				if (!old) {
+					StartMissionMusic();
+				}
+			}
+
+			ResumeMusic();
+			break;
+		case 4:
+			break;
+		default:
+			break;
+		}
+
+		if (notify) {
+			notify();
+		}
+	}
+}
+
+// Sets setting p_setting to p_value, in the settings MW2SND.CFG saves too.
+// FUNCTION: MW2 0x100069c9
+void FUN_100069c9(MechS32 p_setting, MechS32 p_value)
+{
+	if (p_setting >= 0 && p_setting < 5) {
+		switch (p_setting) {
+		case 3:
+			g_mw2SndCfgData->m_unk0x00 = g_soundConfig.m_unk0x00 = p_value;
+			break;
+		case 0:
+			g_mw2SndCfgData->m_effectsVolume = g_soundConfig.m_effectsVolume = p_value;
+			break;
+		case 1:
+			g_mw2SndCfgData->m_voiceVolume = g_soundConfig.m_voiceVolume = p_value;
+			if (p_value) {
+				g_soundConfig.m_unk0x10 |= 2;
+			}
+			else {
+				g_soundConfig.m_unk0x10 &= ~2;
+			}
+			break;
+		case 2:
+			g_mw2SndCfgData->m_midiVolume = g_soundConfig.m_midiVolume = p_value;
+			if (p_value) {
+				g_mw2SndCfgData->m_unk0x10 |= 8;
+				g_mw2SndCfgData->m_unk0x10 |= 4;
+				if (!g_isNetworkGame) {
+					PauseMusic();
+				}
+			}
+			else {
+				g_mw2SndCfgData->m_unk0x10 &= ~8;
+				g_mw2SndCfgData->m_unk0x10 &= ~4;
+				StopMusic();
+			}
+
+			g_soundConfig.m_unk0x10 = g_mw2SndCfgData->m_unk0x10;
+			break;
+		case 4:
+			if (p_value) {
+				g_mw2SndCfgData->m_unk0x10 |= 2;
+			}
+			else {
+				g_mw2SndCfgData->m_unk0x10 &= ~2;
+			}
+
+			g_soundConfig.m_unk0x10 = g_mw2SndCfgData->m_unk0x10;
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+// Restores setting p_setting from the settings MW2SND.CFG saves.
+// FUNCTION: MW2 0x10006b3a
+void FUN_10006b3a(MechS32 p_setting)
+{
+	if (p_setting >= 0 && p_setting < 5) {
+		switch (p_setting) {
+		case 3:
+			g_soundConfig.m_unk0x00 = g_mw2SndCfgData->m_unk0x00;
+			break;
+		case 0:
+			g_soundConfig.m_effectsVolume = g_mw2SndCfgData->m_effectsVolume;
+			break;
+		case 1:
+			g_soundConfig.m_voiceVolume = g_mw2SndCfgData->m_voiceVolume;
+			if (g_soundConfig.m_voiceVolume) {
+				g_soundConfig.m_unk0x10 |= 2;
+			}
+			else {
+				g_soundConfig.m_unk0x10 &= ~2;
+			}
+			break;
+		case 2:
+			g_soundConfig.m_midiVolume = g_mw2SndCfgData->m_midiVolume;
+			if (g_soundConfig.m_midiVolume) {
+				g_soundConfig.m_unk0x10 |= 8;
+				g_soundConfig.m_unk0x10 |= 4;
+				FUN_1005b7a0();
+				if (!g_isNetworkGame) {
+					PauseMusic();
+				}
+			}
+			else {
+				g_soundConfig.m_unk0x10 &= ~8;
+				g_soundConfig.m_unk0x10 &= ~4;
+				StopMusic();
+			}
+			break;
+		case 4:
+			g_soundConfig.m_unk0x10 = g_mw2SndCfgData->m_unk0x10;
+			break;
+		default:
+			break;
+		}
+	}
+}
 
 // FUNCTION: MW2 0x10006c5c
 void StartMissionMusic(void)

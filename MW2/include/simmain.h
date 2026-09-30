@@ -62,6 +62,11 @@ extern "C"
 	extern MechS32 g_localPlayerId;
 	extern struct Player* g_localPlayer;
 	extern MechS32* g_unk0x100a2434;
+	extern MechS32 g_unk0x100a2408;
+	extern MechS32 g_unk0x100a240c;
+	extern MechS32 g_unk0x100a2430;
+	extern MechS32 g_unk0x100a2bf0;
+	extern MechS32 g_unk0x100aa2c0;
 	extern MechS32 g_unk0x100a2bf8;
 	extern MechS32 g_missionTime;
 	extern MechS32 g_unk0x100aa2a4;

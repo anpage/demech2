@@ -72,6 +72,7 @@ extern "C"
 	void FUN_1003eeaf(void);
 	void FUN_1003ef07(MechS32 p_unk0x00);
 	void FUN_1003f8d1(void);
+	void FUN_1003fad9(void);
 
 #ifdef __cplusplus
 }

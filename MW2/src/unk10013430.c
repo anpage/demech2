@@ -4,8 +4,10 @@
 #include "clock.h"
 #include "decomp.h"
 #include "geocache.h"
+#include "mech.h"
 #include "object.h"
 #include "players.h"
+#include "playersteering.h"
 #include "ray.h"
 #include "rendertarget.h"
 #include "types.h"
@@ -410,4 +412,11 @@ ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target)
 void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 {
 	STUB(0x1001632c);
+}
+
+// FUNCTION: MW2 0x10016880
+MechS32 FUN_10016880(Mech* p_mech)
+{
+	return p_mech->m_unk0xa4 && p_mech->m_player->m_steering->m_unk0x2f != 1 && !p_mech->m_player->m_unk0x196 &&
+		   p_mech->m_player->m_unk0x170 != 10;
 }

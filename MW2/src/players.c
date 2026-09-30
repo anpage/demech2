@@ -2,10 +2,14 @@
 
 #include "decomp.h"
 #include "gamething.h"
+#include "playersteering.h"
 #include "simmain.h"
+#include "staticmem.h"
 #include "types.h"
+#include "unk100563d0.h"
 
 DECOMP_SIZE_ASSERT(GameThing, 0x40)
+DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 
 // GLOBAL: MW2 0x100ad5e0
 MechS32 g_playerCount = 0;
@@ -132,4 +136,27 @@ void ZeroGamethings(void)
 	for (i = 0; i < 254; i++) {
 		ZeroGameThing(i);
 	}
+}
+
+// Allocates player p_player: a remote player gets room for its steering after it.
+// Stack-slot permutation of player and size; the original compares p_player with
+// g_localPlayerId in eax (operand order).
+// FUNCTION: MW2 0x1006d340
+MechS32 FUN_1006d340(MechS32 p_player)
+{
+	Player* player;
+	MechU32 size;
+
+	size = sizeof(Player);
+	if (p_player != g_localPlayerId) {
+		size += sizeof(PlayerSteering);
+	}
+
+	player = StaticPoolAlloc(size, g_unk0x100a9428);
+	if (!player) {
+		return FALSE;
+	}
+
+	g_players[p_player] = player;
+	return TRUE;
 }
