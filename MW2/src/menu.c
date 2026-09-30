@@ -7,6 +7,7 @@
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
+#include "ticks.h"
 #include "types.h"
 
 #include <stddef.h>

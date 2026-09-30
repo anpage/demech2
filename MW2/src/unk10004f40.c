@@ -81,7 +81,7 @@ MechS32 FUN_1000507d(const MechChar* p_text, void* p_font)
 
 	width = 0;
 	for (c = p_text; *c; c++) {
-		width += FUN_10064d60(p_font, *c);
+		width += FontGetCharWidth(p_font, *c);
 	}
 
 	return width;
@@ -111,7 +111,7 @@ void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 
 
 	target = p_panel->m_target;
 	mission = &g_objectiveTable[g_unk0x100a5918];
-	height = FUN_10064d4d(p_font);
+	height = FontGetHeight(p_font);
 	primary = FALSE;
 	if (g_isNetworkGame && !g_difficulty->m_unk0x0a) {
 		count = 0;
@@ -162,12 +162,12 @@ void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 
 			}
 
 			g_unk0x100e9350[0xe] = 6;
-			FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, label, g_unk0x100e9350);
+			BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, label, g_unk0x100e9350);
 			g_unk0x100e9350[0xe] = 0xe;
 			p_pos->m_x += FUN_1000507d("Secondary: ", p_font);
 			if (strlen(objective->m_name) < 0x20) {
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, objective->m_name, g_unk0x100e9350);
+				BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, objective->m_name, g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 			}
 			else {
@@ -176,13 +176,13 @@ void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 
 				strncpy(text, objective->m_name, 0x20);
 				text[0x20] = '\0';
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
+				BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				p_pos->m_x = x;
 				p_pos->m_y += height;
 				strcpy(text, objective->m_name + 0x20);
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
+				BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				p_pos->m_x = x;
 				p_pos->m_y = y;
@@ -194,21 +194,21 @@ void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 
 				sprintf(text, "Successful");
 				p_pos->m_x = target->m_right - target->m_left - FUN_1000507d(text, p_font);
 				g_unk0x100e9350[0xe] = 7;
-				FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
+				BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				break;
 			case 6:
 				sprintf(text, "Failed");
 				p_pos->m_x = target->m_right - target->m_left - FUN_1000507d(text, p_font);
 				g_unk0x100e9350[0xe] = 0xb;
-				FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
+				BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				break;
 			default:
 				sprintf(text, "In progress");
 				p_pos->m_x = target->m_right - target->m_left - FUN_1000507d(text, p_font);
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
+				BlitString(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				break;
 			}
@@ -246,11 +246,11 @@ void FUN_100056f0(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	height = FUN_10064d4d(font);
+	height = FontGetHeight(font);
 	gap = height / 2;
 	pos = *p_panel->m_unk0x34;
 	g_unk0x100e9350[0xe] = 6;
-	FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, "MISSION OBJECTIVES", g_unk0x100e9350);
+	BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, "MISSION OBJECTIVES", g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
 	FUN_100571ea(p_panel->m_target, "MISSION OBJECTIVES", pos, font, 6);
 	cursor->m_y += gap + height;
@@ -287,7 +287,7 @@ void FUN_100056f0(CobaltHarbor0x88* p_panel)
 	}
 
 	g_unk0x100e9350[0xe] = 6;
-	FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
+	BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
 	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
 }
@@ -324,7 +324,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	height = FUN_10064d4d(font);
+	height = FontGetHeight(font);
 	gap = height / 2;
 	pos = *p_panel->m_unk0x34;
 	if (g_unk0x100aa2c0 == 1) {
@@ -338,12 +338,12 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 
 		sprintf(text, "Tracking: %s %s", g_players[g_unk0x100a2430]->m_name, state);
 		g_unk0x100e9350[0xe] = color;
-		FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
+		BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
 		g_unk0x100e9350[0xe] = 0xe;
 	}
 	else if (g_unk0x100aa2c0 == 2) {
 		g_unk0x100e9350[0xe] = 6;
-		FUN_10064f0b(
+		BlitString(
 			p_panel->m_target,
 			cursor->m_x,
 			cursor->m_y,
@@ -355,7 +355,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 	}
 	else if (g_unk0x100aa2c0 == 3) {
 		g_unk0x100e9350[0xe] = 0xe;
-		FUN_10064f0b(
+		BlitString(
 			p_panel->m_target,
 			cursor->m_x,
 			cursor->m_y,
@@ -371,24 +371,17 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 		switch (g_unk0x100a116c) {
 		case -1:
 			g_unk0x100e9350[0xe] = 0xe;
-			FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, "Communication", g_unk0x100e9350);
+			BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, "Communication", g_unk0x100e9350);
 			g_unk0x100e9350[0xe] = 0xe;
 			FUN_100571ea(p_panel->m_target, "Communication", pos, font, 2);
 			cursor->m_y += gap + height;
 			if (g_difficulty->m_unk0x0a) {
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(
-					p_panel->m_target,
-					cursor->m_x,
-					cursor->m_y,
-					font,
-					" [Enter] Send to all",
-					g_unk0x100e9350
-				);
+				BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, " [Enter] Send to all", g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 				cursor->m_y += height;
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(
+				BlitString(
 					p_panel->m_target,
 					cursor->m_x,
 					cursor->m_y,
@@ -399,7 +392,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 				g_unk0x100e9350[0xe] = 0xe;
 				cursor->m_y += height;
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(
+				BlitString(
 					p_panel->m_target,
 					cursor->m_x,
 					cursor->m_y,
@@ -410,12 +403,12 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 				g_unk0x100e9350[0xe] = 0xe;
 				cursor->m_y += height;
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, " [Esc] to abort", g_unk0x100e9350);
+				BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, " [Esc] to abort", g_unk0x100e9350);
 				g_unk0x100e9350[0xe] = 0xe;
 			}
 			else {
 				g_unk0x100e9350[0xe] = 0xe;
-				FUN_10064f0b(
+				BlitString(
 					p_panel->m_target,
 					cursor->m_x,
 					cursor->m_y,
@@ -452,12 +445,12 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 
 			sprintf(text, "Communication to %s", g_players[player]->m_name);
 			g_unk0x100e9350[0xe] = 0xe;
-			FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
+			BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
 			g_unk0x100e9350[0xe] = 0xe;
 			FUN_100571ea(p_panel->m_target, text, pos, font, 2);
 			cursor->m_y += gap + height;
 			g_unk0x100e9350[0xe] = 0xe;
-			FUN_10064f0b(
+			BlitString(
 				p_panel->m_target,
 				cursor->m_x,
 				cursor->m_y,
@@ -471,7 +464,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 		}
 
 		g_unk0x100e9350[0xe] = 0xe;
-		FUN_10064f0b(p_panel->m_target, cursor->m_x, cursor->m_y, font, g_unk0x10179e90, g_unk0x100e9350);
+		BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, g_unk0x10179e90, g_unk0x100e9350);
 		g_unk0x100e9350[0xe] = 0xe;
 		FUN_10057282(p_panel->m_target, "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM", pos, font, 6);
 		cursor->m_x = FUN_1000507d(g_unk0x10179e90, font);
@@ -499,7 +492,7 @@ void FUN_100060b6(CobaltHarbor0x88* p_panel)
 
 	if (g_isNetworkGame && !g_unk0x100aa2c0 && !g_unk0x100a2c04) {
 		sprintf(text, "Kills: %i", g_unk0x100a15a0);
-		FUN_10064f0b(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
+		BlitString(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
 	}
 
 	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
@@ -537,7 +530,7 @@ void FUN_10006189(CobaltHarbor0x88* p_panel)
 	}
 
 	if (*text) {
-		FUN_10064f0b(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
+		BlitString(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
 	}
 
 	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
@@ -573,7 +566,7 @@ void FUN_10006291(CobaltHarbor0x88* p_panel)
 	}
 
 	sprintf(text, "%d kph", speed);
-	FUN_10064f0b(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
+	BlitString(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
 	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
 	FUN_1004d48a(p_panel->m_target);
@@ -595,7 +588,7 @@ void FUN_100063cd(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	FUN_10064f0b(
+	BlitString(
 		p_panel->m_target,
 		p_panel->m_unk0x34->m_x,
 		p_panel->m_unk0x34->m_y,
@@ -639,7 +632,7 @@ void FUN_10006484(CobaltHarbor0x88* p_panel)
 		g_unk0x100e9350[0xe] = 0xe;
 	}
 
-	FUN_10064f0b(
+	BlitString(
 		p_panel->m_target,
 		p_panel->m_unk0x34->m_x,
 		p_panel->m_unk0x34->m_y,
@@ -668,7 +661,7 @@ void FUN_100065c3(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	FUN_10064f0b(
+	BlitString(
 		p_panel->m_target,
 		p_panel->m_unk0x34->m_x,
 		p_panel->m_unk0x34->m_y,
@@ -700,7 +693,7 @@ void FUN_1000667c(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	FUN_10064f0b(
+	BlitString(
 		p_panel->m_target,
 		p_panel->m_unk0x34->m_x,
 		p_panel->m_unk0x34->m_y,

@@ -5,6 +5,7 @@
 #include "mss.h"
 #include "network.h"
 #include "simmain.h"
+#include "ticks.h"
 #include "transform.h"
 #include "types.h"
 

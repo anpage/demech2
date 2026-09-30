@@ -18,7 +18,8 @@ wine reg ADD 'HKCU\Environment' /v TMP /d 'Z:\build' /f
 wine reg ADD 'HKCU\Environment' /v TEMP /d 'Z:\build' /f
 
 # Configure build with CMake
-wine cmake -B build demech2 -G "NMake Makefiles" $CMAKE_FLAGS
+# ML.EXE is passed explicitly: MASM's BIN also holds a 16-bit LINK, LIB and NMAKE
+wine cmake -B build demech2 -G "NMake Makefiles" -DCMAKE_ASM_MASM_COMPILER=C:/masm/BIN/ML.EXE $CMAKE_FLAGS
 
 # Start compiling MechWarrior 2
 wine cmake --build build

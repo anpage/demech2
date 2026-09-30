@@ -5,9 +5,6 @@
 
 MW2SHELL complete
 
-# Hand-written assembly: MASM objects don't start on the compiler's 16-byte boundaries.
-MW2SHELL start 0x100286a6  # the object starts at the .text table 0x10017a7c; the code before this routine isn't transcribed
-MW2SHELL start 0x1002a968  # MASM object aligned to 4 or 8, not 16: the compiled code before it ends at 0x1002a966
 
 # MW2 globals parked in simmain.c until the units that define them are decompiled.
 MW2 order 0x100a0258  # g_weaponDefs and g_effectInfo, the tables of an object that isn't decompiled yet

@@ -23,10 +23,6 @@ targets:
         - g_criticalFields
         # The pilot roster's mission list (rosterscreen.cpp), likewise.
         - g_missionListFields
-        # The routine table and the self-modifying code block in codeblock.c live in the
-        # original's .text; they are declared as data only so the routines can reference them.
-        - g_codeBlockRoutines
-        - g_codeBlock
   MW2:
     filename: MW2.DLL
     source-root:
@@ -37,9 +33,4 @@ targets:
       - reccmp/mw2-ascii.csv
     report:
       icon: assets/dll.png
-      # The routine table and the self-modifying code block in codeblock.c live in the
-      # original's .text, as in the shell.
-      ignore-variables:
-        - g_codeBlockRoutines
-        - g_codeBlock
   # NETMECHW: added once a version is chosen

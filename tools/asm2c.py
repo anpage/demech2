@@ -16,7 +16,8 @@ whose /Od frame the compiler supplies. It applies the inline-assembler rules fro
   `[name + reg]` inside brackets (4.1 drops a register written before a symbol).
 
 Anything it can't name is printed as `0x........ /* ??? */`: define or stub it, then rerun.
-Jump tables embedded in the code are not handled (see FUN_1002cd5d in CLAUDE.md).
+Jump tables embedded in the code are not handled: an object with them is a MASM object, for
+tools/asm2masm.py (CLAUDE.md, "Hand-written Assembly", form 4).
 
 usage: python tools/asm2c.py --target MW2 START END [--body --params p_a,p_b,...] [--dll PATH]
   --body    drop the /Od frame (push ebp; mov ebp, esp; push ebx; push esi; push edi ...

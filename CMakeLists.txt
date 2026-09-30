@@ -37,6 +37,31 @@ endif()
 
 message(STATUS "MSVC for decompilation: ${MSVC_FOR_DECOMP}")
 
+# The original's hand-written assembly objects are assembled with MASM 6.11 (ML). Pass ML.EXE as
+# CMAKE_ASM_MASM_COMPILER rather than putting MASM's BIN on PATH: it also holds a 16-bit LINK,
+# LIB and NMAKE that would shadow VC++ 4.1's. Other compilers build the units' C stubs instead.
+if (MSVC_FOR_DECOMP)
+  # CMake writes the path into a generated script, where a Windows path's backslashes are escapes
+  if (CMAKE_ASM_MASM_COMPILER)
+    file(TO_CMAKE_PATH "${CMAKE_ASM_MASM_COMPILER}" CMAKE_ASM_MASM_COMPILER)
+  endif()
+  enable_language(ASM_MASM)
+  set(CMAKE_ASM_MASM_FLAGS "/nologo /coff")
+  set(CMAKE_ASM_MASM_FLAGS_DEBUG "/Zi")
+  set(CMAKE_ASM_MASM_FLAGS_RELEASE "")
+  set(CMAKE_ASM_MASM_FLAGS_RELWITHDEBINFO "/Zi")
+  set(CMAKE_ASM_MASM_FLAGS_MINSIZEREL "")
+  set(asm_or_c asm)
+  set(mw2shell_shared common/src)
+  set(mw2_shared common/src)
+else()
+  set(asm_or_c c)
+  set(mw2shell_shared MW2SHELL/src)
+  set(mw2_shared MW2/src)
+endif()
+# A unit is listed as <dir>/<name>.${asm_or_c}. Objects both DLLs share (common/src) have one .asm
+# and a stub .c per DLL, listed as ${mw2shell_shared}/<name>.${asm_or_c} or ${mw2_shared}/...
+
 option(DEMECH2_WERROR "Treat warnings as errors" OFF)
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
 
@@ -242,9 +267,9 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugprint.c
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
-    MW2SHELL/src/codeblock.c
+    ${mw2shell_shared}/codeblock.${asm_or_c}
     MW2SHELL/src/archivereader.cpp
-    MW2SHELL/src/polyfill.c
+    MW2SHELL/src/polyfill.${asm_or_c}
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/textpages.cpp
     MW2SHELL/src/projectarchive.cpp
@@ -255,7 +280,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/gdi.c
     MW2SHELL/src/resourcefile.c
     MW2SHELL/src/input.c
-    MW2SHELL/src/blit.c
+    ${mw2shell_shared}/blit.${asm_or_c}
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp
@@ -286,7 +311,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/buttonmenu.cpp
     MW2SHELL/MW2SHELL.def
     MW2SHELL/mw2shell.rc
-  COMPILE_OPTIONS "/G5" "/Ob1" "$<$<COMPILE_LANGUAGE:CXX>:/GX>"
+  COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/Ob1>" "$<$<COMPILE_LANGUAGE:CXX>:/GX>"
   LINK_OPTIONS ${mw2shell_link_options}
   LIBRARIES winmm.lib ddraw wail32 smackw32 kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
@@ -394,7 +419,7 @@ demech2_add_dll(mw2
     MW2/src/cmdline.c
     MW2/src/geocache.c
     MW2/src/unk10021460.c
-    MW2/src/codeblock.c
+    ${mw2_shared}/codeblock.${asm_or_c}
     MW2/src/unk10033280.c
     MW2/src/unk100335d0.c
     MW2/src/unk10034990.c
@@ -451,10 +476,12 @@ demech2_add_dll(mw2
     MW2/src/setres.c
     MW2/src/unk1005d6d0.c
     MW2/src/rendertarget.c
+    ${mw2_shared}/blit.${asm_or_c}
     MW2/src/unk10065f10.c
     MW2/src/unk10065f50.c
     MW2/src/camerashake.c
     MW2/src/simmain.c
+    MW2/src/ticks.${asm_or_c}
     MW2/src/unk100680a0.c
     MW2/src/mouse.c
     MW2/src/animation.c
@@ -495,7 +522,7 @@ demech2_add_dll(mw2
     MW2/src/unk1007f140.c
     MW2/src/unk1007fbe0.c
     MW2/MW2.def
-  COMPILE_OPTIONS "/G5"
+  COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5>"
   LINK_OPTIONS ${mw2_link_options}
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )

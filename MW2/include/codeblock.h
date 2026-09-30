@@ -13,7 +13,8 @@ typedef struct CodeBlockTexture {
 	MechS32 m_height;   // 0x08
 } CodeBlockTexture;
 
-// The functions and globals of codeblock.c that other units use.
+// The routines of codeblock.asm (common/src, shared with the shell; codeblock.c in COMPAT_MODE)
+// that other units use.
 #ifdef __cplusplus
 extern "C"
 {
@@ -33,5 +34,56 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+// codeblock.asm's routines and data. reccmp reads annotations from C sources only, so they're
+// here, by name.
+
+// GLOBAL: MW2 0x10021cf4
+// g_codeBlockRoutines
+
+// FUNCTION: MW2 0x10023cf4
+// CodeBlock
+
+// FUNCTION: MW2 0x1003291e
+// FUN_100286a6
+
+// FUNCTION: MW2 0x1003293b
+// GetCodeBlock
+
+// FUNCTION: MW2 0x10032963
+// CallCodeBlockRoutine
+
+// FUNCTION: MW2 0x100329d4
+// FixedDiv30
+
+// FUNCTION: MW2 0x10032a0c
+// FixedReciprocal30
+
+// FUNCTION: MW2 0x10032a3c
+// CodeBlockFixedMul30
+
+// FUNCTION: MW2 0x10032a58
+// CallCodeBlockRoutineClipped
+
+// GLOBAL: MW2 0x100a3958
+// g_unk0x10064cd8
+
+// GLOBAL: MW2 0x100a395c
+// g_unk0x10064cdc
+
+// GLOBAL: MW2 0x100a3960
+// g_codeBlockVars
+
+// GLOBAL: MW2 0x100a3a6c
+// g_codeBlockClipVertices
+
+// GLOBAL: MW2 0x100a526c
+// g_unk0x100665ec
+
+// GLOBAL: MW2 0x100a5270
+// g_unk0x100665f0
+
+// GLOBAL: MW2 0x100a5274
+// g_unk0x100665f4
 
 #endif // CODEBLOCK_H

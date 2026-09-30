@@ -9,6 +9,7 @@
 #include "screenscale.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "ticks.h"
 #include "types.h"
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.

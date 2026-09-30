@@ -10,6 +10,9 @@ RUN wine wineboot
 
 # Gather and set up build dependencies (MSVC 4.1 and CMake for Windows)
 RUN git clone https://github.com/madebr/msvc410 ~/.wine/drive_c/msvc
+# MASM 6.11 (ML) for the original's hand-written assembly objects, pinned to a known commit
+RUN git clone https://github.com/shengyanli1982/MASM611 ~/.wine/drive_c/masm \
+ && git -C ~/.wine/drive_c/masm checkout 36b14330ade0f3347d7bc7ba373304f279c81221
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.26.6/cmake-3.26.6-windows-i386.zip
 RUN unzip cmake-3.26.6-windows-i386.zip -d ~/.wine/drive_c
 RUN mv ~/.wine/drive_c/cmake-3.26.6-windows-i386 ~/.wine/drive_c/cmake
