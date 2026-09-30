@@ -93,6 +93,15 @@ jobs:
           ref: 36b14330ade0f3347d7bc7ba373304f279c81221
           path: masm611
 
+      - name: "Checkout MSVC 2.2 toolchain"
+        uses: actions/checkout@v6
+        with:
+          # MECH2.EXE was built with VC++ 2.2: CMake builds it with this
+          # toolchain in a nested build (build/vc22).
+          repository: archaic-msvc/msvc220
+          ref: c0fff2aecaa88576c685de79173be4ead4dbe42c
+          path: msvc220
+
       - name: "Setup cmake"
         uses: jwlawson/actions-setup-cmake@v2
         with:
@@ -110,7 +119,7 @@ jobs:
           rem ML.EXE is passed explicitly rather than put on PATH: MASM's BIN
           rem also holds a 16-bit LINK, LIB and NMAKE.
           call .\msvc410\bin\VCVARS32.BAT x86
-          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE"
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220"
           cmake --build build
 
       - name: Upload Artifact
@@ -119,9 +128,10 @@ jobs:
           name: Win32
           path: |
             build/*.dll
-            build/MECH2.exe
             build/*.pdb
             build/*.map
+            build/vc22/MECH2.exe
+            build/vc22/MECH2.pdb
 
   verify:
     name: Verify decomp

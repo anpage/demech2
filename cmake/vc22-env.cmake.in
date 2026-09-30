@@ -1,0 +1,26 @@
+# Generated from cmake/vc22-env.cmake.in (see "VC++ 2.2 targets" in CMakeLists.txt).
+# Runs the command after "--" with VC++ 2.2's PATH, INCLUDE and LIB:
+#
+#   cmake -P vc22-env.cmake -- <command> [args...]
+#
+# The environment lives here rather than on the command line, where the whole PATH would
+# end up in every nested-build command of the generated Makefiles.
+set(ENV{PATH} [==[@vc22_path@]==])
+set(ENV{INCLUDE} [==[@vc22_include@]==])
+set(ENV{LIB} [==[@vc22_lib@]==])
+
+set(command "")
+set(found FALSE)
+math(EXPR last "${CMAKE_ARGC} - 1")
+foreach(i RANGE ${last})
+  if (found)
+    list(APPEND command "${CMAKE_ARGV${i}}")
+  elseif (CMAKE_ARGV${i} STREQUAL "--")
+    set(found TRUE)
+  endif()
+endforeach()
+
+execute_process(COMMAND ${command} RESULT_VARIABLE result)
+if (NOT result EQUAL 0)
+  message(FATAL_ERROR "${result}")
+endif()

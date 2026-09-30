@@ -26,6 +26,7 @@ You will need the following software installed:
 
 - Microsoft Visual C++ 4.1. A [portable version](https://github.com/madebr/msvc410) is available that can be downloaded and used quickly.
 - MASM 6.11 (ML), for the original's hand-written assembly. A [ready-to-use copy](https://github.com/shengyanli1982/MASM611) is available; the build only needs its `BIN\ML.EXE`. Don't put its `BIN` on your `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE` that would shadow Visual C++ 4.1's.
+- Microsoft Visual C++ 2.2, for `MECH2.EXE` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, `MECH2.EXE` is built with Visual C++ 4.1 instead, which runs fine but isn't the original toolchain.
 - [CMake](https://cmake.org/). A copy is often included with the "Desktop development with C++" workload in newer versions of Visual Studio; however, it can also be installed as a standalone app. Version 3.26.6 (i386) is known to work with the VC++ 4.1 NMake generator.
 
 #### Compiling
@@ -44,17 +45,19 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 - Replace `<path-to-source>` with the source repository. This can be `..` if your build folder is inside the source repository.
 - `RelWithDebInfo` is recommended because it will produce debug symbols useful for further decompilation work.
 - `NMake Makefiles` is most recommended because it will be immediately compatible with Visual C++ 4.1.
+- To build `MECH2.EXE` with Visual C++ 2.2, add `-DDEMECH2_MSVC22_ROOT=<path-to-msvc22>`. CMake builds it in a nested build and sets up Visual C++ 2.2's environment itself, so only Visual C++ 4.1's `VCVARS32.BAT` needs to run.
 - The shell's dialogs show an icon that is not included in this repository. If the original 1.1 `MW2SHELL.DLL` is in the repository root, the build takes the icon from it; point `-DDEMECH2_MW2SHELL_ORIGINAL=<path>` at a copy elsewhere. Without it, the shell still builds and runs, and those dialogs just show no icon. The same goes for the launcher's window icons and the original `MECH2.EXE` (`-DDEMECH2_MECH2_ORIGINAL=<path>`).
 
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
-2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder.
+2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder (`MECH2.EXE` in its `vc22` subfolder when built with Visual C++ 2.2).
 
 The build configuration for each binary:
 
-| Target         | Language           | `cl` flags                                 | CRT                   | Link                          |
-| -------------- | ------------------ | ------------------------------------------ | --------------------- | ----------------------------- |
-| `MW2.DLL`      | C                  | `/Od /Oi`                                  | `/MTd` (static debug) | `/DLL /DEBUG /INCREMENTAL:no` |
-| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)        | `/DLL`                        |
+| Target         | Language           | `cl` flags                                 | CRT                     | Link                          |
+| -------------- | ------------------ | ------------------------------------------ | ----------------------- | ----------------------------- |
+| `MW2.DLL`      | C                  | `/Od /Oi`                                  | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no` |
+| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                        |
+| `MECH2.EXE`    | C (Visual C++ 2.2) | `/Od /Oi /G5`                              | `/ML` (single-threaded) | incremental EXE               |
 
 ### Docker
 
@@ -110,7 +113,8 @@ reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
 - `cmake/` - CMake modules
 - `tools/` - Python tools and requirements
 - `reccmp/` - reccmp data sources
-- `docker/` - VC++ 4.1 + CMake under Wine build image
+- `docker/` - VC++ 4.1 + VC++ 2.2 + CMake under Wine build image
+- `vc22/` - The VC++ 2.2 sub-project that builds `MECH2.EXE`
 - `assets/` - Progress report icons
 
 ## Target Binaries
@@ -126,7 +130,7 @@ Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/deta
 | ----------- | -------- | ------------ | ------------------------------------------------------------------ | ---------------- |
 | `MECH2.EXE` | Launcher | 53,248 bytes | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
 
-`MECH2.EXE` is **source-only**: its source lives in `MECH2/` without annotations and outside reccmp. It was built with an older toolchain (VC++ 2.x) than the DLLs, so it cannot byte-match under the project toolchain and is not scored.
+`MECH2.EXE` comes from the retail release, not the patch. It is **source-only** for now: its source lives in `MECH2/` without annotations and outside reccmp. It was built with Visual C++ 2.2, an older toolchain than the DLLs', which the build uses for it when configured with `-DDEMECH2_MSVC22_ROOT`.
 
 ## Contributing
 

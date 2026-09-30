@@ -5,7 +5,7 @@
 // The icons are not in the repository: the build extracts them from the original
 // MECH2.EXE and defines DEMECH2_ORIGINAL_ICONS. Without them the window has no icon.
 
-#include <winres.h>
+#include <windows.h>
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 

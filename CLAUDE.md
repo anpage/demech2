@@ -9,7 +9,7 @@ Two reccmp targets, both from the freely downloadable 1.1 patch:
 
 One source-only target:
 
-- **MECH2** — `MECH2.EXE`, the launcher that loads the DLLs. Its source lives in `MECH2/` **without annotations and outside reccmp**: it was built with an older toolchain (VC++ 2.x), so it cannot byte-match under VC++ 4.1 and is never scored. It is kept compiling so the recompiled DLLs can be launched.
+- **MECH2** — `MECH2.EXE`, the launcher that loads the DLLs (from the retail release, not the 1.1 patch). Its source lives in `MECH2/` **without annotations and outside reccmp** for now. The original was built with VC++ 2.2 (`cl` 9.10, `_MSC_VER` 900), so it can't byte-match under VC++ 4.1; the build compiles it with 2.2 when one is configured (see "Building"), and otherwise with the project's compiler, as a launcher for the recompiled DLLs.
 
 Future target: `NETMECHW.DLL` (NetMech shell counterpart) — the layout, CMake and CI are designed so it can be added as a third reccmp target without restructuring.
 
@@ -24,11 +24,13 @@ Machine-specific instructions live in `CLAUDE.local.md` at the repository root (
 ```
 <path-to-msvc41>\BIN\VCVARS32.BAT
 mkdir build && cd build
-cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDEMECH2_MSVC22_ROOT=<path-to-msvc22>
 cmake --build .
 ```
 
 Portable VC++ 4.1: https://github.com/madebr/msvc410. MASM 6.11 (ML, for the MASM objects; see "Hand-written Assembly"): https://github.com/shengyanli1982/MASM611, passed to the configure step as `-DCMAKE_ASM_MASM_COMPILER=<path-to-masm>\BIN\ML.EXE` (never put its `BIN` on `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE`). CMake 3.26.6 (i386) is known to drive the VC++ 4.1 NMake generator.
+
+**VC++ 2.2** (for `MECH2.EXE`): https://github.com/archaic-msvc/msvc220 at `c0fff2a`. One CMake project can use only one compiler per language, so the 2.2 targets live in the `vc22/` sub-project, which the top-level build configures and builds as a nested build in `<build>/vc22` (`ExternalProject`), setting 2.2's `PATH`/`INCLUDE`/`LIB` itself (through the generated `<build>/vc22-env.cmake`): only the 4.1 `VCVARS32.BAT` needs to run. The targets are defined once, in `vc22/targets.cmake`: without `DEMECH2_MSVC22_ROOT`, or with a modern compiler, the top-level project builds them itself. The comparison build compiles with 2.2's `cl` and `/Z7` and links with **4.1's LINK** against 2.2's libraries: reccmp's `cvdump` can't read a 2.x PDB, but reads LINK 3.10's. Never `/Zi` for 2.2 objects.
 
 Build configuration:
 
@@ -36,8 +38,9 @@ Build configuration:
 | -------- | ------------------------ | ------------------ | ------------------------------------------ | --------------------------------------------------- |
 | MW2      | C                        | `/Od /Oi /G5`      | `/MTd` (static debug, predefines `_DEBUG`) | `/DLL /DEBUG /INCREMENTAL:no`                       |
 | MW2SHELL | C++ (C files: no `/GX`)  | `/Od /Oi /G5 /Ob1 /GX` | `/MT` (static)                             | `/DLL` (comparison build adds `/DEBUG` for the PDB) |
+| MECH2    | C (VC++ 2.2)             | `/Od /Oi /G5 /Z7`  | `/ML` (single-threaded `LIBC`)             | incremental EXE (comparison build adds `/DEBUG`)    |
 
-The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiThreadedDebug` for MW2, `MultiThreaded` for MW2SHELL). No CRT patching is needed: the originals match 4.1's `LIBCMTD.LIB` (MW2) and `LIBCMT.LIB` (MW2SHELL) as-is.
+The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiThreadedDebug` for MW2, `MultiThreaded` for MW2SHELL; CMake has no value for `/ML`, so MECH2 sets an empty one and passes the flag). No CRT patching is needed: the originals match 4.1's `LIBCMTD.LIB` (MW2) and `LIBCMT.LIB` (MW2SHELL) as-is.
 
 The shell's icon 103 (shown by four dialogs) is not committed: CMake builds `tools/extract_icon` and extracts it from the original `MW2SHELL.DLL` (`DEMECH2_MW2SHELL_ORIGINAL`, default: the repository root; SHA-256 checked). Without the original, `mw2shell.rc` builds without the icon. The launcher's window icons 103 and 108 (NetMech) work the same way, from the original `MECH2.EXE` (`DEMECH2_MECH2_ORIGINAL`) into `mech2.rc`.
 
@@ -455,7 +458,7 @@ When a class has a small subsystem-teardown method AND a larger full-destroy wra
 ## Project Structure
 
 ```
-MECH2/        # MECH2.EXE source only: no annotations, not a reccmp target
+MECH2/        # MECH2.EXE source only: no annotations, not a reccmp target (built by vc22/)
 MW2SHELL/     # MW2SHELL.DLL (include/, src/, MW2SHELL.def, library_msvc.h, mw2shell.rc: only the resources it needs)
 MW2/          # MW2.DLL      (include/, src/, MW2.def, library_msvc.h; loads no resources)
               # NETMECHW/ added later with the same shape
@@ -463,9 +466,10 @@ common/       # src/: MASM objects both DLLs link (blit.asm, codeblock.asm); ann
 3rdparty/     # import-library .def files (DDRAW, DPLAY, WAIL32, SMACKW32; the .libs are generated at build time),
               # DirectX 2 SDK headers, and our own Miles/Smacker declarations (no SDK: only what the game uses)
 util/         # decomp.h, compat.h, types.h
-cmake/        # reccmp CMake integration
+vc22/         # the VC++ 2.2 sub-project (CMakeLists.txt) and the 2.2 targets' definitions (targets.cmake)
+cmake/        # reccmp CMake integration, shared CMake helpers
 tools/        # ncc, lint scripts, requirements
 reccmp/       # reccmp data sources (CSVs, added as needed)
-docker/       # VC++ 4.1 + CMake under Wine build image
+docker/       # VC++ 4.1 + VC++ 2.2 + CMake under Wine build image
 assets/       # progress report icons
 ```
