@@ -1,18 +1,41 @@
 #include "eyepoint.h"
 
+#include "clock.h"
+#include "cockpit.h"
 #include "decomp.h"
+#include "fixedmul.h"
+#include "inputmap.h"
+#include "integrate.h"
 #include "object.h"
 #include "players.h"
+#include "ramp.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "transform.h"
 #include "types.h"
 #include "unk10034a40.h"
+#include "unk1003a530.h"
+#include "unk100696c0.h"
+#include "unk1006d680.h"
+
+#include <stdlib.h>
 
 // The view FUN_10011819 saves when it leaves the cockpit view.
 // GLOBAL: MW2 0x10176f10
 MechS32 g_unk0x10176f10[7];
+
+// The cockpit view's tilt, eased toward g_sinkPilotTilt.
+// GLOBAL: MW2 0x10176f80
+Ramp g_unk0x10176f80;
+
+// The cockpit view's pan, eased toward g_sinkPilotPan.
+// GLOBAL: MW2 0x10177030
+Ramp g_unk0x10177030;
+
+// The free camera's forward speed.
+// GLOBAL: MW2 0x10177040
+Ramp g_unk0x10177040;
 
 // STUB: MW2 0x10010ee0
 void FirstEyepoint(void)
@@ -236,10 +259,141 @@ void FUN_10011819(void)
 	}
 }
 
-// Returns the eyepoint's base position (0x00-0x08) and orientation (0x0c-0x14), without the
-// camera shake.
-// STUB: MW2 0x10011e45
+// FUN_100116c3's view, turned from the cockpit by the pilot's pan and tilt.
+// Stack-slot permutation: pan and tilt.
+// FUNCTION: MW2 0x10011e45
 void FUN_10011e45(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	STUB(0x10011e45);
+	MechS32 pan;
+	MechS32 tilt;
+
+	pan = 0;
+	tilt = 0;
+	FUN_100116c3(p_unk0x10, p_unk0x0c, p_unk0x14, p_x, p_y, p_z);
+	if (!g_unk0x100a2c04) {
+		g_unk0x10177030.m_target = g_sinkPilotPan;
+		pan = UpdateRamp(&g_unk0x10177030);
+		g_unk0x10176f80.m_target = g_sinkPilotTilt;
+		tilt = UpdateRamp(&g_unk0x10176f80);
+		*p_unk0x0c += pan;
+		*p_unk0x10 += tilt;
+	}
+
+	g_unk0x100a241c = 1;
+}
+
+// Switches to the drop view (mode 4): the camera starts level at the mech and falls, turning.
+// Stack-slot permutation: the six locals.
+// FUNCTION: MW2 0x10011edc
+void FUN_10011edc(void)
+{
+	MechS32 unk0x10;
+	MechS32 unk0x0c;
+	MechS32 unk0x14;
+	MechS32 x;
+	MechS32 y;
+	MechS32 z;
+
+	FUN_100116c3(&unk0x10, &unk0x0c, &unk0x14, &x, &y, &z);
+	if (g_unk0x100a2408 != 4) {
+		g_unk0x100a243c = 0;
+		g_eyepoint->m_unk0x10 = 0x5a0000;
+		g_unk0x100a2444 = g_currentClock;
+		ApplyCameraFov(0);
+	}
+
+	IntegrateMidpoint(&g_eyepoint->m_unk0x04, &g_unk0x100a243c, g_unk0x100a2440, g_deltaTime);
+	g_eyepoint->m_unk0x00 = x;
+	g_eyepoint->m_unk0x08 = z;
+	g_eyepoint->m_unk0x0c += (g_currentClock - g_unk0x100a2444) * 300;
+}
+
+// Moves the free camera (mode 2): p_climb raises it, p_speed drives it forward (eased),
+// p_strafe moves it sideways, and p_turn and p_pitch turn it. It stays above the ground.
+// Stack-slot permutation: sinHeading, cosHeading, cosPitch and speed.
+// FUNCTION: MW2 0x10011f9a
+void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch)
+{
+	MechS32 sinHeading;
+	MechS32 cosHeading;
+	MechS32 sinPitch;
+	MechS32 floor;
+	MechS32 speed;
+	MechS32 cosPitch;
+
+	sinHeading = FUN_100696c0(g_eyepoint->m_unk0x0c);
+	cosHeading = FUN_1006973a(g_eyepoint->m_unk0x0c);
+	sinPitch = FUN_100696c0(g_eyepoint->m_unk0x10);
+	cosPitch = FUN_1006973a(g_eyepoint->m_unk0x10);
+	if (g_unk0x100a2408 != 2) {
+		if (g_unk0x100a2c04) {
+			g_eyepoint->m_unk0x00 -= FixedMul16(g_unk0x100a23ec, sinHeading) >> 13;
+			g_eyepoint->m_unk0x08 -= FixedMul16(g_unk0x100a23ec, cosHeading) >> 13;
+		}
+
+		g_eyepoint->m_unk0x14 = 0;
+		g_unk0x10177040.m_value = 0;
+		g_unk0x10177040.m_time = g_currentClock;
+		g_zoomFov = g_normalFov;
+		ApplyCameraFov(0);
+	}
+
+	g_eyepoint->m_unk0x00 += FixedMul16(p_strafe, cosHeading) >> 11;
+	g_eyepoint->m_unk0x08 -= FixedMul16(p_strafe, sinHeading) >> 11;
+	g_eyepoint->m_unk0x10 -= p_pitch;
+	if (g_eyepoint->m_unk0x10 > 0x5a0000) {
+		g_eyepoint->m_unk0x10 = 0x5a0000;
+	}
+	else if (g_eyepoint->m_unk0x10 < -0x5a0000) {
+		g_eyepoint->m_unk0x10 = -0x5a0000;
+	}
+
+	g_eyepoint->m_unk0x04 += p_climb * 4;
+	g_unk0x10177040.m_target = p_speed * 16;
+	speed = UpdateRamp(&g_unk0x10177040);
+	if (speed < 0x20 && speed > -0x20) {
+		speed = 0;
+	}
+
+	g_eyepoint->m_unk0x0c += p_turn;
+	g_eyepoint->m_unk0x00 -= FixedMul16(FixedMul16(speed, sinHeading) >> 13, cosPitch) >> 13;
+	g_eyepoint->m_unk0x08 -= FixedMul16(FixedMul16(speed, cosHeading) >> 13, cosPitch) >> 13;
+	floor = FUN_100113af(g_eyepoint);
+	if (g_eyepoint->m_unk0x04 < floor) {
+		g_eyepoint->m_unk0x04 = max(g_eyepoint->m_unk0x04, floor);
+	}
+}
+
+// Turns the world's shapes of types 0x10 and 0x60 to face the eyepoint, or to a fixed angle when
+// FUN_1003ee69 is set.
+// FUNCTION: MW2 0x1001220a
+void FUN_1001220a(void)
+{
+	MechS32 pitch;
+	ScarletOrchid0x4c* shape;
+	AmberWillow0x7c* obj;
+	MechS32 z;
+	MechS32 y;
+	MechS32 x;
+	MechS32 heading;
+
+	for (shape = g_unk0x100ad5e8->m_unk0x08; shape; shape = shape->m_unk0x08) {
+		if ((shape->m_unk0x02 & 0xf0) == 0x10 || (shape->m_unk0x02 & 0xf0) == 0x60) {
+			obj = shape->m_unk0x18;
+			if (obj) {
+				GetObjPosition(obj, &x, &y, &z);
+				if (FUN_1003ee69()) {
+					heading = 0xb40000;
+					pitch = -0x2d0000;
+				}
+				else {
+					heading = FUN_100698de(g_eyepoint->m_unk0x00 - x, g_eyepoint->m_unk0x08 - z);
+					pitch = 0;
+				}
+
+				SetObjRotation(obj, pitch, heading, 0, 0);
+				FUN_10001cf8(obj);
+			}
+		}
+	}
 }

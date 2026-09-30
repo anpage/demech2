@@ -25,6 +25,7 @@ extern "C"
 	void FUN_1004c05c(Eyepoint* p_eyepoint);
 	void FUN_1004c093(Eyepoint* p_eyepoint, Matrix* p_matrix);
 	void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix);
+	MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	MechS32 FUN_1004c779(MechU16* p_flags);
 	MechS32 FUN_1004c7a6(undefined4 p_unk0x00);
 	void FUN_1004c7cf(undefined4 p_unk0x00, MechS32 p_enable);

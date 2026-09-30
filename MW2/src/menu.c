@@ -225,15 +225,15 @@ void UpdateMenuKey(void)
 	menu = GetOpenMenu();
 	if (menu) {
 		flags = menu->m_flags;
-		if (g_keyCode) {
-			if (g_keyCode == 0x1b) {
-				g_menuKey = g_keyCode;
+		if (g_localSteering.m_keyCode) {
+			if (g_localSteering.m_keyCode == 0x1b) {
+				g_menuKey = g_localSteering.m_keyCode;
 			}
-			else if (g_keyCode >= '0' && g_keyCode <= '9') {
-				g_menuKey = g_keyCode;
+			else if (g_localSteering.m_keyCode >= '0' && g_localSteering.m_keyCode <= '9') {
+				g_menuKey = g_localSteering.m_keyCode;
 			}
 			else if (flags & 1) {
-				switch (g_keyCode) {
+				switch (g_localSteering.m_keyCode) {
 				case 0x09:
 				case 0x0d:
 				case 0x20:
@@ -242,15 +242,15 @@ void UpdateMenuKey(void)
 				case 0xc8:
 				case 0xc9:
 				case 0x209:
-					g_menuKey = g_keyCode;
+					g_menuKey = g_localSteering.m_keyCode;
 					break;
 				default:
 					break;
 				}
 			}
 
-			if (g_keyCode == g_menuKey) {
-				g_keyCode = 0;
+			if (g_localSteering.m_keyCode == g_menuKey) {
+				g_localSteering.m_keyCode = 0;
 			}
 		}
 		else if (flags & 1) {
@@ -355,11 +355,11 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 
 	LoadMenuResources(p_menu);
 	if (p_menu->m_flags & 0x20) {
-		FillRenderTargetRect(target, 0);
+		FillView(target, 0);
 	}
 
 	if (p_menu->m_background) {
-		DrawShapeFrame(backgroundTarget, p_menu->m_background, 0, 0, 0);
+		BlitShpFrame(backgroundTarget, p_menu->m_background, 0, 0, 0);
 	}
 
 	if (p_menu->m_flags & 4) {

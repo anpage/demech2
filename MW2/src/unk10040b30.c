@@ -2,8 +2,12 @@
 
 #include "decomp.h"
 #include "loadres.h"
+#include "players.h"
+#include "ray.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk1004b980.h"
+#include "weapons.h"
 
 // Draws the cockpit overlays enabled in the display options: the message boxes, the radar
 // (FUN_100412dd), FUN_100414ab and FUN_10040cbc.
@@ -119,6 +123,29 @@ void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c
 	STUB(0x1004183a);
 }
 
+// Projects the end of the player's aim ray to the screen: returns FUN_1004c11d's result, and the
+// point in p_x and p_y.
+// Stack-slot permutation: result, ray, x, y and z.
+// FUNCTION: MW2 0x10041998
+MechS32 FUN_10041998(Player** p_player, MechS32* p_x, MechS32* p_y)
+{
+	MechS32 result;
+	Ray ray;
+	MechS32 z;
+	MechS32 y;
+	MechS32 x;
+
+	FUN_100463e5(*p_player, &ray);
+	SetRayLength(&ray, FUN_1004635c(*p_player));
+	x = ray.m_x1;
+	y = ray.m_y1;
+	z = ray.m_z1;
+	result = FUN_1004c11d(&x, &y, &z);
+	*p_x = x;
+	*p_y = y;
+	return result;
+}
+
 // Draws frame 0 of the "SHP" resource p_id (relative to g_unk0x100e9614) at p_x, p_y of the
 // current render target.
 // FUNCTION: MW2 0x10041e98
@@ -128,7 +155,7 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 
 	shape = FUN_1001a19f(g_unk0x100a8740, p_id + g_unk0x100e9614, g_unk0x100a8680, 0);
 	if (shape) {
-		DrawShapeFrame(&g_currentRenderTarget, shape, 0, p_x, p_y);
+		BlitShpFrame(&g_currentRenderTarget, shape, 0, p_x, p_y);
 		FUN_1001a163(p_id + g_unk0x100e9614, g_unk0x100a8680);
 	}
 }
@@ -142,7 +169,7 @@ void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target
 
 	shape = FUN_1001a19f(g_unk0x100a8740, p_id + g_unk0x100e9614, g_unk0x100a8680, 0);
 	if (shape) {
-		DrawShapeFrame(p_target, shape, 0, p_x, p_y);
+		BlitShpFrame(p_target, shape, 0, p_x, p_y);
 		FUN_1001a163(p_id + g_unk0x100e9614, g_unk0x100a8680);
 	}
 }

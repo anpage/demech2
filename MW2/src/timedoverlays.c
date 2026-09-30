@@ -170,7 +170,7 @@ void DrawTimedOverlays(void)
 					background =
 						FUN_1001a19f(g_unk0x100a8740, overlay->m_background + g_unk0x100e9614, g_unk0x100a8680, 0);
 					if (background != NULL) {
-						DrawShapeFrame(overlay->m_target, background, 0, 0, 0);
+						BlitShpFrame(overlay->m_target, background, 0, 0, 0);
 						FUN_10064f0b(
 							overlay->m_target,
 							overlay->m_textPos.m_x,

@@ -196,7 +196,7 @@ void DrawAnim2d(RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_
 	}
 
 	if (anim->m_state != c_anim2dDone) {
-		DrawShapeFrame(p_target, anim->m_shape, shown, p_x, p_y);
+		BlitShpFrame(p_target, anim->m_shape, shown, p_x, p_y);
 	}
 	else if (anim->m_flags & c_anim2dFreeWhenDone) {
 		FreeAnim2ds(p_index);

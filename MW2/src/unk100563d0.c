@@ -2,6 +2,7 @@
 
 #include "bwd.h"
 #include "bwdnames.h"
+#include "bwdstreamkey.h"
 #include "decomp.h"
 #include "resource.h"
 #include "types.h"
@@ -45,12 +46,6 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 
 	return size;
 }
-
-// The key OpenBwdStream looks a stream up by: a resource id, or -1 to use the name.
-typedef struct BwdStreamKey {
-	MechS16 m_id;          // 0x00
-	MechChar m_name[0x0e]; // 0x02
-} BwdStreamKey;
 
 // Reads a mission's static memory table (seven tag and size pairs), or returns NULL. A mission
 // named by a number is looked up by that resource id.

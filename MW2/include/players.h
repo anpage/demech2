@@ -18,6 +18,7 @@ struct ScarletOrchid0x4c;
 typedef struct Player Player;
 
 typedef void (*PlayerMechFn)(Mech* p_mech);
+typedef void (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 #pragma pack(push, 1)
 
@@ -132,7 +133,9 @@ extern "C"
 	void ShutdownAllPlayers(void);
 	void ZeroGameThing(MechS32 p_index);
 	void ZeroGamethings(void);
+	void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn);
 	MechS32 FUN_1006d340(MechS32 p_player);
+	void FUN_1006d3a4(Player* p_player);
 
 #ifdef __cplusplus
 }

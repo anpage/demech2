@@ -114,6 +114,13 @@ void SecondRender(void)
 	STUB(0x100129b7);
 }
 
+// The normal frame draw callback: renders the 3D view.
+// STUB: MW2 0x10012afe
+void FUN_10012afe(void)
+{
+	STUB(0x10012afe);
+}
+
 // FUNCTION: MW2 0x10012dca
 void FUN_10012dca(MechS32 p_value)
 {
@@ -158,7 +165,7 @@ void ShutdownRender(void)
 	FUN_1006db28();
 	FUN_1007d120();
 	if (g_unk0x100a245c && g_currentRenderTarget.m_buffer) {
-		FillRenderTargetRect(&g_currentRenderTarget, 0);
+		FillView(&g_currentRenderTarget, 0);
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}

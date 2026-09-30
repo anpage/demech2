@@ -379,6 +379,7 @@ demech2_add_dll(mw2
     MW2/src/eyepoint.c
     MW2/src/recttransition.c
     MW2/src/render.c
+    MW2/src/unk10013340.c
     MW2/src/unk10013370.c
     MW2/src/unk10013430.c
     MW2/src/fixedsqrt.c
@@ -393,6 +394,7 @@ demech2_add_dll(mw2
     MW2/src/cmdline.c
     MW2/src/geocache.c
     MW2/src/unk10021460.c
+    MW2/src/unk100335d0.c
     MW2/src/unk10034a40.c
     MW2/src/unk10036230.c
     MW2/src/logwindow.c
@@ -425,6 +427,7 @@ demech2_add_dll(mw2
     MW2/src/unk1004c860.c
     MW2/src/fadepal.c
     MW2/src/unk1004d020.c
+    MW2/src/unk1004da30.c
     MW2/src/dispdib.c
     MW2/src/resource.c
     MW2/src/debugprint.c

@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_10038ced is a C function with an __asm body. */
+/* Hand-written assembly: FUN_10038ced and FUN_1003a05d are C functions with __asm bodies. */
 #include "unk10036230.h"
 
 #include "decomp.h"
@@ -11,6 +11,32 @@
 // The luma table FUN_10038d0d draws through, copied in by FUN_10038ced.
 // GLOBAL: MW2 0x100a5630
 MechU16 g_lumaTable[0x80] = {0};
+
+// Set by FUN_1004b980: FUN_100367c5's base shade, out of 0x80.
+// GLOBAL: MW2 0x1010b540
+MechS32 g_unk0x1010b540;
+
+// Returns a shade from 0 to 15 for a light level p_light (out of 0x80) and a brightness
+// p_value, dimmed with the distance p_distance.
+// FUNCTION: MW2 0x100367c5
+MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
+{
+	MechS32 shade;
+
+	shade = (((0x80 - g_unk0x1010b540) * p_light >> 7) + g_unk0x1010b540) * (p_value >> 1) / 0x440;
+	if (g_unk0x100a6cc8.m_unk0x44) {
+		shade -= (p_distance << 4) / g_unk0x100a6cc8.m_unk0x44 >> 4;
+	}
+
+	if (shade < 1) {
+		shade = 0;
+	}
+	else if (shade > 15) {
+		shade = 15;
+	}
+
+	return shade;
+}
 
 // FUNCTION: MW2 0x10036853
 void FUN_10036853(MechU32 p_flags)
@@ -133,6 +159,29 @@ MechS32 FUN_10039ccc(struct ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y
 {
 	STUB(0x10039ccc);
 	return 0;
+}
+
+// Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
+// FUNCTION: MW2 0x1003a05d
+MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value)
+{
+	MechS32 result;
+
+	result = 0;
+	__asm {
+		mov ebx, p_a
+		sub ebx, p_b
+		jz done
+		mov eax, p_value
+		cdq
+		shld edx, eax, 17
+		shl eax, 17
+		idiv ebx
+		mov result, eax
+done:
+	}
+
+	return result;
 }
 
 // Returns the distance along the ray to the shape.

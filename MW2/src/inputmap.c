@@ -21,8 +21,17 @@
 #include <string.h>
 #include <windows.h>
 
-// GLOBAL: MW2 0x100b2514
-MechS16 g_keyCode = 0;
+// The local player's steering: the outputs of INPUT.MAP's sinks.
+// GLOBAL: MW2 0x100b2500
+PlayerSteering g_localSteering = {0};
+
+// The outputs of INPUT.MAP's pilot_tilt and pilot_pan sinks: the cockpit view's look offsets.
+
+// GLOBAL: MW2 0x100b2548
+MechS32 g_sinkPilotTilt = 0;
+
+// GLOBAL: MW2 0x100b254c
+MechS32 g_sinkPilotPan = 0;
 
 // The outputs of the menu bindings (INPUT.MAP's menu_ sinks).
 

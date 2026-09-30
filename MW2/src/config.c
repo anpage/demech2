@@ -4,6 +4,8 @@
 #include "loadres.h"
 #include "network.h"
 #include "render.h"
+#include "rendertarget.h"
+#include "screenshot.h"
 #include "simmain.h"
 #include "soundconfig.h"
 #include "staticmem.h"
@@ -24,6 +26,10 @@ enum FilePermission {
 // The game directory (the MECHWARRIOR environment variable).
 // GLOBAL: MW2 0x100ae400
 MechChar g_gameDir[256] = {0};
+
+// The number of the next screenshot FUN_100715a2 saves.
+// GLOBAL: MW2 0x100ae500
+MechS32 g_screenshotCount = 0;
 
 // The path BuildGamePath returns.
 // GLOBAL: MW2 0x100bef58
@@ -240,6 +246,29 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 	}
 
 	return result;
+}
+
+// Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
+// FUNCTION: MW2 0x100715a2
+void FUN_100715a2(void)
+{
+	MechS32 count;
+	RenderTarget target;
+	MechChar name[16];
+
+	target.m_buffer = &g_mainPixelBuffer;
+	target.m_left = 0;
+	target.m_top = 0;
+	target.m_right = g_screenWidthMinus1;
+	target.m_bottom = g_screenHeightMinus1;
+	if (g_screenshotCount < 1000) {
+		count = g_screenshotCount++;
+		sprintf(name, "mw2%04d.gif", count);
+		ScreenshotBegin(name);
+		ScreenshotWritePalette();
+		ScreenshotWriteImage(&target);
+		ScreenshotEnd();
+	}
 }
 
 // Returns the path of a game file: in g_gameDir unless the name has a directory already.

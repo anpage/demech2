@@ -64,7 +64,12 @@ extern "C"
 	extern MechS32 g_localPlayerId;
 	extern struct Player* g_localPlayer;
 	extern MechS32* g_unk0x100a2434;
+	extern MechS32 g_unk0x100a23ec;
 	extern MechS32 g_unk0x100a2408;
+	extern MechS32 g_unk0x100a241c;
+	extern MechS32 g_unk0x100a243c;
+	extern MechS32 g_unk0x100a2440;
+	extern MechS32 g_unk0x100a2444;
 	extern MechS32 g_unk0x100a240c;
 	extern MechS32 g_unk0x100a2430;
 	extern MechS32 g_unk0x100a2bf0;
@@ -109,6 +114,7 @@ extern "C"
 	extern MechS32 g_unk0x100a5a30;
 	extern MechS32 g_unk0x100a5a38;
 	extern MechS32 g_unk0x100b1350;
+	extern void (*g_dorcsPreviousDrawCallback)(void);
 	extern undefined4 g_unk0x100a5f18;
 	extern MechS32 g_unk0x100a5f1c;
 	extern MechS32 g_unk0x100a5f20;

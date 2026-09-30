@@ -11,7 +11,9 @@ typedef struct PlayerSteering {
 	MechS32 m_unk0x04;                // 0x04 — swept between ±45 degrees by FUN_100562b4
 	MechS32 m_throttle;               // 0x08
 	MechS32 m_turn;                   // 0x0c
-	undefined m_unk0x10[0x1d - 0x10]; // 0x10
+	undefined m_unk0x10[0x14 - 0x10]; // 0x10
+	MechS16 m_keyCode;                // 0x14 — the local player's: the key INPUT.MAP passed on
+	undefined m_unk0x16[0x1d - 0x16]; // 0x16
 	MechS8 m_unk0x1d;                 // 0x1d
 	MechS8 m_unk0x1e;                 // 0x1e
 	MechS8 m_unk0x1f;                 // 0x1f

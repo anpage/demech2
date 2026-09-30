@@ -92,5 +92,5 @@ void ScreenshotEnd(void)
 // FUNCTION: MW2 0x1006cf54
 MechS32 ScreenshotGetPixel(MechS32 p_x, MechS32 p_y)
 {
-	return FUN_10060617(g_screenshotTarget, p_x, p_y);
+	return GetViewPixel(g_screenshotTarget, p_x, p_y);
 }

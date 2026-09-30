@@ -2,11 +2,14 @@
 
 #include "decomp.h"
 #include "gamething.h"
+#include "inputmap.h"
 #include "playersteering.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
 #include "unk100563d0.h"
+
+#include <string.h>
 
 DECOMP_SIZE_ASSERT(GameThing, 0x40)
 DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
@@ -138,6 +141,39 @@ void ZeroGamethings(void)
 	}
 }
 
+// Creates player p_player: allocates it, sets it up, gives it its steering (the input sinks for
+// the local player, the room after it otherwise), and passes it to p_fn if given.
+// The original loads g_localPlayerId into eax for the comparison with p_player (operand order).
+// FUNCTION: MW2 0x1006d282
+void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn)
+{
+	PlayerCreatedFn fn;
+	Player* player;
+
+	fn = NULL;
+	g_players[p_player] = NULL;
+	fn = p_fn;
+	if (FUN_1006d340(p_player)) {
+		player = g_players[p_player];
+		FUN_1006d3a4(player);
+		player->m_index = p_player;
+		if (p_player == g_localPlayerId) {
+			player->m_steering = &g_localSteering;
+		}
+		else {
+			player->m_steering = (PlayerSteering*) (player + 1);
+		}
+
+		if (player->m_steering) {
+			memset(player->m_steering, 0, sizeof(PlayerSteering));
+		}
+
+		if (fn) {
+			fn(p_player, player);
+		}
+	}
+}
+
 // Allocates player p_player: a remote player gets room for its steering after it.
 // Stack-slot permutation of player and size; the original compares p_player with
 // g_localPlayerId in eax (operand order).
@@ -159,4 +195,11 @@ MechS32 FUN_1006d340(MechS32 p_player)
 
 	g_players[p_player] = player;
 	return TRUE;
+}
+
+// Sets up a newly allocated player.
+// STUB: MW2 0x1006d3a4
+void FUN_1006d3a4(Player* p_player)
+{
+	STUB(0x1006d3a4);
 }

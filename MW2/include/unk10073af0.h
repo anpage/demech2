@@ -29,6 +29,8 @@ extern "C"
 	);
 	void* ReadVfxBin(MechChar* p_name);
 	void FUN_10073cb5(void);
+	void UpdateDorcs(void);
+	void ShowDorcs(void);
 
 #ifdef __cplusplus
 }

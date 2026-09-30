@@ -194,6 +194,14 @@ void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix)
 	p_matrix->m_rows[3][2] = p_eyepoint->m_unk0x54.m_rows[3][2];
 }
 
+// Projects the point (p_x, p_y, p_z) through the eyepoint, in place.
+// STUB: MW2 0x1004c11d
+MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z)
+{
+	STUB(0x1004c11d);
+	return 0;
+}
+
 // FUNCTION: MW2 0x1004c779
 MechS32 FUN_1004c779(MechU16* p_flags)
 {

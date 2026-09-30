@@ -18,7 +18,9 @@ typedef struct SlateHeron0x68 {
 	MechS32 m_unk0x34;                       // 0x34 — 0 fills polygons, 1 fills and outlines, else outlines
 	undefined4 m_unk0x38;                    // 0x38
 	MechS32 m_unk0x3c;                       // 0x3c — cleared while an effect has the camera
-	undefined4 m_unk0x40[(0x4c - 0x40) / 4]; // 0x40
+	undefined4 m_unk0x40;                    // 0x40
+	MechS32 m_unk0x44;                       // 0x44 — FUN_100367c5's distance scale
+	undefined4 m_unk0x48;                    // 0x48
 	MechS32 m_unk0x4c;                       // 0x4c — FUN_100368e8 sets it when the display detail is low
 	MechU32 m_unk0x50;                       // 0x50 — render features switched off (FUN_10036891)
 	void (*m_frameDrawCallback)(void);       // 0x54

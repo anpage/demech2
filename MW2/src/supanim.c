@@ -53,9 +53,9 @@ void SupAnimTimerCallback(void)
 
 	if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 		g_supAnimBuffer.m_pixels = g_mainPixelBuffer.m_pixels;
-		FillRenderTargetRect(&g_supAnimTarget, 0);
-		DrawShapeFrame(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
-		DrawShapeFrame(&g_supAnimTarget, g_supAnimShape, g_supAnimFrame, g_supAnimX, g_supAnimY);
+		FillView(&g_supAnimTarget, 0);
+		BlitShpFrame(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
+		BlitShpFrame(&g_supAnimTarget, g_supAnimShape, g_supAnimFrame, g_supAnimX, g_supAnimY);
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}

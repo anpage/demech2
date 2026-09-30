@@ -8,6 +8,7 @@
 #include "mss.h"
 #include "players.h"
 #include "simmain.h"
+#include "slateheron.h"
 #include "soundfx.h"
 #include "types.h"
 #include "unk100079d0.h"
@@ -98,4 +99,24 @@ void FUN_10073cb5(void)
 	RequestMenuClose(7);
 	RequestMenuClose(8);
 	RequestMenuClose(5);
+}
+
+// The dorcs sequence's frame draw callback.
+// STUB: MW2 0x10073cfc
+void UpdateDorcs(void)
+{
+	STUB(0x10073cfc);
+}
+
+// The dorcs sequence's state.
+// GLOBAL: MW2 0x100bf084
+MechS32 g_dorcsState;
+
+// Starts the dorcs sequence: UpdateDorcs draws the frames in place of the frame draw callback.
+// FUNCTION: MW2 0x100745b2
+void ShowDorcs(void)
+{
+	g_dorcsPreviousDrawCallback = g_unk0x100a6cc8.m_frameDrawCallback;
+	g_unk0x100a6cc8.m_frameDrawCallback = UpdateDorcs;
+	g_dorcsState = 0;
 }

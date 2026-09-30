@@ -81,7 +81,7 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 		}
 
 		if (!camera) {
-			FillRenderTargetRect(p_panel->m_target, 0);
+			FillView(p_panel->m_target, 0);
 		}
 		else {
 			FUN_10050dc3(&saved);
