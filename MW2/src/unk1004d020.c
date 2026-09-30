@@ -239,10 +239,10 @@ void FUN_1004d48a(RenderTarget* p_target)
 	MechS32 value;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	FUN_100606ed(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8338, g_unk0x100a8344, 0, 10);
-	FUN_100606ed(p_target, g_unk0x100a8340, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
-	FUN_100606ed(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a833c, 0, 10);
-	FUN_100606ed(p_target, g_unk0x100a8338, g_unk0x100a8344, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
+	BlitLine(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8338, g_unk0x100a8344, 0, 10);
+	BlitLine(p_target, g_unk0x100a8340, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
+	BlitLine(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a833c, 0, 10);
+	BlitLine(p_target, g_unk0x100a8338, g_unk0x100a8344, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
 	value = mech->m_player->m_steering->m_throttle << 16;
 	value = MulDiv64(value, g_unk0x100a8330.m_y, 0x400);
 	if (mech->m_player->m_steering->m_unk0x2f) {
@@ -323,20 +323,20 @@ void FUN_1004d732(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_wi
 	}
 
 	for (i = 0; i < end; i++) {
-		FUN_100606ed(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
 	}
 
 	for (i = end; i < half; i++) {
-		FUN_100606ed(p_target, i + p_x, p_y, i + p_x, top, 0, p_color);
+		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, p_color);
 	}
 
 	end = half + (p_width - half) / 2;
 	for (i = half; i < end; i++) {
-		FUN_100606ed(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
 	}
 
 	for (i = end; p_width > i; i++) {
-		FUN_100606ed(p_target, i + p_x, p_y, i + p_x, top, 0, darker);
+		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, darker);
 	}
 }
 
@@ -362,19 +362,19 @@ void FUN_1004d8ae(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_wi
 	}
 
 	for (i = 0; i < end; i++) {
-		FUN_100606ed(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
 	}
 
 	for (i = end; i < half; i++) {
-		FUN_100606ed(p_target, p_x, i + p_y, right, i + p_y, 0, p_color);
+		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, p_color);
 	}
 
 	end = half + (p_height - half) / 2;
 	for (i = half; i < end; i++) {
-		FUN_100606ed(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
 	}
 
 	for (i = end; p_height > i; i++) {
-		FUN_100606ed(p_target, p_x, i + p_y, right, i + p_y, 0, darker);
+		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, darker);
 	}
 }

@@ -32,7 +32,7 @@ void DrawPausedBanner(void)
 			g_pausedBannerUnscaled = 0;
 		}
 
-		DrawShapeFrame(&g_pausedBannerRect, shape, 0, 0, 0);
+		BlitShpFrame(&g_pausedBannerRect, shape, 0, 0, 0);
 	}
 }
 

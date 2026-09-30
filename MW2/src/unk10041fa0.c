@@ -1,5 +1,6 @@
 #include "unk10041fa0.h"
 
+#include "animation.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "palette.h"
@@ -8,7 +9,10 @@
 #include "simmain.h"
 #include "slateheron.h"
 #include "types.h"
+#include "unk100335d0.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
+#include "unk1006d680.h"
 
 // The map (satellite) view's projection: a top-down view of p_worldSpan units across.
 
@@ -75,6 +79,18 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
 	g_unk0x100a2460 = 0;
+}
+
+// Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes.
+// FUNCTION: MW2 0x1004215f
+void FUN_1004215f(MechU32 p_flags)
+{
+	if (p_flags & 1) {
+		FUN_1004320b(g_eyepoint);
+	}
+
+	FUN_100338bb(g_unk0x100ad5e8);
+	FUN_10069591();
 }
 
 // Restores the eyepoint and the rendering settings FUN_10041fa0 saved.

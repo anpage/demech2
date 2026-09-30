@@ -11,7 +11,7 @@ MW2SHELL start 0x1002a968  # MASM object aligned to 4 or 8, not 16: the compiled
 
 # MW2 globals parked in simmain.c until the units that define them are decompiled.
 MW2 order 0x100a0258  # g_weaponDefs and g_effectInfo, the tables of an object that isn't decompiled yet
-MW2 order 0x100a2400  # the parked run after network.c's data, up to render.c's
+MW2 order 0x100a23ec  # the parked run after network.c's data, up to render.c's
 MW2 order 0x100a2bf0
 MW2 order 0x100a554c
 MW2 order 0x100a59e0

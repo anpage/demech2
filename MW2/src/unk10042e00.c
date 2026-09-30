@@ -131,6 +131,13 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 	}
 }
 
+// Draws the scene from p_eyepoint.
+// STUB: MW2 0x1004320b
+void FUN_1004320b(Eyepoint* p_eyepoint)
+{
+	STUB(0x1004320b);
+}
+
 // Draws a closed polygon of five points.
 // FUNCTION: MW2 0x1004440d
 void FUN_1004440d(
@@ -206,7 +213,7 @@ void FUN_10044527(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 // FUNCTION: MW2 0x10044590
 void FUN_10044590(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 {
-	FUN_100606ed(&g_currentRenderTarget, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
+	BlitLine(&g_currentRenderTarget, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
 	g_unk0x100be5d4 = p_x;
 	g_unk0x100be5d8 = p_y;
 }
@@ -221,10 +228,10 @@ void FUN_100445d2(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			return;
 		}
 
-		FUN_1006053c(&g_currentRenderTarget, p_points[0], p_points[1], p_flags);
+		PutViewPixel(&g_currentRenderTarget, p_points[0], p_points[1], p_flags);
 	}
 	else if (p_count == 2 && g_unk0x100a6cc8.m_unk0x14) {
-		FUN_100606ed(&g_currentRenderTarget, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
+		BlitLine(&g_currentRenderTarget, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
 	}
 	else if (g_unk0x100a6cc8.m_unk0x34 == 0) {
 		g_unk0x100a6cc8.m_drawPolygon(p_count, p_points, p_flags);

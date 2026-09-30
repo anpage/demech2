@@ -38,6 +38,7 @@ extern "C"
 	MechS32 InitDisplayGeometry(void);
 	void FirstRender(void);
 	void SecondRender(void);
+	void FUN_10012afe(void);
 	void FUN_10012dca(MechS32 p_value);
 	void FUN_10012e00(void);
 	void Blit(void);

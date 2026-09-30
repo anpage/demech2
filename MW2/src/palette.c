@@ -360,7 +360,7 @@ void StartPalettes(MechS32 p_dissolve)
 						}
 					}
 
-					FillRenderTargetRect(src, 0);
+					FillView(src, 0);
 					if (g_windowActive) {
 						g_currentRefreshMode->m_flip();
 					}

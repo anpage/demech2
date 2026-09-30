@@ -5,9 +5,11 @@
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "gaugequadrant.h"
+#include "keyboard.h"
 #include "pixelbuffer.h"
 #include "point.h"
 #include "rect.h"
+#include "refreshmode.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "simmain.h"
@@ -256,10 +258,10 @@ void FUN_100570e9(RenderTarget* p_target, MechS32 p_color)
 
 	width = p_target->m_right - p_target->m_left;
 	height = p_target->m_bottom - p_target->m_top;
-	FUN_100606ed(p_target, 0, 0, width, 0, 0, p_color);
-	FUN_100606ed(p_target, width, 0, width, height, 0, p_color);
-	FUN_100606ed(p_target, width, height, 0, height, 0, p_color);
-	FUN_100606ed(p_target, 0, height, 0, 0, 0, p_color);
+	BlitLine(p_target, 0, 0, width, 0, 0, p_color);
+	BlitLine(p_target, width, 0, width, height, 0, p_color);
+	BlitLine(p_target, width, height, 0, height, 0, p_color);
+	BlitLine(p_target, 0, height, 0, 0, 0, p_color);
 }
 
 // Draws a line across the render target under a line of text at p_y.
@@ -274,7 +276,7 @@ void FUN_1005718d(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font
 	p_x = 0;
 	p_y += height;
 	width = p_target->m_right - p_target->m_left + 1;
-	FUN_100606ed(p_target, p_x, p_y, width - 1, p_y, 0, p_color);
+	BlitLine(p_target, p_x, p_y, width - 1, p_y, 0, p_color);
 }
 
 // Underlines text drawn at p_pos.
@@ -293,7 +295,7 @@ void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p
 		width += FUN_10064d60(p_font, p_text[i]);
 	}
 
-	FUN_100606ed(p_target, p_pos.m_x, p_pos.m_y, p_pos.m_x + width - 1, p_pos.m_y, 0, p_color);
+	BlitLine(p_target, p_pos.m_x, p_pos.m_y, p_pos.m_x + width - 1, p_pos.m_y, 0, p_color);
 }
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
@@ -319,10 +321,10 @@ void FUN_10057282(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p
 	right = p_pos.m_x + width;
 	bottom = p_pos.m_y + height + 1;
 	top = p_pos.m_y - 1;
-	FUN_100606ed(p_target, left, top, right, top, 0, p_color);
-	FUN_100606ed(p_target, left, bottom, right, bottom, 0, p_color);
-	FUN_100606ed(p_target, left, top, left, bottom, 0, p_color);
-	FUN_100606ed(p_target, right, top, right, bottom, 0, p_color);
+	BlitLine(p_target, left, top, right, top, 0, p_color);
+	BlitLine(p_target, left, bottom, right, bottom, 0, p_color);
+	BlitLine(p_target, left, top, left, bottom, 0, p_color);
+	BlitLine(p_target, right, top, right, bottom, 0, p_color);
 }
 
 // Draws text word-wrapped into a render target, inside the margins, until it runs out of lines.
@@ -451,6 +453,49 @@ RenderTarget* FUN_100575b9(MechChar* p_text, void* p_font, RenderTarget* p_rect)
 	return p_rect;
 }
 
+// A render target and the colour FUN_100576e9 draws into it.
+typedef struct CenteredDraw {
+	RenderTarget* m_target; // 0x00
+	MechU8 m_color;         // 0x04
+} CenteredDraw;
+
+// Draws a p_width by p_height box (16.16 fractions of the target) centred in p_draw's target,
+// shows it, and returns FALSE if Esc was pressed.
+// Stack-slot permutation: target and pos.
+// FUNCTION: MW2 0x100576e9
+MechS32 FUN_100576e9(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
+{
+	MechS32 result;
+	RenderTarget* target;
+	Point pos;
+
+	result = TRUE;
+	if (!p_draw) {
+		return result;
+	}
+
+	target = p_draw->m_target;
+	if (!target) {
+		return result;
+	}
+
+	pos.m_x = p_width;
+	pos.m_y = p_height;
+	pos.m_x = pos.m_x / 2 + 0x8000;
+	pos.m_y = -(pos.m_y / 2) + 0x8000;
+	FUN_10056bc1(target, &pos, &pos);
+	PutViewPixel(target, pos.m_x, pos.m_y, p_draw->m_color);
+	if (g_windowActive) {
+		g_currentRefreshMode->m_flip();
+	}
+
+	if (KeyboardPollKeyCode() == 0x1b) {
+		result = FALSE;
+	}
+
+	return result;
+}
+
 // Draws a pulsing frame just inside a render target.
 // FUNCTION: MW2 0x100577be
 void FUN_100577be(RenderTarget* p_target)
@@ -503,7 +548,7 @@ void FUN_10057896(RenderTarget* p_target, void* p_shape, MechS32 p_frame)
 	rows = (p_target->m_bottom - p_target->m_top + tileHeight) / tileHeight;
 	for (row = 0; row < rows; row++) {
 		for (column = 0; column < columns; column++) {
-			DrawShapeFrame(p_target, p_shape, p_frame, x, y);
+			BlitShpFrame(p_target, p_shape, p_frame, x, y);
 			x += tileWidth;
 		}
 
@@ -701,7 +746,7 @@ void FUN_10057e56(RenderTarget* p_target, MechS32 p_color)
 	centerY = (p_target->m_bottom - p_target->m_top + 1) >> 1;
 	radius = (p_target->m_right - p_target->m_left + 1) / 2 - 1;
 	radiusY = FixedMul16(radius, aspect);
-	FUN_10063755(p_target, centerX, centerY, radius, radiusY, p_color);
+	DrawEllipse(p_target, centerX, centerY, radius, radiusY, p_color);
 }
 
 // Fills the part of the ellipse inscribed in a render target that lies in p_rect.

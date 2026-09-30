@@ -168,7 +168,7 @@ void FUN_1003e32c(CockpitLayout* p_layout)
 		id = p_layout->m_icons[0][0] + g_unk0x100e9614;
 		shape = FUN_1001a19f(g_unk0x100a8740, id, g_unk0x100a8680, 0);
 		if (shape) {
-			DrawShapeFrame(viewport, shape, 0, x, y);
+			BlitShpFrame(viewport, shape, 0, x, y);
 			FUN_1001a163(id, g_unk0x100a8680);
 			FUN_1003e4cd(p_layout);
 		}
@@ -194,7 +194,7 @@ void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	if (visible) {
 		shape = FUN_1001a19f(g_unk0x100a8740, p_icon + g_unk0x100e9614, g_unk0x100a8680, 0);
 		if (shape) {
-			DrawShapeFrame(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
+			BlitShpFrame(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
 			FUN_1001a163(p_icon + g_unk0x100e9614, g_unk0x100a8680);
 		}
 	}
@@ -329,11 +329,11 @@ void FUN_1003e689(CockpitLayout* p_layout)
 	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + icon, g_unk0x100a8680, 0);
 	if (shape) {
 		if (visible) {
-			DrawShapeFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+			BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 		else if (p_layout->m_gauges[2]) {
 			p_layout->m_gauges[2](viewport, &pos, &pos);
-			DrawShapeFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+			BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 
 		FUN_1001a163(g_unk0x100e9614 + icon, g_unk0x100a8680);
@@ -382,7 +382,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 				if (icon != -1) {
 					shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + icon, g_unk0x100a8680, 0);
 					if (shape) {
-						DrawShapeFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+						BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 						FUN_1001a163(g_unk0x100e9614 + icon, g_unk0x100a8680);
 					}
 				}
@@ -412,9 +412,9 @@ void FUN_1003eb22(CockpitLayout* p_layout, MechS32 p_heading)
 	p_heading = 0x5a0000 - p_heading;
 	if (p_layout->m_gauges[3]) {
 		p_layout->m_gauges[3](viewport, p_heading - halfFov, &end);
-		FUN_100606ed(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
+		BlitLine(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
 		p_layout->m_gauges[3](viewport, halfFov + p_heading, &end);
-		FUN_100606ed(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
+		BlitLine(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
 	}
 }
 

@@ -144,6 +144,10 @@ EffectInfo g_effectInfo[0x20] = {
 	{36, -1, -1, -1, 0, 1, 0},    // 0x1f
 };
 
+// The distance FUN_10011f9a moves the free camera back from the mech's eye.
+// GLOBAL: MW2 0x100a23ec
+MechS32 g_unk0x100a23ec = 0;
+
 // GLOBAL: MW2 0x100a2400
 MechS32 g_normalFov = 0x10000;
 
@@ -167,6 +171,10 @@ undefined4 g_unk0x100a2420 = 0;
 // GLOBAL: MW2 0x100a2424
 MechS32 g_unk0x100a2424 = -1;
 
+// Set by FUN_10011e45.
+// GLOBAL: MW2 0x100a241c
+MechS32 g_unk0x100a241c = 0;
+
 // GLOBAL: MW2 0x100a242c
 struct Player* g_localPlayer = NULL;
 
@@ -176,6 +184,16 @@ MechS32 g_unk0x100a2430 = 0;
 
 // GLOBAL: MW2 0x100a2434
 MechS32* g_unk0x100a2434 = NULL;
+
+// The drop camera (FUN_10011edc): its vertical speed, acceleration and start clock.
+// GLOBAL: MW2 0x100a243c
+MechS32 g_unk0x100a243c = 0;
+
+// GLOBAL: MW2 0x100a2440
+MechS32 g_unk0x100a2440 = 0x3ca0;
+
+// GLOBAL: MW2 0x100a2444
+MechS32 g_unk0x100a2444 = 0;
 
 // GLOBAL: MW2 0x100a244c
 MechS32 g_drawModeIndex = -1;
@@ -298,8 +316,9 @@ Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000,
 Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6cc8
-SlateHeron0x68 g_unk0x100a6cc8 =
-	{0, 1, 1, 1, 1, 1, 1, {1, 1, 1, 0xe0, 0xef, 1}, 0, 0, 0, {0, 0x186a0, 0x10000}, 0, 0, NULL, NULL, NULL, 0, NULL};
+SlateHeron0x68 g_unk0x100a6cc8 = {0,    1,    1,    1, 1,       1,       1, {1, 1, 1, 0xe0, 0xef, 1},
+								  0,    0,    0,    0, 0x186a0, 0x10000, 0, 0,
+								  NULL, NULL, NULL, 0, NULL};
 
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
@@ -435,6 +454,10 @@ RenderTarget g_unk0x100adf58 = {&g_mainPixelBuffer, 13, 10, 80, 60};
 
 // GLOBAL: MW2 0x100b1350
 MechS32 g_unk0x100b1350 = 0;
+
+// The frame draw callback ShowDorcs replaces.
+// GLOBAL: MW2 0x100b1354
+void (*g_dorcsPreviousDrawCallback)(void) = FUN_10012afe;
 
 // GLOBAL: MW2 0x100bdff8
 RenderTarget g_unk0x100bdff8;
@@ -860,7 +883,7 @@ int __stdcall SimMain(
 
 		FadeToEndPalette(g_carCfg.m_unk0x1d & 4);
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-			FillRenderTargetRect(&g_currentRenderTarget, 0);
+			FillView(&g_currentRenderTarget, 0);
 		}
 
 		DebugPrint("Calling Blit()\n");
@@ -1060,9 +1083,9 @@ void HandleMessages(void)
 void UpdatePauseState(void)
 {
 	if (g_pauseRequested) {
-		if (g_simPaused && g_keyCode) {
+		if (g_simPaused && g_localSteering.m_keyCode) {
 			PlayResumeSound();
-			g_keyCode = 0;
+			g_localSteering.m_keyCode = 0;
 			g_pauseRequested = FALSE;
 		}
 		else if (g_netRole || GetMenuSlotState(4)) {
@@ -1086,7 +1109,7 @@ void UpdatePauseState(void)
 	else if (!g_simPaused && !g_netRole) {
 		if (g_pauseRequested) {
 			PlayPauseSound();
-			g_keyCode = 0;
+			g_localSteering.m_keyCode = 0;
 		}
 
 		if (!GetMenuSlotState(4) && g_windowMode != c_windowModeFullscreen) {

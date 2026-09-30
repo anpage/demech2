@@ -3,8 +3,18 @@
 #include "decomp.h"
 #include "types.h"
 
+DECOMP_SIZE_ASSERT(PathPoint, 0x1c)
+DECOMP_SIZE_ASSERT(Path, 0x744)
+
+// The number of entries in g_paths.
+// GLOBAL: MW2 0x100a6d68
+MechS32 g_pathCount = 0;
+
 // GLOBAL: MW2 0x100a6d70
 MechS32 g_unk0x100a6d70 = 0;
+
+// GLOBAL: MW2 0x100ea8e0
+Path g_paths[0x40];
 
 // STUB: MW2 0x10046750
 void FUN_10046750(void)
