@@ -1,5 +1,6 @@
 #include "unk1003a530.h"
 
+#include "approxlen.h"
 #include "decomp.h"
 #include "duskmoth.h"
 #include "emberfern.h"
@@ -526,10 +527,110 @@ void FUN_1003ae96(ScarletOrchid0x4c* p_shape)
 	p_shape->m_unk0x40 = (MechS32) sqrt(max);
 }
 
-// STUB: MW2 0x1003b0e4
+// Sets the face's normal (both copies) from its vertices: a triangle's directly, otherwise from
+// its longest edge and the vertex that gives the largest area with it, stopping at the first
+// area over 16. A face of fewer than 3 vertices keeps the default (0x20000000, 0, 0).
+// FUNCTION: MW2 0x1003b0e4
 void FUN_1003b0e4(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 {
-	STUB(0x1003b0e4);
+	MechS32 length;
+	MechS32 nx;
+	EmberFern0x2c* vertex;
+	MechS32 ny;
+	MechS32 nz;
+	EmberFern0x2c* prev;
+	EmberFern0x2c* a;
+	MechS32 best;
+	MechS32 i;
+	MechS32 area;
+	EmberFern0x2c* b;
+	MechS32 bestArea;
+	EmberFern0x2c* v0;
+	EmberFern0x2c* v1;
+	EmberFern0x2c* v2;
+
+	i = 0;
+	best = 0;
+	p_face->m_unk0x08 = p_face->m_normal[0] = 0x20000000;
+	p_face->m_unk0x0c = p_face->m_normal[1] = 0;
+	p_face->m_unk0x10 = p_face->m_normal[2] = 0;
+	if (p_face->m_unk0x02 < 3) {
+		return;
+	}
+
+	if (p_face->m_unk0x02 == 3) {
+		v0 = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+		v1 = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + 1]];
+		v2 = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + 2]];
+		FUN_10039dda(
+			v0->m_unk0x00,
+			v0->m_unk0x04,
+			v0->m_unk0x08,
+			v1->m_unk0x00,
+			v1->m_unk0x04,
+			v1->m_unk0x08,
+			v2->m_unk0x00,
+			v2->m_unk0x04,
+			v2->m_unk0x08,
+			&nx,
+			&ny,
+			&nz
+		);
+		p_face->m_unk0x08 = p_face->m_normal[0] = nx;
+		p_face->m_unk0x0c = p_face->m_normal[1] = ny;
+		p_face->m_unk0x10 = p_face->m_normal[2] = nz;
+		return;
+	}
+
+	prev = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+	for (i = p_face->m_unk0x02; i--; prev = vertex) {
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + i]];
+		length = ApproximateVectorLength(
+			prev->m_unk0x00 - vertex->m_unk0x00,
+			prev->m_unk0x04 - vertex->m_unk0x04,
+			prev->m_unk0x08 - vertex->m_unk0x08
+		);
+		if (length > best) {
+			best = length;
+			a = vertex;
+			b = prev;
+		}
+	}
+
+	if (best == 0) {
+		return;
+	}
+
+	bestArea = -1;
+	i = p_face->m_unk0x02;
+	while (i--) {
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + i]];
+		if (vertex != a && vertex != b) {
+			area = FUN_10039dda(
+				a->m_unk0x00,
+				a->m_unk0x04,
+				a->m_unk0x08,
+				b->m_unk0x00,
+				b->m_unk0x04,
+				b->m_unk0x08,
+				vertex->m_unk0x00,
+				vertex->m_unk0x04,
+				vertex->m_unk0x08,
+				&nx,
+				&ny,
+				&nz
+			);
+			if (area > bestArea) {
+				p_face->m_unk0x08 = p_face->m_normal[0] = nx;
+				p_face->m_unk0x0c = p_face->m_normal[1] = ny;
+				p_face->m_unk0x10 = p_face->m_normal[2] = nz;
+				bestArea = area;
+				if (area > 16) {
+					return;
+				}
+			}
+		}
+	}
 }
 
 // Returns the selected model's vertex and face counts.

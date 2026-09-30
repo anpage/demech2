@@ -1,6 +1,8 @@
 #include "menu.h"
 
+#include "blit.h"
 #include "decomp.h"
+#include "fixeddiv.h"
 #include "inputmap.h"
 #include "loadres.h"
 #include "render.h"
@@ -124,10 +126,72 @@ void FreeMenus(void)
 	g_menuSlotsTail = NULL;
 }
 
-// STUB: MW2 0x1003c5a2
+// Lays out a menu on the screen: scales its background target to the background shape, spaces
+// its m_unk0x3c lines evenly down the target, and converts its points to pixels. With flag 0x10
+// the background moves to the target's left edge.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1003c5a2
 void FUN_1003c5a2(MenuDefinition* p_menu)
 {
-	STUB(0x1003c5a2);
+	Point scale;
+	void* shape;
+	MechS32 dx;
+	MechS32 size;
+	RenderTarget* target;
+	Point origin;
+	RenderTarget* background;
+
+	target = p_menu->m_target;
+	if (!target) {
+		return;
+	}
+
+	background = p_menu->m_backgroundTarget;
+	if (!background) {
+		return;
+	}
+
+	if (!target->m_buffer) {
+		return;
+	}
+
+	if (!background->m_buffer) {
+		return;
+	}
+
+	if (p_menu->m_backgroundId != -1) {
+		shape = FUN_1001a19f(g_unk0x100a8740, p_menu->m_backgroundId + g_unk0x100e9614, g_unk0x100a8680, 0);
+		if (shape) {
+			size = GetShpFrameSize(shape, 0);
+			FUN_1001a163(p_menu->m_backgroundId + g_unk0x100e9614, g_unk0x100a8680);
+			scale.m_x = size >> 16;
+			scale.m_y = size & 0xffff;
+			scale.m_x = FixedDiv16(scale.m_x, g_screenWidthMinus1 + 1);
+			scale.m_y = FixedDiv16(scale.m_y, g_screenHeightMinus1 + 1);
+			scale.m_x = FixedDiv16(scale.m_x, background->m_right - background->m_left + 1);
+			scale.m_y = FixedDiv16(scale.m_y, background->m_bottom - background->m_top + 1);
+			FUN_10056ec5(background, background, scale);
+		}
+	}
+
+	origin.m_x = 0;
+	origin.m_y = FixedDiv16(1, p_menu->m_unk0x3c + 2);
+	p_menu->m_unk0x48.m_y = FixedDiv16(origin.m_y, 0x20000);
+	p_menu->m_unk0x50.m_y = p_menu->m_unk0x58.m_y = p_menu->m_unk0x60.m_y = origin.m_y + origin.m_y;
+	ScaleRectToScreen(target->m_buffer, target, target);
+	ScaleRectToScreen(background->m_buffer, background, background);
+	FUN_10056bc1(target, &origin, &origin);
+	FUN_10056bc1(target, &p_menu->m_unk0x48, &p_menu->m_unk0x48);
+	FUN_10056bc1(target, &p_menu->m_unk0x50, &p_menu->m_unk0x50);
+	FUN_10056bc1(target, &p_menu->m_unk0x58, &p_menu->m_unk0x58);
+	FUN_10056bc1(target, &p_menu->m_unk0x60, &p_menu->m_unk0x60);
+	if (p_menu->m_flags & 0x10) {
+		dx = background->m_left - target->m_left;
+		background->m_left -= dx;
+		background->m_right -= dx;
+	}
+
+	p_menu->m_unk0x40 = origin;
 }
 
 // Loads a menu's background shapes and font.

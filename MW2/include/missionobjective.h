@@ -27,7 +27,7 @@ typedef struct MissionObjective {
 	MechS32 m_timeLimit;                // 0x6f
 	MechU8 m_active;                    // 0x73
 	MechU8 m_unk0x74;                   // 0x74 — listed on the objectives panel
-	undefined m_unk0x75[0x79 - 0x75];   // 0x75
+	MechS32 m_unk0x75;                  // 0x75
 	MechS32 m_requiredCount;            // 0x79 — how many targets must be done; 0 for all of them
 	MechS32 m_unk0x7d;                  // 0x7d
 	MechS32 m_successSpeech;            // 0x81 — a sound resource, announced when successful

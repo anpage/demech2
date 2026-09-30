@@ -29,7 +29,7 @@ typedef struct Mech {
 	struct AmberWillow0x7c* m_objects[8]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets
 	MechS32 m_unk0x88;                    // 0x88 — FUN_1006844e's speed towards the nav point
 	MechS32 m_unk0x8c;                    // 0x8c — the weapons' lock-on countdown (FUN_10045eac)
-	undefined m_unk0x90[0x94 - 0x90];     // 0x90
+	MechS32 m_unk0x90;                    // 0x90
 	MechS32 m_deltaHeat;                  // 0x94 — heat added this tick
 	MechS32 m_unk0x98;                    // 0x98
 	MechS32 m_unk0x9c;                    // 0x9c

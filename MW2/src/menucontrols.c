@@ -1,0 +1,529 @@
+/* The in-mission menus' controls: the item callbacks that draw a slider, a list of choices, a
+   list with a suffix and a text box, and edit their values while the item is selected. */
+#include "menucontrols.h"
+
+#include "blit.h"
+#include "decomp.h"
+#include "fixedmul.h"
+#include "loadres.h"
+#include "menuchoices.h"
+#include "menutextbox.h"
+#include "render.h"
+#include "rendertarget.h"
+#include "screenscale.h"
+#include "simmain.h"
+#include "types.h"
+
+#include <string.h>
+
+// A slider from 0 to 0x10000 (MenuControl::m_data holds its shapes: the left cap, the bar, the
+// right cap and the knob): while selected, Space or Right (0xc8) raises it by a tenth and Left
+// (0xc9) lowers it, and its number key raises it too.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10072840
+void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+{
+	MechS32 pressed;
+	MechS32 step;
+	MechS32* shapes;
+	MechS32 selected;
+	MechU32 state;
+	MechS32 height;
+	MechS32 knobX;
+	MechS32 size;
+	MechS32 x;
+	void* font;
+	RenderTarget* target;
+	MechS32 apply;
+	MechS32 width;
+	void* knob;
+	void* bar;
+	MechS32 value;
+	void* right;
+	void* left;
+
+	step = 0;
+	apply = TRUE;
+	if (!p_menu) {
+		return;
+	}
+
+	font = p_menu->m_font;
+	if (!font) {
+		return;
+	}
+
+	if (!p_page) {
+		return;
+	}
+
+	state = p_page->m_unk0x00[0];
+	target = p_menu->m_target;
+	if (!target) {
+		return;
+	}
+
+	if (!p_control) {
+		return;
+	}
+
+	shapes = p_control->m_data;
+	if (!shapes) {
+		return;
+	}
+
+	if (g_menuKey - '1' == p_index) {
+		pressed = TRUE;
+	}
+	else {
+		pressed = FALSE;
+	}
+
+	if ((p_control->m_flags & 1) && p_control->m_get) {
+		value = p_control->m_get(p_control->m_arg);
+	}
+	else {
+		value = p_control->m_value;
+	}
+
+	if (p_page->m_selected == p_index) {
+		selected = TRUE;
+	}
+	else {
+		selected = FALSE;
+	}
+
+	switch (state) {
+	case 1:
+		if (p_control->m_init) {
+			p_control->m_init(p_page, p_control);
+		}
+
+		if (p_control->m_get) {
+			p_control->m_value = p_control->m_get(p_control->m_arg);
+			value = p_control->m_value;
+		}
+		else {
+			p_control->m_value = 0;
+			value = p_control->m_value;
+		}
+		break;
+	case 2:
+		if (selected) {
+			switch (g_menuKey) {
+			case ' ':
+			case 0xc8:
+				step = 0x199a;
+				break;
+			case 0xc9:
+				step = -0x199a;
+				break;
+			default:
+				if (pressed) {
+					step = 0x199a;
+				}
+				break;
+			}
+		}
+		break;
+	case 4:
+		if (p_control->m_preview) {
+			p_control->m_preview(p_control->m_arg, value);
+		}
+
+		apply = FALSE;
+		break;
+	case 5:
+		if (p_control->m_cancel) {
+			p_control->m_cancel(p_control->m_arg);
+		}
+
+		apply = FALSE;
+		break;
+	}
+
+	left = FUN_1001a19f(g_unk0x100a8740, shapes[0] + g_unk0x100e9614, g_unk0x100a8680, 0);
+	bar = FUN_1001a19f(g_unk0x100a8740, shapes[2] + g_unk0x100e9614, g_unk0x100a8680, 0);
+	knob = FUN_1001a19f(g_unk0x100a8740, shapes[6] + g_unk0x100e9614, g_unk0x100a8680, 0);
+	right = FUN_1001a19f(g_unk0x100a8740, shapes[4] + g_unk0x100e9614, g_unk0x100a8680, 0);
+	if (bar && knob) {
+		size = GetShpFrameSize(bar, 0);
+		width = size >> 16;
+		if ((value += step) < 0) {
+			value = 0;
+		}
+
+		if (value > 0x10000) {
+			value = 0x10000;
+		}
+
+		knobX = FixedMul16(value, width);
+		height = FontGetHeight(font);
+		p_pos.m_y += height / 2;
+		x = p_pos.m_x;
+		if (left) {
+			BlitShpFrame(target, left, 0, x, p_pos.m_y);
+			x += GetShpFrameSize(left, 0) >> 16;
+		}
+
+		BlitShpFrame(target, bar, 0, x, p_pos.m_y);
+		if (right) {
+			BlitShpFrame(target, right, 0, x + width, p_pos.m_y);
+		}
+
+		x += knobX;
+		x -= (GetShpFrameSize(knob, 0) >> 16) / 2;
+		BlitShpFrame(target, knob, 0, x, p_pos.m_y);
+		if (selected) {
+			if (((step && p_page->m_items[p_index].m_unk0x00 == 4) ||
+				 (pressed && p_page->m_items[p_index].m_unk0x00 == 5)) &&
+				p_control->m_preview) {
+				p_control->m_preview(p_control->m_arg, value);
+			}
+
+			if (p_control->m_set && apply) {
+				p_control->m_set(p_control->m_arg, value);
+			}
+		}
+	}
+
+	p_control->m_value = value;
+	FUN_1001a163(shapes[0] + g_unk0x100e9614, g_unk0x100a8680);
+	FUN_1001a163(shapes[2] + g_unk0x100e9614, g_unk0x100a8680);
+	FUN_1001a163(shapes[4] + g_unk0x100e9614, g_unk0x100a8680);
+	FUN_1001a163(shapes[6] + g_unk0x100e9614, g_unk0x100a8680);
+}
+
+// A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
+// callbacks.
+// Stack-slot permutation; m_texts[value] loads the array before the index (index order).
+// FUNCTION: MW2 0x10072dab
+void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+{
+	MechS32 pressed;
+	MechS32 value;
+	MechChar* suffix;
+	MechS32 selected;
+	MechU32 state;
+	MechS32 room;
+	MechS32 step;
+	RenderTarget* target;
+	MechS32 apply;
+	MechChar text[128];
+
+	step = 0;
+	apply = TRUE;
+	if (!p_menu) {
+		return;
+	}
+
+	if (!p_menu->m_font) {
+		return;
+	}
+
+	if (!p_page) {
+		return;
+	}
+
+	state = p_page->m_unk0x00[0];
+	target = p_menu->m_target;
+	if (!target) {
+		return;
+	}
+
+	if (!p_control) {
+		return;
+	}
+
+	if (!p_control->m_data) {
+		return;
+	}
+
+	if (g_menuKey - '1' == p_index) {
+		pressed = TRUE;
+	}
+	else {
+		pressed = FALSE;
+	}
+
+	if ((p_control->m_flags & 1) && p_control->m_get) {
+		value = p_control->m_get(p_control->m_arg);
+	}
+	else {
+		value = p_control->m_value;
+	}
+
+	if (p_page->m_selected == p_index) {
+		selected = TRUE;
+	}
+	else {
+		selected = FALSE;
+	}
+
+	switch (state) {
+	case 1:
+		if (p_control->m_init) {
+			p_control->m_init(p_page, p_control);
+		}
+
+		if (p_control->m_get) {
+			p_control->m_value = p_control->m_get(p_control->m_arg);
+			value = p_control->m_value;
+		}
+		else {
+			p_control->m_value = 0;
+			value = p_control->m_value;
+		}
+		break;
+	case 2:
+		break;
+	case 4:
+		if (p_control->m_preview) {
+			p_control->m_preview(p_control->m_arg, value);
+		}
+
+		apply = FALSE;
+		break;
+	case 5:
+		if (p_control->m_cancel) {
+			p_control->m_cancel(p_control->m_arg);
+		}
+
+		apply = FALSE;
+		break;
+	case 3:
+		break;
+	}
+
+	if (((MenuChoices*) p_control->m_data)->m_count > 0) {
+		value =
+			(((MenuChoices*) p_control->m_data)->m_count + value + step) % ((MenuChoices*) p_control->m_data)->m_count;
+		strncpy(text, ((MenuChoices*) p_control->m_data)->m_texts[value], 127);
+		text[127] = '\0';
+		if (((MenuChoices*) p_control->m_data)->m_suffix) {
+			suffix = ((MenuChoices*) p_control->m_data)->m_suffix(p_menu, p_control, p_index, p_pos, p_page);
+			if (suffix) {
+				room = 127 - strlen(text);
+				strncat(text, suffix, room);
+				text[127] = '\0';
+			}
+		}
+
+		BlitString(target, p_pos.m_x, p_pos.m_y, p_menu->m_font, text, g_unk0x100e9350);
+	}
+
+	if (selected) {
+		if (pressed && p_page->m_items[p_index].m_unk0x00 == 5 && p_control->m_preview) {
+			p_control->m_preview(p_control->m_arg, value);
+		}
+
+		if (p_control->m_set && apply) {
+			p_control->m_set(p_control->m_arg, value);
+		}
+	}
+
+	p_control->m_value = value;
+}
+
+// A list of choices (MenuChoices): while selected, Space or Right (0xc8) picks the next and Left
+// (0xc9) the previous, wrapping, and its number key the next.
+// Stack-slot permutation; m_texts[value] loads the array before the index (index order).
+// FUNCTION: MW2 0x10073136
+void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+{
+	MechS32 pressed;
+	MechS32 value;
+	MechS32 selected;
+	MechU32 state;
+	MechS32 step;
+	RenderTarget* target;
+	MechS32 apply;
+
+	step = 0;
+	apply = TRUE;
+	if (!p_menu) {
+		return;
+	}
+
+	if (!p_menu->m_font) {
+		return;
+	}
+
+	if (!p_page) {
+		return;
+	}
+
+	state = p_page->m_unk0x00[0];
+	target = p_menu->m_target;
+	if (!target) {
+		return;
+	}
+
+	if (!p_control) {
+		return;
+	}
+
+	if (!p_control->m_data) {
+		return;
+	}
+
+	if (g_menuKey - '1' == p_index) {
+		pressed = TRUE;
+	}
+	else {
+		pressed = FALSE;
+	}
+
+	if ((p_control->m_flags & 1) && p_control->m_get) {
+		value = p_control->m_get(p_control->m_arg);
+	}
+	else {
+		value = p_control->m_value;
+	}
+
+	if (p_page->m_selected == p_index) {
+		selected = TRUE;
+	}
+	else {
+		selected = FALSE;
+	}
+
+	switch (state) {
+	case 1:
+		if (p_control->m_init) {
+			p_control->m_init(p_page, p_control);
+		}
+
+		if (p_control->m_get) {
+			p_control->m_value = p_control->m_get(p_control->m_arg);
+			value = p_control->m_value;
+		}
+		else {
+			p_control->m_value = 0;
+			value = p_control->m_value;
+		}
+		break;
+	case 2:
+		if (selected) {
+			switch (g_menuKey) {
+			case ' ':
+			case 0xc8:
+				step = 1;
+				break;
+			case 0xc9:
+				step = -1;
+				break;
+			default:
+				if (pressed) {
+					step = 1;
+				}
+				break;
+			}
+		}
+		break;
+	case 4:
+		if (p_control->m_preview) {
+			p_control->m_preview(p_control->m_arg, value);
+		}
+
+		apply = FALSE;
+		break;
+	case 5:
+		if (p_control->m_cancel) {
+			p_control->m_cancel(p_control->m_arg);
+		}
+
+		apply = FALSE;
+		break;
+	case 3:;
+	}
+
+	if (((MenuChoices*) p_control->m_data)->m_count > 0) {
+		value =
+			(((MenuChoices*) p_control->m_data)->m_count + step + value) % ((MenuChoices*) p_control->m_data)->m_count;
+		BlitString(
+			target,
+			p_pos.m_x,
+			p_pos.m_y,
+			p_menu->m_font,
+			((MenuChoices*) p_control->m_data)->m_texts[value],
+			g_unk0x100e9350
+		);
+	}
+
+	if (selected) {
+		if (((step && p_page->m_items[p_index].m_unk0x00 == 4) ||
+			 (pressed && p_page->m_items[p_index].m_unk0x00 == 5)) &&
+			p_control->m_preview) {
+			p_control->m_preview(p_control->m_arg, value);
+		}
+
+		if (p_control->m_set && apply) {
+			p_control->m_set(p_control->m_arg, value);
+		}
+	}
+
+	p_control->m_value = value;
+}
+
+// A text box (MenuTextBox) in the menu's font; its rectangle is placed in the menu's target the
+// first time. Reports 0 through m_set unless the menu is being accepted or cancelled.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100734ad
+void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+{
+	MenuTextBox* box;
+	MechU32 state;
+	MechChar* text;
+	void* font;
+	RenderTarget* rect;
+	RenderTarget* target;
+
+	if (!p_menu) {
+		return;
+	}
+
+	if (!p_page) {
+		return;
+	}
+
+	state = p_page->m_unk0x00[0];
+	target = p_menu->m_target;
+	if (!target) {
+		return;
+	}
+
+	font = p_menu->m_font;
+	if (!font) {
+		return;
+	}
+
+	if (!p_control) {
+		return;
+	}
+
+	box = p_control->m_data;
+	if (!box) {
+		return;
+	}
+
+	rect = box->m_target;
+	if (!rect) {
+		return;
+	}
+
+	text = box->m_text;
+	if (!text) {
+		return;
+	}
+
+	if (!rect->m_buffer) {
+		rect->m_buffer = &g_mainPixelBuffer;
+		FUN_1005699f(target, rect, rect);
+	}
+
+	FUN_10057396(rect, text, font);
+	if (p_control->m_set && state != 4 && state != 5) {
+		p_control->m_set(p_control->m_arg, 0);
+	}
+}

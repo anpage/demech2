@@ -4,6 +4,7 @@
 #include "callbacks.h"
 #include "decomp.h"
 #include "transform.h"
+#include "twilightgrove.h"
 #include "types.h"
 #include "unk1003a530.h"
 
@@ -23,15 +24,7 @@ typedef struct HollowSpire0x7c {
 	MechS32 m_unk0x18;                 // 0x18
 	ScarletOrchid0x4c* m_unk0x1c;      // 0x1c
 	struct AmberWillow0x7c* m_unk0x20; // 0x20
-	MechS32 m_unk0x24;                 // 0x24
-	MechS32 m_unk0x28;                 // 0x28
-	MechS32 m_unk0x2c;                 // 0x2c
-	MechS32 m_unk0x30;                 // 0x30
-	MechS32 m_unk0x34;                 // 0x34
-	MechS32 m_unk0x38;                 // 0x38
-	MechS32 m_unk0x3c;                 // 0x3c
-	MechS32 m_unk0x40;                 // 0x40
-	MechS32 m_unk0x44;                 // 0x44
+	TwilightGrove0x24 m_xform;         // 0x24 — the placement: scale, rotation and translation
 	Matrix m_unk0x48;                  // 0x48
 	TimedCallback* m_unk0x78;          // 0x78
 } HollowSpire0x7c;

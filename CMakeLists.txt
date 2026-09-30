@@ -473,7 +473,6 @@ demech2_add_dll(mw2
     MW2/src/speech.c
     MW2/src/unk10059fc0.c
     MW2/src/cdaudio.c
-    MW2/src/cheatcodes.c
     MW2/src/gamekeys.c
     MW2/src/setres.c
     MW2/src/unk1005d6d0.c
@@ -505,6 +504,7 @@ demech2_add_dll(mw2
     MW2/src/mw2log.c
     MW2/src/unk10071930.c
     MW2/src/prjfile.c
+    MW2/src/menucontrols.c
     MW2/src/random.c
     MW2/src/unk100737e0.c
     MW2/src/unk10073af0.c

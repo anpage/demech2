@@ -1,30 +1,57 @@
 #include "cockpit.h"
 
+#include "anim2d.h"
+#include "blit.h"
+#include "clock.h"
 #include "cobaltharbor.h"
 #include "decomp.h"
+#include "duskmoth.h"
 #include "environment.h"
+#include "eyepoint.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "gamething.h"
 #include "geocache.h"
 #include "loadres.h"
 #include "mappoint.h"
+#include "menu.h"
 #include "navpoint.h"
 #include "object.h"
 #include "palette.h"
 #include "players.h"
 #include "point.h"
+#include "random.h"
 #include "recttransition.h"
 #include "render.h"
 #include "rendertarget.h"
+#include "sagelark.h"
 #include "screenscale.h"
 #include "simmain.h"
+#include "slateheron.h"
+#include "soundfx.h"
+#include "speech.h"
 #include "team.h"
 #include "types.h"
+#include "unk10010750.h"
+#include "unk1001ce90.h"
+#include "unk10036230.h"
 #include "unk10041fa0.h"
+#include "unk10042e00.h"
 #include "unk100696c0.h"
 
 #include <stdio.h>
+
+// Whether cockpit view 1 and 2's map animation shows this frame (FUN_1003f8d1).
+// GLOBAL: MW2 0x100a5bc8
+MechS32 g_unk0x100a5bc8 = 0;
+
+// The clock times the satellite view's static starts and stops at (FUN_1003f74e).
+
+// GLOBAL: MW2 0x100be410
+static MechS32 g_unk0x100be410;
+
+// GLOBAL: MW2 0x100be414
+static MechS32 g_unk0x100be414;
 
 // The three values of the HUD layout (FUN_10070bda).
 // GLOBAL: MW2 0x10109c30
@@ -45,6 +72,14 @@ MechS32 g_unk0x10109c68;
 // The view g_cockpitLayoutIndex switches to; 3 and 5 enter and leave the satellite view (4).
 // GLOBAL: MW2 0x10109c6c
 MechS32 g_unk0x10109c6c;
+
+// Set while the map views follow the free eyepoint instead of the player (the free-eye cheat).
+// GLOBAL: MW2 0x10109c70
+MechS32 g_unk0x10109c70;
+
+// Set to draw the satellite view without its static once (FUN_1003f74e).
+// GLOBAL: MW2 0x10109c74
+MechS32 g_unk0x10109c74;
 
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
 // and for the normal cockpit also in g_unk0x100adf58), its points and extra rectangles, and its
@@ -111,6 +146,25 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	FUN_1003ef07(0);
 }
 
+// Places every cockpit view's layout on the screen and starts in cockpit view 0, then the text
+// readout and the map view's shading range.
+// FUNCTION: MW2 0x1003dce8
+void FUN_1003dce8(void)
+{
+	MechS32 i;
+
+	for (i = 0; i < 6; i++) {
+		LoadCockpitLayout(i, g_unk0x100ab0e8[i]);
+	}
+
+	g_cockpitLayoutIndex = 0;
+	g_unk0x10109c6c = 1;
+	g_unk0x10109c5c = 0;
+	FUN_10056bc1(&g_currentRenderTarget, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
+	g_unk0x100a5a30 -= 1000;
+	g_unk0x100a5a38 = g_unk0x100a5a34 - g_unk0x100a5a30;
+}
+
 // FUNCTION: MW2 0x1003dd82
 void FUN_1003dd82(void)
 {
@@ -124,11 +178,88 @@ void FUN_1003dd82(void)
 	}
 }
 
-// STUB: MW2 0x1003ddd7
+// Moves to the cockpit view g_unk0x10109c6c asks for: 0 to 2 directly, 3 into the satellite view
+// (4) with its own frame callback, and 5 back out to the view it was entered from. Keeps the
+// overlay settings the satellite view changes while a cockpit view shows, and leaves it when the
+// player dies. Returns whether the view changed.
+// Stack-slot permutation; g_cockpitLayoutIndex != g_unk0x10109c6c compares in the other operand
+// order.
+// FUNCTION: MW2 0x1003ddd7
 MechS32 FUN_1003ddd7(void)
 {
-	STUB(0x1003ddd7);
-	return 0;
+	MechS32 changed;
+	CockpitLayout* layout;
+	MechS32 sound;
+
+	changed = FALSE;
+	if (g_cockpitLayoutIndex <= 2 && g_unk0x10109c5c == 4 && g_unk0x100a5a2c) {
+		g_unk0x100a5f1c = g_unk0x100a5a20;
+		g_unk0x100a5f20 = g_unk0x100a5a28;
+		g_unk0x100a5a2c = 0;
+	}
+
+	if (g_cockpitLayoutIndex == 4 && (g_unk0x100a2c04 || (g_players[g_localPlayerId]->m_flags & 6))) {
+		g_unk0x10109c6c = 5;
+	}
+
+	if (g_cockpitLayoutIndex != g_unk0x10109c6c) {
+		changed = TRUE;
+		switch (g_unk0x10109c6c) {
+		case 0:
+			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 0;
+			break;
+		case 1:
+			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 1;
+			break;
+		case 2:
+			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 2;
+			break;
+		case 4:
+			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_cockpitLayoutIndex = 4;
+			if (!g_unk0x100a5a2c) {
+				g_unk0x100a5a20 = g_unk0x100a5f1c;
+				g_unk0x100a5f1c = 0;
+				g_unk0x100a5a28 = g_unk0x100a5f20;
+				g_unk0x100a5f20 = 0;
+				g_unk0x100a5a24 = g_unk0x100a5f18;
+				g_unk0x100a5a2c = 1;
+			}
+			break;
+		case 3:
+			g_unk0x10109c6c = 4;
+			g_unk0x100a5a1c = g_unk0x100a6cc8.m_frameDrawCallback;
+			g_unk0x100a6cc8.m_frameDrawCallback = FUN_1003e03c;
+			layout = g_unk0x100ab0e8[4];
+			sound = layout->m_unk0x0c[0];
+			if (sound != -1) {
+				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
+			}
+
+			PlayCockpitSound(0x12, -1);
+			break;
+		case 5:
+			g_unk0x100a6cc8.m_frameDrawCallback = g_unk0x100a5a1c;
+			g_unk0x10109c6c = g_unk0x10109c5c;
+			layout = g_unk0x100ab0e8[4];
+			sound = layout->m_unk0x0c[1];
+			if (sound != -1) {
+				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
+			}
+
+			if (g_unk0x100a2408 == 1) {
+				PlayCockpitSound(0x11, -1);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	return changed;
 }
 
 // FUNCTION: MW2 0x1003e03c
@@ -143,10 +274,114 @@ void FUN_1003e03c(void)
 	}
 }
 
-// STUB: MW2 0x1003e06c
+// Draws the current cockpit view's map: sets its render target up from the view, looking down on
+// the player's weapon object (or the free eyepoint) from the view's range. The satellite view (4)
+// draws the terrain with its own shape filter, face and polygon hooks, over a cleared view. Then
+// the field of view, the icons, the view's own gauge and, in the map views, the readouts.
+// The pose has a seventh element nothing uses. The only diff is a stack-slot permutation of the
+// locals.
+// FUNCTION: MW2 0x1003e06c
 void FUN_1003e06c(void)
 {
-	STUB(0x1003e06c);
+	MechS32 farPlane;
+	MechS32 heading;
+	MechS32 angle;
+	struct AmberWillow0x7c* obj;
+	MechS32 zoom;
+	MechS32 pose[7];
+	RenderTarget* viewport;
+	CockpitLayout* layout;
+	MechS32 range;
+	MechS32 z;
+	MechS32 y;
+	MechS32 x;
+	MechS32 slot;
+	Player* player;
+	MechU32 flags;
+
+	if (g_cockpitLayoutIndex == 0) {
+		return;
+	}
+
+	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	player = g_players[g_localPlayerId];
+	viewport = layout->m_viewport;
+	slot = layout->m_renderTargetSlot;
+	g_renderTargets[slot] = *viewport;
+	angle = player->m_mech->m_unk0x04.m_value;
+	heading = player->m_heading;
+	pose[4] = 0x5a0000;
+	pose[5] = 0;
+	switch (g_cockpitLayoutIndex) {
+	case 1:
+	case 2:
+		pose[3] = heading;
+		break;
+	case 4:
+		pose[3] = 0;
+		angle += heading;
+		break;
+	default:
+		pose[3] = 0;
+		angle = 0;
+		break;
+	}
+
+	if (!g_unk0x10109c70) {
+		x = y = z = 0;
+		obj = player->m_unk0x44;
+		if (obj) {
+			GetObjPosition(obj, &x, &y, &z);
+		}
+
+		pose[0] = x;
+		pose[2] = z;
+	}
+	else {
+		pose[0] = g_eyepoint->m_unk0x00;
+		pose[2] = g_eyepoint->m_unk0x08;
+	}
+
+	range = layout->m_unk0x18;
+	pose[1] = range;
+	if (g_unk0x100a5a30 < 0) {
+		farPlane = range - g_unk0x100a5a30;
+	}
+	else {
+		farPlane = range;
+	}
+
+	FUN_10041fa0(pose, slot, range, farPlane);
+	if (g_cockpitLayoutIndex == 4) {
+		g_unk0x100a6cc8.m_unk0x58 = FUN_1003f00d;
+		g_unk0x100a6cc8.m_unk0x60 = (MechS32 (*)()) FUN_1003f0e7;
+		g_unk0x100a6cc8.m_drawPolygon = FUN_1003f393;
+		zoom = FUN_10011440();
+		FUN_10011401(6);
+		FUN_1001da44();
+		FUN_10011401(zoom);
+		FillView(viewport, g_unk0x100a554c);
+		flags = 0;
+		FUN_1004215f(flags);
+	}
+
+	if (g_cockpitLayoutIndex != 4 || !(player->m_flags & 0x16)) {
+		FUN_1003eb22(layout, angle);
+	}
+
+	FUN_1003e32c(layout);
+	FUN_10042195();
+	if (layout->m_gauges[0]) {
+		layout->m_gauges[0](viewport, layout->m_colors[12]);
+	}
+
+	if (g_unk0x10109c68 == 4 && (g_cockpitLayoutIndex != 4 || g_unk0x100a5a18 <= 1)) {
+		DrawMapViewText(layout);
+	}
 }
 
 // Draws the map view's contents: the nav points, the center icon and the other players and
@@ -524,10 +759,37 @@ void FUN_1003eeaf(void)
 	}
 }
 
-// STUB: MW2 0x1003ef07
-void FUN_1003ef07(MechS32 p_unk0x00)
+// Zooms the current view's map: p_zoom 0 resets the range, 1 halves it (wrapping to the longest
+// below the shortest) and 2 doubles it (wrapping to the shortest).
+// FUNCTION: MW2 0x1003ef07
+void FUN_1003ef07(MechS32 p_zoom)
 {
-	STUB(0x1003ef07);
+	CockpitLayout* layout;
+
+	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	switch (p_zoom) {
+	case 0:
+		layout->m_unk0x18 = layout->m_unk0x20;
+		break;
+	case 1:
+		layout->m_unk0x18 = FixedDiv16(layout->m_unk0x18, 0x20000);
+		if (layout->m_unk0x24 > layout->m_unk0x18) {
+			layout->m_unk0x18 = layout->m_unk0x28;
+		}
+		break;
+	case 2:
+		layout->m_unk0x18 = FixedMul16(layout->m_unk0x18, 0x20000);
+		if (layout->m_unk0x28 < layout->m_unk0x18) {
+			layout->m_unk0x18 = layout->m_unk0x24;
+		}
+		break;
+	}
+
+	layout->m_unk0x2c = FixedDiv16(layout->m_unk0x20, layout->m_unk0x18);
 }
 
 // The map view's shape filter (SlateHeron0x68::m_unk0x58): skips dead players' shapes and
@@ -569,6 +831,142 @@ MechS32 FUN_1003f00d(ScarletOrchid0x4c* p_shape)
 	}
 
 	return skip;
+}
+
+// The satellite view's face hook (SlateHeron0x68::m_unk0x60): the color a face of p_face's shape
+// draws in, from the view's colors by the shape's kind and side, or the face's own (p_flags).
+// Faces of a textured kind (0x3000) draw in the view's color 10.
+// The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
+// FUNCTION: MW2 0x1003f0e7
+MechU32 FUN_1003f0e7(DuskMoth0x24* p_face, undefined4 p_unk0x04, MechU32 p_flags)
+{
+	MechU32 color;
+	MechU32 type;
+	MechU32 result;
+	MechU32 index;
+	CockpitLayout* layout;
+	ScarletOrchid0x4c* shape;
+	MechS32 kind;
+	MechS32* colors;
+
+	result = 0;
+	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	if (!layout) {
+		return result;
+	}
+
+	colors = layout->m_colors;
+	result = 0;
+	if (g_unk0x100a6cc8.m_unk0x40) {
+		result |= 0xf0;
+	}
+
+	shape = p_face->m_unk0x20;
+	kind = shape->m_unk0x02 & 0xf00;
+	switch (kind) {
+	case 0x100:
+		index = p_face->m_unk0x20->m_unk0x14;
+		result |= colors[GetPlayerSide(index)];
+		break;
+	case 0x200:
+		index = p_face->m_unk0x20->m_unk0x14;
+		result |= colors[FUN_1003c30e(index) + 3];
+		break;
+	case 0x400:
+		result |= colors[6];
+		break;
+	case 0x800:
+		if ((p_flags & 0x7000) == 0x3000) {
+			color = colors[10];
+		}
+		else {
+			color = (p_flags & 0xf00) >> 4;
+		}
+
+		result = color | 0x4000;
+		break;
+	default:
+		type = shape->m_unk0x02 & 0xf0;
+		switch (type) {
+		case 0x40:
+			result |= colors[7];
+			break;
+		case 0x50:
+			result |= colors[8];
+			break;
+		case 0x80:
+			result |= colors[9];
+			break;
+		case 0x10:
+		case 0x20:
+		case 0x60:
+			result = p_flags;
+			break;
+		default:
+			if ((p_flags & 0x7000) == 0x3000) {
+				color = colors[10];
+			}
+			else {
+				color = (p_flags & 0xf00) >> 4;
+			}
+
+			result = color | 0x4000;
+			break;
+		}
+	}
+
+	return result;
+}
+
+// The satellite view's polygon hook (SlateHeron0x68::m_drawPolygon): terrain faces (0x4000) are
+// shaded by height, textured ones (0x3000) drawn as bands, and the rest as usual; plain faces
+// (0) twice, the second time outlined (0x2000).
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1003f393
+void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
+{
+	MechU32 shade;
+	MechU32 kind;
+	MechS32 i;
+	MechU32* point;
+	CockpitLayout* layout;
+	MechU32 color;
+
+	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	kind = p_flags & 0x7000;
+	point = p_points;
+	switch (kind) {
+	case 0x4000:
+		p_flags &= 0xf0;
+		for (i = 0; i < p_count; i++) {
+			shade = FUN_1003f513(layout, point[5]);
+			point[2] = (p_flags | shade) << 16;
+			point += 6;
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x04) {
+			FUN_1003763b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
+		}
+		else {
+			FUN_10036918(&g_currentRenderTarget, p_count, p_points);
+		}
+		break;
+	case 0x3000:
+		color = (p_flags & 0xff0) >> 4;
+		FUN_100107de(color, p_count, (MechS32*) p_points, -1, 1);
+		break;
+	case 0:
+		FUN_10042e00(p_count, p_points, 0);
+		FUN_10042e00(p_count, p_points, p_flags | 0x2000);
+		break;
+	default:
+		FUN_10042e00(p_count, p_points, p_flags);
+		break;
+	}
 }
 
 // Returns the shade (0-15) of a height p_unk0x04 in the map view.
@@ -633,10 +1031,178 @@ MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition*
 	return result;
 }
 
-// STUB: MW2 0x1003f8d1
+// Enters cockpit view 1's map mode from a cockpit view, sliding the view's rectangle in.
+// FUNCTION: MW2 0x1003f66d
+void FUN_1003f66d(void)
+{
+	RectTransition* transition;
+	CockpitLayout* layout;
+
+	if (g_cockpitLayoutIndex <= 2) {
+		FUN_1003ddd7();
+		if (g_cockpitLayoutIndex > 2) {
+			return;
+		}
+
+		if (g_cockpitLayoutIndex != 0) {
+			g_unk0x10109c60 = g_unk0x10109c68;
+			g_unk0x10109c68 = 1;
+		}
+
+		layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+		if (layout) {
+			transition = layout->m_transition;
+			if (transition) {
+				if (g_unk0x10109c60 != g_unk0x10109c68) {
+					StartRectTransition(transition);
+				}
+
+				if (!FUN_1003f594(0, layout, transition, 0)) {
+					FUN_1003e03c();
+				}
+			}
+		}
+	}
+	else if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c <= 2) {
+		FUN_1003ddd7();
+	}
+}
+
+// Draws the satellite view through its static: while the mission menu is open, or after a
+// reset (g_unk0x10109c74), cleanly; otherwise clean until a random time, then the view's
+// transition breaks it up until another random time.
+// The two clock comparisons compare in the other operand order.
+// FUNCTION: MW2 0x1003f74e
+void FUN_1003f74e(void)
+{
+	RectTransition* transition;
+	CockpitLayout* layout;
+
+	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	if (!layout || !(transition = layout->m_transition)) {
+		return;
+	}
+
+	if (GetMenuSlotState(4) || g_unk0x10109c74) {
+		g_unk0x10109c74 = 0;
+		FUN_1003e06c();
+		return;
+	}
+
+	switch (g_unk0x100a5a18) {
+	case 0:
+		g_unk0x100be410 = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
+		g_unk0x100a5a18 = 1;
+	case 1:
+		if (g_unk0x100be410 > g_currentClock) {
+			FUN_1003e06c();
+			break;
+		}
+
+		g_unk0x100a5a18 = 2;
+		g_unk0x100be414 = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
+		StartRectTransition(transition);
+		g_unk0x100a5f18 = 0;
+	case 2:
+		transition->m_state->m_elapsed = RandomIntBelow(transition->m_def->m_duration - g_deltaTime - 1);
+		FUN_1003f594(1, layout, transition, 1);
+		if (g_unk0x100be414 < g_currentClock) {
+			g_unk0x100a5a18 = 0;
+			break;
+		}
+		break;
+	}
+}
+
+// Draws the current cockpit view: the satellite view through its static, or the map with the
+// view's 2D animation over it, flickering on and off in cockpit mode 1 and steady in mode 2.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1003f8d1
 void FUN_1003f8d1(void)
 {
-	STUB(0x1003f8d1);
+	MechS32 threshold;
+	RenderTarget* viewport;
+	CockpitLayout* layout;
+	MechS32 anim;
+
+	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	if (g_cockpitLayoutIndex == 4) {
+		FUN_1003f74e();
+		return;
+	}
+
+	anim = layout->m_unk0x78[2];
+	if (anim != -1) {
+		if (g_unk0x100c3280[0]->m_unk0x06 == 1) {
+			if (g_unk0x100a5bc8) {
+				threshold = 7;
+			}
+			else {
+				threshold = 3;
+			}
+
+			if (RandomIntBelow(10) < threshold) {
+				g_unk0x100a5bc8 = 1;
+			}
+			else {
+				g_unk0x100a5bc8 = 0;
+			}
+		}
+		else if (g_unk0x100c3280[0]->m_unk0x06 == 2) {
+			g_unk0x100a5bc8 = 1;
+		}
+
+		FUN_1003e06c();
+		if (g_unk0x100a5bc8) {
+			viewport = layout->m_viewport;
+			DrawAnim2d(viewport, anim, 0, 0);
+			if (layout->m_gauges[0]) {
+				layout->m_gauges[0](viewport, layout->m_colors[12]);
+			}
+		}
+	}
+	else {
+		FUN_1003e06c();
+	}
+}
+
+// Enters the map mode 3 from a cockpit view, sliding the view's rectangle out.
+// FUNCTION: MW2 0x1003fa05
+void FUN_1003fa05(void)
+{
+	RectTransition* transition;
+	CockpitLayout* layout;
+
+	if (g_cockpitLayoutIndex <= 2) {
+		FUN_1003ddd7();
+		if (g_cockpitLayoutIndex > 2) {
+			return;
+		}
+
+		if (g_cockpitLayoutIndex != 0) {
+			g_unk0x10109c60 = g_unk0x10109c68;
+			g_unk0x10109c68 = 3;
+		}
+
+		layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+		if (layout) {
+			transition = layout->m_transition;
+			if (transition) {
+				if (g_unk0x10109c60 != g_unk0x10109c68) {
+					StartRectTransition(transition);
+				}
+
+				FUN_1003f594(1, layout, transition, 0);
+			}
+		}
+	}
+	else if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c <= 2) {
+		FUN_1003ddd7();
+	}
 }
 
 // FUNCTION: MW2 0x1003fad9

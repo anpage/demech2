@@ -4,6 +4,7 @@
 
 #include "decomp.h"
 #include "error.h"
+#include "prjfile.h"
 #include "simmain.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -282,11 +283,101 @@ void FUN_1001a163(MechS32 p_id, const char* p_type)
 	FUN_10019af0(entry);
 }
 
-// STUB: MW2 0x1001a19f
-void* FUN_1001a19f(undefined4 p_unk0x00, MechS32 p_unk0x04, const char* p_unk0x08, undefined4 p_unk0x0c)
+// Returns resource p_id of type p_type from project file p_file, locked in the cache: the cached
+// copy, or one read in, purging unlocked items while the cache is full or memory runs out. A
+// missing resource is logged to symlog.txt and reported. p_unk0x0c goes unused.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001a19f
+void* FUN_1001a19f(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 p_unk0x0c)
 {
-	STUB(0x1001a19f);
-	return NULL;
+	CacheItem* entry;
+	CacheItem* item;
+	MechS32 hash;
+	MechS32 size;
+	FILE* file;
+	MechChar message[100];
+	FILE* file2;
+	MechChar message2[100];
+
+	if (p_id < 0) {
+		return NULL;
+	}
+
+	entry = FUN_10019dac(p_id, p_type);
+	if (entry) {
+		FUN_10019b63(entry);
+		return entry + 1;
+	}
+
+	if (g_cacheItemCount >= 1000) {
+		if (g_purgeHead) {
+			FUN_10019e53(g_purgeHead);
+		}
+		else {
+			if (g_missionTimerStopped) {
+				ShowInGameMessage("CACHE FULL!!! Nothing to purge...", 1, 0x712, 100);
+			}
+			else {
+				ShowInGameMessage("Memory running low (2) -- strange things may happen", 1, 0x712, 100);
+			}
+
+			return NULL;
+		}
+	}
+
+	size = GetPrjResourceSize(p_file, p_type, p_id);
+	if (size <= 0) {
+		file = fopen("symlog.txt", "a");
+		if (file) {
+			fprintf(file, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
+			fclose(file);
+		}
+
+		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
+		if (g_missionTimerStopped) {
+			sprintf(message, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
+			ShowInGameMessage(message, 1, 0x712, 100);
+		}
+
+		return NULL;
+	}
+
+	while ((item = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size + sizeof(CacheItem))) == NULL) {
+		if (g_purgeHead) {
+			FUN_10019e53(g_purgeHead);
+		}
+		else {
+			ShowInGameMessage("Memory running low (1) -- strange things may happen", 1, 0x712, 100);
+			return NULL;
+		}
+	}
+
+	if (ReadPrjResource(p_file, p_type, p_id, item + 1) == -1) {
+		file2 = fopen("symlog.txt", "a");
+		if (file2) {
+			fprintf(file2, "Couldn't load ID=%d Type=%s\n", p_id, p_type);
+			fclose(file2);
+		}
+
+		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
+		if (g_missionTimerStopped) {
+			sprintf(message2, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
+			ShowInGameMessage(message2, 1, 0x712, 100);
+		}
+
+		return NULL;
+	}
+
+	hash = (p_type[2] + p_type[3] + p_type[0] + p_type[1] + p_id) % 0x3f1;
+	item->m_next = g_cacheTable[hash];
+	g_cacheTable[hash] = item;
+	item->m_lock = 1;
+	item->m_id = p_id;
+	item->m_type = *(MechS32*) p_type;
+	item->m_purgeNext = NULL;
+	item->m_purgePrev = NULL;
+	g_cacheItemCount++;
+	return item + 1;
 }
 
 // FUNCTION: MW2 0x1001a4e5

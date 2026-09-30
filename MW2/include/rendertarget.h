@@ -30,6 +30,8 @@ extern "C"
 
 	extern MechS32 g_navCount;
 	extern MechS32 g_unk0x100aabac;
+	extern struct SageLark0x1c* g_unk0x100aabd4;
+	extern struct CockpitLayout* g_unk0x100ab0e8[6];
 	extern NavPoint g_navTable[128];
 
 	MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z);

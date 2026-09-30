@@ -172,6 +172,9 @@ undefined4 g_unk0x100a2420 = 0;
 MechS32 g_unk0x100a2424 = -1;
 
 // Set by FUN_10011e45.
+// GLOBAL: MW2 0x100a2418
+MechS32 g_unk0x100a2418 = 1;
+
 // GLOBAL: MW2 0x100a241c
 MechS32 g_unk0x100a241c = 0;
 
@@ -238,12 +241,35 @@ MechS32 g_unk0x100a5558 = -1;
 // GLOBAL: MW2 0x100a59e0
 MechS32 g_menuRepeatTimer = -1;
 
+// The satellite view's display option, 0 or 1 (FUN_1003f74e).
+// GLOBAL: MW2 0x100a5a18
+MechS32 g_unk0x100a5a18 = 0;
+
+// The frame callback the satellite view replaces (FUN_1003ddd7).
+// GLOBAL: MW2 0x100a5a1c
+void (*g_unk0x100a5a1c)(void) = FUN_10012afe;
+
+// The overlay settings the satellite view keeps while a cockpit view shows (FUN_1003ddd7):
+// g_unk0x100a5f1c's, g_unk0x100a5f18's and g_unk0x100a5f20's, and whether they are held.
+
+// GLOBAL: MW2 0x100a5a20
+MechS32 g_unk0x100a5a20 = 1;
+
 // GLOBAL: MW2 0x100a5a24
 undefined4 g_unk0x100a5a24 = 1;
+
+// GLOBAL: MW2 0x100a5a28
+MechS32 g_unk0x100a5a28 = 1;
+
+// GLOBAL: MW2 0x100a5a2c
+MechS32 g_unk0x100a5a2c = 0;
 
 // The height the map view's shading starts at (FUN_1003f513).
 // GLOBAL: MW2 0x100a5a30
 MechS32 g_unk0x100a5a30 = 0;
+
+// GLOBAL: MW2 0x100a5a34
+MechS32 g_unk0x100a5a34 = 0x1900;
 
 // The height range the map view's shading spans (FUN_1003f513).
 // GLOBAL: MW2 0x100a5a38
@@ -300,6 +326,21 @@ void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &
 // The fifteen cockpit rectangles, in percent of the screen (FUN_10070bda).
 // GLOBAL: MW2 0x100a5cf8
 RenderTarget g_unk0x100a5cf8[15] = {0};
+
+// The heading tape's shape width (FUN_10040f91).
+// GLOBAL: MW2 0x100a5ed0
+MechS32 g_unk0x100a5ed0 = 0xf0f;
+
+// GLOBAL: MW2 0x100a5ed4
+MechS32 g_unk0x100a5ed4 = 0xd79;
+
+// The altimeter's place, in 16.16 fractions of its gauge until FUN_10040f91 scales it.
+// GLOBAL: MW2 0x100a5ed8
+Point g_unk0x100a5ed8 = {0xb333, 0x8000};
+
+// The compass's place, likewise.
+// GLOBAL: MW2 0x100a5ee0
+Point g_unk0x100a5ee0 = {0x8000, 0x6666};
 
 // GLOBAL: MW2 0x100a5ee8
 Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0}, {0, 0}};
@@ -411,8 +452,15 @@ char g_unk0x100a87c0[] = "BWD";
 // GLOBAL: MW2 0x100aa2a4
 MechS32 g_unk0x100aa2a4 = 1;
 
+// GLOBAL: MW2 0x100aa2a8
+MechS32 g_unk0x100aa2a8 = 0;
+
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
+
+// The length of the chat message being typed (HandleChatKey).
+// GLOBAL: MW2 0x100aa2b8
+MechS32 g_unk0x100aa2b8 = 0;
 
 // GLOBAL: MW2 0x100aa2bc
 MechS32 g_unk0x100aa2bc = 0;
@@ -437,6 +485,10 @@ MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
 MechS32 g_unk0x100acb2c = 0;
+
+// Set when the local player starts on the autopilot (FUN_10016ad0).
+// GLOBAL: MW2 0x100acb34
+MechS32 g_unk0x100acb34 = 0;
 
 // GLOBAL: MW2 0x100acb60
 HWND g_gameWindow = NULL;
@@ -561,7 +613,7 @@ void UpdateEyepoint(void);
 MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team);
 void UpdateObjectives(void);
 void EndTheMission1(void);
-void EndTheMission2(void);
+MechS32 EndTheMission2(void);
 MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x08);
 void UpdateGeoCache(void);
 void FirstStaticCache(void);

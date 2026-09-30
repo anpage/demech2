@@ -1,23 +1,117 @@
 #include "unk10016ad0.h"
 
+#include "ai.h"
 #include "config.h"
 #include "decomp.h"
+#include "environment.h"
+#include "fixeddiv.h"
+#include "gpanim.h"
 #include "mech.h"
 #include "mechsection.h"
+#include "network.h"
+#include "object.h"
 #include "players.h"
+#include "playersteering.h"
+#include "ramp.h"
+#include "resource.h"
 #include "silvertern.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
 #include "unk100563d0.h"
+#include "unk1007fbe0.h"
 #include "weaponslot.h"
 
 DECOMP_SIZE_ASSERT(Mech, 0x10e)
 
-// STUB: MW2 0x10016ad0
+// Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
+// player, its cockpit), the ramps, weapon and motion state, its object back on the ground and the
+// player's pose from it. With g_unk0x100acb34 the local player starts on the autopilot.
+// FUNCTION: MW2 0x10016ad0
 void FUN_10016ad0(struct Player* p_player)
 {
-	STUB(0x10016ad0);
+	Mech* mech;
+
+	mech = p_player->m_mech;
+	if (!mech) {
+		return;
+	}
+
+	if (p_player->m_index != g_reloadingPlayer) {
+		mech->m_unk0x60 = FUN_100506d8();
+		mech->m_unk0x64 = FUN_100506d8();
+		RememberMechSegments(mech);
+		if (mech->m_player->m_index == g_localPlayerId) {
+			FUN_1006fca5();
+		}
+	}
+
+	if (mech->m_player->m_index == g_localPlayerId || g_isNetworkGame) {
+		StartRamp(&mech->m_unk0x04, 0, 0, 0.2);
+	}
+	else {
+		StartRamp(&mech->m_unk0x04, 0, 0, 0.6);
+	}
+
+	StartRamp(&mech->m_unk0x24, 0, 0, 0.2);
+	StartRamp(&mech->m_unk0x34, 0, 0, 0.3);
+	StartRamp(&mech->m_unk0x14, 0, 0, 0.2);
+	StartRamp(&mech->m_unk0x44, 0x400, 0x400, 0.2);
+	mech->m_selectedWeapon = 0;
+	mech->m_unk0x98 = 0;
+	mech->m_unk0xb8 = 0;
+	mech->m_unk0xa4 = 0;
+	mech->m_unk0x10c |= 0x2000;
+	mech->m_unk0xa0 = 0;
+	mech->m_unk0x8c = 0;
+	mech->m_unk0x90 = 0;
+	mech->m_deltaHeat = 0;
+	mech->m_unk0xb4 = 0;
+	mech->m_unk0xbc = 0;
+	mech->m_unk0xf4 = 0;
+	mech->m_unk0xf8 = 0;
+	mech->m_unk0xfc = 0;
+	mech->m_unk0x100 = 0;
+	mech->m_unk0x104 = 0;
+	mech->m_unk0x108 = 0;
+	mech->m_unk0xf0 = 0;
+	mech->m_unk0xb0 = 0x10000;
+	FUN_10001667(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
+	FUN_10001cf8(mech->m_player->m_obj);
+	GetObjWorldPos(
+		mech->m_player->m_obj,
+		&mech->m_player->m_unk0x5c,
+		&mech->m_player->m_heading,
+		&mech->m_player->m_unk0x64
+	);
+	GetObjPosition(
+		mech->m_player->m_obj,
+		&mech->m_player->m_position.m_x,
+		&mech->m_player->m_position.m_y,
+		&mech->m_player->m_position.m_z
+	);
+	mech->m_player->m_unk0x68 = mech->m_player->m_unk0x6c = mech->m_player->m_unk0x70 = 0;
+	mech->m_player->m_steering->m_unk0x33 = 0;
+	mech->m_player->m_steering->m_unk0x34 = 0;
+	mech->m_player->m_steering->m_unk0x35 = 0;
+	mech->m_player->m_steering->m_unk0x38 = 0;
+	mech->m_player->m_steering->m_unk0x3b = 0;
+	FUN_1000365a(mech->m_player);
+	FUN_100019f6(mech->m_player->m_obj);
+	if (g_unk0x100acb34 && mech->m_player->m_index == g_localPlayerId) {
+		mech->m_player->m_steering->m_throttle = 0x333;
+		mech->m_player->m_steering->m_unk0x42 = 1;
+		mech->m_player->m_steering->m_unk0x30 = 1;
+		g_unk0x100a2418 = 1;
+	}
+	else {
+		mech->m_player->m_steering->m_unk0x42 = 0;
+		mech->m_player->m_steering->m_throttle = 0;
+		mech->m_player->m_steering->m_unk0x30 = 0;
+	}
+
+	FUN_100516c5(mech->m_player);
+	mech->m_unk0x88 = FixedDiv16(mech->m_unk0x88, g_unk0x100ba604);
 }
 
 // FUNCTION: MW2 0x1001975a

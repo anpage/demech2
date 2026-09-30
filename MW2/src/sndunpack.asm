@@ -28,7 +28,7 @@ g_unk0x100a3304 g_unk0x100a3304_t <>
 ; The delta table of the current frame: 2, 4 or 16 dwords.
 	public g_unk0x100a3705
 g_unk0x100a3705_t struct
-m_data db 47h dup (0)
+m_data db 43h dup (0)
 g_unk0x100a3705_t ends
 g_unk0x100a3705 g_unk0x100a3705_t <>
 

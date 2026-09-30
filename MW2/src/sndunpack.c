@@ -7,7 +7,7 @@
 
 MechU8 g_unk0x100a2f04[0x400] = {0};
 MechU8 g_unk0x100a3304[0x401] = {0};
-MechU8 g_unk0x100a3705[0x47] = {0};
+MechU8 g_unk0x100a3705[0x43] = {0};
 
 MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state)
 {

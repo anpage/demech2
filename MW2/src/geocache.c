@@ -1,6 +1,7 @@
 #include "geocache.h"
 
 #include "audio.h"
+#include "bwdblockrecord.h"
 #include "callbacks.h"
 #include "debris.h"
 #include "decomp.h"
@@ -10,6 +11,7 @@
 #include "loadres.h"
 #include "object.h"
 #include "players.h"
+#include "prjfile.h"
 #include "quietmarsh.h"
 #include "resourceref.h"
 #include "simmain.h"
@@ -313,6 +315,166 @@ ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index)
 	return g_unk0x1010c630[p_index].m_unk0x1c;
 }
 
+// Places static object p_id: its resource, transform, block and parent, and the object it hangs
+// from (none for a shape-only entry, -2). Returns its index, or -1 if p_id isn't cached.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001f8b5
+MechS32 FUN_1001f8b5(
+	MechS32 p_id,
+	MechS32 p_resource,
+	TwilightGrove0x24 p_xform,
+	MechS32 p_block,
+	MechS32 p_parent,
+	MechS32 p_unk0x3c,
+	MechU32 p_flags,
+	MechU32 p_kind,
+	undefined4 p_unk0x48
+)
+{
+	MechS32 index;
+	HollowSpire0x7c* entry;
+	Matrix matrix;
+
+	index = FindStarIdxById(p_id);
+	if (index == -1) {
+		index = FindObjIdxById(p_id);
+	}
+
+	if (index != -1) {
+		entry = &g_unk0x1010c630[index];
+		FUN_1000e2b9(
+			&matrix,
+			p_xform.m_unk0x0c,
+			p_xform.m_unk0x10,
+			p_xform.m_unk0x14,
+			p_xform.m_unk0x18,
+			p_xform.m_unk0x1c,
+			p_xform.m_unk0x20
+		);
+		FUN_1000dddf(&matrix, &entry->m_unk0x48);
+		entry->m_xform = p_xform;
+		entry->m_unk0x00 = p_resource;
+		entry->m_unk0x08 = p_parent;
+		entry->m_unk0x04 = p_block;
+		entry->m_unk0x1c = NULL;
+		if (p_parent == -2) {
+			entry->m_unk0x20 = NULL;
+		}
+		else if (p_parent == -1) {
+			entry->m_unk0x20 = FUN_100012d0(NULL, 10);
+		}
+		else {
+			entry->m_unk0x20 = FUN_100012d0(g_unk0x1010c630[p_parent].m_unk0x20, 10);
+		}
+
+		entry->m_unk0x0c |= p_flags & 0x1ff;
+		entry->m_unk0x0c |= (p_kind << 12) & 0xf000;
+		entry->m_unk0x10 = p_unk0x48;
+		FUN_100204e8();
+	}
+
+	return index;
+}
+
+// Opens the next block (g_unk0x100a387c) inside the current one: its box, from a corner and a
+// size, its center, and the matrix that places its objects, from the pending transform
+// (g_unk0x100a3888, reset afterwards) and every enclosing block's matrix. The outermost block
+// also clears the placed-object list.
+// Stack-slot permutation; i < g_unk0x1012b7b4 compares in the other operand order, and the second
+// center sum adds its operands in the other order.
+// FUNCTION: MW2 0x1001fa05
+void BeginBlock(BwdBlockRecord* p_record)
+{
+	QuietMarsh0x7c* block;
+	Matrix* matrix;
+	Matrix scale;
+	MechS32 i;
+	QuietMarsh0x7c* parent;
+	Matrix translate;
+	Matrix rotation;
+
+	if (g_blockDepth == 0) {
+		g_unk0x1010b6a8 = 0;
+		for (i = 0; i < g_unk0x1012b7b4; i++) {
+			g_unk0x100a3860[i] = -1;
+		}
+
+		g_blockStack[g_blockDepth] = -1;
+	}
+
+	if (g_unk0x100a387c < 32 && g_unk0x100a387c >= 0) {
+		g_blockDepth++;
+		g_blockStack[g_blockDepth] = g_unk0x100a387c;
+		block = &g_unk0x1010b6b0[g_unk0x100a387c];
+		block->m_unk0x00 = p_record->m_origin[0];
+		block->m_unk0x04 = p_record->m_origin[1];
+		block->m_unk0x08 = p_record->m_origin[2];
+		block->m_unk0x0c = p_record->m_size[0];
+		block->m_unk0x10 = p_record->m_size[1];
+		block->m_unk0x14 = p_record->m_size[2];
+		block->m_unk0x78 = g_blockStack[g_blockDepth - 1];
+		block->m_unk0x24 = g_unk0x100a3888;
+		if (block->m_unk0x0c < 0) {
+			block->m_unk0x00 += block->m_unk0x0c;
+			block->m_unk0x0c = -block->m_unk0x0c;
+		}
+
+		block->m_unk0x0c += block->m_unk0x00;
+		if (block->m_unk0x10 < 0) {
+			block->m_unk0x04 += block->m_unk0x10;
+			block->m_unk0x10 = -block->m_unk0x10;
+		}
+
+		block->m_unk0x10 += block->m_unk0x04;
+		if (block->m_unk0x14 < 0) {
+			block->m_unk0x08 += block->m_unk0x14;
+			block->m_unk0x14 = -block->m_unk0x14;
+		}
+
+		block->m_unk0x14 += block->m_unk0x08;
+		block->m_unk0x18 = (block->m_unk0x0c + block->m_unk0x00) / 2;
+		block->m_unk0x1c = (block->m_unk0x10 + block->m_unk0x04) / 2;
+		block->m_unk0x20 = (block->m_unk0x14 + block->m_unk0x08) / 2;
+		matrix = &block->m_unk0x48;
+		FUN_1000dd4d(&rotation);
+		rotation.m_rows[0][0] = block->m_unk0x24.m_unk0x00 << 29;
+		rotation.m_rows[1][1] = block->m_unk0x24.m_unk0x04 << 29;
+		rotation.m_rows[2][2] = block->m_unk0x24.m_unk0x08 << 29;
+		FUN_1000e2b9(&translate, 0, 0, 0, -block->m_unk0x18, -block->m_unk0x1c, -block->m_unk0x20);
+		FUN_1000e2b9(
+			&scale,
+			block->m_unk0x24.m_unk0x0c,
+			block->m_unk0x24.m_unk0x10,
+			block->m_unk0x24.m_unk0x14,
+			0,
+			0,
+			0
+		);
+		FUN_1000dbba(&scale, &translate, matrix);
+		FUN_1000e2b9(
+			&translate,
+			0,
+			0,
+			0,
+			block->m_unk0x24.m_unk0x18,
+			block->m_unk0x24.m_unk0x1c,
+			block->m_unk0x24.m_unk0x20
+		);
+		FUN_1000dbba(&translate, matrix, matrix);
+		FUN_1000e2b9(&translate, 0, 0, 0, block->m_unk0x18, block->m_unk0x1c, block->m_unk0x20);
+		FUN_1000dbba(&translate, matrix, matrix);
+		parent = block;
+		while (parent->m_unk0x78 != -1) {
+			parent = &g_unk0x1010b6b0[parent->m_unk0x78];
+			FUN_1000dbba(&parent->m_unk0x48, matrix, matrix);
+		}
+
+		g_unk0x100a3888 = g_unk0x100a38b0;
+		g_currentBlock = g_unk0x100a387c;
+		g_unk0x100a387c++;
+	}
+}
+
 // FUNCTION: MW2 0x1001fe41
 void HandleElseBlock(void)
 {
@@ -363,9 +525,9 @@ void FUN_1001feef(MechS32 p_index)
 	entry->m_unk0x18 = -1;
 	entry->m_unk0x1c = NULL;
 	entry->m_unk0x20 = NULL;
-	entry->m_unk0x24 = entry->m_unk0x28 = entry->m_unk0x2c = 1;
-	entry->m_unk0x30 = entry->m_unk0x34 = entry->m_unk0x38 = 0;
-	entry->m_unk0x3c = entry->m_unk0x40 = entry->m_unk0x44 = 0;
+	entry->m_xform.m_unk0x00 = entry->m_xform.m_unk0x04 = entry->m_xform.m_unk0x08 = 1;
+	entry->m_xform.m_unk0x0c = entry->m_xform.m_unk0x10 = entry->m_xform.m_unk0x14 = 0;
+	entry->m_xform.m_unk0x18 = entry->m_xform.m_unk0x1c = entry->m_xform.m_unk0x20 = 0;
 	entry->m_unk0x78 = NULL;
 }
 
@@ -647,11 +809,133 @@ MechS32 FUN_10020684(void)
 	}
 }
 
-// STUB: MW2 0x10020704
-undefined4 FUN_10020704(MechS32 p_index, MechS32 p_block)
+// Loads cache entry p_index's shape and places it: a shape-only entry (-2) in block p_block's
+// frame, otherwise on its object. Returns TRUE while the shape is loaded, FALSE if it can't be or
+// shouldn't be: a hidden entry (0x800), or a destroyed game thing's (without explosion chunks).
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10020704
+MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 {
-	STUB(0x10020704);
-	return 0;
+	MechS32 size;
+	MechS32 offset;
+	MechS32 thing;
+	MechU8* data;
+	struct AmberWillow0x7c* parent;
+	MechU32 kind;
+	HollowSpire0x7c* entry;
+	Matrix matrix;
+
+	size = 0;
+	offset = 0;
+	entry = &g_unk0x1010c630[p_index];
+	if (entry->m_unk0x0c & 0x800) {
+		return FALSE;
+	}
+
+	if (entry->m_unk0x00 == -1) {
+		return FALSE;
+	}
+
+	thing = entry->m_unk0x18;
+	if (thing != -1 && (g_gameThings[thing].m_unk0x00 & 0x8000) && (!g_explosionChunks || FUN_100040b0())) {
+		return FALSE;
+	}
+
+	if (entry->m_unk0x1c && !(FUN_1003acf7(entry->m_unk0x1c) & 0x400)) {
+		return TRUE;
+	}
+
+	data = FUN_1001a19f(g_unk0x100a8740, entry->m_unk0x00, g_unk0x100a869c, 0);
+	if (data) {
+		size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, entry->m_unk0x00);
+	}
+	else {
+		return FALSE;
+	}
+
+	SetShapeScale(entry->m_xform.m_unk0x00, entry->m_xform.m_unk0x04, entry->m_xform.m_unk0x08);
+	SetShapeFlags(entry->m_unk0x0c & 0x1ff);
+	parent = NULL;
+	if (entry->m_unk0x08 > -1) {
+		parent = g_unk0x1010c630[entry->m_unk0x08].m_unk0x20;
+	}
+
+	if (entry->m_unk0x18 != -1) {
+		g_unk0x100bfd40 = 1;
+		g_unk0x100bfd44 = 0x200;
+		g_unk0x100bfd48 = entry->m_unk0x18;
+	}
+
+	entry->m_unk0x1c = LoadShapes(data, &offset, size, parent);
+	g_unk0x100bfd40 = 0;
+	FUN_1001a163(entry->m_unk0x00, g_unk0x100a869c);
+	if (!entry->m_unk0x1c) {
+		return FALSE;
+	}
+
+	kind = (entry->m_unk0x0c & 0xf000) >> 12;
+	if (entry->m_unk0x08 == -2) {
+		FUN_1000dbba(&g_unk0x1010b6b0[p_block].m_unk0x48, &entry->m_unk0x48, &matrix);
+		FUN_10039c36(entry->m_unk0x1c, &matrix);
+		entry->m_unk0x20 = NULL;
+		if (entry->m_unk0x0c & 0x400) {
+			FUN_1003ad2d(entry->m_unk0x1c, entry->m_unk0x10);
+			FUN_1003ad62(entry->m_unk0x1c, entry->m_unk0x18);
+		}
+		else {
+			FUN_1003ad2d(entry->m_unk0x1c, entry->m_unk0x10);
+			FUN_1003ad62(entry->m_unk0x1c, p_index);
+		}
+
+		FUN_10034a40(entry->m_unk0x1c, kind);
+		FUN_1006d732(entry->m_unk0x1c);
+	}
+	else if (entry->m_unk0x20) {
+		FUN_10001532(entry->m_unk0x20, entry->m_unk0x1c);
+		FUN_1003b6fb(entry->m_unk0x1c, entry->m_unk0x20);
+		FUN_1006d732(entry->m_unk0x1c);
+		if (entry->m_unk0x08 == -1) {
+			FUN_1000dbba(&g_unk0x1010b6b0[p_block].m_unk0x48, &entry->m_unk0x48, &matrix);
+			FUN_10001694(entry->m_unk0x20, &matrix);
+			FUN_10001cf8(entry->m_unk0x20);
+		}
+		else {
+			SetObjRotation(
+				entry->m_unk0x20,
+				entry->m_xform.m_unk0x0c,
+				entry->m_xform.m_unk0x10,
+				entry->m_xform.m_unk0x14,
+				0
+			);
+			SetObjPosition(
+				entry->m_unk0x20,
+				entry->m_xform.m_unk0x18,
+				entry->m_xform.m_unk0x1c,
+				entry->m_xform.m_unk0x20
+			);
+			FUN_10001cf8(entry->m_unk0x20);
+		}
+
+		if (entry->m_unk0x0c & 0x400) {
+			SetObjTreeFlag(entry->m_unk0x20, entry->m_unk0x10);
+			FUN_10001b0c(entry->m_unk0x20, entry->m_unk0x18);
+		}
+		else {
+			FUN_1003ad2d(entry->m_unk0x1c, entry->m_unk0x10);
+			FUN_1003ad62(entry->m_unk0x1c, p_index);
+		}
+
+		FUN_10001b6a(entry->m_unk0x20, kind);
+	}
+	else {
+		return FALSE;
+	}
+
+	if (kind == 5) {
+		FUN_1001df00(entry->m_unk0x1c);
+	}
+
+	return TRUE;
 }
 
 // Frees a cache entry's shape.

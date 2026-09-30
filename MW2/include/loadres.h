@@ -37,7 +37,7 @@ extern "C"
 	void FUN_10019fef(void);
 	void FUN_1001a158(void);
 	void FUN_1001a163(MechS32 p_id, const char* p_type);
-	void* FUN_1001a19f(undefined4 p_unk0x00, MechS32 p_unk0x04, const char* p_unk0x08, undefined4 p_unk0x0c);
+	void* FUN_1001a19f(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 p_unk0x0c);
 	void FUN_1001a4e5(MechS32 p_id, const char* p_type);
 	void FUN_1001a521(undefined4 p_unk0x00);
 	undefined4 FUN_1001a52c(undefined4 p_unk0x00);
