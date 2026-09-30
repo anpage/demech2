@@ -48,6 +48,7 @@ extern "C"
 	MechS32 FUN_10016222(struct Player* p_player, MechS32 p_limit);
 	struct ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target);
 	void FUN_1001632c(struct WeaponSlot* p_slot, struct Mech* p_mech);
+	MechS32 FUN_10016880(struct Mech* p_mech);
 
 #ifdef __cplusplus
 }

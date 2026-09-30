@@ -11,7 +11,10 @@ extern "C"
 {
 #endif
 
+	void FUN_1001a910(MechChar* p_text);
 	void DoFirstObjtv(StarMission* p_unk0x00, MechS32 p_unk0x04);
+	MechS32 FUN_1001b580(MechS32 p_star, MechS32 p_objective, MechS32 p_condition);
+	MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective);
 	void UpdateObjectives(void);
 	void EndTheMission1(void);
 	void EndTheMission2(void);

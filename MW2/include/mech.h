@@ -10,6 +10,9 @@
 struct AmberWillow0x7c;
 struct Player;
 
+#pragma pack(push, 1)
+
+// SIZE 0x10e
 typedef struct Mech {
 	struct Player* m_player;              // 0x00
 	MechS32 m_unk0x04;                    // 0x04
@@ -45,7 +48,7 @@ typedef struct Mech {
 	MechS32 m_selectedWeapon;             // 0xac — an index into m_weapons, or -1
 	undefined m_unk0xb0[0xb8 - 0xb0];     // 0xb0
 	MechS32 m_unk0xb8;                    // 0xb8
-	undefined m_unk0xbc[0xc0 - 0xbc];     // 0xbc
+	MechS32 m_unk0xbc;                    // 0xbc — the autopilot: 1 and 2 are on
 	MechS32 m_unk0xc0;                    // 0xc0 — the jump jets fire while it is positive
 	undefined m_unk0xc4[0xcc - 0xc4];     // 0xc4
 	MechS32 m_unk0xcc;                    // 0xcc
@@ -54,7 +57,10 @@ typedef struct Mech {
 	undefined m_unk0xe4[0xe8 - 0xe4];     // 0xe4
 	MechS32 m_radius;                     // 0xe8 — splash damage reaches it this much further
 	MechS32 m_unk0xec;                    // 0xec
-	undefined m_unk0xf0[0x100 - 0xf0];    // 0xf0
+	undefined m_unk0xf0[0xf4 - 0xf0];     // 0xf0
+	MechS32 m_unk0xf4;                    // 0xf4 — the velocity
+	MechS32 m_unk0xf8;                    // 0xf8
+	MechS32 m_unk0xfc;                    // 0xfc
 	MechS32 m_unk0x100;                   // 0x100
 	MechS32 m_unk0x104;                   // 0x104
 	MechS32 m_unk0x108;                   // 0x108
@@ -62,5 +68,7 @@ typedef struct Mech {
 	// groups, 0x8000 the target is in the lock cone.
 	MechU16 m_unk0x10c; // 0x10c
 } Mech;
+
+#pragma pack(pop)
 
 #endif // MECH_H

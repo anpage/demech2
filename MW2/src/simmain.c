@@ -149,6 +149,14 @@ MechS32 g_normalFov = 0x10000;
 // GLOBAL: MW2 0x100a2404
 MechS32 g_zoomFov = 0x10000;
 
+// The camera's view mode, or -1.
+// GLOBAL: MW2 0x100a2408
+MechS32 g_unk0x100a2408 = -1;
+
+// The view mode to return to from the external view.
+// GLOBAL: MW2 0x100a240c
+MechS32 g_unk0x100a240c = -1;
+
 // GLOBAL: MW2 0x100a2414
 MechS32 g_unk0x100a2414 = 0;
 
@@ -160,6 +168,10 @@ MechS32 g_unk0x100a2424 = -1;
 
 // GLOBAL: MW2 0x100a242c
 struct Player* g_localPlayer = NULL;
+
+// The player the camera tracks.
+// GLOBAL: MW2 0x100a2430
+MechS32 g_unk0x100a2430 = 0;
 
 // GLOBAL: MW2 0x100a2434
 MechS32* g_unk0x100a2434 = NULL;
@@ -178,6 +190,9 @@ MechS32 g_unk0x100a2460 = 1;
 
 // GLOBAL: MW2 0x100a2464
 MechS32 g_unk0x100a2464 = 0;
+
+// GLOBAL: MW2 0x100a2bf0
+MechS32 g_unk0x100a2bf0 = 0;
 
 // GLOBAL: MW2 0x100a2bf8
 MechS32 g_unk0x100a2bf8 = 0;

@@ -277,10 +277,10 @@ void FUN_1005718d(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font
 	FUN_100606ed(p_target, p_x, p_y, width - 1, p_y, 0, p_color);
 }
 
-// Underlines text drawn at p_x, p_y.
+// Underlines text drawn at p_pos.
 // Stack-slot permutation: width, height and i.
 // FUNCTION: MW2 0x100571ea
-void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_color)
+void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 width;
 	MechS32 height;
@@ -288,18 +288,18 @@ void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, MechS32 p_x, MechS32
 
 	width = 0;
 	height = FUN_10064d4d(p_font);
-	p_y += height;
+	p_pos.m_y += height;
 	for (i = 0; i < strlen(p_text); i++) {
 		width += FUN_10064d60(p_font, p_text[i]);
 	}
 
-	FUN_100606ed(p_target, p_x, p_y, p_x + width - 1, p_y, 0, p_color);
+	FUN_100606ed(p_target, p_pos.m_x, p_pos.m_y, p_pos.m_x + width - 1, p_pos.m_y, 0, p_color);
 }
 
-// Draws a box around text drawn at p_x, p_y.
+// Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057282
-void FUN_10057282(RenderTarget* p_target, MechChar* p_text, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_color)
+void FUN_10057282(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 left;
 	MechS32 top;
@@ -315,10 +315,10 @@ void FUN_10057282(RenderTarget* p_target, MechChar* p_text, MechS32 p_x, MechS32
 		width += FUN_10064d60(p_font, p_text[i]);
 	}
 
-	left = p_x;
-	right = p_x + width;
-	bottom = p_y + height + 1;
-	top = p_y - 1;
+	left = p_pos.m_x;
+	right = p_pos.m_x + width;
+	bottom = p_pos.m_y + height + 1;
+	top = p_pos.m_y - 1;
 	FUN_100606ed(p_target, left, top, right, top, 0, p_color);
 	FUN_100606ed(p_target, left, bottom, right, bottom, 0, p_color);
 	FUN_100606ed(p_target, left, top, left, bottom, 0, p_color);

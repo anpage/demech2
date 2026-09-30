@@ -366,6 +366,7 @@ demech2_add_dll(mw2
     MW2/src/unk10004f40.c
     MW2/src/audio.c
     MW2/src/missionaudio.c
+    MW2/src/namehash.c
     MW2/src/anim2d.c
     MW2/src/unk100079d0.c
     MW2/src/pausebanner.c
@@ -381,7 +382,9 @@ demech2_add_dll(mw2
     MW2/src/unk10013370.c
     MW2/src/unk10013430.c
     MW2/src/fixedsqrt.c
+    MW2/src/sqrtguess.c
     MW2/src/unk10016ad0.c
+    MW2/src/fixeddiv29.c
     MW2/src/unk10019ad0.c
     MW2/src/loadres.c
     MW2/src/objective.c
@@ -402,11 +405,15 @@ demech2_add_dll(mw2
     MW2/src/unk10040020.c
     MW2/src/unk10040b30.c
     MW2/src/unk10041fa0.c
+    MW2/src/fixeddot27.c
+    MW2/src/fixeddot29.c
+    MW2/src/unk10042740.c
     MW2/src/keyboard.c
     MW2/src/unk10042e00.c
     MW2/src/fixeddivu.c
     MW2/src/fixedmul30.c
     MW2/src/weapons.c
+    MW2/src/unk10046750.c
     MW2/src/ramp.c
     MW2/src/staticmem.c
     MW2/src/joystick.c
@@ -415,6 +422,7 @@ demech2_add_dll(mw2
     MW2/src/unk1004b980.c
     MW2/src/unk1004c800.c
     MW2/src/unk1004c820.c
+    MW2/src/unk1004c860.c
     MW2/src/fadepal.c
     MW2/src/unk1004d020.c
     MW2/src/dispdib.c
@@ -429,6 +437,7 @@ demech2_add_dll(mw2
     MW2/src/overlay.c
     MW2/src/speech.c
     MW2/src/cdaudio.c
+    MW2/src/cheatcodes.c
     MW2/src/gamekeys.c
     MW2/src/setres.c
     MW2/src/unk1005d6d0.c

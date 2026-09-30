@@ -38,6 +38,18 @@ void FUN_1006ff7b(void)
 	STUB(0x1006ff7b);
 }
 
+// STUB: MW2 0x1007005a
+void FUN_1007005a(struct Mech* p_mech)
+{
+	STUB(0x1007005a);
+}
+
+// STUB: MW2 0x100704c1
+void FUN_100704c1(void)
+{
+	STUB(0x100704c1);
+}
+
 // FUNCTION: MW2 0x1007079d
 void FUN_1007079d(RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
