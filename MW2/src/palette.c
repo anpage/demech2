@@ -354,7 +354,7 @@ void StartPalettes(MechS32 p_dissolve)
 						ticks = GetTicks(handle);
 						if (ticks > last) {
 							last = ticks + 1;
-							seed = FUN_10065a7b(&target, src, count, seed);
+							seed = DissolveView(&target, src, count, seed);
 							if (g_windowActive) {
 								g_currentRefreshMode->m_flip();
 							}

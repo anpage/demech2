@@ -1,6 +1,7 @@
 ; Hand-written assembly: the blit, shape, font, picture and palette routines, a MASM object
-; assembled with MASM 6.11 (ML). It starts at 0x10032250, flush against the compiled C code that
-; ends at 0x1003224f, and its data at 0x100687cc. The evidence that it was MASM:
+; assembled with MASM 6.11 (ML) and linked into both DLLs, byte for byte the same: MW2SHELL's
+; starts at 0x10032250 (data 0x100687cc), flush against compiled C code, and MW2's at 0x100604f4
+; (data 0x100ab100), after rendertarget.c. The evidence that it was MASM:
 ;
 ; - Every routine's frame is the one ML generates for a PROC with USES and parameters: push ebp;
 ;   mov ebp, esp; add esp, -N for LOCALs (the VC++ 4.1 front ends emit sub esp, N); push ebx; push
@@ -8,12 +9,13 @@
 ; - Every routine saves and reloads es (push es; cld; push ds; pop es), which the compiler never
 ;   does for flat-model code.
 ; - Jumps are short (rel8) wherever they reach, as ML sizes them.
-; - Its data is packed without alignment: the "MCGA.DLL" buffer at 0x10068800 is followed by
-;   variables from 0x1006880d onward.
+; - Its data is packed without alignment: the "MCGA.DLL" buffer is followed by variables 0xd
+;   bytes later.
 ;
-; The cosine table (0x10035af0), the IFF chunk tags after WriteViewRow and the LFSR tap table
-; between FUN_100376f9 and DissolveView sit in .text, as in the original. Annotated by name in
-; blit.h; COMPAT_MODE builds take blit.c's stubs.
+; The cosine table, the IFF chunk tags after WriteViewRow and the LFSR tap table between
+; FUN_100376f9 and DissolveView sit in .text, as in the original. Annotated by name in each DLL's
+; blit.h; COMPAT_MODE builds take each DLL's blit.c stubs. Names follow the MW2SHELL addresses
+; where they are placeholders.
 
 	.386
 	.model flat, c
@@ -129,7 +131,8 @@ m_data db 300h dup (0)
 g_fadeErrors_t ends
 g_fadeErrors g_fadeErrors_t <>
 
-; Masks of the low n bits, indexed by the code width.
+; The GIF decoder's tables: the masks of 0 to 8 low bits, and the interlaced passes' row steps and
+; first rows.
 	public g_gifCodeMasks
 g_gifCodeMasks_t struct
 m_data db 0, 1, 3, 7, 0fh, 1fh, 3fh, 7fh, 0ffh
@@ -2302,8 +2305,8 @@ SetRemapTable proc uses ebx esi edi, p_table:dword
 	ret
 SetRemapTable endp
 
-; BlitShpFrame with the pixels mapped through the color remap table (through
-; BlitShpFrameRemappedUnclipped when the frame lies wholly inside the view).
+; BlitShpFrame through the colour map g_remapTable: clipped, or through BlitShpFrameRemappedUnclipped when the
+; frame lies inside the target. Returns a negative code for an empty target or frame.
 BlitShpFrameRemapped proc uses ebx esi edi, p_view:dword, p_unk0x04:dword, p_unk0x08:dword, p_left:dword, p_top:dword
 	local l_unk0x04:dword, l_unk0x08:dword, l_unk0x0c:dword, l_unk0x10:dword, l_unk0x14:dword, l_unk0x18:dword
 	local l_unk0x1c:dword, l_unk0x20:dword, l_unk0x24:dword, l_unk0x28:dword, l_unk0x2c:dword, l_unk0x30:dword
@@ -6136,7 +6139,7 @@ jmp_100369ac:
 GetCosSin endp
 
 ; Multiplies two 16.16 fixed-point values, rounding, into *p_result.
-FixedMul16 proc uses ebx esi edi, p_a:dword, p_b:dword, p_result:dword
+BlitFixedMul16 proc uses ebx esi edi, p_a:dword, p_b:dword, p_result:dword
 	push es
 	mov eax, dword ptr p_a
 	imul dword ptr p_b
@@ -6148,7 +6151,7 @@ FixedMul16 proc uses ebx esi edi, p_a:dword, p_b:dword, p_result:dword
 	mov dword ptr [edi], eax
 	pop es
 	ret
-FixedMul16 endp
+BlitFixedMul16 endp
 
 ; Rotates the point p_point about p_origin by p_angle (in tenths of a degree) and scales it
 ; by the 16.16 factors p_scaleX and p_scaleY, storing the result in p_result.
@@ -6416,6 +6419,7 @@ jmp_10036c5b:
 	ret
 BlitChar endp
 
+; Draws the non-empty string p_text, each glyph through BlitChar, which returns its width.
 BlitString proc uses ebx esi edi, p_view:dword, p_left:dword, p_top:dword, p_font:dword, p_text:dword, p_palette:dword
 	push es
 	cld
@@ -6441,7 +6445,8 @@ jmp_10036c77:
 	ret
 BlitString endp
 
-; Copies p_count pixels into row p_index of the view, clipped.
+; Copies p_width pixels from p_src to row p_row of p_view, clipped to the target's rectangle.
+; Returns -1 for an empty pixel buffer and -2 for an empty rectangle.
 WriteViewRow proc uses ebx esi edi, p_view:dword, p_index:dword, p_data:dword, p_count:dword
 	local l_unk0x04:dword, l_unk0x08:dword, l_unk0x0c:dword, l_unk0x10:dword, l_unk0x14:dword, l_unk0x18:dword
 	local l_unk0x1c:dword, l_unk0x20:dword, l_unk0x24:dword
@@ -6605,8 +6610,8 @@ jmp_10036de6:
 	ret
 FindIffChunk endp
 
-; Decodes the BODY chunk of an IFF ILBM or PBM image (p_data) into the view, one row at a
-; time through WriteViewRow. Returns the BMHD compression byte.
+; Decodes the ILBM image p_iff (planar, optionally run-length compressed) into p_view, a row at a
+; time through WriteViewRow. Returns the BMHD's masking byte, or its compression byte... (unknown).
 BlitIff proc uses ebx esi edi, p_view:dword, p_data:dword
 	local l_unk0x04:dword, l_unk0x08:dword, l_unk0x0c:dword, l_unk0x10:dword, l_unk0x14:dword, l_unk0x18:dword
 	local l_unk0x1c:dword, l_unk0x20:dword, l_unk0x24:dword, l_unk0x28:dword, l_unk0x2c:dword, l_unk0x30:dword
@@ -6829,6 +6834,8 @@ GetIffSize proc uses ebx esi edi, p_data:dword
 	ret
 GetIffSize endp
 
+; Decodes the PCX image p_pcx (run-length compressed, one byte per pixel) into p_view, a row at a
+; time through WriteViewRow. Returns 0.
 BlitPicture proc uses ebx esi edi, p_view:dword, p_data:dword
 	local l_unk0x04:dword, l_unk0x08:dword, l_unk0x0c:dword
 	push es
@@ -6881,6 +6888,8 @@ jmp_1003706f:
 	ret
 BlitPicture endp
 
+; Copies the palette at the end of the PCX file p_pcx (p_size bytes) to p_palette, scaled from 8 to
+; 6 bits per component.
 ReadPicturePalette proc uses ebx esi edi, p_data:dword, p_size:dword, p_palette:dword
 	push es
 	cld
@@ -6900,6 +6909,8 @@ jmp_100370b4:
 	ret
 ReadPicturePalette endp
 
+; Returns the PCX image's size from its header: the width in the high word, the height in the low
+; word.
 GetPictureSize proc uses ebx esi edi, p_data:dword
 	push es
 	mov esi, dword ptr p_data
@@ -6914,7 +6925,8 @@ GetPictureSize proc uses ebx esi edi, p_data:dword
 	ret
 GetPictureSize endp
 
-; Internal assembly helper: initializes the code tables using ECX and EDI.
+; The GIF decoder's helpers keep its state in edi (BlitGif's p_state).
+; Resets the LZW string table for ecx roots.
 GifInitCodes proc
 	mov ebx, 0
 	mov eax, ecx
@@ -6941,7 +6953,8 @@ jmp_1003712f:
 	ret
 GifInitCodes endp
 
-; Internal assembly helper: reads a byte from ESI, tracking the run in EDI.
+; Returns the next byte of the current GIF data sub-block in eax, starting the next sub-block when
+; the current one is used up.
 GifReadByte proc
 	cmp dword ptr [edi+10h], 0
 	jne jmp_1003713f
@@ -7314,7 +7327,8 @@ jmp_100374c6:
 	ret
 ReadGifPalette endp
 
-; Returns the width and height of a GIF's first image, packed as width << 16 | height.
+; Returns a shape's size from its header: the width in the high word, the height in the low
+; word. The header is followed by a palette of 2^(n+1) entries when bit 7 of its byte 0x0a is set.
 GetGifSize proc uses ebx esi edi, p_data:dword
 	push es
 	mov esi, dword ptr p_data
@@ -7446,7 +7460,8 @@ jmp_100375ec:
 	ret
 FUN_100375a7 endp
 
-; Copies the entry's dword array into the supplied destination, if present.
+; Copies frame p_frame's palette entries (dwords) to p_out, if not NULL, and returns their count;
+; 0 if the frame has none.
 FUN_100375f2 proc uses ebx esi edi, p_data:dword, p_index:dword, p_destination:dword
 	push es
 	cld
@@ -7481,7 +7496,8 @@ jmp_10037634:
 	ret
 FUN_100375f2 endp
 
-; Writes the entry's dword array back from the supplied source, if present.
+; Copies p_in, if not NULL, over frame p_frame's palette entries and returns their count; 0 if
+; the frame has none.
 FUN_1003763a proc uses ebx esi edi, p_data:dword, p_index:dword, p_source:dword
 	push es
 	cld

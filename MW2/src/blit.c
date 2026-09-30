@@ -1,39 +1,10 @@
-/* Stubs for blit.asm's routines and its data, for builds with other compilers (COMPAT_MODE): the
-   VC++ 4.1 build assembles blit.asm with MASM 6.11 instead. */
+/* Stubs for blit.asm's routines (common/src) and its data, for builds with other compilers
+   (COMPAT_MODE): the VC++ 4.1 build assembles blit.asm with MASM 6.11 instead. */
 #include "blit.h"
 
 #include "compat.h"
 #include "decomp.h"
-#include "palettecolor.h"
-#include "pixelview.h"
 #include "types.h"
-
-MechS32 BlitShpFrameUnclipped(
-	PixelView* p_view,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10
-);
-MechS32 BlitShpFrameRemappedUnclipped(
-	PixelView* p_view,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10
-);
-void EncodeRleRow(MechS32 p_count, MechU8 p_transparent, MechS32 p_left);
-void EmitRleRun(MechS32 p_op, MechS32 p_back, MechS32 p_left);
-void RotateScalePoint(
-	MechS32* p_point,
-	MechS32* p_result,
-	MechS32* p_origin,
-	MechS32 p_angle,
-	MechS32 p_scaleX,
-	MechS32 p_scaleY
-);
-MechU32 GetShpFrameExtent(void* p_data, MechS32 p_index);
-MechU32 GetShpFrameOrigin(void* p_data, MechS32 p_index);
 
 undefined4 g_displayDriver[0xd] = {0};
 
@@ -79,7 +50,7 @@ MechU8 g_gifPassSteps[5] = {8, 8, 4, 2, 0};
 
 MechU8 g_gifPassStarts[5] = {0, 4, 2, 1, 0};
 
-PixelView* g_gifView = NULL;
+struct RenderTarget* g_gifView = NULL;
 
 MechU8 g_remapTable[0x100] = {0};
 
@@ -87,105 +58,90 @@ undefined4 g_rotatedCorners[0x14] = {0};
 
 undefined4 g_rotatedCornerSteps[4] = {0};
 
-MechChar* GetDisplayDriverName(undefined4* p_driver)
+MechChar* GetDisplayDriverName(MechChar* (**p_driver)(void) )
 {
-	STUB(0x10032250);
+	STUB(0x100604f4);
 	return NULL;
 }
 
-void SetDisplayDriver(undefined4* p_driver)
+void SetDisplayDriver(MechU32* p_src)
 {
-	STUB(0x10032279);
+	STUB(0x1006051d);
 }
 
-MechS32 PutViewPixel(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_color)
+MechS32 PutViewPixel(struct RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechU32 p_color)
 {
-	STUB(0x10032298);
+	STUB(0x1006053c);
 	return 0;
 }
 
-MechS32 GetViewPixel(PixelView* p_view, MechS32 p_x, MechS32 p_y)
+MechS32 GetViewPixel(struct RenderTarget* p_target, MechS32 p_x, MechS32 p_y)
 {
-	STUB(0x10032373);
+	STUB(0x10060617);
 	return 0;
 }
 
 MechS32 BlitLine(
-	PixelView* p_view,
+	struct RenderTarget* p_target,
+	MechS32 p_x1,
+	MechS32 p_y1,
+	MechS32 p_x2,
+	MechS32 p_y2,
+	MechS32 p_mode,
+	MechS32 p_color
+)
+{
+	STUB(0x100606ed);
+	return 0;
+}
+
+void FUN_10032e4b(
+	struct RenderTarget* p_target,
 	MechS32 p_left,
 	MechS32 p_top,
 	MechS32 p_right,
 	MechS32 p_bottom,
-	MechS32 p_unk0x14,
-	MechS32 p_color
+	MechU8 p_color
 )
 {
-	STUB(0x10032449);
-	return 0;
+	STUB(0x100610ef);
 }
 
-MechS32 FUN_10032e4b(
-	PixelView* p_view,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10,
-	undefined4 p_unk0x14
-)
+void BlitShpFrame(struct RenderTarget* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y)
 {
-	STUB(0x10032e4b);
-	return 0;
+	STUB(0x10061228);
 }
 
-MechS32 BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_left, MechS32 p_top)
+void BlitShpFrameUnclipped(struct RenderTarget* p_target, void* p_frame, MechS32 p_x, MechS32 p_y, undefined4 p_unk0x10)
 {
-	STUB(0x10032f84);
-	return 0;
+	STUB(0x1006169c);
 }
 
-MechS32 BlitShpFrameUnclipped(
-	PixelView* p_view,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10
-)
+void SetRemapTable(MechU8* p_map)
 {
-	STUB(0x100333f8);
-	return 0;
+	STUB(0x1006179f);
 }
 
-void SetRemapTable(undefined* p_table)
+MechS32 BlitShpFrameRemapped(struct RenderTarget* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y)
 {
-	STUB(0x100334fb);
-}
-
-MechS32 BlitShpFrameRemapped(
-	PixelView* p_view,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	MechS32 p_left,
-	MechS32 p_top
-)
-{
-	STUB(0x1003351a);
+	STUB(0x100617be);
 	return 0;
 }
 
 MechS32 BlitShpFrameRemappedUnclipped(
-	PixelView* p_view,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
+	struct RenderTarget* p_target,
+	void* p_frame,
+	MechS32 p_x,
+	MechS32 p_y,
 	undefined4 p_unk0x10
 )
 {
-	STUB(0x10033980);
+	STUB(0x10061c24);
 	return 0;
 }
 
 MechS32 BlitRotated(
-	PixelView* p_view,
+	struct RenderTarget* p_view,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
 	undefined4 p_unk0x0c,
@@ -197,79 +153,91 @@ MechS32 BlitRotated(
 	MechS32 p_scaleY
 )
 {
-	STUB(0x10033a76);
+	STUB(0x10061d1a);
 	return 0;
 }
 
 MechS32 FUN_10034622(
-	void* p_data,
-	MechS32 p_index,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
+	void* p_shape,
+	MechS32 p_frame,
+	MechS32 p_x,
+	MechS32 p_y,
 	undefined4 p_unk0x10,
 	undefined4 p_unk0x14
 )
 {
-	STUB(0x10034622);
+	STUB(0x100628c6);
 	return 0;
 }
 
-MechS32 EncodeViewRle(PixelView* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
+MechS32 EncodeViewRle(struct RenderTarget* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, undefined4* p_out)
 {
-	STUB(0x1003479a);
+	STUB(0x10062a3e);
 	return 0;
 }
 
-MechS32 RemapShpFrame(void* p_data, MechS32 p_index)
+MechS32 RemapShpFrame(void* p_shape, MechS32 p_frame)
 {
-	STUB(0x10034a1d);
+	STUB(0x10062cc1);
 	return 0;
 }
 
 void EncodeRleRow(MechS32 p_count, MechU8 p_transparent, MechS32 p_left)
 {
-	STUB(0x10034aaf);
+	STUB(0x10062d53);
 }
 
 void EmitRleRun(MechS32 p_op, MechS32 p_back, MechS32 p_left)
 {
-	STUB(0x10034c38);
+	STUB(0x10062edc);
 }
 
-void FillView(PixelView* p_view, MechS32 p_color)
+void FillView(struct RenderTarget* p_target, MechS32 p_color)
 {
-	STUB(0x10034e15);
+	STUB(0x100630b9);
 }
 
-void BlitView(
-	PixelView* p_source,
-	MechS32 p_sourceLeft,
-	MechS32 p_sourceTop,
-	PixelView* p_dest,
-	MechS32 p_destLeft,
-	MechS32 p_destTop,
-	MechS32 p_fillColor
+MechS32 BlitView(
+	struct RenderTarget* p_target,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechS32 p_width,
+	MechS32 p_height,
+	MechS32 p_unk0x14,
+	MechS32 p_unk0x18
 )
 {
-	STUB(0x10034f18);
+	STUB(0x100631bc);
 }
 
-MechS32 ScrollView(PixelView* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, undefined4 p_color)
+MechS32 ScrollView(struct RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height)
 {
-	STUB(0x100352b4);
+	STUB(0x10063558);
 	return 0;
 }
 
-MechS32 DrawEllipse(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+void DrawEllipse(
+	struct RenderTarget* p_target,
+	MechS32 p_centerX,
+	MechS32 p_centerY,
+	MechS32 p_radiusX,
+	MechS32 p_radiusY,
+	MechS32 p_color
+)
 {
-	STUB(0x100354b1);
-	return 0;
+	STUB(0x10063755);
 }
 
-MechS32 FillEllipse(PixelView* p_view, MechS32 p_x, MechS32 p_y, MechS32 p_radiusX, MechS32 p_radiusY, MechS32 p_color)
+void FillEllipse(
+	struct RenderTarget* p_target,
+	MechS32 p_centerX,
+	MechS32 p_centerY,
+	MechS32 p_radiusX,
+	MechS32 p_radiusY,
+	MechS32 p_color
+)
 {
-	STUB(0x100357f2);
-	return 0;
+	STUB(0x10063a96);
 }
 
 MechS32 g_cosTable[0x385] = {
@@ -342,12 +310,12 @@ MechS32 g_cosTable[0x385] = {
 
 void GetCosSin(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin)
 {
-	STUB(0x10036904);
+	STUB(0x10064ba8);
 }
 
 void BlitFixedMul16(MechS32 p_a, MechS32 p_b, MechS32* p_result)
 {
-	STUB(0x100369bc);
+	STUB(0x10064c60);
 }
 
 void RotateScalePoint(
@@ -359,30 +327,37 @@ void RotateScalePoint(
 	MechS32 p_scaleY
 )
 {
-	STUB(0x100369e2);
+	STUB(0x10064c86);
 }
 
-MechS32 FontGetHeight(void* p_data)
+MechS32 FontGetHeight(void* p_font)
 {
-	STUB(0x10036aa9);
+	STUB(0x10064d4d);
 	return 0;
 }
 
-MechS32 FontGetCharWidth(void* p_data, MechS32 p_char)
+MechS32 FontGetCharWidth(void* p_font, MechS32 p_char)
 {
-	STUB(0x10036abc);
+	STUB(0x10064d60);
 	return 0;
 }
 
-MechS32 BlitChar(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechS32 p_char, undefined* p_palette)
+MechS32 BlitChar(struct RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_char, void* p_unk0x14)
 {
-	STUB(0x10036adc);
+	STUB(0x10064d80);
 	return 0;
 }
 
-void BlitString(PixelView* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechChar* p_text, undefined* p_palette)
+void BlitString(
+	struct RenderTarget* p_target,
+	MechS32 p_x,
+	MechS32 p_y,
+	void* p_font,
+	MechChar* p_text,
+	void* p_unk0x14
+)
 {
-	STUB(0x10036c67);
+	STUB(0x10064f0b);
 }
 
 MechChar g_iffBmhdTag[4] = {'B', 'M', 'H', 'D'};
@@ -391,150 +366,148 @@ MechChar g_iffCmapTag[4] = {'C', 'M', 'A', 'P'};
 
 MechChar g_iffBodyTag[4] = {'B', 'O', 'D', 'Y'};
 
-void WriteViewRow(PixelView* p_view, MechS32 p_index, undefined* p_data, MechS32 p_count)
+MechS32 WriteViewRow(struct RenderTarget* p_target, MechS32 p_row, MechU8* p_src, MechS32 p_width)
 {
-	STUB(0x10036c9e);
+	STUB(0x10064f42);
 }
 
-undefined* FindIffChunk(const void* p_tag, const void* p_chunks)
+MechU8* FindIffChunk(MechChar* p_tag, MechU8* p_iff)
 {
-	STUB(0x10036dad);
+	STUB(0x10065051);
 	return NULL;
 }
 
-MechS32 BlitIff(PixelView* p_view, undefined* p_data)
+MechS32 BlitIff(struct RenderTarget* p_target, MechU8* p_iff)
 {
-	STUB(0x10036def);
+	STUB(0x10065093);
 	return 0;
 }
 
-void ReadIffPalette(undefined* p_data, MechU8* p_palette)
+void ReadIffPalette(MechU8* p_iff, MechU8* p_palette)
 {
-	STUB(0x10036fb6);
+	STUB(0x1006525a);
 }
 
-MechU32 GetIffSize(undefined* p_data)
+MechS32 GetIffSize(MechU8* p_iff)
 {
-	STUB(0x10036fe7);
+	STUB(0x1006528b);
 	return 0;
 }
 
-void BlitPicture(PixelView* p_view, undefined* p_data)
+MechS32 BlitPicture(struct RenderTarget* p_target, MechU8* p_pcx)
 {
-	STUB(0x10037014);
+	STUB(0x100652b8);
 }
 
-void ReadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
+void ReadPicturePalette(MechU8* p_pcx, MechS32 p_size, MechU8* p_palette)
 {
-	STUB(0x10037096);
+	STUB(0x1006533a);
 }
 
-MechS32 GetPictureSize(undefined* p_data)
+MechS32 GetPictureSize(MechU8* p_pcx)
 {
-	STUB(0x100370c1);
+	STUB(0x10065365);
 	return 0;
 }
 
 void GifInitCodes(void)
 {
-	STUB(0x100370e8);
+	STUB(0x1006538c);
 }
 
-MechU32 GifReadByte(void)
+void GifReadByte(void)
 {
-	STUB(0x10037130);
-	return 0;
+	STUB(0x100653d4);
 }
 
-MechU32 GifReadCode(void)
+void GifReadCode(void)
 {
-	STUB(0x10037149);
-	return 0;
+	STUB(0x100653ed);
 }
 
 void GifAddCode(void)
 {
-	STUB(0x1003718f);
+	STUB(0x10065433);
 }
 
 void GifPutPixel(void)
 {
-	STUB(0x100371d5);
+	STUB(0x10065479);
 }
 
-MechS32 BlitGif(PixelView* p_view, undefined* p_data, undefined* p_state)
+MechS32 BlitGif(struct RenderTarget* p_target, MechU8* p_gif, MechU8* p_state)
 {
-	STUB(0x10037252);
+	STUB(0x100654f6);
 	return 0;
 }
 
-void ReadGifPalette(undefined* p_data, undefined* p_palette)
+void ReadGifPalette(MechU8* p_gif, MechU8* p_palette)
 {
-	STUB(0x1003746b);
+	STUB(0x1006570f);
 }
 
-MechU32 GetGifSize(undefined* p_data)
+MechS32 GetGifSize(void* p_shape)
 {
-	STUB(0x100374cc);
+	STUB(0x10065770);
 	return 0;
 }
 
-MechS32 GetShpFrameSize(void* p_data, MechS32 p_index)
+MechS32 GetShpFrameSize(void* p_shape, MechS32 p_frame)
 {
-	STUB(0x10037504);
+	STUB(0x100657a8);
 	return 0;
 }
 
-MechS32 FUN_10037526(void* p_data, MechS32 p_index)
+MechS32 FUN_10037526(void* p_shape, MechS32 p_frame)
 {
-	STUB(0x10037526);
+	STUB(0x100657ca);
 	return 0;
 }
 
-MechU32 GetShpFrameExtent(void* p_data, MechS32 p_index)
+MechS32 GetShpFrameExtent(void* p_shape, MechS32 p_frame)
 {
-	STUB(0x10037549);
+	STUB(0x100657ed);
 	return 0;
 }
 
-MechU32 GetShpFrameOrigin(void* p_data, MechS32 p_index)
+MechS32 GetShpFrameOrigin(void* p_shape, MechS32 p_frame)
 {
-	STUB(0x1003757d);
+	STUB(0x10065821);
 	return 0;
 }
 
-void FUN_100375a7(undefined* p_data, MechS32 p_index, undefined* p_palette)
+void FUN_100375a7(void* p_shape, MechS32 p_frame, MechU8* p_palette)
 {
-	STUB(0x100375a7);
+	STUB(0x1006584b);
 }
 
-MechS32 FUN_100375f2(undefined* p_data, MechS32 p_index, undefined4* p_destination)
+MechS32 FUN_100375f2(void* p_shape, MechS32 p_frame, MechU32* p_out)
 {
-	STUB(0x100375f2);
+	STUB(0x10065896);
 	return 0;
 }
 
-MechS32 FUN_1003763a(undefined* p_data, MechS32 p_index, undefined4* p_source)
+MechS32 FUN_1003763a(void* p_shape, MechS32 p_frame, MechU32* p_in)
 {
-	STUB(0x1003763a);
+	STUB(0x100658de);
 	return 0;
 }
 
-MechS32 GetShpFrameCount(void* p_data)
+MechS32 GetShpFrameCount(void* p_shape)
 {
-	STUB(0x10037684);
+	STUB(0x10065928);
 	return 0;
 }
 
-MechS32 CountShpUniqueFrames(void* p_data, MechS32* p_indices)
+MechS32 CountShpUniqueFrames(void* p_shape, MechS32* p_out)
 {
-	STUB(0x10037697);
+	STUB(0x1006593b);
 	return 0;
 }
 
-MechS32 FUN_100376f9(undefined* p_data, MechU32* p_out)
+MechS32 FUN_100376f9(void* p_shape, MechS32* p_out)
 {
-	STUB(0x100376f9);
+	STUB(0x1006599d);
 	return 0;
 }
 
@@ -544,19 +517,19 @@ MechU32 g_dissolveTaps[0x1f] = {0x3,        0x6,        0xc,       0x14,      0x
 								0x420000,   0xd80000,   0x1200000, 0x3880000, 0x7200000, 0x9000000, 0x14000000,
 								0x32800000, 0x48000000, 0xa3000000};
 
-MechU32 DissolveView(PixelView* p_src, PixelView* p_dest, MechS32 p_count, MechU32 p_state)
+MechS32 DissolveView(struct RenderTarget* p_dst, struct RenderTarget* p_src, MechS32 p_unk0x08, MechS32 p_unk0x0c)
 {
-	STUB(0x100377d7);
+	STUB(0x10065a7b);
 	return 0;
 }
 
-void FadeViewColors(PixelView* p_view, undefined* p_palette, MechS32 p_steps)
+void FadeViewColors(struct RenderTarget* p_view, undefined* p_palette, MechS32 p_steps)
 {
-	STUB(0x10037a4e);
+	STUB(0x10065cf2);
 }
 
-MechS32 CountViewColors(PixelView* p_view, MechU32* p_colors)
+MechS32 CountViewColors(struct RenderTarget* p_target, MechU32* p_out)
 {
-	STUB(0x10037bd2);
+	STUB(0x10065e76);
 	return 0;
 }

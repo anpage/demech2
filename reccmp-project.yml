@@ -33,9 +33,4 @@ targets:
       - reccmp/mw2-ascii.csv
     report:
       icon: assets/dll.png
-      # The routine table and the self-modifying code block in codeblock.c live in the
-      # original's .text, as in the shell.
-      ignore-variables:
-        - g_codeBlockRoutines
-        - g_codeBlock
   # NETMECHW: added once a version is chosen

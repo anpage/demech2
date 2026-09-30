@@ -136,7 +136,7 @@ extern "C"
 // GetCosSin
 
 // FUNCTION: MW2SHELL 0x100369bc
-// FixedMul16
+// BlitFixedMul16
 
 // FUNCTION: MW2SHELL 0x100369e2
 // RotateScalePoint

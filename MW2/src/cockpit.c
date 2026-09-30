@@ -457,7 +457,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			p_layout->m_unk0x1c = p_layout->m_unk0x18;
 		}
 
-		FUN_10064f0b(
+		BlitString(
 			viewport,
 			p_layout->m_unk0x60.m_x,
 			p_layout->m_unk0x60.m_y,
@@ -474,7 +474,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 				p_layout->m_unk0x4c = heading;
 			}
 
-			FUN_10064f0b(
+			BlitString(
 				viewport,
 				p_layout->m_unk0x68.m_x,
 				p_layout->m_unk0x68.m_y,

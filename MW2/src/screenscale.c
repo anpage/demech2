@@ -222,7 +222,7 @@ RenderTarget* FUN_10056fcf(RenderTarget* p_src, RenderTarget* p_dst, void* p_sha
 	MechS32 size;
 	Point scale;
 
-	size = FUN_100657a8(p_shape, p_frame);
+	size = GetShpFrameSize(p_shape, p_frame);
 	scale.m_x = size >> 16;
 	scale.m_y = size & 0xffff;
 	scale.m_x = FixedDiv16(scale.m_x, p_src->m_right - p_src->m_left + 1);
@@ -239,7 +239,7 @@ RenderTarget* FUN_1005705e(RenderTarget* p_src, RenderTarget* p_dst, void* p_sha
 	MechS32 size;
 	Point scale;
 
-	size = FUN_10065770(p_shape);
+	size = GetGifSize(p_shape);
 	scale.m_x = size >> 16;
 	scale.m_y = size & 0xffff;
 	scale.m_x = FixedDiv16(scale.m_x, p_src->m_right - p_src->m_left + 1);
@@ -272,7 +272,7 @@ void FUN_1005718d(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font
 	MechS32 height;
 	MechS32 width;
 
-	height = FUN_10064d4d(p_font);
+	height = FontGetHeight(p_font);
 	p_x = 0;
 	p_y += height;
 	width = p_target->m_right - p_target->m_left + 1;
@@ -289,10 +289,10 @@ void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p
 	MechU32 i;
 
 	width = 0;
-	height = FUN_10064d4d(p_font);
+	height = FontGetHeight(p_font);
 	p_pos.m_y += height;
 	for (i = 0; i < strlen(p_text); i++) {
-		width += FUN_10064d60(p_font, p_text[i]);
+		width += FontGetCharWidth(p_font, p_text[i]);
 	}
 
 	BlitLine(p_target, p_pos.m_x, p_pos.m_y, p_pos.m_x + width - 1, p_pos.m_y, 0, p_color);
@@ -312,9 +312,9 @@ void FUN_10057282(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p
 	MechU32 i;
 
 	width = 0;
-	height = FUN_10064d4d(p_font);
+	height = FontGetHeight(p_font);
 	for (i = 0; i < strlen(p_text); i++) {
-		width += FUN_10064d60(p_font, p_text[i]);
+		width += FontGetCharWidth(p_font, p_text[i]);
 	}
 
 	left = p_pos.m_x;
@@ -359,7 +359,7 @@ void FUN_10057396(RenderTarget* p_target, MechChar* p_text, void* p_font)
 	FUN_10056bc1(p_target, &g_unk0x100a9450, &origin);
 	width = p_target->m_right - p_target->m_left;
 	height = p_target->m_bottom - p_target->m_top;
-	lineHeight = FUN_10064d4d(p_font);
+	lineHeight = FontGetHeight(p_font);
 
 	while (p <= end && origin.m_y < height) {
 		line = p;
@@ -369,7 +369,7 @@ void FUN_10057396(RenderTarget* p_target, MechChar* p_text, void* p_font)
 				break;
 			}
 
-			x += FUN_10064d60(p_font, *p);
+			x += FontGetCharWidth(p_font, *p);
 			if (x > width) {
 				break;
 			}
@@ -398,7 +398,7 @@ void FUN_10057396(RenderTarget* p_target, MechChar* p_text, void* p_font)
 		}
 
 		if (*line != '\0') {
-			FUN_10064f0b(p_target, origin.m_x, origin.m_y, p_font, line, g_unk0x100e9350);
+			BlitString(p_target, origin.m_x, origin.m_y, p_font, line, g_unk0x100e9350);
 		}
 
 		origin.m_y += lineHeight;
@@ -428,7 +428,7 @@ RenderTarget* FUN_100575b9(MechChar* p_text, void* p_font, RenderTarget* p_rect)
 	}
 
 	c = p_text;
-	height = lineHeight = FUN_10064d4d(p_font);
+	height = lineHeight = FontGetHeight(p_font);
 	while ((ch = *c++) != '\0') {
 		if (ch == '\n') {
 			if (lineWidth > maxWidth) {
@@ -439,7 +439,7 @@ RenderTarget* FUN_100575b9(MechChar* p_text, void* p_font, RenderTarget* p_rect)
 			height += lineHeight;
 		}
 		else {
-			lineWidth += FUN_10064d60(p_font, ch);
+			lineWidth += FontGetCharWidth(p_font, ch);
 		}
 	}
 
@@ -517,7 +517,7 @@ void FUN_100577be(RenderTarget* p_target)
 	g_unk0x100a9458++;
 	corner.m_x = p_target->m_right - g_unk0x100a9458;
 	corner.m_y = p_target->m_bottom - g_unk0x100a9458;
-	FUN_100610ef(p_target, g_unk0x100a9458, g_unk0x100a9458, corner.m_x, corner.m_y, g_unk0x100a945c);
+	FUN_10032e4b(p_target, g_unk0x100a9458, g_unk0x100a9458, corner.m_x, corner.m_y, g_unk0x100a945c);
 }
 
 // Tiles a render target with a shape frame.
@@ -541,7 +541,7 @@ void FUN_10057896(RenderTarget* p_target, void* p_shape, MechS32 p_frame)
 		return;
 	}
 
-	size = FUN_100657a8(p_shape, p_frame);
+	size = GetShpFrameSize(p_shape, p_frame);
 	tileWidth = size >> 16;
 	tileHeight = size & 0xffff;
 	columns = (p_target->m_right - p_target->m_left + tileWidth) / tileWidth;
@@ -773,7 +773,7 @@ void FUN_10057edc(RenderTarget* p_target, Rect* p_rect, MechS32 p_color)
 	clip.m_bottom = p_target->m_top + p_rect->m_bottom;
 	centerX -= p_rect->m_left;
 	centerY -= p_rect->m_top;
-	FUN_10063a96(&clip, centerX, centerY, radius, radiusY, p_color);
+	FillEllipse(&clip, centerX, centerY, radius, radiusY, p_color);
 }
 
 // Tests whether a point lies inside the ellipse inscribed in a render target.

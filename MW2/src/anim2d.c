@@ -159,7 +159,7 @@ void DrawAnim2d(RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_
 			return;
 		}
 
-		anim->m_frameCount = GetShapeFrameCount(anim->m_shape);
+		anim->m_frameCount = GetShpFrameCount(anim->m_shape);
 	}
 
 	if (anim->m_state == c_anim2dNew) {

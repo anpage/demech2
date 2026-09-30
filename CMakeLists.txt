@@ -48,9 +48,15 @@ if (MSVC_FOR_DECOMP)
   set(CMAKE_ASM_MASM_FLAGS_RELWITHDEBINFO "/Zi")
   set(CMAKE_ASM_MASM_FLAGS_MINSIZEREL "")
   set(asm_or_c asm)
+  set(mw2shell_shared common/src)
+  set(mw2_shared common/src)
 else()
   set(asm_or_c c)
+  set(mw2shell_shared MW2SHELL/src)
+  set(mw2_shared MW2/src)
 endif()
+# A unit is listed as <dir>/<name>.${asm_or_c}. Objects both DLLs share (common/src) have one .asm
+# and a stub .c per DLL, listed as ${mw2shell_shared}/<name>.${asm_or_c} or ${mw2_shared}/...
 
 option(DEMECH2_WERROR "Treat warnings as errors" OFF)
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
@@ -257,7 +263,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugprint.c
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
-    MW2SHELL/src/codeblock.${asm_or_c}
+    ${mw2shell_shared}/codeblock.${asm_or_c}
     MW2SHELL/src/archivereader.cpp
     MW2SHELL/src/polyfill.${asm_or_c}
     MW2SHELL/src/pilotroster.cpp
@@ -270,7 +276,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/gdi.c
     MW2SHELL/src/resourcefile.c
     MW2SHELL/src/input.c
-    MW2SHELL/src/blit.${asm_or_c}
+    ${mw2shell_shared}/blit.${asm_or_c}
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp
@@ -409,7 +415,7 @@ demech2_add_dll(mw2
     MW2/src/cmdline.c
     MW2/src/geocache.c
     MW2/src/unk10021460.c
-    MW2/src/codeblock.c
+    ${mw2_shared}/codeblock.${asm_or_c}
     MW2/src/unk10033280.c
     MW2/src/unk100335d0.c
     MW2/src/unk10034990.c
@@ -466,6 +472,7 @@ demech2_add_dll(mw2
     MW2/src/setres.c
     MW2/src/unk1005d6d0.c
     MW2/src/rendertarget.c
+    ${mw2_shared}/blit.${asm_or_c}
     MW2/src/unk10065f10.c
     MW2/src/unk10065f50.c
     MW2/src/camerashake.c
@@ -511,7 +518,7 @@ demech2_add_dll(mw2
     MW2/src/unk1007f140.c
     MW2/src/unk1007fbe0.c
     MW2/MW2.def
-  COMPILE_OPTIONS "/G5"
+  COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5>"
   LINK_OPTIONS ${mw2_link_options}
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )

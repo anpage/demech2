@@ -15,7 +15,7 @@ extern "C"
 	extern undefined4 g_unk0x10064cd8;
 	extern undefined4 g_unk0x10064cdc;
 	extern undefined4 g_codeBlockVars[0x43];
-	extern undefined4 g_unk0x10064dec[0x600];
+	extern MechS32 g_codeBlockClipVertices[0x600];
 	extern undefined4 g_unk0x100665ec;
 	extern undefined4 g_unk0x100665f0;
 	extern undefined4 g_unk0x100665f4;
@@ -35,16 +35,16 @@ extern "C"
 	);
 	MechS32 FixedDiv30(MechS32 p_a, MechS32 p_b);
 	MechS32 FixedReciprocal30(MechS32 p_value);
-	MechS32 FixedMul30(MechS32 p_a, MechS32 p_b);
-	void FUN_100287e0(
-		undefined4 p_unk0x00,
-		undefined4 p_unk0x04,
-		undefined4 p_unk0x08,
-		undefined4 p_unk0x0c,
-		undefined4 p_unk0x10,
-		undefined4 p_unk0x14,
+	MechS32 CodeBlockFixedMul30(MechS32 p_a, MechS32 p_b);
+	void CallCodeBlockRoutineClipped(
+		PixelView* p_view,
+		MechU32* p_vertices,
+		MechS32 p_count,
+		MechS32 p_index,
 		undefined4 p_unk0x18,
-		undefined4 p_unk0x1c
+		void* p_texture,
+		MechU16* p_luma,
+		undefined4 p_unk0x24
 	);
 
 #ifdef __cplusplus
@@ -76,10 +76,10 @@ extern "C"
 // FixedReciprocal30
 
 // FUNCTION: MW2SHELL 0x100287c4
-// FixedMul30
+// CodeBlockFixedMul30
 
 // FUNCTION: MW2SHELL 0x100287e0
-// FUN_100287e0
+// CallCodeBlockRoutineClipped
 
 // GLOBAL: MW2SHELL 0x10064cd8
 // g_unk0x10064cd8
@@ -91,7 +91,7 @@ extern "C"
 // g_codeBlockVars
 
 // GLOBAL: MW2SHELL 0x10064dec
-// g_unk0x10064dec
+// g_codeBlockClipVertices
 
 // GLOBAL: MW2SHELL 0x100665ec
 // g_unk0x100665ec

@@ -15,7 +15,7 @@ undefined4 g_unk0x10064cdc = 0;
 
 undefined4 g_codeBlockVars[0x43] = {0};
 
-undefined4 g_unk0x10064dec[0x600] = {0};
+MechS32 g_codeBlockClipVertices[0x600] = {0};
 
 undefined4 g_unk0x100665ec = 0;
 
@@ -65,21 +65,21 @@ MechS32 FixedReciprocal30(MechS32 p_value)
 	return 0;
 }
 
-MechS32 FixedMul30(MechS32 p_a, MechS32 p_b)
+MechS32 CodeBlockFixedMul30(MechS32 p_a, MechS32 p_b)
 {
 	STUB(0x100287c4);
 	return 0;
 }
 
-void FUN_100287e0(
-	undefined4 p_unk0x00,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10,
-	undefined4 p_unk0x14,
+void CallCodeBlockRoutineClipped(
+	PixelView* p_view,
+	MechU32* p_vertices,
+	MechS32 p_count,
+	MechS32 p_index,
 	undefined4 p_unk0x18,
-	undefined4 p_unk0x1c
+	void* p_texture,
+	MechU16* p_luma,
+	undefined4 p_unk0x24
 )
 {
 	STUB(0x100287e0);

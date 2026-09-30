@@ -1,15 +1,17 @@
-; Hand-written assembly: a MASM object assembled with MASM 6.11 (ML), starting at 0x10017a7c right
-; after debugout.c: a 0x2000-byte routine table, a large block of code that patches its own
-; operands at run time (CodeBlock, 0x10019a7c through 0x100286a5), and the routines after it.
-; ML aligns its .text to 4, as the original's start shows.
+; Hand-written assembly: a MASM object assembled with MASM 6.11 (ML), linked into both DLLs:
+; MW2SHELL's starts at 0x10017a7c, right after debugout.c, MW2's at 0x10021cf4, and the two are
+; byte for byte the same. It holds a 0x2000-byte routine table, a large block of code that patches
+; its own operands at run time (CodeBlock; MW2SHELL 0x10019a7c-0x100286a5) and the routines after
+; it. ML aligns its .text to 4, as both starts show.
 ;
-; The object is believed to be dead: the original's relocation table holds no absolute reference
-; into 0x10017a7c-0x1002900f from outside it (no function pointer or `offset` operand names any of
-; it), Ghidra finds no call or jump into the block or to the routines here from any other
+; MW2 draws textured polygons through CallCodeBlockRoutineClipped (FUN_1006dd50). In MW2SHELL the
+; object is believed to be dead: the original's relocation table holds no absolute reference into
+; 0x10017a7c-0x1002900f from outside it, Ghidra finds no call or jump into it from any other
 ; function, and .text is read-only with no VirtualProtect import, so the block could not patch
-; itself in a Win32 process anyway. It reads as a DOS-era renderer left in the link.
+; itself in a Win32 process anyway.
 ;
-; Annotated by name in codeblock.h; COMPAT_MODE builds take codeblock.c's stubs.
+; Annotated by name in each DLL's codeblock.h; COMPAT_MODE builds take each DLL's codeblock.c
+; stubs. Names follow the MW2SHELL addresses where they are placeholders.
 
 	.386
 	.model flat, c
@@ -38,12 +40,17 @@ m_data dd 43h dup (0)
 g_codeBlockVars_t ends
 g_codeBlockVars g_codeBlockVars_t <>
 
-	public g_unk0x10064dec
-g_unk0x10064dec_t struct
+; CallCodeBlockRoutineClipped's clipped polygon: up to 0x100 vertices of six dwords. The clip
+; passes alternate between it and the caller's vertex list.
+	public g_codeBlockClipVertices
+g_codeBlockClipVertices_t struct
 m_data dd 600h dup (0)
-g_unk0x10064dec_t ends
-g_unk0x10064dec g_unk0x10064dec_t <>
+g_codeBlockClipVertices_t ends
+g_codeBlockClipVertices g_codeBlockClipVertices_t <>
 
+; Flags CallCodeBlockRoutineClipped derives from the routine index before clipping, read by its
+; edge intersections: 0x400 set; both 0x400 and 0x200 set; a mode among 0x40, 0xc0 and 0x100 in
+; bits 6-8, or 4 or 7 in bits 0-2.
 	public g_unk0x100665ec
 g_unk0x100665ec dd 0
 
@@ -110,7 +117,7 @@ g_codeBlockRoutines_t ends
 g_codeBlockRoutines g_codeBlockRoutines_t <>
 
 ; The self-modifying code block, entered through g_codeBlockRoutines (CallCodeBlockRoutine and
-; FUN_100287e0). Its routines haven't been told apart, so it is one procedure.
+; CallCodeBlockRoutineClipped). Its routines haven't been told apart, so it is one procedure.
 CodeBlock proc
 	push ebp
 	mov ebx, dword ptr [g_codeBlockVars+100h]
@@ -16458,8 +16465,8 @@ jmp_100287be:
 	align 4
 FixedReciprocal30 endp
 
-; Multiplies two 2.30 fixed-point values, rounded.
-FixedMul30 proc p_a:dword, p_b:dword
+; Multiplies two 2.30 fixed-point values, rounded. fixedmul30.c's FixedMul30 has the name in MW2.
+CodeBlockFixedMul30 proc p_a:dword, p_b:dword
 	mov eax, dword ptr p_a
 	imul dword ptr p_b
 	add eax, 20000000h
@@ -16468,11 +16475,13 @@ FixedMul30 proc p_a:dword, p_b:dword
 	mov eax, edx
 	ret
 	align 4
-FixedMul30 endp
+CodeBlockFixedMul30 endp
 
-; Sets up the code block's working variables from its arguments (a view, a vertex list and more)
-; and calls a routine of g_codeBlockRoutines, like CallCodeBlockRoutine. What it draws isn't known.
-FUN_100287e0 proc p_unk0x00:dword, p_unk0x04:dword, p_unk0x08:dword, p_unk0x0c:dword, p_unk0x10:dword, p_unk0x14:dword, p_unk0x18:dword, p_unk0x1c:dword
+; CallCodeBlockRoutine for a polygon that may cross the target's edges: clips the list of
+; p_count six-dword vertices against each edge of the target's rectangle it crosses (the passes
+; alternate between p_vertices and g_codeBlockClipVertices), then calls the table's routine
+; p_index on what is left, if it has at least three vertices.
+CallCodeBlockRoutineClipped proc p_view:dword, p_vertices:dword, p_count:dword, p_index:dword, p_unk0x18:dword, p_texture:dword, p_luma:dword, p_unk0x24:dword
 	local l_unk0x04:dword, l_unk0x08:dword, l_unk0x0c:dword, l_unk0x10:dword, l_unk0x14:dword, l_unk0x18:dword
 	local l_unk0x1c:dword, l_unk0x20:dword
 	push es
@@ -16483,8 +16492,8 @@ FUN_100287e0 proc p_unk0x00:dword, p_unk0x04:dword, p_unk0x08:dword, p_unk0x0c:d
 	pop es
 	cld
 	mov dword ptr l_unk0x1c, 0
-	mov esi, dword ptr p_unk0x04
-	mov edi, dword ptr p_unk0x00
+	mov esi, dword ptr p_vertices
+	mov edi, dword ptr p_view
 	mov eax, dword ptr [edi+0ch]
 	mov ebx, dword ptr [edi+4]
 	mov ecx, dword ptr [edi+10h]
@@ -16499,7 +16508,7 @@ FUN_100287e0 proc p_unk0x00:dword, p_unk0x04:dword, p_unk0x08:dword, p_unk0x0c:d
 	mov dword ptr [g_codeBlockVars+8], eax
 	mov eax, dword ptr [edi]
 	mov dword ptr [g_codeBlockVars+10h], eax
-	mov ecx, dword ptr p_unk0x08
+	mov ecx, dword ptr p_count
 jmp_10028827:
 	mov edx, 0
 	mov eax, dword ptr l_unk0x04
@@ -16519,25 +16528,25 @@ jmp_10028827:
 	or dword ptr l_unk0x1c, edx
 	add esi, 18h
 	loop jmp_10028827
-	mov ebx, dword ptr p_unk0x04
-	mov eax, dword ptr p_unk0x08
+	mov ebx, dword ptr p_vertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, offset g_unk0x10064dec
+	mov edi, offset g_codeBlockClipVertices
 	mov dword ptr l_unk0x18, 0
 	cmp dword ptr l_unk0x1c, 0
 	je jmp_10028fb0
 	mov dword ptr l_unk0x18, 0
 	mov dword ptr l_unk0x20, 0
-	mov eax, dword ptr p_unk0x0c
+	mov eax, dword ptr p_index
 	and eax, 400h
 	mov dword ptr [g_unk0x100665ec], eax
 	mov ecx, 0
-	mov eax, dword ptr p_unk0x0c
+	mov eax, dword ptr p_index
 	and eax, 600h
 	cmp eax, 600h
 	jne jmp_100288ba
@@ -16545,7 +16554,7 @@ jmp_10028827:
 jmp_100288ba:
 	mov dword ptr [g_unk0x100665f0], ecx
 	mov ecx, 1
-	mov eax, dword ptr p_unk0x0c
+	mov eax, dword ptr p_index
 	and eax, 1c0h
 	cmp eax, 40h
 	je jmp_100288f5
@@ -16553,7 +16562,7 @@ jmp_100288ba:
 	je jmp_100288f5
 	cmp eax, 100h
 	je jmp_100288f5
-	mov eax, dword ptr p_unk0x0c
+	mov eax, dword ptr p_index
 	and eax, 7
 	cmp eax, 4
 	je jmp_100288f5
@@ -16565,7 +16574,7 @@ jmp_100288f5:
 	mov eax, dword ptr l_unk0x1c
 	and eax, 8
 	je jmp_10028a8b
-	mov ecx, dword ptr p_unk0x08
+	mov ecx, dword ptr p_count
 jmp_1002890a:
 	mov eax, dword ptr [esi]
 	mov edx, dword ptr [ebx]
@@ -16699,24 +16708,24 @@ jmp_10028a4e:
 	jne jmp_1002890a
 	inc dword ptr l_unk0x20
 	mov eax, dword ptr l_unk0x18
-	mov dword ptr p_unk0x08, eax
+	mov dword ptr p_count, eax
 	cmp eax, 0
 	je jmp_10028fb0
-	mov ebx, offset g_unk0x10064dec
-	mov eax, dword ptr p_unk0x08
+	mov ebx, offset g_codeBlockClipVertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, dword ptr p_unk0x04
+	mov edi, dword ptr p_vertices
 	mov dword ptr l_unk0x18, 0
 jmp_10028a8b:
 	mov eax, dword ptr l_unk0x1c
 	and eax, 1
 	je jmp_10028c43
-	mov ecx, dword ptr p_unk0x08
+	mov ecx, dword ptr p_count
 jmp_10028a9a:
 	mov eax, dword ptr [esi+4]
 	mov edx, dword ptr [ebx+4]
@@ -16849,40 +16858,40 @@ jmp_10028bdd:
 	dec ecx
 	jne jmp_10028a9a
 	mov eax, dword ptr l_unk0x18
-	mov dword ptr p_unk0x08, eax
+	mov dword ptr p_count, eax
 	cmp eax, 0
 	je jmp_10028fb0
 	inc dword ptr l_unk0x20
 	mov eax, dword ptr l_unk0x20
 	and eax, 1
 	je jmp_10028c24
-	mov ebx, offset g_unk0x10064dec
-	mov eax, dword ptr p_unk0x08
+	mov ebx, offset g_codeBlockClipVertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, dword ptr p_unk0x04
+	mov edi, dword ptr p_vertices
 	mov dword ptr l_unk0x18, 0
 	jmp jmp_10028c43
 jmp_10028c24:
-	mov ebx, dword ptr p_unk0x04
-	mov eax, dword ptr p_unk0x08
+	mov ebx, dword ptr p_vertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, offset g_unk0x10064dec
+	mov edi, offset g_codeBlockClipVertices
 	mov dword ptr l_unk0x18, 0
 jmp_10028c43:
 	mov eax, dword ptr l_unk0x1c
 	and eax, 4
 	je jmp_10028dfc
-	mov ecx, dword ptr p_unk0x08
+	mov ecx, dword ptr p_count
 jmp_10028c52:
 	mov eax, dword ptr [esi]
 	mov edx, dword ptr [ebx]
@@ -17015,40 +17024,40 @@ jmp_10028d96:
 	dec ecx
 	jne jmp_10028c52
 	mov eax, dword ptr l_unk0x18
-	mov dword ptr p_unk0x08, eax
+	mov dword ptr p_count, eax
 	cmp eax, 0
 	je jmp_10028fb0
 	inc dword ptr l_unk0x20
 	mov eax, dword ptr l_unk0x20
 	and eax, 1
 	je jmp_10028ddd
-	mov ebx, offset g_unk0x10064dec
-	mov eax, dword ptr p_unk0x08
+	mov ebx, offset g_codeBlockClipVertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, dword ptr p_unk0x04
+	mov edi, dword ptr p_vertices
 	mov dword ptr l_unk0x18, 0
 	jmp jmp_10028dfc
 jmp_10028ddd:
-	mov ebx, dword ptr p_unk0x04
-	mov eax, dword ptr p_unk0x08
+	mov ebx, dword ptr p_vertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, offset g_unk0x10064dec
+	mov edi, offset g_codeBlockClipVertices
 	mov dword ptr l_unk0x18, 0
 jmp_10028dfc:
 	mov eax, dword ptr l_unk0x1c
 	and eax, 2
 	je jmp_10028fb0
-	mov ecx, dword ptr p_unk0x08
+	mov ecx, dword ptr p_count
 jmp_10028e0b:
 	mov eax, dword ptr [esi+4]
 	mov edx, dword ptr [ebx+4]
@@ -17181,37 +17190,37 @@ jmp_10028f4e:
 	dec ecx
 	jne jmp_10028e0b
 	mov eax, dword ptr l_unk0x18
-	mov dword ptr p_unk0x08, eax
+	mov dword ptr p_count, eax
 	cmp eax, 0
 	je jmp_10028fb0
 	inc dword ptr l_unk0x20
 	mov eax, dword ptr l_unk0x20
 	and eax, 1
 	je jmp_10028f91
-	mov ebx, offset g_unk0x10064dec
-	mov eax, dword ptr p_unk0x08
+	mov ebx, offset g_codeBlockClipVertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, dword ptr p_unk0x04
+	mov edi, dword ptr p_vertices
 	mov dword ptr l_unk0x18, 0
 	jmp jmp_10028fb0
 jmp_10028f91:
-	mov ebx, dword ptr p_unk0x04
-	mov eax, dword ptr p_unk0x08
+	mov ebx, dword ptr p_vertices
+	mov eax, dword ptr p_count
 	dec eax
 	mov esi, eax
 	shl eax, 4
 	shl esi, 3
 	add esi, eax
 	add esi, ebx
-	mov edi, offset g_unk0x10064dec
+	mov edi, offset g_codeBlockClipVertices
 	mov dword ptr l_unk0x18, 0
 jmp_10028fb0:
-	mov eax, dword ptr p_unk0x08
+	mov eax, dword ptr p_count
 	cmp eax, 3
 	jl jmp_10028fff
 	shl eax, 3
@@ -17221,15 +17230,15 @@ jmp_10028fb0:
 	add eax, ebx
 	mov dword ptr [g_codeBlockVars+14h], ebx
 	mov dword ptr [g_codeBlockVars+18h], eax
-	mov eax, dword ptr p_unk0x14
+	mov eax, dword ptr p_texture
 	mov dword ptr [g_codeBlockVars+100h], eax
-	mov eax, dword ptr p_unk0x18
+	mov eax, dword ptr p_luma
 	mov dword ptr [g_codeBlockVars+104h], eax
-	mov eax, dword ptr p_unk0x1c
+	mov eax, dword ptr p_unk0x24
 	mov dword ptr [g_codeBlockVars+108h], eax
-	mov eax, dword ptr p_unk0x10
+	mov eax, dword ptr p_unk0x18
 	mov dword ptr [g_codeBlockVars+98h], eax
-	mov ebx, dword ptr p_unk0x0c
+	mov ebx, dword ptr p_index
 	mov eax, dword ptr [g_codeBlockRoutines+ebx*4]
 	cmp eax, 0
 	je jmp_10028fff
@@ -17240,6 +17249,6 @@ jmp_10028fff:
 	pop esi
 	pop es
 	ret
-FUN_100287e0 endp
+CallCodeBlockRoutineClipped endp
 
 	end

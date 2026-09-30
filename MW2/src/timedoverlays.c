@@ -83,7 +83,7 @@ void FUN_1006ee60(void)
 		font = FUN_1001a19f(g_unk0x100a8740, overlay->m_font + g_unk0x100e9614, g_unk0x100a8684, 0);
 		if (font != NULL) {
 			height = target->m_bottom - target->m_top + 1;
-			fontHeight = FUN_10064d4d(font);
+			fontHeight = FontGetHeight(font);
 			overlay->m_textPos.m_y = (height - fontHeight) / 2;
 		}
 	}
@@ -171,7 +171,7 @@ void DrawTimedOverlays(void)
 						FUN_1001a19f(g_unk0x100a8740, overlay->m_background + g_unk0x100e9614, g_unk0x100a8680, 0);
 					if (background != NULL) {
 						BlitShpFrame(overlay->m_target, background, 0, 0, 0);
-						FUN_10064f0b(
+						BlitString(
 							overlay->m_target,
 							overlay->m_textPos.m_x,
 							overlay->m_textPos.m_y,
