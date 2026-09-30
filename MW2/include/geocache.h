@@ -11,6 +11,7 @@
 struct GameThing;
 
 struct AmberWillow0x7c;
+struct BwdBlockRecord;
 
 // An entry of the class table: an ID and its class.
 // SIZE 0x08

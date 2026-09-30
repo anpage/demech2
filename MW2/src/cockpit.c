@@ -358,7 +358,7 @@ void FUN_1003e06c(void)
 	FUN_10041fa0(pose, slot, range, farPlane);
 	if (g_cockpitLayoutIndex == 4) {
 		g_unk0x100a6cc8.m_unk0x58 = FUN_1003f00d;
-		g_unk0x100a6cc8.m_unk0x60 = FUN_1003f0e7;
+		g_unk0x100a6cc8.m_unk0x60 = (MechS32 (*)()) FUN_1003f0e7;
 		g_unk0x100a6cc8.m_drawPolygon = FUN_1003f393;
 		zoom = FUN_10011440();
 		FUN_10011401(6);
