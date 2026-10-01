@@ -150,7 +150,7 @@ MechU32 FindEventList(MechChar* p_name)
 // The objective's address scales i and j in the opposite order (index order), and stack-slot
 // permutation: count, i, j and state.
 // FUNCTION: MW2 0x1004e4e6
-void PostEventToList(MechChar* p_name, MechS32 p_types, MechU32 p_target)
+void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 {
 	MechS32 count;
 	MechS32 j;

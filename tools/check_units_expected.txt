@@ -4,11 +4,11 @@
 # The check fails on a finding not listed here, and on a listed one that no longer occurs.
 
 MW2SHELL complete
+MW2 complete
 
 # MW2 globals parked in simmain.c until the units that define them are decompiled.
 MW2 order 0x100a0258  # g_weaponDefs and g_effectInfo, the tables of an object that isn't decompiled yet
 MW2 order 0x100a23ec  # the parked run after network.c's data, up to render.c's
-MW2 order 0x100a2be4
 MW2 order 0x100a554c
 MW2 order 0x100a59e0
 MW2 order 0x100a5ed0  # the parked run after unk10040020.c's data, before keyboard.c's

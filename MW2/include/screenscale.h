@@ -28,7 +28,7 @@ extern "C"
 	RenderTarget* FUN_10056fcf(RenderTarget* p_src, RenderTarget* p_dst, void* p_shape, MechS32 p_frame);
 	RenderTarget* FUN_1005705e(RenderTarget* p_src, RenderTarget* p_dst, void* p_shape);
 	void FUN_100570e9(RenderTarget* p_target, MechS32 p_color);
-	void FUN_1005718d(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_color);
+	void FUN_1005718d(RenderTarget* p_target, Point p_pos, void* p_font, MechS32 p_color);
 	void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color);
 	void FUN_10057282(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color);
 	void FUN_10057396(RenderTarget* p_target, MechChar* p_text, void* p_font);

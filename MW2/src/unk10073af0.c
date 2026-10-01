@@ -7,7 +7,10 @@
 #include "displaybackend.h"
 #include "gamekeys.h"
 #include "menu.h"
+#include "menucontrol.h"
+#include "menucontrols.h"
 #include "menupage.h"
+#include "menutextbox.h"
 #include "mss.h"
 #include "palette.h"
 #include "palettecolor.h"
@@ -25,6 +28,479 @@
 
 #include <stdio.h>
 #include <windows.h>
+
+// GLOBAL: MW2 0x100ae760
+MechChar g_unk0x100ae760[] = "MW2 Programmer Dorcs Page";
+
+// GLOBAL: MW2 0x100ae780
+MechChar g_unk0x100ae780[] = "About Dorcs";
+
+// GLOBAL: MW2 0x100ae790
+MechChar g_unk0x100ae790[] = "John A. Clarke";
+
+// GLOBAL: MW2 0x100ae7a0
+MechChar g_unk0x100ae7a0[] = "Michael H. Douglas";
+
+// GLOBAL: MW2 0x100ae7b8
+MechChar g_unk0x100ae7b8[] = "Scott T. Etherton";
+
+// GLOBAL: MW2 0x100ae7d0
+MechChar g_unk0x100ae7d0[] = "Sverre H. Huseby";
+
+// GLOBAL: MW2 0x100ae7e8
+MechChar g_unk0x100ae7e8[] = "Dan Kamins";
+
+// GLOBAL: MW2 0x100ae7f8
+MechChar g_unk0x100ae7f8[] = "John Keating";
+
+// GLOBAL: MW2 0x100ae808
+MechChar g_unk0x100ae808[] = "John Miles";
+
+// GLOBAL: MW2 0x100ae818
+MechChar g_unk0x100ae818[] = "Tim Morten";
+
+// GLOBAL: MW2 0x100ae828
+MechChar g_unk0x100ae828[] = "Bob Mortensen";
+
+// GLOBAL: MW2 0x100ae838
+MechChar g_unk0x100ae838[] = "Eric Peterson";
+
+// GLOBAL: MW2 0x100ae848
+MechChar g_unk0x100ae848[] = "Dan Stanfill";
+
+// GLOBAL: MW2 0x100ae858
+MechChar g_unk0x100ae858[] = "David White";
+
+// GLOBAL: MW2 0x100ae868
+MechChar g_unk0x100ae868[] = "Dave Zobel";
+
+// GLOBAL: MW2 0x100ae878
+MechChar g_unk0x100ae878[] =
+	"Hi MW2 Fans,\n"
+	"\n"
+	"Welcome to the MW2 Sim Programmer Dorcs Web page.  We hope you'll spend a few minutes here to learn a bit about "
+	"us.  Basically, we are just a bunch of guys who love to code. We get positively giddi watching the source files "
+	"stream in after a well timed dorcs co.  We spend hours debating age old questions such as \"Which came first wasm "
+	"or unwasm?\", \"Why do our game designers insist on using DOS Edit?\" and \"What does booyow mean?\".  Uh oh, "
+	"here comes the \"ALL CLEAR FOR DORCS!\" signal.  We better get back to coding.\n"
+	"\n"
+	"So long for now, \n"
+	"\n"
+	"MW2 Programmers";
+
+// GLOBAL: MW2 0x100aeab8
+MechChar g_unk0x100aeab8[] =
+	"Hi MW2 fans,\n"
+	"\n"
+	"I can't believe it finally over.  My tour of duty has been 18 months long.  I am looking forward to spending lots "
+	"of time with my wife Carol Codekas and our son John Taylor.  Taylor became the official MechBaby when he was born "
+	"seven months ago.  The delivery went smoothly except that in all the excitement I dropped my laptop and lost a "
+	"few days worth of source code.\n"
+	"\n"
+	"Thanks to Bill, Dr. Bob and HP for keeping me sane and sober. Thanks Carol for your patience and Grandma Clarke "
+	"and Codekas for babysitting Taylor. Hi John Clarke Sr! I have one last announcement for old time's sake.\n"
+	"\n"
+	"ATTENTION ALL PROGRAMMERS! ALL CLEAR FOR DORCS CO! GET GIDDI TOO!";
+
+// GLOBAL: MW2 0x100aed58
+MechChar g_unk0x100aed58[] =
+	"    If I had known six months ago how crazy working on MWII was going to be, I'm not sure I would have done it. "
+	"But, after countless late nights and thousands of ornery bugs, we've finally got a killer game.\n"
+	"    I'd like to thank John Spinale and Josh Resnick for bringing me on. They've put together the best development "
+	"team anywhere, and I'm glad to have the opportunity to work with them.\n"
+	"    Most of all, I'd like to thank my wife Rosaline for her infinite patience. Not everyone would understand "
+	"postponing a honeymoon for a game.\n"
+	"\n"
+	"-- Michael H. Douglas     DEI/FEIF\n"
+	"    mdouglas@activision.com\n"
+	"\n"
+	"P.S. - No, I'm not THAT Michael Douglas.";
+
+// GLOBAL: MW2 0x100aefe0
+MechChar g_unk0x100aefe0[] = "I just love to code.  That's all there is to it.";
+
+// GLOBAL: MW2 0x100af018
+MechChar g_unk0x100af018[] =
+	"We don't know much about this guy except that he lives in Norway and probably has a thick Norwegian accent.  He "
+	"wrote some handy freeware called GifSave and was kind enough to post it on the net.  You can thank him personally "
+	"at sverrehu@ifi.uio.no for the cool high res screen shots.\n";
+
+// GLOBAL: MW2 0x100af138
+MechChar g_unk0x100af138[] =
+	"  Thanks to all!\n"
+	"  I'd take better advantage of my DORCSOpportunity (TM) here, except for the fact that I have 34 bugs to fix.\n"
+	"  By the way, I wrote the NetDemo network shell.\n"
+	"  If you liked it, I'd love to hear from you.\n"
+	"--\n"
+	"dkamins@husc.harvard.edu\n";
+
+// GLOBAL: MW2 0x100af238
+MechChar g_unk0x100af238[] =
+	"John drew on his experience defending his turf and scrapping in the gutters as a kid in San Antonio's roughest "
+	"neighborhood, \"Alamo Heights\", to create the battle AI for MechWarrior.  A Mac guy living in a hostile PC "
+	"world, he is naturally short tempered and combative.  For the part of drill instructor John was influenced "
+	"heavily by his big sister, Paula, as well as huge doses of MSG.  He welcomes your criticisms, offers of sympathy, "
+	"or any reply from those lacking a \"Y\" chromosome at Marshall1@aol.com.";
+
+// GLOBAL: MW2 0x100af438
+MechChar g_unk0x100af438[] =
+	"This guy wrote all the graphics and sound packages (along with John Lemberger) We could dorcs co his API with "
+	"confidence because we knew we were getting high quality, efficient and reliable code.  Once we converted to the "
+	"world of PANES, high res was easy.  The DLL loader just made us giddi.  We even used it for these menus.\n"
+	"\n"
+	"Thanks to to John for all the support.";
+
+// GLOBAL: MW2 0x100af5a8
+MechChar g_unk0x100af5a8[] =
+	"Tim's Liner Notes\n"
+	"\n"
+	"Is it done?  Can I leave my cube?  Where is everybody?\n"
+	"\n"
+	"I'm grateful for the friendship of all the people I've worked with on this project, from start to finish.  This "
+	"project was a labor of love (and at times, war) for everyone who worked on it.\n"
+	"\n"
+	"Do you like camping?\n"
+	"\n"
+	"Tim Morten";
+
+// GLOBAL: MW2 0x100af6d8
+MechChar g_unk0x100af6d8[] =
+	"I'm so HONORED!  Only three months on the project and I'm an official DORCS.\n"
+	"\n"
+	"Of course I'll have to thank my wife and kids, that is if I can ever remember their names....  Hmmmm, oh yeah.... "
+	"Thanks Debra (8) and Timmy (4).  But mostly thanks to Helen (], with out your support and help I never would have "
+	"been able to contribute as much as I have to this ROCKING GAME!\n"
+	"\n"
+	"Later,\n"
+	"BobM";
+
+// GLOBAL: MW2 0x100af858
+MechChar g_unk0x100af858[] =
+	"Eric no longer works here but he is really the grand-pappy of the Sim engine.  The original concept was his and "
+	"he single-handedly wrote the first real mode version (including all tools and much of the art).  Without Eric's "
+	"dedication to Warthink, we would'nt have a snowball's chance in heck of completing this game.\n"
+	"\n"
+	"By the way, if anyone sees Eric, would they mind asking him what \"booyow\" means?";
+
+// GLOBAL: MW2 0x100af9e8
+MechChar g_unk0x100af9e8[] =
+	"We made it!\n"
+	"\n"
+	"I want to thank John Spinale, Josh Resnick, and Howard Marks for putting together such a stellar team for this "
+	"project.\n"
+	"\n"
+	"But more than anything I want to thank my wife Kyung Ah and son D.J. for supporting me during the past seven "
+	"months and for tolerating my constant absence while we built the coolest game ever!";
+
+// GLOBAL: MW2 0x100afb30
+MechChar g_unk0x100afb30[] = "I just love to code.  That's all there is to it.";
+
+// GLOBAL: MW2 0x100afb68
+MechChar g_unk0x100afb68[] = "Dave Zobel was last seen plunging into the darkness beyond the Wall of Testosterone.";
+
+// GLOBAL: MW2 0x100afbc0
+MechChar g_unk0x100afbc0[] = "This is boring!";
+
+// GLOBAL: MW2 0x100afbd0
+RenderTarget g_unk0x100afbd0 = {NULL, 0, 0x2666, 0x10000, 0x10000};
+
+// GLOBAL: MW2 0x100afbe8
+MenuTextBox g_unk0x100afbe8 = {&g_unk0x100afbd0, g_unk0x100ae878};
+
+// GLOBAL: MW2 0x100afbf0
+MenuTextBox g_unk0x100afbf0 = {&g_unk0x100afbd0, g_unk0x100aeab8};
+
+// GLOBAL: MW2 0x100afbf8
+MenuTextBox g_unk0x100afbf8 = {&g_unk0x100afbd0, g_unk0x100aed58};
+
+// GLOBAL: MW2 0x100afc00
+MenuTextBox g_unk0x100afc00 = {&g_unk0x100afbd0, g_unk0x100aefe0};
+
+// GLOBAL: MW2 0x100afc08
+MenuTextBox g_unk0x100afc08 = {&g_unk0x100afbd0, g_unk0x100af018};
+
+// GLOBAL: MW2 0x100afc10
+MenuTextBox g_unk0x100afc10 = {&g_unk0x100afbd0, g_unk0x100af138};
+
+// GLOBAL: MW2 0x100afc18
+MenuTextBox g_unk0x100afc18 = {&g_unk0x100afbd0, g_unk0x100af238};
+
+// GLOBAL: MW2 0x100afc20
+MenuTextBox g_unk0x100afc20 = {&g_unk0x100afbd0, g_unk0x100af438};
+
+// GLOBAL: MW2 0x100afc28
+MenuTextBox g_unk0x100afc28 = {&g_unk0x100afbd0, g_unk0x100af5a8};
+
+// GLOBAL: MW2 0x100afc30
+MenuTextBox g_unk0x100afc30 = {&g_unk0x100afbd0, g_unk0x100af6d8};
+
+// GLOBAL: MW2 0x100afc38
+MenuTextBox g_unk0x100afc38 = {&g_unk0x100afbd0, g_unk0x100af858};
+
+// GLOBAL: MW2 0x100afc40
+MenuTextBox g_unk0x100afc40 = {&g_unk0x100afbd0, g_unk0x100af9e8};
+
+// GLOBAL: MW2 0x100afc48
+MenuTextBox g_unk0x100afc48 = {&g_unk0x100afbd0, g_unk0x100afb30};
+
+// GLOBAL: MW2 0x100afc50
+MenuTextBox g_unk0x100afc50 = {&g_unk0x100afbd0, g_unk0x100afb68};
+
+// GLOBAL: MW2 0x100afc58
+MenuControl g_unk0x100afc58 = {2, 0, &g_unk0x100afbe8, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afc80
+MenuControl g_unk0x100afc80 = {2, 0, &g_unk0x100afbf0, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afca8
+MenuControl g_unk0x100afca8 = {2, 0, &g_unk0x100afbf8, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afcd0
+MenuControl g_unk0x100afcd0 = {2, 0, &g_unk0x100afc00, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afcf8
+MenuControl g_unk0x100afcf8 = {2, 0, &g_unk0x100afc08, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afd20
+MenuControl g_unk0x100afd20 = {2, 0, &g_unk0x100afc10, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afd48
+MenuControl g_unk0x100afd48 = {2, 0, &g_unk0x100afc18, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afd70
+MenuControl g_unk0x100afd70 = {2, 0, &g_unk0x100afc20, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afd98
+MenuControl g_unk0x100afd98 = {2, 0, &g_unk0x100afc28, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afdc0
+MenuControl g_unk0x100afdc0 = {2, 0, &g_unk0x100afc30, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afde8
+MenuControl g_unk0x100afde8 = {2, 0, &g_unk0x100afc38, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afe10
+MenuControl g_unk0x100afe10 = {2, 0, &g_unk0x100afc40, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afe38
+MenuControl g_unk0x100afe38 = {2, 0, &g_unk0x100afc48, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afe60
+MenuControl g_unk0x100afe60 = {2, 0, &g_unk0x100afc50, 0, NULL, NULL, NULL, NULL, NULL};
+
+// GLOBAL: MW2 0x100afe88
+MenuPage g_unk0x100afe88 = {
+	0,
+	g_unk0x100ae780,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afc58, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100affe0
+MenuPage g_unk0x100affe0 = {
+	0,
+	g_unk0x100ae790,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afc80, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0138
+MenuPage g_unk0x100b0138 = {
+	0,
+	g_unk0x100ae7a0,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afca8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0290
+MenuPage g_unk0x100b0290 = {
+	0,
+	g_unk0x100ae7b8,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afcd0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b03e8
+MenuPage g_unk0x100b03e8 = {
+	0,
+	g_unk0x100ae7d0,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afcf8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0540
+MenuPage g_unk0x100b0540 = {
+	0,
+	g_unk0x100ae7e8,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afd20, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0698
+MenuPage g_unk0x100b0698 = {
+	0,
+	g_unk0x100ae7f8,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afd48, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b07f0
+MenuPage g_unk0x100b07f0 = {
+	0,
+	g_unk0x100ae808,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afd70, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0948
+MenuPage g_unk0x100b0948 = {
+	0,
+	g_unk0x100ae818,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afd98, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0aa0
+MenuPage g_unk0x100b0aa0 = {
+	0,
+	g_unk0x100ae828,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afdc0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0bf8
+MenuPage g_unk0x100b0bf8 = {
+	0,
+	g_unk0x100ae838,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afde8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0d50
+MenuPage g_unk0x100b0d50 = {
+	0,
+	g_unk0x100ae848,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afe10, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b0ea8
+MenuPage g_unk0x100b0ea8 = {
+	0,
+	g_unk0x100ae858,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afe38, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b1000
+MenuPage g_unk0x100b1000 = {
+	0,
+	g_unk0x100ae868,
+	0,
+	2,
+	0,
+	NULL,
+	{{3, NULL, FUN_100734ad, &g_unk0x100afe60, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b1158
+MenuPage g_dorcsPage = {
+	0,
+	g_unk0x100ae760,
+	0,
+	15,
+	0,
+	NULL,
+	{{0, g_unk0x100ae780, NULL, NULL, &g_unk0x100afe88},
+	 {0, g_unk0x100ae790, NULL, NULL, &g_unk0x100affe0},
+	 {0, g_unk0x100ae7a0, NULL, NULL, &g_unk0x100b0138},
+	 {0, g_unk0x100ae7b8, NULL, NULL, &g_unk0x100b0290},
+	 {0, g_unk0x100ae7d0, NULL, NULL, &g_unk0x100b03e8},
+	 {0, g_unk0x100ae7e8, NULL, NULL, &g_unk0x100b0540},
+	 {0, g_unk0x100ae7f8, NULL, NULL, &g_unk0x100b0698},
+	 {0, g_unk0x100ae808, NULL, NULL, &g_unk0x100b07f0},
+	 {0, g_unk0x100ae818, NULL, NULL, &g_unk0x100b0948},
+	 {0, g_unk0x100ae828, NULL, NULL, &g_unk0x100b0aa0},
+	 {0, g_unk0x100ae838, NULL, NULL, &g_unk0x100b0bf8},
+	 {0, g_unk0x100ae848, NULL, NULL, &g_unk0x100b0d50},
+	 {0, g_unk0x100ae858, NULL, NULL, &g_unk0x100b0ea8},
+	 {0, g_unk0x100ae868, NULL, NULL, &g_unk0x100b1000},
+	 {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+};
+
+// GLOBAL: MW2 0x100b12b0
+RenderTarget g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
+
+// GLOBAL: MW2 0x100b12c8
+RenderTarget g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
+
+// GLOBAL: MW2 0x100b12e0
+MenuDefinition g_dorcsMenu = {
+	&g_dorcsMenuTarget,
+	37,
+	g_dorcsMenuPageStack,
+	0,
+	-1,
+	NULL,
+	&g_dorcsMenuBackgroundTarget,
+	-1,
+	NULL,
+	225,
+	219,
+	1,
+	NULL,
+	16,
+	1,
+	15,
+	{0, 0},
+	{0, 0},
+	{0x51f, 0},
+	{0x51f, 0},
+	{0xc000, 0},
+	&g_dorcsPage
+};
+
+// GLOBAL: MW2 0x100c2d00
+MenuPage* g_dorcsMenuPageStack[8];
 
 // The dorcs sequence (ShowDorcs): the view shrinks to a point (g_dorcsTransition), a picture
 // shows, then another, and a menu.
@@ -71,14 +547,7 @@ MechS32 g_dorcsReverse = 1;
 // A menu item's action: ejects the local player (game key 0x3b) without its sound.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073af0
-void FUN_10073af0(
-	undefined4 p_unk0x00,
-	undefined4 p_unk0x04,
-	MechS32 p_index,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10,
-	MenuPage* p_page
-)
+void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 saved;
 	MechS32 digit;
@@ -103,14 +572,7 @@ void FUN_10073af0(
 // A menu item's action: ejects the local player's mech.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073ba6
-void FUN_10073ba6(
-	undefined4 p_unk0x00,
-	undefined4 p_unk0x04,
-	MechS32 p_index,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10,
-	MenuPage* p_page
-)
+void FUN_10073ba6(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 digit;
 	MechS32 selected;

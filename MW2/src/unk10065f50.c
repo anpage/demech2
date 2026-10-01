@@ -18,7 +18,7 @@ MechS32 g_unk0x100acaf0[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // templates 7 and 6.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10065f50
-MechS32 FUN_10065f50(undefined4 p_unk0x00, MenuPage* p_page)
+MechS32 FUN_10065f50(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 marked;
 	MechS32 slot;
@@ -44,7 +44,7 @@ MechS32 FUN_10065f50(undefined4 p_unk0x00, MenuPage* p_page)
 		for (i = 0; i < count; i++) {
 			index = FUN_10054ccc(i + 1);
 			if (index < g_playerCount && g_players[index]->m_ai.m_state == 12) {
-				p_page->m_items[i + 1].m_unk0x00 = 1;
+				p_page->m_items[i + 1].m_type = 1;
 				marked++;
 			}
 		}
@@ -63,7 +63,7 @@ MechS32 FUN_10065f50(undefined4 p_unk0x00, MenuPage* p_page)
 // items.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100660c2
-MechS32 FUN_100660c2(undefined4 p_unk0x00, MenuPage* p_page)
+MechS32 FUN_100660c2(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 count;
 	MechS32 slot;
@@ -111,13 +111,13 @@ MechS32 FUN_100661ef(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10066223
-MechS32 FUN_10066223(void)
+MechS32 FUN_10066223(MechS32 p_arg)
 {
 	return GetTeamFormation(g_unk0x100a5918);
 }
 
 // FUNCTION: MW2 0x10066241
-void FUN_10066241(MechS32 p_formation)
+void FUN_10066241(MechS32 p_formation, MechS32 p_value)
 {
 	g_unk0x100acaf0[0] = 0;
 	SetTeamFormation(g_unk0x100a5918, p_formation);
@@ -149,47 +149,48 @@ MechS32 FUN_10066272(MechS32 p_index)
 	return state + 1;
 }
 
+// Gives the control the page's AI slot.
 // FUNCTION: MW2 0x100662df
-void FUN_100662df(MenuPage* p_page, MenuItem* p_item)
+void FUN_100662df(MenuPage* p_page, MenuControl* p_control)
 {
 	if (!p_page) {
 		return;
 	}
 
-	if (!p_item) {
+	if (!p_control) {
 		return;
 	}
 
-	p_item->m_unk0x0c = p_page->m_unk0x08;
+	p_control->m_arg = p_page->m_unk0x08;
 }
 
-// Installs FUN_100664cb as the item's text function.
+// Installs FUN_100664cb as the suffix of the control's choices.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10066314
-void FUN_10066314(MenuPage* p_page, MenuItem* p_item)
+void FUN_10066314(MenuPage* p_page, MenuControl* p_control)
 {
-	MenuItemTextFn old;
-	MenuItemTextFn* slot;
+	MenuChoicesSuffixFn old;
+	MenuChoices* choices;
 
 	if (!p_page) {
 		return;
 	}
 
-	if (!p_item) {
+	if (!p_control) {
 		return;
 	}
 
-	slot = p_item->m_unk0x08;
-	if (!slot) {
+	choices = p_control->m_data;
+	if (!choices) {
 		return;
 	}
 
-	old = *slot;
-	*slot = FUN_100664cb;
+	old = choices->m_suffix;
+	choices->m_suffix = FUN_100664cb;
 }
 
 // FUNCTION: MW2 0x10066369
-void FUN_10066369(MechS32 p_index)
+void FUN_10066369(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 2;
@@ -200,7 +201,7 @@ void FUN_10066369(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x100663a4
-void FUN_100663a4(MechS32 p_index)
+void FUN_100663a4(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 1;
@@ -211,7 +212,7 @@ void FUN_100663a4(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x100663df
-void FUN_100663df(MechS32 p_index)
+void FUN_100663df(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 3;
@@ -222,7 +223,7 @@ void FUN_100663df(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1006641a
-void FUN_1006641a(MechS32 p_index)
+void FUN_1006641a(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 4;
@@ -233,7 +234,7 @@ void FUN_1006641a(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10066455
-void FUN_10066455(MechS32 p_index)
+void FUN_10066455(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 5;
@@ -244,7 +245,7 @@ void FUN_10066455(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10066490
-void FUN_10066490(MechS32 p_index)
+void FUN_10066490(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 6;
@@ -254,17 +255,17 @@ void FUN_10066490(MechS32 p_index)
 	RequestMenuClose(1);
 }
 
-// Returns the name of the goal of the item's AI player: a nav, a player or a game thing.
+// Returns the name of the goal of the control's AI player: a nav, a player or a game thing.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100664cb
-MechChar* FUN_100664cb(undefined4 p_unk0x00, MenuItem* p_item)
+MechChar* FUN_100664cb(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS16 target;
 	Player* player;
 	MechS32 index;
 	MechS16 goal;
 
-	index = FUN_10054ccc(p_item->m_unk0x0c);
+	index = FUN_10054ccc(p_control->m_arg);
 	if (index >= g_playerCount) {
 		return NULL;
 	}

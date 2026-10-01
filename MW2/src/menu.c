@@ -5,14 +5,18 @@
 #include "fixeddiv.h"
 #include "inputmap.h"
 #include "loadres.h"
+#include "menucontrol.h"
+#include "menupage.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
+#include "soundfx.h"
 #include "ticks.h"
 #include "types.h"
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <windows.h>
 
 // GLOBAL: MW2 0x10109c78
@@ -34,7 +38,9 @@ void RequestMenuClose(MechS32 p_id);
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu);
 void RunMenuItems(MenuDefinition* p_menu);
 MenuSlot* FindMenuSlot(MechS32 p_id);
-MechS32 PushMenuPage(MenuDefinition* p_menu, undefined4 p_page);
+MenuPage* PeekMenuPage(MenuDefinition* p_menu);
+MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page);
+MenuPage* PopMenuPage(MenuDefinition* p_menu);
 void ClearMenuPages(MenuDefinition* p_menu);
 MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu);
 
@@ -216,13 +222,39 @@ void LoadMenuResources(MenuDefinition* p_menu)
 	p_menu->m_font = FUN_1001a19f(g_unk0x100a8740, p_menu->m_fontId + g_unk0x100e9614, g_unk0x100a8684, 0);
 }
 
-// Opens a menu. Menus with flag 1 take the controls, so this calls DisableGameplayInput;
-// DeactivateMenu calls EnableGameplayInput again.
-// STUB: MW2 0x1003c902
+// Opens a menu on its root page. Menus with flag 1 take the controls, so this calls
+// DisableGameplayInput; DeactivateMenu calls EnableGameplayInput again. Returns whether the menu
+// has a definition (the original reads the definition uninitialized for a menu ID outside 1-10).
+// FUNCTION: MW2 0x1003c902
 MechS32 ActivateMenu(MenuSlot* p_slot)
 {
-	STUB(0x1003c902);
-	return 0;
+	MechS32 result;
+	MenuDefinition* menu;
+
+	result = 0;
+	if (g_menuRepeatTimer == -1) {
+		g_menuRepeatTimer = AllocTicks(0x100);
+	}
+
+	ResetTicks(g_menuRepeatTimer);
+	if (p_slot->m_id >= 1 && p_slot->m_id <= 10) {
+		p_slot->m_definition = g_menuDefinitions[p_slot->m_id];
+		menu = p_slot->m_definition;
+	}
+
+	if (!menu) {
+		return result;
+	}
+
+	ClearMenuPages(menu);
+	PushMenuPage(menu, menu->m_rootPage);
+	g_openMenuCount++;
+	if (menu->m_flags & 1) {
+		DisableGameplayInput();
+	}
+
+	result = 1;
+	return result;
 }
 
 // Closes a menu and frees its resources.
@@ -270,11 +302,49 @@ void RequestMenuClose(MechS32 p_id)
 }
 
 // First draws the menus' render targets to the main pixel buffer and loads their layout; drops
-// the definitions whose pages fail their init callbacks.
-// STUB: MW2 0x1003cadc
+// the definitions whose root page or its subpages fail their init callbacks.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1003cadc
 void FirstMenu(void)
 {
-	STUB(0x1003cadc);
+	MechS32 ok;
+	MenuDefinition* menu;
+	MenuPage* subpage;
+	MechS32 i;
+	MechS32 j;
+	MechS32 count;
+	MenuPage* page;
+
+	for (i = 0; i <= 10; i++) {
+		menu = g_menuDefinitions[i];
+		if (menu) {
+			ok = 0;
+			if (menu->m_target && menu->m_backgroundTarget) {
+				menu->m_backgroundTarget->m_buffer = &g_mainPixelBuffer;
+				menu->m_target->m_buffer = menu->m_backgroundTarget->m_buffer;
+				FUN_1003c5a2(menu);
+				page = menu->m_rootPage;
+				if (page) {
+					ok = 1;
+					if (page->m_init) {
+						ok &= page->m_init(menu, page);
+					}
+
+					count = page->m_itemCount;
+					for (j = 0; j < count; j++) {
+						subpage = page->m_items[j].m_subpage;
+						if (subpage && subpage->m_init) {
+							ok &= subpage->m_init(menu, subpage);
+						}
+					}
+				}
+			}
+
+			if (ok != 1) {
+				g_menuDefinitions[i] = NULL;
+			}
+		}
+	}
 }
 
 // Works out g_menuKey for the open menu from the key code, or from the menu bindings in menus
@@ -481,10 +551,222 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 	}
 }
 
-// STUB: MW2 0x1003d1a7
+// Moves the open page's selection by g_menuKey (digits pick an item and act as Enter; the rest go
+// through ApplyMenuKey, which skips headings), then draws the title and the items, numbered from 1
+// with the accepting or closing item as 0, calling each item's m_run, which sees g_menuKey too.
+// Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1003d1a7
 void RunMenuItems(MenuDefinition* p_menu)
 {
-	STUB(0x1003d1a7);
+	MechS32 back;
+	MechChar number[40];
+	Point cursor;
+	MechS32 numberWidth;
+	MenuPage* page;
+	MechS32 selected;
+	Point textPos;
+	MechS32 offset;
+	MechS32 i;
+	RenderTarget* target;
+	void* font;
+	MechS32 move;
+	MechS32 key;
+	MechS32 hasHeading;
+	MechS32 height;
+	MenuItem* item;
+	MechS32 heading;
+	MechS32 n;
+	Point controlPos;
+
+	heading = 0x10;
+	hasHeading = 0;
+	move = 0;
+	if (!p_menu) {
+		return;
+	}
+
+	font = p_menu->m_font;
+	if (!font) {
+		return;
+	}
+
+	page = PeekMenuPage(p_menu);
+	if (!page) {
+		return;
+	}
+
+	target = p_menu->m_target;
+	if (!target) {
+		return;
+	}
+
+	selected = page->m_selected;
+	back = -1;
+	for (i = 0; i < page->m_itemCount; i++) {
+		if (page->m_items[i].m_type == 2 || page->m_items[i].m_type == 6) {
+			back = i;
+		}
+
+		if (page->m_items[i].m_type == 3) {
+			heading = i;
+			hasHeading = 1;
+		}
+	}
+
+	if (back == -1) {
+		hasHeading = 0;
+	}
+
+	if (page->m_state == 0) {
+		page->m_state = 1;
+	}
+	else {
+		if (page->m_state == 1) {
+			page->m_state = 2;
+		}
+
+		if (g_menuKey) {
+			key = g_menuKey;
+			if (g_menuKey >= '0' && g_menuKey <= '9') {
+				n = g_menuKey - '0';
+				if (n == 0) {
+					if (back != -1) {
+						selected = back;
+						key = '\r';
+					}
+				}
+				else if (n >= 1 && page->m_itemCount - hasHeading > n) {
+					if (n <= heading) {
+						selected = n - 1;
+					}
+					else {
+						selected = n;
+						g_menuKey++;
+						if (g_menuKey > '9') {
+							g_menuKey = '0';
+						}
+					}
+
+					key = '\r';
+				}
+			}
+
+			ApplyMenuKey(key, page->m_items[selected].m_type, &page->m_state, &move);
+			if (move) {
+				selected = (page->m_itemCount + selected + move) % page->m_itemCount;
+			}
+
+			if (page->m_selected != selected && p_menu->m_moveSound != -1) {
+				FUN_1007ebd1(0, 0, 0, p_menu->m_moveSound, 0);
+			}
+		}
+	}
+
+	if (move == 0) {
+		move = 1;
+	}
+
+	if (page->m_items[selected].m_type == 3) {
+		selected = (page->m_itemCount + selected + move) % page->m_itemCount;
+		if (g_menuKey >= '0' && g_menuKey <= '9') {
+			g_menuKey++;
+			if (g_menuKey > '9') {
+				g_menuKey = '0';
+			}
+
+			ApplyMenuKey(key, page->m_items[selected].m_type, &page->m_state, &move);
+			if (move == 0) {
+				move = 1;
+			}
+		}
+	}
+
+	page->m_selected = selected;
+	g_unk0x100e9350[0xe] = p_menu->m_color;
+	if (page->m_title) {
+		textPos = p_menu->m_unk0x48;
+		BlitString(target, textPos.m_x, textPos.m_y, font, page->m_title, g_unk0x100e9350);
+	}
+
+	if (p_menu->m_flags & 4) {
+		FUN_1005718d(target, textPos, font, 1);
+	}
+	else {
+		FUN_100571ea(target, page->m_title, textPos, font, 1);
+	}
+
+	height = FontGetHeight(font);
+	cursor = p_menu->m_unk0x50;
+	cursor.m_y += height / 2;
+	textPos = p_menu->m_unk0x58;
+	controlPos = p_menu->m_unk0x60;
+	numberWidth = FontGetCharWidth(font, '0') * 2;
+	numberWidth += FontGetCharWidth(font, '.');
+	n = 0;
+	offset = 0;
+	for (i = 0; i < page->m_itemCount; i++) {
+		if (selected == i) {
+			g_unk0x100e9350[0xe] = p_menu->m_highlightColor;
+		}
+		else {
+			g_unk0x100e9350[0xe] = p_menu->m_color;
+		}
+
+		item = &page->m_items[i];
+		if (!(p_menu->m_flags & 8) && back == i) {
+			offset += (p_menu->m_unk0x3c - i - 1) * p_menu->m_unk0x40.m_y;
+		}
+
+		textPos.m_y += offset;
+		controlPos.m_y += offset;
+		cursor.m_y += offset;
+		offset = p_menu->m_unk0x40.m_y;
+		if (selected == i && p_menu->m_unk0x20) {
+			BlitShpFrame(target, p_menu->m_unk0x20, 0, cursor.m_x, cursor.m_y);
+		}
+
+		if (item->m_type != 3) {
+			if (back == i) {
+				n = 0;
+			}
+			else {
+				n++;
+			}
+
+			_itoa(n, number, 10);
+			BlitString(target, textPos.m_x, textPos.m_y, font, number, g_unk0x100e9350);
+		}
+
+		if (item->m_text) {
+			BlitString(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_unk0x100e9350);
+		}
+
+		if (item->m_run) {
+			item->m_run(p_menu, item->m_control, i, controlPos, page);
+		}
+	}
+
+	g_unk0x100e9350[0xe] = 0xe;
+	switch (page->m_state) {
+	case 4:
+	case 5:
+		page->m_state = 0;
+		page->m_selected = 0;
+		PopMenuPage(p_menu);
+		break;
+	case 3:
+		page->m_state = 2;
+		if (page->m_items[selected].m_subpage) {
+			PushMenuPage(p_menu, page->m_items[selected].m_subpage);
+			if (p_menu->m_openSound != -1) {
+				FUN_1007ebd1(0, 0, 0, p_menu->m_openSound, 0);
+			}
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 // Finds the g_menuSlots entry for a menu ID, or NULL.
@@ -528,11 +810,11 @@ MenuDefinition* FindMenuDefinition(MechS32 p_id)
 }
 
 // FUNCTION: MW2 0x1003d907
-undefined4 PopMenuPage(MenuDefinition* p_menu)
+MenuPage* PopMenuPage(MenuDefinition* p_menu)
 {
-	undefined4 page;
+	MenuPage* page;
 
-	page = 0;
+	page = NULL;
 	if (p_menu->m_pageDepth > 0) {
 		p_menu->m_pageDepth--;
 		page = p_menu->m_pageStack[p_menu->m_pageDepth];
@@ -542,11 +824,11 @@ undefined4 PopMenuPage(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d949
-undefined4 PeekMenuPage(MenuDefinition* p_menu)
+MenuPage* PeekMenuPage(MenuDefinition* p_menu)
 {
-	undefined4 page;
+	MenuPage* page;
 
-	page = 0;
+	page = NULL;
 	if (p_menu->m_pageDepth > 0) {
 		page = p_menu->m_pageStack[p_menu->m_pageDepth - 1];
 	}
@@ -555,7 +837,7 @@ undefined4 PeekMenuPage(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d986
-MechS32 PushMenuPage(MenuDefinition* p_menu, undefined4 p_page)
+MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 result;
 

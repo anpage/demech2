@@ -1,6 +1,8 @@
 #ifndef PERF_H
 #define PERF_H
 
+#include "menu.h"
+#include "menupage.h"
 #include "types.h"
 
 // The functions and globals of perf.c that other units use.
@@ -8,6 +10,9 @@
 extern "C"
 {
 #endif
+
+	extern MechChar g_unk0x100b1438[];
+	extern MenuPage g_combatVariablesPage;
 
 	void FirstPerfSetting(void);
 

@@ -78,7 +78,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 
 	g_reloadingPlayer = p_player;
 	FUN_10019881(mech);
-	FUN_1005d6d0(
+	LoadMechConfig(
 		mech,
 		g_rememberedMechs[p_player].m_name,
 		g_rememberedMechs[p_player].m_unk0x00,

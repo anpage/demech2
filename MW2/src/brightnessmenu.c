@@ -12,13 +12,13 @@
 // MW2SND.CFG's record), and the preview undone.
 
 // FUNCTION: MW2 0x100745e0
-MechS32 GetBrightnessFraction(void)
+MechS32 GetBrightnessFraction(MechS32 p_arg)
 {
 	return FixedMul16(g_displayBrightness << 16, FixedDiv16(1, 15));
 }
 
 // FUNCTION: MW2 0x1007460e
-void PreviewBrightnessFraction(undefined4 p_unk0x00, MechS32 p_value)
+void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
 	MechS32 brightness;
 
@@ -30,7 +30,7 @@ void PreviewBrightnessFraction(undefined4 p_unk0x00, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x1007464f
-void SetBrightnessFraction(undefined4 p_unk0x00, MechS32 p_value)
+void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
 	g_displayBrightness = g_unk0x100a946c = FixedMul16(p_value, 15);
 	g_mw2SndCfgData->m_displayBrightness = g_displayBrightness;
@@ -38,7 +38,7 @@ void SetBrightnessFraction(undefined4 p_unk0x00, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10074693
-void RestoreBrightness(void)
+void RestoreBrightness(MechS32 p_arg)
 {
 	g_unk0x100a946c = g_displayBrightness;
 	PreviewBrightness(g_displayBrightness);

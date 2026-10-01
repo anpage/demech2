@@ -57,7 +57,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		return;
 	}
 
-	state = p_page->m_unk0x00[0];
+	state = p_page->m_state;
 	target = p_menu->m_target;
 	if (!target) {
 		return;
@@ -127,8 +127,8 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		}
 		break;
 	case 4:
-		if (p_control->m_preview) {
-			p_control->m_preview(p_control->m_arg, value);
+		if (p_control->m_set) {
+			p_control->m_set(p_control->m_arg, value);
 		}
 
 		apply = FALSE;
@@ -175,14 +175,13 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		x -= (GetShpFrameSize(knob, 0) >> 16) / 2;
 		BlitShpFrame(target, knob, 0, x, p_pos.m_y);
 		if (selected) {
-			if (((step && p_page->m_items[p_index].m_unk0x00 == 4) ||
-				 (pressed && p_page->m_items[p_index].m_unk0x00 == 5)) &&
-				p_control->m_preview) {
-				p_control->m_preview(p_control->m_arg, value);
+			if (((step && p_page->m_items[p_index].m_type == 4) || (pressed && p_page->m_items[p_index].m_type == 5)) &&
+				p_control->m_set) {
+				p_control->m_set(p_control->m_arg, value);
 			}
 
-			if (p_control->m_set && apply) {
-				p_control->m_set(p_control->m_arg, value);
+			if (p_control->m_preview && apply) {
+				p_control->m_preview(p_control->m_arg, value);
 			}
 		}
 	}
@@ -225,7 +224,7 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 		return;
 	}
 
-	state = p_page->m_unk0x00[0];
+	state = p_page->m_state;
 	target = p_menu->m_target;
 	if (!target) {
 		return;
@@ -278,8 +277,8 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	case 2:
 		break;
 	case 4:
-		if (p_control->m_preview) {
-			p_control->m_preview(p_control->m_arg, value);
+		if (p_control->m_set) {
+			p_control->m_set(p_control->m_arg, value);
 		}
 
 		apply = FALSE;
@@ -313,12 +312,12 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	}
 
 	if (selected) {
-		if (pressed && p_page->m_items[p_index].m_unk0x00 == 5 && p_control->m_preview) {
-			p_control->m_preview(p_control->m_arg, value);
+		if (pressed && p_page->m_items[p_index].m_type == 5 && p_control->m_set) {
+			p_control->m_set(p_control->m_arg, value);
 		}
 
-		if (p_control->m_set && apply) {
-			p_control->m_set(p_control->m_arg, value);
+		if (p_control->m_preview && apply) {
+			p_control->m_preview(p_control->m_arg, value);
 		}
 	}
 
@@ -353,7 +352,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		return;
 	}
 
-	state = p_page->m_unk0x00[0];
+	state = p_page->m_state;
 	target = p_menu->m_target;
 	if (!target) {
 		return;
@@ -422,8 +421,8 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		}
 		break;
 	case 4:
-		if (p_control->m_preview) {
-			p_control->m_preview(p_control->m_arg, value);
+		if (p_control->m_set) {
+			p_control->m_set(p_control->m_arg, value);
 		}
 
 		apply = FALSE;
@@ -452,14 +451,13 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	}
 
 	if (selected) {
-		if (((step && p_page->m_items[p_index].m_unk0x00 == 4) ||
-			 (pressed && p_page->m_items[p_index].m_unk0x00 == 5)) &&
-			p_control->m_preview) {
-			p_control->m_preview(p_control->m_arg, value);
+		if (((step && p_page->m_items[p_index].m_type == 4) || (pressed && p_page->m_items[p_index].m_type == 5)) &&
+			p_control->m_set) {
+			p_control->m_set(p_control->m_arg, value);
 		}
 
-		if (p_control->m_set && apply) {
-			p_control->m_set(p_control->m_arg, value);
+		if (p_control->m_preview && apply) {
+			p_control->m_preview(p_control->m_arg, value);
 		}
 	}
 
@@ -467,7 +465,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 }
 
 // A text box (MenuTextBox) in the menu's font; its rectangle is placed in the menu's target the
-// first time. Reports 0 through m_set unless the menu is being accepted or cancelled.
+// first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100734ad
 void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
@@ -487,7 +485,7 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 		return;
 	}
 
-	state = p_page->m_unk0x00[0];
+	state = p_page->m_state;
 	target = p_menu->m_target;
 	if (!target) {
 		return;
@@ -523,7 +521,7 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	}
 
 	FUN_10057396(rect, text, font);
-	if (p_control->m_set && state != 4 && state != 5) {
-		p_control->m_set(p_control->m_arg, 0);
+	if (p_control->m_preview && state != 4 && state != 5) {
+		p_control->m_preview(p_control->m_arg, 0);
 	}
 }

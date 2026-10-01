@@ -399,7 +399,9 @@ demech2_add_dll(mw2
     MW2/src/world.c
     MW2/src/transform.c
     MW2/src/network.c
+    MW2/src/mainmenu.c
     MW2/src/unk10010750.c
+    MW2/src/commandpointmenu.c
     MW2/src/palfade.c
     MW2/src/eyepoint.c
     MW2/src/recttransition.c
@@ -422,6 +424,7 @@ demech2_add_dll(mw2
     MW2/src/unk10021460.c
     ${mw2_shared}/codeblock.${asm_or_c}
     MW2/src/unk10033280.c
+    MW2/src/audiomenu.c
     MW2/src/unk100335d0.c
     MW2/src/unk10034990.c
     MW2/src/unk100349c0.c
@@ -456,6 +459,7 @@ demech2_add_dll(mw2
     MW2/src/unk1004b130.c
     MW2/src/unk1004b5a0.c
     MW2/src/unk1004b980.c
+    MW2/src/commandmenu.c
     MW2/src/unk1004c800.c
     MW2/src/unk1004c820.c
     MW2/src/unk1004c860.c

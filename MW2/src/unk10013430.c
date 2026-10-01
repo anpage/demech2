@@ -103,6 +103,14 @@ AmberGlade0x12 g_unk0x100a2ab8[13] = {
 // GLOBAL: MW2 0x100a2ba4
 MechS32 g_unk0x100a2ba4 = 0;
 
+// Set from the world stream's planet record when positive.
+
+// GLOBAL: MW2 0x100a2bdc
+MechS32 g_unk0x100a2bdc = 100000;
+
+// GLOBAL: MW2 0x100a2be0
+MechS32 g_unk0x100a2be0 = 0x2000;
+
 // The maneuver table of each player type (m_unk0x00, 1 to 8), and in entry 8 the alternative to
 // the first.
 // GLOBAL: MW2 0x101748e0

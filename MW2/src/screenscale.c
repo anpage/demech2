@@ -264,19 +264,19 @@ void FUN_100570e9(RenderTarget* p_target, MechS32 p_color)
 	BlitLine(p_target, 0, height, 0, 0, 0, p_color);
 }
 
-// Draws a line across the render target under a line of text at p_y.
+// Draws a line across the render target under a line of text at p_pos.
 // Stack-slot permutation: height and width.
 // FUNCTION: MW2 0x1005718d
-void FUN_1005718d(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_color)
+void FUN_1005718d(RenderTarget* p_target, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 height;
 	MechS32 width;
 
 	height = FontGetHeight(p_font);
-	p_x = 0;
-	p_y += height;
+	p_pos.m_x = 0;
+	p_pos.m_y += height;
 	width = p_target->m_right - p_target->m_left + 1;
-	BlitLine(p_target, p_x, p_y, width - 1, p_y, 0, p_color);
+	BlitLine(p_target, p_pos.m_x, p_pos.m_y, width - 1, p_pos.m_y, 0, p_color);
 }
 
 // Underlines text drawn at p_pos.

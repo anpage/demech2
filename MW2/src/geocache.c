@@ -45,6 +45,13 @@ MechS32* g_unk0x100a3850 = NULL;
 // GLOBAL: MW2 0x100a3854
 MechS32* g_unk0x100a3854 = NULL;
 
+// Set inside a world stream's repeated section (REPR to ENDR); g_unk0x100a385c counts its passes.
+// GLOBAL: MW2 0x100a3858
+MechS32 g_unk0x100a3858 = 0;
+
+// GLOBAL: MW2 0x100a385c
+MechS32 g_unk0x100a385c = 0;
+
 // GLOBAL: MW2 0x100a3860
 MechS32* g_unk0x100a3860 = NULL;
 
@@ -482,7 +489,7 @@ void HandleElseBlock(void)
 
 // Closes the block BeginBlock opened last.
 // FUNCTION: MW2 0x1001fe4c
-void EndBlock(void)
+void EndBlock(struct BwdStream* p_stream)
 {
 	g_blockDepth--;
 	if (g_blockDepth <= -1) {
@@ -559,7 +566,7 @@ void FirstStaticCache(void)
 }
 
 // FUNCTION: MW2 0x10020080
-void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, undefined4 p_data)
+void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data)
 {
 	HollowSpire0x7c* entry;
 
@@ -1246,13 +1253,13 @@ void FUN_100213cf(struct AmberWillow0x7c* p_obj)
 }
 
 // FUNCTION: MW2 0x10021423
-MechS32 FUN_10021423(void)
+MechS32 FUN_10021423(MechS32 p_arg)
 {
 	return g_explosionChunks;
 }
 
 // FUNCTION: MW2 0x10021438
-void SetExplosionChunks(undefined4 p_unk0x00, MechS32 p_explosionChunks)
+void SetExplosionChunks(MechS32 p_arg, MechS32 p_explosionChunks)
 {
 	g_explosionChunks = p_explosionChunks;
 	g_mw2SndCfgData->m_explosionChunks = p_explosionChunks;

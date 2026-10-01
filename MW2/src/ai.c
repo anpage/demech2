@@ -586,27 +586,27 @@ void FUN_100516c5(Player* p_player)
 	if (p_player->m_unk0x10 == 2) {
 		FUN_100554c8(p_player, 0, 0, GetTeamLeader(p_player->m_team));
 
-		p_player->m_unk0x158 = p_player->m_unk0x130;
+		p_player->m_unk0x158 = p_player->m_unk0x130[0];
 		if (!p_player->m_unk0x158) {
 			p_player->m_unk0x158 = 1;
 		}
 
-		p_player->m_unk0x166 = p_player->m_unk0x132;
+		p_player->m_unk0x166 = p_player->m_unk0x130[1];
 		if (!p_player->m_unk0x166) {
 			p_player->m_unk0x166 = 250;
 		}
 
-		p_player->m_unk0x15e = p_player->m_unk0x134;
+		p_player->m_unk0x15e = p_player->m_unk0x130[2];
 		if (!p_player->m_unk0x15e) {
 			p_player->m_unk0x15e = 250;
 		}
 
-		p_player->m_unk0x162 = p_player->m_unk0x136;
+		p_player->m_unk0x162 = p_player->m_unk0x130[3];
 		if (!p_player->m_unk0x162) {
 			p_player->m_unk0x162 = 250;
 		}
 
-		p_player->m_unk0x159 = p_player->m_unk0x138;
+		p_player->m_unk0x159 = p_player->m_unk0x130[4];
 		if (!p_player->m_unk0x159) {
 			p_player->m_unk0x159 = 1;
 		}

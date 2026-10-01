@@ -4,15 +4,34 @@
 #include "gamething.h"
 #include "inputmap.h"
 #include "playersteering.h"
+#include "playertype.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
+#include "unk10016ad0.h"
 #include "unk100563d0.h"
+#include "unk10059fc0.h"
+#include "unk100680a0.h"
 
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(GameThing, 0x40)
 DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
+
+// The kinds of player a gamepiece record can create, by Player::m_unk0x00: 3 has its own
+// callbacks (unk10059fc0.c), 7 another (unk100680a0.c); the others are mechs.
+// GLOBAL: MW2 0x100ad4a0
+PlayerType g_playerTypes[9] = {
+	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
+	{1, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{2, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{3, FUN_1005a637, FUN_10059fc0, FUN_1005a203, FUN_1005a2ea, NULL, NULL, FUN_1005a61d},
+	{4, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{5, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{6, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{7, FUN_10068772, FUN_100680a0, FUN_1006831a, FUN_1006844e, NULL, NULL, FUN_10068758},
+	{8, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+};
 
 // GLOBAL: MW2 0x100ad5e0
 MechS32 g_playerCount = 0;

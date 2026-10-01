@@ -23,6 +23,7 @@
 #include "team.h"
 #include "types.h"
 #include "unk10013430.h"
+#include "unk10016ad0.h"
 #include "unk1001ce90.h"
 #include "unk1003a530.h"
 #include "weapons.h"

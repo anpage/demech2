@@ -474,11 +474,356 @@ MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective)
 	}
 }
 
-// Updates star p_star's objective p_objective: its conditions, timers and targets.
-// STUB: MW2 0x1001b79a
+// Updates star p_star's objective p_objective while its conditions hold: whether its targets are
+// done (by its type: destroyed, reached, ...), whether its time is up, and what it does when done
+// (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
+// 6 failed, 8 failed for another star, 3 still going.
+// The only diff is a stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001b79a
 void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 {
-	STUB(0x1001b79a);
+	MechS32 done;
+	MissionObjective* objective;
+	MechS32 expired;
+	MechS32 i;
+	MechS32 untouched;
+	MechU8 state;
+	MechS32 alive;
+	StarMission* won;
+	StarMission* lost;
+	MissionObjective* failTarget;
+	MissionObjective* reset;
+	StarMission* restarted;
+	MechS32 j;
+	MissionObjective* restartTarget;
+	MissionObjective* succeedTarget;
+
+	done = TRUE;
+	untouched = TRUE;
+	state = 3;
+	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
+	if (g_isNetworkGame && objective->m_state == 5 && objective->m_type == 2) {
+		for (i = 0; i < objective->m_targetCount; i++) {
+			if (done && FUN_1001ab4a((MechU8*) &objective->m_targets[i])) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+
+		if (!done) {
+			objective->m_startTime = -1;
+			objective->m_endTime = -1;
+			objective->m_state = 3;
+		}
+	}
+
+	if (objective->m_state == 5 || objective->m_state == 6 || !FUN_1001b66c(p_star, p_objective)) {
+		objective->m_active = 0;
+		return;
+	}
+
+	if (objective->m_startTime == -1) {
+		objective->m_startTime = g_missionTime;
+		objective->m_active = 1;
+	}
+
+	switch (objective->m_type) {
+	case 1:
+	case 2:
+		for (i = 0; i < objective->m_targetCount; i++) {
+			if (done && FUN_1001ab4a((MechU8*) &objective->m_targets[i])) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+		break;
+	case 4:
+		for (i = 0; i < objective->m_targetCount; i++) {
+			alive = FUN_1001ab4a((MechU8*) &objective->m_targets[i]);
+			if (done && !alive) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+
+			if (untouched && alive) {
+				untouched = TRUE;
+			}
+			else {
+				untouched = FALSE;
+			}
+		}
+		break;
+	case 8:
+		for (i = 0; i < objective->m_targetCount; i++) {
+			if (done && FUN_1001ac06((MechU8*) &objective->m_targets[i], p_star)) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+		break;
+	case 0x20:
+		for (i = 0; i < objective->m_targetCount; i++) {
+			if (done && FUN_1001ac06((MechU8*) &objective->m_targets[i], p_star)) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+
+		for (i = 0; i < g_objectiveTable[p_star].m_objectiveCount; i++) {
+			if (g_objectiveTable[p_star].m_objectives[i].m_unk0x75 && i != p_objective) {
+				if (done && g_objectiveTable[p_star].m_objectives[i].m_state == 5) {
+					done = TRUE;
+				}
+				else {
+					done = FALSE;
+				}
+			}
+		}
+		break;
+	case 0x100:
+		if (g_unk0x100a5918 != p_star && !g_isNetworkGame) {
+			if (done && g_currentObjective[p_star] == p_objective) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+
+		for (i = 0; i < objective->m_targetCount; i++) {
+			if (done && FUN_1001ad5b((MechU8*) &objective->m_targets[i], p_star)) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+		break;
+	case 0x2000:
+		for (i = 0; i < objective->m_targetCount; i++) {
+			if (done && !FUN_1001ad5b((MechU8*) &objective->m_targets[i], p_star)) {
+				done = TRUE;
+			}
+			else {
+				done = FALSE;
+			}
+		}
+		break;
+	case 0:
+	case 0x10:
+	case 0x40:
+	case 0x80:
+	case 0x200:
+	case 0x400:
+	case 0x800:
+	case 0x1000:
+	case 0x10000:
+	case 0x20000:
+	case 0x40000:
+	case 0x80000:
+	case 0x100000:
+	case 0x200000:
+	case 0x400000:
+		// An empty block: these types have nothing to check here, but the original still dispatches
+		// them to their own break.
+		{
+		}
+		break;
+	}
+
+	if (objective->m_timeLimit >= 0 && objective->m_startTime >= 0) {
+		if (g_missionTime - objective->m_startTime > objective->m_timeLimit) {
+			expired = TRUE;
+		}
+		else {
+			expired = FALSE;
+		}
+	}
+	else {
+		expired = FALSE;
+	}
+
+	switch (objective->m_type) {
+	case 0x10000:
+		if (objective->m_unk0xa9 > g_objectiveCount) {
+			break;
+		}
+
+		won = &g_objectiveTable[objective->m_unk0xa9];
+		won->m_status = 2;
+		FUN_1001b3f4(objective->m_unk0xa9, won->m_status);
+		won->m_endTime = g_missionTime;
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0x20000:
+		if (objective->m_unk0xa9 > g_objectiveCount) {
+			break;
+		}
+
+		lost = &g_objectiveTable[objective->m_unk0xa9];
+		lost->m_status = 3;
+		FUN_1001b3f4(objective->m_unk0xa9, lost->m_status);
+		lost->m_endTime = g_missionTime;
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0x40000:
+		if (objective->m_unk0xa9 > g_objectiveCount ||
+			g_objectiveTable[objective->m_unk0xa9].m_objectiveCount < objective->m_unk0xab) {
+			break;
+		}
+
+		if (!g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74) {
+			g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 1;
+		}
+		else {
+			g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 0;
+		}
+
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0x80000:
+		if (objective->m_unk0xa9 > g_objectiveCount ||
+			g_objectiveTable[objective->m_unk0xa9].m_objectiveCount < objective->m_unk0xab) {
+			break;
+		}
+
+		failTarget = &g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab];
+		if (failTarget->m_state == 6 || failTarget->m_state == 5) {
+			break;
+		}
+
+		failTarget->m_state = 6;
+		failTarget->m_endTime = g_missionTime;
+		FUN_1001b0cb(objective->m_unk0xa9, objective->m_unk0xab, failTarget->m_state);
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0x200000:
+		if (objective->m_unk0xa9 > g_objectiveCount) {
+			break;
+		}
+
+		restarted = &g_objectiveTable[objective->m_unk0xa9];
+		for (j = 0; j < restarted->m_objectiveCount; j++) {
+			reset = &restarted->m_objectives[j];
+			reset->m_state = 3;
+			reset->m_startTime = -1;
+			reset->m_endTime = -1;
+			if (reset->m_type != 0x10) {
+				g_unk0x10138760[j] = 0;
+			}
+		}
+
+		restarted->m_status = 0;
+		restarted->m_endTime = -1;
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0x400000:
+		if (objective->m_unk0xa9 > g_objectiveCount ||
+			g_objectiveTable[objective->m_unk0xa9].m_objectiveCount < objective->m_unk0xab) {
+			break;
+		}
+
+		// The original clears the announcement of objective i, the last loop's counter.
+		restartTarget = &g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab];
+		restartTarget->m_state = 3;
+		restartTarget->m_startTime = -1;
+		restartTarget->m_endTime = -1;
+		if (restartTarget->m_type != 0x10) {
+			g_unk0x10138760[i] = 0;
+		}
+
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0x100000:
+		if (objective->m_unk0xa9 > g_objectiveCount ||
+			g_objectiveTable[objective->m_unk0xa9].m_objectiveCount < objective->m_unk0xab) {
+			break;
+		}
+
+		succeedTarget = &g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab];
+		if (succeedTarget->m_state == 6 || succeedTarget->m_state == 5) {
+			break;
+		}
+
+		succeedTarget->m_state = 5;
+		succeedTarget->m_endTime = g_missionTime;
+		FUN_1001b0cb(objective->m_unk0xa9, objective->m_unk0xab, succeedTarget->m_state);
+		state = 5;
+		FUN_1001b0cb(p_star, p_objective, state);
+		break;
+	case 0:
+	case 0x200:
+	case 0x400:
+	case 0x800:
+		if (expired) {
+			if (g_players[g_teams[p_star].m_leader] && (g_players[g_teams[p_star].m_leader]->m_flags & 2) &&
+				g_isNetworkGame) {
+				return;
+			}
+
+			state = 5;
+			FUN_1001b0cb(p_star, p_objective, state);
+		}
+		break;
+	case 4:
+		if (expired) {
+			if (done) {
+				state = 5;
+				FUN_1001b0cb(p_star, p_objective, state);
+			}
+			else {
+				state = 6;
+			}
+		}
+		else {
+			if (!done) {
+				if (g_unk0x100a5918 == p_star) {
+					state = 6;
+				}
+				else {
+					state = 8;
+				}
+
+				FUN_1001b0cb(p_star, p_objective, 6);
+			}
+
+			if (untouched) {
+				state = 6;
+			}
+		}
+		break;
+	default:
+		if (done) {
+			state = 5;
+			FUN_1001b0cb(p_star, p_objective, state);
+		}
+		else if (expired) {
+			state = 6;
+			FUN_1001b0cb(p_star, p_objective, state);
+		}
+		break;
+	}
+
+	objective->m_state = state;
+	if (state != 3) {
+		objective->m_endTime = g_missionTime;
+	}
 }
 
 // Updates every star's mission each frame: its objectives (FUN_1001b79a), then, while it is in
