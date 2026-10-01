@@ -26,6 +26,7 @@ extern "C"
 #endif
 
 	extern AnimFrame g_animFrames[0x200][0x20];
+	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
 
 	MechS32 FUN_10068d10(

@@ -17,6 +17,7 @@
 #include "team.h"
 #include "types.h"
 #include "unk100079d0.h"
+#include "unk10016ad0.h"
 #include "unk1004d020.h"
 
 #include <stdio.h>

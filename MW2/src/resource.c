@@ -116,6 +116,11 @@ MechChar* g_unk0x100a8634 = NULL;
 // GLOBAL: MW2 0x100a8638
 struct Player* g_unk0x100a8638 = NULL;
 
+// The task kinds of a world stream's task record (BwdExecuteStream).
+// GLOBAL: MW2 0x100a8640
+TimedCallbackFn g_unk0x100a8640[6] =
+	{FUN_1004771e, FUN_1004748c, FUN_100479ec, FUN_10046750, FUN_10047d10, FUN_10047f60};
+
 // GLOBAL: MW2 0x100ea500
 MissionTable* g_missionTables[16];
 
@@ -602,6 +607,10 @@ void SetMangleBase(MechS32 p_base)
 {
 	g_unk0x100a8628 = p_base;
 }
+
+// The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
+// GLOBAL: MW2 0x100a862c
+MechS32 g_unk0x100a862c = 0;
 
 // Creates the shape of a world stream's object record: a static object of the current block
 // (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,

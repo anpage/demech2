@@ -18,7 +18,8 @@ typedef struct SlateHeron0x68 {
 	MechS32 m_unk0x18;                       // 0x18 — one-point polygons are drawn as pixels
 	MechS32 m_unk0x1c;                       // 0x1c
 	MechS32 m_unk0x20;                       // 0x20
-	undefined4 m_unk0x24[(0x30 - 0x24) / 4]; // 0x24
+	MechS32 m_unk0x24;                       // 0x24
+	undefined4 m_unk0x28[(0x30 - 0x28) / 4]; // 0x28
 	MechS32 m_unk0x30;                       // 0x30 — cleared when FirstRender finds m_unk0x1c or m_unk0x20 set
 	MechS32 m_unk0x34;                       // 0x34 — 0 fills polygons, 1 fills and outlines, else outlines
 	MechS32 m_unk0x38;                       // 0x38

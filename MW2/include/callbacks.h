@@ -5,7 +5,8 @@
 #include "types.h"
 
 // The callback's event: 0 when created, 1 when due, 2 when removed, -1 from FUN_1007d4b8.
-typedef MechS32 (*TimedCallbackFn)(MechS32 p_event, undefined4 p_data, MechS32 p_clock, MechS32 p_period);
+// Its data is the task text of the BWD stream's task record (BwdExecuteStream).
+typedef MechS32 (*TimedCallbackFn)(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 
 // SIZE 0x18
 typedef struct TimedCallback {
@@ -24,12 +25,7 @@ extern "C"
 #endif
 
 	TimedCallback* FUN_1007d2e0(void);
-	TimedCallback* CreateDetachedTask(
-		TimedCallback** p_list,
-		TimedCallbackFn p_fn,
-		MechS32 p_period,
-		undefined4 p_data
-	);
+	TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data);
 	void FUN_1007d3bf(TimedCallback** p_list, TimedCallback* p_callback);
 	void FUN_1007d475(TimedCallback** p_list);
 	void FUN_1007d4b8(TimedCallback** p_list, TimedCallback* p_callback);

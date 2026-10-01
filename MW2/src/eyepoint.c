@@ -19,6 +19,7 @@
 #include "speech.h"
 #include "transform.h"
 #include "types.h"
+#include "unk10016ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
 #include "unk1004b130.h"

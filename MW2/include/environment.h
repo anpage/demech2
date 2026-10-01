@@ -15,6 +15,11 @@ extern "C"
 
 	extern MechS32 g_unk0x100ba5fc;
 	extern MechS32 g_unk0x100ba600;
+	extern MechS32 g_unk0x100ba608;
+	extern MechS32 g_unk0x100ba610;
+	extern MechS32 g_unk0x100ba614;
+	extern MechS32 g_secondsPerDay;
+	extern MechS32 g_timeOfDayPhase;
 	extern MechS32 g_unk0x100ba604;
 	extern MechS32 g_unk0x100c326c;
 	extern MechS32 g_unk0x100c3270;

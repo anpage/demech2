@@ -66,6 +66,10 @@ MechS32 g_segmentNormalZ = 0;
 // GLOBAL: MW2 0x100a5544
 MechS32 g_unk0x100a5544 = 0;
 
+// The sky's color (FUN_1004320b; the ground's is g_unk0x100a554c).
+// GLOBAL: MW2 0x100a5548
+MechS32 g_unk0x100a5548 = 0xe0;
+
 // FUNCTION: MW2 0x10034a40
 void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24)
 {

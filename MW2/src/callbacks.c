@@ -24,7 +24,7 @@ TimedCallback* FUN_1007d2e0(void)
 }
 
 // FUNCTION: MW2 0x1007d2f5
-TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, undefined4 p_data)
+TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data)
 {
 	TimedCallback* callback;
 
@@ -71,7 +71,7 @@ void FUN_1007d3bf(TimedCallback** p_list, TimedCallback* p_callback)
 	}
 
 	g_currentCallback = p_callback;
-	p_callback->m_fn(2, 0, g_currentClock, p_callback->m_period);
+	p_callback->m_fn(2, NULL, g_currentClock, p_callback->m_period);
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_callback->m_data);
 }
 
@@ -88,7 +88,7 @@ void FUN_1007d475(TimedCallback** p_list)
 // FUNCTION: MW2 0x1007d4b8
 void FUN_1007d4b8(TimedCallback** p_list, TimedCallback* p_callback)
 {
-	p_callback->m_fn(-1, 0, g_currentClock, p_callback->m_period);
+	p_callback->m_fn(-1, NULL, g_currentClock, p_callback->m_period);
 }
 
 // FUNCTION: MW2 0x1007d4dc
@@ -113,7 +113,7 @@ void RunTimedCallbacks(TimedCallback** p_list)
 	for (g_currentCallback = *p_list; g_currentCallback != NULL; g_currentCallback = g_currentCallback->m_next) {
 		if (g_currentCallback->m_fn != NULL && g_currentCallback->m_nextTime <= g_currentClock) {
 			g_currentCallback->m_nextTime = g_currentCallback->m_period + g_currentClock;
-			if (!g_currentCallback->m_fn(1, 0, g_currentClock, g_currentCallback->m_period)) {
+			if (!g_currentCallback->m_fn(1, NULL, g_currentClock, g_currentCallback->m_period)) {
 				FUN_1007d3bf(p_list, g_currentCallback);
 			}
 			else {

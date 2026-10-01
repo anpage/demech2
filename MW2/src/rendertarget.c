@@ -71,7 +71,7 @@ MechChar g_unk0x100e9570[0x20];
 RenderTarget g_unk0x100e9590;
 
 // GLOBAL: MW2 0x100e95d0
-MechChar g_unk0x100e95d0[0x40];
+MechChar g_unk0x100e95d0[0x20];
 
 // The cockpit views' layouts (g_unk0x100ab0e8): the map view of cockpit views 1 and 2 and the
 // satellite view (4), with their labels, icons, colors, rectangles and transitions.

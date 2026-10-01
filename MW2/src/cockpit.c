@@ -35,6 +35,7 @@
 #include "team.h"
 #include "types.h"
 #include "unk10010750.h"
+#include "unk10016ad0.h"
 #include "unk1001ce90.h"
 #include "unk10041fa0.h"
 #include "unk10042e00.h"

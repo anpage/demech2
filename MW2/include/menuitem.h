@@ -2,21 +2,32 @@
 #define MENUITEM_H
 
 #include "decomp.h"
+#include "point.h"
 #include "types.h"
 
-struct MenuItem;
+struct MenuControl;
+struct MenuDefinition;
+struct MenuPage;
 
-// Returns the text a menu item shows (FUN_100664cb: an AI player's goal).
-typedef MechChar* (*MenuItemTextFn)(undefined4 p_unk0x00, struct MenuItem* p_item);
+// Draws a menu item's control and acts on the menu key for it (RunMenuItems calls it for every
+// item, at the page's control column).
+typedef void (*MenuItemRunFn)(
+	struct MenuDefinition* p_menu,
+	struct MenuControl* p_control,
+	MechS32 p_index,
+	Point p_pos,
+	struct MenuPage* p_page
+);
 
 // An item of a menu page.
 // SIZE 0x14
 typedef struct MenuItem {
-	undefined4 m_unk0x00;      // 0x00 — set to 1 for an AI player that FUN_10065f50 marks
-	undefined4 m_unk0x04;      // 0x04
-	MenuItemTextFn* m_unk0x08; // 0x08
-	MechU32 m_unk0x0c;         // 0x0c — an AI slot (FUN_10054ccc)
-	undefined4 m_unk0x10;      // 0x10
+	MechS32 m_type; // 0x00 — 0: opens m_subpage, 2: accepts (and goes back), 3: a heading without a
+					// number, 5 and 6: close the page (ApplyMenuKey)
+	MechChar* m_text;              // 0x04
+	MenuItemRunFn m_run;           // 0x08
+	struct MenuControl* m_control; // 0x0c — passed to m_run
+	struct MenuPage* m_subpage;    // 0x10
 } MenuItem;
 
 #endif // MENUITEM_H

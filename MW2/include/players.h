@@ -19,7 +19,7 @@ struct ScarletOrchid0x4c;
 typedef struct Player Player;
 
 typedef void (*PlayerMechFn)(Mech* p_mech);
-typedef void (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
+typedef MechS32 (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 #pragma pack(push, 1)
 
@@ -74,13 +74,7 @@ struct Player {
 	MechU16* m_ruleSets[3];                   // 0x11c — AI scripts, by priority
 	AiStackEntry m_stack[1];                  // 0x128 — T_PUSH saves the state and goal here
 	undefined m_unk0x12c[0x130 - 0x12c];      // 0x12c
-	MechS8 m_unk0x130;                        // 0x130
-	undefined m_unk0x131;                     // 0x131
-	MechU16 m_unk0x132;                       // 0x132
-	MechU16 m_unk0x134;                       // 0x134
-	MechU16 m_unk0x136;                       // 0x136
-	MechS8 m_unk0x138;                        // 0x138
-	undefined m_unk0x139[0x140 - 0x139];      // 0x139
+	MechU16 m_unk0x130[8];                    // 0x130 — the gpspec record's (BwdExecuteStream)
 	MechU16 m_stackCount;                     // 0x140
 	undefined2 m_unk0x142;                    // 0x142
 	PlayerAi m_ai;                            // 0x144

@@ -17,7 +17,7 @@ extern "C"
 	void FUN_1006831a(struct Mech* p_mech);
 	void FUN_1006844e(struct Mech* p_mech);
 	void FUN_10068758(struct Mech* p_mech);
-	MechS32 FUN_10068772(undefined4 p_unk0x00, struct Player* p_player);
+	MechS32 FUN_10068772(MechS32 p_index, struct Player* p_player);
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,7 @@
 #include "types.h"
 #include "unk10004ec0.h"
 #include "unk10013430.h"
+#include "unk10016ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
 #include "unk100696c0.h"

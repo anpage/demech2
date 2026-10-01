@@ -7,6 +7,8 @@
 #include "clock.h"
 #include "cmdline.h"
 #include "cockpit.h"
+#include "commandmenu.h"
+#include "commandpointmenu.h"
 #include "compat.h"
 #include "config.h"
 #include "debugprint.h"
@@ -25,6 +27,7 @@
 #include "inputmap.h"
 #include "keyboard.h"
 #include "loadres.h"
+#include "mainmenu.h"
 #include "menu.h"
 #include "mss.h"
 #include "mw2log.h"
@@ -50,6 +53,8 @@
 #include "supanim.h"
 #include "timedoverlays.h"
 #include "types.h"
+#include "unk1005e9b0.h"
+#include "unk10073af0.h"
 #include "videodriverchoice.h"
 #include "weapons.h"
 
@@ -242,48 +247,36 @@ MechS32 g_unk0x100a2460 = 1;
 // GLOBAL: MW2 0x100a2464
 MechS32 g_unk0x100a2464 = 0;
 
-// The "mightymouse" cheat: infinite jump jet fuel.
-// GLOBAL: MW2 0x100a2be4
-MechS32 g_unk0x100a2be4 = 0;
-
-// Set by a game key: run FUN_1004597b on the local mech next tick.
-// GLOBAL: MW2 0x100a2be8
-MechS32 g_unk0x100a2be8 = 0;
-
-// Set by the MASC game key: toggle the local mech's MASC next tick.
-// GLOBAL: MW2 0x100a2bec
-MechS32 g_unk0x100a2bec = 0;
-
-// GLOBAL: MW2 0x100a2bf0
-MechS32 g_unk0x100a2bf0 = 0;
-
-// GLOBAL: MW2 0x100a2bf8
-MechS32 g_unk0x100a2bf8 = 0;
-
-// GLOBAL: MW2 0x100a2c04
-MechS32 g_unk0x100a2c04 = 0;
-
-// A power request for the local mech: 1 powers it up, -1 shuts it down.
-// GLOBAL: MW2 0x100a2c08
-MechS32 g_unk0x100a2c08 = 0;
-
-// GLOBAL: MW2 0x100a2c10
-MechS32 g_unk0x100a2c10 = 0;
-
-// GLOBAL: MW2 0x100a2c18
-MechS32 g_unk0x100a2c18 = 0;
-
-// GLOBAL: MW2 0x100a2c1c
-MechS32 g_unk0x100a2c1c = 0;
-
+// The ground's color (FUN_1004320b; the sky's is g_unk0x100a5548).
 // GLOBAL: MW2 0x100a554c
-undefined4 g_unk0x100a554c = 0xef;
+MechS32 g_unk0x100a554c = 0xef;
+
+// The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
+// GLOBAL: MW2 0x100a5550
+MechS32 g_unk0x100a5550 = 0xea;
 
 // GLOBAL: MW2 0x100a5558
 MechS32 g_unk0x100a5558 = -1;
 
 // GLOBAL: MW2 0x100a59e0
 MechS32 g_menuRepeatTimer = -1;
+
+// The in-mission menus by ID (RegisterMenu): 4 the main menu, 5 the systems status, 1 the lance
+// command computer, 7 and 8 command points 2 and 3, 3 the programmers' page.
+// GLOBAL: MW2 0x100a59e8
+MenuDefinition* g_menuDefinitions[11] = {
+	NULL,
+	&g_commandMenu,
+	NULL,
+	&g_dorcsMenu,
+	&g_mainMenu,
+	&g_systemsMenu,
+	NULL,
+	&g_commandPoint2Menu,
+	&g_commandPoint3Menu,
+	NULL,
+	NULL,
+};
 
 // The satellite view's display option, 0 or 1 (FUN_1003f74e).
 // GLOBAL: MW2 0x100a5a18
@@ -408,8 +401,8 @@ Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000,
 Eyepoint* g_eyepoint = &g_unk0x100a6be0;
 
 // GLOBAL: MW2 0x100a6cc8
-SlateHeron0x68 g_unk0x100a6cc8 = {0,       1,       1, 1, 1,    1,    1,    1, 1,   {1, 0xe0, 0xef}, 1, 0, 0, 0, 0,
-								  0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
+SlateHeron0x68 g_unk0x100a6cc8 = {0, 1, 1,       1,       1, 1, 1,    1,    1,    1, {0xe0, 0xef}, 1, 0, 0,
+								  0, 0, 0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
 
 // GLOBAL: MW2 0x100a6d30
 MechS32 g_unk0x100a6d30 = 0x24;
@@ -459,6 +452,9 @@ const char* g_unk0x100a86bc = g_unk0x100a87c0;
 // GLOBAL: MW2 0x100a86c4
 const char* g_unk0x100a86c4 = "AIT";
 
+// GLOBAL: MW2 0x100a86c8
+const char* g_unk0x100a86c8 = "MEK";
+
 // GLOBAL: MW2 0x100a86cc
 const char* g_unk0x100a86cc = "LUMA";
 
@@ -479,6 +475,9 @@ const char* g_unk0x100a8714 = ".hdi";
 
 // GLOBAL: MW2 0x100a8718
 const char* g_unk0x100a8718 = ".cpi";
+
+// GLOBAL: MW2 0x100a872c
+const char* g_unk0x100a872c = ".mek";
 
 // GLOBAL: MW2 0x100a8740
 undefined4 g_unk0x100a8740 = 0xffffffff;
@@ -593,6 +592,10 @@ void (*g_dorcsPreviousDrawCallback)(void) = FUN_10012afe;
 // GLOBAL: MW2 0x100bdff8
 RenderTarget g_unk0x100bdff8;
 
+// Set once the local mech's collision sound played; cleared when it moves freely (FUN_10016edf).
+// GLOBAL: MW2 0x100be00c
+MechS32 g_unk0x100be00c;
+
 // GLOBAL: MW2 0x100bfd60
 MechS32 g_unk0x100bfd60[800];
 
@@ -601,6 +604,10 @@ MechS32 g_unk0x100c09e0[800];
 
 // GLOBAL: MW2 0x100e9240
 MechU32 g_windowedSwitchTime;
+
+// The name of the mission's music (the world stream's music record).
+// GLOBAL: MW2 0x100e9330
+MechChar g_unk0x100e9330[12];
 
 // GLOBAL: MW2 0x100e933c
 MechU32 g_windowedSwitchDeadline;

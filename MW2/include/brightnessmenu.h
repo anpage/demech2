@@ -10,10 +10,10 @@ extern "C"
 {
 #endif
 
-	MechS32 GetBrightnessFraction(void);
-	void PreviewBrightnessFraction(undefined4 p_unk0x00, MechS32 p_value);
-	void SetBrightnessFraction(undefined4 p_unk0x00, MechS32 p_value);
-	void RestoreBrightness(void);
+	MechS32 GetBrightnessFraction(MechS32 p_arg);
+	void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value);
+	void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value);
+	void RestoreBrightness(MechS32 p_arg);
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,9 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100a15d0;
+	extern MechS32 g_unk0x100a15d4;
+
 	void DrawPausedBanner(void);
 	void PlayPauseSound(void);
 	void PlayResumeSound(void);

@@ -12,6 +12,7 @@ struct GameThing;
 
 struct AmberWillow0x7c;
 struct BwdBlockRecord;
+struct BwdStream;
 
 // An entry of the class table: an ID and its class.
 // SIZE 0x08
@@ -28,6 +29,9 @@ extern "C"
 
 	extern MechS32* g_unk0x100a3850;
 	extern MechS32* g_unk0x100a3854;
+	extern MechS32 g_unk0x100a3858;
+	extern MechS32 g_unk0x100a385c;
+	extern MechS32 g_blockDepth;
 	extern MechS32 g_currentBlock;
 	extern MechS32 g_unk0x1010b6a0;
 	extern MechS32 g_unk0x1012b7b0;
@@ -49,6 +53,9 @@ extern "C"
 		undefined4 p_unk0x48
 	);
 	void BeginBlock(struct BwdBlockRecord* p_record);
+	MechS32 FindObjIdxById(undefined4 p_unk0x08);
+	void HandleElseBlock(void);
+	void EndBlock(struct BwdStream* p_stream);
 	MechS32 FindStarIdxById(MechS32 p_id);
 	struct ScarletOrchid0x4c* FindClassById(MechS32 p_id);
 	MechS32 FindThingIdxById(MechS32 p_id);
@@ -57,7 +64,7 @@ extern "C"
 	void FUN_1001feef(MechS32 p_index);
 	void FUN_1001ffda(void);
 	void FirstStaticCache(void);
-	void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, undefined4 p_data);
+	void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data);
 	void FUN_100200bd(void);
 	void FUN_1002012a(MechS32 p_index, TimedCallback* p_callback);
 	void FUN_1002015f(MechS32 p_index);
@@ -78,8 +85,8 @@ extern "C"
 	void FUN_1002116a(AzureThicket0x2c* p_node, MechU8* p_data, MechS32 p_size);
 	MechS32 FUN_10021314(MechU32 p_index);
 	void FUN_100213cf(struct AmberWillow0x7c* p_obj);
-	MechS32 FUN_10021423(void);
-	void SetExplosionChunks(undefined4 p_unk0x00, MechS32 p_explosionChunks);
+	MechS32 FUN_10021423(MechS32 p_arg);
+	void SetExplosionChunks(MechS32 p_arg, MechS32 p_explosionChunks);
 
 #ifdef __cplusplus
 }

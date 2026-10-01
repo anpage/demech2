@@ -219,7 +219,7 @@ void FUN_10068758(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10068772
-MechS32 FUN_10068772(undefined4 p_unk0x00, Player* p_player)
+MechS32 FUN_10068772(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
 	MechSection* sections = NULL;

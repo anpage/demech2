@@ -1,6 +1,7 @@
 #include "unk10042e00.h"
 
 #include "animation.h"
+#include "blit.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fixeddivu.h"
@@ -10,8 +11,12 @@
 #include "rendertarget.h"
 #include "simmain.h"
 #include "slateheron.h"
+#include "transform.h"
 #include "types.h"
 #include "unk10010750.h"
+#include "unk10034a40.h"
+#include "unk100696c0.h"
+#include "unk10071930.h"
 
 // Polygon drawing: a polygon is p_count points of 6 dwords each (x, y, a shade, two texture
 // coordinates and a depth), and the mode in bits 12 to 14 of p_flags picks how it is drawn.
@@ -131,11 +136,365 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 	}
 }
 
-// Draws the scene from p_eyepoint.
-// STUB: MW2 0x1004320b
+// Draws the sky and the ground of the view from p_eyepoint: the horizon, rolled with the view,
+// splits the view rectangle (m_unk0x2c-m_unk0x38). Each corner's side of it (FUN_10071930) makes
+// one bit of the case; the parts are filled in g_unk0x100a5548 (the sky, with m_unk0x1c) and
+// g_unk0x100a554c (the ground, with m_unk0x20), and with m_unk0x24 a shaded band over the
+// horizon blends the sky into the ground.
+// Stack-slot permutation; the original calls FUN_10071930 for the corners in the order of the
+// terms, (x0, y1) first (commutative operand order).
+// FUNCTION: MW2 0x1004320b
 void FUN_1004320b(Eyepoint* p_eyepoint)
 {
-	STUB(0x1004320b);
+	MechS32 y1;
+	MechS32 x1;
+	MechS32 yLeft;
+	MechS32 corners;
+	MechS32 y0;
+	MechS32 dx;
+	RenderTarget rect;
+	MechU32 band[4 * 6];
+	MechS32 dy;
+	MechS32 dz;
+	MechS32 xBottom;
+	MechS32 yRight;
+	MechS32 xTop;
+	MechS32 gradient;
+	MechS32 x0;
+	Matrix roll;
+
+	x0 = p_eyepoint->m_unk0x2c;
+	x1 = p_eyepoint->m_unk0x30;
+	y0 = p_eyepoint->m_unk0x34;
+	y1 = p_eyepoint->m_unk0x38;
+	gradient = FALSE;
+	rect = g_currentRenderTarget;
+	dx = dz = 0;
+	dy = g_unk0x100a6d30;
+	FUN_1000dd4d(&roll);
+	roll.m_rows[0][0] = roll.m_rows[1][1] = FUN_1006973a(p_eyepoint->m_unk0x14);
+	roll.m_rows[1][0] = FUN_100696c0(p_eyepoint->m_unk0x14);
+	roll.m_rows[0][1] = -roll.m_rows[1][0];
+	roll.m_rows[3][0] = roll.m_rows[3][1] = roll.m_rows[3][2] = 0;
+	FUN_1000d650(&roll, &dx, &dy, &dz);
+	corners = FUN_10071930(x0, y1, p_eyepoint) * 4 + FUN_10071930(x1, y1, p_eyepoint) * 8 +
+			  FUN_10071930(x1, y0, p_eyepoint) * 2 + FUN_10071930(x0, y0, p_eyepoint);
+	band[2] = band[8] = g_unk0x100a5548 << 16;
+	band[14] = band[20] = (g_unk0x100a554c - 1) << 16;
+	switch (corners) {
+	case 0:
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			rect.m_left += x0;
+			rect.m_top += y0;
+			rect.m_right = rect.m_left + x1 - x0;
+			rect.m_bottom = rect.m_top + y1 - y0;
+			FillView(&rect, g_unk0x100a554c);
+		}
+		break;
+	case 15:
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			if (g_unk0x100a6cc8.m_unk0x24 && !FUN_10071930(x0, dy + y1, p_eyepoint)) {
+				yLeft = FUN_100719ca(x0, p_eyepoint);
+				yRight = FUN_100719ca(x1, p_eyepoint);
+				if (yRight - dy < y1 || yLeft - dy < y1) {
+					band[0] = band[18] = x1;
+					band[6] = band[12] = x0;
+					band[1] = yRight - dy;
+					band[7] = yLeft - dy;
+					band[13] = yLeft;
+					band[19] = yRight;
+					gradient = TRUE;
+				}
+			}
+
+			rect.m_left += x0;
+			rect.m_top += y0;
+			rect.m_right = rect.m_left + x1 - x0;
+			rect.m_bottom = rect.m_top + y1 - y0;
+			FillView(&rect, g_unk0x100a5548);
+		}
+		break;
+	case 3:
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x24 && g_unk0x100a6cc8.m_unk0x1c) {
+			band[0] = band[18] = x1;
+			band[6] = band[12] = x0;
+			band[1] = yRight - dy;
+			band[7] = yLeft - dy;
+			band[13] = yLeft;
+			band[19] = yRight;
+			gradient = TRUE;
+		}
+
+		if (yRight == yLeft) {
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				rect.m_left += x0;
+				rect.m_top += y0;
+				rect.m_right = rect.m_left + x1 - x0;
+				rect.m_bottom = rect.m_top + yLeft - y0;
+				FillView(&rect, g_unk0x100a5548);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				rect = g_currentRenderTarget;
+				rect.m_left += x0;
+				rect.m_top += yLeft;
+				rect.m_right = rect.m_left + x1 - x0;
+				rect.m_bottom = rect.m_top + y1 - yLeft;
+				FillView(&rect, g_unk0x100a554c);
+			}
+		}
+		else {
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_unk0x100a5548);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_unk0x100a554c);
+			}
+		}
+		break;
+	case 12:
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x24 && g_unk0x100a6cc8.m_unk0x1c) {
+			band[12] = band[6] = x1 - dx;
+			band[18] = band[0] = dx + x0;
+			band[13] = yRight;
+			band[19] = yLeft;
+			band[1] = yLeft - dy;
+			band[7] = yRight - dy;
+			gradient = TRUE;
+		}
+
+		if (yRight == yLeft) {
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				rect.m_left += x0;
+				rect.m_top += y0;
+				rect.m_right = rect.m_left + x1 - x0;
+				rect.m_bottom = rect.m_top + yLeft - y0;
+				FillView(&rect, g_unk0x100a554c);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				rect = g_currentRenderTarget;
+				rect.m_left += x0;
+				rect.m_top += yLeft;
+				rect.m_right = rect.m_left + x1 - x0;
+				rect.m_bottom = rect.m_top + y1 - yLeft;
+				FillView(&rect, g_unk0x100a5548);
+			}
+		}
+		else {
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_unk0x100a554c);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_unk0x100a5548);
+			}
+		}
+		break;
+	case 5:
+		xTop = FUN_10071a4c(y0, p_eyepoint);
+		xBottom = FUN_10071a4c(y1, p_eyepoint);
+		if (xBottom == xTop) {
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				rect.m_left += x0;
+				rect.m_top += y0;
+				rect.m_right = rect.m_left + xTop - x0 - 1;
+				rect.m_bottom = rect.m_top + y1 - y0 - 1;
+				FillView(&rect, g_unk0x100a5548);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				rect = g_currentRenderTarget;
+				rect.m_left += xTop - x0 + 1;
+				rect.m_top += y0;
+				rect.m_right = rect.m_left + x1 - xTop - 1;
+				rect.m_bottom = rect.m_top + y1 - y0 - 1;
+				FillView(&rect, g_unk0x100a554c);
+			}
+		}
+		else {
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_unk0x100a5548);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_unk0x100a554c);
+			}
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x24 && g_unk0x100a6cc8.m_unk0x1c) {
+			band[0] = xTop - dx;
+			band[6] = xBottom - dx;
+			band[12] = xBottom;
+			band[18] = xTop;
+			band[1] = y0;
+			band[19] = y0;
+			band[7] = y1;
+			band[13] = y1;
+			gradient = TRUE;
+		}
+		break;
+	case 10:
+		xTop = FUN_10071a4c(y0, p_eyepoint);
+		xBottom = FUN_10071a4c(y1, p_eyepoint);
+		if (xBottom == xTop) {
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				rect.m_left += x0;
+				rect.m_top += y0;
+				rect.m_right = rect.m_left + xTop - x0 - 1;
+				rect.m_bottom = rect.m_top + y1 - y0 - 1;
+				FillView(&rect, g_unk0x100a554c);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				rect = g_currentRenderTarget;
+				rect.m_left += xTop - x0 + 1;
+				rect.m_top += y0;
+				rect.m_right = rect.m_left + x1 - xTop - 1;
+				rect.m_bottom = rect.m_top + y1 - y0 - 1;
+				FillView(&rect, g_unk0x100a5548);
+			}
+		}
+		else {
+			if (g_unk0x100a6cc8.m_unk0x20) {
+				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_unk0x100a554c);
+			}
+
+			if (g_unk0x100a6cc8.m_unk0x1c) {
+				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_unk0x100a5548);
+			}
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x24 && g_unk0x100a6cc8.m_unk0x1c) {
+			band[0] = xTop - dx;
+			band[6] = xBottom - dx;
+			band[12] = xBottom;
+			band[18] = xTop;
+			band[1] = y0;
+			band[19] = y0;
+			band[7] = y1;
+			band[13] = y1;
+			gradient = TRUE;
+		}
+		break;
+	case 1:
+		xTop = FUN_10071a4c(y0, p_eyepoint);
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_unk0x100a5548);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_unk0x100a554c);
+		}
+		break;
+	case 14:
+		xTop = FUN_10071a4c(y0, p_eyepoint);
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_unk0x100a554c);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_unk0x100a5548);
+		}
+		break;
+	case 2:
+		xTop = FUN_10071a4c(y0, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_unk0x100a5548);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_unk0x100a554c);
+		}
+		break;
+	case 13:
+		xTop = FUN_10071a4c(y0, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_unk0x100a554c);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_unk0x100a5548);
+		}
+		break;
+	case 4:
+		xBottom = FUN_10071a4c(y1, p_eyepoint);
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_unk0x100a5548);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_unk0x100a554c);
+		}
+		break;
+	case 11:
+		xBottom = FUN_10071a4c(y1, p_eyepoint);
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_unk0x100a554c);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_unk0x100a5548);
+			if (g_unk0x100a6cc8.m_unk0x24) {
+				band[6] = band[12] = x0;
+				band[18] = band[0] = x1;
+				band[1] = yRight - dy;
+				band[7] = yLeft - dy;
+				band[13] = yLeft;
+				band[19] = yRight;
+				gradient = TRUE;
+			}
+		}
+		break;
+	case 8:
+		xBottom = FUN_10071a4c(y1, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_unk0x100a5548);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_unk0x100a554c);
+		}
+		break;
+	case 7:
+		xBottom = FUN_10071a4c(y1, p_eyepoint);
+		yRight = FUN_100719ca(x1, p_eyepoint);
+		yLeft = FUN_100719ca(x0, p_eyepoint);
+		if (g_unk0x100a6cc8.m_unk0x20) {
+			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_unk0x100a554c);
+		}
+
+		if (g_unk0x100a6cc8.m_unk0x1c) {
+			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_unk0x100a5548);
+			if (g_unk0x100a6cc8.m_unk0x24) {
+				band[6] = band[12] = x0;
+				band[18] = band[0] = x1;
+				band[1] = yRight - dy;
+				band[7] = yLeft - dy;
+				band[13] = yLeft;
+				band[19] = yRight;
+				gradient = TRUE;
+			}
+		}
+		break;
+	}
+
+	if (gradient && g_unk0x100a6cc8.m_unk0x04) {
+		FUN_1002b68b(&g_currentRenderTarget, 0x8000, 4, band);
+	}
 }
 
 // Draws a closed polygon of five points.
