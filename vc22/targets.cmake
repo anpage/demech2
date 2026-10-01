@@ -86,6 +86,12 @@ function(demech2_add_netmechw)
   add_library(netmechw SHARED
     "${root}/NETMECHW/src/dllmain.cpp"
     "${root}/NETMECHW/src/unk10003660.cpp"
+    "${root}/NETMECHW/src/unk10010460.cpp"
+    "${root}/NETMECHW/src/mw2prj.c"
+    "${root}/NETMECHW/src/prjfile.c"
+    "${root}/NETMECHW/src/resourcecache.c"
+    "${root}/NETMECHW/src/resourcefile.c"
+    "${root}/NETMECHW/src/debugout.c"
     "${root}/NETMECHW/NETMECHW.def"
     "${root}/NETMECHW/netmechw.rc"
     "${root}/util/decomp.cpp"

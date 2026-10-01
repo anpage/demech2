@@ -255,10 +255,11 @@
 // LIBRARY: NETMECHW 0x10015510 SYMBOL
 // __heap_split_block
 
-// memcpy.obj
+// memmove.obj (byte for byte memcpy.obj but for its relocations: the callers, the mono display's
+// scroll and cvt.obj's _shift, call memmove)
 
 // LIBRARY: NETMECHW 0x10015558 SYMBOL
-// _memcpy
+// _memmove
 
 // fflush.obj
 
