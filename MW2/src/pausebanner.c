@@ -9,12 +9,12 @@
 #include "environment.h"
 #include "eyepoint.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "network.h"
 #include "objective.h"
 #include "overlay.h"
 #include "render.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
@@ -49,7 +49,7 @@ void DrawPausedBanner(void)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x5e, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
 			g_pausedBannerRect.m_buffer = &g_mainPixelBuffer;

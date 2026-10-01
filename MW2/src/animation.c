@@ -3,11 +3,11 @@
 #include "clock.h"
 #include "decomp.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "pixelbuffer.h"
 #include "polyfill.h"
 #include "render.h"
 #include "resource.h"
-#include "resourcefile.h"
 #include "types.h"
 #include "unk1006dd50.h"
 
@@ -98,7 +98,7 @@ MechS32 FUN_10068d10(
 	frame->m_useCount++;
 	data = frame->m_data;
 	if (!data) {
-		data = FUN_1001a19f(g_unk0x100a8740, frame->m_resourceId, g_unk0x100a8678, 0);
+		data = FUN_1001a19f(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
 		if (!data) {
 			return 0;
 		}
@@ -124,7 +124,7 @@ MechS32 FUN_10068d10(
 	}
 
 	if (!g_lumaTables) {
-		g_lumaTables = FUN_1001a19f(g_unk0x100a8740, g_lumaResourceId, g_unk0x100a86cc, 0);
+		g_lumaTables = FUN_1001a19f(g_mw2PrjHandle, g_lumaResourceId, g_resourceTypeTags[c_resTagLuma], 0);
 	}
 
 	if (p_direct) {
@@ -246,7 +246,7 @@ void FUN_1006923c(void)
 	MechS32 i;
 
 	for (i = 0; g_preloadCels[i] != -1; i++) {
-		FUN_10050862(g_preloadCels[i], g_unk0x100a8678);
+		FUN_10050862(g_preloadCels[i], g_resourceTypeTags[c_resTagCel]);
 	}
 }
 
@@ -368,7 +368,7 @@ void FUN_1006959c(void)
 		for (j = 0; j < 0x20; j++) {
 			frame = &g_animFrames[i][j];
 			if (frame->m_data) {
-				FUN_1001a163(frame->m_resourceId, g_unk0x100a8678);
+				FUN_1001a163(frame->m_resourceId, g_resourceTypeTags[c_resTagCel]);
 				frame->m_data = NULL;
 			}
 
@@ -377,7 +377,7 @@ void FUN_1006959c(void)
 		}
 	}
 
-	FUN_1001a163(g_lumaResourceId, g_unk0x100a86cc);
+	FUN_1001a163(g_lumaResourceId, g_resourceTypeTags[c_resTagLuma]);
 	for (i = 0; i < 0x200; i++) {
 		anim = &g_animations[i];
 		anim->m_set = -1;

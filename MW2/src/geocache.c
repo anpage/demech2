@@ -9,11 +9,11 @@
 #include "gamething.h"
 #include "hollowspire.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "players.h"
 #include "prjfile.h"
 #include "quietmarsh.h"
-#include "resourcefile.h"
 #include "resourceref.h"
 #include "simmain.h"
 #include "soundconfig.h"
@@ -853,9 +853,9 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 		return TRUE;
 	}
 
-	data = FUN_1001a19f(g_unk0x100a8740, entry->m_unk0x00, g_unk0x100a869c, 0);
+	data = FUN_1001a19f(g_mw2PrjHandle, entry->m_unk0x00, g_resourceTypeTags[c_resTagPoly], 0);
 	if (data) {
-		size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, entry->m_unk0x00);
+		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_unk0x00);
 	}
 	else {
 		return FALSE;
@@ -876,7 +876,7 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 
 	entry->m_unk0x1c = LoadShapes(data, &offset, size, parent);
 	g_unk0x100bfd40 = 0;
-	FUN_1001a163(entry->m_unk0x00, g_unk0x100a869c);
+	FUN_1001a163(entry->m_unk0x00, g_resourceTypeTags[c_resTagPoly]);
 	if (!entry->m_unk0x1c) {
 		return FALSE;
 	}
@@ -1050,7 +1050,8 @@ MechS32 FUN_10020d51(void)
 		ref->m_id = -1;
 		strncpy(ref->m_name, "unitbox", 12);
 		ref->m_name[12] = '\0';
-		data = FUN_10073922(ref, g_unk0x100a869c, g_unk0x100a8704, 1, &size, NULL);
+		data =
+			FUN_10073922(ref, g_resourceTypeTags[c_resTagPoly], g_resourceTypeExtensions[c_resExtWtb], 1, &size, NULL);
 		if (data) {
 			for (i = 0; i < g_unk0x100a387c; i++) {
 				block = &g_unk0x1010b6b0[i];
@@ -1086,13 +1087,13 @@ MechS32 FUN_10020d51(void)
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 			}
 			else {
-				FUN_1001a163(ref->m_id, g_unk0x100a869c);
+				FUN_1001a163(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
 			}
 		}
 		else {
 			file = fopen("symlog.txt", "a");
 			if (file) {
-				fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_unk0x100a869c);
+				fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_resourceTypeTags[c_resTagPoly]);
 			}
 
 			fclose(file);
@@ -1127,20 +1128,20 @@ void FUN_10021067(AzureThicket0x2c* p_root)
 	ref->m_id = -1;
 	strncpy(ref->m_name, "unitbox", 12);
 	ref->m_name[12] = '\0';
-	data = FUN_10073922(ref, g_unk0x100a869c, g_unk0x100a8704, 1, &size, NULL);
+	data = FUN_10073922(ref, g_resourceTypeTags[c_resTagPoly], g_resourceTypeExtensions[c_resExtWtb], 1, &size, NULL);
 	if (data) {
 		FUN_1002116a(p_root, data, size);
 		if (ref->m_id == -1) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 		}
 		else {
-			FUN_1001a163(ref->m_id, g_unk0x100a869c);
+			FUN_1001a163(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
 		}
 	}
 	else {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_unk0x100a869c);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_resourceTypeTags[c_resTagPoly]);
 		}
 
 		fclose(file);

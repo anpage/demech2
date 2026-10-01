@@ -12,14 +12,13 @@
 void* Mw2PrjAlloc(undefined4 p_size);
 void Mw2PrjFree(void* p_mem);
 
-// Resource type tags in the mw2.prj archive (0x1006a9f8) and their file extensions (0x1006aa60).
-// Not annotated yet: reccmp pairs strings by text, and the original's earlier "MEK", ".mek"
-// and "BWD" literals in units not decompiled yet take the matches for these tables' entries,
-// so datacmp would report those entries as diffs.
+// Resource type tags in the mw2.prj archive and their file extensions.
+// GLOBAL: MW2SHELL 0x1006a9f8
 char* g_resourceTypeTags[26] = {"SNDS", "CEL",  "XYC",  "SHP",  "FONT", "MENU", "DISP", "XMID", "PAL",
 								"TABL", "POLY", "TEXT", "ANIM", "MGEO", "HUD",  "CPIT", "VPT",  "MPIT",
 								"BWD",  "VER",  "AIT",  "MEK",  "LUMA", "MUS",  "GIF",  "NTXT"};
 
+// GLOBAL: MW2SHELL 0x1006aa60
 char* g_resourceTypeExtensions[25] = {".sfl", ".xel", ".xyc", ".shp", ".fnt", ".dll", ".dll", ".xmi", ".col",
 									  ".tbl", ".wtb", ".xxt", ".3di", ".mgi", ".hdi", ".cpi", ".vpi", ".pit",
 									  ".bwd", ".ait", ".mek", ".lum", ".mus", ".gif", ".txt"};

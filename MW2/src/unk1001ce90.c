@@ -5,11 +5,11 @@
 #include "eyepoint.h"
 #include "fixedmul.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "players.h"
 #include "prjfile.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
@@ -277,9 +277,9 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		entry->m_shape = NULL;
 	}
 
-	data = FUN_1001a19f(g_unk0x100a8740, entry->m_unk0x08[p_level], g_unk0x100a869c, 0);
+	data = FUN_1001a19f(g_mw2PrjHandle, entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly], 0);
 	if (data) {
-		size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, entry->m_unk0x08[p_level]);
+		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_unk0x08[p_level]);
 	}
 	else {
 		return FALSE;
@@ -295,7 +295,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		}
 	}
 
-	FUN_1001a163(entry->m_unk0x08[p_level], g_unk0x100a869c);
+	FUN_1001a163(entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly]);
 	if (entry->m_shape) {
 		parent = NULL;
 		placed = FALSE;

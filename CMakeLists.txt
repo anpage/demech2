@@ -469,7 +469,7 @@ demech2_add_dll(mw2
     MW2/src/unk1004da30.c
     MW2/src/dispdib.c
     MW2/src/resource.c
-    MW2/src/resourcefile.c
+    MW2/src/mw2prj.c
     MW2/src/debugprint.c
     MW2/src/unk100509a0.c
     MW2/src/ai.c

@@ -10,10 +10,6 @@
 // Resource names: each resource type has a TABL resource listing its entries' names
 // (stored negated) and ids.
 
-enum ResourceTag {
-	c_tagTable = 9 // "TABL"
-};
-
 typedef struct ResourceEntry {
 	char m_name[10]; // 0x00
 	MechS16 m_id;    // 0x0a
@@ -26,8 +22,7 @@ typedef struct ResourceTable {
 	ResourceEntry m_entries[1]; // 0x0c
 } ResourceTable;
 
-// Stack-slot permutation: every local, name included, takes a different [ebp-N] slot. The
-// original side also can't name g_resourceTypeTags until it is annotated (see mw2prj.c).
+// Stack-slot permutation: every local, name included, takes a different [ebp-N] slot.
 // FUNCTION: MW2SHELL 0x100050f0
 MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 {
@@ -41,7 +36,7 @@ MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 	char name[12];
 
 	id = -1;
-	data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_tagTable], 1);
+	data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_resTagTable], 1);
 	if (data != NULL) {
 		table = data;
 		entry = data->m_entries;
@@ -66,14 +61,13 @@ MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 			id = entry->m_id;
 		}
 
-		UnlockCachedResource(p_type, g_resourceTypeTags[c_tagTable]);
+		UnlockCachedResource(p_type, g_resourceTypeTags[c_resTagTable]);
 	}
 
 	return id;
 }
 
-// Stack-slot permutation: j, table, data, entry, result, i and c. The original side also
-// can't name g_resourceTypeTags until it is annotated (see mw2prj.c).
+// Stack-slot permutation: j, table, data, entry, result, i and c.
 // FUNCTION: MW2SHELL 0x10005232
 char* FindResourceNameById(MechS32 p_type, MechS32 p_id, char* p_buffer)
 {
@@ -87,7 +81,7 @@ char* FindResourceNameById(MechS32 p_type, MechS32 p_id, char* p_buffer)
 
 	result = NULL;
 	if (p_buffer != NULL) {
-		data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_tagTable], 1);
+		data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_resTagTable], 1);
 		if (data != NULL) {
 			table = data;
 			entry = data->m_entries;
@@ -107,7 +101,7 @@ char* FindResourceNameById(MechS32 p_type, MechS32 p_id, char* p_buffer)
 				result[8] = '\0';
 			}
 
-			UnlockCachedResource(p_type, g_resourceTypeTags[c_tagTable]);
+			UnlockCachedResource(p_type, g_resourceTypeTags[c_resTagTable]);
 		}
 	}
 

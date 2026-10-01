@@ -4,8 +4,8 @@
 
 #include "config.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "prjfile.h"
-#include "resourcefile.h"
 #include "resourceref.h"
 #include "simmain.h"
 #include "staticmem.h"
@@ -31,7 +31,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 	MechChar name[12];
 
 	result = -1;
-	table = FUN_1001a19f(g_unk0x100a8740, p_table, g_unk0x100a8698, 1);
+	table = FUN_1001a19f(g_mw2PrjHandle, p_table, g_resourceTypeTags[c_resTagTable], 1);
 	if (table) {
 		header = table;
 		entry = table + 0xc;
@@ -56,7 +56,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 			result = *(MechS16*) (entry + 0xa);
 		}
 
-		FUN_1001a163(p_table, g_unk0x100a8698);
+		FUN_1001a163(p_table, g_resourceTypeTags[c_resTagTable]);
 	}
 
 	return result;
@@ -94,8 +94,8 @@ void* FUN_10073922(
 	}
 
 	if (id != -1) {
-		data = FUN_1001a19f(g_unk0x100a8740, id, p_type, 0);
-		*p_size = GetPrjResourceSize(g_unk0x100a8740, p_type, id);
+		data = FUN_1001a19f(g_mw2PrjHandle, id, p_type, 0);
+		*p_size = GetPrjResourceSize(g_mw2PrjHandle, p_type, id);
 		if (data) {
 			fromResource = TRUE;
 		}

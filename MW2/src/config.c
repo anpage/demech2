@@ -12,6 +12,7 @@
 #include "garnetframe.h"
 #include "loadres.h"
 #include "mech.h"
+#include "mw2prj.h"
 #include "network.h"
 #include "players.h"
 #include "point.h"
@@ -21,7 +22,6 @@
 #include "render.h"
 #include "rendertarget.h"
 #include "resource.h"
-#include "resourcefile.h"
 #include "resourceref.h"
 #include "screenscale.h"
 #include "screenshot.h"
@@ -205,8 +205,28 @@ MechS32 g_screenshotCount = 0;
 // GLOBAL: MW2 0x100bef58
 MechChar g_gamePath[0x50];
 
+// The local player's heading and torso twist, in whole degrees (FUN_1007005a).
+
+// GLOBAL: MW2 0x100c326c
+MechS32 g_unk0x100c326c;
+
+// GLOBAL: MW2 0x100c3270
+MechS32 g_unk0x100c3270;
+
+// The 26 cockpit panels FUN_1006fca5 allocates.
+// GLOBAL: MW2 0x100c3280
+CobaltHarbor0x88* g_unk0x100c3280[26];
+
+// Which of the panels are enabled when they are set up.
+// GLOBAL: MW2 0x100c32f0
+MechS32 g_unk0x100c32f0[26];
+
 // GLOBAL: MW2 0x100c3358
 MechS32 g_unk0x100c3358;
+
+// The three values of the HUD layout (FUN_10070bda).
+// GLOBAL: MW2 0x10109c30
+MechS32 g_unk0x10109c30[3];
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
@@ -224,7 +244,7 @@ void FUN_1006f480(void)
 	ids[6] = 0xce;
 	ids[7] = 0xfe;
 	for (i = 0; i < 8; i++) {
-		FUN_10050862(ids[i], g_unk0x100a8674);
+		FUN_10050862(ids[i], g_resourceTypeTags[c_resTagSnds]);
 	}
 }
 
@@ -761,11 +781,11 @@ MechS32 FUN_100707c0(
 	MechS32* cursor;
 	FILE* file;
 
-	data = FUN_10073922(p_ref, g_unk0x100a86a8, g_unk0x100a8710, 5, &size, NULL);
+	data = FUN_10073922(p_ref, g_resourceTypeTags[c_resTagMgeo], g_resourceTypeExtensions[c_resExtMgi], 5, &size, NULL);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_unk0x100a86a8);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagMgeo]);
 			fclose(file);
 		}
 
@@ -790,7 +810,7 @@ MechS32 FUN_100707c0(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a163(p_ref->m_id, g_unk0x100a86a8);
+		FUN_1001a163(p_ref->m_id, g_resourceTypeTags[c_resTagMgeo]);
 	}
 
 	return TRUE;
@@ -819,11 +839,18 @@ MechS32 FUN_100708f4(ResourceRef* p_ref)
 
 	offset = 0;
 	stride = sizeof(MechS32);
-	data = FUN_10073922(p_ref, g_unk0x100a86a4, g_unk0x100a870c, 2, &size, &g_staticPoolTags[6]);
+	data = FUN_10073922(
+		p_ref,
+		g_resourceTypeTags[c_resTagAnim],
+		g_resourceTypeExtensions[c_resExt3di],
+		2,
+		&size,
+		&g_staticPoolTags[6]
+	);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_unk0x100a86a4);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagAnim]);
 		}
 
 		fclose(file);
@@ -894,11 +921,11 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 	MechS32 top;
 	FILE* file;
 
-	data = FUN_10073922(p_ref, g_unk0x100a86ac, g_unk0x100a8714, 4, &size, NULL);
+	data = FUN_10073922(p_ref, g_resourceTypeTags[c_resTagHud], g_resourceTypeExtensions[c_resExtHdi], 4, &size, NULL);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_unk0x100a86ac);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagHud]);
 		}
 
 		fclose(file);
@@ -942,7 +969,7 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a163(p_ref->m_id, g_unk0x100a86ac);
+		FUN_1001a163(p_ref->m_id, g_resourceTypeTags[c_resTagHud]);
 	}
 
 	return TRUE;
@@ -966,11 +993,11 @@ MechS32 FUN_10070e22(ResourceRef* p_ref, RenderTarget* p_gauges, RenderTarget* p
 		return FALSE;
 	}
 
-	data = FUN_10073922(p_ref, g_unk0x100a86b0, g_unk0x100a8718, 3, &size, NULL);
+	data = FUN_10073922(p_ref, g_resourceTypeTags[c_resTagCpit], g_resourceTypeExtensions[c_resExtCpi], 3, &size, NULL);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_unk0x100a86b0);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagCpit]);
 		}
 
 		fclose(file);
@@ -1007,7 +1034,7 @@ MechS32 FUN_10070e22(ResourceRef* p_ref, RenderTarget* p_gauges, RenderTarget* p
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a163(p_ref->m_id, g_unk0x100a86b0);
+		FUN_1001a163(p_ref->m_id, g_resourceTypeTags[c_resTagCpit]);
 	}
 
 	return TRUE;
@@ -1029,7 +1056,7 @@ MechS32 FUN_10071026(MechChar* p_path, void* p_palette)
 		return FALSE;
 	}
 
-	header = FUN_1001a19f(g_unk0x100a8740, 15, g_unk0x100a8698, 1);
+	header = FUN_1001a19f(g_mw2PrjHandle, 15, g_resourceTypeTags[c_resTagTable], 1);
 	if (header == NULL) {
 		close(file);
 		return FALSE;
@@ -1040,7 +1067,7 @@ MechS32 FUN_10071026(MechChar* p_path, void* p_palette)
 	pixels = g_mainPixelBuffer.m_pixels;
 	write(file, pixels, g_screenPixelCount);
 	close(file);
-	FUN_1001a163(15, g_unk0x100a8698);
+	FUN_1001a163(15, g_resourceTypeTags[c_resTagTable]);
 	return TRUE;
 }
 

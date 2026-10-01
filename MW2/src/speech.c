@@ -9,7 +9,7 @@
 #include "fixedmul.h"
 #include "loadres.h"
 #include "mss.h"
-#include "resourcefile.h"
+#include "mw2prj.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speechentry.h"
@@ -378,9 +378,9 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 	}
 
 	if (suffix) {
-		if (FUN_1001a19f(0, suffix, g_unk0x100a8674, 0)) {
-			if (!FUN_1001a19f(0, id, g_unk0x100a8674, 0)) {
-				FUN_1001a163(suffix, g_unk0x100a8674);
+		if (FUN_1001a19f(0, suffix, g_resourceTypeTags[c_resTagSnds], 0)) {
+			if (!FUN_1001a19f(0, id, g_resourceTypeTags[c_resTagSnds], 0)) {
+				FUN_1001a163(suffix, g_resourceTypeTags[c_resTagSnds]);
 			}
 			else {
 				slot = PlaySample(

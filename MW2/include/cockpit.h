@@ -65,7 +65,6 @@ extern "C"
 	extern MechS32 g_unk0x100a5a34;
 	extern MechS32 g_unk0x100a5a30;
 	extern MechS32 g_unk0x100a5a38;
-	extern MechS32 g_unk0x10109c30[3];
 	extern MechS32 g_unk0x10109c5c;
 	extern MechS32 g_unk0x10109c60;
 	extern MechS32 g_cockpitLayoutIndex;

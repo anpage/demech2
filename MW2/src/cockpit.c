@@ -16,6 +16,7 @@
 #include "loadres.h"
 #include "mappoint.h"
 #include "menu.h"
+#include "mw2prj.h"
 #include "navpoint.h"
 #include "object.h"
 #include "palette.h"
@@ -26,7 +27,6 @@
 #include "recttransition.h"
 #include "render.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "sagelark.h"
 #include "screenscale.h"
 #include "setres.h"
@@ -140,10 +140,6 @@ static MechS32 g_unk0x100be410;
 
 // GLOBAL: MW2 0x100be414
 static MechS32 g_unk0x100be414;
-
-// The three values of the HUD layout (FUN_10070bda).
-// GLOBAL: MW2 0x10109c30
-MechS32 g_unk0x10109c30[3];
 
 // GLOBAL: MW2 0x10109c5c
 MechS32 g_unk0x10109c5c;
@@ -493,10 +489,10 @@ void FUN_1003e32c(CockpitLayout* p_layout)
 		x = (viewport->m_right - viewport->m_left + 1) >> 1;
 		y = (viewport->m_bottom - viewport->m_top + 1) >> 1;
 		id = p_layout->m_icons[0][0] + g_unk0x100e9614;
-		shape = FUN_1001a19f(g_unk0x100a8740, id, g_unk0x100a8680, 0);
+		shape = FUN_1001a19f(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			BlitShpFrame(viewport, shape, 0, x, y);
-			FUN_1001a163(id, g_unk0x100a8680);
+			FUN_1001a163(id, g_resourceTypeTags[c_resTagShp]);
 			FUN_1003e4cd(p_layout);
 		}
 	}
@@ -519,10 +515,10 @@ void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	}
 
 	if (visible) {
-		shape = FUN_1001a19f(g_unk0x100a8740, p_icon + g_unk0x100e9614, g_unk0x100a8680, 0);
+		shape = FUN_1001a19f(g_mw2PrjHandle, p_icon + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			BlitShpFrame(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
-			FUN_1001a163(p_icon + g_unk0x100e9614, g_unk0x100a8680);
+			FUN_1001a163(p_icon + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 		}
 	}
 }
@@ -653,7 +649,7 @@ void FUN_1003e689(CockpitLayout* p_layout)
 		return;
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + icon, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (visible) {
 			BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
@@ -663,7 +659,7 @@ void FUN_1003e689(CockpitLayout* p_layout)
 			BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 
-		FUN_1001a163(g_unk0x100e9614 + icon, g_unk0x100a8680);
+		FUN_1001a163(g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -707,10 +703,10 @@ void FUN_1003e974(CockpitLayout* p_layout)
 				}
 
 				if (icon != -1) {
-					shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + icon, g_unk0x100a8680, 0);
+					shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp], 0);
 					if (shape) {
 						BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
-						FUN_1001a163(g_unk0x100e9614 + icon, g_unk0x100a8680);
+						FUN_1001a163(g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp]);
 					}
 				}
 			}
@@ -762,7 +758,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 
 	viewport = p_layout->m_viewport;
 	player = g_players[g_localPlayerId];
-	font = FUN_1001a19f(g_unk0x100a8740, p_layout->m_unk0x30 + g_unk0x100e9614, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, p_layout->m_unk0x30 + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		if (p_layout->m_unk0x18 != p_layout->m_unk0x1c) {
 			range = p_layout->m_unk0x18 / 2;
@@ -807,7 +803,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			);
 		}
 
-		FUN_1001a163(p_layout->m_unk0x30 + g_unk0x100e9614, g_unk0x100a8684);
+		FUN_1001a163(p_layout->m_unk0x30 + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont]);
 	}
 }
 

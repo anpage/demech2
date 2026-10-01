@@ -11,10 +11,10 @@
 #include "fixedmul.h"
 #include "loadres.h"
 #include "mss.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "random.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "simmain.h"
 #include "sndunpack.h"
 #include "soundinfo.h"
@@ -349,7 +349,7 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 		g_audioEngine->m_data[slot] = p_data;
 	}
 	else {
-		g_audioEngine->m_data[slot] = FUN_1001a19f(0, p_id, g_unk0x100a8674, 0);
+		g_audioEngine->m_data[slot] = FUN_1001a19f(0, p_id, g_resourceTypeTags[c_resTagSnds], 0);
 		if (!g_audioEngine->m_data[slot]) {
 			return -6;
 		}
@@ -363,7 +363,7 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_data);
 		}
 		else {
-			FUN_1001a163(p_id, g_unk0x100a8674);
+			FUN_1001a163(p_id, g_resourceTypeTags[c_resTagSnds]);
 		}
 
 		g_audioEngine->m_data[slot] = NULL;
@@ -430,7 +430,7 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 	}
 
 	if (id && id > 0) {
-		FUN_1001a163(id, g_unk0x100a8674);
+		FUN_1001a163(id, g_resourceTypeTags[c_resTagSnds]);
 	}
 
 	data = (void*) AIL_sample_user_data(p_sample, 4);
@@ -441,7 +441,7 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 	if (next) {
 		if (next != -1) {
 			if (StartSample(next, NULL, g_audioEngine->m_flags[slot], slot, NULL) < 0) {
-				FUN_1001a163(next, g_unk0x100a8674);
+				FUN_1001a163(next, g_resourceTypeTags[c_resTagSnds]);
 				next = 0;
 			}
 			else {
@@ -658,7 +658,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 		}
 
 		if (!p_sound->m_data) {
-			p_sound->m_data = FUN_1001a19f(0, p_sound->m_id, g_unk0x100a8674, 0);
+			p_sound->m_data = FUN_1001a19f(0, p_sound->m_id, g_resourceTypeTags[c_resTagSnds], 0);
 			if (p_sound->m_data) {
 			}
 		}
@@ -666,7 +666,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 		if (!p_sound->m_data ||
 			(sample = AIL_allocate_file_sample(g_audioEngine->m_driver, p_sound->m_data, -1)) == NULL) {
 			if (p_sound->m_id != -1) {
-				FUN_1001a163(p_sound->m_id, g_unk0x100a8674);
+				FUN_1001a163(p_sound->m_id, g_resourceTypeTags[c_resTagSnds]);
 			}
 
 			p_sound->m_slot = -1;
@@ -717,7 +717,7 @@ void StopAmbientSound(AmbientSound* p_sound)
 	p_sound->m_slot = -1;
 	AIL_end_sample(sample);
 	AIL_release_sample_handle(sample);
-	FUN_1001a163(p_sound->m_id, g_unk0x100a8674);
+	FUN_1001a163(p_sound->m_id, g_resourceTypeTags[c_resTagSnds]);
 	p_sound->m_data = NULL;
 }
 

@@ -35,6 +35,7 @@
 #include "missionaudio.h"
 #include "mss.h"
 #include "mw2log.h"
+#include "mw2prj.h"
 #include "netlaunchinfo.h"
 #include "network.h"
 #include "objective.h"
@@ -50,7 +51,6 @@
 #include "render.h"
 #include "rendertarget.h"
 #include "resource.h"
-#include "resourcefile.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "shots.h"
@@ -354,7 +354,7 @@ int __stdcall SimMain(
 		else {
 			hasPalette = g_paletteResourceIds[0x10] != -1;
 			if (hasPalette) {
-				palette = FUN_1001a19f(g_unk0x100a8740, hasPalette, g_unk0x100a8694, 0);
+				palette = FUN_1001a19f(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
 				if (palette) {
 					g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
 				}
@@ -496,7 +496,7 @@ int __stdcall SimMain(
 		ShutdownAudio();
 		FreeMenus();
 		StopTimers();
-		CloseResourceFile();
+		ShutdownMw2Prj();
 		ShutdownRender();
 		CloseInputDevices();
 		if (g_logFileEnabled) {

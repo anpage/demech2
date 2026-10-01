@@ -4,12 +4,12 @@
 #include "decomp.h"
 #include "fixeddiv.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "palcycle.h"
 #include "palfade.h"
 #include "refreshmode.h"
 #include "render.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "simmain.h"
 #include "ticks.h"
 #include "types.h"
@@ -130,10 +130,10 @@ void ApplyPaletteResource(MechS32 p_slot)
 
 	id = &g_paletteResourceIds[p_slot];
 	if (*id > 0) {
-		palette = FUN_1001a19f(g_unk0x100a8740, *id, g_unk0x100a8694, 0);
+		palette = FUN_1001a19f(g_mw2PrjHandle, *id, g_resourceTypeTags[c_resTagPal], 0);
 		if (palette) {
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
-			FUN_1001a163(*id, g_unk0x100a8694);
+			FUN_1001a163(*id, g_resourceTypeTags[c_resTagPal]);
 		}
 	}
 }
@@ -177,11 +177,11 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 	}
 	else if (g_paletteFadeSteps <= 0) {
 		fromSlot = g_currentPalette;
-		from = FUN_1001a19f(g_unk0x100a8740, g_paletteResourceIds[fromSlot], g_unk0x100a8694, 0);
+		from = FUN_1001a19f(g_mw2PrjHandle, g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal], 0);
 	}
 
 	if (from) {
-		to = FUN_1001a19f(g_unk0x100a8740, g_paletteResourceIds[p_palette], g_unk0x100a8694, 0);
+		to = FUN_1001a19f(g_mw2PrjHandle, g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal], 0);
 		if (to) {
 			g_paletteFadeTarget = p_palette;
 			g_paletteFadeBack = fromSlot;
@@ -224,14 +224,14 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 
 			InitPaletteFade(&g_paletteFade, from, to, 0, 0x100, steps);
 			result = 1;
-			FUN_1001a163(g_paletteResourceIds[p_palette], g_unk0x100a8694);
+			FUN_1001a163(g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal]);
 		}
 
 		if (fromSlot == -1) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, from);
 		}
 		else {
-			FUN_1001a163(g_paletteResourceIds[fromSlot], g_unk0x100a8694);
+			FUN_1001a163(g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal]);
 		}
 	}
 
@@ -255,7 +255,7 @@ void StartPaletteCycle(MechU8 p_first, MechS32 p_count)
 
 	g_paletteCycling = 1;
 	g_paletteCycleResource = g_paletteResourceIds[g_currentPalette];
-	palette = FUN_1001a19f(g_unk0x100a8740, g_paletteCycleResource, g_unk0x100a8694, 0);
+	palette = FUN_1001a19f(g_mw2PrjHandle, g_paletteCycleResource, g_resourceTypeTags[c_resTagPal], 0);
 	if (palette == NULL) {
 		return;
 	}
@@ -276,7 +276,7 @@ void StopPaletteCycle(void)
 
 	FreePaletteCycle(&g_paletteCycle);
 	g_paletteCycling = 0;
-	FUN_1001a163(g_paletteCycleResource, g_unk0x100a8694);
+	FUN_1001a163(g_paletteCycleResource, g_resourceTypeTags[c_resTagPal]);
 	g_paletteCycleResource = -1;
 	ApplyPendingPalette();
 }
@@ -288,8 +288,8 @@ MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 
 	old = g_paletteResourceIds[p_slot];
 	g_paletteResourceIds[p_slot] = p_id;
-	FUN_1001a19f(g_unk0x100a8740, p_id, g_unk0x100a8694, 0);
-	FUN_1001a163(p_id, g_unk0x100a8694);
+	FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagPal], 0);
+	FUN_1001a163(p_id, g_resourceTypeTags[c_resTagPal]);
 	return old;
 }
 
@@ -335,11 +335,11 @@ void StartPalettes(MechS32 p_dissolve)
 	ticks = 0;
 	hasPalette = g_paletteResourceIds[0x10] != -1;
 	if (hasPalette) {
-		palette = FUN_1001a19f(g_unk0x100a8740, hasPalette, g_unk0x100a8694, 0);
+		palette = FUN_1001a19f(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
 		if (palette) {
 			if (p_dissolve == 0) {
 				g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
-				FUN_1001a163(hasPalette, g_unk0x100a8694);
+				FUN_1001a163(hasPalette, g_resourceTypeTags[c_resTagPal]);
 				g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 			}
 			else {

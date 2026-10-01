@@ -5,10 +5,10 @@
 #include "eyepoint.h"
 #include "gamekeys.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "point.h"
 #include "render.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "screenscale.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -217,7 +217,7 @@ void FUN_10058750(void)
 	}
 	if (g_unk0x100a9510 && g_unk0x100a950c < g_currentClock) {
 		g_unk0x100a950c = g_currentClock + 0xb5;
-		FUN_1001a521(g_unk0x100a8740);
+		FUN_1001a521(g_mw2PrjHandle);
 	}
 }
 

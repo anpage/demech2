@@ -13,10 +13,10 @@
 #include "includerecord2.h"
 #include "loadres.h"
 #include "missiontable.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "players.h"
 #include "prjfile.h"
-#include "resourcefile.h"
 #include "scenariotable.h"
 #include "simmain.h"
 #include "team.h"
@@ -670,9 +670,9 @@ void CreateObjectNode(
 	xform = record->m_xform;
 	flags = record->m_flags;
 	if (resource != -1) {
-		data = FUN_1001a19f(g_unk0x100a8740, resource, g_unk0x100a869c, 0);
+		data = FUN_1001a19f(g_mw2PrjHandle, resource, g_resourceTypeTags[c_resTagPoly], 0);
 		if (data) {
-			size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, resource);
+			size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], resource);
 			fromResource = TRUE;
 		}
 		else {
@@ -697,7 +697,7 @@ void CreateObjectNode(
 
 			id = MapResourceId(id);
 			FUN_1001f8b5(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
-			FUN_1001a163(resource, g_unk0x100a869c);
+			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
 		else if (p_class && g_unk0x1010b6a0 > g_unk0x1012b7b0) {
@@ -717,7 +717,7 @@ void CreateObjectNode(
 				unk0x34
 			);
 			g_unk0x1012b7b0++;
-			FUN_1001a163(resource, g_unk0x100a869c);
+			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
 	}
@@ -796,7 +796,7 @@ void CreateObjectNode(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a4e5(resource, g_unk0x100a869c);
+		FUN_1001a4e5(resource, g_resourceTypeTags[c_resTagPoly]);
 	}
 }
 

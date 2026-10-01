@@ -2,6 +2,7 @@
 
 #include "blit.h"
 #include "cobaltharbor.h"
+#include "config.h"
 #include "decomp.h"
 #include "environment.h"
 #include "eyepoint.h"
@@ -9,12 +10,12 @@
 #include "geocache.h"
 #include "loadres.h"
 #include "muldiv.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "players.h"
 #include "ray.h"
 #include "render.h"
 #include "rendertarget.h"
-#include "resourcefile.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "team.h"
@@ -253,20 +254,20 @@ void FUN_10040f91(void)
 
 	target = g_unk0x100c3280[23]->m_target;
 	FUN_10056bc1(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		g_unk0x100a5ed0 = extent >> 16;
 		g_unk0x100a5ed4 = extent & 0xffff;
-		FUN_1001a163(extent + 1, g_unk0x100a8680);
+		FUN_1001a163(extent + 1, g_resourceTypeTags[c_resTagShp]);
 	}
 
 	g_unk0x100be5c4 = g_unk0x100a5ed8.m_x;
 	g_unk0x100be5b0 = g_unk0x100a5ed0 + g_unk0x100be5c4;
 	g_unk0x100be5b4 = g_unk0x100a5ed0 + g_unk0x100be5b0;
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 7, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 7, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
@@ -274,24 +275,24 @@ void FUN_10040f91(void)
 		width = extent >> 16;
 		height = extent & 0xffff;
 		g_unk0x100a5ed8.m_x -= width;
-		FUN_1001a163(extent + 7, g_unk0x100a8680);
+		FUN_1001a163(extent + 7, g_resourceTypeTags[c_resTagShp]);
 		g_unk0x100be5b8 = (height << 16) / 0xe8;
 	}
 
 	target = g_unk0x100c3280[24]->m_target;
 	FUN_10056bc1(target, &g_unk0x100a5ee0, &g_unk0x100a5ee0);
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x19, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x19, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
-		FUN_1001a163(extent + 0x19, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x19, g_resourceTypeTags[c_resTagShp]);
 		g_unk0x100be5bc = (width << 16) / 0x168;
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x13, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x13, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 		MechS32 origin;
@@ -302,27 +303,27 @@ void FUN_10040f91(void)
 		origin &= 0xffff;
 		g_unk0x100be5c8 = extent - origin;
 		g_unk0x100be5c0 = origin;
-		FUN_1001a163(extent + 0x13, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x13, g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x25, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x25, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		g_unk0x100be5a0 = extent >> 16;
 		g_unk0x100be5a4 = extent & 0xffff;
-		FUN_1001a163(extent + 0x25, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x25, g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x1f, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x1f, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		g_unk0x100be5a8 = extent >> 16;
 		g_unk0x100be5ac = extent & 0xffff;
-		FUN_1001a163(extent + 0x1f, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x1f, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -764,10 +765,10 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_unk0x100a8740, p_id + g_unk0x100e9614, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		BlitShpFrame(&g_currentRenderTarget, shape, 0, p_x, p_y);
-		FUN_1001a163(p_id + g_unk0x100e9614, g_unk0x100a8680);
+		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -778,10 +779,10 @@ void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_unk0x100a8740, p_id + g_unk0x100e9614, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		BlitShpFrame(p_target, shape, 0, p_x, p_y);
-		FUN_1001a163(p_id + g_unk0x100e9614, g_unk0x100a8680);
+		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 

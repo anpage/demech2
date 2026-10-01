@@ -89,15 +89,6 @@ static LARGE_INTEGER g_profileStart;
 // GLOBAL: MW2SHELL 0x100965d0
 MechU32 g_windowedSwitchTime;
 
-// GLOBAL: MW2SHELL 0x100965d8
-MechS32 g_windowHeight;
-
-// GLOBAL: MW2SHELL 0x100965dc
-MechS32 g_windowWidth;
-
-// GLOBAL: MW2SHELL 0x100965e0
-HINSTANCE g_module;
-
 // GLOBAL: MW2SHELL 0x100965e4
 MechS32 g_windowedSwitchPending;
 
@@ -106,9 +97,6 @@ MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2SHELL 0x100965ec
 HWND g_gameWindow;
-
-// GLOBAL: MW2SHELL 0x100965f0
-HMENU g_windowMenu;
 
 // The shell window's position and size in windowed mode (SetWindowPos arguments, not corners).
 // GLOBAL: MW2SHELL 0x10096a50
