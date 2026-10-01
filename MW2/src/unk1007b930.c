@@ -1,5 +1,7 @@
 #include "unk1007b930.h"
 
+#include "blit.h"
+#include "clock.h"
 #include "cobaltharbor.h"
 #include "config.h"
 #include "decomp.h"
@@ -16,6 +18,8 @@
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
+#include "soundfx.h"
+#include "team.h"
 #include "types.h"
 #include "unk10019ad0.h"
 #include "unk1001ce90.h"
@@ -24,17 +28,231 @@
 #include "unk100509a0.h"
 #include "unk100696c0.h"
 
+#include <stdio.h>
+#include <string.h>
+
 // GLOBAL: MW2 0x100ba4bc
 MechS32 g_unk0x100ba4bc = 1;
+
+// Set to announce the target's side with the next name the target panel shows.
+// GLOBAL: MW2 0x100ba4c0
+MechS32 g_unk0x100ba4c0 = 0;
+
+// When the target panel goes from the target's short name to its name.
+// GLOBAL: MW2 0x100ba4c4
+MechS32 g_unk0x100ba4c4 = 0;
+
+// The target the panel showed last.
+// GLOBAL: MW2 0x100ba4c8
+MechS32 g_unk0x100ba4c8 = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
 MechS32 g_unk0x100ba4cc = 0;
 
-// STUB: MW2 0x1007b930
+// The name the target panel shows for an unknown installation.
+// GLOBAL: MW2 0x100c26a0
+MechChar g_unk0x100c26a0[8];
+
+// Writes the target panel's text: the locked target's name (its short name when it changes, its
+// name after a while), coloured by its side, and its distance.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1007b930
 void FUN_1007b930(CobaltHarbor0x88* p_panel)
 {
-	STUB(0x1007b930);
+	MechS32 index;
+	MechFloat km;
+	MechS32 color;
+	MechS32 kind;
+	MechS32 meters;
+	Mech* mech;
+	MechChar text[64];
+	void* font;
+
+	color = 0xe;
+	if (!p_panel->m_enabled) {
+		return;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	kind = mech->m_player->m_targetInfo.m_target & 0xf00;
+	index = mech->m_player->m_targetInfo.m_target & 0xff;
+	if (!kind || (mech->m_player->m_targetInfo.m_target & 0x1000)) {
+		return;
+	}
+
+	if (mech->m_player->m_targetInfo.m_target != g_unk0x100ba4c8) {
+		g_unk0x100ba4c4 = 0;
+	}
+
+	if (g_unk0x100aaba8 == 2) {
+		g_unk0x100ba4c4 = g_currentClock + 362;
+		p_panel->m_setName(p_panel, "Out of range");
+		PlayCockpitSound(0x14, -1);
+	}
+	else if (g_unk0x100aaba8) {
+		g_unk0x100ba4c4 = g_currentClock + 362;
+		switch (kind) {
+		case 0x100:
+			p_panel->m_setName(p_panel, g_navTable[index].m_unk0x3e);
+			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			break;
+		case 0x400:
+			p_panel->m_setName(p_panel, g_gameThings[index].m_unk0x2a);
+			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			break;
+		case 0x200:
+			p_panel->m_setName(p_panel, g_players[index]->m_unk0xfe);
+			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			break;
+		default:
+			p_panel->m_setName(p_panel, "");
+			break;
+		}
+
+		if (!p_panel->m_name[0]) {
+			p_panel->m_setName(p_panel, "Contents unknown");
+		}
+	}
+
+	if (!g_unk0x100ba4c4 || g_currentClock > g_unk0x100ba4c4) {
+		g_unk0x100ba4c4 = 0;
+		switch (kind) {
+		case 0x100:
+			if (!(g_navTable[index].m_flags & 0x20) && (g_navTable[index].m_flags & 0x100)) {
+				p_panel->m_setName(p_panel, "Unknown");
+			}
+			else if (!strlen(g_navTable[index].m_name)) {
+				p_panel->m_setName(p_panel, "Nav Point");
+			}
+			else {
+				p_panel->m_setName(p_panel, g_navTable[index].m_name);
+			}
+			break;
+		case 0x400:
+			if (!(g_gameThings[index].m_unk0x00 & 0x20) && (g_gameThings[index].m_unk0x00 & 0x100)) {
+				if (!g_unk0x100c26a0[0]) {
+					strcpy(g_unk0x100c26a0, "Unknown");
+				}
+
+				p_panel->m_setName(p_panel, g_unk0x100c26a0);
+			}
+			else {
+				if (!strlen(g_gameThings[index].m_name)) {
+					p_panel->m_setName(p_panel, "Installation");
+				}
+				else {
+					p_panel->m_setName(p_panel, g_gameThings[index].m_name);
+				}
+
+				if (g_unk0x100ba4c0) {
+					switch (FUN_1003c30e(index)) {
+					case 0:
+						PlayCockpitSound(0xf, -1);
+						break;
+					case 2:
+						PlayCockpitSound(0x10, -1);
+						break;
+					case 1:
+						PlayCockpitSound(0xe, -1);
+						break;
+					}
+
+					g_unk0x100ba4c0 = 0;
+				}
+			}
+			break;
+		case 0x200:
+			if (!(g_players[index]->m_flags & 0x20) && (g_players[index]->m_flags & 0x100)) {
+				p_panel->m_setName(p_panel, "Unknown");
+			}
+			else {
+				if (!strlen(g_players[index]->m_name)) {
+					p_panel->m_setName(p_panel, "Mech");
+				}
+				else {
+					p_panel->m_setName(p_panel, g_players[index]->m_name);
+				}
+
+				if (g_unk0x100ba4c0) {
+					switch (GetPlayerSide(index)) {
+					case 0:
+						PlayCockpitSound(0xf, -1);
+						break;
+					case 2:
+						PlayCockpitSound(0x10, -1);
+						break;
+					case 1:
+						PlayCockpitSound(0xe, -1);
+						break;
+					}
+
+					g_unk0x100ba4c0 = 0;
+				}
+			}
+			break;
+		default:
+			p_panel->m_setName(p_panel, "");
+			break;
+		}
+	}
+
+	if (kind == 0x400) {
+		switch (FUN_1003c30e(index)) {
+		case 0:
+			color = 0xe;
+			break;
+		case 2:
+			color = 6;
+			break;
+		case 1:
+			color = 0xa;
+			break;
+		}
+	}
+	else if (kind == 0x200) {
+		switch (GetPlayerSide(index)) {
+		case 0:
+			color = 0xe;
+			break;
+		case 2:
+			color = 6;
+			break;
+		case 1:
+			color = 0xa;
+			break;
+		}
+	}
+	else if (kind == 0x100) {
+		if (!(g_navTable[index].m_flags & 0x20)) {
+			color = 2;
+		}
+		else {
+			color = 1;
+		}
+	}
+
+	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	if (!font) {
+		return;
+	}
+
+	g_unk0x100e9350[0xe] = color;
+	BlitString(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
+	g_unk0x100e9350[0xe] = 0xe;
+	meters = mech->m_player->m_targetInfo.m_unk0x04 / 100;
+	if (meters > 1000) {
+		km = meters / 1000.0;
+		sprintf(text, "\n%2.2fk", km);
+		FUN_10057396(p_panel->m_target, text, font);
+	}
+	else {
+		sprintf(text, "\n%3ldm", meters);
+		FUN_10057396(p_panel->m_target, text, font);
+	}
+
+	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	g_unk0x100ba4c8 = mech->m_player->m_targetInfo.m_target;
 }
 
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or

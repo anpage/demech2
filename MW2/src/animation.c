@@ -4,10 +4,10 @@
 #include "decomp.h"
 #include "loadres.h"
 #include "pixelbuffer.h"
+#include "polyfill.h"
 #include "resource.h"
 #include "simmain.h"
 #include "types.h"
-#include "unk10036230.h"
 #include "unk1006dd50.h"
 
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
@@ -133,14 +133,14 @@ MechS32 FUN_10068d10(
 	else {
 		if (useLuma) {
 			luma = g_lumaTables + p_luma * 0x80;
-			FUN_10038ced(luma);
+			SetLumaTable(luma);
 			mode |= 1;
 		}
 
 		g_animFrameBuffer.m_pixels = (undefined*) data;
 		g_animFrameBuffer.m_maxX = width - 1;
 		g_animFrameBuffer.m_maxY = height - 1;
-		FUN_10038d0d(&g_currentRenderTarget, p_count, p_points, &g_animFrameBuffer, mode);
+		FillPolygonTextured(&g_currentRenderTarget, p_count, p_points, &g_animFrameBuffer, mode);
 	}
 
 	return 1;

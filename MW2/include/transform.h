@@ -38,7 +38,7 @@ extern "C"
 		MechS32 p_unk0x10,
 		MechS32 p_unk0x14,
 		MechS32 p_unk0x18,
-		MechU32 p_unk0x1c
+		MechU32 p_flags
 	);
 	void FUN_1000e2b9(
 		Matrix* p_matrix,

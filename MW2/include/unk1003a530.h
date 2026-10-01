@@ -3,7 +3,7 @@
 
 #include "decomp.h"
 #include "types.h"
-#include "unk10036230.h"
+#include "unk10039a30.h"
 
 struct AmberWillow0x7c;
 struct DuskMoth0x24;

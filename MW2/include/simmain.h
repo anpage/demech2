@@ -41,6 +41,7 @@ extern "C"
 	extern MechS32 g_unk0x100a2428;
 	extern MechS32 g_unk0x100a2c10;
 	extern MechS32 g_unk0x100a2c18;
+	extern MechChar* g_unk0x100a2458;
 	extern void* g_unk0x100a245c;
 	extern MechS32 g_unk0x100a2460;
 	extern MechS32 g_unk0x100a2464;
@@ -81,7 +82,14 @@ extern "C"
 	extern MechS32* g_unk0x100a2434;
 	extern MechS32* g_unk0x100a2438;
 	extern MechS32 g_unk0x100a2454;
+	extern MechS32 g_unk0x100a2be4;
+	extern MechS32 g_unk0x100aa2a0;
+	extern MechS32 g_unk0x100aa2b0;
 	extern MechS32 g_unk0x100a23ec;
+	extern MechS32 g_unk0x100a23f0;
+	extern MechS32 g_unk0x100a23f4;
+	extern MechS32 g_unk0x100a23f8;
+	extern MechS32 g_unk0x100a23fc;
 	extern MechS32 g_unk0x100a2408;
 	extern MechS32 g_unk0x100a241c;
 	extern MechS8 g_unk0x100a2448;
@@ -99,6 +107,8 @@ extern "C"
 	extern MechS32 g_unk0x100aa2a8;
 	extern MechS32 g_unk0x100aa2b8;
 	extern MechS32 g_unk0x100acb34;
+	extern struct VideoDriverChoice g_videoDriverChoice;
+	extern MechS32 g_drawModeIndex;
 	extern MechS32 g_unk0x100aa2bc;
 	extern MechS32 g_unk0x100c3358;
 	extern MechS32 g_unk0x100ea3e4;

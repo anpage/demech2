@@ -269,7 +269,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugout.c
     ${mw2shell_shared}/codeblock.${asm_or_c}
     MW2SHELL/src/archivereader.cpp
-    MW2SHELL/src/polyfill.${asm_or_c}
+    ${mw2shell_shared}/polyfill.${asm_or_c}
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/textpages.cpp
     MW2SHELL/src/projectarchive.cpp
@@ -428,6 +428,8 @@ demech2_add_dll(mw2
     MW2/src/unk100349f0.c
     MW2/src/unk10034a40.c
     MW2/src/unk10036230.c
+    ${mw2_shared}/polyfill.${asm_or_c}
+    MW2/src/unk10039a30.c
     MW2/src/logwindow.c
     MW2/src/unk1003a530.c
     MW2/src/error.c

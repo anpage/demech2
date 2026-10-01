@@ -14,13 +14,14 @@ struct ResourceRef;
 // The difficulty settings, read from a .cfg file as one block.
 // SIZE 0x17
 typedef struct DifficultyCfg {
-	undefined m_unk0x00;         // 0x00 — cleared in network games with more than one player
-	undefined m_unk0x01;         // 0x01 — cleared in network games
+	undefined m_unlimitedAmmo;   // 0x00 — the "cia" cheat; cleared in network games with more than one player
+	undefined m_invulnerable;    // 0x01 — the "blorb" cheat; cleared in network games
 	undefined m_splashDamage;    // 0x02 — splash damage hurts mechs; set in network games with more than one player
 	undefined m_collisionDamage; // 0x03 — collisions hurt mechs; set in network games with more than one player
 	undefined m_heatTracking;    // 0x04 — fires heat mechs nearby; set in network games with more than one player
 	undefined m_unk0x05;         // 0x05 — 2 in network games
-	undefined m_unk0x06[3];      // 0x06
+	undefined m_unk0x06[2];      // 0x06
+	undefined m_unk0x08;         // 0x08 — after the mission ends, the view can still be moved
 	undefined m_unk0x09;         // 0x09 — set outside network games
 	undefined m_unk0x0a;         // 0x0a
 	undefined4 m_unk0x0b;        // 0x0b — cleared outside network games
@@ -36,10 +37,12 @@ extern "C"
 #endif
 
 	extern struct RenderTarget g_unk0x100adf58[26];
+	extern MechS32 g_unk0x100ae37c;
 	extern MechChar g_gameDir[256];
 	extern MechS32 g_unk0x100ae380;
 
 	MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_poolTag);
+	void FUN_100715a2(void);
 	MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg);
 	MechS32 FUN_100712b0(MechChar* p_name, void* p_data);
 	MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg);

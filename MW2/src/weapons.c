@@ -320,7 +320,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 		g_carCfg.m_unk0x2a++;
 	}
 
-	if (p_slot->m_ammo != -1 && (!g_difficulty->m_unk0x00 || p_player->m_index != g_localPlayerId) &&
+	if (p_slot->m_ammo != -1 && (!g_difficulty->m_unlimitedAmmo || p_player->m_index != g_localPlayerId) &&
 		(!g_isNetworkGame || p_player->m_index == g_localPlayerId)) {
 		p_slot->m_ammo--;
 		if (p_slot->m_bin->m_shots) {

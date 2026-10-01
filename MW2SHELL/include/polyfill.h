@@ -5,7 +5,7 @@
 #include "pixelview.h"
 #include "types.h"
 
-// The polygon fillers of polyfill.asm (polyfill.c in COMPAT_MODE).
+// The polygon fillers of polyfill.asm (common/src; polyfill.c in COMPAT_MODE).
 #ifdef __cplusplus
 extern "C"
 {
@@ -16,10 +16,10 @@ extern "C"
 
 	void FillPolygonFlat(PixelView* p_view, MechS32 p_count, MechS32* p_vertices);
 	void FUN_1002ae41(PixelView* p_view, MechS32 p_count, MechS32* p_vertices);
-	void FUN_1002b68b(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c);
+	void FUN_1002b68b(PixelView* p_view, undefined4 p_unk0x04, MechS32 p_count, MechS32* p_vertices);
 	void FUN_1002bf39(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c);
-	void FUN_1002c48d(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c);
-	void FUN_1002cd3d(undefined4* p_table);
+	void FUN_1002c48d(PixelView* p_view, undefined4 p_unk0x04, MechS32 p_count, MechS32* p_vertices);
+	void SetLumaTable(MechU16* p_table);
 	void FillPolygonTextured(
 		PixelView* p_view,
 		MechS32 p_count,
@@ -57,7 +57,7 @@ extern "C"
 // FUN_1002c48d
 
 // FUNCTION: MW2SHELL 0x1002cd3d
-// FUN_1002cd3d
+// SetLumaTable
 
 // FUNCTION: MW2SHELL 0x1002cd5d
 // FillPolygonTextured

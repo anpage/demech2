@@ -4,14 +4,18 @@
 #include "blit.h"
 #include "codeblock.h"
 #include "decomp.h"
+#include "displaybackend.h"
 #include "error.h"
 #include "eyepoint.h"
 #include "fixedmul.h"
 #include "geocache.h"
+#include "mss.h"
 #include "object.h"
 #include "palette.h"
+#include "palettecolor.h"
 #include "refreshmode.h"
 #include "rendertarget.h"
+#include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
 #include "types.h"
@@ -164,7 +168,7 @@ void FirstRender(void)
 	g_unk0x100a6cc8.m_frameDrawCallback = FUN_10012afe;
 	g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
 	g_unk0x100a6cc8.m_unk0x5c = FUN_10048ebe;
-	g_unk0x100a6cc8.m_unk0x60 = FUN_10036230;
+	g_unk0x100a6cc8.m_unk0x60 = (MechS32 (*)()) FUN_10036230;
 	g_unk0x100a6cc8.m_drawPolygon = FUN_10042e00;
 	g_unk0x100a5558 = 0xff;
 	if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
@@ -362,6 +366,59 @@ undefined4 FUN_10012f14(void)
 void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 {
 	g_unk0x10176eb0 = p_value;
+}
+
+// Shows the banner GIF (sbannr, or g_unk0x100a2458's name, with the art resolution's suffix) and
+// fades its palette in. Nothing calls it.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10012f3c
+void FUN_10012f3c(void)
+{
+	void* gif;
+	RenderTarget target;
+	MechU8* state;
+	MechChar path[256];
+	PaletteColor* palette;
+
+	if (g_unk0x100a2458 == NULL || *g_unk0x100a2458 == '\0') {
+		strcpy(path, "sbannr");
+		strcat(path, g_unk0x100aa710[g_unk0x100e9614]);
+		strcat(path, ".");
+		strcat(path, "gif");
+	}
+	else {
+		strcpy(path, g_unk0x100a2458);
+		strcat(path, g_unk0x100aa710[g_unk0x100e9614]);
+		strcat(path, ".");
+		strcat(path, "gif");
+	}
+
+	gif = FILE_read(path, NULL);
+	if (gif) {
+		state = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x502e);
+		if (state) {
+			palette = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 0x100 * sizeof(PaletteColor));
+			if (palette) {
+				g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
+				target = g_currentRenderTarget;
+				FUN_1005705e(&target, &target, gif);
+				if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+					BlitGif(&target, gif, state);
+					if (g_windowActive) {
+						g_currentRefreshMode->m_flip();
+					}
+				}
+
+				ReadGifPalette(gif, (MechU8*) palette);
+				g_currentDisplayBackend->m_blendPalettes(palette, 30);
+				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, palette);
+			}
+
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, state);
+		}
+
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, gif);
+	}
 }
 
 // Draws the shapes of the list p_root that are drawn as dots (flag 0x100 without 0x800, or kind

@@ -1,9 +1,11 @@
 #include "unk10013430.h"
 
 #include "ai.h"
+#include "approxlen.h"
 #include "clock.h"
 #include "decomp.h"
 #include "fixeddiv.h"
+#include "fixedmul.h"
 #include "geocache.h"
 #include "mech.h"
 #include "mw2log.h"
@@ -15,6 +17,7 @@
 #include "ray.h"
 #include "rendertarget.h"
 #include "silverbrook.h"
+#include "simmain.h"
 #include "transform.h"
 #include "types.h"
 #include "unk10034a40.h"
@@ -105,10 +108,157 @@ MechS32 g_unk0x100a2ba4 = 0;
 // GLOBAL: MW2 0x101748e0
 SilverBrook0x08 g_unk0x101748e0[9];
 
-// STUB: MW2 0x10013430
+// Runs p_player's current maneuver (m_unk0x170) against p_target for a tick, and ends it when it
+// is done, when the mech must jump or turn away (m_unk0x174) or when its time is up; with no
+// maneuver, chooses and starts one.
+// Stack-slot permutation: done, mech and leader.
+// FUNCTION: MW2 0x10013430
 void FUN_10013430(Player* p_player, MechU16 p_target)
 {
-	STUB(0x10013430);
+	MechS32 done;
+	Mech* mech;
+	Player* leader;
+
+	done = FALSE;
+	mech = p_player->m_mech;
+	if (p_player->m_unk0x170 != -1) {
+		switch (p_player->m_unk0x170) {
+		case 0:
+			FUN_100155e1(p_player);
+			FUN_100149e7(p_player, p_target);
+			break;
+		case 1:
+			if (p_player->m_unk0x17c <= g_currentClock) {
+				FUN_10054778(p_player);
+				leader = g_players[p_player->m_ai.m_goal & 0xff];
+				if (p_player->m_unk0x180) {
+					leader->m_unk0x1a2[p_player->m_unk0x180 / 2]--;
+				}
+
+				p_player->m_unk0x17c = g_currentClock + 543;
+				if (p_player->m_unk0x184 == -1) {
+					p_player->m_unk0x180 = FUN_100166b1(p_player);
+					p_player->m_unk0x184 = 0;
+				}
+
+				FUN_10014723(p_player, p_player->m_ai.m_goal, p_player->m_unk0x180, 15000);
+				leader->m_unk0x1a2[p_player->m_unk0x180 / 2]++;
+			}
+
+			FUN_100155e1(p_player);
+			FUN_10014aa8(p_player, p_target);
+			break;
+		case 2:
+			FUN_100155e1(p_player);
+			if (FUN_10014c3d(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 3:
+			FUN_100155e1(p_player);
+			if (FUN_10014c3d(p_player, p_target)) {
+				done = TRUE;
+			}
+
+			if (!FUN_10015709(p_player)) {
+				p_player->m_steering->m_turn += p_player->m_unk0x180 * 0x1c20000;
+			}
+
+			if (p_player->m_unk0x17c <= g_currentClock) {
+				p_player->m_unk0x180 = -p_player->m_unk0x180;
+				p_player->m_unk0x17c = g_currentClock + 543;
+			}
+			break;
+		case 4:
+			if (FUN_100150c1(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 11:
+			if (FUN_1001512e(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 5:
+			if (FUN_10015172(p_player, p_target) || p_player->m_mech->m_unk0xc0 <= 0) {
+				done = TRUE;
+			}
+			break;
+		case 6:
+			if (FUN_10014d4e(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 7:
+			FUN_100155e1(p_player);
+			if (FUN_10014e5e(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 8:
+			FUN_100155e1(p_player);
+			if (FUN_10014df1(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 9:
+			if (FUN_10014f23(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		case 10:
+			FUN_10015342(p_player, p_target);
+			break;
+		case 12:
+			FUN_100155e1(p_player);
+			if (FUN_100153e6(p_player, p_target)) {
+				done = TRUE;
+			}
+			break;
+		}
+
+		if (mech->m_unk0x88 && FUN_10015fa8(mech) && !p_player->m_unk0x196 && p_player->m_unk0x170 != 6 &&
+			p_player->m_ai.m_state != c_aiStateFlee) {
+			if (RandomIntBelow(4) && p_player->m_unk0x172 != 5 && FUN_10016222(p_player, 40)) {
+				p_player->m_unk0x174 = 4;
+				p_player->m_unk0x184 = 1;
+			}
+			else {
+				if (RandomIntBelow(2)) {
+					p_player->m_unk0x174 = 6;
+				}
+				else {
+					p_player->m_unk0x174 = -2;
+				}
+
+				if (!p_player->m_skillFlag5) {
+					p_player->m_unk0x174 = -2;
+				}
+			}
+		}
+
+		if (p_player->m_unk0x00 == 1 && FUN_10016880(mech)) {
+			done = TRUE;
+		}
+
+		if (p_player->m_unk0x178 && p_player->m_unk0x178 <= g_currentClock) {
+			done = TRUE;
+		}
+
+		if (p_player->m_unk0x174) {
+			done = TRUE;
+		}
+
+		if (done) {
+			FUN_1001450e(p_player);
+		}
+	}
+	else {
+		p_player->m_unk0x170 = FUN_10013d81(p_player);
+		if (p_player->m_unk0x170 != -1) {
+			FUN_10014149(p_player);
+		}
+	}
 }
 
 // Resets p_player's maneuver state and sets the maneuvers its skill (m_unk0x159, 1 to 4) allows,
@@ -595,7 +745,7 @@ void FUN_100149e7(Player* p_player, MechS16 p_target)
 // Turns p_player toward its goal and closes on its target; once stopped and turned more than 5
 // degrees away, turns in place (FUN_1001498c) until the target is more than 4500 away.
 // FUNCTION: MW2 0x10014aa8
-void FUN_10014aa8(Player* p_player)
+void FUN_10014aa8(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
@@ -712,7 +862,7 @@ MechS32 FUN_10014df1(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward its goal and closes on its target. Whether it is within 3000.
 // FUNCTION: MW2 0x10014e5e
-MechS32 FUN_10014e5e(Player* p_player)
+MechS32 FUN_10014e5e(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
@@ -899,7 +1049,7 @@ void FUN_10015342(Player* p_player, MechS16 p_target)
 // within 3000.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100153e6
-MechS32 FUN_100153e6(Player* p_player)
+MechS32 FUN_100153e6(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 	MechS32 result;
@@ -1008,11 +1158,124 @@ void FUN_100156f2(Player* p_player, MechS8 p_value)
 	p_player->m_steering->m_unk0x1d = p_value;
 }
 
-// STUB: MW2 0x10015709
+// Steers p_player's mech around what lies ahead: casts up to four probe rays (FUN_10015b9f) on
+// the avoiding side m_unk0x190, as long as the mech's speed (m_unk0x192), and turns away from what
+// they hit, slowing down if the first one hits. Returns whether it steered. Between checks (every
+// 10 ticks for the local player, 90 or 181 for others) it returns whether it is avoiding a shape.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10015709
 MechS32 FUN_10015709(Player* p_player)
 {
-	STUB(0x10015709);
-	return 0;
+	MechS32 length;
+	ScarletOrchid0x4c* hit;
+	Ray ray;
+	Mech* mech;
+	MechS16 i;
+	MechS32 turn;
+	MechS32 throttle;
+
+	turn = 0;
+	mech = p_player->m_mech;
+	if (!mech->m_unk0x88 || (!p_player->m_unk0x190 && !p_player->m_steering->m_throttle) ||
+		p_player->m_steering->m_unk0x2f) {
+		return FALSE;
+	}
+
+	if (p_player->m_unk0x18c > g_currentClock) {
+		return p_player->m_unk0x188 ? TRUE : FALSE;
+	}
+
+	if (!p_player->m_unk0x190) {
+		length = ApproximateVectorLength(mech->m_unk0xf4, 0, mech->m_unk0xfc);
+		p_player->m_unk0x192 = FixedDiv16(length, 0x7a120);
+		if (p_player->m_unk0x00 != 1) {
+			p_player->m_unk0x192 >>= 1;
+		}
+
+		if (p_player->m_unk0x192 < 0.3 * 0x10000) {
+			p_player->m_unk0x192 = 0x4ccc;
+		}
+	}
+
+	for (i = 0; i < 4; i++) {
+		FUN_10015b9f(p_player, &ray, p_player->m_unk0x190, i, FixedMul16(p_player->m_unk0x192, 0x13880000) >> 16, 0);
+		if (TestSegmentCollision(&ray, &hit, p_player->m_index)) {
+			if (FUN_10015b40(hit)) {
+				break;
+			}
+
+			if (!p_player->m_unk0x190) {
+				p_player->m_unk0x190 = FUN_10015d2a(
+					p_player,
+					hit,
+					p_player->m_position.m_x,
+					p_player->m_position.m_y,
+					p_player->m_position.m_z
+				);
+				p_player->m_unk0x188 = hit;
+			}
+
+			turn += (MechS32) (p_player->m_unk0x190 * (0.2 * 0x10000000) / 4);
+		}
+		else {
+			if (i == 0 && abs(FUN_1005432f(p_player)) <= 0x10000) {
+				p_player->m_unk0x188 = NULL;
+				p_player->m_unk0x190 = 0;
+			}
+
+			if (i == 0 && p_player->m_unk0x190) {
+				FUN_10015b9f(
+					p_player,
+					&ray,
+					-p_player->m_unk0x190,
+					1,
+					FixedMul16(p_player->m_unk0x192, 0x13880000) >> 16,
+					1
+				);
+				if (TestSegmentCollision(&ray, &hit, p_player->m_index)) {
+					if (FUN_10015b40(hit)) {
+						break;
+					}
+
+					turn += (MechS32) (p_player->m_unk0x190 * (0.1 * 0x10000000));
+				}
+			}
+
+			break;
+		}
+	}
+
+	if (turn) {
+		turn = FUN_10015e34(turn, 0x3333333);
+		p_player->m_steering->m_turn = turn;
+		if (p_player->m_index == g_localPlayerId) {
+			throttle = p_player->m_unk0x180;
+		}
+		else {
+			throttle = 0x400;
+		}
+
+		if (i == 0) {
+			p_player->m_steering->m_throttle = throttle;
+		}
+		else {
+			p_player->m_steering->m_throttle = 0x100;
+		}
+
+		if (p_player->m_unk0x00 == 6) {
+			p_player->m_steering->m_throttle = 0;
+			p_player->m_steering->m_turn = 0;
+		}
+	}
+
+	if (p_player->m_index == g_localPlayerId) {
+		p_player->m_unk0x18c = g_currentClock + 10;
+	}
+	else {
+		p_player->m_unk0x18c = g_currentClock + (p_player->m_unk0x188 ? 90 : 181);
+	}
+
+	return turn ? TRUE : FALSE;
 }
 
 // Whether p_shape is solid ground to stand on: a flat enough face or a shape of type 0x50.
@@ -1384,7 +1647,7 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 // the place.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100166b1
-MechS32 FUN_100166b1(Player* p_player)
+MechS16 FUN_100166b1(Player* p_player)
 {
 	MechS32 angle;
 	MechS32 i;

@@ -80,6 +80,7 @@ extern "C"
 
 	AILIMPORT HTIMER AILCALL AIL_register_timer(AILTIMERCB p_callback);
 	AILIMPORT void AILCALL AIL_set_timer_divisor(HTIMER p_timer, unsigned int p_divisor);
+	AILIMPORT void AILCALL AIL_set_timer_period(HTIMER p_timer, unsigned int p_microseconds);
 	AILIMPORT void AILCALL AIL_start_timer(HTIMER p_timer);
 	AILIMPORT void AILCALL AIL_release_timer_handle(HTIMER p_timer);
 

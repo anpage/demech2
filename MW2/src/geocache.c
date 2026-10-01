@@ -22,7 +22,7 @@
 #include "unk1001ce90.h"
 #include "unk1001df00.h"
 #include "unk10034a40.h"
-#include "unk10036230.h"
+#include "unk10039a30.h"
 #include "unk1003a530.h"
 #include "unk100563d0.h"
 #include "unk1006d680.h"
@@ -165,7 +165,7 @@ MechS32 FUN_1001f3e0(void)
 
 // Adds a class to the class table. Returns whether there was room.
 // FUNCTION: MW2 0x1001f504
-MechS32 FUN_1001f504(MechS32 p_id, undefined4 p_class)
+MechS32 FUN_1001f504(MechS32 p_id, ScarletOrchid0x4c* p_class)
 {
 	MechS32 result;
 
@@ -180,14 +180,14 @@ MechS32 FUN_1001f504(MechS32 p_id, undefined4 p_class)
 	return result;
 }
 
-// Returns the class of an ID (the last one added), or 0.
+// Returns the class of an ID (the last one added), or NULL.
 // FUNCTION: MW2 0x1001f564
-undefined4 FindClassById(MechS32 p_id)
+ScarletOrchid0x4c* FindClassById(MechS32 p_id)
 {
-	undefined4 result;
+	ScarletOrchid0x4c* result;
 	MechS32 i;
 
-	result = 0;
+	result = NULL;
 	for (i = g_classCount - 1; i >= 0; i--) {
 		if (g_classes[i].m_id == p_id) {
 			result = g_classes[i].m_class;

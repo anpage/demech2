@@ -4,12 +4,15 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fixedmul.h"
+#include "loadres.h"
 #include "object.h"
 #include "players.h"
+#include "prjfile.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
+#include "unk10034a40.h"
 #include "unk1003a530.h"
 #include "unk100563d0.h"
 #include "unk1006d680.h"
@@ -236,11 +239,132 @@ void FUN_1001d3a4(MechS32 p_owner, MechS32 p_level)
 	}
 }
 
-// STUB: MW2 0x1001d3ff
+// Loads the level-p_level shape of entry p_index in place of the one it has, and gives it an object:
+// under its player's object, or under the object (or shape object) of entry m_unk0x1c, made in
+// p_buffer if given. Returns whether the entry has its shape.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001d3ff
 MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 {
-	STUB(0x1001d3ff);
-	return 0;
+	MechS32 kind;
+	MechS32 offset;
+	MechU8* data;
+	ClassEntry* entry;
+	MechU32 flags;
+	MechS32 size;
+	struct AmberWillow0x7c* parent;
+	struct AmberWillow0x7c* obj;
+	MechS32 placed;
+	ScarletOrchid0x4c* shape;
+
+	size = 0;
+	offset = 0;
+	flags = 0;
+	entry = &g_classTable[p_index];
+	if (entry->m_unk0x42) {
+		return TRUE;
+	}
+
+	if (entry->m_shape) {
+		if ((entry->m_shape->m_unk0x02 & 0xf0) == 0x50) {
+			return TRUE;
+		}
+
+		flags = FUN_1003acf7(entry->m_shape);
+		FUN_1003b78b(entry->m_shape);
+		entry->m_shape = NULL;
+	}
+
+	data = FUN_1001a19f(g_unk0x100a8740, entry->m_unk0x08[p_level], g_unk0x100a869c, 0);
+	if (data) {
+		size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, entry->m_unk0x08[p_level]);
+	}
+	else {
+		return FALSE;
+	}
+
+	entry->m_unk0x04 = -1;
+	SetShapeScale(1, 1, 1);
+	SetShapeFlags(0);
+	while (!entry->m_shape) {
+		entry->m_shape = LoadShapes(data, &offset, size, NULL);
+		if (!entry->m_shape && !FUN_1001a563()) {
+			break;
+		}
+	}
+
+	FUN_1001a163(entry->m_unk0x08[p_level], g_unk0x100a869c);
+	if (entry->m_shape) {
+		parent = NULL;
+		placed = FALSE;
+		FUN_1003acbe(entry->m_shape, flags);
+		entry->m_unk0x04 = p_level;
+		if (!entry->m_obj) {
+			if (entry->m_unk0x1c == -2) {
+				if (!p_buffer) {
+					entry->m_obj = FUN_100012d0(g_players[entry->m_owner]->m_obj, 10);
+				}
+				else {
+					entry->m_obj = FUN_1000145a(g_players[entry->m_owner]->m_obj, p_buffer);
+				}
+			}
+			else {
+				parent = g_classTable[entry->m_unk0x1c].m_obj;
+				if (!parent) {
+					shape = g_classTable[entry->m_unk0x1c].m_shape;
+					parent = FUN_1003b6e5(shape);
+				}
+
+				if (!p_buffer) {
+					obj = FUN_100012d0(parent, 10);
+				}
+				else {
+					obj = FUN_1000145a(parent, p_buffer);
+				}
+
+				if (obj) {
+					entry->m_obj = obj;
+					placed = TRUE;
+				}
+			}
+		}
+
+		FUN_10001532(entry->m_obj, entry->m_shape);
+		FUN_1003b6fb(entry->m_shape, entry->m_obj);
+		kind = entry->m_unk0x38[p_level] & 0xf0;
+		FUN_1003ad2d(entry->m_shape, kind | 0x100);
+		FUN_1003ad62(entry->m_shape, entry->m_owner);
+		FUN_1003ad4c(entry->m_shape, entry->m_unk0x20);
+		FUN_1006d732(entry->m_shape);
+		if (kind == 0x70) {
+			FUN_1006da2d(entry->m_shape);
+			FUN_1006d989(entry->m_shape);
+		}
+		else {
+			FUN_1006daa0(entry->m_shape);
+			FUN_10034a40(entry->m_shape, 6);
+		}
+
+		if (g_players[entry->m_owner]->m_flags & 0x4000) {
+			FUN_100018ca(g_players[entry->m_owner]->m_obj);
+			FUN_1000199a(g_players[entry->m_owner]->m_obj);
+			g_players[entry->m_owner]->m_flags |= 0x800;
+		}
+
+		if (kind == 0xa0) {
+			SetObjTreeFlag(entry->m_obj, 0x1a0);
+		}
+
+		if (placed) {
+			SetObjPosition(entry->m_obj, entry->m_unk0x2c, entry->m_unk0x30, entry->m_unk0x34);
+		}
+
+		FUN_10001cf8(entry->m_obj);
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
 }
 
 // Releases the shapes of the first player whose m_unk0x1c names a level, and clears it.

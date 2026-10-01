@@ -1,6 +1,5 @@
-/* Stubs for polyfill.asm's routines, for builds with other compilers (COMPAT_MODE): the
-   routines are hand-written assembly, assembled with MASM 6.11 in the VC++ 4.1 build, which
-   doesn't compile this file. See polyfill.asm. */
+/* Stubs for polyfill.asm's routines (common/src) and its data, for builds with other compilers
+   (COMPAT_MODE): the VC++ 4.1 build assembles polyfill.asm with MASM 6.11 instead. */
 #include "polyfill.h"
 
 #include "compat.h"
@@ -19,7 +18,7 @@ void FUN_1002ae41(PixelView* p_view, MechS32 p_count, MechS32* p_vertices)
 	STUB(0x1002ae41);
 }
 
-void FUN_1002b68b(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c)
+void FUN_1002b68b(PixelView* p_view, undefined4 p_unk0x04, MechS32 p_count, MechS32* p_vertices)
 {
 	STUB(0x1002b68b);
 }
@@ -29,12 +28,12 @@ void FUN_1002bf39(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undef
 	STUB(0x1002bf39);
 }
 
-void FUN_1002c48d(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c)
+void FUN_1002c48d(PixelView* p_view, undefined4 p_unk0x04, MechS32 p_count, MechS32* p_vertices)
 {
 	STUB(0x1002c48d);
 }
 
-void FUN_1002cd3d(undefined4* p_table)
+void SetLumaTable(MechU16* p_table)
 {
 	STUB(0x1002cd3d);
 }

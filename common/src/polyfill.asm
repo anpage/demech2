@@ -1,8 +1,9 @@
-; Hand-written assembly: the polygon fillers, a MASM object assembled with MASM 6.11 (ML). It
-; follows the compiled code that ends at 0x1002a966; ML aligns its .text to 4, which puts it at
-; 0x1002a968. The routines fill polygons given as arrays of six-dword vertices (x and y first) and
-; share the working variables in g_polyVars. Annotated by name in polyfill.h; COMPAT_MODE builds
-; take polyfill.c's stubs.
+; Hand-written assembly: the polygon fillers, a MASM object assembled with MASM 6.11 (ML), which
+; both DLLs link byte for byte the same. ML aligns its .text to 4, which puts it right after the
+; compiled code before it: at 0x1002a968 in MW2SHELL, 0x10036918 in MW2. The routines fill polygons
+; given as arrays of six-dword vertices (x and y first) and share the working variables in
+; g_polyVars. Annotated by name in each DLL's polyfill.h; COMPAT_MODE builds take each DLL's
+; polyfill.c stubs. Placeholder names take the MW2SHELL addresses.
 
 	.386
 	.model flat, c
@@ -16,7 +17,7 @@ DATAPTR typedef ptr byte
 	.data
 
 ; The routines' working variables: the clipped view, the vertex list and its edges' walks.
-; FUN_1002cd3d fills the 0x40 dwords at +0xd0.
+; SetLumaTable fills the 0x40 dwords at +0xd0.
 	public g_polyVars
 g_polyVars_t struct
 m_data dd 74h dup (0)
@@ -1138,7 +1139,7 @@ FUN_1002ae41 endp
 
 ; Another of the polygon fillers, over the same vertex lists. How it colors the spans hasn't been
 ; worked out from the assembly, so it keeps its placeholder.
-FUN_1002b68b proc uses ebx esi edi, p_view:dword, p_count:dword, p_vertices:dword, p_unk0x0c:dword
+FUN_1002b68b proc uses ebx esi edi, p_view:dword, p_unk0x04:dword, p_count:dword, p_vertices:dword
 	push es
 	mov esi, dword ptr p_view
 	mov ebx, dword ptr [esi]
@@ -1182,8 +1183,8 @@ jmp_1002b6e3:
 	push ds
 	pop es
 	mov dword ptr [g_polyVars+0b8h], ebp
-	mov ebx, dword ptr p_unk0x0c
-	mov eax, dword ptr p_vertices
+	mov ebx, dword ptr p_vertices
+	mov eax, dword ptr p_count
 	shl eax, 3
 	mov edx, eax
 	shl eax, 1
@@ -1328,7 +1329,7 @@ jmp_1002b883:
 	add eax, edi
 jmp_1002b8fb:
 	mov dword ptr [g_polyVars+48h], eax
-	mov esi, dword ptr p_count
+	mov esi, dword ptr p_unk0x04
 	mov edi, 0
 	mov eax, 0
 	sub eax, dword ptr [g_polyVars+4ch]
@@ -2288,7 +2289,7 @@ FUN_1002bf39 endp
 
 ; Another of the polygon fillers, over the same vertex lists. How it colors the spans hasn't been
 ; worked out from the assembly, so it keeps its placeholder.
-FUN_1002c48d proc uses ebx esi edi, p_view:dword, p_count:dword, p_vertices:dword, p_unk0x0c:dword
+FUN_1002c48d proc uses ebx esi edi, p_view:dword, p_unk0x04:dword, p_count:dword, p_vertices:dword
 	push es
 	mov esi, dword ptr p_view
 	mov ebx, dword ptr [esi]
@@ -2332,8 +2333,8 @@ jmp_1002c4e5:
 	push ds
 	pop es
 	mov dword ptr [g_polyVars+0b8h], ebp
-	mov ebx, dword ptr p_unk0x0c
-	mov eax, dword ptr p_vertices
+	mov ebx, dword ptr p_vertices
+	mov eax, dword ptr p_count
 	shl eax, 3
 	mov edx, eax
 	shl eax, 1
@@ -2478,7 +2479,7 @@ jmp_1002c685:
 	add eax, edi
 jmp_1002c6fd:
 	mov dword ptr [g_polyVars+48h], eax
-	mov esi, dword ptr p_count
+	mov esi, dword ptr p_unk0x04
 	mov edi, 0
 	mov eax, 0
 	sub eax, dword ptr [g_polyVars+4ch]
@@ -3005,9 +3006,9 @@ jmp_1002ccc2:
 	jmp jmp_1002c9b4
 FUN_1002c48d endp
 
-; Copies a 0x40-dword table into the working variables. What the table holds isn't known, so it
-; keeps its placeholder.
-FUN_1002cd3d proc uses ebx esi edi, p_table:dword
+; Copies a 0x80-entry luma table (MW2's LUMA resource) into the working variables, for
+; FillPolygonTextured.
+SetLumaTable proc uses ebx esi edi, p_table:dword
 	push es
 	cld
 	push ds
@@ -3018,7 +3019,7 @@ FUN_1002cd3d proc uses ebx esi edi, p_table:dword
 	rep movsd
 	pop es
 	ret
-FUN_1002cd3d endp
+SetLumaTable endp
 
 ; Fills a textured polygon, clipped to the view: p_unk0x10 points at the texture (its pixels and
 ; width minus one), and p_mode picks the span routine from g_polySpanRoutines. It ends by jumping

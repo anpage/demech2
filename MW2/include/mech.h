@@ -42,7 +42,7 @@ typedef struct Mech {
 	MechS32 m_unk0xb8;                    // 0xb8
 	MechS32 m_unk0xbc;                    // 0xbc — the autopilot: 1 and 2 are on
 	MechS32 m_unk0xc0;                    // 0xc0 — the jump jets fire while it is positive
-	undefined4 m_unk0xc4;                 // 0xc4
+	MechS32 m_unk0xc4;                    // 0xc4 — jump jet fuel units; each critical hit takes one
 	MechS32 m_unk0xc8;                    // 0xc8 — the ammunition bins at m_unk0x5c
 	MechS32 m_unk0xcc;                    // 0xcc
 	MechS32 m_unk0xd0;                    // 0xd0 — the cockpit's height (g_unk0x100a2434)

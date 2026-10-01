@@ -17,6 +17,10 @@
 
 #include <stdlib.h>
 
+// The file name suffixes of the art resolutions (FUN_10012f3c).
+// GLOBAL: MW2 0x100aa710
+MechChar g_unk0x100aa710[4][2] = {"", "6", "k", ""};
+
 // The largest coordinates of the three resolutions the art comes in.
 // GLOBAL: MW2 0x100aa718
 Point g_unk0x100aa718[3] = {{319, 199}, {639, 479}, {1023, 767}};

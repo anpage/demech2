@@ -14,6 +14,7 @@ extern "C"
 	void PlayResumeSound(void);
 	void FUN_10009f35(void);
 	void FUN_10009f61(void);
+	void FUN_10009f8d(MechU16 p_key);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,7 @@
 #include "types.h"
 
 struct AmberWillow0x7c;
+struct BwdObjectRecord;
 struct IncludeRecord;
 struct IncludeRecord2;
 struct ScenarioTable;
@@ -19,6 +20,9 @@ extern "C"
 	extern MissionTable* g_missionTables[16];
 	extern MechS32 g_missionTableCounts[16];
 	extern MechS32 g_unk0x100a8620;
+	extern MechChar* g_unk0x100a8630;
+	extern MechChar* g_unk0x100a8634;
+	extern struct Player* g_unk0x100a8638;
 	extern MechS32 g_unk0x100a8624;
 	extern MechS32 g_unk0x100ea580[0x96];
 
@@ -28,6 +32,14 @@ extern "C"
 	void FUN_1004fd55(void);
 	MechS32 MapResourceId(MechS32 p_id);
 	void SetMangleBase(MechS32 p_base);
+	void CreateObjectNode(
+		struct BwdObjectRecord* p_record,
+		undefined4 p_unk0x04,
+		MechS32 p_unk0x08,
+		MechS32 p_static,
+		MechS32 p_class,
+		MechS32 p_level
+	);
 	struct AmberWillow0x7c* FUN_100506d8(void);
 	MechS32 FUN_1005072f(void);
 	MechS32 FirstResource(void);

@@ -6,12 +6,12 @@
 #include "fixeddivu.h"
 #include "fixedmul.h"
 #include "fixedmul30.h"
+#include "polyfill.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "slateheron.h"
 #include "types.h"
 #include "unk10010750.h"
-#include "unk10036230.h"
 
 // Polygon drawing: a polygon is p_count points of 6 dwords each (x, y, a shade, two texture
 // coordinates and a depth), and the mode in bits 12 to 14 of p_flags picks how it is drawn.
@@ -48,7 +48,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			point += 6;
 		}
 
-		FUN_10036918(&g_currentRenderTarget, p_count, p_points);
+		FillPolygonFlat(&g_currentRenderTarget, p_count, p_points);
 		break;
 	case 0x2000:
 		p_flags &= 0xff;
@@ -78,10 +78,10 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 
 		if (g_unk0x100a6cc8.m_unk0x04) {
-			FUN_1003763b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
+			FUN_1002b68b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
 		}
 		else {
-			FUN_10036918(&g_currentRenderTarget, p_count, p_points);
+			FillPolygonFlat(&g_currentRenderTarget, p_count, p_points);
 		}
 		break;
 	case 0x3000:
