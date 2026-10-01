@@ -14,6 +14,8 @@ extern "C"
 
 	extern MechS32 g_palettePending;
 	extern MechS32 g_paletteResourceIds[20];
+	extern MechS32 g_renderTargetIndex;
+	extern MechS32 g_currentPalette;
 	extern RenderTarget g_renderTargets[11];
 
 	void InitRenderTargets(RenderTarget* p_target);

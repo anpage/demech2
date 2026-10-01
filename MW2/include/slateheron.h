@@ -10,7 +10,7 @@ struct CopperWren0x20;
 // Rendering settings (g_unk0x100a6cc8) the map view saves and replaces as one block.
 typedef struct SlateHeron0x68 {
 	undefined4 m_unk0x00;                    // 0x00
-	MechS32 m_unk0x04;                       // 0x04 — FUN_10042e00 blends shaded polygons (FUN_1003763b)
+	MechS32 m_unk0x04;                       // 0x04 — FUN_10042e00 blends shaded polygons (FUN_1002b68b)
 	undefined4 m_unk0x08;                    // 0x08
 	MechS32 m_unk0x0c;                       // 0x0c — FUN_10042e00 draws textured polygons
 	undefined4 m_unk0x10;                    // 0x10

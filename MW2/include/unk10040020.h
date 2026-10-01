@@ -12,6 +12,7 @@ extern "C"
 #endif
 
 	extern RenderTarget g_unk0x100a5cf8[16];
+	extern MechS32 g_unk0x100a5eb8;
 
 	void FUN_10040020(void);
 	void FUN_10040511(Mech* p_mech, RenderTarget* p_target);

@@ -16,8 +16,8 @@ struct BwdBlockRecord;
 // An entry of the class table: an ID and its class.
 // SIZE 0x08
 typedef struct GeoClass {
-	MechS32 m_id;       // 0x00
-	undefined4 m_class; // 0x04
+	MechS32 m_id;                      // 0x00
+	struct ScarletOrchid0x4c* m_class; // 0x04
 } GeoClass;
 
 // The functions and globals of geocache.c that other units use.
@@ -26,7 +26,14 @@ extern "C"
 {
 #endif
 
+	extern MechS32* g_unk0x100a3850;
+	extern MechS32* g_unk0x100a3854;
+	extern MechS32 g_currentBlock;
+	extern MechS32 g_unk0x1010b6a0;
+	extern MechS32 g_unk0x1012b7b0;
+
 	MechS32 FUN_1001f3e0(void);
+	MechS32 FUN_1001f504(MechS32 p_id, ScarletOrchid0x4c* p_class);
 	void FUN_1001f5cb(void);
 	ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index);
@@ -43,6 +50,8 @@ extern "C"
 	);
 	void BeginBlock(struct BwdBlockRecord* p_record);
 	MechS32 FindStarIdxById(MechS32 p_id);
+	struct ScarletOrchid0x4c* FindClassById(MechS32 p_id);
+	MechS32 FindThingIdxById(MechS32 p_id);
 	void ApplyBlockXform(TwilightGrove0x24 p_xform);
 	void FUN_1001fea6(MechS32* p_point);
 	void FUN_1001feef(MechS32 p_index);

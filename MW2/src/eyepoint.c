@@ -12,9 +12,11 @@
 #include "object.h"
 #include "players.h"
 #include "ramp.h"
+#include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "speech.h"
 #include "transform.h"
 #include "types.h"
 #include "unk10034a40.h"
@@ -29,6 +31,10 @@
 // GLOBAL: MW2 0x10176f10
 MechS32 g_unk0x10176f10[7];
 
+// The external view's height limits (FUN_100118bc).
+// GLOBAL: MW2 0x10176f2c
+MechS32 g_unk0x10176f2c;
+
 // GLOBAL: MW2 0x10176f30
 Ramp g_unk0x10176f30;
 
@@ -37,6 +43,9 @@ WrappedRamp g_unk0x10176f40;
 
 // GLOBAL: MW2 0x10176f60
 WrappedRamp g_unk0x10176f60;
+
+// GLOBAL: MW2 0x10176f74
+MechS32 g_unk0x10176f74;
 
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
 // GLOBAL: MW2 0x10176f80
@@ -382,10 +391,124 @@ void FUN_10011819(void)
 	}
 }
 
-// STUB: MW2 0x100118bc
+// Places the external view behind the local mech: p_distance and p_height move it out and up,
+// within limits taken from the mech's size the first time, p_turn turns it around the mech and
+// p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
+// Stack-slot permutation of the locals. The original compares g_unk0x100a23f8 with
+// g_unk0x10176f2c in the other operand order.
+// FUNCTION: MW2 0x100118bc
 void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn)
 {
-	STUB(0x100118bc);
+	MechS32 y;
+	MechS32 dx;
+	MechS32 z;
+	MechS32 dy;
+	MechS32 angle;
+	MechS32 dz;
+	MechS32 turn;
+	MechS32 tilt;
+	MechS32 floor;
+	MechS32 offsetX;
+	MechS32 pitch;
+	MechS32 offsetY;
+	MechS32 sine;
+	MechS32 heading;
+	MechS32 offsetZ;
+	MechS32 roll;
+	MechU32 distance;
+	MechS32 height;
+	MechS32 cosine;
+	MechS32 x;
+	MechS32 unused;
+	Mech* mech;
+
+	FUN_100116c3(&pitch, &heading, &roll, &x, &y, &z);
+	if (g_unk0x100a2408 != 1) {
+		if (!g_unk0x100a2c04) {
+			PlayCockpitSound(0x11, -1);
+		}
+
+		if (g_unk0x100a23ec == 0) {
+			mech = g_players[0]->m_mech;
+			g_unk0x100a23ec = mech->m_radius * 3;
+			g_unk0x100a23f0 = g_unk0x100a23ec >> 1;
+			g_unk0x100a23f4 = g_unk0x100a23ec << 2;
+			g_unk0x100a23f8 = g_unk0x100a23ec >> 2;
+			g_unk0x10176f2c = g_unk0x100a23f4;
+			g_unk0x10176f74 = -mech->m_unk0xcc + 200;
+		}
+
+		g_unk0x10177050.m_time = g_currentClock;
+		g_unk0x10176f90.m_time = g_currentClock;
+		g_unk0x10176f30.m_time = g_currentClock;
+		g_unk0x10176f60.m_time = g_currentClock;
+		g_unk0x10176f40.m_time = g_currentClock;
+		g_unk0x10177050.m_value = g_eyepoint->m_unk0x00 - x;
+		g_unk0x10176f90.m_value = g_eyepoint->m_unk0x04 - y;
+		g_unk0x10176f30.m_value = g_eyepoint->m_unk0x08 - z;
+		g_unk0x10176f60.m_value = g_eyepoint->m_unk0x0c;
+		g_unk0x10176f40.m_value = g_eyepoint->m_unk0x10;
+		g_eyepoint->m_unk0x14 = 0;
+		if (g_eyepoint->m_unk0x00 == x) {
+			g_eyepoint->m_unk0x00 += 10;
+		}
+
+		g_zoomFov = 0x10000;
+		ApplyCameraFov(0);
+	}
+
+	g_unk0x100a23ec += p_distance;
+	if (g_unk0x100a23ec > g_unk0x100a23f4) {
+		g_unk0x100a23ec = g_unk0x100a23f4;
+	}
+	else if (g_unk0x100a23ec < g_unk0x100a23f0) {
+		g_unk0x100a23ec = g_unk0x100a23f0;
+	}
+
+	height = p_height + g_unk0x100a23f8;
+	g_unk0x100a23fc += p_turn;
+	g_unk0x100a23fc %= 0x1680000;
+	dy = y - g_eyepoint->m_unk0x04;
+	dz = z - g_eyepoint->m_unk0x08;
+	dx = x - g_eyepoint->m_unk0x00;
+	FUN_10060197(dx, dy, dz, &turn, &unused, &distance, &tilt);
+	SetWrappedRampTarget(&g_unk0x10176f40, -tilt - (p_tilt >> 1));
+	g_eyepoint->m_unk0x10 = UpdateWrappedRamp(&g_unk0x10176f40);
+	SetWrappedRampTarget(&g_unk0x10176f60, turn);
+	g_eyepoint->m_unk0x0c = UpdateWrappedRamp(&g_unk0x10176f60);
+	angle = heading - g_unk0x100a23fc;
+	angle %= 0x1680000;
+	if (angle < -0xb40000) {
+		angle += 0x1680000;
+	}
+	else if (angle > 0xb40000) {
+		angle -= 0x1680000;
+	}
+
+	cosine = FUN_1006973a(angle);
+	sine = FUN_100696c0(angle);
+	offsetX = FixedMul16(g_unk0x100a23ec, sine) >> 13;
+	offsetZ = FixedMul16(g_unk0x100a23ec, cosine) >> 13;
+	offsetY = height;
+	g_unk0x10177050.m_target = offsetX;
+	g_eyepoint->m_unk0x00 = x + UpdateRamp(&g_unk0x10177050);
+	g_unk0x10176f30.m_target = offsetZ;
+	g_eyepoint->m_unk0x08 = z + UpdateRamp(&g_unk0x10176f30);
+	floor = FUN_100113af(g_eyepoint);
+	if (y + offsetY < floor) {
+		offsetY = floor - y;
+	}
+
+	g_unk0x100a23f8 = height;
+	if (g_unk0x100a23f8 > g_unk0x10176f2c) {
+		g_unk0x100a23f8 = g_unk0x10176f2c;
+	}
+	else if (g_unk0x100a23f8 < g_unk0x10176f74) {
+		g_unk0x100a23f8 = g_unk0x10176f74;
+	}
+
+	g_unk0x10176f90.m_target = offsetY;
+	g_eyepoint->m_unk0x04 = y + UpdateRamp(&g_unk0x10176f90);
 }
 
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns

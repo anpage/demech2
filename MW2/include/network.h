@@ -16,6 +16,7 @@ extern "C"
 
 	extern MechS32 g_isNetworkGame;
 	extern MechS32 g_netRole;
+	extern MechChar* g_sessionName;
 	extern LPDIRECTPLAY g_directPlay;
 	extern DPID g_localDpid;
 	extern MechChar* g_netRecvBuffer;

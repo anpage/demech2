@@ -2,13 +2,38 @@
    stored XORed with 0x1a), the chat message being typed and the game keys. */
 #include "gamekeys.h"
 
+#include "ai.h"
+#include "clock.h"
+#include "cockpit.h"
+#include "config.h"
 #include "decomp.h"
+#include "displaybackend.h"
+#include "environment.h"
+#include "eyepoint.h"
+#include "inputmap.h"
+#include "menu.h"
 #include "network.h"
+#include "objective.h"
+#include "pausebanner.h"
 #include "players.h"
+#include "refreshmode.h"
+#include "rendertarget.h"
+#include "shots.h"
 #include "simmain.h"
+#include "slateheron.h"
+#include "soundfx.h"
+#include "speech.h"
+#include "ticks.h"
 #include "timedoverlays.h"
 #include "types.h"
 #include "unk10004f40.h"
+#include "unk100079d0.h"
+#include "unk10040020.h"
+#include "unk100509a0.h"
+#include "unk10073af0.h"
+#include "unk1007b930.h"
+#include "unk1007fbe0.h"
+#include "weapons.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -60,6 +85,189 @@ MechS32 FUN_1005b807(MechChar* p_code)
 	}
 
 	return TRUE;
+}
+
+// Takes a typed key for the cheat codes: when the last keys typed spell one (FUN_1005b807; the codes
+// are stored XORed with 0x1a), toggles or runs its cheat and says so.
+// Stack-slot permutation: target and victim.
+// FUNCTION: MW2 0x1005b883
+void HandleCheatInput(MechS16 p_key)
+{
+	MechS32 target;
+	MechS32 victim;
+
+	if (!FUN_1005b7c0(p_key)) {
+		return;
+	}
+
+	if (FUN_1005b807("xvuhx")) { // "blorb"
+		if (!g_difficulty->m_invulnerable) {
+			g_difficulty->m_invulnerable = 1;
+			ShowInGameMessage("Invulnerability ON", 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_invulnerable = 0;
+			ShowInGameMessage("Invulnerability OFF", 1, 0x16a, 0x32);
+		}
+	}
+	else if (FUN_1005b807("ys{")) { // "cia"
+		if (!g_difficulty->m_unlimitedAmmo) {
+			g_difficulty->m_unlimitedAmmo = 1;
+			ShowInGameMessage("Unlimited Ammo ON", 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_unlimitedAmmo = 0;
+			ShowInGameMessage("Unlimited Ammo OFF", 1, 0x16a, 0x32);
+		}
+	}
+	else if (FUN_1005b807("yuv~wsi\x7fh")) { // "coldmiser"
+		if (!g_difficulty->m_heatTracking) {
+			g_difficulty->m_heatTracking = 1;
+			ShowInGameMessage("Heat tracking ON", 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_heatTracking = 0;
+			ShowInGameMessage("Heat tracking OFF", 1, 0x16a, 0x32);
+		}
+	}
+	else if (FUN_1005b807("~\x7fs")) { // "dei"
+		ShowInGameMessage("F E I F", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("~uhyi")) { // "dorcs"
+		ShowDorcs();
+		ShowInGameMessage("You asked for it!", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("\x7ftuv{}{c")) { // "enolagay"
+		target = FUN_1005fe63();
+		if (target >= 0) {
+			FUN_1006c4e2(g_players[target]);
+		}
+	}
+	else if (FUN_1005b807("|vc}shv")) { // "flygirl"
+		g_localSteering.m_unk0x44 = 1;
+		ShowInGameMessage("Jumpjets", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("|hutn")) { // "front"
+		if (!g_unk0x100ea3e4) {
+			g_unk0x100ea3e4 = 1;
+			ShowInGameMessage("forward view instead of rear ON", 1, 0x16a, 0x32);
+		}
+		else {
+			g_unk0x100ea3e4 = 0;
+			ShowInGameMessage("forward view instead of rear OFF", 1, 0x16a, 0x32);
+		}
+	}
+	else if (FUN_1005b807("|oyq")) { // "fuck"
+		ShowInGameMessage("Freebirth vulgarity will not be tolerated!", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("}{tq\x7fw")) { // "gankem"
+		victim = FUN_1005fe63();
+		if (victim >= 0) {
+			FUN_1000832b(g_localPlayerId, g_players[victim]->m_mech);
+		}
+	}
+	else if (FUN_1005b807("r{t}{huot~")) { // "hangaround"
+		if (!g_missionTimerStopped) {
+			g_missionTimerStopped = 1;
+		}
+		else {
+			g_missionTimerStopped = 0;
+		}
+
+		if (g_missionTimerStopped) {
+			ShowInGameMessage("That's better........", 1, 0xb5, 0x32);
+		}
+		else {
+			ShowInGameMessage("Now how do I win!", 1, 0xb5, 0x32);
+		}
+	}
+	else if (FUN_1005b807("sy{tnr{yqsn")) { // "icanthackit"
+		g_unk0x100a3748 = 1;
+	}
+	else if (FUN_1005b807("s~q|{")) { // "idkfa"
+		ShowInGameMessage("This ain't DOOM, Bub.", 1, 0x16a, 0x50);
+		FUN_1005c78a(0x3b);
+	}
+	else if (FUN_1005b807("v{sh~u")) { // "lairdo"
+		if (!g_lairdoCheat) {
+			g_lairdoCheat = 1;
+		}
+		else {
+			g_lairdoCheat = 0;
+		}
+
+		ShowInGameMessage("ATTENTION ENEMIES: Don't mess with the blimp.", 1, 0xb5, 0x32);
+	}
+	else if (FUN_1005b807("w\x7f\x7fjw\x7f\x7fj")) { // "meepmeep"
+		if (!g_unk0x100aa2b0) {
+			g_unk0x100aa2b0 = 1;
+		}
+		else {
+			g_unk0x100aa2b0 = 0;
+		}
+
+		if (g_unk0x100aa2b0) {
+			ShowInGameMessage("Time Compression key enabled", 1, 0xb5, 0x32);
+		}
+		else {
+			ShowInGameMessage("Time Compression key disabled", 1, 0xb5, 0x32);
+		}
+	}
+	else if (FUN_1005b807("wsyr\x7fvst")) { // "michelin"
+		if (!g_unk0x100a5eb8) {
+			g_unk0x100a5eb8 = 1;
+		}
+		else {
+			g_unk0x100a5eb8 = 0;
+		}
+
+		if (!g_unk0x100a2454) {
+			g_unk0x100a2454 = 1;
+		}
+		else {
+			g_unk0x100a2454 = 0;
+		}
+
+		ShowInGameMessage("bounding spheres", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("ws}rncwuoi\x7f")) { // "mightymouse"
+		if (!g_unk0x100a2be4) {
+			g_unk0x100a2be4 = 1;
+			ShowInGameMessage("Infinite Jumpjet juice ON", 1, 0x16a, 0x32);
+		}
+		else {
+			g_unk0x100a2be4 = 0;
+			ShowInGameMessage("Infinite Jumpjet juice OFF", 1, 0x16a, 0x32);
+		}
+	}
+	else if (FUN_1005b807("irsn")) { // "shit"
+		ShowInGameMessage("Freebirth vulgarity will not be tolerated!", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("nstq\x7fhx\x7fvv")) { // "tinkerbell"
+		FUN_10011401(2);
+		g_unk0x10109c70 = 1;
+		ShowInGameMessage("Free-eye mode ON", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("bh{c")) { // "xray"
+		g_unk0x100a6cc8.m_unk0x34 = 2;
+		g_unk0x100a6cc8.m_unk0x38 = 0;
+		ShowInGameMessage("X-Ray vision enabled", 1, 0x16a, 0x32);
+	}
+	else if (FUN_1005b807("`w{q")) { // "zmak"
+		if (!g_timeExpansionEnabled) {
+			g_timeExpansionEnabled = 1;
+		}
+		else {
+			g_timeExpansionEnabled = 0;
+		}
+
+		if (g_timeExpansionEnabled) {
+			ShowInGameMessage("Time expansion enabled", 1, 0x16a, 0x32);
+		}
+		else {
+			ShowInGameMessage("Time expansion disabled", 1, 0x16a, 0x32);
+		}
+	}
 }
 
 // Turns a typed character into the one its key gives with shift held (the US layout).
@@ -178,15 +386,575 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 	return TRUE;
 }
 
-// STUB: MW2 0x1005c2e1
-void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08)
+// Runs the frame's game keys: after the mission ends, waits a while before offering to quit (or,
+// with DifficultyCfg::m_unk0x08, to look around); otherwise passes the key code (from the local
+// steering, through the cheat codes, the chat message and LookupGameKey) to FUN_1005c78a.
+// FUNCTION: MW2 0x1005c2e1
+void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
-	STUB(0x1005c2e1);
+	if (g_simPaused) {
+		return;
+	}
+
+	if (g_unk0x100aa294 > 0 && g_currentClock > g_unk0x100aa294) {
+		FlushSpeechQueue(1);
+		g_unk0x100aa294 = 0;
+	}
+
+	if (!g_unk0x100aa290 && !g_unk0x100aa2a8) {
+		if (g_unk0x100aa2bc || g_unk0x100b1350) {
+			g_unk0x100aa2c0 = 0;
+			g_unk0x100aa2a8 = 1;
+			g_unk0x100aa294 = g_currentClock + 0x108;
+			g_unk0x100aa290 = g_currentClock + 0x71c;
+			ShowInGameMessage("Press CTRL-Q to exit...", 1, 0x1536, 100);
+		}
+		else if (g_unk0x100a2c04) {
+			g_unk0x100a116c = 0;
+			FUN_100115f4(0, 1);
+			g_unk0x100a6cc8.m_unk0x34 = 0;
+			FUN_1007d88a(0, 0);
+			g_unk0x100aa294 = g_currentClock + 0x108;
+			if (!g_netRole) {
+				g_unk0x100aa2a8 = 1;
+				g_unk0x100aa290 = g_currentClock + 0x71c;
+				ShowInGameMessage("Press CTRL-Q to exit...", 1, 0x1536, 100);
+			}
+			else {
+				g_unk0x100aa290 = g_currentClock + 0x43e;
+			}
+		}
+	}
+	else if (g_unk0x100aa290 > 0 && g_currentClock > g_unk0x100aa290) {
+		g_unk0x100aa2a8 = 1;
+		if (!g_netRole || g_unk0x100aa2bc || g_unk0x100b1350) {
+			g_shouldQuit = 1;
+			g_quitStage = 0x29a;
+		}
+		else if (!g_difficulty->m_unk0x08) {
+			g_unk0x100aa290 = -1;
+			ShowInGameMessage("Press SPACEBAR to advance viewpoint, or CTRL-Q to exit.", 1, 0x58610, 100);
+			g_unk0x100aa2c0 = 1;
+			g_unk0x100a2428 = 1;
+		}
+		else {
+			g_unk0x100aa290 = 0;
+			g_unk0x100aa2c0 = 2;
+		}
+	}
+
+	p_key = g_localSteering.m_keyCode;
+	if (!g_isNetworkGame) {
+		HandleCheatInput(p_key);
+	}
+
+	if (g_unk0x100a116c && HandleChatKey(p_key)) {
+		return;
+	}
+
+	p_key = LookupGameKey(p_key);
+	if (!p_key) {
+		return;
+	}
+
+	if (g_unk0x100aa2a8) {
+		if (!g_netRole || g_unk0x100aa2bc || g_unk0x100b1350) {
+			if (p_key == 0x59) {
+				g_shouldQuit = 1;
+				g_quitStage = 0x29a;
+				return;
+			}
+		}
+		else if (g_difficulty->m_unk0x08) {
+			switch (p_key) {
+			case 0x59:
+				g_shouldQuit = 1;
+				g_quitStage = 0x29a;
+				return;
+			case 0x33:
+				RequestMenu(4);
+				break;
+			case 0x4f:
+				g_unk0x100a6cc8.m_unk0x34 = 0;
+				FUN_1007d88a(0, 0);
+				FUN_1007fbe0(g_localPlayerId, 0, 0, 0);
+				FUN_10011401(0);
+				g_sinkPilotTiltReset = 1;
+				g_sinkPilotPanReset = 1;
+				g_sinkZoomFactorReset = 1;
+				g_speechLocked = 0;
+				g_unk0x100aa294 = 0;
+				g_unk0x100aa2c0 = 0;
+				g_unk0x100aa290 = 0;
+				g_unk0x100aa2a8 = 0;
+				g_unk0x100aa2bc = 0;
+				g_unk0x100a2428 = 0;
+				break;
+			}
+		}
+		else if (g_unk0x100a2428) {
+			switch (p_key) {
+			case 0x59:
+				g_shouldQuit = 1;
+				g_quitStage = 0x29a;
+				return;
+			case 0x33:
+				RequestMenu(4);
+				break;
+			case 0x4f:
+				FUN_100115f4(1, 0);
+				break;
+			}
+		}
+	}
+	else {
+		FUN_1005c78a(p_key);
+	}
 }
 
-// Performs game key p_key's action (0x3b ejects).
-// STUB: MW2 0x1005c78a
+// Performs game key p_key's action: the cockpit's detail and views, the throttle steps (0x1a-0x23),
+// the controls the local steering takes (a flag set for the frame), the menus, the chat
+// recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to FUN_10009f8d while
+// the mission timer is stopped.
+// Stack-slot permutation: mech, step and text.
+// FUNCTION: MW2 0x1005c78a
 void FUN_1005c78a(MechS32 p_key)
 {
-	STUB(0x1005c78a);
+	Mech* mech;
+	MechS32 step;
+	MechChar text[40];
+
+	step = -1;
+	mech = g_players[g_localPlayerId]->m_mech;
+	switch (p_key) {
+	case 0x0:
+		break;
+	case 0x59:
+		g_shouldQuit = 1;
+		g_quitStage += 2;
+		break;
+	case 0x2:
+		FUN_100509a0();
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 0, 0x32);
+		}
+		break;
+	case 0x3:
+		if (g_unk0x100aa2a4 == 2) {
+			g_unk0x100aa2a4 = 0;
+		}
+		else {
+			g_unk0x100aa2a4 = 2;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 1, 0x32);
+		}
+		break;
+	case 0x4:
+		if (g_unk0x100aa2a4 == 3) {
+			g_unk0x100aa2a4 = 0;
+		}
+		else {
+			g_unk0x100aa2a4 = 3;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 2, 0x32);
+		}
+		break;
+	case 0x5:
+		if (g_unk0x100aa2a4 == 4) {
+			g_unk0x100aa2a4 = 0;
+		}
+		else {
+			g_unk0x100aa2a4 = 4;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 3, 0x32);
+		}
+		break;
+	case 0x6:
+		if (g_unk0x100aa2a4 == 5) {
+			g_unk0x100aa2a4 = 0;
+		}
+		else {
+			g_unk0x100aa2a4 = 5;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 4, 0x32);
+		}
+		break;
+	case 0x7:
+		if (g_unk0x100aa2a4 == 1) {
+			g_unk0x100aa2a4 = 0;
+		}
+		else {
+			g_unk0x100aa2a4 = 1;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 6, 0x32);
+		}
+		break;
+	case 0x8:
+		g_unk0x100ba4bc++;
+		if (g_unk0x100ba4bc > 2) {
+			g_unk0x100ba4bc = 0;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 7, 0x32);
+		}
+		break;
+	case 0x9:
+		if (!(g_players[g_localPlayerId]->m_flags & 2)) {
+			if (FUN_10011440() || FUN_1003ee69()) {
+				FUN_1003ee92();
+				FUN_10011401(0);
+				g_sinkPilotTiltReset = 1;
+				g_sinkPilotPanReset = 1;
+				g_sinkZoomFactorReset = 1;
+			}
+			else {
+				FUN_10011401(1);
+				FUN_100115f4(0, 1);
+			}
+		}
+		break;
+	case 0xe:
+		if (FUN_1006bf05()) {
+			FUN_10011401(3);
+		}
+		break;
+	case 0x11:
+		g_unk0x100aa2a0 = 1;
+		break;
+	case 0x12:
+		g_localSteering.m_unk0x3a = 1;
+		break;
+	case 0x13:
+		if (!g_unk0x100a5f18) {
+			g_unk0x100a5f18 = 1;
+		}
+		else {
+			g_unk0x100a5f18 = 0;
+		}
+
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			FUN_1007eb23(0xdc, 100, 0x40, 8, 0x32);
+		}
+		break;
+	case 0x14:
+		g_unk0x100a2be8 = 1;
+		break;
+	case 0x17:
+		g_sinkZoomFactorReset = 1;
+		break;
+	case 0x1a:
+	case 0x1b:
+	case 0x1c:
+	case 0x1d:
+	case 0x1e:
+	case 0x1f:
+	case 0x20:
+	case 0x21:
+	case 0x22:
+	case 0x23:
+		step = p_key - 0x1a;
+		break;
+	case 0x24:
+		g_localSteering.m_unk0x3c = 1;
+		break;
+	case 0x25:
+		g_localSteering.m_unk0x3d = 1;
+		break;
+	case 0x26:
+		g_localSteering.m_unk0x3e = 1;
+		break;
+	case 0x27:
+		FUN_1005f284();
+		break;
+	case 0x28:
+		g_localSteering.m_unk0x30 = 1;
+		break;
+	case 0x29:
+		g_localSteering.m_unk0x31 = 1;
+		break;
+	case 0x2a:
+		g_localSteering.m_unk0x32 = 1;
+		break;
+	case 0x2b:
+		g_localSteering.m_unk0x3f = 1;
+		break;
+	case 0x2c:
+		g_localSteering.m_unk0x40 = 1;
+		break;
+	case 0x2d:
+		g_localSteering.m_unk0x41 = 1;
+		break;
+	case 0x2e:
+		FUN_1003ee26();
+		break;
+	case 0x2f:
+		FUN_1003ef07(1);
+		break;
+	case 0x30:
+		FUN_1003ef07(2);
+		break;
+	case 0x31:
+		FUN_1003ef07(0);
+		break;
+	case 0x32:
+		FUN_1003eeaf();
+		break;
+	case 0x33:
+		RequestMenu(4);
+		break;
+	case 0x34:
+		ToggleMenu(5);
+		break;
+	case 0x42:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = -1;
+		}
+		else {
+			ToggleMenu(1);
+		}
+		break;
+	case 0x43:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 1;
+		}
+		else {
+			ToggleMenu(7);
+		}
+		break;
+	case 0x44:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 2;
+		}
+		else {
+			ToggleMenu(8);
+		}
+		break;
+	case 0x45:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 3;
+		}
+		break;
+	case 0x46:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 4;
+		}
+		break;
+	case 0x47:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 5;
+		}
+		break;
+	case 0x48:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 6;
+		}
+		break;
+	case 0x49:
+		g_unk0x100a1170 = 0;
+		if (g_isNetworkGame) {
+			g_unk0x100a116c = 7;
+		}
+		break;
+	case 0x3b:
+		EjectPlayer(g_players[g_localPlayerId]->m_mech, 1);
+		break;
+	case 0x3c:
+		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
+			if (g_unk0x100a1590) {
+				g_unk0x100a1590 = 0;
+				sprintf(text, "Automatic ejection OFF");
+				ShowInGameMessage(text, 1, 0x16a, 0x32);
+			}
+			else {
+				g_unk0x100a1590 = 1;
+				sprintf(text, "Automatic ejection ON");
+				ShowInGameMessage(text, 1, 0x16a, 0x32);
+			}
+		}
+		break;
+	case 0x3d:
+		if (mech->m_unk0xa0 == 3) {
+			g_unk0x100a2c08 = 1;
+		}
+		else {
+			g_unk0x100a2c08 = -1;
+		}
+		break;
+	case 0x3e:
+		if (mech->m_unk0xa0 == 3) {
+			g_unk0x100a2c08 = 1;
+		}
+		else {
+			if (mech->m_unk0xa0 == 7) {
+				break;
+			}
+
+			g_unk0x100a2c08 = -1;
+		}
+		break;
+	case 0x3f:
+		if (!g_localSteering.m_unk0x2f) {
+			g_localSteering.m_unk0x2f = 1;
+		}
+		else {
+			g_localSteering.m_unk0x2f = 0;
+		}
+		break;
+	case 0x40:
+		g_unk0x100aa298 = 1;
+		break;
+	case 0xa7:
+		if (g_unk0x100a6cc8.m_unk0x34 != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
+			g_unk0x100a6cc8.m_unk0x34 = 1;
+			g_unk0x100a6cc8.m_unk0x38 = 0;
+			PlayCockpitSound(0x1b, 1);
+		}
+		else {
+			g_unk0x100a6cc8.m_unk0x34 = 0;
+		}
+		break;
+	case 0xa6:
+		FUN_1007d88a(0, !g_unk0x100bfd50);
+		break;
+	case 0x41:
+		g_unk0x100a116c = 0;
+		if (!g_unk0x100a1170) {
+			g_unk0x100a1170 = 1;
+		}
+		else {
+			g_unk0x100a1170 = 0;
+		}
+		break;
+	case 0x4a:
+		g_localSteering.m_unk0x42 = 1;
+		break;
+	case 0x4b:
+		g_localSteering.m_unk0x2c = 1;
+		break;
+	case 0x4c:
+		g_localSteering.m_unk0x33 = 1;
+		break;
+	case 0x4d:
+		g_localSteering.m_unk0x34 = 1;
+		break;
+	case 0x4e:
+		g_localSteering.m_unk0x35 = 1;
+		break;
+	case 0x50:
+		g_localSteering.m_unk0x38 = 1;
+		break;
+	case 0x53:
+		g_localSteering.m_unk0x39 = 1;
+		break;
+	case 0x51:
+		g_localSteering.m_unk0x37 = 1;
+		break;
+	case 0x54:
+		g_localSteering.m_unk0x3b = 1;
+		break;
+	case 0x52:
+		g_localSteering.m_unk0x36 = 1;
+		break;
+	case 0x55:
+		g_unk0x100ae37c = 1;
+		break;
+	case 0x56:
+		g_unk0x100a2bec = 1;
+		break;
+	case 0x57:
+		g_localSteering.m_unk0x43 = 1;
+		break;
+	case 0x1:
+		g_localSteering.m_unk0x18 = 1;
+		g_localSteering.m_unk0x1c = 1;
+		g_sinkPilotTiltReset = 1;
+		g_sinkPilotPanReset = 1;
+		g_sinkEyepointTiltReset = 1;
+		g_sinkEyepointPanReset = 1;
+		break;
+	case 0x58:
+		g_pauseRequested = 1;
+		break;
+	case 0x97:
+		FUN_10045b56(0);
+		break;
+	case 0x98:
+		FUN_10045b56(1);
+		break;
+	case 0x99:
+		FUN_10045b56(2);
+		break;
+	case 0x9a:
+		g_localSteering.m_unk0x2b = 1;
+		break;
+	case 0x9b:
+		g_localSteering.m_unk0x27 = 1;
+		break;
+	case 0x9c:
+		g_localSteering.m_unk0x28 = 1;
+		break;
+	case 0x9d:
+		g_localSteering.m_unk0x29 = 1;
+		break;
+	case 0x9e:
+		g_localSteering.m_unk0x2a = 1;
+		break;
+	case 0x92:
+		if (!g_unk0x100aa2b0) {
+			break;
+		}
+
+		if (!g_timeCompressionEnabled) {
+			g_timeCompressionEnabled = 1;
+		}
+		else {
+			g_timeCompressionEnabled = 0;
+		}
+
+		if (g_timeCompressionEnabled) {
+			sprintf(text, "Time compression enabled");
+			ShowInGameMessage(text, 1, 0xb50, 0x32);
+		}
+		else {
+			sprintf(text, "Time compression disabled");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		break;
+	case 0x5b:
+		PauseTimer(0x80, 1);
+		g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1;
+		FUN_100715a2();
+		PauseTimer(0x80, 0);
+		sprintf(text, "GIF saved - MW2000?.GIF");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		break;
+	default:
+		if (g_missionTimerStopped) {
+			FUN_10009f8d(p_key);
+		}
+		break;
+	}
+
+	if (step != -1) {
+		g_localSteering.m_throttle = step * 113;
+		g_localSteering.m_unk0x24 = 1;
+	}
 }

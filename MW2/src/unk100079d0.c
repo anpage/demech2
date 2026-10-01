@@ -4,8 +4,10 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
+#include "eyepoint.h"
 #include "mech.h"
 #include "mechsection.h"
+#include "mw2log.h"
 #include "network.h"
 #include "object.h"
 #include "objective.h"
@@ -13,13 +15,20 @@
 #include "playersteering.h"
 #include "random.h"
 #include "rendertarget.h"
+#include "shots.h"
 #include "silvertern.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "team.h"
 #include "types.h"
 #include "unk10013430.h"
+#include "unk1001ce90.h"
+#include "unk1003a530.h"
+#include "weapons.h"
 #include "weaponslot.h"
+
+#include <stdio.h>
 
 // A game-key toggle (FUN_1005e9b0's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
@@ -232,7 +241,7 @@ void CalculateHeat(Mech* p_mech)
 	}
 
 	if (heat > 100) {
-		if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_unk0x01) {
+		if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_invulnerable) {
 			return;
 		}
 
@@ -284,10 +293,177 @@ void CalculateHeat(Mech* p_mech)
 }
 
 // Destroys p_mech, on behalf of player p_killer (-2: its player left the game).
-// STUB: MW2 0x1000832b
+// Stack-slot permutation: next and text. The original compares p_killer with g_localPlayerId and
+// indexes m_unk0x52 in the other operand order.
+// FUNCTION: MW2 0x1000832b
 void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 {
-	STUB(0x1000832b);
+	MechS32 leader;
+	MechS32 next;
+	MechChar text[80];
+
+	if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_invulnerable) {
+		return;
+	}
+
+	if ((p_mech->m_player->m_flags & 2) || (p_mech->m_player->m_flags & 4)) {
+		return;
+	}
+
+	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_unk0x02 & 0x100) &&
+		p_mech->m_player->m_index == g_unk0x100a6d34->m_unk0x14) {
+		g_unk0x100a6d34 = NULL;
+	}
+
+	p_mech->m_player->m_killer = p_killer;
+	if (p_mech->m_player->m_killer >= 0 && p_mech->m_player->m_killer < 8 && p_mech->m_player->m_index < 8) {
+		g_carCfg.m_unk0x52[p_mech->m_player->m_killer][p_mech->m_player->m_index]++;
+	}
+
+	FUN_1001b21a();
+	if (p_mech->m_unk0xa0 == 5) {
+		if (g_unk0x100ba624) {
+			if (p_mech->m_player->m_index == g_localPlayerId) {
+				g_carCfg.m_unk0x1d = 4;
+				PlayCockpitSound(0x20, -1);
+			}
+			p_mech->m_unk0xa0 = 4;
+		}
+		else if (p_mech->m_player->m_index == g_localPlayerId) {
+			g_carCfg.m_unk0x1d = 2;
+			PlayCockpitSound(0xc, -1);
+		}
+	}
+
+	if (p_killer == g_localPlayerId) {
+		if (p_mech->m_player->m_unk0x00 == 1) {
+			if (p_mech->m_player->m_index == g_localPlayerId) {
+				g_unk0x100a15a0--;
+			}
+			else {
+				g_unk0x100a15a0++;
+			}
+
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_carCfg.m_unk0x0b++;
+				break;
+			case 1:
+				g_carCfg.m_unk0x07++;
+				break;
+			case 2:
+				g_carCfg.m_unk0x09++;
+				break;
+			}
+		}
+		else {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_carCfg.m_unk0x48++;
+				break;
+			case 1:
+				g_carCfg.m_unk0x44++;
+				break;
+			case 2:
+				g_carCfg.m_unk0x46++;
+				break;
+			}
+		}
+	}
+	else {
+		next = p_mech->m_player->m_index;
+		next++;
+	}
+
+	if (p_mech->m_player->m_flags & 0x1400) {
+		if (p_mech->m_player->m_unk0x00 == 1) {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_carCfg.m_unk0x22++;
+				break;
+			case 1:
+				g_carCfg.m_unk0x1e++;
+				break;
+			case 2:
+				g_carCfg.m_unk0x20++;
+				break;
+			}
+		}
+		else {
+			switch (GetPlayerSide(p_mech->m_player->m_index)) {
+			case 0:
+				g_carCfg.m_unk0x4e++;
+				break;
+			case 1:
+				g_carCfg.m_unk0x4a++;
+				break;
+			case 2:
+				g_carCfg.m_unk0x4c++;
+				break;
+			}
+		}
+	}
+
+	if (g_players[g_localPlayerId]->m_team == p_mech->m_player->m_team) {
+		if (p_mech->m_unk0xa0 == 5) {
+			g_carCfg.m_unk0x36++;
+		}
+		else {
+			g_carCfg.m_unk0x34++;
+		}
+	}
+
+	if (GetPlayerSide(p_mech->m_player->m_index) == 1) {
+		switch (p_mech->m_player->m_unk0x00) {
+		case 1:
+			PlayCockpitSound(0x15, -1);
+			break;
+		case 2:
+			PlayCockpitSound(0x16, -1);
+			break;
+		case 3:
+			PlayCockpitSound(0x19, -1);
+			break;
+		case 4:
+			PlayCockpitSound(0x16, -1);
+			break;
+		case 5:
+			PlayCockpitSound(0x17, -1);
+			break;
+		case 8:
+			PlayCockpitSound(0x17, -1);
+			break;
+		case 6:
+		case 7:
+			break;
+		}
+	}
+
+	p_mech->m_player->m_flags |= 6;
+	p_mech->m_unk0x8c = 0;
+	if (!g_isNetworkGame) {
+		if (p_mech->m_unk0xa0 != 5 || p_mech->m_player->m_index != g_localPlayerId) {
+			p_mech->m_unk0xa0 = 4;
+		}
+
+		FUN_100518cd(p_mech->m_player);
+		if (GetTeamLeader(p_mech->m_player->m_team) == p_mech->m_player->m_index) {
+			leader = FUN_1005212a(p_mech->m_player->m_team);
+			FUN_100521e0(p_mech->m_player->m_team, p_mech->m_player->m_index, leader);
+			sprintf(text, "%6ld : New leader for group %d : %d\n", g_currentClock, p_mech->m_player->m_team, leader);
+			WriteToMw2Log(text);
+		}
+	}
+	else {
+		p_mech->m_unk0xa0 = 4;
+	}
+
+	if (!g_isNetworkGame && p_mech->m_player->m_index != g_localPlayerId &&
+		GetTeamLeader(p_mech->m_player->m_team) == g_localPlayerId) {
+		FUN_10059e63(6, p_mech->m_player->m_slot);
+	}
+
+	FUN_1001d292(p_mech->m_player->m_index, 1);
 }
 
 // Calls FUN_10008c0f once for each of section p_section's m_unk0x24.
@@ -369,10 +545,371 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	}
 }
 
-// STUB: MW2 0x10008c0f
-void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, undefined4 p_unk0x0c, undefined4 p_unk0x10)
+// Destroys critical slot p_slot of section p_section of p_mech, on behalf of player p_attacker,
+// and drops it from the section: a weapon (ids below 5000) stops working, an ammunition bin (above
+// 10000) explodes with its shots, damaging the section, and the equipment loses its function (the
+// jump jets, the heat sinks, the engine, the gyro...). The local player hears which, unless
+// p_recursing; 8000 and 9000 hit another, random slot instead.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10008c0f
+void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
-	STUB(0x10008c0f);
+	MechS32 id;
+	WeaponSlot* weapon;
+	MechS32 x;
+	MechS32 y;
+	MechS32 i;
+	MechS32 z;
+	struct AmberWillow0x7c* obj;
+	MechS32 kind;
+	MechSection* section;
+	SilverTern0x14* bin;
+	MechS32 damage;
+
+	section = p_mech->m_sections + p_section - 1;
+	if (!section) {
+		return;
+	}
+
+	if (p_slot >= section->m_unk0x24 || p_slot < 0) {
+		return;
+	}
+
+	id = section->m_slots[p_slot];
+	kind = id / 100;
+	if (kind < 50) {
+		weapon = p_mech->m_weapons;
+		for (i = 0; i < 10; i++) {
+			if (weapon->m_type < 0) {
+				weapon++;
+				continue;
+			}
+
+			if (weapon->m_unk0x2c == id) {
+				if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && weapon->m_unk0x00) {
+					switch (kind) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+						FUN_10059f6e(0x16);
+						break;
+					case 4:
+					case 5:
+					case 6:
+						FUN_10059f6e(0x17);
+						break;
+					case 7:
+					case 8:
+					case 9:
+						FUN_10059f6e(0x18);
+						break;
+					case 10:
+						FUN_10059f6e(0x19);
+						break;
+					case 11:
+						FUN_10059f6e(0x1a);
+						break;
+					case 12:
+					case 13:
+					case 14:
+					case 15:
+						FUN_10059f6e(0x1b);
+						break;
+					case 16:
+					case 17:
+					case 18:
+					case 19:
+						FUN_10059f6e(0x1c);
+						break;
+					case 20:
+						break;
+					case 21:
+						FUN_10059f6e(0x1d);
+						break;
+					case 22:
+						FUN_10059f6e(0x1e);
+						break;
+					case 23:
+						FUN_10059f6e(0x1f);
+						break;
+					case 24:
+						FUN_10059f6e(0x20);
+						break;
+					case 25:
+						FUN_10059f6e(0x21);
+						break;
+					case 26:
+						FUN_10059f6e(0x22);
+						break;
+					case 27:
+						FUN_10059f6e(0x23);
+						break;
+					}
+
+					if (p_mech->m_unk0xa0 == 2) {
+						FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					}
+
+					FUN_10059f6e(0);
+				}
+
+				weapon->m_unk0x00 = 0;
+				weapon->m_state = c_weaponEmpty;
+				break;
+			}
+
+			weapon++;
+		}
+	}
+	else if (kind > 100) {
+		bin = p_mech->m_unk0x5c;
+		for (i = 0; i < p_mech->m_unk0xc8; i++) {
+			if (bin->m_id == id) {
+				weapon = &p_mech->m_weapons[bin->m_weapon];
+				if (weapon->m_ammo < 1) {
+					break;
+				}
+
+				if (weapon) {
+					weapon->m_ammo -= bin->m_unk0x02;
+					if (!weapon->m_ammo) {
+						weapon->m_unk0x00 = 0;
+						weapon->m_state = c_weaponEmpty;
+					}
+				}
+
+				if (!p_recursing && bin->m_unk0x02) {
+					if (p_mech->m_player->m_index == g_localPlayerId) {
+						if (p_mech->m_unk0xa0 == 2) {
+							FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+						}
+
+						x = p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
+						y = p_mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
+						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+						g_unk0x100ae380 = 1;
+						FUN_1007ebd1(x, y, z, 0xbc, g_unk0x100a2420);
+						FUN_10059f6e(1);
+					}
+
+					obj = FUN_100021b6(p_mech->m_player->m_obj, p_section);
+					if (!obj) {
+						obj = FUN_100021b6(p_mech->m_player->m_obj, 3);
+					}
+
+					if (obj) {
+						FUN_1003adc9(FUN_1000154d(obj), &x, &y, &z);
+						FUN_1006b152(p_attacker, 7, x, y, z, x, y, z);
+					}
+
+					damage = bin->m_unk0x02 * bin->m_unk0x0a;
+					section->m_unk0x08 -= damage << 16;
+					if (section->m_unk0x08 < 0) {
+						section->m_unk0x08 = 0;
+						section->m_slots[p_slot] = 0;
+						FUN_1000899d(p_attacker, p_mech, p_section);
+					}
+
+					if (g_unk0x100a1590 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+						p_mech->m_unk0xa0 = 5;
+						FUN_1000832b(p_attacker, p_mech);
+					}
+				}
+
+				bin->m_unk0x02 = 0;
+			}
+
+			bin++;
+		}
+	}
+	else {
+		kind = id / 10 * 10;
+		switch (kind) {
+		case 9000:
+			if (!p_recursing) {
+				FUN_10008c0f(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
+				return;
+			}
+			else {
+				break;
+			}
+		case 8000:
+			if (!p_recursing) {
+				FUN_10008c0f(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
+				return;
+			}
+			else {
+				break;
+			}
+		case 7000:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0xc0 != 2) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(4);
+			}
+
+			if (p_mech->m_unk0xc4 > 0) {
+				p_mech->m_unk0xec -= p_mech->m_unk0xec / p_mech->m_unk0xc4;
+			}
+			else {
+				p_mech->m_unk0xec = 0;
+			}
+
+			if (p_mech->m_unk0xc4 > 0) {
+				p_mech->m_unk0xc4--;
+			}
+
+			if (!p_mech->m_unk0xc4) {
+				p_mech->m_unk0xc0 = -2;
+			}
+			break;
+		case 6000:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0x9c) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(5);
+			}
+
+			if (p_mech->m_unk0x9c > 0) {
+				p_mech->m_unk0x9c -= 50;
+			}
+			else {
+				p_mech->m_unk0x9c = 0;
+			}
+			break;
+		case 5900:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(6);
+			}
+
+			if (g_unk0x100ba624 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+				FUN_1000832b(p_attacker, p_mech);
+			}
+			break;
+		case 5850:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(7);
+			}
+
+			p_mech->m_unk0xb0 -= 0x199a;
+			if (p_mech->m_unk0xb0 < 0) {
+				p_mech->m_unk0xb0 = 0;
+			}
+			break;
+		case 5800:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(8);
+			}
+
+			p_mech->m_unk0xb0 -= 0x199a;
+			if (p_mech->m_unk0xb0 < 0) {
+				p_mech->m_unk0xb0 = 0;
+			}
+
+			p_mech->m_unk0xc0 = -2;
+			p_mech->m_unk0xec = 0;
+			p_mech->m_unk0xc4 = 0;
+			break;
+		case 5750:
+			if (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame) {
+				FUN_1000832b(p_attacker, p_mech);
+			}
+			break;
+		case 5700:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(9);
+			}
+
+			FUN_1007053d(p_mech, 1);
+			break;
+		case 5550:
+		case 5600:
+		case 5650:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(10);
+			}
+
+			p_mech->m_unk0xb0 -= 0x199a;
+			if (p_mech->m_unk0xb0 < 0) {
+				p_mech->m_unk0xb0 = 0;
+			}
+			break;
+		case 5500:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(11);
+			}
+
+			p_mech->m_unk0xb0 -= 0x199a;
+			if (p_mech->m_unk0xb0 < 0) {
+				p_mech->m_unk0xb0 = 0;
+			}
+			break;
+		case 5350:
+		case 5400:
+		case 5450:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(12);
+			}
+
+			FUN_1007053d(p_mech, 0);
+			break;
+		case 5300:
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
+				if (p_mech->m_unk0xa0 == 2) {
+					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+				}
+
+				FUN_10059f6e(9);
+			}
+
+			FUN_1007053d(p_mech, 0);
+			break;
+		}
+
+		if (p_mech->m_unk0xb0 && p_mech->m_unk0xb0 < 0x6666) {
+			p_mech->m_unk0xb0 = 0x6666;
+		}
+	}
+
+	for (i = p_slot; i < section->m_unk0x24 - 1; i++) {
+		section->m_slots[i] = section->m_slots[i + 1];
+	}
+
+	section->m_slots[i] = 0;
+	section->m_unk0x24--;
 }
 
 // Deals p_damage (16.16) to section p_section of the mech, on behalf of player p_attacker: to its
@@ -399,7 +936,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 	rear = FALSE;
 	level = 0;
 	roll = 0;
-	if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_unk0x01) {
+	if (p_mech->m_player->m_index == g_localPlayerId && g_difficulty->m_invulnerable) {
 		return;
 	}
 

@@ -281,7 +281,7 @@ MechChar* FUN_100664cb(undefined4 p_unk0x00, MenuItem* p_item)
 		return g_navTable[target].m_name;
 		break;
 	case 0x400:
-		return (MechChar*) &g_gameThings[target].m_unk0x14;
+		return g_gameThings[target].m_name;
 		break;
 	case 0x200:
 		return g_players[target]->m_name;

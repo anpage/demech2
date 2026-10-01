@@ -8,7 +8,7 @@
 #include "simmain.h"
 #include "types.h"
 #include "unk10034a40.h"
-#include "unk10036230.h"
+#include "unk10039a30.h"
 #include "unk1003a530.h"
 
 #include <windows.h>

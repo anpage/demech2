@@ -5,6 +5,7 @@
 #include "brightness.h"
 #include "callbacks.h"
 #include "clock.h"
+#include "cmdline.h"
 #include "cockpit.h"
 #include "compat.h"
 #include "config.h"
@@ -46,19 +47,16 @@
 #include "speech.h"
 #include "startup.h"
 #include "staticmem.h"
+#include "supanim.h"
 #include "timedoverlays.h"
 #include "types.h"
+#include "videodriverchoice.h"
 #include "weapons.h"
 
 #include <excpt.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-typedef struct Unk0x1012b7c0 {
-	MechU32 m_unk0x00;  // 0x00
-	char m_unk0x04[13]; // 0x04
-} Unk0x1012b7c0;
 
 DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
 DECOMP_SIZE_ASSERT(StarMission, 0x3c0a)
@@ -144,6 +142,20 @@ EffectInfo g_effectInfo[0x20] = {
 // GLOBAL: MW2 0x100a23ec
 MechS32 g_unk0x100a23ec = 0;
 
+// The external view's distance limits, height and turn (FUN_100118bc).
+
+// GLOBAL: MW2 0x100a23f0
+MechS32 g_unk0x100a23f0 = 0;
+
+// GLOBAL: MW2 0x100a23f4
+MechS32 g_unk0x100a23f4 = 0;
+
+// GLOBAL: MW2 0x100a23f8
+MechS32 g_unk0x100a23f8 = 0;
+
+// GLOBAL: MW2 0x100a23fc
+MechS32 g_unk0x100a23fc = 0xb40000;
+
 // GLOBAL: MW2 0x100a2400
 MechS32 g_normalFov = 0x10000;
 
@@ -217,6 +229,10 @@ MechS32 g_initDrawModeParam2 = 1;
 // GLOBAL: MW2 0x100a2454
 MechS32 g_unk0x100a2454 = 0;
 
+// The banner's file name, instead of sbannr (FUN_10012f3c).
+// GLOBAL: MW2 0x100a2458
+MechChar* g_unk0x100a2458 = NULL;
+
 // GLOBAL: MW2 0x100a245c
 void* g_unk0x100a245c = NULL;
 
@@ -225,6 +241,10 @@ MechS32 g_unk0x100a2460 = 1;
 
 // GLOBAL: MW2 0x100a2464
 MechS32 g_unk0x100a2464 = 0;
+
+// The "mightymouse" cheat: infinite jump jet fuel.
+// GLOBAL: MW2 0x100a2be4
+MechS32 g_unk0x100a2be4 = 0;
 
 // Set by a game key: run FUN_1004597b on the local mech next tick.
 // GLOBAL: MW2 0x100a2be8
@@ -469,6 +489,10 @@ MechChar* g_unk0x100a8744 = NULL;
 // GLOBAL: MW2 0x100a87c0
 char g_unk0x100a87c0[] = "BWD";
 
+// Set by game key 0x11.
+// GLOBAL: MW2 0x100aa2a0
+MechS32 g_unk0x100aa2a0 = 0;
+
 // GLOBAL: MW2 0x100aa2a4
 MechS32 g_unk0x100aa2a4 = 1;
 
@@ -477,6 +501,10 @@ MechS32 g_unk0x100aa2a8 = 0;
 
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
+
+// The "meepmeep" cheat: enables the time compression key.
+// GLOBAL: MW2 0x100aa2b0
+MechS32 g_unk0x100aa2b0 = 0;
 
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
@@ -588,7 +616,7 @@ undefined g_unk0x100e9350[0x100];
 MechS32 g_unk0x100e9614;
 
 // GLOBAL: MW2 0x1012b7c0
-Unk0x1012b7c0 g_unk0x1012b7c0;
+VideoDriverChoice g_videoDriverChoice;
 
 // GLOBAL: MW2 0x100c3358
 MechS32 g_unk0x100c3358;
@@ -618,8 +646,6 @@ MechS32 g_unk0x10138760[48];
 // GLOBAL: MW2 0x10138820
 MechS32 g_objectiveCount; // defined last for the operand order of the DoFirstObjtv loop test
 
-void StartSupAnim(MechS32 p_unk0x00);
-void StopSupAnim(void);
 void UpdateDebris(void);
 void ZeroChunx(void);
 void CollectMissionAudio(void);
@@ -630,7 +656,6 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team);
 void UpdateObjectives(void);
 void EndTheMission1(void);
 MechS32 EndTheMission2(void);
-MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x08);
 void UpdateGeoCache(void);
 void FirstStaticCache(void);
 void FirstAI(void);
@@ -695,15 +720,15 @@ int __stdcall SimMain(
 	}
 
 	g_displayBrightness = g_unk0x100a946c = g_mw2SndCfgData->m_displayBrightness;
-	g_unk0x1012b7c0.m_unk0x00 = 0;
+	g_videoDriverChoice.m_flags = 0;
 	if (g_mw2SndCfgData->m_videoDriver[0]) {
-		g_unk0x1012b7c0.m_unk0x00 |= 1;
+		g_videoDriverChoice.m_flags |= 1;
 		if (_stricmp(g_mw2SndCfgData->m_videoDriver, "scan") == 0) {
-			g_unk0x1012b7c0.m_unk0x04[0] = 0;
+			g_videoDriverChoice.m_name[0] = 0;
 		}
 		else {
-			strncpy(g_unk0x1012b7c0.m_unk0x04, g_mw2SndCfgData->m_videoDriver, 12);
-			g_unk0x1012b7c0.m_unk0x04[12] = 0;
+			strncpy(g_videoDriverChoice.m_name, g_mw2SndCfgData->m_videoDriver, 12);
+			g_videoDriverChoice.m_name[12] = 0;
 		}
 	}
 
@@ -715,7 +740,7 @@ int __stdcall SimMain(
 		Error(0x51, NULL);
 	}
 
-	SetGameResolution(g_unk0x1012b7c0.m_unk0x04);
+	SetGameResolution(g_videoDriverChoice.m_name);
 	if (g_logFileEnabled) {
 		OpenMw2Log();
 	}

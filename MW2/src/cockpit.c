@@ -21,6 +21,7 @@
 #include "palette.h"
 #include "players.h"
 #include "point.h"
+#include "polyfill.h"
 #include "random.h"
 #include "recttransition.h"
 #include "render.h"
@@ -35,7 +36,6 @@
 #include "types.h"
 #include "unk10010750.h"
 #include "unk1001ce90.h"
-#include "unk10036230.h"
 #include "unk10041fa0.h"
 #include "unk10042e00.h"
 #include "unk100696c0.h"
@@ -950,10 +950,10 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 
 		if (g_unk0x100a6cc8.m_unk0x04) {
-			FUN_1003763b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
+			FUN_1002b68b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
 		}
 		else {
-			FUN_10036918(&g_currentRenderTarget, p_count, p_points);
+			FillPolygonFlat(&g_currentRenderTarget, p_count, p_points);
 		}
 		break;
 	case 0x3000:

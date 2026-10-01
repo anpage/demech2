@@ -27,7 +27,7 @@ extern "C"
 	extern Path g_paths[0x40];
 	extern QuartzReel0x14* g_unk0x101079e0[0x780];
 
-	void FUN_10046750(void);
+	MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	MechS32 FUN_100472fe(MechS32 p_mode, MechS32 p_value);
 	MechS32 LoadAnimFile(ResourceRef* p_ref);
 	MechS32 FUN_10047462(void);

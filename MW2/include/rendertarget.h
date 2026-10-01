@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 	extern MechS32 g_navCount;
+	extern MechS32 g_unk0x100aaba8;
 	extern MechS32 g_unk0x100aabac;
 	extern struct SageLark0x1c* g_unk0x100aabd4;
 	extern struct CockpitLayout* g_unk0x100ab0e8[6];

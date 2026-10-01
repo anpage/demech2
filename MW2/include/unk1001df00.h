@@ -7,7 +7,7 @@
 
 struct DuskMoth0x24;
 struct ScarletOrchid0x4c;
-#include "unk10036230.h"
+#include "unk10039a30.h"
 
 // A quadtree node: its bounds, its four children (m_unk0x18 == 0) and m_unk0x18 entries
 // after the header (undefined4 each). FUN_1001e429 allocates it; ScarletOrchid0x4c::m_unk0x44 holds the root

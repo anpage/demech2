@@ -13,6 +13,9 @@ extern "C"
 #endif
 
 	extern MechS32 g_currentClock;
+	extern MechS32 g_framerateLimit;
+	extern MechS32 g_timeExpansionEnabled;
+	extern MechS32 g_timeCompressionEnabled;
 	extern MechS32 g_unk0x100ba54c;
 	extern MechS32 g_unk0x100ba554;
 	extern MechS32 g_deltaTime;

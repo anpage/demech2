@@ -16,9 +16,10 @@ extern "C"
 
 	MechS32 FUN_1005b7c0(MechS16 p_key);
 	MechS32 FUN_1005b807(MechChar* p_code);
+	void HandleCheatInput(MechS16 p_key);
 	void FUN_1005bf7c(MechChar* p_char);
 	MechS32 HandleChatKey(MechU32 p_keyCode);
-	void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechS32 p_unk0x08);
+	void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key);
 	void FUN_1005c78a(MechS32 p_key);
 
 #ifdef __cplusplus

@@ -7,7 +7,7 @@
 #include "object.h"
 #include "simmain.h"
 #include "types.h"
-#include "unk10036230.h"
+#include "unk10039a30.h"
 #include "unk1006d680.h"
 #include "unk1006e970.h"
 

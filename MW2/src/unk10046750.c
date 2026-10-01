@@ -1,5 +1,5 @@
 /* Hand-written assembly: FUN_10048c50, FUN_10048d46, FUN_10048ebe and FUN_10048faf are C
-   functions with __asm bodies. */
+   functions with __asm bodies, and FUN_10049155 has __asm blocks. */
 #include "unk10046750.h"
 
 #include "ambientsound.h"
@@ -14,14 +14,23 @@
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "geocache.h"
+#include "ivorydelta.h"
 #include "object.h"
+#include "path.h"
+#include "players.h"
 #include "quartzreel.h"
+#include "ramp.h"
+#include "reelevent.h"
 #include "resource.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "staticmem.h"
 #include "types.h"
+#include "unk1001ce90.h"
+#include "unk100335d0.h"
 #include "unk1003a530.h"
 #include "unk1004b980.h"
+#include "unk100563d0.h"
 #include "unk100696c0.h"
 #include "unk100737e0.h"
 #include "unk1007d120.h"
@@ -30,6 +39,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+
+#pragma warning(disable : 4102) /* labels only __asm blocks jump to */
 
 // The state of FUN_1004748c's callback: the faces of a shape cycle through up to sixteen colors.
 // SIZE 0x50
@@ -65,6 +76,41 @@ typedef struct JadeOrbit0x1c {
 	MechS32 m_lastClock;         // 0x18
 } JadeOrbit0x1c;
 
+// The state of FUN_10046750's callback: an object moving through an animation (QuartzReel0x14)
+// in step with its player's animation state (m_unk0x80-0x94).
+// SIZE 0x2c
+typedef struct JadeMotion0x2c {
+	QuartzReel0x14* m_reel;    // 0x00
+	QuartzReel0x14* m_initial; // 0x04
+	AmberWillow0x7c* m_object; // 0x08
+	Player* m_player;          // 0x0c
+	MechS32 m_rate;            // 0x10 — clock ticks per frame
+	MechS32 m_timer;           // 0x14 — until the next frame
+	MechS32 m_amount;          // 0x18 — left to move in this frame
+	MechS32 m_lastClock;       // 0x1c
+	MechS32 m_enabled;         // 0x20
+	MechS32 m_frame;           // 0x24 — -1 before the first
+	MechU32 m_flags;           // 0x28 — 1: drives the player's animation state
+} JadeMotion0x2c;
+
+// The state of FUN_10047f60's callback: a star's object following a path, eased by the ramps.
+// SIZE 0x88
+typedef struct JadePath0x88 {
+	ScarletOrchid0x4c** m_shape; // 0x00 — the star's shape (FUN_1001f873)
+	AmberWillow0x7c* m_object;   // 0x04
+	Path* m_path;                // 0x08
+	MechS32 m_startClock;        // 0x0c
+	MechS32 m_duration;          // 0x10 — the points' times added up
+	MechS32 m_rotate;            // 0x14 — turns along the path
+	MechS32 m_mode;              // 0x18 — at the end: 0 "loop" runs on, 1 "repeat" restarts, 2 stops
+	Ramp m_x;                    // 0x1c
+	Ramp m_y;                    // 0x2c
+	Ramp m_z;                    // 0x3c
+	WrappedRamp m_pitch;         // 0x4c
+	WrappedRamp m_heading;       // 0x60
+	WrappedRamp m_roll;          // 0x74
+} JadePath0x88;
+
 // An animation file LoadAnimFile has loaded: its id and the base of its animation numbers.
 // SIZE 0x8
 typedef struct MossLedger0x8 {
@@ -79,6 +125,13 @@ DECOMP_SIZE_ASSERT(JadeCycle0x50, 0x50)
 DECOMP_SIZE_ASSERT(JadeSpin0x1c, 0x1c)
 DECOMP_SIZE_ASSERT(JadeOrbit0x1c, 0x1c)
 DECOMP_SIZE_ASSERT(MossLedger0x8, 0x8)
+DECOMP_SIZE_ASSERT(JadeMotion0x2c, 0x2c)
+DECOMP_SIZE_ASSERT(JadePath0x88, 0x88)
+DECOMP_SIZE_ASSERT(ReelEvent, 0x8)
+
+// Why FUN_10046750 last failed: 1 no player, 2 disabled, 3 no object, 4-7 missing state.
+// GLOBAL: MW2 0x100a6d64
+MechS32 g_unk0x100a6d64 = 0;
 
 // The number of entries in g_paths.
 // GLOBAL: MW2 0x100a6d68
@@ -113,6 +166,25 @@ CopperWren0x20* g_unk0x1010b550[20];
 // GLOBAL: MW2 0x1010b5b0
 MechS32 g_unk0x1010b5b0;
 
+// Where FUN_10049155 copies the next polygon's vertex pointers in the draw buffer.
+// GLOBAL: MW2 0x1010b534
+MechU8* g_unk0x1010b534;
+
+// FUN_10049155's counts: faces it took (5bc), faces past the back-face test (538), vertices it
+// projected (5b4) and polygons it queued (5a8).
+
+// GLOBAL: MW2 0x1010b5bc
+MechS32 g_unk0x1010b5bc;
+
+// GLOBAL: MW2 0x1010b538
+MechS32 g_unk0x1010b538;
+
+// GLOBAL: MW2 0x1010b5b4
+MechS32 g_unk0x1010b5b4;
+
+// GLOBAL: MW2 0x1010b5a8
+MechS32 g_unk0x1010b5a8;
+
 // GLOBAL: MW2 0x100ea8e0
 Path g_paths[0x40];
 
@@ -123,10 +195,393 @@ QuartzReel0x14* g_unk0x101079e0[0x780];
 // GLOBAL: MW2 0x101097e0
 MossLedger0x8 g_unk0x101097e0[60];
 
-// STUB: MW2 0x10046750
-void FUN_10046750(void)
+// A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
+// "<thing or class id>;<rate>,<flags>,<animation>", made for the player being created
+// (g_unk0x100a8638). Each frame moves or turns the object by the frame's amount, spread over
+// the rate; the frame events jump to other frames by the player's animation state (m_unk0x84,
+// the frame it reached, and m_unk0x88, the one it wants).
+// Stack-slot permutation of the locals. The original adds i before scaling frame in the
+// m_values[i] reads (index order).
+// FUNCTION: MW2 0x10046750
+MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
-	STUB(0x10046750);
+	MechS32 next;
+	MechS32 elapsed;
+	MechS32 y;
+	MechChar* token;
+	MechS32 z;
+	MechS32 jump;
+	JadeMotion0x2c* motion;
+	MechS32 thing;
+	MechS32 back;
+	MechS32 enabled;
+	MechS32 found;
+	MechS32 amount;
+	MechS32 turnX;
+	MechS32 step;
+	MechS32 target;
+	MechS32 turnY;
+	MechS32 value;
+	MechS32 number;
+	MechS32 turnZ;
+	MechS32 frame;
+	ScarletOrchid0x4c* shape;
+	MechS32 rate;
+	MechS32 id;
+	void** slot;
+	MechS32 x;
+	MechS32 match;
+	MechS32 i;
+
+	rate = 0;
+	enabled = 0;
+	number = 0;
+	jump = FALSE;
+	found = FALSE;
+	thing = -1;
+	switch (p_event) {
+	case 0:
+		motion = StaticPoolAlloc(sizeof(JadeMotion0x2c), g_staticPoolTags[4]);
+		if (!motion) {
+			return 0;
+		}
+
+		if (!g_unk0x100a8638) {
+			g_unk0x100a6d64 = 1;
+			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, motion);
+			return 0;
+		}
+
+		slot = FUN_1007d51f(FUN_1007d2e0());
+		*slot = motion;
+		motion->m_object = NULL;
+		motion->m_reel = NULL;
+		motion->m_enabled = 0;
+		motion->m_rate = 0;
+		motion->m_flags = 0;
+		motion->m_player = g_unk0x100a8638;
+		token = strchr(p_data, ';');
+		if (token) {
+			*token = '\0';
+			token++;
+			sscanf(token, "%ld,%d,%d", &rate, &enabled, &number);
+			number += g_unk0x100a6d70;
+			if (number > g_unk0x100a6d6c) {
+				g_unk0x100a6d6c = number;
+			}
+
+			if (enabled) {
+				motion->m_enabled = 1;
+				if (enabled > 0x7f) {
+					motion->m_flags |= 1;
+				}
+			}
+			else {
+				motion->m_enabled = 0;
+				g_unk0x100a6d64 = 2;
+			}
+
+			motion->m_rate = rate;
+			motion->m_reel = g_unk0x101079e0[number];
+			motion->m_initial = g_unk0x101079e0[number];
+			motion->m_frame = -1;
+			motion->m_timer = 0;
+			motion->m_amount = 0;
+			motion->m_lastClock = p_clock;
+			motion->m_player->m_unk0x94 = rate;
+			motion->m_player->m_unk0x84 = -1;
+		}
+
+		id = atoi(p_data);
+		id = MapResourceId(id);
+		thing = FindThingIdxById(id);
+		if (thing != -1) {
+			motion->m_object = FUN_1001d980(thing);
+		}
+		else {
+			shape = FindClassById(id);
+			if (shape) {
+				motion->m_object = FUN_1003b6e5(shape);
+			}
+		}
+
+		if (!motion->m_object) {
+			g_unk0x100a6d64 = 3;
+		}
+		break;
+	case 1:
+		slot = FUN_1007d51f(FUN_1007d2e0());
+		motion = *slot;
+		if (!motion) {
+			return 0;
+		}
+
+		if (!motion->m_object) {
+			return 0;
+		}
+
+		if (!motion->m_player) {
+			g_unk0x100a6d64 = 5;
+			return 0;
+		}
+
+		if (!motion->m_enabled) {
+			g_unk0x100a6d64 = 4;
+			return 0;
+		}
+
+		elapsed = p_clock - motion->m_lastClock;
+		motion->m_lastClock = p_clock;
+		if (motion->m_player->m_unk0x80 & 0x10) {
+			motion->m_reel = motion->m_initial;
+			motion->m_frame = -1;
+			motion->m_timer = 0;
+			motion->m_amount = 0;
+			motion->m_lastClock = p_clock;
+			if (motion->m_flags & 1) {
+				motion->m_player->m_unk0x94 = motion->m_rate;
+				motion->m_player->m_unk0x80 &= ~0x11;
+				motion->m_player->m_unk0x84 = -1;
+			}
+		}
+		else if (motion->m_player->m_unk0x80 & 1) {
+			if (!motion->m_rate) {
+				g_unk0x100a6d64 = 6;
+				return 0;
+			}
+
+			if (!motion->m_player->m_unk0x94) {
+				g_unk0x100a6d64 = 7;
+				return 0;
+			}
+
+			if (motion->m_timer <= 0) {
+				amount = motion->m_amount;
+			}
+			else {
+				amount = motion->m_amount * elapsed / motion->m_timer;
+			}
+
+			if (motion->m_amount < 0) {
+				if (motion->m_amount > amount) {
+					amount = motion->m_amount;
+				}
+			}
+			else if (motion->m_amount < amount) {
+				amount = motion->m_amount;
+			}
+
+			if (motion->m_reel->m_kind >= 3) {
+				turnX = turnY = turnZ = 0;
+				switch (motion->m_reel->m_kind) {
+				case 3:
+					turnX = amount;
+					break;
+				case 4:
+					turnY = amount;
+					break;
+				case 5:
+					turnZ = amount;
+					break;
+				}
+
+				FUN_1000184b(motion->m_object, turnX, turnY, turnZ, 0);
+			}
+			else {
+				x = y = z = 0;
+				switch (motion->m_reel->m_kind) {
+				case 0:
+					x = amount;
+					break;
+				case 1:
+					y = amount;
+					break;
+				case 2:
+					z = amount;
+					break;
+				}
+
+				FUN_10001667(motion->m_object, x, y, z);
+			}
+
+			FUN_10001cf8(motion->m_object);
+			motion->m_amount -= amount;
+			motion->m_timer -= elapsed;
+			if (motion->m_frame == -1) {
+				motion->m_frame = 0;
+				motion->m_timer = 0;
+				motion->m_player->m_unk0x84 = 0;
+			}
+
+			if (motion->m_timer <= 0) {
+				frame = motion->m_frame;
+				motion->m_frame++;
+				motion->m_timer += motion->m_player->m_unk0x94;
+				if (-motion->m_player->m_unk0x94 > motion->m_timer) {
+					motion->m_timer = -motion->m_player->m_unk0x94;
+				}
+
+				if (motion->m_reel->m_events[frame].m_flags & 0x40) {
+					target = motion->m_reel->m_events[frame].m_values[1];
+					if (motion->m_player->m_unk0x88 == target) {
+						jump = TRUE;
+					}
+					else {
+						jump = FALSE;
+					}
+				}
+
+				if (motion->m_reel->m_events[frame].m_flags & 0x80) {
+					target = motion->m_reel->m_events[frame].m_values[1];
+					if (motion->m_player->m_unk0x88 != -1 &&
+						motion->m_player->m_unk0x84 != motion->m_player->m_unk0x88) {
+						jump |= TRUE;
+					}
+					else {
+					}
+				}
+
+				if (motion->m_reel->m_events[frame].m_flags & 0x100) {
+					target = motion->m_reel->m_events[frame].m_values[2];
+					if (motion->m_player->m_unk0x88 == -1) {
+						jump |= TRUE;
+					}
+					else {
+					}
+				}
+
+				if (jump) {
+					jump = FALSE;
+					if (motion->m_player->m_unk0x84 < target) {
+						step = 1;
+					}
+					else {
+						step = -1;
+					}
+
+					found = FALSE;
+					next = frame;
+					while (!found) {
+						next += step;
+						if (next >= motion->m_reel->m_frameCount) {
+							next = -1;
+						}
+
+						if (next == -1) {
+							found = TRUE;
+						}
+						else if (motion->m_reel->m_events[next].m_flags & 1) {
+							value = motion->m_reel->m_events[next].m_values[0];
+							if (value == target) {
+								found = TRUE;
+							}
+						}
+					}
+
+					if (next != -1) {
+						found = FALSE;
+						while (!found) {
+							if (next >= motion->m_reel->m_frameCount) {
+								next = -1;
+								found = TRUE;
+							}
+							else {
+								if (motion->m_reel->m_events[next].m_flags & 0x200) {
+									value = motion->m_reel->m_events[next].m_values[3];
+									if (motion->m_player->m_unk0x84 == value) {
+										found = TRUE;
+									}
+								}
+
+								next++;
+							}
+						}
+					}
+
+					if (next != -1) {
+						motion->m_frame = next;
+						jump = TRUE;
+					}
+				}
+
+				if (!jump && (motion->m_reel->m_events[frame].m_flags & 0xc)) {
+					match = TRUE;
+					if (motion->m_reel->m_events[frame].m_flags & 4) {
+						match = FALSE;
+						for (i = 0; i < 4; i++) {
+							if (motion->m_reel->m_events[frame].m_values[i] == -1) {
+								break;
+							}
+
+							if (motion->m_reel->m_events[frame].m_values[i] == (MechS8) motion->m_player->m_unk0x88) {
+								match = TRUE;
+							}
+							else {
+								match = FALSE;
+							}
+
+							if (match) {
+								break;
+							}
+						}
+					}
+
+					if (match) {
+						back = frame - 1;
+						while (!(motion->m_reel->m_events[back].m_flags & 2) && back >= 0) {
+							back--;
+						}
+
+						motion->m_frame = back;
+					}
+				}
+
+				if ((!jump && (motion->m_reel->m_events[frame].m_flags & 0x400)) ||
+					motion->m_frame >= motion->m_reel->m_frameCount) {
+					motion->m_timer = 0;
+					motion->m_frame = -1;
+				}
+
+				if (motion->m_frame != -1) {
+					motion->m_amount += motion->m_reel->m_amounts[motion->m_frame];
+				}
+
+				if (motion->m_flags & 1) {
+					if (jump) {
+						motion->m_player->m_unk0x84 = target;
+					}
+
+					motion->m_player->m_unk0x80 &= ~2;
+					motion->m_player->m_unk0x80 &= ~8;
+					if (motion->m_frame != -1) {
+						motion->m_player->m_unk0x94 = FUN_100472fe(motion->m_player->m_unk0x8c, motion->m_rate);
+						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x10) {
+							motion->m_player->m_unk0x80 |= 2;
+						}
+
+						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x800) {
+							motion->m_player->m_unk0x80 |= 8;
+						}
+					}
+					else if (motion->m_player->m_unk0x88 == -1) {
+						motion->m_player->m_unk0x80 &= ~1;
+						motion->m_player->m_unk0x84 = -1;
+					}
+				}
+			}
+		}
+		else if (motion->m_flags & 1) {
+			if (motion->m_player->m_unk0x88 != -1 || motion->m_player->m_unk0x84 != -1) {
+				motion->m_player->m_unk0x80 |= 1;
+				motion->m_player->m_unk0x94 = FUN_100472fe(motion->m_player->m_unk0x8c, motion->m_rate);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	return 1;
 }
 
 // Scales p_value by mode p_mode: 1 by 1.5, 3 by 0.75, any other mode leaves it.
@@ -541,11 +996,277 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 }
 
 // A timed callback (TimedCallbackFn).
-// STUB: MW2 0x10047f60
+// A timed callback (TimedCallbackFn) moving a star's object along a path. Its data is
+// "<star id>;<mode>,<rotate>,<path name>": mode "loop", "repeat" or else stop at the end, and
+// "rotate" to turn the object along the path. Event -1 restarts it.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10047f60
 MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
-	STUB(0x10047f60);
-	return 0;
+	MechChar rotate[64];
+	MechChar* token;
+	JadePath0x88* follower;
+	MechS32 total;
+	MechChar name[64];
+	MechS32 i;
+	MechChar mode[64];
+	MechS32 star;
+	MechS32 id;
+	void** slot;
+	PathPoint* first;
+	PathPoint* origin;
+	MechS32 elapsed;
+	Path* path;
+	MechS32 start;
+	MechS32 end;
+	PathPoint* point;
+	MechS32 t;
+	MechS32 delta;
+	PathPoint* next;
+	MechS32 angle;
+
+	switch (p_event) {
+	case -1:
+		slot = FUN_1007d51f(FUN_1007d2e0());
+		follower = *slot;
+		if (!follower) {
+			return 0;
+		}
+
+		follower->m_startClock = p_clock;
+		if (follower->m_path) {
+			first = follower->m_path->m_points;
+			StartRamp(&follower->m_x, first->m_x, first->m_x, 0.3);
+			StartRamp(&follower->m_y, first->m_y, first->m_y, 0.3);
+			StartRamp(&follower->m_z, first->m_z, first->m_z, 0.3);
+			StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, 0x1680000);
+			StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, 0x1680000);
+			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
+			total = 0;
+			for (i = 0; i < follower->m_path->m_count; i++) {
+				total += follower->m_path->m_points[i].m_unk0x18;
+			}
+
+			follower->m_duration = total;
+			id = atoi(p_data);
+			id = MapResourceId(id);
+			id = atoi(p_data);
+			id = MapResourceId(id);
+			star = FindStarIdxById(id);
+			if (star != -1) {
+				follower->m_shape = FUN_1001f873(star);
+			}
+			else {
+				return 0;
+			}
+		}
+		break;
+	case 0:
+		follower = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(JadePath0x88));
+		if (!follower) {
+			return 0;
+		}
+
+		slot = FUN_1007d51f(FUN_1007d2e0());
+		*slot = follower;
+		follower->m_object = NULL;
+		follower->m_path = NULL;
+		follower->m_startClock = p_clock;
+		token = strchr(p_data, ';');
+		if (token) {
+			*token = '\0';
+			token++;
+			sscanf(token, "%[^,],%[^,],%[^,]", mode, rotate, name);
+			if (_strcmpi(mode, "loop") == 0) {
+				follower->m_mode = 0;
+			}
+			else if (_strcmpi(mode, "repeat") == 0) {
+				follower->m_mode = 1;
+			}
+			else {
+				follower->m_mode = 2;
+			}
+
+			if (_strcmpi(rotate, "rotate") == 0) {
+				follower->m_rotate = 1;
+			}
+			else {
+				follower->m_rotate = 0;
+			}
+
+			for (i = 0; i < g_pathCount; i++) {
+				if (_strcmpi(name, g_paths[i].m_name) == 0) {
+					follower->m_path = &g_paths[i];
+					break;
+				}
+			}
+		}
+
+		if (follower->m_path) {
+			origin = follower->m_path->m_points;
+			StartRamp(&follower->m_x, origin->m_x, origin->m_x, 0.3);
+			StartRamp(&follower->m_y, origin->m_y, origin->m_y, 0.3);
+			StartRamp(&follower->m_z, origin->m_z, origin->m_z, 0.3);
+			StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, 0x1680000);
+			StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, 0x1680000);
+			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
+			total = 0;
+			for (i = 0; i < follower->m_path->m_count; i++) {
+				total += follower->m_path->m_points[i].m_unk0x18;
+			}
+
+			follower->m_duration = total;
+			id = atoi(p_data);
+			id = MapResourceId(id);
+			id = atoi(p_data);
+			id = MapResourceId(id);
+			star = FindStarIdxById(id);
+			if (star != -1) {
+				follower->m_shape = FUN_1001f873(star);
+			}
+			else {
+				return 0;
+			}
+			break;
+		}
+		break;
+	case 1:
+		slot = FUN_1007d51f(FUN_1007d2e0());
+		follower = *slot;
+		if (!follower) {
+			return 0;
+		}
+		else if (!follower->m_shape || !follower->m_path) {
+			return 0;
+		}
+
+		if (!*follower->m_shape) {
+			return 0;
+		}
+
+		follower->m_object = FUN_1003b6e5(*follower->m_shape);
+		if (!follower->m_object) {
+			return 0;
+		}
+
+		path = follower->m_path;
+		if (path->m_count <= 1) {
+			return 0;
+		}
+
+		elapsed = p_clock - follower->m_startClock;
+		end = 0;
+		start = 0;
+		for (i = 0; i < path->m_count; i++) {
+			start = end;
+			end += path->m_points[i].m_unk0x18;
+			if (end >= elapsed) {
+				break;
+			}
+		}
+
+		if (i >= path->m_count - 1) {
+			if (follower->m_mode == 2) {
+				return 0;
+			}
+			else if (follower->m_mode == 1) {
+				i = 0;
+				elapsed = 0;
+				follower->m_startClock = p_clock;
+				start = 0;
+				end = path->m_points[0].m_unk0x18;
+				StartRamp(&follower->m_x, path->m_points[0].m_x, path->m_points[0].m_x, 0.3);
+				StartRamp(&follower->m_y, path->m_points[0].m_y, path->m_points[0].m_y, 0.3);
+				StartRamp(&follower->m_z, path->m_points[0].m_z, path->m_points[0].m_z, 0.3);
+				StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, 0x1680000);
+				StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, 0x1680000);
+				StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
+			}
+			else if (path->m_count == i) {
+				i = 0;
+				elapsed -= follower->m_duration;
+				follower->m_startClock = p_clock - elapsed;
+				start = 0;
+				end = path->m_points[0].m_unk0x18;
+			}
+		}
+
+		point = &path->m_points[i];
+		if (path->m_count - 1 == i) {
+			next = path->m_points;
+		}
+		else {
+			next = &path->m_points[i + 1];
+		}
+
+		t = FixedDiv16(elapsed - start, point->m_unk0x18);
+		follower->m_x.m_target = point->m_x + FixedMul16(t, next->m_x - point->m_x);
+		follower->m_y.m_target = point->m_y + FixedMul16(t, next->m_y - point->m_y);
+		follower->m_z.m_target = point->m_z + FixedMul16(t, next->m_z - point->m_z);
+		SetObjPosition(
+			follower->m_object,
+			UpdateRamp(&follower->m_x),
+			UpdateRamp(&follower->m_y),
+			UpdateRamp(&follower->m_z)
+		);
+		angle = point->m_unk0x10;
+		if (follower->m_rotate) {
+			angle += FUN_100698de(next->m_x - point->m_x, next->m_z - point->m_z);
+		}
+
+		delta = angle - follower->m_heading.m_value;
+		while (delta > 0xb40000) {
+			delta -= 0x1680000;
+		}
+
+		while (delta < -0xb40000) {
+			delta += 0x1680000;
+		}
+
+		follower->m_heading.m_target = angle;
+		follower->m_heading.m_value = angle - delta;
+		angle = point->m_unk0x0c;
+		if (follower->m_rotate) {
+			angle -= FUN_1006975b((next->m_y - point->m_y) << 13);
+		}
+
+		delta = angle - follower->m_pitch.m_value;
+		while (delta > 0xb40000) {
+			delta -= 0x1680000;
+		}
+
+		while (delta < -0xb40000) {
+			delta += 0x1680000;
+		}
+
+		follower->m_pitch.m_target = angle;
+		follower->m_pitch.m_value = angle - delta;
+		angle = point->m_unk0x14;
+		delta = angle - follower->m_roll.m_value;
+		while (delta > 0xb40000) {
+			delta -= 0x1680000;
+		}
+
+		while (delta < -0xb40000) {
+			delta += 0x1680000;
+		}
+
+		follower->m_roll.m_target = angle;
+		follower->m_roll.m_value = angle - delta;
+		SetObjRotation(
+			follower->m_object,
+			UpdateWrappedRamp(&follower->m_pitch),
+			UpdateWrappedRamp(&follower->m_heading),
+			UpdateWrappedRamp(&follower->m_roll),
+			0
+		);
+		FUN_10001cf8(follower->m_object);
+		break;
+	default:
+		break;
+	}
+
+	return 1;
 }
 
 // Returns the vertex's projected copy (m_unk0x24), transforming it into view space
@@ -1006,9 +1727,330 @@ jmp_10049103:
 
 // Queues a face of a model for drawing, unless it faces away: projects the vertices it hasn't
 // yet, clips it to the near plane through the filter hooks (g_unk0x100a6cc8) and adds the
-// polygon to the list being built (g_unk0x1010b5c4) with its depth.
-// STUB: MW2 0x10049155
+// polygon to the list being built (g_unk0x1010b5c4) with its depth, by g_unk0x1010b5c8's rule:
+// the average (2), nearest (4) or farthest of its vertices' depths. The back-face test, the
+// projection, the clipping walk and the depth rules are __asm blocks; the first keeps the normal's
+// z in depth.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10049155
 void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 {
+#ifdef COMPAT_MODE
 	STUB(0x10049155);
+#else
+	MechS32 stride;
+	EmberFern0x2c* vertex;
+	MechS32 normalY;
+	MechS32 depth;
+	MechS8 andCodes;
+	MechU16 count;
+	MechS8 orCodes;
+	MechU8* index;
+	IvoryDelta0xc* poly;
+	MechS8 clipped;
+	EmberFern0x2c* first;
+	EmberFern0x2c* previous;
+	MechS8 firstClipped;
+	MechU8* cursor;
+	MechS8 previousClipped;
+	CopperWren0x20** points;
+
+	stride = sizeof(EmberFern0x2c);
+	orCodes = 0;
+	andCodes = 3;
+	g_unk0x1010b5bc++;
+	if (p_face->m_unk0x02 < 3) {
+		goto project;
+	}
+
+	// clang-format off
+	__asm {
+		mov ebx, p_face
+		mov edx, dword ptr [ebx + 0x14]
+		mov eax, dword ptr [ebx + 0x18]
+		mov normalY, eax
+		mov eax, dword ptr [ebx + 0x1c]
+		mov depth, eax
+		add ebx, dword ptr [ebx + 4]
+		xor eax, eax
+		mov al, byte ptr [ebx]
+		mov ebx, stride
+		mul bl
+		mov ebx, p_vertices
+		add ebx, eax
+		mov eax, dword ptr [ebx + 0xc]
+		sub eax, dword ptr [g_unk0x100ea8b8]
+		imul edx
+		mov esi, eax
+		mov edi, edx
+		mov eax, dword ptr [ebx + 0x10]
+		sub eax, dword ptr [g_unk0x100ea8b4]
+		imul normalY
+		add esi, eax
+		adc edi, edx
+		mov eax, dword ptr [ebx + 0x14]
+		sub eax, dword ptr [g_unk0x100ea8bc]
+		imul depth
+		add esi, eax
+		adc edi, edx
+		jl project
+		jmp done
+	}
+
+project:
+	__asm {
+		inc dword ptr [g_unk0x1010b538]
+		mov ebx, p_face
+		mov ax, word ptr [ebx + 2]
+		mov count, ax
+		add ebx, dword ptr [ebx + 4]
+		mov index, ebx
+jmp_100491fe:
+		mov esi, index
+		xor eax, eax
+		mov al, byte ptr [esi]
+		mov ebx, stride
+		mul bl
+		mov esi, p_vertices
+		add esi, eax
+		test byte ptr [esi + 0x28], 4
+		jne jmp_1004928f
+		inc dword ptr [g_unk0x1010b5b4]
+		mov eax, dword ptr [g_unk0x100ea87c]
+		mov edx, dword ptr [esi + 0xc]
+		sub edx, dword ptr [g_unk0x100ea8b8]
+		imul edx
+		mov ecx, eax
+		mov edi, edx
+		mov eax, dword ptr [g_unk0x100ea880]
+		mov edx, dword ptr [esi + 0x10]
+		sub edx, dword ptr [g_unk0x100ea8b4]
+		imul edx
+		add ecx, eax
+		adc edi, edx
+		mov eax, dword ptr [g_unk0x100ea884]
+		mov edx, dword ptr [esi + 0x14]
+		sub edx, dword ptr [g_unk0x100ea8bc]
+		imul edx
+		add ecx, eax
+		adc edi, edx
+		shrd ecx, edi, 0x1b
+		adc ecx, 0
+		mov dword ptr [esi + 0x20], ecx
+		or byte ptr [esi + 0x28], 4
+		xor ax, ax
+		cmp ecx, dword ptr [g_unk0x100ea820]
+		jge jmp_1004927a
+		or al, 1
+jmp_1004927a:
+		cmp ecx, dword ptr [g_unk0x100ea82c]
+		jle jmp_10049288
+		or al, 2
+jmp_10049288:
+		and byte ptr [esi + 0x28], 0xfc
+		or byte ptr [esi + 0x28], al
+jmp_1004928f:
+		mov al, byte ptr [esi + 0x28]
+		or orCodes, al
+		and andCodes, al
+		inc index
+		dec count
+		je projected
+		_emit 0xe9 /* jmp jmp_100491fe */
+		_emit 0x54
+		_emit 0xff
+		_emit 0xff
+		_emit 0xff
+	}
+
+projected:
+	if (andCodes == 1 || andCodes == 2) {
+		return;
+	}
+
+	g_unk0x1010b53c = 0;
+	g_unk0x1010b5b8 = 0xf;
+	g_unk0x1010b5b0 = 0;
+	__asm {
+		mov ebx, p_face
+		mov eax, ebx
+		add eax, dword ptr [ebx + 4]
+		mov cursor, eax
+		mov ax, word ptr [ebx + 2]
+		mov count, ax
+		mov ebx, cursor
+		xor eax, eax
+		mov al, byte ptr [ebx]
+		mov ebx, stride
+		mul bl
+		mov ebx, p_vertices
+		add ebx, eax
+		mov eax, ebx
+		mov first, eax
+		mov previous, eax
+		mov al, byte ptr [ebx + 0x28]
+		and al, 1
+		mov firstClipped, al
+		mov previousClipped, al
+		jne jmp_10049334
+		mov eax, first
+		push eax
+		call FUN_10048c50
+		add esp, 4
+		push eax
+		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		add esp, 4
+jmp_10049334:
+		dec count
+		je closed
+		inc cursor
+		mov ebx, cursor
+		xor eax, eax
+		mov al, byte ptr [ebx]
+		mov ebx, stride
+		mul bl
+		mov ebx, p_vertices
+		add ebx, eax
+		mov vertex, ebx
+		mov al, byte ptr [ebx + 0x28]
+		and al, 1
+		mov clipped, al
+		cmp al, previousClipped
+		je jmp_10049380
+		mov eax, vertex
+		push eax
+		mov eax, previous
+		push eax
+		call FUN_10048d46
+		add esp, 8
+		push eax
+		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		add esp, 4
+jmp_10049380:
+		mov ebx, cursor
+		xor eax, eax
+		mov al, byte ptr [ebx]
+		mov ebx, stride
+		mul bl
+		mov ebx, p_vertices
+		add ebx, eax
+		mov previous, ebx
+		mov al, clipped
+		mov previousClipped, al
+		or al, al
+		jne jmp_100493b8
+		mov eax, previous
+		push eax
+		call FUN_10048c50
+		add esp, 4
+		push eax
+		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		add esp, 4
+jmp_100493b8:
+		_emit 0xe9 /* jmp jmp_10049334 */
+		_emit 0x77
+		_emit 0xff
+		_emit 0xff
+		_emit 0xff
+	}
+
+closed:
+		// clang-format on
+		if (previousClipped != firstClipped)
+	{
+		g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, first));
+	}
+
+	if ((g_unk0x1010b5b0 < 3 && p_face->m_unk0x02 > 2) || g_unk0x1010b5b8) {
+		return;
+	}
+
+	points = g_unk0x1010b550;
+	poly = (IvoryDelta0xc*) FUN_1007d296();
+	poly->m_face = p_face;
+	g_unk0x1010b534 = g_unk0x100c2698;
+	poly->m_count = g_unk0x1010b5b0;
+	if (g_unk0x1010b5c8 & 2) {
+		__asm {
+			mov ebx, poly
+			mov ecx, dword ptr [g_unk0x1010b5b0]
+			mov esi, points
+			xor eax, eax
+jmp_10049462:
+			mov ebx, dword ptr [esi]
+			add eax, dword ptr [ebx + 8]
+			add esi, 4
+			loop jmp_10049462
+			xor edx, edx
+			xor esi, esi
+			mov si, word ptr [g_unk0x1010b5b0]
+			idiv esi
+			mov depth, eax
+		}
+	}
+	else if (g_unk0x1010b5c8 & 4) {
+		__asm {
+			mov ecx, dword ptr [g_unk0x1010b5b0]
+			mov esi, points
+			mov eax, 0x7fffffff
+jmp_1004949c:
+			mov ebx, dword ptr [esi]
+			cmp eax, dword ptr [ebx + 8]
+			jle jmp_100494aa
+			mov eax, dword ptr [ebx + 8]
+jmp_100494aa:
+			add esi, 4
+			loop jmp_1004949c
+			mov depth, eax
+		}
+	}
+	else {
+		__asm {
+			mov ecx, dword ptr [g_unk0x1010b5b0]
+			mov esi, points
+			mov eax, 0x80000001
+jmp_100494c5:
+			mov ebx, dword ptr [esi]
+			cmp eax, dword ptr [ebx + 8]
+			jge jmp_100494d3
+			mov eax, dword ptr [ebx + 8]
+jmp_100494d3:
+			add esi, 4
+			loop jmp_100494c5
+			mov depth, eax
+		}
+	}
+
+	if (g_unk0x1010b5c8 & 1) {
+		depth |= 0x40000000;
+	}
+
+	poly->m_depth = depth;
+	__asm {
+		mov edi, dword ptr [g_unk0x1010b534]
+		mov ecx, dword ptr [g_unk0x1010b5b0]
+		mov esi, points
+		rep movsd
+		mov dword ptr [g_unk0x1010b534], edi
+		mov points, esi
+	}
+
+	g_unk0x100c2698 = g_unk0x1010b534;
+	poly->m_unk0x02 = g_unk0x100a6cc8.m_unk0x60(p_face, p_vertices, p_face->m_unk0x00, depth);
+	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
+		g_unk0x1010b5a8++;
+		if (g_unk0x1010b5b0 > 1) {
+			g_unk0x100a54b4++;
+		}
+
+		g_unk0x1010b5c4[g_unk0x100a54b0].m_poly = poly;
+		g_unk0x1010b5c4[g_unk0x100a54b0].m_depth = depth;
+		g_unk0x100a54b0++;
+	}
+	else {
+		g_unk0x1010b5ac = 0;
+	}
+
+done:;
+#endif
 }

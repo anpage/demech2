@@ -1,16 +1,36 @@
 /* The "paused" banner and the pause and resume sounds. */
 #include "pausebanner.h"
 
+#include "ai.h"
 #include "audio.h"
+#include "config.h"
+#include "debugbreak.h"
 #include "decomp.h"
+#include "environment.h"
+#include "eyepoint.h"
 #include "loadres.h"
 #include "network.h"
+#include "overlay.h"
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
+#include "slateheron.h"
 #include "soundfx.h"
 #include "ticks.h"
+#include "timedoverlays.h"
 #include "types.h"
+#include "unk10036230.h"
+#include "unk1004b980.h"
+
+#include <stdio.h>
+
+// The debug keys' selections (FUN_10009f8d): a number, and a mech section.
+
+// GLOBAL: MW2 0x100a15d0
+MechS32 g_unk0x100a15d0 = -1;
+
+// GLOBAL: MW2 0x100a15d4
+MechS32 g_unk0x100a15d4 = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
@@ -66,5 +86,312 @@ void FUN_10009f61(void)
 	if (!g_netRole) {
 		PauseTimer(0x80, 0);
 		ResumeAudio();
+	}
+}
+
+// The debug keys, which FUN_1005c78a passes on while the mission timer is stopped: views, the
+// debug render flags and overlays, the difficulty switches, the objective state of the selected
+// star (g_unk0x100a88f0) and objective (g_unk0x100a88f4), and a number and mech section selection.
+// The original compares g_unk0x100a88f0 with g_objectiveCount in the other operand order.
+// FUNCTION: MW2 0x10009f8d
+void FUN_10009f8d(MechU16 p_key)
+{
+	MechChar text[40];
+
+	switch (p_key) {
+	case 0xa:
+		FUN_10011401(2);
+		break;
+	case 0xc:
+		FUN_100115f4(1, 0);
+		break;
+	case 0xd:
+		FUN_100115f4(0, 0);
+		break;
+	case 0xf:
+		DebugBreakpoint();
+		break;
+	case 0x5c:
+		g_unk0x100a15d0 = 1;
+		break;
+	case 0x5d:
+		g_unk0x100a15d0 = 2;
+		break;
+	case 0x5e:
+		g_unk0x100a15d0 = 3;
+		break;
+	case 0x5f:
+		g_unk0x100a15d0 = 4;
+		break;
+	case 0x60:
+		g_unk0x100a15d0 = 5;
+		break;
+	case 0x61:
+		g_unk0x100a15d0 = 6;
+		break;
+	case 0x62:
+		g_unk0x100a15d0 = 7;
+		break;
+	case 0x63:
+		g_unk0x100a15d0 = 8;
+		break;
+	case 0x64:
+		g_unk0x100a15d0 = 9;
+		break;
+	case 0x65:
+		g_unk0x100a15d0 = 0;
+		break;
+	case 0x66:
+		sprintf(text, "Head Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 1;
+		break;
+	case 0x67:
+		sprintf(text, "Right Torso Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 2;
+		break;
+	case 0x68:
+		sprintf(text, "Center Torso Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 3;
+		break;
+	case 0x69:
+		sprintf(text, "Left Torso Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 4;
+		break;
+	case 0x6a:
+		sprintf(text, "Right Arm Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 5;
+		break;
+	case 0x6b:
+		sprintf(text, "Left Arm Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 6;
+		break;
+	case 0x6c:
+		sprintf(text, "Right Leg Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 7;
+		break;
+	case 0x6d:
+		sprintf(text, "Left Leg Selected");
+		ShowInGameMessage(text, 1, 0x16a, 0x32);
+		g_unk0x100a15d4 = 8;
+		break;
+	case 0x6e:
+	case 0x6f:
+	case 0x70:
+	case 0x71:
+	case 0x72:
+	case 0x73:
+	case 0x74:
+	case 0x75:
+	case 0x76:
+	case 0x77:
+		g_unk0x100a88f0 = (p_key & 0xff) - 0x6e;
+		if (g_unk0x100a88f0 >= g_objectiveCount) {
+			g_unk0x100a88f0 = -1;
+		}
+		break;
+	case 0x78:
+		if (g_unk0x100a88f0 == -1) {
+			g_unk0x100a88f0 = -2;
+		}
+		else {
+			g_unk0x100a88f0 = -1;
+		}
+		break;
+	case 0x79:
+		g_unk0x100a88f4--;
+		break;
+	case 0x7a:
+		g_unk0x100a88f4++;
+		break;
+	case 0x7b:
+		if (g_unk0x100a88f0 != -1 && g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state == 3) {
+			g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state = 6;
+		}
+		break;
+	case 0x7c:
+		if (g_unk0x100a88f0 != -1 && g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state == 3) {
+			g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state = 5;
+		}
+		break;
+	case 0x7d:
+		FUN_10036853(0x100);
+		break;
+	case 0x7e:
+		FUN_10036853(0x200);
+		break;
+	case 0x7f:
+		FUN_10036853(0x400);
+		break;
+	case 0x80:
+		FUN_10036853(0x800);
+		break;
+	case 0x82:
+		if (!g_unk0x100a94f0) {
+			g_unk0x100a94f0 = 1;
+		}
+		else {
+			g_unk0x100a94f0 = 0;
+		}
+
+		g_unk0x100a94f4 = g_unk0x100a94f0;
+		break;
+	case 0x84:
+		switch (g_unk0x100a6cc8.m_unk0x38) {
+		case 1:
+			g_unk0x100a6cc8.m_unk0x38 = 2;
+			break;
+		case 0:
+			g_unk0x100a6cc8.m_unk0x38 = 1;
+			break;
+		default:
+			g_unk0x100a6cc8.m_unk0x38 = 0;
+			break;
+		}
+		break;
+	case 0x85:
+		if (!g_unk0x100a94b4) {
+			g_unk0x100a94b4 = 1;
+		}
+		else {
+			g_unk0x100a94b4 = 0;
+		}
+
+		g_unk0x100a94b8 = g_unk0x100a94b4;
+		break;
+	case 0x87:
+		if (!g_unk0x100a94d8) {
+			g_unk0x100a94d8 = 1;
+		}
+		else {
+			g_unk0x100a94d8 = 0;
+		}
+
+		g_unk0x100a94dc = g_unk0x100a94d8;
+		break;
+	case 0x88:
+		if (!g_unk0x100a94e4) {
+			g_unk0x100a94e4 = 1;
+		}
+		else {
+			g_unk0x100a94e4 = 0;
+		}
+
+		g_unk0x100a94e8 = g_unk0x100a94e4;
+		break;
+	case 0x8b:
+		if (!g_difficulty->m_splashDamage) {
+			g_difficulty->m_splashDamage = 1;
+			sprintf(text, "Splash Damage ON");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_splashDamage = 0;
+			sprintf(text, "Splash Damage OFF");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		break;
+	case 0x8c:
+		if (!g_difficulty->m_collisionDamage) {
+			g_difficulty->m_collisionDamage = 1;
+			sprintf(text, "Collision Damage ON");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_collisionDamage = 0;
+			sprintf(text, "Collision Damage OFF");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		break;
+	case 0x8d:
+		if (!g_difficulty->m_heatTracking) {
+			g_difficulty->m_heatTracking = 1;
+			sprintf(text, "Heat Tracking ON");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		else {
+			g_difficulty->m_heatTracking = 0;
+			sprintf(text, "Heat Tracking OFF");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		break;
+	case 0x8e:
+		if (g_unk0x100a712c == 2) {
+			g_unk0x100a712c = 1;
+			sprintf(text, "LOD Quality HIGH");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		else {
+			g_unk0x100a712c = 2;
+			sprintf(text, "LOD Quality LOW");
+			ShowInGameMessage(text, 1, 0x16a, 0x32);
+		}
+		break;
+	case 0x8f:
+		FUN_10019fef();
+		break;
+	case 0x90:
+		break;
+	case 0x91:
+		if (!g_unk0x100a94b4) {
+			g_unk0x100a94b4 = 1;
+		}
+		else {
+			g_unk0x100a94b4 = 0;
+		}
+		break;
+	case 0x86:
+		if (!g_unk0x100c3280[0]->m_unk0x06) {
+			g_unk0x100c3280[0]->m_unk0x06 = 1;
+		}
+		else {
+			g_unk0x100c3280[0]->m_unk0x06 = 0;
+		}
+		break;
+	case 0x93:
+		if (!g_unk0x100a94e4) {
+			g_unk0x100a94e4 = 1;
+		}
+		else {
+			g_unk0x100a94e4 = 0;
+		}
+		break;
+	case 0x94:
+		if (!g_unk0x100a94d8) {
+			g_unk0x100a94d8 = 1;
+		}
+		else {
+			g_unk0x100a94d8 = 0;
+		}
+		break;
+	case 0x95:
+		switch (g_unk0x100a6cc8.m_unk0x34) {
+		case 0:
+			g_unk0x100a6cc8.m_unk0x34 = 2;
+			break;
+		case 1:
+			g_unk0x100a6cc8.m_unk0x34 = 0;
+			break;
+		default:
+			g_unk0x100a6cc8.m_unk0x34 = 1;
+			break;
+		}
+		break;
+	case 0x96:
+		if (!g_unk0x100a949c) {
+			g_unk0x100a949c = 1;
+		}
+		else {
+			g_unk0x100a949c = 0;
+		}
+		break;
+	default:
+		break;
 	}
 }

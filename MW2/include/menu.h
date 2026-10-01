@@ -50,6 +50,8 @@ extern "C"
 	extern MechS32 g_menuKey;
 
 	MechS32 RegisterMenu(MechS32 p_id);
+	MechS32 RequestMenu(MechS32 p_id);
+	MechS32 ToggleMenu(MechS32 p_id);
 	void FreeMenus(void);
 	void FirstMenu(void);
 	void UpdateMenuKey(void);

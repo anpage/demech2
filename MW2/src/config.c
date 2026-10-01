@@ -849,9 +849,9 @@ MechS32 FUN_100708f4(ResourceRef* p_ref)
 			return FALSE;
 		}
 
-		g_unk0x101079e0[index]->m_unk0x0c = frames;
-		g_unk0x101079e0[index]->m_unk0x08 = unk0x08;
-		g_unk0x101079e0[index]->m_unk0x04 = frameCount;
+		g_unk0x101079e0[index]->m_amounts = (MechS32*) frames;
+		g_unk0x101079e0[index]->m_kind = unk0x08;
+		g_unk0x101079e0[index]->m_frameCount = frameCount;
 		if (p_ref->m_id == -1) {
 			g_unk0x101079e0[index]->m_unk0x00 = 1;
 		}
@@ -864,7 +864,7 @@ MechS32 FUN_100708f4(ResourceRef* p_ref)
 
 	end = data + offset;
 	for (i = 0; i < count; i++) {
-		g_unk0x101079e0[ids[i]]->m_unk0x10 = end;
+		g_unk0x101079e0[ids[i]]->m_events = (ReelEvent*) end;
 	}
 
 	return TRUE;
@@ -1141,7 +1141,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 	close(file);
 	if (g_isNetworkGame) {
 		(*p_cfg)->m_unk0x05 = 2;
-		(*p_cfg)->m_unk0x01 = 0;
+		(*p_cfg)->m_invulnerable = 0;
 	}
 	else {
 		(*p_cfg)->m_unk0x0f = 0;
@@ -1152,7 +1152,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 
 	if (g_isNetworkGame > 1) {
 		(*p_cfg)->m_heatTracking = 1;
-		(*p_cfg)->m_unk0x00 = 0;
+		(*p_cfg)->m_unlimitedAmmo = 0;
 		(*p_cfg)->m_splashDamage = 1;
 		(*p_cfg)->m_collisionDamage = 1;
 	}

@@ -59,7 +59,8 @@ typedef struct PlayerSteering {
 	MechS8 m_unk0x41;                 // 0x41
 	MechS8 m_unk0x42;                 // 0x42
 	MechS8 m_unk0x43;                 // 0x43
-	undefined m_unk0x44[0x48 - 0x44]; // 0x44
+	MechS8 m_unk0x44;                 // 0x44 — the "flygirl" cheat sets it
+	undefined m_unk0x45[0x48 - 0x45]; // 0x45
 } PlayerSteering;
 
 #endif // PLAYERSTEERING_H

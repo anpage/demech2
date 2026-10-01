@@ -128,7 +128,7 @@ void ZeroGameThing(MechS32 p_index)
 	thing->m_unk0x04 = -1;
 	thing->m_unk0x08 = 0;
 	thing->m_unk0x0c = 0;
-	thing->m_unk0x14 = 0;
+	thing->m_name[0] = '\0';
 }
 
 // FUNCTION: MW2 0x1006d247

@@ -2,26 +2,37 @@
 // function's operand order (see there).
 #include "ai.h"
 #include "bwd.h"
+#include "bwdobjectrecord.h"
 #include "bwdrecord.h"
 #include "bwdstreamkey.h"
 #include "config.h"
 #include "decomp.h"
 #include "error.h"
+#include "geocache.h"
 #include "includerecord.h"
 #include "includerecord2.h"
 #include "loadres.h"
 #include "missiontable.h"
+#include "object.h"
 #include "players.h"
 #include "prjfile.h"
 #include "scenariotable.h"
 #include "simmain.h"
 #include "team.h"
+#include "transform.h"
 #include "types.h"
 #include "unk1001ce90.h"
+#include "unk1001df00.h"
+#include "unk10034a40.h"
+#include "unk10039a30.h"
+#include "unk1003a530.h"
 #include "unk10046750.h"
 #include "unk1004da30.h"
+#include "unk1006d680.h"
+#include "unk1007f140.h"
 #include "weapons.h"
 
+#include <io.h>
 #include <math.h>
 #include <mbstring.h>
 #include <stdarg.h>
@@ -101,6 +112,10 @@ MechChar* g_unk0x100a8630 = NULL;
 // GLOBAL: MW2 0x100a8634
 MechChar* g_unk0x100a8634 = NULL;
 
+// The player the world stream (BwdExecuteStream) created last, for FUN_10046750.
+// GLOBAL: MW2 0x100a8638
+struct Player* g_unk0x100a8638 = NULL;
+
 // GLOBAL: MW2 0x100ea500
 MissionTable* g_missionTables[16];
 
@@ -176,7 +191,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 	MechS32 slot;
 
 	result = FALSE;
-	slot = p_table->m_entries[0].m_slot;
+	slot = p_table->m_star;
 	if (g_missionTables[slot]) {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_missionTables[slot]);
 	}
@@ -190,7 +205,8 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 	else {
 		result = TRUE;
 		memcpy(g_missionTables[slot], p_table, p_table->m_header.m_size);
-		g_missionTableCounts[slot] = (g_missionTables[slot]->m_header.m_size - 8) / sizeof(MissionEntry);
+		g_missionTableCounts[slot] =
+			(g_missionTables[slot]->m_header.m_size - sizeof(BwdRecord)) / sizeof(MissionEntry);
 		FUN_1004da30(g_missionTables[slot]);
 	}
 
@@ -574,11 +590,6 @@ void FUN_1005005e(
 // GLOBAL: MW2 0x100a8628
 MechS32 g_unk0x100a8628 = 0;
 
-// CreateObjectNode's ".wtb", defined here until that function is decompiled: reccmp pairs identical
-// strings in address order, and this one comes before the resource type table's.
-// GLOBAL: MW2 0x100a8658
-MechChar g_unk0x100a8658[] = ".wtb";
-
 // The original loads p_id first; the operand order follows the symbol table.
 // FUNCTION: MW2 0x100500c3
 MechS32 MapResourceId(MechS32 p_id)
@@ -590,6 +601,193 @@ MechS32 MapResourceId(MechS32 p_id)
 void SetMangleBase(MechS32 p_base)
 {
 	g_unk0x100a8628 = p_base;
+}
+
+// Creates the shape of a world stream's object record: a static object of the current block
+// (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,
+// in the world or under its parent's object.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100500ef
+void CreateObjectNode(
+	BwdObjectRecord* p_record,
+	undefined4 p_unk0x04,
+	MechS32 p_unk0x08,
+	MechS32 p_static,
+	MechS32 p_class,
+	MechS32 p_level
+)
+{
+	MechS32 offset;
+	MechS32 unk0x34;
+	TwilightGrove0x24 xform;
+	MechS32 parent;
+	MechS32 fromResource;
+	MechS32 parentIndex;
+	MechU8* data;
+	MechS32 flags;
+	MechS32 kind;
+	MechChar name[13];
+	BwdObjectRecord* record;
+	MechS32 mapped;
+	ScarletOrchid0x4c* shape;
+	MechS32 thing;
+	Matrix matrix;
+	MechS32 resource;
+	MechS32 first;
+	MechS32 id;
+	MechS32 size;
+	MechS32 handle;
+	AmberWillow0x7c* parentObj;
+	AmberWillow0x7c* obj;
+	ScarletOrchid0x4c* classShape;
+
+	record = p_record;
+	flags = 0;
+	data = NULL;
+	size = 0;
+	offset = 0;
+	first = TRUE;
+	fromResource = FALSE;
+	resource = record->m_resource;
+	id = record->m_id;
+	parent = record->m_parent;
+	kind = record->m_kind;
+	unk0x34 = record->m_unk0x34;
+	if (kind < 0 || kind >= 8) {
+		kind = 4;
+	}
+
+	xform = record->m_xform;
+	flags = record->m_flags;
+	if (resource != -1) {
+		data = FUN_1001a19f(g_unk0x100a8740, resource, g_unk0x100a869c, 0);
+		if (data) {
+			size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, resource);
+			fromResource = TRUE;
+		}
+		else {
+			Error(0x38, NULL);
+			return;
+		}
+	}
+
+	if (fromResource) {
+		if (p_static && g_currentBlock != -1) {
+			parentIndex = -1;
+			if (parent == -2) {
+				parentIndex = -2;
+			}
+			else if (parent != -1) {
+				parent = MapResourceId(parent);
+				parentIndex = FindStarIdxById(parent);
+				if (parentIndex == -1) {
+					Error(0x2d, NULL);
+				}
+			}
+
+			id = MapResourceId(id);
+			FUN_1001f8b5(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
+			FUN_1001a163(resource, g_unk0x100a869c);
+			return;
+		}
+		else if (p_class && g_unk0x1010b6a0 > g_unk0x1012b7b0) {
+			g_unk0x100a3854[g_unk0x1012b7b0] = MapResourceId(id);
+			mapped = MapResourceId(id);
+			thing = FindThingIdxById(mapped);
+			parent = MapResourceId(parent);
+			parentIndex = FindThingIdxById(parent);
+			g_unk0x100a3850[g_unk0x1012b7b0] = FUN_1001cf93(
+				resource,
+				xform.m_unk0x18,
+				xform.m_unk0x1c,
+				xform.m_unk0x20,
+				parentIndex,
+				p_level,
+				thing,
+				unk0x34
+			);
+			g_unk0x1012b7b0++;
+			FUN_1001a163(resource, g_unk0x100a869c);
+			return;
+		}
+	}
+
+	if (!fromResource) {
+		strncpy(name, record->m_file, 12);
+		name[12] = '\0';
+		if (strlen(name) <= 8) {
+			strcat(name, ".wtb");
+		}
+
+		handle = LoadFile(BuildGamePath(name), &size, &data, NULL);
+		if (handle != -1) {
+			_close(handle);
+		}
+		else {
+			Error(0x36, NULL);
+			return;
+		}
+	}
+
+	SetShapeScale(xform.m_unk0x00, xform.m_unk0x04, xform.m_unk0x08);
+	SetShapeFlags(flags);
+	shape = LoadShapes(data, &offset, size, NULL);
+	if (shape) {
+		shape->m_unk0x02 = unk0x34;
+		if (kind >= 0 && kind < 8) {
+			FUN_10034a40(shape, kind);
+		}
+		else {
+			FUN_10034a40(shape, 4);
+			Error(0x37, NULL);
+		}
+
+		if (first) {
+			mapped = MapResourceId(id);
+			FUN_1001f504(mapped, shape);
+		}
+
+		first = FALSE;
+		if (parent == -2) {
+			FUN_1000e2b9(
+				&matrix,
+				xform.m_unk0x0c,
+				xform.m_unk0x10,
+				xform.m_unk0x14,
+				xform.m_unk0x18,
+				xform.m_unk0x1c,
+				xform.m_unk0x20
+			);
+			FUN_10039c36(shape, &matrix);
+			FUN_1006d732(shape);
+			if (shape->m_unk0x24 == 5) {
+				FUN_1001df00(shape);
+			}
+		}
+		else {
+			parentObj = NULL;
+			parent = MapResourceId(parent);
+			classShape = FindClassById(parent);
+			if (classShape) {
+				parentObj = FUN_1003b6e5(classShape);
+			}
+
+			obj = FUN_100012d0(parentObj, 10);
+			FUN_10001532(obj, shape);
+			FUN_1003b6fb(shape, obj);
+			SetObjRotation(obj, xform.m_unk0x0c, xform.m_unk0x10, xform.m_unk0x14, 0);
+			SetObjPosition(obj, xform.m_unk0x18, xform.m_unk0x1c, xform.m_unk0x20);
+			FUN_10001cf8(obj);
+			FUN_1006d732(shape);
+		}
+	}
+
+	if (!fromResource) {
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
+	}
+	else {
+		FUN_1001a4e5(resource, g_unk0x100a869c);
+	}
 }
 
 // Returns the object of the next entry of g_unk0x100ea580, or NULL after the last.

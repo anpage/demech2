@@ -66,6 +66,10 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100a88f0;
+	extern MechS32 g_unk0x100a88f4;
+	extern MechS32 g_lairdoCheat;
+
 	void FUN_10051100(struct Player* p_player);
 	MechS32 FUN_10051251(struct Player* p_player);
 	void FUN_1005141c(struct Player* p_player);

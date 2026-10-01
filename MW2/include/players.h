@@ -67,7 +67,8 @@ struct Player {
 	MechS32 m_unk0xb8;                        // 0xb8 — the heading's cosine, 16.16 (FUN_1006831a)
 	MechS32 m_unk0xbc;                        // 0xbc — the heading's sine, 16.16
 	PlayerTargetInfo m_targetInfo;            // 0xc0
-	MechChar m_name[0x114 - 0xe8];            // 0xe8
+	MechChar m_name[0xfe - 0xe8];             // 0xe8
+	MechChar m_unk0xfe[0x114 - 0xfe];         // 0xfe — a short name, for the target panel
 	MechS32 m_killer;                         // 0x114 — the player who destroyed its mech
 	AiRule** m_rules;                         // 0x118 — the rules of the current state, NULL-terminated
 	MechU16* m_ruleSets[3];                   // 0x11c — AI scripts, by priority

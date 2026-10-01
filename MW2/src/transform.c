@@ -558,7 +558,11 @@ void FUN_1000ddfc(Matrix* p_src, Matrix* p_dst)
 	p_dst->m_rows[3][0] = p_dst->m_rows[3][1] = p_dst->m_rows[3][2] = 0;
 }
 
-// STUB: MW2 0x1000de3b
+// Builds p_matrix from three rotation angles (16.16 degrees) and a translation. The bits 0-1 of
+// p_flags pick the rotation order, and bit 2 builds the inverse rotation. A rotation about one axis
+// only is built directly. The products are __asm blocks.
+// Stack-slot permutation: t, the sines and the cosines.
+// FUNCTION: MW2 0x1000de3b
 void FUN_1000de3b(
 	Matrix* p_matrix,
 	MechS32 p_unk0x04,
@@ -567,10 +571,256 @@ void FUN_1000de3b(
 	MechS32 p_unk0x10,
 	MechS32 p_unk0x14,
 	MechS32 p_unk0x18,
-	MechU32 p_unk0x1c
+	MechU32 p_flags
 )
 {
-	STUB(0x1000de3b);
+	MechS32 t;
+	MechS32 sa;
+	MechS32 sb;
+	MechS32 sc;
+	MechS32 ca;
+	MechS32 cb;
+	MechS32 cc;
+
+	do {
+		if (p_unk0x04 == 0) {
+			if (p_unk0x08 == 0) {
+				FUN_1000dd4d(p_matrix);
+				if (p_unk0x0c) {
+					p_matrix->m_rows[1][1] = FUN_1006973a(p_unk0x0c);
+					p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1];
+					p_matrix->m_rows[1][0] = FUN_100696c0(p_unk0x0c);
+					p_matrix->m_rows[0][1] = -p_matrix->m_rows[1][0];
+				}
+				break;
+			}
+			else if (p_unk0x0c == 0) {
+				FUN_1000dd4d(p_matrix);
+				p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x08);
+				p_matrix->m_rows[0][0] = p_matrix->m_rows[2][2];
+				p_matrix->m_rows[0][2] = FUN_100696c0(p_unk0x08);
+				p_matrix->m_rows[2][0] = -p_matrix->m_rows[0][2];
+				break;
+			}
+		}
+		else if (p_unk0x08 == 0 && p_unk0x0c == 0) {
+			FUN_1000dd4d(p_matrix);
+			p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x04);
+			p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2];
+			p_matrix->m_rows[2][1] = FUN_100696c0(p_unk0x04);
+			p_matrix->m_rows[1][2] = -p_matrix->m_rows[2][1];
+			break;
+		}
+
+		ca = FUN_1006973a(p_unk0x04);
+		cb = FUN_1006973a(p_unk0x08);
+		cc = FUN_1006973a(p_unk0x0c);
+		sa = FUN_100696c0(p_unk0x04);
+		sb = FUN_100696c0(p_unk0x08);
+		sc = FUN_100696c0(p_unk0x0c);
+		if (p_flags & 4) {
+			__asm {
+				neg sa
+				neg sb
+				neg sc
+			}
+		}
+
+		switch (p_flags & 3) {
+		case 1:
+			__asm {
+				mov eax, cc
+				imul cb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[0][0] = t;
+			__asm {
+				mov eax, ca
+				imul sc
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov ecx, eax
+				mov eax, cc
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				imul sb
+				shrd eax, edx, 0x1d
+				adc ecx, eax
+				mov t, ecx
+			}
+			p_matrix->m_rows[1][0] = t;
+			__asm {
+				mov eax, sc
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov ecx, eax
+				mov eax, cc
+				imul ca
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				imul sb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				sub ecx, eax
+				mov t, ecx
+			}
+			p_matrix->m_rows[2][0] = t;
+			p_matrix->m_rows[0][2] = sb;
+			__asm {
+				mov eax, cb
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				neg eax
+				mov t, eax
+			}
+			p_matrix->m_rows[1][2] = t;
+			__asm {
+				mov eax, ca
+				imul cb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[2][2] = t;
+			FUN_1000d7c0(p_matrix, 1);
+			break;
+		case 0:
+			__asm {
+				mov eax, cc
+				imul cb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov ecx, eax
+				mov eax, sc
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				imul sb
+				shrd eax, edx, 0x1d
+				adc ecx, eax
+				mov t, ecx
+			}
+			p_matrix->m_rows[0][0] = t;
+			__asm {
+				mov eax, ca
+				imul sc
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[1][0] = t;
+			__asm {
+				mov eax, cb
+				imul sc
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov ecx, eax
+				mov eax, cc
+				imul sb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				sub ecx, eax
+				mov t, ecx
+			}
+			p_matrix->m_rows[2][0] = t;
+			__asm {
+				mov eax, ca
+				imul sb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[0][2] = t;
+			p_matrix->m_rows[1][2] = -sa;
+			__asm {
+				mov eax, ca
+				imul cb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[2][2] = t;
+			FUN_1000d7c0(p_matrix, 1);
+			break;
+		case 2:
+			__asm {
+				mov eax, cc
+				imul cb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[0][0] = t;
+			__asm {
+				mov eax, sa
+				imul sb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov ecx, eax
+				mov eax, ca
+				imul cb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				imul sc
+				shrd eax, edx, 0x1d
+				adc ecx, eax
+				mov t, ecx
+			}
+			p_matrix->m_rows[1][0] = t;
+			__asm {
+				mov eax, cb
+				imul sc
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov ecx, eax
+				mov eax, ca
+				imul sb
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				sub ecx, eax
+				mov t, ecx
+			}
+			p_matrix->m_rows[2][0] = t;
+			p_matrix->m_rows[0][1] = -sc;
+			__asm {
+				mov eax, cc
+				imul ca
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[1][1] = t;
+			__asm {
+				mov eax, cc
+				imul sa
+				shrd eax, edx, 0x1d
+				adc eax, 0
+				mov t, eax
+			}
+			p_matrix->m_rows[2][1] = t;
+			FUN_1000d7c0(p_matrix, 2);
+			break;
+		}
+
+		if (p_flags & 4) {
+			FUN_1000dc33(p_matrix, p_matrix);
+		}
+	} while (0);
+
+	p_matrix->m_rows[3][0] = p_unk0x10;
+	p_matrix->m_rows[3][1] = p_unk0x14;
+	p_matrix->m_rows[3][2] = p_unk0x18;
 }
 
 // FUNCTION: MW2 0x1000e2b9

@@ -34,17 +34,17 @@ extern "C"
 	);
 	MechS32 FUN_1001498c(struct Player* p_player, MechS32 p_turn);
 	void FUN_100149e7(struct Player* p_player, MechS16 p_target);
-	void FUN_10014aa8(struct Player* p_player);
+	void FUN_10014aa8(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10014c3d(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10014d4e(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10014df1(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10014e5e(struct Player* p_player);
+	MechS32 FUN_10014e5e(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10014f23(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_100150c1(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_1001512e(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10015172(struct Player* p_player, MechS16 p_target);
 	void FUN_10015342(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_100153e6(struct Player* p_player);
+	MechS32 FUN_100153e6(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10015520(struct Player* p_player);
 	MechS32 FUN_100155e1(struct Player* p_player);
 	void FUN_100156f2(struct Player* p_player, MechS8 p_value);
@@ -75,7 +75,7 @@ extern "C"
 	MechS32 FUN_10016222(struct Player* p_player, MechS32 p_limit);
 	struct ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target);
 	void FUN_1001632c(struct WeaponSlot* p_slot, struct Mech* p_mech);
-	MechS32 FUN_100166b1(struct Player* p_player);
+	MechS16 FUN_100166b1(struct Player* p_player);
 	MechS32 FUN_10016880(struct Mech* p_mech);
 
 #ifdef __cplusplus

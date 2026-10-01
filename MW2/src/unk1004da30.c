@@ -1,21 +1,112 @@
 #include "unk1004da30.h"
 
 #include "decomp.h"
+#include "error.h"
 #include "missiontable.h"
 #include "objective.h"
 #include "resource.h"
 #include "simmain.h"
 #include "starmission.h"
+#include "team.h"
 #include "types.h"
+#include "unk100737e0.h"
 
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 
-// STUB: MW2 0x1004da30
-void FUN_1004da30(void* p_table)
+// Sets up star p_table->m_star's mission from its mission table: the mission's times and sounds
+// and each objective's, with its conditions.
+// Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
+// FUNCTION: MW2 0x1004da30
+void FUN_1004da30(MissionTable* p_table)
 {
-	STUB(0x1004da30);
+	MechS32 i;
+	MechS32 count;
+	MechS32 j;
+	MechS32 kind;
+
+	count = (p_table->m_header.m_size - 0x26) / sizeof(MissionEntry);
+	if (p_table->m_entries[0].m_type != 0x10) {
+		Error(0x4a, NULL);
+	}
+
+	g_objectiveTable[p_table->m_star].m_unk0x39 = g_teams[p_table->m_star].m_unk0x08;
+	g_objectiveTable[p_table->m_star].m_timeLimit = p_table->m_timeLimit;
+	g_objectiveTable[p_table->m_star].m_startTime = -1;
+	g_objectiveTable[p_table->m_star].m_endTime = -1;
+	g_objectiveTable[p_table->m_star].m_successSpeech = FindResourceIdByName(0xb, p_table->m_successSound);
+	strcpy(g_objectiveTable[p_table->m_star].m_successSound, p_table->m_successSound);
+	g_objectiveTable[p_table->m_star].m_failSpeech = FindResourceIdByName(0xb, p_table->m_failSound);
+	strcpy(g_objectiveTable[p_table->m_star].m_failSound, p_table->m_failSound);
+	for (i = 0; i < count; i++) {
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_priority = p_table->m_entries[i].m_priority;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_type = p_table->m_entries[i].m_type;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_timeLimit = p_table->m_entries[i].m_timeLimit;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_startTime = -1;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_endTime = -1;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0xa9 = p_table->m_entries[i].m_unk0x53;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0xab = p_table->m_entries[i].m_unk0x55;
+		if (p_table->m_entries[i].m_listed == 'V') {
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x74 = 1;
+		}
+		else {
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x74 = 0;
+		}
+
+		if (p_table->m_entries[i].m_unk0x2f == 'M') {
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x75 = 1;
+		}
+		else {
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x75 = 0;
+		}
+
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_requiredCount = p_table->m_entries[i].m_requiredCount;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x7d = p_table->m_entries[i].m_unk0x31;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_successSpeech =
+			FindResourceIdByName(0xb, p_table->m_entries[i].m_successSound);
+		strcpy(g_objectiveTable[p_table->m_star].m_objectives[i].m_successSound, p_table->m_entries[i].m_successSound);
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_failSpeech =
+			FindResourceIdByName(0xb, p_table->m_entries[i].m_failSound);
+		strcpy(g_objectiveTable[p_table->m_star].m_objectives[i].m_failSound, p_table->m_entries[i].m_failSound);
+		strcpy(g_objectiveTable[p_table->m_star].m_objectives[i].m_name, p_table->m_entries[i].m_title);
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_allConditions = p_table->m_entries[i].m_allConditions;
+		for (j = 0; j < 8; j++) {
+			switch (p_table->m_entries[i].m_conditions[j].m_kind) {
+			case 'I':
+				kind = 0;
+				break;
+			case 'C':
+				kind = 1;
+				break;
+			case 'F':
+				kind = 3;
+				break;
+			case 'S':
+				kind = 2;
+				break;
+			default:
+				kind = 0;
+				break;
+			}
+
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_kind = kind;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_star =
+				p_table->m_entries[i].m_conditions[j].m_star;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_objective =
+				p_table->m_entries[i].m_conditions[j].m_objective;
+		}
+
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_state = 0;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_targetCount = 0;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_targets[0] = 0x800;
+	}
+
+	g_currentObjective[p_table->m_star] = 0;
+	g_objectiveTable[p_table->m_star].m_objectiveCount = count;
+	if (p_table->m_star + 1 > g_objectiveCount) {
+		g_objectiveCount = p_table->m_star + 1;
+	}
 }
 
 // Returns the objectives that wait (state 0, 1 or 7) on the event list p_name, marking them as

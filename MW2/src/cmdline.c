@@ -1,11 +1,181 @@
+#include "cmdline.h"
+
+#include "bwd.h"
+#include "clock.h"
 #include "decomp.h"
+#include "error.h"
+#include "logwindow.h"
+#include "mw2log.h"
+#include "network.h"
+#include "overlay.h"
+#include "resource.h"
+#include "simmain.h"
+#include "supanim.h"
 #include "types.h"
+#include "unk1001df00.h"
+#include "videodriverchoice.h"
 
-#include <windows.h>
+#include <ctype.h>
+#include <direct.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// STUB: MW2 0x1001ee80
-MechS32 ProcessCmdLineArgs(LPSTR p_unk0x00, undefined4* p_unk0x04, char* p_unk0x08)
+// Parses the command line MECH2.EXE passes: switches start with / or -, anything else names the
+// mission (p_mission, "s.$" by default), which is shown with FUN_100590ea. /C sets p_flags[0];
+// /S and /X clear p_flags[1]. Returns FALSE without a command line (not launched by MECH2.EXE).
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x1001ee80
+MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p_mission)
 {
-	STUB(0x1001ee80);
-	return 0;
+	MechS32 result;
+	MechChar* arg;
+	MechChar* value;
+	MechS32 rate;
+
+	result = TRUE;
+	if (!p_cmdLine) {
+		printf("This program must be launched from MECH2.EXE\n");
+		result = FALSE;
+	}
+
+	strcpy(p_mission, "s.$");
+	arg = strtok(p_cmdLine, " ,");
+	while (arg) {
+		if (*arg == '/' || *arg == '-') {
+			switch (toupper(arg[1])) {
+			case 'B':
+				value = strchr(arg, '=');
+				if (value) {
+					value++;
+					g_supAnimBackdropName = value;
+				}
+				break;
+			case 'C':
+				p_flags[0] = 1;
+				break;
+			case 'D':
+				g_missionTimerStopped = 1;
+				break;
+			case 'E':
+				_rmdir("mw2debug.txt");
+				g_unk0x100a5bf0 = 1;
+				break;
+			case 'F':
+				rate = 10;
+				if (arg[2] == '=') {
+					rate = strtol(arg + 3, NULL, 10);
+				}
+				g_framerateLimit = 181 / rate;
+				break;
+			case 'G':
+				value = strchr(arg, '=');
+				if (value) {
+					value++;
+					g_supAnimShapeName = value;
+				}
+				break;
+			case 'J':
+				if (arg[2] == '=') {
+					g_unk0x100a8744 = arg + 3;
+				}
+			case 'L':
+				g_logFileEnabled = 1;
+				break;
+			case 'M':
+				FUN_10058958();
+				g_missionTimerStopped = 1;
+				break;
+			case 'N':
+				g_isNetworkGame = 1;
+				if (arg[2] == '=') {
+					g_isNetworkGame = strtol(arg + 3, NULL, 10);
+				}
+				break;
+			case 'O':
+				if (arg[3] == '=') {
+					switch (toupper(arg[2])) {
+					case 'F':
+						g_unk0x100a8630 = arg + 4;
+						break;
+					case 'E':
+						g_unk0x100a8634 = arg + 4;
+						break;
+					}
+				}
+				break;
+			case 'P':
+				g_unk0x100a5bec = 1;
+				break;
+			case 'Q':
+				FUN_1001edfa();
+				break;
+			case 'R':
+				g_unk0x100acb34 = 1;
+				break;
+			case 'S':
+				p_flags[1] = 0;
+				break;
+			case 'V':
+				if (toupper(arg[2]) == 'G') {
+					g_videoDriverChoice.m_flags |= 1;
+					value = strchr(arg, '=');
+					if (!value) {
+						g_videoDriverChoice.m_name[0] = '\0';
+					}
+					else {
+						value++;
+						strncpy(g_videoDriverChoice.m_name, value, 12);
+						g_videoDriverChoice.m_name[12] = '\0';
+					}
+				}
+				else if (arg[2] == '=' && isdigit(arg[3])) {
+					g_drawModeIndex = atoi(arg + 3);
+				}
+				break;
+			case 'X':
+				if (arg[2] == '=') {
+					switch (toupper(arg[3])) {
+					case 'F':
+						FUN_1003a37c(4);
+						break;
+					case 'S':
+						FUN_1003a37c(2);
+						break;
+					case 'M':
+						FUN_1003a37c(1);
+						break;
+					}
+				}
+
+				FUN_10058958();
+				g_missionTimerStopped = 1;
+				p_flags[1] = 0;
+				break;
+			case '1':
+				g_netRole = 1;
+				if (arg[2] == '=') {
+					g_sessionName = arg + 3;
+				}
+				break;
+			case '2':
+				g_netRole = 2;
+				if (arg[2] == '=') {
+					g_sessionName = arg + 3;
+				}
+				break;
+			default:
+				Error(10, "%s", arg);
+				break;
+			}
+		}
+		else {
+			strcpy(p_mission, arg);
+		}
+
+		arg = strtok(NULL, " ,");
+	}
+
+	FUN_100590ea(p_mission);
+	return result;
 }
