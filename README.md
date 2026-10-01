@@ -8,8 +8,8 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 ## Status
 
-<a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
-<a href="https://anpage.github.io/demech2/NETMECHWPROGRESS.HTML"><img src="https://anpage.github.io/demech2/NETMECHWPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/NETMECHWPROGRESS.HTML"><img src="https://anpage.github.io/demech2/NETMECHWPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
@@ -54,12 +54,12 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 
 The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for the Visual C++ 2.2 targets, so reccmp can read their PDBs):
 
-| Target         | Language                    | `cl` flags                                 | CRT                     | Link                          |
-| -------------- | --------------------------- | ------------------------------------------ | ----------------------- | ----------------------------- |
-| `MW2.DLL`      | C                           | `/Od /Oi /G5`                              | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no` |
-| `MW2SHELL.DLL` | C++ (some C files)          | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                        |
-| `NETMECHW.DLL` | C and C++ (Visual C++ 2.2)  | `/Od /Oi /Z7` (no `/GX`)                   | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
-| `MECH2.EXE`    | C (Visual C++ 2.2)          | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`     |
+| Target         | Language                   | `cl` flags                                 | CRT                     | Link                             |
+| -------------- | -------------------------- | ------------------------------------------ | ----------------------- | -------------------------------- |
+| `MW2.DLL`      | C                          | `/Od /Oi /G5`                              | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no`    |
+| `MW2SHELL.DLL` | C++ (some C files)         | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                           |
+| `NETMECHW.DLL` | C and C++ (Visual C++ 2.2) | `/Od /Oi /Z7` (no `/GX`)                   | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
+| `MECH2.EXE`    | C (Visual C++ 2.2)         | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`        |
 
 ### Docker
 

@@ -55,4 +55,4 @@ targets:
     hash:
       sha256: 064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c
     report:
-      icon: assets/dll.png
+      icon: assets/exe.png
