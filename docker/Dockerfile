@@ -8,7 +8,7 @@ RUN apt-get install git unzip wget wine wine32 wine64 -y
 # Set up the wineprefix
 RUN wine wineboot
 
-# Gather and set up build dependencies (MSVC 4.1, MSVC 2.2 for MECH2.EXE, and CMake for Windows)
+# Gather and set up build dependencies (MSVC 4.1, MSVC 2.2 for MECH2.EXE and NETMECHW.DLL, and CMake for Windows)
 RUN git clone https://github.com/madebr/msvc410 ~/.wine/drive_c/msvc
 # MASM 6.11 (ML) for the original's hand-written assembly objects, pinned to a known commit
 RUN git clone https://github.com/shengyanli1982/MASM611 ~/.wine/drive_c/masm \

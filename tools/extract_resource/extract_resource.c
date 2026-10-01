@@ -1,16 +1,20 @@
 /*
- * Build-time helper: writes an icon group of a PE image as an .ico file.
+ * Build-time helper: writes an icon group of a PE image as an .ico file, or a bitmap
+ * resource as a .bmp file.
  *
- *   extract_icon <image.dll> <group-id> <out.ico>
+ *   extract_resource icon <image.dll> <group-id> <out.ico>
+ *   extract_resource bitmap <image.dll> <id> <out.bmp>
  *
- * The game's icons are not in the repository; the shell's .rc takes its icon from the
- * original MW2SHELL.DLL through this tool. Plain C89 and stdio, so the project's own
+ * The game's icons and pictures are not in the repository; the .rc files take them from
+ * the original binaries through this tool. Plain C89 and stdio, so the project's own
  * toolchain (VC++ 4.1 included) builds it.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#define RT_BITMAP_ID 2
 #define RT_ICON_ID 3
 #define RT_GROUP_ICON_ID 14
 
@@ -41,7 +45,7 @@ static void WriteU32(FILE* p_file, unsigned long p_value)
 
 static void Fail(const char* p_message)
 {
-	fprintf(stderr, "extract_icon: %s\n", p_message);
+	fprintf(stderr, "extract_resource: %s\n", p_message);
 	exit(1);
 }
 
@@ -134,23 +138,94 @@ static unsigned long LookupResource(
 	return data;
 }
 
+/* ICONDIR, then one ICONDIRENTRY per image: the group's GRPICONDIRENTRY with the
+ * image's file offset in place of its resource ID. */
+static void WriteIcon(FILE* p_file, unsigned long p_root, unsigned long p_id)
+{
+	unsigned long groupSize;
+	unsigned long group = LookupResource(p_root, RT_GROUP_ICON_ID, p_id, &groupSize);
+	unsigned long count;
+	unsigned long offset;
+	unsigned long i;
+
+	if (groupSize < 6) {
+		Fail("malformed icon group");
+	}
+	count = ReadU16(group + 4);
+	if (groupSize < 6 + count * 14) {
+		Fail("malformed icon group");
+	}
+
+	WriteU16(p_file, 0);
+	WriteU16(p_file, 1);
+	WriteU16(p_file, count);
+	offset = 6 + count * 16;
+	for (i = 0; i < count; i++) {
+		unsigned long entry = group + 6 + i * 14;
+
+		fwrite(g_image + entry, 1, 12, p_file);
+		WriteU32(p_file, offset);
+		offset += ReadU32(entry + 8);
+	}
+
+	for (i = 0; i < count; i++) {
+		unsigned long entry = group + 6 + i * 14;
+		unsigned long size;
+		unsigned long data = LookupResource(p_root, RT_ICON_ID, ReadU16(entry + 12), &size);
+
+		if (size != ReadU32(entry + 8)) {
+			Fail("icon size differs from its group entry");
+		}
+		fwrite(g_image + data, 1, size, p_file);
+	}
+}
+
+/* BITMAPFILEHEADER, then the resource: a BITMAPINFOHEADER, its color table and the
+ * pixels, which is what RC strips from a .bmp. */
+static void WriteBitmap(FILE* p_file, unsigned long p_root, unsigned long p_id)
+{
+	unsigned long size;
+	unsigned long data = LookupResource(p_root, RT_BITMAP_ID, p_id, &size);
+	unsigned long headerSize;
+	unsigned long bitCount;
+	unsigned long colors;
+
+	if (size < 40) {
+		Fail("malformed bitmap");
+	}
+	headerSize = ReadU32(data);
+	bitCount = ReadU16(data + 14);
+	colors = ReadU32(data + 32);
+	if (headerSize != 40 || bitCount > 8) {
+		Fail("unsupported bitmap format (only 1-8 bpp BITMAPINFOHEADER bitmaps)");
+	}
+	if (colors == 0) {
+		colors = 1UL << bitCount;
+	}
+
+	fputc('B', p_file);
+	fputc('M', p_file);
+	WriteU32(p_file, 14 + size);
+	WriteU32(p_file, 0);
+	WriteU32(p_file, 14 + headerSize + colors * 4);
+	fwrite(g_image + data, 1, size, p_file);
+}
+
 int main(int p_argc, char** p_argv)
 {
 	FILE* file;
 	unsigned long pe;
 	unsigned long root;
-	unsigned long group;
-	unsigned long groupSize;
-	unsigned long count;
-	unsigned long offset;
-	unsigned long i;
+	int icon;
 
-	if (p_argc != 4) {
-		fprintf(stderr, "usage: extract_icon <image.dll> <group-id> <out.ico>\n");
+	if (p_argc != 5 || (strcmp(p_argv[1], "icon") != 0 && strcmp(p_argv[1], "bitmap") != 0)) {
+		fprintf(stderr, "usage: extract_resource icon <image.dll> <group-id> <out.ico>\n");
+		fprintf(stderr, "       extract_resource bitmap <image.dll> <id> <out.bmp>\n");
 		return 2;
 	}
+	icon = strcmp(p_argv[1], "icon") == 0;
 
-	file = fopen(p_argv[1], "rb");
+	file = fopen(p_argv[2], "rb");
 	if (!file) {
 		Fail("cannot open image");
 	}
@@ -171,43 +246,15 @@ int main(int p_argc, char** p_argv)
 	}
 	root = RvaToOffset(ReadU32(pe + 24 + 96 + 2 * 8));
 
-	group = LookupResource(root, RT_GROUP_ICON_ID, strtoul(p_argv[2], NULL, 0), &groupSize);
-	if (groupSize < 6) {
-		Fail("malformed icon group");
-	}
-	count = ReadU16(group + 4);
-	if (groupSize < 6 + count * 14) {
-		Fail("malformed icon group");
-	}
-
-	file = fopen(p_argv[3], "wb");
+	file = fopen(p_argv[4], "wb");
 	if (!file) {
 		Fail("cannot create output");
 	}
-
-	/* ICONDIR, then one ICONDIRENTRY per image: the group's GRPICONDIRENTRY with the
-	 * image's file offset in place of its resource ID. */
-	WriteU16(file, 0);
-	WriteU16(file, 1);
-	WriteU16(file, count);
-	offset = 6 + count * 16;
-	for (i = 0; i < count; i++) {
-		unsigned long entry = group + 6 + i * 14;
-
-		fwrite(g_image + entry, 1, 12, file);
-		WriteU32(file, offset);
-		offset += ReadU32(entry + 8);
+	if (icon) {
+		WriteIcon(file, root, strtoul(p_argv[3], NULL, 0));
 	}
-
-	for (i = 0; i < count; i++) {
-		unsigned long entry = group + 6 + i * 14;
-		unsigned long size;
-		unsigned long data = LookupResource(root, RT_ICON_ID, ReadU16(entry + 12), &size);
-
-		if (size != ReadU32(entry + 8)) {
-			Fail("icon size differs from its group entry");
-		}
-		fwrite(g_image + data, 1, size, file);
+	else {
+		WriteBitmap(file, root, strtoul(p_argv[3], NULL, 0));
 	}
 
 	if (fclose(file) != 0) {
