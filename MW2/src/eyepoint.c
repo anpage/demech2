@@ -16,6 +16,7 @@
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "speech.h"
 #include "transform.h"
 #include "types.h"
 #include "unk10034a40.h"

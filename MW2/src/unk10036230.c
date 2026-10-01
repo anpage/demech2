@@ -23,6 +23,8 @@ MechS32 g_unk0x100a555c = 0;
 // GLOBAL: MW2 0x1010b540
 MechS32 g_unk0x1010b540;
 
+MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
+
 // Returns the color word of face p_face for the draw mode in bits 12-14 of p_color: its shade
 // (FUN_100367c5, from the face's light and p_distance) with the color bits of p_color, or in the
 // debug views (m_unk0x34) a fixed color by the shape's type. Highlights the shapes whose kind

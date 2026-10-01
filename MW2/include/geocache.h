@@ -33,6 +33,7 @@ extern "C"
 	extern MechS32 g_unk0x1012b7b0;
 
 	MechS32 FUN_1001f3e0(void);
+	MechS32 FUN_1001f504(MechS32 p_id, ScarletOrchid0x4c* p_class);
 	void FUN_1001f5cb(void);
 	ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index);
 	ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index);
