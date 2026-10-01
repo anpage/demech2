@@ -6,7 +6,7 @@
 # modern compiler (the NCC/clang-tidy build). Expects DEMECH2_SOURCE_DIR (the repository
 # root), DEMECH2_VC22 (TRUE in the VC++ 2.2 build) and the dplay import library target.
 
-include("${DEMECH2_SOURCE_DIR}/cmake/extract_icon.cmake")
+include("${DEMECH2_SOURCE_DIR}/cmake/extract_resource.cmake")
 
 # MECH2.EXE: C at /Od /Oi /G5, the single-threaded CRT (2.2's LIBC, /ML). The original is an
 # incremental EXE link without /DEBUG; the comparison build keeps the incremental link and
@@ -54,14 +54,14 @@ function(demech2_add_mech2)
   endif()
   if (mech2_icons)
     message(STATUS "Launcher icons: from ${DEMECH2_MECH2_ORIGINAL}")
-    demech2_add_extract_icon()
+    demech2_add_extract_resource()
     set(icon_dir "${CMAKE_CURRENT_BINARY_DIR}/MECH2")
     set(icon_files "")
     foreach(icon 103 108)
       add_custom_command(OUTPUT "${icon_dir}/mech2_${icon}.ico"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${icon_dir}"
-        COMMAND extract_icon "${DEMECH2_MECH2_ORIGINAL}" ${icon} "${icon_dir}/mech2_${icon}.ico"
-        DEPENDS extract_icon "${DEMECH2_MECH2_ORIGINAL}"
+        COMMAND extract_resource icon "${DEMECH2_MECH2_ORIGINAL}" ${icon} "${icon_dir}/mech2_${icon}.ico"
+        DEPENDS extract_resource "${DEMECH2_MECH2_ORIGINAL}"
         VERBATIM
       )
       list(APPEND icon_files "${icon_dir}/mech2_${icon}.ico")
@@ -87,6 +87,7 @@ function(demech2_add_netmechw)
     "${root}/NETMECHW/src/dllmain.cpp"
     "${root}/NETMECHW/src/unk10003660.cpp"
     "${root}/NETMECHW/NETMECHW.def"
+    "${root}/NETMECHW/netmechw.rc"
     "${root}/util/decomp.cpp"
   )
   set_target_properties(netmechw PROPERTIES
@@ -124,4 +125,52 @@ function(demech2_add_netmechw)
     )
   endif()
   target_link_libraries(netmechw PRIVATE dplay kernel32.lib user32.lib gdi32.lib comctl32.lib advapi32.lib)
+
+  # The lobby's icons (groups 104 and 105) and bitmaps stay out of the repository, like
+  # the shell's and the launcher's icons: they are extracted from the original NETMECHW.DLL
+  # at build time. Without the original, the lobby has no icons or pictures.
+  set(DEMECH2_NETMECHW_ORIGINAL "${root}/NETMECHW.DLL" CACHE FILEPATH
+    "Original NETMECHW.DLL (retail release) to take the lobby's icons and bitmaps from")
+  set(netmechw_original_sha256 3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095)
+  set(netmechw_images FALSE)
+  if (EXISTS "${DEMECH2_NETMECHW_ORIGINAL}")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${DEMECH2_NETMECHW_ORIGINAL}")
+    file(SHA256 "${DEMECH2_NETMECHW_ORIGINAL}" sha256)
+    if (sha256 STREQUAL netmechw_original_sha256)
+      set(netmechw_images TRUE)
+    else()
+      message(WARNING "${DEMECH2_NETMECHW_ORIGINAL} is not the retail NETMECHW.DLL; building the lobby without its icons and bitmaps")
+    endif()
+  endif()
+  if (netmechw_images)
+    message(STATUS "Lobby images: from ${DEMECH2_NETMECHW_ORIGINAL}")
+    demech2_add_extract_resource()
+    set(image_dir "${CMAKE_CURRENT_BINARY_DIR}/NETMECHW")
+    set(image_files "")
+    foreach(icon 104 105)
+      add_custom_command(OUTPUT "${image_dir}/netmechw_${icon}.ico"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${image_dir}"
+        COMMAND extract_resource icon "${DEMECH2_NETMECHW_ORIGINAL}" ${icon} "${image_dir}/netmechw_${icon}.ico"
+        DEPENDS extract_resource "${DEMECH2_NETMECHW_ORIGINAL}"
+        VERBATIM
+      )
+      list(APPEND image_files "${image_dir}/netmechw_${icon}.ico")
+    endforeach()
+    foreach(bitmap 105 112 113 114 213 214 215 216 217 218 219 220 221 222 899 906 910 911)
+      add_custom_command(OUTPUT "${image_dir}/netmechw_${bitmap}.bmp"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${image_dir}"
+        COMMAND extract_resource bitmap "${DEMECH2_NETMECHW_ORIGINAL}" ${bitmap} "${image_dir}/netmechw_${bitmap}.bmp"
+        DEPENDS extract_resource "${DEMECH2_NETMECHW_ORIGINAL}"
+        VERBATIM
+      )
+      list(APPEND image_files "${image_dir}/netmechw_${bitmap}.bmp")
+    endforeach()
+    set_source_files_properties("${root}/NETMECHW/netmechw.rc" PROPERTIES
+      COMPILE_DEFINITIONS DEMECH2_ORIGINAL_IMAGES
+      INCLUDE_DIRECTORIES "${image_dir}"
+      OBJECT_DEPENDS "${image_files}"
+    )
+  else()
+    message(STATUS "Lobby images: none (no original NETMECHW.DLL at ${DEMECH2_NETMECHW_ORIGINAL})")
+  endif()
 endfunction()

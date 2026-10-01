@@ -1,0 +1,608 @@
+// NETMECHW.DLL resources: the lobby's dialogs, string tables and version block, recovered
+// from the original binary; RC 2.2 compiles each resource byte-identical to the original's.
+// Resource and control IDs stay numeric until their names are known. The resources are
+// listed in the original's data order.
+//
+// The icons (groups 104 and 105) and the 18 bitmaps are not in the repository: the build
+// extracts them from the original NETMECHW.DLL and defines DEMECH2_ORIGINAL_IMAGES. Without
+// them the lobby has no icons or pictures.
+
+#include <windows.h>
+#include <commctrl.h>
+
+// The resource editor's ID for controls the code never addresses (MFC's winres.h has it)
+#define IDC_STATIC (-1)
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+ABOUTBOX DIALOG DISCARDABLE  22, 17, 240, 161
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "The Keshik"
+FONT 8, "System"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,104,133,32,14,WS_GROUP
+    ICON            104,104,3,2,18,20
+    CTEXT           "NetMech for Windows\xae 95",IDC_STATIC,20,4,96,8
+    CONTROL         "",2008,"Edit",ES_LEFT | ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_BORDER,7,25,225,101
+END
+
+1103 DIALOG DISCARDABLE  0, 0, 401, 262
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         1052,9,41,98,52,WS_TABSTOP | WS_VSCROLL
+    LISTBOX         1054,9,125,98,52,WS_TABSTOP | WS_VSCROLL
+    AUTOCHECKBOX    "Regeneration",1057,301,44,89,10,WS_GROUP
+    CONTROL         "Unlimited Ammo",1058,"Button",BS_AUTOCHECKBOX,301,56,89,10
+    CONTROL         "Heat Tracking",1059,"Button",BS_AUTOCHECKBOX,301,68,89,10
+    CONTROL         "Splash Damage",1060,"Button",BS_AUTOCHECKBOX,301,81,89,10
+    CONTROL         "Collision Damage",1061,"Button",BS_AUTOCHECKBOX,301,94,89,10
+    CONTROL         "Radar + Auto Targeting",1062,"Button",BS_AUTOCHECKBOX,301,106,89,10
+    CONTROL         "",1016,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_GROUP | WS_BORDER,301,118,40,12
+    CONTROL         "Generic1",1063,"msctls_updown32",UDS_WRAP | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,329,119,11,11
+    CONTROL         "",1019,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,301,132,40,12
+    CONTROL         "Generic2",1064,"msctls_updown32",UDS_WRAP | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,330,132,10,11
+    CONTROL         "",1065,"ComboBox",CBS_DROPDOWNLIST | WS_TABSTOP | WS_GROUP | WS_VSCROLL,301,146,39,50
+    CONTROL         "",1066,"ComboBox",CBS_DROPDOWNLIST | WS_VSCROLL,301,160,39,52
+    EDITTEXT        1010,30,193,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,240,191,46,15
+    LISTBOX         1006,11,207,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    PUSHBUTTON      "&Back",1074,295,186,101,14
+    PUSHBUTTON      "&Accept Setup",1082,295,202,101,24
+    PUSHBUTTON      "&Help",2016,295,228,101,14
+    PUSHBUTTON      "&Quit",1083,295,244,101,14
+    CTEXT           "&Team Missions",IDC_STATIC,9,31,96,8
+    CTEXT           "&Free-For-All Missions",1091,9,115,96,8
+    CTEXT           "Mission Briefing",1092,112,26,180,8
+    CONTROL         "",1051,"Edit",ES_LEFT | ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_BORDER,112,36,180,146
+    GROUPBOX        "",IDC_STATIC,295,23,101,159
+    LTEXT           "Weight Limit",IDC_STATIC,344,120,41,8
+    LTEXT           "Gravity",IDC_STATIC,344,134,30,8
+    LTEXT           "Time of Day",IDC_STATIC,344,148,41,8
+    LTEXT           "Temperature",IDC_STATIC,344,162,41,8
+    GROUPBOX        "",IDC_STATIC,5,183,286,75,WS_GROUP
+    CONTROL         "&Chat",IDC_STATIC,"Static",SS_LEFT,13,193,16,8
+    CONTROL         "",2020,"Static",SS_CENTER | WS_GROUP | NOT WS_VISIBLE,110,3,180,20
+    GROUPBOX        "",IDC_STATIC,5,24,105,72
+    GROUPBOX        "",IDC_STATIC,5,108,105,72
+    CTEXT           "&Options",1094,304,34,81,8
+END
+
+1107 DIALOG DISCARDABLE  0, 0, 350, 262
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        1010,30,190,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,237,188,46,15
+    LISTBOX         1006,11,204,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    PUSHBUTTON      "&Back",1074,293,185,50,14
+    PUSHBUTTON      "&Help",2016,293,226,50,14
+    PUSHBUTTON      "&Quit",1083,293,242,50,14
+    CTEXT           "Please wait while host configures the game...",1088,14,13,163,12
+    GROUPBOX        "",IDC_STATIC,21,44,149,117
+    CTEXT           "Warriors",1090,25,37,138,10
+    CONTROL         "",1017,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,54,138,12
+    CONTROL         "",1020,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,67,138,12
+    CONTROL         "",1021,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,80,138,12
+    CONTROL         "",1037,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,93,138,12
+    CONTROL         "",1023,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,106,138,12
+    CONTROL         "",1025,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,119,138,12
+    CONTROL         "",1027,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,132,138,12
+    CONTROL         "",1038,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,27,145,138,12
+    GROUPBOX        "",IDC_STATIC,6,181,281,75
+    LTEXT           "&Chat",IDC_STATIC,13,190,16,8
+    CTEXT           "Mission",1003,216,3,117,8
+    CONTROL         "",1051,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,217,13,124,13
+    CTEXT           "Options",1089,223,37,113,9
+    GROUPBOX        "",IDC_STATIC,217,44,124,135
+    CONTROL         "Regeneration",1057,"Button",BS_CHECKBOX,232,62,69,10
+    CONTROL         "Unlimited Ammo",1058,"Button",BS_CHECKBOX,232,72,69,10
+    CONTROL         "Heat Tracking",1059,"Button",BS_CHECKBOX,232,82,69,10
+    CONTROL         "Splash Damage",1060,"Button",BS_CHECKBOX,232,92,69,10
+    CONTROL         "Collision Damage",1061,"Button",BS_CHECKBOX,232,102,69,10
+    CONTROL         "Radar + Auto Targeting",1062,"Button",BS_CHECKBOX,232,112,104,10
+    CONTROL         "",1075,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,232,122,39,12
+    LTEXT           "Weight Limit",IDC_STATIC,273,124,39,8
+    CONTROL         "",1019,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,232,134,39,12
+    LTEXT           "Gravity",IDC_STATIC,273,136,31,8
+    CONTROL         "",1065,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,232,146,39,12
+    LTEXT           "Time of Day",IDC_STATIC,273,148,39,8
+    CONTROL         "",1066,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,232,158,39,12
+    LTEXT           "Temperature",IDC_STATIC,273,160,41,8
+END
+
+1123 DIALOG DISCARDABLE  0, 0, 350, 262
+STYLE DS_SETFONT | WS_BORDER | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         1022,181,49,102,65,WS_TABSTOP | WS_VSCROLL
+    LISTBOX         1024,181,121,102,65,WS_TABSTOP | WS_VSCROLL
+    PUSHBUTTON      "&Back",1074,293,4,50,14,WS_GROUP
+    CONTROL         "Clan",1001,"Button",BS_OWNERDRAW | WS_TABSTOP,293,21,50,38
+    CONTROL         "Mission",1003,"Button",BS_OWNERDRAW | WS_TABSTOP,293,62,50,38
+    CONTROL         "'Mech",1002,"Button",BS_OWNERDRAW | WS_TABSTOP,293,103,50,38
+    CONTROL         "Dropship",1073,"Button",BS_OWNERDRAW | WS_TABSTOP,293,144,50,38
+    EDITTEXT        1010,31,191,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,238,190,46,15
+    LISTBOX         1006,12,206,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    AUTORADIOBUTTON "All",1076,243,222,36,10,WS_TABSTOP | WS_GROUP
+    AUTORADIOBUTTON "Clan",1080,243,232,36,10
+    PUSHBUTTON      "&Help",2016,293,225,50,14
+    PUSHBUTTON      "&Quit",1083,293,242,50,14
+    LTEXT           "Ch&assis",1039,181,39,62,8
+    LTEXT           "&Variant",1041,181,111,62,8
+    CONTROL         "",1043,"Edit",ES_LEFT | ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_BORDER,10,37,164,142
+    GROUPBOX        "",IDC_STATIC,5,182,284,75
+    LTEXT           "&Chat",IDC_STATIC,14,192,16,8
+    GROUPBOX        "Send &To ",2003,239,211,43,38
+    GROUPBOX        "",IDC_STATIC,5,31,284,152
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,57,7,180,20
+END
+
+1126 DIALOG DISCARDABLE  0, 0, 350, 262
+STYLE DS_SETFONT | WS_BORDER | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Ch&ange Clan",1068,234,87,47,14
+    PUSHBUTTON      "&Back",1074,293,4,50,14,WS_GROUP
+    CONTROL         "Clan",1001,"Button",BS_OWNERDRAW | WS_TABSTOP,293,21,50,38
+    CONTROL         "Mission",1003,"Button",BS_OWNERDRAW | WS_TABSTOP,293,62,50,38
+    CONTROL         "'Mech",1002,"Button",BS_OWNERDRAW | WS_TABSTOP,293,103,50,38
+    CONTROL         "Dropship",1073,"Button",BS_OWNERDRAW | WS_TABSTOP,293,144,50,38
+    EDITTEXT        1010,31,191,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,238,190,46,15
+    LISTBOX         1006,12,206,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    AUTORADIOBUTTON "All",1076,243,222,36,10,WS_TABSTOP | WS_GROUP
+    AUTORADIOBUTTON "Clan",1080,243,232,36,10
+    PUSHBUTTON      "&Help",2016,293,225,50,14
+    PUSHBUTTON      "&Quit",1083,293,242,50,14
+    CONTROL         "",1017,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,17,138,12
+    CONTROL         "",1023,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,17,138,12
+    CONTROL         "",1020,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,30,138,12
+    CONTROL         "",1025,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,30,138,12
+    CONTROL         "",1021,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,43,138,12
+    CONTROL         "",1027,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,43,138,12
+    CONTROL         "",1037,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,56,138,12
+    CONTROL         "",1038,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,56,138,12
+    CONTROL         "",1029,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,123,138,12
+    CONTROL         "",1034,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,123,138,12
+    CONTROL         "",1031,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,136,138,12
+    CONTROL         "",1035,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,136,138,12
+    CONTROL         "",1033,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,149,138,12
+    CONTROL         "",1036,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,149,138,12
+    CONTROL         "",1040,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,9,162,138,12
+    CONTROL         "",1042,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,147,162,138,12
+    GROUPBOX        "",IDC_STATIC,5,182,284,75
+    LTEXT           "&Chat",IDC_STATIC,14,192,16,8
+    GROUPBOX        "Send &To ",2003,239,211,43,38
+    GROUPBOX        " Clan Wolf ",2004,5,6,284,65
+    GROUPBOX        " Clan Jade Falcon",2005,5,112,284,66
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,5,84,180,20
+END
+
+1130 DIALOG DISCARDABLE  0, 0, 361, 141
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        1015,8,47,169,12,ES_AUTOHSCROLL
+    LISTBOX         1012,8,79,169,33,LBS_SORT | WS_TABSTOP | WS_VSCROLL
+    DEFPUSHBUTTON   "&Select",IDOK,8,119,50,14
+    PUSHBUTTON      "&Help",2016,68,119,50,14
+    PUSHBUTTON      "&Quit",1083,127,119,50,14
+    LTEXT           "&Enter Callsign",IDC_STATIC,8,38,59,8
+    LTEXT           "Select &Connection Type",IDC_STATIC,8,68,89,8
+    LTEXT           "Activision is a registered trademark of Activision, Inc. \xa9 1995 Activision, Inc.",IDC_STATIC,186,40,167,19
+    LTEXT           "MechWarrior, BattleTech, BattleMech, and 'Mech are registered trademarks of FASA CORPORATION. NetMech is a trademark of FASA CORPORATION. \xa9 1995 FASA CORPORATION.",IDC_STATIC,186,63,167,34
+    LTEXT           "Microsoft, Windows and the Windows logo are registered trademarks of Microsoft Corporation.",IDC_STATIC,186,99,167,19
+    LTEXT           "All rights reserved.",IDC_STATIC,186,121,167,11
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,2,2,178,31
+END
+
+1131 DIALOG DISCARDABLE  0, 0, 321, 110
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         1048,7,20,119,80,LBS_SORT | WS_TABSTOP | WS_VSCROLL
+    DEFPUSHBUTTON   "&Join a Game",IDOK,263,19,50,14
+    PUSHBUTTON      "H&ost a Game",1056,263,36,50,14
+    PUSHBUTTON      "&Back",1074,263,53,50,14
+    PUSHBUTTON      "&Help",2016,263,71,50,14
+    PUSHBUTTON      "&Quit",1083,263,88,50,14
+    CONTROL         "",1067,"ListBox",LBS_SORT | WS_TABSTOP | WS_VSCROLL | WS_BORDER | WS_DISABLED,136,20,119,80
+    LTEXT           "Current &Games",IDC_STATIC,7,9,48,8
+    LTEXT           "Warriors",IDC_STATIC,136,9,95,8
+END
+
+1132 DIALOG DISCARDABLE  0, 0, 350, 262
+STYLE DS_SETFONT | WS_BORDER | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "&Back",1074,293,4,50,14,WS_GROUP
+    CONTROL         "Clan",1001,"Button",BS_OWNERDRAW | WS_TABSTOP,293,21,50,38
+    CONTROL         "Mission",1003,"Button",BS_OWNERDRAW | WS_TABSTOP,293,62,50,38
+    CONTROL         "'Mech",1002,"Button",BS_OWNERDRAW | WS_TABSTOP,293,103,50,38
+    CONTROL         "Dropship",1073,"Button",BS_OWNERDRAW | WS_TABSTOP,293,144,50,38
+    EDITTEXT        1010,31,191,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,238,190,46,15
+    LISTBOX         1006,12,206,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    AUTORADIOBUTTON "All",1076,243,222,36,10,WS_TABSTOP | WS_GROUP
+    AUTORADIOBUTTON "Clan",1080,243,232,36,10
+    PUSHBUTTON      "&Help",2016,293,225,50,14
+    PUSHBUTTON      "&Quit",1083,293,242,50,14
+    GROUPBOX        "",IDC_STATIC,5,31,284,152
+    CTEXT           "Mission Briefing",1092,49,38,110,8
+    CONTROL         "",1051,"Edit",ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | ES_WANTRETURN | WS_BORDER,12,48,184,130
+    CTEXT           "Options",IDC_STATIC,203,38,79,8
+    GROUPBOX        "",IDC_STATIC,203,46,79,131
+    CHECKBOX        "Regeneration",1057,207,56,69,10,WS_GROUP
+    CONTROL         "Unlimited Ammo",1058,"Button",BS_CHECKBOX,207,66,69,10
+    CONTROL         "Heat Tracking",1059,"Button",BS_CHECKBOX,207,76,69,10
+    CONTROL         "Splash Damage",1060,"Button",BS_CHECKBOX,207,86,69,10
+    CONTROL         "Collision Damage",1061,"Button",BS_CHECKBOX,207,96,69,10
+    CONTROL         "Radar + Targeting",1062,"Button",BS_CHECKBOX,207,106,69,10
+    CONTROL         "",1075,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_GROUP | WS_BORDER,207,117,39,12
+    LTEXT           "Weight",IDC_STATIC,247,119,29,8
+    CONTROL         "",1019,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,207,131,39,12
+    LTEXT           "Gravity",IDC_STATIC,247,133,29,8
+    CONTROL         "",1065,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,207,145,39,12
+    LTEXT           "Time",IDC_STATIC,247,147,28,8
+    CONTROL         "",1066,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,207,160,39,12
+    LTEXT           "Temp",IDC_STATIC,247,162,23,8
+    GROUPBOX        "",IDC_STATIC,5,182,284,75
+    LTEXT           "&Chat",IDC_STATIC,14,192,16,8
+    GROUPBOX        "Send &To ",2003,239,211,43,38
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,57,7,180,20
+END
+
+113 DIALOG DISCARDABLE  0, 0, 225, 61
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_POPUP
+CAPTION "Waiting for modem connection"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Cancel Game",IDCANCEL,85,38,56,14
+    CONTROL         "",1014,"Edit",ES_LEFT | ES_MULTILINE | ES_READONLY | WS_BORDER,7,7,210,27
+END
+
+200 DIALOG DISCARDABLE  0, 0, 350, 196
+STYLE DS_SETFONT | WS_BORDER | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,149,170,50,14
+    CONTROL         "",1017,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,29,57,61,12
+    CONTROL         "",1020,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,29,76,61,12
+    CONTROL         "",1021,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,29,93,61,12
+    CONTROL         "",1037,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,29,109,61,12
+    CONTROL         "",1023,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,190,59,61,12
+    CONTROL         "",1025,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,190,77,61,12
+    CONTROL         "",1027,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,190,93,61,12
+    CONTROL         "",1038,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,190,109,61,12
+    CONTROL         "",1018,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,96,57,61,12
+    CONTROL         "",1022,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,96,76,61,12
+    CONTROL         "",1024,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,96,93,61,12
+    CONTROL         "",1039,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,96,109,61,12
+    CONTROL         "",1026,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,257,59,61,12
+    CONTROL         "",1028,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,257,77,61,12
+    CONTROL         "",1029,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,257,93,61,12
+    CONTROL         "",1040,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,257,109,61,12
+    CONTROL         "",2007,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,29,138,289,19
+    LTEXT           "Callsign",IDC_STATIC,29,46,61,9
+    LTEXT           "Kills",IDC_STATIC,97,46,61,9
+    LTEXT           "Callsign",IDC_STATIC,189,46,61,9
+    LTEXT           "Kills",IDC_STATIC,257,46,61,9
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,84,7,180,20
+END
+
+1133 DIALOG DISCARDABLE  0, 0, 350, 262
+STYLE DS_SETFONT | WS_BORDER | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "LAUNCH",1077,"Button",BS_OWNERDRAW | WS_TABSTOP,70,129,150,38
+    PUSHBUTTON      "&Back",1074,293,4,50,14,WS_GROUP
+    CONTROL         "Clan",1001,"Button",BS_OWNERDRAW | WS_TABSTOP,293,21,50,38
+    CONTROL         "Mission",1003,"Button",BS_OWNERDRAW | WS_TABSTOP,293,62,50,38
+    CONTROL         "'Mech",1002,"Button",BS_OWNERDRAW | WS_TABSTOP,293,103,50,38
+    CONTROL         "Dropship",1073,"Button",BS_OWNERDRAW | WS_TABSTOP,293,144,50,38
+    EDITTEXT        1010,31,191,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,238,190,46,15
+    LISTBOX         1006,12,206,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    AUTORADIOBUTTON "All",1076,243,222,36,10,WS_TABSTOP | WS_GROUP
+    AUTORADIOBUTTON "Clan",1080,243,232,36,10
+    PUSHBUTTON      "&Help",2016,293,225,50,14
+    PUSHBUTTON      "&Quit",1083,293,242,50,14
+    GROUPBOX        "",IDC_STATIC,5,31,284,152
+    CTEXT           "Warriors",IDC_STATIC,19,50,52,8
+    CONTROL         "",1017,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,15,60,61,12
+    CONTROL         "",1020,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,15,74,61,12
+    CONTROL         "",1021,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,15,88,61,12
+    CONTROL         "",1037,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,15,102,61,12
+    CONTROL         "",1023,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,160,60,61,12
+    CONTROL         "",1025,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,160,74,61,12
+    CONTROL         "",1027,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,160,88,61,12
+    CONTROL         "",1038,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,160,102,61,12
+    GROUPBOX        "",IDC_STATIC,5,182,284,75
+    LTEXT           "&Chat",IDC_STATIC,14,192,16,8
+    GROUPBOX        "Send &To ",2003,239,211,43,38
+    CONTROL         "",2001,"Button",BS_CHECKBOX,103,61,8,10
+    CONTROL         "",2002,"Button",BS_CHECKBOX,103,75,8,10
+    CONTROL         "",2010,"Button",BS_CHECKBOX,103,89,8,10
+    CONTROL         "",2011,"Button",BS_CHECKBOX,103,103,8,10
+    CONTROL         "",2012,"Button",BS_CHECKBOX,247,61,8,10
+    CONTROL         "",2013,"Button",BS_CHECKBOX,247,75,8,10
+    CONTROL         "",2014,"Button",BS_CHECKBOX,247,89,8,10
+    CONTROL         "",2015,"Button",BS_CHECKBOX,247,103,8,10
+    CTEXT           "Launched",IDC_STATIC,81,50,52,8
+    CTEXT           "Warriors",IDC_STATIC,164,50,52,8
+    CTEXT           "Launched",IDC_STATIC,225,50,52,8
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,57,7,180,20
+END
+
+1128 DIALOG DISCARDABLE  0, 0, 350, 262
+STYLE DS_SETFONT | WS_BORDER | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "&Back",1074,293,4,50,14,WS_GROUP
+    CONTROL         "Clan",1001,"Button",BS_OWNERDRAW | WS_TABSTOP,293,21,50,38
+    CONTROL         "Mission",1003,"Button",BS_OWNERDRAW | WS_TABSTOP,293,62,50,38
+    CONTROL         "'Mech",1002,"Button",BS_OWNERDRAW | WS_TABSTOP,293,103,50,38
+    CONTROL         "Dropship",1073,"Button",BS_OWNERDRAW | WS_TABSTOP,293,144,50,38
+    EDITTEXT        1010,31,191,204,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Send",1004,238,190,46,15
+    LISTBOX         1006,12,206,222,47,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_TABSTOP | WS_VSCROLL
+    PUSHBUTTON      "&Help",2016,293,225,50,14
+    PUSHBUTTON      "&Quit",1083,293,242,50,14
+    CONTROL         "",1017,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,53,138,12
+    CONTROL         "",1023,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,109,138,12
+    CONTROL         "",1020,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,67,138,12
+    CONTROL         "",1025,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,123,138,12
+    CONTROL         "",1021,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,81,138,12
+    CONTROL         "",1027,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,137,138,12
+    CONTROL         "",1037,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,95,138,12
+    CONTROL         "",1038,"Edit",ES_LEFT | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER,77,151,138,12
+    GROUPBOX        "",IDC_STATIC,5,182,284,75
+    LTEXT           "&Chat",IDC_STATIC,14,192,16,8
+    GROUPBOX        "Send &To ",2003,239,211,43,38,WS_DISABLED
+    AUTORADIOBUTTON "All",1076,243,222,36,10,WS_GROUP | WS_DISABLED
+    AUTORADIOBUTTON "Clan",1080,243,232,36,10,WS_DISABLED
+    CONTROL         "",2020,"Static",SS_LEFT | WS_GROUP | NOT WS_VISIBLE,57,7,180,20
+    GROUPBOX        "",IDC_STATIC,5,31,284,152
+END
+
+#ifdef DEMECH2_ORIGINAL_IMAGES
+105 ICON DISCARDABLE "netmechw_105.ico"
+104 ICON DISCARDABLE "netmechw_104.ico"
+
+105 BITMAP DISCARDABLE "netmechw_105.bmp"
+906 BITMAP DISCARDABLE "netmechw_906.bmp"
+910 BITMAP DISCARDABLE "netmechw_910.bmp"
+899 BITMAP DISCARDABLE "netmechw_899.bmp"
+112 BITMAP DISCARDABLE "netmechw_112.bmp"
+911 BITMAP DISCARDABLE "netmechw_911.bmp"
+113 BITMAP DISCARDABLE "netmechw_113.bmp"
+114 BITMAP DISCARDABLE "netmechw_114.bmp"
+213 BITMAP DISCARDABLE "netmechw_213.bmp"
+214 BITMAP DISCARDABLE "netmechw_214.bmp"
+215 BITMAP DISCARDABLE "netmechw_215.bmp"
+216 BITMAP DISCARDABLE "netmechw_216.bmp"
+217 BITMAP DISCARDABLE "netmechw_217.bmp"
+218 BITMAP DISCARDABLE "netmechw_218.bmp"
+219 BITMAP DISCARDABLE "netmechw_219.bmp"
+220 BITMAP DISCARDABLE "netmechw_220.bmp"
+221 BITMAP DISCARDABLE "netmechw_221.bmp"
+222 BITMAP DISCARDABLE "netmechw_222.bmp"
+#endif
+
+1 VERSIONINFO
+ FILEVERSION 1,0,0,2
+ PRODUCTVERSION 1,0,0,2
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileVersion", "1, 0, 0, 2\0"
+            VALUE "ProductVersion", "1, 0, 0, 2\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    1                       "Unable to determine starting directory"
+    2                       "Fatal error"
+    3                       "The Keshik"
+    4                       "Help"
+    5                       "This is help for MECH Button"
+    6                       "This is help for the GAME button"
+    7                       "Fire Moth"
+    8                       "Kit Fox"
+    9                       "Jenner IIc"
+    10                      "Nova"
+    11                      "Stormcrow"
+    12                      "Mad Dog"
+    13                      "Hellbringer"
+    14                      "Rifleman IIc"
+    15                      "Summoner"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    16                      "Timber Wolf"
+    17                      "Gargoyle"
+    18                      "War Hammer"
+    19                      "Marauder IIc"
+    20                      "Warhawk"
+    21                      "Battlemaster"
+    22                      "Dire Wolf"
+    23                      "Elemental"
+    24                      "Tarantula"
+    25                      "Primary config"
+    26                      "Alt config A"
+    27                      "Alt config B"
+    28                      "Alt config C"
+    29                      "Alt config D"
+    30                      "Mass\t\t20T\r\nHeat sinks\t10 (20) \r\nJump jets\t\t0 \r\n\r\nWeapon\t\tLocation\t\tAmmo\r\nMLASER\t\tLA \r\nMLASER\t\tLA \r\nSRM6\t\tRA\t\t1T(90)\r\nSRM4\t\tRT\t\t1T(100)"
+    31                      "Mass\t\t20T\r\nHeat sinks\t10 (20) \r\nJump jets\t\t0 \r\n\r\nWeapon\t\tLocation\t\tAmmo\r\nSSRM4\t\tRT\t\t1T(100)\r\nSPLAS\t\tLT\r\nSPLAS\t\tLT"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    32                      "Mass\t\t20T\r\nHeat sinks\t10 (20) \r\nJump jets\t\t0 \r\n\r\nWeapon\t\tLocation\t\tAmmo\r\nMPLAS\t\tLT\r\nMGun\t\tLT\t\t1T (200)\r\nMPLAS\t\tRT\r\nMGun\t\tRT\t\t1T (200)"
+    33                      "Mass\t\t20T\r\nHeat sinks\t10 (20) \r\nJump jets\t\t0 \r\n\r\nWeapon\t\tLocation\t\tAmmo\r\nLRM5\t\tLA\t\t1T (60)\r\nLRM5\t\tRA\t\t1T (60)\r\nSPLAS\t\tLT\r\nSPLAS\t\tRT\r\nSLASER\t\tHD"
+    34                      "IDS_MECH01D"
+    35                      "IDS_MECH02P"
+    36                      "IDS_MECH02A"
+    37                      "IDS_MECH02B"
+    38                      "IDS_MECH02C"
+    39                      "IDS_MECH02D"
+    40                      "IDS_MECH03P"
+    41                      "IDS_MECH03A"
+    42                      "IDS_MECH03B"
+    43                      "IDS_MECH04P"
+    44                      "IDS_MECH04A"
+    45                      "IDS_MECH04B"
+    46                      "IDS_MECH04C"
+    47                      "IDS_MECH04D"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    48                      "IDS_MECH05P"
+    49                      "IDS_MECH05A"
+    50                      "IDS_MECH05B"
+    51                      "IDS_MECH05C"
+    52                      "IDS_MECH05D"
+    53                      "IDS_MECH06P"
+    54                      "IDS_MECH06A"
+    55                      "IDS_MECH06B"
+    56                      "IDS_MECH06C"
+    57                      "IDS_MECH07P"
+    58                      "IDS_MECH07A"
+    59                      "IDS_MECH07B"
+    60                      "IDS_MECH08P"
+    61                      "IDS_MECH08A"
+    62                      "IDS_MECH08B"
+    63                      "IDS_MECH09P"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    64                      "IDS_MECH09A"
+    65                      "IDS_MECH09B"
+    66                      "IDS_MECH09C"
+    67                      "IDS_MECH09D"
+    68                      "IDS_MECH10P"
+    69                      "IDS_MECH10A"
+    70                      "IDS_MECH10B"
+    71                      "IDS_MECH10C"
+    72                      "IDS_MECH10D"
+    73                      "IDS_MECH11P"
+    74                      "IDS_MECH11A"
+    75                      "IDS_MECH11B"
+    76                      "IDS_MECH11C"
+    77                      "IDS_MECH12P"
+    78                      "IDS_MECH12A"
+    79                      "IDS_MECH13P"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    80                      "IDS_MECH13A"
+    81                      "IDS_MECH14P"
+    82                      "IDS_MECH14A"
+    83                      "IDS_MECH14B"
+    84                      "IDS_MECH14C"
+    85                      "IDS_MECH15P"
+    86                      "IDS_MECH15A"
+    87                      "IDS_MECH16P"
+    88                      "IDS_MECH16A"
+    89                      "IDS_MECH16B"
+    90                      "IDS_MECH17P"
+    91                      "IDS_MECH18P"
+    92                      "Single player game"
+    93                      "Carse - Capture the Flag"
+    94                      "Hainfeld - Defend/Destroy"
+    95                      "Derf - Hit & Run"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    96                      "La Grave - Steal the Plans"
+    97                      "Tinaca - Scavenger Hunt"
+    98                      "Solaris VII - Mech Soccer"
+    99                      "Kufstein - Maze"
+    100                     "Avon - King of the Hill"
+    101                     "Setubal - Spire of Destiny"
+    102                     "Outer Volta - Minefield"
+    103                     "Ramsau - City"
+    104                     "Alshain - Canyon"
+    105                     "Graus - Ice Cavern"
+    106                     "Yamarovka - Rolling Hills"
+    107                     "Galuzza - Mineshaft"
+    108                     "You need to enter a callsign"
+    109                     "You need to select a connection type"
+    110                     "Cold"
+    111                     "Normal"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    112                     "Hot"
+    113                     "Dawn"
+    114                     "Day"
+    115                     "Dusk"
+    116                     "Night"
+    117                     "&Reply"
+    118                     "&Send"
+    119                     "&Back"
+    120                     "&Leave game"
+    121                     "Notice"
+    122                     "The host machine is no longer available, aborting game."
+    123                     "The host has decided to change the game settings."
+    124                     "MODEM"
+    125                     "WINSOCK"
+    126                     "DWANGO"
+    127                     "CATAPULT"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    128                     "TENS"
+    129                     "Unable to create game"
+    130                     "Unable to join game"
+    131                     "Unable to create player"
+    132                     "The 'mech you have selected is over the maximum weight specified for this game. To launch, you must select a smaller 'mech."
+    133                     "You need two or more players to play NetMech."
+    134                     "To host a game, the MechWarrior 2 disk must be in the CD-ROM drive."
+    135                     "Semprini?"
+    136                     "The connection you have selected for NetMech is slower than the recommended transfer rate. Proceed at your own risk!"
+    137                     "&Join"
+    138                     "&Dial"
+    139                     "NetMech Credits\r\n\r\nProduction\r\n\r\nAssociate Producer\tTim Morten\r\nExecutive Producer\tJohn Spinale\r\n\r\nSimulator Programming\tJohn Lemberger\r\n\tTim Morten\r\n\r\n"
+    140                     "Shell Programming\tMarshall Robin\r\n\tRoger Weiss\r\n\r\nMission Design\tKen Hullett\r\n\r\n3D Geometry\tSean Kinnear\r\n\r\n2D Art\tJohn Lafleur\r\n\r\nLaunch Screen\tJJ Franzen\r\n\r\n"
+    141                     "Writing\tSacha Howells\r\n\r\nCockpit Voice\tCarol Ruggier\r\n\r\nAudio Engineering\tSOUNDELUX Media Labs\r\n\r\n\r\n"
+    142                     "Documentation\r\n\r\nAssociate Producer\tJohn Lafleur\r\n\r\nDocumentation Manager\tMike Rivera\r\n\r\nWriting\tSacha Howells\r\n\tLorraine Suzuki\r\n\r\n\r\n"
+    143                     "Quality Assurance\r\n\r\nQA Director\tJon Doellstedt\r\n\r\nQA Manager\tDave ""Drago"" Arnspiger\r\n\r\nCustomer Support Manager\tJameson Wang\r\n\r\nQA Project Leads\tSteven ""Squeegee"" Mau\r\n\tRyan ""Pinko"" McNairy\r\n\tEric ""Zaer"" Zala\r\n\r\n"
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    144                     "Test Team\tKeith ""meanguy"" Alexander\r\n\tRobert ""Iowa Pork Roller"" Berger\r\n\tJeff ""Saul T. Tokk"" Call\r\n\tJudith ""Net Gingrich"" Chlipala\r\n\tChris ""NIX"" Crowder\r\n\tAdam ""Black Dog"" Goldberg\r\n\tJim ""Watergate"" Hudson\r\n\tDavid ""Dyna Girl"" Osper\r\n\t"
+    145                     "Marty ""Pain In The Mech"" Stratton\r\n\tElizabeth ""Lolo"" Strozewski\r\n\tTim ""Outlaw"" Vanlaw\r\n\r\nAdditional Testing\tTodd Amundson\r\n\tWillie Bolton\r\n\tChuck Bonini\r\n\tKevin Cohen\r\n\tCurtis Crockett\r\n\tDavid Ghys\r\n\tDavid Greenspan\r\n\tJohn Harris\r\n\t"
+    146                     "Mark Harwood\r\n\tSean Hendon\r\n\tGlenn Jost\r\n\tNadia Kischk\r\n\tSean ""Muffin Man"" Lally\r\n\tTim McMahon\r\n\tNate Marston\r\n\tChris Miller\r\n\tJonathan Osborne\r\n\tMark Robertshaw\r\n\tJay Sosnicki\r\n\tDylan Taylor\r\n\tBryant Troupe\r\n\tPaul Wilson\r\n\r\n\r\n"
+    147                     "Tools/Drivers Licensed from\tJohn Lemberger\r\n\tJohn Miles\r\n\r\nSpecial Thanks To Mustang Software\r\nDan Horn\r\nPat Powers\r\nG. Paul Trent\r\n\r\nBeta Testers\r\nMichael Ackerman\r\nRichard Alexander\r\nMatt Arbabanel\r\nBrendan Baker\r\n"
+    148                     "Kevin Baker\r\nBrad Bechtel\r\nGary Boswell\r\nSherry Buie\r\nLouis Castro\r\nFernando Chapa\r\nPaul Chianchetta\r\nEric Clare\r\nTara Cohen\r\nJames Corbett\r\nAdam Dietrich\r\nRon Dilley\r\nPaul Fazio\r\nMarcus Fusilero\r\nRick Glenn\r\nWes Gorin\r\n"
+    149                     "William Grehl\r\nRonald Hauk\r\nChris Hennington\r\nMike Hershewe\r\nJamil Hershewe\r\nDave Hertel\r\nRoberta Hoffman\r\nPat Holman\r\nChristian Hunt\r\nNoel Jacques\r\nStephen Jaeb\r\nJeffrey Jennings\r\nTodd Jones\r\nMichael Kelly\r\nGreg Kennedy\r\n"
+    150                     "Mark Kestner\r\nTim Krabec\r\nBrad Krabec\r\nMichael Ledbetter\r\nMark McNair\r\nNathan Mellor\r\nBarbara Meyer\r\nRodney Neace\r\nJohn Newlin\r\nDuc Nguyen\r\nG. P. Palmer\r\nAlbert Pantoya\r\nAlex Pavloff\r\nJoe Phan\r\n"
+    151                     "Ellery Pierce\r\nGeorge Raetzke\r\nJoel Raymond\r\nKevin Rose\r\nJonathan Rosenberg\r\nDave Ross\r\nAli Sanjabi\r\nChris Seiler\r\nMichael Seminerio\r\nScott Shea\r\nBrooke Spottek\r\nJennifer Spottek\r\nKeith Stearman\r\nSteven Stone\r\nSteve Strickland\r\nSairam Suresh\r\n"
+    152                     "John Szymanski\r\nKellie Taugin\r\nMike Thelin\r\nRowan Trollope\r\nCarsten Udengaard\r\nDavid Walker\r\nBryan Wasserman\r\nKurt Weber\r\nBrendan Woirhaye\r\nDoug Wyrick\r\n\r\n"
+    153                     "Special Thanks\r\n\r\nJohn Lafleur\r\nJack Mamais\r\nChacko Sonny\r\nChad Findley\r\nDanny Matson\r\nJosh Resnick\r\nMike Luedke\r\nFred Hummel\r\nJason Robar\r\nAlex St. John\r\n"
+END

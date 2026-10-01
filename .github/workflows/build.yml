@@ -9,6 +9,7 @@ jobs:
     outputs:
       entries: ${{ steps.list.outputs.entries }}
       matrix: ${{ steps.list.outputs.matrix }}
+      all_matrix: ${{ steps.list.outputs.all_matrix }}
     steps:
       - name: List reccmp targets
         id: list
@@ -24,12 +25,16 @@ jobs:
           # retail ones (NETMECHW, MECH2), whose originals aren't public, are
           # listed in verify-retail.yml, the workflow that runs after this one.
           entries="MW2SHELL:770 MW2:1537"
+          # The retail targets, for the jobs that need no original binary
+          # (decomplint), in reccmp-project.yml's order after the public ones.
+          retail="NETMECHW MECH2"
 
           {
             echo "entries=$entries"
             # -c: $GITHUB_OUTPUT parsing requires one key=value pair per line,
             # so the JSON array must stay on a single line.
             echo "matrix=$(printf '%s\n' $entries | cut -d: -f1 | jq -cRn '[inputs]')"
+            echo "all_matrix=$(printf '%s\n' $(printf '%s\n' $entries | cut -d: -f1) $retail | jq -cRn '[inputs]')"
           } >> "$GITHUB_OUTPUT"
 
   fetch-deps:
@@ -350,7 +355,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJSON(needs.targets.outputs.matrix) }}
+        # Every target, retail ones included: the annotations are linted
+        # without the original binaries.
+        target: ${{ fromJSON(needs.targets.outputs.all_matrix) }}
     steps:
       - uses: actions/checkout@v6
 

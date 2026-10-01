@@ -294,7 +294,7 @@ demech2_add_dll(mw2shell
   LIBRARIES winmm.lib ddraw wail32 smackw32 kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
 
-include("${PROJECT_SOURCE_DIR}/cmake/extract_icon.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/extract_resource.cmake")
 
 # The shell's dialogs show icon 103, which stays out of the repository: it is extracted
 # from the original MW2SHELL.DLL at build time. Without the original, the dialogs build
@@ -314,12 +314,12 @@ if (EXISTS "${DEMECH2_MW2SHELL_ORIGINAL}")
 endif()
 if (mw2shell_icon)
   message(STATUS "Shell icon: from ${DEMECH2_MW2SHELL_ORIGINAL}")
-  demech2_add_extract_icon()
+  demech2_add_extract_resource()
   set(icon_dir "${CMAKE_CURRENT_BINARY_DIR}/MW2SHELL")
   add_custom_command(OUTPUT "${icon_dir}/mw2shell.ico"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${icon_dir}"
-    COMMAND extract_icon "${DEMECH2_MW2SHELL_ORIGINAL}" 103 "${icon_dir}/mw2shell.ico"
-    DEPENDS extract_icon "${DEMECH2_MW2SHELL_ORIGINAL}"
+    COMMAND extract_resource icon "${DEMECH2_MW2SHELL_ORIGINAL}" 103 "${icon_dir}/mw2shell.ico"
+    DEPENDS extract_resource "${DEMECH2_MW2SHELL_ORIGINAL}"
     VERBATIM
   )
   set_source_files_properties(MW2SHELL/mw2shell.rc PROPERTIES
@@ -523,6 +523,8 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
   include(ExternalProject)
   set(DEMECH2_MECH2_ORIGINAL "${PROJECT_SOURCE_DIR}/MECH2.EXE" CACHE FILEPATH
     "Original MECH2.EXE (retail release) to take the launcher's icons from")
+  set(DEMECH2_NETMECHW_ORIGINAL "${PROJECT_SOURCE_DIR}/NETMECHW.DLL" CACHE FILEPATH
+    "Original NETMECHW.DLL (retail release) to take the lobby's icons and bitmaps from")
   # The nested commands run through a generated script that sets the environment:
   # 2.2's bin ahead of this build's PATH, and INCLUDE and LIB as 2.2's VCVARS32.BAT sets
   # them (winres.h is in mfc\include).
@@ -547,6 +549,7 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
       "-DCMAKE_RC_COMPILER=${DEMECH2_MSVC22_ROOT}/bin/rc.exe"
       "-DCMAKE_LINKER=${CMAKE_LINKER}"
       "-DDEMECH2_MECH2_ORIGINAL=${DEMECH2_MECH2_ORIGINAL}"
+      "-DDEMECH2_NETMECHW_ORIGINAL=${DEMECH2_NETMECHW_ORIGINAL}"
     BUILD_COMMAND ${vc22_env} "${CMAKE_COMMAND}" --build <BINARY_DIR>
     INSTALL_COMMAND ""
     BUILD_ALWAYS TRUE
