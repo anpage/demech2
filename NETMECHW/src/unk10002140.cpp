@@ -105,7 +105,7 @@ void HostMessageHandler(void* p_message, DPID p_from)
 			FUN_1000b6a6(p_from, message->m_data);
 			break;
 		case NetMessage::c_tagSD:
-			FUN_1000bd99(p_from, message->m_data);
+			FUN_1000bd99(p_from, (SettingsMessage*) message->m_data);
 			break;
 		case NetMessage::c_tagMQ:
 			FUN_1000ba4d(p_from);
