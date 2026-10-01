@@ -3,8 +3,8 @@
 #include "animation.h"
 #include "decomp.h"
 #include "palette.h"
-#include "simmain.h"
 #include "types.h"
+#include "unk10042e00.h"
 
 #include <stdlib.h>
 

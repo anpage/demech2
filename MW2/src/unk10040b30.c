@@ -12,16 +12,53 @@
 #include "object.h"
 #include "players.h"
 #include "ray.h"
+#include "render.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "screenscale.h"
-#include "simmain.h"
+#include "setres.h"
 #include "team.h"
 #include "types.h"
 #include "unk10013340.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
 #include "unk1004d020.h"
+#include "weapondata.h"
 #include "weapons.h"
+
+// The heading tape's shape width (FUN_10040f91).
+// GLOBAL: MW2 0x100a5ed0
+MechS32 g_unk0x100a5ed0 = 0xf0f;
+
+// GLOBAL: MW2 0x100a5ed4
+MechS32 g_unk0x100a5ed4 = 0xd79;
+
+// The altimeter's place, in 16.16 fractions of its gauge until FUN_10040f91 scales it.
+// GLOBAL: MW2 0x100a5ed8
+Point g_unk0x100a5ed8 = {0xb333, 0x8000};
+
+// The compass's place, likewise.
+// GLOBAL: MW2 0x100a5ee0
+Point g_unk0x100a5ee0 = {0x8000, 0x6666};
+
+// GLOBAL: MW2 0x100a5ee8
+Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0}, {0, 0}};
+
+// GLOBAL: MW2 0x100a5f18
+undefined4 g_unk0x100a5f18 = 1;
+
+// GLOBAL: MW2 0x100a5f1c
+MechS32 g_unk0x100a5f1c = 1;
+
+// GLOBAL: MW2 0x100a5f20
+MechS32 g_unk0x100a5f20 = 1;
+
+// GLOBAL: MW2 0x100a5f24
+MechS32 g_unk0x100a5f24 = 1;
+
+// GLOBAL: MW2 0x100a5f2c
+MechS32 g_unk0x100a5f2c = 1;
 
 // The layout of the altimeter and the compass, from their shapes' extents (FUN_10040f91).
 

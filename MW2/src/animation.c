@@ -5,8 +5,9 @@
 #include "loadres.h"
 #include "pixelbuffer.h"
 #include "polyfill.h"
+#include "render.h"
 #include "resource.h"
-#include "simmain.h"
+#include "resourcefile.h"
 #include "types.h"
 #include "unk1006dd50.h"
 

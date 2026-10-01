@@ -1,23 +1,53 @@
 #include "menu.h"
 
 #include "blit.h"
+#include "commandmenu.h"
+#include "commandpointmenu.h"
 #include "decomp.h"
 #include "fixeddiv.h"
 #include "inputmap.h"
 #include "loadres.h"
+#include "mainmenu.h"
 #include "menucontrol.h"
 #include "menupage.h"
 #include "render.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "ticks.h"
 #include "types.h"
+#include "unk1005e9b0.h"
+#include "unk10073af0.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 #include <windows.h>
+
+// GLOBAL: MW2 0x100a59e0
+MechS32 g_menuRepeatTimer = -1;
+
+// The in-mission menus by ID (RegisterMenu): 4 the main menu, 5 the systems status, 1 the lance
+// command computer, 7 and 8 command points 2 and 3, 3 the programmers' page.
+// GLOBAL: MW2 0x100a59e8
+MenuDefinition* g_menuDefinitions[11] = {
+	NULL,
+	&g_commandMenu,
+	NULL,
+	&g_dorcsMenu,
+	&g_mainMenu,
+	&g_systemsMenu,
+	NULL,
+	&g_commandPoint2Menu,
+	&g_commandPoint3Menu,
+	NULL,
+	NULL,
+};
+
+// GLOBAL: MW2 0x100e9350
+undefined g_unk0x100e9350[0x100];
 
 // GLOBAL: MW2 0x10109c78
 MechS32 g_openMenuCount;

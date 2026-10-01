@@ -1,6 +1,7 @@
 #ifndef UNK10040B30_H
 #define UNK10040B30_H
 
+#include "decomp.h"
 #include "mech.h"
 #include "point.h"
 #include "rendertarget.h"
@@ -12,6 +13,16 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100a5ed0;
+	extern MechS32 g_unk0x100a5ed4;
+	extern Point g_unk0x100a5ed8;
+	extern Point g_unk0x100a5ee0;
+	extern Point g_unk0x100a5ee8[6];
+	extern undefined4 g_unk0x100a5f18;
+	extern MechS32 g_unk0x100a5f1c;
+	extern MechS32 g_unk0x100a5f20;
+	extern MechS32 g_unk0x100a5f24;
+	extern MechS32 g_unk0x100a5f2c;
 	void FUN_10040b30(
 		Mech* p_mech,
 		MechS32 p_unk0x04,

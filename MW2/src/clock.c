@@ -4,7 +4,6 @@
 #include "decomp.h"
 #include "mss.h"
 #include "network.h"
-#include "simmain.h"
 #include "ticks.h"
 #include "transform.h"
 #include "types.h"
@@ -63,6 +62,12 @@ BOOL g_ticksTimerInitialized = FALSE;
 
 // GLOBAL: MW2 0x100bfd54
 MechS16* g_sqrtTable;
+
+// GLOBAL: MW2 0x100bfd60
+MechS32 g_unk0x100bfd60[800];
+
+// GLOBAL: MW2 0x100c09e0
+MechS32 g_unk0x100c09e0[800];
 
 // GLOBAL: MW2 0x100c1660
 MechS32 g_sinTable[0x102];

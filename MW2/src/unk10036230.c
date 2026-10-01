@@ -7,11 +7,11 @@
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "ray.h"
-#include "simmain.h"
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk10046750.h"
 
 // Set by the world stream (BwdExecuteStream): FUN_10036230 brightens detailed shapes instead of

@@ -4,6 +4,7 @@
 #include "config.h"
 #include "debris.h"
 #include "decomp.h"
+#include "eyepoint.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "mech.h"
@@ -20,6 +21,7 @@
 #include "unk1001ce90.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk100696c0.h"
 #include "unk1006d680.h"
 

@@ -26,8 +26,10 @@
 #include "recttransition.h"
 #include "render.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "sagelark.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "slateheron.h"
 #include "soundfx.h"
@@ -37,11 +39,95 @@
 #include "unk10010750.h"
 #include "unk10016ad0.h"
 #include "unk1001ce90.h"
+#include "unk10034a40.h"
+#include "unk10040b30.h"
 #include "unk10041fa0.h"
 #include "unk10042e00.h"
 #include "unk100696c0.h"
 
 #include <stdio.h>
+
+// The satellite view's display option, 0 or 1 (FUN_1003f74e).
+// GLOBAL: MW2 0x100a5a18
+MechS32 g_unk0x100a5a18 = 0;
+
+// The frame callback the satellite view replaces (FUN_1003ddd7).
+// GLOBAL: MW2 0x100a5a1c
+void (*g_unk0x100a5a1c)(void) = FUN_10012afe;
+
+// The overlay settings the satellite view keeps while a cockpit view shows (FUN_1003ddd7):
+// g_unk0x100a5f1c's, g_unk0x100a5f18's and g_unk0x100a5f20's, and whether they are held.
+
+// GLOBAL: MW2 0x100a5a20
+MechS32 g_unk0x100a5a20 = 1;
+
+// GLOBAL: MW2 0x100a5a24
+undefined4 g_unk0x100a5a24 = 1;
+
+// GLOBAL: MW2 0x100a5a28
+MechS32 g_unk0x100a5a28 = 1;
+
+// GLOBAL: MW2 0x100a5a2c
+MechS32 g_unk0x100a5a2c = 0;
+
+// The height the map view's shading starts at (FUN_1003f513).
+// GLOBAL: MW2 0x100a5a30
+MechS32 g_unk0x100a5a30 = 0;
+
+// GLOBAL: MW2 0x100a5a34
+MechS32 g_unk0x100a5a34 = 0x1900;
+
+// The height range the map view's shading spans (FUN_1003f513).
+// GLOBAL: MW2 0x100a5a38
+MechS32 g_unk0x100a5a38 = 0x1900;
+
+// The gauge functions of the cockpit layouts, by index.
+// GLOBAL: MW2 0x100a5a40
+CockpitGaugeFn g_cockpitGauges[10] = {
+	NULL,
+	(CockpitGaugeFn) FUN_100570e9,
+	(CockpitGaugeFn) FUN_10057e56,
+	NULL,
+	(CockpitGaugeFn) FUN_10057fbe,
+	(CockpitGaugeFn) FUN_10057a03,
+	(CockpitGaugeFn) FUN_1005806a,
+	(CockpitGaugeFn) FUN_10057ac4,
+	(CockpitGaugeFn) FUN_1005816f,
+	NULL
+};
+
+// GLOBAL: MW2 0x100a5a68
+RenderTarget g_unk0x100a5a68[5] = {
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0}
+};
+
+// GLOBAL: MW2 0x100a5ad0
+RenderTarget g_unk0x100a5ad0[8] = {
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0},
+	{&g_mainPixelBuffer, 0, 0, 0, 0}
+};
+
+// GLOBAL: MW2 0x100a5b70
+Point g_unk0x100a5b70[4] = {0};
+
+// GLOBAL: MW2 0x100a5b90
+Point g_unk0x100a5b90[4] = {0};
+
+// GLOBAL: MW2 0x100a5bb0
+Point g_unk0x100a5bb0 = {0, 0};
+
+// GLOBAL: MW2 0x100a5bb8
+void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
 
 // Whether cockpit view 1 and 2's map animation shows this frame (FUN_1003f8d1).
 // GLOBAL: MW2 0x100a5bc8

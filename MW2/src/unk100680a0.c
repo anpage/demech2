@@ -17,7 +17,6 @@
 #include "playersteering.h"
 #include "ramp.h"
 #include "rendertarget.h"
-#include "simmain.h"
 #include "starmission.h"
 #include "staticmem.h"
 #include "types.h"

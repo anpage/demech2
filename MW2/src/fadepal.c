@@ -18,6 +18,7 @@
 #include "random.h"
 #include "refreshmode.h"
 #include "render.h"
+#include "resourcefile.h"
 #include "shots.h"
 #include "simmain.h"
 #include "slateheron.h"

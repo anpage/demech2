@@ -25,6 +25,7 @@
 #include "unk10040b30.h"
 #include "unk1004b5a0.h"
 #include "unk1004b980.h"
+#include "weapondata.h"
 #include "weapons.h"
 #include "weaponslot.h"
 

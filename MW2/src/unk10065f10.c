@@ -1,6 +1,6 @@
 #include "unk10065f10.h"
 
-#include "simmain.h"
+#include "menu.h"
 #include "types.h"
 
 // Fills g_unk0x100e9350 with the identity mapping of the 256 palette indices.

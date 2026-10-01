@@ -14,12 +14,14 @@
 #include "object.h"
 #include "random.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "simmain.h"
 #include "sndunpack.h"
 #include "soundinfo.h"
 #include "speech.h"
 #include "types.h"
 #include "unk10021460.h"
+#include "unk10042e00.h"
 #include "unk100696c0.h"
 
 #include <string.h>

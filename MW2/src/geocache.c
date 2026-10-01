@@ -13,6 +13,7 @@
 #include "players.h"
 #include "prjfile.h"
 #include "quietmarsh.h"
+#include "resourcefile.h"
 #include "resourceref.h"
 #include "simmain.h"
 #include "soundconfig.h"

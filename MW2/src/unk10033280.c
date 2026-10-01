@@ -4,10 +4,13 @@
 #include "cobaltharbor.h"
 #include "loadres.h"
 #include "mech.h"
+#include "menu.h"
 #include "players.h"
 #include "point.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "types.h"
 

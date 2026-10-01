@@ -5,6 +5,7 @@
 #include "config.h"
 #include "loadres.h"
 #include "prjfile.h"
+#include "resourcefile.h"
 #include "resourceref.h"
 #include "simmain.h"
 #include "staticmem.h"

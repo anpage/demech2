@@ -9,6 +9,7 @@
 #include "bwdrecord.h"
 #include "bwdstreamkey.h"
 #include "callbacks.h"
+#include "cockpit.h"
 #include "config.h"
 #include "decomp.h"
 #include "effect.h"
@@ -44,6 +45,7 @@
 #include "unk10034a40.h"
 #include "unk10036230.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk10046750.h"
 #include "unk1004b130.h"
 #include "unk1004da30.h"
@@ -273,6 +275,14 @@ MechS32 g_unk0x100a1740 = 0;
 // The next g_effects slot an xplode record fills.
 // GLOBAL: MW2 0x100a1744
 MechS32 g_unk0x100a1744 = 0;
+
+// The name of the mission's music (the world stream's music record).
+// GLOBAL: MW2 0x100e9330
+MechChar g_unk0x100e9330[12];
+
+// The mission's "MUS" resource.
+// GLOBAL: MW2 0x100e9340
+MechS32 g_unk0x100e9340;
 
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
 // FUNCTION: MW2 0x1000a9c0

@@ -8,7 +8,6 @@
 #include "duskmoth.h"
 #include "emberfern.h"
 #include "ray.h"
-#include "simmain.h"
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"

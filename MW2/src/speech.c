@@ -9,6 +9,7 @@
 #include "fixedmul.h"
 #include "loadres.h"
 #include "mss.h"
+#include "resourcefile.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speechentry.h"

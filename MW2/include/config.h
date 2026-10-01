@@ -36,6 +36,7 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100c3358;
 	extern struct RenderTarget g_unk0x100adf58[26];
 	extern MechS32 g_unk0x100ae37c;
 	extern MechChar g_gameDir[256];

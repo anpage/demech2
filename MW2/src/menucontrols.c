@@ -6,12 +6,14 @@
 #include "decomp.h"
 #include "fixedmul.h"
 #include "loadres.h"
+#include "menu.h"
 #include "menuchoices.h"
 #include "menutextbox.h"
 #include "render.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "screenscale.h"
-#include "simmain.h"
+#include "setres.h"
 #include "types.h"
 
 #include <string.h>

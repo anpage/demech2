@@ -41,6 +41,22 @@ MechS32 g_unk0x100a374c = 0;
 // GLOBAL: MW2 0x100a37bc
 MechU32 g_unk0x100a37bc = 0x4d32574d;
 
+// GLOBAL: MW2 0x10138710
+MechS32 g_missionTime;
+
+// GLOBAL: MW2 0x10138720
+MechS32 g_currentObjective[16]; // by team
+
+// Whether each objective of the local team has been announced (FUN_1001b0cb).
+// GLOBAL: MW2 0x10138760
+MechS32 g_unk0x10138760[48];
+
+// GLOBAL: MW2 0x10138820
+MechS32 g_objectiveCount;
+
+// GLOBAL: MW2 0x10138830
+StarMission g_objectiveTable[16];
+
 // Collapses each run of whitespace after a character of p_text into one space.
 // FUNCTION: MW2 0x1001a910
 void FUN_1001a910(MechChar* p_text)

@@ -11,6 +11,7 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100e9614;
 	extern MechChar g_unk0x100aa710[4][2];
 	extern Point g_unk0x100aa718[3];
 	extern MechS32 g_pixelAspect;

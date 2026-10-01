@@ -4,6 +4,8 @@
 #include "decomp.h"
 #include "loadres.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
+#include "setres.h"
 #include "simmain.h"
 #include "types.h"
 

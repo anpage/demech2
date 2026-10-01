@@ -22,6 +22,9 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100a554c;
+	extern MechS32 g_unk0x100a5550;
+	extern MechS32 g_unk0x100a5558;
 	extern ShapeCollisionFns g_shapeCollisionFns[8];
 	extern MechS32 g_hitNormalX;
 	extern MechS32 g_hitNormalY;

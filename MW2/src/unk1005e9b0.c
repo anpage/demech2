@@ -9,11 +9,12 @@
 #include "menucontrols.h"
 #include "menupage.h"
 #include "rendertarget.h"
-#include "simmain.h"
 #include "slateheron.h"
 #include "speech.h"
 #include "types.h"
 #include "unk100079d0.h"
+#include "unk10040b30.h"
+#include "unk10042e00.h"
 
 // GLOBAL: MW2 0x100aa870
 MechChar g_unk0x100aa870[] = "Game Ctrl";

@@ -4,7 +4,6 @@
 #include "brightness.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
-#include "simmain.h"
 #include "soundconfig.h"
 #include "types.h"
 

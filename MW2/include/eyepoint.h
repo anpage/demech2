@@ -56,6 +56,31 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_normalFov;
+	extern MechS32 g_zoomFov;
+	extern MechS32 g_unk0x100a2414;
+	extern MechS32 g_unk0x100a2410;
+	extern undefined4 g_unk0x100a2420;
+	extern MechS32 g_unk0x100a2424;
+	extern MechS32 g_unk0x100a2428;
+	extern struct Player* g_localPlayer;
+	extern MechS32* g_unk0x100a2434;
+	extern MechS32* g_unk0x100a2438;
+	extern MechS32 g_unk0x100a23ec;
+	extern MechS32 g_unk0x100a23f0;
+	extern MechS32 g_unk0x100a23f4;
+	extern MechS32 g_unk0x100a23f8;
+	extern MechS32 g_unk0x100a23fc;
+	extern MechS32 g_unk0x100a2408;
+	extern MechS32 g_unk0x100a241c;
+	extern MechS8 g_unk0x100a2448;
+	extern MechS32 g_unk0x100a243c;
+	extern MechS32 g_unk0x100a2440;
+	extern MechS32 g_unk0x100a2444;
+	extern MechS32 g_unk0x100a240c;
+	extern MechS32 g_unk0x100a2430;
+	extern MechS32 g_unk0x100a2418;
+	void FirstEyepoint(void);
 	void FUN_10011cb0(void);
 	void FUN_10011e45(
 		MechS32* p_unk0x10,

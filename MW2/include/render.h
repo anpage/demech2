@@ -2,6 +2,8 @@
 #define RENDER_H
 
 #include "decomp.h"
+#include "pixelbuffer.h"
+#include "rendertarget.h"
 #include "types.h"
 
 // SIZE 0x18
@@ -22,6 +24,16 @@ extern "C"
 {
 #endif
 
+	extern MechChar* g_unk0x100a2458;
+	extern void* g_unk0x100a245c;
+	extern MechS32 g_unk0x100a2460;
+	extern MechS32 g_unk0x100a2464;
+	extern MechS32 g_unk0x100a2454;
+	extern MechS32 g_drawModeIndex;
+	extern MechS32 g_initDrawModeParam2;
+	extern RenderTarget g_unk0x100bdff8;
+	extern RenderTarget g_currentRenderTarget;
+	extern PixelBuffer g_mainPixelBuffer;
 	extern MechS32 g_unk0x100a246c;
 	extern MechS32 g_unk0x100a2470;
 	extern MechS32 g_unk0x100a2474;

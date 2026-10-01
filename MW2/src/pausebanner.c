@@ -10,9 +10,13 @@
 #include "eyepoint.h"
 #include "loadres.h"
 #include "network.h"
+#include "objective.h"
 #include "overlay.h"
+#include "render.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "slateheron.h"
 #include "soundfx.h"
@@ -20,6 +24,7 @@
 #include "timedoverlays.h"
 #include "types.h"
 #include "unk10036230.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
 
 #include <stdio.h>

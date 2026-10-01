@@ -1,5 +1,5 @@
-// resource.h stays out of this unit: its declarations ahead of FUN_1005005e change that
-// function's operand order (see there).
+#include "resource.h"
+
 #include "ai.h"
 #include "bwd.h"
 #include "bwdobjectrecord.h"
@@ -16,6 +16,7 @@
 #include "object.h"
 #include "players.h"
 #include "prjfile.h"
+#include "resourcefile.h"
 #include "scenariotable.h"
 #include "simmain.h"
 #include "team.h"
@@ -835,75 +836,4 @@ MechS32 FUN_1005072f(void)
 	}
 
 	return index;
-}
-
-void* FUN_100508c0(MechU32 p_size);
-void FUN_100508dc(void* p_block);
-
-// FUNCTION: MW2 0x10050780
-MechS32 FirstResource(void)
-{
-	MechS32 result;
-
-	result = TRUE;
-	SetPrjAllocator(FUN_100508c0, FUN_100508dc);
-	FUN_10019d73();
-	if (!g_unk0x100a8744) {
-		g_unk0x100a8744 = (MechChar*) _mbsdup((unsigned char*) BuildGamePath("mw2.prj"));
-	}
-
-	g_unk0x100a8740 = OpenPrjFile(g_unk0x100a8744, 0);
-	if (g_unk0x100a8740 != -1) {
-		LoadPrjIndexes(g_unk0x100a8740);
-	}
-	else {
-		Error(3, "\nCan't find file \"%s\"", g_unk0x100a8744, 0);
-		result = FALSE;
-	}
-
-	return result;
-}
-
-// FUNCTION: MW2 0x1005082f
-void CloseResourceFile(void)
-{
-	ClosePrjFile(g_unk0x100a8740);
-}
-
-// FUNCTION: MW2 0x10050848
-void CachePreloads(void)
-{
-	FUN_10045a5b();
-	FUN_1006f480();
-	LoadAIScripts();
-}
-
-// FUNCTION: MW2 0x10050862
-MechS32 FUN_10050862(MechS32 p_id, const char* p_type)
-{
-	MechS32 result;
-	void* data;
-
-	data = FUN_1001a19f(g_unk0x100a8740, p_id, p_type, 0);
-	if (data) {
-		result = TRUE;
-		FUN_1001a163(p_id, p_type);
-	}
-	else {
-		result = FALSE;
-	}
-
-	return result;
-}
-
-// FUNCTION: MW2 0x100508c0
-void* FUN_100508c0(MechU32 p_size)
-{
-	return MemAlloc(p_size);
-}
-
-// FUNCTION: MW2 0x100508dc
-void FUN_100508dc(void* p_block)
-{
-	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 }

@@ -18,6 +18,7 @@
 #include "random.h"
 #include "ray.h"
 #include "resource.h"
+#include "resourcefile.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -30,7 +31,9 @@
 #include "unk10016ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk100696c0.h"
+#include "weapondata.h"
 #include "weapondef.h"
 #include "weaponslot.h"
 

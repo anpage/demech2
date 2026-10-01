@@ -52,6 +52,7 @@ extern "C"
 		MechU32 p_kind,
 		undefined4 p_unk0x48
 	);
+	void UpdateGeoCache(void);
 	void BeginBlock(struct BwdBlockRecord* p_record);
 	MechS32 FindObjIdxById(undefined4 p_unk0x08);
 	void HandleElseBlock(void);

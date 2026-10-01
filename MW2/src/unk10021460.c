@@ -9,6 +9,7 @@
 #include "mech.h"
 #include "mss.h"
 #include "players.h"
+#include "resourcefile.h"
 #include "simmain.h"
 #include "types.h"
 

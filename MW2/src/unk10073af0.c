@@ -3,6 +3,7 @@
 
 #include "blit.h"
 #include "clock.h"
+#include "cockpit.h"
 #include "config.h"
 #include "displaybackend.h"
 #include "gamekeys.h"
@@ -25,6 +26,8 @@
 #include "soundfx.h"
 #include "types.h"
 #include "unk100079d0.h"
+#include "unk10040b30.h"
+#include "unk10042e00.h"
 
 #include <stdio.h>
 #include <windows.h>
@@ -498,6 +501,13 @@ MenuDefinition g_dorcsMenu = {
 	{0xc000, 0},
 	&g_dorcsPage
 };
+
+// GLOBAL: MW2 0x100b1350
+MechS32 g_unk0x100b1350 = 0;
+
+// The frame draw callback ShowDorcs replaces.
+// GLOBAL: MW2 0x100b1354
+void (*g_dorcsPreviousDrawCallback)(void) = FUN_10012afe;
 
 // GLOBAL: MW2 0x100c2d00
 MenuPage* g_dorcsMenuPageStack[8];

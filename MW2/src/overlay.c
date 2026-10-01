@@ -3,15 +3,17 @@
 #include "clock.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "gamekeys.h"
 #include "loadres.h"
 #include "point.h"
 #include "render.h"
 #include "rendertarget.h"
+#include "resourcefile.h"
 #include "screenscale.h"
-#include "simmain.h"
 #include "timedoverlays.h"
 #include "types.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk1006d680.h"
 
 #include <stdio.h>

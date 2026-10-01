@@ -5,7 +5,6 @@
 #include "missiontable.h"
 #include "objective.h"
 #include "resource.h"
-#include "simmain.h"
 #include "starmission.h"
 #include "team.h"
 #include "types.h"

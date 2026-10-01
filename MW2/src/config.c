@@ -6,6 +6,7 @@
 #include "cockpit.h"
 #include "decomp.h"
 #include "environment.h"
+#include "eyepoint.h"
 #include "fadepal.h"
 #include "gamekeys.h"
 #include "garnetframe.h"
@@ -20,6 +21,7 @@
 #include "render.h"
 #include "rendertarget.h"
 #include "resource.h"
+#include "resourcefile.h"
 #include "resourceref.h"
 #include "screenscale.h"
 #include "screenshot.h"
@@ -43,6 +45,7 @@
 #include "unk100737e0.h"
 #include "unk100746c0.h"
 #include "unk1007b930.h"
+#include "weapondata.h"
 #include "weapons.h"
 #include "weaponslot.h"
 
@@ -201,6 +204,9 @@ MechS32 g_screenshotCount = 0;
 // The path BuildGamePath returns.
 // GLOBAL: MW2 0x100bef58
 MechChar g_gamePath[0x50];
+
+// GLOBAL: MW2 0x100c3358
+MechS32 g_unk0x100c3358;
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480

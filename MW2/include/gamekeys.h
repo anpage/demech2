@@ -9,6 +9,15 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_missionTimerStopped;
+	extern MechS32 g_unk0x100aa2a0;
+	extern MechS32 g_unk0x100aa2b0;
+	extern MechS32 g_unk0x100aa2c0;
+	extern MechS32 g_unk0x100aa2a4;
+	extern MechS32 g_unk0x100aa2a8;
+	extern MechS32 g_unk0x100aa2b8;
+	extern MechS32 g_unk0x100aa2bc;
+	extern MechS32 g_unk0x100ea3e4;
 	extern MechS32 g_unk0x100aa290;
 	extern MechS32 g_unk0x100aa294;
 	extern MechS32 g_unk0x100aa298;

@@ -14,6 +14,8 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100b1350;
+	extern void (*g_dorcsPreviousDrawCallback)(void);
 	extern MenuDefinition g_dorcsMenu;
 	extern MenuPage* g_dorcsMenuPageStack[8];
 

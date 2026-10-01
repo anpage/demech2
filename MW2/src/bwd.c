@@ -7,6 +7,7 @@
 #include "error.h"
 #include "loadres.h"
 #include "overlay.h"
+#include "resourcefile.h"
 #include "simmain.h"
 #include "types.h"
 #include "unk100737e0.h"
