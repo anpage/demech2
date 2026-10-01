@@ -64,7 +64,6 @@ MechS32 g_menuKey;
 
 MechS32 ActivateMenu(MenuSlot* p_slot);
 void DeactivateMenu(MenuSlot* p_slot);
-void RequestMenuClose(MechS32 p_id);
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu);
 void RunMenuItems(MenuDefinition* p_menu);
 MenuSlot* FindMenuSlot(MechS32 p_id);

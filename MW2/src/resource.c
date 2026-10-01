@@ -105,6 +105,13 @@ MechS32 g_unk0x100a8620 = 0;
 // GLOBAL: MW2 0x100a8624
 MechS32 g_unk0x100a8624 = 0;
 
+// GLOBAL: MW2 0x100a8628
+MechS32 g_unk0x100a8628 = 0;
+
+// The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
+// GLOBAL: MW2 0x100a862c
+MechS32 g_unk0x100a862c = 0;
+
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8630
 MechChar* g_unk0x100a8630 = NULL;
@@ -593,9 +600,6 @@ void FUN_1005005e(
 	FUN_1004fe85(a, b, c, d, p_unk0x18, p_unk0x1c, p_unk0x20, p_unk0x24);
 }
 
-// GLOBAL: MW2 0x100a8628
-MechS32 g_unk0x100a8628 = 0;
-
 // The original loads p_id first; the operand order follows the symbol table.
 // FUNCTION: MW2 0x100500c3
 MechS32 MapResourceId(MechS32 p_id)
@@ -608,10 +612,6 @@ void SetMangleBase(MechS32 p_base)
 {
 	g_unk0x100a8628 = p_base;
 }
-
-// The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
-// GLOBAL: MW2 0x100a862c
-MechS32 g_unk0x100a862c = 0;
 
 // Creates the shape of a world stream's object record: a static object of the current block
 // (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,
