@@ -180,13 +180,14 @@ jobs:
           # tools/check_units_expected.txt (tools/check_units.py). Not for
           # MECH2: the nested build writes no map file for it (/MAP would turn
           # its incremental link off), and the tool doesn't know an incremental
-          # link's layout.
+          # link's layout. The known findings are data: they come from the PR's
+          # checkout, like the sources, so a PR can list the ones it adds.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
             if [ "$target" = MECH2 ]; then
               continue
             fi
-            python ../tools/check_units.py --target "$target"
+            python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt
           done
 
       - name: Create the retail sections of the PR comment
