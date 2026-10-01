@@ -107,7 +107,7 @@ MechS32 FUN_1000633a(HWND p_dialog)
 	}
 
 	strcpy(g_unk0x1001ca90.m_playerName, name);
-	g_unk0x1001ca90.m_unk0x04 = SendMessage(listBox, LB_GETITEMDATA, index, 0);
+	g_unk0x1001ca90.m_unk0x04 = (LPGUID) SendMessage(listBox, LB_GETITEMDATA, index, 0);
 	SendMessage(listBox, LB_GETTEXT, index, (LPARAM) provider);
 	g_unk0x1001ca90.m_unk0x00 = FUN_100060dc(provider);
 	return TRUE;
