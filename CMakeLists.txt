@@ -142,33 +142,9 @@ endif()
 
 # --- Third-party import libraries ---
 #
-# Import libraries for the DLLs the game links against but we don't build. Each is
-# generated from a .def file. LIB 3.10 can't express a .def export whose import name
-# differs from its symbol (DirectDrawCreate vs. _DirectDrawCreate@12), so .def names
-# are resolved against a stub object that carries the __stdcall decorations. The stub
-# object is never linked into a game DLL.
-function(demech2_add_import_library TARGET)
-  cmake_parse_arguments(ARGS "" "DEF" "SOURCES" ${ARGN})
-  set(lib "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/${TARGET}.lib")
-  file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/3rdparty")
-  set(objects "")
-  if (ARGS_SOURCES)
-    add_library(${TARGET}-symbols OBJECT ${ARGS_SOURCES})
-    set(objects "$<TARGET_OBJECTS:${TARGET}-symbols>")
-  endif()
-  add_custom_command(OUTPUT "${lib}"
-    COMMAND "${CMAKE_LINKER}" /lib /nologo /machine:ix86 "/def:${ARGS_DEF}" "/out:${lib}" ${objects}
-    DEPENDS "${ARGS_DEF}" ${objects}
-    COMMAND_EXPAND_LISTS
-    VERBATIM
-  )
-  add_custom_target(${TARGET}-implib DEPENDS "${lib}")
-  # An IMPORTED library keeps its place in a link line (an INTERFACE library's items
-  # would be moved after the plain .lib names).
-  add_library(${TARGET} STATIC IMPORTED GLOBAL)
-  set_target_properties(${TARGET} PROPERTIES IMPORTED_LOCATION "${lib}")
-  add_dependencies(${TARGET} ${TARGET}-implib)
-endfunction()
+# Generated from the .def files in 3rdparty/ (cmake/import_library.cmake). The VC++ 2.2
+# sub-project generates the ones its targets link again, from the same .def files.
+include("${PROJECT_SOURCE_DIR}/cmake/import_library.cmake")
 
 demech2_add_import_library(ddraw DEF "${PROJECT_SOURCE_DIR}/3rdparty/ddraw/ddraw.def"
   SOURCES 3rdparty/ddraw/ddraw.c)
@@ -534,14 +510,14 @@ demech2_add_dll(mw2
 
 # --- VC++ 2.2 targets ---
 #
-# MECH2.EXE was built with VC++ 2.2, which one CMake project can't mix with 4.1: the vc22/
-# sub-project builds it, configured and built from here as a nested build under
-# <build>/vc22 with 2.2's cl (DEMECH2_MSVC22_ROOT, e.g. a clone of archaic-msvc/msvc220)
-# and 4.1's LINK (see vc22/CMakeLists.txt). The nested build gets its PATH, INCLUDE and LIB
-# from here, so it doesn't matter which VCVARS32.BAT ran. Without VC++ 2.2, or with a
-# modern compiler, this project builds the same targets itself (vc22/targets.cmake), as a
-# launcher for the recompiled DLLs.
-set(DEMECH2_MSVC22_ROOT "" CACHE PATH "VC++ 2.2 root directory (bin, include, lib), for MECH2.EXE")
+# MECH2.EXE and NETMECHW.DLL were built with VC++ 2.2, which one CMake project can't mix
+# with 4.1: the vc22/ sub-project builds them, configured and built from here as a nested
+# build under <build>/vc22 with 2.2's cl (DEMECH2_MSVC22_ROOT, e.g. a clone of
+# archaic-msvc/msvc220) and 4.1's LINK (see vc22/CMakeLists.txt). The nested build gets its
+# PATH, INCLUDE and LIB from here, so it doesn't matter which VCVARS32.BAT ran. Without
+# VC++ 2.2, or with a modern compiler, this project builds the same targets itself
+# (vc22/targets.cmake): a working launcher and NetMech lobby, which can't match the originals.
+set(DEMECH2_MSVC22_ROOT "" CACHE PATH "VC++ 2.2 root directory (bin, include, lib), for MECH2.EXE and NETMECHW.DLL")
 if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
   message(STATUS "VC++ 2.2: ${DEMECH2_MSVC22_ROOT} (vc22/, built in ${PROJECT_BINARY_DIR}/vc22)")
   include(ExternalProject)
@@ -577,17 +553,22 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
   )
   # The nested build's outputs, for reccmp-build.yml (single-configuration generators only,
   # like the rest of this build)
+  reccmp_add_external_target(NETMECHW
+    PATH "${PROJECT_BINARY_DIR}/vc22/NETMECHW.dll"
+    PDB "${PROJECT_BINARY_DIR}/vc22/NETMECHW.pdb"
+  )
   reccmp_add_external_target(MECH2
     PATH "${PROJECT_BINARY_DIR}/vc22/MECH2.exe"
     PDB "${PROJECT_BINARY_DIR}/vc22/MECH2.pdb"
   )
 else()
   if (MSVC_FOR_DECOMP)
-    message(STATUS "VC++ 2.2: none (DEMECH2_MSVC22_ROOT); building MECH2.EXE with this compiler, as a launcher only")
+    message(STATUS "VC++ 2.2: none (DEMECH2_MSVC22_ROOT); building MECH2.EXE and NETMECHW.DLL with this compiler, which can't match the originals")
   endif()
   set(DEMECH2_VC22 FALSE)
   include("${PROJECT_SOURCE_DIR}/vc22/targets.cmake")
   demech2_add_mech2()
+  demech2_add_netmechw()
 endif()
 
 # --- Modern compiler compatibility ---
@@ -616,6 +597,9 @@ if (EXISTS "${CLANGFORMAT_BIN}")
         "${PROJECT_SOURCE_DIR}/MECH2/*.c"
         "${PROJECT_SOURCE_DIR}/MECH2/*.cpp"
         "${PROJECT_SOURCE_DIR}/MECH2/*.h"
+        "${PROJECT_SOURCE_DIR}/NETMECHW/*.c"
+        "${PROJECT_SOURCE_DIR}/NETMECHW/*.cpp"
+        "${PROJECT_SOURCE_DIR}/NETMECHW/*.h"
         "${PROJECT_SOURCE_DIR}/MW2SHELL/*.c"
         "${PROJECT_SOURCE_DIR}/MW2SHELL/*.cpp"
         "${PROJECT_SOURCE_DIR}/MW2SHELL/*.h"
@@ -637,7 +621,7 @@ find_package(Python3 COMPONENTS Interpreter QUIET)
 if (CLANG_LIBRARY AND TARGET Python3::Interpreter)
   set(NCC_SOURCE_ROOTS "")
   set(NCC_INCLUDES util)
-  foreach(root MECH2 MW2SHELL MW2)
+  foreach(root MW2SHELL MW2 NETMECHW MECH2)
     if (EXISTS "${PROJECT_SOURCE_DIR}/${root}")
       list(APPEND NCC_SOURCE_ROOTS ${root})
       if (EXISTS "${PROJECT_SOURCE_DIR}/${root}/include")

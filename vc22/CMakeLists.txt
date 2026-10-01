@@ -1,8 +1,8 @@
 # The VC++ 2.2 sub-project: the targets whose originals were built with VC++ 2.2 (cl 9.10,
-# LINK 2.55). One CMake project can use only one compiler per language, so the top-level
-# (VC++ 4.1) build configures and builds this one as a nested build under <build>/vc22,
-# with 2.2's cl and the environment set (see "VC++ 2.2 targets" in the top-level
-# CMakeLists.txt). It is not meant to be configured on its own.
+# LINK 2.55), MECH2.EXE and NETMECHW.DLL. One CMake project can use only one compiler per
+# language, so the top-level (VC++ 4.1) build configures and builds this one as a nested
+# build under <build>/vc22, with 2.2's cl and the environment set (see "VC++ 2.2 targets"
+# in the top-level CMakeLists.txt). It is not meant to be configured on its own.
 #
 # The comparison build compiles with 2.2's cl and /Z7 (CodeView in the objects), and links
 # with 4.1's LINK (CMAKE_LINKER) against 2.2's libraries (LIB): reccmp's cvdump can't read a
@@ -44,6 +44,20 @@ foreach(kind SHARED EXE)
     set(CMAKE_${kind}_LINKER_FLAGS_${config} "")
   endforeach()
 endforeach()
+# LINK 3.10's ~4K limit on the object names it is given (see "Compiler and linker flags" in
+# the top-level CMakeLists.txt): a DLL links from flat copies of its objects, listed in a
+# response file that demech2_add_netmechw writes before each link.
+foreach(lang C CXX)
+  string(REPLACE "<OBJECTS>" "@<TARGET_BASE>.objects.rsp"
+    CMAKE_${lang}_CREATE_SHARED_LIBRARY "${CMAKE_${lang}_CREATE_SHARED_LIBRARY}")
+endforeach()
+
+# The import libraries the targets link, generated here with 4.1's LINK from the same .def
+# files as the top-level build's (cmake/import_library.cmake).
+include("${DEMECH2_SOURCE_DIR}/cmake/import_library.cmake")
+demech2_add_import_library(dplay DEF "${DEMECH2_SOURCE_DIR}/3rdparty/dplay/dplay.def"
+  SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/dplay/dplay.c")
 
 include("${PROJECT_SOURCE_DIR}/targets.cmake")
 demech2_add_mech2()
+demech2_add_netmechw()

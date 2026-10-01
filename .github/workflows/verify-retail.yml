@@ -4,7 +4,7 @@ name: Verify retail targets and comment
 # executes in the base-repo context, with a writable token (which lets it
 # comment on pull requests opened from forks) and with the repository's
 # secrets: the deploy key that checks out the retail targets' originals
-# (MECH2.EXE; NETMECHW.DLL later), which aren't freely downloadable the way
+# (NETMECHW.DLL, MECH2.EXE), which aren't freely downloadable the way
 # mw2bin.yml fetches the 1.1 patch.
 #
 # Only code from the base branch runs here: this workflow, the tools/ scripts
@@ -23,10 +23,11 @@ on:
 env:
   # One line per retail target: "TARGET:FILE:--total", where --total is the
   # game-code function count from the Ghidra original, as in the Build
-  # workflow's targets job (MECH2: the 21 functions before its import thunks
-  # at 0x004022be). The list lives here rather than in Build's targets job:
-  # a workflow_run job can't read the Build run's outputs.
-  RETAIL_ENTRIES: "MECH2:MECH2.EXE:21"
+  # workflow's targets job (NETMECHW: the 244 functions before the DPLAY
+  # import thunks at 0x10013b70; MECH2: the 21 functions before its import
+  # thunks at 0x004022be). The list lives here rather than in Build's targets
+  # job: a workflow_run job can't read the Build run's outputs.
+  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21"
 
 jobs:
   retail:
@@ -70,6 +71,7 @@ jobs:
         run: |
           # The hashes reccmp-project.yml carries.
           sha256sum --check --strict <<'SUMS'
+          3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095 *NETMECHW.DLL
           064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c *MECH2.EXE
           SUMS
 
@@ -95,7 +97,7 @@ jobs:
       # and every reccmp command below runs from pr/ to find them. The public
       # targets' originals aren't here, so detect warns about them; only the
       # retail targets are compared. The artifact keeps the nested VC++ 2.2
-      # build's layout, so MECH2.EXE sits in build/vc22.
+      # build's layout, so NETMECHW.DLL and MECH2.EXE sit in build/vc22.
       - name: Detect binaries
         id: detection
         shell: bash
@@ -164,10 +166,27 @@ jobs:
           # The original's fread/fwrite/memcpy/memset... of a global must fit in
           # the recompiled object at that address, and no global may be declared
           # larger than the original's room for it (tools/check_block_layout.py).
-          # tools/check_units.py doesn't run on MECH2: the nested build writes
-          # no map file, and the tool doesn't know an incremental link's layout.
           for entry in $RETAIL_ENTRIES; do
             python ../tools/check_block_layout.py --target "${entry%%:*}"
+          done
+
+      - name: Check Units
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          # Each function and global must sit in the source file the original's
+          # object layout implies; known exceptions are listed in
+          # tools/check_units_expected.txt (tools/check_units.py). Not for
+          # MECH2: the nested build writes no map file for it (/MAP would turn
+          # its incremental link off), and the tool doesn't know an incremental
+          # link's layout.
+          for entry in $RETAIL_ENTRIES; do
+            target="${entry%%:*}"
+            if [ "$target" = MECH2 ]; then
+              continue
+            fi
+            python ../tools/check_units.py --target "$target"
           done
 
       - name: Create the retail sections of the PR comment
@@ -289,8 +308,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # The retail job's compare-with-main step downloads
-          # ${target}PROGRESS.json from here. The recompiled MECH2.EXE isn't
-          # distributed: unlike the DLLs, it only matters as a reccmp target.
+          # ${target}PROGRESS.json from here. The recompiled retail binaries
+          # aren't distributed: unlike the public DLLs, they only matter as
+          # reccmp targets.
           files=()
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"

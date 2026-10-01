@@ -9,11 +9,11 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 ## Status
 
 <a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
-<a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/NETMECHWPROGRESS.HTML"><img src="https://anpage.github.io/demech2/NETMECHWPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a>
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
-This project is in its early stages. `MW2SHELL.DLL`, `MW2.DLL` and the retail `MECH2.EXE` are reccmp targets. Contributions are welcome.
+This project is in its early stages. `MW2SHELL.DLL`, `MW2.DLL` and the retail `NETMECHW.DLL` and `MECH2.EXE` are reccmp targets. Contributions are welcome.
 
 ## Building
 
@@ -27,7 +27,7 @@ You will need the following software installed:
 
 - Microsoft Visual C++ 4.1. A [portable version](https://github.com/madebr/msvc410) is available that can be downloaded and used quickly.
 - MASM 6.11 (ML), for the original's hand-written assembly. A [ready-to-use copy](https://github.com/shengyanli1982/MASM611) is available; the build only needs its `BIN\ML.EXE`. Don't put its `BIN` on your `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE` that would shadow Visual C++ 4.1's.
-- Microsoft Visual C++ 2.2, for `MECH2.EXE` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, `MECH2.EXE` is built with Visual C++ 4.1 instead, which runs fine but isn't the original toolchain.
+- Microsoft Visual C++ 2.2, for `MECH2.EXE` and `NETMECHW.DLL` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, both are built with Visual C++ 4.1 instead, which isn't their original toolchain.
 - [CMake](https://cmake.org/). A copy is often included with the "Desktop development with C++" workload in newer versions of Visual Studio; however, it can also be installed as a standalone app. Version 3.26.6 (i386) is known to work with the VC++ 4.1 NMake generator.
 
 #### Compiling
@@ -46,19 +46,20 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 - Replace `<path-to-source>` with the source repository. This can be `..` if your build folder is inside the source repository.
 - `RelWithDebInfo` is recommended because it will produce debug symbols useful for further decompilation work.
 - `NMake Makefiles` is most recommended because it will be immediately compatible with Visual C++ 4.1.
-- To build `MECH2.EXE` with Visual C++ 2.2, add `-DDEMECH2_MSVC22_ROOT=<path-to-msvc22>`. CMake builds it in a nested build and sets up Visual C++ 2.2's environment itself, so only Visual C++ 4.1's `VCVARS32.BAT` needs to run.
+- To build `MECH2.EXE` and `NETMECHW.DLL` with Visual C++ 2.2, add `-DDEMECH2_MSVC22_ROOT=<path-to-msvc22>`. CMake builds them in a nested build and sets up Visual C++ 2.2's environment itself, so only Visual C++ 4.1's `VCVARS32.BAT` needs to run.
 - The shell's dialogs show an icon that is not included in this repository. If the original 1.1 `MW2SHELL.DLL` is in the repository root, the build takes the icon from it; point `-DDEMECH2_MW2SHELL_ORIGINAL=<path>` at a copy elsewhere. Without it, the shell still builds and runs, and those dialogs just show no icon. The same goes for the launcher's window icons and the original `MECH2.EXE` (`-DDEMECH2_MECH2_ORIGINAL=<path>`).
 
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
-2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL` and `MECH2.EXE` in the build folder (`MECH2.EXE` in its `vc22` subfolder when built with Visual C++ 2.2).
+2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL`, `NETMECHW.DLL` and `MECH2.EXE` in the build folder (the last two in its `vc22` subfolder when built with Visual C++ 2.2).
 
-The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for `MECH2.EXE`, so reccmp can read its PDB):
+The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for the Visual C++ 2.2 targets, so reccmp can read their PDBs):
 
-| Target         | Language           | `cl` flags                                 | CRT                     | Link                          |
-| -------------- | ------------------ | ------------------------------------------ | ----------------------- | ----------------------------- |
-| `MW2.DLL`      | C                  | `/Od /Oi /G5`                              | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no` |
-| `MW2SHELL.DLL` | C++ (some C files) | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                        |
-| `MECH2.EXE`    | C (Visual C++ 2.2) | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`     |
+| Target         | Language                    | `cl` flags                                 | CRT                     | Link                          |
+| -------------- | --------------------------- | ------------------------------------------ | ----------------------- | ----------------------------- |
+| `MW2.DLL`      | C                           | `/Od /Oi /G5`                              | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no` |
+| `MW2SHELL.DLL` | C++ (some C files)          | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                        |
+| `NETMECHW.DLL` | C and C++ (Visual C++ 2.2)  | `/Od /Oi /Z7` (no `/GX`)                   | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
+| `MECH2.EXE`    | C (Visual C++ 2.2)          | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`     |
 
 ### Docker
 
@@ -97,6 +98,8 @@ targets:
     path: path/to/MW2SHELL.DLL
   MW2:
     path: path/to/MW2.DLL
+  NETMECHW:
+    path: path/to/NETMECHW.DLL
   MECH2:
     path: path/to/MECH2.EXE
 ```
@@ -106,25 +109,27 @@ Then run:
 ```
 reccmp-reccmp --target MW2SHELL -S MW2SHELLPROGRESS.SVG
 reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
+reccmp-reccmp --target NETMECHW --nolib --total 244
 reccmp-reccmp --target MECH2 --nolib --total 21
 ```
 
 #### Continuous integration
 
-Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actions. The 1.1 patch's `MW2SHELL.DLL` and `MW2.DLL` are downloaded by the Build workflow itself. The retail `MECH2.EXE` isn't freely downloadable, so a second workflow (`verify-retail.yml`) runs after Build with access to a private repository holding the original: it compares the Build run's `MECH2.EXE` against it with reccmp and appends the result to the Build workflow's PR comment. Pull requests from forks get the same report.
+Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actions. The 1.1 patch's `MW2SHELL.DLL` and `MW2.DLL` are downloaded by the Build workflow itself. The retail `NETMECHW.DLL` and `MECH2.EXE` aren't freely downloadable, so a second workflow (`verify-retail.yml`) runs after Build with access to a private repository holding the originals: it compares the Build run's binaries against them with reccmp and appends the results to the Build workflow's PR comment. Pull requests from forks get the same report.
 
 ## Project Structure
 
 - `MECH2/` - Decompilation of the retail `MECH2.EXE` launcher (a reccmp target with Visual C++ 2.2)
 - `MW2SHELL/` - Decompilation of `MW2SHELL.DLL`
 - `MW2/` - Decompilation of `MW2.DLL`
+- `NETMECHW/` - Decompilation of the retail `NETMECHW.DLL`, NetMech's lobby (a reccmp target with Visual C++ 2.2)
 - `util/` - Utility headers for decompilation
 - `3rdparty/` - Import libraries (`.def` files), DirectX 2 SDK headers, and our own Miles/Smacker declarations
 - `cmake/` - CMake modules
 - `tools/` - Python tools and requirements
 - `reccmp/` - reccmp data sources
 - `docker/` - VC++ 4.1 + VC++ 2.2 + CMake under Wine build image
-- `vc22/` - The VC++ 2.2 sub-project that builds `MECH2.EXE`
+- `vc22/` - The VC++ 2.2 sub-project that builds `MECH2.EXE` and `NETMECHW.DLL`
 - `assets/` - Progress report icons
 
 ## Target Binaries
@@ -136,11 +141,12 @@ Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actio
 
 Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/details/mw2patch) and are the reccmp targets.
 
-| Binary      | Role     | Size         | SHA256                                                             | Modified         |
-| ----------- | -------- | ------------ | ------------------------------------------------------------------ | ---------------- |
-| `MECH2.EXE` | Launcher | 53,248 bytes | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
+| Binary         | Role          | Size          | SHA256                                                             | Modified         |
+| -------------- | ------------- | ------------- | ------------------------------------------------------------------ | ---------------- |
+| `NETMECHW.DLL` | NetMech lobby | 433,152 bytes | `3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095` | December 8, 1995 |
+| `MECH2.EXE`    | Launcher      | 53,248 bytes  | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
 
-`MECH2.EXE` comes from the retail release, not the patch. Its 21 game-code functions are annotated for reccmp; comparing them requires the original retail EXE and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds the launcher, but the result cannot be compared to the original.
+Both come from the retail release, not the patch (`NETMECHW.DLL` is the build of the plain retail release; the hardware-accelerated editions ship a different one of the same size). Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals. `MECH2.EXE`'s 21 game-code functions are all annotated for reccmp; `NETMECHW.DLL` is just started.
 
 ## Contributing
 

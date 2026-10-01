@@ -1,9 +1,10 @@
-# The targets the originals built with VC++ 2.2: MECH2.EXE, the launcher.
+# The targets the originals built with VC++ 2.2: MECH2.EXE, the launcher, and NETMECHW.DLL,
+# NetMech's lobby.
 #
 # Included by vc22/CMakeLists.txt, the VC++ 2.2 sub-project, and by the top-level project
 # when it has no VC++ 2.2 to hand them to: a VC++ 4.1 build without DEMECH2_MSVC22_ROOT, or a
 # modern compiler (the NCC/clang-tidy build). Expects DEMECH2_SOURCE_DIR (the repository
-# root) and DEMECH2_VC22 (TRUE in the VC++ 2.2 build).
+# root), DEMECH2_VC22 (TRUE in the VC++ 2.2 build) and the dplay import library target.
 
 include("${DEMECH2_SOURCE_DIR}/cmake/extract_icon.cmake")
 
@@ -73,4 +74,54 @@ function(demech2_add_mech2)
   else()
     message(STATUS "Launcher icons: none (no original MECH2.EXE at ${DEMECH2_MECH2_ORIGINAL})")
   endif()
+endfunction()
+
+# NETMECHW.DLL: C and C++ at /Od /Oi (no /G5, no /GX), the multithreaded CRT (2.2's LIBCMT,
+# /MT). The original is a plain /DLL link; the comparison build adds /DEBUG for the PDB and
+# /INCREMENTAL:no for the direct exports. SOURCES follow the original link order: object
+# order determines function addresses. LIBRARIES are in the order of the original's .idata
+# descriptors.
+function(demech2_add_netmechw)
+  set(root "${DEMECH2_SOURCE_DIR}")
+  add_library(netmechw SHARED
+    "${root}/NETMECHW/src/dllmain.cpp"
+    "${root}/NETMECHW/src/unk10003660.cpp"
+    "${root}/NETMECHW/NETMECHW.def"
+    "${root}/util/decomp.cpp"
+  )
+  set_target_properties(netmechw PROPERTIES
+    OUTPUT_NAME NETMECHW
+    MSVC_RUNTIME_LIBRARY MultiThreaded
+  )
+  target_include_directories(netmechw PRIVATE
+    "${root}/util"
+    "${root}/NETMECHW/include"
+  )
+  target_include_directories(netmechw SYSTEM PRIVATE "${root}/3rdparty/dx2/INC")
+  if (DEMECH2_VC22 OR DEMECH2_DECOMP_ASSERT)
+    target_compile_definitions(netmechw PRIVATE ENABLE_DECOMP_ASSERTS)
+  endif()
+  if (MSVC)
+    # The map gives tools/check_units.py the object of each symbol.
+    target_link_options(netmechw PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/NETMECHW.map")
+  endif()
+  if (DEMECH2_VC22)
+    target_link_options(netmechw PRIVATE /DEBUG /INCREMENTAL:no)
+    # The objects, in link order, for cmake/link_objects.cmake: it copies them to
+    # o/<name>/ under their base names and writes <name>.objects.rsp, which
+    # CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads instead of <OBJECTS> (vc22/CMakeLists.txt).
+    set(dir "$<TARGET_FILE_DIR:netmechw>")
+    set(name "$<TARGET_FILE_BASE_NAME:netmechw>")
+    file(GENERATE OUTPUT "${dir}/${name}.objects.list"
+      CONTENT "$<JOIN:$<TARGET_OBJECTS:netmechw>,\n>\n")
+    add_custom_command(TARGET netmechw PRE_LINK
+      COMMAND "${CMAKE_COMMAND}"
+        "-DLIST=${dir}/${name}.objects.list" "-DDEST=${dir}/o/${name}"
+        "-DRSP=${dir}/${name}.objects.rsp" "-DPREFIX=o\\${name}"
+        -P "${root}/cmake/link_objects.cmake"
+      COMMENT "Copying NETMECHW objects to o/${name}"
+      VERBATIM
+    )
+  endif()
+  target_link_libraries(netmechw PRIVATE dplay kernel32.lib user32.lib gdi32.lib comctl32.lib advapi32.lib)
 endfunction()

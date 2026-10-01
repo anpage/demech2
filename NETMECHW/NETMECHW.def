@@ -1,0 +1,4 @@
+LIBRARY NETMECHW
+EXPORTS
+    _DllMain@12 @1
+    Launcher @2

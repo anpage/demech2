@@ -21,9 +21,8 @@ jobs:
           # --total is only a floor: reccmp uses whichever is larger, the
           # annotated function count or --total. Every per-target step below
           # is driven from this list. It holds the public targets only: the
-          # retail ones (MECH2; NETMECHW later), whose originals aren't
-          # public, are listed in verify-retail.yml, the workflow that runs
-          # after this one.
+          # retail ones (NETMECHW, MECH2), whose originals aren't public, are
+          # listed in verify-retail.yml, the workflow that runs after this one.
           entries="MW2SHELL:770 MW2:1537"
 
           {
@@ -97,8 +96,8 @@ jobs:
       - name: "Checkout MSVC 2.2 toolchain"
         uses: actions/checkout@v6
         with:
-          # MECH2.EXE was built with VC++ 2.2: CMake builds it with this
-          # toolchain in a nested build (build/vc22).
+          # MECH2.EXE and NETMECHW.DLL were built with VC++ 2.2: CMake builds
+          # them with this toolchain in a nested build (build/vc22).
           repository: archaic-msvc/msvc220
           ref: c0fff2aecaa88576c685de79173be4ead4dbe42c
           path: msvc220
@@ -131,6 +130,9 @@ jobs:
             build/*.dll
             build/*.pdb
             build/*.map
+            build/vc22/NETMECHW.dll
+            build/vc22/NETMECHW.pdb
+            build/vc22/NETMECHW.map
             build/vc22/MECH2.exe
             build/vc22/MECH2.pdb
 
@@ -379,7 +381,7 @@ jobs:
 
       - name: Run clang-format
         run: |
-          find MECH2 MW2SHELL MW2 tools \( -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' \) -print0 | xargs -0 -r \
+          find MECH2 NETMECHW MW2SHELL MW2 tools \( -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' \) -print0 | xargs -0 -r \
           pipx run "clang-format>=22,<23" \
             --style=file \
             -i
@@ -409,10 +411,11 @@ jobs:
 
       - name: Run ncc
         run: |
-          # ncc validates the whole source tree: MECH2 too, which isn't in
-          # TARGET_ENTRIES (its retail original isn't public).
-          includes=(util MECH2/include MECH2)
-          paths=(MECH2)
+          # ncc validates the whole source tree: the retail targets too
+          # (NETMECHW, MECH2), which aren't in TARGET_ENTRIES (their originals
+          # aren't public).
+          includes=(util NETMECHW/include NETMECHW MECH2/include MECH2)
+          paths=(NETMECHW MECH2)
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"
             if [ -d "$target/include" ]; then
@@ -465,7 +468,8 @@ jobs:
           # fread/fwrite/memcpy/memset... of a constant size must fit in the
           # object they are given: a run of globals the original handles as
           # one block has to be one struct here (tools/check_block_sizes.py).
-          paths=(MECH2)
+          # The retail targets (NETMECHW, MECH2) aren't in TARGET_ENTRIES.
+          paths=(NETMECHW MECH2)
           for entry in $TARGET_ENTRIES; do
             paths+=("${entry%%:*}")
           done

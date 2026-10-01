@@ -40,7 +40,14 @@ targets:
         - g_unk0x100aaf08
         - g_unk0x100aafb0
         - g_unk0x100ab058
-  # NETMECHW: added once a version is chosen
+  NETMECHW:
+    filename: NETMECHW.DLL
+    source-root:
+      - NETMECHW
+    hash:
+      sha256: 3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095
+    report:
+      icon: assets/dll.png
   MECH2:
     filename: MECH2.EXE
     source-root:
