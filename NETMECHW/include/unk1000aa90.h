@@ -9,18 +9,32 @@
 // An entry of the player table, kept by player slot.
 // SIZE 0x24
 struct NetPlayer {
+	enum {
+		c_flagFree = 0x01 // the slot is empty
+	};
+
 	MechChar m_name[DPSHORTNAMELEN]; // 0x00
 	MechS32 m_team;                  // 0x14
 	DPID m_id;                       // 0x18
 	MechU32 m_flags;                 // 0x1c
-	undefined4 m_unk0x20;            // 0x20
+	MechS32 m_unk0x20;               // 0x20: periods without a message from the player
 };
 
 // The functions and globals of unk1000aa90.cpp that other units use.
+extern NetPlayer g_players[8];
+extern MechS32 g_playerCount;
+
+MechS32 FUN_1000aa90(MechChar* p_name, DPID p_id);
+MechS32 FUN_1000acc9(DPID p_id);
 MechS32 FUN_1000aeff(DPID p_id, NetPlayer* p_player);
 MechS32 FUN_1000afa8(MechS32 p_index, NetPlayer* p_player);
 MechS32 FUN_1000b02b(DPID p_id);
-undefined4 FUN_1000b0b3();
+MechS32 FUN_1000b0b3();
+void FUN_1000b0c8();
+DPID FUN_1000b178();
+void FUN_1000b1fe(MechU8 p_teams);
+MechS32 FUN_1000b295(MechS32 p_team);
+MechS32 FUN_1000b30e(MechS32 p_index);
 void FUN_1000b3c5(MechS32 p_index);
 
 #endif // UNK1000AA90_H

@@ -906,4 +906,10 @@
 // GLOBAL: NETMECHW 0x1002559c
 // __mb_cur_max
 
+// The Pentium FDIV flag of the division guard 2.2 compiles around every x87 division
+// (/QIfdiv).
+
+// GLOBAL: NETMECHW 0x10025718
+// _adjust_fdiv
+
 #endif

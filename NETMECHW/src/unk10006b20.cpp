@@ -33,7 +33,7 @@ IronLantern0x160::IronLantern0x160()
 	m_settings.m_unk0x01 = 0;
 	m_settings.m_unk0x02 = 0;
 	m_settings.m_unk0x03 = 0;
-	m_settings.m_unk0x48 = 0;
+	m_settings.m_options.m_byte = 0;
 	m_settings.m_unk0x49 = 100;
 	m_settings.m_unk0x4a = 1;
 	m_settings.m_unk0x4b = 0x10;
