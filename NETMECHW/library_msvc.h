@@ -20,25 +20,25 @@
 // LIBRARY: NETMECHW 0x10013bac SYMBOL
 // __isctype
 
-// atox.obj
+// delete.obj
 
 // LIBRARY: NETMECHW 0x10013c27 SYMBOL
-// _atoi
+// ??3@YAXPAX@Z
 
-// _wctype.obj
+// new.obj
 
 // LIBRARY: NETMECHW 0x10013c34 SYMBOL
-// _iswupper
+// ??2@YAPAXI@Z
 
 // sprintf.obj
 
 // LIBRARY: NETMECHW 0x10013c43 SYMBOL
 // _sprintf
 
-// rmdir.obj
+// unlink.obj
 
 // LIBRARY: NETMECHW 0x10013c9c SYMBOL
-// __rmdir
+// _remove
 
 // strncpy.obj
 
@@ -894,5 +894,16 @@
 
 // LIBRARY: NETMECHW 0x1001bbde SYMBOL
 // __filelength
+
+// CRT data the game code reads, through the ctype macros (isspace).
+
+// GLOBAL: NETMECHW 0x10025390
+// _pctype
+
+// GLOBAL: NETMECHW 0x10025398
+// __ctype
+
+// GLOBAL: NETMECHW 0x1002559c
+// __mb_cur_max
 
 #endif

@@ -12,3 +12,14 @@ MW2 split 0x1004f2d0  # DisplayDibWindowMessage, from the DisplayDib header (dis
 MW2 split 0x10068cb0  # IsInsideWindow (mouse.c)
 MW2 split 0x10079240  # DdrawUnlock (directdraw.c)
 MW2 split 0x100792b0  # DdrawRestore (directdraw.c)
+
+# NETMECHW builds without /Ob1 too: the methods defined in a class body are emitted out of line
+# after the unit's functions, each in its own 16-aligned section with 0xCC padding before it.
+NETMECHW split 0x10002080  # SessionList::Lock (sessionlist.cpp)
+NETMECHW split 0x100020b0  # SessionList::Unlock (sessionlist.cpp)
+NETMECHW split 0x100020e0  # SessionList::LockState (sessionlist.cpp)
+NETMECHW split 0x10002110  # SessionList::UnlockState (sessionlist.cpp)
+NETMECHW split 0x100035c0  # IronLantern0x160::FUN_100035c0 (unk100025f0.cpp)
+NETMECHW split 0x10003620  # IronLantern0x160::FUN_10003620 (unk100025f0.cpp)
+NETMECHW split 0x1000d1f0  # ChatLog::Lock (chatlog.cpp)
+NETMECHW split 0x1000d220  # ChatLog::Unlock (chatlog.cpp)
