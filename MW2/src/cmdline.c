@@ -4,10 +4,13 @@
 #include "clock.h"
 #include "decomp.h"
 #include "error.h"
+#include "gamekeys.h"
 #include "logwindow.h"
 #include "mw2log.h"
+#include "mw2prj.h"
 #include "network.h"
 #include "overlay.h"
+#include "render.h"
 #include "resource.h"
 #include "simmain.h"
 #include "supanim.h"
@@ -77,7 +80,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				break;
 			case 'J':
 				if (arg[2] == '=') {
-					g_unk0x100a8744 = arg + 3;
+					g_mw2PrjPath = arg + 3;
 				}
 			case 'L':
 				g_logFileEnabled = 1;

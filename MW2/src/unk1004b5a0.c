@@ -11,6 +11,7 @@
 #include "soundfx.h"
 #include "types.h"
 #include "unk1006ca60.h"
+#include "weapondata.h"
 #include "weapondef.h"
 #include "weapons.h"
 #include "weaponslot.h"

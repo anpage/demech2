@@ -9,6 +9,7 @@
 #include "mech.h"
 #include "mechsection.h"
 #include "mw2log.h"
+#include "mw2prj.h"
 #include "players.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -16,6 +17,7 @@
 #include "types.h"
 #include "unk100079d0.h"
 #include "unk1007fbe0.h"
+#include "weapondata.h"
 #include "weapons.h"
 #include "weaponslot.h"
 
@@ -113,13 +115,13 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	strcpy(name, "mek\\");
 	strcat(name, p_config);
 	if (!strchr(name, '.')) {
-		strcat(name, g_unk0x100a872c);
+		strcat(name, g_resourceTypeExtensions[c_resExtMek]);
 	}
 
 	file = LoadFile(BuildGamePath(name), &size, (void**) &header, NULL);
 	if (file == -1) {
 		if (p_id > 0) {
-			header = FUN_1001a19f(g_unk0x100a8740, p_id, g_unk0x100a86c8, 0);
+			header = FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagMek], 0);
 			if (header == NULL) {
 				Error(0x21, "%s ID %d", name, p_id, 0);
 			}
@@ -361,7 +363,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	sprintf(text, "\njet ddy: %ld", p_mech->m_unk0xec);
 	WriteToMw2Log(text);
 	if (fromResource) {
-		FUN_1001a163(p_id, g_unk0x100a86c8);
+		FUN_1001a163(p_id, g_resourceTypeTags[c_resTagMek]);
 	}
 	else {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, header);

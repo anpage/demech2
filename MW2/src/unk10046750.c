@@ -29,6 +29,7 @@
 #include "unk1001ce90.h"
 #include "unk100335d0.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
 #include "unk100563d0.h"
 #include "unk100696c0.h"

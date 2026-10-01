@@ -1,23 +1,53 @@
 #include "menu.h"
 
 #include "blit.h"
+#include "commandmenu.h"
+#include "commandpointmenu.h"
 #include "decomp.h"
 #include "fixeddiv.h"
 #include "inputmap.h"
 #include "loadres.h"
+#include "mainmenu.h"
 #include "menucontrol.h"
 #include "menupage.h"
+#include "mw2prj.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "ticks.h"
 #include "types.h"
+#include "unk1005e9b0.h"
+#include "unk10073af0.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 #include <windows.h>
+
+// GLOBAL: MW2 0x100a59e0
+MechS32 g_menuRepeatTimer = -1;
+
+// The in-mission menus by ID (RegisterMenu): 4 the main menu, 5 the systems status, 1 the lance
+// command computer, 7 and 8 command points 2 and 3, 3 the programmers' page.
+// GLOBAL: MW2 0x100a59e8
+MenuDefinition* g_menuDefinitions[11] = {
+	NULL,
+	&g_commandMenu,
+	NULL,
+	&g_dorcsMenu,
+	&g_mainMenu,
+	&g_systemsMenu,
+	NULL,
+	&g_commandPoint2Menu,
+	&g_commandPoint3Menu,
+	NULL,
+	NULL,
+};
+
+// GLOBAL: MW2 0x100e9350
+undefined g_unk0x100e9350[0x100];
 
 // GLOBAL: MW2 0x10109c78
 MechS32 g_openMenuCount;
@@ -34,7 +64,6 @@ MechS32 g_menuKey;
 
 MechS32 ActivateMenu(MenuSlot* p_slot);
 void DeactivateMenu(MenuSlot* p_slot);
-void RequestMenuClose(MechS32 p_id);
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu);
 void RunMenuItems(MenuDefinition* p_menu);
 MenuSlot* FindMenuSlot(MechS32 p_id);
@@ -166,10 +195,11 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 	}
 
 	if (p_menu->m_backgroundId != -1) {
-		shape = FUN_1001a19f(g_unk0x100a8740, p_menu->m_backgroundId + g_unk0x100e9614, g_unk0x100a8680, 0);
+		shape =
+			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			size = GetShpFrameSize(shape, 0);
-			FUN_1001a163(p_menu->m_backgroundId + g_unk0x100e9614, g_unk0x100a8680);
+			FUN_1001a163(p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 			scale.m_x = size >> 16;
 			scale.m_y = size & 0xffff;
 			scale.m_x = FixedDiv16(scale.m_x, g_screenWidthMinus1 + 1);
@@ -206,20 +236,22 @@ void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
 		p_menu->m_background =
-			FUN_1001a19f(g_unk0x100a8740, p_menu->m_backgroundId + g_unk0x100e9614, g_unk0x100a8680, 0);
+			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	}
 	else {
 		p_menu->m_background = NULL;
 	}
 
 	if (p_menu->m_unk0x1c != -1) {
-		p_menu->m_unk0x20 = FUN_1001a19f(g_unk0x100a8740, p_menu->m_unk0x1c + g_unk0x100e9614, g_unk0x100a8680, 0);
+		p_menu->m_unk0x20 =
+			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_unk0x1c + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	}
 	else {
 		p_menu->m_unk0x20 = NULL;
 	}
 
-	p_menu->m_font = FUN_1001a19f(g_unk0x100a8740, p_menu->m_fontId + g_unk0x100e9614, g_unk0x100a8684, 0);
+	p_menu->m_font =
+		FUN_1001a19f(g_mw2PrjHandle, p_menu->m_fontId + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 }
 
 // Opens a menu on its root page. Menus with flag 1 take the controls, so this calls
@@ -266,17 +298,17 @@ void DeactivateMenu(MenuSlot* p_slot)
 	menu = p_slot->m_definition;
 	if (menu) {
 		if (menu->m_background) {
-			FUN_1001a163(menu->m_backgroundId + g_unk0x100e9614, g_unk0x100a8680);
+			FUN_1001a163(menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 			menu->m_background = NULL;
 		}
 
 		if (menu->m_unk0x20) {
-			FUN_1001a163(menu->m_unk0x1c + g_unk0x100e9614, g_unk0x100a8680);
+			FUN_1001a163(menu->m_unk0x1c + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 			menu->m_unk0x20 = NULL;
 		}
 
 		if (menu->m_font) {
-			FUN_1001a163(menu->m_fontId + g_unk0x100e9614, g_unk0x100a8684);
+			FUN_1001a163(menu->m_fontId + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont]);
 			menu->m_font = NULL;
 		}
 

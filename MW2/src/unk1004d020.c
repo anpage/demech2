@@ -2,6 +2,7 @@
 
 #include "clock.h"
 #include "cobaltharbor.h"
+#include "config.h"
 #include "decomp.h"
 #include "environment.h"
 #include "muldiv.h"

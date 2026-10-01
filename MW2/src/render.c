@@ -2,6 +2,7 @@
 
 #include "animation.h"
 #include "blit.h"
+#include "cockpit.h"
 #include "codeblock.h"
 #include "decomp.h"
 #include "displaybackend.h"
@@ -24,6 +25,7 @@
 #include "unk10034a40.h"
 #include "unk10036230.h"
 #include "unk1003a530.h"
+#include "unk10040b30.h"
 #include "unk10042e00.h"
 #include "unk10046750.h"
 #include "unk1004b980.h"
@@ -33,6 +35,28 @@
 
 #include <string.h>
 #include <windows.h>
+
+// GLOBAL: MW2 0x100a244c
+MechS32 g_drawModeIndex = -1;
+
+// GLOBAL: MW2 0x100a2450
+MechS32 g_initDrawModeParam2 = 1;
+
+// GLOBAL: MW2 0x100a2454
+MechS32 g_unk0x100a2454 = 0;
+
+// The banner's file name, instead of sbannr (FUN_10012f3c).
+// GLOBAL: MW2 0x100a2458
+MechChar* g_unk0x100a2458 = NULL;
+
+// GLOBAL: MW2 0x100a245c
+void* g_unk0x100a245c = NULL;
+
+// GLOBAL: MW2 0x100a2460
+MechS32 g_unk0x100a2460 = 1;
+
+// GLOBAL: MW2 0x100a2464
+MechS32 g_unk0x100a2464 = 0;
 
 // GLOBAL: MW2 0x100a2468
 MechS32 g_unk0x100a2468 = 0;
@@ -58,6 +82,9 @@ AmberWillow0x7c* g_unk0x100a247c = NULL;
 // GLOBAL: MW2 0x100a2480
 MechS32 g_unk0x100a2480 = 0;
 
+// GLOBAL: MW2 0x100bdff8
+RenderTarget g_unk0x100bdff8;
+
 // GLOBAL: MW2 0x10176eb4
 GameWindowGeometry* g_gameWindowGeometry;
 
@@ -80,6 +107,9 @@ MechS32 g_screenPixelCount;
 // GLOBAL: MW2 0x10176ec8
 MechS32 g_screenWidth;
 
+// GLOBAL: MW2 0x10176ed0
+RenderTarget g_currentRenderTarget;
+
 // GLOBAL: MW2 0x10176ee4
 MechS32 g_screenWidthMinus1;
 
@@ -88,6 +118,9 @@ MechS32 g_screenHalfWidth;
 
 // GLOBAL: MW2 0x10176eec
 MechS32 g_screenHalfHeight;
+
+// GLOBAL: MW2 0x10176ef0
+PixelBuffer g_mainPixelBuffer;
 
 // FUNCTION: MW2 0x10012720
 MechS32 InitGameWindowGeometry(void)

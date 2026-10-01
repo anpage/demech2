@@ -9,6 +9,8 @@
 #include "fadepal.h"
 #include "loadres.h"
 #include "mech.h"
+#include "menu.h"
+#include "mw2prj.h"
 #include "navpoint.h"
 #include "object.h"
 #include "palette.h"
@@ -17,6 +19,7 @@
 #include "recttransition.h"
 #include "rendertarget.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
@@ -26,6 +29,7 @@
 #include "unk1001ce90.h"
 #include "unk1003a530.h"
 #include "unk10040b30.h"
+#include "unk10042e00.h"
 #include "unk100509a0.h"
 #include "unk100696c0.h"
 
@@ -234,7 +238,7 @@ void FUN_1007b930(CobaltHarbor0x88* p_panel)
 		}
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -253,7 +257,7 @@ void FUN_1007b930(CobaltHarbor0x88* p_panel)
 		FUN_10057396(p_panel->m_target, text, font);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	g_unk0x100ba4c8 = mech->m_player->m_targetInfo.m_target;
 }
 
@@ -352,23 +356,23 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	heading = player->m_targetInfo.m_heading;
 	object = FUN_1005ff56();
 	if (!object) {
-		noTarget = FUN_1001a19f(g_unk0x100a8740, 0x5b, g_unk0x100a8680, 0);
+		noTarget = FUN_1001a19f(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
 		if (noTarget) {
 			FillView(p_panel->m_target, 0);
 			BlitShpFrame(p_panel->m_target, noTarget, 0, 1, 1);
 			FUN_100570e9(p_panel->m_target, 8);
-			FUN_1001a163(0x5b, g_unk0x100a8680);
+			FUN_1001a163(0x5b, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		return;
 	}
 	else if (!object->m_unk0x6c) {
-		noObject = FUN_1001a19f(g_unk0x100a8740, 0x58, g_unk0x100a8680, 0);
+		noObject = FUN_1001a19f(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
 		if (noObject) {
 			FillView(p_panel->m_target, 0);
 			BlitShpFrame(p_panel->m_target, noObject, 0, 1, 1);
 			FUN_100570e9(p_panel->m_target, 8);
-			FUN_1001a163(0x58, g_unk0x100a8680);
+			FUN_1001a163(0x58, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		return;

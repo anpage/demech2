@@ -3,10 +3,12 @@
 #include "clock.h"
 #include "debugbreak.h"
 #include "decomp.h"
+#include "eyepoint.h"
 #include "fixedmul.h"
 #include "geocache.h"
 #include "loadres.h"
 #include "mw2log.h"
+#include "mw2prj.h"
 #include "network.h"
 #include "objective.h"
 #include "overlay.h"
@@ -2264,7 +2266,7 @@ MechS32 LoadAIScripts(void)
 
 	g_aiScripts[0] = NULL;
 	for (i = 0; i < 9; i++) {
-		g_aiScripts[i + 1] = FUN_1001a19f(g_unk0x100a8740, i + 1, g_unk0x100a86c4, 0);
+		g_aiScripts[i + 1] = FUN_1001a19f(g_mw2PrjHandle, i + 1, g_resourceTypeTags[c_resTagAit], 0);
 	}
 
 	return TRUE;

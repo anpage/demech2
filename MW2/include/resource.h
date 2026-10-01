@@ -3,6 +3,7 @@
 
 #include "bwd.h"
 #include "callbacks.h"
+#include "decomp.h"
 #include "missiontable.h"
 #include "types.h"
 
@@ -56,12 +57,6 @@ extern "C"
 	);
 	struct AmberWillow0x7c* FUN_100506d8(void);
 	MechS32 FUN_1005072f(void);
-	MechS32 FirstResource(void);
-	void CloseResourceFile(void);
-	void CachePreloads(void);
-	MechS32 FUN_10050862(MechS32 p_id, const char* p_type);
-	void* FUN_100508c0(MechU32 p_size);
-	void FUN_100508dc(void* p_block);
 
 #ifdef __cplusplus
 }

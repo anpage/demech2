@@ -4,6 +4,7 @@
 
 #include "decomp.h"
 #include "error.h"
+#include "gamekeys.h"
 #include "prjfile.h"
 #include "simmain.h"
 #include "timedoverlays.h"

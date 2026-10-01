@@ -69,7 +69,16 @@ extern "C"
 #endif
 
 	extern char* g_resourceTypeTags[26];
+	extern char* g_resourceTypeExtensions[25];
 	extern MechS32 g_mw2PrjHandle;
+	extern char* g_mw2PrjPath;
+
+	MechS32 FirstResource(void);
+	void ShutdownMw2Prj(void);
+	void CachePreloads(void);
+	MechS32 FUN_10050862(MechS32 p_id, const char* p_type);
+	void* Mw2PrjAlloc(MechU32 p_size);
+	void Mw2PrjFree(void* p_block);
 
 #ifdef __cplusplus
 }

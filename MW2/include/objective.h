@@ -11,6 +11,11 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_missionTime;
+	extern MechS32 g_currentObjective[16];
+	extern MechS32 g_unk0x10138760[48];
+	extern StarMission g_objectiveTable[16];
+	extern MechS32 g_objectiveCount;
 	void FUN_1001a910(MechChar* p_text);
 	extern MechS32 g_unk0x100a3748;
 	extern MechS32 g_unk0x100a374c;

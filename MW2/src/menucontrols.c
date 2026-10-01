@@ -6,12 +6,14 @@
 #include "decomp.h"
 #include "fixedmul.h"
 #include "loadres.h"
+#include "menu.h"
 #include "menuchoices.h"
 #include "menutextbox.h"
+#include "mw2prj.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
-#include "simmain.h"
+#include "setres.h"
 #include "types.h"
 
 #include <string.h>
@@ -142,10 +144,10 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		break;
 	}
 
-	left = FUN_1001a19f(g_unk0x100a8740, shapes[0] + g_unk0x100e9614, g_unk0x100a8680, 0);
-	bar = FUN_1001a19f(g_unk0x100a8740, shapes[2] + g_unk0x100e9614, g_unk0x100a8680, 0);
-	knob = FUN_1001a19f(g_unk0x100a8740, shapes[6] + g_unk0x100e9614, g_unk0x100a8680, 0);
-	right = FUN_1001a19f(g_unk0x100a8740, shapes[4] + g_unk0x100e9614, g_unk0x100a8680, 0);
+	left = FUN_1001a19f(g_mw2PrjHandle, shapes[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+	bar = FUN_1001a19f(g_mw2PrjHandle, shapes[2] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+	knob = FUN_1001a19f(g_mw2PrjHandle, shapes[6] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+	right = FUN_1001a19f(g_mw2PrjHandle, shapes[4] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (bar && knob) {
 		size = GetShpFrameSize(bar, 0);
 		width = size >> 16;
@@ -187,10 +189,10 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	}
 
 	p_control->m_value = value;
-	FUN_1001a163(shapes[0] + g_unk0x100e9614, g_unk0x100a8680);
-	FUN_1001a163(shapes[2] + g_unk0x100e9614, g_unk0x100a8680);
-	FUN_1001a163(shapes[4] + g_unk0x100e9614, g_unk0x100a8680);
-	FUN_1001a163(shapes[6] + g_unk0x100e9614, g_unk0x100a8680);
+	FUN_1001a163(shapes[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+	FUN_1001a163(shapes[2] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+	FUN_1001a163(shapes[4] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+	FUN_1001a163(shapes[6] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 }
 
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its

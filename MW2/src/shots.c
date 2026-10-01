@@ -35,9 +35,11 @@
 #include "unk10019ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
 #include "unk100696c0.h"
 #include "unk1006d680.h"
+#include "weapondata.h"
 #include "weapons.h"
 
 #include <string.h>

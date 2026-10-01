@@ -5,6 +5,7 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "gamekeys.h"
 #include "object.h"
 #include "palette.h"
 #include "players.h"
@@ -17,6 +18,7 @@
 #include "types.h"
 #include "unk10040020.h"
 #include "unk10040b30.h"
+#include "unk10042e00.h"
 
 // The handlers of the cockpit panel FUN_1006fca5 sets up second (g_unk0x100c3280[2]): it
 // cycles through five views of the local mech (FUN_100509a0), drawn into the panel's render

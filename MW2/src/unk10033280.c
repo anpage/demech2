@@ -4,10 +4,13 @@
 #include "cobaltharbor.h"
 #include "loadres.h"
 #include "mech.h"
+#include "menu.h"
+#include "mw2prj.h"
 #include "players.h"
 #include "point.h"
 #include "rendertarget.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "types.h"
 
@@ -65,7 +68,7 @@ void FUN_10033280(CobaltHarbor0x88* p_panel)
 		break;
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		g_unk0x100e9350[0xe] = color;
 		if (weapon->m_ammo < 0) {
@@ -92,7 +95,7 @@ void FUN_10033280(CobaltHarbor0x88* p_panel)
 		}
 
 		g_unk0x100e9350[0xe] = 0xe;
-		FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+		FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	if (p_panel->m_unk0x0c == mech->m_selectedWeapon) {
@@ -122,7 +125,7 @@ void FUN_100334d3(CobaltHarbor0x88* p_panel)
 	}
 
 	clock = g_currentClock;
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -131,5 +134,5 @@ void FUN_100334d3(CobaltHarbor0x88* p_panel)
 		BlitString(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 }

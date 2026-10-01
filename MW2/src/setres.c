@@ -1,5 +1,6 @@
 #include "setres.h"
 
+#include "cockpit.h"
 #include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
@@ -10,9 +11,10 @@
 #include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
-#include "simmain.h"
 #include "timedoverlays.h"
 #include "types.h"
+#include "unk10040b30.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
 
 #include <stdlib.h>
@@ -27,6 +29,9 @@ Point g_unk0x100aa718[3] = {{319, 199}, {639, 479}, {1023, 767}};
 
 // GLOBAL: MW2 0x100e9610
 MechS32 g_pixelAspect;
+
+// GLOBAL: MW2 0x100e9614
+MechS32 g_unk0x100e9614;
 
 // FUNCTION: MW2 0x1005d410
 void FUN_1005d410(GameWindowGeometry* p_geometry)

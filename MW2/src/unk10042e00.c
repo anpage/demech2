@@ -8,8 +8,8 @@
 #include "fixedmul.h"
 #include "fixedmul30.h"
 #include "polyfill.h"
+#include "render.h"
 #include "rendertarget.h"
-#include "simmain.h"
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
@@ -17,6 +17,20 @@
 #include "unk10034a40.h"
 #include "unk100696c0.h"
 #include "unk10071930.h"
+
+// GLOBAL: MW2 0x100a6be0
+Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
+							0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
+
+// GLOBAL: MW2 0x100a6cc0
+Eyepoint* g_eyepoint = &g_unk0x100a6be0;
+
+// GLOBAL: MW2 0x100a6cc8
+SlateHeron0x68 g_unk0x100a6cc8 = {0, 1, 1,       1,       1, 1, 1,    1,    1,    1, {0xe0, 0xef}, 1, 0, 0,
+								  0, 0, 0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
+
+// GLOBAL: MW2 0x100a6d30
+MechS32 g_unk0x100a6d30 = 0x24;
 
 // Polygon drawing: a polygon is p_count points of 6 dwords each (x, y, a shade, two texture
 // coordinates and a depth), and the mode in bits 12 to 14 of p_flags picks how it is drawn.

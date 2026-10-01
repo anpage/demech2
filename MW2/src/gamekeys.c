@@ -17,6 +17,7 @@
 #include "pausebanner.h"
 #include "players.h"
 #include "refreshmode.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
@@ -30,6 +31,8 @@
 #include "unk100079d0.h"
 #include "unk10016ad0.h"
 #include "unk10040020.h"
+#include "unk10040b30.h"
+#include "unk10042e00.h"
 #include "unk100509a0.h"
 #include "unk10073af0.h"
 #include "unk1007b930.h"
@@ -50,9 +53,39 @@ MechS32 g_unk0x100aa294 = 0;
 // GLOBAL: MW2 0x100aa298
 MechS32 g_unk0x100aa298 = 0;
 
+// Set by game key 0x11.
+// GLOBAL: MW2 0x100aa2a0
+MechS32 g_unk0x100aa2a0 = 0;
+
+// GLOBAL: MW2 0x100aa2a4
+MechS32 g_unk0x100aa2a4 = 1;
+
+// GLOBAL: MW2 0x100aa2a8
+MechS32 g_unk0x100aa2a8 = 0;
+
+// GLOBAL: MW2 0x100aa2ac
+MechS32 g_missionTimerStopped = 0;
+
+// The "meepmeep" cheat: enables the time compression key.
+// GLOBAL: MW2 0x100aa2b0
+MechS32 g_unk0x100aa2b0 = 0;
+
+// The length of the chat message being typed (HandleChatKey).
+// GLOBAL: MW2 0x100aa2b8
+MechS32 g_unk0x100aa2b8 = 0;
+
+// GLOBAL: MW2 0x100aa2bc
+MechS32 g_unk0x100aa2bc = 0;
+
+// GLOBAL: MW2 0x100aa2c0
+MechS32 g_unk0x100aa2c0 = 0;
+
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
 MechChar g_unk0x100e9620[0xf];
+
+// GLOBAL: MW2 0x100ea3e4
+MechS32 g_unk0x100ea3e4;
 
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
 // FUNCTION: MW2 0x1005b7c0

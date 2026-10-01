@@ -1,5 +1,5 @@
-// resource.h stays out of this unit: its declarations ahead of FUN_1005005e change that
-// function's operand order (see there).
+#include "resource.h"
+
 #include "ai.h"
 #include "bwd.h"
 #include "bwdobjectrecord.h"
@@ -13,6 +13,7 @@
 #include "includerecord2.h"
 #include "loadres.h"
 #include "missiontable.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "players.h"
 #include "prjfile.h"
@@ -103,6 +104,13 @@ MechS32 g_unk0x100a8620 = 0;
 
 // GLOBAL: MW2 0x100a8624
 MechS32 g_unk0x100a8624 = 0;
+
+// GLOBAL: MW2 0x100a8628
+MechS32 g_unk0x100a8628 = 0;
+
+// The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
+// GLOBAL: MW2 0x100a862c
+MechS32 g_unk0x100a862c = 0;
 
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8630
@@ -592,9 +600,6 @@ void FUN_1005005e(
 	FUN_1004fe85(a, b, c, d, p_unk0x18, p_unk0x1c, p_unk0x20, p_unk0x24);
 }
 
-// GLOBAL: MW2 0x100a8628
-MechS32 g_unk0x100a8628 = 0;
-
 // The original loads p_id first; the operand order follows the symbol table.
 // FUNCTION: MW2 0x100500c3
 MechS32 MapResourceId(MechS32 p_id)
@@ -607,10 +612,6 @@ void SetMangleBase(MechS32 p_base)
 {
 	g_unk0x100a8628 = p_base;
 }
-
-// The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
-// GLOBAL: MW2 0x100a862c
-MechS32 g_unk0x100a862c = 0;
 
 // Creates the shape of a world stream's object record: a static object of the current block
 // (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,
@@ -669,9 +670,9 @@ void CreateObjectNode(
 	xform = record->m_xform;
 	flags = record->m_flags;
 	if (resource != -1) {
-		data = FUN_1001a19f(g_unk0x100a8740, resource, g_unk0x100a869c, 0);
+		data = FUN_1001a19f(g_mw2PrjHandle, resource, g_resourceTypeTags[c_resTagPoly], 0);
 		if (data) {
-			size = GetPrjResourceSize(g_unk0x100a8740, g_unk0x100a869c, resource);
+			size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], resource);
 			fromResource = TRUE;
 		}
 		else {
@@ -696,7 +697,7 @@ void CreateObjectNode(
 
 			id = MapResourceId(id);
 			FUN_1001f8b5(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
-			FUN_1001a163(resource, g_unk0x100a869c);
+			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
 		else if (p_class && g_unk0x1010b6a0 > g_unk0x1012b7b0) {
@@ -716,7 +717,7 @@ void CreateObjectNode(
 				unk0x34
 			);
 			g_unk0x1012b7b0++;
-			FUN_1001a163(resource, g_unk0x100a869c);
+			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
 	}
@@ -795,7 +796,7 @@ void CreateObjectNode(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a4e5(resource, g_unk0x100a869c);
+		FUN_1001a4e5(resource, g_resourceTypeTags[c_resTagPoly]);
 	}
 }
 
@@ -835,75 +836,4 @@ MechS32 FUN_1005072f(void)
 	}
 
 	return index;
-}
-
-void* FUN_100508c0(MechU32 p_size);
-void FUN_100508dc(void* p_block);
-
-// FUNCTION: MW2 0x10050780
-MechS32 FirstResource(void)
-{
-	MechS32 result;
-
-	result = TRUE;
-	SetPrjAllocator(FUN_100508c0, FUN_100508dc);
-	FUN_10019d73();
-	if (!g_unk0x100a8744) {
-		g_unk0x100a8744 = (MechChar*) _mbsdup((unsigned char*) BuildGamePath("mw2.prj"));
-	}
-
-	g_unk0x100a8740 = OpenPrjFile(g_unk0x100a8744, 0);
-	if (g_unk0x100a8740 != -1) {
-		LoadPrjIndexes(g_unk0x100a8740);
-	}
-	else {
-		Error(3, "\nCan't find file \"%s\"", g_unk0x100a8744, 0);
-		result = FALSE;
-	}
-
-	return result;
-}
-
-// FUNCTION: MW2 0x1005082f
-void CloseResourceFile(void)
-{
-	ClosePrjFile(g_unk0x100a8740);
-}
-
-// FUNCTION: MW2 0x10050848
-void CachePreloads(void)
-{
-	FUN_10045a5b();
-	FUN_1006f480();
-	LoadAIScripts();
-}
-
-// FUNCTION: MW2 0x10050862
-MechS32 FUN_10050862(MechS32 p_id, const char* p_type)
-{
-	MechS32 result;
-	void* data;
-
-	data = FUN_1001a19f(g_unk0x100a8740, p_id, p_type, 0);
-	if (data) {
-		result = TRUE;
-		FUN_1001a163(p_id, p_type);
-	}
-	else {
-		result = FALSE;
-	}
-
-	return result;
-}
-
-// FUNCTION: MW2 0x100508c0
-void* FUN_100508c0(MechU32 p_size)
-{
-	return MemAlloc(p_size);
-}
-
-// FUNCTION: MW2 0x100508dc
-void FUN_100508dc(void* p_block)
-{
-	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
 }

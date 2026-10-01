@@ -6,6 +6,7 @@
 #include "fixedmul.h"
 #include "gaugequadrant.h"
 #include "keyboard.h"
+#include "menu.h"
 #include "pixelbuffer.h"
 #include "point.h"
 #include "rect.h"
@@ -14,6 +15,7 @@
 #include "rendertarget.h"
 #include "simmain.h"
 #include "types.h"
+#include "unk10042e00.h"
 #include "unk100696c0.h"
 
 #include <string.h>

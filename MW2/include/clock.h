@@ -12,6 +12,8 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100bfd60[800];
+	extern MechS32 g_unk0x100c09e0[800];
 	extern MechS32 g_currentClock;
 	extern MechS32 g_framerateLimit;
 	extern MechS32 g_timeExpansionEnabled;

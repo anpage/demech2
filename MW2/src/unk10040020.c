@@ -3,16 +3,21 @@
 #include "blit.h"
 #include "cobaltharbor.h"
 #include "cockpit.h"
+#include "config.h"
 #include "decomp.h"
 #include "environment.h"
 #include "loadres.h"
 #include "mech.h"
 #include "mechsection.h"
+#include "menu.h"
 #include "muldiv.h"
+#include "mw2prj.h"
 #include "players.h"
 #include "point.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "types.h"
 #include "unk100079d0.h"
@@ -116,18 +121,18 @@ void FUN_10040020(void)
 		g_unk0x100be498[i] = i;
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x10109c30[0], g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		height1 = GetShpFrameExtent(shape, 0);
-		FUN_1001a163(g_unk0x10109c30[0], g_unk0x100a8680);
+		FUN_1001a163(g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp]);
 		width1 = height1 >> 16;
 		height1 &= 0xffff;
-		shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x10109c30[0] + g_unk0x100e9614, g_unk0x100a8680, 0);
+		shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
 	if (shape) {
 		height2 = GetShpFrameExtent(shape, 0);
-		FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_unk0x100a8680);
+		FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 		width2 = height2 >> 16;
 		height2 &= 0xffff;
 		g_unk0x100a5ce0.m_buffer = &g_mainPixelBuffer;
@@ -211,7 +216,7 @@ void FUN_10040511(Mech* p_mech, RenderTarget* p_target)
 
 	rear = 0;
 	front = 0;
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x10109c30[0] + g_unk0x100e9614, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (!shape) {
 		return;
 	}
@@ -273,7 +278,7 @@ void FUN_10040511(Mech* p_mech, RenderTarget* p_target)
 		}
 	}
 
-	FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_unk0x100a8680);
+	FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 }
 
 // Draws the damage panel's armor bars: each section's front armor, and the rear armor of the
@@ -292,14 +297,14 @@ void FUN_100407b6(Mech* p_mech, RenderTarget* p_target)
 	MechSection* section;
 
 	g_unk0x100e9350[0xe] = 6;
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		BlitString(p_target, g_unk0x100a5cb8.m_x, g_unk0x100a5cb8.m_y, font, g_unk0x100a5ebc, g_unk0x100e9350);
 		BlitString(p_target, g_unk0x100a5cc0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec0, g_unk0x100e9350);
 		BlitString(p_target, g_unk0x100a5cc8.m_x, g_unk0x100a5cc8.m_y, font, g_unk0x100a5ec4, g_unk0x100e9350);
 		BlitString(p_target, g_unk0x100a5cd0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec8, g_unk0x100e9350);
 		g_unk0x100e9350[0xe] = 0xe;
-		FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+		FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	for (i = 0; i < 8; i++) {

@@ -8,7 +8,6 @@
 #include "palette.h"
 #include "render.h"
 #include "rendertarget.h"
-#include "simmain.h"
 #include "slateheron.h"
 #include "types.h"
 #include "unk100335d0.h"

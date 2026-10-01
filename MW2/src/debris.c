@@ -12,7 +12,6 @@
 #include "object.h"
 #include "random.h"
 #include "shots.h"
-#include "simmain.h"
 #include "types.h"
 #include "unk10004ec0.h"
 #include "unk10016ad0.h"

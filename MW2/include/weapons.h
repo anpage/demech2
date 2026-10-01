@@ -18,7 +18,6 @@ extern "C"
 {
 #endif
 
-	extern WeaponDef g_weaponDefs[31];
 	extern struct ScarletOrchid0x4c* g_unk0x100a6d34;
 	extern MechS32 g_unk0x101099c0[10];
 	extern MechS32 g_unk0x101099f0[10];

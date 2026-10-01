@@ -2,8 +2,8 @@
 
 #include "codeblock.h"
 #include "decomp.h"
-#include "simmain.h"
 #include "types.h"
+#include "unk10042e00.h"
 
 DECOMP_SIZE_ASSERT(CodeBlockTexture, 0xc)
 

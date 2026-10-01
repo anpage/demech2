@@ -4,10 +4,10 @@
 #include "emberfern.h"
 #include "eyepoint.h"
 #include "object.h"
-#include "simmain.h"
 #include "types.h"
 #include "unk10039a30.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "vector3.h"
 
 #include <stdlib.h>

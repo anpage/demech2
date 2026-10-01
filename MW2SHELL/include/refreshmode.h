@@ -41,11 +41,7 @@ extern "C"
 	extern PaletteColor g_paletteColors[0x100];
 	extern undefined* g_dibBits;
 	extern MechS32 g_windowMode;
-	extern MechS32 g_windowHeight;
-	extern MechS32 g_windowWidth;
-	extern HINSTANCE g_module;
 	extern HWND g_gameWindow;
-	extern HMENU g_windowMenu;
 	extern DrawBitmapInfo g_bitmapInfo;
 	extern MechS32 g_refreshModePixelCount;
 	extern MechS32 g_refreshModeWidth;

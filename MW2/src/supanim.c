@@ -10,6 +10,7 @@
 #include "palettecolor.h"
 #include "pixelbuffer.h"
 #include "refreshmode.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "types.h"

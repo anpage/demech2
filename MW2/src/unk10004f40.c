@@ -5,13 +5,19 @@
 #include "cobaltharbor.h"
 #include "config.h"
 #include "decomp.h"
+#include "eyepoint.h"
+#include "gamekeys.h"
 #include "loadres.h"
 #include "mech.h"
+#include "menu.h"
+#include "mw2prj.h"
 #include "network.h"
+#include "objective.h"
 #include "players.h"
 #include "point.h"
 #include "rendertarget.h"
 #include "screenscale.h"
+#include "setres.h"
 #include "simmain.h"
 #include "starmission.h"
 #include "team.h"
@@ -242,7 +248,7 @@ void FUN_100056f0(CobaltHarbor0x88* p_panel)
 	}
 
 	mission = &g_objectiveTable[g_unk0x100a5918];
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -290,7 +296,7 @@ void FUN_100056f0(CobaltHarbor0x88* p_panel)
 	g_unk0x100e9350[0xe] = 6;
 	BlitString(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 }
 
 // Draws the network status panel: whom the camera tracks, or how to regenerate, or that the
@@ -320,7 +326,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -472,7 +478,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 		FUN_100571ea(p_panel->m_target, " ", pos, font, 0xe);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 }
 
 // Shows the local player's kill count in a network game.
@@ -486,7 +492,7 @@ void FUN_100060b6(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -496,7 +502,7 @@ void FUN_100060b6(CobaltHarbor0x88* p_panel)
 		BlitString(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 }
 
 // Shows the autopilot's state.
@@ -525,7 +531,7 @@ void FUN_10006189(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -534,7 +540,7 @@ void FUN_10006189(CobaltHarbor0x88* p_panel)
 		BlitString(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 }
 
 // Stack-slot permutation of mech and font.
@@ -561,7 +567,7 @@ void FUN_10006291(CobaltHarbor0x88* p_panel)
 		g_unk0x100e9350[0xe] = 0xe;
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -569,7 +575,7 @@ void FUN_10006291(CobaltHarbor0x88* p_panel)
 	sprintf(text, "%d kph", speed);
 	BlitString(p_panel->m_target, p_panel->m_unk0x34->m_x, p_panel->m_unk0x34->m_y, font, text, g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	FUN_1004d48a(p_panel->m_target);
 }
 
@@ -584,7 +590,7 @@ void FUN_100063cd(CobaltHarbor0x88* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "MASC");
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -597,7 +603,7 @@ void FUN_100063cd(CobaltHarbor0x88* p_panel)
 		p_panel->m_name,
 		g_unk0x100e9350
 	);
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 }
 
 // Stack-slot permutation of mech and font.
@@ -613,7 +619,7 @@ void FUN_10006484(CobaltHarbor0x88* p_panel)
 		return;
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -642,7 +648,7 @@ void FUN_10006484(CobaltHarbor0x88* p_panel)
 		g_unk0x100e9350
 	);
 	g_unk0x100e9350[0xe] = 0xe;
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	FUN_1004d175(p_panel->m_target);
 }
 
@@ -657,7 +663,7 @@ void FUN_100065c3(CobaltHarbor0x88* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "dH/dT");
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -670,7 +676,7 @@ void FUN_100065c3(CobaltHarbor0x88* p_panel)
 		p_panel->m_name,
 		g_unk0x100e9350
 	);
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	FUN_1004d310(p_panel->m_target);
 }
 
@@ -689,7 +695,7 @@ void FUN_1000667c(CobaltHarbor0x88* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "Jets");
-	font = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -702,6 +708,6 @@ void FUN_1000667c(CobaltHarbor0x88* p_panel)
 		p_panel->m_name,
 		g_unk0x100e9350
 	);
-	FUN_1001a163(g_unk0x100e9614 + 1, g_unk0x100a8684);
+	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	FUN_1004d660(p_panel->m_target);
 }

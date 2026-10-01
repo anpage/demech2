@@ -11,6 +11,7 @@
 #include "fixeddiv.h"
 #include "fixeddiv29.h"
 #include "fixedmul.h"
+#include "gamekeys.h"
 #include "gpanim.h"
 #include "inputmap.h"
 #include "integrate.h"
@@ -41,6 +42,7 @@
 #include "unk10019ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk100563d0.h"
 #include "unk100696c0.h"
 #include "unk100758a0.h"
@@ -103,6 +105,10 @@ MechS32 g_unk0x100a2c18 = 0;
 
 // GLOBAL: MW2 0x100a2c1c
 MechS32 g_unk0x100a2c1c = 0;
+
+// Set once the local mech's collision sound played; cleared when it moves freely (FUN_10016edf).
+// GLOBAL: MW2 0x100be00c
+MechS32 g_unk0x100be00c;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
 // player, its cockpit), the ramps, weapon and motion state, its object back on the ground and the

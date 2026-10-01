@@ -53,7 +53,18 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x10109c30[3];
+	extern CockpitGaugeFn g_cockpitGauges[10];
+	extern RenderTarget g_unk0x100a5a68[5];
+	extern void* g_unk0x100a5bb8[4];
+	extern MechS32 g_unk0x100a5a18;
+	extern void (*g_unk0x100a5a1c)(void);
+	extern MechS32 g_unk0x100a5a20;
+	extern undefined4 g_unk0x100a5a24;
+	extern MechS32 g_unk0x100a5a28;
+	extern MechS32 g_unk0x100a5a2c;
+	extern MechS32 g_unk0x100a5a34;
+	extern MechS32 g_unk0x100a5a30;
+	extern MechS32 g_unk0x100a5a38;
 	extern MechS32 g_unk0x10109c5c;
 	extern MechS32 g_unk0x10109c60;
 	extern MechS32 g_cockpitLayoutIndex;

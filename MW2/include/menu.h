@@ -52,6 +52,8 @@ extern "C"
 {
 #endif
 
+	extern undefined g_unk0x100e9350[0x100];
+	extern MechS32 g_menuRepeatTimer;
 	extern MechS32 g_menuKey;
 	extern MenuDefinition* g_menuDefinitions[11];
 

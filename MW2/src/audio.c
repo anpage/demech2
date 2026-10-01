@@ -8,6 +8,7 @@
 #include "decomp.h"
 #include "loadres.h"
 #include "mss.h"
+#include "mw2prj.h"
 #include "network.h"
 #include "players.h"
 #include "simmain.h"
@@ -16,6 +17,7 @@
 #include "types.h"
 #include "unk10013370.h"
 #include "unk10021460.h"
+#include "world.h"
 
 #include <stdio.h>
 #include <windows.h>
@@ -266,12 +268,13 @@ void StartMissionMusic(void)
 
 	if (!g_musicStarted) {
 		g_musicStarted = 1;
-		if (g_unk0x100e9340 <= 0 || (music = FUN_1001a19f(0, g_unk0x100e9340, g_unk0x100a86d0, 0)) == NULL) {
+		if (g_unk0x100e9340 <= 0 ||
+			(music = FUN_1001a19f(0, g_unk0x100e9340, g_resourceTypeTags[c_resTagMus], 0)) == NULL) {
 			return;
 		}
 
 		sscanf(music, "%d %d", &g_cdTrack, &g_midiSequence);
-		FUN_1001a163(g_unk0x100e9340, g_unk0x100a86d0);
+		FUN_1001a163(g_unk0x100e9340, g_resourceTypeTags[c_resTagMus]);
 	}
 
 	if (!FUN_1005b696() || GetCdStatus() == 1 || !FUN_1005b6ab(g_cdTrack)) {

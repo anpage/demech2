@@ -12,6 +12,10 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_windowHeight;
+	extern MechS32 g_windowWidth;
+	extern HINSTANCE g_module;
+	extern HMENU g_windowMenu;
 	extern char g_windowClassName[0x10];
 	extern MechS32 g_windowActive;
 	extern MechS32 g_paused;

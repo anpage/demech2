@@ -3,10 +3,13 @@
 #include "clock.h"
 #include "decomp.h"
 #include "loadres.h"
+#include "menu.h"
+#include "mw2prj.h"
 #include "point.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
-#include "simmain.h"
+#include "setres.h"
 #include "timedoverlay.h"
 #include "types.h"
 
@@ -60,7 +63,8 @@ void FUN_1006ee60(void)
 		overlay = &g_timedOverlays[i];
 		target = overlay->m_target;
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-		shape = FUN_1001a19f(g_unk0x100a8740, overlay->m_background + g_unk0x100e9614, g_unk0x100a8680, 0);
+		shape =
+			FUN_1001a19f(g_mw2PrjHandle, overlay->m_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape != NULL) {
 			FUN_10056fcf(target, target, shape, 0);
 		}
@@ -80,7 +84,7 @@ void FUN_1006ee60(void)
 		target->m_bottom += dy;
 		FUN_10056bc1(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font = FUN_1001a19f(g_unk0x100a8740, overlay->m_font + g_unk0x100e9614, g_unk0x100a8684, 0);
+		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 		if (font != NULL) {
 			height = target->m_bottom - target->m_top + 1;
 			fontHeight = FontGetHeight(font);
@@ -165,10 +169,19 @@ void DrawTimedOverlays(void)
 		overlay = &g_timedOverlays[i];
 		if (overlay->m_active) {
 			if (FUN_1007d05d() < overlay->m_expireTime) {
-				font = FUN_1001a19f(g_unk0x100a8740, overlay->m_font + g_unk0x100e9614, g_unk0x100a8684, 0);
+				font = FUN_1001a19f(
+					g_mw2PrjHandle,
+					overlay->m_font + g_unk0x100e9614,
+					g_resourceTypeTags[c_resTagFont],
+					0
+				);
 				if (font != NULL) {
-					background =
-						FUN_1001a19f(g_unk0x100a8740, overlay->m_background + g_unk0x100e9614, g_unk0x100a8680, 0);
+					background = FUN_1001a19f(
+						g_mw2PrjHandle,
+						overlay->m_background + g_unk0x100e9614,
+						g_resourceTypeTags[c_resTagShp],
+						0
+					);
 					if (background != NULL) {
 						BlitShpFrame(overlay->m_target, background, 0, 0, 0);
 						BlitString(
@@ -206,10 +219,10 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 	}
 
 	if (p_background != -1) {
-		background = FUN_1001a19f(g_unk0x100a8740, p_background + g_unk0x100e9614, g_unk0x100a8680, 0);
+		background = FUN_1001a19f(g_mw2PrjHandle, p_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
-	font = FUN_1001a19f(g_unk0x100a8740, p_font + g_unk0x100e9614, g_unk0x100a8684, 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_buffer = &g_mainPixelBuffer;
 		FUN_100575b9(p_text, font, &rect);
@@ -251,7 +264,7 @@ void FUN_1006f3ea(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_
 	MechChar* c;
 	MechS32 ch;
 
-	text = FUN_1001a19f(g_unk0x100a8740, p_id, g_unk0x100a86a0, 0);
+	text = FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagText], 0);
 	if (text != NULL) {
 		c = text;
 		while (*c != '\0') {

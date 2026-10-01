@@ -8,7 +8,6 @@
 #include "menucontrol.h"
 #include "menucontrols.h"
 #include "menupage.h"
-#include "simmain.h"
 #include "soundconfig.h"
 #include "types.h"
 #include "unk10036230.h"

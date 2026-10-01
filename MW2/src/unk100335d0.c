@@ -11,7 +11,6 @@
 #include "fixedmul.h"
 #include "ivorydelta.h"
 #include "object.h"
-#include "simmain.h"
 #include "types.h"
 #include "unk10034990.h"
 #include "unk100349c0.h"

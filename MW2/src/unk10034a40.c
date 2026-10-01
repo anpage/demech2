@@ -70,6 +70,17 @@ MechS32 g_unk0x100a5544 = 0;
 // GLOBAL: MW2 0x100a5548
 MechS32 g_unk0x100a5548 = 0xe0;
 
+// The ground's color (FUN_1004320b; the sky's is g_unk0x100a5548).
+// GLOBAL: MW2 0x100a554c
+MechS32 g_unk0x100a554c = 0xef;
+
+// The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
+// GLOBAL: MW2 0x100a5550
+MechS32 g_unk0x100a5550 = 0xea;
+
+// GLOBAL: MW2 0x100a5558
+MechS32 g_unk0x100a5558 = -1;
+
 // FUNCTION: MW2 0x10034a40
 void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24)
 {

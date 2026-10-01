@@ -384,6 +384,7 @@ demech2_add_dll(mw2
     MW2/src/approxlen.c
     MW2/src/gpanim.c
     MW2/src/supanim.c
+    MW2/src/weapondata.c
     MW2/src/debris.c
     MW2/src/integrate.c
     MW2/src/unk10004ec0.c
@@ -468,6 +469,7 @@ demech2_add_dll(mw2
     MW2/src/unk1004da30.c
     MW2/src/dispdib.c
     MW2/src/resource.c
+    MW2/src/mw2prj.c
     MW2/src/debugprint.c
     MW2/src/unk100509a0.c
     MW2/src/ai.c

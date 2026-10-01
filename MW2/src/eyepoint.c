@@ -12,6 +12,7 @@
 #include "object.h"
 #include "players.h"
 #include "ramp.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
@@ -22,11 +23,94 @@
 #include "unk10016ad0.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk1004b130.h"
 #include "unk100696c0.h"
 #include "unk1006d680.h"
 
 #include <stdlib.h>
+
+// The distance FUN_10011f9a moves the free camera back from the mech's eye.
+// GLOBAL: MW2 0x100a23ec
+MechS32 g_unk0x100a23ec = 0;
+
+// The external view's distance limits, height and turn (FUN_100118bc).
+
+// GLOBAL: MW2 0x100a23f0
+MechS32 g_unk0x100a23f0 = 0;
+
+// GLOBAL: MW2 0x100a23f4
+MechS32 g_unk0x100a23f4 = 0;
+
+// GLOBAL: MW2 0x100a23f8
+MechS32 g_unk0x100a23f8 = 0;
+
+// GLOBAL: MW2 0x100a23fc
+MechS32 g_unk0x100a23fc = 0xb40000;
+
+// GLOBAL: MW2 0x100a2400
+MechS32 g_normalFov = 0x10000;
+
+// GLOBAL: MW2 0x100a2404
+MechS32 g_zoomFov = 0x10000;
+
+// The camera's view mode, or -1.
+// GLOBAL: MW2 0x100a2408
+MechS32 g_unk0x100a2408 = -1;
+
+// The view mode to return to from the external view.
+// GLOBAL: MW2 0x100a240c
+MechS32 g_unk0x100a240c = -1;
+
+// The zoom FirstEyepoint starts the camera at.
+// GLOBAL: MW2 0x100a2410
+MechS32 g_unk0x100a2410 = 0;
+
+// GLOBAL: MW2 0x100a2414
+MechS32 g_unk0x100a2414 = 0;
+
+// Set by FUN_10011e45.
+// GLOBAL: MW2 0x100a2418
+MechS32 g_unk0x100a2418 = 1;
+
+// GLOBAL: MW2 0x100a241c
+MechS32 g_unk0x100a241c = 0;
+
+// GLOBAL: MW2 0x100a2420
+undefined4 g_unk0x100a2420 = 0;
+
+// GLOBAL: MW2 0x100a2424
+MechS32 g_unk0x100a2424 = -1;
+
+// GLOBAL: MW2 0x100a2428
+MechS32 g_unk0x100a2428 = 0;
+
+// GLOBAL: MW2 0x100a242c
+struct Player* g_localPlayer = NULL;
+
+// The player the camera tracks.
+// GLOBAL: MW2 0x100a2430
+MechS32 g_unk0x100a2430 = 0;
+
+// GLOBAL: MW2 0x100a2434
+MechS32* g_unk0x100a2434 = NULL;
+
+// GLOBAL: MW2 0x100a2438
+MechS32* g_unk0x100a2438 = NULL;
+
+// The drop camera (FUN_10011edc): its vertical speed, acceleration and start clock.
+// GLOBAL: MW2 0x100a243c
+MechS32 g_unk0x100a243c = 0;
+
+// GLOBAL: MW2 0x100a2440
+MechS32 g_unk0x100a2440 = 0x3ca0;
+
+// GLOBAL: MW2 0x100a2444
+MechS32 g_unk0x100a2444 = 0;
+
+// Set while no glance key is held (FUN_10011cb0).
+// GLOBAL: MW2 0x100a2448
+MechS8 g_unk0x100a2448 = 0;
 
 // The view FUN_10011819 saves when it leaves the cockpit view.
 // GLOBAL: MW2 0x10176f10

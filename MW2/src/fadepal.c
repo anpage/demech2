@@ -12,6 +12,7 @@
 #include "fixedsqrt.h"
 #include "loadres.h"
 #include "mech.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "palette.h"
 #include "players.h"
@@ -120,10 +121,10 @@ void FadeToEndPalette(MechS32 p_alternate)
 		slot = 0x10;
 	}
 
-	palette = FUN_1001a19f(g_unk0x100a8740, g_paletteResourceIds[slot], g_unk0x100a8694, 0);
+	palette = FUN_1001a19f(g_mw2PrjHandle, g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal], 0);
 	if (palette) {
 		g_currentDisplayBackend->m_blendPalettes(palette, 0x3c);
-		FUN_1001a163(g_paletteResourceIds[slot], g_unk0x100a8694);
+		FUN_1001a163(g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal]);
 		ApplyPaletteResource(slot);
 	}
 }

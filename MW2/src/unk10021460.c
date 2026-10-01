@@ -8,6 +8,7 @@
 #include "loadres.h"
 #include "mech.h"
 #include "mss.h"
+#include "mw2prj.h"
 #include "players.h"
 #include "simmain.h"
 #include "types.h"
@@ -56,7 +57,7 @@ void StopMidiSequences(void)
 		}
 
 		if (g_midiSequenceIds[i]) {
-			FUN_1001a163(g_midiSequenceIds[i], g_unk0x100a8690);
+			FUN_1001a163(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
 			g_midiSequenceIds[i] = 0;
 		}
 	}
@@ -152,7 +153,7 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 			AIL_release_sequence_handle(sequence);
 			g_midiSequences[i] = (HSEQUENCE) -1;
 			sequence = g_midiSequences[i];
-			FUN_1001a163(g_midiSequenceIds[i], g_unk0x100a8690);
+			FUN_1001a163(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
 			g_midiSequenceIds[i] = 0;
 		}
 
@@ -165,11 +166,11 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 		return -8;
 	}
 
-	data = FUN_1001a19f(p_unk0x00, p_id, g_unk0x100a8690, 0);
+	data = FUN_1001a19f(p_unk0x00, p_id, g_resourceTypeTags[c_resTagXmid], 0);
 	if (data && g_midiDriver) {
 		sequence = AIL_allocate_sequence_handle(g_midiDriver);
 		if (sequence == NULL) {
-			FUN_1001a163(p_id, g_unk0x100a8690);
+			FUN_1001a163(p_id, g_resourceTypeTags[c_resTagXmid]);
 			return -10;
 		}
 

@@ -2,6 +2,7 @@
 
 #include "blit.h"
 #include "cobaltharbor.h"
+#include "config.h"
 #include "decomp.h"
 #include "environment.h"
 #include "eyepoint.h"
@@ -9,19 +10,56 @@
 #include "geocache.h"
 #include "loadres.h"
 #include "muldiv.h"
+#include "mw2prj.h"
 #include "object.h"
 #include "players.h"
 #include "ray.h"
+#include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
-#include "simmain.h"
+#include "setres.h"
 #include "team.h"
 #include "types.h"
 #include "unk10013340.h"
 #include "unk1003a530.h"
+#include "unk10042e00.h"
 #include "unk1004b980.h"
 #include "unk1004d020.h"
+#include "weapondata.h"
 #include "weapons.h"
+
+// The heading tape's shape width (FUN_10040f91).
+// GLOBAL: MW2 0x100a5ed0
+MechS32 g_unk0x100a5ed0 = 0xf0f;
+
+// GLOBAL: MW2 0x100a5ed4
+MechS32 g_unk0x100a5ed4 = 0xd79;
+
+// The altimeter's place, in 16.16 fractions of its gauge until FUN_10040f91 scales it.
+// GLOBAL: MW2 0x100a5ed8
+Point g_unk0x100a5ed8 = {0xb333, 0x8000};
+
+// The compass's place, likewise.
+// GLOBAL: MW2 0x100a5ee0
+Point g_unk0x100a5ee0 = {0x8000, 0x6666};
+
+// GLOBAL: MW2 0x100a5ee8
+Point g_unk0x100a5ee8[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0}, {0, 0}};
+
+// GLOBAL: MW2 0x100a5f18
+undefined4 g_unk0x100a5f18 = 1;
+
+// GLOBAL: MW2 0x100a5f1c
+MechS32 g_unk0x100a5f1c = 1;
+
+// GLOBAL: MW2 0x100a5f20
+MechS32 g_unk0x100a5f20 = 1;
+
+// GLOBAL: MW2 0x100a5f24
+MechS32 g_unk0x100a5f24 = 1;
+
+// GLOBAL: MW2 0x100a5f2c
+MechS32 g_unk0x100a5f2c = 1;
 
 // The layout of the altimeter and the compass, from their shapes' extents (FUN_10040f91).
 
@@ -216,20 +254,20 @@ void FUN_10040f91(void)
 
 	target = g_unk0x100c3280[23]->m_target;
 	FUN_10056bc1(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 1, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		g_unk0x100a5ed0 = extent >> 16;
 		g_unk0x100a5ed4 = extent & 0xffff;
-		FUN_1001a163(extent + 1, g_unk0x100a8680);
+		FUN_1001a163(extent + 1, g_resourceTypeTags[c_resTagShp]);
 	}
 
 	g_unk0x100be5c4 = g_unk0x100a5ed8.m_x;
 	g_unk0x100be5b0 = g_unk0x100a5ed0 + g_unk0x100be5c4;
 	g_unk0x100be5b4 = g_unk0x100a5ed0 + g_unk0x100be5b0;
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 7, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 7, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
@@ -237,24 +275,24 @@ void FUN_10040f91(void)
 		width = extent >> 16;
 		height = extent & 0xffff;
 		g_unk0x100a5ed8.m_x -= width;
-		FUN_1001a163(extent + 7, g_unk0x100a8680);
+		FUN_1001a163(extent + 7, g_resourceTypeTags[c_resTagShp]);
 		g_unk0x100be5b8 = (height << 16) / 0xe8;
 	}
 
 	target = g_unk0x100c3280[24]->m_target;
 	FUN_10056bc1(target, &g_unk0x100a5ee0, &g_unk0x100a5ee0);
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x19, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x19, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
-		FUN_1001a163(extent + 0x19, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x19, g_resourceTypeTags[c_resTagShp]);
 		g_unk0x100be5bc = (width << 16) / 0x168;
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x13, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x13, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 		MechS32 origin;
@@ -265,27 +303,27 @@ void FUN_10040f91(void)
 		origin &= 0xffff;
 		g_unk0x100be5c8 = extent - origin;
 		g_unk0x100be5c0 = origin;
-		FUN_1001a163(extent + 0x13, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x13, g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x25, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x25, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		g_unk0x100be5a0 = extent >> 16;
 		g_unk0x100be5a4 = extent & 0xffff;
-		FUN_1001a163(extent + 0x25, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x25, g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = FUN_1001a19f(g_unk0x100a8740, g_unk0x100e9614 + 0x1f, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x1f, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = GetShpFrameExtent(shape, 0);
 		g_unk0x100be5a8 = extent >> 16;
 		g_unk0x100be5ac = extent & 0xffff;
-		FUN_1001a163(extent + 0x1f, g_unk0x100a8680);
+		FUN_1001a163(extent + 0x1f, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -727,10 +765,10 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_unk0x100a8740, p_id + g_unk0x100e9614, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		BlitShpFrame(&g_currentRenderTarget, shape, 0, p_x, p_y);
-		FUN_1001a163(p_id + g_unk0x100e9614, g_unk0x100a8680);
+		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -741,10 +779,10 @@ void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_unk0x100a8740, p_id + g_unk0x100e9614, g_unk0x100a8680, 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		BlitShpFrame(p_target, shape, 0, p_x, p_y);
-		FUN_1001a163(p_id + g_unk0x100e9614, g_unk0x100a8680);
+		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 

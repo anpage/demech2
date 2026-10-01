@@ -4,8 +4,8 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "ramp.h"
-#include "simmain.h"
 #include "types.h"
+#include "unk10042e00.h"
 
 #include <string.h>
 

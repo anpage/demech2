@@ -3,7 +3,9 @@
 #include "clock.h"
 #include "decomp.h"
 #include "loadres.h"
+#include "mw2prj.h"
 #include "rendertarget.h"
+#include "setres.h"
 #include "simmain.h"
 #include "types.h"
 
@@ -121,7 +123,7 @@ void FreeAnim2d(MechS32 p_index)
 {
 	if (g_anim2ds[p_index]) {
 		if (g_anim2ds[p_index]->m_shape) {
-			FUN_1001a163(g_anim2ds[p_index]->m_resourceId + g_unk0x100e9614, g_unk0x100a8680);
+			FUN_1001a163(g_anim2ds[p_index]->m_resourceId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_anim2ds[p_index]);
@@ -153,7 +155,8 @@ void DrawAnim2d(RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_
 	}
 
 	if (!anim->m_shape) {
-		anim->m_shape = FUN_1001a19f(g_unk0x100a8740, anim->m_resourceId + g_unk0x100e9614, g_unk0x100a8680, 0);
+		anim->m_shape =
+			FUN_1001a19f(g_mw2PrjHandle, anim->m_resourceId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (!anim->m_shape) {
 			FreeAnim2ds(p_index);
 			return;
