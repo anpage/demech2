@@ -1,0 +1,321 @@
+name: Verify retail targets and comment
+
+# Runs after the Build workflow finishes. Triggered via workflow_run so it
+# executes in the base-repo context, with a writable token (which lets it
+# comment on pull requests opened from forks) and with the repository's
+# secrets: the deploy key that checks out the retail targets' originals
+# (MECH2.EXE; NETMECHW.DLL later), which aren't freely downloadable the way
+# mw2bin.yml fetches the 1.1 patch.
+#
+# Only code from the base branch runs here: this workflow, the tools/ scripts
+# and reccmp. The PR's checkout is data (its annotated sources and
+# reccmp-project.yml), compared with the binaries the Build run compiled from
+# it. The originals are fetched fresh each run and never cached or uploaded.
+#
+# The public targets (MW2SHELL, MW2) are verified by the Build workflow itself
+# (its verify job), which uploads its comment payload for the comment job here.
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+
+env:
+  # One line per retail target: "TARGET:FILE:--total", where --total is the
+  # game-code function count from the Ghidra original, as in the Build
+  # workflow's targets job (MECH2: the 21 functions before its import thunks
+  # at 0x004022be). The list lives here rather than in Build's targets job:
+  # a workflow_run job can't read the Build run's outputs.
+  RETAIL_ENTRIES: "MECH2:MECH2.EXE:21"
+
+jobs:
+  retail:
+    name: Verify retail targets
+    # Only the project's own repository holds the deploy key. Forks of the
+    # project skip this job; their PR comments carry the public targets only.
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.repository == 'anpage/demech2' }}
+    # windows-latest like Build's verify job: reccmp needs cvdump.
+    runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      # The default ref of a workflow_run job is the default branch: this
+      # checkout supplies the trusted tools.
+      - name: Checkout the base branch (tools)
+        uses: actions/checkout@v6
+
+      # The sources reccmp reads the annotations from. For a pull_request run
+      # this is the PR's head commit, while Build compiled the merge commit:
+      # the two only differ when main moved under an unrebased PR.
+      - name: Checkout the verified commit (data)
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          path: pr
+          persist-credentials: false
+
+      - name: Checkout the retail originals
+        uses: actions/checkout@v6
+        with:
+          repository: anpage/demech2-originals
+          path: retailbin
+          ssh-key: ${{ secrets.ORIGINALS_DEPLOY_KEY }}
+          persist-credentials: false
+
+      - name: Verify the originals
+        shell: bash
+        working-directory: retailbin
+        run: |
+          # The hashes reccmp-project.yml carries.
+          sha256sum --check --strict <<'SUMS'
+          064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c *MECH2.EXE
+          SUMS
+
+      - name: Download the Build run's binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: Win32
+          path: pr/build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install python packages
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+
+      # reccmp-project writes reccmp-user.yml next to the PR's
+      # reccmp-project.yml and reccmp-build.yml into the current directory,
+      # and every reccmp command below runs from pr/ to find them. The public
+      # targets' originals aren't here, so detect warns about them; only the
+      # retail targets are compared. The artifact keeps the nested VC++ 2.2
+      # build's layout, so MECH2.EXE sits in build/vc22.
+      - name: Detect binaries
+        id: detection
+        shell: bash
+        working-directory: pr
+        run: |
+          reccmp-project detect --what original   --search-path ../retailbin
+          reccmp-project detect --what recompiled --search-path build build/vc22
+
+      - name: Summarize Accuracy
+        shell: bash
+        working-directory: pr
+        run: |
+          for entry in $RETAIL_ENTRIES; do
+            IFS=: read -r target file total <<<"$entry"
+            reccmp-reccmp -S "${target}PROGRESS.SVG" --target "$target" --nolib --total "$total" --json "${target}PROGRESS.json" --html "${target}PROGRESS.HTML"
+          done
+
+      - name: Compare Accuracy With Current Main
+        shell: bash
+        working-directory: pr
+        env:
+          RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
+        run: |
+          for entry in $RETAIL_ENTRIES; do
+            IFS=: read -r target file total <<<"$entry"
+
+            curl -fLSs -o "${target}PROGRESS-old.json" "$RELEASE_URL/${target}PROGRESS.json" || echo "" >"${target}PROGRESS-old.json"
+
+            (reccmp-reccmp --target "$target" --nolib --total "$total" --diff "${target}PROGRESS-old.json" || echo "Current main not found")>"${target}-diff.txt"
+
+            cat "${target}-diff.txt"
+          done
+
+      - name: Check Vtables
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          for entry in $RETAIL_ENTRIES; do
+            reccmp-vtable --target "${entry%%:*}"
+          done
+
+      - name: Check Variables
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          for entry in $RETAIL_ENTRIES; do
+            reccmp-datacmp --target "${entry%%:*}"
+          done
+
+      - name: Check Folding
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          for entry in $RETAIL_ENTRIES; do
+            python ../tools/check_folded.py --target "${entry%%:*}"
+          done
+
+      - name: Check Block Layout
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          # The original's fread/fwrite/memcpy/memset... of a global must fit in
+          # the recompiled object at that address, and no global may be declared
+          # larger than the original's room for it (tools/check_block_layout.py).
+          # tools/check_units.py doesn't run on MECH2: the nested build writes
+          # no map file, and the tool doesn't know an incremental link's layout.
+          for entry in $RETAIL_ENTRIES; do
+            python ../tools/check_block_layout.py --target "${entry%%:*}"
+          done
+
+      - name: Create the retail sections of the PR comment
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        shell: bash
+        working-directory: pr
+        run: |
+          section() {
+            echo "## $1"
+            echo '```'
+            if [ -f "$2" ]; then
+              sed -i -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "$2"
+              python -c "print(open('$2').read().strip())";
+            else
+              echo '(no diff available)';
+            fi
+            echo '```'
+          }
+
+          {
+            for entry in $RETAIL_ENTRIES; do
+              IFS=: read -r target file total <<<"$entry"
+              section "$target ($file)" "$target-diff.txt"
+            done
+          } >../reccmp-retail-message.txt
+
+          cat ../reccmp-retail-message.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: Retail Accuracy Report
+          path: |
+            pr/*PROGRESS*
+
+      - name: Upload PR comment payload
+        if: ${{ github.event.workflow_run.event == 'pull_request' && always() }}
+        uses: actions/upload-artifact@main
+        with:
+          name: reccmp-retail-comment
+          path: |
+            reccmp-retail-message.txt
+
+  comment:
+    name: Comment reccmp report
+    needs: [retail]
+    # always(): the comment is posted whether the retail job ran, failed or
+    # was skipped (a fork of the project).
+    if: ${{ always() && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Download PR comment payload
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: reccmp-pr-comment
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Download retail PR comment payload
+        id: download-retail
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: reccmp-retail-comment
+          path: retail
+
+      - name: Post comment
+        if: ${{ steps.download.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RETAIL_RESULT: ${{ needs.retail.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -f retail/reccmp-retail-message.txt ]; then
+            cat retail/reccmp-retail-message.txt >>reccmp-pr-message.txt
+          elif [ "$RETAIL_RESULT" != skipped ]; then
+            echo "" >>reccmp-pr-message.txt
+            echo "Retail targets: verification $RETAIL_RESULT, see $RUN_URL" >>reccmp-pr-message.txt
+          fi
+
+          gh pr comment "$(cat pr-number.txt)" \
+            --repo "${{ github.repository }}" \
+            --create-if-none \
+            --edit-last \
+            --body-file reccmp-pr-message.txt
+
+  publish:
+    name: Publish progress
+    needs: [retail]
+    if: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.repository == 'anpage/demech2' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      # The Build workflow's upload job has already published the public
+      # targets' binaries and progress reports to the continuous release.
+      - name: Download the public progress reports
+        uses: actions/download-artifact@v8
+        with:
+          name: Accuracy Report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Download the retail progress reports
+        uses: actions/download-artifact@v8
+        with:
+          name: Retail Accuracy Report
+
+      - name: Upload Continuous Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The retail job's compare-with-main step downloads
+          # ${target}PROGRESS.json from here. The recompiled MECH2.EXE isn't
+          # distributed: unlike the DLLs, it only matters as a reccmp target.
+          files=()
+          for entry in $RETAIL_ENTRIES; do
+            target="${entry%%:*}"
+            files+=(
+              "${target}PROGRESS.SVG"
+              "${target}PROGRESS.HTML"
+              "${target}PROGRESS.json"
+            )
+          done
+
+          gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+
+      # GitHub Pages serves the progress reports the README embeds (GitHub
+      # serves release assets with a content type browsers refuse for SVG in
+      # <img> tags). A deployment replaces the whole site, so the one
+      # deployment publishes the public and the retail targets together.
+      - name: Prepare Pages
+        run: |
+          mkdir -p progress
+          cp ./*PROGRESS.SVG ./*PROGRESS.HTML progress/
+          ls progress
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: progress/
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v5

@@ -9,6 +9,7 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 ## Status
 
 <a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a>
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
@@ -107,6 +108,10 @@ reccmp-reccmp --target MW2SHELL -S MW2SHELLPROGRESS.SVG
 reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
 reccmp-reccmp --target MECH2 --nolib --total 21
 ```
+
+#### Continuous integration
+
+Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actions. The 1.1 patch's `MW2SHELL.DLL` and `MW2.DLL` are downloaded by the Build workflow itself. The retail `MECH2.EXE` isn't freely downloadable, so a second workflow (`verify-retail.yml`) runs after Build with access to a private repository holding the original: it compares the Build run's `MECH2.EXE` against it with reccmp and appends the result to the Build workflow's PR comment. Pull requests from forks get the same report.
 
 ## Project Structure
 
