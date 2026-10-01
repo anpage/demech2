@@ -43,7 +43,7 @@ MechS32 FUN_10065f50(undefined4 p_unk0x00, MenuPage* p_page)
 		p_page->m_itemCount = slot + 1;
 		for (i = 0; i < count; i++) {
 			index = FUN_10054ccc(i + 1);
-			if (index < g_playerCount && g_players[index]->m_aiState == 12) {
+			if (index < g_playerCount && g_players[index]->m_ai.m_state == 12) {
 				p_page->m_items[i + 1].m_unk0x00 = 1;
 				marked++;
 			}
@@ -81,7 +81,7 @@ MechS32 FUN_100660c2(undefined4 p_unk0x00, MenuPage* p_page)
 	valid = unk0x08 <= count;
 	if (valid) {
 		index = FUN_10054ccc(unk0x08);
-		valid = index < g_playerCount && g_players[index]->m_aiState != 12;
+		valid = index < g_playerCount && g_players[index]->m_ai.m_state != 12;
 	}
 
 	if (!valid) {
@@ -122,6 +122,31 @@ void FUN_10066241(MechS32 p_formation)
 	g_unk0x100acaf0[0] = 0;
 	SetTeamFormation(g_unk0x100a5918, p_formation);
 	RequestMenuClose(1);
+}
+
+// Returns the AI state of the player in AI slot p_index, plus one (0: none).
+// Stack-slot permutation: player, ai, index and state.
+// FUNCTION: MW2 0x10066272
+MechS32 FUN_10066272(MechS32 p_index)
+{
+	Player* player;
+	PlayerAi* ai;
+	MechS32 index;
+	MechS32 state;
+
+	state = -1;
+	if (p_index < 8) {
+		index = FUN_10054ccc(p_index);
+		if (index != -1) {
+			player = g_players[index];
+			ai = &player->m_ai;
+			if (ai) {
+				state = ai->m_state;
+			}
+		}
+	}
+
+	return state + 1;
 }
 
 // FUNCTION: MW2 0x100662df
@@ -245,11 +270,11 @@ MechChar* FUN_100664cb(undefined4 p_unk0x00, MenuItem* p_item)
 	}
 
 	player = g_players[index];
-	if (player->m_aiState == 5) {
+	if (player->m_ai.m_state == 5) {
 		return NULL;
 	}
 
-	goal = player->m_aiGoal;
+	goal = player->m_ai.m_goal;
 	target = goal & 0xff;
 	switch (goal & 0xf00) {
 	case 0x100:

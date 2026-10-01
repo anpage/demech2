@@ -68,9 +68,21 @@ MechS32 g_unk0x100bfd4c;
 // GLOBAL: MW2 0x100bfd50
 MechS32 g_unk0x100bfd50;
 
+// The local player's heading and torso twist, in whole degrees (FUN_1007005a).
+
+// GLOBAL: MW2 0x100c326c
+MechS32 g_unk0x100c326c;
+
+// GLOBAL: MW2 0x100c3270
+MechS32 g_unk0x100c3270;
+
 // The 26 cockpit panels FUN_1006fca5 allocates.
 // GLOBAL: MW2 0x100c3280
 CobaltHarbor0x88* g_unk0x100c3280[26];
+
+// Which of the panels are enabled when they are set up.
+// GLOBAL: MW2 0x100c32f0
+MechS32 g_unk0x100c32f0[26];
 
 // FUNCTION: MW2 0x1007d610
 void FirstEnvironment(void)

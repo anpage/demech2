@@ -7,10 +7,13 @@
 #include "config.h"
 #include "decomp.h"
 #include "error.h"
+#include "includerecord.h"
+#include "includerecord2.h"
 #include "loadres.h"
 #include "missiontable.h"
 #include "players.h"
 #include "prjfile.h"
+#include "scenariotable.h"
 #include "simmain.h"
 #include "team.h"
 #include "types.h"
@@ -34,12 +37,6 @@ typedef struct BitmapRecord {
 	MechS32 m_data[1];  // 0x10 — up to the record's end
 } BitmapRecord;
 
-// The scenario table: the names ExecuteInclude substitutes for "^", in turn.
-typedef struct ScenarioTable {
-	BwdRecord m_header;       // 0x00
-	MechChar m_names[1][0xc]; // 0x08 — up to the record's end
-} ScenarioTable;
-
 // A path record: the path's name and its waypoints.
 typedef struct PathRecord {
 	BwdRecord m_header;    // 0x00
@@ -61,13 +58,6 @@ typedef struct FormationRecord {
 	FormationSlot m_slots[1]; // 0x18 — up to the record's end
 } FormationRecord;
 
-// An include record: the stream to run, by id or name.
-typedef struct IncludeRecord {
-	BwdRecord m_header;    // 0x00
-	MechS16 m_id;          // 0x08
-	MechChar m_name[0x0c]; // 0x0a
-} IncludeRecord;
-
 // A star record's entry: a team's two values and its formation's name.
 typedef struct StarEntry {
 	MechS32 m_unk0x00;     // 0x00
@@ -85,17 +75,6 @@ typedef struct FormationNames {
 	BwdRecord m_header;         // 0x00
 	MechChar m_names[16][0x11]; // 0x08
 } FormationNames;
-
-// A second include record, by id and name at other offsets.
-typedef struct IncludeRecord2 {
-	BwdRecord m_header;               // 0x00
-	undefined m_unk0x08[0x0a - 0x08]; // 0x08
-	MechS16 m_id;                     // 0x0a
-	undefined m_unk0x0c[0x24 - 0x0c]; // 0x0c
-	MechChar m_name[0x0c];            // 0x24
-} IncludeRecord2;
-
-typedef MechS32 (*BwdStreamFn)(BwdStream* p_stream);
 
 // GLOBAL: MW2 0x100a8608
 ScenarioTable* g_scenarios = NULL;

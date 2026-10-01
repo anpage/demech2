@@ -9,6 +9,7 @@ extern "C"
 {
 #endif
 
+	extern MechChar g_bwdVersion[];
 	extern MechChar* g_bwdKeywordNames[0x48];
 	extern MechChar g_bwdExtension[8];
 	extern MechU32 g_bwdTypeCodes[0x48];

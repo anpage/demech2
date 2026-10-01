@@ -8,6 +8,7 @@
 #include "inputmap.h"
 #include "integrate.h"
 #include "linengull.h"
+#include "muldiv.h"
 #include "object.h"
 #include "players.h"
 #include "ramp.h"
@@ -18,6 +19,7 @@
 #include "types.h"
 #include "unk10034a40.h"
 #include "unk1003a530.h"
+#include "unk1004b130.h"
 #include "unk100696c0.h"
 #include "unk1006d680.h"
 
@@ -72,7 +74,7 @@ void FirstEyepoint(void)
 	StartRamp(&g_unk0x10176f80, 0, 0, 0.2);
 	StartWrappedRamp(&g_unk0x10176f60, 0, 0, 0.2, 0x1680000);
 	StartWrappedRamp(&g_unk0x10176f40, 0, 0, 0.2, 0x1680000);
-	g_unk0x100b2564 = 0x10000;
+	g_sinkZoomFactor = 0x10000;
 	for (i = 0; i < 5; i++) {
 		g_unk0x10176fa0[i].m_unk0x00 = g_unk0x10176fa0[i].m_unk0x04 = g_unk0x10176fa0[i].m_unk0x08 = 0;
 		g_unk0x10176fa0[i].m_unk0x0c = g_unk0x10176fa0[i].m_unk0x10 = g_unk0x10176fa0[i].m_unk0x14 = 0;
@@ -88,10 +90,86 @@ void FirstEyepoint(void)
 	FUN_10011401(g_unk0x100a2410);
 }
 
-// STUB: MW2 0x100110f7
+// Updates the camera for the frame in the view mode FUN_10011440 picks (the free camera without a
+// local player): the cockpit, tracking, external, drop or free camera, driven by INPUT.MAP's
+// eyepoint and track sinks.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x100110f7
 void UpdateEyepoint(void)
 {
-	STUB(0x100110f7);
+	MechS32 mode;
+	MechS32 climb;
+	MechS32 strafe;
+	MechS32 turn;
+	MechS32 speed;
+	MechS32 pitch;
+	MechS32 pan;
+
+	g_normalFov = g_sinkZoomFactor;
+	ApplyCameraFov(0);
+	g_unk0x100a2420 = g_unk0x100a241c = 0;
+	if (!g_playerCount) {
+		mode = 2;
+		FUN_10011401(2);
+		g_localPlayer = NULL;
+	}
+	else {
+		mode = FUN_10011440();
+		if (!mode) {
+			g_localPlayer = g_players[g_localPlayerId];
+		}
+
+		if (!g_localPlayer) {
+			mode = 2;
+		}
+	}
+
+	g_unk0x100a6cc8.m_unk0x00 = 0;
+	switch (mode) {
+	case 3:
+		FUN_10011819();
+		break;
+	case 1:
+		speed = MulDiv64(g_sinkTrackDistanceDelta, g_deltaTime, 0xb5) >> 16;
+		strafe = MulDiv64(g_sinkTrackHeightDelta, g_deltaTime, 0xb5) >> 16;
+		turn = g_sinkEyepointTilt;
+		pan = MulDiv64(g_sinkEyepointPanDelta, g_deltaTime, 0xb5);
+		if (g_unk0x100a2c04 && !g_unk0x100a2428) {
+			pan = g_deltaTime << 14;
+		}
+
+		FUN_100118bc(speed, strafe, turn, pan);
+		break;
+	case 0:
+	case 6:
+		FUN_10011cb0();
+		break;
+	case 4:
+		FUN_10011edc();
+		break;
+	default:
+		climb = MulDiv64(g_sinkTrackHeightDelta, g_deltaTime, 0xb5) >> 15;
+		speed = MulDiv64(g_sinkTrackDistanceDelta, g_deltaTime, 0xb5) >> 15;
+		strafe = MulDiv64(g_sinkEyepointSlideDelta, g_deltaTime, 0xb5) >> 16;
+		turn = MulDiv64(g_sinkEyepointPanDelta, g_deltaTime, 0xb5);
+		if (g_sinkEyepointTilt > 0) {
+			pitch = g_deltaTime * 0x2d0000 / 0xb5;
+		}
+		else if (g_sinkEyepointTilt < 0) {
+			pitch = -(g_deltaTime * 0x2d0000) / 0xb5;
+		}
+		else {
+			pitch = 0;
+		}
+
+		g_sinkEyepointTiltReset = 1;
+		FUN_10011f9a(climb, speed, strafe, turn, pitch);
+		break;
+	}
+
+	g_unk0x100a2408 = mode;
+	FUN_1004b344();
+	FUN_1001220a();
 }
 
 // FUNCTION: MW2 0x100113af
@@ -302,6 +380,12 @@ void FUN_10011819(void)
 			FUN_1001156a(g_eyepoint, g_unk0x10176f10);
 		}
 	}
+}
+
+// STUB: MW2 0x100118bc
+void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn)
+{
+	STUB(0x100118bc);
 }
 
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns

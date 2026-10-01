@@ -79,6 +79,12 @@ extern "C"
 	void FUN_10011819(void);
 	void FUN_10011401(MechS32 p_zoom);
 	MechS32 FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view);
+	void UpdateEyepoint(void);
+	void ApplyCameraFov(MechS32 p_reset);
+	void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn);
+	void FUN_10011edc(void);
+	void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch);
+	void FUN_1001220a(void);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,5 @@
-/* Hand-written assembly: FUN_1000da0c is a C function with an __asm body. */
+/* Hand-written assembly: FUN_1000da0c is a C function with an __asm body, and FUN_1000d7c0 has an
+   __asm block. */
 #include "transform.h"
 
 #include "clock.h"
@@ -145,6 +146,111 @@ void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	*p_x = rx;
 	*p_y = ry;
 	*p_z = rz;
+}
+
+// Recomputes column p_column of p_matrix's 2.29 rotation as the cross product of the other two,
+// which makes it orthogonal to them again. The products are an __asm block.
+// Stack-slot permutation: the column values and x, y and z.
+// FUNCTION: MW2 0x1000d7c0
+void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column)
+{
+	MechS32 a2;
+	MechS32 b2;
+	MechS32 a0;
+	MechS32 x;
+	MechS32 b0;
+	MechS32 y;
+	MechS32 z;
+	MechS32 a1;
+	MechS32 b1;
+
+	switch (p_column) {
+	case 0:
+		a0 = p_matrix->m_rows[0][1];
+		a1 = p_matrix->m_rows[1][1];
+		a2 = p_matrix->m_rows[2][1];
+		b0 = p_matrix->m_rows[0][2];
+		b1 = p_matrix->m_rows[1][2];
+		b2 = p_matrix->m_rows[2][2];
+		break;
+	case 1:
+		a0 = p_matrix->m_rows[0][2];
+		a1 = p_matrix->m_rows[1][2];
+		a2 = p_matrix->m_rows[2][2];
+		b0 = p_matrix->m_rows[0][0];
+		b1 = p_matrix->m_rows[1][0];
+		b2 = p_matrix->m_rows[2][0];
+		break;
+	case 2:
+		a0 = p_matrix->m_rows[0][0];
+		a1 = p_matrix->m_rows[1][0];
+		a2 = p_matrix->m_rows[2][0];
+		b0 = p_matrix->m_rows[0][1];
+		b1 = p_matrix->m_rows[1][1];
+		b2 = p_matrix->m_rows[2][1];
+		break;
+	}
+
+	__asm {
+		mov eax, a1
+		mov edx, b2
+		imul edx
+		mov edi, edx
+		mov esi, eax
+		mov eax, b1
+		mov edx, a2
+		imul edx
+		sub esi, eax
+		sbb edi, edx
+		shrd esi, edi, 29
+		adc esi, 0
+		mov x, esi
+		mov eax, a2
+		mov edx, b0
+		imul edx
+		mov edi, edx
+		mov esi, eax
+		mov eax, b2
+		mov edx, a0
+		imul edx
+		sub esi, eax
+		sbb edi, edx
+		shrd esi, edi, 29
+		adc esi, 0
+		mov y, esi
+		mov eax, a0
+		mov edx, b1
+		imul edx
+		mov edi, edx
+		mov esi, eax
+		mov eax, b0
+		mov edx, a1
+		imul edx
+		sub esi, eax
+		sbb edi, edx
+		shrd esi, edi, 29
+		adc esi, 0
+		mov z, esi
+	}
+
+	switch (p_column)
+	{
+	case 0:
+		p_matrix->m_rows[0][0] = x;
+		p_matrix->m_rows[1][0] = y;
+		p_matrix->m_rows[2][0] = z;
+		break;
+	case 1:
+		p_matrix->m_rows[0][1] = x;
+		p_matrix->m_rows[1][1] = y;
+		p_matrix->m_rows[2][1] = z;
+		break;
+	case 2:
+		p_matrix->m_rows[0][2] = x;
+		p_matrix->m_rows[1][2] = y;
+		p_matrix->m_rows[2][2] = z;
+		break;
+	}
 }
 
 // Multiplies two 2.29 fixed-point values. The body is an __asm block.

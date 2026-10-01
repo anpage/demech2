@@ -32,6 +32,7 @@ extern "C"
 	extern MechS32 g_segmentNormalX;
 	extern MechS32 g_segmentNormalY;
 	extern MechS32 g_segmentNormalZ;
+	extern MechS32 g_unk0x100a5544;
 
 	void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24);
 	MechS32 FUN_10034a7b(

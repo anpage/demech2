@@ -377,8 +377,9 @@ void DoAudio(void)
 					continue;
 				}
 
-				if ((player->m_aiGoal & 0xff) == g_localPlayerId &&
-					(player->m_aiState == 2 || player->m_aiState == 3) && player->m_targetInfo.m_unk0x04 <= 150000) {
+				if ((player->m_ai.m_goal & 0xff) == g_localPlayerId &&
+					(player->m_ai.m_state == 2 || player->m_ai.m_state == 3) &&
+					player->m_targetInfo.m_unk0x04 <= 150000) {
 					FUN_1007eb23(0x100, 100, 0x40, 5, 0x32);
 					break;
 				}

@@ -391,12 +391,12 @@ MechS32 FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
 			continue;
 		}
 
-		if (player->m_aiTarget & 0x100 && (player->m_aiTarget & 0xff) > index) {
-			player->m_aiTarget--;
+		if (player->m_ai.m_target & 0x100 && (player->m_ai.m_target & 0xff) > index) {
+			player->m_ai.m_target--;
 		}
 
-		if (player->m_aiGoal & 0x100 && (player->m_aiGoal & 0xff) > index) {
-			player->m_aiGoal--;
+		if (player->m_ai.m_goal & 0x100 && (player->m_ai.m_goal & 0xff) > index) {
+			player->m_ai.m_goal--;
 		}
 
 		if (player->m_targetInfo.m_target & 0x100 && (player->m_targetInfo.m_target & 0xff) > index &&

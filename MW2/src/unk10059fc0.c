@@ -2,17 +2,24 @@
 #include "unk10059fc0.h"
 
 #include "ai.h"
+#include "clock.h"
 #include "decomp.h"
+#include "fadepal.h"
 #include "mech.h"
 #include "object.h"
+#include "objective.h"
 #include "players.h"
 #include "playersteering.h"
 #include "ramp.h"
+#include "random.h"
+#include "rendertarget.h"
 #include "resource.h"
 #include "staticmem.h"
 #include "types.h"
+#include "unk100079d0.h"
 #include "unk10016ad0.h"
 #include "unk100563d0.h"
+#include "weapons.h"
 #include "weaponslot.h"
 
 // Resets the player's mech of this class: its torso objects and ramps, state and weapons, stands
@@ -104,10 +111,98 @@ void FUN_1005a203(Mech* p_mech)
 	FUN_10001cf8(mech->m_player->m_obj);
 }
 
-// STUB: MW2 0x1005a2ea
+// Updates the mech for the tick. A running mech (state 2) fires its weapons, drops a target it
+// can no longer claim, aims its torso from the steering (turning freely with a twist limit of a
+// full turn, otherwise within the limit) and stops on overheating; otherwise the steering is
+// cleared. Then the heat, and the power states: 0 starts powering up, 1 runs once the power-up
+// time has passed, 3 starts over and 4 is destroyed.
+// Stack-slot permutation: mech, twist and delta.
+// FUNCTION: MW2 0x1005a2ea
 void FUN_1005a2ea(Mech* p_mech)
 {
-	STUB(0x1005a2ea);
+	Mech* mech;
+	MechS32 twist;
+	MechS32 delta;
+
+	mech = p_mech;
+	FUN_10051100(mech->m_player);
+	if (mech->m_unk0xa0 == 2) {
+		UpdateWeaponFireState(mech);
+		if (mech->m_player->m_unk0x10 != 2) {
+			if (mech->m_player->m_targetInfo.m_target && !(mech->m_player->m_targetInfo.m_target & 0x1000) &&
+				!FUN_1005fa22(mech->m_player)) {
+				mech->m_player->m_targetInfo.m_target = 0;
+			}
+		}
+		else {
+			mech->m_player->m_targetInfo.m_target = 0;
+		}
+
+		FUN_10045eac(mech);
+		mech->m_unk0xbc = 0;
+		mech->m_player->m_steering->m_unk0x42 = 0;
+		if ((mech->m_unk0x10c & 4) && !(mech->m_unk0x10c & 8)) {
+			mech->m_player->m_steering->m_throttle = 0;
+		}
+
+		twist = mech->m_player->m_steering->m_unk0x04;
+		if (mech->m_unk0xe0 >= 0x1680000) {
+			delta = twist - mech->m_unk0x04.m_value;
+			while (delta > 0xb40000) {
+				delta -= 0x1680000;
+			}
+
+			while (delta < -0xb40000) {
+				delta += 0x1680000;
+			}
+
+			mech->m_unk0x04.m_target = twist;
+			mech->m_unk0x04.m_value = twist - delta;
+		}
+		else if (mech->m_unk0xe0 < mech->m_unk0x04.m_target) {
+			mech->m_unk0x04.m_target = mech->m_unk0xe0;
+		}
+		else if (-mech->m_unk0xe0 > mech->m_unk0x04.m_target) {
+			mech->m_unk0x04.m_target = -mech->m_unk0xe0;
+		}
+
+		mech->m_unk0x14.m_target = mech->m_player->m_steering->m_unk0x00;
+	}
+	else {
+		mech->m_unk0x04.m_target = 0;
+		mech->m_unk0x14.m_target = 0;
+		mech->m_player->m_steering->m_throttle = 0;
+		mech->m_player->m_steering->m_unk0x04 = 0;
+		mech->m_player->m_steering->m_unk0x00 = 0;
+	}
+
+	CalculateHeat(mech);
+	switch (mech->m_unk0xa0) {
+	case 0:
+		mech->m_unk0xa0 = 1;
+		mech->m_unk0x8c = g_currentClock + RandomIntBelow(0x16a) + 0x43e;
+		break;
+	case 1:
+		if (mech->m_unk0x8c < g_currentClock) {
+			mech->m_unk0xa0 = 2;
+		}
+		break;
+	case 2:
+		break;
+	case 3:
+		mech->m_unk0xa0 = 0;
+		break;
+	case 4:
+		if (!mech->m_unk0x8c) {
+			mech->m_unk0x8c = g_currentClock + 0x712;
+			FUN_1001cdd1();
+		}
+
+		if (mech->m_unk0x8c > g_currentClock) {
+			FUN_1004cb11(mech);
+		}
+		break;
+	}
 }
 
 // FUNCTION: MW2 0x1005a61d

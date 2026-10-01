@@ -19,6 +19,7 @@ extern "C"
 	MechS32 FUN_100661ef(MechS32 p_index);
 	MechS32 FUN_10066223(void);
 	void FUN_10066241(MechS32 p_formation);
+	MechS32 FUN_10066272(MechS32 p_index);
 	void FUN_100662df(MenuPage* p_page, MenuItem* p_item);
 	void FUN_10066314(MenuPage* p_page, MenuItem* p_item);
 	void FUN_10066369(MechS32 p_index);

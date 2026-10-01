@@ -2,12 +2,12 @@
 #define CONFIG_H
 
 #include "decomp.h"
+#include "rendertarget.h"
 #include "soundconfig.h"
 #include "types.h"
 
 struct Mech;
 struct Point;
-struct RenderTarget;
 struct ResourceRef;
 
 #pragma pack(1)
@@ -35,6 +35,7 @@ extern "C"
 {
 #endif
 
+	extern struct RenderTarget g_unk0x100adf58[26];
 	extern MechChar g_gameDir[256];
 	extern MechS32 g_unk0x100ae380;
 
@@ -44,6 +45,7 @@ extern "C"
 	MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg);
 	MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg);
 	MechChar* BuildGamePath(MechChar* p_name);
+	void FUN_1006f4fa(struct Mech* p_mech);
 	void FUN_1006fba3(void);
 	void FUN_1006fca5(void);
 	void FUN_1006ff7b(void);

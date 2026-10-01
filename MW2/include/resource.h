@@ -1,10 +1,14 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#include "bwd.h"
 #include "missiontable.h"
 #include "types.h"
 
 struct AmberWillow0x7c;
+struct IncludeRecord;
+struct IncludeRecord2;
+struct ScenarioTable;
 
 // The functions and globals of resource.c that other units use.
 #ifdef __cplusplus
@@ -18,6 +22,9 @@ extern "C"
 	extern MechS32 g_unk0x100a8624;
 	extern MechS32 g_unk0x100ea580[0x96];
 
+	MechS32 LoadScenarioTable(struct ScenarioTable* p_table);
+	MechS32 ExecuteInclude(struct IncludeRecord* p_record, BwdStreamFn p_fn);
+	MechS32 FUN_1004fcac(struct IncludeRecord2* p_record, BwdStreamFn p_fn);
 	void FUN_1004fd55(void);
 	MechS32 MapResourceId(MechS32 p_id);
 	void SetMangleBase(MechS32 p_base);
