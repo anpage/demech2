@@ -52,6 +52,18 @@ function(reccmp_add_target TARGET)
     endif()
 endfunction()
 
+# A target another build produces (the nested VC++ 2.2 build): its ID, and the full paths
+# of the binary and its PDB.
+function(reccmp_add_external_target ID)
+    cmake_parse_arguments(ARGS "" "PATH;PDB" "" ${ARGN})
+    if(NOT ARGS_PATH OR NOT ARGS_PDB)
+        message(FATAL_ERROR "Missing PATH or PDB argument")
+    endif()
+    set_property(GLOBAL APPEND PROPERTY RECCMP_EXTERNAL_TARGETS ${ID})
+    set_property(GLOBAL PROPERTY RECCMP_EXTERNAL_${ID}_PATH "${ARGS_PATH}")
+    set_property(GLOBAL PROPERTY RECCMP_EXTERNAL_${ID}_PDB "${ARGS_PDB}")
+endfunction()
+
 # Target paths are written relative to the reccmp-build.yml, so the file stays
 # valid when the build directory is read through another path than the one it
 # was generated with (e.g. a Wine/Docker build, `Z:/build`, read from Linux).
@@ -64,6 +76,16 @@ function(reccmp_build_yml RESULT PROJECT_DIR BASE)
         string(APPEND txt "    path: '$<PATH:RELATIVE_PATH,$<TARGET_FILE:${target}>,${BASE}>'\n")
         if(WIN32 AND MSVC)
             string(APPEND txt "    pdb: '$<PATH:RELATIVE_PATH,$<TARGET_PDB_FILE:${target}>,${BASE}>'\n")
+        endif()
+    endforeach()
+    get_property(external_targets GLOBAL PROPERTY RECCMP_EXTERNAL_TARGETS)
+    foreach(id ${external_targets})
+        get_property(path GLOBAL PROPERTY RECCMP_EXTERNAL_${id}_PATH)
+        get_property(pdb GLOBAL PROPERTY RECCMP_EXTERNAL_${id}_PDB)
+        string(APPEND txt "  ${id}:\n")
+        string(APPEND txt "    path: '$<PATH:RELATIVE_PATH,${path},${BASE}>'\n")
+        if(WIN32 AND MSVC)
+            string(APPEND txt "    pdb: '$<PATH:RELATIVE_PATH,${pdb},${BASE}>'\n")
         endif()
     endforeach()
     set("${RESULT}" "${txt}" PARENT_SCOPE)

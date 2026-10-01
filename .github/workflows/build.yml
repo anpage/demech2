@@ -19,10 +19,11 @@ jobs:
           # 0x10080490). Progress is game code only: reccmp runs with --nolib,
           # which drops the LIBRARY entries from both sides of the ratio.
           # --total is only a floor: reccmp uses whichever is larger, the
-          # annotated function count or --total. Every
-          # per-target step below is driven from this list, so adding NETMECHW
-          # later is a one-line change here, next to reccmp-project.yml and
-          # CMakeLists.txt.
+          # annotated function count or --total. Every per-target step below
+          # is driven from this list. It holds the public targets only: the
+          # retail ones (MECH2; NETMECHW later), whose originals aren't
+          # public, are listed in verify-retail.yml, the workflow that runs
+          # after this one.
           entries="MW2SHELL:770 MW2:1537"
 
           {
@@ -93,6 +94,15 @@ jobs:
           ref: 36b14330ade0f3347d7bc7ba373304f279c81221
           path: masm611
 
+      - name: "Checkout MSVC 2.2 toolchain"
+        uses: actions/checkout@v6
+        with:
+          # MECH2.EXE was built with VC++ 2.2: CMake builds it with this
+          # toolchain in a nested build (build/vc22).
+          repository: archaic-msvc/msvc220
+          ref: c0fff2aecaa88576c685de79173be4ead4dbe42c
+          path: msvc220
+
       - name: "Setup cmake"
         uses: jwlawson/actions-setup-cmake@v2
         with:
@@ -110,7 +120,7 @@ jobs:
           rem ML.EXE is passed explicitly rather than put on PATH: MASM's BIN
           rem also holds a 16-bit LINK, LIB and NMAKE.
           call .\msvc410\bin\VCVARS32.BAT x86
-          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE"
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220"
           cmake --build build
 
       - name: Upload Artifact
@@ -119,9 +129,10 @@ jobs:
           name: Win32
           path: |
             build/*.dll
-            build/MECH2.exe
             build/*.pdb
             build/*.map
+            build/vc22/MECH2.exe
+            build/vc22/MECH2.pdb
 
   verify:
     name: Verify decomp
@@ -289,8 +300,6 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'anpage/demech2' }}
     permissions:
       contents: write
-      pages: write
-      id-token: write
     env:
       TARGET_ENTRIES: ${{ needs.targets.outputs.entries }}
     steps:
@@ -308,11 +317,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # The release distributes the built DLLs and progress reports; the
-          # verify job's compare-with-master step also downloads
+          # verify job's compare-with-main step also downloads
           # ${target}PROGRESS.json from here. The README does not embed the
           # SVGs from release assets (GitHub serves them with a content type
-          # browsers refuse for SVG in <img> tags); the Pages deployment
-          # below publishes them for that.
+          # browsers refuse for SVG in <img> tags): verify-retail.yml's
+          # publish job deploys them to GitHub Pages, together with the
+          # retail targets' reports, once this workflow has finished.
           gh release view continuous --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
             || gh release create continuous --repo "$GITHUB_REPOSITORY" --title "Continuous build" --prerelease --target "$GITHUB_SHA"
 
@@ -330,22 +340,6 @@ jobs:
           done
 
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
-
-      - name: Prepare Pages
-        run: |
-          mkdir -p progress
-          for entry in $TARGET_ENTRIES; do
-            target="${entry%%:*}"
-            cp "${target}PROGRESS.SVG" progress/
-            cp "${target}PROGRESS.HTML" progress/
-          done
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: progress/
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v5
 
   decomplint:
     name: ${{ matrix.target }} annotations
@@ -415,8 +409,8 @@ jobs:
 
       - name: Run ncc
         run: |
-          # ncc validates the whole source tree: MECH2 too, even though it is
-          # not a reccmp target.
+          # ncc validates the whole source tree: MECH2 too, which isn't in
+          # TARGET_ENTRIES (its retail original isn't public).
           includes=(util MECH2/include MECH2)
           paths=(MECH2)
           for entry in $TARGET_ENTRIES; do

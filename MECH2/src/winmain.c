@@ -53,11 +53,16 @@ typedef int(__stdcall* SimMainProc)(HINSTANCE, undefined4, LPSTR, NetLaunchInfo*
 typedef int(__stdcall* ShellMainProc)(HINSTANCE, HINSTANCE, LPSTR, int, HWND);
 typedef int(__stdcall* LauncherProc)(NetLaunchInfo*);
 
+// GLOBAL: MECH2 0x0040d000
 WNDPROC g_shellWindowProc = NULL;
+// GLOBAL: MECH2 0x0040d004
 WNDPROC g_simWindowProc = NULL;
+// GLOBAL: MECH2 0x0040d008
 MechS32 g_currentProcess = c_processLauncher;
+// GLOBAL: MECH2 0x0040d00c
 BOOL g_classRegistered = FALSE;
 
+// FUNCTION: MECH2 0x004010e0
 LRESULT CALLBACK MechWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	switch (p_msg) {
@@ -84,6 +89,9 @@ LRESULT CALLBACK MechWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM
 
 // Creates the game window: a centered captioned window when the desktop is larger than
 // the game's resolution, a full-screen popup otherwise.
+// Stack-slot permutation: every local. The window-size test also compares with reversed
+// operands (the original loads the parameter), which declaration order didn't flip.
+// FUNCTION: MECH2 0x004011d5
 HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, BOOL p_isNetGame)
 {
 	RECT rect;
@@ -92,6 +100,7 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 	WNDCLASS wndClass;
 	MechS32 screenHeight;
 	MechS32 screenWidth;
+	DWORD exStyle;
 
 	style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 	if (!g_classRegistered) {
@@ -101,7 +110,7 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 		wndClass.cbClsExtra = 0;
 		wndClass.cbWndExtra = 0;
 		wndClass.hInstance = p_hInstance;
-		wndClass.hIcon = LoadIcon(p_hInstance, MAKEINTRESOURCE(p_isNetGame ? 108 : 103));
+		wndClass.hIcon = LoadIcon(p_hInstance, (LPCSTR) (p_isNetGame ? 108 : 103));
 		wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 		wndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
 		wndClass.lpszMenuName = NULL;
@@ -115,19 +124,20 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 	rect.bottom = p_height;
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
-	if (p_width < screenWidth || p_height < screenHeight) {
+	if (screenWidth <= p_width && screenHeight <= p_height) {
+		style = WS_POPUP;
+	}
+	else {
 		AdjustWindowRect(&rect, style, FALSE);
 		rect.right -= rect.left;
 		rect.bottom -= rect.top;
 		rect.top = (screenHeight - rect.bottom) / 2;
 		rect.left = (screenWidth - rect.right) / 2;
 	}
-	else {
-		style = WS_POPUP;
-	}
 
+	exStyle = 0;
 	window = CreateWindowEx(
-		0,
+		exStyle,
 		"MECHWARRIOR 2",
 		"MECHWARRIOR 2",
 		style,
@@ -150,6 +160,7 @@ HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, 
 	return window;
 }
 
+// FUNCTION: MECH2 0x0040137b
 MechS32 StartSim(HWND p_hWnd, LPSTR p_cmdLine, NetLaunchInfo* p_netLaunch, undefined4 p_unk0x14)
 {
 	HMODULE module;
@@ -178,6 +189,8 @@ MechS32 StartSim(HWND p_hWnd, LPSTR p_cmdLine, NetLaunchInfo* p_netLaunch, undef
 	return result;
 }
 
+// Stack-slot permutation: shellMain and result.
+// FUNCTION: MECH2 0x00401448
 MechS32 StartShell(HWND p_hWnd, LPSTR p_cmdLine, int p_cmdShow)
 {
 	HMODULE module;
@@ -206,6 +219,7 @@ MechS32 StartShell(HWND p_hWnd, LPSTR p_cmdLine, int p_cmdShow)
 	return result;
 }
 
+// FUNCTION: MECH2 0x00401511
 BOOL CheckMech2Running(void)
 {
 	if (FindWindow("MECHWARRIOR 2", "MECHWARRIOR 2") != NULL) {
@@ -220,11 +234,14 @@ BOOL CheckMech2Running(void)
 }
 
 // Offers to run SETUP.EXE from the game CD. Nothing calls it.
+// FUNCTION: MECH2 0x00401567
 void RunSetup(LPCSTR p_message)
 {
 	MechChar setupPath[0x50] = "?:\\SETUP.EXE";
+	MechS32 answer;
 
-	if (MessageBox(NULL, p_message, "MECHWARRIOR 2", MB_ICONERROR | MB_YESNO) == IDYES) {
+	answer = MessageBox(NULL, p_message, "MECHWARRIOR 2", MB_ICONERROR | MB_YESNO);
+	if (answer == IDYES) {
 		setupPath[0] = CdCheck();
 		if (setupPath[0] == '\0') {
 			MessageBox(
@@ -236,7 +253,7 @@ void RunSetup(LPCSTR p_message)
 		}
 		else {
 			// Only returns on failure
-			_spawnl(_P_OVERLAY, setupPath, setupPath, NULL, NULL);
+			_spawnlp(_P_OVERLAY, setupPath, setupPath, NULL, NULL);
 			MessageBox(NULL, "Unable to execute MECHWARRIOR 2 setup program.", "MECHWARRIOR 2", MB_ICONERROR);
 		}
 	}
@@ -245,6 +262,9 @@ void RunSetup(LPCSTR p_message)
 // The command line selects the mode: "net..." runs NetMech, an empty command line runs
 // the shell (which hands over to the simulator through mw2prm.cfg), and anything else
 // goes straight to the simulator.
+// Stack-slot permutation: every local. Shorter recompiled stack displacements also
+// shift branch targets and truncate the original's tail in reccmp.
+// FUNCTION: MECH2 0x0040161d
 int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmdLine, int p_cmdShow)
 {
 	HWND window;
@@ -353,7 +373,7 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 				);
 				exit(1);
 			}
-			else if ((MechChar) result == -1) {
+			else if ((result & 0xff) == 0xff) {
 				break;
 			}
 
@@ -380,7 +400,7 @@ int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmd
 				);
 				exit(1);
 			}
-			else if ((MechChar) result == -1) {
+			else if ((result & 0xff) == 0xff) {
 				break;
 			}
 
