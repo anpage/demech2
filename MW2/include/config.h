@@ -2,12 +2,12 @@
 #define CONFIG_H
 
 #include "decomp.h"
+#include "rendertarget.h"
 #include "soundconfig.h"
 #include "types.h"
 
 struct Mech;
 struct Point;
-struct RenderTarget;
 struct ResourceRef;
 
 #pragma pack(1)
