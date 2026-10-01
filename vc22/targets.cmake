@@ -85,7 +85,16 @@ function(demech2_add_netmechw)
   set(root "${DEMECH2_SOURCE_DIR}")
   add_library(netmechw SHARED
     "${root}/NETMECHW/src/dllmain.cpp"
+    "${root}/NETMECHW/src/unk10001070.cpp"
+    "${root}/NETMECHW/src/sessionlist.cpp"
+    "${root}/NETMECHW/src/unk10002140.cpp"
+    "${root}/NETMECHW/src/unk100025f0.cpp"
     "${root}/NETMECHW/src/unk10003660.cpp"
+    "${root}/NETMECHW/src/unk10006b20.cpp"
+    "${root}/NETMECHW/src/unk10007c30.cpp"
+    "${root}/NETMECHW/src/unk1000aa90.cpp"
+    "${root}/NETMECHW/src/unk1000b400.cpp"
+    "${root}/NETMECHW/src/chatlog.cpp"
     "${root}/NETMECHW/src/unk10010460.cpp"
     "${root}/NETMECHW/src/mw2prj.c"
     "${root}/NETMECHW/src/prjfile.c"
