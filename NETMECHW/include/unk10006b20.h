@@ -24,6 +24,8 @@ struct CopperField0x4d {
 		MechU8 m_option3 : 1; // 0x424
 		MechU8 m_option4 : 1; // 0x425
 		MechU8 m_option5 : 1; // 0x426
+		MechU8 m_option6 : 1; // cleared by FUN_10009615
+		MechU8 m_option7 : 1; // cleared by FUN_10009615
 	};
 
 	MechU8 m_unk0x00;       // 0x00
@@ -65,7 +67,7 @@ public:
 	}
 
 	undefined4 m_unk0x00;                  // 0x00
-	undefined4 m_unk0x04;                  // 0x04
+	LPGUID m_unk0x04;                      // 0x04: the service provider (DirectPlayCreate)
 	LPDIRECTPLAY m_directPlay;             // 0x08
 	DPSESSIONDESC m_sessionDesc;           // 0x0c
 	CopperField0x4d m_settings;            // 0x88

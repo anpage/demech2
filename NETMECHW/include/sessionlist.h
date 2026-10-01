@@ -31,6 +31,9 @@ public:
 	SessionList(HWND p_listBox);
 	~SessionList();
 
+	// SYNTHETIC: NETMECHW 0x10006020
+	// SessionList::`scalar deleting destructor'
+
 	void Clear();
 	void MarkStale();
 	MechS32 Find(MechChar* p_name, Session* p_session);

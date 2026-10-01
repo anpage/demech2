@@ -22,7 +22,7 @@ IronLantern0x160::IronLantern0x160()
 		GetUserName(name, &size);
 	}
 
-	m_unk0x04 = 0;
+	m_unk0x04 = NULL;
 	m_directPlay = NULL;
 	strncpy(m_playerName, name, sizeof(m_playerName));
 	strcpy(m_mechFile, "frm00std");

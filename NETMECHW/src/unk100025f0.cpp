@@ -1,10 +1,12 @@
 #include "unk100025f0.h"
 
+#include "bwdwriter.h"
 #include "decomp.h"
 #include "types.h"
 #include "unk10001070.h"
 #include "unk10003660.h"
 #include "unk10006b20.h"
+#include "unk10007c30.h"
 #include "unk1000aa90.h"
 
 #include <stdio.h>
@@ -52,10 +54,29 @@ BOOL CALLBACK FUN_1000268a(HWND, UINT, WPARAM, LPARAM)
 	return FALSE;
 }
 
-// STUB: NETMECHW 0x10002e0e
-void FUN_10002e0e(HWND)
+// Takes the mech selected in the list box (control 0x3fe) of the dialog p_dialog, and shows it.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x10002e0e
+void FUN_10002e0e(HWND p_dialog)
 {
-	STUB(0x10002e0e);
+	MechS32 unused0;
+	MechS32 unused1;
+	HWND listBox;
+	HWND text;
+	LRESULT index;
+
+	unused0 = 0;
+	unused1 = 0;
+	listBox = GetDlgItem(p_dialog, 0x3fe);
+	text = GetDlgItem(p_dialog, 0x400);
+
+	index = SendMessage(listBox, LB_GETCURSEL, 0, 0);
+	g_unk0x10023388 = SendMessage(listBox, LB_GETITEMDATA, index, 0);
+	g_unk0x1002338c = 0;
+	g_unk0x10023394 = 0;
+
+	FUN_100080e1(text, g_unk0x1001c318[g_unk0x10023388].m_code);
+	FUN_10002ec3(p_dialog);
 }
 
 // STUB: NETMECHW 0x10002ec3
@@ -64,10 +85,22 @@ void FUN_10002ec3(HWND)
 	STUB(0x10002ec3);
 }
 
-// STUB: NETMECHW 0x10003154
-void FUN_10003154(HWND)
+// Fills the list box p_listBox with the mechs of g_unk0x1001c318 and selects g_unk0x10023388.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x10003154
+void FUN_10003154(HWND p_listBox)
 {
-	STUB(0x10003154);
+	MechS32 i;
+	LRESULT index;
+
+	index = 0;
+	SendMessage(p_listBox, LB_RESETCONTENT, 0, 0);
+	for (i = 0; i < g_unk0x1001fe70; i++) {
+		index = SendMessage(p_listBox, LB_ADDSTRING, 0, (LPARAM) g_unk0x1001c318[i].m_name);
+		SendMessage(p_listBox, LB_SETITEMDATA, index, i);
+	}
+
+	SendMessage(p_listBox, LB_SETCURSEL, g_unk0x10023388, 0);
 }
 
 // Copies the mech MEK\<p_mechFile>.MEK to the local player's MEK\<xxx><slot>PLR.MEK, deleting

@@ -22,6 +22,11 @@ struct NetPlayer {
 
 // The functions and globals of unk1000aa90.cpp that other units use.
 extern NetPlayer g_players[8];
+
+// Whether the slot p_index of g_players holds a player. The original's test has the shape of a
+// short-circuit || whose second operand is constant false (cmp; je; jmp), as a macro would
+// leave it; a plain test of m_flags compiles to a single jne.
+#define IS_PLAYER_SLOT_USED(p_index) (g_players[p_index].m_flags == 0 || FALSE)
 extern MechS32 g_playerCount;
 
 MechS32 FUN_1000aa90(MechChar* p_name, DPID p_id);

@@ -11,6 +11,30 @@
 // followed by the CD check the shell's cdcheck.cpp has as an object of its own. A C++ unit:
 // FUN_10010c06 ends with the jmp to the epilogue.
 
+// A record of the results, sorted by m_unk0x24 (FUN_10010c06).
+// SIZE 0x26
+struct AmberRecord0x26 {
+	undefined m_unk0x00[0x24]; // 0x00
+	MechU16 m_unk0x24;         // 0x24
+};
+
+// The block of MW2CAR.CFG that FUN_10010b7f reads.
+// SIZE 0x86
+struct SilverBlock0x86 {
+	undefined m_unk0x00[0x86]; // 0x00
+};
+
+// MW2CAR.CFG.
+// SIZE 0xd6
+struct CareerFile0xd6 {
+	undefined m_unk0x00[0x50]; // 0x00
+	SilverBlock0x86 m_unk0x50; // 0x50
+};
+
+DECOMP_SIZE_ASSERT(AmberRecord0x26, 0x26)
+DECOMP_SIZE_ASSERT(SilverBlock0x86, 0x86)
+DECOMP_SIZE_ASSERT(CareerFile0xd6, 0xd6)
+
 // GLOBAL: NETMECHW 0x10023930
 MechChar g_cdDriveLetter = '\0';
 
@@ -45,17 +69,48 @@ undefined4 FUN_10010920(undefined4*)
 	return 0;
 }
 
-// STUB: NETMECHW 0x10010b7f
-undefined4 FUN_10010b7f(undefined4*)
+// Reads the block at 0x50 of MW2CAR.CFG into p_block; returns whether the file opened.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x10010b7f
+MechS32 FUN_10010b7f(SilverBlock0x86* p_block)
 {
-	STUB(0x10010b7f);
-	return 0;
+	DWORD read;
+	CareerFile0xd6 file;
+	HANDLE handle;
+
+	handle = CreateFile("MW2CAR.CFG", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (handle == INVALID_HANDLE_VALUE) {
+		return FALSE;
+	}
+
+	ReadFile(handle, &file, sizeof(file), &read, NULL);
+	*p_block = file.m_unk0x50;
+	CloseHandle(handle);
+	return TRUE;
 }
 
-// STUB: NETMECHW 0x10010c06
-void FUN_10010c06(undefined4*, MechS32)
+// Sorts the p_count records p_records by m_unk0x24, largest first.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x10010c06
+void FUN_10010c06(AmberRecord0x26* p_records, MechS32 p_count)
 {
-	STUB(0x10010c06);
+	MechS32 j;
+	MechS32 i;
+	AmberRecord0x26 swap;
+	MechS32 best;
+
+	for (i = 0; i < p_count; i++) {
+		best = i;
+		for (j = i + 1; j < p_count; j++) {
+			if (p_records[best].m_unk0x24 < p_records[j].m_unk0x24) {
+				best = j;
+			}
+		}
+
+		swap = p_records[i];
+		p_records[i] = p_records[best];
+		p_records[best] = swap;
+	}
 }
 
 // Stack-slot permutation (VC++ 2.2): drive, driveStrings, findData, hFindFile and path. The
