@@ -108,9 +108,12 @@ function(demech2_add_netmechw)
   endif()
   if (DEMECH2_VC22)
     target_link_options(netmechw PRIVATE /DEBUG /INCREMENTAL:no)
+  endif()
+  if (DEMECH2_VC22 OR MSVC_FOR_DECOMP)
     # The objects, in link order, for cmake/link_objects.cmake: it copies them to
     # o/<name>/ under their base names and writes <name>.objects.rsp, which
-    # CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads instead of <OBJECTS> (vc22/CMakeLists.txt).
+    # CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads instead of <OBJECTS> in the VC++ 2.2
+    # sub-project and in a VC++ 4.1 build (vc22/CMakeLists.txt, CMakeLists.txt).
     set(dir "$<TARGET_FILE_DIR:netmechw>")
     set(name "$<TARGET_FILE_BASE_NAME:netmechw>")
     file(GENERATE OUTPUT "${dir}/${name}.objects.list"
