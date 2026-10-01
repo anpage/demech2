@@ -19,6 +19,7 @@
 #include "screenscale.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "speech.h"
 #include "team.h"
 #include "types.h"
 #include "unk10019ad0.h"
@@ -56,7 +57,8 @@ MechChar g_unk0x100c26a0[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
 // name after a while), coloured by its side, and its distance.
-// Stack-slot permutation of the locals.
+// Stack-slot permutation of the locals. g_currentClock > g_unk0x100ba4c4 compares with its
+// operands reversed (it flipped when speech.h's declarations were added ahead of it).
 // FUNCTION: MW2 0x1007b930
 void FUN_1007b930(CobaltHarbor0x88* p_panel)
 {
