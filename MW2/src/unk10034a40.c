@@ -62,6 +62,10 @@ MechS32 g_segmentNormalY = 0;
 // GLOBAL: MW2 0x100a5540
 MechS32 g_segmentNormalZ = 0;
 
+// The background color the 3D view is cleared to.
+// GLOBAL: MW2 0x100a5544
+MechS32 g_unk0x100a5544 = 0;
+
 // FUNCTION: MW2 0x10034a40
 void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24)
 {

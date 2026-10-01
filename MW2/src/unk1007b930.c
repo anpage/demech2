@@ -31,6 +31,12 @@ MechS32 g_unk0x100ba4bc = 1;
 // GLOBAL: MW2 0x100ba4cc
 MechS32 g_unk0x100ba4cc = 0;
 
+// STUB: MW2 0x1007b930
+void FUN_1007b930(CobaltHarbor0x88* p_panel)
+{
+	STUB(0x1007b930);
+}
+
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
 // static while the panel is damaged (m_unk0x06).
 // The only diff is a stack-slot permutation of the locals.

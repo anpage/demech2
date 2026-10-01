@@ -19,6 +19,7 @@ extern "C"
 
 	void FUN_10013430(struct Player* p_player, MechU16 p_target);
 	void FUN_100139e9(struct Player* p_player);
+	MechS32 FUN_10013d81(struct Player* p_player);
 	MechS16 FUN_100140e4(SilverBrook0x08* p_table, MechS16 p_id);
 	void FUN_10014149(struct Player* p_player);
 	void FUN_1001450e(struct Player* p_player);

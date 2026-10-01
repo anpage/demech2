@@ -171,6 +171,9 @@ undefined4 g_unk0x100a2420 = 0;
 // GLOBAL: MW2 0x100a2424
 MechS32 g_unk0x100a2424 = -1;
 
+// GLOBAL: MW2 0x100a2428
+MechS32 g_unk0x100a2428 = 0;
+
 // Set by FUN_10011e45.
 // GLOBAL: MW2 0x100a2418
 MechS32 g_unk0x100a2418 = 1;
@@ -187,6 +190,9 @@ MechS32 g_unk0x100a2430 = 0;
 
 // GLOBAL: MW2 0x100a2434
 MechS32* g_unk0x100a2434 = NULL;
+
+// GLOBAL: MW2 0x100a2438
+MechS32* g_unk0x100a2438 = NULL;
 
 // The drop camera (FUN_10011edc): its vertical speed, acceleration and start clock.
 // GLOBAL: MW2 0x100a243c
@@ -208,6 +214,9 @@ MechS32 g_drawModeIndex = -1;
 // GLOBAL: MW2 0x100a2450
 MechS32 g_initDrawModeParam2 = 1;
 
+// GLOBAL: MW2 0x100a2454
+MechS32 g_unk0x100a2454 = 0;
+
 // GLOBAL: MW2 0x100a245c
 void* g_unk0x100a245c = NULL;
 
@@ -216,6 +225,14 @@ MechS32 g_unk0x100a2460 = 1;
 
 // GLOBAL: MW2 0x100a2464
 MechS32 g_unk0x100a2464 = 0;
+
+// Set by a game key: run FUN_1004597b on the local mech next tick.
+// GLOBAL: MW2 0x100a2be8
+MechS32 g_unk0x100a2be8 = 0;
+
+// Set by the MASC game key: toggle the local mech's MASC next tick.
+// GLOBAL: MW2 0x100a2bec
+MechS32 g_unk0x100a2bec = 0;
 
 // GLOBAL: MW2 0x100a2bf0
 MechS32 g_unk0x100a2bf0 = 0;
@@ -226,11 +243,18 @@ MechS32 g_unk0x100a2bf8 = 0;
 // GLOBAL: MW2 0x100a2c04
 MechS32 g_unk0x100a2c04 = 0;
 
+// A power request for the local mech: 1 powers it up, -1 shuts it down.
+// GLOBAL: MW2 0x100a2c08
+MechS32 g_unk0x100a2c08 = 0;
+
 // GLOBAL: MW2 0x100a2c10
 MechS32 g_unk0x100a2c10 = 0;
 
 // GLOBAL: MW2 0x100a2c18
 MechS32 g_unk0x100a2c18 = 0;
+
+// GLOBAL: MW2 0x100a2c1c
+MechS32 g_unk0x100a2c1c = 0;
 
 // GLOBAL: MW2 0x100a554c
 undefined4 g_unk0x100a554c = 0xef;
@@ -322,10 +346,6 @@ Point g_unk0x100a5bb0 = {0, 0};
 
 // GLOBAL: MW2 0x100a5bb8
 void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
-
-// The fifteen cockpit rectangles, in percent of the screen (FUN_10070bda).
-// GLOBAL: MW2 0x100a5cf8
-RenderTarget g_unk0x100a5cf8[15] = {0};
 
 // The heading tape's shape width (FUN_10040f91).
 // GLOBAL: MW2 0x100a5ed0
@@ -535,9 +555,6 @@ MechS32 g_mouseOutsideClientWindow = 0;
 // GLOBAL: MW2 0x100acb98
 MechS32 g_goLaunch = 0;
 
-// GLOBAL: MW2 0x100adf58
-RenderTarget g_unk0x100adf58 = {&g_mainPixelBuffer, 13, 10, 80, 60};
-
 // GLOBAL: MW2 0x100b1350
 MechS32 g_unk0x100b1350 = 0;
 
@@ -609,7 +626,6 @@ void CollectMissionAudio(void);
 MechS32 LoadWorld(char* p_unk0x00);
 void AfterWorldLoader(void);
 void FirstEyepoint(void);
-void UpdateEyepoint(void);
 MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team);
 void UpdateObjectives(void);
 void EndTheMission1(void);

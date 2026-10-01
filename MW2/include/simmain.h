@@ -33,7 +33,12 @@ extern "C"
 	extern MechS32 g_unk0x100a2410;
 	extern undefined4 g_unk0x100a2420;
 	extern MechS32 g_unk0x100a2424;
+	extern MechS32 g_unk0x100a2be8;
+	extern MechS32 g_unk0x100a2bec;
 	extern MechS32 g_unk0x100a2c04;
+	extern MechS32 g_unk0x100a2c08;
+	extern MechS32 g_unk0x100a2c1c;
+	extern MechS32 g_unk0x100a2428;
 	extern MechS32 g_unk0x100a2c10;
 	extern MechS32 g_unk0x100a2c18;
 	extern void* g_unk0x100a245c;
@@ -74,6 +79,8 @@ extern "C"
 	extern MechS32 g_localPlayerId;
 	extern struct Player* g_localPlayer;
 	extern MechS32* g_unk0x100a2434;
+	extern MechS32* g_unk0x100a2438;
+	extern MechS32 g_unk0x100a2454;
 	extern MechS32 g_unk0x100a23ec;
 	extern MechS32 g_unk0x100a2408;
 	extern MechS32 g_unk0x100a241c;
@@ -121,9 +128,7 @@ extern "C"
 	extern MechS32 g_menuRepeatTimer;
 	extern CockpitGaugeFn g_cockpitGauges[10];
 	extern RenderTarget g_unk0x100a5a68[5];
-	extern RenderTarget g_unk0x100adf58;
 	extern void* g_unk0x100a5bb8[4];
-	extern RenderTarget g_unk0x100a5cf8[15];
 	extern MechS32 g_unk0x100a5ed0;
 	extern MechS32 g_unk0x100a5ed4;
 	extern Point g_unk0x100a5ed8;

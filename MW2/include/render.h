@@ -22,7 +22,9 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x100a246c;
 	extern MechS32 g_unk0x100a2470;
+	extern MechS32 g_unk0x100a2474;
 	extern GameWindowGeometry* g_gameWindowGeometry;
 	extern MechS32 g_screenHeight;
 	extern MechS32 g_screenHeightMinus1;

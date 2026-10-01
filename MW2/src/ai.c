@@ -417,7 +417,7 @@ void FUN_10051100(Player* p_player)
 		g_unk0x100e9e38 = 0;
 	}
 
-	if (p_player->m_aiState == c_aiStateDead) {
+	if (p_player->m_ai.m_state == c_aiStateDead) {
 		return;
 	}
 
@@ -432,10 +432,10 @@ void FUN_10051100(Player* p_player)
 	}
 	else {
 		if (!FUN_10051251(p_player)) {
-			g_aiStateFns[p_player->m_aiState](p_player, p_player->m_aiTarget);
+			g_aiStateFns[p_player->m_ai.m_state](p_player, p_player->m_ai.m_target);
 		}
 
-		FUN_1005372c(p_player, p_player->m_aiGoal);
+		FUN_1005372c(p_player, p_player->m_ai.m_goal);
 	}
 }
 
@@ -458,12 +458,12 @@ MechS32 FUN_10051251(Player* p_player)
 
 	while (p_player->m_rules[i]) {
 		rule = p_player->m_rules[i++];
-		target = FUN_100536b8(rule->m_target, p_player->m_aiGoal, 0, p_player->m_aiTarget);
-		arg = FUN_100536b8(rule->m_arg, p_player->m_aiGoal, 0, p_player->m_aiTarget);
+		target = FUN_100536b8(rule->m_target, p_player->m_ai.m_goal, 0, p_player->m_ai.m_target);
+		arg = FUN_100536b8(rule->m_arg, p_player->m_ai.m_goal, 0, p_player->m_ai.m_target);
 
-		if (rule->m_message == p_player->m_posted.m_message && p_player->m_posted.m_target == target) {
+		if (rule->m_message == p_player->m_ai.m_posted.m_message && p_player->m_ai.m_posted.m_target == target) {
 			posted = TRUE;
-			p_player->m_posted.m_message = 0;
+			p_player->m_ai.m_posted.m_message = 0;
 		}
 
 		if (posted ||
@@ -472,7 +472,7 @@ MechS32 FUN_10051251(Player* p_player)
 				FUN_10054684(
 					p_player,
 					rule->m_newState,
-					FUN_100536b8(rule->m_newTarget, p_player->m_aiGoal, target, p_player->m_aiTarget),
+					FUN_100536b8(rule->m_newTarget, p_player->m_ai.m_goal, target, p_player->m_ai.m_target),
 					0
 				);
 				return TRUE;
@@ -510,7 +510,7 @@ void FUN_1005141c(Player* p_player)
 		skip = ruleCount = 0;
 
 		while (count--) {
-			found = script[pos++] == p_player->m_aiState;
+			found = script[pos++] == p_player->m_ai.m_state;
 			if (found) {
 				ruleCount = script[pos];
 				break;
@@ -572,7 +572,7 @@ void FirstAI(void)
 void FUN_100516c5(Player* p_player)
 {
 	p_player->m_rules = g_aiRules[p_player->m_index];
-	p_player->m_aiState = c_aiStateIdle;
+	p_player->m_ai.m_state = c_aiStateIdle;
 	p_player->m_nav = 0x1000;
 	FUN_100518cd(p_player);
 
@@ -626,15 +626,15 @@ void FUN_100518cd(Player* p_player)
 	MechS32 i;
 
 	FUN_10053a2e(p_player);
-	p_player->m_aiTarget = 0;
-	p_player->m_aiGoal = 0;
-	p_player->m_aiFlags = 0;
+	p_player->m_ai.m_target = 0;
+	p_player->m_ai.m_goal = 0;
+	p_player->m_ai.m_flags = 0;
 
 	if (p_player->m_unk0x10 != 2) {
-		p_player->m_aiState = c_aiStateIdle;
+		p_player->m_ai.m_state = c_aiStateIdle;
 	}
 	else {
-		p_player->m_aiState = c_aiStateDead;
+		p_player->m_ai.m_state = c_aiStateDead;
 	}
 
 	for (i = 0; i < 3; i++) {
@@ -643,7 +643,7 @@ void FUN_100518cd(Player* p_player)
 
 	p_player->m_rules[0] = NULL;
 	p_player->m_stackCount = 0;
-	p_player->m_posted.m_message = 0;
+	p_player->m_ai.m_posted.m_message = 0;
 	p_player->m_unk0x15a = 0;
 	FUN_100561ea(p_player);
 	FUN_1005141c(p_player);
@@ -658,17 +658,17 @@ void FUN_100519b3(Player* p_player)
 	Player* other;
 	MechS16 best;
 
-	if (p_player->m_aiFlags & 1) {
+	if (p_player->m_ai.m_flags & 1) {
 		return;
 	}
 
 	target = FUN_100535e3(p_player);
-	if (target != -1 && (p_player->m_aiGoal != p_player->m_nav || p_player->m_aiState != c_aiStateGoDirect) &&
-		((p_player->m_aiState != c_aiStateTarget && p_player->m_aiState != c_aiStateAttack) ||
-		 p_player->m_aiGoal != target)) {
+	if (target != -1 && (p_player->m_ai.m_goal != p_player->m_nav || p_player->m_ai.m_state != c_aiStateGoDirect) &&
+		((p_player->m_ai.m_state != c_aiStateTarget && p_player->m_ai.m_state != c_aiStateAttack) ||
+		 p_player->m_ai.m_goal != target)) {
 		other = FUN_10052d8b(p_player, target, -3, &best, &nearest);
 		if (other) {
-			if (other->m_aiFlags & 0x40) {
+			if (other->m_ai.m_flags & 0x40) {
 				target = -1;
 			}
 			else {
@@ -750,7 +750,7 @@ void LogPlayerStatusLines(void)
 			target = player->m_targetInfo.m_target;
 		}
 		else {
-			target = player->m_aiTarget;
+			target = player->m_ai.m_target;
 		}
 
 		saved = *player;
@@ -789,7 +789,7 @@ void LogPlayerStatusLines(void)
 			sensor = " ";
 		}
 
-		if (player->m_aiState == c_aiStateAttack) {
+		if (player->m_ai.m_state == c_aiStateAttack) {
 			behavior = FUN_10051ad8(player->m_unk0x170, g_aiBehaviorNames, 14);
 		}
 		else {
@@ -806,11 +806,11 @@ void LogPlayerStatusLines(void)
 			g_currentObjective[player->m_team],
 			FUN_10051ad8(objective->m_type, g_objectiveTypeNames, 15),
 			secondsLeft,
-			FUN_10051ad8(player->m_aiState, g_aiStateShortNames, 13),
+			FUN_10051ad8(player->m_ai.m_state, g_aiStateShortNames, 13),
 			FUN_10051ad8(target & 0xf00, g_aiTargetTypeLetters, 3),
 			target & 0xff,
-			FUN_10051ad8(player->m_aiGoal & 0xf00, g_aiTargetTypeLetters, 3),
-			player->m_aiGoal & 0xff,
+			FUN_10051ad8(player->m_ai.m_goal & 0xf00, g_aiTargetTypeLetters, 3),
+			player->m_ai.m_goal & 0xff,
 			behavior,
 			player->m_targetInfo.m_distance,
 			player->m_steering->m_throttle,
@@ -831,7 +831,7 @@ void LogPlayerStatusLines(void)
 		if (player->m_index + 4 < 25 && g_unk0x100e9630) {
 		}
 
-		if ((player->m_aiGoal == 0 || player->m_aiTarget == 0) && ++g_invalidTargetLogCount < 10) {
+		if ((player->m_ai.m_goal == 0 || player->m_ai.m_target == 0) && ++g_invalidTargetLogCount < 10) {
 			sprintf(
 				invalidLine,
 				"%6ld : %2d **** Mech %2d has invalid target\n",
@@ -902,9 +902,9 @@ void FUN_100521e0(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 
 	for (i = 0; i < g_playerCount; i++) {
 		player = g_players[i];
-		if (player->m_team == p_team && !(player->m_aiGoal & 0xf000) && (player->m_aiGoal & c_aiTargetPlayer) &&
-			(player->m_aiGoal & 0xff) == p_index) {
-			player->m_aiGoal = p_target | c_aiTargetPlayer;
+		if (player->m_team == p_team && !(player->m_ai.m_goal & 0xf000) && (player->m_ai.m_goal & c_aiTargetPlayer) &&
+			(player->m_ai.m_goal & 0xff) == p_index) {
+			player->m_ai.m_goal = p_target | c_aiTargetPlayer;
 		}
 	}
 }
@@ -920,7 +920,7 @@ MechS16 FUN_10052284(Player* p_player, MechS16 p_target)
 	}
 
 	FUN_10052d8b(p_player, p_target, -3, &nearest, &best);
-	if (p_player->m_aiState == c_aiStateTarget) {
+	if (p_player->m_ai.m_state == c_aiStateTarget) {
 		if (nearest) {
 			return nearest;
 		}
@@ -959,9 +959,9 @@ MechS16 FUN_10052338(Player* p_player, MechS16 p_target, MechS16 p_arg)
 				FUN_100561ea(p_player);
 			}
 
-			if (p_player->m_aiState == c_aiStatePatrol) {
+			if (p_player->m_ai.m_state == c_aiStatePatrol) {
 				FUN_10054a30(p_player, p_target);
-				p_player->m_aiTarget = p_player->m_targetInfo.m_target;
+				p_player->m_ai.m_target = p_player->m_targetInfo.m_target;
 				if (p_player->m_targetInfo.m_target & 0x1000) {
 					FUN_10054a30(p_player, c_aiTargetNav);
 				}
@@ -1321,12 +1321,12 @@ Player* FUN_10052d8b(Player* p_player, MechS16 p_target, MechS16 p_arg, MechS16*
 					continue;
 				}
 
-				if (member->m_aiGoal & 0xf000) {
+				if (member->m_ai.m_goal & 0xf000) {
 					continue;
 				}
 
-				if (member->m_aiGoal == target &&
-					(member->m_aiState == c_aiStateAttack || member->m_aiState == c_aiStateTarget) && closer &&
+				if (member->m_ai.m_goal == target &&
+					(member->m_ai.m_state == c_aiStateAttack || member->m_ai.m_state == c_aiStateTarget) && closer &&
 					type != 4) {
 					blocker = member;
 					closer = FALSE;
@@ -1384,7 +1384,7 @@ MechS16 FUN_100530f7(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	MechS16 nearest;
 	MechS16 best;
 
-	if (p_player->m_aiFlags & 3) {
+	if (p_player->m_ai.m_flags & 3) {
 		return 0;
 	}
 
@@ -1450,7 +1450,7 @@ void FUN_10053275(Player* p_player, MechU16 p_target)
 	range = FUN_10053769(p_target);
 	g_unk0x100ea3e0 = g_currentClock;
 
-	switch (p_player->m_aiState) {
+	switch (p_player->m_ai.m_state) {
 	case c_aiStateTarget:
 		p_player->m_steering->m_unk0x25 = 0;
 		if (!FUN_10015709(p_player)) {
@@ -1526,8 +1526,8 @@ MechS32 FUN_100534fb(Player* p_player, AiRule* p_rule)
 {
 	AiStackEntry entry;
 
-	entry.m_state = p_player->m_aiState;
-	entry.m_target = p_player->m_aiGoal;
+	entry.m_state = p_player->m_ai.m_state;
+	entry.m_target = p_player->m_ai.m_goal;
 	if (p_player->m_stackCount == 0) {
 		p_player->m_stack[p_player->m_stackCount] = entry;
 		p_player->m_stackCount++;
@@ -1564,8 +1564,8 @@ MechU16 FUN_100535e3(Player* p_player)
 
 	index = p_player->m_index;
 	for (i = 0, players = g_players; i < g_playerCount; i++, players++) {
-		if (*players && !((*players)->m_flags & 6) && (*players)->m_aiGoal == (index | c_aiTargetPlayer) &&
-			!OnSameSide((*players)->m_index, index) && (*players)->m_aiState == c_aiStateAttack) {
+		if (*players && !((*players)->m_flags & 6) && (*players)->m_ai.m_goal == (index | c_aiTargetPlayer) &&
+			!OnSameSide((*players)->m_index, index) && (*players)->m_ai.m_state == c_aiStateAttack) {
 			return (*players)->m_index | c_aiTargetPlayer;
 		}
 	}
@@ -1711,9 +1711,9 @@ void FUN_10053a2e(Player* p_player)
 	flags = 0;
 	p_player->m_steering->m_unk0x25 = 0;
 
-	switch (p_player->m_aiState) {
+	switch (p_player->m_ai.m_state) {
 	case c_aiStatePatrol:
-		if (FUN_10054384(p_player->m_aiGoal, 4) && (p_player->m_aiFlags & 0x10)) {
+		if (FUN_10054384(p_player->m_ai.m_goal, 4) && (p_player->m_ai.m_flags & 0x10)) {
 			FUN_10059e63(10, p_player->m_slot);
 		}
 	case c_aiStateFollow:
@@ -1725,15 +1725,15 @@ void FUN_10053a2e(Player* p_player)
 		p_player->m_steering->m_unk0x00 = 0;
 		p_player->m_steering->m_unk0x04 = 0;
 	case c_aiStateRecon:
-		if (FUN_10054384(p_player->m_aiGoal, 8) && (p_player->m_aiFlags & 0x10)) {
+		if (FUN_10054384(p_player->m_ai.m_goal, 8) && (p_player->m_ai.m_flags & 0x10)) {
 			FUN_10059e63(10, p_player->m_slot);
 		}
 		break;
 	case c_aiStateTarget:
-		if (!FUN_10054384(p_player->m_aiGoal, 2)) {
-			flags = p_player->m_aiFlags;
+		if (!FUN_10054384(p_player->m_ai.m_goal, 2)) {
+			flags = p_player->m_ai.m_flags;
 		}
-		else if (p_player->m_aiFlags & 0x10) {
+		else if (p_player->m_ai.m_flags & 0x10) {
 			FUN_10059e63(10, p_player->m_slot);
 		}
 		break;
@@ -1741,8 +1741,8 @@ void FUN_10053a2e(Player* p_player)
 		break;
 	}
 
-	p_player->m_aiFlags &= ~0x10;
-	p_player->m_aiFlags |= flags;
+	p_player->m_ai.m_flags &= ~0x10;
+	p_player->m_ai.m_flags |= flags;
 }
 
 // Stack-slot permutation: the logging block's targetType, goalType, mech, logged, gt, goalName
@@ -1758,7 +1758,7 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 	}
 
 	if (p_state != c_aiStateAttack && g_players[g_localPlayerId]->m_team == p_player->m_team) {
-		p_player->m_aiFlags &= 3;
+		p_player->m_ai.m_flags &= 3;
 	}
 
 	switch (p_state) {
@@ -1766,7 +1766,7 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 		break;
 	case c_aiStateTarget:
 		p_player->m_unk0x15a = RandomIntBelow(10) * 0x16 + g_currentClock;
-		if (GetTeamLeader(p_player->m_team != g_localPlayerId) && p_player->m_aiState == c_aiStatePatrol &&
+		if (GetTeamLeader(p_player->m_team != g_localPlayerId) && p_player->m_ai.m_state == c_aiStatePatrol &&
 			(p_player->m_nav & 0x1000) &&
 			(nav = FUN_1005ec80(
 				 p_player->m_index,
@@ -1782,7 +1782,7 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 	case c_aiStateAttack:
 		break;
 	case c_aiStateFlee:
-		p_player->m_aiFlags = 1;
+		p_player->m_ai.m_flags = 1;
 		break;
 	case c_aiStateFollow:
 		FUN_10054a93(p_player);
@@ -1791,7 +1791,7 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 		FUN_10054851(p_player);
 		break;
 	case c_aiStateShutdown:
-		p_player->m_aiFlags = 1;
+		p_player->m_ai.m_flags = 1;
 	case c_aiStateRest:
 	case -1:
 		p_player->m_flags |= 0x10;
@@ -1807,7 +1807,7 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 	}
 
 	g_unk0x100ea3e0 = g_currentClock;
-	p_player->m_aiState = p_state;
+	p_player->m_ai.m_state = p_state;
 
 	{
 		const MechChar* targetType;
@@ -1821,38 +1821,38 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 
 		logged = p_player->m_mech;
 
-		if (logged->m_player->m_aiTarget & c_aiTargetPlayer) {
+		if (logged->m_player->m_ai.m_target & c_aiTargetPlayer) {
 			targetType = mech;
 		}
 		else {
 			targetType = gt;
 		}
 
-		if (logged->m_player->m_aiTarget & c_aiTargetNav) {
+		if (logged->m_player->m_ai.m_target & c_aiTargetNav) {
 			targetType = navName;
 		}
 		else {
 		}
 
-		if (logged->m_player->m_aiGoal & c_aiTargetPlayer) {
+		if (logged->m_player->m_ai.m_goal & c_aiTargetPlayer) {
 			goalType = mech;
 		}
 		else {
 			goalType = gt;
 		}
 
-		if (logged->m_player->m_aiGoal & c_aiTargetNav) {
+		if (logged->m_player->m_ai.m_goal & c_aiTargetNav) {
 			goalType = navName;
 		}
 		else {
 		}
 
-		if (logged->m_player->m_aiGoal & 0x6000) {
-			strcpy(goalName, FUN_10051ad8(logged->m_player->m_aiGoal, g_aiSymbolicTargetNames, 7));
+		if (logged->m_player->m_ai.m_goal & 0x6000) {
+			strcpy(goalName, FUN_10051ad8(logged->m_player->m_ai.m_goal, g_aiSymbolicTargetNames, 7));
 			goalType += strlen(goalType);
 		}
 		else {
-			_itoa(logged->m_player->m_aiGoal & 0xff, goalName, 10);
+			_itoa(logged->m_player->m_ai.m_goal & 0xff, goalName, 10);
 		}
 
 		sprintf(
@@ -1861,9 +1861,9 @@ void FUN_10053be9(Player* p_player, MechU16 p_state)
 			g_currentClock,
 			logged->m_player->m_team,
 			logged->m_player->m_index,
-			g_aiStateNames[logged->m_player->m_aiState].m_name,
+			g_aiStateNames[logged->m_player->m_ai.m_state].m_name,
 			targetType,
-			logged->m_player->m_aiTarget & 0xff,
+			logged->m_player->m_ai.m_target & 0xff,
 			goalType,
 			goalName
 		);
@@ -2111,8 +2111,8 @@ void FUN_10054684(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p
 			p_target = 0;
 		}
 
-		p_player->m_aiTarget = FUN_10052284(p_player, p_target);
-		p_player->m_aiGoal = p_player->m_aiTarget;
+		p_player->m_ai.m_target = FUN_10052284(p_player, p_target);
+		p_player->m_ai.m_goal = p_player->m_ai.m_target;
 		FUN_10053be9(p_player, p_state);
 		FUN_1005141c(p_player);
 	}
@@ -2154,11 +2154,11 @@ void FUN_10054851(Player* p_player)
 	NavPoint* nav;
 
 	found = TRUE;
-	range = FUN_10053769(p_player->m_aiTarget);
+	range = FUN_10053769(p_player->m_ai.m_target);
 	owner = p_player->m_index;
-	index = p_player->m_aiTarget & 0xff;
+	index = p_player->m_ai.m_target & 0xff;
 
-	switch (p_player->m_aiTarget & 0xf00) {
+	switch (p_player->m_ai.m_target & 0xf00) {
 	case c_aiTargetThing:
 		FUN_10020c6f(g_gameThings[index].m_unk0x04, &x, &y, &z);
 		range = 25000;
@@ -2208,7 +2208,7 @@ void FUN_10054a30(Player* p_player, MechS16 p_target)
 		FUN_100602b2(p_player, 1, 1);
 	}
 
-	p_player->m_aiTarget = p_player->m_targetInfo.m_target;
+	p_player->m_ai.m_target = p_player->m_targetInfo.m_target;
 }
 
 // Stack-slot permutation: heading, nav and x and z.
@@ -2226,7 +2226,7 @@ void FUN_10054a93(Player* p_player)
 		if (nav != -1) {
 			g_navTable[nav].m_flags |= 1;
 			g_navTable[nav].m_owner = p_player->m_index | c_aiTargetPlayer;
-			p_player->m_aiTarget = nav | c_aiTargetNav;
+			p_player->m_ai.m_target = nav | c_aiTargetNav;
 		}
 	}
 }
@@ -2240,7 +2240,7 @@ void FUN_10054b50(MechS32 p_index, MechU32 p_attacker)
 
 	if (p_index == g_localPlayerId || g_netRole) {
 		player = g_players[p_index];
-		if (player->m_aiTarget != (p_attacker | c_aiTargetPlayer) || player->m_aiState != c_aiStateAttack) {
+		if (player->m_ai.m_target != (p_attacker | c_aiTargetPlayer) || player->m_ai.m_state != c_aiStateAttack) {
 			sprintf(
 				line,
 				"%6ld : %2d Mech %2d has attacked mech %2d\n",
@@ -2252,8 +2252,8 @@ void FUN_10054b50(MechS32 p_index, MechU32 p_attacker)
 			WriteToMw2Log(line);
 		}
 
-		player->m_aiGoal = p_attacker | c_aiTargetPlayer;
-		player->m_aiState = c_aiStateAttack;
+		player->m_ai.m_goal = p_attacker | c_aiTargetPlayer;
+		player->m_ai.m_state = c_aiStateAttack;
 	}
 }
 
@@ -2308,7 +2308,7 @@ void FUN_10054d4c(Player* p_player, MechS16 p_message, MechU16 p_target, MechS16
 {
 	AiMessage* message;
 
-	message = &p_player->m_posted;
+	message = &p_player->m_ai.m_posted;
 	if (message->m_message == 0) {
 		message->m_message = p_message;
 		message->m_target = p_target;
@@ -2334,7 +2334,7 @@ MechS16 FUN_10054d88(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 			else {
 				player = g_players[target & 0xff];
 				if (player->m_index != g_localPlayerId) {
-					if (player->m_aiState != c_aiStateDead && FUN_100545ea(player, p_state)) {
+					if (player->m_ai.m_state != c_aiStateDead && FUN_100545ea(player, p_state)) {
 						if (p_state == c_aiStateAttack) {
 							if (!player->m_unk0x154) {
 								player->m_unk0x154 = 1;
@@ -2343,10 +2343,10 @@ MechS16 FUN_10054d88(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 								player->m_unk0x154 = 0;
 							}
 
-							player->m_aiFlags &= ~3;
+							player->m_ai.m_flags &= ~3;
 						}
 						else {
-							player->m_aiFlags = 0;
+							player->m_ai.m_flags = 0;
 							if (p_state == c_aiStatePatrol) {
 								FUN_10054684(player, p_state, p_target, 0);
 							}
@@ -2355,14 +2355,14 @@ MechS16 FUN_10054d88(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 							}
 
 							if (p_state == c_aiStateTarget) {
-								player->m_aiFlags |= 0x11;
+								player->m_ai.m_flags |= 0x11;
 							}
 							else {
 								if (p_state == c_aiStateFollow) {
 									player->m_unk0x154 = 0;
 								}
 
-								player->m_aiFlags |= 0x12;
+								player->m_ai.m_flags |= 0x12;
 							}
 						}
 					}
@@ -2559,8 +2559,8 @@ void FUN_100551c6(MechS32 p_team)
 			FUN_10054584(member, state, 2);
 		}
 
-		member->m_aiFlags &= ~3;
-		member->m_aiFlags |= flags;
+		member->m_ai.m_flags &= ~3;
+		member->m_ai.m_flags |= flags;
 		FUN_100561ea(member);
 	}
 
@@ -2720,7 +2720,7 @@ MechS32 FUN_10055811(MechS32 p_team, MechU16 p_target)
 
 	switch (p_target & 0xf00) {
 	case c_aiTargetPlayer:
-		slot = g_players[p_target & 0xff]->m_unk0x150;
+		slot = g_players[p_target & 0xff]->m_ai.m_unk0x0c;
 		break;
 	default:
 		break;
@@ -2738,7 +2738,7 @@ MechS32 FUN_10055811(MechS32 p_team, MechU16 p_target)
 
 		for (i = 0; i < count && required; i++) {
 			member = members[i];
-			if (member->m_aiState != c_aiStateTarget && member->m_aiState != c_aiStateAttack &&
+			if (member->m_ai.m_state != c_aiStateTarget && member->m_ai.m_state != c_aiStateAttack &&
 				!FUN_10015fa8(member->m_mech) && member->m_unk0x154) {
 				FUN_10054684(member, c_aiStateTarget, p_target, 1);
 				result = TRUE;
@@ -2750,9 +2750,9 @@ MechS32 FUN_10055811(MechS32 p_team, MechU16 p_target)
 	else {
 		for (i = 0, chosen = -1, nearest = 0x7fff; i < count; i++) {
 			member = members[i];
-			if (member->m_index != leader && !(member->m_aiFlags & 3) && member->m_aiState != c_aiStateTarget &&
-				member->m_aiState != c_aiStateAttack && !FUN_10015fa8(member->m_mech) && member->m_unk0x154) {
-				diff = member->m_unk0x150 - slot;
+			if (member->m_index != leader && !(member->m_ai.m_flags & 3) && member->m_ai.m_state != c_aiStateTarget &&
+				member->m_ai.m_state != c_aiStateAttack && !FUN_10015fa8(member->m_mech) && member->m_unk0x154) {
+				diff = member->m_ai.m_unk0x0c - slot;
 				if (abs(diff) < nearest) {
 					nearest = abs(diff);
 					chosen = member->m_index;
@@ -2765,16 +2765,16 @@ MechS32 FUN_10055811(MechS32 p_team, MechU16 p_target)
 		}
 		else {
 			member = g_players[leader];
-			if ((member->m_aiFlags & 3) || member->m_aiState == c_aiStateTarget ||
-				member->m_aiState == c_aiStateAttack || FUN_10015fa8(member->m_mech) || !member->m_unk0x154) {
+			if ((member->m_ai.m_flags & 3) || member->m_ai.m_state == c_aiStateTarget ||
+				member->m_ai.m_state == c_aiStateAttack || FUN_10015fa8(member->m_mech) || !member->m_unk0x154) {
 				member = NULL;
 			}
 		}
 
 		if (member) {
 			FUN_10054684(member, c_aiStateTarget, p_target, 1);
-			member->m_aiFlags |= 0x20;
-			member->m_aiFlags &= ~0x40;
+			member->m_ai.m_flags |= 0x20;
+			member->m_ai.m_flags &= ~0x40;
 			return TRUE;
 		}
 
@@ -2811,9 +2811,9 @@ void FUN_10055bb7(MechS32 p_team)
 	}
 
 	player = g_players[leader];
-	if (player->m_posted.m_message) {
-		FUN_1005579a(p_team, &player->m_posted);
-		player->m_posted.m_message = 0;
+	if (player->m_ai.m_posted.m_message) {
+		FUN_1005579a(p_team, &player->m_ai.m_posted);
+		player->m_ai.m_posted.m_message = 0;
 	}
 
 	if (g_localPlayerId == leader) {
@@ -2853,7 +2853,7 @@ void FUN_10055bb7(MechS32 p_team)
 
 		for (j = 0; j < count && remaining; j++) {
 			player = members[j];
-			if (player->m_aiGoal != target) {
+			if (player->m_ai.m_goal != target) {
 				continue;
 			}
 
@@ -2863,17 +2863,17 @@ void FUN_10055bb7(MechS32 p_team)
 				break;
 			case 1:
 			case 2:
-				if (player->m_aiState == c_aiStateTarget || player->m_aiState == c_aiStateAttack) {
+				if (player->m_ai.m_state == c_aiStateTarget || player->m_ai.m_state == c_aiStateAttack) {
 					remaining--;
 				}
 				break;
 			case 4:
-				if (player->m_aiState == c_aiStatePatrol) {
+				if (player->m_ai.m_state == c_aiStatePatrol) {
 					remaining--;
 				}
 				break;
 			case 8:
-				if (player->m_aiState == c_aiStateTarget) {
+				if (player->m_ai.m_state == c_aiStateTarget) {
 					remaining--;
 				}
 				break;
@@ -2881,12 +2881,12 @@ void FUN_10055bb7(MechS32 p_team)
 			case 0x100:
 			case 0x200:
 			case 0x400:
-				if (player->m_aiState == c_aiStateGoDirect) {
+				if (player->m_ai.m_state == c_aiStateGoDirect) {
 					remaining--;
 				}
 				break;
 			case 0x2000:
-				if (player->m_aiState == c_aiStateFlee) {
+				if (player->m_ai.m_state == c_aiStateFlee) {
 					remaining--;
 				}
 				break;
@@ -2905,8 +2905,8 @@ void FUN_10055bb7(MechS32 p_team)
 	}
 
 	for (i = 0, player = NULL; i < count; i++) {
-		if ((members[i]->m_aiState == c_aiStateIdle ||
-			 (members[i]->m_aiState == c_aiStateFollow && !FUN_10015fa8(members[i]->m_mech))) &&
+		if ((members[i]->m_ai.m_state == c_aiStateIdle ||
+			 (members[i]->m_ai.m_state == c_aiStateFollow && !FUN_10015fa8(members[i]->m_mech))) &&
 			g_players[leader] != members[i]) {
 			player = members[i];
 			break;
@@ -2914,7 +2914,7 @@ void FUN_10055bb7(MechS32 p_team)
 	}
 
 	if (!player) {
-		if (!g_players[leader]->m_aiState && !FUN_10015fa8(g_players[leader]->m_mech)) {
+		if (!g_players[leader]->m_ai.m_state && !FUN_10015fa8(g_players[leader]->m_mech)) {
 			player = g_players[leader];
 		}
 		else {
@@ -2963,7 +2963,7 @@ void FUN_10055bb7(MechS32 p_team)
 
 	if (state != -1) {
 		FUN_10054584(player, state, target);
-		player->m_aiFlags |= flags;
+		player->m_ai.m_flags |= flags;
 	}
 }
 

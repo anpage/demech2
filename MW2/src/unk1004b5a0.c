@@ -33,11 +33,11 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 		p_player->m_unk0x15a = roll * 22 + g_currentClock;
 		delta = p_heading - p_player->m_unk0x6c;
 		if (delta < 0xa0000 && delta > -0xa0000) {
-			if ((p_player->m_aiGoal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
-				FUN_1005372c(p_player, p_player->m_aiGoal);
+			if ((p_player->m_ai.m_goal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
+				FUN_1005372c(p_player, p_player->m_ai.m_goal);
 				if (!roll) {
 					if (FUN_1004b724(p_player)) {
-						if (!((p_player->m_unk0x19e >> 4) & 1) || FUN_1006ca60(p_player, 1)) {
+						if (!(p_player->m_skillFlag4) || FUN_1006ca60(p_player, 1)) {
 							p_player->m_steering->m_unk0x25 = 1;
 							fired = TRUE;
 						}
@@ -113,7 +113,7 @@ MechS32 FUN_1004b724(Player* p_player)
 				mech->m_unk0x10c |= 0x80;
 			}
 
-			if (p_player->m_aiGoal == (g_localPlayerId | 0x200)) {
+			if (p_player->m_ai.m_goal == (g_localPlayerId | 0x200)) {
 				FUN_1007eb23(0x6f, 100, 0x40, 5, 0x32);
 			}
 		}

@@ -33,6 +33,8 @@ extern "C"
 {
 #endif
 
+	extern MechS32 g_unk0x1010b540;
+
 	MechS32 FUN_10036230(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4 p_unk0x08, undefined4 p_unk0x0c);
 	void FUN_10036853(MechU32 p_flags);
 	MechS32 FUN_10036867(MechU32 p_flags);

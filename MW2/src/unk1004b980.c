@@ -12,8 +12,10 @@
 #include "unk10004ec0.h"
 #include "unk10019ad0.h"
 #include "unk100335d0.h"
+#include "unk10036230.h"
 #include "unk1003a530.h"
 #include "unk10042740.h"
+#include "unk10046750.h"
 #include "unk1004c800.h"
 #include "unk1004c820.h"
 #include "unk1004c860.h"
@@ -41,8 +43,20 @@ MechS32 g_unk0x100ea830;
 // GLOBAL: MW2 0x100ea834
 MechS32 g_unk0x100ea834;
 
+// GLOBAL: MW2 0x100ea838
+MechS32 g_unk0x100ea838;
+
+// GLOBAL: MW2 0x100ea83c
+MechS32 g_unk0x100ea83c;
+
 // GLOBAL: MW2 0x100ea840
 MechS32 g_unk0x100ea840;
+
+// GLOBAL: MW2 0x100ea844
+MechS32 g_unk0x100ea844;
+
+// GLOBAL: MW2 0x100ea848
+MechS32 g_unk0x100ea848;
 
 // GLOBAL: MW2 0x100ea84c
 MechS32 g_unk0x100ea84c;
@@ -50,8 +64,14 @@ MechS32 g_unk0x100ea84c;
 // GLOBAL: MW2 0x100ea850
 MechS32 g_unk0x100ea850;
 
+// GLOBAL: MW2 0x100ea854
+MechS32 g_unk0x100ea854;
+
 // GLOBAL: MW2 0x100ea858
 MechS32 g_unk0x100ea858;
+
+// GLOBAL: MW2 0x100ea85c
+MechS32 g_unk0x100ea85c;
 
 // GLOBAL: MW2 0x100ea860
 MechS32 g_unk0x100ea860;
@@ -82,6 +102,12 @@ MechS32 g_unk0x100ea880;
 
 // GLOBAL: MW2 0x100ea884
 MechS32 g_unk0x100ea884;
+
+// GLOBAL: MW2 0x100ea888
+MechS32 g_unk0x100ea888;
+
+// GLOBAL: MW2 0x100ea88c
+MechS32 g_unk0x100ea88c;
 
 // GLOBAL: MW2 0x100ea890
 MechS32 g_unk0x100ea890;
@@ -128,13 +154,68 @@ MechS32 g_unk0x100ea8c4;
 // GLOBAL: MW2 0x100ea8c8
 MechS32 g_unk0x100ea8c8;
 
+// GLOBAL: MW2 0x100ea8cc
+MechS32 g_unk0x100ea8cc;
+
 // GLOBAL: MW2 0x100ea8d0
 MechS32 g_unk0x100ea8d0;
 
-// STUB: MW2 0x1004b980
+// GLOBAL: MW2 0x100ea8d4
+MechS32 g_unk0x100ea8d4;
+
+// Makes p_eyepoint the current eyepoint and copies what the renderer uses each frame out of it:
+// its rotation (also scaled by the projection factors), position, view rectangle and shading.
+// FUNCTION: MW2 0x1004b980
 void FUN_1004b980(Eyepoint* p_eyepoint)
 {
-	STUB(0x1004b980);
+	Eyepoint* eyepoint;
+
+	g_eyepoint = eyepoint = p_eyepoint;
+	g_unk0x1010b540 = eyepoint->m_unk0x2a;
+	g_unk0x1010b530 = eyepoint->m_unk0x28;
+	g_unk0x100ea888 = eyepoint->m_unk0x9c;
+	g_unk0x100ea88c = eyepoint->m_unk0xa0;
+	g_unk0x100ea844 = eyepoint->m_unk0x94;
+	g_unk0x100ea848 = eyepoint->m_unk0x98;
+	g_unk0x100ea890 = eyepoint->m_unk0x54.m_rows[0][0];
+	g_unk0x100ea894 = eyepoint->m_unk0x54.m_rows[0][1];
+	g_unk0x100ea898 = eyepoint->m_unk0x54.m_rows[0][2];
+	g_unk0x100ea89c = eyepoint->m_unk0x54.m_rows[1][0];
+	g_unk0x100ea8a0 = eyepoint->m_unk0x54.m_rows[1][1];
+	g_unk0x100ea8a4 = eyepoint->m_unk0x54.m_rows[1][2];
+	g_unk0x100ea87c = g_unk0x100ea8a8 = eyepoint->m_unk0x54.m_rows[2][0];
+	g_unk0x100ea880 = g_unk0x100ea8ac = eyepoint->m_unk0x54.m_rows[2][1];
+	g_unk0x100ea884 = g_unk0x100ea8b0 = eyepoint->m_unk0x54.m_rows[2][2];
+	g_unk0x100ea864 = FixedMul16(g_unk0x100ea888, g_unk0x100ea890);
+	g_unk0x100ea868 = FixedMul16(g_unk0x100ea888, g_unk0x100ea894);
+	g_unk0x100ea86c = FixedMul16(g_unk0x100ea888, g_unk0x100ea898);
+	g_unk0x100ea870 = FixedMul16(g_unk0x100ea88c, g_unk0x100ea89c);
+	g_unk0x100ea874 = FixedMul16(g_unk0x100ea88c, g_unk0x100ea8a0);
+	g_unk0x100ea878 = FixedMul16(g_unk0x100ea88c, g_unk0x100ea8a4);
+	g_unk0x100ea8b8 = eyepoint->m_unk0x54.m_rows[3][0];
+	g_unk0x100ea8b4 = eyepoint->m_unk0x54.m_rows[3][1];
+	g_unk0x100ea8bc = eyepoint->m_unk0x54.m_rows[3][2];
+	g_unk0x100ea8c4 = eyepoint->m_unk0x1c;
+	g_unk0x100ea8c8 = eyepoint->m_unk0x20;
+	g_unk0x100ea8c0 = eyepoint->m_unk0x24;
+	g_unk0x100ea8d0 = eyepoint->m_unk0x3c;
+	g_unk0x100ea830 = eyepoint->m_unk0x2c;
+	g_unk0x100ea860 = eyepoint->m_unk0x40;
+	g_unk0x100ea850 = eyepoint->m_unk0x34;
+	g_unk0x100ea84c = eyepoint->m_unk0x30;
+	g_unk0x100ea840 = eyepoint->m_unk0x38;
+	g_unk0x100ea82c = g_unk0x100ea860 << 2;
+	g_unk0x100ea820 = g_unk0x100ea8d0 << 2;
+	g_unk0x100ea8cc = g_unk0x100ea850 << 2;
+	g_unk0x100ea85c = g_unk0x100ea840 << 2;
+	g_unk0x100ea854 = g_unk0x100ea830 << 2;
+	g_unk0x100ea8d4 = g_unk0x100ea84c << 2;
+	g_unk0x100ea83c = eyepoint->m_halfWidth;
+	g_unk0x100ea838 = eyepoint->m_halfHeight;
+	g_unk0x100ea834 = eyepoint->m_centerX;
+	g_unk0x100ea858 = eyepoint->m_centerY;
+	g_unk0x100ea824 = eyepoint->m_unk0xa4;
+	g_unk0x100ea828 = eyepoint->m_unk0xa6;
 }
 
 // Sets up the eyepoint's projection from its view rectangle, field of view and pixel aspect.

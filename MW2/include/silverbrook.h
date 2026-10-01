@@ -4,12 +4,11 @@
 #include "decomp.h"
 #include "types.h"
 
-// An entry of an AI maneuver table: a maneuver and the ones that may follow it.
+// An entry of an AI maneuver table: a maneuver ([0]), how many may follow it ([1]) and those
+// maneuvers (from [2]).
 // SIZE 0x12
 typedef struct AmberGlade0x12 {
-	MechS16 m_id;                     // 0x00
-	MechS16 m_count;                  // 0x02 — how many of m_next are used
-	undefined m_unk0x04[0x12 - 0x04]; // 0x04
+	MechS16 m_list[9]; // 0x00
 } AmberGlade0x12;
 
 // An AI maneuver table (FUN_10013d81): the maneuvers a mech class chooses among.

@@ -1,10 +1,13 @@
 #include "render.h"
 
+#include "animation.h"
+#include "blit.h"
 #include "codeblock.h"
 #include "decomp.h"
 #include "error.h"
 #include "eyepoint.h"
 #include "fixedmul.h"
+#include "geocache.h"
 #include "object.h"
 #include "palette.h"
 #include "refreshmode.h"
@@ -14,6 +17,7 @@
 #include "types.h"
 #include "unk10013340.h"
 #include "unk100335d0.h"
+#include "unk10034a40.h"
 #include "unk10036230.h"
 #include "unk1003a530.h"
 #include "unk10042e00.h"
@@ -23,14 +27,21 @@
 #include "unk1006d680.h"
 #include "unk1007d120.h"
 
+#include <string.h>
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a2468
 MechS32 g_unk0x100a2468 = 0;
 
+// GLOBAL: MW2 0x100a246c
+MechS32 g_unk0x100a246c = 0;
+
 // Cleared while an effect has the camera, set again when it gives it back.
 // GLOBAL: MW2 0x100a2470
 MechS32 g_unk0x100a2470 = 1;
+
+// GLOBAL: MW2 0x100a2474
+MechS32 g_unk0x100a2474 = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
 // GLOBAL: MW2 0x100a2478
@@ -206,10 +217,81 @@ void SecondRender(void)
 }
 
 // The normal frame draw callback: renders the 3D view.
-// STUB: MW2 0x10012afe
+// Draws the 3D view, the normal frame draw callback: clears the frame first when drawing to
+// another render target, updates the eyepoint, draws the scene (without the extra pass on the
+// DirectDraw backend), then the objects of the shapes of kinds 0x90 and 0xa0 with their own clip
+// distances, the scene's objects, and the animations.
+// FUNCTION: MW2 0x10012afe
 void FUN_10012afe(void)
 {
-	STUB(0x10012afe);
+	MechS32 saved;
+	MechS32 pass;
+
+	if (g_unk0x100a2468) {
+		memset(g_mainPixelBuffer.m_pixels, g_unk0x100a5544, g_refreshModePixelCount);
+		SelectRenderTarget(g_unk0x100a2468);
+	}
+
+	if (g_unk0x100a2460) {
+		FUN_1004bc2e(g_eyepoint);
+		g_unk0x100a2460 = 0;
+	}
+
+	if (g_unk0x100a6cc8.m_unk0x00) {
+		FillView(&g_currentRenderTarget, g_unk0x100a5544);
+		return;
+	}
+
+	FUN_1004bfe8(g_eyepoint);
+	FUN_1004b980(g_eyepoint);
+	if (g_unk0x100a6cc8.m_unk0x30 || g_unk0x100a6cc8.m_unk0x34) {
+		FillView(&g_currentRenderTarget, g_unk0x100a5544);
+	}
+	else if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
+		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
+			pass = g_unk0x100a6cc8.m_unk0x20;
+			g_unk0x100a6cc8.m_unk0x20 = 0;
+			FUN_1004320b(g_eyepoint);
+			g_unk0x100a6cc8.m_unk0x20 = pass;
+		}
+		else {
+			FUN_1004320b(g_eyepoint);
+		}
+	}
+
+	if (g_unk0x100a246c && g_unk0x100a2470 && g_unk0x100a2474 != -1) {
+		FUN_10020c6f(g_unk0x100a2474, &g_eyepoint->m_unk0x1c, &g_eyepoint->m_unk0x20, &g_eyepoint->m_unk0x24);
+	}
+
+	g_unk0x100a2480 = 0;
+	if (g_unk0x100a2478) {
+		saved = g_eyepoint->m_unk0x40;
+		FUN_1004bf8a(g_eyepoint, 0x7fffffff);
+		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c565;
+		FUN_10033b9e(g_unk0x100a2478);
+		g_unk0x100a2480 += g_unk0x100a54b0;
+		FUN_1004bf8a(g_eyepoint, saved);
+		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
+	}
+
+	FUN_100338bb(g_unk0x100ad5e8);
+	g_unk0x100a2480 += g_unk0x100a54b0;
+	if (g_unk0x100a2420 && g_unk0x100a247c) {
+		saved = g_eyepoint->m_unk0x3c;
+		FUN_1004bf61(g_eyepoint, 8);
+		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c779;
+		FUN_10033b9e(g_unk0x100a247c);
+		g_unk0x100a2480 += g_unk0x100a54b0;
+		FUN_1004bf61(g_eyepoint, saved);
+		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
+	}
+
+	if (g_unk0x100a2454) {
+		FUN_100131f1(g_unk0x100ad5e8);
+	}
+
+	FUN_10069591();
+	SelectRenderTarget(0);
 }
 
 // FUNCTION: MW2 0x10012dca

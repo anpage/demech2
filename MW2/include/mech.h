@@ -45,7 +45,8 @@ typedef struct Mech {
 	undefined4 m_unk0xc4;                 // 0xc4
 	MechS32 m_unk0xc8;                    // 0xc8 — the ammunition bins at m_unk0x5c
 	MechS32 m_unk0xcc;                    // 0xcc
-	undefined m_unk0xd0[0xe0 - 0xd0];     // 0xd0
+	MechS32 m_unk0xd0;                    // 0xd0 — the cockpit's height (g_unk0x100a2434)
+	undefined m_unk0xd4[0xe0 - 0xd4];     // 0xd4
 	MechS32 m_unk0xe0;                    // 0xe0
 	MechS32 m_unk0xe4;                    // 0xe4 — its mass: FUN_1007669e scales collision damage by it
 	MechS32 m_radius;                     // 0xe8 — splash damage reaches it this much further

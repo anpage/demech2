@@ -13,6 +13,7 @@ extern "C"
 
 	extern MechS32 g_unk0x100ba4bc;
 
+	void FUN_1007b930(struct CobaltHarbor0x88* p_panel);
 	void FUN_1007c126(struct CobaltHarbor0x88* p_panel);
 	void FUN_1007c6df(struct CobaltHarbor0x88* p_panel);
 	void FUN_1007c71e(struct CobaltHarbor0x88* p_panel);

@@ -7,6 +7,7 @@
 #include "decomp.h"
 #include "gamething.h"
 #include "mech.h"
+#include "playerai.h"
 #include "playersteering.h"
 #include "playertargetinfo.h"
 #include "ramp.h"
@@ -81,13 +82,7 @@ struct Player {
 	undefined m_unk0x139[0x140 - 0x139];      // 0x139
 	MechU16 m_stackCount;                     // 0x140
 	undefined2 m_unk0x142;                    // 0x142
-	AiMessage m_posted;                       // 0x144
-	undefined2 m_unk0x148;                    // 0x148
-	MechS16 m_aiState;                        // 0x14a
-	MechU16 m_aiTarget;                       // 0x14c
-	MechU16 m_aiGoal;                         // 0x14e
-	MechU16 m_unk0x150;                       // 0x150
-	MechS16 m_aiFlags;                        // 0x152
+	PlayerAi m_ai;                            // 0x144
 	MechS32 m_unk0x154;                       // 0x154
 	MechS8 m_unk0x158;                        // 0x158
 	MechS8 m_unk0x159;                        // 0x159
@@ -105,12 +100,19 @@ struct Player {
 	MechS32 m_unk0x180;                       // 0x180
 	MechS32 m_unk0x184;                       // 0x184
 	struct ScarletOrchid0x4c* m_unk0x188;     // 0x188 — a shape
-	undefined m_unk0x18c[0x190 - 0x18c];      // 0x18c
+	MechS32 m_unk0x18c;                       // 0x18c
 	MechS16 m_unk0x190;                       // 0x190
-	undefined m_unk0x192[0x196 - 0x192];      // 0x192
+	MechS32 m_unk0x192;                       // 0x192
 	MechS32 m_unk0x196;                       // 0x196
 	MechS32 m_unk0x19a;                       // 0x19a — the target distance at the last FUN_10016093
-	MechU32 m_unk0x19e;                       // 0x19e
+	MechU32 m_skillFlag0 : 1;                 // 0x19e — the maneuvers its skill allows (FUN_100139e9)
+	MechU32 m_skillFlag1 : 1;                 // 0x19e
+	MechU32 m_skillFlag2 : 1;                 // 0x19e
+	MechU32 m_skillFlag3 : 1;                 // 0x19e
+	MechU32 m_skillFlag4 : 1;                 // 0x19e
+	MechU32 m_skillFlag5 : 1;                 // 0x19e
+	MechU32 m_skillFlag6 : 1;                 // 0x19e
+	MechU32 m_skillFlagsUnused : 25;          // 0x19e
 	MechS8 m_unk0x1a2[8];                     // 0x1a2 — the formation places around it that are taken
 };
 

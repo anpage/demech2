@@ -35,6 +35,9 @@ typedef struct BwdStream {
 } BwdStream;
 #pragma pack()
 
+// A function run on a BWD stream (ExecuteInclude's callback).
+typedef MechS32 (*BwdStreamFn)(BwdStream* p_stream);
+
 // The functions and globals of bwd.c that other units use.
 #ifdef __cplusplus
 extern "C"

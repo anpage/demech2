@@ -4,6 +4,10 @@
 
 #include "types.h"
 
+// The BWD version this build reads: a mission stream's REV record must be at least this.
+// GLOBAL: MW2 0x100a66b8
+MechChar g_bwdVersion[] = "1.22";
+
 // The name of each keyword in g_bwdTypeCodes.
 // GLOBAL: MW2 0x100a66c0
 MechChar* g_bwdKeywordNames[0x48] = {

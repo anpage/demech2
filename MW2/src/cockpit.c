@@ -4,6 +4,7 @@
 #include "blit.h"
 #include "clock.h"
 #include "cobaltharbor.h"
+#include "config.h"
 #include "decomp.h"
 #include "duskmoth.h"
 #include "environment.h"
@@ -102,7 +103,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	viewport->m_buffer = &g_mainPixelBuffer;
 	ScaleRectToScreen(&g_mainPixelBuffer, viewport, viewport);
 	if (p_cockpit == 1) {
-		g_unk0x100adf58 = *viewport;
+		g_unk0x100adf58[0] = *viewport;
 	}
 
 	g_renderTargets[p_layout->m_renderTargetSlot] = *viewport;

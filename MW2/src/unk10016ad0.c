@@ -1,9 +1,12 @@
 #include "unk10016ad0.h"
 
 #include "ai.h"
+#include "clock.h"
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
+#include "eyepoint.h"
+#include "fadepal.h"
 #include "fixeddiv.h"
 #include "gpanim.h"
 #include "mech.h"
@@ -16,11 +19,17 @@
 #include "resource.h"
 #include "silvertern.h"
 #include "simmain.h"
+#include "soundfx.h"
+#include "speech.h"
 #include "staticmem.h"
+#include "timedoverlays.h"
 #include "types.h"
 #include "unk100563d0.h"
 #include "unk1007fbe0.h"
+#include "weapons.h"
 #include "weaponslot.h"
+
+#include <stdio.h>
 
 DECOMP_SIZE_ASSERT(Mech, 0x10e)
 
@@ -112,6 +121,122 @@ void FUN_10016ad0(struct Player* p_player)
 
 	FUN_100516c5(mech->m_player);
 	mech->m_unk0x88 = FixedDiv16(mech->m_unk0x88, g_unk0x100ba604);
+}
+
+// Handles the local mech's requests for the tick. A running mech (state 2) acts on the MASC and
+// other system keys; a destroyed one (4) ends the mission once; an ejecting one (5) runs the
+// ejection camera and then ends it. Except while destroyed or ejecting, a power request shuts the
+// mech down, or powers up a shut-down mech that isn't overheating.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2 0x10019368
+void FUN_10019368(Mech* p_mech)
+{
+	MechS32 dx;
+	Mech* mech;
+	MechS32 dy;
+	MechS32 dz;
+	MechChar text[40];
+
+	if (p_mech) {
+		mech = p_mech;
+	}
+	else {
+		return;
+	}
+
+	switch (mech->m_unk0xa0) {
+	case 5:
+		if (!g_unk0x100a2c1c) {
+			mech->m_unk0x8c = g_currentClock + 0x389;
+			g_unk0x100a2c1c++;
+		}
+		else if (mech->m_unk0x8c > g_currentClock) {
+			FUN_10011401(4);
+		}
+		else {
+			g_unk0x100a2c04 = 1;
+		}
+		break;
+	case 4:
+		if (!g_unk0x100a2c18) {
+			g_unk0x100a2c18 = 1;
+			FUN_1004ca0d();
+			g_unk0x100a2c04 = 1;
+			FUN_10011401(1);
+		}
+		break;
+	case 2:
+		if (g_unk0x100a2bf8) {
+			if (!mech->m_unk0xb4) {
+				FUN_1007eb23(0xfd, 0x32, 0x40, 5, 0x32);
+				FUN_10045567(mech);
+			}
+
+			g_unk0x100a2bf8 = 0;
+		}
+
+		if (mech->m_player->m_steering->m_unk0x26 && !mech->m_unk0xb4) {
+			FUN_1007eb23(0xfd, 0x32, 0x40, 5, 0x32);
+			g_unk0x100a2bf8 = 1;
+			FUN_10045567(mech);
+			g_unk0x100a2bf8 = 0;
+		}
+
+		if (mech->m_player->m_steering->m_unk0x2b) {
+			FUN_10045b9c();
+		}
+
+		if (g_unk0x100a2be8) {
+			g_unk0x100a2be8 = 0;
+			FUN_1004597b(mech);
+		}
+
+		if (g_unk0x100a2bec) {
+			g_unk0x100a2bec = 0;
+			if (mech->m_unk0x10c & 0x10) {
+				if (g_unk0x100a2bf0) {
+					g_unk0x100a2bf0 = 0;
+					FUN_1007eb23(0xca, 100, 0x40, 5, 0x50);
+					PlayCockpitSound(0x1f, 0);
+				}
+				else {
+					g_unk0x100a2bf0 = 1;
+					FUN_1007eb23(0xcb, 100, 0x40, 5, 0x50);
+					PlayCockpitSound(0x1f, 1);
+				}
+			}
+			else {
+				sprintf(text, "Not equipped with MASC.");
+				ShowInGameMessage(text, 1, 0x16a, 0x32);
+			}
+		}
+	default:
+		switch (g_unk0x100a2c08) {
+		case 0:
+			break;
+		case 1:
+			if ((!(mech->m_unk0x10c & 4) || (mech->m_unk0x10c & 8)) && mech->m_unk0xa0 == 3) {
+				sprintf(text, "Powering up...");
+				ShowInGameMessage(text, 1, 0x16a, 0x32);
+				mech->m_unk0xa0 = 0;
+				mech->m_player->m_flags &= ~0x10;
+				g_unk0x100a2c08 = 0;
+			}
+			break;
+		case -1:
+			if (mech->m_unk0xa0 != 3) {
+				PlayCockpitSound(0xd, -1);
+				dx = mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
+				dy = mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
+				dz = mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+				FUN_1007ebd1(dx, dy, dz, 0xf2, g_unk0x100a2420);
+				mech->m_unk0xa0 = 3;
+				g_unk0x100a2c08 = 0;
+			}
+			break;
+		}
+		break;
+	}
 }
 
 // FUNCTION: MW2 0x1001975a

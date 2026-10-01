@@ -8,7 +8,7 @@
 struct Player;
 typedef struct AiName AiName;
 
-// The AI states (Player::m_aiState), and the commands the local player gives its star.
+// The AI states (Player::m_ai.m_state), and the commands the local player gives its star.
 enum {
 	c_aiStateIdle = 0,
 	c_aiStateAvoid = 1,

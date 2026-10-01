@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Sixteen directions around a mech, as (x, z) steps: FUN_10015b9f's probe rays.
 // GLOBAL: MW2 0x100a2900
@@ -49,16 +50,264 @@ Point g_unk0x100a2900[16] = {
 	{-2, 1}
 };
 
+// The maneuver tables: the maneuvers a mech chooses among and those that may follow each.
+
+// GLOBAL: MW2 0x100a2980
+AmberGlade0x12 g_unk0x100a2980[13] = {
+	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
+	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
+	{{2, 3, 7, 8, 4, 0, 0, 0, 0}},
+	{{3, 2, 7, 8, 0, 0, 0, 0, 0}},
+	{{4, 3, 5, 5, 8, 0, 0, 0, 0}},
+	{{5, 2, 7, 8, 0, 0, 0, 0, 0}},
+	{{6, 1, 6, 0, 0, 0, 0, 0, 0}},
+	{{7, 3, 0, 1, 8, 0, 0, 0, 0}},
+	{{8, 5, 0, 1, 2, 3, 4, 0, 0}},
+	{{9, 3, 0, 8, 7, 0, 0, 0, 0}},
+	{{10, 3, 7, 7, 4, 0, 0, 0, 0}},
+	{{11, 2, 3, 1, 0, 0, 0, 0, 0}},
+	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
+};
+
+// GLOBAL: MW2 0x100a2a70
+AmberGlade0x12 g_unk0x100a2a70 = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
+
+// GLOBAL: MW2 0x100a2a88
+AmberGlade0x12 g_unk0x100a2a88 = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
+
+// GLOBAL: MW2 0x100a2aa0
+AmberGlade0x12 g_unk0x100a2aa0 = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
+
+// The table of a mech whose class sets m_unk0xe4 (FUN_10013d81).
+// GLOBAL: MW2 0x100a2ab8
+AmberGlade0x12 g_unk0x100a2ab8[13] = {
+	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
+	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
+	{{2, 4, 7, 8, 4, 4, 0, 0, 0}},
+	{{3, 4, 7, 8, 4, 4, 0, 0, 0}},
+	{{4, 3, 5, 5, 8, 0, 0, 0, 0}},
+	{{5, 2, 7, 8, 0, 0, 0, 0, 0}},
+	{{6, 1, 6, 0, 0, 0, 0, 0, 0}},
+	{{7, 5, 0, 1, 2, 8, 4, 0, 0}},
+	{{8, 6, 0, 1, 2, 3, 4, 4, 0}},
+	{{9, 3, 0, 8, 7, 0, 0, 0, 0}},
+	{{10, 4, 7, 7, 4, 4, 0, 0, 0}},
+	{{11, 1, 3, 0, 0, 0, 0, 0, 0}},
+	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
+};
+
+// Set once FUN_100139e9 has filled g_unk0x101748e0.
+// GLOBAL: MW2 0x100a2ba4
+MechS32 g_unk0x100a2ba4 = 0;
+
+// The maneuver table of each player type (m_unk0x00, 1 to 8), and in entry 8 the alternative to
+// the first.
+// GLOBAL: MW2 0x101748e0
+SilverBrook0x08 g_unk0x101748e0[9];
+
 // STUB: MW2 0x10013430
 void FUN_10013430(Player* p_player, MechU16 p_target)
 {
 	STUB(0x10013430);
 }
 
-// STUB: MW2 0x100139e9
+// Resets p_player's maneuver state and sets the maneuvers its skill (m_unk0x159, 1 to 4) allows,
+// and fills the maneuver tables the first time.
+// FUNCTION: MW2 0x100139e9
 void FUN_100139e9(Player* p_player)
 {
-	STUB(0x100139e9);
+	MechS16 i;
+
+	p_player->m_unk0x170 = -1;
+	p_player->m_unk0x172 = -1;
+	p_player->m_unk0x174 = 0;
+	p_player->m_unk0x188 = NULL;
+	p_player->m_unk0x190 = 0;
+	p_player->m_unk0x192 = 1;
+	p_player->m_unk0x18c = 0;
+	memset(p_player->m_unk0x1a2, 0, sizeof(p_player->m_unk0x1a2));
+	if (p_player->m_unk0x159 < 1 || p_player->m_unk0x159 > 4) {
+		p_player->m_unk0x159 = 1;
+	}
+
+	if (p_player->m_unk0x159 <= 3) {
+		p_player->m_skillFlag0 = 1;
+	}
+	else {
+		p_player->m_skillFlag0 = 0;
+	}
+
+	if (p_player->m_unk0x159 <= 3) {
+		p_player->m_skillFlag1 = 1;
+	}
+	else {
+		p_player->m_skillFlag1 = 0;
+	}
+
+	if (p_player->m_unk0x159 <= 2) {
+		p_player->m_skillFlag2 = 1;
+	}
+	else {
+		p_player->m_skillFlag2 = 0;
+	}
+
+	if (p_player->m_unk0x00 == 1 && p_player->m_unk0x159 <= 5) {
+		p_player->m_skillFlag3 = 1;
+	}
+	else {
+		p_player->m_skillFlag3 = 0;
+	}
+
+	if (p_player->m_unk0x159 <= 4) {
+		p_player->m_skillFlag4 = 1;
+	}
+	else {
+		p_player->m_skillFlag4 = 0;
+	}
+
+	if (p_player->m_unk0x00 == 1 && p_player->m_unk0x159 <= 1) {
+		p_player->m_skillFlag5 = 1;
+	}
+	else {
+		p_player->m_skillFlag5 = 0;
+	}
+
+	if (p_player->m_unk0x159 <= 5) {
+		p_player->m_skillFlag6 = 1;
+	}
+	else {
+		p_player->m_skillFlag6 = 0;
+	}
+
+	if (!g_unk0x100a2ba4) {
+		for (i = 0; i < 8; i++) {
+			switch (i + 1) {
+			case 1:
+				g_unk0x101748e0[i].m_count = 13;
+				g_unk0x101748e0[i].m_unk0x02 = 7;
+				g_unk0x101748e0[i].m_entries = g_unk0x100a2980;
+				g_unk0x101748e0[8] = g_unk0x101748e0[i];
+				g_unk0x101748e0[8].m_entries = g_unk0x100a2ab8;
+				break;
+			case 8:
+				g_unk0x101748e0[i].m_count = 1;
+				g_unk0x101748e0[i].m_unk0x02 = 0;
+				g_unk0x101748e0[i].m_entries = &g_unk0x100a2aa0;
+				break;
+			case 5:
+				g_unk0x101748e0[i].m_count = 1;
+				g_unk0x101748e0[i].m_unk0x02 = 0;
+				g_unk0x101748e0[i].m_entries = &g_unk0x100a2a88;
+				break;
+			default:
+				g_unk0x101748e0[i].m_count = 1;
+				g_unk0x101748e0[i].m_unk0x02 = 0;
+				g_unk0x101748e0[i].m_entries = &g_unk0x100a2a70;
+				break;
+			}
+		}
+
+		g_unk0x100a2ba4 = 1;
+	}
+}
+
+// Picks p_player's next maneuver: one an order asked for, an AI player's escape, attack or chase
+// when it applies, or else one its maneuver table lets follow the previous one (any one at
+// first), redrawn until its conditions hold.
+// Stack-slot permutation: mech, table, choice and index.
+// FUNCTION: MW2 0x10013d81
+MechS32 FUN_10013d81(Player* p_player)
+{
+	Mech* mech;
+	SilverBrook0x08* table;
+	MechS16 choice;
+	MechS16 index;
+
+	choice = -1;
+	table = &g_unk0x101748e0[p_player->m_unk0x00 - 1];
+	mech = p_player->m_mech;
+	if (mech->m_unk0xe4 == 1) {
+		table = &g_unk0x101748e0[8];
+	}
+
+	do {
+		FUN_1005372c(p_player, p_player->m_ai.m_target);
+		if (p_player->m_unk0x174) {
+			if (p_player->m_unk0x174 == -2) {
+				FUN_10054684(p_player, 4, p_player->m_ai.m_goal, 0);
+				p_player->m_ai.m_flags = 1;
+			}
+			else {
+				choice = p_player->m_unk0x174;
+			}
+
+			p_player->m_unk0x174 = 0;
+			break;
+		}
+
+		if (p_player->m_unk0x00 == 1) {
+			if (FUN_10016880(mech)) {
+				choice = 10;
+				break;
+			}
+
+			if (!(p_player->m_ai.m_goal & 0x200)) {
+				choice = 0;
+				break;
+			}
+
+			if (FUN_10016222(p_player, 0x14) && p_player->m_skillFlag1 && FUN_10015520(p_player) &&
+				FUN_10015e74(p_player, p_player->m_targetInfo.m_position.m_y)) {
+				if (!p_player->m_unk0x172) {
+					choice = 9;
+				}
+				else {
+					choice = 0;
+				}
+
+				if (!choice && RandomIntBelow(2)) {
+					choice = 8;
+				}
+				break;
+			}
+		}
+
+		if (p_player->m_unk0x172 == -1) {
+			index = RandomIntBelow(table->m_count - table->m_unk0x02);
+			choice = table->m_entries[index].m_list[0];
+		}
+		else {
+			index = FUN_100140e4(table, p_player->m_unk0x172);
+			if (index == -1) {
+				index = 0;
+			}
+
+			choice = table->m_entries[index].m_list[2 + RandomIntBelow(table->m_entries[index].m_list[1])];
+		}
+
+		if (p_player->m_unk0x172 == 4 && p_player->m_unk0x184 == 1) {
+			choice = 5;
+			break;
+		}
+
+		if (choice == 4 && (!FUN_10016222(p_player, 0x14) || !p_player->m_skillFlag1)) {
+			choice = -1;
+		}
+
+		if (choice == 4 && FUN_1005432f(p_player) > mech->m_unk0xe0) {
+			choice = 0;
+		}
+
+		if (choice == 3 && mech->m_unk0xe0 < 0xa0000) {
+			choice = 2;
+		}
+
+		if (choice == 5 && p_player->m_unk0x78) {
+			choice = 0;
+		}
+	} while (choice == -1);
+
+	return choice;
 }
 
 // Returns the index of maneuver p_id in p_table, or -1.
@@ -69,7 +318,7 @@ MechS16 FUN_100140e4(SilverBrook0x08* p_table, MechS16 p_id)
 	MechS16 i;
 
 	for (i = 0; i < p_table->m_count; i++) {
-		if (p_table->m_entries[i].m_id == p_id) {
+		if (p_table->m_entries[i].m_list[0] == p_id) {
 			return i;
 		}
 	}
@@ -82,7 +331,7 @@ MechS16 FUN_100140e4(SilverBrook0x08* p_table, MechS16 p_id)
 // FUNCTION: MW2 0x10014149
 void FUN_10014149(Player* p_player)
 {
-	p_player->m_aiGoal = p_player->m_aiTarget;
+	p_player->m_ai.m_goal = p_player->m_ai.m_target;
 	p_player->m_unk0x17c = 0;
 	p_player->m_unk0x19a = p_player->m_unk0x180 = p_player->m_unk0x184 = 0;
 	p_player->m_unk0x196 = 0;
@@ -162,10 +411,59 @@ void FUN_10014149(Player* p_player)
 	}
 }
 
-// STUB: MW2 0x1001450e
+// Ends p_player's maneuver (m_unk0x170): undoes what it set up, records it as the previous one
+// and makes the goal the target again.
+// FUNCTION: MW2 0x1001450e
 void FUN_1001450e(Player* p_player)
 {
-	STUB(0x1001450e);
+	switch (p_player->m_unk0x170) {
+	case 1:
+		FUN_10054778(p_player);
+		if (p_player->m_ai.m_goal & 0x200) {
+			g_players[p_player->m_ai.m_goal & 0xff]->m_unk0x1a2[p_player->m_unk0x180 / 2]--;
+		}
+		break;
+	case 4:
+		FUN_100156f2(p_player, 0);
+		break;
+	case 11:
+		p_player->m_steering->m_unk0x20 = 0;
+		p_player->m_steering->m_unk0x21 = 0;
+		p_player->m_steering->m_unk0x1e = 0;
+		p_player->m_steering->m_unk0x1f = 0;
+		FUN_100156f2(p_player, 0);
+		break;
+	case 5:
+		FUN_100156f2(p_player, 0);
+		p_player->m_steering->m_unk0x20 = 0;
+		p_player->m_steering->m_unk0x21 = 0;
+		break;
+	case 8:
+	case 10:
+		p_player->m_steering->m_unk0x2f = 0;
+		break;
+	case 7:
+		FUN_10054778(p_player);
+		break;
+	case 9:
+		FUN_100156f2(p_player, 0);
+		break;
+	case 12:
+		FUN_10054778(p_player);
+		break;
+	case 2:
+	case 3:
+	case 6:
+		break;
+	}
+
+	FUN_100156f2(p_player, 0);
+	p_player->m_unk0x172 = p_player->m_unk0x170;
+	p_player->m_unk0x170 = -1;
+	p_player->m_unk0x178 = p_player->m_unk0x17c = 0;
+	p_player->m_ai.m_target = p_player->m_ai.m_goal;
+	p_player->m_unk0x180 = p_player->m_unk0x184 = 0;
+	FUN_1005372c(p_player, p_player->m_ai.m_goal);
 }
 
 // Places a nav point for p_player where FUN_100147d0 puts it, and makes it the player's target.
@@ -301,11 +599,11 @@ void FUN_10014aa8(Player* p_player)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_player->m_aiGoal);
+	FUN_1005372c(p_player, p_player->m_ai.m_goal);
 	heading = FUN_1005432f(p_player);
 	FUN_1004b5a0(p_player, heading);
 	if (!p_player->m_unk0x184) {
-		FUN_1005372c(p_player, p_player->m_aiTarget);
+		FUN_1005372c(p_player, p_player->m_ai.m_target);
 		if (!FUN_10015709(p_player)) {
 			FUN_1005398f(p_player);
 			p_player->m_steering->m_throttle = FUN_10053811(p_player, 4000);
@@ -333,7 +631,7 @@ void FUN_10014aa8(Player* p_player)
 			FUN_100160eb(p_player);
 		}
 
-		FUN_1005372c(p_player, p_player->m_aiTarget);
+		FUN_1005372c(p_player, p_player->m_ai.m_target);
 		if (p_player->m_targetInfo.m_distance > 4500) {
 			p_player->m_unk0x184 = 0;
 		}
@@ -418,10 +716,10 @@ MechS32 FUN_10014e5e(Player* p_player)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_player->m_aiGoal);
+	FUN_1005372c(p_player, p_player->m_ai.m_goal);
 	heading = FUN_1005432f(p_player);
 	FUN_1004b5a0(p_player, heading);
-	FUN_1005372c(p_player, p_player->m_aiTarget);
+	FUN_1005372c(p_player, p_player->m_ai.m_target);
 	if (!FUN_10015709(p_player)) {
 		p_player->m_steering->m_throttle = FUN_10053811(p_player, 3000);
 		FUN_1005398f(p_player);
@@ -607,7 +905,7 @@ MechS32 FUN_100153e6(Player* p_player)
 	MechS32 result;
 
 	result = 0;
-	FUN_1005372c(p_player, p_player->m_aiGoal);
+	FUN_1005372c(p_player, p_player->m_ai.m_goal);
 	if (p_player->m_unk0x17c < g_currentClock) {
 		if (p_player->m_targetInfo.m_distance > 15000.0) {
 			FUN_10054778(p_player);
@@ -619,7 +917,7 @@ MechS32 FUN_100153e6(Player* p_player)
 
 	heading = FUN_1005432f(p_player);
 	FUN_1004b5a0(p_player, heading);
-	FUN_1005372c(p_player, p_player->m_aiTarget);
+	FUN_1005372c(p_player, p_player->m_ai.m_target);
 	if (!FUN_10015709(p_player)) {
 		p_player->m_steering->m_throttle = FUN_10053811(p_player, 3000);
 		FUN_1005398f(p_player);
@@ -627,7 +925,7 @@ MechS32 FUN_100153e6(Player* p_player)
 
 	FUN_100160eb(p_player);
 	if (p_player->m_targetInfo.m_distance <= 3000) {
-		FUN_10054a30(p_player, p_player->m_aiTarget);
+		FUN_10054a30(p_player, p_player->m_ai.m_target);
 	}
 
 	return result;
@@ -927,11 +1225,11 @@ void FUN_100160eb(Player* p_player)
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	if (!(p_player->m_unk0x19e & 1) || p_player->m_unk0x190 || p_player->m_unk0x170 == 10) {
+	if (!p_player->m_skillFlag0 || p_player->m_unk0x190 || p_player->m_unk0x170 == 10) {
 		return;
 	}
 
-	FUN_1005372c(p_player, p_player->m_aiTarget);
+	FUN_1005372c(p_player, p_player->m_ai.m_target);
 	turn = abs(FUN_1005432f(p_player));
 	if (turn >= mech->m_unk0xe0 || (turn <= -mech->m_unk0xe0 && p_player->m_steering->m_throttle)) {
 		if (FUN_10016222(p_player, 20) && p_player->m_unk0x78 && !p_player->m_steering->m_unk0x1d) {
@@ -1008,7 +1306,7 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 
 	id = 0;
 	target = NULL;
-	if (!((p_mech->m_player->m_unk0x19e >> 2) & 1) || !RandomIntBelow(3)) {
+	if (!p_mech->m_player->m_skillFlag2 || !RandomIntBelow(3)) {
 		return;
 	}
 
@@ -1019,8 +1317,8 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 	if (p_mech->m_player->m_unk0x10 == 2) {
 		id = p_mech->m_player->m_targetInfo.m_target;
 	}
-	else if (p_mech->m_player->m_aiGoal & 0x200) {
-		id = p_mech->m_player->m_aiGoal;
+	else if (p_mech->m_player->m_ai.m_goal & 0x200) {
+		id = p_mech->m_player->m_ai.m_goal;
 	}
 	else {
 		id = p_mech->m_player->m_targetInfo.m_target;
@@ -1075,7 +1373,7 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 			}
 		}
 
-		if (target->m_unk0x174 == 0 && ((target->m_unk0x19e >> 1) & 1)) {
+		if (target->m_unk0x174 == 0 && target->m_skillFlag1) {
 			target->m_unk0x174 = 4;
 		}
 	}
@@ -1094,7 +1392,7 @@ MechS32 FUN_100166b1(Player* p_player)
 	MechS32 found;
 	Player* leader;
 
-	leader = g_players[p_player->m_aiGoal & 0xff];
+	leader = g_players[p_player->m_ai.m_goal & 0xff];
 	angle = FixedDiv16(FUN_10015dd6(leader, p_player->m_index | 0x200), 0x2d0000);
 	place = (angle + 0x8000) >> 16;
 	if (place >= 8) {

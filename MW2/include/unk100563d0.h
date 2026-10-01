@@ -21,9 +21,9 @@ extern "C"
 	extern MechU32 g_staticPoolTags[10];
 
 	MechU32 GetStaticPoolSize(MechS32 p_index);
-	MechS32* FUN_1005640e(char* p_mission);
+	StaticPoolSize* FUN_1005640e(char* p_mission);
 	MechS32 FUN_10056503(struct BwdStream* p_stream);
-	MechS32* FUN_100567ed(void);
+	StaticPoolSize* FUN_100567ed(void);
 
 #ifdef __cplusplus
 }

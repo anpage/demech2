@@ -1,31 +1,50 @@
 #include "config.h"
 
 #include "anim2d.h"
+#include "approxlen.h"
 #include "cobaltharbor.h"
 #include "cockpit.h"
 #include "decomp.h"
 #include "environment.h"
 #include "fadepal.h"
+#include "gamekeys.h"
 #include "garnetframe.h"
 #include "loadres.h"
 #include "mech.h"
 #include "network.h"
 #include "players.h"
+#include "point.h"
 #include "quartzreel.h"
 #include "random.h"
+#include "recttransition.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "resource.h"
 #include "resourceref.h"
+#include "screenscale.h"
 #include "screenshot.h"
+#include "silvertern.h"
 #include "simmain.h"
 #include "soundconfig.h"
 #include "soundfx.h"
+#include "speech.h"
 #include "staticmem.h"
 #include "types.h"
+#include "unk10004f40.h"
+#include "unk100079d0.h"
+#include "unk10021460.h"
+#include "unk10033280.h"
+#include "unk10040020.h"
+#include "unk10040b30.h"
 #include "unk10046750.h"
+#include "unk1004d020.h"
+#include "unk100509a0.h"
 #include "unk100563d0.h"
 #include "unk100737e0.h"
+#include "unk100746c0.h"
+#include "unk1007b930.h"
+#include "weapons.h"
+#include "weaponslot.h"
 
 #include <fcntl.h>
 #include <io.h>
@@ -41,8 +60,122 @@ enum FilePermission {
 	c_permissionWrite = 0x80 // _S_IWRITE (sys/stat.h)
 };
 
+// The 26 cockpit panels' rectangles, in 320x200 screen coordinates (FUN_1006fba3 scales them to the
+// screen).
+// GLOBAL: MW2 0x100adf58
+RenderTarget g_unk0x100adf58[26] = {
+	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
+	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
+	{&g_mainPixelBuffer, 214, 25, 256, 33},   {&g_mainPixelBuffer, 214, 35, 256, 43},
+	{&g_mainPixelBuffer, 214, 45, 256, 53},   {&g_mainPixelBuffer, 214, 55, 256, 63},
+	{&g_mainPixelBuffer, 268, 15, 319, 23},   {&g_mainPixelBuffer, 268, 25, 319, 33},
+	{&g_mainPixelBuffer, 268, 35, 319, 43},   {&g_mainPixelBuffer, 268, 45, 319, 53},
+	{&g_mainPixelBuffer, 268, 55, 319, 63},   {&g_mainPixelBuffer, 10, 145, 62, 179},
+	{&g_mainPixelBuffer, 10, 183, 70, 199},   {&g_mainPixelBuffer, 30, 70, 300, 170},
+	{&g_mainPixelBuffer, 30, 70, 300, 170},   {&g_mainPixelBuffer, 55, 190, 120, 199},
+	{&g_mainPixelBuffer, 275, 130, 317, 195}, {&g_mainPixelBuffer, 250, 188, 273, 199},
+	{&g_mainPixelBuffer, 110, 175, 169, 189}, {&g_mainPixelBuffer, 170, 175, 209, 189},
+	{&g_mainPixelBuffer, 210, 175, 249, 189}, {&g_mainPixelBuffer, 1, 74, 35, 111},
+	{&g_mainPixelBuffer, 115, 1, 205, 35},    {&g_mainPixelBuffer, 10, 136, 70, 145},
+};
+
+// The panels' text positions (16.16 fractions of their rectangles).
+// GLOBAL: MW2 0x100ae160
+Point g_unk0x100ae160[26] = {{0, 0},           {0, 0},
+							 {0, 0},           {0x11ec, 0x2148},
+							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+							 {0x11ec, 0x2148}, {0, 0},
+							 {0, 0},           {0, 0},
+							 {0, 0},           {0, 0},
+							 {0, 0xe666},      {0, 0},
+							 {0, 0xa666},      {0, 0xa666},
+							 {0, 0xa666},      {0, 0},
+							 {0, 0},           {0, 0}};
+
+// The transitions of panels 13 and 2.
+
+// GLOBAL: MW2 0x100ae230
+RectTransitionState g_unk0x100ae230 = {0, 0, 0};
+
+// GLOBAL: MW2 0x100ae240
+RectTransitionState g_unk0x100ae240 = {0, 0, 0};
+
+// GLOBAL: MW2 0x100ae250
+RenderTarget g_unk0x100ae250 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+
+// GLOBAL: MW2 0x100ae268
+RenderTarget g_unk0x100ae268 = {NULL, 0, 0, 0x10000, 0x10000};
+
+// GLOBAL: MW2 0x100ae280
+RenderTarget g_unk0x100ae280 = {NULL, 0, 0, 0, 0};
+
+// GLOBAL: MW2 0x100ae298
+RectTransitionDef g_unk0x100ae298 = {0xb5, &g_unk0x100ae250, &g_unk0x100ae268, &g_unk0x100ae280};
+
+// GLOBAL: MW2 0x100ae2a8
+RectTransition g_unk0x100ae2a8 = {&g_unk0x100ae230, &g_unk0x100ae298};
+
+// GLOBAL: MW2 0x100ae2b0
+RenderTarget g_unk0x100ae2b0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+
+// GLOBAL: MW2 0x100ae2c8
+RenderTarget g_unk0x100ae2c8 = {NULL, 0, 0, 0x10000, 0x10000};
+
+// GLOBAL: MW2 0x100ae2e0
+RenderTarget g_unk0x100ae2e0 = {NULL, 0, 0, 0, 0};
+
+// GLOBAL: MW2 0x100ae2f8
+RectTransitionDef g_unk0x100ae2f8 = {0xb5, &g_unk0x100ae2b0, &g_unk0x100ae2c8, &g_unk0x100ae2e0};
+
+// GLOBAL: MW2 0x100ae308
+RectTransition g_unk0x100ae308 = {&g_unk0x100ae240, &g_unk0x100ae2f8};
+
+// The panels' transitions.
+// GLOBAL: MW2 0x100ae310
+RectTransition* g_unk0x100ae310[26] = {
+	NULL,
+	NULL,
+	&g_unk0x100ae308,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	&g_unk0x100ae2a8,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+// Set when FUN_1007005a should run FUN_10007cb5 on its next frame.
+// GLOBAL: MW2 0x100ae37c
+MechS32 g_unk0x100ae37c = 0;
+
 // GLOBAL: MW2 0x100ae380
 MechS32 g_unk0x100ae380 = 0;
+
+// The panels' m_unk0x08 values.
+// GLOBAL: MW2 0x100ae388
+undefined4 g_unk0x100ae388[26] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297, 0x32e,
+								  0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
+								  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
 
 // The local mech's state (Mech::m_unk0xa0) when FUN_100705dd last ran.
 // GLOBAL: MW2 0x100ae3f0
@@ -89,28 +222,417 @@ void FUN_1006f480(void)
 	}
 }
 
-// STUB: MW2 0x1006fba3
+// Lays out p_mech's weapons on the weapon panels: the left panels (3 to 7) take the weapons on
+// hardpoints 5, 3 and 7, the right ones (8 to 12) those on 4, 1 and 6, and the weapons on 2 and 0
+// fill the rest, alternating. Then reorders the weapons to match, left at even indices and right
+// at odd ones, renumbering their bins, and clears the slots left empty.
+// The locals are a stack-slot permutation, and right > left takes its operands in the other
+// order.
+// FUNCTION: MW2 0x1006f4fa
+void FUN_1006f4fa(Mech* p_mech)
+{
+	MechS32 rightStart;
+	WeaponSlot* slot;
+	MechS32 panel;
+	MechS32 i;
+	WeaponSlot* dst;
+	WeaponSlot* weapons;
+	MechS32 left;
+	MechS32 j;
+	MechS32 index;
+	MechS32 alternate;
+	SilverTern0x14* bin;
+	MechS32 right;
+
+	alternate = TRUE;
+	for (i = 0; i < 10; i++) {
+		p_mech->m_weapons[i].m_index = i;
+	}
+
+	slot = p_mech->m_weapons;
+	rightStart = 8;
+	for (i = 0; i < 10; i++) {
+		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
+			rightStart++;
+		}
+
+		if (i != 10) {
+			slot++;
+		}
+	}
+
+	slot = p_mech->m_weapons;
+	left = 3;
+	for (i = 0; i < 10; i++) {
+		if (slot->m_hardpoint == 5 || slot->m_hardpoint == 3 || slot->m_hardpoint == 7) {
+			g_unk0x100c3280[left]->m_setName(g_unk0x100c3280[left], g_weaponDefs[slot->m_type].m_name);
+			g_unk0x100c3280[left]->m_setUnk0x0c(g_unk0x100c3280[left], i);
+			g_unk0x100c3280[left]->m_unk0x78 = FUN_100334d3;
+			g_unk0x100c3280[left]->m_unk0x7c = FUN_10033280;
+			left++;
+		}
+
+		if (left == 8) {
+			left = rightStart;
+		}
+
+		if (i != 10) {
+			slot++;
+		}
+	}
+
+	slot = p_mech->m_weapons;
+	right = 8;
+	for (i = 0; i < 10; i++) {
+		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
+			g_unk0x100c3280[right]->m_setName(g_unk0x100c3280[right], g_weaponDefs[slot->m_type].m_name);
+			g_unk0x100c3280[right]->m_setUnk0x0c(g_unk0x100c3280[right], i);
+			g_unk0x100c3280[right]->m_unk0x78 = FUN_100334d3;
+			g_unk0x100c3280[right]->m_unk0x7c = FUN_10033280;
+			right++;
+		}
+
+		if (right > 12) {
+			right = left;
+		}
+
+		if (i != 10) {
+			slot++;
+		}
+	}
+
+	slot = p_mech->m_weapons;
+	panel = left;
+	for (i = 0; i < 10; i++) {
+		if (slot->m_hardpoint == 2 || slot->m_hardpoint == 0) {
+			if (alternate && right > left) {
+				panel = right;
+				if (panel == 13) {
+					panel = left;
+					left++;
+				}
+				else {
+					right++;
+				}
+
+				alternate = FALSE;
+			}
+			else {
+				panel = left;
+				if (panel == 8) {
+					panel = right;
+					right++;
+				}
+				else {
+					left++;
+				}
+
+				alternate = TRUE;
+			}
+
+			g_unk0x100c3280[panel]->m_setName(g_unk0x100c3280[panel], g_weaponDefs[slot->m_type].m_name);
+			g_unk0x100c3280[panel]->m_setUnk0x0c(g_unk0x100c3280[panel], i);
+			g_unk0x100c3280[panel]->m_unk0x78 = FUN_100334d3;
+			g_unk0x100c3280[panel]->m_unk0x7c = FUN_10033280;
+			panel++;
+		}
+
+		if (i != 10) {
+			slot++;
+		}
+	}
+
+	weapons = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 10 * sizeof(WeaponSlot));
+	dst = weapons;
+	for (i = 3; i <= 7; i++) {
+		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
+			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+			*dst = *slot;
+			if (i != 7) {
+				dst += 2;
+			}
+		}
+	}
+
+	dst = weapons + 1;
+	for (i = 8; i <= 12; i++) {
+		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
+			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+			*dst = *slot;
+			if (i != 12) {
+				dst += 2;
+			}
+		}
+	}
+
+	index = 0;
+	for (i = 3; i <= 7; i++) {
+		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
+			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+			for (j = 0; j < slot->m_binCount; j++) {
+				bin = &((SilverTern0x14*) p_mech->m_unk0x5c)[slot->m_bins[j]];
+				bin->m_weapon = index;
+			}
+		}
+
+		g_unk0x100c3280[i]->m_unk0x0c = index;
+		index += 2;
+	}
+
+	index = 1;
+	for (i = 8; i <= 12; i++) {
+		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
+			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+			for (j = 0; j < slot->m_binCount; j++) {
+				bin = &((SilverTern0x14*) p_mech->m_unk0x5c)[slot->m_bins[j]];
+				bin->m_weapon = index;
+			}
+
+			g_unk0x100c3280[i]->m_unk0x0c = index;
+			index += 2;
+		}
+	}
+
+	memcpy(p_mech->m_weapons, weapons, 10 * sizeof(WeaponSlot));
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, weapons);
+	for (i = 0; i < 10; i++) {
+		slot = &p_mech->m_weapons[i];
+		if (!slot->m_type && !slot->m_ammo) {
+			slot->m_type = -1;
+		}
+	}
+}
+
+// Scales the panels' rectangles, text positions and transition rectangles to the screen.
+// Stack-slot permutation: rect, transition, i and target.
+// FUNCTION: MW2 0x1006fba3
 void FUN_1006fba3(void)
 {
-	STUB(0x1006fba3);
+	RenderTarget* rect;
+	RectTransition* transition;
+	MechS32 i;
+	RenderTarget* target;
+
+	for (i = 0; i < 26; i++) {
+		target = &g_unk0x100adf58[i];
+		FUN_10056ce9(target, target);
+		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
+		FUN_10056bc1(target, &g_unk0x100ae160[i], &g_unk0x100ae160[i]);
+		transition = g_unk0x100ae310[i];
+		if (transition) {
+			rect = transition->m_def->m_first;
+			rect->m_buffer = &g_mainPixelBuffer;
+			FUN_1005699f(target, rect, rect);
+			rect = transition->m_def->m_second;
+			rect->m_buffer = &g_mainPixelBuffer;
+			FUN_1005699f(target, rect, rect);
+			rect = transition->m_def->m_out;
+			rect->m_buffer = &g_mainPixelBuffer;
+		}
+	}
 }
 
-// STUB: MW2 0x1006fca5
+// Creates the 26 cockpit panels, all enabled but the second and (in network games) the
+// fourteenth, lays out the local mech's weapon panels (FUN_1006f4fa) and installs the panels'
+// handlers.
+// FUNCTION: MW2 0x1006fca5
 void FUN_1006fca5(void)
 {
-	STUB(0x1006fca5);
+	Mech* mech;
+	MechS32 i;
+
+	for (i = 0; i < 26; i++) {
+		g_unk0x100c32f0[i] = TRUE;
+	}
+
+	g_unk0x100c32f0[1] = FALSE;
+	if (!g_difficulty->m_unk0x09) {
+		g_unk0x100c32f0[13] = FALSE;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	for (i = 0; i < 26; i++) {
+		g_unk0x100c3280[i] = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CobaltHarbor0x88));
+		FUN_100746c0(g_unk0x100c3280[i]);
+		g_unk0x100c3280[i]->m_setUnk0x08(g_unk0x100c3280[i], g_unk0x100ae388[i]);
+		g_unk0x100c3280[i]->m_setTarget(g_unk0x100c3280[i], &g_unk0x100adf58[i]);
+		g_unk0x100c3280[i]->m_setUnk0x34(g_unk0x100c3280[i], &g_unk0x100ae160[i]);
+		g_unk0x100c3280[i]->m_setTransition(g_unk0x100c3280[i], g_unk0x100ae310[i]);
+		if (g_unk0x100c32f0[i]) {
+			g_unk0x100c3280[i]->m_enable(g_unk0x100c3280[i]);
+		}
+		else {
+			g_unk0x100c3280[i]->m_disable(g_unk0x100c3280[i]);
+		}
+	}
+
+	FUN_1006f4fa(mech);
+	g_unk0x100c3280[2]->m_unk0x7c = FUN_100509c8;
+	g_unk0x100c3280[2]->m_unk0x84 = FUN_10050e20;
+	g_unk0x100c3280[2]->m_unk0x78 = FUN_10050ebe;
+	g_unk0x100c3280[2]->m_unk0x80 = FUN_10050fd6;
+	g_unk0x100c3280[13]->m_unk0x7c = FUN_1007c126;
+	g_unk0x100c3280[13]->m_unk0x84 = FUN_1007c6df;
+	g_unk0x100c3280[14]->m_unk0x7c = FUN_1007b930;
+	g_unk0x100c3280[13]->m_unk0x78 = FUN_1007c71e;
+	g_unk0x100c3280[13]->m_unk0x80 = FUN_1007c81c;
+	g_unk0x100c3280[15]->m_unk0x7c = FUN_100056f0;
+	g_unk0x100c3280[16]->m_unk0x7c = FUN_10005add;
+	g_unk0x100c3280[17]->m_unk0x7c = FUN_10006189;
+	g_unk0x100c3280[18]->m_unk0x7c = FUN_10006291;
+	g_unk0x100c3280[19]->m_unk0x7c = FUN_100063cd;
+	g_unk0x100c3280[20]->m_unk0x7c = FUN_10006484;
+	g_unk0x100c3280[21]->m_unk0x7c = FUN_100065c3;
+	g_unk0x100c3280[22]->m_unk0x7c = FUN_1000667c;
+	g_unk0x100c3280[25]->m_unk0x7c = FUN_100060b6;
+	FUN_1004d020();
+	FUN_10040020();
+	g_unk0x100a2434 = &mech->m_unk0xd0;
+	g_unk0x100a2438 = &mech->m_unk0x04.m_value;
+	FUN_10040f91();
+	if (g_difficulty->m_unk0x09) {
+		FUN_1003dce8();
+	}
 }
 
-// STUB: MW2 0x1006ff7b
+// Lays out the local mech's weapon panels again and resets every panel to its settings.
+// FUNCTION: MW2 0x1006ff7b
 void FUN_1006ff7b(void)
 {
-	STUB(0x1006ff7b);
+	Mech* mech;
+	MechS32 i;
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	FUN_1006f4fa(mech);
+	for (i = 0; i < 26; i++) {
+		g_unk0x100c3280[i]->m_setUnk0x08(g_unk0x100c3280[i], g_unk0x100ae388[i]);
+		g_unk0x100c3280[i]->m_setTransition(g_unk0x100c3280[i], g_unk0x100ae310[i]);
+		g_unk0x100c3280[i]->m_setUnk0x06(g_unk0x100c3280[i], 0);
+		if (g_unk0x100c32f0[i]) {
+			g_unk0x100c3280[i]->m_enable(g_unk0x100c3280[i]);
+		}
+	}
 }
 
-// STUB: MW2 0x1007005a
-void FUN_1007005a(struct Mech* p_mech)
+// Updates the cockpit for the local mech's frame: the heading and the torso twist the panels show,
+// the target's bearing relative to both and its distance, a one-time warning sound, and the
+// panels' handlers for the view mode (Mech::m_unk0xa0: 1, 2 or the rest).
+// Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
+// FUNCTION: MW2 0x1007005a
+void FUN_1007005a(Mech* p_mech)
 {
-	STUB(0x1007005a);
+	MechS32 pitch;
+	MechS32 twistBearing;
+	MechS32 i;
+	MechS32 distance;
+	MechS32 bearing;
+
+	if (p_mech->m_player->m_index != g_localPlayerId) {
+		return;
+	}
+
+	g_unk0x100c3358 = p_mech->m_unk0xa0;
+	if (g_unk0x100c3358 != 2 && g_unk0x100c3280[16]->m_unk0x7c) {
+		g_unk0x100c3280[16]->m_unk0x7c(g_unk0x100c3280[16]);
+	}
+
+	if (g_unk0x100c3358 == 4 || g_unk0x100c3358 == 5) {
+		return;
+	}
+
+	if (!g_unk0x100a5f18) {
+		return;
+	}
+
+	g_unk0x100c3270 = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
+	g_unk0x100c326c = (p_mech->m_unk0x04.m_value >> 16) % 360 % 360;
+	pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_unk0x14.m_value) % 0x1680000;
+	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_unk0x100c3270;
+	if (bearing > 180) {
+		bearing -= 360;
+	}
+	else if (bearing < -180) {
+		bearing += 360;
+	}
+
+	twistBearing = bearing - g_unk0x100c326c;
+	if (twistBearing > 180) {
+		twistBearing -= 360;
+	}
+	else if (twistBearing < -180) {
+		twistBearing += 360;
+	}
+
+	distance = ApproximateVectorLength(
+		p_mech->m_player->m_targetInfo.m_position.m_x - p_mech->m_player->m_position.m_x,
+		p_mech->m_player->m_targetInfo.m_position.m_y - p_mech->m_player->m_position.m_y,
+		p_mech->m_player->m_targetInfo.m_position.m_z - p_mech->m_player->m_position.m_z
+	);
+	if (g_unk0x100ae37c) {
+		if (g_unk0x100c3358 == 2) {
+			FUN_10007cb5(p_mech);
+		}
+
+		g_unk0x100ae37c = 0;
+	}
+
+	if (g_unk0x100aa298 && g_unk0x100c3358 != 3 && (p_mech->m_unk0x10c & 4) && !(p_mech->m_unk0x10c & 8)) {
+		FUN_1007eb23(0xcd, 100, 0x40, 5, 0x32);
+		PlayCockpitSound(2, -1);
+		p_mech->m_unk0x10c |= 8;
+		g_unk0x100aa298 = 0;
+	}
+	else {
+		g_unk0x100aa298 = 0;
+	}
+
+	FUN_100705dd(p_mech);
+	switch (g_unk0x100c3358) {
+	case 2:
+		if (g_difficulty->m_unk0x09) {
+			FUN_1003dd82();
+		}
+
+		for (i = 0; i < 26; i++) {
+			if (g_unk0x100c3280[i]->m_unk0x7c) {
+				g_unk0x100c3280[i]->m_unk0x7c(g_unk0x100c3280[i]);
+			}
+		}
+
+		FUN_10040bfd(p_mech, g_unk0x100c3270, g_unk0x100c326c, bearing, twistBearing, pitch, distance, g_unk0x100a241c);
+		FUN_10021b2a(p_mech->m_unk0x44.m_value);
+		break;
+	case 1:
+		if (g_difficulty->m_unk0x09) {
+			FUN_1003f66d();
+		}
+
+		for (i = 0; i < 26; i++) {
+			if (g_unk0x100c3280[i]->m_unk0x78) {
+				g_unk0x100c3280[i]->m_unk0x78(g_unk0x100c3280[i]);
+			}
+		}
+
+		FUN_10021a07();
+		break;
+	default:
+		if (g_difficulty->m_unk0x09) {
+			FUN_1003fa05();
+		}
+
+		for (i = 0; i < 26; i++) {
+			if (g_unk0x100c3280[i]->m_unk0x80) {
+				g_unk0x100c3280[i]->m_unk0x80(g_unk0x100c3280[i]);
+			}
+		}
+
+		FUN_10021be2();
+		break;
+	}
+
+	if (!g_unk0x100a2420) {
+		FUN_10021c49();
+	}
 }
 
 // Shuts the cockpit panels down: FUN_1003fad9 outside network games (DifficultyCfg::m_unk0x09),
