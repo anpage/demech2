@@ -82,7 +82,7 @@ jobs:
           # The portable C that replaces the hand-written assembly: against the
           # golden vectors, and against the assembly itself as this compiler's
           # inline assembler builds it (tests/asmequiv)
-          ctest --test-dir build --output-on-failure
+          ctest --test-dir build --output-on-failure -j4
 
   build:
     name: "MSVC 4.1"
@@ -151,7 +151,7 @@ jobs:
           rem matched assembly; also checks that tests/asmequiv/golden.txt is what
           rem this reference writes, and that the cases reach every basic block of
           rem the reference.
-          ctest --test-dir build --output-on-failure
+          ctest --test-dir build --output-on-failure -j4
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -186,7 +186,7 @@ jobs:
           # checked against the golden vectors the VC++ 4.1 reference writes
           cmake -S tests/asmequiv -B build -DCMAKE_BUILD_TYPE=Debug -DASMEQUIV_SANITIZE=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON
           cmake --build build
-          ctest --test-dir build --output-on-failure
+          ctest --test-dir build --output-on-failure -j4
 
   verify:
     name: Verify decomp

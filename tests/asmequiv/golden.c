@@ -1,7 +1,10 @@
 // asmgolden: checks the portable C, linked in, against the golden vectors asmequiv wrote from the
 // reference. Builds on any platform (no assembly, no Windows); meant to run under UBSan and ASan.
 //
-//   asmgolden GOLDEN.txt [-case ROUTINE SET INDEX]
+//   asmgolden GOLDEN.txt [-shard K N] [-case ROUTINE SET INDEX]
+//
+// -shard checks the vector lines whose index is K modulo N, so that N processes can share the
+// work (ctest runs them in parallel); every shard still counts every routine's lines.
 //
 // A block whose input hash differs means the case generator computes differently on this
 // platform (a harness bug); one whose output hash differs has a failing case, which
@@ -244,14 +247,25 @@ int main(int p_argc, char** p_argv)
 	MechS32 lineNumber = 0;
 	MechS32 failed = 0;
 	MechS32 checked[MAX_ROUTINES];
+	MechU32 shard = 0;
+	MechU32 shardCount = 1;
+	MechU32 vectorLine = 0;
 	MechS32 i;
 
 	if (p_argc == 6 && !strcmp(p_argv[2], "-case")) {
 		return RunOneCase(p_argv + 3);
 	}
 
-	if (p_argc != 2) {
-		printf("usage: asmgolden GOLDEN.txt [-case ROUTINE SET INDEX]\n");
+	if (p_argc == 5 && !strcmp(p_argv[2], "-shard")) {
+		shard = (MechU32) strtoul(p_argv[3], NULL, 0);
+		shardCount = (MechU32) strtoul(p_argv[4], NULL, 0);
+		if (!shardCount || shard >= shardCount) {
+			printf("-shard K N needs K < N\n");
+			return 2;
+		}
+	}
+	else if (p_argc != 2) {
+		printf("usage: asmgolden GOLDEN.txt [-shard K N] [-case ROUTINE SET INDEX]\n");
 		return 2;
 	}
 
@@ -302,7 +316,7 @@ int main(int p_argc, char** p_argv)
 		}
 
 		checked[routine - g_asmRoutines]++;
-		if (!RunsHere(routine)) {
+		if (vectorLine++ % shardCount != shard || !RunsHere(routine)) {
 			continue;
 		}
 
