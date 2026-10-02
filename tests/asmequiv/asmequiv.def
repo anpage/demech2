@@ -1,0 +1,11 @@
+; The entry points asmequiv compares: asmref.dll (the matched assembly) and asmport.dll (the
+; portable C) export the same names.
+EXPORTS
+	FixedMul16
+	FixedMul30
+	FixedDiv16
+	FixedDiv29
+	FixedDivU16
+	FixedDot27
+	FixedDot29
+	MulDiv64

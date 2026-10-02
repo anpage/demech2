@@ -335,6 +335,14 @@ pop edi; pop esi; pop ebx; leave; ret [N]
 
 Record each confirmed routine in the file's header comment, so the list grows as a by-product of decompilation. **An honest C near-miss beats an asm transcription** — don't convert a function to `__asm` just because the C doesn't match yet.
 
+### Portable C (modern builds)
+
+The modern-compiler builds replace the hand-written assembly with portable C, proven equivalent by testing (`tests/asmequiv`); the 4.1 build keeps the assembly, so reccmp is unaffected. Done so far: the fixed-point helpers (`fixedmul.c`, `fixedmul30.c`, `fixeddiv.c`, `fixeddiv29.c`, `fixeddivu.c`, `fixeddot27.c`, `fixeddot29.c`, `muldiv.c`).
+
+- **Where:** an `__asm` function gets an `#ifdef PORTABLE_C` branch inside its body, above the `#else` that keeps the assembly (`fixedmul.c`). `compat.h` defines `PORTABLE_C` in every `COMPAT_MODE` build; a 4.1 build selects it with `/DPORTABLE_C`, and an x86 MSVC build keeps the assembly with `/DREFERENCE_ASM` (the tests use both).
+- **Defined behaviour only**, in the project's types: `MechS64`/`MechU64` and the helpers for register-level operations (`PortableS32`, `PortableShrdRound`) are in `util/portable.h`, not `types.h`: a typedef in `types.h` is a symbol in every unit, and adding two shifted the scores of about 120 functions across the four targets. Inputs where the original faults (`idiv` by zero or overflowing) are out of domain: the test's predicate must match the reference's faults exactly, and the C may do anything there.
+- **Tests** (`tests/asmequiv/CMakeLists.txt`): `asmequiv.exe` loads `asmref.dll` (the assembly) and `asmport.dll` (the portable C), built from the same sources, and compares every case of each routine (boundary values, then seeded random ones, each generated from its index alone); `asmgolden` checks the portable C, linked in, against `golden.txt`, which the 4.1 reference writes. `ctest` runs them in both Windows jobs; the `portable` CI job builds `tests/asmequiv` on its own (a standalone project) on Linux x86-64 with GCC and Clang under UBSan and ASan. A new routine goes into the units list, `asmequiv.def`, the routine table in `cases.c` (with its domain) and the candidate table in `golden.c`; then copy `<build>/tests/asmequiv/golden.txt` over the committed one.
+
 ## Codegen Patterns (VC++ 4.1 `/Od`)
 
 This section only grows as patterns are **proven by matches**:
@@ -503,6 +511,7 @@ util/         # decomp.h, compat.h, types.h
 vc22/         # the VC++ 2.2 sub-project (CMakeLists.txt) and the 2.2 targets' definitions (targets.cmake): NETMECHW, MECH2
 cmake/        # reccmp CMake integration, shared CMake helpers
 tools/        # ncc, lint scripts, requirements
+tests/        # asmequiv: the portable C against the hand-written assembly (ctest; also a standalone project)
 reccmp/       # reccmp data sources (CSVs, added as needed)
 docker/       # VC++ 4.1 + VC++ 2.2 + CMake under Wine build image
 assets/       # progress report icons
