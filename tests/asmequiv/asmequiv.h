@@ -52,8 +52,8 @@ typedef struct AsmRoutine {
 	// NULL: c_domainIn for all arguments.
 	MechS32 (*m_domain)(const MechS32* p_args);
 	// Sets up the state a case reads in a module, calls the routine and records what it returns
-	// and writes. NULL: the routine takes the m_arity words as MechS32 arguments, and returns
-	// its one output.
+	// and writes. NULL: the routine takes the m_arity words as MechS32 arguments and returns a
+	// MechS32, its one output (exactly: a call through another function type is undefined).
 	void (*m_run)(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output);
 	// Adds the inputs a case derives from its arguments other than with integer arithmetic
 	// (tables computed with the C library's sin) to the input hash. NULL: none.

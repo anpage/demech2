@@ -2,6 +2,7 @@
 // arguments the original computes a result.
 
 #include "asmequiv.h"
+#include "copperwren.h"
 #include "eyepoint.h"
 #include "portable.h"
 #include "types.h"
@@ -129,6 +130,16 @@ static MechS32 Domain1004c860(const MechS32* p_args)
 	return DivideDomain((MechS64) p_args[0] * p_args[1] + (MechS64) p_args[2] * 0x10000, p_args[3]);
 }
 
+// --- Unsigned arguments ---
+
+typedef MechU32 (*FixedSqrtGuessFn)(MechU32 p_value);
+
+// Called through its own type: a call through another one is undefined (Clang's UBSan checks).
+static void RunFixedSqrtGuess(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	AsmOutputWord(p_output, ((FixedSqrtGuessFn) Function(p_module, "FixedSqrtGuess"))((MechU32) p_args[0]));
+}
+
 // --- Strings ---
 
 typedef MechU32 (*NameHashFn)(const MechChar* p_name);
@@ -250,11 +261,12 @@ static void RunMemSet(const AsmModule* p_module, const MechS32* p_args, AsmOutpu
 
 // --- The record stacks (unk1007d120.c) ---
 
-typedef void* (*PopRecordFn)(void);
+typedef CopperWren0x20* (*PopVertexFn)(void);
+typedef MechU8* (*PopRecordFn)(void);
 
 // Arguments: the top's offset in the arena (0x20 to 0x200), the bottom's (0 to 0x1f4), both
 // dword-aligned as the game's are, and the flag the routines clear.
-static void RunRecordStack(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+static void RunRecordStack(const AsmModule* p_module, MechS32 p_top, const MechS32* p_args, AsmOutput* p_output)
 {
 	MechU32 words[ARENA_SIZE / 4];
 	MechU8* arena = (MechU8*) words;
@@ -268,7 +280,12 @@ static void RunRecordStack(const AsmModule* p_module, const char* p_name, const 
 	*top = arena + 0x20 + (MechU32) p_args[0] % ((ARENA_SIZE - 0x20) / 4 + 1) * 4;
 	*bottom = arena + (MechU32) p_args[1] % ((ARENA_SIZE - 0xc) / 4 + 1) * 4;
 	*flag = p_args[2];
-	result = ((PopRecordFn) Function(p_module, p_name))();
+	if (p_top) {
+		result = ((PopVertexFn) Function(p_module, "FUN_1007d248"))();
+	}
+	else {
+		result = ((PopRecordFn) Function(p_module, "FUN_1007d296"))();
+	}
 
 	AsmOutputWord(p_output, (MechU32) (*top - arena));
 	AsmOutputWord(p_output, (MechU32) (*bottom - arena));
@@ -278,12 +295,12 @@ static void RunRecordStack(const AsmModule* p_module, const char* p_name, const 
 
 static void Run1007d248(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunRecordStack(p_module, "FUN_1007d248", p_args, p_output);
+	RunRecordStack(p_module, 1, p_args, p_output);
 }
 
 static void Run1007d296(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunRecordStack(p_module, "FUN_1007d296", p_args, p_output);
+	RunRecordStack(p_module, 0, p_args, p_output);
 }
 
 // --- Trigonometry (unk100696c0.c, over clock.c's tables) ---
@@ -629,7 +646,7 @@ const AsmRoutine g_asmRoutines[] = {
 	{"MulDiv64", 3, MulDiv64Domain, NULL, NULL},
 	// The other __asm functions
 	{"ApproximateVectorLength", 3, NULL, NULL, NULL},
-	{"FixedSqrtGuess", 1, FixedSqrtGuessDomain, NULL, NULL},
+	{"FixedSqrtGuess", 1, FixedSqrtGuessDomain, RunFixedSqrtGuess, NULL},
 	{"FUN_100074e0", 2, NULL, RunNameHash, NULL},
 	{"IntegrateMidpoint", 4, NULL, RunIntegrateMidpoint, NULL},
 	{"FUN_10004ec0", 4, NULL, NULL, NULL},
