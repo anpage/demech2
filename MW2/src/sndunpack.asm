@@ -2,7 +2,7 @@
 ; starts at 0x1001a63c, flush against loadres.c's code, and its data at 0x100a2f04. It uses short
 ; jumps and loop, and FUN_1001a63c has ML's frame (add esp, -N for its locals); its two helpers
 ; take their arguments in registers. Annotated by name in sndunpack.h; COMPAT_MODE builds take
-; sndunpack.c's stubs.
+; sndunpack.c's portable C, tested against this by tests/asmequiv.
 
 	.386
 	.model flat, c

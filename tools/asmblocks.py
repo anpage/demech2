@@ -10,7 +10,9 @@ block's first byte:
 `asmequiv REF CANDIDATE -coverage FILE` puts an int3 on each block, and fails unless its cases
 reach every block of the routines it runs. Blocks come from a recursive descent from each
 routine's entry (conditional jumps start two blocks, calls return), so the dead jmp /Od emits
-after a return isn't one. An incremental link's export is a jmp to the routine: it is followed,
+after a return isn't one. A call to an address after the routine and before the next export is
+followed too, as part of the routine: the helpers of a MASM object (sndunpack.asm's upsampling),
+which take their arguments in registers and have no export of their own. An incremental link's export is a jmp to the routine: it is followed,
 as the driver does.
 
 usage: python tools/asmblocks.py REF.dll -o BLOCKS.txt
@@ -68,8 +70,8 @@ def is_conditional(ins):
     return b[0] in JCC or b[0] in (0xE0, 0xE1, 0xE2, 0xE3) or (b[0] == 0x0F and 0x80 <= b[1] <= 0x8F)
 
 
-def blocks(dll, start):
-    """The routine's block starts, from a recursive descent."""
+def blocks(dll, start, limit):
+    """The routine's block starts, from a recursive descent; helpers called below limit too."""
     disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
     leaders = {start}
     seen = set()
@@ -84,6 +86,11 @@ def blocks(dll, start):
             following = address + ins.size
             if ins.mnemonic == "ret":
                 break
+            if ins.mnemonic == "call" and ins.op_str.startswith("0x"):
+                target = int(ins.op_str, 16)
+                if start < target < limit:
+                    leaders.add(target)
+                    work.append(target)
             if ins.mnemonic == "jmp" or is_conditional(ins):
                 if not ins.op_str.startswith("0x"):
                     raise SystemExit("indirect jump at 0x%08x: %s %s" % (address, ins.mnemonic, ins.op_str))
@@ -110,13 +117,18 @@ def main():
         "# The basic blocks of %s's routines (tools/asmblocks.py): offset:first byte, in hex."
         % os.path.basename(args.dll)
     ]
-    for name, address in sorted(dll.exports.items(), key=lambda item: item[1]):
+    routines = {}
+    for name, address in dll.exports.items():
         if not dll.is_code(address):
             continue
         code = dll.read(address, 5)
         if code[0] == 0xE9:
             address += 5 + struct.unpack_from("<i", code, 1)[0]
-        starts = blocks(dll, address)
+        routines[name] = address
+    starts_sorted = sorted(routines.values())
+    for name, address in sorted(routines.items(), key=lambda item: item[1]):
+        following = [start for start in starts_sorted if start > address]
+        starts = blocks(dll, address, following[0] if following else address)
         lines.append(
             name + " " + " ".join("%x:%02x" % (start - address, dll.read(start, 1)[0]) for start in starts)
         )

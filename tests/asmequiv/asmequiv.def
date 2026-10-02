@@ -33,8 +33,24 @@ EXPORTS
 	FUN_10071a4c
 	FUN_1007d248
 	FUN_1007d296
+	GameTickTimerCallback
+	AllocTicks
+	GetTicks
+	ResetTicks
+	SetTicks
+	FreeTicks
+	PauseTimer
+	FUN_1001a63c
 	g_sinTable DATA
 	g_atanTable DATA
 	g_unk0x100c1a70 DATA
 	g_unk0x100c2698 DATA
 	g_unk0x1010b5ac DATA
+	g_ticksPaused DATA
+	g_ticks1Bases DATA
+	g_ticks2Bases DATA
+	g_ticks1 DATA
+	g_ticks2 DATA
+	g_unk0x100a2f04 DATA
+	g_unk0x100a3304 DATA
+	g_unk0x100a3705 DATA
