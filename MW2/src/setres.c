@@ -68,8 +68,8 @@ void SetRes(void)
 	Point point;
 
 	for (i = 0; i < 8; i++) {
-		FUN_10056ce9(&g_renderTargets[i], &g_renderTargets[i]);
-		ScaleRectToScreen(&g_mainPixelBuffer, &g_renderTargets[i], &g_renderTargets[i]);
+		FUN_10056ce9(&g_panes[i], &g_panes[i]);
+		ScaleRectToScreen(&g_mainPixelBuffer, &g_panes[i], &g_panes[i]);
 	}
 
 	for (i = 0; i < 5; i++) {
@@ -84,7 +84,7 @@ void SetRes(void)
 		ScalePointToScreen(&g_mainPixelBuffer, &g_unk0x100a5ee8[i], &g_unk0x100a5ee8[i]);
 	}
 
-	SelectRenderTarget(0);
+	SelectPane(0);
 	FUN_1004bc2e(g_eyepoint);
 	FUN_1004bfe8(g_eyepoint);
 	g_unk0x100a2460 = 0;

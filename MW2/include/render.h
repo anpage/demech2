@@ -31,8 +31,8 @@ extern "C"
 	extern MechS32 g_unk0x100a2454;
 	extern MechS32 g_drawModeIndex;
 	extern MechS32 g_initDrawModeParam2;
-	extern RenderTarget g_unk0x100bdff8;
-	extern RenderTarget g_currentRenderTarget;
+	extern Pane g_unk0x100bdff8;
+	extern Pane g_currentPane;
 	extern PixelBuffer g_mainPixelBuffer;
 	extern MechS32 g_unk0x100a246c;
 	extern MechS32 g_unk0x100a2470;

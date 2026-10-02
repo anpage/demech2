@@ -5,8 +5,8 @@
 #include "transform.h"
 #include "types.h"
 
-// The view the scene is drawn from (g_eyepoint), at 0x00-0x08. SelectRenderTarget sizes its view rectangle
-// (0x2c-0x38) to the render target; FUN_100024f0 reads its centre, offset by 0x4c/0x50.
+// The view the scene is drawn from (g_eyepoint), at 0x00-0x08. SelectPane sizes its view rectangle
+// (0x2c-0x38) to the pane; FUN_100024f0 reads its centre, offset by 0x4c/0x50.
 // SIZE 0xe0
 typedef struct Eyepoint {
 	MechS32 m_unk0x00;                       // 0x00

@@ -2,7 +2,7 @@
 #define CODEBLOCK_H
 
 #include "decomp.h"
-#include "pixelview.h"
+#include "pane.h"
 #include "types.h"
 
 // The routines and data of codeblock.asm (codeblock.c in COMPAT_MODE). No other unit uses them.
@@ -24,7 +24,7 @@ extern "C"
 	void FUN_100286a6(undefined4 p_unk0x00, undefined4 p_unk0x04);
 	MechS32 GetCodeBlock(undefined4* p_start, undefined4* p_segment);
 	void CallCodeBlockRoutine(
-		PixelView* p_view,
+		Pane* p_view,
 		MechS32* p_vertices,
 		MechS32 p_count,
 		MechS32 p_index,
@@ -37,7 +37,7 @@ extern "C"
 	MechS32 FixedReciprocal30(MechS32 p_value);
 	MechS32 CodeBlockFixedMul30(MechS32 p_a, MechS32 p_b);
 	void CallCodeBlockRoutineClipped(
-		PixelView* p_view,
+		Pane* p_view,
 		MechU32* p_vertices,
 		MechS32 p_count,
 		MechS32 p_index,

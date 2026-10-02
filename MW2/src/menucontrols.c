@@ -35,7 +35,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	MechS32 size;
 	MechS32 x;
 	void* font;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 apply;
 	MechS32 width;
 	void* knob;
@@ -208,7 +208,7 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	MechU32 state;
 	MechS32 room;
 	MechS32 step;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 apply;
 	MechChar text[128];
 
@@ -337,7 +337,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	MechS32 selected;
 	MechU32 state;
 	MechS32 step;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 apply;
 
 	step = 0;
@@ -476,8 +476,8 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	MechU32 state;
 	MechChar* text;
 	void* font;
-	RenderTarget* rect;
-	RenderTarget* target;
+	Pane* rect;
+	Pane* target;
 
 	if (!p_menu) {
 		return;

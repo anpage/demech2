@@ -60,6 +60,64 @@ EXPORTS
 	FUN_10048ebe
 	FUN_10048faf
 	FUN_10049155
+	FillPolygonFlat
+	FUN_1002ae41
+	FUN_1002b68b
+	FUN_1002bf39
+	FUN_1002c48d
+	SetLumaTable
+	FillPolygonTextured
+	GetDisplayDriverName
+	SetDisplayDriver
+	PutViewPixel
+	GetViewPixel
+	BlitLine
+	FUN_10032e4b
+	BlitShpFrame
+	BlitShpFrameUnclipped
+	SetRemapTable
+	BlitShpFrameRemapped
+	BlitShpFrameRemappedUnclipped
+	BlitRotated
+	FUN_10034622
+	EncodeViewRle
+	RemapShpFrame
+	FillView
+	BlitView
+	ScrollView
+	DrawEllipse
+	FillEllipse
+	GetCosSin
+	BlitFixedMul16
+	RotateScalePoint
+	FontGetHeight
+	FontGetCharWidth
+	BlitChar
+	BlitString
+	WriteViewRow
+	FindIffChunk
+	BlitIff
+	ReadIffPalette
+	GetIffSize
+	BlitPicture
+	ReadPicturePalette
+	GetPictureSize
+	BlitGif
+	ReadGifPalette
+	GetGifSize
+	GetShpFrameSize
+	FUN_10037526
+	GetShpFrameExtent
+	GetShpFrameOrigin
+	FUN_100375a7
+	FUN_100375f2
+	FUN_1003763a
+	GetShpFrameCount
+	CountShpUniqueFrames
+	FUN_100376f9
+	DissolveView
+	FadeViewColors
+	CountViewColors
 	g_sinTable DATA
 	g_atanTable DATA
 	g_unk0x100c1a70 DATA
@@ -115,3 +173,8 @@ EXPORTS
 	g_unk0x1010b5c4 DATA
 	g_unk0x1010b5c8 DATA
 	g_unk0x100a6cc8 DATA
+	g_polyVars DATA
+	g_displayDriver DATA
+	g_displayDriverName DATA
+	g_remapTable DATA
+	g_fadeErrors DATA

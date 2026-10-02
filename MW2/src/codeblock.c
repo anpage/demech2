@@ -39,7 +39,7 @@ MechS32 GetCodeBlock(undefined4* p_start, undefined4* p_segment)
 }
 
 void CallCodeBlockRoutine(
-	RenderTarget* p_view,
+	Pane* p_view,
 	MechS32* p_vertices,
 	MechS32 p_count,
 	MechS32 p_index,
@@ -71,7 +71,7 @@ MechS32 CodeBlockFixedMul30(MechS32 p_a, MechS32 p_b)
 }
 
 void CallCodeBlockRoutineClipped(
-	RenderTarget* p_target,
+	Pane* p_target,
 	MechU32* p_vertices,
 	MechS32 p_count,
 	MechS32 p_index,

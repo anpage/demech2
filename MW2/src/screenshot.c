@@ -9,7 +9,7 @@
 
 // Screenshots: the steps of writing the screen to a GIF file, which must come in order.
 // ScreenshotBegin creates the file, ScreenshotWritePalette its color table,
-// ScreenshotWriteImage the image from a render target, and ScreenshotEnd closes it.
+// ScreenshotWriteImage the image from a pane, and ScreenshotEnd closes it.
 
 enum ScreenshotState {
 	c_screenshotCreated = 0,
@@ -22,7 +22,7 @@ enum ScreenshotState {
 MechS32 g_screenshotState = c_screenshotIdle;
 
 // GLOBAL: MW2 0x100c75e0
-RenderTarget* g_screenshotTarget;
+Pane* g_screenshotTarget;
 
 // FUNCTION: MW2 0x1006cdc0
 MechS32 ScreenshotBegin(const MechChar* p_filename)
@@ -64,7 +64,7 @@ void ScreenshotWritePalette(void)
 
 // Stack-slot permutation: width and result.
 // FUNCTION: MW2 0x1006cea9
-MechS32 ScreenshotWriteImage(RenderTarget* p_target)
+MechS32 ScreenshotWriteImage(Pane* p_target)
 {
 	MechS32 width;
 	MechS32 result = c_gifErrWrite;

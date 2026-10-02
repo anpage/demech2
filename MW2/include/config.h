@@ -43,7 +43,7 @@ extern "C"
 	extern CobaltHarbor0x88* g_unk0x100c3280[26];
 	extern MechS32 g_unk0x100c32f0[26];
 	extern MechS32 g_unk0x100c3358;
-	extern struct RenderTarget g_unk0x100adf58[26];
+	extern struct Pane g_unk0x100adf58[26];
 	extern MechS32 g_unk0x100ae37c;
 	extern MechChar g_gameDir[256];
 	extern MechS32 g_unk0x100ae380;
@@ -63,7 +63,7 @@ extern "C"
 	void FUN_100704c1(void);
 	void FUN_1007053d(struct Mech* p_mech, MechS32 p_heavy);
 	void FUN_100705dd(struct Mech* p_mech);
-	void FUN_1007079d(struct RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
+	void FUN_1007079d(struct Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
 	MechS32 FUN_100707c0(
 		struct ResourceRef* p_ref,
 		MechS32* p_unk0x04,
@@ -78,8 +78,8 @@ extern "C"
 	MechS32 FUN_10070bda(struct ResourceRef* p_ref);
 	MechS32 FUN_10070e22(
 		struct ResourceRef* p_ref,
-		struct RenderTarget* p_gauges,
-		struct RenderTarget* p_panels,
+		struct Pane* p_gauges,
+		struct Pane* p_panels,
 		struct Point* p_point
 	);
 	void FUN_1006f480(void);

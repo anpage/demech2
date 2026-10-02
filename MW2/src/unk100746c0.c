@@ -65,7 +65,7 @@ void FUN_100747fc(CobaltHarbor0x88* p_panel, const MechChar* p_name)
 }
 
 // FUNCTION: MW2 0x10074823
-void FUN_10074823(CobaltHarbor0x88* p_panel, RenderTarget* p_target)
+void FUN_10074823(CobaltHarbor0x88* p_panel, Pane* p_target)
 {
 	p_panel->m_target = p_target;
 	p_panel->m_x = p_target->m_left;

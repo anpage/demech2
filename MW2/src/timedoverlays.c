@@ -18,13 +18,13 @@
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
-RenderTarget g_unk0x100adee0 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100adee0 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
 undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
-RenderTarget g_unk0x100adef8 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100adef8 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
 undefined4 g_unk0x100adf0c = 0;
@@ -52,7 +52,7 @@ void FUN_1006ee60(void)
 	MechS32 sign;
 	MechS32 dy;
 	MechS32 dx;
-	RenderTarget* target;
+	Pane* target;
 	void* font;
 	MechS32 i;
 	TimedOverlay* overlay;
@@ -208,9 +208,9 @@ void DrawTimedOverlays(void)
 // FUNCTION: MW2 0x1006f28f
 void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
-	RenderTarget centered;
+	Pane centered;
 	void* background;
-	RenderTarget rect;
+	Pane rect;
 	void* font;
 
 	background = NULL;

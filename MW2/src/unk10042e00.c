@@ -67,7 +67,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			point += 6;
 		}
 
-		FillPolygonFlat(&g_currentRenderTarget, p_count, p_points);
+		FillPolygonFlat(&g_currentPane, p_count, p_points);
 		break;
 	case 0x2000:
 		p_flags &= 0xff;
@@ -97,10 +97,10 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 
 		if (g_unk0x100a6cc8.m_unk0x04) {
-			FUN_1002b68b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
+			FUN_1002b68b(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {
-			FillPolygonFlat(&g_currentRenderTarget, p_count, p_points);
+			FillPolygonFlat(&g_currentPane, p_count, p_points);
 		}
 		break;
 	case 0x3000:
@@ -166,7 +166,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	MechS32 corners;
 	MechS32 y0;
 	MechS32 dx;
-	RenderTarget rect;
+	Pane rect;
 	MechU32 band[4 * 6];
 	MechS32 dy;
 	MechS32 dz;
@@ -182,7 +182,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	y0 = p_eyepoint->m_unk0x34;
 	y1 = p_eyepoint->m_unk0x38;
 	gradient = FALSE;
-	rect = g_currentRenderTarget;
+	rect = g_currentPane;
 	dx = dz = 0;
 	dy = g_unk0x100a6d30;
 	FUN_1000dd4d(&roll);
@@ -251,7 +251,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x20) {
-				rect = g_currentRenderTarget;
+				rect = g_currentPane;
 				rect.m_left += x0;
 				rect.m_top += yLeft;
 				rect.m_right = rect.m_left + x1 - x0;
@@ -292,7 +292,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x1c) {
-				rect = g_currentRenderTarget;
+				rect = g_currentPane;
 				rect.m_left += x0;
 				rect.m_top += yLeft;
 				rect.m_right = rect.m_left + x1 - x0;
@@ -323,7 +323,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x20) {
-				rect = g_currentRenderTarget;
+				rect = g_currentPane;
 				rect.m_left += xTop - x0 + 1;
 				rect.m_top += y0;
 				rect.m_right = rect.m_left + x1 - xTop - 1;
@@ -366,7 +366,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x1c) {
-				rect = g_currentRenderTarget;
+				rect = g_currentPane;
 				rect.m_left += xTop - x0 + 1;
 				rect.m_top += y0;
 				rect.m_right = rect.m_left + x1 - xTop - 1;
@@ -507,7 +507,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	}
 
 	if (gradient && g_unk0x100a6cc8.m_unk0x04) {
-		FUN_1002b68b(&g_currentRenderTarget, 0x8000, 4, band);
+		FUN_1002b68b(&g_currentPane, 0x8000, 4, band);
 	}
 }
 
@@ -586,12 +586,12 @@ void FUN_10044527(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 // FUNCTION: MW2 0x10044590
 void FUN_10044590(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 {
-	BlitLine(&g_currentRenderTarget, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
+	BlitLine(&g_currentPane, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
 	g_unk0x100be5d4 = p_x;
 	g_unk0x100be5d8 = p_y;
 }
 
-// Draws a polygon: a point or a line with the render target's own routines where the settings
+// Draws a polygon: a point or a line with the pane's own routines where the settings
 // allow, else through g_unk0x100a6cc8's polygon callback, filled, outlined or both.
 // FUNCTION: MW2 0x100445d2
 void FUN_100445d2(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
@@ -601,10 +601,10 @@ void FUN_100445d2(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			return;
 		}
 
-		PutViewPixel(&g_currentRenderTarget, p_points[0], p_points[1], p_flags);
+		PutViewPixel(&g_currentPane, p_points[0], p_points[1], p_flags);
 	}
 	else if (p_count == 2 && g_unk0x100a6cc8.m_unk0x14) {
-		BlitLine(&g_currentRenderTarget, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
+		BlitLine(&g_currentPane, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
 	}
 	else if (g_unk0x100a6cc8.m_unk0x34 == 0) {
 		g_unk0x100a6cc8.m_drawPolygon(p_count, p_points, p_flags);

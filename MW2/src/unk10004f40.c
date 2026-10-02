@@ -102,7 +102,7 @@ MechS32 FUN_1000507d(const MechChar* p_text, void* p_font)
 // FUNCTION: MW2 0x100050d1
 void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 p_priority)
 {
-	RenderTarget* target;
+	Pane* target;
 	StarMission* mission;
 	MechS32 height;
 	MechS32 primary;

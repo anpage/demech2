@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
-DECOMP_SIZE_ASSERT(RenderTarget, 0x14)
+DECOMP_SIZE_ASSERT(Pane, 0x14)
 DECOMP_SIZE_ASSERT(NavPoint, 0x54)
 
 // GLOBAL: MW2 0x100aaba4
@@ -47,7 +47,7 @@ MechChar g_unk0x100e9450[0x40];
 MechChar g_unk0x100e9490[0x20];
 
 // GLOBAL: MW2 0x100e94b0
-RenderTarget g_unk0x100e94b0;
+Pane g_unk0x100e94b0;
 
 // GLOBAL: MW2 0x100e94d0
 MechChar g_unk0x100e94d0[0x20];
@@ -59,7 +59,7 @@ MechChar g_unk0x100e94f0[0x20];
 MechChar g_unk0x100e9510[0x20];
 
 // GLOBAL: MW2 0x100e9530
-RenderTarget g_unk0x100e9530;
+Pane g_unk0x100e9530;
 
 // GLOBAL: MW2 0x100e9550
 MechChar g_unk0x100e9550[0x20];
@@ -68,7 +68,7 @@ MechChar g_unk0x100e9550[0x20];
 MechChar g_unk0x100e9570[0x20];
 
 // GLOBAL: MW2 0x100e9590
-RenderTarget g_unk0x100e9590;
+Pane g_unk0x100e9590;
 
 // GLOBAL: MW2 0x100e95d0
 MechChar g_unk0x100e95d0[0x20];
@@ -164,13 +164,13 @@ MechS32 g_unk0x100aad80[5] = {-1, -1, -1, -1, -1};
 MechS32 g_unk0x100aad98[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aadb0
-RenderTarget g_unk0x100aadb0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+Pane g_unk0x100aadb0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aadc8
-RenderTarget g_unk0x100aadc8 = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100aadc8 = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aade0
-RenderTarget g_unk0x100aade0 = {NULL, 0, 0, 0, 0};
+Pane g_unk0x100aade0 = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aadf8
 RectTransitionState g_unk0x100aadf8 = {0, 0, 0};
@@ -182,13 +182,13 @@ RectTransitionDef g_unk0x100aae08 = {0xb5, &g_unk0x100aadb0, &g_unk0x100aadc8, &
 RectTransition g_unk0x100aae18 = {&g_unk0x100aadf8, &g_unk0x100aae08};
 
 // GLOBAL: MW2 0x100aae20
-RenderTarget g_unk0x100aae20 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+Pane g_unk0x100aae20 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aae38
-RenderTarget g_unk0x100aae38 = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100aae38 = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aae50
-RenderTarget g_unk0x100aae50 = {NULL, 0, 0, 0, 0};
+Pane g_unk0x100aae50 = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aae68
 RectTransitionDef g_unk0x100aae68 = {0xb5, &g_unk0x100aae20, &g_unk0x100aae38, &g_unk0x100aae50};
@@ -197,13 +197,13 @@ RectTransitionDef g_unk0x100aae68 = {0xb5, &g_unk0x100aae20, &g_unk0x100aae38, &
 RectTransition g_unk0x100aae78 = {&g_unk0x100aadf8, &g_unk0x100aae68};
 
 // GLOBAL: MW2 0x100aae80
-RenderTarget g_unk0x100aae80 = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
+Pane g_unk0x100aae80 = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
 
 // GLOBAL: MW2 0x100aae98
-RenderTarget g_unk0x100aae98 = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100aae98 = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aaeb0
-RenderTarget g_unk0x100aaeb0 = {NULL, 0, 0, 0, 0};
+Pane g_unk0x100aaeb0 = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aaec8
 RectTransitionState g_unk0x100aaec8 = {0, 0, 0};
@@ -215,7 +215,7 @@ RectTransitionDef g_unk0x100aaed8 = {0x21f, &g_unk0x100aae80, &g_unk0x100aae98, 
 RectTransition g_unk0x100aaee8 = {&g_unk0x100aaec8, &g_unk0x100aaed8};
 
 // GLOBAL: MW2 0x100aaef0
-RenderTarget g_unk0x100aaef0 = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
+Pane g_unk0x100aaef0 = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
 
 // GLOBAL: MW2 0x100aaf08
 CockpitLayout g_unk0x100aaf08 = {
@@ -250,7 +250,7 @@ CockpitLayout g_unk0x100aaf08 = {
 };
 
 // GLOBAL: MW2 0x100aaf98
-RenderTarget g_unk0x100aaf98 = {NULL, 0x2148, 0, 0xdeb8, 0x10000};
+Pane g_unk0x100aaf98 = {NULL, 0x2148, 0, 0xdeb8, 0x10000};
 
 // GLOBAL: MW2 0x100aafb0
 CockpitLayout g_unk0x100aafb0 = {
@@ -285,7 +285,7 @@ CockpitLayout g_unk0x100aafb0 = {
 };
 
 // GLOBAL: MW2 0x100ab040
-RenderTarget g_unk0x100ab040 = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100ab040 = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ab058
 CockpitLayout g_unk0x100ab058 = {

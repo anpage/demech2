@@ -66,7 +66,7 @@ enum FilePermission {
 // The 26 cockpit panels' rectangles, in 320x200 screen coordinates (FUN_1006fba3 scales them to the
 // screen).
 // GLOBAL: MW2 0x100adf58
-RenderTarget g_unk0x100adf58[26] = {
+Pane g_unk0x100adf58[26] = {
 	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
 	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
 	{&g_mainPixelBuffer, 214, 25, 256, 33},   {&g_mainPixelBuffer, 214, 35, 256, 43},
@@ -107,13 +107,13 @@ RectTransitionState g_unk0x100ae230 = {0, 0, 0};
 RectTransitionState g_unk0x100ae240 = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae250
-RenderTarget g_unk0x100ae250 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+Pane g_unk0x100ae250 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae268
-RenderTarget g_unk0x100ae268 = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100ae268 = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae280
-RenderTarget g_unk0x100ae280 = {NULL, 0, 0, 0, 0};
+Pane g_unk0x100ae280 = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae298
 RectTransitionDef g_unk0x100ae298 = {0xb5, &g_unk0x100ae250, &g_unk0x100ae268, &g_unk0x100ae280};
@@ -122,13 +122,13 @@ RectTransitionDef g_unk0x100ae298 = {0xb5, &g_unk0x100ae250, &g_unk0x100ae268, &
 RectTransition g_unk0x100ae2a8 = {&g_unk0x100ae230, &g_unk0x100ae298};
 
 // GLOBAL: MW2 0x100ae2b0
-RenderTarget g_unk0x100ae2b0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+Pane g_unk0x100ae2b0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
-RenderTarget g_unk0x100ae2c8 = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_unk0x100ae2c8 = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
-RenderTarget g_unk0x100ae2e0 = {NULL, 0, 0, 0, 0};
+Pane g_unk0x100ae2e0 = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
 RectTransitionDef g_unk0x100ae2f8 = {0xb5, &g_unk0x100ae2b0, &g_unk0x100ae2c8, &g_unk0x100ae2e0};
@@ -434,10 +434,10 @@ void FUN_1006f4fa(Mech* p_mech)
 // FUNCTION: MW2 0x1006fba3
 void FUN_1006fba3(void)
 {
-	RenderTarget* rect;
+	Pane* rect;
 	RectTransition* transition;
 	MechS32 i;
-	RenderTarget* target;
+	Pane* target;
 
 	for (i = 0; i < 26; i++) {
 		target = &g_unk0x100adf58[i];
@@ -757,7 +757,7 @@ void FUN_100705dd(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1007079d
-void FUN_1007079d(RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
+void FUN_1007079d(Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
 }
@@ -979,10 +979,10 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 // and a point.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070e22
-MechS32 FUN_10070e22(ResourceRef* p_ref, RenderTarget* p_gauges, RenderTarget* p_panels, Point* p_point)
+MechS32 FUN_10070e22(ResourceRef* p_ref, Pane* p_gauges, Pane* p_panels, Point* p_point)
 {
 	MechS32 size;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 i;
 	GarnetFrame0x8* frame;
 	void* data;
@@ -1258,7 +1258,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 void FUN_100715a2(void)
 {
 	MechS32 count;
-	RenderTarget target;
+	Pane target;
 	MechChar name[16];
 
 	target.m_buffer = &g_mainPixelBuffer;

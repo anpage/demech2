@@ -205,7 +205,7 @@ MechChar g_unk0x100afb68[] = "Dave Zobel was last seen plunging into the darknes
 MechChar g_unk0x100afbc0[] = "This is boring!";
 
 // GLOBAL: MW2 0x100afbd0
-RenderTarget g_unk0x100afbd0 = {NULL, 0, 0x2666, 0x10000, 0x10000};
+Pane g_unk0x100afbd0 = {NULL, 0, 0x2666, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100afbe8
 MenuTextBox g_unk0x100afbe8 = {&g_unk0x100afbd0, g_unk0x100ae878};
@@ -471,10 +471,10 @@ MenuPage g_dorcsPage = {
 };
 
 // GLOBAL: MW2 0x100b12b0
-RenderTarget g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
+Pane g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12c8
-RenderTarget g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
+Pane g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12e0
 MenuDefinition g_dorcsMenu = {
@@ -516,16 +516,16 @@ MenuPage* g_dorcsMenuPageStack[8];
 // shows, then another, and a menu.
 
 // GLOBAL: MW2 0x100b1358
-RenderTarget g_dorcsPoint = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+Pane g_dorcsPoint = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100b1370
-RenderTarget g_dorcsRectFrom = {NULL, 0x7d71, 0x7d71, 0x828f, 0x828f};
+Pane g_dorcsRectFrom = {NULL, 0x7d71, 0x7d71, 0x828f, 0x828f};
 
 // GLOBAL: MW2 0x100b1388
-RenderTarget g_dorcsRectTo = {NULL, 0, 0, 0x10000, 0x10000};
+Pane g_dorcsRectTo = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100b13a0
-RenderTarget g_dorcsRect = {NULL, 0, 0, 0, 0};
+Pane g_dorcsRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100b13b8
 RectTransitionState g_dorcsTransitionState = {0, 0, 0};
@@ -631,10 +631,10 @@ void FUN_10073cb5(void)
 MechS32 g_dorcsState;
 
 // GLOBAL: MW2 0x100bf058
-RenderTarget g_dorcsSavedTarget;
+Pane g_dorcsSavedTarget;
 
 // GLOBAL: MW2 0x100bf070
-RenderTarget g_dorcsGifTarget;
+Pane g_dorcsGifTarget;
 
 // GLOBAL: MW2 0x100c2cec
 PaletteColor g_unk0x100c2cec;
@@ -643,15 +643,15 @@ PaletteColor g_unk0x100c2cec;
 // FUNCTION: MW2 0x10073cfc
 void UpdateDorcs(void)
 {
-	RenderTarget* rect;
+	Pane* rect;
 	MechS32 index;
-	RenderTarget saved;
-	RenderTarget* target;
+	Pane saved;
+	Pane* target;
 	MechS32 i;
 
 	switch (g_dorcsState) {
 	case 0:
-		g_dorcsSavedTarget = g_currentRenderTarget;
+		g_dorcsSavedTarget = g_currentPane;
 		g_dorcsGifLoaded = 0;
 		g_dorcsTransition.m_def->m_first = &g_dorcsRectFrom;
 		if (!g_dorcsTransition.m_def->m_first->m_buffer) {
@@ -692,17 +692,17 @@ void UpdateDorcs(void)
 		FUN_10073cb5();
 		rect = UpdateRectTransition(g_dorcsReverse, &g_dorcsTransition);
 		if (rect) {
-			saved = g_renderTargets[g_renderTargetIndex];
-			g_renderTargets[g_renderTargetIndex] = *rect;
-			index = g_renderTargetIndex;
-			g_renderTargetIndex = -1;
-			SelectRenderTarget(index);
+			saved = g_panes[g_paneIndex];
+			g_panes[g_paneIndex] = *rect;
+			index = g_paneIndex;
+			g_paneIndex = -1;
+			SelectPane(index);
 			if (g_dorcsPreviousDrawCallback) {
 				g_dorcsPreviousDrawCallback();
 			}
 
 			g_unk0x10176ebc = 1;
-			g_renderTargets[g_renderTargetIndex] = saved;
+			g_panes[g_paneIndex] = saved;
 			break;
 		}
 		else if (g_dorcsReverse == 1) {
@@ -721,31 +721,31 @@ void UpdateDorcs(void)
 		FUN_10073cb5();
 		rect = UpdateRectTransitionByAxis(1, &g_dorcsTransition);
 		if (rect) {
-			saved = g_renderTargets[g_renderTargetIndex];
-			g_renderTargets[g_renderTargetIndex] = *rect;
-			index = g_renderTargetIndex;
-			g_renderTargetIndex = -1;
-			SelectRenderTarget(index);
+			saved = g_panes[g_paneIndex];
+			g_panes[g_paneIndex] = *rect;
+			index = g_paneIndex;
+			g_paneIndex = -1;
+			SelectPane(index);
 			FillView(&g_dorcsSavedTarget, 0);
 			if (g_dorcsPreviousDrawCallback) {
 				g_dorcsPreviousDrawCallback();
 			}
 
-			FUN_100570e9(&g_currentRenderTarget, 10);
-			g_renderTargets[g_renderTargetIndex] = saved;
-			g_currentRenderTarget = g_dorcsSavedTarget;
+			FUN_100570e9(&g_currentPane, 10);
+			g_panes[g_paneIndex] = saved;
+			g_currentPane = g_dorcsSavedTarget;
 			break;
 		}
 		else {
-			index = g_renderTargetIndex;
-			g_renderTargetIndex = -1;
-			SelectRenderTarget(index);
+			index = g_paneIndex;
+			g_paneIndex = -1;
+			SelectPane(index);
 			g_dorcsState = 4;
 		}
 	case 4:
 		g_unk0x100a5f18 = 0;
 		FUN_10073cb5();
-		g_dorcsGifTarget = g_currentRenderTarget;
+		g_dorcsGifTarget = g_currentPane;
 		g_dorcsGifState = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x502e);
 		if (g_dorcsGifState) {
 			g_dorcsPalette =
@@ -755,7 +755,7 @@ void UpdateDorcs(void)
 				g_dorcsGif = ReadVfxBin("vfxjk");
 				if (g_dorcsGif) {
 					FUN_1005705e(&g_dorcsGifTarget, &g_dorcsGifTarget, g_dorcsGif);
-					FillView(&g_currentRenderTarget, 0);
+					FillView(&g_currentPane, 0);
 					BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 					if (g_windowActive) {
 						g_currentRefreshMode->m_flip();
@@ -794,7 +794,7 @@ void UpdateDorcs(void)
 				}
 
 				g_currentDisplayBackend->m_blendPalettes(g_dorcsPalette, 0x5a);
-				FillView(&g_currentRenderTarget, 0);
+				FillView(&g_currentPane, 0);
 				BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 				if (g_windowActive) {
 					g_currentRefreshMode->m_flip();
@@ -829,7 +829,7 @@ void UpdateDorcs(void)
 		}
 		break;
 	case 7:
-		FillView(&g_currentRenderTarget, 0);
+		FillView(&g_currentPane, 0);
 		if (g_dorcsGifLoaded) {
 			BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 		}
@@ -843,13 +843,13 @@ void UpdateDorcs(void)
 		g_unk0x100a5f18 = 0;
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
-			FillView(&g_currentRenderTarget, 0);
+			FillView(&g_currentPane, 0);
 			if (g_dorcsGifLoaded) {
 				BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 			}
 		}
 		else {
-			FillView(&g_currentRenderTarget, 0);
+			FillView(&g_currentPane, 0);
 			if (g_windowActive) {
 				g_currentRefreshMode->m_flip();
 			}

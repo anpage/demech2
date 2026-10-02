@@ -4,7 +4,7 @@
 #include "rendertarget.h"
 #include "types.h"
 
-// LerpRenderTargetRect's axes.
+// LerpPaneRect's axes.
 enum {
 	c_rectAxisBoth = 0,
 	c_rectAxisHorizontal = 1,
@@ -20,10 +20,10 @@ typedef struct RectTransitionState {
 
 // SIZE 0x10
 typedef struct RectTransitionDef {
-	MechS32 m_duration;     // 0x00 — in clock ticks
-	RenderTarget* m_first;  // 0x04
-	RenderTarget* m_second; // 0x08
-	RenderTarget* m_out;    // 0x0c — the rectangle the transition moves
+	MechS32 m_duration; // 0x00 — in clock ticks
+	Pane* m_first;      // 0x04
+	Pane* m_second;     // 0x08
+	Pane* m_out;        // 0x0c — the rectangle the transition moves
 } RectTransitionDef;
 
 typedef struct RectTransition {
@@ -39,15 +39,9 @@ extern "C"
 
 	void StartRectTransition(RectTransition* p_transition);
 	void StopRectTransition(RectTransition* p_transition);
-	RenderTarget* LerpRenderTargetRect(
-		RenderTarget* p_from,
-		RenderTarget* p_to,
-		RenderTarget* p_out,
-		MechS32 p_t,
-		MechS32 p_axis
-	);
-	RenderTarget* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition);
-	RenderTarget* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition);
+	Pane* LerpPaneRect(Pane* p_from, Pane* p_to, Pane* p_out, MechS32 p_t, MechS32 p_axis);
+	Pane* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition);
+	Pane* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition);
 
 #ifdef __cplusplus
 }

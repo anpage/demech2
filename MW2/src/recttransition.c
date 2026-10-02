@@ -6,7 +6,7 @@
 #include "rendertarget.h"
 #include "types.h"
 
-// Timed transitions of a render target's rectangle between two others: the edges move
+// Timed transitions of a pane's rectangle between two others: the edges move
 // together, or the horizontal and vertical edges one after the other.
 
 // Arms the transition: the next update starts it from its first rectangle.
@@ -27,13 +27,7 @@ void StopRectTransition(RectTransition* p_transition)
 // Moves p_out's edges to the fraction p_t (16.16) of the way from p_from to p_to: the horizontal
 // ones unless p_axis is 2, the vertical ones unless it is 1.
 // FUNCTION: MW2 0x10012354
-RenderTarget* LerpRenderTargetRect(
-	RenderTarget* p_from,
-	RenderTarget* p_to,
-	RenderTarget* p_out,
-	MechS32 p_t,
-	MechS32 p_axis
-)
+Pane* LerpPaneRect(Pane* p_from, Pane* p_to, Pane* p_out, MechS32 p_t, MechS32 p_axis)
 {
 	MechS32 delta;
 
@@ -58,15 +52,15 @@ RenderTarget* LerpRenderTargetRect(
 // when it isn't running.
 // Stack-slot permutation: t, def, active, from, state, out and to.
 // FUNCTION: MW2 0x10012432
-RenderTarget* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
+Pane* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;
 	RectTransitionDef* def;
 	MechS32 active;
-	RenderTarget* from;
+	Pane* from;
 	RectTransitionState* state;
-	RenderTarget* out;
-	RenderTarget* to;
+	Pane* out;
+	Pane* to;
 
 	state = p_transition->m_state;
 	def = p_transition->m_def;
@@ -96,7 +90,7 @@ RenderTarget* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transiti
 				active = FALSE;
 			}
 			else {
-				LerpRenderTargetRect(from, to, out, t, c_rectAxisBoth);
+				LerpPaneRect(from, to, out, t, c_rectAxisBoth);
 			}
 		}
 	}
@@ -110,17 +104,17 @@ RenderTarget* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transiti
 // in the second (the other way around in reverse).
 // Stack-slot permutation: t, def, active, from, firstAxis, secondAxis, state, out and to.
 // FUNCTION: MW2 0x10012557
-RenderTarget* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition)
+Pane* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;
 	RectTransitionDef* def;
 	MechS32 active;
-	RenderTarget* from;
+	Pane* from;
 	MechS32 firstAxis;
 	MechS32 secondAxis;
 	RectTransitionState* state;
-	RenderTarget* out;
-	RenderTarget* to;
+	Pane* out;
+	Pane* to;
 
 	state = p_transition->m_state;
 	def = p_transition->m_def;
@@ -156,13 +150,13 @@ RenderTarget* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_tr
 			else if (t <= 0x8000) {
 				*out = *from;
 				t = FixedMul16(t, 0x20000);
-				LerpRenderTargetRect(from, to, out, t, firstAxis);
+				LerpPaneRect(from, to, out, t, firstAxis);
 			}
 			else {
 				*out = *to;
 				t -= 0x8000;
 				t = FixedMul16(t, 0x20000);
-				LerpRenderTargetRect(from, to, out, t, secondAxis);
+				LerpPaneRect(from, to, out, t, secondAxis);
 			}
 		}
 	}

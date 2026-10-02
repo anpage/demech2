@@ -7,8 +7,10 @@
 #include "emberfern.h"
 #include "eyepoint.h"
 #include "ivorydelta.h"
+#include "pixelbuffer.h"
 #include "portable.h"
 #include "ray.h"
+#include "rendertarget.h"
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
@@ -2501,6 +2503,2446 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	}
 }
 
+// --- The polygon fillers (polyfill.asm) ---
+
+#define POLY_BUFFER_WIDTH 48
+#define POLY_BUFFER_HEIGHT 40
+#define POLY_GUARD 64
+#define POLY_ARENA_SIZE (POLY_GUARD * 2 + POLY_BUFFER_WIDTH * POLY_BUFFER_HEIGHT + 4)
+#define POLY_MAX_VERTICES 10
+#define POLY_VERTEX_WORDS 6
+#define POLY_TEXTURE_SIZE 32
+#define POLY_VARS 0x74
+#define POLY_LUMA_OFFSET 0xd0
+
+typedef void (*FillPolygonFn)(Pane* p_view, MechS32 p_count, MechU32* p_points);
+typedef void (*FillDitheredFn)(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_points);
+typedef void (*FillRemappedFn)(Pane* p_view, MechS32 p_count, MechU32* p_points, MechU8* p_table);
+typedef void (*SetLumaTableFn)(MechU16* p_table);
+typedef void (*FillTexturedFn)(Pane* p_view, MechS32 p_count, MechU32* p_points, PixelBuffer* p_source, MechS32 p_mode);
+
+// The directions of a convex polygon's vertices from its centre, 1024 cos(2 pi k / 32): the sine
+// is the cosine 8 entries on.
+static const MechS32 g_polyDirections[32] = {
+	1024,  1004,  946,  851,  724,  569,  392,  200,  0, -200, -392, -569, -724, -851, -946, -1004,
+	-1024, -1004, -946, -851, -724, -569, -392, -200, 0, 200,  392,  569,  724,  851,  946,  1004,
+};
+
+// The pixel buffer and the view a case draws into: the buffer at an offset of 0 to 3 in an arena
+// of random bytes, guard bands included, and a view over it that may reach beyond it, start
+// before it, or be empty.
+typedef struct PolyTarget {
+	MechU32 m_words[POLY_ARENA_SIZE / 4];
+	PixelBuffer m_buffer;
+	Pane m_view;
+} PolyTarget;
+
+static MechS32 RandomRange(MechU32* p_state, MechS32 p_low, MechS32 p_high)
+{
+	return p_low + (MechS32) (AsmNext(p_state) % (MechU32) (p_high - p_low + 1));
+}
+
+static void MakePolyTarget(PolyTarget* p_target, MechU32* p_state)
+{
+	MechU8* arena = (MechU8*) p_target->m_words;
+	MechS32 width = RandomRange(p_state, 1, POLY_BUFFER_WIDTH);
+	MechS32 height = RandomRange(p_state, 1, POLY_BUFFER_HEIGHT);
+	MechU32 kind = AsmNext(p_state);
+
+	Fill(arena, POLY_ARENA_SIZE, p_state);
+	p_target->m_buffer.m_pixels = arena + POLY_GUARD + AsmNext(p_state) % 4;
+	p_target->m_buffer.m_maxX = width - 1;
+	p_target->m_buffer.m_maxY = height - 1;
+	p_target->m_buffer.m_bitmapInfo = NULL;
+	p_target->m_buffer.m_unk0x10 = 0;
+	p_target->m_view.m_buffer = &p_target->m_buffer;
+	if (kind % 4 == 0) {
+		// The whole buffer, as the game draws
+		p_target->m_view.m_left = 0;
+		p_target->m_view.m_top = 0;
+		p_target->m_view.m_right = width - 1;
+		p_target->m_view.m_bottom = height - 1;
+	}
+	else {
+		p_target->m_view.m_left = RandomRange(p_state, -4, width + 4);
+		p_target->m_view.m_top = RandomRange(p_state, -4, height + 4);
+		p_target->m_view.m_right = RandomRange(p_state, -4, width + 4);
+		p_target->m_view.m_bottom = RandomRange(p_state, -4, height + 4);
+	}
+}
+
+static void OutputPolyTarget(AsmOutput* p_output, const PolyTarget* p_target)
+{
+	AsmOutputBytes(p_output, (const MechU8*) p_target->m_words, POLY_ARENA_SIZE);
+}
+
+// A polygon the game could draw: convex, y-monotone on each side of its top and bottom (its
+// vertices lie on an ellipse, rounded down), in either winding and starting at any vertex. One
+// to POLY_MAX_VERTICES vertices; a case may flatten it into a line or a point. Its corners lie
+// around the target, sometimes far beyond (within +-0x3fff: the routines' divisions overflow
+// for spans and edges 0x8000 pixels long). The words after x and y are random; the callers set
+// the ones the routine reads. Returns the vertex count.
+static MechS32 MakePolygon(MechU32* p_points, const PolyTarget* p_target, MechU32* p_state)
+{
+	MechS32 width = p_target->m_buffer.m_maxX + 1;
+	MechS32 height = p_target->m_buffer.m_maxY + 1;
+	MechU32 kind = AsmNext(p_state);
+	MechS32 count = 1 + (MechS32) (AsmNext(p_state) % POLY_MAX_VERTICES);
+	MechS32 directions[POLY_MAX_VERTICES];
+	MechS32 centerX;
+	MechS32 centerY;
+	MechS32 radiusX;
+	MechS32 radiusY;
+	MechS32 start;
+	MechS32 used;
+	MechS32 i;
+
+	if (kind % 8 == 0) {
+		// Far and large: the clipping's extremes
+		centerX = RandomRange(p_state, -0x1fff, 0x1fff);
+		centerY = RandomRange(p_state, -0x1fff, 0x1fff);
+		radiusX = RandomRange(p_state, 0, 0x2000);
+		radiusY = RandomRange(p_state, 0, 0x2000);
+	}
+	else {
+		centerX = RandomRange(p_state, -width, width * 2);
+		centerY = RandomRange(p_state, -height, height * 2);
+		radiusX = RandomRange(p_state, 0, width * 2);
+		radiusY = RandomRange(p_state, 0, height * 2);
+	}
+
+	// Lines and points
+	if ((kind >> 3) % 16 == 0) {
+		radiusX = 0;
+	}
+	else if ((kind >> 3) % 16 == 1) {
+		radiusY = 0;
+	}
+
+	// count of the 32 directions, in order
+	used = 0;
+	for (i = 0; i < 32 && used < count; i++) {
+		if (AsmNext(p_state) % (MechU32) (32 - i) < (MechU32) (count - used)) {
+			directions[used++] = i;
+		}
+	}
+
+	start = (MechS32) (AsmNext(p_state) % (MechU32) count);
+	for (i = 0; i < count; i++) {
+		MechS32 index = (start + i) % count;
+		MechS32 direction = directions[(kind >> 7) & 1 ? count - 1 - index : index];
+		MechU32* point = &p_points[i * POLY_VERTEX_WORDS];
+
+		FillWords((MechS32*) point, POLY_VERTEX_WORDS, p_state);
+		point[0] = (MechU32) (centerX + PortableSar32(g_polyDirections[direction] * radiusX, 10));
+		point[1] = (MechU32) (centerY + PortableSar32(g_polyDirections[(direction + 8) % 32] * radiusY, 10));
+	}
+
+	return count;
+}
+
+// A vertex color, 16.16: a color and its fraction, or any word (the color steps wrap).
+static MechU32 RandomColor(MechU32* p_state)
+{
+	MechU32 kind = AsmNext(p_state);
+	MechU32 bits = AsmNext(p_state);
+
+	switch (kind % 4) {
+	case 0:
+		return bits;
+	case 1:
+		return bits & 0xff0000;
+	default:
+		return bits & 0xffffff;
+	}
+}
+
+// The dither offset: half a color either way, as the game passes, or any word.
+static MechS32 RandomDither(MechU32* p_state)
+{
+	MechU32 kind = AsmNext(p_state);
+
+	switch (kind % 4) {
+	case 0:
+		return 0x7fff;
+	case 1:
+		return 0x8000;
+	case 2:
+		return 0;
+	default:
+		return PortableS32(AsmNext(p_state));
+	}
+}
+
+// The working variables a call finds: random, but for the luma table. The routines don't read
+// what an earlier call left.
+static void ScramblePolyVars(const AsmModule* p_module, MechU32* p_state)
+{
+	MechU8* vars = (MechU8*) Data(p_module, "g_polyVars");
+
+	Fill(vars, POLY_LUMA_OFFSET, p_state);
+}
+
+// Arguments: four words that seed the target, the polygon and the colors.
+static void RunFillPolygon(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+{
+	PolyTarget target;
+	MechU32 points[POLY_MAX_VERTICES * POLY_VERTEX_WORDS];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 count;
+	MechS32 dither;
+	MechS32 i;
+
+	MakePolyTarget(&target, &state);
+	count = MakePolygon(points, &target, &state);
+	for (i = 0; i < count; i++) {
+		points[i * POLY_VERTEX_WORDS + 2] = RandomColor(&state);
+	}
+
+	dither = RandomDither(&state);
+	ScramblePolyVars(p_module, &state);
+	if (!strcmp(p_name, "FUN_1002b68b") || !strcmp(p_name, "FUN_1002c48d")) {
+		((FillDitheredFn) Function(p_module, p_name))(&target.m_view, dither, count, points);
+	}
+	else {
+		((FillPolygonFn) Function(p_module, p_name))(&target.m_view, count, points);
+	}
+
+	OutputPolyTarget(p_output, &target);
+}
+
+static void RunFillPolygonFlat(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunFillPolygon(p_module, "FillPolygonFlat", p_args, p_output);
+}
+
+static void Run1002ae41(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunFillPolygon(p_module, "FUN_1002ae41", p_args, p_output);
+}
+
+static void Run1002b68b(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunFillPolygon(p_module, "FUN_1002b68b", p_args, p_output);
+}
+
+static void Run1002c48d(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunFillPolygon(p_module, "FUN_1002c48d", p_args, p_output);
+}
+
+static void Run1002bf39(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	PolyTarget target;
+	MechU32 points[POLY_MAX_VERTICES * POLY_VERTEX_WORDS];
+	MechU8 table[0x100];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 count;
+
+	MakePolyTarget(&target, &state);
+	count = MakePolygon(points, &target, &state);
+	Fill(table, sizeof(table), &state);
+	ScramblePolyVars(p_module, &state);
+	((FillRemappedFn) Function(p_module, "FUN_1002bf39"))(&target.m_view, count, points, table);
+	OutputPolyTarget(p_output, &target);
+}
+
+// Arguments: the table's seed.
+static void RunSetLumaTable(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechU16 table[0x80 + 2];
+	MechU32 state = AsmSeed(p_args, 2);
+
+	Fill((MechU8*) table, sizeof(table), &state);
+	ScramblePolyVars(p_module, &state);
+	((SetLumaTableFn) Function(p_module, "SetLumaTable"))(&table[1]);
+	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "g_polyVars") + POLY_LUMA_OFFSET, 0x100);
+}
+
+// A texture of 1 to 32 texels each way, with the odd transparent texel (0xff), in a buffer of
+// random bytes.
+typedef struct PolyTexture {
+	MechU8 m_texels[POLY_TEXTURE_SIZE * POLY_TEXTURE_SIZE];
+	PixelBuffer m_buffer;
+	MechS32 m_width;
+	MechS32 m_height;
+} PolyTexture;
+
+static void MakePolyTexture(PolyTexture* p_texture, MechU32* p_state)
+{
+	MechU32 transparency = AsmNext(p_state) % 4;
+	MechU32 i;
+
+	p_texture->m_width = RandomRange(p_state, 1, POLY_TEXTURE_SIZE);
+	p_texture->m_height = RandomRange(p_state, 1, POLY_TEXTURE_SIZE);
+	for (i = 0; i < sizeof(p_texture->m_texels); i++) {
+		MechU32 bits = AsmNext(p_state);
+
+		p_texture->m_texels[i] = (MechU8) (transparency && bits % (4u << transparency) == 0 ? 0xff : bits >> 8);
+	}
+
+	p_texture->m_buffer.m_pixels = p_texture->m_texels;
+	p_texture->m_buffer.m_maxX = p_texture->m_width - 1;
+	p_texture->m_buffer.m_maxY = p_texture->m_height - 1;
+	p_texture->m_buffer.m_bitmapInfo = NULL;
+	p_texture->m_buffer.m_unk0x10 = 0;
+}
+
+// A texture coordinate, 16.16, inside the texture once the routine adds a half for rounding.
+static MechU32 RandomTexel(MechU32* p_state, MechS32 p_size)
+{
+	return AsmNext(p_state) % (((MechU32) p_size << 16) - 0x8000);
+}
+
+// Arguments: four words that seed the target, the polygon, the texture and the luma table; the
+// mode is the first's low two bits.
+static void RunFillPolygonTextured(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	PolyTarget target;
+	PolyTexture texture;
+	MechU32 points[POLY_MAX_VERTICES * POLY_VERTEX_WORDS];
+	MechU8 luma[0x100];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechU32 lumaTransparency;
+	MechS32 count;
+	MechS32 i;
+
+	MakePolyTarget(&target, &state);
+	count = MakePolygon(points, &target, &state);
+	MakePolyTexture(&texture, &state);
+	for (i = 0; i < count; i++) {
+		points[i * POLY_VERTEX_WORDS + 3] = RandomTexel(&state, texture.m_width);
+		points[i * POLY_VERTEX_WORDS + 4] = RandomTexel(&state, texture.m_height);
+	}
+
+	lumaTransparency = AsmNext(&state) % 4;
+	for (i = 0; i < 0x100; i++) {
+		MechU32 bits = AsmNext(&state);
+
+		luma[i] = (MechU8) (lumaTransparency && bits % (4u << lumaTransparency) == 0 ? 0xff : bits >> 8);
+	}
+
+	ScramblePolyVars(p_module, &state);
+	((SetLumaTableFn) Function(p_module, "SetLumaTable"))((MechU16*) luma);
+	((FillTexturedFn)
+		 Function(p_module, "FillPolygonTextured"))(&target.m_view, count, points, &texture.m_buffer, p_args[0] & 3);
+	OutputPolyTarget(p_output, &target);
+}
+
+// --- The blit routines (blit.asm) ---
+
+#define BLIT_WIDTH 64
+#define BLIT_HEIGHT 40
+#define BLIT_GUARD 128
+#define BLIT_ARENA_SIZE (BLIT_GUARD * 2 + BLIT_WIDTH * BLIT_HEIGHT + 4)
+
+// A pixel buffer and a view over it, as MakePolyTarget's but larger. p_empty allows a buffer
+// with a negative maxX or maxY, which the routines that clip reject.
+typedef struct BlitTarget {
+	MechU32 m_words[BLIT_ARENA_SIZE / 4];
+	PixelBuffer m_buffer;
+	Pane m_view;
+} BlitTarget;
+
+static void MakeBlitTarget(BlitTarget* p_target, MechU32* p_state, MechS32 p_empty)
+{
+	MechU8* arena = (MechU8*) p_target->m_words;
+	MechS32 width = RandomRange(p_state, 1, BLIT_WIDTH);
+	MechS32 height = RandomRange(p_state, 1, BLIT_HEIGHT);
+	MechU32 kind = AsmNext(p_state);
+
+	Fill(arena, BLIT_ARENA_SIZE, p_state);
+	p_target->m_buffer.m_pixels = arena + BLIT_GUARD + AsmNext(p_state) % 4;
+	p_target->m_buffer.m_maxX = width - 1;
+	p_target->m_buffer.m_maxY = height - 1;
+	p_target->m_buffer.m_bitmapInfo = NULL;
+	p_target->m_buffer.m_unk0x10 = 0;
+	if (p_empty && kind % 32 == 0) {
+		p_target->m_buffer.m_maxX = -1 - (MechS32) (AsmNext(p_state) % 3);
+	}
+	else if (p_empty && kind % 32 == 1) {
+		p_target->m_buffer.m_maxY = -1;
+	}
+
+	p_target->m_view.m_buffer = &p_target->m_buffer;
+	if ((kind >> 5) % 4 == 0) {
+		p_target->m_view.m_left = 0;
+		p_target->m_view.m_top = 0;
+		p_target->m_view.m_right = width - 1;
+		p_target->m_view.m_bottom = height - 1;
+	}
+	else {
+		p_target->m_view.m_left = RandomRange(p_state, -8, width + 4);
+		p_target->m_view.m_top = RandomRange(p_state, -8, height + 4);
+		p_target->m_view.m_right = RandomRange(p_state, -4, width + 8);
+		p_target->m_view.m_bottom = RandomRange(p_state, -4, height + 8);
+	}
+}
+
+static void OutputBlitTarget(AsmOutput* p_output, const BlitTarget* p_target)
+{
+	AsmOutputBytes(p_output, (const MechU8*) p_target->m_words, BLIT_ARENA_SIZE);
+}
+
+// Whether the routines' clipping rejects the target: -1 for an empty buffer, -2 for a view that
+// leaves nothing of it, else 0.
+static MechS32 BlitTargetEmpty(const BlitTarget* p_target)
+{
+	const PixelBuffer* buffer = &p_target->m_buffer;
+	const Pane* view = &p_target->m_view;
+	MechS32 left = view->m_left > 0 ? view->m_left : 0;
+	MechS32 top = view->m_top > 0 ? view->m_top : 0;
+	MechS32 right = view->m_right < buffer->m_maxX ? view->m_right : buffer->m_maxX;
+	MechS32 bottom = view->m_bottom < buffer->m_maxY ? view->m_bottom : buffer->m_maxY;
+
+	if (buffer->m_maxX < 0 || buffer->m_maxY < 0) {
+		return -1;
+	}
+
+	return right < left || bottom < top ? -2 : 0;
+}
+
+// A coordinate for a view p_extent pixels wide: mostly around it, sometimes far.
+static MechS32 RandomCoordinate(MechU32* p_state, MechS32 p_extent)
+{
+	MechU32 kind = AsmNext(p_state) % 16;
+
+	if (kind == 0) {
+		return RandomRange(p_state, -0x4000, 0x4000);
+	}
+
+	if (kind == 1) {
+		return RandomRange(p_state, -0x400, 0x400);
+	}
+
+	return RandomRange(p_state, -p_extent / 2 - 4, p_extent + p_extent / 2 + 4);
+}
+
+// The table a mode-1 BlitLine reads, and the function a mode-2 one calls.
+static MechU8 g_lineTable[0x100];
+static MechS32 g_lineCalls;
+
+static void LineCallback(void)
+{
+	g_lineCalls++;
+}
+
+// The display driver's entry points: the name, and the color and wait callbacks FadeViewColors
+// uses, which log what they're given (a count and a hash: a fade makes thousands of calls).
+static char g_driverName[16];
+static MechU8 g_driverColors[0x300];
+static MechU32 g_driverLogCount;
+static AsmHash g_driverLog;
+
+static void LogDriver(MechU32 p_word)
+{
+	AsmHashWord(&g_driverLog, p_word);
+	g_driverLogCount++;
+}
+
+static MechChar* DriverName(void)
+{
+	return g_driverName;
+}
+
+static MechChar* DriverOther(void)
+{
+	LogDriver(0xdddddddd);
+	return NULL;
+}
+
+static void DriverWait(void)
+{
+	LogDriver(0xeeeeeeee);
+}
+
+static void DriverGetColor(MechS32 p_index, MechU8* p_color)
+{
+	MechU32 index = (MechU32) p_index & 0xff;
+
+	LogDriver(0x10000000 | index);
+	p_color[0] = g_driverColors[index * 3];
+	p_color[1] = g_driverColors[index * 3 + 1];
+	p_color[2] = g_driverColors[index * 3 + 2];
+}
+
+static void DriverSetColor(MechS32 p_index, MechU8* p_color)
+{
+	LogDriver(0x20000000 | ((MechU32) p_index & 0xff) << 16 | p_color[0]);
+	LogDriver((MechU32) p_color[1] | (MechU32) p_color[2] << 8);
+}
+
+typedef MechChar* (*DriverEntry)(void);
+
+static DriverEntry g_driverTable[0xd];
+
+static void MakeDriverTable(void)
+{
+	MechS32 i;
+
+	for (i = 0; i < 0xd; i++) {
+		g_driverTable[i] = DriverOther;
+	}
+
+	g_driverTable[0] = DriverName;
+	g_driverTable[5] = (DriverEntry) (void (*)(void)) DriverWait;
+	g_driverTable[8] = (DriverEntry) (void (*)(void)) DriverGetColor;
+	g_driverTable[9] = (DriverEntry) (void (*)(void)) DriverSetColor;
+	g_driverLogCount = 0;
+	AsmHashInit(&g_driverLog);
+}
+
+static void OutputDriverLog(AsmOutput* p_output)
+{
+	AsmOutputWord(p_output, g_driverLogCount);
+	AsmOutputWord(p_output, (MechU32) g_driverLog.m_value);
+	AsmOutputWord(p_output, (MechU32) (g_driverLog.m_value >> 32));
+}
+
+typedef MechChar* (*GetDisplayDriverNameFn)(DriverEntry* p_driver);
+typedef void (*SetDisplayDriverFn)(DriverEntry* p_driver);
+
+// Arguments: the name's length (modulo 13) and its seed. The buffer starts out random.
+static void RunGetDisplayDriverName(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechU8* name = (MechU8*) Data(p_module, "g_displayDriverName");
+	MechU32 state = AsmSeed(p_args, 2);
+	MechU32 length = (MechU32) p_args[0] % 13;
+	MechU8 copy[16];
+	MechChar* result;
+	MechU32 i;
+
+	for (i = 0; i < length; i++) {
+		g_driverName[i] = (char) (1 + AsmNext(&state) % 255);
+	}
+
+	g_driverName[length] = 0;
+	Fill(name, 13, &state);
+	MakeDriverTable();
+	result = ((GetDisplayDriverNameFn) Function(p_module, "GetDisplayDriverName"))(g_driverTable);
+	AsmOutputWord(p_output, (MechU8*) result == name);
+	memset(copy, 0, sizeof(copy));
+	memcpy(copy, name, 13);
+	AsmOutputBytes(p_output, copy, sizeof(copy));
+}
+
+// Arguments: the table's seed. The table is the harness's entry points in a shuffled order.
+static void RunSetDisplayDriver(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	DriverEntry* installed = (DriverEntry*) Data(p_module, "g_displayDriver");
+	DriverEntry shuffled[0xd];
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 i;
+	MechS32 j;
+
+	MakeDriverTable();
+	for (i = 0; i < 0xd; i++) {
+		shuffled[i] = g_driverTable[AsmNext(&state) % 0xd];
+		installed[i] = NULL;
+	}
+
+	((SetDisplayDriverFn) Function(p_module, "SetDisplayDriver"))(shuffled);
+	for (i = 0; i < 0xd; i++) {
+		for (j = 0; j < 0xd && installed[i] != g_driverTable[j]; j++) {
+		}
+
+		AsmOutputWord(p_output, (MechU32) j);
+	}
+}
+
+typedef MechS32 (*PutViewPixelFn)(Pane* p_view, MechS32 p_x, MechS32 p_y, MechU32 p_color);
+typedef MechS32 (*GetViewPixelFn)(Pane* p_view, MechS32 p_x, MechS32 p_y);
+
+// Arguments: four words that seed the target, the point and the color.
+static void RunPutViewPixel(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 x;
+	MechS32 y;
+
+	MakeBlitTarget(&target, &state, 1);
+	x = RandomCoordinate(&state, BLIT_WIDTH);
+	y = RandomCoordinate(&state, BLIT_HEIGHT);
+	AsmOutputWord(
+		p_output,
+		(MechU32) ((PutViewPixelFn) Function(p_module, "PutViewPixel"))(&target.m_view, x, y, AsmNext(&state))
+	);
+	OutputBlitTarget(p_output, &target);
+}
+
+static void RunGetViewPixel(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 x;
+	MechS32 y;
+
+	MakeBlitTarget(&target, &state, 1);
+	x = RandomCoordinate(&state, BLIT_WIDTH);
+	y = RandomCoordinate(&state, BLIT_HEIGHT);
+	AsmOutputWord(p_output, (MechU32) ((GetViewPixelFn) Function(p_module, "GetViewPixel"))(&target.m_view, x, y));
+}
+
+typedef MechS32 (*BlitLineFn)(
+	Pane* p_view,
+	MechS32 p_x1,
+	MechS32 p_y1,
+	MechS32 p_x2,
+	MechS32 p_y2,
+	MechS32 p_mode,
+	MechS32 p_color
+);
+
+// BlitLine's mode, from the first argument: mostly plotting (0, or a negative mode that plots
+// too), sometimes the table or the callback, which take a pointer in the color word.
+static MechS32 LineMode(const MechS32* p_args)
+{
+	switch ((MechU32) p_args[0] % 32) {
+	case 0:
+		return 1;
+	case 1:
+		return 2 + (MechS32) ((MechU32) p_args[1] % 4);
+	case 2:
+		return -1 - (MechS32) ((MechU32) p_args[1] % 4);
+	default:
+		return 0;
+	}
+}
+
+static MechS32 BlitLineDomain(const MechS32* p_args)
+{
+	return LineMode(p_args) >= 1 ? c_domainPointers : c_domainIn;
+}
+
+// Arguments: the mode (see LineMode), and three words that seed the target, the ends and the
+// color. Horizontal and vertical lines' results aren't compared: the assembly returns a flag it
+// never set.
+static void RunBlitLine(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 mode = LineMode(p_args);
+	MechS32 x1;
+	MechS32 y1;
+	MechS32 x2;
+	MechS32 y2;
+	MechS32 color;
+	MechS32 result;
+
+	MakeBlitTarget(&target, &state, 1);
+	x1 = RandomCoordinate(&state, BLIT_WIDTH);
+	y1 = RandomCoordinate(&state, BLIT_HEIGHT);
+	switch (AsmNext(&state) % 8) {
+	case 0:
+		x2 = x1;
+		y2 = RandomCoordinate(&state, BLIT_HEIGHT);
+		break;
+	case 1:
+		y2 = y1;
+		x2 = RandomCoordinate(&state, BLIT_WIDTH);
+		break;
+	case 2:
+		// Diagonal
+		x2 = x1 + RandomRange(&state, -60, 60);
+		y2 = y1 + (AsmNext(&state) & 1 ? x2 - x1 : x1 - x2);
+		break;
+	default:
+		x2 = RandomCoordinate(&state, BLIT_WIDTH);
+		y2 = RandomCoordinate(&state, BLIT_HEIGHT);
+		break;
+	}
+
+	color = PortableS32(AsmNext(&state));
+	Fill(g_lineTable, sizeof(g_lineTable), &state);
+	g_lineCalls = 0;
+	if (mode == 1) {
+		color = (MechS32) (size_t) g_lineTable;
+	}
+	else if (mode > 1) {
+		color = (MechS32) (size_t) LineCallback;
+	}
+
+	result = ((BlitLineFn) Function(p_module, "BlitLine"))(&target.m_view, x1, y1, x2, y2, mode, color);
+	AsmOutputWord(p_output, x1 == x2 || y1 == y2 ? 0 : (MechU32) result);
+	AsmOutputWord(p_output, (MechU32) g_lineCalls);
+	OutputBlitTarget(p_output, &target);
+}
+
+typedef void (*CheckerFn)(
+	Pane* p_view,
+	MechS32 p_left,
+	MechS32 p_top,
+	MechS32 p_right,
+	MechS32 p_bottom,
+	MechU8 p_color
+);
+
+// Arguments: four words that seed the target, the rectangle and the color.
+static void Run10032e4b(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 left;
+	MechS32 top;
+	MechS32 right;
+	MechS32 bottom;
+
+	MakeBlitTarget(&target, &state, 1);
+	left = RandomCoordinate(&state, BLIT_WIDTH);
+	top = RandomCoordinate(&state, BLIT_HEIGHT);
+	right = AsmNext(&state) % 4 ? left + RandomRange(&state, -2, 30) : RandomCoordinate(&state, BLIT_WIDTH);
+	bottom = AsmNext(&state) % 4 ? top + RandomRange(&state, -2, 30) : RandomCoordinate(&state, BLIT_HEIGHT);
+	((CheckerFn)
+		 Function(p_module, "FUN_10032e4b"))(&target.m_view, left, top, right, bottom, (MechU8) AsmNext(&state));
+	OutputBlitTarget(p_output, &target);
+}
+
+// --- SHP shapes ---
+
+#define SHAPE_SIZE 0x1800
+#define SHAPE_FRAMES 4
+
+// An SHP animation: up to four frames of run-length rows (some sharing an offset), each with
+// bounds around the origin, and some with palette entries. The frame bounds may be inverted (a
+// frame without pixels). Rows fill their frame's width at most.
+typedef struct Shp {
+	MechU32 m_words[SHAPE_SIZE / 4];
+	MechS32 m_frames;
+	MechU32 m_offsets[SHAPE_FRAMES];
+	MechS32 m_pixels[SHAPE_FRAMES]; // whether the frame's bounds hold pixels
+} Shp;
+
+static void PutWord(MechU8* p_at, MechU32 p_value)
+{
+	p_at[0] = (MechU8) p_value;
+	p_at[1] = (MechU8) (p_value >> 8);
+	p_at[2] = (MechU8) (p_value >> 16);
+	p_at[3] = (MechU8) (p_value >> 24);
+}
+
+// The codes of a frame's rows; returns the bytes written.
+static MechU32 MakeShapeRows(MechU8* p_codes, MechS32 p_width, MechS32 p_rows, MechU32* p_state)
+{
+	MechU8* code = p_codes;
+	MechS32 row;
+
+	for (row = 0; row < p_rows; row++) {
+		MechS32 left = p_width;
+
+		if (AsmNext(p_state) % 8 == 0) {
+			left = RandomRange(p_state, 0, p_width);
+		}
+
+		while (left > 0) {
+			MechU32 kind = AsmNext(p_state) % 8;
+			MechS32 count;
+			MechS32 i;
+
+			if (kind < 2) {
+				count = RandomRange(p_state, 1, left < 255 ? left : 255);
+				*code++ = 1;
+				*code++ = (MechU8) count;
+			}
+			else if (kind < 5) {
+				count = RandomRange(p_state, 1, left < 127 ? left : 127);
+				*code++ = (MechU8) (count * 2);
+				*code++ = (MechU8) AsmNext(p_state);
+			}
+			else {
+				count = RandomRange(p_state, 1, left < 127 ? left : 127);
+				*code++ = (MechU8) (count * 2 + 1);
+				for (i = 0; i < count; i++) {
+					*code++ = (MechU8) AsmNext(p_state);
+				}
+			}
+
+			left -= count;
+		}
+
+		*code++ = 0;
+	}
+
+	return (MechU32) (code - p_codes);
+}
+
+static void MakeShp(Shp* p_shape, MechU32* p_state, MechS32 p_maxWidth, MechS32 p_maxHeight)
+{
+	MechU8* bytes = (MechU8*) p_shape->m_words;
+	MechU32 at;
+	MechS32 i;
+
+	Fill(bytes, SHAPE_SIZE, p_state);
+	p_shape->m_frames = 1 + (MechS32) (AsmNext(p_state) % SHAPE_FRAMES);
+	PutWord(bytes + 4, (MechU32) p_shape->m_frames);
+	at = 8 + (MechU32) p_shape->m_frames * 8 + AsmNext(p_state) % 4;
+	for (i = 0; i < p_shape->m_frames; i++) {
+		MechU8* entry = bytes + 8 + i * 8;
+		MechS32 left;
+		MechS32 top;
+		MechS32 width;
+		MechS32 height;
+
+		if (i > 0 && AsmNext(p_state) % 4 == 0) {
+			// The same frame as an earlier one
+			MechS32 earlier = (MechS32) (AsmNext(p_state) % (MechU32) i);
+
+			memcpy(entry, bytes + 8 + earlier * 8, 8);
+			p_shape->m_offsets[i] = p_shape->m_offsets[earlier];
+			p_shape->m_pixels[i] = p_shape->m_pixels[earlier];
+			continue;
+		}
+
+		left = RandomRange(p_state, -12, 12);
+		top = RandomRange(p_state, -12, 12);
+		width = RandomRange(p_state, 1, p_maxWidth);
+		height = RandomRange(p_state, 1, p_maxHeight);
+
+		// At most what fits: a row takes up to two bytes a pixel and its end, the palette 28
+		if ((MechS32) (SHAPE_SIZE - at) - 0x18 - 28 < height * (width * 2 + 1)) {
+			height = ((MechS32) (SHAPE_SIZE - at) - 0x18 - 28) / (width * 2 + 1);
+		}
+
+		if (height < 1) {
+			memcpy(entry, bytes + 8, 8);
+			p_shape->m_offsets[i] = p_shape->m_offsets[0];
+			p_shape->m_pixels[i] = p_shape->m_pixels[0];
+			continue;
+		}
+
+		p_shape->m_offsets[i] = at;
+		p_shape->m_pixels[i] = 1;
+		PutWord(entry, at);
+		PutWord(bytes + at + 8, (MechU32) left);
+		PutWord(bytes + at + 0xc, (MechU32) top);
+		switch (AsmNext(p_state) % 16) {
+		case 0:
+			// Inverted: no pixels
+			PutWord(bytes + at + 0x10, (MechU32) (left - RandomRange(p_state, 1, 4)));
+			PutWord(bytes + at + 0x14, (MechU32) (top + height - 1));
+			p_shape->m_pixels[i] = 0;
+			break;
+		case 1:
+			PutWord(bytes + at + 0x10, (MechU32) (left + width - 1));
+			PutWord(bytes + at + 0x14, (MechU32) (top - RandomRange(p_state, 1, 4)));
+			p_shape->m_pixels[i] = 0;
+			height = 0;
+			break;
+		default:
+			PutWord(bytes + at + 0x10, (MechU32) (left + width - 1));
+			PutWord(bytes + at + 0x14, (MechU32) (top + height - 1));
+			break;
+		}
+
+		at += 0x18;
+		at += MakeShapeRows(bytes + at, width, height, p_state);
+
+		// A palette: a count, then an index and three components each
+		if (AsmNext(p_state) % 2) {
+			MechU32 count = 1 + AsmNext(p_state) % 6;
+
+			PutWord(entry + 4, at);
+			PutWord(bytes + at, count);
+			at += 4 + count * 4;
+		}
+		else {
+			PutWord(entry + 4, 0);
+		}
+	}
+}
+
+// A frame index: one of the shape's.
+static MechS32 RandomFrame(const Shp* p_shape, MechU32* p_state)
+{
+	return (MechS32) (AsmNext(p_state) % (MechU32) p_shape->m_frames);
+}
+
+static void OutputShp(AsmOutput* p_output, const Shp* p_shape)
+{
+	AsmOutputBytes(p_output, (const MechU8*) p_shape->m_words, SHAPE_SIZE);
+}
+
+typedef void (*BlitShpFrameFn)(Pane* p_view, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
+typedef MechS32 (*BlitShpFrameRemappedFn)(Pane* p_view, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
+typedef void (*BlitShpFrameUnclippedFn)(Pane* p_view, void* p_frame, MechS32 p_x, MechS32 p_y, MechU32 p_unused);
+typedef MechS32 (*BlitShpFrameRemappedUnclippedFn)(
+	Pane* p_view,
+	void* p_frame,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechU32 p_unused
+);
+typedef void (*SetRemapTableFn)(MechU8* p_table);
+
+// Loads a random remap table, through SetRemapTable.
+static void SetRandomRemap(const AsmModule* p_module, MechU32* p_state)
+{
+	MechU8 table[0x100];
+
+	Fill(table, sizeof(table), p_state);
+	((SetRemapTableFn) Function(p_module, "SetRemapTable"))(table);
+}
+
+// Arguments: four words that seed the target, the shape, the frame and its position, around
+// the view so that it's clipped on any side.
+static void RunBlitShp(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Shp shape;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 frame;
+	MechS32 x;
+	MechS32 y;
+
+	MakeBlitTarget(&target, &state, 1);
+	MakeShp(&shape, &state, 48, 32);
+	frame = RandomFrame(&shape, &state);
+	x = RandomRange(&state, -BLIT_WIDTH, BLIT_WIDTH * 2);
+	y = RandomRange(&state, -BLIT_HEIGHT, BLIT_HEIGHT * 2);
+	SetRandomRemap(p_module, &state);
+	if (!strcmp(p_name, "BlitShpFrame")) {
+		((BlitShpFrameFn) Function(p_module, p_name))(&target.m_view, shape.m_words, frame, x, y);
+	}
+	else {
+		AsmOutputWord(
+			p_output,
+			(MechU32) ((BlitShpFrameRemappedFn) Function(p_module, p_name))(&target.m_view, shape.m_words, frame, x, y)
+		);
+	}
+
+	OutputBlitTarget(p_output, &target);
+}
+
+static void RunBlitShpFrame(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunBlitShp(p_module, "BlitShpFrame", p_args, p_output);
+}
+
+static void RunBlitShpFrameRemapped(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunBlitShp(p_module, "BlitShpFrameRemapped", p_args, p_output);
+}
+
+// Arguments: four words that seed the target, the shape and the frame, placed where it lies
+// wholly inside the buffer (the routines don't clip).
+static void RunBlitShpUnclipped(
+	const AsmModule* p_module,
+	const char* p_name,
+	const MechS32* p_args,
+	AsmOutput* p_output
+)
+{
+	BlitTarget target;
+	Shp shape;
+	MechU32 state = AsmSeed(p_args, 4);
+	const MechU8* frame;
+	MechS32 left;
+	MechS32 top;
+	MechS32 right;
+	MechS32 bottom;
+	MechS32 x;
+	MechS32 y;
+	MechS32 result;
+
+	MakeBlitTarget(&target, &state, 0);
+	MakeShp(&shape, &state, BLIT_WIDTH / 2, BLIT_HEIGHT / 2);
+	frame = (const MechU8*) shape.m_words + shape.m_offsets[RandomFrame(&shape, &state)];
+	left = (MechS32) (frame[8] | frame[9] << 8 | frame[10] << 16 | (MechU32) frame[11] << 24);
+	top = (MechS32) (frame[0xc] | frame[0xd] << 8 | frame[0xe] << 16 | (MechU32) frame[0xf] << 24);
+	right = (MechS32) (frame[0x10] | frame[0x11] << 8 | frame[0x12] << 16 | (MechU32) frame[0x13] << 24);
+	bottom = (MechS32) (frame[0x14] | frame[0x15] << 8 | frame[0x16] << 16 | (MechU32) frame[0x17] << 24);
+
+	// A wide buffer, and the frame inside it from the view's origin
+	target.m_buffer.m_maxX = BLIT_WIDTH - 1;
+	target.m_buffer.m_maxY = BLIT_HEIGHT - 1;
+	target.m_view.m_left = RandomRange(&state, -4, 4);
+	target.m_view.m_top = RandomRange(&state, -4, 4);
+	x = RandomRange(&state, 0, BLIT_WIDTH - 1 - (right > left ? right - left : 0)) - left - target.m_view.m_left;
+	y = RandomRange(&state, 0, BLIT_HEIGHT - 1 - (bottom > top ? bottom - top : 0)) - top - target.m_view.m_top;
+	SetRandomRemap(p_module, &state);
+	if (strcmp(p_name, "BlitShpFrameUnclipped")) {
+		result = ((BlitShpFrameRemappedUnclippedFn)
+					  Function(p_module, p_name))(&target.m_view, (void*) frame, x, y, AsmNext(&state));
+		AsmOutputWord(p_output, (MechU32) result);
+	}
+	else {
+		((BlitShpFrameUnclippedFn) Function(p_module, p_name))(&target.m_view, (void*) frame, x, y, AsmNext(&state));
+	}
+
+	OutputBlitTarget(p_output, &target);
+}
+
+static void RunBlitShpFrameUnclipped(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunBlitShpUnclipped(p_module, "BlitShpFrameUnclipped", p_args, p_output);
+}
+
+static void RunBlitShpFrameRemappedUnclipped(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunBlitShpUnclipped(p_module, "BlitShpFrameRemappedUnclipped", p_args, p_output);
+}
+
+// Arguments: the table's seed.
+static void RunSetRemapTable(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechU32 state = AsmSeed(p_args, 2);
+
+	SetRandomRemap(p_module, &state);
+	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "g_remapTable"), 0x100);
+}
+
+typedef MechS32 (*ShapeQueryFn)(void* p_shape, MechS32 p_frame);
+
+// Arguments: two words that seed the shape and the frame.
+static void RunShapeQuery(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+{
+	Shp shape;
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 frame;
+
+	MakeShp(&shape, &state, 48, 32);
+	frame = RandomFrame(&shape, &state);
+	SetRandomRemap(p_module, &state);
+	AsmOutputWord(p_output, (MechU32) ((ShapeQueryFn) Function(p_module, p_name))(shape.m_words, frame));
+	if (!strcmp(p_name, "RemapShpFrame")) {
+		OutputShp(p_output, &shape);
+	}
+}
+
+static void RunRemapShpFrame(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeQuery(p_module, "RemapShpFrame", p_args, p_output);
+}
+
+static void RunGetShpFrameSize(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeQuery(p_module, "GetShpFrameSize", p_args, p_output);
+}
+
+static void Run10037526(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeQuery(p_module, "FUN_10037526", p_args, p_output);
+}
+
+static void RunGetShpFrameExtent(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeQuery(p_module, "GetShpFrameExtent", p_args, p_output);
+}
+
+static void RunGetShpFrameOrigin(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeQuery(p_module, "GetShpFrameOrigin", p_args, p_output);
+}
+
+typedef MechS32 (*ShapeCountFn)(void* p_shape);
+
+static void RunGetShpFrameCount(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Shp shape;
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeShp(&shape, &state, 48, 32);
+	AsmOutputWord(p_output, (MechU32) ((ShapeCountFn) Function(p_module, "GetShpFrameCount"))(shape.m_words));
+}
+
+typedef MechS32 (*ShapeBoundsFn)(
+	void* p_shape,
+	MechS32 p_frame,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechU32 p_flags,
+	MechS32* p_bounds
+);
+
+// Arguments: two words that seed the shape, the frame, the position and the flags.
+static void Run10034622(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Shp shape;
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 bounds[6];
+	MechS32 frame;
+	MechS32 x;
+	MechS32 y;
+	MechS32 result;
+
+	MakeShp(&shape, &state, 48, 32);
+	frame = RandomFrame(&shape, &state);
+	x = RandomCoordinate(&state, BLIT_WIDTH);
+	y = RandomCoordinate(&state, BLIT_HEIGHT);
+	FillWords(bounds, 6, &state);
+	result =
+		((ShapeBoundsFn) Function(p_module, "FUN_10034622"))(shape.m_words, frame, x, y, AsmNext(&state), &bounds[1]);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputWords(p_output, bounds, 6);
+}
+
+typedef void (*ShapePaletteFn)(void* p_shape, MechS32 p_frame, MechU8* p_palette);
+typedef MechS32 (*ShapeEntriesFn)(void* p_shape, MechS32 p_frame, MechU32* p_entries);
+
+// Arguments: two words that seed the shape, the frame and the palette.
+static void Run100375a7(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Shp shape;
+	MechU8 palette[0x300];
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 frame;
+
+	MakeShp(&shape, &state, 48, 32);
+	frame = RandomFrame(&shape, &state);
+	Fill(palette, sizeof(palette), &state);
+	((ShapePaletteFn) Function(p_module, "FUN_100375a7"))(shape.m_words, frame, palette);
+	AsmOutputBytes(p_output, palette, sizeof(palette));
+}
+
+// Arguments: two words that seed the shape, the frame and the buffer, NULL in one case in four.
+static void RunShapeEntries(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+{
+	Shp shape;
+	MechU32 entries[8];
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 frame;
+	MechS32 result;
+
+	MakeShp(&shape, &state, 48, 32);
+	frame = RandomFrame(&shape, &state);
+	FillWords((MechS32*) entries, 8, &state);
+	result =
+		((ShapeEntriesFn) Function(p_module, p_name))(shape.m_words, frame, AsmNext(&state) % 4 ? &entries[1] : NULL);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputWords(p_output, (const MechS32*) entries, 8);
+	OutputShp(p_output, &shape);
+}
+
+static void Run100375f2(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeEntries(p_module, "FUN_100375f2", p_args, p_output);
+}
+
+static void Run1003763a(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeEntries(p_module, "FUN_1003763a", p_args, p_output);
+}
+
+typedef MechS32 (*ShapeUniqueFn)(void* p_shape, MechS32* p_out);
+
+// Arguments: two words that seed the shape and the buffer, NULL in one case in four.
+static void RunShapeUnique(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+{
+	Shp shape;
+	MechS32 out[SHAPE_FRAMES + 2];
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 result;
+
+	MakeShp(&shape, &state, 48, 32);
+	FillWords(out, SHAPE_FRAMES + 2, &state);
+	result = ((ShapeUniqueFn) Function(p_module, p_name))(shape.m_words, AsmNext(&state) % 4 ? &out[1] : NULL);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputWords(p_output, out, SHAPE_FRAMES + 2);
+}
+
+static void RunCountShpUniqueFrames(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeUnique(p_module, "CountShpUniqueFrames", p_args, p_output);
+}
+
+static void Run100376f9(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunShapeUnique(p_module, "FUN_100376f9", p_args, p_output);
+}
+
+#define SCRATCH_SIZE (32 * 24 + 64)
+
+typedef MechS32 (*BlitRotatedFn)(
+	Pane* p_view,
+	void* p_shape,
+	MechS32 p_frame,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechU8* p_scratch,
+	MechS32 p_angle,
+	MechS32 p_scaleX,
+	MechS32 p_scaleY,
+	MechU32 p_flags
+);
+
+// Arguments: four words that seed the target, the shape (its frames at most 32 by 24, the size
+// of the scratch buffer), the frame, its position, the rotation and scales (one case in eight
+// without either, BlitShpFrame's path, which a frame without pixels always takes: the mapping
+// sizes the scratch buffer from its bounds) and the flags. The mapping's result isn't compared
+// but for an empty buffer or view: the assembly leaves what it last computed.
+static void RunBlitRotated(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Shp shape;
+	MechU8 scratch[SCRATCH_SIZE];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 frame;
+	MechS32 x;
+	MechS32 y;
+	MechS32 angle;
+	MechS32 scaleX;
+	MechS32 scaleY;
+	MechU32 flags;
+	MechS32 plain;
+	MechS32 result;
+
+	MakeBlitTarget(&target, &state, 1);
+	MakeShp(&shape, &state, 32, 24);
+	frame = RandomFrame(&shape, &state);
+	x = RandomRange(&state, -BLIT_WIDTH / 2, BLIT_WIDTH + BLIT_WIDTH / 2);
+	y = RandomRange(&state, -BLIT_HEIGHT / 2, BLIT_HEIGHT + BLIT_HEIGHT / 2);
+	Fill(scratch, sizeof(scratch), &state);
+	plain = AsmNext(&state) % 8 == 0 || !shape.m_pixels[frame];
+	angle = plain ? 0 : RandomRange(&state, -7200, 7200);
+	scaleX = plain ? 0x10000 : RandomRange(&state, -0x30000, 0x30000);
+	scaleY = plain ? 0x10000 : AsmNext(&state) % 2 ? scaleX : RandomRange(&state, -0x30000, 0x30000);
+	flags = AsmNext(&state) % 4;
+	SetRandomRemap(p_module, &state);
+	result = ((BlitRotatedFn) Function(p_module, "BlitRotated"))(
+		&target.m_view,
+		shape.m_words,
+		frame,
+		x,
+		y,
+		scratch,
+		angle,
+		scaleX,
+		scaleY,
+		flags
+	);
+	AsmOutputWord(p_output, plain || BlitTargetEmpty(&target) ? (MechU32) result : 0);
+	OutputBlitTarget(p_output, &target);
+	AsmOutputBytes(p_output, scratch, sizeof(scratch));
+}
+
+typedef void (*FillViewFn)(Pane* p_view, MechS32 p_color);
+
+// Arguments: two words that seed the target and the color.
+static void RunFillView(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeBlitTarget(&target, &state, 1);
+	((FillViewFn) Function(p_module, "FillView"))(&target.m_view, PortableS32(AsmNext(&state)));
+	OutputBlitTarget(p_output, &target);
+}
+
+typedef MechS32 (*BlitViewFn)(
+	Pane* p_source,
+	MechS32 p_sourceX,
+	MechS32 p_sourceY,
+	Pane* p_dest,
+	MechS32 p_destX,
+	MechS32 p_destY,
+	MechS32 p_fillColor
+);
+
+// Arguments: four words that seed the two targets (one time in two, two views of one buffer,
+// which overlap), the positions and the fill color (mostly -1, a copy).
+static void RunBlitView(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget source;
+	BlitTarget dest;
+	Pane* destView = &dest.m_view;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 sourceX;
+	MechS32 sourceY;
+	MechS32 destX;
+	MechS32 destY;
+	MechS32 fill;
+	MechS32 result;
+
+	MakeBlitTarget(&source, &state, 1);
+	MakeBlitTarget(&dest, &state, 1);
+	if (AsmNext(&state) % 2) {
+		// A second view of the source's buffer
+		dest.m_view.m_buffer = &source.m_buffer;
+		destView = &dest.m_view;
+	}
+
+	switch (AsmNext(&state) % 8) {
+	case 0:
+		fill = (MechS32) (AsmNext(&state) % 0x100);
+		break;
+	case 1:
+		fill = PortableS32(AsmNext(&state));
+		break;
+	default:
+		fill = -1;
+		break;
+	}
+
+	sourceX = RandomRange(&state, -20, 20);
+	sourceY = RandomRange(&state, -20, 20);
+	destX = RandomRange(&state, -20, 20);
+	destY = RandomRange(&state, -20, 20);
+	result =
+		((BlitViewFn) Function(p_module, "BlitView"))(&source.m_view, sourceX, sourceY, destView, destX, destY, fill);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputBlitTarget(p_output, &source);
+	OutputBlitTarget(p_output, &dest);
+}
+
+#define SCROLL_SCRATCH ((BLIT_WIDTH + 16) * (BLIT_HEIGHT + 16))
+
+typedef MechS32 (*ScrollViewFn)(Pane* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, MechS32 p_color);
+
+static MechU8 g_scrollScratch[SCROLL_SCRATCH];
+
+// The mode from the first argument: 1 (wrapping, through a scratch buffer, or measuring with 0)
+// one time in two, else a fill.
+static MechS32 ScrollMode(const MechS32* p_args)
+{
+	return (MechU32) p_args[0] % 2 ? 1 : (MechS32) ((MechU32) p_args[0] % 8) - 2;
+}
+
+static MechS32 ScrollViewDomain(const MechS32* p_args)
+{
+	return ScrollMode(p_args) == 1 && (MechU32) p_args[1] % 8 ? c_domainPointers : c_domainIn;
+}
+
+// Arguments: the mode (see ScrollMode), whether a wrap gets its scratch buffer (0 measures),
+// and two words that seed the target, the scroll and the fill color.
+static void RunScrollView(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 mode = ScrollMode(p_args);
+	MechS32 color;
+	MechS32 dx;
+	MechS32 dy;
+	MechS32 result;
+	AsmHash hash;
+
+	MakeBlitTarget(&target, &state, 1);
+	Fill(g_scrollScratch, sizeof(g_scrollScratch), &state);
+	dx = RandomRange(&state, -BLIT_WIDTH - 20, BLIT_WIDTH + 20);
+	dy = RandomRange(&state, -BLIT_HEIGHT - 20, BLIT_HEIGHT + 20);
+	if (AsmNext(&state) % 8 == 0) {
+		dx = 0;
+	}
+
+	if (AsmNext(&state) % 8 == 0) {
+		dy = 0;
+	}
+
+	color = PortableS32(AsmNext(&state));
+	if (mode == 1) {
+		color = (MechU32) p_args[1] % 8 ? (MechS32) (size_t) g_scrollScratch : 0;
+	}
+
+	result = ((ScrollViewFn) Function(p_module, "ScrollView"))(&target.m_view, dx, dy, mode, color);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputBlitTarget(p_output, &target);
+	AsmHashInit(&hash);
+	AsmHashWord(&hash, 0);
+	{
+		MechU32 i;
+
+		for (i = 0; i < SCROLL_SCRATCH; i++) {
+			AsmHashWord(&hash, g_scrollScratch[i]);
+		}
+	}
+	AsmOutputWord(p_output, (MechU32) hash.m_value);
+	AsmOutputWord(p_output, (MechU32) (hash.m_value >> 32));
+}
+
+typedef void (*EllipseFn)(
+	Pane* p_view,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechS32 p_radiusX,
+	MechS32 p_radiusY,
+	MechS32 p_color
+);
+
+// A radius: mostly up to the view's size, sometimes 0 or large.
+static MechS32 RandomRadius(MechU32* p_state)
+{
+	switch (AsmNext(p_state) % 16) {
+	case 0:
+		return 0;
+	case 1:
+		return RandomRange(p_state, 100, 2000);
+	default:
+		return RandomRange(p_state, 1, 50);
+	}
+}
+
+// Arguments: four words that seed the target, the center, the radii and the color.
+static void RunEllipse(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 x;
+	MechS32 y;
+	MechS32 radiusX;
+	MechS32 radiusY;
+
+	MakeBlitTarget(&target, &state, 1);
+	x = RandomRange(&state, -30, BLIT_WIDTH + 30);
+	y = RandomRange(&state, -30, BLIT_HEIGHT + 30);
+	radiusX = RandomRadius(&state);
+	radiusY = RandomRadius(&state);
+	((EllipseFn) Function(p_module, p_name))(&target.m_view, x, y, radiusX, radiusY, PortableS32(AsmNext(&state)));
+	OutputBlitTarget(p_output, &target);
+}
+
+static void RunDrawEllipse(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunEllipse(p_module, "DrawEllipse", p_args, p_output);
+}
+
+static void RunFillEllipse(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	RunEllipse(p_module, "FillEllipse", p_args, p_output);
+}
+
+typedef void (*GetCosSinFn)(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin);
+typedef void (*BlitFixedMul16Fn)(MechS32 p_a, MechS32 p_b, MechS32* p_result);
+typedef void (*RotateScalePointFn)(
+	MechS32* p_point,
+	MechS32* p_result,
+	MechS32* p_origin,
+	MechS32 p_angle,
+	MechS32 p_scaleX,
+	MechS32 p_scaleY
+);
+
+// An angle within +-0x100000 tenths of a degree: the routine's loops take it into a turn 3600
+// at a time.
+static MechS32 BoundedAngle(MechS32 p_angle)
+{
+	return p_angle % 0x100000;
+}
+
+// Arguments: the angle.
+static void RunGetCosSin(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechS32 values[4];
+	MechU32 state = AsmSeed(p_args, 1);
+
+	FillWords(values, 4, &state);
+	((GetCosSinFn) Function(p_module, "GetCosSin"))(BoundedAngle(p_args[0]), &values[0], &values[2]);
+	OutputWords(p_output, values, 4);
+}
+
+// Arguments: the factors.
+static void RunBlitFixedMul16(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechS32 values[3];
+	MechU32 state = AsmSeed(p_args, 2);
+
+	FillWords(values, 3, &state);
+	((BlitFixedMul16Fn) Function(p_module, "BlitFixedMul16"))(p_args[0], p_args[1], &values[1]);
+	OutputWords(p_output, values, 3);
+}
+
+// Arguments: the point, the origin, the angle and the scales.
+static void RunRotateScalePoint(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechS32 point[2];
+	MechS32 origin[2];
+	MechS32 result[4];
+	MechU32 state = AsmSeed(p_args, 7);
+
+	point[0] = p_args[0];
+	point[1] = p_args[1];
+	origin[0] = p_args[2];
+	origin[1] = p_args[3];
+	FillWords(result, 4, &state);
+	((
+		RotateScalePointFn
+	) Function(p_module, "RotateScalePoint"))(point, &result[1], origin, BoundedAngle(p_args[4]), p_args[5], p_args[6]);
+	OutputWords(p_output, result, 4);
+}
+
+// --- Fonts and text ---
+
+#define FONT_SIZE 0x1000
+#define FONT_GLYPHS 12
+
+// A font: its height (1 to 12), and the 256 characters' offsets into a pool of glyphs, each
+// up to 10 pixels wide (some 0), some pixels 0xff.
+typedef struct Font {
+	MechU32 m_words[FONT_SIZE / 4];
+} Font;
+
+static void MakeFont(Font* p_font, MechU32* p_state)
+{
+	MechU8* bytes = (MechU8*) p_font->m_words;
+	MechU32 glyphs[FONT_GLYPHS];
+	MechS32 height = RandomRange(p_state, 1, 12);
+	MechU32 at = 0x10 + 0x100 * 4;
+	MechS32 i;
+	MechS32 j;
+
+	Fill(bytes, FONT_SIZE, p_state);
+	PutWord(bytes + 8, (MechU32) height);
+	for (i = 0; i < FONT_GLYPHS; i++) {
+		MechS32 width = AsmNext(p_state) % 8 ? RandomRange(p_state, 1, 10) : 0;
+
+		glyphs[i] = at;
+		PutWord(bytes + at, (MechU32) width);
+		at += 4;
+		for (j = 0; j < width * height; j++) {
+			MechU32 bits = AsmNext(p_state);
+
+			bytes[at++] = (MechU8) (bits % 8 ? bits >> 8 : 0xff);
+		}
+	}
+
+	for (i = 0; i < 0x100; i++) {
+		PutWord(bytes + 0x10 + i * 4, glyphs[AsmNext(p_state) % FONT_GLYPHS]);
+	}
+}
+
+// A palette for text: a 256-byte table, some entries 0xff (left out), or NULL in one case in
+// three.
+static MechU8 g_textPalette[0x100];
+
+static MechU8* RandomTextPalette(MechU32* p_state)
+{
+	MechS32 i;
+
+	if (AsmNext(p_state) % 3 == 0) {
+		return NULL;
+	}
+
+	for (i = 0; i < 0x100; i++) {
+		MechU32 bits = AsmNext(p_state);
+
+		g_textPalette[i] = (MechU8) (bits % 4 ? bits >> 8 : 0xff);
+	}
+
+	return g_textPalette;
+}
+
+typedef MechS32 (*FontGetHeightFn)(void* p_font);
+typedef MechS32 (*FontGetCharWidthFn)(void* p_font, MechS32 p_char);
+typedef MechS32 (*BlitCharFn)(Pane* p_view, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_char, void* p_palette);
+typedef void (*BlitStringFn)(Pane* p_view, MechS32 p_x, MechS32 p_y, void* p_font, MechChar* p_text, void* p_palette);
+
+// Arguments: the font's seed.
+static void RunFontGetHeight(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Font font;
+	MechU32 state = AsmSeed(p_args, 1);
+
+	MakeFont(&font, &state);
+	AsmOutputWord(p_output, (MechU32) ((FontGetHeightFn) Function(p_module, "FontGetHeight"))(font.m_words));
+}
+
+// Arguments: the character (its low byte) and the font's seed.
+static void RunFontGetCharWidth(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Font font;
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeFont(&font, &state);
+	AsmOutputWord(
+		p_output,
+		(MechU32) ((FontGetCharWidthFn) Function(p_module, "FontGetCharWidth"))(font.m_words, p_args[0] & 0xff)
+	);
+}
+
+// Arguments: four words that seed the target, the font, the character, its position and the
+// palette.
+static void RunBlitChar(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Font font;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 x;
+	MechS32 y;
+	MechU8* palette;
+	MechS32 result;
+
+	MakeBlitTarget(&target, &state, 1);
+	MakeFont(&font, &state);
+	x = RandomRange(&state, -14, BLIT_WIDTH + 4);
+	y = RandomRange(&state, -14, BLIT_HEIGHT + 4);
+	palette = RandomTextPalette(&state);
+	result = ((BlitCharFn)
+				  Function(p_module, "BlitChar"))(&target.m_view, x, y, font.m_words, AsmNext(&state) % 0x100, palette);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputBlitTarget(p_output, &target);
+}
+
+// Arguments: four words that seed the target, the font, the text (up to 12 characters, the first
+// sometimes the end) and its position and palette.
+static void RunBlitString(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Font font;
+	MechU8 text[16];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechU32 length;
+	MechU32 i;
+	MechS32 x;
+	MechS32 y;
+	MechU8* palette;
+
+	MakeBlitTarget(&target, &state, 1);
+	MakeFont(&font, &state);
+	Fill(text, sizeof(text), &state);
+	length = AsmNext(&state) % 13;
+	for (i = 0; i < length; i++) {
+		text[i] = (MechU8) (1 + AsmNext(&state) % 255);
+	}
+
+	text[length] = 0;
+	text[sizeof(text) - 1] = 0;
+	x = RandomRange(&state, -30, BLIT_WIDTH);
+	y = RandomRange(&state, -14, BLIT_HEIGHT + 4);
+	palette = RandomTextPalette(&state);
+	((BlitStringFn) Function(p_module, "BlitString"))(&target.m_view, x, y, font.m_words, (MechChar*) text, palette);
+	OutputBlitTarget(p_output, &target);
+}
+
+typedef MechS32 (*WriteViewRowFn)(Pane* p_view, MechS32 p_row, MechU8* p_src, MechS32 p_width);
+
+// Arguments: four words that seed the target, the row, the pixels and their count (a negative
+// count that the clipping leaves faults). Only the empty buffer's and view's results are
+// compared: otherwise the assembly leaves what it last computed.
+static void RunWriteViewRow(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU8 pixels[0xa0];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 row;
+	MechS32 width;
+	MechS32 result;
+
+	MakeBlitTarget(&target, &state, 1);
+	Fill(pixels, sizeof(pixels), &state);
+	row = RandomRange(&state, -12, BLIT_HEIGHT + 12);
+	width = RandomRange(&state, 0, 0x8c);
+	result = ((WriteViewRowFn) Function(p_module, "WriteViewRow"))(&target.m_view, row, &pixels[0x10], width);
+	AsmOutputWord(p_output, BlitTargetEmpty(&target) ? (MechU32) result : 0);
+	OutputBlitTarget(p_output, &target);
+}
+
+// --- Pictures ---
+
+#define PICTURE_SIZE 0x1800
+
+typedef struct Picture {
+	MechU32 m_words[PICTURE_SIZE / 4];
+	MechU32 m_size;
+	MechU32 m_chunks[4]; // the IFF chunks' offsets: BMHD, CMAP, BODY, and another (0 for none)
+	MechS32 m_masking;
+} Picture;
+
+static void PutBigWord(MechU8* p_at, MechU32 p_value)
+{
+	p_at[0] = (MechU8) (p_value >> 8);
+	p_at[1] = (MechU8) p_value;
+}
+
+static void PutBigDword(MechU8* p_at, MechU32 p_value)
+{
+	PutBigWord(p_at, p_value >> 16);
+	PutBigWord(p_at + 2, p_value);
+}
+
+// ByteRun1: a literal of n + 1 bytes is n, then the bytes; a run of n bytes, 257 - n, then the
+// byte; 0x80 does nothing. Rows are encoded on their own, but a run may now and then end past
+// the row.
+static MechU32 EncodeByteRun(MechU8* p_out, const MechU8* p_row, MechU32 p_size, MechU32* p_state)
+{
+	MechU8* out = p_out;
+	MechU32 at = 0;
+
+	while (at < p_size) {
+		MechU32 left = p_size - at;
+		MechU32 kind = AsmNext(p_state) % 16;
+		MechU32 count;
+
+		if (kind == 0) {
+			*out++ = 0x80;
+			continue;
+		}
+
+		if (kind < 6) {
+			count = 1 + AsmNext(p_state) % (left < 128 ? left : 128);
+			*out++ = (MechU8) (count - 1);
+			memcpy(out, p_row + at, count);
+			out += count;
+		}
+		else {
+			count = 2 + AsmNext(p_state) % 127;
+			if (count > left && AsmNext(p_state) % 4) {
+				count = left < 2 ? 2 : left;
+			}
+
+			*out++ = (MechU8) (0x101 - count);
+			*out++ = p_row[at];
+		}
+
+		at += count;
+	}
+
+	return (MechU32) (out - p_out);
+}
+
+// An IFF picture: ILBM (planar, a multiple of 16 pixels wide) or PBM (up to 100 pixels wide),
+// up to 10 rows, raw or ByteRun1-coded, its chunks in any order, padded with zero bytes, with
+// another chunk among them sometimes.
+static void MakeIff(Picture* p_picture, MechU32* p_state)
+{
+	MechU8* bytes = (MechU8*) p_picture->m_words;
+	MechS32 planar = AsmNext(p_state) % 2;
+	MechU32 width = planar ? 16 * (1 + AsmNext(p_state) % 6) : 1 + AsmNext(p_state) % 100;
+	MechU32 height = 1 + AsmNext(p_state) % 10;
+	MechU32 rowBytes = width + (width & 1);
+	MechU32 compression = AsmNext(p_state) % 2;
+	MechU32 order = AsmNext(p_state) % 6;
+	MechU32 at = 12;
+	MechU32 kinds[4];
+	MechS32 i;
+
+	Fill(bytes, PICTURE_SIZE, p_state);
+	memcpy(bytes, "FORM", 4);
+	memcpy(bytes + 8, planar ? "ILBM" : "PBM ", 4);
+	p_picture->m_masking = AsmNext(p_state) % 8 == 0 ? 1 : (MechS32) (AsmNext(p_state) % 4 == 0) * 2;
+	p_picture->m_chunks[3] = 0;
+	kinds[0] = 3;
+	kinds[1] = order % 3;
+	kinds[2] = (order % 3 + 1 + order / 3) % 3;
+	kinds[3] = 3 - kinds[1] - kinds[2];
+	for (i = 0; i < 4; i++) {
+		MechU32 kind = kinds[i];
+		MechU32 pad = AsmNext(p_state) % 4 == 0 ? 1 + AsmNext(p_state) % 2 : 0;
+
+		memset(bytes + at, 0, pad);
+		at += pad;
+		p_picture->m_chunks[kind] = at;
+		if (kind == 0) {
+			memcpy(bytes + at, "BMHD", 4);
+			PutBigDword(bytes + at + 4, 20);
+			PutBigWord(bytes + at + 8, width);
+			PutBigWord(bytes + at + 10, height);
+			bytes[at + 8 + 8] = (MechU8) (planar ? 8 : AsmNext(p_state));
+			bytes[at + 8 + 9] = (MechU8) p_picture->m_masking;
+			bytes[at + 8 + 10] = (MechU8) compression;
+			at += 8 + 20;
+		}
+		else if (kind == 1) {
+			memcpy(bytes + at, "CMAP", 4);
+			PutBigDword(bytes + at + 4, 0x300);
+			at += 8 + 0x300;
+		}
+		else if (kind == 2) {
+			MechU8 row[0x80];
+			MechU32 start = at + 8;
+			MechU32 y;
+
+			memcpy(bytes + at, "BODY", 4);
+			at = start;
+			for (y = 0; y < height; y++) {
+				Fill(row, rowBytes, p_state);
+				if (compression) {
+					at += EncodeByteRun(bytes + at, row, rowBytes, p_state);
+				}
+				else {
+					memcpy(bytes + at, row, rowBytes);
+					at += rowBytes;
+				}
+			}
+
+			PutBigDword(bytes + start - 4, at - start);
+		}
+		else if (AsmNext(p_state) % 2) {
+			// Another chunk, of an odd size and padded
+			MechU32 size = 1 + 2 * (AsmNext(p_state) % 6);
+
+			memcpy(bytes + at, "ANNO", 4);
+			PutBigDword(bytes + at + 4, size);
+			at += 8 + size;
+			bytes[at++] = 0;
+			p_picture->m_chunks[3] = at - size - 9;
+		}
+		else {
+			p_picture->m_chunks[3] = 0;
+		}
+	}
+
+	p_picture->m_size = at;
+}
+
+typedef MechU8* (*FindIffChunkFn)(MechChar* p_tag, MechU8* p_iff);
+typedef MechS32 (*BlitPictureFn)(Pane* p_view, MechU8* p_data);
+typedef void (*ReadPaletteFn)(MechU8* p_data, MechU8* p_palette);
+typedef MechS32 (*PictureSizeFn)(MechU8* p_data);
+
+// Arguments: two words that seed the picture and the chunk to find.
+static void RunFindIffChunk(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	static const char* const c_tags[4] = {"BMHD", "CMAP", "BODY", "ANNO"};
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+	MechU32 kind;
+	MechChar tag[4];
+	MechU8* result;
+
+	MakeIff(&picture, &state);
+	kind = AsmNext(&state) % (picture.m_chunks[3] ? 4 : 3);
+	memcpy(tag, c_tags[kind], 4);
+	result = ((FindIffChunkFn) Function(p_module, "FindIffChunk"))(tag, (MechU8*) picture.m_words);
+	AsmOutputWord(p_output, (MechU32) (result - (MechU8*) picture.m_words));
+}
+
+// A view for the pictures: the routines size the picture by the view's own width and height,
+// so it isn't empty.
+static void MakePictureTarget(BlitTarget* p_target, MechU32* p_state)
+{
+	MakeBlitTarget(p_target, p_state, 1);
+	if (p_target->m_view.m_bottom < p_target->m_view.m_top) {
+		p_target->m_view.m_bottom = p_target->m_view.m_top + RandomRange(p_state, 0, 8);
+	}
+}
+
+// Arguments: two words that seed the target and the picture. A masking of 1's result isn't
+// compared: the assembly returns a local it never set.
+static void RunBlitIff(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 result;
+
+	MakePictureTarget(&target, &state);
+	MakeIff(&picture, &state);
+	result = ((BlitPictureFn) Function(p_module, "BlitIff"))(&target.m_view, (MechU8*) picture.m_words);
+	AsmOutputWord(p_output, picture.m_masking == 1 ? 0 : (MechU32) result);
+	OutputBlitTarget(p_output, &target);
+}
+
+// Arguments: two words that seed the picture and the palette.
+static void RunReadIffPalette(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Picture picture;
+	MechU8 palette[0x300];
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeIff(&picture, &state);
+	Fill(palette, sizeof(palette), &state);
+	((ReadPaletteFn) Function(p_module, "ReadIffPalette"))((MechU8*) picture.m_words, palette);
+	AsmOutputBytes(p_output, palette, sizeof(palette));
+}
+
+static void RunGetIffSize(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeIff(&picture, &state);
+	AsmOutputWord(p_output, (MechU32) ((PictureSizeFn) Function(p_module, "GetIffSize"))((MechU8*) picture.m_words));
+}
+
+// A PCX picture: a 0x80-byte header, up to 10 rows of up to 100 bytes, run-length coded (a byte
+// of 0xc0 and up is a run of its low six bits, sometimes 0, of the next byte; a run may end
+// past the row), and the palette's 0x300 bytes at the end.
+static void MakePcx(Picture* p_picture, MechU32* p_state)
+{
+	MechU8* bytes = (MechU8*) p_picture->m_words;
+	MechU32 rows = 1 + AsmNext(p_state) % 10;
+	MechU32 width = 1 + AsmNext(p_state) % 100;
+	MechU32 top = AsmNext(p_state) & 0xffff;
+	MechU32 at = 0x80;
+	MechU32 y;
+
+	Fill(bytes, PICTURE_SIZE, p_state);
+	bytes[6] = (MechU8) top;
+	bytes[7] = (MechU8) (top >> 8);
+	bytes[0xa] = (MechU8) (top + rows - 1);
+	bytes[0xb] = (MechU8) ((top + rows - 1) >> 8);
+	bytes[0x42] = (MechU8) width;
+	bytes[0x43] = 0;
+	for (y = 0; y < rows; y++) {
+		MechU32 x = 0;
+
+		do {
+			MechU32 bits = AsmNext(p_state);
+
+			if (bits % 4 == 0) {
+				MechU32 count = (bits >> 8) % 0x40;
+
+				bytes[at++] = (MechU8) (0xc0 | count);
+				bytes[at++] = (MechU8) (bits >> 16);
+				x += count;
+			}
+			else {
+				bytes[at++] = (MechU8) ((bits >> 8) % 0xc0);
+				x++;
+			}
+		} while (x < width);
+	}
+
+	p_picture->m_size = at + 0x300;
+}
+
+// Arguments: two words that seed the target and the picture.
+static void RunBlitPicture(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 result;
+
+	MakePictureTarget(&target, &state);
+	MakePcx(&picture, &state);
+	result = ((BlitPictureFn) Function(p_module, "BlitPicture"))(&target.m_view, (MechU8*) picture.m_words);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputBlitTarget(p_output, &target);
+}
+
+typedef void (*ReadPicturePaletteFn)(MechU8* p_data, MechS32 p_size, void* p_palette);
+
+static void RunReadPicturePalette(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Picture picture;
+	MechU8 palette[0x300];
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakePcx(&picture, &state);
+	Fill(palette, sizeof(palette), &state);
+	((ReadPicturePaletteFn)
+		 Function(p_module, "ReadPicturePalette"))((MechU8*) picture.m_words, (MechS32) picture.m_size, palette);
+	AsmOutputBytes(p_output, palette, sizeof(palette));
+}
+
+static void RunGetPictureSize(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakePcx(&picture, &state);
+	AsmOutputWord(
+		p_output,
+		(MechU32) ((PictureSizeFn) Function(p_module, "GetPictureSize"))((MechU8*) picture.m_words)
+	);
+}
+
+// --- GIF ---
+
+#define GIF_STATE_SIZE 0x5030
+#define GIF_TABLE 0x1000
+
+// A GIF's LZW code stream, a code at a time, low bits first.
+typedef struct GifWriter {
+	MechU8* m_out;
+	MechU32 m_size;
+	MechU32 m_bits;
+	MechU32 m_bitCount;
+} GifWriter;
+
+static void PutGifCode(GifWriter* p_writer, MechU32 p_code, MechU32 p_size)
+{
+	p_writer->m_bits |= p_code << p_writer->m_bitCount;
+	p_writer->m_bitCount += p_size;
+	while (p_writer->m_bitCount >= 8) {
+		p_writer->m_out[p_writer->m_size++] = (MechU8) p_writer->m_bits;
+		p_writer->m_bits >>= 8;
+		p_writer->m_bitCount -= 8;
+	}
+}
+
+// Encodes p_count pixels of p_bits each with LZW, as GIF encoders do (the code size grows when
+// the table outgrows it, up to 12 bits), with a clear code now and then. The table finds a
+// string's extensions through lists of each code's children.
+static MechU32 EncodeGif(MechU8* p_out, const MechU8* p_pixels, MechU32 p_count, MechU32 p_bits, MechU32* p_state)
+{
+	static MechU16 children[GIF_TABLE];
+	static MechU16 siblings[GIF_TABLE];
+	static MechU8 suffixes[GIF_TABLE];
+	GifWriter writer;
+	MechU32 clear = 1u << p_bits;
+	MechU32 next = clear + 2;
+	MechU32 size = p_bits + 1;
+	MechU32 current;
+	MechU32 i;
+
+	writer.m_out = p_out;
+	writer.m_size = 0;
+	writer.m_bits = 0;
+	writer.m_bitCount = 0;
+	memset(children, 0, sizeof(children));
+	PutGifCode(&writer, clear, size);
+	current = p_pixels[0];
+	for (i = 1; i < p_count; i++) {
+		MechU32 pixel = p_pixels[i];
+		MechU32 code;
+
+		for (code = children[current]; code && suffixes[code] != pixel; code = siblings[code]) {
+		}
+
+		if (code) {
+			current = code;
+			continue;
+		}
+
+		PutGifCode(&writer, current, size);
+		if (next >= (1u << size) && size < 12) {
+			size++;
+		}
+
+		if (next < GIF_TABLE && AsmNext(p_state) % 64) {
+			suffixes[next] = (MechU8) pixel;
+			siblings[next] = children[current];
+			children[current] = (MechU16) next;
+			children[next] = 0;
+			next++;
+		}
+		else {
+			PutGifCode(&writer, clear, size);
+			memset(children, 0, sizeof(children));
+			next = clear + 2;
+			size = p_bits + 1;
+		}
+
+		current = pixel;
+	}
+
+	PutGifCode(&writer, current, size);
+	if (next >= (1u << size) && size < 12) {
+		size++;
+	}
+
+	PutGifCode(&writer, clear + 1, size);
+	PutGifCode(&writer, 0, 7);
+	return writer.m_size;
+}
+
+// A GIF: a header, a global palette or not, an image (up to 80 by 10 pixels, interlaced or not)
+// with a local palette or not, and its LZW data in sub-blocks of any size, sometimes followed by
+// another before the end.
+static void MakeGif(Picture* p_picture, MechU32* p_state)
+{
+	MechU8* bytes = (MechU8*) p_picture->m_words;
+	MechU8 pixels[80 * 10];
+	MechU8 stream[0x800];
+	MechU32 width = 1 + AsmNext(p_state) % 80;
+	MechU32 height = 1 + AsmNext(p_state) % 10;
+	MechU32 bits = 2 + AsmNext(p_state) % 7;
+	MechU32 flags = AsmNext(p_state) & 0x7f;
+	MechU32 imageFlags = AsmNext(p_state) & 0x7f;
+	MechU32 at = 0xd;
+	MechU32 length;
+	MechU32 sent;
+	MechU32 i;
+
+	Fill(bytes, PICTURE_SIZE, p_state);
+	memcpy(bytes, "GIF89a", 6);
+	if (AsmNext(p_state) % 2) {
+		flags |= 0x80;
+		at += 3u << ((flags & 7) + 1);
+	}
+
+	bytes[0xa] = (MechU8) flags;
+	bytes[at] = 0x2c;
+	bytes[at + 5] = (MechU8) width;
+	bytes[at + 6] = 0;
+	bytes[at + 7] = (MechU8) height;
+	bytes[at + 8] = 0;
+	if (AsmNext(p_state) % 2) {
+		imageFlags |= 0x80;
+	}
+
+	bytes[at + 9] = (MechU8) imageFlags;
+	at += 0xa;
+	if (imageFlags & 0x80) {
+		at += 3u << ((imageFlags & 7) + 1);
+	}
+
+	bytes[at++] = (MechU8) bits;
+	for (i = 0; i < width * height; i++) {
+		MechU32 range = AsmNext(p_state) % 4 ? 4u : 1u << bits;
+
+		pixels[i] = (MechU8) (AsmNext(p_state) % range);
+	}
+
+	length = EncodeGif(stream, pixels, width * height, bits, p_state);
+	for (sent = 0; sent < length;) {
+		MechU32 block = 1 + AsmNext(p_state) % 255;
+
+		if (block > length - sent) {
+			block = length - sent;
+		}
+
+		bytes[at++] = (MechU8) block;
+		memcpy(bytes + at, stream + sent, block);
+		at += block;
+		sent += block;
+	}
+
+	if (AsmNext(p_state) % 4 == 0) {
+		// A sub-block after the end code
+		MechU32 block = 1 + AsmNext(p_state) % 20;
+
+		bytes[at] = (MechU8) block;
+		at += 1 + block;
+	}
+
+	bytes[at++] = 0;
+	p_picture->m_size = at;
+}
+
+typedef MechS32 (*BlitGifFn)(Pane* p_view, MechU8* p_gif, MechU8* p_state);
+
+static MechU8 g_gifState[GIF_STATE_SIZE];
+
+// Arguments: two words that seed the target, the picture and the decoder's state (random); the
+// state is compared by its hash.
+static void RunBlitGif(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 result;
+	AsmHash hash;
+	MechU32 i;
+
+	MakeBlitTarget(&target, &state, 1);
+	MakeGif(&picture, &state);
+	Fill(g_gifState, sizeof(g_gifState), &state);
+	result = ((BlitGifFn) Function(p_module, "BlitGif"))(&target.m_view, (MechU8*) picture.m_words, g_gifState);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputBlitTarget(p_output, &target);
+	AsmHashInit(&hash);
+	for (i = 0; i < GIF_STATE_SIZE; i += 4) {
+		AsmHashWord(
+			&hash,
+			g_gifState[i] | (MechU32) g_gifState[i + 1] << 8 | (MechU32) g_gifState[i + 2] << 16 |
+				(MechU32) g_gifState[i + 3] << 24
+		);
+	}
+
+	AsmOutputWord(p_output, (MechU32) hash.m_value);
+	AsmOutputWord(p_output, (MechU32) (hash.m_value >> 32));
+}
+
+static void RunReadGifPalette(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Picture picture;
+	MechU8 palette[0x300];
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeGif(&picture, &state);
+	Fill(palette, sizeof(palette), &state);
+	((ReadPaletteFn) Function(p_module, "ReadGifPalette"))((MechU8*) picture.m_words, palette);
+	AsmOutputBytes(p_output, palette, sizeof(palette));
+}
+
+typedef MechS32 (*GetGifSizeFn)(void* p_gif);
+
+static void RunGetGifSize(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	Picture picture;
+	MechU32 state = AsmSeed(p_args, 2);
+
+	MakeGif(&picture, &state);
+	AsmOutputWord(p_output, (MechU32) ((GetGifSizeFn) Function(p_module, "GetGifSize"))(picture.m_words));
+}
+
+// --- Run-length encoding ---
+
+#define RLE_SIZE 0x1800
+
+typedef MechS32 (*EncodeViewRleFn)(Pane* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, MechU8* p_out);
+
+static MechU8 g_rleOut[RLE_SIZE];
+
+// Arguments: four words that seed the target (one time in two with rows of up to 320 pixels, for
+// skips and runs longer than a code holds), its pixels (blobs on the transparent color, a few
+// pixels on it, long runs of a few colors, or noise), the position and the output, NULL in one
+// case in four.
+static void RunEncodeViewRle(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechU8 transparent = (MechU8) AsmNext(&state);
+	MechU8* pixels;
+	MechU32 pattern = AsmNext(&state) % 4;
+	MechU32 density = AsmNext(&state) % 4;
+	MechU32 i;
+	MechS32 x;
+	MechS32 y;
+	MechS32 result;
+	MechU8* out;
+
+	MakeBlitTarget(&target, &state, 1);
+	if (AsmNext(&state) % 2) {
+		MechS32 width = RandomRange(&state, 200, 320);
+
+		target.m_buffer.m_maxX = width - 1;
+		target.m_buffer.m_maxY = RandomRange(&state, 0, BLIT_WIDTH * BLIT_HEIGHT / width - 1);
+		target.m_view.m_left = RandomRange(&state, -4, 8);
+		target.m_view.m_top = RandomRange(&state, -2, 2);
+		target.m_view.m_right = RandomRange(&state, width - 8, width + 4);
+		target.m_view.m_bottom = target.m_buffer.m_maxY + RandomRange(&state, -1, 2);
+	}
+
+	pixels = (MechU8*) target.m_words;
+	for (i = 0; i < BLIT_ARENA_SIZE;) {
+		MechU32 bits = AsmNext(&state);
+		MechU32 count = 1 + (bits >> 8) % (pattern == 2 ? 200 : 12);
+		MechU8 color = (MechU8) (bits >> 16);
+
+		for (; count && i < BLIT_ARENA_SIZE; count--, i++) {
+			MechU32 kind = bits % (4 + density);
+
+			if (pattern == 1) {
+				kind = AsmNext(&state) % 128 ? 2 : 1;
+			}
+			else if (pattern == 2) {
+				kind = bits % 8 ? 0 : 2;
+			}
+			else if (pattern == 3) {
+				kind = AsmNext(&state) % 64 ? 1 : 2;
+			}
+
+			switch (kind) {
+			case 0:
+				pixels[i] = color;
+				break;
+			case 1:
+				pixels[i] = (MechU8) AsmNext(&state);
+				break;
+			default:
+				pixels[i] = transparent;
+				break;
+			}
+		}
+	}
+
+	Fill(g_rleOut, sizeof(g_rleOut), &state);
+	out = AsmNext(&state) % 4 ? g_rleOut : NULL;
+	x = RandomCoordinate(&state, BLIT_WIDTH);
+	y = RandomCoordinate(&state, BLIT_HEIGHT);
+	result = ((EncodeViewRleFn) Function(p_module, "EncodeViewRle"))(&target.m_view, transparent, x, y, out);
+	AsmOutputWord(p_output, (MechU32) result);
+	AsmOutputBytes(p_output, g_rleOut, RLE_SIZE);
+}
+
+// --- Dissolve and colors ---
+
+typedef MechS32 (*DissolveViewFn)(Pane* p_src, Pane* p_dest, MechS32 p_count, MechS32 p_state);
+
+// Whether two views have a pixel in common, from their origins, other than their origins: the
+// LFSR never reaches 0, the state of (0, 0).
+static MechS32 DissolveOverlaps(const BlitTarget* p_src, const BlitTarget* p_dest)
+{
+	MechS32 width = p_src->m_view.m_right - p_src->m_view.m_left + 1;
+	MechS32 height = p_src->m_view.m_bottom - p_src->m_view.m_top + 1;
+	MechS32 x;
+	MechS32 y;
+
+	if (p_dest->m_view.m_right - p_dest->m_view.m_left + 1 < width) {
+		width = p_dest->m_view.m_right - p_dest->m_view.m_left + 1;
+	}
+
+	if (p_dest->m_view.m_bottom - p_dest->m_view.m_top + 1 < height) {
+		height = p_dest->m_view.m_bottom - p_dest->m_view.m_top + 1;
+	}
+
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < width; x++) {
+			const Pane* views[2];
+			MechS32 i;
+			MechS32 in = 1;
+
+			if (!x && !y) {
+				continue;
+			}
+
+			views[0] = &p_src->m_view;
+			views[1] = &p_dest->m_view;
+			for (i = 0; i < 2; i++) {
+				MechS32 px = x + views[i]->m_left;
+				MechS32 py = y + views[i]->m_top;
+
+				if (px < 0 || px > views[i]->m_buffer->m_maxX || px > views[i]->m_right || py < 0 ||
+					py > views[i]->m_buffer->m_maxY || py > views[i]->m_bottom) {
+					in = 0;
+				}
+			}
+
+			if (in) {
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+// Arguments: four words that seed the views (of two buffers, or of one: they must share a
+// pixel, the assembly looks for one forever otherwise), the count and the state (0 starts, or
+// one the LFSR can be in).
+static void RunDissolveView(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget src;
+	BlitTarget dest;
+	MechU32 state = AsmSeed(p_args, 4);
+	MechU32 empty;
+	MechS32 width;
+	MechS32 height;
+	MechU32 bits;
+	MechU32 widthBits;
+	MechS32 count;
+	MechS32 seed;
+	MechS32 result;
+
+	MakeBlitTarget(&src, &state, 0);
+	MakeBlitTarget(&dest, &state, 0);
+	if (AsmNext(&state) % 4 == 0) {
+		dest.m_view.m_buffer = &src.m_buffer;
+	}
+
+	empty = AsmNext(&state) % 16;
+
+	if (src.m_view.m_right < src.m_view.m_left || src.m_view.m_bottom < src.m_view.m_top ||
+		dest.m_view.m_right < dest.m_view.m_left || dest.m_view.m_bottom < dest.m_view.m_top ||
+		!DissolveOverlaps(&src, &dest)) {
+		src.m_view.m_left = 0;
+		src.m_view.m_top = 0;
+		src.m_view.m_right = src.m_buffer.m_maxX;
+		src.m_view.m_bottom = src.m_buffer.m_maxY;
+		dest.m_view.m_left = 0;
+		dest.m_view.m_top = 0;
+		dest.m_view.m_right = dest.m_view.m_buffer->m_maxX;
+		dest.m_view.m_bottom = dest.m_view.m_buffer->m_maxY;
+		if (!DissolveOverlaps(&src, &dest)) {
+			// Single pixels: a second one
+			src.m_buffer.m_maxX++;
+			src.m_view.m_right++;
+			dest.m_view.m_buffer->m_maxX++;
+			dest.m_view.m_right++;
+			if (dest.m_view.m_buffer != &src.m_buffer) {
+				dest.m_view.m_right = dest.m_view.m_buffer->m_maxX;
+			}
+		}
+	}
+
+	// An empty buffer or view, which it returns -1 or -2 for (the destination's after it reads the
+	// source's)
+	switch (empty) {
+	case 0:
+		src.m_buffer.m_maxX = -1;
+		break;
+	case 1:
+		src.m_view.m_left = src.m_buffer.m_maxX + 1;
+		src.m_view.m_right = src.m_view.m_left + 2;
+		break;
+	case 2:
+		dest.m_view.m_buffer = &dest.m_buffer;
+		dest.m_buffer.m_maxY = -1;
+		break;
+	case 3:
+		dest.m_view.m_top = dest.m_view.m_buffer->m_maxY + 1;
+		dest.m_view.m_bottom = dest.m_view.m_top + 2;
+		break;
+	}
+
+	// A state of the LFSR, which runs over the bits of the views' common height and width (0
+	// starts; from beyond them, it can reach 0, and stay there)
+	width = src.m_view.m_right - src.m_view.m_left + 1;
+	height = src.m_view.m_bottom - src.m_view.m_top + 1;
+	if (dest.m_view.m_right - dest.m_view.m_left + 1 < width) {
+		width = dest.m_view.m_right - dest.m_view.m_left + 1;
+	}
+
+	if (dest.m_view.m_bottom - dest.m_view.m_top + 1 < height) {
+		height = dest.m_view.m_bottom - dest.m_view.m_top + 1;
+	}
+
+	for (bits = 0; (MechU32) height >> bits; bits++) {
+	}
+
+	for (widthBits = 0; (MechU32) width >> widthBits; widthBits++) {
+	}
+
+	count = RandomRange(&state, 0, 2 * BLIT_WIDTH * BLIT_HEIGHT);
+	seed = AsmNext(&state) % 4 ? (MechS32) (1 + AsmNext(&state) % ((1u << (bits + widthBits)) - 1)) : 0;
+	result = ((DissolveViewFn) Function(p_module, "DissolveView"))(&src.m_view, &dest.m_view, count, seed);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputBlitTarget(p_output, &src);
+	OutputBlitTarget(p_output, &dest);
+}
+
+typedef void (*FadeViewColorsFn)(PixelBuffer* p_buffer, MechU8* p_palette, MechS32 p_steps);
+
+// Arguments: four words that seed the buffer (up to 6 by 6 pixels, of a few colors), the colors
+// the driver reads, the palette (6-bit components mostly), the steps and the error terms.
+static void RunFadeViewColors(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	PixelBuffer buffer;
+	MechU8 pixels[36];
+	MechU8 colors[8];
+	MechU8 palette[0x300];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechU32 wide = AsmNext(&state) % 4 == 0;
+	MechU32 i;
+
+	Fill(colors, sizeof(colors), &state);
+	for (i = 0; i < sizeof(pixels); i++) {
+		pixels[i] = colors[AsmNext(&state) % 8];
+	}
+
+	buffer.m_pixels = pixels;
+	buffer.m_maxX = RandomRange(&state, 0, 5);
+	buffer.m_maxY = RandomRange(&state, 0, 5);
+	buffer.m_bitmapInfo = NULL;
+	buffer.m_unk0x10 = 0;
+	for (i = 0; i < 0x300; i++) {
+		MechU32 bits = AsmNext(&state);
+
+		g_driverColors[i] = (MechU8) (wide ? bits : bits % 0x40);
+		palette[i] = (MechU8) (wide ? bits >> 8 : (bits >> 8) % 0x40);
+	}
+
+	Fill((MechU8*) Data(p_module, "g_fadeErrors"), 0x300, &state);
+	MakeDriverTable();
+	((SetDisplayDriverFn) Function(p_module, "SetDisplayDriver"))(g_driverTable);
+	((FadeViewColorsFn) Function(p_module, "FadeViewColors"))(&buffer, palette, RandomRange(&state, 0, 400));
+	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "g_fadeErrors"), 0x300);
+	OutputDriverLog(p_output);
+}
+
+typedef MechS32 (*CountViewColorsFn)(Pane* p_view, MechU32* p_out);
+
+// Arguments: two words that seed the target (its view inside the buffer: the routine doesn't
+// clip) and the output, NULL in one case in four.
+static void RunCountViewColors(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	BlitTarget target;
+	MechU32 colors[0x102];
+	MechU32 state = AsmSeed(p_args, 2);
+	MechU8* pixels;
+	MechU32 palette = 1 + AsmNext(&state) % 40;
+	MechS32 result;
+	MechU32 i;
+
+	MakeBlitTarget(&target, &state, 0);
+	pixels = (MechU8*) target.m_words;
+	for (i = 0; i < BLIT_ARENA_SIZE; i++) {
+		pixels[i] = (MechU8) (AsmNext(&state) % palette * 7);
+	}
+
+	target.m_view.m_left = RandomRange(&state, 0, target.m_buffer.m_maxX);
+	target.m_view.m_top = RandomRange(&state, 0, target.m_buffer.m_maxY);
+	target.m_view.m_right = RandomRange(&state, target.m_view.m_left, target.m_buffer.m_maxX);
+	target.m_view.m_bottom = RandomRange(&state, target.m_view.m_top, target.m_buffer.m_maxY);
+	FillWords((MechS32*) colors, 0x102, &state);
+	result = ((CountViewColorsFn)
+				  Function(p_module, "CountViewColors"))(&target.m_view, AsmNext(&state) % 4 ? &colors[1] : NULL);
+	AsmOutputWord(p_output, (MechU32) result);
+	OutputWords(p_output, (const MechS32*) colors, 0x102);
+}
+
 // --- The table ---
 
 const AsmRoutine g_asmRoutines[] = {
@@ -2570,6 +5012,66 @@ const AsmRoutine g_asmRoutines[] = {
 	{"FUN_10048ebe", 6, Domain10048ebe, Run10048ebe, NULL},
 	{"FUN_10048faf", 9, Domain10048faf, Run10048faf, NULL},
 	{"FUN_10049155", 3, NULL, Run10049155, NULL},
+	// polyfill.asm
+	{"FillPolygonFlat", 4, NULL, RunFillPolygonFlat, NULL},
+	{"FUN_1002ae41", 4, NULL, Run1002ae41, NULL},
+	{"FUN_1002b68b", 4, NULL, Run1002b68b, NULL},
+	{"FUN_1002bf39", 4, NULL, Run1002bf39, NULL},
+	{"FUN_1002c48d", 4, NULL, Run1002c48d, NULL},
+	{"SetLumaTable", 2, NULL, RunSetLumaTable, NULL},
+	{"FillPolygonTextured", 4, NULL, RunFillPolygonTextured, NULL},
+	// blit.asm
+	{"GetDisplayDriverName", 2, NULL, RunGetDisplayDriverName, NULL},
+	{"SetDisplayDriver", 2, NULL, RunSetDisplayDriver, NULL},
+	{"PutViewPixel", 4, NULL, RunPutViewPixel, NULL},
+	{"GetViewPixel", 4, NULL, RunGetViewPixel, NULL},
+	{"BlitLine", 4, BlitLineDomain, RunBlitLine, NULL},
+	{"FUN_10032e4b", 4, NULL, Run10032e4b, NULL},
+	{"BlitShpFrame", 4, NULL, RunBlitShpFrame, NULL},
+	{"BlitShpFrameUnclipped", 4, NULL, RunBlitShpFrameUnclipped, NULL},
+	{"SetRemapTable", 2, NULL, RunSetRemapTable, NULL},
+	{"BlitShpFrameRemapped", 4, NULL, RunBlitShpFrameRemapped, NULL},
+	{"BlitShpFrameRemappedUnclipped", 4, NULL, RunBlitShpFrameRemappedUnclipped, NULL},
+	{"BlitRotated", 4, NULL, RunBlitRotated, NULL},
+	{"FUN_10034622", 2, NULL, Run10034622, NULL},
+	{"EncodeViewRle", 4, NULL, RunEncodeViewRle, NULL},
+	{"RemapShpFrame", 2, NULL, RunRemapShpFrame, NULL},
+	{"FillView", 2, NULL, RunFillView, NULL},
+	{"BlitView", 4, NULL, RunBlitView, NULL},
+	{"ScrollView", 4, ScrollViewDomain, RunScrollView, NULL},
+	{"DrawEllipse", 4, NULL, RunDrawEllipse, NULL},
+	{"FillEllipse", 4, NULL, RunFillEllipse, NULL},
+	{"GetCosSin", 1, NULL, RunGetCosSin, NULL},
+	{"BlitFixedMul16", 2, NULL, RunBlitFixedMul16, NULL},
+	{"RotateScalePoint", 7, NULL, RunRotateScalePoint, NULL},
+	{"FontGetHeight", 1, NULL, RunFontGetHeight, NULL},
+	{"FontGetCharWidth", 2, NULL, RunFontGetCharWidth, NULL},
+	{"BlitChar", 4, NULL, RunBlitChar, NULL},
+	{"BlitString", 4, NULL, RunBlitString, NULL},
+	{"WriteViewRow", 4, NULL, RunWriteViewRow, NULL},
+	{"FindIffChunk", 2, NULL, RunFindIffChunk, NULL},
+	{"BlitIff", 2, NULL, RunBlitIff, NULL},
+	{"ReadIffPalette", 2, NULL, RunReadIffPalette, NULL},
+	{"GetIffSize", 2, NULL, RunGetIffSize, NULL},
+	{"BlitPicture", 2, NULL, RunBlitPicture, NULL},
+	{"ReadPicturePalette", 2, NULL, RunReadPicturePalette, NULL},
+	{"GetPictureSize", 2, NULL, RunGetPictureSize, NULL},
+	{"BlitGif", 2, NULL, RunBlitGif, NULL},
+	{"ReadGifPalette", 2, NULL, RunReadGifPalette, NULL},
+	{"GetGifSize", 2, NULL, RunGetGifSize, NULL},
+	{"GetShpFrameSize", 2, NULL, RunGetShpFrameSize, NULL},
+	{"FUN_10037526", 2, NULL, Run10037526, NULL},
+	{"GetShpFrameExtent", 2, NULL, RunGetShpFrameExtent, NULL},
+	{"GetShpFrameOrigin", 2, NULL, RunGetShpFrameOrigin, NULL},
+	{"FUN_100375a7", 2, NULL, Run100375a7, NULL},
+	{"FUN_100375f2", 2, NULL, Run100375f2, NULL},
+	{"FUN_1003763a", 2, NULL, Run1003763a, NULL},
+	{"GetShpFrameCount", 2, NULL, RunGetShpFrameCount, NULL},
+	{"CountShpUniqueFrames", 2, NULL, RunCountShpUniqueFrames, NULL},
+	{"FUN_100376f9", 2, NULL, Run100376f9, NULL},
+	{"DissolveView", 4, NULL, RunDissolveView, NULL},
+	{"FadeViewColors", 4, NULL, RunFadeViewColors, NULL},
+	{"CountViewColors", 2, NULL, RunCountViewColors, NULL},
 };
 
 const MechS32 g_asmRoutineCount = sizeof(g_asmRoutines) / sizeof(g_asmRoutines[0]);

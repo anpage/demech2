@@ -37,7 +37,7 @@ void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
 	}
 }
 
-// Renders the scene into render target p_target from the camera p_view with a field of view of
+// Renders the scene into pane p_target from the camera p_view with a field of view of
 // p_fovX (only the objects under p_object, if set), then restores the eyepoint, its field of view
 // and the pending palette.
 // Stack-slot permutation: palette and view.
@@ -51,7 +51,7 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Ambe
 	fovX = g_eyepoint->m_fovX;
 	palette = g_palettePending;
 	FUN_100114ea(g_eyepoint, view);
-	SelectRenderTarget(p_target);
+	SelectPane(p_target);
 	g_eyepoint->m_fovX = p_fovX;
 	p_view[6] = 1;
 	FUN_1001156a(g_eyepoint, p_view);

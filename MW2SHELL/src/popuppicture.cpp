@@ -72,7 +72,7 @@ void PopupPicture::Show()
 		m_sample->Start();
 	}
 
-	BlitShpFrame(&m_videoDriver->m_backView, (undefined4) m_data, 0, 319, 239);
+	BlitShpFrame(&m_videoDriver->m_backView, m_data, 0, 319, 239);
 	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 	m_videoDriver->RedrawGlyphs(0);
 	m_videoDriver->RedrawGlyphs(1);

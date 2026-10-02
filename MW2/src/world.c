@@ -137,7 +137,7 @@ typedef struct BwdLightRecord {
 	MechS32 m_unk0x20;       // 0x20
 } BwdLightRecord;
 
-// A window record's rectangle for one of g_renderTargets.
+// A window record's rectangle for one of g_panes.
 typedef struct BwdWindowEntry {
 	MechS32 m_index;         // 0x00
 	MechS32 m_x;             // 0x04
@@ -147,7 +147,7 @@ typedef struct BwdWindowEntry {
 	undefined4 m_unk0x14[3]; // 0x14
 } BwdWindowEntry;
 
-// window: rectangles for the render targets, as many as fit the record.
+// window: rectangles for the panes, as many as fit the record.
 typedef struct BwdWindowRecord {
 	BwdRecord m_header;          // 0x00
 	BwdWindowEntry m_entries[1]; // 0x08
@@ -491,10 +491,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				for (i = 0; i < count; i++) {
 					index = entry->m_index;
 					if (index <= 8 && index >= 0) {
-						g_renderTargets[index].m_left = entry->m_x;
-						g_renderTargets[index].m_top = entry->m_y;
-						g_renderTargets[index].m_right = entry->m_x + entry->m_width - 1;
-						g_renderTargets[index].m_bottom = entry->m_y + entry->m_height - 1;
+						g_panes[index].m_left = entry->m_x;
+						g_panes[index].m_top = entry->m_y;
+						g_panes[index].m_right = entry->m_x + entry->m_width - 1;
+						g_panes[index].m_bottom = entry->m_y + entry->m_height - 1;
 					}
 					else {
 						Error(0x27, NULL);

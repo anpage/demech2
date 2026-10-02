@@ -13,7 +13,7 @@
 #include <windows.h>
 
 // Frame projections (a table of 96) and 2D animations: up to seven SHP resources whose frames
-// play on the clock, once or looping, drawn into a render target.
+// play on the clock, once or looping, drawn into a pane.
 
 DECOMP_SIZE_ASSERT(FramePrj, 0x08)
 DECOMP_SIZE_ASSERT(Anim2d, 0x1c)
@@ -135,7 +135,7 @@ void FreeAnim2d(MechS32 p_index)
 // rejects anything (the original tests p_index < 0 && p_index >= 7).
 // Stack-slot permutation: frame and anim.
 // FUNCTION: MW2 0x100077b3
-void DrawAnim2d(RenderTarget* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
+void DrawAnim2d(Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 frame;
 	Anim2d* anim;

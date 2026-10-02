@@ -11,7 +11,7 @@ extern "C"
 #endif
 
 	void FUN_1006dd50(
-		RenderTarget* p_target,
+		Pane* p_target,
 		MechU8* p_pixels,
 		MechS16 p_width,
 		MechS16 p_height,

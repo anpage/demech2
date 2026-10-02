@@ -13,7 +13,7 @@
 // -exhaustive runs the routines with one argument word on every input instead of the sets.
 //
 // -coverage reads the reference's basic blocks (tools/asmblocks.py) and fails unless the cases
-// reach every block of the routines that ran.
+// reach every block of the routines that ran, but for the few that no input can (c_deadBlocks).
 
 #include "asmequiv.h"
 
@@ -25,7 +25,7 @@
 #include <windows.h>
 
 #define MAX_REPORTS 10
-#define MAX_BLOCKS 2048
+#define MAX_BLOCKS 8192
 #define MAX_ROUTINES 128
 
 // --- Modules ---
@@ -44,15 +44,18 @@ static AsmFn Export(HMODULE p_module, const char* p_name)
 
 #ifdef _M_IX86
 // The assembly doesn't always keep the registers C callers expect it to: ResetTicks returns with
-// ebx and ecx swapped (it pops them in the wrong order), which the game's /Od callers never
-// notice. Every call into a module goes through this thunk, which calls the routine with the
-// caller's arguments and restores ebx, esi, edi and ebp. One call at a time: the state is static.
+// ebx and ecx swapped (it pops them in the wrong order), and ScrollView's fill returns with es
+// loaded from the wrong stack slot (0, after pushing a word too many), which the game's /Od
+// callers never notice. Every call into a module goes through this thunk, which calls the
+// routine with the caller's arguments and restores ebx, esi, edi, ebp and es. One call at a
+// time: the state is static.
 static AsmFn g_thunkTarget;
 static DWORD g_thunkReturn;
 static DWORD g_thunkEbx;
 static DWORD g_thunkEsi;
 static DWORD g_thunkEdi;
 static DWORD g_thunkEbp;
+static WORD g_thunkEs;
 
 static __declspec(naked) void PreservingThunk(void)
 {
@@ -62,11 +65,13 @@ static __declspec(naked) void PreservingThunk(void)
 		mov g_thunkEsi, esi
 		mov g_thunkEdi, edi
 		mov g_thunkEbp, ebp
+		mov g_thunkEs, es
 		call g_thunkTarget
 		mov ebx, g_thunkEbx
 		mov esi, g_thunkEsi
 		mov edi, g_thunkEdi
 		mov ebp, g_thunkEbp
+		mov es, g_thunkEs
 		push g_thunkReturn
 		ret
 	}
@@ -113,11 +118,47 @@ static MechU8* RoutineCode(HMODULE p_module, const char* p_name)
 
 // --- Coverage ---
 
+// The blocks no input can reach, which the coverage check leaves out: offsets from the routine's
+// start, the same in the original.
+typedef struct DeadBlock {
+	const char* m_routine;
+	MechS32 m_offset;
+} DeadBlock;
+
+static const DeadBlock c_deadBlocks[] = {
+	// BlitLine's clipping, past its eight tests of the ends' outcodes: it only gets there with a
+	// bit of one set
+	{"BlitLine", 0x1da},
+	{"BlitLine", 0x223},
+	// EncodeViewRle's helper EmitRleRun, where a run ends past the bounds' right: it measures the
+	// run from the clipped view's left, which lies no further right than the bounds' left, so the
+	// run ends at most at their right
+	{"EncodeViewRle", 0x567},
+	{"EncodeViewRle", 0x60e},
+	// BlitGif's two pixels a byte, for a pixel size of 1 (cmp edx, 1), which it never sets: edx is
+	// always 8 there
+	{"BlitGif", 0x1ca},
+	{"BlitGif", 0x1e9},
+};
+
+static MechS32 IsDeadBlock(const char* p_routine, MechS32 p_offset)
+{
+	MechS32 i;
+
+	for (i = 0; i < (MechS32) (sizeof(c_deadBlocks) / sizeof(c_deadBlocks[0])); i++) {
+		if (!strcmp(c_deadBlocks[i].m_routine, p_routine) && c_deadBlocks[i].m_offset == p_offset) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 // The reference's basic blocks (written by tools/asmblocks.py), each with an int3 in its first
 // byte until a case reaches it.
 typedef struct Block {
 	MechS32 m_routine; // in g_asmRoutines
-	MechU32 m_offset;  // from the routine's start
+	MechS32 m_offset;  // from the routine's start (a helper before it is negative)
 	MechU8* m_address;
 	MechU8 m_byte;
 	MechS32 m_reached;
@@ -158,24 +199,29 @@ static MechS32 LoadBlocks(const char* p_path, HMODULE p_module)
 		code = RoutineCode(p_module, routine->m_name);
 		while ((token = strtok(NULL, " \r\n")) != NULL) {
 			Block* block = &g_blocks[g_blockCount];
-			unsigned long offset;
+			char* end;
+			long offset = strtol(token, &end, 16);
 			unsigned long byte;
 			DWORD protection;
 
-			if (g_blockCount == MAX_BLOCKS || sscanf(token, "%lx:%lx", &offset, &byte) != 2) {
+			if (g_blockCount == MAX_BLOCKS || *end != ':' || sscanf(end + 1, "%lx", &byte) != 1) {
 				printf("%s:%ld: too many blocks, or a malformed one\n", p_path, (long) lineNumber);
 				fclose(file);
 				return 0;
 			}
 
+			if (IsDeadBlock(routine->m_name, (MechS32) offset)) {
+				continue;
+			}
+
 			block->m_routine = (MechS32) (routine - g_asmRoutines);
-			block->m_offset = (MechU32) offset;
+			block->m_offset = (MechS32) offset;
 			block->m_address = code + offset;
 			block->m_byte = (MechU8) byte;
 			block->m_reached = 0;
 			if (*block->m_address != block->m_byte) {
 				printf(
-					"%s: +0x%lx starts with 0x%02x, not 0x%02lx: the reference isn't the one %s describes\n",
+					"%s: %+ld starts with 0x%02x, not 0x%02lx: the reference isn't the one %s describes\n",
 					routine->m_name,
 					offset,
 					*block->m_address,
@@ -221,6 +267,11 @@ static MechS32 ReachBlock(EXCEPTION_POINTERS* p_info)
 	return 0;
 }
 
+static MechS32 Abs32(MechS32 p_value)
+{
+	return p_value < 0 ? -p_value : p_value;
+}
+
 // Reports the blocks of the routines that ran which no case reached.
 static MechS32 ReportCoverage(const MechS32* p_ran)
 {
@@ -254,7 +305,10 @@ static MechS32 ReportCoverage(const MechS32* p_ran)
 			printf(", not:");
 			for (i = 0; i < g_blockCount; i++) {
 				if (g_blocks[i].m_routine == r && !g_blocks[i].m_reached) {
-					printf(" +0x%lx", (unsigned long) g_blocks[i].m_offset);
+					printf(
+						g_blocks[i].m_offset < 0 ? " -0x%lx" : " +0x%lx",
+						(unsigned long) Abs32(g_blocks[i].m_offset)
+					);
 				}
 			}
 
@@ -402,9 +456,14 @@ static MechS32 RunCase(
 		return 1;
 	}
 
-	AsmHashWord(p_outputs, 0);
-	for (i = 0; i < expected.m_count; i++) {
-		AsmHashWord(p_outputs, expected.m_words[i]);
+	if (domain == c_domainPointers) {
+		AsmHashWord(p_outputs, 3);
+	}
+	else {
+		AsmHashWord(p_outputs, 0);
+		for (i = 0; i < expected.m_count; i++) {
+			AsmHashWord(p_outputs, expected.m_words[i]);
+		}
 	}
 
 	if (refCode) {
@@ -452,7 +511,8 @@ static MechS32 RunCase(
 }
 
 // Whether the reference has the routine's assembly. Newer compilers' references have neither
-// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm), nor those whose __asm
+// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, polyfill.asm, blit.asm),
+// nor those whose __asm
 // blocks jump to C labels (FUN_10071930, and four each in unk10039a30.c and unk10046750.c): they
 // compile the portable C instead. The VC++ 4.1 reference has every routine's.
 static MechS32 HasReference(const AsmRoutine* p_routine)
@@ -476,6 +536,64 @@ static MechS32 HasReference(const AsmRoutine* p_routine)
 		"FreeTicks",
 		"PauseTimer",
 		"FUN_1001a63c",
+		"FillPolygonFlat",
+		"FUN_1002ae41",
+		"FUN_1002b68b",
+		"FUN_1002bf39",
+		"FUN_1002c48d",
+		"SetLumaTable",
+		"FillPolygonTextured",
+		"GetDisplayDriverName",
+		"SetDisplayDriver",
+		"PutViewPixel",
+		"GetViewPixel",
+		"BlitLine",
+		"FUN_10032e4b",
+		"BlitShpFrame",
+		"BlitShpFrameUnclipped",
+		"SetRemapTable",
+		"BlitShpFrameRemapped",
+		"BlitShpFrameRemappedUnclipped",
+		"BlitRotated",
+		"FUN_10034622",
+		"EncodeViewRle",
+		"RemapShpFrame",
+		"FillView",
+		"BlitView",
+		"ScrollView",
+		"DrawEllipse",
+		"FillEllipse",
+		"GetCosSin",
+		"BlitFixedMul16",
+		"RotateScalePoint",
+		"FontGetHeight",
+		"FontGetCharWidth",
+		"BlitChar",
+		"BlitString",
+		"WriteViewRow",
+		"FindIffChunk",
+		"BlitIff",
+		"ReadIffPalette",
+		"GetIffSize",
+		"BlitPicture",
+		"ReadPicturePalette",
+		"GetPictureSize",
+		"BlitGif",
+		"ReadGifPalette",
+		"GetGifSize",
+		"GetShpFrameSize",
+		"FUN_10037526",
+		"GetShpFrameExtent",
+		"GetShpFrameOrigin",
+		"FUN_100375a7",
+		"FUN_100375f2",
+		"FUN_1003763a",
+		"GetShpFrameCount",
+		"CountShpUniqueFrames",
+		"FUN_100376f9",
+		"DissolveView",
+		"FadeViewColors",
+		"CountViewColors",
 	};
 	MechS32 i;
 

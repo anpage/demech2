@@ -45,7 +45,7 @@ MechS32 g_unk0x100a9464 = 0;
 
 // Maps 16.16 fractions of the screen onto pixels.
 // FUNCTION: MW2 0x10056920
-RenderTarget* ScaleRectToScreen(PixelBuffer* p_buffer, RenderTarget* p_src, RenderTarget* p_dst)
+Pane* ScaleRectToScreen(PixelBuffer* p_buffer, Pane* p_src, Pane* p_dst)
 {
 	p_dst->m_left = FixedMul16(g_screenWidthMinus1, p_src->m_left);
 	p_dst->m_top = FixedMul16(g_screenHeightMinus1, p_src->m_top);
@@ -57,7 +57,7 @@ RenderTarget* ScaleRectToScreen(PixelBuffer* p_buffer, RenderTarget* p_src, Rend
 // Maps 16.16 fractions of p_frame onto pixels.
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x1005699f
-RenderTarget* FUN_1005699f(RenderTarget* p_frame, RenderTarget* p_src, RenderTarget* p_dst)
+Pane* FUN_1005699f(Pane* p_frame, Pane* p_src, Pane* p_dst)
 {
 	MechS32 width;
 	MechS32 height;
@@ -95,7 +95,7 @@ Point* ScalePointToScreen(PixelBuffer* p_buffer, Point* p_src, Point* p_dst)
 
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x10056b2b
-Rect* FUN_10056b2b(RenderTarget* p_frame, Rect* p_src, Rect* p_dst)
+Rect* FUN_10056b2b(Pane* p_frame, Rect* p_src, Rect* p_dst)
 {
 	MechS32 width;
 	MechS32 height;
@@ -111,7 +111,7 @@ Rect* FUN_10056b2b(RenderTarget* p_frame, Rect* p_src, Rect* p_dst)
 
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x10056bc1
-Point* FUN_10056bc1(RenderTarget* p_frame, Point* p_src, Point* p_dst)
+Point* FUN_10056bc1(Pane* p_frame, Point* p_src, Point* p_dst)
 {
 	MechS32 width;
 	MechS32 height;
@@ -126,7 +126,7 @@ Point* FUN_10056bc1(RenderTarget* p_frame, Point* p_src, Point* p_dst)
 // Scales 16.16 fractions to 320x200 coordinates, correcting the height for the aspect ratio
 // p_aspect (16.16, 0xd555 = 5:6 for none).
 // FUNCTION: MW2 0x10056c25
-RenderTarget* FUN_10056c25(RenderTarget* p_rect, MechS32 p_aspect)
+Pane* FUN_10056c25(Pane* p_rect, MechS32 p_aspect)
 {
 	MechS32 scale;
 
@@ -142,7 +142,7 @@ RenderTarget* FUN_10056c25(RenderTarget* p_rect, MechS32 p_aspect)
 
 // Maps 320x200 coordinates to 16.16 fractions of the screen.
 // FUNCTION: MW2 0x10056ce9
-RenderTarget* FUN_10056ce9(RenderTarget* p_src, RenderTarget* p_dst)
+Pane* FUN_10056ce9(Pane* p_src, Pane* p_dst)
 {
 	p_dst->m_left = FixedDiv16(p_src->m_left, 319);
 	p_dst->m_top = FixedDiv16(p_src->m_top, 199);
@@ -171,9 +171,9 @@ Point* FUN_10056ddd(Point* p_src, Point* p_dst)
 
 // Centers a rectangle of p_src's size on the screen.
 // FUNCTION: MW2 0x10056e22
-RenderTarget* CenterRectOnScreen(PixelBuffer* p_buffer, RenderTarget* p_src, RenderTarget* p_dst)
+Pane* CenterRectOnScreen(PixelBuffer* p_buffer, Pane* p_src, Pane* p_dst)
 {
-	RenderTarget rect;
+	Pane rect;
 	MechS32 left;
 	MechS32 top;
 
@@ -194,7 +194,7 @@ RenderTarget* CenterRectOnScreen(PixelBuffer* p_buffer, RenderTarget* p_src, Ren
 // Scales p_src about its center by p_scale (16.16).
 // Stack-slot permutation: centerX and centerY.
 // FUNCTION: MW2 0x10056ec5
-RenderTarget* FUN_10056ec5(RenderTarget* p_src, RenderTarget* p_dst, Point p_scale)
+Pane* FUN_10056ec5(Pane* p_src, Pane* p_dst, Point p_scale)
 {
 	MechS32 centerX;
 	MechS32 centerY;
@@ -219,7 +219,7 @@ RenderTarget* FUN_10056ec5(RenderTarget* p_src, RenderTarget* p_dst, Point p_sca
 // Scales p_src about its center to the size of a shape frame.
 // Stack-slot permutation: size and scale.
 // FUNCTION: MW2 0x10056fcf
-RenderTarget* FUN_10056fcf(RenderTarget* p_src, RenderTarget* p_dst, void* p_shape, MechS32 p_frame)
+Pane* FUN_10056fcf(Pane* p_src, Pane* p_dst, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;
 	Point scale;
@@ -236,7 +236,7 @@ RenderTarget* FUN_10056fcf(RenderTarget* p_src, RenderTarget* p_dst, void* p_sha
 // Scales p_src about its center to the size of a shape.
 // Stack-slot permutation: size and scale.
 // FUNCTION: MW2 0x1005705e
-RenderTarget* FUN_1005705e(RenderTarget* p_src, RenderTarget* p_dst, void* p_shape)
+Pane* FUN_1005705e(Pane* p_src, Pane* p_dst, void* p_shape)
 {
 	MechS32 size;
 	Point scale;
@@ -250,10 +250,10 @@ RenderTarget* FUN_1005705e(RenderTarget* p_src, RenderTarget* p_dst, void* p_sha
 	return p_dst;
 }
 
-// Outlines a render target.
+// Outlines a pane.
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x100570e9
-void FUN_100570e9(RenderTarget* p_target, MechS32 p_color)
+void FUN_100570e9(Pane* p_target, MechS32 p_color)
 {
 	MechS32 width;
 	MechS32 height;
@@ -266,10 +266,10 @@ void FUN_100570e9(RenderTarget* p_target, MechS32 p_color)
 	BlitLine(p_target, 0, height, 0, 0, 0, p_color);
 }
 
-// Draws a line across the render target under a line of text at p_pos.
+// Draws a line across the pane under a line of text at p_pos.
 // Stack-slot permutation: height and width.
 // FUNCTION: MW2 0x1005718d
-void FUN_1005718d(RenderTarget* p_target, Point p_pos, void* p_font, MechS32 p_color)
+void FUN_1005718d(Pane* p_target, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 height;
 	MechS32 width;
@@ -284,7 +284,7 @@ void FUN_1005718d(RenderTarget* p_target, Point p_pos, void* p_font, MechS32 p_c
 // Underlines text drawn at p_pos.
 // Stack-slot permutation: width, height and i.
 // FUNCTION: MW2 0x100571ea
-void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
+void FUN_100571ea(Pane* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 width;
 	MechS32 height;
@@ -303,7 +303,7 @@ void FUN_100571ea(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057282
-void FUN_10057282(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
+void FUN_10057282(Pane* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 left;
 	MechS32 top;
@@ -329,10 +329,10 @@ void FUN_10057282(RenderTarget* p_target, MechChar* p_text, Point p_pos, void* p
 	BlitLine(p_target, right, top, right, bottom, 0, p_color);
 }
 
-// Draws text word-wrapped into a render target, inside the margins, until it runs out of lines.
+// Draws text word-wrapped into a pane, inside the margins, until it runs out of lines.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057396
-void FUN_10057396(RenderTarget* p_target, MechChar* p_text, void* p_font)
+void FUN_10057396(Pane* p_target, MechChar* p_text, void* p_font)
 {
 	MechS32 x;
 	MechChar* line;
@@ -413,7 +413,7 @@ void FUN_10057396(RenderTarget* p_target, MechChar* p_text, void* p_font)
 // Sizes p_rect to fit a block of text, lines separated by newlines, plus the margins.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x100575b9
-RenderTarget* FUN_100575b9(MechChar* p_text, void* p_font, RenderTarget* p_rect)
+Pane* FUN_100575b9(MechChar* p_text, void* p_font, Pane* p_rect)
 {
 	MechS32 lineWidth;
 	MechS32 lineHeight;
@@ -455,10 +455,10 @@ RenderTarget* FUN_100575b9(MechChar* p_text, void* p_font, RenderTarget* p_rect)
 	return p_rect;
 }
 
-// A render target and the colour FUN_100576e9 draws into it.
+// A pane and the colour FUN_100576e9 draws into it.
 typedef struct CenteredDraw {
-	RenderTarget* m_target; // 0x00
-	MechU8 m_color;         // 0x04
+	Pane* m_target; // 0x00
+	MechU8 m_color; // 0x04
 } CenteredDraw;
 
 // Draws a p_width by p_height box (16.16 fractions of the target) centred in p_draw's target,
@@ -468,7 +468,7 @@ typedef struct CenteredDraw {
 MechS32 FUN_100576e9(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
 {
 	MechS32 result;
-	RenderTarget* target;
+	Pane* target;
 	Point pos;
 
 	result = TRUE;
@@ -498,9 +498,9 @@ MechS32 FUN_100576e9(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
 	return result;
 }
 
-// Draws a pulsing frame just inside a render target.
+// Draws a pulsing frame just inside a pane.
 // FUNCTION: MW2 0x100577be
-void FUN_100577be(RenderTarget* p_target)
+void FUN_100577be(Pane* p_target)
 {
 	Point corner;
 
@@ -522,10 +522,10 @@ void FUN_100577be(RenderTarget* p_target)
 	FUN_10032e4b(p_target, g_unk0x100a9458, g_unk0x100a9458, corner.m_x, corner.m_y, g_unk0x100a945c);
 }
 
-// Tiles a render target with a shape frame.
+// Tiles a pane with a shape frame.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057896
-void FUN_10057896(RenderTarget* p_target, void* p_shape, MechS32 p_frame)
+void FUN_10057896(Pane* p_target, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;
 	MechS32 tileWidth;
@@ -583,7 +583,7 @@ MechS32 FUN_1005798d(MechS32 p_dx, MechS32 p_dy, MechS32* p_slope)
 // Where the needle from the center of a gauge rectangle towards p_point leaves the rectangle.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057a03
-Point* FUN_10057a03(RenderTarget* p_target, Point* p_point, Point* p_out)
+Point* FUN_10057a03(Pane* p_target, Point* p_point, Point* p_out)
 {
 	GaugeQuadrant quadrant;
 	MechS32 slope;
@@ -614,7 +614,7 @@ Point* FUN_10057a03(RenderTarget* p_target, Point* p_point, Point* p_out)
 // leaves the rectangle.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057ac4
-Point* FUN_10057ac4(RenderTarget* p_target, MechS32 p_angle, Point* p_out)
+Point* FUN_10057ac4(Pane* p_target, MechS32 p_angle, Point* p_out)
 {
 	GaugeQuadrant quadrant;
 	MechS32 slope;
@@ -732,10 +732,10 @@ Point* FUN_10057bf3(Point* p_half, GaugeQuadrant p_quadrant, MechS32 p_slope, Po
 	return p_out;
 }
 
-// Draws the ellipse inscribed in a render target, corrected for the pixel aspect.
+// Draws the ellipse inscribed in a pane, corrected for the pixel aspect.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057e56
-void FUN_10057e56(RenderTarget* p_target, MechS32 p_color)
+void FUN_10057e56(Pane* p_target, MechS32 p_color)
 {
 	MechS32 centerX;
 	MechS32 centerY;
@@ -751,12 +751,12 @@ void FUN_10057e56(RenderTarget* p_target, MechS32 p_color)
 	DrawEllipse(p_target, centerX, centerY, radius, radiusY, p_color);
 }
 
-// Fills the part of the ellipse inscribed in a render target that lies in p_rect.
+// Fills the part of the ellipse inscribed in a pane that lies in p_rect.
 // Stack-slot permutation: the locals; clip.m_top loads p_rect->m_top first in the original.
 // FUNCTION: MW2 0x10057edc
-void FUN_10057edc(RenderTarget* p_target, Rect* p_rect, MechS32 p_color)
+void FUN_10057edc(Pane* p_target, Rect* p_rect, MechS32 p_color)
 {
-	RenderTarget clip;
+	Pane clip;
 	MechS32 centerX;
 	MechS32 centerY;
 	MechS32 radiusY;
@@ -778,10 +778,10 @@ void FUN_10057edc(RenderTarget* p_target, Rect* p_rect, MechS32 p_color)
 	FillEllipse(&clip, centerX, centerY, radius, radiusY, p_color);
 }
 
-// Tests whether a point lies inside the ellipse inscribed in a render target.
+// Tests whether a point lies inside the ellipse inscribed in a pane.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057fbe
-MechS32 FUN_10057fbe(RenderTarget* p_target, MechS32 p_x, MechS32 p_y)
+MechS32 FUN_10057fbe(Pane* p_target, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 centerX;
 	MechS32 centerY;
@@ -805,7 +805,7 @@ MechS32 FUN_10057fbe(RenderTarget* p_target, MechS32 p_x, MechS32 p_y)
 // Where the needle of the gauge ellipse towards p_point ends.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1005806a
-Point* FUN_1005806a(RenderTarget* p_target, Point* p_point, Point* p_out)
+Point* FUN_1005806a(Pane* p_target, Point* p_point, Point* p_out)
 {
 	MechS32 angle;
 	GaugeQuadrant quadrant;
@@ -843,7 +843,7 @@ Point* FUN_1005806a(RenderTarget* p_target, Point* p_point, Point* p_out)
 // Where the needle of the gauge ellipse at the heading p_angle (16.16 degrees) ends.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1005816f
-Point* FUN_1005816f(RenderTarget* p_target, MechS32 p_angle, Point* p_out)
+Point* FUN_1005816f(Pane* p_target, MechS32 p_angle, Point* p_out)
 {
 	MechS32 angle;
 	GaugeQuadrant quadrant;
@@ -888,7 +888,7 @@ Point* FUN_1005816f(RenderTarget* p_target, MechS32 p_angle, Point* p_out)
 // Where a needle of the gauge ellipse at p_angle ends, from p_center.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x100582c4
-Point* FUN_100582c4(RenderTarget* p_target, Point* p_center, GaugeQuadrant p_quadrant, MechS32 p_angle, Point* p_out)
+Point* FUN_100582c4(Pane* p_target, Point* p_center, GaugeQuadrant p_quadrant, MechS32 p_angle, Point* p_out)
 {
 	MechS32 radius;
 	MechS32 radiusY;
