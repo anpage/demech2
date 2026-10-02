@@ -80,7 +80,12 @@ positive:
 // FUNCTION: MW2 0x1006973a
 MechS32 FUN_1006973a(MechS32 p_angle)
 {
+#ifdef PORTABLE_C
+	/* The add wraps (FUN_1000de3b's portable C calls this with any angle). */
+	return FUN_100696c0(PortableS32((MechU32) p_angle + 0x5a0000));
+#else
 	return FUN_100696c0(p_angle + 0x5a0000);
+#endif
 }
 
 // Returns the arcsine of p_sine (2.29 fixed point, as the table holds it) in 16.16 degrees: a

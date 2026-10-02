@@ -1,5 +1,7 @@
 /* Hand-written assembly: FUN_10048c50, FUN_10048d46, FUN_10048ebe and FUN_10048faf are C
-   functions with __asm bodies, and FUN_10049155 has __asm blocks. */
+   functions with __asm bodies, and FUN_10049155 has __asm blocks. Their portable C (PORTABLE_C)
+   is tested against the assembly by tests/asmequiv: it replaces each whole function, whose C
+   wraps where standard C overflows. */
 #include "unk10046750.h"
 
 #include "ambientsound.h"
@@ -18,6 +20,7 @@
 #include "object.h"
 #include "path.h"
 #include "players.h"
+#include "portable.h"
 #include "quartzreel.h"
 #include "ramp.h"
 #include "reelevent.h"
@@ -42,6 +45,13 @@
 #include <windows.h>
 
 #pragma warning(disable : 4102) /* labels only __asm blocks jump to */
+
+/* The __asm blocks of FUN_10048c50, FUN_10048ebe, FUN_10048faf and FUN_10049155 jump to C labels,
+   which newer compilers reject: their reference build (REFERENCE_ASM) compiles those functions'
+   portable C too. */
+#if defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
+#define PORTABLE_C_LABELS
+#endif
 
 // The state of FUN_1004748c's callback: the faces of a shape cycle through up to sixteen colors.
 // SIZE 0x50
@@ -1270,6 +1280,59 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 	return 1;
 }
 
+#ifdef PORTABLE_C_LABELS
+// The 64-bit product of two 32-bit values, as imul leaves it in edx:eax. Sums of products wrap,
+// like the add/adc chains.
+static MechU64 Product(MechS32 p_a, MechS32 p_b)
+{
+	return (MechU64) ((MechS64) p_a * p_b);
+}
+
+// sub: wraps.
+static MechS32 Difference(MechS32 p_a, MechS32 p_b)
+{
+	return PortableS32((MechU32) p_a - (MechU32) p_b);
+}
+
+// add: wraps.
+static MechS32 Sum(MechS32 p_a, MechS32 p_b)
+{
+	return PortableS32((MechU32) p_a + (MechU32) p_b);
+}
+
+// The view transform's row (p_a, p_b, p_c) times the vertex's offset from the eyepoint
+// (g_unk0x100ea8b8, g_unk0x100ea8b4, g_unk0x100ea8bc), shifted right by 27 and rounded.
+static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, EmberFern0x2c* p_vertex)
+{
+	MechU64 sum = Product(p_a, Difference(p_vertex->m_unk0x0c, g_unk0x100ea8b8)) +
+				  Product(p_b, Difference(p_vertex->m_unk0x10, g_unk0x100ea8b4)) +
+				  Product(p_c, Difference(p_vertex->m_unk0x14, g_unk0x100ea8bc));
+
+	return PortableS32(PortableShrdRound(sum, 27));
+}
+
+// The call FUN_10049155 makes through g_unk0x100a6cc8.m_unk0x60, which has no prototype: the hook
+// is FUN_10036230 in the 3D view, and the map view's FUN_1003f0e7 takes three of the arguments.
+typedef MechS32 (*DrawFaceHook)(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_flags, MechS32 p_depth);
+
+// A screen offset: p_value shifted left by p_shift (modulo 32, like the shld's count), divided by
+// the depth, and rounded to a quarter.
+static MechS32 ProjectAxis(MechS32 p_value, MechS32 p_shift, MechS32 p_depth)
+{
+	MechS64 scaled = (MechS64) p_value * ((MechS64) 1 << ((MechU32) p_shift & 31));
+
+	return PortableSar32(Sum(PortableIdiv(scaled, p_depth), 2), 2);
+}
+#endif
+
+#ifdef PORTABLE_C
+// The edge value at the near plane: p_from plus the share p_toPlane / p_span of the way to p_to.
+static MechS32 Interpolate(MechS32 p_from, MechS32 p_to, MechS32 p_toPlane, MechS32 p_span)
+{
+	return Sum(PortableIdiv((MechS64) Difference(p_from, p_to) * p_toPlane, p_span), p_to);
+}
+#endif
+
 // Returns the vertex's projected copy (m_unk0x24), transforming it into view space
 // (g_unk0x100ea864's rows, from the eyepoint g_unk0x100ea8b4) the first time. The transform is an
 // __asm block.
@@ -1277,9 +1340,25 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 // FUNCTION: MW2 0x10048c50
 CopperWren0x20* FUN_10048c50(EmberFern0x2c* p_vertex)
 {
-#ifdef COMPAT_MODE
-	STUB(0x10048c50);
-	return NULL;
+#ifdef PORTABLE_C_LABELS
+	CopperWren0x20* result = p_vertex->m_unk0x24;
+	MechS32 x;
+	MechS32 y;
+
+	if (result) {
+		return result;
+	}
+
+	result = FUN_1007d248();
+	x = ViewRow(g_unk0x100ea864, g_unk0x100ea868, g_unk0x100ea86c, p_vertex);
+	y = ViewRow(g_unk0x100ea870, g_unk0x100ea874, g_unk0x100ea878, p_vertex);
+	p_vertex->m_unk0x24 = result;
+	result->m_x = x;
+	result->m_y = y;
+	result->m_z = PortableS32(p_vertex->m_unk0x20);
+	result->m_u = PortableS32(p_vertex->m_unk0x18 << 16);
+	result->m_v = PortableS32(p_vertex->m_unk0x1c << 16);
+	return result;
 #else
 	MechS32 u;
 	MechS32 v;
@@ -1377,6 +1456,74 @@ jmp_10048c72:
 // FUNCTION: MW2 0x10048d46
 CopperWren0x20* FUN_10048d46(EmberFern0x2c* p_a, EmberFern0x2c* p_b)
 {
+#ifdef PORTABLE_C
+	CopperWren0x20* a;
+	CopperWren0x20* b;
+	CopperWren0x20* result;
+	MechS32 x0;
+	MechS32 y0;
+	MechS32 z0;
+	MechS32 u0;
+	MechS32 v0;
+	MechS32 x1;
+	MechS32 y1;
+	MechS32 z1;
+	MechS32 u1;
+	MechS32 v1;
+	MechS32 toPlane;
+	MechS32 span;
+
+	a = p_a->m_unk0x24;
+	if (!a) {
+		a = FUN_10048c50(p_a);
+	}
+
+	b = p_b->m_unk0x24;
+	if (!b) {
+		b = FUN_10048c50(p_b);
+	}
+
+	result = FUN_1007d248();
+	x0 = a->m_x;
+	y0 = a->m_y;
+	u0 = a->m_u;
+	v0 = a->m_v;
+	z0 = a->m_z;
+	x1 = b->m_x;
+	y1 = b->m_y;
+	u1 = b->m_u;
+	v1 = b->m_v;
+	z1 = b->m_z;
+
+	/* From the nearer end; the depths' difference wraps. */
+	if (z1 <= z0) {
+		span = Difference(z0, z1);
+		if (span) {
+			toPlane = Difference(g_unk0x100ea820, z1);
+			x0 = Interpolate(x0, x1, toPlane, span);
+			y0 = Interpolate(y0, y1, toPlane, span);
+			u0 = Interpolate(u0, u1, toPlane, span);
+			v0 = Interpolate(v0, v1, toPlane, span);
+		}
+	}
+	else {
+		span = Difference(z1, z0);
+		if (span) {
+			toPlane = Difference(g_unk0x100ea820, z0);
+			x0 = Interpolate(x1, x0, toPlane, span);
+			y0 = Interpolate(y1, y0, toPlane, span);
+			u0 = Interpolate(u1, u0, toPlane, span);
+			v0 = Interpolate(v1, v0, toPlane, span);
+		}
+	}
+
+	result->m_x = x0;
+	result->m_y = y0;
+	result->m_z = g_unk0x100ea820;
+	result->m_u = u0;
+	result->m_v = v0;
+	return result;
+#else
 	MechS32 z0;
 	MechS32 z1;
 	MechS32 u0;
@@ -1516,6 +1663,7 @@ jmp_10048e8f:
 	}
 
 	return result;
+#endif
 }
 
 // Projects a view-space vertex onto the screen once per frame (m_unk0x1d), with its clip
@@ -1524,9 +1672,44 @@ jmp_10048e8f:
 // FUNCTION: MW2 0x10048ebe
 CopperWren0x20* FUN_10048ebe(CopperWren0x20* p_vertex)
 {
-#ifdef COMPAT_MODE
-	STUB(0x10048ebe);
-	return NULL;
+#ifdef PORTABLE_C_LABELS
+	MechS32 screen;
+	MechU8 outcode;
+
+	if (!p_vertex->m_projected) {
+		screen = Sum(ProjectAxis(p_vertex->m_x, g_unk0x100ea824, p_vertex->m_z), g_unk0x100ea834);
+		p_vertex->m_screenX = screen;
+		outcode = 0;
+		if (screen > g_unk0x100ea84c) {
+			outcode |= 2;
+		}
+		if (screen < g_unk0x100ea830) {
+			outcode |= 1;
+		}
+
+		screen = Difference(g_unk0x100ea858, ProjectAxis(p_vertex->m_y, g_unk0x100ea828, p_vertex->m_z));
+		p_vertex->m_screenY = screen;
+		if (screen > g_unk0x100ea840) {
+			outcode |= 8;
+		}
+		if (screen < g_unk0x100ea850) {
+			outcode |= 4;
+		}
+
+		p_vertex->m_outcode = outcode;
+		p_vertex->m_projected = 1;
+	}
+
+	g_unk0x1010b53c |= p_vertex->m_outcode;
+	g_unk0x1010b5b8 &= p_vertex->m_outcode;
+	if (g_unk0x1010b5b0 >= 20) {
+		g_unk0x1010b5ac = 0;
+	}
+	else {
+		g_unk0x1010b550[g_unk0x1010b5b0++] = p_vertex;
+	}
+
+	return p_vertex;
 #else
 	__asm {
 		mov ebx, p_vertex
@@ -1602,9 +1785,69 @@ jmp_10048f8c:
 // FUNCTION: MW2 0x10048faf
 MechS32 FUN_10048faf(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 {
-#ifdef COMPAT_MODE
-	STUB(0x10048faf);
-	return 0;
+#ifdef PORTABLE_C_LABELS
+	EmberFern0x2c* vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+	MechS32 x = vertex->m_unk0x0c;
+	MechS32 y = vertex->m_unk0x10;
+	MechS32 z = vertex->m_unk0x14;
+	MechU32 magnitudeX;
+	MechU32 magnitudeY;
+	MechU32 magnitudeZ;
+	MechU32 bits;
+	MechU32 squares;
+	MechU64 dot;
+	MechS32 scale;
+
+	if (g_unk0x1010b530) {
+		x = y = z = 0;
+	}
+
+	/* The direction to the light, with each component's magnitude. A component is negated when
+	   the light's coordinate is the smaller one, which leaves a difference that wrapped as it is. */
+	dot = Product(Difference(g_unk0x100ea8c4, x), p_face->m_normal[0]) +
+		  Product(Difference(g_unk0x100ea8c8, y), p_face->m_normal[1]);
+	magnitudeX = (MechU32) Difference(g_unk0x100ea8c4, x);
+	if (g_unk0x100ea8c4 < x) {
+		magnitudeX = 0 - magnitudeX;
+	}
+
+	magnitudeY = (MechU32) Difference(g_unk0x100ea8c8, y);
+	if (g_unk0x100ea8c8 < y) {
+		magnitudeY = 0 - magnitudeY;
+	}
+
+	magnitudeZ = (MechU32) Difference(g_unk0x100ea8c0, z);
+	if (g_unk0x100ea8c0 < z) {
+		magnitudeZ = 0 - magnitudeZ;
+	}
+
+	bits = magnitudeX | magnitudeY | magnitudeZ;
+	if (!bits) {
+		return 0x7f;
+	}
+
+	/* The dot product in 64 bits, shifted right by 16, and the magnitudes scaled to put the
+	   highest bit of any at bit 7, the dot product with them. */
+	dot += Product(Difference(g_unk0x100ea8c0, z), p_face->m_normal[2]);
+	dot = (MechU64) PortableSar64(PortableS64(dot), 16);
+	scale = PortableBsr(bits) - 7;
+	if (scale > 0) {
+		magnitudeX >>= scale;
+		magnitudeY >>= scale;
+		magnitudeZ >>= scale;
+		dot = (MechU64) PortableSar64(PortableS64(dot), scale);
+	}
+	else if (scale < 0) {
+		magnitudeX <<= -scale;
+		magnitudeY <<= -scale;
+		magnitudeZ <<= -scale;
+		dot <<= -scale;
+	}
+
+	/* Divided by the length from the square root table, of the low bytes' squares. */
+	squares = (magnitudeX & 0xff) * (magnitudeX & 0xff) + (magnitudeY & 0xff) * (magnitudeY & 0xff) +
+			  (magnitudeZ & 0xff) * (magnitudeZ & 0xff);
+	return PortableS16((MechU16) PortableIdiv(PortableS64(dot), g_sqrtTable[squares >> 8]));
 #else
 	MechS32 x;
 	MechS32 y;
@@ -1736,8 +1979,163 @@ jmp_10049103:
 // FUNCTION: MW2 0x10049155
 void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 {
-#ifdef COMPAT_MODE
-	STUB(0x10049155);
+#ifdef PORTABLE_C_LABELS
+	EmberFern0x2c* vertex;
+	EmberFern0x2c* first;
+	EmberFern0x2c* previous;
+	IvoryDelta0xc* poly;
+	MechU8* index;
+	MechU16 count;
+	MechU8 andCodes;
+	MechU8 clipped;
+	MechU8 firstClipped;
+	MechU8 previousClipped;
+	MechU64 dot;
+	MechS64 last;
+	MechS32 depth;
+	MechS32 i;
+
+	g_unk0x1010b5bc++;
+
+	/* Faces of three vertices or more face away when the eyepoint's offset from the first one
+	   has a dot product with the normal that isn't negative. The flags (jl) test the exact sum
+	   of the first two products, which wraps at 64 bits, and the third. */
+	if (p_face->m_unk0x02 >= 3) {
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+		dot = Product(Difference(vertex->m_unk0x0c, g_unk0x100ea8b8), p_face->m_normal[0]) +
+			  Product(Difference(vertex->m_unk0x10, g_unk0x100ea8b4), p_face->m_normal[1]);
+		last = (MechS64) Difference(vertex->m_unk0x14, g_unk0x100ea8bc) * p_face->m_normal[2];
+		if (PortableS64(dot) >= -last) {
+			return;
+		}
+	}
+
+	/* The depths of the vertices not yet transformed this frame, with their near (1) and far (2)
+	   clip codes. The counts are 16-bit: 0 runs 0x10000 times. */
+	g_unk0x1010b538++;
+	andCodes = 3;
+	count = p_face->m_unk0x02;
+	index = (MechU8*) p_face + p_face->m_unk0x04;
+	do {
+		vertex = &p_vertices[*index];
+		if (!(vertex->m_unk0x28 & 4)) {
+			MechU8 codes = 0;
+
+			g_unk0x1010b5b4++;
+			depth = ViewRow(g_unk0x100ea87c, g_unk0x100ea880, g_unk0x100ea884, vertex);
+			vertex->m_unk0x20 = (MechU32) depth;
+			vertex->m_unk0x28 |= 4;
+			if (depth < g_unk0x100ea820) {
+				codes |= 1;
+			}
+			if (depth > g_unk0x100ea82c) {
+				codes |= 2;
+			}
+
+			vertex->m_unk0x28 = (MechU8) ((vertex->m_unk0x28 & 0xfc) | codes);
+		}
+
+		andCodes &= vertex->m_unk0x28;
+		index++;
+	} while (--count);
+
+	if (andCodes == 1 || andCodes == 2) {
+		return;
+	}
+
+	/* The clipping walk: each vertex in front of the near plane, and each crossing of it. */
+	g_unk0x1010b53c = 0;
+	g_unk0x1010b5b8 = 0xf;
+	g_unk0x1010b5b0 = 0;
+	index = (MechU8*) p_face + p_face->m_unk0x04;
+	count = p_face->m_unk0x02;
+	first = previous = &p_vertices[*index];
+	firstClipped = previousClipped = first->m_unk0x28 & 1;
+	if (!firstClipped) {
+		g_unk0x100a6cc8.m_unk0x5c(FUN_10048c50(first));
+	}
+
+	while (--count) {
+		index++;
+		vertex = &p_vertices[*index];
+		clipped = vertex->m_unk0x28 & 1;
+		if (clipped != previousClipped) {
+			g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, vertex));
+		}
+
+		previous = vertex;
+		previousClipped = clipped;
+		if (!clipped) {
+			g_unk0x100a6cc8.m_unk0x5c(FUN_10048c50(previous));
+		}
+	}
+
+	if (previousClipped != firstClipped) {
+		g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, first));
+	}
+
+	if ((g_unk0x1010b5b0 < 3 && p_face->m_unk0x02 > 2) || g_unk0x1010b5b8) {
+		return;
+	}
+
+	poly = (IvoryDelta0xc*) FUN_1007d296();
+	poly->m_face = p_face;
+	g_unk0x1010b534 = g_unk0x100c2698;
+	poly->m_count = (MechS16) g_unk0x1010b5b0;
+
+	/* The loops run their count (loop) times: the polygon has a point, as the projection hook
+	   has added one whenever it cleared g_unk0x1010b5b8. */
+	PORTABLE_ASSERT(g_unk0x1010b5b0 > 0);
+	if (g_unk0x1010b5c8 & 2) {
+		MechU32 sum = 0;
+
+		for (i = 0; i < g_unk0x1010b5b0; i++) {
+			sum += (MechU32) g_unk0x1010b550[i]->m_z;
+		}
+
+		/* The sum is unsigned (xor edx, edx), and the count a word. */
+		depth = PortableIdiv(sum, (MechU16) g_unk0x1010b5b0);
+	}
+	else if (g_unk0x1010b5c8 & 4) {
+		depth = 0x7fffffff;
+		for (i = 0; i < g_unk0x1010b5b0; i++) {
+			if (depth > g_unk0x1010b550[i]->m_z) {
+				depth = g_unk0x1010b550[i]->m_z;
+			}
+		}
+	}
+	else {
+		depth = -0x7fffffff;
+		for (i = 0; i < g_unk0x1010b5b0; i++) {
+			if (depth < g_unk0x1010b550[i]->m_z) {
+				depth = g_unk0x1010b550[i]->m_z;
+			}
+		}
+	}
+
+	if (g_unk0x1010b5c8 & 1) {
+		depth |= 0x40000000;
+	}
+
+	poly->m_depth = depth;
+	memcpy(g_unk0x1010b534, g_unk0x1010b550, g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]));
+	g_unk0x1010b534 += g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]);
+	g_unk0x100c2698 = g_unk0x1010b534;
+	poly->m_unk0x02 =
+		(MechU16) ((DrawFaceHook) g_unk0x100a6cc8.m_unk0x60)(p_face, p_vertices, p_face->m_unk0x00, depth);
+	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
+		g_unk0x1010b5a8++;
+		if (g_unk0x1010b5b0 > 1) {
+			g_unk0x100a54b4++;
+		}
+
+		g_unk0x1010b5c4[g_unk0x100a54b0].m_poly = poly;
+		g_unk0x1010b5c4[g_unk0x100a54b0].m_depth = depth;
+		g_unk0x100a54b0++;
+	}
+	else {
+		g_unk0x1010b5ac = 0;
+	}
 #else
 	MechS32 stride;
 	EmberFern0x2c* vertex;
