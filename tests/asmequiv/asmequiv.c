@@ -161,7 +161,12 @@ static MechS32 ReachBlock(EXCEPTION_POINTERS* p_info)
 			*address = g_blocks[i].m_byte;
 			g_blocks[i].m_reached = 1;
 			FlushInstructionCache(GetCurrentProcess(), address, 1);
+#ifdef _M_IX86
 			p_info->ContextRecord->Eip = (DWORD) address;
+#else
+			// The driver is x86 only, but clang-tidy parses it for the host
+			p_info->ContextRecord->Rip = (DWORD64) address;
+#endif
 			return 1;
 		}
 	}
