@@ -26,7 +26,7 @@
 
 #define MAX_REPORTS 10
 #define MAX_BLOCKS 2048
-#define MAX_ROUTINES 64
+#define MAX_ROUTINES 128
 
 // --- Modules ---
 
@@ -452,14 +452,22 @@ static MechS32 RunCase(
 }
 
 // Whether the reference has the routine's assembly. Newer compilers' references have neither
-// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm), nor FUN_10071930's,
-// whose __asm block jumps to a C label (unk10071930.c): they compile the portable C instead. The
-// VC++ 4.1 reference has every routine's.
+// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm), nor those whose __asm
+// blocks jump to C labels (FUN_10071930, and four each in unk10039a30.c and unk10046750.c): they
+// compile the portable C instead. The VC++ 4.1 reference has every routine's.
 static MechS32 HasReference(const AsmRoutine* p_routine)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1100
 	static const char* const c_portableOnly[] = {
 		"FUN_10071930",
+		"FUN_10039a30",
+		"FUN_10039ccc",
+		"FUN_10039dda",
+		"FUN_1003a096",
+		"FUN_10048c50",
+		"FUN_10048ebe",
+		"FUN_10048faf",
+		"FUN_10049155",
 		"GameTickTimerCallback",
 		"AllocTicks",
 		"GetTicks",

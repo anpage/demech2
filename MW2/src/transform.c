@@ -1,12 +1,52 @@
-/* Hand-written assembly: FUN_1000da0c is a C function with an __asm body, and FUN_1000d7c0 has an
-   __asm block. */
+/* Hand-written assembly: FUN_1000d9a8, FUN_1000d9ce and FUN_1000da0c are C functions whose bodies
+   are __asm blocks, and FUN_1000d650, FUN_1000d708, FUN_1000d7c0 and FUN_1000de3b have __asm
+   blocks. Their portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it
+   replaces FUN_1000de3b's whole body, whose C wraps where standard C overflows. */
 #include "transform.h"
 
 #include "clock.h"
+#include "compat.h"
 #include "decomp.h"
 #include "loadres.h"
+#include "portable.h"
 #include "types.h"
 #include "unk100696c0.h"
+
+#ifdef PORTABLE_C
+// The 64-bit product of two 32-bit values, as imul leaves it in edx:eax. Sums of products wrap,
+// like the add/adc chains.
+static MechU64 Product(MechS32 p_a, MechS32 p_b)
+{
+	return (MechU64) ((MechS64) p_a * p_b);
+}
+
+// A 2.29 product, or sum of products, back to 32 bits: shifted right by 29 and rounded by the
+// adc, which also adds p_offset.
+static MechS32 Round29(MechU64 p_value, MechS32 p_offset)
+{
+	return PortableS32(PortableShrdRound(p_value, 29) + (MechU32) p_offset);
+}
+
+// The product of two 2.29 values.
+static MechS32 Mul29(MechS32 p_a, MechS32 p_b)
+{
+	return Round29(Product(p_a, p_b), 0);
+}
+
+// neg: INT_MIN stays INT_MIN.
+static MechS32 Negate(MechS32 p_value)
+{
+	return PortableS32(0 - (MechU32) p_value);
+}
+
+// Row p_row of p_matrix's rotation times (p_x, p_y, p_z), plus p_offset.
+static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_offset)
+{
+	MechS32* row = p_matrix->m_rows[p_row];
+
+	return Round29(Product(row[0], p_x) + Product(row[1], p_y) + Product(row[2], p_z), p_offset);
+}
+#endif
 
 // Transforms the point (*p_x, *p_y, *p_z) by p_matrix: its 2.29 rotation, then its translation.
 // The products are an __asm block.
@@ -14,6 +54,15 @@
 // FUNCTION: MW2 0x1000d650
 void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
+#ifdef PORTABLE_C
+	MechS32 x = *p_x;
+	MechS32 y = *p_y;
+	MechS32 z = *p_z;
+
+	*p_x = TransformRow(p_matrix, 0, x, y, z, p_matrix->m_rows[3][0]);
+	*p_y = TransformRow(p_matrix, 1, x, y, z, p_matrix->m_rows[3][1]);
+	*p_z = TransformRow(p_matrix, 2, x, y, z, p_matrix->m_rows[3][2]);
+#else
 	MechS32 rz;
 	MechS32 x;
 	MechS32 rx;
@@ -76,6 +125,7 @@ void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	*p_x = rx;
 	*p_y = ry;
 	*p_z = rz;
+#endif
 }
 
 // Rotates the point (*p_x, *p_y, *p_z) by p_matrix's 2.29 rotation. The products are an __asm
@@ -84,6 +134,15 @@ void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // FUNCTION: MW2 0x1000d708
 void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
+#ifdef PORTABLE_C
+	MechS32 x = *p_x;
+	MechS32 y = *p_y;
+	MechS32 z = *p_z;
+
+	*p_x = TransformRow(p_matrix, 0, x, y, z, 0);
+	*p_y = TransformRow(p_matrix, 1, x, y, z, 0);
+	*p_z = TransformRow(p_matrix, 2, x, y, z, 0);
+#else
 	MechS32 rz;
 	MechS32 x;
 	MechS32 rx;
@@ -146,6 +205,7 @@ void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	*p_x = rx;
 	*p_y = ry;
 	*p_z = rz;
+#endif
 }
 
 // Recomputes column p_column of p_matrix's 2.29 rotation as the cross product of the other two,
@@ -154,6 +214,31 @@ void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // FUNCTION: MW2 0x1000d7c0
 void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column)
 {
+#ifdef PORTABLE_C
+	MechS32 a;
+	MechS32 b;
+	MechS32 cross[3];
+	MechS32 i;
+
+	/* Another column leaves the products' operands unset, and stores nothing. */
+	if (p_column < 0 || p_column > 2) {
+		return;
+	}
+
+	/* Each row's value from the next two rows of columns a and b. */
+	a = (p_column + 1) % 3;
+	b = (p_column + 2) % 3;
+	for (i = 0; i < 3; i++) {
+		MechS32* next = p_matrix->m_rows[(i + 1) % 3];
+		MechS32* last = p_matrix->m_rows[(i + 2) % 3];
+
+		cross[i] = Round29(Product(next[a], last[b]) - Product(next[b], last[a]), 0);
+	}
+
+	for (i = 0; i < 3; i++) {
+		p_matrix->m_rows[i][p_column] = cross[i];
+	}
+#else
 	MechS32 a2;
 	MechS32 b2;
 	MechS32 a0;
@@ -251,12 +336,16 @@ void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column)
 		p_matrix->m_rows[2][2] = z;
 		break;
 	}
+#endif
 }
 
 // Multiplies two 2.29 fixed-point values. The body is an __asm block.
 // FUNCTION: MW2 0x1000d9a8
 MechS32 FUN_1000d9a8(MechS32 p_a, MechS32 p_b)
 {
+#ifdef PORTABLE_C
+	return Mul29(p_a, p_b);
+#else
 	MechS32 result;
 
 	__asm {
@@ -268,6 +357,7 @@ MechS32 FUN_1000d9a8(MechS32 p_a, MechS32 p_b)
 	}
 
 	return result;
+#endif
 }
 
 // The dot product of two vectors of 2.29 fixed-point values, with a 64-bit sum. The body is an
@@ -275,6 +365,9 @@ MechS32 FUN_1000d9a8(MechS32 p_a, MechS32 p_b)
 // FUNCTION: MW2 0x1000d9ce
 MechS32 FUN_1000d9ce(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, MechS32 p_by, MechS32 p_bz)
 {
+#ifdef PORTABLE_C
+	return Round29(Product(p_ax, p_bx) + Product(p_ay, p_by) + Product(p_az, p_bz), 0);
+#else
 	MechS32 result;
 
 	__asm {
@@ -296,6 +389,7 @@ MechS32 FUN_1000d9ce(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mec
 	}
 
 	return result;
+#endif
 }
 
 // Multiplies the rotations of p_unk0x00 and p_unk0x04 (2.29 fixed point) into p_unk0x08. The
@@ -304,6 +398,29 @@ MechS32 FUN_1000d9ce(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mec
 // FUNCTION: MW2 0x1000da0c
 void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 {
+#ifdef PORTABLE_C
+	/* Every product is read before the first store: p_unk0x08 may be either operand. */
+	MechS32 result[3][3];
+	MechS32 i;
+	MechS32 j;
+
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			result[i][j] = Round29(
+				Product(p_unk0x00->m_rows[i][0], p_unk0x04->m_rows[0][j]) +
+					Product(p_unk0x00->m_rows[i][1], p_unk0x04->m_rows[1][j]) +
+					Product(p_unk0x00->m_rows[i][2], p_unk0x04->m_rows[2][j]),
+				0
+			);
+		}
+	}
+
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			p_unk0x08->m_rows[i][j] = result[i][j];
+		}
+	}
+#else
 	MechS32 m00;
 	MechS32 m01;
 	MechS32 m02;
@@ -472,6 +589,7 @@ void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08)
 		mov eax, m22
 		mov dword ptr [edi + 0x20], eax
 	}
+#endif
 }
 
 // Composes p_unk0x04 with p_unk0x00 into p_unk0x08: the rotations' product, and p_unk0x04's
@@ -574,6 +692,92 @@ void FUN_1000de3b(
 	MechU32 p_flags
 )
 {
+#ifdef PORTABLE_C
+	MechS32 sa;
+	MechS32 sb;
+	MechS32 sc;
+	MechS32 ca;
+	MechS32 cb;
+	MechS32 cc;
+
+	do {
+		if (p_unk0x04 == 0) {
+			if (p_unk0x08 == 0) {
+				FUN_1000dd4d(p_matrix);
+				if (p_unk0x0c) {
+					p_matrix->m_rows[1][1] = FUN_1006973a(p_unk0x0c);
+					p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1];
+					p_matrix->m_rows[1][0] = FUN_100696c0(p_unk0x0c);
+					p_matrix->m_rows[0][1] = Negate(p_matrix->m_rows[1][0]);
+				}
+				break;
+			}
+			else if (p_unk0x0c == 0) {
+				FUN_1000dd4d(p_matrix);
+				p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x08);
+				p_matrix->m_rows[0][0] = p_matrix->m_rows[2][2];
+				p_matrix->m_rows[0][2] = FUN_100696c0(p_unk0x08);
+				p_matrix->m_rows[2][0] = Negate(p_matrix->m_rows[0][2]);
+				break;
+			}
+		}
+		else if (p_unk0x08 == 0 && p_unk0x0c == 0) {
+			FUN_1000dd4d(p_matrix);
+			p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x04);
+			p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2];
+			p_matrix->m_rows[2][1] = FUN_100696c0(p_unk0x04);
+			p_matrix->m_rows[1][2] = Negate(p_matrix->m_rows[2][1]);
+			break;
+		}
+
+		ca = FUN_1006973a(p_unk0x04);
+		cb = FUN_1006973a(p_unk0x08);
+		cc = FUN_1006973a(p_unk0x0c);
+		sa = FUN_100696c0(p_unk0x04);
+		sb = FUN_100696c0(p_unk0x08);
+		sc = FUN_100696c0(p_unk0x0c);
+		if (p_flags & 4) {
+			sa = Negate(sa);
+			sb = Negate(sb);
+			sc = Negate(sc);
+		}
+
+		/* The sums and differences of the products wrap. */
+		switch (p_flags & 3) {
+		case 1:
+			p_matrix->m_rows[0][0] = Mul29(cc, cb);
+			p_matrix->m_rows[1][0] = PortableS32((MechU32) Mul29(ca, sc) + (MechU32) Mul29(Mul29(cc, sa), sb));
+			p_matrix->m_rows[2][0] = PortableS32((MechU32) Mul29(sc, sa) - (MechU32) Mul29(Mul29(cc, ca), sb));
+			p_matrix->m_rows[0][2] = sb;
+			p_matrix->m_rows[1][2] = Negate(Mul29(cb, sa));
+			p_matrix->m_rows[2][2] = Mul29(ca, cb);
+			FUN_1000d7c0(p_matrix, 1);
+			break;
+		case 0:
+			p_matrix->m_rows[0][0] = PortableS32((MechU32) Mul29(cc, cb) + (MechU32) Mul29(Mul29(sc, sa), sb));
+			p_matrix->m_rows[1][0] = Mul29(ca, sc);
+			p_matrix->m_rows[2][0] = PortableS32((MechU32) Mul29(Mul29(cb, sc), sa) - (MechU32) Mul29(cc, sb));
+			p_matrix->m_rows[0][2] = Mul29(ca, sb);
+			p_matrix->m_rows[1][2] = Negate(sa);
+			p_matrix->m_rows[2][2] = Mul29(ca, cb);
+			FUN_1000d7c0(p_matrix, 1);
+			break;
+		case 2:
+			p_matrix->m_rows[0][0] = Mul29(cc, cb);
+			p_matrix->m_rows[1][0] = PortableS32((MechU32) Mul29(sa, sb) + (MechU32) Mul29(Mul29(ca, cb), sc));
+			p_matrix->m_rows[2][0] = PortableS32((MechU32) Mul29(Mul29(cb, sc), sa) - (MechU32) Mul29(ca, sb));
+			p_matrix->m_rows[0][1] = Negate(sc);
+			p_matrix->m_rows[1][1] = Mul29(cc, ca);
+			p_matrix->m_rows[2][1] = Mul29(cc, sa);
+			FUN_1000d7c0(p_matrix, 2);
+			break;
+		}
+
+		if (p_flags & 4) {
+			FUN_1000dc33(p_matrix, p_matrix);
+		}
+	} while (0);
+#else
 	MechS32 t;
 	MechS32 sa;
 	MechS32 sb;
@@ -817,6 +1021,7 @@ void FUN_1000de3b(
 			FUN_1000dc33(p_matrix, p_matrix);
 		}
 	} while (0);
+#endif
 
 	p_matrix->m_rows[3][0] = p_unk0x10;
 	p_matrix->m_rows[3][1] = p_unk0x14;

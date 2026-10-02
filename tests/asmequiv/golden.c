@@ -26,14 +26,20 @@
 #include "sndunpack.h"
 #include "sqrtguess.h"
 #include "ticks.h"
+#include "transform.h"
 #include "types.h"
 #include "unk10004ec0.h"
 #include "unk10013340.h"
 #include "unk10019ad0.h"
+#include "unk100335d0.h"
 #include "unk10034990.h"
 #include "unk100349c0.h"
 #include "unk100349f0.h"
+#include "unk10039a30.h"
 #include "unk10042740.h"
+#include "unk10042e00.h"
+#include "unk10046750.h"
+#include "unk1004b980.h"
 #include "unk1004c800.h"
 #include "unk1004c820.h"
 #include "unk1004c860.h"
@@ -45,7 +51,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Globals only their own units use: unk1007d120.c's, ticks.asm's and sndunpack.asm's.
+#define MAX_ROUTINES 128
+
+// Functions and globals only their own units use: unk1007d120.c's, ticks.asm's, sndunpack.asm's,
+// transform.c's, unk10039a30.c's and unk10046750.c's.
+void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column);
+MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value);
 extern MechU8* g_unk0x100c1a70;
 extern MechU32 g_ticksPaused;
 extern MechS32 g_ticks1Bases[64];
@@ -55,6 +66,11 @@ extern MechS32 g_ticks2;
 extern MechU8 g_unk0x100a2f04[0x400];
 extern MechU8 g_unk0x100a3304[0x401];
 extern MechU8 g_unk0x100a3705[0x43];
+extern MechU8* g_unk0x1010b534;
+extern MechS32 g_unk0x1010b5bc;
+extern MechS32 g_unk0x1010b538;
+extern MechS32 g_unk0x1010b5b4;
+extern MechS32 g_unk0x1010b5a8;
 
 // The routines and globals linked in, by name.
 typedef struct Symbol {
@@ -84,7 +100,27 @@ static const Symbol g_symbols[] = {
 	DATA(g_unk0x100c1a70),    DATA(g_unk0x100c2698),  DATA(g_unk0x1010b5ac),
 	DATA(g_ticksPaused),      DATA(g_ticks1Bases),    DATA(g_ticks2Bases),
 	DATA(g_ticks1),           DATA(g_ticks2),         DATA(g_unk0x100a2f04),
-	DATA(g_unk0x100a3304),    DATA(g_unk0x100a3705),
+	DATA(g_unk0x100a3304),    DATA(g_unk0x100a3705),  FUNCTION(FUN_1000d650),
+	FUNCTION(FUN_1000d708),   FUNCTION(FUN_1000d7c0), FUNCTION(FUN_1000d9a8),
+	FUNCTION(FUN_1000d9ce),   FUNCTION(FUN_1000da0c), FUNCTION(FUN_1000de3b),
+	FUNCTION(FUN_10039a30),   FUNCTION(FUN_10039b94), FUNCTION(FUN_10039c96),
+	FUNCTION(FUN_10039ccc),   FUNCTION(FUN_10039dda), FUNCTION(FUN_1003a05d),
+	FUNCTION(FUN_1003a096),   FUNCTION(FUN_10048c50), FUNCTION(FUN_10048d46),
+	FUNCTION(FUN_10048ebe),   FUNCTION(FUN_10048faf), FUNCTION(FUN_10049155),
+	DATA(g_sqrtTable),        DATA(g_unk0x100ea820),  DATA(g_unk0x100ea824),
+	DATA(g_unk0x100ea828),    DATA(g_unk0x100ea82c),  DATA(g_unk0x100ea830),
+	DATA(g_unk0x100ea834),    DATA(g_unk0x100ea840),  DATA(g_unk0x100ea84c),
+	DATA(g_unk0x100ea850),    DATA(g_unk0x100ea858),  DATA(g_unk0x100ea864),
+	DATA(g_unk0x100ea868),    DATA(g_unk0x100ea86c),  DATA(g_unk0x100ea870),
+	DATA(g_unk0x100ea874),    DATA(g_unk0x100ea878),  DATA(g_unk0x100ea87c),
+	DATA(g_unk0x100ea880),    DATA(g_unk0x100ea884),  DATA(g_unk0x100ea8b4),
+	DATA(g_unk0x100ea8b8),    DATA(g_unk0x100ea8bc),  DATA(g_unk0x100ea8c0),
+	DATA(g_unk0x100ea8c4),    DATA(g_unk0x100ea8c8),  DATA(g_unk0x1010b530),
+	DATA(g_unk0x1010b53c),    DATA(g_unk0x1010b5b8),  DATA(g_unk0x1010b550),
+	DATA(g_unk0x1010b5b0),    DATA(g_unk0x1010b534),  DATA(g_unk0x1010b5bc),
+	DATA(g_unk0x1010b538),    DATA(g_unk0x1010b5b4),  DATA(g_unk0x1010b5a8),
+	DATA(g_unk0x100c1a68),    DATA(g_unk0x100a54b0),  DATA(g_unk0x100a54b4),
+	DATA(g_unk0x1010b5c4),    DATA(g_unk0x1010b5c8),  DATA(g_unk0x100a6cc8),
 };
 
 #define SYMBOL_COUNT ((MechS32) (sizeof(g_symbols) / sizeof(g_symbols[0])))
@@ -170,6 +206,14 @@ static void RunCase(
 	}
 }
 
+// Whether the routine runs on this platform. FUN_10049155 copies pointers into 32-bit records
+// (the polygon records of unk1007d120.c's buffer, 0xc bytes and a dword per point), which
+// overlap where pointers are wider: it's checked on x86 only.
+static MechS32 RunsHere(const AsmRoutine* p_routine)
+{
+	return sizeof(void*) == 4 || strcmp(p_routine->m_name, "FUN_10049155");
+}
+
 static int RunOneCase(char** p_argv)
 {
 	const AsmRoutine* routine = AsmFindRoutine(p_argv[0]);
@@ -179,6 +223,11 @@ static int RunOneCase(char** p_argv)
 
 	if (!routine || set < 0) {
 		printf("unknown routine or set\n");
+		return 2;
+	}
+
+	if (!RunsHere(routine)) {
+		printf("%s doesn't run on this platform\n", routine->m_name);
 		return 2;
 	}
 
@@ -194,7 +243,7 @@ int main(int p_argc, char** p_argv)
 	char line[256];
 	MechS32 lineNumber = 0;
 	MechS32 failed = 0;
-	MechS32 checked[64];
+	MechS32 checked[MAX_ROUTINES];
 	MechS32 i;
 
 	if (p_argc == 6 && !strcmp(p_argv[2], "-case")) {
@@ -206,7 +255,7 @@ int main(int p_argc, char** p_argv)
 		return 2;
 	}
 
-	if (g_asmRoutineCount > 64) {
+	if (g_asmRoutineCount > MAX_ROUTINES) {
 		printf("more routines than the checked blocks' array\n");
 		return 2;
 	}
@@ -252,6 +301,11 @@ int main(int p_argc, char** p_argv)
 			continue;
 		}
 
+		checked[routine - g_asmRoutines]++;
+		if (!RunsHere(routine)) {
+			continue;
+		}
+
 		AsmHashInit(&inputs);
 		AsmHashInit(&outputs);
 		for (index = 0; index < count; index++) {
@@ -260,7 +314,6 @@ int main(int p_argc, char** p_argv)
 
 		AsmHashFormat(&inputs, actualInputs);
 		AsmHashFormat(&outputs, actualOutputs);
-		checked[routine - g_asmRoutines]++;
 		if (strcmp(actualInputs, inputText)) {
 			printf("%s %s block %lu: the inputs differ (case generator)\n", name, setName, block);
 			failed = 1;
@@ -281,6 +334,11 @@ int main(int p_argc, char** p_argv)
 	fclose(file);
 
 	for (i = 0; i < g_asmRoutineCount; i++) {
+		if (!RunsHere(&g_asmRoutines[i])) {
+			printf("%-24s skipped: it only runs on x86\n", g_asmRoutines[i].m_name);
+			continue;
+		}
+
 		printf("%-24s %3ld blocks\n", g_asmRoutines[i].m_name, (long) checked[i]);
 		if (!checked[i]) {
 			printf("%s: no golden vectors\n", g_asmRoutines[i].m_name);

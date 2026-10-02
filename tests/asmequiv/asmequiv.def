@@ -41,6 +41,25 @@ EXPORTS
 	FreeTicks
 	PauseTimer
 	FUN_1001a63c
+	FUN_1000d650
+	FUN_1000d708
+	FUN_1000d7c0
+	FUN_1000d9a8
+	FUN_1000d9ce
+	FUN_1000da0c
+	FUN_1000de3b
+	FUN_10039a30
+	FUN_10039b94
+	FUN_10039c96
+	FUN_10039ccc
+	FUN_10039dda
+	FUN_1003a05d
+	FUN_1003a096
+	FUN_10048c50
+	FUN_10048d46
+	FUN_10048ebe
+	FUN_10048faf
+	FUN_10049155
 	g_sinTable DATA
 	g_atanTable DATA
 	g_unk0x100c1a70 DATA
@@ -54,3 +73,45 @@ EXPORTS
 	g_unk0x100a2f04 DATA
 	g_unk0x100a3304 DATA
 	g_unk0x100a3705 DATA
+	g_sqrtTable DATA
+	g_unk0x100ea820 DATA
+	g_unk0x100ea824 DATA
+	g_unk0x100ea828 DATA
+	g_unk0x100ea82c DATA
+	g_unk0x100ea830 DATA
+	g_unk0x100ea834 DATA
+	g_unk0x100ea840 DATA
+	g_unk0x100ea84c DATA
+	g_unk0x100ea850 DATA
+	g_unk0x100ea858 DATA
+	g_unk0x100ea864 DATA
+	g_unk0x100ea868 DATA
+	g_unk0x100ea86c DATA
+	g_unk0x100ea870 DATA
+	g_unk0x100ea874 DATA
+	g_unk0x100ea878 DATA
+	g_unk0x100ea87c DATA
+	g_unk0x100ea880 DATA
+	g_unk0x100ea884 DATA
+	g_unk0x100ea8b4 DATA
+	g_unk0x100ea8b8 DATA
+	g_unk0x100ea8bc DATA
+	g_unk0x100ea8c0 DATA
+	g_unk0x100ea8c4 DATA
+	g_unk0x100ea8c8 DATA
+	g_unk0x1010b530 DATA
+	g_unk0x1010b53c DATA
+	g_unk0x1010b5b8 DATA
+	g_unk0x1010b550 DATA
+	g_unk0x1010b5b0 DATA
+	g_unk0x1010b534 DATA
+	g_unk0x1010b5bc DATA
+	g_unk0x1010b538 DATA
+	g_unk0x1010b5b4 DATA
+	g_unk0x1010b5a8 DATA
+	g_unk0x100c1a68 DATA
+	g_unk0x100a54b0 DATA
+	g_unk0x100a54b4 DATA
+	g_unk0x1010b5c4 DATA
+	g_unk0x1010b5c8 DATA
+	g_unk0x100a6cc8 DATA

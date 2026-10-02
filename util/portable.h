@@ -57,6 +57,16 @@ PORTABLE_INLINE MechS32 PortableS32(MechU32 p_value)
 	return -(MechS32) ~p_value - 1;
 }
 
+// Reads a 64-bit register pair's bits (edx:eax, a sum that wraps) as a signed value.
+PORTABLE_INLINE MechS64 PortableS64(MechU64 p_value)
+{
+	if (p_value <= (((MechU64) 0x7fffffff << 32) | 0xffffffff)) {
+		return (MechS64) p_value;
+	}
+
+	return -(MechS64) ~p_value - 1;
+}
+
 // Reads a 16-bit register's bits as a signed value.
 PORTABLE_INLINE MechS16 PortableS16(MechU16 p_value)
 {

@@ -23,6 +23,9 @@ if (NOT DEFINED DEMECH2_SOURCE_DIR)
   set(MSVC_FOR_DECOMP FALSE)
   enable_testing()
   option(ASMEQUIV_SANITIZE "Build asmgolden with UBSan and ASan (GCC, Clang)" OFF)
+  # The units' C predates C23, where an empty parameter list means no parameters
+  # (SlateHeron0x68's hooks)
+  set(CMAKE_C_STANDARD 17)
 endif()
 
 # The units under test, from the game's sources
@@ -53,6 +56,9 @@ set(asmequiv_routine_sources
   MW2/src/unk100696c0.c
   MW2/src/unk10071930.c
   MW2/src/unk1007d120.c
+  MW2/src/transform.c
+  MW2/src/unk10039a30.c
+  MW2/src/unk10046750.c
 )
 list(TRANSFORM asmequiv_routine_sources PREPEND "${DEMECH2_SOURCE_DIR}/")
 # MASM objects: the reference assembles the .asm where the build has MASM (the decomp build), and
@@ -72,13 +78,18 @@ if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
   set_source_files_properties(${asmequiv_routine_sources} ${asmequiv_masm_c} PROPERTIES
     COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-format")
 endif()
-# What the units reference beyond the routines (clock.c's tables, stand-ins)
-list(APPEND asmequiv_routine_sources "${CMAKE_CURRENT_SOURCE_DIR}/stubs.c")
+# What the units reference beyond the routines: ray.c (FUN_1003a096 reads a ray's length through
+# it), clock.c's tables and stand-ins
+list(APPEND asmequiv_routine_sources
+  "${DEMECH2_SOURCE_DIR}/MW2/src/ray.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/stubs.c"
+)
 
 set(asmequiv_include_dirs
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${DEMECH2_SOURCE_DIR}/util"
   "${DEMECH2_SOURCE_DIR}/MW2/include"
+  "${DEMECH2_SOURCE_DIR}/3rdparty/miles"
 )
 if (NOT WIN32)
   # The little of <windows.h> the units include
