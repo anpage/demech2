@@ -361,6 +361,13 @@ jobs:
 
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
 
+          # The release shows the commit its tag points to, which gh release
+          # create only sets when it creates the release: move the tag to the
+          # commit these files were built from. A tag pushed with the
+          # workflow's token triggers no workflow run.
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/continuous" \
+            -f sha="$GITHUB_SHA" -F force=true >/dev/null
+
   decomplint:
     name: ${{ matrix.target }} annotations
     runs-on: ubuntu-latest
