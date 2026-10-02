@@ -290,8 +290,9 @@ jobs:
       pages: write
       id-token: write
     steps:
-      # The Build workflow's upload job has already published the public
-      # targets' binaries and progress reports to the continuous release.
+      # The Build workflow's upload job has already published every target's
+      # binaries and the public targets' progress reports to the continuous
+      # release.
       - name: Download the public progress reports
         uses: actions/download-artifact@v8
         with:
@@ -310,8 +311,8 @@ jobs:
         run: |
           # The retail job's compare-with-main step downloads
           # ${target}PROGRESS.json from here. The recompiled retail binaries
-          # aren't distributed: unlike the public DLLs, they only matter as
-          # reccmp targets.
+          # are uploaded by the Build workflow's upload job, with the public
+          # DLLs.
           files=()
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
