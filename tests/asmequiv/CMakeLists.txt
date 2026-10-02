@@ -53,9 +53,21 @@ set(asmequiv_routine_sources
   MW2/src/unk1007d120.c
 )
 list(TRANSFORM asmequiv_routine_sources PREPEND "${DEMECH2_SOURCE_DIR}/")
+# MASM objects: the reference assembles the .asm where the build has MASM (the decomp build), and
+# the candidate compiles the portable C of the unit's .c
+set(asmequiv_masm_units
+  MW2/src/sndunpack
+  MW2/src/ticks
+)
+if (NOT DEFINED asm_or_c)
+  set(asm_or_c c)
+endif()
+list(TRANSFORM asmequiv_masm_units PREPEND "${DEMECH2_SOURCE_DIR}/")
+list(TRANSFORM asmequiv_masm_units APPEND ".c" OUTPUT_VARIABLE asmequiv_masm_c)
+list(TRANSFORM asmequiv_masm_units APPEND ".${asm_or_c}" OUTPUT_VARIABLE asmequiv_masm_ref)
 if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
   # The units' other functions: C names every parameter, and the debug logs print sizes with %d
-  set_source_files_properties(${asmequiv_routine_sources} PROPERTIES
+  set_source_files_properties(${asmequiv_routine_sources} ${asmequiv_masm_c} PROPERTIES
     COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-format")
 endif()
 # What the units reference beyond the routines (clock.c's tables, stand-ins)
@@ -93,14 +105,16 @@ endfunction()
 
 set(golden "${CMAKE_CURRENT_SOURCE_DIR}/golden.txt")
 
-add_executable(asmgolden golden.c cases.c routines.c ${asmequiv_routine_sources})
+add_executable(asmgolden golden.c cases.c routines.c ${asmequiv_routine_sources} ${asmequiv_masm_c})
 target_compile_definitions(asmgolden PRIVATE PORTABLE_C)
 asmequiv_target(asmgolden)
 add_test(NAME asmgolden COMMAND asmgolden "${golden}")
 
 if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+  set(asmequiv_masm_sources_ref ${asmequiv_masm_ref})
+  set(asmequiv_masm_sources_port ${asmequiv_masm_c})
   foreach(side ref port)
-    add_library(asm${side} SHARED ${asmequiv_routine_sources} asmequiv.def)
+    add_library(asm${side} SHARED ${asmequiv_routine_sources} ${asmequiv_masm_sources_${side}} asmequiv.def)
     asmequiv_target(asm${side})
     if (TARGET mw2)
       # The game's codegen flags (see MW2.DLL)

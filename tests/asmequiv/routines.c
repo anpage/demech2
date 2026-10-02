@@ -632,6 +632,280 @@ static MechS32 Domain10071a4c(const MechS32* p_args)
 	return DivideDomain(dividend, p_args[c_argA]);
 }
 
+// --- The tick counters (ticks.asm) ---
+
+#define TICK_HANDLES 64
+
+typedef void (*TickCallbackFn)(void);
+typedef MechS16 (*AllocTicksFn)(MechU32 p_flags);
+typedef MechS32 (*GetTicksFn)(MechU32 p_handle);
+typedef void (*TickHandleFn)(MechU32 p_handle);
+typedef void (*SetTicksFn)(MechU32 p_handle, MechS32 p_ticks);
+typedef void (*PauseTimerFn)(MechS32 p_flags, MechS32 p_paused);
+
+typedef struct TickState {
+	MechU32* m_paused;
+	MechS32* m_bases1;
+	MechS32* m_bases2;
+	MechS32* m_ticks1;
+	MechS32* m_ticks2;
+} TickState;
+
+// A counter: 0 (where AllocTicks starts handles at 1), the largest value (where it wraps), or
+// any.
+static MechS32 RandomTicks(MechU32* p_state)
+{
+	MechU32 bits = AsmNext(p_state);
+
+	switch (bits & 7) {
+	case 0:
+		return 0;
+	case 1:
+		return 0x7fffffff;
+	default:
+		return PortableS32(AsmNext(p_state));
+	}
+}
+
+// A handle table: free slots (0) at one of four densities, the odd -1 (where AllocTicks gives
+// up), and at least one of either, so that AllocTicks stops inside the table.
+static void MakeTickBases(MechS32* p_bases, MechU32* p_state)
+{
+	MechU32 density = AsmNext(p_state) % 4;
+	MechU32 slot;
+	MechS32 i;
+
+	for (i = 0; i < TICK_HANDLES; i++) {
+		MechU32 bits = AsmNext(p_state);
+
+		if (density < 3 && bits % (2u << (density * 2)) == 0) {
+			p_bases[i] = 0;
+		}
+		else if (bits % 61 == 1) {
+			p_bases[i] = -1;
+		}
+		else {
+			p_bases[i] = PortableS32(AsmNext(p_state));
+		}
+	}
+
+	slot = AsmNext(p_state) % TICK_HANDLES;
+	p_bases[slot] = AsmNext(p_state) % 8 ? 0 : -1;
+}
+
+// Every case starts from random counters, pause bits and tables, from its third argument word.
+static void SetUpTicks(const AsmModule* p_module, const MechS32* p_args, TickState* p_ticks)
+{
+	MechU32 state = AsmSeed(p_args, 3);
+
+	p_ticks->m_paused = (MechU32*) Data(p_module, "g_ticksPaused");
+	p_ticks->m_bases1 = (MechS32*) Data(p_module, "g_ticks1Bases");
+	p_ticks->m_bases2 = (MechS32*) Data(p_module, "g_ticks2Bases");
+	p_ticks->m_ticks1 = (MechS32*) Data(p_module, "g_ticks1");
+	p_ticks->m_ticks2 = (MechS32*) Data(p_module, "g_ticks2");
+
+	*p_ticks->m_paused = AsmNext(&state);
+	*p_ticks->m_ticks1 = RandomTicks(&state);
+	*p_ticks->m_ticks2 = RandomTicks(&state);
+	MakeTickBases(p_ticks->m_bases1, &state);
+	MakeTickBases(p_ticks->m_bases2, &state);
+}
+
+static void OutputTicks(AsmOutput* p_output, MechU32 p_result, const TickState* p_ticks)
+{
+	MechS32 i;
+
+	AsmOutputWord(p_output, p_result);
+	AsmOutputWord(p_output, *p_ticks->m_paused);
+	AsmOutputWord(p_output, (MechU32) *p_ticks->m_ticks1);
+	AsmOutputWord(p_output, (MechU32) *p_ticks->m_ticks2);
+	for (i = 0; i < TICK_HANDLES; i++) {
+		AsmOutputWord(p_output, (MechU32) p_ticks->m_bases1[i]);
+		AsmOutputWord(p_output, (MechU32) p_ticks->m_bases2[i]);
+	}
+}
+
+// A handle the game could have: a slot, with or without the first counter's bit.
+static MechU32 TickHandle(MechS32 p_arg)
+{
+	return ((MechU32) p_arg & 0x80) | ((MechU32) p_arg >> 8) % TICK_HANDLES;
+}
+
+static void RunGameTickTimerCallback(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	((TickCallbackFn) Function(p_module, "GameTickTimerCallback"))();
+	OutputTicks(p_output, 0, &ticks);
+}
+
+// Arguments: the flags (bit 0x80 selects the counter), unused, and the state.
+static void RunAllocTicks(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+	MechS16 handle;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	handle = ((AllocTicksFn) Function(p_module, "AllocTicks"))((MechU32) p_args[0]);
+	OutputTicks(p_output, (MechU16) handle, &ticks);
+}
+
+// Arguments: the handle (TickHandle), unused, and the state.
+static void RunGetTicks(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+	MechS32 result;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	result = ((GetTicksFn) Function(p_module, "GetTicks"))(TickHandle(p_args[0]));
+	OutputTicks(p_output, (MechU32) result, &ticks);
+}
+
+static void RunResetTicks(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	((TickHandleFn) Function(p_module, "ResetTicks"))(TickHandle(p_args[0]));
+	OutputTicks(p_output, 0, &ticks);
+}
+
+static void RunFreeTicks(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	((TickHandleFn) Function(p_module, "FreeTicks"))(TickHandle(p_args[0]));
+	OutputTicks(p_output, 0, &ticks);
+}
+
+// Arguments: the handle (TickHandle), the ticks, and the state.
+static void RunSetTicks(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	((SetTicksFn) Function(p_module, "SetTicks"))(TickHandle(p_args[0]), p_args[1]);
+	OutputTicks(p_output, 0, &ticks);
+}
+
+// Arguments: the flags, whether to pause, and the state.
+static void RunPauseTimer(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	TickState ticks;
+
+	SetUpTicks(p_module, p_args, &ticks);
+	((PauseTimerFn) Function(p_module, "PauseTimer"))(p_args[0], p_args[1]);
+	OutputTicks(p_output, 0, &ticks);
+}
+
+// --- The sound-block decoder (sndunpack.asm) ---
+
+#define SOUND_FRAME_MAX 0x400
+#define SOUND_COUNT_MAX 4
+#define SOUND_GUARD 64
+#define SOUND_SRC_SIZE (SOUND_COUNT_MAX * (1 + 16 + SOUND_FRAME_MAX) + SOUND_GUARD)
+#define SOUND_DST_SIZE (SOUND_COUNT_MAX * SOUND_FRAME_MAX + SOUND_GUARD)
+#define SOUND_SCRATCH_SIZE 0x400
+#define SOUND_FRAME_BUFFER_SIZE 0x401
+#define SOUND_DELTAS_SIZE 0x43
+#define SOUND_GLOBALS_SIZE 0x848 // the three, padded to a dword
+
+typedef MechU8* (*SoundUnpackFn)(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state);
+
+// The frame size: small (1 to 8, where the upsampling's loops run once), at most 0x400 (the
+// buffers' size), or any between.
+static MechU32 SoundFrameSize(MechS32 p_arg)
+{
+	MechU32 bits = (MechU32) p_arg;
+
+	switch (bits % 4) {
+	case 0:
+		return 1 + (bits >> 2) % 8;
+	case 1:
+		return SOUND_FRAME_MAX - (bits >> 2) % 4;
+	default:
+		return 1 + (bits >> 2) % SOUND_FRAME_MAX;
+	}
+}
+
+// A stream of p_count well-formed frames: random upsampling and coding (one in 32 an unknown
+// coding, which ends the decoding), each followed by its delta table and as many bytes of
+// indices or samples as it decodes. A raw frame needs a sample before the upsampling: the
+// original's copy loop runs 2^32 times otherwise.
+static void MakeSoundStream(MechU8* p_src, MechU32 p_count, MechU32 p_frameSize, MechU32* p_state)
+{
+	static const MechU32 c_tableSizes[] = {0, 0, 2, 4, 16, 0};
+	static const MechU32 c_perByte[] = {0, 0, 8, 4, 2, 0};
+	MechU8* src = p_src;
+	MechU32 frame;
+
+	Fill(p_src, SOUND_SRC_SIZE, p_state);
+	for (frame = 0; frame < p_count; frame++) {
+		MechU32 bits = AsmNext(p_state);
+		MechU32 upsampling = (bits >> 6) & 3;
+		MechU32 samples = upsampling == 1 ? p_frameSize >> 1 : upsampling == 2 ? p_frameSize >> 2 : p_frameSize;
+		MechU32 coding = (bits >> 8) % 32 ? (bits >> 16) % 6 : 6 + (bits >> 16) % 10;
+		MechU32 payload;
+
+		if (coding == 5 && !samples) {
+			coding = 2;
+		}
+
+		*src++ = (MechU8) ((bits & 0xf0) | coding);
+		if (coding >= 6) {
+			return;
+		}
+
+		if (coding == 5) {
+			payload = samples;
+		}
+		else if (c_perByte[coding]) {
+			payload = c_tableSizes[coding] + (samples ? (samples + c_perByte[coding] - 1) / c_perByte[coding] : 1);
+		}
+		else {
+			payload = 0;
+		}
+
+		src += payload;
+	}
+}
+
+// Arguments: the frame count (1 to 4), the frame size (SoundFrameSize), the running value, and
+// the stream, the output buffer's and the decoder's globals' initial contents.
+static void RunSoundUnpack(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	MechU8 src[SOUND_SRC_SIZE];
+	MechU8 dst[SOUND_DST_SIZE];
+	MechU8 globals[SOUND_GLOBALS_SIZE];
+	MechU8* scratch = (MechU8*) Data(p_module, "g_unk0x100a2f04");
+	MechU8* frame = (MechU8*) Data(p_module, "g_unk0x100a3304");
+	MechU8* deltas = (MechU8*) Data(p_module, "g_unk0x100a3705");
+	MechU32 count = 1 + (MechU32) p_args[0] % SOUND_COUNT_MAX;
+	MechU32 frameSize = SoundFrameSize(p_args[1]);
+	MechS32 value = p_args[2];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechU8* end;
+
+	MakeSoundStream(src, count, frameSize, &state);
+	Fill(dst, SOUND_DST_SIZE, &state);
+	Fill(scratch, SOUND_SCRATCH_SIZE, &state);
+	Fill(frame, SOUND_FRAME_BUFFER_SIZE, &state);
+	Fill(deltas, SOUND_DELTAS_SIZE, &state);
+
+	end = ((SoundUnpackFn) Function(p_module, "FUN_1001a63c"))(src, dst, count, frameSize, &value);
+
+	AsmOutputWord(p_output, end ? (MechU32) (end - src) : 0xffffffff);
+	AsmOutputWord(p_output, (MechU32) value);
+	AsmOutputBytes(p_output, dst, SOUND_DST_SIZE);
+	memset(globals, 0, sizeof(globals));
+	memcpy(globals, scratch, SOUND_SCRATCH_SIZE);
+	memcpy(globals + SOUND_SCRATCH_SIZE, frame, SOUND_FRAME_BUFFER_SIZE);
+	memcpy(globals + SOUND_SCRATCH_SIZE + SOUND_FRAME_BUFFER_SIZE, deltas, SOUND_DELTAS_SIZE);
+	AsmOutputBytes(p_output, globals, SOUND_GLOBALS_SIZE);
+}
+
 // --- The table ---
 
 const AsmRoutine g_asmRoutines[] = {
@@ -669,6 +943,16 @@ const AsmRoutine g_asmRoutines[] = {
 	{"FUN_10071a4c", 9, Domain10071a4c, Run10071a4c, NULL},
 	{"FUN_1007d248", 3, NULL, Run1007d248, NULL},
 	{"FUN_1007d296", 3, NULL, Run1007d296, NULL},
+	// ticks.asm
+	{"GameTickTimerCallback", 3, NULL, RunGameTickTimerCallback, NULL},
+	{"AllocTicks", 3, NULL, RunAllocTicks, NULL},
+	{"GetTicks", 3, NULL, RunGetTicks, NULL},
+	{"ResetTicks", 3, NULL, RunResetTicks, NULL},
+	{"SetTicks", 3, NULL, RunSetTicks, NULL},
+	{"FreeTicks", 3, NULL, RunFreeTicks, NULL},
+	{"PauseTimer", 3, NULL, RunPauseTimer, NULL},
+	// sndunpack.asm
+	{"FUN_1001a63c", 4, NULL, RunSoundUnpack, NULL},
 };
 
 const MechS32 g_asmRoutineCount = sizeof(g_asmRoutines) / sizeof(g_asmRoutines[0]);

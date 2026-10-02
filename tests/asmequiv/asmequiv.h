@@ -10,7 +10,7 @@
 // arithmetic that is the same on every platform, so a case can be rerun by itself anywhere.
 
 #define ASM_MAX_ARGS 9
-#define ASM_MAX_OUTPUTS 160
+#define ASM_MAX_OUTPUTS 2048
 #define ASM_BLOCK_SIZE 4096 // cases per golden-vector line
 #define ASM_RANDOM_BLOCKS 16
 

@@ -3,7 +3,7 @@
 ; the registers they use and use short jumps, which the VC++ 4.1 inline assembler can't emit, and
 ; PauseTimer ends in mov esp, ebp; pop ebp rather than ML's leave, so they are transcribed
 ; instruction for instruction. Annotated by name in ticks.h; COMPAT_MODE builds take ticks.c's
-; stubs.
+; portable C, tested against this by tests/asmequiv.
 
 	.386
 	.model flat, c

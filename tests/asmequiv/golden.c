@@ -23,7 +23,9 @@
 #include "loadres.h"
 #include "muldiv.h"
 #include "namehash.h"
+#include "sndunpack.h"
 #include "sqrtguess.h"
+#include "ticks.h"
 #include "types.h"
 #include "unk10004ec0.h"
 #include "unk10013340.h"
@@ -43,8 +45,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Defined by unk1007d120.c, which uses it alone.
+// Globals only their own units use: unk1007d120.c's, ticks.asm's and sndunpack.asm's.
 extern MechU8* g_unk0x100c1a70;
+extern MechU32 g_ticksPaused;
+extern MechS32 g_ticks1Bases[64];
+extern MechS32 g_ticks2Bases[64];
+extern MechS32 g_ticks1;
+extern MechS32 g_ticks2;
+extern MechU8 g_unk0x100a2f04[0x400];
+extern MechU8 g_unk0x100a3304[0x401];
+extern MechU8 g_unk0x100a3705[0x43];
 
 // The routines and globals linked in, by name.
 typedef struct Symbol {
@@ -67,9 +77,14 @@ static const Symbol g_symbols[] = {
 	FUNCTION(FUN_1004c860),   FUNCTION(MemCopy),      FUNCTION(MemSet),
 	FUNCTION(FUN_100696c0),   FUNCTION(FUN_1006975b), FUNCTION(FUN_100698de),
 	FUNCTION(FUN_10071930),   FUNCTION(FUN_100719ca), FUNCTION(FUN_10071a4c),
-	FUNCTION(FUN_1007d248),   FUNCTION(FUN_1007d296), DATA(g_sinTable),
-	DATA(g_atanTable),        DATA(g_unk0x100c1a70),  DATA(g_unk0x100c2698),
-	DATA(g_unk0x1010b5ac),
+	FUNCTION(FUN_1007d248),   FUNCTION(FUN_1007d296), FUNCTION(GameTickTimerCallback),
+	FUNCTION(AllocTicks),     FUNCTION(GetTicks),     FUNCTION(ResetTicks),
+	FUNCTION(SetTicks),       FUNCTION(FreeTicks),    FUNCTION(PauseTimer),
+	FUNCTION(FUN_1001a63c),   DATA(g_sinTable),       DATA(g_atanTable),
+	DATA(g_unk0x100c1a70),    DATA(g_unk0x100c2698),  DATA(g_unk0x1010b5ac),
+	DATA(g_ticksPaused),      DATA(g_ticks1Bases),    DATA(g_ticks2Bases),
+	DATA(g_ticks1),           DATA(g_ticks2),         DATA(g_unk0x100a2f04),
+	DATA(g_unk0x100a3304),    DATA(g_unk0x100a3705),
 };
 
 #define SYMBOL_COUNT ((MechS32) (sizeof(g_symbols) / sizeof(g_symbols[0])))

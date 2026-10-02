@@ -28,9 +28,9 @@
 
 // --- Modules ---
 
-static AsmFn DllFunction(void* p_handle, const char* p_name)
+static AsmFn Export(HMODULE p_module, const char* p_name)
 {
-	AsmFn fn = (AsmFn) GetProcAddress((HMODULE) p_handle, p_name);
+	AsmFn fn = (AsmFn) GetProcAddress(p_module, p_name);
 
 	if (!fn) {
 		printf("no export %s\n", p_name);
@@ -38,6 +38,51 @@ static AsmFn DllFunction(void* p_handle, const char* p_name)
 	}
 
 	return fn;
+}
+
+#ifdef _M_IX86
+// The assembly doesn't always keep the registers C callers expect it to: ResetTicks returns with
+// ebx and ecx swapped (it pops them in the wrong order), which the game's /Od callers never
+// notice. Every call into a module goes through this thunk, which calls the routine with the
+// caller's arguments and restores ebx, esi, edi and ebp. One call at a time: the state is static.
+static AsmFn g_thunkTarget;
+static DWORD g_thunkReturn;
+static DWORD g_thunkEbx;
+static DWORD g_thunkEsi;
+static DWORD g_thunkEdi;
+static DWORD g_thunkEbp;
+
+static __declspec(naked) void PreservingThunk(void)
+{
+	__asm {
+		pop g_thunkReturn
+		mov g_thunkEbx, ebx
+		mov g_thunkEsi, esi
+		mov g_thunkEdi, edi
+		mov g_thunkEbp, ebp
+		call g_thunkTarget
+		mov ebx, g_thunkEbx
+		mov esi, g_thunkEsi
+		mov edi, g_thunkEdi
+		mov ebp, g_thunkEbp
+		push g_thunkReturn
+		ret
+	}
+}
+#endif
+
+// A routine to call: runners call it right away, so the thunk's target is the last one looked up.
+static AsmFn DllFunction(void* p_handle, const char* p_name)
+{
+	AsmFn fn = Export((HMODULE) p_handle, p_name);
+
+#ifdef _M_IX86
+	g_thunkTarget = fn;
+	return PreservingThunk;
+#else
+	// The driver is x86 only, but clang-tidy parses it for the host
+	return fn;
+#endif
 }
 
 static void* DllData(void* p_handle, const char* p_name)
@@ -55,7 +100,7 @@ static void* DllData(void* p_handle, const char* p_name)
 // A routine's code: the export, or the target of the jmp an incremental link exports instead.
 static MechU8* RoutineCode(HMODULE p_module, const char* p_name)
 {
-	MechU8* code = (MechU8*) DllFunction(p_module, p_name);
+	MechU8* code = (MechU8*) Export(p_module, p_name);
 
 	if (code[0] == 0xe9) {
 		code += 5 + (code[1] | (code[2] << 8) | (code[3] << 16) | ((MechU32) code[4] << 24));
@@ -404,13 +449,33 @@ static MechS32 RunCase(
 	return 1;
 }
 
-// Whether the reference has the routine's assembly: newer compilers can't build
-// FUN_10071930's, whose __asm block jumps to a C label, and their reference compiles its
-// portable C instead (unk10071930.c). The VC++ 4.1 reference has every routine's.
+// Whether the reference has the routine's assembly. Newer compilers' references have neither
+// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm), nor FUN_10071930's,
+// whose __asm block jumps to a C label (unk10071930.c): they compile the portable C instead. The
+// VC++ 4.1 reference has every routine's.
 static MechS32 HasReference(const AsmRoutine* p_routine)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1100
-	return strcmp(p_routine->m_name, "FUN_10071930") != 0;
+	static const char* const c_portableOnly[] = {
+		"FUN_10071930",
+		"GameTickTimerCallback",
+		"AllocTicks",
+		"GetTicks",
+		"ResetTicks",
+		"SetTicks",
+		"FreeTicks",
+		"PauseTimer",
+		"FUN_1001a63c",
+	};
+	MechS32 i;
+
+	for (i = 0; i < (MechS32) (sizeof(c_portableOnly) / sizeof(c_portableOnly[0])); i++) {
+		if (!strcmp(p_routine->m_name, c_portableOnly[i])) {
+			return 0;
+		}
+	}
+
+	return 1;
 #else
 	(void) p_routine;
 	return 1;
