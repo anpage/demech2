@@ -14,8 +14,8 @@
 ;
 ; The cosine table, the IFF chunk tags after WriteViewRow and the LFSR tap table between
 ; FUN_100376f9 and DissolveView sit in .text, as in the original. Annotated by name in each DLL's
-; blit.h; COMPAT_MODE builds take each DLL's blit.c stubs. Names follow the MW2SHELL addresses
-; where they are placeholders.
+; blit.h; COMPAT_MODE builds compile the portable C of blit.c instead. Names follow the MW2SHELL
+; addresses where they are placeholders.
 
 	.386
 	.model flat, c

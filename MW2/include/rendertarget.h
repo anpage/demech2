@@ -4,19 +4,9 @@
 #include "blit.h"
 #include "decomp.h"
 #include "navpoint.h"
+#include "pane.h"
 #include "pixelbuffer.h"
 #include "types.h"
-
-// A rectangle of a pixel buffer. SelectRenderTarget copies one of the eleven in
-// g_renderTargets into the current one (0x10176ed0) and sizes the eyepoint's view to it.
-// SIZE 0x14
-typedef struct RenderTarget {
-	PixelBuffer* m_buffer; // 0x00
-	MechS32 m_left;        // 0x04
-	MechS32 m_top;         // 0x08
-	MechS32 m_right;       // 0x0c
-	MechS32 m_bottom;      // 0x10
-} RenderTarget;
 
 struct AmberWillow0x7c;
 struct Player;

@@ -178,7 +178,7 @@ void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	MechS32 height;
 	Mech* mech;
 	MechS32 x;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 y;
 	MechS32 mark;
 	MechS32 unused;
@@ -250,7 +250,7 @@ void FUN_10040f91(void)
 	void* shape;
 	MechS32 height;
 	MechS32 width;
-	RenderTarget* target;
+	Pane* target;
 
 	target = g_unk0x100c3280[23]->m_target;
 	FUN_10056bc1(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
@@ -451,7 +451,7 @@ void FUN_100414ab(Mech* p_mech)
 	else {
 		point.m_x = x;
 		point.m_y = y;
-		FUN_10057a03(&g_currentRenderTarget, &point, &point);
+		FUN_10057a03(&g_currentPane, &point, &point);
 		FUN_10041e98(point.m_x, point.m_y, offScreen);
 	}
 }
@@ -464,7 +464,7 @@ void FUN_100414ab(Mech* p_mech)
 void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, MechS32 p_unk0x10, MechS32 p_unk0x14)
 {
 	CobaltHarbor0x88* gauge;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 x;
 	MechS32 y;
 	MechS32 x2;
@@ -530,7 +530,7 @@ void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c
 	MechS32 x2;
 	MechS32 x;
 	MechS32 heading;
-	RenderTarget* target;
+	Pane* target;
 	MechS32 offset;
 
 	gauge = g_unk0x100c3280[24];
@@ -620,7 +620,7 @@ void FUN_10041a14(Player* p_player, MechS32 p_side)
 	if (!FUN_1004c11d(&x, &y, &z)) {
 		point.m_x = x;
 		point.m_y = y;
-		FUN_10057a03(&g_currentRenderTarget, &point, &point);
+		FUN_10057a03(&g_currentPane, &point, &point);
 		switch (p_side) {
 		case 0:
 			topLeft = 0xeb;
@@ -701,7 +701,7 @@ void FUN_10041c3c(struct AmberWillow0x7c* p_object, MechS32 p_side)
 	if (!FUN_1004c11d(&x, &y, &z)) {
 		point.m_x = x;
 		point.m_y = y;
-		FUN_10057a03(&g_currentRenderTarget, &point, &point);
+		FUN_10057a03(&g_currentPane, &point, &point);
 		switch (p_side) {
 		case 0:
 			topLeft = 0xeb;
@@ -759,7 +759,7 @@ void FUN_10041c3c(struct AmberWillow0x7c* p_object, MechS32 p_side)
 }
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_unk0x100e9614) at p_x, p_y of the
-// current render target.
+// current pane.
 // FUNCTION: MW2 0x10041e98
 void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
@@ -767,7 +767,7 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 
 	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
-		BlitShpFrame(&g_currentRenderTarget, shape, 0, p_x, p_y);
+		BlitShpFrame(&g_currentPane, shape, 0, p_x, p_y);
 		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
@@ -775,7 +775,7 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 // Draws frame 0 of the "SHP" resource p_id (relative to g_unk0x100e9614) at p_x, p_y.
 // Operand order: p_id + g_unk0x100e9614 loads p_id first in the original.
 // FUNCTION: MW2 0x10041f06
-void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target)
+void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, Pane* p_target)
 {
 	void* shape;
 
@@ -786,9 +786,9 @@ void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target
 	}
 }
 
-// Draws FUN_10041e98's shape at p_x, p_y of render target p_target.
+// Draws FUN_10041e98's shape at p_x, p_y of pane p_target.
 // FUNCTION: MW2 0x10041f73
-void FUN_10041f73(MechS32 p_x, MechS32 p_y, MechS32 p_id, RenderTarget* p_target)
+void FUN_10041f73(MechS32 p_x, MechS32 p_y, MechS32 p_id, Pane* p_target)
 {
 	FUN_10041e98(p_target->m_left + p_x, p_target->m_top + p_y, p_id);
 }

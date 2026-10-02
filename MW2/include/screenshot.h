@@ -11,11 +11,11 @@ extern "C"
 #endif
 
 	extern MechS32 g_screenshotState;
-	extern RenderTarget* g_screenshotTarget;
+	extern Pane* g_screenshotTarget;
 
 	MechS32 ScreenshotBegin(const MechChar* p_filename);
 	void ScreenshotWritePalette(void);
-	MechS32 ScreenshotWriteImage(RenderTarget* p_target);
+	MechS32 ScreenshotWriteImage(Pane* p_target);
 	void ScreenshotEnd(void);
 	MechS32 ScreenshotGetPixel(MechS32 p_x, MechS32 p_y);
 

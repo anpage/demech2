@@ -19,7 +19,7 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a00cc
-MechS32 g_renderTargetIndex = -1;
+MechS32 g_paneIndex = -1;
 
 // GLOBAL: MW2 0x100a00d0
 MechS32 g_currentPalette = 0x10;
@@ -58,18 +58,18 @@ static PaletteFade g_paletteFade;
 static PaletteCycle g_paletteCycle;
 
 // GLOBAL: MW2 0x10181a60
-RenderTarget g_renderTargets[11];
+Pane g_panes[11];
 
 // GLOBAL: MW2 0x10181b40
 MechS32 g_paletteResourceIds[20];
 
 // FUNCTION: MW2 0x100023c0
-void InitRenderTargets(RenderTarget* p_target)
+void InitPanes(Pane* p_target)
 {
 	MechS32 i;
 
 	for (i = 0; i < 11; i++) {
-		g_renderTargets[i] = *p_target;
+		g_panes[i] = *p_target;
 	}
 
 	for (i = 0; i < 20; i++) {
@@ -78,24 +78,24 @@ void InitRenderTargets(RenderTarget* p_target)
 }
 
 // FUNCTION: MW2 0x1000242f
-void SelectRenderTarget(MechS32 p_index)
+void SelectPane(MechS32 p_index)
 {
-	RenderTarget* target;
+	Pane* target;
 
 	if (p_index < 0 || p_index >= 11) {
 		return;
 	}
 
-	if (p_index != g_renderTargetIndex) {
-		target = &g_renderTargets[p_index];
+	if (p_index != g_paneIndex) {
+		target = &g_panes[p_index];
 		g_eyepoint->m_unk0x2c = 0;
 		g_eyepoint->m_unk0x34 = 0;
 		g_eyepoint->m_unk0x30 = target->m_right - target->m_left;
 		g_eyepoint->m_unk0x38 = target->m_bottom - target->m_top;
 		g_eyepoint->m_unk0x4c = 0;
 		g_eyepoint->m_unk0x50 = 0;
-		g_currentRenderTarget = *target;
-		g_renderTargetIndex = p_index;
+		g_currentPane = *target;
+		g_paneIndex = p_index;
 		g_unk0x100a2460 = 1;
 	}
 }
@@ -324,8 +324,8 @@ void StartPalettes(MechS32 p_dissolve)
 	PixelBuffer buffer;
 	MechS32 hasPalette;
 	MechS32 seed;
-	RenderTarget* src;
-	RenderTarget target;
+	Pane* src;
+	Pane target;
 	MechS32 count;
 	void* pixels;
 	MechS32 ticks;
@@ -345,11 +345,11 @@ void StartPalettes(MechS32 p_dissolve)
 			else {
 				pixels = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, g_refreshModePixelCount);
 				if (pixels) {
-					target = g_currentRenderTarget;
+					target = g_currentPane;
 					target.m_buffer = &buffer;
 					buffer = g_mainPixelBuffer;
 					buffer.m_pixels = pixels;
-					src = &g_currentRenderTarget;
+					src = &g_currentPane;
 					count = (g_refreshModePixelCount * 4) / 181;
 					handle = AllocTicks(0x100);
 					ResetTicks(handle);

@@ -172,9 +172,9 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 	void* shape;
 	MechS32 dx;
 	MechS32 size;
-	RenderTarget* target;
+	Pane* target;
 	Point origin;
-	RenderTarget* background;
+	Pane* background;
 
 	target = p_menu->m_target;
 	if (!target) {
@@ -333,7 +333,7 @@ void RequestMenuClose(MechS32 p_id)
 	}
 }
 
-// First draws the menus' render targets to the main pixel buffer and loads their layout; drops
+// First draws the menus' panes to the main pixel buffer and loads their layout; drops
 // the definitions whose root page or its subpages fail their init callbacks.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003cadc
@@ -506,8 +506,8 @@ void UpdateMenus(void)
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 {
 	MechS32 result;
-	RenderTarget* target;
-	RenderTarget* backgroundTarget;
+	Pane* target;
+	Pane* backgroundTarget;
 
 	result = FALSE;
 	target = p_menu->m_target;
@@ -600,7 +600,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	Point textPos;
 	MechS32 offset;
 	MechS32 i;
-	RenderTarget* target;
+	Pane* target;
 	void* font;
 	MechS32 move;
 	MechS32 key;

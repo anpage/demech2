@@ -13,7 +13,7 @@ DECOMP_SIZE_ASSERT(CodeBlockTexture, 0xc)
 // swapping them didn't flip it), and stack-slot permutation: i, points, rows and unk0x08.
 // FUNCTION: MW2 0x1006dd50
 void FUN_1006dd50(
-	RenderTarget* p_target,
+	Pane* p_target,
 	MechU8* p_pixels,
 	MechS16 p_width,
 	MechS16 p_height,

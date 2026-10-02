@@ -35,9 +35,11 @@ void AsmOutputBytes(AsmOutput* p_output, const MechU8* p_bytes, MechU32 p_size);
 
 // Whether the original computes a result for a case's arguments.
 enum {
-	c_domainIn,       // it does: the candidate must compute the same
-	c_domainFault,    // it faults (idiv): callers never get there, the candidate may do anything
-	c_domainUndefined // its result isn't defined (bsr of 0): neither is called
+	c_domainIn,        // it does: the candidate must compute the same
+	c_domainFault,     // it faults (idiv): callers never get there, the candidate may do anything
+	c_domainUndefined, // its result isn't defined (bsr of 0): neither is called
+	c_domainPointers   // c_domainIn where pointers are 32 bits (the case passes one in a 32-bit word):
+					   // asmequiv compares it, the golden vectors only count it
 };
 
 // 64-bit FNV-1a over 32-bit words, little-endian whatever the host's byte order.

@@ -3,10 +3,11 @@
 
 #include "decomp.h"
 #include "palettecolor.h"
-#include "pixelview.h"
+#include "pane.h"
 #include "types.h"
 
-// The functions and globals of blit.asm that other units use.
+// The functions and globals of blit.asm (common/src; its portable C, blit.c, in COMPAT_MODE) that
+// other units use. MW2's blit.h declares them with the same types, for blit.c.
 #ifdef __cplusplus
 extern "C"
 {
@@ -16,18 +17,18 @@ extern "C"
 	MechS32 GetShpFrameCount(void* p_data);
 	MechS32 FontGetHeight(void* p_data);
 	MechS32 FontGetCharWidth(void* p_data, MechS32 p_char);
-	MechS32 BlitShpFrame(PixelView* p_view, undefined4 p_shp, undefined4 p_frame, MechS32 p_left, MechS32 p_top);
-	void BlitView(
-		PixelView* p_source,
+	void BlitShpFrame(Pane* p_view, void* p_shp, MechS32 p_frame, MechS32 p_left, MechS32 p_top);
+	MechS32 BlitView(
+		Pane* p_source,
 		MechS32 p_sourceLeft,
 		MechS32 p_sourceTop,
-		PixelView* p_dest,
+		Pane* p_dest,
 		MechS32 p_destLeft,
 		MechS32 p_destTop,
 		MechS32 p_fillColor
 	);
 	MechS32 BlitLine(
-		PixelView* p_view,
+		Pane* p_view,
 		MechS32 p_left,
 		MechS32 p_top,
 		MechS32 p_right,
@@ -35,25 +36,11 @@ extern "C"
 		MechS32 p_unk0x14,
 		MechS32 p_color
 	);
-	void FillView(PixelView* p_view, MechS32 p_color);
-	MechS32 BlitChar(
-		PixelView* p_view,
-		MechS32 p_left,
-		MechS32 p_top,
-		void* p_font,
-		MechS32 p_char,
-		undefined* p_palette
-	);
-	void BlitString(
-		PixelView* p_view,
-		MechS32 p_left,
-		MechS32 p_top,
-		void* p_font,
-		MechChar* p_text,
-		undefined* p_palette
-	);
-	void BlitPicture(PixelView* p_view, undefined* p_data);
-	void ReadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette);
+	void FillView(Pane* p_view, MechS32 p_color);
+	MechS32 BlitChar(Pane* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechS32 p_char, void* p_palette);
+	void BlitString(Pane* p_view, MechS32 p_left, MechS32 p_top, void* p_font, MechChar* p_text, void* p_palette);
+	MechS32 BlitPicture(Pane* p_view, undefined* p_data);
+	void ReadPicturePalette(undefined* p_data, MechS32 p_size, void* p_palette);
 	MechS32 GetPictureSize(undefined* p_data);
 
 #ifdef __cplusplus

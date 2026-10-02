@@ -2,10 +2,11 @@
 #define POLYFILL_H
 
 #include "decomp.h"
-#include "pixelview.h"
+#include "pane.h"
 #include "types.h"
 
-// The polygon fillers of polyfill.asm (common/src; polyfill.c in COMPAT_MODE).
+// The polygon fillers of polyfill.asm (common/src; its portable C, polyfill.c, in COMPAT_MODE).
+// MW2's polyfill.h declares them with the same types, for polyfill.c.
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,19 +15,13 @@ extern "C"
 	extern undefined4 g_polyVars[0x74];
 	extern void (*g_polySpanRoutines[4])(void);
 
-	void FillPolygonFlat(PixelView* p_view, MechS32 p_count, MechS32* p_vertices);
-	void FUN_1002ae41(PixelView* p_view, MechS32 p_count, MechS32* p_vertices);
-	void FUN_1002b68b(PixelView* p_view, undefined4 p_unk0x04, MechS32 p_count, MechS32* p_vertices);
-	void FUN_1002bf39(PixelView* p_view, MechS32 p_count, MechS32* p_vertices, undefined4 p_unk0x0c);
-	void FUN_1002c48d(PixelView* p_view, undefined4 p_unk0x04, MechS32 p_count, MechS32* p_vertices);
+	void FillPolygonFlat(Pane* p_view, MechS32 p_count, MechU32* p_vertices);
+	void FUN_1002ae41(Pane* p_view, MechS32 p_count, MechU32* p_vertices);
+	void FUN_1002b68b(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_vertices);
+	void FUN_1002bf39(Pane* p_view, MechS32 p_count, MechU32* p_vertices, MechU8* p_table);
+	void FUN_1002c48d(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_vertices);
 	void SetLumaTable(MechU16* p_table);
-	void FillPolygonTextured(
-		PixelView* p_view,
-		MechS32 p_count,
-		MechS32* p_vertices,
-		undefined4* p_unk0x10,
-		MechS32 p_mode
-	);
+	void FillPolygonTextured(Pane* p_view, MechS32 p_count, MechU32* p_vertices, PixelBuffer* p_source, MechS32 p_mode);
 	void FUN_1002d2b0(void);
 	void FUN_1002d457(void);
 	void FUN_1002d5c3(void);

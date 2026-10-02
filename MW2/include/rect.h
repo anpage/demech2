@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-// A rectangle without a pixel buffer: RenderTarget's last four fields.
+// A rectangle without a pixel buffer: Pane's last four fields.
 // SIZE 0x10
 typedef struct Rect {
 	MechS32 m_left;   // 0x00

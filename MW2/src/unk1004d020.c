@@ -119,7 +119,7 @@ void FUN_1004d020(void)
 // Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
 // height, target and color).
 // FUNCTION: MW2 0x1004d175
-void FUN_1004d175(RenderTarget* p_target)
+void FUN_1004d175(Pane* p_target)
 {
 	MechS32 heat;
 	MechS32 width;
@@ -172,7 +172,7 @@ void FUN_1004d175(RenderTarget* p_target)
 // Draws the heat rate bar.
 // Stack-slot permutation: level, backColor, fill, fillColor and mech.
 // FUNCTION: MW2 0x1004d310
-void FUN_1004d310(RenderTarget* p_target)
+void FUN_1004d310(Pane* p_target)
 {
 	MechS32 level;
 	MechS32 backColor;
@@ -229,7 +229,7 @@ void FUN_1004d310(RenderTarget* p_target)
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
 // Stack-slot permutation: color, mech, width, height, x, y and value.
 // FUNCTION: MW2 0x1004d48a
-void FUN_1004d48a(RenderTarget* p_target)
+void FUN_1004d48a(Pane* p_target)
 {
 	MechS32 color;
 	Mech* mech;
@@ -276,7 +276,7 @@ void FUN_1004d48a(RenderTarget* p_target)
 
 // Draws the jump jet fuel bar.
 // FUNCTION: MW2 0x1004d660
-void FUN_1004d660(RenderTarget* p_target)
+void FUN_1004d660(Pane* p_target)
 {
 	MechS32 fill;
 	Mech* mech;
@@ -305,7 +305,7 @@ void FUN_1004d660(RenderTarget* p_target)
 // Draws a bar p_height up from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, top and i.
 // FUNCTION: MW2 0x1004d732
-void FUN_1004d732(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
+void FUN_1004d732(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
 	MechS32 dark;
@@ -344,7 +344,7 @@ void FUN_1004d732(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_wi
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, right and i.
 // FUNCTION: MW2 0x1004d8ae
-void FUN_1004d8ae(RenderTarget* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
+void FUN_1004d8ae(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
 	MechS32 dark;

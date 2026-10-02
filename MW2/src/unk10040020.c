@@ -51,12 +51,12 @@ MechS32 g_unk0x100a5cd8 = 0;
 
 // The outline's rectangle, centered in the panel.
 // GLOBAL: MW2 0x100a5ce0
-RenderTarget g_unk0x100a5ce0 = {NULL, 0, 0, 0, 0};
+Pane g_unk0x100a5ce0 = {NULL, 0, 0, 0, 0};
 
 // The outline's sixteen parts: rectangles in the outline shape's pixels (FUN_10070bda reads them)
 // until FUN_10040020 places them on the screen.
 // GLOBAL: MW2 0x100a5cf8
-RenderTarget g_unk0x100a5cf8[16] = {0};
+Pane g_unk0x100a5cf8[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
 // GLOBAL: MW2 0x100a5e38
@@ -201,7 +201,7 @@ void FUN_10040020(void)
 // as its armor goes, black once the section is destroyed.
 // The original loads m_sections before scaling index, and the locals are a stack-slot permutation.
 // FUNCTION: MW2 0x10040511
-void FUN_10040511(Mech* p_mech, RenderTarget* p_target)
+void FUN_10040511(Mech* p_mech, Pane* p_target)
 {
 	MechS32 rear;
 	MechS32 color;
@@ -286,7 +286,7 @@ void FUN_10040511(Mech* p_mech, RenderTarget* p_target)
 // The two full > armor tests take their operands in the other order, and the locals are a
 // stack-slot permutation.
 // FUNCTION: MW2 0x100407b6
-void FUN_100407b6(Mech* p_mech, RenderTarget* p_target)
+void FUN_100407b6(Mech* p_mech, Pane* p_target)
 {
 	MechS32 full;
 	MechS32 i;

@@ -15,9 +15,9 @@ typedef MechS32 (*CockpitGaugeFn)();
 
 // The layout of one cockpit view (4: the satellite view).
 typedef struct CockpitLayout {
-	RenderTarget* m_viewport;     // 0x00 — in 16.16 fractions of the screen
-	RenderTarget* m_unk0x04;      // 0x04 — the viewport, saved while a transition moves it
-	MechS32 m_renderTargetSlot;   // 0x08 — in g_renderTargets
+	Pane* m_viewport;             // 0x00 — in 16.16 fractions of the screen
+	Pane* m_unk0x04;              // 0x04 — the viewport, saved while a transition moves it
+	MechS32 m_paneSlot;           // 0x08 — in g_panes
 	MechS32 m_unk0x0c[2];         // 0x0c — the sounds of entering and leaving the view, -1: none
 	RectTransition* m_transition; // 0x14
 	MechS32 m_unk0x18;            // 0x18 — the range the readout shows
@@ -54,7 +54,7 @@ extern "C"
 #endif
 
 	extern CockpitGaugeFn g_cockpitGauges[10];
-	extern RenderTarget g_unk0x100a5a68[5];
+	extern Pane g_unk0x100a5a68[5];
 	extern void* g_unk0x100a5bb8[4];
 	extern MechS32 g_unk0x100a5a18;
 	extern void (*g_unk0x100a5a1c)(void);

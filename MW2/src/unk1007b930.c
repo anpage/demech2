@@ -425,15 +425,15 @@ void FUN_1007c6df(CobaltHarbor0x88* p_panel)
 }
 
 // Draws the target panel while its transition opens it, the view resized to the transition's
-// rectangle (g_renderTargets[7] and the panel's target) for the frame.
+// rectangle (g_panes[7] and the panel's target) for the frame.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
 void FUN_1007c71e(CobaltHarbor0x88* p_panel)
 {
-	RenderTarget* rect;
+	Pane* rect;
 	RectTransition* transition;
-	RenderTarget savedView;
-	RenderTarget savedTarget;
+	Pane savedView;
+	Pane savedTarget;
 
 	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
 		return;
@@ -447,12 +447,12 @@ void FUN_1007c71e(CobaltHarbor0x88* p_panel)
 
 		rect = UpdateRectTransitionByAxis(0, transition);
 		if (rect) {
-			savedView = g_renderTargets[7];
+			savedView = g_panes[7];
 			savedTarget = *p_panel->m_target;
-			g_renderTargets[7] = *rect;
+			g_panes[7] = *rect;
 			*p_panel->m_target = *rect;
 			FUN_1007c126(p_panel);
-			g_renderTargets[7] = savedView;
+			g_panes[7] = savedView;
 			*p_panel->m_target = savedTarget;
 		}
 		else {
@@ -469,10 +469,10 @@ void FUN_1007c71e(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x1007c81c
 void FUN_1007c81c(CobaltHarbor0x88* p_panel)
 {
-	RenderTarget* rect;
+	Pane* rect;
 	RectTransition* transition;
-	RenderTarget savedView;
-	RenderTarget savedTarget;
+	Pane savedView;
+	Pane savedTarget;
 
 	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
 		return;
@@ -486,12 +486,12 @@ void FUN_1007c81c(CobaltHarbor0x88* p_panel)
 
 		rect = UpdateRectTransitionByAxis(1, transition);
 		if (rect) {
-			savedView = g_renderTargets[7];
+			savedView = g_panes[7];
 			savedTarget = *p_panel->m_target;
-			g_renderTargets[7] = *rect;
+			g_panes[7] = *rect;
 			*p_panel->m_target = *rect;
 			FUN_1007c126(p_panel);
-			g_renderTargets[7] = savedView;
+			g_panes[7] = savedView;
 			*p_panel->m_target = savedTarget;
 		}
 	}

@@ -2,8 +2,8 @@
 #define POPUPPICTURE_H
 
 #include "decomp.h"
+#include "pane.h"
 #include "pixelbuffer.h"
-#include "pixelview.h"
 #include "types.h"
 
 class AudioSample;
@@ -35,8 +35,8 @@ private:
 	MechS32 m_top;                     // 0x10
 	MechS32 m_width;                   // 0x14
 	MechS32 m_height;                  // 0x18
-	PixelView m_savedView;             // 0x1c
-	PixelView m_screenView;            // 0x30
+	Pane m_savedView;                  // 0x1c
+	Pane m_screenView;                 // 0x30
 	PixelBuffer m_saved;               // 0x44
 	undefined m_unk0x58[0x358 - 0x58]; // 0x58 — never accessed; 0x300 bytes, a palette's size
 	AudioSample* m_sample;             // 0x358

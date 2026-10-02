@@ -83,7 +83,7 @@ AmberWillow0x7c* g_unk0x100a247c = NULL;
 MechS32 g_unk0x100a2480 = 0;
 
 // GLOBAL: MW2 0x100bdff8
-RenderTarget g_unk0x100bdff8;
+Pane g_unk0x100bdff8;
 
 // GLOBAL: MW2 0x10176eb4
 GameWindowGeometry* g_gameWindowGeometry;
@@ -91,7 +91,7 @@ GameWindowGeometry* g_gameWindowGeometry;
 // GLOBAL: MW2 0x10176eb8
 MechS32 g_screenHeight;
 
-// Set when the next Blit should stretch the current render target over the window.
+// Set when the next Blit should stretch the current pane over the window.
 // GLOBAL: MW2 0x10176eb0
 undefined4 g_unk0x10176eb0;
 
@@ -108,7 +108,7 @@ MechS32 g_screenPixelCount;
 MechS32 g_screenWidth;
 
 // GLOBAL: MW2 0x10176ed0
-RenderTarget g_currentRenderTarget;
+Pane g_currentPane;
 
 // GLOBAL: MW2 0x10176ee4
 MechS32 g_screenWidthMinus1;
@@ -155,14 +155,14 @@ MechS32 InitDisplayGeometry(void)
 	if (InitGameWindowGeometry()) {
 		FUN_1005d44e(g_gameWindowGeometry);
 		FUN_1005d410(g_gameWindowGeometry);
-		g_currentRenderTarget.m_buffer = &g_mainPixelBuffer;
-		g_currentRenderTarget.m_left = 0;
-		g_currentRenderTarget.m_top = 0;
-		g_currentRenderTarget.m_right = g_gameWindowGeometry->m_width - 1;
-		g_currentRenderTarget.m_bottom = g_gameWindowGeometry->m_height - 1;
-		g_unk0x100bdff8 = g_currentRenderTarget;
+		g_currentPane.m_buffer = &g_mainPixelBuffer;
+		g_currentPane.m_left = 0;
+		g_currentPane.m_top = 0;
+		g_currentPane.m_right = g_gameWindowGeometry->m_width - 1;
+		g_currentPane.m_bottom = g_gameWindowGeometry->m_height - 1;
+		g_unk0x100bdff8 = g_currentPane;
 		result = 1;
-		InitRenderTargets(&g_currentRenderTarget);
+		InitPanes(&g_currentPane);
 		FUN_10065f10();
 		g_unk0x100a2464 = 1;
 	}
@@ -255,7 +255,7 @@ void SecondRender(void)
 
 // The normal frame draw callback: renders the 3D view.
 // Draws the 3D view, the normal frame draw callback: clears the frame first when drawing to
-// another render target, updates the eyepoint, draws the scene (without the extra pass on the
+// another pane, updates the eyepoint, draws the scene (without the extra pass on the
 // DirectDraw backend), then the objects of the shapes of kinds 0x90 and 0xa0 with their own clip
 // distances, the scene's objects, and the animations.
 // FUNCTION: MW2 0x10012afe
@@ -266,7 +266,7 @@ void FUN_10012afe(void)
 
 	if (g_unk0x100a2468) {
 		memset(g_mainPixelBuffer.m_pixels, g_unk0x100a5544, g_refreshModePixelCount);
-		SelectRenderTarget(g_unk0x100a2468);
+		SelectPane(g_unk0x100a2468);
 	}
 
 	if (g_unk0x100a2460) {
@@ -275,14 +275,14 @@ void FUN_10012afe(void)
 	}
 
 	if (g_unk0x100a6cc8.m_unk0x00) {
-		FillView(&g_currentRenderTarget, g_unk0x100a5544);
+		FillView(&g_currentPane, g_unk0x100a5544);
 		return;
 	}
 
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
 	if (g_unk0x100a6cc8.m_unk0x30 || g_unk0x100a6cc8.m_unk0x34) {
-		FillView(&g_currentRenderTarget, g_unk0x100a5544);
+		FillView(&g_currentPane, g_unk0x100a5544);
 	}
 	else if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
@@ -328,7 +328,7 @@ void FUN_10012afe(void)
 	}
 
 	FUN_10069591();
-	SelectRenderTarget(0);
+	SelectPane(0);
 }
 
 // FUNCTION: MW2 0x10012dca
@@ -345,22 +345,22 @@ void FUN_10012dca(MechS32 p_value)
 // FUNCTION: MW2 0x10012e00
 void FUN_10012e00(void)
 {
-	SelectRenderTarget(0);
+	SelectPane(0);
 }
 
-// Presents the frame, or stretches the current render target over the window when a stretch is
-// pending, restoring the render target afterwards.
+// Presents the frame, or stretches the current pane over the window when a stretch is
+// pending, restoring the pane afterwards.
 // FUNCTION: MW2 0x10012e15
 void Blit(void)
 {
 	if (g_unk0x10176ebc) {
 		g_currentRefreshMode->m_stretchBlit(
-			g_currentRenderTarget.m_left + 1,
-			g_currentRenderTarget.m_top + 1,
-			g_currentRenderTarget.m_right,
-			g_currentRenderTarget.m_bottom
+			g_currentPane.m_left + 1,
+			g_currentPane.m_top + 1,
+			g_currentPane.m_right,
+			g_currentPane.m_bottom
 		);
-		g_currentRenderTarget = g_unk0x100bdff8;
+		g_currentPane = g_unk0x100bdff8;
 		g_unk0x100a5f18 = g_unk0x100a5a24;
 		g_unk0x10176ebc = 0;
 	}
@@ -374,8 +374,8 @@ void ShutdownRender(void)
 {
 	FUN_1006db28();
 	FUN_1007d120();
-	if (g_unk0x100a245c && g_currentRenderTarget.m_buffer) {
-		FillView(&g_currentRenderTarget, 0);
+	if (g_unk0x100a245c && g_currentPane.m_buffer) {
+		FillView(&g_currentPane, 0);
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}
@@ -408,7 +408,7 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 void FUN_10012f3c(void)
 {
 	void* gif;
-	RenderTarget target;
+	Pane target;
 	MechU8* state;
 	MechChar path[256];
 	PaletteColor* palette;
@@ -433,7 +433,7 @@ void FUN_10012f3c(void)
 			palette = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 0x100 * sizeof(PaletteColor));
 			if (palette) {
 				g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
-				target = g_currentRenderTarget;
+				target = g_currentPane;
 				FUN_1005705e(&target, &target, gif);
 				if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 					BlitGif(&target, gif, state);
@@ -483,7 +483,7 @@ void FUN_100131f1(ScarletOrchid0x4c* p_root)
 			if (FUN_1004c11d(&x, &y, &z)) {
 				radius = FUN_10013340(g_eyepoint->m_unk0x94, radius, z);
 				radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
-				DrawEllipse(&g_currentRenderTarget, x, y, radius, radiusY, color);
+				DrawEllipse(&g_currentPane, x, y, radius, radiusY, color);
 			}
 		}
 	}

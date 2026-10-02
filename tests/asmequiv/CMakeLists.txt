@@ -66,6 +66,8 @@ list(TRANSFORM asmequiv_routine_sources PREPEND "${DEMECH2_SOURCE_DIR}/")
 set(asmequiv_masm_units
   MW2/src/sndunpack
   MW2/src/ticks
+  common/src/polyfill
+  common/src/blit
 )
 if (NOT DEFINED asm_or_c)
   set(asm_or_c c)

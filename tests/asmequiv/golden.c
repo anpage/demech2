@@ -13,6 +13,7 @@
 
 #include "approxlen.h"
 #include "asmequiv.h"
+#include "blit.h"
 #include "clock.h"
 #include "eyepoint.h"
 #include "fixeddiv.h"
@@ -26,6 +27,7 @@
 #include "loadres.h"
 #include "muldiv.h"
 #include "namehash.h"
+#include "polyfill.h"
 #include "sndunpack.h"
 #include "sqrtguess.h"
 #include "ticks.h"
@@ -57,7 +59,7 @@
 #define MAX_ROUTINES 128
 
 // Functions and globals only their own units use: unk1007d120.c's, ticks.asm's, sndunpack.asm's,
-// transform.c's, unk10039a30.c's and unk10046750.c's.
+// transform.c's, unk10039a30.c's, unk10046750.c's and blit.asm's.
 void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column);
 MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value);
 extern MechU8* g_unk0x100c1a70;
@@ -74,6 +76,25 @@ extern MechS32 g_unk0x1010b5bc;
 extern MechS32 g_unk0x1010b538;
 extern MechS32 g_unk0x1010b5b4;
 extern MechS32 g_unk0x1010b5a8;
+struct PixelBuffer;
+MechS32 BlitRotated(
+	struct Pane* p_view,
+	void* p_shape,
+	MechS32 p_frame,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechU8* p_scratch,
+	MechS32 p_angle,
+	MechS32 p_scaleX,
+	MechS32 p_scaleY,
+	MechU32 p_flags
+);
+MechS32 EncodeViewRle(struct Pane* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, MechU8* p_out);
+void FadeViewColors(struct PixelBuffer* p_buffer, MechU8* p_palette, MechS32 p_steps);
+extern MechChar* (*g_displayDriver[0xd])(void);
+extern MechChar g_displayDriverName[0xd];
+extern MechU8 g_remapTable[0x100];
+extern MechU8 g_fadeErrors[0x300];
 
 // The routines and globals linked in, by name.
 typedef struct Symbol {
@@ -86,44 +107,183 @@ typedef struct Symbol {
 #define DATA(p_name) {#p_name, NULL, (void*) &p_name}
 
 static const Symbol g_symbols[] = {
-	FUNCTION(FixedMul16),     FUNCTION(FixedMul30),   FUNCTION(FixedDiv16),
-	FUNCTION(FixedDiv29),     FUNCTION(FixedDivU16),  FUNCTION(FixedDot27),
-	FUNCTION(FixedDot29),     FUNCTION(MulDiv64),     FUNCTION(ApproximateVectorLength),
-	FUNCTION(FixedSqrtGuess), FUNCTION(FUN_100074e0), FUNCTION(IntegrateMidpoint),
-	FUNCTION(FUN_10004ec0),   FUNCTION(FUN_10013340), FUNCTION(FUN_10019ad0),
-	FUNCTION(FUN_10034990),   FUNCTION(FUN_100349c0), FUNCTION(FUN_100349f0),
-	FUNCTION(FUN_10042740),   FUNCTION(FUN_1004c800), FUNCTION(FUN_1004c820),
-	FUNCTION(FUN_1004c860),   FUNCTION(MemCopy),      FUNCTION(MemSet),
-	FUNCTION(FUN_100696c0),   FUNCTION(FUN_1006975b), FUNCTION(FUN_100698de),
-	FUNCTION(FUN_10071930),   FUNCTION(FUN_100719ca), FUNCTION(FUN_10071a4c),
-	FUNCTION(FUN_1007d248),   FUNCTION(FUN_1007d296), FUNCTION(GameTickTimerCallback),
-	FUNCTION(AllocTicks),     FUNCTION(GetTicks),     FUNCTION(ResetTicks),
-	FUNCTION(SetTicks),       FUNCTION(FreeTicks),    FUNCTION(PauseTimer),
-	FUNCTION(FUN_1001a63c),   DATA(g_sinTable),       DATA(g_atanTable),
-	DATA(g_unk0x100c1a70),    DATA(g_unk0x100c2698),  DATA(g_unk0x1010b5ac),
-	DATA(g_ticksPaused),      DATA(g_ticks1Bases),    DATA(g_ticks2Bases),
-	DATA(g_ticks1),           DATA(g_ticks2),         DATA(g_unk0x100a2f04),
-	DATA(g_unk0x100a3304),    DATA(g_unk0x100a3705),  FUNCTION(FUN_1000d650),
-	FUNCTION(FUN_1000d708),   FUNCTION(FUN_1000d7c0), FUNCTION(FUN_1000d9a8),
-	FUNCTION(FUN_1000d9ce),   FUNCTION(FUN_1000da0c), FUNCTION(FUN_1000de3b),
-	FUNCTION(FUN_10039a30),   FUNCTION(FUN_10039b94), FUNCTION(FUN_10039c96),
-	FUNCTION(FUN_10039ccc),   FUNCTION(FUN_10039dda), FUNCTION(FUN_1003a05d),
-	FUNCTION(FUN_1003a096),   FUNCTION(FUN_10048c50), FUNCTION(FUN_10048d46),
-	FUNCTION(FUN_10048ebe),   FUNCTION(FUN_10048faf), FUNCTION(FUN_10049155),
-	DATA(g_sqrtTable),        DATA(g_unk0x100ea820),  DATA(g_unk0x100ea824),
-	DATA(g_unk0x100ea828),    DATA(g_unk0x100ea82c),  DATA(g_unk0x100ea830),
-	DATA(g_unk0x100ea834),    DATA(g_unk0x100ea840),  DATA(g_unk0x100ea84c),
-	DATA(g_unk0x100ea850),    DATA(g_unk0x100ea858),  DATA(g_unk0x100ea864),
-	DATA(g_unk0x100ea868),    DATA(g_unk0x100ea86c),  DATA(g_unk0x100ea870),
-	DATA(g_unk0x100ea874),    DATA(g_unk0x100ea878),  DATA(g_unk0x100ea87c),
-	DATA(g_unk0x100ea880),    DATA(g_unk0x100ea884),  DATA(g_unk0x100ea8b4),
-	DATA(g_unk0x100ea8b8),    DATA(g_unk0x100ea8bc),  DATA(g_unk0x100ea8c0),
-	DATA(g_unk0x100ea8c4),    DATA(g_unk0x100ea8c8),  DATA(g_unk0x1010b530),
-	DATA(g_unk0x1010b53c),    DATA(g_unk0x1010b5b8),  DATA(g_unk0x1010b550),
-	DATA(g_unk0x1010b5b0),    DATA(g_unk0x1010b534),  DATA(g_unk0x1010b5bc),
-	DATA(g_unk0x1010b538),    DATA(g_unk0x1010b5b4),  DATA(g_unk0x1010b5a8),
-	DATA(g_unk0x100c1a68),    DATA(g_unk0x100a54b0),  DATA(g_unk0x100a54b4),
-	DATA(g_unk0x1010b5c4),    DATA(g_unk0x1010b5c8),  DATA(g_unk0x100a6cc8),
+	FUNCTION(FixedMul16),
+	FUNCTION(FixedMul30),
+	FUNCTION(FixedDiv16),
+	FUNCTION(FixedDiv29),
+	FUNCTION(FixedDivU16),
+	FUNCTION(FixedDot27),
+	FUNCTION(FixedDot29),
+	FUNCTION(MulDiv64),
+	FUNCTION(ApproximateVectorLength),
+	FUNCTION(FixedSqrtGuess),
+	FUNCTION(FUN_100074e0),
+	FUNCTION(IntegrateMidpoint),
+	FUNCTION(FUN_10004ec0),
+	FUNCTION(FUN_10013340),
+	FUNCTION(FUN_10019ad0),
+	FUNCTION(FUN_10034990),
+	FUNCTION(FUN_100349c0),
+	FUNCTION(FUN_100349f0),
+	FUNCTION(FUN_10042740),
+	FUNCTION(FUN_1004c800),
+	FUNCTION(FUN_1004c820),
+	FUNCTION(FUN_1004c860),
+	FUNCTION(MemCopy),
+	FUNCTION(MemSet),
+	FUNCTION(FUN_100696c0),
+	FUNCTION(FUN_1006975b),
+	FUNCTION(FUN_100698de),
+	FUNCTION(FUN_10071930),
+	FUNCTION(FUN_100719ca),
+	FUNCTION(FUN_10071a4c),
+	FUNCTION(FUN_1007d248),
+	FUNCTION(FUN_1007d296),
+	FUNCTION(GameTickTimerCallback),
+	FUNCTION(AllocTicks),
+	FUNCTION(GetTicks),
+	FUNCTION(ResetTicks),
+	FUNCTION(SetTicks),
+	FUNCTION(FreeTicks),
+	FUNCTION(PauseTimer),
+	FUNCTION(FUN_1001a63c),
+	DATA(g_sinTable),
+	DATA(g_atanTable),
+	DATA(g_unk0x100c1a70),
+	DATA(g_unk0x100c2698),
+	DATA(g_unk0x1010b5ac),
+	DATA(g_ticksPaused),
+	DATA(g_ticks1Bases),
+	DATA(g_ticks2Bases),
+	DATA(g_ticks1),
+	DATA(g_ticks2),
+	DATA(g_unk0x100a2f04),
+	DATA(g_unk0x100a3304),
+	DATA(g_unk0x100a3705),
+	FUNCTION(FUN_1000d650),
+	FUNCTION(FUN_1000d708),
+	FUNCTION(FUN_1000d7c0),
+	FUNCTION(FUN_1000d9a8),
+	FUNCTION(FUN_1000d9ce),
+	FUNCTION(FUN_1000da0c),
+	FUNCTION(FUN_1000de3b),
+	FUNCTION(FUN_10039a30),
+	FUNCTION(FUN_10039b94),
+	FUNCTION(FUN_10039c96),
+	FUNCTION(FUN_10039ccc),
+	FUNCTION(FUN_10039dda),
+	FUNCTION(FUN_1003a05d),
+	FUNCTION(FUN_1003a096),
+	FUNCTION(FUN_10048c50),
+	FUNCTION(FUN_10048d46),
+	FUNCTION(FUN_10048ebe),
+	FUNCTION(FUN_10048faf),
+	FUNCTION(FUN_10049155),
+	DATA(g_sqrtTable),
+	DATA(g_unk0x100ea820),
+	DATA(g_unk0x100ea824),
+	DATA(g_unk0x100ea828),
+	DATA(g_unk0x100ea82c),
+	DATA(g_unk0x100ea830),
+	DATA(g_unk0x100ea834),
+	DATA(g_unk0x100ea840),
+	DATA(g_unk0x100ea84c),
+	DATA(g_unk0x100ea850),
+	DATA(g_unk0x100ea858),
+	DATA(g_unk0x100ea864),
+	DATA(g_unk0x100ea868),
+	DATA(g_unk0x100ea86c),
+	DATA(g_unk0x100ea870),
+	DATA(g_unk0x100ea874),
+	DATA(g_unk0x100ea878),
+	DATA(g_unk0x100ea87c),
+	DATA(g_unk0x100ea880),
+	DATA(g_unk0x100ea884),
+	DATA(g_unk0x100ea8b4),
+	DATA(g_unk0x100ea8b8),
+	DATA(g_unk0x100ea8bc),
+	DATA(g_unk0x100ea8c0),
+	DATA(g_unk0x100ea8c4),
+	DATA(g_unk0x100ea8c8),
+	DATA(g_unk0x1010b530),
+	DATA(g_unk0x1010b53c),
+	DATA(g_unk0x1010b5b8),
+	DATA(g_unk0x1010b550),
+	DATA(g_unk0x1010b5b0),
+	DATA(g_unk0x1010b534),
+	DATA(g_unk0x1010b5bc),
+	DATA(g_unk0x1010b538),
+	DATA(g_unk0x1010b5b4),
+	DATA(g_unk0x1010b5a8),
+	DATA(g_unk0x100c1a68),
+	DATA(g_unk0x100a54b0),
+	DATA(g_unk0x100a54b4),
+	DATA(g_unk0x1010b5c4),
+	DATA(g_unk0x1010b5c8),
+	DATA(g_unk0x100a6cc8),
+	FUNCTION(FillPolygonFlat),
+	FUNCTION(FUN_1002ae41),
+	FUNCTION(FUN_1002b68b),
+	FUNCTION(FUN_1002bf39),
+	FUNCTION(FUN_1002c48d),
+	FUNCTION(SetLumaTable),
+	FUNCTION(FillPolygonTextured),
+	DATA(g_polyVars),
+	FUNCTION(GetDisplayDriverName),
+	FUNCTION(SetDisplayDriver),
+	FUNCTION(PutViewPixel),
+	FUNCTION(GetViewPixel),
+	FUNCTION(BlitLine),
+	FUNCTION(FUN_10032e4b),
+	FUNCTION(BlitShpFrame),
+	FUNCTION(BlitShpFrameUnclipped),
+	FUNCTION(SetRemapTable),
+	FUNCTION(BlitShpFrameRemapped),
+	FUNCTION(BlitShpFrameRemappedUnclipped),
+	FUNCTION(BlitRotated),
+	FUNCTION(FUN_10034622),
+	FUNCTION(EncodeViewRle),
+	FUNCTION(RemapShpFrame),
+	FUNCTION(FillView),
+	FUNCTION(BlitView),
+	FUNCTION(ScrollView),
+	FUNCTION(DrawEllipse),
+	FUNCTION(FillEllipse),
+	FUNCTION(GetCosSin),
+	FUNCTION(BlitFixedMul16),
+	FUNCTION(RotateScalePoint),
+	FUNCTION(FontGetHeight),
+	FUNCTION(FontGetCharWidth),
+	FUNCTION(BlitChar),
+	FUNCTION(BlitString),
+	FUNCTION(WriteViewRow),
+	FUNCTION(FindIffChunk),
+	FUNCTION(BlitIff),
+	FUNCTION(ReadIffPalette),
+	FUNCTION(GetIffSize),
+	FUNCTION(BlitPicture),
+	FUNCTION(ReadPicturePalette),
+	FUNCTION(GetPictureSize),
+	FUNCTION(BlitGif),
+	FUNCTION(ReadGifPalette),
+	FUNCTION(GetGifSize),
+	FUNCTION(GetShpFrameSize),
+	FUNCTION(FUN_10037526),
+	FUNCTION(GetShpFrameExtent),
+	FUNCTION(GetShpFrameOrigin),
+	FUNCTION(FUN_100375a7),
+	FUNCTION(FUN_100375f2),
+	FUNCTION(FUN_1003763a),
+	FUNCTION(GetShpFrameCount),
+	FUNCTION(CountShpUniqueFrames),
+	FUNCTION(FUN_100376f9),
+	FUNCTION(DissolveView),
+	FUNCTION(FadeViewColors),
+	FUNCTION(CountViewColors),
+	DATA(g_displayDriver),
+	DATA(g_displayDriverName),
+	DATA(g_remapTable),
+	DATA(g_fadeErrors),
 };
 
 #define SYMBOL_COUNT ((MechS32) (sizeof(g_symbols) / sizeof(g_symbols[0])))
@@ -183,9 +343,13 @@ static void RunCase(
 
 	domain = AsmDomain(p_routine, args);
 	if (domain != c_domainIn) {
-		AsmHashWord(p_outputs, domain == c_domainFault ? 1 : 2);
+		AsmHashWord(p_outputs, domain == c_domainFault ? 1 : domain == c_domainUndefined ? 2 : 3);
 		if (p_print) {
-			printf(domain == c_domainFault ? "out of domain\n" : "undefined\n");
+			printf(
+				domain == c_domainFault       ? "out of domain\n"
+				: domain == c_domainUndefined ? "undefined\n"
+											  : "x86 only: asmequiv checks it\n"
+			);
 		}
 		return;
 	}

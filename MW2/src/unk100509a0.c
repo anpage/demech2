@@ -168,7 +168,7 @@ void FUN_10050e20(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x10050e6c
 void FUN_10050e6c(CobaltHarbor0x88* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 {
-	RenderTarget* target;
+	Pane* target;
 	MechS32 x;
 	MechS32 y;
 
@@ -183,10 +183,10 @@ void FUN_10050e6c(CobaltHarbor0x88* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 // FUNCTION: MW2 0x10050ebe
 void FUN_10050ebe(CobaltHarbor0x88* p_panel)
 {
-	RenderTarget savedTarget;
-	RenderTarget savedSlot;
+	Pane savedTarget;
+	Pane savedSlot;
 	RectTransition* transition;
-	RenderTarget* frame;
+	Pane* frame;
 
 	if (!p_panel->m_enabled || !g_unk0x100aa2a4 || g_unk0x100aa2a4 == 2 || g_unk0x100aa2a4 == 1) {
 		return;
@@ -200,12 +200,12 @@ void FUN_10050ebe(CobaltHarbor0x88* p_panel)
 
 		frame = UpdateRectTransitionByAxis(0, transition);
 		if (frame) {
-			savedSlot = g_renderTargets[5];
+			savedSlot = g_panes[5];
 			savedTarget = *p_panel->m_target;
-			g_renderTargets[5] = *frame;
+			g_panes[5] = *frame;
 			*p_panel->m_target = *frame;
 			FUN_100509c8(p_panel);
-			g_renderTargets[5] = savedSlot;
+			g_panes[5] = savedSlot;
 			*p_panel->m_target = savedTarget;
 		}
 		else {
@@ -220,10 +220,10 @@ void FUN_10050ebe(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x10050fd6
 void FUN_10050fd6(CobaltHarbor0x88* p_panel)
 {
-	RenderTarget savedTarget;
-	RenderTarget savedSlot;
+	Pane savedTarget;
+	Pane savedSlot;
 	RectTransition* transition;
-	RenderTarget* frame;
+	Pane* frame;
 
 	if (!p_panel->m_enabled || !g_unk0x100aa2a4 || g_unk0x100aa2a4 == 2 || g_unk0x100aa2a4 == 1) {
 		return;
@@ -237,12 +237,12 @@ void FUN_10050fd6(CobaltHarbor0x88* p_panel)
 
 		frame = UpdateRectTransitionByAxis(1, transition);
 		if (frame) {
-			savedSlot = g_renderTargets[5];
+			savedSlot = g_panes[5];
 			savedTarget = *p_panel->m_target;
-			g_renderTargets[5] = *frame;
+			g_panes[5] = *frame;
 			*p_panel->m_target = *frame;
 			FUN_100509c8(p_panel);
-			g_renderTargets[5] = savedSlot;
+			g_panes[5] = savedSlot;
 			*p_panel->m_target = savedTarget;
 		}
 	}

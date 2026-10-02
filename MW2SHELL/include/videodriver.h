@@ -3,8 +3,8 @@
 
 #include "decomp.h"
 #include "palettecolor.h"
+#include "pane.h"
 #include "pixelbuffer.h"
-#include "pixelview.h"
 #include "types.h"
 
 class TextGlyphList;
@@ -37,7 +37,7 @@ public:
 		MechU8 p_unk0x09
 	);
 	void LoadBackground(TMPackDataBase* p_database, MechS32 p_id);
-	void DrawPicture(undefined* p_data, MechS32 p_type, PixelView* p_view);
+	void DrawPicture(undefined* p_data, MechS32 p_type, Pane* p_view);
 	void DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color);
 	void DrawPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void DrawPixelsClipped(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
@@ -93,14 +93,14 @@ public:
 	PixelBuffer m_backBuffer; // 0x42
 
 private:
-	PixelView m_screenView; // 0x56
+	Pane m_screenView; // 0x56
 
 public:
 	// PopupPicture draws into m_backView directly.
-	PixelView m_backView; // 0x6a
+	Pane m_backView; // 0x6a
 
 private:
-	PixelView m_dirtyView;         // 0x7e
+	Pane m_dirtyView;              // 0x7e
 	PaletteColor m_palette[0x100]; // 0x92
 	MechS32 m_width;               // 0x392
 	MechS32 m_height;              // 0x396

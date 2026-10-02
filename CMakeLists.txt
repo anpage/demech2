@@ -61,8 +61,9 @@ else()
   set(mw2shell_shared MW2SHELL/src)
   set(mw2_shared MW2/src)
 endif()
-# A unit is listed as <dir>/<name>.${asm_or_c}. Objects both DLLs share (common/src) have one .asm
-# and a stub .c per DLL, listed as ${mw2shell_shared}/<name>.${asm_or_c} or ${mw2_shared}/...
+# A unit is listed as <dir>/<name>.${asm_or_c}. Objects both DLLs share (common/src) have one .asm,
+# and either one .c of portable C (common/src/<name>.${asm_or_c}: blit, polyfill) or a stub .c per
+# DLL (${mw2shell_shared}/<name>.${asm_or_c}, ${mw2_shared}/...: codeblock).
 
 option(DEMECH2_WERROR "Treat warnings as errors" OFF)
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
@@ -252,7 +253,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugout.c
     ${mw2shell_shared}/codeblock.${asm_or_c}
     MW2SHELL/src/archivereader.cpp
-    ${mw2shell_shared}/polyfill.${asm_or_c}
+    common/src/polyfill.${asm_or_c}
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/textpages.cpp
     MW2SHELL/src/projectarchive.cpp
@@ -263,7 +264,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/gdi.c
     MW2SHELL/src/resourcefile.c
     MW2SHELL/src/input.c
-    ${mw2shell_shared}/blit.${asm_or_c}
+    common/src/blit.${asm_or_c}
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp
@@ -407,7 +408,7 @@ demech2_add_dll(mw2
     MW2/src/unk100349f0.c
     MW2/src/unk10034a40.c
     MW2/src/unk10036230.c
-    ${mw2_shared}/polyfill.${asm_or_c}
+    common/src/polyfill.${asm_or_c}
     MW2/src/unk10039a30.c
     MW2/src/logwindow.c
     MW2/src/unk1003a530.c
@@ -461,7 +462,7 @@ demech2_add_dll(mw2
     MW2/src/unk1005d6d0.c
     MW2/src/unk1005e9b0.c
     MW2/src/rendertarget.c
-    ${mw2_shared}/blit.${asm_or_c}
+    common/src/blit.${asm_or_c}
     MW2/src/unk10065f10.c
     MW2/src/unk10065f50.c
     MW2/src/camerashake.c

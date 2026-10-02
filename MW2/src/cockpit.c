@@ -97,7 +97,7 @@ CockpitGaugeFn g_cockpitGauges[10] = {
 };
 
 // GLOBAL: MW2 0x100a5a68
-RenderTarget g_unk0x100a5a68[5] = {
+Pane g_unk0x100a5a68[5] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -106,7 +106,7 @@ RenderTarget g_unk0x100a5a68[5] = {
 };
 
 // GLOBAL: MW2 0x100a5ad0
-RenderTarget g_unk0x100a5ad0[8] = {
+Pane g_unk0x100a5ad0[8] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -173,9 +173,9 @@ MechS32 g_unk0x10109c74;
 void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 {
 	MechS32 index;
-	RenderTarget* rect;
+	Pane* rect;
 	RectTransition* transition;
-	RenderTarget* viewport;
+	Pane* viewport;
 
 	if (p_layout == NULL) {
 		return;
@@ -189,7 +189,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		g_unk0x100adf58[0] = *viewport;
 	}
 
-	g_renderTargets[p_layout->m_renderTargetSlot] = *viewport;
+	g_panes[p_layout->m_paneSlot] = *viewport;
 	FUN_10056bc1(viewport, &p_layout->m_unk0x58, &p_layout->m_unk0x58);
 	FUN_10056bc1(viewport, &p_layout->m_unk0x60, &p_layout->m_unk0x60);
 	FUN_10056bc1(viewport, &p_layout->m_unk0x68, &p_layout->m_unk0x68);
@@ -244,7 +244,7 @@ void FUN_1003dce8(void)
 	g_cockpitLayoutIndex = 0;
 	g_unk0x10109c6c = 1;
 	g_unk0x10109c5c = 0;
-	FUN_10056bc1(&g_currentRenderTarget, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
+	FUN_10056bc1(&g_currentPane, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
 	g_unk0x100a5a30 -= 1000;
 	g_unk0x100a5a38 = g_unk0x100a5a34 - g_unk0x100a5a30;
 }
@@ -358,7 +358,7 @@ void FUN_1003e03c(void)
 	}
 }
 
-// Draws the current cockpit view's map: sets its render target up from the view, looking down on
+// Draws the current cockpit view's map: sets its pane up from the view, looking down on
 // the player's weapon object (or the free eyepoint) from the view's range. The satellite view (4)
 // draws the terrain with its own shape filter, face and polygon hooks, over a cleared view. Then
 // the field of view, the icons, the view's own gauge and, in the map views, the readouts.
@@ -373,7 +373,7 @@ void FUN_1003e06c(void)
 	struct AmberWillow0x7c* obj;
 	MechS32 zoom;
 	MechS32 pose[7];
-	RenderTarget* viewport;
+	Pane* viewport;
 	CockpitLayout* layout;
 	MechS32 range;
 	MechS32 z;
@@ -394,8 +394,8 @@ void FUN_1003e06c(void)
 
 	player = g_players[g_localPlayerId];
 	viewport = layout->m_viewport;
-	slot = layout->m_renderTargetSlot;
-	g_renderTargets[slot] = *viewport;
+	slot = layout->m_paneSlot;
+	g_panes[slot] = *viewport;
 	angle = player->m_mech->m_unk0x04.m_value;
 	heading = player->m_heading;
 	pose[4] = 0x5a0000;
@@ -475,7 +475,7 @@ void FUN_1003e06c(void)
 void FUN_1003e32c(CockpitLayout* p_layout)
 {
 	MechS32 id;
-	RenderTarget* viewport;
+	Pane* viewport;
 	MechS32 unused;
 	MechS32 y;
 	MechS32 x;
@@ -504,7 +504,7 @@ void FUN_1003e32c(CockpitLayout* p_layout)
 // FUNCTION: MW2 0x1003e40a
 void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 {
-	RenderTarget* viewport;
+	Pane* viewport;
 	void* shape;
 	MechS32 visible;
 
@@ -577,7 +577,7 @@ void FUN_1003e689(CockpitLayout* p_layout)
 	MechS32 icon;
 	MechS32 side;
 	MechS32 kind;
-	RenderTarget* viewport;
+	Pane* viewport;
 	MapPoint pos;
 	MechS32 row;
 	MechU32 target;
@@ -670,7 +670,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 {
 	MapPoint pos;
 	MechS32 i;
-	RenderTarget* viewport;
+	Pane* viewport;
 	MechS32 icon;
 	MechS32 visible;
 	NavPoint* nav;
@@ -720,7 +720,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 void FUN_1003eb22(CockpitLayout* p_layout, MechS32 p_heading)
 {
 	MechS32 halfFov;
-	RenderTarget* viewport;
+	Pane* viewport;
 	Point end;
 	MechS32 y;
 	MechS32 x;
@@ -751,7 +751,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 	MechChar* units;
 	MechS32 range;
 	void* font;
-	RenderTarget* viewport;
+	Pane* viewport;
 	MechS32 heading;
 	Player* player;
 	MechDouble degrees;
@@ -1033,10 +1033,10 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 
 		if (g_unk0x100a6cc8.m_unk0x04) {
-			FUN_1002b68b(&g_currentRenderTarget, 0x7fff, p_count, p_points);
+			FUN_1002b68b(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {
-			FillPolygonFlat(&g_currentRenderTarget, p_count, p_points);
+			FillPolygonFlat(&g_currentPane, p_count, p_points);
 		}
 		break;
 	case 0x3000:
@@ -1083,8 +1083,8 @@ MechS32 FUN_1003f513(CockpitLayout* p_layout, MechS32 p_unk0x04)
 MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_unk0x0c)
 {
 	MechS32 result;
-	RenderTarget* rect;
-	RenderTarget* viewport;
+	Pane* rect;
+	Pane* viewport;
 
 	viewport = p_layout->m_viewport;
 	result = TRUE;
@@ -1107,7 +1107,7 @@ MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition*
 		FUN_1003e06c();
 		*viewport = *p_layout->m_unk0x04;
 		if (p_unk0x0c) {
-			g_currentRenderTarget = *rect;
+			g_currentPane = *rect;
 			g_unk0x10176ebc = 1;
 		}
 	}
@@ -1205,7 +1205,7 @@ void FUN_1003f74e(void)
 void FUN_1003f8d1(void)
 {
 	MechS32 threshold;
-	RenderTarget* viewport;
+	Pane* viewport;
 	CockpitLayout* layout;
 	MechS32 anim;
 

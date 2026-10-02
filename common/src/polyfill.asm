@@ -2,8 +2,8 @@
 ; both DLLs link byte for byte the same. ML aligns its .text to 4, which puts it right after the
 ; compiled code before it: at 0x1002a968 in MW2SHELL, 0x10036918 in MW2. The routines fill polygons
 ; given as arrays of six-dword vertices (x and y first) and share the working variables in
-; g_polyVars. Annotated by name in each DLL's polyfill.h; COMPAT_MODE builds take each DLL's
-; polyfill.c stubs. Placeholder names take the MW2SHELL addresses.
+; g_polyVars. Annotated by name in each DLL's polyfill.h; COMPAT_MODE builds compile the portable C
+; of polyfill.c instead. Placeholder names take the MW2SHELL addresses.
 
 	.386
 	.model flat, c

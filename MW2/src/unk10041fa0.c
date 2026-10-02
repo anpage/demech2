@@ -51,15 +51,13 @@ MechS32 g_unk0x10109bb8;
 SlateHeron0x68 g_unk0x10109bc0;
 
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
-// rotation) of p_worldSpan units across render target p_slot, as far as p_far.
+// rotation) of p_worldSpan units across pane p_slot, as far as p_far.
 // FUNCTION: MW2 0x10041fa0
 void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
-	g_unk0x10109bb8 = p_worldSpan / (g_renderTargets[p_slot].m_right - g_renderTargets[p_slot].m_left + 1);
+	g_unk0x10109bb8 = p_worldSpan / (g_panes[p_slot].m_right - g_panes[p_slot].m_left + 1);
 	g_unk0x10109ba4 = -(g_unk0x10109ba0 = -(p_worldSpan / 2));
-	g_unk0x10109bac =
-		-(g_unk0x10109ba8 =
-			  (g_renderTargets[p_slot].m_bottom - g_renderTargets[p_slot].m_top + 1) * g_unk0x10109bb8 / 2);
+	g_unk0x10109bac = -(g_unk0x10109ba8 = (g_panes[p_slot].m_bottom - g_panes[p_slot].m_top + 1) * g_unk0x10109bb8 / 2);
 	g_unk0x10109bb0 = 0;
 	g_unk0x10109bb4 = p_far;
 	g_unk0x10109ab0 = g_palettePending;
@@ -70,7 +68,7 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_eyepoint->m_unk0x00 = p_pose[0];
 	g_eyepoint->m_unk0x04 = p_pose[1];
 	g_eyepoint->m_unk0x08 = p_pose[2];
-	SelectRenderTarget(p_slot);
+	SelectPane(p_slot);
 	g_eyepoint->m_unk0x40 = g_unk0x10109bb4;
 	g_unk0x10109bc0 = g_unk0x100a6cc8;
 	g_unk0x100a6cc8.m_unk0x58 = FUN_10042206;

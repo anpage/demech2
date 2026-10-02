@@ -39,7 +39,7 @@ MechS32 g_unk0x100a15d4 = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
-RenderTarget g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
+Pane g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 
 // GLOBAL: MW2 0x100a15f4
 MechS32 g_pausedBannerUnscaled = 1;

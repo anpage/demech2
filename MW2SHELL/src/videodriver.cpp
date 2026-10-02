@@ -18,7 +18,7 @@
 
 DECOMP_SIZE_ASSERT(VideoDriver, 0x3ae)
 DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
-DECOMP_SIZE_ASSERT(PixelView, 0x14)
+DECOMP_SIZE_ASSERT(Pane, 0x14)
 
 // Only the height field of the font data header is used by the text drawing wrappers.
 struct VideoFontHeader {
@@ -400,7 +400,7 @@ void VideoDriver::LoadBackground(TMPackDataBase* p_database, MechS32 p_id)
 }
 
 // FUNCTION: MW2SHELL 0x10006da9
-void VideoDriver::DrawPicture(undefined* p_data, MechS32 p_type, PixelView* p_view)
+void VideoDriver::DrawPicture(undefined* p_data, MechS32 p_type, Pane* p_view)
 {
 	switch (p_type) {
 	case 2:
@@ -429,7 +429,7 @@ void VideoDriver::DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 // FUNCTION: MW2SHELL 0x10006ed4
 void VideoDriver::DrawPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	PixelView view;
+	Pane view;
 	PixelBuffer buffer;
 
 	view.m_buffer = &buffer;
@@ -456,7 +456,7 @@ void VideoDriver::DrawPixelsClipped(
 	MechS32 p_height
 )
 {
-	PixelView view;
+	Pane view;
 	PixelBuffer buffer;
 
 	if (!IntersectsRectBySize(p_left, p_top, p_width, p_height)) {
@@ -481,7 +481,7 @@ void VideoDriver::DrawPixelsClipped(
 // FUNCTION: MW2SHELL 0x1000705f
 void VideoDriver::FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	PixelView view;
+	Pane view;
 	PixelBuffer buffer;
 
 	view.m_buffer = &buffer;
@@ -501,7 +501,7 @@ void VideoDriver::FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 // FUNCTION: MW2SHELL 0x10007112
 void VideoDriver::ReadPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	PixelView view;
+	Pane view;
 	PixelBuffer buffer;
 
 	view.m_buffer = &buffer;
@@ -519,7 +519,7 @@ void VideoDriver::ReadPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top,
 // FUNCTION: MW2SHELL 0x100071ad
 void VideoDriver::RestoreBackground(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	PixelView view;
+	Pane view;
 
 	view.m_left = p_left;
 	view.m_top = p_top;
@@ -581,7 +581,7 @@ void VideoDriver::DrawShpFrame(
 )
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitShpFrame(&m_screenView, p_shp, p_frame, p_left, p_top);
+		BlitShpFrame(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -603,7 +603,7 @@ void VideoDriver::DrawShpFrameClipped(
 	}
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitShpFrame(&m_screenView, p_shp, p_frame, p_left, p_top);
+		BlitShpFrame(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);

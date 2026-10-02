@@ -129,7 +129,7 @@ MechS32 FUN_10068d10(
 
 	if (p_direct) {
 		luma = g_lumaTables + p_luma * 0x80;
-		FUN_1006dd50(&g_currentRenderTarget, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
+		FUN_1006dd50(&g_currentPane, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
 	}
 	else {
 		if (useLuma) {
@@ -141,7 +141,7 @@ MechS32 FUN_10068d10(
 		g_animFrameBuffer.m_pixels = (undefined*) data;
 		g_animFrameBuffer.m_maxX = width - 1;
 		g_animFrameBuffer.m_maxY = height - 1;
-		FillPolygonTextured(&g_currentRenderTarget, p_count, p_points, &g_animFrameBuffer, mode);
+		FillPolygonTextured(&g_currentPane, p_count, p_points, &g_animFrameBuffer, mode);
 	}
 
 	return 1;

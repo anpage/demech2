@@ -22,7 +22,7 @@ extern "C"
 
 	MechS32 GetCodeBlock(undefined4* p_start, undefined4* p_segment);
 	void CallCodeBlockRoutineClipped(
-		RenderTarget* p_target,
+		Pane* p_target,
 		MechU32* p_vertices,
 		MechS32 p_count,
 		MechS32 p_index,

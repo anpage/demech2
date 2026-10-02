@@ -71,7 +71,7 @@ MechS32 g_supAnimY;
 MechS32 g_supAnimX;
 
 // GLOBAL: MW2 0x100bcd58
-RenderTarget g_supAnimTarget;
+Pane g_supAnimTarget;
 
 // GLOBAL: MW2 0x100bcd70
 PixelBuffer g_supAnimBuffer;
