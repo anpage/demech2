@@ -154,6 +154,27 @@ demech2_add_import_library(wail32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/miles/wail
   SOURCES 3rdparty/miles/wail32.c)
 demech2_add_import_library(smackw32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/smacker/smackw32.def")
 
+# Every VC++ 4.1 DLL links from copies of its objects (see "Compiler and linker flags"). The
+# objects, in link order, for cmake/link_objects.cmake: it copies them to o/<name>/ under their
+# base names and writes <name>.objects.rsp, which CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads
+# instead of <OBJECTS>.
+function(demech2_link_object_copies TARGET)
+  if (MSVC_FOR_DECOMP)
+    set(dir "$<TARGET_FILE_DIR:${TARGET}>")
+    set(name "$<TARGET_FILE_BASE_NAME:${TARGET}>")
+    file(GENERATE OUTPUT "${dir}/${name}.objects.list"
+      CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
+    add_custom_command(TARGET ${TARGET} PRE_LINK
+      COMMAND "${CMAKE_COMMAND}"
+        "-DLIST=${dir}/${name}.objects.list" "-DDEST=${dir}/o/${name}"
+        "-DRSP=${dir}/${name}.objects.rsp" "-DPREFIX=o\\${name}"
+        -P "${PROJECT_SOURCE_DIR}/cmake/link_objects.cmake"
+      COMMENT "Copying ${TARGET} objects to o/${name}"
+      VERBATIM
+    )
+  endif()
+endfunction()
+
 # --- Game DLLs ---
 #
 # Adds a game DLL and registers it with reccmp. SOURCES must follow the original link
@@ -190,23 +211,7 @@ function(demech2_add_dll TARGET)
     )
   endif()
   target_link_libraries(${TARGET} PRIVATE ${ARGS_LIBRARIES})
-  if (MSVC_FOR_DECOMP)
-    # The objects, in link order, for cmake/link_objects.cmake: it copies them to
-    # o/<name>/ under their base names and writes <name>.objects.rsp, which
-    # CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads instead of <OBJECTS>.
-    set(dir "$<TARGET_FILE_DIR:${TARGET}>")
-    set(name "$<TARGET_FILE_BASE_NAME:${TARGET}>")
-    file(GENERATE OUTPUT "${dir}/${name}.objects.list"
-      CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
-    add_custom_command(TARGET ${TARGET} PRE_LINK
-      COMMAND "${CMAKE_COMMAND}"
-        "-DLIST=${dir}/${name}.objects.list" "-DDEST=${dir}/o/${name}"
-        "-DRSP=${dir}/${name}.objects.rsp" "-DPREFIX=o\\${name}"
-        -P "${PROJECT_SOURCE_DIR}/cmake/link_objects.cmake"
-      COMMENT "Copying ${ARGS_OUTPUT_NAME} objects to o/${name}"
-      VERBATIM
-    )
-  endif()
+  demech2_link_object_copies(${TARGET})
   reccmp_add_target(${TARGET} ID ${ARGS_ID})
 endfunction()
 
@@ -584,6 +589,12 @@ if (MSVC)
     add_compile_options(-Zc:__cplusplus)
   endif()
 endif()
+
+# --- Tests ---
+#
+# The portable C that replaces the hand-written assembly, against the assembly (ctest)
+enable_testing()
+add_subdirectory(tests/asmequiv)
 
 find_program(CLANGFORMAT_BIN NAMES clang-format)
 if (EXISTS "${CLANGFORMAT_BIN}")

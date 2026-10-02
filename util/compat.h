@@ -10,6 +10,14 @@
 #define COMPAT_MODE
 #endif
 
+// Hand-written assembly inside compiled units has a portable C replacement (util/portable.h,
+// tested against the assembly by tests/asmequiv), which every COMPAT_MODE build compiles. A
+// VC++ 4.1 build selects it with /DPORTABLE_C (the tests' 4.1 candidate), and an x86 MSVC
+// build keeps the assembly with /DREFERENCE_ASM (their modern reference).
+#if defined(COMPAT_MODE) && !defined(REFERENCE_ASM) && !defined(PORTABLE_C)
+#define PORTABLE_C
+#endif
+
 #if defined(_MSC_VER)
 // Disable "identifier was truncated to '255' characters" warning.
 // Impossible to avoid this if using STL map or set.
