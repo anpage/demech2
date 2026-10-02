@@ -1311,6 +1311,10 @@ static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, EmberFern0x2c* p_v
 	return PortableS32(PortableShrdRound(sum, 27));
 }
 
+// The call FUN_10049155 makes through g_unk0x100a6cc8.m_unk0x60, which has no prototype: the hook
+// is FUN_10036230 in the 3D view, and the map view's FUN_1003f0e7 takes three of the arguments.
+typedef MechS32 (*DrawFaceHook)(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_flags, MechS32 p_depth);
+
 // A screen offset: p_value shifted left by p_shift (modulo 32, like the shld's count), divided by
 // the depth, and rounded to a quarter.
 static MechS32 ProjectAxis(MechS32 p_value, MechS32 p_shift, MechS32 p_depth)
@@ -2117,7 +2121,8 @@ void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 	memcpy(g_unk0x1010b534, g_unk0x1010b550, g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]));
 	g_unk0x1010b534 += g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]);
 	g_unk0x100c2698 = g_unk0x1010b534;
-	poly->m_unk0x02 = (MechU16) g_unk0x100a6cc8.m_unk0x60(p_face, p_vertices, p_face->m_unk0x00, depth);
+	poly->m_unk0x02 =
+		(MechU16) ((DrawFaceHook) g_unk0x100a6cc8.m_unk0x60)(p_face, p_vertices, p_face->m_unk0x00, depth);
 	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
 		g_unk0x1010b5a8++;
 		if (g_unk0x1010b5b0 > 1) {

@@ -1959,12 +1959,14 @@ static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	RecordStacks stacks;
 	Region regions[3];
 	MechU32 state = AsmSeed(p_args, 9) ^ 0x5bd1e995;
+	MechU32 bottom;
 	CopperWren0x20* result;
 	MechS32 i;
 
 	MakeClipCase(p_args, &clip);
 	SetView(p_module, clip.m_view);
-	SetUpRecords(p_module, &stacks, RECORD_ARENA_SIZE - AsmNext(&state) % 0x40 * 4, AsmNext(&state) % 0x40 * 4, &state);
+	bottom = AsmNext(&state) % 0x40 * 4;
+	SetUpRecords(p_module, &stacks, RECORD_ARENA_SIZE - AsmNext(&state) % 0x40 * 4, bottom, &state);
 	for (i = 0; i < 2; i++) {
 		if (clip.m_ends[i].m_hasCopy) {
 			clip.m_ends[i].m_vertex.m_unk0x24 = &clip.m_ends[i].m_copy;
