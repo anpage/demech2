@@ -404,6 +404,19 @@ static MechS32 RunCase(
 	return 1;
 }
 
+// Whether the reference has the routine's assembly: newer compilers can't build
+// FUN_10071930's, whose __asm block jumps to a C label, and their reference compiles its
+// portable C instead (unk10071930.c). The VC++ 4.1 reference has every routine's.
+static MechS32 HasReference(const AsmRoutine* p_routine)
+{
+#if defined(_MSC_VER) && _MSC_VER >= 1100
+	return strcmp(p_routine->m_name, "FUN_10071930") != 0;
+#else
+	(void) p_routine;
+	return 1;
+#endif
+}
+
 static HMODULE Load(const char* p_dll)
 {
 	HMODULE module = LoadLibrary(p_dll);
@@ -519,6 +532,11 @@ int main(int p_argc, char** p_argv)
 		MechS32 set;
 
 		if (only && strcmp(only, routine->m_name)) {
+			continue;
+		}
+
+		if (!HasReference(routine)) {
+			printf("%-24s skipped: the reference has no assembly for it\n", routine->m_name);
 			continue;
 		}
 
