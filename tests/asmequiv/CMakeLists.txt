@@ -5,6 +5,8 @@
 #   by x86 MSVC: VC++ 4.1 in the decomp build, the modern compiler's inline assembler otherwise.
 # - asmport.dll: the same routines' portable C, from the same sources (the candidate).
 # - asmequiv.exe: runs every case through both and compares them; writes the golden vectors.
+# - asmequiv-coverage (decomp build, with a Python that has capstone): the cases reach every
+#   basic block of the reference (tools/asmblocks.py lists them).
 # - asmgolden: checks the portable C, linked in, against the committed golden vectors
 #   (golden.txt). Builds anywhere: this directory is also a standalone project, for compilers and
 #   platforms the game doesn't build on yet (cmake -S tests/asmequiv, with
@@ -31,20 +33,52 @@ set(asmequiv_routine_sources
   MW2/src/fixeddot27.c
   MW2/src/fixeddot29.c
   MW2/src/muldiv.c
+  MW2/src/approxlen.c
+  MW2/src/sqrtguess.c
+  MW2/src/namehash.c
+  MW2/src/integrate.c
+  MW2/src/unk10004ec0.c
+  MW2/src/unk10013340.c
+  MW2/src/unk10019ad0.c
+  MW2/src/unk10034990.c
+  MW2/src/unk100349c0.c
+  MW2/src/unk100349f0.c
+  MW2/src/unk10042740.c
+  MW2/src/unk1004c800.c
+  MW2/src/unk1004c820.c
+  MW2/src/unk1004c860.c
+  MW2/src/loadres.c
+  MW2/src/unk100696c0.c
+  MW2/src/unk10071930.c
+  MW2/src/unk1007d120.c
 )
 list(TRANSFORM asmequiv_routine_sources PREPEND "${DEMECH2_SOURCE_DIR}/")
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
+  # The units' other functions: C names every parameter, and the debug logs print sizes with %d
+  set_source_files_properties(${asmequiv_routine_sources} PROPERTIES
+    COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-format")
+endif()
+# What the units reference beyond the routines (clock.c's tables, stand-ins)
+list(APPEND asmequiv_routine_sources "${CMAKE_CURRENT_SOURCE_DIR}/stubs.c")
 
 set(asmequiv_include_dirs
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${DEMECH2_SOURCE_DIR}/util"
   "${DEMECH2_SOURCE_DIR}/MW2/include"
 )
+if (NOT WIN32)
+  # The little of <windows.h> the units include
+  list(APPEND asmequiv_include_dirs "${CMAKE_CURRENT_SOURCE_DIR}/posix")
+endif()
 
 function(asmequiv_target TARGET)
   target_include_directories(${TARGET} PRIVATE ${asmequiv_include_dirs})
   set_target_properties(${TARGET} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreaded)
   if (WIN32)
     target_link_libraries(${TARGET} PRIVATE kernel32.lib)
+  endif()
+  if (NOT WIN32)
+    target_link_libraries(${TARGET} PRIVATE m)
   endif()
   if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
     # The routines' 4.1 pragmas
@@ -59,7 +93,7 @@ endfunction()
 
 set(golden "${CMAKE_CURRENT_SOURCE_DIR}/golden.txt")
 
-add_executable(asmgolden golden.c cases.c ${asmequiv_routine_sources})
+add_executable(asmgolden golden.c cases.c routines.c ${asmequiv_routine_sources})
 target_compile_definitions(asmgolden PRIVATE PORTABLE_C)
 asmequiv_target(asmgolden)
 add_test(NAME asmgolden COMMAND asmgolden "${golden}")
@@ -79,7 +113,7 @@ if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   target_compile_definitions(asmref PRIVATE REFERENCE_ASM)
   target_compile_definitions(asmport PRIVATE PORTABLE_C)
 
-  add_executable(asmequiv asmequiv.c cases.c)
+  add_executable(asmequiv asmequiv.c cases.c routines.c)
   asmequiv_target(asmequiv)
   add_dependencies(asmequiv asmref asmport)
 
@@ -95,5 +129,28 @@ if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
         "${golden}" "${CMAKE_CURRENT_BINARY_DIR}/golden.txt"
     )
     set_tests_properties(asmequiv-golden-current PROPERTIES FIXTURES_REQUIRED asmequiv_golden)
+
+    # Coverage: the cases reach every basic block of the reference. tools/asmblocks.py lists
+    # the blocks, with capstone; without a Python that has it, the test is left out.
+    find_package(Python3 COMPONENTS Interpreter QUIET)
+    set(capstone_result 1)
+    if (Python3_FOUND)
+      execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import capstone"
+        RESULT_VARIABLE capstone_result OUTPUT_QUIET ERROR_QUIET)
+    endif()
+    if (capstone_result EQUAL 0)
+      set(blocks "${CMAKE_CURRENT_BINARY_DIR}/blocks.txt")
+      add_test(NAME asmequiv-blocks
+        COMMAND "${Python3_EXECUTABLE}" "${DEMECH2_SOURCE_DIR}/tools/asmblocks.py"
+          $<TARGET_FILE:asmref> -o "${blocks}"
+      )
+      set_tests_properties(asmequiv-blocks PROPERTIES FIXTURES_SETUP asmequiv_blocks)
+      add_test(NAME asmequiv-coverage
+        COMMAND asmequiv $<TARGET_FILE:asmref> $<TARGET_FILE:asmport> -coverage "${blocks}"
+      )
+      set_tests_properties(asmequiv-coverage PROPERTIES FIXTURES_REQUIRED asmequiv_blocks)
+    else()
+      message(STATUS "asmequiv: no Python with capstone, so no coverage test")
+    endif()
   endif()
 endif()

@@ -6,50 +6,6 @@
 
 #define INT_MIN32 (-0x7fffffff - 1)
 
-// --- Domains ---
-
-// A quotient an idiv leaves in eax.
-static MechS32 FitsS32(MechS64 p_value)
-{
-	return p_value >= INT_MIN32 && p_value <= 0x7fffffff;
-}
-
-static MechS32 FixedDiv16Domain(const MechS32* p_args)
-{
-	return p_args[1] != 0 && FitsS32((MechS64) p_args[0] * 0x10000 / p_args[1]);
-}
-
-static MechS32 FixedDiv29Domain(const MechS32* p_args)
-{
-	return p_args[1] != 0 && FitsS32((MechS64) p_args[0] * 0x20000000 / p_args[1]);
-}
-
-static MechS32 FixedDivU16Domain(const MechS32* p_args)
-{
-	MechU64 dividend = (MechU64) ((MechS64) p_args[0] * 0x10000);
-	MechU32 divisor = (MechU32) p_args[1];
-
-	return divisor != 0 && dividend / divisor <= 0xffffffff;
-}
-
-static MechS32 MulDiv64Domain(const MechS32* p_args)
-{
-	return p_args[2] != 0 && FitsS32((MechS64) p_args[0] * p_args[1] / p_args[2]);
-}
-
-const AsmRoutine g_asmRoutines[] = {
-	{"FixedMul16", 2, NULL},
-	{"FixedMul30", 2, NULL},
-	{"FixedDiv16", 2, FixedDiv16Domain},
-	{"FixedDiv29", 2, FixedDiv29Domain},
-	{"FixedDivU16", 2, FixedDivU16Domain},
-	{"FixedDot27", 6, NULL},
-	{"FixedDot29", 6, NULL},
-	{"MulDiv64", 3, MulDiv64Domain},
-};
-
-const MechS32 g_asmRoutineCount = sizeof(g_asmRoutines) / sizeof(g_asmRoutines[0]);
-
 const char* const g_asmSetNames[c_setCount] = {"edge", "random"};
 
 const AsmRoutine* AsmFindRoutine(const char* p_name)
@@ -127,7 +83,7 @@ static void InitWideValues(void)
 }
 
 // A 32-bit integer hash (lowbias32, by Chris Wellons): the case generator is counter-based.
-static MechU32 Mix(MechU32 p_x)
+MechU32 AsmMix(MechU32 p_x)
 {
 	p_x ^= p_x >> 16;
 	p_x *= 0x7feb352d;
@@ -137,10 +93,23 @@ static MechU32 Mix(MechU32 p_x)
 	return p_x;
 }
 
-static MechU32 Next(MechU32* p_state)
+MechU32 AsmNext(MechU32* p_state)
 {
-	*p_state = Mix(*p_state + 0x9e3779b9);
+	*p_state = AsmMix(*p_state + 0x9e3779b9);
 	return *p_state;
+}
+
+// A state for a runner's own random numbers, from a case's arguments.
+MechU32 AsmSeed(const MechS32* p_args, MechS32 p_count)
+{
+	MechU32 state = 0x2545f491;
+	MechS32 i;
+
+	for (i = 0; i < p_count; i++) {
+		state = AsmMix(state ^ (MechU32) p_args[i]);
+	}
+
+	return state;
 }
 
 static MechU32 NameSeed(const char* p_name)
@@ -158,8 +127,8 @@ static MechU32 NameSeed(const char* p_name)
 // as the small, fixed-point-sized and boundary ones its callers pass.
 static MechS32 RandomValue(MechU32* p_state)
 {
-	MechU32 kind = Next(p_state);
-	MechU32 bits = Next(p_state);
+	MechU32 kind = AsmNext(p_state);
+	MechU32 bits = AsmNext(p_state);
 	MechS32 negative = (kind >> 8) & 1;
 	MechS32 value;
 
@@ -208,7 +177,7 @@ MechU32 AsmEdgeCaseCount(const AsmRoutine* p_routine)
 
 void AsmMakeCase(const AsmRoutine* p_routine, MechS32 p_set, MechU32 p_index, MechS32* p_args)
 {
-	MechU32 state = Mix(NameSeed(p_routine->m_name) ^ Mix(p_index + (MechU32) p_set * 0x9e3779b9));
+	MechU32 state = AsmMix(NameSeed(p_routine->m_name) ^ AsmMix(p_index + (MechU32) p_set * 0x9e3779b9));
 	MechS32 i;
 
 	InitWideValues();
@@ -232,7 +201,7 @@ void AsmMakeCase(const AsmRoutine* p_routine, MechS32 p_set, MechU32 p_index, Me
 	}
 	else {
 		for (i = 0; i < p_routine->m_arity; i++) {
-			p_args[i] = g_wideValues[Next(&state) % WIDE_COUNT];
+			p_args[i] = g_wideValues[AsmNext(&state) % WIDE_COUNT];
 		}
 	}
 }
@@ -240,6 +209,8 @@ void AsmMakeCase(const AsmRoutine* p_routine, MechS32 p_set, MechU32 p_index, Me
 typedef MechS32 (*AsmFn1)(MechS32);
 typedef MechS32 (*AsmFn2)(MechS32, MechS32);
 typedef MechS32 (*AsmFn3)(MechS32, MechS32, MechS32);
+typedef MechS32 (*AsmFn4)(MechS32, MechS32, MechS32, MechS32);
+typedef MechS32 (*AsmFn5)(MechS32, MechS32, MechS32, MechS32, MechS32);
 typedef MechS32 (*AsmFn6)(MechS32, MechS32, MechS32, MechS32, MechS32, MechS32);
 
 MechS32 AsmCall(AsmFn p_fn, MechS32 p_arity, const MechS32* p_args)
@@ -251,8 +222,67 @@ MechS32 AsmCall(AsmFn p_fn, MechS32 p_arity, const MechS32* p_args)
 		return ((AsmFn2) p_fn)(p_args[0], p_args[1]);
 	case 3:
 		return ((AsmFn3) p_fn)(p_args[0], p_args[1], p_args[2]);
+	case 4:
+		return ((AsmFn4) p_fn)(p_args[0], p_args[1], p_args[2], p_args[3]);
+	case 5:
+		return ((AsmFn5) p_fn)(p_args[0], p_args[1], p_args[2], p_args[3], p_args[4]);
 	default:
 		return ((AsmFn6) p_fn)(p_args[0], p_args[1], p_args[2], p_args[3], p_args[4], p_args[5]);
+	}
+}
+
+MechS32 AsmDomain(const AsmRoutine* p_routine, const MechS32* p_args)
+{
+	return p_routine->m_domain ? p_routine->m_domain(p_args) : c_domainIn;
+}
+
+// The case's inputs: its arguments, and what it derives from them other than with integer
+// arithmetic.
+void AsmHashCase(const AsmRoutine* p_routine, const MechS32* p_args, AsmHash* p_hash)
+{
+	MechS32 i;
+
+	for (i = 0; i < p_routine->m_arity; i++) {
+		AsmHashWord(p_hash, (MechU32) p_args[i]);
+	}
+
+	if (p_routine->m_hashInputs) {
+		p_routine->m_hashInputs(p_args, p_hash);
+	}
+}
+
+void AsmRun(const AsmRoutine* p_routine, const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	p_output->m_count = 0;
+	if (p_routine->m_run) {
+		p_routine->m_run(p_module, p_args, p_output);
+	}
+	else {
+		AsmFn fn = p_module->m_function(p_module->m_handle, p_routine->m_name);
+
+		AsmOutputWord(p_output, (MechU32) AsmCall(fn, p_routine->m_arity, p_args));
+	}
+}
+
+void AsmOutputWord(AsmOutput* p_output, MechU32 p_word)
+{
+	if (p_output->m_count < ASM_MAX_OUTPUTS) {
+		p_output->m_words[p_output->m_count] = p_word;
+	}
+
+	p_output->m_count++;
+}
+
+void AsmOutputBytes(AsmOutput* p_output, const MechU8* p_bytes, MechU32 p_size)
+{
+	MechU32 i;
+
+	for (i = 0; i + 4 <= p_size; i += 4) {
+		AsmOutputWord(
+			p_output,
+			p_bytes[i] | ((MechU32) p_bytes[i + 1] << 8) | ((MechU32) p_bytes[i + 2] << 16) |
+				((MechU32) p_bytes[i + 3] << 24)
+		);
 	}
 }
 

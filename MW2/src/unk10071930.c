@@ -1,13 +1,16 @@
 /* Conversions between the screen and the eyepoint's view, with the view matrix's second column.
    Hand-written assembly: each function's products and quotients are an __asm block (imul/idiv on
-   64-bit intermediates). */
+   64-bit intermediates). Their portable C (PORTABLE_C) is tested against the assembly by
+   tests/asmequiv: it replaces each whole function, whose C wraps where standard C overflows. */
 #include "unk10071930.h"
 
+#include "compat.h"
 #include "eyepoint.h"
+#include "portable.h"
 #include "types.h"
 
-/* FUN_10071930's __asm block jumps to a C label, which newer compilers reject: they build a C
-   version instead. */
+/* FUN_10071930's __asm block jumps to a C label, which newer compilers reject: their reference
+   build (REFERENCE_ASM) compiles the portable C too. */
 #pragma warning(disable : 4102) /* a label only the __asm block jumps to */
 
 // Returns whether the screen point (p_x, p_y) lies below the horizon of p_eyepoint's view.
@@ -15,6 +18,16 @@
 // FUNCTION: MW2 0x10071930
 MechS32 FUN_10071930(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
+#if defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
+	/* Where an idiv faults, the result is undefined. */
+	MechS32 offsetX = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
+	MechS32 offsetY = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);
+	MechU32 sum = (MechU32) ((MechS64) offsetX * p_eyepoint->m_unk0x54.m_rows[0][1] / p_eyepoint->m_unk0x94) +
+				  (MechU32) ((MechS64) offsetY * p_eyepoint->m_unk0x54.m_rows[1][1] / p_eyepoint->m_unk0x98);
+	MechS32 horizon = PortableSar32(PortableS32(0 - (MechU32) p_eyepoint->m_unk0x54.m_rows[2][1]), 16);
+
+	return PortableS32(sum) >= horizon;
+#else
 	MechS32 offsetX;
 	MechS32 offsetY;
 	MechS32 b;
@@ -30,7 +43,6 @@ MechS32 FUN_10071930(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 	a = p_eyepoint->m_unk0x54.m_rows[0][1];
 	c = p_eyepoint->m_unk0x54.m_rows[1][1];
 	e = p_eyepoint->m_unk0x54.m_rows[2][1];
-#if defined(_MSC_VER) && _MSC_VER < 1100
 	__asm {
 		mov eax, offsetX
 		imul a
@@ -50,8 +62,6 @@ MechS32 FUN_10071930(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 
 below:
 	return TRUE;
-#else
-	return (MechS32) ((__int64) offsetX * a / b) + (MechS32) ((__int64) offsetY * c / d) >= (-e >> 16);
 #endif
 }
 
@@ -60,6 +70,16 @@ below:
 // FUNCTION: MW2 0x100719ca
 MechS32 FUN_100719ca(MechS32 p_x, Eyepoint* p_eyepoint)
 {
+#ifdef PORTABLE_C
+	/* Where an idiv faults, the result is undefined. */
+	MechS32 x = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
+	MechU32 height = (MechU32) ((MechS64) x * p_eyepoint->m_unk0x54.m_rows[0][1] / p_eyepoint->m_unk0x94) +
+					 (MechU32) PortableSar32(p_eyepoint->m_unk0x54.m_rows[2][1], 16);
+	MechU32 y =
+		(MechU32) ((MechS64) PortableS32(0 - height) * p_eyepoint->m_unk0x98 / p_eyepoint->m_unk0x54.m_rows[1][1]);
+
+	return PortableS32((MechU32) p_eyepoint->m_centerY - y);
+#else
 	MechS32 y;
 	MechS32 a;
 	MechS32 b;
@@ -86,6 +106,7 @@ MechS32 FUN_100719ca(MechS32 p_x, Eyepoint* p_eyepoint)
 		mov y, eax
 	}
 	return -y + p_eyepoint->m_centerY;
+#endif
 }
 
 // Returns the screen x of the horizon at screen y p_y in p_eyepoint's view.
@@ -93,6 +114,16 @@ MechS32 FUN_100719ca(MechS32 p_x, Eyepoint* p_eyepoint)
 // FUNCTION: MW2 0x10071a4c
 MechS32 FUN_10071a4c(MechS32 p_y, Eyepoint* p_eyepoint)
 {
+#ifdef PORTABLE_C
+	/* Where an idiv faults, the result is undefined. */
+	MechS32 y = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);
+	MechU32 width = (MechU32) ((MechS64) y * p_eyepoint->m_unk0x54.m_rows[1][1] / p_eyepoint->m_unk0x98) +
+					(MechU32) PortableSar32(p_eyepoint->m_unk0x54.m_rows[2][1], 16);
+	MechU32 x =
+		(MechU32) ((MechS64) PortableS32(0 - width) * p_eyepoint->m_unk0x94 / p_eyepoint->m_unk0x54.m_rows[0][1]);
+
+	return PortableS32((MechU32) p_eyepoint->m_centerX + x);
+#else
 	MechS32 x;
 	MechS32 a;
 	MechS32 b;
@@ -119,4 +150,5 @@ MechS32 FUN_10071a4c(MechS32 p_y, Eyepoint* p_eyepoint)
 		mov x, eax
 	}
 	return p_eyepoint->m_centerX + x;
+#endif
 }

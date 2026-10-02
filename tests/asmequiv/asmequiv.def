@@ -1,5 +1,5 @@
-; The entry points asmequiv compares: asmref.dll (the matched assembly) and asmport.dll (the
-; portable C) export the same names.
+; The entry points asmequiv compares, and the globals their cases set: asmref.dll (the matched
+; assembly) and asmport.dll (the portable C) export the same names.
 EXPORTS
 	FixedMul16
 	FixedMul30
@@ -9,3 +9,32 @@ EXPORTS
 	FixedDot27
 	FixedDot29
 	MulDiv64
+	ApproximateVectorLength
+	FixedSqrtGuess
+	FUN_100074e0
+	IntegrateMidpoint
+	FUN_10004ec0
+	FUN_10013340
+	FUN_10019ad0
+	FUN_10034990
+	FUN_100349c0
+	FUN_100349f0
+	FUN_10042740
+	FUN_1004c800
+	FUN_1004c820
+	FUN_1004c860
+	MemCopy
+	MemSet
+	FUN_100696c0
+	FUN_1006975b
+	FUN_100698de
+	FUN_10071930
+	FUN_100719ca
+	FUN_10071a4c
+	FUN_1007d248
+	FUN_1007d296
+	g_sinTable DATA
+	g_atanTable DATA
+	g_unk0x100c1a70 DATA
+	g_unk0x100c2698 DATA
+	g_unk0x1010b5ac DATA

@@ -3,11 +3,15 @@
 // separately, so each has its own copy of every global. Optionally writes the golden vectors that
 // asmgolden checks a candidate against on other platforms.
 //
-//   asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-blocks N] [-routine NAME] [-case SET INDEX]
+//   asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-coverage FILE] [-blocks N] [-routine NAME]
+//            [-case SET INDEX]
 //
 // -blocks sets the number of random blocks (ASM_RANDOM_BLOCKS by default), -case runs and prints
 // one case. Outside a routine's domain, the reference must fault (and is the only one called);
-// inside it, it must not.
+// inside it, it must not. Where the original's result is undefined, neither is called.
+//
+// -coverage reads the reference's basic blocks (tools/asmblocks.py) and fails unless the cases
+// reach every block of the routines that ran.
 
 #include "asmequiv.h"
 
@@ -19,16 +23,229 @@
 #include <windows.h>
 
 #define MAX_REPORTS 10
+#define MAX_BLOCKS 2048
+#define MAX_ROUTINES 64
 
-static DWORD CallGuarded(AsmFn p_fn, MechS32 p_arity, const MechS32* p_args, MechS32* p_result)
+// --- Modules ---
+
+static AsmFn DllFunction(void* p_handle, const char* p_name)
+{
+	AsmFn fn = (AsmFn) GetProcAddress((HMODULE) p_handle, p_name);
+
+	if (!fn) {
+		printf("no export %s\n", p_name);
+		exit(2);
+	}
+
+	return fn;
+}
+
+static void* DllData(void* p_handle, const char* p_name)
+{
+	void* data = (void*) GetProcAddress((HMODULE) p_handle, p_name);
+
+	if (!data) {
+		printf("no export %s\n", p_name);
+		exit(2);
+	}
+
+	return data;
+}
+
+// A routine's code: the export, or the target of the jmp an incremental link exports instead.
+static MechU8* RoutineCode(HMODULE p_module, const char* p_name)
+{
+	MechU8* code = (MechU8*) DllFunction(p_module, p_name);
+
+	if (code[0] == 0xe9) {
+		code += 5 + (code[1] | (code[2] << 8) | (code[3] << 16) | ((MechU32) code[4] << 24));
+	}
+
+	return code;
+}
+
+// --- Coverage ---
+
+// The reference's basic blocks (written by tools/asmblocks.py), each with an int3 in its first
+// byte until a case reaches it.
+typedef struct Block {
+	MechS32 m_routine; // in g_asmRoutines
+	MechU32 m_offset;  // from the routine's start
+	MechU8* m_address;
+	MechU8 m_byte;
+	MechS32 m_reached;
+} Block;
+
+static Block g_blocks[MAX_BLOCKS];
+static MechS32 g_blockCount = 0;
+
+static MechS32 LoadBlocks(const char* p_path, HMODULE p_module)
+{
+	FILE* file = fopen(p_path, "r");
+	char line[4096];
+	MechS32 lineNumber = 0;
+
+	if (!file) {
+		printf("%s: can't read\n", p_path);
+		return 0;
+	}
+
+	while (fgets(line, sizeof(line), file)) {
+		const AsmRoutine* routine;
+		MechU8* code;
+		char* token;
+
+		lineNumber++;
+		token = strtok(line, " \r\n");
+		if (!token || token[0] == '#') {
+			continue;
+		}
+
+		routine = AsmFindRoutine(token);
+		if (!routine) {
+			printf("%s:%ld: unknown routine %s\n", p_path, (long) lineNumber, token);
+			fclose(file);
+			return 0;
+		}
+
+		code = RoutineCode(p_module, routine->m_name);
+		while ((token = strtok(NULL, " \r\n")) != NULL) {
+			Block* block = &g_blocks[g_blockCount];
+			unsigned long offset;
+			unsigned long byte;
+			DWORD protection;
+
+			if (g_blockCount == MAX_BLOCKS || sscanf(token, "%lx:%lx", &offset, &byte) != 2) {
+				printf("%s:%ld: too many blocks, or a malformed one\n", p_path, (long) lineNumber);
+				fclose(file);
+				return 0;
+			}
+
+			block->m_routine = (MechS32) (routine - g_asmRoutines);
+			block->m_offset = (MechU32) offset;
+			block->m_address = code + offset;
+			block->m_byte = (MechU8) byte;
+			block->m_reached = 0;
+			if (*block->m_address != block->m_byte) {
+				printf(
+					"%s: +0x%lx starts with 0x%02x, not 0x%02lx: the reference isn't the one %s describes\n",
+					routine->m_name,
+					offset,
+					*block->m_address,
+					byte,
+					p_path
+				);
+				fclose(file);
+				return 0;
+			}
+
+			VirtualProtect(block->m_address, 1, PAGE_EXECUTE_READWRITE, &protection);
+			*block->m_address = 0xcc;
+			g_blockCount++;
+		}
+	}
+
+	fclose(file);
+	FlushInstructionCache(GetCurrentProcess(), NULL, 0);
+	return 1;
+}
+
+// A block's int3: restores the block's first byte and resumes there.
+static MechS32 ReachBlock(EXCEPTION_POINTERS* p_info)
+{
+	MechU8* address = (MechU8*) p_info->ExceptionRecord->ExceptionAddress;
+	MechS32 i;
+
+	for (i = 0; i < g_blockCount; i++) {
+		if (g_blocks[i].m_address == address && !g_blocks[i].m_reached) {
+			*address = g_blocks[i].m_byte;
+			g_blocks[i].m_reached = 1;
+			FlushInstructionCache(GetCurrentProcess(), address, 1);
+#ifdef _M_IX86
+			p_info->ContextRecord->Eip = (DWORD) address;
+#else
+			// The driver is x86 only, but clang-tidy parses it for the host
+			p_info->ContextRecord->Rip = (DWORD64) address;
+#endif
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+// Reports the blocks of the routines that ran which no case reached.
+static MechS32 ReportCoverage(const MechS32* p_ran)
+{
+	MechS32 failed = 0;
+	MechS32 r;
+	MechS32 i;
+
+	for (r = 0; r < g_asmRoutineCount; r++) {
+		MechS32 blocks = 0;
+		MechS32 reached = 0;
+
+		if (!p_ran[r]) {
+			continue;
+		}
+
+		for (i = 0; i < g_blockCount; i++) {
+			if (g_blocks[i].m_routine == r) {
+				blocks++;
+				reached += g_blocks[i].m_reached;
+			}
+		}
+
+		if (!blocks) {
+			printf("%-24s no blocks: not in the coverage file\n", g_asmRoutines[r].m_name);
+			failed = 1;
+			continue;
+		}
+
+		printf("%-24s %3ld/%3ld blocks reached", g_asmRoutines[r].m_name, (long) reached, (long) blocks);
+		if (reached < blocks) {
+			printf(", not:");
+			for (i = 0; i < g_blockCount; i++) {
+				if (g_blocks[i].m_routine == r && !g_blocks[i].m_reached) {
+					printf(" +0x%lx", (unsigned long) g_blocks[i].m_offset);
+				}
+			}
+
+			failed = 1;
+		}
+
+		printf("\n");
+	}
+
+	return !failed;
+}
+
+// --- Cases ---
+
+static int Filter(EXCEPTION_POINTERS* p_info, DWORD* p_code)
+{
+	if (p_info->ExceptionRecord->ExceptionCode == EXCEPTION_BREAKPOINT && ReachBlock(p_info)) {
+		return EXCEPTION_CONTINUE_EXECUTION;
+	}
+
+	*p_code = p_info->ExceptionRecord->ExceptionCode;
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+static DWORD RunGuarded(
+	const AsmRoutine* p_routine,
+	const AsmModule* p_module,
+	const MechS32* p_args,
+	AsmOutput* p_output
+)
 {
 	DWORD code = 0;
 
 	__try {
-		*p_result = AsmCall(p_fn, p_arity, p_args);
+		AsmRun(p_routine, p_module, p_args, p_output);
 	}
-	__except (code = GetExceptionCode(), EXCEPTION_EXECUTE_HANDLER) {
-		*p_result = 0;
+	__except (Filter(GetExceptionInformation(), &code)) {
+		p_output->m_count = 0;
 	}
 
 	return code;
@@ -50,17 +267,32 @@ static void PrintCase(const AsmRoutine* p_routine, MechS32 p_set, MechU32 p_inde
 	printf("): ");
 }
 
+// The first differing word of two outputs, or -1.
+static MechS32 FirstDifference(const AsmOutput* p_a, const AsmOutput* p_b)
+{
+	MechS32 i;
+
+	for (i = 0; i < p_a->m_count && i < p_b->m_count; i++) {
+		if (p_a->m_words[i] != p_b->m_words[i]) {
+			return i;
+		}
+	}
+
+	return p_a->m_count == p_b->m_count ? -1 : i;
+}
+
 typedef struct Totals {
 	MechU32 m_cases;
 	MechU32 m_outOfDomain;
+	MechU32 m_undefined;
 	MechU32 m_failures;
 } Totals;
 
 // Runs one case; returns whether it passed.
 static MechS32 RunCase(
 	const AsmRoutine* p_routine,
-	AsmFn p_ref,
-	AsmFn p_cand,
+	const AsmModule* p_ref,
+	const AsmModule* p_cand,
 	MechS32 p_set,
 	MechU32 p_index,
 	MechS32 p_verbose,
@@ -70,25 +302,38 @@ static MechS32 RunCase(
 )
 {
 	MechS32 args[ASM_MAX_ARGS];
-	MechS32 inDomain;
-	MechS32 expected;
-	MechS32 actual;
+	MechS32 domain;
+	AsmOutput expected;
+	AsmOutput actual;
 	DWORD refCode;
 	DWORD candCode;
+	MechS32 difference;
 	MechS32 i;
 	MechS32 report;
 
 	AsmMakeCase(p_routine, p_set, p_index, args);
-	for (i = 0; i < p_routine->m_arity; i++) {
-		AsmHashWord(p_inputs, (MechU32) args[i]);
-	}
-
-	inDomain = p_routine->m_inDomain ? p_routine->m_inDomain(args) : 1;
-	refCode = CallGuarded(p_ref, p_routine->m_arity, args, &expected);
+	AsmHashCase(p_routine, args, p_inputs);
+	domain = AsmDomain(p_routine, args);
 	p_totals->m_cases++;
 	report = p_totals->m_failures < MAX_REPORTS || p_verbose;
 
-	if (!inDomain) {
+	if (domain == c_domainUndefined) {
+		p_totals->m_undefined++;
+		AsmHashWord(p_outputs, 2);
+		if (p_verbose) {
+			PrintCase(p_routine, p_set, p_index, args);
+			printf("undefined\n");
+		}
+		return 1;
+	}
+
+	refCode = RunGuarded(p_routine, p_ref, args, &expected);
+	if (expected.m_count > ASM_MAX_OUTPUTS) {
+		printf("%s: %ld outputs, more than ASM_MAX_OUTPUTS\n", p_routine->m_name, (long) expected.m_count);
+		exit(2);
+	}
+
+	if (domain == c_domainFault) {
 		p_totals->m_outOfDomain++;
 		AsmHashWord(p_outputs, 1);
 		if (!IsDivideFault(refCode)) {
@@ -97,7 +342,7 @@ static MechS32 RunCase(
 				PrintCase(p_routine, p_set, p_index, args);
 				printf(
 					"out of domain, but the reference returns 0x%08lx (exception 0x%08lx)\n",
-					(unsigned long) (MechU32) expected,
+					(unsigned long) (expected.m_count ? expected.m_words[0] : 0),
 					(unsigned long) refCode
 				);
 			}
@@ -111,7 +356,10 @@ static MechS32 RunCase(
 	}
 
 	AsmHashWord(p_outputs, 0);
-	AsmHashWord(p_outputs, (MechU32) expected);
+	for (i = 0; i < expected.m_count; i++) {
+		AsmHashWord(p_outputs, expected.m_words[i]);
+	}
+
 	if (refCode) {
 		p_totals->m_failures++;
 		if (report) {
@@ -121,23 +369,24 @@ static MechS32 RunCase(
 		return 0;
 	}
 
-	candCode = CallGuarded(p_cand, p_routine->m_arity, args, &actual);
-	if (candCode || actual != expected) {
+	candCode = RunGuarded(p_routine, p_cand, args, &actual);
+	difference = candCode ? 0 : FirstDifference(&expected, &actual);
+	if (difference >= 0) {
 		p_totals->m_failures++;
 		if (report) {
 			PrintCase(p_routine, p_set, p_index, args);
 			if (candCode) {
-				printf(
-					"reference 0x%08lx, candidate faults (exception 0x%08lx)\n",
-					(unsigned long) (MechU32) expected,
-					(unsigned long) candCode
-				);
+				printf("the candidate faults (exception 0x%08lx)\n", (unsigned long) candCode);
+			}
+			else if (difference >= expected.m_count || difference >= actual.m_count) {
+				printf("%ld outputs, the candidate %ld\n", (long) expected.m_count, (long) actual.m_count);
 			}
 			else {
 				printf(
-					"reference 0x%08lx, candidate 0x%08lx\n",
-					(unsigned long) (MechU32) expected,
-					(unsigned long) (MechU32) actual
+					"output %ld: reference 0x%08lx, candidate 0x%08lx\n",
+					(long) difference,
+					(unsigned long) expected.m_words[difference],
+					(unsigned long) actual.m_words[difference]
 				);
 			}
 		}
@@ -146,22 +395,26 @@ static MechS32 RunCase(
 
 	if (p_verbose) {
 		PrintCase(p_routine, p_set, p_index, args);
-		printf("0x%08lx\n", (unsigned long) (MechU32) expected);
+		for (i = 0; i < expected.m_count; i++) {
+			printf(i ? " %08lx" : "%08lx", (unsigned long) expected.m_words[i]);
+		}
+		printf("\n");
 	}
 
 	return 1;
 }
 
-static AsmFn Resolve(HMODULE p_module, const char* p_dll, const char* p_name)
+// Whether the reference has the routine's assembly: newer compilers can't build
+// FUN_10071930's, whose __asm block jumps to a C label, and their reference compiles its
+// portable C instead (unk10071930.c). The VC++ 4.1 reference has every routine's.
+static MechS32 HasReference(const AsmRoutine* p_routine)
 {
-	AsmFn fn = (AsmFn) GetProcAddress(p_module, p_name);
-
-	if (!fn) {
-		printf("%s: no export %s\n", p_dll, p_name);
-		exit(2);
-	}
-
-	return fn;
+#if defined(_MSC_VER) && _MSC_VER >= 1100
+	return strcmp(p_routine->m_name, "FUN_10071930") != 0;
+#else
+	(void) p_routine;
+	return 1;
+#endif
 }
 
 static HMODULE Load(const char* p_dll)
@@ -182,18 +435,30 @@ int main(int p_argc, char** p_argv)
 	const char* candDll;
 	const char* goldenPath = NULL;
 	const char* only = NULL;
+	const char* coveragePath = NULL;
 	MechS32 randomBlocks = ASM_RANDOM_BLOCKS;
 	MechS32 caseSet = -1;
 	MechU32 caseIndex = 0;
 	HMODULE ref;
 	HMODULE cand;
+	AsmModule refModule;
+	AsmModule candModule;
+	MechS32 ran[MAX_ROUTINES];
 	FILE* golden = NULL;
 	MechS32 failed = 0;
 	MechS32 r;
 	MechS32 i;
 
 	if (p_argc < 3) {
-		printf("usage: asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-blocks N] [-routine NAME] [-case SET INDEX]\n");
+		printf(
+			"usage: asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-coverage FILE] [-blocks N] [-routine NAME] [-case "
+			"SET INDEX]\n"
+		);
+		return 2;
+	}
+
+	if (g_asmRoutineCount > MAX_ROUTINES) {
+		printf("more routines than MAX_ROUTINES\n");
 		return 2;
 	}
 
@@ -202,6 +467,9 @@ int main(int p_argc, char** p_argv)
 	for (i = 3; i < p_argc; i++) {
 		if (!strcmp(p_argv[i], "-golden") && i + 1 < p_argc) {
 			goldenPath = p_argv[++i];
+		}
+		else if (!strcmp(p_argv[i], "-coverage") && i + 1 < p_argc) {
+			coveragePath = p_argv[++i];
 		}
 		else if (!strcmp(p_argv[i], "-blocks") && i + 1 < p_argc) {
 			randomBlocks = atoi(p_argv[++i]);
@@ -236,6 +504,16 @@ int main(int p_argc, char** p_argv)
 
 	ref = Load(refDll);
 	cand = Load(candDll);
+	refModule.m_function = DllFunction;
+	refModule.m_data = DllData;
+	refModule.m_handle = ref;
+	candModule = refModule;
+	candModule.m_handle = cand;
+	memset(ran, 0, sizeof(ran));
+
+	if (coveragePath && !LoadBlocks(coveragePath, ref)) {
+		return 2;
+	}
 
 	if (goldenPath) {
 		golden = fopen(goldenPath, "w");
@@ -250,8 +528,6 @@ int main(int p_argc, char** p_argv)
 
 	for (r = 0; r < g_asmRoutineCount; r++) {
 		const AsmRoutine* routine = &g_asmRoutines[r];
-		AsmFn refFn;
-		AsmFn candFn;
 		Totals totals;
 		MechS32 set;
 
@@ -259,9 +535,13 @@ int main(int p_argc, char** p_argv)
 			continue;
 		}
 
-		refFn = Resolve(ref, refDll, routine->m_name);
-		candFn = Resolve(cand, candDll, routine->m_name);
+		if (!HasReference(routine)) {
+			printf("%-24s skipped: the reference has no assembly for it\n", routine->m_name);
+			continue;
+		}
+
 		memset(&totals, 0, sizeof(totals));
+		ran[r] = 1;
 
 		if (caseSet >= 0) {
 			AsmHash inputs;
@@ -269,7 +549,7 @@ int main(int p_argc, char** p_argv)
 
 			AsmHashInit(&inputs);
 			AsmHashInit(&outputs);
-			if (!RunCase(routine, refFn, candFn, caseSet, caseIndex, 1, &totals, &inputs, &outputs)) {
+			if (!RunCase(routine, &refModule, &candModule, caseSet, caseIndex, 1, &totals, &inputs, &outputs)) {
 				failed = 1;
 			}
 			continue;
@@ -288,7 +568,7 @@ int main(int p_argc, char** p_argv)
 				AsmHashInit(&inputs);
 				AsmHashInit(&outputs);
 				for (index = start; index < end; index++) {
-					RunCase(routine, refFn, candFn, set, index, 0, &totals, &inputs, &outputs);
+					RunCase(routine, &refModule, &candModule, set, index, 0, &totals, &inputs, &outputs);
 				}
 
 				if (golden) {
@@ -312,10 +592,11 @@ int main(int p_argc, char** p_argv)
 		}
 
 		printf(
-			"%-12s %8lu cases, %8lu out of domain, %lu failed\n",
+			"%-24s %8lu cases, %8lu out of domain, %6lu undefined, %lu failed\n",
 			routine->m_name,
 			(unsigned long) totals.m_cases,
 			(unsigned long) totals.m_outOfDomain,
+			(unsigned long) totals.m_undefined,
 			(unsigned long) totals.m_failures
 		);
 		if (totals.m_failures) {
@@ -325,6 +606,10 @@ int main(int p_argc, char** p_argv)
 
 	if (golden) {
 		fclose(golden);
+	}
+
+	if (coveragePath && caseSet < 0 && !ReportCoverage(ran)) {
+		failed = 1;
 	}
 
 	printf(failed ? "FAILED\n" : "OK\n");
