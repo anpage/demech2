@@ -30,7 +30,7 @@ MechS32 FUN_100349f0(MechS32 p_x0, MechS32 p_x1, MechS32 p_x, MechS32 p_y0, Mech
 		base = p_y0;
 	}
 
-	return PortableS32((MechU32) (rise / run) + (MechU32) base);
+	return PortableS32((MechU32) PortableIdiv(rise, run) + (MechU32) base);
 #else
 	__asm {
 		mov ebx, p_x0

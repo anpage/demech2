@@ -13,8 +13,7 @@
 MechS32 MulDiv64(MechS32 p_a, MechS32 p_b, MechS32 p_c)
 {
 #ifdef PORTABLE_C
-	/* Out of domain (the idiv faults): p_c == 0, or a quotient outside MechS32. */
-	return (MechS32) ((MechS64) p_a * p_b / p_c);
+	return PortableIdiv((MechS64) p_a * p_b, p_c);
 #else
 	__asm {
 		mov eax, p_a

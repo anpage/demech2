@@ -13,7 +13,7 @@
 MechS32 FUN_1004c860(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d)
 {
 #ifdef PORTABLE_C
-	return (MechS32) (((MechS64) p_a * p_b + (MechS64) p_c * 0x10000) / p_d);
+	return PortableIdiv((MechS64) p_a * p_b + (MechS64) p_c * 0x10000, p_d);
 #else
 	__asm {
 		mov eax, p_a

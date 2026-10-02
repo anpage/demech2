@@ -7,6 +7,7 @@
    one, and the samples past a short frame's end that the upsampling interpolates towards. */
 #include "sndunpack.h"
 
+#include "compat.h"
 #include "portable.h"
 #include "types.h"
 
@@ -131,6 +132,8 @@ MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_fr
 {
 	const MechU8* src = p_src;
 
+	PORTABLE_ASSERT(p_count != 0);
+	PORTABLE_ASSERT(p_frameSize != 0 && p_frameSize <= FRAME_SIZE);
 	do {
 		MechU32 upsampling = *src >> 6;
 		MechU32 coding = *src & 0xf;
@@ -162,6 +165,7 @@ MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_fr
 			src = DecodeDeltas(ReadDeltas(src, 16), samples, 4, &value);
 			break;
 		case c_codingRaw:
+			PORTABLE_ASSERT(samples != 0);
 			memcpy(g_unk0x100a3304, src, samples);
 			src += samples;
 			value = g_unk0x100a3304[samples - 1] - 0x80;

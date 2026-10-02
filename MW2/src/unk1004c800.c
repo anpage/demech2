@@ -16,7 +16,7 @@ MechS32 FUN_1004c800(MechS32 p_a, MechS32 p_b, MechS32 p_c)
 	/* The divisor wraps at 32 bits, and the quotient is shifted unsigned. */
 	MechS32 divisor = PortableS32((MechU32) p_b + (MechU32) p_c);
 
-	return (MechS32) ((MechU32) ((MechS64) p_a * p_b / divisor) >> 12);
+	return (MechS32) ((MechU32) PortableIdiv((MechS64) p_a * p_b, divisor) >> 12);
 #else
 	__asm {
 		mov eax, p_a

@@ -13,8 +13,7 @@
 MechS32 FixedDiv16(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C
-	/* Out of domain (the idiv faults): p_b == 0, or a quotient outside MechS32. */
-	return (MechS32) ((MechS64) p_a * 0x10000 / p_b);
+	return PortableIdiv((MechS64) p_a * 0x10000, p_b);
 #else
 	__asm {
 		mov eax, p_a
