@@ -79,7 +79,7 @@ void SetBusyCursor(MechS32 p_busy)
 // it on the desktop.
 // Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000120a
-void FUN_1000120a(HWND p_hWnd, HWND p_child)
+void FUN_1000120a(HWND p_hWnd, HWND p_child, undefined4)
 {
 	WINDOWPLACEMENT placement;
 	MechS32 screenHeight;

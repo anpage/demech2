@@ -3,16 +3,28 @@
 #include "bwdwriter.h"
 #include "chatlog.h"
 #include "decomp.h"
+#include "mw2prj.h"
 #include "netlaunchinfo.h"
 #include "sessionlist.h"
 #include "types.h"
 #include "unk10001070.h"
+#include "unk100025f0.h"
+#include "unk10006060.h"
 #include "unk10006b20.h"
+#include "unk10006ce0.h"
 #include "unk10007c30.h"
+#include "unk100089d0.h"
+#include "unk10009230.h"
 #include "unk1000aa90.h"
 #include "unk1000b400.h"
+#include "unk1000d250.h"
+#include "unk1000e410.h"
+#include "unk1000f0f0.h"
 #include "unk1000f8e0.h"
+#include "unk10010460.h"
+#include "unk10011120.h"
 
+#include <commctrl.h>
 #include <dplay.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +50,10 @@ ChatLog g_chatLog;
 // GLOBAL: NETMECHW 0x1001ce14
 DWORD g_unk0x1001ce14;
 
+// The path of the help file (FUN_10005e50).
+// GLOBAL: NETMECHW 0x1001cbf0
+MechChar g_unk0x1001cbf0[MAX_PATH];
+
 // The current directory when the lobby started.
 // GLOBAL: NETMECHW 0x1001ccf8
 MechChar g_unk0x1001ccf8[MAX_PATH];
@@ -53,6 +69,36 @@ MechU8 g_unk0x1001ce18[8];
 // GLOBAL: NETMECHW 0x1001ce20
 DWORD g_unk0x1001ce20;
 
+// The lobby's bitmaps, loaded when its window is created (FUN_100042d9).
+// GLOBAL: NETMECHW 0x1001ce24
+HBITMAP g_unk0x1001ce24;
+
+// GLOBAL: NETMECHW 0x1001ce28
+HBITMAP g_unk0x1001ce28;
+
+// Bitmap 105, whose colors make the lobby's palette (FUN_10004a40).
+// GLOBAL: NETMECHW 0x1001ce30
+HBITMAP g_unk0x1001ce30;
+
+// GLOBAL: NETMECHW 0x1001ce34
+HBITMAP g_unk0x1001ce34;
+
+// GLOBAL: NETMECHW 0x1001ce38
+HBITMAP g_unk0x1001ce38;
+
+// GLOBAL: NETMECHW 0x1001ce3c
+HBITMAP g_unk0x1001ce3c;
+
+// The lobby window's one-second timer.
+// GLOBAL: NETMECHW 0x1001ce40
+UINT g_unk0x1001ce40;
+
+// GLOBAL: NETMECHW 0x1001ce44
+HBITMAP g_unk0x1001ce44;
+
+// GLOBAL: NETMECHW 0x1001ce48
+HBITMAP g_unk0x1001ce48;
+
 // GLOBAL: NETMECHW 0x1001ce2c
 HINSTANCE g_hInstance;
 
@@ -60,12 +106,18 @@ HINSTANCE g_hInstance;
 // GLOBAL: NETMECHW 0x1001ce50
 MechChar g_unk0x1001ce50[0x2000];
 
+// GLOBAL: NETMECHW 0x1001ee50
+HBITMAP g_unk0x1001ee50;
+
 // GLOBAL: NETMECHW 0x1001ee54
 DWORD g_unk0x1001ee54;
 
 // The item data of the last session in the join dialog's list box (FUN_1000f8e0).
 // GLOBAL: NETMECHW 0x1001ee58
 LRESULT g_unk0x1001ee58;
+
+// GLOBAL: NETMECHW 0x1001ee5c
+HBITMAP g_unk0x1001ee5c;
 
 // Guards the lobby's settings (g_unk0x1001ca90.m_settings).
 // GLOBAL: NETMECHW 0x1001ee60
@@ -75,8 +127,20 @@ CRITICAL_SECTION g_unk0x1001ee60;
 // GLOBAL: NETMECHW 0x100230f8
 GUID g_unk0x100230f8 = {0x528519a0, 0x1001, 0x11cf, {0x80, 0x5c, 0x00, 0xaa, 0x00, 0x44, 0x43, 0x1f}};
 
+// The index in g_unk0x10023138 of the dialog that gets the lobby's dialog messages.
+// GLOBAL: NETMECHW 0x10023108
+MechS32 g_unk0x10023108 = -1;
+
+// Set when the lobby window has been destroyed.
+// GLOBAL: NETMECHW 0x1002310c
+MechS32 g_unk0x1002310c = 1;
+
 // GLOBAL: NETMECHW 0x10023110
 HWND g_unk0x10023110 = NULL;
+
+// The lobby's palette (FUN_10004a40).
+// GLOBAL: NETMECHW 0x10023118
+HPALETTE g_unk0x10023118 = NULL;
 
 // GLOBAL: NETMECHW 0x10023120
 SessionList* g_sessionList = NULL;
@@ -107,23 +171,211 @@ HFONT g_unk0x10023164 = NULL;
 // GLOBAL: NETMECHW 0x10023168
 HGDIOBJ g_unk0x10023168 = NULL;
 
+// Set when the lobby starts with the results of the last mission (flag 2 of the launch record).
+// GLOBAL: NETMECHW 0x1002316c
+MechS32 g_unk0x1002316c = 0;
+
+// GLOBAL: NETMECHW 0x10023178
+MechS32 g_unk0x10023178 = 0;
+
+// The timer ticks since the simulator of a modem game's guest returned (FUN_100042d9).
 // GLOBAL: NETMECHW 0x1002317c
-MechS32 g_unk0x1002317c = 0;
+MechU32 g_unk0x1002317c = 0;
 
 // Whether new players may join the session (FUN_10005a55, FUN_10005a9a).
 // GLOBAL: NETMECHW 0x10023180
 MechS32 g_unk0x10023180 = 0;
 
+// Set until the lobby has run once.
 // GLOBAL: NETMECHW 0x10023184
 MechS32 g_unk0x10023184 = 1;
 
+// Set when a modem game's guest launched the simulator.
+// GLOBAL: NETMECHW 0x10023188
+MechS32 g_unk0x10023188 = 0;
+
 // NetMech's lobby. MECH2.EXE calls it with the launch record to fill in, runs the simulator
 // when it returns nonzero, and calls it again when the mission is over.
-// STUB: NETMECHW 0x10003684
-extern "C" MechS32 __stdcall Launcher(NetLaunchInfo*)
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x10003684
+extern "C" MechS32 __stdcall Launcher(NetLaunchInfo* p_info)
 {
-	STUB(0x10003684);
-	return 0;
+	MechS32 done;
+	MechS32 i;
+	MSG msg;
+	MechChar mission[80];
+	CopperField0x4d::OptionFlags options;
+	MechChar message[0x100];
+	DWORD error;
+	MechS32 unused;
+	BOOL peeked;
+
+	done = FALSE;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+	}
+
+	InitializeCriticalSection(&g_unk0x1001ee60);
+	InitializeCriticalSection(&g_unk0x1001ca78);
+	g_unk0x1001ce10 = p_info;
+	p_info->m_unk0x14 = 0;
+
+	if (g_unk0x1001ce10->m_unk0x0c & 2) {
+		FUN_10010920(g_unk0x1001ce10->m_playerIds);
+	}
+
+	if (g_unk0x10023184) {
+		InitCommonControls();
+		g_unk0x1001ca90.m_directPlay = g_unk0x1001ce10->m_directPlay;
+		if (!FUN_10003e52(g_hInstance)) {
+			DeleteCriticalSection(&g_unk0x1001ee60);
+			DeleteCriticalSection(&g_unk0x1001ca78);
+			return FALSE;
+		}
+
+		if (!GetCurrentDirectory(sizeof(g_unk0x1001ccf8), g_unk0x1001ccf8)) {
+			error = GetLastError();
+			sprintf(message, LoadResString(1), error);
+			MessageBox(NULL, message, LoadResString(2), MB_OK);
+			DeleteCriticalSection(&g_unk0x1001ee60);
+			DeleteCriticalSection(&g_unk0x1001ca78);
+			return FALSE;
+		}
+	}
+	else if ((g_unk0x1001ce10->m_unk0x0c & 4) && g_unk0x1001ca90.m_unk0x00 != 2) {
+		FUN_10005adf();
+		g_unk0x1001ca90.m_settings.m_unk0x01 = 0;
+		g_unk0x1001ca90.m_hostId = 0;
+		g_unk0x1001ca90.m_isHost = FALSE;
+		g_unk0x1001ca90.m_settings.m_unk0x49 = 100;
+		g_unk0x1001ca90.m_settings.m_unk0x4a = 1;
+		g_unk0x1001ca90.m_settings.m_unk0x4b = 0x10;
+		g_unk0x1001ca90.m_settings.m_unk0x4c = 1;
+		options.m_byte = 0;
+		options.m_bits.m_option2 = 1;
+		options.m_bits.m_option3 = 1;
+		options.m_bits.m_option4 = 1;
+		options.m_bits.m_option5 = 1;
+		g_unk0x1001ca90.m_settings.m_options = options;
+	}
+
+	g_unk0x1001ca90.m_unk0x158 = 0;
+	g_unk0x10023178 = 0;
+	strcpy(g_unk0x1001ca90.m_mechFile, "frm00std");
+	g_unk0x1001ca90.m_unk0x154 = 0;
+	g_unk0x1001ca90.m_settings.m_unk0x02 = 0;
+	g_unk0x1001ca90.m_settings.m_unk0x03 = 0;
+	g_unk0x1001ca90.m_settings.m_unk0x00 = 0;
+	for (i = 0; i < 8; i++) {
+		strcpy(g_unk0x1001ca90.m_settings.m_mechs[i], "");
+	}
+
+	g_unk0x1001ca90.FUN_10003620();
+	g_unk0x10023164 = CreateFont(11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, VARIABLE_PITCH | FF_SWISS, "");
+	g_unk0x10023168 = CreateFont(24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, VARIABLE_PITCH | FF_SWISS, "");
+	g_unk0x10023160 = CreateWindowEx(
+		0,
+		"NetMech for Windows\xae 95",
+		"NetMech for Windows\xae 95",
+		WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+		CW_USEDEFAULT,
+		0,
+		600,
+		400,
+		NULL,
+		NULL,
+		g_hInstance,
+		NULL
+	);
+	while (ShowCursor(TRUE) < 1) {
+	}
+
+	if (!g_unk0x10023160) {
+		DeleteObject(g_unk0x10023164);
+		DeleteObject(g_unk0x10023168);
+		g_unk0x10023164 = NULL;
+		g_unk0x10023168 = NULL;
+		DeleteCriticalSection(&g_unk0x1001ee60);
+		DeleteCriticalSection(&g_unk0x1001ca78);
+		return FALSE;
+	}
+
+	if ((g_unk0x1001ce10->m_unk0x0c & 4) && g_unk0x1001ca90.m_unk0x00 != 2) {
+		FUN_100057ba();
+	}
+
+	if (!InitializeMw2Prj()) {
+		MessageBox(NULL, "The resource file MW2.PRJ could not be found.", "File not found", MB_OK);
+		DeleteCriticalSection(&g_unk0x1001ee60);
+		DeleteCriticalSection(&g_unk0x1001ca78);
+		return FALSE;
+	}
+
+	g_unk0x1001fe70 = FUN_10007c30(g_unk0x1001c318);
+	if (g_unk0x1001ce10->m_unk0x0c & 2) {
+		FUN_10005023(9);
+		g_unk0x1002316c = TRUE;
+	}
+	else {
+		FUN_10003cb7();
+	}
+
+	CenterWindow(g_unk0x10023160);
+	ShowWindow(g_unk0x10023160, SW_SHOWNORMAL);
+	UpdateWindow(g_unk0x10023160);
+
+	while (!done) {
+		unused = 0;
+		peeked = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+		if (peeked) {
+			if (msg.message == 0x418) {
+				done = TRUE;
+			}
+			else if (g_unk0x10023138[g_unk0x10023108] && !IsDialogMessage(g_unk0x10023138[g_unk0x10023108], &msg)) {
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+	}
+
+	if (g_unk0x1001ca90.m_unk0x158) {
+		if (g_unk0x1001ca90.m_settings.m_unk0x00 & 2) {
+			FUN_1000f172();
+		}
+		else {
+			FUN_1000f0f0();
+		}
+
+		options = g_unk0x1001ca90.m_settings.m_options;
+		FUN_1000f52c(
+			options.m_bits,
+			g_unk0x1001ca90.m_settings.m_unk0x4a,
+			g_unk0x1001ca90.m_settings.m_unk0x4b,
+			g_unk0x1001ca90.m_settings.m_unk0x4c,
+			g_unk0x1001ca90.m_settings.m_unk0x00 & 2
+		);
+	}
+
+	ShutdownMw2Prj();
+	if (g_unk0x1001ca90.m_unk0x158) {
+		FUN_10004118();
+		g_unk0x1001ce10->m_localPlayerId = g_unk0x1001ca90.m_playerId;
+		memset(mission, 0, sizeof(mission));
+		strncpy(mission, g_unk0x1001ca90.m_settings.m_unk0x44, 4);
+		strcat(mission, "SCN1");
+		strncpy(g_unk0x1001ce10->m_missionName, mission, p_info->m_missionNameSize);
+		if (g_unk0x1001ca90.m_unk0x00 == 2 && !g_unk0x1001ca90.m_isHost) {
+			g_unk0x10023188 = TRUE;
+		}
+	}
+	else {
+		FUN_100041f5();
+	}
+
+	g_unk0x1001ce10->m_directPlay = g_unk0x1001ca90.m_directPlay;
+	FUN_10005b5d(g_unk0x1001ce10->m_playerIds);
+	DeleteCriticalSection(&g_unk0x1001ee60);
+	DeleteCriticalSection(&g_unk0x1001ca78);
+	return g_unk0x1001ca90.m_unk0x158;
 }
 
 // Starts the lobby after the simulator returned, as the launch record's flags say.
@@ -347,10 +599,205 @@ void FUN_100042ab()
 	PostThreadMessage(GetWindowThreadProcessId(g_unk0x10023160, NULL), 0x418, 0, 0);
 }
 
-// STUB: NETMECHW 0x100042d9
-LRESULT CALLBACK FUN_100042d9(HWND, UINT, WPARAM, LPARAM)
+// The lobby window's procedure.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
+// order of the WM_PALETTECHANGED comparison (the original loads p_wParam).
+// FUNCTION: NETMECHW 0x100042d9
+LRESULT CALLBACK FUN_100042d9(HWND p_hWnd, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
-	STUB(0x100042d9);
+	MechU32 command;
+	MechU32 notify;
+	HMENU menu;
+	MechChar text[0x100];
+	HWND button;
+	HDC dc;
+	HPALETTE palette;
+	UINT changed;
+	MechS32 index;
+	MechS32 index2;
+
+	command = LOWORD(p_wParam);
+	notify = HIWORD(p_wParam);
+
+	switch (p_message) {
+	case WM_CREATE:
+		g_unk0x1001ce34 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x38a),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce30 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x69),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce38 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x70),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce48 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x38f),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce3c = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x383),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ee50 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x38e),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce44 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x72),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ee5c = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0x71),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce24 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0xd9),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		g_unk0x1001ce28 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0xd8),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		FUN_10004a40(&g_unk0x10023118);
+
+		menu = GetSystemMenu(p_hWnd, FALSE);
+		strcpy(text, LoadResString(3));
+		AppendMenu(menu, MF_SEPARATOR, 0, NULL);
+		AppendMenu(menu, MF_STRING, 2000, text);
+		ShowWindow(p_hWnd, SW_HIDE);
+		button = CreateWindowEx(0, "button", "", 0, 0, 0, 0, 0, p_hWnd, NULL, g_hInstance, NULL);
+		g_unk0x1001ce40 = SetTimer(p_hWnd, 2, 1000, NULL);
+		break;
+	case WM_PALETTECHANGED:
+		if (p_hWnd == (HWND) p_wParam) {
+			break;
+		}
+	case WM_QUERYNEWPALETTE:
+		dc = GetDC(p_hWnd);
+		palette = SelectPalette(dc, g_unk0x10023118, FALSE);
+		changed = RealizePalette(dc);
+		if (changed) {
+			InvalidateRect(p_hWnd, NULL, TRUE);
+		}
+
+		SelectPalette(dc, palette, TRUE);
+		RealizePalette(dc);
+		return changed;
+	case WM_TIMER:
+		if (g_unk0x10023178 && ++g_unk0x1002317c > 2) {
+			g_unk0x10023178 = 0;
+			g_unk0x1002317c = 0;
+			index = g_unk0x10023108;
+			if (g_unk0x10023138[index]) {
+				MessageBox(g_unk0x10023138[index], LoadResString(0x7a), LoadResString(0x79), MB_OK);
+				PostMessage(g_unk0x10023138[index], 0x417, 0, 0);
+			}
+		}
+
+		break;
+	case WM_HOTKEY:
+		break;
+	case WM_SETFOCUS:
+		SetFocus(g_unk0x10023138[g_unk0x10023108]);
+		break;
+	case 0x419:
+		g_chatLog.AddLine((DPID) p_wParam, (MechChar*) p_lParam);
+		free((void*) p_lParam);
+		break;
+	case WM_DESTROY:
+		g_unk0x10023178 = 0;
+		KillTimer(p_hWnd, g_unk0x1001ce40);
+		DeleteObject(g_unk0x1001ce34);
+		DeleteObject(g_unk0x1001ce30);
+		DeleteObject(g_unk0x1001ce38);
+		DeleteObject(g_unk0x1001ce48);
+		DeleteObject(g_unk0x1001ce3c);
+		DeleteObject(g_unk0x1001ee50);
+		DeleteObject(g_unk0x1001ce44);
+		DeleteObject(g_unk0x1001ee5c);
+		if (g_unk0x10023118) {
+			DeleteObject(g_unk0x10023118);
+			g_unk0x10023118 = NULL;
+		}
+
+		FUN_100042ab();
+		g_unk0x1002310c = TRUE;
+		break;
+	case WM_SYSCOMMAND:
+		if ((command & 0xfff0) == 2000) {
+			DialogBoxParam(g_hInstance, "AboutBox", p_hWnd, (DLGPROC) FUN_10004909, 0);
+		}
+
+		if (p_wParam == SC_CLOSE) {
+			if (FUN_100048ec()) {
+				FUN_100042ab();
+			}
+		}
+		else {
+			return DefWindowProc(p_hWnd, p_message, p_wParam, p_lParam);
+		}
+
+		break;
+	case 0x416:
+		index2 = g_unk0x10023108;
+		if (g_unk0x10023188) {
+			g_unk0x10023178 = 1;
+			g_unk0x10023188 = 0;
+		}
+
+		if (g_unk0x10023138[index2]) {
+			PostMessage(g_unk0x10023138[index2], 0x416, 0, 0);
+		}
+
+		FUN_10005e36();
+		break;
+	default:
+		return DefWindowProc(p_hWnd, p_message, p_wParam, p_lParam);
+	}
+
 	return 0;
 }
 
@@ -446,16 +893,381 @@ void FUN_10004a40(HPALETTE* p_palette)
 	GlobalFree(memory);
 }
 
-// STUB: NETMECHW 0x10004be3
-void FUN_10004be3(WPARAM, LPARAM)
+// Draws the lobby's owner-drawn button p_wParam, as WM_DRAWITEM's p_lParam describes it: pressed
+// while it is selected or while its pane is the current one (g_unk0x1001ca90.m_unk0x15c).
+// The bitmap is the same whether the button has the focus or not.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x10004be3
+void FUN_10004be3(WPARAM p_wParam, LPARAM p_lParam)
 {
-	STUB(0x10004be3);
+	DRAWITEMSTRUCT* item;
+	HDC dc;
+	BITMAP info;
+	UINT focus;
+	WPARAM id;
+	HGDIOBJ bitmap;
+
+	item = (DRAWITEMSTRUCT*) p_lParam;
+	id = p_wParam;
+	dc = CreateCompatibleDC(item->hDC);
+	focus = item->itemState & ODS_FOCUS;
+
+	switch (id) {
+	case 0x3e9:
+		if ((item->itemState & ODS_SELECTED) || g_unk0x1001ca90.m_unk0x15c == 4 || g_unk0x1001ca90.m_unk0x15c == 5) {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce30);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce30);
+			}
+
+			bitmap = g_unk0x1001ce30;
+		}
+		else {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce34);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce34);
+			}
+
+			bitmap = g_unk0x1001ce34;
+		}
+
+		break;
+	case 0x3ea:
+		if ((item->itemState & ODS_SELECTED) || g_unk0x1001ca90.m_unk0x15c == 7) {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce48);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce48);
+			}
+
+			bitmap = g_unk0x1001ce48;
+		}
+		else {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce38);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce38);
+			}
+
+			bitmap = g_unk0x1001ce38;
+		}
+
+		break;
+	case 0x3eb:
+		if ((item->itemState & ODS_SELECTED) || g_unk0x1001ca90.m_unk0x15c == 6) {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ee50);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ee50);
+			}
+
+			bitmap = g_unk0x1001ee50;
+		}
+		else {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce3c);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce3c);
+			}
+
+			bitmap = g_unk0x1001ce3c;
+		}
+
+		break;
+	case 0x431:
+		if ((item->itemState & ODS_SELECTED) || g_unk0x1001ca90.m_unk0x15c == 8) {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ee5c);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ee5c);
+			}
+
+			bitmap = g_unk0x1001ee5c;
+		}
+		else {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce44);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce44);
+			}
+
+			bitmap = g_unk0x1001ce44;
+		}
+
+		break;
+	case 0x435:
+		if ((item->itemState & ODS_SELECTED)) {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce28);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce28);
+			}
+
+			bitmap = g_unk0x1001ce28;
+		}
+		else {
+			if (focus) {
+				SelectObject(dc, g_unk0x1001ce24);
+			}
+			else {
+				SelectObject(dc, g_unk0x1001ce24);
+			}
+
+			bitmap = g_unk0x1001ce24;
+		}
+
+		break;
+	}
+
+	if (g_unk0x10023118) {
+		SelectPalette(item->hDC, g_unk0x10023118, FALSE);
+		RealizePalette(item->hDC);
+	}
+
+	GetObject(bitmap, sizeof(info), &info);
+	StretchBlt(
+		item->hDC,
+		item->rcItem.left,
+		item->rcItem.top,
+		item->rcItem.right - item->rcItem.left,
+		item->rcItem.bottom - item->rcItem.top,
+		dc,
+		0,
+		0,
+		info.bmWidth,
+		info.bmHeight,
+		SRCCOPY
+	);
+	DeleteDC(dc);
 }
 
-// STUB: NETMECHW 0x10005023
-void FUN_10005023(MechS32)
+// Shows the lobby's pane p_state, creating its dialog the first time; returns whether it could.
+// Entering a pane does its setup: 1, the connection, starts the lobby over.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
+// order of the first comparison (the original loads p_state), which also shifts the jump table.
+// FUNCTION: NETMECHW 0x10005023
+MechS32 FUN_10005023(MechS32 p_state)
 {
-	STUB(0x10005023);
+	MechS32 result;
+	MechS32 previous;
+	CopperField0x4d::OptionFlags options;
+
+	result = TRUE;
+	if (g_unk0x10023108 != p_state) {
+		previous = g_unk0x10023108;
+		g_unk0x10023108 = p_state;
+		g_chatLog.SaveTopIndex();
+		g_chatLog.SaveInput();
+		g_chatLog.Detach();
+
+		switch (p_state) {
+		case 0:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x46a), g_unk0x10023160, (DLGPROC) FUN_1000654c, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f7));
+				g_unk0x10023178 = 0;
+			}
+
+			break;
+		case 1:
+			FUN_10003ec8();
+			if (previous) {
+				FUN_1000b54e(g_unk0x1001ca90.m_playerId);
+				g_unk0x1001ca90.m_directPlay->DestroyPlayer(g_unk0x1001ca90.m_playerId);
+				g_unk0x1001ca90.m_directPlay->Close();
+				FUN_10005a9a();
+			}
+			else if (g_unk0x1001ca90.m_unk0x00 == 2) {
+				g_unk0x1001ce10->m_unk0x14 |= 1;
+			}
+
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x46b), g_unk0x10023160, (DLGPROC) FUN_100072a2, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				g_chatLog.Reset();
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x418));
+				g_unk0x10023178 = 0;
+				g_unk0x1001ca90.m_unk0x154 = 0;
+				g_unk0x1001ca90.m_settings.m_unk0x02 = 0;
+				g_unk0x1001ca90.m_settings.m_unk0x03 = 0;
+				g_unk0x1001ca90.m_settings.m_unk0x00 = 0;
+				options.m_byte = 0;
+				options.m_bits.m_option2 = 1;
+				options.m_bits.m_option3 = 1;
+				options.m_bits.m_option4 = 1;
+				options.m_bits.m_option5 = 1;
+				g_unk0x1001ca90.m_settings.m_options = options;
+				g_unk0x1001ca90.m_settings.m_unk0x01 = 0;
+				g_unk0x1001ca90.m_hostId = 0;
+				g_unk0x1001ca90.m_isHost = FALSE;
+				g_unk0x1001ca90.FUN_10003620();
+				g_unk0x1001ca90.m_unk0x158 = 0;
+				g_unk0x1001ca90.m_unk0x15c = 0;
+				FUN_100057ba();
+			}
+
+			break;
+		case 2:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x44f), g_unk0x10023160, (DLGPROC) FUN_100098a2, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x41c));
+				EnterCriticalSection(&g_unk0x1001ee60);
+				g_unk0x1001ca90.m_settings.m_unk0x00 &= ~1;
+				g_unk0x1001ca90.m_settings.m_unk0x02 = 0;
+				LeaveCriticalSection(&g_unk0x1001ee60);
+			}
+
+			break;
+		case 3:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x453), g_unk0x10023160, (DLGPROC) FUN_10008d5d, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f2));
+				if (previous != 9 || g_unk0x1001ca90.m_unk0x00 != 2) {
+					g_unk0x10023178 = 1;
+				}
+				else {
+					g_unk0x10023178 = 0;
+				}
+
+				g_unk0x1002317c = 0;
+			}
+
+			break;
+		case 4:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x468), g_unk0x10023160, (DLGPROC) FUN_1000d31f, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f2));
+			}
+
+			break;
+		case 5:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x466), g_unk0x10023160, (DLGPROC) FUN_1000dae1, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f2));
+			}
+
+			break;
+		case 6:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x46c), g_unk0x10023160, (DLGPROC) FUN_100113ec, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f2));
+			}
+
+			break;
+		case 8:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x46d), g_unk0x10023160, (DLGPROC) FUN_1000e58d, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f2));
+			}
+
+			break;
+		case 7:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0x463), g_unk0x10023160, (DLGPROC) FUN_1000268a, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			if (result) {
+				SetFocus(GetDlgItem(g_unk0x10023138[g_unk0x10023108], 0x3f2));
+			}
+
+			break;
+		case 9:
+			if (!g_unk0x10023138[g_unk0x10023108]) {
+				g_unk0x10023138[g_unk0x10023108] =
+					CreateDialogParam(g_hInstance, MAKEINTRESOURCE(0xc8), g_unk0x10023160, (DLGPROC) FUN_100105ee, 0);
+				if (!g_unk0x10023138[g_unk0x10023108]) {
+					result = FALSE;
+				}
+			}
+
+			break;
+		default:
+			g_unk0x10023108 = previous;
+			return FALSE;
+			break;
+		}
+
+		if (result) {
+			if (g_unk0x10023138[previous]) {
+				ShowWindow(g_unk0x10023138[previous], SW_HIDE);
+			}
+
+			FUN_1000120a(g_unk0x10023160, g_unk0x10023138[g_unk0x10023108], 0);
+			ShowWindow(g_unk0x10023138[g_unk0x10023108], SW_SHOW);
+		}
+	}
+
+	return result;
 }
 
 // Empties the player table and forgets the players' mech copies.

@@ -71,6 +71,9 @@ extern "C"
 	extern char* g_resourceTypeTags[26];
 	extern MechS32 g_mw2PrjHandle;
 
+	MechS32 InitializeMw2Prj(void);
+	void ShutdownMw2Prj(void);
+
 #ifdef __cplusplus
 }
 #endif

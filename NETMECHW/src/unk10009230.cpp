@@ -1,5 +1,6 @@
 #include "unk10009230.h"
 
+#include "chatlog.h"
 #include "decomp.h"
 #include "types.h"
 #include "unk10001070.h"
@@ -10,6 +11,8 @@
 
 #include <commctrl.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <windows.h>
 
 // The host's options pane: the mission lists, the option check boxes, and the values.
@@ -17,6 +20,10 @@
 // The time limit shown in control 0x3fb, in units of 16 of m_settings.m_unk0x4b.
 // GLOBAL: NETMECHW 0x10023518
 double g_unk0x10023518 = 1.0;
+
+// The options pane's picture (FUN_100098a2).
+// GLOBAL: NETMECHW 0x1001efa8
+HBITMAP g_unk0x1001efa8;
 
 // The list box of the missions (control 0x41c).
 // GLOBAL: NETMECHW 0x1001efac
@@ -174,10 +181,293 @@ MechS32 FUN_10009838(HWND p_dialog)
 	return TRUE;
 }
 
-// STUB: NETMECHW 0x100098a2
-BOOL CALLBACK FUN_100098a2(HWND, UINT, WPARAM, LPARAM)
+// The host's options dialog (pane 2): the mission lists, the options, and the chat. "Start"
+// (0x43a) takes the options and moves on to the player-slot pane of the game's kind.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes (which moves the
+// targets of the WM_HOTKEY jump table).
+// FUNCTION: NETMECHW 0x100098a2
+BOOL CALLBACK FUN_100098a2(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
-	STUB(0x100098a2);
+	LRESULT index;
+	LRESULT mission;
+	MechS32 i;
+	HDC dc;
+	HDC memoryDC;
+	PAINTSTRUCT paint;
+	BITMAP info;
+	RECT rect;
+	NMHDR* header;
+	NM_UPDOWN* upDown;
+	MechU32 command;
+	double delta;
+	MechChar text[8];
+	MechU32 notify;
+
+	switch (p_message) {
+	case WM_INITDIALOG:
+		ShowWindow(p_dialog, SW_HIDE);
+		EnterCriticalSection(&g_unk0x1001ee60);
+		g_unk0x1001ca90.m_settings.m_unk0x00 |= 2;
+		g_unk0x1001efa8 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0xdc),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		SendMessage(GetDlgItem(p_dialog, 0x41b), WM_SETFONT, (WPARAM) g_unk0x10023164, 0);
+		FUN_10009230(p_dialog);
+
+		index = SendMessage(g_unk0x1001efac, LB_GETCURSEL, 0, 0);
+		mission = SendMessage(g_unk0x1001efac, LB_GETITEMDATA, index, 0);
+		strncpy(g_unk0x1001ca90.m_settings.m_unk0x44, (MechChar*) mission, 4);
+
+		SendMessage(g_unk0x1001efc0, CB_SETCURSEL, 0, 0);
+		for (i = 0; i < 4; i++) {
+			if (SendMessage(g_unk0x1001efc0, CB_GETITEMDATA, i, 0) == g_unk0x1001ca90.m_settings.m_unk0x4c) {
+				SendMessage(g_unk0x1001efc0, CB_SETCURSEL, i, 0);
+				break;
+			}
+		}
+
+		SendMessage(g_unk0x1001efb4, CB_SETCURSEL, 0, 0);
+		for (i = 0; i < 3; i++) {
+			if (SendMessage(g_unk0x1001efb4, CB_GETITEMDATA, i, 0) == g_unk0x1001ca90.m_settings.m_unk0x4a) {
+				SendMessage(g_unk0x1001efb4, CB_SETCURSEL, i, 0);
+				break;
+			}
+		}
+
+		FUN_10009838(p_dialog);
+		LeaveCriticalSection(&g_unk0x1001ee60);
+		return TRUE;
+	case WM_SHOWWINDOW:
+		if (p_wParam) {
+			SetDlgItemText(p_dialog, 0x432, g_unk0x1001ca90.m_unk0x00 == 2 ? "Ha&ng Up" : LoadResString(0x77));
+			FUN_1000a4f6(p_dialog);
+			g_chatLog.Attach(p_dialog);
+			g_chatLog.Restore();
+		}
+		else {
+			FUN_1000a5c4(p_dialog);
+		}
+
+		FUN_10009838(p_dialog);
+		return FALSE;
+	case WM_PAINT:
+		dc = BeginPaint(p_dialog, &paint);
+		memoryDC = CreateCompatibleDC(dc);
+		SelectObject(memoryDC, g_unk0x1001efa8);
+		if (g_unk0x10023118) {
+			SelectPalette(dc, g_unk0x10023118, FALSE);
+			RealizePalette(dc);
+		}
+
+		GetObject(g_unk0x1001efa8, sizeof(info), &info);
+		GetWindowRect(GetDlgItem(p_dialog, 0x7e4), &rect);
+		ScreenToClient(p_dialog, (LPPOINT) &rect.left);
+		ScreenToClient(p_dialog, (LPPOINT) &rect.right);
+		StretchBlt(
+			dc,
+			rect.left,
+			rect.top,
+			rect.right - rect.left,
+			rect.bottom - rect.top,
+			memoryDC,
+			0,
+			0,
+			info.bmWidth,
+			info.bmHeight,
+			SRCCOPY
+		);
+		DeleteDC(memoryDC);
+		EndPaint(p_dialog, &paint);
+		break;
+	case WM_NOTIFY:
+		header = (NMHDR*) p_lParam;
+		if (header->code == UDN_DELTAPOS) {
+			upDown = (NM_UPDOWN*) header;
+			command = header->idFrom;
+			if (command == 0x428) {
+				delta = upDown->iDelta * 0.25;
+				if ((g_unk0x10023518 += delta) < 0.25) {
+					g_unk0x10023518 = 4.0;
+				}
+				else if (g_unk0x10023518 > 4.0) {
+					g_unk0x10023518 = 0.25;
+				}
+
+				sprintf(text, "%4.2f", g_unk0x10023518);
+				SetDlgItemText(p_dialog, 0x3fb, text);
+				FUN_10009615(p_dialog, 0x3fb);
+			}
+			else if (command == 0x427) {
+				EnterCriticalSection(&g_unk0x1001ee60);
+				g_unk0x1001ca90.m_settings.m_unk0x49 += upDown->iDelta * 5;
+				if (g_unk0x1001ca90.m_settings.m_unk0x49 < 25) {
+					g_unk0x1001ca90.m_settings.m_unk0x49 = 100;
+				}
+				else if (g_unk0x1001ca90.m_settings.m_unk0x49 > 100) {
+					g_unk0x1001ca90.m_settings.m_unk0x49 = 25;
+				}
+
+				SetDlgItemInt(p_dialog, 0x3f8, g_unk0x1001ca90.m_settings.m_unk0x49, FALSE);
+				LeaveCriticalSection(&g_unk0x1001ee60);
+				FUN_10009615(p_dialog, 0x3f8);
+				return FALSE;
+			}
+
+			return TRUE;
+		}
+	case WM_DESTROY:
+		DeleteObject(g_unk0x1001efa8);
+		g_chatLog.Detach();
+		free((void*) SendMessage(g_unk0x1001efac, LB_GETITEMDATA, 0, 0));
+		free((void*) SendMessage(g_unk0x1001efc8, LB_GETITEMDATA, 0, 0));
+		return FALSE;
+	case WM_HOTKEY:
+		switch ((MechS32) p_wParam) {
+		case 300:
+			SetFocus(GetDlgItem(p_dialog, 0x41c));
+			break;
+		case 301:
+			SetFocus(GetDlgItem(p_dialog, 0x41e));
+			break;
+		case 302:
+			SetFocus(GetDlgItem(p_dialog, 0x421));
+			break;
+		case 303:
+			SendMessage(p_dialog, WM_COMMAND, 0x43a, 0);
+			break;
+		case 4:
+			SetFocus(GetDlgItem(p_dialog, 0x3f2));
+			break;
+		case 5:
+			SendMessage(p_dialog, WM_COMMAND, 0x3ec, 0);
+			break;
+		case 1:
+			SendMessage(p_dialog, WM_COMMAND, 0x432, 0);
+			break;
+		case 2:
+			SendMessage(p_dialog, WM_COMMAND, 0x7e0, 0);
+			break;
+		case 3:
+			SendMessage(p_dialog, WM_COMMAND, 0x43b, 0);
+			break;
+		}
+
+		return TRUE;
+	case WM_COMMAND:
+		command = LOWORD(p_wParam);
+		notify = HIWORD(p_wParam);
+		if (notify == EN_SETFOCUS) {
+			if (GetDlgItem(p_dialog, 0x3f2) != (HWND) p_lParam) {
+				SetFocus(NULL);
+			}
+
+			return FALSE;
+		}
+
+		switch (command) {
+		case 0x3ec:
+			g_chatLog.SendToAll(p_dialog);
+			break;
+		case 0x43a:
+			if (FUN_10009838(p_dialog)) {
+				EnterCriticalSection(&g_unk0x1001ee60);
+				g_unk0x1001ca90.m_settings.m_unk0x00 |= 1;
+				if (g_unk0x1001ca90.m_settings.m_unk0x00 & 2) {
+					if ((g_unk0x1001ca90.m_unk0x15c == 4) | (g_unk0x1001ca90.m_unk0x15c == 0)) {
+						FUN_10005023(5);
+					}
+					else {
+						FUN_10005023(g_unk0x1001ca90.m_unk0x15c);
+					}
+				}
+				else if ((g_unk0x1001ca90.m_unk0x15c == 5) | (g_unk0x1001ca90.m_unk0x15c == 0)) {
+					FUN_10005023(4);
+				}
+				else {
+					FUN_10005023(g_unk0x1001ca90.m_unk0x15c);
+				}
+
+				LeaveCriticalSection(&g_unk0x1001ee60);
+			}
+
+			break;
+		case 0x7e0:
+			FUN_10005e50(g_unk0x1001cbf0, sizeof(g_unk0x1001cbf0));
+			WinHelp(p_dialog, g_unk0x1001cbf0, HELP_CONTEXT, 4);
+			break;
+		case 0x43b:
+			FUN_100042ab();
+			break;
+		case 0x432:
+			FUN_10005023(1);
+			break;
+		case 0x41c:
+			if (notify == LBN_SELCHANGE) {
+				SendMessage(g_unk0x1001efc8, LB_SETCURSEL, (WPARAM) -1, 0);
+				g_unk0x1001efb0 = GetDlgItem(p_dialog, 0x41b);
+				index = SendMessage(g_unk0x1001efac, LB_GETCURSEL, 0, 0);
+				mission = SendMessage(g_unk0x1001efac, LB_GETITEMDATA, index, 0);
+				FUN_1000a73b(g_unk0x1001efb0, (MechChar*) mission);
+				EnterCriticalSection(&g_unk0x1001ee60);
+				strncpy(g_unk0x1001ca90.m_settings.m_unk0x44, (MechChar*) mission, 4);
+				g_unk0x1001ca90.m_settings.m_unk0x00 |= 2;
+				LeaveCriticalSection(&g_unk0x1001ee60);
+			}
+
+			break;
+		case 0x41e:
+			if (notify == LBN_SELCHANGE) {
+				SendMessage(g_unk0x1001efac, LB_SETCURSEL, (WPARAM) -1, 0);
+				g_unk0x1001efb0 = GetDlgItem(p_dialog, 0x41b);
+				index = SendMessage(g_unk0x1001efc8, LB_GETCURSEL, 0, 0);
+				mission = SendMessage(g_unk0x1001efc8, LB_GETITEMDATA, index, 0);
+				FUN_1000a73b(g_unk0x1001efb0, (MechChar*) mission);
+				EnterCriticalSection(&g_unk0x1001ee60);
+				strncpy(g_unk0x1001ca90.m_settings.m_unk0x44, (MechChar*) mission, 4);
+				g_unk0x1001ca90.m_settings.m_unk0x00 &= ~2;
+				LeaveCriticalSection(&g_unk0x1001ee60);
+			}
+
+			break;
+		case 0x421:
+		case 0x422:
+		case 0x423:
+		case 0x424:
+		case 0x425:
+		case 0x426:
+			FUN_10009615(p_dialog, 0x421);
+			break;
+		case 0x42a:
+			if (notify == CBN_SELCHANGE) {
+				FUN_10009615(p_dialog, 0x42a);
+			}
+
+			break;
+		case 0x429:
+			if (notify == CBN_SELCHANGE) {
+				FUN_10009615(p_dialog, 0x429);
+			}
+
+			break;
+		case 0x3ee:
+			if (notify == LBN_SELCHANGE) {
+				SetDlgItemText(p_dialog, 0x3ec, LoadResString(0x75));
+			}
+
+			break;
+		default:
+			return TRUE;
+			break;
+		}
+
+		return FALSE;
+	}
+
 	return FALSE;
 }
 

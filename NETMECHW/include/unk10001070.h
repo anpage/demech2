@@ -1,6 +1,7 @@
 #ifndef UNK10001070_H
 #define UNK10001070_H
 
+#include "decomp.h"
 #include "types.h"
 
 #include <windows.h>
@@ -9,7 +10,7 @@
 MechChar* LoadResString(UINT p_id);
 void CenterWindow(HWND p_hWnd);
 void SetBusyCursor(MechS32 p_busy);
-void FUN_1000120a(HWND p_hWnd, HWND p_child);
+void FUN_1000120a(HWND p_hWnd, HWND p_child, undefined4 p_unk0x0c);
 void TrimLeadingSpace(MechChar* p_string);
 MechS32 IsBlankString(MechChar* p_string);
 

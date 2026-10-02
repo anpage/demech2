@@ -10,6 +10,10 @@
 #include <string.h>
 #include <windows.h>
 
+// The connection dialog's picture (FUN_1000654c).
+// GLOBAL: NETMECHW 0x1001ee78
+HBITMAP g_unk0x1001ee78;
+
 // GLOBAL: NETMECHW 0x1001ee80
 MechChar g_unk0x1001ee80[256];
 
@@ -120,6 +124,139 @@ void FUN_100064e4(HWND p_dialog)
 	SendMessage(GetDlgItem(p_dialog, 0x3f7), EM_LIMITTEXT, 15, 0);
 	SetDlgItemText(p_dialog, 0x3f7, g_unk0x1001ca90.m_playerName);
 	SendMessage(GetDlgItem(p_dialog, 0x3f4), LB_SETCURSEL, 0, 0);
+}
+
+// The connection dialog: the player name and the service provider.
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes (which moves the
+// targets of the WM_HOTKEY jump table).
+// FUNCTION: NETMECHW 0x1000654c
+BOOL CALLBACK FUN_1000654c(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM)
+{
+	HWND listBox;
+	HRESULT result;
+	HDC dc;
+	HDC memoryDC;
+	PAINTSTRUCT paint;
+	BITMAP info;
+	RECT rect;
+	MechU32 command;
+	MechU32 notify;
+	HRESULT created;
+	DPCAPS caps;
+
+	switch (p_message) {
+	case WM_INITDIALOG:
+		listBox = GetDlgItem(p_dialog, 0x3f4);
+		result = DirectPlayEnumerate(AddServiceProvider, &listBox) & 0xfff;
+		g_unk0x1001ee78 = (HBITMAP) LoadImage(
+			g_hInstance,
+			MAKEINTRESOURCE(0xdb),
+			IMAGE_BITMAP,
+			0,
+			0,
+			LR_CREATEDIBSECTION | LR_COPYFROMRESOURCE
+		);
+		FUN_100064e4(p_dialog);
+		return TRUE;
+	case WM_SHOWWINDOW:
+		if (p_wParam) {
+			FUN_10006a68(p_dialog);
+		}
+		else {
+			FUN_10006ac8(p_dialog);
+		}
+
+		return FALSE;
+	case WM_PAINT:
+		dc = BeginPaint(p_dialog, &paint);
+		memoryDC = CreateCompatibleDC(dc);
+		SelectObject(memoryDC, g_unk0x1001ee78);
+		if (g_unk0x10023118) {
+			SelectPalette(dc, g_unk0x10023118, FALSE);
+			RealizePalette(dc);
+		}
+
+		GetObject(g_unk0x1001ee78, sizeof(info), &info);
+		GetWindowRect(GetDlgItem(p_dialog, 0x7e4), &rect);
+		ScreenToClient(p_dialog, (LPPOINT) &rect.left);
+		ScreenToClient(p_dialog, (LPPOINT) &rect.right);
+		StretchBlt(
+			dc,
+			rect.left,
+			rect.top,
+			rect.right - rect.left,
+			rect.bottom - rect.top,
+			memoryDC,
+			0,
+			0,
+			info.bmWidth,
+			info.bmHeight,
+			SRCCOPY
+		);
+		DeleteDC(memoryDC);
+		EndPaint(p_dialog, &paint);
+		break;
+	case WM_HOTKEY:
+		switch (p_wParam) {
+		case 100:
+			SetFocus(GetDlgItem(p_dialog, 0x3f7));
+			break;
+		case 101:
+			SetFocus(GetDlgItem(p_dialog, 0x3f4));
+			break;
+		case 2:
+			SendMessage(p_dialog, WM_COMMAND, 0x7e0, 0);
+			break;
+		case 102:
+			SendMessage(p_dialog, WM_COMMAND, IDOK, 0);
+			break;
+		case 3:
+			SendMessage(p_dialog, WM_COMMAND, 0x43b, 0);
+			break;
+		}
+
+		break;
+	case WM_COMMAND:
+		command = LOWORD(p_wParam);
+		notify = HIWORD(p_wParam);
+		switch (command) {
+		case IDOK:
+			if (FUN_1000633a(p_dialog)) {
+				if (g_unk0x1001ca90.m_directPlay) {
+					g_unk0x1001ca90.m_directPlay->Close();
+					g_unk0x1001ca90.m_directPlay->Release();
+					g_unk0x1001ca90.m_directPlay = NULL;
+				}
+
+				FUN_10005d9e(g_unk0x1001ca90.m_playerName, strlen(g_unk0x1001ca90.m_playerName) + 1);
+				created = DirectPlayCreate(g_unk0x1001ca90.m_unk0x04, &g_unk0x1001ca90.m_directPlay, NULL) & 0xfff;
+				g_unk0x1001ca90.m_directPlay->GetCaps(&caps);
+				if (caps.dwHundredBaud < 96 && g_unk0x1001ca90.m_unk0x00 == 2) {
+					MessageBox(p_dialog, LoadResString(0x88), LoadResString(0x79), MB_OK);
+				}
+
+				FUN_10005023(1);
+			}
+
+			break;
+		case 0x7e0:
+			FUN_10005e50(g_unk0x1001cbf0, sizeof(g_unk0x1001cbf0));
+			WinHelp(p_dialog, g_unk0x1001cbf0, HELP_CONTEXT, 1);
+			break;
+		case 0x43b:
+			FUN_100042ab();
+			break;
+		default:
+			return TRUE;
+		}
+
+		return FALSE;
+	case WM_DESTROY:
+		DeleteObject(g_unk0x1001ee78);
+		return FALSE;
+	}
+
+	return FALSE;
 }
 
 // FUNCTION: NETMECHW 0x10006a68

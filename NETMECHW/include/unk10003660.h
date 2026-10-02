@@ -7,6 +7,12 @@
 
 #include <windows.h>
 
+// VC++ 2.2's winuser.h predates this LoadImage flag, which the lobby passes with
+// LR_CREATEDIBSECTION.
+#ifndef LR_COPYFROMRESOURCE
+#define LR_COPYFROMRESOURCE 0x4000
+#endif
+
 class ChatLog;
 class IronLantern0x160;
 class SessionList;
@@ -14,6 +20,7 @@ struct MechTableEntry;
 
 // The functions and globals of unk10003660.cpp that other units use.
 extern MechTableEntry g_unk0x1001c318[32];
+extern MechChar g_unk0x1001cbf0[MAX_PATH];
 extern MechChar g_unk0x1001ccf8[MAX_PATH];
 extern NetLaunchInfo* g_unk0x1001ce10;
 extern ChatLog g_chatLog;
@@ -22,13 +29,26 @@ extern IronLantern0x160 g_unk0x1001ca90;
 extern DWORD g_unk0x1001ce14;
 extern MechU8 g_unk0x1001ce18[8];
 extern DWORD g_unk0x1001ce20;
+extern HBITMAP g_unk0x1001ce24;
+extern HBITMAP g_unk0x1001ce28;
+extern HBITMAP g_unk0x1001ce30;
+extern HBITMAP g_unk0x1001ce34;
+extern HBITMAP g_unk0x1001ce38;
+extern HBITMAP g_unk0x1001ce3c;
+extern HBITMAP g_unk0x1001ce44;
+extern HBITMAP g_unk0x1001ce48;
 extern HINSTANCE g_hInstance;
 extern MechChar g_unk0x1001ce50[0x2000];
+extern HBITMAP g_unk0x1001ee50;
 extern DWORD g_unk0x1001ee54;
 extern LRESULT g_unk0x1001ee58;
+extern HBITMAP g_unk0x1001ee5c;
 extern CRITICAL_SECTION g_unk0x1001ee60;
 extern GUID g_unk0x100230f8;
+extern MechS32 g_unk0x10023108;
+extern MechS32 g_unk0x1002310c;
 extern HWND g_unk0x10023110;
+extern HPALETTE g_unk0x10023118;
 extern SessionList* g_sessionList;
 extern HANDLE g_unk0x10023128;
 extern HANDLE g_unk0x1002312c;
@@ -37,7 +57,10 @@ extern HWND g_unk0x10023138[10];
 extern HWND g_unk0x10023160;
 extern HFONT g_unk0x10023164;
 extern HGDIOBJ g_unk0x10023168;
+extern MechS32 g_unk0x1002316c;
+extern MechS32 g_unk0x10023178;
 extern MechS32 g_unk0x10023184;
+extern MechS32 g_unk0x10023188;
 
 void FUN_10003cb7();
 BOOL FUN_10003e52(HINSTANCE p_hInstance);
@@ -51,7 +74,7 @@ MechS32 FUN_100048ec();
 BOOL CALLBACK FUN_10004909(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam);
 void FUN_10004a40(HPALETTE* p_palette);
 void FUN_10004be3(WPARAM p_wParam, LPARAM p_lParam);
-void FUN_10005023(MechS32 p_state);
+MechS32 FUN_10005023(MechS32 p_state);
 void FUN_100057ba();
 void FUN_100057fa(NetPlayer p_player, MechS32 p_index);
 void FUN_10005923(MechS32 p_index);

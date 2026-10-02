@@ -7,8 +7,11 @@
 #include <windows.h>
 
 // The functions and globals of unk10006ce0.cpp that other units use.
+extern UINT g_unk0x10023368;
+
 MechS32 HostSession(HWND p_dialog);
 MechS32 JoinSession(HWND p_dialog);
+BOOL CALLBACK FUN_100072a2(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam);
 BOOL FAR PASCAL AddSessionPlayer(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context);
 void FUN_10007b30(HWND p_hWnd);
 void FUN_10007bce(HWND p_hWnd);

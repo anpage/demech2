@@ -258,7 +258,7 @@ void FUN_1000ba4d(DPID p_to)
 
 	ReadFile(file, mech, sizeof(mech), &read, NULL);
 	CloseHandle(file);
-	FUN_100083e3(mech, data + 9);
+	FUN_100083e3(mech, (PackedMech*) (data + 9));
 
 	g_unk0x1001ca90.m_directPlay->Send(g_unk0x1001ca90.m_playerId, p_to, DPSEND_GUARANTEE, buffer, 0x1cc);
 }
@@ -276,7 +276,7 @@ void FUN_1000bbb0(DPID p_from, MechChar* p_data)
 	MechChar path[276];
 	HANDLE file;
 	MechS32 index;
-	DWORD size;
+	MechS32 size;
 	MechU8 mech[0x2c4];
 	MechS32 more;
 
@@ -301,7 +301,7 @@ void FUN_1000bbb0(DPID p_from, MechChar* p_data)
 	}
 
 	FindClose(find);
-	FUN_100086b1(p_data + 9, mech, &size);
+	FUN_100086b1((PackedMech*) (p_data + 9), mech, &size);
 	sprintf(path, "MEK\\%3.3s%02dPLR.MEK", p_data, index);
 
 	file = CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);

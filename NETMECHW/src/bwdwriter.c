@@ -48,6 +48,11 @@ BwdBuffer g_unk0x1001f670;
 // GLOBAL: NETMECHW 0x1001fe70
 MechS32 g_unk0x1001fe70;
 
+// The count of the selected chassis's standard variants, which come first in the variant list
+// (FUN_100080e1). The original allocates it among the C tentative definitions too.
+// GLOBAL: NETMECHW 0x1001fe74
+MechS32 g_unk0x1001fe74;
+
 // Appends the node p_node of p_size bytes to the stream, padded to four bytes, if it fits.
 // The original computes the padded size times one (mov ecx, eax; add eax, eax; sub eax, ecx);
 // no expression tried makes VC++ 2.2 emit that.

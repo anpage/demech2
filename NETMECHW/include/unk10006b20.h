@@ -28,20 +28,24 @@ struct CopperField0x4d {
 		MechU8 m_option7 : 1; // cleared by FUN_10009615
 	};
 
+	// The options as a byte or as bits.
+	// SIZE 0x01
+	union OptionFlags {
+		MechU8 m_byte;
+		Options m_bits;
+	};
+
 	MechU8 m_unk0x00;       // 0x00
 	MechU8 m_unk0x01;       // 0x01: the players on team 1, a bit per slot
 	MechU8 m_unk0x02;       // 0x02: the players who are ready, a bit per slot
 	MechU8 m_unk0x03;       // 0x03: the players who accepted the launch, a bit per slot
 	MechChar m_mechs[8][8]; // 0x04: each slot's mech file, without terminator
 	MechChar m_unk0x44[4];  // 0x44
-	union {
-		MechU8 m_byte;
-		Options m_bits;
-	} m_options;      // 0x48
-	MechU8 m_unk0x49; // 0x49
-	MechU8 m_unk0x4a; // 0x4a
-	MechU8 m_unk0x4b; // 0x4b
-	MechU8 m_unk0x4c; // 0x4c
+	OptionFlags m_options;  // 0x48
+	MechU8 m_unk0x49;       // 0x49
+	MechU8 m_unk0x4a;       // 0x4a
+	MechU8 m_unk0x4b;       // 0x4b
+	MechU8 m_unk0x4c;       // 0x4c
 };
 
 // The lobby's state: the DirectPlay object, the local player and the host, and the game
@@ -66,6 +70,14 @@ public:
 		m_savedPlayerCount = FUN_1000b0b3();
 	}
 
+	// Marks the local player ready in the saved options (FUN_1000e58d).
+	// FUNCTION: NETMECHW 0x1000f050
+	void FUN_1000f050() { m_savedSettings.m_unk0x02 |= 1 << FUN_1000b02b(m_playerId); }
+
+	// Marks the local player not ready in the saved options (FUN_1000e58d).
+	// FUNCTION: NETMECHW 0x1000f0a0
+	void FUN_1000f0a0() { m_savedSettings.m_unk0x02 &= ~(MechU8) (1 << FUN_1000b02b(m_playerId)); }
+
 	undefined4 m_unk0x00;                  // 0x00
 	LPGUID m_unk0x04;                      // 0x04: the service provider (DirectPlayCreate)
 	LPDIRECTPLAY m_directPlay;             // 0x08
@@ -82,7 +94,7 @@ public:
 	MechS32 m_savedPlayerCount;            // 0x150
 	MechS32 m_unk0x154;                    // 0x154
 	MechS32 m_unk0x158;                    // 0x158
-	undefined4 m_unk0x15c;                 // 0x15c
+	MechS32 m_unk0x15c;                    // 0x15c: the current pane (FUN_10005023)
 };
 
 #pragma pack()
