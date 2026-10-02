@@ -323,7 +323,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # The release distributes the built DLLs and progress reports; the
+          # The release distributes the built binaries and progress reports; the
           # verify job's compare-with-main step also downloads
           # ${target}PROGRESS.json from here. The README does not embed the
           # SVGs from release assets (GitHub serves them with a content type
@@ -346,7 +346,27 @@ jobs:
             )
           done
 
+          # The retail targets' recompiled binaries, from the nested VC++ 2.2
+          # build. Their progress reports are published by verify-retail.yml,
+          # which needs the originals; the binaries themselves are built from
+          # the sources alone. MECH2 has no map file: /MAP would turn its
+          # incremental link off.
+          files+=(
+            build/vc22/NETMECHW.dll
+            build/vc22/NETMECHW.pdb
+            build/vc22/NETMECHW.map
+            build/vc22/MECH2.exe
+            build/vc22/MECH2.pdb
+          )
+
           gh release upload continuous "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+
+          # The release shows the commit its tag points to, which gh release
+          # create only sets when it creates the release: move the tag to the
+          # commit these files were built from. A tag pushed with the
+          # workflow's token triggers no workflow run.
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/continuous" \
+            -f sha="$GITHUB_SHA" -F force=true >/dev/null
 
   decomplint:
     name: ${{ matrix.target }} annotations

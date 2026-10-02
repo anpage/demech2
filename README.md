@@ -13,13 +13,15 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
-This project is in its early stages. `MW2SHELL.DLL`, `MW2.DLL` and the retail `NETMECHW.DLL` and `MECH2.EXE` are reccmp targets. Contributions are welcome.
+Every game-code function of all four binaries is decompiled. Two kinds of work remain. One is raising the match: plenty of functions are still short of byte-identical, and many of those differ only by compiler artifacts (stack-slot assignment, operand order), which reccmp still scores as differences. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100acb2c`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
+
+The continuous release ([`continuous`](https://github.com/anpage/demech2/releases/tag/continuous)) carries the latest recompiled binaries from `main`, with their PDBs and progress reports.
 
 ## Building
 
 This project uses the [CMake](https://cmake.org/) build system. For the most accurate results, Microsoft Visual C++ 4.1 (the same compiler used to build the original DLLs) is recommended. Since we're trying to match the output of this code to the original executables as closely as possible, all contributions will be graded with the output of this compiler.
 
-These instructions will outline how to compile this repository using Visual C++ 4.1 into highly-accurate binaries where the majority of functions are instruction-matching with retail. If you wish, you can try using other compilers, but this is at your own risk and won't be covered in this guide.
+These instructions will outline how to compile this repository using Visual C++ 4.1 into highly accurate binaries that closely match the originals. If you wish, you can try using other compilers, but this is at your own risk and won't be covered in this guide.
 
 #### Prerequisites
 
@@ -139,14 +141,14 @@ Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actio
 | `MW2SHELL.DLL` | Shell: FMV, menus, settings, metagame | 545,792 bytes | `1078ccb07fd45388bfd525719a8206ce7a01d6536776d30a5655ccb928900879` | October 9, 1996    |
 | `MW2.DLL`      | Simulator (in-mission gameplay)       | 827,392 bytes | `6212d542f8f915a594b278ab189f20a27e522e7c08ac57ce68bf47f45b17bbb5` | September 19, 1996 |
 
-Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/details/mw2patch) and are the reccmp targets.
+Both DLLs come from the [freely downloadable 1.1 patch](https://archive.org/details/mw2patch).
 
 | Binary         | Role          | Size          | SHA256                                                             | Modified         |
 | -------------- | ------------- | ------------- | ------------------------------------------------------------------ | ---------------- |
 | `NETMECHW.DLL` | NetMech lobby | 433,152 bytes | `3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095` | December 8, 1995 |
 | `MECH2.EXE`    | Launcher      | 53,248 bytes  | `064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c` | December 5, 1995 |
 
-Both come from the retail release, not the patch (`NETMECHW.DLL` is the build of the plain retail release; the hardware-accelerated editions ship a different one of the same size). Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals. `MECH2.EXE`'s 21 game-code functions are all annotated for reccmp; `NETMECHW.DLL` is just started.
+Both come from the retail release, not the patch. Comparing them requires the original retail files and a build with Visual C++ 2.2 (`-DDEMECH2_MSVC22_ROOT`). Without that compiler the project still builds both, but the results cannot be compared to the originals.
 
 ## Contributing
 
