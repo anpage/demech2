@@ -16,7 +16,7 @@ MechS32 FUN_10013340(MechS32 p_a, MechS32 p_b, MechS32 p_c)
 #ifdef PORTABLE_C
 	MechS64 scaled = PortableSar64((MechS64) p_a * p_b, 8);
 
-	return PortableSar32((MechS32) (scaled / p_c), 6);
+	return PortableSar32(PortableIdiv(scaled, p_c), 6);
 #else
 	__asm {
 		mov eax, p_a

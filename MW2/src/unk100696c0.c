@@ -131,8 +131,9 @@ MechS32 FUN_1006975b(MechS32 p_sine)
 				position += 0x10000;
 			}
 			else {
-				position = (position & 0xffff0000) |
-						   ((MechU32) ((MechS64) PortableS32(offset) * 0x10000 / PortableS32(span)) & 0xffff);
+				position =
+					(position & 0xffff0000) |
+					((MechU32) PortableIdiv((MechS64) PortableS32(offset) * 0x10000, PortableS32(span)) & 0xffff);
 			}
 		}
 
@@ -269,8 +270,8 @@ MechS32 FUN_100698de(MechS32 p_x, MechS32 p_z)
 			angle = 0;
 		}
 		else {
-			/* The ratio in 8.24 fixed point (where the div faults, the result is undefined). */
-			ratio = (MechU32) (((MechU64) (MechU32) smaller << 24) / (MechU32) larger);
+			/* The ratio in 8.24 fixed point */
+			ratio = PortableDiv((MechU64) (MechU32) smaller << 24, (MechU32) larger);
 			index = (ratio >> 16) & 0xff;
 			product = (ratio & 0xffff) * ((MechU32) g_atanTable[index + 1] - (MechU32) g_atanTable[index]);
 			angle = (product >> 16) + (MechU32) g_atanTable[index] + ((product >> 15) & 1);

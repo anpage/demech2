@@ -14,8 +14,11 @@
 MechU32 FixedSqrtGuess(MechU32 p_value)
 {
 #ifdef PORTABLE_C
-	/* p_value is never 0, where bsr leaves the shift undefined. */
-	MechS32 bit = PortableBsr(p_value);
+	/* bsr of 0 leaves the shift undefined */
+	MechS32 bit;
+
+	PORTABLE_ASSERT(p_value != 0);
+	bit = PortableBsr(p_value);
 
 	if (bit > 15) {
 		return p_value >> ((bit - 15) >> 1);

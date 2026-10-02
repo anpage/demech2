@@ -14,7 +14,7 @@ MechS32 FUN_10042740(MechS32 p_a, MechS32 p_b, MechS32 p_shift, MechS32 p_c)
 {
 #ifdef PORTABLE_C
 	/* shld/shl take the count modulo 32; the rounding and the sum wrap. */
-	MechU32 quotient = (MechU32) ((MechS64) p_a * ((MechS64) 1 << (p_shift & 31)) / p_b);
+	MechU32 quotient = (MechU32) PortableIdiv((MechS64) p_a * ((MechS64) 1 << (p_shift & 31)), p_b);
 
 	return PortableS32((MechU32) PortableSar32(PortableS32(quotient + 2), 2) + (MechU32) p_c);
 #else

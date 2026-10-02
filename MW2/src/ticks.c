@@ -3,6 +3,7 @@
    instead. */
 #include "ticks.h"
 
+#include "compat.h"
 #include "portable.h"
 #include "types.h"
 
@@ -19,6 +20,7 @@ MechS32 g_ticks2 = 0;
 // the table too; the game's handles have none.
 static MechS32* TickBase(MechU32 p_handle)
 {
+	PORTABLE_ASSERT((p_handle & ~(MechU32) TICKS_FIRST) < TICKS_HANDLES);
 	if (p_handle & TICKS_FIRST) {
 		return &g_ticks1Bases[p_handle & ~(MechU32) TICKS_FIRST];
 	}
@@ -44,7 +46,7 @@ void GameTickTimerCallback(void)
 
 // A slot is free at 0, and -1 ends the search. The original searches past the table when it
 // finds neither, which the game, with at most a few handles, never makes it do; here the search
-// stops at the table's end, as at -1.
+// stops at the table's end, as at -1 (and asserts, in the tests and debug builds).
 MechS16 AllocTicks(MechU32 p_flags)
 {
 	MechS32* bases = p_flags & TICKS_FIRST ? g_ticks1Bases : g_ticks2Bases;
@@ -57,6 +59,7 @@ MechS16 AllocTicks(MechU32 p_flags)
 		}
 	}
 
+	PORTABLE_ASSERT(slot < TICKS_HANDLES);
 	if (slot == TICKS_HANDLES) {
 		return -1;
 	}

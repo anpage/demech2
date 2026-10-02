@@ -19,11 +19,11 @@
 MechS32 FUN_10071930(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
 #if defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
-	/* Where an idiv faults, the result is undefined. */
 	MechS32 offsetX = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
 	MechS32 offsetY = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);
-	MechU32 sum = (MechU32) ((MechS64) offsetX * p_eyepoint->m_unk0x54.m_rows[0][1] / p_eyepoint->m_unk0x94) +
-				  (MechU32) ((MechS64) offsetY * p_eyepoint->m_unk0x54.m_rows[1][1] / p_eyepoint->m_unk0x98);
+	MechU32 sum =
+		(MechU32) PortableIdiv((MechS64) offsetX * p_eyepoint->m_unk0x54.m_rows[0][1], p_eyepoint->m_unk0x94) +
+		(MechU32) PortableIdiv((MechS64) offsetY * p_eyepoint->m_unk0x54.m_rows[1][1], p_eyepoint->m_unk0x98);
 	MechS32 horizon = PortableSar32(PortableS32(0 - (MechU32) p_eyepoint->m_unk0x54.m_rows[2][1]), 16);
 
 	return PortableS32(sum) >= horizon;
@@ -71,12 +71,11 @@ below:
 MechS32 FUN_100719ca(MechS32 p_x, Eyepoint* p_eyepoint)
 {
 #ifdef PORTABLE_C
-	/* Where an idiv faults, the result is undefined. */
 	MechS32 x = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
-	MechU32 height = (MechU32) ((MechS64) x * p_eyepoint->m_unk0x54.m_rows[0][1] / p_eyepoint->m_unk0x94) +
+	MechU32 height = (MechU32) PortableIdiv((MechS64) x * p_eyepoint->m_unk0x54.m_rows[0][1], p_eyepoint->m_unk0x94) +
 					 (MechU32) PortableSar32(p_eyepoint->m_unk0x54.m_rows[2][1], 16);
-	MechU32 y =
-		(MechU32) ((MechS64) PortableS32(0 - height) * p_eyepoint->m_unk0x98 / p_eyepoint->m_unk0x54.m_rows[1][1]);
+	MechU32 y = (MechU32)
+		PortableIdiv((MechS64) PortableS32(0 - height) * p_eyepoint->m_unk0x98, p_eyepoint->m_unk0x54.m_rows[1][1]);
 
 	return PortableS32((MechU32) p_eyepoint->m_centerY - y);
 #else
@@ -115,12 +114,11 @@ MechS32 FUN_100719ca(MechS32 p_x, Eyepoint* p_eyepoint)
 MechS32 FUN_10071a4c(MechS32 p_y, Eyepoint* p_eyepoint)
 {
 #ifdef PORTABLE_C
-	/* Where an idiv faults, the result is undefined. */
 	MechS32 y = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);
-	MechU32 width = (MechU32) ((MechS64) y * p_eyepoint->m_unk0x54.m_rows[1][1] / p_eyepoint->m_unk0x98) +
+	MechU32 width = (MechU32) PortableIdiv((MechS64) y * p_eyepoint->m_unk0x54.m_rows[1][1], p_eyepoint->m_unk0x98) +
 					(MechU32) PortableSar32(p_eyepoint->m_unk0x54.m_rows[2][1], 16);
-	MechU32 x =
-		(MechU32) ((MechS64) PortableS32(0 - width) * p_eyepoint->m_unk0x94 / p_eyepoint->m_unk0x54.m_rows[0][1]);
+	MechU32 x = (MechU32)
+		PortableIdiv((MechS64) PortableS32(0 - width) * p_eyepoint->m_unk0x94, p_eyepoint->m_unk0x54.m_rows[0][1]);
 
 	return PortableS32((MechU32) p_eyepoint->m_centerX + x);
 #else

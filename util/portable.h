@@ -27,6 +27,25 @@ typedef uint64_t MechU64;
 #define PORTABLE_INLINE static inline
 #endif
 
+// Preconditions. Inputs where the original faults (an idiv by zero or overflowing), or does what
+// the game never asks of it, are outside a routine's domain: the portable C asserts them, so that
+// a call that breaks one is caught in the tests and debug builds (PORTABLE_ASSERTS, _DEBUG).
+// Elsewhere the assertions compile to nothing, and the C may do anything there.
+#if defined(PORTABLE_C) && (defined(PORTABLE_ASSERTS) || defined(_DEBUG))
+#include <stdio.h>
+#include <stdlib.h>
+
+PORTABLE_INLINE void PortableAssertFailed(const char* p_condition, const char* p_file, int p_line)
+{
+	fprintf(stderr, "%s(%d): precondition failed: %s\n", p_file, p_line, p_condition);
+	abort();
+}
+
+#define PORTABLE_ASSERT(p_condition) ((p_condition) ? (void) 0 : PortableAssertFailed(#p_condition, __FILE__, __LINE__))
+#else
+#define PORTABLE_ASSERT(p_condition) ((void) 0)
+#endif
+
 // Reads a 32-bit register's bits as a signed value (two's complement). A plain cast of a value
 // above 0x7fffffff is implementation-defined before C23; compilers fold this to nothing.
 PORTABLE_INLINE MechS32 PortableS32(MechU32 p_value)
@@ -81,6 +100,30 @@ PORTABLE_INLINE MechS32 PortableBsr(MechU32 p_value)
 	}
 
 	return bit;
+}
+
+// `idiv` of edx:eax: the quotient, truncated towards zero. Out of domain (the idiv faults): a
+// divisor of 0, or a quotient outside MechS32.
+PORTABLE_INLINE MechS32 PortableIdiv(MechS64 p_dividend, MechS32 p_divisor)
+{
+	MechS64 quotient;
+
+	PORTABLE_ASSERT(p_divisor != 0);
+	quotient = p_dividend / p_divisor;
+	PORTABLE_ASSERT(quotient >= -0x7fffffff - 1 && quotient <= 0x7fffffff);
+	return (MechS32) quotient;
+}
+
+// `div` of edx:eax: the same, unsigned. Out of domain: a divisor of 0, or a quotient of more than
+// 32 bits.
+PORTABLE_INLINE MechU32 PortableDiv(MechU64 p_dividend, MechU32 p_divisor)
+{
+	MechU64 quotient;
+
+	PORTABLE_ASSERT(p_divisor != 0);
+	quotient = p_dividend / p_divisor;
+	PORTABLE_ASSERT(quotient <= 0xffffffff);
+	return (MechU32) quotient;
 }
 
 // `shrd lo, hi, n; adc lo, 0` on the 64-bit value hi:lo (1 <= n <= 31): the low 32 bits of the

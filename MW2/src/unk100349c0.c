@@ -13,8 +13,8 @@
 MechS32 FUN_100349c0(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32 p_divisor)
 {
 #ifdef PORTABLE_C
-	/* The difference of the products fits in 64 bits. Where the idiv faults, the result is undefined. */
-	return (MechS32) (((MechS64) p_a * p_d - (MechS64) p_b * p_c) / p_divisor);
+	/* The difference of the products fits in 64 bits. */
+	return PortableIdiv((MechS64) p_a * p_d - (MechS64) p_b * p_c, p_divisor);
 #else
 	__asm {
 		mov ebx, p_a

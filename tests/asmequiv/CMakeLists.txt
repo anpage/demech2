@@ -5,6 +5,8 @@
 #   by x86 MSVC: VC++ 4.1 in the decomp build, the modern compiler's inline assembler otherwise.
 # - asmport.dll: the same routines' portable C, from the same sources (the candidate).
 # - asmequiv.exe: runs every case through both and compares them; writes the golden vectors.
+# - asmequiv-exhaustive (with -DASMEQUIV_EXHAUSTIVE=ON; not in CI, it takes about a minute): the
+#   routines with one argument word, on every input.
 # - asmequiv-coverage (decomp build, with a Python that has capstone): the cases reach every
 #   basic block of the reference (tools/asmblocks.py lists them).
 # - asmgolden: checks the portable C, linked in, against the committed golden vectors
@@ -106,7 +108,7 @@ endfunction()
 set(golden "${CMAKE_CURRENT_SOURCE_DIR}/golden.txt")
 
 add_executable(asmgolden golden.c cases.c routines.c ${asmequiv_routine_sources} ${asmequiv_masm_c})
-target_compile_definitions(asmgolden PRIVATE PORTABLE_C)
+target_compile_definitions(asmgolden PRIVATE PORTABLE_C PORTABLE_ASSERTS)
 asmequiv_target(asmgolden)
 add_test(NAME asmgolden COMMAND asmgolden "${golden}")
 
@@ -125,7 +127,7 @@ if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
     endif()
   endforeach()
   target_compile_definitions(asmref PRIVATE REFERENCE_ASM)
-  target_compile_definitions(asmport PRIVATE PORTABLE_C)
+  target_compile_definitions(asmport PRIVATE PORTABLE_C PORTABLE_ASSERTS)
 
   add_executable(asmequiv asmequiv.c cases.c routines.c)
   asmequiv_target(asmequiv)
@@ -135,6 +137,13 @@ if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
     COMMAND asmequiv $<TARGET_FILE:asmref> $<TARGET_FILE:asmport>
       -golden "${CMAKE_CURRENT_BINARY_DIR}/golden.txt"
   )
+  # The routines with one argument word, on all 2^32 inputs: about a minute, so not in CI
+  option(ASMEQUIV_EXHAUSTIVE "Add asmequiv-exhaustive, the one-argument routines on every input" OFF)
+  if (ASMEQUIV_EXHAUSTIVE)
+    add_test(NAME asmequiv-exhaustive
+      COMMAND asmequiv $<TARGET_FILE:asmref> $<TARGET_FILE:asmport> -exhaustive
+    )
+  endif()
   if (MSVC_FOR_DECOMP)
     # The committed golden vectors are the 4.1 reference's
     set_tests_properties(asmequiv PROPERTIES FIXTURES_SETUP asmequiv_golden)

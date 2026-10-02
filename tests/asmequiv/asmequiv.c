@@ -3,12 +3,14 @@
 // separately, so each has its own copy of every global. Optionally writes the golden vectors that
 // asmgolden checks a candidate against on other platforms.
 //
-//   asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-coverage FILE] [-blocks N] [-routine NAME]
-//            [-case SET INDEX]
+//   asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-coverage FILE] [-exhaustive] [-blocks N]
+//            [-routine NAME] [-case SET INDEX]
 //
 // -blocks sets the number of random blocks (ASM_RANDOM_BLOCKS by default), -case runs and prints
 // one case. Outside a routine's domain, the reference must fault (and is the only one called);
 // inside it, it must not. Where the original's result is undefined, neither is called.
+//
+// -exhaustive runs the routines with one argument word on every input instead of the sets.
 //
 // -coverage reads the reference's basic blocks (tools/asmblocks.py) and fails unless the cases
 // reach every block of the routines that ran.
@@ -482,6 +484,54 @@ static MechS32 HasReference(const AsmRoutine* p_routine)
 #endif
 }
 
+// -exhaustive: every input of each routine with one argument word (FixedSqrtGuess), called
+// directly. Where the original faults, neither is called (the other sets check the reference's
+// faults); where its result is undefined, neither is either.
+typedef MechU32 (*Exhaustive1Fn)(MechU32 p_value);
+
+static MechS32 RunExhaustive(const AsmRoutine* p_routine, HMODULE p_ref, HMODULE p_cand)
+{
+	Exhaustive1Fn ref = (Exhaustive1Fn) Export(p_ref, p_routine->m_name);
+	Exhaustive1Fn cand = (Exhaustive1Fn) Export(p_cand, p_routine->m_name);
+	MechU32 skipped = 0;
+	MechU32 failures = 0;
+	MechU32 value = 0;
+
+	do {
+		MechS32 arg = PortableS32(value);
+		MechU32 expected;
+		MechU32 actual;
+
+		if (AsmDomain(p_routine, &arg) != c_domainIn) {
+			skipped++;
+			continue;
+		}
+
+		expected = ref(value);
+		actual = cand(value);
+		if (actual != expected) {
+			if (failures < MAX_REPORTS) {
+				printf(
+					"  %s (0x%08lx): reference 0x%08lx, candidate 0x%08lx\n",
+					p_routine->m_name,
+					(unsigned long) value,
+					(unsigned long) expected,
+					(unsigned long) actual
+				);
+			}
+			failures++;
+		}
+	} while (++value != 0);
+
+	printf(
+		"%-24s every input, %8lu skipped (out of domain or undefined), %lu failed\n",
+		p_routine->m_name,
+		(unsigned long) skipped,
+		(unsigned long) failures
+	);
+	return failures == 0;
+}
+
 static HMODULE Load(const char* p_dll)
 {
 	HMODULE module = LoadLibrary(p_dll);
@@ -501,6 +551,7 @@ int main(int p_argc, char** p_argv)
 	const char* goldenPath = NULL;
 	const char* only = NULL;
 	const char* coveragePath = NULL;
+	MechS32 exhaustive = 0;
 	MechS32 randomBlocks = ASM_RANDOM_BLOCKS;
 	MechS32 caseSet = -1;
 	MechU32 caseIndex = 0;
@@ -516,8 +567,8 @@ int main(int p_argc, char** p_argv)
 
 	if (p_argc < 3) {
 		printf(
-			"usage: asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-coverage FILE] [-blocks N] [-routine NAME] [-case "
-			"SET INDEX]\n"
+			"usage: asmequiv REF.dll CANDIDATE.dll [-golden FILE] [-coverage FILE] [-exhaustive] [-blocks N] [-routine "
+			"NAME] [-case SET INDEX]\n"
 		);
 		return 2;
 	}
@@ -532,6 +583,9 @@ int main(int p_argc, char** p_argv)
 	for (i = 3; i < p_argc; i++) {
 		if (!strcmp(p_argv[i], "-golden") && i + 1 < p_argc) {
 			goldenPath = p_argv[++i];
+		}
+		else if (!strcmp(p_argv[i], "-exhaustive")) {
+			exhaustive = 1;
 		}
 		else if (!strcmp(p_argv[i], "-coverage") && i + 1 < p_argc) {
 			coveragePath = p_argv[++i];
@@ -559,6 +613,11 @@ int main(int p_argc, char** p_argv)
 
 	if (only && !AsmFindRoutine(only)) {
 		printf("unknown routine %s\n", only);
+		return 2;
+	}
+
+	if (exhaustive && (goldenPath || coveragePath || caseSet >= 0)) {
+		printf("-exhaustive runs alone\n");
 		return 2;
 	}
 
@@ -602,6 +661,13 @@ int main(int p_argc, char** p_argv)
 
 		if (!HasReference(routine)) {
 			printf("%-24s skipped: the reference has no assembly for it\n", routine->m_name);
+			continue;
+		}
+
+		if (exhaustive) {
+			if (routine->m_arity == 1 && !RunExhaustive(routine, ref, cand)) {
+				failed = 1;
+			}
 			continue;
 		}
 
