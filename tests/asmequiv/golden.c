@@ -8,7 +8,10 @@
 // `asmequiv ... -routine ROUTINE -case SET INDEX` shows against the reference, and -case here
 // against this build.
 
+#include "approxlen.h"
 #include "asmequiv.h"
+#include "clock.h"
+#include "eyepoint.h"
 #include "fixeddiv.h"
 #include "fixeddiv29.h"
 #include "fixeddivu.h"
@@ -16,48 +19,91 @@
 #include "fixeddot29.h"
 #include "fixedmul.h"
 #include "fixedmul30.h"
+#include "integrate.h"
+#include "loadres.h"
 #include "muldiv.h"
+#include "namehash.h"
+#include "sqrtguess.h"
 #include "types.h"
+#include "unk10004ec0.h"
+#include "unk10013340.h"
+#include "unk10019ad0.h"
+#include "unk10034990.h"
+#include "unk100349c0.h"
+#include "unk100349f0.h"
+#include "unk10042740.h"
+#include "unk1004c800.h"
+#include "unk1004c820.h"
+#include "unk1004c860.h"
+#include "unk100696c0.h"
+#include "unk10071930.h"
+#include "unk1007d120.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Candidate {
-	const char* m_name;
-	AsmFn m_fn;
-	MechS32 m_blocks; // golden lines checked
-} Candidate;
+// Defined by unk1007d120.c, which uses it alone.
+extern MechU8* g_unk0x100c1a70;
 
-static Candidate g_candidates[] = {
-	{"FixedMul16", (AsmFn) FixedMul16, 0},
-	{"FixedMul30", (AsmFn) FixedMul30, 0},
-	{"FixedDiv16", (AsmFn) FixedDiv16, 0},
-	{"FixedDiv29", (AsmFn) FixedDiv29, 0},
-	{"FixedDivU16", (AsmFn) FixedDivU16, 0},
-	{"FixedDot27", (AsmFn) FixedDot27, 0},
-	{"FixedDot29", (AsmFn) FixedDot29, 0},
-	{"MulDiv64", (AsmFn) MulDiv64, 0},
+// The routines and globals linked in, by name.
+typedef struct Symbol {
+	const char* m_name;
+	AsmFn m_function;
+	void* m_data;
+} Symbol;
+
+#define FUNCTION(p_name) {#p_name, (AsmFn) p_name, NULL}
+#define DATA(p_name) {#p_name, NULL, (void*) &p_name}
+
+static const Symbol g_symbols[] = {
+	FUNCTION(FixedMul16),     FUNCTION(FixedMul30),   FUNCTION(FixedDiv16),
+	FUNCTION(FixedDiv29),     FUNCTION(FixedDivU16),  FUNCTION(FixedDot27),
+	FUNCTION(FixedDot29),     FUNCTION(MulDiv64),     FUNCTION(ApproximateVectorLength),
+	FUNCTION(FixedSqrtGuess), FUNCTION(FUN_100074e0), FUNCTION(IntegrateMidpoint),
+	FUNCTION(FUN_10004ec0),   FUNCTION(FUN_10013340), FUNCTION(FUN_10019ad0),
+	FUNCTION(FUN_10034990),   FUNCTION(FUN_100349c0), FUNCTION(FUN_100349f0),
+	FUNCTION(FUN_10042740),   FUNCTION(FUN_1004c800), FUNCTION(FUN_1004c820),
+	FUNCTION(FUN_1004c860),   FUNCTION(MemCopy),      FUNCTION(MemSet),
+	FUNCTION(FUN_100696c0),   FUNCTION(FUN_1006975b), FUNCTION(FUN_100698de),
+	FUNCTION(FUN_10071930),   FUNCTION(FUN_100719ca), FUNCTION(FUN_10071a4c),
+	FUNCTION(FUN_1007d248),   FUNCTION(FUN_1007d296), DATA(g_sinTable),
+	DATA(g_atanTable),        DATA(g_unk0x100c1a70),  DATA(g_unk0x100c2698),
+	DATA(g_unk0x1010b5ac),
 };
 
-#define CANDIDATE_COUNT ((MechS32) (sizeof(g_candidates) / sizeof(g_candidates[0])))
+#define SYMBOL_COUNT ((MechS32) (sizeof(g_symbols) / sizeof(g_symbols[0])))
 
-static Candidate* FindCandidate(const char* p_name)
+static const Symbol* FindSymbol(const char* p_name)
 {
 	MechS32 i;
 
-	for (i = 0; i < CANDIDATE_COUNT; i++) {
-		if (!strcmp(g_candidates[i].m_name, p_name)) {
-			return &g_candidates[i];
+	for (i = 0; i < SYMBOL_COUNT; i++) {
+		if (!strcmp(g_symbols[i].m_name, p_name)) {
+			return &g_symbols[i];
 		}
 	}
 
-	return NULL;
+	printf("%s isn't linked in\n", p_name);
+	exit(2);
 }
+
+static AsmFn LinkedFunction(void* p_handle, const char* p_name)
+{
+	(void) p_handle;
+	return FindSymbol(p_name)->m_function;
+}
+
+static void* LinkedData(void* p_handle, const char* p_name)
+{
+	(void) p_handle;
+	return FindSymbol(p_name)->m_data;
+}
+
+static const AsmModule g_linked = {LinkedFunction, LinkedData, NULL};
 
 static void RunCase(
 	const AsmRoutine* p_routine,
-	AsmFn p_fn,
 	MechS32 p_set,
 	MechU32 p_index,
 	AsmHash* p_inputs,
@@ -66,12 +112,12 @@ static void RunCase(
 )
 {
 	MechS32 args[ASM_MAX_ARGS];
+	MechS32 domain;
+	AsmOutput output;
 	MechS32 i;
 
 	AsmMakeCase(p_routine, p_set, p_index, args);
-	for (i = 0; i < p_routine->m_arity; i++) {
-		AsmHashWord(p_inputs, (MechU32) args[i]);
-	}
+	AsmHashCase(p_routine, args, p_inputs);
 
 	if (p_print) {
 		printf("%s %s %lu (", p_routine->m_name, g_asmSetNames[p_set], (unsigned long) p_index);
@@ -81,41 +127,49 @@ static void RunCase(
 		printf("): ");
 	}
 
-	if (p_routine->m_inDomain && !p_routine->m_inDomain(args)) {
-		AsmHashWord(p_outputs, 1);
+	domain = AsmDomain(p_routine, args);
+	if (domain != c_domainIn) {
+		AsmHashWord(p_outputs, domain == c_domainFault ? 1 : 2);
 		if (p_print) {
-			printf("out of domain\n");
+			printf(domain == c_domainFault ? "out of domain\n" : "undefined\n");
 		}
 		return;
 	}
 
-	{
-		MechS32 result = AsmCall(p_fn, p_routine->m_arity, args);
+	AsmRun(p_routine, &g_linked, args, &output);
+	if (output.m_count > ASM_MAX_OUTPUTS) {
+		printf("%s: %ld outputs, more than ASM_MAX_OUTPUTS\n", p_routine->m_name, (long) output.m_count);
+		exit(2);
+	}
 
-		AsmHashWord(p_outputs, 0);
-		AsmHashWord(p_outputs, (MechU32) result);
+	AsmHashWord(p_outputs, 0);
+	for (i = 0; i < output.m_count; i++) {
+		AsmHashWord(p_outputs, output.m_words[i]);
 		if (p_print) {
-			printf("0x%08lx\n", (unsigned long) (MechU32) result);
+			printf(i ? " %08lx" : "%08lx", (unsigned long) output.m_words[i]);
 		}
+	}
+
+	if (p_print) {
+		printf("\n");
 	}
 }
 
 static int RunOneCase(char** p_argv)
 {
 	const AsmRoutine* routine = AsmFindRoutine(p_argv[0]);
-	Candidate* candidate = FindCandidate(p_argv[0]);
 	MechS32 set = AsmFindSet(p_argv[1]);
 	AsmHash inputs;
 	AsmHash outputs;
 
-	if (!routine || !candidate || set < 0) {
+	if (!routine || set < 0) {
 		printf("unknown routine or set\n");
 		return 2;
 	}
 
 	AsmHashInit(&inputs);
 	AsmHashInit(&outputs);
-	RunCase(routine, candidate->m_fn, set, (MechU32) strtoul(p_argv[2], NULL, 0), &inputs, &outputs, 1);
+	RunCase(routine, set, (MechU32) strtoul(p_argv[2], NULL, 0), &inputs, &outputs, 1);
 	return 0;
 }
 
@@ -125,6 +179,7 @@ int main(int p_argc, char** p_argv)
 	char line[256];
 	MechS32 lineNumber = 0;
 	MechS32 failed = 0;
+	MechS32 checked[64];
 	MechS32 i;
 
 	if (p_argc == 6 && !strcmp(p_argv[2], "-case")) {
@@ -136,6 +191,12 @@ int main(int p_argc, char** p_argv)
 		return 2;
 	}
 
+	if (g_asmRoutineCount > 64) {
+		printf("more routines than the checked blocks' array\n");
+		return 2;
+	}
+
+	memset(checked, 0, sizeof(checked));
 	file = fopen(p_argv[1], "r");
 	if (!file) {
 		printf("%s: can't read\n", p_argv[1]);
@@ -152,7 +213,6 @@ int main(int p_argc, char** p_argv)
 		char actualInputs[17];
 		char actualOutputs[17];
 		const AsmRoutine* routine;
-		Candidate* candidate;
 		MechS32 set;
 		AsmHash inputs;
 		AsmHash outputs;
@@ -170,9 +230,8 @@ int main(int p_argc, char** p_argv)
 		}
 
 		routine = AsmFindRoutine(name);
-		candidate = FindCandidate(name);
 		set = AsmFindSet(setName);
-		if (!routine || !candidate || set < 0) {
+		if (!routine || set < 0) {
 			printf("%s:%ld: unknown routine or set\n", p_argv[1], (long) lineNumber);
 			failed = 1;
 			continue;
@@ -181,12 +240,12 @@ int main(int p_argc, char** p_argv)
 		AsmHashInit(&inputs);
 		AsmHashInit(&outputs);
 		for (index = 0; index < count; index++) {
-			RunCase(routine, candidate->m_fn, set, block * ASM_BLOCK_SIZE + index, &inputs, &outputs, 0);
+			RunCase(routine, set, block * ASM_BLOCK_SIZE + index, &inputs, &outputs, 0);
 		}
 
 		AsmHashFormat(&inputs, actualInputs);
 		AsmHashFormat(&outputs, actualOutputs);
-		candidate->m_blocks++;
+		checked[routine - g_asmRoutines]++;
 		if (strcmp(actualInputs, inputText)) {
 			printf("%s %s block %lu: the inputs differ (case generator)\n", name, setName, block);
 			failed = 1;
@@ -206,10 +265,10 @@ int main(int p_argc, char** p_argv)
 
 	fclose(file);
 
-	for (i = 0; i < CANDIDATE_COUNT; i++) {
-		printf("%-12s %3ld blocks\n", g_candidates[i].m_name, (long) g_candidates[i].m_blocks);
-		if (!g_candidates[i].m_blocks) {
-			printf("%s: no golden vectors\n", g_candidates[i].m_name);
+	for (i = 0; i < g_asmRoutineCount; i++) {
+		printf("%-24s %3ld blocks\n", g_asmRoutines[i].m_name, (long) checked[i]);
+		if (!checked[i]) {
+			printf("%s: no golden vectors\n", g_asmRoutines[i].m_name);
 			failed = 1;
 		}
 	}

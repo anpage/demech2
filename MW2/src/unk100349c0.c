@@ -1,7 +1,9 @@
 /* Hand-written assembly: FUN_100349c0 is a C function whose body is an __asm block, like
-   MulDiv64. */
+   MulDiv64. Its portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "unk100349c0.h"
 
+#include "compat.h"
+#include "portable.h"
 #include "types.h"
 
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
@@ -10,6 +12,10 @@
 // FUNCTION: MW2 0x100349c0
 MechS32 FUN_100349c0(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32 p_divisor)
 {
+#ifdef PORTABLE_C
+	/* The difference of the products fits in 64 bits. Where the idiv faults, the result is undefined. */
+	return (MechS32) (((MechS64) p_a * p_d - (MechS64) p_b * p_c) / p_divisor);
+#else
 	__asm {
 		mov ebx, p_a
 		mov eax, p_b
@@ -27,4 +33,5 @@ MechS32 FUN_100349c0(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32
 		pop edi
 		idiv edi
 	}
+#endif
 }

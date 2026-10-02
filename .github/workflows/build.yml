@@ -121,6 +121,16 @@ jobs:
           # (the Docker image uses the same version).
           cmake-version: 3.26.6
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install capstone
+        run: |
+          # tools/asmblocks.py lists the reference's basic blocks for the
+          # asmequiv coverage test
+          pip install capstone
+
       - name: Build
         shell: cmd
         run: |
@@ -139,7 +149,8 @@ jobs:
         run: |
           rem The portable C that replaces the hand-written assembly, against the
           rem matched assembly; also checks that tests/asmequiv/golden.txt is what
-          rem this reference writes.
+          rem this reference writes, and that the cases reach every basic block of
+          rem the reference.
           ctest --test-dir build --output-on-failure
 
       - name: Upload Artifact

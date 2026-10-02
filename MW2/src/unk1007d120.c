@@ -3,10 +3,12 @@
    g_unk0x1010b5ac when the gap between them drops to 0xc8 bytes.
 
    Hand-written assembly: FUN_1007d248 and FUN_1007d296 are C functions whose bodies are
-   mostly an __asm block (eax carries the new top across statements, which /Od never does). */
+   mostly an __asm block (eax carries the new top across statements, which /Od never does). Their
+   portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "unk1007d120.h"
 
 #include "clock.h"
+#include "compat.h"
 #include "decomp.h"
 #include "error.h"
 #include "loadres.h"
@@ -89,6 +91,15 @@ CopperWren0x20* FUN_1007d248(void)
 	CopperWren0x20* record;
 
 	recordSize = 0x20;
+#ifdef PORTABLE_C
+	/* The gap compares as the unsigned addresses do: the two stacks share one buffer. */
+	g_unk0x100c1a70 -= recordSize;
+	record = (CopperWren0x20*) g_unk0x100c1a70;
+	record->m_projected = 0;
+	if (g_unk0x100c1a70 - g_unk0x100c2698 <= 0xc8) {
+		g_unk0x1010b5ac = 0;
+	}
+#else
 	__asm {
 		mov ecx, recordSize
 		mov eax, g_unk0x100c1a70
@@ -104,6 +115,7 @@ CopperWren0x20* FUN_1007d248(void)
 		mov g_unk0x1010b5ac, eax
 done:
 	}
+#endif
 
 	return record;
 }
@@ -115,6 +127,13 @@ MechU8* FUN_1007d296(void)
 	MechU8* record;
 
 	recordSize = 0xc;
+#ifdef PORTABLE_C
+	record = g_unk0x100c2698;
+	g_unk0x100c2698 += recordSize;
+	if (g_unk0x100c1a70 - g_unk0x100c2698 <= 0xc8) {
+		g_unk0x1010b5ac = 0;
+	}
+#else
 	__asm {
 		mov ecx, recordSize
 		mov eax, g_unk0x100c2698
@@ -128,6 +147,7 @@ MechU8* FUN_1007d296(void)
 		mov g_unk0x1010b5ac, eax
 done:
 	}
+#endif
 
 	return record;
 }

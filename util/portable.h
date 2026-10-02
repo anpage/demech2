@@ -38,6 +38,51 @@ PORTABLE_INLINE MechS32 PortableS32(MechU32 p_value)
 	return -(MechS32) ~p_value - 1;
 }
 
+// Reads a 16-bit register's bits as a signed value.
+PORTABLE_INLINE MechS16 PortableS16(MechU16 p_value)
+{
+	if (p_value <= 0x7fff) {
+		return (MechS16) p_value;
+	}
+
+	return (MechS16) (-(MechS32) (MechU16) ~p_value - 1);
+}
+
+// `sar` of a 32-bit register (0 <= n <= 31): an arithmetic right shift, rounding towards minus
+// infinity. C leaves the right shift of a negative value implementation-defined.
+PORTABLE_INLINE MechS32 PortableSar32(MechS32 p_value, MechS32 p_shift)
+{
+	if (p_value >= 0) {
+		return p_value >> p_shift;
+	}
+
+	return -1 - ((-1 - p_value) >> p_shift);
+}
+
+// The same for a 64-bit value in edx:eax (`shrd eax, edx, n; sar edx, n`; 0 <= n <= 63).
+PORTABLE_INLINE MechS64 PortableSar64(MechS64 p_value, MechS32 p_shift)
+{
+	if (p_value >= 0) {
+		return p_value >> p_shift;
+	}
+
+	return -1 - ((-1 - p_value) >> p_shift);
+}
+
+// `bsr`: the index of the highest set bit. p_value must not be 0 (bsr leaves its destination
+// undefined then).
+PORTABLE_INLINE MechS32 PortableBsr(MechU32 p_value)
+{
+	MechS32 bit = 31;
+
+	while (!(p_value & 0x80000000)) {
+		p_value <<= 1;
+		bit--;
+	}
+
+	return bit;
+}
+
 // `shrd lo, hi, n; adc lo, 0` on the 64-bit value hi:lo (1 <= n <= 31): the low 32 bits of the
 // value shifted right by n, rounded up by the last bit shifted out (wrapping like the adc).
 PORTABLE_INLINE MechU32 PortableShrdRound(MechU64 p_value, MechS32 p_shift)
