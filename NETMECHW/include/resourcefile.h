@@ -10,6 +10,7 @@ extern "C"
 #endif
 
 	MechChar* MakeResourcePath(MechChar* p_name);
+	MechS32 LoadFile(MechChar* p_name, MechS32* p_size, void** p_data, MechS32 p_preallocated);
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,7 @@ extern MechChar g_unk0x10023948[4];
 extern HWND g_unk0x1001f2a4;
 
 void FUN_10011120(HWND p_dialog, MechS32 p_force);
+BOOL CALLBACK FUN_100113ec(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam);
 void FUN_10011b0b(HWND p_hWnd);
 void FUN_10011bad(HWND p_hWnd);
 

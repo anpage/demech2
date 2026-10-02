@@ -9,7 +9,7 @@
 #include <string.h>
 #include <windows.h>
 
-DECOMP_SIZE_ASSERT(SessionList, 0x30)
+DECOMP_SIZE_ASSERT(SessionList, 0xac)
 DECOMP_SIZE_ASSERT(SessionList::Session, 0x228)
 
 // The number of players EnumPlayersCallback has stored in the session being enumerated.

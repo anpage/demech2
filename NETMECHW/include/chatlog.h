@@ -43,6 +43,9 @@ public:
 	void SendToTeam(HWND p_dialog);
 	void Send(DPID p_from, DPID p_to, MechChar* p_text);
 
+	// FUNCTION: NETMECHW 0x10006000
+	void Detach() { m_attached = FALSE; }
+
 	// FUNCTION: NETMECHW 0x1000d1f0
 	void Lock() { WaitForSingleObject(m_mutex, INFINITE); }
 

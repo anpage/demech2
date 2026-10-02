@@ -10,7 +10,7 @@
 // The sessions DirectPlay finds, shown in the join dialog's list box. A thread enumerates the
 // sessions, and each session's players, while the dialog is open; "SessionMutex" guards the
 // list, "SessionFlagMutex" the state the thread and the dialog signal each other with.
-// SIZE 0x30
+// SIZE 0xac
 class SessionList {
 public:
 	// SIZE 0x228
@@ -60,18 +60,19 @@ public:
 	// FUNCTION: NETMECHW 0x10002110
 	void UnlockState() { ReleaseMutex(m_stateMutex); }
 
-	undefined4 m_unk0x00; // 0x00
-	MechS32 m_count;      // 0x04
-	Session* m_head;      // 0x08
-	Session* m_tail;      // 0x0c
-	HANDLE m_thread;      // 0x10
-	undefined4 m_unk0x14; // 0x14
-	DWORD m_threadId;     // 0x18
-	HANDLE m_mutex;       // 0x1c
-	undefined4 m_unk0x20; // 0x20
-	HANDLE m_stateMutex;  // 0x24
-	MechS32 m_state;      // 0x28
-	HWND m_listBox;       // 0x2c
+	undefined4 m_unk0x00;             // 0x00
+	MechS32 m_count;                  // 0x04
+	Session* m_head;                  // 0x08
+	Session* m_tail;                  // 0x0c
+	HANDLE m_thread;                  // 0x10
+	undefined4 m_unk0x14;             // 0x14
+	DWORD m_threadId;                 // 0x18
+	HANDLE m_mutex;                   // 0x1c
+	undefined4 m_unk0x20;             // 0x20
+	HANDLE m_stateMutex;              // 0x24
+	MechS32 m_state;                  // 0x28
+	HWND m_listBox;                   // 0x2c
+	undefined m_unk0x30[0xac - 0x30]; // 0x30
 };
 
 #endif // SESSIONLIST_H

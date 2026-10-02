@@ -8,12 +8,18 @@
 #include "unk10003660.h"
 #include "unk10006b20.h"
 #include "unk1000b400.h"
+#include "unk1000f8e0.h"
+#include "unk10010460.h"
 #include "unk10010e50.h"
 #include "unk10011030.h"
 
 #include <dplay.h>
 #include <string.h>
 #include <windows.h>
+
+// The session dialog's timer, which refreshes the selected session's players.
+// GLOBAL: NETMECHW 0x10023368
+UINT g_unk0x10023368 = 0;
 
 // Creates the session, as its host, and the local player in it, and starts the host's threads.
 // Returns whether it succeeded; tells the user why not otherwise.
@@ -155,7 +161,203 @@ MechS32 JoinSession(HWND p_dialog)
 	return TRUE;
 }
 
-// The EnumPlayers callback of JoinSession: adds the session's players to the player table.
+// The session dialog: the sessions found, and the buttons to join one or host a new one (or,
+// for a modem, to dial or to answer).
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
+// FUNCTION: NETMECHW 0x100072a2
+BOOL CALLBACK FUN_100072a2(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM)
+{
+	LRESULT selection;
+	MechU32 notify;
+	MechU32 command;
+	MechS32 hosted;
+
+	switch (p_message) {
+	case WM_INITDIALOG:
+		EnableWindow(GetDlgItem(p_dialog, IDOK), FALSE);
+		return TRUE;
+	case WM_SHOWWINDOW:
+		if (p_wParam) {
+			FUN_10007b30(p_dialog);
+			if (!g_sessionList) {
+				g_sessionList = new SessionList(GetDlgItem(p_dialog, 0x418));
+			}
+
+			SetDlgItemText(p_dialog, IDOK, g_unk0x1001ca90.m_unk0x00 == 2 ? LoadResString(0x8a) : LoadResString(0x89));
+			EnableWindow(GetDlgItem(p_dialog, IDOK), FALSE);
+			SendMessage(GetDlgItem(p_dialog, 0x42b), LB_RESETCONTENT, 0, 0);
+			g_sessionList->Restart();
+			g_unk0x10023368 = SetTimer(p_dialog, 1, 500, NULL);
+		}
+		else {
+			FUN_10007bce(p_dialog);
+			if (g_unk0x10023368) {
+				KillTimer(p_dialog, g_unk0x10023368);
+				g_unk0x10023368 = 0;
+			}
+
+			if (g_sessionList) {
+				g_sessionList->StopThread();
+				delete g_sessionList;
+				g_sessionList = NULL;
+			}
+		}
+
+		return FALSE;
+	case WM_DESTROY:
+		if (g_unk0x10023368) {
+			KillTimer(p_dialog, g_unk0x10023368);
+			g_unk0x10023368 = 0;
+		}
+
+		if (g_sessionList) {
+			g_sessionList->StopThread();
+			delete g_sessionList;
+			g_sessionList = NULL;
+		}
+
+		return FALSE;
+	case WM_TIMER:
+		g_sessionList->ShowPlayers(p_dialog);
+		break;
+	case WM_HOTKEY:
+		switch (p_wParam) {
+		case 200:
+			SetFocus(GetDlgItem(p_dialog, 0x418));
+			break;
+		case 202:
+			SendMessage(p_dialog, WM_COMMAND, IDOK, 0);
+			break;
+		case 201:
+			SendMessage(p_dialog, WM_COMMAND, 0x420, 0);
+			break;
+		case 1:
+			SendMessage(p_dialog, WM_COMMAND, 0x432, 0);
+			break;
+		case 2:
+			SendMessage(p_dialog, WM_COMMAND, 0x7e0, 0);
+			break;
+		case 3:
+			SendMessage(p_dialog, WM_COMMAND, 0x43b, 0);
+			break;
+		}
+
+		break;
+	case WM_COMMAND:
+		command = LOWORD(p_wParam);
+		notify = HIWORD(p_wParam);
+		switch (command) {
+		case IDOK:
+			switch (g_unk0x1001ca90.m_unk0x00) {
+			case 3:
+				if (JoinSession(p_dialog)) {
+					FUN_10005023(3);
+				}
+
+				break;
+			case 2:
+				if (FUN_1000f8e0(p_dialog)) {
+					FUN_10005023(3);
+				}
+
+				break;
+			case 0:
+			case 4:
+			case 5:
+			case 6:
+				MessageBeep((UINT) -1);
+				break;
+			}
+
+			break;
+		case 0x7e0:
+			if (g_unk0x1001ca90.m_unk0x00 == 2) {
+				FUN_10005e50(g_unk0x1001cbf0, sizeof(g_unk0x1001cbf0));
+				WinHelp(p_dialog, g_unk0x1001cbf0, HELP_CONTEXT, 2);
+			}
+			else {
+				FUN_10005e50(g_unk0x1001cbf0, sizeof(g_unk0x1001cbf0));
+				WinHelp(p_dialog, g_unk0x1001cbf0, HELP_CONTEXT, 3);
+			}
+
+			break;
+		case 0x43b:
+			if (g_unk0x10023368) {
+				KillTimer(p_dialog, g_unk0x10023368);
+				g_unk0x10023368 = 0;
+			}
+
+			FUN_100042ab();
+			break;
+		case 0x420:
+			if (!CdCheck()) {
+				MessageBox(p_dialog, LoadResString(0x86), LoadResString(0x79), MB_OK);
+				break;
+			}
+
+			hosted = TRUE;
+			switch (g_unk0x1001ca90.m_unk0x00) {
+			case 3:
+				hosted = HostSession(p_dialog);
+				if (hosted) {
+					if (g_unk0x10023368) {
+						KillTimer(p_dialog, g_unk0x10023368);
+						g_unk0x10023368 = 0;
+					}
+
+					FUN_10005023(2);
+				}
+
+				break;
+			case 2:
+				if (FUN_1000fca7(p_dialog)) {
+					FUN_10005023(2);
+				}
+
+				break;
+			case 0:
+			case 4:
+			case 5:
+			case 6:
+				MessageBeep((UINT) -1);
+				break;
+			}
+
+			break;
+		case 0x432:
+			g_unk0x1001ca90.m_unk0xff = 1;
+			if (g_unk0x10023368) {
+				KillTimer(p_dialog, g_unk0x10023368);
+				g_unk0x10023368 = 0;
+			}
+
+			FUN_10005023(0);
+			break;
+		case 0x418:
+			if (notify == LBN_SELCHANGE) {
+				if (SendMessage(GetDlgItem(p_dialog, 0x418), LB_GETCOUNT, 0, 0)) {
+					selection = SendMessage(GetDlgItem(p_dialog, 0x418), LB_GETCURSEL, 0, 0);
+					EnableWindow(GetDlgItem(p_dialog, IDOK), selection != LB_ERR);
+					if (selection == LB_ERR) {
+						SendMessage(GetDlgItem(p_dialog, 0x42b), LB_RESETCONTENT, 0, 0);
+					}
+				}
+
+				return FALSE;
+			}
+
+			break;
+		default:
+			return TRUE;
+			break;
+		}
+
+		return FALSE;
+	}
+
+	return FALSE;
+}
+
 // FUNCTION: NETMECHW 0x10007add
 BOOL FAR PASCAL AddSessionPlayer(DPID p_id, LPSTR p_friendlyName, LPSTR, DWORD, LPVOID)
 {

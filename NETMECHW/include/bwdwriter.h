@@ -19,6 +19,7 @@ extern "C"
 #endif
 
 	extern MechS32 g_unk0x1001fe70;
+	extern MechS32 g_unk0x1001fe74;
 
 	void AppendBwdNode(void* p_node, MechS32 p_size);
 	void BeginBwdStream(void);
