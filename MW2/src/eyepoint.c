@@ -755,7 +755,7 @@ void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_
 }
 
 // Turns the world's shapes of types 0x10 and 0x60 to face the eyepoint, or to a fixed angle when
-// FUN_1003ee69 is set.
+// IsSatelliteView is set.
 // FUNCTION: MW2 0x1001220a
 void FUN_1001220a(void)
 {
@@ -772,7 +772,7 @@ void FUN_1001220a(void)
 			obj = shape->m_object;
 			if (obj) {
 				GetObjPosition(obj, &x, &y, &z);
-				if (FUN_1003ee69()) {
+				if (IsSatelliteView()) {
 					heading = 0xb40000;
 					pitch = -0x2d0000;
 				}

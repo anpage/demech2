@@ -14,12 +14,12 @@ extern "C"
 	extern MechS32 g_unk0x100a88e8;
 
 	void FUN_100509a0(void);
-	void FUN_100509c8(CockpitPanel* p_panel);
+	void DrawMechViewPanel(CockpitPanel* p_panel);
 	void FUN_10050dc3(RenderSettings* p_saved);
-	void FUN_10050e20(CockpitPanel* p_panel);
+	void DrawMechViewStatic(CockpitPanel* p_panel);
 	void FUN_10050e6c(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_unk0x08);
-	void FUN_10050ebe(CockpitPanel* p_panel);
-	void FUN_10050fd6(CockpitPanel* p_panel);
+	void DrawMechViewStartup(CockpitPanel* p_panel);
+	void DrawMechViewShutdown(CockpitPanel* p_panel);
 
 #ifdef __cplusplus
 }

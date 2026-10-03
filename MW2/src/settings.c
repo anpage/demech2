@@ -122,7 +122,7 @@ MechS32 FUN_1005e9b0(MechS32 p_id)
 		}
 		break;
 	case 0x13:
-		value = g_unk0x100a5f18;
+		value = g_showHud;
 		break;
 	case 0x40:
 		value = g_unk0x100aa298;
@@ -156,7 +156,7 @@ void FUN_1005eb10(MechS32 p_id, MechS32 p_value)
 		}
 		break;
 	case 0x13:
-		g_unk0x100a5f18 = p_value;
+		g_showHud = p_value;
 		break;
 	case 0x40:
 		g_unk0x100aa298 = p_value;

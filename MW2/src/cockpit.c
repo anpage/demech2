@@ -47,39 +47,39 @@
 
 #include <stdio.h>
 
-// The satellite view's display option, 0 or 1 (FUN_1003f74e).
+// The satellite view's display option, 0 or 1 (DrawSatelliteStatic).
 // GLOBAL: MW2 0x100a5a18
-MechS32 g_unk0x100a5a18 = 0;
+MechS32 g_satelliteStaticState = 0;
 
-// The frame callback the satellite view replaces (FUN_1003ddd7).
+// The frame callback the satellite view replaces (SwitchCockpitView).
 // GLOBAL: MW2 0x100a5a1c
-void (*g_unk0x100a5a1c)(void) = FUN_10012afe;
+void (*g_savedFrameDrawCallback)(void) = FUN_10012afe;
 
-// The overlay settings the satellite view keeps while a cockpit view shows (FUN_1003ddd7):
-// g_unk0x100a5f1c's, g_unk0x100a5f18's and g_unk0x100a5f20's, and whether they are held.
+// The overlay settings the satellite view keeps while a cockpit view shows (SwitchCockpitView):
+// g_showCrosshair's, g_showHud's and g_showTargetMarker's, and whether they are held.
 
 // GLOBAL: MW2 0x100a5a20
-MechS32 g_unk0x100a5a20 = 1;
+MechS32 g_savedShowCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5a24
-undefined4 g_unk0x100a5a24 = 1;
+undefined4 g_savedShowHud = 1;
 
 // GLOBAL: MW2 0x100a5a28
-MechS32 g_unk0x100a5a28 = 1;
+MechS32 g_savedShowTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5a2c
-MechS32 g_unk0x100a5a2c = 0;
+MechS32 g_hudSettingsSaved = 0;
 
-// The height the map view's shading starts at (FUN_1003f513).
+// The height the map view's shading starts at (GetMapHeightShade).
 // GLOBAL: MW2 0x100a5a30
-MechS32 g_unk0x100a5a30 = 0;
+MechS32 g_mapShadeBase = 0;
 
 // GLOBAL: MW2 0x100a5a34
-MechS32 g_unk0x100a5a34 = 0x1900;
+MechS32 g_mapShadeTop = 0x1900;
 
-// The height range the map view's shading spans (FUN_1003f513).
+// The height range the map view's shading spans (GetMapHeightShade).
 // GLOBAL: MW2 0x100a5a38
-MechS32 g_unk0x100a5a38 = 0x1900;
+MechS32 g_mapShadeRange = 0x1900;
 
 // The gauge functions of the cockpit layouts, by index.
 // GLOBAL: MW2 0x100a5a40
@@ -129,44 +129,48 @@ Point g_unk0x100a5bb0 = {0, 0};
 // GLOBAL: MW2 0x100a5bb8
 void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
 
-// Whether cockpit view 1 and 2's map animation shows this frame (FUN_1003f8d1).
+// Whether cockpit view 1 and 2's map animation shows this frame (DrawDamagedMapView).
 // GLOBAL: MW2 0x100a5bc8
-MechS32 g_unk0x100a5bc8 = 0;
+MechS32 g_mapDamageAnimShown = 0;
 
-// The clock times the satellite view's static starts and stops at (FUN_1003f74e).
+// The clock times the satellite view's static starts and stops at (DrawSatelliteStatic).
 
 // GLOBAL: MW2 0x100be410
-static MechS32 g_unk0x100be410;
+static MechS32 g_staticCleanUntil;
 
 // GLOBAL: MW2 0x100be414
-static MechS32 g_unk0x100be414;
+static MechS32 g_staticNoiseUntil;
 
+// The cockpit view before the current one (SwitchCockpitView).
 // GLOBAL: MW2 0x10109c5c
-MechS32 g_unk0x10109c5c;
+MechS32 g_previousCockpitView;
 
+// The map view's power mode, and the one before: 1 sliding in while the mech starts up
+// (PowerUpMapView), 3 sliding out while it shuts down (PowerDownMapView), 4 running (RunMapView),
+// 0 reset (ResetMapView). The readouts draw only while it runs.
 // GLOBAL: MW2 0x10109c60
-MechS32 g_unk0x10109c60;
+MechS32 g_previousMapViewMode;
 
 // GLOBAL: MW2 0x10109c64
 MechS32 g_cockpitLayoutIndex;
 
 // GLOBAL: MW2 0x10109c68
-MechS32 g_unk0x10109c68;
+MechS32 g_mapViewMode;
 
 // The view g_cockpitLayoutIndex switches to; 3 and 5 enter and leave the satellite view (4).
 // GLOBAL: MW2 0x10109c6c
-MechS32 g_unk0x10109c6c;
+MechS32 g_requestedCockpitView;
 
 // Set while the map views follow the free eyepoint instead of the player (the free-eye cheat).
 // GLOBAL: MW2 0x10109c70
-MechS32 g_unk0x10109c70;
+MechS32 g_mapFollowsFreeEye;
 
-// Set to draw the satellite view without its static once (FUN_1003f74e).
+// Set to draw the satellite view without its static once (DrawSatelliteStatic).
 // GLOBAL: MW2 0x10109c74
-MechS32 g_unk0x10109c74;
+MechS32 g_satelliteClean;
 
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
-// and for the normal cockpit also in g_unk0x100adf58), its points and extra rectangles, and its
+// and for the normal cockpit also in g_cockpitPanelPanes), its points and extra rectangles, and its
 // gauge functions.
 // Stack-slot permutation: index, rect, transition and viewport.
 // FUNCTION: MW2 0x1003dab0
@@ -186,13 +190,13 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	viewport->m_window = &g_mainPixelBuffer;
 	ScaleRectToScreen(&g_mainPixelBuffer, viewport, viewport);
 	if (p_cockpit == 1) {
-		g_unk0x100adf58[0] = *viewport;
+		g_cockpitPanelPanes[0] = *viewport;
 	}
 
 	g_panes[p_layout->m_paneSlot] = *viewport;
 	ScalePointToFrame(viewport, &p_layout->m_unk0x58, &p_layout->m_unk0x58);
-	ScalePointToFrame(viewport, &p_layout->m_unk0x60, &p_layout->m_unk0x60);
-	ScalePointToFrame(viewport, &p_layout->m_unk0x68, &p_layout->m_unk0x68);
+	ScalePointToFrame(viewport, &p_layout->m_rangeTextOrigin, &p_layout->m_rangeTextOrigin);
+	ScalePointToFrame(viewport, &p_layout->m_headingTextOrigin, &p_layout->m_headingTextOrigin);
 	transition = p_layout->m_transition;
 	if (transition) {
 		rect = transition->m_def->m_first;
@@ -227,13 +231,13 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	p_layout->m_gauges[2] = g_cockpitGauges[index];
 	index = (MechS32) p_layout->m_gauges[3];
 	p_layout->m_gauges[3] = g_cockpitGauges[index];
-	FUN_1003ef07(0);
+	ZoomMapView(0);
 }
 
 // Places every cockpit view's layout on the screen and starts in cockpit view 0, then the text
 // readout and the map view's shading range.
 // FUNCTION: MW2 0x1003dce8
-void FUN_1003dce8(void)
+void InitCockpitViews(void)
 {
 	MechS32 i;
 
@@ -242,83 +246,85 @@ void FUN_1003dce8(void)
 	}
 
 	g_cockpitLayoutIndex = 0;
-	g_unk0x10109c6c = 1;
-	g_unk0x10109c5c = 0;
+	g_requestedCockpitView = 1;
+	g_previousCockpitView = 0;
 	ScalePointToFrame(&g_currentPane, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
-	g_unk0x100a5a30 -= 1000;
-	g_unk0x100a5a38 = g_unk0x100a5a34 - g_unk0x100a5a30;
+	g_mapShadeBase -= 1000;
+	g_mapShadeRange = g_mapShadeTop - g_mapShadeBase;
 }
 
+// The map view while the local mech runs: switches views as asked, drawing through the frame
+// callback (DrawCockpitView), or the satellite view's own.
 // FUNCTION: MW2 0x1003dd82
-void FUN_1003dd82(void)
+void RunMapView(void)
 {
-	g_unk0x10109c60 = g_unk0x10109c68;
-	g_unk0x10109c68 = 4;
+	g_previousMapViewMode = g_mapViewMode;
+	g_mapViewMode = 4;
 	if (g_cockpitLayoutIndex <= 2) {
-		FUN_1003e03c();
+		DrawCockpitView();
 	}
-	else if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c <= 2) {
-		FUN_1003ddd7();
+	else if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView <= 2) {
+		SwitchCockpitView();
 	}
 }
 
-// Moves to the cockpit view g_unk0x10109c6c asks for: 0 to 2 directly, 3 into the satellite view
+// Moves to the cockpit view g_requestedCockpitView asks for: 0 to 2 directly, 3 into the satellite view
 // (4) with its own frame callback, and 5 back out to the view it was entered from. Keeps the
 // overlay settings the satellite view changes while a cockpit view shows, and leaves it when the
 // player dies. Returns whether the view changed.
-// Stack-slot permutation; g_cockpitLayoutIndex != g_unk0x10109c6c compares in the other operand
+// Stack-slot permutation; g_cockpitLayoutIndex != g_requestedCockpitView compares in the other operand
 // order.
 // FUNCTION: MW2 0x1003ddd7
-MechS32 FUN_1003ddd7(void)
+MechS32 SwitchCockpitView(void)
 {
 	MechS32 changed;
 	CockpitLayout* layout;
 	MechS32 sound;
 
 	changed = FALSE;
-	if (g_cockpitLayoutIndex <= 2 && g_unk0x10109c5c == 4 && g_unk0x100a5a2c) {
-		g_unk0x100a5f1c = g_unk0x100a5a20;
-		g_unk0x100a5f20 = g_unk0x100a5a28;
-		g_unk0x100a5a2c = 0;
+	if (g_cockpitLayoutIndex <= 2 && g_previousCockpitView == 4 && g_hudSettingsSaved) {
+		g_showCrosshair = g_savedShowCrosshair;
+		g_showTargetMarker = g_savedShowTargetMarker;
+		g_hudSettingsSaved = 0;
 	}
 
 	if (g_cockpitLayoutIndex == 4 && (g_unk0x100a2c04 || (g_players[g_localPlayerId]->m_flags & 6))) {
-		g_unk0x10109c6c = 5;
+		g_requestedCockpitView = 5;
 	}
 
-	if (g_cockpitLayoutIndex != g_unk0x10109c6c) {
+	if (g_cockpitLayoutIndex != g_requestedCockpitView) {
 		changed = TRUE;
-		switch (g_unk0x10109c6c) {
+		switch (g_requestedCockpitView) {
 		case 0:
-			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_previousCockpitView = g_cockpitLayoutIndex;
 			g_cockpitLayoutIndex = 0;
 			break;
 		case 1:
-			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_previousCockpitView = g_cockpitLayoutIndex;
 			g_cockpitLayoutIndex = 1;
 			break;
 		case 2:
-			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_previousCockpitView = g_cockpitLayoutIndex;
 			g_cockpitLayoutIndex = 2;
 			break;
 		case 4:
-			g_unk0x10109c5c = g_cockpitLayoutIndex;
+			g_previousCockpitView = g_cockpitLayoutIndex;
 			g_cockpitLayoutIndex = 4;
-			if (!g_unk0x100a5a2c) {
-				g_unk0x100a5a20 = g_unk0x100a5f1c;
-				g_unk0x100a5f1c = 0;
-				g_unk0x100a5a28 = g_unk0x100a5f20;
-				g_unk0x100a5f20 = 0;
-				g_unk0x100a5a24 = g_unk0x100a5f18;
-				g_unk0x100a5a2c = 1;
+			if (!g_hudSettingsSaved) {
+				g_savedShowCrosshair = g_showCrosshair;
+				g_showCrosshair = 0;
+				g_savedShowTargetMarker = g_showTargetMarker;
+				g_showTargetMarker = 0;
+				g_savedShowHud = g_showHud;
+				g_hudSettingsSaved = 1;
 			}
 			break;
 		case 3:
-			g_unk0x10109c6c = 4;
-			g_unk0x100a5a1c = g_renderSettings.m_frameDrawCallback;
-			g_renderSettings.m_frameDrawCallback = FUN_1003e03c;
+			g_requestedCockpitView = 4;
+			g_savedFrameDrawCallback = g_renderSettings.m_frameDrawCallback;
+			g_renderSettings.m_frameDrawCallback = DrawCockpitView;
 			layout = g_cockpitLayouts[4];
-			sound = layout->m_unk0x0c[0];
+			sound = layout->m_sounds[0];
 			if (sound != -1) {
 				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
 			}
@@ -326,10 +332,10 @@ MechS32 FUN_1003ddd7(void)
 			PlayCockpitSound(0x12, -1);
 			break;
 		case 5:
-			g_renderSettings.m_frameDrawCallback = g_unk0x100a5a1c;
-			g_unk0x10109c6c = g_unk0x10109c5c;
+			g_renderSettings.m_frameDrawCallback = g_savedFrameDrawCallback;
+			g_requestedCockpitView = g_previousCockpitView;
 			layout = g_cockpitLayouts[4];
-			sound = layout->m_unk0x0c[1];
+			sound = layout->m_sounds[1];
 			if (sound != -1) {
 				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
 			}
@@ -346,15 +352,17 @@ MechS32 FUN_1003ddd7(void)
 	return changed;
 }
 
+// Draws the current cockpit view (the frame callback in the satellite view): switches views as
+// asked, then draws the map, damaged while the radar panel is.
 // FUNCTION: MW2 0x1003e03c
-void FUN_1003e03c(void)
+void DrawCockpitView(void)
 {
-	FUN_1003ddd7();
-	if (g_unk0x100c3280[0]->m_unk0x06) {
-		FUN_1003f8d1();
+	SwitchCockpitView();
+	if (g_cockpitPanels[c_panelRadar]->m_damage) {
+		DrawDamagedMapView();
 	}
 	else {
-		FUN_1003e06c();
+		DrawMapView();
 	}
 }
 
@@ -365,7 +373,7 @@ void FUN_1003e03c(void)
 // The pose has a seventh element nothing uses. The only diff is a stack-slot permutation of the
 // locals.
 // FUNCTION: MW2 0x1003e06c
-void FUN_1003e06c(void)
+void DrawMapView(void)
 {
 	MechS32 farPlane;
 	MechS32 heading;
@@ -415,7 +423,7 @@ void FUN_1003e06c(void)
 		break;
 	}
 
-	if (!g_unk0x10109c70) {
+	if (!g_mapFollowsFreeEye) {
 		x = y = z = 0;
 		obj = player->m_eyeObj;
 		if (obj) {
@@ -430,10 +438,10 @@ void FUN_1003e06c(void)
 		pose[2] = g_eyepoint->m_z;
 	}
 
-	range = layout->m_unk0x18;
+	range = layout->m_range;
 	pose[1] = range;
-	if (g_unk0x100a5a30 < 0) {
-		farPlane = range - g_unk0x100a5a30;
+	if (g_mapShadeBase < 0) {
+		farPlane = range - g_mapShadeBase;
 	}
 	else {
 		farPlane = range;
@@ -441,9 +449,9 @@ void FUN_1003e06c(void)
 
 	FUN_10041fa0(pose, slot, range, farPlane);
 	if (g_cockpitLayoutIndex == 4) {
-		g_renderSettings.m_shapeFilter = FUN_1003f00d;
-		g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_1003f0e7;
-		g_renderSettings.m_drawPolygon = FUN_1003f393;
+		g_renderSettings.m_shapeFilter = MapShapeFilter;
+		g_renderSettings.m_drawFace = (MechS32 (*)()) SatelliteFaceColor;
+		g_renderSettings.m_drawPolygon = SatelliteDrawPolygon;
 		zoom = FUN_10011440();
 		FUN_10011401(6);
 		FUN_1001da44();
@@ -454,16 +462,16 @@ void FUN_1003e06c(void)
 	}
 
 	if (g_cockpitLayoutIndex != 4 || !(player->m_flags & 0x16)) {
-		FUN_1003eb22(layout, angle);
+		DrawMapFieldOfView(layout, angle);
 	}
 
-	FUN_1003e32c(layout);
+	DrawMapContents(layout);
 	FUN_10042195();
 	if (layout->m_gauges[0]) {
 		layout->m_gauges[0](viewport, layout->m_colors[12]);
 	}
 
-	if (g_unk0x10109c68 == 4 && (g_cockpitLayoutIndex != 4 || g_unk0x100a5a18 <= 1)) {
+	if (g_mapViewMode == 4 && (g_cockpitLayoutIndex != 4 || g_satelliteStaticState <= 1)) {
 		DrawMapViewText(layout);
 	}
 }
@@ -472,7 +480,7 @@ void FUN_1003e06c(void)
 // things, and the target.
 // The only diff is a stack-slot permutation of the locals. The original has an unused local (unused).
 // FUNCTION: MW2 0x1003e32c
-void FUN_1003e32c(CockpitLayout* p_layout)
+void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
 	PANE* viewport;
@@ -484,25 +492,25 @@ void FUN_1003e32c(CockpitLayout* p_layout)
 
 	viewport = p_layout->m_viewport;
 	player = g_players[g_localPlayerId];
-	FUN_1003e974(p_layout);
+	DrawMapNavPoints(p_layout);
 	if (g_cockpitLayoutIndex != 4) {
 		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
-		id = p_layout->m_icons[0][0] + g_unk0x100e9614;
+		id = p_layout->m_icons[0][0] + g_artResolution;
 		shape = FUN_1001a19f(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			VFX_shape_draw(viewport, shape, 0, x, y);
 			FUN_1001a163(id, g_resourceTypeTags[c_resTagShp]);
-			FUN_1003e4cd(p_layout);
+			DrawMapUnits(p_layout);
 		}
 	}
 
-	FUN_1003e689(p_layout);
+	DrawMapTarget(p_layout);
 }
 
 // Draws icon p_icon at the world position p_pos, if the map view shows it.
 // FUNCTION: MW2 0x1003e40a
-void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
+void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 {
 	PANE* viewport;
 	void* shape;
@@ -515,10 +523,10 @@ void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	}
 
 	if (visible) {
-		shape = FUN_1001a19f(g_mw2PrjHandle, p_icon + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		shape = FUN_1001a19f(g_mw2PrjHandle, p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
-			FUN_1001a163(p_icon + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+			FUN_1001a163(p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 		}
 	}
 }
@@ -526,7 +534,7 @@ void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 // Draws the other live players and the live game things, by side.
 // Stack-slot permutation; i < g_gameThingCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e4cd
-void FUN_1003e4cd(CockpitLayout* p_layout)
+void DrawMapUnits(CockpitLayout* p_layout)
 {
 	Player* player;
 	MechS32 icon;
@@ -543,7 +551,7 @@ void FUN_1003e4cd(CockpitLayout* p_layout)
 				pos.m_xy.m_y = player->m_position.m_y;
 				pos.m_z = player->m_position.m_z;
 				icon = p_layout->m_icons[1][GetPlayerSide(i)];
-				FUN_1003e40a(p_layout, pos, icon);
+				DrawMapIcon(p_layout, pos, icon);
 			}
 		}
 	}
@@ -553,7 +561,7 @@ void FUN_1003e4cd(CockpitLayout* p_layout)
 		if ((thing->m_unk0x00 & 0x1400) && !(thing->m_unk0x00 & 0x1e)) {
 			GetStaticObjectPosition(thing->m_unk0x04, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
 			icon = p_layout->m_icons[1][FUN_1003c30e(i)];
-			FUN_1003e40a(p_layout, pos, icon);
+			DrawMapIcon(p_layout, pos, icon);
 		}
 	}
 }
@@ -561,7 +569,7 @@ void FUN_1003e4cd(CockpitLayout* p_layout)
 // Returns whether team p_team has reached the nav point. The team test is an | where an & was
 // meant: any reached nav counts.
 // FUNCTION: MW2 0x1003e645
-MechS32 FUN_1003e645(NavPoint* p_nav, MechS32 p_team)
+MechS32 IsNavReached(NavPoint* p_nav, MechS32 p_team)
 {
 	return (p_nav->m_flags & 0x20) && (p_nav->m_unk0x26 | (1 << p_team));
 }
@@ -569,7 +577,7 @@ MechS32 FUN_1003e645(NavPoint* p_nav, MechS32 p_team)
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // Stack-slot permutation; m_icons[row][side] loads the table before the row (index order).
 // FUNCTION: MW2 0x1003e689
-void FUN_1003e689(CockpitLayout* p_layout)
+void DrawMapTarget(CockpitLayout* p_layout)
 {
 	MechS32 index;
 	Player* player;
@@ -622,7 +630,7 @@ void FUN_1003e689(CockpitLayout* p_layout)
 		break;
 	case 0x100:
 		if (visible) {
-			if (FUN_1003e645(&g_navTable[index], g_unk0x100a5918)) {
+			if (IsNavReached(&g_navTable[index], g_unk0x100a5918)) {
 				side = 1;
 			}
 			else {
@@ -649,7 +657,7 @@ void FUN_1003e689(CockpitLayout* p_layout)
 		return;
 	}
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp], 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (visible) {
 			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
@@ -659,14 +667,14 @@ void FUN_1003e689(CockpitLayout* p_layout)
 			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 
-		FUN_1001a163(g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp]);
+		FUN_1001a163(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
 // Draws the local team's nav points, marking the ones reached.
 // Stack-slot permutation; i < g_navCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e974
-void FUN_1003e974(CockpitLayout* p_layout)
+void DrawMapNavPoints(CockpitLayout* p_layout)
 {
 	MapPoint pos;
 	MechS32 i;
@@ -695,7 +703,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 			}
 
 			if (visible) {
-				if (FUN_1003e645(nav, g_unk0x100a5918)) {
+				if (IsNavReached(nav, g_unk0x100a5918)) {
 					icon = p_layout->m_icons[4][1];
 				}
 				else {
@@ -703,10 +711,10 @@ void FUN_1003e974(CockpitLayout* p_layout)
 				}
 
 				if (icon != -1) {
-					shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp], 0);
+					shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
 					if (shape) {
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
-						FUN_1001a163(g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp]);
+						FUN_1001a163(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
 					}
 				}
 			}
@@ -717,7 +725,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003eb22
-void FUN_1003eb22(CockpitLayout* p_layout, MechS32 p_heading)
+void DrawMapFieldOfView(CockpitLayout* p_layout, MechS32 p_heading)
 {
 	MechS32 halfFov;
 	PANE* viewport;
@@ -758,95 +766,95 @@ void DrawMapViewText(CockpitLayout* p_layout)
 
 	viewport = p_layout->m_viewport;
 	player = g_players[g_localPlayerId];
-	font = FUN_1001a19f(g_mw2PrjHandle, p_layout->m_unk0x30 + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
-		if (p_layout->m_unk0x18 != p_layout->m_unk0x1c) {
-			range = p_layout->m_unk0x18 / 2;
+		if (p_layout->m_range != p_layout->m_formattedRange) {
+			range = p_layout->m_range / 2;
 			if (range >= 100000) {
 				range = FixedDiv16(range, 100000);
-				units = p_layout->m_unk0x54;
+				units = p_layout->m_longUnit;
 			}
 			else {
 				range = FixedDiv16(range, 100);
-				units = p_layout->m_unk0x50;
+				units = p_layout->m_shortUnit;
 			}
 
 			value = range / 65536.0;
-			sprintf(p_layout->m_unk0x40, "%s%3.1lf%s", p_layout->m_unk0x3c, value, units);
-			p_layout->m_unk0x1c = p_layout->m_unk0x18;
+			sprintf(p_layout->m_rangeText, "%s%3.1lf%s", p_layout->m_rangeLabel, value, units);
+			p_layout->m_formattedRange = p_layout->m_range;
 		}
 
 		VFX_string_draw(
 			viewport,
-			p_layout->m_unk0x60.m_x,
-			p_layout->m_unk0x60.m_y,
+			p_layout->m_rangeTextOrigin.m_x,
+			p_layout->m_rangeTextOrigin.m_y,
 			font,
-			p_layout->m_unk0x40,
-			g_unk0x100e9350
+			p_layout->m_rangeText,
+			g_textColors
 		);
 		if (g_cockpitLayoutIndex == 4) {
 			heading = player->m_heading;
 			heading = (heading % 0x1680000 + 0x1680000) % 0x1680000;
-			if (p_layout->m_unk0x4c != heading) {
+			if (p_layout->m_formattedHeading != heading) {
 				degrees = heading / 65536.0;
-				sprintf(p_layout->m_unk0x48, "%s%3.1lf", p_layout->m_unk0x44, degrees);
-				p_layout->m_unk0x4c = heading;
+				sprintf(p_layout->m_headingText, "%s%3.1lf", p_layout->m_headingLabel, degrees);
+				p_layout->m_formattedHeading = heading;
 			}
 
 			VFX_string_draw(
 				viewport,
-				p_layout->m_unk0x68.m_x,
-				p_layout->m_unk0x68.m_y,
+				p_layout->m_headingTextOrigin.m_x,
+				p_layout->m_headingTextOrigin.m_y,
 				font,
-				p_layout->m_unk0x48,
-				g_unk0x100e9350
+				p_layout->m_headingText,
+				g_textColors
 			);
 		}
 
-		FUN_1001a163(p_layout->m_unk0x30 + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont]);
+		FUN_1001a163(p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont]);
 	}
 }
 
 // Cycles the three cockpit views.
 // FUNCTION: MW2 0x1003ee26
-void FUN_1003ee26(void)
+void CycleCockpitView(void)
 {
-	if (g_cockpitLayoutIndex <= 2 && g_unk0x10109c6c <= 2) {
-		g_unk0x10109c6c = g_cockpitLayoutIndex + 1;
-		g_unk0x10109c6c %= 3;
+	if (g_cockpitLayoutIndex <= 2 && g_requestedCockpitView <= 2) {
+		g_requestedCockpitView = g_cockpitLayoutIndex + 1;
+		g_requestedCockpitView %= 3;
 	}
 }
 
 // FUNCTION: MW2 0x1003ee69
-MechS32 FUN_1003ee69(void)
+MechS32 IsSatelliteView(void)
 {
 	return g_cockpitLayoutIndex == 4;
 }
 
 // FUNCTION: MW2 0x1003ee92
-void FUN_1003ee92(void)
+void LeaveSatelliteView(void)
 {
 	if (g_cockpitLayoutIndex == 4) {
-		FUN_1003eeaf();
+		ToggleSatelliteView();
 	}
 }
 
 // Leaves the satellite view, or else enters it from a cockpit view.
 // FUNCTION: MW2 0x1003eeaf
-void FUN_1003eeaf(void)
+void ToggleSatelliteView(void)
 {
-	if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c == 4) {
-		g_unk0x10109c6c = 5;
+	if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView == 4) {
+		g_requestedCockpitView = 5;
 	}
-	else if (g_cockpitLayoutIndex <= 2 && g_unk0x10109c6c <= 2) {
-		g_unk0x10109c6c = 3;
+	else if (g_cockpitLayoutIndex <= 2 && g_requestedCockpitView <= 2) {
+		g_requestedCockpitView = 3;
 	}
 }
 
 // Zooms the current view's map: p_zoom 0 resets the range, 1 halves it (wrapping to the longest
 // below the shortest) and 2 doubles it (wrapping to the shortest).
 // FUNCTION: MW2 0x1003ef07
-void FUN_1003ef07(MechS32 p_zoom)
+void ZoomMapView(MechS32 p_zoom)
 {
 	CockpitLayout* layout;
 
@@ -857,30 +865,30 @@ void FUN_1003ef07(MechS32 p_zoom)
 
 	switch (p_zoom) {
 	case 0:
-		layout->m_unk0x18 = layout->m_unk0x20;
+		layout->m_range = layout->m_startRange;
 		break;
 	case 1:
-		layout->m_unk0x18 = FixedDiv16(layout->m_unk0x18, 0x20000);
-		if (layout->m_unk0x24 > layout->m_unk0x18) {
-			layout->m_unk0x18 = layout->m_unk0x28;
+		layout->m_range = FixedDiv16(layout->m_range, 0x20000);
+		if (layout->m_minRange > layout->m_range) {
+			layout->m_range = layout->m_maxRange;
 		}
 		break;
 	case 2:
-		layout->m_unk0x18 = FixedMul16(layout->m_unk0x18, 0x20000);
-		if (layout->m_unk0x28 < layout->m_unk0x18) {
-			layout->m_unk0x18 = layout->m_unk0x24;
+		layout->m_range = FixedMul16(layout->m_range, 0x20000);
+		if (layout->m_maxRange < layout->m_range) {
+			layout->m_range = layout->m_minRange;
 		}
 		break;
 	}
 
-	layout->m_unk0x2c = FixedDiv16(layout->m_unk0x20, layout->m_unk0x18);
+	layout->m_zoom = FixedDiv16(layout->m_startRange, layout->m_range);
 }
 
 // The map view's shape filter (RenderSettings::m_shapeFilter): skips dead players' shapes and
 // shapes of types 0x30 and 0x70, then culls through FUN_10042206.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f00d
-MechS32 FUN_1003f00d(Shape* p_shape)
+MechS32 MapShapeFilter(Shape* p_shape)
 {
 	MechS32 type;
 	MechS32 flags;
@@ -922,7 +930,7 @@ MechS32 FUN_1003f00d(Shape* p_shape)
 // Faces of a textured kind (0x3000) draw in the view's color 10.
 // The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
 // FUNCTION: MW2 0x1003f0e7
-MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
+MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 {
 	MechU32 color;
 	MechU32 type;
@@ -1007,7 +1015,7 @@ MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 // (0) twice, the second time outlined (0x2000).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f393
-void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
+void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
 	MechU32 shade;
 	MechU32 kind;
@@ -1027,7 +1035,7 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 	case 0x4000:
 		p_flags &= 0xf0;
 		for (i = 0; i < p_count; i++) {
-			shade = FUN_1003f513(layout, point[5]);
+			shade = GetMapHeightShade(layout, point[5]);
 			point[2] = (p_flags | shade) << 16;
 			point += 6;
 		}
@@ -1053,18 +1061,18 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 	}
 }
 
-// Returns the shade (0-15) of a height p_unk0x04 in the map view.
+// Returns the shade (0-15) of a height p_height in the map view.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f513
-MechS32 FUN_1003f513(CockpitLayout* p_layout, MechS32 p_unk0x04)
+MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechS32 p_height)
 {
 	MechS32 shade;
 	MechS32 height;
 	MechS32 fraction;
 
-	height = p_layout->m_unk0x18 - (p_unk0x04 >> 2);
-	height -= g_unk0x100a5a30;
-	fraction = FixedDiv16(height, g_unk0x100a5a38);
+	height = p_layout->m_range - (p_height >> 2);
+	height -= g_mapShadeBase;
+	fraction = FixedDiv16(height, g_mapShadeRange);
 	shade = FixedMul16(fraction, 0x10);
 	if (shade < 0) {
 		shade = 0;
@@ -1077,10 +1085,10 @@ MechS32 FUN_1003f513(CockpitLayout* p_layout, MechS32 p_unk0x04)
 }
 
 // Draws the layout's view into the rectangle p_transition has reached, restoring the viewport
-// afterwards. Returns FALSE once the transition is over; then, with p_unk0x0c, it draws into the
+// afterwards. Returns FALSE once the transition is over; then, with p_final, it draws into the
 // transition's final rectangle and has it stretched to the screen.
 // FUNCTION: MW2 0x1003f594
-MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_unk0x0c)
+MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_final)
 {
 	MechS32 result;
 	PANE* rect;
@@ -1091,7 +1099,7 @@ MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition*
 	rect = UpdateRectTransition(p_reverse, p_transition);
 	if (!rect) {
 		result = FALSE;
-		if (p_unk0x0c) {
+		if (p_final) {
 			if (!p_reverse) {
 				rect = p_transition->m_def->m_second;
 			}
@@ -1102,11 +1110,11 @@ MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition*
 	}
 
 	if (rect) {
-		*p_layout->m_unk0x04 = *viewport;
+		*p_layout->m_savedViewport = *viewport;
 		*viewport = *rect;
-		FUN_1003e06c();
-		*viewport = *p_layout->m_unk0x04;
-		if (p_unk0x0c) {
+		DrawMapView();
+		*viewport = *p_layout->m_savedViewport;
+		if (p_final) {
 			g_currentPane = *rect;
 			g_unk0x10176ebc = 1;
 		}
@@ -1115,49 +1123,50 @@ MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition*
 	return result;
 }
 
-// Enters cockpit view 1's map mode from a cockpit view, sliding the view's rectangle in.
+// The map view while the local mech starts up: slides the view's rectangle in (its transition),
+// then draws it.
 // FUNCTION: MW2 0x1003f66d
-void FUN_1003f66d(void)
+void PowerUpMapView(void)
 {
 	RectTransition* transition;
 	CockpitLayout* layout;
 
 	if (g_cockpitLayoutIndex <= 2) {
-		FUN_1003ddd7();
+		SwitchCockpitView();
 		if (g_cockpitLayoutIndex > 2) {
 			return;
 		}
 
 		if (g_cockpitLayoutIndex != 0) {
-			g_unk0x10109c60 = g_unk0x10109c68;
-			g_unk0x10109c68 = 1;
+			g_previousMapViewMode = g_mapViewMode;
+			g_mapViewMode = 1;
 		}
 
 		layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 		if (layout) {
 			transition = layout->m_transition;
 			if (transition) {
-				if (g_unk0x10109c60 != g_unk0x10109c68) {
+				if (g_previousMapViewMode != g_mapViewMode) {
 					StartRectTransition(transition);
 				}
 
-				if (!FUN_1003f594(0, layout, transition, 0)) {
-					FUN_1003e03c();
+				if (!DrawMapViewTransition(0, layout, transition, 0)) {
+					DrawCockpitView();
 				}
 			}
 		}
 	}
-	else if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c <= 2) {
-		FUN_1003ddd7();
+	else if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView <= 2) {
+		SwitchCockpitView();
 	}
 }
 
 // Draws the satellite view through its static: while the mission menu is open, or after a
-// reset (g_unk0x10109c74), cleanly; otherwise clean until a random time, then the view's
+// reset (g_satelliteClean), cleanly; otherwise clean until a random time, then the view's
 // transition breaks it up until another random time.
 // The two clock comparisons compare in the other operand order.
 // FUNCTION: MW2 0x1003f74e
-void FUN_1003f74e(void)
+void DrawSatelliteStatic(void)
 {
 	RectTransition* transition;
 	CockpitLayout* layout;
@@ -1167,42 +1176,43 @@ void FUN_1003f74e(void)
 		return;
 	}
 
-	if (GetMenuSlotState(4) || g_unk0x10109c74) {
-		g_unk0x10109c74 = 0;
-		FUN_1003e06c();
+	if (GetMenuSlotState(4) || g_satelliteClean) {
+		g_satelliteClean = 0;
+		DrawMapView();
 		return;
 	}
 
-	switch (g_unk0x100a5a18) {
+	switch (g_satelliteStaticState) {
 	case 0:
-		g_unk0x100be410 = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
-		g_unk0x100a5a18 = 1;
+		g_staticCleanUntil = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
+		g_satelliteStaticState = 1;
 	case 1:
-		if (g_unk0x100be410 > g_currentClock) {
-			FUN_1003e06c();
+		if (g_staticCleanUntil > g_currentClock) {
+			DrawMapView();
 			break;
 		}
 
-		g_unk0x100a5a18 = 2;
-		g_unk0x100be414 = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
+		g_satelliteStaticState = 2;
+		g_staticNoiseUntil = g_currentClock + RandomIntBelow(transition->m_def->m_duration);
 		StartRectTransition(transition);
-		g_unk0x100a5f18 = 0;
+		g_showHud = 0;
 	case 2:
 		transition->m_state->m_elapsed = RandomIntBelow(transition->m_def->m_duration - g_deltaTime - 1);
-		FUN_1003f594(1, layout, transition, 1);
-		if (g_unk0x100be414 < g_currentClock) {
-			g_unk0x100a5a18 = 0;
+		DrawMapViewTransition(1, layout, transition, 1);
+		if (g_staticNoiseUntil < g_currentClock) {
+			g_satelliteStaticState = 0;
 			break;
 		}
 		break;
 	}
 }
 
-// Draws the current cockpit view: the satellite view through its static, or the map with the
-// view's 2D animation over it, flickering on and off in cockpit mode 1 and steady in mode 2.
+// Draws the current cockpit view while the radar panel is damaged: the satellite view through its
+// static, or the map with the view's damage animation over it, flickering at damage 1 and steady
+// at 2.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f8d1
-void FUN_1003f8d1(void)
+void DrawDamagedMapView(void)
 {
 	MechS32 threshold;
 	PANE* viewport;
@@ -1215,14 +1225,14 @@ void FUN_1003f8d1(void)
 	}
 
 	if (g_cockpitLayoutIndex == 4) {
-		FUN_1003f74e();
+		DrawSatelliteStatic();
 		return;
 	}
 
-	anim = layout->m_unk0x78[2];
+	anim = layout->m_anims[2];
 	if (anim != -1) {
-		if (g_unk0x100c3280[0]->m_unk0x06 == 1) {
-			if (g_unk0x100a5bc8) {
+		if (g_cockpitPanels[c_panelRadar]->m_damage == 1) {
+			if (g_mapDamageAnimShown) {
 				threshold = 7;
 			}
 			else {
@@ -1230,18 +1240,18 @@ void FUN_1003f8d1(void)
 			}
 
 			if (RandomIntBelow(10) < threshold) {
-				g_unk0x100a5bc8 = 1;
+				g_mapDamageAnimShown = 1;
 			}
 			else {
-				g_unk0x100a5bc8 = 0;
+				g_mapDamageAnimShown = 0;
 			}
 		}
-		else if (g_unk0x100c3280[0]->m_unk0x06 == 2) {
-			g_unk0x100a5bc8 = 1;
+		else if (g_cockpitPanels[c_panelRadar]->m_damage == 2) {
+			g_mapDamageAnimShown = 1;
 		}
 
-		FUN_1003e06c();
-		if (g_unk0x100a5bc8) {
+		DrawMapView();
+		if (g_mapDamageAnimShown) {
 			viewport = layout->m_viewport;
 			DrawAnim2d(viewport, anim, 0, 0);
 			if (layout->m_gauges[0]) {
@@ -1250,48 +1260,49 @@ void FUN_1003f8d1(void)
 		}
 	}
 	else {
-		FUN_1003e06c();
+		DrawMapView();
 	}
 }
 
-// Enters the map mode 3 from a cockpit view, sliding the view's rectangle out.
+// The map view while the local mech shuts down or is off: slides the view's rectangle out.
 // FUNCTION: MW2 0x1003fa05
-void FUN_1003fa05(void)
+void PowerDownMapView(void)
 {
 	RectTransition* transition;
 	CockpitLayout* layout;
 
 	if (g_cockpitLayoutIndex <= 2) {
-		FUN_1003ddd7();
+		SwitchCockpitView();
 		if (g_cockpitLayoutIndex > 2) {
 			return;
 		}
 
 		if (g_cockpitLayoutIndex != 0) {
-			g_unk0x10109c60 = g_unk0x10109c68;
-			g_unk0x10109c68 = 3;
+			g_previousMapViewMode = g_mapViewMode;
+			g_mapViewMode = 3;
 		}
 
 		layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 		if (layout) {
 			transition = layout->m_transition;
 			if (transition) {
-				if (g_unk0x10109c60 != g_unk0x10109c68) {
+				if (g_previousMapViewMode != g_mapViewMode) {
 					StartRectTransition(transition);
 				}
 
-				FUN_1003f594(1, layout, transition, 0);
+				DrawMapViewTransition(1, layout, transition, 0);
 			}
 		}
 	}
-	else if (g_cockpitLayoutIndex == 4 && g_unk0x10109c6c <= 2) {
-		FUN_1003ddd7();
+	else if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView <= 2) {
+		SwitchCockpitView();
 	}
 }
 
+// Resets the map view's power modes (ShutdownCockpitPanels).
 // FUNCTION: MW2 0x1003fad9
-void FUN_1003fad9(void)
+void ResetMapView(void)
 {
-	g_unk0x10109c60 = 0;
-	g_unk0x10109c68 = 0;
+	g_previousMapViewMode = 0;
+	g_mapViewMode = 0;
 }

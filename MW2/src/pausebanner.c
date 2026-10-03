@@ -49,7 +49,7 @@ void DrawPausedBanner(void)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
 			g_pausedBannerRect.m_window = &g_mainPixelBuffer;
@@ -352,11 +352,11 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x86:
-		if (!g_unk0x100c3280[0]->m_unk0x06) {
-			g_unk0x100c3280[0]->m_unk0x06 = 1;
+		if (!g_cockpitPanels[c_panelRadar]->m_damage) {
+			g_cockpitPanels[c_panelRadar]->m_damage = 1;
 		}
 		else {
-			g_unk0x100c3280[0]->m_unk0x06 = 0;
+			g_cockpitPanels[c_panelRadar]->m_damage = 0;
 		}
 		break;
 	case 0x93:

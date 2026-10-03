@@ -93,7 +93,7 @@ void FUN_1004d020(void)
 {
 	CockpitPanel* panel;
 
-	panel = g_unk0x100c3280[18];
+	panel = g_cockpitPanels[c_panelSpeed];
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8330, &g_unk0x100a8330);
 	g_unk0x100a8338 = panel->m_width - g_unk0x100a8330.m_x - 1;
 	g_unk0x100a833c = panel->m_height - (g_unk0x100a8330.m_y + g_unk0x100a8330.m_y / 2) - 3;
@@ -102,15 +102,15 @@ void FUN_1004d020(void)
 	g_unk0x100a8348 = g_unk0x100a8338 + 1;
 	g_unk0x100a834c = panel->m_height - g_unk0x100a8330.m_y / 2 - 2;
 
-	panel = g_unk0x100c3280[20];
+	panel = g_cockpitPanels[c_panelHeat];
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8358, &g_unk0x100a8358);
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8350, &g_unk0x100a8350);
 
-	panel = g_unk0x100c3280[21];
+	panel = g_cockpitPanels[c_panelHeatRate];
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8368, &g_unk0x100a8368);
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8360, &g_unk0x100a8360);
 
-	panel = g_unk0x100c3280[22];
+	panel = g_cockpitPanels[c_panelJets];
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8378, &g_unk0x100a8378);
 	ScalePointToFrame(panel->m_target, &g_unk0x100a8370, &g_unk0x100a8370);
 }

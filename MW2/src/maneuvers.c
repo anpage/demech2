@@ -1627,7 +1627,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		target = g_players[index];
 	}
 
-	if (!target && FUN_10041998(p_mech, &sx, &sy)) {
+	if (!target && ProjectAimPoint(p_mech, &sx, &sy)) {
 		x = g_players[index]->m_position.m_x;
 		y = g_players[index]->m_position.m_y;
 		z = g_players[index]->m_position.m_z;

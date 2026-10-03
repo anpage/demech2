@@ -406,7 +406,7 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 		}
 
 		if (*line != '\0') {
-			VFX_string_draw(p_target, origin.m_x, origin.m_y, p_font, line, g_unk0x100e9350);
+			VFX_string_draw(p_target, origin.m_x, origin.m_y, p_font, line, g_textColors);
 		}
 
 		origin.m_y += lineHeight;

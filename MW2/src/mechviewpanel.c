@@ -20,7 +20,7 @@
 #include "targeting.h"
 #include "types.h"
 
-// The handlers of the cockpit panel FUN_1006fca5 sets up second (g_unk0x100c3280[2]): it
+// The handlers of the cockpit panel InitCockpitPanels sets up second (g_cockpitPanels[c_panelMechView]): it
 // cycles through five views of the local mech (FUN_100509a0), drawn into the panel's render
 // target, optionally through the panel's rectangle transition.
 
@@ -39,7 +39,7 @@ void FUN_100509a0(void)
 // Stack-slot permutation: camera, mech and saved and view. The original's longer displacements
 // make its code longer, so reccmp compares only the recompiled length of it.
 // FUNCTION: MW2 0x100509c8
-void FUN_100509c8(CockpitPanel* p_panel)
+void DrawMechViewPanel(CockpitPanel* p_panel)
 {
 	MechS32* camera;
 	MechS32 view[7];
@@ -51,14 +51,14 @@ void FUN_100509c8(CockpitPanel* p_panel)
 		return;
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
-	if (p_panel->m_unk0x06 == 1 && g_unk0x100aa2a4 != 1 && g_unk0x100aa2a4 != 2) {
+	p_panel->m_lastPowerState = g_cockpitPowerState;
+	if (p_panel->m_damage == 1 && g_unk0x100aa2a4 != 1 && g_unk0x100aa2a4 != 2) {
 		if (g_unk0x100a88e8) {
 			if (RandomIntBelow(10) < 7) {
 				g_unk0x100a88e8 = 0;
 			}
 
-			FUN_10050e20(p_panel);
+			DrawMechViewStatic(p_panel);
 			return;
 		}
 
@@ -66,8 +66,8 @@ void FUN_100509c8(CockpitPanel* p_panel)
 			g_unk0x100a88e8 = 1;
 		}
 	}
-	else if (p_panel->m_unk0x06 > 2 && g_unk0x100aa2a4 != 1 && g_unk0x100aa2a4 != 2) {
-		FUN_10050e20(p_panel);
+	else if (p_panel->m_damage > 2 && g_unk0x100aa2a4 != 1 && g_unk0x100aa2a4 != 2) {
+		DrawMechViewStatic(p_panel);
 		return;
 	}
 
@@ -154,14 +154,14 @@ void FUN_10050dc3(RenderSettings* p_saved)
 }
 
 // FUNCTION: MW2 0x10050e20
-void FUN_10050e20(CockpitPanel* p_panel)
+void DrawMechViewStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled || !g_unk0x100aa2a4) {
 		return;
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
-	FUN_1007079d(p_panel->m_target, 0, 0, 0);
+	p_panel->m_lastPowerState = g_cockpitPowerState;
+	DrawPanelAnim(p_panel->m_target, 0, 0, 0);
 }
 
 // Stack-slot permutation: target and y.
@@ -176,12 +176,12 @@ void FUN_10050e6c(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 	OutlinePane(target, p_color);
 	x = p_panel->m_width >> 1;
 	y = 2;
-	FUN_10041f06(x, y, p_unk0x08, target);
+	DrawPaneShape(x, y, p_unk0x08, target);
 }
 
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050ebe
-void FUN_10050ebe(CockpitPanel* p_panel)
+void DrawMechViewStartup(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
 	PANE savedSlot;
@@ -194,7 +194,7 @@ void FUN_10050ebe(CockpitPanel* p_panel)
 
 	transition = p_panel->m_transition;
 	if (transition) {
-		if (p_panel->m_unk0x3c != 1) {
+		if (p_panel->m_lastPowerState != 1) {
 			StartRectTransition(transition);
 		}
 
@@ -204,21 +204,21 @@ void FUN_10050ebe(CockpitPanel* p_panel)
 			savedTarget = *p_panel->m_target;
 			g_panes[5] = *frame;
 			*p_panel->m_target = *frame;
-			FUN_100509c8(p_panel);
+			DrawMechViewPanel(p_panel);
 			g_panes[5] = savedSlot;
 			*p_panel->m_target = savedTarget;
 		}
 		else {
-			FUN_100509c8(p_panel);
+			DrawMechViewPanel(p_panel);
 		}
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
+	p_panel->m_lastPowerState = g_cockpitPowerState;
 }
 
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050fd6
-void FUN_10050fd6(CockpitPanel* p_panel)
+void DrawMechViewShutdown(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
 	PANE savedSlot;
@@ -231,7 +231,7 @@ void FUN_10050fd6(CockpitPanel* p_panel)
 
 	transition = p_panel->m_transition;
 	if (transition) {
-		if (p_panel->m_unk0x3c != 0 && p_panel->m_unk0x3c != 3 && p_panel->m_unk0x3c != 4) {
+		if (p_panel->m_lastPowerState != 0 && p_panel->m_lastPowerState != 3 && p_panel->m_lastPowerState != 4) {
 			StartRectTransition(transition);
 		}
 
@@ -241,11 +241,11 @@ void FUN_10050fd6(CockpitPanel* p_panel)
 			savedTarget = *p_panel->m_target;
 			g_panes[5] = *frame;
 			*p_panel->m_target = *frame;
-			FUN_100509c8(p_panel);
+			DrawMechViewPanel(p_panel);
 			g_panes[5] = savedSlot;
 			*p_panel->m_target = savedTarget;
 		}
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
+	p_panel->m_lastPowerState = g_cockpitPowerState;
 }

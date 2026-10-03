@@ -357,7 +357,7 @@ void Blit(void)
 		g_currentRefreshMode
 			->m_stretchBlit(g_currentPane.m_x0 + 1, g_currentPane.m_y0 + 1, g_currentPane.m_x1, g_currentPane.m_y1);
 		g_currentPane = g_unk0x100bdff8;
-		g_unk0x100a5f18 = g_unk0x100a5a24;
+		g_showHud = g_savedShowHud;
 		g_unk0x10176ebc = 0;
 	}
 	else if (g_windowActive) {
@@ -411,13 +411,13 @@ void FUN_10012f3c(void)
 
 	if (g_unk0x100a2458 == NULL || *g_unk0x100a2458 == '\0') {
 		strcpy(path, "sbannr");
-		strcat(path, g_unk0x100aa710[g_unk0x100e9614]);
+		strcat(path, g_unk0x100aa710[g_artResolution]);
 		strcat(path, ".");
 		strcat(path, "gif");
 	}
 	else {
 		strcpy(path, g_unk0x100a2458);
-		strcat(path, g_unk0x100aa710[g_unk0x100e9614]);
+		strcat(path, g_unk0x100aa710[g_artResolution]);
 		strcat(path, ".");
 		strcat(path, "gif");
 	}

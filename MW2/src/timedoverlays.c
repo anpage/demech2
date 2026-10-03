@@ -64,7 +64,7 @@ void FUN_1006ee60(void)
 		target = overlay->m_target;
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
 		shape =
-			FUN_1001a19f(g_mw2PrjHandle, overlay->m_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+			FUN_1001a19f(g_mw2PrjHandle, overlay->m_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape != NULL) {
 			FitRectToShape(target, target, shape, 0);
 		}
@@ -84,7 +84,7 @@ void FUN_1006ee60(void)
 		target->m_y1 += dy;
 		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 		if (font != NULL) {
 			height = target->m_y1 - target->m_y0 + 1;
 			fontHeight = VFX_font_height(font);
@@ -171,14 +171,14 @@ void DrawTimedOverlays(void)
 			if (FUN_1007d05d() < overlay->m_expireTime) {
 				font = FUN_1001a19f(
 					g_mw2PrjHandle,
-					overlay->m_font + g_unk0x100e9614,
+					overlay->m_font + g_artResolution,
 					g_resourceTypeTags[c_resTagFont],
 					0
 				);
 				if (font != NULL) {
 					background = FUN_1001a19f(
 						g_mw2PrjHandle,
-						overlay->m_background + g_unk0x100e9614,
+						overlay->m_background + g_artResolution,
 						g_resourceTypeTags[c_resTagShp],
 						0
 					);
@@ -190,7 +190,7 @@ void DrawTimedOverlays(void)
 							overlay->m_textPos.m_y,
 							font,
 							overlay->m_text,
-							g_unk0x100e9350
+							g_textColors
 						);
 					}
 				}
@@ -219,10 +219,10 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 	}
 
 	if (p_background != -1) {
-		background = FUN_1001a19f(g_mw2PrjHandle, p_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		background = FUN_1001a19f(g_mw2PrjHandle, p_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
 		FitRectToText(p_text, font, &rect);

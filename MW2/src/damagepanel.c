@@ -115,7 +115,7 @@ void FUN_10040020(void)
 	Point min;
 	MechSection* section;
 
-	panel = g_unk0x100c3280[2];
+	panel = g_cockpitPanels[c_panelMechView];
 	i = 0x100;
 	while (i--) {
 		g_unk0x100be498[i] = i;
@@ -127,12 +127,12 @@ void FUN_10040020(void)
 		FUN_1001a163(g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp]);
 		width1 = height1 >> 16;
 		height1 &= 0xffff;
-		shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
 	if (shape) {
 		height2 = VFX_shape_resolution(shape, 0);
-		FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+		FUN_1001a163(g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 		width2 = height2 >> 16;
 		height2 &= 0xffff;
 		g_unk0x100a5ce0.m_window = &g_mainPixelBuffer;
@@ -216,7 +216,7 @@ void FUN_10040511(Mech* p_mech, PANE* p_target)
 
 	rear = 0;
 	front = 0;
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	if (!shape) {
 		return;
 	}
@@ -278,7 +278,7 @@ void FUN_10040511(Mech* p_mech, PANE* p_target)
 		}
 	}
 
-	FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+	FUN_1001a163(g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 }
 
 // Draws the damage panel's armor bars: each section's front armor, and the rear armor of the
@@ -296,15 +296,15 @@ void FUN_100407b6(Mech* p_mech, PANE* p_target)
 	MechS32 width;
 	MechSection* section;
 
-	g_unk0x100e9350[0xe] = 6;
-	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
+	g_textColors[0xe] = 6;
+	font = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
-		VFX_string_draw(p_target, g_unk0x100a5cb8.m_x, g_unk0x100a5cb8.m_y, font, g_unk0x100a5ebc, g_unk0x100e9350);
-		VFX_string_draw(p_target, g_unk0x100a5cc0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec0, g_unk0x100e9350);
-		VFX_string_draw(p_target, g_unk0x100a5cc8.m_x, g_unk0x100a5cc8.m_y, font, g_unk0x100a5ec4, g_unk0x100e9350);
-		VFX_string_draw(p_target, g_unk0x100a5cd0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec8, g_unk0x100e9350);
-		g_unk0x100e9350[0xe] = 0xe;
-		FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
+		VFX_string_draw(p_target, g_unk0x100a5cb8.m_x, g_unk0x100a5cb8.m_y, font, g_unk0x100a5ebc, g_textColors);
+		VFX_string_draw(p_target, g_unk0x100a5cc0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec0, g_textColors);
+		VFX_string_draw(p_target, g_unk0x100a5cc8.m_x, g_unk0x100a5cc8.m_y, font, g_unk0x100a5ec4, g_textColors);
+		VFX_string_draw(p_target, g_unk0x100a5cd0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec8, g_textColors);
+		g_textColors[0xe] = 0xe;
+		FUN_1001a163(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	for (i = 0; i < 8; i++) {

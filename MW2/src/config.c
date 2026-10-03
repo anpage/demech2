@@ -65,7 +65,7 @@ enum FilePermission {
 // The 26 cockpit panels' rectangles, in 320x200 screen coordinates (FUN_1006fba3 scales them to the
 // screen).
 // GLOBAL: MW2 0x100adf58
-PANE g_unk0x100adf58[26] = {
+PANE g_cockpitPanelPanes[c_panelCount] = {
 	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
 	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
 	{&g_mainPixelBuffer, 214, 25, 256, 33},   {&g_mainPixelBuffer, 214, 35, 256, 43},
@@ -83,19 +83,19 @@ PANE g_unk0x100adf58[26] = {
 
 // The panels' text positions (16.16 fractions of their rectangles).
 // GLOBAL: MW2 0x100ae160
-Point g_unk0x100ae160[26] = {{0, 0},           {0, 0},
-							 {0, 0},           {0x11ec, 0x2148},
-							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
-							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
-							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
-							 {0x11ec, 0x2148}, {0x11ec, 0x2148},
-							 {0x11ec, 0x2148}, {0, 0},
-							 {0, 0},           {0, 0},
-							 {0, 0},           {0, 0},
-							 {0, 0xe666},      {0, 0},
-							 {0, 0xa666},      {0, 0xa666},
-							 {0, 0xa666},      {0, 0},
-							 {0, 0},           {0, 0}};
+Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
+												 {0, 0},           {0x11ec, 0x2148},
+												 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+												 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+												 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+												 {0x11ec, 0x2148}, {0x11ec, 0x2148},
+												 {0x11ec, 0x2148}, {0, 0},
+												 {0, 0},           {0, 0},
+												 {0, 0},           {0, 0},
+												 {0, 0xe666},      {0, 0},
+												 {0, 0xa666},      {0, 0xa666},
+												 {0, 0xa666},      {0, 0},
+												 {0, 0},           {0, 0}};
 
 // The transitions of panels 13 and 2.
 
@@ -137,7 +137,7 @@ RectTransition g_unk0x100ae308 = {&g_unk0x100ae240, &g_unk0x100ae2f8};
 
 // The panels' transitions.
 // GLOBAL: MW2 0x100ae310
-RectTransition* g_unk0x100ae310[26] = {
+RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL,
 	NULL,
 	&g_unk0x100ae308,
@@ -166,20 +166,20 @@ RectTransition* g_unk0x100ae310[26] = {
 	NULL
 };
 
-// Set when FUN_1007005a should run FUN_10007cb5 on its next frame.
+// Set when UpdateCockpit should run FUN_10007cb5 on its next frame.
 // GLOBAL: MW2 0x100ae37c
 MechS32 g_unk0x100ae37c = 0;
 
 // GLOBAL: MW2 0x100ae380
 MechS32 g_unk0x100ae380 = 0;
 
-// The panels' m_unk0x08 values.
+// The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
 // GLOBAL: MW2 0x100ae388
-undefined4 g_unk0x100ae388[26] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297, 0x32e,
-								  0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
-								  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
+undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297, 0x32e,
+													   0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
+													   0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
 
-// The local mech's state (Mech::m_powerState) when FUN_100705dd last ran.
+// The local mech's state (Mech::m_powerState) when PlayCockpitWarnings last ran.
 // GLOBAL: MW2 0x100ae3f0
 MechS32 g_unk0x100ae3f0 = 0;
 
@@ -204,24 +204,24 @@ MechS32 g_screenshotCount = 0;
 // GLOBAL: MW2 0x100bef58
 MechChar g_gamePath[0x50];
 
-// The local player's heading and torso twist, in whole degrees (FUN_1007005a).
+// The local player's heading and torso twist, in whole degrees (UpdateCockpit).
 
 // GLOBAL: MW2 0x100c326c
-MechS32 g_unk0x100c326c;
+MechS32 g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
-MechS32 g_unk0x100c3270;
+MechS32 g_headingDegrees;
 
-// The 26 cockpit panels FUN_1006fca5 allocates.
+// The 26 cockpit panels InitCockpitPanels allocates.
 // GLOBAL: MW2 0x100c3280
-CockpitPanel* g_unk0x100c3280[26];
+CockpitPanel* g_cockpitPanels[c_panelCount];
 
 // Which of the panels are enabled when they are set up.
 // GLOBAL: MW2 0x100c32f0
-MechS32 g_unk0x100c32f0[26];
+MechS32 g_cockpitPanelEnabled[c_panelCount];
 
 // GLOBAL: MW2 0x100c3358
-MechS32 g_unk0x100c3358;
+MechS32 g_cockpitPowerState;
 
 // The three values of the HUD layout (FUN_10070bda).
 // GLOBAL: MW2 0x10109c30
@@ -254,7 +254,7 @@ void FUN_1006f480(void)
 // The locals are a stack-slot permutation, and right > left takes its operands in the other
 // order.
 // FUNCTION: MW2 0x1006f4fa
-void FUN_1006f4fa(Mech* p_mech)
+void LayoutWeaponPanels(Mech* p_mech)
 {
 	MechS32 rightStart;
 	WeaponSlot* slot;
@@ -290,10 +290,10 @@ void FUN_1006f4fa(Mech* p_mech)
 	left = 3;
 	for (i = 0; i < 10; i++) {
 		if (slot->m_hardpoint == 5 || slot->m_hardpoint == 3 || slot->m_hardpoint == 7) {
-			g_unk0x100c3280[left]->m_setName(g_unk0x100c3280[left], g_weaponDefs[slot->m_type].m_name);
-			g_unk0x100c3280[left]->m_setUnk0x0c(g_unk0x100c3280[left], i);
-			g_unk0x100c3280[left]->m_unk0x78 = FUN_100334d3;
-			g_unk0x100c3280[left]->m_unk0x7c = FUN_10033280;
+			g_cockpitPanels[left]->m_setName(g_cockpitPanels[left], g_weaponDefs[slot->m_type].m_name);
+			g_cockpitPanels[left]->m_setWeapon(g_cockpitPanels[left], i);
+			g_cockpitPanels[left]->m_drawStartup = DrawWeaponPanelStartup;
+			g_cockpitPanels[left]->m_draw = DrawWeaponPanel;
 			left++;
 		}
 
@@ -310,10 +310,10 @@ void FUN_1006f4fa(Mech* p_mech)
 	right = 8;
 	for (i = 0; i < 10; i++) {
 		if (slot->m_hardpoint == 4 || slot->m_hardpoint == 1 || slot->m_hardpoint == 6) {
-			g_unk0x100c3280[right]->m_setName(g_unk0x100c3280[right], g_weaponDefs[slot->m_type].m_name);
-			g_unk0x100c3280[right]->m_setUnk0x0c(g_unk0x100c3280[right], i);
-			g_unk0x100c3280[right]->m_unk0x78 = FUN_100334d3;
-			g_unk0x100c3280[right]->m_unk0x7c = FUN_10033280;
+			g_cockpitPanels[right]->m_setName(g_cockpitPanels[right], g_weaponDefs[slot->m_type].m_name);
+			g_cockpitPanels[right]->m_setWeapon(g_cockpitPanels[right], i);
+			g_cockpitPanels[right]->m_drawStartup = DrawWeaponPanelStartup;
+			g_cockpitPanels[right]->m_draw = DrawWeaponPanel;
 			right++;
 		}
 
@@ -355,10 +355,10 @@ void FUN_1006f4fa(Mech* p_mech)
 				alternate = TRUE;
 			}
 
-			g_unk0x100c3280[panel]->m_setName(g_unk0x100c3280[panel], g_weaponDefs[slot->m_type].m_name);
-			g_unk0x100c3280[panel]->m_setUnk0x0c(g_unk0x100c3280[panel], i);
-			g_unk0x100c3280[panel]->m_unk0x78 = FUN_100334d3;
-			g_unk0x100c3280[panel]->m_unk0x7c = FUN_10033280;
+			g_cockpitPanels[panel]->m_setName(g_cockpitPanels[panel], g_weaponDefs[slot->m_type].m_name);
+			g_cockpitPanels[panel]->m_setWeapon(g_cockpitPanels[panel], i);
+			g_cockpitPanels[panel]->m_drawStartup = DrawWeaponPanelStartup;
+			g_cockpitPanels[panel]->m_draw = DrawWeaponPanel;
 			panel++;
 		}
 
@@ -370,8 +370,8 @@ void FUN_1006f4fa(Mech* p_mech)
 	weapons = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 10 * sizeof(WeaponSlot));
 	dst = weapons;
 	for (i = 3; i <= 7; i++) {
-		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
-			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+		if (g_cockpitPanels[i]->m_weapon != -1) {
+			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			*dst = *slot;
 			if (i != 7) {
 				dst += 2;
@@ -381,8 +381,8 @@ void FUN_1006f4fa(Mech* p_mech)
 
 	dst = weapons + 1;
 	for (i = 8; i <= 12; i++) {
-		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
-			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+		if (g_cockpitPanels[i]->m_weapon != -1) {
+			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			*dst = *slot;
 			if (i != 12) {
 				dst += 2;
@@ -392,28 +392,28 @@ void FUN_1006f4fa(Mech* p_mech)
 
 	index = 0;
 	for (i = 3; i <= 7; i++) {
-		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
-			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+		if (g_cockpitPanels[i]->m_weapon != -1) {
+			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			for (j = 0; j < slot->m_binCount; j++) {
 				bin = &((AmmoBin*) p_mech->m_ammoBins)[slot->m_bins[j]];
 				bin->m_weapon = index;
 			}
 		}
 
-		g_unk0x100c3280[i]->m_unk0x0c = index;
+		g_cockpitPanels[i]->m_weapon = index;
 		index += 2;
 	}
 
 	index = 1;
 	for (i = 8; i <= 12; i++) {
-		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
-			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
+		if (g_cockpitPanels[i]->m_weapon != -1) {
+			slot = &p_mech->m_weapons[g_cockpitPanels[i]->m_weapon];
 			for (j = 0; j < slot->m_binCount; j++) {
 				bin = &((AmmoBin*) p_mech->m_ammoBins)[slot->m_bins[j]];
 				bin->m_weapon = index;
 			}
 
-			g_unk0x100c3280[i]->m_unk0x0c = index;
+			g_cockpitPanels[i]->m_weapon = index;
 			index += 2;
 		}
 	}
@@ -438,12 +438,12 @@ void FUN_1006fba3(void)
 	MechS32 i;
 	PANE* target;
 
-	for (i = 0; i < 26; i++) {
-		target = &g_unk0x100adf58[i];
+	for (i = 0; i < c_panelCount; i++) {
+		target = &g_cockpitPanelPanes[i];
 		ScaleRectFromLowRes(target, target);
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-		ScalePointToFrame(target, &g_unk0x100ae160[i], &g_unk0x100ae160[i]);
-		transition = g_unk0x100ae310[i];
+		ScalePointToFrame(target, &g_cockpitPanelTextOrigins[i], &g_cockpitPanelTextOrigins[i]);
+		transition = g_cockpitPanelTransitions[i];
 		if (transition) {
 			rect = transition->m_def->m_first;
 			rect->m_window = &g_mainPixelBuffer;
@@ -458,83 +458,83 @@ void FUN_1006fba3(void)
 }
 
 // Creates the 26 cockpit panels, all enabled but the second and (in network games) the
-// fourteenth, lays out the local mech's weapon panels (FUN_1006f4fa) and installs the panels'
+// fourteenth, lays out the local mech's weapon panels (LayoutWeaponPanels) and installs the panels'
 // handlers.
 // FUNCTION: MW2 0x1006fca5
-void FUN_1006fca5(void)
+void InitCockpitPanels(void)
 {
 	Mech* mech;
 	MechS32 i;
 
-	for (i = 0; i < 26; i++) {
-		g_unk0x100c32f0[i] = TRUE;
+	for (i = 0; i < c_panelCount; i++) {
+		g_cockpitPanelEnabled[i] = TRUE;
 	}
 
-	g_unk0x100c32f0[1] = FALSE;
+	g_cockpitPanelEnabled[1] = FALSE;
 	if (!g_difficulty->m_unk0x09) {
-		g_unk0x100c32f0[13] = FALSE;
+		g_cockpitPanelEnabled[c_panelTarget] = FALSE;
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	for (i = 0; i < 26; i++) {
-		g_unk0x100c3280[i] = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CockpitPanel));
-		InitCockpitPanel(g_unk0x100c3280[i]);
-		g_unk0x100c3280[i]->m_setUnk0x08(g_unk0x100c3280[i], g_unk0x100ae388[i]);
-		g_unk0x100c3280[i]->m_setTarget(g_unk0x100c3280[i], &g_unk0x100adf58[i]);
-		g_unk0x100c3280[i]->m_setUnk0x34(g_unk0x100c3280[i], &g_unk0x100ae160[i]);
-		g_unk0x100c3280[i]->m_setTransition(g_unk0x100c3280[i], g_unk0x100ae310[i]);
-		if (g_unk0x100c32f0[i]) {
-			g_unk0x100c3280[i]->m_enable(g_unk0x100c3280[i]);
+	for (i = 0; i < c_panelCount; i++) {
+		g_cockpitPanels[i] = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CockpitPanel));
+		InitCockpitPanel(g_cockpitPanels[i]);
+		g_cockpitPanels[i]->m_setLightUpTime(g_cockpitPanels[i], g_cockpitPanelLightUpTimes[i]);
+		g_cockpitPanels[i]->m_setTarget(g_cockpitPanels[i], &g_cockpitPanelPanes[i]);
+		g_cockpitPanels[i]->m_setTextOrigin(g_cockpitPanels[i], &g_cockpitPanelTextOrigins[i]);
+		g_cockpitPanels[i]->m_setTransition(g_cockpitPanels[i], g_cockpitPanelTransitions[i]);
+		if (g_cockpitPanelEnabled[i]) {
+			g_cockpitPanels[i]->m_enable(g_cockpitPanels[i]);
 		}
 		else {
-			g_unk0x100c3280[i]->m_disable(g_unk0x100c3280[i]);
+			g_cockpitPanels[i]->m_disable(g_cockpitPanels[i]);
 		}
 	}
 
-	FUN_1006f4fa(mech);
-	g_unk0x100c3280[2]->m_unk0x7c = FUN_100509c8;
-	g_unk0x100c3280[2]->m_unk0x84 = FUN_10050e20;
-	g_unk0x100c3280[2]->m_unk0x78 = FUN_10050ebe;
-	g_unk0x100c3280[2]->m_unk0x80 = FUN_10050fd6;
-	g_unk0x100c3280[13]->m_unk0x7c = FUN_1007c126;
-	g_unk0x100c3280[13]->m_unk0x84 = FUN_1007c6df;
-	g_unk0x100c3280[14]->m_unk0x7c = FUN_1007b930;
-	g_unk0x100c3280[13]->m_unk0x78 = FUN_1007c71e;
-	g_unk0x100c3280[13]->m_unk0x80 = FUN_1007c81c;
-	g_unk0x100c3280[15]->m_unk0x7c = FUN_100056f0;
-	g_unk0x100c3280[16]->m_unk0x7c = FUN_10005add;
-	g_unk0x100c3280[17]->m_unk0x7c = FUN_10006189;
-	g_unk0x100c3280[18]->m_unk0x7c = FUN_10006291;
-	g_unk0x100c3280[19]->m_unk0x7c = FUN_100063cd;
-	g_unk0x100c3280[20]->m_unk0x7c = FUN_10006484;
-	g_unk0x100c3280[21]->m_unk0x7c = FUN_100065c3;
-	g_unk0x100c3280[22]->m_unk0x7c = FUN_1000667c;
-	g_unk0x100c3280[25]->m_unk0x7c = FUN_100060b6;
+	LayoutWeaponPanels(mech);
+	g_cockpitPanels[c_panelMechView]->m_draw = DrawMechViewPanel;
+	g_cockpitPanels[c_panelMechView]->m_drawStatic = DrawMechViewStatic;
+	g_cockpitPanels[c_panelMechView]->m_drawStartup = DrawMechViewStartup;
+	g_cockpitPanels[c_panelMechView]->m_drawShutdown = DrawMechViewShutdown;
+	g_cockpitPanels[c_panelTarget]->m_draw = DrawTargetPanel;
+	g_cockpitPanels[c_panelTarget]->m_drawStatic = DrawTargetStatic;
+	g_cockpitPanels[c_panelTargetText]->m_draw = DrawTargetPanelText;
+	g_cockpitPanels[c_panelTarget]->m_drawStartup = DrawTargetPanelStartup;
+	g_cockpitPanels[c_panelTarget]->m_drawShutdown = DrawTargetPanelShutdown;
+	g_cockpitPanels[c_panelObjectives]->m_draw = DrawObjectivesPanel;
+	g_cockpitPanels[c_panelNetwork]->m_draw = DrawNetworkPanel;
+	g_cockpitPanels[c_panelAutopilot]->m_draw = DrawAutopilotPanel;
+	g_cockpitPanels[c_panelSpeed]->m_draw = DrawSpeedPanel;
+	g_cockpitPanels[c_panelMasc]->m_draw = DrawMascPanel;
+	g_cockpitPanels[c_panelHeat]->m_draw = DrawHeatPanel;
+	g_cockpitPanels[c_panelHeatRate]->m_draw = DrawHeatRatePanel;
+	g_cockpitPanels[c_panelJets]->m_draw = DrawJetsPanel;
+	g_cockpitPanels[c_panelKills]->m_draw = DrawKillsPanel;
 	FUN_1004d020();
 	FUN_10040020();
 	g_unk0x100a2434 = &mech->m_cockpitHeight;
 	g_unk0x100a2438 = &mech->m_torsoTwist.m_value;
-	FUN_10040f91();
+	InitHudGauges();
 	if (g_difficulty->m_unk0x09) {
-		FUN_1003dce8();
+		InitCockpitViews();
 	}
 }
 
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b
-void FUN_1006ff7b(void)
+void ResetCockpitPanels(void)
 {
 	Mech* mech;
 	MechS32 i;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	FUN_1006f4fa(mech);
-	for (i = 0; i < 26; i++) {
-		g_unk0x100c3280[i]->m_setUnk0x08(g_unk0x100c3280[i], g_unk0x100ae388[i]);
-		g_unk0x100c3280[i]->m_setTransition(g_unk0x100c3280[i], g_unk0x100ae310[i]);
-		g_unk0x100c3280[i]->m_setUnk0x06(g_unk0x100c3280[i], 0);
-		if (g_unk0x100c32f0[i]) {
-			g_unk0x100c3280[i]->m_enable(g_unk0x100c3280[i]);
+	LayoutWeaponPanels(mech);
+	for (i = 0; i < c_panelCount; i++) {
+		g_cockpitPanels[i]->m_setLightUpTime(g_cockpitPanels[i], g_cockpitPanelLightUpTimes[i]);
+		g_cockpitPanels[i]->m_setTransition(g_cockpitPanels[i], g_cockpitPanelTransitions[i]);
+		g_cockpitPanels[i]->m_setDamage(g_cockpitPanels[i], 0);
+		if (g_cockpitPanelEnabled[i]) {
+			g_cockpitPanels[i]->m_enable(g_cockpitPanels[i]);
 		}
 	}
 }
@@ -544,7 +544,7 @@ void FUN_1006ff7b(void)
 // panels' handlers for the view mode (Mech::m_powerState: 1, 2 or the rest).
 // Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
 // FUNCTION: MW2 0x1007005a
-void FUN_1007005a(Mech* p_mech)
+void UpdateCockpit(Mech* p_mech)
 {
 	MechS32 pitch;
 	MechS32 twistBearing;
@@ -556,23 +556,23 @@ void FUN_1007005a(Mech* p_mech)
 		return;
 	}
 
-	g_unk0x100c3358 = p_mech->m_powerState;
-	if (g_unk0x100c3358 != 2 && g_unk0x100c3280[16]->m_unk0x7c) {
-		g_unk0x100c3280[16]->m_unk0x7c(g_unk0x100c3280[16]);
+	g_cockpitPowerState = p_mech->m_powerState;
+	if (g_cockpitPowerState != 2 && g_cockpitPanels[c_panelNetwork]->m_draw) {
+		g_cockpitPanels[c_panelNetwork]->m_draw(g_cockpitPanels[c_panelNetwork]);
 	}
 
-	if (g_unk0x100c3358 == 4 || g_unk0x100c3358 == 5) {
+	if (g_cockpitPowerState == 4 || g_cockpitPowerState == 5) {
 		return;
 	}
 
-	if (!g_unk0x100a5f18) {
+	if (!g_showHud) {
 		return;
 	}
 
-	g_unk0x100c3270 = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
-	g_unk0x100c326c = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
+	g_headingDegrees = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
+	g_torsoTwistDegrees = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
 	pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
-	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_unk0x100c3270;
+	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_headingDegrees;
 	if (bearing > 180) {
 		bearing -= 360;
 	}
@@ -580,7 +580,7 @@ void FUN_1007005a(Mech* p_mech)
 		bearing += 360;
 	}
 
-	twistBearing = bearing - g_unk0x100c326c;
+	twistBearing = bearing - g_torsoTwistDegrees;
 	if (twistBearing > 180) {
 		twistBearing -= 360;
 	}
@@ -594,14 +594,14 @@ void FUN_1007005a(Mech* p_mech)
 		p_mech->m_player->m_targetInfo.m_position.m_z - p_mech->m_player->m_position.m_z
 	);
 	if (g_unk0x100ae37c) {
-		if (g_unk0x100c3358 == 2) {
+		if (g_cockpitPowerState == 2) {
 			FUN_10007cb5(p_mech);
 		}
 
 		g_unk0x100ae37c = 0;
 	}
 
-	if (g_unk0x100aa298 && g_unk0x100c3358 != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
+	if (g_unk0x100aa298 && g_cockpitPowerState != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
 		FUN_1007eb23(0xcd, 100, 0x40, 5, 0x32);
 		PlayCockpitSound(2, -1);
 		p_mech->m_flags |= 8;
@@ -611,30 +611,30 @@ void FUN_1007005a(Mech* p_mech)
 		g_unk0x100aa298 = 0;
 	}
 
-	FUN_100705dd(p_mech);
-	switch (g_unk0x100c3358) {
+	PlayCockpitWarnings(p_mech);
+	switch (g_cockpitPowerState) {
 	case 2:
 		if (g_difficulty->m_unk0x09) {
-			FUN_1003dd82();
+			RunMapView();
 		}
 
-		for (i = 0; i < 26; i++) {
-			if (g_unk0x100c3280[i]->m_unk0x7c) {
-				g_unk0x100c3280[i]->m_unk0x7c(g_unk0x100c3280[i]);
+		for (i = 0; i < c_panelCount; i++) {
+			if (g_cockpitPanels[i]->m_draw) {
+				g_cockpitPanels[i]->m_draw(g_cockpitPanels[i]);
 			}
 		}
 
-		FUN_10040bfd(p_mech, g_unk0x100c3270, g_unk0x100c326c, bearing, twistBearing, pitch, distance, g_unk0x100a241c);
+		DrawHud(p_mech, g_headingDegrees, g_torsoTwistDegrees, bearing, twistBearing, pitch, distance, g_unk0x100a241c);
 		FUN_10021b2a(p_mech->m_throttle.m_value);
 		break;
 	case 1:
 		if (g_difficulty->m_unk0x09) {
-			FUN_1003f66d();
+			PowerUpMapView();
 		}
 
-		for (i = 0; i < 26; i++) {
-			if (g_unk0x100c3280[i]->m_unk0x78) {
-				g_unk0x100c3280[i]->m_unk0x78(g_unk0x100c3280[i]);
+		for (i = 0; i < c_panelCount; i++) {
+			if (g_cockpitPanels[i]->m_drawStartup) {
+				g_cockpitPanels[i]->m_drawStartup(g_cockpitPanels[i]);
 			}
 		}
 
@@ -642,12 +642,12 @@ void FUN_1007005a(Mech* p_mech)
 		break;
 	default:
 		if (g_difficulty->m_unk0x09) {
-			FUN_1003fa05();
+			PowerDownMapView();
 		}
 
-		for (i = 0; i < 26; i++) {
-			if (g_unk0x100c3280[i]->m_unk0x80) {
-				g_unk0x100c3280[i]->m_unk0x80(g_unk0x100c3280[i]);
+		for (i = 0; i < c_panelCount; i++) {
+			if (g_cockpitPanels[i]->m_drawShutdown) {
+				g_cockpitPanels[i]->m_drawShutdown(g_cockpitPanels[i]);
 			}
 		}
 
@@ -660,20 +660,20 @@ void FUN_1007005a(Mech* p_mech)
 	}
 }
 
-// Shuts the cockpit panels down: FUN_1003fad9 outside network games (DifficultyCfg::m_unk0x09),
-// each panel's m_unk0x4c hook, then every 2D animation.
+// Shuts the cockpit panels down: ResetMapView outside network games (DifficultyCfg::m_unk0x09),
+// each panel's m_shutdown hook, then every 2D animation.
 // FUNCTION: MW2 0x100704c1
-void FUN_100704c1(void)
+void ShutdownCockpitPanels(void)
 {
 	MechS32 i;
 
 	if (g_difficulty->m_unk0x09) {
-		FUN_1003fad9();
+		ResetMapView();
 	}
 
-	for (i = 0; i < 26; i++) {
-		if (g_unk0x100c3280[i]->m_unk0x4c) {
-			g_unk0x100c3280[i]->m_unk0x4c(g_unk0x100c3280[i]);
+	for (i = 0; i < c_panelCount; i++) {
+		if (g_cockpitPanels[i]->m_shutdown) {
+			g_cockpitPanels[i]->m_shutdown(g_cockpitPanels[i]);
 		}
 	}
 
@@ -681,9 +681,9 @@ void FUN_100704c1(void)
 }
 
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
-// (p_heavy: five) in ten chance of stepping its m_unk0x06.
+// (p_heavy: five) in ten chance of stepping its damage.
 // FUNCTION: MW2 0x1007053d
-void FUN_1007053d(Mech* p_mech, MechS32 p_heavy)
+void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 {
 	MechS32 chance;
 	MechS32 i;
@@ -699,16 +699,16 @@ void FUN_1007053d(Mech* p_mech, MechS32 p_heavy)
 		chance = 2;
 	}
 
-	for (i = 0; i < 26; i++) {
+	for (i = 0; i < c_panelCount; i++) {
 		if (RandomIntBelow(10) < chance) {
-			g_unk0x100c3280[i]->m_setUnk0x06(g_unk0x100c3280[i], g_unk0x100c3280[i]->m_unk0x06 + 1);
+			g_cockpitPanels[i]->m_setDamage(g_cockpitPanels[i], g_cockpitPanels[i]->m_damage + 1);
 		}
 	}
 }
 
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
 // FUNCTION: MW2 0x100705dd
-void FUN_100705dd(Mech* p_mech)
+void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_unk0x100ae380) {
 		g_unk0x100ae3fc++;
@@ -756,7 +756,7 @@ void FUN_100705dd(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1007079d
-void FUN_1007079d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
+void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
 }
@@ -902,7 +902,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 	return TRUE;
 }
 
-// Loads the cockpit layout resource p_ref: the gauge positions (g_unk0x100a5ee8), three values
+// Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
 // (g_unk0x10109c30) and fifteen rectangles in percent of the screen (g_unk0x100a5cf8), any of
 // them out of range cleared.
 // The only diff is a stack-slot permutation of the locals.
@@ -933,9 +933,9 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 
 	cursor = data;
 	for (i = 0; i < 5; i++) {
-		g_unk0x100a5ee8[i].m_x = *cursor;
+		g_hudGaugePositions[i].m_x = *cursor;
 		cursor++;
-		g_unk0x100a5ee8[i].m_y = *cursor;
+		g_hudGaugePositions[i].m_y = *cursor;
 		cursor++;
 	}
 

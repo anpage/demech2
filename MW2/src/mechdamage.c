@@ -842,7 +842,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 				FUN_10059f6e(9);
 			}
 
-			FUN_1007053d(p_mech, 1);
+			DamageCockpitPanels(p_mech, 1);
 			break;
 		case 5550:
 		case 5600:
@@ -885,7 +885,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 				FUN_10059f6e(12);
 			}
 
-			FUN_1007053d(p_mech, 0);
+			DamageCockpitPanels(p_mech, 0);
 			break;
 		case 5300:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
@@ -896,7 +896,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 				FUN_10059f6e(9);
 			}
 
-			FUN_1007053d(p_mech, 0);
+			DamageCockpitPanels(p_mech, 0);
 			break;
 		}
 

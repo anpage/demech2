@@ -128,7 +128,7 @@ void FUN_10016ad0(struct Player* p_player)
 		mech->m_pitchObj = FUN_100506d8();
 		RememberMechSegments(mech);
 		if (mech->m_player->m_index == g_localPlayerId) {
-			FUN_1006fca5();
+			InitCockpitPanels();
 		}
 	}
 
@@ -1230,10 +1230,10 @@ void FUN_1001975a(Mech* p_mech)
 		return;
 	}
 
-	FUN_1007005a(mech);
+	UpdateCockpit(mech);
 }
 
-// Runs FUN_100704c1 for the local player's mech.
+// Runs ShutdownCockpitPanels for the local player's mech.
 // FUNCTION: MW2 0x1001978e
 void FUN_1001978e(Mech* p_mech)
 {
@@ -1245,7 +1245,7 @@ void FUN_1001978e(Mech* p_mech)
 	}
 
 	if (mech->m_player->m_index == g_localPlayerId) {
-		FUN_100704c1();
+		ShutdownCockpitPanels();
 	}
 }
 

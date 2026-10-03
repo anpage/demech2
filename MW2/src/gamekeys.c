@@ -279,7 +279,7 @@ void HandleCheatInput(MechS16 p_key)
 	}
 	else if (FUN_1005b807("nstq\x7fhx\x7fvv")) { // "tinkerbell"
 		FUN_10011401(2);
-		g_unk0x10109c70 = 1;
+		g_mapFollowsFreeEye = 1;
 		ShowInGameMessage("Free-eye mode ON", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("bh{c")) { // "xray"
@@ -325,10 +325,10 @@ void FUN_1005bf7c(MechChar* p_char)
 	}
 }
 
-// Takes a key while a chat message is being typed (g_unk0x100a116c is the recipient): Backspace
+// Takes a key while a chat message is being typed (g_chatRecipient is the recipient): Backspace
 // edits, Enter sends it (to everyone from -1), Esc cancels, F-keys e and f pick the team (-3) or
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
-// Stack-slot permutation; g_localPlayerId == g_unk0x100a116c compares in the other operand order.
+// Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
 // FUNCTION: MW2 0x1005c057
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
@@ -336,11 +336,11 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 	MechChar c;
 	MechS32 to;
 
-	if (g_localPlayerId == g_unk0x100a116c) {
+	if (g_localPlayerId == g_chatRecipient) {
 		to = 0;
 	}
 	else {
-		to = g_unk0x100a116c;
+		to = g_chatRecipient;
 	}
 
 	if (p_keyCode & 0x400) {
@@ -353,23 +353,23 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 			g_unk0x100aa2b8--;
 		}
 
-		g_unk0x10179e90[g_unk0x100aa2b8] = '\0';
+		g_chatMessage[g_unk0x100aa2b8] = '\0';
 		return TRUE;
 	}
 
 	switch (c) {
 	case 0x1b:
-		g_unk0x100a116c = 0;
-		memset(g_unk0x10179e90, 0, 40);
+		g_chatRecipient = 0;
+		memset(g_chatMessage, 0, 40);
 		g_unk0x100aa2b8 = 0;
 		return TRUE;
 	case '\r':
-		if (g_unk0x100a116c > 0) {
-			g_unk0x100a116c = 0;
+		if (g_chatRecipient > 0) {
+			g_chatRecipient = 0;
 		}
-		else if (g_unk0x100a116c == -1) {
+		else if (g_chatRecipient == -1) {
 			to = -1;
-			g_unk0x100a116c = 0;
+			g_chatRecipient = 0;
 		}
 	}
 
@@ -378,15 +378,15 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 	}
 
 	if (p_keyCode & 0x100) {
-		if (g_unk0x100a116c == -1) {
+		if (g_chatRecipient == -1) {
 			switch (c) {
 			case 'f':
 				to = -2;
-				g_unk0x100a116c = 0;
+				g_chatRecipient = 0;
 				break;
 			case 'e':
 				to = -3;
-				g_unk0x100a116c = 0;
+				g_chatRecipient = 0;
 				break;
 			default:
 				return FALSE;
@@ -402,11 +402,11 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 		FUN_1005bf7c(&c);
 	}
 
-	if (g_unk0x100a116c == 0) {
-		FUN_1000efa4(to, g_unk0x10179e90);
-		sprintf(text, "%s: %s", g_players[g_localPlayerId]->m_name, g_unk0x10179e90);
+	if (g_chatRecipient == 0) {
+		FUN_1000efa4(to, g_chatMessage);
+		sprintf(text, "%s: %s", g_players[g_localPlayerId]->m_name, g_chatMessage);
 		ShowInGameMessage(text, 1, 0x2d4, 0x32);
-		memset(g_unk0x10179e90, 0, 40);
+		memset(g_chatMessage, 0, 40);
 		g_unk0x100aa2b8 = 0;
 		return TRUE;
 	}
@@ -415,7 +415,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 		return FALSE;
 	}
 
-	g_unk0x10179e90[g_unk0x100aa2b8] = c;
+	g_chatMessage[g_unk0x100aa2b8] = c;
 	g_unk0x100aa2b8++;
 	return TRUE;
 }
@@ -444,7 +444,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 			ShowInGameMessage("Press CTRL-Q to exit...", 1, 0x1536, 100);
 		}
 		else if (g_unk0x100a2c04) {
-			g_unk0x100a116c = 0;
+			g_chatRecipient = 0;
 			FUN_100115f4(0, 1);
 			g_renderSettings.m_wireframe = 0;
 			FUN_1007d88a(0, 0);
@@ -482,7 +482,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		HandleCheatInput(p_key);
 	}
 
-	if (g_unk0x100a116c && HandleChatKey(p_key)) {
+	if (g_chatRecipient && HandleChatKey(p_key)) {
 		return;
 	}
 
@@ -645,8 +645,8 @@ void FUN_1005c78a(MechS32 p_key)
 		break;
 	case 0x9:
 		if (!(g_players[g_localPlayerId]->m_flags & 2)) {
-			if (FUN_10011440() || FUN_1003ee69()) {
-				FUN_1003ee92();
+			if (FUN_10011440() || IsSatelliteView()) {
+				LeaveSatelliteView();
 				FUN_10011401(0);
 				g_sinkPilotTiltReset = 1;
 				g_sinkPilotPanReset = 1;
@@ -670,11 +670,11 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_inspectTarget = 1;
 		break;
 	case 0x13:
-		if (!g_unk0x100a5f18) {
-			g_unk0x100a5f18 = 1;
+		if (!g_showHud) {
+			g_showHud = 1;
 		}
 		else {
-			g_unk0x100a5f18 = 0;
+			g_showHud = 0;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
@@ -730,19 +730,19 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_resetGamepiece = 1;
 		break;
 	case 0x2e:
-		FUN_1003ee26();
+		CycleCockpitView();
 		break;
 	case 0x2f:
-		FUN_1003ef07(1);
+		ZoomMapView(1);
 		break;
 	case 0x30:
-		FUN_1003ef07(2);
+		ZoomMapView(2);
 		break;
 	case 0x31:
-		FUN_1003ef07(0);
+		ZoomMapView(0);
 		break;
 	case 0x32:
-		FUN_1003eeaf();
+		ToggleSatelliteView();
 		break;
 	case 0x33:
 		RequestMenu(4);
@@ -751,60 +751,60 @@ void FUN_1005c78a(MechS32 p_key)
 		ToggleMenu(5);
 		break;
 	case 0x42:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = -1;
+			g_chatRecipient = -1;
 		}
 		else {
 			ToggleMenu(1);
 		}
 		break;
 	case 0x43:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 1;
+			g_chatRecipient = 1;
 		}
 		else {
 			ToggleMenu(7);
 		}
 		break;
 	case 0x44:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 2;
+			g_chatRecipient = 2;
 		}
 		else {
 			ToggleMenu(8);
 		}
 		break;
 	case 0x45:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 3;
+			g_chatRecipient = 3;
 		}
 		break;
 	case 0x46:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 4;
+			g_chatRecipient = 4;
 		}
 		break;
 	case 0x47:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 5;
+			g_chatRecipient = 5;
 		}
 		break;
 	case 0x48:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 6;
+			g_chatRecipient = 6;
 		}
 		break;
 	case 0x49:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 7;
+			g_chatRecipient = 7;
 		}
 		break;
 	case 0x3b:
@@ -869,12 +869,12 @@ void FUN_1005c78a(MechS32 p_key)
 		FUN_1007d88a(0, !g_unk0x100bfd50);
 		break;
 	case 0x41:
-		g_unk0x100a116c = 0;
-		if (!g_unk0x100a1170) {
-			g_unk0x100a1170 = 1;
+		g_chatRecipient = 0;
+		if (!g_showObjectives) {
+			g_showObjectives = 1;
 		}
 		else {
-			g_unk0x100a1170 = 0;
+			g_showObjectives = 0;
 		}
 		break;
 	case 0x4a:

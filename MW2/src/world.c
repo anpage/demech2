@@ -355,8 +355,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			if (planet->m_unk0x2c || planet->m_unk0x30) {
-				g_unk0x100a5a34 = planet->m_unk0x2c;
-				g_unk0x100a5a30 = planet->m_unk0x30;
+				g_mapShadeTop = planet->m_unk0x2c;
+				g_mapShadeBase = planet->m_unk0x30;
 			}
 
 			if (planet->m_unk0x34 > 0) {
@@ -772,7 +772,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			ref = &cockpit->m_ref;
 			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
-				FUN_10070e22(ref, g_unk0x100a5a68, g_unk0x100adf58, g_unk0x100a5bb8[3]);
+				FUN_10070e22(ref, g_unk0x100a5a68, g_cockpitPanelPanes, g_unk0x100a5bb8[3]);
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdPitFile]) {

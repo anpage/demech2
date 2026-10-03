@@ -31,7 +31,7 @@ Point g_unk0x100aa718[3] = {{319, 199}, {639, 479}, {1023, 767}};
 MechS32 g_pixelAspect;
 
 // GLOBAL: MW2 0x100e9614
-MechS32 g_unk0x100e9614;
+MechS32 g_artResolution;
 
 // FUNCTION: MW2 0x1005d410
 void FUN_1005d410(GameWindowGeometry* p_geometry)
@@ -40,7 +40,7 @@ void FUN_1005d410(GameWindowGeometry* p_geometry)
 		MulDiv64(p_geometry->m_height << 16, 0x15555, p_geometry->m_width << 16);
 }
 
-// Picks the art resolution (g_unk0x100e9614) closest to the window's.
+// Picks the art resolution (g_artResolution) closest to the window's.
 // FUNCTION: MW2 0x1005d44e
 void FUN_1005d44e(GameWindowGeometry* p_geometry)
 {
@@ -54,7 +54,7 @@ void FUN_1005d44e(GameWindowGeometry* p_geometry)
 				   abs(g_unk0x100aa718[i].m_x - (p_geometry->m_width - 1));
 		if (distance < best) {
 			best = distance;
-			g_unk0x100e9614 = i;
+			g_artResolution = i;
 		}
 	}
 }
@@ -80,8 +80,8 @@ void SetRes(void)
 	ScalePointFromLowRes(g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
 	ScalePointToScreen(&g_mainPixelBuffer, g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
 	for (i = 0; i < 6; i++) {
-		ScalePointFromLowRes(&g_unk0x100a5ee8[i], &g_unk0x100a5ee8[i]);
-		ScalePointToScreen(&g_mainPixelBuffer, &g_unk0x100a5ee8[i], &g_unk0x100a5ee8[i]);
+		ScalePointFromLowRes(&g_hudGaugePositions[i], &g_hudGaugePositions[i]);
+		ScalePointToScreen(&g_mainPixelBuffer, &g_hudGaugePositions[i], &g_hudGaugePositions[i]);
 	}
 
 	SelectPane(0);

@@ -1302,7 +1302,7 @@ void UpdateInputs(void)
 	}
 
 	for (i = 0; i < g_inputDeviceCount; i++) {
-		if (g_inputDevicePresent[i] && (!g_unk0x100a116c || i != g_keyboardDeviceIndex)) {
+		if (g_inputDevicePresent[i] && (!g_chatRecipient || i != g_keyboardDeviceIndex)) {
 			g_inputDrivers[i]->m_poll(
 				g_inputDeviceInfos[i].m_driverData,
 				g_inputDeviceStates[i].m_axes,

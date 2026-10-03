@@ -687,8 +687,8 @@ void UpdateDorcs(void)
 		StartRectTransition(&g_dorcsTransition);
 		g_dorcsState = 2;
 	case 2:
-		g_unk0x100a5a24 = g_unk0x100a5f18;
-		g_unk0x100a5f18 = 0;
+		g_savedShowHud = g_showHud;
+		g_showHud = 0;
 		FUN_10073cb5();
 		rect = UpdateRectTransition(g_dorcsReverse, &g_dorcsTransition);
 		if (rect) {
@@ -717,7 +717,7 @@ void UpdateDorcs(void)
 			g_dorcsState = 3;
 		}
 	case 3:
-		g_unk0x100a5f18 = 0;
+		g_showHud = 0;
 		FUN_10073cb5();
 		rect = UpdateRectTransitionByAxis(1, &g_dorcsTransition);
 		if (rect) {
@@ -743,7 +743,7 @@ void UpdateDorcs(void)
 			g_dorcsState = 4;
 		}
 	case 4:
-		g_unk0x100a5f18 = 0;
+		g_showHud = 0;
 		FUN_10073cb5();
 		g_dorcsGifTarget = g_currentPane;
 		g_dorcsGifState = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x502e);
@@ -772,7 +772,7 @@ void UpdateDorcs(void)
 		g_dorcsState = 5;
 		break;
 	case 5:
-		g_unk0x100a5f18 = 0;
+		g_showHud = 0;
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
 			if (g_dorcsGifLoaded) {
@@ -812,7 +812,7 @@ void UpdateDorcs(void)
 		}
 		break;
 	case 6:
-		g_unk0x100a5f18 = 0;
+		g_showHud = 0;
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
 			if (g_dorcsGifLoaded) {
@@ -840,7 +840,7 @@ void UpdateDorcs(void)
 		}
 		break;
 	case -1:
-		g_unk0x100a5f18 = 0;
+		g_showHud = 0;
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
 			VFX_pane_wipe(&g_currentPane, 0);
@@ -871,7 +871,7 @@ void UpdateDorcs(void)
 
 			g_dorcsGifState = NULL;
 			g_renderSettings.m_frameDrawCallback = g_dorcsPreviousDrawCallback;
-			g_unk0x100a5a24 = 1;
+			g_savedShowHud = 1;
 			g_unk0x10176ebc = 1;
 			g_dorcsState = 0;
 		}

@@ -13,23 +13,23 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a116c;
-	extern MechS32 g_unk0x100a1170;
-	extern MechChar g_unk0x10179e90[0x30];
+	extern MechS32 g_chatRecipient;
+	extern MechS32 g_showObjectives;
+	extern MechChar g_chatMessage[0x30];
 
-	MechChar* FUN_10004f40(MechS32 p_ticks);
-	MechChar* FUN_10004ff5(MechS32 p_seconds);
-	MechS32 FUN_1000507d(const MechChar* p_text, void* p_font);
-	void FUN_100050d1(struct CockpitPanel* p_panel, struct Point* p_pos, void* p_font, MechU8 p_priority);
-	void FUN_100056f0(struct CockpitPanel* p_panel);
-	void FUN_10005add(struct CockpitPanel* p_panel);
-	void FUN_100060b6(struct CockpitPanel* p_panel);
-	void FUN_10006189(struct CockpitPanel* p_panel);
-	void FUN_10006291(struct CockpitPanel* p_panel);
-	void FUN_100063cd(struct CockpitPanel* p_panel);
-	void FUN_10006484(struct CockpitPanel* p_panel);
-	void FUN_100065c3(struct CockpitPanel* p_panel);
-	void FUN_1000667c(struct CockpitPanel* p_panel);
+	MechChar* FormatTicks(MechS32 p_ticks);
+	MechChar* FormatSeconds(MechS32 p_seconds);
+	MechS32 GetTextWidth(const MechChar* p_text, void* p_font);
+	void DrawObjectiveList(struct CockpitPanel* p_panel, struct Point* p_pos, void* p_font, MechU8 p_priority);
+	void DrawObjectivesPanel(struct CockpitPanel* p_panel);
+	void DrawNetworkPanel(struct CockpitPanel* p_panel);
+	void DrawKillsPanel(struct CockpitPanel* p_panel);
+	void DrawAutopilotPanel(struct CockpitPanel* p_panel);
+	void DrawSpeedPanel(struct CockpitPanel* p_panel);
+	void DrawMascPanel(struct CockpitPanel* p_panel);
+	void DrawHeatPanel(struct CockpitPanel* p_panel);
+	void DrawHeatRatePanel(struct CockpitPanel* p_panel);
+	void DrawJetsPanel(struct CockpitPanel* p_panel);
 
 #ifdef __cplusplus
 }

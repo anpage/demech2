@@ -47,7 +47,7 @@ MenuDefinition* g_menuDefinitions[11] = {
 };
 
 // GLOBAL: MW2 0x100e9350
-undefined g_unk0x100e9350[0x100];
+undefined g_textColors[0x100];
 
 // GLOBAL: MW2 0x10109c78
 MechS32 g_openMenuCount;
@@ -196,10 +196,10 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 
 	if (p_menu->m_backgroundId != -1) {
 		shape =
-			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			size = VFX_shape_bounds(shape, 0);
-			FUN_1001a163(p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+			FUN_1001a163(p_menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 			scale.m_x = size >> 16;
 			scale.m_y = size & 0xffff;
 			scale.m_x = FixedDiv16(scale.m_x, g_screenWidthMinus1 + 1);
@@ -236,7 +236,7 @@ void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
 		p_menu->m_background =
-			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 	else {
 		p_menu->m_background = NULL;
@@ -244,14 +244,14 @@ void LoadMenuResources(MenuDefinition* p_menu)
 
 	if (p_menu->m_unk0x1c != -1) {
 		p_menu->m_unk0x20 =
-			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_unk0x1c + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_unk0x1c + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 	else {
 		p_menu->m_unk0x20 = NULL;
 	}
 
 	p_menu->m_font =
-		FUN_1001a19f(g_mw2PrjHandle, p_menu->m_fontId + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+		FUN_1001a19f(g_mw2PrjHandle, p_menu->m_fontId + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 }
 
 // Opens a menu on its root page. Menus with flag 1 take the controls, so this calls
@@ -298,17 +298,17 @@ void DeactivateMenu(MenuSlot* p_slot)
 	menu = p_slot->m_definition;
 	if (menu) {
 		if (menu->m_background) {
-			FUN_1001a163(menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+			FUN_1001a163(menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 			menu->m_background = NULL;
 		}
 
 		if (menu->m_unk0x20) {
-			FUN_1001a163(menu->m_unk0x1c + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+			FUN_1001a163(menu->m_unk0x1c + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 			menu->m_unk0x20 = NULL;
 		}
 
 		if (menu->m_font) {
-			FUN_1001a163(menu->m_fontId + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont]);
+			FUN_1001a163(menu->m_fontId + g_artResolution, g_resourceTypeTags[c_resTagFont]);
 			menu->m_font = NULL;
 		}
 
@@ -715,10 +715,10 @@ void RunMenuItems(MenuDefinition* p_menu)
 	}
 
 	page->m_selected = selected;
-	g_unk0x100e9350[0xe] = p_menu->m_color;
+	g_textColors[0xe] = p_menu->m_color;
 	if (page->m_title) {
 		textPos = p_menu->m_unk0x48;
-		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_unk0x100e9350);
+		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_textColors);
 	}
 
 	if (p_menu->m_flags & 4) {
@@ -739,10 +739,10 @@ void RunMenuItems(MenuDefinition* p_menu)
 	offset = 0;
 	for (i = 0; i < page->m_itemCount; i++) {
 		if (selected == i) {
-			g_unk0x100e9350[0xe] = p_menu->m_highlightColor;
+			g_textColors[0xe] = p_menu->m_highlightColor;
 		}
 		else {
-			g_unk0x100e9350[0xe] = p_menu->m_color;
+			g_textColors[0xe] = p_menu->m_color;
 		}
 
 		item = &page->m_items[i];
@@ -767,11 +767,11 @@ void RunMenuItems(MenuDefinition* p_menu)
 			}
 
 			_itoa(n, number, 10);
-			VFX_string_draw(target, textPos.m_x, textPos.m_y, font, number, g_unk0x100e9350);
+			VFX_string_draw(target, textPos.m_x, textPos.m_y, font, number, g_textColors);
 		}
 
 		if (item->m_text) {
-			VFX_string_draw(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_unk0x100e9350);
+			VFX_string_draw(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_textColors);
 		}
 
 		if (item->m_run) {
@@ -779,7 +779,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		}
 	}
 
-	g_unk0x100e9350[0xe] = 0xe;
+	g_textColors[0xe] = 0xe;
 	switch (page->m_state) {
 	case 4:
 	case 5:

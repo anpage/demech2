@@ -38,12 +38,12 @@ extern "C"
 #endif
 
 	extern MechS32 g_unk0x10109c30[3];
-	extern MechS32 g_unk0x100c326c;
-	extern MechS32 g_unk0x100c3270;
-	extern CockpitPanel* g_unk0x100c3280[26];
-	extern MechS32 g_unk0x100c32f0[26];
-	extern MechS32 g_unk0x100c3358;
-	extern struct PANE g_unk0x100adf58[26];
+	extern MechS32 g_torsoTwistDegrees;
+	extern MechS32 g_headingDegrees;
+	extern CockpitPanel* g_cockpitPanels[c_panelCount];
+	extern MechS32 g_cockpitPanelEnabled[c_panelCount];
+	extern MechS32 g_cockpitPowerState;
+	extern struct PANE g_cockpitPanelPanes[c_panelCount];
 	extern MechS32 g_unk0x100ae37c;
 	extern MechChar g_gameDir[256];
 	extern MechS32 g_unk0x100ae380;
@@ -55,15 +55,15 @@ extern "C"
 	MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg);
 	MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg);
 	MechChar* BuildGamePath(MechChar* p_name);
-	void FUN_1006f4fa(struct Mech* p_mech);
+	void LayoutWeaponPanels(struct Mech* p_mech);
 	void FUN_1006fba3(void);
-	void FUN_1006fca5(void);
-	void FUN_1006ff7b(void);
-	void FUN_1007005a(struct Mech* p_mech);
-	void FUN_100704c1(void);
-	void FUN_1007053d(struct Mech* p_mech, MechS32 p_heavy);
-	void FUN_100705dd(struct Mech* p_mech);
-	void FUN_1007079d(struct PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
+	void InitCockpitPanels(void);
+	void ResetCockpitPanels(void);
+	void UpdateCockpit(struct Mech* p_mech);
+	void ShutdownCockpitPanels(void);
+	void DamageCockpitPanels(struct Mech* p_mech, MechS32 p_heavy);
+	void PlayCockpitWarnings(struct Mech* p_mech);
+	void DrawPanelAnim(struct PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
 	MechS32 FUN_100707c0(
 		struct ResourceRef* p_ref,
 		MechS32* p_unk0x04,
