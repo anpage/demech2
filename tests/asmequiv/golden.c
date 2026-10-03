@@ -51,6 +51,7 @@
 #include "unk1007d120.h"
 #include "vfx3d.h"
 #include "vfxa.h"
+#include "vfxrend.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -233,6 +234,13 @@ static const Symbol g_symbols[] = {
 	FUNCTION(VFX_illuminate_polygon),
 	FUNCTION(VFX_map_lookaside),
 	FUNCTION(VFX_map_polygon),
+	FUNCTION(VFX_set_Gouraud_dither_level),
+	FUNCTION(GetCodeBlock),
+	FUNCTION(VFX_polygon_render),
+	FUNCTION(F16_div_to_F30),
+	FUNCTION(F30_reciprocal),
+	FUNCTION(mul_F30),
+	FUNCTION(VFX_polygon_clip_XY_and_render),
 	FUNCTION(VFX_driver_name),
 	FUNCTION(VFX_register_driver),
 	FUNCTION(VFX_pixel_write),

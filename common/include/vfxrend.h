@@ -15,7 +15,9 @@ typedef struct VFX_TEXTURE {
 } VFX_TEXTURE;
 
 // VFXREND, Miles Design VFX's polygon renderer (3rdparty/vfx/VFXREND.ASM; common/src/vfxrend.c's
-// stubs in COMPAT_MODE), which both DLLs link. MW2 draws its textured polygons through
+// portable C in COMPAT_MODE), which both DLLs link. p_cueing and p_translucency are lookaside
+// tables: p_cueing of 256 bytes for flat shading, of 256 rows of 256 for Gouraud shading (a row
+// per shade), p_translucency of 256 bytes. MW2 draws its textured polygons through
 // VFX_polygon_clip_XY_and_render (FUN_1006dd50), and render.c asks GetCodeBlock for the range to
 // make writable. In MW2SHELL the object is believed to be dead: nothing outside it refers into it,
 // and .text is read-only with no VirtualProtect import, so its routines could not patch themselves.
@@ -33,8 +35,8 @@ extern "C"
 		MechS32 p_operation,
 		undefined4 p_color,
 		VFX_TEXTURE* p_texture,
-		MechU16* p_cueing,
-		undefined4 p_translucency
+		void* p_cueing,
+		void* p_translucency
 	);
 	MechS32 F16_div_to_F30(MechS32 p_dividend, MechS32 p_divisor);
 	MechS32 F30_reciprocal(MechS32 p_value);
@@ -46,8 +48,8 @@ extern "C"
 		MechS32 p_operation,
 		undefined4 p_color,
 		VFX_TEXTURE* p_texture,
-		MechU16* p_cueing,
-		undefined4 p_translucency
+		void* p_cueing,
+		void* p_translucency
 	);
 
 #ifdef __cplusplus

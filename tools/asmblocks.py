@@ -18,8 +18,12 @@ for the routines in HELPER_CALLERS, every call to code without an export is foll
 block before the routine has a negative offset. An indirect jmp ends a
 block; a routine with one also starts blocks at every address in its range that a relocated
 pointer outside its instructions holds: the code a jump table leads to (VFX3D's span
-routines, which VFX_map_polygon jumps to through __map_logic). An incremental link's export is a jmp
-to the routine: it is followed, as the driver does.
+routines, which VFX_map_polygon jumps to through __map_logic). A call through a register loaded
+from a table (`mov eax, [ebx*4 + table]`) is followed to every relocated pointer of the table for
+the routines in TABLE_CALLERS, with the table's entries: VFXREND's primitives, which
+VFX_polygon_render calls through poly_vectors (VFX_polygon_clip_XY_and_render calls them too, but
+their blocks are listed once). An incremental link's export is a jmp to the routine: it is
+followed, as the driver does.
 
 usage: python tools/asmblocks.py REF.dll -o BLOCKS.txt
 Needs capstone (installed with reccmp).
@@ -27,6 +31,7 @@ Needs capstone (installed with reccmp).
 
 import argparse
 import os
+import re
 import struct
 import sys
 
@@ -39,6 +44,11 @@ IMAGE_SCN_MEM_EXECUTE = 0x20000000
 
 # Routines whose helpers lie outside their range (see above)
 HELPER_CALLERS = {"VFX_GIF_draw", "VFX_shape_scan"}
+
+# Routines that call through a table, with its entries (see above)
+TABLE_CALLERS = {"VFX_polygon_render": 0x800}
+
+TABLE_LOAD = re.compile(r"^(\w+), dword ptr \[\w+\*4 \+ (0x[0-9a-f]+)\]$")
 
 
 class Dll(Image):
@@ -94,15 +104,17 @@ def is_conditional(ins):
     return b[0] in JCC or b[0] in (0xE0, 0xE1, 0xE2, 0xE3) or (b[0] == 0x0F and 0x80 <= b[1] <= 0x8F)
 
 
-def blocks(dll, start, limit, exports=None):
+def blocks(dll, start, limit, exports=None, table_size=0):
     """The routine's block starts, from a recursive descent; helpers called below limit too, or
-    anywhere outside exports when that's given."""
+    anywhere outside exports when that's given, and the entries of a table of table_size it calls
+    through."""
     disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
     leaders = {start}
     seen = set()
     decoded = set()
     work = [start]
     indirect = False
+    tables = {}
     while work or indirect:
         if not work:
             # Jump-table targets: the relocated pointers into the routine's range that aren't
@@ -127,6 +139,15 @@ def blocks(dll, start, limit, exports=None):
             decoded.update(range(address, following))
             if ins.mnemonic == "ret":
                 break
+            load = TABLE_LOAD.match(ins.op_str) if ins.mnemonic == "mov" and table_size else None
+            if load:
+                tables[load.group(1)] = int(load.group(2), 16)
+            if ins.mnemonic == "call" and ins.op_str in tables:
+                table = tables[ins.op_str]
+                for location, value in dll.pointers:
+                    if table <= location < table + 4 * table_size and value not in leaders:
+                        leaders.add(value)
+                        work.append(value)
             if ins.mnemonic == "call" and ins.op_str.startswith("0x"):
                 target = int(ins.op_str, 16)
                 if start < target < limit or (exports is not None and target not in exports and dll.is_code(target)):
@@ -173,7 +194,7 @@ def main():
     for name, address in sorted(routines.items(), key=lambda item: item[1]):
         following = [start for start in starts_sorted if start > address]
         exports = set(starts_sorted) if name in HELPER_CALLERS else None
-        starts = blocks(dll, address, following[0] if following else address, exports)
+        starts = blocks(dll, address, following[0] if following else address, exports, TABLE_CALLERS.get(name, 0))
         lines.append(
             name + " " + " ".join("%x:%02x" % (start - address, dll.read(start, 1)[0]) for start in starts)
         )
