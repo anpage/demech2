@@ -33,7 +33,8 @@
 // enters a new state with a new target. Targets are ids: a type (c_aiTarget…) in bits 8-11 and
 // an index in the low byte, or one of the symbolic targets (the agp_… names) the rules resolve
 // against the player (NextTarget). The leader of each star (team) steers the others towards
-// the star's current mission objective (LeadStar).
+// the star's current mission objective (LeadStar). tools/dump_ait.py prints the scripts from
+// MW2.PRJ.
 
 DECOMP_SIZE_ASSERT(AiRule, 0x0c)
 DECOMP_SIZE_ASSERT(Player, 0x1aa)
@@ -605,19 +606,19 @@ void InitializeAI(Player* p_player)
 			p_player->m_gunnery = 1;
 		}
 
-		p_player->m_unk0x166 = p_player->m_aiParams[1];
-		if (!p_player->m_unk0x166) {
-			p_player->m_unk0x166 = 250;
+		p_player->m_leashRange = p_player->m_aiParams[1];
+		if (!p_player->m_leashRange) {
+			p_player->m_leashRange = 250;
 		}
 
-		p_player->m_unk0x15e = p_player->m_aiParams[2];
-		if (!p_player->m_unk0x15e) {
-			p_player->m_unk0x15e = 250;
+		p_player->m_restAlertRange = p_player->m_aiParams[2];
+		if (!p_player->m_restAlertRange) {
+			p_player->m_restAlertRange = 250;
 		}
 
-		p_player->m_unk0x162 = p_player->m_aiParams[3];
-		if (!p_player->m_unk0x162) {
-			p_player->m_unk0x162 = 250;
+		p_player->m_alertRange = p_player->m_aiParams[3];
+		if (!p_player->m_alertRange) {
+			p_player->m_alertRange = 250;
 		}
 
 		p_player->m_piloting = p_player->m_aiParams[4];
@@ -626,9 +627,9 @@ void InitializeAI(Player* p_player)
 		}
 
 		p_player->m_gunnery++;
-		p_player->m_unk0x166 *= 100;
-		p_player->m_unk0x15e *= 100;
-		p_player->m_unk0x162 *= 100;
+		p_player->m_leashRange *= 100;
+		p_player->m_restAlertRange *= 100;
+		p_player->m_alertRange *= 100;
 	}
 
 	InitializeManeuvers(p_player);
@@ -1084,8 +1085,8 @@ void LogPlayerSkillLines(void)
 	}
 }
 
-// M_DIST: the farthest of p_target's targets farther than p_arg hundreds (or a range of
-// p_player's).
+// M_DIST: the farthest of p_target's targets farther than p_arg hundreds (-4: p_player's leash
+// range, -2: its alert range).
 // Operand order: the final test (limit < farthest) compares the other way in the original.
 // Stack-slot permutation: farthest, farthestTarget, limit and result and target.
 // FUNCTION: MW2 0x10052617
@@ -1105,10 +1106,10 @@ MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 		limit = 0;
 	}
 	else if (p_arg == -4) {
-		limit = p_player->m_unk0x166;
+		limit = p_player->m_leashRange;
 	}
 	else if (p_arg == -2) {
-		limit = p_player->m_unk0x162;
+		limit = p_player->m_alertRange;
 	}
 	else if (p_arg == 0) {
 		limit = GetTargetRange(p_target);
@@ -1418,7 +1419,8 @@ void LogAIStatus(void)
 	}
 }
 
-// M_TGTABLE: the nearest of p_target's targets within p_arg hundreds (or a range of p_player's).
+// M_TGTABLE: the nearest of p_target's targets within p_arg hundreds (-2: p_player's alert range,
+// -1: its resting one).
 // FUNCTION: MW2 0x100530f7
 MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
@@ -1430,10 +1432,10 @@ MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	}
 
 	if (p_arg == -2) {
-		p_arg = p_player->m_unk0x162 / 100;
+		p_arg = p_player->m_alertRange / 100;
 	}
 	else if (p_arg == -1) {
-		p_arg = p_player->m_unk0x15e / 100;
+		p_arg = p_player->m_restAlertRange / 100;
 	}
 	else if (p_arg == 0) {
 		p_arg = GetTargetRange(p_target) / 100;

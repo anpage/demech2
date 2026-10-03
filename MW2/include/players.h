@@ -87,41 +87,43 @@ struct Player {
 	AiRule** m_rules;                   // 0x118 — the rules of the current state, NULL-terminated
 	MechU16* m_ruleSets[3];             // 0x11c — AI scripts, by priority
 	AiStackEntry m_stack[2];            // 0x128 — T_PUSH saves the state and goal in the first, QueueAIState behind it
-	MechU16 m_aiParams[8];              // 0x130 — the gpspec record's (BwdExecuteStream)
-	MechU16 m_stackCount;               // 0x140
-	undefined2 m_unk0x142;              // 0x142 — nothing reads or writes it
-	PlayerAi m_ai;                      // 0x144
-	MechS32 m_engageAtWill;             // 0x154 — it may be sent to attack: the "Engage at Will" order toggles it
-	MechS8 m_gunnery;                   // 0x158 — lower is better: it fires on one roll in m_gunnery
-	MechS8 m_piloting;                  // 0x159 — 1 (best) to 4: the maneuvers it may make
-	MechS32 m_nextFireTime;             // 0x15a — the clock when it next rolls to fire
-	MechS32 m_unk0x15e;                 // 0x15e — m_aiParams[2] * 100, a M_TGTABLE range
-	MechS32 m_unk0x162;                 // 0x162 — m_aiParams[3] * 100, a M_DIST and M_TGTABLE range
-	MechS32 m_unk0x166;                 // 0x166 — m_aiParams[1] * 100, a M_DIST range
-	MechS32 m_nav;                      // 0x16a — a nav target id the AI placed, or 0x1000
-	MechS16 m_nextDetectCheck;          // 0x16e — the clock (truncated) when IsTargetDetectable next looks
-	MechS16 m_maneuver;                 // 0x170 — c_maneuver…, or -1
-	MechS16 m_lastManeuver;             // 0x172 — the previous maneuver, or -1
-	MechS32 m_nextManeuver;             // 0x174 — one asked for (0 none), or -2 to flee
-	MechS32 m_maneuverEnd;              // 0x178 — the clock when the maneuver ends, or 0
-	MechS32 m_maneuverTimer;            // 0x17c — a clock time each maneuver sets its own way
-	MechS32 m_maneuverParam;            // 0x180 — each maneuver's own: a place, side, step or count
-	MechS32 m_maneuverFlag;             // 0x184 — each maneuver's own
-	struct Shape* m_avoidShape;         // 0x188 — the shape AvoidObstacles steers around
-	MechS32 m_nextAvoidCheck;           // 0x18c — the clock when AvoidObstacles next probes
-	MechS16 m_avoidSide;                // 0x190 — 1 or -1 while avoiding, else 0
-	MechS32 m_probeScale;               // 0x192 — 16.16, the probe rays' length from the speed
-	MechS32 m_controlsJets;             // 0x196 — the maneuver works the jump jets itself
-	MechS32 m_lastTargetDistance;       // 0x19a — at the last GetClosingRate
-	MechU32 m_skillFlag0 : 1;           // 0x19e — the maneuvers its piloting allows (InitializeManeuvers)
-	MechU32 m_skillFlag1 : 1;           // 0x19e
-	MechU32 m_skillFlag2 : 1;           // 0x19e
-	MechU32 m_skillFlag3 : 1;           // 0x19e
-	MechU32 m_skillFlag4 : 1;           // 0x19e
-	MechU32 m_skillFlag5 : 1;           // 0x19e
-	MechU32 m_skillFlag6 : 1;           // 0x19e
-	MechU32 m_skillFlagsUnused : 25;    // 0x19e
-	MechS8 m_placesTaken[8];            // 0x1a2 — the places around it (ChooseFlankPlace) that are taken
+	// 0x130: the gpspec record's AI parameters (BwdExecuteStream): gunnery, leash range, resting and
+	// active alert ranges (in hundreds), piloting; InitializeAI turns them into the members below.
+	MechU16 m_aiParams[8];           // 0x130
+	MechU16 m_stackCount;            // 0x140
+	undefined2 m_unk0x142;           // 0x142 — nothing reads or writes it
+	PlayerAi m_ai;                   // 0x144
+	MechS32 m_engageAtWill;          // 0x154 — it may be sent to attack: the "Engage at Will" order toggles it
+	MechS8 m_gunnery;                // 0x158 — lower is better: it fires on one roll in m_gunnery
+	MechS8 m_piloting;               // 0x159 — 1 (best) to 4: the maneuvers it may make
+	MechS32 m_nextFireTime;          // 0x15a — the clock when it next rolls to fire
+	MechS32 m_restAlertRange;        // 0x15e — the rules' range -1: enemies within it wake a resting player
+	MechS32 m_alertRange;            // 0x162 — the rules' range -2: enemies within it are reported or engaged
+	MechS32 m_leashRange;            // 0x166 — the rules' range -4: a chase this far from its anchor nav ends
+	MechS32 m_nav;                   // 0x16a — a nav target id the AI placed, or 0x1000
+	MechS16 m_nextDetectCheck;       // 0x16e — the clock (truncated) when IsTargetDetectable next looks
+	MechS16 m_maneuver;              // 0x170 — c_maneuver…, or -1
+	MechS16 m_lastManeuver;          // 0x172 — the previous maneuver, or -1
+	MechS32 m_nextManeuver;          // 0x174 — one asked for (0 none), or -2 to flee
+	MechS32 m_maneuverEnd;           // 0x178 — the clock when the maneuver ends, or 0
+	MechS32 m_maneuverTimer;         // 0x17c — a clock time each maneuver sets its own way
+	MechS32 m_maneuverParam;         // 0x180 — each maneuver's own: a place, side, step or count
+	MechS32 m_maneuverFlag;          // 0x184 — each maneuver's own
+	struct Shape* m_avoidShape;      // 0x188 — the shape AvoidObstacles steers around
+	MechS32 m_nextAvoidCheck;        // 0x18c — the clock when AvoidObstacles next probes
+	MechS16 m_avoidSide;             // 0x190 — 1 or -1 while avoiding, else 0
+	MechS32 m_probeScale;            // 0x192 — 16.16, the probe rays' length from the speed
+	MechS32 m_controlsJets;          // 0x196 — the maneuver works the jump jets itself
+	MechS32 m_lastTargetDistance;    // 0x19a — at the last GetClosingRate
+	MechU32 m_skillFlag0 : 1;        // 0x19e — the maneuvers its piloting allows (InitializeManeuvers)
+	MechU32 m_skillFlag1 : 1;        // 0x19e
+	MechU32 m_skillFlag2 : 1;        // 0x19e
+	MechU32 m_skillFlag3 : 1;        // 0x19e
+	MechU32 m_skillFlag4 : 1;        // 0x19e
+	MechU32 m_skillFlag5 : 1;        // 0x19e
+	MechU32 m_skillFlag6 : 1;        // 0x19e
+	MechU32 m_skillFlagsUnused : 25; // 0x19e
+	MechS8 m_placesTaken[8];         // 0x1a2 — the places around it (ChooseFlankPlace) that are taken
 };
 
 #pragma pack(pop)
