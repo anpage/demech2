@@ -35,7 +35,7 @@ typedef struct CarCfg {
 	MechU16 m_unk0x30;                // 0x30 — side 1
 	MechU16 m_unk0x32;                // 0x32 — hits taken by the local team
 	MechU16 m_unk0x34;                // 0x34 — mechs of the local team destroyed
-	MechU16 m_unk0x36;                // 0x36 — of those, the ones in m_unk0xa0 state 5
+	MechU16 m_unk0x36;                // 0x36 — of those, the ones in power state 5 (Mech::m_powerState)
 	MechS16 m_unk0x38[6];             // 0x38 — players (0-2) and game things (3-5) of sides 0, 2 and 1
 	MechU16 m_unk0x44;                // 0x44 — other mechs of side 1 the local player destroyed
 	MechU16 m_unk0x46;                // 0x46 — side 2

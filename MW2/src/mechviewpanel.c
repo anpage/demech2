@@ -112,7 +112,7 @@ void FUN_100509c8(CockpitPanel* p_panel)
 		FUN_100114ea(g_eyepoint, view);
 		FUN_10050dc3(&saved);
 		if (g_unk0x100ea3e4) {
-			view[3] = mech->m_player->m_unk0x6c + mech->m_player->m_heading;
+			view[3] = mech->m_player->m_torsoTwist + mech->m_player->m_heading;
 		}
 		else {
 			view[3] = mech->m_player->m_heading + 0xb40000;

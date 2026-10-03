@@ -360,7 +360,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			if (planet->m_unk0x34 > 0) {
-				g_unk0x100a2be0 = planet->m_unk0x34;
+				g_slideSlope = planet->m_unk0x34;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdClimate]) {
@@ -405,10 +405,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdAnimSound]) {
 			BwdResourceRecord* sound = (BwdResourceRecord*) node;
 
-			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
-				g_lastPlayer->m_unk0x90 = sound->m_ref.m_id;
-				if (g_lastPlayer->m_unk0x90 == -1) {
-					g_lastPlayer->m_unk0x90 = FindResourceIdByName(0xb, sound->m_ref.m_name);
+			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
+				g_lastPlayer->m_pendingSound = sound->m_ref.m_id;
+				if (g_lastPlayer->m_pendingSound == -1) {
+					g_lastPlayer->m_pendingSound = FindResourceIdByName(0xb, sound->m_ref.m_name);
 				}
 			}
 		}
@@ -731,7 +731,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 							Error(0xe, NULL);
 						}
 
-						player->m_unk0x00 = playerType->m_type;
+						player->m_type = playerType->m_type;
 						player->m_firstClassFn = playerType->m_firstClassFn;
 						player->m_updateFn = playerType->m_updateFn;
 						player->m_lateUpdateFn = playerType->m_lateUpdateFn;
@@ -739,7 +739,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						player->m_unk0x18 = g_unk0x100a385c;
 						player->m_unk0x1c = -1;
 						if (g_localPlayerId == g_playerCount) {
-							player->m_unk0x10 = 0;
+							player->m_aiMode = 0;
 							player->m_localUpdateFn = playerType->m_localUpdateFn;
 							player->m_drawFn = playerType->m_drawFn;
 						}
@@ -752,7 +752,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						g_playerCount++;
 						g_lastPlayer = player;
 						player->m_obj = obj;
-						player->m_unk0x44 = obj;
+						player->m_eyeObj = obj;
 						FUN_1001d220(player);
 						FUN_1001ce90(player);
 					}
@@ -771,7 +771,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* cockpit = (BwdResourceRecord*) node;
 
 			ref = &cockpit->m_ref;
-			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
+			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
 				FUN_10070e22(ref, g_unk0x100a5a68, g_unk0x100adf58, g_unk0x100a5bb8[3]);
 			}
 		}
@@ -782,7 +782,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* pit = (BwdResourceRecord*) node;
 			undefined buffer[0x20];
 
-			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
+			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
 				key = &keyData;
 				key->m_id = pit->m_ref.m_id;
 				strcpy(key->m_name, pit->m_ref.m_name);
@@ -803,7 +803,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* vpt = (BwdResourceRecord*) node;
 			undefined buffer[0x20];
 
-			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
+			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
 				key = &keyData;
 				key->m_id = vpt->m_ref.m_id;
 				strcpy(key->m_name, vpt->m_ref.m_name);
@@ -837,12 +837,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				mech = g_lastPlayer->m_mech;
 				FUN_100707c0(
 					ref,
-					&mech->m_unk0xcc,
-					&mech->m_unk0xd0,
+					&mech->m_height,
+					&mech->m_cockpitHeight,
 					&mech->m_unk0xd4,
 					&mech->m_unk0xd8,
 					&mech->m_unk0xdc,
-					&mech->m_unk0xe0,
+					&mech->m_maxTorsoTwist,
 					&mech->m_radius
 				);
 			}
@@ -860,7 +860,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				if (index >= 0) {
 					obj = GetClassObject(index);
 					if (obj) {
-						g_lastPlayer->m_unk0x44 = obj;
+						g_lastPlayer->m_eyeObj = obj;
 					}
 				}
 			}
@@ -1268,15 +1268,15 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				if (g_lastPlayer) {
 					index = g_lastPlayer->m_index;
 					for (i = 0; i < 8; i++) {
-						g_lastPlayer->m_unk0x130[i] = gpSpec->m_aiParams[i];
+						g_lastPlayer->m_aiParams[i] = gpSpec->m_aiParams[i];
 					}
 
-					g_lastPlayer->m_unk0x10 = ai;
+					g_lastPlayer->m_aiMode = ai;
 					g_lastPlayer->m_flags = gpSpec->m_flags;
 					strncpy(g_lastPlayer->m_name, gpSpec->m_unk0x36, 0x16);
 					g_lastPlayer->m_name[0x15] = '\0';
-					strncpy(g_lastPlayer->m_unk0xfe, gpSpec->m_unk0x4c, 0x16);
-					g_lastPlayer->m_unk0xfe[0x15] = '\0';
+					strncpy(g_lastPlayer->m_shortName, gpSpec->m_unk0x4c, 0x16);
+					g_lastPlayer->m_shortName[0x15] = '\0';
 					if (eventList) {
 						target = (MechU8) index | 0x200;
 						PostEventToList(eventName, events, target);

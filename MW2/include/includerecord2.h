@@ -14,7 +14,7 @@ typedef struct IncludeRecord2 {
 	MechS16 m_id;             // 0x0a — the gamepiece stream
 	MechU8 m_team;            // 0x0c
 	MechU8 m_leader;          // 0x0d — 1: the team's leader
-	MechU8 m_ai;              // 0x0e — Player::m_unk0x10; 0: the local player
+	MechU8 m_ai;              // 0x0e — Player::m_aiMode; 0: the local player
 	undefined m_unk0x0f;      // 0x0f
 	MechU16 m_aiParams[8];    // 0x10 — Player::m_unk0x130
 	MechU16 m_events;         // 0x20 — event types (FUN_1000a9c0)

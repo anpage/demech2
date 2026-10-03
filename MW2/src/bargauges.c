@@ -136,7 +136,7 @@ void FUN_1004d175(PANE* p_target)
 	MechS32 color;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	heat = mech->m_unk0x98;
+	heat = mech->m_heat;
 	x = g_unk0x100a8350.m_x;
 	y = g_unk0x100a8350.m_y;
 	width = g_unk0x100a8358.m_x;
@@ -183,7 +183,7 @@ void FUN_1004d310(PANE* p_target)
 	mech = g_players[g_localPlayerId]->m_mech;
 	fill = 0;
 	level = 0;
-	g_unk0x100a8310.m_target = (mech->m_deltaHeat - mech->m_unk0x9c * g_deltaTime) >> 6;
+	g_unk0x100a8310.m_target = (mech->m_deltaHeat - mech->m_cooling * g_deltaTime) >> 6;
 	level = UpdateEasedValue(&g_unk0x100a8310);
 	if (level < 1) {
 		fillColor = 7;
@@ -246,7 +246,7 @@ void FUN_1004d48a(PANE* p_target)
 	VFX_line_draw(p_target, g_unk0x100a8338, g_unk0x100a8344, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
 	value = mech->m_player->m_steering->m_throttle << 16;
 	value = MulDiv64(value, g_unk0x100a8330.m_y, 0x400);
-	if (mech->m_player->m_steering->m_unk0x2f) {
+	if (mech->m_player->m_steering->m_reverse) {
 		value /= -2;
 	}
 
@@ -257,7 +257,7 @@ void FUN_1004d48a(PANE* p_target)
 	width = g_unk0x100a8330.m_x - 1;
 	height = value;
 	color = 0xf;
-	if (mech->m_player->m_steering->m_unk0x2f) {
+	if (mech->m_player->m_steering->m_reverse) {
 		height = -height;
 		if (height > g_unk0x100a8330.m_y / 2) {
 			height = g_unk0x100a8330.m_y / 2;
@@ -282,8 +282,8 @@ void FUN_1004d660(PANE* p_target)
 	Mech* mech;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	if (mech->m_unk0xc0 >= 0) {
-		g_unk0x100a8320.m_target = mech->m_unk0xc0;
+	if (mech->m_jumpFuel >= 0) {
+		g_unk0x100a8320.m_target = mech->m_jumpFuel;
 		fill = UpdateEasedValue(&g_unk0x100a8320);
 		fill = MulDiv64(g_unk0x100a8378.m_x + 1, fill, 0x712);
 		if (fill > g_unk0x100a8378.m_x) {

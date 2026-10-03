@@ -31,18 +31,18 @@ void FirstGPAnim(void)
 void FUN_1000365a(Player* p_player)
 {
 	if (p_player->m_index != g_localPlayerId) {
-		p_player->m_unk0x90 = 0x103;
+		p_player->m_pendingSound = 0x103;
 	}
 
-	p_player->m_unk0x8c = 0;
-	p_player->m_unk0x88 = -1;
+	p_player->m_speedLevel = 0;
+	p_player->m_nextMotionState = -1;
 }
 
 // FUNCTION: MW2 0x1000369e
 void FUN_1000369e(Player* p_player)
 {
-	p_player->m_unk0x8c = 0;
-	p_player->m_unk0x88 = -1;
+	p_player->m_speedLevel = 0;
+	p_player->m_nextMotionState = -1;
 }
 
 // FUNCTION: MW2 0x100036c3
@@ -54,8 +54,8 @@ MechS32* FUN_100036c3(Player* p_player, MechS32* p_offset)
 	return p_offset;
 }
 
-// Picks the player's movement sound state from its mech's height (m_unk0x8c, m_unk0x88; m_unk0x88
-// 2 while m_unk0x2f of its steering is set), plays its pending sound m_unk0x90 once (bit 8 of
+// Picks the player's motion state from its mech's throttle (m_speedLevel, m_nextMotionState; 2
+// while its steering's m_reverse is set), plays its pending sound m_pendingSound once (bit 8 of
 // m_unk0x80), and for the local player updates the looping sounds (FUN_100038c2).
 // Stack-slot permutation: offset and position.
 // FUNCTION: MW2 0x10003710
@@ -66,44 +66,44 @@ void FUN_10003710(Player* p_player)
 	MechS32 height;
 
 	offset = NULL;
-	if (p_player->m_mech->m_unk0x44.m_value <= 0x420) {
+	if (p_player->m_mech->m_throttle.m_value <= 0x420) {
 		FUN_1000369e(p_player);
 	}
 	else {
-		height = p_player->m_mech->m_unk0x44.m_value - 0x400;
+		height = p_player->m_mech->m_throttle.m_value - 0x400;
 		if (height < 0) {
 			height = 0;
 		}
 
-		p_player->m_unk0x88 = 0;
+		p_player->m_nextMotionState = 0;
 		if (height < 0x100) {
-			p_player->m_unk0x8c = 1;
+			p_player->m_speedLevel = 1;
 		}
 		else if (height < 0x300) {
-			p_player->m_unk0x8c = 2;
+			p_player->m_speedLevel = 2;
 		}
 		else {
-			p_player->m_unk0x8c = 3;
-			p_player->m_unk0x88 = 1;
+			p_player->m_speedLevel = 3;
+			p_player->m_nextMotionState = 1;
 		}
 
-		if (p_player->m_unk0x84 == 2 && p_player->m_unk0x8c > 2) {
-			p_player->m_unk0x8c = 2;
+		if (p_player->m_motionState == 2 && p_player->m_speedLevel > 2) {
+			p_player->m_speedLevel = 2;
 		}
 
-		if (p_player->m_steering->m_unk0x2f) {
-			p_player->m_unk0x88 = 2;
+		if (p_player->m_steering->m_reverse) {
+			p_player->m_nextMotionState = 2;
 		}
 
-		if (p_player->m_unk0x00 == 4) {
-			p_player->m_unk0x84 = p_player->m_unk0x88;
+		if (p_player->m_type == c_playerTypeTank) {
+			p_player->m_motionState = p_player->m_nextMotionState;
 		}
 	}
 
-	if (p_player->m_unk0x90 != -1 && p_player->m_unk0x80 & 8) {
+	if (p_player->m_pendingSound != -1 && p_player->m_unk0x80 & 8) {
 		p_player->m_unk0x80 &= ~8;
 		offset = FUN_100036c3(p_player, position);
-		FUN_1007ebd1(position[0], position[1], position[2], p_player->m_unk0x90, g_unk0x100a2420);
+		FUN_1007ebd1(position[0], position[1], position[2], p_player->m_pendingSound, g_unk0x100a2420);
 	}
 
 	if (p_player->m_index == g_localPlayerId) {
@@ -121,13 +121,13 @@ void FUN_100038c2(Player* p_player, MechS32 (*p_sounds)[4], MechS32* p_offset)
 	MechS32 id;
 
 	id = p_player->m_index;
-	if ((p_player->m_unk0x84 != p_player->m_unk0x88 && g_unk0x10181970[id] != p_player->m_unk0x84) ||
-		(p_player->m_unk0x84 == p_player->m_unk0x88 && g_unk0x10181970[id] != -2)) {
-		if (p_player->m_unk0x84 == 0 && g_unk0x10181970[id] == 2) {
+	if ((p_player->m_motionState != p_player->m_nextMotionState && g_unk0x10181970[id] != p_player->m_motionState) ||
+		(p_player->m_motionState == p_player->m_nextMotionState && g_unk0x10181970[id] != -2)) {
+		if (p_player->m_motionState == 0 && g_unk0x10181970[id] == 2) {
 			sound = p_sounds[0][1];
 		}
 		else {
-			sound = p_sounds[p_player->m_unk0x84 + 1][p_player->m_unk0x88 + 1];
+			sound = p_sounds[p_player->m_motionState + 1][p_player->m_nextMotionState + 1];
 		}
 
 		if (sound != -1) {
@@ -138,8 +138,8 @@ void FUN_100038c2(Player* p_player, MechS32 (*p_sounds)[4], MechS32* p_offset)
 			FUN_1007ebd1(p_offset[0], p_offset[1], p_offset[2], sound, g_unk0x100a2420);
 		}
 
-		if (p_player->m_unk0x84 != p_player->m_unk0x88) {
-			g_unk0x10181970[id] = p_player->m_unk0x84;
+		if (p_player->m_motionState != p_player->m_nextMotionState) {
+			g_unk0x10181970[id] = p_player->m_motionState;
 		}
 		else {
 			g_unk0x10181970[id] = -2;
@@ -153,9 +153,9 @@ void FUN_10003a10(Player* p_player)
 	MechS32 id;
 
 	id = p_player->m_index;
-	p_player->m_unk0x8c = 0;
-	p_player->m_unk0x88 = -1;
-	p_player->m_unk0x84 = -1;
+	p_player->m_speedLevel = 0;
+	p_player->m_nextMotionState = -1;
+	p_player->m_motionState = -1;
 	p_player->m_unk0x80 |= 0x10;
 	g_unk0x10181970[id] = -2;
 }

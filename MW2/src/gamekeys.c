@@ -178,7 +178,7 @@ void HandleCheatInput(MechS16 p_key)
 		}
 	}
 	else if (FUN_1005b807("|vc}shv")) { // "flygirl"
-		g_localSteering.m_unk0x44 = 1;
+		g_localSteering.m_grantJumpJets = 1;
 		ShowInGameMessage("Jumpjets", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("|hutn")) { // "front"
@@ -667,7 +667,7 @@ void FUN_1005c78a(MechS32 p_key)
 		g_unk0x100aa2a0 = 1;
 		break;
 	case 0x12:
-		g_localSteering.m_unk0x3a = 1;
+		g_localSteering.m_inspectTarget = 1;
 		break;
 	case 0x13:
 		if (!g_unk0x100a5f18) {
@@ -700,34 +700,34 @@ void FUN_1005c78a(MechS32 p_key)
 		step = p_key - 0x1a;
 		break;
 	case 0x24:
-		g_localSteering.m_unk0x3c = 1;
+		g_localSteering.m_advanceGamething = 1;
 		break;
 	case 0x25:
-		g_localSteering.m_unk0x3d = 1;
+		g_localSteering.m_previousGamething = 1;
 		break;
 	case 0x26:
-		g_localSteering.m_unk0x3e = 1;
+		g_localSteering.m_resetGamething = 1;
 		break;
 	case 0x27:
 		FUN_1005f284();
 		break;
 	case 0x28:
-		g_localSteering.m_unk0x30 = 1;
+		g_localSteering.m_advanceNav = 1;
 		break;
 	case 0x29:
-		g_localSteering.m_unk0x31 = 1;
+		g_localSteering.m_previousNav = 1;
 		break;
 	case 0x2a:
-		g_localSteering.m_unk0x32 = 1;
+		g_localSteering.m_resetNav = 1;
 		break;
 	case 0x2b:
-		g_localSteering.m_unk0x3f = 1;
+		g_localSteering.m_advanceGamepiece = 1;
 		break;
 	case 0x2c:
-		g_localSteering.m_unk0x40 = 1;
+		g_localSteering.m_previousGamepiece = 1;
 		break;
 	case 0x2d:
-		g_localSteering.m_unk0x41 = 1;
+		g_localSteering.m_resetGamepiece = 1;
 		break;
 	case 0x2e:
 		FUN_1003ee26();
@@ -825,7 +825,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0x3d:
-		if (mech->m_unk0xa0 == 3) {
+		if (mech->m_powerState == 3) {
 			g_unk0x100a2c08 = 1;
 		}
 		else {
@@ -833,11 +833,11 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0x3e:
-		if (mech->m_unk0xa0 == 3) {
+		if (mech->m_powerState == 3) {
 			g_unk0x100a2c08 = 1;
 		}
 		else {
-			if (mech->m_unk0xa0 == 7) {
+			if (mech->m_powerState == 7) {
 				break;
 			}
 
@@ -845,11 +845,11 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0x3f:
-		if (!g_localSteering.m_unk0x2f) {
-			g_localSteering.m_unk0x2f = 1;
+		if (!g_localSteering.m_reverse) {
+			g_localSteering.m_reverse = 1;
 		}
 		else {
-			g_localSteering.m_unk0x2f = 0;
+			g_localSteering.m_reverse = 0;
 		}
 		break;
 	case 0x40:
@@ -878,34 +878,34 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0x4a:
-		g_localSteering.m_unk0x42 = 1;
+		g_localSteering.m_autopilot = 1;
 		break;
 	case 0x4b:
-		g_localSteering.m_unk0x2c = 1;
+		g_localSteering.m_toggleGroupFire = 1;
 		break;
 	case 0x4c:
-		g_localSteering.m_unk0x33 = 1;
+		g_localSteering.m_advanceTarget = 1;
 		break;
 	case 0x4d:
-		g_localSteering.m_unk0x34 = 1;
+		g_localSteering.m_previousTarget = 1;
 		break;
 	case 0x4e:
-		g_localSteering.m_unk0x35 = 1;
+		g_localSteering.m_resetTarget = 1;
 		break;
 	case 0x50:
-		g_localSteering.m_unk0x38 = 1;
+		g_localSteering.m_nearestEnemy = 1;
 		break;
 	case 0x53:
-		g_localSteering.m_unk0x39 = 1;
+		g_localSteering.m_targetLastShot = 1;
 		break;
 	case 0x51:
-		g_localSteering.m_unk0x37 = 1;
+		g_localSteering.m_targetFriendly = 1;
 		break;
 	case 0x54:
 		g_localSteering.m_unk0x3b = 1;
 		break;
 	case 0x52:
-		g_localSteering.m_unk0x36 = 1;
+		g_localSteering.m_targetReticle = 1;
 		break;
 	case 0x55:
 		g_unk0x100ae37c = 1;
@@ -914,11 +914,11 @@ void FUN_1005c78a(MechS32 p_key)
 		g_unk0x100a2bec = 1;
 		break;
 	case 0x57:
-		g_localSteering.m_unk0x43 = 1;
+		g_localSteering.m_selfDestruct = 1;
 		break;
 	case 0x1:
-		g_localSteering.m_unk0x18 = 1;
-		g_localSteering.m_unk0x1c = 1;
+		g_localSteering.m_torsoTiltReset = 1;
+		g_localSteering.m_torsoPanReset = 1;
 		g_sinkPilotTiltReset = 1;
 		g_sinkPilotPanReset = 1;
 		g_sinkEyepointTiltReset = 1;
@@ -937,19 +937,19 @@ void FUN_1005c78a(MechS32 p_key)
 		FUN_10045b56(2);
 		break;
 	case 0x9a:
-		g_localSteering.m_unk0x2b = 1;
+		g_localSteering.m_weaponCycleGroup = 1;
 		break;
 	case 0x9b:
-		g_localSteering.m_unk0x27 = 1;
+		g_localSteering.m_weaponFireGroup = 1;
 		break;
 	case 0x9c:
-		g_localSteering.m_unk0x28 = 1;
+		g_localSteering.m_weaponFireGroup1 = 1;
 		break;
 	case 0x9d:
-		g_localSteering.m_unk0x29 = 1;
+		g_localSteering.m_weaponFireGroup2 = 1;
 		break;
 	case 0x9e:
-		g_localSteering.m_unk0x2a = 1;
+		g_localSteering.m_weaponFireGroup3 = 1;
 		break;
 	case 0x92:
 		if (!g_unk0x100aa2b0) {
@@ -989,6 +989,6 @@ void FUN_1005c78a(MechS32 p_key)
 
 	if (step != -1) {
 		g_localSteering.m_throttle = step * 113;
-		g_localSteering.m_unk0x24 = 1;
+		g_localSteering.m_throttleSet = 1;
 	}
 }

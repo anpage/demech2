@@ -363,7 +363,7 @@ void UpdateShot(MechS32 p_index)
 				PlayPlayerHitFeedback(velX, velY, velZ);
 			}
 
-			FUN_10054b50(shot->m_shooter, victim);
+			RecordAttack(shot->m_shooter, victim);
 		}
 		else if (surface & 0x200) {
 			shot->m_impact |= c_impactThing;
@@ -947,7 +947,7 @@ void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 
 		player = g_players[i];
 		mech = player->m_mech;
-		if (mech->m_unk0x10c & 0x100) {
+		if (mech->m_flags & 0x100) {
 			continue;
 		}
 
@@ -957,7 +957,7 @@ void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 		reach = mech->m_radius + p_radius;
 		if (ApproximateVectorLength(dx, dy, dz) < reach) {
 			damage = p_rate * g_deltaTime;
-			if (mech->m_unk0xa0 == 4) {
+			if (mech->m_powerState == 4) {
 				damage <<= 1;
 			}
 

@@ -1,7 +1,7 @@
 #ifndef MANEUVERS_H
 #define MANEUVERS_H
 
-#include "silverbrook.h"
+#include "maneuvertable.h"
 #include "types.h"
 
 struct Ray;
@@ -11,6 +11,24 @@ struct Player;
 struct Shape;
 struct WeaponSlot;
 
+// The maneuvers an AI player makes in the attack state (Player::m_maneuver), by the names the AI's
+// log gives them (g_aiBehaviorNames).
+enum {
+	c_maneuverStupid = 0,  // walk at the target
+	c_maneuverBehind = 1,  // take a place around the goal player (ChooseFlankPlace)
+	c_maneuverAchick = 2,  // close in
+	c_maneuverAsrp = 3,    // close in, weaving
+	c_maneuverAjmpin = 4,  // jump until above the target
+	c_maneuverAdfa = 5,    // jump at the target: death from above
+	c_maneuverKama = 6,    // run at the target and self-destruct
+	c_maneuverWchick = 7,  // move to a point to its side, facing the goal
+	c_maneuverWbackp = 8,  // back off
+	c_maneuverWpeek = 9,   // jump up, fire and come down
+	c_maneuverAvoid = 10,  // back away from what it is stuck on
+	c_maneuverSprint = 11, // jump aside, dodging a shot (DodgeShot)
+	c_maneuverCircle = 12  // circle the goal
+};
+
 // The functions and globals of maneuvers.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -18,15 +36,15 @@ extern "C"
 #endif
 
 	extern MechS32 g_unk0x100a2bdc;
-	extern MechS32 g_unk0x100a2be0;
-	void FUN_10013430(struct Player* p_player, MechU16 p_target);
-	void FUN_100139e9(struct Player* p_player);
-	MechS32 FUN_10013d81(struct Player* p_player);
-	MechS16 FUN_100140e4(SilverBrook0x08* p_table, MechS16 p_id);
-	void FUN_10014149(struct Player* p_player);
-	void FUN_1001450e(struct Player* p_player);
-	void FUN_10014723(struct Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS16 p_unk0x0c);
-	void FUN_100147d0(
+	extern MechS32 g_slideSlope;
+	void RunManeuver(struct Player* p_player, MechU16 p_target);
+	void InitializeManeuvers(struct Player* p_player);
+	MechS32 ChooseManeuver(struct Player* p_player);
+	MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id);
+	void StartManeuver(struct Player* p_player);
+	void EndManeuver(struct Player* p_player);
+	void PlaceOffsetNav(struct Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS16 p_unk0x0c);
+	void GetOffsetPoint(
 		MechU32 p_unk0x00,
 		MechS16 p_unk0x04,
 		MechS32* p_x,
@@ -34,25 +52,25 @@ extern "C"
 		MechS32* p_y,
 		MechS16 p_unk0x14
 	);
-	MechS32 FUN_1001498c(struct Player* p_player, MechS32 p_turn);
-	void FUN_100149e7(struct Player* p_player, MechS16 p_target);
-	void FUN_10014aa8(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10014c3d(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10014d4e(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10014df1(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10014e5e(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10014f23(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_100150c1(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_1001512e(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10015172(struct Player* p_player, MechS16 p_target);
-	void FUN_10015342(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_100153e6(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10015520(struct Player* p_player);
-	MechS32 FUN_100155e1(struct Player* p_player);
-	void FUN_100156f2(struct Player* p_player, MechS8 p_value);
-	MechS32 FUN_10015709(struct Player* p_player);
-	MechS32 FUN_10015b40(struct Shape* p_shape);
-	void FUN_10015b9f(
+	MechS32 IsSharpTurn(struct Player* p_player, MechS32 p_turn);
+	void ManeuverStupid(struct Player* p_player, MechS16 p_target);
+	void ManeuverBehind(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverAchick(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverKama(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverWbackp(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverWchick(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverWpeek(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverAjmpin(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverSprint(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverAdfa(struct Player* p_player, MechS16 p_target);
+	void ManeuverAvoid(struct Player* p_player, MechS16 p_target);
+	MechS32 ManeuverCircle(struct Player* p_player, MechS16 p_target);
+	MechS32 IsBelowHiddenTarget(struct Player* p_player);
+	MechS32 BrakeFall(struct Player* p_player);
+	void SetJumpJets(struct Player* p_player, MechS8 p_value);
+	MechS32 AvoidObstacles(struct Player* p_player);
+	MechS32 IsStandableShape(struct Shape* p_shape);
+	void BuildProbeRay(
 		struct Player* p_player,
 		struct Ray* p_ray,
 		MechS32 p_side,
@@ -60,19 +78,19 @@ extern "C"
 		MechS32 p_length,
 		MechS32 p_fromEdge
 	);
-	MechS16 FUN_10015d2a(struct Player* p_player, struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10015dd6(struct Player* p_player, MechS16 p_target);
-	MechS32 FUN_10015e34(MechS32 p_value, MechS32 p_limit);
-	MechS32 FUN_10015e74(struct Player* p_player, MechS32 p_y);
-	MechS32 FUN_10015fa8(struct Mech* p_mech);
-	void FUN_10016057(struct Player* p_player, MechS16 p_value);
-	MechS32 FUN_10016093(struct Player* p_player);
-	void FUN_100160eb(struct Player* p_player);
-	MechS32 FUN_10016222(struct Player* p_player, MechS32 p_limit);
-	struct Shape* FUN_1001627f(MechS16 p_target);
-	void FUN_1001632c(struct WeaponSlot* p_slot, struct Mech* p_mech);
-	MechS16 FUN_100166b1(struct Player* p_player);
-	MechS32 FUN_10016880(struct Mech* p_mech);
+	MechS16 GetAvoidSide(struct Player* p_player, struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 GetHeadingTo(struct Player* p_player, MechS16 p_target);
+	MechS32 ClampMagnitude(MechS32 p_value, MechS32 p_limit);
+	MechS32 HasLineToTarget(struct Player* p_player, MechS32 p_y);
+	MechS32 IsOutOfAmmo(struct Mech* p_mech);
+	void SetJumpDirection(struct Player* p_player, MechS16 p_value);
+	MechS32 GetClosingRate(struct Player* p_player);
+	void JumpToTurn(struct Player* p_player);
+	MechS32 CanJump(struct Player* p_player, MechS32 p_limit);
+	struct Shape* GetTargetShape(MechS16 p_target);
+	void DodgeShot(struct WeaponSlot* p_slot, struct Mech* p_mech);
+	MechS16 ChooseFlankPlace(struct Player* p_player);
+	MechS32 IsStuck(struct Mech* p_mech);
 
 #ifdef __cplusplus
 }

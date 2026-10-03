@@ -19,23 +19,35 @@ struct Shape;
 typedef struct Player Player;
 
 typedef void (*PlayerMechFn)(Mech* p_mech);
+
+// The player types (Player::m_type): the gpspec's GP_MW2… names (g_playerTypeNames).
+enum {
+	c_playerTypeNull = 0,
+	c_playerTypeMech = 1,
+	c_playerTypeTruck = 2,
+	c_playerTypeArtillery = 3,
+	c_playerTypeTank = 4,
+	c_playerTypeHelicopter = 5,
+	c_playerTypeWanderer = 6,
+	c_playerTypeDoor = 7
+};
 typedef MechS32 (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 #pragma pack(push, 1)
 
 // SIZE 0x1aa
 struct Player {
-	MechS32 m_unk0x00;                        // 0x00
+	MechS32 m_type;                           // 0x00 — c_playerType…
 	MechS32 m_index;                          // 0x04
 	MechS32 m_team;                           // 0x08
 	MechS32 m_slot;                           // 0x0c — the player's place in its team's formation
-	MechS32 m_unk0x10;                        // 0x10 — 2 for an AI-driven player
+	MechS32 m_aiMode;                         // 0x10 — the gpspec's ai: 0 the user, 2 the AI drives it
 	MechS16 m_flags;                          // 0x14
-	MechS16 m_unk0x16;                        // 0x16 — a bit per team that reached it
+	MechS16 m_inspectedBy;                    // 0x16 — a bit per team that inspected it (m_inspectTarget)
 	MechS32 m_unk0x18;                        // 0x18 — a level of FUN_1001ce90's shapes
 	MechS32 m_unk0x1c;                        // 0x1c
 	Mech* m_mech;                             // 0x20
-	undefined4 m_unk0x24;                     // 0x24
+	undefined4 m_mechSize;                    // 0x24 — sizeof(Mech) for the types that have one
 	void (*m_firstClassFn)(Player* p_player); // 0x28
 	PlayerMechFn m_updateFn;                  // 0x2c
 	PlayerMechFn m_lateUpdateFn;              // 0x30
@@ -43,72 +55,72 @@ struct Player {
 	PlayerMechFn m_drawFn;                    // 0x38
 	PlayerMechFn m_shutdownFn;                // 0x3c
 	struct SceneObject* m_obj;                // 0x40
-	struct SceneObject* m_unk0x44;            // 0x44 — the object the weapons aim from
-	struct SceneObject* m_unk0x48;            // 0x48 — the hardpoint of the weapon firing
-	PlayerSteering* m_steering;               // 0x4c
-	Vector3 m_position;                       // 0x50
-	MechS32 m_unk0x5c;                        // 0x5c
-	MechS32 m_heading;                        // 0x60 — 16.16 degrees
-	MechS32 m_unk0x64;                        // 0x64
-	MechS32 m_unk0x68;                        // 0x68
-	MechS32 m_unk0x6c;                        // 0x6c — added to the heading for the forward view
-	MechS32 m_unk0x70;                        // 0x70
-	MechS32 m_unk0x74;                        // 0x74
-	MechS32 m_unk0x78;                        // 0x78
-	MechS32 m_unk0x7c;                        // 0x7c — a player index, or -1
-	MechU32 m_unk0x80;                        // 0x80
-	MechS32 m_unk0x84;                        // 0x84
-	MechS32 m_unk0x88;                        // 0x88
-	MechS32 m_unk0x8c;                        // 0x8c
-	MechS32 m_unk0x90;                        // 0x90
-	MechS32 m_unk0x94;                        // 0x94
-	Ramp m_aimRange;                          // 0x98 — eases towards m_unk0xa8's distance
-	Ramp m_unk0xa8;                           // 0xa8 — the distance the weapons converge at
-	MechS32 m_unk0xb8;                        // 0xb8 — the heading's cosine, 16.16 (FUN_1006831a)
-	MechS32 m_unk0xbc;                        // 0xbc — the heading's sine, 16.16
-	PlayerTargetInfo m_targetInfo;            // 0xc0
-	MechChar m_name[0xfe - 0xe8];             // 0xe8
-	MechChar m_unk0xfe[0x114 - 0xfe];         // 0xfe — a short name, for the target panel
-	MechS32 m_killer;                         // 0x114 — the player who destroyed its mech
-	AiRule** m_rules;                         // 0x118 — the rules of the current state, NULL-terminated
-	MechU16* m_ruleSets[3];                   // 0x11c — AI scripts, by priority
-	AiStackEntry m_stack[1];                  // 0x128 — T_PUSH saves the state and goal here
-	undefined m_unk0x12c[0x130 - 0x12c];      // 0x12c
-	MechU16 m_unk0x130[8];                    // 0x130 — the gpspec record's (BwdExecuteStream)
-	MechU16 m_stackCount;                     // 0x140
-	undefined2 m_unk0x142;                    // 0x142
-	PlayerAi m_ai;                            // 0x144
-	MechS32 m_unk0x154;                       // 0x154
-	MechS8 m_unk0x158;                        // 0x158
-	MechS8 m_unk0x159;                        // 0x159
-	MechS32 m_unk0x15a;                       // 0x15a
-	MechS32 m_unk0x15e;                       // 0x15e
-	MechS32 m_unk0x162;                       // 0x162
-	MechS32 m_unk0x166;                       // 0x166
-	MechS32 m_nav;                            // 0x16a — a nav target id the AI placed, or 0x1000
-	MechS16 m_unk0x16e;                       // 0x16e
-	MechS16 m_unk0x170;                       // 0x170
-	MechS16 m_unk0x172;                       // 0x172 — the previous maneuver, or -1
-	MechS32 m_unk0x174;                       // 0x174
-	MechS32 m_unk0x178;                       // 0x178
-	MechS32 m_unk0x17c;                       // 0x17c — a clock time
-	MechS32 m_unk0x180;                       // 0x180
-	MechS32 m_unk0x184;                       // 0x184
-	struct Shape* m_unk0x188;                 // 0x188 — a shape
-	MechS32 m_unk0x18c;                       // 0x18c
-	MechS16 m_unk0x190;                       // 0x190
-	MechS32 m_unk0x192;                       // 0x192
-	MechS32 m_unk0x196;                       // 0x196
-	MechS32 m_unk0x19a;                       // 0x19a — the target distance at the last FUN_10016093
-	MechU32 m_skillFlag0 : 1;                 // 0x19e — the maneuvers its skill allows (FUN_100139e9)
-	MechU32 m_skillFlag1 : 1;                 // 0x19e
-	MechU32 m_skillFlag2 : 1;                 // 0x19e
-	MechU32 m_skillFlag3 : 1;                 // 0x19e
-	MechU32 m_skillFlag4 : 1;                 // 0x19e
-	MechU32 m_skillFlag5 : 1;                 // 0x19e
-	MechU32 m_skillFlag6 : 1;                 // 0x19e
-	MechU32 m_skillFlagsUnused : 25;          // 0x19e
-	MechS8 m_unk0x1a2[8];                     // 0x1a2 — the formation places around it that are taken
+	struct SceneObject* m_eyeObj;        // 0x44 — the world stream's eye object: the cockpit view and the weapons' aim
+	struct SceneObject* m_firingObj;     // 0x48 — the hardpoint of the weapon firing
+	PlayerSteering* m_steering;          // 0x4c
+	Vector3 m_position;                  // 0x50
+	MechS32 m_pitch;                     // 0x5c — 16.16 degrees, about x
+	MechS32 m_heading;                   // 0x60 — 16.16 degrees, about y
+	MechS32 m_roll;                      // 0x64 — 16.16 degrees, about z
+	MechS32 m_torsoPitch;                // 0x68 — the torso object's rotation, relative to m_obj
+	MechS32 m_torsoTwist;                // 0x6c — added to the heading for the forward view
+	MechS32 m_torsoRoll;                 // 0x70
+	MechS32 m_groundHeight;              // 0x74 — the terrain's under the mech
+	MechS32 m_onGround;                  // 0x78
+	MechS32 m_collidedWith;              // 0x7c — the player its mech ran into this tick, or -1
+	MechU32 m_unk0x80;                   // 0x80 — 0x4 airborne, 0x8 m_pendingSound is to play
+	MechS32 m_motionState;               // 0x84 — the animation state it reached, whose sound plays (gpanim.c)
+	MechS32 m_nextMotionState;           // 0x88 — the one it wants: 0 moving, 1 at full throttle, 2 reversing, or -1
+	MechS32 m_speedLevel;                // 0x8c — 0 to 3, from the throttle
+	MechS32 m_pendingSound;              // 0x90 — a sound to play once, or -1
+	MechS32 m_animRate;                  // 0x94
+	Ramp m_aimRange;                     // 0x98 — eases towards m_aimDistance's
+	Ramp m_aimDistance;                  // 0xa8 — the distance the weapons converge at
+	MechS32 m_headingCos;                // 0xb8 — 16.16 (FUN_1006831a)
+	MechS32 m_headingSin;                // 0xbc — 16.16
+	PlayerTargetInfo m_targetInfo;       // 0xc0
+	MechChar m_name[0xfe - 0xe8];        // 0xe8
+	MechChar m_shortName[0x114 - 0xfe];  // 0xfe — for the target panel
+	MechS32 m_killer;                    // 0x114 — the player who destroyed its mech
+	AiRule** m_rules;                    // 0x118 — the rules of the current state, NULL-terminated
+	MechU16* m_ruleSets[3];              // 0x11c — AI scripts, by priority
+	AiStackEntry m_stack[1];             // 0x128 — T_PUSH saves the state and goal here
+	undefined m_unk0x12c[0x130 - 0x12c]; // 0x12c
+	MechU16 m_aiParams[8];               // 0x130 — the gpspec record's (BwdExecuteStream)
+	MechU16 m_stackCount;                // 0x140
+	undefined2 m_unk0x142;               // 0x142
+	PlayerAi m_ai;                       // 0x144
+	MechS32 m_mayEngage;                 // 0x154 — it may be sent to attack; the attack order toggles it
+	MechS8 m_gunnery;                    // 0x158 — lower is better: it fires on one roll in m_gunnery
+	MechS8 m_piloting;                   // 0x159 — 1 (best) to 4: the maneuvers it may make
+	MechS32 m_nextFireTime;              // 0x15a — the clock when it next rolls to fire
+	MechS32 m_unk0x15e;                  // 0x15e — m_aiParams[2] * 100, a M_TGTABLE range
+	MechS32 m_unk0x162;                  // 0x162 — m_aiParams[3] * 100, a M_DIST and M_TGTABLE range
+	MechS32 m_unk0x166;                  // 0x166 — m_aiParams[1] * 100, a M_DIST range
+	MechS32 m_nav;                       // 0x16a — a nav target id the AI placed, or 0x1000
+	MechS16 m_unk0x16e;                  // 0x16e — a clock time (FUN_10052cb7)
+	MechS16 m_maneuver;                  // 0x170 — c_maneuver…, or -1
+	MechS16 m_lastManeuver;              // 0x172 — the previous maneuver, or -1
+	MechS32 m_nextManeuver;              // 0x174 — one asked for (0 none), or -2 to flee
+	MechS32 m_maneuverEnd;               // 0x178 — the clock when the maneuver ends, or 0
+	MechS32 m_maneuverTimer;             // 0x17c — a clock time each maneuver sets its own way
+	MechS32 m_maneuverParam;             // 0x180 — each maneuver's own: a place, side, step or count
+	MechS32 m_maneuverFlag;              // 0x184 — each maneuver's own
+	struct Shape* m_avoidShape;          // 0x188 — the shape AvoidObstacles steers around
+	MechS32 m_nextAvoidCheck;            // 0x18c — the clock when AvoidObstacles next probes
+	MechS16 m_avoidSide;                 // 0x190 — 1 or -1 while avoiding, else 0
+	MechS32 m_probeScale;                // 0x192 — 16.16, the probe rays' length from the speed
+	MechS32 m_controlsJets;              // 0x196 — the maneuver works the jump jets itself
+	MechS32 m_lastTargetDistance;        // 0x19a — at the last GetClosingRate
+	MechU32 m_skillFlag0 : 1;            // 0x19e — the maneuvers its piloting allows (InitializeManeuvers)
+	MechU32 m_skillFlag1 : 1;            // 0x19e
+	MechU32 m_skillFlag2 : 1;            // 0x19e
+	MechU32 m_skillFlag3 : 1;            // 0x19e
+	MechU32 m_skillFlag4 : 1;            // 0x19e
+	MechU32 m_skillFlag5 : 1;            // 0x19e
+	MechU32 m_skillFlag6 : 1;            // 0x19e
+	MechU32 m_skillFlagsUnused : 25;     // 0x19e
+	MechS8 m_placesTaken[8];             // 0x1a2 — the places around it (ChooseFlankPlace) that are taken
 };
 
 #pragma pack(pop)

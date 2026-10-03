@@ -482,42 +482,42 @@ void FUN_1000ebad(void)
 	g_stateMsg->m_x = player->m_position.m_x;
 	g_stateMsg->m_y = player->m_position.m_y;
 	g_stateMsg->m_z = player->m_position.m_z;
-	g_stateMsg->m_unk0x65 = player->m_unk0x5c;
+	g_stateMsg->m_unk0x65 = player->m_pitch;
 	g_stateMsg->m_heading = player->m_heading;
-	g_stateMsg->m_unk0x6d = player->m_unk0x64;
-	g_stateMsg->m_mechUnk0x2c = mech->m_unk0x24.m_value;
-	g_stateMsg->m_mechUnk0x4c = mech->m_unk0x44.m_value;
-	g_stateMsg->m_mechUnk0x38 = mech->m_unk0x34.m_target;
-	g_stateMsg->m_mechUnk0x08 = mech->m_unk0x04.m_target;
-	g_stateMsg->m_mechUnk0x18 = mech->m_unk0x14.m_target;
-	g_stateMsg->m_flags |= mech->m_unk0xa0 & 0xf;
-	if (mech->m_unk0x10c & 0x80) {
+	g_stateMsg->m_unk0x6d = player->m_roll;
+	g_stateMsg->m_mechUnk0x2c = mech->m_speed.m_value;
+	g_stateMsg->m_mechUnk0x4c = mech->m_throttle.m_value;
+	g_stateMsg->m_mechUnk0x38 = mech->m_turnRate.m_target;
+	g_stateMsg->m_mechUnk0x08 = mech->m_torsoTwist.m_target;
+	g_stateMsg->m_mechUnk0x18 = mech->m_torsoPitch.m_target;
+	g_stateMsg->m_flags |= mech->m_powerState & 0xf;
+	if (mech->m_flags & 0x80) {
 		g_stateMsg->m_flags |= 0x800;
 	}
 
-	if (mech->m_player->m_steering->m_unk0x2f) {
+	if (mech->m_player->m_steering->m_reverse) {
 		g_stateMsg->m_flags |= 0x10;
 	}
 
-	if (mech->m_unk0xc0 > 0 && mech->m_unk0xa0 == 2) {
+	if (mech->m_jumpFuel > 0 && mech->m_powerState == 2) {
 		steering = mech->m_player->m_steering;
-		if (steering->m_unk0x1d) {
+		if (steering->m_jumpJetEnabled) {
 			g_stateMsg->m_flags |= 0x20;
 		}
 
-		if (steering->m_unk0x1e) {
+		if (steering->m_jumpJetFireLeft) {
 			g_stateMsg->m_flags |= 0x40;
 		}
 
-		if (steering->m_unk0x1f) {
+		if (steering->m_jumpJetFireRight) {
 			g_stateMsg->m_flags |= 0x80;
 		}
 
-		if (steering->m_unk0x20) {
+		if (steering->m_jumpJetFireForward) {
 			g_stateMsg->m_flags |= 0x100;
 		}
 
-		if (steering->m_unk0x21) {
+		if (steering->m_jumpJetFireBackward) {
 			g_stateMsg->m_flags |= 0x200;
 		}
 	}
@@ -656,67 +656,67 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	player->m_position.m_x = msg->m_x;
 	player->m_position.m_y = msg->m_y;
 	player->m_position.m_z = msg->m_z;
-	player->m_unk0x5c = msg->m_unk0x65;
+	player->m_pitch = msg->m_unk0x65;
 	player->m_heading = msg->m_heading;
-	player->m_unk0x64 = msg->m_unk0x6d;
+	player->m_roll = msg->m_unk0x6d;
 	SetObjPosition(player->m_obj, player->m_position.m_x, player->m_position.m_y, player->m_position.m_z);
-	SetObjRotation(player->m_obj, player->m_unk0x5c, player->m_heading, player->m_unk0x64, 0);
+	SetObjRotation(player->m_obj, player->m_pitch, player->m_heading, player->m_roll, 0);
 	UpdateObj(player->m_obj);
-	mech->m_unk0x24.m_value = msg->m_mechUnk0x2c;
-	mech->m_unk0x24.m_target = msg->m_mechUnk0x2c;
-	mech->m_unk0x44.m_value = msg->m_mechUnk0x4c;
-	mech->m_unk0x44.m_target = msg->m_mechUnk0x4c;
-	mech->m_unk0x34.m_target = msg->m_mechUnk0x38;
-	mech->m_unk0x04.m_target = msg->m_mechUnk0x08;
-	mech->m_unk0x14.m_target = msg->m_mechUnk0x18;
-	mech->m_unk0xa0 = msg->m_flags & 0xf;
+	mech->m_speed.m_value = msg->m_mechUnk0x2c;
+	mech->m_speed.m_target = msg->m_mechUnk0x2c;
+	mech->m_throttle.m_value = msg->m_mechUnk0x4c;
+	mech->m_throttle.m_target = msg->m_mechUnk0x4c;
+	mech->m_turnRate.m_target = msg->m_mechUnk0x38;
+	mech->m_torsoTwist.m_target = msg->m_mechUnk0x08;
+	mech->m_torsoPitch.m_target = msg->m_mechUnk0x18;
+	mech->m_powerState = msg->m_flags & 0xf;
 	if (msg->m_flags & 0x800) {
-		mech->m_unk0x10c |= 0x80;
+		mech->m_flags |= 0x80;
 	}
 	else {
-		mech->m_unk0x10c &= ~0x80;
+		mech->m_flags &= ~0x80;
 	}
 
 	if (msg->m_flags & 0x10) {
-		mech->m_player->m_steering->m_unk0x2f = 1;
+		mech->m_player->m_steering->m_reverse = 1;
 	}
 	else {
-		mech->m_player->m_steering->m_unk0x2f = 0;
+		mech->m_player->m_steering->m_reverse = 0;
 	}
 
 	if (msg->m_flags & 0x20) {
-		mech->m_player->m_steering->m_unk0x1d = 1;
+		mech->m_player->m_steering->m_jumpJetEnabled = 1;
 	}
 	else {
-		mech->m_player->m_steering->m_unk0x1d = 0;
+		mech->m_player->m_steering->m_jumpJetEnabled = 0;
 	}
 
 	if (msg->m_flags & 0x40) {
-		mech->m_player->m_steering->m_unk0x1e = 1;
+		mech->m_player->m_steering->m_jumpJetFireLeft = 1;
 	}
 	else {
-		mech->m_player->m_steering->m_unk0x1e = 0;
+		mech->m_player->m_steering->m_jumpJetFireLeft = 0;
 	}
 
 	if (msg->m_flags & 0x80) {
-		mech->m_player->m_steering->m_unk0x1f = 1;
+		mech->m_player->m_steering->m_jumpJetFireRight = 1;
 	}
 	else {
-		mech->m_player->m_steering->m_unk0x1f = 0;
+		mech->m_player->m_steering->m_jumpJetFireRight = 0;
 	}
 
 	if (msg->m_flags & 0x100) {
-		mech->m_player->m_steering->m_unk0x20 = 1;
+		mech->m_player->m_steering->m_jumpJetFireForward = 1;
 	}
 	else {
-		mech->m_player->m_steering->m_unk0x20 = 0;
+		mech->m_player->m_steering->m_jumpJetFireForward = 0;
 	}
 
 	if (msg->m_flags & 0x200) {
-		mech->m_player->m_steering->m_unk0x21 = 1;
+		mech->m_player->m_steering->m_jumpJetFireBackward = 1;
 	}
 	else {
-		mech->m_player->m_steering->m_unk0x21 = 0;
+		mech->m_player->m_steering->m_jumpJetFireBackward = 0;
 	}
 
 	for (i = 0; i < 8; i++) {
@@ -765,7 +765,7 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 		}
 	}
 
-	if (mech->m_unk0xa0 == 4 || mech->m_unk0xa0 == 5) {
+	if (mech->m_powerState == 4 || mech->m_powerState == 5) {
 		if (g_playerDestroyed[player->m_index] != 1) {
 			FUN_1000832b(player->m_killer, mech);
 			if (player->m_killer >= 0 && player->m_killer < 8) {
@@ -860,9 +860,9 @@ void FUN_1000faef(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	msg->m_normalY = -p_y;
 	msg->m_normalZ = -p_z;
 	mech = g_players[g_localPlayerId]->m_mech;
-	msg->m_unk0x0e = mech->m_unk0x100;
-	msg->m_unk0x12 = mech->m_unk0x104;
-	msg->m_unk0x16 = mech->m_unk0x108;
+	msg->m_unk0x0e = mech->m_newVelocityX;
+	msg->m_unk0x12 = mech->m_newVelocityY;
+	msg->m_unk0x16 = mech->m_newVelocityZ;
 	NetSendTo(g_netLaunch->m_playerIds[p_slot], msg, sizeof(NetCollisionMsg));
 }
 
@@ -883,10 +883,10 @@ void FUN_1000fb8f(NetCollisionMsg* p_msg, MechS32 p_slot)
 	g_segmentNormalX = msg->m_normalX;
 	g_segmentNormalY = msg->m_normalY;
 	g_segmentNormalZ = msg->m_normalZ;
-	mech->m_unk0x100 = msg->m_unk0x0e;
-	mech->m_unk0x104 = msg->m_unk0x12;
-	mech->m_unk0x108 = msg->m_unk0x16;
-	volume = ApproximateVectorLength(mech->m_unk0x100, mech->m_unk0x104, mech->m_unk0x108);
+	mech->m_newVelocityX = msg->m_unk0x0e;
+	mech->m_newVelocityY = msg->m_unk0x12;
+	mech->m_newVelocityZ = msg->m_unk0x16;
+	volume = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
 	if (volume > 1500000) {
 		volume = 1500000;
 	}

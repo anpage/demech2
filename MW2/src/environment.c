@@ -194,7 +194,7 @@ void FUN_1007d931(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
-		mech->m_unk0x9c <<= 2;
+		mech->m_cooling <<= 2;
 	}
 }
 
@@ -207,6 +207,6 @@ void FUN_1007d97c(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
-		mech->m_unk0x9c >>= 2;
+		mech->m_cooling >>= 2;
 	}
 }

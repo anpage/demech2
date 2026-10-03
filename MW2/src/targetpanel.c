@@ -108,7 +108,7 @@ void FUN_1007b930(CockpitPanel* p_panel)
 			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x200:
-			p_panel->m_setName(p_panel, g_players[index]->m_unk0xfe);
+			p_panel->m_setName(p_panel, g_players[index]->m_shortName);
 			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		default:

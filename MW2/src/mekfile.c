@@ -137,7 +137,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		_close(file);
 	}
 
-	p_mech->m_unk0x10c = 0;
+	p_mech->m_flags = 0;
 	if (header->m_weaponCount > 10) {
 		header->m_weaponCount = 10;
 	}
@@ -168,7 +168,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		WriteToMw2Log(text);
 		for (j = 0; j < 12; j++) {
 			if (section->m_slots[j] >= 5000 && section->m_slots[j] < 5050) {
-				p_mech->m_unk0x10c |= 0x10;
+				p_mech->m_flags |= 0x10;
 			}
 
 			sprintf(text, "%3d ", section->m_slots[j]);
@@ -301,8 +301,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		ammo++;
 	}
 
-	p_mech->m_unk0x88 = FixedMul16(header->m_speed, 0x697e98);
-	p_mech->m_unk0xe4 = header->m_tons;
+	p_mech->m_topSpeed = FixedMul16(header->m_speed, 0x697e98);
+	p_mech->m_tons = header->m_tons;
 	p_mech->m_weaponCount = header->m_weaponCount;
 	p_mech->m_ammoBinCount = header->m_ammoCount;
 	heat = 50;
@@ -342,25 +342,25 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		heat *= 0.9;
 	}
 
-	p_mech->m_unk0x9c = header->m_heatSinks * heat;
+	p_mech->m_cooling = header->m_heatSinks * heat;
 	if (header->m_jump == 0) {
-		p_mech->m_unk0xc0 = -2;
-		p_mech->m_unk0xc4 = 0;
-		p_mech->m_unk0xec = 0;
+		p_mech->m_jumpFuel = -2;
+		p_mech->m_jumpJets = 0;
+		p_mech->m_jumpThrust = 0;
 	}
 	else if (header->m_jump < 0) {
-		p_mech->m_unk0xc0 = -1;
-		p_mech->m_unk0xc4 = 0;
-		p_mech->m_unk0xec = 0;
+		p_mech->m_jumpFuel = -1;
+		p_mech->m_jumpJets = 0;
+		p_mech->m_jumpThrust = 0;
 	}
 	else {
-		p_mech->m_unk0xc0 = 0x712;
-		p_mech->m_unk0xc4 = header->m_jump;
+		p_mech->m_jumpFuel = 0x712;
+		p_mech->m_jumpJets = header->m_jump;
 		jumpRatio = FixedDiv16(header->m_jump, header->m_speed);
-		p_mech->m_unk0xec = FixedMul16(0x1e50, jumpRatio);
+		p_mech->m_jumpThrust = FixedMul16(0x1e50, jumpRatio);
 	}
 
-	sprintf(text, "\njet ddy: %ld", p_mech->m_unk0xec);
+	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);
 	WriteToMw2Log(text);
 	if (fromResource) {
 		FUN_1001a163(p_id, g_resourceTypeTags[c_resTagMek]);

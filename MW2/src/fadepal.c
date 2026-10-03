@@ -129,7 +129,7 @@ void FadeToEndPalette(MechS32 p_alternate)
 	}
 }
 
-// Sets off the smoke of a wrecked mech, or now and then a spark while m_unk0x8c runs.
+// Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
 void FUN_1004cb11(Mech* p_mech)
 {
@@ -140,7 +140,7 @@ void FUN_1004cb11(Mech* p_mech)
 	x = p_mech->m_player->m_position.m_x;
 	y = p_mech->m_player->m_position.m_y;
 	z = p_mech->m_player->m_position.m_z;
-	if (!p_mech->m_unk0x8c) {
+	if (!p_mech->m_stateTime) {
 		FUN_1006b152(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
@@ -169,8 +169,8 @@ void FUN_1004cc27(Mech* p_mech)
 
 	FUN_10001926(p_mech->m_player->m_obj);
 	obj = p_mech->m_player->m_obj;
-	upper = p_mech->m_unk0x64;
-	lower = p_mech->m_unk0x60;
+	upper = p_mech->m_pitchObj;
+	lower = p_mech->m_torsoObj;
 	upperIndex = FUN_10004111(upper, 1);
 	FUN_10004218(upperIndex);
 	lowerIndex = FUN_10004111(lower, 1);
@@ -196,25 +196,25 @@ void FUN_1004ccba(Mech* p_mech)
 	jet = 6;
 	if (p_mech->m_objects[jet]) {
 		fired = TRUE;
-		player->m_unk0x48 = p_mech->m_objects[jet];
+		player->m_firingObj = p_mech->m_objects[jet];
 		FUN_1006b1c8(0x19, p_mech->m_player);
-		GetObjPosition(player->m_unk0x48, &x, &y, &z);
+		GetObjPosition(player->m_firingObj, &x, &y, &z);
 	}
 
 	jet = 7;
 	if (p_mech->m_objects[jet]) {
 		fired = TRUE;
-		player->m_unk0x48 = p_mech->m_objects[jet];
+		player->m_firingObj = p_mech->m_objects[jet];
 		FUN_1006b1c8(0x19, p_mech->m_player);
-		GetObjPosition(player->m_unk0x48, &x, &y, &z);
+		GetObjPosition(player->m_firingObj, &x, &y, &z);
 	}
 
 	if (fired) {
 		x -= g_eyepoint->m_unk0x00;
 		y -= g_eyepoint->m_unk0x04;
 		z -= g_eyepoint->m_unk0x08;
-		if (p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0xc0 < 0x1c4 &&
-			p_mech->m_unk0xc0 + g_deltaTime > 0x1c4) {
+		if (p_mech->m_player->m_index == g_localPlayerId && p_mech->m_jumpFuel < 0x1c4 &&
+			p_mech->m_jumpFuel + g_deltaTime > 0x1c4) {
 			FUN_1007eb23(0xde, 100, 0x40, 5, 0x50);
 		}
 		else {
@@ -242,7 +242,7 @@ void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
 
 	FUN_1007ebd1(
 		p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00,
-		p_mech->m_player->m_position.m_y - p_mech->m_unk0xcc - g_eyepoint->m_unk0x04,
+		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_unk0x04,
 		p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08,
 		sound,
 		g_unk0x100a2420

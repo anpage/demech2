@@ -164,7 +164,7 @@ MechS32 FUN_1001ac06(MechU8* p_target, MechS32 p_team)
 	switch (kind) {
 	case 0x200:
 		player = g_players[index];
-		if ((player->m_flags & 0x20) && ((1 << p_team) & player->m_unk0x16)) {
+		if ((player->m_flags & 0x20) && ((1 << p_team) & player->m_inspectedBy)) {
 			reached = TRUE;
 		}
 		break;
@@ -841,7 +841,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 
 // Updates every star's mission each frame: its objectives (FUN_1001b79a), then, while it is in
 // progress, whether it succeeded (every listed objective done), failed or ran out of time; and
-// its current objective, the first whose conditions hold (FUN_100551ad hears of changes).
+// its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
 // FUNCTION: MW2 0x1001c69e
 void UpdateObjectives(void)
 {
@@ -917,7 +917,7 @@ void UpdateObjectives(void)
 
 		if (g_currentObjective[star] != current) {
 			g_currentObjective[star] = current;
-			FUN_100551ad(star);
+			ResetStarOrders(star);
 		}
 	}
 }

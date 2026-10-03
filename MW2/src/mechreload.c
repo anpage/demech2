@@ -57,24 +57,24 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 		return 0;
 	}
 
-	mech->m_unk0x24.m_target = mech->m_unk0x24.m_value = 0;
-	mech->m_unk0x04.m_target = mech->m_unk0x04.m_value = 0;
-	mech->m_unk0x34.m_target = mech->m_unk0x34.m_value = 0;
-	mech->m_unk0x14.m_target = mech->m_unk0x14.m_value = 0;
+	mech->m_speed.m_target = mech->m_speed.m_value = 0;
+	mech->m_torsoTwist.m_target = mech->m_torsoTwist.m_value = 0;
+	mech->m_turnRate.m_target = mech->m_turnRate.m_value = 0;
+	mech->m_torsoPitch.m_target = mech->m_torsoPitch.m_value = 0;
 	mech->m_player->m_steering->m_throttle = 0;
-	mech->m_player->m_steering->m_unk0x24 = 1;
-	mech->m_player->m_steering->m_unk0x1d = 0;
-	mech->m_player->m_steering->m_unk0x1e = 0;
-	mech->m_player->m_steering->m_unk0x1f = 0;
-	mech->m_player->m_steering->m_unk0x20 = 0;
-	mech->m_player->m_steering->m_unk0x21 = 0;
-	mech->m_player->m_steering->m_unk0x25 = 0;
-	mech->m_player->m_steering->m_unk0x26 = 0;
-	mech->m_player->m_steering->m_unk0x2d = 0;
-	mech->m_player->m_steering->m_unk0x2e = 0;
-	mech->m_player->m_steering->m_unk0x2f = 0;
-	mech->m_player->m_steering->m_unk0x30 = 0;
-	mech->m_player->m_steering->m_unk0x42 = 0;
+	mech->m_player->m_steering->m_throttleSet = 1;
+	mech->m_player->m_steering->m_jumpJetEnabled = 0;
+	mech->m_player->m_steering->m_jumpJetFireLeft = 0;
+	mech->m_player->m_steering->m_jumpJetFireRight = 0;
+	mech->m_player->m_steering->m_jumpJetFireForward = 0;
+	mech->m_player->m_steering->m_jumpJetFireBackward = 0;
+	mech->m_player->m_steering->m_weaponFire = 0;
+	mech->m_player->m_steering->m_weaponCycle = 0;
+	mech->m_player->m_steering->m_legsPanMinus = 0;
+	mech->m_player->m_steering->m_legsPanPlus = 0;
+	mech->m_player->m_steering->m_reverse = 0;
+	mech->m_player->m_steering->m_advanceNav = 0;
+	mech->m_player->m_steering->m_autopilot = 0;
 
 	g_reloadingPlayer = p_player;
 	FUN_10019881(mech);

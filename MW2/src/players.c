@@ -18,7 +18,7 @@
 DECOMP_SIZE_ASSERT(GameThing, 0x40)
 DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 
-// The kinds of player a gamepiece record can create, by Player::m_unk0x00: 3 has its own
+// The kinds of player a gamepiece record can create, by Player::m_type: 3 has its own
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
 PlayerType g_playerTypes[9] = {
@@ -222,17 +222,17 @@ MechS32 FUN_1006d340(MechS32 p_player)
 // FUNCTION: MW2 0x1006d3a4
 void FUN_1006d3a4(Player* p_player)
 {
-	p_player->m_unk0x00 = 0;
+	p_player->m_type = 0;
 	p_player->m_index = 0;
 	p_player->m_team = 0;
 	p_player->m_slot = 0;
-	p_player->m_unk0x10 = 0;
+	p_player->m_aiMode = 0;
 	p_player->m_flags = 0;
-	p_player->m_unk0x16 = 0;
+	p_player->m_inspectedBy = 0;
 	p_player->m_unk0x18 = 0;
 	p_player->m_unk0x1c = -1;
 	p_player->m_mech = NULL;
-	p_player->m_unk0x24 = 0;
+	p_player->m_mechSize = 0;
 	p_player->m_firstClassFn = NULL;
 	p_player->m_updateFn = NULL;
 	p_player->m_lateUpdateFn = NULL;
@@ -240,24 +240,24 @@ void FUN_1006d3a4(Player* p_player)
 	p_player->m_drawFn = NULL;
 	p_player->m_shutdownFn = NULL;
 	p_player->m_obj = NULL;
-	p_player->m_unk0x44 = NULL;
-	p_player->m_unk0x48 = NULL;
+	p_player->m_eyeObj = NULL;
+	p_player->m_firingObj = NULL;
 	p_player->m_steering = NULL;
 	p_player->m_position.m_x = p_player->m_position.m_y = p_player->m_position.m_z = 0;
-	p_player->m_unk0x5c = p_player->m_heading = p_player->m_unk0x64 = 0;
-	p_player->m_unk0x68 = p_player->m_unk0x6c = p_player->m_unk0x70 = 0;
-	p_player->m_unk0x74 = 0;
-	p_player->m_unk0x78 = 0;
-	p_player->m_unk0x7c = -1;
+	p_player->m_pitch = p_player->m_heading = p_player->m_roll = 0;
+	p_player->m_torsoPitch = p_player->m_torsoTwist = p_player->m_torsoRoll = 0;
+	p_player->m_groundHeight = 0;
+	p_player->m_onGround = 0;
+	p_player->m_collidedWith = -1;
 	p_player->m_unk0x80 = 0;
-	p_player->m_unk0x84 = -1;
-	p_player->m_unk0x88 = -1;
-	p_player->m_unk0x8c = 0;
-	p_player->m_unk0x90 = -1;
-	p_player->m_unk0x94 = 0;
+	p_player->m_motionState = -1;
+	p_player->m_nextMotionState = -1;
+	p_player->m_speedLevel = 0;
+	p_player->m_pendingSound = -1;
+	p_player->m_animRate = 0;
 	StartRamp(&p_player->m_aimRange, 50000, 50000, 0.2);
-	StartRamp(&p_player->m_unk0xa8, 50000, 50000, 20.0);
-	p_player->m_unk0xbc = p_player->m_unk0xb8 = 0;
+	StartRamp(&p_player->m_aimDistance, 50000, 50000, 20.0);
+	p_player->m_headingSin = p_player->m_headingCos = 0;
 	p_player->m_targetInfo.m_distance = 0;
 	p_player->m_targetInfo.m_unk0x04 = 0;
 	p_player->m_targetInfo.m_position.m_x = p_player->m_targetInfo.m_position.m_y =

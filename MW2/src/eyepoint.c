@@ -422,24 +422,24 @@ void FUN_100116c3(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, Me
 		return;
 	}
 
-	*p_unk0x10 = player->m_unk0x5c;
+	*p_unk0x10 = player->m_pitch;
 	*p_unk0x0c = player->m_heading;
-	*p_unk0x14 = player->m_unk0x64;
-	if (player->m_unk0x44) {
+	*p_unk0x14 = player->m_roll;
+	if (player->m_eyeObj) {
 		if (g_unk0x100a2434) {
 			*p_y += *g_unk0x100a2434;
 		}
 
-		TransformPoint(FUN_10001e01(player->m_unk0x44), p_x, p_y, p_z);
-		GetObjWorldPos(player->m_unk0x44, &x, &y, &z);
+		TransformPoint(FUN_10001e01(player->m_eyeObj), p_x, p_y, p_z);
+		GetObjWorldPos(player->m_eyeObj, &x, &y, &z);
 		if (g_unk0x100a2c04) {
 			*p_unk0x10 = x;
 			*p_unk0x0c = y;
 			*p_unk0x14 = z;
 		}
 		else {
-			*p_unk0x10 += player->m_unk0x68;
-			*p_unk0x0c += player->m_unk0x6c;
+			*p_unk0x10 += player->m_torsoPitch;
+			*p_unk0x0c += player->m_torsoTwist;
 			*p_unk0x14 = z >> 1;
 		}
 	}
@@ -520,7 +520,7 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 			g_unk0x100a23f4 = g_unk0x100a23ec << 2;
 			g_unk0x100a23f8 = g_unk0x100a23ec >> 2;
 			g_unk0x10176f2c = g_unk0x100a23f4;
-			g_unk0x10176f74 = -mech->m_unk0xcc + 200;
+			g_unk0x10176f74 = -mech->m_height + 200;
 		}
 
 		g_unk0x10177050.m_time = g_currentClock;

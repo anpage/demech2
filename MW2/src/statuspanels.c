@@ -449,7 +449,7 @@ void FUN_10005add(CockpitPanel* p_panel)
 				player = g_unk0x100a116c;
 			}
 
-			if (!g_players[player] || g_players[player]->m_unk0x00 != 1) {
+			if (!g_players[player] || g_players[player]->m_type != c_playerTypeMech) {
 				return;
 			}
 
@@ -533,7 +533,7 @@ void FUN_10006189(CockpitPanel* p_panel)
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	switch (mech->m_unk0xbc) {
+	switch (mech->m_autopilot) {
 	case 1:
 		text = "AUTOPILOT";
 		break;
@@ -579,8 +579,8 @@ void FUN_10006291(CockpitPanel* p_panel)
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	speed = ApproximateVectorLength(mech->m_unk0xf4, mech->m_unk0xf8, mech->m_unk0xfc) / 10002 * 1.5;
-	if (mech->m_unk0x24.m_value < 0) {
+	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
+	if (mech->m_speed.m_value < 0) {
 		speed = -speed;
 		g_unk0x100e9350[0xe] = 6;
 	}
@@ -645,8 +645,8 @@ void FUN_10006484(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (mech->m_unk0x10c & 4) {
-		if (!(mech->m_unk0x10c & 8)) {
+	if (mech->m_flags & 4) {
+		if (!(mech->m_flags & 8)) {
 			p_panel->m_setName(p_panel, "Shutdown...");
 			g_unk0x100e9350[0xe] = 0xb;
 		}
@@ -711,7 +711,7 @@ void FUN_1000667c(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (g_players[g_localPlayerId]->m_mech->m_unk0xc0 < 0) {
+	if (g_players[g_localPlayerId]->m_mech->m_jumpFuel < 0) {
 		return;
 	}
 

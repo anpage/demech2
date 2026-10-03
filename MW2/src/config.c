@@ -179,7 +179,7 @@ undefined4 g_unk0x100ae388[26] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x27
 								  0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
 								  0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
 
-// The local mech's state (Mech::m_unk0xa0) when FUN_100705dd last ran.
+// The local mech's state (Mech::m_powerState) when FUN_100705dd last ran.
 // GLOBAL: MW2 0x100ae3f0
 MechS32 g_unk0x100ae3f0 = 0;
 
@@ -512,8 +512,8 @@ void FUN_1006fca5(void)
 	g_unk0x100c3280[25]->m_unk0x7c = FUN_100060b6;
 	FUN_1004d020();
 	FUN_10040020();
-	g_unk0x100a2434 = &mech->m_unk0xd0;
-	g_unk0x100a2438 = &mech->m_unk0x04.m_value;
+	g_unk0x100a2434 = &mech->m_cockpitHeight;
+	g_unk0x100a2438 = &mech->m_torsoTwist.m_value;
 	FUN_10040f91();
 	if (g_difficulty->m_unk0x09) {
 		FUN_1003dce8();
@@ -541,7 +541,7 @@ void FUN_1006ff7b(void)
 
 // Updates the cockpit for the local mech's frame: the heading and the torso twist the panels show,
 // the target's bearing relative to both and its distance, a one-time warning sound, and the
-// panels' handlers for the view mode (Mech::m_unk0xa0: 1, 2 or the rest).
+// panels' handlers for the view mode (Mech::m_powerState: 1, 2 or the rest).
 // Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
 // FUNCTION: MW2 0x1007005a
 void FUN_1007005a(Mech* p_mech)
@@ -556,7 +556,7 @@ void FUN_1007005a(Mech* p_mech)
 		return;
 	}
 
-	g_unk0x100c3358 = p_mech->m_unk0xa0;
+	g_unk0x100c3358 = p_mech->m_powerState;
 	if (g_unk0x100c3358 != 2 && g_unk0x100c3280[16]->m_unk0x7c) {
 		g_unk0x100c3280[16]->m_unk0x7c(g_unk0x100c3280[16]);
 	}
@@ -570,8 +570,8 @@ void FUN_1007005a(Mech* p_mech)
 	}
 
 	g_unk0x100c3270 = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
-	g_unk0x100c326c = (p_mech->m_unk0x04.m_value >> 16) % 360 % 360;
-	pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_unk0x14.m_value) % 0x1680000;
+	g_unk0x100c326c = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
+	pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_torsoPitch.m_value) % 0x1680000;
 	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_unk0x100c3270;
 	if (bearing > 180) {
 		bearing -= 360;
@@ -601,10 +601,10 @@ void FUN_1007005a(Mech* p_mech)
 		g_unk0x100ae37c = 0;
 	}
 
-	if (g_unk0x100aa298 && g_unk0x100c3358 != 3 && (p_mech->m_unk0x10c & 4) && !(p_mech->m_unk0x10c & 8)) {
+	if (g_unk0x100aa298 && g_unk0x100c3358 != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
 		FUN_1007eb23(0xcd, 100, 0x40, 5, 0x32);
 		PlayCockpitSound(2, -1);
-		p_mech->m_unk0x10c |= 8;
+		p_mech->m_flags |= 8;
 		g_unk0x100aa298 = 0;
 	}
 	else {
@@ -625,7 +625,7 @@ void FUN_1007005a(Mech* p_mech)
 		}
 
 		FUN_10040bfd(p_mech, g_unk0x100c3270, g_unk0x100c326c, bearing, twistBearing, pitch, distance, g_unk0x100a241c);
-		FUN_10021b2a(p_mech->m_unk0x44.m_value);
+		FUN_10021b2a(p_mech->m_throttle.m_value);
 		break;
 	case 1:
 		if (g_difficulty->m_unk0x09) {
@@ -717,17 +717,17 @@ void FUN_100705dd(Mech* p_mech)
 	}
 
 	if (g_unk0x100a2420) {
-		if (p_mech->m_unk0x10c & 0x80) {
+		if (p_mech->m_flags & 0x80) {
 			if (!g_unk0x100ae3f4 && p_mech->m_weapons[p_mech->m_selectedWeapon].m_state == 1 &&
-				p_mech->m_unk0xa0 == 2) {
+				p_mech->m_powerState == 2) {
 				g_unk0x100ae3f4 = 1;
 				FUN_1007eb23(0xfe, 100, 0x5f, 5, 0x32);
 			}
 		}
 		else {
 			g_unk0x100ae3f4 = 0;
-			if (p_mech->m_unk0x10c & 0x40) {
-				if (!g_unk0x100ae3f8 && p_mech->m_unk0xa0 == 2) {
+			if (p_mech->m_flags & 0x40) {
+				if (!g_unk0x100ae3f8 && p_mech->m_powerState == 2) {
 					g_unk0x100ae3f8 = 1;
 					FUN_1007eb23(0xcf, 100, 0x1f, 5, 0x32);
 				}
@@ -737,8 +737,8 @@ void FUN_100705dd(Mech* p_mech)
 			}
 		}
 
-		if (p_mech->m_unk0xa0 != g_unk0x100ae3f0) {
-			switch (p_mech->m_unk0xa0) {
+		if (p_mech->m_powerState != g_unk0x100ae3f0) {
+			switch (p_mech->m_powerState) {
 			case 2:
 				FUN_1007eb23(0xce, 100, 0x2f, 5, 0x32);
 				break;
@@ -752,7 +752,7 @@ void FUN_100705dd(Mech* p_mech)
 		}
 	}
 
-	g_unk0x100ae3f0 = p_mech->m_unk0xa0;
+	g_unk0x100ae3f0 = p_mech->m_powerState;
 }
 
 // FUNCTION: MW2 0x1007079d
