@@ -26,6 +26,11 @@ terminator added to a table the original ends without one).
 
 tools/check_block_sizes.py checks the same calls in the source; this tool also
 covers calls whose size the source computes (`sizeof` of the wrong object).
+
+The Miles Design VFX objects (3rdparty/vfx) are left out: their source declares its
+buffers as labels and untyped data, which ML's debug information sizes as one
+element, and runs of separately named variables are one block there by design
+(VFX_register_driver copies the driver's table over its 13 entry points).
 """
 
 import argparse
@@ -44,10 +49,15 @@ from reccmp.project.detect import (
 )
 from reccmp.types import EntityType, ImageId
 
+from check_units import LinkerMap
+
 # Ignore all compare-db messages.
 logging.getLogger("reccmp.compare").addHandler(logging.NullHandler())
 
 logger = logging.getLogger()
+
+# Miles Design VFX's objects (3rdparty/vfx), whose functions aren't scanned (see above).
+VFX_OBJECTS = {"VFXA.ASM.obj", "VFX3D.ASM.obj", "VFXREND.ASM.obj"}
 
 # Block functions: (argument count, pointer argument indices, size argument
 # indices). The size is the product of the size arguments.
@@ -301,6 +311,8 @@ def main():
 
     compare = Compare.from_target(target)
     layout = Layout(compare)
+    map_path = target.recompiled_path.with_suffix(".map")
+    objects = LinkerMap(map_path, compare.recomp_bin).objects if map_path.exists() else {}
 
     md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
     md.detail = True
@@ -312,6 +324,8 @@ def main():
     check_overlaps(layout, findings, overlaps)
     for entity in layout.by_addr.values():
         if entity.entity_type != EntityType.FUNCTION or entity.get("library") or entity.get("stub"):
+            continue
+        if objects.get(entity.recomp_addr) in VFX_OBJECTS:
             continue
         scan_function(md, compare.orig_bin, layout, entity, findings, warnings, checked)
 

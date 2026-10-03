@@ -19,7 +19,7 @@ struct CobaltHarbor0x88 {
 	MechS32 m_unk0x08;                                                        // 0x08
 	MechS32 m_unk0x0c;                                                        // 0x0c
 	MechChar m_name[0x20];                                                    // 0x10
-	Pane* m_target;                                                           // 0x30
+	PANE* m_target;                                                           // 0x30
 	struct Point* m_unk0x34;                                                  // 0x34 — where its text goes
 	struct RectTransition* m_transition;                                      // 0x38
 	MechS32 m_unk0x3c;                                                        // 0x3c — the view mode it last drew
@@ -32,7 +32,7 @@ struct CobaltHarbor0x88 {
 	void (*m_setUnk0x08)(CobaltHarbor0x88*, undefined4);                      // 0x50
 	void (*m_setUnk0x0c)(CobaltHarbor0x88*, MechS32);                         // 0x54
 	void (*m_setName)(CobaltHarbor0x88*, const MechChar*);                    // 0x58
-	void (*m_setTarget)(CobaltHarbor0x88*, Pane*);                            // 0x5c
+	void (*m_setTarget)(CobaltHarbor0x88*, PANE*);                            // 0x5c
 	void (*m_setUnk0x34)(CobaltHarbor0x88*, struct Point*);                   // 0x60
 	void (*m_setTransition)(CobaltHarbor0x88*, struct RectTransition*);       // 0x64
 	void (*m_setRect)(CobaltHarbor0x88*, MechS32, MechS32, MechS32, MechS32); // 0x68

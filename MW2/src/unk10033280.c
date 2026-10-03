@@ -73,7 +73,7 @@ void FUN_10033280(CobaltHarbor0x88* p_panel)
 		g_unk0x100e9350[0xe] = color;
 		if (weapon->m_ammo < 0) {
 			sprintf(text, "%s", p_panel->m_name);
-			BlitString(
+			VFX_string_draw(
 				p_panel->m_target,
 				p_panel->m_unk0x34->m_x,
 				p_panel->m_unk0x34->m_y,
@@ -84,7 +84,7 @@ void FUN_10033280(CobaltHarbor0x88* p_panel)
 		}
 		else {
 			sprintf(text, "%s %d", p_panel->m_name, weapon->m_ammo);
-			BlitString(
+			VFX_string_draw(
 				p_panel->m_target,
 				p_panel->m_unk0x34->m_x,
 				p_panel->m_unk0x34->m_y,
@@ -131,7 +131,7 @@ void FUN_100334d3(CobaltHarbor0x88* p_panel)
 	}
 
 	if (p_panel->m_enabled && p_panel->m_unk0x08 < clock) {
-		BlitString(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
+		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
 	}
 
 	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);

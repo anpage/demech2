@@ -1,2 +1,18 @@
 # Names to exempt from ncc validation (name: 'reason').
 PauseTimer: 'the variable (gdi.c) that the original links the PauseTimer calls (refreshmode.c) to'
+VFX_describe_driver: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_init_driver: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_shutdown_driver: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_area_wipe: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_wait_vblank: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_wait_vblank_leading: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_window_refresh: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_window_read: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_DAC_read: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_DAC_write: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_bank_reset: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_pane_refresh: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+VFX_line_address: 'Miles Design VFX: a registered driver entry point VFXA.ASM defines (3rdparty/vfx)'
+driver_name: 'Miles Design VFX: the driver name VFXA.ASM defines, public for tests/asmequiv (3rdparty/vfx)'
+lookaside: 'Miles Design VFX: the shape lookaside table VFXA.ASM defines, public for tests/asmequiv (3rdparty/vfx)'
+color_error: "Miles Design VFX: the fade's error terms VFXA.ASM defines, public for tests/asmequiv (3rdparty/vfx)"

@@ -55,7 +55,7 @@ extern "C"
 	MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16* p_resourceId);
 	void FreeAnim2ds(MechS32 p_index);
 	void FreeAnim2d(MechS32 p_index);
-	void DrawAnim2d(Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
+	void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
 	void RestartAnim2d(MechS32 p_index);
 
 #ifdef __cplusplus

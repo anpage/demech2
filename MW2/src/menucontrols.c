@@ -2,7 +2,6 @@
    list with a suffix and a text box, and edit their values while the item is selected. */
 #include "menucontrols.h"
 
-#include "blit.h"
 #include "decomp.h"
 #include "fixedmul.h"
 #include "loadres.h"
@@ -15,6 +14,7 @@
 #include "screenscale.h"
 #include "setres.h"
 #include "types.h"
+#include "vfxa.h"
 
 #include <string.h>
 
@@ -35,7 +35,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	MechS32 size;
 	MechS32 x;
 	void* font;
-	Pane* target;
+	PANE* target;
 	MechS32 apply;
 	MechS32 width;
 	void* knob;
@@ -149,7 +149,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	knob = FUN_1001a19f(g_mw2PrjHandle, shapes[6] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	right = FUN_1001a19f(g_mw2PrjHandle, shapes[4] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (bar && knob) {
-		size = GetShpFrameSize(bar, 0);
+		size = VFX_shape_bounds(bar, 0);
 		width = size >> 16;
 		if ((value += step) < 0) {
 			value = 0;
@@ -160,22 +160,22 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		}
 
 		knobX = FixedMul16(value, width);
-		height = FontGetHeight(font);
+		height = VFX_font_height(font);
 		p_pos.m_y += height / 2;
 		x = p_pos.m_x;
 		if (left) {
-			BlitShpFrame(target, left, 0, x, p_pos.m_y);
-			x += GetShpFrameSize(left, 0) >> 16;
+			VFX_shape_draw(target, left, 0, x, p_pos.m_y);
+			x += VFX_shape_bounds(left, 0) >> 16;
 		}
 
-		BlitShpFrame(target, bar, 0, x, p_pos.m_y);
+		VFX_shape_draw(target, bar, 0, x, p_pos.m_y);
 		if (right) {
-			BlitShpFrame(target, right, 0, x + width, p_pos.m_y);
+			VFX_shape_draw(target, right, 0, x + width, p_pos.m_y);
 		}
 
 		x += knobX;
-		x -= (GetShpFrameSize(knob, 0) >> 16) / 2;
-		BlitShpFrame(target, knob, 0, x, p_pos.m_y);
+		x -= (VFX_shape_bounds(knob, 0) >> 16) / 2;
+		VFX_shape_draw(target, knob, 0, x, p_pos.m_y);
 		if (selected) {
 			if (((step && p_page->m_items[p_index].m_type == 4) || (pressed && p_page->m_items[p_index].m_type == 5)) &&
 				p_control->m_set) {
@@ -208,7 +208,7 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	MechU32 state;
 	MechS32 room;
 	MechS32 step;
-	Pane* target;
+	PANE* target;
 	MechS32 apply;
 	MechChar text[128];
 
@@ -310,7 +310,7 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 			}
 		}
 
-		BlitString(target, p_pos.m_x, p_pos.m_y, p_menu->m_font, text, g_unk0x100e9350);
+		VFX_string_draw(target, p_pos.m_x, p_pos.m_y, p_menu->m_font, text, g_unk0x100e9350);
 	}
 
 	if (selected) {
@@ -337,7 +337,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	MechS32 selected;
 	MechU32 state;
 	MechS32 step;
-	Pane* target;
+	PANE* target;
 	MechS32 apply;
 
 	step = 0;
@@ -442,7 +442,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	if (((MenuChoices*) p_control->m_data)->m_count > 0) {
 		value =
 			(((MenuChoices*) p_control->m_data)->m_count + step + value) % ((MenuChoices*) p_control->m_data)->m_count;
-		BlitString(
+		VFX_string_draw(
 			target,
 			p_pos.m_x,
 			p_pos.m_y,
@@ -476,8 +476,8 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	MechU32 state;
 	MechChar* text;
 	void* font;
-	Pane* rect;
-	Pane* target;
+	PANE* rect;
+	PANE* target;
 
 	if (!p_menu) {
 		return;
@@ -517,8 +517,8 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 		return;
 	}
 
-	if (!rect->m_buffer) {
-		rect->m_buffer = &g_mainPixelBuffer;
+	if (!rect->m_window) {
+		rect->m_window = &g_mainPixelBuffer;
 		FUN_1005699f(target, rect, rect);
 	}
 

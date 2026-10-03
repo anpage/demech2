@@ -1,6 +1,5 @@
 #include "unk1007b930.h"
 
-#include "blit.h"
 #include "clock.h"
 #include "cobaltharbor.h"
 #include "config.h"
@@ -32,6 +31,7 @@
 #include "unk10042e00.h"
 #include "unk100509a0.h"
 #include "unk100696c0.h"
+#include "vfxa.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -244,7 +244,7 @@ void FUN_1007b930(CobaltHarbor0x88* p_panel)
 	}
 
 	g_unk0x100e9350[0xe] = color;
-	BlitString(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
+	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
 	meters = mech->m_player->m_targetInfo.m_unk0x04 / 100;
 	if (meters > 1000) {
@@ -319,14 +319,14 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	kind = player->m_targetInfo.m_target & 0xf00;
 	index = mech->m_player->m_targetInfo.m_target & 0xff;
 	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
-		FillView(p_panel->m_target, 0);
+		VFX_pane_wipe(p_panel->m_target, 0);
 		FUN_100570e9(p_panel->m_target, 8);
 		return;
 	}
 
 	if (kind == 0x100) {
-		centerX = (p_panel->m_target->m_right - p_panel->m_target->m_left) / 2;
-		centerY = (p_panel->m_target->m_bottom - p_panel->m_target->m_top) / 2;
+		centerX = (p_panel->m_target->m_x1 - p_panel->m_target->m_x0) / 2;
+		centerY = (p_panel->m_target->m_y1 - p_panel->m_target->m_y0) / 2;
 		if (!(g_navTable[index].m_flags & 0x20)) {
 			icon = 0x100;
 		}
@@ -335,7 +335,7 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 		}
 
 		if (icon) {
-			FillView(p_panel->m_target, 0);
+			VFX_pane_wipe(p_panel->m_target, 0);
 			FUN_10041f06(centerX, centerY, icon, p_panel->m_target);
 			FUN_100570e9(p_panel->m_target, 8);
 		}
@@ -358,8 +358,8 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	if (!object) {
 		noTarget = FUN_1001a19f(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
 		if (noTarget) {
-			FillView(p_panel->m_target, 0);
-			BlitShpFrame(p_panel->m_target, noTarget, 0, 1, 1);
+			VFX_pane_wipe(p_panel->m_target, 0);
+			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
 			FUN_100570e9(p_panel->m_target, 8);
 			FUN_1001a163(0x5b, g_resourceTypeTags[c_resTagShp]);
 		}
@@ -369,8 +369,8 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	else if (!object->m_unk0x6c) {
 		noObject = FUN_1001a19f(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
 		if (noObject) {
-			FillView(p_panel->m_target, 0);
-			BlitShpFrame(p_panel->m_target, noObject, 0, 1, 1);
+			VFX_pane_wipe(p_panel->m_target, 0);
+			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
 			FUN_100570e9(p_panel->m_target, 8);
 			FUN_1001a163(0x58, g_resourceTypeTags[c_resTagShp]);
 		}
@@ -403,7 +403,7 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	}
 
 	g_unk0x100a6cc8.m_unk0x1c = g_unk0x100a6cc8.m_unk0x20 = 0;
-	FillView(p_panel->m_target, 0);
+	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_unk0x100c3358 == 2) {
 		FUN_1004c8bd(7, 0x20000, view, object);
 	}
@@ -430,10 +430,10 @@ void FUN_1007c6df(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x1007c71e
 void FUN_1007c71e(CobaltHarbor0x88* p_panel)
 {
-	Pane* rect;
+	PANE* rect;
 	RectTransition* transition;
-	Pane savedView;
-	Pane savedTarget;
+	PANE savedView;
+	PANE savedTarget;
 
 	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
 		return;
@@ -469,10 +469,10 @@ void FUN_1007c71e(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x1007c81c
 void FUN_1007c81c(CobaltHarbor0x88* p_panel)
 {
-	Pane* rect;
+	PANE* rect;
 	RectTransition* transition;
-	Pane savedView;
-	Pane savedTarget;
+	PANE savedView;
+	PANE savedTarget;
 
 	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
 		return;

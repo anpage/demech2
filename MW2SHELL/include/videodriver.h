@@ -4,8 +4,8 @@
 #include "decomp.h"
 #include "palettecolor.h"
 #include "pane.h"
-#include "pixelbuffer.h"
 #include "types.h"
+#include "window.h"
 
 class TextGlyphList;
 class TextGlyph;
@@ -37,7 +37,7 @@ public:
 		MechU8 p_unk0x09
 	);
 	void LoadBackground(TMPackDataBase* p_database, MechS32 p_id);
-	void DrawPicture(undefined* p_data, MechS32 p_type, Pane* p_view);
+	void DrawPicture(undefined* p_data, MechS32 p_type, PANE* p_view);
 	void DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color);
 	void DrawPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
 	void DrawPixelsClipped(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height);
@@ -72,7 +72,7 @@ public:
 	void ActivateFramebuffer();
 
 private:
-	MechS32 m_pictureSize;            // 0x00 — the last picture's, see GetPictureSize
+	MechS32 m_pictureSize;            // 0x00 — the last picture's, see VFX_PCX_resolution
 	undefined4 m_unk0x04;             // 0x04 — never accessed
 	MechU8 m_unk0x08;                 // 0x08 — ShowPicture stores it, nothing reads it
 	MechU8 m_unk0x09;                 // 0x09 — ShowPicture stores it, nothing reads it
@@ -87,20 +87,20 @@ private:
 
 public:
 	// LoopingMovie decodes into m_screenBuffer.m_pixels directly.
-	PixelBuffer m_screenBuffer; // 0x2e
+	WINDOW m_screenBuffer; // 0x2e
 
 	// ShellWindowProc clears m_backBuffer.m_pixels directly: an inline accessor would leave a jmp at /Ob1.
-	PixelBuffer m_backBuffer; // 0x42
+	WINDOW m_backBuffer; // 0x42
 
 private:
-	Pane m_screenView; // 0x56
+	PANE m_screenView; // 0x56
 
 public:
 	// PopupPicture draws into m_backView directly.
-	Pane m_backView; // 0x6a
+	PANE m_backView; // 0x6a
 
 private:
-	Pane m_dirtyView;              // 0x7e
+	PANE m_dirtyView;              // 0x7e
 	PaletteColor m_palette[0x100]; // 0x92
 	MechS32 m_width;               // 0x392
 	MechS32 m_height;              // 0x396

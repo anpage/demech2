@@ -1,13 +1,11 @@
 #include "unk10042e00.h"
 
 #include "animation.h"
-#include "blit.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fixeddivu.h"
 #include "fixedmul.h"
 #include "fixedmul30.h"
-#include "polyfill.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "slateheron.h"
@@ -17,6 +15,8 @@
 #include "unk10034a40.h"
 #include "unk100696c0.h"
 #include "unk10071930.h"
+#include "vfx3d.h"
+#include "vfxa.h"
 
 // GLOBAL: MW2 0x100a6be0
 Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
@@ -67,7 +67,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			point += 6;
 		}
 
-		FillPolygonFlat(&g_currentPane, p_count, p_points);
+		VFX_flat_polygon(&g_currentPane, p_count, p_points);
 		break;
 	case 0x2000:
 		p_flags &= 0xff;
@@ -97,10 +97,10 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 
 		if (g_unk0x100a6cc8.m_unk0x04) {
-			FUN_1002b68b(&g_currentPane, 0x7fff, p_count, p_points);
+			VFX_dithered_Gouraud_polygon(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {
-			FillPolygonFlat(&g_currentPane, p_count, p_points);
+			VFX_flat_polygon(&g_currentPane, p_count, p_points);
 		}
 		break;
 	case 0x3000:
@@ -166,7 +166,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	MechS32 corners;
 	MechS32 y0;
 	MechS32 dx;
-	Pane rect;
+	PANE rect;
 	MechU32 band[4 * 6];
 	MechS32 dy;
 	MechS32 dz;
@@ -198,11 +198,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	switch (corners) {
 	case 0:
 		if (g_unk0x100a6cc8.m_unk0x20) {
-			rect.m_left += x0;
-			rect.m_top += y0;
-			rect.m_right = rect.m_left + x1 - x0;
-			rect.m_bottom = rect.m_top + y1 - y0;
-			FillView(&rect, g_unk0x100a554c);
+			rect.m_x0 += x0;
+			rect.m_y0 += y0;
+			rect.m_x1 = rect.m_x0 + x1 - x0;
+			rect.m_y1 = rect.m_y0 + y1 - y0;
+			VFX_pane_wipe(&rect, g_unk0x100a554c);
 		}
 		break;
 	case 15:
@@ -221,11 +221,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				}
 			}
 
-			rect.m_left += x0;
-			rect.m_top += y0;
-			rect.m_right = rect.m_left + x1 - x0;
-			rect.m_bottom = rect.m_top + y1 - y0;
-			FillView(&rect, g_unk0x100a5548);
+			rect.m_x0 += x0;
+			rect.m_y0 += y0;
+			rect.m_x1 = rect.m_x0 + x1 - x0;
+			rect.m_y1 = rect.m_y0 + y1 - y0;
+			VFX_pane_wipe(&rect, g_unk0x100a5548);
 		}
 		break;
 	case 3:
@@ -243,20 +243,20 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 
 		if (yRight == yLeft) {
 			if (g_unk0x100a6cc8.m_unk0x1c) {
-				rect.m_left += x0;
-				rect.m_top += y0;
-				rect.m_right = rect.m_left + x1 - x0;
-				rect.m_bottom = rect.m_top + yLeft - y0;
-				FillView(&rect, g_unk0x100a5548);
+				rect.m_x0 += x0;
+				rect.m_y0 += y0;
+				rect.m_x1 = rect.m_x0 + x1 - x0;
+				rect.m_y1 = rect.m_y0 + yLeft - y0;
+				VFX_pane_wipe(&rect, g_unk0x100a5548);
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x20) {
 				rect = g_currentPane;
-				rect.m_left += x0;
-				rect.m_top += yLeft;
-				rect.m_right = rect.m_left + x1 - x0;
-				rect.m_bottom = rect.m_top + y1 - yLeft;
-				FillView(&rect, g_unk0x100a554c);
+				rect.m_x0 += x0;
+				rect.m_y0 += yLeft;
+				rect.m_x1 = rect.m_x0 + x1 - x0;
+				rect.m_y1 = rect.m_y0 + y1 - yLeft;
+				VFX_pane_wipe(&rect, g_unk0x100a554c);
 			}
 		}
 		else {
@@ -284,20 +284,20 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 
 		if (yRight == yLeft) {
 			if (g_unk0x100a6cc8.m_unk0x20) {
-				rect.m_left += x0;
-				rect.m_top += y0;
-				rect.m_right = rect.m_left + x1 - x0;
-				rect.m_bottom = rect.m_top + yLeft - y0;
-				FillView(&rect, g_unk0x100a554c);
+				rect.m_x0 += x0;
+				rect.m_y0 += y0;
+				rect.m_x1 = rect.m_x0 + x1 - x0;
+				rect.m_y1 = rect.m_y0 + yLeft - y0;
+				VFX_pane_wipe(&rect, g_unk0x100a554c);
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x1c) {
 				rect = g_currentPane;
-				rect.m_left += x0;
-				rect.m_top += yLeft;
-				rect.m_right = rect.m_left + x1 - x0;
-				rect.m_bottom = rect.m_top + y1 - yLeft;
-				FillView(&rect, g_unk0x100a5548);
+				rect.m_x0 += x0;
+				rect.m_y0 += yLeft;
+				rect.m_x1 = rect.m_x0 + x1 - x0;
+				rect.m_y1 = rect.m_y0 + y1 - yLeft;
+				VFX_pane_wipe(&rect, g_unk0x100a5548);
 			}
 		}
 		else {
@@ -315,20 +315,20 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xBottom = FUN_10071a4c(y1, p_eyepoint);
 		if (xBottom == xTop) {
 			if (g_unk0x100a6cc8.m_unk0x1c) {
-				rect.m_left += x0;
-				rect.m_top += y0;
-				rect.m_right = rect.m_left + xTop - x0 - 1;
-				rect.m_bottom = rect.m_top + y1 - y0 - 1;
-				FillView(&rect, g_unk0x100a5548);
+				rect.m_x0 += x0;
+				rect.m_y0 += y0;
+				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
+				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
+				VFX_pane_wipe(&rect, g_unk0x100a5548);
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x20) {
 				rect = g_currentPane;
-				rect.m_left += xTop - x0 + 1;
-				rect.m_top += y0;
-				rect.m_right = rect.m_left + x1 - xTop - 1;
-				rect.m_bottom = rect.m_top + y1 - y0 - 1;
-				FillView(&rect, g_unk0x100a554c);
+				rect.m_x0 += xTop - x0 + 1;
+				rect.m_y0 += y0;
+				rect.m_x1 = rect.m_x0 + x1 - xTop - 1;
+				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
+				VFX_pane_wipe(&rect, g_unk0x100a554c);
 			}
 		}
 		else {
@@ -358,20 +358,20 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xBottom = FUN_10071a4c(y1, p_eyepoint);
 		if (xBottom == xTop) {
 			if (g_unk0x100a6cc8.m_unk0x20) {
-				rect.m_left += x0;
-				rect.m_top += y0;
-				rect.m_right = rect.m_left + xTop - x0 - 1;
-				rect.m_bottom = rect.m_top + y1 - y0 - 1;
-				FillView(&rect, g_unk0x100a554c);
+				rect.m_x0 += x0;
+				rect.m_y0 += y0;
+				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
+				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
+				VFX_pane_wipe(&rect, g_unk0x100a554c);
 			}
 
 			if (g_unk0x100a6cc8.m_unk0x1c) {
 				rect = g_currentPane;
-				rect.m_left += xTop - x0 + 1;
-				rect.m_top += y0;
-				rect.m_right = rect.m_left + x1 - xTop - 1;
-				rect.m_bottom = rect.m_top + y1 - y0 - 1;
-				FillView(&rect, g_unk0x100a5548);
+				rect.m_x0 += xTop - x0 + 1;
+				rect.m_y0 += y0;
+				rect.m_x1 = rect.m_x0 + x1 - xTop - 1;
+				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
+				VFX_pane_wipe(&rect, g_unk0x100a5548);
 			}
 		}
 		else {
@@ -507,7 +507,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	}
 
 	if (gradient && g_unk0x100a6cc8.m_unk0x04) {
-		FUN_1002b68b(&g_currentPane, 0x8000, 4, band);
+		VFX_dithered_Gouraud_polygon(&g_currentPane, 0x8000, 4, band);
 	}
 }
 
@@ -586,7 +586,7 @@ void FUN_10044527(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 // FUNCTION: MW2 0x10044590
 void FUN_10044590(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 {
-	BlitLine(&g_currentPane, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
+	VFX_line_draw(&g_currentPane, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
 	g_unk0x100be5d4 = p_x;
 	g_unk0x100be5d8 = p_y;
 }
@@ -601,10 +601,10 @@ void FUN_100445d2(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			return;
 		}
 
-		PutViewPixel(&g_currentPane, p_points[0], p_points[1], p_flags);
+		VFX_pixel_write(&g_currentPane, p_points[0], p_points[1], p_flags);
 	}
 	else if (p_count == 2 && g_unk0x100a6cc8.m_unk0x14) {
-		BlitLine(&g_currentPane, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
+		VFX_line_draw(&g_currentPane, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
 	}
 	else if (g_unk0x100a6cc8.m_unk0x34 == 0) {
 		g_unk0x100a6cc8.m_drawPolygon(p_count, p_points, p_flags);

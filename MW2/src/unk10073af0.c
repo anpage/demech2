@@ -1,7 +1,6 @@
 /* Menu actions (the eject menu) and the "dorcs" sequence's data files. */
 #include "unk10073af0.h"
 
-#include "blit.h"
 #include "clock.h"
 #include "cockpit.h"
 #include "config.h"
@@ -28,6 +27,7 @@
 #include "unk100079d0.h"
 #include "unk10040b30.h"
 #include "unk10042e00.h"
+#include "vfxa.h"
 
 #include <stdio.h>
 #include <windows.h>
@@ -205,7 +205,7 @@ MechChar g_unk0x100afb68[] = "Dave Zobel was last seen plunging into the darknes
 MechChar g_unk0x100afbc0[] = "This is boring!";
 
 // GLOBAL: MW2 0x100afbd0
-Pane g_unk0x100afbd0 = {NULL, 0, 0x2666, 0x10000, 0x10000};
+PANE g_unk0x100afbd0 = {NULL, 0, 0x2666, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100afbe8
 MenuTextBox g_unk0x100afbe8 = {&g_unk0x100afbd0, g_unk0x100ae878};
@@ -471,10 +471,10 @@ MenuPage g_dorcsPage = {
 };
 
 // GLOBAL: MW2 0x100b12b0
-Pane g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
+PANE g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12c8
-Pane g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
+PANE g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12e0
 MenuDefinition g_dorcsMenu = {
@@ -516,16 +516,16 @@ MenuPage* g_dorcsMenuPageStack[8];
 // shows, then another, and a menu.
 
 // GLOBAL: MW2 0x100b1358
-Pane g_dorcsPoint = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_dorcsPoint = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100b1370
-Pane g_dorcsRectFrom = {NULL, 0x7d71, 0x7d71, 0x828f, 0x828f};
+PANE g_dorcsRectFrom = {NULL, 0x7d71, 0x7d71, 0x828f, 0x828f};
 
 // GLOBAL: MW2 0x100b1388
-Pane g_dorcsRectTo = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_dorcsRectTo = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100b13a0
-Pane g_dorcsRect = {NULL, 0, 0, 0, 0};
+PANE g_dorcsRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100b13b8
 RectTransitionState g_dorcsTransitionState = {0, 0, 0};
@@ -631,10 +631,10 @@ void FUN_10073cb5(void)
 MechS32 g_dorcsState;
 
 // GLOBAL: MW2 0x100bf058
-Pane g_dorcsSavedTarget;
+PANE g_dorcsSavedTarget;
 
 // GLOBAL: MW2 0x100bf070
-Pane g_dorcsGifTarget;
+PANE g_dorcsGifTarget;
 
 // GLOBAL: MW2 0x100c2cec
 PaletteColor g_unk0x100c2cec;
@@ -643,10 +643,10 @@ PaletteColor g_unk0x100c2cec;
 // FUNCTION: MW2 0x10073cfc
 void UpdateDorcs(void)
 {
-	Pane* rect;
+	PANE* rect;
 	MechS32 index;
-	Pane saved;
-	Pane* target;
+	PANE saved;
+	PANE* target;
 	MechS32 i;
 
 	switch (g_dorcsState) {
@@ -654,17 +654,17 @@ void UpdateDorcs(void)
 		g_dorcsSavedTarget = g_currentPane;
 		g_dorcsGifLoaded = 0;
 		g_dorcsTransition.m_def->m_first = &g_dorcsRectFrom;
-		if (!g_dorcsTransition.m_def->m_first->m_buffer) {
+		if (!g_dorcsTransition.m_def->m_first->m_window) {
 			target = g_dorcsTransition.m_def->m_first;
 			ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-			target->m_buffer = &g_mainPixelBuffer;
+			target->m_window = &g_mainPixelBuffer;
 			target = g_dorcsTransition.m_def->m_second;
 			ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-			target->m_buffer = &g_mainPixelBuffer;
+			target->m_window = &g_mainPixelBuffer;
 			target = g_dorcsTransition.m_def->m_out;
-			target->m_buffer = &g_mainPixelBuffer;
+			target->m_window = &g_mainPixelBuffer;
 			target = &g_dorcsPoint;
-			target->m_buffer = &g_mainPixelBuffer;
+			target->m_window = &g_mainPixelBuffer;
 			ScaleRectToScreen(&g_mainPixelBuffer, target, target);
 		}
 
@@ -726,7 +726,7 @@ void UpdateDorcs(void)
 			index = g_paneIndex;
 			g_paneIndex = -1;
 			SelectPane(index);
-			FillView(&g_dorcsSavedTarget, 0);
+			VFX_pane_wipe(&g_dorcsSavedTarget, 0);
 			if (g_dorcsPreviousDrawCallback) {
 				g_dorcsPreviousDrawCallback();
 			}
@@ -755,13 +755,13 @@ void UpdateDorcs(void)
 				g_dorcsGif = ReadVfxBin("vfxjk");
 				if (g_dorcsGif) {
 					FUN_1005705e(&g_dorcsGifTarget, &g_dorcsGifTarget, g_dorcsGif);
-					FillView(&g_currentPane, 0);
-					BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
+					VFX_pane_wipe(&g_currentPane, 0);
+					VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 					if (g_windowActive) {
 						g_currentRefreshMode->m_flip();
 					}
 
-					ReadGifPalette(g_dorcsGif, (MechU8*) g_dorcsPalette);
+					VFX_GIF_palette(g_dorcsGif, (MechU8*) g_dorcsPalette);
 					g_currentDisplayBackend->m_blendPalettes(g_dorcsPalette, 0xb5);
 					g_dorcsGifLoaded = 1;
 				}
@@ -776,7 +776,7 @@ void UpdateDorcs(void)
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
 			if (g_dorcsGifLoaded) {
-				BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
+				VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 				if (g_windowActive) {
 					g_currentRefreshMode->m_flip();
 				}
@@ -794,13 +794,13 @@ void UpdateDorcs(void)
 				}
 
 				g_currentDisplayBackend->m_blendPalettes(g_dorcsPalette, 0x5a);
-				FillView(&g_currentPane, 0);
-				BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
+				VFX_pane_wipe(&g_currentPane, 0);
+				VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 				if (g_windowActive) {
 					g_currentRefreshMode->m_flip();
 				}
 
-				ReadGifPalette(g_dorcsGif, (MechU8*) g_dorcsPalette);
+				VFX_GIF_palette(g_dorcsGif, (MechU8*) g_dorcsPalette);
 				g_currentDisplayBackend->m_blendPalettes(g_dorcsPalette, 0xb5);
 			}
 			else {
@@ -816,7 +816,7 @@ void UpdateDorcs(void)
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
 			if (g_dorcsGifLoaded) {
-				BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
+				VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 			}
 		}
 		else {
@@ -829,9 +829,9 @@ void UpdateDorcs(void)
 		}
 		break;
 	case 7:
-		FillView(&g_currentPane, 0);
+		VFX_pane_wipe(&g_currentPane, 0);
 		if (g_dorcsGifLoaded) {
-			BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
+			VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 		}
 
 		if (!GetOpenMenu()) {
@@ -843,13 +843,13 @@ void UpdateDorcs(void)
 		g_unk0x100a5f18 = 0;
 		FUN_10073cb5();
 		if (g_currentClock < g_dorcsTime) {
-			FillView(&g_currentPane, 0);
+			VFX_pane_wipe(&g_currentPane, 0);
 			if (g_dorcsGifLoaded) {
-				BlitGif(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
+				VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 			}
 		}
 		else {
-			FillView(&g_currentPane, 0);
+			VFX_pane_wipe(&g_currentPane, 0);
 			if (g_windowActive) {
 				g_currentRefreshMode->m_flip();
 			}

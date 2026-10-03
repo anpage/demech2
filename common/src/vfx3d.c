@@ -1,13 +1,13 @@
-/* polyfill.asm's routines and data for builds with other compilers (COMPAT_MODE): portable C,
-   tested against the assembly by tests/asmequiv. The VC++ 4.1 build assembles polyfill.asm with
-   MASM 6.11 instead; both DLLs compile this file in its place.
+/* VFX3D, Miles Design VFX's polygon fillers (3rdparty/vfx/VFX3D.ASM), for builds with other
+   compilers (COMPAT_MODE): portable C, tested against the assembly by tests/asmequiv. The VC++ 4.1
+   build assembles VFX3D.ASM with MASM 6.11 instead; both DLLs compile this file in its place.
 
    The fillers take a polygon as an array of six-dword vertices: x and y, then the vertex's color
    (16.16) or texture coordinates (16.16, at +0x0c and +0x10). They walk its left and right edges
    down from the top vertex, one scan line at a time, in 16.16 with a half added for rounding, and
-   fill the span between them, clipped to the view. The assembly keeps its working variables in
-   g_polyVars; none outlives a call except the luma table SetLumaTable copies there (bytes 0xd0 to
-   0x1cf) for FillPolygonTextured, so the C keeps the others in locals.
+   fill the span between them, clipped to the pane. The assembly keeps its working variables in
+   its data; none outlives a call except the lookaside table VFX_map_lookaside copies for
+   VFX_map_polygon, so the C keeps the others in locals.
 
    The C does the assembly's arithmetic: 32-bit sums that wrap, slopes from a 64-bit idiv, steps
    that only carry within the 24 bits a color byte and its fraction take. Out of domain, as the
@@ -15,22 +15,22 @@
    more overflow them), and one whose vertices all lie below y 0x7fff in a view taller than that
    (the assembly then starts from the top vertex a previous call found). In the game, polygons are convex: then the
    edges stay between their vertices, and so do the spans and the texture coordinates. */
-#include "polyfill.h"
+#include "vfx3d.h"
 
 #include "compat.h"
 #include "decomp.h"
 #include "pane.h"
-#include "pixelbuffer.h"
 #include "portable.h"
 #include "types.h"
+#include "window.h"
 
 #include <string.h>
 
 #define VERTEX_WORDS 6
 #define MAX_VALUES 2
-#define LUMA_OFFSET 0xd0
 
-undefined4 g_polyVars[0x74] = {0};
+// VFX_map_lookaside's table (VFX3D.ASM's lookaside), for VFX_map_polygon's translated modes.
+static MechU8 g_lookaside[0x100];
 
 // The vertex words.
 enum VertexWord {
@@ -41,12 +41,12 @@ enum VertexWord {
 	c_vertexV
 };
 
-// The modes of FillPolygonTextured: the assembly's span routines, in g_polySpanRoutines' order.
+// The modes of VFX_map_polygon: the assembly's span routines, in __map_logic's order.
 enum TextureMode {
-	c_textureCopy,            // FUN_1002d724
-	c_textureLuma,            // FUN_1002d457: through the luma table
-	c_textureTransparent,     // FUN_1002d5c3: texel 0xff isn't drawn
-	c_textureLumaTransparent, // FUN_1002d2b0: through the luma table, which maps to 0xff for none
+	c_textureCopy,            // M_write
+	c_textureLuma,            // MX_write: through the luma table
+	c_textureTransparent,     // MT_write: texel 0xff isn't drawn
+	c_textureLumaTransparent, // MTX_write: through the luma table, which maps to 0xff for none
 	c_textureModeCount
 };
 
@@ -214,14 +214,14 @@ static void ClipEdge(const Polygon* p_polygon, PolyEdge* p_edge)
 // first scan line inside the view. Returns 0 when nothing of it can be visible.
 static MechS32 StartPolygon(
 	Polygon* p_polygon,
-	Pane* p_view,
+	PANE* p_view,
 	MechS32 p_count,
 	const MechU32* p_vertices,
 	const MechS32* p_words,
 	MechS32 p_wordCount
 )
 {
-	PixelBuffer* buffer = p_view->m_buffer;
+	WINDOW* buffer = p_view->m_window;
 	const MechU32* vertex;
 	const MechU32* top = NULL;
 	MechS32 right;
@@ -233,16 +233,16 @@ static MechS32 StartPolygon(
 	MechU32 inside;
 
 	PORTABLE_ASSERT(p_count > 0);
-	p_polygon->m_pixels = buffer->m_pixels;
-	p_polygon->m_pitch = (MechU32) buffer->m_maxX + 1;
-	right = buffer->m_maxX < p_view->m_right ? buffer->m_maxX : p_view->m_right;
-	left = p_view->m_left > 0 ? p_view->m_left : 0;
+	p_polygon->m_pixels = buffer->m_buffer;
+	p_polygon->m_pitch = (MechU32) buffer->m_xMax + 1;
+	right = buffer->m_xMax < p_view->m_x1 ? buffer->m_xMax : p_view->m_x1;
+	left = p_view->m_x0 > 0 ? p_view->m_x0 : 0;
 	if (right < left) {
 		return 0;
 	}
 
-	bottom = buffer->m_maxY < p_view->m_bottom ? buffer->m_maxY : p_view->m_bottom;
-	viewTop = p_view->m_top > 0 ? p_view->m_top : 0;
+	bottom = buffer->m_yMax < p_view->m_y1 ? buffer->m_yMax : p_view->m_y1;
+	viewTop = p_view->m_y0 > 0 ? p_view->m_y0 : 0;
 	if (bottom < viewTop) {
 		return 0;
 	}
@@ -372,19 +372,19 @@ static MechU8* SpanPixels(const Polygon* p_polygon, MechS32 p_left)
 	return p_polygon->m_pixels + (MechU32) (p_polygon->m_row + (MechU32) p_left);
 }
 
-// --- FillPolygonFlat ---
+// --- VFX_flat_polygon ---
 
 // Fills a polygon with the first vertex's color, rounded.
-void FillPolygonFlat(Pane* p_view, MechS32 p_count, MechU32* p_points)
+void VFX_flat_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist)
 {
 	Polygon polygon;
 	MechU8 color;
 
-	if (!StartPolygon(&polygon, p_view, p_count, p_points, NULL, 0)) {
+	if (!StartPolygon(&polygon, p_pane, p_vcnt, p_vlist, NULL, 0)) {
 		return;
 	}
 
-	color = (MechU8) ((p_points[c_vertexColor] + 0x8000) >> 16);
+	color = (MechU8) ((p_vlist[c_vertexColor] + 0x8000) >> 16);
 	do {
 		PolySpan span;
 		MechU32 count;
@@ -469,12 +469,12 @@ static MechS32 StartShadedSpan(const Polygon* p_polygon, ShadedSpan* p_span, Mec
 	return 1;
 }
 
-// FUN_1002ae41: a polygon shaded from its vertices' colors.
-void FUN_1002ae41(Pane* p_view, MechS32 p_count, MechU32* p_points)
+// VFX_Gouraud_polygon: a polygon shaded from its vertices' colors.
+void VFX_Gouraud_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist)
 {
 	Polygon polygon;
 
-	if (!StartPolygon(&polygon, p_view, p_count, p_points, g_colorWords, 1)) {
+	if (!StartPolygon(&polygon, p_pane, p_vcnt, p_vlist, g_colorWords, 1)) {
 		return;
 	}
 
@@ -540,18 +540,18 @@ static void SwapDitherOffsets(MechU32* p_offsets)
 	p_offsets[1] = offset;
 }
 
-// FUN_1002b68b: FUN_1002ae41 dithered, with p_dither added to every other pixel's color in a
+// VFX_dithered_Gouraud_polygon: VFX_Gouraud_polygon dithered, with p_dither added to every other pixel's color in a
 // checkerboard (the game passes half a color, 0x7fff or 0x8000).
-void FUN_1002b68b(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_points)
+void VFX_dithered_Gouraud_polygon(PANE* p_pane, MechS32 p_ditherAmount, MechS32 p_vcnt, MechU32* p_vlist)
 {
 	Polygon polygon;
 	MechU32 offsets[2];
 
-	if (!StartPolygon(&polygon, p_view, p_count, p_points, g_colorWords, 1)) {
+	if (!StartPolygon(&polygon, p_pane, p_vcnt, p_vlist, g_colorWords, 1)) {
 		return;
 	}
 
-	StartDitherOffsets(&polygon, offsets, p_dither);
+	StartDitherOffsets(&polygon, offsets, p_ditherAmount);
 	do {
 		ShadedSpan span;
 
@@ -576,20 +576,19 @@ static void AddShade(MechU8* p_pixel, Dither* p_dither)
 	*p_pixel = (MechU8) (*p_pixel + NextShade(p_dither));
 }
 
-// FUN_1002c48d: FUN_1002b68b's dithered shades added to the pixels already there. The assembly
-// adds them two pixels at a time, as a word, so the carry out of the first pixel goes into the
-// second; the pairs start at an even address, or right after an odd number of pixels clipped on
-// the left.
-void FUN_1002c48d(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_points)
+// VFX_illuminate_polygon: VFX_dithered_Gouraud_polygon's dithered shades added to the pixels already there. The
+// assembly adds them two pixels at a time, as a word, so the carry out of the first pixel goes into the second; the
+// pairs start at an even address, or right after an odd number of pixels clipped on the left.
+void VFX_illuminate_polygon(PANE* p_pane, MechS32 p_ditherAmount, MechS32 p_vcnt, MechU32* p_vlist)
 {
 	Polygon polygon;
 	MechU32 offsets[2];
 
-	if (!StartPolygon(&polygon, p_view, p_count, p_points, g_colorWords, 1)) {
+	if (!StartPolygon(&polygon, p_pane, p_vcnt, p_vlist, g_colorWords, 1)) {
 		return;
 	}
 
-	StartDitherOffsets(&polygon, offsets, p_dither);
+	StartDitherOffsets(&polygon, offsets, p_ditherAmount);
 	do {
 		ShadedSpan span;
 
@@ -622,14 +621,14 @@ void FUN_1002c48d(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_po
 	} while (NextLine(&polygon));
 }
 
-// --- FUN_1002bf39 ---
+// --- VFX_translate_polygon ---
 
 // Maps the pixels under the polygon through p_table, a 256-byte table (a shadow or a tint).
-void FUN_1002bf39(Pane* p_view, MechS32 p_count, MechU32* p_points, MechU8* p_table)
+void VFX_translate_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist, MechU8* p_lookaside)
 {
 	Polygon polygon;
 
-	if (!StartPolygon(&polygon, p_view, p_count, p_points, NULL, 0)) {
+	if (!StartPolygon(&polygon, p_pane, p_vcnt, p_vlist, NULL, 0)) {
 		return;
 	}
 
@@ -652,17 +651,17 @@ void FUN_1002bf39(Pane* p_view, MechS32 p_count, MechU32* p_points, MechU8* p_ta
 
 			pixels = SpanPixels(&polygon, span.m_left);
 			for (i = 0; i <= span.m_right - span.m_left; i++) {
-				pixels[i] = p_table[pixels[i]];
+				pixels[i] = p_lookaside[pixels[i]];
 			}
 		}
 	} while (NextLine(&polygon));
 }
 
-// --- FillPolygonTextured ---
+// --- VFX_map_polygon ---
 
-void SetLumaTable(MechU16* p_table)
+void VFX_map_lookaside(MechU16* p_table)
 {
-	memcpy((MechU8*) g_polyVars + LUMA_OFFSET, p_table, 0x100);
+	memcpy(g_lookaside, p_table, sizeof(g_lookaside));
 }
 
 // A span's walk through the texture: the texel offset, and the fractions of u and v, which carry
@@ -717,9 +716,9 @@ static MechU32 AddCarry(MechU32* p_value, MechU32 p_step)
 	return *p_value < value;
 }
 
-static MechU8 Texel(const PixelBuffer* p_texture, TextureWalk* p_walk)
+static MechU8 Texel(const WINDOW* p_texture, TextureWalk* p_walk)
 {
-	return p_texture->m_pixels[p_walk->m_texel];
+	return p_texture->m_buffer[p_walk->m_texel];
 }
 
 static void StepTexel(TextureWalk* p_walk)
@@ -732,15 +731,15 @@ static void StepTexel(TextureWalk* p_walk)
 
 // Maps a polygon with a texture, through p_mode's span routine (c_textureCopy...). The vertices'
 // u and v are in texels, 16.16; the texture's rows are m_maxX + 1 texels apart. The luma table
-// is SetLumaTable's, from an earlier call.
-void FillPolygonTextured(Pane* p_view, MechS32 p_count, MechU32* p_points, PixelBuffer* p_source, MechS32 p_mode)
+// is VFX_map_lookaside's, from an earlier call.
+void VFX_map_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist, WINDOW* p_texture, MechS32 p_flags)
 {
-	const MechU8* luma = (const MechU8*) g_polyVars + LUMA_OFFSET;
-	MechU32 texturePitch = (MechU32) p_source->m_maxX + 1;
+	const MechU8* luma = g_lookaside;
+	MechU32 texturePitch = (MechU32) p_texture->m_xMax + 1;
 	Polygon polygon;
 
-	PORTABLE_ASSERT(p_mode >= 0 && p_mode < c_textureModeCount);
-	if (!StartPolygon(&polygon, p_view, p_count, p_points, g_textureWords, 2)) {
+	PORTABLE_ASSERT(p_flags >= 0 && p_flags < c_textureModeCount);
+	if (!StartPolygon(&polygon, p_pane, p_vcnt, p_vlist, g_textureWords, 2)) {
 		return;
 	}
 
@@ -796,9 +795,9 @@ void FillPolygonTextured(Pane* p_view, MechS32 p_count, MechU32* p_points, Pixel
 			pixels = SpanPixels(&polygon, span.m_left);
 			count = span.m_right - span.m_left + 1;
 			for (i = 0; i < count; i++) {
-				MechU8 texel = Texel(p_source, &walk);
+				MechU8 texel = Texel(p_texture, &walk);
 
-				switch (p_mode) {
+				switch (p_flags) {
 				case c_textureCopy:
 					pixels[i] = texel;
 					break;

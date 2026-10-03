@@ -122,6 +122,21 @@ CLIP_LEFT_BIT   equ 04H
 CLIP_TOP_BIT    equ 02H
 CLIP_BOTTOM_BIT equ 01H
 
+; demech2: begin change. A first pass over rendopts.inc marks the primitives it builds, for
+; the table at poly_vectors. It's outside any segment: in .CODE, ML's debug information would
+; make the table's bytes, after these macro calls, into an unnamed procedure.
+BUILD           MACRO Flg
+                MARK_POLY %(Flg)
+                ENDM
+
+MARK_POLY       MACRO Flg
+built_&Flg&     = 1
+                ENDM
+
+                INCLUDE rendopts.inc
+
+; demech2: end change
+
                 .DATA
 
                 ;
@@ -214,6 +229,9 @@ C_clip          dd ?
 
                 PUBLIC VFX_polygon_render
                 PUBLIC VFX_set_Gouraud_dither_level
+; demech2: begin change. MW2's VFXREND has GetCodeBlock, defined below.
+                PUBLIC GetCodeBlock
+; demech2: end change
 
                 IF BUILD_CLIP
                 PUBLIC VFX_polygon_clip_XY_and_render
@@ -2634,10 +2652,14 @@ poly_&Flg&      ENDP
 
                 ASM = $
 
-                ORG (OP) * 4
-                dd poly_&Flg&
-
-                ORG ASM
+; demech2: begin change. ML 6.11 records the fixup of a dd written after an ORG back into
+; the table at the wrong offset, so the table is written in order instead
+; (below, at poly_vectors). VFXREND 1.06 had here:
+;                 ORG (OP) * 4
+;                 dd poly_&Flg&
+;
+;                 ORG ASM
+; demech2: end change
 
                 ENDM
 
@@ -2652,7 +2674,30 @@ BUILD           MACRO Flg
 ;██                                                                        ██
 ;████████████████████████████████████████████████████████████████████████████
 
+; demech2: begin change. The table of primitives, written entry by entry rather than through ORG
+; (see MAKE_POLY): each of the PARM_SPACE entries points to the primitive the
+; first pass over rendopts.inc (before .DATA) marked as built, or is 0. The loop
+; builds the names with @CatStr rather than a macro: ML's debug information
+; makes bytes a macro emits outside a PROC into an unnamed procedure.
 poly_vectors    LABEL DWORD
+
+vector_num      = 0
+                WHILE vector_num LT PARM_SPACE
+vector_built    TEXTEQU @CatStr(<built_>, %vector_num)
+vector_poly     TEXTEQU @CatStr(<poly_>, %vector_num)
+%               IFDEF vector_built
+                dd vector_poly
+                ELSE
+                dd 0
+                ENDIF
+vector_num      = vector_num + 1
+                ENDM
+
+BUILD           MACRO Flg
+                OP = Flg
+                MAKE_POLY %OP
+                ENDM
+; demech2: end change
 
 ;████████████████████████████████████████████████████████████████████████████
 ;██                                                                        ██
@@ -2660,8 +2705,13 @@ poly_vectors    LABEL DWORD
 ;██                                                                        ██
 ;████████████████████████████████████████████████████████████████████████████
 
-                org PARM_SPACE * 4
+; demech2: begin change. The table above ends at PARM_SPACE * 4. VFXREND 1.06 had here:
+;                 org PARM_SPACE * 4
+; demech2: end change
 
+; demech2: begin change. The start of the polygon routines, for GetCodeBlock.
+code_block      LABEL NEAR
+; demech2: end change
                 INCLUDE rendopts.inc
 
 ;*****************************************************************************
@@ -2676,6 +2726,29 @@ VFX_set_Gouraud_dither_level PROC USES ebx esi edi es,\
                 ret
 
 VFX_set_Gouraud_dither_level ENDP
+
+; demech2: begin change. MW2's VFXREND has a routine 1.06 doesn't, here: it
+; returns the code segment's selector in *Selector, the start of the polygon
+; routines in *Start and their size, the range a caller must make writable
+; before the routines patch their own operands. Its original name is unknown.
+GetCodeBlock    PROC USES ebx esi edi es,\
+                Start:PTR,Selector:PTR
+
+                xor ebx,ebx
+                mov eax,[Selector]
+                mov bx,cs
+                mov [eax],ebx
+
+                mov eax,[Start]
+                mov ebx,OFFSET code_block
+                mov [eax],ebx
+
+                mov eax,OFFSET VFX_set_Gouraud_dither_level
+                sub eax,ebx
+                ret
+
+GetCodeBlock    ENDP
+; demech2: end change
 
 ;*****************************************************************************
 VFX_polygon_render PROC USES ebx esi edi es,\

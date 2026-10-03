@@ -7,10 +7,10 @@
 #include "displaybackend.h"
 #include "drawbitmapinfo.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "simmain.h"
 #include "types.h"
+#include "window.h"
 
 #include <windows.h>
 
@@ -21,7 +21,7 @@
 // header's __inline helpers aren't expanded, and the compiler emits them after the unit's
 // functions (annotated in dispdibmode.h).
 
-MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
+MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 DispDibEnd(void);
 MechS32 DispDibFlip(void);
 MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
@@ -81,7 +81,7 @@ RefreshMode g_dispDibRefreshMode =
 MechS32 g_dispDibResult;
 
 // FUNCTION: MW2 0x1004e760
-MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
+MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	if (p_width != 320 || p_height != 200) {
 		return -1;
@@ -128,11 +128,11 @@ MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 		g_dispDibDc,
 		(BITMAPINFO*) &g_bitmapInfo,
 		DIB_RGB_COLORS,
-		(void**) &p_buffer->m_pixels,
+		(void**) &p_buffer->m_buffer,
 		NULL,
 		0
 	);
-	if (g_dispDibBitmap == NULL || p_buffer->m_pixels == NULL) {
+	if (g_dispDibBitmap == NULL || p_buffer->m_buffer == NULL) {
 		DebugPrint("DispDib CreateDIBSection failed\n");
 		return 2;
 	}
@@ -154,11 +154,11 @@ MechS32 DispDibBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	SelectObject(g_dispDibStretchDc, g_dispDibStretchBitmap);
 	ReleaseDC(g_dispDibWindow, g_dispDibWindowDc);
 
-	p_buffer->m_maxX = p_width - 1;
-	p_buffer->m_maxY = p_height - 1;
-	p_buffer->m_unk0x10 = 0;
+	p_buffer->m_xMax = p_width - 1;
+	p_buffer->m_yMax = p_height - 1;
+	p_buffer->m_shadow = 0;
 	p_buffer->m_bitmapInfo = &g_bitmapInfo;
-	g_dibBits = p_buffer->m_pixels;
+	g_dibBits = p_buffer->m_buffer;
 	g_dispDibInitialized = TRUE;
 
 	if (DispDibSetPalette(0, 0x100, g_paletteColors, TRUE)) {
@@ -203,7 +203,7 @@ MechS32 DispDibEnd(void)
 		g_dispDibWindow = NULL;
 		g_dispDibWindowDc = g_dispDibDc = g_dispDibStretchDc = NULL;
 		g_dispDibBitmap = g_dispDibStretchBitmap = NULL;
-		g_refreshModeBuffer->m_pixels = g_dibBits = g_dispDibStretchBits = NULL;
+		g_refreshModeBuffer->m_buffer = g_dibBits = g_dispDibStretchBits = NULL;
 	}
 
 	return 0;
@@ -217,7 +217,7 @@ MechS32 DispDibFlip(void)
 		DebugPrint("DisplayDibWindowDraw err: %hd\n", g_dispDibResult);
 	}
 
-	g_refreshModeBuffer->m_pixels = NULL;
+	g_refreshModeBuffer->m_buffer = NULL;
 	return g_dispDibResult;
 }
 
@@ -230,7 +230,7 @@ MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 		DebugPrint("DisplayDibWindowDraw err: %hd\n", g_dispDibResult);
 	}
 
-	g_refreshModeBuffer->m_pixels = NULL;
+	g_refreshModeBuffer->m_buffer = NULL;
 	return g_dispDibResult;
 }
 
@@ -261,14 +261,14 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 		DebugPrint("DISPDIB_StretchBlit DisplayDibWindowDraw err: %hd\n", g_dispDibResult);
 	}
 
-	g_refreshModeBuffer->m_pixels = NULL;
+	g_refreshModeBuffer->m_buffer = NULL;
 	return g_dispDibResult;
 }
 
 // FUNCTION: MW2 0x1004ed1c
 MechS32 DispDibAcquireFramebuffer(void)
 {
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }
 

@@ -5,8 +5,8 @@
 #include "displaybackend.h"
 #include "drawbitmapinfo.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "types.h"
+#include "window.h"
 
 #include <windows.h>
 
@@ -15,13 +15,13 @@
 // screen through one of the back ends in g_displayBackends. Several modes share a back end.
 // SIZE 0x24
 struct RefreshMode {
-	MechS32 m_index;                                                              // 0x00 — in g_refreshModes
-	MechS32 m_backend;                                                            // 0x04 — in g_displayBackends
-	MechS32 m_available;                                                          // 0x08 — cleared when m_begin fails
-	MechU32 m_profileTime;                                                        // 0x0c
-	MechS32 (*m_begin)(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height); // 0x10
-	MechS32 (*m_end)();                                                           // 0x14
-	MechS32 (*m_flip)();                                                          // 0x18
+	MechS32 m_index;                                                         // 0x00 — in g_refreshModes
+	MechS32 m_backend;                                                       // 0x04 — in g_displayBackends
+	MechS32 m_available;                                                     // 0x08 — cleared when m_begin fails
+	MechU32 m_profileTime;                                                   // 0x0c
+	MechS32 (*m_begin)(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height); // 0x10
+	MechS32 (*m_end)();                                                      // 0x14
+	MechS32 (*m_flip)();                                                     // 0x18
 	MechS32 (*m_blitRect)(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);    // 0x1c
 	MechS32 (*m_stretchBlit)(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom); // 0x20
 };
@@ -37,7 +37,7 @@ extern "C"
 	extern DisplayBackend* g_displayBackends[3];
 	extern DisplayBackend* g_currentDisplayBackend;
 	extern RefreshMode* g_currentRefreshMode;
-	extern PixelBuffer* g_refreshModeBuffer;
+	extern WINDOW* g_refreshModeBuffer;
 	extern PaletteColor g_paletteColors[0x100];
 	extern undefined* g_dibBits;
 	extern MechS32 g_windowMode;
@@ -53,7 +53,7 @@ extern "C"
 	MechS32 InitRefreshMode(
 		MechS32 p_mode,
 		MechS32 p_allowFallback,
-		PixelBuffer* p_buffer,
+		WINDOW* p_buffer,
 		MechS32 p_width,
 		MechS32 p_height,
 		MechS32 p_menu

@@ -390,14 +390,25 @@ __unclip_X:     sar eax,16              ;EAX = left endpoint (preserve sign)
 
                 add edi,eax             ;EDI -> start of line
 
+; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
+; bytes up to a dword boundary, then dwords, then the remaining bytes.
                 mov eax,color
 
+                cmp ecx,4
+                jle __fill_bytes
                 mov edx,ecx
+                mov ecx,edi
+                neg ecx
                 and ecx,3
+                sub edx,ecx
                 rep stosb
                 mov ecx,edx
                 shr ecx,2
                 rep stosd
+                and edx,3
+                mov ecx,edx
+__fill_bytes:   rep stosb
+; demech2: end change
 
                 pop edi                 ;recover loop vars
                 pop eax
@@ -475,14 +486,25 @@ __clip_X:       sar eax,16              ;EAX = left endpoint (preserve sign)
 __left_clipped: sub edx,VP_R            ;DX = # of right-clipped pixels
                 jg __clip_right
 
+; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
+; bytes up to a dword boundary, then dwords, then the remaining bytes.
 __clip_loop:    mov eax,color
 
+                cmp ecx,4
+                jle __clip_bytes
                 mov edx,ecx
+                mov ecx,edi
+                neg ecx
                 and ecx,3
+                sub edx,ecx
                 rep stosb
                 mov ecx,edx
                 shr ecx,2
                 rep stosd
+                and edx,3
+                mov ecx,edx
+__clip_bytes:   rep stosb
+; demech2: end change
 
 __clip_next:    pop edi                 ;recover loop vars
                 pop eax

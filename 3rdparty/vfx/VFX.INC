@@ -147,9 +147,9 @@ GIFDATA    ENDS
 PGIFDATA      TYPEDEF PTR GIFDATA
 
 GIF_STACK       equ SIZEOF GIFDATA              ;Offsets into GIF data area
-GIF_FIRST       equ SIZEOF GIFDATA +  4096 
-GIF_LAST        equ SIZEOF GIFDATA +  8192 
-GIF_LINK        equ SIZEOF GIFDATA + 12288 
+GIF_FIRST       equ SIZEOF GIFDATA +  4096
+GIF_LAST        equ SIZEOF GIFDATA +  8192
+GIF_LINK        equ SIZEOF GIFDATA + 12288
 
 ;--------------------------------
 
@@ -368,7 +368,7 @@ STOSB_      MACRO
             mov     [edi],al
             inc     edi
             ENDM
-            
+
 LODSB_      MACRO
             mov     al,[esi]
             inc     esi
@@ -386,7 +386,7 @@ STOSW_      MACRO
             mov     [edi],ax
             add     edi,2
             ENDM
-            
+
 LODSW_      MACRO
             mov     ax,[esi]
             add     esi,2
@@ -404,7 +404,7 @@ STOSD_      MACRO
             mov     [edi],eax
             add     edi,4
             ENDM
-            
+
 LODSD_      MACRO
             mov     eax,[esi]
             add     esi,4
@@ -450,7 +450,10 @@ RMOVSD      MACRO
 ;--------------------------------
 ; 32-bit string macros
 
+; demech2: begin change. A label for MW2's aligned fill below.
 RSTOSB32    MACRO   temp
+            LOCAL   __bytes
+; demech2: end change
 
             IFNB    <temp>
 
@@ -470,26 +473,40 @@ RSTOSB32    MACRO   temp
 
             ELSE
 
-            push    ecx
-            and     ecx,11B
-            RSTOSB
-
+; demech2: begin change. MW2 fills runs of more than 4 bytes with the destination aligned:
+; bytes up to a dword boundary, then dwords, then the remaining bytes.
+            cmp     ecx,4
+            jle     __bytes
+            push    ebx
             mov     ah,al
+            mov     ebx,ecx
+            mov     ecx,edi
             rol     eax,8
+            neg     ecx
+            and     ecx,11B
             mov     al,ah
+            sub     ebx,ecx
+            RSTOSB
             rol     eax,8
+            mov     ecx,ebx
             mov     al,ah
-
-            pop     ecx
+            and     ebx,11B
             shr     ecx,2
             RSTOSD
+            mov     ecx,ebx
+            pop     ebx
+__bytes:    RSTOSB
 
             ENDIF
+; demech2: end change
 
             ENDM
 
 
+; demech2: begin change. A label for MW2's aligned copy below.
 RMOVSB32    MACRO   temp
+            LOCAL   __bytes
+; demech2: end change
 
             IFNB    <temp>
 
@@ -502,14 +519,27 @@ RMOVSB32    MACRO   temp
 
             ELSE
 
-            push    ecx
+; demech2: begin change. MW2 copies runs of more than 4 bytes with the destination aligned:
+; bytes up to a dword boundary, then dwords, then the remaining bytes.
+            cmp     ecx,4
+            jle     __bytes
+            push    ebx
+            mov     ebx,ecx
+            mov     ecx,edi
+            neg     ecx
             and     ecx,11B
+            sub     ebx,ecx
             RMOVSB
-            pop     ecx
+            mov     ecx,ebx
+            and     ebx,11B
             shr     ecx,2
             RMOVSD
+            mov     ecx,ebx
+            pop     ebx
+__bytes:    RMOVSB
 
             ENDIF
+; demech2: end change
 
             ENDM
 
@@ -521,43 +551,16 @@ RXLAT32     MACRO
             or ecx,ecx
             jz __exit
 
-            cmp ecx,4
-            jl __xlat_1
-
-__xlat_4:   mov al,[esi]
-            mov al,lookaside[eax]
-            mov [edi],al
-
-            mov al,[esi+1]
-            mov al,lookaside[eax]
-            mov [edi+1],al
-
-            mov al,[esi+2]
-            mov al,lookaside[eax]
-            mov [edi+2],al
-
-            mov al,[esi+3]
-            mov al,lookaside[eax]
-            mov [edi+3],al
-
-            add esi,4
-            add edi,4
-
-            sub ecx,4
-            jz __exit
-
-            cmp ecx,4
-            jge __xlat_4
-
+; demech2: begin change. MW2 translates one byte at a time, without the four-byte unrolled loop.
 __xlat_1:   mov al,[esi]
+            inc esi
             mov al,lookaside[eax]
             mov [edi],al
-
-            inc esi
             inc edi
 
             dec ecx
             jnz __xlat_1
+; demech2: end change
 
 __exit:
             ENDM
@@ -671,7 +674,7 @@ FPMUL       MACRO Multiplier
             ;
             ;Warning: destroys Divisor
             ;
-            
+
 FPDIV       MACRO Divisor
 
             xor eax,eax
@@ -687,7 +690,7 @@ FPDIV       MACRO Divisor
             ;
             ;Warning: destroys Divisor
             ;
-            
+
 FPDIV       MACRO Divisor
 
             xor eax,eax
@@ -713,7 +716,7 @@ FPDIV       MACRO Divisor
 ;         CP_A     Base address of underlying window
 ;         CP_W     Width of underlying window
 ;
-;         CP_CX    equals pane.x0 
+;         CP_CX    equals pane.x0
 ;                  Window x coord. = Pane x coord. + (CP_CX = pane.x0)
 ;         CP_CY    equals pane.y0
 ;                  Window y coord. = Pane y coord. + (CP_CY = pane.y0)
@@ -739,12 +742,12 @@ CLIP_PANE_TO_WINDOW     MACRO     panep:REQ, vname:=<CP>
 
                 ; &vname&_W = windowp->wnd_x1 + 1
                 ; if <= 0, return bad window
-    
+
                 mov     eax,[ebx].wnd_x1
                 inc     eax
                 mov     &vname&_W,eax
                 jle     ReturnBadWindow
-    
+
                 ; ecx = Ysize = windowp->wnd_y1 + 1
                 ; if <= 0, return bad window
 
@@ -763,18 +766,18 @@ CLIP_PANE_TO_WINDOW     MACRO     panep:REQ, vname:=<CP>
                 mov     &vname&_CX,eax
                 MAX     eax,0
                 mov     &vname&_L,eax
-    
+
                 mov     eax,[esi].y0
                 mov     &vname&_CY,eax
                 MAX     eax,0
                 mov     &vname&_T,eax
-    
+
                 mov     eax,[esi].x1
                 mov     edx,&vname&_W
                 dec     edx
                 MIN     eax,edx
                 mov     &vname&_R,eax
-    
+
                 mov     eax,[esi].y1
                 mov     edx,ecx
                 dec     edx
@@ -788,7 +791,7 @@ CLIP_PANE_TO_WINDOW     MACRO     panep:REQ, vname:=<CP>
                 mov     eax,&vname&_R
                 cmp     eax,&vname&_L
                 jl      ReturnBadPane
-    
+
                 mov     eax,&vname&_B
                 cmp     eax,&vname&_T
                 jl      ReturnBadPane
@@ -916,7 +919,7 @@ CONVERT_QUAD_WINDOW_TO_PANE MACRO x0:REQ, y0:REQ, x1:REQ, y1:REQ, vname:=<CP>
 ;         width    Destination variable for width
 ;         height   Destination variable for height
 ;
-; Output: width    
+; Output: width
 ;         height
 ;
 ; Uses:   eax, esi
@@ -936,6 +939,3 @@ GET_PANE_SIZE   MACRO p:REQ, width:REQ, height:REQ
                 mov height,eax
 
                 ENDM
-
-
-

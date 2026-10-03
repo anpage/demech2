@@ -73,6 +73,10 @@
 
                 PUBLIC VFX_driver_name
                 PUBLIC VFX_register_driver
+; demech2: begin change. Not in MW2: public for tests/asmequiv, which sets up and reads the driver
+; name, the shape lookaside table and the fade's error terms. No bytes change.
+                PUBLIC driver_name, lookaside, color_error
+; demech2: end change
 
                 PUBLIC VFX_pixel_write
                 PUBLIC VFX_pixel_read
@@ -5970,6 +5974,9 @@ VFX_pane_wipe PROC C USES ebx esi edi es,\
             
             LOCAL    CP_CX  ;Window x coord. = Pane x coord. + CP_CX
             LOCAL    CP_CY  ;Window y coord. = Pane x coord. + CP_CY
+; demech2: begin change. MW2 keeps the row width for its aligned fill below.
+            LOCAL    wipe_width
+; demech2: end change
 
             cld
             push ds
@@ -6017,21 +6024,41 @@ VFX_pane_wipe PROC C USES ebx esi edi es,\
         ;       adr += lineGap;
         ;    }
 
+; demech2: begin change. MW2 fills rows of 4 bytes or fewer byte by byte, and wider rows with the
+; destination aligned: bytes up to a dword boundary, then dwords, then the rest.
             mov     edx,CP_T
-            jmp     nextY
-loopY:      
+            mov     wipe_width,ebx
+            cmp     ebx,4
+            jle     nextY
+            jmp     nextWideY
+loopY:
             mov     ecx,ebx
-            and     ecx,11B
             RSTOSB
-            mov     ecx,ebx
-            shr     ecx,2
-            RSTOSD
-
             add     edi,esi
             inc     edx
-nextY:      
+nextY:
             cmp     edx,CP_B
             jle     loopY
+            jmp     Exit
+loopWideY:
+            mov     ecx,edi
+            mov     ebx,wipe_width
+            neg     ecx
+            and     ecx,11B
+            sub     ebx,ecx
+            RSTOSB
+            mov     ecx,ebx
+            and     ebx,11B
+            shr     ecx,2
+            RSTOSD
+            mov     ecx,ebx
+            RSTOSB
+            add     edi,esi
+            inc     edx
+nextWideY:
+            cmp     edx,CP_B
+            jle     loopWideY
+; demech2: end change
 
         ; normal exit and error exits
 
@@ -7748,10 +7775,9 @@ __setup_copy:
 
 __copy_line:                                    ;do 16-bit writes for overhead        
 
-                shr ecx,1                       ;3
-                rep movsw                       ;8+4*ecx/2
-                adc ecx,0                       ;2
+; demech2: begin change. MW2 copies the character's rows a byte at a time, without the word copy.
                 rep movsb                       ;8
+; demech2: end change
 
                 mov ecx,dst_char_width          ;setup for next line
                 add esi,src_char_width

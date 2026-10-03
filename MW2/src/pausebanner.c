@@ -39,7 +39,7 @@ MechS32 g_unk0x100a15d4 = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
-Pane g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
+PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 
 // GLOBAL: MW2 0x100a15f4
 MechS32 g_pausedBannerUnscaled = 1;
@@ -52,13 +52,13 @@ void DrawPausedBanner(void)
 	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
-			g_pausedBannerRect.m_buffer = &g_mainPixelBuffer;
+			g_pausedBannerRect.m_window = &g_mainPixelBuffer;
 			ScaleRectToScreen(&g_mainPixelBuffer, &g_pausedBannerRect, &g_pausedBannerRect);
 			FUN_10056fcf(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
 			g_pausedBannerUnscaled = 0;
 		}
 
-		BlitShpFrame(&g_pausedBannerRect, shape, 0, 0, 0);
+		VFX_shape_draw(&g_pausedBannerRect, shape, 0, 0, 0);
 	}
 }
 

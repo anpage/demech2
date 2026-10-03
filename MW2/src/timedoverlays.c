@@ -18,13 +18,13 @@
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
-Pane g_unk0x100adee0 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+PANE g_unk0x100adee0 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
 undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
-Pane g_unk0x100adef8 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+PANE g_unk0x100adef8 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
 undefined4 g_unk0x100adf0c = 0;
@@ -52,7 +52,7 @@ void FUN_1006ee60(void)
 	MechS32 sign;
 	MechS32 dy;
 	MechS32 dx;
-	Pane* target;
+	PANE* target;
 	void* font;
 	MechS32 i;
 	TimedOverlay* overlay;
@@ -76,18 +76,18 @@ void FUN_1006ee60(void)
 			sign = 1;
 		}
 
-		dx = -target->m_left;
-		dy = target->m_top * sign;
-		target->m_left += dx;
-		target->m_top += dy;
-		target->m_right += dx;
-		target->m_bottom += dy;
+		dx = -target->m_x0;
+		dy = target->m_y0 * sign;
+		target->m_x0 += dx;
+		target->m_y0 += dy;
+		target->m_x1 += dx;
+		target->m_y1 += dy;
 		FUN_10056bc1(target, &overlay->m_textPos, &overlay->m_textPos);
 
 		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 		if (font != NULL) {
-			height = target->m_bottom - target->m_top + 1;
-			fontHeight = FontGetHeight(font);
+			height = target->m_y1 - target->m_y0 + 1;
+			fontHeight = VFX_font_height(font);
 			overlay->m_textPos.m_y = (height - fontHeight) / 2;
 		}
 	}
@@ -183,8 +183,8 @@ void DrawTimedOverlays(void)
 						0
 					);
 					if (background != NULL) {
-						BlitShpFrame(overlay->m_target, background, 0, 0, 0);
-						BlitString(
+						VFX_shape_draw(overlay->m_target, background, 0, 0, 0);
+						VFX_string_draw(
 							overlay->m_target,
 							overlay->m_textPos.m_x,
 							overlay->m_textPos.m_y,
@@ -208,9 +208,9 @@ void DrawTimedOverlays(void)
 // FUNCTION: MW2 0x1006f28f
 void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
-	Pane centered;
+	PANE centered;
 	void* background;
-	Pane rect;
+	PANE rect;
 	void* font;
 
 	background = NULL;
@@ -224,28 +224,28 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 
 	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
-		rect.m_buffer = &g_mainPixelBuffer;
+		rect.m_window = &g_mainPixelBuffer;
 		FUN_100575b9(p_text, font, &rect);
 		if (p_x >= 0) {
-			rect.m_left += p_x;
-			rect.m_right += p_x;
+			rect.m_x0 += p_x;
+			rect.m_x1 += p_x;
 		}
 		else {
 			centered = rect;
 			CenterRectOnScreen(&g_mainPixelBuffer, &centered, &centered);
-			rect.m_left = centered.m_left;
-			rect.m_right = centered.m_right;
+			rect.m_x0 = centered.m_x0;
+			rect.m_x1 = centered.m_x1;
 		}
 
 		if (p_y >= 0) {
-			rect.m_top += p_y;
-			rect.m_bottom += p_y;
+			rect.m_y0 += p_y;
+			rect.m_y1 += p_y;
 		}
 		else {
 			centered = rect;
 			CenterRectOnScreen(&g_mainPixelBuffer, &centered, &centered);
-			rect.m_top = centered.m_top;
-			rect.m_bottom = centered.m_bottom;
+			rect.m_y0 = centered.m_y0;
+			rect.m_y1 = centered.m_y1;
 		}
 
 		if (background != NULL) {

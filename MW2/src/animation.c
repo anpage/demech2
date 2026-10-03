@@ -4,12 +4,12 @@
 #include "decomp.h"
 #include "loadres.h"
 #include "mw2prj.h"
-#include "pixelbuffer.h"
-#include "polyfill.h"
 #include "render.h"
 #include "resource.h"
 #include "types.h"
 #include "unk1006dd50.h"
+#include "vfx3d.h"
+#include "window.h"
 
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
@@ -51,7 +51,7 @@ AnimFrame g_animFrames[0x200][0x20];
 Animation g_animations[0x200];
 
 // GLOBAL: MW2 0x100e9210
-PixelBuffer g_animFrameBuffer;
+WINDOW g_animFrameBuffer;
 
 // Stack-slot permutation: anim, data, height, i, luma, mode and useLuma and width.
 // FUNCTION: MW2 0x10068d10
@@ -134,14 +134,14 @@ MechS32 FUN_10068d10(
 	else {
 		if (useLuma) {
 			luma = g_lumaTables + p_luma * 0x80;
-			SetLumaTable(luma);
+			VFX_map_lookaside(luma);
 			mode |= 1;
 		}
 
-		g_animFrameBuffer.m_pixels = (undefined*) data;
-		g_animFrameBuffer.m_maxX = width - 1;
-		g_animFrameBuffer.m_maxY = height - 1;
-		FillPolygonTextured(&g_currentPane, p_count, p_points, &g_animFrameBuffer, mode);
+		g_animFrameBuffer.m_buffer = (undefined*) data;
+		g_animFrameBuffer.m_xMax = width - 1;
+		g_animFrameBuffer.m_yMax = height - 1;
+		VFX_map_polygon(&g_currentPane, p_count, p_points, &g_animFrameBuffer, mode);
 	}
 
 	return 1;

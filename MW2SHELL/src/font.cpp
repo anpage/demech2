@@ -1,7 +1,7 @@
 #include "font.h"
 
-#include "blit.h"
 #include "textglyph.h"
+#include "vfxa.h"
 #include "videodriver.h"
 #include "windowstate.h"
 
@@ -13,7 +13,7 @@ Font::Font(void* p_data, VideoDriver* p_videoDriver)
 	m_videoDriver = p_videoDriver;
 	m_data = p_data;
 	m_dataCopy = m_data;
-	m_height = FontGetHeight(m_data);
+	m_height = VFX_font_height(m_data);
 }
 
 // Nothing in the shell deletes a Font, so the destructor has no callers.
@@ -34,7 +34,7 @@ MechS32 Font::GetTextWidth(MechChar* p_text)
 
 	width = 0;
 	for (; *p_text != '\0'; p_text++) {
-		width += FontGetCharWidth(m_data, *p_text);
+		width += VFX_character_width(m_data, *p_text);
 	}
 
 	return width;
@@ -43,7 +43,7 @@ MechS32 Font::GetTextWidth(MechChar* p_text)
 // FUNCTION: MW2SHELL 0x10005424
 MechS32 Font::GetCharacterWidth(MechS32 p_char)
 {
-	return FontGetCharWidth(m_data, p_char);
+	return VFX_character_width(m_data, p_char);
 }
 
 // Draws p_text and keeps its glyph among the glyphs drawn under the videos.

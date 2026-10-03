@@ -1,12 +1,12 @@
 #ifndef RENDERTARGET_H
 #define RENDERTARGET_H
 
-#include "blit.h"
 #include "decomp.h"
 #include "navpoint.h"
 #include "pane.h"
-#include "pixelbuffer.h"
 #include "types.h"
+#include "vfxa.h"
+#include "window.h"
 
 struct AmberWillow0x7c;
 struct Player;

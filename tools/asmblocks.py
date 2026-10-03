@@ -13,12 +13,12 @@ routine's entry (conditional jumps start two blocks, calls return), so the dead 
 after a return isn't one. A call to an address after the routine and before the next export is
 followed too, as part of the routine: the helpers of a MASM object (sndunpack.asm's upsampling),
 which take their arguments in registers and have no export of their own. ML put some helpers
-outside their routine's range, even before it (blit.asm's GIF decoder and run-length encoder):
+outside their routine's range, even before it (VFXA's GIF decoder and run-length encoder):
 for the routines in HELPER_CALLERS, every call to code without an export is followed, and a
 block before the routine has a negative offset. An indirect jmp ends a
 block; a routine with one also starts blocks at every address in its range that a relocated
-pointer outside its instructions holds: the code a jump table leads to (polyfill.asm's span
-routines, which FillPolygonTextured jumps to through g_polySpanRoutines). An incremental link's export is a jmp
+pointer outside its instructions holds: the code a jump table leads to (VFX3D's span
+routines, which VFX_map_polygon jumps to through __map_logic). An incremental link's export is a jmp
 to the routine: it is followed, as the driver does.
 
 usage: python tools/asmblocks.py REF.dll -o BLOCKS.txt
@@ -38,7 +38,7 @@ from asm2c import JCC, Image  # noqa: E402
 IMAGE_SCN_MEM_EXECUTE = 0x20000000
 
 # Routines whose helpers lie outside their range (see above)
-HELPER_CALLERS = {"BlitGif", "EncodeViewRle"}
+HELPER_CALLERS = {"VFX_GIF_draw", "VFX_shape_scan"}
 
 
 class Dll(Image):

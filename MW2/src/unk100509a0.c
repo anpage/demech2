@@ -83,7 +83,7 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 		}
 
 		if (!camera) {
-			FillView(p_panel->m_target, 0);
+			VFX_pane_wipe(p_panel->m_target, 0);
 		}
 		else {
 			FUN_10050dc3(&saved);
@@ -168,7 +168,7 @@ void FUN_10050e20(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x10050e6c
 void FUN_10050e6c(CobaltHarbor0x88* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 {
-	Pane* target;
+	PANE* target;
 	MechS32 x;
 	MechS32 y;
 
@@ -183,10 +183,10 @@ void FUN_10050e6c(CobaltHarbor0x88* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 // FUNCTION: MW2 0x10050ebe
 void FUN_10050ebe(CobaltHarbor0x88* p_panel)
 {
-	Pane savedTarget;
-	Pane savedSlot;
+	PANE savedTarget;
+	PANE savedSlot;
 	RectTransition* transition;
-	Pane* frame;
+	PANE* frame;
 
 	if (!p_panel->m_enabled || !g_unk0x100aa2a4 || g_unk0x100aa2a4 == 2 || g_unk0x100aa2a4 == 1) {
 		return;
@@ -220,10 +220,10 @@ void FUN_10050ebe(CobaltHarbor0x88* p_panel)
 // FUNCTION: MW2 0x10050fd6
 void FUN_10050fd6(CobaltHarbor0x88* p_panel)
 {
-	Pane savedTarget;
-	Pane savedSlot;
+	PANE savedTarget;
+	PANE savedSlot;
 	RectTransition* transition;
-	Pane* frame;
+	PANE* frame;
 
 	if (!p_panel->m_enabled || !g_unk0x100aa2a4 || g_unk0x100aa2a4 == 2 || g_unk0x100aa2a4 == 1) {
 		return;

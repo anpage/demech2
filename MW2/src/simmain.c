@@ -481,7 +481,7 @@ int __stdcall SimMain(
 
 		FadeToEndPalette(g_carCfg.m_unk0x1d & 4);
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-			FillView(&g_currentPane, 0);
+			VFX_pane_wipe(&g_currentPane, 0);
 		}
 
 		DebugPrint("Calling Blit()\n");

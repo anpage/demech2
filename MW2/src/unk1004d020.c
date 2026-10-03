@@ -119,7 +119,7 @@ void FUN_1004d020(void)
 // Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
 // height, target and color).
 // FUNCTION: MW2 0x1004d175
-void FUN_1004d175(Pane* p_target)
+void FUN_1004d175(PANE* p_target)
 {
 	MechS32 heat;
 	MechS32 width;
@@ -172,7 +172,7 @@ void FUN_1004d175(Pane* p_target)
 // Draws the heat rate bar.
 // Stack-slot permutation: level, backColor, fill, fillColor and mech.
 // FUNCTION: MW2 0x1004d310
-void FUN_1004d310(Pane* p_target)
+void FUN_1004d310(PANE* p_target)
 {
 	MechS32 level;
 	MechS32 backColor;
@@ -229,7 +229,7 @@ void FUN_1004d310(Pane* p_target)
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
 // Stack-slot permutation: color, mech, width, height, x, y and value.
 // FUNCTION: MW2 0x1004d48a
-void FUN_1004d48a(Pane* p_target)
+void FUN_1004d48a(PANE* p_target)
 {
 	MechS32 color;
 	Mech* mech;
@@ -240,10 +240,10 @@ void FUN_1004d48a(Pane* p_target)
 	MechS32 value;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	BlitLine(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8338, g_unk0x100a8344, 0, 10);
-	BlitLine(p_target, g_unk0x100a8340, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
-	BlitLine(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a833c, 0, 10);
-	BlitLine(p_target, g_unk0x100a8338, g_unk0x100a8344, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
+	VFX_line_draw(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8338, g_unk0x100a8344, 0, 10);
+	VFX_line_draw(p_target, g_unk0x100a8340, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
+	VFX_line_draw(p_target, g_unk0x100a8338, g_unk0x100a833c, g_unk0x100a8340, g_unk0x100a833c, 0, 10);
+	VFX_line_draw(p_target, g_unk0x100a8338, g_unk0x100a8344, g_unk0x100a8340, g_unk0x100a8344, 0, 10);
 	value = mech->m_player->m_steering->m_throttle << 16;
 	value = MulDiv64(value, g_unk0x100a8330.m_y, 0x400);
 	if (mech->m_player->m_steering->m_unk0x2f) {
@@ -276,7 +276,7 @@ void FUN_1004d48a(Pane* p_target)
 
 // Draws the jump jet fuel bar.
 // FUNCTION: MW2 0x1004d660
-void FUN_1004d660(Pane* p_target)
+void FUN_1004d660(PANE* p_target)
 {
 	MechS32 fill;
 	Mech* mech;
@@ -305,7 +305,7 @@ void FUN_1004d660(Pane* p_target)
 // Draws a bar p_height up from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, top and i.
 // FUNCTION: MW2 0x1004d732
-void FUN_1004d732(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
+void FUN_1004d732(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
 	MechS32 dark;
@@ -324,27 +324,27 @@ void FUN_1004d732(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, Mec
 	}
 
 	for (i = 0; i < end; i++) {
-		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
 	}
 
 	for (i = end; i < half; i++) {
-		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, p_color);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, p_color);
 	}
 
 	end = half + (p_width - half) / 2;
 	for (i = half; i < end; i++) {
-		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
 	}
 
 	for (i = end; p_width > i; i++) {
-		BlitLine(p_target, i + p_x, p_y, i + p_x, top, 0, darker);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, darker);
 	}
 }
 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, right and i.
 // FUNCTION: MW2 0x1004d8ae
-void FUN_1004d8ae(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
+void FUN_1004d8ae(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
 	MechS32 dark;
@@ -363,19 +363,19 @@ void FUN_1004d8ae(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, Mec
 	}
 
 	for (i = 0; i < end; i++) {
-		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
 	}
 
 	for (i = end; i < half; i++) {
-		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, p_color);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, p_color);
 	}
 
 	end = half + (p_height - half) / 2;
 	for (i = half; i < end; i++) {
-		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
 	}
 
 	for (i = end; p_height > i; i++) {
-		BlitLine(p_target, p_x, i + p_y, right, i + p_y, 0, darker);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, darker);
 	}
 }

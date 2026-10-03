@@ -1,6 +1,5 @@
 #include "menu.h"
 
-#include "blit.h"
 #include "commandmenu.h"
 #include "commandpointmenu.h"
 #include "decomp.h"
@@ -21,6 +20,7 @@
 #include "types.h"
 #include "unk1005e9b0.h"
 #include "unk10073af0.h"
+#include "vfxa.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -172,9 +172,9 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 	void* shape;
 	MechS32 dx;
 	MechS32 size;
-	Pane* target;
+	PANE* target;
 	Point origin;
-	Pane* background;
+	PANE* background;
 
 	target = p_menu->m_target;
 	if (!target) {
@@ -186,11 +186,11 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 		return;
 	}
 
-	if (!target->m_buffer) {
+	if (!target->m_window) {
 		return;
 	}
 
-	if (!background->m_buffer) {
+	if (!background->m_window) {
 		return;
 	}
 
@@ -198,14 +198,14 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 		shape =
 			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
-			size = GetShpFrameSize(shape, 0);
+			size = VFX_shape_bounds(shape, 0);
 			FUN_1001a163(p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 			scale.m_x = size >> 16;
 			scale.m_y = size & 0xffff;
 			scale.m_x = FixedDiv16(scale.m_x, g_screenWidthMinus1 + 1);
 			scale.m_y = FixedDiv16(scale.m_y, g_screenHeightMinus1 + 1);
-			scale.m_x = FixedDiv16(scale.m_x, background->m_right - background->m_left + 1);
-			scale.m_y = FixedDiv16(scale.m_y, background->m_bottom - background->m_top + 1);
+			scale.m_x = FixedDiv16(scale.m_x, background->m_x1 - background->m_x0 + 1);
+			scale.m_y = FixedDiv16(scale.m_y, background->m_y1 - background->m_y0 + 1);
 			FUN_10056ec5(background, background, scale);
 		}
 	}
@@ -214,17 +214,17 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 	origin.m_y = FixedDiv16(1, p_menu->m_unk0x3c + 2);
 	p_menu->m_unk0x48.m_y = FixedDiv16(origin.m_y, 0x20000);
 	p_menu->m_unk0x50.m_y = p_menu->m_unk0x58.m_y = p_menu->m_unk0x60.m_y = origin.m_y + origin.m_y;
-	ScaleRectToScreen(target->m_buffer, target, target);
-	ScaleRectToScreen(background->m_buffer, background, background);
+	ScaleRectToScreen(target->m_window, target, target);
+	ScaleRectToScreen(background->m_window, background, background);
 	FUN_10056bc1(target, &origin, &origin);
 	FUN_10056bc1(target, &p_menu->m_unk0x48, &p_menu->m_unk0x48);
 	FUN_10056bc1(target, &p_menu->m_unk0x50, &p_menu->m_unk0x50);
 	FUN_10056bc1(target, &p_menu->m_unk0x58, &p_menu->m_unk0x58);
 	FUN_10056bc1(target, &p_menu->m_unk0x60, &p_menu->m_unk0x60);
 	if (p_menu->m_flags & 0x10) {
-		dx = background->m_left - target->m_left;
-		background->m_left -= dx;
-		background->m_right -= dx;
+		dx = background->m_x0 - target->m_x0;
+		background->m_x0 -= dx;
+		background->m_x1 -= dx;
 	}
 
 	p_menu->m_unk0x40 = origin;
@@ -352,8 +352,8 @@ void FirstMenu(void)
 		if (menu) {
 			ok = 0;
 			if (menu->m_target && menu->m_backgroundTarget) {
-				menu->m_backgroundTarget->m_buffer = &g_mainPixelBuffer;
-				menu->m_target->m_buffer = menu->m_backgroundTarget->m_buffer;
+				menu->m_backgroundTarget->m_window = &g_mainPixelBuffer;
+				menu->m_target->m_window = menu->m_backgroundTarget->m_window;
 				FUN_1003c5a2(menu);
 				page = menu->m_rootPage;
 				if (page) {
@@ -506,8 +506,8 @@ void UpdateMenus(void)
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 {
 	MechS32 result;
-	Pane* target;
-	Pane* backgroundTarget;
+	PANE* target;
+	PANE* backgroundTarget;
 
 	result = FALSE;
 	target = p_menu->m_target;
@@ -522,11 +522,11 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 
 	LoadMenuResources(p_menu);
 	if (p_menu->m_flags & 0x20) {
-		FillView(target, 0);
+		VFX_pane_wipe(target, 0);
 	}
 
 	if (p_menu->m_background) {
-		BlitShpFrame(backgroundTarget, p_menu->m_background, 0, 0, 0);
+		VFX_shape_draw(backgroundTarget, p_menu->m_background, 0, 0, 0);
 	}
 
 	if (p_menu->m_flags & 4) {
@@ -600,7 +600,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	Point textPos;
 	MechS32 offset;
 	MechS32 i;
-	Pane* target;
+	PANE* target;
 	void* font;
 	MechS32 move;
 	MechS32 key;
@@ -718,7 +718,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	g_unk0x100e9350[0xe] = p_menu->m_color;
 	if (page->m_title) {
 		textPos = p_menu->m_unk0x48;
-		BlitString(target, textPos.m_x, textPos.m_y, font, page->m_title, g_unk0x100e9350);
+		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_unk0x100e9350);
 	}
 
 	if (p_menu->m_flags & 4) {
@@ -728,13 +728,13 @@ void RunMenuItems(MenuDefinition* p_menu)
 		FUN_100571ea(target, page->m_title, textPos, font, 1);
 	}
 
-	height = FontGetHeight(font);
+	height = VFX_font_height(font);
 	cursor = p_menu->m_unk0x50;
 	cursor.m_y += height / 2;
 	textPos = p_menu->m_unk0x58;
 	controlPos = p_menu->m_unk0x60;
-	numberWidth = FontGetCharWidth(font, '0') * 2;
-	numberWidth += FontGetCharWidth(font, '.');
+	numberWidth = VFX_character_width(font, '0') * 2;
+	numberWidth += VFX_character_width(font, '.');
 	n = 0;
 	offset = 0;
 	for (i = 0; i < page->m_itemCount; i++) {
@@ -755,7 +755,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		cursor.m_y += offset;
 		offset = p_menu->m_unk0x40.m_y;
 		if (selected == i && p_menu->m_unk0x20) {
-			BlitShpFrame(target, p_menu->m_unk0x20, 0, cursor.m_x, cursor.m_y);
+			VFX_shape_draw(target, p_menu->m_unk0x20, 0, cursor.m_x, cursor.m_y);
 		}
 
 		if (item->m_type != 3) {
@@ -767,11 +767,11 @@ void RunMenuItems(MenuDefinition* p_menu)
 			}
 
 			_itoa(n, number, 10);
-			BlitString(target, textPos.m_x, textPos.m_y, font, number, g_unk0x100e9350);
+			VFX_string_draw(target, textPos.m_x, textPos.m_y, font, number, g_unk0x100e9350);
 		}
 
 		if (item->m_text) {
-			BlitString(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_unk0x100e9350);
+			VFX_string_draw(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_unk0x100e9350);
 		}
 
 		if (item->m_run) {

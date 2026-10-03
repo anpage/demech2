@@ -1,8 +1,22 @@
 [demech2 note]
 
-These files originally come from John Miles's open-source release of the Miles
-Design VFX Graphics System (the vfx119.zip archive on his website); his
-original README follows below this note.
+These files come from John Miles's open-source release of the Miles Design
+VFX Graphics System (the vfx119 archive, mirrored at
+https://github.com/dah4k/VFX119); his original README follows below this note.
+
+MechWarrior 2 for Windows 95 links a lightly modified version of this code into
+both MW2.DLL and MW2SHELL.DLL: VFXA.ASM (2D primitives), VFX3D.ASM (polygon
+fillers) and VFXREND.ASM (release 1.06, the polygon renderer), with VFX.INC and
+RENDOPTS.INC. The build assembles them with MASM 6.11 (ML /coff /Cx /DMASM
+/DFLAT_MODEL) into objects identical to the game's, code, data and relocations.
+VFX.H and VFXREND.H aren't built: they document the C API.
+
+Every change to the release is between "; demech2: begin change." and "; demech2:
+end change" comments, which say why: MW2's own changes (aligned fills and copies,
+its set of polygon primitives, GetCodeBlock) and a few for the tools (MASM 6.11's
+handling of ORG, the debug information reccmp reads, publics for the tests). The
+files are otherwise as released, but for their line endings and encoding (LF
+and UTF-8 here; the release has CRLF and code page 437) and this note.
 
 -------------------------------------------------------------------------------
 

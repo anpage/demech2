@@ -1,7 +1,6 @@
 #include "videodriver.h"
 
 #include "audiosubsystem.h"
-#include "blit.h"
 #include "debugprint.h"
 #include "displaybackend.h"
 #include "gdi.h"
@@ -9,6 +8,7 @@
 #include "shellglobals.h"
 #include "textglyphlist.h"
 #include "tmpackdatabase.h"
+#include "vfxa.h"
 #include "video.h"
 #include "windowstate.h"
 
@@ -17,8 +17,8 @@
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(VideoDriver, 0x3ae)
-DECOMP_SIZE_ASSERT(PixelBuffer, 0x14)
-DECOMP_SIZE_ASSERT(Pane, 0x14)
+DECOMP_SIZE_ASSERT(WINDOW, 0x14)
+DECOMP_SIZE_ASSERT(PANE, 0x14)
 
 // Only the height field of the font data header is used by the text drawing wrappers.
 struct VideoFontHeader {
@@ -83,28 +83,28 @@ VideoDriver::VideoDriver()
 	m_height = g_windowHeight;
 	m_pictureMaxX = m_width - 1;
 	m_pictureMaxY = m_height - 1;
-	m_screenBuffer.m_maxX = m_backBuffer.m_maxX = m_width - 1;
-	m_screenBuffer.m_maxY = m_backBuffer.m_maxY = m_height - 1;
+	m_screenBuffer.m_xMax = m_backBuffer.m_xMax = m_width - 1;
+	m_screenBuffer.m_yMax = m_backBuffer.m_yMax = m_height - 1;
 
-	m_backBuffer.m_pixels =
+	m_backBuffer.m_buffer =
 		(undefined*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, m_width * m_height);
-	if (!m_backBuffer.m_pixels) {
+	if (!m_backBuffer.m_buffer) {
 		QuitWithVDriverError(1);
 	}
 
-	m_screenView.m_left = m_backView.m_left = 0;
-	m_screenView.m_top = m_backView.m_top = 0;
-	m_screenView.m_right = m_backView.m_right = m_screenBuffer.m_maxX;
-	m_screenView.m_bottom = m_backView.m_bottom = m_screenBuffer.m_maxY;
-	m_screenView.m_buffer = &m_screenBuffer;
-	m_backView.m_buffer = &m_backBuffer;
+	m_screenView.m_x0 = m_backView.m_x0 = 0;
+	m_screenView.m_y0 = m_backView.m_y0 = 0;
+	m_screenView.m_x1 = m_backView.m_x1 = m_screenBuffer.m_xMax;
+	m_screenView.m_y1 = m_backView.m_y1 = m_screenBuffer.m_yMax;
+	m_screenView.m_window = &m_screenBuffer;
+	m_backView.m_window = &m_backBuffer;
 
 	// Start with an empty (inverted) dirty rectangle.
-	m_dirtyView.m_left = m_screenView.m_right;
-	m_dirtyView.m_top = m_screenView.m_bottom;
-	m_dirtyView.m_right = m_screenView.m_left;
-	m_dirtyView.m_bottom = m_screenView.m_top;
-	m_dirtyView.m_buffer = m_screenView.m_buffer;
+	m_dirtyView.m_x0 = m_screenView.m_x1;
+	m_dirtyView.m_y0 = m_screenView.m_y1;
+	m_dirtyView.m_x1 = m_screenView.m_x0;
+	m_dirtyView.m_y1 = m_screenView.m_y0;
+	m_dirtyView.m_window = m_screenView.m_window;
 
 	m_overlayGlyphs = new TextGlyphList();
 	m_glyphs = new TextGlyphList();
@@ -123,24 +123,24 @@ VideoDriver::~VideoDriver()
 {
 	delete m_overlayGlyphs;
 	delete m_glyphs;
-	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_backBuffer.m_pixels);
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_backBuffer.m_buffer);
 	ShutdownRefreshMode();
 }
 
 // FUNCTION: MW2SHELL 0x100062a0
 void VideoDriver::ExpandRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
-	if (p_left < m_dirtyView.m_left) {
-		m_dirtyView.m_left = p_left;
+	if (p_left < m_dirtyView.m_x0) {
+		m_dirtyView.m_x0 = p_left;
 	}
-	if (p_top < m_dirtyView.m_top) {
-		m_dirtyView.m_top = p_top;
+	if (p_top < m_dirtyView.m_y0) {
+		m_dirtyView.m_y0 = p_top;
 	}
-	if (p_right > m_dirtyView.m_right) {
-		m_dirtyView.m_right = p_right;
+	if (p_right > m_dirtyView.m_x1) {
+		m_dirtyView.m_x1 = p_right;
 	}
-	if (p_bottom > m_dirtyView.m_bottom) {
-		m_dirtyView.m_bottom = p_bottom;
+	if (p_bottom > m_dirtyView.m_y1) {
+		m_dirtyView.m_y1 = p_bottom;
 	}
 }
 
@@ -150,25 +150,25 @@ void VideoDriver::ExpandRectBySize(MechS32 p_left, MechS32 p_top, MechS32 p_widt
 	MechS32 right = p_left + p_width - 1;
 	MechS32 bottom = p_top + p_height - 1;
 
-	if (p_left < m_dirtyView.m_left) {
-		m_dirtyView.m_left = p_left;
+	if (p_left < m_dirtyView.m_x0) {
+		m_dirtyView.m_x0 = p_left;
 	}
-	if (p_top < m_dirtyView.m_top) {
-		m_dirtyView.m_top = p_top;
+	if (p_top < m_dirtyView.m_y0) {
+		m_dirtyView.m_y0 = p_top;
 	}
-	if (right > m_dirtyView.m_right) {
-		m_dirtyView.m_right = right;
+	if (right > m_dirtyView.m_x1) {
+		m_dirtyView.m_x1 = right;
 	}
-	if (bottom > m_dirtyView.m_bottom) {
-		m_dirtyView.m_bottom = bottom;
+	if (bottom > m_dirtyView.m_y1) {
+		m_dirtyView.m_y1 = bottom;
 	}
 }
 
 // FUNCTION: MW2SHELL 0x100063d4
 MechS32 VideoDriver::IntersectsRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
-	if (p_left > m_dirtyView.m_right || p_right < m_dirtyView.m_left || p_top > m_dirtyView.m_bottom ||
-		p_bottom < m_dirtyView.m_top) {
+	if (p_left > m_dirtyView.m_x1 || p_right < m_dirtyView.m_x0 || p_top > m_dirtyView.m_y1 ||
+		p_bottom < m_dirtyView.m_y0) {
 		return FALSE;
 	}
 	else {
@@ -182,8 +182,8 @@ MechS32 VideoDriver::IntersectsRectBySize(MechS32 p_left, MechS32 p_top, MechS32
 	MechS32 right = p_left + p_width - 1;
 	MechS32 bottom = p_top + p_height - 1;
 
-	if (p_left > m_dirtyView.m_right || right < m_dirtyView.m_left || p_top > m_dirtyView.m_bottom ||
-		bottom < m_dirtyView.m_top) {
+	if (p_left > m_dirtyView.m_x1 || right < m_dirtyView.m_x0 || p_top > m_dirtyView.m_y1 ||
+		bottom < m_dirtyView.m_y0) {
 		return FALSE;
 	}
 	else {
@@ -202,17 +202,17 @@ void VideoDriver::UpdatePalette()
 // FUNCTION: MW2SHELL 0x10006502
 void VideoDriver::DrawShell()
 {
-	if (m_screenView.m_left > m_dirtyView.m_left) {
-		m_dirtyView.m_left = m_screenView.m_left;
+	if (m_screenView.m_x0 > m_dirtyView.m_x0) {
+		m_dirtyView.m_x0 = m_screenView.m_x0;
 	}
-	if (m_dirtyView.m_top < m_screenView.m_top) {
-		m_dirtyView.m_top = m_screenView.m_top;
+	if (m_dirtyView.m_y0 < m_screenView.m_y0) {
+		m_dirtyView.m_y0 = m_screenView.m_y0;
 	}
-	if (m_dirtyView.m_right > m_screenView.m_right) {
-		m_dirtyView.m_right = m_screenView.m_right;
+	if (m_dirtyView.m_x1 > m_screenView.m_x1) {
+		m_dirtyView.m_x1 = m_screenView.m_x1;
 	}
-	if (m_dirtyView.m_bottom > m_screenView.m_bottom) {
-		m_dirtyView.m_bottom = m_screenView.m_bottom;
+	if (m_dirtyView.m_y1 > m_screenView.m_y1) {
+		m_dirtyView.m_y1 = m_screenView.m_y1;
 	}
 
 	if (m_paletteChanged) {
@@ -227,40 +227,39 @@ void VideoDriver::DrawShell()
 			else {
 				ActivateFramebuffer();
 				g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_allColors);
-				memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
+				memcpy(m_screenBuffer.m_buffer, m_backBuffer.m_buffer, m_width * m_height);
 				g_currentRefreshMode->m_flip();
 			}
 		}
 		else if (m_fmvFirstFrame) {
-			memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
+			memcpy(m_backBuffer.m_buffer, m_screenBuffer.m_buffer, m_width * m_height);
 			ActivateFramebuffer();
 			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_allColors);
-			memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
+			memcpy(m_screenBuffer.m_buffer, m_backBuffer.m_buffer, m_width * m_height);
 			g_currentRefreshMode->m_flip();
 			m_fmvFirstFrame = 0;
 		}
 		else {
 			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_allColors);
 			g_currentRefreshMode
-				->m_blitRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
+				->m_blitRect(m_screenView.m_x0, m_screenView.m_y0, m_screenView.m_x1, m_screenView.m_y1);
 		}
 
 		m_paletteChanged = 0;
 	}
-	else if (m_dirtyView.m_right >= m_dirtyView.m_left && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
+	else if (m_dirtyView.m_x1 >= m_dirtyView.m_x0 && m_dirtyView.m_y0 <= m_dirtyView.m_y1) {
 		if (g_menuVisible) {
-			GdiBitBltRectWithMenu(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+			GdiBitBltRectWithMenu(m_dirtyView.m_x0, m_dirtyView.m_y0, m_dirtyView.m_x1, m_dirtyView.m_y1);
 		}
 		else {
-			g_currentRefreshMode
-				->m_blitRect(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+			g_currentRefreshMode->m_blitRect(m_dirtyView.m_x0, m_dirtyView.m_y0, m_dirtyView.m_x1, m_dirtyView.m_y1);
 		}
 	}
 
-	m_dirtyView.m_left = m_screenView.m_right;
-	m_dirtyView.m_top = m_screenView.m_bottom;
-	m_dirtyView.m_right = m_screenView.m_left;
-	m_dirtyView.m_bottom = m_screenView.m_top;
+	m_dirtyView.m_x0 = m_screenView.m_x1;
+	m_dirtyView.m_y0 = m_screenView.m_y1;
+	m_dirtyView.m_x1 = m_screenView.m_x0;
+	m_dirtyView.m_y1 = m_screenView.m_y0;
 }
 
 // DrawShell for movie frames: the dirty rectangle is stretched to the screen, or drawn unscaled
@@ -272,10 +271,10 @@ void VideoDriver::DrawFmv()
 {
 	if (m_paletteChanged) {
 		if (m_fmvFirstFrame) {
-			memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
+			memcpy(m_backBuffer.m_buffer, m_screenBuffer.m_buffer, m_width * m_height);
 			ActivateFramebuffer();
 			g_currentDisplayBackend->m_setPalette(0, 0x100, m_palette, m_allColors);
-			memcpy(m_screenBuffer.m_pixels, m_backBuffer.m_pixels, m_width * m_height);
+			memcpy(m_screenBuffer.m_buffer, m_backBuffer.m_buffer, m_width * m_height);
 			m_fmvFirstFrame = 0;
 		}
 		else {
@@ -285,20 +284,19 @@ void VideoDriver::DrawFmv()
 		m_paletteChanged = 0;
 	}
 
-	if (m_dirtyView.m_left <= m_dirtyView.m_right && m_dirtyView.m_top <= m_dirtyView.m_bottom) {
+	if (m_dirtyView.m_x0 <= m_dirtyView.m_x1 && m_dirtyView.m_y0 <= m_dirtyView.m_y1) {
 		if (g_littleMovies) {
-			GdiBlitCentered(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+			GdiBlitCentered(m_dirtyView.m_x0, m_dirtyView.m_y0, m_dirtyView.m_x1, m_dirtyView.m_y1);
 		}
 		else {
-			g_currentRefreshMode
-				->m_stretchBlit(m_dirtyView.m_left, m_dirtyView.m_top, m_dirtyView.m_right, m_dirtyView.m_bottom);
+			g_currentRefreshMode->m_stretchBlit(m_dirtyView.m_x0, m_dirtyView.m_y0, m_dirtyView.m_x1, m_dirtyView.m_y1);
 		}
 	}
 
-	m_dirtyView.m_left = m_screenView.m_right;
-	m_dirtyView.m_top = m_screenView.m_bottom;
-	m_dirtyView.m_right = m_screenView.m_left;
-	m_dirtyView.m_bottom = m_screenView.m_top;
+	m_dirtyView.m_x0 = m_screenView.m_x1;
+	m_dirtyView.m_y0 = m_screenView.m_y1;
+	m_dirtyView.m_x1 = m_screenView.m_x0;
+	m_dirtyView.m_y1 = m_screenView.m_y0;
 }
 
 // FUNCTION: MW2SHELL 0x10006a04
@@ -318,7 +316,7 @@ void VideoDriver::SetPalette(PaletteColor* p_palette, undefined4 p_allColors)
 // FUNCTION: MW2SHELL 0x10006a6d
 void VideoDriver::LoadPicturePalette(undefined* p_data, MechS32 p_size, PaletteColor* p_palette)
 {
-	ReadPicturePalette(p_data, p_size, p_palette);
+	VFX_PCX_palette(p_data, p_size, p_palette);
 }
 
 // FUNCTION: MW2SHELL 0x10006a99
@@ -329,7 +327,7 @@ void VideoDriver::ReadPictureSize(MechS32* p_maxX, MechS32* p_maxY, undefined* p
 
 	switch (p_type) {
 	case 2:
-		m_pictureSize = GetPictureSize(p_data);
+		m_pictureSize = VFX_PCX_resolution(p_data);
 		break;
 	default:
 		m_pictureSize = 0;
@@ -362,11 +360,11 @@ void VideoDriver::ShowPicture(
 	m_allColors = 1;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitPicture(&m_screenView, m_picture);
-		BlitView(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
+		VFX_PCX_draw(&m_screenView, m_picture);
+		VFX_pane_copy(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
 	}
 
-	ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
+	ExpandRect(m_screenView.m_x0, m_screenView.m_y0, m_screenView.m_x1, m_screenView.m_y1);
 }
 
 // FUNCTION: MW2SHELL 0x10006c50
@@ -379,7 +377,7 @@ void VideoDriver::LoadBackground(TMPackDataBase* p_database, MechS32 p_id)
 		return;
 	}
 
-	ReadPicturePalette(data, size, g_tempPalette);
+	VFX_PCX_palette(data, size, g_tempPalette);
 	if (memcmp(g_tempPalette, m_palette, sizeof(m_palette))) {
 		memcpy(m_palette, g_tempPalette, sizeof(m_palette));
 		m_paletteChanged = 1;
@@ -387,39 +385,39 @@ void VideoDriver::LoadBackground(TMPackDataBase* p_database, MechS32 p_id)
 	}
 
 	if (m_paletteChanged) {
-		BlitPicture(&m_backView, data);
+		VFX_PCX_draw(&m_backView, data);
 		DrawShell();
 	}
 	else if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitPicture(&m_screenView, data);
-		memcpy(m_backBuffer.m_pixels, m_screenBuffer.m_pixels, m_width * m_height);
-		ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
+		VFX_PCX_draw(&m_screenView, data);
+		memcpy(m_backBuffer.m_buffer, m_screenBuffer.m_buffer, m_width * m_height);
+		ExpandRect(m_screenView.m_x0, m_screenView.m_y0, m_screenView.m_x1, m_screenView.m_y1);
 	}
 
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 }
 
 // FUNCTION: MW2SHELL 0x10006da9
-void VideoDriver::DrawPicture(undefined* p_data, MechS32 p_type, Pane* p_view)
+void VideoDriver::DrawPicture(undefined* p_data, MechS32 p_type, PANE* p_view)
 {
 	switch (p_type) {
 	case 2:
 		if (ACQUIRE_FRAMEBUFFER() == 0) {
-			BlitPicture(p_view, p_data);
+			VFX_PCX_draw(p_view, p_data);
 		}
 		break;
 	default:
 		QuitWithVDriverError(0);
 	}
 
-	ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
+	ExpandRect(m_screenView.m_x0, m_screenView.m_y0, m_screenView.m_x1, m_screenView.m_y1);
 }
 
 // FUNCTION: MW2SHELL 0x10006e51
 void VideoDriver::DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom, MechS32 p_color)
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitLine(&m_screenView, p_left, p_top, p_right, p_bottom, 0, p_color);
+		VFX_line_draw(&m_screenView, p_left, p_top, p_right, p_bottom, 0, p_color);
 	}
 
 	ExpandRect(p_left, p_top, p_right, p_bottom);
@@ -429,18 +427,18 @@ void VideoDriver::DrawLine(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 // FUNCTION: MW2SHELL 0x10006ed4
 void VideoDriver::DrawPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	Pane view;
-	PixelBuffer buffer;
+	PANE view;
+	WINDOW buffer;
 
-	view.m_buffer = &buffer;
-	view.m_left = 0;
-	view.m_top = 0;
-	view.m_right = buffer.m_maxX = p_width - 1;
-	view.m_bottom = buffer.m_maxY = p_height - 1;
-	buffer.m_pixels = p_pixels;
+	view.m_window = &buffer;
+	view.m_x0 = 0;
+	view.m_y0 = 0;
+	view.m_x1 = buffer.m_xMax = p_width - 1;
+	view.m_y1 = buffer.m_yMax = p_height - 1;
+	buffer.m_buffer = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, -1);
+		VFX_pane_copy(&view, 0, 0, &m_screenView, p_left, p_top, -1);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -456,22 +454,22 @@ void VideoDriver::DrawPixelsClipped(
 	MechS32 p_height
 )
 {
-	Pane view;
-	PixelBuffer buffer;
+	PANE view;
+	WINDOW buffer;
 
 	if (!IntersectsRectBySize(p_left, p_top, p_width, p_height)) {
 		return;
 	}
 
-	view.m_buffer = &buffer;
-	view.m_left = 0;
-	view.m_top = 0;
-	view.m_right = buffer.m_maxX = p_width - 1;
-	view.m_bottom = buffer.m_maxY = p_height - 1;
-	buffer.m_pixels = p_pixels;
+	view.m_window = &buffer;
+	view.m_x0 = 0;
+	view.m_y0 = 0;
+	view.m_x1 = buffer.m_xMax = p_width - 1;
+	view.m_y1 = buffer.m_yMax = p_height - 1;
+	buffer.m_buffer = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, -1);
+		VFX_pane_copy(&view, 0, 0, &m_screenView, p_left, p_top, -1);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -481,18 +479,18 @@ void VideoDriver::DrawPixelsClipped(
 // FUNCTION: MW2SHELL 0x1000705f
 void VideoDriver::FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	Pane view;
-	PixelBuffer buffer;
+	PANE view;
+	WINDOW buffer;
 
-	view.m_buffer = &buffer;
-	view.m_left = 0;
-	view.m_top = 0;
-	view.m_right = buffer.m_maxX = p_width - 1;
-	view.m_bottom = buffer.m_maxY = p_height - 1;
-	buffer.m_pixels = p_pixels;
+	view.m_window = &buffer;
+	view.m_x0 = 0;
+	view.m_y0 = 0;
+	view.m_x1 = buffer.m_xMax = p_width - 1;
+	view.m_y1 = buffer.m_yMax = p_height - 1;
+	buffer.m_buffer = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, -1);
+		VFX_pane_copy(&view, 0, 0, &m_screenView, p_left, p_top, -1);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -501,34 +499,34 @@ void VideoDriver::FUN_1000705f(undefined* p_pixels, MechS32 p_left, MechS32 p_to
 // FUNCTION: MW2SHELL 0x10007112
 void VideoDriver::ReadPixels(undefined* p_pixels, MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	Pane view;
-	PixelBuffer buffer;
+	PANE view;
+	WINDOW buffer;
 
-	view.m_buffer = &buffer;
-	view.m_left = 0;
-	view.m_top = 0;
-	view.m_right = buffer.m_maxX = p_width - 1;
-	view.m_bottom = buffer.m_maxY = p_height - 1;
-	buffer.m_pixels = p_pixels;
+	view.m_window = &buffer;
+	view.m_x0 = 0;
+	view.m_y0 = 0;
+	view.m_x1 = buffer.m_xMax = p_width - 1;
+	view.m_y1 = buffer.m_yMax = p_height - 1;
+	buffer.m_buffer = p_pixels;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitView(&m_screenView, p_left, p_top, &view, 0, 0, -1);
+		VFX_pane_copy(&m_screenView, p_left, p_top, &view, 0, 0, -1);
 	}
 }
 
 // FUNCTION: MW2SHELL 0x100071ad
 void VideoDriver::RestoreBackground(MechS32 p_left, MechS32 p_top, MechS32 p_width, MechS32 p_height)
 {
-	Pane view;
+	PANE view;
 
-	view.m_left = p_left;
-	view.m_top = p_top;
-	view.m_right = p_left + p_width - 1;
-	view.m_bottom = p_top + p_height - 1;
-	view.m_buffer = &m_backBuffer;
+	view.m_x0 = p_left;
+	view.m_y0 = p_top;
+	view.m_x1 = p_left + p_width - 1;
+	view.m_y1 = p_top + p_height - 1;
+	view.m_window = &m_backBuffer;
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitView(&view, 0, 0, &m_screenView, p_left, p_top, m_restoreColor);
+		VFX_pane_copy(&view, 0, 0, &m_screenView, p_left, p_top, m_restoreColor);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -537,13 +535,13 @@ void VideoDriver::RestoreBackground(MechS32 p_left, MechS32 p_top, MechS32 p_wid
 // FUNCTION: MW2SHELL 0x1000725d
 void VideoDriver::CopyScreenToBackground()
 {
-	BlitView(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
+	VFX_pane_copy(&m_screenView, 0, 0, &m_backView, 0, 0, -1);
 }
 
 // FUNCTION: MW2SHELL 0x10007293
 void VideoDriver::CopyBackgroundToScreen()
 {
-	BlitView(&m_backView, 0, 0, &m_screenView, 0, 0, -1);
+	VFX_pane_copy(&m_backView, 0, 0, &m_screenView, 0, 0, -1);
 }
 
 // FUNCTION: MW2SHELL 0x100072c9
@@ -556,13 +554,13 @@ void VideoDriver::LoadPalette(MechS32 p_id)
 		return;
 	}
 
-	ReadPicturePalette(data, size, m_palette);
+	VFX_PCX_palette(data, size, m_palette);
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitPicture(&m_screenView, data);
+		VFX_PCX_draw(&m_screenView, data);
 	}
 
-	ExpandRect(m_screenView.m_left, m_screenView.m_top, m_screenView.m_right, m_screenView.m_bottom);
+	ExpandRect(m_screenView.m_x0, m_screenView.m_y0, m_screenView.m_x1, m_screenView.m_y1);
 	m_paletteChanged = 1;
 	m_allColors = 1;
 	g_clearPaletteOnDraw = 1;
@@ -581,7 +579,7 @@ void VideoDriver::DrawShpFrame(
 )
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitShpFrame(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
+		VFX_shape_draw(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -603,7 +601,7 @@ void VideoDriver::DrawShpFrameClipped(
 	}
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		BlitShpFrame(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
+		VFX_shape_draw(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -624,7 +622,7 @@ MechS32 VideoDriver::DrawString(MechS32 p_left, MechS32 p_top, void* p_font, Mec
 
 	width = 0;
 	for (cursor = p_text; *cursor != '\0'; cursor++) {
-		width += FontGetCharWidth(p_font, *cursor);
+		width += VFX_character_width(p_font, *cursor);
 	}
 
 	if (width == 0) {
@@ -641,7 +639,7 @@ MechS32 VideoDriver::DrawString(MechS32 p_left, MechS32 p_top, void* p_font, Mec
 
 	acquired = ACQUIRE_FRAMEBUFFER();
 	if (acquired == 0) {
-		BlitString(&m_screenView, p_left, p_top, p_font, p_text, p_colorMap);
+		VFX_string_draw(&m_screenView, p_left, p_top, p_font, p_text, p_colorMap);
 	}
 
 	ExpandRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_font)->m_height);
@@ -656,7 +654,7 @@ MechS32 VideoDriver::DrawChar(MechS32 p_left, MechS32 p_top, void* p_font, MechC
 	MechS32 width;
 	MechS32 acquired;
 
-	width = FontGetCharWidth(p_font, p_char);
+	width = VFX_character_width(p_font, p_char);
 	if (g_redrawingGlyphs && !IntersectsRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_font)->m_height)) {
 		return width;
 	}
@@ -667,7 +665,7 @@ MechS32 VideoDriver::DrawChar(MechS32 p_left, MechS32 p_top, void* p_font, MechC
 
 	acquired = ACQUIRE_FRAMEBUFFER();
 	if (acquired == 0) {
-		BlitChar(&m_screenView, p_left, p_top, p_font, p_char, p_colorMap);
+		VFX_character_draw(&m_screenView, p_left, p_top, p_font, p_char, p_colorMap);
 	}
 
 	ExpandRectBySize(p_left, p_top, width, ((VideoFontHeader*) p_font)->m_height);
@@ -718,7 +716,7 @@ void VideoDriver::ClearGlyphs(MechU8 p_delete)
 void VideoDriver::ActivateFramebuffer()
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		FillView(&m_screenView, 0);
+		VFX_pane_wipe(&m_screenView, 0);
 	}
 
 	g_currentRefreshMode->m_flip();

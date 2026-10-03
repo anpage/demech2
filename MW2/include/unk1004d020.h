@@ -11,12 +11,12 @@ extern "C"
 #endif
 
 	void FUN_1004d020(void);
-	void FUN_1004d175(Pane* p_target);
-	void FUN_1004d310(Pane* p_target);
-	void FUN_1004d48a(Pane* p_target);
-	void FUN_1004d660(Pane* p_target);
-	void FUN_1004d732(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color);
-	void FUN_1004d8ae(Pane* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color);
+	void FUN_1004d175(PANE* p_target);
+	void FUN_1004d310(PANE* p_target);
+	void FUN_1004d48a(PANE* p_target);
+	void FUN_1004d660(PANE* p_target);
+	void FUN_1004d732(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color);
+	void FUN_1004d8ae(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color);
 
 #ifdef __cplusplus
 }

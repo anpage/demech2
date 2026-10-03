@@ -18,9 +18,9 @@ extern "C"
 	extern MechS32 g_currentPalette;
 	// SelectPane copies one of the eleven into the current one (g_currentPane) and sizes the
 	// eyepoint's view to it.
-	extern Pane g_panes[11];
+	extern PANE g_panes[11];
 
-	void InitPanes(Pane* p_target);
+	void InitPanes(PANE* p_target);
 	void SelectPane(MechS32 p_index);
 	void FUN_100024f0(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y);
 	void ApplyPendingPalette(void);

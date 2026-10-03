@@ -1,7 +1,6 @@
 #include "cockpit.h"
 
 #include "anim2d.h"
-#include "blit.h"
 #include "clock.h"
 #include "cobaltharbor.h"
 #include "config.h"
@@ -22,7 +21,6 @@
 #include "palette.h"
 #include "players.h"
 #include "point.h"
-#include "polyfill.h"
 #include "random.h"
 #include "recttransition.h"
 #include "render.h"
@@ -44,6 +42,8 @@
 #include "unk10041fa0.h"
 #include "unk10042e00.h"
 #include "unk100696c0.h"
+#include "vfx3d.h"
+#include "vfxa.h"
 
 #include <stdio.h>
 
@@ -97,7 +97,7 @@ CockpitGaugeFn g_cockpitGauges[10] = {
 };
 
 // GLOBAL: MW2 0x100a5a68
-Pane g_unk0x100a5a68[5] = {
+PANE g_unk0x100a5a68[5] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -106,7 +106,7 @@ Pane g_unk0x100a5a68[5] = {
 };
 
 // GLOBAL: MW2 0x100a5ad0
-Pane g_unk0x100a5ad0[8] = {
+PANE g_unk0x100a5ad0[8] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -173,9 +173,9 @@ MechS32 g_unk0x10109c74;
 void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 {
 	MechS32 index;
-	Pane* rect;
+	PANE* rect;
 	RectTransition* transition;
-	Pane* viewport;
+	PANE* viewport;
 
 	if (p_layout == NULL) {
 		return;
@@ -183,7 +183,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 
 	viewport = p_layout->m_viewport;
 	g_cockpitLayoutIndex = p_cockpit;
-	viewport->m_buffer = &g_mainPixelBuffer;
+	viewport->m_window = &g_mainPixelBuffer;
 	ScaleRectToScreen(&g_mainPixelBuffer, viewport, viewport);
 	if (p_cockpit == 1) {
 		g_unk0x100adf58[0] = *viewport;
@@ -196,7 +196,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	transition = p_layout->m_transition;
 	if (transition) {
 		rect = transition->m_def->m_first;
-		rect->m_buffer = &g_mainPixelBuffer;
+		rect->m_window = &g_mainPixelBuffer;
 		if (p_cockpit == 4) {
 			FUN_10056c25(rect, g_eyepoint->m_pixelAspect);
 			CenterRectOnScreen(&g_mainPixelBuffer, rect, rect);
@@ -206,7 +206,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		}
 
 		rect = transition->m_def->m_second;
-		rect->m_buffer = &g_mainPixelBuffer;
+		rect->m_window = &g_mainPixelBuffer;
 		if (p_cockpit == 4) {
 			FUN_10056c25(rect, g_eyepoint->m_pixelAspect);
 			CenterRectOnScreen(&g_mainPixelBuffer, rect, rect);
@@ -216,7 +216,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		}
 
 		rect = transition->m_def->m_out;
-		rect->m_buffer = &g_mainPixelBuffer;
+		rect->m_window = &g_mainPixelBuffer;
 	}
 
 	index = (MechS32) p_layout->m_gauges[0];
@@ -373,7 +373,7 @@ void FUN_1003e06c(void)
 	struct AmberWillow0x7c* obj;
 	MechS32 zoom;
 	MechS32 pose[7];
-	Pane* viewport;
+	PANE* viewport;
 	CockpitLayout* layout;
 	MechS32 range;
 	MechS32 z;
@@ -448,7 +448,7 @@ void FUN_1003e06c(void)
 		FUN_10011401(6);
 		FUN_1001da44();
 		FUN_10011401(zoom);
-		FillView(viewport, g_unk0x100a554c);
+		VFX_pane_wipe(viewport, g_unk0x100a554c);
 		flags = 0;
 		FUN_1004215f(flags);
 	}
@@ -475,7 +475,7 @@ void FUN_1003e06c(void)
 void FUN_1003e32c(CockpitLayout* p_layout)
 {
 	MechS32 id;
-	Pane* viewport;
+	PANE* viewport;
 	MechS32 unused;
 	MechS32 y;
 	MechS32 x;
@@ -486,12 +486,12 @@ void FUN_1003e32c(CockpitLayout* p_layout)
 	player = g_players[g_localPlayerId];
 	FUN_1003e974(p_layout);
 	if (g_cockpitLayoutIndex != 4) {
-		x = (viewport->m_right - viewport->m_left + 1) >> 1;
-		y = (viewport->m_bottom - viewport->m_top + 1) >> 1;
+		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
+		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
 		id = p_layout->m_icons[0][0] + g_unk0x100e9614;
 		shape = FUN_1001a19f(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
-			BlitShpFrame(viewport, shape, 0, x, y);
+			VFX_shape_draw(viewport, shape, 0, x, y);
 			FUN_1001a163(id, g_resourceTypeTags[c_resTagShp]);
 			FUN_1003e4cd(p_layout);
 		}
@@ -504,7 +504,7 @@ void FUN_1003e32c(CockpitLayout* p_layout)
 // FUNCTION: MW2 0x1003e40a
 void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 {
-	Pane* viewport;
+	PANE* viewport;
 	void* shape;
 	MechS32 visible;
 
@@ -517,7 +517,7 @@ void FUN_1003e40a(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	if (visible) {
 		shape = FUN_1001a19f(g_mw2PrjHandle, p_icon + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
-			BlitShpFrame(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
+			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
 			FUN_1001a163(p_icon + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 		}
 	}
@@ -577,7 +577,7 @@ void FUN_1003e689(CockpitLayout* p_layout)
 	MechS32 icon;
 	MechS32 side;
 	MechS32 kind;
-	Pane* viewport;
+	PANE* viewport;
 	MapPoint pos;
 	MechS32 row;
 	MechU32 target;
@@ -652,11 +652,11 @@ void FUN_1003e689(CockpitLayout* p_layout)
 	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (visible) {
-			BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 		else if (p_layout->m_gauges[2]) {
 			p_layout->m_gauges[2](viewport, &pos, &pos);
-			BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 
 		FUN_1001a163(g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp]);
@@ -670,7 +670,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 {
 	MapPoint pos;
 	MechS32 i;
-	Pane* viewport;
+	PANE* viewport;
 	MechS32 icon;
 	MechS32 visible;
 	NavPoint* nav;
@@ -705,7 +705,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 				if (icon != -1) {
 					shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp], 0);
 					if (shape) {
-						BlitShpFrame(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 						FUN_1001a163(g_unk0x100e9614 + icon, g_resourceTypeTags[c_resTagShp]);
 					}
 				}
@@ -720,7 +720,7 @@ void FUN_1003e974(CockpitLayout* p_layout)
 void FUN_1003eb22(CockpitLayout* p_layout, MechS32 p_heading)
 {
 	MechS32 halfFov;
-	Pane* viewport;
+	PANE* viewport;
 	Point end;
 	MechS32 y;
 	MechS32 x;
@@ -729,15 +729,15 @@ void FUN_1003eb22(CockpitLayout* p_layout, MechS32 p_heading)
 	viewport = p_layout->m_viewport;
 	colors = p_layout->m_colors;
 	p_heading = (p_heading % 0x1680000 + 0x1680000) % 0x1680000;
-	x = (viewport->m_right - viewport->m_left + 1) >> 1;
-	y = (viewport->m_bottom - viewport->m_top + 1) >> 1;
+	x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
+	y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
 	halfFov = FUN_100698de(0x10000, g_eyepoint->m_fovX);
 	p_heading = 0x5a0000 - p_heading;
 	if (p_layout->m_gauges[3]) {
 		p_layout->m_gauges[3](viewport, p_heading - halfFov, &end);
-		BlitLine(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
+		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
 		p_layout->m_gauges[3](viewport, halfFov + p_heading, &end);
-		BlitLine(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
+		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
 	}
 }
 
@@ -751,7 +751,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 	MechChar* units;
 	MechS32 range;
 	void* font;
-	Pane* viewport;
+	PANE* viewport;
 	MechS32 heading;
 	Player* player;
 	MechDouble degrees;
@@ -776,7 +776,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			p_layout->m_unk0x1c = p_layout->m_unk0x18;
 		}
 
-		BlitString(
+		VFX_string_draw(
 			viewport,
 			p_layout->m_unk0x60.m_x,
 			p_layout->m_unk0x60.m_y,
@@ -793,7 +793,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 				p_layout->m_unk0x4c = heading;
 			}
 
-			BlitString(
+			VFX_string_draw(
 				viewport,
 				p_layout->m_unk0x68.m_x,
 				p_layout->m_unk0x68.m_y,
@@ -1033,10 +1033,10 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 
 		if (g_unk0x100a6cc8.m_unk0x04) {
-			FUN_1002b68b(&g_currentPane, 0x7fff, p_count, p_points);
+			VFX_dithered_Gouraud_polygon(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {
-			FillPolygonFlat(&g_currentPane, p_count, p_points);
+			VFX_flat_polygon(&g_currentPane, p_count, p_points);
 		}
 		break;
 	case 0x3000:
@@ -1083,8 +1083,8 @@ MechS32 FUN_1003f513(CockpitLayout* p_layout, MechS32 p_unk0x04)
 MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_unk0x0c)
 {
 	MechS32 result;
-	Pane* rect;
-	Pane* viewport;
+	PANE* rect;
+	PANE* viewport;
 
 	viewport = p_layout->m_viewport;
 	result = TRUE;
@@ -1205,7 +1205,7 @@ void FUN_1003f74e(void)
 void FUN_1003f8d1(void)
 {
 	MechS32 threshold;
-	Pane* viewport;
+	PANE* viewport;
 	CockpitLayout* layout;
 	MechS32 anim;
 

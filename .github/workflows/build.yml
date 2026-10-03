@@ -440,7 +440,7 @@ jobs:
       - name: Run decomplint
         if: ${{ steps.install.conclusion == 'success' && always() }}
         run: |
-          reccmp-decomplint ${{ matrix.target }} --module ${{ matrix.target }} --warnfail
+          reccmp-decomplint ${{ matrix.target }} common --module ${{ matrix.target }} --warnfail
 
       - name: Check address padding
         if: ${{ steps.install.conclusion == 'success' && always() }}
@@ -487,9 +487,9 @@ jobs:
         run: |
           # ncc validates the whole source tree: the retail targets too
           # (NETMECHW, MECH2), which aren't in TARGET_ENTRIES (their originals
-          # aren't public), and the portable C both DLLs share (common/src,
-          # which includes the DLLs' headers).
-          includes=(util NETMECHW/include NETMECHW MECH2/include MECH2)
+          # aren't public), and the code both DLLs share (common: Miles Design
+          # VFX's portable C and headers).
+          includes=(util common/include NETMECHW/include NETMECHW MECH2/include MECH2)
           paths=(NETMECHW MECH2 common)
           for entry in $TARGET_ENTRIES; do
             target="${entry%%:*}"

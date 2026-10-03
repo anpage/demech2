@@ -3,8 +3,8 @@
 
 #include "decomp.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "types.h"
+#include "window.h"
 
 // DisplayBackend::m_id, the index in g_displayBackends.
 enum DisplayBackendId {
@@ -23,11 +23,11 @@ enum WindowMode {
 // Function table of the active display back end (DirectDraw, DisplayDib or GDI).
 // SIZE 0x28
 struct DisplayBackend {
-	MechS32 m_id;                                                                 // 0x00 — DisplayBackendId
-	MechS32 m_windowMode;                                                         // 0x04 — WindowMode
-	MechU32 m_style;                                                              // 0x08 — the shell window's style
-	MechS32 (*m_begin)(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height); // 0x0c
-	MechS32 (*m_end)();                                                           // 0x10
+	MechS32 m_id;                                                            // 0x00 — DisplayBackendId
+	MechS32 m_windowMode;                                                    // 0x04 — WindowMode
+	MechU32 m_style;                                                         // 0x08 — the shell window's style
+	MechS32 (*m_begin)(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height); // 0x0c
+	MechS32 (*m_end)();                                                      // 0x10
 	MechS32 (*m_setPalette)(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors); // 0x14
 	MechS32 (*m_setPaletteWithBrightness)(PaletteColor* p_palette);                                          // 0x18
 	MechS32 (*m_blendPalettes)(PaletteColor* p_palette, MechS32 p_steps);                                    // 0x1c

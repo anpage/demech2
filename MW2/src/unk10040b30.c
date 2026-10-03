@@ -1,6 +1,5 @@
 #include "unk10040b30.h"
 
-#include "blit.h"
 #include "cobaltharbor.h"
 #include "config.h"
 #include "decomp.h"
@@ -25,6 +24,7 @@
 #include "unk10042e00.h"
 #include "unk1004b980.h"
 #include "unk1004d020.h"
+#include "vfxa.h"
 #include "weapondata.h"
 #include "weapons.h"
 
@@ -178,7 +178,7 @@ void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	MechS32 height;
 	Mech* mech;
 	MechS32 x;
-	Pane* target;
+	PANE* target;
 	MechS32 y;
 	MechS32 mark;
 	MechS32 unused;
@@ -250,7 +250,7 @@ void FUN_10040f91(void)
 	void* shape;
 	MechS32 height;
 	MechS32 width;
-	Pane* target;
+	PANE* target;
 
 	target = g_unk0x100c3280[23]->m_target;
 	FUN_10056bc1(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
@@ -258,7 +258,7 @@ void FUN_10040f91(void)
 	if (shape) {
 		MechS32 extent;
 
-		extent = GetShpFrameExtent(shape, 0);
+		extent = VFX_shape_resolution(shape, 0);
 		g_unk0x100a5ed0 = extent >> 16;
 		g_unk0x100a5ed4 = extent & 0xffff;
 		FUN_1001a163(extent + 1, g_resourceTypeTags[c_resTagShp]);
@@ -271,7 +271,7 @@ void FUN_10040f91(void)
 	if (shape) {
 		MechS32 extent;
 
-		extent = GetShpFrameExtent(shape, 0);
+		extent = VFX_shape_resolution(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
 		g_unk0x100a5ed8.m_x -= width;
@@ -285,7 +285,7 @@ void FUN_10040f91(void)
 	if (shape) {
 		MechS32 extent;
 
-		extent = GetShpFrameExtent(shape, 0);
+		extent = VFX_shape_resolution(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
 		FUN_1001a163(extent + 0x19, g_resourceTypeTags[c_resTagShp]);
@@ -297,8 +297,8 @@ void FUN_10040f91(void)
 		MechS32 extent;
 		MechS32 origin;
 
-		extent = GetShpFrameExtent(shape, 0);
-		origin = FUN_10037526(shape, 0);
+		extent = VFX_shape_resolution(shape, 0);
+		origin = VFX_shape_origin(shape, 0);
 		extent &= 0xffff;
 		origin &= 0xffff;
 		g_unk0x100be5c8 = extent - origin;
@@ -310,7 +310,7 @@ void FUN_10040f91(void)
 	if (shape) {
 		MechS32 extent;
 
-		extent = GetShpFrameExtent(shape, 0);
+		extent = VFX_shape_resolution(shape, 0);
 		g_unk0x100be5a0 = extent >> 16;
 		g_unk0x100be5a4 = extent & 0xffff;
 		FUN_1001a163(extent + 0x25, g_resourceTypeTags[c_resTagShp]);
@@ -320,7 +320,7 @@ void FUN_10040f91(void)
 	if (shape) {
 		MechS32 extent;
 
-		extent = GetShpFrameExtent(shape, 0);
+		extent = VFX_shape_resolution(shape, 0);
 		g_unk0x100be5a8 = extent >> 16;
 		g_unk0x100be5ac = extent & 0xffff;
 		FUN_1001a163(extent + 0x1f, g_resourceTypeTags[c_resTagShp]);
@@ -464,7 +464,7 @@ void FUN_100414ab(Mech* p_mech)
 void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, MechS32 p_unk0x10, MechS32 p_unk0x14)
 {
 	CobaltHarbor0x88* gauge;
-	Pane* target;
+	PANE* target;
 	MechS32 x;
 	MechS32 y;
 	MechS32 x2;
@@ -530,7 +530,7 @@ void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c
 	MechS32 x2;
 	MechS32 x;
 	MechS32 heading;
-	Pane* target;
+	PANE* target;
 	MechS32 offset;
 
 	gauge = g_unk0x100c3280[24];
@@ -767,7 +767,7 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 
 	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
-		BlitShpFrame(&g_currentPane, shape, 0, p_x, p_y);
+		VFX_shape_draw(&g_currentPane, shape, 0, p_x, p_y);
 		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
@@ -775,20 +775,20 @@ void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 // Draws frame 0 of the "SHP" resource p_id (relative to g_unk0x100e9614) at p_x, p_y.
 // Operand order: p_id + g_unk0x100e9614 loads p_id first in the original.
 // FUNCTION: MW2 0x10041f06
-void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, Pane* p_target)
+void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
 	void* shape;
 
 	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
-		BlitShpFrame(p_target, shape, 0, p_x, p_y);
+		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
 		FUN_1001a163(p_id + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
 // Draws FUN_10041e98's shape at p_x, p_y of pane p_target.
 // FUNCTION: MW2 0x10041f73
-void FUN_10041f73(MechS32 p_x, MechS32 p_y, MechS32 p_id, Pane* p_target)
+void FUN_10041f73(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
-	FUN_10041e98(p_target->m_left + p_x, p_target->m_top + p_y, p_id);
+	FUN_10041e98(p_target->m_x0 + p_x, p_target->m_y0 + p_y, p_id);
 }

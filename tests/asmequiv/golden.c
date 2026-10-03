@@ -13,7 +13,6 @@
 
 #include "approxlen.h"
 #include "asmequiv.h"
-#include "blit.h"
 #include "clock.h"
 #include "eyepoint.h"
 #include "fixeddiv.h"
@@ -27,7 +26,6 @@
 #include "loadres.h"
 #include "muldiv.h"
 #include "namehash.h"
-#include "polyfill.h"
 #include "sndunpack.h"
 #include "sqrtguess.h"
 #include "ticks.h"
@@ -51,6 +49,8 @@
 #include "unk100696c0.h"
 #include "unk10071930.h"
 #include "unk1007d120.h"
+#include "vfx3d.h"
+#include "vfxa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +59,7 @@
 #define MAX_ROUTINES 128
 
 // Functions and globals only their own units use: unk1007d120.c's, ticks.asm's, sndunpack.asm's,
-// transform.c's, unk10039a30.c's, unk10046750.c's and blit.asm's.
+// transform.c's, unk10039a30.c's, unk10046750.c's and VFXA's.
 void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column);
 MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value);
 extern MechU8* g_unk0x100c1a70;
@@ -76,25 +76,30 @@ extern MechS32 g_unk0x1010b5bc;
 extern MechS32 g_unk0x1010b538;
 extern MechS32 g_unk0x1010b5b4;
 extern MechS32 g_unk0x1010b5a8;
-struct PixelBuffer;
-MechS32 BlitRotated(
-	struct Pane* p_view,
-	void* p_shape,
-	MechS32 p_frame,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechU8* p_scratch,
-	MechS32 p_angle,
-	MechS32 p_scaleX,
-	MechS32 p_scaleY,
+struct WINDOW;
+MechS32 VFX_shape_transform(
+	struct PANE* p_pane,
+	void* p_shapeTable,
+	MechS32 p_shapeNumber,
+	MechS32 p_hotX,
+	MechS32 p_hotY,
+	MechU8* p_buffer,
+	MechS32 p_rot,
+	MechS32 p_xScale,
+	MechS32 p_yScale,
 	MechU32 p_flags
 );
-MechS32 EncodeViewRle(struct Pane* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, MechU8* p_out);
-void FadeViewColors(struct PixelBuffer* p_buffer, MechU8* p_palette, MechS32 p_steps);
-extern MechChar* (*g_displayDriver[0xd])(void);
-extern MechChar g_displayDriverName[0xd];
-extern MechU8 g_remapTable[0x100];
-extern MechU8 g_fadeErrors[0x300];
+MechS32 VFX_shape_scan(
+	struct PANE* p_pane,
+	MechU8 p_transparentColor,
+	MechS32 p_hotX,
+	MechS32 p_hotY,
+	MechU8* p_buffer
+);
+void VFX_window_fade(struct WINDOW* p_buffer, MechU8* p_palette, MechS32 p_intervals);
+extern MechChar driver_name[0xd];
+extern MechU8 lookaside[0x100];
+extern MechU8 color_error[0x300];
 
 // The routines and globals linked in, by name.
 typedef struct Symbol {
@@ -221,69 +226,80 @@ static const Symbol g_symbols[] = {
 	DATA(g_unk0x1010b5c4),
 	DATA(g_unk0x1010b5c8),
 	DATA(g_unk0x100a6cc8),
-	FUNCTION(FillPolygonFlat),
-	FUNCTION(FUN_1002ae41),
-	FUNCTION(FUN_1002b68b),
-	FUNCTION(FUN_1002bf39),
-	FUNCTION(FUN_1002c48d),
-	FUNCTION(SetLumaTable),
-	FUNCTION(FillPolygonTextured),
-	DATA(g_polyVars),
-	FUNCTION(GetDisplayDriverName),
-	FUNCTION(SetDisplayDriver),
-	FUNCTION(PutViewPixel),
-	FUNCTION(GetViewPixel),
-	FUNCTION(BlitLine),
-	FUNCTION(FUN_10032e4b),
-	FUNCTION(BlitShpFrame),
-	FUNCTION(BlitShpFrameUnclipped),
-	FUNCTION(SetRemapTable),
-	FUNCTION(BlitShpFrameRemapped),
-	FUNCTION(BlitShpFrameRemappedUnclipped),
-	FUNCTION(BlitRotated),
-	FUNCTION(FUN_10034622),
-	FUNCTION(EncodeViewRle),
-	FUNCTION(RemapShpFrame),
-	FUNCTION(FillView),
-	FUNCTION(BlitView),
-	FUNCTION(ScrollView),
-	FUNCTION(DrawEllipse),
-	FUNCTION(FillEllipse),
-	FUNCTION(GetCosSin),
-	FUNCTION(BlitFixedMul16),
-	FUNCTION(RotateScalePoint),
-	FUNCTION(FontGetHeight),
-	FUNCTION(FontGetCharWidth),
-	FUNCTION(BlitChar),
-	FUNCTION(BlitString),
-	FUNCTION(WriteViewRow),
-	FUNCTION(FindIffChunk),
-	FUNCTION(BlitIff),
-	FUNCTION(ReadIffPalette),
-	FUNCTION(GetIffSize),
-	FUNCTION(BlitPicture),
-	FUNCTION(ReadPicturePalette),
-	FUNCTION(GetPictureSize),
-	FUNCTION(BlitGif),
-	FUNCTION(ReadGifPalette),
-	FUNCTION(GetGifSize),
-	FUNCTION(GetShpFrameSize),
-	FUNCTION(FUN_10037526),
-	FUNCTION(GetShpFrameExtent),
-	FUNCTION(GetShpFrameOrigin),
-	FUNCTION(FUN_100375a7),
-	FUNCTION(FUN_100375f2),
-	FUNCTION(FUN_1003763a),
-	FUNCTION(GetShpFrameCount),
-	FUNCTION(CountShpUniqueFrames),
-	FUNCTION(FUN_100376f9),
-	FUNCTION(DissolveView),
-	FUNCTION(FadeViewColors),
-	FUNCTION(CountViewColors),
-	DATA(g_displayDriver),
-	DATA(g_displayDriverName),
-	DATA(g_remapTable),
-	DATA(g_fadeErrors),
+	FUNCTION(VFX_flat_polygon),
+	FUNCTION(VFX_Gouraud_polygon),
+	FUNCTION(VFX_dithered_Gouraud_polygon),
+	FUNCTION(VFX_translate_polygon),
+	FUNCTION(VFX_illuminate_polygon),
+	FUNCTION(VFX_map_lookaside),
+	FUNCTION(VFX_map_polygon),
+	FUNCTION(VFX_driver_name),
+	FUNCTION(VFX_register_driver),
+	FUNCTION(VFX_pixel_write),
+	FUNCTION(VFX_pixel_read),
+	FUNCTION(VFX_line_draw),
+	FUNCTION(VFX_rectangle_hash),
+	FUNCTION(VFX_shape_draw),
+	FUNCTION(DrawShapeUnclipped),
+	FUNCTION(VFX_shape_lookaside),
+	FUNCTION(VFX_shape_translate_draw),
+	FUNCTION(XlatShapeUnclipped),
+	FUNCTION(VFX_shape_transform),
+	FUNCTION(VFX_shape_visible_rectangle),
+	FUNCTION(VFX_shape_scan),
+	FUNCTION(VFX_shape_remap_colors),
+	FUNCTION(VFX_pane_wipe),
+	FUNCTION(VFX_pane_copy),
+	FUNCTION(VFX_pane_scroll),
+	FUNCTION(VFX_ellipse_draw),
+	FUNCTION(VFX_ellipse_fill),
+	FUNCTION(VFX_Cos_Sin),
+	FUNCTION(VFX_fixed_mul),
+	FUNCTION(VFX_point_transform),
+	FUNCTION(VFX_font_height),
+	FUNCTION(VFX_character_width),
+	FUNCTION(VFX_character_draw),
+	FUNCTION(VFX_string_draw),
+	FUNCTION(VFX_line_to_pane),
+	FUNCTION(find_ILBM_property),
+	FUNCTION(VFX_ILBM_draw),
+	FUNCTION(VFX_ILBM_palette),
+	FUNCTION(VFX_ILBM_resolution),
+	FUNCTION(VFX_PCX_draw),
+	FUNCTION(VFX_PCX_palette),
+	FUNCTION(VFX_PCX_resolution),
+	FUNCTION(VFX_GIF_draw),
+	FUNCTION(VFX_GIF_palette),
+	FUNCTION(VFX_GIF_resolution),
+	FUNCTION(VFX_shape_bounds),
+	FUNCTION(VFX_shape_origin),
+	FUNCTION(VFX_shape_resolution),
+	FUNCTION(VFX_shape_minxy),
+	FUNCTION(VFX_shape_palette),
+	FUNCTION(VFX_shape_colors),
+	FUNCTION(VFX_shape_set_colors),
+	FUNCTION(VFX_shape_count),
+	FUNCTION(VFX_shape_list),
+	FUNCTION(VFX_shape_palette_list),
+	FUNCTION(VFX_pixel_fade),
+	FUNCTION(VFX_window_fade),
+	FUNCTION(VFX_color_scan),
+	DATA(VFX_describe_driver),
+	DATA(VFX_init_driver),
+	DATA(VFX_shutdown_driver),
+	DATA(VFX_area_wipe),
+	DATA(VFX_wait_vblank),
+	DATA(VFX_wait_vblank_leading),
+	DATA(VFX_window_refresh),
+	DATA(VFX_window_read),
+	DATA(VFX_DAC_read),
+	DATA(VFX_DAC_write),
+	DATA(VFX_bank_reset),
+	DATA(VFX_pane_refresh),
+	DATA(VFX_line_address),
+	DATA(driver_name),
+	DATA(lookaside),
+	DATA(color_error),
 };
 
 #define SYMBOL_COUNT ((MechS32) (sizeof(g_symbols) / sizeof(g_symbols[0])))

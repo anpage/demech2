@@ -44,7 +44,7 @@ static AsmFn Export(HMODULE p_module, const char* p_name)
 
 #ifdef _M_IX86
 // The assembly doesn't always keep the registers C callers expect it to: ResetTicks returns with
-// ebx and ecx swapped (it pops them in the wrong order), and ScrollView's fill returns with es
+// ebx and ecx swapped (it pops them in the wrong order), and VFX_pane_scroll's fill returns with es
 // loaded from the wrong stack slot (0, after pushing a word too many), which the game's /Od
 // callers never notice. Every call into a module goes through this thunk, which calls the
 // routine with the caller's arguments and restores ebx, esi, edi, ebp and es. One call at a
@@ -126,19 +126,19 @@ typedef struct DeadBlock {
 } DeadBlock;
 
 static const DeadBlock c_deadBlocks[] = {
-	// BlitLine's clipping, past its eight tests of the ends' outcodes: it only gets there with a
+	// VFX_line_draw's clipping, past its eight tests of the ends' outcodes: it only gets there with a
 	// bit of one set
-	{"BlitLine", 0x1da},
-	{"BlitLine", 0x223},
-	// EncodeViewRle's helper EmitRleRun, where a run ends past the bounds' right: it measures the
+	{"VFX_line_draw", 0x1da},
+	{"VFX_line_draw", 0x223},
+	// VFX_shape_scan's helper FlushPacket, where a run ends past the bounds' right: it measures the
 	// run from the clipped view's left, which lies no further right than the bounds' left, so the
 	// run ends at most at their right
-	{"EncodeViewRle", 0x567},
-	{"EncodeViewRle", 0x60e},
-	// BlitGif's two pixels a byte, for a pixel size of 1 (cmp edx, 1), which it never sets: edx is
+	{"VFX_shape_scan", 0x567},
+	{"VFX_shape_scan", 0x60e},
+	// VFX_GIF_draw's two pixels a byte, for a pixel size of 1 (cmp edx, 1), which it never sets: edx is
 	// always 8 there
-	{"BlitGif", 0x1ca},
-	{"BlitGif", 0x1e9},
+	{"VFX_GIF_draw", 0x1ca},
+	{"VFX_GIF_draw", 0x1e9},
 };
 
 static MechS32 IsDeadBlock(const char* p_routine, MechS32 p_offset)
@@ -511,7 +511,7 @@ static MechS32 RunCase(
 }
 
 // Whether the reference has the routine's assembly. Newer compilers' references have neither
-// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, polyfill.asm, blit.asm),
+// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, VFX3D.ASM, VFXA.ASM),
 // nor those whose __asm
 // blocks jump to C labels (FUN_10071930, and four each in unk10039a30.c and unk10046750.c): they
 // compile the portable C instead. The VC++ 4.1 reference has every routine's.
@@ -536,64 +536,64 @@ static MechS32 HasReference(const AsmRoutine* p_routine)
 		"FreeTicks",
 		"PauseTimer",
 		"FUN_1001a63c",
-		"FillPolygonFlat",
-		"FUN_1002ae41",
-		"FUN_1002b68b",
-		"FUN_1002bf39",
-		"FUN_1002c48d",
-		"SetLumaTable",
-		"FillPolygonTextured",
-		"GetDisplayDriverName",
-		"SetDisplayDriver",
-		"PutViewPixel",
-		"GetViewPixel",
-		"BlitLine",
-		"FUN_10032e4b",
-		"BlitShpFrame",
-		"BlitShpFrameUnclipped",
-		"SetRemapTable",
-		"BlitShpFrameRemapped",
-		"BlitShpFrameRemappedUnclipped",
-		"BlitRotated",
-		"FUN_10034622",
-		"EncodeViewRle",
-		"RemapShpFrame",
-		"FillView",
-		"BlitView",
-		"ScrollView",
-		"DrawEllipse",
-		"FillEllipse",
-		"GetCosSin",
-		"BlitFixedMul16",
-		"RotateScalePoint",
-		"FontGetHeight",
-		"FontGetCharWidth",
-		"BlitChar",
-		"BlitString",
-		"WriteViewRow",
-		"FindIffChunk",
-		"BlitIff",
-		"ReadIffPalette",
-		"GetIffSize",
-		"BlitPicture",
-		"ReadPicturePalette",
-		"GetPictureSize",
-		"BlitGif",
-		"ReadGifPalette",
-		"GetGifSize",
-		"GetShpFrameSize",
-		"FUN_10037526",
-		"GetShpFrameExtent",
-		"GetShpFrameOrigin",
-		"FUN_100375a7",
-		"FUN_100375f2",
-		"FUN_1003763a",
-		"GetShpFrameCount",
-		"CountShpUniqueFrames",
-		"FUN_100376f9",
-		"DissolveView",
-		"FadeViewColors",
-		"CountViewColors",
+		"VFX_flat_polygon",
+		"VFX_Gouraud_polygon",
+		"VFX_dithered_Gouraud_polygon",
+		"VFX_translate_polygon",
+		"VFX_illuminate_polygon",
+		"VFX_map_lookaside",
+		"VFX_map_polygon",
+		"VFX_driver_name",
+		"VFX_register_driver",
+		"VFX_pixel_write",
+		"VFX_pixel_read",
+		"VFX_line_draw",
+		"VFX_rectangle_hash",
+		"VFX_shape_draw",
+		"DrawShapeUnclipped",
+		"VFX_shape_lookaside",
+		"VFX_shape_translate_draw",
+		"XlatShapeUnclipped",
+		"VFX_shape_transform",
+		"VFX_shape_visible_rectangle",
+		"VFX_shape_scan",
+		"VFX_shape_remap_colors",
+		"VFX_pane_wipe",
+		"VFX_pane_copy",
+		"VFX_pane_scroll",
+		"VFX_ellipse_draw",
+		"VFX_ellipse_fill",
+		"VFX_Cos_Sin",
+		"VFX_fixed_mul",
+		"VFX_point_transform",
+		"VFX_font_height",
+		"VFX_character_width",
+		"VFX_character_draw",
+		"VFX_string_draw",
+		"VFX_line_to_pane",
+		"find_ILBM_property",
+		"VFX_ILBM_draw",
+		"VFX_ILBM_palette",
+		"VFX_ILBM_resolution",
+		"VFX_PCX_draw",
+		"VFX_PCX_palette",
+		"VFX_PCX_resolution",
+		"VFX_GIF_draw",
+		"VFX_GIF_palette",
+		"VFX_GIF_resolution",
+		"VFX_shape_bounds",
+		"VFX_shape_origin",
+		"VFX_shape_resolution",
+		"VFX_shape_minxy",
+		"VFX_shape_palette",
+		"VFX_shape_colors",
+		"VFX_shape_set_colors",
+		"VFX_shape_count",
+		"VFX_shape_list",
+		"VFX_shape_palette_list",
+		"VFX_pixel_fade",
+		"VFX_window_fade",
+		"VFX_color_scan",
 	};
 	MechS32 i;
 

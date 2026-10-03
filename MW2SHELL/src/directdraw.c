@@ -6,9 +6,9 @@
 #include "displaybackend.h"
 #include "drawbitmapinfo.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "types.h"
+#include "window.h"
 
 #include <ddraw.h>
 #include <stdlib.h>
@@ -23,7 +23,7 @@
 void DdrawStop();
 void DdrawDestroySurfaces();
 MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height);
-MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
+MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 DdrawFlip();
 MechS32 DdrawBlit();
 MechS32 DdrawBlitFlip();
@@ -163,7 +163,7 @@ __inline static HRESULT DdrawUnlock()
 {
 	if (g_ddrawLocked) {
 		g_ddrawResult = IDirectDrawSurface_Unlock(g_ddrawBuffer, g_ddrawBufferDesc.lpSurface);
-		g_refreshModeBuffer->m_pixels = NULL;
+		g_refreshModeBuffer->m_buffer = NULL;
 		g_ddrawLocked = FALSE;
 		return g_ddrawResult;
 	}
@@ -207,7 +207,7 @@ void DdrawStop()
 // FUNCTION: MW2SHELL 0x10011580
 void DdrawDestroySurfaces()
 {
-	g_refreshModeBuffer->m_pixels = NULL;
+	g_refreshModeBuffer->m_buffer = NULL;
 	if (g_ddrawPrimary != NULL) {
 		IDirectDrawSurface_Release(g_ddrawPrimary);
 		g_ddrawPrimary = NULL;
@@ -331,7 +331,7 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 
 // Stack-slot permutation: caps and entries.
 // FUNCTION: MW2SHELL 0x10011a15
-MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
+MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	LPPALETTEENTRY entries;
 	DDCAPS caps;
@@ -408,10 +408,10 @@ MechS32 DdrawInit(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 	g_ddrawScreenRect.right = p_width;
 	g_ddrawScreenRect.bottom = p_height;
 
-	p_buffer->m_pixels = NULL;
-	p_buffer->m_maxX = g_ddrawBackDesc.lPitch - 1;
-	p_buffer->m_maxY = p_height - 1;
-	p_buffer->m_unk0x10 = 0;
+	p_buffer->m_buffer = NULL;
+	p_buffer->m_xMax = g_ddrawBackDesc.lPitch - 1;
+	p_buffer->m_yMax = p_height - 1;
+	p_buffer->m_shadow = 0;
 	p_buffer->m_bitmapInfo = &g_bitmapInfo;
 
 	if (g_ddrawPalette == NULL) {
@@ -829,7 +829,7 @@ MechS32 DdrawLockBuffer()
 		g_ddrawLocked = TRUE;
 	}
 
-	g_refreshModeBuffer->m_pixels = g_ddrawBufferDesc.lpSurface;
-	g_refreshModeBuffer->m_maxX = g_ddrawBufferDesc.lPitch - 1;
+	g_refreshModeBuffer->m_buffer = g_ddrawBufferDesc.lpSurface;
+	g_refreshModeBuffer->m_xMax = g_ddrawBufferDesc.lPitch - 1;
 	return 0;
 }
