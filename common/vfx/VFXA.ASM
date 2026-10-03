@@ -1,46 +1,46 @@
-;€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-;€€                                                                        €€
-;€€  VFXA.ASM                                                              €€
-;€€                                                                        €€
-;€€  VFX API assembly functions                                            €€
-;€€                                                                        €€
-;€€  Version 0.11 of 12-Jan-93: Original                                   €€
-;€€          1.01 of 29-Apr-93: Pane clipping consistent among all routines€€
-;€€          1.02 of 12-May-93: Small .LBM files handled                   €€
-;€€                             Added VFX_shape_lookaside function         €€
-;€€                             Added VFX_shape_translate_draw function    €€
-;€€          1.03 of 19-Jun-93: Added VFX_shape_transform function         €€
-;€€          1.04 of 25-Jun-93: Register-saving inconsistencies fixed      €€
-;€€          1.05 of  9-Jul-93: Added intervals parameter to window_fade   €€
-;€€          1.06 of 28-Jul-93: Added VFX_bank_reset call                  €€
-;€€                             EBX preserved in C calls                   €€
-;€€          1.07 of 27-Aug-93: Added VFX_pixel_fade, VFX_rectangle_hash,  €€
-;€€                             VFX_shape_visible_rectangle,               €€
-;€€                             VFX_shape_bounds, VFX_shape_origin,        €€
-;€€                             VFX_pane_refresh calls                     €€
-;€€          1.10 of  3-Dec-93: Added common clipping macro                €€
-;€€                             Modified VFX_pixel_fade for SVGA           €€
-;€€                             Implemented new WINDOW structure           €€
-;€€                             Added VFX_line_address call                €€
-;€€                                                                        €€
-;€€  Project: 386FX Sound & Light(TM)                                      €€
-;€€  Authors: Ken Arnold, John Lemberger, John Miles                       €€
-;€€                                                                        €€
-;€€  C prototypes in VFX.H                                                 €€
-;€€                                                                        €€
-;€€  80386 ASM source compatible with Microsoft Assembler v6.0 or later    €€
-;€€                                                                        €€
-;€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-;€€                                                                        €€
-;€€  Copyright (C) 1992-1994 Non-Linear Arts, Inc.                         €€
-;€€                                                                        €€
-;€€  Non-Linear Arts, Inc.                                                 €€
-;€€  3415 Greystone #200                                                   €€
-;€€  Austin, TX 78731                                                      €€
-;€€                                                                        €€
-;€€  (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990              €€
-;€€                                                                        €€
-;€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+;‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  VFXA.ASM                                                              ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  VFX API assembly functions                                            ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Version 0.11 of 12-Jan-93: Original                                   ‚ñà‚ñà
+;‚ñà‚ñà          1.01 of 29-Apr-93: Pane clipping consistent among all routines‚ñà‚ñà
+;‚ñà‚ñà          1.02 of 12-May-93: Small .LBM files handled                   ‚ñà‚ñà
+;‚ñà‚ñà                             Added VFX_shape_lookaside function         ‚ñà‚ñà
+;‚ñà‚ñà                             Added VFX_shape_translate_draw function    ‚ñà‚ñà
+;‚ñà‚ñà          1.03 of 19-Jun-93: Added VFX_shape_transform function         ‚ñà‚ñà
+;‚ñà‚ñà          1.04 of 25-Jun-93: Register-saving inconsistencies fixed      ‚ñà‚ñà
+;‚ñà‚ñà          1.05 of  9-Jul-93: Added intervals parameter to window_fade   ‚ñà‚ñà
+;‚ñà‚ñà          1.06 of 28-Jul-93: Added VFX_bank_reset call                  ‚ñà‚ñà
+;‚ñà‚ñà                             EBX preserved in C calls                   ‚ñà‚ñà
+;‚ñà‚ñà          1.07 of 27-Aug-93: Added VFX_pixel_fade, VFX_rectangle_hash,  ‚ñà‚ñà
+;‚ñà‚ñà                             VFX_shape_visible_rectangle,               ‚ñà‚ñà
+;‚ñà‚ñà                             VFX_shape_bounds, VFX_shape_origin,        ‚ñà‚ñà
+;‚ñà‚ñà                             VFX_pane_refresh calls                     ‚ñà‚ñà
+;‚ñà‚ñà          1.10 of  3-Dec-93: Added common clipping macro                ‚ñà‚ñà
+;‚ñà‚ñà                             Modified VFX_pixel_fade for SVGA           ‚ñà‚ñà
+;‚ñà‚ñà                             Implemented new WINDOW structure           ‚ñà‚ñà
+;‚ñà‚ñà                             Added VFX_line_address call                ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Project: 386FX Sound & Light(TM)                                      ‚ñà‚ñà
+;‚ñà‚ñà  Authors: Ken Arnold, John Lemberger, John Miles                       ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  C prototypes in VFX.H                                                 ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  80386 ASM source compatible with Microsoft Assembler v6.0 or later    ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Copyright (C) 1992-1994 Non-Linear Arts, Inc.                         ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Non-Linear Arts, Inc.                                                 ‚ñà‚ñà
+;‚ñà‚ñà  3415 Greystone #200                                                   ‚ñà‚ñà
+;‚ñà‚ñà  Austin, TX 78731                                                      ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990              ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
                 OPTION SCOPED   ;Enable local labels
 

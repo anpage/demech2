@@ -1,33 +1,33 @@
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€  VFXREND.H: General-purpose polygon rendering package                  €€
-//€€                                                                        €€
-//€€  Source compatible with 32-bit 80386 C/C++                             €€
-//€€                                                                        €€
-//€€  V1.00 of  6-Nov-93: Initial version                                   €€
-//€€  V1.01 of 22-Nov-93: MetaWare support, new SMP_ equates                €€
-//€€  V1.02 of 13-Dec-93: Screen coords changed to integers                 €€
-//€€  V1.03 of 16-Jan-94: Signed LONG screen coords                         €€
-//€€                      Indirect Gouraud shading added                    €€
-//€€                      Clipping code merged                              €€
-//€€                      VFX_polygon_render() now uses panes               €€
-//€€                                                                        €€
-//€€  Project: 386FX Sound & Light(TM)                                      €€
-//€€   Author: John Miles, John Lemberger                                   €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€  Copyright (C) 1993 Miles Design, Inc.                                 €€
-//€€  Copyright (C) 1994 Non-Linear Arts, Inc.                              €€
-//€€                                                                        €€
-//€€  Non-Linear Arts, Inc.                                                 €€
-//€€  3415 Greystone Drive                                                  €€
-//€€  Suite 200                                                             €€
-//€€  Austin, TX 78731                                                      €€
-//€€                                                                        €€
-//€€  Support: (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990     €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  VFXREND.H: General-purpose polygon rendering package                  ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Source compatible with 32-bit 80386 C/C++                             ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  V1.00 of  6-Nov-93: Initial version                                   ‚ñà‚ñà
+//‚ñà‚ñà  V1.01 of 22-Nov-93: MetaWare support, new SMP_ equates                ‚ñà‚ñà
+//‚ñà‚ñà  V1.02 of 13-Dec-93: Screen coords changed to integers                 ‚ñà‚ñà
+//‚ñà‚ñà  V1.03 of 16-Jan-94: Signed LONG screen coords                         ‚ñà‚ñà
+//‚ñà‚ñà                      Indirect Gouraud shading added                    ‚ñà‚ñà
+//‚ñà‚ñà                      Clipping code merged                              ‚ñà‚ñà
+//‚ñà‚ñà                      VFX_polygon_render() now uses panes               ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Project: 386FX Sound & Light(TM)                                      ‚ñà‚ñà
+//‚ñà‚ñà   Author: John Miles, John Lemberger                                   ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Copyright (C) 1993 Miles Design, Inc.                                 ‚ñà‚ñà
+//‚ñà‚ñà  Copyright (C) 1994 Non-Linear Arts, Inc.                              ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Non-Linear Arts, Inc.                                                 ‚ñà‚ñà
+//‚ñà‚ñà  3415 Greystone Drive                                                  ‚ñà‚ñà
+//‚ñà‚ñà  Suite 200                                                             ‚ñà‚ñà
+//‚ñà‚ñà  Austin, TX 78731                                                      ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Support: (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990     ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
 #ifndef VFXREND_H
 #define VFXREND_H
@@ -94,11 +94,11 @@ FARPTR;
 #endif
 #endif
 
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€ Polygon description = list of POLYVERTEX structures                    €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà Polygon description = list of POLYVERTEX structures                    ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
 typedef struct
 {
@@ -130,11 +130,11 @@ typedef struct
 }
 VFX_VERTEX;               
 
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€ Texture description structure                                          €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà Texture description structure                                          ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
 typedef struct
 {
@@ -145,43 +145,43 @@ typedef struct
 }
 VFX_TEXTURE;
 
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€ Polygon rendering and clipping functions                               €€
-//€€                                                                        €€
-//€€             pane: Pointer to VFX PANE structure                        €€
-//€€                                                                        €€
-//€€ vlist, nvertices: List of VFX_VERTEX structures describing a convex or €€
-//€€                   horizontally concave polygon.                        €€
-//€€                                                                        €€
-//€€        operation: Desired rendering operation(s); see below            €€
-//€€                                                                        €€
-//€€          texture: Texture map source parameter, or NULL if no texture  €€
-//€€                   mapping requested                                    €€
-//€€                                                                        €€
-//€€           cueing: For flat lighting (MAP_ILLUM | SHD_FLAT), points to  €€
-//€€                   a 256-byte lookaside table for each pixel color in   €€
-//€€                   polygonal area.  For Gouraud lighting (MAP_ILLUM |   €€
-//€€                   SHD_GOURAUD), points to a [][256]-byte lookaside     €€
-//€€                   table, where the first dimension [] corresponds to   €€
-//€€                   the maximum possible vertex[].c cueing level.        €€
-//€€                                                                        €€
-//€€                   The cueing table is also used for MAP_AFFINE and     €€
-//€€                   MAP_PERSPECT, when invoked with SHD_FLAT or          €€
-//€€                   SHD_GOURAUD.  In this case, the MAP_ILLUM parameter  €€
-//€€                   should not be specified.                             €€
-//€€                                                                        €€
-//€€     translucency: Used when XP_XLUCENT accompanies MAP_AFFINE or       €€
-//€€                   MAP_PERSPECT, this should point to a 256-byte color  €€
-//€€                   lookaside table to translate the pixels underlying   €€
-//€€                   transparent areas in the texture-mapped polygon.     €€
-//€€                                                                        €€
-//€€                   When SHD_I_GOURAUD is in effect, *translucency       €€
-//€€                   points to a 256-byte table which contains output     €€
-//€€                   color values corresponding to the interpolated       €€
-//€€                   vertex[].c values.                                   €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà Polygon rendering and clipping functions                               ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà             pane: Pointer to VFX PANE structure                        ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà vlist, nvertices: List of VFX_VERTEX structures describing a convex or ‚ñà‚ñà
+//‚ñà‚ñà                   horizontally concave polygon.                        ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà        operation: Desired rendering operation(s); see below            ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà          texture: Texture map source parameter, or NULL if no texture  ‚ñà‚ñà
+//‚ñà‚ñà                   mapping requested                                    ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà           cueing: For flat lighting (MAP_ILLUM | SHD_FLAT), points to  ‚ñà‚ñà
+//‚ñà‚ñà                   a 256-byte lookaside table for each pixel color in   ‚ñà‚ñà
+//‚ñà‚ñà                   polygonal area.  For Gouraud lighting (MAP_ILLUM |   ‚ñà‚ñà
+//‚ñà‚ñà                   SHD_GOURAUD), points to a [][256]-byte lookaside     ‚ñà‚ñà
+//‚ñà‚ñà                   table, where the first dimension [] corresponds to   ‚ñà‚ñà
+//‚ñà‚ñà                   the maximum possible vertex[].c cueing level.        ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà                   The cueing table is also used for MAP_AFFINE and     ‚ñà‚ñà
+//‚ñà‚ñà                   MAP_PERSPECT, when invoked with SHD_FLAT or          ‚ñà‚ñà
+//‚ñà‚ñà                   SHD_GOURAUD.  In this case, the MAP_ILLUM parameter  ‚ñà‚ñà
+//‚ñà‚ñà                   should not be specified.                             ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà     translucency: Used when XP_XLUCENT accompanies MAP_AFFINE or       ‚ñà‚ñà
+//‚ñà‚ñà                   MAP_PERSPECT, this should point to a 256-byte color  ‚ñà‚ñà
+//‚ñà‚ñà                   lookaside table to translate the pixels underlying   ‚ñà‚ñà
+//‚ñà‚ñà                   transparent areas in the texture-mapped polygon.     ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà                   When SHD_I_GOURAUD is in effect, *translucency       ‚ñà‚ñà
+//‚ñà‚ñà                   points to a 256-byte table which contains output     ‚ñà‚ñà
+//‚ñà‚ñà                   color values corresponding to the interpolated       ‚ñà‚ñà
+//‚ñà‚ñà                   vertex[].c values.                                   ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
 //
 // WARNING: Do not call VFX_polygon_render() with any flag combination that
@@ -237,12 +237,12 @@ extern FIXED30 cdecl F16_div_to_F30 (FIXED16 dividend, FIXED16 divisor);
 extern FIXED30 cdecl F30_reciprocal (FIXED16 value);
 extern FIXED16 cdecl mul_F30        (FIXED16 M1,       FIXED30 M2);
                                                           
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€ Set the dither level (nominally 0x8000,0; 0,0=no dithering) for        €€
-//€€ Gouraud shading effects                                                €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà Set the dither level (nominally 0x8000,0; 0,0=no dithering) for        ‚ñà‚ñà
+//‚ñà‚ñà Gouraud shading effects                                                ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
 extern void cdecl VFX_set_Gouraud_dither_level(FIXED16 dither_1, 
    FIXED16 dither_2);

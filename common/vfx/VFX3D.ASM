@@ -1,42 +1,42 @@
-;€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-;€€                                                                        €€
-;€€  VFX3D.ASM                                                             €€
-;€€                                                                        €€
-;€€  VFX polygon primitives for 3D rendering                               €€
-;€€                                                                        €€
-;€€  Version 1.00 of  5-Jul-92: Original                                   €€
-;€€          1.01 of 14-May-93: Vertex coordinates made pane-relative for  €€
-;€€                              consistency with other VFX functions      €€
-;€€                             Fixed-point Gouraud dithering added to     €€
-;€€                              VFX_dithered_Gouraud_polygon()            €€
-;€€                             VFX_precision_Gouraud_polygon() renamed;   €€
-;€€                              old VFX_Gouraud_polygon() dropped         €€
-;€€                             Scanline loops partially unrolled for      €€
-;€€                              optimum 486/Pentium cachability           €€
-;€€                             VFX_translate_polygon() added              €€
-;€€                             VFX_illuminate_polygon() added             €€
-;€€          1.02 of 22-Jul-93: New SCRNVERTEX structure incorporated      €€
-;€€                             All source parameters now fixed-point      €€
-;€€          1.10 of  3-Dec-93: New WINDOW structure implemented           €€
-;€€                                                                        €€
-;€€  Project: 386FX Sound & Light(TM)                                      €€
-;€€   Author: John Miles                                                   €€
-;€€                                                                        €€
-;€€  C prototypes in VFX.H                                                 €€
-;€€                                                                        €€
-;€€  80386 ASM source compatible with Microsoft Assembler v6.0 or later    €€
-;€€                                                                        €€
-;€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-;€€                                                                        €€
-;€€  Copyright (C) 1992-1994 Non-Linear Arts, Inc.                         €€
-;€€                                                                        €€
-;€€  Non-Linear Arts, Inc.                                                 €€
-;€€  3415 Greystone #200                                                   €€
-;€€  Austin, TX 78731                                                      €€
-;€€                                                                        €€
-;€€  (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990              €€
-;€€                                                                        €€
-;€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+;‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  VFX3D.ASM                                                             ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  VFX polygon primitives for 3D rendering                               ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Version 1.00 of  5-Jul-92: Original                                   ‚ñà‚ñà
+;‚ñà‚ñà          1.01 of 14-May-93: Vertex coordinates made pane-relative for  ‚ñà‚ñà
+;‚ñà‚ñà                              consistency with other VFX functions      ‚ñà‚ñà
+;‚ñà‚ñà                             Fixed-point Gouraud dithering added to     ‚ñà‚ñà
+;‚ñà‚ñà                              VFX_dithered_Gouraud_polygon()            ‚ñà‚ñà
+;‚ñà‚ñà                             VFX_precision_Gouraud_polygon() renamed;   ‚ñà‚ñà
+;‚ñà‚ñà                              old VFX_Gouraud_polygon() dropped         ‚ñà‚ñà
+;‚ñà‚ñà                             Scanline loops partially unrolled for      ‚ñà‚ñà
+;‚ñà‚ñà                              optimum 486/Pentium cachability           ‚ñà‚ñà
+;‚ñà‚ñà                             VFX_translate_polygon() added              ‚ñà‚ñà
+;‚ñà‚ñà                             VFX_illuminate_polygon() added             ‚ñà‚ñà
+;‚ñà‚ñà          1.02 of 22-Jul-93: New SCRNVERTEX structure incorporated      ‚ñà‚ñà
+;‚ñà‚ñà                             All source parameters now fixed-point      ‚ñà‚ñà
+;‚ñà‚ñà          1.10 of  3-Dec-93: New WINDOW structure implemented           ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Project: 386FX Sound & Light(TM)                                      ‚ñà‚ñà
+;‚ñà‚ñà   Author: John Miles                                                   ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  C prototypes in VFX.H                                                 ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  80386 ASM source compatible with Microsoft Assembler v6.0 or later    ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Copyright (C) 1992-1994 Non-Linear Arts, Inc.                         ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  Non-Linear Arts, Inc.                                                 ‚ñà‚ñà
+;‚ñà‚ñà  3415 Greystone #200                                                   ‚ñà‚ñà
+;‚ñà‚ñà  Austin, TX 78731                                                      ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà  (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990              ‚ñà‚ñà
+;‚ñà‚ñà                                                                        ‚ñà‚ñà
+;‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
                 OPTION SCOPED           ;Enable local labels
 

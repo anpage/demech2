@@ -1,41 +1,41 @@
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€  VFX.H: C type definitions & API function prototypes                   €€
-//€€                                                                        €€
-//€€  Source compatible with 32-bit 80386 C/C++                             €€
-//€€                                                                        €€
-//€€  V0.10 of 10-Dec-92: Initial version                                   €€
-//€€  V1.01 of 12-May-93: Added VFX_shape_lookaside(), new polygon calls    €€
-//€€                      PCX_draw() returns void                           €€
-//€€  V1.02 of 18-Jun-93: Added rotation/scaling calls                      €€
-//€€                      intervals parameter added to window_fade()        €€
-//€€                      Added RECT structure                              €€
-//€€  V1.03 of 28-Jul-93: VERTEX2D structure changed to SCRNVERTEX          €€
-//€€                      Fixed-point data types renamed                    €€
-//€€                      Added VFX_bank_reset() call                       €€
-//€€  V1.04 of  4-Sep-93: Indirect function prototypes changed for C++ use  €€
-//€€  V1.05 of 26-Sep-93: Added FLOAT typedef                               €€
-//€€                      RGB BYTE members changed to UBYTEs                €€
-//€€  V1.06 of 13-Oct-93: Added VFX_pane_refresh(), other new calls         €€
-//€€  V1.07 of 17-Nov-93: Added MetaWare High C support                     €€
-//€€  V1.10 of  3-Dec-93: Modified VFX_pane_refresh(), WINDOW structure     €€
-//€€  V1.15 of 13-Mar-94: Added new VFX.C function prototypes               €€
-//€€                      Added new WINDOW members, PANE_LIST structure     €€
-//€€                                                                        €€
-//€€  Project: 386FX Sound & Light(TM)                                      €€
-//€€   Author: Ken Arnold, John Miles, John Lemberger                       €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
-//€€                                                                        €€
-//€€  Copyright (C) 1992-1994 Non-Linear Arts, Inc.                         €€
-//€€                                                                        €€
-//€€  Non-Linear Arts, Inc.                                                 €€
-//€€  3415 Greystone #200                                                   €€
-//€€  Austin, TX 78731                                                      €€
-//€€                                                                        €€
-//€€  (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990              €€
-//€€                                                                        €€
-//€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  VFX.H: C type definitions & API function prototypes                   ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Source compatible with 32-bit 80386 C/C++                             ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  V0.10 of 10-Dec-92: Initial version                                   ‚ñà‚ñà
+//‚ñà‚ñà  V1.01 of 12-May-93: Added VFX_shape_lookaside(), new polygon calls    ‚ñà‚ñà
+//‚ñà‚ñà                      PCX_draw() returns void                           ‚ñà‚ñà
+//‚ñà‚ñà  V1.02 of 18-Jun-93: Added rotation/scaling calls                      ‚ñà‚ñà
+//‚ñà‚ñà                      intervals parameter added to window_fade()        ‚ñà‚ñà
+//‚ñà‚ñà                      Added RECT structure                              ‚ñà‚ñà
+//‚ñà‚ñà  V1.03 of 28-Jul-93: VERTEX2D structure changed to SCRNVERTEX          ‚ñà‚ñà
+//‚ñà‚ñà                      Fixed-point data types renamed                    ‚ñà‚ñà
+//‚ñà‚ñà                      Added VFX_bank_reset() call                       ‚ñà‚ñà
+//‚ñà‚ñà  V1.04 of  4-Sep-93: Indirect function prototypes changed for C++ use  ‚ñà‚ñà
+//‚ñà‚ñà  V1.05 of 26-Sep-93: Added FLOAT typedef                               ‚ñà‚ñà
+//‚ñà‚ñà                      RGB BYTE members changed to UBYTEs                ‚ñà‚ñà
+//‚ñà‚ñà  V1.06 of 13-Oct-93: Added VFX_pane_refresh(), other new calls         ‚ñà‚ñà
+//‚ñà‚ñà  V1.07 of 17-Nov-93: Added MetaWare High C support                     ‚ñà‚ñà
+//‚ñà‚ñà  V1.10 of  3-Dec-93: Modified VFX_pane_refresh(), WINDOW structure     ‚ñà‚ñà
+//‚ñà‚ñà  V1.15 of 13-Mar-94: Added new VFX.C function prototypes               ‚ñà‚ñà
+//‚ñà‚ñà                      Added new WINDOW members, PANE_LIST structure     ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Project: 386FX Sound & Light(TM)                                      ‚ñà‚ñà
+//‚ñà‚ñà   Author: Ken Arnold, John Miles, John Lemberger                       ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Copyright (C) 1992-1994 Non-Linear Arts, Inc.                         ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  Non-Linear Arts, Inc.                                                 ‚ñà‚ñà
+//‚ñà‚ñà  3415 Greystone #200                                                   ‚ñà‚ñà
+//‚ñà‚ñà  Austin, TX 78731                                                      ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà  (512) 346-9595 / FAX (512) 346-9596 / BBS (512) 454-9990              ‚ñà‚ñà
+//‚ñà‚ñà                                                                        ‚ñà‚ñà
+//‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà‚ñà
 
 #ifndef VFX_H
 #define VFX_H
