@@ -188,7 +188,7 @@ MechChar* FUN_1003bad1(MechChar* p_title, MechS32 p_code, const char** p_args)
 	}
 
 	WriteToMw2Log(g_unk0x100be010);
-	FUN_100591d1(g_unk0x100be010);
+	MonoPrint(g_unk0x100be010);
 	return g_unk0x100be010;
 }
 

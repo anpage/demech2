@@ -22,10 +22,10 @@
 #include "refreshmode.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 
@@ -731,7 +731,7 @@ void UpdateDorcs(void)
 				g_dorcsPreviousDrawCallback();
 			}
 
-			FUN_100570e9(&g_currentPane, 10);
+			OutlinePane(&g_currentPane, 10);
 			g_panes[g_paneIndex] = saved;
 			g_currentPane = g_dorcsSavedTarget;
 			break;
@@ -754,7 +754,7 @@ void UpdateDorcs(void)
 				g_currentDisplayBackend->m_setPalette(0, 0x100, g_dorcsPalette, 1);
 				g_dorcsGif = ReadVfxBin("vfxjk");
 				if (g_dorcsGif) {
-					FUN_1005705e(&g_dorcsGifTarget, &g_dorcsGifTarget, g_dorcsGif);
+					FitRectToGif(&g_dorcsGifTarget, &g_dorcsGifTarget, g_dorcsGif);
 					VFX_pane_wipe(&g_currentPane, 0);
 					VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 					if (g_windowActive) {

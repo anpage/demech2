@@ -12,11 +12,11 @@
 #include "polydraw.h"
 #include "poolsizes.h"
 #include "prjfile.h"
-#include "rendertarget.h"
 #include "shape.h"
 #include "shapelists.h"
 #include "simmain.h"
 #include "staticmem.h"
+#include "targeting.h"
 #include "types.h"
 #include "wtbshapes.h"
 
@@ -474,15 +474,15 @@ void FUN_1001da44(void)
 	nearest = -1;
 	second = -1;
 	third = -1;
-	scale = g_eyepoint->m_unk0xb8;
+	scale = g_eyepoint->m_detailScale;
 	range0 = FixedMul16(scale, 0xe10);
 	range1 = FixedMul16(scale, 0x2134);
 	range2 = FixedMul16(scale, 0x57e4);
 	range3 = FixedMul16(scale, 40000);
 	best = range0;
-	ex = g_eyepoint->m_unk0x00;
-	ey = g_eyepoint->m_unk0x04;
-	ez = g_eyepoint->m_unk0x08;
+	ex = g_eyepoint->m_x;
+	ey = g_eyepoint->m_y;
+	ez = g_eyepoint->m_z;
 	for (i = 0; i < g_playerCount; i++) {
 		entry = &entries[i];
 		entry->m_player = i;
@@ -504,7 +504,7 @@ void FUN_1001da44(void)
 			dx = player->m_position.m_x - ex;
 			dy = player->m_position.m_y - ey;
 			dz = player->m_position.m_z - ez;
-			FUN_10060197(dx, dy, dz, &heading, &length, (MechU32*) &ground, &unk0x18);
+			GetBearingAndRange(dx, dy, dz, &heading, &length, (MechU32*) &ground, &unk0x18);
 			entry->m_distance = length;
 			if (ground < best) {
 				best = ground;

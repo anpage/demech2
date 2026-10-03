@@ -18,11 +18,11 @@
 #include "objective.h"
 #include "players.h"
 #include "point.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
 #include "starmission.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 
@@ -259,7 +259,7 @@ void FUN_100056f0(CockpitPanel* p_panel)
 	g_unk0x100e9350[0xe] = 6;
 	VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, "MISSION OBJECTIVES", g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
-	FUN_100571ea(p_panel->m_target, "MISSION OBJECTIVES", pos, font, 6);
+	UnderlineText(p_panel->m_target, "MISSION OBJECTIVES", pos, font, 6);
 	cursor->m_y += gap + height;
 	FUN_100050d1(p_panel, cursor, font, 1);
 	cursor->m_y += gap;
@@ -380,7 +380,7 @@ void FUN_10005add(CockpitPanel* p_panel)
 			g_unk0x100e9350[0xe] = 0xe;
 			VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, "Communication", g_unk0x100e9350);
 			g_unk0x100e9350[0xe] = 0xe;
-			FUN_100571ea(p_panel->m_target, "Communication", pos, font, 2);
+			UnderlineText(p_panel->m_target, "Communication", pos, font, 2);
 			cursor->m_y += gap + height;
 			if (g_difficulty->m_unk0x0a) {
 				g_unk0x100e9350[0xe] = 0xe;
@@ -461,7 +461,7 @@ void FUN_10005add(CockpitPanel* p_panel)
 			g_unk0x100e9350[0xe] = 0xe;
 			VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_unk0x100e9350);
 			g_unk0x100e9350[0xe] = 0xe;
-			FUN_100571ea(p_panel->m_target, text, pos, font, 2);
+			UnderlineText(p_panel->m_target, text, pos, font, 2);
 			cursor->m_y += gap + height;
 			g_unk0x100e9350[0xe] = 0xe;
 			VFX_string_draw(
@@ -480,9 +480,9 @@ void FUN_10005add(CockpitPanel* p_panel)
 		g_unk0x100e9350[0xe] = 0xe;
 		VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, g_unk0x10179e90, g_unk0x100e9350);
 		g_unk0x100e9350[0xe] = 0xe;
-		FUN_10057282(p_panel->m_target, "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM", pos, font, 6);
+		BoxText(p_panel->m_target, "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM", pos, font, 6);
 		cursor->m_x = FUN_1000507d(g_unk0x10179e90, font);
-		FUN_100571ea(p_panel->m_target, " ", pos, font, 0xe);
+		UnderlineText(p_panel->m_target, " ", pos, font, 0xe);
 	}
 
 	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);

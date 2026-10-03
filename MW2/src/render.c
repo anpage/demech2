@@ -22,12 +22,12 @@
 #include "polydraw.h"
 #include "recordstacks.h"
 #include "refreshmode.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "shape.h"
 #include "shapelists.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 #include "vfxrend.h"
@@ -199,16 +199,16 @@ void FirstRender(void)
 	g_unk0x100a54b8 = 0x578;
 	FUN_1006d680();
 	g_renderSettings.m_frameDrawCallback = FUN_10012afe;
-	g_renderSettings.m_shapeFilter = FUN_1004c2ef;
+	g_renderSettings.m_shapeFilter = CullSceneShape;
 	g_renderSettings.m_projectVertex = ProjectVertex;
 	g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_10036230;
 	g_renderSettings.m_drawPolygon = FUN_10042e00;
 	g_unk0x100a5558 = 0xff;
-	if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
-		g_renderSettings.m_unk0x30 = 0;
+	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
+		g_renderSettings.m_clearFrame = 0;
 	}
 
-	g_renderSettings.m_unk0x10 |= 8;
+	g_renderSettings.m_flags |= 8;
 }
 
 // Makes the objects of the scene's shapes of kinds 0x90 and 0xa0, and sets up its shapes of kind
@@ -270,26 +270,26 @@ void FUN_10012afe(void)
 	}
 
 	if (g_unk0x100a2460) {
-		FUN_1004bc2e(g_eyepoint);
+		UpdateProjection(g_eyepoint);
 		g_unk0x100a2460 = 0;
 	}
 
-	if (g_renderSettings.m_unk0x00) {
+	if (g_renderSettings.m_blankScene) {
 		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
 		return;
 	}
 
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
-	if (g_renderSettings.m_unk0x30 || g_renderSettings.m_unk0x34) {
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	if (g_renderSettings.m_clearFrame || g_renderSettings.m_wireframe) {
 		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
 	}
-	else if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
+	else if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
-			pass = g_renderSettings.m_unk0x20;
-			g_renderSettings.m_unk0x20 = 0;
+			pass = g_renderSettings.m_drawGround;
+			g_renderSettings.m_drawGround = 0;
 			FUN_1004320b(g_eyepoint);
-			g_renderSettings.m_unk0x20 = pass;
+			g_renderSettings.m_drawGround = pass;
 		}
 		else {
 			FUN_1004320b(g_eyepoint);
@@ -297,30 +297,30 @@ void FUN_10012afe(void)
 	}
 
 	if (g_unk0x100a246c && g_unk0x100a2470 && g_unk0x100a2474 != -1) {
-		FUN_10020c6f(g_unk0x100a2474, &g_eyepoint->m_unk0x1c, &g_eyepoint->m_unk0x20, &g_eyepoint->m_unk0x24);
+		FUN_10020c6f(g_unk0x100a2474, &g_eyepoint->m_lightX, &g_eyepoint->m_lightY, &g_eyepoint->m_lightZ);
 	}
 
 	g_unk0x100a2480 = 0;
 	if (g_unk0x100a2478) {
-		saved = g_eyepoint->m_unk0x40;
-		FUN_1004bf8a(g_eyepoint, 0x7fffffff);
-		g_renderSettings.m_shapeFilter = FUN_1004c565;
+		saved = g_eyepoint->m_farPlane;
+		SetFarPlane(g_eyepoint, 0x7fffffff);
+		g_renderSettings.m_shapeFilter = CullShapeToFrustum;
 		FUN_10033b9e(g_unk0x100a2478);
 		g_unk0x100a2480 += g_depthEntryCount;
-		FUN_1004bf8a(g_eyepoint, saved);
-		g_renderSettings.m_shapeFilter = FUN_1004c2ef;
+		SetFarPlane(g_eyepoint, saved);
+		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
 	FUN_100338bb(g_unk0x100ad5e8);
 	g_unk0x100a2480 += g_depthEntryCount;
 	if (g_unk0x100a2420 && g_unk0x100a247c) {
-		saved = g_eyepoint->m_unk0x3c;
-		FUN_1004bf61(g_eyepoint, 8);
+		saved = g_eyepoint->m_nearPlane;
+		SetNearPlane(g_eyepoint, 8);
 		g_renderSettings.m_shapeFilter = FUN_1004c779;
 		FUN_10033b9e(g_unk0x100a247c);
 		g_unk0x100a2480 += g_depthEntryCount;
-		FUN_1004bf61(g_eyepoint, saved);
-		g_renderSettings.m_shapeFilter = FUN_1004c2ef;
+		SetNearPlane(g_eyepoint, saved);
+		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
 	if (g_unk0x100a2454) {
@@ -430,7 +430,7 @@ void FUN_10012f3c(void)
 			if (palette) {
 				g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
 				target = g_currentPane;
-				FUN_1005705e(&target, &target, gif);
+				FitRectToGif(&target, &target, gif);
 				if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 					VFX_GIF_draw(&target, gif, state);
 					if (g_windowActive) {
@@ -476,7 +476,7 @@ void FUN_100131f1(Shape* p_root)
 			z = shape->m_centerZ;
 			radius = shape->m_radius;
 			color = 0xf;
-			if (FUN_1004c11d(&x, &y, &z)) {
+			if (ProjectWorldPoint(&x, &y, &z)) {
 				radius = ProjectRadius(g_eyepoint->m_projectScaleX, radius, z);
 				radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
 				VFX_ellipse_draw(&g_currentPane, x, y, radius, radiusY, color);

@@ -48,9 +48,9 @@ void FUN_1000369e(Player* p_player)
 // FUNCTION: MW2 0x100036c3
 MechS32* FUN_100036c3(Player* p_player, MechS32* p_offset)
 {
-	p_offset[0] = g_eyepoint->m_unk0x00 - p_player->m_position.m_x;
-	p_offset[1] = g_eyepoint->m_unk0x04 - p_player->m_position.m_y;
-	p_offset[2] = g_eyepoint->m_unk0x08 - p_player->m_position.m_z;
+	p_offset[0] = g_eyepoint->m_x - p_player->m_position.m_x;
+	p_offset[1] = g_eyepoint->m_y - p_player->m_position.m_y;
+	p_offset[2] = g_eyepoint->m_z - p_player->m_position.m_z;
 	return p_offset;
 }
 

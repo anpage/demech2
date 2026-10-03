@@ -17,11 +17,11 @@
 #include "object.h"
 #include "polydraw.h"
 #include "random.h"
-#include "rendertarget.h"
 #include "simmain.h"
 #include "sndunpack.h"
 #include "soundinfo.h"
 #include "speech.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <string.h>
@@ -512,7 +512,7 @@ MechS32 FUN_1007ea8c(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, 
 	MechS32 distance;
 	MechS32 range;
 
-	FUN_10060197(p_dx, p_dy, p_dz, &bearing, &distance, (MechU32*) &horizontal, &pitch);
+	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (MechU32*) &horizontal, &pitch);
 	range = distance;
 	volume = FUN_1007f0d9(range);
 	if (volume > 0) {
@@ -569,7 +569,7 @@ MechS32 CalculateSamplePan(MechS32 p_bearing)
 	MechS32 pan;
 	MechS32 angle;
 
-	angle = g_eyepoint->m_unk0x0c - p_bearing;
+	angle = g_eyepoint->m_heading - p_bearing;
 	pan = FixedSin(angle) >> 23;
 	pan += 0x40;
 	if (pan < 0xf) {
@@ -635,10 +635,10 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	}
 
 	GetObjPosition(p_sound->m_obj, &x, &y, &z);
-	x = g_eyepoint->m_unk0x00 - x;
-	y = g_eyepoint->m_unk0x04 - y;
-	z = g_eyepoint->m_unk0x08 - z;
-	FUN_10060197(x, y, z, &bearing, &distance, (MechU32*) &i, &i);
+	x = g_eyepoint->m_x - x;
+	y = g_eyepoint->m_y - y;
+	z = g_eyepoint->m_z - z;
+	GetBearingAndRange(x, y, z, &bearing, &distance, (MechU32*) &i, &i);
 
 	if (p_sound->m_range < distance) {
 		StopAmbientSound(p_sound);

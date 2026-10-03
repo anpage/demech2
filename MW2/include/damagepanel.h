@@ -2,7 +2,7 @@
 #define DAMAGEPANEL_H
 
 #include "mech.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of damagepanel.c that other units use.

@@ -20,9 +20,9 @@
 #include "playersteering.h"
 #include "poolsizes.h"
 #include "ramp.h"
-#include "rendertarget.h"
 #include "starmission.h"
 #include "staticmem.h"
+#include "targeting.h"
 #include "types.h"
 #include "weaponslot.h"
 

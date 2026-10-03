@@ -89,19 +89,19 @@ Vector3 g_nukePosition;
 
 // The eyepoint's settings while an effect has the camera.
 // GLOBAL: MW2 0x100c75f0
-MechS32 g_savedEyepointX;
+MechS32 g_savedLightX;
 
 // GLOBAL: MW2 0x100c75f4
-MechS32 g_savedEyepointY;
+MechS32 g_savedLightY;
 
 // GLOBAL: MW2 0x100c75f8
-MechS32 g_savedEyepointZ;
+MechS32 g_savedLightZ;
 
 // GLOBAL: MW2 0x100c75fc
-MechS32 g_savedEyepoint0x28;
+MechS32 g_savedDirectionalLight;
 
 // GLOBAL: MW2 0x100c7600
-MechS32 g_savedEyepoint0x2a;
+MechS32 g_savedAmbientLight;
 
 // GLOBAL: MW2 0x100c7604
 MechS32 g_savedUnk0x100a6d04;
@@ -723,9 +723,9 @@ void FUN_1006b1fb(
 	}
 
 	info = &g_effectInfo[p_type];
-	dx = g_eyepoint->m_unk0x00 - p_x;
-	dy = g_eyepoint->m_unk0x04 - p_y;
-	dz = g_eyepoint->m_unk0x08 - p_z;
+	dx = g_eyepoint->m_x - p_x;
+	dy = g_eyepoint->m_y - p_y;
+	dz = g_eyepoint->m_z - p_z;
 	if (info->m_needsObject || info->m_camera) {
 		count = 0;
 		slot = -1;
@@ -739,7 +739,7 @@ void FUN_1006b1fb(
 													 effect->m_position[2] - p_z
 												 ) < 500) {
 						count++;
-						if (g_unk0x100a712c != 1 || count > 2) {
+						if (g_lodQuality != 1 || count > 2) {
 							return;
 						}
 					}
@@ -785,8 +785,8 @@ void FUN_1006b1fb(
 			take = 1;
 			if (g_effectCameraActive) {
 				distance = dx * dx + dz * dz;
-				cameraX = g_eyepoint->m_unk0x1c - g_eyepoint->m_unk0x00;
-				cameraZ = g_eyepoint->m_unk0x24 - g_eyepoint->m_unk0x08;
+				cameraX = g_eyepoint->m_lightX - g_eyepoint->m_x;
+				cameraZ = g_eyepoint->m_lightZ - g_eyepoint->m_z;
 				current = cameraX * cameraX + cameraZ * cameraZ;
 				if (current > distance) {
 					closer = 1;
@@ -800,26 +800,26 @@ void FUN_1006b1fb(
 				if (!closer) {
 					g_effectCameraActive = 1;
 					g_unk0x100a2470 = 0;
-					g_savedEyepointX = g_eyepoint->m_unk0x1c;
-					g_savedEyepointY = g_eyepoint->m_unk0x20;
-					g_savedEyepointZ = g_eyepoint->m_unk0x24;
-					g_savedEyepoint0x28 = g_eyepoint->m_unk0x28;
-					g_savedEyepoint0x2a = g_eyepoint->m_unk0x2a;
-					g_eyepoint->m_unk0x2a -= 10;
-					if (g_eyepoint->m_unk0x2a > 0xff || g_eyepoint->m_unk0x2a < 0) {
-						g_eyepoint->m_unk0x2a = 0x40;
+					g_savedLightX = g_eyepoint->m_lightX;
+					g_savedLightY = g_eyepoint->m_lightY;
+					g_savedLightZ = g_eyepoint->m_lightZ;
+					g_savedDirectionalLight = g_eyepoint->m_directionalLight;
+					g_savedAmbientLight = g_eyepoint->m_ambientLight;
+					g_eyepoint->m_ambientLight -= 10;
+					if (g_eyepoint->m_ambientLight > 0xff || g_eyepoint->m_ambientLight < 0) {
+						g_eyepoint->m_ambientLight = 0x40;
 					}
 
 					g_savedUnk0x100a6d04 = g_renderSettings.m_unk0x3c;
-					g_eyepoint->m_unk0x28 = 0;
+					g_eyepoint->m_directionalLight = 0;
 					g_renderSettings.m_unk0x3c = 0;
 				}
 
 				g_effectCameraEffect = slot;
 				effect->m_hasCamera = 1;
-				g_eyepoint->m_unk0x1c = p_camX;
-				g_eyepoint->m_unk0x20 = p_camY;
-				g_eyepoint->m_unk0x24 = p_camZ;
+				g_eyepoint->m_lightX = p_camX;
+				g_eyepoint->m_lightY = p_camY;
+				g_eyepoint->m_lightZ = p_camZ;
 				if (info->m_flash > -1) {
 					FUN_1000288e(info->m_flash, info->m_duration, 1);
 				}
@@ -896,11 +896,11 @@ void UpdateEffects(void)
 				if (release) {
 					if (restore) {
 						g_unk0x100a2470 = 1;
-						g_eyepoint->m_unk0x1c = g_savedEyepointX;
-						g_eyepoint->m_unk0x20 = g_savedEyepointY;
-						g_eyepoint->m_unk0x24 = g_savedEyepointZ;
-						g_eyepoint->m_unk0x28 = g_savedEyepoint0x28;
-						g_eyepoint->m_unk0x2a = g_savedEyepoint0x2a;
+						g_eyepoint->m_lightX = g_savedLightX;
+						g_eyepoint->m_lightY = g_savedLightY;
+						g_eyepoint->m_lightZ = g_savedLightZ;
+						g_eyepoint->m_directionalLight = g_savedDirectionalLight;
+						g_eyepoint->m_ambientLight = g_savedAmbientLight;
 						g_renderSettings.m_unk0x3c = g_savedUnk0x100a6d04;
 						effect->m_hasCamera = 0;
 						g_effectCameraActive = 0;

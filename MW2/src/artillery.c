@@ -16,9 +16,9 @@
 #include "poolsizes.h"
 #include "ramp.h"
 #include "random.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "staticmem.h"
+#include "targeting.h"
 #include "types.h"
 #include "weapons.h"
 #include "weaponslot.h"
@@ -131,7 +131,7 @@ void FUN_1005a2ea(Mech* p_mech)
 		UpdateWeaponFireState(mech);
 		if (mech->m_player->m_aiMode != 2) {
 			if (mech->m_player->m_targetInfo.m_target && !(mech->m_player->m_targetInfo.m_target & 0x1000) &&
-				!FUN_1005fa22(mech->m_player)) {
+				!UpdateTarget(mech->m_player)) {
 				mech->m_player->m_targetInfo.m_target = 0;
 			}
 		}

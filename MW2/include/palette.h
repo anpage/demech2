@@ -3,7 +3,7 @@
 
 #include "decomp.h"
 #include "eyepoint.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of palette.c that other units use.

@@ -252,9 +252,9 @@ void UpdateWeaponFireState(Mech* p_mech)
 									FUN_1004c890(def->m_shotType, def->m_sound, pan);
 								}
 								else {
-									dx = g_eyepoint->m_unk0x00 - p_mech->m_player->m_position.m_x;
-									dy = g_eyepoint->m_unk0x04 - p_mech->m_player->m_position.m_y;
-									dz = g_eyepoint->m_unk0x08 - p_mech->m_player->m_position.m_z;
+									dx = g_eyepoint->m_x - p_mech->m_player->m_position.m_x;
+									dy = g_eyepoint->m_y - p_mech->m_player->m_position.m_y;
+									dz = g_eyepoint->m_z - p_mech->m_player->m_position.m_z;
 									FUN_1007ebd1(dx, dy, dz, def->m_sound, g_unk0x100a2420);
 								}
 							}

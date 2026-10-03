@@ -22,13 +22,13 @@
 #include "polydraw.h"
 #include "random.h"
 #include "recttransition.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 #include "vfxa.h"
@@ -91,12 +91,12 @@ void FUN_1007b930(CockpitPanel* p_panel)
 		g_unk0x100ba4c4 = 0;
 	}
 
-	if (g_unk0x100aaba8 == 2) {
+	if (g_inspectResult == 2) {
 		g_unk0x100ba4c4 = g_currentClock + 362;
 		p_panel->m_setName(p_panel, "Out of range");
 		PlayCockpitSound(0x14, -1);
 	}
-	else if (g_unk0x100aaba8) {
+	else if (g_inspectResult) {
 		g_unk0x100ba4c4 = g_currentClock + 362;
 		switch (kind) {
 		case 0x100:
@@ -250,11 +250,11 @@ void FUN_1007b930(CockpitPanel* p_panel)
 	if (meters > 1000) {
 		km = meters / 1000.0;
 		sprintf(text, "\n%2.2fk", km);
-		FUN_10057396(p_panel->m_target, text, font);
+		DrawWrappedText(p_panel->m_target, text, font);
 	}
 	else {
 		sprintf(text, "\n%3ldm", meters);
-		FUN_10057396(p_panel->m_target, text, font);
+		DrawWrappedText(p_panel->m_target, text, font);
 	}
 
 	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
@@ -320,7 +320,7 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	index = mech->m_player->m_targetInfo.m_target & 0xff;
 	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
 		VFX_pane_wipe(p_panel->m_target, 0);
-		FUN_100570e9(p_panel->m_target, 8);
+		OutlinePane(p_panel->m_target, 8);
 		return;
 	}
 
@@ -337,7 +337,7 @@ void FUN_1007c126(CockpitPanel* p_panel)
 		if (icon) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			FUN_10041f06(centerX, centerY, icon, p_panel->m_target);
-			FUN_100570e9(p_panel->m_target, 8);
+			OutlinePane(p_panel->m_target, 8);
 		}
 
 		return;
@@ -354,13 +354,13 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	y = player->m_targetInfo.m_position.m_y;
 	z = player->m_targetInfo.m_position.m_z;
 	heading = player->m_targetInfo.m_heading;
-	object = FUN_1005ff56();
+	object = GetLocalTargetObject();
 	if (!object) {
 		noTarget = FUN_1001a19f(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
 		if (noTarget) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
-			FUN_100570e9(p_panel->m_target, 8);
+			OutlinePane(p_panel->m_target, 8);
 			FUN_1001a163(0x5b, g_resourceTypeTags[c_resTagShp]);
 		}
 
@@ -371,7 +371,7 @@ void FUN_1007c126(CockpitPanel* p_panel)
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
-			FUN_100570e9(p_panel->m_target, 8);
+			OutlinePane(p_panel->m_target, 8);
 			FUN_1001a163(0x58, g_resourceTypeTags[c_resTagShp]);
 		}
 
@@ -395,20 +395,20 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	view[4] = 0;
 	view[5] = 0;
 	if (g_unk0x100ba4bc == 1) {
-		g_renderSettings.m_unk0x34 = 1;
-		g_renderSettings.m_unk0x38 = 0;
+		g_renderSettings.m_wireframe = 1;
+		g_renderSettings.m_wireframeColors = 0;
 	}
 	else {
-		g_renderSettings.m_unk0x34 = 0;
+		g_renderSettings.m_wireframe = 0;
 	}
 
-	g_renderSettings.m_unk0x1c = g_renderSettings.m_unk0x20 = 0;
+	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_unk0x100c3358 == 2) {
 		FUN_1004c8bd(7, 0x20000, view, object);
 	}
 
-	FUN_100570e9(p_panel->m_target, 8);
+	OutlinePane(p_panel->m_target, 8);
 	g_renderSettings = saved;
 }
 

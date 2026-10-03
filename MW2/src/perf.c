@@ -114,27 +114,27 @@ MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 // FUNCTION: MW2 0x10076b9a
 MechS32 GetObjectTextmaps(MechS32 p_arg)
 {
-	return FUN_10036867(0x100) || FUN_10036867(0x200);
+	return AreTextureMapsOn(0x100) || AreTextureMapsOn(0x200);
 }
 
 // FUNCTION: MW2 0x10076be0
 void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 {
-	FUN_10036891(0x100, p_objectTextmaps);
-	FUN_10036891(0x200, p_objectTextmaps);
+	EnableTextureMaps(0x100, p_objectTextmaps);
+	EnableTextureMaps(0x200, p_objectTextmaps);
 	g_mw2SndCfgData->m_objectTextmaps = p_objectTextmaps;
 }
 
 // FUNCTION: MW2 0x10076c19
 MechS32 GetTerrainTextmaps(MechS32 p_arg)
 {
-	return FUN_10036867(0x800) || g_unk0x100a7120;
+	return AreTextureMapsOn(0x800) || g_unk0x100a7120;
 }
 
 // FUNCTION: MW2 0x10076c57
 void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 {
-	FUN_10036891(0x800, p_terrainTextmaps);
+	EnableTextureMaps(0x800, p_terrainTextmaps);
 	FUN_1004b539(p_terrainTextmaps);
 	g_mw2SndCfgData->m_terrainTextmaps = p_terrainTextmaps;
 }
@@ -142,14 +142,14 @@ void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 // FUNCTION: MW2 0x10076c8b
 MechS32 GetDisplayDetail(MechS32 p_arg)
 {
-	return FUN_1004c7a6(p_arg) || FUN_100368bf(p_arg);
+	return IsLodQualityHigh(p_arg) || ArePerspectiveTexturesOn(p_arg);
 }
 
 // FUNCTION: MW2 0x10076ccf
 void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 {
-	FUN_1004c7cf(p_arg, p_displayDetail);
-	FUN_100368e8(p_arg, p_displayDetail);
+	SetLodQualityHigh(p_arg, p_displayDetail);
+	EnablePerspectiveTextures(p_arg, p_displayDetail);
 	g_mw2SndCfgData->m_displayDetail = p_displayDetail;
 }
 

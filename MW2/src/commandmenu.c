@@ -10,7 +10,7 @@
 #include "menucontrol.h"
 #include "menucontrols.h"
 #include "menupage.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <stddef.h>

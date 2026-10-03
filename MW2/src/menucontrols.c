@@ -10,9 +10,9 @@
 #include "menutextbox.h"
 #include "mw2prj.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 
@@ -519,10 +519,10 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 
 	if (!rect->m_window) {
 		rect->m_window = &g_mainPixelBuffer;
-		FUN_1005699f(target, rect, rect);
+		ScaleRectToFrame(target, rect, rect);
 	}
 
-	FUN_10057396(rect, text, font);
+	DrawWrappedText(rect, text, font);
 	if (p_control->m_preview && state != 4 && state != 5) {
 		p_control->m_preview(p_control->m_arg, 0);
 	}

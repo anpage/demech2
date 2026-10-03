@@ -12,7 +12,7 @@ extern "C"
 #endif
 
 	extern Eyepoint* g_eyepoint;
-	extern Eyepoint g_unk0x100a6be0;
+	extern Eyepoint g_mainEyepoint;
 	extern RenderSettings g_renderSettings;
 	extern MechS32 g_unk0x100a6d30;
 	void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags);

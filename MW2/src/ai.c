@@ -17,10 +17,10 @@
 #include "overlay.h"
 #include "players.h"
 #include "random.h"
-#include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
 #include "speech.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 
@@ -415,7 +415,7 @@ void UpdateAI(Player* p_player)
 		return;
 	}
 
-	if (p_player->m_index == g_localPlayerId && g_unk0x100e9630) {
+	if (p_player->m_index == g_localPlayerId && g_monoEnabled) {
 		LogAIStatus();
 	}
 
@@ -571,7 +571,7 @@ void FirstAI(void)
 {
 	MechS32 i;
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	for (i = 0; i < g_objectiveCount; i++) {
@@ -722,7 +722,7 @@ void ClearAILog(void)
 	MechS32 i;
 
 	for (i = 3; i < 25; i++) {
-		if (g_unk0x100e9630) {
+		if (g_monoEnabled) {
 		}
 	}
 }
@@ -749,10 +749,10 @@ void LogPlayerStatusLines(void)
 	Player saved;
 	MechS16 target;
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	for (i = 0; i < g_playerCount; i++) {
@@ -850,7 +850,7 @@ void LogPlayerStatusLines(void)
 			color |= 8;
 		}
 
-		if (player->m_index + 4 < 25 && g_unk0x100e9630) {
+		if (player->m_index + 4 < 25 && g_monoEnabled) {
 		}
 
 		if ((player->m_ai.m_goal == 0 || player->m_ai.m_target == 0) && ++g_invalidTargetLogCount < 10) {
@@ -876,7 +876,7 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 	MechS32 unused;
 	MechU32 distance;
 
-	FUN_10060197(p_a[0] - p_b[0], p_a[1] - p_b[1], p_a[2] - p_b[2], &unused, &unused, &distance, &unused);
+	GetBearingAndRange(p_a[0] - p_b[0], p_a[1] - p_b[1], p_a[2] - p_b[2], &unused, &unused, &distance, &unused);
 	return distance;
 }
 
@@ -1059,7 +1059,7 @@ void LogPlayerSkillLines(void)
 	MechChar line[100];
 	Player* player;
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	for (i = 0; i < g_playerCount; i++) {
@@ -1080,7 +1080,7 @@ void LogPlayerSkillLines(void)
 			color |= 8;
 		}
 
-		if (player->m_index + 4 < 25 && g_unk0x100e9630) {
+		if (player->m_index + 4 < 25 && g_monoEnabled) {
 		}
 	}
 }
@@ -1174,7 +1174,7 @@ void LogStarMissionLines(MechS32 p_team)
 		break;
 	}
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	if (g_unk0x100a88fc == -1) {
@@ -1266,7 +1266,7 @@ void LogStarMissionLines(MechS32 p_team)
 			break;
 		}
 
-		if (g_unk0x100e9630) {
+		if (g_monoEnabled) {
 		}
 	}
 }
@@ -1641,13 +1641,13 @@ MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, Mech
 	return result;
 }
 
-// Makes p_target p_player's target and works out the distance and bearing to it (FUN_1005fa22).
+// Makes p_target p_player's target and works out the distance and bearing to it (UpdateTarget).
 // Whether the target is valid.
 // FUNCTION: MW2 0x1005372c
 MechS32 SetTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
-	return FUN_1005fa22(p_player) > 0;
+	return UpdateTarget(p_player) > 0;
 }
 
 // The range within which p_target counts as reached.
@@ -1828,7 +1828,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 		p_player->m_nextFireTime = RandomIntBelow(10) * 0x16 + g_currentClock;
 		if (GetTeamLeader(p_player->m_team != g_localPlayerId) && p_player->m_ai.m_state == c_aiStatePatrol &&
 			(p_player->m_nav & 0x1000) &&
-			(nav = FUN_1005ec80(
+			(nav = AddNavPoint(
 				 p_player->m_index,
 				 p_player->m_position.m_x,
 				 p_player->m_position.m_y,
@@ -2198,11 +2198,11 @@ void ReleaseNavPoints(Player* p_player)
 			if ((g_navTable[i].m_flags & 1) && g_navTable[i].m_owner == (p_player->m_index | c_aiTargetPlayer)) {
 				if (!(p_player->m_nav & 0x1000)) {
 					if ((p_player->m_nav & 0xff) != i) {
-						FUN_1005ed4f(p_player->m_index, i | c_aiTargetNav);
+						RemoveNavPoint(p_player->m_index, i | c_aiTargetNav);
 					}
 				}
 				else {
-					FUN_1005ed4f(p_player->m_index, i | c_aiTargetNav);
+					RemoveNavPoint(p_player->m_index, i | c_aiTargetNav);
 				}
 			}
 		}
@@ -2255,16 +2255,16 @@ void PlacePatrolNavs(Player* p_player)
 		return;
 	}
 
-	if (FUN_1005ec80(owner, x - range, y, z) == -1) {
+	if (AddNavPoint(owner, x - range, y, z) == -1) {
 	}
 
-	if (FUN_1005ec80(owner, x, y, z - range) == -1) {
+	if (AddNavPoint(owner, x, y, z - range) == -1) {
 	}
 
-	if (FUN_1005ec80(owner, x + range, y, z) == -1) {
+	if (AddNavPoint(owner, x + range, y, z) == -1) {
 	}
 
-	if (FUN_1005ec80(owner, x, y, z + range) == -1) {
+	if (AddNavPoint(owner, x, y, z + range) == -1) {
 	}
 
 	AdvanceNavTarget(p_player, c_aiTargetNav);
@@ -2276,9 +2276,9 @@ void PlacePatrolNavs(Player* p_player)
 void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
-	FUN_100602b2(p_player, 1, 1);
+	CycleNavTarget(p_player, 1, 1);
 	if (p_player->m_nav == p_player->m_targetInfo.m_target) {
-		FUN_100602b2(p_player, 1, 1);
+		CycleNavTarget(p_player, 1, 1);
 	}
 
 	p_player->m_ai.m_target = p_player->m_targetInfo.m_target;
@@ -2296,7 +2296,7 @@ void PlaceFormationNav(Player* p_player)
 
 	ReleaseNavPoints(p_player);
 	if (GetTeamSlotPosition(p_player->m_index, &x, &z, &heading)) {
-		nav = FUN_1005ec80(p_player->m_index, x, heading, z);
+		nav = AddNavPoint(p_player->m_index, x, heading, z);
 		if (nav != -1) {
 			g_navTable[nav].m_flags |= 1;
 			g_navTable[nav].m_owner = p_player->m_index | c_aiTargetPlayer;
@@ -3074,7 +3074,7 @@ void ReleaseAnchorNav(Player* p_player)
 		return;
 	}
 
-	FUN_1005ed4f(p_player->m_index, p_player->m_nav);
+	RemoveNavPoint(p_player->m_index, p_player->m_nav);
 	p_player->m_nav = 0x1000;
 }
 

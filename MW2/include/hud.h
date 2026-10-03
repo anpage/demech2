@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "mech.h"
 #include "point.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of hud.c that other units use.

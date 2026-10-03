@@ -3,7 +3,7 @@
 #include "clock.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // Timed transitions of a pane's rectangle between two others: the edges move

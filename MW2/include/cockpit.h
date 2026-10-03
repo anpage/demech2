@@ -6,8 +6,8 @@
 #include "navpoint.h"
 #include "point.h"
 #include "recttransition.h"
-#include "rendertarget.h"
 #include "shape.h"
+#include "targeting.h"
 #include "types.h"
 
 // A gauge-drawing function of a cockpit layout, or one of the map view's hooks.

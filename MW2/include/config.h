@@ -3,8 +3,8 @@
 
 #include "cockpitpanel.h"
 #include "decomp.h"
-#include "rendertarget.h"
 #include "soundconfig.h"
+#include "targeting.h"
 #include "types.h"
 
 struct Mech;

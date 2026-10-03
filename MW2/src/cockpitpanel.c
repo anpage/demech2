@@ -2,7 +2,7 @@
 
 #include "decomp.h"
 #include "recttransition.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <string.h>

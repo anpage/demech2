@@ -23,8 +23,9 @@
 
 #include <windows.h>
 
+// The level of detail: 1 high, 2 low (TOGGLE_LOD_QUALITY); it divides Eyepoint::m_detailScale.
 // GLOBAL: MW2 0x100a712c
-MechS32 g_unk0x100a712c = 1;
+MechS32 g_lodQuality = 1;
 
 // GLOBAL: MW2 0x100ea820
 MechS32 g_viewNear;
@@ -167,13 +168,13 @@ MechS32 g_unk0x100ea8d4;
 // Makes p_eyepoint the current eyepoint and copies what the renderer uses each frame out of it:
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
 // FUNCTION: MW2 0x1004b980
-void FUN_1004b980(Eyepoint* p_eyepoint)
+void SelectEyepoint(Eyepoint* p_eyepoint)
 {
 	Eyepoint* eyepoint;
 
 	g_eyepoint = eyepoint = p_eyepoint;
-	g_unk0x1010b540 = eyepoint->m_unk0x2a;
-	g_directionalLight = eyepoint->m_unk0x28;
+	g_ambientLight = eyepoint->m_ambientLight;
+	g_directionalLight = eyepoint->m_directionalLight;
 	g_unk0x100ea888 = eyepoint->m_projectScaleX16;
 	g_unk0x100ea88c = eyepoint->m_projectScaleY16;
 	g_unk0x100ea844 = eyepoint->m_projectScaleX;
@@ -196,15 +197,15 @@ void FUN_1004b980(Eyepoint* p_eyepoint)
 	g_viewEyeX = eyepoint->m_viewMatrix.m_rows[3][0];
 	g_viewEyeY = eyepoint->m_viewMatrix.m_rows[3][1];
 	g_viewEyeZ = eyepoint->m_viewMatrix.m_rows[3][2];
-	g_viewLightX = eyepoint->m_unk0x1c;
-	g_viewLightY = eyepoint->m_unk0x20;
-	g_viewLightZ = eyepoint->m_unk0x24;
-	g_viewNearPlane = eyepoint->m_unk0x3c;
-	g_viewLeft = eyepoint->m_unk0x2c;
-	g_viewFarPlane = eyepoint->m_unk0x40;
-	g_viewTop = eyepoint->m_unk0x34;
-	g_viewRight = eyepoint->m_unk0x30;
-	g_viewBottom = eyepoint->m_unk0x38;
+	g_viewLightX = eyepoint->m_lightX;
+	g_viewLightY = eyepoint->m_lightY;
+	g_viewLightZ = eyepoint->m_lightZ;
+	g_viewNearPlane = eyepoint->m_nearPlane;
+	g_viewLeft = eyepoint->m_viewLeft;
+	g_viewFarPlane = eyepoint->m_farPlane;
+	g_viewTop = eyepoint->m_viewTop;
+	g_viewRight = eyepoint->m_viewRight;
+	g_viewBottom = eyepoint->m_viewBottom;
 	g_viewFar = g_viewFarPlane << 2;
 	g_viewNear = g_viewNearPlane << 2;
 	g_unk0x100ea8cc = g_viewTop << 2;
@@ -222,7 +223,7 @@ void FUN_1004b980(Eyepoint* p_eyepoint)
 // Sets up the eyepoint's projection from its view rectangle, field of view and pixel aspect.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x1004bc2e
-void FUN_1004bc2e(Eyepoint* p_eyepoint)
+void UpdateProjection(Eyepoint* p_eyepoint)
 {
 	MechS32 centerX;
 	MechS32 bottom;
@@ -252,12 +253,12 @@ void FUN_1004bc2e(Eyepoint* p_eyepoint)
 	eyepoint = p_eyepoint;
 	fov = eyepoint->m_fovX;
 	aspect = eyepoint->m_pixelAspect;
-	offsetX = (MechS16) eyepoint->m_unk0x4c;
-	offsetY = (MechS16) eyepoint->m_unk0x50;
-	top = eyepoint->m_unk0x34;
-	bottom = eyepoint->m_unk0x38;
-	left = eyepoint->m_unk0x2c;
-	right = eyepoint->m_unk0x30;
+	offsetX = (MechS16) eyepoint->m_offsetX;
+	offsetY = (MechS16) eyepoint->m_offsetY;
+	top = eyepoint->m_viewTop;
+	bottom = eyepoint->m_viewBottom;
+	left = eyepoint->m_viewLeft;
+	right = eyepoint->m_viewRight;
 	eyepoint->m_centerX = centerX = ((right + left + 1) >> 1) + offsetX;
 	eyepoint->m_centerY = centerY = ((bottom + top + 1) >> 1) + offsetY;
 	eyepoint->m_halfWidth = halfWidth = max((right - left + 1) >> 1, 1);
@@ -287,62 +288,62 @@ void FUN_1004bc2e(Eyepoint* p_eyepoint)
 		d = 799;
 	}
 
-	eyepoint->m_unk0xa8 = FixedMul29(fov, g_unk0x100bfd60[a]) + (g_unk0x100c09e0[a] >> 13);
-	eyepoint->m_unk0xac = FixedMul29(fovY, g_unk0x100bfd60[c]) + (g_unk0x100c09e0[c] >> 13);
+	eyepoint->m_frustumScaleX = FixedMul29(fov, g_unk0x100bfd60[a]) + (g_unk0x100c09e0[a] >> 13);
+	eyepoint->m_frustumScaleY = FixedMul29(fovY, g_unk0x100bfd60[c]) + (g_unk0x100c09e0[c] >> 13);
 	shift2 = shift1 = 2;
 	MulNormalize16(&low1, &scaled1, &shift1, halfWidth, FixedMul16(fov, aspect));
 	MulNormalize16(&low2, &scaled2, &shift2, halfWidth, fov);
-	eyepoint->m_unk0x3c = (low2 >> 17) + 1;
-	eyepoint->m_unk0xb4 = eyepoint->m_unk0x40;
+	eyepoint->m_nearPlane = (low2 >> 17) + 1;
+	eyepoint->m_cullDistance = eyepoint->m_farPlane;
 	eyepoint->m_projectShiftX = shift2;
 	eyepoint->m_projectShiftY = shift1;
 	eyepoint->m_projectScaleX16 = scaled2;
 	eyepoint->m_projectScaleY16 = scaled1;
 	eyepoint->m_projectScaleX = low2;
 	eyepoint->m_projectScaleY = low1;
-	if (g_unk0x100a712c <= 0) {
-		g_unk0x100a712c = 1;
+	if (g_lodQuality <= 0) {
+		g_lodQuality = 1;
 	}
 
-	eyepoint->m_unk0xb8 = low2 / (g_unk0x100a712c * 160);
+	eyepoint->m_detailScale = low2 / (g_lodQuality * 160);
 }
 
 // FUNCTION: MW2 0x1004bf61
-void FUN_1004bf61(Eyepoint* p_eyepoint, MechS32 p_value)
+void SetNearPlane(Eyepoint* p_eyepoint, MechS32 p_value)
 {
-	p_eyepoint->m_unk0x3c = g_viewNearPlane = p_value;
+	p_eyepoint->m_nearPlane = g_viewNearPlane = p_value;
 	g_viewNear = p_value << 2;
 }
 
 // FUNCTION: MW2 0x1004bf8a
-void FUN_1004bf8a(Eyepoint* p_eyepoint, MechS32 p_value)
+void SetFarPlane(Eyepoint* p_eyepoint, MechS32 p_value)
 {
-	p_eyepoint->m_unk0x40 = g_viewFarPlane = p_value;
+	p_eyepoint->m_farPlane = g_viewFarPlane = p_value;
 	if (p_value < 0x1fffffff) {
 		g_viewFar = p_value << 2;
-		p_eyepoint->m_unk0xb4 = p_value;
+		p_eyepoint->m_cullDistance = p_value;
 	}
 	else {
 		g_viewFar = 0x7fffffff;
-		p_eyepoint->m_unk0xb4 = 0x7fffffff;
+		p_eyepoint->m_cullDistance = 0x7fffffff;
 	}
 }
 
-// Builds the eyepoint's view rotation (at 0x54, transposed) and position (0x78) from its
-// position (0x00) and rotation (0x0c).
+// Builds the eyepoint's view matrix (its rotation transposed, and its position) from its
+// position and rotation.
 // FUNCTION: MW2 0x1004bfe8
-void FUN_1004bfe8(Eyepoint* p_eyepoint)
+void UpdateViewMatrix(Eyepoint* p_eyepoint)
 {
 	Matrix matrix;
 
 	BuildMatrix(
 		&matrix,
-		p_eyepoint->m_unk0x10,
-		p_eyepoint->m_unk0x0c,
-		p_eyepoint->m_unk0x14,
-		p_eyepoint->m_unk0x00,
-		p_eyepoint->m_unk0x04,
-		p_eyepoint->m_unk0x08
+		p_eyepoint->m_pitch,
+		p_eyepoint->m_heading,
+		p_eyepoint->m_roll,
+		p_eyepoint->m_x,
+		p_eyepoint->m_y,
+		p_eyepoint->m_z
 	);
 	TransposeRotation(&matrix, &p_eyepoint->m_viewMatrix);
 	p_eyepoint->m_viewMatrix.m_rows[3][0] = matrix.m_rows[3][0];
@@ -351,17 +352,17 @@ void FUN_1004bfe8(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x1004c05c
-void FUN_1004c05c(Eyepoint* p_eyepoint)
+void ResetEyepointView(Eyepoint* p_eyepoint)
 {
-	p_eyepoint->m_unk0x4c = 0;
-	p_eyepoint->m_unk0x50 = 0;
-	FUN_1004bc2e(p_eyepoint);
-	FUN_1004bfe8(p_eyepoint);
+	p_eyepoint->m_offsetX = 0;
+	p_eyepoint->m_offsetY = 0;
+	UpdateProjection(p_eyepoint);
+	UpdateViewMatrix(p_eyepoint);
 }
 
 // Sets the eyepoint's view from a transform.
 // FUNCTION: MW2 0x1004c093
-void FUN_1004c093(Eyepoint* p_eyepoint, Matrix* p_matrix)
+void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 {
 	TransposeRotation(p_matrix, &p_eyepoint->m_viewMatrix);
 	p_eyepoint->m_viewMatrix.m_rows[3][0] = p_matrix->m_rows[3][0];
@@ -371,7 +372,7 @@ void FUN_1004c093(Eyepoint* p_eyepoint, Matrix* p_matrix)
 
 // Gets the eyepoint's view as a transform.
 // FUNCTION: MW2 0x1004c0d8
-void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix)
+void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 {
 	TransposeRotation(&p_eyepoint->m_viewMatrix, p_matrix);
 	p_matrix->m_rows[3][0] = p_eyepoint->m_viewMatrix.m_rows[3][0];
@@ -379,13 +380,12 @@ void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix)
 	p_matrix->m_rows[3][2] = p_eyepoint->m_viewMatrix.m_rows[3][2];
 }
 
-// Projects the point (p_x, p_y, p_z) through the eyepoint, in place.
 // Projects the world point (*p_x, *p_y, *p_z) onto the screen in place (*p_z the depth). A point
 // at or behind the near plane is projected mirrored. Returns whether it is in front and on the
 // screen.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004c11d
-MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z)
+MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	MechS32 x;
 	MechS32 y;
@@ -432,7 +432,7 @@ MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004c2ef
-MechS32 FUN_1004c2ef(Shape* p_shape)
+MechS32 CullSceneShape(Shape* p_shape)
 {
 	MechS32 y;
 	MechS32 z;
@@ -458,7 +458,7 @@ MechS32 FUN_1004c2ef(Shape* p_shape)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-	if (!IsWithinRadius(dx, dy, dz, g_eyepoint->m_unk0xb4 + radius)) {
+	if (!IsWithinRadius(dx, dy, dz, g_eyepoint->m_cullDistance + radius)) {
 		return 5;
 	}
 
@@ -474,10 +474,10 @@ MechS32 FUN_1004c2ef(Shape* p_shape)
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 	fov = g_eyepoint->m_fovX;
 	if (side > 0) {
-		limit = MulAddDiv(fov, side, -depth, g_eyepoint->m_unk0xa8);
+		limit = MulAddDiv(fov, side, -depth, g_eyepoint->m_frustumScaleX);
 	}
 	else {
-		limit = MulAddDiv(fov, -side, -depth, g_eyepoint->m_unk0xa8);
+		limit = MulAddDiv(fov, -side, -depth, g_eyepoint->m_frustumScaleX);
 	}
 
 	if (limit > radius) {
@@ -487,10 +487,10 @@ MechS32 FUN_1004c2ef(Shape* p_shape)
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 	fov = g_eyepoint->m_fovY;
 	if (height > 0) {
-		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_unk0xac);
+		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_frustumScaleY);
 	}
 	else {
-		limit = MulAddDiv(fov, -height, -depth, g_eyepoint->m_unk0xac);
+		limit = MulAddDiv(fov, -height, -depth, g_eyepoint->m_frustumScaleY);
 	}
 
 	if (limit > radius) {
@@ -500,11 +500,11 @@ MechS32 FUN_1004c2ef(Shape* p_shape)
 	return 0;
 }
 
-// Culls a shape against the view frustum like FUN_1004c2ef, without its range test. 1 for a
+// Culls a shape against the view frustum like CullSceneShape, without its range test. 1 for a
 // hidden shape (bit 0x1000).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004c565
-MechS32 FUN_1004c565(Shape* p_shape)
+MechS32 CullShapeToFrustum(Shape* p_shape)
 {
 	MechS32 y;
 	MechS32 z;
@@ -538,10 +538,10 @@ MechS32 FUN_1004c565(Shape* p_shape)
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 	fov = g_eyepoint->m_fovX;
 	if (side > 0) {
-		limit = MulAddDiv(fov, side, -depth, g_eyepoint->m_unk0xa8);
+		limit = MulAddDiv(fov, side, -depth, g_eyepoint->m_frustumScaleX);
 	}
 	else {
-		limit = MulAddDiv(fov, -side, -depth, g_eyepoint->m_unk0xa8);
+		limit = MulAddDiv(fov, -side, -depth, g_eyepoint->m_frustumScaleX);
 	}
 
 	if (limit > radius) {
@@ -551,10 +551,10 @@ MechS32 FUN_1004c565(Shape* p_shape)
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 	fov = g_eyepoint->m_fovY;
 	if (height > 0) {
-		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_unk0xac);
+		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_frustumScaleY);
 	}
 	else {
-		limit = MulAddDiv(fov, -height, -depth, g_eyepoint->m_unk0xac);
+		limit = MulAddDiv(fov, -height, -depth, g_eyepoint->m_frustumScaleY);
 	}
 
 	if (limit > radius) {
@@ -575,18 +575,18 @@ MechS32 FUN_1004c779(MechU16* p_flags)
 }
 
 // FUNCTION: MW2 0x1004c7a6
-MechS32 FUN_1004c7a6(undefined4 p_unk0x00)
+MechS32 IsLodQualityHigh(undefined4 p_unk0x00)
 {
-	return g_unk0x100a712c == 1;
+	return g_lodQuality == 1;
 }
 
 // FUNCTION: MW2 0x1004c7cf
-void FUN_1004c7cf(undefined4 p_unk0x00, MechS32 p_enable)
+void SetLodQualityHigh(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (p_enable) {
-		g_unk0x100a712c = 1;
+		g_lodQuality = 1;
 	}
 	else {
-		g_unk0x100a712c = 2;
+		g_lodQuality = 2;
 	}
 }

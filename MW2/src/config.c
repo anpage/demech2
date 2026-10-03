@@ -29,7 +29,6 @@
 #include "recttransition.h"
 #include "reel.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "resourcename.h"
 #include "resourceref.h"
@@ -41,6 +40,7 @@
 #include "speech.h"
 #include "staticmem.h"
 #include "statuspanels.h"
+#include "targeting.h"
 #include "targetpanel.h"
 #include "types.h"
 #include "weapondata.h"
@@ -440,17 +440,17 @@ void FUN_1006fba3(void)
 
 	for (i = 0; i < 26; i++) {
 		target = &g_unk0x100adf58[i];
-		FUN_10056ce9(target, target);
+		ScaleRectFromLowRes(target, target);
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-		FUN_10056bc1(target, &g_unk0x100ae160[i], &g_unk0x100ae160[i]);
+		ScalePointToFrame(target, &g_unk0x100ae160[i], &g_unk0x100ae160[i]);
 		transition = g_unk0x100ae310[i];
 		if (transition) {
 			rect = transition->m_def->m_first;
 			rect->m_window = &g_mainPixelBuffer;
-			FUN_1005699f(target, rect, rect);
+			ScaleRectToFrame(target, rect, rect);
 			rect = transition->m_def->m_second;
 			rect->m_window = &g_mainPixelBuffer;
-			FUN_1005699f(target, rect, rect);
+			ScaleRectToFrame(target, rect, rect);
 			rect = transition->m_def->m_out;
 			rect->m_window = &g_mainPixelBuffer;
 		}

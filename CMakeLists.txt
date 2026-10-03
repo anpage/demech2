@@ -469,7 +469,7 @@ demech2_add_dll(mw2
     MW2/src/setres.c
     MW2/src/mekfile.c
     MW2/src/settings.c
-    MW2/src/rendertarget.c
+    MW2/src/targeting.c
     ${vfxa}
     MW2/src/palidentity.c
     MW2/src/lancemenu.c

@@ -3,7 +3,7 @@
 
 #include "decomp.h"
 #include "point.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 typedef struct CockpitPanel CockpitPanel;

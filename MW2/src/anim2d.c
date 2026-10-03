@@ -4,9 +4,9 @@
 #include "decomp.h"
 #include "loadres.h"
 #include "mw2prj.h"
-#include "rendertarget.h"
 #include "setres.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <string.h>

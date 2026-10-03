@@ -37,13 +37,13 @@
 #include "ramp.h"
 #include "random.h"
 #include "ray.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
 #include "staticmem.h"
+#include "targeting.h"
 #include "team.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -700,43 +700,43 @@ void FUN_100180cd(Mech* p_mech)
 		}
 
 		if (mech->m_player->m_steering->m_advanceNav) {
-			FUN_100602b2(mech->m_player, 1, 0);
+			CycleNavTarget(mech->m_player, 1, 0);
 			mech->m_player->m_steering->m_advanceNav = 0;
 		}
 
 		if (mech->m_player->m_steering->m_previousNav) {
-			FUN_100602b2(mech->m_player, -1, 0);
+			CycleNavTarget(mech->m_player, -1, 0);
 			mech->m_player->m_steering->m_previousNav = 0;
 		}
 
 		if (mech->m_player->m_steering->m_resetNav) {
-			FUN_100602b2(mech->m_player, 0, 0);
+			CycleNavTarget(mech->m_player, 0, 0);
 			mech->m_player->m_steering->m_resetNav = 0;
 		}
 
 		if (mech->m_player->m_steering->m_advanceTarget) {
-			FUN_1005ef5e(mech->m_player, 1, 8);
+			CycleTarget(mech->m_player, 1, 8);
 			mech->m_player->m_steering->m_advanceTarget = 0;
 		}
 
 		if (mech->m_player->m_steering->m_previousTarget) {
-			FUN_1005ef5e(mech->m_player, -1, 8);
+			CycleTarget(mech->m_player, -1, 8);
 			mech->m_player->m_steering->m_previousTarget = 0;
 		}
 
 		// Clears 0x34, not 0x35.
 		if (mech->m_player->m_steering->m_resetTarget) {
-			FUN_1005ef5e(mech->m_player, 0, 8);
+			CycleTarget(mech->m_player, 0, 8);
 			mech->m_player->m_steering->m_previousTarget = 0;
 		}
 
 		if (mech->m_player->m_steering->m_nearestEnemy) {
-			FUN_100603ae();
+			TargetNearestEnemy();
 			mech->m_player->m_steering->m_nearestEnemy = 0;
 		}
 
 		if (mech->m_player->m_steering->m_targetFriendly) {
-			FUN_1006034a(1);
+			CycleFriendlyTarget(1);
 			mech->m_player->m_steering->m_targetFriendly = 0;
 		}
 
@@ -745,49 +745,49 @@ void FUN_100180cd(Mech* p_mech)
 		}
 
 		if (mech->m_player->m_steering->m_nextObjective) {
-			FUN_1005ef5e(mech->m_player, 1, 0x10008);
+			CycleTarget(mech->m_player, 1, 0x10008);
 			mech->m_player->m_steering->m_nextObjective = 0;
 		}
 
 		if (mech->m_player->m_steering->m_advanceGamething) {
-			FUN_100602ec(1);
+			CycleGameThingTarget(1);
 			mech->m_player->m_steering->m_advanceGamething = 0;
 		}
 
 		if (mech->m_player->m_steering->m_previousGamething) {
-			FUN_100602ec(-1);
+			CycleGameThingTarget(-1);
 			mech->m_player->m_steering->m_previousGamething = 0;
 		}
 
 		// Clears 0x3d, not 0x3e.
 		if (mech->m_player->m_steering->m_resetGamething) {
-			FUN_100602ec(0);
+			CycleGameThingTarget(0);
 			mech->m_player->m_steering->m_previousGamething = 0;
 		}
 
 		if (mech->m_player->m_steering->m_advanceGamepiece) {
-			FUN_1006031b(1);
+			CycleGamePieceTarget(1);
 			mech->m_player->m_steering->m_advanceGamepiece = 0;
 		}
 
 		if (mech->m_player->m_steering->m_previousGamepiece) {
-			FUN_1006031b(-1);
+			CycleGamePieceTarget(-1);
 			mech->m_player->m_steering->m_previousGamepiece = 0;
 		}
 
 		// Clears 0x40, not 0x41.
 		if (mech->m_player->m_steering->m_resetGamepiece) {
-			FUN_1006031b(0);
+			CycleGamePieceTarget(0);
 			mech->m_player->m_steering->m_previousGamepiece = 0;
 		}
 
 		if (mech->m_player->m_steering->m_targetReticle) {
-			FUN_10060010();
+			TargetAtReticle();
 			mech->m_player->m_steering->m_targetReticle = 0;
 		}
 
 		if (!(mech->m_player->m_targetInfo.m_target & 0x1000)) {
-			FUN_1005fa22(mech->m_player);
+			UpdateTarget(mech->m_player);
 		}
 
 		FUN_10045eac(mech);
@@ -1037,9 +1037,9 @@ void FUN_100180cd(Mech* p_mech)
 		mech->m_stateTime = g_currentClock + RandomIntBelow(0x16a) + 0x43e;
 		mech->m_powerState = 1;
 		mech->m_player->m_flags &= ~0x2000;
-		dx = mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
-		dy = mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
-		dz = mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+		dx = mech->m_player->m_position.m_x - g_eyepoint->m_x;
+		dy = mech->m_player->m_position.m_y - g_eyepoint->m_y;
+		dz = mech->m_player->m_position.m_z - g_eyepoint->m_z;
 		if (GetPlayerSide(mech->m_player->m_index) == 1) {
 			if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 				FUN_1007ebd1(dx, dy, dz, 0x104, g_unk0x100a2420);
@@ -1091,9 +1091,9 @@ void FUN_100180cd(Mech* p_mech)
 		(mech->m_torsoTwist.m_value + 0x20000 < mech->m_torsoTwist.m_target ||
 		 mech->m_torsoTwist.m_value - 0x20000 > mech->m_torsoTwist.m_target) &&
 		g_unk0x100a2420) {
-		x = mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
-		y = mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
-		z = mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+		x = mech->m_player->m_position.m_x - g_eyepoint->m_x;
+		y = mech->m_player->m_position.m_y - g_eyepoint->m_y;
+		z = mech->m_player->m_position.m_z - g_eyepoint->m_z;
 		FUN_1007ebd1(x, y, z, 0x13c, g_unk0x100a2420);
 	}
 
@@ -1205,9 +1205,9 @@ void FUN_10019368(Mech* p_mech)
 		case -1:
 			if (mech->m_powerState != 3) {
 				PlayCockpitSound(0xd, -1);
-				dx = mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
-				dy = mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
-				dz = mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+				dx = mech->m_player->m_position.m_x - g_eyepoint->m_x;
+				dy = mech->m_player->m_position.m_y - g_eyepoint->m_y;
+				dz = mech->m_player->m_position.m_z - g_eyepoint->m_z;
 				FUN_1007ebd1(dx, dy, dz, 0xf2, g_unk0x100a2420);
 				mech->m_powerState = 3;
 				g_unk0x100a2c08 = 0;

@@ -8,7 +8,7 @@
 #pragma pack(push, 1)
 
 // What a player is aiming at: the target and the distance, bearing and pitch to it
-// (FUN_10060197).
+// (GetBearingAndRange).
 // SIZE 0x28
 typedef struct PlayerTargetInfo {
 	MechS32 m_distance; // 0x00 — to the target along the ground

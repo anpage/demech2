@@ -14,7 +14,6 @@
 #include "navpoint.h"
 #include "network.h"
 #include "players.h"
-#include "rendertarget.h"
 #include "resourcename.h"
 #include "shots.h"
 #include "simmain.h"
@@ -22,6 +21,7 @@
 #include "speech.h"
 #include "speechline.h"
 #include "starmission.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 

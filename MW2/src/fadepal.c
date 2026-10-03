@@ -55,10 +55,10 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 	g_eyepoint->m_fovX = p_fovX;
 	p_view[6] = 1;
 	FUN_1001156a(g_eyepoint, p_view);
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
-	if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
 		FUN_1004320b(g_eyepoint);
 	}
 
@@ -75,9 +75,9 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 	g_eyepoint->m_fovX = fovX;
 	g_unk0x100a2460 = 1;
 	FUN_1001156a(g_eyepoint, view);
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
 	g_unk0x100a2460 = 0;
 }
 
@@ -210,9 +210,9 @@ void FUN_1004ccba(Mech* p_mech)
 	}
 
 	if (fired) {
-		x -= g_eyepoint->m_unk0x00;
-		y -= g_eyepoint->m_unk0x04;
-		z -= g_eyepoint->m_unk0x08;
+		x -= g_eyepoint->m_x;
+		y -= g_eyepoint->m_y;
+		z -= g_eyepoint->m_z;
 		if (p_mech->m_player->m_index == g_localPlayerId && p_mech->m_jumpFuel < 0x1c4 &&
 			p_mech->m_jumpFuel + g_deltaTime > 0x1c4) {
 			FUN_1007eb23(0xde, 100, 0x40, 5, 0x50);
@@ -241,9 +241,9 @@ void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
 	}
 
 	FUN_1007ebd1(
-		p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00,
-		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_unk0x04,
-		p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08,
+		p_mech->m_player->m_position.m_x - g_eyepoint->m_x,
+		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_y,
+		p_mech->m_player->m_position.m_z - g_eyepoint->m_z,
 		sound,
 		g_unk0x100a2420
 	);

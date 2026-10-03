@@ -8,10 +8,10 @@
 #include "mw2prj.h"
 #include "players.h"
 #include "point.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <stdio.h>
@@ -99,7 +99,7 @@ void FUN_10033280(CockpitPanel* p_panel)
 	}
 
 	if (p_panel->m_unk0x0c == mech->m_selectedWeapon) {
-		FUN_100570e9(p_panel->m_target, color);
+		OutlinePane(p_panel->m_target, color);
 	}
 }
 

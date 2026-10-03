@@ -6,8 +6,8 @@
 #include "fixedtrig.h"
 #include "players.h"
 #include "ray.h"
-#include "rendertarget.h"
 #include "shape.h"
+#include "targeting.h"
 #include "types.h"
 #include "weapondef.h"
 
@@ -77,7 +77,7 @@ MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	MechS32 stepZ;
 
 	level = 0;
-	FUN_10060197(
+	GetBearingAndRange(
 		p_player->m_position.m_x - p_x,
 		p_player->m_position.m_y - p_y,
 		p_player->m_position.m_z - p_z,

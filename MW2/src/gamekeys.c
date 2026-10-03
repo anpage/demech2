@@ -27,12 +27,12 @@
 #include "refreshmode.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
 #include "statuspanels.h"
+#include "targeting.h"
 #include "targetpanel.h"
 #include "ticks.h"
 #include "timedoverlays.h"
@@ -172,7 +172,7 @@ void HandleCheatInput(MechS16 p_key)
 		ShowInGameMessage("You asked for it!", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("\x7ftuv{}{c")) { // "enolagay"
-		target = FUN_1005fe63();
+		target = GetLocalTargetGamePiece();
 		if (target >= 0) {
 			FUN_1006c4e2(g_players[target]);
 		}
@@ -195,7 +195,7 @@ void HandleCheatInput(MechS16 p_key)
 		ShowInGameMessage("Freebirth vulgarity will not be tolerated!", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("}{tq\x7fw")) { // "gankem"
-		victim = FUN_1005fe63();
+		victim = GetLocalTargetGamePiece();
 		if (victim >= 0) {
 			FUN_1000832b(g_localPlayerId, g_players[victim]->m_mech);
 		}
@@ -283,8 +283,8 @@ void HandleCheatInput(MechS16 p_key)
 		ShowInGameMessage("Free-eye mode ON", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("bh{c")) { // "xray"
-		g_renderSettings.m_unk0x34 = 2;
-		g_renderSettings.m_unk0x38 = 0;
+		g_renderSettings.m_wireframe = 2;
+		g_renderSettings.m_wireframeColors = 0;
 		ShowInGameMessage("X-Ray vision enabled", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("`w{q")) { // "zmak"
@@ -446,7 +446,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		else if (g_unk0x100a2c04) {
 			g_unk0x100a116c = 0;
 			FUN_100115f4(0, 1);
-			g_renderSettings.m_unk0x34 = 0;
+			g_renderSettings.m_wireframe = 0;
 			FUN_1007d88a(0, 0);
 			g_unk0x100aa294 = g_currentClock + 0x108;
 			if (!g_netRole) {
@@ -509,7 +509,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				RequestMenu(4);
 				break;
 			case 0x4f:
-				g_renderSettings.m_unk0x34 = 0;
+				g_renderSettings.m_wireframe = 0;
 				FUN_1007d88a(0, 0);
 				FUN_1007fbe0(g_localPlayerId, 0, 0, 0);
 				FUN_10011401(0);
@@ -709,7 +709,7 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_resetGamething = 1;
 		break;
 	case 0x27:
-		FUN_1005f284();
+		ResetTargeting();
 		break;
 	case 0x28:
 		g_localSteering.m_advanceNav = 1;
@@ -856,13 +856,13 @@ void FUN_1005c78a(MechS32 p_key)
 		g_unk0x100aa298 = 1;
 		break;
 	case 0xa7:
-		if (g_renderSettings.m_unk0x34 != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
-			g_renderSettings.m_unk0x34 = 1;
-			g_renderSettings.m_unk0x38 = 0;
+		if (g_renderSettings.m_wireframe != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
+			g_renderSettings.m_wireframe = 1;
+			g_renderSettings.m_wireframeColors = 0;
 			PlayCockpitSound(0x1b, 1);
 		}
 		else {
-			g_renderSettings.m_unk0x34 = 0;
+			g_renderSettings.m_wireframe = 0;
 		}
 		break;
 	case 0xa6:

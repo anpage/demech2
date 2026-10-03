@@ -52,7 +52,6 @@
 #include "random.h"
 #include "refreshmode.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "screenscale.h"
 #include "setres.h"
@@ -62,6 +61,7 @@
 #include "startup.h"
 #include "staticmem.h"
 #include "supanim.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -430,7 +430,7 @@ int __stdcall SimMain(
 						DrawLocalPlayer();
 						UpdateMenus();
 						DrawTimedOverlays();
-						FUN_10058750();
+						DrawDebugOverlays();
 					}
 
 					Blit();
@@ -454,7 +454,7 @@ int __stdcall SimMain(
 				DrawLocalPlayer();
 				UpdateMenus();
 				DrawTimedOverlays();
-				FUN_10058750();
+				DrawDebugOverlays();
 				if (g_simPaused && g_pauseRequested) {
 					DrawPausedBanner();
 				}

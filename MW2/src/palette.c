@@ -10,8 +10,8 @@
 #include "polydraw.h"
 #include "refreshmode.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "types.h"
 
@@ -88,12 +88,12 @@ void SelectPane(MechS32 p_index)
 
 	if (p_index != g_paneIndex) {
 		target = &g_panes[p_index];
-		g_eyepoint->m_unk0x2c = 0;
-		g_eyepoint->m_unk0x34 = 0;
-		g_eyepoint->m_unk0x30 = target->m_x1 - target->m_x0;
-		g_eyepoint->m_unk0x38 = target->m_y1 - target->m_y0;
-		g_eyepoint->m_unk0x4c = 0;
-		g_eyepoint->m_unk0x50 = 0;
+		g_eyepoint->m_viewLeft = 0;
+		g_eyepoint->m_viewTop = 0;
+		g_eyepoint->m_viewRight = target->m_x1 - target->m_x0;
+		g_eyepoint->m_viewBottom = target->m_y1 - target->m_y0;
+		g_eyepoint->m_offsetX = 0;
+		g_eyepoint->m_offsetY = 0;
 		g_currentPane = *target;
 		g_paneIndex = p_index;
 		g_unk0x100a2460 = 1;
@@ -106,8 +106,8 @@ void FUN_100024f0(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 	MechS32 x;
 	MechS32 y;
 
-	x = p_eyepoint->m_unk0x4c + (p_eyepoint->m_unk0x2c + p_eyepoint->m_unk0x30) / 2;
-	y = p_eyepoint->m_unk0x50 + (p_eyepoint->m_unk0x34 + p_eyepoint->m_unk0x38) / 2;
+	x = p_eyepoint->m_offsetX + (p_eyepoint->m_viewLeft + p_eyepoint->m_viewRight) / 2;
+	y = p_eyepoint->m_offsetY + (p_eyepoint->m_viewTop + p_eyepoint->m_viewBottom) / 2;
 	*p_x = x;
 	*p_y = y;
 }

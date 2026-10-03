@@ -14,10 +14,10 @@
 #include "polydraw.h"
 #include "random.h"
 #include "recttransition.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "shots.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 
 // The handlers of the cockpit panel FUN_1006fca5 sets up second (g_unk0x100c3280[2]): it
@@ -123,7 +123,7 @@ void FUN_100509c8(CockpitPanel* p_panel)
 		FUN_1004c8bd(5, 0x20000, view, 0);
 		FUN_10001926(mech->m_player->m_obj);
 		if (g_unk0x100ea3e4) {
-			FUN_100570e9(p_panel->m_target, 6);
+			OutlinePane(p_panel->m_target, 6);
 		}
 		else {
 			FUN_10050e6c(p_panel, 6, 0xfa);
@@ -144,13 +144,13 @@ void FUN_100509c8(CockpitPanel* p_panel)
 void FUN_10050dc3(RenderSettings* p_saved)
 {
 	*p_saved = g_renderSettings;
-	g_renderSettings.m_unk0x18 = 0;
+	g_renderSettings.m_drawPixels = 0;
 	g_renderSettings.m_unk0x08 = 0;
-	g_renderSettings.m_unk0x0c = 1;
-	g_renderSettings.m_unk0x04 = 1;
-	g_renderSettings.m_unk0x50 = 0xb00;
-	g_renderSettings.m_unk0x4c = 1;
-	g_renderSettings.m_unk0x10 &= ~4;
+	g_renderSettings.m_textures = 1;
+	g_renderSettings.m_gouraud = 1;
+	g_renderSettings.m_untexturedKinds = 0xb00;
+	g_renderSettings.m_affineTextures = 1;
+	g_renderSettings.m_flags &= ~4;
 }
 
 // FUNCTION: MW2 0x10050e20
@@ -173,7 +173,7 @@ void FUN_10050e6c(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 	MechS32 y;
 
 	target = p_panel->m_target;
-	FUN_100570e9(target, p_color);
+	OutlinePane(target, p_color);
 	x = p_panel->m_width >> 1;
 	y = 2;
 	FUN_10041f06(x, y, p_unk0x08, target);

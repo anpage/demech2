@@ -14,14 +14,14 @@ extern "C"
 #endif
 
 	extern MechS32 g_unk0x100a555c;
-	extern MechS32 g_unk0x1010b540;
+	extern MechS32 g_ambientLight;
 
 	MechU32 FUN_10036230(struct Face* p_face, struct Vertex* p_vertices, MechU32 p_color, MechS32 p_distance);
-	void FUN_10036853(MechU32 p_flags);
-	MechS32 FUN_10036867(MechU32 p_flags);
-	void FUN_10036891(MechU32 p_flags, MechS32 p_enable);
-	MechS32 FUN_100368bf(undefined4 p_unk0x00);
-	void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable);
+	void ToggleTextureMaps(MechU32 p_flags);
+	MechS32 AreTextureMapsOn(MechU32 p_flags);
+	void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable);
+	MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00);
+	void EnablePerspectiveTextures(undefined4 p_unk0x00, MechS32 p_enable);
 
 #ifdef __cplusplus
 }

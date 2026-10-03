@@ -9,31 +9,37 @@
 #include "point.h"
 #include "polydraw.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "shape.h"
 #include "shapelists.h"
+#include "targeting.h"
 #include "timedoverlays.h"
 #include "types.h"
 
 #include <stdio.h>
 #include <string.h>
 
-// The debug overlays: frame rate, object and polygon counts, the eyepoint's position and
-// the cache size. Each is switched on by a flag the debug keys toggle; its text is only
-// formatted, most of the drawing is compiled out.
+// The debug overlays: frame rate, scene counts, the eyepoint's position, memory and cache
+// sizes, the palette and an activity spinner. Each has a flag the debug keys toggle
+// (GAMEKEY.MAP's TOGGLE_FRAMERATE, TOGGLE_SCENE_INFO, TOGGLE_EYE_POSITION, TOGGLE_MEM_INFO,
+// TOGGLE_PALETTE); the _MAIN keys also set a second flag that draws the text on the main
+// screen, and a third remembers that the text is up, to blank it once the flag goes off.
+// The rest went to a monochrome debug screen (80x25, as in the launcher's debug.c), which
+// the release build only formats for: the drawing is compiled out.
 
+// The spaces the Hide functions blank a readout with.
 // GLOBAL: MW2 0x100a9478
-MechChar g_unk0x100a9478[] = "                                 ";
+MechChar g_blankText[] = "                                 ";
 
 // GLOBAL: MW2 0x100a949c
-MechS32 g_unk0x100a949c = 0;
+MechS32 g_showPalette = 0;
 
 // GLOBAL: MW2 0x100a94a0
 MechS32 g_unk0x100a94a0 = 0;
 
+// The row MonoPrint last wrote to; MonoClear resets it and its neighbours to the top row.
 // GLOBAL: MW2 0x100a94a4
-MechS32 g_unk0x100a94a4 = 3;
+MechS32 g_monoLastRow = 3;
 
 // GLOBAL: MW2 0x100a94a8
 MechS32 g_unk0x100a94a8 = 3;
@@ -42,71 +48,75 @@ MechS32 g_unk0x100a94a8 = 3;
 MechChar g_unk0x100a94ac[4] = "";
 
 // GLOBAL: MW2 0x100a94b0
-MechS32 g_unk0x100a94b0 = 0;
+MechS32 g_frameRateShown = 0;
 
 // GLOBAL: MW2 0x100a94b4
-MechS32 g_unk0x100a94b4 = 0;
+MechS32 g_showFrameRate = 0;
 
 // GLOBAL: MW2 0x100a94b8
-MechS32 g_unk0x100a94b8 = 0;
+MechS32 g_showFrameRateMain = 0;
 
 // GLOBAL: MW2 0x100a94bc
 MechS32 g_unk0x100a94bc = 0;
 
+// Where the _MAIN readouts are drawn, in 16.16 fractions of the screen until
+// ScaleOverlayPositions scales them to pixels.
 // GLOBAL: MW2 0x100a94c0
-Point g_unk0x100a94c0 = {0x51f, 0x147b};
+Point g_frameRateOrigin = {0x51f, 0x147b};
 
 // GLOBAL: MW2 0x100a94c8
-Point g_unk0x100a94c8 = {0x51f, 0x2148};
+Point g_memInfoOrigin = {0x51f, 0x2148};
 
 // GLOBAL: MW2 0x100a94d0
-Point g_unk0x100a94d0 = {0xccd, 0xb333};
+Point g_eyePositionOrigin = {0xccd, 0xb333};
 
 // GLOBAL: MW2 0x100a94d8
-MechS32 g_unk0x100a94d8 = 0;
+MechS32 g_showSceneInfo = 0;
 
 // GLOBAL: MW2 0x100a94dc
-MechS32 g_unk0x100a94dc = 0;
+MechS32 g_showSceneInfoMain = 0;
 
 // GLOBAL: MW2 0x100a94e0
-MechS32 g_unk0x100a94e0 = 0;
+MechS32 g_sceneInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94e4
-MechS32 g_unk0x100a94e4 = 0;
+MechS32 g_showEyePosition = 0;
 
 // GLOBAL: MW2 0x100a94e8
-MechS32 g_unk0x100a94e8 = 0;
+MechS32 g_showEyePositionMain = 0;
 
 // GLOBAL: MW2 0x100a94ec
-MechS32 g_unk0x100a94ec = 0;
+MechS32 g_eyePositionShown = 0;
 
 // GLOBAL: MW2 0x100a94f0
-MechS32 g_unk0x100a94f0 = 1;
+MechS32 g_showMemInfo = 1;
 
 // GLOBAL: MW2 0x100a94f4
-MechS32 g_unk0x100a94f4 = 0;
+MechS32 g_showMemInfoMain = 0;
 
 // GLOBAL: MW2 0x100a94f8
-MechS32 g_unk0x100a94f8 = 0;
+MechS32 g_memInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94fc
-MechS32 g_unk0x100a94fc = 0;
+MechS32 g_showCacheInfo = 0;
 
 // GLOBAL: MW2 0x100a9500
-MechS32 g_unk0x100a9500 = 0;
+MechS32 g_cacheInfoShown = 0;
 
 // GLOBAL: MW2 0x100a9504
-MechS32 g_unk0x100a9504 = 1;
+MechS32 g_showSpinner = 1;
 
-// The spinner FUN_10059085 steps through: the CP437 arrows up, left, down and right.
+// The spinner StepSpinner steps through: the CP437 arrows up, left, down and right.
 // GLOBAL: MW2 0x100a9508
-MechChar g_unk0x100a9508[4] = {0x1e, 0x11, 0x1f, 0x10};
+MechChar g_spinnerArrows[4] = {0x1e, 0x11, 0x1f, 0x10};
 
+// A repeated cache dump (DUMP_CACHE_REPEAT, whose key does nothing in this build) every
+// second.
 // GLOBAL: MW2 0x100a950c
-MechS32 g_unk0x100a950c = 0;
+MechS32 g_nextCacheDump = 0;
 
 // GLOBAL: MW2 0x100a9510
-MechS32 g_unk0x100a9510 = 0;
+MechS32 g_dumpCacheRepeat = 0;
 
 // GLOBAL: MW2 0x100a9514
 MechS32 g_unk0x100a9514 = 0;
@@ -114,109 +124,116 @@ MechS32 g_unk0x100a9514 = 0;
 // GLOBAL: MW2 0x100a9518
 MechS32 g_unk0x100a9518 = 0;
 
+// The frame rate, in whole frames per second and tenths, over the last ten frames.
 // GLOBAL: MW2 0x100a951c
-MechS32 g_unk0x100a951c = 0;
+MechS32 g_frameRate = 0;
 
 // GLOBAL: MW2 0x100a9520
-MechS32 g_unk0x100a9520 = 0;
+MechS32 g_frameRateTenths = 0;
 
 // GLOBAL: MW2 0x100a9524
-MechS32 g_unk0x100a9524 = 0;
+MechS32 g_frameRateTime = 0;
 
 // GLOBAL: MW2 0x100a9528
-MechS32 g_unk0x100a9528 = 0;
+MechS32 g_frameRateFrames = 0;
 
 // GLOBAL: MW2 0x100a952c
-MechS32 g_unk0x100a952c = 4;
+MechS32 g_spinnerDelay = 4;
 
 // GLOBAL: MW2 0x100a9530
-MechS32 g_unk0x100a9530 = 3;
+MechS32 g_spinnerArrow = 3;
 
+// The cursor of MonoPrint.
 // GLOBAL: MW2 0x100a9534
-MechS32 g_unk0x100a9534 = 3;
+MechS32 g_monoRow = 3;
 
 // GLOBAL: MW2 0x100a9538
-MechS32 g_unk0x100a9538 = 0;
+MechS32 g_monoColumn = 0;
 
-// The debug build drew each text it formatted while g_unk0x100e9630 was set; the release
+// The debug build drew each text it formatted while g_monoEnabled was set; the release
 // build keeps only the test.
 #define DRAW_DEBUG_TEXT()                                                                                              \
 	do {                                                                                                               \
-		if (g_unk0x100e9630) {                                                                                         \
+		if (g_monoEnabled) {                                                                                           \
 		}                                                                                                              \
 	} while (0)
 
+// The totals CountSceneShape adds up for ShowSceneInfo.
 // GLOBAL: MW2 0x100bea00
-static MechS32 g_unk0x100bea00;
+static MechS32 g_sceneVertexCount;
 
 // GLOBAL: MW2 0x100bea04
-static MechS32 g_unk0x100bea04;
+static MechS32 g_sceneMemory;
 
 // GLOBAL: MW2 0x100bea08
-static MechS32 g_unk0x100bea08;
+static MechS32 g_sceneShapeCount;
 
 // GLOBAL: MW2 0x100bea0c
-static MechS32 g_unk0x100bea0c;
+static MechS32 g_sceneFaceCount;
 
+// Set when the monochrome debug screen is in use; the AI logs its state to it too. Only the
+// /M switch's InitializeMono could have set it, in a branch compiled out.
 // GLOBAL: MW2 0x100e9630
-MechS32 g_unk0x100e9630;
+MechS32 g_monoEnabled;
 
+// A line of spaces, with its terminator.
 // GLOBAL: MW2 0x100e9640
-MechChar g_unk0x100e9640[0x50];
+MechChar g_monoBlankLine[0x50];
 
 // GLOBAL: MW2 0x100e9690
-MechChar g_unk0x100e9690;
+MechChar g_monoBlankLineEnd;
 
+// Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
 // FUNCTION: MW2 0x10058750
-void FUN_10058750(void)
+void DrawDebugOverlays(void)
 {
-	if (g_unk0x100a949c) {
-		FUN_100588a7();
+	if (g_showPalette) {
+		DrawPaletteGrid();
 	}
-	if (g_unk0x100a9504) {
-		FUN_10059085();
-	}
-
-	if (g_unk0x100a94b4) {
-		FUN_100589ae();
-	}
-	else if (g_unk0x100a94b0) {
-		FUN_10058ae5();
+	if (g_showSpinner) {
+		StepSpinner();
 	}
 
-	if (g_unk0x100a94d8) {
-		FUN_10058b34();
+	if (g_showFrameRate) {
+		ShowFrameRate();
 	}
-	else if (g_unk0x100a94e0) {
-		FUN_10058cda();
-	}
-
-	if (g_unk0x100a94e4) {
-		FUN_10058d90(g_eyepoint);
-	}
-	else if (g_unk0x100a94ec) {
-		FUN_10058ee0();
+	else if (g_frameRateShown) {
+		HideFrameRate();
 	}
 
-	if (g_unk0x100a94f0) {
-		FUN_10058fb2();
+	if (g_showSceneInfo) {
+		ShowSceneInfo();
 	}
-	else if (g_unk0x100a94f8) {
-		FUN_10059036();
+	else if (g_sceneInfoShown) {
+		HideSceneInfo();
 	}
 
-	if (g_unk0x100a94fc) {
-		FUN_10058f3c();
+	if (g_showEyePosition) {
+		ShowEyePosition(g_eyepoint);
 	}
-	else if (g_unk0x100a9500) {
-		FUN_10058f78();
+	else if (g_eyePositionShown) {
+		HideEyePosition();
+	}
+
+	if (g_showMemInfo) {
+		ShowMemInfo();
+	}
+	else if (g_memInfoShown) {
+		HideMemInfo();
+	}
+
+	if (g_showCacheInfo) {
+		ShowCacheInfo();
+	}
+	else if (g_cacheInfoShown) {
+		HideCacheInfo();
 	}
 
 	if (g_unk0x100a9518) {
 		g_unk0x100a9514 = 1;
 	}
-	if (g_unk0x100a9510 && g_unk0x100a950c < g_currentClock) {
-		g_unk0x100a950c = g_currentClock + 0xb5;
+	if (g_dumpCacheRepeat && g_nextCacheDump < g_currentClock) {
+		g_nextCacheDump = g_currentClock + 0xb5;
 		FUN_1001a521(g_mw2PrjHandle);
 	}
 }
@@ -224,7 +241,7 @@ void FUN_10058750(void)
 // Draws the 256 palette colours as a grid of 16 swatches per row.
 // Stack-slot permutation: x, y, color and i.
 // FUNCTION: MW2 0x100588a7
-void FUN_100588a7(void)
+void DrawPaletteGrid(void)
 {
 	MechS32 x;
 	MechS32 y;
@@ -248,134 +265,136 @@ void FUN_100588a7(void)
 	}
 }
 
+// Fills g_monoBlankLine (the /M switch's call; the debug build also turned the screen on and
+// stopped the mission timer here).
 // FUNCTION: MW2 0x10058958
-void FUN_10058958(void)
+void InitializeMono(void)
 {
 	MechS32 i;
 
 	if (FALSE) {
-		g_unk0x100e9630 = TRUE;
+		g_monoEnabled = TRUE;
 		g_missionTimerStopped = TRUE;
 	}
 
 	for (i = 0; i < 0x50; i++) {
-		g_unk0x100e9640[i] = ' ';
+		g_monoBlankLine[i] = ' ';
 	}
-	g_unk0x100e9690 = '\0';
+	g_monoBlankLineEnd = '\0';
 }
 
 // Stack-slot permutation: text and rate.
 // FUNCTION: MW2 0x100589ae
-void FUN_100589ae(void)
+void ShowFrameRate(void)
 {
 	MechChar text[64];
 	MechS32 rate;
 
-	if (!g_unk0x100e9630 && !g_unk0x100a94b8) {
+	if (!g_monoEnabled && !g_showFrameRateMain) {
 		return;
 	}
 
-	g_unk0x100a9528++;
-	g_unk0x100a9524 += g_deltaTime;
-	if (g_unk0x100a9528 >= 10) {
-		if (g_unk0x100a9524 > 0) {
-			rate = (g_unk0x100a9528 * 0x712) / g_unk0x100a9524;
-			g_unk0x100a951c = rate / 10;
-			g_unk0x100a9520 = rate - g_unk0x100a951c * 10;
-			sprintf(text, "Framerate %2.2ld.%1.1ld", g_unk0x100a951c, g_unk0x100a9520);
+	g_frameRateFrames++;
+	g_frameRateTime += g_deltaTime;
+	if (g_frameRateFrames >= 10) {
+		if (g_frameRateTime > 0) {
+			rate = (g_frameRateFrames * 0x712) / g_frameRateTime;
+			g_frameRate = rate / 10;
+			g_frameRateTenths = rate - g_frameRate * 10;
+			sprintf(text, "Framerate %2.2ld.%1.1ld", g_frameRate, g_frameRateTenths);
 			DRAW_DEBUG_TEXT();
 		}
 
-		g_unk0x100a9528 = 0;
-		g_unk0x100a9524 = 0;
+		g_frameRateFrames = 0;
+		g_frameRateTime = 0;
 	}
 
-	if (g_unk0x100a94b8 && g_unk0x100a951c > 0) {
-		sprintf(text, "%ld.%ld", g_unk0x100a951c, g_unk0x100a9520);
-		FUN_1006f28f(0x4f, 1, text, g_unk0x100a94c0.m_x, g_unk0x100a94c0.m_y);
+	if (g_showFrameRateMain && g_frameRate > 0) {
+		sprintf(text, "%ld.%ld", g_frameRate, g_frameRateTenths);
+		FUN_1006f28f(0x4f, 1, text, g_frameRateOrigin.m_x, g_frameRateOrigin.m_y);
 	}
 
-	g_unk0x100a94b0 = 1;
+	g_frameRateShown = 1;
 }
 
 // FUNCTION: MW2 0x10058ae5
-void FUN_10058ae5(void)
+void HideFrameRate(void)
 {
 	MechChar text[16];
 	MechChar format[16];
 
 	sprintf(format, "%%%d.%ds", 0xe, 0xe);
-	sprintf(text, format, g_unk0x100a9478);
+	sprintf(text, format, g_blankText);
 	DRAW_DEBUG_TEXT();
-	g_unk0x100a94b0 = 0;
+	g_frameRateShown = 0;
 }
 
 // FUNCTION: MW2 0x10058b34
-void FUN_10058b34(void)
+void ShowSceneInfo(void)
 {
 	MechChar text[80];
 
-	if (!g_unk0x100e9630 && !g_unk0x100a94dc) {
+	if (!g_monoEnabled && !g_showSceneInfoMain) {
 		return;
 	}
 
-	g_unk0x100bea08 = g_unk0x100bea00 = g_unk0x100bea0c = g_unk0x100bea04 = 0;
-	ForEachShape(g_unk0x100ad5e8, FUN_10058d36);
-	ForEachShape(g_unk0x100ad5ec, FUN_10058d36);
+	g_sceneShapeCount = g_sceneVertexCount = g_sceneFaceCount = g_sceneMemory = 0;
+	ForEachShape(g_unk0x100ad5e8, CountSceneShape);
+	ForEachShape(g_unk0x100ad5ec, CountSceneShape);
 
-	if (g_unk0x100e9630) {
-		if (!g_unk0x100a94e0) {
-			if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
+		if (!g_sceneInfoShown) {
+			if (g_monoEnabled) {
 				DRAW_DEBUG_TEXT();
 			}
 
-			if (g_unk0x100a94dc) {
+			if (g_showSceneInfoMain) {
 				sprintf(
 					text,
 					"Objects: %d  Polygons: %d  Vertices: %d Curpolys: %d",
-					g_unk0x100bea08,
-					g_unk0x100bea0c,
-					g_unk0x100bea00,
+					g_sceneShapeCount,
+					g_sceneFaceCount,
+					g_sceneVertexCount,
 					g_unk0x100a2480
 				);
 				ShowInGameMessage(text, 1, 0xb5, 0x50);
 			}
 
-			g_unk0x100a94e0 = 1;
+			g_sceneInfoShown = 1;
 		}
 
-		if (!g_unk0x100e9630) {
+		if (!g_monoEnabled) {
 			return;
 		}
 
-		sprintf(text, "%4.4d", g_unk0x100bea08);
+		sprintf(text, "%4.4d", g_sceneShapeCount);
 		DRAW_DEBUG_TEXT();
-		sprintf(text, "%4.4d", g_unk0x100bea00);
+		sprintf(text, "%4.4d", g_sceneVertexCount);
 		DRAW_DEBUG_TEXT();
-		sprintf(text, "%4.4d", g_unk0x100bea0c);
+		sprintf(text, "%4.4d", g_sceneFaceCount);
 		DRAW_DEBUG_TEXT();
-		sprintf(text, "%4.4d", g_unk0x100bea04);
+		sprintf(text, "%4.4d", g_sceneMemory);
 		DRAW_DEBUG_TEXT();
 	}
 }
 
 // FUNCTION: MW2 0x10058cda
-void FUN_10058cda(void)
+void HideSceneInfo(void)
 {
 	MechChar text[32];
 	MechChar format[32];
 
 	sprintf(format, "%%%d.%ds", 0x1e, 0x1e);
-	sprintf(text, format, g_unk0x100a9478);
+	sprintf(text, format, g_blankText);
 	DRAW_DEBUG_TEXT();
 	DRAW_DEBUG_TEXT();
-	g_unk0x100a94e0 = 0;
+	g_sceneInfoShown = 0;
 }
 
-// Adds a shape's counts to the totals FUN_10058b34 shows.
+// Adds a shape's counts to the totals ShowSceneInfo shows.
 // Stack-slot permutation: vertexCount and faceCount.
 // FUNCTION: MW2 0x10058d36
-void FUN_10058d36(Shape* p_shape)
+void CountSceneShape(Shape* p_shape)
 {
 	MechS32 vertexCount;
 	MechS32 faceCount;
@@ -384,128 +403,128 @@ void FUN_10058d36(Shape* p_shape)
 	faceCount = 0;
 	GetModelCounts(p_shape, &vertexCount, &faceCount);
 
-	g_unk0x100bea08++;
-	g_unk0x100bea00 += vertexCount;
-	g_unk0x100bea0c += faceCount;
-	g_unk0x100bea04 += GetShapeMemorySize(p_shape);
+	g_sceneShapeCount++;
+	g_sceneVertexCount += vertexCount;
+	g_sceneFaceCount += faceCount;
+	g_sceneMemory += GetShapeMemorySize(p_shape);
 }
 
 // FUNCTION: MW2 0x10058d90
-void FUN_10058d90(Eyepoint* p_eyepoint)
+void ShowEyePosition(Eyepoint* p_eyepoint)
 {
 	MechChar text[132];
 
-	if (!g_unk0x100a94e8 && !g_unk0x100e9630) {
+	if (!g_showEyePositionMain && !g_monoEnabled) {
 		return;
 	}
 
-	sprintf(text, "txyz: %04.4ld %04.4ld %04.4ld", p_eyepoint->m_unk0x00, p_eyepoint->m_unk0x04, p_eyepoint->m_unk0x08);
+	sprintf(text, "txyz: %04.4ld %04.4ld %04.4ld", p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
 	DRAW_DEBUG_TEXT();
 	sprintf(
 		text,
 		"rxyz:  %04.4ld %04.4ld %04.4ld",
-		(p_eyepoint->m_unk0x10 >> 16) % 360,
-		(p_eyepoint->m_unk0x0c >> 16) % 360,
-		(p_eyepoint->m_unk0x14 >> 16) % 360
+		(p_eyepoint->m_pitch >> 16) % 360,
+		(p_eyepoint->m_heading >> 16) % 360,
+		(p_eyepoint->m_roll >> 16) % 360
 	);
 	DRAW_DEBUG_TEXT();
 
-	if (g_unk0x100a94e8) {
+	if (g_showEyePositionMain) {
 		sprintf(
 			text,
 			"txyz: %5ld %5ld %5ld\nrxyz: %5d %5d %5d ",
-			p_eyepoint->m_unk0x00,
-			p_eyepoint->m_unk0x04,
-			p_eyepoint->m_unk0x08,
-			(p_eyepoint->m_unk0x10 >> 16) % 360,
-			(p_eyepoint->m_unk0x0c >> 16) % 360,
-			(p_eyepoint->m_unk0x14 >> 16) % 360
+			p_eyepoint->m_x,
+			p_eyepoint->m_y,
+			p_eyepoint->m_z,
+			(p_eyepoint->m_pitch >> 16) % 360,
+			(p_eyepoint->m_heading >> 16) % 360,
+			(p_eyepoint->m_roll >> 16) % 360
 		);
-		FUN_1006f28f(0x4f, 1, text, g_unk0x100a94d0.m_x, g_unk0x100a94d0.m_y);
+		FUN_1006f28f(0x4f, 1, text, g_eyePositionOrigin.m_x, g_eyePositionOrigin.m_y);
 	}
 
-	g_unk0x100a94ec = 1;
+	g_eyePositionShown = 1;
 }
 
 // FUNCTION: MW2 0x10058ee0
-void FUN_10058ee0(void)
+void HideEyePosition(void)
 {
 	MechChar text[28];
 	MechChar format[28];
 
 	sprintf(format, "%%%d.%ds", 0x18, 0x18);
-	sprintf(text, format, g_unk0x100a9478);
+	sprintf(text, format, g_blankText);
 	DRAW_DEBUG_TEXT();
 	DRAW_DEBUG_TEXT();
-	g_unk0x100a94ec = 0;
+	g_eyePositionShown = 0;
 }
 
 // FUNCTION: MW2 0x10058f3c
-void FUN_10058f3c(void)
+void ShowCacheInfo(void)
 {
 	MechChar text[28];
 
 	sprintf(text, "Items in cache: %li     ", g_cacheItemCount);
 	DRAW_DEBUG_TEXT();
-	g_unk0x100a9500 = 1;
+	g_cacheInfoShown = 1;
 }
 
 // FUNCTION: MW2 0x10058f78
-void FUN_10058f78(void)
+void HideCacheInfo(void)
 {
 	MechChar text[28];
 
 	sprintf(text, "                           ", 0x19, 0x19);
 	DRAW_DEBUG_TEXT();
-	g_unk0x100a9500 = 0;
+	g_cacheInfoShown = 0;
 }
 
 // Stack-slot permutation: text and value.
 // FUNCTION: MW2 0x10058fb2
-void FUN_10058fb2(void)
+void ShowMemInfo(void)
 {
 	MechChar text[40];
 	MechS32 value;
 
 	value = 0;
-	if (!g_unk0x100a94f8) {
+	if (!g_memInfoShown) {
 		DRAW_DEBUG_TEXT();
-		g_unk0x100a94f8 = 1;
+		g_memInfoShown = 1;
 	}
 
 	sprintf(text, "%8.8ld", value);
 	DRAW_DEBUG_TEXT();
-	if (g_unk0x100a94f4) {
-		FUN_1006f28f(0x4f, 1, text, g_unk0x100a94c8.m_x, g_unk0x100a94c8.m_y);
+	if (g_showMemInfoMain) {
+		FUN_1006f28f(0x4f, 1, text, g_memInfoOrigin.m_x, g_memInfoOrigin.m_y);
 	}
 }
 
 // FUNCTION: MW2 0x10059036
-void FUN_10059036(void)
+void HideMemInfo(void)
 {
 	MechChar text[16];
 	MechChar format[16];
 
 	sprintf(format, "%%%d.%ds", 0xc, 0xc);
-	sprintf(text, format, g_unk0x100a9478);
+	sprintf(text, format, g_blankText);
 	DRAW_DEBUG_TEXT();
-	g_unk0x100a94f8 = 0;
+	g_memInfoShown = 0;
 }
 
 // Steps the activity spinner.
 // FUNCTION: MW2 0x10059085
-void FUN_10059085(void)
+void StepSpinner(void)
 {
 	MechChar text[2];
 
-	if (--g_unk0x100a952c == 0) {
-		g_unk0x100a952c = 4;
-		text[0] = g_unk0x100a9508[g_unk0x100a9530];
+	if (--g_spinnerDelay == 0) {
+		g_spinnerDelay = 4;
+		text[0] = g_spinnerArrows[g_spinnerArrow];
 		text[1] = '\0';
 		DRAW_DEBUG_TEXT();
 
-		if (g_unk0x100a9530-- == 0) {
-			g_unk0x100a9530 = 3;
+		if (g_spinnerArrow-- == 0) {
+			g_spinnerArrow = 3;
 		}
 	}
 }
@@ -513,7 +532,7 @@ void FUN_10059085(void)
 // Formats a line for the debug console: a leading space, padded with spaces to 79 characters.
 // Stack-slot permutation: i, text and dst.
 // FUNCTION: MW2 0x100590ea
-void FUN_100590ea(MechChar* p_text)
+void MonoPrintLine(MechChar* p_text)
 {
 	MechS32 i;
 	MechChar text[80];
@@ -537,7 +556,7 @@ void FUN_100590ea(MechChar* p_text)
 
 // Clears the debug console's rows 3 to 23.
 // FUNCTION: MW2 0x1005917d
-void FUN_1005917d(void)
+void MonoClear(void)
 {
 	MechS32 i;
 
@@ -547,13 +566,13 @@ void FUN_1005917d(void)
 
 	g_unk0x100a94ac[0] = '\0';
 	g_unk0x100a94a8 = 3;
-	g_unk0x100a94a4 = 3;
+	g_monoLastRow = 3;
 }
 
 // Writes text to the debug console, 80 columns and rows 3 to 23, clearing it when it fills.
 // Stack-slot permutation: newline, ch and length.
 // FUNCTION: MW2 0x100591d1
-void FUN_100591d1(MechChar* p_text)
+void MonoPrint(MechChar* p_text)
 {
 	MechS32 newline;
 	MechChar ch[2];
@@ -572,28 +591,29 @@ void FUN_100591d1(MechChar* p_text)
 			DRAW_DEBUG_TEXT();
 		}
 
-		g_unk0x100a9538++;
-		if (g_unk0x100a9538 > 0x4f || newline) {
-			g_unk0x100a9538 = 0;
-			g_unk0x100a9534++;
-			if (g_unk0x100a9534 > 0x17) {
-				FUN_1005917d();
-				g_unk0x100a9534 = 3;
+		g_monoColumn++;
+		if (g_monoColumn > 0x4f || newline) {
+			g_monoColumn = 0;
+			g_monoRow++;
+			if (g_monoRow > 0x17) {
+				MonoClear();
+				g_monoRow = 3;
 			}
 
 			newline = FALSE;
 		}
 	}
 
-	g_unk0x100a94a4 = g_unk0x100a9534;
+	g_monoLastRow = g_monoRow;
 }
 
+// Scales the _MAIN readouts' positions to the screen, after a change of resolution.
 // FUNCTION: MW2 0x100592b0
-void FUN_100592b0(void)
+void ScaleOverlayPositions(void)
 {
-	ScalePointToScreen(&g_mainPixelBuffer, &g_unk0x100a94c0, &g_unk0x100a94c0);
-	ScalePointToScreen(&g_mainPixelBuffer, &g_unk0x100a94d0, &g_unk0x100a94d0);
-	ScalePointToScreen(&g_mainPixelBuffer, &g_unk0x100a94c8, &g_unk0x100a94c8);
+	ScalePointToScreen(&g_mainPixelBuffer, &g_frameRateOrigin, &g_frameRateOrigin);
+	ScalePointToScreen(&g_mainPixelBuffer, &g_eyePositionOrigin, &g_eyePositionOrigin);
+	ScalePointToScreen(&g_mainPixelBuffer, &g_memInfoOrigin, &g_memInfoOrigin);
 }
 
 // FUNCTION: MW2 0x10059300
@@ -611,10 +631,10 @@ void SimEntranceDbug(MechChar* p_mission, MechS32 p_memory)
 	);
 	ShowInGameMessage(text, 0, 0x4f3, 0x50);
 
-	if (!g_unk0x100e9630) {
+	if (!g_monoEnabled) {
 		return;
 	}
 
 	sprintf(text, "WarThink / MechWarrior II %s %ld", p_mission, p_memory);
-	FUN_100590ea(text);
+	MonoPrintLine(text);
 }

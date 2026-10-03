@@ -360,9 +360,9 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 					if (index >= 0) {
 						FUN_10004a45(index, p_mech->m_velocityX * 2, p_mech->m_velocityY * 2, p_mech->m_velocityZ * 2);
 						GetObjPosition(obj, &x, &y, &z);
-						x -= g_eyepoint->m_unk0x00;
-						y -= g_eyepoint->m_unk0x04;
-						z -= g_eyepoint->m_unk0x08;
+						x -= g_eyepoint->m_x;
+						y -= g_eyepoint->m_y;
+						z -= g_eyepoint->m_z;
 						FUN_1007ebd1(x, y, z, 0xb5, g_unk0x100a2420);
 					}
 				}
@@ -554,8 +554,8 @@ void FUN_10076a23(Mech* p_mech)
 		return;
 	}
 
-	x = p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
-	y = p_mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
-	z = p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+	x = p_mech->m_player->m_position.m_x - g_eyepoint->m_x;
+	y = p_mech->m_player->m_position.m_y - g_eyepoint->m_y;
+	z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
 	FUN_1007ebd1(x, y, z, 0xb5, g_unk0x100a2420);
 }

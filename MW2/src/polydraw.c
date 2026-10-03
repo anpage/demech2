@@ -12,18 +12,18 @@
 #include "horizon.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "transform.h"
 #include "types.h"
 #include "vfx3d.h"
 #include "vfxa.h"
 
 // GLOBAL: MW2 0x100a6be0
-Eyepoint g_unk0x100a6be0 = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
-							0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
+Eyepoint g_mainEyepoint = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
+						   0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
 
 // GLOBAL: MW2 0x100a6cc0
-Eyepoint* g_eyepoint = &g_unk0x100a6be0;
+Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
 RenderSettings g_renderSettings = {0, 1, 1,       1,       1, 1, 1,    1,    1,    1, {0xe0, 0xef}, 1, 0, 0,
@@ -96,7 +96,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			point += 6;
 		}
 
-		if (g_renderSettings.m_unk0x04) {
+		if (g_renderSettings.m_gouraud) {
 			VFX_dithered_Gouraud_polygon(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {
@@ -107,13 +107,13 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		FUN_10010750(p_flags, p_count, p_points, -1);
 		break;
 	case 0x5000:
-		if (!g_renderSettings.m_unk0x0c) {
+		if (!g_renderSettings.m_textures) {
 			break;
 		}
 
 		luma = (p_flags & 0xf00) >> 8;
 		index = p_flags & 0xff;
-		if (!g_renderSettings.m_unk0x4c) {
+		if (!g_renderSettings.m_affineTextures) {
 			for (i = 0; i < p_count; i++) {
 				point[5] = FixedDivU16(g_eyepoint->m_projectScaleX, point[5]);
 				point[3] = FixedMul30(point[3], point[5]);
@@ -125,19 +125,19 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		FUN_10068d10(index, p_count, p_points, luma, 0, 1);
 		break;
 	case 0x6000:
-		if (!g_renderSettings.m_unk0x0c) {
+		if (!g_renderSettings.m_textures) {
 			break;
 		}
 
 		luma = (p_flags & 0xf00) >> 8;
 		index = p_flags & 0xff;
-		saved = g_renderSettings.m_unk0x4c;
-		g_renderSettings.m_unk0x4c = TRUE;
+		saved = g_renderSettings.m_affineTextures;
+		g_renderSettings.m_affineTextures = TRUE;
 		FUN_10068d10(index, p_count, p_points, luma, 0, 1);
-		g_renderSettings.m_unk0x4c = saved;
+		g_renderSettings.m_affineTextures = saved;
 		break;
 	case 0x7000:
-		if (!g_renderSettings.m_unk0x0c) {
+		if (!g_renderSettings.m_textures) {
 			break;
 		}
 
@@ -151,9 +151,9 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 }
 
 // Draws the sky and the ground of the view from p_eyepoint: the horizon, rolled with the view,
-// splits the view rectangle (m_unk0x2c-m_unk0x38). Each corner's side of it (IsAboveHorizon) makes
-// one bit of the case; the parts are filled in g_unk0x100a5548 (the sky, with m_unk0x1c) and
-// g_unk0x100a554c (the ground, with m_unk0x20), and with m_unk0x24 a shaded band over the
+// splits the view rectangle (m_viewLeft-m_viewBottom). Each corner's side of it (IsAboveHorizon) makes
+// one bit of the case; the parts are filled in g_unk0x100a5548 (the sky, with m_drawSky) and
+// g_unk0x100a554c (the ground, with m_drawGround), and with m_horizonBand a shaded band over the
 // horizon blends the sky into the ground.
 // Stack-slot permutation; the original calls IsAboveHorizon for the corners in the order of the
 // terms, (x0, y1) first (commutative operand order).
@@ -177,17 +177,17 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	MechS32 x0;
 	Matrix roll;
 
-	x0 = p_eyepoint->m_unk0x2c;
-	x1 = p_eyepoint->m_unk0x30;
-	y0 = p_eyepoint->m_unk0x34;
-	y1 = p_eyepoint->m_unk0x38;
+	x0 = p_eyepoint->m_viewLeft;
+	x1 = p_eyepoint->m_viewRight;
+	y0 = p_eyepoint->m_viewTop;
+	y1 = p_eyepoint->m_viewBottom;
 	gradient = FALSE;
 	rect = g_currentPane;
 	dx = dz = 0;
 	dy = g_unk0x100a6d30;
 	SetIdentityMatrix(&roll);
-	roll.m_rows[0][0] = roll.m_rows[1][1] = FixedCos(p_eyepoint->m_unk0x14);
-	roll.m_rows[1][0] = FixedSin(p_eyepoint->m_unk0x14);
+	roll.m_rows[0][0] = roll.m_rows[1][1] = FixedCos(p_eyepoint->m_roll);
+	roll.m_rows[1][0] = FixedSin(p_eyepoint->m_roll);
 	roll.m_rows[0][1] = -roll.m_rows[1][0];
 	roll.m_rows[3][0] = roll.m_rows[3][1] = roll.m_rows[3][2] = 0;
 	TransformPoint(&roll, &dx, &dy, &dz);
@@ -197,7 +197,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	band[14] = band[20] = (g_unk0x100a554c - 1) << 16;
 	switch (corners) {
 	case 0:
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			rect.m_x0 += x0;
 			rect.m_y0 += y0;
 			rect.m_x1 = rect.m_x0 + x1 - x0;
@@ -206,8 +206,8 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 		break;
 	case 15:
-		if (g_renderSettings.m_unk0x1c) {
-			if (g_renderSettings.m_unk0x24 && !IsAboveHorizon(x0, dy + y1, p_eyepoint)) {
+		if (g_renderSettings.m_drawSky) {
+			if (g_renderSettings.m_horizonBand && !IsAboveHorizon(x0, dy + y1, p_eyepoint)) {
 				yLeft = HorizonYAtX(x0, p_eyepoint);
 				yRight = HorizonYAtX(x1, p_eyepoint);
 				if (yRight - dy < y1 || yLeft - dy < y1) {
@@ -231,7 +231,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	case 3:
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
-		if (g_renderSettings.m_unk0x24 && g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_horizonBand && g_renderSettings.m_drawSky) {
 			band[0] = band[18] = x1;
 			band[6] = band[12] = x0;
 			band[1] = yRight - dy;
@@ -242,7 +242,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 
 		if (yRight == yLeft) {
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				rect.m_x0 += x0;
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
@@ -250,7 +250,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				VFX_pane_wipe(&rect, g_unk0x100a5548);
 			}
 
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				rect = g_currentPane;
 				rect.m_x0 += x0;
 				rect.m_y0 += yLeft;
@@ -260,11 +260,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 		}
 		else {
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_unk0x100a5548);
 			}
 
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_unk0x100a554c);
 			}
 		}
@@ -272,7 +272,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	case 12:
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
-		if (g_renderSettings.m_unk0x24 && g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_horizonBand && g_renderSettings.m_drawSky) {
 			band[12] = band[6] = x1 - dx;
 			band[18] = band[0] = dx + x0;
 			band[13] = yRight;
@@ -283,7 +283,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 
 		if (yRight == yLeft) {
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				rect.m_x0 += x0;
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
@@ -291,7 +291,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				VFX_pane_wipe(&rect, g_unk0x100a554c);
 			}
 
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				rect = g_currentPane;
 				rect.m_x0 += x0;
 				rect.m_y0 += yLeft;
@@ -301,11 +301,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 		}
 		else {
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_unk0x100a554c);
 			}
 
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_unk0x100a5548);
 			}
 		}
@@ -314,7 +314,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		if (xBottom == xTop) {
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				rect.m_x0 += x0;
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
@@ -322,7 +322,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				VFX_pane_wipe(&rect, g_unk0x100a5548);
 			}
 
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				rect = g_currentPane;
 				rect.m_x0 += xTop - x0 + 1;
 				rect.m_y0 += y0;
@@ -332,16 +332,16 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 		}
 		else {
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_unk0x100a5548);
 			}
 
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_unk0x100a554c);
 			}
 		}
 
-		if (g_renderSettings.m_unk0x24 && g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_horizonBand && g_renderSettings.m_drawSky) {
 			band[0] = xTop - dx;
 			band[6] = xBottom - dx;
 			band[12] = xBottom;
@@ -357,7 +357,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		if (xBottom == xTop) {
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				rect.m_x0 += x0;
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
@@ -365,7 +365,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				VFX_pane_wipe(&rect, g_unk0x100a554c);
 			}
 
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				rect = g_currentPane;
 				rect.m_x0 += xTop - x0 + 1;
 				rect.m_y0 += y0;
@@ -375,16 +375,16 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			}
 		}
 		else {
-			if (g_renderSettings.m_unk0x20) {
+			if (g_renderSettings.m_drawGround) {
 				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_unk0x100a554c);
 			}
 
-			if (g_renderSettings.m_unk0x1c) {
+			if (g_renderSettings.m_drawSky) {
 				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_unk0x100a5548);
 			}
 		}
 
-		if (g_renderSettings.m_unk0x24 && g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_horizonBand && g_renderSettings.m_drawSky) {
 			band[0] = xTop - dx;
 			band[6] = xBottom - dx;
 			band[12] = xBottom;
@@ -399,55 +399,55 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	case 1:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_unk0x100a5548);
 		}
 
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_unk0x100a554c);
 		}
 		break;
 	case 14:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_unk0x100a554c);
 		}
 
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_unk0x100a5548);
 		}
 		break;
 	case 2:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_unk0x100a5548);
 		}
 
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_unk0x100a554c);
 		}
 		break;
 	case 13:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_unk0x100a554c);
 		}
 
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_unk0x100a5548);
 		}
 		break;
 	case 4:
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_unk0x100a5548);
 		}
 
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_unk0x100a554c);
 		}
 		break;
@@ -455,13 +455,13 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_unk0x100a554c);
 		}
 
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_unk0x100a5548);
-			if (g_renderSettings.m_unk0x24) {
+			if (g_renderSettings.m_horizonBand) {
 				band[6] = band[12] = x0;
 				band[18] = band[0] = x1;
 				band[1] = yRight - dy;
@@ -475,11 +475,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	case 8:
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_unk0x100a5548);
 		}
 
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_unk0x100a554c);
 		}
 		break;
@@ -487,13 +487,13 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
-		if (g_renderSettings.m_unk0x20) {
+		if (g_renderSettings.m_drawGround) {
 			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_unk0x100a554c);
 		}
 
-		if (g_renderSettings.m_unk0x1c) {
+		if (g_renderSettings.m_drawSky) {
 			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_unk0x100a5548);
-			if (g_renderSettings.m_unk0x24) {
+			if (g_renderSettings.m_horizonBand) {
 				band[6] = band[12] = x0;
 				band[18] = band[0] = x1;
 				band[1] = yRight - dy;
@@ -506,7 +506,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		break;
 	}
 
-	if (gradient && g_renderSettings.m_unk0x04) {
+	if (gradient && g_renderSettings.m_gouraud) {
 		VFX_dithered_Gouraud_polygon(&g_currentPane, 0x8000, 4, band);
 	}
 }
@@ -596,20 +596,20 @@ void FUN_10044590(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 // FUNCTION: MW2 0x100445d2
 void FUN_100445d2(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
-	if (p_count == 1 && g_renderSettings.m_unk0x18) {
+	if (p_count == 1 && g_renderSettings.m_drawPixels) {
 		if (p_flags == 0x1000) {
 			return;
 		}
 
 		VFX_pixel_write(&g_currentPane, p_points[0], p_points[1], p_flags);
 	}
-	else if (p_count == 2 && g_renderSettings.m_unk0x14) {
+	else if (p_count == 2 && g_renderSettings.m_drawLines) {
 		VFX_line_draw(&g_currentPane, p_points[0], p_points[1], p_points[6], p_points[7], 0, p_flags);
 	}
-	else if (g_renderSettings.m_unk0x34 == 0) {
+	else if (g_renderSettings.m_wireframe == 0) {
 		g_renderSettings.m_drawPolygon(p_count, p_points, p_flags);
 	}
-	else if (g_renderSettings.m_unk0x34 == 1) {
+	else if (g_renderSettings.m_wireframe == 1) {
 		g_renderSettings.m_drawPolygon(p_count, p_points, 0);
 		g_renderSettings.m_drawPolygon(p_count, p_points, p_flags | 0x2000);
 	}

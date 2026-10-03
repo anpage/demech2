@@ -12,12 +12,12 @@
 #include "menupage.h"
 #include "mw2prj.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "settings.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "types.h"
 #include "vfxa.h"
@@ -206,7 +206,7 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 			scale.m_y = FixedDiv16(scale.m_y, g_screenHeightMinus1 + 1);
 			scale.m_x = FixedDiv16(scale.m_x, background->m_x1 - background->m_x0 + 1);
 			scale.m_y = FixedDiv16(scale.m_y, background->m_y1 - background->m_y0 + 1);
-			FUN_10056ec5(background, background, scale);
+			ScaleRectAboutCenter(background, background, scale);
 		}
 	}
 
@@ -216,11 +216,11 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 	p_menu->m_unk0x50.m_y = p_menu->m_unk0x58.m_y = p_menu->m_unk0x60.m_y = origin.m_y + origin.m_y;
 	ScaleRectToScreen(target->m_window, target, target);
 	ScaleRectToScreen(background->m_window, background, background);
-	FUN_10056bc1(target, &origin, &origin);
-	FUN_10056bc1(target, &p_menu->m_unk0x48, &p_menu->m_unk0x48);
-	FUN_10056bc1(target, &p_menu->m_unk0x50, &p_menu->m_unk0x50);
-	FUN_10056bc1(target, &p_menu->m_unk0x58, &p_menu->m_unk0x58);
-	FUN_10056bc1(target, &p_menu->m_unk0x60, &p_menu->m_unk0x60);
+	ScalePointToFrame(target, &origin, &origin);
+	ScalePointToFrame(target, &p_menu->m_unk0x48, &p_menu->m_unk0x48);
+	ScalePointToFrame(target, &p_menu->m_unk0x50, &p_menu->m_unk0x50);
+	ScalePointToFrame(target, &p_menu->m_unk0x58, &p_menu->m_unk0x58);
+	ScalePointToFrame(target, &p_menu->m_unk0x60, &p_menu->m_unk0x60);
 	if (p_menu->m_flags & 0x10) {
 		dx = background->m_x0 - target->m_x0;
 		background->m_x0 -= dx;
@@ -530,7 +530,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 	}
 
 	if (p_menu->m_flags & 4) {
-		FUN_100570e9(target, 1);
+		OutlinePane(target, 1);
 	}
 
 	RunMenuItems(p_menu);
@@ -722,10 +722,10 @@ void RunMenuItems(MenuDefinition* p_menu)
 	}
 
 	if (p_menu->m_flags & 4) {
-		FUN_1005718d(target, textPos, font, 1);
+		DrawRuleUnderRow(target, textPos, font, 1);
 	}
 	else {
-		FUN_100571ea(target, page->m_title, textPos, font, 1);
+		UnderlineText(target, page->m_title, textPos, font, 1);
 	}
 
 	height = VFX_font_height(font);

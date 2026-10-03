@@ -1,7 +1,7 @@
 #ifndef TEXPOLY_H
 #define TEXPOLY_H
 
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of texpoly.c that other units use.

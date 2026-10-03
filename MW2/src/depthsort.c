@@ -90,7 +90,7 @@ MechS32 FUN_100335d0(Shape* p_shape, MechS32 p_depth)
 	else {
 		prev = cursor;
 		while (cursor) {
-			if (FixedMul16(g_eyepoint->m_unk0xb8, cursor->m_key) > p_depth) {
+			if (FixedMul16(g_eyepoint->m_detailScale, cursor->m_key) > p_depth) {
 				model = prev;
 				break;
 			}
@@ -332,7 +332,7 @@ void FUN_10033c4b(SceneObject* p_object)
 // FUNCTION: MW2 0x10033d0f
 void FUN_10033d0f(Shape* p_root, Eyepoint* p_eyepoint)
 {
-	FUN_1004b980(p_eyepoint);
+	SelectEyepoint(p_eyepoint);
 	FUN_100338bb(p_root);
 }
 

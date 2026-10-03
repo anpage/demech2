@@ -1,7 +1,7 @@
 #ifndef RECTTRANSITION_H
 #define RECTTRANSITION_H
 
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // LerpPaneRect's axes.

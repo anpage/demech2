@@ -19,12 +19,12 @@
 #include "playersteering.h"
 #include "polydraw.h"
 #include "random.h"
-#include "rendertarget.h"
 #include "shape.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 #include "weapons.h"
@@ -74,11 +74,11 @@ void FUN_100079d0(Mech* p_mech)
 
 	if (p_mech->m_autopilot == 1) {
 		if (!(p_mech->m_player->m_targetInfo.m_target & 0x100) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
-			FUN_100602b2(p_mech->m_player, 0, 0);
+			CycleNavTarget(p_mech->m_player, 0, 0);
 			index = p_mech->m_player->m_targetInfo.m_target & 0xff;
 			first = index;
 			while (g_navTable[index].m_flags & 0x20) {
-				FUN_100602b2(p_mech->m_player, 1, 0);
+				CycleNavTarget(p_mech->m_player, 1, 0);
 				index = p_mech->m_player->m_targetInfo.m_target & 0xff;
 				if (index == first) {
 					p_mech->m_player->m_targetInfo.m_target |= 0x1000;
@@ -102,7 +102,7 @@ void FUN_100079d0(Mech* p_mech)
 					FUN_1007eb23(0xe7, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_100602b2(p_mech->m_player, 1, 0);
+				CycleNavTarget(p_mech->m_player, 1, 0);
 				if ((p_mech->m_player->m_targetInfo.m_target & 0xff) < first) {
 					p_mech->m_autopilot = 0;
 					p_mech->m_player->m_targetInfo.m_target |= 0x1000;
@@ -686,9 +686,9 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 							FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 						}
 
-						x = p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00;
-						y = p_mech->m_player->m_position.m_y - g_eyepoint->m_unk0x04;
-						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08;
+						x = p_mech->m_player->m_position.m_x - g_eyepoint->m_x;
+						y = p_mech->m_player->m_position.m_y - g_eyepoint->m_y;
+						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
 						g_unk0x100ae380 = 1;
 						FUN_1007ebd1(x, y, z, 0xbc, g_unk0x100a2420);
 						FUN_10059f6e(1);

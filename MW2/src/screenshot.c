@@ -4,7 +4,7 @@
 #include "palettecolor.h"
 #include "refreshmode.h"
 #include "render.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // Screenshots: the steps of writing the screen to a GIF file, which must come in order.

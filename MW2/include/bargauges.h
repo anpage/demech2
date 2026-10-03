@@ -1,7 +1,7 @@
 #ifndef BARGAUGES_H
 #define BARGAUGES_H
 
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of bargauges.c that other units use.

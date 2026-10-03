@@ -142,8 +142,8 @@ void FUN_1004b344(void)
 	MechS32 z;
 
 	if (g_unk0x100a7120 && g_unk0x100a7118) {
-		x = g_eyepoint->m_unk0x00;
-		z = g_eyepoint->m_unk0x08;
+		x = g_eyepoint->m_x;
+		z = g_eyepoint->m_z;
 		if (g_unk0x100a7124) {
 			dx = abs(x - g_unk0x100be9f0.m_x);
 			dz = abs(z - g_unk0x100be9f0.m_z);

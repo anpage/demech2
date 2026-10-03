@@ -9,9 +9,9 @@
 #include "players.h"
 #include "point.h"
 #include "ramp.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 
 // The cockpit's bar gauges: the heat, the rate the heat changes at, the throttle and the jump
@@ -94,7 +94,7 @@ void FUN_1004d020(void)
 	CockpitPanel* panel;
 
 	panel = g_unk0x100c3280[18];
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8330, &g_unk0x100a8330);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8330, &g_unk0x100a8330);
 	g_unk0x100a8338 = panel->m_width - g_unk0x100a8330.m_x - 1;
 	g_unk0x100a833c = panel->m_height - (g_unk0x100a8330.m_y + g_unk0x100a8330.m_y / 2) - 3;
 	g_unk0x100a8340 = panel->m_width - 1;
@@ -103,16 +103,16 @@ void FUN_1004d020(void)
 	g_unk0x100a834c = panel->m_height - g_unk0x100a8330.m_y / 2 - 2;
 
 	panel = g_unk0x100c3280[20];
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8358, &g_unk0x100a8358);
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8350, &g_unk0x100a8350);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8358, &g_unk0x100a8358);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8350, &g_unk0x100a8350);
 
 	panel = g_unk0x100c3280[21];
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8368, &g_unk0x100a8368);
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8360, &g_unk0x100a8360);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8368, &g_unk0x100a8368);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8360, &g_unk0x100a8360);
 
 	panel = g_unk0x100c3280[22];
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8378, &g_unk0x100a8378);
-	FUN_10056bc1(panel->m_target, &g_unk0x100a8370, &g_unk0x100a8370);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8378, &g_unk0x100a8378);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a8370, &g_unk0x100a8370);
 }
 
 // Draws the heat bar: a band from each end that meets in the middle as the heat rises.

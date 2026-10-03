@@ -25,7 +25,7 @@ void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p
 	switch (mode) {
 	case 0:
 	case 3:
-		if (g_renderSettings.m_unk0x10 & 1) {
+		if (g_renderSettings.m_flags & 1) {
 			FUN_100107de(color, p_count, (MechS32*) p_points, p_unk0x0c, 0);
 		}
 		break;

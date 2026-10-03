@@ -17,10 +17,10 @@
 #include "polydraw.h"
 #include "ray.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "shape.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 #include "vfxa.h"
@@ -253,7 +253,7 @@ void FUN_10040f91(void)
 	PANE* target;
 
 	target = g_unk0x100c3280[23]->m_target;
-	FUN_10056bc1(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
+	ScalePointToFrame(target, &g_unk0x100a5ed8, &g_unk0x100a5ed8);
 	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
@@ -280,7 +280,7 @@ void FUN_10040f91(void)
 	}
 
 	target = g_unk0x100c3280[24]->m_target;
-	FUN_10056bc1(target, &g_unk0x100a5ee0, &g_unk0x100a5ee0);
+	ScalePointToFrame(target, &g_unk0x100a5ee0, &g_unk0x100a5ee0);
 	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x19, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
@@ -432,7 +432,7 @@ void FUN_100414ab(Mech* p_mech)
 		FUN_10041a14(g_players[index], GetPlayerSide(index));
 		return;
 	case 0x400:
-		FUN_10041c3c(FUN_1005ff56(), FUN_1003c30e(index));
+		FUN_10041c3c(GetLocalTargetObject(), FUN_1003c30e(index));
 		return;
 	case 0x100:
 		onScreen = 0xe5;
@@ -445,13 +445,13 @@ void FUN_100414ab(Mech* p_mech)
 	x = player->m_targetInfo.m_position.m_x;
 	y = player->m_targetInfo.m_position.m_y;
 	z = player->m_targetInfo.m_position.m_z;
-	if (FUN_1004c11d(&x, &y, &z)) {
+	if (ProjectWorldPoint(&x, &y, &z)) {
 		FUN_10041e98(x, y, onScreen);
 	}
 	else {
 		point.m_x = x;
 		point.m_y = y;
-		FUN_10057a03(&g_currentPane, &point, &point);
+		GetRectNeedleToward(&g_currentPane, &point, &point);
 		FUN_10041e98(point.m_x, point.m_y, offScreen);
 	}
 }
@@ -573,7 +573,7 @@ void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c
 	FUN_10041f06(g_unk0x100a5ee0.m_x, g_unk0x100a5ee0.m_y, 0x13, target);
 }
 
-// Projects the end of the mech's player's aim ray to the screen: returns FUN_1004c11d's result,
+// Projects the end of the mech's player's aim ray to the screen: returns ProjectWorldPoint's result,
 // and the point in p_x and p_y.
 // Stack-slot permutation: result, ray, x, y and z.
 // FUNCTION: MW2 0x10041998
@@ -590,7 +590,7 @@ MechS32 FUN_10041998(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 	x = ray.m_x1;
 	y = ray.m_y1;
 	z = ray.m_z1;
-	result = FUN_1004c11d(&x, &y, &z);
+	result = ProjectWorldPoint(&x, &y, &z);
 	*p_x = x;
 	*p_y = y;
 	return result;
@@ -617,10 +617,10 @@ void FUN_10041a14(Player* p_player, MechS32 p_side)
 	x = p_player->m_position.m_x;
 	y = p_player->m_position.m_y;
 	z = p_player->m_position.m_z;
-	if (!FUN_1004c11d(&x, &y, &z)) {
+	if (!ProjectWorldPoint(&x, &y, &z)) {
 		point.m_x = x;
 		point.m_y = y;
-		FUN_10057a03(&g_currentPane, &point, &point);
+		GetRectNeedleToward(&g_currentPane, &point, &point);
 		switch (p_side) {
 		case 0:
 			topLeft = 0xeb;
@@ -698,10 +698,10 @@ void FUN_10041c3c(struct SceneObject* p_object, MechS32 p_side)
 	}
 
 	size = FUN_1003adc9(p_object->m_unk0x6c, &x, &y, &z);
-	if (!FUN_1004c11d(&x, &y, &z)) {
+	if (!ProjectWorldPoint(&x, &y, &z)) {
 		point.m_x = x;
 		point.m_y = y;
-		FUN_10057a03(&g_currentPane, &point, &point);
+		GetRectNeedleToward(&g_currentPane, &point, &point);
 		switch (p_side) {
 		case 0:
 			topLeft = 0xeb;

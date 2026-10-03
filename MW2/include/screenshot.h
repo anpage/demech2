@@ -1,7 +1,7 @@
 #ifndef SCREENSHOT_H
 #define SCREENSHOT_H
 
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of screenshot.c that other units use.

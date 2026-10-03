@@ -7,9 +7,9 @@
 #include "mw2prj.h"
 #include "point.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
+#include "targeting.h"
 #include "timedoverlay.h"
 #include "types.h"
 
@@ -66,7 +66,7 @@ void FUN_1006ee60(void)
 		shape =
 			FUN_1001a19f(g_mw2PrjHandle, overlay->m_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape != NULL) {
-			FUN_10056fcf(target, target, shape, 0);
+			FitRectToShape(target, target, shape, 0);
 		}
 
 		if (i == 0) {
@@ -82,7 +82,7 @@ void FUN_1006ee60(void)
 		target->m_y0 += dy;
 		target->m_x1 += dx;
 		target->m_y1 += dy;
-		FUN_10056bc1(target, &overlay->m_textPos, &overlay->m_textPos);
+		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
 		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 		if (font != NULL) {
@@ -225,7 +225,7 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
-		FUN_100575b9(p_text, font, &rect);
+		FitRectToText(p_text, font, &rect);
 		if (p_x >= 0) {
 			rect.m_x0 += p_x;
 			rect.m_x1 += p_x;
@@ -249,10 +249,10 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 		}
 
 		if (background != NULL) {
-			FUN_10057896(&rect, background, 0);
+			TilePane(&rect, background, 0);
 		}
 
-		FUN_10057396(&rect, p_text, font);
+		DrawWrappedText(&rect, p_text, font);
 	}
 }
 

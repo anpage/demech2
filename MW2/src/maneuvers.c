@@ -19,9 +19,9 @@
 #include "point.h"
 #include "random.h"
 #include "ray.h"
-#include "rendertarget.h"
 #include "shape.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "transform.h"
 #include "types.h"
 #include "view.h"
@@ -639,7 +639,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, Mech
 	MechS32 nav;
 
 	GetOffsetPoint(p_unk0x04, p_unk0x08, &x, &z, &y, p_unk0x0c);
-	nav = FUN_1005ec80(p_player->m_index, x, y, z);
+	nav = AddNavPoint(p_player->m_index, x, y, z);
 	if (nav != -1) {
 		g_navTable[nav].m_flags |= 1;
 		g_navTable[nav].m_owner = p_player->m_index | 0x200;
@@ -1381,7 +1381,7 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y,
 	dx = p_shape->m_centerX - p_x;
 	dy = p_shape->m_centerY - p_y;
 	dz = p_shape->m_centerZ - p_z;
-	FUN_10060197(dx, dy, dz, &heading, &length, &distance, &unused);
+	GetBearingAndRange(dx, dy, dz, &heading, &length, &distance, &unused);
 	heading -= p_player->m_heading;
 	if (heading > 0xb40000) {
 		heading -= 0x1680000;
@@ -1631,7 +1631,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		x = g_players[index]->m_position.m_x;
 		y = g_players[index]->m_position.m_y;
 		z = g_players[index]->m_position.m_z;
-		if (FUN_1004c11d(&x, &y, &z)) {
+		if (ProjectWorldPoint(&x, &y, &z)) {
 			range = 0x30000;
 			maxAngle = 15;
 			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;

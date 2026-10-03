@@ -18,13 +18,13 @@
 #include "polydraw.h"
 #include "ramp.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "shape.h"
 #include "shapelists.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "targeting.h"
 #include "transform.h"
 #include "types.h"
 
@@ -218,7 +218,7 @@ void UpdateEyepoint(void)
 		}
 	}
 
-	g_renderSettings.m_unk0x00 = 0;
+	g_renderSettings.m_blankScene = 0;
 	switch (mode) {
 	case 3:
 		FUN_10011819();
@@ -271,7 +271,7 @@ MechS32 FUN_100113af(Eyepoint* p_eyepoint)
 {
 	MechS32 height;
 
-	height = FUN_10034cbc(p_eyepoint->m_unk0x00, p_eyepoint->m_unk0x04, p_eyepoint->m_unk0x08);
+	height = FUN_10034cbc(p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
 	if (height > 0) {
 		height += 500;
 	}
@@ -337,12 +337,12 @@ MechS32 FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view)
 		return 0;
 	}
 
-	p_view[0] = p_eyepoint->m_unk0x00;
-	p_view[1] = p_eyepoint->m_unk0x04;
-	p_view[2] = p_eyepoint->m_unk0x08;
-	p_view[3] = p_eyepoint->m_unk0x0c;
-	p_view[4] = p_eyepoint->m_unk0x10;
-	p_view[5] = p_eyepoint->m_unk0x14;
+	p_view[0] = p_eyepoint->m_x;
+	p_view[1] = p_eyepoint->m_y;
+	p_view[2] = p_eyepoint->m_z;
+	p_view[3] = p_eyepoint->m_heading;
+	p_view[4] = p_eyepoint->m_pitch;
+	p_view[5] = p_eyepoint->m_roll;
 	p_view[6] = 1;
 	return 1;
 }
@@ -360,12 +360,12 @@ MechS32 FUN_1001156a(Eyepoint* p_eyepoint, MechS32* p_view)
 		return 0;
 	}
 
-	p_eyepoint->m_unk0x00 = p_view[0];
-	p_eyepoint->m_unk0x04 = p_view[1];
-	p_eyepoint->m_unk0x08 = p_view[2];
-	p_eyepoint->m_unk0x0c = p_view[3];
-	p_eyepoint->m_unk0x10 = p_view[4];
-	p_eyepoint->m_unk0x14 = p_view[5];
+	p_eyepoint->m_x = p_view[0];
+	p_eyepoint->m_y = p_view[1];
+	p_eyepoint->m_z = p_view[2];
+	p_eyepoint->m_heading = p_view[3];
+	p_eyepoint->m_pitch = p_view[4];
+	p_eyepoint->m_roll = p_view[5];
 	return 1;
 }
 
@@ -409,22 +409,22 @@ void FUN_100115f4(MechS32 p_next, MechS32 p_home)
 // eye object (at half the object's height outside the external views).
 // Stack-slot permutation of player, x, y and z.
 // FUNCTION: MW2 0x100116c3
-void FUN_100116c3(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void FUN_100116c3(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	Player* player;
 	MechS32 x;
 	MechS32 y;
 	MechS32 z;
 
-	*p_unk0x10 = *p_unk0x0c = *p_unk0x14 = *p_x = *p_y = *p_z = 0;
+	*p_pitch = *p_heading = *p_roll = *p_x = *p_y = *p_z = 0;
 	player = g_localPlayer;
 	if (!player) {
 		return;
 	}
 
-	*p_unk0x10 = player->m_pitch;
-	*p_unk0x0c = player->m_heading;
-	*p_unk0x14 = player->m_roll;
+	*p_pitch = player->m_pitch;
+	*p_heading = player->m_heading;
+	*p_roll = player->m_roll;
 	if (player->m_eyeObj) {
 		if (g_unk0x100a2434) {
 			*p_y += *g_unk0x100a2434;
@@ -433,14 +433,14 @@ void FUN_100116c3(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, Me
 		TransformPoint(FUN_10001e01(player->m_eyeObj), p_x, p_y, p_z);
 		GetObjWorldPos(player->m_eyeObj, &x, &y, &z);
 		if (g_unk0x100a2c04) {
-			*p_unk0x10 = x;
-			*p_unk0x0c = y;
-			*p_unk0x14 = z;
+			*p_pitch = x;
+			*p_heading = y;
+			*p_roll = z;
 		}
 		else {
-			*p_unk0x10 += player->m_torsoPitch;
-			*p_unk0x0c += player->m_torsoTwist;
-			*p_unk0x14 = z >> 1;
+			*p_pitch += player->m_torsoPitch;
+			*p_heading += player->m_torsoTwist;
+			*p_roll = z >> 1;
 		}
 	}
 	else {
@@ -528,14 +528,14 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 		g_unk0x10176f30.m_time = g_currentClock;
 		g_unk0x10176f60.m_time = g_currentClock;
 		g_unk0x10176f40.m_time = g_currentClock;
-		g_unk0x10177050.m_value = g_eyepoint->m_unk0x00 - x;
-		g_unk0x10176f90.m_value = g_eyepoint->m_unk0x04 - y;
-		g_unk0x10176f30.m_value = g_eyepoint->m_unk0x08 - z;
-		g_unk0x10176f60.m_value = g_eyepoint->m_unk0x0c;
-		g_unk0x10176f40.m_value = g_eyepoint->m_unk0x10;
-		g_eyepoint->m_unk0x14 = 0;
-		if (g_eyepoint->m_unk0x00 == x) {
-			g_eyepoint->m_unk0x00 += 10;
+		g_unk0x10177050.m_value = g_eyepoint->m_x - x;
+		g_unk0x10176f90.m_value = g_eyepoint->m_y - y;
+		g_unk0x10176f30.m_value = g_eyepoint->m_z - z;
+		g_unk0x10176f60.m_value = g_eyepoint->m_heading;
+		g_unk0x10176f40.m_value = g_eyepoint->m_pitch;
+		g_eyepoint->m_roll = 0;
+		if (g_eyepoint->m_x == x) {
+			g_eyepoint->m_x += 10;
 		}
 
 		g_zoomFov = 0x10000;
@@ -553,14 +553,14 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 	height = p_height + g_unk0x100a23f8;
 	g_unk0x100a23fc += p_turn;
 	g_unk0x100a23fc %= 0x1680000;
-	dy = y - g_eyepoint->m_unk0x04;
-	dz = z - g_eyepoint->m_unk0x08;
-	dx = x - g_eyepoint->m_unk0x00;
-	FUN_10060197(dx, dy, dz, &turn, &unused, &distance, &tilt);
+	dy = y - g_eyepoint->m_y;
+	dz = z - g_eyepoint->m_z;
+	dx = x - g_eyepoint->m_x;
+	GetBearingAndRange(dx, dy, dz, &turn, &unused, &distance, &tilt);
 	SetWrappedRampTarget(&g_unk0x10176f40, -tilt - (p_tilt >> 1));
-	g_eyepoint->m_unk0x10 = UpdateWrappedRamp(&g_unk0x10176f40);
+	g_eyepoint->m_pitch = UpdateWrappedRamp(&g_unk0x10176f40);
 	SetWrappedRampTarget(&g_unk0x10176f60, turn);
-	g_eyepoint->m_unk0x0c = UpdateWrappedRamp(&g_unk0x10176f60);
+	g_eyepoint->m_heading = UpdateWrappedRamp(&g_unk0x10176f60);
 	angle = heading - g_unk0x100a23fc;
 	angle %= 0x1680000;
 	if (angle < -0xb40000) {
@@ -576,9 +576,9 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 	offsetZ = FixedMul16(g_unk0x100a23ec, cosine) >> 13;
 	offsetY = height;
 	g_unk0x10177050.m_target = offsetX;
-	g_eyepoint->m_unk0x00 = x + UpdateRamp(&g_unk0x10177050);
+	g_eyepoint->m_x = x + UpdateRamp(&g_unk0x10177050);
 	g_unk0x10176f30.m_target = offsetZ;
-	g_eyepoint->m_unk0x08 = z + UpdateRamp(&g_unk0x10176f30);
+	g_eyepoint->m_z = z + UpdateRamp(&g_unk0x10176f30);
 	floor = FUN_100113af(g_eyepoint);
 	if (y + offsetY < floor) {
 		offsetY = floor - y;
@@ -593,7 +593,7 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 	}
 
 	g_unk0x10176f90.m_target = offsetY;
-	g_eyepoint->m_unk0x04 = y + UpdateRamp(&g_unk0x10176f90);
+	g_eyepoint->m_y = y + UpdateRamp(&g_unk0x10176f90);
 }
 
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
@@ -639,12 +639,12 @@ void FUN_10011cb0(void)
 
 	if (!UpdateCameraShake()) {
 		FUN_10011e45(
-			&g_eyepoint->m_unk0x10,
-			&g_eyepoint->m_unk0x0c,
-			&g_eyepoint->m_unk0x14,
-			&g_eyepoint->m_unk0x00,
-			&g_eyepoint->m_unk0x04,
-			&g_eyepoint->m_unk0x08
+			&g_eyepoint->m_pitch,
+			&g_eyepoint->m_heading,
+			&g_eyepoint->m_roll,
+			&g_eyepoint->m_x,
+			&g_eyepoint->m_y,
+			&g_eyepoint->m_z
 		);
 	}
 }
@@ -652,21 +652,21 @@ void FUN_10011cb0(void)
 // FUN_100116c3's view, turned from the cockpit by the pilot's pan and tilt.
 // Stack-slot permutation: pan and tilt.
 // FUNCTION: MW2 0x10011e45
-void FUN_10011e45(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void FUN_10011e45(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	MechS32 pan;
 	MechS32 tilt;
 
 	pan = 0;
 	tilt = 0;
-	FUN_100116c3(p_unk0x10, p_unk0x0c, p_unk0x14, p_x, p_y, p_z);
+	FUN_100116c3(p_pitch, p_heading, p_roll, p_x, p_y, p_z);
 	if (!g_unk0x100a2c04) {
 		g_unk0x10177030.m_target = g_sinkPilotPan;
 		pan = UpdateRamp(&g_unk0x10177030);
 		g_unk0x10176f80.m_target = g_sinkPilotTilt;
 		tilt = UpdateRamp(&g_unk0x10176f80);
-		*p_unk0x0c += pan;
-		*p_unk0x10 += tilt;
+		*p_heading += pan;
+		*p_pitch += tilt;
 	}
 
 	g_unk0x100a241c = 1;
@@ -687,15 +687,15 @@ void FUN_10011edc(void)
 	FUN_100116c3(&unk0x10, &unk0x0c, &unk0x14, &x, &y, &z);
 	if (g_unk0x100a2408 != 4) {
 		g_unk0x100a243c = 0;
-		g_eyepoint->m_unk0x10 = 0x5a0000;
+		g_eyepoint->m_pitch = 0x5a0000;
 		g_unk0x100a2444 = g_currentClock;
 		ApplyCameraFov(0);
 	}
 
-	IntegrateMidpoint(&g_eyepoint->m_unk0x04, &g_unk0x100a243c, g_unk0x100a2440, g_deltaTime);
-	g_eyepoint->m_unk0x00 = x;
-	g_eyepoint->m_unk0x08 = z;
-	g_eyepoint->m_unk0x0c += (g_currentClock - g_unk0x100a2444) * 300;
+	IntegrateMidpoint(&g_eyepoint->m_y, &g_unk0x100a243c, g_unk0x100a2440, g_deltaTime);
+	g_eyepoint->m_x = x;
+	g_eyepoint->m_z = z;
+	g_eyepoint->m_heading += (g_currentClock - g_unk0x100a2444) * 300;
 }
 
 // Moves the free camera (mode 2): p_climb raises it, p_speed drives it forward (eased),
@@ -711,46 +711,46 @@ void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_
 	MechS32 speed;
 	MechS32 cosPitch;
 
-	sinHeading = FixedSin(g_eyepoint->m_unk0x0c);
-	cosHeading = FixedCos(g_eyepoint->m_unk0x0c);
-	sinPitch = FixedSin(g_eyepoint->m_unk0x10);
-	cosPitch = FixedCos(g_eyepoint->m_unk0x10);
+	sinHeading = FixedSin(g_eyepoint->m_heading);
+	cosHeading = FixedCos(g_eyepoint->m_heading);
+	sinPitch = FixedSin(g_eyepoint->m_pitch);
+	cosPitch = FixedCos(g_eyepoint->m_pitch);
 	if (g_unk0x100a2408 != 2) {
 		if (g_unk0x100a2c04) {
-			g_eyepoint->m_unk0x00 -= FixedMul16(g_unk0x100a23ec, sinHeading) >> 13;
-			g_eyepoint->m_unk0x08 -= FixedMul16(g_unk0x100a23ec, cosHeading) >> 13;
+			g_eyepoint->m_x -= FixedMul16(g_unk0x100a23ec, sinHeading) >> 13;
+			g_eyepoint->m_z -= FixedMul16(g_unk0x100a23ec, cosHeading) >> 13;
 		}
 
-		g_eyepoint->m_unk0x14 = 0;
+		g_eyepoint->m_roll = 0;
 		g_unk0x10177040.m_value = 0;
 		g_unk0x10177040.m_time = g_currentClock;
 		g_zoomFov = g_normalFov;
 		ApplyCameraFov(0);
 	}
 
-	g_eyepoint->m_unk0x00 += FixedMul16(p_strafe, cosHeading) >> 11;
-	g_eyepoint->m_unk0x08 -= FixedMul16(p_strafe, sinHeading) >> 11;
-	g_eyepoint->m_unk0x10 -= p_pitch;
-	if (g_eyepoint->m_unk0x10 > 0x5a0000) {
-		g_eyepoint->m_unk0x10 = 0x5a0000;
+	g_eyepoint->m_x += FixedMul16(p_strafe, cosHeading) >> 11;
+	g_eyepoint->m_z -= FixedMul16(p_strafe, sinHeading) >> 11;
+	g_eyepoint->m_pitch -= p_pitch;
+	if (g_eyepoint->m_pitch > 0x5a0000) {
+		g_eyepoint->m_pitch = 0x5a0000;
 	}
-	else if (g_eyepoint->m_unk0x10 < -0x5a0000) {
-		g_eyepoint->m_unk0x10 = -0x5a0000;
+	else if (g_eyepoint->m_pitch < -0x5a0000) {
+		g_eyepoint->m_pitch = -0x5a0000;
 	}
 
-	g_eyepoint->m_unk0x04 += p_climb * 4;
+	g_eyepoint->m_y += p_climb * 4;
 	g_unk0x10177040.m_target = p_speed * 16;
 	speed = UpdateRamp(&g_unk0x10177040);
 	if (speed < 0x20 && speed > -0x20) {
 		speed = 0;
 	}
 
-	g_eyepoint->m_unk0x0c += p_turn;
-	g_eyepoint->m_unk0x00 -= FixedMul16(FixedMul16(speed, sinHeading) >> 13, cosPitch) >> 13;
-	g_eyepoint->m_unk0x08 -= FixedMul16(FixedMul16(speed, cosHeading) >> 13, cosPitch) >> 13;
+	g_eyepoint->m_heading += p_turn;
+	g_eyepoint->m_x -= FixedMul16(FixedMul16(speed, sinHeading) >> 13, cosPitch) >> 13;
+	g_eyepoint->m_z -= FixedMul16(FixedMul16(speed, cosHeading) >> 13, cosPitch) >> 13;
 	floor = FUN_100113af(g_eyepoint);
-	if (g_eyepoint->m_unk0x04 < floor) {
-		g_eyepoint->m_unk0x04 = max(g_eyepoint->m_unk0x04, floor);
+	if (g_eyepoint->m_y < floor) {
+		g_eyepoint->m_y = max(g_eyepoint->m_y, floor);
 	}
 }
 
@@ -777,7 +777,7 @@ void FUN_1001220a(void)
 					pitch = -0x2d0000;
 				}
 				else {
-					heading = FixedAtan2(g_eyepoint->m_unk0x00 - x, g_eyepoint->m_unk0x08 - z);
+					heading = FixedAtan2(g_eyepoint->m_x - x, g_eyepoint->m_z - z);
 					pitch = 0;
 				}
 

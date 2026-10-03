@@ -236,7 +236,7 @@ QuadtreeNode* FUN_1001e429(
 		}
 	}
 	else {
-		FUN_100591d1("Not enough memory for quadtrees!!!!");
+		MonoPrint("Not enough memory for quadtrees!!!!");
 	}
 
 	return node;

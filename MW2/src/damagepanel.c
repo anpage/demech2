@@ -16,10 +16,10 @@
 #include "players.h"
 #include "point.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 
@@ -62,7 +62,7 @@ PANE g_unk0x100a5cf8[16] = {0};
 // GLOBAL: MW2 0x100a5e38
 Point g_unk0x100a5e38[16] = {0};
 
-// Frames the outline's parts (FUN_100570e9) when set.
+// Frames the outline's parts (OutlinePane) when set.
 // GLOBAL: MW2 0x100a5eb8
 MechS32 g_unk0x100a5eb8 = 0;
 
@@ -149,8 +149,8 @@ void FUN_10040020(void)
 			max.m_y = (MechDouble) g_unk0x100a5cf8[i].m_y1 / height1 * 65536.0 + 0.5;
 			max.m_x += min.m_x - 1;
 			max.m_y += min.m_y - 1;
-			FUN_10056bc1(&g_unk0x100a5ce0, &min, &min);
-			FUN_10056bc1(&g_unk0x100a5ce0, &max, &max);
+			ScalePointToFrame(&g_unk0x100a5ce0, &min, &min);
+			ScalePointToFrame(&g_unk0x100a5ce0, &max, &max);
 			g_unk0x100a5cf8[i].m_x0 = g_unk0x100a5ce0.m_x0 + min.m_x;
 			g_unk0x100a5cf8[i].m_y0 = min.m_y + g_unk0x100a5ce0.m_y0;
 			g_unk0x100a5cf8[i].m_x1 = g_unk0x100a5ce0.m_x0 + max.m_x;
@@ -168,21 +168,21 @@ void FUN_10040020(void)
 	g_unk0x100be418[5].m_x = 0x9192;
 	g_unk0x100be418[6].m_x = 0xe1e2;
 	g_unk0x100be418[7].m_x = 0xc8c9;
-	FUN_10056bc1(panel->m_target, &g_unk0x100a5cb8, &g_unk0x100a5cb8);
-	FUN_10056bc1(panel->m_target, &g_unk0x100a5cc0, &g_unk0x100a5cc0);
-	FUN_10056bc1(panel->m_target, &g_unk0x100a5cc8, &g_unk0x100a5cc8);
-	FUN_10056bc1(panel->m_target, &g_unk0x100a5cd0, &g_unk0x100a5cd0);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a5cb8, &g_unk0x100a5cb8);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a5cc0, &g_unk0x100a5cc0);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a5cc8, &g_unk0x100a5cc8);
+	ScalePointToFrame(panel->m_target, &g_unk0x100a5cd0, &g_unk0x100a5cd0);
 	color = 0x5555;
 	i = 8;
 	while (i--) {
 		g_unk0x100be418[i].m_y = color;
-		FUN_10056bc1(panel->m_target, &g_unk0x100be418[i], &g_unk0x100be418[i]);
+		ScalePointToFrame(panel->m_target, &g_unk0x100be418[i], &g_unk0x100be418[i]);
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
 	g_unk0x100be598.m_x = 0x1414;
 	g_unk0x100be598.m_y = 0x8000;
-	FUN_10056bc1(panel->m_target, &g_unk0x100be598, &g_unk0x100be598);
+	ScalePointToFrame(panel->m_target, &g_unk0x100be598, &g_unk0x100be598);
 	for (i = 0; i < 8; i++) {
 		section = &mech->m_sections[i];
 		g_unk0x100be458[i].m_x = section->m_armor[0];
@@ -229,7 +229,7 @@ void FUN_10040511(Mech* p_mech, PANE* p_target)
 		}
 
 		if (g_unk0x100a5eb8) {
-			FUN_100570e9(&g_unk0x100a5cf8[i], 0xe);
+			OutlinePane(&g_unk0x100a5cf8[i], 0xe);
 		}
 
 		color = 6;

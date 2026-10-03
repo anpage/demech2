@@ -12,9 +12,9 @@
 #include "recordstacks.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "shapelists.h"
 #include "shiftdiv.h"
+#include "targeting.h"
 #include "types.h"
 #include "view.h"
 
@@ -24,7 +24,7 @@
 MechS32 g_unk0x10109ab0;
 
 // GLOBAL: MW2 0x10109ac0
-Eyepoint g_unk0x10109ac0;
+Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
 MechS32 g_unk0x10109ba0;
@@ -61,25 +61,25 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_unk0x10109bb0 = 0;
 	g_unk0x10109bb4 = p_far;
 	g_unk0x10109ab0 = g_palettePending;
-	g_unk0x10109ac0 = *g_eyepoint;
-	g_eyepoint->m_unk0x0c = p_pose[3];
-	g_eyepoint->m_unk0x10 = p_pose[4];
-	g_eyepoint->m_unk0x14 = p_pose[5];
-	g_eyepoint->m_unk0x00 = p_pose[0];
-	g_eyepoint->m_unk0x04 = p_pose[1];
-	g_eyepoint->m_unk0x08 = p_pose[2];
+	g_savedEyepoint = *g_eyepoint;
+	g_eyepoint->m_heading = p_pose[3];
+	g_eyepoint->m_pitch = p_pose[4];
+	g_eyepoint->m_roll = p_pose[5];
+	g_eyepoint->m_x = p_pose[0];
+	g_eyepoint->m_y = p_pose[1];
+	g_eyepoint->m_z = p_pose[2];
 	SelectPane(p_slot);
-	g_eyepoint->m_unk0x40 = g_unk0x10109bb4;
+	g_eyepoint->m_farPlane = g_unk0x10109bb4;
 	g_savedRenderSettings = g_renderSettings;
 	g_renderSettings.m_shapeFilter = FUN_10042206;
 	g_renderSettings.m_projectVertex = FUN_100423b3;
-	FUN_1004bc2e(g_eyepoint);
+	UpdateProjection(g_eyepoint);
 	g_eyepoint->m_projectScaleX16 = 0x2000;
 	g_eyepoint->m_projectShiftX = 3;
 	g_eyepoint->m_projectScaleY16 = g_eyepoint->m_pixelAspect >> 3;
 	g_eyepoint->m_projectShiftY = 3;
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
 	g_unk0x100a2460 = 0;
 }
 
@@ -100,12 +100,12 @@ void FUN_1004215f(MechU32 p_flags)
 void FUN_10042195(void)
 {
 	g_renderSettings = g_savedRenderSettings;
-	*g_eyepoint = g_unk0x10109ac0;
+	*g_eyepoint = g_savedEyepoint;
 	g_palettePending = g_unk0x10109ab0;
 	FUN_10012e00();
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
 	g_unk0x100a2460 = 0;
 }
 

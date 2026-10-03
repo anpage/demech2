@@ -11,7 +11,7 @@
 #include "menucontrols.h"
 #include "menupage.h"
 #include "perf.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <stddef.h>

@@ -39,7 +39,6 @@
 #include "playertype.h"
 #include "polydraw.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "resourcename.h"
 #include "resourceref.h"
@@ -48,6 +47,7 @@
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "targetpanel.h"
 #include "team.h"
 #include "types.h"
@@ -347,9 +347,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_unk0x100ba624 = planet->m_unk0x38 == 0;
 			g_unk0x100a555c = planet->m_unk0x3c;
 			g_unk0x100ad454 = planet->m_unk0x40 == 0;
-			g_renderSettings.m_unk0x1c = planet->m_unk0x44 == 0;
-			g_renderSettings.m_unk0x20 = planet->m_unk0x48 == 0;
-			g_renderSettings.m_unk0x24 = planet->m_unk0x4c == 0;
+			g_renderSettings.m_drawSky = planet->m_unk0x44 == 0;
+			g_renderSettings.m_drawGround = planet->m_unk0x48 == 0;
+			g_renderSettings.m_horizonBand = planet->m_unk0x4c == 0;
 			if (planet->m_unk0x28 > 0) {
 				g_unk0x100a2bdc = planet->m_unk0x28;
 			}
@@ -376,8 +376,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdView]) {
 			BwdPairRecord* view = (BwdPairRecord*) node;
 
-			g_unk0x100a6be0.m_unk0x3c = view->m_a;
-			g_unk0x100a6be0.m_unk0x40 = view->m_b;
+			g_mainEyepoint.m_nearPlane = view->m_a;
+			g_mainEyepoint.m_farPlane = view->m_b;
 		}
 		else if (type == g_bwdTypeCodes[c_bwdLuma]) {
 			MechS32 id;
@@ -456,13 +456,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdLight]) {
 			BwdLightRecord* light = (BwdLightRecord*) node;
 
-			g_unk0x100a6be0.m_unk0x1c = light->m_unk0x10;
-			g_unk0x100a6be0.m_unk0x20 = light->m_unk0x14;
-			g_unk0x100a6be0.m_unk0x24 = light->m_unk0x18;
-			g_unk0x100a6be0.m_unk0x28 = light->m_unk0x1e;
-			g_eyepoint->m_unk0x2a = light->m_unk0x1c;
-			g_renderSettings.m_unk0x44 = light->m_unk0x20;
-			if (g_renderSettings.m_unk0x44 > 0) {
+			g_mainEyepoint.m_lightX = light->m_unk0x10;
+			g_mainEyepoint.m_lightY = light->m_unk0x14;
+			g_mainEyepoint.m_lightZ = light->m_unk0x18;
+			g_mainEyepoint.m_directionalLight = light->m_unk0x1e;
+			g_eyepoint->m_ambientLight = light->m_unk0x1c;
+			g_renderSettings.m_fadeDistance = light->m_unk0x20;
+			if (g_renderSettings.m_fadeDistance > 0) {
 				g_renderSettings.m_unk0x3c = 1;
 			}
 		}
@@ -507,13 +507,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdStart]) {
 			BwdStartRecord* start = (BwdStartRecord*) node;
 
-			g_unk0x100a6be0.m_unk0x00 = start->m_values[0];
-			g_unk0x100a6be0.m_unk0x04 = start->m_values[1];
-			g_unk0x100a6be0.m_unk0x08 = start->m_values[2];
-			g_unk0x100a6be0.m_unk0x0c = start->m_values[3];
-			g_unk0x100a6be0.m_unk0x10 = start->m_values[4];
-			g_unk0x100a6be0.m_unk0x14 = start->m_values[5];
-			g_unk0x100a6be0.m_fovX = start->m_values[6];
+			g_mainEyepoint.m_x = start->m_values[0];
+			g_mainEyepoint.m_y = start->m_values[1];
+			g_mainEyepoint.m_z = start->m_values[2];
+			g_mainEyepoint.m_heading = start->m_values[3];
+			g_mainEyepoint.m_pitch = start->m_values[4];
+			g_mainEyepoint.m_roll = start->m_values[5];
+			g_mainEyepoint.m_fovX = start->m_values[6];
 		}
 		else if (type == g_bwdTypeCodes[c_bwdScenarioTable]) {
 			LoadScenarioTable((ScenarioTable*) node);

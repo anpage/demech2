@@ -84,12 +84,12 @@ MechS32 UpdateCameraShake(void)
 	}
 
 	FUN_10011e45(&base10, &base0c, &base14, &x, &y, &z);
-	g_eyepoint->m_unk0x00 = x + UpdateRamp(&g_cameraShakeX);
-	g_eyepoint->m_unk0x04 = y + UpdateRamp(&g_cameraShakeY);
-	g_eyepoint->m_unk0x08 = z + UpdateRamp(&g_cameraShakeZ);
-	g_eyepoint->m_unk0x10 = base10 + UpdateRamp(&g_cameraShake10);
-	g_eyepoint->m_unk0x0c = base0c + UpdateRamp(&g_cameraShake0c);
-	g_eyepoint->m_unk0x14 = base14 + UpdateRamp(&g_cameraShake14);
+	g_eyepoint->m_x = x + UpdateRamp(&g_cameraShakeX);
+	g_eyepoint->m_y = y + UpdateRamp(&g_cameraShakeY);
+	g_eyepoint->m_z = z + UpdateRamp(&g_cameraShakeZ);
+	g_eyepoint->m_pitch = base10 + UpdateRamp(&g_cameraShake10);
+	g_eyepoint->m_heading = base0c + UpdateRamp(&g_cameraShake0c);
+	g_eyepoint->m_roll = base14 + UpdateRamp(&g_cameraShake14);
 	return TRUE;
 }
 
@@ -126,12 +126,12 @@ void StartCameraShakeKey(MechS32 p_key)
 
 	if (p_key == 0) {
 		FUN_10011e45(&off10, &off0c, &off14, &x, &y, &z);
-		x = g_eyepoint->m_unk0x00 - x;
-		y = g_eyepoint->m_unk0x04 - y;
-		z = g_eyepoint->m_unk0x08 - z;
-		off10 = g_eyepoint->m_unk0x10 - off10;
-		off0c = g_eyepoint->m_unk0x0c - off0c;
-		off14 = g_eyepoint->m_unk0x14 - off14;
+		x = g_eyepoint->m_x - x;
+		y = g_eyepoint->m_y - y;
+		z = g_eyepoint->m_z - z;
+		off10 = g_eyepoint->m_pitch - off10;
+		off0c = g_eyepoint->m_heading - off0c;
+		off14 = g_eyepoint->m_roll - off14;
 	}
 	else {
 		x = g_cameraShakeX.m_value;

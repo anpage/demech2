@@ -11,36 +11,36 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a949c;
-	extern MechS32 g_unk0x100a94b4;
-	extern MechS32 g_unk0x100a94b8;
-	extern MechS32 g_unk0x100a94d8;
-	extern MechS32 g_unk0x100a94dc;
-	extern MechS32 g_unk0x100a94e4;
-	extern MechS32 g_unk0x100a94e8;
-	extern MechS32 g_unk0x100a94f0;
-	extern MechS32 g_unk0x100a94f4;
-	extern MechS32 g_unk0x100e9630;
+	extern MechS32 g_showPalette;
+	extern MechS32 g_showFrameRate;
+	extern MechS32 g_showFrameRateMain;
+	extern MechS32 g_showSceneInfo;
+	extern MechS32 g_showSceneInfoMain;
+	extern MechS32 g_showEyePosition;
+	extern MechS32 g_showEyePositionMain;
+	extern MechS32 g_showMemInfo;
+	extern MechS32 g_showMemInfoMain;
+	extern MechS32 g_monoEnabled;
 
-	void FUN_10058750(void);
-	void FUN_100588a7(void);
-	void FUN_10058958(void);
-	void FUN_100589ae(void);
-	void FUN_10058ae5(void);
-	void FUN_10058b34(void);
-	void FUN_10058cda(void);
-	void FUN_10058d36(Shape* p_shape);
-	void FUN_10058d90(Eyepoint* p_eyepoint);
-	void FUN_10058ee0(void);
-	void FUN_10058f3c(void);
-	void FUN_10058f78(void);
-	void FUN_10058fb2(void);
-	void FUN_10059036(void);
-	void FUN_10059085(void);
-	void FUN_100590ea(MechChar* p_text);
-	void FUN_1005917d(void);
-	void FUN_100591d1(MechChar* p_text);
-	void FUN_100592b0(void);
+	void DrawDebugOverlays(void);
+	void DrawPaletteGrid(void);
+	void InitializeMono(void);
+	void ShowFrameRate(void);
+	void HideFrameRate(void);
+	void ShowSceneInfo(void);
+	void HideSceneInfo(void);
+	void CountSceneShape(Shape* p_shape);
+	void ShowEyePosition(Eyepoint* p_eyepoint);
+	void HideEyePosition(void);
+	void ShowCacheInfo(void);
+	void HideCacheInfo(void);
+	void ShowMemInfo(void);
+	void HideMemInfo(void);
+	void StepSpinner(void);
+	void MonoPrintLine(MechChar* p_text);
+	void MonoClear(void);
+	void MonoPrint(MechChar* p_text);
+	void ScaleOverlayPositions(void);
 	void SimEntranceDbug(MechChar* p_mission, MechS32 p_memory);
 
 #ifdef __cplusplus

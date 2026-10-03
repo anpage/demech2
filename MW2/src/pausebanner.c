@@ -17,11 +17,11 @@
 #include "polydraw.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -54,7 +54,7 @@ void DrawPausedBanner(void)
 		if (g_pausedBannerUnscaled) {
 			g_pausedBannerRect.m_window = &g_mainPixelBuffer;
 			ScaleRectToScreen(&g_mainPixelBuffer, &g_pausedBannerRect, &g_pausedBannerRect);
-			FUN_10056fcf(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
+			FitRectToShape(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
 			g_pausedBannerUnscaled = 0;
 		}
 
@@ -226,69 +226,69 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x7d:
-		FUN_10036853(0x100);
+		ToggleTextureMaps(0x100);
 		break;
 	case 0x7e:
-		FUN_10036853(0x200);
+		ToggleTextureMaps(0x200);
 		break;
 	case 0x7f:
-		FUN_10036853(0x400);
+		ToggleTextureMaps(0x400);
 		break;
 	case 0x80:
-		FUN_10036853(0x800);
+		ToggleTextureMaps(0x800);
 		break;
 	case 0x82:
-		if (!g_unk0x100a94f0) {
-			g_unk0x100a94f0 = 1;
+		if (!g_showMemInfo) {
+			g_showMemInfo = 1;
 		}
 		else {
-			g_unk0x100a94f0 = 0;
+			g_showMemInfo = 0;
 		}
 
-		g_unk0x100a94f4 = g_unk0x100a94f0;
+		g_showMemInfoMain = g_showMemInfo;
 		break;
 	case 0x84:
-		switch (g_renderSettings.m_unk0x38) {
+		switch (g_renderSettings.m_wireframeColors) {
 		case 1:
-			g_renderSettings.m_unk0x38 = 2;
+			g_renderSettings.m_wireframeColors = 2;
 			break;
 		case 0:
-			g_renderSettings.m_unk0x38 = 1;
+			g_renderSettings.m_wireframeColors = 1;
 			break;
 		default:
-			g_renderSettings.m_unk0x38 = 0;
+			g_renderSettings.m_wireframeColors = 0;
 			break;
 		}
 		break;
 	case 0x85:
-		if (!g_unk0x100a94b4) {
-			g_unk0x100a94b4 = 1;
+		if (!g_showFrameRate) {
+			g_showFrameRate = 1;
 		}
 		else {
-			g_unk0x100a94b4 = 0;
+			g_showFrameRate = 0;
 		}
 
-		g_unk0x100a94b8 = g_unk0x100a94b4;
+		g_showFrameRateMain = g_showFrameRate;
 		break;
 	case 0x87:
-		if (!g_unk0x100a94d8) {
-			g_unk0x100a94d8 = 1;
+		if (!g_showSceneInfo) {
+			g_showSceneInfo = 1;
 		}
 		else {
-			g_unk0x100a94d8 = 0;
+			g_showSceneInfo = 0;
 		}
 
-		g_unk0x100a94dc = g_unk0x100a94d8;
+		g_showSceneInfoMain = g_showSceneInfo;
 		break;
 	case 0x88:
-		if (!g_unk0x100a94e4) {
-			g_unk0x100a94e4 = 1;
+		if (!g_showEyePosition) {
+			g_showEyePosition = 1;
 		}
 		else {
-			g_unk0x100a94e4 = 0;
+			g_showEyePosition = 0;
 		}
 
-		g_unk0x100a94e8 = g_unk0x100a94e4;
+		g_showEyePositionMain = g_showEyePosition;
 		break;
 	case 0x8b:
 		if (!g_difficulty->m_splashDamage) {
@@ -327,13 +327,13 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x8e:
-		if (g_unk0x100a712c == 2) {
-			g_unk0x100a712c = 1;
+		if (g_lodQuality == 2) {
+			g_lodQuality = 1;
 			sprintf(text, "LOD Quality HIGH");
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		else {
-			g_unk0x100a712c = 2;
+			g_lodQuality = 2;
 			sprintf(text, "LOD Quality LOW");
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
@@ -344,11 +344,11 @@ void FUN_10009f8d(MechU16 p_key)
 	case 0x90:
 		break;
 	case 0x91:
-		if (!g_unk0x100a94b4) {
-			g_unk0x100a94b4 = 1;
+		if (!g_showFrameRate) {
+			g_showFrameRate = 1;
 		}
 		else {
-			g_unk0x100a94b4 = 0;
+			g_showFrameRate = 0;
 		}
 		break;
 	case 0x86:
@@ -360,40 +360,40 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x93:
-		if (!g_unk0x100a94e4) {
-			g_unk0x100a94e4 = 1;
+		if (!g_showEyePosition) {
+			g_showEyePosition = 1;
 		}
 		else {
-			g_unk0x100a94e4 = 0;
+			g_showEyePosition = 0;
 		}
 		break;
 	case 0x94:
-		if (!g_unk0x100a94d8) {
-			g_unk0x100a94d8 = 1;
+		if (!g_showSceneInfo) {
+			g_showSceneInfo = 1;
 		}
 		else {
-			g_unk0x100a94d8 = 0;
+			g_showSceneInfo = 0;
 		}
 		break;
 	case 0x95:
-		switch (g_renderSettings.m_unk0x34) {
+		switch (g_renderSettings.m_wireframe) {
 		case 0:
-			g_renderSettings.m_unk0x34 = 2;
+			g_renderSettings.m_wireframe = 2;
 			break;
 		case 1:
-			g_renderSettings.m_unk0x34 = 0;
+			g_renderSettings.m_wireframe = 0;
 			break;
 		default:
-			g_renderSettings.m_unk0x34 = 1;
+			g_renderSettings.m_wireframe = 1;
 			break;
 		}
 		break;
 	case 0x96:
-		if (!g_unk0x100a949c) {
-			g_unk0x100a949c = 1;
+		if (!g_showPalette) {
+			g_showPalette = 1;
 		}
 		else {
-			g_unk0x100a949c = 0;
+			g_showPalette = 0;
 		}
 		break;
 	default:

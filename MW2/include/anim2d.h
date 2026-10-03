@@ -2,7 +2,7 @@
 #define ANIM2D_H
 
 #include "decomp.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // SIZE 0x08

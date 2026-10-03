@@ -33,13 +33,13 @@
 #include "recttransition.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "sagelark.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 #include "vfx3d.h"
@@ -85,14 +85,14 @@ MechS32 g_unk0x100a5a38 = 0x1900;
 // GLOBAL: MW2 0x100a5a40
 CockpitGaugeFn g_cockpitGauges[10] = {
 	NULL,
-	(CockpitGaugeFn) FUN_100570e9,
-	(CockpitGaugeFn) FUN_10057e56,
+	(CockpitGaugeFn) OutlinePane,
+	(CockpitGaugeFn) DrawGaugeEllipse,
 	NULL,
-	(CockpitGaugeFn) FUN_10057fbe,
-	(CockpitGaugeFn) FUN_10057a03,
-	(CockpitGaugeFn) FUN_1005806a,
-	(CockpitGaugeFn) FUN_10057ac4,
-	(CockpitGaugeFn) FUN_1005816f,
+	(CockpitGaugeFn) IsInsideGaugeEllipse,
+	(CockpitGaugeFn) GetRectNeedleToward,
+	(CockpitGaugeFn) GetEllipseNeedleToward,
+	(CockpitGaugeFn) GetRectNeedleAt,
+	(CockpitGaugeFn) GetEllipseNeedleAt,
 	NULL
 };
 
@@ -190,29 +190,29 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	}
 
 	g_panes[p_layout->m_paneSlot] = *viewport;
-	FUN_10056bc1(viewport, &p_layout->m_unk0x58, &p_layout->m_unk0x58);
-	FUN_10056bc1(viewport, &p_layout->m_unk0x60, &p_layout->m_unk0x60);
-	FUN_10056bc1(viewport, &p_layout->m_unk0x68, &p_layout->m_unk0x68);
+	ScalePointToFrame(viewport, &p_layout->m_unk0x58, &p_layout->m_unk0x58);
+	ScalePointToFrame(viewport, &p_layout->m_unk0x60, &p_layout->m_unk0x60);
+	ScalePointToFrame(viewport, &p_layout->m_unk0x68, &p_layout->m_unk0x68);
 	transition = p_layout->m_transition;
 	if (transition) {
 		rect = transition->m_def->m_first;
 		rect->m_window = &g_mainPixelBuffer;
 		if (p_cockpit == 4) {
-			FUN_10056c25(rect, g_eyepoint->m_pixelAspect);
+			ScaleRectToLowRes(rect, g_eyepoint->m_pixelAspect);
 			CenterRectOnScreen(&g_mainPixelBuffer, rect, rect);
 		}
 		else {
-			FUN_1005699f(viewport, rect, rect);
+			ScaleRectToFrame(viewport, rect, rect);
 		}
 
 		rect = transition->m_def->m_second;
 		rect->m_window = &g_mainPixelBuffer;
 		if (p_cockpit == 4) {
-			FUN_10056c25(rect, g_eyepoint->m_pixelAspect);
+			ScaleRectToLowRes(rect, g_eyepoint->m_pixelAspect);
 			CenterRectOnScreen(&g_mainPixelBuffer, rect, rect);
 		}
 		else {
-			FUN_1005699f(viewport, rect, rect);
+			ScaleRectToFrame(viewport, rect, rect);
 		}
 
 		rect = transition->m_def->m_out;
@@ -238,13 +238,13 @@ void FUN_1003dce8(void)
 	MechS32 i;
 
 	for (i = 0; i < 6; i++) {
-		LoadCockpitLayout(i, g_unk0x100ab0e8[i]);
+		LoadCockpitLayout(i, g_cockpitLayouts[i]);
 	}
 
 	g_cockpitLayoutIndex = 0;
 	g_unk0x10109c6c = 1;
 	g_unk0x10109c5c = 0;
-	FUN_10056bc1(&g_currentPane, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
+	ScalePointToFrame(&g_currentPane, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
 	g_unk0x100a5a30 -= 1000;
 	g_unk0x100a5a38 = g_unk0x100a5a34 - g_unk0x100a5a30;
 }
@@ -317,7 +317,7 @@ MechS32 FUN_1003ddd7(void)
 			g_unk0x10109c6c = 4;
 			g_unk0x100a5a1c = g_renderSettings.m_frameDrawCallback;
 			g_renderSettings.m_frameDrawCallback = FUN_1003e03c;
-			layout = g_unk0x100ab0e8[4];
+			layout = g_cockpitLayouts[4];
 			sound = layout->m_unk0x0c[0];
 			if (sound != -1) {
 				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
@@ -328,7 +328,7 @@ MechS32 FUN_1003ddd7(void)
 		case 5:
 			g_renderSettings.m_frameDrawCallback = g_unk0x100a5a1c;
 			g_unk0x10109c6c = g_unk0x10109c5c;
-			layout = g_unk0x100ab0e8[4];
+			layout = g_cockpitLayouts[4];
 			sound = layout->m_unk0x0c[1];
 			if (sound != -1) {
 				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
@@ -387,7 +387,7 @@ void FUN_1003e06c(void)
 		return;
 	}
 
-	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 	if (!layout) {
 		return;
 	}
@@ -426,8 +426,8 @@ void FUN_1003e06c(void)
 		pose[2] = z;
 	}
 	else {
-		pose[0] = g_eyepoint->m_unk0x00;
-		pose[2] = g_eyepoint->m_unk0x08;
+		pose[0] = g_eyepoint->m_x;
+		pose[2] = g_eyepoint->m_z;
 	}
 
 	range = layout->m_unk0x18;
@@ -850,7 +850,7 @@ void FUN_1003ef07(MechS32 p_zoom)
 {
 	CockpitLayout* layout;
 
-	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 	if (!layout) {
 		return;
 	}
@@ -934,7 +934,7 @@ MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 	MechS32* colors;
 
 	result = 0;
-	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 	if (!layout) {
 		return result;
 	}
@@ -1016,7 +1016,7 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 	CockpitLayout* layout;
 	MechU32 color;
 
-	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 	if (!layout) {
 		return;
 	}
@@ -1032,7 +1032,7 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			point += 6;
 		}
 
-		if (g_renderSettings.m_unk0x04) {
+		if (g_renderSettings.m_gouraud) {
 			VFX_dithered_Gouraud_polygon(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {
@@ -1133,7 +1133,7 @@ void FUN_1003f66d(void)
 			g_unk0x10109c68 = 1;
 		}
 
-		layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+		layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 		if (layout) {
 			transition = layout->m_transition;
 			if (transition) {
@@ -1162,7 +1162,7 @@ void FUN_1003f74e(void)
 	RectTransition* transition;
 	CockpitLayout* layout;
 
-	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 	if (!layout || !(transition = layout->m_transition)) {
 		return;
 	}
@@ -1209,7 +1209,7 @@ void FUN_1003f8d1(void)
 	CockpitLayout* layout;
 	MechS32 anim;
 
-	layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 	if (!layout) {
 		return;
 	}
@@ -1272,7 +1272,7 @@ void FUN_1003fa05(void)
 			g_unk0x10109c68 = 3;
 		}
 
-		layout = g_unk0x100ab0e8[g_cockpitLayoutIndex];
+		layout = g_cockpitLayouts[g_cockpitLayoutIndex];
 		if (layout) {
 			transition = layout->m_transition;
 			if (transition) {

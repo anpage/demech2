@@ -198,7 +198,7 @@ void FUN_1003ff75(MechChar* p_text)
 		fprintf(file, "%s", p_text);
 	}
 	fclose(file);
-	FUN_100591d1(p_text);
+	MonoPrint(p_text);
 }
 
 // Logs a keyword's name with FUN_1003ff75.

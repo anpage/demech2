@@ -6,7 +6,7 @@
 #include "menupage.h"
 #include "navpoint.h"
 #include "players.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 

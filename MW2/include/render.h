@@ -2,7 +2,7 @@
 #define RENDER_H
 
 #include "decomp.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 #include "window.h"
 

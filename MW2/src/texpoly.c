@@ -36,7 +36,7 @@ void FUN_1006dd50(
 		mode |= 0x80;
 	}
 
-	if (g_renderSettings.m_unk0x4c) {
+	if (g_renderSettings.m_affineTextures) {
 		mode |= 0x400;
 	}
 	else {

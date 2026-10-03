@@ -5,8 +5,8 @@
 #include "gamething.h"
 #include "object.h"
 #include "players.h"
-#include "rendertarget.h"
 #include "speech.h"
+#include "targeting.h"
 #include "transform.h"
 #include "types.h"
 

@@ -11,8 +11,8 @@
 #include "point.h"
 #include "polydraw.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
+#include "targeting.h"
 #include "timedoverlays.h"
 #include "types.h"
 #include "view.h"
@@ -68,32 +68,32 @@ void SetRes(void)
 	Point point;
 
 	for (i = 0; i < 8; i++) {
-		FUN_10056ce9(&g_panes[i], &g_panes[i]);
+		ScaleRectFromLowRes(&g_panes[i], &g_panes[i]);
 		ScaleRectToScreen(&g_mainPixelBuffer, &g_panes[i], &g_panes[i]);
 	}
 
 	for (i = 0; i < 5; i++) {
-		FUN_10056ce9(&g_unk0x100a5a68[i], &g_unk0x100a5a68[i]);
+		ScaleRectFromLowRes(&g_unk0x100a5a68[i], &g_unk0x100a5a68[i]);
 		ScaleRectToScreen(&g_mainPixelBuffer, &g_unk0x100a5a68[i], &g_unk0x100a5a68[i]);
 	}
 
-	FUN_10056ddd(g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
+	ScalePointFromLowRes(g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
 	ScalePointToScreen(&g_mainPixelBuffer, g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
 	for (i = 0; i < 6; i++) {
-		FUN_10056ddd(&g_unk0x100a5ee8[i], &g_unk0x100a5ee8[i]);
+		ScalePointFromLowRes(&g_unk0x100a5ee8[i], &g_unk0x100a5ee8[i]);
 		ScalePointToScreen(&g_mainPixelBuffer, &g_unk0x100a5ee8[i], &g_unk0x100a5ee8[i]);
 	}
 
 	SelectPane(0);
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
 	g_unk0x100a2460 = 0;
 	point.m_x = g_unk0x100a6d30;
 	point.m_y = 0;
-	FUN_10056ddd(&point, &point);
+	ScalePointFromLowRes(&point, &point);
 	ScalePointToScreen(&g_mainPixelBuffer, &point, &point);
 	g_unk0x100a6d30 = point.m_x;
 	FUN_1006fba3();
 	FUN_1006ee60();
-	FUN_100592b0();
+	ScaleOverlayPositions();
 }
