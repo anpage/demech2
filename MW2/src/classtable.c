@@ -254,10 +254,10 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	ClassEntry* entry;
 	MechU32 flags;
 	MechS32 size;
-	struct AmberWillow0x7c* parent;
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* parent;
+	struct SceneObject* obj;
 	MechS32 placed;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	size = 0;
 	offset = 0;
@@ -314,7 +314,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 				parent = g_classTable[entry->m_unk0x1c].m_obj;
 				if (!parent) {
 					shape = g_classTable[entry->m_unk0x1c].m_shape;
-					parent = FUN_1003b6e5(shape);
+					parent = GetShapeObject(shape);
 				}
 
 				if (!p_buffer) {
@@ -332,7 +332,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		}
 
 		FUN_10001532(entry->m_obj, entry->m_shape);
-		FUN_1003b6fb(entry->m_shape, entry->m_obj);
+		SetShapeObject(entry->m_shape, entry->m_obj);
 		kind = entry->m_unk0x38[p_level] & 0xf0;
 		FUN_1003ad2d(entry->m_shape, kind | 0x100);
 		FUN_1003ad62(entry->m_shape, entry->m_owner);
@@ -402,9 +402,9 @@ void FUN_1001d912(MechS32 p_index, MechS32 p_level)
 }
 
 // FUNCTION: MW2 0x1001d980
-struct AmberWillow0x7c* FUN_1001d980(MechS32 p_index)
+struct SceneObject* FUN_1001d980(MechS32 p_index)
 {
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 
 	obj = NULL;
 	if (p_index < g_classEntryCount && p_index >= 0) {
@@ -416,9 +416,9 @@ struct AmberWillow0x7c* FUN_1001d980(MechS32 p_index)
 
 // Operand order: p_index < g_classEntryCount loads p_index first in the original.
 // FUNCTION: MW2 0x1001d9ca
-ScarletOrchid0x4c* FUN_1001d9ca(MechS32 p_index)
+Shape* FUN_1001d9ca(MechS32 p_index)
 {
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	shape = NULL;
 	if (p_index < g_classEntryCount && p_index >= 0) {
@@ -548,7 +548,7 @@ void FUN_1001da44(void)
 // Releases the shape of the entry whose object is p_obj.
 // Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x1001ddf2
-void FUN_1001ddf2(struct AmberWillow0x7c* p_obj)
+void FUN_1001ddf2(struct SceneObject* p_obj)
 {
 	MechS32 i;
 	ClassEntry* entry;
@@ -571,7 +571,7 @@ void FUN_1001ddf2(struct AmberWillow0x7c* p_obj)
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001de84
-void FUN_1001de84(struct AmberWillow0x7c* p_obj)
+void FUN_1001de84(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;
 	MechS32 i;

@@ -20,8 +20,8 @@ extern "C"
 	MechS32 FUN_1007fbe0();
 	void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechChar* p_unk0x0c);
 	void RememberMechSegments(Mech* p_mech);
-	AmberWillow0x7c* RestoreMechSegments(MechSegment* p_segment);
-	MechSegment* SaveMechSegments(AmberWillow0x7c* p_obj);
+	SceneObject* RestoreMechSegments(MechSegment* p_segment);
+	MechSegment* SaveMechSegments(SceneObject* p_obj);
 
 #ifdef __cplusplus
 }

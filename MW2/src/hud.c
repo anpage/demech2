@@ -678,7 +678,7 @@ void FUN_10041a14(Player* p_player, MechS32 p_side)
 // at most half the screen apart, or an arrow at the edge.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10041c3c
-void FUN_10041c3c(struct AmberWillow0x7c* p_object, MechS32 p_side)
+void FUN_10041c3c(struct SceneObject* p_object, MechS32 p_side)
 {
 	MechS32 maxSize;
 	MechS32 topLeft;

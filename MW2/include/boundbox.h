@@ -5,7 +5,7 @@
 #include "shape.h"
 #include "types.h"
 
-// The bounding box of a shape's selected model (ScarletOrchid0x4c::m_unk0x44), from the
+// The bounding box of a shape's selected model (Shape::m_unk0x44), from the
 // transformed vertices. FUN_1006ea90 allocates it inside a larger 0x78-byte block.
 // SIZE 0x18
 typedef struct CinderBox0x18 {
@@ -24,11 +24,11 @@ extern "C"
 #endif
 
 	CinderBox0x18* FUN_1006e970(void);
-	void FUN_1006e9e6(ScarletOrchid0x4c* p_shape);
-	CinderBox0x18* FUN_1006ea90(ScarletOrchid0x4c* p_shape);
-	void FUN_1006eb02(ScarletOrchid0x4c* p_shape);
+	void FUN_1006e9e6(Shape* p_shape);
+	CinderBox0x18* FUN_1006ea90(Shape* p_shape);
+	void FUN_1006eb02(Shape* p_shape);
 	void FUN_1006eb80(
-		ScarletOrchid0x4c* p_shape,
+		Shape* p_shape,
 		MechS32* p_minX,
 		MechS32* p_maxX,
 		MechS32* p_minY,
@@ -36,8 +36,8 @@ extern "C"
 		MechS32* p_minZ,
 		MechS32* p_maxZ
 	);
-	void FUN_1006ed30(ScarletOrchid0x4c* p_shape);
-	MechS32 FUN_1006edc3(ScarletOrchid0x4c* p_shape);
+	void FUN_1006ed30(Shape* p_shape);
+	MechS32 FUN_1006edc3(Shape* p_shape);
 
 #ifdef __cplusplus
 }

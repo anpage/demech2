@@ -1,13 +1,13 @@
 #ifndef OBJECTANIM_H
 #define OBJECTANIM_H
 
-#include "copperwren.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "path.h"
+#include "projectedvertex.h"
 #include "quartzreel.h"
 #include "resourceref.h"
 #include "types.h"
+#include "vertex.h"
 
 // The functions and globals of objectanim.c that other units use.
 #ifdef __cplusplus
@@ -22,7 +22,7 @@ extern "C"
 	extern MechS32 g_unk0x1010b530;
 	extern MechU8 g_unk0x1010b53c;
 	extern MechU8 g_unk0x1010b5b8;
-	extern CopperWren0x20* g_unk0x1010b550[20];
+	extern ProjectedVertex* g_unk0x1010b550[20];
 	extern MechS32 g_unk0x1010b5b0;
 	extern Path g_paths[0x40];
 	extern QuartzReel0x14* g_unk0x101079e0[0x780];
@@ -37,11 +37,11 @@ extern "C"
 	MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
-	CopperWren0x20* FUN_10048c50(EmberFern0x2c* p_vertex);
-	CopperWren0x20* FUN_10048d46(EmberFern0x2c* p_a, EmberFern0x2c* p_b);
-	CopperWren0x20* FUN_10048ebe(CopperWren0x20* p_vertex);
-	MechS32 FUN_10048faf(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices);
-	void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices);
+	ProjectedVertex* FUN_10048c50(Vertex* p_vertex);
+	ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b);
+	ProjectedVertex* FUN_10048ebe(ProjectedVertex* p_vertex);
+	MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices);
+	void FUN_10049155(Face* p_face, Vertex* p_vertices);
 
 #ifdef __cplusplus
 }

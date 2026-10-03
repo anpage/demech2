@@ -272,7 +272,7 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	SlateHeron0x68 saved;
 	Player* targetPlayer;
 	MechS32 view[7];
-	AmberWillow0x7c* object;
+	SceneObject* object;
 	MechS32 kind;
 	Mech* mech;
 	MechS32 centerX;

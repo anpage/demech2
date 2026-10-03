@@ -117,7 +117,7 @@ MechS32 g_unk0x1010b610;
 
 // The shapes FUN_10020d51 shows for the blocks' boxes.
 // GLOBAL: MW2 0x1010b620
-ScarletOrchid0x4c* g_unk0x1010b620[32];
+Shape* g_unk0x1010b620[32];
 
 // GLOBAL: MW2 0x1010b6a0
 MechS32 g_unk0x1010b6a0;
@@ -173,7 +173,7 @@ MechS32 FUN_1001f3e0(void)
 
 // Adds a class to the class table. Returns whether there was room.
 // FUNCTION: MW2 0x1001f504
-MechS32 FUN_1001f504(MechS32 p_id, ScarletOrchid0x4c* p_class)
+MechS32 FUN_1001f504(MechS32 p_id, Shape* p_class)
 {
 	MechS32 result;
 
@@ -190,9 +190,9 @@ MechS32 FUN_1001f504(MechS32 p_id, ScarletOrchid0x4c* p_class)
 
 // Returns the class of an ID (the last one added), or NULL.
 // FUNCTION: MW2 0x1001f564
-ScarletOrchid0x4c* FindClassById(MechS32 p_id)
+Shape* FindClassById(MechS32 p_id)
 {
-	ScarletOrchid0x4c* result;
+	Shape* result;
 	MechS32 i;
 
 	result = NULL;
@@ -312,13 +312,13 @@ MechS32 FindObjIdxById(undefined4 p_unk0x08)
 }
 
 // FUNCTION: MW2 0x1001f873
-ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index)
+Shape** FUN_1001f873(MechS32 p_index)
 {
 	return &g_unk0x1010c630[p_index].m_unk0x1c;
 }
 
 // FUNCTION: MW2 0x1001f894
-ScarletOrchid0x4c* FUN_1001f894(MechS32 p_index)
+Shape* FUN_1001f894(MechS32 p_index)
 {
 	return g_unk0x1010c630[p_index].m_unk0x1c;
 }
@@ -662,9 +662,9 @@ MechS32 FUN_10020292(MechS32 p_index)
 {
 	Matrix matrix;
 	MechS32 replacement;
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 	HollowSpire0x7c* entry;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	GameThing* thing;
 
 	obj = NULL;
@@ -828,7 +828,7 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 	MechS32 offset;
 	MechS32 thing;
 	MechU8* data;
-	struct AmberWillow0x7c* parent;
+	struct SceneObject* parent;
 	MechU32 kind;
 	HollowSpire0x7c* entry;
 	Matrix matrix;
@@ -900,7 +900,7 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 	}
 	else if (entry->m_unk0x20) {
 		FUN_10001532(entry->m_unk0x20, entry->m_unk0x1c);
-		FUN_1003b6fb(entry->m_unk0x1c, entry->m_unk0x20);
+		SetShapeObject(entry->m_unk0x1c, entry->m_unk0x20);
 		FUN_1006d732(entry->m_unk0x1c);
 		if (entry->m_unk0x08 == -1) {
 			FUN_1000dbba(&g_unk0x1010b6b0[p_block].m_unk0x48, &entry->m_unk0x48, &matrix);
@@ -960,9 +960,9 @@ void FUN_10020b95(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10020bdd
-struct AmberWillow0x7c* FUN_10020bdd(MechS32 p_index)
+struct SceneObject* FUN_10020bdd(MechS32 p_index)
 {
-	struct AmberWillow0x7c* result;
+	struct SceneObject* result;
 
 	result = NULL;
 	if (p_index < g_unk0x100a3874 && p_index >= 0) {
@@ -973,9 +973,9 @@ struct AmberWillow0x7c* FUN_10020bdd(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10020c26
-ScarletOrchid0x4c* FUN_10020c26(MechS32 p_index)
+Shape* FUN_10020c26(MechS32 p_index)
 {
-	ScarletOrchid0x4c* result;
+	Shape* result;
 
 	result = NULL;
 	if (p_index < g_unk0x100a3874 && p_index >= 0) {
@@ -992,9 +992,9 @@ ScarletOrchid0x4c* FUN_10020c26(MechS32 p_index)
 // FUNCTION: MW2 0x10020c6f
 void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 	HollowSpire0x7c* entry;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	if (p_index > g_unk0x100a3874 || p_index < 0) {
 		*p_x = *p_y = *p_z = 0;
@@ -1035,7 +1035,7 @@ MechS32 FUN_10020d51(void)
 	MechS32 scaleY;
 	MechS32 scaleX;
 	MechS32 offset;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	QuietMarsh0x7c* block;
 	MechS32 i;
 	ResourceRef local;
@@ -1162,7 +1162,7 @@ void FUN_1002116a(AzureThicket0x2c* p_node, MechU8* p_data, MechS32 p_size)
 	MechS32 scaleX;
 	MechS32 offset;
 	MechS32 x;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 z;
 	MechS32 i;
 	MechS32 y;
@@ -1236,10 +1236,10 @@ MechS32 FUN_10021314(MechU32 p_index)
 
 // Frees a scene object tree, and the shapes on it when the object has one.
 // FUNCTION: MW2 0x100213cf
-void FUN_100213cf(struct AmberWillow0x7c* p_obj)
+void FUN_100213cf(struct SceneObject* p_obj)
 {
 	ShapeCallback callback;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	callback = NULL;
 	if (!p_obj) {

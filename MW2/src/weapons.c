@@ -44,7 +44,7 @@
 // target lock of guided weapons.
 
 // GLOBAL: MW2 0x100a6d34
-ScarletOrchid0x4c* g_unk0x100a6d34 = NULL;
+Shape* g_unk0x100a6d34 = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
@@ -828,11 +828,11 @@ void FUN_10045eac(Mech* p_mech)
 // building sets the distance the weapons converge at.
 // Stack-slot permutation: length, hit, flags and collided.
 // FUNCTION: MW2 0x10046269
-ScarletOrchid0x4c* FUN_10046269(Player* p_player)
+Shape* FUN_10046269(Player* p_player)
 {
 	Ray ray;
 	MechS32 length;
-	ScarletOrchid0x4c* hit;
+	Shape* hit;
 	MechU16 flags;
 	MechS32 collided;
 
@@ -927,7 +927,7 @@ void FUN_100464f3(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 
 // Places p_obj at the player's current hardpoint.
 // FUNCTION: MW2 0x10046519
-void FUN_10046519(Player* p_player, AmberWillow0x7c* p_obj)
+void FUN_10046519(Player* p_player, SceneObject* p_obj)
 {
 	MechS32 z;
 	MechS32 y;
@@ -943,7 +943,7 @@ void FUN_10046519(Player* p_player, AmberWillow0x7c* p_obj)
 // Commutative operand order: the original calls FixedMul16(p_dz, sideX) first for upY. Stack-slot
 // permutation of the locals.
 // FUNCTION: MW2 0x10046573
-void SpawnLaunchFx(Player* p_player, AmberWillow0x7c* p_obj, MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_spread)
+void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_spread)
 {
 	MechS32 x;
 	MechS32 y;

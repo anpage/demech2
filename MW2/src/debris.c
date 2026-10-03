@@ -49,7 +49,7 @@ MechS32 FUN_100040b0(void)
 
 // Stack-slot permutation: i and piece.
 // FUNCTION: MW2 0x10004111
-MechS32 FUN_10004111(AmberWillow0x7c* p_obj, MechS32 p_unk0x00)
+MechS32 FUN_10004111(SceneObject* p_obj, MechS32 p_unk0x00)
 {
 	MechS32 i;
 	DebrisPiece* piece;
@@ -103,7 +103,7 @@ void FUN_10004218(MechS32 p_index)
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
 // Stack-slot permutation: i and chunk.
 // FUNCTION: MW2 0x10004356
-void FUN_10004356(AmberWillow0x7c* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
+void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	MechS32 i;
 	MechS32 destroy;
@@ -151,10 +151,10 @@ void FUN_10004356(AmberWillow0x7c* p_obj, ObjectCallback p_callback, MechU32 p_u
 
 // Stack-slot permutation: child and sibling.
 // FUNCTION: MW2 0x100044f3
-void FUN_100044f3(AmberWillow0x7c* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
+void FUN_100044f3(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
-	AmberWillow0x7c* child;
-	AmberWillow0x7c* sibling;
+	SceneObject* child;
+	SceneObject* sibling;
 
 	if (!p_obj) {
 		return;
@@ -174,7 +174,7 @@ void FUN_100044f3(AmberWillow0x7c* p_obj, ObjectCallback p_callback, MechU32 p_u
 }
 
 // FUNCTION: MW2 0x1000457e
-void FUN_1000457e(AmberWillow0x7c* p_obj, ObjectCallback p_callback)
+void FUN_1000457e(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 index;
 
@@ -214,7 +214,7 @@ void UpdateDebris(void)
 void FUN_100046b2(MechS32 p_index)
 {
 	DebrisChunk* chunk;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 x;
 	MechS32 y;
 	MechS32 z;
@@ -361,7 +361,7 @@ void FUN_10004a45(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 void ZeroChunx(void)
 {
 	MechS32 i;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 
 	for (i = 0; i < 0x80; i++) {
 		obj = g_debrisChunks[i].m_obj;
@@ -392,7 +392,7 @@ void FUN_10004c06(MechS32 p_index)
 
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10004c86
-MechS32 FUN_10004c86(AmberWillow0x7c* p_obj)
+MechS32 FUN_10004c86(SceneObject* p_obj)
 {
 	MechS32 index;
 	MechS32 i;
@@ -443,7 +443,7 @@ void FUN_10004ce5(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS
 }
 
 // FUNCTION: MW2 0x10004dcb
-void FUN_10004dcb(AmberWillow0x7c* p_obj, ObjectCallback p_callback)
+void FUN_10004dcb(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 i;
 
@@ -462,7 +462,7 @@ void FUN_10004dcb(AmberWillow0x7c* p_obj, ObjectCallback p_callback)
 }
 
 // FUNCTION: MW2 0x10004e4d
-void FUN_10004e4d(AmberWillow0x7c* p_obj)
+void FUN_10004e4d(SceneObject* p_obj)
 {
 	if (p_obj) {
 		FUN_100018ca(p_obj);

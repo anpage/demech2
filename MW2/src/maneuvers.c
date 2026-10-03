@@ -655,7 +655,7 @@ void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p
 	MechU32 index;
 	MechS32 thing;
 	Matrix* matrix;
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 	MechS32 y;
 
 	y = 0;
@@ -1176,7 +1176,7 @@ void FUN_100156f2(Player* p_player, MechS8 p_value)
 MechS32 FUN_10015709(Player* p_player)
 {
 	MechS32 length;
-	ScarletOrchid0x4c* hit;
+	Shape* hit;
 	Ray ray;
 	Mech* mech;
 	MechS16 i;
@@ -1289,7 +1289,7 @@ MechS32 FUN_10015709(Player* p_player)
 
 // Whether p_shape is solid ground to stand on: a flat enough face or a shape of type 0x50.
 // FUNCTION: MW2 0x10015b40
-MechS32 FUN_10015b40(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_10015b40(Shape* p_shape)
 {
 	if (FUN_10034db8(p_shape) && g_segmentNormalY >= 0xc41b) {
 		return 1;
@@ -1351,7 +1351,7 @@ void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, 
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015d2a
-MechS16 FUN_10015d2a(Player* p_player, ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS16 FUN_10015d2a(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 dz;
 	MechS32 unused;
@@ -1410,7 +1410,7 @@ MechS32 FUN_10015e34(MechS32 p_value, MechS32 p_limit)
 MechS32 FUN_10015e74(Player* p_player, MechS32 p_y)
 {
 	Ray ray;
-	ScarletOrchid0x4c* hit;
+	Shape* hit;
 	MechU32 target;
 	MechU16 flags;
 
@@ -1527,11 +1527,11 @@ MechS32 FUN_10016222(Player* p_player, MechS32 p_limit)
 // The shape of the player or game thing an AI target id names, or NULL.
 // The only diff is a stack-slot permutation of index, id and obj.
 // FUNCTION: MW2 0x1001627f
-ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target)
+Shape* FUN_1001627f(MechS16 p_target)
 {
 	MechS16 index;
 	MechS32 id;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 
 	obj = NULL;
 	index = p_target & 0xff;
@@ -1569,7 +1569,7 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 	MechS32 sx;
 	MechS32 z;
 	MechS32 sy;
-	ScarletOrchid0x4c* hit;
+	Shape* hit;
 	MechS32 heading;
 	Ray ray;
 	MechS16 side;

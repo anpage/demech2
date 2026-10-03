@@ -8,7 +8,7 @@ struct Ray;
 
 struct Mech;
 struct Player;
-struct ScarletOrchid0x4c;
+struct Shape;
 struct WeaponSlot;
 
 // The functions and globals of maneuvers.c that other units use.
@@ -51,7 +51,7 @@ extern "C"
 	MechS32 FUN_100155e1(struct Player* p_player);
 	void FUN_100156f2(struct Player* p_player, MechS8 p_value);
 	MechS32 FUN_10015709(struct Player* p_player);
-	MechS32 FUN_10015b40(struct ScarletOrchid0x4c* p_shape);
+	MechS32 FUN_10015b40(struct Shape* p_shape);
 	void FUN_10015b9f(
 		struct Player* p_player,
 		struct Ray* p_ray,
@@ -60,13 +60,7 @@ extern "C"
 		MechS32 p_length,
 		MechS32 p_fromEdge
 	);
-	MechS16 FUN_10015d2a(
-		struct Player* p_player,
-		struct ScarletOrchid0x4c* p_shape,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z
-	);
+	MechS16 FUN_10015d2a(struct Player* p_player, struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	MechS32 FUN_10015dd6(struct Player* p_player, MechS16 p_target);
 	MechS32 FUN_10015e34(MechS32 p_value, MechS32 p_limit);
 	MechS32 FUN_10015e74(struct Player* p_player, MechS32 p_y);
@@ -75,7 +69,7 @@ extern "C"
 	MechS32 FUN_10016093(struct Player* p_player);
 	void FUN_100160eb(struct Player* p_player);
 	MechS32 FUN_10016222(struct Player* p_player, MechS32 p_limit);
-	struct ScarletOrchid0x4c* FUN_1001627f(MechS16 p_target);
+	struct Shape* FUN_1001627f(MechS16 p_target);
 	void FUN_1001632c(struct WeaponSlot* p_slot, struct Mech* p_mech);
 	MechS16 FUN_100166b1(struct Player* p_player);
 	MechS32 FUN_10016880(struct Mech* p_mech);

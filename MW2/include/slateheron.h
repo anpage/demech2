@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-struct CopperWren0x20;
+struct ProjectedVertex;
 
 // SIZE 0x68
 // Rendering settings (g_unk0x100a6cc8) the map view saves and replaces as one block.
@@ -31,7 +31,7 @@ typedef struct SlateHeron0x68 {
 	MechU32 m_unk0x50;                       // 0x50 — render features switched off (FUN_10036891)
 	void (*m_frameDrawCallback)(void);       // 0x54
 	MechS32 (*m_unk0x58)();                  // 0x58 — a shape filter: nonzero skips the shape
-	struct CopperWren0x20* (*m_unk0x5c)(struct CopperWren0x20* p_vertex);       // 0x5c — projects a vertex
+	struct ProjectedVertex* (*m_unk0x5c)(struct ProjectedVertex* p_vertex);     // 0x5c — projects a vertex
 	MechS32 (*m_unk0x60)();                                                     // 0x60 — draws a face (FUN_10036230)
 	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags); // 0x64
 } SlateHeron0x68;

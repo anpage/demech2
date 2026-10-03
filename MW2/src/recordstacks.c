@@ -85,16 +85,16 @@ void FUN_1007d220(void)
 }
 
 // FUNCTION: MW2 0x1007d248
-CopperWren0x20* FUN_1007d248(void)
+ProjectedVertex* FUN_1007d248(void)
 {
 	MechS32 recordSize;
-	CopperWren0x20* record;
+	ProjectedVertex* record;
 
 	recordSize = 0x20;
 #ifdef PORTABLE_C
 	/* The gap compares as the unsigned addresses do: the two stacks share one buffer. */
 	g_unk0x100c1a70 -= recordSize;
-	record = (CopperWren0x20*) g_unk0x100c1a70;
+	record = (ProjectedVertex*) g_unk0x100c1a70;
 	record->m_projected = 0;
 	if (g_unk0x100c1a70 - g_unk0x100c2698 <= 0xc8) {
 		g_unk0x1010b5ac = 0;

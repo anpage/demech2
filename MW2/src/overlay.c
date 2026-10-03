@@ -320,8 +320,8 @@ void FUN_10058b34(void)
 	}
 
 	g_unk0x100bea08 = g_unk0x100bea00 = g_unk0x100bea0c = g_unk0x100bea04 = 0;
-	FUN_1003b48f(g_unk0x100ad5e8, FUN_10058d36);
-	FUN_1003b48f(g_unk0x100ad5ec, FUN_10058d36);
+	ForEachShape(g_unk0x100ad5e8, FUN_10058d36);
+	ForEachShape(g_unk0x100ad5ec, FUN_10058d36);
 
 	if (g_unk0x100e9630) {
 		if (!g_unk0x100a94e0) {
@@ -375,19 +375,19 @@ void FUN_10058cda(void)
 // Adds a shape's counts to the totals FUN_10058b34 shows.
 // Stack-slot permutation: vertexCount and faceCount.
 // FUNCTION: MW2 0x10058d36
-void FUN_10058d36(ScarletOrchid0x4c* p_shape)
+void FUN_10058d36(Shape* p_shape)
 {
 	MechS32 vertexCount;
 	MechS32 faceCount;
 
 	vertexCount = 0;
 	faceCount = 0;
-	FUN_1003b43d(p_shape, &vertexCount, &faceCount);
+	GetModelCounts(p_shape, &vertexCount, &faceCount);
 
 	g_unk0x100bea08++;
 	g_unk0x100bea00 += vertexCount;
 	g_unk0x100bea0c += faceCount;
-	g_unk0x100bea04 += FUN_1003b7cc(p_shape);
+	g_unk0x100bea04 += GetShapeMemorySize(p_shape);
 }
 
 // FUNCTION: MW2 0x10058d90

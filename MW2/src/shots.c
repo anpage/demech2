@@ -212,7 +212,7 @@ void UpdateShot(MechS32 p_index)
 	MechS32 hitResult;
 	MechS32 velZ;
 	MechU16 surface;
-	ScarletOrchid0x4c* hit;
+	Shape* hit;
 	Shot* shot;
 	MechS32 victim;
 	MechS32 backX;
@@ -985,7 +985,7 @@ void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 	MechS32 dx;
 	MechS32 dy;
 	MechS32 dz;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 reach;
 	MechS32 radius;
 	MechS32 x;
@@ -1101,7 +1101,7 @@ void FUN_1006bf8c(MechU32 p_index)
 // blows it up and counts it destroyed.
 // Stack-slot permutation: index and thing.
 // FUNCTION: MW2 0x1006c11c
-void FUN_1006c11c(MechS32 p_owner, ScarletOrchid0x4c* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void FUN_1006c11c(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechU32 index;
 	GameThing* thing;
@@ -1145,7 +1145,7 @@ void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 	MechS32 piece;
 	Effect* effect;
 	MechS32 i;
-	AmberWillow0x7c* object;
+	SceneObject* object;
 
 	shown = 0;
 	if (!p_count) {
@@ -1182,7 +1182,7 @@ void SaveCarCfg(void)
 // FUNCTION: MW2 0x1006c362
 void FUN_1006c362(void)
 {
-	ScarletOrchid0x4c* root;
+	Shape* root;
 	MechS32 heat;
 	Player* player;
 	MechS32 reach;
@@ -1195,7 +1195,7 @@ void FUN_1006c362(void)
 	MechS32 i;
 	MechS32 dx;
 	MechS32 dy;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 dz;
 
 	root = g_unk0x100ad5e8;
@@ -1244,7 +1244,7 @@ void FUN_1006c4e2(Player* p_player)
 	MechS32 i;
 	MechS32 duration;
 	Effect* effect;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	duration = g_effectInfo[0x16].m_duration * 2;
 	g_nukeMaxRadius = 400000;

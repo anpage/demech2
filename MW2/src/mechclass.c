@@ -220,7 +220,7 @@ void FUN_10016edf(Mech* p_mech)
 	MechS32 dragX;
 	MechS32 accelZ;
 	MechS32 dz;
-	struct ScarletOrchid0x4c* hitShape;
+	struct Shape* hitShape;
 	MechS32 dragZ;
 	MechS32 targetX;
 	MechS32 topSpeed;
@@ -243,7 +243,7 @@ void FUN_10016edf(Mech* p_mech)
 	MechS32 posX2;
 	MechS32 posY2;
 	MechS32 posZ2;
-	struct ScarletOrchid0x4c* hitShape2;
+	struct Shape* hitShape2;
 	MechS32 savedUnk0xa4;
 	MechS32 sound;
 	MechS32 volume;

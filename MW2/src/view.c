@@ -432,7 +432,7 @@ MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004c2ef
-MechS32 FUN_1004c2ef(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_1004c2ef(Shape* p_shape)
 {
 	MechS32 y;
 	MechS32 z;
@@ -504,7 +504,7 @@ MechS32 FUN_1004c2ef(ScarletOrchid0x4c* p_shape)
 // hidden shape (bit 0x1000).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004c565
-MechS32 FUN_1004c565(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_1004c565(Shape* p_shape)
 {
 	MechS32 y;
 	MechS32 z;

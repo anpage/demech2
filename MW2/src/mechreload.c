@@ -137,7 +137,7 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechCha
 // FUNCTION: MW2 0x1007ff9c
 void RememberMechSegments(Mech* p_mech)
 {
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 id;
 
 	obj = NULL;
@@ -156,9 +156,9 @@ void RememberMechSegments(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x10080014
-AmberWillow0x7c* RestoreMechSegments(MechSegment* p_segment)
+SceneObject* RestoreMechSegments(MechSegment* p_segment)
 {
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 
 	if (!p_segment) {
 		return NULL;
@@ -179,7 +179,7 @@ AmberWillow0x7c* RestoreMechSegments(MechSegment* p_segment)
 }
 
 // FUNCTION: MW2 0x100800e3
-MechSegment* SaveMechSegments(AmberWillow0x7c* p_obj)
+MechSegment* SaveMechSegments(SceneObject* p_obj)
 {
 	MechSegment* segment;
 

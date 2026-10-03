@@ -8,9 +8,9 @@
 #include "collision.h"
 #include "config.h"
 #include "decomp.h"
-#include "duskmoth.h"
 #include "environment.h"
 #include "eyepoint.h"
+#include "face.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
@@ -370,7 +370,7 @@ void FUN_1003e06c(void)
 	MechS32 farPlane;
 	MechS32 heading;
 	MechS32 angle;
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 	MechS32 zoom;
 	MechS32 pose[7];
 	PANE* viewport;
@@ -880,7 +880,7 @@ void FUN_1003ef07(MechS32 p_zoom)
 // shapes of types 0x30 and 0x70, then culls through FUN_10042206.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f00d
-MechS32 FUN_1003f00d(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_1003f00d(Shape* p_shape)
 {
 	MechS32 type;
 	MechS32 flags;
@@ -922,14 +922,14 @@ MechS32 FUN_1003f00d(ScarletOrchid0x4c* p_shape)
 // Faces of a textured kind (0x3000) draw in the view's color 10.
 // The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
 // FUNCTION: MW2 0x1003f0e7
-MechU32 FUN_1003f0e7(DuskMoth0x24* p_face, undefined4 p_unk0x04, MechU32 p_flags)
+MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 {
 	MechU32 color;
 	MechU32 type;
 	MechU32 result;
 	MechU32 index;
 	CockpitLayout* layout;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 kind;
 	MechS32* colors;
 

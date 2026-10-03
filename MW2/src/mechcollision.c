@@ -34,7 +34,7 @@
 // FUNCTION: MW2 0x100758a0
 MechS32 FUN_100758a0(
 	Mech* p_mech,
-	ScarletOrchid0x4c** p_hit,
+	Shape** p_hit,
 	Player** p_player,
 	MechS32 p_dx,
 	MechS32 p_dy,
@@ -53,7 +53,7 @@ MechS32 FUN_100758a0(
 	MechS32 y0;
 	MechS32 hit;
 	MechS32 z0;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 x1;
 	MechS32 y1;
 	MechS32 length;
@@ -317,17 +317,17 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 // Stack-slot permutation of the locals. Operand order: dist < reach loads reach first in the
 // original.
 // FUNCTION: MW2 0x10076295
-MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, ScarletOrchid0x4c** p_hit)
+MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Shape** p_hit)
 {
 	MechS32 dz;
-	ScarletOrchid0x4c* root;
+	Shape* root;
 	MechS32 reach;
 	MechS32 dist;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 bounce;
 	MechS32 dx;
 	MechS32 dy;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 index;
 	MechS32 x;
 	MechS32 y;
@@ -351,7 +351,7 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sca
 		dist = ApproximateVectorLength(dx, dy, dz);
 		if (dist < reach) {
 			if ((shape->m_unk0x02 & 0xf0) == 0x50) {
-				obj = shape->m_unk0x18;
+				obj = shape->m_object;
 				dist = ApproximateVectorLength(p_mech->m_unk0xf4, p_mech->m_unk0xf8, p_mech->m_unk0xfc);
 				if (dist > 0) {
 					index = FUN_10004111(obj, 1);
@@ -492,7 +492,7 @@ void FUN_1007669e(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 // when it can be damaged. In a network game, a shape of kind 0xb0 destroys both legs and itself.
 // Stack-slot permutation: damage and speed.
 // FUNCTION: MW2 0x100768a8
-void FUN_100768a8(Mech* p_mech, ScarletOrchid0x4c* p_shape)
+void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 {
 	MechS32 damage;
 	MechS32 speed;

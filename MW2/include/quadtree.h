@@ -5,12 +5,12 @@
 #include "ray.h"
 #include "types.h"
 
-struct DuskMoth0x24;
-struct ScarletOrchid0x4c;
+struct Face;
+struct Shape;
 #include "shapegeom.h"
 
 // A quadtree node: its bounds, its four children (m_unk0x18 == 0) and m_unk0x18 entries
-// after the header (undefined4 each). FUN_1001e429 allocates it; ScarletOrchid0x4c::m_unk0x44 holds the root
+// after the header (undefined4 each). FUN_1001e429 allocates it; Shape::m_unk0x44 holds the root
 // when the shape's m_unk0x24 is 5.
 // SIZE 0x2c
 typedef struct AzureThicket0x2c {
@@ -30,8 +30,8 @@ extern "C"
 {
 #endif
 
-	void FUN_1001df00(struct ScarletOrchid0x4c* p_shape);
-	AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, GraniteLattice0x18* p_model);
+	void FUN_1001df00(struct Shape* p_shape);
+	AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Model* p_model);
 	AzureThicket0x2c* FUN_1001e429(
 		undefined4 p_unk0x00,
 		undefined4 p_unk0x04,
@@ -43,8 +43,8 @@ extern "C"
 	);
 	void FUN_1001e50d(AzureThicket0x2c* p_node);
 	MechS32 FUN_1001e57a(
-		struct DuskMoth0x24* p_face,
-		GraniteLattice0x18* p_model,
+		struct Face* p_face,
+		Model* p_model,
 		MechS32 p_minX,
 		MechS32 p_maxX,
 		MechS32 p_minZ,
@@ -52,12 +52,12 @@ extern "C"
 		MechS32* p_minY,
 		MechS32* p_maxY
 	);
-	MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray);
-	MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray);
+	MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray);
+	MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray);
 	MechS32 FUN_1001ebfa(
 		AzureThicket0x2c* p_node,
-		GraniteLattice0x18* p_model,
+		Model* p_model,
 		MechS32 p_x,
 		MechS32 p_y,
 		MechS32 p_z,

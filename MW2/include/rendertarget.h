@@ -8,9 +8,9 @@
 #include "vfxa.h"
 #include "window.h"
 
-struct AmberWillow0x7c;
+struct SceneObject;
 struct Player;
-struct ScarletOrchid0x4c;
+struct Shape;
 
 // The functions and globals of rendertarget.c that other units use.
 #ifdef __cplusplus
@@ -35,8 +35,8 @@ extern "C"
 	MechS32 FUN_1005fa22(struct Player* p_player);
 	MechS32 FUN_1005fe63(void);
 	MechS32 FUN_1005febe(void);
-	struct ScarletOrchid0x4c* FUN_1005ff19(void);
-	struct AmberWillow0x7c* FUN_1005ff56(void);
+	struct Shape* FUN_1005ff19(void);
+	struct SceneObject* FUN_1005ff56(void);
 	void FUN_10060010(void);
 	void FUN_10060197(
 		MechS32 p_dx,

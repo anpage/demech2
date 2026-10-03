@@ -104,7 +104,7 @@ void** FUN_1007d51f(TimedCallback* p_callback)
 	return NULL;
 }
 
-struct ScarletOrchid0x4c* FindClassById(MechS32 p_id)
+struct Shape* FindClassById(MechS32 p_id)
 {
 	(void) p_id;
 	return NULL;
@@ -141,39 +141,39 @@ MechS32 FUN_100708f4(struct ResourceRef* p_ref)
 	return 0;
 }
 
-struct AmberWillow0x7c* FUN_1001d980(MechS32 p_index)
+struct SceneObject* FUN_1001d980(MechS32 p_index)
 {
 	(void) p_index;
 	return NULL;
 }
 
-ScarletOrchid0x4c** FUN_1001f873(MechS32 p_index)
+Shape** FUN_1001f873(MechS32 p_index)
 {
 	(void) p_index;
 	return NULL;
 }
 
-void FUN_1003b43d(ScarletOrchid0x4c* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount)
+void GetModelCounts(Shape* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount)
 {
 	(void) p_shape;
 	(void) p_vertexCount;
 	(void) p_faceCount;
 }
 
-void FUN_1003b696(ScarletOrchid0x4c* p_shape, MechS32 p_index, MechS32 p_unk0x00)
+void FUN_1003b696(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
 {
 	(void) p_shape;
 	(void) p_index;
 	(void) p_unk0x00;
 }
 
-struct AmberWillow0x7c* FUN_1003b6e5(ScarletOrchid0x4c* p_shape)
+struct SceneObject* GetShapeObject(Shape* p_shape)
 {
 	(void) p_shape;
 	return NULL;
 }
 
-void SetObjPosition(AmberWillow0x7c* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	(void) p_obj;
 	(void) p_x;
@@ -181,7 +181,7 @@ void SetObjPosition(AmberWillow0x7c* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_
 	(void) p_z;
 }
 
-void FUN_10001667(AmberWillow0x7c* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void FUN_10001667(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	(void) p_obj;
 	(void) p_x;
@@ -189,7 +189,7 @@ void FUN_10001667(AmberWillow0x7c* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	(void) p_z;
 }
 
-void SetObjRotation(AmberWillow0x7c* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
+void SetObjRotation(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
 {
 	(void) p_obj;
 	(void) p_unk0x04;
@@ -198,7 +198,7 @@ void SetObjRotation(AmberWillow0x7c* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08
 	(void) p_unk0x10;
 }
 
-void FUN_1000184b(AmberWillow0x7c* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
+void FUN_1000184b(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
 {
 	(void) p_obj;
 	(void) p_unk0x04;
@@ -207,7 +207,7 @@ void FUN_1000184b(AmberWillow0x7c* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, 
 	(void) p_unk0x10;
 }
 
-void FUN_10001cf8(AmberWillow0x7c* p_obj)
+void FUN_10001cf8(SceneObject* p_obj)
 {
 	(void) p_obj;
 }

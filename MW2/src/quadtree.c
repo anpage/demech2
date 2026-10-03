@@ -2,14 +2,14 @@
 
 #include "collision.h"
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "overlay.h"
 #include "ray.h"
 #include "shape.h"
 #include "shapegeom.h"
 #include "simmain.h"
 #include "types.h"
+#include "vertex.h"
 
 #include <windows.h>
 
@@ -22,12 +22,12 @@ MechS32 g_unk0x100a37dc = 0;
 // Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_unk0x14 loads
 // the vertex's first in the original.
 // FUNCTION: MW2 0x1001df00
-void FUN_1001df00(ScarletOrchid0x4c* p_shape)
+void FUN_1001df00(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 	AzureThicket0x2c* root;
-	EmberFern0x2c* vertices;
-	EmberFern0x2c* vertex;
+	Vertex* vertices;
+	Vertex* vertex;
 	MechS32 i;
 	MechS32 j;
 
@@ -35,9 +35,9 @@ void FUN_1001df00(ScarletOrchid0x4c* p_shape)
 		return;
 	}
 
-	model = p_shape->m_unk0x1c;
+	model = p_shape->m_models;
 	if (model) {
-		vertex = (EmberFern0x2c*) (model + 1);
+		vertex = (Vertex*) (model + 1);
 		vertices = vertex;
 		root = FUN_1001e429(
 			vertex->m_unk0x0c,
@@ -53,7 +53,7 @@ void FUN_1001df00(ScarletOrchid0x4c* p_shape)
 			return;
 		}
 
-		for (i = 1; i < model->m_unk0x04; i++) {
+		for (i = 1; i < model->m_vertexCount; i++) {
 			vertex++;
 			if (root->m_unk0x04 < vertex->m_unk0x0c) {
 				root->m_unk0x04 = vertex->m_unk0x0c;
@@ -91,11 +91,11 @@ void FUN_1001df00(ScarletOrchid0x4c* p_shape)
 // Stack-slot permutation; minX >= maxX, minZ >= maxZ and faceHigh > highY compare in the other
 // operand order.
 // FUNCTION: MW2 0x1001e0a7
-AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, GraniteLattice0x18* p_model)
+AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Model* p_model)
 {
 	MechS32 j;
 	MechS32 i;
-	DuskMoth0x24* entries[25];
+	Face* entries[25];
 	AzureThicket0x2c* node;
 	MechS32 faceLow;
 	MechS32 minX;
@@ -103,12 +103,12 @@ AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Gra
 	MechS32 minZ;
 	MechS32 count;
 	AzureThicket0x2c* child;
-	DuskMoth0x24* face;
+	Face* face;
 	MechS32 faceHigh;
 	MechS32 maxX;
 	MechS32 highY;
 	MechS32 maxZ;
-	DuskMoth0x24** faces;
+	Face** faces;
 
 	if (p_quadrant & 1) {
 		minX = ((p_node->m_unk0x04 + p_node->m_unk0x00) >> 1) + 1;
@@ -135,8 +135,8 @@ AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Gra
 	count = 0;
 	lowY = 0x7fffffff;
 	highY = -0x7fffffff;
-	for (i = 0; i < p_model->m_unk0x06; i++) {
-		face = (DuskMoth0x24*) ((MechU8*) p_model + p_model->m_unk0x08) + i;
+	for (i = 0; i < p_model->m_faceCount; i++) {
+		face = (Face*) ((MechU8*) p_model + p_model->m_faceOffset) + i;
 		if (FUN_1001e57a(face, p_model, minX, maxX, minZ, maxZ, &faceLow, &faceHigh)) {
 			count++;
 			if (count > 25) {
@@ -192,8 +192,8 @@ AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Gra
 	}
 
 	if (count > 0) {
-		faces = (DuskMoth0x24**) (node + 1);
-		memcpy(faces, entries, count * sizeof(DuskMoth0x24*));
+		faces = (Face**) (node + 1);
+		memcpy(faces, entries, count * sizeof(Face*));
 	}
 
 	return node;
@@ -267,8 +267,8 @@ void FUN_1001e50d(AzureThicket0x2c* p_node)
 // order.
 // FUNCTION: MW2 0x1001e57a
 MechS32 FUN_1001e57a(
-	DuskMoth0x24* p_face,
-	GraniteLattice0x18* p_model,
+	Face* p_face,
+	Model* p_model,
 	MechS32 p_minX,
 	MechS32 p_maxX,
 	MechS32 p_minZ,
@@ -281,8 +281,8 @@ MechS32 FUN_1001e57a(
 	MechS32 maxY;
 	MechS32 maxZ;
 	MechS32 minX;
-	EmberFern0x2c* vertices;
-	EmberFern0x2c* vertex;
+	Vertex* vertices;
+	Vertex* vertex;
 	MechS32 x;
 	MechS32 y;
 	MechS32 i;
@@ -292,7 +292,7 @@ MechS32 FUN_1001e57a(
 	MechS32 maxX;
 
 	count = p_face->m_unk0x02;
-	vertices = (EmberFern0x2c*) (p_model + 1);
+	vertices = (Vertex*) (p_model + 1);
 	minX = minY = minZ = 0x7fffffff;
 	maxX = maxY = maxZ = -0x7fffffff;
 	for (i = 0; i < count; i++) {
@@ -338,13 +338,13 @@ MechS32 FUN_1001e57a(
 // ground area, 2 above the faces under it, 3 below one of them.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001e6dc
-MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 result;
-	EmberFern0x2c* vertices;
-	DuskMoth0x24** faces;
+	Vertex* vertices;
+	Face** faces;
 	MechS32 i;
-	DuskMoth0x24* face;
+	Face* face;
 	MechS32 height;
 
 	if (!p_node) {
@@ -387,8 +387,8 @@ MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Mech
 		return 2;
 	}
 
-	vertices = (EmberFern0x2c*) (p_model + 1);
-	faces = (DuskMoth0x24**) (p_node + 1);
+	vertices = (Vertex*) (p_model + 1);
+	faces = (Face**) (p_node + 1);
 	for (i = 0; i < p_node->m_unk0x18; i++) {
 		face = *faces++;
 		if (face->m_normal[1] > 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
@@ -407,16 +407,16 @@ MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Mech
 // Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
 // Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
 // FUNCTION: MW2 0x1001e90f
-MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray)
+MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 tMin;
-	EmberFern0x2c* vertices;
+	Vertex* vertices;
 	MechS32 t0;
-	DuskMoth0x24** faces;
+	Face** faces;
 	MechS32 i;
 	MechS32 t1;
 	MechS32 tMax;
-	DuskMoth0x24* face;
+	Face* face;
 
 	if (!p_node) {
 		return FALSE;
@@ -475,8 +475,8 @@ MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray*
 		return FALSE;
 	}
 
-	vertices = (EmberFern0x2c*) (p_model + 1);
-	faces = (DuskMoth0x24**) (p_node + 1);
+	vertices = (Vertex*) (p_model + 1);
+	faces = (Face**) (p_node + 1);
 	for (i = 0; i < p_node->m_unk0x18; i++) {
 		face = *faces++;
 		if (FUN_100354d3(face, vertices, p_ray)) {
@@ -491,7 +491,7 @@ MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray*
 // child was hit.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001eb25
-MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray* p_ray)
+MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 length;
 	MechS32 i;
@@ -525,19 +525,12 @@ MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, GraniteLattice0x18* p_model, Ray*
 // p_top, or 0 if there is none. Returns FALSE outside the tree's ground area.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ebfa
-MechS32 FUN_1001ebfa(
-	AzureThicket0x2c* p_node,
-	GraniteLattice0x18* p_model,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
-	MechS32* p_top
-)
+MechS32 FUN_1001ebfa(AzureThicket0x2c* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
-	EmberFern0x2c* vertices;
-	DuskMoth0x24** faces;
+	Vertex* vertices;
+	Face** faces;
 	MechS32 i;
-	DuskMoth0x24* face;
+	Face* face;
 
 	if (!p_node) {
 		return FALSE;
@@ -568,8 +561,8 @@ MechS32 FUN_1001ebfa(
 		return TRUE;
 	}
 
-	vertices = (EmberFern0x2c*) (p_model + 1);
-	faces = (DuskMoth0x24**) (p_node + 1);
+	vertices = (Vertex*) (p_model + 1);
+	faces = (Face**) (p_node + 1);
 	for (i = 0; i < p_node->m_unk0x18; i++) {
 		face = *faces++;
 		if (face->m_normal[1] > 0 && FUN_100357f8(face, vertices, p_x, p_z)) {

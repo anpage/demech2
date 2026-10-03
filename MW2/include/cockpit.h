@@ -92,8 +92,8 @@ extern "C"
 	void FUN_1003ee92(void);
 	void FUN_1003eeaf(void);
 	void FUN_1003ef07(MechS32 p_zoom);
-	MechS32 FUN_1003f00d(ScarletOrchid0x4c* p_shape);
-	MechU32 FUN_1003f0e7(struct DuskMoth0x24* p_face, undefined4 p_unk0x04, MechU32 p_flags);
+	MechS32 FUN_1003f00d(Shape* p_shape);
+	MechU32 FUN_1003f0e7(struct Face* p_face, undefined4 p_unk0x04, MechU32 p_flags);
 	void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 	MechS32 FUN_1003f513(CockpitLayout* p_layout, MechS32 p_unk0x04);
 	MechS32 FUN_1003f594(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_unk0x0c);

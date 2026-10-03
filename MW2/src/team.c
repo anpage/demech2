@@ -197,7 +197,7 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechS32* p_x, MechS32* p_z, MechS3
 	MechS32 slot;
 	MechU32 leader;
 	Matrix* matrix;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 y;
 	MechS32 team;
 

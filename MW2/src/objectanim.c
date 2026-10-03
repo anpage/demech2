@@ -10,11 +10,9 @@
 #include "clock.h"
 #include "compat.h"
 #include "config.h"
-#include "copperwren.h"
 #include "decomp.h"
 #include "depthsort.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
@@ -26,6 +24,7 @@
 #include "polydraw.h"
 #include "poolsizes.h"
 #include "portable.h"
+#include "projectedvertex.h"
 #include "quartzreel.h"
 #include "ramp.h"
 #include "recordstacks.h"
@@ -37,6 +36,7 @@
 #include "soundfx.h"
 #include "staticmem.h"
 #include "types.h"
+#include "vertex.h"
 #include "view.h"
 
 #include <stdio.h>
@@ -56,35 +56,35 @@
 // The state of FUN_1004748c's callback: the faces of a shape cycle through up to sixteen colors.
 // SIZE 0x50
 typedef struct JadeCycle0x50 {
-	ScarletOrchid0x4c** m_shape; // 0x00 — the star's shape (FUN_1001f873)
-	ScarletOrchid0x4c* m_model;  // 0x04
-	MechS32 m_faceCount;         // 0x08 — -1 until counted
-	MechS32 m_colorCount;        // 0x0c
-	MechS32 m_colors[16];        // 0x10
+	Shape** m_shape;      // 0x00 — the star's shape (FUN_1001f873)
+	Shape* m_model;       // 0x04
+	MechS32 m_faceCount;  // 0x08 — -1 until counted
+	MechS32 m_colorCount; // 0x0c
+	MechS32 m_colors[16]; // 0x10
 } JadeCycle0x50;
 
 // The state of FUN_1004771e's callback: an object turning at constant rates.
 // SIZE 0x1c
 typedef struct JadeSpin0x1c {
-	ScarletOrchid0x4c** m_shape; // 0x00
-	AmberWillow0x7c* m_object;   // 0x04
-	MechS32 m_rateX;             // 0x08 — 16.16 per period
-	MechS32 m_rateY;             // 0x0c
-	MechS32 m_rateZ;             // 0x10
-	MechS32 m_period;            // 0x14 — clock ticks
-	MechS32 m_lastClock;         // 0x18
+	Shape** m_shape;       // 0x00
+	SceneObject* m_object; // 0x04
+	MechS32 m_rateX;       // 0x08 — 16.16 per period
+	MechS32 m_rateY;       // 0x0c
+	MechS32 m_rateZ;       // 0x10
+	MechS32 m_period;      // 0x14 — clock ticks
+	MechS32 m_lastClock;   // 0x18
 } JadeSpin0x1c;
 
 // The state of FUN_100479ec's callback: an object circling while it turns.
 // SIZE 0x1c
 typedef struct JadeOrbit0x1c {
-	ScarletOrchid0x4c** m_shape; // 0x00
-	AmberWillow0x7c* m_object;   // 0x04
-	MechS32 m_angle;             // 0x08 — 16.16 degrees
-	MechS32 m_turnRate;          // 0x0c
-	MechS32 m_speed;             // 0x10
-	MechS32 m_enabled;           // 0x14
-	MechS32 m_lastClock;         // 0x18
+	Shape** m_shape;       // 0x00
+	SceneObject* m_object; // 0x04
+	MechS32 m_angle;       // 0x08 — 16.16 degrees
+	MechS32 m_turnRate;    // 0x0c
+	MechS32 m_speed;       // 0x10
+	MechS32 m_enabled;     // 0x14
+	MechS32 m_lastClock;   // 0x18
 } JadeOrbit0x1c;
 
 // The state of FUN_10046750's callback: an object moving through an animation (QuartzReel0x14)
@@ -93,7 +93,7 @@ typedef struct JadeOrbit0x1c {
 typedef struct JadeMotion0x2c {
 	QuartzReel0x14* m_reel;    // 0x00
 	QuartzReel0x14* m_initial; // 0x04
-	AmberWillow0x7c* m_object; // 0x08
+	SceneObject* m_object;     // 0x08
 	Player* m_player;          // 0x0c
 	MechS32 m_rate;            // 0x10 — clock ticks per frame
 	MechS32 m_timer;           // 0x14 — until the next frame
@@ -107,19 +107,19 @@ typedef struct JadeMotion0x2c {
 // The state of FUN_10047f60's callback: a star's object following a path, eased by the ramps.
 // SIZE 0x88
 typedef struct JadePath0x88 {
-	ScarletOrchid0x4c** m_shape; // 0x00 — the star's shape (FUN_1001f873)
-	AmberWillow0x7c* m_object;   // 0x04
-	Path* m_path;                // 0x08
-	MechS32 m_startClock;        // 0x0c
-	MechS32 m_duration;          // 0x10 — the points' times added up
-	MechS32 m_rotate;            // 0x14 — turns along the path
-	MechS32 m_mode;              // 0x18 — at the end: 0 "loop" runs on, 1 "repeat" restarts, 2 stops
-	Ramp m_x;                    // 0x1c
-	Ramp m_y;                    // 0x2c
-	Ramp m_z;                    // 0x3c
-	WrappedRamp m_pitch;         // 0x4c
-	WrappedRamp m_heading;       // 0x60
-	WrappedRamp m_roll;          // 0x74
+	Shape** m_shape;       // 0x00 — the star's shape (FUN_1001f873)
+	SceneObject* m_object; // 0x04
+	Path* m_path;          // 0x08
+	MechS32 m_startClock;  // 0x0c
+	MechS32 m_duration;    // 0x10 — the points' times added up
+	MechS32 m_rotate;      // 0x14 — turns along the path
+	MechS32 m_mode;        // 0x18 — at the end: 0 "loop" runs on, 1 "repeat" restarts, 2 stops
+	Ramp m_x;              // 0x1c
+	Ramp m_y;              // 0x2c
+	Ramp m_z;              // 0x3c
+	WrappedRamp m_pitch;   // 0x4c
+	WrappedRamp m_heading; // 0x60
+	WrappedRamp m_roll;    // 0x74
 } JadePath0x88;
 
 // An animation file LoadAnimFile has loaded: its id and the base of its animation numbers.
@@ -172,7 +172,7 @@ MechU8 g_unk0x1010b5b8;
 
 // The projected vertices of the polygon being built, and their count.
 // GLOBAL: MW2 0x1010b550
-CopperWren0x20* g_unk0x1010b550[20];
+ProjectedVertex* g_unk0x1010b550[20];
 
 // GLOBAL: MW2 0x1010b5b0
 MechS32 g_unk0x1010b5b0;
@@ -236,7 +236,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 	MechS32 number;
 	MechS32 turnZ;
 	MechS32 frame;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 rate;
 	MechS32 id;
 	void** slot;
@@ -312,7 +312,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		else {
 			shape = FindClassById(id);
 			if (shape) {
-				motion->m_object = FUN_1003b6e5(shape);
+				motion->m_object = GetShapeObject(shape);
 			}
 		}
 
@@ -735,7 +735,7 @@ MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 		cycle->m_model = *cycle->m_shape;
 		if (cycle->m_faceCount == -1) {
-			FUN_1003b43d(cycle->m_model, &vertexCount, &cycle->m_faceCount);
+			GetModelCounts(cycle->m_model, &vertexCount, &cycle->m_faceCount);
 		}
 
 		offset = p_clock / p_period % cycle->m_colorCount;
@@ -821,7 +821,7 @@ MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		spin->m_object = FUN_1003b6e5(*spin->m_shape);
+		spin->m_object = GetShapeObject(*spin->m_shape);
 		t = ((p_clock - spin->m_lastClock) << 16) / spin->m_period;
 		dx = FixedMul16(spin->m_rateX, t);
 		dy = FixedMul16(spin->m_rateY, t);
@@ -906,7 +906,7 @@ MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		orbit->m_object = FUN_1003b6e5(*orbit->m_shape);
+		orbit->m_object = GetShapeObject(*orbit->m_shape);
 		cosine = FUN_1006973a(orbit->m_angle);
 		sine = FUN_100696c0(orbit->m_angle);
 		t = FixedDiv16(p_clock - orbit->m_lastClock, 181);
@@ -989,7 +989,7 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		sound->m_obj = FUN_1003b6e5(*sound->m_unk0x0c);
+		sound->m_obj = GetShapeObject(*sound->m_unk0x0c);
 		UpdateAmbientSound(sound);
 		break;
 	case 2:
@@ -1155,7 +1155,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		follower->m_object = FUN_1003b6e5(*follower->m_shape);
+		follower->m_object = GetShapeObject(*follower->m_shape);
 		if (!follower->m_object) {
 			return 0;
 		}
@@ -1302,7 +1302,7 @@ static MechS32 Sum(MechS32 p_a, MechS32 p_b)
 
 // The view transform's row (p_a, p_b, p_c) times the vertex's offset from the eyepoint
 // (g_unk0x100ea8b8, g_unk0x100ea8b4, g_unk0x100ea8bc), shifted right by 27 and rounded.
-static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, EmberFern0x2c* p_vertex)
+static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, Vertex* p_vertex)
 {
 	MechU64 sum = Product(p_a, Difference(p_vertex->m_unk0x0c, g_unk0x100ea8b8)) +
 				  Product(p_b, Difference(p_vertex->m_unk0x10, g_unk0x100ea8b4)) +
@@ -1313,7 +1313,7 @@ static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, EmberFern0x2c* p_v
 
 // The call FUN_10049155 makes through g_unk0x100a6cc8.m_unk0x60, which has no prototype: the hook
 // is FUN_10036230 in the 3D view, and the map view's FUN_1003f0e7 takes three of the arguments.
-typedef MechS32 (*DrawFaceHook)(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_flags, MechS32 p_depth);
+typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flags, MechS32 p_depth);
 
 // A screen offset: p_value shifted left by p_shift (modulo 32, like the shld's count), divided by
 // the depth, and rounded to a quarter.
@@ -1338,10 +1338,10 @@ static MechS32 Interpolate(MechS32 p_from, MechS32 p_to, MechS32 p_toPlane, Mech
 // __asm block.
 // Stack-slot permutation of the locals the __asm blocks name.
 // FUNCTION: MW2 0x10048c50
-CopperWren0x20* FUN_10048c50(EmberFern0x2c* p_vertex)
+ProjectedVertex* FUN_10048c50(Vertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
-	CopperWren0x20* result = p_vertex->m_unk0x24;
+	ProjectedVertex* result = p_vertex->m_unk0x24;
 	MechS32 x;
 	MechS32 y;
 
@@ -1362,7 +1362,7 @@ CopperWren0x20* FUN_10048c50(EmberFern0x2c* p_vertex)
 #else
 	MechS32 u;
 	MechS32 v;
-	CopperWren0x20* result;
+	ProjectedVertex* result;
 	MechS32 deltaX;
 	MechS32 deltaY;
 	MechS32 deltaZ;
@@ -1454,12 +1454,12 @@ jmp_10048c72:
 // block.
 // Stack-slot permutation of the locals the __asm block names.
 // FUNCTION: MW2 0x10048d46
-CopperWren0x20* FUN_10048d46(EmberFern0x2c* p_a, EmberFern0x2c* p_b)
+ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
 {
 #ifdef PORTABLE_C
-	CopperWren0x20* a;
-	CopperWren0x20* b;
-	CopperWren0x20* result;
+	ProjectedVertex* a;
+	ProjectedVertex* b;
+	ProjectedVertex* result;
 	MechS32 x0;
 	MechS32 y0;
 	MechS32 z0;
@@ -1528,10 +1528,10 @@ CopperWren0x20* FUN_10048d46(EmberFern0x2c* p_a, EmberFern0x2c* p_b)
 	MechS32 z1;
 	MechS32 u0;
 	MechS32 u1;
-	CopperWren0x20* a;
-	CopperWren0x20* b;
+	ProjectedVertex* a;
+	ProjectedVertex* b;
 	MechS32 v0;
-	CopperWren0x20* result;
+	ProjectedVertex* result;
 	MechS32 v1;
 	MechS32 x0;
 	MechS32 x1;
@@ -1670,7 +1670,7 @@ jmp_10048e8f:
 // outcodes (m_unk0x1c: 1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the
 // polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.
 // FUNCTION: MW2 0x10048ebe
-CopperWren0x20* FUN_10048ebe(CopperWren0x20* p_vertex)
+ProjectedVertex* FUN_10048ebe(ProjectedVertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
 	MechS32 screen;
@@ -1783,10 +1783,10 @@ jmp_10048f8c:
 // shading is an __asm block.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10048faf
-MechS32 FUN_10048faf(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
+MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices)
 {
 #ifdef PORTABLE_C_LABELS
-	EmberFern0x2c* vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+	Vertex* vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
 	MechS32 x = vertex->m_unk0x0c;
 	MechS32 y = vertex->m_unk0x10;
 	MechS32 z = vertex->m_unk0x14;
@@ -1856,7 +1856,7 @@ MechS32 FUN_10048faf(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 	MechS32 nx;
 	MechS32 ny;
 	MechS32 nz;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 
 	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
 	nx = p_face->m_normal[0];
@@ -1977,12 +1977,12 @@ jmp_10049103:
 // z in depth.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049155
-void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
+void FUN_10049155(Face* p_face, Vertex* p_vertices)
 {
 #ifdef PORTABLE_C_LABELS
-	EmberFern0x2c* vertex;
-	EmberFern0x2c* first;
-	EmberFern0x2c* previous;
+	Vertex* vertex;
+	Vertex* first;
+	Vertex* previous;
 	IvoryDelta0xc* poly;
 	MechU8* index;
 	MechU16 count;
@@ -2138,7 +2138,7 @@ void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 	}
 #else
 	MechS32 stride;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 normalY;
 	MechS32 depth;
 	MechS8 andCodes;
@@ -2147,14 +2147,14 @@ void FUN_10049155(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 	MechU8* index;
 	IvoryDelta0xc* poly;
 	MechS8 clipped;
-	EmberFern0x2c* first;
-	EmberFern0x2c* previous;
+	Vertex* first;
+	Vertex* previous;
 	MechS8 firstClipped;
 	MechU8* cursor;
 	MechS8 previousClipped;
-	CopperWren0x20** points;
+	ProjectedVertex** points;
 
-	stride = sizeof(EmberFern0x2c);
+	stride = sizeof(Vertex);
 	orCodes = 0;
 	andCodes = 3;
 	g_unk0x1010b5bc++;

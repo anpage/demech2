@@ -639,7 +639,7 @@ void CreateObjectNode(
 	MechChar name[13];
 	BwdObjectRecord* record;
 	MechS32 mapped;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 thing;
 	Matrix matrix;
 	MechS32 resource;
@@ -647,9 +647,9 @@ void CreateObjectNode(
 	MechS32 id;
 	MechS32 size;
 	MechS32 handle;
-	AmberWillow0x7c* parentObj;
-	AmberWillow0x7c* obj;
-	ScarletOrchid0x4c* classShape;
+	SceneObject* parentObj;
+	SceneObject* obj;
+	Shape* classShape;
 
 	record = p_record;
 	flags = 0;
@@ -779,12 +779,12 @@ void CreateObjectNode(
 			parent = MapResourceId(parent);
 			classShape = FindClassById(parent);
 			if (classShape) {
-				parentObj = FUN_1003b6e5(classShape);
+				parentObj = GetShapeObject(classShape);
 			}
 
 			obj = FUN_100012d0(parentObj, 10);
 			FUN_10001532(obj, shape);
-			FUN_1003b6fb(shape, obj);
+			SetShapeObject(shape, obj);
 			SetObjRotation(obj, xform.m_unk0x0c, xform.m_unk0x10, xform.m_unk0x14, 0);
 			SetObjPosition(obj, xform.m_unk0x18, xform.m_unk0x1c, xform.m_unk0x20);
 			FUN_10001cf8(obj);
@@ -803,10 +803,10 @@ void CreateObjectNode(
 // Returns the object of the next entry of g_unk0x100ea580, or NULL after the last.
 // Stack-slot permutation of id and obj.
 // FUNCTION: MW2 0x100506d8
-struct AmberWillow0x7c* FUN_100506d8(void)
+struct SceneObject* FUN_100506d8(void)
 {
 	MechS32 id;
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 
 	if (g_unk0x100a8624 < g_unk0x100a8620) {
 		id = g_unk0x100ea580[g_unk0x100a8624];

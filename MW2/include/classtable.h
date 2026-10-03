@@ -6,7 +6,7 @@
 #include "shape.h"
 #include "types.h"
 
-struct AmberWillow0x7c;
+struct SceneObject;
 struct Player;
 
 // The functions and globals of classtable.c that other units use.
@@ -37,12 +37,12 @@ extern "C"
 	MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer);
 	void FUN_1001d88b(void);
 	void FUN_1001d912(MechS32 p_index, MechS32 p_level);
-	struct AmberWillow0x7c* FUN_1001d980(MechS32 p_index);
-	ScarletOrchid0x4c* FUN_1001d9ca(MechS32 p_index);
+	struct SceneObject* FUN_1001d980(MechS32 p_index);
+	Shape* FUN_1001d9ca(MechS32 p_index);
 	void FUN_1001da14(MechS32 p_index, MechU16 p_value);
 	void FUN_1001da44(void);
-	void FUN_1001ddf2(struct AmberWillow0x7c* p_obj);
-	void FUN_1001de84(struct AmberWillow0x7c* p_obj);
+	void FUN_1001ddf2(struct SceneObject* p_obj);
+	void FUN_1001de84(struct SceneObject* p_obj);
 
 #ifdef __cplusplus
 }
