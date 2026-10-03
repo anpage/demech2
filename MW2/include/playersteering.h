@@ -52,7 +52,7 @@ typedef struct PlayerSteering {
 	MechS8 m_nearestEnemy;            // 0x38
 	MechS8 m_targetLastShot;          // 0x39
 	MechS8 m_inspectTarget;           // 0x3a — the target is claimed when it is in range (FUN_1005fa22)
-	MechS8 m_unk0x3b;                 // 0x3b
+	MechS8 m_nextObjective;           // 0x3b — GAMEKEY.MAP's NEXT_OBJECTIVE: the next objective nav
 	MechS8 m_advanceGamething;        // 0x3c
 	MechS8 m_previousGamething;       // 0x3d
 	MechS8 m_resetGamething;          // 0x3e

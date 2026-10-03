@@ -229,8 +229,8 @@ void FUN_1006d3a4(Player* p_player)
 	p_player->m_aiMode = 0;
 	p_player->m_flags = 0;
 	p_player->m_inspectedBy = 0;
-	p_player->m_unk0x18 = 0;
-	p_player->m_unk0x1c = -1;
+	p_player->m_baseLevel = 0;
+	p_player->m_detailLevel = -1;
 	p_player->m_mech = NULL;
 	p_player->m_mechSize = 0;
 	p_player->m_firstClassFn = NULL;
@@ -249,7 +249,7 @@ void FUN_1006d3a4(Player* p_player)
 	p_player->m_groundHeight = 0;
 	p_player->m_onGround = 0;
 	p_player->m_collidedWith = -1;
-	p_player->m_unk0x80 = 0;
+	p_player->m_animFlags = 0;
 	p_player->m_motionState = -1;
 	p_player->m_nextMotionState = -1;
 	p_player->m_speedLevel = 0;
@@ -259,11 +259,11 @@ void FUN_1006d3a4(Player* p_player)
 	StartRamp(&p_player->m_aimDistance, 50000, 50000, 20.0);
 	p_player->m_headingSin = p_player->m_headingCos = 0;
 	p_player->m_targetInfo.m_distance = 0;
-	p_player->m_targetInfo.m_unk0x04 = 0;
+	p_player->m_targetInfo.m_range = 0;
 	p_player->m_targetInfo.m_position.m_x = p_player->m_targetInfo.m_position.m_y =
 		p_player->m_targetInfo.m_position.m_z = 0;
 	p_player->m_targetInfo.m_heading = 0;
-	p_player->m_targetInfo.m_unk0x18 = 0;
+	p_player->m_targetInfo.m_pitch = 0;
 	p_player->m_targetInfo.m_target = -1;
 	p_player->m_targetInfo.m_unk0x20 = 0;
 	p_player->m_targetInfo.m_unk0x24 = 0;

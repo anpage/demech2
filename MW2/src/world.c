@@ -736,8 +736,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						player->m_updateFn = playerType->m_updateFn;
 						player->m_lateUpdateFn = playerType->m_lateUpdateFn;
 						player->m_shutdownFn = playerType->m_shutdownFn;
-						player->m_unk0x18 = g_unk0x100a385c;
-						player->m_unk0x1c = -1;
+						player->m_baseLevel = g_unk0x100a385c;
+						player->m_detailLevel = -1;
 						if (g_localPlayerId == g_playerCount) {
 							player->m_aiMode = 0;
 							player->m_localUpdateFn = playerType->m_localUpdateFn;

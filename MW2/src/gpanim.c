@@ -56,7 +56,7 @@ MechS32* FUN_100036c3(Player* p_player, MechS32* p_offset)
 
 // Picks the player's motion state from its mech's throttle (m_speedLevel, m_nextMotionState; 2
 // while its steering's m_reverse is set), plays its pending sound m_pendingSound once (bit 8 of
-// m_unk0x80), and for the local player updates the looping sounds (FUN_100038c2).
+// m_animFlags), and for the local player updates the looping sounds (FUN_100038c2).
 // Stack-slot permutation: offset and position.
 // FUNCTION: MW2 0x10003710
 void FUN_10003710(Player* p_player)
@@ -100,8 +100,8 @@ void FUN_10003710(Player* p_player)
 		}
 	}
 
-	if (p_player->m_pendingSound != -1 && p_player->m_unk0x80 & 8) {
-		p_player->m_unk0x80 &= ~8;
+	if (p_player->m_pendingSound != -1 && p_player->m_animFlags & 8) {
+		p_player->m_animFlags &= ~8;
 		offset = FUN_100036c3(p_player, position);
 		FUN_1007ebd1(position[0], position[1], position[2], p_player->m_pendingSound, g_unk0x100a2420);
 	}
@@ -156,6 +156,6 @@ void FUN_10003a10(Player* p_player)
 	p_player->m_speedLevel = 0;
 	p_player->m_nextMotionState = -1;
 	p_player->m_motionState = -1;
-	p_player->m_unk0x80 |= 0x10;
+	p_player->m_animFlags |= 0x10;
 	g_unk0x10181970[id] = -2;
 }

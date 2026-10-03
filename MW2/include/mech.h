@@ -30,7 +30,7 @@ typedef struct Mech {
 	struct SceneObject* m_objects[8]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets
 	MechS32 m_topSpeed;               // 0x88 — the .MEK's speed, per throttle unit
 	MechS32 m_stateTime;              // 0x8c — the clock when the power or heat state changed (self-destruct's end)
-	MechS32 m_unk0x90;                // 0x90
+	MechS32 m_unk0x90;                // 0x90 — only ever cleared
 	MechS32 m_deltaHeat;              // 0x94 — heat added this tick
 	MechS32 m_heat;                   // 0x98 — 16.16: past 80 the mech overheats (m_flags 0x4)
 	MechS32 m_cooling;                // 0x9c — per tick: the .MEK's heat sinks times the climate's rate
@@ -39,22 +39,22 @@ typedef struct Mech {
 	MechS32 m_weaponCount;            // 0xa8
 	MechS32 m_selectedWeapon;         // 0xac — an index into m_weapons, or -1
 	MechS32 m_mobility;               // 0xb0 — 16.16, scales the throttle: each leg hit takes 0.1
-	MechS32 m_unk0xb4;                // 0xb4
-	MechS32 m_unk0xb8;                // 0xb8 — m_selectedWeapon when the weapons last fired
+	MechS32 m_unk0xb4;                // 0xb4 — blocks the weapon cycle when set, but nothing sets it
+	MechS32 m_lastSelectedWeapon;     // 0xb8 — m_selectedWeapon before this tick's weapon input
 	MechS32 m_autopilot;              // 0xbc — 1 and 2 are on
 	MechS32 m_jumpFuel;               // 0xc0 — the jump jets fire while it is positive; -2 without jets
 	MechS32 m_jumpJets;               // 0xc4 — the .MEK's jump jets: each critical hit takes one
 	MechS32 m_ammoBinCount;           // 0xc8
 	MechS32 m_height;                 // 0xcc — of its object's origin above its feet (the MGD's)
 	MechS32 m_cockpitHeight;          // 0xd0 — added to the eyepoint (g_unk0x100a2434)
-	MechS32 m_unk0xd4;                // 0xd4
+	MechS32 m_unk0xd4;                // 0xd4 — the MGD's third to fifth values: nothing reads them
 	MechS32 m_unk0xd8;                // 0xd8
 	MechS32 m_unk0xdc;                // 0xdc
 	MechS32 m_maxTorsoTwist;          // 0xe0 — 16.16 degrees either way
 	MechS32 m_tons;                   // 0xe4 — FUN_1007669e scales collision damage by it
 	MechS32 m_radius;                 // 0xe8 — splash damage reaches it this much further
 	MechS32 m_jumpThrust;             // 0xec — the jump jets' upward acceleration
-	MechS32 m_unk0xf0;                // 0xf0
+	MechS32 m_unk0xf0;                // 0xf0 — only ever cleared
 	MechS32 m_velocityX;              // 0xf4
 	MechS32 m_velocityY;              // 0xf8
 	MechS32 m_velocityZ;              // 0xfc

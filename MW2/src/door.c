@@ -41,7 +41,7 @@ void FUN_100680a0(Player* p_player)
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
 	mech->m_mobility = 0x10000;
-	mech->m_unk0xb8 = 0;
+	mech->m_lastSelectedWeapon = 0;
 	mech->m_weaponCount = 0;
 	mech->m_collisionTicks = 0;
 	mech->m_flags = 0;

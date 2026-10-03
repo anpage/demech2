@@ -145,7 +145,7 @@ void FUN_10016ad0(struct Player* p_player)
 	StartRamp(&mech->m_throttle, 0x400, 0x400, 0.2);
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
-	mech->m_unk0xb8 = 0;
+	mech->m_lastSelectedWeapon = 0;
 	mech->m_collisionTicks = 0;
 	mech->m_flags |= 0x2000;
 	mech->m_powerState = 0;
@@ -181,7 +181,7 @@ void FUN_10016ad0(struct Player* p_player)
 	mech->m_player->m_steering->m_previousTarget = 0;
 	mech->m_player->m_steering->m_resetTarget = 0;
 	mech->m_player->m_steering->m_nearestEnemy = 0;
-	mech->m_player->m_steering->m_unk0x3b = 0;
+	mech->m_player->m_steering->m_nextObjective = 0;
 	FUN_1000365a(mech->m_player);
 	FUN_100019f6(mech->m_player->m_obj);
 	if (g_unk0x100acb34 && mech->m_player->m_index == g_localPlayerId) {
@@ -521,14 +521,14 @@ void FUN_10016edf(Mech* p_mech)
 
 		mech->m_player->m_onGround = 0;
 		if (height > mech->m_height) {
-			mech->m_player->m_unk0x80 &= ~1;
-			mech->m_player->m_unk0x80 |= 4;
+			mech->m_player->m_animFlags &= ~1;
+			mech->m_player->m_animFlags |= 4;
 			if (isLocal && g_unk0x100a2c00) {
 				g_unk0x100a2bfc = 1;
 			}
 		}
 		else {
-			mech->m_player->m_unk0x80 &= ~4;
+			mech->m_player->m_animFlags &= ~4;
 			if (height <= 0) {
 				mech->m_player->m_onGround = 1;
 				if (height < 0) {
@@ -744,9 +744,9 @@ void FUN_100180cd(Mech* p_mech)
 			mech->m_player->m_steering->m_targetLastShot = 0;
 		}
 
-		if (mech->m_player->m_steering->m_unk0x3b) {
+		if (mech->m_player->m_steering->m_nextObjective) {
 			FUN_1005ef5e(mech->m_player, 1, 0x10008);
-			mech->m_player->m_steering->m_unk0x3b = 0;
+			mech->m_player->m_steering->m_nextObjective = 0;
 		}
 
 		if (mech->m_player->m_steering->m_advanceGamething) {
@@ -859,14 +859,14 @@ void FUN_100180cd(Mech* p_mech)
 		if (mech->m_jumpFuel > 0) {
 			FUN_1004ccba(mech);
 			mech->m_deltaHeat += mech->m_jumpJets * g_deltaTime * 0x180;
-			mech->m_player->m_unk0x80 &= ~4;
-			mech->m_player->m_unk0x80 &= ~1;
+			mech->m_player->m_animFlags &= ~4;
+			mech->m_player->m_animFlags &= ~1;
 			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
 		}
 
 		mech->m_turnRate.m_target = turn * 2;
 	}
-	else if (!(mech->m_player->m_unk0x80 & 4) && active) {
+	else if (!(mech->m_player->m_animFlags & 4) && active) {
 		speed = mech->m_speed.m_value / 10000;
 		if (speed || (isLocal && mech->m_mobility > 0)) {
 			if (speed > 0x50) {
@@ -953,7 +953,7 @@ void FUN_100180cd(Mech* p_mech)
 			mech->m_speed.m_target *= -1;
 		}
 
-		if (!jumping && (mech->m_player->m_unk0x80 & 2)) {
+		if (!jumping && (mech->m_player->m_animFlags & 2)) {
 			if (g_unk0x100a2bf0 && isLocal && g_currentClock - g_unk0x100a2c14 > 0xb5) {
 				g_unk0x100a2c14 = g_currentClock;
 				if (RandomIntBelow(0x3c) == 12 && !g_difficulty->m_invulnerable && mech->m_powerState == 2) {
@@ -1344,13 +1344,14 @@ MechS32 FUN_10019a0a(void)
 	return size;
 }
 
+// Nothing calls it.
 // FUNCTION: MW2 0x10019a3c
-MechS32 FUN_10019a3c(Player* p_player)
+MechS32 GetLastSelectedWeapon(Player* p_player)
 {
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	return mech->m_unk0xb8;
+	return mech->m_lastSelectedWeapon;
 }
 
 // Selects weapon p_weapon of p_player's mech.
@@ -1363,8 +1364,9 @@ void FUN_10019a61(Player* p_player, MechS32 p_weapon)
 	mech->m_selectedWeapon = p_weapon;
 }
 
+// Nothing calls it.
 // FUNCTION: MW2 0x10019a84
-MechS32 FUN_10019a84(Player* p_player)
+MechS32 GetMechHeight(Player* p_player)
 {
 	Mech* mech;
 

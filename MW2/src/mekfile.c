@@ -52,7 +52,7 @@ typedef struct MekAmmo {
 	MechS32 m_type; // 0x04 — the MekWeapon::m_type it feeds
 } MekAmmo;
 
-// The value each weapon type adds to a mech's (FUN_1005e534).
+// The value each weapon type adds to a mech's (GetMechValue).
 // GLOBAL: MW2 0x100aa730
 MechU16 g_unk0x100aa730[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,   228, 42, 82, 123,
 							   157, 74,  144, 247, 329, 4,  228, 166, 51, 21, 177, 74,  16, 50, 40};
@@ -151,7 +151,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	mekSections = (MechSection*) (header + 1);
 	weapons = (MekWeapon*) (mekSections + 8);
 	ammos = (MekAmmo*) (weapons + header->m_weaponCount);
-	p_mech->m_player->m_ai.m_unk0x0c = FUN_1005e534(header, mekSections, weapons);
+	p_mech->m_player->m_ai.m_value = GetMechValue(header, mekSections, weapons);
 	memcpy(p_mech->m_sections, mekSections, 8 * sizeof(MechSection));
 
 	section = p_mech->m_sections;
@@ -377,7 +377,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // Stack-slot permutation: the kinds table sits elsewhere in the frame, so its accesses and the
 // jumps over them differ in their encoding.
 // FUNCTION: MW2 0x1005e534
-MechU16 FUN_1005e534(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
+MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
 {
 	MechS32 armor;
 	MechS16 kinds[23][3] = {{5000, 1, 0}, {5050, 1, 0}, {5100, -60, 0}, {5150, -60, 0}, {5200, -50, 0}, {5250, 1, 0},

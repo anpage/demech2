@@ -571,7 +571,7 @@ void FUN_1007005a(Mech* p_mech)
 
 	g_unk0x100c3270 = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
 	g_unk0x100c326c = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
-	pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_torsoPitch.m_value) % 0x1680000;
+	pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
 	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_unk0x100c3270;
 	if (bearing > 180) {
 		bearing -= 360;

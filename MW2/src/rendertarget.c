@@ -553,9 +553,9 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	MechS32 dy;
 	MechS32 dz;
 	MechS32 heading;
-	MechS32 unk0x04;
+	MechS32 range;
 	MechU32 distance;
-	MechS32 unk0x18;
+	MechS32 pitch;
 
 	if (p_nav < 0) {
 		return -1;
@@ -602,14 +602,14 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
+	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
 	player->m_targetInfo.m_position.m_x = x;
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
 	player->m_targetInfo.m_heading = heading;
-	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
-	player->m_targetInfo.m_unk0x18 = unk0x18;
+	player->m_targetInfo.m_pitch = pitch;
 	return 1;
 }
 
@@ -633,9 +633,9 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	MechS32 dy;
 	MechS32 dz;
 	MechS32 heading;
-	MechS32 unk0x04;
+	MechS32 range;
 	MechU32 distance;
-	MechS32 unk0x18;
+	MechS32 pitch;
 
 	if (p_index == 1 && p_player == g_localPlayerId) {
 		breakpoint = 0;
@@ -701,8 +701,8 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
-	if (!(target->m_flags & 0x1000) && unk0x04 > 0x2ab98 && p_player == g_localPlayerId) {
+	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
+	if (!(target->m_flags & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
 
@@ -710,9 +710,9 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
 	player->m_targetInfo.m_heading = heading;
-	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
-	player->m_targetInfo.m_unk0x18 = unk0x18;
+	player->m_targetInfo.m_pitch = pitch;
 	return 1;
 }
 
@@ -732,9 +732,9 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	MechS32 dy;
 	MechS32 dz;
 	MechS32 heading;
-	MechS32 unk0x04;
+	MechS32 range;
 	MechU32 distance;
-	MechS32 unk0x18;
+	MechS32 pitch;
 
 	if (p_index < 0) {
 		return -1;
@@ -786,8 +786,8 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
-	if (!(thing->m_unk0x00 & 0x1000) && unk0x04 > 0x2ab98 && p_player == g_localPlayerId) {
+	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
+	if (!(thing->m_unk0x00 & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
 
@@ -795,9 +795,9 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
 	player->m_targetInfo.m_heading = heading;
-	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
-	player->m_targetInfo.m_unk0x18 = unk0x18;
+	player->m_targetInfo.m_pitch = pitch;
 	return 1;
 }
 
@@ -1048,8 +1048,8 @@ void FUN_10060010(void)
 	g_unk0x100aabac = 1;
 }
 
-// Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_unk0x0c), its length along the
-// ground (*p_distance), its full length (*p_unk0x10) and its pitch (*p_unk0x18).
+// Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_heading), its length along the
+// ground (*p_distance), its full length (*p_length) and its pitch (*p_pitch).
 // The abs(p_dx)/abs(p_dz) comparison evaluates its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local.
 // FUNCTION: MW2 0x10060197
@@ -1057,10 +1057,10 @@ void FUN_10060197(
 	MechS32 p_dx,
 	MechS32 p_dy,
 	MechS32 p_dz,
-	MechS32* p_unk0x0c,
-	MechS32* p_unk0x10,
+	MechS32* p_heading,
+	MechS32* p_length,
 	MechU32* p_distance,
-	MechS32* p_unk0x18
+	MechS32* p_pitch
 )
 {
 	MechS32 pitch;
@@ -1100,10 +1100,10 @@ void FUN_10060197(
 		length = 0;
 	}
 
-	*p_unk0x0c = heading;
+	*p_heading = heading;
 	*p_distance = ground;
-	*p_unk0x10 = length;
-	*p_unk0x18 = pitch;
+	*p_length = length;
+	*p_pitch = pitch;
 }
 
 // Steps p_player's selected target by p_step, with bit 0x100 of the flags set when p_unk0x08.
@@ -1189,7 +1189,7 @@ void FUN_100603ae(void)
 			break;
 		}
 
-		distance = player->m_targetInfo.m_unk0x04;
+		distance = player->m_targetInfo.m_range;
 		if (distance < bestDistance) {
 			best = target;
 			bestDistance = distance;

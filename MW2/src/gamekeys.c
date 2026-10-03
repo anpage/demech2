@@ -902,7 +902,7 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_targetFriendly = 1;
 		break;
 	case 0x54:
-		g_localSteering.m_unk0x3b = 1;
+		g_localSteering.m_nextObjective = 1;
 		break;
 	case 0x52:
 		g_localSteering.m_targetReticle = 1;

@@ -246,7 +246,7 @@ void FUN_1007b930(CockpitPanel* p_panel)
 	g_unk0x100e9350[0xe] = color;
 	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
 	g_unk0x100e9350[0xe] = 0xe;
-	meters = mech->m_player->m_targetInfo.m_unk0x04 / 100;
+	meters = mech->m_player->m_targetInfo.m_range / 100;
 	if (meters > 1000) {
 		km = meters / 1000.0;
 		sprintf(text, "\n%2.2fk", km);

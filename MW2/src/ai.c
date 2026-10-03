@@ -394,7 +394,7 @@ AiTransitionFn g_aiTransitionFns[5] = {
 void* g_aiScripts[10];
 
 // GLOBAL: MW2 0x100e9e38
-MechS16 g_unk0x100e9e38;
+MechS16 g_hiddenTargetCount;
 
 // GLOBAL: MW2 0x100e9e40
 AiRule* g_aiRules[60][6];
@@ -419,7 +419,7 @@ void UpdateAI(Player* p_player)
 	}
 
 	if (p_player->m_index == 0) {
-		g_unk0x100e9e38 = 0;
+		g_hiddenTargetCount = 0;
 	}
 
 	if (p_player->m_ai.m_state == c_aiStateDead) {
@@ -591,10 +591,10 @@ void InitializeAI(Player* p_player)
 	ResetAI(p_player);
 
 	if (g_players[g_localPlayerId]->m_team != p_player->m_team) {
-		p_player->m_mayEngage = 1;
+		p_player->m_engageAtWill = 1;
 	}
 	else {
-		p_player->m_mayEngage = 0;
+		p_player->m_engageAtWill = 0;
 	}
 
 	if (p_player->m_aiMode == 2) {
@@ -660,7 +660,7 @@ void ResetAI(Player* p_player)
 	p_player->m_stackCount = 0;
 	p_player->m_ai.m_posted.m_message = 0;
 	p_player->m_nextFireTime = 0;
-	FUN_100561ea(p_player);
+	ReleaseAnchorNav(p_player);
 	CollectAIRules(p_player);
 }
 
@@ -714,8 +714,9 @@ const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 	return NULL;
 }
 
+// Clears the AI log page's lines (the drawing is compiled out).
 // FUNCTION: MW2 0x10051b35
-void FUN_10051b35(void)
+void ClearAILog(void)
 {
 	MechS32 i;
 
@@ -986,18 +987,18 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 		result = AiMessageProx(p_player, p_target, GetTargetRange(p_target) / 100);
 		if (result && (p_target & c_aiTargetNav)) {
 			if (p_player->m_nav == p_target) {
-				FUN_100561ea(p_player);
+				ReleaseAnchorNav(p_player);
 			}
 
 			if (p_player->m_ai.m_state == c_aiStatePatrol) {
-				FUN_10054a30(p_player, p_target);
+				AdvanceNavTarget(p_player, p_target);
 				p_player->m_ai.m_target = p_player->m_targetInfo.m_target;
 				if (p_player->m_targetInfo.m_target & 0x1000) {
-					FUN_10054a30(p_player, c_aiTargetNav);
+					AdvanceNavTarget(p_player, c_aiTargetNav);
 				}
 			}
 			else {
-				FUN_10054a30(p_player, p_target);
+				AdvanceNavTarget(p_player, p_target);
 			}
 		}
 	}
@@ -1185,7 +1186,7 @@ void LogStarMissionLines(MechS32 p_team)
 			g_unk0x100a88fc = g_unk0x100a88f4;
 			g_unk0x100a88f8 = mission->m_objectiveCount - 1 < g_unk0x100a88fc + 20 ? mission->m_objectiveCount - 1
 																				   : g_unk0x100a88fc + 20;
-			FUN_10051b35();
+			ClearAILog();
 		}
 		else {
 			g_unk0x100a88f4 = g_unk0x100a88fc;
@@ -1195,7 +1196,7 @@ void LogStarMissionLines(MechS32 p_team)
 		if (mission->m_objectiveCount > g_unk0x100a88f4) {
 			g_unk0x100a88f8 = g_unk0x100a88f4;
 			g_unk0x100a88fc = g_unk0x100a88f8 - 20 > 0 ? g_unk0x100a88f8 - 20 : 0;
-			FUN_10051b35();
+			ClearAILog();
 		}
 		else {
 			g_unk0x100a88f4 = g_unk0x100a88f8;
@@ -1269,8 +1270,11 @@ void LogStarMissionLines(MechS32 p_team)
 	}
 }
 
+// Whether p_player can detect player p_target: a powered-down target (flag 0x10) within
+// p_distance it has no line of sight to is hidden, checked with p_check at most every 0x21f ticks
+// (m_nextDetectCheck). Nothing calls it.
 // FUNCTION: MW2 0x10052cb7
-MechS32 FUN_10052cb7(Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check)
+MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check)
 {
 	MechS32 dead;
 	MechS32 result;
@@ -1278,17 +1282,17 @@ MechS32 FUN_10052cb7(Player* p_player, MechS16 p_target, MechS16 p_distance, Mec
 	dead = g_players[p_target & 0xff]->m_flags & 0x10;
 	result = TRUE;
 
-	if (!p_check || g_currentClock <= p_player->m_unk0x16e) {
+	if (!p_check || g_currentClock <= p_player->m_nextDetectCheck) {
 		return dead == 0;
 	}
 
 	if (p_player->m_targetInfo.m_distance < p_distance && (p_target & c_aiTargetPlayer) && dead &&
 		!FUN_1006ca60(p_player, 1)) {
 		result = FALSE;
-		g_unk0x100e9e38++;
+		g_hiddenTargetCount++;
 	}
 
-	p_player->m_unk0x16e = g_currentClock + 0x21f;
+	p_player->m_nextDetectCheck = g_currentClock + 0x21f;
 
 	return result;
 }
@@ -1400,7 +1404,7 @@ void LogAIStatus(void)
 		g_unk0x100a8900 = g_unk0x100a88f0;
 		g_unk0x100a88fc = g_unk0x100a88f8 = -1;
 		g_unk0x100a88f4 = 0;
-		FUN_10051b35();
+		ClearAILog();
 	}
 
 	if (g_unk0x100a88f0 == -1) {
@@ -1723,7 +1727,7 @@ MechS32 AimTorsoTilt(Player* p_player, MechS32 p_delta)
 {
 	MechS32 value;
 
-	value = p_player->m_targetInfo.m_unk0x18 / 0xf00;
+	value = p_player->m_targetInfo.m_pitch / 0xf00;
 	return AddClamped(value, p_delta * 2, TRUE);
 }
 
@@ -2261,11 +2265,13 @@ void PlacePatrolNavs(Player* p_player)
 	if (FUN_1005ec80(owner, x, y, z + range) == -1) {
 	}
 
-	FUN_10054a30(p_player, c_aiTargetNav);
+	AdvanceNavTarget(p_player, c_aiTargetNav);
 }
 
+// Targets p_target and steps p_player's target on to the next of its own nav points, past its
+// anchor nav, and makes that its AI target.
 // FUNCTION: MW2 0x10054a30
-void FUN_10054a30(Player* p_player, MechS16 p_target)
+void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
 	FUN_100602b2(p_player, 1, 1);
@@ -2409,11 +2415,11 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 				if (player->m_index != g_localPlayerId) {
 					if (player->m_ai.m_state != c_aiStateDead && HasAIState(player, p_state)) {
 						if (p_state == c_aiStateAttack) {
-							if (!player->m_mayEngage) {
-								player->m_mayEngage = 1;
+							if (!player->m_engageAtWill) {
+								player->m_engageAtWill = 1;
 							}
 							else {
-								player->m_mayEngage = 0;
+								player->m_engageAtWill = 0;
 							}
 
 							player->m_ai.m_flags &= ~3;
@@ -2432,7 +2438,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 							}
 							else {
 								if (p_state == c_aiStateFollow) {
-									player->m_mayEngage = 0;
+									player->m_engageAtWill = 0;
 								}
 
 								player->m_ai.m_flags |= 0x12;
@@ -2640,7 +2646,7 @@ void AssignStarObjective(MechS32 p_team)
 
 		member->m_ai.m_flags &= ~3;
 		member->m_ai.m_flags |= flags;
-		FUN_100561ea(member);
+		ReleaseAnchorNav(member);
 	}
 
 	if (GetTeamLeader(p_team) == g_localPlayerId && type != 0x10) {
@@ -2808,7 +2814,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 
 	switch (p_target & 0xf00) {
 	case c_aiTargetPlayer:
-		slot = g_players[p_target & 0xff]->m_ai.m_unk0x0c;
+		slot = g_players[p_target & 0xff]->m_ai.m_value;
 		break;
 	default:
 		break;
@@ -2827,7 +2833,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 		for (i = 0; i < count && required; i++) {
 			member = members[i];
 			if (member->m_ai.m_state != c_aiStateTarget && member->m_ai.m_state != c_aiStateAttack &&
-				!IsOutOfAmmo(member->m_mech) && member->m_mayEngage) {
+				!IsOutOfAmmo(member->m_mech) && member->m_engageAtWill) {
 				SetAIState(member, c_aiStateTarget, p_target, 1);
 				result = TRUE;
 			}
@@ -2839,8 +2845,8 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 		for (i = 0, chosen = -1, nearest = 0x7fff; i < count; i++) {
 			member = members[i];
 			if (member->m_index != leader && !(member->m_ai.m_flags & 3) && member->m_ai.m_state != c_aiStateTarget &&
-				member->m_ai.m_state != c_aiStateAttack && !IsOutOfAmmo(member->m_mech) && member->m_mayEngage) {
-				diff = member->m_ai.m_unk0x0c - slot;
+				member->m_ai.m_state != c_aiStateAttack && !IsOutOfAmmo(member->m_mech) && member->m_engageAtWill) {
+				diff = member->m_ai.m_value - slot;
 				if (abs(diff) < nearest) {
 					nearest = abs(diff);
 					chosen = member->m_index;
@@ -2854,7 +2860,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 		else {
 			member = g_players[leader];
 			if ((member->m_ai.m_flags & 3) || member->m_ai.m_state == c_aiStateTarget ||
-				member->m_ai.m_state == c_aiStateAttack || IsOutOfAmmo(member->m_mech) || !member->m_mayEngage) {
+				member->m_ai.m_state == c_aiStateAttack || IsOutOfAmmo(member->m_mech) || !member->m_engageAtWill) {
 				member = NULL;
 			}
 		}
@@ -3057,8 +3063,10 @@ void LeadStar(MechS32 p_team)
 	}
 }
 
+// Releases p_player's anchor nav (m_nav). As written it only does so when m_nav is 0, an index
+// without the nav type bits, so the anchor stays placed.
 // FUNCTION: MW2 0x100561ea
-void FUN_100561ea(Player* p_player)
+void ReleaseAnchorNav(Player* p_player)
 {
 	if (p_player->m_nav != 0) {
 		return;

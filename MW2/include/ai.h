@@ -78,7 +78,7 @@ extern "C"
 	void ResetAI(struct Player* p_player);
 	void TargetAttacker(struct Player* p_player);
 	const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count);
-	void FUN_10051b35(void);
+	void ClearAILog(void);
 	void LogPlayerStatusLines(void);
 	MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b);
 	MechS32 ChooseTeamLeader(MechS32 p_team);
@@ -91,7 +91,7 @@ extern "C"
 	void LogPlayerSkillLines(void);
 	MechS16 AiMessageDist(struct Player* p_player, MechS16 p_target, MechS16 p_arg);
 	void LogStarMissionLines(MechS32 p_team);
-	MechS32 FUN_10052cb7(struct Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check);
+	MechS32 IsTargetDetectable(struct Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check);
 	struct Player* FindNearestTarget(
 		struct Player* p_player,
 		MechS16 p_target,
@@ -129,7 +129,7 @@ extern "C"
 	void SetAIState(struct Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_push);
 	void ReleaseNavPoints(struct Player* p_player);
 	void PlacePatrolNavs(struct Player* p_player);
-	void FUN_10054a30(struct Player* p_player, MechS16 p_target);
+	void AdvanceNavTarget(struct Player* p_player, MechS16 p_target);
 	void PlaceFormationNav(struct Player* p_player);
 	void RecordAttack(MechS32 p_index, MechU32 p_target);
 	MechS32 LoadAIScripts(void);
@@ -148,7 +148,7 @@ extern "C"
 	void HandleStarOrder(MechS32 p_team, AiMessage* p_order);
 	MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target);
 	void LeadStar(MechS32 p_team);
-	void FUN_100561ea(struct Player* p_player);
+	void ReleaseAnchorNav(struct Player* p_player);
 	MechS32 GetLocalStarSize(void);
 	void RunStarCommand(MechS32 p_command, MechS32 p_slot);
 	void SweepTorso(struct Player* p_player);

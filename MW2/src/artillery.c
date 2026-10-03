@@ -41,7 +41,7 @@ void FUN_10059fc0(Player* p_player)
 	StartRamp(&mech->m_torsoPitch, 0, 0, 0.8);
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
-	mech->m_unk0xb8 = 0;
+	mech->m_lastSelectedWeapon = 0;
 	mech->m_weaponCount = 10;
 	mech->m_collisionTicks = 0;
 	mech->m_flags = 0x2000;

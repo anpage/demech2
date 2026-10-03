@@ -33,9 +33,9 @@ extern "C"
 	MechS32 FUN_100197ca(MechS32 p_index, struct Player* p_player);
 	void FUN_10019881(struct Mech* p_mech);
 	MechS32 FUN_10019a0a(void);
-	MechS32 FUN_10019a3c(struct Player* p_player);
+	MechS32 GetLastSelectedWeapon(struct Player* p_player);
 	void FUN_10019a61(struct Player* p_player, MechS32 p_weapon);
-	MechS32 FUN_10019a84(struct Player* p_player);
+	MechS32 GetMechHeight(struct Player* p_player);
 
 #ifdef __cplusplus
 }

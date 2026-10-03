@@ -88,7 +88,7 @@ typedef struct JadeOrbit0x1c {
 } JadeOrbit0x1c;
 
 // The state of FUN_10046750's callback: an object moving through an animation (Reel)
-// in step with its player's animation state (m_unk0x80 to m_animRate).
+// in step with its player's animation state (m_animFlags to m_animRate).
 // SIZE 0x2c
 typedef struct JadeMotion0x2c {
 	Reel* m_reel;          // 0x00
@@ -343,7 +343,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 		elapsed = p_clock - motion->m_lastClock;
 		motion->m_lastClock = p_clock;
-		if (motion->m_player->m_unk0x80 & 0x10) {
+		if (motion->m_player->m_animFlags & 0x10) {
 			motion->m_reel = motion->m_initial;
 			motion->m_frame = -1;
 			motion->m_timer = 0;
@@ -351,11 +351,11 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			motion->m_lastClock = p_clock;
 			if (motion->m_flags & 1) {
 				motion->m_player->m_animRate = motion->m_rate;
-				motion->m_player->m_unk0x80 &= ~0x11;
+				motion->m_player->m_animFlags &= ~0x11;
 				motion->m_player->m_motionState = -1;
 			}
 		}
-		else if (motion->m_player->m_unk0x80 & 1) {
+		else if (motion->m_player->m_animFlags & 1) {
 			if (!motion->m_rate) {
 				g_unk0x100a6d64 = 6;
 				return 0;
@@ -563,20 +563,20 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 						motion->m_player->m_motionState = target;
 					}
 
-					motion->m_player->m_unk0x80 &= ~2;
-					motion->m_player->m_unk0x80 &= ~8;
+					motion->m_player->m_animFlags &= ~2;
+					motion->m_player->m_animFlags &= ~8;
 					if (motion->m_frame != -1) {
 						motion->m_player->m_animRate = FUN_100472fe(motion->m_player->m_speedLevel, motion->m_rate);
 						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x10) {
-							motion->m_player->m_unk0x80 |= 2;
+							motion->m_player->m_animFlags |= 2;
 						}
 
 						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x800) {
-							motion->m_player->m_unk0x80 |= 8;
+							motion->m_player->m_animFlags |= 8;
 						}
 					}
 					else if (motion->m_player->m_nextMotionState == -1) {
-						motion->m_player->m_unk0x80 &= ~1;
+						motion->m_player->m_animFlags &= ~1;
 						motion->m_player->m_motionState = -1;
 					}
 				}
@@ -584,7 +584,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 		else if (motion->m_flags & 1) {
 			if (motion->m_player->m_nextMotionState != -1 || motion->m_player->m_motionState != -1) {
-				motion->m_player->m_unk0x80 |= 1;
+				motion->m_player->m_animFlags |= 1;
 				motion->m_player->m_animRate = FUN_100472fe(motion->m_player->m_speedLevel, motion->m_rate);
 			}
 		}

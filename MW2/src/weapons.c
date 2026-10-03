@@ -100,7 +100,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 		return;
 	}
 
-	p_mech->m_unk0xb8 = p_mech->m_selectedWeapon;
+	p_mech->m_lastSelectedWeapon = p_mech->m_selectedWeapon;
 	if (p_mech->m_player->m_steering->m_toggleGroupFire) {
 		if (g_unk0x100a6d38) {
 			g_unk0x100a6d38 = 0;
@@ -799,7 +799,7 @@ void FUN_10045eac(Mech* p_mech)
 				yaw += 0x1680000;
 			}
 
-			pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_torsoPitch.m_value) % 0x1680000;
+			pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
 		}
 
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {

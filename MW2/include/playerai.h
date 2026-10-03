@@ -9,11 +9,11 @@
 // SIZE 0x10
 typedef struct PlayerAi {
 	AiMessage m_posted;   // 0x00
-	undefined2 m_unk0x04; // 0x04
+	undefined2 m_unk0x04; // 0x04 — nothing reads or writes it
 	MechS16 m_state;      // 0x06
 	MechU16 m_target;     // 0x08
 	MechU16 m_goal;       // 0x0a
-	MechU16 m_unk0x0c;    // 0x0c — the mech's value (FUN_1005e534)
+	MechU16 m_value;      // 0x0c — the mech's (GetMechValue): AssignStarTarget matches it
 	MechS16 m_flags;      // 0x0e
 } PlayerAi;
 

@@ -643,7 +643,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, Mech
 	if (nav != -1) {
 		g_navTable[nav].m_flags |= 1;
 		g_navTable[nav].m_owner = p_player->m_index | 0x200;
-		FUN_10054a30(p_player, 0x100);
+		AdvanceNavTarget(p_player, 0x100);
 	}
 }
 
@@ -849,7 +849,7 @@ MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 0);
 	}
 
-	if (p_player->m_targetInfo.m_unk0x04 <= 2000) {
+	if (p_player->m_targetInfo.m_range <= 2000) {
 		p_player->m_steering->m_selfDestruct = 1;
 		result = TRUE;
 	}
@@ -1063,7 +1063,7 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 }
 
 // Turns p_player toward its goal and closes on its target, giving up the goal (ReleaseNavPoints,
-// PlacePatrolNavs) now and then while far from the target, and handing the target to FUN_10054a30
+// PlacePatrolNavs) now and then while far from the target, and handing the target to AdvanceNavTarget
 // within 3000.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100153e6
@@ -1093,7 +1093,7 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 
 	JumpToTurn(p_player);
 	if (p_player->m_targetInfo.m_distance <= 3000) {
-		FUN_10054a30(p_player, p_player->m_ai.m_target);
+		AdvanceNavTarget(p_player, p_player->m_ai.m_target);
 	}
 
 	return result;
@@ -1374,14 +1374,14 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y,
 	MechS32 unused;
 	MechU32 distance;
 	MechS32 heading;
-	MechS32 pitch;
+	MechS32 length;
 	MechS32 dx;
 	MechS32 dy;
 
 	dx = p_shape->m_centerX - p_x;
 	dy = p_shape->m_centerY - p_y;
 	dz = p_shape->m_centerZ - p_z;
-	FUN_10060197(dx, dy, dz, &heading, &pitch, &distance, &unused);
+	FUN_10060197(dx, dy, dz, &heading, &length, &distance, &unused);
 	heading -= p_player->m_heading;
 	if (heading > 0xb40000) {
 		heading -= 0x1680000;
@@ -1634,7 +1634,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		if (FUN_1004c11d(&x, &y, &z)) {
 			range = 0x30000;
 			maxAngle = 15;
-			pitch = p_mech->m_player->m_targetInfo.m_unk0x18 / 0xf00;
+			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
 			bearing = (GetTargetBearing(p_mech->m_player) >> 16) % 360;
 			if (pitch < range && -range < pitch && bearing < maxAngle && -maxAngle < bearing) {
 				target = g_players[index];
