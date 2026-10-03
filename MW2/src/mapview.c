@@ -113,7 +113,7 @@ void FUN_10042195(void)
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_unk0x1010b5a4.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10042206
-MechS32 FUN_10042206(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_10042206(Shape* p_shape)
 {
 	MechS32 y;
 	MechS32 z;
@@ -178,7 +178,7 @@ MechS32 FUN_10042206(ScarletOrchid0x4c* p_shape)
 // outcodes, and adds it to the polygon being built: FUN_10048ebe's map-view counterpart.
 // Stack-slot permutation: outcode and y.
 // FUNCTION: MW2 0x100423b3
-CopperWren0x20* FUN_100423b3(CopperWren0x20* p_vertex)
+ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
 {
 	MechS32 x;
 	MechU8 outcode;

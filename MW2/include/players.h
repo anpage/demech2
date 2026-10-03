@@ -14,8 +14,8 @@
 #include "types.h"
 #include "vector3.h"
 
-struct AmberWillow0x7c;
-struct ScarletOrchid0x4c;
+struct SceneObject;
+struct Shape;
 typedef struct Player Player;
 
 typedef void (*PlayerMechFn)(Mech* p_mech);
@@ -42,9 +42,9 @@ struct Player {
 	PlayerMechFn m_localUpdateFn;             // 0x34
 	PlayerMechFn m_drawFn;                    // 0x38
 	PlayerMechFn m_shutdownFn;                // 0x3c
-	struct AmberWillow0x7c* m_obj;            // 0x40
-	struct AmberWillow0x7c* m_unk0x44;        // 0x44 — the object the weapons aim from
-	struct AmberWillow0x7c* m_unk0x48;        // 0x48 — the hardpoint of the weapon firing
+	struct SceneObject* m_obj;                // 0x40
+	struct SceneObject* m_unk0x44;            // 0x44 — the object the weapons aim from
+	struct SceneObject* m_unk0x48;            // 0x48 — the hardpoint of the weapon firing
 	PlayerSteering* m_steering;               // 0x4c
 	Vector3 m_position;                       // 0x50
 	MechS32 m_unk0x5c;                        // 0x5c
@@ -94,7 +94,7 @@ struct Player {
 	MechS32 m_unk0x17c;                       // 0x17c — a clock time
 	MechS32 m_unk0x180;                       // 0x180
 	MechS32 m_unk0x184;                       // 0x184
-	struct ScarletOrchid0x4c* m_unk0x188;     // 0x188 — a shape
+	struct Shape* m_unk0x188;                 // 0x188 — a shape
 	MechS32 m_unk0x18c;                       // 0x18c
 	MechS16 m_unk0x190;                       // 0x190
 	MechS32 m_unk0x192;                       // 0x192

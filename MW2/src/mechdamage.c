@@ -562,7 +562,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 	MechS32 y;
 	MechS32 i;
 	MechS32 z;
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 	MechS32 kind;
 	MechSection* section;
 	SilverTern0x14* bin;

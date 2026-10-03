@@ -42,7 +42,7 @@ void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
 // and the pending palette.
 // Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
-void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct AmberWillow0x7c* p_object)
+void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
 	MechS32 fovX;
 	MechS32 palette;
@@ -160,9 +160,9 @@ void FUN_1004cb11(Mech* p_mech)
 // FUNCTION: MW2 0x1004cc27
 void FUN_1004cc27(Mech* p_mech)
 {
-	AmberWillow0x7c* obj;
-	AmberWillow0x7c* upper;
-	AmberWillow0x7c* lower;
+	SceneObject* obj;
+	SceneObject* upper;
+	SceneObject* lower;
 	MechS32 upperIndex;
 	MechS32 lowerIndex;
 	MechS32 objIndex;

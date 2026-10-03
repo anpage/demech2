@@ -3,11 +3,11 @@
 
 #include "types.h"
 
-struct AmberWillow0x7c;
+struct SceneObject;
 struct CopperVale0x20;
 struct Eyepoint;
 struct IvoryDelta0xc;
-struct ScarletOrchid0x4c;
+struct Shape;
 
 // An entry of the depth-sorted draw lists (g_unk0x100c269c, g_unk0x100c2280): a polygon, or a
 // shape whose polygons are queued once the list is sorted (IvoryDelta0xc::m_count bit 15).
@@ -32,13 +32,13 @@ extern "C"
 	extern MechU32 g_unk0x1010b5c8;
 	extern MechS32 g_unk0x1010b5cc;
 
-	MechS32 FUN_100335d0(struct ScarletOrchid0x4c* p_shape, MechS32 p_depth);
+	MechS32 FUN_100335d0(struct Shape* p_shape, MechS32 p_depth);
 	void FUN_1003378e(AmberDune0x8* p_first, AmberDune0x8* p_last);
-	void FUN_100338bb(struct ScarletOrchid0x4c* p_root);
+	void FUN_100338bb(struct Shape* p_root);
 	void FUN_10033a06(void);
-	void FUN_10033b9e(struct AmberWillow0x7c* p_root);
-	void FUN_10033c4b(struct AmberWillow0x7c* p_object);
-	void FUN_10033d0f(struct ScarletOrchid0x4c* p_root, struct Eyepoint* p_eyepoint);
+	void FUN_10033b9e(struct SceneObject* p_root);
+	void FUN_10033c4b(struct SceneObject* p_object);
+	void FUN_10033d0f(struct Shape* p_root, struct Eyepoint* p_eyepoint);
 	void FUN_10033d32(struct IvoryDelta0xc* p_poly);
 	MechS32 FUN_10033e92(struct IvoryDelta0xc* p_poly, MechU32* p_points);
 	MechS32 FUN_10034499(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1);

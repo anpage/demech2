@@ -25,12 +25,12 @@ extern "C"
 	void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void SetShapeFlags(MechU32 p_flags);
-	ScarletOrchid0x4c* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, AmberWillow0x7c* p_parent);
+	Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject* p_parent);
 	MechS32 LoadShapeRecord(
 		MechU8* p_data,
 		MechS32* p_offset,
-		ScarletOrchid0x4c** p_shape,
-		AmberWillow0x7c* p_parent,
+		Shape** p_shape,
+		SceneObject* p_parent,
 		MechS32* p_count
 	);
 	MechU32 MapFaceId(MechU32 p_id);

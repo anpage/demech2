@@ -1,7 +1,6 @@
 #include "gridobject.h"
 
 #include "decomp.h"
-#include "emberfern.h"
 #include "eyepoint.h"
 #include "object.h"
 #include "polydraw.h"
@@ -9,6 +8,7 @@
 #include "shapegeom.h"
 #include "types.h"
 #include "vector3.h"
+#include "vertex.h"
 
 #include <stdlib.h>
 
@@ -31,7 +31,7 @@ MechS32 g_unk0x100a7120 = 0;
 MechS32 g_unk0x100a7124 = 0;
 
 // GLOBAL: MW2 0x100a7128
-AmberWillow0x7c* g_unk0x100a7128 = NULL;
+SceneObject* g_unk0x100a7128 = NULL;
 
 // The eyepoint's cell and the object's position.
 
@@ -51,13 +51,13 @@ static MechS32 g_unk0x100be9fc;
 // under the eyepoint.
 // Stack-slot permutation; depth > span compares in the other operand order.
 // FUNCTION: MW2 0x1004b130
-void FUN_1004b130(AmberWillow0x7c* p_obj)
+void FUN_1004b130(SceneObject* p_obj)
 {
 	MechS32 depth;
 	MechS32 minX;
-	GraniteLattice0x18* model;
+	Model* model;
 	MechS32 minZ;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 span;
 	MechS32 count;
 	MechS32 maxX;
@@ -71,15 +71,15 @@ void FUN_1004b130(AmberWillow0x7c* p_obj)
 		return;
 	}
 
-	model = p_obj->m_unk0x6c->m_unk0x1c;
+	model = p_obj->m_unk0x6c->m_models;
 	if (!model) {
 		return;
 	}
 
-	vertex = (EmberFern0x2c*) (model + 1);
+	vertex = (Vertex*) (model + 1);
 	minX = minZ = 0x7fffffff;
 	maxX = maxZ = -0x7fffffff;
-	for (count = model->m_unk0x04; count--; vertex++) {
+	for (count = model->m_vertexCount; count--; vertex++) {
 		if (vertex->m_unk0x00 > maxX) {
 			maxX = vertex->m_unk0x00;
 		}

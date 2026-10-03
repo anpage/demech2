@@ -19,7 +19,7 @@
 MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
 {
 	Ray ray;
-	ScarletOrchid0x4c* hit;
+	Shape* hit;
 	MechS32 bearing;
 	MechU32 target;
 	MechU16 surface;

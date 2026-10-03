@@ -73,11 +73,11 @@ MechS32 g_unk0x100a2474 = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
 // GLOBAL: MW2 0x100a2478
-AmberWillow0x7c* g_unk0x100a2478 = NULL;
+SceneObject* g_unk0x100a2478 = NULL;
 
 // The object of the scene's shape of kind 0xa0.
 // GLOBAL: MW2 0x100a247c
-AmberWillow0x7c* g_unk0x100a247c = NULL;
+SceneObject* g_unk0x100a247c = NULL;
 
 // GLOBAL: MW2 0x100a2480
 MechS32 g_unk0x100a2480 = 0;
@@ -216,9 +216,9 @@ void FirstRender(void)
 // FUNCTION: MW2 0x100129b7
 void SecondRender(void)
 {
-	ScarletOrchid0x4c* root;
-	ScarletOrchid0x4c* shape;
-	ScarletOrchid0x4c* next;
+	Shape* root;
+	Shape* shape;
+	Shape* next;
 
 	root = g_unk0x100ad5e8;
 	if (!root) {
@@ -227,7 +227,7 @@ void SecondRender(void)
 
 	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
 		if ((shape->m_unk0x02 & 0xf0) == 0x90) {
-			g_unk0x100a2478 = FUN_1003b6e5(shape);
+			g_unk0x100a2478 = GetShapeObject(shape);
 			FUN_10001a52(g_unk0x100a2478);
 			break;
 		}
@@ -235,7 +235,7 @@ void SecondRender(void)
 
 	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
 		if ((shape->m_unk0x02 & 0xf0) == 0xa0) {
-			g_unk0x100a247c = FUN_1003b6e5(shape);
+			g_unk0x100a247c = GetShapeObject(shape);
 			break;
 		}
 	}
@@ -454,10 +454,10 @@ void FUN_10012f3c(void)
 // 0x50) as circles of their radius (m_unk0x40), in color 0xf.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100131f1
-void FUN_100131f1(ScarletOrchid0x4c* p_root)
+void FUN_100131f1(Shape* p_root)
 {
 	MechS32 color;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 x;
 	MechS32 y;
 	MechS32 z;

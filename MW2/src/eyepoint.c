@@ -760,8 +760,8 @@ void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_
 void FUN_1001220a(void)
 {
 	MechS32 pitch;
-	ScarletOrchid0x4c* shape;
-	AmberWillow0x7c* obj;
+	Shape* shape;
+	SceneObject* obj;
 	MechS32 z;
 	MechS32 y;
 	MechS32 x;
@@ -769,7 +769,7 @@ void FUN_1001220a(void)
 
 	for (shape = g_unk0x100ad5e8->m_unk0x08; shape; shape = shape->m_unk0x08) {
 		if ((shape->m_unk0x02 & 0xf0) == 0x10 || (shape->m_unk0x02 & 0xf0) == 0x60) {
-			obj = shape->m_unk0x18;
+			obj = shape->m_object;
 			if (obj) {
 				GetObjPosition(obj, &x, &y, &z);
 				if (FUN_1003ee69()) {

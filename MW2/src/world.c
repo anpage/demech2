@@ -651,15 +651,15 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdScrounge]) {
-			AmberWillow0x7c* obj;
-			ScarletOrchid0x4c* shape;
+			SceneObject* obj;
+			Shape* shape;
 			MechS32 id;
 			BwdIdRecord* scrounge = (BwdIdRecord*) node;
 
 			id = scrounge->m_id;
 			id = MapResourceId(id);
 			shape = FindClassById(id);
-			if (shape && (obj = FUN_1003b6e5(shape)) != NULL) {
+			if (shape && (obj = GetShapeObject(shape)) != NULL) {
 				FUN_1004b130(obj);
 			}
 			else {
@@ -691,8 +691,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechS32 typeIndex;
 			MechS32 i;
 			BwdIdRecord* gamepiece = (BwdIdRecord*) node;
-			AmberWillow0x7c* obj;
-			ScarletOrchid0x4c* shape;
+			SceneObject* obj;
+			Shape* shape;
 			MechS32 id;
 
 			typeIndex = -1;
@@ -707,7 +707,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (kind >= 0 && kind <= 8) {
 				shape = FindClassById(id);
 				if (shape) {
-					obj = FUN_1003b6e5(shape);
+					obj = GetShapeObject(shape);
 					if (obj) {
 						for (i = 0; i <= 8; i++) {
 							if (g_playerTypes[i].m_type == kind) {
@@ -848,7 +848,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdEyeObj]) {
-			AmberWillow0x7c* obj;
+			SceneObject* obj;
 			MechS32 index;
 			MechS32 id;
 			BwdIdRecord* eye = (BwdIdRecord*) node;
@@ -868,7 +868,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdPof]) {
 			Mech* mech;
 			BwdIdRecord* pof = (BwdIdRecord*) node;
-			AmberWillow0x7c* obj;
+			SceneObject* obj;
 			MechS32 index;
 			MechS32 id;
 
@@ -963,8 +963,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdBooyowThing]) {
 			MechS32 shotType;
 			BwdIdRecord* booyow = (BwdIdRecord*) node;
-			AmberWillow0x7c* obj;
-			ScarletOrchid0x4c* shape;
+			SceneObject* obj;
+			Shape* shape;
 			MechS32 id;
 
 			id = booyow->m_id;
@@ -974,7 +974,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				if (!g_shots[g_unk0x100a1740].m_object) {
 					shape = FindClassById(id);
 					if (shape) {
-						obj = FUN_1003b6e5(shape);
+						obj = GetShapeObject(shape);
 						if (obj) {
 							g_shots[g_unk0x100a1740].m_type = shotType;
 							g_shots[g_unk0x100a1740].m_object = obj;
@@ -994,8 +994,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdIdRecord* xplode = (BwdIdRecord*) node;
 			MechS32 effectType;
 			MechS32 animation;
-			AmberWillow0x7c* obj;
-			ScarletOrchid0x4c* shape;
+			SceneObject* obj;
+			Shape* shape;
 			MechS32 id;
 
 			id = xplode->m_id;
@@ -1012,7 +1012,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						id = MapResourceId(id);
 						shape = FindClassById(id);
 						if (shape) {
-							obj = FUN_1003b6e5(shape);
+							obj = GetShapeObject(shape);
 							if (obj) {
 								effect->m_object = obj;
 								FUN_100018ca(obj);
@@ -1069,14 +1069,14 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		}
 		else if (type == g_bwdTypeCodes[c_bwdNavObject]) {
 			BwdNavObjectRecord* navObject = (BwdNavObjectRecord*) node;
-			AmberWillow0x7c* obj;
+			SceneObject* obj;
 			MechS32 index;
 			MechU32 events;
 			MechS32 x;
 			MechS32 found;
 			MechS32 y;
 			MechS32 z;
-			ScarletOrchid0x4c* shape;
+			Shape* shape;
 			MechS32 id;
 			MechU16 target;
 
@@ -1095,7 +1095,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				else {
 					shape = FindClassById(id);
 					if (shape) {
-						obj = FUN_1003b6e5(shape);
+						obj = GetShapeObject(shape);
 						if (obj) {
 							GetObjWorldPos(obj, &x, &y, &z);
 							g_navTable[g_navCount].m_obj = obj;
@@ -1170,12 +1170,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdPosition]) {
-			AmberWillow0x7c* obj;
+			SceneObject* obj;
 			BwdPlaceRecord* position = (BwdPlaceRecord*) node;
 			MechS32 x;
 			MechS32 y;
 			MechS32 z;
-			ScarletOrchid0x4c* shape;
+			Shape* shape;
 			MechS32 id;
 
 			id = position->m_id;
@@ -1185,7 +1185,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			id = MapResourceId(id);
 			shape = FindClassById(id);
 			if (shape) {
-				obj = FUN_1003b6e5(shape);
+				obj = GetShapeObject(shape);
 				if (obj) {
 					SetObjPosition(obj, x, y, z);
 					FUN_10001cf8(obj);
@@ -1193,11 +1193,11 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdRotate]) {
-			AmberWillow0x7c* obj;
+			SceneObject* obj;
 			MechS32 x;
 			MechS32 y;
 			MechS32 z;
-			ScarletOrchid0x4c* shape;
+			Shape* shape;
 			BwdPlaceRecord* rotate = (BwdPlaceRecord*) node;
 			MechS32 id;
 
@@ -1208,7 +1208,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			id = MapResourceId(id);
 			shape = FindClassById(id);
 			if (shape) {
-				obj = FUN_1003b6e5(shape);
+				obj = GetShapeObject(shape);
 				if (obj) {
 					SetObjRotation(
 						obj,
@@ -1398,7 +1398,7 @@ MechS32 LoadWorld(MechChar* p_name)
 // FUNCTION: MW2 0x1000d4a6
 void AfterWorldLoader(void)
 {
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 i;
 
 	for (i = 0; i < g_playerCount; i++) {

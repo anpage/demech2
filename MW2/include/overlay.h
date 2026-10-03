@@ -29,7 +29,7 @@ extern "C"
 	void FUN_10058ae5(void);
 	void FUN_10058b34(void);
 	void FUN_10058cda(void);
-	void FUN_10058d36(ScarletOrchid0x4c* p_shape);
+	void FUN_10058d36(Shape* p_shape);
 	void FUN_10058d90(Eyepoint* p_eyepoint);
 	void FUN_10058ee0(void);
 	void FUN_10058f3c(void);

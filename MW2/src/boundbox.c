@@ -1,12 +1,12 @@
 #include "boundbox.h"
 
 #include "decomp.h"
-#include "emberfern.h"
 #include "object.h"
 #include "quadtree.h"
 #include "shape.h"
 #include "simmain.h"
 #include "types.h"
+#include "vertex.h"
 
 #include <windows.h>
 
@@ -28,7 +28,7 @@ CinderBox0x18* FUN_1006e970(void)
 
 // Gives the shape a bounding box, once.
 // FUNCTION: MW2 0x1006e9e6
-void FUN_1006e9e6(ScarletOrchid0x4c* p_shape)
+void FUN_1006e9e6(Shape* p_shape)
 {
 	CinderBox0x18* box;
 
@@ -54,7 +54,7 @@ void FUN_1006e9e6(ScarletOrchid0x4c* p_shape)
 }
 
 // FUNCTION: MW2 0x1006ea90
-CinderBox0x18* FUN_1006ea90(ScarletOrchid0x4c* p_shape)
+CinderBox0x18* FUN_1006ea90(Shape* p_shape)
 {
 	CinderBox0x18* box;
 
@@ -68,7 +68,7 @@ CinderBox0x18* FUN_1006ea90(ScarletOrchid0x4c* p_shape)
 }
 
 // FUNCTION: MW2 0x1006eb02
-void FUN_1006eb02(ScarletOrchid0x4c* p_shape)
+void FUN_1006eb02(Shape* p_shape)
 {
 	CinderBox0x18* box;
 
@@ -97,7 +97,7 @@ void FUN_1006eb02(ScarletOrchid0x4c* p_shape)
 // table), and model, vertex and selected sit in permuted stack slots.
 // FUNCTION: MW2 0x1006eb80
 void FUN_1006eb80(
-	ScarletOrchid0x4c* p_shape,
+	Shape* p_shape,
 	MechS32* p_minX,
 	MechS32* p_maxX,
 	MechS32* p_minY,
@@ -106,28 +106,28 @@ void FUN_1006eb80(
 	MechS32* p_maxZ
 )
 {
-	GraniteLattice0x18* model;
-	EmberFern0x2c* vertex;
+	Model* model;
+	Vertex* vertex;
 	MechS32 count;
-	GraniteLattice0x18* selected;
+	Model* selected;
 
-	model = p_shape->m_unk0x1c;
+	model = p_shape->m_models;
 	if (!model) {
 		*p_minX = *p_maxX = *p_minY = *p_maxY = *p_minZ = *p_maxZ = 0;
 		return;
 	}
 
 	if (model->m_unk0x10 != p_shape->m_unk0x48) {
-		selected = p_shape->m_unk0x20;
-		p_shape->m_unk0x20 = model;
+		selected = p_shape->m_model;
+		p_shape->m_model = model;
 		FUN_1000188b(p_shape);
-		p_shape->m_unk0x20 = selected;
+		p_shape->m_model = selected;
 	}
 
-	vertex = (EmberFern0x2c*) (model + 1);
+	vertex = (Vertex*) (model + 1);
 	*p_minX = *p_minY = *p_minZ = 0x7fffffff;
 	*p_maxX = *p_maxY = *p_maxZ = -0x7fffffff;
-	for (count = model->m_unk0x04; count--; vertex++) {
+	for (count = model->m_vertexCount; count--; vertex++) {
 		if (vertex->m_unk0x0c > *p_maxX) {
 			*p_maxX = vertex->m_unk0x0c;
 		}
@@ -156,7 +156,7 @@ void FUN_1006eb80(
 
 // Frees the shape's bounding data.
 // FUNCTION: MW2 0x1006ed30
-void FUN_1006ed30(ScarletOrchid0x4c* p_shape)
+void FUN_1006ed30(Shape* p_shape)
 {
 	void* data;
 
@@ -183,7 +183,7 @@ void FUN_1006ed30(ScarletOrchid0x4c* p_shape)
 
 // Returns the bytes the shape's bounding data take.
 // FUNCTION: MW2 0x1006edc3
-MechS32 FUN_1006edc3(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_1006edc3(Shape* p_shape)
 {
 	MechS32 size;
 	void* data;

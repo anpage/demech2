@@ -8,14 +8,14 @@
 #include "clock.h"
 #include "compat.h"
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "portable.h"
 #include "ray.h"
 #include "shape.h"
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
+#include "vertex.h"
 
 #pragma warning(disable : 4102) /* a label only an __asm block jumps to */
 
@@ -59,15 +59,15 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // p_matrix. The products are an __asm block.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10039a30
-void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
+void FUN_10039a30(Model* p_model, Matrix* p_matrix)
 {
 #ifdef PORTABLE_C_LABELS
-	EmberFern0x2c* vertex = (EmberFern0x2c*) (p_model + 1);
-	DuskMoth0x24* face = (DuskMoth0x24*) ((MechU8*) p_model + p_model->m_unk0x08);
+	Vertex* vertex = (Vertex*) (p_model + 1);
+	Face* face = (Face*) ((MechU8*) p_model + p_model->m_faceOffset);
 	MechU16 count;
 
 	/* The counts are 16-bit: 0 runs 0x10000 times. */
-	count = (MechU16) p_model->m_unk0x04;
+	count = (MechU16) p_model->m_vertexCount;
 	do {
 		MechS32 x = vertex->m_unk0x00;
 		MechS32 y = vertex->m_unk0x04;
@@ -79,7 +79,7 @@ void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 		vertex++;
 	} while (--count);
 
-	count = (MechU16) p_model->m_unk0x06;
+	count = (MechU16) p_model->m_faceCount;
 	do {
 		MechS32 x = face->m_unk0x08;
 		MechS32 y = face->m_unk0x0c;
@@ -91,19 +91,19 @@ void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 		face++;
 	} while (--count);
 #else
-	DuskMoth0x24* faces;
+	Face* faces;
 	MechS16 vertexCount;
 	MechS32 vertexSize;
-	EmberFern0x2c* vertices;
+	Vertex* vertices;
 	MechS16 faceCount;
 	MechS32 faceSize;
 
-	vertices = (EmberFern0x2c*) (p_model + 1);
-	faces = (DuskMoth0x24*) ((MechU8*) p_model + p_model->m_unk0x08);
-	vertexSize = sizeof(EmberFern0x2c);
-	faceSize = sizeof(DuskMoth0x24);
-	vertexCount = p_model->m_unk0x04;
-	faceCount = p_model->m_unk0x06;
+	vertices = (Vertex*) (p_model + 1);
+	faces = (Face*) ((MechU8*) p_model + p_model->m_faceOffset);
+	vertexSize = sizeof(Vertex);
+	faceSize = sizeof(Face);
+	vertexCount = p_model->m_vertexCount;
+	faceCount = p_model->m_faceCount;
 	__asm {
 		mov esi, p_matrix
 		mov edi, vertices
@@ -226,7 +226,7 @@ void FUN_10039a30(GraniteLattice0x18* p_model, Matrix* p_matrix)
 // Transforms the shape's position (m_unk0x28-0x30) by p_matrix into m_unk0x34-0x3c, and bumps its
 // transform count (m_unk0x48). The products are an __asm block.
 // FUNCTION: MW2 0x10039b94
-void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
+void FUN_10039b94(struct Shape* p_shape, Matrix* p_matrix)
 {
 	p_shape->m_unk0x00 &= ~0x200;
 #ifdef PORTABLE_C
@@ -293,12 +293,12 @@ void FUN_10039b94(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
 
 // Transforms a shape and each of its models by p_matrix.
 // FUNCTION: MW2 0x10039c36
-void FUN_10039c36(struct ScarletOrchid0x4c* p_shape, Matrix* p_matrix)
+void FUN_10039c36(struct Shape* p_shape, Matrix* p_matrix)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
 	FUN_10039b94(p_shape, p_matrix);
-	for (model = p_shape->m_unk0x1c; model; model = model->m_unk0x0c) {
+	for (model = p_shape->m_models; model; model = model->m_next) {
 		FUN_10039a30(model, p_matrix);
 		model->m_unk0x10 = p_shape->m_unk0x48;
 	}
@@ -347,7 +347,7 @@ MechS32 FUN_10039c96(
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // Stack-slot permutation: radius, deltaY and deltaZ.
 // FUNCTION: MW2 0x10039ccc
-MechS32 FUN_10039ccc(struct ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10039ccc(struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 #ifdef PORTABLE_C_LABELS
 	MechS32 deltaX = Difference(p_shape->m_unk0x34, p_x);
@@ -817,7 +817,7 @@ done:
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003a096
-MechS32 FUN_1003a096(struct ScarletOrchid0x4c* p_shape, Ray* p_ray)
+MechS32 FUN_1003a096(struct Shape* p_shape, Ray* p_ray)
 {
 #ifdef PORTABLE_C_LABELS
 	MechS32 radius = p_shape->m_unk0x40;

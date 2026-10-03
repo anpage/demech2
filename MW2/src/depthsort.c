@@ -6,9 +6,8 @@
 #include "coppervale.h"
 #include "crossdiv.h"
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
 #include "eyepoint.h"
+#include "face.h"
 #include "fixedmul.h"
 #include "ivorydelta.h"
 #include "lerp.h"
@@ -20,6 +19,7 @@
 #include "shape.h"
 #include "shapegeom.h"
 #include "types.h"
+#include "vertex.h"
 #include "view.h"
 
 #include <string.h>
@@ -60,17 +60,17 @@ MechS32 g_unk0x1010b5cc;
 // eyepoint, lies beyond it, or the last) and queues its faces. Returns 1 if it has no model.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x100335d0
-MechS32 FUN_100335d0(ScarletOrchid0x4c* p_shape, MechS32 p_depth)
+MechS32 FUN_100335d0(Shape* p_shape, MechS32 p_depth)
 {
-	GraniteLattice0x18* model;
-	DuskMoth0x24* face;
-	GraniteLattice0x18* cursor;
-	EmberFern0x2c* vertices;
-	EmberFern0x2c* vertex;
+	Model* model;
+	Face* face;
+	Model* cursor;
+	Vertex* vertices;
+	Vertex* vertex;
 	MechS32 n;
 	MechS32 i;
-	GraniteLattice0x18* prev;
-	ScarletOrchid0x4c* shape;
+	Model* prev;
+	Shape* shape;
 
 	model = NULL;
 	prev = NULL;
@@ -79,24 +79,24 @@ MechS32 FUN_100335d0(ScarletOrchid0x4c* p_shape, MechS32 p_depth)
 		return 1;
 	}
 
-	cursor = shape->m_unk0x1c;
+	cursor = shape->m_models;
 	if (!cursor) {
 		return 1;
 	}
 
-	if (!cursor->m_unk0x00) {
+	if (!cursor->m_key) {
 		model = cursor;
 	}
 	else {
 		prev = cursor;
 		while (cursor) {
-			if (FixedMul16(g_eyepoint->m_unk0xb8, cursor->m_unk0x00) > p_depth) {
+			if (FixedMul16(g_eyepoint->m_unk0xb8, cursor->m_key) > p_depth) {
 				model = prev;
 				break;
 			}
 
 			prev = cursor;
-			cursor = cursor->m_unk0x0c;
+			cursor = cursor->m_next;
 		}
 	}
 
@@ -108,22 +108,22 @@ MechS32 FUN_100335d0(ScarletOrchid0x4c* p_shape, MechS32 p_depth)
 		return 1;
 	}
 
-	shape->m_unk0x20 = model;
-	vertices = (EmberFern0x2c*) (model + 1);
+	shape->m_model = model;
+	vertices = (Vertex*) (model + 1);
 	if (shape->m_unk0x48 != model->m_unk0x10) {
 		FUN_1000188b(shape);
 	}
 
 	vertex = vertices;
-	i = n = model->m_unk0x04;
+	i = n = model->m_vertexCount;
 	while (i--) {
 		vertex->m_unk0x24 = 0;
 		vertex->m_unk0x28 &= 0xfb;
 		vertex++;
 	}
 
-	face = (DuskMoth0x24*) (model->m_unk0x08 + (MechU8*) model);
-	i = n = model->m_unk0x06;
+	face = (Face*) (model->m_faceOffset + (MechU8*) model);
+	i = n = model->m_faceCount;
 	while (i--) {
 		FUN_10049155(face, vertices);
 		face++;
@@ -201,9 +201,9 @@ void FUN_1003378e(AmberDune0x8* p_first, AmberDune0x8* p_last)
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
 // whole and expanded after the sort (FUN_10033a06).
 // FUNCTION: MW2 0x100338bb
-void FUN_100338bb(ScarletOrchid0x4c* p_root)
+void FUN_100338bb(Shape* p_root)
 {
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	FUN_1007d220();
 	if (!p_root || !p_root->m_unk0x08 || p_root->m_unk0x04 == p_root->m_unk0x08) {
@@ -263,7 +263,7 @@ void FUN_10033a06(void)
 		}
 		else if (g_unk0x1010b5ac) {
 			start = g_unk0x100a54b0;
-			FUN_100335d0((ScarletOrchid0x4c*) g_unk0x100c269c[i].m_poly, g_unk0x100c269c[i].m_depth);
+			FUN_100335d0((Shape*) g_unk0x100c269c[i].m_poly, g_unk0x100c269c[i].m_depth);
 			if (!g_unk0x1010b5ac) {
 				break;
 			}
@@ -285,7 +285,7 @@ void FUN_10033a06(void)
 
 // Draws the shapes of the scene tree p_root, farthest first.
 // FUNCTION: MW2 0x10033b9e
-void FUN_10033b9e(AmberWillow0x7c* p_root)
+void FUN_10033b9e(SceneObject* p_root)
 {
 	MechS32 i;
 
@@ -306,10 +306,10 @@ void FUN_10033b9e(AmberWillow0x7c* p_root)
 
 // Queues the polygons of p_object's shape and of its descendants' shapes.
 // FUNCTION: MW2 0x10033c4b
-void FUN_10033c4b(AmberWillow0x7c* p_object)
+void FUN_10033c4b(SceneObject* p_object)
 {
-	AmberWillow0x7c* child;
-	ScarletOrchid0x4c* shape;
+	SceneObject* child;
+	Shape* shape;
 
 	if (!p_object || !g_unk0x1010b5ac || g_unk0x100a54b4 >= g_unk0x100a54b8) {
 		return;
@@ -330,7 +330,7 @@ void FUN_10033c4b(AmberWillow0x7c* p_object)
 }
 
 // FUNCTION: MW2 0x10033d0f
-void FUN_10033d0f(ScarletOrchid0x4c* p_root, Eyepoint* p_eyepoint)
+void FUN_10033d0f(Shape* p_root, Eyepoint* p_eyepoint)
 {
 	FUN_1004b980(p_eyepoint);
 	FUN_100338bb(p_root);

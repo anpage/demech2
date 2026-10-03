@@ -2,8 +2,7 @@
 
 #include "compat.h"
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "objectanim.h"
@@ -13,6 +12,7 @@
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
+#include "vertex.h"
 
 // Set by the world stream (BwdExecuteStream): FUN_10036230 brightens detailed shapes instead of
 // dimming them.
@@ -31,7 +31,7 @@ MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
 // matches m_unk0x50.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10036230
-MechU32 FUN_10036230(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechU32 p_color, MechS32 p_distance)
+MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
 	MechS32 shade;
 	MechU32 kind;

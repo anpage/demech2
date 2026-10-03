@@ -5,11 +5,11 @@
 #include "types.h"
 #include "weapondef.h"
 
-struct AmberWillow0x7c;
+struct SceneObject;
 struct Mech;
 struct Player;
 struct Ray;
-struct ScarletOrchid0x4c;
+struct Shape;
 struct WeaponSlot;
 
 // The functions and globals of weapons.c that other units use.
@@ -18,7 +18,7 @@ extern "C"
 {
 #endif
 
-	extern struct ScarletOrchid0x4c* g_unk0x100a6d34;
+	extern struct Shape* g_unk0x100a6d34;
 	extern MechS32 g_unk0x101099c0[10];
 	extern MechS32 g_unk0x101099f0[10];
 
@@ -39,16 +39,16 @@ extern "C"
 	void FUN_10045cd8(void);
 	void FUN_10045e25(struct Mech* p_mech);
 	void FUN_10045eac(struct Mech* p_mech);
-	struct ScarletOrchid0x4c* FUN_10046269(struct Player* p_player);
+	struct Shape* FUN_10046269(struct Player* p_player);
 	MechS32 FUN_1004635c(struct Player* p_player);
 	void GetMechAimDirection(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void FUN_100463e5(struct Player* p_player, struct Ray* p_ray);
 	void FUN_10046466(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void FUN_100464f3(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_10046519(struct Player* p_player, struct AmberWillow0x7c* p_obj);
+	void FUN_10046519(struct Player* p_player, struct SceneObject* p_obj);
 	void SpawnLaunchFx(
 		struct Player* p_player,
-		struct AmberWillow0x7c* p_obj,
+		struct SceneObject* p_obj,
 		MechS32 p_dx,
 		MechS32 p_dy,
 		MechS32 p_dz,

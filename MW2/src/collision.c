@@ -1,8 +1,7 @@
 #include "collision.h"
 
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
 #include "fixedmul29.h"
@@ -14,12 +13,13 @@
 #include "shapegeom.h"
 #include "shapelists.h"
 #include "types.h"
+#include "vertex.h"
 
 #include <stdlib.h>
 
 DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 
-// The collision tests of each shape type (ScarletOrchid0x4c::m_unk0x24).
+// The collision tests of each shape type (Shape::m_unk0x24).
 // GLOBAL: MW2 0x100a54c0
 ShapeCollisionFns g_shapeCollisionFns[8] = {
 	{FUN_100699a0, FUN_10069b2a, FUN_100699da},
@@ -82,7 +82,7 @@ MechS32 g_unk0x100a5550 = 0xea;
 MechS32 g_unk0x100a5558 = -1;
 
 // FUNCTION: MW2 0x10034a40
-void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24)
+void FUN_10034a40(Shape* p_shape, MechS32 p_unk0x24)
 {
 	p_shape->m_unk0x24 = p_unk0x24;
 
@@ -97,16 +97,9 @@ void FUN_10034a40(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x24)
 // Returns whether p_y lies below the plane of the face at (p_x, p_z), with the plane's height
 // there in p_height, and sets the hit normal to the face's.
 // FUNCTION: MW2 0x10034a7b
-MechS32 FUN_10034a7b(
-	DuskMoth0x24* p_face,
-	EmberFern0x2c* p_vertices,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
-	MechS32* p_height
-)
+MechS32 FUN_10034a7b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_height)
 {
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 
 	vertex = &p_vertices[*((MechU8*) p_face + p_face->m_unk0x04)];
 	*p_height = vertex->m_unk0x10 - FUN_10039c96(
@@ -131,12 +124,12 @@ MechS32 FUN_10034a7b(
 // FUNCTION: MW2 0x10034b30
 MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	ScarletOrchid0x4c* root;
+	Shape* root;
 	MechS32 best;
 	MechS32 below;
 	MechS32 top;
-	ScarletOrchid0x4c* shape;
-	MechS32 (*getHeight)(ScarletOrchid0x4c*, MechS32, MechS32, MechS32, MechS32*);
+	Shape* shape;
+	MechS32 (*getHeight)(Shape*, MechS32, MechS32, MechS32, MechS32*);
 	MechS32 type;
 
 	root = g_unk0x100ad5e8;
@@ -192,11 +185,11 @@ MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // FUNCTION: MW2 0x10034cbc
 MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	ScarletOrchid0x4c* root;
+	Shape* root;
 	MechS32 best;
 	MechS32 top;
-	ScarletOrchid0x4c* shape;
-	MechS32 (*getHeight)(ScarletOrchid0x4c*, MechS32, MechS32, MechS32, MechS32*);
+	Shape* shape;
+	MechS32 (*getHeight)(Shape*, MechS32, MechS32, MechS32, MechS32*);
 	MechS32 type;
 
 	root = g_unk0x100ad5e8;
@@ -229,14 +222,14 @@ MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10034db8
-MechS32 FUN_10034db8(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_10034db8(Shape* p_shape)
 {
 	return g_shapeCollisionFns[p_shape->m_unk0x24].m_getHeight != NULL;
 }
 
 // Tests the point against the world's shape nearest to it, returned in p_hit.
 // FUNCTION: MW2 0x10034deb
-MechS32 TestPointCollision(MechS32 p_x, MechS32 p_y, MechS32 p_z, ScarletOrchid0x4c** p_hit)
+MechS32 TestPointCollision(MechS32 p_x, MechS32 p_y, MechS32 p_z, Shape** p_hit)
 {
 	*p_hit = FUN_10034e59(g_unk0x100ad5e8, p_x, p_y, p_z);
 	if (*p_hit && FUN_10034ee7(*p_hit, p_x, p_y, p_z)) {
@@ -250,12 +243,12 @@ MechS32 TestPointCollision(MechS32 p_x, MechS32 p_y, MechS32 p_z, ScarletOrchid0
 // Returns the shape under p_root nearest to (p_x, p_y, p_z).
 // Stack-slot permutation: best, distance, nearest and shape.
 // FUNCTION: MW2 0x10034e59
-ScarletOrchid0x4c* FUN_10034e59(ScarletOrchid0x4c* p_root, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+Shape* FUN_10034e59(Shape* p_root, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 best;
 	MechS32 distance;
-	ScarletOrchid0x4c* nearest;
-	ScarletOrchid0x4c* shape;
+	Shape* nearest;
+	Shape* shape;
 
 	nearest = NULL;
 	best = 0x7fffffff;
@@ -276,9 +269,9 @@ ScarletOrchid0x4c* FUN_10034e59(ScarletOrchid0x4c* p_root, MechS32 p_x, MechS32 
 
 // Tests the point against the shape; a shape type without a point test always hits.
 // FUNCTION: MW2 0x10034ee7
-MechS32 FUN_10034ee7(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10034ee7(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	MechS32 (*testPoint)(ScarletOrchid0x4c*, MechS32, MechS32, MechS32);
+	MechS32 (*testPoint)(Shape*, MechS32, MechS32, MechS32);
 
 	testPoint = g_shapeCollisionFns[p_shape->m_unk0x24].m_testPoint;
 	if (testPoint) {
@@ -294,16 +287,16 @@ MechS32 FUN_10034ee7(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 // Stack-slot permutation of the locals; the two comparisons with best have their operands
 // the other way around.
 // FUNCTION: MW2 0x10034f37
-MechS32 TestSegmentCollision(Ray* p_ray, ScarletOrchid0x4c** p_hit, MechS32 p_exclude)
+MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 {
 	MechU16 surface;
 	MechS32 best;
-	ScarletOrchid0x4c* root;
+	Shape* root;
 	Ray hitRay;
 	MechS32 distance;
-	ScarletOrchid0x4c* nearest;
+	Shape* nearest;
 	Ray ray;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 	MechS32 length;
 
 	nearest = NULL;
@@ -352,16 +345,16 @@ MechS32 TestSegmentCollision(Ray* p_ray, ScarletOrchid0x4c** p_hit, MechS32 p_ex
 // TestSegmentCollision against the world's scenery only: no mechs, nor shapes of type 6.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10035107
-MechS32 FUN_10035107(Ray* p_ray, ScarletOrchid0x4c** p_hit)
+MechS32 FUN_10035107(Ray* p_ray, Shape** p_hit)
 {
 	MechU16 surface;
 	MechS32 best;
-	ScarletOrchid0x4c* root;
+	Shape* root;
 	Ray hitRay;
 	MechS32 distance;
-	ScarletOrchid0x4c* nearest;
+	Shape* nearest;
 	Ray ray;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	nearest = NULL;
 	best = 0x7fffffff;
@@ -407,10 +400,10 @@ MechS32 FUN_10035107(Ray* p_ray, ScarletOrchid0x4c** p_hit)
 // steps along the ray (cutting the ray at the first hit), else by the shape's bounding sphere.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100352ad
-MechS32 FUN_100352ad(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance)
+MechS32 FUN_100352ad(Shape* p_shape, Ray* p_ray, MechS32 p_distance)
 {
-	MechS32 (*testRay)(ScarletOrchid0x4c*, Ray*);
-	MechS32 (*testPoint)(ScarletOrchid0x4c*, MechS32, MechS32, MechS32);
+	MechS32 (*testRay)(Shape*, Ray*);
+	MechS32 (*testPoint)(Shape*, MechS32, MechS32, MechS32);
 	MechS32 type;
 	MechS32 y;
 	MechS32 z;
@@ -459,7 +452,7 @@ MechS32 FUN_100352ad(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance)
 // Cuts the ray at p_distance along it and sets the hit normal to point from the shape's
 // centre to the ray's end (to its start when p_distance is 10).
 // FUNCTION: MW2 0x10035423
-void FUN_10035423(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance)
+void FUN_10035423(Shape* p_shape, Ray* p_ray, MechS32 p_distance)
 {
 	if (p_distance > 0) {
 		SetRayLength(p_ray, p_distance);
@@ -484,13 +477,13 @@ void FUN_10035423(ScarletOrchid0x4c* p_shape, Ray* p_ray, MechS32 p_distance)
 // The three sums of products (denom, d, num) call FUN_10019ad0 in another order than the original
 // (commutative operands), and the locals are permuted.
 // FUNCTION: MW2 0x100354d3
-MechS32 FUN_100354d3(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, Ray* p_ray)
+MechS32 FUN_100354d3(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 {
 	MechS32 nx;
 	MechS32 denom;
 	MechS32 t;
 	MechS32 d;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 ny;
 	MechS32 nz;
 	MechS32 x;
@@ -543,7 +536,7 @@ MechS32 FUN_100354d3(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, Ray* p_ray
 // is closest to.
 // The comparisons with nz run in the other operand order (an effective match).
 // FUNCTION: MW2 0x10035722
-MechS32 FUN_10035722(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10035722(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 nx;
 	MechS32 ny;
@@ -571,16 +564,16 @@ MechS32 FUN_10035722(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_
 // each side, and the edges crossing its z must pass it on both sides.
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
 // FUNCTION: MW2 0x100357f8
-MechS32 FUN_100357f8(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_z)
+MechS32 FUN_100357f8(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_z)
 {
 	MechS32 count;
-	EmberFern0x2c* prev;
+	Vertex* prev;
 	MechS32 sides;
 	MechU8* indices;
 	MechS32 i;
 	MechS32 right;
 	MechS32 offset;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 left;
 
 	left = FALSE;
@@ -711,16 +704,16 @@ MechS32 FUN_100357f8(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_
 // Tests whether (p_x, p_y) lies within the face, seen along z.
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
 // FUNCTION: MW2 0x10035b5b
-MechS32 FUN_10035b5b(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_x, MechS32 p_y)
+MechS32 FUN_10035b5b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 count;
-	EmberFern0x2c* prev;
+	Vertex* prev;
 	MechS32 sides;
 	MechU8* indices;
 	MechS32 i;
 	MechS32 right;
 	MechS32 offset;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 left;
 
 	left = FALSE;
@@ -851,16 +844,16 @@ MechS32 FUN_10035b5b(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_
 // Tests whether (p_y, p_z) lies within the face, seen along x.
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
 // FUNCTION: MW2 0x10035ebe
-MechS32 FUN_10035ebe(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10035ebe(Face* p_face, Vertex* p_vertices, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 count;
-	EmberFern0x2c* prev;
+	Vertex* prev;
 	MechS32 sides;
 	MechU8* indices;
 	MechS32 i;
 	MechS32 right;
 	MechS32 offset;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 left;
 
 	left = FALSE;

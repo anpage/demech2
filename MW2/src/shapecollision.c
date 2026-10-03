@@ -3,13 +3,13 @@
 #include "boundbox.h"
 #include "collision.h"
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "quadtree.h"
 #include "ray.h"
 #include "shape.h"
 #include "shapegeom.h"
 #include "types.h"
+#include "vertex.h"
 
 /* The collision tests of the shape types (collision.c's g_shapeCollisionFns): a point or a
    ray against a shape's bounding box, its floor or ceiling faces, or the quadtree of a
@@ -20,7 +20,7 @@ MechS32 g_unk0x100ad43c = 0;
 
 // Stack-slot permutation: inColumn and top.
 // FUNCTION: MW2 0x100699a0
-MechS32 FUN_100699a0(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_100699a0(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 inColumn;
 	MechS32 top;
@@ -33,7 +33,7 @@ MechS32 FUN_100699a0(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 // Tests whether (p_x, p_z) lies over the shape's bounding box; if it does, returns the top in
 // p_top and an upward normal.
 // FUNCTION: MW2 0x100699da
-MechS32 FUN_100699da(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 FUN_100699da(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
 	MechS32 top;
 	MechS32 inColumn;
@@ -54,7 +54,7 @@ MechS32 FUN_100699da(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 // within it, with the box's top in p_top, and p_inside when p_y does as well.
 // FUNCTION: MW2 0x10069a4b
 void FUN_10069a4b(
-	ScarletOrchid0x4c* p_shape,
+	Shape* p_shape,
 	MechS32 p_x,
 	MechS32 p_y,
 	MechS32 p_z,
@@ -92,7 +92,7 @@ void FUN_10069a4b(
 // Stack-slot permutation of the locals; the tNear/tEnter and tFar/tExit comparisons
 // have their operands the other way around.
 // FUNCTION: MW2 0x10069b2a
-MechS32 FUN_10069b2a(ScarletOrchid0x4c* p_shape, Ray* p_ray)
+MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 {
 	MechS32 tNear;
 	MechS32 axis;
@@ -190,7 +190,7 @@ MechS32 FUN_10069b2a(ScarletOrchid0x4c* p_shape, Ray* p_ray)
 
 // Tests whether (p_x, p_z) lies over the shape's bounding box.
 // FUNCTION: MW2 0x10069dd4
-MechS32 FUN_10069dd4(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	CinderBox0x18* box;
 
@@ -204,13 +204,13 @@ MechS32 FUN_10069dd4(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 }
 
 // FUNCTION: MW2 0x10069e54
-MechS32 FUN_10069e54(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10069e54(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x10069e66
-MechS32 FUN_10069e66(ScarletOrchid0x4c* p_shape, Ray* p_ray)
+MechS32 FUN_10069e66(Shape* p_shape, Ray* p_ray)
 {
 	return 0;
 }
@@ -218,20 +218,20 @@ MechS32 FUN_10069e66(ScarletOrchid0x4c* p_shape, Ray* p_ray)
 // Finds the upward-facing face under (p_x, p_z) and tests whether p_y lies below it.
 // Stack-slot permutation: i, done, face and height.
 // FUNCTION: MW2 0x10069e78
-MechS32 FUN_10069e78(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10069e78(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 i;
 	MechS32 height;
 	MechS32 done;
-	DuskMoth0x24* face;
+	Face* face;
 
 	i = 0;
 	done = FALSE;
 	while (!done) {
-		face = (DuskMoth0x24*) ((MechU8*) p_shape->m_unk0x20 + p_shape->m_unk0x20->m_unk0x08) + i;
-		if (face->m_normal[1] > 0 && FUN_100357f8(face, (EmberFern0x2c*) (p_shape->m_unk0x20 + 1), p_x, p_z)) {
+		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
+		if (face->m_normal[1] > 0 && FUN_100357f8(face, (Vertex*) (p_shape->m_model + 1), p_x, p_z)) {
 			done = TRUE;
-			if (FUN_10034a7b(face, (EmberFern0x2c*) (p_shape->m_unk0x20 + 1), p_x, p_y, p_z, &height)) {
+			if (FUN_10034a7b(face, (Vertex*) (p_shape->m_model + 1), p_x, p_y, p_z, &height)) {
 				return 1;
 			}
 			else {
@@ -240,7 +240,7 @@ MechS32 FUN_10069e78(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 		}
 		else {
 			i++;
-			if (i == p_shape->m_unk0x20->m_unk0x06) {
+			if (i == p_shape->m_model->m_faceCount) {
 				done = TRUE;
 			}
 		}
@@ -250,11 +250,11 @@ MechS32 FUN_10069e78(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 }
 
 // FUNCTION: MW2 0x10069f67
-MechS32 FUN_10069f67(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x1c;
+	model = p_shape->m_models;
 	if (p_shape->m_unk0x44) {
 		return FUN_1001e6dc(p_shape->m_unk0x44, model, p_x, p_y, p_z) & 1;
 	}
@@ -264,35 +264,35 @@ MechS32 FUN_10069f67(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 }
 
 // FUNCTION: MW2 0x10069fd4
-MechS32 FUN_10069fd4(ScarletOrchid0x4c* p_shape, Ray* p_ray)
+MechS32 FUN_10069fd4(Shape* p_shape, Ray* p_ray)
 {
-	return FUN_1001e90f(p_shape->m_unk0x44, p_shape->m_unk0x1c, p_ray) & 1;
+	return FUN_1001e90f(p_shape->m_unk0x44, p_shape->m_models, p_ray) & 1;
 }
 
 // FUNCTION: MW2 0x1006a001
-MechS32 FUN_1006a001(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 FUN_1006a001(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
-	return FUN_1001ebfa(p_shape->m_unk0x44, p_shape->m_unk0x1c, p_x, p_y, p_z, p_top);
+	return FUN_1001ebfa(p_shape->m_unk0x44, p_shape->m_models, p_x, p_y, p_z, p_top);
 }
 
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.
 // Stack-slot permutation of the locals; the p_y > height comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006a037
-MechS32 FUN_1006a037(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 i;
-	EmberFern0x2c* vertices;
+	Vertex* vertices;
 	MechS32 done;
-	DuskMoth0x24* face;
+	Face* face;
 	MechS32 height;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 
 	i = 0;
 	done = FALSE;
-	vertices = (EmberFern0x2c*) (p_shape->m_unk0x20 + 1);
+	vertices = (Vertex*) (p_shape->m_model + 1);
 	while (!done) {
-		face = (DuskMoth0x24*) ((MechU8*) p_shape->m_unk0x20 + p_shape->m_unk0x20->m_unk0x08) + i;
+		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
 		if (face->m_normal[1] < 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
 			done = TRUE;
 			vertex = &vertices[*((MechU8*) face + face->m_unk0x04)];
@@ -316,7 +316,7 @@ MechS32 FUN_1006a037(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 		}
 		else {
 			i++;
-			if (i == p_shape->m_unk0x20->m_unk0x06) {
+			if (i == p_shape->m_model->m_faceCount) {
 				done = TRUE;
 			}
 		}
@@ -328,21 +328,21 @@ MechS32 FUN_1006a037(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS
 // Tests the ray against each face of the shape's model.
 // Stack-slot permutation: vertices, i and face.
 // FUNCTION: MW2 0x1006a190
-MechS32 FUN_1006a190(ScarletOrchid0x4c* p_shape, Ray* p_ray)
+MechS32 FUN_1006a190(Shape* p_shape, Ray* p_ray)
 {
-	GraniteLattice0x18* model;
-	EmberFern0x2c* vertices;
+	Model* model;
+	Vertex* vertices;
 	MechS32 i;
-	DuskMoth0x24* face;
+	Face* face;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return 0;
 	}
 
-	vertices = (EmberFern0x2c*) (model + 1);
-	for (i = 0; i < model->m_unk0x06; i++) {
-		face = (DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08) + i;
+	vertices = (Vertex*) (model + 1);
+	for (i = 0; i < model->m_faceCount; i++) {
+		face = (Face*) ((MechU8*) model + model->m_faceOffset) + i;
 		if (FUN_100354d3(face, vertices, p_ray)) {
 			return 1;
 		}

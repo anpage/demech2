@@ -122,10 +122,10 @@ void SetShapeFlags(MechU32 p_flags)
 // its levels of detail.
 // Stack slots: next and count are swapped.
 // FUNCTION: MW2 0x1007f1f9
-ScarletOrchid0x4c* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, AmberWillow0x7c* p_parent)
+Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject* p_parent)
 {
-	ScarletOrchid0x4c* next;
-	ScarletOrchid0x4c* shape;
+	Shape* next;
+	Shape* shape;
 	MechS32 count;
 
 	shape = NULL;
@@ -153,13 +153,7 @@ ScarletOrchid0x4c* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size,
 // compares only as many bytes of the original as the recompiled function has. Operand order:
 // j < count.
 // FUNCTION: MW2 0x1007f2d5
-MechS32 LoadShapeRecord(
-	MechU8* p_data,
-	MechS32* p_offset,
-	ScarletOrchid0x4c** p_shape,
-	AmberWillow0x7c* p_parent,
-	MechS32* p_count
-)
+MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, SceneObject* p_parent, MechS32* p_count)
 {
 	MechChar* suffix;
 	MechS32 checksum;
@@ -168,7 +162,7 @@ MechS32 LoadShapeRecord(
 	MechS32 facesSize;
 	MechU8* extra;
 	MechS32 extraSize;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 count;
 	WtbVertex* vertices;
 	MechS32 id;
@@ -186,7 +180,7 @@ MechS32 LoadShapeRecord(
 	MechU8* record;
 	MechS32 z;
 	MechS32 j;
-	struct DuskMoth0x24* polygon;
+	struct Face* polygon;
 	WtbVertex* vertex;
 
 	key = 0;
@@ -270,7 +264,7 @@ MechS32 LoadShapeRecord(
 	}
 
 	if (!*p_shape || g_shapeHasObject) {
-		*p_shape = FUN_1003a8c1(vertexCount, header->m_faceCount, extraSize, (void**) &extra);
+		*p_shape = CreateShape(vertexCount, header->m_faceCount, extraSize, (void**) &extra);
 		if (!*p_shape) {
 			g_shapeLoadError = -2;
 			return -1;
@@ -278,9 +272,7 @@ MechS32 LoadShapeRecord(
 
 		FUN_1003a7f9(*p_shape, key);
 	}
-	else if (
-		g_shapeHasKey && !FUN_1003a5f3(*p_shape, key, vertexCount, header->m_faceCount, extraSize, (void**) &extra)
-	) {
+	else if (g_shapeHasKey && !AddModel(*p_shape, key, vertexCount, header->m_faceCount, extraSize, (void**) &extra)) {
 		g_shapeLoadError = -2;
 		return -1;
 	}
@@ -293,7 +285,7 @@ MechS32 LoadShapeRecord(
 		u = vertex->m_unk0x0c;
 		v = vertex->m_unk0x0e;
 		if (i < vertexCount) {
-			FUN_1003aa1d(
+			AddShapeVertex(
 				*p_shape,
 				x * g_shapeScaleX + g_shapeOffsetX,
 				y * g_shapeScaleY + g_shapeOffsetY,
@@ -323,7 +315,7 @@ MechS32 LoadShapeRecord(
 		}
 
 		id = MapFaceId(((WtbFace*) face)->m_id);
-		polygon = FUN_1003aab5(*p_shape, id, extra);
+		polygon = AddShapeFace(*p_shape, id, extra);
 		if (!polygon) {
 			g_shapeLoadError = -9;
 			return -1;
@@ -332,7 +324,7 @@ MechS32 LoadShapeRecord(
 		extra += count * 4;
 		indices = ((WtbFace*) face)->m_indices;
 		for (j = 0; j < count; j++) {
-			FUN_1003ab34(*p_shape, polygon, indices[j]);
+			AddShapeFaceIndex(*p_shape, polygon, indices[j]);
 			checksum += indices[j];
 		}
 
@@ -356,7 +348,7 @@ MechS32 LoadShapeRecord(
 		return -1;
 	}
 
-	FUN_1003ae1e(*p_shape);
+	ComputeNormalsAndBounds(*p_shape);
 	g_shapeLoadError = 0;
 
 	if (g_shapeHasObject) {
@@ -373,7 +365,7 @@ MechS32 LoadShapeRecord(
 
 		SetObjPosition(obj, vertex->m_x, vertex->m_y, vertex->m_z);
 		FUN_10001532(obj, *p_shape);
-		FUN_1003b6fb(*p_shape, obj);
+		SetShapeObject(*p_shape, obj);
 		FUN_10001cf8(obj);
 		if (*p_count) {
 			FUN_1006d732(*p_shape);

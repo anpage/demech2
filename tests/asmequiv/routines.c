@@ -2,13 +2,12 @@
 // arguments the original computes a result.
 
 #include "asmequiv.h"
-#include "copperwren.h"
 #include "depthsort.h"
-#include "duskmoth.h"
-#include "emberfern.h"
 #include "eyepoint.h"
+#include "face.h"
 #include "ivorydelta.h"
 #include "portable.h"
+#include "projectedvertex.h"
 #include "ray.h"
 #include "rendertarget.h"
 #include "shape.h"
@@ -16,6 +15,7 @@
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
+#include "vertex.h"
 #include "vfxrend.h"
 #include "window.h"
 
@@ -279,7 +279,7 @@ static void RunMemSet(const AsmModule* p_module, const MechS32* p_args, AsmOutpu
 
 // --- The record stacks (recordstacks.c) ---
 
-typedef CopperWren0x20* (*PopVertexFn)(void);
+typedef ProjectedVertex* (*PopVertexFn)(void);
 typedef MechU8* (*PopRecordFn)(void);
 
 // Arguments: the top's offset in the arena (0x20 to 0x200), the bottom's (0 to 0x1f4), both
@@ -1139,7 +1139,7 @@ static void Run1000de3b(const AsmModule* p_module, const MechS32* p_args, AsmOut
 }
 
 // A vertex with random fields and no projection.
-static void MakeVertex(EmberFern0x2c* p_vertex, MechU32* p_state)
+static void MakeVertex(Vertex* p_vertex, MechU32* p_state)
 {
 	p_vertex->m_unk0x00 = RandomWord(p_state);
 	p_vertex->m_unk0x04 = RandomWord(p_state);
@@ -1182,7 +1182,7 @@ static MechU32 Locate(const Region* p_regions, MechS32 p_count, const void* p_po
 	return 0xfffffffe;
 }
 
-static void OutputVertex(AsmOutput* p_output, const EmberFern0x2c* p_vertex, const Region* p_regions, MechS32 p_count)
+static void OutputVertex(AsmOutput* p_output, const Vertex* p_vertex, const Region* p_regions, MechS32 p_count)
 {
 	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x00);
 	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x04);
@@ -1201,7 +1201,7 @@ static void OutputVertex(AsmOutput* p_output, const EmberFern0x2c* p_vertex, con
 	);
 }
 
-static void MakeFace(DuskMoth0x24* p_face, MechU32* p_state)
+static void MakeFace(Face* p_face, MechU32* p_state)
 {
 	p_face->m_unk0x00 = (MechU16) AsmNext(p_state);
 	p_face->m_unk0x02 = (MechU16) AsmNext(p_state);
@@ -1215,7 +1215,7 @@ static void MakeFace(DuskMoth0x24* p_face, MechU32* p_state)
 	p_face->m_unk0x20 = NULL;
 }
 
-static void OutputFace(AsmOutput* p_output, const DuskMoth0x24* p_face)
+static void OutputFace(AsmOutput* p_output, const Face* p_face)
 {
 	AsmOutputWord(p_output, p_face->m_unk0x00 | ((MechU32) p_face->m_unk0x02 << 16));
 	AsmOutputWord(p_output, p_face->m_unk0x04);
@@ -1232,12 +1232,12 @@ static void OutputFace(AsmOutput* p_output, const DuskMoth0x24* p_face)
 // A model as the game lays it out: the header, the vertices right after it and the faces at an
 // offset, here after a vertex past the last one, and with a face past the last one.
 typedef struct ModelBuffer {
-	GraniteLattice0x18 m_header;
-	EmberFern0x2c m_vertices[MODEL_VERTICES_MAX + 1];
-	DuskMoth0x24 m_faces[MODEL_FACES_MAX + 1];
+	Model m_header;
+	Vertex m_vertices[MODEL_VERTICES_MAX + 1];
+	Face m_faces[MODEL_FACES_MAX + 1];
 } ModelBuffer;
 
-typedef void (*TransformModelFn)(GraniteLattice0x18* p_model, Matrix* p_matrix);
+typedef void (*TransformModelFn)(Model* p_model, Matrix* p_matrix);
 
 // Arguments: the vertex count (1 to MODEL_VERTICES_MAX), the face count (1 to MODEL_FACES_MAX),
 // and the seed of the rest. A count of 0 runs 0x10000 times.
@@ -1248,11 +1248,11 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechU32 state = AsmSeed(p_args, 3);
 	MechS32 i;
 
-	model.m_header.m_unk0x00 = PortableS32(AsmNext(&state));
-	model.m_header.m_unk0x04 = (MechS16) (1 + (MechU32) p_args[0] % MODEL_VERTICES_MAX);
-	model.m_header.m_unk0x06 = (MechS16) (1 + (MechU32) p_args[1] % MODEL_FACES_MAX);
-	model.m_header.m_unk0x08 = (MechU32) offsetof(ModelBuffer, m_faces);
-	model.m_header.m_unk0x0c = NULL;
+	model.m_header.m_key = PortableS32(AsmNext(&state));
+	model.m_header.m_vertexCount = (MechS16) (1 + (MechU32) p_args[0] % MODEL_VERTICES_MAX);
+	model.m_header.m_faceCount = (MechS16) (1 + (MechU32) p_args[1] % MODEL_FACES_MAX);
+	model.m_header.m_faceOffset = (MechU32) offsetof(ModelBuffer, m_faces);
+	model.m_header.m_next = NULL;
 	model.m_header.m_unk0x10 = AsmNext(&state);
 	model.m_header.m_unk0x14 = (MechU16) AsmNext(&state);
 	Fill(model.m_header.m_unk0x16, sizeof(model.m_header.m_unk0x16), &state);
@@ -1267,9 +1267,12 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MakeMatrix(&matrix, &state);
 	((TransformModelFn) Function(p_module, "FUN_10039a30"))(&model.m_header, &matrix.m_matrix);
 
-	AsmOutputWord(p_output, (MechU32) model.m_header.m_unk0x00);
-	AsmOutputWord(p_output, (MechU16) model.m_header.m_unk0x04 | ((MechU32) (MechU16) model.m_header.m_unk0x06 << 16));
-	AsmOutputWord(p_output, model.m_header.m_unk0x08 == offsetof(ModelBuffer, m_faces) && !model.m_header.m_unk0x0c);
+	AsmOutputWord(p_output, (MechU32) model.m_header.m_key);
+	AsmOutputWord(
+		p_output,
+		(MechU16) model.m_header.m_vertexCount | ((MechU32) (MechU16) model.m_header.m_faceCount << 16)
+	);
+	AsmOutputWord(p_output, model.m_header.m_faceOffset == offsetof(ModelBuffer, m_faces) && !model.m_header.m_next);
 	AsmOutputWord(p_output, model.m_header.m_unk0x10);
 	AsmOutputWord(
 		p_output,
@@ -1288,7 +1291,7 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 }
 
 // A shape with random fields and no lists.
-static void MakeShape(ScarletOrchid0x4c* p_shape, MechU32* p_state)
+static void MakeShape(Shape* p_shape, MechU32* p_state)
 {
 	p_shape->m_unk0x00 = (MechU16) AsmNext(p_state);
 	p_shape->m_unk0x02 = (MechU16) AsmNext(p_state);
@@ -1298,9 +1301,9 @@ static void MakeShape(ScarletOrchid0x4c* p_shape, MechU32* p_state)
 	p_shape->m_unk0x10 = NULL;
 	p_shape->m_unk0x14 = (MechU16) AsmNext(p_state);
 	p_shape->m_unk0x16 = (MechU16) AsmNext(p_state);
-	p_shape->m_unk0x18 = NULL;
-	p_shape->m_unk0x1c = NULL;
-	p_shape->m_unk0x20 = NULL;
+	p_shape->m_object = NULL;
+	p_shape->m_models = NULL;
+	p_shape->m_model = NULL;
 	p_shape->m_unk0x24 = RandomWord(p_state);
 	p_shape->m_unk0x28 = RandomWord(p_state);
 	p_shape->m_unk0x2c = RandomWord(p_state);
@@ -1313,7 +1316,7 @@ static void MakeShape(ScarletOrchid0x4c* p_shape, MechU32* p_state)
 	p_shape->m_unk0x48 = (MechU32) RandomWord(p_state);
 }
 
-static void OutputShape(AsmOutput* p_output, const ScarletOrchid0x4c* p_shape)
+static void OutputShape(AsmOutput* p_output, const Shape* p_shape)
 {
 	AsmOutputWord(p_output, p_shape->m_unk0x00 | ((MechU32) p_shape->m_unk0x02 << 16));
 	AsmOutputWord(p_output, p_shape->m_unk0x14 | ((MechU32) p_shape->m_unk0x16 << 16));
@@ -1328,12 +1331,12 @@ static void OutputShape(AsmOutput* p_output, const ScarletOrchid0x4c* p_shape)
 	AsmOutputWord(p_output, p_shape->m_unk0x48);
 }
 
-typedef void (*TransformShapeFn)(ScarletOrchid0x4c* p_shape, Matrix* p_matrix);
+typedef void (*TransformShapeFn)(Shape* p_shape, Matrix* p_matrix);
 
 // Arguments: the shape's position, and the seed of the rest.
 static void Run10039b94(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	ScarletOrchid0x4c shape;
+	Shape shape;
 	GuardedMatrix matrix;
 	MechU32 state = AsmSeed(p_args, 4);
 
@@ -1381,12 +1384,12 @@ static MechS32 NearValue(MechS32 p_point, MechS32 p_radius, MechU32 p_kind, Mech
 	return PortableS32((MechU32) p_point + (MechU32) (MechU64) offset);
 }
 
-typedef MechS32 (*ShapeDistanceFn)(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+typedef MechS32 (*ShapeDistanceFn)(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 
 // Arguments: the point, the shape's radius, and where its center is (NearValue, from bits 0-5).
 static void Run10039ccc(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	ScarletOrchid0x4c shape;
+	Shape shape;
 	MechU32 state = AsmSeed(p_args, 5);
 	MechS32 result;
 
@@ -1592,7 +1595,7 @@ static MechS32 Domain1003a05d(const MechS32* p_args)
 // and the shape's radius (6) and center (NearValue, from bits 3-8 of argument 8). One ray in
 // eight has no length yet (bits 0-2), which GetRayLength computes from the delta: its divisions
 // can't fault with the delta shifted right by 4.
-static void MakeRayCase(const MechS32* p_args, ScarletOrchid0x4c* p_shape, Ray* p_ray)
+static void MakeRayCase(const MechS32* p_args, Shape* p_shape, Ray* p_ray)
 {
 	MechU32 state = AsmSeed(p_args, 9);
 	MechU32 selector = (MechU32) p_args[8];
@@ -1633,7 +1636,7 @@ static MechU64 Square(MechS32 p_value)
 // FUN_1003a096 up to its idiv.
 static MechS32 Domain1003a096(const MechS32* p_args)
 {
-	ScarletOrchid0x4c shape;
+	Shape shape;
 	Ray ray;
 	MechS32 deltaX;
 	MechS32 deltaY;
@@ -1680,12 +1683,12 @@ static void OutputRay(AsmOutput* p_output, const Ray* p_ray)
 	AsmOutputWord(p_output, (MechU32) p_ray->m_state);
 }
 
-typedef MechS32 (*RayDistanceFn)(ScarletOrchid0x4c* p_shape, Ray* p_ray);
+typedef MechS32 (*RayDistanceFn)(Shape* p_shape, Ray* p_ray);
 
 // Arguments: MakeRayCase's.
 static void Run1003a096(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	ScarletOrchid0x4c shape;
+	Shape shape;
 	Ray ray;
 	MechS32 result;
 
@@ -1750,7 +1753,7 @@ static void SetView(const AsmModule* p_module, const MechS32* p_view)
 
 // FUN_10048c50's view-space x, y (p_row c_viewRowX, c_viewRowY) or depth (c_viewRowDepth) of a
 // vertex.
-static MechS32 ViewValue(const MechS32* p_view, MechS32 p_row, const EmberFern0x2c* p_vertex)
+static MechS32 ViewValue(const MechS32* p_view, MechS32 p_row, const Vertex* p_vertex)
 {
 	MechU64 sum = (MechU64) ((MechS64) p_view[p_row] * Difference(p_vertex->m_unk0x0c, p_view[c_viewEyeX])) +
 				  (MechU64) ((MechS64) p_view[p_row + 1] * Difference(p_vertex->m_unk0x10, p_view[c_viewEyeY])) +
@@ -1800,12 +1803,12 @@ static void OutputRecords(AsmOutput* p_output, const RecordStacks* p_stacks, con
 	}
 }
 
-static void FillRecords(CopperWren0x20* p_records, MechS32 p_count, MechU32* p_state)
+static void FillRecords(ProjectedVertex* p_records, MechS32 p_count, MechU32* p_state)
 {
-	Fill((MechU8*) p_records, p_count * (MechU32) sizeof(CopperWren0x20), p_state);
+	Fill((MechU8*) p_records, p_count * (MechU32) sizeof(ProjectedVertex), p_state);
 }
 
-static void OutputRecord(AsmOutput* p_output, const CopperWren0x20* p_record)
+static void OutputRecord(AsmOutput* p_output, const ProjectedVertex* p_record)
 {
 	AsmOutputWord(p_output, (MechU32) p_record->m_x);
 	AsmOutputWord(p_output, (MechU32) p_record->m_y);
@@ -1821,20 +1824,20 @@ static void OutputRecord(AsmOutput* p_output, const CopperWren0x20* p_record)
 	);
 }
 
-typedef CopperWren0x20* (*ProjectVertexFn)(EmberFern0x2c* p_vertex);
+typedef ProjectedVertex* (*ProjectVertexFn)(Vertex* p_vertex);
 
 // Arguments: the vertex's position, and whether it has a projected copy already (one case in
 // four, from the last).
 static void Run10048c50(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
 	RecordStacks stacks;
-	EmberFern0x2c vertex;
-	CopperWren0x20 copy;
+	Vertex vertex;
+	ProjectedVertex copy;
 	MechS32 view[c_viewCount];
 	Region regions[2];
 	MechU32 state = AsmSeed(p_args, 4);
 	MechU32 top = 0x20 + AsmNext(&state) % ((RECORD_ARENA_SIZE - 0x20) / 4 + 1) * 4;
-	CopperWren0x20* result;
+	ProjectedVertex* result;
 
 	MakeView(view, &state);
 	SetView(p_module, view);
@@ -1861,8 +1864,8 @@ static void Run10048c50(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 // An end of an edge FUN_10048d46 clips: its vertex, and the projected copy it may have already.
 typedef struct ClipEnd {
-	EmberFern0x2c m_vertex;
-	CopperWren0x20 m_copy;
+	Vertex m_vertex;
+	ProjectedVertex m_copy;
 	MechS32 m_hasCopy;
 } ClipEnd;
 
@@ -1953,7 +1956,7 @@ static MechS32 Domain10048d46(const MechS32* p_args)
 	return c_domainIn;
 }
 
-typedef CopperWren0x20* (*ClipEdgeFn)(EmberFern0x2c* p_a, EmberFern0x2c* p_b);
+typedef ProjectedVertex* (*ClipEdgeFn)(Vertex* p_a, Vertex* p_b);
 
 // Arguments: MakeClipCase's (arguments 5 and 6 are unused).
 static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -1963,7 +1966,7 @@ static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	Region regions[3];
 	MechU32 state = AsmSeed(p_args, 9) ^ 0x5bd1e995;
 	MechU32 bottom;
-	CopperWren0x20* result;
+	ProjectedVertex* result;
 	MechS32 i;
 
 	MakeClipCase(p_args, &clip);
@@ -1982,9 +1985,9 @@ static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	regions[0].m_start = stacks.m_words;
 	regions[0].m_size = RECORD_ARENA_SIZE;
 	regions[1].m_start = &clip.m_ends[0].m_copy;
-	regions[1].m_size = sizeof(CopperWren0x20);
+	regions[1].m_size = sizeof(ProjectedVertex);
 	regions[2].m_start = &clip.m_ends[1].m_copy;
-	regions[2].m_size = sizeof(CopperWren0x20);
+	regions[2].m_size = sizeof(ProjectedVertex);
 	AsmOutputWord(p_output, Locate(regions, 3, result));
 	for (i = 0; i < 2; i++) {
 		OutputVertex(p_output, &clip.m_ends[i].m_vertex, regions, 3);
@@ -1998,7 +2001,7 @@ static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOut
 typedef struct PolygonPoints {
 	MechU8* m_or;
 	MechU8* m_and;
-	CopperWren0x20** m_points;
+	ProjectedVertex** m_points;
 	MechS32* m_count;
 } PolygonPoints;
 
@@ -2006,7 +2009,7 @@ static void FindPolygonPoints(const AsmModule* p_module, PolygonPoints* p_points
 {
 	p_points->m_or = (MechU8*) Data(p_module, "g_unk0x1010b53c");
 	p_points->m_and = (MechU8*) Data(p_module, "g_unk0x1010b5b8");
-	p_points->m_points = (CopperWren0x20**) Data(p_module, "g_unk0x1010b550");
+	p_points->m_points = (ProjectedVertex**) Data(p_module, "g_unk0x1010b550");
 	p_points->m_count = (MechS32*) Data(p_module, "g_unk0x1010b5b0");
 }
 
@@ -2028,7 +2031,7 @@ static void OutputPolygonPoints(
 
 // A projection case: the record (its x, y and depth are arguments 0-2; one in four isn't
 // projected yet) and the view, whose shifts are arguments 3 and 4.
-static void MakeProjectCase(const MechS32* p_args, CopperWren0x20* p_record, MechS32* p_view, MechU32* p_state)
+static void MakeProjectCase(const MechS32* p_args, ProjectedVertex* p_record, MechS32* p_view, MechU32* p_state)
 {
 	MakeView(p_view, p_state);
 	p_view[c_viewShiftX] = p_args[3];
@@ -2049,7 +2052,7 @@ static MechS32 ProjectDivides(MechS32 p_value, MechS32 p_shift, MechS32 p_depth)
 
 static MechS32 Domain10048ebe(const MechS32* p_args)
 {
-	CopperWren0x20 record;
+	ProjectedVertex record;
 	MechS32 view[c_viewCount];
 	MechU32 state = AsmSeed(p_args, 6);
 
@@ -2064,19 +2067,19 @@ static MechS32 Domain10048ebe(const MechS32* p_args)
 			   : c_domainFault;
 }
 
-typedef CopperWren0x20* (*AddPointFn)(CopperWren0x20* p_vertex);
+typedef ProjectedVertex* (*AddPointFn)(ProjectedVertex* p_vertex);
 
 // Arguments: MakeProjectCase's (argument 5 is unused). The list has 0 to 21 points.
 static void Run10048ebe(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	CopperWren0x20 record;
-	CopperWren0x20 others[20];
+	ProjectedVertex record;
+	ProjectedVertex others[20];
 	MechS32 view[c_viewCount];
 	PolygonPoints points;
 	MechS32* flag = (MechS32*) Data(p_module, "g_unk0x1010b5ac");
 	Region regions[2];
 	MechU32 state = AsmSeed(p_args, 6);
-	CopperWren0x20* result;
+	ProjectedVertex* result;
 	MechS32 i;
 
 	MakeProjectCase(p_args, &record, view, &state);
@@ -2103,7 +2106,7 @@ static void Run10048ebe(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 // A face and the indices of its vertices, at m_unk0x04 from it.
 typedef struct FaceBuffer {
-	DuskMoth0x24 m_face;
+	Face m_face;
 	MechU8 m_indices[24];
 } FaceBuffer;
 
@@ -2114,7 +2117,7 @@ typedef struct FaceBuffer {
 // at the origin, and the square root table.
 typedef struct ShadeCase {
 	FaceBuffer m_face;
-	EmberFern0x2c m_vertices[SHADE_VERTICES];
+	Vertex m_vertices[SHADE_VERTICES];
 	MechS32 m_view[c_viewCount];
 	MechS32 m_atOrigin;
 	MechS16 m_table[SQRT_TABLE_SIZE];
@@ -2123,7 +2126,7 @@ typedef struct ShadeCase {
 static void MakeShadeCase(const MechS32* p_args, ShadeCase* p_case)
 {
 	MechU32 state = AsmSeed(p_args, 9);
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 i;
 
 	for (i = 0; i < SHADE_VERTICES; i++) {
@@ -2168,7 +2171,7 @@ static MechU32 ShadeMagnitude(MechS32 p_light, MechS32 p_vertex)
 static MechS32 Domain10048faf(const MechS32* p_args)
 {
 	ShadeCase shade;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 position[3];
 	MechS32 light[3];
 	MechU32 magnitudes[3];
@@ -2208,7 +2211,7 @@ static MechS32 Domain10048faf(const MechS32* p_args)
 	return DivideDomain(PortableS64(dot), shade.m_table[squares >> 8]);
 }
 
-typedef MechS32 (*ShadeFaceFn)(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices);
+typedef MechS32 (*ShadeFaceFn)(Face* p_face, Vertex* p_vertices);
 
 // Arguments: MakeShadeCase's.
 static void Run10048faf(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -2255,7 +2258,7 @@ static void LogHook(MechU32 p_word)
 	g_queueHooks.m_logCount++;
 }
 
-static CopperWren0x20* QueueProjectHook(CopperWren0x20* p_vertex)
+static ProjectedVertex* QueueProjectHook(ProjectedVertex* p_vertex)
 {
 	MechU32 bits = AsmNext(&g_queueHooks.m_state);
 	MechU8 outcode = (MechU8) (bits % 4 ? 0 : (bits >> 8) & 0xf);
@@ -2274,7 +2277,7 @@ static CopperWren0x20* QueueProjectHook(CopperWren0x20* p_vertex)
 	return p_vertex;
 }
 
-static MechS32 QueueDrawHook(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices, MechS32 p_flags, MechS32 p_depth)
+static MechS32 QueueDrawHook(Face* p_face, Vertex* p_vertices, MechS32 p_flags, MechS32 p_depth)
 {
 	LogHook(Locate(g_queueHooks.m_regions, g_queueHooks.m_regionCount, p_face));
 	LogHook(Locate(g_queueHooks.m_regions, g_queueHooks.m_regionCount, p_vertices));
@@ -2327,7 +2330,7 @@ static void OutputPolygonRecord(
 	}
 }
 
-typedef void (*QueueFaceFn)(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices);
+typedef void (*QueueFaceFn)(Face* p_face, Vertex* p_vertices);
 
 // Arguments: the face's vertex count (1 to QUEUE_VERTICES), the depth rule (g_unk0x1010b5c8),
 // and the seed of the rest: a scene the game could draw. The near plane is at 0 or above, the
@@ -2340,9 +2343,9 @@ typedef void (*QueueFaceFn)(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices);
 static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
 	FaceBuffer face;
-	EmberFern0x2c vertices[QUEUE_VERTICES];
-	CopperWren0x20 copies[QUEUE_VERTICES];
-	CopperWren0x20 others[20];
+	Vertex vertices[QUEUE_VERTICES];
+	ProjectedVertex copies[QUEUE_VERTICES];
+	ProjectedVertex others[20];
 	AmberDune0x8 polygons[QUEUE_POLYGONS];
 	RecordStacks stacks;
 	SlateHeron0x68* hooks = (SlateHeron0x68*) Data(p_module, "g_unk0x100a6cc8");
@@ -2373,7 +2376,7 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	// The vertices: not projected yet (half), projected, or projected with a copy
 	FillRecords(copies, QUEUE_VERTICES, &state);
 	for (i = 0; i < QUEUE_VERTICES; i++) {
-		EmberFern0x2c* vertex = &vertices[i];
+		Vertex* vertex = &vertices[i];
 		MechU32 kind = AsmNext(&state) % 4;
 
 		MakeVertex(vertex, &state);

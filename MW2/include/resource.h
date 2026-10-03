@@ -7,7 +7,7 @@
 #include "missiontable.h"
 #include "types.h"
 
-struct AmberWillow0x7c;
+struct SceneObject;
 struct BwdRecord;
 struct FormationNames;
 struct FormationRecord;
@@ -55,7 +55,7 @@ extern "C"
 		MechS32 p_class,
 		MechS32 p_level
 	);
-	struct AmberWillow0x7c* FUN_100506d8(void);
+	struct SceneObject* FUN_100506d8(void);
 	MechS32 FUN_1005072f(void);
 
 #ifdef __cplusplus

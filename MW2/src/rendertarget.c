@@ -952,9 +952,9 @@ MechS32 FUN_1005febe(void)
 
 // Returns the shape of the local player's target, or NULL.
 // FUNCTION: MW2 0x1005ff19
-ScarletOrchid0x4c* FUN_1005ff19(void)
+Shape* FUN_1005ff19(void)
 {
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 
 	obj = FUN_1005ff56();
 	if (obj) {
@@ -968,11 +968,11 @@ ScarletOrchid0x4c* FUN_1005ff19(void)
 // Returns the scene object of the local player's target: a player's or a game thing's.
 // The only diff is a stack-slot permutation of index, player, obj, kind and id.
 // FUNCTION: MW2 0x1005ff56
-AmberWillow0x7c* FUN_1005ff56(void)
+SceneObject* FUN_1005ff56(void)
 {
 	MechS32 index;
 	Player* player;
-	AmberWillow0x7c* obj;
+	SceneObject* obj;
 	MechS32 kind;
 	MechS32 id;
 
@@ -1006,7 +1006,7 @@ void FUN_10060010(void)
 	Player* player;
 	MechS32 target;
 	MechS32 previous;
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
 	target = -1;
 	autopilot = FALSE;

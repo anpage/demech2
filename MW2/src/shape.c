@@ -3,30 +3,30 @@
 #include "approxlen.h"
 #include "boundbox.h"
 #include "decomp.h"
-#include "duskmoth.h"
-#include "emberfern.h"
+#include "face.h"
 #include "object.h"
 #include "shapegeom.h"
 #include "shapelists.h"
 #include "simmain.h"
 #include "types.h"
+#include "vertex.h"
 
 #include <math.h>
 #include <windows.h>
 
-// The flags a new shape starts with (FUN_1003a8c1).
+// The flags a new shape starts with (CreateShape).
 // GLOBAL: MW2 0x100a5898
 MechU32 g_unk0x100a5898 = 0;
 
 // FUNCTION: MW2 0x1003a530
-MechU32 FUN_1003a530(void)
+MechU32 GetNewShapeFlags(void)
 {
 	return g_unk0x100a5898;
 }
 
 // Sets the flags new shapes start with; returns the previous ones.
 // FUNCTION: MW2 0x1003a545
-MechU32 FUN_1003a545(MechU32 p_flags)
+MechU32 SetNewShapeFlags(MechU32 p_flags)
 {
 	MechU32 previous;
 
@@ -37,26 +37,26 @@ MechU32 FUN_1003a545(MechU32 p_flags)
 
 // Selects the shape's first model.
 // FUNCTION: MW2 0x1003a56b
-void FUN_1003a56b(ScarletOrchid0x4c* p_shape)
+void SelectFirstModel(Shape* p_shape)
 {
-	FUN_1003a589(p_shape, p_shape->m_unk0x1c);
+	SelectModel(p_shape, p_shape->m_models);
 }
 
 // FUNCTION: MW2 0x1003a589
-void FUN_1003a589(ScarletOrchid0x4c* p_shape, GraniteLattice0x18* p_model)
+void SelectModel(Shape* p_shape, Model* p_model)
 {
-	p_shape->m_unk0x20 = p_model;
+	p_shape->m_model = p_model;
 }
 
 // Selects the next model, wrapping around to the first.
 // FUNCTION: MW2 0x1003a59d
-void FUN_1003a59d(ScarletOrchid0x4c* p_shape)
+void SelectNextModel(Shape* p_shape)
 {
-	if (!p_shape->m_unk0x20 || !p_shape->m_unk0x20->m_unk0x0c) {
-		FUN_1003a589(p_shape, p_shape->m_unk0x1c);
+	if (!p_shape->m_model || !p_shape->m_model->m_next) {
+		SelectModel(p_shape, p_shape->m_models);
 	}
 	else {
-		FUN_1003a589(p_shape, p_shape->m_unk0x20->m_unk0x0c);
+		SelectModel(p_shape, p_shape->m_model->m_next);
 	}
 }
 
@@ -65,8 +65,8 @@ void FUN_1003a59d(ScarletOrchid0x4c* p_shape)
 // The size sum adds p_extra and vertexBytes in the other order, and the locals sit in
 // permuted stack slots.
 // FUNCTION: MW2 0x1003a5f3
-GraniteLattice0x18* FUN_1003a5f3(
-	ScarletOrchid0x4c* p_shape,
+Model* AddModel(
+	Shape* p_shape,
 	MechS32 p_key,
 	MechS32 p_vertexCount,
 	MechS32 p_faceCount,
@@ -74,9 +74,9 @@ GraniteLattice0x18* FUN_1003a5f3(
 	void** p_extraData
 )
 {
-	GraniteLattice0x18* model;
+	Model* model;
 	MechS32 vertexBytes;
-	GraniteLattice0x18* cursor;
+	Model* cursor;
 	void* memory;
 	MechU32 size;
 	MechS32 faceBytes;
@@ -88,8 +88,8 @@ GraniteLattice0x18* FUN_1003a5f3(
 		return NULL;
 	}
 
-	vertexBytes = p_vertexCount * sizeof(EmberFern0x2c);
-	faceBytes = p_faceCount * sizeof(DuskMoth0x24);
+	vertexBytes = p_vertexCount * sizeof(Vertex);
+	faceBytes = p_faceCount * sizeof(Face);
 	size = p_extra + vertexBytes + faceBytes + 0x18;
 	memory = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size);
 	if (!memory) {
@@ -98,87 +98,87 @@ GraniteLattice0x18* FUN_1003a5f3(
 
 	memset(memory, 0, size);
 	model = memory;
-	model->m_unk0x00 = p_key;
-	model->m_unk0x04 = 0;
-	model->m_unk0x06 = 0;
+	model->m_key = p_key;
+	model->m_vertexCount = 0;
+	model->m_faceCount = 0;
 	model->m_unk0x10 = 0;
 	model->m_unk0x14 = 0;
-	model->m_unk0x08 = (MechU16) (vertexBytes + sizeof(GraniteLattice0x18));
-	*p_extraData = (DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08) + p_faceCount;
-	FUN_1003a589(p_shape, model);
+	model->m_faceOffset = (MechU16) (vertexBytes + sizeof(Model));
+	*p_extraData = (Face*) ((MechU8*) model + model->m_faceOffset) + p_faceCount;
+	SelectModel(p_shape, model);
 
-	if (!p_shape->m_unk0x1c) {
-		p_shape->m_unk0x1c = model;
-		model->m_unk0x0c = NULL;
+	if (!p_shape->m_models) {
+		p_shape->m_models = model;
+		model->m_next = NULL;
 		return model;
 	}
 
-	cursor = p_shape->m_unk0x1c;
-	if (cursor->m_unk0x00 > p_key) {
-		model->m_unk0x0c = cursor;
-		p_shape->m_unk0x1c = model;
+	cursor = p_shape->m_models;
+	if (cursor->m_key > p_key) {
+		model->m_next = cursor;
+		p_shape->m_models = model;
 		return model;
 	}
 
-	while (cursor->m_unk0x0c) {
-		if (cursor->m_unk0x0c->m_unk0x00 > p_key) {
+	while (cursor->m_next) {
+		if (cursor->m_next->m_key > p_key) {
 			break;
 		}
 
-		cursor = cursor->m_unk0x0c;
+		cursor = cursor->m_next;
 	}
 
-	model->m_unk0x0c = cursor->m_unk0x0c;
-	cursor->m_unk0x0c = model;
+	model->m_next = cursor->m_next;
+	cursor->m_next = model;
 	return model;
 }
 
 // Selects the first model whose key is at most p_key.
 // FUNCTION: MW2 0x1003a7a2
-void FUN_1003a7a2(ScarletOrchid0x4c* p_shape, MechS32 p_key)
+void SelectModelByKey(Shape* p_shape, MechS32 p_key)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	for (model = p_shape->m_unk0x1c; model; model = model->m_unk0x0c) {
-		if (model->m_unk0x00 <= p_key) {
-			FUN_1003a589(p_shape, model);
+	for (model = p_shape->m_models; model; model = model->m_next) {
+		if (model->m_key <= p_key) {
+			SelectModel(p_shape, model);
 			break;
 		}
 	}
 }
 
 // FUNCTION: MW2 0x1003a7f9
-void FUN_1003a7f9(ScarletOrchid0x4c* p_shape, MechS32 p_key)
+void FUN_1003a7f9(Shape* p_shape, MechS32 p_key)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	model->m_unk0x00 = p_key;
+	model->m_key = p_key;
 }
 
 // FUNCTION: MW2 0x1003a827
-MechS32 FUN_1003a827(ScarletOrchid0x4c* p_shape)
+MechS32 FUN_1003a827(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return 0;
 	}
 
-	return model->m_unk0x00;
+	return model->m_key;
 }
 
 // FUNCTION: MW2 0x1003a859
-void FUN_1003a859(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x14)
+void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
@@ -187,11 +187,11 @@ void FUN_1003a859(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x14)
 }
 
 // FUNCTION: MW2 0x1003a889
-MechU32 FUN_1003a889(ScarletOrchid0x4c* p_shape)
+MechU32 FUN_1003a889(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return 0;
 	}
@@ -199,21 +199,21 @@ MechU32 FUN_1003a889(ScarletOrchid0x4c* p_shape)
 	return model->m_unk0x14;
 }
 
-// Allocates a shape with one model (FUN_1003a5f3).
+// Allocates a shape with one model (AddModel).
 // FUNCTION: MW2 0x1003a8c1
-ScarletOrchid0x4c* FUN_1003a8c1(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData)
+Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData)
 {
-	ScarletOrchid0x4c* shape;
+	Shape* shape;
 
-	shape = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(ScarletOrchid0x4c));
+	shape = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(Shape));
 	if (!shape) {
 		return NULL;
 	}
 
 	shape->m_unk0x00 = g_unk0x100a5898 | 0x8000;
-	shape->m_unk0x18 = NULL;
-	shape->m_unk0x20 = shape->m_unk0x1c = NULL;
-	if (!FUN_1003a5f3(shape, 0, p_vertexCount, p_faceCount, p_extra, p_extraData)) {
+	shape->m_object = NULL;
+	shape->m_model = shape->m_models = NULL;
+	if (!AddModel(shape, 0, p_vertexCount, p_faceCount, p_extra, p_extraData)) {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, shape);
 		return NULL;
 	}
@@ -234,61 +234,54 @@ ScarletOrchid0x4c* FUN_1003a8c1(MechS32 p_vertexCount, MechS32 p_faceCount, Mech
 
 // Appends a vertex to the selected model.
 // FUNCTION: MW2 0x1003aa1d
-void FUN_1003aa1d(
-	ScarletOrchid0x4c* p_shape,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
-	undefined4 p_unk0x18,
-	undefined4 p_unk0x1c
-)
+void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_unk0x18, undefined4 p_unk0x1c)
 {
-	GraniteLattice0x18* model;
-	EmberFern0x2c* vertex;
+	Model* model;
+	Vertex* vertex;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	vertex = (EmberFern0x2c*) (model + 1) + model->m_unk0x04;
+	vertex = (Vertex*) (model + 1) + model->m_vertexCount;
 	vertex->m_unk0x0c = vertex->m_unk0x00 = p_x;
 	vertex->m_unk0x10 = vertex->m_unk0x04 = p_y;
 	vertex->m_unk0x14 = vertex->m_unk0x08 = p_z;
 	vertex->m_unk0x18 = p_unk0x18;
 	vertex->m_unk0x1c = p_unk0x1c;
-	model->m_unk0x04++;
+	model->m_vertexCount++;
 }
 
 // Appends a face to the selected model, its vertex indices at p_indices.
 // The only diff is a stack-slot permutation of model and face.
 // FUNCTION: MW2 0x1003aab5
-DuskMoth0x24* FUN_1003aab5(ScarletOrchid0x4c* p_shape, MechU16 p_unk0x00, MechU8* p_indices)
+Face* AddShapeFace(Shape* p_shape, MechU16 p_unk0x00, MechU8* p_indices)
 {
-	GraniteLattice0x18* model;
-	DuskMoth0x24* face;
+	Model* model;
+	Face* face;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return NULL;
 	}
 
-	face = (DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08) + model->m_unk0x06;
+	face = (Face*) ((MechU8*) model + model->m_faceOffset) + model->m_faceCount;
 	face->m_unk0x04 = (MechU16) (p_indices - (MechU8*) face);
 	face->m_unk0x20 = p_shape;
 	face->m_unk0x00 = p_unk0x00;
 	face->m_unk0x02 = 0;
-	model->m_unk0x06++;
+	model->m_faceCount++;
 	return face;
 }
 
 // Appends a vertex index to a face of the selected model.
 // FUNCTION: MW2 0x1003ab34
-void FUN_1003ab34(ScarletOrchid0x4c* p_shape, DuskMoth0x24* p_face, MechU32 p_index)
+void AddShapeFaceIndex(Shape* p_shape, Face* p_face, MechU32 p_index)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
@@ -298,7 +291,7 @@ void FUN_1003ab34(ScarletOrchid0x4c* p_shape, DuskMoth0x24* p_face, MechU32 p_in
 }
 
 // FUNCTION: MW2 0x1003ab79
-void FUN_1003ab79(GraniteLattice0x18* p_model)
+void FreeModel(Model* p_model)
 {
 	if (!p_model) {
 		return;
@@ -310,48 +303,48 @@ void FUN_1003ab79(GraniteLattice0x18* p_model)
 // Removes the selected model from the shape's list and frees it.
 // The only diff is a stack-slot permutation of model and cursor.
 // FUNCTION: MW2 0x1003aba5
-void FUN_1003aba5(ScarletOrchid0x4c* p_shape)
+void RemoveSelectedModel(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
-	GraniteLattice0x18* cursor;
+	Model* model;
+	Model* cursor;
 
-	model = p_shape->m_unk0x20;
-	if (!model || !p_shape->m_unk0x1c) {
+	model = p_shape->m_model;
+	if (!model || !p_shape->m_models) {
 		return;
 	}
 
-	if (p_shape->m_unk0x1c == model) {
-		p_shape->m_unk0x1c = model->m_unk0x0c;
+	if (p_shape->m_models == model) {
+		p_shape->m_models = model->m_next;
 	}
 	else {
-		for (cursor = p_shape->m_unk0x1c; cursor->m_unk0x0c; cursor = cursor->m_unk0x0c) {
-			if (cursor->m_unk0x0c == model) {
+		for (cursor = p_shape->m_models; cursor->m_next; cursor = cursor->m_next) {
+			if (cursor->m_next == model) {
 				break;
 			}
 		}
 
-		if (!cursor->m_unk0x0c) {
+		if (!cursor->m_next) {
 			return;
 		}
 
-		cursor->m_unk0x0c = model->m_unk0x0c;
+		cursor->m_next = model->m_next;
 	}
 
-	FUN_1003ab79(model);
+	FreeModel(model);
 }
 
 // Frees the shape and its models.
 // FUNCTION: MW2 0x1003ac5f
-void FUN_1003ac5f(ScarletOrchid0x4c* p_shape)
+void FreeShape(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
-	GraniteLattice0x18* current;
+	Model* model;
+	Model* current;
 
-	model = p_shape->m_unk0x1c;
+	model = p_shape->m_models;
 	while (model) {
 		current = model;
-		model = current->m_unk0x0c;
-		FUN_1003ab79(current);
+		model = current->m_next;
+		FreeModel(current);
 	}
 
 	FUN_1006ed30(p_shape);
@@ -359,7 +352,7 @@ void FUN_1003ac5f(ScarletOrchid0x4c* p_shape)
 }
 
 // FUNCTION: MW2 0x1003acbe
-void FUN_1003acbe(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x04)
+void FUN_1003acbe(Shape* p_shape, MechS32 p_unk0x04)
 {
 	if (p_shape) {
 		p_shape->m_unk0x00 = (p_shape->m_unk0x00 & ~0x7ef0) | (p_unk0x04 & 0x7ef0) | 0x8000;
@@ -367,7 +360,7 @@ void FUN_1003acbe(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x04)
 }
 
 // FUNCTION: MW2 0x1003acf7
-MechU32 FUN_1003acf7(ScarletOrchid0x4c* p_shape)
+MechU32 FUN_1003acf7(Shape* p_shape)
 {
 	if (p_shape) {
 		return p_shape->m_unk0x00 & 0x7ef0;
@@ -378,7 +371,7 @@ MechU32 FUN_1003acf7(ScarletOrchid0x4c* p_shape)
 }
 
 // FUNCTION: MW2 0x1003ad2d
-void FUN_1003ad2d(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x02)
+void FUN_1003ad2d(Shape* p_shape, MechS32 p_unk0x02)
 {
 	if (p_shape) {
 		p_shape->m_unk0x02 = p_unk0x02;
@@ -386,37 +379,37 @@ void FUN_1003ad2d(ScarletOrchid0x4c* p_shape, MechS32 p_unk0x02)
 }
 
 // FUNCTION: MW2 0x1003ad4c
-void FUN_1003ad4c(ScarletOrchid0x4c* p_shape, MechU16 p_unk0x16)
+void FUN_1003ad4c(Shape* p_shape, MechU16 p_unk0x16)
 {
 	p_shape->m_unk0x16 = p_unk0x16;
 }
 
 // FUNCTION: MW2 0x1003ad62
-void FUN_1003ad62(ScarletOrchid0x4c* p_shape, MechU16 p_unk0x14)
+void FUN_1003ad62(Shape* p_shape, MechU16 p_unk0x14)
 {
 	p_shape->m_unk0x14 = p_unk0x14;
 }
 
 // FUNCTION: MW2 0x1003ad78
-MechU32 FUN_1003ad78(ScarletOrchid0x4c* p_shape)
+MechU32 FUN_1003ad78(Shape* p_shape)
 {
 	return p_shape->m_unk0x02;
 }
 
 // FUNCTION: MW2 0x1003ad93
-MechU32 FUN_1003ad93(ScarletOrchid0x4c* p_shape)
+MechU32 FUN_1003ad93(Shape* p_shape)
 {
 	return p_shape->m_unk0x16;
 }
 
 // FUNCTION: MW2 0x1003adae
-MechU32 FUN_1003adae(ScarletOrchid0x4c* p_shape)
+MechU32 FUN_1003adae(Shape* p_shape)
 {
 	return p_shape->m_unk0x14;
 }
 
 // FUNCTION: MW2 0x1003adc9
-MechS32 FUN_1003adc9(ScarletOrchid0x4c* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c)
+MechS32 FUN_1003adc9(Shape* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c)
 {
 	if (p_unk0x34) {
 		*p_unk0x34 = p_shape->m_unk0x34;
@@ -433,23 +426,25 @@ MechS32 FUN_1003adc9(ScarletOrchid0x4c* p_shape, MechS32* p_unk0x34, MechS32* p_
 	return p_shape->m_unk0x40;
 }
 
+// Computes the selected model's face normals, then the shape's center and radius (a shape
+// LoadShapeRecord has just built).
 // FUNCTION: MW2 0x1003ae1e
-void FUN_1003ae1e(ScarletOrchid0x4c* p_shape)
+void ComputeNormalsAndBounds(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 	MechS32 i;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	i = model->m_unk0x06;
+	i = model->m_faceCount;
 	while (i--) {
-		FUN_1003b0e4((DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08) + i, (EmberFern0x2c*) (model + 1));
+		ComputeFaceNormal((Face*) ((MechU8*) model + model->m_faceOffset) + i, (Vertex*) (model + 1));
 	}
 
-	FUN_1003ae96(p_shape);
+	ComputeShapeBounds(p_shape);
 }
 
 // Sets p_shape's center to the middle of its first model's bounding box, and its radius to the
@@ -458,10 +453,10 @@ void FUN_1003ae1e(ScarletOrchid0x4c* p_shape)
 // original loads the model first (index order), and 4.1 sums the squares in another order, which
 // also compares d before storing it; a probe of the same source picks yet another order.
 // FUNCTION: MW2 0x1003ae96
-void FUN_1003ae96(ScarletOrchid0x4c* p_shape)
+void ComputeShapeBounds(Shape* p_shape)
 {
 	MechDouble dz;
-	GraniteLattice0x18* model;
+	Model* model;
 	MechDouble max;
 	MechS32 minX;
 	MechS32 i;
@@ -472,21 +467,21 @@ void FUN_1003ae96(ScarletOrchid0x4c* p_shape)
 	MechS32 maxY;
 	MechDouble dx;
 	MechS32 maxZ;
-	EmberFern0x2c* v;
+	Vertex* v;
 	MechDouble dy;
 
-	model = p_shape->m_unk0x1c;
+	model = p_shape->m_models;
 	if (!model) {
 		return;
 	}
 
-	i = model->m_unk0x04 - 1;
-	v = (EmberFern0x2c*) (model + 1) + i;
+	i = model->m_vertexCount - 1;
+	v = (Vertex*) (model + 1) + i;
 	minX = maxX = v->m_unk0x0c;
 	minY = maxY = v->m_unk0x10;
 	minZ = maxZ = v->m_unk0x14;
 	while (i--) {
-		v = (EmberFern0x2c*) (model + 1) + i;
+		v = (Vertex*) (model + 1) + i;
 		if (v->m_unk0x0c < minX) {
 			minX = v->m_unk0x0c;
 		}
@@ -512,9 +507,9 @@ void FUN_1003ae96(ScarletOrchid0x4c* p_shape)
 	p_shape->m_unk0x30 = p_shape->m_unk0x3c = (maxZ + minZ) >> 1;
 
 	max = 0.0;
-	i = model->m_unk0x04;
+	i = model->m_vertexCount;
 	while (i--) {
-		v = (EmberFern0x2c*) (model + 1) + i;
+		v = (Vertex*) (model + 1) + i;
 		dx = v->m_unk0x0c - p_shape->m_unk0x34;
 		dy = v->m_unk0x10 - p_shape->m_unk0x38;
 		dz = v->m_unk0x14 - p_shape->m_unk0x3c;
@@ -531,23 +526,23 @@ void FUN_1003ae96(ScarletOrchid0x4c* p_shape)
 // its longest edge and the vertex that gives the largest area with it, stopping at the first
 // area over 16. A face of fewer than 3 vertices keeps the default (0x20000000, 0, 0).
 // FUNCTION: MW2 0x1003b0e4
-void FUN_1003b0e4(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
+void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 {
 	MechS32 length;
 	MechS32 nx;
-	EmberFern0x2c* vertex;
+	Vertex* vertex;
 	MechS32 ny;
 	MechS32 nz;
-	EmberFern0x2c* prev;
-	EmberFern0x2c* a;
+	Vertex* prev;
+	Vertex* a;
 	MechS32 best;
 	MechS32 i;
 	MechS32 area;
-	EmberFern0x2c* b;
+	Vertex* b;
 	MechS32 bestArea;
-	EmberFern0x2c* v0;
-	EmberFern0x2c* v1;
-	EmberFern0x2c* v2;
+	Vertex* v0;
+	Vertex* v1;
+	Vertex* v2;
 
 	i = 0;
 	best = 0;
@@ -635,30 +630,30 @@ void FUN_1003b0e4(DuskMoth0x24* p_face, EmberFern0x2c* p_vertices)
 
 // Returns the selected model's vertex and face counts.
 // FUNCTION: MW2 0x1003b43d
-void FUN_1003b43d(ScarletOrchid0x4c* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount)
+void GetModelCounts(Shape* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
 	if (p_vertexCount) {
-		*p_vertexCount = model->m_unk0x04;
+		*p_vertexCount = model->m_vertexCount;
 	}
 
 	if (p_faceCount) {
-		*p_faceCount = model->m_unk0x06;
+		*p_faceCount = model->m_faceCount;
 	}
 }
 
 // Calls p_fn for each shape of the list after p_shape.
 // FUNCTION: MW2 0x1003b48f
-void FUN_1003b48f(ScarletOrchid0x4c* p_shape, void (*p_fn)(ScarletOrchid0x4c*))
+void ForEachShape(Shape* p_shape, void (*p_fn)(Shape*))
 {
-	ScarletOrchid0x4c* shape;
-	ScarletOrchid0x4c* next;
+	Shape* shape;
+	Shape* next;
 
 	if (!p_shape) {
 		return;
@@ -674,17 +669,17 @@ void FUN_1003b48f(ScarletOrchid0x4c* p_shape, void (*p_fn)(ScarletOrchid0x4c*))
 
 // Returns a vertex's transformed position.
 // FUNCTION: MW2 0x1003b4dd
-void FUN_1003b4dd(ScarletOrchid0x4c* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	GraniteLattice0x18* model;
-	EmberFern0x2c* vertex;
+	Model* model;
+	Vertex* vertex;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	vertex = &((EmberFern0x2c*) (model + 1))[p_index];
+	vertex = &((Vertex*) (model + 1))[p_index];
 	if (p_x) {
 		*p_x = vertex->m_unk0x0c;
 	}
@@ -699,20 +694,20 @@ void FUN_1003b4dd(ScarletOrchid0x4c* p_shape, MechS32 p_index, MechS32* p_x, Mec
 }
 
 // Returns a vertex's position in the model.
-// The vertex address adds the model and the index in the other order (FUN_1003b4dd's
+// The vertex address adds the model and the index in the other order (GetTransformedVertex's
 // identical expression doesn't).
 // FUNCTION: MW2 0x1003b55a
-void FUN_1003b55a(ScarletOrchid0x4c* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	GraniteLattice0x18* model;
-	EmberFern0x2c* vertex;
+	Model* model;
+	Vertex* vertex;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	vertex = &((EmberFern0x2c*) (model + 1))[p_index];
+	vertex = &((Vertex*) (model + 1))[p_index];
 	if (p_x) {
 		*p_x = vertex->m_unk0x00;
 	}
@@ -729,7 +724,7 @@ void FUN_1003b55a(ScarletOrchid0x4c* p_shape, MechS32 p_index, MechS32* p_x, Mec
 // Returns a face of the selected model and up to p_max of its vertex indices.
 // FUNCTION: MW2 0x1003b5d6
 void FUN_1003b5d6(
-	ScarletOrchid0x4c* p_shape,
+	Shape* p_shape,
 	MechS32 p_index,
 	MechU32* p_unk0x00,
 	MechU32* p_count,
@@ -737,16 +732,16 @@ void FUN_1003b5d6(
 	MechS32 p_max
 )
 {
-	GraniteLattice0x18* model;
-	DuskMoth0x24* face;
+	Model* model;
+	Face* face;
 	MechS32 count;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	face = (DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08) + p_index;
+	face = (Face*) ((MechU8*) model + model->m_faceOffset) + p_index;
 	if (p_unk0x00) {
 		*p_unk0x00 = face->m_unk0x00;
 	}
@@ -768,94 +763,94 @@ void FUN_1003b5d6(
 }
 
 // FUNCTION: MW2 0x1003b696
-void FUN_1003b696(ScarletOrchid0x4c* p_shape, MechS32 p_index, MechS32 p_unk0x00)
+void FUN_1003b696(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
 {
-	GraniteLattice0x18* model;
+	Model* model;
 
-	model = p_shape->m_unk0x20;
+	model = p_shape->m_model;
 	if (!model) {
 		return;
 	}
 
-	if (p_index < model->m_unk0x06) {
-		((DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08) + p_index)->m_unk0x00 = p_unk0x00;
+	if (p_index < model->m_faceCount) {
+		((Face*) ((MechU8*) model + model->m_faceOffset) + p_index)->m_unk0x00 = p_unk0x00;
 	}
 }
 
 // FUNCTION: MW2 0x1003b6e5
-struct AmberWillow0x7c* FUN_1003b6e5(ScarletOrchid0x4c* p_shape)
+struct SceneObject* GetShapeObject(Shape* p_shape)
 {
-	return p_shape->m_unk0x18;
+	return p_shape->m_object;
 }
 
 // FUNCTION: MW2 0x1003b6fb
-void FUN_1003b6fb(ScarletOrchid0x4c* p_shape, struct AmberWillow0x7c* p_unk0x18)
+void SetShapeObject(Shape* p_shape, struct SceneObject* p_unk0x18)
 {
-	p_shape->m_unk0x18 = p_unk0x18;
+	p_shape->m_object = p_unk0x18;
 }
 
 // FUNCTION: MW2 0x1003b70f
-MechU32 FUN_1003b70f(ScarletOrchid0x4c* p_shape)
+MechU32 FUN_1003b70f(Shape* p_shape)
 {
 	return p_shape->m_unk0x00 & 0x10f;
 }
 
 // FUNCTION: MW2 0x1003b72f
-void FUN_1003b72f(ScarletOrchid0x4c* p_shape, MechU32 p_flags)
+void FUN_1003b72f(Shape* p_shape, MechU32 p_flags)
 {
 	p_shape->m_unk0x00 = (p_shape->m_unk0x00 & ~0x10f) | (p_flags & 0x10f) | 0x8000;
 }
 
 // Unlinks the shape and frees it.
 // FUNCTION: MW2 0x1003b75e
-void FUN_1003b75e(ScarletOrchid0x4c* p_shape)
+void DestroyShape(Shape* p_shape)
 {
 	if (p_shape) {
 		FUN_1006d7fb(p_shape);
-		FUN_1003ac5f(p_shape);
+		FreeShape(p_shape);
 	}
 }
 
 // Detaches the shape from its scene object and frees it. A ShapeCallback (FUN_10001f82).
 // FUNCTION: MW2 0x1003b78b
-void FUN_1003b78b(ScarletOrchid0x4c* p_shape)
+void FUN_1003b78b(Shape* p_shape)
 {
-	struct AmberWillow0x7c* obj;
+	struct SceneObject* obj;
 
-	obj = FUN_1003b6e5(p_shape);
+	obj = GetShapeObject(p_shape);
 	if (obj) {
 		FUN_10001532(obj, NULL);
 	}
 
-	FUN_1003b75e(p_shape);
+	DestroyShape(p_shape);
 }
 
 // Returns the bytes the shape, its models and its bounding data take.
 // The only diff is a stack-slot permutation of model, vertex and size.
 // FUNCTION: MW2 0x1003b7cc
-MechS32 FUN_1003b7cc(ScarletOrchid0x4c* p_shape)
+MechS32 GetShapeMemorySize(Shape* p_shape)
 {
-	GraniteLattice0x18* model;
-	EmberFern0x2c* vertex;
+	Model* model;
+	Vertex* vertex;
 	MechS32 size;
 	MechS32 i;
-	DuskMoth0x24* face;
+	Face* face;
 
-	size = sizeof(ScarletOrchid0x4c);
-	if (p_shape->m_unk0x18) {
-		size += sizeof(struct AmberWillow0x7c);
+	size = sizeof(Shape);
+	if (p_shape->m_object) {
+		size += sizeof(struct SceneObject);
 	}
 
-	for (model = p_shape->m_unk0x1c; model; model = model->m_unk0x0c) {
-		size += sizeof(GraniteLattice0x18);
-		vertex = (EmberFern0x2c*) (model + 1);
-		for (i = model->m_unk0x04; i--; vertex++) {
-			size += sizeof(EmberFern0x2c);
+	for (model = p_shape->m_models; model; model = model->m_next) {
+		size += sizeof(Model);
+		vertex = (Vertex*) (model + 1);
+		for (i = model->m_vertexCount; i--; vertex++) {
+			size += sizeof(Vertex);
 		}
 
-		face = (DuskMoth0x24*) ((MechU8*) model + model->m_unk0x08);
-		for (i = model->m_unk0x06; i--; face++) {
-			size += face->m_unk0x02 + sizeof(DuskMoth0x24);
+		face = (Face*) ((MechU8*) model + model->m_faceOffset);
+		for (i = model->m_faceCount; i--; face++) {
+			size += face->m_unk0x02 + sizeof(Face);
 		}
 	}
 

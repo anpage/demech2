@@ -13,10 +13,10 @@ extern "C"
 
 	extern MechS32 g_unk0x100ad43c;
 
-	MechS32 FUN_100699a0(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_100699da(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
+	MechS32 FUN_100699a0(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_100699da(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
 	void FUN_10069a4b(
-		ScarletOrchid0x4c* p_shape,
+		Shape* p_shape,
 		MechS32 p_x,
 		MechS32 p_y,
 		MechS32 p_z,
@@ -24,16 +24,16 @@ extern "C"
 		MechS32* p_inColumn,
 		MechS32* p_top
 	);
-	MechS32 FUN_10069b2a(ScarletOrchid0x4c* p_shape, Ray* p_ray);
-	MechS32 FUN_10069dd4(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069e54(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069e66(ScarletOrchid0x4c* p_shape, Ray* p_ray);
-	MechS32 FUN_10069e78(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069f67(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069fd4(ScarletOrchid0x4c* p_shape, Ray* p_ray);
-	MechS32 FUN_1006a001(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
-	MechS32 FUN_1006a037(ScarletOrchid0x4c* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_1006a190(ScarletOrchid0x4c* p_shape, Ray* p_ray);
+	MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray);
+	MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_10069e54(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_10069e66(Shape* p_shape, Ray* p_ray);
+	MechS32 FUN_10069e78(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_10069fd4(Shape* p_shape, Ray* p_ray);
+	MechS32 FUN_1006a001(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
+	MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 FUN_1006a190(Shape* p_shape, Ray* p_ray);
 
 #ifdef __cplusplus
 }

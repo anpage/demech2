@@ -1,8 +1,8 @@
 #ifndef RECORDSTACKS_H
 #define RECORDSTACKS_H
 
-#include "copperwren.h"
 #include "depthsort.h"
+#include "projectedvertex.h"
 #include "types.h"
 
 // The functions and globals of recordstacks.c that other units use.
@@ -20,7 +20,7 @@ extern "C"
 	void FUN_1007d120(void);
 	void FUN_1007d150(MechS32 p_unk0x00, MechS32 p_unk0x04);
 	void FUN_1007d220(void);
-	CopperWren0x20* FUN_1007d248(void);
+	ProjectedVertex* FUN_1007d248(void);
 	MechU8* FUN_1007d296(void);
 
 #ifdef __cplusplus
