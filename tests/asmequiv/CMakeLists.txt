@@ -77,11 +77,13 @@ list(TRANSFORM asmequiv_masm_units APPEND ".${asm_or_c}" OUTPUT_VARIABLE asmequi
 list(APPEND asmequiv_masm_c
   "${DEMECH2_SOURCE_DIR}/common/src/vfx3d.c"
   "${DEMECH2_SOURCE_DIR}/common/src/vfxa.c"
+  "${DEMECH2_SOURCE_DIR}/common/src/vfxrend.c"
 )
 if (asm_or_c STREQUAL "asm")
   set(asmequiv_vfx_ref
     "${DEMECH2_SOURCE_DIR}/3rdparty/vfx/VFX3D.ASM"
     "${DEMECH2_SOURCE_DIR}/3rdparty/vfx/VFXA.ASM"
+    "${DEMECH2_SOURCE_DIR}/3rdparty/vfx/VFXREND.ASM"
   )
   set_source_files_properties(${asmequiv_vfx_ref} PROPERTIES
     LANGUAGE ASM_MASM
@@ -90,6 +92,7 @@ else()
   set(asmequiv_vfx_ref
     "${DEMECH2_SOURCE_DIR}/common/src/vfx3d.c"
     "${DEMECH2_SOURCE_DIR}/common/src/vfxa.c"
+    "${DEMECH2_SOURCE_DIR}/common/src/vfxrend.c"
   )
 endif()
 list(APPEND asmequiv_masm_ref ${asmequiv_vfx_ref})

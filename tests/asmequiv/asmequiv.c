@@ -139,6 +139,11 @@ static const DeadBlock c_deadBlocks[] = {
 	// always 8 there
 	{"VFX_GIF_draw", 0x1ca},
 	{"VFX_GIF_draw", 0x1e9},
+	// VFX_polygon_clip_XY_and_render's negation of the fraction of an edge inside the right and
+	// the top: a crossing there gives the dividend and the divisor the same sign, or a dividend of
+	// 0 over a positive divisor (the left and the bottom negate 0 for an edge that ends on them)
+	{"VFX_polygon_clip_XY_and_render", 0x1a6},
+	{"VFX_polygon_clip_XY_and_render", 0x6a9},
 };
 
 static MechS32 IsDeadBlock(const char* p_routine, MechS32 p_offset)
@@ -170,7 +175,7 @@ static MechS32 g_blockCount = 0;
 static MechS32 LoadBlocks(const char* p_path, HMODULE p_module)
 {
 	FILE* file = fopen(p_path, "r");
-	char line[4096];
+	static char line[0x10000]; // VFX_polygon_render's takes about 16K
 	MechS32 lineNumber = 0;
 
 	if (!file) {
@@ -511,7 +516,8 @@ static MechS32 RunCase(
 }
 
 // Whether the reference has the routine's assembly. Newer compilers' references have neither
-// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, VFX3D.ASM, VFXA.ASM),
+// the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, VFX3D.ASM, VFXA.ASM,
+// VFXREND.ASM),
 // nor those whose __asm
 // blocks jump to C labels (FUN_10071930, and four each in unk10039a30.c and unk10046750.c): they
 // compile the portable C instead. The VC++ 4.1 reference has every routine's.
@@ -543,6 +549,13 @@ static MechS32 HasReference(const AsmRoutine* p_routine)
 		"VFX_illuminate_polygon",
 		"VFX_map_lookaside",
 		"VFX_map_polygon",
+		"VFX_set_Gouraud_dither_level",
+		"GetCodeBlock",
+		"VFX_polygon_render",
+		"F16_div_to_F30",
+		"F30_reciprocal",
+		"mul_F30",
+		"VFX_polygon_clip_XY_and_render",
 		"VFX_driver_name",
 		"VFX_register_driver",
 		"VFX_pixel_write",
@@ -658,12 +671,26 @@ static MechS32 RunExhaustive(const AsmRoutine* p_routine, HMODULE p_ref, HMODULE
 	return failures == 0;
 }
 
+// VFXREND's primitives patch their own operands: as the game does (FirstRender), makes the range
+// GetCodeBlock returns writable.
+typedef MechS32 (*GetCodeBlockFn)(MechU32* p_start, MechU32* p_selector);
+
 static HMODULE Load(const char* p_dll)
 {
 	HMODULE module = LoadLibrary(p_dll);
+	MechU32 start = 0;
+	MechU32 selector = 0;
+	MechS32 size;
+	DWORD protection;
 
 	if (!module) {
 		printf("%s: can't load (error %lu)\n", p_dll, (unsigned long) GetLastError());
+		exit(2);
+	}
+
+	size = ((GetCodeBlockFn) Export(module, "GetCodeBlock"))(&start, &selector);
+	if (!VirtualProtect((void*) (size_t) start, (DWORD) size, PAGE_EXECUTE_READWRITE, &protection)) {
+		printf("%s: can't make the code block writable (error %lu)\n", p_dll, (unsigned long) GetLastError());
 		exit(2);
 	}
 

@@ -67,6 +67,13 @@ EXPORTS
 	VFX_illuminate_polygon
 	VFX_map_lookaside
 	VFX_map_polygon
+	VFX_set_Gouraud_dither_level
+	GetCodeBlock
+	VFX_polygon_render
+	F16_div_to_F30
+	F30_reciprocal
+	mul_F30
+	VFX_polygon_clip_XY_and_render
 	VFX_driver_name
 	VFX_register_driver
 	VFX_pixel_write

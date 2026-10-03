@@ -16,6 +16,7 @@
 #include "unk100335d0.h"
 #include "unk10039a30.h"
 #include "unk1003a530.h"
+#include "vfxrend.h"
 #include "window.h"
 
 #include <math.h>
@@ -2574,6 +2575,43 @@ static void OutputPolyTarget(AsmOutput* p_output, const PolyTarget* p_target)
 	AsmOutputBytes(p_output, (const MechU8*) p_target->m_words, POLY_ARENA_SIZE);
 }
 
+// p_count vertices on an ellipse, rounded down: p_count of the 32 directions, in order, in either
+// winding and starting at any vertex. The words after x and y are random.
+static void PlaceVertices(
+	MechU32* p_points,
+	MechS32 p_count,
+	MechU32 p_reverse,
+	MechS32 p_centerX,
+	MechS32 p_centerY,
+	MechS32 p_radiusX,
+	MechS32 p_radiusY,
+	MechU32* p_state
+)
+{
+	MechS32 directions[POLY_MAX_VERTICES];
+	MechS32 start;
+	MechS32 used;
+	MechS32 i;
+
+	used = 0;
+	for (i = 0; i < 32 && used < p_count; i++) {
+		if (AsmNext(p_state) % (MechU32) (32 - i) < (MechU32) (p_count - used)) {
+			directions[used++] = i;
+		}
+	}
+
+	start = (MechS32) (AsmNext(p_state) % (MechU32) p_count);
+	for (i = 0; i < p_count; i++) {
+		MechS32 index = (start + i) % p_count;
+		MechS32 direction = directions[p_reverse ? p_count - 1 - index : index];
+		MechU32* point = &p_points[i * POLY_VERTEX_WORDS];
+
+		FillWords((MechS32*) point, POLY_VERTEX_WORDS, p_state);
+		point[0] = (MechU32) (p_centerX + PortableSar32(g_polyDirections[direction] * p_radiusX, 10));
+		point[1] = (MechU32) (p_centerY + PortableSar32(g_polyDirections[(direction + 8) % 32] * p_radiusY, 10));
+	}
+}
+
 // A polygon the game could draw: convex, y-monotone on each side of its top and bottom (its
 // vertices lie on an ellipse, rounded down), in either winding and starting at any vertex. One
 // to POLY_MAX_VERTICES vertices; a case may flatten it into a line or a point. Its corners lie
@@ -2586,14 +2624,10 @@ static MechS32 MakePolygon(MechU32* p_points, const PolyTarget* p_target, MechU3
 	MechS32 height = p_target->m_buffer.m_yMax + 1;
 	MechU32 kind = AsmNext(p_state);
 	MechS32 count = 1 + (MechS32) (AsmNext(p_state) % POLY_MAX_VERTICES);
-	MechS32 directions[POLY_MAX_VERTICES];
 	MechS32 centerX;
 	MechS32 centerY;
 	MechS32 radiusX;
 	MechS32 radiusY;
-	MechS32 start;
-	MechS32 used;
-	MechS32 i;
 
 	if (kind % 8 == 0) {
 		// Far and large: the clipping's extremes
@@ -2617,25 +2651,7 @@ static MechS32 MakePolygon(MechU32* p_points, const PolyTarget* p_target, MechU3
 		radiusY = 0;
 	}
 
-	// count of the 32 directions, in order
-	used = 0;
-	for (i = 0; i < 32 && used < count; i++) {
-		if (AsmNext(p_state) % (MechU32) (32 - i) < (MechU32) (count - used)) {
-			directions[used++] = i;
-		}
-	}
-
-	start = (MechS32) (AsmNext(p_state) % (MechU32) count);
-	for (i = 0; i < count; i++) {
-		MechS32 index = (start + i) % count;
-		MechS32 direction = directions[(kind >> 7) & 1 ? count - 1 - index : index];
-		MechU32* point = &p_points[i * POLY_VERTEX_WORDS];
-
-		FillWords((MechS32*) point, POLY_VERTEX_WORDS, p_state);
-		point[0] = (MechU32) (centerX + PortableSar32(g_polyDirections[direction] * radiusX, 10));
-		point[1] = (MechU32) (centerY + PortableSar32(g_polyDirections[(direction + 8) % 32] * radiusY, 10));
-	}
-
+	PlaceVertices(p_points, count, (kind >> 7) & 1, centerX, centerY, radiusX, radiusY, p_state);
 	return count;
 }
 
@@ -2850,6 +2866,407 @@ static void RunFillPolygonTextured(const AsmModule* p_module, const MechS32* p_a
 	((FillTexturedFn)
 		 Function(p_module, "VFX_map_polygon"))(&target.m_view, count, points, &texture.m_buffer, p_args[0] & 3);
 	OutputPolyTarget(p_output, &target);
+}
+
+// --- The polygon renderer (VFXREND.ASM) ---
+
+#define REND_TEXTURE_SIZE 32
+#define REND_TEXTURE_PAD 2
+#define REND_TEXTURE_STRIDE (REND_TEXTURE_SIZE + REND_TEXTURE_PAD * 2)
+#define REND_CUEING_SIZE 0x10100
+#define REND_PRIMITIVES 25
+#define REND_LIST_VERTICES 24
+#define REND_PRIME_VERTICES 32
+
+typedef void (*SetDitherLevelFn)(MechS32 p_dither1, MechS32 p_dither2);
+typedef MechS32 (*GetCodeBlockFn)(undefined4* p_start, undefined4* p_selector);
+typedef void (*RenderPolygonFn)(
+	PANE* p_pane,
+	MechU32* p_vlist,
+	MechS32 p_nvertices,
+	MechS32 p_operation,
+	undefined4 p_color,
+	VFX_TEXTURE* p_texture,
+	void* p_cueing,
+	void* p_translucency
+);
+
+// The operations VFXREND builds (RENDOPTS.INC), in its order.
+static const MechS32 g_renderPrimitives[REND_PRIMITIVES] = {
+	0x691, 0x611, 0x491, 0x411, 0x6a0, 0x680, 0x697, 0x689, 0x6b1, 0x690, 0x600, 0x610, 0x650,
+	0x497, 0x490, 0x400, 0x410, 0x408, 0x450, 0x080, 0x280, 0x040, 0x300, 0x2c0, 0x240,
+};
+
+// The lookaside tables: p_cueing's 256 rows of 256 bytes, at the start or a row on. A case
+// fills the first two rows; the rest are the same for every case.
+static MechU8 g_renderCueing[REND_CUEING_SIZE];
+static MechS32 g_renderCueingReady = 0;
+
+// A texture of 1 to 32 texels each way (powers of two half the time), the odd one transparent
+// (0xff), its rows in a buffer with REND_TEXTURE_PAD texels and rows of random bytes around it:
+// where the texture isn't tiled, rounding can take the walk just past its edge.
+typedef struct RenderTexture {
+	MechU8 m_texels[REND_TEXTURE_STRIDE * REND_TEXTURE_STRIDE];
+	MechU8* m_rows[REND_TEXTURE_STRIDE];
+	VFX_TEXTURE m_texture;
+} RenderTexture;
+
+// What a case passes besides the polygon: two of each table, which its calls choose between, so
+// that each primitive repatches its operands or finds them set.
+typedef struct RenderTables {
+	RenderTexture m_textures[2];
+	MechU8 m_translucency[2][0x100];
+	MechU32 m_color;
+} RenderTables;
+
+static MechS32 RandomTextureSize(MechU32* p_state)
+{
+	if (AsmNext(p_state) % 2) {
+		return 1 << (AsmNext(p_state) % 6);
+	}
+
+	return RandomRange(p_state, 1, REND_TEXTURE_SIZE);
+}
+
+// A byte, 0xff (transparent) one time in p_odds.
+static MechU8 RandomRenderByte(MechU32* p_state, MechU32 p_odds)
+{
+	MechU32 bits = AsmNext(p_state);
+
+	return (MechU8) (p_odds && bits % p_odds == 0 ? 0xff : bits >> 8);
+}
+
+static void MakeRenderTexture(RenderTexture* p_texture, MechU32* p_state)
+{
+	MechU32 odds = (AsmNext(p_state) % 4) * 4;
+	MechS32 i;
+
+	for (i = 0; i < (MechS32) sizeof(p_texture->m_texels); i++) {
+		p_texture->m_texels[i] = RandomRenderByte(p_state, odds);
+	}
+
+	for (i = 0; i < REND_TEXTURE_STRIDE; i++) {
+		p_texture->m_rows[i] = &p_texture->m_texels[i * REND_TEXTURE_STRIDE + REND_TEXTURE_PAD];
+	}
+
+	p_texture->m_texture.m_vAddrs = &p_texture->m_rows[REND_TEXTURE_PAD];
+	p_texture->m_texture.m_width = RandomTextureSize(p_state);
+	p_texture->m_texture.m_height = RandomTextureSize(p_state);
+}
+
+static void MakeRenderTables(RenderTables* p_tables, MechS32 p_operation, MechU32* p_state)
+{
+	MechU32 odds = (AsmNext(p_state) % 3) * 8;
+	MechS32 i;
+
+	if (!g_renderCueingReady) {
+		MechU32 state = 0x5eed1e55;
+
+		Fill(g_renderCueing, sizeof(g_renderCueing), &state);
+		g_renderCueingReady = 1;
+	}
+
+	for (i = 0; i < 0x200; i++) {
+		g_renderCueing[i] = RandomRenderByte(p_state, odds);
+	}
+
+	MakeRenderTexture(&p_tables->m_textures[0], p_state);
+	MakeRenderTexture(&p_tables->m_textures[1], p_state);
+	Fill(p_tables->m_translucency[0], sizeof(p_tables->m_translucency), p_state);
+
+	// A solid Gouraud fill's color picks a column of p_cueing, in its low byte
+	p_tables->m_color = AsmNext(p_state);
+	if ((p_operation & 0x7c0) == 0x240) {
+		p_tables->m_color &= 0xffff;
+	}
+}
+
+// A primitive or, one time in 26, any operation (most of which VFXREND doesn't build).
+static MechS32 RenderOperation(MechS32 p_arg, MechU32* p_state)
+{
+	MechU32 index = (MechU32) p_arg % (REND_PRIMITIVES + 1);
+
+	if (index < REND_PRIMITIVES) {
+		return g_renderPrimitives[index];
+	}
+
+	return (MechS32) (AsmNext(p_state) % 0x800);
+}
+
+// A texture coordinate, 16.16: inside the texture (once the routine adds a half and rounding
+// errors) where it isn't tiled, within four tiles where it is, and anywhere near for the mask.
+static MechU32 RandomTextureCoordinate(MechS32 p_operation, MechS32 p_size, MechU32* p_state)
+{
+	switch (p_operation & 0x18) {
+	case 0:
+		return AsmNext(p_state) % (((MechU32) p_size << 16) - 0x8100);
+	case 0x08:
+		return AsmNext(p_state) % ((MechU32) p_size << 18);
+	default:
+		return (MechU32) RandomRange(p_state, -0x400000, 0x400000);
+	}
+}
+
+// The words the operation reads after x and y: the color (any word), u and v, and for
+// perspective, w (0.25 to 1.0, 2.30) and u and v times it.
+static void SetRenderVertices(
+	MechU32* p_points,
+	MechS32 p_count,
+	MechS32 p_operation,
+	const VFX_TEXTURE* p_texture,
+	MechU32* p_state
+)
+{
+	MechS32 i;
+
+	for (i = 0; i < p_count; i++) {
+		MechU32* point = &p_points[i * POLY_VERTEX_WORDS];
+		MechU32 u = RandomTextureCoordinate(p_operation, p_texture->m_width, p_state);
+		MechU32 v = RandomTextureCoordinate(p_operation, p_texture->m_height, p_state);
+
+		point[2] = RandomColor(p_state);
+		if ((p_operation & 0x600) == 0x600) {
+			MechU32 w = 0x10000000 + AsmNext(p_state) % 0x30000001;
+
+			point[3] = (MechU32) PortableSar64((MechS64) PortableS32(u) * (MechS64) w, 30);
+			point[4] = (MechU32) PortableSar64((MechS64) PortableS32(v) * (MechS64) w, 30);
+			point[5] = w;
+		}
+		else {
+			point[3] = u;
+			point[4] = v;
+		}
+	}
+}
+
+// A polygon inside the buffer, which VFX_polygon_render doesn't clip to: as MakePolygon's, with an
+// ellipse that the buffer contains.
+static MechS32 MakeInsidePolygon(MechU32* p_points, const PolyTarget* p_target, MechU32* p_state)
+{
+	MechS32 width = p_target->m_buffer.m_xMax + 1;
+	MechS32 height = p_target->m_buffer.m_yMax + 1;
+	MechU32 kind = AsmNext(p_state);
+	MechS32 count = 1 + (MechS32) (AsmNext(p_state) % POLY_MAX_VERTICES);
+	MechS32 centerX = RandomRange(p_state, 0, width - 1);
+	MechS32 centerY = RandomRange(p_state, 0, height - 1);
+	MechS32 radiusX = RandomRange(p_state, 0, centerX < width - 1 - centerX ? centerX : width - 1 - centerX);
+	MechS32 radiusY = RandomRange(p_state, 0, centerY < height - 1 - centerY ? centerY : height - 1 - centerY);
+
+	if (kind % 16 == 0) {
+		radiusX = 0;
+	}
+	else if (kind % 16 == 1) {
+		radiusY = 0;
+	}
+
+	PlaceVertices(p_points, count, (kind >> 4) & 1, centerX, centerY, radiusX, radiusY, p_state);
+	return count;
+}
+
+static void SetRenderDither(const AsmModule* p_module, MechU32* p_state)
+{
+	MechS32 dither1 = RandomDither(p_state);
+	MechS32 dither2 = RandomDither(p_state);
+
+	((SetDitherLevelFn) Function(p_module, "VFX_set_Gouraud_dither_level"))(dither1, dither2);
+}
+
+// Draws a polygon of p_count vertices with one of the case's tables of each kind.
+static void CallRender(
+	const AsmModule* p_module,
+	const char* p_name,
+	PolyTarget* p_target,
+	MechU32* p_points,
+	MechS32 p_count,
+	MechS32 p_operation,
+	RenderTables* p_tables,
+	MechU32* p_state
+)
+{
+	MechU32 choice = AsmNext(p_state);
+	RenderTexture* texture = &p_tables->m_textures[choice & 1];
+
+	((RenderPolygonFn) Function(p_module, p_name))(
+		&p_target->m_view,
+		p_points,
+		p_count,
+		p_operation,
+		p_tables->m_color,
+		&texture->m_texture,
+		&g_renderCueing[(choice >> 1) & 1 ? 0x100 : 0],
+		p_tables->m_translucency[(choice >> 2) & 1]
+	);
+}
+
+// Arguments: the dither levels. Read back through a range Gouraud fill, which adds them.
+static void RunSetDitherLevel(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	PolyTarget target;
+	RenderTables tables;
+	MechU32 points[POLY_MAX_VERTICES * POLY_VERTEX_WORDS];
+	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 count;
+
+	MakePolyTarget(&target, &state);
+	MakeRenderTables(&tables, 0x300, &state);
+	count = MakeInsidePolygon(points, &target, &state);
+	SetRenderVertices(points, count, 0x300, &tables.m_textures[0].m_texture, &state);
+	((SetDitherLevelFn) Function(p_module, "VFX_set_Gouraud_dither_level"))(p_args[0], p_args[1]);
+	CallRender(p_module, "VFX_polygon_render", &target, points, count, 0x300, &tables, &state);
+	OutputPolyTarget(p_output, &target);
+}
+
+// The range to make writable, which only the assembly needs, and its selector, which only it has:
+// both return a range.
+static void RunGetCodeBlock(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	undefined4 start = 0;
+	undefined4 selector = 0;
+	MechS32 size = ((GetCodeBlockFn) Function(p_module, "GetCodeBlock"))(&start, &selector);
+
+	(void) p_args;
+	AsmOutputWord(p_output, size > 0);
+	AsmOutputWord(p_output, start != 0);
+}
+
+static MechS32 GetCodeBlockDomain(const MechS32* p_args)
+{
+	(void) p_args;
+	return c_domainPointers;
+}
+
+// Arguments: the operation (the first, modulo 26) and three words that seed the rest. Two
+// polygons inside the buffer.
+static void RunPolygonRender(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	PolyTarget target;
+	RenderTables tables;
+	MechU32 points[POLY_MAX_VERTICES * POLY_VERTEX_WORDS];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 operation = RenderOperation(p_args[0], &state);
+	MechS32 i;
+
+	MakePolyTarget(&target, &state);
+	MakeRenderTables(&tables, operation, &state);
+	SetRenderDither(p_module, &state);
+	for (i = 0; i < 2; i++) {
+		MechS32 count = MakeInsidePolygon(points, &target, &state);
+
+		SetRenderVertices(points, count, operation, &tables.m_textures[i].m_texture, &state);
+		CallRender(p_module, "VFX_polygon_render", &target, points, count, operation, &tables, &state);
+	}
+
+	OutputPolyTarget(p_output, &target);
+}
+
+// Sets the clipper's working vertices, which it keeps between calls, to the same words in every
+// case: they show through the words a clipped vertex doesn't interpolate. A polygon of
+// REND_PRIME_VERTICES vertices above a pane, with some beyond its right: clipped there, in an
+// operation that interpolates every word, into the working vertices, then clipped away at the
+// top (VFXREND's bottom).
+static void PrimeClipper(const AsmModule* p_module)
+{
+	MechU32 points[REND_PRIME_VERTICES * POLY_VERTEX_WORDS];
+	MechU8 pixels[16 * 16];
+	WINDOW window;
+	PANE pane;
+	MechU32 state = 0x9f1a2b3c;
+	MechS32 i;
+
+	for (i = 0; i < REND_PRIME_VERTICES; i++) {
+		MechU32* point = &points[i * POLY_VERTEX_WORDS];
+
+		FillWords((MechS32*) point, POLY_VERTEX_WORDS, &state);
+		point[0] = (MechU32) PortableSar32(g_polyDirections[i] * 20, 10);
+		point[1] = (MechU32) (PortableSar32(g_polyDirections[(i + 8) % 32] * 20, 10) - 200);
+	}
+
+	window.m_buffer = pixels;
+	window.m_xMax = 15;
+	window.m_yMax = 15;
+	window.m_bitmapInfo = NULL;
+	window.m_shadow = 0;
+	pane.m_window = &window;
+	pane.m_x0 = 0;
+	pane.m_y0 = 0;
+	pane.m_x1 = 15;
+	pane.m_y1 = 15;
+	((RenderPolygonFn) Function(p_module, "VFX_polygon_clip_XY_and_render"))(
+		&pane,
+		points,
+		REND_PRIME_VERTICES,
+		0x697,
+		0,
+		NULL,
+		NULL,
+		NULL
+	);
+}
+
+// Arguments: the operation (the first, modulo 26) and three words that seed the rest. Two
+// polygons around a pane inside the buffer, in vertex lists with room for the clipped polygons,
+// which the clipper writes to; the lists are output too.
+static void RunPolygonClip(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
+{
+	PolyTarget target;
+	RenderTables tables;
+	MechU32 lists[2][REND_LIST_VERTICES * POLY_VERTEX_WORDS];
+	MechU32 state = AsmSeed(p_args, 4);
+	MechS32 operation = RenderOperation(p_args[0], &state);
+	MechS32 width;
+	MechS32 height;
+	MechS32 i;
+
+	PrimeClipper(p_module);
+	MakePolyTarget(&target, &state);
+	width = target.m_buffer.m_xMax + 1;
+	height = target.m_buffer.m_yMax + 1;
+	target.m_view.m_x0 = RandomRange(&state, 0, width - 1);
+	target.m_view.m_y0 = RandomRange(&state, 0, height - 1);
+	if (AsmNext(&state) % 8) {
+		target.m_view.m_x1 = RandomRange(&state, target.m_view.m_x0, width - 1);
+		target.m_view.m_y1 = RandomRange(&state, target.m_view.m_y0, height - 1);
+	}
+	else {
+		// Any order, empty included
+		target.m_view.m_x1 = RandomRange(&state, 0, width - 1);
+		target.m_view.m_y1 = RandomRange(&state, 0, height - 1);
+	}
+
+	MakeRenderTables(&tables, operation, &state);
+	SetRenderDither(p_module, &state);
+	for (i = 0; i < 2; i++) {
+		MechS32 count;
+
+		FillWords((MechS32*) lists[i], REND_LIST_VERTICES * POLY_VERTEX_WORDS, &state);
+		count =
+			AsmNext(&state) % 2 ? MakePolygon(lists[i], &target, &state) : MakeInsidePolygon(lists[i], &target, &state);
+		SetRenderVertices(lists[i], count, operation, &tables.m_textures[i].m_texture, &state);
+		CallRender(p_module, "VFX_polygon_clip_XY_and_render", &target, lists[i], count, operation, &tables, &state);
+	}
+
+	OutputPolyTarget(p_output, &target);
+	AsmOutputBytes(p_output, (const MechU8*) lists, sizeof(lists));
+}
+
+// F16_div_to_F30 and F30_reciprocal divide the magnitudes, the dividend shifted up by 30 (the
+// high word `sar 2` of it, so that 0x80000000 faults) or 1.0: an unsigned div that faults when
+// the high word isn't less than the divisor.
+static MechU32 Magnitude32(MechS32 p_value)
+{
+	return p_value < 0 ? 0 - (MechU32) p_value : (MechU32) p_value;
+}
+
+static MechS32 F16DivToF30Domain(const MechS32* p_args)
+{
+	MechU32 high = (MechU32) PortableSar32(PortableS32(Magnitude32(p_args[0])), 2);
+
+	return high < Magnitude32(p_args[1]) ? c_domainIn : c_domainFault;
+}
+
+static MechS32 F30ReciprocalDomain(const MechS32* p_args)
+{
+	return 0x4000 < Magnitude32(p_args[0]) ? c_domainIn : c_domainFault;
 }
 
 // --- The 2D primitives (VFXA.ASM) ---
@@ -5071,6 +5488,14 @@ const AsmRoutine g_asmRoutines[] = {
 	{"VFX_illuminate_polygon", 4, NULL, Run1002c48d, NULL},
 	{"VFX_map_lookaside", 2, NULL, RunSetLumaTable, NULL},
 	{"VFX_map_polygon", 4, NULL, RunFillPolygonTextured, NULL},
+	// VFXREND.ASM
+	{"VFX_set_Gouraud_dither_level", 2, NULL, RunSetDitherLevel, NULL},
+	{"GetCodeBlock", 1, GetCodeBlockDomain, RunGetCodeBlock, NULL},
+	{"VFX_polygon_render", 4, NULL, RunPolygonRender, NULL},
+	{"F16_div_to_F30", 2, F16DivToF30Domain, NULL, NULL},
+	{"F30_reciprocal", 1, F30ReciprocalDomain, NULL, NULL},
+	{"mul_F30", 2, NULL, NULL, NULL},
+	{"VFX_polygon_clip_XY_and_render", 4, NULL, RunPolygonClip, NULL},
 	// VFXA.ASM
 	{"VFX_driver_name", 2, NULL, RunGetDisplayDriverName, NULL},
 	{"VFX_register_driver", 2, NULL, RunSetDisplayDriver, NULL},
