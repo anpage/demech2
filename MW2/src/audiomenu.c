@@ -1,5 +1,5 @@
 /* The in-mission menu's audio page: the music, sound effects and voice volumes. A data-only
-   object: its data follows unk10033280.c's. */
+   object: its data follows weaponpanel.c's. */
 #include "audiomenu.h"
 
 #include "audio.h"

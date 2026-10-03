@@ -7,16 +7,16 @@
 #include "config.h"
 #include "decomp.h"
 #include "loadres.h"
+#include "midi.h"
 #include "mss.h"
 #include "mw2prj.h"
 #include "network.h"
 #include "players.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "soundlimits.h"
 #include "speech.h"
 #include "types.h"
-#include "unk10013370.h"
-#include "unk10021460.h"
 #include "world.h"
 
 #include <stdio.h>

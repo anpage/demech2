@@ -10,12 +10,12 @@
 #include "mw2prj.h"
 #include "network.h"
 #include "overlay.h"
+#include "quadtree.h"
 #include "render.h"
 #include "resource.h"
 #include "simmain.h"
 #include "supanim.h"
 #include "types.h"
-#include "unk1001df00.h"
 #include "videodriverchoice.h"
 
 #include <ctype.h>

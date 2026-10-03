@@ -1,18 +1,18 @@
 #include "object.h"
 
+#include "classtable.h"
 #include "clock.h"
+#include "collision.h"
 #include "debris.h"
 #include "decomp.h"
+#include "poolsizes.h"
+#include "shape.h"
+#include "shapegeom.h"
+#include "shapelists.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "transform.h"
 #include "types.h"
-#include "unk1001ce90.h"
-#include "unk10034a40.h"
-#include "unk10039a30.h"
-#include "unk1003a530.h"
-#include "unk100563d0.h"
-#include "unk1006d680.h"
 
 #include <mbstring.h>
 #include <string.h>

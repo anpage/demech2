@@ -2,18 +2,18 @@
 
 #include "audio.h"
 #include "decomp.h"
+#include "faceshade.h"
 #include "geocache.h"
+#include "gridobject.h"
 #include "mainmenu.h"
 #include "menu.h"
 #include "menucontrol.h"
 #include "menucontrols.h"
 #include "menupage.h"
+#include "shapelists.h"
 #include "soundconfig.h"
 #include "types.h"
-#include "unk10036230.h"
-#include "unk1004b130.h"
-#include "unk1004b980.h"
-#include "unk1006d680.h"
+#include "view.h"
 
 // The display performance settings of MW2SND.CFG (SoundConfig): a getter and a setter each,
 // with the unused leading argument of the in-mission menu's callbacks.

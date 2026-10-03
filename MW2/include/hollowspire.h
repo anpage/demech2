@@ -3,10 +3,10 @@
 
 #include "callbacks.h"
 #include "decomp.h"
+#include "shape.h"
 #include "transform.h"
 #include "twilightgrove.h"
 #include "types.h"
-#include "unk1003a530.h"
 
 struct AmberWillow0x7c;
 

@@ -5,9 +5,9 @@
 #include "error.h"
 #include "loadres.h"
 #include "mw2log.h"
+#include "poolsizes.h"
 #include "simmain.h"
 #include "types.h"
-#include "unk100563d0.h"
 
 #include <stdlib.h>
 #include <windows.h>

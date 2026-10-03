@@ -8,12 +8,14 @@
 #include "gamekeys.h"
 #include "gamething.h"
 #include "geocache.h"
+#include "inradius.h"
 #include "missionaudio.h"
 #include "missionresult.h"
 #include "navpoint.h"
 #include "network.h"
 #include "players.h"
 #include "rendertarget.h"
+#include "resourcename.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -22,8 +24,6 @@
 #include "starmission.h"
 #include "team.h"
 #include "types.h"
-#include "unk10004ec0.h"
-#include "unk100737e0.h"
 
 #include <ctype.h>
 #include <stdio.h>

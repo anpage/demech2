@@ -1,8 +1,9 @@
 /* The lance command menus: the command computer (menu 1), command point 2 (menu 7) and the
    pages of each command point, the formation and the orders to all. A data-only object: its data
-   follows unk1004b980.c's. */
+   follows view.c's. */
 #include "commandmenu.h"
 
+#include "lancemenu.h"
 #include "mainmenu.h"
 #include "menu.h"
 #include "menuchoices.h"
@@ -11,7 +12,6 @@
 #include "menupage.h"
 #include "rendertarget.h"
 #include "types.h"
-#include "unk10065f50.h"
 
 #include <stddef.h>
 

@@ -1,5 +1,5 @@
 /* The menu of command point 3 (menu 8), the lance mate the third command key commands. A
-   data-only object: its data follows unk10010750.c's. */
+   data-only object: its data follows bandpoly.c's. */
 #include "commandpointmenu.h"
 
 #include "commandmenu.h"

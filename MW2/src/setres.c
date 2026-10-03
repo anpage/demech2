@@ -4,18 +4,18 @@
 #include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "hud.h"
 #include "muldiv.h"
 #include "overlay.h"
 #include "palette.h"
 #include "point.h"
+#include "polydraw.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "timedoverlays.h"
 #include "types.h"
-#include "unk10040b30.h"
-#include "unk10042e00.h"
-#include "unk1004b980.h"
+#include "view.h"
 
 #include <stdlib.h>
 

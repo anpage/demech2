@@ -6,8 +6,8 @@
 #include "mw2prj.h"
 #include "render.h"
 #include "resource.h"
+#include "texpoly.h"
 #include "types.h"
-#include "unk1006dd50.h"
 #include "vfx3d.h"
 #include "window.h"
 

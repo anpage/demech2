@@ -2,8 +2,8 @@
 #define OVERLAY_H
 
 #include "eyepoint.h"
+#include "shape.h"
 #include "types.h"
-#include "unk1003a530.h"
 
 // The functions and globals of overlay.c that other units use.
 #ifdef __cplusplus

@@ -2,9 +2,9 @@
 #define OBJECT_H
 
 #include "decomp.h"
+#include "shape.h"
 #include "transform.h"
 #include "types.h"
-#include "unk1003a530.h"
 
 typedef struct AmberWillow0x7c AmberWillow0x7c;
 

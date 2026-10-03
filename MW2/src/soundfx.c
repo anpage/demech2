@@ -9,10 +9,13 @@
 #include "decomp.h"
 #include "environment.h"
 #include "fixedmul.h"
+#include "fixedtrig.h"
 #include "loadres.h"
+#include "midi.h"
 #include "mss.h"
 #include "mw2prj.h"
 #include "object.h"
+#include "polydraw.h"
 #include "random.h"
 #include "rendertarget.h"
 #include "simmain.h"
@@ -20,9 +23,6 @@
 #include "soundinfo.h"
 #include "speech.h"
 #include "types.h"
-#include "unk10021460.h"
-#include "unk10042e00.h"
-#include "unk100696c0.h"
 
 #include <string.h>
 

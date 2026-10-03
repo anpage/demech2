@@ -1,17 +1,17 @@
 #include "players.h"
 
+#include "artillery.h"
 #include "decomp.h"
+#include "door.h"
 #include "gamething.h"
 #include "inputmap.h"
+#include "mechclass.h"
 #include "playersteering.h"
 #include "playertype.h"
+#include "poolsizes.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
-#include "unk10016ad0.h"
-#include "unk100563d0.h"
-#include "unk10059fc0.h"
-#include "unk100680a0.h"
 
 #include <string.h>
 
@@ -19,7 +19,7 @@ DECOMP_SIZE_ASSERT(GameThing, 0x40)
 DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 
 // The kinds of player a gamepiece record can create, by Player::m_unk0x00: 3 has its own
-// callbacks (unk10059fc0.c), 7 another (unk100680a0.c); the others are mechs.
+// callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
 PlayerType g_playerTypes[9] = {
 	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
