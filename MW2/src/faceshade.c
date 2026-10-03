@@ -46,10 +46,10 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	low = 0;
 	shade = -1;
 	mode = p_color & 0x7000;
-	kind = p_face->m_unk0x20->m_unk0x02;
+	kind = p_face->m_shape->m_kind;
 	if (g_renderSettings.m_unk0x34) {
 		if (g_renderSettings.m_unk0x38 == 1) {
-			switch (p_face->m_unk0x20->m_unk0x24) {
+			switch (p_face->m_shape->m_collisionType) {
 			case 0:
 				return 0xd;
 			case 1:
@@ -69,7 +69,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 			}
 		}
 		else if (g_renderSettings.m_unk0x38 == 2) {
-			switch (p_face->m_unk0x20->m_unk0x00 & 0x10f) {
+			switch (p_face->m_shape->m_flags & 0x10f) {
 			case 0:
 				return 0xd;
 			case 1:
@@ -97,7 +97,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 			return 0xb;
 		}
 		else if (kind & 0x100) {
-			level = (p_face->m_unk0x20->m_unk0x00 & 0xf0) >> 4;
+			level = (p_face->m_shape->m_flags & 0xf0) >> 4;
 			if (level < 1) {
 				return 7;
 			}
@@ -177,9 +177,9 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		break;
 	}
 
-	shade = FUN_100367c5(FUN_10048faf(p_face, p_vertices), value, p_distance);
+	shade = FUN_100367c5(GetFaceShade(p_face, p_vertices), value, p_distance);
 	if ((kind & 0x100) || (kind & 0xf0) == 0x50) {
-		detail = (p_face->m_unk0x20->m_unk0x00 & 0xf0) >> 4;
+		detail = (p_face->m_shape->m_flags & 0xf0) >> 4;
 		if (detail > 0) {
 			if (g_unk0x100a555c) {
 				shade += FixedMul16(detail, FixedDiv16(15 - shade, 15));

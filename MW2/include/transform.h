@@ -19,37 +19,37 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_1000d9a8(MechS32 p_a, MechS32 p_b);
-	MechS32 FUN_1000d9ce(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, MechS32 p_by, MechS32 p_bz);
-	void FUN_1000d650(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_1000d708(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_1000da0c(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08);
-	void FUN_1000dbba(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08);
-	void FUN_1000dc33(Matrix* p_src, Matrix* p_dst);
-	void FUN_1000dcbd(Matrix* p_src, Matrix* p_dst);
+	MechS32 MatrixMul29(MechS32 p_a, MechS32 p_b);
+	MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, MechS32 p_by, MechS32 p_bz);
+	void TransformPoint(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void RotatePoint(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst);
+	void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst);
+	void TransposeRotation(Matrix* p_src, Matrix* p_dst);
+	void InvertMatrix(Matrix* p_src, Matrix* p_dst);
 	void SetIdentityMatrix(Matrix* p_matrix);
 	void CopyMatrix(Matrix* p_src, Matrix* p_dst);
-	void FUN_1000ddfc(Matrix* p_src, Matrix* p_dst);
-	void FUN_1000de3b(
+	void CopyRotation(Matrix* p_src, Matrix* p_dst);
+	void BuildMatrixEx(
 		Matrix* p_matrix,
-		MechS32 p_unk0x04,
-		MechS32 p_unk0x08,
-		MechS32 p_unk0x0c,
-		MechS32 p_unk0x10,
-		MechS32 p_unk0x14,
-		MechS32 p_unk0x18,
+		MechS32 p_angleX,
+		MechS32 p_angleY,
+		MechS32 p_angleZ,
+		MechS32 p_x,
+		MechS32 p_y,
+		MechS32 p_z,
 		MechU32 p_flags
 	);
 	void BuildMatrix(
 		Matrix* p_matrix,
-		MechS32 p_unk0x04,
-		MechS32 p_unk0x08,
-		MechS32 p_unk0x0c,
-		MechS32 p_unk0x10,
-		MechS32 p_unk0x14,
-		MechS32 p_unk0x18
+		MechS32 p_angleX,
+		MechS32 p_angleY,
+		MechS32 p_angleZ,
+		MechS32 p_x,
+		MechS32 p_y,
+		MechS32 p_z
 	);
-	void FUN_1000e2ea(Matrix* p_matrix, undefined4* p_unk0x04, undefined4* p_unk0x08, undefined4* p_unk0x0c);
+	void GetMatrixAngles(Matrix* p_matrix, undefined4* p_angleX, undefined4* p_angleY, undefined4* p_angleZ);
 
 #ifdef __cplusplus
 }

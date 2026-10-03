@@ -11,17 +11,17 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100c1a68;
-	extern DepthEntry* g_unk0x100c2280;
-	extern MechU8* g_unk0x100c2698;
-	extern DepthEntry* g_unk0x100c269c;
-	extern MechS32 g_unk0x1010b5ac;
+	extern MechS32 g_depthListCapacity;
+	extern DepthEntry* g_drawList;
+	extern MechU8* g_drawBufferBottom;
+	extern DepthEntry* g_depthQueue;
+	extern MechS32 g_queueHasRoom;
 
-	void FUN_1007d120(void);
-	void FUN_1007d150(MechS32 p_unk0x00, MechS32 p_unk0x04);
-	void FUN_1007d220(void);
-	ProjectedVertex* FUN_1007d248(void);
-	MechU8* FUN_1007d296(void);
+	void ShutdownDrawBuffer(void);
+	void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries);
+	void ResetDrawBuffer(void);
+	ProjectedVertex* AllocProjectedVertex(void);
+	MechU8* AllocQueuedPolygon(void);
 
 #ifdef __cplusplus
 }

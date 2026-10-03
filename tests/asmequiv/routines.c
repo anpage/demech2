@@ -180,7 +180,7 @@ static void RunNameHash(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	}
 
 	name[length] = 0;
-	AsmOutputWord(p_output, ((NameHashFn) Function(p_module, "FUN_100074e0"))((const MechChar*) name));
+	AsmOutputWord(p_output, ((NameHashFn) Function(p_module, "HashName"))((const MechChar*) name));
 }
 
 // --- Pointer arguments ---
@@ -223,7 +223,7 @@ static void Run1004c820(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	shifts[1] = PortableS16((MechU16) p_args[2]);
 	((
 		Fn1004c820
-	) Function(p_module, "FUN_1004c820"))(&cells[1], &cells[3], &shifts[1], (MechU32) p_args[3], (MechU32) p_args[4]);
+	) Function(p_module, "MulNormalize16"))(&cells[1], &cells[3], &shifts[1], (MechU32) p_args[3], (MechU32) p_args[4]);
 	for (i = 0; i < 5; i++) {
 		AsmOutputWord(p_output, (MechU32) cells[i]);
 	}
@@ -288,9 +288,9 @@ static void RunRecordStack(const AsmModule* p_module, MechS32 p_top, const MechS
 {
 	MechU32 words[ARENA_SIZE / 4];
 	MechU8* arena = (MechU8*) words;
-	MechU8** top = (MechU8**) Data(p_module, "g_unk0x100c1a70");
-	MechU8** bottom = (MechU8**) Data(p_module, "g_unk0x100c2698");
-	MechS32* flag = (MechS32*) Data(p_module, "g_unk0x1010b5ac");
+	MechU8** top = (MechU8**) Data(p_module, "g_drawBufferTop");
+	MechU8** bottom = (MechU8**) Data(p_module, "g_drawBufferBottom");
+	MechS32* flag = (MechS32*) Data(p_module, "g_queueHasRoom");
 	MechU32 state = AsmSeed(p_args, 3);
 	void* result;
 
@@ -299,10 +299,10 @@ static void RunRecordStack(const AsmModule* p_module, MechS32 p_top, const MechS
 	*bottom = arena + (MechU32) p_args[1] % ((ARENA_SIZE - 0xc) / 4 + 1) * 4;
 	*flag = p_args[2];
 	if (p_top) {
-		result = ((PopVertexFn) Function(p_module, "FUN_1007d248"))();
+		result = ((PopVertexFn) Function(p_module, "AllocProjectedVertex"))();
 	}
 	else {
-		result = ((PopRecordFn) Function(p_module, "FUN_1007d296"))();
+		result = ((PopRecordFn) Function(p_module, "AllocQueuedPolygon"))();
 	}
 
 	AsmOutputWord(p_output, (MechU32) (*top - arena));
@@ -329,7 +329,7 @@ typedef MechS32 (*TrigFn)(MechS32 p_value);
 typedef MechS32 (*BearingFn)(MechS32 p_x, MechS32 p_z);
 
 enum {
-	c_tableGame,       // the game's, as FUN_1007c930 computes it
+	c_tableGame,       // the game's, as InitSinAtanTables computes it
 	c_tableIncreasing, // random, non-decreasing from 0, below 0x80000000
 	c_tableRandom      // random
 };
@@ -436,7 +436,7 @@ static void RunSine(const AsmModule* p_module, const MechS32* p_args, AsmOutput*
 	MechS32* table = (MechS32*) Data(p_module, "g_sinTable");
 
 	MakeTable(table, g_gameSinTable, AnyTableKind(p_args[1]), p_args[1], p_args[0]);
-	AsmOutputWord(p_output, (MechU32) ((TrigFn) Function(p_module, "FUN_100696c0"))(p_args[0]));
+	AsmOutputWord(p_output, (MechU32) ((TrigFn) Function(p_module, "FixedSin"))(p_args[0]));
 }
 
 // The arcsine's argument: p_args[0], or, when bits 2 and 3 of the selector are 1 and 0, an
@@ -460,10 +460,10 @@ static void RunArcsine(const AsmModule* p_module, const MechS32* p_args, AsmOutp
 	MechS32* table = (MechS32*) Data(p_module, "g_sinTable");
 
 	MakeTable(table, g_gameSinTable, ArcsineTableKind(p_args[1]), p_args[1], 0);
-	AsmOutputWord(p_output, (MechU32) ((TrigFn) Function(p_module, "FUN_1006975b"))(ArcsineArgument(p_args, table)));
+	AsmOutputWord(p_output, (MechU32) ((TrigFn) Function(p_module, "FixedAsin"))(ArcsineArgument(p_args, table)));
 }
 
-// The search and the idiv of FUN_1006975b, over the case's table: the idiv faults when the
+// The search and the idiv of FixedAsin, over the case's table: the idiv faults when the
 // sine lies at or beyond two equal last entries.
 static MechS32 ArcsineDomain(const MechS32* p_args)
 {
@@ -503,7 +503,7 @@ static void RunBearing(const AsmModule* p_module, const MechS32* p_args, AsmOutp
 	MechS32* table = (MechS32*) Data(p_module, "g_atanTable");
 
 	MakeTable(table, g_gameAtanTable, AnyTableKind(p_args[2]), p_args[2], p_args[0]);
-	AsmOutputWord(p_output, (MechU32) ((BearingFn) Function(p_module, "FUN_100698de"))(p_args[0], p_args[1]));
+	AsmOutputWord(p_output, (MechU32) ((BearingFn) Function(p_module, "FixedAtan2"))(p_args[0], p_args[1]));
 }
 
 // The div of the smaller magnitude, shifted left by 24, by the larger: neg leaves INT_MIN
@@ -561,11 +561,11 @@ static void MakeEyepoint(Eyepoint* p_eyepoint, const MechS32* p_args)
 	Fill((MechU8*) p_eyepoint, sizeof(Eyepoint), &state);
 	p_eyepoint->m_centerX = p_args[c_argCenterX];
 	p_eyepoint->m_centerY = p_args[c_argCenterY];
-	p_eyepoint->m_unk0x54.m_rows[0][1] = p_args[c_argA];
-	p_eyepoint->m_unk0x94 = p_args[c_argB];
-	p_eyepoint->m_unk0x54.m_rows[1][1] = p_args[c_argC];
-	p_eyepoint->m_unk0x98 = p_args[c_argD];
-	p_eyepoint->m_unk0x54.m_rows[2][1] = p_args[c_argE];
+	p_eyepoint->m_viewMatrix.m_rows[0][1] = p_args[c_argA];
+	p_eyepoint->m_projectScaleX = p_args[c_argB];
+	p_eyepoint->m_viewMatrix.m_rows[1][1] = p_args[c_argC];
+	p_eyepoint->m_projectScaleY = p_args[c_argD];
+	p_eyepoint->m_viewMatrix.m_rows[2][1] = p_args[c_argE];
 }
 
 static void OutputEyepoint(AsmOutput* p_output, MechS32 p_result, Eyepoint* p_eyepoint)
@@ -580,7 +580,7 @@ static void Run10071930(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechS32 result;
 
 	MakeEyepoint(&eyepoint, p_args);
-	result = ((HorizonTestFn) Function(p_module, "FUN_10071930"))(p_args[c_argX], p_args[c_argY], &eyepoint);
+	result = ((HorizonTestFn) Function(p_module, "IsAboveHorizon"))(p_args[c_argX], p_args[c_argY], &eyepoint);
 	OutputEyepoint(p_output, result, &eyepoint);
 }
 
@@ -590,7 +590,7 @@ static void Run100719ca(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechS32 result;
 
 	MakeEyepoint(&eyepoint, p_args);
-	result = ((HorizonFn) Function(p_module, "FUN_100719ca"))(p_args[c_argX], &eyepoint);
+	result = ((HorizonFn) Function(p_module, "HorizonYAtX"))(p_args[c_argX], &eyepoint);
 	OutputEyepoint(p_output, result, &eyepoint);
 }
 
@@ -600,7 +600,7 @@ static void Run10071a4c(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechS32 result;
 
 	MakeEyepoint(&eyepoint, p_args);
-	result = ((HorizonFn) Function(p_module, "FUN_10071a4c"))(p_args[c_argY], &eyepoint);
+	result = ((HorizonFn) Function(p_module, "HorizonXAtY"))(p_args[c_argY], &eyepoint);
 	OutputEyepoint(p_output, result, &eyepoint);
 }
 
@@ -897,9 +897,9 @@ static void RunSoundUnpack(const AsmModule* p_module, const MechS32* p_args, Asm
 	MechU8 src[SOUND_SRC_SIZE];
 	MechU8 dst[SOUND_DST_SIZE];
 	MechU8 globals[SOUND_GLOBALS_SIZE];
-	MechU8* scratch = (MechU8*) Data(p_module, "g_unk0x100a2f04");
-	MechU8* frame = (MechU8*) Data(p_module, "g_unk0x100a3304");
-	MechU8* deltas = (MechU8*) Data(p_module, "g_unk0x100a3705");
+	MechU8* scratch = (MechU8*) Data(p_module, "g_soundUpsampleBuffer");
+	MechU8* frame = (MechU8*) Data(p_module, "g_soundFrame");
+	MechU8* deltas = (MechU8*) Data(p_module, "g_soundDeltas");
 	MechU32 count = 1 + (MechU32) p_args[0] % SOUND_COUNT_MAX;
 	MechU32 frameSize = SoundFrameSize(p_args[1]);
 	MechS32 value = p_args[2];
@@ -912,7 +912,7 @@ static void RunSoundUnpack(const AsmModule* p_module, const MechS32* p_args, Asm
 	Fill(frame, SOUND_FRAME_BUFFER_SIZE, &state);
 	Fill(deltas, SOUND_DELTAS_SIZE, &state);
 
-	end = ((SoundUnpackFn) Function(p_module, "FUN_1001a63c"))(src, dst, count, frameSize, &value);
+	end = ((SoundUnpackFn) Function(p_module, "DecodeSoundFrames"))(src, dst, count, frameSize, &value);
 
 	AsmOutputWord(p_output, end ? (MechU32) (end - src) : 0xffffffff);
 	AsmOutputWord(p_output, (MechU32) value);
@@ -1034,12 +1034,12 @@ static void RunTransformPoint(const AsmModule* p_module, const char* p_name, con
 
 static void Run1000d650(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunTransformPoint(p_module, "FUN_1000d650", p_args, p_output);
+	RunTransformPoint(p_module, "TransformPoint", p_args, p_output);
 }
 
 static void Run1000d708(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunTransformPoint(p_module, "FUN_1000d708", p_args, p_output);
+	RunTransformPoint(p_module, "RotatePoint", p_args, p_output);
 }
 
 typedef void (*CrossColumnFn)(Matrix* p_matrix, MechS32 p_column);
@@ -1051,7 +1051,8 @@ static void Run1000d7c0(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechU32 state = AsmSeed(p_args, 2);
 
 	MakeMatrix(&matrix, &state);
-	((CrossColumnFn) Function(p_module, "FUN_1000d7c0"))(&matrix.m_matrix, (MechS32) ((MechU32) p_args[0] % 6) - 1);
+	((CrossColumnFn)
+		 Function(p_module, "OrthogonalizeMatrixColumn"))(&matrix.m_matrix, (MechS32) ((MechU32) p_args[0] % 6) - 1);
 	OutputMatrix(p_output, &matrix);
 }
 
@@ -1063,7 +1064,7 @@ static void Run1000da0c(const AsmModule* p_module, const MechS32* p_args, AsmOut
 {
 	GuardedMatrix matrices[3];
 	MechU32 state = AsmSeed(p_args, 2);
-	ComposeFn fn = (ComposeFn) Function(p_module, "FUN_1000da0c");
+	ComposeFn fn = (ComposeFn) Function(p_module, "MultiplyRotations");
 	Matrix* a = &matrices[0].m_matrix;
 	Matrix* b = &matrices[1].m_matrix;
 	MechS32 i;
@@ -1125,7 +1126,7 @@ static void Run1000de3b(const AsmModule* p_module, const MechS32* p_args, AsmOut
 		angles[i] = (p_args[7] >> (8 + i)) & 1 ? 0 : p_args[i];
 	}
 
-	((BuildMatrixFn) Function(p_module, "FUN_1000de3b"))(
+	((BuildMatrixFn) Function(p_module, "BuildMatrixEx"))(
 		&matrix.m_matrix,
 		angles[0],
 		angles[1],
@@ -1141,17 +1142,17 @@ static void Run1000de3b(const AsmModule* p_module, const MechS32* p_args, AsmOut
 // A vertex with random fields and no projection.
 static void MakeVertex(Vertex* p_vertex, MechU32* p_state)
 {
-	p_vertex->m_unk0x00 = RandomWord(p_state);
-	p_vertex->m_unk0x04 = RandomWord(p_state);
-	p_vertex->m_unk0x08 = RandomWord(p_state);
-	p_vertex->m_unk0x0c = RandomWord(p_state);
-	p_vertex->m_unk0x10 = RandomWord(p_state);
-	p_vertex->m_unk0x14 = RandomWord(p_state);
-	p_vertex->m_unk0x18 = (MechU32) RandomWord(p_state);
-	p_vertex->m_unk0x1c = (MechU32) RandomWord(p_state);
-	p_vertex->m_unk0x20 = (MechU32) RandomWord(p_state);
-	p_vertex->m_unk0x24 = NULL;
-	Fill(&p_vertex->m_unk0x28, 1, p_state);
+	p_vertex->m_modelX = RandomWord(p_state);
+	p_vertex->m_modelY = RandomWord(p_state);
+	p_vertex->m_modelZ = RandomWord(p_state);
+	p_vertex->m_worldX = RandomWord(p_state);
+	p_vertex->m_worldY = RandomWord(p_state);
+	p_vertex->m_worldZ = RandomWord(p_state);
+	p_vertex->m_u = (MechU32) RandomWord(p_state);
+	p_vertex->m_v = (MechU32) RandomWord(p_state);
+	p_vertex->m_depth = (MechU32) RandomWord(p_state);
+	p_vertex->m_projection = NULL;
+	Fill(&p_vertex->m_flags, 1, p_state);
 	Fill(p_vertex->m_unk0x29, sizeof(p_vertex->m_unk0x29), p_state);
 }
 
@@ -1184,46 +1185,46 @@ static MechU32 Locate(const Region* p_regions, MechS32 p_count, const void* p_po
 
 static void OutputVertex(AsmOutput* p_output, const Vertex* p_vertex, const Region* p_regions, MechS32 p_count)
 {
-	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x00);
-	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x04);
-	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x08);
-	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x0c);
-	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x10);
-	AsmOutputWord(p_output, (MechU32) p_vertex->m_unk0x14);
-	AsmOutputWord(p_output, p_vertex->m_unk0x18);
-	AsmOutputWord(p_output, p_vertex->m_unk0x1c);
-	AsmOutputWord(p_output, p_vertex->m_unk0x20);
-	AsmOutputWord(p_output, Locate(p_regions, p_count, p_vertex->m_unk0x24));
+	AsmOutputWord(p_output, (MechU32) p_vertex->m_modelX);
+	AsmOutputWord(p_output, (MechU32) p_vertex->m_modelY);
+	AsmOutputWord(p_output, (MechU32) p_vertex->m_modelZ);
+	AsmOutputWord(p_output, (MechU32) p_vertex->m_worldX);
+	AsmOutputWord(p_output, (MechU32) p_vertex->m_worldY);
+	AsmOutputWord(p_output, (MechU32) p_vertex->m_worldZ);
+	AsmOutputWord(p_output, p_vertex->m_u);
+	AsmOutputWord(p_output, p_vertex->m_v);
+	AsmOutputWord(p_output, p_vertex->m_depth);
+	AsmOutputWord(p_output, Locate(p_regions, p_count, p_vertex->m_projection));
 	AsmOutputWord(
 		p_output,
-		p_vertex->m_unk0x28 | ((MechU32) p_vertex->m_unk0x29[0] << 8) | ((MechU32) p_vertex->m_unk0x29[1] << 16) |
+		p_vertex->m_flags | ((MechU32) p_vertex->m_unk0x29[0] << 8) | ((MechU32) p_vertex->m_unk0x29[1] << 16) |
 			((MechU32) p_vertex->m_unk0x29[2] << 24)
 	);
 }
 
 static void MakeFace(Face* p_face, MechU32* p_state)
 {
-	p_face->m_unk0x00 = (MechU16) AsmNext(p_state);
-	p_face->m_unk0x02 = (MechU16) AsmNext(p_state);
-	p_face->m_unk0x04 = AsmNext(p_state);
-	p_face->m_unk0x08 = RandomWord(p_state);
-	p_face->m_unk0x0c = RandomWord(p_state);
-	p_face->m_unk0x10 = RandomWord(p_state);
+	p_face->m_color = (MechU16) AsmNext(p_state);
+	p_face->m_indexCount = (MechU16) AsmNext(p_state);
+	p_face->m_indexOffset = AsmNext(p_state);
+	p_face->m_modelNormalX = RandomWord(p_state);
+	p_face->m_modelNormalY = RandomWord(p_state);
+	p_face->m_modelNormalZ = RandomWord(p_state);
 	p_face->m_normal[0] = RandomWord(p_state);
 	p_face->m_normal[1] = RandomWord(p_state);
 	p_face->m_normal[2] = RandomWord(p_state);
-	p_face->m_unk0x20 = NULL;
+	p_face->m_shape = NULL;
 }
 
 static void OutputFace(AsmOutput* p_output, const Face* p_face)
 {
-	AsmOutputWord(p_output, p_face->m_unk0x00 | ((MechU32) p_face->m_unk0x02 << 16));
-	AsmOutputWord(p_output, p_face->m_unk0x04);
-	AsmOutputWord(p_output, (MechU32) p_face->m_unk0x08);
-	AsmOutputWord(p_output, (MechU32) p_face->m_unk0x0c);
-	AsmOutputWord(p_output, (MechU32) p_face->m_unk0x10);
+	AsmOutputWord(p_output, p_face->m_color | ((MechU32) p_face->m_indexCount << 16));
+	AsmOutputWord(p_output, p_face->m_indexOffset);
+	AsmOutputWord(p_output, (MechU32) p_face->m_modelNormalX);
+	AsmOutputWord(p_output, (MechU32) p_face->m_modelNormalY);
+	AsmOutputWord(p_output, (MechU32) p_face->m_modelNormalZ);
 	OutputWords(p_output, p_face->m_normal, 3);
-	AsmOutputWord(p_output, p_face->m_unk0x20 ? 1 : 0);
+	AsmOutputWord(p_output, p_face->m_shape ? 1 : 0);
 }
 
 #define MODEL_VERTICES_MAX 6
@@ -1253,7 +1254,7 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	model.m_header.m_faceCount = (MechS16) (1 + (MechU32) p_args[1] % MODEL_FACES_MAX);
 	model.m_header.m_faceOffset = (MechU32) offsetof(ModelBuffer, m_faces);
 	model.m_header.m_next = NULL;
-	model.m_header.m_unk0x10 = AsmNext(&state);
+	model.m_header.m_transformCount = AsmNext(&state);
 	model.m_header.m_unk0x14 = (MechU16) AsmNext(&state);
 	Fill(model.m_header.m_unk0x16, sizeof(model.m_header.m_unk0x16), &state);
 	for (i = 0; i <= MODEL_VERTICES_MAX; i++) {
@@ -1265,7 +1266,7 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	}
 
 	MakeMatrix(&matrix, &state);
-	((TransformModelFn) Function(p_module, "FUN_10039a30"))(&model.m_header, &matrix.m_matrix);
+	((TransformModelFn) Function(p_module, "TransformModel"))(&model.m_header, &matrix.m_matrix);
 
 	AsmOutputWord(p_output, (MechU32) model.m_header.m_key);
 	AsmOutputWord(
@@ -1273,7 +1274,7 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 		(MechU16) model.m_header.m_vertexCount | ((MechU32) (MechU16) model.m_header.m_faceCount << 16)
 	);
 	AsmOutputWord(p_output, model.m_header.m_faceOffset == offsetof(ModelBuffer, m_faces) && !model.m_header.m_next);
-	AsmOutputWord(p_output, model.m_header.m_unk0x10);
+	AsmOutputWord(p_output, model.m_header.m_transformCount);
 	AsmOutputWord(
 		p_output,
 		model.m_header.m_unk0x14 | ((MechU32) model.m_header.m_unk0x16[0] << 16) |
@@ -1293,42 +1294,42 @@ static void Run10039a30(const AsmModule* p_module, const MechS32* p_args, AsmOut
 // A shape with random fields and no lists.
 static void MakeShape(Shape* p_shape, MechU32* p_state)
 {
-	p_shape->m_unk0x00 = (MechU16) AsmNext(p_state);
-	p_shape->m_unk0x02 = (MechU16) AsmNext(p_state);
-	p_shape->m_unk0x04 = NULL;
-	p_shape->m_unk0x08 = NULL;
-	p_shape->m_unk0x0c = NULL;
-	p_shape->m_unk0x10 = NULL;
-	p_shape->m_unk0x14 = (MechU16) AsmNext(p_state);
-	p_shape->m_unk0x16 = (MechU16) AsmNext(p_state);
+	p_shape->m_flags = (MechU16) AsmNext(p_state);
+	p_shape->m_kind = (MechU16) AsmNext(p_state);
+	p_shape->m_prev = NULL;
+	p_shape->m_next = NULL;
+	p_shape->m_prevCollider = NULL;
+	p_shape->m_nextCollider = NULL;
+	p_shape->m_owner = (MechU16) AsmNext(p_state);
+	p_shape->m_partId = (MechU16) AsmNext(p_state);
 	p_shape->m_object = NULL;
 	p_shape->m_models = NULL;
 	p_shape->m_model = NULL;
-	p_shape->m_unk0x24 = RandomWord(p_state);
-	p_shape->m_unk0x28 = RandomWord(p_state);
-	p_shape->m_unk0x2c = RandomWord(p_state);
-	p_shape->m_unk0x30 = RandomWord(p_state);
-	p_shape->m_unk0x34 = RandomWord(p_state);
-	p_shape->m_unk0x38 = RandomWord(p_state);
-	p_shape->m_unk0x3c = RandomWord(p_state);
-	p_shape->m_unk0x40 = RandomWord(p_state);
-	p_shape->m_unk0x44 = NULL;
-	p_shape->m_unk0x48 = (MechU32) RandomWord(p_state);
+	p_shape->m_collisionType = RandomWord(p_state);
+	p_shape->m_modelCenterX = RandomWord(p_state);
+	p_shape->m_modelCenterY = RandomWord(p_state);
+	p_shape->m_modelCenterZ = RandomWord(p_state);
+	p_shape->m_centerX = RandomWord(p_state);
+	p_shape->m_centerY = RandomWord(p_state);
+	p_shape->m_centerZ = RandomWord(p_state);
+	p_shape->m_radius = RandomWord(p_state);
+	p_shape->m_collisionData = NULL;
+	p_shape->m_transformCount = (MechU32) RandomWord(p_state);
 }
 
 static void OutputShape(AsmOutput* p_output, const Shape* p_shape)
 {
-	AsmOutputWord(p_output, p_shape->m_unk0x00 | ((MechU32) p_shape->m_unk0x02 << 16));
-	AsmOutputWord(p_output, p_shape->m_unk0x14 | ((MechU32) p_shape->m_unk0x16 << 16));
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x24);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x28);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x2c);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x30);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x34);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x38);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x3c);
-	AsmOutputWord(p_output, (MechU32) p_shape->m_unk0x40);
-	AsmOutputWord(p_output, p_shape->m_unk0x48);
+	AsmOutputWord(p_output, p_shape->m_flags | ((MechU32) p_shape->m_kind << 16));
+	AsmOutputWord(p_output, p_shape->m_owner | ((MechU32) p_shape->m_partId << 16));
+	AsmOutputWord(p_output, (MechU32) p_shape->m_collisionType);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_modelCenterX);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_modelCenterY);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_modelCenterZ);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_centerX);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_centerY);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_centerZ);
+	AsmOutputWord(p_output, (MechU32) p_shape->m_radius);
+	AsmOutputWord(p_output, p_shape->m_transformCount);
 }
 
 typedef void (*TransformShapeFn)(Shape* p_shape, Matrix* p_matrix);
@@ -1342,10 +1343,10 @@ static void Run10039b94(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 	MakeShape(&shape, &state);
 	MakeMatrix(&matrix, &state);
-	shape.m_unk0x28 = p_args[0];
-	shape.m_unk0x2c = p_args[1];
-	shape.m_unk0x30 = p_args[2];
-	((TransformShapeFn) Function(p_module, "FUN_10039b94"))(&shape, &matrix.m_matrix);
+	shape.m_modelCenterX = p_args[0];
+	shape.m_modelCenterY = p_args[1];
+	shape.m_modelCenterZ = p_args[2];
+	((TransformShapeFn) Function(p_module, "TransformShapeCenter"))(&shape, &matrix.m_matrix);
 	OutputShape(p_output, &shape);
 	OutputMatrix(p_output, &matrix);
 }
@@ -1394,11 +1395,12 @@ static void Run10039ccc(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechS32 result;
 
 	MakeShape(&shape, &state);
-	shape.m_unk0x40 = p_args[3];
-	shape.m_unk0x34 = NearValue(p_args[0], p_args[3], (MechU32) p_args[4], &state);
-	shape.m_unk0x38 = NearValue(p_args[1], p_args[3], (MechU32) p_args[4] >> 2, &state);
-	shape.m_unk0x3c = NearValue(p_args[2], p_args[3], (MechU32) p_args[4] >> 4, &state);
-	result = ((ShapeDistanceFn) Function(p_module, "FUN_10039ccc"))(&shape, p_args[0], p_args[1], p_args[2]);
+	shape.m_radius = p_args[3];
+	shape.m_centerX = NearValue(p_args[0], p_args[3], (MechU32) p_args[4], &state);
+	shape.m_centerY = NearValue(p_args[1], p_args[3], (MechU32) p_args[4] >> 2, &state);
+	shape.m_centerZ = NearValue(p_args[2], p_args[3], (MechU32) p_args[4] >> 4, &state);
+	result =
+		((ShapeDistanceFn) Function(p_module, "ApproximateShapeDistance"))(&shape, p_args[0], p_args[1], p_args[2]);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputShape(p_output, &shape);
 }
@@ -1472,7 +1474,7 @@ static void MakeNormalCase(const MechS32* p_args, MechS32* p_corners, MechS16* p
 	MakeSqrtTable(p_table, &state);
 }
 
-// FUN_10039dda's scaled normal (its words before the division), and the divisor; returns 0 for
+// ComputeTriangleNormal's scaled normal (its words before the division), and the divisor; returns 0 for
 // a degenerate triangle.
 static MechS32 ScaledNormal(const MechS32* p_c, const MechS16* p_table, MechU32* p_values, MechS32* p_divisor)
 {
@@ -1566,7 +1568,7 @@ static void Run10039dda(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MakeNormalCase(p_args, corners, table);
 	*(MechS16**) Data(p_module, "g_sqrtTable") = table;
 	FillWords(cells, 7, &state);
-	result = ((TriangleNormalFn) Function(p_module, "FUN_10039dda"))(
+	result = ((TriangleNormalFn) Function(p_module, "ComputeTriangleNormal"))(
 		corners[0],
 		corners[1],
 		corners[2],
@@ -1622,10 +1624,10 @@ static void MakeRayCase(const MechS32* p_args, Shape* p_shape, Ray* p_ray)
 		p_ray->m_dz = PortableSar32(p_ray->m_dz, 4);
 	}
 
-	p_shape->m_unk0x40 = p_args[6];
-	p_shape->m_unk0x34 = NearValue(p_args[0], p_args[6], selector >> 3, &state);
-	p_shape->m_unk0x38 = NearValue(p_args[1], p_args[6], selector >> 5, &state);
-	p_shape->m_unk0x3c = NearValue(p_args[2], p_args[6], selector >> 7, &state);
+	p_shape->m_radius = p_args[6];
+	p_shape->m_centerX = NearValue(p_args[0], p_args[6], selector >> 3, &state);
+	p_shape->m_centerY = NearValue(p_args[1], p_args[6], selector >> 5, &state);
+	p_shape->m_centerZ = NearValue(p_args[2], p_args[6], selector >> 7, &state);
 }
 
 static MechU64 Square(MechS32 p_value)
@@ -1633,7 +1635,7 @@ static MechU64 Square(MechS32 p_value)
 	return (MechU64) ((MechS64) p_value * p_value);
 }
 
-// FUN_1003a096 up to its idiv.
+// RayShapeDistance up to its idiv.
 static MechS32 Domain1003a096(const MechS32* p_args)
 {
 	Shape shape;
@@ -1645,14 +1647,14 @@ static MechS32 Domain1003a096(const MechS32* p_args)
 	MechU64 dot;
 
 	MakeRayCase(p_args, &shape, &ray);
-	if (shape.m_unk0x40 <= 0) {
+	if (shape.m_radius <= 0) {
 		return c_domainIn;
 	}
 
-	deltaX = Difference(shape.m_unk0x34, ray.m_x0);
-	deltaY = Difference(shape.m_unk0x38, ray.m_y0);
-	deltaZ = Difference(shape.m_unk0x3c, ray.m_z0);
-	if (Square(deltaX) + Square(deltaY) + Square(deltaZ) < Square(shape.m_unk0x40)) {
+	deltaX = Difference(shape.m_centerX, ray.m_x0);
+	deltaY = Difference(shape.m_centerY, ray.m_y0);
+	deltaZ = Difference(shape.m_centerZ, ray.m_z0);
+	if (Square(deltaX) + Square(deltaY) + Square(deltaZ) < Square(shape.m_radius)) {
 		return c_domainIn;
 	}
 
@@ -1693,7 +1695,7 @@ static void Run1003a096(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechS32 result;
 
 	MakeRayCase(p_args, &shape, &ray);
-	result = ((RayDistanceFn) Function(p_module, "FUN_1003a096"))(&shape, &ray);
+	result = ((RayDistanceFn) Function(p_module, "RayShapeDistance"))(&shape, &ray);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputShape(p_output, &shape);
 	OutputRay(p_output, &ray);
@@ -1703,34 +1705,33 @@ static void Run1003a096(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 // The view globals (view.c) the routines read.
 enum {
-	c_viewNear,                      // g_unk0x100ea820
-	c_viewShiftX,                    // g_unk0x100ea824
-	c_viewShiftY,                    // g_unk0x100ea828
-	c_viewFar,                       // g_unk0x100ea82c
-	c_viewLeft,                      // g_unk0x100ea830
-	c_viewCenterX,                   // g_unk0x100ea834
-	c_viewBottom,                    // g_unk0x100ea840
-	c_viewRight,                     // g_unk0x100ea84c
-	c_viewTop,                       // g_unk0x100ea850
-	c_viewCenterY,                   // g_unk0x100ea858
-	c_viewRowX,                      // g_unk0x100ea864, 868, 86c
-	c_viewRowY = c_viewRowX + 3,     // g_unk0x100ea870, 874, 878
-	c_viewRowDepth = c_viewRowY + 3, // g_unk0x100ea87c, 880, 884
-	c_viewEyeY = c_viewRowDepth + 3, // g_unk0x100ea8b4
-	c_viewEyeX,                      // g_unk0x100ea8b8
-	c_viewEyeZ,                      // g_unk0x100ea8bc
-	c_viewLightZ,                    // g_unk0x100ea8c0
-	c_viewLightX,                    // g_unk0x100ea8c4
-	c_viewLightY,                    // g_unk0x100ea8c8
+	c_viewNear,                      // g_viewNear
+	c_viewShiftX,                    // g_viewShiftX
+	c_viewShiftY,                    // g_viewShiftY
+	c_viewFar,                       // g_viewFar
+	c_viewLeft,                      // g_viewLeft
+	c_viewCenterX,                   // g_viewCenterX
+	c_viewBottom,                    // g_viewBottom
+	c_viewRight,                     // g_viewRight
+	c_viewTop,                       // g_viewTop
+	c_viewCenterY,                   // g_viewCenterY
+	c_viewRowX,                      // g_viewProjX0, 868, 86c
+	c_viewRowY = c_viewRowX + 3,     // g_viewProjY0, 874, 878
+	c_viewRowDepth = c_viewRowY + 3, // g_viewProjZ0, 880, 884
+	c_viewEyeY = c_viewRowDepth + 3, // g_viewEyeY
+	c_viewEyeX,                      // g_viewEyeX
+	c_viewEyeZ,                      // g_viewEyeZ
+	c_viewLightZ,                    // g_viewLightZ
+	c_viewLightX,                    // g_viewLightX
+	c_viewLightY,                    // g_viewLightY
 	c_viewCount
 };
 
 static const char* const g_viewNames[c_viewCount] = {
-	"g_unk0x100ea820", "g_unk0x100ea824", "g_unk0x100ea828", "g_unk0x100ea82c", "g_unk0x100ea830",
-	"g_unk0x100ea834", "g_unk0x100ea840", "g_unk0x100ea84c", "g_unk0x100ea850", "g_unk0x100ea858",
-	"g_unk0x100ea864", "g_unk0x100ea868", "g_unk0x100ea86c", "g_unk0x100ea870", "g_unk0x100ea874",
-	"g_unk0x100ea878", "g_unk0x100ea87c", "g_unk0x100ea880", "g_unk0x100ea884", "g_unk0x100ea8b4",
-	"g_unk0x100ea8b8", "g_unk0x100ea8bc", "g_unk0x100ea8c0", "g_unk0x100ea8c4", "g_unk0x100ea8c8",
+	"g_viewNear",   "g_viewShiftX", "g_viewShiftY",  "g_viewFar",    "g_viewLeft",   "g_viewCenterX", "g_viewBottom",
+	"g_viewRight",  "g_viewTop",    "g_viewCenterY", "g_viewProjX0", "g_viewProjX1", "g_viewProjX2",  "g_viewProjY0",
+	"g_viewProjY1", "g_viewProjY2", "g_viewProjZ0",  "g_viewProjZ1", "g_viewProjZ2", "g_viewEyeY",    "g_viewEyeX",
+	"g_viewEyeZ",   "g_viewLightZ", "g_viewLightX",  "g_viewLightY",
 };
 
 static void MakeView(MechS32* p_view, MechU32* p_state)
@@ -1751,13 +1752,13 @@ static void SetView(const AsmModule* p_module, const MechS32* p_view)
 	}
 }
 
-// FUN_10048c50's view-space x, y (p_row c_viewRowX, c_viewRowY) or depth (c_viewRowDepth) of a
+// GetViewVertex's view-space x, y (p_row c_viewRowX, c_viewRowY) or depth (c_viewRowDepth) of a
 // vertex.
 static MechS32 ViewValue(const MechS32* p_view, MechS32 p_row, const Vertex* p_vertex)
 {
-	MechU64 sum = (MechU64) ((MechS64) p_view[p_row] * Difference(p_vertex->m_unk0x0c, p_view[c_viewEyeX])) +
-				  (MechU64) ((MechS64) p_view[p_row + 1] * Difference(p_vertex->m_unk0x10, p_view[c_viewEyeY])) +
-				  (MechU64) ((MechS64) p_view[p_row + 2] * Difference(p_vertex->m_unk0x14, p_view[c_viewEyeZ]));
+	MechU64 sum = (MechU64) ((MechS64) p_view[p_row] * Difference(p_vertex->m_worldX, p_view[c_viewEyeX])) +
+				  (MechU64) ((MechS64) p_view[p_row + 1] * Difference(p_vertex->m_worldY, p_view[c_viewEyeY])) +
+				  (MechU64) ((MechS64) p_view[p_row + 2] * Difference(p_vertex->m_worldZ, p_view[c_viewEyeZ]));
 
 	return PortableS32(PortableShrdRound(sum, 27));
 }
@@ -1783,9 +1784,9 @@ static void SetUpRecords(
 )
 {
 	Fill((MechU8*) p_stacks->m_words, RECORD_ARENA_SIZE, p_state);
-	p_stacks->m_top = (MechU8**) Data(p_module, "g_unk0x100c1a70");
-	p_stacks->m_bottom = (MechU8**) Data(p_module, "g_unk0x100c2698");
-	p_stacks->m_flag = (MechS32*) Data(p_module, "g_unk0x1010b5ac");
+	p_stacks->m_top = (MechU8**) Data(p_module, "g_drawBufferTop");
+	p_stacks->m_bottom = (MechU8**) Data(p_module, "g_drawBufferBottom");
+	p_stacks->m_flag = (MechS32*) Data(p_module, "g_queueHasRoom");
 	*p_stacks->m_top = (MechU8*) p_stacks->m_words + p_top;
 	*p_stacks->m_bottom = (MechU8*) p_stacks->m_words + p_bottom;
 	*p_stacks->m_flag = PortableS32(AsmNext(p_state));
@@ -1824,7 +1825,7 @@ static void OutputRecord(AsmOutput* p_output, const ProjectedVertex* p_record)
 	);
 }
 
-typedef ProjectedVertex* (*ProjectVertexFn)(Vertex* p_vertex);
+typedef ProjectedVertex* (*GetViewVertexFn)(Vertex* p_vertex);
 
 // Arguments: the vertex's position, and whether it has a projected copy already (one case in
 // four, from the last).
@@ -1844,14 +1845,14 @@ static void Run10048c50(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	SetUpRecords(p_module, &stacks, top, AsmNext(&state) % (top / 4) * 4, &state);
 	FillRecords(&copy, 1, &state);
 	MakeVertex(&vertex, &state);
-	vertex.m_unk0x0c = p_args[0];
-	vertex.m_unk0x10 = p_args[1];
-	vertex.m_unk0x14 = p_args[2];
+	vertex.m_worldX = p_args[0];
+	vertex.m_worldY = p_args[1];
+	vertex.m_worldZ = p_args[2];
 	if (!(p_args[3] & 3)) {
-		vertex.m_unk0x24 = &copy;
+		vertex.m_projection = &copy;
 	}
 
-	result = ((ProjectVertexFn) Function(p_module, "FUN_10048c50"))(&vertex);
+	result = ((GetViewVertexFn) Function(p_module, "GetViewVertex"))(&vertex);
 	regions[0].m_start = stacks.m_words;
 	regions[0].m_size = RECORD_ARENA_SIZE;
 	regions[1].m_start = &copy;
@@ -1862,7 +1863,7 @@ static void Run10048c50(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	OutputRecords(p_output, &stacks, regions, 2);
 }
 
-// An end of an edge FUN_10048d46 clips: its vertex, and the projected copy it may have already.
+// An end of an edge ClipEdgeToNearPlane clips: its vertex, and the projected copy it may have already.
 typedef struct ClipEnd {
 	Vertex m_vertex;
 	ProjectedVertex m_copy;
@@ -1896,14 +1897,14 @@ static void MakeClipCase(const MechS32* p_args, ClipCase* p_case)
 			end->m_copy.m_x = p_args[3 + i];
 		}
 		else {
-			end->m_vertex.m_unk0x20 = (MechU32) p_args[i];
+			end->m_vertex.m_depth = (MechU32) p_args[i];
 		}
 	}
 
 	p_case->m_same = (p_args[7] >> 2) & 1;
 }
 
-// An end's position, depth and texture coordinates, as FUN_10048d46 reads them.
+// An end's position, depth and texture coordinates, as ClipEdgeToNearPlane reads them.
 static void ClipEndValues(const ClipCase* p_case, MechS32 p_end, MechS32* p_values)
 {
 	const ClipEnd* end = &p_case->m_ends[p_case->m_same ? 0 : p_end];
@@ -1918,9 +1919,9 @@ static void ClipEndValues(const ClipCase* p_case, MechS32 p_end, MechS32* p_valu
 	else {
 		p_values[0] = ViewValue(p_case->m_view, c_viewRowX, &end->m_vertex);
 		p_values[1] = ViewValue(p_case->m_view, c_viewRowY, &end->m_vertex);
-		p_values[2] = PortableS32(end->m_vertex.m_unk0x18 << 16);
-		p_values[3] = PortableS32(end->m_vertex.m_unk0x1c << 16);
-		p_values[4] = PortableS32(end->m_vertex.m_unk0x20);
+		p_values[2] = PortableS32(end->m_vertex.m_u << 16);
+		p_values[3] = PortableS32(end->m_vertex.m_v << 16);
+		p_values[4] = PortableS32(end->m_vertex.m_depth);
 	}
 }
 
@@ -1975,13 +1976,13 @@ static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	SetUpRecords(p_module, &stacks, RECORD_ARENA_SIZE - AsmNext(&state) % 0x40 * 4, bottom, &state);
 	for (i = 0; i < 2; i++) {
 		if (clip.m_ends[i].m_hasCopy) {
-			clip.m_ends[i].m_vertex.m_unk0x24 = &clip.m_ends[i].m_copy;
+			clip.m_ends[i].m_vertex.m_projection = &clip.m_ends[i].m_copy;
 		}
 	}
 
 	result = ((
 		ClipEdgeFn
-	) Function(p_module, "FUN_10048d46"))(&clip.m_ends[0].m_vertex, &clip.m_ends[clip.m_same ? 0 : 1].m_vertex);
+	) Function(p_module, "ClipEdgeToNearPlane"))(&clip.m_ends[0].m_vertex, &clip.m_ends[clip.m_same ? 0 : 1].m_vertex);
 	regions[0].m_start = stacks.m_words;
 	regions[0].m_size = RECORD_ARENA_SIZE;
 	regions[1].m_start = &clip.m_ends[0].m_copy;
@@ -1997,7 +1998,7 @@ static void Run10048d46(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	OutputRecords(p_output, &stacks, regions, 3);
 }
 
-// The polygon list FUN_10048ebe adds to, and its outcodes.
+// The polygon list ProjectVertex adds to, and its outcodes.
 typedef struct PolygonPoints {
 	MechU8* m_or;
 	MechU8* m_and;
@@ -2007,10 +2008,10 @@ typedef struct PolygonPoints {
 
 static void FindPolygonPoints(const AsmModule* p_module, PolygonPoints* p_points)
 {
-	p_points->m_or = (MechU8*) Data(p_module, "g_unk0x1010b53c");
-	p_points->m_and = (MechU8*) Data(p_module, "g_unk0x1010b5b8");
-	p_points->m_points = (ProjectedVertex**) Data(p_module, "g_unk0x1010b550");
-	p_points->m_count = (MechS32*) Data(p_module, "g_unk0x1010b5b0");
+	p_points->m_or = (MechU8*) Data(p_module, "g_polygonOrCodes");
+	p_points->m_and = (MechU8*) Data(p_module, "g_polygonAndCodes");
+	p_points->m_points = (ProjectedVertex**) Data(p_module, "g_polygonPoints");
+	p_points->m_count = (MechS32*) Data(p_module, "g_polygonPointCount");
 }
 
 static void OutputPolygonPoints(
@@ -2076,7 +2077,7 @@ static void Run10048ebe(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	ProjectedVertex others[20];
 	MechS32 view[c_viewCount];
 	PolygonPoints points;
-	MechS32* flag = (MechS32*) Data(p_module, "g_unk0x1010b5ac");
+	MechS32* flag = (MechS32*) Data(p_module, "g_queueHasRoom");
 	Region regions[2];
 	MechU32 state = AsmSeed(p_args, 6);
 	ProjectedVertex* result;
@@ -2093,7 +2094,7 @@ static void Run10048ebe(const AsmModule* p_module, const MechS32* p_args, AsmOut
 		points.m_points[i] = &others[i];
 	}
 
-	result = ((AddPointFn) Function(p_module, "FUN_10048ebe"))(&record);
+	result = ((AddPointFn) Function(p_module, "ProjectVertex"))(&record);
 	regions[0].m_start = &record;
 	regions[0].m_size = sizeof(record);
 	regions[1].m_start = others;
@@ -2104,7 +2105,7 @@ static void Run10048ebe(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	AsmOutputWord(p_output, (MechU32) *flag);
 }
 
-// A face and the indices of its vertices, at m_unk0x04 from it.
+// A face and the indices of its vertices, at m_indexOffset from it.
 typedef struct FaceBuffer {
 	Face m_face;
 	MechU8 m_indices[24];
@@ -2135,12 +2136,12 @@ static void MakeShadeCase(const MechS32* p_args, ShadeCase* p_case)
 
 	MakeFace(&p_case->m_face.m_face, &state);
 	Fill(p_case->m_face.m_indices, sizeof(p_case->m_face.m_indices), &state);
-	p_case->m_face.m_face.m_unk0x04 = (MechU32) offsetof(FaceBuffer, m_indices);
+	p_case->m_face.m_face.m_indexOffset = (MechU32) offsetof(FaceBuffer, m_indices);
 	p_case->m_face.m_indices[0] %= SHADE_VERTICES;
 	vertex = &p_case->m_vertices[p_case->m_face.m_indices[0]];
-	vertex->m_unk0x0c = p_args[0];
-	vertex->m_unk0x10 = p_args[1];
-	vertex->m_unk0x14 = p_args[2];
+	vertex->m_worldX = p_args[0];
+	vertex->m_worldY = p_args[1];
+	vertex->m_worldZ = p_args[2];
 	MakeView(p_case->m_view, &state);
 	p_case->m_view[c_viewLightX] = p_args[3];
 	p_case->m_view[c_viewLightY] = p_args[4];
@@ -2158,7 +2159,7 @@ static void MakeShadeCase(const MechS32* p_args, ShadeCase* p_case)
 	MakeSqrtTable(p_case->m_table, &state);
 }
 
-// The magnitude FUN_10048faf takes of a light coordinate's difference from the vertex's: negated
+// The magnitude GetFaceShade takes of a light coordinate's difference from the vertex's: negated
 // when the light's is the smaller one.
 static MechU32 ShadeMagnitude(MechS32 p_light, MechS32 p_vertex)
 {
@@ -2167,7 +2168,7 @@ static MechU32 ShadeMagnitude(MechS32 p_light, MechS32 p_vertex)
 	return p_light < p_vertex ? 0 - difference : difference;
 }
 
-// FUN_10048faf up to its idiv.
+// GetFaceShade up to its idiv.
 static MechS32 Domain10048faf(const MechS32* p_args)
 {
 	ShadeCase shade;
@@ -2183,9 +2184,9 @@ static MechS32 Domain10048faf(const MechS32* p_args)
 
 	MakeShadeCase(p_args, &shade);
 	vertex = &shade.m_vertices[shade.m_face.m_indices[0]];
-	position[0] = shade.m_atOrigin ? 0 : vertex->m_unk0x0c;
-	position[1] = shade.m_atOrigin ? 0 : vertex->m_unk0x10;
-	position[2] = shade.m_atOrigin ? 0 : vertex->m_unk0x14;
+	position[0] = shade.m_atOrigin ? 0 : vertex->m_worldX;
+	position[1] = shade.m_atOrigin ? 0 : vertex->m_worldY;
+	position[2] = shade.m_atOrigin ? 0 : vertex->m_worldZ;
 	light[0] = shade.m_view[c_viewLightX];
 	light[1] = shade.m_view[c_viewLightY];
 	light[2] = shade.m_view[c_viewLightZ];
@@ -2211,7 +2212,7 @@ static MechS32 Domain10048faf(const MechS32* p_args)
 	return DivideDomain(PortableS64(dot), shade.m_table[squares >> 8]);
 }
 
-typedef MechS32 (*ShadeFaceFn)(Face* p_face, Vertex* p_vertices);
+typedef MechS32 (*GetFaceShadeFn)(Face* p_face, Vertex* p_vertices);
 
 // Arguments: MakeShadeCase's.
 static void Run10048faf(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -2221,22 +2222,22 @@ static void Run10048faf(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 	MakeShadeCase(p_args, &shade);
 	SetView(p_module, shade.m_view);
-	*(MechS32*) Data(p_module, "g_unk0x1010b530") = shade.m_atOrigin;
+	*(MechS32*) Data(p_module, "g_directionalLight") = shade.m_atOrigin;
 	*(MechS16**) Data(p_module, "g_sqrtTable") = shade.m_table;
-	result = ((ShadeFaceFn) Function(p_module, "FUN_10048faf"))(&shade.m_face.m_face, shade.m_vertices);
+	result = ((GetFaceShadeFn) Function(p_module, "GetFaceShade"))(&shade.m_face.m_face, shade.m_vertices);
 	AsmOutputWord(p_output, (MechU32) result);
 }
 
-// --- Queueing a face (FUN_10049155) ---
+// --- Queueing a face (QueueFace) ---
 
 #define QUEUE_VERTICES 8
 #define QUEUE_POLYGONS 8
 #define QUEUE_LOG 64
 #define POLYGON_RECORD_SIZE (0xc + 20 * 4) // a polygon and its points, on x86
 
-// The hooks FUN_10049155 calls through g_renderSettings, and what they're passed. The projection
-// hook stands in for FUN_10048ebe: it adds the point to the polygon (up to 20) and ands random
-// outcodes, mostly 0, into g_unk0x1010b5b8, so that most polygons get queued.
+// The hooks QueueFace calls through g_renderSettings, and what they're passed. The projection
+// hook stands in for ProjectVertex: it adds the point to the polygon (up to 20) and ands random
+// outcodes, mostly 0, into g_polygonAndCodes, so that most polygons get queued.
 typedef struct QueueHooks {
 	PolygonPoints m_points;
 	MechS32* m_flag;
@@ -2286,20 +2287,20 @@ static MechS32 QueueDrawHook(Face* p_face, Vertex* p_vertices, MechS32 p_flags, 
 	return PortableS32(AsmNext(&g_queueHooks.m_state));
 }
 
-// FUN_10049155's counters, and the polygon list's count and capacity.
+// QueueFace's counters, and the polygon list's count and capacity.
 static const char* const g_queueCounterNames[] = {
-	"g_unk0x1010b5bc",
-	"g_unk0x1010b538",
-	"g_unk0x1010b5b4",
-	"g_unk0x1010b5a8",
-	"g_unk0x100a54b0",
-	"g_unk0x100a54b4",
-	"g_unk0x100c1a68",
+	"g_facesTried",
+	"g_facesFrontFacing",
+	"g_verticesTransformed",
+	"g_polygonsQueued",
+	"g_depthEntryCount",
+	"g_polygonCount",
+	"g_depthListCapacity",
 };
 
 #define QUEUE_COUNTERS ((MechS32) (sizeof(g_queueCounterNames) / sizeof(g_queueCounterNames[0])))
 
-// The polygon FUN_10049155 takes from the bottom of the record buffer, and the points it copies
+// The polygon QueueFace takes from the bottom of the record buffer, and the points it copies
 // after it (its words up to the bottom's new position), with their pointers located; the rest of
 // the region as it is. A polygon only fits its record on x86, the only platform this runs on.
 static void OutputPolygonRecord(
@@ -2332,7 +2333,7 @@ static void OutputPolygonRecord(
 
 typedef void (*QueueFaceFn)(Face* p_face, Vertex* p_vertices);
 
-// Arguments: the face's vertex count (1 to QUEUE_VERTICES), the depth rule (g_unk0x1010b5c8),
+// Arguments: the face's vertex count (1 to QUEUE_VERTICES), the depth rule (g_queuedShapeFlags),
 // and the seed of the rest: a scene the game could draw. The near plane is at 0 or above, the
 // depth row within +-1.0 (5.27) and the vertices within 2^24 of the eyepoint, so every depth is
 // below 2^26; the vertices projected already have depths and clip codes that agree, and their
@@ -2349,7 +2350,7 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	DepthEntry polygons[QUEUE_POLYGONS];
 	RecordStacks stacks;
 	RenderSettings* hooks = (RenderSettings*) Data(p_module, "g_renderSettings");
-	MechU8** cursor = (MechU8**) Data(p_module, "g_unk0x1010b534");
+	MechU8** cursor = (MechU8**) Data(p_module, "g_polygonPointCursor");
 	MechS32* counters[QUEUE_COUNTERS];
 	MechS32 view[c_viewCount];
 	Region regions[6];
@@ -2381,28 +2382,28 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 		MakeVertex(vertex, &state);
 		if (wide) {
-			vertex->m_unk0x0c = ExtremeWord(&state);
-			vertex->m_unk0x10 = ExtremeWord(&state);
-			vertex->m_unk0x14 = ExtremeWord(&state);
+			vertex->m_worldX = ExtremeWord(&state);
+			vertex->m_worldY = ExtremeWord(&state);
+			vertex->m_worldZ = ExtremeWord(&state);
 		}
 		else {
-			vertex->m_unk0x0c = PortableS32((MechU32) view[c_viewEyeX] + (AsmNext(&state) & 0x1ffffff) - 0x1000000);
-			vertex->m_unk0x10 = PortableS32((MechU32) view[c_viewEyeY] + (AsmNext(&state) & 0x1ffffff) - 0x1000000);
-			vertex->m_unk0x14 = PortableS32((MechU32) view[c_viewEyeZ] + (AsmNext(&state) & 0x1ffffff) - 0x1000000);
+			vertex->m_worldX = PortableS32((MechU32) view[c_viewEyeX] + (AsmNext(&state) & 0x1ffffff) - 0x1000000);
+			vertex->m_worldY = PortableS32((MechU32) view[c_viewEyeY] + (AsmNext(&state) & 0x1ffffff) - 0x1000000);
+			vertex->m_worldZ = PortableS32((MechU32) view[c_viewEyeZ] + (AsmNext(&state) & 0x1ffffff) - 0x1000000);
 		}
 
 		if (kind < 2) {
-			vertex->m_unk0x28 &= ~4;
+			vertex->m_flags &= ~4;
 		}
 		else {
 			MechS32 depth = (MechS32) (AsmNext(&state) % 0x4400000) - 0x400000;
 
-			vertex->m_unk0x20 = (MechU32) depth;
-			vertex->m_unk0x28 =
-				(MechU8) ((vertex->m_unk0x28 & ~3) | 4 | (depth < view[c_viewNear]) | ((depth > view[c_viewFar]) << 1));
+			vertex->m_depth = (MechU32) depth;
+			vertex->m_flags =
+				(MechU8) ((vertex->m_flags & ~3) | 4 | (depth < view[c_viewNear]) | ((depth > view[c_viewFar]) << 1));
 			if (kind == 3) {
 				copies[i].m_z = depth;
-				vertex->m_unk0x24 = &copies[i];
+				vertex->m_projection = &copies[i];
 			}
 		}
 	}
@@ -2416,8 +2417,8 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 	Fill(face.m_indices, sizeof(face.m_indices), &state);
 	count = 1 + (MechS32) ((MechU32) p_args[0] % QUEUE_VERTICES);
-	face.m_face.m_unk0x02 = (MechU16) count;
-	face.m_face.m_unk0x04 = (MechU32) offsetof(FaceBuffer, m_indices);
+	face.m_face.m_indexCount = (MechU16) count;
+	face.m_face.m_indexOffset = (MechU32) offsetof(FaceBuffer, m_indices);
 	for (i = 0; i < count; i++) {
 		face.m_indices[i] %= QUEUE_VERTICES;
 	}
@@ -2442,8 +2443,8 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 		polygons[i].m_depth = PortableS32(AsmNext(&state));
 	}
 
-	*(DepthEntry**) Data(p_module, "g_unk0x1010b5c4") = polygons;
-	*(MechU32*) Data(p_module, "g_unk0x1010b5c8") = (MechU32) p_args[1];
+	*(DepthEntry**) Data(p_module, "g_depthList") = polygons;
+	*(MechU32*) Data(p_module, "g_queuedShapeFlags") = (MechU32) p_args[1];
 	for (i = 0; i < QUEUE_COUNTERS; i++) {
 		counters[i] = (MechS32*) Data(p_module, g_queueCounterNames[i]);
 		*counters[i] = PortableS32(AsmNext(&state));
@@ -2473,7 +2474,7 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	hooks->m_projectVertex = QueueProjectHook;
 	hooks->m_drawFace = QueueDrawHook;
 
-	((QueueFaceFn) Function(p_module, "FUN_10049155"))(&face.m_face, vertices);
+	((QueueFaceFn) Function(p_module, "QueueFace"))(&face.m_face, vertices);
 
 	for (i = 0; i < QUEUE_COUNTERS; i++) {
 		AsmOutputWord(p_output, (MechU32) *counters[i]);
@@ -5429,28 +5430,28 @@ const AsmRoutine g_asmRoutines[] = {
 	// The other __asm functions
 	{"ApproximateVectorLength", 3, NULL, NULL, NULL},
 	{"FixedSqrtGuess", 1, FixedSqrtGuessDomain, RunFixedSqrtGuess, NULL},
-	{"FUN_100074e0", 2, NULL, RunNameHash, NULL},
+	{"HashName", 2, NULL, RunNameHash, NULL},
 	{"IntegrateMidpoint", 4, NULL, RunIntegrateMidpoint, NULL},
-	{"FUN_10004ec0", 4, NULL, NULL, NULL},
-	{"FUN_10013340", 3, Domain10013340, NULL, NULL},
-	{"FUN_10019ad0", 2, NULL, NULL, NULL},
-	{"FUN_10034990", 4, NULL, NULL, NULL},
-	{"FUN_100349c0", 5, Domain100349c0, NULL, NULL},
-	{"FUN_100349f0", 5, Domain100349f0, NULL, NULL},
-	{"FUN_10042740", 4, Domain10042740, NULL, NULL},
-	{"FUN_1004c800", 3, Domain1004c800, NULL, NULL},
-	{"FUN_1004c820", 5, NULL, Run1004c820, NULL},
-	{"FUN_1004c860", 4, Domain1004c860, NULL, NULL},
+	{"IsWithinRadius", 4, NULL, NULL, NULL},
+	{"ProjectRadius", 3, Domain10013340, NULL, NULL},
+	{"FixedMul29", 2, NULL, NULL, NULL},
+	{"UnprojectCoordinate", 4, NULL, NULL, NULL},
+	{"CrossDiv", 5, Domain100349c0, NULL, NULL},
+	{"Lerp", 5, Domain100349f0, NULL, NULL},
+	{"ProjectCoordinate", 4, Domain10042740, NULL, NULL},
+	{"MulRatio", 3, Domain1004c800, NULL, NULL},
+	{"MulNormalize16", 5, NULL, Run1004c820, NULL},
+	{"MulAddDiv", 4, Domain1004c860, NULL, NULL},
 	{"MemCopy", 4, NULL, RunMemCopy, NULL},
 	{"MemSet", 4, NULL, RunMemSet, NULL},
-	{"FUN_100696c0", 2, NULL, RunSine, HashSineInputs},
-	{"FUN_1006975b", 2, ArcsineDomain, RunArcsine, HashArcsineInputs},
-	{"FUN_100698de", 3, BearingDomain, RunBearing, HashBearingInputs},
-	{"FUN_10071930", 9, Domain10071930, Run10071930, NULL},
-	{"FUN_100719ca", 9, Domain100719ca, Run100719ca, NULL},
-	{"FUN_10071a4c", 9, Domain10071a4c, Run10071a4c, NULL},
-	{"FUN_1007d248", 3, NULL, Run1007d248, NULL},
-	{"FUN_1007d296", 3, NULL, Run1007d296, NULL},
+	{"FixedSin", 2, NULL, RunSine, HashSineInputs},
+	{"FixedAsin", 2, ArcsineDomain, RunArcsine, HashArcsineInputs},
+	{"FixedAtan2", 3, BearingDomain, RunBearing, HashBearingInputs},
+	{"IsAboveHorizon", 9, Domain10071930, Run10071930, NULL},
+	{"HorizonYAtX", 9, Domain100719ca, Run100719ca, NULL},
+	{"HorizonXAtY", 9, Domain10071a4c, Run10071a4c, NULL},
+	{"AllocProjectedVertex", 3, NULL, Run1007d248, NULL},
+	{"AllocQueuedPolygon", 3, NULL, Run1007d296, NULL},
 	// ticks.asm
 	{"GameTickTimerCallback", 3, NULL, RunGameTickTimerCallback, NULL},
 	{"AllocTicks", 3, NULL, RunAllocTicks, NULL},
@@ -5460,29 +5461,29 @@ const AsmRoutine g_asmRoutines[] = {
 	{"FreeTicks", 3, NULL, RunFreeTicks, NULL},
 	{"PauseTimer", 3, NULL, RunPauseTimer, NULL},
 	// sndunpack.asm
-	{"FUN_1001a63c", 4, NULL, RunSoundUnpack, NULL},
+	{"DecodeSoundFrames", 4, NULL, RunSoundUnpack, NULL},
 	// transform.c
-	{"FUN_1000d650", 3, NULL, Run1000d650, NULL},
-	{"FUN_1000d708", 3, NULL, Run1000d708, NULL},
-	{"FUN_1000d7c0", 2, NULL, Run1000d7c0, NULL},
-	{"FUN_1000d9a8", 2, NULL, NULL, NULL},
-	{"FUN_1000d9ce", 6, NULL, NULL, NULL},
-	{"FUN_1000da0c", 2, NULL, Run1000da0c, NULL},
-	{"FUN_1000de3b", 8, NULL, Run1000de3b, HashMatrixInputs},
+	{"TransformPoint", 3, NULL, Run1000d650, NULL},
+	{"RotatePoint", 3, NULL, Run1000d708, NULL},
+	{"OrthogonalizeMatrixColumn", 2, NULL, Run1000d7c0, NULL},
+	{"MatrixMul29", 2, NULL, NULL, NULL},
+	{"MatrixDot29", 6, NULL, NULL, NULL},
+	{"MultiplyRotations", 2, NULL, Run1000da0c, NULL},
+	{"BuildMatrixEx", 8, NULL, Run1000de3b, HashMatrixInputs},
 	// shapegeom.c
-	{"FUN_10039a30", 3, NULL, Run10039a30, NULL},
-	{"FUN_10039b94", 4, NULL, Run10039b94, NULL},
-	{"FUN_10039c96", 6, Domain10039c96, NULL, NULL},
-	{"FUN_10039ccc", 5, NULL, Run10039ccc, NULL},
-	{"FUN_10039dda", 9, Domain10039dda, Run10039dda, NULL},
-	{"FUN_1003a05d", 3, Domain1003a05d, NULL, NULL},
-	{"FUN_1003a096", 9, Domain1003a096, Run1003a096, NULL},
+	{"TransformModel", 3, NULL, Run10039a30, NULL},
+	{"TransformShapeCenter", 4, NULL, Run10039b94, NULL},
+	{"SolvePlaneY", 6, Domain10039c96, NULL, NULL},
+	{"ApproximateShapeDistance", 5, NULL, Run10039ccc, NULL},
+	{"ComputeTriangleNormal", 9, Domain10039dda, Run10039dda, NULL},
+	{"DivDifference17", 3, Domain1003a05d, NULL, NULL},
+	{"RayShapeDistance", 9, Domain1003a096, Run1003a096, NULL},
 	// objectanim.c
-	{"FUN_10048c50", 4, NULL, Run10048c50, NULL},
-	{"FUN_10048d46", 9, Domain10048d46, Run10048d46, NULL},
-	{"FUN_10048ebe", 6, Domain10048ebe, Run10048ebe, NULL},
-	{"FUN_10048faf", 9, Domain10048faf, Run10048faf, NULL},
-	{"FUN_10049155", 3, NULL, Run10049155, NULL},
+	{"GetViewVertex", 4, NULL, Run10048c50, NULL},
+	{"ClipEdgeToNearPlane", 9, Domain10048d46, Run10048d46, NULL},
+	{"ProjectVertex", 6, Domain10048ebe, Run10048ebe, NULL},
+	{"GetFaceShade", 9, Domain10048faf, Run10048faf, NULL},
+	{"QueueFace", 3, NULL, Run10049155, NULL},
 	// VFX3D.ASM
 	{"VFX_flat_polygon", 4, NULL, RunFillPolygonFlat, NULL},
 	{"VFX_Gouraud_polygon", 4, NULL, Run1002ae41, NULL},

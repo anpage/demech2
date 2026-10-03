@@ -31,17 +31,17 @@ typedef struct Eyepoint {
 	MechS32 m_unk0x48;                       // 0x48
 	MechS32 m_unk0x4c;                       // 0x4c
 	MechS32 m_unk0x50;                       // 0x50
-	Matrix m_unk0x54;                        // 0x54
+	Matrix m_viewMatrix;                     // 0x54 — rows 0-2 the view rotation, row 3 the eye position
 	MechS32 m_halfWidth;                     // 0x84
 	MechS32 m_halfHeight;                    // 0x88
 	MechS32 m_centerX;                       // 0x8c
 	MechS32 m_centerY;                       // 0x90
-	MechS32 m_unk0x94;                       // 0x94
-	MechS32 m_unk0x98;                       // 0x98
-	MechS32 m_unk0x9c;                       // 0x9c
-	MechS32 m_unk0xa0;                       // 0xa0
-	MechS16 m_unk0xa4;                       // 0xa4
-	MechS16 m_unk0xa6;                       // 0xa6
+	MechS32 m_projectScaleX;                 // 0x94 — half width times the horizontal field of view
+	MechS32 m_projectScaleY;                 // 0x98
+	MechS32 m_projectScaleX16;               // 0x9c — m_projectScaleX in 16 bits, shifted by m_projectShiftX
+	MechS32 m_projectScaleY16;               // 0xa0
+	MechS16 m_projectShiftX;                 // 0xa4
+	MechS16 m_projectShiftY;                 // 0xa6
 	MechS32 m_unk0xa8;                       // 0xa8
 	MechS32 m_unk0xac;                       // 0xac
 	MechS32 m_fovY;                          // 0xb0

@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_1004c820 is a C function whose body is an __asm block. Its portable
+/* Hand-written assembly: MulNormalize16 is a C function whose body is an __asm block. Its portable
    C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "mulnorm16.h"
 
@@ -9,7 +9,7 @@
 // Multiplies p_a by p_b (unsigned) into *p_low; *p_scaled gets the product shifted right until it
 // fits in 16 bits, and *p_shift is increased by the shift.
 // FUNCTION: MW2 0x1004c820
-void FUN_1004c820(MechS32* p_low, MechS32* p_scaled, MechS16* p_shift, MechU32 p_a, MechU32 p_b)
+void MulNormalize16(MechS32* p_low, MechS32* p_scaled, MechS16* p_shift, MechU32 p_a, MechU32 p_b)
 {
 #ifdef PORTABLE_C
 	/* bsr of a zero low dword leaves the cleared ecx as it is (the processors' behaviour, which

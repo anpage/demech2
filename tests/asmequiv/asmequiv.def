@@ -11,28 +11,28 @@ EXPORTS
 	MulDiv64
 	ApproximateVectorLength
 	FixedSqrtGuess
-	FUN_100074e0
+	HashName
 	IntegrateMidpoint
-	FUN_10004ec0
-	FUN_10013340
-	FUN_10019ad0
-	FUN_10034990
-	FUN_100349c0
-	FUN_100349f0
-	FUN_10042740
-	FUN_1004c800
-	FUN_1004c820
-	FUN_1004c860
+	IsWithinRadius
+	ProjectRadius
+	FixedMul29
+	UnprojectCoordinate
+	CrossDiv
+	Lerp
+	ProjectCoordinate
+	MulRatio
+	MulNormalize16
+	MulAddDiv
 	MemCopy
 	MemSet
-	FUN_100696c0
-	FUN_1006975b
-	FUN_100698de
-	FUN_10071930
-	FUN_100719ca
-	FUN_10071a4c
-	FUN_1007d248
-	FUN_1007d296
+	FixedSin
+	FixedAsin
+	FixedAtan2
+	IsAboveHorizon
+	HorizonYAtX
+	HorizonXAtY
+	AllocProjectedVertex
+	AllocQueuedPolygon
 	GameTickTimerCallback
 	AllocTicks
 	GetTicks
@@ -40,26 +40,26 @@ EXPORTS
 	SetTicks
 	FreeTicks
 	PauseTimer
-	FUN_1001a63c
-	FUN_1000d650
-	FUN_1000d708
-	FUN_1000d7c0
-	FUN_1000d9a8
-	FUN_1000d9ce
-	FUN_1000da0c
-	FUN_1000de3b
-	FUN_10039a30
-	FUN_10039b94
-	FUN_10039c96
-	FUN_10039ccc
-	FUN_10039dda
-	FUN_1003a05d
-	FUN_1003a096
-	FUN_10048c50
-	FUN_10048d46
-	FUN_10048ebe
-	FUN_10048faf
-	FUN_10049155
+	DecodeSoundFrames
+	TransformPoint
+	RotatePoint
+	OrthogonalizeMatrixColumn
+	MatrixMul29
+	MatrixDot29
+	MultiplyRotations
+	BuildMatrixEx
+	TransformModel
+	TransformShapeCenter
+	SolvePlaneY
+	ApproximateShapeDistance
+	ComputeTriangleNormal
+	DivDifference17
+	RayShapeDistance
+	GetViewVertex
+	ClipEdgeToNearPlane
+	ProjectVertex
+	GetFaceShade
+	QueueFace
 	VFX_flat_polygon
 	VFX_Gouraud_polygon
 	VFX_dithered_Gouraud_polygon
@@ -127,58 +127,58 @@ EXPORTS
 	VFX_color_scan
 	g_sinTable DATA
 	g_atanTable DATA
-	g_unk0x100c1a70 DATA
-	g_unk0x100c2698 DATA
-	g_unk0x1010b5ac DATA
+	g_drawBufferTop DATA
+	g_drawBufferBottom DATA
+	g_queueHasRoom DATA
 	g_ticksPaused DATA
 	g_ticks1Bases DATA
 	g_ticks2Bases DATA
 	g_ticks1 DATA
 	g_ticks2 DATA
-	g_unk0x100a2f04 DATA
-	g_unk0x100a3304 DATA
-	g_unk0x100a3705 DATA
+	g_soundUpsampleBuffer DATA
+	g_soundFrame DATA
+	g_soundDeltas DATA
 	g_sqrtTable DATA
-	g_unk0x100ea820 DATA
-	g_unk0x100ea824 DATA
-	g_unk0x100ea828 DATA
-	g_unk0x100ea82c DATA
-	g_unk0x100ea830 DATA
-	g_unk0x100ea834 DATA
-	g_unk0x100ea840 DATA
-	g_unk0x100ea84c DATA
-	g_unk0x100ea850 DATA
-	g_unk0x100ea858 DATA
-	g_unk0x100ea864 DATA
-	g_unk0x100ea868 DATA
-	g_unk0x100ea86c DATA
-	g_unk0x100ea870 DATA
-	g_unk0x100ea874 DATA
-	g_unk0x100ea878 DATA
-	g_unk0x100ea87c DATA
-	g_unk0x100ea880 DATA
-	g_unk0x100ea884 DATA
-	g_unk0x100ea8b4 DATA
-	g_unk0x100ea8b8 DATA
-	g_unk0x100ea8bc DATA
-	g_unk0x100ea8c0 DATA
-	g_unk0x100ea8c4 DATA
-	g_unk0x100ea8c8 DATA
-	g_unk0x1010b530 DATA
-	g_unk0x1010b53c DATA
-	g_unk0x1010b5b8 DATA
-	g_unk0x1010b550 DATA
-	g_unk0x1010b5b0 DATA
-	g_unk0x1010b534 DATA
-	g_unk0x1010b5bc DATA
-	g_unk0x1010b538 DATA
-	g_unk0x1010b5b4 DATA
-	g_unk0x1010b5a8 DATA
-	g_unk0x100c1a68 DATA
-	g_unk0x100a54b0 DATA
-	g_unk0x100a54b4 DATA
-	g_unk0x1010b5c4 DATA
-	g_unk0x1010b5c8 DATA
+	g_viewNear DATA
+	g_viewShiftX DATA
+	g_viewShiftY DATA
+	g_viewFar DATA
+	g_viewLeft DATA
+	g_viewCenterX DATA
+	g_viewBottom DATA
+	g_viewRight DATA
+	g_viewTop DATA
+	g_viewCenterY DATA
+	g_viewProjX0 DATA
+	g_viewProjX1 DATA
+	g_viewProjX2 DATA
+	g_viewProjY0 DATA
+	g_viewProjY1 DATA
+	g_viewProjY2 DATA
+	g_viewProjZ0 DATA
+	g_viewProjZ1 DATA
+	g_viewProjZ2 DATA
+	g_viewEyeY DATA
+	g_viewEyeX DATA
+	g_viewEyeZ DATA
+	g_viewLightZ DATA
+	g_viewLightX DATA
+	g_viewLightY DATA
+	g_directionalLight DATA
+	g_polygonOrCodes DATA
+	g_polygonAndCodes DATA
+	g_polygonPoints DATA
+	g_polygonPointCount DATA
+	g_polygonPointCursor DATA
+	g_facesTried DATA
+	g_facesFrontFacing DATA
+	g_verticesTransformed DATA
+	g_polygonsQueued DATA
+	g_depthListCapacity DATA
+	g_depthEntryCount DATA
+	g_polygonCount DATA
+	g_depthList DATA
+	g_queuedShapeFlags DATA
 	g_renderSettings DATA
 	VFX_describe_driver DATA
 	VFX_init_driver DATA

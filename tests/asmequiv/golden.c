@@ -61,22 +61,22 @@
 
 // Functions and globals only their own units use: recordstacks.c's, ticks.asm's, sndunpack.asm's,
 // transform.c's, shapegeom.c's, objectanim.c's and VFXA's.
-void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column);
-MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value);
-extern MechU8* g_unk0x100c1a70;
+void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column);
+MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value);
+extern MechU8* g_drawBufferTop;
 extern MechU32 g_ticksPaused;
 extern MechS32 g_ticks1Bases[64];
 extern MechS32 g_ticks2Bases[64];
 extern MechS32 g_ticks1;
 extern MechS32 g_ticks2;
-extern MechU8 g_unk0x100a2f04[0x400];
-extern MechU8 g_unk0x100a3304[0x401];
-extern MechU8 g_unk0x100a3705[0x43];
-extern MechU8* g_unk0x1010b534;
-extern MechS32 g_unk0x1010b5bc;
-extern MechS32 g_unk0x1010b538;
-extern MechS32 g_unk0x1010b5b4;
-extern MechS32 g_unk0x1010b5a8;
+extern MechU8 g_soundUpsampleBuffer[0x400];
+extern MechU8 g_soundFrame[0x401];
+extern MechU8 g_soundDeltas[0x43];
+extern MechU8* g_polygonPointCursor;
+extern MechS32 g_facesTried;
+extern MechS32 g_facesFrontFacing;
+extern MechS32 g_verticesTransformed;
+extern MechS32 g_polygonsQueued;
 struct WINDOW;
 MechS32 VFX_shape_transform(
 	struct PANE* p_pane,
@@ -123,28 +123,28 @@ static const Symbol g_symbols[] = {
 	FUNCTION(MulDiv64),
 	FUNCTION(ApproximateVectorLength),
 	FUNCTION(FixedSqrtGuess),
-	FUNCTION(FUN_100074e0),
+	FUNCTION(HashName),
 	FUNCTION(IntegrateMidpoint),
-	FUNCTION(FUN_10004ec0),
-	FUNCTION(FUN_10013340),
-	FUNCTION(FUN_10019ad0),
-	FUNCTION(FUN_10034990),
-	FUNCTION(FUN_100349c0),
-	FUNCTION(FUN_100349f0),
-	FUNCTION(FUN_10042740),
-	FUNCTION(FUN_1004c800),
-	FUNCTION(FUN_1004c820),
-	FUNCTION(FUN_1004c860),
+	FUNCTION(IsWithinRadius),
+	FUNCTION(ProjectRadius),
+	FUNCTION(FixedMul29),
+	FUNCTION(UnprojectCoordinate),
+	FUNCTION(CrossDiv),
+	FUNCTION(Lerp),
+	FUNCTION(ProjectCoordinate),
+	FUNCTION(MulRatio),
+	FUNCTION(MulNormalize16),
+	FUNCTION(MulAddDiv),
 	FUNCTION(MemCopy),
 	FUNCTION(MemSet),
-	FUNCTION(FUN_100696c0),
-	FUNCTION(FUN_1006975b),
-	FUNCTION(FUN_100698de),
-	FUNCTION(FUN_10071930),
-	FUNCTION(FUN_100719ca),
-	FUNCTION(FUN_10071a4c),
-	FUNCTION(FUN_1007d248),
-	FUNCTION(FUN_1007d296),
+	FUNCTION(FixedSin),
+	FUNCTION(FixedAsin),
+	FUNCTION(FixedAtan2),
+	FUNCTION(IsAboveHorizon),
+	FUNCTION(HorizonYAtX),
+	FUNCTION(HorizonXAtY),
+	FUNCTION(AllocProjectedVertex),
+	FUNCTION(AllocQueuedPolygon),
 	FUNCTION(GameTickTimerCallback),
 	FUNCTION(AllocTicks),
 	FUNCTION(GetTicks),
@@ -152,80 +152,80 @@ static const Symbol g_symbols[] = {
 	FUNCTION(SetTicks),
 	FUNCTION(FreeTicks),
 	FUNCTION(PauseTimer),
-	FUNCTION(FUN_1001a63c),
+	FUNCTION(DecodeSoundFrames),
 	DATA(g_sinTable),
 	DATA(g_atanTable),
-	DATA(g_unk0x100c1a70),
-	DATA(g_unk0x100c2698),
-	DATA(g_unk0x1010b5ac),
+	DATA(g_drawBufferTop),
+	DATA(g_drawBufferBottom),
+	DATA(g_queueHasRoom),
 	DATA(g_ticksPaused),
 	DATA(g_ticks1Bases),
 	DATA(g_ticks2Bases),
 	DATA(g_ticks1),
 	DATA(g_ticks2),
-	DATA(g_unk0x100a2f04),
-	DATA(g_unk0x100a3304),
-	DATA(g_unk0x100a3705),
-	FUNCTION(FUN_1000d650),
-	FUNCTION(FUN_1000d708),
-	FUNCTION(FUN_1000d7c0),
-	FUNCTION(FUN_1000d9a8),
-	FUNCTION(FUN_1000d9ce),
-	FUNCTION(FUN_1000da0c),
-	FUNCTION(FUN_1000de3b),
-	FUNCTION(FUN_10039a30),
-	FUNCTION(FUN_10039b94),
-	FUNCTION(FUN_10039c96),
-	FUNCTION(FUN_10039ccc),
-	FUNCTION(FUN_10039dda),
-	FUNCTION(FUN_1003a05d),
-	FUNCTION(FUN_1003a096),
-	FUNCTION(FUN_10048c50),
-	FUNCTION(FUN_10048d46),
-	FUNCTION(FUN_10048ebe),
-	FUNCTION(FUN_10048faf),
-	FUNCTION(FUN_10049155),
+	DATA(g_soundUpsampleBuffer),
+	DATA(g_soundFrame),
+	DATA(g_soundDeltas),
+	FUNCTION(TransformPoint),
+	FUNCTION(RotatePoint),
+	FUNCTION(OrthogonalizeMatrixColumn),
+	FUNCTION(MatrixMul29),
+	FUNCTION(MatrixDot29),
+	FUNCTION(MultiplyRotations),
+	FUNCTION(BuildMatrixEx),
+	FUNCTION(TransformModel),
+	FUNCTION(TransformShapeCenter),
+	FUNCTION(SolvePlaneY),
+	FUNCTION(ApproximateShapeDistance),
+	FUNCTION(ComputeTriangleNormal),
+	FUNCTION(DivDifference17),
+	FUNCTION(RayShapeDistance),
+	FUNCTION(GetViewVertex),
+	FUNCTION(ClipEdgeToNearPlane),
+	FUNCTION(ProjectVertex),
+	FUNCTION(GetFaceShade),
+	FUNCTION(QueueFace),
 	DATA(g_sqrtTable),
-	DATA(g_unk0x100ea820),
-	DATA(g_unk0x100ea824),
-	DATA(g_unk0x100ea828),
-	DATA(g_unk0x100ea82c),
-	DATA(g_unk0x100ea830),
-	DATA(g_unk0x100ea834),
-	DATA(g_unk0x100ea840),
-	DATA(g_unk0x100ea84c),
-	DATA(g_unk0x100ea850),
-	DATA(g_unk0x100ea858),
-	DATA(g_unk0x100ea864),
-	DATA(g_unk0x100ea868),
-	DATA(g_unk0x100ea86c),
-	DATA(g_unk0x100ea870),
-	DATA(g_unk0x100ea874),
-	DATA(g_unk0x100ea878),
-	DATA(g_unk0x100ea87c),
-	DATA(g_unk0x100ea880),
-	DATA(g_unk0x100ea884),
-	DATA(g_unk0x100ea8b4),
-	DATA(g_unk0x100ea8b8),
-	DATA(g_unk0x100ea8bc),
-	DATA(g_unk0x100ea8c0),
-	DATA(g_unk0x100ea8c4),
-	DATA(g_unk0x100ea8c8),
-	DATA(g_unk0x1010b530),
-	DATA(g_unk0x1010b53c),
-	DATA(g_unk0x1010b5b8),
-	DATA(g_unk0x1010b550),
-	DATA(g_unk0x1010b5b0),
-	DATA(g_unk0x1010b534),
-	DATA(g_unk0x1010b5bc),
-	DATA(g_unk0x1010b538),
-	DATA(g_unk0x1010b5b4),
-	DATA(g_unk0x1010b5a8),
-	DATA(g_unk0x100c1a68),
-	DATA(g_unk0x100a54b0),
-	DATA(g_unk0x100a54b4),
-	DATA(g_unk0x1010b5c4),
-	DATA(g_unk0x1010b5c8),
+	DATA(g_viewNear),
+	DATA(g_viewShiftX),
+	DATA(g_viewShiftY),
+	DATA(g_viewFar),
+	DATA(g_viewLeft),
+	DATA(g_viewCenterX),
+	DATA(g_viewBottom),
+	DATA(g_viewRight),
+	DATA(g_viewTop),
+	DATA(g_viewCenterY),
+	DATA(g_viewProjX0),
+	DATA(g_viewProjX1),
+	DATA(g_viewProjX2),
+	DATA(g_viewProjY0),
+	DATA(g_viewProjY1),
+	DATA(g_viewProjY2),
+	DATA(g_viewProjZ0),
+	DATA(g_viewProjZ1),
+	DATA(g_viewProjZ2),
+	DATA(g_viewEyeY),
+	DATA(g_viewEyeX),
+	DATA(g_viewEyeZ),
+	DATA(g_viewLightZ),
+	DATA(g_viewLightX),
+	DATA(g_viewLightY),
+	DATA(g_directionalLight),
+	DATA(g_polygonOrCodes),
+	DATA(g_polygonAndCodes),
+	DATA(g_polygonPoints),
+	DATA(g_polygonPointCount),
+	DATA(g_polygonPointCursor),
+	DATA(g_facesTried),
+	DATA(g_facesFrontFacing),
+	DATA(g_verticesTransformed),
+	DATA(g_polygonsQueued),
+	DATA(g_depthListCapacity),
+	DATA(g_depthEntryCount),
+	DATA(g_polygonCount),
+	DATA(g_depthList),
+	DATA(g_queuedShapeFlags),
 	DATA(g_renderSettings),
 	FUNCTION(VFX_flat_polygon),
 	FUNCTION(VFX_Gouraud_polygon),
@@ -397,12 +397,12 @@ static void RunCase(
 	}
 }
 
-// Whether the routine runs on this platform. FUN_10049155 copies pointers into 32-bit records
+// Whether the routine runs on this platform. QueueFace copies pointers into 32-bit records
 // (the polygon records of recordstacks.c's buffer, 0xc bytes and a dword per point), which
 // overlap where pointers are wider: it's checked on x86 only.
 static MechS32 RunsHere(const AsmRoutine* p_routine)
 {
-	return sizeof(void*) == 4 || strcmp(p_routine->m_name, "FUN_10049155");
+	return sizeof(void*) == 4 || strcmp(p_routine->m_name, "QueueFace");
 }
 
 static int RunOneCase(char** p_argv)

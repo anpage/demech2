@@ -18,8 +18,8 @@ DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 // GLOBAL: MW2 0x100a37dc
 MechS32 g_unk0x100a37dc = 0;
 
-// Builds p_shape's quadtree (m_unk0x44) over its model's bounds, unless g_unk0x100a37dc is set.
-// Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_unk0x14 loads
+// Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_unk0x100a37dc is set.
+// Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_worldZ loads
 // the vertex's first in the original.
 // FUNCTION: MW2 0x1001df00
 void FUN_1001df00(Shape* p_shape)
@@ -40,43 +40,43 @@ void FUN_1001df00(Shape* p_shape)
 		vertex = (Vertex*) (model + 1);
 		vertices = vertex;
 		root = FUN_1001e429(
-			vertex->m_unk0x0c,
-			vertex->m_unk0x0c,
-			vertex->m_unk0x10,
-			vertex->m_unk0x10,
-			vertex->m_unk0x14,
-			vertex->m_unk0x14,
+			vertex->m_worldX,
+			vertex->m_worldX,
+			vertex->m_worldY,
+			vertex->m_worldY,
+			vertex->m_worldZ,
+			vertex->m_worldZ,
 			0
 		);
-		p_shape->m_unk0x44 = root;
+		p_shape->m_collisionData = root;
 		if (!root) {
 			return;
 		}
 
 		for (i = 1; i < model->m_vertexCount; i++) {
 			vertex++;
-			if (root->m_unk0x04 < vertex->m_unk0x0c) {
-				root->m_unk0x04 = vertex->m_unk0x0c;
+			if (root->m_unk0x04 < vertex->m_worldX) {
+				root->m_unk0x04 = vertex->m_worldX;
 			}
 
-			if (vertex->m_unk0x0c < root->m_unk0x00) {
-				root->m_unk0x00 = vertex->m_unk0x0c;
+			if (vertex->m_worldX < root->m_unk0x00) {
+				root->m_unk0x00 = vertex->m_worldX;
 			}
 
-			if (root->m_unk0x14 < vertex->m_unk0x14) {
-				root->m_unk0x14 = vertex->m_unk0x14;
+			if (root->m_unk0x14 < vertex->m_worldZ) {
+				root->m_unk0x14 = vertex->m_worldZ;
 			}
 
-			if (vertex->m_unk0x14 < root->m_unk0x10) {
-				root->m_unk0x10 = vertex->m_unk0x14;
+			if (vertex->m_worldZ < root->m_unk0x10) {
+				root->m_unk0x10 = vertex->m_worldZ;
 			}
 
-			if (root->m_unk0x0c < vertex->m_unk0x10) {
-				root->m_unk0x0c = vertex->m_unk0x10;
+			if (root->m_unk0x0c < vertex->m_worldY) {
+				root->m_unk0x0c = vertex->m_worldY;
 			}
 
-			if (root->m_unk0x08 > vertex->m_unk0x10) {
-				root->m_unk0x08 = vertex->m_unk0x10;
+			if (root->m_unk0x08 > vertex->m_worldY) {
+				root->m_unk0x08 = vertex->m_worldY;
 			}
 		}
 
@@ -291,15 +291,15 @@ MechS32 FUN_1001e57a(
 	MechS32 minZ;
 	MechS32 maxX;
 
-	count = p_face->m_unk0x02;
+	count = p_face->m_indexCount;
 	vertices = (Vertex*) (p_model + 1);
 	minX = minY = minZ = 0x7fffffff;
 	maxX = maxY = maxZ = -0x7fffffff;
 	for (i = 0; i < count; i++) {
-		vertex = &vertices[((MechU8*) p_face)[p_face->m_unk0x04 + i]];
-		x = vertex->m_unk0x0c;
-		y = vertex->m_unk0x10;
-		z = vertex->m_unk0x14;
+		vertex = &vertices[((MechU8*) p_face)[p_face->m_indexOffset + i]];
+		x = vertex->m_worldX;
+		y = vertex->m_worldY;
+		z = vertex->m_worldZ;
 		if (x < minX) {
 			minX = x;
 		}

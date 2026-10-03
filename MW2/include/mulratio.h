@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_1004c800(MechS32 p_a, MechS32 p_b, MechS32 p_c);
+	MechS32 MulRatio(MechS32 p_a, MechS32 p_b, MechS32 p_c);
 
 #ifdef __cplusplus
 }

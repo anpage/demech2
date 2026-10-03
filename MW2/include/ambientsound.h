@@ -15,7 +15,7 @@ typedef struct AmbientSound {
 	MechS32 m_range;           // 0x00
 	MechS32 m_slot;            // 0x04 — the sample slot, 8-15, or -1
 	void* m_data;              // 0x08 — the loaded resource
-	struct Shape** m_unk0x0c;  // 0x0c — the star's shape (FUN_1001f873)
+	struct Shape** m_unk0x0c;  // 0x0c — the star's shape (GetStaticShapeSlot)
 	struct SceneObject* m_obj; // 0x10
 	MechS32 m_unk0x14;         // 0x14
 	MechS32 m_skip;            // 0x18 — skips one update

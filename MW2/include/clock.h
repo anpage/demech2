@@ -27,10 +27,10 @@ extern "C"
 	extern MechS16 g_sqrtTableData[0x400];
 	extern MechS32 g_atanTable[0x102];
 
-	MechS32 FUN_1007c930(void);
-	MechS32 FUN_1007c9e3(void);
-	MechS32 FUN_1007ca8e(void);
-	MechS32 FUN_1007caf7(MechS32 p_x, MechS32 p_y);
+	MechS32 InitSinAtanTables(void);
+	MechS32 InitSlopeTables(void);
+	MechS32 InitSqrtTable(void);
+	MechS32 Hypot2D(MechS32 p_x, MechS32 p_y);
 	void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void FUN_1007cbf1(Matrix* p_matrix);
 	void FUN_1007ccc2(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z);

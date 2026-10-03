@@ -705,7 +705,7 @@ void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p
 	}
 
 	matrix = FUN_10001e01(obj);
-	FUN_1000d650(matrix, p_x, &y, p_z);
+	TransformPoint(matrix, p_x, &y, p_z);
 }
 
 // Whether p_turn (16.16 degrees) is a sharp turn, past 5 degrees either way; a stopped player
@@ -1295,7 +1295,7 @@ MechS32 FUN_10015b40(Shape* p_shape)
 		return 1;
 	}
 
-	return (p_shape->m_unk0x02 & 0xf0) == 0x50;
+	return (p_shape->m_kind & 0xf0) == 0x50;
 }
 
 // Builds a probe ray for p_player in p_ray: p_length along direction p_step (mirrored for a
@@ -1326,7 +1326,7 @@ void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, 
 		dz = p_length / dz;
 	}
 
-	FUN_1000d650(matrix, &dx, &dy, &dz);
+	TransformPoint(matrix, &dx, &dy, &dz);
 	if (p_fromEdge) {
 		if (p_side >= 0) {
 			x = mech->m_radius - 1;
@@ -1336,7 +1336,7 @@ void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, 
 		}
 
 		z = 0;
-		FUN_1000d650(matrix, &x, &dy, &z);
+		TransformPoint(matrix, &x, &dy, &z);
 		y = p_player->m_position.m_y;
 	}
 	else {
@@ -1361,9 +1361,9 @@ MechS16 FUN_10015d2a(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y,
 	MechS32 dx;
 	MechS32 dy;
 
-	dx = p_shape->m_unk0x34 - p_x;
-	dy = p_shape->m_unk0x38 - p_y;
-	dz = p_shape->m_unk0x3c - p_z;
+	dx = p_shape->m_centerX - p_x;
+	dy = p_shape->m_centerY - p_y;
+	dz = p_shape->m_centerZ - p_z;
 	FUN_10060197(dx, dy, dz, &heading, &pitch, &distance, &unused);
 	heading -= p_player->m_heading;
 	if (heading > 0xb40000) {
@@ -1426,13 +1426,13 @@ MechS32 FUN_10015e74(Player* p_player, MechS32 p_y)
 	);
 	BuildRayFixed(&ray);
 	if (TestSegmentCollision(&ray, &hit, p_player->m_index) && hit) {
-		flags = hit->m_unk0x02;
+		flags = hit->m_kind;
 		target = p_player->m_targetInfo.m_target;
 		if ((flags & 0x100) && (target & 0x200)) {
-			return hit->m_unk0x14 == (target & 0xff);
+			return hit->m_owner == (target & 0xff);
 		}
 		else if ((flags & 0x200) && (target & 0x400)) {
-			return hit->m_unk0x14 == (target & 0xff);
+			return hit->m_owner == (target & 0xff);
 		}
 		else {
 			return 0;

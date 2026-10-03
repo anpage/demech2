@@ -386,10 +386,10 @@ void FUN_1007c126(CockpitPanel* p_panel)
 		distance = g_players[targetIndex]->m_mech->m_radius * 3;
 	}
 
-	dx = -FUN_10019ad0(FUN_100696c0(heading), distance);
+	dx = -FixedMul29(FixedSin(heading), distance);
 	view[0] = x + dx;
 	view[1] = y;
-	dz = -FUN_10019ad0(FUN_1006973a(heading), distance);
+	dz = -FixedMul29(FixedCos(heading), distance);
 	view[2] = z + dz;
 	view[3] = heading;
 	view[4] = 0;

@@ -5,7 +5,7 @@
 #include "shape.h"
 #include "types.h"
 
-// The bounding box of a shape's selected model (Shape::m_unk0x44), from the
+// The bounding box of a shape's selected model (Shape::m_collisionData), from the
 // transformed vertices. FUN_1006ea90 allocates it inside a larger 0x78-byte block.
 // SIZE 0x18
 typedef struct BoundBox {

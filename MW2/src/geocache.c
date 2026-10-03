@@ -312,13 +312,13 @@ MechS32 FindObjIdxById(undefined4 p_unk0x08)
 }
 
 // FUNCTION: MW2 0x1001f873
-Shape** FUN_1001f873(MechS32 p_index)
+Shape** GetStaticShapeSlot(MechS32 p_index)
 {
 	return &g_staticObjects[p_index].m_shape;
 }
 
 // FUNCTION: MW2 0x1001f894
-Shape* FUN_1001f894(MechS32 p_index)
+Shape* GetStaticShape(MechS32 p_index)
 {
 	return g_staticObjects[p_index].m_shape;
 }
@@ -450,15 +450,15 @@ void BeginBlock(BwdBlockRecord* p_record)
 		rotation.m_rows[2][2] = block->m_xform.m_scaleZ << 29;
 		BuildMatrix(&translate, 0, 0, 0, -block->m_centerX, -block->m_centerY, -block->m_centerZ);
 		BuildMatrix(&scale, block->m_xform.m_angleX, block->m_xform.m_angleY, block->m_xform.m_angleZ, 0, 0, 0);
-		FUN_1000dbba(&scale, &translate, matrix);
+		MultiplyMatrix(&scale, &translate, matrix);
 		BuildMatrix(&translate, 0, 0, 0, block->m_xform.m_x, block->m_xform.m_y, block->m_xform.m_z);
-		FUN_1000dbba(&translate, matrix, matrix);
+		MultiplyMatrix(&translate, matrix, matrix);
 		BuildMatrix(&translate, 0, 0, 0, block->m_centerX, block->m_centerY, block->m_centerZ);
-		FUN_1000dbba(&translate, matrix, matrix);
+		MultiplyMatrix(&translate, matrix, matrix);
 		parent = block;
 		while (parent->m_parent != -1) {
 			parent = &g_staticBlocks[parent->m_parent];
-			FUN_1000dbba(&parent->m_matrix, matrix, matrix);
+			MultiplyMatrix(&parent->m_matrix, matrix, matrix);
 		}
 
 		g_pendingXform = g_defaultXform;
@@ -497,7 +497,7 @@ void ApplyBlockXform(Xform p_xform)
 void TransformBlockPoint(MechS32* p_point)
 {
 	if (g_currentBlock != -1) {
-		FUN_1000d650(&g_staticBlocks[g_currentBlock].m_matrix, p_point, p_point + 1, p_point + 2);
+		TransformPoint(&g_staticBlocks[g_currentBlock].m_matrix, p_point, p_point + 1, p_point + 2);
 	}
 }
 
@@ -867,8 +867,8 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 
 	kind = (entry->m_flags & 0xf000) >> 12;
 	if (entry->m_parent == -2) {
-		FUN_1000dbba(&g_staticBlocks[p_block].m_matrix, &entry->m_matrix, &matrix);
-		FUN_10039c36(entry->m_shape, &matrix);
+		MultiplyMatrix(&g_staticBlocks[p_block].m_matrix, &entry->m_matrix, &matrix);
+		TransformShape(entry->m_shape, &matrix);
 		entry->m_object = NULL;
 		if (entry->m_flags & 0x400) {
 			FUN_1003ad2d(entry->m_shape, entry->m_unk0x10);
@@ -887,9 +887,9 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 		SetShapeObject(entry->m_shape, entry->m_object);
 		FUN_1006d732(entry->m_shape);
 		if (entry->m_parent == -1) {
-			FUN_1000dbba(&g_staticBlocks[p_block].m_matrix, &entry->m_matrix, &matrix);
+			MultiplyMatrix(&g_staticBlocks[p_block].m_matrix, &entry->m_matrix, &matrix);
 			FUN_10001694(entry->m_object, &matrix);
-			FUN_10001cf8(entry->m_object);
+			UpdateObj(entry->m_object);
 		}
 		else {
 			SetObjRotation(
@@ -900,7 +900,7 @@ MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block)
 				0
 			);
 			SetObjPosition(entry->m_object, entry->m_xform.m_x, entry->m_xform.m_y, entry->m_xform.m_z);
-			FUN_10001cf8(entry->m_object);
+			UpdateObj(entry->m_object);
 		}
 
 		if (entry->m_flags & 0x400) {
@@ -982,9 +982,9 @@ void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 		entry = &g_staticObjects[p_index];
 		shape = entry->m_shape;
 		if (shape) {
-			*p_x = shape->m_unk0x34;
-			*p_y = shape->m_unk0x38;
-			*p_z = shape->m_unk0x3c;
+			*p_x = shape->m_centerX;
+			*p_y = shape->m_centerY;
+			*p_z = shape->m_centerZ;
 		}
 		else {
 			obj = entry->m_object;
@@ -1056,8 +1056,8 @@ MechS32 FUN_10020d51(void)
 					result = TRUE;
 					FUN_10034a40(shape, 4);
 					BuildMatrix(&matrix, 0, 0, 0, block->m_centerX, block->m_centerY, block->m_centerZ);
-					FUN_1000dbba(&block->m_matrix, &matrix, &matrix);
-					FUN_10039c36(shape, &matrix);
+					MultiplyMatrix(&block->m_matrix, &matrix, &matrix);
+					TransformShape(shape, &matrix);
 					FUN_1006d732(shape);
 				}
 			}
@@ -1172,7 +1172,7 @@ void FUN_1002116a(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 		y = (p_node->m_unk0x08 + p_node->m_unk0x0c) >> 1;
 		z = (p_node->m_unk0x14 + p_node->m_unk0x10) >> 1;
 		BuildMatrix(&matrix, 0, 0, 0, x, y, z);
-		FUN_10039c36(shape, &matrix);
+		TransformShape(shape, &matrix);
 		FUN_1006d732(shape);
 	}
 

@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_1004c800 is a C function whose body is an __asm block. Its portable
+/* Hand-written assembly: MulRatio is a C function whose body is an __asm block. Its portable
    C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "mulratio.h"
 
@@ -10,7 +10,7 @@
 
 // p_a * p_b / (p_b + p_c) >> 12.
 // FUNCTION: MW2 0x1004c800
-MechS32 FUN_1004c800(MechS32 p_a, MechS32 p_b, MechS32 p_c)
+MechS32 MulRatio(MechS32 p_a, MechS32 p_b, MechS32 p_c)
 {
 #ifdef PORTABLE_C
 	/* The divisor wraps at 32 bits, and the quotient is shifted unsigned. */

@@ -122,7 +122,7 @@ MechChar* g_unk0x100a8634 = NULL;
 
 // The player the world stream (BwdExecuteStream) created last, for FUN_10046750.
 // GLOBAL: MW2 0x100a8638
-struct Player* g_unk0x100a8638 = NULL;
+struct Player* g_lastPlayer = NULL;
 
 // The task kinds of a world stream's task record (BwdExecuteStream).
 // GLOBAL: MW2 0x100a8640
@@ -735,7 +735,7 @@ void CreateObjectNode(
 	SetShapeFlags(flags);
 	shape = LoadShapes(data, &offset, size, NULL);
 	if (shape) {
-		shape->m_unk0x02 = unk0x34;
+		shape->m_kind = unk0x34;
 		if (kind >= 0 && kind < 8) {
 			FUN_10034a40(shape, kind);
 		}
@@ -752,9 +752,9 @@ void CreateObjectNode(
 		first = FALSE;
 		if (parent == -2) {
 			BuildMatrix(&matrix, xform.m_angleX, xform.m_angleY, xform.m_angleZ, xform.m_x, xform.m_y, xform.m_z);
-			FUN_10039c36(shape, &matrix);
+			TransformShape(shape, &matrix);
 			FUN_1006d732(shape);
-			if (shape->m_unk0x24 == 5) {
+			if (shape->m_collisionType == 5) {
 				FUN_1001df00(shape);
 			}
 		}
@@ -771,7 +771,7 @@ void CreateObjectNode(
 			SetShapeObject(shape, obj);
 			SetObjRotation(obj, xform.m_angleX, xform.m_angleY, xform.m_angleZ, 0);
 			SetObjPosition(obj, xform.m_x, xform.m_y, xform.m_z);
-			FUN_10001cf8(obj);
+			UpdateObj(obj);
 			FUN_1006d732(shape);
 		}
 	}
@@ -794,7 +794,7 @@ struct SceneObject* FUN_100506d8(void)
 
 	if (g_unk0x100a8624 < g_unk0x100a8620) {
 		id = g_unk0x100ea580[g_unk0x100a8624];
-		obj = FUN_1001d980(id);
+		obj = GetClassObject(id);
 		g_unk0x100a8624++;
 	}
 	else {

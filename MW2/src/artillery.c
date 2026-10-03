@@ -52,8 +52,8 @@ void FUN_10059fc0(Player* p_player)
 	mech->m_unk0xbc = 0;
 	mech->m_unk0xf8 = 0;
 	mech->m_unk0xf0 = 0;
-	FUN_10001667(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
-	FUN_10001cf8(mech->m_player->m_obj);
+	MoveObj(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
+	UpdateObj(mech->m_player->m_obj);
 	GetObjWorldPos(
 		mech->m_player->m_obj,
 		&mech->m_player->m_unk0x5c,
@@ -109,7 +109,7 @@ void FUN_1005a203(Mech* p_mech)
 		);
 	}
 
-	FUN_10001cf8(mech->m_player->m_obj);
+	UpdateObj(mech->m_player->m_obj);
 }
 
 // Updates the mech for the tick. A running mech (state 2) fires its weapons, drops a target it

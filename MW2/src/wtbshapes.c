@@ -366,7 +366,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		SetObjPosition(obj, vertex->m_x, vertex->m_y, vertex->m_z);
 		FUN_10001532(obj, *p_shape);
 		SetShapeObject(*p_shape, obj);
-		FUN_10001cf8(obj);
+		UpdateObj(obj);
 		if (*p_count) {
 			FUN_1006d732(*p_shape);
 			FUN_10034a40(*p_shape, g_unk0x100ba688);

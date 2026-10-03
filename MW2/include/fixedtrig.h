@@ -9,11 +9,11 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_100696c0(MechS32 p_angle);
-	MechS32 FUN_1006973a(MechS32 p_angle);
-	MechS32 FUN_1006975b(MechS32 p_sine);
-	MechS32 FUN_100698b9(MechS32 p_unk0x00);
-	MechS32 FUN_100698de(MechS32 p_x, MechS32 p_z);
+	MechS32 FixedSin(MechS32 p_angle);
+	MechS32 FixedCos(MechS32 p_angle);
+	MechS32 FixedAsin(MechS32 p_sine);
+	MechS32 FixedAcos(MechS32 p_cosine);
+	MechS32 FixedAtan2(MechS32 p_x, MechS32 p_z);
 
 #ifdef __cplusplus
 }

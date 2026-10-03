@@ -81,7 +81,7 @@ MechS32 g_atanTable[0x102];
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
 // FUNCTION: MW2 0x1007c930
-MechS32 FUN_1007c930(void)
+MechS32 InitSinAtanTables(void)
 {
 	MechS32 i;
 
@@ -98,7 +98,7 @@ MechS32 FUN_1007c930(void)
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16 (2.29).
 // Stack-slot permutation: i and cosine.
 // FUNCTION: MW2 0x1007c9e3
-MechS32 FUN_1007c9e3(void)
+MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
 	MechDouble cosine;
@@ -113,7 +113,7 @@ MechS32 FUN_1007c9e3(void)
 
 // The square roots of 0 to 1023 (6.10 fixed point).
 // FUNCTION: MW2 0x1007ca8e
-MechS32 FUN_1007ca8e(void)
+MechS32 InitSqrtTable(void)
 {
 	MechS32 i;
 
@@ -126,7 +126,7 @@ MechS32 FUN_1007ca8e(void)
 }
 
 // FUNCTION: MW2 0x1007caf7
-MechS32 FUN_1007caf7(MechS32 p_x, MechS32 p_y)
+MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
 {
 	MechS32 length;
 	MechDouble x;

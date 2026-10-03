@@ -6,7 +6,7 @@
 struct ProjectedVertex;
 struct Face;
 
-// A polygon queued for drawing, taken from the bottom of the draw buffer (FUN_1007d296):
+// A polygon queued for drawing, taken from the bottom of the draw buffer (AllocQueuedPolygon):
 // m_count pointers to its projected vertices (struct ProjectedVertex*) follow the header.
 // SIZE 0xc
 typedef struct QueuedPolygon {

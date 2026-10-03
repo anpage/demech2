@@ -312,8 +312,7 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 		return;
 	}
 
-	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_unk0x02 & 0x100) &&
-		p_mech->m_player->m_index == g_unk0x100a6d34->m_unk0x14) {
+	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_kind & 0x100) && p_mech->m_player->m_index == g_unk0x100a6d34->m_owner) {
 		g_unk0x100a6d34 = NULL;
 	}
 

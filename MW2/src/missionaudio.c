@@ -1,5 +1,5 @@
 /* The mission's sound files: a table of the names in the mission's project file, hashed by
-   FUN_100074e0, and the directory the files are read from. */
+   HashName, and the directory the files are read from. */
 #include "missionaudio.h"
 
 #include "decomp.h"
@@ -44,7 +44,7 @@ ProjectFileEntry* FUN_10007140(MechChar* p_name, MechS32 p_add)
 	ProjectFileEntry* added;
 	MechU32 slot;
 
-	slot = FUN_100074e0(p_name) % 0x65;
+	slot = HashName(p_name) % 0x65;
 	for (entry = g_unk0x100bdd58[slot]; entry; entry = entry->m_next) {
 		if (!_strcmpi(entry->m_name, p_name)) {
 			return entry;

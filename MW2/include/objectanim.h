@@ -19,11 +19,11 @@ extern "C"
 	extern MechS32 g_unk0x100a6d6c;
 	extern MechS32 g_unk0x100a6d70;
 	extern MechS32 g_unk0x100a6d74;
-	extern MechS32 g_unk0x1010b530;
-	extern MechU8 g_unk0x1010b53c;
-	extern MechU8 g_unk0x1010b5b8;
-	extern ProjectedVertex* g_unk0x1010b550[20];
-	extern MechS32 g_unk0x1010b5b0;
+	extern MechS32 g_directionalLight;
+	extern MechU8 g_polygonOrCodes;
+	extern MechU8 g_polygonAndCodes;
+	extern ProjectedVertex* g_polygonPoints[20];
+	extern MechS32 g_polygonPointCount;
 	extern Path g_paths[0x40];
 	extern Reel* g_reels[0x780];
 
@@ -37,11 +37,11 @@ extern "C"
 	MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
-	ProjectedVertex* FUN_10048c50(Vertex* p_vertex);
-	ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b);
-	ProjectedVertex* FUN_10048ebe(ProjectedVertex* p_vertex);
-	MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices);
-	void FUN_10049155(Face* p_face, Vertex* p_vertices);
+	ProjectedVertex* GetViewVertex(Vertex* p_vertex);
+	ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b);
+	ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex);
+	MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices);
+	void QueueFace(Face* p_face, Vertex* p_vertices);
 
 #ifdef __cplusplus
 }

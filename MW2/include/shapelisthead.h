@@ -9,14 +9,14 @@ struct Shape;
 // code links and unlinks as if it were a shape (shapelists.c).
 // SIZE 0x18
 typedef struct ShapeListHead {
-	MechU16 m_unk0x00;       // 0x00
-	MechU16 m_unk0x02;       // 0x02
-	struct Shape* m_unk0x04; // 0x04
-	struct Shape* m_unk0x08; // 0x08 — the first shape in the list
-	struct Shape* m_unk0x0c; // 0x0c
-	struct Shape* m_unk0x10; // 0x10 — the first shape in the second list
-	MechU16 m_unk0x14;       // 0x14
-	MechU16 m_unk0x16;       // 0x16
+	MechU16 m_flags;              // 0x00
+	MechU16 m_kind;               // 0x02
+	struct Shape* m_prev;         // 0x04
+	struct Shape* m_next;         // 0x08 — the first shape in the list
+	struct Shape* m_prevCollider; // 0x0c
+	struct Shape* m_nextCollider; // 0x10 — the first shape in the second list
+	MechU16 m_owner;              // 0x14
+	MechU16 m_partId;             // 0x16
 } ShapeListHead;
 
 #endif // SHAPELISTHEAD_H

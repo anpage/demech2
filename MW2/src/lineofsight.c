@@ -41,13 +41,13 @@ MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
 	BuildRayFixed(&ray);
 	hit = NULL;
 	if (TestSegmentCollision(&ray, &hit, p_player->m_index) && hit) {
-		surface = hit->m_unk0x02;
+		surface = hit->m_kind;
 		target = p_player->m_targetInfo.m_target;
 		if ((surface & 0x100) && (target & 0x200)) {
-			return hit->m_unk0x14 == (target & 0xff);
+			return hit->m_owner == (target & 0xff);
 		}
 		else if ((surface & 0x200) && (target & 0x400)) {
-			return hit->m_unk0x14 == (target & 0xff);
+			return hit->m_owner == (target & 0xff);
 		}
 		else {
 			return FALSE;
@@ -87,9 +87,9 @@ MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		&pitch
 	);
 	steps = (MechS32) distance / 1000;
-	stepX = FixedMul16(FUN_1006973a(yaw) * 1000, FUN_1006973a(pitch));
-	stepZ = FixedMul16(FUN_100696c0(yaw) * 1000, FUN_1006973a(pitch));
-	stepY = FUN_100696c0(pitch) * 1000;
+	stepX = FixedMul16(FixedCos(yaw) * 1000, FixedCos(pitch));
+	stepZ = FixedMul16(FixedSin(yaw) * 1000, FixedCos(pitch));
+	stepY = FixedSin(pitch) * 1000;
 	for (i = 0; i < steps; i++) {
 		p_x -= stepX;
 		p_y -= stepY;

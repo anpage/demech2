@@ -74,7 +74,7 @@ extern "C"
 		MechS32* p_unk0x18,
 		MechS32* p_unk0x1c
 	);
-	MechS32 FUN_100708f4(struct ResourceRef* p_ref);
+	MechS32 LoadReels(struct ResourceRef* p_ref);
 	MechS32 FUN_10070bda(struct ResourceRef* p_ref);
 	MechS32 FUN_10070e22(
 		struct ResourceRef* p_ref,

@@ -430,7 +430,7 @@ void FUN_100116c3(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, Me
 			*p_y += *g_unk0x100a2434;
 		}
 
-		FUN_1000d650(FUN_10001e01(player->m_unk0x44), p_x, p_y, p_z);
+		TransformPoint(FUN_10001e01(player->m_unk0x44), p_x, p_y, p_z);
 		GetObjWorldPos(player->m_unk0x44, &x, &y, &z);
 		if (g_unk0x100a2c04) {
 			*p_unk0x10 = x;
@@ -570,8 +570,8 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 		angle -= 0x1680000;
 	}
 
-	cosine = FUN_1006973a(angle);
-	sine = FUN_100696c0(angle);
+	cosine = FixedCos(angle);
+	sine = FixedSin(angle);
 	offsetX = FixedMul16(g_unk0x100a23ec, sine) >> 13;
 	offsetZ = FixedMul16(g_unk0x100a23ec, cosine) >> 13;
 	offsetY = height;
@@ -711,10 +711,10 @@ void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_
 	MechS32 speed;
 	MechS32 cosPitch;
 
-	sinHeading = FUN_100696c0(g_eyepoint->m_unk0x0c);
-	cosHeading = FUN_1006973a(g_eyepoint->m_unk0x0c);
-	sinPitch = FUN_100696c0(g_eyepoint->m_unk0x10);
-	cosPitch = FUN_1006973a(g_eyepoint->m_unk0x10);
+	sinHeading = FixedSin(g_eyepoint->m_unk0x0c);
+	cosHeading = FixedCos(g_eyepoint->m_unk0x0c);
+	sinPitch = FixedSin(g_eyepoint->m_unk0x10);
+	cosPitch = FixedCos(g_eyepoint->m_unk0x10);
 	if (g_unk0x100a2408 != 2) {
 		if (g_unk0x100a2c04) {
 			g_eyepoint->m_unk0x00 -= FixedMul16(g_unk0x100a23ec, sinHeading) >> 13;
@@ -767,8 +767,8 @@ void FUN_1001220a(void)
 	MechS32 x;
 	MechS32 heading;
 
-	for (shape = g_unk0x100ad5e8->m_unk0x08; shape; shape = shape->m_unk0x08) {
-		if ((shape->m_unk0x02 & 0xf0) == 0x10 || (shape->m_unk0x02 & 0xf0) == 0x60) {
+	for (shape = g_unk0x100ad5e8->m_next; shape; shape = shape->m_next) {
+		if ((shape->m_kind & 0xf0) == 0x10 || (shape->m_kind & 0xf0) == 0x60) {
 			obj = shape->m_object;
 			if (obj) {
 				GetObjPosition(obj, &x, &y, &z);
@@ -777,12 +777,12 @@ void FUN_1001220a(void)
 					pitch = -0x2d0000;
 				}
 				else {
-					heading = FUN_100698de(g_eyepoint->m_unk0x00 - x, g_eyepoint->m_unk0x08 - z);
+					heading = FixedAtan2(g_eyepoint->m_unk0x00 - x, g_eyepoint->m_unk0x08 - z);
 					pitch = 0;
 				}
 
 				SetObjRotation(obj, pitch, heading, 0, 0);
-				FUN_10001cf8(obj);
+				UpdateObj(obj);
 			}
 		}
 	}

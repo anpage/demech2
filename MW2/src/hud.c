@@ -637,7 +637,7 @@ void FUN_10041a14(Player* p_player, MechS32 p_side)
 	}
 	else {
 		size = p_player->m_mech->m_radius;
-		size = FUN_10013340(g_eyepoint->m_unk0x94, size, z);
+		size = ProjectRadius(g_eyepoint->m_projectScaleX, size, z);
 		switch (p_side) {
 		case 0:
 			topLeft = 0xb8;
@@ -717,7 +717,7 @@ void FUN_10041c3c(struct SceneObject* p_object, MechS32 p_side)
 		FUN_10041e98(point.m_x, point.m_y, topLeft);
 	}
 	else {
-		size = FUN_10013340(g_eyepoint->m_unk0x94, size >> 1, z);
+		size = ProjectRadius(g_eyepoint->m_projectScaleX, size >> 1, z);
 		maxSize = g_eyepoint->m_halfWidth >> 1;
 		if (size > maxSize) {
 			size = maxSize;

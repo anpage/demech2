@@ -213,7 +213,7 @@ MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
 		target = g_players[index];
 		for (i = 0; i < g_playerCount; i++) {
 			if (g_players[i]->m_team == p_team && !(g_players[i]->m_flags & 6) &&
-				FUN_10004ec0(
+				IsWithinRadius(
 					g_players[i]->m_position.m_x - target->m_position.m_x,
 					g_players[i]->m_position.m_y - target->m_position.m_y,
 					g_players[i]->m_position.m_z - target->m_position.m_z,
@@ -227,7 +227,7 @@ MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
 		thing = &g_gameThings[index];
 		FUN_10020c6f(thing->m_unk0x04, &x, &y, &z);
 		for (i = 0; i < g_playerCount; i++) {
-			if (g_players[i]->m_team == p_team && FUN_10004ec0(
+			if (g_players[i]->m_team == p_team && IsWithinRadius(
 													  g_players[i]->m_position.m_x - x,
 													  g_players[i]->m_position.m_y - y,
 													  g_players[i]->m_position.m_z - z,
@@ -245,7 +245,7 @@ MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
 		}
 
 		for (i = 0; i < g_playerCount; i++) {
-			if (g_players[i]->m_team == p_team && FUN_10004ec0(
+			if (g_players[i]->m_team == p_team && IsWithinRadius(
 													  g_players[i]->m_position.m_x - nav->m_position[0],
 													  g_players[i]->m_position.m_y - nav->m_position[1],
 													  g_players[i]->m_position.m_z - nav->m_position[2],

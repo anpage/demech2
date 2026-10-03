@@ -405,10 +405,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdAnimSound]) {
 			BwdResourceRecord* sound = (BwdResourceRecord*) node;
 
-			if (g_unk0x100a8638 && !g_unk0x100a8638->m_unk0x10) {
-				g_unk0x100a8638->m_unk0x90 = sound->m_ref.m_id;
-				if (g_unk0x100a8638->m_unk0x90 == -1) {
-					g_unk0x100a8638->m_unk0x90 = FindResourceIdByName(0xb, sound->m_ref.m_name);
+			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
+				g_lastPlayer->m_unk0x90 = sound->m_ref.m_id;
+				if (g_lastPlayer->m_unk0x90 == -1) {
+					g_lastPlayer->m_unk0x90 = FindResourceIdByName(0xb, sound->m_ref.m_name);
 				}
 			}
 		}
@@ -750,7 +750,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 						player->m_index = g_playerCount;
 						g_playerCount++;
-						g_unk0x100a8638 = player;
+						g_lastPlayer = player;
 						player->m_obj = obj;
 						player->m_unk0x44 = obj;
 						FUN_1001d220(player);
@@ -758,7 +758,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					}
 				}
 				else {
-					g_unk0x100a8638 = NULL;
+					g_lastPlayer = NULL;
 					player->m_obj = NULL;
 				}
 			}
@@ -771,7 +771,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* cockpit = (BwdResourceRecord*) node;
 
 			ref = &cockpit->m_ref;
-			if (g_unk0x100a8638 && !g_unk0x100a8638->m_unk0x10) {
+			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
 				FUN_10070e22(ref, g_unk0x100a5a68, g_unk0x100adf58, g_unk0x100a5bb8[3]);
 			}
 		}
@@ -782,7 +782,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* pit = (BwdResourceRecord*) node;
 			undefined buffer[0x20];
 
-			if (g_unk0x100a8638 && !g_unk0x100a8638->m_unk0x10) {
+			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
 				key = &keyData;
 				key->m_id = pit->m_ref.m_id;
 				strcpy(key->m_name, pit->m_ref.m_name);
@@ -803,7 +803,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* vpt = (BwdResourceRecord*) node;
 			undefined buffer[0x20];
 
-			if (g_unk0x100a8638 && !g_unk0x100a8638->m_unk0x10) {
+			if (g_lastPlayer && !g_lastPlayer->m_unk0x10) {
 				key = &keyData;
 				key->m_id = vpt->m_ref.m_id;
 				strcpy(key->m_name, vpt->m_ref.m_name);
@@ -822,7 +822,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* hud = (BwdResourceRecord*) node;
 
 			ref = &hud->m_ref;
-			if (g_unk0x100a8638 && g_unk0x100a173c) {
+			if (g_lastPlayer && g_unk0x100a173c) {
 				FUN_10070bda(ref);
 				g_unk0x100a173c = 0;
 			}
@@ -833,8 +833,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* mgd = (BwdResourceRecord*) node;
 
 			ref = &mgd->m_ref;
-			if (g_unk0x100a8638) {
-				mech = g_unk0x100a8638->m_mech;
+			if (g_lastPlayer) {
+				mech = g_lastPlayer->m_mech;
 				FUN_100707c0(
 					ref,
 					&mech->m_unk0xcc,
@@ -853,14 +853,14 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechS32 id;
 			BwdIdRecord* eye = (BwdIdRecord*) node;
 
-			if (g_unk0x100a8638) {
+			if (g_lastPlayer) {
 				id = eye->m_id;
 				id = MapResourceId(id);
 				index = FindThingIdxById(id);
 				if (index >= 0) {
-					obj = FUN_1001d980(index);
+					obj = GetClassObject(index);
 					if (obj) {
-						g_unk0x100a8638->m_unk0x44 = obj;
+						g_lastPlayer->m_unk0x44 = obj;
 					}
 				}
 			}
@@ -872,13 +872,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechS32 index;
 			MechS32 id;
 
-			if (g_unk0x100a8638) {
+			if (g_lastPlayer) {
 				id = pof->m_id;
 				id = MapResourceId(id);
-				mech = g_unk0x100a8638->m_mech;
+				mech = g_lastPlayer->m_mech;
 				index = FindThingIdxById(id);
 				if (index >= 0) {
-					obj = FUN_1001d980(index);
+					obj = GetClassObject(index);
 					if (obj) {
 						mech->m_objects[pof->m_value] = obj;
 					}
@@ -1017,7 +1017,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 								effect->m_object = obj;
 								FUN_100018ca(obj);
 								FUN_1000199a(obj);
-								if (!(shape->m_unk0x02 & 0xf0)) {
+								if (!(shape->m_kind & 0xf0)) {
 									SetObjTreeFlag(obj, 0x20);
 								}
 
@@ -1188,7 +1188,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				obj = GetShapeObject(shape);
 				if (obj) {
 					SetObjPosition(obj, x, y, z);
-					FUN_10001cf8(obj);
+					UpdateObj(obj);
 				}
 			}
 		}
@@ -1217,7 +1217,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						(MechS32) (z * 65536.0 + 0.5),
 						0
 					);
-					FUN_10001cf8(obj);
+					UpdateObj(obj);
 				}
 			}
 		}
@@ -1265,24 +1265,24 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			events = FUN_1000a9c0(gpSpec->m_events);
 			if (FUN_1004fcac(gpSpec, BwdExecuteStream)) {
-				if (g_unk0x100a8638) {
-					index = g_unk0x100a8638->m_index;
+				if (g_lastPlayer) {
+					index = g_lastPlayer->m_index;
 					for (i = 0; i < 8; i++) {
-						g_unk0x100a8638->m_unk0x130[i] = gpSpec->m_aiParams[i];
+						g_lastPlayer->m_unk0x130[i] = gpSpec->m_aiParams[i];
 					}
 
-					g_unk0x100a8638->m_unk0x10 = ai;
-					g_unk0x100a8638->m_flags = gpSpec->m_flags;
-					strncpy(g_unk0x100a8638->m_name, gpSpec->m_unk0x36, 0x16);
-					g_unk0x100a8638->m_name[0x15] = '\0';
-					strncpy(g_unk0x100a8638->m_unk0xfe, gpSpec->m_unk0x4c, 0x16);
-					g_unk0x100a8638->m_unk0xfe[0x15] = '\0';
+					g_lastPlayer->m_unk0x10 = ai;
+					g_lastPlayer->m_flags = gpSpec->m_flags;
+					strncpy(g_lastPlayer->m_name, gpSpec->m_unk0x36, 0x16);
+					g_lastPlayer->m_name[0x15] = '\0';
+					strncpy(g_lastPlayer->m_unk0xfe, gpSpec->m_unk0x4c, 0x16);
+					g_lastPlayer->m_unk0xfe[0x15] = '\0';
 					if (eventList) {
 						target = (MechU8) index | 0x200;
 						PostEventToList(eventName, events, target);
 					}
 
-					g_unk0x100a8638->m_team = team;
+					g_lastPlayer->m_team = team;
 					SetPlayerSlot(index, g_teams[team].m_memberCount);
 					if (leader == 1) {
 						SetTeamLeader(team, index);
@@ -1290,7 +1290,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 					g_teams[team].m_members[g_teams[team].m_memberCount] = index;
 					g_teams[team].m_memberCount++;
-					mech = g_unk0x100a8638->m_mech;
+					mech = g_lastPlayer->m_mech;
 					if (ai == 0) {
 						isLocal = TRUE;
 					}
@@ -1439,7 +1439,7 @@ void AfterWorldLoader(void)
 
 		obj = FUN_10020bdd(g_gameThings[i].m_unk0x04);
 		if (obj && obj->m_unk0x6c) {
-			g_gameThings[i].m_unk0x10 = obj->m_unk0x6c->m_unk0x40;
+			g_gameThings[i].m_unk0x10 = obj->m_unk0x6c->m_radius;
 		}
 	}
 }

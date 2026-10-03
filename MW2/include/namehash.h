@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechU32 FUN_100074e0(const MechChar* p_name);
+	MechU32 HashName(const MechChar* p_name);
 
 #ifdef __cplusplus
 }

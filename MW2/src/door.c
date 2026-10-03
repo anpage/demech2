@@ -52,8 +52,8 @@ void FUN_100680a0(Player* p_player)
 	mech->m_unk0xbc = 0;
 	mech->m_unk0xf8 = 0;
 	mech->m_unk0xf0 = 0;
-	FUN_10001667(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
-	FUN_10001cf8(mech->m_player->m_obj);
+	MoveObj(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
+	UpdateObj(mech->m_player->m_obj);
 	GetObjWorldPos(
 		mech->m_player->m_obj,
 		&mech->m_player->m_unk0x5c,
@@ -112,10 +112,10 @@ void FUN_1006831a(Mech* p_mech)
 			mech->m_player->m_unk0x64,
 			0
 		);
-		FUN_10001cf8(mech->m_player->m_obj);
+		UpdateObj(mech->m_player->m_obj);
 		heading = mech->m_player->m_heading;
-		mech->m_player->m_unk0xbc = FUN_100696c0(heading) >> 13;
-		mech->m_player->m_unk0xb8 = FUN_1006973a(heading) >> 13;
+		mech->m_player->m_unk0xbc = FixedSin(heading) >> 13;
+		mech->m_player->m_unk0xb8 = FixedCos(heading) >> 13;
 	}
 }
 
@@ -159,7 +159,7 @@ void FUN_1006844e(Mech* p_mech)
 			dy = navY - y;
 			dz = navZ - z;
 			step = FixedDiv16(mech->m_unk0x88 * g_deltaTime, 0x697e98);
-			if (FUN_10004ec0(dx, dy, dz, step)) {
+			if (IsWithinRadius(dx, dy, dz, step)) {
 				NormalizeVectorGuarded(&dx, &dy, &dz);
 				dx = FixedMul16(dx, step);
 				dy = FixedMul16(dy, step);

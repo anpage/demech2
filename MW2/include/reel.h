@@ -4,7 +4,7 @@
 #include "reelevent.h"
 #include "types.h"
 
-// An animation of a loaded animation file (FUN_100708f4), in g_reels: per frame, an
+// An animation of a loaded animation file (LoadReels), in g_reels: per frame, an
 // amount to move (m_amounts) and its events (m_events, after the file's animation records).
 // SIZE 0x14
 typedef struct Reel {

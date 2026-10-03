@@ -35,70 +35,70 @@ HANDLE g_primaryHeap;
 
 // The view (view.c), which the cases set: the near and far planes, the projection's shifts,
 // centre and clip edges, the view rows, the eyepoint and the light.
-MechS32 g_unk0x100ea820;
-MechS32 g_unk0x100ea824;
-MechS32 g_unk0x100ea828;
-MechS32 g_unk0x100ea82c;
-MechS32 g_unk0x100ea830;
-MechS32 g_unk0x100ea834;
-MechS32 g_unk0x100ea840;
-MechS32 g_unk0x100ea84c;
-MechS32 g_unk0x100ea850;
-MechS32 g_unk0x100ea858;
-MechS32 g_unk0x100ea864;
-MechS32 g_unk0x100ea868;
-MechS32 g_unk0x100ea86c;
-MechS32 g_unk0x100ea870;
-MechS32 g_unk0x100ea874;
-MechS32 g_unk0x100ea878;
-MechS32 g_unk0x100ea87c;
-MechS32 g_unk0x100ea880;
-MechS32 g_unk0x100ea884;
-MechS32 g_unk0x100ea8b4;
-MechS32 g_unk0x100ea8b8;
-MechS32 g_unk0x100ea8bc;
-MechS32 g_unk0x100ea8c0;
-MechS32 g_unk0x100ea8c4;
-MechS32 g_unk0x100ea8c8;
+MechS32 g_viewNear;
+MechS32 g_viewShiftX;
+MechS32 g_viewShiftY;
+MechS32 g_viewFar;
+MechS32 g_viewLeft;
+MechS32 g_viewCenterX;
+MechS32 g_viewBottom;
+MechS32 g_viewRight;
+MechS32 g_viewTop;
+MechS32 g_viewCenterY;
+MechS32 g_viewProjX0;
+MechS32 g_viewProjX1;
+MechS32 g_viewProjX2;
+MechS32 g_viewProjY0;
+MechS32 g_viewProjY1;
+MechS32 g_viewProjY2;
+MechS32 g_viewProjZ0;
+MechS32 g_viewProjZ1;
+MechS32 g_viewProjZ2;
+MechS32 g_viewEyeY;
+MechS32 g_viewEyeX;
+MechS32 g_viewEyeZ;
+MechS32 g_viewLightZ;
+MechS32 g_viewLightX;
+MechS32 g_viewLightY;
 
 // The polygon list (depthsort.c) and the rendering hooks (polydraw.c), which the cases set.
-MechS32 g_unk0x100a54b0;
-MechS32 g_unk0x100a54b4;
-DepthEntry* g_unk0x1010b5c4;
-MechU32 g_unk0x1010b5c8;
+MechS32 g_depthEntryCount;
+MechS32 g_polygonCount;
+DepthEntry* g_depthList;
+MechU32 g_queuedShapeFlags;
 RenderSettings g_renderSettings;
 
-struct Player* g_unk0x100a8638;
+struct Player* g_lastPlayer;
 MechU32 g_staticPoolTags[10];
 
-MechS32 FUN_1007c930(void)
+MechS32 InitSinAtanTables(void)
 {
 	return 0;
 }
 
-MechS32 FUN_1007c9e3(void)
+MechS32 InitSlopeTables(void)
 {
 	return 0;
 }
 
-MechS32 FUN_1007ca8e(void)
+MechS32 InitSqrtTable(void)
 {
 	return 0;
 }
 
-MechS32 FUN_1007caf7(MechS32 p_x, MechS32 p_y)
+MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
 {
 	(void) p_x;
 	(void) p_y;
 	return 0;
 }
 
-TimedCallback* FUN_1007d2e0(void)
+TimedCallback* GetCurrentCallback(void)
 {
 	return NULL;
 }
 
-void** FUN_1007d51f(TimedCallback* p_callback)
+void** GetCallbackData(TimedCallback* p_callback)
 {
 	(void) p_callback;
 	return NULL;
@@ -135,19 +135,19 @@ MechS32 MapResourceId(MechS32 p_id)
 	return 0;
 }
 
-MechS32 FUN_100708f4(struct ResourceRef* p_ref)
+MechS32 LoadReels(struct ResourceRef* p_ref)
 {
 	(void) p_ref;
 	return 0;
 }
 
-struct SceneObject* FUN_1001d980(MechS32 p_index)
+struct SceneObject* GetClassObject(MechS32 p_index)
 {
 	(void) p_index;
 	return NULL;
 }
 
-Shape** FUN_1001f873(MechS32 p_index)
+Shape** GetStaticShapeSlot(MechS32 p_index)
 {
 	(void) p_index;
 	return NULL;
@@ -160,7 +160,7 @@ void GetModelCounts(Shape* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount
 	(void) p_faceCount;
 }
 
-void FUN_1003b696(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
+void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
 {
 	(void) p_shape;
 	(void) p_index;
@@ -181,7 +181,7 @@ void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	(void) p_z;
 }
 
-void FUN_10001667(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void MoveObj(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	(void) p_obj;
 	(void) p_x;
@@ -198,7 +198,7 @@ void SetObjRotation(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, Me
 	(void) p_unk0x10;
 }
 
-void FUN_1000184b(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
+void RotateObj(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
 {
 	(void) p_obj;
 	(void) p_unk0x04;
@@ -207,7 +207,7 @@ void FUN_1000184b(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, Mech
 	(void) p_unk0x10;
 }
 
-void FUN_10001cf8(SceneObject* p_obj)
+void UpdateObj(SceneObject* p_obj)
 {
 	(void) p_obj;
 }

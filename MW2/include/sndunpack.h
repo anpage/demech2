@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state);
+	MechU8* DecodeSoundFrames(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state);
 
 #ifdef __cplusplus
 }
@@ -19,21 +19,21 @@ extern "C"
 // here, by name.
 
 // FUNCTION: MW2 0x1001a63c
-// FUN_1001a63c
+// DecodeSoundFrames
 
 // FUNCTION: MW2 0x1001a87b
-// FUN_1001a87b
+// UpsampleSoundFrame4
 
 // FUNCTION: MW2 0x1001a8d3
-// FUN_1001a8d3
+// UpsampleSoundFrame2
 
 // GLOBAL: MW2 0x100a2f04
-// g_unk0x100a2f04
+// g_soundUpsampleBuffer
 
 // GLOBAL: MW2 0x100a3304
-// g_unk0x100a3304
+// g_soundFrame
 
 // GLOBAL: MW2 0x100a3705
-// g_unk0x100a3705
+// g_soundDeltas
 
 #endif // SNDUNPACK_H

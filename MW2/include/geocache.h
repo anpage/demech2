@@ -39,8 +39,8 @@ extern "C"
 	MechS32 FUN_1001f3e0(void);
 	MechS32 FUN_1001f504(MechS32 p_id, Shape* p_class);
 	void FUN_1001f5cb(void);
-	Shape** FUN_1001f873(MechS32 p_index);
-	Shape* FUN_1001f894(MechS32 p_index);
+	Shape** GetStaticShapeSlot(MechS32 p_index);
+	Shape* GetStaticShape(MechS32 p_index);
 	MechS32 FUN_1001f8b5(
 		MechS32 p_id,
 		MechS32 p_resource,

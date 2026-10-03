@@ -115,7 +115,7 @@ void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 	}
 
 	destroy = FALSE;
-	if ((p_obj->m_unk0x6c->m_unk0x02 & 0xf0) == 0x70 || (p_unk0x16 && p_obj->m_unk0x6c->m_unk0x16 == 0)) {
+	if ((p_obj->m_unk0x6c->m_kind & 0xf0) == 0x70 || (p_unk0x16 && p_obj->m_unk0x6c->m_partId == 0)) {
 		FUN_1003ad2d(p_obj->m_unk0x6c, 0x50);
 		destroy = TRUE;
 	}
@@ -312,9 +312,9 @@ void UpdateDebrisPiece(MechS32 p_index)
 	spinX = FixedMul16(piece->m_spinX, g_deltaTime << 16);
 	spinY = FixedMul16(piece->m_spinY, g_deltaTime << 16);
 	spinZ = FixedMul16(piece->m_spinZ, g_deltaTime << 16);
-	FUN_10001667(piece->m_obj, dx, dy, dz);
-	FUN_1000184b(piece->m_obj, spinX, spinY, spinZ, 0);
-	FUN_10001cf8(piece->m_obj);
+	MoveObj(piece->m_obj, dx, dy, dz);
+	RotateObj(piece->m_obj, spinX, spinY, spinZ, 0);
+	UpdateObj(piece->m_obj);
 
 	if (landed) {
 		g_debrisCount--;
@@ -436,7 +436,7 @@ void FUN_10004ce5(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS
 		dy = y - p_y;
 		dz = z - p_z;
 		reach = radius + p_radius;
-		if (FUN_10004ec0(dx, dy, dz, reach)) {
+		if (IsWithinRadius(dx, dy, dz, reach)) {
 			FUN_10004783(i, FixedMul16(p_damage, g_deltaTime));
 		}
 	}
@@ -467,6 +467,6 @@ void FUN_10004e4d(SceneObject* p_obj)
 	if (p_obj) {
 		FUN_100018ca(p_obj);
 		FUN_1000199a(p_obj);
-		FUN_10001cf8(p_obj);
+		UpdateObj(p_obj);
 	}
 }

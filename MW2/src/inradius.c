@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_10004ec0 is a C function whose body is an __asm block. Its portable
+/* Hand-written assembly: IsWithinRadius is a C function whose body is an __asm block. Its portable
    C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "inradius.h"
 
@@ -10,7 +10,7 @@
 
 // Returns 1 if p_x^2 + p_y^2 + p_z^2 (64-bit) is at most p_radius^2.
 // FUNCTION: MW2 0x10004ec0
-MechS32 FUN_10004ec0(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius)
+MechS32 IsWithinRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius)
 {
 #ifdef PORTABLE_C
 	/* The squares are compared unsigned, and a sum at or above the radius's square counts as

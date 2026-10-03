@@ -731,7 +731,7 @@ void FUN_1003eb22(CockpitLayout* p_layout, MechS32 p_heading)
 	p_heading = (p_heading % 0x1680000 + 0x1680000) % 0x1680000;
 	x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 	y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
-	halfFov = FUN_100698de(0x10000, g_eyepoint->m_fovX);
+	halfFov = FixedAtan2(0x10000, g_eyepoint->m_fovX);
 	p_heading = 0x5a0000 - p_heading;
 	if (p_layout->m_gauges[3]) {
 		p_layout->m_gauges[3](viewport, p_heading - halfFov, &end);
@@ -888,9 +888,9 @@ MechS32 FUN_1003f00d(Shape* p_shape)
 	MechS32 kind;
 
 	skip = FALSE;
-	kind = p_shape->m_unk0x02 & 0xf00;
+	kind = p_shape->m_kind & 0xf00;
 	if (kind == 0x100) {
-		flags = g_players[p_shape->m_unk0x14]->m_flags;
+		flags = g_players[p_shape->m_owner]->m_flags;
 		if (flags & 0x16) {
 			skip = TRUE;
 		}
@@ -899,7 +899,7 @@ MechS32 FUN_1003f00d(Shape* p_shape)
 		}
 	}
 	else {
-		type = p_shape->m_unk0x02 & 0xf0;
+		type = p_shape->m_kind & 0xf0;
 		switch (type) {
 		case 0x30:
 		case 0x70:
@@ -945,15 +945,15 @@ MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 		result |= 0xf0;
 	}
 
-	shape = p_face->m_unk0x20;
-	kind = shape->m_unk0x02 & 0xf00;
+	shape = p_face->m_shape;
+	kind = shape->m_kind & 0xf00;
 	switch (kind) {
 	case 0x100:
-		index = p_face->m_unk0x20->m_unk0x14;
+		index = p_face->m_shape->m_owner;
 		result |= colors[GetPlayerSide(index)];
 		break;
 	case 0x200:
-		index = p_face->m_unk0x20->m_unk0x14;
+		index = p_face->m_shape->m_owner;
 		result |= colors[FUN_1003c30e(index) + 3];
 		break;
 	case 0x400:
@@ -970,7 +970,7 @@ MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 		result = color | 0x4000;
 		break;
 	default:
-		type = shape->m_unk0x02 & 0xf0;
+		type = shape->m_kind & 0xf0;
 		switch (type) {
 		case 0x40:
 			result |= colors[7];

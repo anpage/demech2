@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_100349c0 is a C function whose body is an __asm block, like
+/* Hand-written assembly: CrossDiv is a C function whose body is an __asm block, like
    MulDiv64. Its portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "crossdiv.h"
 
@@ -10,7 +10,7 @@
 
 // Divides the 64-bit p_a * p_d - p_b * p_c by p_divisor.
 // FUNCTION: MW2 0x100349c0
-MechS32 FUN_100349c0(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32 p_divisor)
+MechS32 CrossDiv(MechS32 p_a, MechS32 p_b, MechS32 p_c, MechS32 p_d, MechS32 p_divisor)
 {
 #ifdef PORTABLE_C
 	/* The difference of the products fits in 64 bits. */

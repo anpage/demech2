@@ -819,7 +819,7 @@ MechS32 FUN_100707c0(
 // (FUN_10047462), into g_reels.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100708f4
-MechS32 FUN_100708f4(ResourceRef* p_ref)
+MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
 	MechS32 size;

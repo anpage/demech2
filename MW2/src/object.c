@@ -148,13 +148,13 @@ void FUN_10001579(SceneObject* p_obj, MechChar* p_name)
 // FUNCTION: MW2 0x10001596
 void GetObjWorldPos(SceneObject* p_obj, undefined4* p_unk0x04, undefined4* p_unk0x08, undefined4* p_unk0x0c)
 {
-	FUN_1000e2ea(&p_obj->m_world, p_unk0x04, p_unk0x08, p_unk0x0c);
+	GetMatrixAngles(&p_obj->m_world, p_unk0x04, p_unk0x08, p_unk0x0c);
 }
 
 // FUNCTION: MW2 0x100015bc
 void FUN_100015bc(SceneObject* p_obj, undefined4* p_unk0x04, undefined4* p_unk0x08, undefined4* p_unk0x0c)
 {
-	FUN_1000e2ea(&p_obj->m_local, p_unk0x04, p_unk0x08, p_unk0x0c);
+	GetMatrixAngles(&p_obj->m_local, p_unk0x04, p_unk0x08, p_unk0x0c);
 }
 
 // FUNCTION: MW2 0x100015e2
@@ -183,7 +183,7 @@ void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10001667
-void FUN_10001667(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void MoveObj(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	p_obj->m_local.m_rows[3][0] += p_x;
 	p_obj->m_local.m_rows[3][1] += p_y;
@@ -201,7 +201,7 @@ void FUN_10001694(SceneObject* p_obj, Matrix* p_matrix)
 // FUNCTION: MW2 0x100016b6
 void FUN_100016b6(SceneObject* p_obj, Matrix* p_matrix)
 {
-	FUN_1000dbba(&p_obj->m_local, p_matrix, &p_obj->m_local);
+	MultiplyMatrix(&p_obj->m_local, p_matrix, &p_obj->m_local);
 	p_obj->m_flags |= c_objectDirty;
 
 	p_obj->m_unk0x78--;
@@ -230,7 +230,7 @@ void FUN_10001722(SceneObject* p_obj, Matrix* p_matrix)
 // FUNCTION: MW2 0x1000179f
 void FUN_1000179f(SceneObject* p_obj, Matrix* p_matrix)
 {
-	FUN_1000da0c(&p_obj->m_local, p_matrix, &p_obj->m_local);
+	MultiplyRotations(&p_obj->m_local, p_matrix, &p_obj->m_local);
 	p_obj->m_flags |= c_objectDirty;
 
 	p_obj->m_unk0x78--;
@@ -246,16 +246,16 @@ void SetObjRotation(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, Me
 {
 	Matrix matrix;
 
-	FUN_1000de3b(&matrix, p_unk0x04, p_unk0x08, p_unk0x0c, 0, 0, 0, p_unk0x10);
+	BuildMatrixEx(&matrix, p_unk0x04, p_unk0x08, p_unk0x0c, 0, 0, 0, p_unk0x10);
 	FUN_10001722(p_obj, &matrix);
 }
 
 // FUNCTION: MW2 0x1000184b
-void FUN_1000184b(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
+void RotateObj(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10)
 {
 	Matrix matrix;
 
-	FUN_1000de3b(&matrix, p_unk0x04, p_unk0x08, p_unk0x0c, 0, 0, 0, p_unk0x10);
+	BuildMatrixEx(&matrix, p_unk0x04, p_unk0x08, p_unk0x0c, 0, 0, 0, p_unk0x10);
 	FUN_1000179f(p_obj, &matrix);
 }
 
@@ -266,8 +266,8 @@ void FUN_1000188b(Shape* p_shape)
 	Model* model = p_shape->m_model;
 	SceneObject* obj = p_shape->m_object;
 
-	FUN_10039a30(model, &obj->m_world);
-	model->m_unk0x10 = p_shape->m_unk0x48;
+	TransformModel(model, &obj->m_world);
+	model->m_transformCount = p_shape->m_transformCount;
 }
 
 // FUNCTION: MW2 0x100018ca
@@ -289,7 +289,7 @@ void FUN_10001926(SceneObject* p_obj)
 {
 	SceneObject* child;
 
-	if (p_obj->m_unk0x6c && (p_obj->m_unk0x6c->m_unk0x02 & 0xf0) != 0x70) {
+	if (p_obj->m_unk0x6c && (p_obj->m_unk0x6c->m_kind & 0xf0) != 0x70) {
 		FUN_1006daa0(p_obj->m_unk0x6c);
 	}
 
@@ -346,7 +346,7 @@ void SetObjTreeFlag(SceneObject* p_obj, MechS32 p_flag)
 	SceneObject* child;
 
 	if (p_obj->m_unk0x6c) {
-		p_obj->m_unk0x6c->m_unk0x02 = p_flag;
+		p_obj->m_unk0x6c->m_kind = p_flag;
 	}
 
 	for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
@@ -360,7 +360,7 @@ void FUN_10001b0c(SceneObject* p_obj, MechS32 p_unk0x14)
 	SceneObject* child;
 
 	if (p_obj->m_unk0x6c) {
-		p_obj->m_unk0x6c->m_unk0x14 = p_unk0x14;
+		p_obj->m_unk0x6c->m_owner = p_unk0x14;
 	}
 
 	for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
@@ -388,7 +388,7 @@ void FUN_10001bce(SceneObject* p_obj, MechS32 p_flags)
 	SceneObject* child;
 
 	if (p_obj->m_unk0x6c) {
-		p_obj->m_unk0x6c->m_unk0x02 &= (MechS16) ~p_flags;
+		p_obj->m_unk0x6c->m_kind &= (MechS16) ~p_flags;
 	}
 
 	for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
@@ -405,7 +405,7 @@ void FUN_10001c3f(SceneObject* p_obj)
 	p_obj->m_flags &= ~c_objectDirty;
 
 	if (p_obj->m_parent) {
-		FUN_1000dbba(&p_obj->m_parent->m_world, &p_obj->m_local, &p_obj->m_world);
+		MultiplyMatrix(&p_obj->m_parent->m_world, &p_obj->m_local, &p_obj->m_world);
 	}
 	else {
 		p_obj->m_world = p_obj->m_local;
@@ -413,7 +413,7 @@ void FUN_10001c3f(SceneObject* p_obj)
 
 	shape = p_obj->m_unk0x6c;
 	if (shape) {
-		FUN_10039b94(shape, &p_obj->m_world);
+		TransformShapeCenter(shape, &p_obj->m_world);
 		shape->m_object = p_obj;
 	}
 
@@ -423,7 +423,7 @@ void FUN_10001c3f(SceneObject* p_obj)
 }
 
 // FUNCTION: MW2 0x10001cf8
-void FUN_10001cf8(SceneObject* p_obj)
+void UpdateObj(SceneObject* p_obj)
 {
 	SceneObject* child;
 
@@ -432,7 +432,7 @@ void FUN_10001cf8(SceneObject* p_obj)
 	}
 	else if (p_obj->m_firstChild) {
 		for (child = p_obj->m_firstChild; child; child = child->m_nextSibling) {
-			FUN_10001cf8(child);
+			UpdateObj(child);
 		}
 	}
 }
@@ -521,7 +521,7 @@ void FUN_10001e32(SceneObject* p_obj)
 	p_obj->m_nextSibling = NULL;
 	p_obj->m_local = p_obj->m_world;
 	p_obj->m_flags |= c_objectDirty;
-	FUN_10001cf8(p_obj);
+	UpdateObj(p_obj);
 }
 
 // FUNCTION: MW2 0x10001ef8
@@ -537,11 +537,11 @@ void FUN_10001ef8(SceneObject* p_obj, SceneObject* p_parent)
 	p_obj->m_nextSibling = p_parent->m_firstChild;
 	p_parent->m_firstChild = p_obj;
 
-	FUN_1000dcbd(&p_parent->m_world, &inverse);
-	FUN_1000dbba(&inverse, &p_obj->m_world, &p_obj->m_local);
+	InvertMatrix(&p_parent->m_world, &inverse);
+	MultiplyMatrix(&inverse, &p_obj->m_world, &p_obj->m_local);
 	p_obj->m_flags &= ~c_objectDirty;
 	p_parent->m_flags |= c_objectDirty;
-	FUN_10001cf8(p_parent);
+	UpdateObj(p_parent);
 }
 
 // FUNCTION: MW2 0x10001f82
@@ -651,7 +651,7 @@ SceneObject* FUN_100021b6(SceneObject* p_obj, MechU32 p_unk0x16)
 	SceneObject* child;
 	MechU32 id = p_unk0x16;
 
-	if (p_obj->m_unk0x6c && p_obj->m_unk0x6c->m_unk0x16 == id) {
+	if (p_obj->m_unk0x6c && p_obj->m_unk0x6c->m_partId == id) {
 		return p_obj;
 	}
 
@@ -684,7 +684,7 @@ void FUN_10002246(SceneObject* p_obj, MechS32 p_unk0x04, MechU32 p_unk0x16)
 		return;
 	}
 
-	if (p_obj->m_unk0x6c && p_obj->m_unk0x6c->m_unk0x16 == p_unk0x16) {
+	if (p_obj->m_unk0x6c && p_obj->m_unk0x6c->m_partId == p_unk0x16) {
 		FUN_1003acbe(p_obj->m_unk0x6c, p_unk0x04);
 	}
 
@@ -702,7 +702,7 @@ void FUN_10002314(SceneObject* p_obj, MechU32 p_unk0x16)
 
 	FUN_10002314(p_obj->m_nextSibling, p_unk0x16);
 
-	if (p_obj->m_unk0x6c && p_obj->m_unk0x6c->m_unk0x16 == p_unk0x16) {
+	if (p_obj->m_unk0x6c && p_obj->m_unk0x6c->m_partId == p_unk0x16) {
 		FUN_100044f3(p_obj->m_firstChild, FUN_1001ddf2, p_unk0x16);
 		FUN_10004356(p_obj, FUN_1001ddf2, p_unk0x16);
 	}

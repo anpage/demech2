@@ -49,13 +49,13 @@ extern "C"
 	void GetObjPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void FUN_1000160e(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	void FUN_10001667(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void MoveObj(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void FUN_10001694(SceneObject* p_obj, Matrix* p_matrix);
 	void FUN_100016b6(SceneObject* p_obj, Matrix* p_matrix);
 	void FUN_10001722(SceneObject* p_obj, Matrix* p_matrix);
 	void FUN_1000179f(SceneObject* p_obj, Matrix* p_matrix);
 	void SetObjRotation(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10);
-	void FUN_1000184b(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10);
+	void RotateObj(SceneObject* p_obj, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32 p_unk0x0c, MechU32 p_unk0x10);
 	void FUN_1000188b(Shape* p_shape);
 	void FUN_100018ca(SceneObject* p_obj);
 	void FUN_10001926(SceneObject* p_obj);
@@ -67,7 +67,7 @@ extern "C"
 	void FUN_10001b6a(SceneObject* p_obj, MechS32 p_unk0x24);
 	void FUN_10001bce(SceneObject* p_obj, MechS32 p_flags);
 	void FUN_10001c3f(SceneObject* p_obj);
-	void FUN_10001cf8(SceneObject* p_obj);
+	void UpdateObj(SceneObject* p_obj);
 	SceneObject* FUN_10001d63(SceneObject* p_obj);
 	SceneObject* FUN_10001d8f(SceneObject* p_obj);
 	SceneObject* FUN_10001da4(SceneObject* p_obj);

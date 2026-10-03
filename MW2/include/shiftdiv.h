@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_10042740(MechS32 p_a, MechS32 p_b, MechS32 p_shift, MechS32 p_c);
+	MechS32 ProjectCoordinate(MechS32 p_value, MechS32 p_depth, MechS32 p_shift, MechS32 p_center);
 
 #ifdef __cplusplus
 }
