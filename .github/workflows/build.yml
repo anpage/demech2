@@ -37,12 +37,44 @@ jobs:
             echo "all_matrix=$(printf '%s\n' $(printf '%s\n' $entries | cut -d: -f1) $retail | jq -cRn '[inputs]')"
           } >> "$GITHUB_OUTPUT"
 
+  changes:
+    name: asmequiv inputs
+    runs-on: ubuntu-latest
+    outputs:
+      asmequiv: ${{ steps.check.outputs.asmequiv }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes to the asmequiv tests' inputs
+        id: check
+        env:
+          BASE: ${{ github.base_ref || 'main' }}
+        run: |
+          # The asmequiv suites take 5 to 10 minutes a job, so they only run
+          # when a change can affect them: one of the tests' sources, a file
+          # they include, or the build around them (tools/asmequiv_changed.py),
+          # compared with the merge base of the target branch (pull requests)
+          # or main (pushes). Pushes to main always run them.
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF" = refs/heads/main ]; then
+            result=true
+          else
+            # The tests' sources and include directories, as the standalone
+            # project compiles them
+            cmake -S tests/asmequiv -B deps -DCMAKE_EXPORT_COMPILE_COMMANDS=ON > /dev/null
+            # On any failure, run the tests
+            result=$(python3 tools/asmequiv_changed.py --compile-commands deps/compile_commands.json --base "origin/$BASE") || result=true
+          fi
+          echo "asmequiv=$result" >> "$GITHUB_OUTPUT"
+
   fetch-deps:
     name: Download original binaries
     uses: ./.github/workflows/mw2bin.yml
 
   build-current-toolchain:
     name: Current MSVC
+    needs: [changes]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
@@ -78,6 +110,7 @@ jobs:
           cmake --build build -- -k0
 
       - name: Test
+        if: ${{ needs.changes.outputs.asmequiv == 'true' }}
         run: |
           # The portable C that replaces the hand-written assembly: against the
           # golden vectors, and against the assembly itself as this compiler's
@@ -92,44 +125,8 @@ jobs:
       - name: "Checkout demech2 sources"
         uses: actions/checkout@v6
 
-      - name: "Checkout MSVC 4.1 toolchain"
-        uses: actions/checkout@v6
-        with:
-          repository: madebr/msvc410
-          path: msvc410
-
-      - name: "Checkout MASM 6.11"
-        uses: actions/checkout@v6
-        with:
-          repository: shengyanli1982/MASM611
-          ref: 36b14330ade0f3347d7bc7ba373304f279c81221
-          path: masm611
-
-      - name: "Checkout MSVC 2.2 toolchain"
-        uses: actions/checkout@v6
-        with:
-          # MECH2.EXE and NETMECHW.DLL were built with VC++ 2.2: CMake builds
-          # them with this toolchain in a nested build (build/vc22).
-          repository: archaic-msvc/msvc220
-          ref: c0fff2aecaa88576c685de79173be4ead4dbe42c
-          path: msvc220
-
-      - name: "Setup cmake"
-        uses: jwlawson/actions-setup-cmake@v2
-        with:
-          # 3.26.6 is the version known to drive the VC++ 4.1 NMake generator
-          # (the Docker image uses the same version).
-          cmake-version: 3.26.6
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install capstone
-        run: |
-          # tools/asmblocks.py lists the reference's basic blocks for the
-          # asmequiv coverage test
-          pip install capstone
+      - name: "Setup toolchains"
+        uses: ./.github/actions/setup-msvc41
 
       - name: Build
         shell: cmd
@@ -143,15 +140,6 @@ jobs:
           call .\msvc410\bin\VCVARS32.BAT x86
           cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220"
           cmake --build build
-
-      - name: Test
-        shell: cmd
-        run: |
-          rem The portable C that replaces the hand-written assembly, against the
-          rem matched assembly; also checks that tests/asmequiv/golden.txt is what
-          rem this reference writes, and that the cases reach every basic block of
-          rem the reference.
-          ctest --test-dir build --output-on-failure -j4
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -167,8 +155,51 @@ jobs:
             build/vc22/MECH2.exe
             build/vc22/MECH2.pdb
 
+  asmequiv:
+    name: "asmequiv (MSVC 4.1)"
+    # A job of its own, so that verify (which only needs the DLLs) doesn't wait
+    # for it: the asmequiv run takes about 10 minutes.
+    needs: [changes]
+    if: ${{ needs.changes.outputs.asmequiv == 'true' }}
+    runs-on: windows-latest
+
+    steps:
+      - name: "Checkout demech2 sources"
+        uses: actions/checkout@v6
+
+      - name: "Setup toolchains"
+        uses: ./.github/actions/setup-msvc41
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install capstone
+        run: |
+          # tools/asmblocks.py lists the reference's basic blocks for the
+          # asmequiv coverage test
+          pip install capstone
+
+      - name: Build
+        shell: cmd
+        run: |
+          call .\msvc410\bin\VCVARS32.BAT x86
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220"
+          cmake --build build --target asmequiv asmgolden
+
+      - name: Test
+        shell: cmd
+        run: |
+          rem The portable C that replaces the hand-written assembly, against the
+          rem matched assembly; also checks that tests/asmequiv/golden.txt is what
+          rem this reference writes, and that the cases reach every basic block of
+          rem the reference.
+          ctest --test-dir build --output-on-failure -j4
+
   portable:
     name: Portable C (${{ matrix.cc }}, UBSan + ASan)
+    needs: [changes]
+    if: ${{ needs.changes.outputs.asmequiv == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

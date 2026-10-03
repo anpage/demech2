@@ -1,0 +1,33 @@
+name: 'Setup the decomp toolchains'
+description: 'Check out MSVC 4.1, MASM 6.11 and MSVC 2.2 (msvc410, masm611, msvc220) and install CMake 3.26.6'
+runs:
+  using: 'composite'
+  steps:
+    - name: "Checkout MSVC 4.1 toolchain"
+      uses: actions/checkout@v6
+      with:
+        repository: madebr/msvc410
+        path: msvc410
+
+    - name: "Checkout MASM 6.11"
+      uses: actions/checkout@v6
+      with:
+        repository: shengyanli1982/MASM611
+        ref: 36b14330ade0f3347d7bc7ba373304f279c81221
+        path: masm611
+
+    - name: "Checkout MSVC 2.2 toolchain"
+      uses: actions/checkout@v6
+      with:
+        # MECH2.EXE and NETMECHW.DLL were built with VC++ 2.2: CMake builds
+        # them with this toolchain in a nested build (build/vc22).
+        repository: archaic-msvc/msvc220
+        ref: c0fff2aecaa88576c685de79173be4ead4dbe42c
+        path: msvc220
+
+    - name: "Setup cmake"
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        # 3.26.6 is the version known to drive the VC++ 4.1 NMake generator
+        # (the Docker image uses the same version).
+        cmake-version: 3.26.6
