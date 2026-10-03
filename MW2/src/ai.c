@@ -2231,7 +2231,7 @@ void PlacePatrolNavs(Player* p_player)
 
 	switch (p_player->m_ai.m_target & 0xf00) {
 	case c_aiTargetThing:
-		FUN_10020c6f(g_gameThings[index].m_unk0x04, &x, &y, &z);
+		GetStaticObjectPosition(g_gameThings[index].m_unk0x04, &x, &y, &z);
 		range = 25000;
 		break;
 	case c_aiTargetPlayer:

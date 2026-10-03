@@ -551,7 +551,7 @@ void FUN_1003e4cd(CockpitLayout* p_layout)
 	for (i = 0; i < g_gameThingCount; i++) {
 		thing = &g_gameThings[i];
 		if ((thing->m_unk0x00 & 0x1400) && !(thing->m_unk0x00 & 0x1e)) {
-			FUN_10020c6f(thing->m_unk0x04, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
+			GetStaticObjectPosition(thing->m_unk0x04, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
 			icon = p_layout->m_icons[1][FUN_1003c30e(i)];
 			FUN_1003e40a(p_layout, pos, icon);
 		}

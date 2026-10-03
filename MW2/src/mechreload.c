@@ -85,7 +85,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 		g_rememberedMechs[p_player].m_unk0x0d
 	);
 	mech->m_player->m_obj = RestoreMechSegments(g_mechSegments[p_player]);
-	FUN_10001926(mech->m_player->m_obj);
+	ShowObjTree(mech->m_player->m_obj);
 	UpdateObj(mech->m_player->m_obj);
 	mech->m_player->m_detailLevel = -1;
 	mech->m_player->m_targetInfo.m_target = 0x1000;
@@ -197,8 +197,8 @@ MechSegment* SaveMechSegments(SceneObject* p_obj)
 	segment->m_parent = p_obj->m_parent;
 	segment->m_firstChild = SaveMechSegments(p_obj->m_firstChild);
 	segment->m_nextSibling = SaveMechSegments(p_obj->m_nextSibling);
-	FUN_1000160e(p_obj, &segment->m_position[0], &segment->m_position[1], &segment->m_position[2]);
-	FUN_100015bc(p_obj, &segment->m_rotation[0], &segment->m_rotation[1], &segment->m_rotation[2]);
+	GetObjLocalPosition(p_obj, &segment->m_position[0], &segment->m_position[1], &segment->m_position[2]);
+	GetObjAngles(p_obj, &segment->m_rotation[0], &segment->m_rotation[1], &segment->m_rotation[2]);
 
 	return segment;
 }

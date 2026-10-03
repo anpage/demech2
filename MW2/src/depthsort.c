@@ -111,7 +111,7 @@ MechS32 FUN_100335d0(Shape* p_shape, MechS32 p_depth)
 	shape->m_model = model;
 	vertices = (Vertex*) (model + 1);
 	if (shape->m_transformCount != model->m_transformCount) {
-		FUN_1000188b(shape);
+		TransformShapeModel(shape);
 	}
 
 	vertex = vertices;
@@ -315,7 +315,7 @@ void FUN_10033c4b(SceneObject* p_object)
 		return;
 	}
 
-	shape = p_object->m_unk0x6c;
+	shape = p_object->m_shape;
 	if (shape) {
 		g_unk0x1010b5cc++;
 		if (!(shape->m_flags & 0x1000) && !g_renderSettings.m_shapeFilter(shape)) {

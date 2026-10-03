@@ -153,7 +153,7 @@ void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
-void FUN_1007cbf1(Matrix* p_matrix)
+void NormalizeRotation(Matrix* p_matrix)
 {
 	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
 	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);

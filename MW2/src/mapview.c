@@ -91,7 +91,7 @@ void FUN_1004215f(MechU32 p_flags)
 		FUN_1004320b(g_eyepoint);
 	}
 
-	FUN_100338bb(g_unk0x100ad5e8);
+	FUN_100338bb(g_sceneShapes);
 	FUN_10069591();
 }
 

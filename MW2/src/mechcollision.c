@@ -335,7 +335,7 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 	MechS32 y;
 	MechS32 z;
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return 0;
 	}

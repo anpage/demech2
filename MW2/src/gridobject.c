@@ -67,11 +67,11 @@ void FUN_1004b130(SceneObject* p_obj)
 		return;
 	}
 
-	if (!p_obj->m_unk0x6c) {
+	if (!p_obj->m_shape) {
 		return;
 	}
 
-	model = p_obj->m_unk0x6c->m_models;
+	model = p_obj->m_shape->m_models;
 	if (!model) {
 		return;
 	}
@@ -123,8 +123,8 @@ void FUN_1004b130(SceneObject* p_obj)
 	g_unk0x100a711c = 0;
 	g_unk0x100be9f0.m_x = g_unk0x100be9f0.m_y = g_unk0x100be9f0.m_z = 0;
 	g_unk0x100be9e0.m_x = g_unk0x100be9e0.m_y = g_unk0x100be9e0.m_z = 0;
-	FUN_100018ca(p_obj);
-	FUN_1000199a(p_obj);
+	HideObjTree(p_obj);
+	DisableObjTreeCollision(p_obj);
 }
 
 // Moves the grid object (FUN_1004b130) to the eyepoint's cell when that changes.
@@ -176,7 +176,7 @@ void FUN_1004b344(void)
 		}
 
 		if (!g_unk0x100a711c) {
-			FUN_10001926(g_unk0x100a7128);
+			ShowObjTree(g_unk0x100a7128);
 			g_unk0x100a711c = 1;
 		}
 
@@ -185,7 +185,7 @@ void FUN_1004b344(void)
 			g_unk0x100be9f0.m_y = 0;
 			g_unk0x100be9f0.m_z = cellZ * g_unk0x100a7114;
 			if (g_unk0x100a7128) {
-				FUN_10001926(g_unk0x100a7128);
+				ShowObjTree(g_unk0x100a7128);
 				SetObjPosition(g_unk0x100a7128, g_unk0x100be9f0.m_x, g_unk0x100be9f0.m_y, g_unk0x100be9f0.m_z);
 				UpdateObj(g_unk0x100a7128);
 			}
@@ -202,10 +202,10 @@ void FUN_1004b539(MechS32 p_enable)
 {
 	if (g_unk0x100a7128) {
 		if (p_enable) {
-			FUN_10001926(g_unk0x100a7128);
+			ShowObjTree(g_unk0x100a7128);
 		}
 		else {
-			FUN_100018ca(g_unk0x100a7128);
+			HideObjTree(g_unk0x100a7128);
 		}
 
 		UpdateObj(g_unk0x100a7128);

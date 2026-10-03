@@ -382,8 +382,8 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_steering[1] = FixedMul16(-g_unk0x100ba600, def->m_unk0x28 << 16);
 			shot->m_steering[0] = shot->m_steering[2] = 0;
 			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, shot->m_type == 3 || shot->m_type == 4);
-			FUN_10001926(shot->m_object);
-			FUN_1000199a(shot->m_object);
+			ShowObjTree(shot->m_object);
+			DisableObjTreeCollision(shot->m_object);
 			UpdateObj(shot->m_object);
 
 			if (p_player->m_index == g_localPlayerId) {
@@ -916,7 +916,7 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 
 	*p_x = *p_y = 0;
 	*p_z = 0x10000;
-	GetObjWorldPos(p_player->m_eyeObj, &x, &y, &z);
+	GetObjWorldAngles(p_player->m_eyeObj, &x, &y, &z);
 	mech = p_player->m_mech;
 	x = mech->m_torsoPitch.m_value;
 	BuildMatrix(&matrix, x, y, z, 0, 0, 0);
@@ -938,7 +938,7 @@ void FUN_10046519(Player* p_player, SceneObject* p_obj)
 	MechS32 x;
 
 	FUN_100464f3(p_player, &x, &y, &z);
-	FUN_10001722(p_obj, FUN_10001e01(p_player->m_firingObj));
+	SetObjRotationMatrix(p_obj, GetObjWorldMatrix(p_player->m_firingObj));
 	SetObjPosition(p_obj, x, y, z);
 }
 
@@ -984,7 +984,7 @@ void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p
 	}
 
 	SetObjPosition(p_obj, x, y, z);
-	speed = p_obj->m_unk0x6c->m_radius * 2;
+	speed = p_obj->m_shape->m_radius * 2;
 	p_dx = FixedMul16(p_dx, speed);
 	p_dy = FixedMul16(p_dy, speed);
 	p_dz = FixedMul16(p_dz, speed);

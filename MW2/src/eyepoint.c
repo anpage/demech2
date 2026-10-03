@@ -430,8 +430,8 @@ void FUN_100116c3(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32
 			*p_y += *g_unk0x100a2434;
 		}
 
-		TransformPoint(FUN_10001e01(player->m_eyeObj), p_x, p_y, p_z);
-		GetObjWorldPos(player->m_eyeObj, &x, &y, &z);
+		TransformPoint(GetObjWorldMatrix(player->m_eyeObj), p_x, p_y, p_z);
+		GetObjWorldAngles(player->m_eyeObj, &x, &y, &z);
 		if (g_unk0x100a2c04) {
 			*p_pitch = x;
 			*p_heading = y;
@@ -767,7 +767,7 @@ void FUN_1001220a(void)
 	MechS32 x;
 	MechS32 heading;
 
-	for (shape = g_unk0x100ad5e8->m_next; shape; shape = shape->m_next) {
+	for (shape = g_sceneShapes->m_next; shape; shape = shape->m_next) {
 		if ((shape->m_kind & 0xf0) == 0x10 || (shape->m_kind & 0xf0) == 0x60) {
 			obj = shape->m_object;
 			if (obj) {

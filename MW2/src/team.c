@@ -214,7 +214,7 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechS32* p_x, MechS32* p_z, MechS3
 		*p_z = g_teamFormations[team].m_z[slot];
 		*p_heading = g_teamFormations[team].m_heading[slot];
 		obj = g_players[leader]->m_obj;
-		matrix = FUN_10001e01(obj);
+		matrix = GetObjWorldMatrix(obj);
 		TransformPoint(matrix, p_x, &y, p_z);
 	}
 	else {

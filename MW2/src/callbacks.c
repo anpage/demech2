@@ -42,7 +42,7 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 	*p_list = callback;
 	g_currentCallback = *p_list;
 	if (p_fn != NULL && !p_fn(0, p_data, g_currentClock, p_period)) {
-		FUN_1007d3bf(p_list, g_currentCallback);
+		RemoveTask(p_list, g_currentCallback);
 		return NULL;
 	}
 
@@ -50,7 +50,7 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 }
 
 // FUNCTION: MW2 0x1007d3bf
-void FUN_1007d3bf(TimedCallback** p_list, TimedCallback* p_callback)
+void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	TimedCallback* callback;
 
@@ -76,28 +76,28 @@ void FUN_1007d3bf(TimedCallback** p_list, TimedCallback* p_callback)
 }
 
 // FUNCTION: MW2 0x1007d475
-void FUN_1007d475(TimedCallback** p_list)
+void RemoveAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
 
 	for (callback = *p_list; callback != NULL; callback = callback->m_next) {
-		FUN_1007d3bf(p_list, callback);
+		RemoveTask(p_list, callback);
 	}
 }
 
 // FUNCTION: MW2 0x1007d4b8
-void FUN_1007d4b8(TimedCallback** p_list, TimedCallback* p_callback)
+void SignalTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	p_callback->m_fn(-1, NULL, g_currentClock, p_callback->m_period);
 }
 
 // FUNCTION: MW2 0x1007d4dc
-void FUN_1007d4dc(TimedCallback** p_list)
+void SignalAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
 
 	for (callback = *p_list; callback != NULL; callback = callback->m_next) {
-		FUN_1007d4b8(p_list, callback);
+		SignalTask(p_list, callback);
 	}
 }
 
@@ -114,7 +114,7 @@ void RunTimedCallbacks(TimedCallback** p_list)
 		if (g_currentCallback->m_fn != NULL && g_currentCallback->m_nextTime <= g_currentClock) {
 			g_currentCallback->m_nextTime = g_currentCallback->m_period + g_currentClock;
 			if (!g_currentCallback->m_fn(1, NULL, g_currentClock, g_currentCallback->m_period)) {
-				FUN_1007d3bf(p_list, g_currentCallback);
+				RemoveTask(p_list, g_currentCallback);
 			}
 			else {
 				g_currentCallback->m_lastTime = g_currentClock;
@@ -124,7 +124,7 @@ void RunTimedCallbacks(TimedCallback** p_list)
 }
 
 // FUNCTION: MW2 0x1007d5f1
-MechS32 FUN_1007d5f1(void)
+MechS32 GetTimedCallbackSize(void)
 {
 	return sizeof(TimedCallback);
 }

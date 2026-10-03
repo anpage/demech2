@@ -11,25 +11,25 @@ extern "C"
 {
 #endif
 
-	extern Shape* g_unk0x100ad5e8;
-	extern Shape* g_unk0x100ad5ec;
+	extern Shape* g_sceneShapes;
+	extern Shape* g_hiddenShapes;
 
-	extern ShapeListHead g_unk0x100bef10;
-	extern ShapeListHead g_unk0x100bef28;
-	extern ShapeListHead g_unk0x100bef40;
+	extern ShapeListHead g_sceneShapeHead;
+	extern ShapeListHead g_hiddenShapeHead;
+	extern ShapeListHead g_detachedShapeHead;
 
-	void FUN_1006d680(void);
-	void FUN_1006d732(Shape* p_shape);
-	void FUN_1006d7fb(Shape* p_shape);
-	void FUN_1006d88a(Shape* p_shape);
-	void FUN_1006d8d1(Shape* p_shape);
-	void FUN_1006d989(Shape* p_shape);
-	void FUN_1006da2d(Shape* p_shape);
-	void FUN_1006daa0(Shape* p_shape);
-	void FUN_1006db28(void);
-	void FUN_1006dbe2(Shape* p_shape);
-	void FUN_1006dc3b(Shape* p_shape, Shape* p_list);
-	void FUN_1006dc7d(MechS32 p_enable);
+	void InitShapeLists(void);
+	void AddSceneShape(Shape* p_shape);
+	void RemoveSceneShape(Shape* p_shape);
+	void DetachShape(Shape* p_shape);
+	void EnableShapeCollision(Shape* p_shape);
+	void DisableShapeCollision(Shape* p_shape);
+	void HideShape(Shape* p_shape);
+	void ShowShape(Shape* p_shape);
+	void FreeSceneShapes(void);
+	void UnlinkShape(Shape* p_shape);
+	void LinkShape(Shape* p_shape, Shape* p_list);
+	void ShowDensityShapes(MechS32 p_enable);
 
 #ifdef __cplusplus
 }

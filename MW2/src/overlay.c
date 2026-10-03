@@ -339,8 +339,8 @@ void ShowSceneInfo(void)
 	}
 
 	g_sceneShapeCount = g_sceneVertexCount = g_sceneFaceCount = g_sceneMemory = 0;
-	ForEachShape(g_unk0x100ad5e8, CountSceneShape);
-	ForEachShape(g_unk0x100ad5ec, CountSceneShape);
+	ForEachShape(g_sceneShapes, CountSceneShape);
+	ForEachShape(g_hiddenShapes, CountSceneShape);
 
 	if (g_monoEnabled) {
 		if (!g_sceneInfoShown) {

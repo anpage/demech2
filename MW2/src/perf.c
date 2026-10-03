@@ -71,7 +71,7 @@ MenuControl g_unk0x100b1578 = {2, 0, &g_unk0x100a1c30, 0, NULL, GetDisplayDetail
 MenuControl g_unk0x100b15a0 = {2, 0, &g_unk0x100a1c30, 0, NULL, GetObjectDensity, NULL, SetObjectDensity, NULL};
 
 // GLOBAL: MW2 0x100b15c8
-MenuControl g_unk0x100b15c8 = {2, 0, &g_unk0x100a1ba0, 0, NULL, FUN_10021423, NULL, SetExplosionChunks, NULL};
+MenuControl g_unk0x100b15c8 = {2, 0, &g_unk0x100a1ba0, 0, NULL, GetExplosionChunks, NULL, SetExplosionChunks, NULL};
 
 // GLOBAL: MW2 0x100b15f0
 MenuPage g_combatVariablesPage = {
@@ -162,6 +162,6 @@ MechS32 GetObjectDensity(MechS32 p_arg)
 // FUNCTION: MW2 0x10076d1e
 void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity)
 {
-	FUN_1006dc7d(p_objectDensity);
+	ShowDensityShapes(p_objectDensity);
 	g_mw2SndCfgData->m_objectDensity = p_objectDensity;
 }

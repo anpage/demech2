@@ -56,7 +56,7 @@ MechS32 FUN_1001ce90(Player* p_player)
 		}
 	}
 
-	buffer = StaticPoolAlloc(FUN_100023a8() * count & 0xffff, g_staticPoolTags[2]);
+	buffer = StaticPoolAlloc(GetObjSize() * count & 0xffff, g_staticPoolTags[2]);
 	if (buffer == NULL) {
 		return 0;
 	}
@@ -64,7 +64,7 @@ MechS32 FUN_1001ce90(Player* p_player)
 	for (i = 0; i < g_classEntryCount; i++) {
 		if (g_classTable[i].m_owner == p_player->m_index) {
 			FUN_1001d3ff(i, p_player->m_baseLevel, buffer);
-			buffer += FUN_100023a8();
+			buffer += GetObjSize();
 			FUN_1001d912(i, p_player->m_baseLevel);
 		}
 	}
@@ -212,14 +212,14 @@ MechS32 FUN_1001d292(MechS32 p_owner, MechS32 p_level)
 		entry = &g_classTable[i];
 		if (entry->m_owner == p_owner) {
 			if ((g_players[entry->m_owner]->m_flags & 2) && !entry->m_unk0x20) {
-				FUN_1006da2d(entry->m_shape);
+				HideShape(entry->m_shape);
 			}
 			else if (!FUN_1001d3ff(i, p_level, NULL)) {
 				result = 0;
 			}
 
 			if (!entry->m_unk0x20) {
-				FUN_1006d989(entry->m_shape);
+				DisableShapeCollision(entry->m_shape);
 			}
 		}
 	}
@@ -272,8 +272,8 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 			return TRUE;
 		}
 
-		flags = FUN_1003acf7(entry->m_shape);
-		FUN_1003b78b(entry->m_shape);
+		flags = GetShapeState(entry->m_shape);
+		DestroyObjShape(entry->m_shape);
 		entry->m_shape = NULL;
 	}
 
@@ -299,15 +299,15 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	if (entry->m_shape) {
 		parent = NULL;
 		placed = FALSE;
-		FUN_1003acbe(entry->m_shape, flags);
+		SetShapeState(entry->m_shape, flags);
 		entry->m_unk0x04 = p_level;
 		if (!entry->m_obj) {
 			if (entry->m_unk0x1c == -2) {
 				if (!p_buffer) {
-					entry->m_obj = FUN_100012d0(g_players[entry->m_owner]->m_obj, 10);
+					entry->m_obj = CreateObj(g_players[entry->m_owner]->m_obj, 10);
 				}
 				else {
-					entry->m_obj = FUN_1000145a(g_players[entry->m_owner]->m_obj, p_buffer);
+					entry->m_obj = InitObj(g_players[entry->m_owner]->m_obj, p_buffer);
 				}
 			}
 			else {
@@ -318,10 +318,10 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 				}
 
 				if (!p_buffer) {
-					obj = FUN_100012d0(parent, 10);
+					obj = CreateObj(parent, 10);
 				}
 				else {
-					obj = FUN_1000145a(parent, p_buffer);
+					obj = InitObj(parent, p_buffer);
 				}
 
 				if (obj) {
@@ -331,30 +331,30 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 			}
 		}
 
-		FUN_10001532(entry->m_obj, entry->m_shape);
+		SetObjShape(entry->m_obj, entry->m_shape);
 		SetShapeObject(entry->m_shape, entry->m_obj);
 		kind = entry->m_unk0x38[p_level] & 0xf0;
-		FUN_1003ad2d(entry->m_shape, kind | 0x100);
-		FUN_1003ad62(entry->m_shape, entry->m_owner);
-		FUN_1003ad4c(entry->m_shape, entry->m_unk0x20);
-		FUN_1006d732(entry->m_shape);
+		SetShapeKind(entry->m_shape, kind | 0x100);
+		SetShapeOwner(entry->m_shape, entry->m_owner);
+		SetShapePartId(entry->m_shape, entry->m_unk0x20);
+		AddSceneShape(entry->m_shape);
 		if (kind == 0x70) {
-			FUN_1006da2d(entry->m_shape);
-			FUN_1006d989(entry->m_shape);
+			HideShape(entry->m_shape);
+			DisableShapeCollision(entry->m_shape);
 		}
 		else {
-			FUN_1006daa0(entry->m_shape);
-			FUN_10034a40(entry->m_shape, 6);
+			ShowShape(entry->m_shape);
+			SetShapeCollisionType(entry->m_shape, 6);
 		}
 
 		if (g_players[entry->m_owner]->m_flags & 0x4000) {
-			FUN_100018ca(g_players[entry->m_owner]->m_obj);
-			FUN_1000199a(g_players[entry->m_owner]->m_obj);
+			HideObjTree(g_players[entry->m_owner]->m_obj);
+			DisableObjTreeCollision(g_players[entry->m_owner]->m_obj);
 			g_players[entry->m_owner]->m_flags |= 0x800;
 		}
 
 		if (kind == 0xa0) {
-			SetObjTreeFlag(entry->m_obj, 0x1a0);
+			SetObjTreeKind(entry->m_obj, 0x1a0);
 		}
 
 		if (placed) {
@@ -395,7 +395,7 @@ void FUN_1001d912(MechS32 p_index, MechS32 p_level)
 
 	entry = &g_classTable[p_index];
 	if (entry->m_unk0x04 >= 0 && entry->m_unk0x04 == p_level && entry->m_shape) {
-		FUN_1003b78b(entry->m_shape);
+		DestroyObjShape(entry->m_shape);
 		entry->m_shape = NULL;
 		entry->m_unk0x04 = -1;
 	}
@@ -557,7 +557,7 @@ void FUN_1001ddf2(struct SceneObject* p_obj)
 		entry = &g_classTable[i];
 		if (entry->m_obj == p_obj) {
 			if (entry->m_shape) {
-				FUN_1003b78b(entry->m_shape);
+				DestroyObjShape(entry->m_shape);
 			}
 
 			entry->m_shape = NULL;

@@ -263,10 +263,10 @@ void UpdateShot(MechS32 p_index)
 	if (shot->m_flags & c_shotProximityFuse) {
 		hitResult = 1;
 		if (shot->m_targetKind == c_shotTargetPlayer) {
-			hit = FUN_1000154d(g_players[shot->m_target]->m_obj);
+			hit = GetObjShape(g_players[shot->m_target]->m_obj);
 		}
 		else if (shot->m_targetKind == c_shotTargetGameThing) {
-			hit = FUN_10020c26(g_gameThings[shot->m_target].m_unk0x04);
+			hit = GetStaticObjectShape(g_gameThings[shot->m_target].m_unk0x04);
 		}
 
 		hitX = backX = x0;
@@ -484,7 +484,7 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 			return;
 		}
 
-		FUN_10020c6f(thing->m_unk0x04, &targetX, &targetY, &targetZ);
+		GetStaticObjectPosition(thing->m_unk0x04, &targetX, &targetY, &targetZ);
 		break;
 	default:
 		return;
@@ -535,8 +535,8 @@ void DetonateShot(
 		g_trackedShot = -1;
 	}
 
-	FUN_100018ca(shot->m_object);
-	FUN_1000199a(shot->m_object);
+	HideObjTree(shot->m_object);
+	DisableObjTreeCollision(shot->m_object);
 	impact = shot->m_impact;
 	ResetShotSlot(p_index);
 	if (p_explode) {
@@ -771,8 +771,8 @@ void FUN_1006b1fb(
 				SetObjPosition(effect->m_object, p_x, p_y, p_z);
 			}
 
-			FUN_10001926(effect->m_object);
-			FUN_1000199a(effect->m_object);
+			ShowObjTree(effect->m_object);
+			DisableObjTreeCollision(effect->m_object);
 			UpdateObj(effect->m_object);
 			if (effect->m_animation != -1) {
 				FUN_100694df(effect->m_animation, 0);
@@ -871,7 +871,7 @@ void UpdateEffects(void)
 				x = effect->m_position[0];
 				y = effect->m_position[1];
 				z = effect->m_position[2];
-				radius = effect->m_object->m_unk0x6c->m_radius;
+				radius = effect->m_object->m_shape->m_radius;
 				if (g_difficulty->m_splashDamage) {
 					FUN_1006bc13(effect->m_owner, x, y, z, radius, 0x100);
 				}
@@ -908,7 +908,7 @@ void UpdateEffects(void)
 					}
 
 					if (effect->m_object) {
-						FUN_100018ca(effect->m_object);
+						HideObjTree(effect->m_object);
 					}
 
 					if (effect->m_animation > 0) {
@@ -999,12 +999,12 @@ void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 			continue;
 		}
 
-		shape = FUN_10020c26(thing->m_unk0x04);
+		shape = GetStaticObjectShape(thing->m_unk0x04);
 		if (!shape) {
 			continue;
 		}
 
-		radius = FUN_1003adc9(shape, &x, &y, &z);
+		radius = GetShapeBounds(shape, &x, &y, &z);
 		dx = x - p_x;
 		dy = y - p_y;
 		dz = z - p_z;
@@ -1094,7 +1094,7 @@ void FUN_1006bf8c(MechU32 p_index)
 		FUN_1001cdd1();
 	}
 
-	FUN_10020429(thing);
+	DestroyThingObject(thing);
 }
 
 // Takes p_damage off the hit points of the game thing p_shape belongs to; when they run out,
@@ -1162,7 +1162,7 @@ void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 				effect->m_timeLeft = g_effectInfo[0xb].m_duration;
 				SetObjPosition(object, p_x, p_y, p_z);
 				FUN_10004218(piece);
-				FUN_10001926(object);
+				ShowObjTree(object);
 				UpdateObj(object);
 				shown++;
 			}
@@ -1198,7 +1198,7 @@ void FUN_1006c362(void)
 	Shape* shape;
 	MechS32 dz;
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return;
 	}
@@ -1208,7 +1208,7 @@ void FUN_1006c362(void)
 			continue;
 		}
 
-		radius = FUN_1003adc9(shape, &x, &y, &z) * 2;
+		radius = GetShapeBounds(shape, &x, &y, &z) * 2;
 		i = g_playerCount;
 		while (i--) {
 			if (g_netRole && i != g_localPlayerId) {
@@ -1251,7 +1251,7 @@ void FUN_1006c4e2(Player* p_player)
 	i = 0x100;
 	while (i--) {
 		effect = &g_effects[i];
-		if (effect->m_type == 0x16 && effect->m_object && (shape = effect->m_object->m_unk0x6c)) {
+		if (effect->m_type == 0x16 && effect->m_object && (shape = effect->m_object->m_shape)) {
 			g_nukeMaxRadius = shape->m_radius * 100;
 			break;
 		}

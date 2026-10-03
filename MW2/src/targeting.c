@@ -699,7 +699,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 		return -8;
 	}
 
-	if (!FUN_1000154d(target->m_obj)) {
+	if (!GetObjShape(target->m_obj)) {
 		return -8;
 	}
 
@@ -782,15 +782,15 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 		return -5;
 	}
 
-	if (!FUN_10020bdd(thing->m_unk0x04)) {
+	if (!GetStaticSceneObject(thing->m_unk0x04)) {
 		return -8;
 	}
 
-	if (!FUN_10020c26(thing->m_unk0x04)) {
+	if (!GetStaticObjectShape(thing->m_unk0x04)) {
 		return -8;
 	}
 
-	FUN_10020c6f(thing->m_unk0x04, &x, &y, &z);
+	GetStaticObjectPosition(thing->m_unk0x04, &x, &y, &z);
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
@@ -966,7 +966,7 @@ Shape* GetLocalTargetShape(void)
 
 	obj = GetLocalTargetObject();
 	if (obj) {
-		return FUN_1000154d(obj);
+		return GetObjShape(obj);
 	}
 	else {
 		return NULL;
@@ -994,7 +994,7 @@ SceneObject* GetLocalTargetObject(void)
 		break;
 	case 0x400:
 		id = g_gameThings[index].m_unk0x04;
-		obj = FUN_10020bdd(id);
+		obj = GetStaticSceneObject(id);
 		break;
 	default:
 		break;

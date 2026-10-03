@@ -304,7 +304,7 @@ MechU32 FUN_1000a9c0(MechU32 p_flags)
 // points it creates are posted to the stream's event list (the mission table's, once one is
 // read). Returns whether every stream it executed loaded.
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
-// Operand order: the rep record's i < g_unk0x1010b6a0 loads g_unk0x1010b6a0 first in the original.
+// Operand order: the rep record's i < g_thingCapacity loads g_thingCapacity first in the original.
 // FUNCTION: MW2 0x1000a9f5
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
@@ -614,20 +614,20 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdRep]) {
 			MechS32 i;
 
-			if (!g_unk0x100a3858) {
-				g_unk0x100a3858 = 1;
-				g_unk0x100a385c = 0;
-				g_unk0x1012b7b0 = 0;
-				for (i = 0; i < g_unk0x1010b6a0; i++) {
-					g_unk0x100a3850[i] = -1;
+			if (!g_inRepeat) {
+				g_inRepeat = 1;
+				g_repeatPass = 0;
+				g_thingCount = 0;
+				for (i = 0; i < g_thingCapacity; i++) {
+					g_thingIndices[i] = -1;
 				}
 			}
 			else {
-				g_unk0x100a385c++;
+				g_repeatPass++;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdEndRep]) {
-			g_unk0x100a3858 = 0;
+			g_inRepeat = 0;
 		}
 		else if (type == g_bwdTypeCodes[c_bwdBlock]) {
 			BeginBlock((BwdBlockRecord*) node);
@@ -639,7 +639,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			EndBlock(p_stream);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdObject]) {
-			CreateObjectNode((BwdObjectRecord*) node, unk0x18, 0, g_blockDepth, g_unk0x100a3858, g_unk0x100a385c);
+			CreateObjectNode((BwdObjectRecord*) node, unk0x18, 0, g_blockDepth, g_inRepeat, g_repeatPass);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdAnimFile]) {
 			ResourceRef* ref;
@@ -736,7 +736,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						player->m_updateFn = playerType->m_updateFn;
 						player->m_lateUpdateFn = playerType->m_lateUpdateFn;
 						player->m_shutdownFn = playerType->m_shutdownFn;
-						player->m_baseLevel = g_unk0x100a385c;
+						player->m_baseLevel = g_repeatPass;
 						player->m_detailLevel = -1;
 						if (g_localPlayerId == g_playerCount) {
 							player->m_aiMode = 0;
@@ -920,7 +920,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					object = MapResourceId(object);
 					objectIndex = FindStarIdxById(object);
 					if (objectIndex == -1) {
-						objectIndex = FindObjIdxById(object);
+						objectIndex = AllocStaticObject(object);
 					}
 
 					replacementIndex = -1;
@@ -928,12 +928,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						replacement = MapResourceId(replacement);
 						replacementIndex = FindStarIdxById(replacement);
 						if (replacementIndex == -1) {
-							replacementIndex = FindObjIdxById(replacement);
+							replacementIndex = AllocStaticObject(replacement);
 						}
 					}
 
 					if (objectIndex != -1) {
-						FUN_100201fe(objectIndex, replacementIndex, index);
+						LinkStaticObjectThing(objectIndex, replacementIndex, index);
 					}
 				}
 
@@ -979,9 +979,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 							g_shots[g_unk0x100a1740].m_type = shotType;
 							g_shots[g_unk0x100a1740].m_object = obj;
 							g_shots[g_unk0x100a1740].m_unk0x3c = 0;
-							FUN_100018ca(obj);
-							FUN_1000199a(obj);
-							SetObjTreeFlag(obj, 0x400);
+							HideObjTree(obj);
+							DisableObjTreeCollision(obj);
+							SetObjTreeKind(obj, 0x400);
 						}
 					}
 				}
@@ -1015,10 +1015,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 							obj = GetShapeObject(shape);
 							if (obj) {
 								effect->m_object = obj;
-								FUN_100018ca(obj);
-								FUN_1000199a(obj);
+								HideObjTree(obj);
+								DisableObjTreeCollision(obj);
 								if (!(shape->m_kind & 0xf0)) {
-									SetObjTreeFlag(obj, 0x20);
+									SetObjTreeKind(obj, 0x20);
 								}
 
 								effect->m_animation = animation;
@@ -1086,7 +1086,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				id = MapResourceId(id);
 				index = FindStarIdxById(id);
 				if (index != -1) {
-					FUN_10020c6f(index, &x, &y, &z);
+					GetStaticObjectPosition(index, &x, &y, &z);
 					g_navTable[g_navCount].m_position[0] = x;
 					g_navTable[g_navCount].m_position[1] = y;
 					g_navTable[g_navCount].m_position[2] = z;
@@ -1097,7 +1097,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					if (shape) {
 						obj = GetShapeObject(shape);
 						if (obj) {
-							GetObjWorldPos(obj, &x, &y, &z);
+							GetObjWorldAngles(obj, &x, &y, &z);
 							g_navTable[g_navCount].m_obj = obj;
 							g_navTable[g_navCount].m_heading = y;
 							found = TRUE;
@@ -1372,12 +1372,12 @@ MechS32 LoadWorld(MechChar* p_name)
 	key->m_name[0xc] = '\0';
 	SetMangleBase(0);
 	stream = OpenBwdStream(key, (BwdStream*) buffer);
-	if (stream && FUN_1001f3e0()) {
+	if (stream && AllocGeoTables()) {
 		result = BwdExecuteStream(stream);
 		UnloadResource(stream);
 		FUN_1004fd55();
-		FUN_1001f5cb();
-		if (!FUN_10020684()) {
+		FreeGeoTables();
+		if (!AreStaticObjectsComplete()) {
 			Error(0x4b, NULL);
 		}
 	}
@@ -1437,9 +1437,9 @@ void AfterWorldLoader(void)
 			break;
 		}
 
-		obj = FUN_10020bdd(g_gameThings[i].m_unk0x04);
-		if (obj && obj->m_unk0x6c) {
-			g_gameThings[i].m_unk0x10 = obj->m_unk0x6c->m_radius;
+		obj = GetStaticSceneObject(g_gameThings[i].m_unk0x04);
+		if (obj && obj->m_shape) {
+			g_gameThings[i].m_unk0x10 = obj->m_shape->m_radius;
 		}
 	}
 }

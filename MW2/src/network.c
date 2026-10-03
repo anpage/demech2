@@ -348,8 +348,8 @@ MechS32 UpdateNetwork(void)
 		tag[2] = 0;
 		g_lastHeard[slot] = g_unk0x100ba54c;
 		if (player->m_flags & 0x4000) {
-			FUN_10001926(player->m_obj);
-			FUN_100019f6(player->m_obj);
+			ShowObjTree(player->m_obj);
+			EnableObjTreeCollision(player->m_obj);
 			UpdateObj(player->m_obj);
 			player->m_flags &= ~0x4800;
 			ElectMaster();
@@ -396,8 +396,8 @@ MechS32 UpdateNetwork(void)
 		for (i = 0; i < 8; i++) {
 			if (i != g_localPlayerId && g_players[i] != NULL && !(g_players[i]->m_flags & 0x4000) &&
 				g_unk0x100ba54c - g_lastHeard[i] > 0x38e) {
-				FUN_100018ca(g_players[i]->m_obj);
-				FUN_1000199a(g_players[i]->m_obj);
+				HideObjTree(g_players[i]->m_obj);
+				DisableObjTreeCollision(g_players[i]->m_obj);
 				g_players[i]->m_flags |= 0x4800;
 				ElectMaster();
 			}
@@ -759,7 +759,7 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 				15 - ((section->m_unk0x08 + section->m_armor[0] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
 		}
 
-		FUN_10002246(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
+		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
 		if (section->m_unk0x08 <= 0 && !(section->m_unk0x26 & 0x2000)) {
 			FUN_1000899d(player->m_killer, mech, i + 1);
 		}

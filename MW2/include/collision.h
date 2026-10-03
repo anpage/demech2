@@ -38,7 +38,7 @@ extern "C"
 	extern MechS32 g_unk0x100a5544;
 	extern MechS32 g_unk0x100a5548;
 
-	void FUN_10034a40(Shape* p_shape, MechS32 p_unk0x24);
+	void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType);
 	MechS32 FUN_10034a7b(
 		struct Face* p_face,
 		struct Vertex* p_vertices,

@@ -137,13 +137,13 @@ Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject
 		next = shape;
 		while (*p_offset < p_size && LoadShapeRecord(p_data, p_offset, &next, p_parent, &count) == 0) {
 			if (next) {
-				FUN_1003b72f(next, g_shapeFlags);
+				SetShapeLoadFlags(next, g_shapeFlags);
 			}
 		}
 	}
 
 	if (shape) {
-		FUN_1003b72f(shape, g_shapeFlags);
+		SetShapeLoadFlags(shape, g_shapeFlags);
 	}
 
 	return shape;
@@ -270,7 +270,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 			return -1;
 		}
 
-		FUN_1003a7f9(*p_shape, key);
+		SetModelKey(*p_shape, key);
 	}
 	else if (g_shapeHasKey && !AddModel(*p_shape, key, vertexCount, header->m_faceCount, extraSize, (void**) &extra)) {
 		g_shapeLoadError = -2;
@@ -352,25 +352,25 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	g_shapeLoadError = 0;
 
 	if (g_shapeHasObject) {
-		if ((!p_parent || (obj = FUN_100020fa(p_parent, *p_count)) == NULL) &&
-			(obj = FUN_100012d0(p_parent, 0x14)) == NULL) {
+		if ((!p_parent || (obj = GetObjChild(p_parent, *p_count)) == NULL) &&
+			(obj = CreateObj(p_parent, 0x14)) == NULL) {
 			g_shapeLoadError = -2;
 			return -1;
 		}
 
-		if (obj->m_unk0x6c && (obj = FUN_100012d0(p_parent, 0xc)) == NULL) {
+		if (obj->m_shape && (obj = CreateObj(p_parent, 0xc)) == NULL) {
 			g_shapeLoadError = -2;
 			return -1;
 		}
 
 		SetObjPosition(obj, vertex->m_x, vertex->m_y, vertex->m_z);
-		FUN_10001532(obj, *p_shape);
+		SetObjShape(obj, *p_shape);
 		SetShapeObject(*p_shape, obj);
 		UpdateObj(obj);
 		if (*p_count) {
-			FUN_1006d732(*p_shape);
-			FUN_10034a40(*p_shape, g_unk0x100ba688);
-			FUN_1003ad2d(*p_shape, 0x50);
+			AddSceneShape(*p_shape);
+			SetShapeCollisionType(*p_shape, g_unk0x100ba688);
+			SetShapeKind(*p_shape, 0x50);
 		}
 
 		(*p_count)++;

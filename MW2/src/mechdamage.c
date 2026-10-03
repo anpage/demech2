@@ -516,7 +516,7 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	case 7:
 	case 8:
 		if (!(p_mech->m_flags & 0x20)) {
-			FUN_10002314(p_mech->m_player->m_obj, p_section);
+			BlowOffPart(p_mech->m_player->m_obj, p_section);
 			p_mech->m_mobility = 0;
 			p_mech->m_flags |= 0x20;
 			return;
@@ -535,11 +535,11 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 		break;
 	case 5:
 	case 6:
-		FUN_10002314(p_mech->m_player->m_obj, p_section);
+		BlowOffPart(p_mech->m_player->m_obj, p_section);
 		return;
 	}
 
-	FUN_10002314(p_mech->m_player->m_obj, p_section);
+	BlowOffPart(p_mech->m_player->m_obj, p_section);
 	if (p_mech->m_powerState != 4 && p_mech->m_powerState != 5 &&
 		(p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
 		FUN_1000832b(p_attacker, p_mech);
@@ -694,13 +694,13 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 						FUN_10059f6e(1);
 					}
 
-					obj = FUN_100021b6(p_mech->m_player->m_obj, p_section);
+					obj = FindObjByPart(p_mech->m_player->m_obj, p_section);
 					if (!obj) {
-						obj = FUN_100021b6(p_mech->m_player->m_obj, 3);
+						obj = FindObjByPart(p_mech->m_player->m_obj, 3);
 					}
 
 					if (obj) {
-						FUN_1003adc9(FUN_1000154d(obj), &x, &y, &z);
+						GetShapeBounds(GetObjShape(obj), &x, &y, &z);
 						FUN_1006b152(p_attacker, 7, x, y, z, x, y, z);
 					}
 
@@ -1034,7 +1034,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		}
 	}
 
-	FUN_10002246(p_mech->m_player->m_obj, level, p_section);
+	RaisePartDamageLevel(p_mech->m_player->m_obj, level, p_section);
 	return;
 }
 
@@ -1061,15 +1061,15 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 	return;
 }
 
-// Toggles the local player's object between FUN_100018ca and FUN_10001926.
+// Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
 void FUN_10009dd2(void)
 {
 	if (!g_unk0x100a159c) {
-		FUN_100018ca(g_players[g_localPlayerId]->m_obj);
+		HideObjTree(g_players[g_localPlayerId]->m_obj);
 	}
 	else {
-		FUN_10001926(g_players[g_localPlayerId]->m_obj);
+		ShowObjTree(g_players[g_localPlayerId]->m_obj);
 	}
 
 	g_unk0x100a159c = !g_unk0x100a159c;

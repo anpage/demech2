@@ -223,9 +223,9 @@ StaticPoolSize* FUN_100567ed(void)
 	g_staticPoolSizes[0].m_tag = g_staticPoolTags[0];
 	g_staticPoolSizes[1].m_size = FUN_10019a0a() * g_unk0x100e9da8;
 	g_staticPoolSizes[1].m_tag = g_staticPoolTags[1];
-	g_staticPoolSizes[2].m_size = FUN_100023a8() * g_unk0x100e9dac;
+	g_staticPoolSizes[2].m_size = GetObjSize() * g_unk0x100e9dac;
 	g_staticPoolSizes[2].m_tag = g_staticPoolTags[2];
-	g_staticPoolSizes[3].m_size = FUN_1007d5f1() * g_unk0x100e9db4;
+	g_staticPoolSizes[3].m_size = GetTimedCallbackSize() * g_unk0x100e9db4;
 	g_staticPoolSizes[3].m_tag = g_staticPoolTags[3];
 	g_staticPoolSizes[4].m_size = g_unk0x100e9db4 * 0x2c;
 	g_staticPoolSizes[4].m_tag = g_staticPoolTags[4];

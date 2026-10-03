@@ -208,7 +208,12 @@ void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 			g_unk0x100a5ed8.m_y;
 	}
 	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x400) {
-		FUN_10020c6f(g_gameThings[p_mech->m_player->m_targetInfo.m_target & 0xff].m_unk0x04, &unused, &y, &unused);
+		GetStaticObjectPosition(
+			g_gameThings[p_mech->m_player->m_targetInfo.m_target & 0xff].m_unk0x04,
+			&unused,
+			&y,
+			&unused
+		);
 		y = (MulDiv64(g_unk0x100be5b8, height - y, 100) >> 16) + g_unk0x100a5ed8.m_y;
 	}
 	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x100) {
@@ -693,11 +698,11 @@ void FUN_10041c3c(struct SceneObject* p_object, MechS32 p_side)
 	MechS32 size;
 	Point point;
 
-	if (!p_object || !p_object->m_unk0x6c) {
+	if (!p_object || !p_object->m_shape) {
 		return;
 	}
 
-	size = FUN_1003adc9(p_object->m_unk0x6c, &x, &y, &z);
+	size = GetShapeBounds(p_object->m_shape, &x, &y, &z);
 	if (!ProjectWorldPoint(&x, &y, &z)) {
 		point.m_x = x;
 		point.m_y = y;

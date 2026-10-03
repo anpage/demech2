@@ -32,7 +32,7 @@ extern "C"
 	MechS32 InitSqrtTable(void);
 	MechS32 Hypot2D(MechS32 p_x, MechS32 p_y);
 	void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	void FUN_1007cbf1(Matrix* p_matrix);
+	void NormalizeRotation(Matrix* p_matrix);
 	void FUN_1007ccc2(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void FirstClock(void);
 	void NextClock(void);

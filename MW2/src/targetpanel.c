@@ -366,7 +366,7 @@ void FUN_1007c126(CockpitPanel* p_panel)
 
 		return;
 	}
-	else if (!object->m_unk0x6c) {
+	else if (!object->m_shape) {
 		noObject = FUN_1001a19f(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, 0);
@@ -379,7 +379,7 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	}
 
 	if (kind == 0x400) {
-		distance = FUN_1003adc9(object->m_unk0x6c, &x, &y, &z) * 3;
+		distance = GetShapeBounds(object->m_shape, &x, &y, &z) * 3;
 	}
 	else {
 		targetIndex = player->m_targetInfo.m_target & 0xff;

@@ -54,7 +54,7 @@ void FUN_10059fc0(Player* p_player)
 	mech->m_unk0xf0 = 0;
 	MoveObj(mech->m_player->m_obj, 0, mech->m_height, 0);
 	UpdateObj(mech->m_player->m_obj);
-	GetObjWorldPos(
+	GetObjWorldAngles(
 		mech->m_player->m_obj,
 		&mech->m_player->m_pitch,
 		&mech->m_player->m_heading,
@@ -69,7 +69,7 @@ void FUN_10059fc0(Player* p_player)
 	mech->m_player->m_torsoPitch = mech->m_player->m_torsoTwist = mech->m_player->m_torsoRoll = 0;
 	mech->m_player->m_speedLevel = 0;
 	mech->m_player->m_nextMotionState = -1;
-	FUN_100019f6(mech->m_player->m_obj);
+	EnableObjTreeCollision(mech->m_player->m_obj);
 	mech->m_player->m_steering->m_autopilot = 0;
 	mech->m_player->m_steering->m_throttle = 0;
 	mech->m_player->m_steering->m_advanceNav = 0;

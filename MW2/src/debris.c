@@ -72,7 +72,7 @@ MechS32 FUN_10004111(SceneObject* p_obj, MechS32 p_unk0x00)
 
 	FUN_10004c06(i);
 	g_debrisCount++;
-	FUN_10001e32(p_obj);
+	DetachObj(p_obj);
 
 	piece = &g_debrisPieces[i];
 	piece->m_unk0x00 = p_unk0x00;
@@ -110,13 +110,13 @@ void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 	MechS32 piece;
 	DebrisChunk* chunk;
 
-	if (!p_obj || !p_obj->m_unk0x6c) {
+	if (!p_obj || !p_obj->m_shape) {
 		return;
 	}
 
 	destroy = FALSE;
-	if ((p_obj->m_unk0x6c->m_kind & 0xf0) == 0x70 || (p_unk0x16 && p_obj->m_unk0x6c->m_partId == 0)) {
-		FUN_1003ad2d(p_obj->m_unk0x6c, 0x50);
+	if ((p_obj->m_shape->m_kind & 0xf0) == 0x70 || (p_unk0x16 && p_obj->m_shape->m_partId == 0)) {
+		SetShapeKind(p_obj->m_shape, 0x50);
 		destroy = TRUE;
 	}
 
@@ -124,7 +124,7 @@ void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 	}
 
 	if (i == 0x80 || destroy) {
-		FUN_10001e32(p_obj);
+		DetachObj(p_obj);
 		FUN_1000457e(p_obj, p_callback);
 		return;
 	}
@@ -139,9 +139,9 @@ void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		chunk->m_callback = p_callback;
 		chunk->m_startTime = g_currentClock;
 		chunk->m_health = 0x100000;
-		FUN_10001bce(p_obj, 0x300);
-		SetObjTreeFlag(p_obj, 0x50);
-		FUN_10001b0c(p_obj, i);
+		ClearObjTreeKind(p_obj, 0x300);
+		SetObjTreeKind(p_obj, 0x50);
+		SetObjTreeOwner(p_obj, i);
 		FUN_10004218(piece);
 	}
 	else {
@@ -160,12 +160,12 @@ void FUN_100044f3(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		return;
 	}
 
-	child = FUN_10001da4(p_obj);
+	child = GetObjFirstChild(p_obj);
 	if (child) {
 		FUN_100044f3(child, p_callback, p_unk0x16);
 	}
 
-	sibling = FUN_10001dba(p_obj);
+	sibling = GetObjNextSibling(p_obj);
 	if (sibling) {
 		FUN_100044f3(sibling, p_callback, p_unk0x16);
 	}
@@ -223,7 +223,7 @@ void FUN_100046b2(MechS32 p_index)
 	chunk = &g_debrisChunks[p_index];
 	obj = chunk->m_obj;
 	if (obj) {
-		FUN_1003adc9(FUN_1000154d(obj), &x, &y, &z);
+		GetShapeBounds(GetObjShape(obj), &x, &y, &z);
 		FUN_1006b152(-2, 7, x, y, z, x, y, z);
 		FUN_10004e4d(obj);
 		if (chunk->m_callback) {
@@ -275,7 +275,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 		return;
 	}
 
-	radius = FUN_1003adc9(FUN_1000154d(piece->m_obj), &x, &y, &z);
+	radius = GetShapeBounds(GetObjShape(piece->m_obj), &x, &y, &z);
 	y = y - (radius >> 1);
 	newY = y;
 	velocityY = piece->m_velocityY;
@@ -431,7 +431,7 @@ void FUN_10004ce5(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS
 			continue;
 		}
 
-		radius = FUN_1003adc9(FUN_1000154d(chunk->m_obj), &x, &y, &z);
+		radius = GetShapeBounds(GetObjShape(chunk->m_obj), &x, &y, &z);
 		dx = x - p_x;
 		dy = y - p_y;
 		dz = z - p_z;
@@ -465,8 +465,8 @@ void FUN_10004dcb(SceneObject* p_obj, ObjectCallback p_callback)
 void FUN_10004e4d(SceneObject* p_obj)
 {
 	if (p_obj) {
-		FUN_100018ca(p_obj);
-		FUN_1000199a(p_obj);
+		HideObjTree(p_obj);
+		DisableObjTreeCollision(p_obj);
 		UpdateObj(p_obj);
 	}
 }

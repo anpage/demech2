@@ -82,15 +82,15 @@ MechS32 g_unk0x100a5550 = 0xea;
 MechS32 g_unk0x100a5558 = -1;
 
 // FUNCTION: MW2 0x10034a40
-void FUN_10034a40(Shape* p_shape, MechS32 p_unk0x24)
+void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 {
-	p_shape->m_collisionType = p_unk0x24;
+	p_shape->m_collisionType = p_collisionType;
 
-	if (p_unk0x24 == 4) {
-		FUN_1006d989(p_shape);
+	if (p_collisionType == 4) {
+		DisableShapeCollision(p_shape);
 	}
 	else {
-		FUN_1006d8d1(p_shape);
+		EnableShapeCollision(p_shape);
 	}
 }
 
@@ -132,7 +132,7 @@ MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	MechS32 (*getHeight)(Shape*, MechS32, MechS32, MechS32, MechS32*);
 	MechS32 type;
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return 0;
 	}
@@ -192,7 +192,7 @@ MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	MechS32 (*getHeight)(Shape*, MechS32, MechS32, MechS32, MechS32*);
 	MechS32 type;
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return 0;
 	}
@@ -231,7 +231,7 @@ MechS32 FUN_10034db8(Shape* p_shape)
 // FUNCTION: MW2 0x10034deb
 MechS32 TestPointCollision(MechS32 p_x, MechS32 p_y, MechS32 p_z, Shape** p_hit)
 {
-	*p_hit = FUN_10034e59(g_unk0x100ad5e8, p_x, p_y, p_z);
+	*p_hit = FUN_10034e59(g_sceneShapes, p_x, p_y, p_z);
 	if (*p_hit && FUN_10034ee7(*p_hit, p_x, p_y, p_z)) {
 		return 1;
 	}
@@ -305,7 +305,7 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 		return TestPointCollision(p_ray->m_x0, p_ray->m_y0, p_ray->m_z0, p_hit);
 	}
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return 0;
 	}
@@ -362,7 +362,7 @@ MechS32 FUN_10035107(Ray* p_ray, Shape** p_hit)
 		return TestPointCollision(p_ray->m_x0, p_ray->m_y0, p_ray->m_z0, p_hit);
 	}
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return 0;
 	}

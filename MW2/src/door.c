@@ -54,7 +54,7 @@ void FUN_100680a0(Player* p_player)
 	mech->m_unk0xf0 = 0;
 	MoveObj(mech->m_player->m_obj, 0, mech->m_height, 0);
 	UpdateObj(mech->m_player->m_obj);
-	GetObjWorldPos(
+	GetObjWorldAngles(
 		mech->m_player->m_obj,
 		&mech->m_player->m_pitch,
 		&mech->m_player->m_heading,
@@ -73,7 +73,7 @@ void FUN_100680a0(Player* p_player)
 	mech->m_player->m_speedLevel = 0;
 	mech->m_player->m_nextMotionState = -1;
 	mech->m_player->m_pendingSound = -1;
-	FUN_100019f6(mech->m_player->m_obj);
+	EnableObjTreeCollision(mech->m_player->m_obj);
 	mech->m_player->m_headingSin = 0;
 	mech->m_player->m_headingCos = 0x10000;
 	InitializeAI(mech->m_player);

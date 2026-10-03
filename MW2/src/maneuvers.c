@@ -670,9 +670,9 @@ void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32*
 		break;
 	case 0x400:
 		thing = g_gameThings[index].m_unk0x04;
-		obj = FUN_10020bdd(thing);
+		obj = GetStaticSceneObject(thing);
 		if (!obj) {
-			FUN_10020c6f(thing, p_x, p_y, p_z);
+			GetStaticObjectPosition(thing, p_x, p_y, p_z);
 			*p_y = 0;
 			if (g_probeDirections[p_unk0x04].m_x) {
 				*p_x += p_unk0x14 / g_probeDirections[p_unk0x04].m_x;
@@ -707,7 +707,7 @@ void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32*
 		*p_z = 0;
 	}
 
-	matrix = FUN_10001e01(obj);
+	matrix = GetObjWorldMatrix(obj);
 	TransformPoint(matrix, p_x, &y, p_z);
 }
 
@@ -1332,7 +1332,7 @@ void BuildProbeRay(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step,
 
 	dy = 0;
 	mech = p_player->m_mech;
-	matrix = FUN_10001e01(p_player->m_obj);
+	matrix = GetObjWorldMatrix(p_player->m_obj);
 	dx = g_probeDirections[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_x;
 	dz = g_probeDirections[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_y;
 	if (dx) {
@@ -1562,11 +1562,11 @@ Shape* GetTargetShape(MechS16 p_target)
 		break;
 	case 0x400:
 		id = g_gameThings[index].m_unk0x04;
-		obj = FUN_10020bdd(id);
+		obj = GetStaticSceneObject(id);
 		break;
 	}
 
-	return obj ? obj->m_unk0x6c : NULL;
+	return obj ? obj->m_shape : NULL;
 }
 
 // When p_mech's player fires the weapon in p_slot at another player, the target may dodge: an

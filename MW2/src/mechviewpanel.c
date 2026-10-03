@@ -102,9 +102,9 @@ void FUN_100509c8(CockpitPanel* p_panel)
 		view[2] = mech->m_player->m_position.m_z;
 		view[4] = 0x5a0000;
 		view[5] = 0;
-		FUN_100018ca(mech->m_player->m_obj);
+		HideObjTree(mech->m_player->m_obj);
 		FUN_1004c8bd(5, 0x20000, view, 0);
-		FUN_10001926(mech->m_player->m_obj);
+		ShowObjTree(mech->m_player->m_obj);
 		FUN_10050e6c(p_panel, 6, 0xf7);
 		g_renderSettings = saved;
 		break;
@@ -119,9 +119,9 @@ void FUN_100509c8(CockpitPanel* p_panel)
 		}
 
 		view[4] = 0;
-		FUN_100018ca(mech->m_player->m_obj);
+		HideObjTree(mech->m_player->m_obj);
 		FUN_1004c8bd(5, 0x20000, view, 0);
-		FUN_10001926(mech->m_player->m_obj);
+		ShowObjTree(mech->m_player->m_obj);
 		if (g_unk0x100ea3e4) {
 			OutlinePane(p_panel->m_target, 6);
 		}

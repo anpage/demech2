@@ -164,7 +164,7 @@ void FUN_10016ad0(struct Player* p_player)
 	mech->m_mobility = 0x10000;
 	MoveObj(mech->m_player->m_obj, 0, mech->m_height, 0);
 	UpdateObj(mech->m_player->m_obj);
-	GetObjWorldPos(
+	GetObjWorldAngles(
 		mech->m_player->m_obj,
 		&mech->m_player->m_pitch,
 		&mech->m_player->m_heading,
@@ -183,7 +183,7 @@ void FUN_10016ad0(struct Player* p_player)
 	mech->m_player->m_steering->m_nearestEnemy = 0;
 	mech->m_player->m_steering->m_nextObjective = 0;
 	FUN_1000365a(mech->m_player);
-	FUN_100019f6(mech->m_player->m_obj);
+	EnableObjTreeCollision(mech->m_player->m_obj);
 	if (g_unk0x100acb34 && mech->m_player->m_index == g_localPlayerId) {
 		mech->m_player->m_steering->m_throttle = 0x333;
 		mech->m_player->m_steering->m_autopilot = 1;

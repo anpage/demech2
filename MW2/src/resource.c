@@ -696,19 +696,19 @@ void CreateObjectNode(
 			}
 
 			id = MapResourceId(id);
-			FUN_1001f8b5(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
+			PlaceStaticObject(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
 			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
-		else if (p_class && g_unk0x1010b6a0 > g_unk0x1012b7b0) {
-			g_unk0x100a3854[g_unk0x1012b7b0] = MapResourceId(id);
+		else if (p_class && g_thingCapacity > g_thingCount) {
+			g_thingIds[g_thingCount] = MapResourceId(id);
 			mapped = MapResourceId(id);
 			thing = FindThingIdxById(mapped);
 			parent = MapResourceId(parent);
 			parentIndex = FindThingIdxById(parent);
-			g_unk0x100a3850[g_unk0x1012b7b0] =
+			g_thingIndices[g_thingCount] =
 				FUN_1001cf93(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
-			g_unk0x1012b7b0++;
+			g_thingCount++;
 			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
@@ -737,23 +737,23 @@ void CreateObjectNode(
 	if (shape) {
 		shape->m_kind = unk0x34;
 		if (kind >= 0 && kind < 8) {
-			FUN_10034a40(shape, kind);
+			SetShapeCollisionType(shape, kind);
 		}
 		else {
-			FUN_10034a40(shape, 4);
+			SetShapeCollisionType(shape, 4);
 			Error(0x37, NULL);
 		}
 
 		if (first) {
 			mapped = MapResourceId(id);
-			FUN_1001f504(mapped, shape);
+			AddClass(mapped, shape);
 		}
 
 		first = FALSE;
 		if (parent == -2) {
 			BuildMatrix(&matrix, xform.m_angleX, xform.m_angleY, xform.m_angleZ, xform.m_x, xform.m_y, xform.m_z);
 			TransformShape(shape, &matrix);
-			FUN_1006d732(shape);
+			AddSceneShape(shape);
 			if (shape->m_collisionType == 5) {
 				FUN_1001df00(shape);
 			}
@@ -766,13 +766,13 @@ void CreateObjectNode(
 				parentObj = GetShapeObject(classShape);
 			}
 
-			obj = FUN_100012d0(parentObj, 10);
-			FUN_10001532(obj, shape);
+			obj = CreateObj(parentObj, 10);
+			SetObjShape(obj, shape);
 			SetShapeObject(shape, obj);
 			SetObjRotation(obj, xform.m_angleX, xform.m_angleY, xform.m_angleZ, 0);
 			SetObjPosition(obj, xform.m_x, xform.m_y, xform.m_z);
 			UpdateObj(obj);
-			FUN_1006d732(shape);
+			AddSceneShape(shape);
 		}
 	}
 

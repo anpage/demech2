@@ -14,7 +14,7 @@ typedef struct BwdObjectRecord {
 	BwdRecord m_header;           // 0x00
 	MechS16 m_id;                 // 0x08
 	MechS16 m_parent;             // 0x0a — an object id; -1 none, -2 placed in the world
-	MechS16 m_kind;               // 0x0c — FUN_10034a40's, 0 to 7
+	MechS16 m_kind;               // 0x0c — SetShapeCollisionType's, 0 to 7
 	Xform m_xform;                // 0x0e — scale, rotation, position
 	MechS16 m_flags;              // 0x32 — SetShapeFlags'
 	MechS32 m_unk0x34;            // 0x34 — the shape's m_unk0x02

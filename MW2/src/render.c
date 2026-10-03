@@ -197,7 +197,7 @@ void FirstRender(void)
 
 	InitializeDrawBuffer(0x80, 0x5dc);
 	g_unk0x100a54b8 = 0x578;
-	FUN_1006d680();
+	InitShapeLists();
 	g_renderSettings.m_frameDrawCallback = FUN_10012afe;
 	g_renderSettings.m_shapeFilter = CullSceneShape;
 	g_renderSettings.m_projectVertex = ProjectVertex;
@@ -220,7 +220,7 @@ void SecondRender(void)
 	Shape* shape;
 	Shape* next;
 
-	root = g_unk0x100ad5e8;
+	root = g_sceneShapes;
 	if (!root) {
 		return;
 	}
@@ -228,7 +228,7 @@ void SecondRender(void)
 	for (shape = root->m_next; shape; shape = shape->m_next) {
 		if ((shape->m_kind & 0xf0) == 0x90) {
 			g_unk0x100a2478 = GetShapeObject(shape);
-			FUN_10001a52(g_unk0x100a2478);
+			DetachObjTreeShapes(g_unk0x100a2478);
 			break;
 		}
 	}
@@ -243,12 +243,12 @@ void SecondRender(void)
 	for (shape = root->m_next; shape; shape = next) {
 		next = shape->m_next;
 		if ((shape->m_kind & 0xf0) == 0x70) {
-			FUN_1006da2d(shape);
-			FUN_1006d989(shape);
+			HideShape(shape);
+			DisableShapeCollision(shape);
 		}
 
 		if (shape->m_collisionType == 4) {
-			FUN_1006d989(shape);
+			DisableShapeCollision(shape);
 		}
 	}
 }
@@ -297,7 +297,7 @@ void FUN_10012afe(void)
 	}
 
 	if (g_unk0x100a246c && g_unk0x100a2470 && g_unk0x100a2474 != -1) {
-		FUN_10020c6f(g_unk0x100a2474, &g_eyepoint->m_lightX, &g_eyepoint->m_lightY, &g_eyepoint->m_lightZ);
+		GetStaticObjectPosition(g_unk0x100a2474, &g_eyepoint->m_lightX, &g_eyepoint->m_lightY, &g_eyepoint->m_lightZ);
 	}
 
 	g_unk0x100a2480 = 0;
@@ -311,7 +311,7 @@ void FUN_10012afe(void)
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
-	FUN_100338bb(g_unk0x100ad5e8);
+	FUN_100338bb(g_sceneShapes);
 	g_unk0x100a2480 += g_depthEntryCount;
 	if (g_unk0x100a2420 && g_unk0x100a247c) {
 		saved = g_eyepoint->m_nearPlane;
@@ -324,7 +324,7 @@ void FUN_10012afe(void)
 	}
 
 	if (g_unk0x100a2454) {
-		FUN_100131f1(g_unk0x100ad5e8);
+		FUN_100131f1(g_sceneShapes);
 	}
 
 	FUN_10069591();
@@ -368,7 +368,7 @@ void Blit(void)
 // FUNCTION: MW2 0x10012e91
 void ShutdownRender(void)
 {
-	FUN_1006db28();
+	FreeSceneShapes();
 	ShutdownDrawBuffer();
 	if (g_unk0x100a245c && g_currentPane.m_window) {
 		VFX_pane_wipe(&g_currentPane, 0);

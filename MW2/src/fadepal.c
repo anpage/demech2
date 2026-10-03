@@ -66,7 +66,7 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 		FUN_10033b9e(p_object);
 	}
 	else {
-		FUN_100338bb(g_unk0x100ad5e8);
+		FUN_100338bb(g_sceneShapes);
 	}
 
 	FUN_10069591();
@@ -167,7 +167,7 @@ void FUN_1004cc27(Mech* p_mech)
 	MechS32 lowerIndex;
 	MechS32 objIndex;
 
-	FUN_10001926(p_mech->m_player->m_obj);
+	ShowObjTree(p_mech->m_player->m_obj);
 	obj = p_mech->m_player->m_obj;
 	upper = p_mech->m_pitchObj;
 	lower = p_mech->m_torsoObj;

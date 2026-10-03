@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// The callback's event: 0 when created, 1 when due, 2 when removed, -1 from FUN_1007d4b8.
+// The callback's event: 0 when created, 1 when due, 2 when removed, -1 from SignalTask.
 // Its data is the task text of the BWD stream's task record (BwdExecuteStream).
 typedef MechS32 (*TimedCallbackFn)(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 
@@ -26,13 +26,13 @@ extern "C"
 
 	TimedCallback* GetCurrentCallback(void);
 	TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data);
-	void FUN_1007d3bf(TimedCallback** p_list, TimedCallback* p_callback);
-	void FUN_1007d475(TimedCallback** p_list);
-	void FUN_1007d4b8(TimedCallback** p_list, TimedCallback* p_callback);
-	void FUN_1007d4dc(TimedCallback** p_list);
+	void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback);
+	void RemoveAllTasks(TimedCallback** p_list);
+	void SignalTask(TimedCallback** p_list, TimedCallback* p_callback);
+	void SignalAllTasks(TimedCallback** p_list);
 	void** GetCallbackData(TimedCallback* p_callback);
 	void RunTimedCallbacks(TimedCallback** p_list);
-	MechS32 FUN_1007d5f1(void);
+	MechS32 GetTimedCallbackSize(void);
 
 #ifdef __cplusplus
 }

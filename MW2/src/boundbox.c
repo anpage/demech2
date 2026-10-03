@@ -120,7 +120,7 @@ void FUN_1006eb80(
 	if (model->m_transformCount != p_shape->m_transformCount) {
 		selected = p_shape->m_model;
 		p_shape->m_model = model;
-		FUN_1000188b(p_shape);
+		TransformShapeModel(p_shape);
 		p_shape->m_model = selected;
 	}
 
