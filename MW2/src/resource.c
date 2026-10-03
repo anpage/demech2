@@ -120,14 +120,15 @@ MechChar* g_unk0x100a8630 = NULL;
 // GLOBAL: MW2 0x100a8634
 MechChar* g_unk0x100a8634 = NULL;
 
-// The player the world stream (BwdExecuteStream) created last, for FUN_10046750.
+// The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
 // GLOBAL: MW2 0x100a8638
 struct Player* g_lastPlayer = NULL;
 
-// The task kinds of a world stream's task record (BwdExecuteStream).
+// The task kinds of a world stream's task record (BwdExecuteStream): 0 spins a star's object, 1
+// cycles its face colors, 2 moves it around a circle, 3 moves a thing's object through an
+// animation, 4 loops a sound on a star's object, 5 moves it along a path.
 // GLOBAL: MW2 0x100a8640
-TimedCallbackFn g_unk0x100a8640[6] =
-	{FUN_1004771e, FUN_1004748c, FUN_100479ec, FUN_10046750, FUN_10047d10, FUN_10047f60};
+TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionTask, AmbientSoundTask, PathTask};
 
 // GLOBAL: MW2 0x100ea500
 MissionTable* g_missionTables[16];

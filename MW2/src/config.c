@@ -816,7 +816,7 @@ MechS32 FUN_100707c0(
 }
 
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
-// (FUN_10047462), into g_reels.
+// (GetAnimBase), into g_reels.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100708f4
 MechS32 LoadReels(ResourceRef* p_ref)
@@ -859,7 +859,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 	count = *(MechS32*) data;
 	frameCount = *(MechS32*) (data + 4);
 	offset = stride * 2;
-	base = FUN_10047462();
+	base = GetAnimBase();
 	for (i = 0; i < count; i++) {
 		index = *(MechS32*) (data + offset);
 		offset += stride;

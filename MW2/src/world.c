@@ -234,7 +234,7 @@ typedef struct BwdNavObjectRecord {
 // task: a timed callback, on an object or detached.
 typedef struct BwdTaskRecord {
 	BwdRecord m_header; // 0x00
-	MechS16 m_kind;     // 0x08 — an index into g_unk0x100a8640
+	MechS16 m_kind;     // 0x08 — an index into g_taskFns
 	MechS32 m_period;   // 0x0a
 	MechChar m_data[1]; // 0x0e — "object;..."
 } BwdTaskRecord;
@@ -1159,10 +1159,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (kind >= 0 && kind < 6) {
 				index = FindStarIdxById(objectId);
 				if (index != -1) {
-					AttachTaskToObj(index, g_unk0x100a8640[kind], period, data);
+					AttachTaskToObj(index, g_taskFns[kind], period, data);
 				}
 				else {
-					CreateDetachedTask(&g_unk0x100acb20, g_unk0x100a8640[kind], period, data);
+					CreateDetachedTask(&g_unk0x100acb20, g_taskFns[kind], period, data);
 				}
 			}
 			else {

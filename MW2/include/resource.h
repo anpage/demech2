@@ -31,7 +31,7 @@ extern "C"
 	extern MechChar* g_unk0x100a8634;
 	extern struct Player* g_lastPlayer;
 	extern MechS32 g_unk0x100a862c;
-	extern TimedCallbackFn g_unk0x100a8640[6];
+	extern TimedCallbackFn g_taskFns[6];
 	extern MechS32 g_unk0x100a8624;
 	extern MechS32 g_unk0x100ea580[0x96];
 
