@@ -48,388 +48,394 @@ MenuDefinition g_commandPoint2Menu = {
 };
 
 // GLOBAL: MW2 0x100a71d0
-MechChar g_unk0x100a71d0[] = "COMMAND COMPUTER";
+MechChar g_commandComputerTitle[] = "COMMAND COMPUTER";
 
 // GLOBAL: MW2 0x100a71e8
-MechChar g_unk0x100a71e8[] = "Command All";
+MechChar g_commandAllItem[] = "Command All";
 
 // GLOBAL: MW2 0x100a71f8
-MechChar g_unk0x100a71f8[] = "Change Formation";
+MechChar g_changeFormationItem[] = "Change Formation";
 
 // GLOBAL: MW2 0x100a7210
-MechChar g_unk0x100a7210[] = "NO STAR MATES";
+MechChar g_noStarMatesText[] = "NO STAR MATES";
 
 // GLOBAL: MW2 0x100a7220
-MechChar g_unk0x100a7220[] = "Current Form:";
+MechChar g_currentFormationLabel[] = "Current Form:";
 
 // GLOBAL: MW2 0x100a7230
-MechChar g_unk0x100a7230[] = "Command Point 2";
+MechChar g_commandPoint2Item[] = "Command Point 2";
 
 // GLOBAL: MW2 0x100a7240
-MechChar g_unk0x100a7240[] = "Command Point 3";
+MechChar g_commandPoint3Item[] = "Command Point 3";
 
 // GLOBAL: MW2 0x100a7250
-MechChar g_unk0x100a7250[] = "Command Point 4";
+MechChar g_commandPoint4Item[] = "Command Point 4";
 
 // GLOBAL: MW2 0x100a7260
-MechChar g_unk0x100a7260[] = "Command Point 5";
+MechChar g_commandPoint5Item[] = "Command Point 5";
 
 // GLOBAL: MW2 0x100a7270
-MechChar g_unk0x100a7270[] = "Status:";
+MechChar g_statusLabel[] = "Status:";
 
 // GLOBAL: MW2 0x100a7278
-MechChar g_unk0x100a7278[] = "NOT AVAILABLE";
+MechChar g_notAvailableText[] = "NOT AVAILABLE";
 
 // GLOBAL: MW2 0x100a7288
-MechChar g_unk0x100a7288[] = "COMMAND ALL";
+MechChar g_commandAllTitle[] = "COMMAND ALL";
 
 // GLOBAL: MW2 0x100a7298
-MechChar g_unk0x100a7298[] = "CHANGE FORMATION";
+MechChar g_changeFormationTitle[] = "CHANGE FORMATION";
 
 // GLOBAL: MW2 0x100a72b0
-MechChar g_unk0x100a72b0[] = "COMMAND POINT 2";
+MechChar g_commandPoint2Title[] = "COMMAND POINT 2";
 
 // GLOBAL: MW2 0x100a72c0
-MechChar g_unk0x100a72c0[] = "COMMAND POINT 3";
+MechChar g_commandPoint3Title[] = "COMMAND POINT 3";
 
 // GLOBAL: MW2 0x100a72d0
-MechChar g_unk0x100a72d0[] = "COMMAND POINT 4";
+MechChar g_commandPoint4Title[] = "COMMAND POINT 4";
 
 // GLOBAL: MW2 0x100a72e0
-MechChar g_unk0x100a72e0[] = "COMMAND POINT 5";
+MechChar g_commandPoint5Title[] = "COMMAND POINT 5";
 
 // GLOBAL: MW2 0x100a72f0
-MechChar g_unk0x100a72f0[] = "Echelon Left";
+MechChar g_echelonLeftText[] = "Echelon Left";
 
 // GLOBAL: MW2 0x100a7300
-MechChar g_unk0x100a7300[] = "Echelon Right";
+MechChar g_echelonRightText[] = "Echelon Right";
 
 // GLOBAL: MW2 0x100a7310
-MechChar g_unk0x100a7310[] = "Line Abreast";
+MechChar g_lineAbreastText[] = "Line Abreast";
 
 // GLOBAL: MW2 0x100a7320
-MechChar g_unk0x100a7320[] = "Line Astern";
+MechChar g_lineAsternText[] = "Line Astern";
 
 // GLOBAL: MW2 0x100a7330
-MechChar g_unk0x100a7330[] = "V Form";
+MechChar g_vFormText[] = "V Form";
 
 // GLOBAL: MW2 0x100a7338
-MechChar g_unk0x100a7338[] = "Wedge";
+MechChar g_wedgeText[] = "Wedge";
 
 // GLOBAL: MW2 0x100a7340
-MechChar g_unk0x100a7340[] = "No Formation";
+MechChar g_noFormationText[] = "No Formation";
 
 // GLOBAL: MW2 0x100a7350
-MechChar g_unk0x100a7350[] = "Attack";
+MechChar g_orderAttackText[] = "Attack";
 
 // GLOBAL: MW2 0x100a7358
-MechChar g_unk0x100a7358[] = "Defend";
+MechChar g_orderDefendText[] = "Defend";
 
 // GLOBAL: MW2 0x100a7360
-MechChar g_unk0x100a7360[] = "Join Formation";
+MechChar g_orderJoinFormationText[] = "Join Formation";
 
 // GLOBAL: MW2 0x100a7370
-MechChar g_unk0x100a7370[] = "Change Formation";
+MechChar g_orderChangeFormationText[] = "Change Formation";
 
 // GLOBAL: MW2 0x100a7388
-MechChar g_unk0x100a7388[] = "Disengage";
+MechChar g_orderDisengageText[] = "Disengage";
 
 // GLOBAL: MW2 0x100a7398
-MechChar g_unk0x100a7398[] = "Engage at Will";
+MechChar g_orderEngageAtWillText[] = "Engage at Will";
 
 // GLOBAL: MW2 0x100a73a8
-MechChar g_unk0x100a73a8[] = "Shutdown";
+MechChar g_orderShutdownText[] = "Shutdown";
 
 // GLOBAL: MW2 0x100a73b8
-MechChar g_unk0x100a73b8[] = "No Cmd";
+MechChar g_orderNoneText[] = "No Cmd";
 
 // GLOBAL: MW2 0x100a73c0
-MechChar g_unk0x100a73c0[] = "Attack My Target";
+MechChar g_attackMyTargetItem[] = "Attack My Target";
 
 // GLOBAL: MW2 0x100a73d8
-MechChar g_unk0x100a73d8[] = "Defend My Target";
+MechChar g_defendMyTargetItem[] = "Defend My Target";
 
 // GLOBAL: MW2 0x100a73f0
-MechChar g_unk0x100a73f0[] = "Join Formation";
+MechChar g_joinFormationItem[] = "Join Formation";
 
 // GLOBAL: MW2 0x100a7400
-MechChar g_unk0x100a7400[] = "Disengage";
+MechChar g_disengageItem[] = "Disengage";
 
 // GLOBAL: MW2 0x100a7410
-MechChar g_unk0x100a7410[] = "Engage at Will";
+MechChar g_engageAtWillItem[] = "Engage at Will";
 
 // GLOBAL: MW2 0x100a7420
-MechChar g_unk0x100a7420[] = "Shutdown";
+MechChar g_shutdownItem[] = "Shutdown";
 
 // GLOBAL: MW2 0x100a7430
-MechChar g_unk0x100a7430[] = "None ";
+MechChar g_aiStateNoneText[] = "None ";
 
 // GLOBAL: MW2 0x100a7438
-MechChar g_unk0x100a7438[] = "Idle ";
+MechChar g_aiStateIdleText[] = "Idle ";
 
 // GLOBAL: MW2 0x100a7440
-MechChar g_unk0x100a7440[] = "Avoiding ";
+MechChar g_aiStateAvoidText[] = "Avoiding ";
 
 // GLOBAL: MW2 0x100a7450
-MechChar g_unk0x100a7450[] = "Targeting ";
+MechChar g_aiStateTargetText[] = "Targeting ";
 
 // GLOBAL: MW2 0x100a7460
-MechChar g_unk0x100a7460[] = "Engaging ";
+MechChar g_aiStateAttackText[] = "Engaging ";
 
 // GLOBAL: MW2 0x100a7470
-MechChar g_unk0x100a7470[] = "Disengaging ";
+MechChar g_aiStateFleeText[] = "Disengaging ";
 
 // GLOBAL: MW2 0x100a7480
-MechChar g_unk0x100a7480[] = "In Formation ";
+MechChar g_aiStateFollowText[] = "In Formation ";
 
 // GLOBAL: MW2 0x100a7490
-MechChar g_unk0x100a7490[] = "Reconning ";
+MechChar g_aiStateReconText[] = "Reconning ";
 
 // GLOBAL: MW2 0x100a74a0
-MechChar g_unk0x100a74a0[] = "Defending ";
+MechChar g_aiStatePatrolText[] = "Defending ";
 
 // GLOBAL: MW2 0x100a74b0
-MechChar g_unk0x100a74b0[] = "En Route ";
+MechChar g_aiStateGoDirectText[] = "En Route ";
 
 // GLOBAL: MW2 0x100a74c0
-MechChar g_unk0x100a74c0[] = "Disengaging ";
+MechChar g_aiState9Text[] = "Disengaging ";
 
 // GLOBAL: MW2 0x100a74d0
-MechChar g_unk0x100a74d0[] = "Silent ";
+MechChar g_aiStateRestText[] = "Silent ";
 
 // GLOBAL: MW2 0x100a74d8
-MechChar g_unk0x100a74d8[] = "Shutdown ";
+MechChar g_aiStateShutdownText[] = "Shutdown ";
 
 // GLOBAL: MW2 0x100a74e8
-MechChar g_unk0x100a74e8[] = "Destroyed ";
+MechChar g_aiStateDeadText[] = "Destroyed ";
 
 // GLOBAL: MW2 0x100a74f8
-MenuChoices g_unk0x100a74f8 = {
+MenuChoices g_formationChoices = {
 	NULL,
 	7,
-	{g_unk0x100a72f0,
-	 g_unk0x100a7300,
-	 g_unk0x100a7310,
-	 g_unk0x100a7320,
-	 g_unk0x100a7330,
-	 g_unk0x100a7338,
-	 g_unk0x100a7340}
+	{g_echelonLeftText,
+	 g_echelonRightText,
+	 g_lineAbreastText,
+	 g_lineAsternText,
+	 g_vFormText,
+	 g_wedgeText,
+	 g_noFormationText}
 };
 
+// The orders, by g_lanceOrders.
 // GLOBAL: MW2 0x100a7540
-MenuChoices g_unk0x100a7540 = {
+MenuChoices g_orderChoices = {
 	NULL,
 	8,
-	{g_unk0x100a7370,
-	 g_unk0x100a7398,
-	 g_unk0x100a7350,
-	 g_unk0x100a7360,
-	 g_unk0x100a7358,
-	 g_unk0x100a7388,
-	 g_unk0x100a73a8,
-	 g_unk0x100a73b8}
+	{g_orderChangeFormationText,
+	 g_orderEngageAtWillText,
+	 g_orderAttackText,
+	 g_orderJoinFormationText,
+	 g_orderDefendText,
+	 g_orderDisengageText,
+	 g_orderShutdownText,
+	 g_orderNoneText}
 };
 
+// The AI states, by state plus one (GetSlotAiState), each followed by the player's goal.
 // GLOBAL: MW2 0x100a7588
-MenuChoices g_unk0x100a7588 = {
-	FUN_100664cb,
+MenuChoices g_aiStateChoices = {
+	GetSlotGoalName,
 	14,
-	{g_unk0x100a7430,
-	 g_unk0x100a7438,
-	 g_unk0x100a7440,
-	 g_unk0x100a7450,
-	 g_unk0x100a7460,
-	 g_unk0x100a7470,
-	 g_unk0x100a7480,
-	 g_unk0x100a7490,
-	 g_unk0x100a74a0,
-	 g_unk0x100a74b0,
-	 g_unk0x100a74c0,
-	 g_unk0x100a74d0,
-	 g_unk0x100a74d8,
-	 g_unk0x100a74e8}
+	{g_aiStateNoneText,
+	 g_aiStateIdleText,
+	 g_aiStateAvoidText,
+	 g_aiStateTargetText,
+	 g_aiStateAttackText,
+	 g_aiStateFleeText,
+	 g_aiStateFollowText,
+	 g_aiStateReconText,
+	 g_aiStatePatrolText,
+	 g_aiStateGoDirectText,
+	 g_aiState9Text,
+	 g_aiStateRestText,
+	 g_aiStateShutdownText,
+	 g_aiStateDeadText}
 };
 
 // GLOBAL: MW2 0x100a75d0
-MenuChoices g_unk0x100a75d0 = {NULL, 0};
+MenuChoices g_noChoices = {NULL, 0};
 
 // GLOBAL: MW2 0x100a7618
-MenuControl g_unk0x100a7618 = {3, 0, &g_unk0x100a74f8, 0, NULL, FUN_10066223, NULL, NULL, NULL};
+MenuControl g_formationControl = {3, 0, &g_formationChoices, 0, NULL, GetFormation, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7640
-MenuControl g_unk0x100a7640 = {3, 0, &g_unk0x100a7540, 0, NULL, FUN_100661ef, NULL, NULL, NULL};
+MenuControl g_commandAllStatusControl = {3, 0, &g_orderChoices, 0, NULL, GetLanceOrder, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7668
-MenuControl g_unk0x100a7668 = {3, 0, &g_unk0x100a7588, 1, FUN_10066314, FUN_10066272, NULL, NULL, NULL};
+MenuControl g_commandPoint2StatusControl =
+	{3, 0, &g_aiStateChoices, 1, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7690
-MenuControl g_unk0x100a7690 = {3, 0, &g_unk0x100a7588, 2, FUN_10066314, FUN_10066272, NULL, NULL, NULL};
+MenuControl g_commandPoint3StatusControl =
+	{3, 0, &g_aiStateChoices, 2, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a76b8
-MenuControl g_unk0x100a76b8 = {3, 0, &g_unk0x100a7588, 3, FUN_10066314, FUN_10066272, NULL, NULL, NULL};
+MenuControl g_commandPoint4StatusControl =
+	{3, 0, &g_aiStateChoices, 3, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a76e0
-MenuControl g_unk0x100a76e0 = {3, 0, &g_unk0x100a7588, 4, FUN_10066314, FUN_10066272, NULL, NULL, NULL};
+MenuControl g_commandPoint5StatusControl =
+	{3, 0, &g_aiStateChoices, 4, InstallGoalSuffix, GetSlotAiState, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100a7708
-MenuControl g_unk0x100a7708 = {2, 0, &g_unk0x100a75d0, 0, NULL, NULL, NULL, FUN_10066241, NULL};
+MenuControl g_echelonLeftControl = {2, 0, &g_noChoices, 0, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a7730
-MenuControl g_unk0x100a7730 = {2, 0, &g_unk0x100a75d0, 1, NULL, NULL, NULL, FUN_10066241, NULL};
+MenuControl g_echelonRightControl = {2, 0, &g_noChoices, 1, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a7758
-MenuControl g_unk0x100a7758 = {2, 0, &g_unk0x100a75d0, 2, NULL, NULL, NULL, FUN_10066241, NULL};
+MenuControl g_lineAbreastControl = {2, 0, &g_noChoices, 2, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a7780
-MenuControl g_unk0x100a7780 = {2, 0, &g_unk0x100a75d0, 3, NULL, NULL, NULL, FUN_10066241, NULL};
+MenuControl g_lineAsternControl = {2, 0, &g_noChoices, 3, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a77a8
-MenuControl g_unk0x100a77a8 = {2, 0, &g_unk0x100a75d0, 4, NULL, NULL, NULL, FUN_10066241, NULL};
+MenuControl g_vFormControl = {2, 0, &g_noChoices, 4, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a77d0
-MenuControl g_unk0x100a77d0 = {2, 0, &g_unk0x100a75d0, 5, NULL, NULL, NULL, FUN_10066241, NULL};
+MenuControl g_wedgeControl = {2, 0, &g_noChoices, 5, NULL, NULL, NULL, SelectFormation, NULL};
 
 // GLOBAL: MW2 0x100a77f8
-MenuControl g_unk0x100a77f8 = {2, 0, &g_unk0x100a75d0, 0, FUN_100662df, NULL, NULL, FUN_10066369, NULL};
+MenuControl g_attackControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderAttack, NULL};
 
 // GLOBAL: MW2 0x100a7820
-MenuControl g_unk0x100a7820 = {2, 0, &g_unk0x100a75d0, 0, FUN_100662df, NULL, NULL, FUN_100663a4, NULL};
+MenuControl g_engageAtWillControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderEngageAtWill, NULL};
 
 // GLOBAL: MW2 0x100a7848
-MenuControl g_unk0x100a7848 = {2, 0, &g_unk0x100a75d0, 0, FUN_100662df, NULL, NULL, FUN_100663df, NULL};
+MenuControl g_joinFormationControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderJoinFormation, NULL};
 
 // GLOBAL: MW2 0x100a7870
-MenuControl g_unk0x100a7870 = {2, 0, &g_unk0x100a75d0, 0, FUN_100662df, NULL, NULL, FUN_1006641a, NULL};
+MenuControl g_defendControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderDefend, NULL};
 
 // GLOBAL: MW2 0x100a7898
-MenuControl g_unk0x100a7898 = {2, 0, &g_unk0x100a75d0, 0, FUN_100662df, NULL, NULL, FUN_10066455, NULL};
+MenuControl g_disengageControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderDisengage, NULL};
 
 // GLOBAL: MW2 0x100a78c0
-MenuControl g_unk0x100a78c0 = {2, 0, &g_unk0x100a75d0, 0, FUN_100662df, NULL, NULL, FUN_10066490, NULL};
+MenuControl g_shutdownControl = {2, 0, &g_noChoices, 0, SetControlSlot, NULL, NULL, OrderShutdown, NULL};
 
 // GLOBAL: MW2 0x100a78e8
 MenuPage g_changeFormationPage = {
 	0,
-	g_unk0x100a7298,
+	g_changeFormationTitle,
 	0,
 	8,
 	0,
 	NULL,
-	{{3, g_unk0x100a7220, FUN_10072dab, &g_unk0x100a7618, NULL},
-	 {5, g_unk0x100a72f0, FUN_10072dab, &g_unk0x100a7708, NULL},
-	 {5, g_unk0x100a7300, FUN_10072dab, &g_unk0x100a7730, NULL},
-	 {5, g_unk0x100a7310, FUN_10072dab, &g_unk0x100a7758, NULL},
-	 {5, g_unk0x100a7320, FUN_10072dab, &g_unk0x100a7780, NULL},
-	 {5, g_unk0x100a7330, FUN_10072dab, &g_unk0x100a77a8, NULL},
-	 {5, g_unk0x100a7338, FUN_10072dab, &g_unk0x100a77d0, NULL},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL}}
+	{{3, g_currentFormationLabel, RunMenuStatus, &g_formationControl, NULL},
+	 {5, g_echelonLeftText, RunMenuStatus, &g_echelonLeftControl, NULL},
+	 {5, g_echelonRightText, RunMenuStatus, &g_echelonRightControl, NULL},
+	 {5, g_lineAbreastText, RunMenuStatus, &g_lineAbreastControl, NULL},
+	 {5, g_lineAsternText, RunMenuStatus, &g_lineAsternControl, NULL},
+	 {5, g_vFormText, RunMenuStatus, &g_vFormControl, NULL},
+	 {5, g_wedgeText, RunMenuStatus, &g_wedgeControl, NULL},
+	 {6, g_escToExitText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a7a40
 MenuPage g_commandAllPage = {
 	0,
-	g_unk0x100a7288,
+	g_commandAllTitle,
 	0,
 	7,
 	0,
 	NULL,
-	{{3, g_unk0x100a7270, FUN_10072dab, &g_unk0x100a7640, NULL},
-	 {5, g_unk0x100a73c0, FUN_10072dab, &g_unk0x100a77f8, NULL},
-	 {5, g_unk0x100a73d8, FUN_10072dab, &g_unk0x100a7870, NULL},
-	 {5, g_unk0x100a73f0, FUN_10072dab, &g_unk0x100a7848, NULL},
-	 {5, g_unk0x100a7410, FUN_10072dab, &g_unk0x100a7820, NULL},
-	 {5, g_unk0x100a7420, FUN_10072dab, &g_unk0x100a78c0, NULL},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL}}
+	{{3, g_statusLabel, RunMenuStatus, &g_commandAllStatusControl, NULL},
+	 {5, g_attackMyTargetItem, RunMenuStatus, &g_attackControl, NULL},
+	 {5, g_defendMyTargetItem, RunMenuStatus, &g_defendControl, NULL},
+	 {5, g_joinFormationItem, RunMenuStatus, &g_joinFormationControl, NULL},
+	 {5, g_engageAtWillItem, RunMenuStatus, &g_engageAtWillControl, NULL},
+	 {5, g_shutdownItem, RunMenuStatus, &g_shutdownControl, NULL},
+	 {6, g_escToExitText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a7b98
 MenuPage g_commandPoint2Page = {
 	0,
-	g_unk0x100a72b0,
+	g_commandPoint2Title,
 	1,
 	7,
 	0,
-	FUN_100660c2,
-	{{3, g_unk0x100a7270, FUN_10072dab, &g_unk0x100a7668, NULL},
-	 {5, g_unk0x100a73c0, FUN_10072dab, &g_unk0x100a77f8, NULL},
-	 {5, g_unk0x100a73d8, FUN_10072dab, &g_unk0x100a7870, NULL},
-	 {5, g_unk0x100a73f0, FUN_10072dab, &g_unk0x100a7848, NULL},
-	 {5, g_unk0x100a7410, FUN_10072dab, &g_unk0x100a7820, NULL},
-	 {5, g_unk0x100a7420, FUN_10072dab, &g_unk0x100a78c0, NULL},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL},
-	 {3, g_unk0x100a7278, NULL, NULL, NULL}}
+	PrepareCommandPointPage,
+	{{3, g_statusLabel, RunMenuStatus, &g_commandPoint2StatusControl, NULL},
+	 {5, g_attackMyTargetItem, RunMenuStatus, &g_attackControl, NULL},
+	 {5, g_defendMyTargetItem, RunMenuStatus, &g_defendControl, NULL},
+	 {5, g_joinFormationItem, RunMenuStatus, &g_joinFormationControl, NULL},
+	 {5, g_engageAtWillItem, RunMenuStatus, &g_engageAtWillControl, NULL},
+	 {5, g_shutdownItem, RunMenuStatus, &g_shutdownControl, NULL},
+	 {6, g_escToExitText, NULL, NULL, NULL},
+	 {3, g_notAvailableText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a7cf0
 MenuPage g_commandPoint3Page = {
 	0,
-	g_unk0x100a72c0,
+	g_commandPoint3Title,
 	2,
 	7,
 	0,
-	FUN_100660c2,
-	{{3, g_unk0x100a7270, FUN_10072dab, &g_unk0x100a7690, NULL},
-	 {5, g_unk0x100a73c0, FUN_10072dab, &g_unk0x100a77f8, NULL},
-	 {5, g_unk0x100a73d8, FUN_10072dab, &g_unk0x100a7870, NULL},
-	 {5, g_unk0x100a73f0, FUN_10072dab, &g_unk0x100a7848, NULL},
-	 {5, g_unk0x100a7410, FUN_10072dab, &g_unk0x100a7820, NULL},
-	 {5, g_unk0x100a7420, FUN_10072dab, &g_unk0x100a78c0, NULL},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL},
-	 {3, g_unk0x100a7278, NULL, NULL, NULL}}
+	PrepareCommandPointPage,
+	{{3, g_statusLabel, RunMenuStatus, &g_commandPoint3StatusControl, NULL},
+	 {5, g_attackMyTargetItem, RunMenuStatus, &g_attackControl, NULL},
+	 {5, g_defendMyTargetItem, RunMenuStatus, &g_defendControl, NULL},
+	 {5, g_joinFormationItem, RunMenuStatus, &g_joinFormationControl, NULL},
+	 {5, g_engageAtWillItem, RunMenuStatus, &g_engageAtWillControl, NULL},
+	 {5, g_shutdownItem, RunMenuStatus, &g_shutdownControl, NULL},
+	 {6, g_escToExitText, NULL, NULL, NULL},
+	 {3, g_notAvailableText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a7e48
 MenuPage g_commandPoint4Page = {
 	0,
-	g_unk0x100a72d0,
+	g_commandPoint4Title,
 	3,
 	7,
 	0,
-	FUN_100660c2,
-	{{3, g_unk0x100a7270, FUN_10072dab, &g_unk0x100a76b8, NULL},
-	 {5, g_unk0x100a73c0, FUN_10072dab, &g_unk0x100a77f8, NULL},
-	 {5, g_unk0x100a73d8, FUN_10072dab, &g_unk0x100a7870, NULL},
-	 {5, g_unk0x100a73f0, FUN_10072dab, &g_unk0x100a7848, NULL},
-	 {5, g_unk0x100a7410, FUN_10072dab, &g_unk0x100a7820, NULL},
-	 {5, g_unk0x100a7420, FUN_10072dab, &g_unk0x100a78c0, NULL},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL},
-	 {3, g_unk0x100a7278, NULL, NULL, NULL}}
+	PrepareCommandPointPage,
+	{{3, g_statusLabel, RunMenuStatus, &g_commandPoint4StatusControl, NULL},
+	 {5, g_attackMyTargetItem, RunMenuStatus, &g_attackControl, NULL},
+	 {5, g_defendMyTargetItem, RunMenuStatus, &g_defendControl, NULL},
+	 {5, g_joinFormationItem, RunMenuStatus, &g_joinFormationControl, NULL},
+	 {5, g_engageAtWillItem, RunMenuStatus, &g_engageAtWillControl, NULL},
+	 {5, g_shutdownItem, RunMenuStatus, &g_shutdownControl, NULL},
+	 {6, g_escToExitText, NULL, NULL, NULL},
+	 {3, g_notAvailableText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a7fa0
 MenuPage g_commandPoint5Page = {
 	0,
-	g_unk0x100a72e0,
+	g_commandPoint5Title,
 	4,
 	7,
 	0,
-	FUN_100660c2,
-	{{3, g_unk0x100a7270, FUN_10072dab, &g_unk0x100a76e0, NULL},
-	 {5, g_unk0x100a73c0, FUN_10072dab, &g_unk0x100a77f8, NULL},
-	 {5, g_unk0x100a73d8, FUN_10072dab, &g_unk0x100a7870, NULL},
-	 {5, g_unk0x100a73f0, FUN_10072dab, &g_unk0x100a7848, NULL},
-	 {5, g_unk0x100a7410, FUN_10072dab, &g_unk0x100a7820, NULL},
-	 {5, g_unk0x100a7420, FUN_10072dab, &g_unk0x100a78c0, NULL},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL},
-	 {3, g_unk0x100a7278, NULL, NULL, NULL}}
+	PrepareCommandPointPage,
+	{{3, g_statusLabel, RunMenuStatus, &g_commandPoint5StatusControl, NULL},
+	 {5, g_attackMyTargetItem, RunMenuStatus, &g_attackControl, NULL},
+	 {5, g_defendMyTargetItem, RunMenuStatus, &g_defendControl, NULL},
+	 {5, g_joinFormationItem, RunMenuStatus, &g_joinFormationControl, NULL},
+	 {5, g_engageAtWillItem, RunMenuStatus, &g_engageAtWillControl, NULL},
+	 {5, g_shutdownItem, RunMenuStatus, &g_shutdownControl, NULL},
+	 {6, g_escToExitText, NULL, NULL, NULL},
+	 {3, g_notAvailableText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a80f8
 MenuPage g_commandComputerPage = {
 	0,
-	g_unk0x100a71d0,
+	g_commandComputerTitle,
 	0,
 	8,
 	0,
-	FUN_10065f50,
-	{{0, g_unk0x100a71f8, FUN_10072dab, &g_unk0x100a7618, &g_changeFormationPage},
-	 {0, g_unk0x100a7230, FUN_10072dab, &g_unk0x100a7668, &g_commandPoint2Page},
-	 {0, g_unk0x100a7240, FUN_10072dab, &g_unk0x100a7690, &g_commandPoint3Page},
-	 {0, g_unk0x100a7250, FUN_10072dab, &g_unk0x100a76b8, &g_commandPoint4Page},
-	 {0, g_unk0x100a7260, FUN_10072dab, &g_unk0x100a76e0, &g_commandPoint5Page},
-	 {0, g_unk0x100a71e8, FUN_10072dab, &g_unk0x100a7640, &g_commandAllPage},
-	 {6, g_unk0x100a1af0, NULL, NULL, NULL},
-	 {3, g_unk0x100a7210, NULL, NULL, NULL}}
+	PrepareCommandComputerPage,
+	{{0, g_changeFormationItem, RunMenuStatus, &g_formationControl, &g_changeFormationPage},
+	 {0, g_commandPoint2Item, RunMenuStatus, &g_commandPoint2StatusControl, &g_commandPoint2Page},
+	 {0, g_commandPoint3Item, RunMenuStatus, &g_commandPoint3StatusControl, &g_commandPoint3Page},
+	 {0, g_commandPoint4Item, RunMenuStatus, &g_commandPoint4StatusControl, &g_commandPoint4Page},
+	 {0, g_commandPoint5Item, RunMenuStatus, &g_commandPoint5StatusControl, &g_commandPoint5Page},
+	 {0, g_commandAllItem, RunMenuStatus, &g_commandAllStatusControl, &g_commandAllPage},
+	 {6, g_escToExitText, NULL, NULL, NULL},
+	 {3, g_noStarMatesText, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100a8250

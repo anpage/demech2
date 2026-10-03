@@ -10,15 +10,17 @@
 #include "team.h"
 #include "types.h"
 
+// The order each AI slot was given last, an index into g_orderChoices (7: none); slot 0 is the
+// whole star's.
 // GLOBAL: MW2 0x100acaf0
-MechS32 g_unk0x100acaf0[8] = {7, 7, 7, 7, 7, 0, 0, 0};
+MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 
 // Fills the page with an item per AI slot (from template 5) and a last one (template 6), marking
 // the slots whose player is in AI state 12. With no slot, or every slot marked, the page has only
 // templates 7 and 6.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10065f50
-MechS32 FUN_10065f50(MenuDefinition* p_menu, MenuPage* p_page)
+MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 marked;
 	MechS32 slot;
@@ -63,7 +65,7 @@ MechS32 FUN_10065f50(MenuDefinition* p_menu, MenuPage* p_page)
 // items.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100660c2
-MechS32 FUN_100660c2(MenuDefinition* p_menu, MenuPage* p_page)
+MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 count;
 	MechS32 slot;
@@ -98,28 +100,28 @@ MechS32 FUN_100660c2(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x100661ef
-MechS32 FUN_100661ef(MechS32 p_index)
+MechS32 GetLanceOrder(MechS32 p_index)
 {
 	MechS32 state;
 
 	state = 7;
 	if (p_index < 8) {
-		state = g_unk0x100acaf0[p_index];
+		state = g_lanceOrders[p_index];
 	}
 
 	return state;
 }
 
 // FUNCTION: MW2 0x10066223
-MechS32 FUN_10066223(MechS32 p_arg)
+MechS32 GetFormation(MechS32 p_arg)
 {
 	return GetTeamFormation(g_unk0x100a5918);
 }
 
 // FUNCTION: MW2 0x10066241
-void FUN_10066241(MechS32 p_formation, MechS32 p_value)
+void SelectFormation(MechS32 p_formation, MechS32 p_value)
 {
-	g_unk0x100acaf0[0] = 0;
+	g_lanceOrders[0] = 0;
 	SetTeamFormation(g_unk0x100a5918, p_formation);
 	RequestMenuClose(1);
 }
@@ -127,7 +129,7 @@ void FUN_10066241(MechS32 p_formation, MechS32 p_value)
 // Returns the AI state of the player in AI slot p_index, plus one (0: none).
 // Stack-slot permutation: player, ai, index and state.
 // FUNCTION: MW2 0x10066272
-MechS32 FUN_10066272(MechS32 p_index)
+MechS32 GetSlotAiState(MechS32 p_index)
 {
 	Player* player;
 	PlayerAi* ai;
@@ -151,7 +153,7 @@ MechS32 FUN_10066272(MechS32 p_index)
 
 // Gives the control the page's AI slot.
 // FUNCTION: MW2 0x100662df
-void FUN_100662df(MenuPage* p_page, MenuControl* p_control)
+void SetControlSlot(MenuPage* p_page, MenuControl* p_control)
 {
 	if (!p_page) {
 		return;
@@ -164,10 +166,10 @@ void FUN_100662df(MenuPage* p_page, MenuControl* p_control)
 	p_control->m_arg = p_page->m_unk0x08;
 }
 
-// Installs FUN_100664cb as the suffix of the control's choices.
+// Installs GetSlotGoalName as the suffix of the control's choices.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10066314
-void FUN_10066314(MenuPage* p_page, MenuControl* p_control)
+void InstallGoalSuffix(MenuPage* p_page, MenuControl* p_control)
 {
 	MenuChoicesSuffixFn old;
 	MenuChoices* choices;
@@ -186,14 +188,16 @@ void FUN_10066314(MenuPage* p_page, MenuControl* p_control)
 	}
 
 	old = choices->m_suffix;
-	choices->m_suffix = FUN_100664cb;
+	choices->m_suffix = GetSlotGoalName;
 }
 
+// The orders' actions: each records the order for the menu and gives it to the slot's player
+// (OrderStarSlot).
 // FUNCTION: MW2 0x10066369
-void FUN_10066369(MechS32 p_index, MechS32 p_value)
+void OrderAttack(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
-		g_unk0x100acaf0[p_index] = 2;
+		g_lanceOrders[p_index] = 2;
 		OrderStarSlot(p_index, 2);
 	}
 
@@ -201,10 +205,10 @@ void FUN_10066369(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x100663a4
-void FUN_100663a4(MechS32 p_index, MechS32 p_value)
+void OrderEngageAtWill(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
-		g_unk0x100acaf0[p_index] = 1;
+		g_lanceOrders[p_index] = 1;
 		OrderStarSlot(p_index, 3);
 	}
 
@@ -212,10 +216,10 @@ void FUN_100663a4(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x100663df
-void FUN_100663df(MechS32 p_index, MechS32 p_value)
+void OrderJoinFormation(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
-		g_unk0x100acaf0[p_index] = 3;
+		g_lanceOrders[p_index] = 3;
 		OrderStarSlot(p_index, 5);
 	}
 
@@ -223,10 +227,10 @@ void FUN_100663df(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x1006641a
-void FUN_1006641a(MechS32 p_index, MechS32 p_value)
+void OrderDefend(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
-		g_unk0x100acaf0[p_index] = 4;
+		g_lanceOrders[p_index] = 4;
 		OrderStarSlot(p_index, 7);
 	}
 
@@ -234,10 +238,10 @@ void FUN_1006641a(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10066455
-void FUN_10066455(MechS32 p_index, MechS32 p_value)
+void OrderDisengage(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
-		g_unk0x100acaf0[p_index] = 5;
+		g_lanceOrders[p_index] = 5;
 		OrderStarSlot(p_index, 8);
 	}
 
@@ -245,10 +249,10 @@ void FUN_10066455(MechS32 p_index, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10066490
-void FUN_10066490(MechS32 p_index, MechS32 p_value)
+void OrderShutdown(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
-		g_unk0x100acaf0[p_index] = 6;
+		g_lanceOrders[p_index] = 6;
 		OrderStarSlot(p_index, 0xb);
 	}
 
@@ -258,7 +262,13 @@ void FUN_10066490(MechS32 p_index, MechS32 p_value)
 // Returns the name of the goal of the control's AI player: a nav, a player or a game thing.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100664cb
-MechChar* FUN_100664cb(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+MechChar* GetSlotGoalName(
+	MenuDefinition* p_menu,
+	MenuControl* p_control,
+	MechS32 p_index,
+	Point p_pos,
+	MenuPage* p_page
+)
 {
 	MechS16 target;
 	Player* player;

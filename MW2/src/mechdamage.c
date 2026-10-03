@@ -32,9 +32,9 @@
 
 #include <stdio.h>
 
-// A game-key toggle (FUN_1005e9b0's setting 0x3c).
+// A game-key toggle (GetSystemSetting's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
-MechS32 g_unk0x100a1590 = 0;
+MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_unk0x100a1598).
 // GLOBAL: MW2 0x100a1594
@@ -712,7 +712,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 						FUN_1000899d(p_attacker, p_mech, p_section);
 					}
 
-					if (g_unk0x100a1590 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+					if (g_autoEject && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
 						p_mech->m_powerState = 5;
 						FUN_1000832b(p_attacker, p_mech);
 					}

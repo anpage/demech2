@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-	extern MechChar g_unk0x100b1438[];
+	extern MechChar g_combatVariablesItem[];
 	extern MenuPage g_combatVariablesPage;
 
 	void FirstPerfSetting(void);

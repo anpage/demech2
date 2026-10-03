@@ -299,7 +299,7 @@ MenuPage g_unk0x100afe88 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afc58, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afc58, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100affe0
@@ -310,7 +310,7 @@ MenuPage g_unk0x100affe0 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afc80, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afc80, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0138
@@ -321,7 +321,7 @@ MenuPage g_unk0x100b0138 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afca8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afca8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0290
@@ -332,7 +332,7 @@ MenuPage g_unk0x100b0290 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afcd0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afcd0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b03e8
@@ -343,7 +343,7 @@ MenuPage g_unk0x100b03e8 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afcf8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afcf8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0540
@@ -354,7 +354,7 @@ MenuPage g_unk0x100b0540 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd20, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afd20, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0698
@@ -365,7 +365,7 @@ MenuPage g_unk0x100b0698 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd48, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afd48, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b07f0
@@ -376,7 +376,7 @@ MenuPage g_unk0x100b07f0 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd70, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afd70, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0948
@@ -387,7 +387,7 @@ MenuPage g_unk0x100b0948 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd98, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afd98, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0aa0
@@ -398,7 +398,7 @@ MenuPage g_unk0x100b0aa0 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afdc0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afdc0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0bf8
@@ -409,7 +409,7 @@ MenuPage g_unk0x100b0bf8 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afde8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afde8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0d50
@@ -420,7 +420,7 @@ MenuPage g_unk0x100b0d50 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afe10, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afe10, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0ea8
@@ -431,7 +431,7 @@ MenuPage g_unk0x100b0ea8 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afe38, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afe38, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b1000
@@ -442,7 +442,7 @@ MenuPage g_unk0x100b1000 = {
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afe60, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_unk0x100afe60, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b1158
@@ -557,7 +557,7 @@ MechS32 g_dorcsReverse = 1;
 // A menu item's action: ejects the local player (game key 0x3b) without its sound.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073af0
-void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 saved;
 	MechS32 digit;
@@ -582,7 +582,7 @@ void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 // A menu item's action: ejects the local player's mech.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073ba6
-void FUN_10073ba6(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void FleeToWindowsAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 digit;
 	MechS32 selected;

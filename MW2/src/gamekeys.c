@@ -49,9 +49,9 @@ MechS32 g_unk0x100aa290 = 0;
 // GLOBAL: MW2 0x100aa294
 MechS32 g_unk0x100aa294 = 0;
 
-// A game-key toggle (FUN_1005e9b0's setting 0x40).
+// A game-key toggle (GetSystemSetting's setting 0x40).
 // GLOBAL: MW2 0x100aa298
-MechS32 g_unk0x100aa298 = 0;
+MechS32 g_overrideShutdown = 0;
 
 // Set by game key 0x11.
 // GLOBAL: MW2 0x100aa2a0
@@ -447,7 +447,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 			g_chatRecipient = 0;
 			FUN_100115f4(0, 1);
 			g_renderSettings.m_wireframe = 0;
-			FUN_1007d88a(0, 0);
+			SetInfrared(0, 0);
 			g_unk0x100aa294 = g_currentClock + 0x108;
 			if (!g_netRole) {
 				g_unk0x100aa2a8 = 1;
@@ -510,7 +510,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				break;
 			case 0x4f:
 				g_renderSettings.m_wireframe = 0;
-				FUN_1007d88a(0, 0);
+				SetInfrared(0, 0);
 				FUN_1007fbe0(g_localPlayerId, 0, 0, 0);
 				FUN_10011401(0);
 				g_sinkPilotTiltReset = 1;
@@ -812,13 +812,13 @@ void FUN_1005c78a(MechS32 p_key)
 		break;
 	case 0x3c:
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			if (g_unk0x100a1590) {
-				g_unk0x100a1590 = 0;
+			if (g_autoEject) {
+				g_autoEject = 0;
 				sprintf(text, "Automatic ejection OFF");
 				ShowInGameMessage(text, 1, 0x16a, 0x32);
 			}
 			else {
-				g_unk0x100a1590 = 1;
+				g_autoEject = 1;
 				sprintf(text, "Automatic ejection ON");
 				ShowInGameMessage(text, 1, 0x16a, 0x32);
 			}
@@ -853,7 +853,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0x40:
-		g_unk0x100aa298 = 1;
+		g_overrideShutdown = 1;
 		break;
 	case 0xa7:
 		if (g_renderSettings.m_wireframe != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
@@ -866,7 +866,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0xa6:
-		FUN_1007d88a(0, !g_unk0x100bfd50);
+		SetInfrared(0, !g_infraredOn);
 		break;
 	case 0x41:
 		g_chatRecipient = 0;

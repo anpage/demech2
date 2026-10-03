@@ -14,8 +14,8 @@ extern "C"
 	extern MenuDefinition g_systemsMenu;
 	extern MenuPage* g_systemsMenuPageStack[8];
 
-	MechS32 FUN_1005e9b0(MechS32 p_id);
-	void FUN_1005eb10(MechS32 p_id, MechS32 p_value);
+	MechS32 GetSystemSetting(MechS32 p_id);
+	void SetSystemSetting(MechS32 p_id, MechS32 p_value);
 
 #ifdef __cplusplus
 }

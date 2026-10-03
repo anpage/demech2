@@ -12,11 +12,11 @@ extern "C"
 {
 #endif
 
-	extern MechChar g_unk0x100a1ad8[];
-	extern MechChar g_unk0x100a1af0[];
-	extern MenuChoices g_unk0x100a1ba0;
-	extern MenuChoices g_unk0x100a1c30;
-	extern MechS32 g_unk0x100a1cc0[8];
+	extern MechChar g_acceptText[];
+	extern MechChar g_escToExitText[];
+	extern MenuChoices g_offOnChoices;
+	extern MenuChoices g_lowHighChoices;
+	extern MechS32 g_sliderShapes[8];
 	extern MenuDefinition g_mainMenu;
 	extern MenuPage* g_mainMenuPageStack[8];
 

@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100bfd50;
+	extern MechS32 g_infraredOn;
 
 	extern MechS32 g_unk0x100ba5fc;
 	extern MechS32 g_unk0x100ba600;
@@ -24,8 +24,8 @@ extern "C"
 	void FirstEnvironment(void);
 	void FUN_1007d6bb(void);
 	void FUN_1007d7e3(MechS32 p_index);
-	MechS32 FUN_1007d875(undefined4 p_unk0x00);
-	void FUN_1007d88a(undefined4 p_unk0x00, MechS32 p_state);
+	MechS32 IsInfraredOn(undefined4 p_unk0x00);
+	void SetInfrared(undefined4 p_unk0x00, MechS32 p_state);
 	void FUN_1007d931(void);
 	void FUN_1007d97c(void);
 

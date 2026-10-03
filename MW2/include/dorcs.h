@@ -19,8 +19,20 @@ extern "C"
 	extern MenuDefinition g_dorcsMenu;
 	extern MenuPage* g_dorcsMenuPageStack[8];
 
-	void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page);
-	void FUN_10073ba6(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page);
+	void AbortMissionAction(
+		MenuDefinition* p_menu,
+		MenuControl* p_control,
+		MechS32 p_index,
+		Point p_pos,
+		MenuPage* p_page
+	);
+	void FleeToWindowsAction(
+		MenuDefinition* p_menu,
+		MenuControl* p_control,
+		MechS32 p_index,
+		Point p_pos,
+		MenuPage* p_page
+	);
 	void* ReadVfxBin(MechChar* p_name);
 	void FUN_10073cb5(void);
 	void UpdateDorcs(void);

@@ -22,21 +22,21 @@ typedef struct RenderSettings {
 	undefined4 m_unk0x28[(0x30 - 0x28) / 4]; // 0x28
 	MechS32 m_clearFrame;                    // 0x30 — clears the pane each frame; FirstRender clears it when
 											 // the sky or the ground covers the view
-	MechS32 m_wireframe;                     // 0x34 — 0 fills polygons, 1 fills and outlines, else outlines
-											 // (TOGGLE_WIREFRAME)
-	MechS32 m_wireframeColors;               // 0x38 — in wireframe, colors faces by the shape's kind (0),
-											 // collision type (1) or flags (2) (COLLISION_WIREFRAME)
-	MechS32 m_unk0x3c;                       // 0x3c — set with a fade distance, cleared while an effect lights
-											 // the scene
-	undefined4 m_unk0x40;                    // 0x40
-	MechS32 m_fadeDistance;                  // 0x44 — shades dim with the distance over it (FUN_100367c5)
-	undefined4 m_unk0x48;                    // 0x48
-	MechS32 m_affineTextures;                // 0x4c — textures without perspective correction (low display
-											 // detail)
-	MechU32 m_untexturedKinds;               // 0x50 — the shape kinds (0x100 game pieces, 0x200 game things,
-											 // 0x800 terrain...) drawn without their texture maps
-	void (*m_frameDrawCallback)(void);       // 0x54
-	MechS32 (*m_shapeFilter)();              // 0x58 — a shape filter: nonzero skips the shape
+	MechS32 m_wireframe;               // 0x34 — 0 fills polygons, 1 fills and outlines (ENHANCED_VISION), else outlines
+									   // (TOGGLE_WIREFRAME)
+	MechS32 m_wireframeColors;         // 0x38 — in wireframe, colors faces by the shape's kind (0),
+									   // collision type (1) or flags (2) (COLLISION_WIREFRAME)
+	MechS32 m_unk0x3c;                 // 0x3c — set with a fade distance, cleared while an effect lights
+									   // the scene
+	undefined4 m_unk0x40;              // 0x40
+	MechS32 m_fadeDistance;            // 0x44 — shades dim with the distance over it (FUN_100367c5)
+	undefined4 m_unk0x48;              // 0x48
+	MechS32 m_affineTextures;          // 0x4c — textures without perspective correction (low display
+									   // detail)
+	MechU32 m_untexturedKinds;         // 0x50 — the shape kinds (0x100 game pieces, 0x200 game things,
+									   // 0x800 terrain...) drawn without their texture maps
+	void (*m_frameDrawCallback)(void); // 0x54
+	MechS32 (*m_shapeFilter)();        // 0x58 — a shape filter: nonzero skips the shape
 	struct ProjectedVertex* (*m_projectVertex)(struct ProjectedVertex* p_vertex); // 0x5c — projects a vertex
 	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (FUN_10036230)
 	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags);   // 0x64

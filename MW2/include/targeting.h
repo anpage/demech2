@@ -21,7 +21,7 @@ extern "C"
 	extern MechS32 g_navCount;
 	extern MechS32 g_inspectResult;
 	extern MechS32 g_reticleTargeting;
-	extern struct SageLark0x1c* g_unk0x100aabd4;
+	extern struct CockpitReadout* g_cockpitReadout;
 	extern struct CockpitLayout* g_cockpitLayouts[6];
 	extern NavPoint g_navTable[128];
 

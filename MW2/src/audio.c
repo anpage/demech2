@@ -53,7 +53,7 @@ MechS32 g_nextEngageCheck;
 
 // Returns setting p_setting. Asking for the music volume turns the CD music on.
 // FUNCTION: MW2 0x10006760
-MechS32 FUN_10006760(MechS32 p_setting)
+MechS32 GetSoundSetting(MechS32 p_setting)
 {
 	MechS32 value;
 
@@ -90,7 +90,7 @@ MechS32 FUN_10006760(MechS32 p_setting)
 
 // Sets setting p_setting to p_value, and lets the sound system that uses it know.
 // FUNCTION: MW2 0x10006845
-void FUN_10006845(MechS32 p_setting, MechS32 p_value)
+void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	MechS32 old;
 	void (*notify)(void);
@@ -163,7 +163,7 @@ void FUN_10006845(MechS32 p_setting, MechS32 p_value)
 
 // Sets setting p_setting to p_value, in the settings MW2SND.CFG saves too.
 // FUNCTION: MW2 0x100069c9
-void FUN_100069c9(MechS32 p_setting, MechS32 p_value)
+void SetSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	if (p_setting >= 0 && p_setting < 5) {
 		switch (p_setting) {
@@ -217,7 +217,7 @@ void FUN_100069c9(MechS32 p_setting, MechS32 p_value)
 
 // Restores setting p_setting from the settings MW2SND.CFG saves.
 // FUNCTION: MW2 0x10006b3a
-void FUN_10006b3a(MechS32 p_setting)
+void RestoreSoundSetting(MechS32 p_setting)
 {
 	if (p_setting >= 0 && p_setting < 5) {
 		switch (p_setting) {

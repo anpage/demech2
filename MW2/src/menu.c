@@ -166,7 +166,7 @@ void FreeMenus(void)
 // the background moves to the target's left edge.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003c5a2
-void FUN_1003c5a2(MenuDefinition* p_menu)
+void LayoutMenu(MenuDefinition* p_menu)
 {
 	Point scale;
 	void* shape;
@@ -354,7 +354,7 @@ void FirstMenu(void)
 			if (menu->m_target && menu->m_backgroundTarget) {
 				menu->m_backgroundTarget->m_window = &g_mainPixelBuffer;
 				menu->m_target->m_window = menu->m_backgroundTarget->m_window;
-				FUN_1003c5a2(menu);
+				LayoutMenu(menu);
 				page = menu->m_rootPage;
 				if (page) {
 					ok = 1;

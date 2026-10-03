@@ -20,7 +20,7 @@ extern "C"
 	extern MechS32 g_unk0x100ea3e4;
 	extern MechS32 g_unk0x100aa290;
 	extern MechS32 g_unk0x100aa294;
-	extern MechS32 g_unk0x100aa298;
+	extern MechS32 g_overrideShutdown;
 	extern MechChar g_unk0x100e9620[0xf];
 
 	MechS32 FUN_1005b7c0(MechS16 p_key);

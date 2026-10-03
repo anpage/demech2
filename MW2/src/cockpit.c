@@ -5,6 +5,7 @@
 #include "classtable.h"
 #include "clock.h"
 #include "cockpitpanel.h"
+#include "cockpitreadout.h"
 #include "collision.h"
 #include "config.h"
 #include "decomp.h"
@@ -33,7 +34,6 @@
 #include "recttransition.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "sagelark.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
@@ -248,7 +248,7 @@ void InitCockpitViews(void)
 	g_cockpitLayoutIndex = 0;
 	g_requestedCockpitView = 1;
 	g_previousCockpitView = 0;
-	ScalePointToFrame(&g_currentPane, &g_unk0x100aabd4->m_position, &g_unk0x100aabd4->m_position);
+	ScalePointToFrame(&g_currentPane, &g_cockpitReadout->m_position, &g_cockpitReadout->m_position);
 	g_mapShadeBase -= 1000;
 	g_mapShadeRange = g_mapShadeTop - g_mapShadeBase;
 }

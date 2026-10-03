@@ -10,7 +10,6 @@
 #include "gridobject.h"
 #include "inputmap.h"
 #include "integrate.h"
-#include "linengull.h"
 #include "mechclass.h"
 #include "muldiv.h"
 #include "object.h"
@@ -18,6 +17,7 @@
 #include "polydraw.h"
 #include "ramp.h"
 #include "render.h"
+#include "savedview.h"
 #include "shape.h"
 #include "shapelists.h"
 #include "shots.h"
@@ -140,7 +140,7 @@ Ramp g_unk0x10176f80;
 Ramp g_unk0x10176f90;
 
 // GLOBAL: MW2 0x10176fa0
-LinenGull0x1c g_unk0x10176fa0[5];
+SavedView g_savedViews[5];
 
 // The cockpit view's pan, eased toward g_sinkPilotPan.
 // GLOBAL: MW2 0x10177030
@@ -170,9 +170,9 @@ void FirstEyepoint(void)
 	StartWrappedRamp(&g_unk0x10176f40, 0, 0, 0.2, 0x1680000);
 	g_sinkZoomFactor = 0x10000;
 	for (i = 0; i < 5; i++) {
-		g_unk0x10176fa0[i].m_unk0x00 = g_unk0x10176fa0[i].m_unk0x04 = g_unk0x10176fa0[i].m_unk0x08 = 0;
-		g_unk0x10176fa0[i].m_unk0x0c = g_unk0x10176fa0[i].m_unk0x10 = g_unk0x10176fa0[i].m_unk0x14 = 0;
-		g_unk0x10176fa0[i].m_unk0x18 = 0;
+		g_savedViews[i].m_x = g_savedViews[i].m_y = g_savedViews[i].m_z = 0;
+		g_savedViews[i].m_heading = g_savedViews[i].m_pitch = g_savedViews[i].m_roll = 0;
+		g_savedViews[i].m_set = 0;
 	}
 
 	if (g_players[g_localPlayerId]) {

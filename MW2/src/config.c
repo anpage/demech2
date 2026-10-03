@@ -5,6 +5,7 @@
 #include "approxlen.h"
 #include "bargauges.h"
 #include "cockpit.h"
+#include "cockpitframe.h"
 #include "cockpitpanel.h"
 #include "damagepanel.h"
 #include "decomp.h"
@@ -12,7 +13,6 @@
 #include "eyepoint.h"
 #include "fadepal.h"
 #include "gamekeys.h"
-#include "garnetframe.h"
 #include "hud.h"
 #include "loadres.h"
 #include "mech.h"
@@ -56,7 +56,7 @@
 
 DECOMP_SIZE_ASSERT(DifficultyCfg, 0x17)
 DECOMP_SIZE_ASSERT(Reel, 0x14)
-DECOMP_SIZE_ASSERT(GarnetFrame0x8, 0x8)
+DECOMP_SIZE_ASSERT(CockpitFrame, 0x8)
 
 enum FilePermission {
 	c_permissionWrite = 0x80 // _S_IWRITE (sys/stat.h)
@@ -601,14 +601,14 @@ void UpdateCockpit(Mech* p_mech)
 		g_unk0x100ae37c = 0;
 	}
 
-	if (g_unk0x100aa298 && g_cockpitPowerState != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
+	if (g_overrideShutdown && g_cockpitPowerState != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
 		FUN_1007eb23(0xcd, 100, 0x40, 5, 0x32);
 		PlayCockpitSound(2, -1);
 		p_mech->m_flags |= 8;
-		g_unk0x100aa298 = 0;
+		g_overrideShutdown = 0;
 	}
 	else {
-		g_unk0x100aa298 = 0;
+		g_overrideShutdown = 0;
 	}
 
 	PlayCockpitWarnings(p_mech);
@@ -983,7 +983,7 @@ MechS32 FUN_10070e22(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* 
 	MechS32 size;
 	PANE* target;
 	MechS32 i;
-	GarnetFrame0x8* frame;
+	CockpitFrame* frame;
 	void* data;
 	MechS16* value;
 	FILE* file;

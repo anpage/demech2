@@ -67,7 +67,7 @@ MechS32 g_unk0x100bfab8;
 MechS32 g_unk0x100bfd4c;
 
 // GLOBAL: MW2 0x100bfd50
-MechS32 g_unk0x100bfd50;
+MechS32 g_infraredOn;
 
 // FUNCTION: MW2 0x1007d610
 void FirstEnvironment(void)
@@ -99,9 +99,9 @@ void FUN_1007d6bb(void)
 	MechS32 i;
 
 	phase = 3;
-	if (g_cockpitPanels[c_panelRadar]->m_damage >= 1 && g_unk0x100bfd50 == 1) {
-		FUN_1007d88a(0, 0);
-		g_unk0x100bfd50 = 0;
+	if (g_cockpitPanels[c_panelRadar]->m_damage >= 1 && g_infraredOn == 1) {
+		SetInfrared(0, 0);
+		g_infraredOn = 0;
 	}
 
 	if (g_unk0x100bfaa0 < 2) {
@@ -139,9 +139,9 @@ void FUN_1007d7e3(MechS32 p_phase)
 	MechS32 duration;
 
 	if (g_unk0x100bfab8 == 1 && p_phase != g_timeOfDayPhase) {
-		if (g_unk0x100bfd50 == 1) {
+		if (g_infraredOn == 1) {
 			duration = 181;
-			g_unk0x100bfd50 = 0;
+			g_infraredOn = 0;
 		}
 		else {
 			duration = g_timeOfDayPhases[p_phase].m_duration;
@@ -158,19 +158,19 @@ void FUN_1007d7e3(MechS32 p_phase)
 }
 
 // FUNCTION: MW2 0x1007d875
-MechS32 FUN_1007d875(undefined4 p_unk0x00)
+MechS32 IsInfraredOn(undefined4 p_unk0x00)
 {
-	return g_unk0x100bfd50;
+	return g_infraredOn;
 }
 
-// Operand order: the original compares g_unk0x100bfd50 != p_state with p_state in eax.
+// Operand order: the original compares g_infraredOn != p_state with p_state in eax.
 // FUNCTION: MW2 0x1007d88a
-void FUN_1007d88a(undefined4 p_unk0x00, MechS32 p_state)
+void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 {
-	if (g_unk0x100bfd50 != p_state) {
+	if (g_infraredOn != p_state) {
 		if (p_state == 1) {
 			if (g_cockpitPanels[c_panelRadar]->m_damage < 1) {
-				g_unk0x100bfd50 = 1;
+				g_infraredOn = 1;
 				g_unk0x100bfab8 = 0;
 				FUN_10002a24(12, 181);
 				FUN_1007eb23(0xb2, 100, 0x40, 5, 0x50);

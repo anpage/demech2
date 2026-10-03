@@ -199,7 +199,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // callbacks.
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // FUNCTION: MW2 0x10072dab
-void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
 	MechS32 value;
@@ -470,7 +470,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100734ad
-void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void RunMenuTextBox(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MenuTextBox* box;
 	MechU32 state;

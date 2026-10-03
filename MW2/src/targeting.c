@@ -1,6 +1,7 @@
 #include "targeting.h"
 
 #include "cockpit.h"
+#include "cockpitreadout.h"
 #include "compat.h"
 #include "decomp.h"
 #include "fixeddiv29.h"
@@ -12,7 +13,6 @@
 #include "players.h"
 #include "playersteering.h"
 #include "recttransition.h"
-#include "sagelark.h"
 #include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -88,10 +88,10 @@ MechChar g_unk0x100e95d0[0x20];
 MechChar g_unk0x100aabb0[8] = "x";
 
 // GLOBAL: MW2 0x100aabb8
-SageLark0x1c g_unk0x100aabb8 = {1, 0, -1, g_unk0x100aabb0, g_unk0x100e9510, {0x28f, 0x28f}};
+CockpitReadout g_unk0x100aabb8 = {1, 0, -1, g_unk0x100aabb0, g_unk0x100e9510, {0x28f, 0x28f}};
 
 // GLOBAL: MW2 0x100aabd4
-SageLark0x1c* g_unk0x100aabd4 = &g_unk0x100aabb8;
+CockpitReadout* g_cockpitReadout = &g_unk0x100aabb8;
 
 // GLOBAL: MW2 0x100aabd8
 MechChar g_unk0x100aabd8[4] = "x";
