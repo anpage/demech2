@@ -2,21 +2,21 @@
 
 #include "approxlen.h"
 #include "clock.h"
+#include "collision.h"
 #include "debrischunk.h"
 #include "debrispiece.h"
 #include "decomp.h"
 #include "environment.h"
 #include "fixeddiv.h"
 #include "fixedmul.h"
+#include "inradius.h"
 #include "integrate.h"
+#include "mechclass.h"
 #include "object.h"
 #include "random.h"
+#include "shape.h"
 #include "shots.h"
 #include "types.h"
-#include "unk10004ec0.h"
-#include "unk10016ad0.h"
-#include "unk10034a40.h"
-#include "unk1003a530.h"
 
 DECOMP_SIZE_ASSERT(DebrisPiece, 0x24)
 DECOMP_SIZE_ASSERT(DebrisChunk, 0x14)

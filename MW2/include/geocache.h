@@ -3,10 +3,10 @@
 
 #include "callbacks.h"
 #include "decomp.h"
+#include "quadtree.h"
+#include "shape.h"
 #include "twilightgrove.h"
 #include "types.h"
-#include "unk1001df00.h"
-#include "unk1003a530.h"
 
 struct GameThing;
 

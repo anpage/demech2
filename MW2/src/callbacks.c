@@ -4,10 +4,10 @@
 
 #include "clock.h"
 #include "decomp.h"
+#include "poolsizes.h"
 #include "simmain.h"
 #include "staticmem.h"
 #include "types.h"
-#include "unk100563d0.h"
 
 #include <windows.h>
 

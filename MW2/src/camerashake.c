@@ -3,9 +3,9 @@
 #include "clock.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "polydraw.h"
 #include "ramp.h"
 #include "types.h"
-#include "unk10042e00.h"
 
 #include <string.h>
 

@@ -7,8 +7,8 @@
 #include "point.h"
 #include "recttransition.h"
 #include "rendertarget.h"
+#include "shape.h"
 #include "types.h"
-#include "unk1003a530.h"
 
 // A gauge-drawing function of a cockpit layout, or one of the map view's hooks.
 typedef MechS32 (*CockpitGaugeFn)();

@@ -3,27 +3,27 @@
 // units' other functions use. None of the functions is called.
 
 #include "callbacks.h"
+#include "classtable.h"
 #include "clock.h"
 #include "config.h"
+#include "depthsort.h"
 #include "error.h"
 #include "gamekeys.h"
 #include "geocache.h"
 #include "object.h"
+#include "polydraw.h"
+#include "poolsizes.h"
 #include "prjfile.h"
 #include "ramp.h"
 #include "resource.h"
+#include "resourcename.h"
+#include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "staticmem.h"
 #include "timedoverlays.h"
 #include "types.h"
-#include "unk1001ce90.h"
-#include "unk100335d0.h"
-#include "unk1003a530.h"
-#include "unk10042e00.h"
-#include "unk1004b980.h"
-#include "unk100563d0.h"
-#include "unk100737e0.h"
+#include "view.h"
 
 #include <stddef.h>
 
@@ -33,7 +33,7 @@ MechS16* g_sqrtTable;
 MechS32 g_missionTimerStopped;
 HANDLE g_primaryHeap;
 
-// The view (unk1004b980.c), which the cases set: the near and far planes, the projection's shifts,
+// The view (view.c), which the cases set: the near and far planes, the projection's shifts,
 // centre and clip edges, the view rows, the eyepoint and the light.
 MechS32 g_unk0x100ea820;
 MechS32 g_unk0x100ea824;
@@ -61,7 +61,7 @@ MechS32 g_unk0x100ea8c0;
 MechS32 g_unk0x100ea8c4;
 MechS32 g_unk0x100ea8c8;
 
-// The polygon list (unk100335d0.c) and the rendering hooks (unk10042e00.c), which the cases set.
+// The polygon list (depthsort.c) and the rendering hooks (polydraw.c), which the cases set.
 MechS32 g_unk0x100a54b0;
 MechS32 g_unk0x100a54b4;
 AmberDune0x8* g_unk0x1010b5c4;

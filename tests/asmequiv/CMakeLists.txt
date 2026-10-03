@@ -42,23 +42,23 @@ set(asmequiv_routine_sources
   MW2/src/sqrtguess.c
   MW2/src/namehash.c
   MW2/src/integrate.c
-  MW2/src/unk10004ec0.c
-  MW2/src/unk10013340.c
-  MW2/src/unk10019ad0.c
-  MW2/src/unk10034990.c
-  MW2/src/unk100349c0.c
-  MW2/src/unk100349f0.c
-  MW2/src/unk10042740.c
-  MW2/src/unk1004c800.c
-  MW2/src/unk1004c820.c
-  MW2/src/unk1004c860.c
+  MW2/src/inradius.c
+  MW2/src/muldiv14.c
+  MW2/src/fixedmul29.c
+  MW2/src/scaledelta.c
+  MW2/src/crossdiv.c
+  MW2/src/lerp.c
+  MW2/src/shiftdiv.c
+  MW2/src/mulratio.c
+  MW2/src/mulnorm16.c
+  MW2/src/muladddiv.c
   MW2/src/loadres.c
-  MW2/src/unk100696c0.c
-  MW2/src/unk10071930.c
-  MW2/src/unk1007d120.c
+  MW2/src/fixedtrig.c
+  MW2/src/horizon.c
+  MW2/src/recordstacks.c
   MW2/src/transform.c
-  MW2/src/unk10039a30.c
-  MW2/src/unk10046750.c
+  MW2/src/shapegeom.c
+  MW2/src/objectanim.c
 )
 list(TRANSFORM asmequiv_routine_sources PREPEND "${DEMECH2_SOURCE_DIR}/")
 # MASM objects: the reference assembles the .asm where the build has MASM (the decomp build), and

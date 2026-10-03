@@ -4,6 +4,7 @@
 
 #include "audiomenu.h"
 #include "brightnessmenu.h"
+#include "dorcs.h"
 #include "menu.h"
 #include "menuchoices.h"
 #include "menucontrol.h"
@@ -12,7 +13,6 @@
 #include "perf.h"
 #include "rendertarget.h"
 #include "types.h"
-#include "unk10073af0.h"
 
 #include <stddef.h>
 

@@ -7,10 +7,10 @@
 #include "clock.h"
 #include "compat.h"
 #include "decomp.h"
+#include "fixedtrig.h"
 #include "loadres.h"
 #include "portable.h"
 #include "types.h"
-#include "unk100696c0.h"
 
 #ifdef PORTABLE_C
 // The 64-bit product of two 32-bit values, as imul leaves it in edx:eax. Sums of products wrap,

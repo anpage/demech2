@@ -7,14 +7,14 @@
 #include "loadres.h"
 #include "mw2prj.h"
 #include "point.h"
+#include "polydraw.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "screenscale.h"
+#include "shape.h"
+#include "shapelists.h"
 #include "timedoverlays.h"
 #include "types.h"
-#include "unk1003a530.h"
-#include "unk10042e00.h"
-#include "unk1006d680.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -3,6 +3,7 @@
 
 #include "asmequiv.h"
 #include "copperwren.h"
+#include "depthsort.h"
 #include "duskmoth.h"
 #include "emberfern.h"
 #include "eyepoint.h"
@@ -10,12 +11,11 @@
 #include "portable.h"
 #include "ray.h"
 #include "rendertarget.h"
+#include "shape.h"
+#include "shapegeom.h"
 #include "slateheron.h"
 #include "transform.h"
 #include "types.h"
-#include "unk100335d0.h"
-#include "unk10039a30.h"
-#include "unk1003a530.h"
 #include "vfxrend.h"
 #include "window.h"
 
@@ -277,7 +277,7 @@ static void RunMemSet(const AsmModule* p_module, const MechS32* p_args, AsmOutpu
 	OutputArena(p_output, arena, result);
 }
 
-// --- The record stacks (unk1007d120.c) ---
+// --- The record stacks (recordstacks.c) ---
 
 typedef CopperWren0x20* (*PopVertexFn)(void);
 typedef MechU8* (*PopRecordFn)(void);
@@ -321,7 +321,7 @@ static void Run1007d296(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	RunRecordStack(p_module, 0, p_args, p_output);
 }
 
-// --- Trigonometry (unk100696c0.c, over clock.c's tables) ---
+// --- Trigonometry (fixedtrig.c, over clock.c's tables) ---
 
 #define TABLE_SIZE 0x102
 
@@ -535,7 +535,7 @@ static MechS32 BearingDomain(const MechS32* p_args)
 	return c_domainIn;
 }
 
-// --- The horizon (unk10071930.c) ---
+// --- The horizon (horizon.c) ---
 
 // Arguments, the same for the three routines: the screen x and y, the view's centre, the view
 // matrix's second column (a, c, e) and the two scales (b, d), in the order a, b, c, d, e.
@@ -924,7 +924,7 @@ static void RunSoundUnpack(const AsmModule* p_module, const MechS32* p_args, Asm
 	AsmOutputBytes(p_output, globals, SOUND_GLOBALS_SIZE);
 }
 
-// --- Fixed-point transforms (transform.c, unk10039a30.c) ---
+// --- Fixed-point transforms (transform.c, shapegeom.c) ---
 
 // A word for a matrix, a position or a normal: mostly the magnitudes the game uses (2.29 within
 // +-1.0, 16.16 within +-256.0, small), and the extremes, any width and any value.
@@ -1696,9 +1696,9 @@ static void Run1003a096(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	OutputRay(p_output, &ray);
 }
 
-// --- Projection and clipping (unk10046750.c) ---
+// --- Projection and clipping (objectanim.c) ---
 
-// The view globals (unk1004b980.c) the routines read.
+// The view globals (view.c) the routines read.
 enum {
 	c_viewNear,                      // g_unk0x100ea820
 	c_viewShiftX,                    // g_unk0x100ea824
@@ -1761,7 +1761,7 @@ static MechS32 ViewValue(const MechS32* p_view, MechS32 p_row, const EmberFern0x
 
 #define RECORD_ARENA_SIZE 0x600
 
-// The two record stacks' buffer (unk1007d120.c): the projected vertices from the top, the
+// The two record stacks' buffer (recordstacks.c): the projected vertices from the top, the
 // polygons from the bottom.
 typedef struct RecordStacks {
 	MechU32 m_words[RECORD_ARENA_SIZE / 4];
@@ -5466,7 +5466,7 @@ const AsmRoutine g_asmRoutines[] = {
 	{"FUN_1000d9ce", 6, NULL, NULL, NULL},
 	{"FUN_1000da0c", 2, NULL, Run1000da0c, NULL},
 	{"FUN_1000de3b", 8, NULL, Run1000de3b, HashMatrixInputs},
-	// unk10039a30.c
+	// shapegeom.c
 	{"FUN_10039a30", 3, NULL, Run10039a30, NULL},
 	{"FUN_10039b94", 4, NULL, Run10039b94, NULL},
 	{"FUN_10039c96", 6, Domain10039c96, NULL, NULL},
@@ -5474,7 +5474,7 @@ const AsmRoutine g_asmRoutines[] = {
 	{"FUN_10039dda", 9, Domain10039dda, Run10039dda, NULL},
 	{"FUN_1003a05d", 3, Domain1003a05d, NULL, NULL},
 	{"FUN_1003a096", 9, Domain1003a096, Run1003a096, NULL},
-	// unk10046750.c
+	// objectanim.c
 	{"FUN_10048c50", 4, NULL, Run10048c50, NULL},
 	{"FUN_10048d46", 9, Domain10048d46, Run10048d46, NULL},
 	{"FUN_10048ebe", 6, Domain10048ebe, Run10048ebe, NULL},

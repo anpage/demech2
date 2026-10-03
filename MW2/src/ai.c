@@ -1,12 +1,15 @@
 #include "ai.h"
 
+#include "aiweapons.h"
 #include "clock.h"
 #include "debugbreak.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fixedmul.h"
 #include "geocache.h"
+#include "lineofsight.h"
 #include "loadres.h"
+#include "maneuvers.h"
 #include "mw2log.h"
 #include "mw2prj.h"
 #include "network.h"
@@ -20,9 +23,6 @@
 #include "speech.h"
 #include "team.h"
 #include "types.h"
-#include "unk10013430.h"
-#include "unk1004b5a0.h"
-#include "unk1006ca60.h"
 
 #include <stdio.h>
 #include <stdlib.h>

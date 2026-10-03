@@ -7,13 +7,13 @@
 #include "mw2prj.h"
 #include "palcycle.h"
 #include "palfade.h"
+#include "polydraw.h"
 #include "refreshmode.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "ticks.h"
 #include "types.h"
-#include "unk10042e00.h"
 
 #include <string.h>
 #include <windows.h>

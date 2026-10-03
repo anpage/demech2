@@ -8,9 +8,9 @@
 #include "loadres.h"
 #include "mw2prj.h"
 #include "overlay.h"
+#include "resourcename.h"
 #include "simmain.h"
 #include "types.h"
-#include "unk100737e0.h"
 
 #include <io.h>
 #include <stdio.h>

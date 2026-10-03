@@ -3,6 +3,7 @@
 #include "commandmenu.h"
 #include "commandpointmenu.h"
 #include "decomp.h"
+#include "dorcs.h"
 #include "fixeddiv.h"
 #include "inputmap.h"
 #include "loadres.h"
@@ -14,12 +15,11 @@
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
+#include "settings.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "ticks.h"
 #include "types.h"
-#include "unk1005e9b0.h"
-#include "unk10073af0.h"
 #include "vfxa.h"
 
 #include <stddef.h>

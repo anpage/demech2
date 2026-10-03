@@ -21,8 +21,8 @@
 #include "mw2log.h"
 #include "refreshmode.h"
 #include "simmain.h"
+#include "statuspanels.h"
 #include "types.h"
-#include "unk10004f40.h"
 
 #include <ctype.h>
 #include <stdio.h>

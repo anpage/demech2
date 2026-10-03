@@ -4,6 +4,7 @@
 #include "clock.h"
 #include "debugprint.h"
 #include "decomp.h"
+#include "inifile.h"
 #include "inputmap.h"
 #include "loadres.h"
 #include "mw2log.h"
@@ -13,7 +14,6 @@
 #include "resource.h"
 #include "simmain.h"
 #include "types.h"
-#include "unk1006c6c0.h"
 
 #include <stdarg.h>
 #include <stdio.h>

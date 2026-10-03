@@ -14,6 +14,8 @@
 #include "approxlen.h"
 #include "asmequiv.h"
 #include "clock.h"
+#include "crossdiv.h"
+#include "depthsort.h"
 #include "eyepoint.h"
 #include "fixeddiv.h"
 #include "fixeddiv29.h"
@@ -21,37 +23,35 @@
 #include "fixeddot27.h"
 #include "fixeddot29.h"
 #include "fixedmul.h"
+#include "fixedmul29.h"
 #include "fixedmul30.h"
+#include "fixedtrig.h"
+#include "horizon.h"
+#include "inradius.h"
 #include "integrate.h"
+#include "lerp.h"
 #include "loadres.h"
+#include "muladddiv.h"
 #include "muldiv.h"
+#include "muldiv14.h"
+#include "mulnorm16.h"
+#include "mulratio.h"
 #include "namehash.h"
+#include "objectanim.h"
+#include "polydraw.h"
+#include "recordstacks.h"
+#include "scaledelta.h"
+#include "shapegeom.h"
+#include "shiftdiv.h"
 #include "sndunpack.h"
 #include "sqrtguess.h"
 #include "ticks.h"
 #include "transform.h"
 #include "types.h"
-#include "unk10004ec0.h"
-#include "unk10013340.h"
-#include "unk10019ad0.h"
-#include "unk100335d0.h"
-#include "unk10034990.h"
-#include "unk100349c0.h"
-#include "unk100349f0.h"
-#include "unk10039a30.h"
-#include "unk10042740.h"
-#include "unk10042e00.h"
-#include "unk10046750.h"
-#include "unk1004b980.h"
-#include "unk1004c800.h"
-#include "unk1004c820.h"
-#include "unk1004c860.h"
-#include "unk100696c0.h"
-#include "unk10071930.h"
-#include "unk1007d120.h"
 #include "vfx3d.h"
 #include "vfxa.h"
 #include "vfxrend.h"
+#include "view.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,8 +59,8 @@
 
 #define MAX_ROUTINES 128
 
-// Functions and globals only their own units use: unk1007d120.c's, ticks.asm's, sndunpack.asm's,
-// transform.c's, unk10039a30.c's, unk10046750.c's and VFXA's.
+// Functions and globals only their own units use: recordstacks.c's, ticks.asm's, sndunpack.asm's,
+// transform.c's, shapegeom.c's, objectanim.c's and VFXA's.
 void FUN_1000d7c0(Matrix* p_matrix, MechS32 p_column);
 MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value);
 extern MechU8* g_unk0x100c1a70;
@@ -398,7 +398,7 @@ static void RunCase(
 }
 
 // Whether the routine runs on this platform. FUN_10049155 copies pointers into 32-bit records
-// (the polygon records of unk1007d120.c's buffer, 0xc bytes and a dword per point), which
+// (the polygon records of recordstacks.c's buffer, 0xc bytes and a dword per point), which
 // overlap where pointers are wider: it's checked on x86 only.
 static MechS32 RunsHere(const AsmRoutine* p_routine)
 {

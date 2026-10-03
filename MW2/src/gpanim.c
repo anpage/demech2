@@ -5,10 +5,10 @@
 #include "mech.h"
 #include "players.h"
 #include "playersteering.h"
+#include "polydraw.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "types.h"
-#include "unk10042e00.h"
 
 // GLOBAL: MW2 0x100a0110
 MechS32 g_unk0x100a0110[4][4] =

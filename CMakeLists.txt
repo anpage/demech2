@@ -371,151 +371,151 @@ demech2_add_dll(mw2
     MW2/src/weapondata.c
     MW2/src/debris.c
     MW2/src/integrate.c
-    MW2/src/unk10004ec0.c
-    MW2/src/unk10004f20.c
-    MW2/src/unk10004f40.c
+    MW2/src/inradius.c
+    MW2/src/emptyfns.c
+    MW2/src/statuspanels.c
     MW2/src/audio.c
     MW2/src/missionaudio.c
     MW2/src/namehash.c
     MW2/src/anim2d.c
-    MW2/src/unk100079d0.c
+    MW2/src/mechdamage.c
     MW2/src/pausebanner.c
     MW2/src/debugbreak.c
     MW2/src/world.c
     MW2/src/transform.c
     MW2/src/network.c
     MW2/src/mainmenu.c
-    MW2/src/unk10010750.c
+    MW2/src/bandpoly.c
     MW2/src/commandpointmenu.c
     MW2/src/palfade.c
     MW2/src/eyepoint.c
     MW2/src/recttransition.c
     MW2/src/render.c
-    MW2/src/unk10013340.c
-    MW2/src/unk10013370.c
-    MW2/src/unk10013430.c
+    MW2/src/muldiv14.c
+    MW2/src/soundlimits.c
+    MW2/src/maneuvers.c
     MW2/src/fixedsqrt.c
     MW2/src/sqrtguess.c
-    MW2/src/unk10016ad0.c
+    MW2/src/mechclass.c
     MW2/src/fixeddiv29.c
-    MW2/src/unk10019ad0.c
+    MW2/src/fixedmul29.c
     MW2/src/loadres.c
     MW2/src/sndunpack.${asm_or_c}
     MW2/src/objective.c
-    MW2/src/unk1001ce90.c
-    MW2/src/unk1001df00.c
+    MW2/src/classtable.c
+    MW2/src/quadtree.c
     MW2/src/cmdline.c
     MW2/src/geocache.c
-    MW2/src/unk10021460.c
+    MW2/src/midi.c
     ${vfxrend}
-    MW2/src/unk10033280.c
+    MW2/src/weaponpanel.c
     MW2/src/audiomenu.c
-    MW2/src/unk100335d0.c
-    MW2/src/unk10034990.c
-    MW2/src/unk100349c0.c
-    MW2/src/unk100349f0.c
-    MW2/src/unk10034a40.c
-    MW2/src/unk10036230.c
+    MW2/src/depthsort.c
+    MW2/src/scaledelta.c
+    MW2/src/crossdiv.c
+    MW2/src/lerp.c
+    MW2/src/collision.c
+    MW2/src/faceshade.c
     ${vfx3d}
-    MW2/src/unk10039a30.c
+    MW2/src/shapegeom.c
     MW2/src/logwindow.c
-    MW2/src/unk1003a530.c
+    MW2/src/shape.c
     MW2/src/error.c
     MW2/src/team.c
     MW2/src/menu.c
     MW2/src/cockpit.c
     MW2/src/bwd.c
-    MW2/src/unk10040020.c
-    MW2/src/unk10040b30.c
-    MW2/src/unk10041fa0.c
+    MW2/src/damagepanel.c
+    MW2/src/hud.c
+    MW2/src/mapview.c
     MW2/src/fixeddot27.c
     MW2/src/fixeddot29.c
-    MW2/src/unk10042740.c
+    MW2/src/shiftdiv.c
     MW2/src/keyboard.c
     MW2/src/bwdkeywords.c
-    MW2/src/unk10042e00.c
+    MW2/src/polydraw.c
     MW2/src/fixeddivu.c
     MW2/src/fixedmul30.c
     MW2/src/weapons.c
-    MW2/src/unk10046750.c
+    MW2/src/objectanim.c
     MW2/src/ramp.c
     MW2/src/staticmem.c
     MW2/src/joystick.c
-    MW2/src/unk1004b130.c
-    MW2/src/unk1004b5a0.c
-    MW2/src/unk1004b980.c
+    MW2/src/gridobject.c
+    MW2/src/aiweapons.c
+    MW2/src/view.c
     MW2/src/commandmenu.c
-    MW2/src/unk1004c800.c
-    MW2/src/unk1004c820.c
-    MW2/src/unk1004c860.c
+    MW2/src/mulratio.c
+    MW2/src/mulnorm16.c
+    MW2/src/muladddiv.c
     MW2/src/fadepal.c
-    MW2/src/unk1004d020.c
-    MW2/src/unk1004da30.c
+    MW2/src/bargauges.c
+    MW2/src/missionsetup.c
     MW2/src/dispdib.c
     MW2/src/resource.c
     MW2/src/mw2prj.c
     MW2/src/debugprint.c
-    MW2/src/unk100509a0.c
+    MW2/src/mechviewpanel.c
     MW2/src/ai.c
-    MW2/src/unk100563d0.c
+    MW2/src/poolsizes.c
     MW2/src/screenscale.c
     MW2/src/brightness.c
     MW2/src/bwdnames.c
     MW2/src/overlay.c
     MW2/src/speech.c
-    MW2/src/unk10059fc0.c
+    MW2/src/artillery.c
     MW2/src/cdaudio.c
     MW2/src/gamekeys.c
     MW2/src/setres.c
-    MW2/src/unk1005d6d0.c
-    MW2/src/unk1005e9b0.c
+    MW2/src/mekfile.c
+    MW2/src/settings.c
     MW2/src/rendertarget.c
     ${vfxa}
-    MW2/src/unk10065f10.c
-    MW2/src/unk10065f50.c
+    MW2/src/palidentity.c
+    MW2/src/lancemenu.c
     MW2/src/camerashake.c
     MW2/src/simmain.c
     MW2/src/ticks.${asm_or_c}
-    MW2/src/unk100680a0.c
+    MW2/src/door.c
     MW2/src/mouse.c
     MW2/src/animation.c
-    MW2/src/unk100696c0.c
-    MW2/src/unk100699a0.c
+    MW2/src/fixedtrig.c
+    MW2/src/shapecollision.c
     MW2/src/shots.c
-    MW2/src/unk1006c6c0.c
-    MW2/src/unk1006ca60.c
+    MW2/src/inifile.c
+    MW2/src/lineofsight.c
     MW2/src/screenshot.c
     MW2/src/players.c
-    MW2/src/unk1006d680.c
-    MW2/src/unk1006dd50.c
+    MW2/src/shapelists.c
+    MW2/src/texpoly.c
     MW2/src/gdi.c
-    MW2/src/unk1006e970.c
+    MW2/src/boundbox.c
     MW2/src/timedoverlays.c
     MW2/src/config.c
     MW2/src/startup.c
     MW2/src/mw2log.c
-    MW2/src/unk10071930.c
+    MW2/src/horizon.c
     MW2/src/prjfile.c
     MW2/src/menucontrols.c
     MW2/src/random.c
-    MW2/src/unk100737e0.c
-    MW2/src/unk10073af0.c
+    MW2/src/resourcename.c
+    MW2/src/dorcs.c
     MW2/src/brightnessmenu.c
-    MW2/src/unk100746c0.c
+    MW2/src/cockpitpanel.c
     MW2/src/gifsave.c
-    MW2/src/unk100758a0.c
+    MW2/src/mechcollision.c
     MW2/src/perf.c
     MW2/src/refreshmode.c
     MW2/src/directdraw.c
     MW2/src/inputmap.c
-    MW2/src/unk1007b930.c
+    MW2/src/targetpanel.c
     MW2/src/clock.c
-    MW2/src/unk1007d120.c
+    MW2/src/recordstacks.c
     MW2/src/callbacks.c
     MW2/src/environment.c
     MW2/src/soundfx.c
-    MW2/src/unk1007f140.c
-    MW2/src/unk1007fbe0.c
+    MW2/src/wtbshapes.c
+    MW2/src/mechreload.c
     MW2/MW2.def
   COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5>"
   LINK_OPTIONS ${mw2_link_options}

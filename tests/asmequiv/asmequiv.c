@@ -519,7 +519,7 @@ static MechS32 RunCase(
 // the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, VFX3D.ASM, VFXA.ASM,
 // VFXREND.ASM),
 // nor those whose __asm
-// blocks jump to C labels (FUN_10071930, and four each in unk10039a30.c and unk10046750.c): they
+// blocks jump to C labels (FUN_10071930, and four each in shapegeom.c and objectanim.c): they
 // compile the portable C instead. The VC++ 4.1 reference has every routine's.
 static MechS32 HasReference(const AsmRoutine* p_routine)
 {

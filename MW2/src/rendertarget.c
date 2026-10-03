@@ -4,6 +4,7 @@
 #include "compat.h"
 #include "decomp.h"
 #include "fixeddiv29.h"
+#include "fixedtrig.h"
 #include "gamething.h"
 #include "geocache.h"
 #include "mech.h"
@@ -12,12 +13,11 @@
 #include "playersteering.h"
 #include "recttransition.h"
 #include "sagelark.h"
+#include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "team.h"
 #include "types.h"
-#include "unk1003a530.h"
-#include "unk100696c0.h"
 #include "weapons.h"
 
 #include <stdlib.h>
