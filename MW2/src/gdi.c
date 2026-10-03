@@ -6,10 +6,10 @@
 #include "displaybackend.h"
 #include "drawbitmapinfo.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "simmain.h"
 #include "types.h"
+#include "window.h"
 
 #include <string.h>
 #include <windows.h>
@@ -19,7 +19,7 @@
 // DIB section path, is left over and unreferenced. The DIB's color table holds palette indices
 // (DIB_PAL_COLORS) into a logical palette realized in the window DC.
 
-MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
+MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 GdiEnd(void);
 MechS32 GdiUpdateDibSection(void);
 MechS32 GdiBlitFlip(void);
@@ -106,7 +106,7 @@ HPALETTE g_gdiOldPalette;
 // buffer of palette indices, presented with SetDIBitsToDevice. Returns 0 on success, -1 if the
 // palette fails, 2 if the allocation fails and 1 if the first present fails.
 // FUNCTION: MW2 0x1006de70
-MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
+MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	MechU16* indices;
 	MechS32 i;
@@ -135,17 +135,17 @@ MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 		return -1;
 	}
 
-	p_buffer->m_pixels = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, p_width * p_height);
-	if (p_buffer->m_pixels == NULL) {
+	p_buffer->m_buffer = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, p_width * p_height);
+	if (p_buffer->m_buffer == NULL) {
 		return 2;
 	}
 
-	g_dibBits = p_buffer->m_pixels;
-	p_buffer->m_maxX = p_width - 1;
-	p_buffer->m_maxY = p_height - 1;
-	p_buffer->m_unk0x10 = 0;
+	g_dibBits = p_buffer->m_buffer;
+	p_buffer->m_xMax = p_width - 1;
+	p_buffer->m_yMax = p_height - 1;
+	p_buffer->m_shadow = 0;
 	p_buffer->m_bitmapInfo = &g_bitmapInfo;
-	memset(p_buffer->m_pixels, 0, p_width * p_height);
+	memset(p_buffer->m_buffer, 0, p_width * p_height);
 	if (GdiBlitFlip()) {
 		GdiEnd();
 		return 1;
@@ -177,7 +177,7 @@ MechS32 GdiEnd(void)
 	g_unk0x100ad9f8 = NULL;
 	g_gdiMemoryDc = NULL;
 	g_gdiDibSection = NULL;
-	g_refreshModeBuffer->m_pixels = g_dibBits = NULL;
+	g_refreshModeBuffer->m_buffer = g_dibBits = NULL;
 	g_unk0x100ada04 = 0;
 	return 0;
 }
@@ -195,16 +195,16 @@ MechS32 GdiUpdateDibSection(void)
 			g_gdiWindowDc,
 			(BITMAPINFO*) &g_bitmapInfo,
 			DIB_PAL_COLORS,
-			(void**) &g_refreshModeBuffer->m_pixels,
+			(void**) &g_refreshModeBuffer->m_buffer,
 			NULL,
 			0
 		);
-		if (g_gdiDibSection == NULL || g_refreshModeBuffer->m_pixels == NULL) {
+		if (g_gdiDibSection == NULL || g_refreshModeBuffer->m_buffer == NULL) {
 			DebugPrint("GDI CreateDIBSection failed: %d\n", GetLastError());
 			return 0;
 		}
 
-		g_dibBits = g_refreshModeBuffer->m_pixels;
+		g_dibBits = g_refreshModeBuffer->m_buffer;
 		g_gdiOldBitmap = SelectObject(g_gdiMemoryDc, g_gdiDibSection);
 	}
 
@@ -395,7 +395,7 @@ MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 
 	GdiRealizePalette(0, 256, g_paletteColors, 0);
 	GdiBlitFlip();
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }
 
@@ -432,13 +432,13 @@ MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 		GdiBlitFlip();
 	}
 
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }
 
 // FUNCTION: MW2 0x1006e94f
 MechS32 GdiAcquireFramebuffer(void)
 {
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }

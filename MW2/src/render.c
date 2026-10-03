@@ -1,9 +1,7 @@
 #include "render.h"
 
 #include "animation.h"
-#include "blit.h"
 #include "cockpit.h"
-#include "codeblock.h"
 #include "decomp.h"
 #include "displaybackend.h"
 #include "error.h"
@@ -32,6 +30,8 @@
 #include "unk10065f10.h"
 #include "unk1006d680.h"
 #include "unk1007d120.h"
+#include "vfxa.h"
+#include "vfxrend.h"
 
 #include <string.h>
 #include <windows.h>
@@ -83,7 +83,7 @@ AmberWillow0x7c* g_unk0x100a247c = NULL;
 MechS32 g_unk0x100a2480 = 0;
 
 // GLOBAL: MW2 0x100bdff8
-Pane g_unk0x100bdff8;
+PANE g_unk0x100bdff8;
 
 // GLOBAL: MW2 0x10176eb4
 GameWindowGeometry* g_gameWindowGeometry;
@@ -108,7 +108,7 @@ MechS32 g_screenPixelCount;
 MechS32 g_screenWidth;
 
 // GLOBAL: MW2 0x10176ed0
-Pane g_currentPane;
+PANE g_currentPane;
 
 // GLOBAL: MW2 0x10176ee4
 MechS32 g_screenWidthMinus1;
@@ -120,7 +120,7 @@ MechS32 g_screenHalfWidth;
 MechS32 g_screenHalfHeight;
 
 // GLOBAL: MW2 0x10176ef0
-PixelBuffer g_mainPixelBuffer;
+WINDOW g_mainPixelBuffer;
 
 // FUNCTION: MW2 0x10012720
 MechS32 InitGameWindowGeometry(void)
@@ -155,11 +155,11 @@ MechS32 InitDisplayGeometry(void)
 	if (InitGameWindowGeometry()) {
 		FUN_1005d44e(g_gameWindowGeometry);
 		FUN_1005d410(g_gameWindowGeometry);
-		g_currentPane.m_buffer = &g_mainPixelBuffer;
-		g_currentPane.m_left = 0;
-		g_currentPane.m_top = 0;
-		g_currentPane.m_right = g_gameWindowGeometry->m_width - 1;
-		g_currentPane.m_bottom = g_gameWindowGeometry->m_height - 1;
+		g_currentPane.m_window = &g_mainPixelBuffer;
+		g_currentPane.m_x0 = 0;
+		g_currentPane.m_y0 = 0;
+		g_currentPane.m_x1 = g_gameWindowGeometry->m_width - 1;
+		g_currentPane.m_y1 = g_gameWindowGeometry->m_height - 1;
 		g_unk0x100bdff8 = g_currentPane;
 		result = 1;
 		InitPanes(&g_currentPane);
@@ -265,7 +265,7 @@ void FUN_10012afe(void)
 	MechS32 pass;
 
 	if (g_unk0x100a2468) {
-		memset(g_mainPixelBuffer.m_pixels, g_unk0x100a5544, g_refreshModePixelCount);
+		memset(g_mainPixelBuffer.m_buffer, g_unk0x100a5544, g_refreshModePixelCount);
 		SelectPane(g_unk0x100a2468);
 	}
 
@@ -275,14 +275,14 @@ void FUN_10012afe(void)
 	}
 
 	if (g_unk0x100a6cc8.m_unk0x00) {
-		FillView(&g_currentPane, g_unk0x100a5544);
+		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
 		return;
 	}
 
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
 	if (g_unk0x100a6cc8.m_unk0x30 || g_unk0x100a6cc8.m_unk0x34) {
-		FillView(&g_currentPane, g_unk0x100a5544);
+		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
 	}
 	else if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
@@ -354,12 +354,8 @@ void FUN_10012e00(void)
 void Blit(void)
 {
 	if (g_unk0x10176ebc) {
-		g_currentRefreshMode->m_stretchBlit(
-			g_currentPane.m_left + 1,
-			g_currentPane.m_top + 1,
-			g_currentPane.m_right,
-			g_currentPane.m_bottom
-		);
+		g_currentRefreshMode
+			->m_stretchBlit(g_currentPane.m_x0 + 1, g_currentPane.m_y0 + 1, g_currentPane.m_x1, g_currentPane.m_y1);
 		g_currentPane = g_unk0x100bdff8;
 		g_unk0x100a5f18 = g_unk0x100a5a24;
 		g_unk0x10176ebc = 0;
@@ -374,8 +370,8 @@ void ShutdownRender(void)
 {
 	FUN_1006db28();
 	FUN_1007d120();
-	if (g_unk0x100a245c && g_currentPane.m_buffer) {
-		FillView(&g_currentPane, 0);
+	if (g_unk0x100a245c && g_currentPane.m_window) {
+		VFX_pane_wipe(&g_currentPane, 0);
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}
@@ -408,7 +404,7 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 void FUN_10012f3c(void)
 {
 	void* gif;
-	Pane target;
+	PANE target;
 	MechU8* state;
 	MechChar path[256];
 	PaletteColor* palette;
@@ -436,13 +432,13 @@ void FUN_10012f3c(void)
 				target = g_currentPane;
 				FUN_1005705e(&target, &target, gif);
 				if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-					BlitGif(&target, gif, state);
+					VFX_GIF_draw(&target, gif, state);
 					if (g_windowActive) {
 						g_currentRefreshMode->m_flip();
 					}
 				}
 
-				ReadGifPalette(gif, (MechU8*) palette);
+				VFX_GIF_palette(gif, (MechU8*) palette);
 				g_currentDisplayBackend->m_blendPalettes(palette, 30);
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, palette);
 			}
@@ -483,7 +479,7 @@ void FUN_100131f1(ScarletOrchid0x4c* p_root)
 			if (FUN_1004c11d(&x, &y, &z)) {
 				radius = FUN_10013340(g_eyepoint->m_unk0x94, radius, z);
 				radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
-				DrawEllipse(&g_currentPane, x, y, radius, radiusY, color);
+				VFX_ellipse_draw(&g_currentPane, x, y, radius, radiusY, color);
 			}
 		}
 	}

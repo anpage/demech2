@@ -6,9 +6,9 @@
 #include "displaybackend.h"
 #include "drawbitmapinfo.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "types.h"
+#include "window.h"
 
 #include <string.h>
 #include <windows.h>
@@ -18,7 +18,7 @@
 // a logical palette realized in the window DC; the lower and upper halves of the system's static
 // colors are left alone unless SetPalette asks for all 256.
 
-MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height);
+MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height);
 MechS32 GdiEnd();
 MechS32 GdiUpdateDibSection();
 MechS32 GdiBlitFlip();
@@ -112,7 +112,7 @@ HPALETTE g_gdiOldPalette;
 
 // Stack-slot permutation: the original puts colors at [ebp-4] and i at [ebp-8].
 // FUNCTION: MW2SHELL 0x10030b90
-MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
+MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	MechU16* colors;
 	MechS32 i;
@@ -152,11 +152,11 @@ MechS32 GdiBegin(PixelBuffer* p_buffer, MechS32 p_width, MechS32 p_height)
 		return -1;
 	}
 
-	p_buffer->m_maxX = p_width - 1;
-	p_buffer->m_maxY = p_height - 1;
-	p_buffer->m_unk0x10 = 0;
+	p_buffer->m_xMax = p_width - 1;
+	p_buffer->m_yMax = p_height - 1;
+	p_buffer->m_shadow = 0;
 	p_buffer->m_bitmapInfo = &g_bitmapInfo;
-	memset(p_buffer->m_pixels, 0, p_width * p_height);
+	memset(p_buffer->m_buffer, 0, p_width * p_height);
 
 	if (GdiBlitFlip()) {
 		GdiEnd();
@@ -195,7 +195,7 @@ MechS32 GdiEnd()
 	g_unk0x10067200 = NULL;
 	g_gdiMemoryDc = NULL;
 	g_gdiDibSection = NULL;
-	g_refreshModeBuffer->m_pixels = g_dibBits = NULL;
+	g_refreshModeBuffer->m_buffer = g_dibBits = NULL;
 	g_unk0x1006720c = 0;
 	return 0;
 }
@@ -212,16 +212,16 @@ MechS32 GdiUpdateDibSection()
 			g_gdiWindowDc,
 			(BITMAPINFO*) &g_bitmapInfo,
 			DIB_PAL_COLORS,
-			(void**) &g_refreshModeBuffer->m_pixels,
+			(void**) &g_refreshModeBuffer->m_buffer,
 			NULL,
 			0
 		);
-		if (g_gdiDibSection == NULL || g_refreshModeBuffer->m_pixels == NULL) {
+		if (g_gdiDibSection == NULL || g_refreshModeBuffer->m_buffer == NULL) {
 			DebugPrint("GDI CreateDIBSection failed: %d\n", GetLastError());
 			return FALSE;
 		}
 
-		g_dibBits = g_refreshModeBuffer->m_pixels;
+		g_dibBits = g_refreshModeBuffer->m_buffer;
 		g_gdiOldBitmap = SelectObject(g_gdiMemoryDc, g_gdiDibSection);
 	}
 
@@ -452,7 +452,7 @@ MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 
 	GdiRealizePalette(0, 0x100, g_paletteColors, FALSE);
 	GdiBlitFlip();
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }
 
@@ -489,13 +489,13 @@ MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 		GdiBlitFlip();
 	}
 
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }
 
 // FUNCTION: MW2SHELL 0x10031948
 MechS32 GdiAcquireFramebuffer()
 {
-	g_refreshModeBuffer->m_pixels = g_dibBits;
+	g_refreshModeBuffer->m_buffer = g_dibBits;
 	return 0;
 }

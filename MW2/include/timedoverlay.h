@@ -16,7 +16,7 @@ typedef struct TimedOverlay {
 	MechS32 m_font;       // 0x14 — FONT resource
 	MechS32 m_background; // 0x18 — SHP resource
 	MechS32 m_expireTime; // 0x1c
-	Pane* m_target;       // 0x20
+	PANE* m_target;       // 0x20
 } TimedOverlay;
 
 #endif // TIMEDOVERLAY_H

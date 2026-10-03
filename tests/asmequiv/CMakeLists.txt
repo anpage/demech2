@@ -66,8 +66,6 @@ list(TRANSFORM asmequiv_routine_sources PREPEND "${DEMECH2_SOURCE_DIR}/")
 set(asmequiv_masm_units
   MW2/src/sndunpack
   MW2/src/ticks
-  common/src/polyfill
-  common/src/blit
 )
 if (NOT DEFINED asm_or_c)
   set(asm_or_c c)
@@ -75,6 +73,26 @@ endif()
 list(TRANSFORM asmequiv_masm_units PREPEND "${DEMECH2_SOURCE_DIR}/")
 list(TRANSFORM asmequiv_masm_units APPEND ".c" OUTPUT_VARIABLE asmequiv_masm_c)
 list(TRANSFORM asmequiv_masm_units APPEND ".${asm_or_c}" OUTPUT_VARIABLE asmequiv_masm_ref)
+# Miles Design's VFX objects (3rdparty/vfx), whose portable C is in common/src
+list(APPEND asmequiv_masm_c
+  "${DEMECH2_SOURCE_DIR}/common/src/vfx3d.c"
+  "${DEMECH2_SOURCE_DIR}/common/src/vfxa.c"
+)
+if (asm_or_c STREQUAL "asm")
+  set(asmequiv_vfx_ref
+    "${DEMECH2_SOURCE_DIR}/3rdparty/vfx/VFX3D.ASM"
+    "${DEMECH2_SOURCE_DIR}/3rdparty/vfx/VFXA.ASM"
+  )
+  set_source_files_properties(${asmequiv_vfx_ref} PROPERTIES
+    LANGUAGE ASM_MASM
+    COMPILE_OPTIONS "/Cx;/DMASM;/DFLAT_MODEL;/I${DEMECH2_SOURCE_DIR}/3rdparty/vfx")
+else()
+  set(asmequiv_vfx_ref
+    "${DEMECH2_SOURCE_DIR}/common/src/vfx3d.c"
+    "${DEMECH2_SOURCE_DIR}/common/src/vfxa.c"
+  )
+endif()
+list(APPEND asmequiv_masm_ref ${asmequiv_vfx_ref})
 if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
   # The units' other functions: C names every parameter, and the debug logs print sizes with %d
   set_source_files_properties(${asmequiv_routine_sources} ${asmequiv_masm_c} PROPERTIES
@@ -91,7 +109,8 @@ set(asmequiv_include_dirs
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${DEMECH2_SOURCE_DIR}/util"
   "${DEMECH2_SOURCE_DIR}/MW2/include"
-  "${DEMECH2_SOURCE_DIR}/3rdparty/miles"
+  "${DEMECH2_SOURCE_DIR}/common/include"
+  "${DEMECH2_SOURCE_DIR}/3rdparty/mss"
 )
 if (NOT WIN32)
   # The little of <windows.h> the units include

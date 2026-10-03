@@ -154,10 +154,10 @@ MenuPage g_mainMenuPage = {
 };
 
 // GLOBAL: MW2 0x100a2290
-Pane g_mainMenuTarget = {NULL, 0x4000, 0x3333, 0x10000, 0xcccd};
+PANE g_mainMenuTarget = {NULL, 0x4000, 0x3333, 0x10000, 0xcccd};
 
 // GLOBAL: MW2 0x100a22a8
-Pane g_mainMenuBackgroundTarget = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_mainMenuBackgroundTarget = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100a22c0
 MenuDefinition g_mainMenu = {

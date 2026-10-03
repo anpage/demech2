@@ -22,7 +22,7 @@ enum ScreenshotState {
 MechS32 g_screenshotState = c_screenshotIdle;
 
 // GLOBAL: MW2 0x100c75e0
-Pane* g_screenshotTarget;
+PANE* g_screenshotTarget;
 
 // FUNCTION: MW2 0x1006cdc0
 MechS32 ScreenshotBegin(const MechChar* p_filename)
@@ -64,7 +64,7 @@ void ScreenshotWritePalette(void)
 
 // Stack-slot permutation: width and result.
 // FUNCTION: MW2 0x1006cea9
-MechS32 ScreenshotWriteImage(Pane* p_target)
+MechS32 ScreenshotWriteImage(PANE* p_target)
 {
 	MechS32 width;
 	MechS32 result = c_gifErrWrite;
@@ -72,9 +72,9 @@ MechS32 ScreenshotWriteImage(Pane* p_target)
 
 	if (p_target && g_screenshotState == c_screenshotPaletteWritten) {
 		g_screenshotTarget = p_target;
-		width = p_target->m_right - p_target->m_left + 1;
-		height = p_target->m_bottom - p_target->m_top + 1;
-		result = GifCompressImage(p_target->m_left, p_target->m_top, width, height, ScreenshotGetPixel);
+		width = p_target->m_x1 - p_target->m_x0 + 1;
+		height = p_target->m_y1 - p_target->m_y0 + 1;
+		result = GifCompressImage(p_target->m_x0, p_target->m_y0, width, height, ScreenshotGetPixel);
 		g_screenshotState = c_screenshotImageWritten;
 	}
 
@@ -92,5 +92,5 @@ void ScreenshotEnd(void)
 // FUNCTION: MW2 0x1006cf54
 MechS32 ScreenshotGetPixel(MechS32 p_x, MechS32 p_y)
 {
-	return GetViewPixel(g_screenshotTarget, p_x, p_y);
+	return VFX_pixel_read(g_screenshotTarget, p_x, p_y);
 }

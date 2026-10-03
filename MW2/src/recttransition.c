@@ -27,22 +27,22 @@ void StopRectTransition(RectTransition* p_transition)
 // Moves p_out's edges to the fraction p_t (16.16) of the way from p_from to p_to: the horizontal
 // ones unless p_axis is 2, the vertical ones unless it is 1.
 // FUNCTION: MW2 0x10012354
-Pane* LerpPaneRect(Pane* p_from, Pane* p_to, Pane* p_out, MechS32 p_t, MechS32 p_axis)
+PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p_axis)
 {
 	MechS32 delta;
 
 	if (p_axis != c_rectAxisVertical) {
-		delta = p_to->m_left - p_from->m_left;
-		p_out->m_left = p_from->m_left + FixedMul16(p_t, delta);
-		delta = p_to->m_right - p_from->m_right;
-		p_out->m_right = p_from->m_right + FixedMul16(p_t, delta);
+		delta = p_to->m_x0 - p_from->m_x0;
+		p_out->m_x0 = p_from->m_x0 + FixedMul16(p_t, delta);
+		delta = p_to->m_x1 - p_from->m_x1;
+		p_out->m_x1 = p_from->m_x1 + FixedMul16(p_t, delta);
 	}
 
 	if (p_axis != c_rectAxisHorizontal) {
-		delta = p_to->m_top - p_from->m_top;
-		p_out->m_top = p_from->m_top + FixedMul16(p_t, delta);
-		delta = p_to->m_bottom - p_from->m_bottom;
-		p_out->m_bottom = p_from->m_bottom + FixedMul16(p_t, delta);
+		delta = p_to->m_y0 - p_from->m_y0;
+		p_out->m_y0 = p_from->m_y0 + FixedMul16(p_t, delta);
+		delta = p_to->m_y1 - p_from->m_y1;
+		p_out->m_y1 = p_from->m_y1 + FixedMul16(p_t, delta);
 	}
 
 	return p_out;
@@ -52,15 +52,15 @@ Pane* LerpPaneRect(Pane* p_from, Pane* p_to, Pane* p_out, MechS32 p_t, MechS32 p
 // when it isn't running.
 // Stack-slot permutation: t, def, active, from, state, out and to.
 // FUNCTION: MW2 0x10012432
-Pane* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
+PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;
 	RectTransitionDef* def;
 	MechS32 active;
-	Pane* from;
+	PANE* from;
 	RectTransitionState* state;
-	Pane* out;
-	Pane* to;
+	PANE* out;
+	PANE* to;
 
 	state = p_transition->m_state;
 	def = p_transition->m_def;
@@ -104,17 +104,17 @@ Pane* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 // in the second (the other way around in reverse).
 // Stack-slot permutation: t, def, active, from, firstAxis, secondAxis, state, out and to.
 // FUNCTION: MW2 0x10012557
-Pane* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition)
+PANE* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;
 	RectTransitionDef* def;
 	MechS32 active;
-	Pane* from;
+	PANE* from;
 	MechS32 firstAxis;
 	MechS32 secondAxis;
 	RectTransitionState* state;
-	Pane* out;
-	Pane* to;
+	PANE* out;
+	PANE* to;
 
 	state = p_transition->m_state;
 	def = p_transition->m_def;

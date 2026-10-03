@@ -1,7 +1,6 @@
 #include "video.h"
 
 #include "audiosubsystem.h"
-#include "blit.h"
 #include "decomp.h"
 #include "displaybackend.h"
 #include "fmvslot.h"
@@ -14,6 +13,7 @@
 #include "shellmain.h"
 #include "tmpackdatabase.h"
 #include "types.h"
+#include "vfxa.h"
 #include "videodriver.h"
 #include "windowstate.h"
 
@@ -178,7 +178,7 @@ LoopingMovie::LoopingMovie(MechChar* p_name, MechS32 p_left, MechS32 p_top)
 	}
 
 	if (result == 0) {
-		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_videoDriver->m_screenBuffer.m_pixels, 0);
+		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_videoDriver->m_screenBuffer.m_buffer, 0);
 		SmackDoFrame(m_smack);
 		g_videoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
 	}
@@ -220,7 +220,7 @@ void LoopingMovie::MoveTo(MechS32 p_left, MechS32 p_top)
 	}
 
 	if (result == 0) {
-		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_videoDriver->m_screenBuffer.m_pixels, 0);
+		SmackToBuffer(m_smack, m_left, m_top, 0x280, 0x1e0, g_videoDriver->m_screenBuffer.m_buffer, 0);
 		SmackDoFrame(m_smack);
 		g_videoDriver->ExpandRectBySize(m_left, m_top, m_width, m_height);
 	}
@@ -722,7 +722,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 				p_slot->m_top,
 				0x280,
 				0x1e0,
-				g_videoDriver->m_screenBuffer.m_pixels,
+				g_videoDriver->m_screenBuffer.m_buffer,
 				0
 			);
 		}
@@ -742,7 +742,7 @@ BOOL LoadVideoFile(FmvSlot* p_slot, const MechChar* p_name)
 			p_slot->m_top,
 			0x280,
 			0x1e0,
-			g_videoDriver->m_backBuffer.m_pixels,
+			g_videoDriver->m_backBuffer.m_buffer,
 			0
 		);
 	}
@@ -765,7 +765,7 @@ BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 		return FALSE;
 	}
 
-	size = GetShpFrameSize(p_slot->m_shp, 0);
+	size = VFX_shape_bounds(p_slot->m_shp, 0);
 	p_slot->m_width = (size >> 16) + 1;
 	p_slot->m_height = (size & 0xffff) + 1;
 	if (p_slot->m_flags & 0x80) {
@@ -774,7 +774,7 @@ BOOL LoadShpFile(FmvSlot* p_slot, const MechChar* p_name)
 	}
 
 	p_slot->m_frame = 0;
-	p_slot->m_frameCount = GetShpFrameCount(p_slot->m_shp);
+	p_slot->m_frameCount = VFX_shape_count(p_slot->m_shp);
 	p_slot->m_drawnFrame = p_slot->m_frame;
 	p_slot->m_frameBuffer = NULL;
 	p_slot->m_nextFrameTime = 0;

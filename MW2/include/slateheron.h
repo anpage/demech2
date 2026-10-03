@@ -9,16 +9,16 @@ struct CopperWren0x20;
 // SIZE 0x68
 // Rendering settings (g_unk0x100a6cc8) the map view saves and replaces as one block.
 typedef struct SlateHeron0x68 {
-	undefined4 m_unk0x00;                    // 0x00
-	MechS32 m_unk0x04;                       // 0x04 — FUN_10042e00 blends shaded polygons (FUN_1002b68b)
-	undefined4 m_unk0x08;                    // 0x08
-	MechS32 m_unk0x0c;                       // 0x0c — FUN_10042e00 draws textured polygons
-	undefined4 m_unk0x10;                    // 0x10
-	MechS32 m_unk0x14;                       // 0x14 — two-point polygons are drawn as lines
-	MechS32 m_unk0x18;                       // 0x18 — one-point polygons are drawn as pixels
-	MechS32 m_unk0x1c;                       // 0x1c
-	MechS32 m_unk0x20;                       // 0x20
-	MechS32 m_unk0x24;                       // 0x24
+	undefined4 m_unk0x00; // 0x00
+	MechS32 m_unk0x04;    // 0x04 — FUN_10042e00 blends shaded polygons (VFX_dithered_Gouraud_polygon)
+	undefined4 m_unk0x08; // 0x08
+	MechS32 m_unk0x0c;    // 0x0c — FUN_10042e00 draws textured polygons
+	undefined4 m_unk0x10; // 0x10
+	MechS32 m_unk0x14;    // 0x14 — two-point polygons are drawn as lines
+	MechS32 m_unk0x18;    // 0x18 — one-point polygons are drawn as pixels
+	MechS32 m_unk0x1c;    // 0x1c
+	MechS32 m_unk0x20;    // 0x20
+	MechS32 m_unk0x24;    // 0x24
 	undefined4 m_unk0x28[(0x30 - 0x28) / 4]; // 0x28
 	MechS32 m_unk0x30;                       // 0x30 — cleared when FirstRender finds m_unk0x1c or m_unk0x20 set
 	MechS32 m_unk0x34;                       // 0x34 — 0 fills polygons, 1 fills and outlines, else outlines

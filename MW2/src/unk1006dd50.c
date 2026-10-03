@@ -1,11 +1,11 @@
 #include "unk1006dd50.h"
 
-#include "codeblock.h"
 #include "decomp.h"
 #include "types.h"
 #include "unk10042e00.h"
+#include "vfxrend.h"
 
-DECOMP_SIZE_ASSERT(CodeBlockTexture, 0xc)
+DECOMP_SIZE_ASSERT(VFX_TEXTURE, 0xc)
 
 // Draws a polygon of p_count points (six dwords each) textured with the p_width by p_height
 // bitmap p_pixels, through the code block's routines.
@@ -13,7 +13,7 @@ DECOMP_SIZE_ASSERT(CodeBlockTexture, 0xc)
 // swapping them didn't flip it), and stack-slot permutation: i, points, rows and unk0x08.
 // FUNCTION: MW2 0x1006dd50
 void FUN_1006dd50(
-	Pane* p_target,
+	PANE* p_target,
 	MechU8* p_pixels,
 	MechS16 p_width,
 	MechS16 p_height,
@@ -23,7 +23,7 @@ void FUN_1006dd50(
 	MechU16* p_luma
 )
 {
-	CodeBlockTexture texture;
+	VFX_TEXTURE texture;
 	MechS32 mode;
 	MechU8* rows[128];
 	MechS32 i;
@@ -56,9 +56,9 @@ void FUN_1006dd50(
 		p_pixels += p_width;
 	}
 
-	texture.m_rowCount = texture.m_height = p_height;
-	texture.m_rows = rows;
+	texture.m_width = texture.m_height = p_height;
+	texture.m_vAddrs = rows;
 	points = p_points;
 	unk0x08 = points[2];
-	CallCodeBlockRoutineClipped(p_target, p_points, p_count, mode, unk0x08, &texture, p_luma, 0);
+	VFX_polygon_clip_XY_and_render(p_target, p_points, p_count, mode, unk0x08, &texture, p_luma, 0);
 }

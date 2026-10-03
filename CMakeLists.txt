@@ -54,16 +54,23 @@ if (MSVC_FOR_DECOMP)
   set(CMAKE_ASM_MASM_FLAGS_RELWITHDEBINFO "/Zi")
   set(CMAKE_ASM_MASM_FLAGS_MINSIZEREL "")
   set(asm_or_c asm)
-  set(mw2shell_shared common/src)
-  set(mw2_shared common/src)
+  # Miles Design's VFX (3rdparty/vfx): built with ML's MASM syntax and flat model, publics in their
+  # declared case
+  set(vfxa 3rdparty/vfx/VFXA.ASM)
+  set(vfx3d 3rdparty/vfx/VFX3D.ASM)
+  set(vfxrend 3rdparty/vfx/VFXREND.ASM)
+  set_source_files_properties(${vfxa} ${vfx3d} ${vfxrend} PROPERTIES
+    LANGUAGE ASM_MASM
+    COMPILE_OPTIONS "/Cx;/DMASM;/DFLAT_MODEL;/I${CMAKE_SOURCE_DIR}/3rdparty/vfx")
 else()
   set(asm_or_c c)
-  set(mw2shell_shared MW2SHELL/src)
-  set(mw2_shared MW2/src)
+  set(vfxa common/src/vfxa.c)
+  set(vfx3d common/src/vfx3d.c)
+  set(vfxrend common/src/vfxrend.c)
 endif()
-# A unit is listed as <dir>/<name>.${asm_or_c}. Objects both DLLs share (common/src) have one .asm,
-# and either one .c of portable C (common/src/<name>.${asm_or_c}: blit, polyfill) or a stub .c per
-# DLL (${mw2shell_shared}/<name>.${asm_or_c}, ${mw2_shared}/...: codeblock).
+# A unit of hand-written assembly is listed as <dir>/<name>.${asm_or_c}: MW2's .asm, or its .c
+# of portable C. The VFX objects both DLLs link are ${vfxa}, ${vfx3d} and ${vfxrend}: VFX's source,
+# or common/src's portable C and stubs, declared in common/include.
 
 option(DEMECH2_WERROR "Treat warnings as errors" OFF)
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
@@ -151,8 +158,8 @@ demech2_add_import_library(ddraw DEF "${PROJECT_SOURCE_DIR}/3rdparty/ddraw/ddraw
   SOURCES 3rdparty/ddraw/ddraw.c)
 demech2_add_import_library(dplay DEF "${PROJECT_SOURCE_DIR}/3rdparty/dplay/dplay.def"
   SOURCES 3rdparty/dplay/dplay.c)
-demech2_add_import_library(wail32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/miles/wail32.def"
-  SOURCES 3rdparty/miles/wail32.c)
+demech2_add_import_library(wail32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/mss/wail32.def"
+  SOURCES 3rdparty/mss/wail32.c)
 demech2_add_import_library(smackw32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/smacker/smackw32.def")
 
 # Every VC++ 4.1 DLL links from copies of its objects (see "Compiler and linker flags"). The
@@ -194,11 +201,12 @@ function(demech2_add_dll TARGET)
   target_include_directories(${TARGET} PRIVATE
     "${PROJECT_SOURCE_DIR}/util"
     "${PROJECT_SOURCE_DIR}/${ARGS_ID}/include"
+    "${PROJECT_SOURCE_DIR}/common/include"
   )
   target_include_directories(${TARGET} SYSTEM PRIVATE
     "${PROJECT_SOURCE_DIR}/3rdparty/dispdib"
     "${PROJECT_SOURCE_DIR}/3rdparty/dx2/INC"
-    "${PROJECT_SOURCE_DIR}/3rdparty/miles"
+    "${PROJECT_SOURCE_DIR}/3rdparty/mss"
     "${PROJECT_SOURCE_DIR}/3rdparty/smacker"
   )
   target_compile_options(${TARGET} PRIVATE ${ARGS_COMPILE_OPTIONS})
@@ -251,9 +259,9 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/debugprint.c
     MW2SHELL/src/video.cpp
     MW2SHELL/src/debugout.c
-    ${mw2shell_shared}/codeblock.${asm_or_c}
+    ${vfxrend}
     MW2SHELL/src/archivereader.cpp
-    common/src/polyfill.${asm_or_c}
+    ${vfx3d}
     MW2SHELL/src/pilotroster.cpp
     MW2SHELL/src/textpages.cpp
     MW2SHELL/src/projectarchive.cpp
@@ -264,7 +272,7 @@ demech2_add_dll(mw2shell
     MW2SHELL/src/gdi.c
     MW2SHELL/src/resourcefile.c
     MW2SHELL/src/input.c
-    common/src/blit.${asm_or_c}
+    ${vfxa}
     MW2SHELL/src/missionui.cpp
     MW2SHELL/src/tokenstream.c
     MW2SHELL/src/simhandoff.cpp
@@ -399,7 +407,7 @@ demech2_add_dll(mw2
     MW2/src/cmdline.c
     MW2/src/geocache.c
     MW2/src/unk10021460.c
-    ${mw2_shared}/codeblock.${asm_or_c}
+    ${vfxrend}
     MW2/src/unk10033280.c
     MW2/src/audiomenu.c
     MW2/src/unk100335d0.c
@@ -408,7 +416,7 @@ demech2_add_dll(mw2
     MW2/src/unk100349f0.c
     MW2/src/unk10034a40.c
     MW2/src/unk10036230.c
-    common/src/polyfill.${asm_or_c}
+    ${vfx3d}
     MW2/src/unk10039a30.c
     MW2/src/logwindow.c
     MW2/src/unk1003a530.c
@@ -462,7 +470,7 @@ demech2_add_dll(mw2
     MW2/src/unk1005d6d0.c
     MW2/src/unk1005e9b0.c
     MW2/src/rendertarget.c
-    common/src/blit.${asm_or_c}
+    ${vfxa}
     MW2/src/unk10065f10.c
     MW2/src/unk10065f50.c
     MW2/src/camerashake.c
@@ -635,7 +643,7 @@ find_library(CLANG_LIBRARY NAMES "clang" DOC "libclang from host (NOT target) sy
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if (CLANG_LIBRARY AND TARGET Python3::Interpreter)
   set(NCC_SOURCE_ROOTS "")
-  set(NCC_INCLUDES util)
+  set(NCC_INCLUDES util common/include)
   foreach(root MW2SHELL MW2 NETMECHW MECH2)
     if (EXISTS "${PROJECT_SOURCE_DIR}/${root}")
       list(APPEND NCC_SOURCE_ROOTS ${root})
@@ -645,6 +653,7 @@ if (CLANG_LIBRARY AND TARGET Python3::Interpreter)
       list(APPEND NCC_INCLUDES ${root})
     endif()
   endforeach()
+  list(APPEND NCC_SOURCE_ROOTS common)
   if (NCC_SOURCE_ROOTS)
     add_custom_target(ncc
       Python3::Interpreter "${PROJECT_SOURCE_DIR}/tools/ncc/ncc.py"

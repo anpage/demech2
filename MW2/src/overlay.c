@@ -235,7 +235,7 @@ void FUN_100588a7(void)
 	y = 10;
 	for (color = 0; color < 0x100; color++) {
 		for (i = 0; i < 2; i++) {
-			BlitLine(&g_currentPane, x, i + y, x + 3, i + y, 0, color);
+			VFX_line_draw(&g_currentPane, x, i + y, x + 3, i + y, 0, color);
 		}
 
 		if ((color + 1) % 16 == 0) {

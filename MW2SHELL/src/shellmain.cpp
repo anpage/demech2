@@ -228,7 +228,7 @@ extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wP
 			if (ShowDialog("Embrace cowardice?#Yes|No", 1) == 0) {
 				CloseMenuFunction();
 				g_videoDriver->ActivateFramebuffer();
-				memset(g_videoDriver->m_backBuffer.m_pixels, 0, 640 * 480);
+				memset(g_videoDriver->m_backBuffer.m_buffer, 0, 640 * 480);
 				if (g_screenFunction) {
 					g_screenFunction(g_mw2Database, &g_selectedCampaign, &g_pilotChosen, &g_scenario, c_msgQuit);
 				}

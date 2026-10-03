@@ -58,13 +58,13 @@ static PaletteFade g_paletteFade;
 static PaletteCycle g_paletteCycle;
 
 // GLOBAL: MW2 0x10181a60
-Pane g_panes[11];
+PANE g_panes[11];
 
 // GLOBAL: MW2 0x10181b40
 MechS32 g_paletteResourceIds[20];
 
 // FUNCTION: MW2 0x100023c0
-void InitPanes(Pane* p_target)
+void InitPanes(PANE* p_target)
 {
 	MechS32 i;
 
@@ -80,7 +80,7 @@ void InitPanes(Pane* p_target)
 // FUNCTION: MW2 0x1000242f
 void SelectPane(MechS32 p_index)
 {
-	Pane* target;
+	PANE* target;
 
 	if (p_index < 0 || p_index >= 11) {
 		return;
@@ -90,8 +90,8 @@ void SelectPane(MechS32 p_index)
 		target = &g_panes[p_index];
 		g_eyepoint->m_unk0x2c = 0;
 		g_eyepoint->m_unk0x34 = 0;
-		g_eyepoint->m_unk0x30 = target->m_right - target->m_left;
-		g_eyepoint->m_unk0x38 = target->m_bottom - target->m_top;
+		g_eyepoint->m_unk0x30 = target->m_x1 - target->m_x0;
+		g_eyepoint->m_unk0x38 = target->m_y1 - target->m_y0;
 		g_eyepoint->m_unk0x4c = 0;
 		g_eyepoint->m_unk0x50 = 0;
 		g_currentPane = *target;
@@ -321,11 +321,11 @@ void StartPalettes(MechS32 p_dissolve)
 	MechU8* palette;
 	MechS32 last;
 	MechS32 handle;
-	PixelBuffer buffer;
+	WINDOW buffer;
 	MechS32 hasPalette;
 	MechS32 seed;
-	Pane* src;
-	Pane target;
+	PANE* src;
+	PANE target;
 	MechS32 count;
 	void* pixels;
 	MechS32 ticks;
@@ -346,9 +346,9 @@ void StartPalettes(MechS32 p_dissolve)
 				pixels = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, g_refreshModePixelCount);
 				if (pixels) {
 					target = g_currentPane;
-					target.m_buffer = &buffer;
+					target.m_window = &buffer;
 					buffer = g_mainPixelBuffer;
-					buffer.m_pixels = pixels;
+					buffer.m_buffer = pixels;
 					src = &g_currentPane;
 					count = (g_refreshModePixelCount * 4) / 181;
 					handle = AllocTicks(0x100);
@@ -357,14 +357,14 @@ void StartPalettes(MechS32 p_dissolve)
 						ticks = GetTicks(handle);
 						if (ticks > last) {
 							last = ticks + 1;
-							seed = DissolveView(&target, src, count, seed);
+							seed = VFX_pixel_fade(&target, src, count, seed);
 							if (g_windowActive) {
 								g_currentRefreshMode->m_flip();
 							}
 						}
 					}
 
-					FillView(src, 0);
+					VFX_pane_wipe(src, 0);
 					if (g_windowActive) {
 						g_currentRefreshMode->m_flip();
 					}

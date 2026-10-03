@@ -1,7 +1,7 @@
 #include "popuppicture.h"
 
 #include "audiosample.h"
-#include "blit.h"
+#include "vfxa.h"
 #include "videodriver.h"
 #include "windowstate.h"
 
@@ -27,7 +27,7 @@ PopupPicture::PopupPicture(
 	m_sample = p_sample;
 	m_videoDriver->ReadPictureSize(&m_width, &m_height, m_data, m_size, 2);
 
-	size = GetShpFrameSize(p_data, 0);
+	size = VFX_shape_bounds(p_data, 0);
 	m_width = (size >> 16) + 2;
 	m_height = (size & 0xffff) + 2;
 	m_left = p_left;
@@ -35,23 +35,23 @@ PopupPicture::PopupPicture(
 	m_left = (640 - m_width) / 2;
 	m_top = (480 - m_height) / 2;
 
-	m_saved.m_maxX = m_width - 1;
-	m_saved.m_maxY = m_height - 1;
-	m_saved.m_pixels = (undefined*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, m_width * m_height);
+	m_saved.m_xMax = m_width - 1;
+	m_saved.m_yMax = m_height - 1;
+	m_saved.m_buffer = (undefined*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, m_width * m_height);
 
-	m_savedView.m_left = 0;
-	m_savedView.m_top = 0;
-	m_savedView.m_right = m_saved.m_maxX;
-	m_savedView.m_bottom = m_saved.m_maxY;
-	m_savedView.m_buffer = &m_saved;
+	m_savedView.m_x0 = 0;
+	m_savedView.m_y0 = 0;
+	m_savedView.m_x1 = m_saved.m_xMax;
+	m_savedView.m_y1 = m_saved.m_yMax;
+	m_savedView.m_window = &m_saved;
 
-	m_screenView.m_left = m_left;
-	m_screenView.m_top = m_top;
-	m_screenView.m_right = m_width + m_left - 1;
-	m_screenView.m_bottom = m_height + m_top - 1;
-	m_screenView.m_buffer = &m_videoDriver->m_backBuffer;
+	m_screenView.m_x0 = m_left;
+	m_screenView.m_y0 = m_top;
+	m_screenView.m_x1 = m_width + m_left - 1;
+	m_screenView.m_y1 = m_height + m_top - 1;
+	m_screenView.m_window = &m_videoDriver->m_backBuffer;
 
-	BlitView(&m_screenView, 0, 0, &m_savedView, 0, 0, -1);
+	VFX_pane_copy(&m_screenView, 0, 0, &m_savedView, 0, 0, -1);
 }
 
 // FUNCTION: MW2SHELL 0x10045f19
@@ -72,7 +72,7 @@ void PopupPicture::Show()
 		m_sample->Start();
 	}
 
-	BlitShpFrame(&m_videoDriver->m_backView, m_data, 0, 319, 239);
+	VFX_shape_draw(&m_videoDriver->m_backView, m_data, 0, 319, 239);
 	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 	m_videoDriver->RedrawGlyphs(0);
 	m_videoDriver->RedrawGlyphs(1);
@@ -81,7 +81,7 @@ void PopupPicture::Show()
 // FUNCTION: MW2SHELL 0x1004601c
 void PopupPicture::Hide()
 {
-	BlitView(&m_savedView, 0, 0, &m_screenView, 0, 0, -1);
+	VFX_pane_copy(&m_savedView, 0, 0, &m_screenView, 0, 0, -1);
 	m_videoDriver->RestoreBackground(m_left, m_top, m_width, m_height);
 	m_videoDriver->RedrawGlyphs(0);
 	m_videoDriver->RedrawGlyphs(1);

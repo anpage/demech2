@@ -16,10 +16,10 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a7130
-Pane g_commandPoint2MenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
+PANE g_commandPoint2MenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a7148
-Pane g_commandPoint2MenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
+PANE g_commandPoint2MenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a7160
 MenuDefinition g_commandPoint2Menu = {
@@ -433,10 +433,10 @@ MenuPage g_commandComputerPage = {
 };
 
 // GLOBAL: MW2 0x100a8250
-Pane g_commandMenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
+PANE g_commandMenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a8268
-Pane g_commandMenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
+PANE g_commandMenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a8280
 MenuDefinition g_commandMenu = {

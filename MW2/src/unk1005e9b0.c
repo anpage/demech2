@@ -68,10 +68,10 @@ MenuPage g_systemsStatusPage = {
 };
 
 // GLOBAL: MW2 0x100aab08
-Pane g_systemsMenuTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
+PANE g_systemsMenuTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 
 // GLOBAL: MW2 0x100aab20
-Pane g_systemsMenuBackgroundTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
+PANE g_systemsMenuBackgroundTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 
 // GLOBAL: MW2 0x100aab38
 MenuDefinition g_systemsMenu = {

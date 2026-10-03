@@ -21,9 +21,9 @@ typedef struct RectTransitionState {
 // SIZE 0x10
 typedef struct RectTransitionDef {
 	MechS32 m_duration; // 0x00 — in clock ticks
-	Pane* m_first;      // 0x04
-	Pane* m_second;     // 0x08
-	Pane* m_out;        // 0x0c — the rectangle the transition moves
+	PANE* m_first;      // 0x04
+	PANE* m_second;     // 0x08
+	PANE* m_out;        // 0x0c — the rectangle the transition moves
 } RectTransitionDef;
 
 typedef struct RectTransition {
@@ -39,9 +39,9 @@ extern "C"
 
 	void StartRectTransition(RectTransition* p_transition);
 	void StopRectTransition(RectTransition* p_transition);
-	Pane* LerpPaneRect(Pane* p_from, Pane* p_to, Pane* p_out, MechS32 p_t, MechS32 p_axis);
-	Pane* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition);
-	Pane* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition);
+	PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p_axis);
+	PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition);
+	PANE* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition);
 
 #ifdef __cplusplus
 }

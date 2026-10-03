@@ -55,9 +55,9 @@ SlateHeron0x68 g_unk0x10109bc0;
 // FUNCTION: MW2 0x10041fa0
 void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
-	g_unk0x10109bb8 = p_worldSpan / (g_panes[p_slot].m_right - g_panes[p_slot].m_left + 1);
+	g_unk0x10109bb8 = p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
 	g_unk0x10109ba4 = -(g_unk0x10109ba0 = -(p_worldSpan / 2));
-	g_unk0x10109bac = -(g_unk0x10109ba8 = (g_panes[p_slot].m_bottom - g_panes[p_slot].m_top + 1) * g_unk0x10109bb8 / 2);
+	g_unk0x10109bac = -(g_unk0x10109ba8 = (g_panes[p_slot].m_y1 - g_panes[p_slot].m_y0 + 1) * g_unk0x10109bb8 / 2);
 	g_unk0x10109bb0 = 0;
 	g_unk0x10109bb4 = p_far;
 	g_unk0x10109ab0 = g_palettePending;

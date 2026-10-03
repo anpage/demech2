@@ -60,64 +60,64 @@ EXPORTS
 	FUN_10048ebe
 	FUN_10048faf
 	FUN_10049155
-	FillPolygonFlat
-	FUN_1002ae41
-	FUN_1002b68b
-	FUN_1002bf39
-	FUN_1002c48d
-	SetLumaTable
-	FillPolygonTextured
-	GetDisplayDriverName
-	SetDisplayDriver
-	PutViewPixel
-	GetViewPixel
-	BlitLine
-	FUN_10032e4b
-	BlitShpFrame
-	BlitShpFrameUnclipped
-	SetRemapTable
-	BlitShpFrameRemapped
-	BlitShpFrameRemappedUnclipped
-	BlitRotated
-	FUN_10034622
-	EncodeViewRle
-	RemapShpFrame
-	FillView
-	BlitView
-	ScrollView
-	DrawEllipse
-	FillEllipse
-	GetCosSin
-	BlitFixedMul16
-	RotateScalePoint
-	FontGetHeight
-	FontGetCharWidth
-	BlitChar
-	BlitString
-	WriteViewRow
-	FindIffChunk
-	BlitIff
-	ReadIffPalette
-	GetIffSize
-	BlitPicture
-	ReadPicturePalette
-	GetPictureSize
-	BlitGif
-	ReadGifPalette
-	GetGifSize
-	GetShpFrameSize
-	FUN_10037526
-	GetShpFrameExtent
-	GetShpFrameOrigin
-	FUN_100375a7
-	FUN_100375f2
-	FUN_1003763a
-	GetShpFrameCount
-	CountShpUniqueFrames
-	FUN_100376f9
-	DissolveView
-	FadeViewColors
-	CountViewColors
+	VFX_flat_polygon
+	VFX_Gouraud_polygon
+	VFX_dithered_Gouraud_polygon
+	VFX_translate_polygon
+	VFX_illuminate_polygon
+	VFX_map_lookaside
+	VFX_map_polygon
+	VFX_driver_name
+	VFX_register_driver
+	VFX_pixel_write
+	VFX_pixel_read
+	VFX_line_draw
+	VFX_rectangle_hash
+	VFX_shape_draw
+	DrawShapeUnclipped
+	VFX_shape_lookaside
+	VFX_shape_translate_draw
+	XlatShapeUnclipped
+	VFX_shape_transform
+	VFX_shape_visible_rectangle
+	VFX_shape_scan
+	VFX_shape_remap_colors
+	VFX_pane_wipe
+	VFX_pane_copy
+	VFX_pane_scroll
+	VFX_ellipse_draw
+	VFX_ellipse_fill
+	VFX_Cos_Sin
+	VFX_fixed_mul
+	VFX_point_transform
+	VFX_font_height
+	VFX_character_width
+	VFX_character_draw
+	VFX_string_draw
+	VFX_line_to_pane
+	find_ILBM_property
+	VFX_ILBM_draw
+	VFX_ILBM_palette
+	VFX_ILBM_resolution
+	VFX_PCX_draw
+	VFX_PCX_palette
+	VFX_PCX_resolution
+	VFX_GIF_draw
+	VFX_GIF_palette
+	VFX_GIF_resolution
+	VFX_shape_bounds
+	VFX_shape_origin
+	VFX_shape_resolution
+	VFX_shape_minxy
+	VFX_shape_palette
+	VFX_shape_colors
+	VFX_shape_set_colors
+	VFX_shape_count
+	VFX_shape_list
+	VFX_shape_palette_list
+	VFX_pixel_fade
+	VFX_window_fade
+	VFX_color_scan
 	g_sinTable DATA
 	g_atanTable DATA
 	g_unk0x100c1a70 DATA
@@ -173,8 +173,19 @@ EXPORTS
 	g_unk0x1010b5c4 DATA
 	g_unk0x1010b5c8 DATA
 	g_unk0x100a6cc8 DATA
-	g_polyVars DATA
-	g_displayDriver DATA
-	g_displayDriverName DATA
-	g_remapTable DATA
-	g_fadeErrors DATA
+	VFX_describe_driver DATA
+	VFX_init_driver DATA
+	VFX_shutdown_driver DATA
+	VFX_area_wipe DATA
+	VFX_wait_vblank DATA
+	VFX_wait_vblank_leading DATA
+	VFX_window_refresh DATA
+	VFX_window_read DATA
+	VFX_DAC_read DATA
+	VFX_DAC_write DATA
+	VFX_bank_reset DATA
+	VFX_pane_refresh DATA
+	VFX_line_address DATA
+	driver_name DATA
+	lookaside DATA
+	color_error DATA

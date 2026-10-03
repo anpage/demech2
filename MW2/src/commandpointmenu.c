@@ -11,10 +11,10 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a2350
-Pane g_commandPoint3MenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
+PANE g_commandPoint3MenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a2368
-Pane g_commandPoint3MenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
+PANE g_commandPoint3MenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a2380
 MenuDefinition g_commandPoint3Menu = {

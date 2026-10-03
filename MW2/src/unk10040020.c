@@ -1,6 +1,5 @@
 #include "unk10040020.h"
 
-#include "blit.h"
 #include "cobaltharbor.h"
 #include "cockpit.h"
 #include "config.h"
@@ -22,6 +21,7 @@
 #include "types.h"
 #include "unk100079d0.h"
 #include "unk1004d020.h"
+#include "vfxa.h"
 
 // The damage panel (panel 2): the mech's outline, its sections shaded by damage, and bars of each
 // section's front and rear armor.
@@ -51,12 +51,12 @@ MechS32 g_unk0x100a5cd8 = 0;
 
 // The outline's rectangle, centered in the panel.
 // GLOBAL: MW2 0x100a5ce0
-Pane g_unk0x100a5ce0 = {NULL, 0, 0, 0, 0};
+PANE g_unk0x100a5ce0 = {NULL, 0, 0, 0, 0};
 
 // The outline's sixteen parts: rectangles in the outline shape's pixels (FUN_10070bda reads them)
 // until FUN_10040020 places them on the screen.
 // GLOBAL: MW2 0x100a5cf8
-Pane g_unk0x100a5cf8[16] = {0};
+PANE g_unk0x100a5cf8[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
 // GLOBAL: MW2 0x100a5e38
@@ -123,7 +123,7 @@ void FUN_10040020(void)
 
 	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
-		height1 = GetShpFrameExtent(shape, 0);
+		height1 = VFX_shape_resolution(shape, 0);
 		FUN_1001a163(g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp]);
 		width1 = height1 >> 16;
 		height1 &= 0xffff;
@@ -131,30 +131,30 @@ void FUN_10040020(void)
 	}
 
 	if (shape) {
-		height2 = GetShpFrameExtent(shape, 0);
+		height2 = VFX_shape_resolution(shape, 0);
 		FUN_1001a163(g_unk0x10109c30[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
 		width2 = height2 >> 16;
 		height2 &= 0xffff;
-		g_unk0x100a5ce0.m_buffer = &g_mainPixelBuffer;
-		g_unk0x100a5ce0.m_left = (panel->m_width - width2) / 2 + panel->m_x;
-		g_unk0x100a5ce0.m_top = (panel->m_height - height2) / 2 + panel->m_y;
-		g_unk0x100a5ce0.m_right = g_unk0x100a5ce0.m_left + width2 - 1;
-		g_unk0x100a5ce0.m_bottom = g_unk0x100a5ce0.m_top + height2 - 1;
+		g_unk0x100a5ce0.m_window = &g_mainPixelBuffer;
+		g_unk0x100a5ce0.m_x0 = (panel->m_width - width2) / 2 + panel->m_x;
+		g_unk0x100a5ce0.m_y0 = (panel->m_height - height2) / 2 + panel->m_y;
+		g_unk0x100a5ce0.m_x1 = g_unk0x100a5ce0.m_x0 + width2 - 1;
+		g_unk0x100a5ce0.m_y1 = g_unk0x100a5ce0.m_y0 + height2 - 1;
 		i = 16;
 		while (i--) {
-			g_unk0x100a5cf8[i].m_buffer = &g_mainPixelBuffer;
-			min.m_x = (MechDouble) g_unk0x100a5cf8[i].m_left / width1 * 65536.0 + 0.5;
-			min.m_y = (MechDouble) g_unk0x100a5cf8[i].m_top / height1 * 65536.0 + 0.5;
-			max.m_x = (MechDouble) g_unk0x100a5cf8[i].m_right / width1 * 65536.0 + 0.5;
-			max.m_y = (MechDouble) g_unk0x100a5cf8[i].m_bottom / height1 * 65536.0 + 0.5;
+			g_unk0x100a5cf8[i].m_window = &g_mainPixelBuffer;
+			min.m_x = (MechDouble) g_unk0x100a5cf8[i].m_x0 / width1 * 65536.0 + 0.5;
+			min.m_y = (MechDouble) g_unk0x100a5cf8[i].m_y0 / height1 * 65536.0 + 0.5;
+			max.m_x = (MechDouble) g_unk0x100a5cf8[i].m_x1 / width1 * 65536.0 + 0.5;
+			max.m_y = (MechDouble) g_unk0x100a5cf8[i].m_y1 / height1 * 65536.0 + 0.5;
 			max.m_x += min.m_x - 1;
 			max.m_y += min.m_y - 1;
 			FUN_10056bc1(&g_unk0x100a5ce0, &min, &min);
 			FUN_10056bc1(&g_unk0x100a5ce0, &max, &max);
-			g_unk0x100a5cf8[i].m_left = g_unk0x100a5ce0.m_left + min.m_x;
-			g_unk0x100a5cf8[i].m_top = min.m_y + g_unk0x100a5ce0.m_top;
-			g_unk0x100a5cf8[i].m_right = g_unk0x100a5ce0.m_left + max.m_x;
-			g_unk0x100a5cf8[i].m_bottom = max.m_y + g_unk0x100a5ce0.m_top;
+			g_unk0x100a5cf8[i].m_x0 = g_unk0x100a5ce0.m_x0 + min.m_x;
+			g_unk0x100a5cf8[i].m_y0 = min.m_y + g_unk0x100a5ce0.m_y0;
+			g_unk0x100a5cf8[i].m_x1 = g_unk0x100a5ce0.m_x0 + max.m_x;
+			g_unk0x100a5cf8[i].m_y1 = max.m_y + g_unk0x100a5ce0.m_y0;
 			g_unk0x100a5e38[i].m_x = -min.m_x;
 			g_unk0x100a5e38[i].m_y = -min.m_y;
 		}
@@ -201,7 +201,7 @@ void FUN_10040020(void)
 // as its armor goes, black once the section is destroyed.
 // The original loads m_sections before scaling index, and the locals are a stack-slot permutation.
 // FUNCTION: MW2 0x10040511
-void FUN_10040511(Mech* p_mech, Pane* p_target)
+void FUN_10040511(Mech* p_mech, PANE* p_target)
 {
 	MechS32 rear;
 	MechS32 color;
@@ -221,10 +221,10 @@ void FUN_10040511(Mech* p_mech, Pane* p_target)
 		return;
 	}
 
-	BlitShpFrame(&g_unk0x100a5ce0, shape, 0, 0, 0);
+	VFX_shape_draw(&g_unk0x100a5ce0, shape, 0, 0, 0);
 	for (i = 0; i < 16; i++) {
 		rear = front = 0;
-		if (g_unk0x100a5cf8[i].m_right - g_unk0x100a5cf8[i].m_left + 1 <= 0) {
+		if (g_unk0x100a5cf8[i].m_x1 - g_unk0x100a5cf8[i].m_x0 + 1 <= 0) {
 			continue;
 		}
 
@@ -273,8 +273,8 @@ void FUN_10040511(Mech* p_mech, Pane* p_target)
 		if (color != 6) {
 			remap = color;
 			g_unk0x100be498[6] = remap;
-			SetRemapTable(g_unk0x100be498);
-			BlitShpFrameRemapped(&g_unk0x100a5cf8[i], shape, 0, g_unk0x100a5e38[i].m_x, g_unk0x100a5e38[i].m_y);
+			VFX_shape_lookaside(g_unk0x100be498);
+			VFX_shape_translate_draw(&g_unk0x100a5cf8[i], shape, 0, g_unk0x100a5e38[i].m_x, g_unk0x100a5e38[i].m_y);
 		}
 	}
 
@@ -286,7 +286,7 @@ void FUN_10040511(Mech* p_mech, Pane* p_target)
 // The two full > armor tests take their operands in the other order, and the locals are a
 // stack-slot permutation.
 // FUNCTION: MW2 0x100407b6
-void FUN_100407b6(Mech* p_mech, Pane* p_target)
+void FUN_100407b6(Mech* p_mech, PANE* p_target)
 {
 	MechS32 full;
 	MechS32 i;
@@ -299,10 +299,10 @@ void FUN_100407b6(Mech* p_mech, Pane* p_target)
 	g_unk0x100e9350[0xe] = 6;
 	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
-		BlitString(p_target, g_unk0x100a5cb8.m_x, g_unk0x100a5cb8.m_y, font, g_unk0x100a5ebc, g_unk0x100e9350);
-		BlitString(p_target, g_unk0x100a5cc0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec0, g_unk0x100e9350);
-		BlitString(p_target, g_unk0x100a5cc8.m_x, g_unk0x100a5cc8.m_y, font, g_unk0x100a5ec4, g_unk0x100e9350);
-		BlitString(p_target, g_unk0x100a5cd0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec8, g_unk0x100e9350);
+		VFX_string_draw(p_target, g_unk0x100a5cb8.m_x, g_unk0x100a5cb8.m_y, font, g_unk0x100a5ebc, g_unk0x100e9350);
+		VFX_string_draw(p_target, g_unk0x100a5cc0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec0, g_unk0x100e9350);
+		VFX_string_draw(p_target, g_unk0x100a5cc8.m_x, g_unk0x100a5cc8.m_y, font, g_unk0x100a5ec4, g_unk0x100e9350);
+		VFX_string_draw(p_target, g_unk0x100a5cd0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec8, g_unk0x100e9350);
 		g_unk0x100e9350[0xe] = 0xe;
 		FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
 	}

@@ -53,8 +53,8 @@ extern "C"
 	void FUN_10041a14(struct Player* p_player, MechS32 p_side);
 	void FUN_10041c3c(struct AmberWillow0x7c* p_object, MechS32 p_side);
 	void FUN_10041e98(MechS32 p_x, MechS32 p_y, MechS32 p_id);
-	void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, Pane* p_target);
-	void FUN_10041f73(MechS32 p_x, MechS32 p_y, MechS32 p_id, Pane* p_target);
+	void FUN_10041f06(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
+	void FUN_10041f73(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
 
 #ifdef __cplusplus
 }

@@ -491,10 +491,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				for (i = 0; i < count; i++) {
 					index = entry->m_index;
 					if (index <= 8 && index >= 0) {
-						g_panes[index].m_left = entry->m_x;
-						g_panes[index].m_top = entry->m_y;
-						g_panes[index].m_right = entry->m_x + entry->m_width - 1;
-						g_panes[index].m_bottom = entry->m_y + entry->m_height - 1;
+						g_panes[index].m_x0 = entry->m_x;
+						g_panes[index].m_y0 = entry->m_y;
+						g_panes[index].m_x1 = entry->m_x + entry->m_width - 1;
+						g_panes[index].m_y1 = entry->m_y + entry->m_height - 1;
 					}
 					else {
 						Error(0x27, NULL);

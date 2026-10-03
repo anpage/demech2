@@ -11,13 +11,13 @@ struct MenuPage;
 // An in-mission menu's definition, one of the eleven in g_menuDefinitions.
 // SIZE 0x6c
 typedef struct MenuDefinition {
-	Pane* m_target;                // 0x00 — where the menu draws
+	PANE* m_target;                // 0x00 — where the menu draws
 	MechU32 m_flags;               // 0x04 — 1: takes navigation keys, 0x20: clears its target
 	struct MenuPage** m_pageStack; // 0x08 — the open pages, up to 8
 	MechS32 m_pageDepth;           // 0x0c
 	MechS32 m_backgroundId;        // 0x10 — a SHP resource, -1: none
 	void* m_background;            // 0x14
-	Pane* m_backgroundTarget;      // 0x18
+	PANE* m_backgroundTarget;      // 0x18
 	MechS32 m_unk0x1c;             // 0x1c — a SHP resource, -1: none
 	void* m_unk0x20;               // 0x20
 	MechS32 m_openSound;           // 0x24 — played on opening a subpage, -1: none

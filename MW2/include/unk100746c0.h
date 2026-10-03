@@ -16,7 +16,7 @@ extern "C"
 	void FUN_100747d4(CobaltHarbor0x88* p_panel, undefined4 p_unk0x08);
 	void FUN_100747e8(CobaltHarbor0x88* p_panel, MechS32 p_unk0x0c);
 	void FUN_100747fc(CobaltHarbor0x88* p_panel, const MechChar* p_name);
-	void FUN_10074823(CobaltHarbor0x88* p_panel, Pane* p_target);
+	void FUN_10074823(CobaltHarbor0x88* p_panel, PANE* p_target);
 	void FUN_10074879(CobaltHarbor0x88* p_panel, Point* p_unk0x34);
 	void FUN_1007488d(CobaltHarbor0x88* p_panel, struct RectTransition* p_transition);
 	void FUN_100748a1(CobaltHarbor0x88* p_panel, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height);

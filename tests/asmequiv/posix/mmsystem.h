@@ -1,7 +1,7 @@
 #ifndef ASMEQUIV_POSIX_MMSYSTEM_H
 #define ASMEQUIV_POSIX_MMSYSTEM_H
 
-// The little of <mmsystem.h> the Miles declarations (3rdparty/miles/mss.h) need, for the
+// The little of <mmsystem.h> the Miles declarations (3rdparty/mss/mss.h) need, for the
 // standalone build on platforms without it.
 
 typedef void* LPHMIDIOUT;

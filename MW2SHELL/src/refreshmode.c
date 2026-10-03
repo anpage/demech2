@@ -9,9 +9,9 @@
 #include "gdi.h"
 #include "mouse.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "types.h"
+#include "window.h"
 #include "windowstate.h"
 
 #include <ddraw.h>
@@ -61,7 +61,7 @@ MechS32 g_lastProfiledRefreshMode = 4;
 
 // The buffer the active refresh mode renders into.
 // GLOBAL: MW2SHELL 0x10062cdc
-PixelBuffer* g_refreshModeBuffer = NULL;
+WINDOW* g_refreshModeBuffer = NULL;
 
 // GLOBAL: MW2SHELL 0x10062ce0
 PaletteColor g_paletteColors[0x100] = {0};
@@ -124,7 +124,7 @@ MechS32 g_refreshModeHeight;
 MechS32 InitRefreshMode(
 	MechS32 p_mode,
 	MechS32 p_allowFallback,
-	PixelBuffer* p_buffer,
+	WINDOW* p_buffer,
 	MechS32 p_width,
 	MechS32 p_height,
 	MechS32 p_menu

@@ -1,6 +1,5 @@
 #include "supanim.h"
 
-#include "blit.h"
 #include "debugprint.h"
 #include "decomp.h"
 #include "displaybackend.h"
@@ -8,12 +7,13 @@
 #include "mss.h"
 #include "network.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "simmain.h"
 #include "types.h"
+#include "vfxa.h"
+#include "window.h"
 
 #include <stdio.h>
 #include <windows.h>
@@ -71,10 +71,10 @@ MechS32 g_supAnimY;
 MechS32 g_supAnimX;
 
 // GLOBAL: MW2 0x100bcd58
-Pane g_supAnimTarget;
+PANE g_supAnimTarget;
 
 // GLOBAL: MW2 0x100bcd70
-PixelBuffer g_supAnimBuffer;
+WINDOW g_supAnimBuffer;
 
 void SupAnimTimerCallback(void);
 
@@ -135,24 +135,24 @@ void StartSupAnim(MechS32 p_slowFade)
 
 	g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
 	g_supAnimBuffer = g_mainPixelBuffer;
-	g_supAnimBuffer.m_maxX = g_refreshModeWidth - 1;
-	g_supAnimBuffer.m_maxY = g_refreshModeHeight - 1;
-	g_supAnimTarget.m_buffer = &g_supAnimBuffer;
-	g_supAnimTarget.m_right = g_refreshModeWidth - 1;
-	g_supAnimTarget.m_bottom = g_refreshModeHeight - 1;
+	g_supAnimBuffer.m_xMax = g_refreshModeWidth - 1;
+	g_supAnimBuffer.m_yMax = g_refreshModeHeight - 1;
+	g_supAnimTarget.m_window = &g_supAnimBuffer;
+	g_supAnimTarget.m_x1 = g_refreshModeWidth - 1;
+	g_supAnimTarget.m_y1 = g_refreshModeHeight - 1;
 	if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) != 0) {
 		DebugPrint("StartSupanim: LockDisplayBuffer failed.\n");
 		return;
 	}
 
-	g_supAnimBuffer.m_pixels = g_mainPixelBuffer.m_pixels;
-	FillView(&g_supAnimTarget, 0);
-	BlitShpFrame(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
+	g_supAnimBuffer.m_buffer = g_mainPixelBuffer.m_buffer;
+	VFX_pane_wipe(&g_supAnimTarget, 0);
+	VFX_shape_draw(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
 	if (g_windowActive) {
 		g_currentRefreshMode->m_flip();
 	}
 
-	FUN_100375a7(g_supAnimBackdrop, 0, (MechU8*) palette);
+	VFX_shape_palette(g_supAnimBackdrop, 0, (MechU8*) palette);
 	if (p_slowFade) {
 		g_currentDisplayBackend->m_blendPalettes(palette, 30);
 	}
@@ -170,13 +170,13 @@ void StartSupAnim(MechS32 p_slowFade)
 		return;
 	}
 
-	g_supAnimFrameCount = GetShpFrameCount(g_supAnimShape);
-	g_supAnimX = (g_supAnimTarget.m_right - g_supAnimTarget.m_left) * 0.55;
+	g_supAnimFrameCount = VFX_shape_count(g_supAnimShape);
+	g_supAnimX = (g_supAnimTarget.m_x1 - g_supAnimTarget.m_x0) * 0.55;
 	g_supAnimY = 0;
 	if (!g_isNetworkGame && g_currentDisplayBackend->m_id == c_displayBackendDisplayDib) {
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-			BlitShpFrame(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
-			BlitShpFrame(&g_supAnimTarget, g_supAnimShape, 0, g_supAnimX, g_supAnimY);
+			VFX_shape_draw(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
+			VFX_shape_draw(&g_supAnimTarget, g_supAnimShape, 0, g_supAnimX, g_supAnimY);
 			if (g_windowActive) {
 				g_currentRefreshMode->m_flip();
 			}
@@ -199,10 +199,10 @@ void SupAnimTimerCallback(void)
 	}
 
 	if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-		g_supAnimBuffer.m_pixels = g_mainPixelBuffer.m_pixels;
-		FillView(&g_supAnimTarget, 0);
-		BlitShpFrame(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
-		BlitShpFrame(&g_supAnimTarget, g_supAnimShape, g_supAnimFrame, g_supAnimX, g_supAnimY);
+		g_supAnimBuffer.m_buffer = g_mainPixelBuffer.m_buffer;
+		VFX_pane_wipe(&g_supAnimTarget, 0);
+		VFX_shape_draw(&g_supAnimTarget, g_supAnimBackdrop, 0, 0, 0);
+		VFX_shape_draw(&g_supAnimTarget, g_supAnimShape, g_supAnimFrame, g_supAnimX, g_supAnimY);
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}

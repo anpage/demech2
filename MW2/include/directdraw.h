@@ -3,9 +3,9 @@
 
 #include "displaybackend.h"
 #include "palettecolor.h"
-#include "pixelbuffer.h"
 #include "refreshmode.h"
 #include "types.h"
+#include "window.h"
 
 // The functions and globals of directdraw.c that other units use.
 #ifdef __cplusplus

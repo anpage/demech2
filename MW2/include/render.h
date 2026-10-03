@@ -2,9 +2,9 @@
 #define RENDER_H
 
 #include "decomp.h"
-#include "pixelbuffer.h"
 #include "rendertarget.h"
 #include "types.h"
+#include "window.h"
 
 // SIZE 0x18
 typedef struct GameWindowGeometry {
@@ -31,9 +31,9 @@ extern "C"
 	extern MechS32 g_unk0x100a2454;
 	extern MechS32 g_drawModeIndex;
 	extern MechS32 g_initDrawModeParam2;
-	extern Pane g_unk0x100bdff8;
-	extern Pane g_currentPane;
-	extern PixelBuffer g_mainPixelBuffer;
+	extern PANE g_unk0x100bdff8;
+	extern PANE g_currentPane;
+	extern WINDOW g_mainPixelBuffer;
 	extern MechS32 g_unk0x100a246c;
 	extern MechS32 g_unk0x100a2470;
 	extern MechS32 g_unk0x100a2474;

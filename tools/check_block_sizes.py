@@ -62,8 +62,9 @@ TARGET_DEFINES = {
 
 COMMON_INCLUDES = [
     "util",
+    "common/include",
     "3rdparty/dispdib",
-    "3rdparty/miles",
+    "3rdparty/mss",
     "3rdparty/smacker",
 ]
 

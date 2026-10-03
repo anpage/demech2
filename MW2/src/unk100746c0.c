@@ -65,13 +65,13 @@ void FUN_100747fc(CobaltHarbor0x88* p_panel, const MechChar* p_name)
 }
 
 // FUNCTION: MW2 0x10074823
-void FUN_10074823(CobaltHarbor0x88* p_panel, Pane* p_target)
+void FUN_10074823(CobaltHarbor0x88* p_panel, PANE* p_target)
 {
 	p_panel->m_target = p_target;
-	p_panel->m_x = p_target->m_left;
-	p_panel->m_y = p_target->m_top;
-	p_panel->m_width = p_target->m_right - p_target->m_left + 1;
-	p_panel->m_height = p_target->m_bottom - p_target->m_top + 1;
+	p_panel->m_x = p_target->m_x0;
+	p_panel->m_y = p_target->m_y0;
+	p_panel->m_width = p_target->m_x1 - p_target->m_x0 + 1;
+	p_panel->m_height = p_target->m_y1 - p_target->m_y0 + 1;
 }
 
 // FUNCTION: MW2 0x10074879

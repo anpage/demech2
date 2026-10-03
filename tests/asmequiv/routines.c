@@ -7,7 +7,6 @@
 #include "emberfern.h"
 #include "eyepoint.h"
 #include "ivorydelta.h"
-#include "pixelbuffer.h"
 #include "portable.h"
 #include "ray.h"
 #include "rendertarget.h"
@@ -17,6 +16,7 @@
 #include "unk100335d0.h"
 #include "unk10039a30.h"
 #include "unk1003a530.h"
+#include "window.h"
 
 #include <math.h>
 #include <stddef.h>
@@ -2503,7 +2503,7 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	}
 }
 
-// --- The polygon fillers (polyfill.asm) ---
+// --- The polygon fillers (VFX3D.ASM) ---
 
 #define POLY_BUFFER_WIDTH 48
 #define POLY_BUFFER_HEIGHT 40
@@ -2512,14 +2512,12 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 #define POLY_MAX_VERTICES 10
 #define POLY_VERTEX_WORDS 6
 #define POLY_TEXTURE_SIZE 32
-#define POLY_VARS 0x74
-#define POLY_LUMA_OFFSET 0xd0
 
-typedef void (*FillPolygonFn)(Pane* p_view, MechS32 p_count, MechU32* p_points);
-typedef void (*FillDitheredFn)(Pane* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_points);
-typedef void (*FillRemappedFn)(Pane* p_view, MechS32 p_count, MechU32* p_points, MechU8* p_table);
+typedef void (*FillPolygonFn)(PANE* p_view, MechS32 p_count, MechU32* p_points);
+typedef void (*FillDitheredFn)(PANE* p_view, MechS32 p_dither, MechS32 p_count, MechU32* p_points);
+typedef void (*FillRemappedFn)(PANE* p_view, MechS32 p_count, MechU32* p_points, MechU8* p_table);
 typedef void (*SetLumaTableFn)(MechU16* p_table);
-typedef void (*FillTexturedFn)(Pane* p_view, MechS32 p_count, MechU32* p_points, PixelBuffer* p_source, MechS32 p_mode);
+typedef void (*FillTexturedFn)(PANE* p_view, MechS32 p_count, MechU32* p_points, WINDOW* p_source, MechS32 p_mode);
 
 // The directions of a convex polygon's vertices from its centre, 1024 cos(2 pi k / 32): the sine
 // is the cosine 8 entries on.
@@ -2533,8 +2531,8 @@ static const MechS32 g_polyDirections[32] = {
 // before it, or be empty.
 typedef struct PolyTarget {
 	MechU32 m_words[POLY_ARENA_SIZE / 4];
-	PixelBuffer m_buffer;
-	Pane m_view;
+	WINDOW m_buffer;
+	PANE m_view;
 } PolyTarget;
 
 static MechS32 RandomRange(MechU32* p_state, MechS32 p_low, MechS32 p_high)
@@ -2550,24 +2548,24 @@ static void MakePolyTarget(PolyTarget* p_target, MechU32* p_state)
 	MechU32 kind = AsmNext(p_state);
 
 	Fill(arena, POLY_ARENA_SIZE, p_state);
-	p_target->m_buffer.m_pixels = arena + POLY_GUARD + AsmNext(p_state) % 4;
-	p_target->m_buffer.m_maxX = width - 1;
-	p_target->m_buffer.m_maxY = height - 1;
+	p_target->m_buffer.m_buffer = arena + POLY_GUARD + AsmNext(p_state) % 4;
+	p_target->m_buffer.m_xMax = width - 1;
+	p_target->m_buffer.m_yMax = height - 1;
 	p_target->m_buffer.m_bitmapInfo = NULL;
-	p_target->m_buffer.m_unk0x10 = 0;
-	p_target->m_view.m_buffer = &p_target->m_buffer;
+	p_target->m_buffer.m_shadow = 0;
+	p_target->m_view.m_window = &p_target->m_buffer;
 	if (kind % 4 == 0) {
 		// The whole buffer, as the game draws
-		p_target->m_view.m_left = 0;
-		p_target->m_view.m_top = 0;
-		p_target->m_view.m_right = width - 1;
-		p_target->m_view.m_bottom = height - 1;
+		p_target->m_view.m_x0 = 0;
+		p_target->m_view.m_y0 = 0;
+		p_target->m_view.m_x1 = width - 1;
+		p_target->m_view.m_y1 = height - 1;
 	}
 	else {
-		p_target->m_view.m_left = RandomRange(p_state, -4, width + 4);
-		p_target->m_view.m_top = RandomRange(p_state, -4, height + 4);
-		p_target->m_view.m_right = RandomRange(p_state, -4, width + 4);
-		p_target->m_view.m_bottom = RandomRange(p_state, -4, height + 4);
+		p_target->m_view.m_x0 = RandomRange(p_state, -4, width + 4);
+		p_target->m_view.m_y0 = RandomRange(p_state, -4, height + 4);
+		p_target->m_view.m_x1 = RandomRange(p_state, -4, width + 4);
+		p_target->m_view.m_y1 = RandomRange(p_state, -4, height + 4);
 	}
 }
 
@@ -2584,8 +2582,8 @@ static void OutputPolyTarget(AsmOutput* p_output, const PolyTarget* p_target)
 // the ones the routine reads. Returns the vertex count.
 static MechS32 MakePolygon(MechU32* p_points, const PolyTarget* p_target, MechU32* p_state)
 {
-	MechS32 width = p_target->m_buffer.m_maxX + 1;
-	MechS32 height = p_target->m_buffer.m_maxY + 1;
+	MechS32 width = p_target->m_buffer.m_xMax + 1;
+	MechS32 height = p_target->m_buffer.m_yMax + 1;
 	MechU32 kind = AsmNext(p_state);
 	MechS32 count = 1 + (MechS32) (AsmNext(p_state) % POLY_MAX_VERTICES);
 	MechS32 directions[POLY_MAX_VERTICES];
@@ -2674,15 +2672,6 @@ static MechS32 RandomDither(MechU32* p_state)
 	}
 }
 
-// The working variables a call finds: random, but for the luma table. The routines don't read
-// what an earlier call left.
-static void ScramblePolyVars(const AsmModule* p_module, MechU32* p_state)
-{
-	MechU8* vars = (MechU8*) Data(p_module, "g_polyVars");
-
-	Fill(vars, POLY_LUMA_OFFSET, p_state);
-}
-
 // Arguments: four words that seed the target, the polygon and the colors.
 static void RunFillPolygon(const AsmModule* p_module, const char* p_name, const MechS32* p_args, AsmOutput* p_output)
 {
@@ -2700,8 +2689,7 @@ static void RunFillPolygon(const AsmModule* p_module, const char* p_name, const 
 	}
 
 	dither = RandomDither(&state);
-	ScramblePolyVars(p_module, &state);
-	if (!strcmp(p_name, "FUN_1002b68b") || !strcmp(p_name, "FUN_1002c48d")) {
+	if (!strcmp(p_name, "VFX_dithered_Gouraud_polygon") || !strcmp(p_name, "VFX_illuminate_polygon")) {
 		((FillDitheredFn) Function(p_module, p_name))(&target.m_view, dither, count, points);
 	}
 	else {
@@ -2713,22 +2701,22 @@ static void RunFillPolygon(const AsmModule* p_module, const char* p_name, const 
 
 static void RunFillPolygonFlat(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunFillPolygon(p_module, "FillPolygonFlat", p_args, p_output);
+	RunFillPolygon(p_module, "VFX_flat_polygon", p_args, p_output);
 }
 
 static void Run1002ae41(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunFillPolygon(p_module, "FUN_1002ae41", p_args, p_output);
+	RunFillPolygon(p_module, "VFX_Gouraud_polygon", p_args, p_output);
 }
 
 static void Run1002b68b(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunFillPolygon(p_module, "FUN_1002b68b", p_args, p_output);
+	RunFillPolygon(p_module, "VFX_dithered_Gouraud_polygon", p_args, p_output);
 }
 
 static void Run1002c48d(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunFillPolygon(p_module, "FUN_1002c48d", p_args, p_output);
+	RunFillPolygon(p_module, "VFX_illuminate_polygon", p_args, p_output);
 }
 
 static void Run1002bf39(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -2742,28 +2730,64 @@ static void Run1002bf39(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MakePolyTarget(&target, &state);
 	count = MakePolygon(points, &target, &state);
 	Fill(table, sizeof(table), &state);
-	ScramblePolyVars(p_module, &state);
-	((FillRemappedFn) Function(p_module, "FUN_1002bf39"))(&target.m_view, count, points, table);
+	((FillRemappedFn) Function(p_module, "VFX_translate_polygon"))(&target.m_view, count, points, table);
 	OutputPolyTarget(p_output, &target);
 }
 
-// Arguments: the table's seed.
+// Arguments: the table's seed. The table VFX_map_lookaside copies is VFX3D's own (its lookaside, not
+// public): the case reads it back through VFX_map_polygon, mapping a 16 by 16 texture of the 256
+// texel values one to one onto a square, in the mode that translates each texel through it.
 static void RunSetLumaTable(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
 	MechU16 table[0x80 + 2];
+	MechU8 texels[0x100];
+	MechU8 pixels[0x100];
+	MechU32 points[4 * POLY_VERTEX_WORDS];
+	WINDOW texture;
+	WINDOW window;
+	PANE pane;
 	MechU32 state = AsmSeed(p_args, 2);
+	MechS32 i;
 
 	Fill((MechU8*) table, sizeof(table), &state);
-	ScramblePolyVars(p_module, &state);
-	((SetLumaTableFn) Function(p_module, "SetLumaTable"))(&table[1]);
-	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "g_polyVars") + POLY_LUMA_OFFSET, 0x100);
+	for (i = 0; i < 0x100; i++) {
+		texels[i] = (MechU8) i;
+		pixels[i] = 0;
+	}
+
+	texture.m_buffer = texels;
+	texture.m_xMax = 15;
+	texture.m_yMax = 15;
+	texture.m_bitmapInfo = NULL;
+	texture.m_shadow = 0;
+	window = texture;
+	window.m_buffer = pixels;
+	pane.m_window = &window;
+	pane.m_x0 = 0;
+	pane.m_y0 = 0;
+	pane.m_x1 = 15;
+	pane.m_y1 = 15;
+	memset(points, 0, sizeof(points));
+	for (i = 0; i < 4; i++) {
+		MechU32 x = i == 1 || i == 2 ? 15 : 0;
+		MechU32 y = i >= 2 ? 15 : 0;
+
+		points[i * POLY_VERTEX_WORDS] = x;
+		points[i * POLY_VERTEX_WORDS + 1] = y;
+		points[i * POLY_VERTEX_WORDS + 3] = x << 16;
+		points[i * POLY_VERTEX_WORDS + 4] = y << 16;
+	}
+
+	((SetLumaTableFn) Function(p_module, "VFX_map_lookaside"))(&table[1]);
+	((FillTexturedFn) Function(p_module, "VFX_map_polygon"))(&pane, 4, points, &texture, 1);
+	AsmOutputBytes(p_output, pixels, sizeof(pixels));
 }
 
 // A texture of 1 to 32 texels each way, with the odd transparent texel (0xff), in a buffer of
 // random bytes.
 typedef struct PolyTexture {
 	MechU8 m_texels[POLY_TEXTURE_SIZE * POLY_TEXTURE_SIZE];
-	PixelBuffer m_buffer;
+	WINDOW m_buffer;
 	MechS32 m_width;
 	MechS32 m_height;
 } PolyTexture;
@@ -2781,11 +2805,11 @@ static void MakePolyTexture(PolyTexture* p_texture, MechU32* p_state)
 		p_texture->m_texels[i] = (MechU8) (transparency && bits % (4u << transparency) == 0 ? 0xff : bits >> 8);
 	}
 
-	p_texture->m_buffer.m_pixels = p_texture->m_texels;
-	p_texture->m_buffer.m_maxX = p_texture->m_width - 1;
-	p_texture->m_buffer.m_maxY = p_texture->m_height - 1;
+	p_texture->m_buffer.m_buffer = p_texture->m_texels;
+	p_texture->m_buffer.m_xMax = p_texture->m_width - 1;
+	p_texture->m_buffer.m_yMax = p_texture->m_height - 1;
 	p_texture->m_buffer.m_bitmapInfo = NULL;
-	p_texture->m_buffer.m_unk0x10 = 0;
+	p_texture->m_buffer.m_shadow = 0;
 }
 
 // A texture coordinate, 16.16, inside the texture once the routine adds a half for rounding.
@@ -2822,14 +2846,13 @@ static void RunFillPolygonTextured(const AsmModule* p_module, const MechS32* p_a
 		luma[i] = (MechU8) (lumaTransparency && bits % (4u << lumaTransparency) == 0 ? 0xff : bits >> 8);
 	}
 
-	ScramblePolyVars(p_module, &state);
-	((SetLumaTableFn) Function(p_module, "SetLumaTable"))((MechU16*) luma);
+	((SetLumaTableFn) Function(p_module, "VFX_map_lookaside"))((MechU16*) luma);
 	((FillTexturedFn)
-		 Function(p_module, "FillPolygonTextured"))(&target.m_view, count, points, &texture.m_buffer, p_args[0] & 3);
+		 Function(p_module, "VFX_map_polygon"))(&target.m_view, count, points, &texture.m_buffer, p_args[0] & 3);
 	OutputPolyTarget(p_output, &target);
 }
 
-// --- The blit routines (blit.asm) ---
+// --- The 2D primitives (VFXA.ASM) ---
 
 #define BLIT_WIDTH 64
 #define BLIT_HEIGHT 40
@@ -2840,8 +2863,8 @@ static void RunFillPolygonTextured(const AsmModule* p_module, const MechS32* p_a
 // with a negative maxX or maxY, which the routines that clip reject.
 typedef struct BlitTarget {
 	MechU32 m_words[BLIT_ARENA_SIZE / 4];
-	PixelBuffer m_buffer;
-	Pane m_view;
+	WINDOW m_buffer;
+	PANE m_view;
 } BlitTarget;
 
 static void MakeBlitTarget(BlitTarget* p_target, MechU32* p_state, MechS32 p_empty)
@@ -2852,30 +2875,30 @@ static void MakeBlitTarget(BlitTarget* p_target, MechU32* p_state, MechS32 p_emp
 	MechU32 kind = AsmNext(p_state);
 
 	Fill(arena, BLIT_ARENA_SIZE, p_state);
-	p_target->m_buffer.m_pixels = arena + BLIT_GUARD + AsmNext(p_state) % 4;
-	p_target->m_buffer.m_maxX = width - 1;
-	p_target->m_buffer.m_maxY = height - 1;
+	p_target->m_buffer.m_buffer = arena + BLIT_GUARD + AsmNext(p_state) % 4;
+	p_target->m_buffer.m_xMax = width - 1;
+	p_target->m_buffer.m_yMax = height - 1;
 	p_target->m_buffer.m_bitmapInfo = NULL;
-	p_target->m_buffer.m_unk0x10 = 0;
+	p_target->m_buffer.m_shadow = 0;
 	if (p_empty && kind % 32 == 0) {
-		p_target->m_buffer.m_maxX = -1 - (MechS32) (AsmNext(p_state) % 3);
+		p_target->m_buffer.m_xMax = -1 - (MechS32) (AsmNext(p_state) % 3);
 	}
 	else if (p_empty && kind % 32 == 1) {
-		p_target->m_buffer.m_maxY = -1;
+		p_target->m_buffer.m_yMax = -1;
 	}
 
-	p_target->m_view.m_buffer = &p_target->m_buffer;
+	p_target->m_view.m_window = &p_target->m_buffer;
 	if ((kind >> 5) % 4 == 0) {
-		p_target->m_view.m_left = 0;
-		p_target->m_view.m_top = 0;
-		p_target->m_view.m_right = width - 1;
-		p_target->m_view.m_bottom = height - 1;
+		p_target->m_view.m_x0 = 0;
+		p_target->m_view.m_y0 = 0;
+		p_target->m_view.m_x1 = width - 1;
+		p_target->m_view.m_y1 = height - 1;
 	}
 	else {
-		p_target->m_view.m_left = RandomRange(p_state, -8, width + 4);
-		p_target->m_view.m_top = RandomRange(p_state, -8, height + 4);
-		p_target->m_view.m_right = RandomRange(p_state, -4, width + 8);
-		p_target->m_view.m_bottom = RandomRange(p_state, -4, height + 8);
+		p_target->m_view.m_x0 = RandomRange(p_state, -8, width + 4);
+		p_target->m_view.m_y0 = RandomRange(p_state, -8, height + 4);
+		p_target->m_view.m_x1 = RandomRange(p_state, -4, width + 8);
+		p_target->m_view.m_y1 = RandomRange(p_state, -4, height + 8);
 	}
 }
 
@@ -2888,14 +2911,14 @@ static void OutputBlitTarget(AsmOutput* p_output, const BlitTarget* p_target)
 // leaves nothing of it, else 0.
 static MechS32 BlitTargetEmpty(const BlitTarget* p_target)
 {
-	const PixelBuffer* buffer = &p_target->m_buffer;
-	const Pane* view = &p_target->m_view;
-	MechS32 left = view->m_left > 0 ? view->m_left : 0;
-	MechS32 top = view->m_top > 0 ? view->m_top : 0;
-	MechS32 right = view->m_right < buffer->m_maxX ? view->m_right : buffer->m_maxX;
-	MechS32 bottom = view->m_bottom < buffer->m_maxY ? view->m_bottom : buffer->m_maxY;
+	const WINDOW* buffer = &p_target->m_buffer;
+	const PANE* view = &p_target->m_view;
+	MechS32 left = view->m_x0 > 0 ? view->m_x0 : 0;
+	MechS32 top = view->m_y0 > 0 ? view->m_y0 : 0;
+	MechS32 right = view->m_x1 < buffer->m_xMax ? view->m_x1 : buffer->m_xMax;
+	MechS32 bottom = view->m_y1 < buffer->m_yMax ? view->m_y1 : buffer->m_yMax;
 
-	if (buffer->m_maxX < 0 || buffer->m_maxY < 0) {
+	if (buffer->m_xMax < 0 || buffer->m_yMax < 0) {
 		return -1;
 	}
 
@@ -2918,7 +2941,7 @@ static MechS32 RandomCoordinate(MechU32* p_state, MechS32 p_extent)
 	return RandomRange(p_state, -p_extent / 2 - 4, p_extent + p_extent / 2 + 4);
 }
 
-// The table a mode-1 BlitLine reads, and the function a mode-2 one calls.
+// The table a mode-1 VFX_line_draw reads, and the function a mode-2 one calls.
 static MechU8 g_lineTable[0x100];
 static MechS32 g_lineCalls;
 
@@ -2927,7 +2950,7 @@ static void LineCallback(void)
 	g_lineCalls++;
 }
 
-// The display driver's entry points: the name, and the color and wait callbacks FadeViewColors
+// The display driver's entry points: the name, and the color and wait callbacks VFX_window_fade
 // uses, which log what they're given (a count and a hash: a fade makes thousands of calls).
 static char g_driverName[16];
 static MechU8 g_driverColors[0x300];
@@ -3005,7 +3028,7 @@ typedef void (*SetDisplayDriverFn)(DriverEntry* p_driver);
 // Arguments: the name's length (modulo 13) and its seed. The buffer starts out random.
 static void RunGetDisplayDriverName(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	MechU8* name = (MechU8*) Data(p_module, "g_displayDriverName");
+	MechU8* name = (MechU8*) Data(p_module, "driver_name");
 	MechU32 state = AsmSeed(p_args, 2);
 	MechU32 length = (MechU32) p_args[0] % 13;
 	MechU8 copy[16];
@@ -3019,7 +3042,7 @@ static void RunGetDisplayDriverName(const AsmModule* p_module, const MechS32* p_
 	g_driverName[length] = 0;
 	Fill(name, 13, &state);
 	MakeDriverTable();
-	result = ((GetDisplayDriverNameFn) Function(p_module, "GetDisplayDriverName"))(g_driverTable);
+	result = ((GetDisplayDriverNameFn) Function(p_module, "VFX_driver_name"))(g_driverTable);
 	AsmOutputWord(p_output, (MechU8*) result == name);
 	memset(copy, 0, sizeof(copy));
 	memcpy(copy, name, 13);
@@ -3027,9 +3050,26 @@ static void RunGetDisplayDriverName(const AsmModule* p_module, const MechS32* p_
 }
 
 // Arguments: the table's seed. The table is the harness's entry points in a shuffled order.
+// VFX's driver entry points, each a public pointer, in the order of the driver's table.
+static const char* const g_driverPointers[0xd] = {
+	"VFX_describe_driver",
+	"VFX_init_driver",
+	"VFX_shutdown_driver",
+	"VFX_area_wipe",
+	"VFX_wait_vblank",
+	"VFX_wait_vblank_leading",
+	"VFX_window_refresh",
+	"VFX_window_read",
+	"VFX_DAC_read",
+	"VFX_DAC_write",
+	"VFX_bank_reset",
+	"VFX_pane_refresh",
+	"VFX_line_address",
+};
+
 static void RunSetDisplayDriver(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	DriverEntry* installed = (DriverEntry*) Data(p_module, "g_displayDriver");
+	DriverEntry* installed[0xd];
 	DriverEntry shuffled[0xd];
 	MechU32 state = AsmSeed(p_args, 2);
 	MechS32 i;
@@ -3037,21 +3077,22 @@ static void RunSetDisplayDriver(const AsmModule* p_module, const MechS32* p_args
 
 	MakeDriverTable();
 	for (i = 0; i < 0xd; i++) {
+		installed[i] = (DriverEntry*) Data(p_module, g_driverPointers[i]);
 		shuffled[i] = g_driverTable[AsmNext(&state) % 0xd];
-		installed[i] = NULL;
+		*installed[i] = NULL;
 	}
 
-	((SetDisplayDriverFn) Function(p_module, "SetDisplayDriver"))(shuffled);
+	((SetDisplayDriverFn) Function(p_module, "VFX_register_driver"))(shuffled);
 	for (i = 0; i < 0xd; i++) {
-		for (j = 0; j < 0xd && installed[i] != g_driverTable[j]; j++) {
+		for (j = 0; j < 0xd && *installed[i] != g_driverTable[j]; j++) {
 		}
 
 		AsmOutputWord(p_output, (MechU32) j);
 	}
 }
 
-typedef MechS32 (*PutViewPixelFn)(Pane* p_view, MechS32 p_x, MechS32 p_y, MechU32 p_color);
-typedef MechS32 (*GetViewPixelFn)(Pane* p_view, MechS32 p_x, MechS32 p_y);
+typedef MechS32 (*PutViewPixelFn)(PANE* p_view, MechS32 p_x, MechS32 p_y, MechU32 p_color);
+typedef MechS32 (*GetViewPixelFn)(PANE* p_view, MechS32 p_x, MechS32 p_y);
 
 // Arguments: four words that seed the target, the point and the color.
 static void RunPutViewPixel(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -3066,7 +3107,7 @@ static void RunPutViewPixel(const AsmModule* p_module, const MechS32* p_args, As
 	y = RandomCoordinate(&state, BLIT_HEIGHT);
 	AsmOutputWord(
 		p_output,
-		(MechU32) ((PutViewPixelFn) Function(p_module, "PutViewPixel"))(&target.m_view, x, y, AsmNext(&state))
+		(MechU32) ((PutViewPixelFn) Function(p_module, "VFX_pixel_write"))(&target.m_view, x, y, AsmNext(&state))
 	);
 	OutputBlitTarget(p_output, &target);
 }
@@ -3081,11 +3122,11 @@ static void RunGetViewPixel(const AsmModule* p_module, const MechS32* p_args, As
 	MakeBlitTarget(&target, &state, 1);
 	x = RandomCoordinate(&state, BLIT_WIDTH);
 	y = RandomCoordinate(&state, BLIT_HEIGHT);
-	AsmOutputWord(p_output, (MechU32) ((GetViewPixelFn) Function(p_module, "GetViewPixel"))(&target.m_view, x, y));
+	AsmOutputWord(p_output, (MechU32) ((GetViewPixelFn) Function(p_module, "VFX_pixel_read"))(&target.m_view, x, y));
 }
 
 typedef MechS32 (*BlitLineFn)(
-	Pane* p_view,
+	PANE* p_view,
 	MechS32 p_x1,
 	MechS32 p_y1,
 	MechS32 p_x2,
@@ -3094,7 +3135,7 @@ typedef MechS32 (*BlitLineFn)(
 	MechS32 p_color
 );
 
-// BlitLine's mode, from the first argument: mostly plotting (0, or a negative mode that plots
+// VFX_line_draw's mode, from the first argument: mostly plotting (0, or a negative mode that plots
 // too), sometimes the table or the callback, which take a pointer in the color word.
 static MechS32 LineMode(const MechS32* p_args)
 {
@@ -3163,14 +3204,14 @@ static void RunBlitLine(const AsmModule* p_module, const MechS32* p_args, AsmOut
 		color = (MechS32) (size_t) LineCallback;
 	}
 
-	result = ((BlitLineFn) Function(p_module, "BlitLine"))(&target.m_view, x1, y1, x2, y2, mode, color);
+	result = ((BlitLineFn) Function(p_module, "VFX_line_draw"))(&target.m_view, x1, y1, x2, y2, mode, color);
 	AsmOutputWord(p_output, x1 == x2 || y1 == y2 ? 0 : (MechU32) result);
 	AsmOutputWord(p_output, (MechU32) g_lineCalls);
 	OutputBlitTarget(p_output, &target);
 }
 
 typedef void (*CheckerFn)(
-	Pane* p_view,
+	PANE* p_view,
 	MechS32 p_left,
 	MechS32 p_top,
 	MechS32 p_right,
@@ -3194,7 +3235,7 @@ static void Run10032e4b(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	right = AsmNext(&state) % 4 ? left + RandomRange(&state, -2, 30) : RandomCoordinate(&state, BLIT_WIDTH);
 	bottom = AsmNext(&state) % 4 ? top + RandomRange(&state, -2, 30) : RandomCoordinate(&state, BLIT_HEIGHT);
 	((CheckerFn)
-		 Function(p_module, "FUN_10032e4b"))(&target.m_view, left, top, right, bottom, (MechU8) AsmNext(&state));
+		 Function(p_module, "VFX_rectangle_hash"))(&target.m_view, left, top, right, bottom, (MechU8) AsmNext(&state));
 	OutputBlitTarget(p_output, &target);
 }
 
@@ -3362,11 +3403,11 @@ static void OutputShp(AsmOutput* p_output, const Shp* p_shape)
 	AsmOutputBytes(p_output, (const MechU8*) p_shape->m_words, SHAPE_SIZE);
 }
 
-typedef void (*BlitShpFrameFn)(Pane* p_view, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
-typedef MechS32 (*BlitShpFrameRemappedFn)(Pane* p_view, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
-typedef void (*BlitShpFrameUnclippedFn)(Pane* p_view, void* p_frame, MechS32 p_x, MechS32 p_y, MechU32 p_unused);
+typedef void (*BlitShpFrameFn)(PANE* p_view, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
+typedef MechS32 (*BlitShpFrameRemappedFn)(PANE* p_view, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y);
+typedef void (*BlitShpFrameUnclippedFn)(PANE* p_view, void* p_frame, MechS32 p_x, MechS32 p_y, MechU32 p_unused);
 typedef MechS32 (*BlitShpFrameRemappedUnclippedFn)(
-	Pane* p_view,
+	PANE* p_view,
 	void* p_frame,
 	MechS32 p_x,
 	MechS32 p_y,
@@ -3374,13 +3415,13 @@ typedef MechS32 (*BlitShpFrameRemappedUnclippedFn)(
 );
 typedef void (*SetRemapTableFn)(MechU8* p_table);
 
-// Loads a random remap table, through SetRemapTable.
+// Loads a random remap table, through VFX_shape_lookaside.
 static void SetRandomRemap(const AsmModule* p_module, MechU32* p_state)
 {
 	MechU8 table[0x100];
 
 	Fill(table, sizeof(table), p_state);
-	((SetRemapTableFn) Function(p_module, "SetRemapTable"))(table);
+	((SetRemapTableFn) Function(p_module, "VFX_shape_lookaside"))(table);
 }
 
 // Arguments: four words that seed the target, the shape, the frame and its position, around
@@ -3400,7 +3441,7 @@ static void RunBlitShp(const AsmModule* p_module, const char* p_name, const Mech
 	x = RandomRange(&state, -BLIT_WIDTH, BLIT_WIDTH * 2);
 	y = RandomRange(&state, -BLIT_HEIGHT, BLIT_HEIGHT * 2);
 	SetRandomRemap(p_module, &state);
-	if (!strcmp(p_name, "BlitShpFrame")) {
+	if (!strcmp(p_name, "VFX_shape_draw")) {
 		((BlitShpFrameFn) Function(p_module, p_name))(&target.m_view, shape.m_words, frame, x, y);
 	}
 	else {
@@ -3415,12 +3456,12 @@ static void RunBlitShp(const AsmModule* p_module, const char* p_name, const Mech
 
 static void RunBlitShpFrame(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunBlitShp(p_module, "BlitShpFrame", p_args, p_output);
+	RunBlitShp(p_module, "VFX_shape_draw", p_args, p_output);
 }
 
 static void RunBlitShpFrameRemapped(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunBlitShp(p_module, "BlitShpFrameRemapped", p_args, p_output);
+	RunBlitShp(p_module, "VFX_shape_translate_draw", p_args, p_output);
 }
 
 // Arguments: four words that seed the target, the shape and the frame, placed where it lies
@@ -3453,14 +3494,14 @@ static void RunBlitShpUnclipped(
 	bottom = (MechS32) (frame[0x14] | frame[0x15] << 8 | frame[0x16] << 16 | (MechU32) frame[0x17] << 24);
 
 	// A wide buffer, and the frame inside it from the view's origin
-	target.m_buffer.m_maxX = BLIT_WIDTH - 1;
-	target.m_buffer.m_maxY = BLIT_HEIGHT - 1;
-	target.m_view.m_left = RandomRange(&state, -4, 4);
-	target.m_view.m_top = RandomRange(&state, -4, 4);
-	x = RandomRange(&state, 0, BLIT_WIDTH - 1 - (right > left ? right - left : 0)) - left - target.m_view.m_left;
-	y = RandomRange(&state, 0, BLIT_HEIGHT - 1 - (bottom > top ? bottom - top : 0)) - top - target.m_view.m_top;
+	target.m_buffer.m_xMax = BLIT_WIDTH - 1;
+	target.m_buffer.m_yMax = BLIT_HEIGHT - 1;
+	target.m_view.m_x0 = RandomRange(&state, -4, 4);
+	target.m_view.m_y0 = RandomRange(&state, -4, 4);
+	x = RandomRange(&state, 0, BLIT_WIDTH - 1 - (right > left ? right - left : 0)) - left - target.m_view.m_x0;
+	y = RandomRange(&state, 0, BLIT_HEIGHT - 1 - (bottom > top ? bottom - top : 0)) - top - target.m_view.m_y0;
 	SetRandomRemap(p_module, &state);
-	if (strcmp(p_name, "BlitShpFrameUnclipped")) {
+	if (strcmp(p_name, "DrawShapeUnclipped")) {
 		result = ((BlitShpFrameRemappedUnclippedFn)
 					  Function(p_module, p_name))(&target.m_view, (void*) frame, x, y, AsmNext(&state));
 		AsmOutputWord(p_output, (MechU32) result);
@@ -3474,12 +3515,12 @@ static void RunBlitShpUnclipped(
 
 static void RunBlitShpFrameUnclipped(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunBlitShpUnclipped(p_module, "BlitShpFrameUnclipped", p_args, p_output);
+	RunBlitShpUnclipped(p_module, "DrawShapeUnclipped", p_args, p_output);
 }
 
 static void RunBlitShpFrameRemappedUnclipped(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunBlitShpUnclipped(p_module, "BlitShpFrameRemappedUnclipped", p_args, p_output);
+	RunBlitShpUnclipped(p_module, "XlatShapeUnclipped", p_args, p_output);
 }
 
 // Arguments: the table's seed.
@@ -3488,7 +3529,7 @@ static void RunSetRemapTable(const AsmModule* p_module, const MechS32* p_args, A
 	MechU32 state = AsmSeed(p_args, 2);
 
 	SetRandomRemap(p_module, &state);
-	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "g_remapTable"), 0x100);
+	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "lookaside"), 0x100);
 }
 
 typedef MechS32 (*ShapeQueryFn)(void* p_shape, MechS32 p_frame);
@@ -3504,34 +3545,34 @@ static void RunShapeQuery(const AsmModule* p_module, const char* p_name, const M
 	frame = RandomFrame(&shape, &state);
 	SetRandomRemap(p_module, &state);
 	AsmOutputWord(p_output, (MechU32) ((ShapeQueryFn) Function(p_module, p_name))(shape.m_words, frame));
-	if (!strcmp(p_name, "RemapShpFrame")) {
+	if (!strcmp(p_name, "VFX_shape_remap_colors")) {
 		OutputShp(p_output, &shape);
 	}
 }
 
 static void RunRemapShpFrame(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeQuery(p_module, "RemapShpFrame", p_args, p_output);
+	RunShapeQuery(p_module, "VFX_shape_remap_colors", p_args, p_output);
 }
 
 static void RunGetShpFrameSize(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeQuery(p_module, "GetShpFrameSize", p_args, p_output);
+	RunShapeQuery(p_module, "VFX_shape_bounds", p_args, p_output);
 }
 
 static void Run10037526(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeQuery(p_module, "FUN_10037526", p_args, p_output);
+	RunShapeQuery(p_module, "VFX_shape_origin", p_args, p_output);
 }
 
 static void RunGetShpFrameExtent(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeQuery(p_module, "GetShpFrameExtent", p_args, p_output);
+	RunShapeQuery(p_module, "VFX_shape_resolution", p_args, p_output);
 }
 
 static void RunGetShpFrameOrigin(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeQuery(p_module, "GetShpFrameOrigin", p_args, p_output);
+	RunShapeQuery(p_module, "VFX_shape_minxy", p_args, p_output);
 }
 
 typedef MechS32 (*ShapeCountFn)(void* p_shape);
@@ -3542,7 +3583,7 @@ static void RunGetShpFrameCount(const AsmModule* p_module, const MechS32* p_args
 	MechU32 state = AsmSeed(p_args, 2);
 
 	MakeShp(&shape, &state, 48, 32);
-	AsmOutputWord(p_output, (MechU32) ((ShapeCountFn) Function(p_module, "GetShpFrameCount"))(shape.m_words));
+	AsmOutputWord(p_output, (MechU32) ((ShapeCountFn) Function(p_module, "VFX_shape_count"))(shape.m_words));
 }
 
 typedef MechS32 (*ShapeBoundsFn)(
@@ -3570,8 +3611,9 @@ static void Run10034622(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	x = RandomCoordinate(&state, BLIT_WIDTH);
 	y = RandomCoordinate(&state, BLIT_HEIGHT);
 	FillWords(bounds, 6, &state);
-	result =
-		((ShapeBoundsFn) Function(p_module, "FUN_10034622"))(shape.m_words, frame, x, y, AsmNext(&state), &bounds[1]);
+	result = ((
+		ShapeBoundsFn
+	) Function(p_module, "VFX_shape_visible_rectangle"))(shape.m_words, frame, x, y, AsmNext(&state), &bounds[1]);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputWords(p_output, bounds, 6);
 }
@@ -3590,7 +3632,7 @@ static void Run100375a7(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MakeShp(&shape, &state, 48, 32);
 	frame = RandomFrame(&shape, &state);
 	Fill(palette, sizeof(palette), &state);
-	((ShapePaletteFn) Function(p_module, "FUN_100375a7"))(shape.m_words, frame, palette);
+	((ShapePaletteFn) Function(p_module, "VFX_shape_palette"))(shape.m_words, frame, palette);
 	AsmOutputBytes(p_output, palette, sizeof(palette));
 }
 
@@ -3615,12 +3657,12 @@ static void RunShapeEntries(const AsmModule* p_module, const char* p_name, const
 
 static void Run100375f2(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeEntries(p_module, "FUN_100375f2", p_args, p_output);
+	RunShapeEntries(p_module, "VFX_shape_colors", p_args, p_output);
 }
 
 static void Run1003763a(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeEntries(p_module, "FUN_1003763a", p_args, p_output);
+	RunShapeEntries(p_module, "VFX_shape_set_colors", p_args, p_output);
 }
 
 typedef MechS32 (*ShapeUniqueFn)(void* p_shape, MechS32* p_out);
@@ -3642,18 +3684,18 @@ static void RunShapeUnique(const AsmModule* p_module, const char* p_name, const 
 
 static void RunCountShpUniqueFrames(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeUnique(p_module, "CountShpUniqueFrames", p_args, p_output);
+	RunShapeUnique(p_module, "VFX_shape_list", p_args, p_output);
 }
 
 static void Run100376f9(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunShapeUnique(p_module, "FUN_100376f9", p_args, p_output);
+	RunShapeUnique(p_module, "VFX_shape_palette_list", p_args, p_output);
 }
 
 #define SCRATCH_SIZE (32 * 24 + 64)
 
 typedef MechS32 (*BlitRotatedFn)(
-	Pane* p_view,
+	PANE* p_view,
 	void* p_shape,
 	MechS32 p_frame,
 	MechS32 p_x,
@@ -3667,7 +3709,7 @@ typedef MechS32 (*BlitRotatedFn)(
 
 // Arguments: four words that seed the target, the shape (its frames at most 32 by 24, the size
 // of the scratch buffer), the frame, its position, the rotation and scales (one case in eight
-// without either, BlitShpFrame's path, which a frame without pixels always takes: the mapping
+// without either, VFX_shape_draw's path, which a frame without pixels always takes: the mapping
 // sizes the scratch buffer from its bounds) and the flags. The mapping's result isn't compared
 // but for an empty buffer or view: the assembly leaves what it last computed.
 static void RunBlitRotated(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -3698,7 +3740,7 @@ static void RunBlitRotated(const AsmModule* p_module, const MechS32* p_args, Asm
 	scaleY = plain ? 0x10000 : AsmNext(&state) % 2 ? scaleX : RandomRange(&state, -0x30000, 0x30000);
 	flags = AsmNext(&state) % 4;
 	SetRandomRemap(p_module, &state);
-	result = ((BlitRotatedFn) Function(p_module, "BlitRotated"))(
+	result = ((BlitRotatedFn) Function(p_module, "VFX_shape_transform"))(
 		&target.m_view,
 		shape.m_words,
 		frame,
@@ -3715,7 +3757,7 @@ static void RunBlitRotated(const AsmModule* p_module, const MechS32* p_args, Asm
 	AsmOutputBytes(p_output, scratch, sizeof(scratch));
 }
 
-typedef void (*FillViewFn)(Pane* p_view, MechS32 p_color);
+typedef void (*FillViewFn)(PANE* p_view, MechS32 p_color);
 
 // Arguments: two words that seed the target and the color.
 static void RunFillView(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -3724,15 +3766,15 @@ static void RunFillView(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MechU32 state = AsmSeed(p_args, 2);
 
 	MakeBlitTarget(&target, &state, 1);
-	((FillViewFn) Function(p_module, "FillView"))(&target.m_view, PortableS32(AsmNext(&state)));
+	((FillViewFn) Function(p_module, "VFX_pane_wipe"))(&target.m_view, PortableS32(AsmNext(&state)));
 	OutputBlitTarget(p_output, &target);
 }
 
 typedef MechS32 (*BlitViewFn)(
-	Pane* p_source,
+	PANE* p_source,
 	MechS32 p_sourceX,
 	MechS32 p_sourceY,
-	Pane* p_dest,
+	PANE* p_dest,
 	MechS32 p_destX,
 	MechS32 p_destY,
 	MechS32 p_fillColor
@@ -3744,7 +3786,7 @@ static void RunBlitView(const AsmModule* p_module, const MechS32* p_args, AsmOut
 {
 	BlitTarget source;
 	BlitTarget dest;
-	Pane* destView = &dest.m_view;
+	PANE* destView = &dest.m_view;
 	MechU32 state = AsmSeed(p_args, 4);
 	MechS32 sourceX;
 	MechS32 sourceY;
@@ -3757,7 +3799,7 @@ static void RunBlitView(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	MakeBlitTarget(&dest, &state, 1);
 	if (AsmNext(&state) % 2) {
 		// A second view of the source's buffer
-		dest.m_view.m_buffer = &source.m_buffer;
+		dest.m_view.m_window = &source.m_buffer;
 		destView = &dest.m_view;
 	}
 
@@ -3777,8 +3819,8 @@ static void RunBlitView(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	sourceY = RandomRange(&state, -20, 20);
 	destX = RandomRange(&state, -20, 20);
 	destY = RandomRange(&state, -20, 20);
-	result =
-		((BlitViewFn) Function(p_module, "BlitView"))(&source.m_view, sourceX, sourceY, destView, destX, destY, fill);
+	result = ((BlitViewFn)
+				  Function(p_module, "VFX_pane_copy"))(&source.m_view, sourceX, sourceY, destView, destX, destY, fill);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputBlitTarget(p_output, &source);
 	OutputBlitTarget(p_output, &dest);
@@ -3786,7 +3828,7 @@ static void RunBlitView(const AsmModule* p_module, const MechS32* p_args, AsmOut
 
 #define SCROLL_SCRATCH ((BLIT_WIDTH + 16) * (BLIT_HEIGHT + 16))
 
-typedef MechS32 (*ScrollViewFn)(Pane* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, MechS32 p_color);
+typedef MechS32 (*ScrollViewFn)(PANE* p_view, MechS32 p_dx, MechS32 p_dy, MechS32 p_mode, MechS32 p_color);
 
 static MechU8 g_scrollScratch[SCROLL_SCRATCH];
 
@@ -3832,7 +3874,7 @@ static void RunScrollView(const AsmModule* p_module, const MechS32* p_args, AsmO
 		color = (MechU32) p_args[1] % 8 ? (MechS32) (size_t) g_scrollScratch : 0;
 	}
 
-	result = ((ScrollViewFn) Function(p_module, "ScrollView"))(&target.m_view, dx, dy, mode, color);
+	result = ((ScrollViewFn) Function(p_module, "VFX_pane_scroll"))(&target.m_view, dx, dy, mode, color);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputBlitTarget(p_output, &target);
 	AsmHashInit(&hash);
@@ -3849,7 +3891,7 @@ static void RunScrollView(const AsmModule* p_module, const MechS32* p_args, AsmO
 }
 
 typedef void (*EllipseFn)(
-	Pane* p_view,
+	PANE* p_view,
 	MechS32 p_x,
 	MechS32 p_y,
 	MechS32 p_radiusX,
@@ -3891,12 +3933,12 @@ static void RunEllipse(const AsmModule* p_module, const char* p_name, const Mech
 
 static void RunDrawEllipse(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunEllipse(p_module, "DrawEllipse", p_args, p_output);
+	RunEllipse(p_module, "VFX_ellipse_draw", p_args, p_output);
 }
 
 static void RunFillEllipse(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	RunEllipse(p_module, "FillEllipse", p_args, p_output);
+	RunEllipse(p_module, "VFX_ellipse_fill", p_args, p_output);
 }
 
 typedef void (*GetCosSinFn)(MechS32 p_angle, MechS32* p_cos, MechS32* p_sin);
@@ -3924,7 +3966,7 @@ static void RunGetCosSin(const AsmModule* p_module, const MechS32* p_args, AsmOu
 	MechU32 state = AsmSeed(p_args, 1);
 
 	FillWords(values, 4, &state);
-	((GetCosSinFn) Function(p_module, "GetCosSin"))(BoundedAngle(p_args[0]), &values[0], &values[2]);
+	((GetCosSinFn) Function(p_module, "VFX_Cos_Sin"))(BoundedAngle(p_args[0]), &values[0], &values[2]);
 	OutputWords(p_output, values, 4);
 }
 
@@ -3935,7 +3977,7 @@ static void RunBlitFixedMul16(const AsmModule* p_module, const MechS32* p_args, 
 	MechU32 state = AsmSeed(p_args, 2);
 
 	FillWords(values, 3, &state);
-	((BlitFixedMul16Fn) Function(p_module, "BlitFixedMul16"))(p_args[0], p_args[1], &values[1]);
+	((BlitFixedMul16Fn) Function(p_module, "VFX_fixed_mul"))(p_args[0], p_args[1], &values[1]);
 	OutputWords(p_output, values, 3);
 }
 
@@ -3952,9 +3994,14 @@ static void RunRotateScalePoint(const AsmModule* p_module, const MechS32* p_args
 	origin[0] = p_args[2];
 	origin[1] = p_args[3];
 	FillWords(result, 4, &state);
-	((
-		RotateScalePointFn
-	) Function(p_module, "RotateScalePoint"))(point, &result[1], origin, BoundedAngle(p_args[4]), p_args[5], p_args[6]);
+	((RotateScalePointFn) Function(p_module, "VFX_point_transform"))(
+		point,
+		&result[1],
+		origin,
+		BoundedAngle(p_args[4]),
+		p_args[5],
+		p_args[6]
+	);
 	OutputWords(p_output, result, 4);
 }
 
@@ -4021,8 +4068,8 @@ static MechU8* RandomTextPalette(MechU32* p_state)
 
 typedef MechS32 (*FontGetHeightFn)(void* p_font);
 typedef MechS32 (*FontGetCharWidthFn)(void* p_font, MechS32 p_char);
-typedef MechS32 (*BlitCharFn)(Pane* p_view, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_char, void* p_palette);
-typedef void (*BlitStringFn)(Pane* p_view, MechS32 p_x, MechS32 p_y, void* p_font, MechChar* p_text, void* p_palette);
+typedef MechS32 (*BlitCharFn)(PANE* p_view, MechS32 p_x, MechS32 p_y, void* p_font, MechS32 p_char, void* p_palette);
+typedef void (*BlitStringFn)(PANE* p_view, MechS32 p_x, MechS32 p_y, void* p_font, MechChar* p_text, void* p_palette);
 
 // Arguments: the font's seed.
 static void RunFontGetHeight(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
@@ -4031,7 +4078,7 @@ static void RunFontGetHeight(const AsmModule* p_module, const MechS32* p_args, A
 	MechU32 state = AsmSeed(p_args, 1);
 
 	MakeFont(&font, &state);
-	AsmOutputWord(p_output, (MechU32) ((FontGetHeightFn) Function(p_module, "FontGetHeight"))(font.m_words));
+	AsmOutputWord(p_output, (MechU32) ((FontGetHeightFn) Function(p_module, "VFX_font_height"))(font.m_words));
 }
 
 // Arguments: the character (its low byte) and the font's seed.
@@ -4043,7 +4090,7 @@ static void RunFontGetCharWidth(const AsmModule* p_module, const MechS32* p_args
 	MakeFont(&font, &state);
 	AsmOutputWord(
 		p_output,
-		(MechU32) ((FontGetCharWidthFn) Function(p_module, "FontGetCharWidth"))(font.m_words, p_args[0] & 0xff)
+		(MechU32) ((FontGetCharWidthFn) Function(p_module, "VFX_character_width"))(font.m_words, p_args[0] & 0xff)
 	);
 }
 
@@ -4064,8 +4111,9 @@ static void RunBlitChar(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	x = RandomRange(&state, -14, BLIT_WIDTH + 4);
 	y = RandomRange(&state, -14, BLIT_HEIGHT + 4);
 	palette = RandomTextPalette(&state);
-	result = ((BlitCharFn)
-				  Function(p_module, "BlitChar"))(&target.m_view, x, y, font.m_words, AsmNext(&state) % 0x100, palette);
+	result = ((
+		BlitCharFn
+	) Function(p_module, "VFX_character_draw"))(&target.m_view, x, y, font.m_words, AsmNext(&state) % 0x100, palette);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputBlitTarget(p_output, &target);
 }
@@ -4097,11 +4145,12 @@ static void RunBlitString(const AsmModule* p_module, const MechS32* p_args, AsmO
 	x = RandomRange(&state, -30, BLIT_WIDTH);
 	y = RandomRange(&state, -14, BLIT_HEIGHT + 4);
 	palette = RandomTextPalette(&state);
-	((BlitStringFn) Function(p_module, "BlitString"))(&target.m_view, x, y, font.m_words, (MechChar*) text, palette);
+	((BlitStringFn)
+		 Function(p_module, "VFX_string_draw"))(&target.m_view, x, y, font.m_words, (MechChar*) text, palette);
 	OutputBlitTarget(p_output, &target);
 }
 
-typedef MechS32 (*WriteViewRowFn)(Pane* p_view, MechS32 p_row, MechU8* p_src, MechS32 p_width);
+typedef MechS32 (*WriteViewRowFn)(PANE* p_view, MechS32 p_row, MechU8* p_src, MechS32 p_width);
 
 // Arguments: four words that seed the target, the row, the pixels and their count (a negative
 // count that the clipping leaves faults). Only the empty buffer's and view's results are
@@ -4119,7 +4168,7 @@ static void RunWriteViewRow(const AsmModule* p_module, const MechS32* p_args, As
 	Fill(pixels, sizeof(pixels), &state);
 	row = RandomRange(&state, -12, BLIT_HEIGHT + 12);
 	width = RandomRange(&state, 0, 0x8c);
-	result = ((WriteViewRowFn) Function(p_module, "WriteViewRow"))(&target.m_view, row, &pixels[0x10], width);
+	result = ((WriteViewRowFn) Function(p_module, "VFX_line_to_pane"))(&target.m_view, row, &pixels[0x10], width);
 	AsmOutputWord(p_output, BlitTargetEmpty(&target) ? (MechU32) result : 0);
 	OutputBlitTarget(p_output, &target);
 }
@@ -4273,7 +4322,7 @@ static void MakeIff(Picture* p_picture, MechU32* p_state)
 }
 
 typedef MechU8* (*FindIffChunkFn)(MechChar* p_tag, MechU8* p_iff);
-typedef MechS32 (*BlitPictureFn)(Pane* p_view, MechU8* p_data);
+typedef MechS32 (*BlitPictureFn)(PANE* p_view, MechU8* p_data);
 typedef void (*ReadPaletteFn)(MechU8* p_data, MechU8* p_palette);
 typedef MechS32 (*PictureSizeFn)(MechU8* p_data);
 
@@ -4290,7 +4339,7 @@ static void RunFindIffChunk(const AsmModule* p_module, const MechS32* p_args, As
 	MakeIff(&picture, &state);
 	kind = AsmNext(&state) % (picture.m_chunks[3] ? 4 : 3);
 	memcpy(tag, c_tags[kind], 4);
-	result = ((FindIffChunkFn) Function(p_module, "FindIffChunk"))(tag, (MechU8*) picture.m_words);
+	result = ((FindIffChunkFn) Function(p_module, "find_ILBM_property"))(tag, (MechU8*) picture.m_words);
 	AsmOutputWord(p_output, (MechU32) (result - (MechU8*) picture.m_words));
 }
 
@@ -4299,8 +4348,8 @@ static void RunFindIffChunk(const AsmModule* p_module, const MechS32* p_args, As
 static void MakePictureTarget(BlitTarget* p_target, MechU32* p_state)
 {
 	MakeBlitTarget(p_target, p_state, 1);
-	if (p_target->m_view.m_bottom < p_target->m_view.m_top) {
-		p_target->m_view.m_bottom = p_target->m_view.m_top + RandomRange(p_state, 0, 8);
+	if (p_target->m_view.m_y1 < p_target->m_view.m_y0) {
+		p_target->m_view.m_y1 = p_target->m_view.m_y0 + RandomRange(p_state, 0, 8);
 	}
 }
 
@@ -4315,7 +4364,7 @@ static void RunBlitIff(const AsmModule* p_module, const MechS32* p_args, AsmOutp
 
 	MakePictureTarget(&target, &state);
 	MakeIff(&picture, &state);
-	result = ((BlitPictureFn) Function(p_module, "BlitIff"))(&target.m_view, (MechU8*) picture.m_words);
+	result = ((BlitPictureFn) Function(p_module, "VFX_ILBM_draw"))(&target.m_view, (MechU8*) picture.m_words);
 	AsmOutputWord(p_output, picture.m_masking == 1 ? 0 : (MechU32) result);
 	OutputBlitTarget(p_output, &target);
 }
@@ -4329,7 +4378,7 @@ static void RunReadIffPalette(const AsmModule* p_module, const MechS32* p_args, 
 
 	MakeIff(&picture, &state);
 	Fill(palette, sizeof(palette), &state);
-	((ReadPaletteFn) Function(p_module, "ReadIffPalette"))((MechU8*) picture.m_words, palette);
+	((ReadPaletteFn) Function(p_module, "VFX_ILBM_palette"))((MechU8*) picture.m_words, palette);
 	AsmOutputBytes(p_output, palette, sizeof(palette));
 }
 
@@ -4339,7 +4388,10 @@ static void RunGetIffSize(const AsmModule* p_module, const MechS32* p_args, AsmO
 	MechU32 state = AsmSeed(p_args, 2);
 
 	MakeIff(&picture, &state);
-	AsmOutputWord(p_output, (MechU32) ((PictureSizeFn) Function(p_module, "GetIffSize"))((MechU8*) picture.m_words));
+	AsmOutputWord(
+		p_output,
+		(MechU32) ((PictureSizeFn) Function(p_module, "VFX_ILBM_resolution"))((MechU8*) picture.m_words)
+	);
 }
 
 // A PCX picture: a 0x80-byte header, up to 10 rows of up to 100 bytes, run-length coded (a byte
@@ -4394,7 +4446,7 @@ static void RunBlitPicture(const AsmModule* p_module, const MechS32* p_args, Asm
 
 	MakePictureTarget(&target, &state);
 	MakePcx(&picture, &state);
-	result = ((BlitPictureFn) Function(p_module, "BlitPicture"))(&target.m_view, (MechU8*) picture.m_words);
+	result = ((BlitPictureFn) Function(p_module, "VFX_PCX_draw"))(&target.m_view, (MechU8*) picture.m_words);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputBlitTarget(p_output, &target);
 }
@@ -4410,7 +4462,7 @@ static void RunReadPicturePalette(const AsmModule* p_module, const MechS32* p_ar
 	MakePcx(&picture, &state);
 	Fill(palette, sizeof(palette), &state);
 	((ReadPicturePaletteFn)
-		 Function(p_module, "ReadPicturePalette"))((MechU8*) picture.m_words, (MechS32) picture.m_size, palette);
+		 Function(p_module, "VFX_PCX_palette"))((MechU8*) picture.m_words, (MechS32) picture.m_size, palette);
 	AsmOutputBytes(p_output, palette, sizeof(palette));
 }
 
@@ -4422,7 +4474,7 @@ static void RunGetPictureSize(const AsmModule* p_module, const MechS32* p_args, 
 	MakePcx(&picture, &state);
 	AsmOutputWord(
 		p_output,
-		(MechU32) ((PictureSizeFn) Function(p_module, "GetPictureSize"))((MechU8*) picture.m_words)
+		(MechU32) ((PictureSizeFn) Function(p_module, "VFX_PCX_resolution"))((MechU8*) picture.m_words)
 	);
 }
 
@@ -4590,7 +4642,7 @@ static void MakeGif(Picture* p_picture, MechU32* p_state)
 	p_picture->m_size = at;
 }
 
-typedef MechS32 (*BlitGifFn)(Pane* p_view, MechU8* p_gif, MechU8* p_state);
+typedef MechS32 (*BlitGifFn)(PANE* p_view, MechU8* p_gif, MechU8* p_state);
 
 static MechU8 g_gifState[GIF_STATE_SIZE];
 
@@ -4608,7 +4660,7 @@ static void RunBlitGif(const AsmModule* p_module, const MechS32* p_args, AsmOutp
 	MakeBlitTarget(&target, &state, 1);
 	MakeGif(&picture, &state);
 	Fill(g_gifState, sizeof(g_gifState), &state);
-	result = ((BlitGifFn) Function(p_module, "BlitGif"))(&target.m_view, (MechU8*) picture.m_words, g_gifState);
+	result = ((BlitGifFn) Function(p_module, "VFX_GIF_draw"))(&target.m_view, (MechU8*) picture.m_words, g_gifState);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputBlitTarget(p_output, &target);
 	AsmHashInit(&hash);
@@ -4632,7 +4684,7 @@ static void RunReadGifPalette(const AsmModule* p_module, const MechS32* p_args, 
 
 	MakeGif(&picture, &state);
 	Fill(palette, sizeof(palette), &state);
-	((ReadPaletteFn) Function(p_module, "ReadGifPalette"))((MechU8*) picture.m_words, palette);
+	((ReadPaletteFn) Function(p_module, "VFX_GIF_palette"))((MechU8*) picture.m_words, palette);
 	AsmOutputBytes(p_output, palette, sizeof(palette));
 }
 
@@ -4644,14 +4696,14 @@ static void RunGetGifSize(const AsmModule* p_module, const MechS32* p_args, AsmO
 	MechU32 state = AsmSeed(p_args, 2);
 
 	MakeGif(&picture, &state);
-	AsmOutputWord(p_output, (MechU32) ((GetGifSizeFn) Function(p_module, "GetGifSize"))(picture.m_words));
+	AsmOutputWord(p_output, (MechU32) ((GetGifSizeFn) Function(p_module, "VFX_GIF_resolution"))(picture.m_words));
 }
 
 // --- Run-length encoding ---
 
 #define RLE_SIZE 0x1800
 
-typedef MechS32 (*EncodeViewRleFn)(Pane* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, MechU8* p_out);
+typedef MechS32 (*EncodeViewRleFn)(PANE* p_view, MechU8 p_transparent, MechS32 p_x, MechS32 p_y, MechU8* p_out);
 
 static MechU8 g_rleOut[RLE_SIZE];
 
@@ -4677,12 +4729,12 @@ static void RunEncodeViewRle(const AsmModule* p_module, const MechS32* p_args, A
 	if (AsmNext(&state) % 2) {
 		MechS32 width = RandomRange(&state, 200, 320);
 
-		target.m_buffer.m_maxX = width - 1;
-		target.m_buffer.m_maxY = RandomRange(&state, 0, BLIT_WIDTH * BLIT_HEIGHT / width - 1);
-		target.m_view.m_left = RandomRange(&state, -4, 8);
-		target.m_view.m_top = RandomRange(&state, -2, 2);
-		target.m_view.m_right = RandomRange(&state, width - 8, width + 4);
-		target.m_view.m_bottom = target.m_buffer.m_maxY + RandomRange(&state, -1, 2);
+		target.m_buffer.m_xMax = width - 1;
+		target.m_buffer.m_yMax = RandomRange(&state, 0, BLIT_WIDTH * BLIT_HEIGHT / width - 1);
+		target.m_view.m_x0 = RandomRange(&state, -4, 8);
+		target.m_view.m_y0 = RandomRange(&state, -2, 2);
+		target.m_view.m_x1 = RandomRange(&state, width - 8, width + 4);
+		target.m_view.m_y1 = target.m_buffer.m_yMax + RandomRange(&state, -1, 2);
 	}
 
 	pixels = (MechU8*) target.m_words;
@@ -4722,35 +4774,35 @@ static void RunEncodeViewRle(const AsmModule* p_module, const MechS32* p_args, A
 	out = AsmNext(&state) % 4 ? g_rleOut : NULL;
 	x = RandomCoordinate(&state, BLIT_WIDTH);
 	y = RandomCoordinate(&state, BLIT_HEIGHT);
-	result = ((EncodeViewRleFn) Function(p_module, "EncodeViewRle"))(&target.m_view, transparent, x, y, out);
+	result = ((EncodeViewRleFn) Function(p_module, "VFX_shape_scan"))(&target.m_view, transparent, x, y, out);
 	AsmOutputWord(p_output, (MechU32) result);
 	AsmOutputBytes(p_output, g_rleOut, RLE_SIZE);
 }
 
 // --- Dissolve and colors ---
 
-typedef MechS32 (*DissolveViewFn)(Pane* p_src, Pane* p_dest, MechS32 p_count, MechS32 p_state);
+typedef MechS32 (*DissolveViewFn)(PANE* p_src, PANE* p_dest, MechS32 p_count, MechS32 p_state);
 
 // Whether two views have a pixel in common, from their origins, other than their origins: the
 // LFSR never reaches 0, the state of (0, 0).
 static MechS32 DissolveOverlaps(const BlitTarget* p_src, const BlitTarget* p_dest)
 {
-	MechS32 width = p_src->m_view.m_right - p_src->m_view.m_left + 1;
-	MechS32 height = p_src->m_view.m_bottom - p_src->m_view.m_top + 1;
+	MechS32 width = p_src->m_view.m_x1 - p_src->m_view.m_x0 + 1;
+	MechS32 height = p_src->m_view.m_y1 - p_src->m_view.m_y0 + 1;
 	MechS32 x;
 	MechS32 y;
 
-	if (p_dest->m_view.m_right - p_dest->m_view.m_left + 1 < width) {
-		width = p_dest->m_view.m_right - p_dest->m_view.m_left + 1;
+	if (p_dest->m_view.m_x1 - p_dest->m_view.m_x0 + 1 < width) {
+		width = p_dest->m_view.m_x1 - p_dest->m_view.m_x0 + 1;
 	}
 
-	if (p_dest->m_view.m_bottom - p_dest->m_view.m_top + 1 < height) {
-		height = p_dest->m_view.m_bottom - p_dest->m_view.m_top + 1;
+	if (p_dest->m_view.m_y1 - p_dest->m_view.m_y0 + 1 < height) {
+		height = p_dest->m_view.m_y1 - p_dest->m_view.m_y0 + 1;
 	}
 
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
-			const Pane* views[2];
+			const PANE* views[2];
 			MechS32 i;
 			MechS32 in = 1;
 
@@ -4761,11 +4813,11 @@ static MechS32 DissolveOverlaps(const BlitTarget* p_src, const BlitTarget* p_des
 			views[0] = &p_src->m_view;
 			views[1] = &p_dest->m_view;
 			for (i = 0; i < 2; i++) {
-				MechS32 px = x + views[i]->m_left;
-				MechS32 py = y + views[i]->m_top;
+				MechS32 px = x + views[i]->m_x0;
+				MechS32 py = y + views[i]->m_y0;
 
-				if (px < 0 || px > views[i]->m_buffer->m_maxX || px > views[i]->m_right || py < 0 ||
-					py > views[i]->m_buffer->m_maxY || py > views[i]->m_bottom) {
+				if (px < 0 || px > views[i]->m_window->m_xMax || px > views[i]->m_x1 || py < 0 ||
+					py > views[i]->m_window->m_yMax || py > views[i]->m_y1) {
 					in = 0;
 				}
 			}
@@ -4799,30 +4851,29 @@ static void RunDissolveView(const AsmModule* p_module, const MechS32* p_args, As
 	MakeBlitTarget(&src, &state, 0);
 	MakeBlitTarget(&dest, &state, 0);
 	if (AsmNext(&state) % 4 == 0) {
-		dest.m_view.m_buffer = &src.m_buffer;
+		dest.m_view.m_window = &src.m_buffer;
 	}
 
 	empty = AsmNext(&state) % 16;
 
-	if (src.m_view.m_right < src.m_view.m_left || src.m_view.m_bottom < src.m_view.m_top ||
-		dest.m_view.m_right < dest.m_view.m_left || dest.m_view.m_bottom < dest.m_view.m_top ||
-		!DissolveOverlaps(&src, &dest)) {
-		src.m_view.m_left = 0;
-		src.m_view.m_top = 0;
-		src.m_view.m_right = src.m_buffer.m_maxX;
-		src.m_view.m_bottom = src.m_buffer.m_maxY;
-		dest.m_view.m_left = 0;
-		dest.m_view.m_top = 0;
-		dest.m_view.m_right = dest.m_view.m_buffer->m_maxX;
-		dest.m_view.m_bottom = dest.m_view.m_buffer->m_maxY;
+	if (src.m_view.m_x1 < src.m_view.m_x0 || src.m_view.m_y1 < src.m_view.m_y0 || dest.m_view.m_x1 < dest.m_view.m_x0 ||
+		dest.m_view.m_y1 < dest.m_view.m_y0 || !DissolveOverlaps(&src, &dest)) {
+		src.m_view.m_x0 = 0;
+		src.m_view.m_y0 = 0;
+		src.m_view.m_x1 = src.m_buffer.m_xMax;
+		src.m_view.m_y1 = src.m_buffer.m_yMax;
+		dest.m_view.m_x0 = 0;
+		dest.m_view.m_y0 = 0;
+		dest.m_view.m_x1 = dest.m_view.m_window->m_xMax;
+		dest.m_view.m_y1 = dest.m_view.m_window->m_yMax;
 		if (!DissolveOverlaps(&src, &dest)) {
 			// Single pixels: a second one
-			src.m_buffer.m_maxX++;
-			src.m_view.m_right++;
-			dest.m_view.m_buffer->m_maxX++;
-			dest.m_view.m_right++;
-			if (dest.m_view.m_buffer != &src.m_buffer) {
-				dest.m_view.m_right = dest.m_view.m_buffer->m_maxX;
+			src.m_buffer.m_xMax++;
+			src.m_view.m_x1++;
+			dest.m_view.m_window->m_xMax++;
+			dest.m_view.m_x1++;
+			if (dest.m_view.m_window != &src.m_buffer) {
+				dest.m_view.m_x1 = dest.m_view.m_window->m_xMax;
 			}
 		}
 	}
@@ -4831,32 +4882,32 @@ static void RunDissolveView(const AsmModule* p_module, const MechS32* p_args, As
 	// source's)
 	switch (empty) {
 	case 0:
-		src.m_buffer.m_maxX = -1;
+		src.m_buffer.m_xMax = -1;
 		break;
 	case 1:
-		src.m_view.m_left = src.m_buffer.m_maxX + 1;
-		src.m_view.m_right = src.m_view.m_left + 2;
+		src.m_view.m_x0 = src.m_buffer.m_xMax + 1;
+		src.m_view.m_x1 = src.m_view.m_x0 + 2;
 		break;
 	case 2:
-		dest.m_view.m_buffer = &dest.m_buffer;
-		dest.m_buffer.m_maxY = -1;
+		dest.m_view.m_window = &dest.m_buffer;
+		dest.m_buffer.m_yMax = -1;
 		break;
 	case 3:
-		dest.m_view.m_top = dest.m_view.m_buffer->m_maxY + 1;
-		dest.m_view.m_bottom = dest.m_view.m_top + 2;
+		dest.m_view.m_y0 = dest.m_view.m_window->m_yMax + 1;
+		dest.m_view.m_y1 = dest.m_view.m_y0 + 2;
 		break;
 	}
 
 	// A state of the LFSR, which runs over the bits of the views' common height and width (0
 	// starts; from beyond them, it can reach 0, and stay there)
-	width = src.m_view.m_right - src.m_view.m_left + 1;
-	height = src.m_view.m_bottom - src.m_view.m_top + 1;
-	if (dest.m_view.m_right - dest.m_view.m_left + 1 < width) {
-		width = dest.m_view.m_right - dest.m_view.m_left + 1;
+	width = src.m_view.m_x1 - src.m_view.m_x0 + 1;
+	height = src.m_view.m_y1 - src.m_view.m_y0 + 1;
+	if (dest.m_view.m_x1 - dest.m_view.m_x0 + 1 < width) {
+		width = dest.m_view.m_x1 - dest.m_view.m_x0 + 1;
 	}
 
-	if (dest.m_view.m_bottom - dest.m_view.m_top + 1 < height) {
-		height = dest.m_view.m_bottom - dest.m_view.m_top + 1;
+	if (dest.m_view.m_y1 - dest.m_view.m_y0 + 1 < height) {
+		height = dest.m_view.m_y1 - dest.m_view.m_y0 + 1;
 	}
 
 	for (bits = 0; (MechU32) height >> bits; bits++) {
@@ -4867,19 +4918,19 @@ static void RunDissolveView(const AsmModule* p_module, const MechS32* p_args, As
 
 	count = RandomRange(&state, 0, 2 * BLIT_WIDTH * BLIT_HEIGHT);
 	seed = AsmNext(&state) % 4 ? (MechS32) (1 + AsmNext(&state) % ((1u << (bits + widthBits)) - 1)) : 0;
-	result = ((DissolveViewFn) Function(p_module, "DissolveView"))(&src.m_view, &dest.m_view, count, seed);
+	result = ((DissolveViewFn) Function(p_module, "VFX_pixel_fade"))(&src.m_view, &dest.m_view, count, seed);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputBlitTarget(p_output, &src);
 	OutputBlitTarget(p_output, &dest);
 }
 
-typedef void (*FadeViewColorsFn)(PixelBuffer* p_buffer, MechU8* p_palette, MechS32 p_steps);
+typedef void (*FadeViewColorsFn)(WINDOW* p_buffer, MechU8* p_palette, MechS32 p_steps);
 
 // Arguments: four words that seed the buffer (up to 6 by 6 pixels, of a few colors), the colors
 // the driver reads, the palette (6-bit components mostly), the steps and the error terms.
 static void RunFadeViewColors(const AsmModule* p_module, const MechS32* p_args, AsmOutput* p_output)
 {
-	PixelBuffer buffer;
+	WINDOW buffer;
 	MechU8 pixels[36];
 	MechU8 colors[8];
 	MechU8 palette[0x300];
@@ -4892,11 +4943,11 @@ static void RunFadeViewColors(const AsmModule* p_module, const MechS32* p_args, 
 		pixels[i] = colors[AsmNext(&state) % 8];
 	}
 
-	buffer.m_pixels = pixels;
-	buffer.m_maxX = RandomRange(&state, 0, 5);
-	buffer.m_maxY = RandomRange(&state, 0, 5);
+	buffer.m_buffer = pixels;
+	buffer.m_xMax = RandomRange(&state, 0, 5);
+	buffer.m_yMax = RandomRange(&state, 0, 5);
 	buffer.m_bitmapInfo = NULL;
-	buffer.m_unk0x10 = 0;
+	buffer.m_shadow = 0;
 	for (i = 0; i < 0x300; i++) {
 		MechU32 bits = AsmNext(&state);
 
@@ -4904,15 +4955,15 @@ static void RunFadeViewColors(const AsmModule* p_module, const MechS32* p_args, 
 		palette[i] = (MechU8) (wide ? bits >> 8 : (bits >> 8) % 0x40);
 	}
 
-	Fill((MechU8*) Data(p_module, "g_fadeErrors"), 0x300, &state);
+	Fill((MechU8*) Data(p_module, "color_error"), 0x300, &state);
 	MakeDriverTable();
-	((SetDisplayDriverFn) Function(p_module, "SetDisplayDriver"))(g_driverTable);
-	((FadeViewColorsFn) Function(p_module, "FadeViewColors"))(&buffer, palette, RandomRange(&state, 0, 400));
-	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "g_fadeErrors"), 0x300);
+	((SetDisplayDriverFn) Function(p_module, "VFX_register_driver"))(g_driverTable);
+	((FadeViewColorsFn) Function(p_module, "VFX_window_fade"))(&buffer, palette, RandomRange(&state, 0, 400));
+	AsmOutputBytes(p_output, (const MechU8*) Data(p_module, "color_error"), 0x300);
 	OutputDriverLog(p_output);
 }
 
-typedef MechS32 (*CountViewColorsFn)(Pane* p_view, MechU32* p_out);
+typedef MechS32 (*CountViewColorsFn)(PANE* p_view, MechU32* p_out);
 
 // Arguments: two words that seed the target (its view inside the buffer: the routine doesn't
 // clip) and the output, NULL in one case in four.
@@ -4932,13 +4983,13 @@ static void RunCountViewColors(const AsmModule* p_module, const MechS32* p_args,
 		pixels[i] = (MechU8) (AsmNext(&state) % palette * 7);
 	}
 
-	target.m_view.m_left = RandomRange(&state, 0, target.m_buffer.m_maxX);
-	target.m_view.m_top = RandomRange(&state, 0, target.m_buffer.m_maxY);
-	target.m_view.m_right = RandomRange(&state, target.m_view.m_left, target.m_buffer.m_maxX);
-	target.m_view.m_bottom = RandomRange(&state, target.m_view.m_top, target.m_buffer.m_maxY);
+	target.m_view.m_x0 = RandomRange(&state, 0, target.m_buffer.m_xMax);
+	target.m_view.m_y0 = RandomRange(&state, 0, target.m_buffer.m_yMax);
+	target.m_view.m_x1 = RandomRange(&state, target.m_view.m_x0, target.m_buffer.m_xMax);
+	target.m_view.m_y1 = RandomRange(&state, target.m_view.m_y0, target.m_buffer.m_yMax);
 	FillWords((MechS32*) colors, 0x102, &state);
 	result = ((CountViewColorsFn)
-				  Function(p_module, "CountViewColors"))(&target.m_view, AsmNext(&state) % 4 ? &colors[1] : NULL);
+				  Function(p_module, "VFX_color_scan"))(&target.m_view, AsmNext(&state) % 4 ? &colors[1] : NULL);
 	AsmOutputWord(p_output, (MechU32) result);
 	OutputWords(p_output, (const MechS32*) colors, 0x102);
 }
@@ -5012,66 +5063,66 @@ const AsmRoutine g_asmRoutines[] = {
 	{"FUN_10048ebe", 6, Domain10048ebe, Run10048ebe, NULL},
 	{"FUN_10048faf", 9, Domain10048faf, Run10048faf, NULL},
 	{"FUN_10049155", 3, NULL, Run10049155, NULL},
-	// polyfill.asm
-	{"FillPolygonFlat", 4, NULL, RunFillPolygonFlat, NULL},
-	{"FUN_1002ae41", 4, NULL, Run1002ae41, NULL},
-	{"FUN_1002b68b", 4, NULL, Run1002b68b, NULL},
-	{"FUN_1002bf39", 4, NULL, Run1002bf39, NULL},
-	{"FUN_1002c48d", 4, NULL, Run1002c48d, NULL},
-	{"SetLumaTable", 2, NULL, RunSetLumaTable, NULL},
-	{"FillPolygonTextured", 4, NULL, RunFillPolygonTextured, NULL},
-	// blit.asm
-	{"GetDisplayDriverName", 2, NULL, RunGetDisplayDriverName, NULL},
-	{"SetDisplayDriver", 2, NULL, RunSetDisplayDriver, NULL},
-	{"PutViewPixel", 4, NULL, RunPutViewPixel, NULL},
-	{"GetViewPixel", 4, NULL, RunGetViewPixel, NULL},
-	{"BlitLine", 4, BlitLineDomain, RunBlitLine, NULL},
-	{"FUN_10032e4b", 4, NULL, Run10032e4b, NULL},
-	{"BlitShpFrame", 4, NULL, RunBlitShpFrame, NULL},
-	{"BlitShpFrameUnclipped", 4, NULL, RunBlitShpFrameUnclipped, NULL},
-	{"SetRemapTable", 2, NULL, RunSetRemapTable, NULL},
-	{"BlitShpFrameRemapped", 4, NULL, RunBlitShpFrameRemapped, NULL},
-	{"BlitShpFrameRemappedUnclipped", 4, NULL, RunBlitShpFrameRemappedUnclipped, NULL},
-	{"BlitRotated", 4, NULL, RunBlitRotated, NULL},
-	{"FUN_10034622", 2, NULL, Run10034622, NULL},
-	{"EncodeViewRle", 4, NULL, RunEncodeViewRle, NULL},
-	{"RemapShpFrame", 2, NULL, RunRemapShpFrame, NULL},
-	{"FillView", 2, NULL, RunFillView, NULL},
-	{"BlitView", 4, NULL, RunBlitView, NULL},
-	{"ScrollView", 4, ScrollViewDomain, RunScrollView, NULL},
-	{"DrawEllipse", 4, NULL, RunDrawEllipse, NULL},
-	{"FillEllipse", 4, NULL, RunFillEllipse, NULL},
-	{"GetCosSin", 1, NULL, RunGetCosSin, NULL},
-	{"BlitFixedMul16", 2, NULL, RunBlitFixedMul16, NULL},
-	{"RotateScalePoint", 7, NULL, RunRotateScalePoint, NULL},
-	{"FontGetHeight", 1, NULL, RunFontGetHeight, NULL},
-	{"FontGetCharWidth", 2, NULL, RunFontGetCharWidth, NULL},
-	{"BlitChar", 4, NULL, RunBlitChar, NULL},
-	{"BlitString", 4, NULL, RunBlitString, NULL},
-	{"WriteViewRow", 4, NULL, RunWriteViewRow, NULL},
-	{"FindIffChunk", 2, NULL, RunFindIffChunk, NULL},
-	{"BlitIff", 2, NULL, RunBlitIff, NULL},
-	{"ReadIffPalette", 2, NULL, RunReadIffPalette, NULL},
-	{"GetIffSize", 2, NULL, RunGetIffSize, NULL},
-	{"BlitPicture", 2, NULL, RunBlitPicture, NULL},
-	{"ReadPicturePalette", 2, NULL, RunReadPicturePalette, NULL},
-	{"GetPictureSize", 2, NULL, RunGetPictureSize, NULL},
-	{"BlitGif", 2, NULL, RunBlitGif, NULL},
-	{"ReadGifPalette", 2, NULL, RunReadGifPalette, NULL},
-	{"GetGifSize", 2, NULL, RunGetGifSize, NULL},
-	{"GetShpFrameSize", 2, NULL, RunGetShpFrameSize, NULL},
-	{"FUN_10037526", 2, NULL, Run10037526, NULL},
-	{"GetShpFrameExtent", 2, NULL, RunGetShpFrameExtent, NULL},
-	{"GetShpFrameOrigin", 2, NULL, RunGetShpFrameOrigin, NULL},
-	{"FUN_100375a7", 2, NULL, Run100375a7, NULL},
-	{"FUN_100375f2", 2, NULL, Run100375f2, NULL},
-	{"FUN_1003763a", 2, NULL, Run1003763a, NULL},
-	{"GetShpFrameCount", 2, NULL, RunGetShpFrameCount, NULL},
-	{"CountShpUniqueFrames", 2, NULL, RunCountShpUniqueFrames, NULL},
-	{"FUN_100376f9", 2, NULL, Run100376f9, NULL},
-	{"DissolveView", 4, NULL, RunDissolveView, NULL},
-	{"FadeViewColors", 4, NULL, RunFadeViewColors, NULL},
-	{"CountViewColors", 2, NULL, RunCountViewColors, NULL},
+	// VFX3D.ASM
+	{"VFX_flat_polygon", 4, NULL, RunFillPolygonFlat, NULL},
+	{"VFX_Gouraud_polygon", 4, NULL, Run1002ae41, NULL},
+	{"VFX_dithered_Gouraud_polygon", 4, NULL, Run1002b68b, NULL},
+	{"VFX_translate_polygon", 4, NULL, Run1002bf39, NULL},
+	{"VFX_illuminate_polygon", 4, NULL, Run1002c48d, NULL},
+	{"VFX_map_lookaside", 2, NULL, RunSetLumaTable, NULL},
+	{"VFX_map_polygon", 4, NULL, RunFillPolygonTextured, NULL},
+	// VFXA.ASM
+	{"VFX_driver_name", 2, NULL, RunGetDisplayDriverName, NULL},
+	{"VFX_register_driver", 2, NULL, RunSetDisplayDriver, NULL},
+	{"VFX_pixel_write", 4, NULL, RunPutViewPixel, NULL},
+	{"VFX_pixel_read", 4, NULL, RunGetViewPixel, NULL},
+	{"VFX_line_draw", 4, BlitLineDomain, RunBlitLine, NULL},
+	{"VFX_rectangle_hash", 4, NULL, Run10032e4b, NULL},
+	{"VFX_shape_draw", 4, NULL, RunBlitShpFrame, NULL},
+	{"DrawShapeUnclipped", 4, NULL, RunBlitShpFrameUnclipped, NULL},
+	{"VFX_shape_lookaside", 2, NULL, RunSetRemapTable, NULL},
+	{"VFX_shape_translate_draw", 4, NULL, RunBlitShpFrameRemapped, NULL},
+	{"XlatShapeUnclipped", 4, NULL, RunBlitShpFrameRemappedUnclipped, NULL},
+	{"VFX_shape_transform", 4, NULL, RunBlitRotated, NULL},
+	{"VFX_shape_visible_rectangle", 2, NULL, Run10034622, NULL},
+	{"VFX_shape_scan", 4, NULL, RunEncodeViewRle, NULL},
+	{"VFX_shape_remap_colors", 2, NULL, RunRemapShpFrame, NULL},
+	{"VFX_pane_wipe", 2, NULL, RunFillView, NULL},
+	{"VFX_pane_copy", 4, NULL, RunBlitView, NULL},
+	{"VFX_pane_scroll", 4, ScrollViewDomain, RunScrollView, NULL},
+	{"VFX_ellipse_draw", 4, NULL, RunDrawEllipse, NULL},
+	{"VFX_ellipse_fill", 4, NULL, RunFillEllipse, NULL},
+	{"VFX_Cos_Sin", 1, NULL, RunGetCosSin, NULL},
+	{"VFX_fixed_mul", 2, NULL, RunBlitFixedMul16, NULL},
+	{"VFX_point_transform", 7, NULL, RunRotateScalePoint, NULL},
+	{"VFX_font_height", 1, NULL, RunFontGetHeight, NULL},
+	{"VFX_character_width", 2, NULL, RunFontGetCharWidth, NULL},
+	{"VFX_character_draw", 4, NULL, RunBlitChar, NULL},
+	{"VFX_string_draw", 4, NULL, RunBlitString, NULL},
+	{"VFX_line_to_pane", 4, NULL, RunWriteViewRow, NULL},
+	{"find_ILBM_property", 2, NULL, RunFindIffChunk, NULL},
+	{"VFX_ILBM_draw", 2, NULL, RunBlitIff, NULL},
+	{"VFX_ILBM_palette", 2, NULL, RunReadIffPalette, NULL},
+	{"VFX_ILBM_resolution", 2, NULL, RunGetIffSize, NULL},
+	{"VFX_PCX_draw", 2, NULL, RunBlitPicture, NULL},
+	{"VFX_PCX_palette", 2, NULL, RunReadPicturePalette, NULL},
+	{"VFX_PCX_resolution", 2, NULL, RunGetPictureSize, NULL},
+	{"VFX_GIF_draw", 2, NULL, RunBlitGif, NULL},
+	{"VFX_GIF_palette", 2, NULL, RunReadGifPalette, NULL},
+	{"VFX_GIF_resolution", 2, NULL, RunGetGifSize, NULL},
+	{"VFX_shape_bounds", 2, NULL, RunGetShpFrameSize, NULL},
+	{"VFX_shape_origin", 2, NULL, Run10037526, NULL},
+	{"VFX_shape_resolution", 2, NULL, RunGetShpFrameExtent, NULL},
+	{"VFX_shape_minxy", 2, NULL, RunGetShpFrameOrigin, NULL},
+	{"VFX_shape_palette", 2, NULL, Run100375a7, NULL},
+	{"VFX_shape_colors", 2, NULL, Run100375f2, NULL},
+	{"VFX_shape_set_colors", 2, NULL, Run1003763a, NULL},
+	{"VFX_shape_count", 2, NULL, RunGetShpFrameCount, NULL},
+	{"VFX_shape_list", 2, NULL, RunCountShpUniqueFrames, NULL},
+	{"VFX_shape_palette_list", 2, NULL, Run100376f9, NULL},
+	{"VFX_pixel_fade", 4, NULL, RunDissolveView, NULL},
+	{"VFX_window_fade", 4, NULL, RunFadeViewColors, NULL},
+	{"VFX_color_scan", 2, NULL, RunCountViewColors, NULL},
 };
 
 const MechS32 g_asmRoutineCount = sizeof(g_asmRoutines) / sizeof(g_asmRoutines[0]);

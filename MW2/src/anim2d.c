@@ -135,7 +135,7 @@ void FreeAnim2d(MechS32 p_index)
 // rejects anything (the original tests p_index < 0 && p_index >= 7).
 // Stack-slot permutation: frame and anim.
 // FUNCTION: MW2 0x100077b3
-void DrawAnim2d(Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
+void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 frame;
 	Anim2d* anim;
@@ -162,7 +162,7 @@ void DrawAnim2d(Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 			return;
 		}
 
-		anim->m_frameCount = GetShpFrameCount(anim->m_shape);
+		anim->m_frameCount = VFX_shape_count(anim->m_shape);
 	}
 
 	if (anim->m_state == c_anim2dNew) {
@@ -199,7 +199,7 @@ void DrawAnim2d(Pane* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 	}
 
 	if (anim->m_state != c_anim2dDone) {
-		BlitShpFrame(p_target, anim->m_shape, shown, p_x, p_y);
+		VFX_shape_draw(p_target, anim->m_shape, shown, p_x, p_y);
 	}
 	else if (anim->m_flags & c_anim2dFreeWhenDone) {
 		FreeAnim2ds(p_index);
