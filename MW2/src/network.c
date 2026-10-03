@@ -350,7 +350,7 @@ MechS32 UpdateNetwork(void)
 		if (player->m_flags & 0x4000) {
 			FUN_10001926(player->m_obj);
 			FUN_100019f6(player->m_obj);
-			FUN_10001cf8(player->m_obj);
+			UpdateObj(player->m_obj);
 			player->m_flags &= ~0x4800;
 			ElectMaster();
 		}
@@ -661,7 +661,7 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	player->m_unk0x64 = msg->m_unk0x6d;
 	SetObjPosition(player->m_obj, player->m_position.m_x, player->m_position.m_y, player->m_position.m_z);
 	SetObjRotation(player->m_obj, player->m_unk0x5c, player->m_heading, player->m_unk0x64, 0);
-	FUN_10001cf8(player->m_obj);
+	UpdateObj(player->m_obj);
 	mech->m_unk0x24.m_value = msg->m_mechUnk0x2c;
 	mech->m_unk0x24.m_target = msg->m_mechUnk0x2c;
 	mech->m_unk0x44.m_value = msg->m_mechUnk0x4c;

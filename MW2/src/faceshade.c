@@ -8,8 +8,8 @@
 #include "objectanim.h"
 #include "polydraw.h"
 #include "ray.h"
+#include "rendersettings.h"
 #include "shape.h"
-#include "slateheron.h"
 #include "transform.h"
 #include "types.h"
 #include "vertex.h"
@@ -46,10 +46,10 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	low = 0;
 	shade = -1;
 	mode = p_color & 0x7000;
-	kind = p_face->m_unk0x20->m_unk0x02;
-	if (g_unk0x100a6cc8.m_unk0x34) {
-		if (g_unk0x100a6cc8.m_unk0x38 == 1) {
-			switch (p_face->m_unk0x20->m_unk0x24) {
+	kind = p_face->m_shape->m_kind;
+	if (g_renderSettings.m_unk0x34) {
+		if (g_renderSettings.m_unk0x38 == 1) {
+			switch (p_face->m_shape->m_collisionType) {
 			case 0:
 				return 0xd;
 			case 1:
@@ -68,8 +68,8 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 				return 0xff;
 			}
 		}
-		else if (g_unk0x100a6cc8.m_unk0x38 == 2) {
-			switch (p_face->m_unk0x20->m_unk0x00 & 0x10f) {
+		else if (g_renderSettings.m_unk0x38 == 2) {
+			switch (p_face->m_shape->m_flags & 0x10f) {
 			case 0:
 				return 0xd;
 			case 1:
@@ -97,7 +97,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 			return 0xb;
 		}
 		else if (kind & 0x100) {
-			level = (p_face->m_unk0x20->m_unk0x00 & 0xf0) >> 4;
+			level = (p_face->m_shape->m_flags & 0xf0) >> 4;
 			if (level < 1) {
 				return 7;
 			}
@@ -116,7 +116,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	switch (mode) {
 	case 0:
 		value = (p_color & 0xf0) >> 4;
-		if (g_unk0x100a6cc8.m_unk0x40) {
+		if (g_renderSettings.m_unk0x40) {
 			value >>= 2;
 			high = 0xf0;
 		}
@@ -130,8 +130,8 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		result = (p_color & 0xff0) >> 4;
 		return result | mode;
 	case 0x3000:
-		if (g_unk0x100a6cc8.m_unk0x50) {
-			if (kind & g_unk0x100a6cc8.m_unk0x50) {
+		if (g_renderSettings.m_unk0x50) {
+			if (kind & g_renderSettings.m_unk0x50) {
 				mode = 0x1000;
 				value = p_color & 0xf0;
 			}
@@ -147,12 +147,12 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	case 0x6000:
 	case 0x7000:
 		value = 0xff;
-		if (g_unk0x100a6cc8.m_unk0x50) {
-			if ((g_unk0x100a6cc8.m_unk0x50 & 0x100) && ((kind & 0x100) || (kind & 0xf0) == 0x50)) {
+		if (g_renderSettings.m_unk0x50) {
+			if ((g_renderSettings.m_unk0x50 & 0x100) && ((kind & 0x100) || (kind & 0xf0) == 0x50)) {
 				mode = 0x1000;
 				value = 0xa0;
 			}
-			else if (kind & g_unk0x100a6cc8.m_unk0x50) {
+			else if (kind & g_renderSettings.m_unk0x50) {
 				mode = 0x1000;
 				if (kind & 0x200) {
 					value = 0xd0;
@@ -177,9 +177,9 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		break;
 	}
 
-	shade = FUN_100367c5(FUN_10048faf(p_face, p_vertices), value, p_distance);
+	shade = FUN_100367c5(GetFaceShade(p_face, p_vertices), value, p_distance);
 	if ((kind & 0x100) || (kind & 0xf0) == 0x50) {
-		detail = (p_face->m_unk0x20->m_unk0x00 & 0xf0) >> 4;
+		detail = (p_face->m_shape->m_flags & 0xf0) >> 4;
 		if (detail > 0) {
 			if (g_unk0x100a555c) {
 				shade += FixedMul16(detail, FixedDiv16(15 - shade, 15));
@@ -195,7 +195,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		shade <<= 8;
 		high = 0;
 	}
-	else if (g_unk0x100a6cc8.m_unk0x40) {
+	else if (g_renderSettings.m_unk0x40) {
 		high = 0xf0;
 	}
 	else {
@@ -214,8 +214,8 @@ MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
 	MechS32 shade;
 
 	shade = (((0x80 - g_unk0x1010b540) * p_light >> 7) + g_unk0x1010b540) * (p_value >> 1) / 0x440;
-	if (g_unk0x100a6cc8.m_unk0x44) {
-		shade -= (p_distance << 4) / g_unk0x100a6cc8.m_unk0x44 >> 4;
+	if (g_renderSettings.m_unk0x44) {
+		shade -= (p_distance << 4) / g_renderSettings.m_unk0x44 >> 4;
 	}
 
 	if (shade < 1) {
@@ -231,39 +231,39 @@ MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
 // FUNCTION: MW2 0x10036853
 void FUN_10036853(MechU32 p_flags)
 {
-	g_unk0x100a6cc8.m_unk0x50 ^= p_flags;
+	g_renderSettings.m_unk0x50 ^= p_flags;
 }
 
 // FUNCTION: MW2 0x10036867
 MechS32 FUN_10036867(MechU32 p_flags)
 {
-	return !(p_flags & g_unk0x100a6cc8.m_unk0x50);
+	return !(p_flags & g_renderSettings.m_unk0x50);
 }
 
 // FUNCTION: MW2 0x10036891
 void FUN_10036891(MechU32 p_flags, MechS32 p_enable)
 {
 	if (p_enable) {
-		g_unk0x100a6cc8.m_unk0x50 &= ~p_flags;
+		g_renderSettings.m_unk0x50 &= ~p_flags;
 	}
 	else {
-		g_unk0x100a6cc8.m_unk0x50 |= p_flags;
+		g_renderSettings.m_unk0x50 |= p_flags;
 	}
 }
 
 // FUNCTION: MW2 0x100368bf
 MechS32 FUN_100368bf(undefined4 p_unk0x00)
 {
-	return !g_unk0x100a6cc8.m_unk0x4c;
+	return !g_renderSettings.m_unk0x4c;
 }
 
 // FUNCTION: MW2 0x100368e8
 void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (!p_enable) {
-		g_unk0x100a6cc8.m_unk0x4c = TRUE;
+		g_renderSettings.m_unk0x4c = TRUE;
 	}
 	else {
-		g_unk0x100a6cc8.m_unk0x4c = FALSE;
+		g_renderSettings.m_unk0x4c = FALSE;
 	}
 }

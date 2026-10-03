@@ -18,7 +18,7 @@ DECOMP_SIZE_ASSERT(TimedCallback, 0x18)
 TimedCallback* g_currentCallback = NULL;
 
 // FUNCTION: MW2 0x1007d2e0
-TimedCallback* FUN_1007d2e0(void)
+TimedCallback* GetCurrentCallback(void)
 {
 	return g_currentCallback;
 }
@@ -102,7 +102,7 @@ void FUN_1007d4dc(TimedCallback** p_list)
 }
 
 // FUNCTION: MW2 0x1007d51f
-void** FUN_1007d51f(TimedCallback* p_callback)
+void** GetCallbackData(TimedCallback* p_callback)
 {
 	return &p_callback->m_data;
 }

@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_100074e0 is a C function whose body is an __asm block. Its portable
+/* Hand-written assembly: HashName is a C function whose body is an __asm block. Its portable
    C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "namehash.h"
 
@@ -10,7 +10,7 @@
 
 // Hashes a name, ignoring case: each character is added and the low word rotated left.
 // FUNCTION: MW2 0x100074e0
-MechU32 FUN_100074e0(const MechChar* p_name)
+MechU32 HashName(const MechChar* p_name)
 {
 #ifdef PORTABLE_C
 	MechU32 hash = 0;

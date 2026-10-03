@@ -24,7 +24,7 @@ if (NOT DEFINED DEMECH2_SOURCE_DIR)
   enable_testing()
   option(ASMEQUIV_SANITIZE "Build asmgolden with UBSan and ASan (GCC, Clang)" OFF)
   # The units' C predates C23, where an empty parameter list means no parameters
-  # (SlateHeron0x68's hooks)
+  # (RenderSettings's hooks)
   set(CMAKE_C_STANDARD 17)
 endif()
 
@@ -101,7 +101,7 @@ if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
   set_source_files_properties(${asmequiv_routine_sources} ${asmequiv_masm_c} PROPERTIES
     COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-format")
 endif()
-# What the units reference beyond the routines: ray.c (FUN_1003a096 reads a ray's length through
+# What the units reference beyond the routines: ray.c (RayShapeDistance reads a ray's length through
 # it), clock.c's tables and stand-ins
 list(APPEND asmequiv_routine_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/ray.c"

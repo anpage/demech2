@@ -785,7 +785,7 @@ void LogPlayerStatusLines(void)
 		}
 
 		if (player->m_unk0x188) {
-			sensor = FUN_10051ad8(player->m_unk0x188->m_unk0x02 & 0xf00, g_unk0x100a8ac0, 3);
+			sensor = FUN_10051ad8(player->m_unk0x188->m_kind & 0xf00, g_unk0x100a8ac0, 3);
 		}
 		else {
 			sensor = " ";

@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	void FUN_1004c820(MechS32* p_low, MechS32* p_scaled, MechS16* p_shift, MechU32 p_a, MechU32 p_b);
+	void MulNormalize16(MechS32* p_low, MechS32* p_scaled, MechS16* p_shift, MechU32 p_a, MechU32 p_b);
 
 #ifdef __cplusplus
 }

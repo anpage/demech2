@@ -86,7 +86,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	);
 	mech->m_player->m_obj = RestoreMechSegments(g_mechSegments[p_player]);
 	FUN_10001926(mech->m_player->m_obj);
-	FUN_10001cf8(mech->m_player->m_obj);
+	UpdateObj(mech->m_player->m_obj);
 	mech->m_player->m_unk0x1c = -1;
 	mech->m_player->m_targetInfo.m_target = 0x1000;
 

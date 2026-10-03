@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_10013340 is a C function whose body is an __asm block. Its portable
+/* Hand-written assembly: ProjectRadius is a C function whose body is an __asm block. Its portable
    C (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "muldiv14.h"
 
@@ -8,20 +8,20 @@
 
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
-// Returns p_a * p_b / p_c / 2^14, the product kept in 64 bits and shifted by 8 before the division
+// Returns p_scale * p_radius / p_depth / 2^14, the product kept in 64 bits and shifted by 8 before the division
 // and the quotient by 6 after it.
 // FUNCTION: MW2 0x10013340
-MechS32 FUN_10013340(MechS32 p_a, MechS32 p_b, MechS32 p_c)
+MechS32 ProjectRadius(MechS32 p_scale, MechS32 p_radius, MechS32 p_depth)
 {
 #ifdef PORTABLE_C
-	MechS64 scaled = PortableSar64((MechS64) p_a * p_b, 8);
+	MechS64 scaled = PortableSar64((MechS64) p_scale * p_radius, 8);
 
-	return PortableSar32(PortableIdiv(scaled, p_c), 6);
+	return PortableSar32(PortableIdiv(scaled, p_depth), 6);
 #else
 	__asm {
-		mov eax, p_a
-		mov edx, p_b
-		mov ecx, p_c
+		mov eax, p_scale
+		mov edx, p_radius
+		mov ecx, p_depth
 		imul edx
 		shrd eax, edx, 8
 		sar edx, 8

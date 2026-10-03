@@ -1,4 +1,4 @@
-/* Hand-written assembly: FUN_100696c0 (sine), FUN_1006975b (arcsine) and FUN_100698de
+/* Hand-written assembly: FixedSin (sine), FixedAsin (arcsine) and FixedAtan2
    (arctangent) are C functions with __asm bodies over clock.c's tables. Their portable C
    (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
 #include "fixedtrig.h"
@@ -9,13 +9,13 @@
 #include "portable.h"
 #include "types.h"
 
-#pragma warning(disable : 4035) /* FUN_100698de leaves its result in eax */
+#pragma warning(disable : 4035) /* FixedAtan2 leaves its result in eax */
 
 // Returns the sine of p_angle (16.16 degrees) from the table, as 16.16: the angle is scaled
 // to 1024 steps to the circle (0x5b05b05b is 2^37 / 360), and the table's quarter wave is
 // interpolated, mirrored and negated by quadrant.
 // FUNCTION: MW2 0x100696c0
-MechS32 FUN_100696c0(MechS32 p_angle)
+MechS32 FixedSin(MechS32 p_angle)
 {
 	MechS32 result;
 
@@ -78,13 +78,13 @@ positive:
 
 // Returns the cosine of p_angle (16.16 degrees): the sine 90 degrees on.
 // FUNCTION: MW2 0x1006973a
-MechS32 FUN_1006973a(MechS32 p_angle)
+MechS32 FixedCos(MechS32 p_angle)
 {
 #ifdef PORTABLE_C
-	/* The add wraps (FUN_1000de3b's portable C calls this with any angle). */
-	return FUN_100696c0(PortableS32((MechU32) p_angle + 0x5a0000));
+	/* The add wraps (BuildMatrixEx's portable C calls this with any angle). */
+	return FixedSin(PortableS32((MechU32) p_angle + 0x5a0000));
 #else
-	return FUN_100696c0(p_angle + 0x5a0000);
+	return FixedSin(p_angle + 0x5a0000);
 #endif
 }
 
@@ -92,7 +92,7 @@ MechS32 FUN_1006973a(MechS32 p_angle)
 // binary search of the table's quarter wave, interpolated between the two entries found.
 // Stack-slot permutation: result and table.
 // FUNCTION: MW2 0x1006975b
-MechS32 FUN_1006975b(MechS32 p_sine)
+MechS32 FixedAsin(MechS32 p_sine)
 {
 #ifdef PORTABLE_C
 	/* The magnitude wraps like the C's negation (INT_MIN stays negative), and the search
@@ -238,15 +238,15 @@ scale:
 }
 
 // FUNCTION: MW2 0x100698b9
-MechS32 FUN_100698b9(MechS32 p_unk0x00)
+MechS32 FixedAcos(MechS32 p_cosine)
 {
-	return 0x5a0000 - FUN_1006975b(p_unk0x00);
+	return 0x5a0000 - FixedAsin(p_cosine);
 }
 
 // Returns the bearing of (p_x, p_z) in 16.16 degrees: the arctangent of the smaller over the
 // larger component from the table, folded into its octant. The result is also left in dx:ax.
 // FUNCTION: MW2 0x100698de
-MechS32 FUN_100698de(MechS32 p_x, MechS32 p_z)
+MechS32 FixedAtan2(MechS32 p_x, MechS32 p_z)
 {
 #ifdef PORTABLE_C
 	/* The magnitudes wrap like neg (INT_MIN stays negative) and compare signed; the quotient,

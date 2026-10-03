@@ -268,7 +268,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	}
 
 	if (entry->m_shape) {
-		if ((entry->m_shape->m_unk0x02 & 0xf0) == 0x50) {
+		if ((entry->m_shape->m_kind & 0xf0) == 0x50) {
 			return TRUE;
 		}
 
@@ -361,7 +361,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 			SetObjPosition(entry->m_obj, entry->m_unk0x2c, entry->m_unk0x30, entry->m_unk0x34);
 		}
 
-		FUN_10001cf8(entry->m_obj);
+		UpdateObj(entry->m_obj);
 		return TRUE;
 	}
 	else {
@@ -402,7 +402,7 @@ void FUN_1001d912(MechS32 p_index, MechS32 p_level)
 }
 
 // FUNCTION: MW2 0x1001d980
-struct SceneObject* FUN_1001d980(MechS32 p_index)
+struct SceneObject* GetClassObject(MechS32 p_index)
 {
 	struct SceneObject* obj;
 
@@ -416,7 +416,7 @@ struct SceneObject* FUN_1001d980(MechS32 p_index)
 
 // Operand order: p_index < g_classEntryCount loads p_index first in the original.
 // FUNCTION: MW2 0x1001d9ca
-Shape* FUN_1001d9ca(MechS32 p_index)
+Shape* GetClassShape(MechS32 p_index)
 {
 	Shape* shape;
 

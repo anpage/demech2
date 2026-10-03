@@ -1,7 +1,7 @@
-/* Hand-written assembly: FUN_10039b94, FUN_10039c96, FUN_10039ccc, FUN_10039dda, FUN_1003a05d and
-   FUN_1003a096 are C functions with __asm bodies, and FUN_10039a30 has an __asm block. Their
+/* Hand-written assembly: TransformShapeCenter, SolvePlaneY, ApproximateShapeDistance, ComputeTriangleNormal,
+   DivDifference17 and RayShapeDistance are C functions with __asm bodies, and TransformModel has an __asm block. Their
    portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it replaces
-   FUN_10039b94's __asm block, and the others' whole bodies, whose C wraps where standard C
+   TransformShapeCenter's __asm block, and the others' whole bodies, whose C wraps where standard C
    overflows. */
 #include "shapegeom.h"
 
@@ -11,17 +11,17 @@
 #include "face.h"
 #include "portable.h"
 #include "ray.h"
+#include "rendersettings.h"
 #include "shape.h"
-#include "slateheron.h"
 #include "transform.h"
 #include "types.h"
 #include "vertex.h"
 
 #pragma warning(disable : 4102) /* a label only an __asm block jumps to */
 
-/* The __asm blocks of FUN_10039a30, FUN_10039ccc, FUN_10039dda and FUN_1003a096 jump to C labels,
-   which newer compilers reject: their reference build (REFERENCE_ASM) compiles those functions'
-   portable C too. */
+/* The __asm blocks of TransformModel, ApproximateShapeDistance, ComputeTriangleNormal and RayShapeDistance jump to C
+   labels, which newer compilers reject: their reference build (REFERENCE_ASM) compiles those functions' portable C too.
+ */
 #if defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
 #define PORTABLE_C_LABELS
 
@@ -55,11 +55,11 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 }
 #endif
 
-// Transforms p_model's vertices (their positions into m_unk0x0c-0x14) and face normals by
+// Transforms p_model's vertices (their positions into m_worldX-m_worldZ) and face normals by
 // p_matrix. The products are an __asm block.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10039a30
-void FUN_10039a30(Model* p_model, Matrix* p_matrix)
+void TransformModel(Model* p_model, Matrix* p_matrix)
 {
 #ifdef PORTABLE_C_LABELS
 	Vertex* vertex = (Vertex*) (p_model + 1);
@@ -69,21 +69,21 @@ void FUN_10039a30(Model* p_model, Matrix* p_matrix)
 	/* The counts are 16-bit: 0 runs 0x10000 times. */
 	count = (MechU16) p_model->m_vertexCount;
 	do {
-		MechS32 x = vertex->m_unk0x00;
-		MechS32 y = vertex->m_unk0x04;
-		MechS32 z = vertex->m_unk0x08;
+		MechS32 x = vertex->m_modelX;
+		MechS32 y = vertex->m_modelY;
+		MechS32 z = vertex->m_modelZ;
 
-		vertex->m_unk0x0c = TransformRow(p_matrix, 0, x, y, z, p_matrix->m_rows[3][0]);
-		vertex->m_unk0x10 = TransformRow(p_matrix, 1, x, y, z, p_matrix->m_rows[3][1]);
-		vertex->m_unk0x14 = TransformRow(p_matrix, 2, x, y, z, p_matrix->m_rows[3][2]);
+		vertex->m_worldX = TransformRow(p_matrix, 0, x, y, z, p_matrix->m_rows[3][0]);
+		vertex->m_worldY = TransformRow(p_matrix, 1, x, y, z, p_matrix->m_rows[3][1]);
+		vertex->m_worldZ = TransformRow(p_matrix, 2, x, y, z, p_matrix->m_rows[3][2]);
 		vertex++;
 	} while (--count);
 
 	count = (MechU16) p_model->m_faceCount;
 	do {
-		MechS32 x = face->m_unk0x08;
-		MechS32 y = face->m_unk0x0c;
-		MechS32 z = face->m_unk0x10;
+		MechS32 x = face->m_modelNormalX;
+		MechS32 y = face->m_modelNormalY;
+		MechS32 z = face->m_modelNormalZ;
 
 		face->m_normal[0] = TransformRow(p_matrix, 0, x, y, z, 0);
 		face->m_normal[1] = TransformRow(p_matrix, 1, x, y, z, 0);
@@ -223,19 +223,37 @@ void FUN_10039a30(Model* p_model, Matrix* p_matrix)
 #endif
 }
 
-// Transforms the shape's position (m_unk0x28-0x30) by p_matrix into m_unk0x34-0x3c, and bumps its
-// transform count (m_unk0x48). The products are an __asm block.
+// Transforms the shape's position (m_modelCenterX-Z) by p_matrix into m_centerX-Z, and bumps its
+// transform count (m_transformCount). The products are an __asm block.
 // FUNCTION: MW2 0x10039b94
-void FUN_10039b94(struct Shape* p_shape, Matrix* p_matrix)
+void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 {
-	p_shape->m_unk0x00 &= ~0x200;
+	p_shape->m_flags &= ~0x200;
 #ifdef PORTABLE_C
-	p_shape->m_unk0x34 =
-		TransformRow(p_matrix, 0, p_shape->m_unk0x28, p_shape->m_unk0x2c, p_shape->m_unk0x30, p_matrix->m_rows[3][0]);
-	p_shape->m_unk0x38 =
-		TransformRow(p_matrix, 1, p_shape->m_unk0x28, p_shape->m_unk0x2c, p_shape->m_unk0x30, p_matrix->m_rows[3][1]);
-	p_shape->m_unk0x3c =
-		TransformRow(p_matrix, 2, p_shape->m_unk0x28, p_shape->m_unk0x2c, p_shape->m_unk0x30, p_matrix->m_rows[3][2]);
+	p_shape->m_centerX = TransformRow(
+		p_matrix,
+		0,
+		p_shape->m_modelCenterX,
+		p_shape->m_modelCenterY,
+		p_shape->m_modelCenterZ,
+		p_matrix->m_rows[3][0]
+	);
+	p_shape->m_centerY = TransformRow(
+		p_matrix,
+		1,
+		p_shape->m_modelCenterX,
+		p_shape->m_modelCenterY,
+		p_shape->m_modelCenterZ,
+		p_matrix->m_rows[3][1]
+	);
+	p_shape->m_centerZ = TransformRow(
+		p_matrix,
+		2,
+		p_shape->m_modelCenterX,
+		p_shape->m_modelCenterY,
+		p_shape->m_modelCenterZ,
+		p_matrix->m_rows[3][2]
+	);
 #else
 	__asm {
 		mov esi, p_matrix
@@ -288,37 +306,37 @@ void FUN_10039b94(struct Shape* p_shape, Matrix* p_matrix)
 	}
 #endif
 
-	p_shape->m_unk0x48++;
+	p_shape->m_transformCount++;
 }
 
 // Transforms a shape and each of its models by p_matrix.
 // FUNCTION: MW2 0x10039c36
-void FUN_10039c36(struct Shape* p_shape, Matrix* p_matrix)
+void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 {
 	Model* model;
 
-	FUN_10039b94(p_shape, p_matrix);
+	TransformShapeCenter(p_shape, p_matrix);
 	for (model = p_shape->m_models; model; model = model->m_next) {
-		FUN_10039a30(model, p_matrix);
-		model->m_unk0x10 = p_shape->m_unk0x48;
+		TransformModel(model, p_matrix);
+		model->m_transformCount = p_shape->m_transformCount;
 	}
 }
 
-// Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_unk0x0c = 0 for y at
-// (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_unk0x0c) / p_normalY, in 64 bits.
+// Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_distance = 0 for y at
+// (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_distance) / p_normalY, in 64 bits.
 // FUNCTION: MW2 0x10039c96
-MechS32 FUN_10039c96(
+MechS32 SolvePlaneY(
 	MechS32 p_normalX,
 	MechS32 p_normalY,
 	MechS32 p_normalZ,
-	MechS32 p_unk0x0c,
+	MechS32 p_distance,
 	MechS32 p_dx,
 	MechS32 p_dz
 )
 {
 #ifdef PORTABLE_C
-	/* p_unk0x0c is added unsigned (adc edx, 0), and the sum wraps at 64 bits. */
-	MechU64 sum = Product(p_normalX, p_dx) + Product(p_normalZ, p_dz) + (MechU32) p_unk0x0c;
+	/* p_distance is added unsigned (adc edx, 0), and the sum wraps at 64 bits. */
+	MechU64 sum = Product(p_normalX, p_dx) + Product(p_normalZ, p_dz) + (MechU32) p_distance;
 
 	return PortableIdiv(PortableS64(sum), p_normalY);
 #else
@@ -333,7 +351,7 @@ MechS32 FUN_10039c96(
 		imul p_dz
 		add eax, esi
 		adc edx, edi
-		add eax, p_unk0x0c
+		add eax, p_distance
 		adc edx, 0
 		idiv p_normalY
 		mov result, eax
@@ -347,13 +365,13 @@ MechS32 FUN_10039c96(
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // Stack-slot permutation: radius, deltaY and deltaZ.
 // FUNCTION: MW2 0x10039ccc
-MechS32 FUN_10039ccc(struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 ApproximateShapeDistance(struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 #ifdef PORTABLE_C_LABELS
-	MechS32 deltaX = Difference(p_shape->m_unk0x34, p_x);
-	MechS32 deltaY = Difference(p_shape->m_unk0x38, p_y);
-	MechS32 deltaZ = Difference(p_shape->m_unk0x3c, p_z);
-	MechS32 radius = p_shape->m_unk0x40;
+	MechS32 deltaX = Difference(p_shape->m_centerX, p_x);
+	MechS32 deltaY = Difference(p_shape->m_centerY, p_y);
+	MechS32 deltaZ = Difference(p_shape->m_centerZ, p_z);
+	MechS32 radius = p_shape->m_radius;
 	MechS32 low = Negate(radius);
 	MechS32 largest;
 	MechS32 second;
@@ -393,10 +411,10 @@ MechS32 FUN_10039ccc(struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_
 	MechS32 deltaY;
 	MechS32 deltaZ;
 
-	deltaX = p_shape->m_unk0x34 - p_x;
-	deltaY = p_shape->m_unk0x38 - p_y;
-	deltaZ = p_shape->m_unk0x3c - p_z;
-	radius = p_shape->m_unk0x40;
+	deltaX = p_shape->m_centerX - p_x;
+	deltaY = p_shape->m_centerY - p_y;
+	deltaZ = p_shape->m_centerZ - p_z;
+	radius = p_shape->m_radius;
 	result = 0;
 	__asm {
 		mov ebx, radius
@@ -481,7 +499,7 @@ done:;
 // triangle gets the normal (-1, -1, -1) and 0. The products and the scaling are __asm blocks.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10039dda
-MechS32 FUN_10039dda(
+MechS32 ComputeTriangleNormal(
 	MechS32 p_x0,
 	MechS32 p_y0,
 	MechS32 p_z0,
@@ -782,7 +800,7 @@ normalize:
 
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d
-MechS32 FUN_1003a05d(MechS32 p_a, MechS32 p_b, MechS32 p_value)
+MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value)
 {
 #ifdef PORTABLE_C
 	MechS32 divisor = Difference(p_a, p_b);
@@ -817,10 +835,10 @@ done:
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003a096
-MechS32 FUN_1003a096(struct Shape* p_shape, Ray* p_ray)
+MechS32 RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
 #ifdef PORTABLE_C_LABELS
-	MechS32 radius = p_shape->m_unk0x40;
+	MechS32 radius = p_shape->m_radius;
 	MechS32 deltaX;
 	MechS32 deltaY;
 	MechS32 deltaZ;
@@ -833,9 +851,9 @@ MechS32 FUN_1003a096(struct Shape* p_shape, Ray* p_ray)
 		return 0x7fffffff;
 	}
 
-	deltaX = Difference(p_shape->m_unk0x34, p_ray->m_x0);
-	deltaY = Difference(p_shape->m_unk0x38, p_ray->m_y0);
-	deltaZ = Difference(p_shape->m_unk0x3c, p_ray->m_z0);
+	deltaX = Difference(p_shape->m_centerX, p_ray->m_x0);
+	deltaY = Difference(p_shape->m_centerY, p_ray->m_y0);
+	deltaZ = Difference(p_shape->m_centerZ, p_ray->m_z0);
 	excess = Product(deltaX, deltaX) + Product(deltaY, deltaY) + Product(deltaZ, deltaZ);
 	if (excess < Product(radius, radius)) {
 		return 10;
@@ -869,14 +887,14 @@ MechS32 FUN_1003a096(struct Shape* p_shape, Ray* p_ray)
 	MechS32 deltaZ;
 	MechS32 t;
 
-	radius = p_shape->m_unk0x40;
+	radius = p_shape->m_radius;
 	if (radius <= 0) {
 		return 0x7fffffff;
 	}
 
-	deltaX = p_shape->m_unk0x34 - p_ray->m_x0;
-	deltaY = p_shape->m_unk0x38 - p_ray->m_y0;
-	deltaZ = p_shape->m_unk0x3c - p_ray->m_z0;
+	deltaX = p_shape->m_centerX - p_ray->m_x0;
+	deltaY = p_shape->m_centerY - p_ray->m_y0;
+	deltaZ = p_shape->m_centerZ - p_ray->m_z0;
 	__asm {
 		mov eax, deltaX
 		imul eax

@@ -36,7 +36,7 @@ void FUN_1006dd50(
 		mode |= 0x80;
 	}
 
-	if (g_unk0x100a6cc8.m_unk0x4c) {
+	if (g_renderSettings.m_unk0x4c) {
 		mode |= 0x400;
 	}
 	else {

@@ -16,11 +16,11 @@
 #include "overlay.h"
 #include "polydraw.h"
 #include "render.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
-#include "slateheron.h"
 #include "soundfx.h"
 #include "ticks.h"
 #include "timedoverlays.h"
@@ -248,15 +248,15 @@ void FUN_10009f8d(MechU16 p_key)
 		g_unk0x100a94f4 = g_unk0x100a94f0;
 		break;
 	case 0x84:
-		switch (g_unk0x100a6cc8.m_unk0x38) {
+		switch (g_renderSettings.m_unk0x38) {
 		case 1:
-			g_unk0x100a6cc8.m_unk0x38 = 2;
+			g_renderSettings.m_unk0x38 = 2;
 			break;
 		case 0:
-			g_unk0x100a6cc8.m_unk0x38 = 1;
+			g_renderSettings.m_unk0x38 = 1;
 			break;
 		default:
-			g_unk0x100a6cc8.m_unk0x38 = 0;
+			g_renderSettings.m_unk0x38 = 0;
 			break;
 		}
 		break;
@@ -376,15 +376,15 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x95:
-		switch (g_unk0x100a6cc8.m_unk0x34) {
+		switch (g_renderSettings.m_unk0x34) {
 		case 0:
-			g_unk0x100a6cc8.m_unk0x34 = 2;
+			g_renderSettings.m_unk0x34 = 2;
 			break;
 		case 1:
-			g_unk0x100a6cc8.m_unk0x34 = 0;
+			g_renderSettings.m_unk0x34 = 0;
 			break;
 		default:
-			g_unk0x100a6cc8.m_unk0x34 = 1;
+			g_renderSettings.m_unk0x34 = 1;
 			break;
 		}
 		break;

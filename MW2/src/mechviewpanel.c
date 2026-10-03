@@ -1,6 +1,6 @@
 #include "mechviewpanel.h"
 
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "damagepanel.h"
 #include "decomp.h"
@@ -39,11 +39,11 @@ void FUN_100509a0(void)
 // Stack-slot permutation: camera, mech and saved and view. The original's longer displacements
 // make its code longer, so reccmp compares only the recompiled length of it.
 // FUNCTION: MW2 0x100509c8
-void FUN_100509c8(CobaltHarbor0x88* p_panel)
+void FUN_100509c8(CockpitPanel* p_panel)
 {
 	MechS32* camera;
 	MechS32 view[7];
-	SlateHeron0x68 saved;
+	RenderSettings saved;
 	Mech* mech;
 
 	camera = NULL;
@@ -89,7 +89,7 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 			FUN_10050dc3(&saved);
 			camera[4] = 0;
 			FUN_1004c8bd(5, 0x20000, camera, 0);
-			g_unk0x100a6cc8 = saved;
+			g_renderSettings = saved;
 		}
 
 		FUN_10050e6c(p_panel, 6, 0xfd);
@@ -106,7 +106,7 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 		FUN_1004c8bd(5, 0x20000, view, 0);
 		FUN_10001926(mech->m_player->m_obj);
 		FUN_10050e6c(p_panel, 6, 0xf7);
-		g_unk0x100a6cc8 = saved;
+		g_renderSettings = saved;
 		break;
 	case 3:
 		FUN_100114ea(g_eyepoint, view);
@@ -129,7 +129,7 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 			FUN_10050e6c(p_panel, 6, 0xfa);
 		}
 
-		g_unk0x100a6cc8 = saved;
+		g_renderSettings = saved;
 		break;
 	case 2:
 		FUN_100407b6(mech, p_panel->m_target);
@@ -141,20 +141,20 @@ void FUN_100509c8(CobaltHarbor0x88* p_panel)
 }
 
 // FUNCTION: MW2 0x10050dc3
-void FUN_10050dc3(SlateHeron0x68* p_saved)
+void FUN_10050dc3(RenderSettings* p_saved)
 {
-	*p_saved = g_unk0x100a6cc8;
-	g_unk0x100a6cc8.m_unk0x18 = 0;
-	g_unk0x100a6cc8.m_unk0x08 = 0;
-	g_unk0x100a6cc8.m_unk0x0c = 1;
-	g_unk0x100a6cc8.m_unk0x04 = 1;
-	g_unk0x100a6cc8.m_unk0x50 = 0xb00;
-	g_unk0x100a6cc8.m_unk0x4c = 1;
-	g_unk0x100a6cc8.m_unk0x10 &= ~4;
+	*p_saved = g_renderSettings;
+	g_renderSettings.m_unk0x18 = 0;
+	g_renderSettings.m_unk0x08 = 0;
+	g_renderSettings.m_unk0x0c = 1;
+	g_renderSettings.m_unk0x04 = 1;
+	g_renderSettings.m_unk0x50 = 0xb00;
+	g_renderSettings.m_unk0x4c = 1;
+	g_renderSettings.m_unk0x10 &= ~4;
 }
 
 // FUNCTION: MW2 0x10050e20
-void FUN_10050e20(CobaltHarbor0x88* p_panel)
+void FUN_10050e20(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled || !g_unk0x100aa2a4) {
 		return;
@@ -166,7 +166,7 @@ void FUN_10050e20(CobaltHarbor0x88* p_panel)
 
 // Stack-slot permutation: target and y.
 // FUNCTION: MW2 0x10050e6c
-void FUN_10050e6c(CobaltHarbor0x88* p_panel, MechS32 p_color, MechS32 p_unk0x08)
+void FUN_10050e6c(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 {
 	PANE* target;
 	MechS32 x;
@@ -181,7 +181,7 @@ void FUN_10050e6c(CobaltHarbor0x88* p_panel, MechS32 p_color, MechS32 p_unk0x08)
 
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050ebe
-void FUN_10050ebe(CobaltHarbor0x88* p_panel)
+void FUN_10050ebe(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
 	PANE savedSlot;
@@ -218,7 +218,7 @@ void FUN_10050ebe(CobaltHarbor0x88* p_panel)
 
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050fd6
-void FUN_10050fd6(CobaltHarbor0x88* p_panel)
+void FUN_10050fd6(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
 	PANE savedSlot;

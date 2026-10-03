@@ -52,8 +52,8 @@ void FUN_10059fc0(Player* p_player)
 	mech->m_unk0xbc = 0;
 	mech->m_unk0xf8 = 0;
 	mech->m_unk0xf0 = 0;
-	FUN_10001667(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
-	FUN_10001cf8(mech->m_player->m_obj);
+	MoveObj(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
+	UpdateObj(mech->m_player->m_obj);
 	GetObjWorldPos(
 		mech->m_player->m_obj,
 		&mech->m_player->m_unk0x5c,
@@ -109,7 +109,7 @@ void FUN_1005a203(Mech* p_mech)
 		);
 	}
 
-	FUN_10001cf8(mech->m_player->m_obj);
+	UpdateObj(mech->m_player->m_obj);
 }
 
 // Updates the mech for the tick. A running mech (state 2) fires its weapons, drops a target it
@@ -241,7 +241,7 @@ MechS32 FUN_1005a637(MechS32 p_index, Player* p_player)
 	extra = sections + 8;
 	mech->m_weapons = weapons;
 	mech->m_sections = sections;
-	mech->m_unk0x5c = extra;
+	mech->m_ammoBins = extra;
 	mech->m_player = p_player;
 	for (i = 0; i < 8; i++) {
 		mech->m_objects[i] = NULL;

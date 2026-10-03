@@ -117,9 +117,9 @@ MechS32 FUN_100758a0(
 				if (!g_segmentNormalX && !g_segmentNormalY && !g_segmentNormalZ && shape) {
 					BuildRayFromSegment(
 						&normal,
-						shape->m_unk0x34,
-						shape->m_unk0x38,
-						shape->m_unk0x3c,
+						shape->m_centerX,
+						shape->m_centerY,
+						shape->m_centerZ,
 						ray.m_x1,
 						ray.m_y1,
 						ray.m_z1
@@ -339,18 +339,18 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 	}
 
 	*p_hit = NULL;
-	for (shape = root->m_unk0x10; shape; shape = shape->m_unk0x10) {
-		if (shape->m_unk0x24 != 6 || shape->m_unk0x02 & 0x100) {
+	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+		if (shape->m_collisionType != 6 || shape->m_kind & 0x100) {
 			continue;
 		}
 
-		dx = *p_x - shape->m_unk0x34;
-		dy = *p_y - shape->m_unk0x38;
-		dz = *p_z - shape->m_unk0x3c;
-		reach = p_mech->m_radius + shape->m_unk0x40;
+		dx = *p_x - shape->m_centerX;
+		dy = *p_y - shape->m_centerY;
+		dz = *p_z - shape->m_centerZ;
+		reach = p_mech->m_radius + shape->m_radius;
 		dist = ApproximateVectorLength(dx, dy, dz);
 		if (dist < reach) {
-			if ((shape->m_unk0x02 & 0xf0) == 0x50) {
+			if ((shape->m_kind & 0xf0) == 0x50) {
 				obj = shape->m_object;
 				dist = ApproximateVectorLength(p_mech->m_unk0xf4, p_mech->m_unk0xf8, p_mech->m_unk0xfc);
 				if (dist > 0) {
@@ -378,9 +378,9 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 				g_segmentNormalZ = FixedDiv16(dz, dist);
 			}
 
-			*p_x = shape->m_unk0x34 + FixedMul16(g_segmentNormalX, reach);
-			*p_y = shape->m_unk0x38 + FixedMul16(g_segmentNormalY, reach);
-			*p_z = shape->m_unk0x3c + FixedMul16(g_segmentNormalZ, reach);
+			*p_x = shape->m_centerX + FixedMul16(g_segmentNormalX, reach);
+			*p_y = shape->m_centerY + FixedMul16(g_segmentNormalY, reach);
+			*p_z = shape->m_centerZ + FixedMul16(g_segmentNormalZ, reach);
 			bounce = -ApproximateVectorLength(p_mech->m_unk0x100, p_mech->m_unk0x104, p_mech->m_unk0x108) >> 2;
 			if (bounce > 8) {
 				bounce = -bounce >> 1;
@@ -462,7 +462,7 @@ void FUN_1007669e(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 		ApplyDamageToMech(attacker, p_mech, p_damage, 8);
 	}
 	else {
-		angle = FUN_100698de(-g_segmentNormalX, -g_segmentNormalZ) - p_mech->m_player->m_heading -
+		angle = FixedAtan2(-g_segmentNormalX, -g_segmentNormalZ) - p_mech->m_player->m_heading -
 				p_mech->m_player->m_unk0x6c;
 		if (angle < -0xb40000) {
 			angle += 0x1680000;
@@ -497,20 +497,20 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 	MechS32 damage;
 	MechS32 speed;
 
-	if (g_isNetworkGame && p_shape && (p_shape->m_unk0x02 & 0xf0) == 0xb0) {
+	if (g_isNetworkGame && p_shape && (p_shape->m_kind & 0xf0) == 0xb0) {
 		ApplyDamageToMech(-2, p_mech, 0x320000, 7);
 		ApplyDamageToMech(-2, p_mech, 0x320000, 8);
 		FUN_1006b152(
 			p_mech->m_player->m_index,
 			0xd,
-			p_shape->m_unk0x34,
-			p_shape->m_unk0x38,
-			p_shape->m_unk0x3c,
-			p_shape->m_unk0x34,
-			p_shape->m_unk0x38,
-			p_shape->m_unk0x3c
+			p_shape->m_centerX,
+			p_shape->m_centerY,
+			p_shape->m_centerZ,
+			p_shape->m_centerX,
+			p_shape->m_centerY,
+			p_shape->m_centerZ
 		);
-		FUN_1006bf8c(p_shape->m_unk0x14);
+		FUN_1006bf8c(p_shape->m_owner);
 	}
 	else {
 		speed = ApproximateVectorLength(p_mech->m_unk0x100, p_mech->m_unk0x104, p_mech->m_unk0x108);
@@ -520,14 +520,14 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 				FUN_1007669e(p_mech, NULL, damage);
 			}
 
-			if (p_shape && p_shape->m_unk0x02 & 0x200) {
+			if (p_shape && p_shape->m_kind & 0x200) {
 				FUN_1006c11c(
 					p_mech->m_player->m_index,
 					p_shape,
 					damage >> 16,
-					p_shape->m_unk0x34,
-					p_shape->m_unk0x38,
-					p_shape->m_unk0x3c
+					p_shape->m_centerX,
+					p_shape->m_centerY,
+					p_shape->m_centerZ
 				);
 			}
 		}

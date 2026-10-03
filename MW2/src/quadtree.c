@@ -13,19 +13,19 @@
 
 #include <windows.h>
 
-DECOMP_SIZE_ASSERT(AzureThicket0x2c, 0x2c)
+DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
 MechS32 g_unk0x100a37dc = 0;
 
-// Builds p_shape's quadtree (m_unk0x44) over its model's bounds, unless g_unk0x100a37dc is set.
-// Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_unk0x14 loads
+// Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_unk0x100a37dc is set.
+// Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_worldZ loads
 // the vertex's first in the original.
 // FUNCTION: MW2 0x1001df00
 void FUN_1001df00(Shape* p_shape)
 {
 	Model* model;
-	AzureThicket0x2c* root;
+	QuadtreeNode* root;
 	Vertex* vertices;
 	Vertex* vertex;
 	MechS32 i;
@@ -40,43 +40,43 @@ void FUN_1001df00(Shape* p_shape)
 		vertex = (Vertex*) (model + 1);
 		vertices = vertex;
 		root = FUN_1001e429(
-			vertex->m_unk0x0c,
-			vertex->m_unk0x0c,
-			vertex->m_unk0x10,
-			vertex->m_unk0x10,
-			vertex->m_unk0x14,
-			vertex->m_unk0x14,
+			vertex->m_worldX,
+			vertex->m_worldX,
+			vertex->m_worldY,
+			vertex->m_worldY,
+			vertex->m_worldZ,
+			vertex->m_worldZ,
 			0
 		);
-		p_shape->m_unk0x44 = root;
+		p_shape->m_collisionData = root;
 		if (!root) {
 			return;
 		}
 
 		for (i = 1; i < model->m_vertexCount; i++) {
 			vertex++;
-			if (root->m_unk0x04 < vertex->m_unk0x0c) {
-				root->m_unk0x04 = vertex->m_unk0x0c;
+			if (root->m_unk0x04 < vertex->m_worldX) {
+				root->m_unk0x04 = vertex->m_worldX;
 			}
 
-			if (vertex->m_unk0x0c < root->m_unk0x00) {
-				root->m_unk0x00 = vertex->m_unk0x0c;
+			if (vertex->m_worldX < root->m_unk0x00) {
+				root->m_unk0x00 = vertex->m_worldX;
 			}
 
-			if (root->m_unk0x14 < vertex->m_unk0x14) {
-				root->m_unk0x14 = vertex->m_unk0x14;
+			if (root->m_unk0x14 < vertex->m_worldZ) {
+				root->m_unk0x14 = vertex->m_worldZ;
 			}
 
-			if (vertex->m_unk0x14 < root->m_unk0x10) {
-				root->m_unk0x10 = vertex->m_unk0x14;
+			if (vertex->m_worldZ < root->m_unk0x10) {
+				root->m_unk0x10 = vertex->m_worldZ;
 			}
 
-			if (root->m_unk0x0c < vertex->m_unk0x10) {
-				root->m_unk0x0c = vertex->m_unk0x10;
+			if (root->m_unk0x0c < vertex->m_worldY) {
+				root->m_unk0x0c = vertex->m_worldY;
 			}
 
-			if (root->m_unk0x08 > vertex->m_unk0x10) {
-				root->m_unk0x08 = vertex->m_unk0x10;
+			if (root->m_unk0x08 > vertex->m_worldY) {
+				root->m_unk0x08 = vertex->m_worldY;
 			}
 		}
 
@@ -91,18 +91,18 @@ void FUN_1001df00(Shape* p_shape)
 // Stack-slot permutation; minX >= maxX, minZ >= maxZ and faceHigh > highY compare in the other
 // operand order.
 // FUNCTION: MW2 0x1001e0a7
-AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Model* p_model)
+QuadtreeNode* FUN_1001e0a7(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
 {
 	MechS32 j;
 	MechS32 i;
 	Face* entries[25];
-	AzureThicket0x2c* node;
+	QuadtreeNode* node;
 	MechS32 faceLow;
 	MechS32 minX;
 	MechS32 lowY;
 	MechS32 minZ;
 	MechS32 count;
-	AzureThicket0x2c* child;
+	QuadtreeNode* child;
 	Face* face;
 	MechS32 faceHigh;
 	MechS32 maxX;
@@ -202,7 +202,7 @@ AzureThicket0x2c* FUN_1001e0a7(AzureThicket0x2c* p_node, MechS32 p_quadrant, Mod
 // Allocates a quadtree node with room for p_unk0x18 entries, cleared.
 // The only diff is a stack-slot permutation of entries and node.
 // FUNCTION: MW2 0x1001e429
-AzureThicket0x2c* FUN_1001e429(
+QuadtreeNode* FUN_1001e429(
 	undefined4 p_unk0x00,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -213,10 +213,10 @@ AzureThicket0x2c* FUN_1001e429(
 )
 {
 	undefined4* entries;
-	AzureThicket0x2c* node;
+	QuadtreeNode* node;
 	MechS32 i;
 
-	node = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_unk0x18 * sizeof(undefined4) + sizeof(AzureThicket0x2c));
+	node = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_unk0x18 * sizeof(undefined4) + sizeof(QuadtreeNode));
 	if (node) {
 		node->m_unk0x00 = p_unk0x00;
 		node->m_unk0x04 = p_unk0x04;
@@ -244,7 +244,7 @@ AzureThicket0x2c* FUN_1001e429(
 
 // Frees a quadtree.
 // FUNCTION: MW2 0x1001e50d
-void FUN_1001e50d(AzureThicket0x2c* p_node)
+void FUN_1001e50d(QuadtreeNode* p_node)
 {
 	MechS32 i;
 
@@ -291,15 +291,15 @@ MechS32 FUN_1001e57a(
 	MechS32 minZ;
 	MechS32 maxX;
 
-	count = p_face->m_unk0x02;
+	count = p_face->m_indexCount;
 	vertices = (Vertex*) (p_model + 1);
 	minX = minY = minZ = 0x7fffffff;
 	maxX = maxY = maxZ = -0x7fffffff;
 	for (i = 0; i < count; i++) {
-		vertex = &vertices[((MechU8*) p_face)[p_face->m_unk0x04 + i]];
-		x = vertex->m_unk0x0c;
-		y = vertex->m_unk0x10;
-		z = vertex->m_unk0x14;
+		vertex = &vertices[((MechU8*) p_face)[p_face->m_indexOffset + i]];
+		x = vertex->m_worldX;
+		y = vertex->m_worldY;
+		z = vertex->m_worldZ;
 		if (x < minX) {
 			minX = x;
 		}
@@ -338,7 +338,7 @@ MechS32 FUN_1001e57a(
 // ground area, 2 above the faces under it, 3 below one of them.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001e6dc
-MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FUN_1001e6dc(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 result;
 	Vertex* vertices;
@@ -407,7 +407,7 @@ MechS32 FUN_1001e6dc(AzureThicket0x2c* p_node, Model* p_model, MechS32 p_x, Mech
 // Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
 // Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
 // FUNCTION: MW2 0x1001e90f
-MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray)
+MechS32 FUN_1001e90f(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 tMin;
 	Vertex* vertices;
@@ -491,7 +491,7 @@ MechS32 FUN_1001e90f(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray)
 // child was hit.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001eb25
-MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray)
+MechS32 FUN_1001eb25(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 length;
 	MechS32 i;
@@ -525,7 +525,7 @@ MechS32 FUN_1001eb25(AzureThicket0x2c* p_node, Model* p_model, Ray* p_ray)
 // p_top, or 0 if there is none. Returns FALSE outside the tree's ground area.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ebfa
-MechS32 FUN_1001ebfa(AzureThicket0x2c* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 FUN_1001ebfa(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
 	Vertex* vertices;
 	Face** faces;
@@ -583,7 +583,7 @@ void FUN_1001edfa(void)
 
 // Returns the bytes a quadtree takes.
 // FUNCTION: MW2 0x1001ee0f
-MechS32 FUN_1001ee0f(AzureThicket0x2c* p_node)
+MechS32 FUN_1001ee0f(QuadtreeNode* p_node)
 {
 	MechS32 i;
 	MechS32 size;
@@ -592,7 +592,7 @@ MechS32 FUN_1001ee0f(AzureThicket0x2c* p_node)
 		return 0;
 	}
 
-	size = p_node->m_unk0x18 * sizeof(undefined4) + sizeof(AzureThicket0x2c);
+	size = p_node->m_unk0x18 * sizeof(undefined4) + sizeof(QuadtreeNode);
 	for (i = 0; i < 4; i++) {
 		size += FUN_1001ee0f(p_node->m_children[i]);
 	}

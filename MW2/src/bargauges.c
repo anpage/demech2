@@ -1,7 +1,7 @@
 #include "bargauges.h"
 
 #include "clock.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
@@ -91,7 +91,7 @@ Point g_unk0x100a8378 = {0xdf2e, 0x5555};
 // FUNCTION: MW2 0x1004d020
 void FUN_1004d020(void)
 {
-	CobaltHarbor0x88* panel;
+	CockpitPanel* panel;
 
 	panel = g_unk0x100c3280[18];
 	FUN_10056bc1(panel->m_target, &g_unk0x100a8330, &g_unk0x100a8330);

@@ -19,7 +19,7 @@
 
 DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 
-// The collision tests of each shape type (Shape::m_unk0x24).
+// The collision tests of each shape type (Shape::m_collisionType).
 // GLOBAL: MW2 0x100a54c0
 ShapeCollisionFns g_shapeCollisionFns[8] = {
 	{FUN_100699a0, FUN_10069b2a, FUN_100699da},
@@ -84,7 +84,7 @@ MechS32 g_unk0x100a5558 = -1;
 // FUNCTION: MW2 0x10034a40
 void FUN_10034a40(Shape* p_shape, MechS32 p_unk0x24)
 {
-	p_shape->m_unk0x24 = p_unk0x24;
+	p_shape->m_collisionType = p_unk0x24;
 
 	if (p_unk0x24 == 4) {
 		FUN_1006d989(p_shape);
@@ -101,15 +101,15 @@ MechS32 FUN_10034a7b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y,
 {
 	Vertex* vertex;
 
-	vertex = &p_vertices[*((MechU8*) p_face + p_face->m_unk0x04)];
-	*p_height = vertex->m_unk0x10 - FUN_10039c96(
-										p_face->m_normal[0],
-										p_face->m_normal[1],
-										p_face->m_normal[2],
-										0,
-										p_x - vertex->m_unk0x0c,
-										p_z - vertex->m_unk0x14
-									);
+	vertex = &p_vertices[*((MechU8*) p_face + p_face->m_indexOffset)];
+	*p_height = vertex->m_worldY - SolvePlaneY(
+									   p_face->m_normal[0],
+									   p_face->m_normal[1],
+									   p_face->m_normal[2],
+									   0,
+									   p_x - vertex->m_worldX,
+									   p_z - vertex->m_worldZ
+								   );
 	g_hitNormalX = p_face->m_normal[0] >> 13;
 	g_hitNormalY = p_face->m_normal[1] >> 13;
 	g_hitNormalZ = p_face->m_normal[2] >> 13;
@@ -138,8 +138,8 @@ MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	}
 
 	below = best = -0x7fffffff;
-	for (shape = root->m_unk0x10; shape; shape = shape->m_unk0x10) {
-		type = shape->m_unk0x24;
+	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+		type = shape->m_collisionType;
 		if (type == 5) {
 			getHeight = FUN_1006a001;
 		}
@@ -198,8 +198,8 @@ MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	}
 
 	best = -0x7fffffff;
-	for (shape = root->m_unk0x10; shape; shape = shape->m_unk0x10) {
-		type = shape->m_unk0x24;
+	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+		type = shape->m_collisionType;
 		if (type == 5) {
 			getHeight = FUN_1006a001;
 		}
@@ -224,7 +224,7 @@ MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // FUNCTION: MW2 0x10034db8
 MechS32 FUN_10034db8(Shape* p_shape)
 {
-	return g_shapeCollisionFns[p_shape->m_unk0x24].m_getHeight != NULL;
+	return g_shapeCollisionFns[p_shape->m_collisionType].m_getHeight != NULL;
 }
 
 // Tests the point against the world's shape nearest to it, returned in p_hit.
@@ -256,8 +256,8 @@ Shape* FUN_10034e59(Shape* p_root, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		return NULL;
 	}
 
-	for (shape = p_root->m_unk0x10; shape; shape = shape->m_unk0x10) {
-		distance = FUN_10039ccc(shape, p_x, p_y, p_z);
+	for (shape = p_root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+		distance = ApproximateShapeDistance(shape, p_x, p_y, p_z);
 		if (distance < best) {
 			best = distance;
 			nearest = shape;
@@ -273,7 +273,7 @@ MechS32 FUN_10034ee7(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 (*testPoint)(Shape*, MechS32, MechS32, MechS32);
 
-	testPoint = g_shapeCollisionFns[p_shape->m_unk0x24].m_testPoint;
+	testPoint = g_shapeCollisionFns[p_shape->m_collisionType].m_testPoint;
 	if (testPoint) {
 		return testPoint(p_shape, p_x, p_y, p_z);
 	}
@@ -310,13 +310,13 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 		return 0;
 	}
 
-	for (shape = root->m_unk0x10; shape; shape = shape->m_unk0x10) {
-		surface = shape->m_unk0x02;
-		if ((surface & 0x100) && (shape->m_unk0x14 == p_exclude || p_exclude < 0)) {
+	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+		surface = shape->m_kind;
+		if ((surface & 0x100) && (shape->m_owner == p_exclude || p_exclude < 0)) {
 			continue;
 		}
 
-		distance = FUN_1003a096(shape, p_ray);
+		distance = RayShapeDistance(shape, p_ray);
 		if (distance < best) {
 			CopyRay(&ray, p_ray);
 			if (FUN_100352ad(shape, &ray, distance)) {
@@ -367,13 +367,13 @@ MechS32 FUN_10035107(Ray* p_ray, Shape** p_hit)
 		return 0;
 	}
 
-	for (shape = root->m_unk0x10; shape; shape = shape->m_unk0x10) {
-		surface = shape->m_unk0x02;
-		if ((surface & 0x100) || shape->m_unk0x24 == 6) {
+	for (shape = root->m_nextCollider; shape; shape = shape->m_nextCollider) {
+		surface = shape->m_kind;
+		if ((surface & 0x100) || shape->m_collisionType == 6) {
 			continue;
 		}
 
-		distance = FUN_1003a096(shape, p_ray);
+		distance = RayShapeDistance(shape, p_ray);
 		if (distance < best) {
 			CopyRay(&ray, p_ray);
 			if (FUN_100352ad(shape, &ray, distance)) {
@@ -417,7 +417,7 @@ MechS32 FUN_100352ad(Shape* p_shape, Ray* p_ray, MechS32 p_distance)
 		return 1;
 	}
 
-	type = p_shape->m_unk0x24;
+	type = p_shape->m_collisionType;
 	testRay = g_shapeCollisionFns[type].m_testRay;
 	if (testRay) {
 		return testRay(p_shape, p_ray);
@@ -459,14 +459,14 @@ void FUN_10035423(Shape* p_shape, Ray* p_ray, MechS32 p_distance)
 	}
 
 	if (p_distance == 10) {
-		g_hitNormalX = p_ray->m_x0 - p_shape->m_unk0x34;
-		g_hitNormalY = p_ray->m_y0 - p_shape->m_unk0x38;
-		g_hitNormalZ = p_ray->m_z0 - p_shape->m_unk0x3c;
+		g_hitNormalX = p_ray->m_x0 - p_shape->m_centerX;
+		g_hitNormalY = p_ray->m_y0 - p_shape->m_centerY;
+		g_hitNormalZ = p_ray->m_z0 - p_shape->m_centerZ;
 	}
 	else {
-		g_hitNormalX = p_ray->m_x1 - p_shape->m_unk0x34;
-		g_hitNormalY = p_ray->m_y1 - p_shape->m_unk0x38;
-		g_hitNormalZ = p_ray->m_z1 - p_shape->m_unk0x3c;
+		g_hitNormalX = p_ray->m_x1 - p_shape->m_centerX;
+		g_hitNormalY = p_ray->m_y1 - p_shape->m_centerY;
+		g_hitNormalZ = p_ray->m_z1 - p_shape->m_centerZ;
 	}
 
 	NormalizeVectorGuarded(&g_hitNormalX, &g_hitNormalY, &g_hitNormalZ);
@@ -474,7 +474,7 @@ void FUN_10035423(Shape* p_shape, Ray* p_ray, MechS32 p_distance)
 
 // Intersects p_ray with the face's plane from its front side and, if the point lies within the
 // face, ends the ray there and keeps the face's normal as the hit normal.
-// The three sums of products (denom, d, num) call FUN_10019ad0 in another order than the original
+// The three sums of products (denom, d, num) call FixedMul29 in another order than the original
 // (commutative operands), and the locals are permuted.
 // FUNCTION: MW2 0x100354d3
 MechS32 FUN_100354d3(Face* p_face, Vertex* p_vertices, Ray* p_ray)
@@ -494,16 +494,14 @@ MechS32 FUN_100354d3(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 	nx = p_face->m_normal[0];
 	ny = p_face->m_normal[1];
 	nz = p_face->m_normal[2];
-	denom = FUN_10019ad0(nx, p_ray->m_dirX) + FUN_10019ad0(ny, p_ray->m_dirY) + FUN_10019ad0(nz, p_ray->m_dirZ);
+	denom = FixedMul29(nx, p_ray->m_dirX) + FixedMul29(ny, p_ray->m_dirY) + FixedMul29(nz, p_ray->m_dirZ);
 	if (denom >= 0) {
 		return FALSE;
 	}
 
-	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
-	d =
-		-(FUN_10019ad0(nx, vertex->m_unk0x0c) + FUN_10019ad0(ny, vertex->m_unk0x10) +
-		  FUN_10019ad0(nz, vertex->m_unk0x14));
-	num = FUN_10019ad0(nx, p_ray->m_x0) + FUN_10019ad0(ny, p_ray->m_y0) + FUN_10019ad0(nz, p_ray->m_z0) + d;
+	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+	d = -(FixedMul29(nx, vertex->m_worldX) + FixedMul29(ny, vertex->m_worldY) + FixedMul29(nz, vertex->m_worldZ));
+	num = FixedMul29(nx, p_ray->m_x0) + FixedMul29(ny, p_ray->m_y0) + FixedMul29(nz, p_ray->m_z0) + d;
 	if (num <= 0) {
 		return FALSE;
 	}
@@ -542,7 +540,7 @@ MechS32 FUN_10035722(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y,
 	MechS32 ny;
 	MechS32 nz;
 
-	if (p_face->m_unk0x02 < 3) {
+	if (p_face->m_indexCount < 3) {
 		return FALSE;
 	}
 
@@ -578,24 +576,24 @@ MechS32 FUN_100357f8(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_z)
 
 	left = FALSE;
 	right = FALSE;
-	count = p_face->m_unk0x02;
+	count = p_face->m_indexCount;
 	if (count < 3) {
 		return FALSE;
 	}
 
-	indices = (MechU8*) p_face + p_face->m_unk0x04;
+	indices = (MechU8*) p_face + p_face->m_indexOffset;
 	sides = 0;
 	i = count;
 	while (i--) {
 		vertex = &p_vertices[indices[i]];
-		if (vertex->m_unk0x0c <= p_x) {
+		if (vertex->m_worldX <= p_x) {
 			sides |= 1;
 		}
 		else {
 			sides |= 2;
 		}
 
-		if (vertex->m_unk0x14 <= p_z) {
+		if (vertex->m_worldZ <= p_z) {
 			sides |= 4;
 		}
 		else {
@@ -614,31 +612,31 @@ MechS32 FUN_100357f8(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_z)
 	prev = &p_vertices[indices[0]];
 	for (i = count; i--; prev = vertex) {
 		vertex = &p_vertices[indices[i]];
-		if (vertex->m_unk0x14 < p_z && prev->m_unk0x14 < p_z) {
+		if (vertex->m_worldZ < p_z && prev->m_worldZ < p_z) {
 			continue;
 		}
 
-		if (vertex->m_unk0x14 > p_z && prev->m_unk0x14 > p_z) {
+		if (vertex->m_worldZ > p_z && prev->m_worldZ > p_z) {
 			continue;
 		}
 
-		if (vertex->m_unk0x14 == p_z && prev->m_unk0x14 == p_z) {
-			if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+		if (vertex->m_worldZ == p_z && prev->m_worldZ == p_z) {
+			if (vertex->m_worldX < p_x && prev->m_worldX < p_x) {
 				return FALSE;
 			}
 
-			if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+			if (vertex->m_worldX > p_x && prev->m_worldX > p_x) {
 				return FALSE;
 			}
 
 			return TRUE;
 		}
 
-		if (vertex->m_unk0x14 == p_z) {
+		if (vertex->m_worldZ == p_z) {
 			continue;
 		}
 
-		if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+		if (vertex->m_worldX < p_x && prev->m_worldX < p_x) {
 			if (left) {
 				return FALSE;
 			}
@@ -651,7 +649,7 @@ MechS32 FUN_100357f8(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_z)
 			continue;
 		}
 
-		if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+		if (vertex->m_worldX > p_x && prev->m_worldX > p_x) {
 			if (right) {
 				return FALSE;
 			}
@@ -664,13 +662,10 @@ MechS32 FUN_100357f8(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_z)
 			continue;
 		}
 
-		offset = vertex->m_unk0x0c +
-				 MulDiv64(
-					 prev->m_unk0x0c - vertex->m_unk0x0c,
-					 p_z - vertex->m_unk0x14,
-					 prev->m_unk0x14 - vertex->m_unk0x14
-				 ) -
-				 p_x;
+		offset =
+			vertex->m_worldX +
+			MulDiv64(prev->m_worldX - vertex->m_worldX, p_z - vertex->m_worldZ, prev->m_worldZ - vertex->m_worldZ) -
+			p_x;
 		if (offset < 0) {
 			if (left) {
 				return FALSE;
@@ -718,24 +713,24 @@ MechS32 FUN_10035b5b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y)
 
 	left = FALSE;
 	right = FALSE;
-	count = p_face->m_unk0x02;
+	count = p_face->m_indexCount;
 	if (count < 3) {
 		return FALSE;
 	}
 
-	indices = (MechU8*) p_face + p_face->m_unk0x04;
+	indices = (MechU8*) p_face + p_face->m_indexOffset;
 	sides = 0;
 	i = count;
 	while (i--) {
 		vertex = &p_vertices[indices[i]];
-		if (vertex->m_unk0x0c <= p_x) {
+		if (vertex->m_worldX <= p_x) {
 			sides |= 1;
 		}
 		else {
 			sides |= 2;
 		}
 
-		if (vertex->m_unk0x10 <= p_y) {
+		if (vertex->m_worldY <= p_y) {
 			sides |= 4;
 		}
 		else {
@@ -754,31 +749,31 @@ MechS32 FUN_10035b5b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y)
 	prev = &p_vertices[indices[0]];
 	for (i = count; i--; prev = vertex) {
 		vertex = &p_vertices[indices[i]];
-		if (vertex->m_unk0x10 < p_y && prev->m_unk0x10 < p_y) {
+		if (vertex->m_worldY < p_y && prev->m_worldY < p_y) {
 			continue;
 		}
 
-		if (vertex->m_unk0x10 > p_y && prev->m_unk0x10 > p_y) {
+		if (vertex->m_worldY > p_y && prev->m_worldY > p_y) {
 			continue;
 		}
 
-		if (vertex->m_unk0x10 == p_y && prev->m_unk0x10 == p_y) {
-			if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+		if (vertex->m_worldY == p_y && prev->m_worldY == p_y) {
+			if (vertex->m_worldX < p_x && prev->m_worldX < p_x) {
 				return FALSE;
 			}
 
-			if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+			if (vertex->m_worldX > p_x && prev->m_worldX > p_x) {
 				return FALSE;
 			}
 
 			return TRUE;
 		}
 
-		if (vertex->m_unk0x10 == p_y) {
+		if (vertex->m_worldY == p_y) {
 			continue;
 		}
 
-		if (vertex->m_unk0x0c < p_x && prev->m_unk0x0c < p_x) {
+		if (vertex->m_worldX < p_x && prev->m_worldX < p_x) {
 			if (left) {
 				return FALSE;
 			}
@@ -791,7 +786,7 @@ MechS32 FUN_10035b5b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y)
 			continue;
 		}
 
-		if (vertex->m_unk0x0c > p_x && prev->m_unk0x0c > p_x) {
+		if (vertex->m_worldX > p_x && prev->m_worldX > p_x) {
 			if (right) {
 				return FALSE;
 			}
@@ -804,13 +799,10 @@ MechS32 FUN_10035b5b(Face* p_face, Vertex* p_vertices, MechS32 p_x, MechS32 p_y)
 			continue;
 		}
 
-		offset = vertex->m_unk0x0c +
-				 MulDiv64(
-					 prev->m_unk0x0c - vertex->m_unk0x0c,
-					 p_y - vertex->m_unk0x10,
-					 prev->m_unk0x10 - vertex->m_unk0x10
-				 ) -
-				 p_x;
+		offset =
+			vertex->m_worldX +
+			MulDiv64(prev->m_worldX - vertex->m_worldX, p_y - vertex->m_worldY, prev->m_worldY - vertex->m_worldY) -
+			p_x;
 		if (offset < 0) {
 			if (left) {
 				return FALSE;
@@ -858,24 +850,24 @@ MechS32 FUN_10035ebe(Face* p_face, Vertex* p_vertices, MechS32 p_y, MechS32 p_z)
 
 	left = FALSE;
 	right = FALSE;
-	count = p_face->m_unk0x02;
+	count = p_face->m_indexCount;
 	if (count < 3) {
 		return FALSE;
 	}
 
-	indices = (MechU8*) p_face + p_face->m_unk0x04;
+	indices = (MechU8*) p_face + p_face->m_indexOffset;
 	sides = 0;
 	i = count;
 	while (i--) {
 		vertex = &p_vertices[indices[i]];
-		if (vertex->m_unk0x10 <= p_y) {
+		if (vertex->m_worldY <= p_y) {
 			sides |= 1;
 		}
 		else {
 			sides |= 2;
 		}
 
-		if (vertex->m_unk0x14 <= p_z) {
+		if (vertex->m_worldZ <= p_z) {
 			sides |= 4;
 		}
 		else {
@@ -894,31 +886,31 @@ MechS32 FUN_10035ebe(Face* p_face, Vertex* p_vertices, MechS32 p_y, MechS32 p_z)
 	prev = &p_vertices[indices[0]];
 	for (i = count; i--; prev = vertex) {
 		vertex = &p_vertices[indices[i]];
-		if (vertex->m_unk0x14 < p_z && prev->m_unk0x14 < p_z) {
+		if (vertex->m_worldZ < p_z && prev->m_worldZ < p_z) {
 			continue;
 		}
 
-		if (vertex->m_unk0x14 > p_z && prev->m_unk0x14 > p_z) {
+		if (vertex->m_worldZ > p_z && prev->m_worldZ > p_z) {
 			continue;
 		}
 
-		if (vertex->m_unk0x14 == p_z && prev->m_unk0x14 == p_z) {
-			if (vertex->m_unk0x10 < p_y && prev->m_unk0x10 < p_y) {
+		if (vertex->m_worldZ == p_z && prev->m_worldZ == p_z) {
+			if (vertex->m_worldY < p_y && prev->m_worldY < p_y) {
 				return FALSE;
 			}
 
-			if (vertex->m_unk0x10 > p_y && prev->m_unk0x10 > p_y) {
+			if (vertex->m_worldY > p_y && prev->m_worldY > p_y) {
 				return FALSE;
 			}
 
 			return TRUE;
 		}
 
-		if (vertex->m_unk0x14 == p_z) {
+		if (vertex->m_worldZ == p_z) {
 			continue;
 		}
 
-		if (vertex->m_unk0x10 < p_y && prev->m_unk0x10 < p_y) {
+		if (vertex->m_worldY < p_y && prev->m_worldY < p_y) {
 			if (left) {
 				return FALSE;
 			}
@@ -931,7 +923,7 @@ MechS32 FUN_10035ebe(Face* p_face, Vertex* p_vertices, MechS32 p_y, MechS32 p_z)
 			continue;
 		}
 
-		if (vertex->m_unk0x10 > p_y && prev->m_unk0x10 > p_y) {
+		if (vertex->m_worldY > p_y && prev->m_worldY > p_y) {
 			if (right) {
 				return FALSE;
 			}
@@ -944,13 +936,10 @@ MechS32 FUN_10035ebe(Face* p_face, Vertex* p_vertices, MechS32 p_y, MechS32 p_z)
 			continue;
 		}
 
-		offset = vertex->m_unk0x10 +
-				 MulDiv64(
-					 prev->m_unk0x10 - vertex->m_unk0x10,
-					 p_z - vertex->m_unk0x14,
-					 prev->m_unk0x14 - vertex->m_unk0x14
-				 ) -
-				 p_y;
+		offset =
+			vertex->m_worldY +
+			MulDiv64(prev->m_worldY - vertex->m_worldY, p_z - vertex->m_worldZ, prev->m_worldZ - vertex->m_worldZ) -
+			p_y;
 		if (offset < 0) {
 			if (left) {
 				return FALSE;

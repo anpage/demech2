@@ -3,7 +3,7 @@
 #include "environment.h"
 
 #include "clock.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "decomp.h"
 #include "fixeddiv.h"

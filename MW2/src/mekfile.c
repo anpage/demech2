@@ -214,7 +214,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	}
 
 	slot = p_mech->m_weapons;
-	bin = p_mech->m_unk0x5c;
+	bin = p_mech->m_ammoBins;
 	piece = j = 0;
 	binCount = 0;
 	i = 0;
@@ -304,7 +304,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	p_mech->m_unk0x88 = FixedMul16(header->m_speed, 0x697e98);
 	p_mech->m_unk0xe4 = header->m_tons;
 	p_mech->m_weaponCount = header->m_weaponCount;
-	p_mech->m_unk0xc8 = header->m_ammoCount;
+	p_mech->m_ammoBinCount = header->m_ammoCount;
 	heat = 50;
 	if (p_mech->m_player->m_index == g_localPlayerId) {
 		switch (g_difficulty->m_unk0x05) {

@@ -164,7 +164,7 @@ void ServeSamples(void)
 		}
 
 		if (g_audioEngine->m_remaining[i] <= g_audioEngine->m_chunkFrames[i]) {
-			g_audioEngine->m_data[i] = FUN_1001a63c(
+			g_audioEngine->m_data[i] = DecodeSoundFrames(
 				g_audioEngine->m_data[i],
 				g_audioEngine->m_buffers[i][buffer],
 				g_audioEngine->m_remaining[i],
@@ -175,7 +175,7 @@ void ServeSamples(void)
 			g_audioEngine->m_remaining[i] = 0;
 		}
 		else {
-			g_audioEngine->m_data[i] = FUN_1001a63c(
+			g_audioEngine->m_data[i] = DecodeSoundFrames(
 				g_audioEngine->m_data[i],
 				g_audioEngine->m_buffers[i][buffer],
 				g_audioEngine->m_chunkFrames[i],
@@ -570,7 +570,7 @@ MechS32 CalculateSamplePan(MechS32 p_bearing)
 	MechS32 angle;
 
 	angle = g_eyepoint->m_unk0x0c - p_bearing;
-	pan = FUN_100696c0(angle) >> 23;
+	pan = FixedSin(angle) >> 23;
 	pan += 0x40;
 	if (pan < 0xf) {
 		pan = 0xf;

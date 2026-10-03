@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// A vertex projected for drawing, one of FUN_1007d248's per-frame records: its view-space
+// A vertex projected for drawing, one of AllocProjectedVertex's per-frame records: its view-space
 // position, screen position, texture coordinates and clip outcodes.
 // SIZE 0x20
 typedef struct ProjectedVertex {

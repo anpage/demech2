@@ -5,7 +5,7 @@ Reads the reference DLL (asmref.dll, built by the decomp build: the matched asse
 for each exported routine, the offset of every basic block from the routine's start and the
 block's first byte:
 
-    FUN_100074e0 0:55 1a:33 2c:8a ...
+    HashName 0:55 1a:33 2c:8a ...
 
 `asmequiv REF CANDIDATE -coverage FILE` puts an int3 on each block, and fails unless its cases
 reach every block of the routines it runs. Blocks come from a recursive descent from each

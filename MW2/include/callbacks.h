@@ -24,13 +24,13 @@ extern "C"
 {
 #endif
 
-	TimedCallback* FUN_1007d2e0(void);
+	TimedCallback* GetCurrentCallback(void);
 	TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data);
 	void FUN_1007d3bf(TimedCallback** p_list, TimedCallback* p_callback);
 	void FUN_1007d475(TimedCallback** p_list);
 	void FUN_1007d4b8(TimedCallback** p_list, TimedCallback* p_callback);
 	void FUN_1007d4dc(TimedCallback** p_list);
-	void** FUN_1007d51f(TimedCallback* p_callback);
+	void** GetCallbackData(TimedCallback* p_callback);
 	void RunTimedCallbacks(TimedCallback** p_list);
 	MechS32 FUN_1007d5f1(void);
 

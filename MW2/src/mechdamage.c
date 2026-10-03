@@ -1,6 +1,7 @@
 #include "mechdamage.h"
 
 #include "ai.h"
+#include "ammobin.h"
 #include "classtable.h"
 #include "clock.h"
 #include "config.h"
@@ -21,7 +22,6 @@
 #include "rendertarget.h"
 #include "shape.h"
 #include "shots.h"
-#include "silvertern.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
@@ -154,13 +154,13 @@ void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
 	MechS32 j;
 	MechS32 k;
 	MechSection* section;
-	SilverTern0x14* bin;
+	AmmoBin* bin;
 
 	if (!g_unk0x100a2c10) {
 		return;
 	}
 
-	if (p_mech->m_unk0x5c) {
+	if (p_mech->m_ammoBins) {
 		for (i = 0; i < 8; i++) {
 			section = &p_mech->m_sections[i];
 			if (section->m_unk0x26 & 0x2000) {
@@ -169,8 +169,8 @@ void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
 
 			for (j = 0; j < section->m_unk0x24; j++) {
 				if (section->m_slots[j] > 10000) {
-					bin = p_mech->m_unk0x5c;
-					for (k = 0; k < p_mech->m_unk0xc8; k++) {
+					bin = p_mech->m_ammoBins;
+					for (k = 0; k < p_mech->m_ammoBinCount; k++) {
 						if (section->m_slots[j] == bin->m_id) {
 							weapon = &p_mech->m_weapons[bin->m_weapon];
 							if (weapon && weapon->m_ammo > 0) {
@@ -312,8 +312,7 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 		return;
 	}
 
-	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_unk0x02 & 0x100) &&
-		p_mech->m_player->m_index == g_unk0x100a6d34->m_unk0x14) {
+	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_kind & 0x100) && p_mech->m_player->m_index == g_unk0x100a6d34->m_owner) {
 		g_unk0x100a6d34 = NULL;
 	}
 
@@ -565,7 +564,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 	struct SceneObject* obj;
 	MechS32 kind;
 	MechSection* section;
-	SilverTern0x14* bin;
+	AmmoBin* bin;
 	MechS32 damage;
 
 	section = p_mech->m_sections + p_section - 1;
@@ -665,8 +664,8 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		}
 	}
 	else if (kind > 100) {
-		bin = p_mech->m_unk0x5c;
-		for (i = 0; i < p_mech->m_unk0xc8; i++) {
+		bin = p_mech->m_ammoBins;
+		for (i = 0; i < p_mech->m_ammoBinCount; i++) {
 			if (bin->m_id == id) {
 				weapon = &p_mech->m_weapons[bin->m_weapon];
 				if (weapon->m_ammo < 1) {

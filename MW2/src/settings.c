@@ -11,8 +11,8 @@
 #include "menucontrols.h"
 #include "menupage.h"
 #include "polydraw.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
-#include "slateheron.h"
 #include "speech.h"
 #include "types.h"
 
@@ -114,7 +114,7 @@ MechS32 FUN_1005e9b0(MechS32 p_id)
 		value = FUN_1007d875(0);
 		break;
 	case 0xa7:
-		if (g_unk0x100a6cc8.m_unk0x34 == 1) {
+		if (g_renderSettings.m_unk0x34 == 1) {
 			value = 1;
 		}
 		else {
@@ -148,11 +148,11 @@ void FUN_1005eb10(MechS32 p_id, MechS32 p_value)
 		break;
 	case 0xa7:
 		if (p_value) {
-			g_unk0x100a6cc8.m_unk0x34 = 1;
+			g_renderSettings.m_unk0x34 = 1;
 			PlayCockpitSound(0x1b, 1);
 		}
 		else {
-			g_unk0x100a6cc8.m_unk0x34 = 0;
+			g_renderSettings.m_unk0x34 = 0;
 		}
 		break;
 	case 0x13:

@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_100349f0(MechS32 p_x0, MechS32 p_x1, MechS32 p_x, MechS32 p_y0, MechS32 p_y1);
+	MechS32 Lerp(MechS32 p_x0, MechS32 p_x1, MechS32 p_x, MechS32 p_y0, MechS32 p_y1);
 
 #ifdef __cplusplus
 }

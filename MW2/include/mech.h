@@ -23,7 +23,7 @@ typedef struct Mech {
 	Ramp m_unk0x44;                   // 0x44 — the position's y
 	WeaponSlot* m_weapons;            // 0x54 — ten
 	MechSection* m_sections;          // 0x58 — the eight sections
-	void* m_unk0x5c;                  // 0x5c — the rest of the allocation, after the sections
+	void* m_ammoBins;                 // 0x5c — the rest of the allocation, after the sections: AmmoBin records
 	struct SceneObject* m_unk0x60;    // 0x60
 	struct SceneObject* m_unk0x64;    // 0x64
 	struct SceneObject* m_objects[8]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets
@@ -43,7 +43,7 @@ typedef struct Mech {
 	MechS32 m_unk0xbc;                // 0xbc — the autopilot: 1 and 2 are on
 	MechS32 m_unk0xc0;                // 0xc0 — the jump jets fire while it is positive
 	MechS32 m_unk0xc4;                // 0xc4 — jump jet fuel units; each critical hit takes one
-	MechS32 m_unk0xc8;                // 0xc8 — the ammunition bins at m_unk0x5c
+	MechS32 m_ammoBinCount;           // 0xc8
 	MechS32 m_unk0xcc;                // 0xcc
 	MechS32 m_unk0xd0;                // 0xd0 — the cockpit's height (g_unk0x100a2434)
 	MechS32 m_unk0xd4;                // 0xd4

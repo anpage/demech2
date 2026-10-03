@@ -80,20 +80,20 @@ void FUN_1004b130(SceneObject* p_obj)
 	minX = minZ = 0x7fffffff;
 	maxX = maxZ = -0x7fffffff;
 	for (count = model->m_vertexCount; count--; vertex++) {
-		if (vertex->m_unk0x00 > maxX) {
-			maxX = vertex->m_unk0x00;
+		if (vertex->m_modelX > maxX) {
+			maxX = vertex->m_modelX;
 		}
 
-		if (vertex->m_unk0x08 > maxZ) {
-			maxZ = vertex->m_unk0x08;
+		if (vertex->m_modelZ > maxZ) {
+			maxZ = vertex->m_modelZ;
 		}
 
-		if (vertex->m_unk0x00 < minX) {
-			minX = vertex->m_unk0x00;
+		if (vertex->m_modelX < minX) {
+			minX = vertex->m_modelX;
 		}
 
-		if (vertex->m_unk0x08 < minZ) {
-			minZ = vertex->m_unk0x08;
+		if (vertex->m_modelZ < minZ) {
+			minZ = vertex->m_modelZ;
 		}
 	}
 
@@ -187,7 +187,7 @@ void FUN_1004b344(void)
 			if (g_unk0x100a7128) {
 				FUN_10001926(g_unk0x100a7128);
 				SetObjPosition(g_unk0x100a7128, g_unk0x100be9f0.m_x, g_unk0x100be9f0.m_y, g_unk0x100be9f0.m_z);
-				FUN_10001cf8(g_unk0x100a7128);
+				UpdateObj(g_unk0x100a7128);
 			}
 		}
 
@@ -208,7 +208,7 @@ void FUN_1004b539(MechS32 p_enable)
 			FUN_100018ca(g_unk0x100a7128);
 		}
 
-		FUN_10001cf8(g_unk0x100a7128);
+		UpdateObj(g_unk0x100a7128);
 		g_unk0x100a7120 = p_enable;
 	}
 }

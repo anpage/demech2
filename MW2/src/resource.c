@@ -122,7 +122,7 @@ MechChar* g_unk0x100a8634 = NULL;
 
 // The player the world stream (BwdExecuteStream) created last, for FUN_10046750.
 // GLOBAL: MW2 0x100a8638
-struct Player* g_unk0x100a8638 = NULL;
+struct Player* g_lastPlayer = NULL;
 
 // The task kinds of a world stream's task record (BwdExecuteStream).
 // GLOBAL: MW2 0x100a8640
@@ -629,7 +629,7 @@ void CreateObjectNode(
 {
 	MechS32 offset;
 	MechS32 unk0x34;
-	TwilightGrove0x24 xform;
+	Xform xform;
 	MechS32 parent;
 	MechS32 fromResource;
 	MechS32 parentIndex;
@@ -706,16 +706,8 @@ void CreateObjectNode(
 			thing = FindThingIdxById(mapped);
 			parent = MapResourceId(parent);
 			parentIndex = FindThingIdxById(parent);
-			g_unk0x100a3850[g_unk0x1012b7b0] = FUN_1001cf93(
-				resource,
-				xform.m_unk0x18,
-				xform.m_unk0x1c,
-				xform.m_unk0x20,
-				parentIndex,
-				p_level,
-				thing,
-				unk0x34
-			);
+			g_unk0x100a3850[g_unk0x1012b7b0] =
+				FUN_1001cf93(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
 			g_unk0x1012b7b0++;
 			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
@@ -739,11 +731,11 @@ void CreateObjectNode(
 		}
 	}
 
-	SetShapeScale(xform.m_unk0x00, xform.m_unk0x04, xform.m_unk0x08);
+	SetShapeScale(xform.m_scaleX, xform.m_scaleY, xform.m_scaleZ);
 	SetShapeFlags(flags);
 	shape = LoadShapes(data, &offset, size, NULL);
 	if (shape) {
-		shape->m_unk0x02 = unk0x34;
+		shape->m_kind = unk0x34;
 		if (kind >= 0 && kind < 8) {
 			FUN_10034a40(shape, kind);
 		}
@@ -759,18 +751,10 @@ void CreateObjectNode(
 
 		first = FALSE;
 		if (parent == -2) {
-			FUN_1000e2b9(
-				&matrix,
-				xform.m_unk0x0c,
-				xform.m_unk0x10,
-				xform.m_unk0x14,
-				xform.m_unk0x18,
-				xform.m_unk0x1c,
-				xform.m_unk0x20
-			);
-			FUN_10039c36(shape, &matrix);
+			BuildMatrix(&matrix, xform.m_angleX, xform.m_angleY, xform.m_angleZ, xform.m_x, xform.m_y, xform.m_z);
+			TransformShape(shape, &matrix);
 			FUN_1006d732(shape);
-			if (shape->m_unk0x24 == 5) {
+			if (shape->m_collisionType == 5) {
 				FUN_1001df00(shape);
 			}
 		}
@@ -785,9 +769,9 @@ void CreateObjectNode(
 			obj = FUN_100012d0(parentObj, 10);
 			FUN_10001532(obj, shape);
 			SetShapeObject(shape, obj);
-			SetObjRotation(obj, xform.m_unk0x0c, xform.m_unk0x10, xform.m_unk0x14, 0);
-			SetObjPosition(obj, xform.m_unk0x18, xform.m_unk0x1c, xform.m_unk0x20);
-			FUN_10001cf8(obj);
+			SetObjRotation(obj, xform.m_angleX, xform.m_angleY, xform.m_angleZ, 0);
+			SetObjPosition(obj, xform.m_x, xform.m_y, xform.m_z);
+			UpdateObj(obj);
 			FUN_1006d732(shape);
 		}
 	}
@@ -810,7 +794,7 @@ struct SceneObject* FUN_100506d8(void)
 
 	if (g_unk0x100a8624 < g_unk0x100a8620) {
 		id = g_unk0x100ea580[g_unk0x100a8624];
-		obj = FUN_1001d980(id);
+		obj = GetClassObject(id);
 		g_unk0x100a8624++;
 	}
 	else {

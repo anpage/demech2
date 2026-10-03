@@ -1,6 +1,7 @@
 #include "mechclass.h"
 
 #include "ai.h"
+#include "ammobin.h"
 #include "approxlen.h"
 #include "clock.h"
 #include "collision.h"
@@ -39,7 +40,6 @@
 #include "rendertarget.h"
 #include "resource.h"
 #include "shape.h"
-#include "silvertern.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
@@ -162,8 +162,8 @@ void FUN_10016ad0(struct Player* p_player)
 	mech->m_unk0x108 = 0;
 	mech->m_unk0xf0 = 0;
 	mech->m_unk0xb0 = 0x10000;
-	FUN_10001667(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
-	FUN_10001cf8(mech->m_player->m_obj);
+	MoveObj(mech->m_player->m_obj, 0, mech->m_unk0xcc, 0);
+	UpdateObj(mech->m_player->m_obj);
 	GetObjWorldPos(
 		mech->m_player->m_obj,
 		&mech->m_player->m_unk0x5c,
@@ -483,7 +483,7 @@ void FUN_10016edf(Mech* p_mech)
 
 							sound = 0xf0;
 						}
-						else if (hitShape && (hitShape->m_unk0x02 & 0x200)) {
+						else if (hitShape && (hitShape->m_kind & 0x200)) {
 							sound = 200;
 						}
 						else {
@@ -598,7 +598,7 @@ void FUN_10016edf(Mech* p_mech)
 			objY = ray.m_y1 - objY;
 			objZ = ray.m_z1 - objZ;
 			angle = FixedDiv29(objY, ApproximateVectorLength(objX, objY, objZ));
-			angle = -FUN_1006975b(angle) - pitch;
+			angle = -FixedAsin(angle) - pitch;
 			SetObjRotation(mech->m_unk0x64, angle, 0, 0, 0);
 		}
 
@@ -621,12 +621,12 @@ void FUN_10016edf(Mech* p_mech)
 			);
 		}
 
-		FUN_10001cf8(mech->m_player->m_obj);
+		UpdateObj(mech->m_player->m_obj);
 	}
 
 	heading = mech->m_player->m_heading;
-	mech->m_player->m_unk0xbc = FUN_100696c0(heading) >> 13;
-	mech->m_player->m_unk0xb8 = FUN_1006973a(heading) >> 13;
+	mech->m_player->m_unk0xbc = FixedSin(heading) >> 13;
+	mech->m_player->m_unk0xb8 = FixedCos(heading) >> 13;
 }
 
 // Runs p_mech's systems for the tick: the cockpit keys of a running mech (eject, view and display
@@ -874,8 +874,8 @@ void FUN_100180cd(Mech* p_mech)
 			}
 
 			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
-			cosine = FUN_1006973a(speed << 16);
-			turnRate = FUN_10019ad0(turn, cosine);
+			cosine = FixedCos(speed << 16);
+			turnRate = FixedMul29(turn, cosine);
 			mech->m_unk0x34.m_target = turnRate;
 		}
 		else {
@@ -1284,19 +1284,19 @@ MechS32 FUN_100197ca(MechS32 p_index, Player* p_player)
 // FUNCTION: MW2 0x10019881
 void FUN_10019881(struct Mech* p_mech)
 {
-	SilverTern0x14* bin;
+	AmmoBin* bin;
 	WeaponSlot* slot;
-	SilverTern0x14* bins = NULL;
+	AmmoBin* bins = NULL;
 	MechS32 i;
 	WeaponSlot* weapons = NULL;
 	MechSection* sections = NULL;
 
 	weapons = (WeaponSlot*) (p_mech + 1);
 	sections = (MechSection*) (weapons + 10);
-	bins = (SilverTern0x14*) (sections + 8);
+	bins = (AmmoBin*) (sections + 8);
 	p_mech->m_weapons = weapons;
 	p_mech->m_sections = sections;
-	p_mech->m_unk0x5c = bins;
+	p_mech->m_ammoBins = bins;
 	slot = p_mech->m_weapons;
 	for (i = 0; i < 10; i++) {
 		slot->m_unk0x00 = -1;
@@ -1316,7 +1316,7 @@ void FUN_10019881(struct Mech* p_mech)
 		slot++;
 	}
 
-	bin = p_mech->m_unk0x5c;
+	bin = p_mech->m_ammoBins;
 	for (i = 0; i < 25; i++) {
 		bin->m_unk0x00 = -1;
 		bin->m_unk0x02 = 0;

@@ -1018,14 +1018,14 @@ void FUN_10060010(void)
 
 	shape = g_unk0x100a6d34;
 	if (shape) {
-		if (shape->m_unk0x02 & 0x100) {
-			if (FUN_1005f4ac(g_localPlayerId, shape->m_unk0x14, 0) >= 0) {
-				target = shape->m_unk0x14 | 0x200;
+		if (shape->m_kind & 0x100) {
+			if (FUN_1005f4ac(g_localPlayerId, shape->m_owner, 0) >= 0) {
+				target = shape->m_owner | 0x200;
 			}
 		}
-		else if (shape->m_unk0x02 & 0x200) {
-			if (FUN_1005f798(g_localPlayerId, shape->m_unk0x14, 0) >= 0) {
-				target = shape->m_unk0x14 | 0x400;
+		else if (shape->m_kind & 0x200) {
+			if (FUN_1005f798(g_localPlayerId, shape->m_owner, 0) >= 0) {
+				target = shape->m_owner | 0x400;
 			}
 		}
 
@@ -1071,9 +1071,9 @@ void FUN_10060197(
 	MechS32 length;
 	MechS32 pitchCosine;
 
-	heading = FUN_100698de(p_dx, p_dz);
+	heading = FixedAtan2(p_dx, p_dz);
 	if (abs(p_dx) > abs(p_dz)) {
-		sine = FUN_100696c0(heading);
+		sine = FixedSin(heading);
 		if (sine) {
 			ground = FixedDiv29(p_dx, sine);
 		}
@@ -1082,7 +1082,7 @@ void FUN_10060197(
 		}
 	}
 	else {
-		cosine = FUN_1006973a(heading);
+		cosine = FixedCos(heading);
 		if (cosine) {
 			ground = FixedDiv29(p_dz, cosine);
 		}
@@ -1091,8 +1091,8 @@ void FUN_10060197(
 		}
 	}
 
-	pitch = FUN_100698de(p_dy, ground);
-	pitchCosine = FUN_1006973a(pitch);
+	pitch = FixedAtan2(p_dy, ground);
+	pitchCosine = FixedCos(pitch);
 	if (pitchCosine) {
 		length = FixedDiv29(ground, pitchCosine);
 	}

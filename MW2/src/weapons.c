@@ -380,7 +380,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, shot->m_type == 3 || shot->m_type == 4);
 			FUN_10001926(shot->m_object);
 			FUN_1000199a(shot->m_object);
-			FUN_10001cf8(shot->m_object);
+			UpdateObj(shot->m_object);
 
 			if (p_player->m_index == g_localPlayerId) {
 				if (shot->m_type == 3 || shot->m_type == 4) {
@@ -769,7 +769,7 @@ void FUN_10045eac(Mech* p_mech)
 		dx = p_mech->m_player->m_position.m_x - p_mech->m_player->m_targetInfo.m_position.m_x;
 		dy = p_mech->m_player->m_position.m_y - p_mech->m_player->m_targetInfo.m_position.m_y;
 		dz = p_mech->m_player->m_position.m_z - p_mech->m_player->m_targetInfo.m_position.m_z;
-		if (FUN_10004ec0(dx, dy, dz, def->m_unk0x3c) || !FUN_10004ec0(dx, dy, dz, def->m_unk0x40)) {
+		if (IsWithinRadius(dx, dy, dz, def->m_unk0x3c) || !IsWithinRadius(dx, dy, dz, def->m_unk0x40)) {
 			inRange = FALSE;
 			yaw = 0x100001;
 			pitch = 0x100001;
@@ -841,7 +841,7 @@ Shape* FUN_10046269(Player* p_player)
 	FUN_100463e5(p_player, &ray);
 	collided = TestSegmentCollision(&ray, &hit, p_player->m_index);
 	if (collided && hit) {
-		flags = hit->m_unk0x02;
+		flags = hit->m_kind;
 		if ((flags & 0x100) || (flags & 0x200)) {
 			length = GetRayLength(&ray);
 			p_player->m_unk0xa8.m_value = length > 2000 ? length : 2000;
@@ -915,8 +915,8 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	GetObjWorldPos(p_player->m_unk0x44, &x, &y, &z);
 	mech = p_player->m_mech;
 	x = mech->m_unk0x14.m_value;
-	FUN_1000e2b9(&matrix, x, y, z, 0, 0, 0);
-	FUN_1000d708(&matrix, p_x, p_y, p_z);
+	BuildMatrix(&matrix, x, y, z, 0, 0, 0);
+	RotatePoint(&matrix, p_x, p_y, p_z);
 }
 
 // FUNCTION: MW2 0x100464f3
@@ -959,8 +959,8 @@ void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p
 	MechS32 sideX;
 	MechS32 sideY;
 
-	yaw = FUN_100698de(p_dx, p_dz);
-	pitch = FUN_1006975b(p_dy << 13);
+	yaw = FixedAtan2(p_dx, p_dz);
+	pitch = FixedAsin(p_dy << 13);
 	SetObjRotation(p_obj, -pitch, yaw, 0, 0);
 	FUN_100464f3(p_player, &x, &y, &z);
 	if (p_spread) {
@@ -980,9 +980,9 @@ void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p
 	}
 
 	SetObjPosition(p_obj, x, y, z);
-	speed = p_obj->m_unk0x6c->m_unk0x40 * 2;
+	speed = p_obj->m_unk0x6c->m_radius * 2;
 	p_dx = FixedMul16(p_dx, speed);
 	p_dy = FixedMul16(p_dy, speed);
 	p_dz = FixedMul16(p_dz, speed);
-	FUN_10001667(p_obj, p_dx, p_dy, p_dz);
+	MoveObj(p_obj, p_dx, p_dy, p_dz);
 }

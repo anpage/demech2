@@ -15,9 +15,9 @@
 
 #define FRAME_SIZE 0x400
 
-MechU8 g_unk0x100a2f04[0x400] = {0};
-MechU8 g_unk0x100a3304[0x401] = {0};
-MechU8 g_unk0x100a3705[0x43] = {0};
+MechU8 g_soundUpsampleBuffer[0x400] = {0};
+MechU8 g_soundFrame[0x401] = {0};
+MechU8 g_soundDeltas[0x43] = {0};
 
 enum SoundCoding {
 	c_codingSilence,
@@ -31,7 +31,7 @@ enum SoundCoding {
 // The delta table's entries, dwords at an odd address.
 static MechS32 GetDelta(MechU32 p_index)
 {
-	const MechU8* entry = &g_unk0x100a3705[p_index * 4];
+	const MechU8* entry = &g_soundDeltas[p_index * 4];
 
 	return PortableS32(entry[0] | ((MechU32) entry[1] << 8) | ((MechU32) entry[2] << 16) | ((MechU32) entry[3] << 24));
 }
@@ -43,7 +43,7 @@ static const MechU8* ReadDeltas(const MechU8* p_src, MechU32 p_count)
 
 	for (i = 0; i < p_count; i++) {
 		MechU32 delta = ((MechU32) *p_src++ << 1) - 0x80;
-		MechU8* entry = &g_unk0x100a3705[i * 4];
+		MechU8* entry = &g_soundDeltas[i * 4];
 
 		entry[0] = (MechU8) delta;
 		entry[1] = (MechU8) (delta >> 8);
@@ -77,7 +77,7 @@ static const MechU8* DecodeDeltas(const MechU8* p_src, MechU32 p_count, MechU32 
 			}
 
 			*p_value = value;
-			g_unk0x100a3304[sample++] = (MechU8) (value + 0x80);
+			g_soundFrame[sample++] = (MechU8) (value + 0x80);
 			bits >>= p_bits;
 		}
 	} while (sample < p_count);
@@ -85,29 +85,29 @@ static const MechU8* DecodeDeltas(const MechU8* p_src, MechU32 p_count, MechU32 
 	return p_src;
 }
 
-// FUN_1001a8d3: upsamples the frame twice in place, interpolating linearly through the scratch
+// UpsampleSoundFrame2: upsamples the frame twice in place, interpolating linearly through the scratch
 // buffer, to p_size samples. The last pair reads the sample past the decoded ones.
 static void Upsample2(MechU32 p_size)
 {
-	MechU8* frame = g_unk0x100a3304;
+	MechU8* frame = g_soundFrame;
 	MechU32 i = 0;
 
 	do {
 		MechU32 a = frame[i >> 1];
 		MechU32 b = frame[(i >> 1) + 1];
 
-		g_unk0x100a2f04[i] = (MechU8) a;
-		g_unk0x100a2f04[i + 1] = (MechU8) ((a + b) >> 1);
+		g_soundUpsampleBuffer[i] = (MechU8) a;
+		g_soundUpsampleBuffer[i + 1] = (MechU8) ((a + b) >> 1);
 		i += 2;
 	} while (i < p_size - 1);
 
-	memcpy(frame, g_unk0x100a2f04, p_size);
+	memcpy(frame, g_soundUpsampleBuffer, p_size);
 }
 
-// FUN_1001a87b: the same four times.
+// UpsampleSoundFrame4: the same four times.
 static void Upsample4(MechU32 p_size)
 {
-	MechU8* frame = g_unk0x100a3304;
+	MechU8* frame = g_soundFrame;
 	MechU32 i = 0;
 
 	do {
@@ -115,20 +115,20 @@ static void Upsample4(MechU32 p_size)
 		MechU32 b = frame[(i >> 2) + 1];
 		MechU32 middle = (a + b) >> 1;
 
-		g_unk0x100a2f04[i] = (MechU8) a;
-		g_unk0x100a2f04[i + 1] = (MechU8) ((middle + a) >> 1);
-		g_unk0x100a2f04[i + 2] = (MechU8) middle;
-		g_unk0x100a2f04[i + 3] = (MechU8) ((middle + b) >> 1);
+		g_soundUpsampleBuffer[i] = (MechU8) a;
+		g_soundUpsampleBuffer[i + 1] = (MechU8) ((middle + a) >> 1);
+		g_soundUpsampleBuffer[i + 2] = (MechU8) middle;
+		g_soundUpsampleBuffer[i + 3] = (MechU8) ((middle + b) >> 1);
 		i += 4;
 	} while (i < p_size - 1);
 
-	memcpy(frame, g_unk0x100a2f04, p_size);
+	memcpy(frame, g_soundUpsampleBuffer, p_size);
 }
 
 // p_count is at least 1, and p_frameSize 1 to 0x400; a raw frame has at least one sample before
 // the upsampling (the original's loops run 2^32 times otherwise). An unknown coding ends the
 // decoding with NULL, leaving *p_state at the previous frame's value.
-MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state)
+MechU8* DecodeSoundFrames(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state)
 {
 	const MechU8* src = p_src;
 
@@ -150,7 +150,7 @@ MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_fr
 		src++;
 		switch (coding) {
 		case c_codingSilence:
-			memset(g_unk0x100a3304, 0x80, samples);
+			memset(g_soundFrame, 0x80, samples);
 			value = 0;
 			break;
 		case c_codingRepeat:
@@ -166,9 +166,9 @@ MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_fr
 			break;
 		case c_codingRaw:
 			PORTABLE_ASSERT(samples != 0);
-			memcpy(g_unk0x100a3304, src, samples);
+			memcpy(g_soundFrame, src, samples);
 			src += samples;
-			value = g_unk0x100a3304[samples - 1] - 0x80;
+			value = g_soundFrame[samples - 1] - 0x80;
 			break;
 		default:
 			return NULL;
@@ -182,7 +182,7 @@ MechU8* FUN_1001a63c(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_fr
 		}
 
 		*p_state = value;
-		memcpy(p_dst, g_unk0x100a3304, p_frameSize);
+		memcpy(p_dst, g_soundFrame, p_frameSize);
 		p_dst += p_frameSize;
 	} while (--p_count);
 

@@ -3,7 +3,7 @@
 #include "approxlen.h"
 #include "bargauges.h"
 #include "clock.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
@@ -100,7 +100,7 @@ MechS32 FUN_1000507d(const MechChar* p_text, void* p_font)
 // Stack-slot permutation of the locals (label, objective, twoLines, height, i, target, mission,
 // primary, secondary, count, x and y).
 // FUNCTION: MW2 0x100050d1
-void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 p_priority)
+void FUN_100050d1(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8 p_priority)
 {
 	PANE* target;
 	StarMission* mission;
@@ -232,7 +232,7 @@ void FUN_100050d1(CobaltHarbor0x88* p_panel, Point* p_pos, void* p_font, MechU8 
 // mission ended.
 // Stack-slot permutation of the locals (cursor, mission, font, height, gap, ticks and text).
 // FUNCTION: MW2 0x100056f0
-void FUN_100056f0(CobaltHarbor0x88* p_panel)
+void FUN_100056f0(CockpitPanel* p_panel)
 {
 	StarMission* mission;
 	void* font;
@@ -304,7 +304,7 @@ void FUN_100056f0(CobaltHarbor0x88* p_panel)
 // a cursor.
 // Stack-slot permutation of the locals (state, cursor, pos, color, height, player, gap, text and font).
 // FUNCTION: MW2 0x10005add
-void FUN_10005add(CobaltHarbor0x88* p_panel)
+void FUN_10005add(CockpitPanel* p_panel)
 {
 	MechChar* state;
 	Point pos;
@@ -490,7 +490,7 @@ void FUN_10005add(CobaltHarbor0x88* p_panel)
 
 // Shows the local player's kill count in a network game.
 // FUNCTION: MW2 0x100060b6
-void FUN_100060b6(CobaltHarbor0x88* p_panel)
+void FUN_100060b6(CockpitPanel* p_panel)
 {
 	void* font;
 	MechChar text[40];
@@ -522,7 +522,7 @@ void FUN_100060b6(CobaltHarbor0x88* p_panel)
 // Shows the autopilot's state.
 // Stack-slot permutation of text and font.
 // FUNCTION: MW2 0x10006189
-void FUN_10006189(CobaltHarbor0x88* p_panel)
+void FUN_10006189(CockpitPanel* p_panel)
 {
 	MechChar* text;
 	Mech* mech;
@@ -567,7 +567,7 @@ void FUN_10006189(CobaltHarbor0x88* p_panel)
 // Stack-slot permutation of mech and font.
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
-void FUN_10006291(CobaltHarbor0x88* p_panel)
+void FUN_10006291(CockpitPanel* p_panel)
 {
 	MechS32 speed;
 	Mech* mech;
@@ -602,7 +602,7 @@ void FUN_10006291(CobaltHarbor0x88* p_panel)
 
 // Labels the MASC panel while MASC is available.
 // FUNCTION: MW2 0x100063cd
-void FUN_100063cd(CobaltHarbor0x88* p_panel)
+void FUN_100063cd(CockpitPanel* p_panel)
 {
 	void* font;
 
@@ -630,7 +630,7 @@ void FUN_100063cd(CobaltHarbor0x88* p_panel)
 // Stack-slot permutation of mech and font.
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
-void FUN_10006484(CobaltHarbor0x88* p_panel)
+void FUN_10006484(CockpitPanel* p_panel)
 {
 	Mech* mech;
 	void* font;
@@ -675,7 +675,7 @@ void FUN_10006484(CobaltHarbor0x88* p_panel)
 
 // Labels the heat rate panel and draws its bar.
 // FUNCTION: MW2 0x100065c3
-void FUN_100065c3(CobaltHarbor0x88* p_panel)
+void FUN_100065c3(CockpitPanel* p_panel)
 {
 	void* font;
 
@@ -703,7 +703,7 @@ void FUN_100065c3(CobaltHarbor0x88* p_panel)
 
 // Labels the jump jet panel of a mech with jump jets and draws the fuel bar.
 // FUNCTION: MW2 0x1000667c
-void FUN_1000667c(CobaltHarbor0x88* p_panel)
+void FUN_1000667c(CockpitPanel* p_panel)
 {
 	void* font;
 

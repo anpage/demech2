@@ -286,16 +286,16 @@ void UpdateShot(MechS32 p_index)
 	}
 
 	if (hitResult && hit) {
-		surface = hit->m_unk0x02;
+		surface = hit->m_kind;
 		g_lastHitShooter = shot->m_shooter;
 		if (surface & 0x100) {
-			victim = hit->m_unk0x14;
+			victim = hit->m_owner;
 			shot->m_impact |= c_impactMech;
 			if (shot->m_type == 7) {
 				shot->m_impact |= 0x1000;
 			}
 
-			bearing = g_players[victim]->m_heading - FUN_100698de(shot->m_velocity[0], shot->m_velocity[2]);
+			bearing = g_players[victim]->m_heading - FixedAtan2(shot->m_velocity[0], shot->m_velocity[2]);
 			bearing %= 0x1680000;
 			if (bearing > 0xb40000) {
 				bearing -= 0x1680000;
@@ -350,13 +350,13 @@ void UpdateShot(MechS32 p_index)
 					shot->m_shooter,
 					g_players[victim]->m_mech,
 					shot->m_damage << 16,
-					hit->m_unk0x16 | damageFlags
+					hit->m_partId | damageFlags
 				);
 			}
 
 			if (victim == g_localPlayerId) {
 				shot->m_impact |= 0x4000;
-				if (hit->m_unk0x16 == 1 || hit->m_unk0x16 == 3 || hit->m_unk0x16 == 2 || hit->m_unk0x16 == 4) {
+				if (hit->m_partId == 1 || hit->m_partId == 3 || hit->m_partId == 2 || hit->m_partId == 4) {
 					shot->m_impact |= 0x2000;
 				}
 
@@ -370,7 +370,7 @@ void UpdateShot(MechS32 p_index)
 			FUN_1006c11c(shot->m_shooter, hit, shot->m_damage, hitX, hitY, hitZ);
 		}
 		else if ((surface & 0xf0) == 0x50) {
-			FUN_10004783(hit->m_unk0x14, shot->m_damage << 16);
+			FUN_10004783(hit->m_owner, shot->m_damage << 16);
 		}
 		else if (surface & 0x400) {
 			shot->m_impact |= c_impactThing;
@@ -403,7 +403,7 @@ void UpdateShot(MechS32 p_index)
 		}
 
 		SetObjPosition(shot->m_object, x, y, z);
-		FUN_10001cf8(shot->m_object);
+		UpdateObj(shot->m_object);
 		shot->m_velocity[0] = velX;
 		shot->m_velocity[1] = velY;
 		shot->m_velocity[2] = velZ;
@@ -412,7 +412,7 @@ void UpdateShot(MechS32 p_index)
 			g_trackedShotView[0] = x;
 			g_trackedShotView[1] = y;
 			g_trackedShotView[2] = z;
-			g_trackedShotView[3] = FUN_100698de(velX, velZ);
+			g_trackedShotView[3] = FixedAtan2(velX, velZ);
 			g_trackedShotView[4] = 0;
 			g_trackedShotView[5] = 0;
 			g_trackedShotView[6] = 1;
@@ -433,9 +433,9 @@ void FUN_1006ad78(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	sideY = 0;
 	sideZ = p_shot->m_velocity[0];
 	NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
-	*p_x += FUN_10019ad0(sideX, FUN_100696c0(p_shot->m_unk0x28)) >> 9;
-	*p_z += FUN_10019ad0(sideZ, FUN_100696c0(p_shot->m_unk0x28)) >> 9;
-	*p_y += FUN_10019ad0(sideZ, FUN_1006973a(p_shot->m_unk0x28)) >> 10;
+	*p_x += FixedMul29(sideX, FixedSin(p_shot->m_unk0x28)) >> 9;
+	*p_z += FixedMul29(sideZ, FixedSin(p_shot->m_unk0x28)) >> 9;
+	*p_y += FixedMul29(sideZ, FixedCos(p_shot->m_unk0x28)) >> 10;
 	p_shot->m_unk0x28 += g_deltaTime * 0x3fa57;
 	p_shot->m_unk0x28 %= 0x1680000;
 }
@@ -508,8 +508,8 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	p_shot->m_steering[0] = dx - vx;
 	p_shot->m_steering[1] = dy - vy;
 	p_shot->m_steering[2] = dz - vz;
-	targetY = FUN_100698de(vx, vz);
-	targetX = -FUN_1006975b(vy << 13);
+	targetY = FixedAtan2(vx, vz);
+	targetX = -FixedAsin(vy << 13);
 	SetObjRotation(p_shot->m_object, targetX, targetY, 0, 0);
 }
 
@@ -773,7 +773,7 @@ void FUN_1006b1fb(
 
 			FUN_10001926(effect->m_object);
 			FUN_1000199a(effect->m_object);
-			FUN_10001cf8(effect->m_object);
+			UpdateObj(effect->m_object);
 			if (effect->m_animation != -1) {
 				FUN_100694df(effect->m_animation, 0);
 				FUN_1006946f(effect->m_animation, 2);
@@ -810,9 +810,9 @@ void FUN_1006b1fb(
 						g_eyepoint->m_unk0x2a = 0x40;
 					}
 
-					g_savedUnk0x100a6d04 = g_unk0x100a6cc8.m_unk0x3c;
+					g_savedUnk0x100a6d04 = g_renderSettings.m_unk0x3c;
 					g_eyepoint->m_unk0x28 = 0;
-					g_unk0x100a6cc8.m_unk0x3c = 0;
+					g_renderSettings.m_unk0x3c = 0;
 				}
 
 				g_effectCameraEffect = slot;
@@ -871,7 +871,7 @@ void UpdateEffects(void)
 				x = effect->m_position[0];
 				y = effect->m_position[1];
 				z = effect->m_position[2];
-				radius = effect->m_object->m_unk0x6c->m_unk0x40;
+				radius = effect->m_object->m_unk0x6c->m_radius;
 				if (g_difficulty->m_splashDamage) {
 					FUN_1006bc13(effect->m_owner, x, y, z, radius, 0x100);
 				}
@@ -901,7 +901,7 @@ void UpdateEffects(void)
 						g_eyepoint->m_unk0x24 = g_savedEyepointZ;
 						g_eyepoint->m_unk0x28 = g_savedEyepoint0x28;
 						g_eyepoint->m_unk0x2a = g_savedEyepoint0x2a;
-						g_unk0x100a6cc8.m_unk0x3c = g_savedUnk0x100a6d04;
+						g_renderSettings.m_unk0x3c = g_savedUnk0x100a6d04;
 						effect->m_hasCamera = 0;
 						g_effectCameraActive = 0;
 						g_effectCameraEffect = -1;
@@ -1052,7 +1052,7 @@ void FUN_1006bf8c(MechU32 p_index)
 	GameThing* thing;
 
 	thing = &g_gameThings[p_index];
-	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_unk0x02 & 0x200) && g_unk0x100a6d34->m_unk0x14 == p_index) {
+	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_kind & 0x200) && g_unk0x100a6d34->m_owner == p_index) {
 		g_unk0x100a6d34 = NULL;
 	}
 
@@ -1110,7 +1110,7 @@ void FUN_1006c11c(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x
 		return;
 	}
 
-	index = p_shape->m_unk0x14;
+	index = p_shape->m_owner;
 	thing = &g_gameThings[index];
 	if (thing->m_unk0x00 & 4) {
 		return;
@@ -1123,7 +1123,7 @@ void FUN_1006c11c(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x
 	thing->m_unk0x08 -= p_damage;
 	if (thing->m_unk0x08 <= 0) {
 		thing->m_unk0x08 = 0;
-		if ((p_shape->m_unk0x02 & 0xf0) == 0xb0) {
+		if ((p_shape->m_kind & 0xf0) == 0xb0) {
 			FUN_1006b152(p_owner, 0xd, p_x, p_y, p_z, p_x, p_y, p_z);
 		}
 		else {
@@ -1163,7 +1163,7 @@ void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 				SetObjPosition(object, p_x, p_y, p_z);
 				FUN_10004218(piece);
 				FUN_10001926(object);
-				FUN_10001cf8(object);
+				UpdateObj(object);
 				shown++;
 			}
 		}
@@ -1203,8 +1203,8 @@ void FUN_1006c362(void)
 		return;
 	}
 
-	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
-		if ((shape->m_unk0x02 & 0xf0) != 0x10) {
+	for (shape = root->m_next; shape; shape = shape->m_next) {
+		if ((shape->m_kind & 0xf0) != 0x10) {
 			continue;
 		}
 
@@ -1252,7 +1252,7 @@ void FUN_1006c4e2(Player* p_player)
 	while (i--) {
 		effect = &g_effects[i];
 		if (effect->m_type == 0x16 && effect->m_object && (shape = effect->m_object->m_unk0x6c)) {
-			g_nukeMaxRadius = shape->m_unk0x40 * 100;
+			g_nukeMaxRadius = shape->m_radius * 100;
 			break;
 		}
 	}

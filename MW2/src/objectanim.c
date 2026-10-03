@@ -1,5 +1,5 @@
-/* Hand-written assembly: FUN_10048c50, FUN_10048d46, FUN_10048ebe and FUN_10048faf are C
-   functions with __asm bodies, and FUN_10049155 has __asm blocks. Their portable C (PORTABLE_C)
+/* Hand-written assembly: GetViewVertex, ClipEdgeToNearPlane, ProjectVertex and GetFaceShade are C
+   functions with __asm bodies, and QueueFace has __asm blocks. Their portable C (PORTABLE_C)
    is tested against the assembly by tests/asmequiv: it replaces each whole function, whose C
    wraps where standard C overflows. */
 #include "objectanim.h"
@@ -17,7 +17,6 @@
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "geocache.h"
-#include "ivorydelta.h"
 #include "object.h"
 #include "path.h"
 #include "players.h"
@@ -25,9 +24,10 @@
 #include "poolsizes.h"
 #include "portable.h"
 #include "projectedvertex.h"
-#include "quartzreel.h"
+#include "queuedpolygon.h"
 #include "ramp.h"
 #include "recordstacks.h"
+#include "reel.h"
 #include "reelevent.h"
 #include "resource.h"
 #include "resourcename.h"
@@ -46,7 +46,7 @@
 
 #pragma warning(disable : 4102) /* labels only __asm blocks jump to */
 
-/* The __asm blocks of FUN_10048c50, FUN_10048ebe, FUN_10048faf and FUN_10049155 jump to C labels,
+/* The __asm blocks of GetViewVertex, ProjectVertex, GetFaceShade and QueueFace jump to C labels,
    which newer compilers reject: their reference build (REFERENCE_ASM) compiles those functions'
    portable C too. */
 #if defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
@@ -56,7 +56,7 @@
 // The state of FUN_1004748c's callback: the faces of a shape cycle through up to sixteen colors.
 // SIZE 0x50
 typedef struct JadeCycle0x50 {
-	Shape** m_shape;      // 0x00 — the star's shape (FUN_1001f873)
+	Shape** m_shape;      // 0x00 — the star's shape (GetStaticShapeSlot)
 	Shape* m_model;       // 0x04
 	MechS32 m_faceCount;  // 0x08 — -1 until counted
 	MechS32 m_colorCount; // 0x0c
@@ -87,27 +87,27 @@ typedef struct JadeOrbit0x1c {
 	MechS32 m_lastClock;   // 0x18
 } JadeOrbit0x1c;
 
-// The state of FUN_10046750's callback: an object moving through an animation (QuartzReel0x14)
+// The state of FUN_10046750's callback: an object moving through an animation (Reel)
 // in step with its player's animation state (m_unk0x80-0x94).
 // SIZE 0x2c
 typedef struct JadeMotion0x2c {
-	QuartzReel0x14* m_reel;    // 0x00
-	QuartzReel0x14* m_initial; // 0x04
-	SceneObject* m_object;     // 0x08
-	Player* m_player;          // 0x0c
-	MechS32 m_rate;            // 0x10 — clock ticks per frame
-	MechS32 m_timer;           // 0x14 — until the next frame
-	MechS32 m_amount;          // 0x18 — left to move in this frame
-	MechS32 m_lastClock;       // 0x1c
-	MechS32 m_enabled;         // 0x20
-	MechS32 m_frame;           // 0x24 — -1 before the first
-	MechU32 m_flags;           // 0x28 — 1: drives the player's animation state
+	Reel* m_reel;          // 0x00
+	Reel* m_initial;       // 0x04
+	SceneObject* m_object; // 0x08
+	Player* m_player;      // 0x0c
+	MechS32 m_rate;        // 0x10 — clock ticks per frame
+	MechS32 m_timer;       // 0x14 — until the next frame
+	MechS32 m_amount;      // 0x18 — left to move in this frame
+	MechS32 m_lastClock;   // 0x1c
+	MechS32 m_enabled;     // 0x20
+	MechS32 m_frame;       // 0x24 — -1 before the first
+	MechU32 m_flags;       // 0x28 — 1: drives the player's animation state
 } JadeMotion0x2c;
 
 // The state of FUN_10047f60's callback: a star's object following a path, eased by the ramps.
 // SIZE 0x88
 typedef struct JadePath0x88 {
-	Shape** m_shape;       // 0x00 — the star's shape (FUN_1001f873)
+	Shape** m_shape;       // 0x00 — the star's shape (GetStaticShapeSlot)
 	SceneObject* m_object; // 0x04
 	Path* m_path;          // 0x08
 	MechS32 m_startClock;  // 0x0c
@@ -159,56 +159,56 @@ MechS32 g_unk0x100a6d70 = 0;
 // GLOBAL: MW2 0x100a6d74
 MechS32 g_unk0x100a6d74 = 0;
 
-// Set to shade from the origin rather than the light (FUN_10048faf).
+// Set to shade from the origin rather than the light (GetFaceShade).
 // GLOBAL: MW2 0x1010b530
-MechS32 g_unk0x1010b530;
+MechS32 g_directionalLight;
 
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
 // GLOBAL: MW2 0x1010b53c
-MechU8 g_unk0x1010b53c;
+MechU8 g_polygonOrCodes;
 
 // GLOBAL: MW2 0x1010b5b8
-MechU8 g_unk0x1010b5b8;
+MechU8 g_polygonAndCodes;
 
 // The projected vertices of the polygon being built, and their count.
 // GLOBAL: MW2 0x1010b550
-ProjectedVertex* g_unk0x1010b550[20];
+ProjectedVertex* g_polygonPoints[20];
 
 // GLOBAL: MW2 0x1010b5b0
-MechS32 g_unk0x1010b5b0;
+MechS32 g_polygonPointCount;
 
-// Where FUN_10049155 copies the next polygon's vertex pointers in the draw buffer.
+// Where QueueFace copies the next polygon's vertex pointers in the draw buffer.
 // GLOBAL: MW2 0x1010b534
-MechU8* g_unk0x1010b534;
+MechU8* g_polygonPointCursor;
 
-// FUN_10049155's counts: faces it took (5bc), faces past the back-face test (538), vertices it
+// QueueFace's counts: faces it took (5bc), faces past the back-face test (538), vertices it
 // projected (5b4) and polygons it queued (5a8).
 
 // GLOBAL: MW2 0x1010b5bc
-MechS32 g_unk0x1010b5bc;
+MechS32 g_facesTried;
 
 // GLOBAL: MW2 0x1010b538
-MechS32 g_unk0x1010b538;
+MechS32 g_facesFrontFacing;
 
 // GLOBAL: MW2 0x1010b5b4
-MechS32 g_unk0x1010b5b4;
+MechS32 g_verticesTransformed;
 
 // GLOBAL: MW2 0x1010b5a8
-MechS32 g_unk0x1010b5a8;
+MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
 Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
 // GLOBAL: MW2 0x101079e0
-QuartzReel0x14* g_unk0x101079e0[0x780];
+Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
 MossLedger0x8 g_unk0x101097e0[60];
 
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
 // "<thing or class id>;<rate>,<flags>,<animation>", made for the player being created
-// (g_unk0x100a8638). Each frame moves or turns the object by the frame's amount, spread over
+// (g_lastPlayer). Each frame moves or turns the object by the frame's amount, spread over
 // the rate; the frame events jump to other frames by the player's animation state (m_unk0x84,
 // the frame it reached, and m_unk0x88, the one it wants).
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
@@ -257,20 +257,20 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		if (!g_unk0x100a8638) {
+		if (!g_lastPlayer) {
 			g_unk0x100a6d64 = 1;
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, motion);
 			return 0;
 		}
 
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		*slot = motion;
 		motion->m_object = NULL;
 		motion->m_reel = NULL;
 		motion->m_enabled = 0;
 		motion->m_rate = 0;
 		motion->m_flags = 0;
-		motion->m_player = g_unk0x100a8638;
+		motion->m_player = g_lastPlayer;
 		token = strchr(p_data, ';');
 		if (token) {
 			*token = '\0';
@@ -293,8 +293,8 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			}
 
 			motion->m_rate = rate;
-			motion->m_reel = g_unk0x101079e0[number];
-			motion->m_initial = g_unk0x101079e0[number];
+			motion->m_reel = g_reels[number];
+			motion->m_initial = g_reels[number];
 			motion->m_frame = -1;
 			motion->m_timer = 0;
 			motion->m_amount = 0;
@@ -307,7 +307,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		id = MapResourceId(id);
 		thing = FindThingIdxById(id);
 		if (thing != -1) {
-			motion->m_object = FUN_1001d980(thing);
+			motion->m_object = GetClassObject(thing);
 		}
 		else {
 			shape = FindClassById(id);
@@ -321,7 +321,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 		break;
 	case 1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		motion = *slot;
 		if (!motion) {
 			return 0;
@@ -396,7 +396,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 					break;
 				}
 
-				FUN_1000184b(motion->m_object, turnX, turnY, turnZ, 0);
+				RotateObj(motion->m_object, turnX, turnY, turnZ, 0);
 			}
 			else {
 				x = y = z = 0;
@@ -412,10 +412,10 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 					break;
 				}
 
-				FUN_10001667(motion->m_object, x, y, z);
+				MoveObj(motion->m_object, x, y, z);
 			}
 
-			FUN_10001cf8(motion->m_object);
+			UpdateObj(motion->m_object);
 			motion->m_amount -= amount;
 			motion->m_timer -= elapsed;
 			if (motion->m_frame == -1) {
@@ -642,7 +642,7 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 			g_unk0x100a6d70 = g_unk0x100a6d6c + 1;
 		}
 
-		result = FUN_100708f4(p_ref);
+		result = LoadReels(p_ref);
 		g_unk0x101097e0[g_unk0x100a6d74].m_base = g_unk0x100a6d70;
 		g_unk0x101097e0[g_unk0x100a6d74].m_id = id;
 		g_unk0x100a6d74++;
@@ -689,7 +689,7 @@ MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		*slot = cycle;
 		cycle->m_colorCount = 0;
 		cycle->m_model = NULL;
@@ -713,14 +713,14 @@ MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		id = MapResourceId(id);
 		star = FindStarIdxById(id);
 		if (star != -1) {
-			cycle->m_shape = FUN_1001f873(star);
+			cycle->m_shape = GetStaticShapeSlot(star);
 		}
 		else {
 			return 0;
 		}
 		break;
 	case 1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		cycle = *slot;
 		if (!cycle) {
 			return 0;
@@ -740,7 +740,7 @@ MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 		offset = p_clock / p_period % cycle->m_colorCount;
 		for (i = 0; i < cycle->m_faceCount; i++) {
-			FUN_1003b696(cycle->m_model, i, cycle->m_colors[(offset + i) % cycle->m_colorCount]);
+			SetFaceColor(cycle->m_model, i, cycle->m_colors[(offset + i) % cycle->m_colorCount]);
 		}
 		break;
 	default:
@@ -777,7 +777,7 @@ MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		*slot = spin;
 		spin->m_rateX = spin->m_rateY = spin->m_rateZ = 0;
 		spin->m_object = NULL;
@@ -801,14 +801,14 @@ MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		id = MapResourceId(id);
 		star = FindStarIdxById(id);
 		if (star != -1) {
-			spin->m_shape = FUN_1001f873(star);
+			spin->m_shape = GetStaticShapeSlot(star);
 		}
 		else {
 			return 0;
 		}
 		break;
 	case 1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		spin = *slot;
 		if (!spin) {
 			return 0;
@@ -827,8 +827,8 @@ MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		dy = FixedMul16(spin->m_rateY, t);
 		dz = FixedMul16(spin->m_rateZ, t);
 		spin->m_lastClock = p_clock;
-		FUN_1000184b(spin->m_object, dx, dy, dz, 0);
-		FUN_10001cf8(spin->m_object);
+		RotateObj(spin->m_object, dx, dy, dz, 0);
+		UpdateObj(spin->m_object);
 		break;
 	default:
 		break;
@@ -866,7 +866,7 @@ MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		*slot = orbit;
 		orbit->m_enabled = 0;
 		orbit->m_object = NULL;
@@ -886,14 +886,14 @@ MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		id = MapResourceId(id);
 		star = FindStarIdxById(id);
 		if (star != -1) {
-			orbit->m_shape = FUN_1001f873(star);
+			orbit->m_shape = GetStaticShapeSlot(star);
 		}
 		else {
 			return 0;
 		}
 		break;
 	case 1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		orbit = *slot;
 		if (!orbit) {
 			return 0;
@@ -907,18 +907,18 @@ MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 
 		orbit->m_object = GetShapeObject(*orbit->m_shape);
-		cosine = FUN_1006973a(orbit->m_angle);
-		sine = FUN_100696c0(orbit->m_angle);
+		cosine = FixedCos(orbit->m_angle);
+		sine = FixedSin(orbit->m_angle);
 		t = FixedDiv16(p_clock - orbit->m_lastClock, 181);
 		orbit->m_lastClock = p_clock;
 		step = FixedMul16(orbit->m_speed, t) >> 16;
 		x = FixedMul16(cosine, step) >> 13;
 		z = FixedMul16(-sine, step) >> 13;
-		FUN_10001667(orbit->m_object, x, 0, z);
-		FUN_10001cf8(orbit->m_object);
+		MoveObj(orbit->m_object, x, 0, z);
+		UpdateObj(orbit->m_object);
 		step = FixedMul16(orbit->m_turnRate, t);
-		FUN_1000184b(orbit->m_object, 0, step, 0, 0);
-		FUN_10001cf8(orbit->m_object);
+		RotateObj(orbit->m_object, 0, step, 0, 0);
+		UpdateObj(orbit->m_object);
 		orbit->m_angle += step;
 		orbit->m_angle %= 0x1680000;
 		break;
@@ -949,7 +949,7 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		*slot = sound;
 		sound->m_slot = -1;
 		sound->m_data = NULL;
@@ -967,14 +967,14 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		id = MapResourceId(id);
 		star = FindStarIdxById(id);
 		if (star != -1) {
-			sound->m_unk0x0c = FUN_1001f873(star);
+			sound->m_unk0x0c = GetStaticShapeSlot(star);
 		}
 		else {
 			return 0;
 		}
 		break;
 	case 1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		sound = *slot;
 		if (!sound) {
 			return 0;
@@ -993,7 +993,7 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		UpdateAmbientSound(sound);
 		break;
 	case 2:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		sound = *slot;
 		if (!sound) {
 			return 1;
@@ -1038,7 +1038,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 	switch (p_event) {
 	case -1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		follower = *slot;
 		if (!follower) {
 			return 0;
@@ -1065,7 +1065,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			id = MapResourceId(id);
 			star = FindStarIdxById(id);
 			if (star != -1) {
-				follower->m_shape = FUN_1001f873(star);
+				follower->m_shape = GetStaticShapeSlot(star);
 			}
 			else {
 				return 0;
@@ -1078,7 +1078,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			return 0;
 		}
 
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		*slot = follower;
 		follower->m_object = NULL;
 		follower->m_path = NULL;
@@ -1133,7 +1133,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			id = MapResourceId(id);
 			star = FindStarIdxById(id);
 			if (star != -1) {
-				follower->m_shape = FUN_1001f873(star);
+				follower->m_shape = GetStaticShapeSlot(star);
 			}
 			else {
 				return 0;
@@ -1142,7 +1142,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 		break;
 	case 1:
-		slot = FUN_1007d51f(FUN_1007d2e0());
+		slot = GetCallbackData(GetCurrentCallback());
 		follower = *slot;
 		if (!follower) {
 			return 0;
@@ -1222,7 +1222,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		);
 		angle = point->m_unk0x10;
 		if (follower->m_rotate) {
-			angle += FUN_100698de(next->m_x - point->m_x, next->m_z - point->m_z);
+			angle += FixedAtan2(next->m_x - point->m_x, next->m_z - point->m_z);
 		}
 
 		delta = angle - follower->m_heading.m_value;
@@ -1238,7 +1238,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		follower->m_heading.m_value = angle - delta;
 		angle = point->m_unk0x0c;
 		if (follower->m_rotate) {
-			angle -= FUN_1006975b((next->m_y - point->m_y) << 13);
+			angle -= FixedAsin((next->m_y - point->m_y) << 13);
 		}
 
 		delta = angle - follower->m_pitch.m_value;
@@ -1271,7 +1271,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			UpdateWrappedRamp(&follower->m_roll),
 			0
 		);
-		FUN_10001cf8(follower->m_object);
+		UpdateObj(follower->m_object);
 		break;
 	default:
 		break;
@@ -1301,17 +1301,17 @@ static MechS32 Sum(MechS32 p_a, MechS32 p_b)
 }
 
 // The view transform's row (p_a, p_b, p_c) times the vertex's offset from the eyepoint
-// (g_unk0x100ea8b8, g_unk0x100ea8b4, g_unk0x100ea8bc), shifted right by 27 and rounded.
+// (g_viewEyeX, g_viewEyeY, g_viewEyeZ), shifted right by 27 and rounded.
 static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, Vertex* p_vertex)
 {
-	MechU64 sum = Product(p_a, Difference(p_vertex->m_unk0x0c, g_unk0x100ea8b8)) +
-				  Product(p_b, Difference(p_vertex->m_unk0x10, g_unk0x100ea8b4)) +
-				  Product(p_c, Difference(p_vertex->m_unk0x14, g_unk0x100ea8bc));
+	MechU64 sum = Product(p_a, Difference(p_vertex->m_worldX, g_viewEyeX)) +
+				  Product(p_b, Difference(p_vertex->m_worldY, g_viewEyeY)) +
+				  Product(p_c, Difference(p_vertex->m_worldZ, g_viewEyeZ));
 
 	return PortableS32(PortableShrdRound(sum, 27));
 }
 
-// The call FUN_10049155 makes through g_unk0x100a6cc8.m_unk0x60, which has no prototype: the hook
+// The call QueueFace makes through g_renderSettings.m_drawFace, which has no prototype: the hook
 // is FUN_10036230 in the 3D view, and the map view's FUN_1003f0e7 takes three of the arguments.
 typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flags, MechS32 p_depth);
 
@@ -1333,15 +1333,15 @@ static MechS32 Interpolate(MechS32 p_from, MechS32 p_to, MechS32 p_toPlane, Mech
 }
 #endif
 
-// Returns the vertex's projected copy (m_unk0x24), transforming it into view space
-// (g_unk0x100ea864's rows, from the eyepoint g_unk0x100ea8b4) the first time. The transform is an
+// Returns the vertex's projected copy (m_projection), transforming it into view space
+// (g_viewProjX0's rows, from the eyepoint g_viewEyeY) the first time. The transform is an
 // __asm block.
 // Stack-slot permutation of the locals the __asm blocks name.
 // FUNCTION: MW2 0x10048c50
-ProjectedVertex* FUN_10048c50(Vertex* p_vertex)
+ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
-	ProjectedVertex* result = p_vertex->m_unk0x24;
+	ProjectedVertex* result = p_vertex->m_projection;
 	MechS32 x;
 	MechS32 y;
 
@@ -1349,15 +1349,15 @@ ProjectedVertex* FUN_10048c50(Vertex* p_vertex)
 		return result;
 	}
 
-	result = FUN_1007d248();
-	x = ViewRow(g_unk0x100ea864, g_unk0x100ea868, g_unk0x100ea86c, p_vertex);
-	y = ViewRow(g_unk0x100ea870, g_unk0x100ea874, g_unk0x100ea878, p_vertex);
-	p_vertex->m_unk0x24 = result;
+	result = AllocProjectedVertex();
+	x = ViewRow(g_viewProjX0, g_viewProjX1, g_viewProjX2, p_vertex);
+	y = ViewRow(g_viewProjY0, g_viewProjY1, g_viewProjY2, p_vertex);
+	p_vertex->m_projection = result;
 	result->m_x = x;
 	result->m_y = y;
-	result->m_z = PortableS32(p_vertex->m_unk0x20);
-	result->m_u = PortableS32(p_vertex->m_unk0x18 << 16);
-	result->m_v = PortableS32(p_vertex->m_unk0x1c << 16);
+	result->m_z = PortableS32(p_vertex->m_depth);
+	result->m_u = PortableS32(p_vertex->m_u << 16);
+	result->m_v = PortableS32(p_vertex->m_v << 16);
 	return result;
 #else
 	MechS32 u;
@@ -1378,33 +1378,33 @@ ProjectedVertex* FUN_10048c50(Vertex* p_vertex)
 	return result;
 
 jmp_10048c72:
-	result = FUN_1007d248();
+	result = AllocProjectedVertex();
 	__asm {
 		mov ebx, p_vertex
 		mov eax, dword ptr [ebx + 0xc]
-		sub eax, dword ptr [g_unk0x100ea8b8]
+		sub eax, dword ptr [g_viewEyeX]
 		mov deltaX, eax
 		mov eax, dword ptr [ebx + 0x10]
-		sub eax, dword ptr [g_unk0x100ea8b4]
+		sub eax, dword ptr [g_viewEyeY]
 		mov deltaY, eax
 		mov eax, dword ptr [ebx + 0x14]
-		sub eax, dword ptr [g_unk0x100ea8bc]
+		sub eax, dword ptr [g_viewEyeZ]
 		mov deltaZ, eax
 		mov eax, dword ptr [ebx + 0x18]
 		mov u, eax
 		mov eax, dword ptr [ebx + 0x1c]
 		mov v, eax
-		mov eax, dword ptr [g_unk0x100ea864]
+		mov eax, dword ptr [g_viewProjX0]
 		mov edx, deltaX
 		imul edx
 		mov esi, eax
 		mov edi, edx
-		mov eax, dword ptr [g_unk0x100ea868]
+		mov eax, dword ptr [g_viewProjX1]
 		mov edx, deltaY
 		imul edx
 		add esi, eax
 		adc edi, edx
-		mov eax, dword ptr [g_unk0x100ea86c]
+		mov eax, dword ptr [g_viewProjX2]
 		mov edx, deltaZ
 		imul edx
 		add esi, eax
@@ -1412,17 +1412,17 @@ jmp_10048c72:
 		shrd esi, edi, 0x1b
 		adc esi, 0
 		mov ecx, esi
-		mov eax, dword ptr [g_unk0x100ea870]
+		mov eax, dword ptr [g_viewProjY0]
 		mov edx, deltaX
 		imul edx
 		mov esi, eax
 		mov edi, edx
-		mov eax, dword ptr [g_unk0x100ea874]
+		mov eax, dword ptr [g_viewProjY1]
 		mov edx, deltaY
 		imul edx
 		add esi, eax
 		adc edi, edx
-		mov eax, dword ptr [g_unk0x100ea878]
+		mov eax, dword ptr [g_viewProjY2]
 		mov edx, deltaZ
 		imul edx
 		add esi, eax
@@ -1450,11 +1450,11 @@ jmp_10048c72:
 }
 
 // Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
-// (g_unk0x100ea820), its position and texture coordinates interpolated. The body is an __asm
+// (g_viewNear), its position and texture coordinates interpolated. The body is an __asm
 // block.
 // Stack-slot permutation of the locals the __asm block names.
 // FUNCTION: MW2 0x10048d46
-ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
+ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 {
 #ifdef PORTABLE_C
 	ProjectedVertex* a;
@@ -1473,17 +1473,17 @@ ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
 	MechS32 toPlane;
 	MechS32 span;
 
-	a = p_a->m_unk0x24;
+	a = p_a->m_projection;
 	if (!a) {
-		a = FUN_10048c50(p_a);
+		a = GetViewVertex(p_a);
 	}
 
-	b = p_b->m_unk0x24;
+	b = p_b->m_projection;
 	if (!b) {
-		b = FUN_10048c50(p_b);
+		b = GetViewVertex(p_b);
 	}
 
-	result = FUN_1007d248();
+	result = AllocProjectedVertex();
 	x0 = a->m_x;
 	y0 = a->m_y;
 	u0 = a->m_u;
@@ -1499,7 +1499,7 @@ ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
 	if (z1 <= z0) {
 		span = Difference(z0, z1);
 		if (span) {
-			toPlane = Difference(g_unk0x100ea820, z1);
+			toPlane = Difference(g_viewNear, z1);
 			x0 = Interpolate(x0, x1, toPlane, span);
 			y0 = Interpolate(y0, y1, toPlane, span);
 			u0 = Interpolate(u0, u1, toPlane, span);
@@ -1509,7 +1509,7 @@ ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
 	else {
 		span = Difference(z1, z0);
 		if (span) {
-			toPlane = Difference(g_unk0x100ea820, z0);
+			toPlane = Difference(g_viewNear, z0);
 			x0 = Interpolate(x1, x0, toPlane, span);
 			y0 = Interpolate(y1, y0, toPlane, span);
 			u0 = Interpolate(u1, u0, toPlane, span);
@@ -1519,7 +1519,7 @@ ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
 
 	result->m_x = x0;
 	result->m_y = y0;
-	result->m_z = g_unk0x100ea820;
+	result->m_z = g_viewNear;
 	result->m_u = u0;
 	result->m_v = v0;
 	return result;
@@ -1546,7 +1546,7 @@ ProjectedVertex* FUN_10048d46(Vertex* p_a, Vertex* p_b)
 		jne jmp_10048d6f
 		mov eax, p_a
 		push eax
-		call FUN_10048c50
+		call GetViewVertex
 		add esp, 4
 		mov a, eax
 jmp_10048d6f:
@@ -1557,11 +1557,11 @@ jmp_10048d6f:
 		jne jmp_10048d8f
 		mov eax, p_b
 		push eax
-		call FUN_10048c50
+		call GetViewVertex
 		add esp, 4
 		mov b, eax
 jmp_10048d8f:
-		call FUN_1007d248
+		call AllocProjectedVertex
 		mov result, eax
 		mov ebx, a
 		mov eax, dword ptr [ebx]
@@ -1590,7 +1590,7 @@ jmp_10048d8f:
 		mov ecx, z0
 		sub ecx, z1
 		je jmp_10048e35
-		mov edi, dword ptr [g_unk0x100ea820]
+		mov edi, dword ptr [g_viewNear]
 		sub edi, z1
 		mov eax, x0
 		sub eax, x1
@@ -1622,7 +1622,7 @@ jmp_10048e3a:
 		mov ecx, z1
 		sub ecx, z0
 		je jmp_10048e8f
-		mov edi, dword ptr [g_unk0x100ea820]
+		mov edi, dword ptr [g_viewNear]
 		sub edi, z0
 		mov eax, x1
 		sub eax, x0
@@ -1654,7 +1654,7 @@ jmp_10048e8f:
 		mov dword ptr [ebx], eax
 		mov eax, y0
 		mov dword ptr [ebx + 4], eax
-		mov eax, dword ptr [g_unk0x100ea820]
+		mov eax, dword ptr [g_viewNear]
 		mov dword ptr [ebx + 8], eax
 		mov eax, u0
 		mov dword ptr [ebx + 0x14], eax
@@ -1666,33 +1666,33 @@ jmp_10048e8f:
 #endif
 }
 
-// Projects a view-space vertex onto the screen once per frame (m_unk0x1d), with its clip
+// Projects a view-space vertex onto the screen once per frame (m_projected), with its clip
 // outcodes (m_unk0x1c: 1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the
 // polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.
 // FUNCTION: MW2 0x10048ebe
-ProjectedVertex* FUN_10048ebe(ProjectedVertex* p_vertex)
+ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
 	MechS32 screen;
 	MechU8 outcode;
 
 	if (!p_vertex->m_projected) {
-		screen = Sum(ProjectAxis(p_vertex->m_x, g_unk0x100ea824, p_vertex->m_z), g_unk0x100ea834);
+		screen = Sum(ProjectAxis(p_vertex->m_x, g_viewShiftX, p_vertex->m_z), g_viewCenterX);
 		p_vertex->m_screenX = screen;
 		outcode = 0;
-		if (screen > g_unk0x100ea84c) {
+		if (screen > g_viewRight) {
 			outcode |= 2;
 		}
-		if (screen < g_unk0x100ea830) {
+		if (screen < g_viewLeft) {
 			outcode |= 1;
 		}
 
-		screen = Difference(g_unk0x100ea858, ProjectAxis(p_vertex->m_y, g_unk0x100ea828, p_vertex->m_z));
+		screen = Difference(g_viewCenterY, ProjectAxis(p_vertex->m_y, g_viewShiftY, p_vertex->m_z));
 		p_vertex->m_screenY = screen;
-		if (screen > g_unk0x100ea840) {
+		if (screen > g_viewBottom) {
 			outcode |= 8;
 		}
-		if (screen < g_unk0x100ea850) {
+		if (screen < g_viewTop) {
 			outcode |= 4;
 		}
 
@@ -1700,13 +1700,13 @@ ProjectedVertex* FUN_10048ebe(ProjectedVertex* p_vertex)
 		p_vertex->m_projected = 1;
 	}
 
-	g_unk0x1010b53c |= p_vertex->m_outcode;
-	g_unk0x1010b5b8 &= p_vertex->m_outcode;
-	if (g_unk0x1010b5b0 >= 20) {
-		g_unk0x1010b5ac = 0;
+	g_polygonOrCodes |= p_vertex->m_outcode;
+	g_polygonAndCodes &= p_vertex->m_outcode;
+	if (g_polygonPointCount >= 20) {
+		g_queueHasRoom = 0;
 	}
 	else {
-		g_unk0x1010b550[g_unk0x1010b5b0++] = p_vertex;
+		g_polygonPoints[g_polygonPointCount++] = p_vertex;
 	}
 
 	return p_vertex;
@@ -1718,7 +1718,7 @@ ProjectedVertex* FUN_10048ebe(ProjectedVertex* p_vertex)
 		jmp jmp_10048f61
 jmp_10048ed6:
 		xor ecx, ecx
-		mov cl, byte ptr [g_unk0x100ea824]
+		mov cl, byte ptr [g_viewShiftX]
 		mov esi, dword ptr [ebx + 8]
 		mov eax, dword ptr [ebx]
 		cdq
@@ -1727,18 +1727,18 @@ jmp_10048ed6:
 		idiv esi
 		add eax, 2
 		sar eax, 2
-		add eax, dword ptr [g_unk0x100ea834]
+		add eax, dword ptr [g_viewCenterX]
 		mov dword ptr [ebx + 0xc], eax
 		xor ch, ch
-		cmp eax, dword ptr [g_unk0x100ea84c]
+		cmp eax, dword ptr [g_viewRight]
 		jle jmp_10048f0b
 		or ch, 2
 jmp_10048f0b:
-		cmp eax, dword ptr [g_unk0x100ea830]
+		cmp eax, dword ptr [g_viewLeft]
 		jge jmp_10048f1a
 		or ch, 1
 jmp_10048f1a:
-		mov cl, byte ptr [g_unk0x100ea828]
+		mov cl, byte ptr [g_viewShiftY]
 		mov eax, dword ptr [ebx + 4]
 		cdq
 		shld edx, eax, cl
@@ -1747,13 +1747,13 @@ jmp_10048f1a:
 		add eax, 2
 		sar eax, 2
 		neg eax
-		add eax, dword ptr [g_unk0x100ea858]
+		add eax, dword ptr [g_viewCenterY]
 		mov dword ptr [ebx + 0x10], eax
-		cmp eax, dword ptr [g_unk0x100ea840]
+		cmp eax, dword ptr [g_viewBottom]
 		jle jmp_10048f4b
 		or ch, 8
 jmp_10048f4b:
-		cmp eax, dword ptr [g_unk0x100ea850]
+		cmp eax, dword ptr [g_viewTop]
 		jge jmp_10048f5a
 		or ch, 4
 jmp_10048f5a:
@@ -1761,17 +1761,17 @@ jmp_10048f5a:
 		mov byte ptr [ebx + 0x1d], 1
 jmp_10048f61:
 		mov al, byte ptr [ebx + 0x1c]
-		or byte ptr [g_unk0x1010b53c], al
-		and byte ptr [g_unk0x1010b5b8], al
-		cmp dword ptr [g_unk0x1010b5b0], 0x14
+		or byte ptr [g_polygonOrCodes], al
+		and byte ptr [g_polygonAndCodes], al
+		cmp dword ptr [g_polygonPointCount], 0x14
 		jl jmp_10048f8c
-		mov dword ptr [g_unk0x1010b5ac], 0
+		mov dword ptr [g_queueHasRoom], 0
 		jmp jmp_10048fa2
 jmp_10048f8c:
 		mov eax, p_vertex
-		mov ecx, dword ptr [g_unk0x1010b5b0]
-		mov dword ptr [g_unk0x1010b550 + ecx*4], eax
-		inc dword ptr [g_unk0x1010b5b0]
+		mov ecx, dword ptr [g_polygonPointCount]
+		mov dword ptr [g_polygonPoints + ecx*4], eax
+		inc dword ptr [g_polygonPointCount]
 	}
 
 	jmp_10048fa2 : return p_vertex;
@@ -1779,17 +1779,17 @@ jmp_10048f8c:
 }
 
 // Returns the shade (0x7f: full) of p_face from the angle between its normal and the direction
-// from its first vertex to the light (g_unk0x100ea8c0, or the origin with g_unk0x1010b530). The
+// from its first vertex to the light (g_viewLightZ, or the origin with g_directionalLight). The
 // shading is an __asm block.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10048faf
-MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices)
+MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 {
 #ifdef PORTABLE_C_LABELS
-	Vertex* vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
-	MechS32 x = vertex->m_unk0x0c;
-	MechS32 y = vertex->m_unk0x10;
-	MechS32 z = vertex->m_unk0x14;
+	Vertex* vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+	MechS32 x = vertex->m_worldX;
+	MechS32 y = vertex->m_worldY;
+	MechS32 z = vertex->m_worldZ;
 	MechU32 magnitudeX;
 	MechU32 magnitudeY;
 	MechU32 magnitudeZ;
@@ -1798,26 +1798,26 @@ MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices)
 	MechU64 dot;
 	MechS32 scale;
 
-	if (g_unk0x1010b530) {
+	if (g_directionalLight) {
 		x = y = z = 0;
 	}
 
 	/* The direction to the light, with each component's magnitude. A component is negated when
 	   the light's coordinate is the smaller one, which leaves a difference that wrapped as it is. */
-	dot = Product(Difference(g_unk0x100ea8c4, x), p_face->m_normal[0]) +
-		  Product(Difference(g_unk0x100ea8c8, y), p_face->m_normal[1]);
-	magnitudeX = (MechU32) Difference(g_unk0x100ea8c4, x);
-	if (g_unk0x100ea8c4 < x) {
+	dot = Product(Difference(g_viewLightX, x), p_face->m_normal[0]) +
+		  Product(Difference(g_viewLightY, y), p_face->m_normal[1]);
+	magnitudeX = (MechU32) Difference(g_viewLightX, x);
+	if (g_viewLightX < x) {
 		magnitudeX = 0 - magnitudeX;
 	}
 
-	magnitudeY = (MechU32) Difference(g_unk0x100ea8c8, y);
-	if (g_unk0x100ea8c8 < y) {
+	magnitudeY = (MechU32) Difference(g_viewLightY, y);
+	if (g_viewLightY < y) {
 		magnitudeY = 0 - magnitudeY;
 	}
 
-	magnitudeZ = (MechU32) Difference(g_unk0x100ea8c0, z);
-	if (g_unk0x100ea8c0 < z) {
+	magnitudeZ = (MechU32) Difference(g_viewLightZ, z);
+	if (g_viewLightZ < z) {
 		magnitudeZ = 0 - magnitudeZ;
 	}
 
@@ -1828,7 +1828,7 @@ MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices)
 
 	/* The dot product in 64 bits, shifted right by 16, and the magnitudes scaled to put the
 	   highest bit of any at bit 7, the dot product with them. */
-	dot += Product(Difference(g_unk0x100ea8c0, z), p_face->m_normal[2]);
+	dot += Product(Difference(g_viewLightZ, z), p_face->m_normal[2]);
 	dot = (MechU64) PortableSar64(PortableS64(dot), 16);
 	scale = PortableBsr(bits) - 7;
 	if (scale > 0) {
@@ -1858,19 +1858,19 @@ MechS32 FUN_10048faf(Face* p_face, Vertex* p_vertices)
 	MechS32 nz;
 	Vertex* vertex;
 
-	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
+	vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
 	nx = p_face->m_normal[0];
 	ny = p_face->m_normal[1];
 	nz = p_face->m_normal[2];
-	x = vertex->m_unk0x0c;
-	y = vertex->m_unk0x10;
-	z = vertex->m_unk0x14;
-	if (g_unk0x1010b530) {
+	x = vertex->m_worldX;
+	y = vertex->m_worldY;
+	z = vertex->m_worldZ;
+	if (g_directionalLight) {
 		x = y = z = 0;
 	}
 
 	__asm {
-		mov eax, dword ptr [g_unk0x100ea8c4]
+		mov eax, dword ptr [g_viewLightX]
 		sub eax, x
 		mov ecx, eax
 		jge jmp_1004903e
@@ -1881,7 +1881,7 @@ jmp_1004903e:
 		imul nx
 		mov edi, edx
 		mov esi, eax
-		mov eax, dword ptr [g_unk0x100ea8c8]
+		mov eax, dword ptr [g_viewLightY]
 		sub eax, y
 		mov ecx, eax
 		jge jmp_1004905c
@@ -1892,7 +1892,7 @@ jmp_1004905c:
 		imul ny
 		add esi, eax
 		adc edi, edx
-		mov eax, dword ptr [g_unk0x100ea8c0]
+		mov eax, dword ptr [g_viewLightZ]
 		sub eax, z
 		mov ecx, eax
 		jge jmp_1004907a
@@ -1970,20 +1970,20 @@ jmp_10049103:
 }
 
 // Queues a face of a model for drawing, unless it faces away: projects the vertices it hasn't
-// yet, clips it to the near plane through the filter hooks (g_unk0x100a6cc8) and adds the
-// polygon to the list being built (g_unk0x1010b5c4) with its depth, by g_unk0x1010b5c8's rule:
+// yet, clips it to the near plane through the filter hooks (g_renderSettings) and adds the
+// polygon to the list being built (g_depthList) with its depth, by g_queuedShapeFlags's rule:
 // the average (2), nearest (4) or farthest of its vertices' depths. The back-face test, the
 // projection, the clipping walk and the depth rules are __asm blocks; the first keeps the normal's
 // z in depth.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049155
-void FUN_10049155(Face* p_face, Vertex* p_vertices)
+void QueueFace(Face* p_face, Vertex* p_vertices)
 {
 #ifdef PORTABLE_C_LABELS
 	Vertex* vertex;
 	Vertex* first;
 	Vertex* previous;
-	IvoryDelta0xc* poly;
+	QueuedPolygon* poly;
 	MechU8* index;
 	MechU16 count;
 	MechU8 andCodes;
@@ -1995,16 +1995,16 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	MechS32 depth;
 	MechS32 i;
 
-	g_unk0x1010b5bc++;
+	g_facesTried++;
 
 	/* Faces of three vertices or more face away when the eyepoint's offset from the first one
 	   has a dot product with the normal that isn't negative. The flags (jl) test the exact sum
 	   of the first two products, which wraps at 64 bits, and the third. */
-	if (p_face->m_unk0x02 >= 3) {
-		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
-		dot = Product(Difference(vertex->m_unk0x0c, g_unk0x100ea8b8), p_face->m_normal[0]) +
-			  Product(Difference(vertex->m_unk0x10, g_unk0x100ea8b4), p_face->m_normal[1]);
-		last = (MechS64) Difference(vertex->m_unk0x14, g_unk0x100ea8bc) * p_face->m_normal[2];
+	if (p_face->m_indexCount >= 3) {
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+		dot = Product(Difference(vertex->m_worldX, g_viewEyeX), p_face->m_normal[0]) +
+			  Product(Difference(vertex->m_worldY, g_viewEyeY), p_face->m_normal[1]);
+		last = (MechS64) Difference(vertex->m_worldZ, g_viewEyeZ) * p_face->m_normal[2];
 		if (PortableS64(dot) >= -last) {
 			return;
 		}
@@ -2012,30 +2012,30 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 
 	/* The depths of the vertices not yet transformed this frame, with their near (1) and far (2)
 	   clip codes. The counts are 16-bit: 0 runs 0x10000 times. */
-	g_unk0x1010b538++;
+	g_facesFrontFacing++;
 	andCodes = 3;
-	count = p_face->m_unk0x02;
-	index = (MechU8*) p_face + p_face->m_unk0x04;
+	count = p_face->m_indexCount;
+	index = (MechU8*) p_face + p_face->m_indexOffset;
 	do {
 		vertex = &p_vertices[*index];
-		if (!(vertex->m_unk0x28 & 4)) {
+		if (!(vertex->m_flags & 4)) {
 			MechU8 codes = 0;
 
-			g_unk0x1010b5b4++;
-			depth = ViewRow(g_unk0x100ea87c, g_unk0x100ea880, g_unk0x100ea884, vertex);
-			vertex->m_unk0x20 = (MechU32) depth;
-			vertex->m_unk0x28 |= 4;
-			if (depth < g_unk0x100ea820) {
+			g_verticesTransformed++;
+			depth = ViewRow(g_viewProjZ0, g_viewProjZ1, g_viewProjZ2, vertex);
+			vertex->m_depth = (MechU32) depth;
+			vertex->m_flags |= 4;
+			if (depth < g_viewNear) {
 				codes |= 1;
 			}
-			if (depth > g_unk0x100ea82c) {
+			if (depth > g_viewFar) {
 				codes |= 2;
 			}
 
-			vertex->m_unk0x28 = (MechU8) ((vertex->m_unk0x28 & 0xfc) | codes);
+			vertex->m_flags = (MechU8) ((vertex->m_flags & 0xfc) | codes);
 		}
 
-		andCodes &= vertex->m_unk0x28;
+		andCodes &= vertex->m_flags;
 		index++;
 	} while (--count);
 
@@ -2044,97 +2044,96 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	}
 
 	/* The clipping walk: each vertex in front of the near plane, and each crossing of it. */
-	g_unk0x1010b53c = 0;
-	g_unk0x1010b5b8 = 0xf;
-	g_unk0x1010b5b0 = 0;
-	index = (MechU8*) p_face + p_face->m_unk0x04;
-	count = p_face->m_unk0x02;
+	g_polygonOrCodes = 0;
+	g_polygonAndCodes = 0xf;
+	g_polygonPointCount = 0;
+	index = (MechU8*) p_face + p_face->m_indexOffset;
+	count = p_face->m_indexCount;
 	first = previous = &p_vertices[*index];
-	firstClipped = previousClipped = first->m_unk0x28 & 1;
+	firstClipped = previousClipped = first->m_flags & 1;
 	if (!firstClipped) {
-		g_unk0x100a6cc8.m_unk0x5c(FUN_10048c50(first));
+		g_renderSettings.m_projectVertex(GetViewVertex(first));
 	}
 
 	while (--count) {
 		index++;
 		vertex = &p_vertices[*index];
-		clipped = vertex->m_unk0x28 & 1;
+		clipped = vertex->m_flags & 1;
 		if (clipped != previousClipped) {
-			g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, vertex));
+			g_renderSettings.m_projectVertex(ClipEdgeToNearPlane(previous, vertex));
 		}
 
 		previous = vertex;
 		previousClipped = clipped;
 		if (!clipped) {
-			g_unk0x100a6cc8.m_unk0x5c(FUN_10048c50(previous));
+			g_renderSettings.m_projectVertex(GetViewVertex(previous));
 		}
 	}
 
 	if (previousClipped != firstClipped) {
-		g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, first));
+		g_renderSettings.m_projectVertex(ClipEdgeToNearPlane(previous, first));
 	}
 
-	if ((g_unk0x1010b5b0 < 3 && p_face->m_unk0x02 > 2) || g_unk0x1010b5b8) {
+	if ((g_polygonPointCount < 3 && p_face->m_indexCount > 2) || g_polygonAndCodes) {
 		return;
 	}
 
-	poly = (IvoryDelta0xc*) FUN_1007d296();
+	poly = (QueuedPolygon*) AllocQueuedPolygon();
 	poly->m_face = p_face;
-	g_unk0x1010b534 = g_unk0x100c2698;
-	poly->m_count = (MechS16) g_unk0x1010b5b0;
+	g_polygonPointCursor = g_drawBufferBottom;
+	poly->m_count = (MechS16) g_polygonPointCount;
 
 	/* The loops run their count (loop) times: the polygon has a point, as the projection hook
-	   has added one whenever it cleared g_unk0x1010b5b8. */
-	PORTABLE_ASSERT(g_unk0x1010b5b0 > 0);
-	if (g_unk0x1010b5c8 & 2) {
+	   has added one whenever it cleared g_polygonAndCodes. */
+	PORTABLE_ASSERT(g_polygonPointCount > 0);
+	if (g_queuedShapeFlags & 2) {
 		MechU32 sum = 0;
 
-		for (i = 0; i < g_unk0x1010b5b0; i++) {
-			sum += (MechU32) g_unk0x1010b550[i]->m_z;
+		for (i = 0; i < g_polygonPointCount; i++) {
+			sum += (MechU32) g_polygonPoints[i]->m_z;
 		}
 
 		/* The sum is unsigned (xor edx, edx), and the count a word. */
-		depth = PortableIdiv(sum, (MechU16) g_unk0x1010b5b0);
+		depth = PortableIdiv(sum, (MechU16) g_polygonPointCount);
 	}
-	else if (g_unk0x1010b5c8 & 4) {
+	else if (g_queuedShapeFlags & 4) {
 		depth = 0x7fffffff;
-		for (i = 0; i < g_unk0x1010b5b0; i++) {
-			if (depth > g_unk0x1010b550[i]->m_z) {
-				depth = g_unk0x1010b550[i]->m_z;
+		for (i = 0; i < g_polygonPointCount; i++) {
+			if (depth > g_polygonPoints[i]->m_z) {
+				depth = g_polygonPoints[i]->m_z;
 			}
 		}
 	}
 	else {
 		depth = -0x7fffffff;
-		for (i = 0; i < g_unk0x1010b5b0; i++) {
-			if (depth < g_unk0x1010b550[i]->m_z) {
-				depth = g_unk0x1010b550[i]->m_z;
+		for (i = 0; i < g_polygonPointCount; i++) {
+			if (depth < g_polygonPoints[i]->m_z) {
+				depth = g_polygonPoints[i]->m_z;
 			}
 		}
 	}
 
-	if (g_unk0x1010b5c8 & 1) {
+	if (g_queuedShapeFlags & 1) {
 		depth |= 0x40000000;
 	}
 
 	poly->m_depth = depth;
-	memcpy(g_unk0x1010b534, g_unk0x1010b550, g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]));
-	g_unk0x1010b534 += g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]);
-	g_unk0x100c2698 = g_unk0x1010b534;
-	poly->m_unk0x02 =
-		(MechU16) ((DrawFaceHook) g_unk0x100a6cc8.m_unk0x60)(p_face, p_vertices, p_face->m_unk0x00, depth);
-	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
-		g_unk0x1010b5a8++;
-		if (g_unk0x1010b5b0 > 1) {
-			g_unk0x100a54b4++;
+	memcpy(g_polygonPointCursor, g_polygonPoints, g_polygonPointCount * sizeof(g_polygonPoints[0]));
+	g_polygonPointCursor += g_polygonPointCount * sizeof(g_polygonPoints[0]);
+	g_drawBufferBottom = g_polygonPointCursor;
+	poly->m_flags = (MechU16) ((DrawFaceHook) g_renderSettings.m_drawFace)(p_face, p_vertices, p_face->m_color, depth);
+	if (g_depthEntryCount < g_depthListCapacity) {
+		g_polygonsQueued++;
+		if (g_polygonPointCount > 1) {
+			g_polygonCount++;
 		}
 
-		g_unk0x1010b5c4[g_unk0x100a54b0].m_poly = poly;
-		g_unk0x1010b5c4[g_unk0x100a54b0].m_depth = depth;
-		g_unk0x100a54b0++;
+		g_depthList[g_depthEntryCount].m_poly = poly;
+		g_depthList[g_depthEntryCount].m_depth = depth;
+		g_depthEntryCount++;
 	}
 	else {
-		g_unk0x1010b5ac = 0;
+		g_queueHasRoom = 0;
 	}
 #else
 	MechS32 stride;
@@ -2145,7 +2144,7 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	MechU16 count;
 	MechS8 orCodes;
 	MechU8* index;
-	IvoryDelta0xc* poly;
+	QueuedPolygon* poly;
 	MechS8 clipped;
 	Vertex* first;
 	Vertex* previous;
@@ -2157,8 +2156,8 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	stride = sizeof(Vertex);
 	orCodes = 0;
 	andCodes = 3;
-	g_unk0x1010b5bc++;
-	if (p_face->m_unk0x02 < 3) {
+	g_facesTried++;
+	if (p_face->m_indexCount < 3) {
 		goto project;
 	}
 
@@ -2178,17 +2177,17 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 		mov ebx, p_vertices
 		add ebx, eax
 		mov eax, dword ptr [ebx + 0xc]
-		sub eax, dword ptr [g_unk0x100ea8b8]
+		sub eax, dword ptr [g_viewEyeX]
 		imul edx
 		mov esi, eax
 		mov edi, edx
 		mov eax, dword ptr [ebx + 0x10]
-		sub eax, dword ptr [g_unk0x100ea8b4]
+		sub eax, dword ptr [g_viewEyeY]
 		imul normalY
 		add esi, eax
 		adc edi, edx
 		mov eax, dword ptr [ebx + 0x14]
-		sub eax, dword ptr [g_unk0x100ea8bc]
+		sub eax, dword ptr [g_viewEyeZ]
 		imul depth
 		add esi, eax
 		adc edi, edx
@@ -2198,7 +2197,7 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 
 project:
 	__asm {
-		inc dword ptr [g_unk0x1010b538]
+		inc dword ptr [g_facesFrontFacing]
 		mov ebx, p_face
 		mov ax, word ptr [ebx + 2]
 		mov count, ax
@@ -2214,22 +2213,22 @@ jmp_100491fe:
 		add esi, eax
 		test byte ptr [esi + 0x28], 4
 		jne jmp_1004928f
-		inc dword ptr [g_unk0x1010b5b4]
-		mov eax, dword ptr [g_unk0x100ea87c]
+		inc dword ptr [g_verticesTransformed]
+		mov eax, dword ptr [g_viewProjZ0]
 		mov edx, dword ptr [esi + 0xc]
-		sub edx, dword ptr [g_unk0x100ea8b8]
+		sub edx, dword ptr [g_viewEyeX]
 		imul edx
 		mov ecx, eax
 		mov edi, edx
-		mov eax, dword ptr [g_unk0x100ea880]
+		mov eax, dword ptr [g_viewProjZ1]
 		mov edx, dword ptr [esi + 0x10]
-		sub edx, dword ptr [g_unk0x100ea8b4]
+		sub edx, dword ptr [g_viewEyeY]
 		imul edx
 		add ecx, eax
 		adc edi, edx
-		mov eax, dword ptr [g_unk0x100ea884]
+		mov eax, dword ptr [g_viewProjZ2]
 		mov edx, dword ptr [esi + 0x14]
-		sub edx, dword ptr [g_unk0x100ea8bc]
+		sub edx, dword ptr [g_viewEyeZ]
 		imul edx
 		add ecx, eax
 		adc edi, edx
@@ -2238,11 +2237,11 @@ jmp_100491fe:
 		mov dword ptr [esi + 0x20], ecx
 		or byte ptr [esi + 0x28], 4
 		xor ax, ax
-		cmp ecx, dword ptr [g_unk0x100ea820]
+		cmp ecx, dword ptr [g_viewNear]
 		jge jmp_1004927a
 		or al, 1
 jmp_1004927a:
-		cmp ecx, dword ptr [g_unk0x100ea82c]
+		cmp ecx, dword ptr [g_viewFar]
 		jle jmp_10049288
 		or al, 2
 jmp_10049288:
@@ -2267,9 +2266,9 @@ projected:
 		return;
 	}
 
-	g_unk0x1010b53c = 0;
-	g_unk0x1010b5b8 = 0xf;
-	g_unk0x1010b5b0 = 0;
+	g_polygonOrCodes = 0;
+	g_polygonAndCodes = 0xf;
+	g_polygonPointCount = 0;
 	__asm {
 		mov ebx, p_face
 		mov eax, ebx
@@ -2294,10 +2293,10 @@ projected:
 		jne jmp_10049334
 		mov eax, first
 		push eax
-		call FUN_10048c50
+		call GetViewVertex
 		add esp, 4
 		push eax
-		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		call dword ptr [g_renderSettings + 0x5c]
 		add esp, 4
 jmp_10049334:
 		dec count
@@ -2320,10 +2319,10 @@ jmp_10049334:
 		push eax
 		mov eax, previous
 		push eax
-		call FUN_10048d46
+		call ClipEdgeToNearPlane
 		add esp, 8
 		push eax
-		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		call dword ptr [g_renderSettings + 0x5c]
 		add esp, 4
 jmp_10049380:
 		mov ebx, cursor
@@ -2340,10 +2339,10 @@ jmp_10049380:
 		jne jmp_100493b8
 		mov eax, previous
 		push eax
-		call FUN_10048c50
+		call GetViewVertex
 		add esp, 4
 		push eax
-		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		call dword ptr [g_renderSettings + 0x5c]
 		add esp, 4
 jmp_100493b8:
 		_emit 0xe9 /* jmp jmp_10049334 */
@@ -2357,22 +2356,22 @@ closed:
 		// clang-format on
 		if (previousClipped != firstClipped)
 	{
-		g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, first));
+		g_renderSettings.m_projectVertex(ClipEdgeToNearPlane(previous, first));
 	}
 
-	if ((g_unk0x1010b5b0 < 3 && p_face->m_unk0x02 > 2) || g_unk0x1010b5b8) {
+	if ((g_polygonPointCount < 3 && p_face->m_indexCount > 2) || g_polygonAndCodes) {
 		return;
 	}
 
-	points = g_unk0x1010b550;
-	poly = (IvoryDelta0xc*) FUN_1007d296();
+	points = g_polygonPoints;
+	poly = (QueuedPolygon*) AllocQueuedPolygon();
 	poly->m_face = p_face;
-	g_unk0x1010b534 = g_unk0x100c2698;
-	poly->m_count = g_unk0x1010b5b0;
-	if (g_unk0x1010b5c8 & 2) {
+	g_polygonPointCursor = g_drawBufferBottom;
+	poly->m_count = g_polygonPointCount;
+	if (g_queuedShapeFlags & 2) {
 		__asm {
 			mov ebx, poly
-			mov ecx, dword ptr [g_unk0x1010b5b0]
+			mov ecx, dword ptr [g_polygonPointCount]
 			mov esi, points
 			xor eax, eax
 jmp_10049462:
@@ -2382,14 +2381,14 @@ jmp_10049462:
 			loop jmp_10049462
 			xor edx, edx
 			xor esi, esi
-			mov si, word ptr [g_unk0x1010b5b0]
+			mov si, word ptr [g_polygonPointCount]
 			idiv esi
 			mov depth, eax
 		}
 	}
-	else if (g_unk0x1010b5c8 & 4) {
+	else if (g_queuedShapeFlags & 4) {
 		__asm {
-			mov ecx, dword ptr [g_unk0x1010b5b0]
+			mov ecx, dword ptr [g_polygonPointCount]
 			mov esi, points
 			mov eax, 0x7fffffff
 jmp_1004949c:
@@ -2405,7 +2404,7 @@ jmp_100494aa:
 	}
 	else {
 		__asm {
-			mov ecx, dword ptr [g_unk0x1010b5b0]
+			mov ecx, dword ptr [g_polygonPointCount]
 			mov esi, points
 			mov eax, 0x80000001
 jmp_100494c5:
@@ -2420,34 +2419,34 @@ jmp_100494d3:
 		}
 	}
 
-	if (g_unk0x1010b5c8 & 1) {
+	if (g_queuedShapeFlags & 1) {
 		depth |= 0x40000000;
 	}
 
 	poly->m_depth = depth;
 	__asm {
-		mov edi, dword ptr [g_unk0x1010b534]
-		mov ecx, dword ptr [g_unk0x1010b5b0]
+		mov edi, dword ptr [g_polygonPointCursor]
+		mov ecx, dword ptr [g_polygonPointCount]
 		mov esi, points
 		rep movsd
-		mov dword ptr [g_unk0x1010b534], edi
+		mov dword ptr [g_polygonPointCursor], edi
 		mov points, esi
 	}
 
-	g_unk0x100c2698 = g_unk0x1010b534;
-	poly->m_unk0x02 = g_unk0x100a6cc8.m_unk0x60(p_face, p_vertices, p_face->m_unk0x00, depth);
-	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
-		g_unk0x1010b5a8++;
-		if (g_unk0x1010b5b0 > 1) {
-			g_unk0x100a54b4++;
+	g_drawBufferBottom = g_polygonPointCursor;
+	poly->m_flags = g_renderSettings.m_drawFace(p_face, p_vertices, p_face->m_color, depth);
+	if (g_depthEntryCount < g_depthListCapacity) {
+		g_polygonsQueued++;
+		if (g_polygonPointCount > 1) {
+			g_polygonCount++;
 		}
 
-		g_unk0x1010b5c4[g_unk0x100a54b0].m_poly = poly;
-		g_unk0x1010b5c4[g_unk0x100a54b0].m_depth = depth;
-		g_unk0x100a54b0++;
+		g_depthList[g_depthEntryCount].m_poly = poly;
+		g_depthList[g_depthEntryCount].m_depth = depth;
+		g_depthEntryCount++;
 	}
 	else {
-		g_unk0x1010b5ac = 0;
+		g_queueHasRoom = 0;
 	}
 
 done:;

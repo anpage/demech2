@@ -63,10 +63,10 @@ void FUN_10069a4b(
 	MechS32* p_top
 )
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	FUN_1006e9e6(p_shape);
-	box = p_shape->m_unk0x44;
+	box = p_shape->m_collisionData;
 	if (!box) {
 		*p_inColumn = 0;
 		*p_inside = 0;
@@ -97,12 +97,12 @@ MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 	MechS32 tNear;
 	MechS32 axis;
 	MechS32 tEnter;
-	CinderBox0x18* box;
+	BoundBox* box;
 	MechS32 tFar;
 	MechS32 tExit;
 
 	FUN_1006e9e6(p_shape);
-	box = p_shape->m_unk0x44;
+	box = p_shape->m_collisionData;
 	if (!box) {
 		return 0;
 	}
@@ -192,10 +192,10 @@ MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2 0x10069dd4
 MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	FUN_1006e9e6(p_shape);
-	box = p_shape->m_unk0x44;
+	box = p_shape->m_collisionData;
 	if (!box) {
 		return 0;
 	}
@@ -255,8 +255,8 @@ MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	Model* model;
 
 	model = p_shape->m_models;
-	if (p_shape->m_unk0x44) {
-		return FUN_1001e6dc(p_shape->m_unk0x44, model, p_x, p_y, p_z) & 1;
+	if (p_shape->m_collisionData) {
+		return FUN_1001e6dc(p_shape->m_collisionData, model, p_x, p_y, p_z) & 1;
 	}
 	else {
 		return FUN_10069e78(p_shape, p_x, p_y, p_z);
@@ -266,13 +266,13 @@ MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // FUNCTION: MW2 0x10069fd4
 MechS32 FUN_10069fd4(Shape* p_shape, Ray* p_ray)
 {
-	return FUN_1001e90f(p_shape->m_unk0x44, p_shape->m_models, p_ray) & 1;
+	return FUN_1001e90f(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
 }
 
 // FUNCTION: MW2 0x1006a001
 MechS32 FUN_1006a001(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
-	return FUN_1001ebfa(p_shape->m_unk0x44, p_shape->m_models, p_x, p_y, p_z, p_top);
+	return FUN_1001ebfa(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
 }
 
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.
@@ -295,15 +295,15 @@ MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
 		if (face->m_normal[1] < 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
 			done = TRUE;
-			vertex = &vertices[*((MechU8*) face + face->m_unk0x04)];
-			height = vertex->m_unk0x10 - FUN_10039c96(
-											 face->m_normal[0],
-											 face->m_normal[1],
-											 face->m_normal[2],
-											 0,
-											 p_x - vertex->m_unk0x0c,
-											 p_z - vertex->m_unk0x14
-										 );
+			vertex = &vertices[*((MechU8*) face + face->m_indexOffset)];
+			height = vertex->m_worldY - SolvePlaneY(
+											face->m_normal[0],
+											face->m_normal[1],
+											face->m_normal[2],
+											0,
+											p_x - vertex->m_worldX,
+											p_z - vertex->m_worldZ
+										);
 			g_hitNormalX = face->m_normal[0] >> 13;
 			g_hitNormalY = face->m_normal[1] >> 13;
 			g_hitNormalZ = face->m_normal[2] >> 13;

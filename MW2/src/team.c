@@ -173,7 +173,7 @@ MechS32 PlaceTeam(MechS32 p_team, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32
 				GetTeamSlotPosition(i, &x, &z, &heading);
 				SetObjPosition(player->m_obj, x, p_y, z);
 				SetObjRotation(player->m_obj, 0, heading, 0, 0);
-				FUN_10001cf8(player->m_obj);
+				UpdateObj(player->m_obj);
 				player->m_position.m_x = x;
 				player->m_position.m_y = p_y;
 				player->m_position.m_z = z;
@@ -215,7 +215,7 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechS32* p_x, MechS32* p_z, MechS3
 		*p_heading = g_teamFormations[team].m_heading[slot];
 		obj = g_players[leader]->m_obj;
 		matrix = FUN_10001e01(obj);
-		FUN_1000d650(matrix, p_x, &y, p_z);
+		TransformPoint(matrix, p_x, &y, p_z);
 	}
 	else {
 		*p_x = g_players[leader]->m_position.m_x;

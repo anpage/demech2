@@ -519,21 +519,21 @@ static MechS32 RunCase(
 // the MASM objects' (their builds have no MASM: ticks.asm, sndunpack.asm, VFX3D.ASM, VFXA.ASM,
 // VFXREND.ASM),
 // nor those whose __asm
-// blocks jump to C labels (FUN_10071930, and four each in shapegeom.c and objectanim.c): they
+// blocks jump to C labels (IsAboveHorizon, and four each in shapegeom.c and objectanim.c): they
 // compile the portable C instead. The VC++ 4.1 reference has every routine's.
 static MechS32 HasReference(const AsmRoutine* p_routine)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1100
 	static const char* const c_portableOnly[] = {
-		"FUN_10071930",
-		"FUN_10039a30",
-		"FUN_10039ccc",
-		"FUN_10039dda",
-		"FUN_1003a096",
-		"FUN_10048c50",
-		"FUN_10048ebe",
-		"FUN_10048faf",
-		"FUN_10049155",
+		"IsAboveHorizon",
+		"TransformModel",
+		"ApproximateShapeDistance",
+		"ComputeTriangleNormal",
+		"RayShapeDistance",
+		"GetViewVertex",
+		"ProjectVertex",
+		"GetFaceShade",
+		"QueueFace",
 		"GameTickTimerCallback",
 		"AllocTicks",
 		"GetTicks",
@@ -541,7 +541,7 @@ static MechS32 HasReference(const AsmRoutine* p_routine)
 		"SetTicks",
 		"FreeTicks",
 		"PauseTimer",
-		"FUN_1001a63c",
+		"DecodeSoundFrames",
 		"VFX_flat_polygon",
 		"VFX_Gouraud_polygon",
 		"VFX_dithered_Gouraud_polygon",

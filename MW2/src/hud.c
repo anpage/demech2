@@ -1,7 +1,7 @@
 #include "hud.h"
 
 #include "bargauges.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
@@ -174,7 +174,7 @@ void FUN_10040bfd(
 // FUNCTION: MW2 0x10040cbc
 void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 {
-	CobaltHarbor0x88* gauge;
+	CockpitPanel* gauge;
 	MechS32 height;
 	Mech* mech;
 	MechS32 x;
@@ -463,7 +463,7 @@ void FUN_100414ab(Mech* p_mech)
 // FUNCTION: MW2 0x1004161f
 void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, MechS32 p_unk0x10, MechS32 p_unk0x14)
 {
-	CobaltHarbor0x88* gauge;
+	CockpitPanel* gauge;
 	PANE* target;
 	MechS32 x;
 	MechS32 y;
@@ -526,7 +526,7 @@ void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, Mec
 // FUNCTION: MW2 0x1004183a
 void FUN_1004183a(MechS32 p_x, MechS32 p_y, MechS32 p_unk0x08, MechS32 p_unk0x0c)
 {
-	CobaltHarbor0x88* gauge;
+	CockpitPanel* gauge;
 	MechS32 x2;
 	MechS32 x;
 	MechS32 heading;
@@ -637,7 +637,7 @@ void FUN_10041a14(Player* p_player, MechS32 p_side)
 	}
 	else {
 		size = p_player->m_mech->m_radius;
-		size = FUN_10013340(g_eyepoint->m_unk0x94, size, z);
+		size = ProjectRadius(g_eyepoint->m_projectScaleX, size, z);
 		switch (p_side) {
 		case 0:
 			topLeft = 0xb8;
@@ -717,7 +717,7 @@ void FUN_10041c3c(struct SceneObject* p_object, MechS32 p_side)
 		FUN_10041e98(point.m_x, point.m_y, topLeft);
 	}
 	else {
-		size = FUN_10013340(g_eyepoint->m_unk0x94, size >> 1, z);
+		size = ProjectRadius(g_eyepoint->m_projectScaleX, size >> 1, z);
 		maxSize = g_eyepoint->m_halfWidth >> 1;
 		if (size > maxSize) {
 			size = maxSize;

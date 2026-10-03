@@ -101,7 +101,7 @@ Model* AddModel(
 	model->m_key = p_key;
 	model->m_vertexCount = 0;
 	model->m_faceCount = 0;
-	model->m_unk0x10 = 0;
+	model->m_transformCount = 0;
 	model->m_unk0x14 = 0;
 	model->m_faceOffset = (MechU16) (vertexBytes + sizeof(Model));
 	*p_extraData = (Face*) ((MechU8*) model + model->m_faceOffset) + p_faceCount;
@@ -210,7 +210,7 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 		return NULL;
 	}
 
-	shape->m_unk0x00 = g_unk0x100a5898 | 0x8000;
+	shape->m_flags = g_unk0x100a5898 | 0x8000;
 	shape->m_object = NULL;
 	shape->m_model = shape->m_models = NULL;
 	if (!AddModel(shape, 0, p_vertexCount, p_faceCount, p_extra, p_extraData)) {
@@ -218,17 +218,17 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 		return NULL;
 	}
 
-	shape->m_unk0x02 = 0;
-	shape->m_unk0x16 = 0;
-	shape->m_unk0x14 = 0;
-	shape->m_unk0x34 = shape->m_unk0x38 = shape->m_unk0x3c = 0;
-	shape->m_unk0x28 = shape->m_unk0x2c = shape->m_unk0x30 = 0;
-	shape->m_unk0x40 = 0;
-	shape->m_unk0x44 = NULL;
-	shape->m_unk0x04 = shape->m_unk0x08 = NULL;
-	shape->m_unk0x0c = shape->m_unk0x10 = NULL;
-	shape->m_unk0x24 = 4;
-	shape->m_unk0x48 = 0;
+	shape->m_kind = 0;
+	shape->m_partId = 0;
+	shape->m_owner = 0;
+	shape->m_centerX = shape->m_centerY = shape->m_centerZ = 0;
+	shape->m_modelCenterX = shape->m_modelCenterY = shape->m_modelCenterZ = 0;
+	shape->m_radius = 0;
+	shape->m_collisionData = NULL;
+	shape->m_prev = shape->m_next = NULL;
+	shape->m_prevCollider = shape->m_nextCollider = NULL;
+	shape->m_collisionType = 4;
+	shape->m_transformCount = 0;
 	return shape;
 }
 
@@ -245,11 +245,11 @@ void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undef
 	}
 
 	vertex = (Vertex*) (model + 1) + model->m_vertexCount;
-	vertex->m_unk0x0c = vertex->m_unk0x00 = p_x;
-	vertex->m_unk0x10 = vertex->m_unk0x04 = p_y;
-	vertex->m_unk0x14 = vertex->m_unk0x08 = p_z;
-	vertex->m_unk0x18 = p_unk0x18;
-	vertex->m_unk0x1c = p_unk0x1c;
+	vertex->m_worldX = vertex->m_modelX = p_x;
+	vertex->m_worldY = vertex->m_modelY = p_y;
+	vertex->m_worldZ = vertex->m_modelZ = p_z;
+	vertex->m_u = p_unk0x18;
+	vertex->m_v = p_unk0x1c;
 	model->m_vertexCount++;
 }
 
@@ -267,10 +267,10 @@ Face* AddShapeFace(Shape* p_shape, MechU16 p_unk0x00, MechU8* p_indices)
 	}
 
 	face = (Face*) ((MechU8*) model + model->m_faceOffset) + model->m_faceCount;
-	face->m_unk0x04 = (MechU16) (p_indices - (MechU8*) face);
-	face->m_unk0x20 = p_shape;
-	face->m_unk0x00 = p_unk0x00;
-	face->m_unk0x02 = 0;
+	face->m_indexOffset = (MechU16) (p_indices - (MechU8*) face);
+	face->m_shape = p_shape;
+	face->m_color = p_unk0x00;
+	face->m_indexCount = 0;
 	model->m_faceCount++;
 	return face;
 }
@@ -286,8 +286,8 @@ void AddShapeFaceIndex(Shape* p_shape, Face* p_face, MechU32 p_index)
 		return;
 	}
 
-	((MechU8*) p_face)[p_face->m_unk0x04 + p_face->m_unk0x02] = (MechU8) p_index;
-	p_face->m_unk0x02++;
+	((MechU8*) p_face)[p_face->m_indexOffset + p_face->m_indexCount] = (MechU8) p_index;
+	p_face->m_indexCount++;
 }
 
 // FUNCTION: MW2 0x1003ab79
@@ -355,7 +355,7 @@ void FreeShape(Shape* p_shape)
 void FUN_1003acbe(Shape* p_shape, MechS32 p_unk0x04)
 {
 	if (p_shape) {
-		p_shape->m_unk0x00 = (p_shape->m_unk0x00 & ~0x7ef0) | (p_unk0x04 & 0x7ef0) | 0x8000;
+		p_shape->m_flags = (p_shape->m_flags & ~0x7ef0) | (p_unk0x04 & 0x7ef0) | 0x8000;
 	}
 }
 
@@ -363,7 +363,7 @@ void FUN_1003acbe(Shape* p_shape, MechS32 p_unk0x04)
 MechU32 FUN_1003acf7(Shape* p_shape)
 {
 	if (p_shape) {
-		return p_shape->m_unk0x00 & 0x7ef0;
+		return p_shape->m_flags & 0x7ef0;
 	}
 	else {
 		return 0;
@@ -374,56 +374,56 @@ MechU32 FUN_1003acf7(Shape* p_shape)
 void FUN_1003ad2d(Shape* p_shape, MechS32 p_unk0x02)
 {
 	if (p_shape) {
-		p_shape->m_unk0x02 = p_unk0x02;
+		p_shape->m_kind = p_unk0x02;
 	}
 }
 
 // FUNCTION: MW2 0x1003ad4c
 void FUN_1003ad4c(Shape* p_shape, MechU16 p_unk0x16)
 {
-	p_shape->m_unk0x16 = p_unk0x16;
+	p_shape->m_partId = p_unk0x16;
 }
 
 // FUNCTION: MW2 0x1003ad62
 void FUN_1003ad62(Shape* p_shape, MechU16 p_unk0x14)
 {
-	p_shape->m_unk0x14 = p_unk0x14;
+	p_shape->m_owner = p_unk0x14;
 }
 
 // FUNCTION: MW2 0x1003ad78
 MechU32 FUN_1003ad78(Shape* p_shape)
 {
-	return p_shape->m_unk0x02;
+	return p_shape->m_kind;
 }
 
 // FUNCTION: MW2 0x1003ad93
 MechU32 FUN_1003ad93(Shape* p_shape)
 {
-	return p_shape->m_unk0x16;
+	return p_shape->m_partId;
 }
 
 // FUNCTION: MW2 0x1003adae
 MechU32 FUN_1003adae(Shape* p_shape)
 {
-	return p_shape->m_unk0x14;
+	return p_shape->m_owner;
 }
 
 // FUNCTION: MW2 0x1003adc9
 MechS32 FUN_1003adc9(Shape* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c)
 {
 	if (p_unk0x34) {
-		*p_unk0x34 = p_shape->m_unk0x34;
+		*p_unk0x34 = p_shape->m_centerX;
 	}
 
 	if (p_unk0x38) {
-		*p_unk0x38 = p_shape->m_unk0x38;
+		*p_unk0x38 = p_shape->m_centerY;
 	}
 
 	if (p_unk0x3c) {
-		*p_unk0x3c = p_shape->m_unk0x3c;
+		*p_unk0x3c = p_shape->m_centerZ;
 	}
 
-	return p_shape->m_unk0x40;
+	return p_shape->m_radius;
 }
 
 // Computes the selected model's face normals, then the shape's center and radius (a shape
@@ -477,49 +477,49 @@ void ComputeShapeBounds(Shape* p_shape)
 
 	i = model->m_vertexCount - 1;
 	v = (Vertex*) (model + 1) + i;
-	minX = maxX = v->m_unk0x0c;
-	minY = maxY = v->m_unk0x10;
-	minZ = maxZ = v->m_unk0x14;
+	minX = maxX = v->m_worldX;
+	minY = maxY = v->m_worldY;
+	minZ = maxZ = v->m_worldZ;
 	while (i--) {
 		v = (Vertex*) (model + 1) + i;
-		if (v->m_unk0x0c < minX) {
-			minX = v->m_unk0x0c;
+		if (v->m_worldX < minX) {
+			minX = v->m_worldX;
 		}
-		if (v->m_unk0x10 < minY) {
-			minY = v->m_unk0x10;
+		if (v->m_worldY < minY) {
+			minY = v->m_worldY;
 		}
-		if (v->m_unk0x14 < minZ) {
-			minZ = v->m_unk0x14;
+		if (v->m_worldZ < minZ) {
+			minZ = v->m_worldZ;
 		}
-		if (v->m_unk0x0c > maxX) {
-			maxX = v->m_unk0x0c;
+		if (v->m_worldX > maxX) {
+			maxX = v->m_worldX;
 		}
-		if (v->m_unk0x10 > maxY) {
-			maxY = v->m_unk0x10;
+		if (v->m_worldY > maxY) {
+			maxY = v->m_worldY;
 		}
-		if (v->m_unk0x14 > maxZ) {
-			maxZ = v->m_unk0x14;
+		if (v->m_worldZ > maxZ) {
+			maxZ = v->m_worldZ;
 		}
 	}
 
-	p_shape->m_unk0x28 = p_shape->m_unk0x34 = (maxX + minX) >> 1;
-	p_shape->m_unk0x2c = p_shape->m_unk0x38 = (maxY + minY) >> 1;
-	p_shape->m_unk0x30 = p_shape->m_unk0x3c = (maxZ + minZ) >> 1;
+	p_shape->m_modelCenterX = p_shape->m_centerX = (maxX + minX) >> 1;
+	p_shape->m_modelCenterY = p_shape->m_centerY = (maxY + minY) >> 1;
+	p_shape->m_modelCenterZ = p_shape->m_centerZ = (maxZ + minZ) >> 1;
 
 	max = 0.0;
 	i = model->m_vertexCount;
 	while (i--) {
 		v = (Vertex*) (model + 1) + i;
-		dx = v->m_unk0x0c - p_shape->m_unk0x34;
-		dy = v->m_unk0x10 - p_shape->m_unk0x38;
-		dz = v->m_unk0x14 - p_shape->m_unk0x3c;
+		dx = v->m_worldX - p_shape->m_centerX;
+		dy = v->m_worldY - p_shape->m_centerY;
+		dz = v->m_worldZ - p_shape->m_centerZ;
 		d = dx * dx + dy * dy + dz * dz;
 		if (d > max) {
 			max = d;
 		}
 	}
 
-	p_shape->m_unk0x40 = (MechS32) sqrt(max);
+	p_shape->m_radius = (MechS32) sqrt(max);
 }
 
 // Sets the face's normal (both copies) from its vertices: a triangle's directly, otherwise from
@@ -546,44 +546,44 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 
 	i = 0;
 	best = 0;
-	p_face->m_unk0x08 = p_face->m_normal[0] = 0x20000000;
-	p_face->m_unk0x0c = p_face->m_normal[1] = 0;
-	p_face->m_unk0x10 = p_face->m_normal[2] = 0;
-	if (p_face->m_unk0x02 < 3) {
+	p_face->m_modelNormalX = p_face->m_normal[0] = 0x20000000;
+	p_face->m_modelNormalY = p_face->m_normal[1] = 0;
+	p_face->m_modelNormalZ = p_face->m_normal[2] = 0;
+	if (p_face->m_indexCount < 3) {
 		return;
 	}
 
-	if (p_face->m_unk0x02 == 3) {
-		v0 = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
-		v1 = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + 1]];
-		v2 = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + 2]];
-		FUN_10039dda(
-			v0->m_unk0x00,
-			v0->m_unk0x04,
-			v0->m_unk0x08,
-			v1->m_unk0x00,
-			v1->m_unk0x04,
-			v1->m_unk0x08,
-			v2->m_unk0x00,
-			v2->m_unk0x04,
-			v2->m_unk0x08,
+	if (p_face->m_indexCount == 3) {
+		v0 = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+		v1 = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset + 1]];
+		v2 = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset + 2]];
+		ComputeTriangleNormal(
+			v0->m_modelX,
+			v0->m_modelY,
+			v0->m_modelZ,
+			v1->m_modelX,
+			v1->m_modelY,
+			v1->m_modelZ,
+			v2->m_modelX,
+			v2->m_modelY,
+			v2->m_modelZ,
 			&nx,
 			&ny,
 			&nz
 		);
-		p_face->m_unk0x08 = p_face->m_normal[0] = nx;
-		p_face->m_unk0x0c = p_face->m_normal[1] = ny;
-		p_face->m_unk0x10 = p_face->m_normal[2] = nz;
+		p_face->m_modelNormalX = p_face->m_normal[0] = nx;
+		p_face->m_modelNormalY = p_face->m_normal[1] = ny;
+		p_face->m_modelNormalZ = p_face->m_normal[2] = nz;
 		return;
 	}
 
-	prev = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04]];
-	for (i = p_face->m_unk0x02; i--; prev = vertex) {
-		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + i]];
+	prev = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
+	for (i = p_face->m_indexCount; i--; prev = vertex) {
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset + i]];
 		length = ApproximateVectorLength(
-			prev->m_unk0x00 - vertex->m_unk0x00,
-			prev->m_unk0x04 - vertex->m_unk0x04,
-			prev->m_unk0x08 - vertex->m_unk0x08
+			prev->m_modelX - vertex->m_modelX,
+			prev->m_modelY - vertex->m_modelY,
+			prev->m_modelZ - vertex->m_modelZ
 		);
 		if (length > best) {
 			best = length;
@@ -597,28 +597,28 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 	}
 
 	bestArea = -1;
-	i = p_face->m_unk0x02;
+	i = p_face->m_indexCount;
 	while (i--) {
-		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_unk0x04 + i]];
+		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset + i]];
 		if (vertex != a && vertex != b) {
-			area = FUN_10039dda(
-				a->m_unk0x00,
-				a->m_unk0x04,
-				a->m_unk0x08,
-				b->m_unk0x00,
-				b->m_unk0x04,
-				b->m_unk0x08,
-				vertex->m_unk0x00,
-				vertex->m_unk0x04,
-				vertex->m_unk0x08,
+			area = ComputeTriangleNormal(
+				a->m_modelX,
+				a->m_modelY,
+				a->m_modelZ,
+				b->m_modelX,
+				b->m_modelY,
+				b->m_modelZ,
+				vertex->m_modelX,
+				vertex->m_modelY,
+				vertex->m_modelZ,
 				&nx,
 				&ny,
 				&nz
 			);
 			if (area > bestArea) {
-				p_face->m_unk0x08 = p_face->m_normal[0] = nx;
-				p_face->m_unk0x0c = p_face->m_normal[1] = ny;
-				p_face->m_unk0x10 = p_face->m_normal[2] = nz;
+				p_face->m_modelNormalX = p_face->m_normal[0] = nx;
+				p_face->m_modelNormalY = p_face->m_normal[1] = ny;
+				p_face->m_modelNormalZ = p_face->m_normal[2] = nz;
 				bestArea = area;
 				if (area > 16) {
 					return;
@@ -659,9 +659,9 @@ void ForEachShape(Shape* p_shape, void (*p_fn)(Shape*))
 		return;
 	}
 
-	shape = p_shape->m_unk0x08;
+	shape = p_shape->m_next;
 	while (shape) {
-		next = shape->m_unk0x08;
+		next = shape->m_next;
 		p_fn(shape);
 		shape = next;
 	}
@@ -681,15 +681,15 @@ void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32
 
 	vertex = &((Vertex*) (model + 1))[p_index];
 	if (p_x) {
-		*p_x = vertex->m_unk0x0c;
+		*p_x = vertex->m_worldX;
 	}
 
 	if (p_y) {
-		*p_y = vertex->m_unk0x10;
+		*p_y = vertex->m_worldY;
 	}
 
 	if (p_z) {
-		*p_z = vertex->m_unk0x14;
+		*p_z = vertex->m_worldZ;
 	}
 }
 
@@ -709,15 +709,15 @@ void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p
 
 	vertex = &((Vertex*) (model + 1))[p_index];
 	if (p_x) {
-		*p_x = vertex->m_unk0x00;
+		*p_x = vertex->m_modelX;
 	}
 
 	if (p_y) {
-		*p_y = vertex->m_unk0x04;
+		*p_y = vertex->m_modelY;
 	}
 
 	if (p_z) {
-		*p_z = vertex->m_unk0x08;
+		*p_z = vertex->m_modelZ;
 	}
 }
 
@@ -743,10 +743,10 @@ void FUN_1003b5d6(
 
 	face = (Face*) ((MechU8*) model + model->m_faceOffset) + p_index;
 	if (p_unk0x00) {
-		*p_unk0x00 = face->m_unk0x00;
+		*p_unk0x00 = face->m_color;
 	}
 
-	count = face->m_unk0x02;
+	count = face->m_indexCount;
 	if (p_count) {
 		*p_count = count;
 	}
@@ -757,13 +757,13 @@ void FUN_1003b5d6(
 		}
 
 		while (count--) {
-			p_indices[count] = ((MechU8*) face)[face->m_unk0x04 + count];
+			p_indices[count] = ((MechU8*) face)[face->m_indexOffset + count];
 		}
 	}
 }
 
 // FUNCTION: MW2 0x1003b696
-void FUN_1003b696(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
+void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
 {
 	Model* model;
 
@@ -773,7 +773,7 @@ void FUN_1003b696(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
 	}
 
 	if (p_index < model->m_faceCount) {
-		((Face*) ((MechU8*) model + model->m_faceOffset) + p_index)->m_unk0x00 = p_unk0x00;
+		((Face*) ((MechU8*) model + model->m_faceOffset) + p_index)->m_color = p_unk0x00;
 	}
 }
 
@@ -792,13 +792,13 @@ void SetShapeObject(Shape* p_shape, struct SceneObject* p_unk0x18)
 // FUNCTION: MW2 0x1003b70f
 MechU32 FUN_1003b70f(Shape* p_shape)
 {
-	return p_shape->m_unk0x00 & 0x10f;
+	return p_shape->m_flags & 0x10f;
 }
 
 // FUNCTION: MW2 0x1003b72f
 void FUN_1003b72f(Shape* p_shape, MechU32 p_flags)
 {
-	p_shape->m_unk0x00 = (p_shape->m_unk0x00 & ~0x10f) | (p_flags & 0x10f) | 0x8000;
+	p_shape->m_flags = (p_shape->m_flags & ~0x10f) | (p_flags & 0x10f) | 0x8000;
 }
 
 // Unlinks the shape and frees it.
@@ -850,7 +850,7 @@ MechS32 GetShapeMemorySize(Shape* p_shape)
 
 		face = (Face*) ((MechU8*) model + model->m_faceOffset);
 		for (i = model->m_faceCount; i--; face++) {
-			size += face->m_unk0x02 + sizeof(Face);
+			size += face->m_indexCount + sizeof(Face);
 		}
 	}
 

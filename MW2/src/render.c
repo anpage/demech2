@@ -195,20 +195,20 @@ void FirstRender(void)
 		Error(0x4d, NULL);
 	}
 
-	FUN_1007d150(0x80, 0x5dc);
+	InitializeDrawBuffer(0x80, 0x5dc);
 	g_unk0x100a54b8 = 0x578;
 	FUN_1006d680();
-	g_unk0x100a6cc8.m_frameDrawCallback = FUN_10012afe;
-	g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
-	g_unk0x100a6cc8.m_unk0x5c = FUN_10048ebe;
-	g_unk0x100a6cc8.m_unk0x60 = (MechS32 (*)()) FUN_10036230;
-	g_unk0x100a6cc8.m_drawPolygon = FUN_10042e00;
+	g_renderSettings.m_frameDrawCallback = FUN_10012afe;
+	g_renderSettings.m_shapeFilter = FUN_1004c2ef;
+	g_renderSettings.m_projectVertex = ProjectVertex;
+	g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_10036230;
+	g_renderSettings.m_drawPolygon = FUN_10042e00;
 	g_unk0x100a5558 = 0xff;
-	if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
-		g_unk0x100a6cc8.m_unk0x30 = 0;
+	if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
+		g_renderSettings.m_unk0x30 = 0;
 	}
 
-	g_unk0x100a6cc8.m_unk0x10 |= 8;
+	g_renderSettings.m_unk0x10 |= 8;
 }
 
 // Makes the objects of the scene's shapes of kinds 0x90 and 0xa0, and sets up its shapes of kind
@@ -225,29 +225,29 @@ void SecondRender(void)
 		return;
 	}
 
-	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
-		if ((shape->m_unk0x02 & 0xf0) == 0x90) {
+	for (shape = root->m_next; shape; shape = shape->m_next) {
+		if ((shape->m_kind & 0xf0) == 0x90) {
 			g_unk0x100a2478 = GetShapeObject(shape);
 			FUN_10001a52(g_unk0x100a2478);
 			break;
 		}
 	}
 
-	for (shape = root->m_unk0x08; shape; shape = shape->m_unk0x08) {
-		if ((shape->m_unk0x02 & 0xf0) == 0xa0) {
+	for (shape = root->m_next; shape; shape = shape->m_next) {
+		if ((shape->m_kind & 0xf0) == 0xa0) {
 			g_unk0x100a247c = GetShapeObject(shape);
 			break;
 		}
 	}
 
-	for (shape = root->m_unk0x08; shape; shape = next) {
-		next = shape->m_unk0x08;
-		if ((shape->m_unk0x02 & 0xf0) == 0x70) {
+	for (shape = root->m_next; shape; shape = next) {
+		next = shape->m_next;
+		if ((shape->m_kind & 0xf0) == 0x70) {
 			FUN_1006da2d(shape);
 			FUN_1006d989(shape);
 		}
 
-		if (shape->m_unk0x24 == 4) {
+		if (shape->m_collisionType == 4) {
 			FUN_1006d989(shape);
 		}
 	}
@@ -274,22 +274,22 @@ void FUN_10012afe(void)
 		g_unk0x100a2460 = 0;
 	}
 
-	if (g_unk0x100a6cc8.m_unk0x00) {
+	if (g_renderSettings.m_unk0x00) {
 		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
 		return;
 	}
 
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
-	if (g_unk0x100a6cc8.m_unk0x30 || g_unk0x100a6cc8.m_unk0x34) {
+	if (g_renderSettings.m_unk0x30 || g_renderSettings.m_unk0x34) {
 		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
 	}
-	else if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
+	else if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
-			pass = g_unk0x100a6cc8.m_unk0x20;
-			g_unk0x100a6cc8.m_unk0x20 = 0;
+			pass = g_renderSettings.m_unk0x20;
+			g_renderSettings.m_unk0x20 = 0;
 			FUN_1004320b(g_eyepoint);
-			g_unk0x100a6cc8.m_unk0x20 = pass;
+			g_renderSettings.m_unk0x20 = pass;
 		}
 		else {
 			FUN_1004320b(g_eyepoint);
@@ -304,23 +304,23 @@ void FUN_10012afe(void)
 	if (g_unk0x100a2478) {
 		saved = g_eyepoint->m_unk0x40;
 		FUN_1004bf8a(g_eyepoint, 0x7fffffff);
-		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c565;
+		g_renderSettings.m_shapeFilter = FUN_1004c565;
 		FUN_10033b9e(g_unk0x100a2478);
-		g_unk0x100a2480 += g_unk0x100a54b0;
+		g_unk0x100a2480 += g_depthEntryCount;
 		FUN_1004bf8a(g_eyepoint, saved);
-		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
+		g_renderSettings.m_shapeFilter = FUN_1004c2ef;
 	}
 
 	FUN_100338bb(g_unk0x100ad5e8);
-	g_unk0x100a2480 += g_unk0x100a54b0;
+	g_unk0x100a2480 += g_depthEntryCount;
 	if (g_unk0x100a2420 && g_unk0x100a247c) {
 		saved = g_eyepoint->m_unk0x3c;
 		FUN_1004bf61(g_eyepoint, 8);
-		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c779;
+		g_renderSettings.m_shapeFilter = FUN_1004c779;
 		FUN_10033b9e(g_unk0x100a247c);
-		g_unk0x100a2480 += g_unk0x100a54b0;
+		g_unk0x100a2480 += g_depthEntryCount;
 		FUN_1004bf61(g_eyepoint, saved);
-		g_unk0x100a6cc8.m_unk0x58 = FUN_1004c2ef;
+		g_renderSettings.m_shapeFilter = FUN_1004c2ef;
 	}
 
 	if (g_unk0x100a2454) {
@@ -369,7 +369,7 @@ void Blit(void)
 void ShutdownRender(void)
 {
 	FUN_1006db28();
-	FUN_1007d120();
+	ShutdownDrawBuffer();
 	if (g_unk0x100a245c && g_currentPane.m_window) {
 		VFX_pane_wipe(&g_currentPane, 0);
 		if (g_windowActive) {
@@ -464,20 +464,20 @@ void FUN_100131f1(Shape* p_root)
 	MechS32 radius;
 	MechS32 radiusY;
 
-	if (!p_root || !p_root->m_unk0x08 || p_root->m_unk0x04 == p_root->m_unk0x08) {
+	if (!p_root || !p_root->m_next || p_root->m_prev == p_root->m_next) {
 		return;
 	}
 
-	for (shape = p_root->m_unk0x08; shape; shape = shape->m_unk0x08) {
-		if ((((shape->m_unk0x02 & 0x100) && !(shape->m_unk0x00 & 0x800)) || (shape->m_unk0x02 & 0xf0) == 0x50) &&
-			!g_unk0x100a6cc8.m_unk0x58(shape)) {
-			x = shape->m_unk0x34;
-			y = shape->m_unk0x38;
-			z = shape->m_unk0x3c;
-			radius = shape->m_unk0x40;
+	for (shape = p_root->m_next; shape; shape = shape->m_next) {
+		if ((((shape->m_kind & 0x100) && !(shape->m_flags & 0x800)) || (shape->m_kind & 0xf0) == 0x50) &&
+			!g_renderSettings.m_shapeFilter(shape)) {
+			x = shape->m_centerX;
+			y = shape->m_centerY;
+			z = shape->m_centerZ;
+			radius = shape->m_radius;
 			color = 0xf;
 			if (FUN_1004c11d(&x, &y, &z)) {
-				radius = FUN_10013340(g_eyepoint->m_unk0x94, radius, z);
+				radius = ProjectRadius(g_eyepoint->m_projectScaleX, radius, z);
 				radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
 				VFX_ellipse_draw(&g_currentPane, x, y, radius, radiusY, color);
 			}

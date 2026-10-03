@@ -1,7 +1,7 @@
 #include "weaponpanel.h"
 
 #include "clock.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "loadres.h"
 #include "mech.h"
 #include "menu.h"
@@ -22,7 +22,7 @@
 // The selected-weapon comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: color, font, mech, text and weapon.
 // FUNCTION: MW2 0x10033280
-void FUN_10033280(CobaltHarbor0x88* p_panel)
+void FUN_10033280(CockpitPanel* p_panel)
 {
 	Mech* mech;
 	MechS32 color;
@@ -107,7 +107,7 @@ void FUN_10033280(CobaltHarbor0x88* p_panel)
 // weapon p_panel->m_unk0x0c.
 // Stack-slot permutation: clock, font, mech and weapon.
 // FUNCTION: MW2 0x100334d3
-void FUN_100334d3(CobaltHarbor0x88* p_panel)
+void FUN_100334d3(CockpitPanel* p_panel)
 {
 	Mech* mech;
 	WeaponSlot* weapon;

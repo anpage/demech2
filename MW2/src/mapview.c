@@ -11,10 +11,10 @@
 #include "polydraw.h"
 #include "recordstacks.h"
 #include "render.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
 #include "shapelists.h"
 #include "shiftdiv.h"
-#include "slateheron.h"
 #include "types.h"
 #include "view.h"
 
@@ -48,7 +48,7 @@ MechS32 g_unk0x10109bb4;
 MechS32 g_unk0x10109bb8;
 
 // GLOBAL: MW2 0x10109bc0
-SlateHeron0x68 g_unk0x10109bc0;
+RenderSettings g_savedRenderSettings;
 
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
 // rotation) of p_worldSpan units across pane p_slot, as far as p_far.
@@ -70,14 +70,14 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_eyepoint->m_unk0x08 = p_pose[2];
 	SelectPane(p_slot);
 	g_eyepoint->m_unk0x40 = g_unk0x10109bb4;
-	g_unk0x10109bc0 = g_unk0x100a6cc8;
-	g_unk0x100a6cc8.m_unk0x58 = FUN_10042206;
-	g_unk0x100a6cc8.m_unk0x5c = FUN_100423b3;
+	g_savedRenderSettings = g_renderSettings;
+	g_renderSettings.m_shapeFilter = FUN_10042206;
+	g_renderSettings.m_projectVertex = FUN_100423b3;
 	FUN_1004bc2e(g_eyepoint);
-	g_eyepoint->m_unk0x9c = 0x2000;
-	g_eyepoint->m_unk0xa4 = 3;
-	g_eyepoint->m_unk0xa0 = g_eyepoint->m_pixelAspect >> 3;
-	g_eyepoint->m_unk0xa6 = 3;
+	g_eyepoint->m_projectScaleX16 = 0x2000;
+	g_eyepoint->m_projectShiftX = 3;
+	g_eyepoint->m_projectScaleY16 = g_eyepoint->m_pixelAspect >> 3;
+	g_eyepoint->m_projectShiftY = 3;
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
 	g_unk0x100a2460 = 0;
@@ -99,7 +99,7 @@ void FUN_1004215f(MechU32 p_flags)
 // FUNCTION: MW2 0x10042195
 void FUN_10042195(void)
 {
-	g_unk0x100a6cc8 = g_unk0x10109bc0;
+	g_renderSettings = g_savedRenderSettings;
 	*g_eyepoint = g_unk0x10109ac0;
 	g_palettePending = g_unk0x10109ab0;
 	FUN_10012e00();
@@ -127,27 +127,27 @@ MechS32 FUN_10042206(Shape* p_shape)
 	MechS32 depth;
 	MechS32 x;
 
-	if (p_shape->m_unk0x00 & 0x1000) {
+	if (p_shape->m_flags & 0x1000) {
 		return 1;
 	}
 
-	x = p_shape->m_unk0x34;
-	y = p_shape->m_unk0x38;
-	z = p_shape->m_unk0x3c;
-	radius = p_shape->m_unk0x40;
-	dx = x - g_unk0x100ea8b8;
-	dy = y - g_unk0x100ea8b4;
-	dz = z - g_unk0x100ea8bc;
-	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_unk0x100ea8a8, dy, g_unk0x100ea8ac, dz, g_unk0x100ea8b0);
-	if (depth + radius < g_unk0x100ea8d0) {
+	x = p_shape->m_centerX;
+	y = p_shape->m_centerY;
+	z = p_shape->m_centerZ;
+	radius = p_shape->m_radius;
+	dx = x - g_viewEyeX;
+	dy = y - g_viewEyeY;
+	dz = z - g_viewEyeZ;
+	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+	if (depth + radius < g_viewNearPlane) {
 		return 4;
 	}
 
-	if (depth - radius > g_unk0x100ea860) {
+	if (depth - radius > g_viewFarPlane) {
 		return 5;
 	}
 
-	side = FixedDot29(dx, g_unk0x100ea890, dy, g_unk0x100ea894, dz, g_unk0x100ea898);
+	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 	if (side > 0) {
 		dist = side - g_unk0x10109ba4;
 	}
@@ -159,7 +159,7 @@ MechS32 FUN_10042206(Shape* p_shape)
 		return 6;
 	}
 
-	height = FixedDot29(dx, g_unk0x100ea89c, dy, g_unk0x100ea8a0, dz, g_unk0x100ea8a4);
+	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 	if (height > 0) {
 		dist = height - g_unk0x10109ba8;
 	}
@@ -174,8 +174,8 @@ MechS32 FUN_10042206(Shape* p_shape)
 	return 0;
 }
 
-// Projects a vertex onto the map view (FUN_10042740's scaling) once per frame, with its clip
-// outcodes, and adds it to the polygon being built: FUN_10048ebe's map-view counterpart.
+// Projects a vertex onto the map view (ProjectCoordinate's scaling) once per frame, with its clip
+// outcodes, and adds it to the polygon being built: ProjectVertex's map-view counterpart.
 // Stack-slot permutation: outcode and y.
 // FUNCTION: MW2 0x100423b3
 ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
@@ -188,21 +188,21 @@ ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
 	if (!p_vertex->m_projected) {
 		x = p_vertex->m_x;
 		y = p_vertex->m_y;
-		x = FUN_10042740(x, g_unk0x10109bb8, g_unk0x100ea824, g_unk0x100ea834);
-		y = g_unk0x100ea840 - g_unk0x100ea850 - FUN_10042740(y, g_unk0x10109bb8, g_unk0x100ea828, g_unk0x100ea858);
-		if (x - g_unk0x100ea830 < 0) {
+		x = ProjectCoordinate(x, g_unk0x10109bb8, g_viewShiftX, g_viewCenterX);
+		y = g_viewBottom - g_viewTop - ProjectCoordinate(y, g_unk0x10109bb8, g_viewShiftY, g_viewCenterY);
+		if (x - g_viewLeft < 0) {
 			outcode |= 1;
 		}
 
-		if (x - g_unk0x100ea84c > 0) {
+		if (x - g_viewRight > 0) {
 			outcode |= 2;
 		}
 
-		if (y - g_unk0x100ea850 < 0) {
+		if (y - g_viewTop < 0) {
 			outcode |= 4;
 		}
 
-		if (y - g_unk0x100ea840 > 0) {
+		if (y - g_viewBottom > 0) {
 			outcode |= 8;
 		}
 
@@ -212,14 +212,14 @@ ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
 		p_vertex->m_projected = 1;
 	}
 
-	g_unk0x1010b53c |= outcode;
-	g_unk0x1010b5b8 &= outcode;
-	if (g_unk0x1010b5b0 >= 20) {
-		g_unk0x1010b5ac = 0;
+	g_polygonOrCodes |= outcode;
+	g_polygonAndCodes &= outcode;
+	if (g_polygonPointCount >= 20) {
+		g_queueHasRoom = 0;
 	}
 	else {
-		g_unk0x1010b550[g_unk0x1010b5b0] = p_vertex;
-		g_unk0x1010b5b0++;
+		g_polygonPoints[g_polygonPointCount] = p_vertex;
+		g_polygonPointCount++;
 	}
 
 	return p_vertex;
@@ -243,19 +243,18 @@ MechS32 FUN_1004251e(MapPoint* p_point)
 	x = p_point->m_xy.m_x;
 	y = p_point->m_xy.m_y;
 	z = p_point->m_z;
-	dx = x - g_unk0x100ea8b8;
-	dy = y - g_unk0x100ea8b4;
-	dz = z - g_unk0x100ea8bc;
-	x = FixedDot27(dx, g_unk0x100ea864, dy, g_unk0x100ea868, dz, g_unk0x100ea86c);
-	y = FixedDot27(dx, g_unk0x100ea870, dy, g_unk0x100ea874, dz, g_unk0x100ea878);
-	z = FixedDot27(dx, g_unk0x100ea87c, dy, g_unk0x100ea880, dz, g_unk0x100ea884);
-	p_point->m_xy.m_x = FUN_10042740(x, g_unk0x10109bb8, g_unk0x100ea824, g_unk0x100ea834);
-	p_point->m_xy.m_y =
-		g_unk0x100ea840 - g_unk0x100ea850 - FUN_10042740(y, g_unk0x10109bb8, g_unk0x100ea828, g_unk0x100ea858);
+	dx = x - g_viewEyeX;
+	dy = y - g_viewEyeY;
+	dz = z - g_viewEyeZ;
+	x = FixedDot27(dx, g_viewProjX0, dy, g_viewProjX1, dz, g_viewProjX2);
+	y = FixedDot27(dx, g_viewProjY0, dy, g_viewProjY1, dz, g_viewProjY2);
+	z = FixedDot27(dx, g_viewProjZ0, dy, g_viewProjZ1, dz, g_viewProjZ2);
+	p_point->m_xy.m_x = ProjectCoordinate(x, g_unk0x10109bb8, g_viewShiftX, g_viewCenterX);
+	p_point->m_xy.m_y = g_viewBottom - g_viewTop - ProjectCoordinate(y, g_unk0x10109bb8, g_viewShiftY, g_viewCenterY);
 	p_point->m_z = z;
 	if (z > 0) {
-		if (p_point->m_xy.m_x >= g_unk0x100ea830 && p_point->m_xy.m_x <= g_unk0x100ea84c &&
-			p_point->m_xy.m_y >= g_unk0x100ea850 && p_point->m_xy.m_y <= g_unk0x100ea840) {
+		if (p_point->m_xy.m_x >= g_viewLeft && p_point->m_xy.m_x <= g_viewRight && p_point->m_xy.m_y >= g_viewTop &&
+			p_point->m_xy.m_y <= g_viewBottom) {
 			visible = TRUE;
 		}
 		else {

@@ -1,19 +1,19 @@
 /* Depth-sorted drawing: the shapes of a list or a scene tree queue their polygons in the draw
-   buffer (FUN_1007d296) with their depths, the queue is sorted farthest first and drawn,
+   buffer (AllocQueuedPolygon) with their depths, the queue is sorted farthest first and drawn,
    clipping each polygon to the screen if a vertex lies too far outside it. */
 #include "depthsort.h"
 
-#include "coppervale.h"
 #include "crossdiv.h"
 #include "decomp.h"
 #include "eyepoint.h"
 #include "face.h"
 #include "fixedmul.h"
-#include "ivorydelta.h"
 #include "lerp.h"
 #include "object.h"
 #include "objectanim.h"
 #include "polydraw.h"
+#include "projectedvertex.h"
+#include "queuedpolygon.h"
 #include "recordstacks.h"
 #include "scaledelta.h"
 #include "shape.h"
@@ -24,16 +24,16 @@
 
 #include <string.h>
 
-DECOMP_SIZE_ASSERT(AmberDune0x8, 0x8)
-DECOMP_SIZE_ASSERT(CopperVale0x20, 0x20)
-DECOMP_SIZE_ASSERT(IvoryDelta0xc, 0xc)
+DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
+DECOMP_SIZE_ASSERT(ProjectedVertex, 0x20)
+DECOMP_SIZE_ASSERT(QueuedPolygon, 0xc)
 
 // The number of entries in the list being built.
 // GLOBAL: MW2 0x100a54b0
-MechS32 g_unk0x100a54b0 = 0;
+MechS32 g_depthEntryCount = 0;
 
 // GLOBAL: MW2 0x100a54b4
-MechS32 g_unk0x100a54b4 = 0;
+MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
 MechS32 g_unk0x100a54b8 = 0;
@@ -45,13 +45,13 @@ MechS32 g_unk0x1010b5a0;
 // GLOBAL: MW2 0x1010b5a4
 MechS32 g_unk0x1010b5a4;
 
-// The list being built: g_unk0x100c269c or g_unk0x100c2280.
+// The list being built: g_depthQueue or g_drawList.
 // GLOBAL: MW2 0x1010b5c4
-AmberDune0x8* g_unk0x1010b5c4;
+DepthEntry* g_depthList;
 
 // The flags of the shape being queued.
 // GLOBAL: MW2 0x1010b5c8
-MechU32 g_unk0x1010b5c8;
+MechU32 g_queuedShapeFlags;
 
 // GLOBAL: MW2 0x1010b5cc
 MechS32 g_unk0x1010b5cc;
@@ -110,24 +110,24 @@ MechS32 FUN_100335d0(Shape* p_shape, MechS32 p_depth)
 
 	shape->m_model = model;
 	vertices = (Vertex*) (model + 1);
-	if (shape->m_unk0x48 != model->m_unk0x10) {
+	if (shape->m_transformCount != model->m_transformCount) {
 		FUN_1000188b(shape);
 	}
 
 	vertex = vertices;
 	i = n = model->m_vertexCount;
 	while (i--) {
-		vertex->m_unk0x24 = 0;
-		vertex->m_unk0x28 &= 0xfb;
+		vertex->m_projection = 0;
+		vertex->m_flags &= 0xfb;
 		vertex++;
 	}
 
 	face = (Face*) (model->m_faceOffset + (MechU8*) model);
 	i = n = model->m_faceCount;
 	while (i--) {
-		FUN_10049155(face, vertices);
+		QueueFace(face, vertices);
 		face++;
-		if (!g_unk0x1010b5ac) {
+		if (!g_queueHasRoom) {
 			break;
 		}
 	}
@@ -139,11 +139,11 @@ MechS32 FUN_100335d0(Shape* p_shape, MechS32 p_depth)
 // The p_last/p_first comparison loads its operands in the opposite order (one attempt at swapping
 // them didn't flip it), and stack-slot permutation: the swaps' temporaries.
 // FUNCTION: MW2 0x1003378e
-void FUN_1003378e(AmberDune0x8* p_first, AmberDune0x8* p_last)
+void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 {
 	MechS32 pivot;
-	AmberDune0x8* lo;
-	AmberDune0x8* hi;
+	DepthEntry* lo;
+	DepthEntry* hi;
 
 	if (p_last <= p_first) {
 		return;
@@ -166,7 +166,7 @@ void FUN_1003378e(AmberDune0x8* p_first, AmberDune0x8* p_last)
 		}
 
 		{
-			IvoryDelta0xc* poly = lo->m_poly;
+			QueuedPolygon* poly = lo->m_poly;
 			lo->m_poly = hi->m_poly;
 			hi->m_poly = poly;
 		}
@@ -179,7 +179,7 @@ void FUN_1003378e(AmberDune0x8* p_first, AmberDune0x8* p_last)
 
 	lo = p_first;
 	{
-		IvoryDelta0xc* poly = lo->m_poly;
+		QueuedPolygon* poly = lo->m_poly;
 		lo->m_poly = hi->m_poly;
 		hi->m_poly = poly;
 	}
@@ -190,11 +190,11 @@ void FUN_1003378e(AmberDune0x8* p_first, AmberDune0x8* p_last)
 	}
 
 	if (hi - 1 > p_first) {
-		FUN_1003378e(p_first, hi - 1);
+		SortDepthEntries(p_first, hi - 1);
 	}
 
 	if (hi + 1 < p_last) {
-		FUN_1003378e(hi + 1, p_last);
+		SortDepthEntries(hi + 1, p_last);
 	}
 }
 
@@ -205,29 +205,29 @@ void FUN_100338bb(Shape* p_root)
 {
 	Shape* shape;
 
-	FUN_1007d220();
-	if (!p_root || !p_root->m_unk0x08 || p_root->m_unk0x04 == p_root->m_unk0x08) {
+	ResetDrawBuffer();
+	if (!p_root || !p_root->m_next || p_root->m_prev == p_root->m_next) {
 		return;
 	}
 
-	g_unk0x100a54b0 = 0;
-	g_unk0x100a54b4 = 0;
-	g_unk0x1010b5ac = 1;
-	g_unk0x1010b5c4 = g_unk0x100c269c;
-	for (shape = p_root->m_unk0x08; shape; shape = shape->m_unk0x08) {
+	g_depthEntryCount = 0;
+	g_polygonCount = 0;
+	g_queueHasRoom = 1;
+	g_depthList = g_depthQueue;
+	for (shape = p_root->m_next; shape; shape = shape->m_next) {
 		g_unk0x1010b5cc++;
-		if (!g_unk0x100a6cc8.m_unk0x58(shape)) {
+		if (!g_renderSettings.m_shapeFilter(shape)) {
 			g_unk0x1010b5a0++;
-			g_unk0x1010b5c8 = shape->m_unk0x00;
-			if (g_unk0x1010b5c8 & 0x100) {
-				shape->m_unk0x00 |= 0x8000;
-				g_unk0x1010b5c4[g_unk0x100a54b0].m_poly = (IvoryDelta0xc*) shape;
-				g_unk0x1010b5c4[g_unk0x100a54b0].m_depth = g_unk0x1010b5a4;
-				g_unk0x100a54b0++;
+			g_queuedShapeFlags = shape->m_flags;
+			if (g_queuedShapeFlags & 0x100) {
+				shape->m_flags |= 0x8000;
+				g_depthList[g_depthEntryCount].m_poly = (QueuedPolygon*) shape;
+				g_depthList[g_depthEntryCount].m_depth = g_unk0x1010b5a4;
+				g_depthEntryCount++;
 			}
 			else {
 				FUN_100335d0(shape, g_unk0x1010b5a4);
-				if (!g_unk0x1010b5ac || g_unk0x100a54b4 >= g_unk0x100a54b8) {
+				if (!g_queueHasRoom || g_polygonCount >= g_unk0x100a54b8) {
 					break;
 				}
 			}
@@ -237,9 +237,9 @@ void FUN_100338bb(Shape* p_root)
 	FUN_10033a06();
 }
 
-// Sorts the queue FUN_100338bb built, moves its polygons to g_unk0x100c2280 in order, expanding
+// Sorts the queue FUN_100338bb built, moves its polygons to g_drawList in order, expanding
 // each whole shape into its own sorted run of polygons, and draws them.
-// The i/count and g_unk0x100a54b4/g_unk0x100a54b8 comparisons load their operands in the opposite
+// The i/count and g_polygonCount/g_unk0x100a54b8 comparisons load their operands in the opposite
 // order (reccmp scores it as an effective match).
 // FUNCTION: MW2 0x10033a06
 void FUN_10033a06(void)
@@ -249,37 +249,37 @@ void FUN_10033a06(void)
 	MechS32 start;
 
 	start = 0;
-	if (g_unk0x100a54b0 > 1) {
-		FUN_1003378e(g_unk0x100c269c, &g_unk0x100c269c[g_unk0x100a54b0 - 1]);
+	if (g_depthEntryCount > 1) {
+		SortDepthEntries(g_depthQueue, &g_depthQueue[g_depthEntryCount - 1]);
 	}
 
-	count = g_unk0x100a54b0;
-	g_unk0x100a54b0 = 0;
-	g_unk0x1010b5c4 = g_unk0x100c2280;
+	count = g_depthEntryCount;
+	g_depthEntryCount = 0;
+	g_depthList = g_drawList;
 	for (i = 0; i < count; i++) {
-		if (!(g_unk0x100c269c[i].m_poly->m_count & 0x8000)) {
-			memcpy(&g_unk0x100c2280[g_unk0x100a54b0], &g_unk0x100c269c[i], sizeof(AmberDune0x8));
-			g_unk0x100a54b0++;
+		if (!(g_depthQueue[i].m_poly->m_count & 0x8000)) {
+			memcpy(&g_drawList[g_depthEntryCount], &g_depthQueue[i], sizeof(DepthEntry));
+			g_depthEntryCount++;
 		}
-		else if (g_unk0x1010b5ac) {
-			start = g_unk0x100a54b0;
-			FUN_100335d0((Shape*) g_unk0x100c269c[i].m_poly, g_unk0x100c269c[i].m_depth);
-			if (!g_unk0x1010b5ac) {
+		else if (g_queueHasRoom) {
+			start = g_depthEntryCount;
+			FUN_100335d0((Shape*) g_depthQueue[i].m_poly, g_depthQueue[i].m_depth);
+			if (!g_queueHasRoom) {
 				break;
 			}
 
-			if (g_unk0x100a54b0 - start > 1) {
-				FUN_1003378e(&g_unk0x100c2280[start], &g_unk0x100c2280[g_unk0x100a54b0 - 1]);
+			if (g_depthEntryCount - start > 1) {
+				SortDepthEntries(&g_drawList[start], &g_drawList[g_depthEntryCount - 1]);
 			}
 		}
 
-		if (g_unk0x100a54b4 >= g_unk0x100a54b8) {
+		if (g_polygonCount >= g_unk0x100a54b8) {
 			break;
 		}
 	}
 
-	for (i = 0; i < g_unk0x100a54b0; i++) {
-		FUN_10033d32(g_unk0x100c2280[i].m_poly);
+	for (i = 0; i < g_depthEntryCount; i++) {
+		DrawQueuedPolygon(g_drawList[i].m_poly);
 	}
 }
 
@@ -289,18 +289,18 @@ void FUN_10033b9e(SceneObject* p_root)
 {
 	MechS32 i;
 
-	FUN_1007d220();
-	g_unk0x100a54b0 = 0;
-	g_unk0x100a54b4 = 0;
-	g_unk0x1010b5ac = 1;
-	g_unk0x1010b5c4 = g_unk0x100c2280;
+	ResetDrawBuffer();
+	g_depthEntryCount = 0;
+	g_polygonCount = 0;
+	g_queueHasRoom = 1;
+	g_depthList = g_drawList;
 	FUN_10033c4b(p_root);
-	if (g_unk0x100a54b0 > 1) {
-		FUN_1003378e(g_unk0x100c2280, &g_unk0x100c2280[g_unk0x100a54b0 - 1]);
+	if (g_depthEntryCount > 1) {
+		SortDepthEntries(g_drawList, &g_drawList[g_depthEntryCount - 1]);
 	}
 
-	for (i = 0; i < g_unk0x100a54b0; i++) {
-		FUN_10033d32(g_unk0x100c2280[i].m_poly);
+	for (i = 0; i < g_depthEntryCount; i++) {
+		DrawQueuedPolygon(g_drawList[i].m_poly);
 	}
 }
 
@@ -311,14 +311,14 @@ void FUN_10033c4b(SceneObject* p_object)
 	SceneObject* child;
 	Shape* shape;
 
-	if (!p_object || !g_unk0x1010b5ac || g_unk0x100a54b4 >= g_unk0x100a54b8) {
+	if (!p_object || !g_queueHasRoom || g_polygonCount >= g_unk0x100a54b8) {
 		return;
 	}
 
 	shape = p_object->m_unk0x6c;
 	if (shape) {
 		g_unk0x1010b5cc++;
-		if (!(shape->m_unk0x00 & 0x1000) && !g_unk0x100a6cc8.m_unk0x58(shape)) {
+		if (!(shape->m_flags & 0x1000) && !g_renderSettings.m_shapeFilter(shape)) {
 			g_unk0x1010b5a0++;
 			FUN_100335d0(shape, g_unk0x1010b5a4);
 		}
@@ -339,11 +339,11 @@ void FUN_10033d0f(Shape* p_root, Eyepoint* p_eyepoint)
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x10033d32
-void FUN_10033d32(IvoryDelta0xc* p_poly)
+void DrawQueuedPolygon(QueuedPolygon* p_poly)
 {
-	CopperVale0x20* vertex;
+	ProjectedVertex* vertex;
 	MechS32 count;
-	CopperVale0x20** vertices;
+	ProjectedVertex** vertices;
 	MechU32 points[10 * 6];
 	MechU32* point;
 	MechS32 i;
@@ -351,30 +351,30 @@ void FUN_10033d32(IvoryDelta0xc* p_poly)
 	MechS32 y;
 
 	count = p_poly->m_count;
-	vertices = (CopperVale0x20**) (p_poly + 1);
+	vertices = (ProjectedVertex**) (p_poly + 1);
 	point = points;
 	i = count;
 	while (i--) {
 		vertex = *vertices;
 		vertices++;
-		x = vertex->m_unk0x0c;
-		y = vertex->m_unk0x10;
+		x = vertex->m_screenX;
+		y = vertex->m_screenY;
 		if (x <= -0x4000 || x >= 0x3fff || y <= -0x4000 || y >= 0x3fff) {
-			count = FUN_10033e92(p_poly, points);
+			count = ClipPolygonToScreen(p_poly, points);
 			break;
 		}
 
 		point[0] = x;
 		point[1] = y;
-		point[3] = vertex->m_unk0x14;
-		point[4] = vertex->m_unk0x18;
+		point[3] = vertex->m_u;
+		point[4] = vertex->m_v;
 		point[2] = 0;
-		point[5] = vertex->m_unk0x08;
+		point[5] = vertex->m_z;
 		point += 6;
 	}
 
 	if (count > 0) {
-		FUN_100445d2(count, points, p_poly->m_unk0x02);
+		FUN_100445d2(count, points, p_poly->m_flags);
 	}
 }
 
@@ -382,21 +382,21 @@ void FUN_10033d32(IvoryDelta0xc* p_poly)
 // result in p_points, six dwords per vertex. Returns the number of vertices.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x10033e92
-MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
+MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 {
-	CopperVale0x20* cur;
+	ProjectedVertex* cur;
 	MechS32 bottom;
 	MechS32 right;
-	CopperVale0x20* out;
-	CopperVale0x20* prev;
+	ProjectedVertex* out;
+	ProjectedVertex* prev;
 	MechS32 top;
-	CopperVale0x20* src;
+	ProjectedVertex* src;
 	MechS32 n;
-	CopperVale0x20** vertices;
-	CopperVale0x20* in;
-	CopperVale0x20 bufferA[20];
-	CopperVale0x20 clip;
-	CopperVale0x20 bufferB[20];
+	ProjectedVertex** vertices;
+	ProjectedVertex* in;
+	ProjectedVertex bufferA[20];
+	ProjectedVertex clip;
+	ProjectedVertex bufferB[20];
 	MechS32 i;
 	MechS32 left;
 	MechS32 count;
@@ -405,7 +405,7 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 	left = top = -0x4000;
 	out = bufferA;
 	count = p_poly->m_count;
-	vertices = (CopperVale0x20**) (p_poly + 1);
+	vertices = (ProjectedVertex**) (p_poly + 1);
 	i = count;
 	while (i--) {
 		src = *vertices;
@@ -420,14 +420,14 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 	prev = &in[count - 1];
 	for (i = 0; i < count; i++) {
 		cur = &in[i];
-		if (cur->m_unk0x0c <= right) {
-			if (prev->m_unk0x0c <= right) {
+		if (cur->m_screenX <= right) {
+			if (prev->m_screenX <= right) {
 				*out = *cur;
 				out++;
 				n++;
 			}
 			else {
-				FUN_10034571(prev, cur, right, &clip);
+				ClipEdgeToColumn(prev, cur, right, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -437,8 +437,8 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 			}
 		}
 		else {
-			if (prev->m_unk0x0c <= right) {
-				FUN_10034571(prev, cur, right, &clip);
+			if (prev->m_screenX <= right) {
+				ClipEdgeToColumn(prev, cur, right, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -455,14 +455,14 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 	prev = &in[count - 1];
 	for (i = 0; i < count; i++) {
 		cur = &in[i];
-		if (cur->m_unk0x0c >= left) {
-			if (prev->m_unk0x0c >= left) {
+		if (cur->m_screenX >= left) {
+			if (prev->m_screenX >= left) {
 				*out = *cur;
 				out++;
 				n++;
 			}
 			else {
-				FUN_10034571(prev, cur, left, &clip);
+				ClipEdgeToColumn(prev, cur, left, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -472,8 +472,8 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 			}
 		}
 		else {
-			if (prev->m_unk0x0c >= left) {
-				FUN_10034571(prev, cur, left, &clip);
+			if (prev->m_screenX >= left) {
+				ClipEdgeToColumn(prev, cur, left, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -490,14 +490,14 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 	prev = &in[count - 1];
 	for (i = 0; i < count; i++) {
 		cur = &in[i];
-		if (cur->m_unk0x10 >= top) {
-			if (prev->m_unk0x10 >= top) {
+		if (cur->m_screenY >= top) {
+			if (prev->m_screenY >= top) {
 				*out = *cur;
 				out++;
 				n++;
 			}
 			else {
-				FUN_10034779(prev, cur, top, &clip);
+				ClipEdgeToRow(prev, cur, top, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -507,8 +507,8 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 			}
 		}
 		else {
-			if (prev->m_unk0x10 >= top) {
-				FUN_10034779(prev, cur, top, &clip);
+			if (prev->m_screenY >= top) {
+				ClipEdgeToRow(prev, cur, top, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -525,14 +525,14 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 	prev = &in[count - 1];
 	for (i = 0; i < count; i++) {
 		cur = &in[i];
-		if (cur->m_unk0x10 <= bottom) {
-			if (prev->m_unk0x10 <= bottom) {
+		if (cur->m_screenY <= bottom) {
+			if (prev->m_screenY <= bottom) {
 				*out = *cur;
 				out++;
 				n++;
 			}
 			else {
-				FUN_10034779(prev, cur, bottom, &clip);
+				ClipEdgeToRow(prev, cur, bottom, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -542,8 +542,8 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 			}
 		}
 		else {
-			if (prev->m_unk0x10 <= bottom) {
-				FUN_10034779(prev, cur, bottom, &clip);
+			if (prev->m_screenY <= bottom) {
+				ClipEdgeToRow(prev, cur, bottom, &clip);
 				*out = clip;
 				out++;
 				n++;
@@ -554,12 +554,12 @@ MechS32 FUN_10033e92(IvoryDelta0xc* p_poly, MechU32* p_points)
 	}
 
 	for (cur = bufferA, i = n; i--; cur++, p_points += 6) {
-		p_points[0] = cur->m_unk0x0c;
-		p_points[1] = cur->m_unk0x10;
-		p_points[3] = cur->m_unk0x14;
-		p_points[4] = cur->m_unk0x18;
+		p_points[0] = cur->m_screenX;
+		p_points[1] = cur->m_screenY;
+		p_points[3] = cur->m_u;
+		p_points[4] = cur->m_v;
 		p_points[2] = 0;
-		p_points[5] = cur->m_unk0x08;
+		p_points[5] = cur->m_z;
 	}
 
 	return n;
@@ -586,10 +586,10 @@ MechS32 FUN_10034499(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, 
 	}
 
 	if (p_isX) {
-		p_edge = FUN_10034990(p_edge, g_unk0x100ea834, dz, g_unk0x100ea824);
+		p_edge = UnprojectCoordinate(p_edge, g_viewCenterX, dz, g_viewShiftX);
 	}
 	else {
-		p_edge = FUN_10034990(g_unk0x100ea858, p_edge, dz, g_unk0x100ea828);
+		p_edge = UnprojectCoordinate(g_viewCenterY, p_edge, dz, g_viewShiftY);
 	}
 
 	t = p_edge - da;
@@ -597,7 +597,7 @@ MechS32 FUN_10034499(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, 
 		z = p_z0;
 	}
 	else {
-		z = FUN_100349c0(p_a0, p_z0, da, dz, t);
+		z = CrossDiv(p_a0, p_z0, da, dz, t);
 	}
 
 	return z;
@@ -605,86 +605,78 @@ MechS32 FUN_10034499(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, 
 
 // Stores in p_out the point where the edge from p_a to p_b crosses the screen column p_x.
 // FUNCTION: MW2 0x10034571
-void FUN_10034571(CopperVale0x20* p_a, CopperVale0x20* p_b, MechS32 p_x, CopperVale0x20* p_out)
+void ClipEdgeToColumn(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_x, ProjectedVertex* p_out)
 {
 	MechS32 z;
 	MechS32 dx;
 	MechS32 dy;
 
-	p_out->m_unk0x08 = FUN_10034499(p_a->m_unk0x00, p_b->m_unk0x00, p_x, 1, p_a->m_unk0x08, p_b->m_unk0x08);
-	z = p_out->m_unk0x08;
-	p_out->m_unk0x0c = p_x;
-	p_out->m_unk0x10 = FUN_100349f0(p_a->m_unk0x0c, p_b->m_unk0x0c, p_x, p_a->m_unk0x10, p_b->m_unk0x10);
-	p_out->m_unk0x00 = FUN_10034990(p_x, g_unk0x100ea834, z, g_unk0x100ea824);
-	p_out->m_unk0x04 = FUN_10034990(g_unk0x100ea858, p_out->m_unk0x10, z, g_unk0x100ea828);
+	p_out->m_z = FUN_10034499(p_a->m_x, p_b->m_x, p_x, 1, p_a->m_z, p_b->m_z);
+	z = p_out->m_z;
+	p_out->m_screenX = p_x;
+	p_out->m_screenY = Lerp(p_a->m_screenX, p_b->m_screenX, p_x, p_a->m_screenY, p_b->m_screenY);
+	p_out->m_x = UnprojectCoordinate(p_x, g_viewCenterX, z, g_viewShiftX);
+	p_out->m_y = UnprojectCoordinate(g_viewCenterY, p_out->m_screenY, z, g_viewShiftY);
 
-	dx = p_a->m_unk0x00 - p_b->m_unk0x00;
+	dx = p_a->m_x - p_b->m_x;
 	if (dx < 0) {
 		dx = -dx;
 	}
 
-	dy = p_a->m_unk0x04 - p_b->m_unk0x04;
+	dy = p_a->m_y - p_b->m_y;
 	if (dy < 0) {
 		dy = -dy;
 	}
 
 	if (dx > dy) {
-		p_out->m_unk0x14 =
-			FUN_100349f0(p_a->m_unk0x00, p_b->m_unk0x00, p_out->m_unk0x00, p_a->m_unk0x14, p_b->m_unk0x14);
-		p_out->m_unk0x18 =
-			FUN_100349f0(p_a->m_unk0x00, p_b->m_unk0x00, p_out->m_unk0x00, p_a->m_unk0x18, p_b->m_unk0x18);
+		p_out->m_u = Lerp(p_a->m_x, p_b->m_x, p_out->m_x, p_a->m_u, p_b->m_u);
+		p_out->m_v = Lerp(p_a->m_x, p_b->m_x, p_out->m_x, p_a->m_v, p_b->m_v);
 	}
 	else if (dy) {
-		p_out->m_unk0x14 =
-			FUN_100349f0(p_a->m_unk0x04, p_b->m_unk0x04, p_out->m_unk0x04, p_a->m_unk0x14, p_b->m_unk0x14);
-		p_out->m_unk0x18 =
-			FUN_100349f0(p_a->m_unk0x04, p_b->m_unk0x04, p_out->m_unk0x04, p_a->m_unk0x18, p_b->m_unk0x18);
+		p_out->m_u = Lerp(p_a->m_y, p_b->m_y, p_out->m_y, p_a->m_u, p_b->m_u);
+		p_out->m_v = Lerp(p_a->m_y, p_b->m_y, p_out->m_y, p_a->m_v, p_b->m_v);
 	}
 	else {
-		p_out->m_unk0x14 = (p_a->m_unk0x14 + p_b->m_unk0x14) >> 1;
-		p_out->m_unk0x18 = (p_a->m_unk0x18 + p_b->m_unk0x18) >> 1;
+		p_out->m_u = (p_a->m_u + p_b->m_u) >> 1;
+		p_out->m_v = (p_a->m_v + p_b->m_v) >> 1;
 	}
 }
 
 // Stores in p_out the point where the edge from p_a to p_b crosses the screen row p_y.
 // FUNCTION: MW2 0x10034779
-void FUN_10034779(CopperVale0x20* p_a, CopperVale0x20* p_b, MechS32 p_y, CopperVale0x20* p_out)
+void ClipEdgeToRow(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_y, ProjectedVertex* p_out)
 {
 	MechS32 z;
 	MechS32 dx;
 	MechS32 dy;
 
-	p_out->m_unk0x08 = FUN_10034499(p_a->m_unk0x04, p_b->m_unk0x04, p_y, 0, p_a->m_unk0x08, p_b->m_unk0x08);
-	z = p_out->m_unk0x08;
-	p_out->m_unk0x0c = FUN_100349f0(p_a->m_unk0x10, p_b->m_unk0x10, p_y, p_a->m_unk0x0c, p_b->m_unk0x0c);
-	p_out->m_unk0x10 = p_y;
-	p_out->m_unk0x00 = FUN_10034990(p_out->m_unk0x0c, g_unk0x100ea834, z, g_unk0x100ea824);
-	p_out->m_unk0x04 = FUN_10034990(g_unk0x100ea858, p_y, z, g_unk0x100ea828);
+	p_out->m_z = FUN_10034499(p_a->m_y, p_b->m_y, p_y, 0, p_a->m_z, p_b->m_z);
+	z = p_out->m_z;
+	p_out->m_screenX = Lerp(p_a->m_screenY, p_b->m_screenY, p_y, p_a->m_screenX, p_b->m_screenX);
+	p_out->m_screenY = p_y;
+	p_out->m_x = UnprojectCoordinate(p_out->m_screenX, g_viewCenterX, z, g_viewShiftX);
+	p_out->m_y = UnprojectCoordinate(g_viewCenterY, p_y, z, g_viewShiftY);
 
-	dx = p_a->m_unk0x00 - p_b->m_unk0x00;
+	dx = p_a->m_x - p_b->m_x;
 	if (dx < 0) {
 		dx = -dx;
 	}
 
-	dy = p_a->m_unk0x04 - p_b->m_unk0x04;
+	dy = p_a->m_y - p_b->m_y;
 	if (dy < 0) {
 		dy = -dy;
 	}
 
 	if (dy > dx) {
-		p_out->m_unk0x14 =
-			FUN_100349f0(p_a->m_unk0x04, p_b->m_unk0x04, p_out->m_unk0x04, p_a->m_unk0x14, p_b->m_unk0x14);
-		p_out->m_unk0x18 =
-			FUN_100349f0(p_a->m_unk0x04, p_b->m_unk0x04, p_out->m_unk0x04, p_a->m_unk0x18, p_b->m_unk0x18);
+		p_out->m_u = Lerp(p_a->m_y, p_b->m_y, p_out->m_y, p_a->m_u, p_b->m_u);
+		p_out->m_v = Lerp(p_a->m_y, p_b->m_y, p_out->m_y, p_a->m_v, p_b->m_v);
 	}
 	else if (dx) {
-		p_out->m_unk0x14 =
-			FUN_100349f0(p_a->m_unk0x00, p_b->m_unk0x00, p_out->m_unk0x00, p_a->m_unk0x14, p_b->m_unk0x14);
-		p_out->m_unk0x18 =
-			FUN_100349f0(p_a->m_unk0x00, p_b->m_unk0x00, p_out->m_unk0x00, p_a->m_unk0x18, p_b->m_unk0x18);
+		p_out->m_u = Lerp(p_a->m_x, p_b->m_x, p_out->m_x, p_a->m_u, p_b->m_u);
+		p_out->m_v = Lerp(p_a->m_x, p_b->m_x, p_out->m_x, p_a->m_v, p_b->m_v);
 	}
 	else {
-		p_out->m_unk0x14 = (p_a->m_unk0x14 + p_b->m_unk0x14) >> 1;
-		p_out->m_unk0x18 = (p_a->m_unk0x18 + p_b->m_unk0x18) >> 1;
+		p_out->m_u = (p_a->m_u + p_b->m_u) >> 1;
+		p_out->m_v = (p_a->m_v + p_b->m_v) >> 1;
 	}
 }

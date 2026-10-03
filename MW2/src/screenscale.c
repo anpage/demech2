@@ -641,8 +641,8 @@ Point* FUN_10057ac4(PANE* p_target, MechS32 p_angle, Point* p_out)
 		quadrant.m_bits.m_up = 0;
 	}
 
-	dx = FUN_1006973a(p_angle) >> 13;
-	dy = FUN_100696c0(p_angle) >> 13;
+	dx = FixedCos(p_angle) >> 13;
+	dy = FixedSin(p_angle) >> 13;
 	dy = FixedMul16(dy, g_eyepoint->m_pixelAspect);
 	quadrant.m_bits.m_steep = FUN_1005798d(dx, dy, &slope);
 	slope = -slope;
@@ -835,7 +835,7 @@ Point* FUN_1005806a(PANE* p_target, Point* p_point, Point* p_out)
 	}
 
 	dy = FixedDiv16(dy, g_eyepoint->m_pixelAspect);
-	angle = FUN_100698de(dy, dx);
+	angle = FixedAtan2(dy, dx);
 	FUN_100582c4(p_target, &half, quadrant, angle, p_out);
 	return p_out;
 }
@@ -870,8 +870,8 @@ Point* FUN_1005816f(PANE* p_target, MechS32 p_angle, Point* p_out)
 		quadrant.m_bits.m_up = 0;
 	}
 
-	dx = FUN_1006973a(p_angle) >> 13;
-	dy = FUN_100696c0(p_angle) >> 13;
+	dx = FixedCos(p_angle) >> 13;
+	dy = FixedSin(p_angle) >> 13;
 	dy = FixedMul16(dy, g_eyepoint->m_pixelAspect);
 	if (dx == 0 || dy / dx > 0x7fff || dy / dx < -0x8000) {
 		quadrant.m_bits.m_steep = 1;
@@ -880,7 +880,7 @@ Point* FUN_1005816f(PANE* p_target, MechS32 p_angle, Point* p_out)
 		quadrant.m_bits.m_steep = 0;
 	}
 
-	angle = FUN_100698de(dy, -dx);
+	angle = FixedAtan2(dy, -dx);
 	FUN_100582c4(p_target, &half, quadrant, angle, p_out);
 	return p_out;
 }
@@ -906,8 +906,8 @@ Point* FUN_100582c4(PANE* p_target, Point* p_center, GaugeQuadrant p_quadrant, M
 	case 1:
 	case 2:
 	case 3:
-		result.m_x = center.m_x - (FixedMul16(radius, FUN_1006973a(p_angle)) >> 13);
-		result.m_y = center.m_y - (FixedMul16(radiusY, FUN_100696c0(p_angle)) >> 13);
+		result.m_x = center.m_x - (FixedMul16(radius, FixedCos(p_angle)) >> 13);
+		result.m_y = center.m_y - (FixedMul16(radiusY, FixedSin(p_angle)) >> 13);
 		break;
 	case 7:
 		result.m_y = center.m_y - radiusY;

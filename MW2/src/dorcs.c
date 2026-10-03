@@ -21,10 +21,10 @@
 #include "recttransition.h"
 #include "refreshmode.h"
 #include "render.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
-#include "slateheron.h"
 #include "soundfx.h"
 #include "types.h"
 #include "vfxa.h"
@@ -870,7 +870,7 @@ void UpdateDorcs(void)
 			}
 
 			g_dorcsGifState = NULL;
-			g_unk0x100a6cc8.m_frameDrawCallback = g_dorcsPreviousDrawCallback;
+			g_renderSettings.m_frameDrawCallback = g_dorcsPreviousDrawCallback;
 			g_unk0x100a5a24 = 1;
 			g_unk0x10176ebc = 1;
 			g_dorcsState = 0;
@@ -883,7 +883,7 @@ void UpdateDorcs(void)
 // FUNCTION: MW2 0x100745b2
 void ShowDorcs(void)
 {
-	g_dorcsPreviousDrawCallback = g_unk0x100a6cc8.m_frameDrawCallback;
-	g_unk0x100a6cc8.m_frameDrawCallback = UpdateDorcs;
+	g_dorcsPreviousDrawCallback = g_renderSettings.m_frameDrawCallback;
+	g_renderSettings.m_frameDrawCallback = UpdateDorcs;
 	g_dorcsState = 0;
 }

@@ -1,5 +1,5 @@
-#ifndef SLATEHERON_H
-#define SLATEHERON_H
+#ifndef RENDERSETTINGS_H
+#define RENDERSETTINGS_H
 
 #include "decomp.h"
 #include "types.h"
@@ -7,8 +7,8 @@
 struct ProjectedVertex;
 
 // SIZE 0x68
-// Rendering settings (g_unk0x100a6cc8) the map view saves and replaces as one block.
-typedef struct SlateHeron0x68 {
+// Rendering settings (g_renderSettings) the map view saves and replaces as one block.
+typedef struct RenderSettings {
 	undefined4 m_unk0x00; // 0x00
 	MechS32 m_unk0x04;    // 0x04 — FUN_10042e00 blends shaded polygons (VFX_dithered_Gouraud_polygon)
 	undefined4 m_unk0x08; // 0x08
@@ -30,10 +30,10 @@ typedef struct SlateHeron0x68 {
 	MechS32 m_unk0x4c;                       // 0x4c — FUN_100368e8 sets it when the display detail is low
 	MechU32 m_unk0x50;                       // 0x50 — render features switched off (FUN_10036891)
 	void (*m_frameDrawCallback)(void);       // 0x54
-	MechS32 (*m_unk0x58)();                  // 0x58 — a shape filter: nonzero skips the shape
-	struct ProjectedVertex* (*m_unk0x5c)(struct ProjectedVertex* p_vertex);     // 0x5c — projects a vertex
-	MechS32 (*m_unk0x60)();                                                     // 0x60 — draws a face (FUN_10036230)
-	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags); // 0x64
-} SlateHeron0x68;
+	MechS32 (*m_shapeFilter)();              // 0x58 — a shape filter: nonzero skips the shape
+	struct ProjectedVertex* (*m_projectVertex)(struct ProjectedVertex* p_vertex); // 0x5c — projects a vertex
+	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (FUN_10036230)
+	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags);   // 0x64
+} RenderSettings;
 
-#endif // SLATEHERON_H
+#endif // RENDERSETTINGS_H
