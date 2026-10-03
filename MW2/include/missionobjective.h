@@ -6,12 +6,15 @@
 
 #pragma pack(push, 1)
 
-// A condition of an objective: the state another objective must reach.
+// A condition of an objective: the state another objective must reach. The objective comes
+// before its star: FUN_1001b580 scales the word at 0x08 by a star's mission and the one at 0x04 by
+// an objective (a Trials of Grievance star waits on the player's objective that destroys the star
+// before it).
 // SIZE 0xc
 typedef struct ObjectiveCondition {
 	MechS32 m_kind;      // 0x00 — 0 ends the list; 1 done, 2 successful, 3 failed
-	MechS32 m_star;      // 0x04
-	MechS32 m_objective; // 0x08
+	MechS32 m_objective; // 0x04
+	MechS32 m_star;      // 0x08
 } ObjectiveCondition;
 
 // One objective of a star's mission.

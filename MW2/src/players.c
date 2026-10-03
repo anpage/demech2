@@ -39,8 +39,10 @@ MechS32 g_playerCount = 0;
 // GLOBAL: MW2 0x100ad5e4
 MechS32 g_gameThingCount = 0;
 
+// The world loader stops at 0x3c players (BwdExecuteStream), which fill the original's room
+// before g_gameThings.
 // GLOBAL: MW2 0x100c3570
-Player* g_players[1]; // length unknown
+Player* g_players[0x3c];
 
 // GLOBAL: MW2 0x100c3660
 GameThing g_gameThings[254];

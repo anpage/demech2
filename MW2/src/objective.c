@@ -416,7 +416,8 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 }
 
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
-// Stack-slot permutation of objective, other, star, state and kind.
+// Stack-slot permutation of objective, other, star, state and kind; the original scales star
+// before other in the objective's address (index order).
 // FUNCTION: MW2 0x1001b580
 MechS32 FUN_1001b580(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 {
@@ -428,15 +429,11 @@ MechS32 FUN_1001b580(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
 	kind = objective->m_conditions[p_condition].m_kind;
-	star = objective->m_conditions[p_condition].m_star;
 	other = objective->m_conditions[p_condition].m_objective;
+	star = objective->m_conditions[p_condition].m_star;
 	state = g_objectiveTable[star].m_objectives[other].m_state;
-	if ((kind == 1 && (state == 5 || state == 6)) || (kind == 2 && state == 5) || (kind == 3 && state == 6)) {
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
+	return (kind == 1 && (state == 5 || state == 6)) || (kind == 2 && state == 5) || (kind == 3 && state == 6) ? TRUE
+																											   : FALSE;
 }
 
 // Returns whether the conditions of star p_star's objective p_objective hold: one of them, or

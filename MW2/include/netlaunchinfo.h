@@ -15,7 +15,8 @@ typedef struct NetLaunchInfo {
 	undefined4 m_unk0x08;             // 0x08
 	undefined4 m_unk0x0c;             // 0x0c
 	DPID* m_playerIds;                // 0x10
-	undefined m_unk0x14[0x24 - 0x14]; // 0x14
+	undefined4 m_unk0x14;             // 0x14
+	undefined m_unk0x18[0x24 - 0x18]; // 0x18
 	char* m_missionName;              // 0x24
 } NetLaunchInfo;
 
