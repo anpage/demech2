@@ -88,7 +88,7 @@ typedef struct JadeOrbit0x1c {
 } JadeOrbit0x1c;
 
 // The state of FUN_10046750's callback: an object moving through an animation (Reel)
-// in step with its player's animation state (m_unk0x80-0x94).
+// in step with its player's animation state (m_animFlags to m_animRate).
 // SIZE 0x2c
 typedef struct JadeMotion0x2c {
 	Reel* m_reel;          // 0x00
@@ -209,8 +209,8 @@ MossLedger0x8 g_unk0x101097e0[60];
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
 // "<thing or class id>;<rate>,<flags>,<animation>", made for the player being created
 // (g_lastPlayer). Each frame moves or turns the object by the frame's amount, spread over
-// the rate; the frame events jump to other frames by the player's animation state (m_unk0x84,
-// the frame it reached, and m_unk0x88, the one it wants).
+// the rate; the frame events jump to other frames by the player's animation state (m_motionState,
+// the frame it reached, and m_nextMotionState, the one it wants).
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
 // m_values[i] reads (index order).
 // FUNCTION: MW2 0x10046750
@@ -299,8 +299,8 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			motion->m_timer = 0;
 			motion->m_amount = 0;
 			motion->m_lastClock = p_clock;
-			motion->m_player->m_unk0x94 = rate;
-			motion->m_player->m_unk0x84 = -1;
+			motion->m_player->m_animRate = rate;
+			motion->m_player->m_motionState = -1;
 		}
 
 		id = atoi(p_data);
@@ -343,25 +343,25 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 		elapsed = p_clock - motion->m_lastClock;
 		motion->m_lastClock = p_clock;
-		if (motion->m_player->m_unk0x80 & 0x10) {
+		if (motion->m_player->m_animFlags & 0x10) {
 			motion->m_reel = motion->m_initial;
 			motion->m_frame = -1;
 			motion->m_timer = 0;
 			motion->m_amount = 0;
 			motion->m_lastClock = p_clock;
 			if (motion->m_flags & 1) {
-				motion->m_player->m_unk0x94 = motion->m_rate;
-				motion->m_player->m_unk0x80 &= ~0x11;
-				motion->m_player->m_unk0x84 = -1;
+				motion->m_player->m_animRate = motion->m_rate;
+				motion->m_player->m_animFlags &= ~0x11;
+				motion->m_player->m_motionState = -1;
 			}
 		}
-		else if (motion->m_player->m_unk0x80 & 1) {
+		else if (motion->m_player->m_animFlags & 1) {
 			if (!motion->m_rate) {
 				g_unk0x100a6d64 = 6;
 				return 0;
 			}
 
-			if (!motion->m_player->m_unk0x94) {
+			if (!motion->m_player->m_animRate) {
 				g_unk0x100a6d64 = 7;
 				return 0;
 			}
@@ -421,20 +421,20 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			if (motion->m_frame == -1) {
 				motion->m_frame = 0;
 				motion->m_timer = 0;
-				motion->m_player->m_unk0x84 = 0;
+				motion->m_player->m_motionState = 0;
 			}
 
 			if (motion->m_timer <= 0) {
 				frame = motion->m_frame;
 				motion->m_frame++;
-				motion->m_timer += motion->m_player->m_unk0x94;
-				if (-motion->m_player->m_unk0x94 > motion->m_timer) {
-					motion->m_timer = -motion->m_player->m_unk0x94;
+				motion->m_timer += motion->m_player->m_animRate;
+				if (-motion->m_player->m_animRate > motion->m_timer) {
+					motion->m_timer = -motion->m_player->m_animRate;
 				}
 
 				if (motion->m_reel->m_events[frame].m_flags & 0x40) {
 					target = motion->m_reel->m_events[frame].m_values[1];
-					if (motion->m_player->m_unk0x88 == target) {
+					if (motion->m_player->m_nextMotionState == target) {
 						jump = TRUE;
 					}
 					else {
@@ -444,8 +444,8 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 				if (motion->m_reel->m_events[frame].m_flags & 0x80) {
 					target = motion->m_reel->m_events[frame].m_values[1];
-					if (motion->m_player->m_unk0x88 != -1 &&
-						motion->m_player->m_unk0x84 != motion->m_player->m_unk0x88) {
+					if (motion->m_player->m_nextMotionState != -1 &&
+						motion->m_player->m_motionState != motion->m_player->m_nextMotionState) {
 						jump |= TRUE;
 					}
 					else {
@@ -454,7 +454,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 				if (motion->m_reel->m_events[frame].m_flags & 0x100) {
 					target = motion->m_reel->m_events[frame].m_values[2];
-					if (motion->m_player->m_unk0x88 == -1) {
+					if (motion->m_player->m_nextMotionState == -1) {
 						jump |= TRUE;
 					}
 					else {
@@ -463,7 +463,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 				if (jump) {
 					jump = FALSE;
-					if (motion->m_player->m_unk0x84 < target) {
+					if (motion->m_player->m_motionState < target) {
 						step = 1;
 					}
 					else {
@@ -499,7 +499,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 							else {
 								if (motion->m_reel->m_events[next].m_flags & 0x200) {
 									value = motion->m_reel->m_events[next].m_values[3];
-									if (motion->m_player->m_unk0x84 == value) {
+									if (motion->m_player->m_motionState == value) {
 										found = TRUE;
 									}
 								}
@@ -524,7 +524,8 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 								break;
 							}
 
-							if (motion->m_reel->m_events[frame].m_values[i] == (MechS8) motion->m_player->m_unk0x88) {
+							if (motion->m_reel->m_events[frame].m_values[i] ==
+								(MechS8) motion->m_player->m_nextMotionState) {
 								match = TRUE;
 							}
 							else {
@@ -559,32 +560,32 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 				if (motion->m_flags & 1) {
 					if (jump) {
-						motion->m_player->m_unk0x84 = target;
+						motion->m_player->m_motionState = target;
 					}
 
-					motion->m_player->m_unk0x80 &= ~2;
-					motion->m_player->m_unk0x80 &= ~8;
+					motion->m_player->m_animFlags &= ~2;
+					motion->m_player->m_animFlags &= ~8;
 					if (motion->m_frame != -1) {
-						motion->m_player->m_unk0x94 = FUN_100472fe(motion->m_player->m_unk0x8c, motion->m_rate);
+						motion->m_player->m_animRate = FUN_100472fe(motion->m_player->m_speedLevel, motion->m_rate);
 						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x10) {
-							motion->m_player->m_unk0x80 |= 2;
+							motion->m_player->m_animFlags |= 2;
 						}
 
 						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x800) {
-							motion->m_player->m_unk0x80 |= 8;
+							motion->m_player->m_animFlags |= 8;
 						}
 					}
-					else if (motion->m_player->m_unk0x88 == -1) {
-						motion->m_player->m_unk0x80 &= ~1;
-						motion->m_player->m_unk0x84 = -1;
+					else if (motion->m_player->m_nextMotionState == -1) {
+						motion->m_player->m_animFlags &= ~1;
+						motion->m_player->m_motionState = -1;
 					}
 				}
 			}
 		}
 		else if (motion->m_flags & 1) {
-			if (motion->m_player->m_unk0x88 != -1 || motion->m_player->m_unk0x84 != -1) {
-				motion->m_player->m_unk0x80 |= 1;
-				motion->m_player->m_unk0x94 = FUN_100472fe(motion->m_player->m_unk0x8c, motion->m_rate);
+			if (motion->m_player->m_nextMotionState != -1 || motion->m_player->m_motionState != -1) {
+				motion->m_player->m_animFlags |= 1;
+				motion->m_player->m_animRate = FUN_100472fe(motion->m_player->m_speedLevel, motion->m_rate);
 			}
 		}
 		break;

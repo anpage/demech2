@@ -16,7 +16,7 @@
 #include "weapons.h"
 #include "weaponslot.h"
 
-// Runs p_player's AI weapons at random intervals (up to m_unk0x158 x 22 ticks): within 10 degrees
+// Runs p_player's AI weapons at random intervals (up to m_gunnery x 22 ticks): within 10 degrees
 // of the heading p_heading (always against the local player, else one time in three) it aims at
 // its goal and may fire (FUN_1004b724). Then turns and pitches the torso. Returns whether it
 // fired.
@@ -29,17 +29,17 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 	MechS32 delta;
 
 	fired = FALSE;
-	if (p_player->m_unk0x15a <= g_currentClock) {
-		roll = RandomIntBelow(p_player->m_unk0x158);
-		p_player->m_unk0x15a = roll * 22 + g_currentClock;
-		delta = p_heading - p_player->m_unk0x6c;
+	if (p_player->m_nextFireTime <= g_currentClock) {
+		roll = RandomIntBelow(p_player->m_gunnery);
+		p_player->m_nextFireTime = roll * 22 + g_currentClock;
+		delta = p_heading - p_player->m_torsoTwist;
 		if (delta < 0xa0000 && delta > -0xa0000) {
 			if ((p_player->m_ai.m_goal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
-				FUN_1005372c(p_player, p_player->m_ai.m_goal);
+				SetTarget(p_player, p_player->m_ai.m_goal);
 				if (!roll) {
 					if (FUN_1004b724(p_player)) {
 						if (!(p_player->m_skillFlag4) || FUN_1006ca60(p_player, 1)) {
-							p_player->m_steering->m_unk0x25 = 1;
+							p_player->m_steering->m_weaponFire = 1;
 							fired = TRUE;
 						}
 					}
@@ -52,8 +52,8 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 		roll = 0;
 	}
 
-	p_player->m_steering->m_unk0x04 = FUN_1005391f(p_player, p_heading, roll) * 0x2d00;
-	p_player->m_steering->m_unk0x00 = -(FUN_10053954(p_player, roll) * 0xf00);
+	p_player->m_steering->m_torsoPan = AimTorsoPan(p_player, p_heading, roll) * 0x2d00;
+	p_player->m_steering->m_torsoTilt = -(AimTorsoTilt(p_player, roll) * 0xf00);
 	return fired;
 }
 
@@ -88,7 +88,7 @@ MechS32 FUN_1004b724(Player* p_player)
 
 		if (fire) {
 			fire = FALSE;
-			if ((def->m_heat + mech->m_unk0x98) >> 16 < 65.0 && FUN_10045919(mech) == 1 && slot->m_ammo &&
+			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && FUN_10045919(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 				fire = TRUE;
 			}
@@ -101,17 +101,17 @@ MechS32 FUN_1004b724(Player* p_player)
 
 	if (fire) {
 		if (type == 0) {
-			p_player->m_steering->m_unk0x00 += 0x1e000;
+			p_player->m_steering->m_torsoTilt += 0x1e000;
 		}
 		else if (type == 4) {
-			p_player->m_steering->m_unk0x00 += 0x3c000;
+			p_player->m_steering->m_torsoTilt += 0x3c000;
 		}
 		else if (type == 21) {
 		}
 
 		if (g_weaponDefs[type].m_unk0x18) {
-			if (p_player->m_unk0x158 <= 4 && !RandomIntBelow(p_player->m_unk0x158 + 1)) {
-				mech->m_unk0x10c |= 0x80;
+			if (p_player->m_gunnery <= 4 && !RandomIntBelow(p_player->m_gunnery + 1)) {
+				mech->m_flags |= 0x80;
 			}
 
 			if (p_player->m_ai.m_goal == (g_localPlayerId | 0x200)) {

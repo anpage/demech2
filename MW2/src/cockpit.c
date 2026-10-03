@@ -396,7 +396,7 @@ void FUN_1003e06c(void)
 	viewport = layout->m_viewport;
 	slot = layout->m_paneSlot;
 	g_panes[slot] = *viewport;
-	angle = player->m_mech->m_unk0x04.m_value;
+	angle = player->m_mech->m_torsoTwist.m_value;
 	heading = player->m_heading;
 	pose[4] = 0x5a0000;
 	pose[5] = 0;
@@ -417,7 +417,7 @@ void FUN_1003e06c(void)
 
 	if (!g_unk0x10109c70) {
 		x = y = z = 0;
-		obj = player->m_unk0x44;
+		obj = player->m_eyeObj;
 		if (obj) {
 			GetObjPosition(obj, &x, &y, &z);
 		}

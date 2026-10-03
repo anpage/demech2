@@ -24,7 +24,7 @@ MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
 	MechU32 target;
 	MechU16 surface;
 
-	bearing = (p_player->m_heading + p_player->m_unk0x6c - p_player->m_targetInfo.m_heading + 0x1680000) % 0x1680000;
+	bearing = (p_player->m_heading + p_player->m_torsoTwist - p_player->m_targetInfo.m_heading + 0x1680000) % 0x1680000;
 	if (p_ahead && bearing < 0x10e0000 && bearing > 0x5a0000) {
 		return FALSE;
 	}

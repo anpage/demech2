@@ -10,6 +10,7 @@
 #include "fixedmul.h"
 #include "geocache.h"
 #include "hud.h"
+#include "maneuvertable.h"
 #include "mech.h"
 #include "mw2log.h"
 #include "object.h"
@@ -20,7 +21,6 @@
 #include "ray.h"
 #include "rendertarget.h"
 #include "shape.h"
-#include "silverbrook.h"
 #include "simmain.h"
 #include "transform.h"
 #include "types.h"
@@ -33,9 +33,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Sixteen directions around a mech, as (x, z) steps: FUN_10015b9f's probe rays.
+// Sixteen directions around a mech, as (x, z) divisors of a length: BuildProbeRay's probe rays
+// and GetOffsetPoint's offsets.
 // GLOBAL: MW2 0x100a2900
-Point g_unk0x100a2900[16] = {
+Point g_probeDirections[16] = {
 	{0, 1},
 	{2, 1},
 	{1, 1},
@@ -57,7 +58,7 @@ Point g_unk0x100a2900[16] = {
 // The maneuver tables: the maneuvers a mech chooses among and those that may follow each.
 
 // GLOBAL: MW2 0x100a2980
-AmberGlade0x12 g_unk0x100a2980[13] = {
+ManeuverEntry g_mechManeuvers[13] = {
 	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
 	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
 	{{2, 3, 7, 8, 4, 0, 0, 0, 0}},
@@ -74,17 +75,17 @@ AmberGlade0x12 g_unk0x100a2980[13] = {
 };
 
 // GLOBAL: MW2 0x100a2a70
-AmberGlade0x12 g_unk0x100a2a70 = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
+ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
-AmberGlade0x12 g_unk0x100a2a88 = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
+ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2aa0
-AmberGlade0x12 g_unk0x100a2aa0 = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
+ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 
-// The table of a mech whose class sets m_unk0xe4 (FUN_10013d81).
+// The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
-AmberGlade0x12 g_unk0x100a2ab8[13] = {
+ManeuverEntry g_altMechManeuvers[13] = {
 	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
 	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
 	{{2, 4, 7, 8, 4, 4, 0, 0, 0}},
@@ -100,29 +101,30 @@ AmberGlade0x12 g_unk0x100a2ab8[13] = {
 	{{0, 0, 0, 0, 0, 0, 0, 0, 0}},
 };
 
-// Set once FUN_100139e9 has filled g_unk0x101748e0.
+// Set once InitializeManeuvers has filled g_maneuverTables.
 // GLOBAL: MW2 0x100a2ba4
-MechS32 g_unk0x100a2ba4 = 0;
+MechS32 g_maneuverTablesReady = 0;
 
-// Set from the world stream's planet record when positive.
+// Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
+// ground slope (16.16) past which a mech on it slides.
 
 // GLOBAL: MW2 0x100a2bdc
 MechS32 g_unk0x100a2bdc = 100000;
 
 // GLOBAL: MW2 0x100a2be0
-MechS32 g_unk0x100a2be0 = 0x2000;
+MechS32 g_slideSlope = 0x2000;
 
-// The maneuver table of each player type (m_unk0x00, 1 to 8), and in entry 8 the alternative to
-// the first.
+// The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
+// first.
 // GLOBAL: MW2 0x101748e0
-SilverBrook0x08 g_unk0x101748e0[9];
+ManeuverTable g_maneuverTables[9];
 
-// Runs p_player's current maneuver (m_unk0x170) against p_target for a tick, and ends it when it
-// is done, when the mech must jump or turn away (m_unk0x174) or when its time is up; with no
-// maneuver, chooses and starts one.
+// Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
+// is done, when another is asked for (m_nextManeuver: out of ammunition, the mech jumps in or
+// runs at the target, or flees) or when its time is up; with no maneuver, chooses and starts one.
 // Stack-slot permutation: done, mech and leader.
 // FUNCTION: MW2 0x10013430
-void FUN_10013430(Player* p_player, MechU16 p_target)
+void RunManeuver(Player* p_player, MechU16 p_target)
 {
 	MechS32 done;
 	Mech* mech;
@@ -130,243 +132,243 @@ void FUN_10013430(Player* p_player, MechU16 p_target)
 
 	done = FALSE;
 	mech = p_player->m_mech;
-	if (p_player->m_unk0x170 != -1) {
-		switch (p_player->m_unk0x170) {
-		case 0:
-			FUN_100155e1(p_player);
-			FUN_100149e7(p_player, p_target);
+	if (p_player->m_maneuver != -1) {
+		switch (p_player->m_maneuver) {
+		case c_maneuverStupid:
+			BrakeFall(p_player);
+			ManeuverStupid(p_player, p_target);
 			break;
-		case 1:
-			if (p_player->m_unk0x17c <= g_currentClock) {
-				FUN_10054778(p_player);
+		case c_maneuverBehind:
+			if (p_player->m_maneuverTimer <= g_currentClock) {
+				ReleaseNavPoints(p_player);
 				leader = g_players[p_player->m_ai.m_goal & 0xff];
-				if (p_player->m_unk0x180) {
-					leader->m_unk0x1a2[p_player->m_unk0x180 / 2]--;
+				if (p_player->m_maneuverParam) {
+					leader->m_placesTaken[p_player->m_maneuverParam / 2]--;
 				}
 
-				p_player->m_unk0x17c = g_currentClock + 543;
-				if (p_player->m_unk0x184 == -1) {
-					p_player->m_unk0x180 = FUN_100166b1(p_player);
-					p_player->m_unk0x184 = 0;
+				p_player->m_maneuverTimer = g_currentClock + 543;
+				if (p_player->m_maneuverFlag == -1) {
+					p_player->m_maneuverParam = ChooseFlankPlace(p_player);
+					p_player->m_maneuverFlag = 0;
 				}
 
-				FUN_10014723(p_player, p_player->m_ai.m_goal, p_player->m_unk0x180, 15000);
-				leader->m_unk0x1a2[p_player->m_unk0x180 / 2]++;
+				PlaceOffsetNav(p_player, p_player->m_ai.m_goal, p_player->m_maneuverParam, 15000);
+				leader->m_placesTaken[p_player->m_maneuverParam / 2]++;
 			}
 
-			FUN_100155e1(p_player);
-			FUN_10014aa8(p_player, p_target);
+			BrakeFall(p_player);
+			ManeuverBehind(p_player, p_target);
 			break;
-		case 2:
-			FUN_100155e1(p_player);
-			if (FUN_10014c3d(p_player, p_target)) {
+		case c_maneuverAchick:
+			BrakeFall(p_player);
+			if (ManeuverAchick(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 3:
-			FUN_100155e1(p_player);
-			if (FUN_10014c3d(p_player, p_target)) {
+		case c_maneuverAsrp:
+			BrakeFall(p_player);
+			if (ManeuverAchick(p_player, p_target)) {
 				done = TRUE;
 			}
 
-			if (!FUN_10015709(p_player)) {
-				p_player->m_steering->m_turn += p_player->m_unk0x180 * 0x1c20000;
+			if (!AvoidObstacles(p_player)) {
+				p_player->m_steering->m_turn += p_player->m_maneuverParam * 0x1c20000;
 			}
 
-			if (p_player->m_unk0x17c <= g_currentClock) {
-				p_player->m_unk0x180 = -p_player->m_unk0x180;
-				p_player->m_unk0x17c = g_currentClock + 543;
+			if (p_player->m_maneuverTimer <= g_currentClock) {
+				p_player->m_maneuverParam = -p_player->m_maneuverParam;
+				p_player->m_maneuverTimer = g_currentClock + 543;
 			}
 			break;
-		case 4:
-			if (FUN_100150c1(p_player, p_target)) {
+		case c_maneuverAjmpin:
+			if (ManeuverAjmpin(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 11:
-			if (FUN_1001512e(p_player, p_target)) {
+		case c_maneuverSprint:
+			if (ManeuverSprint(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 5:
-			if (FUN_10015172(p_player, p_target) || p_player->m_mech->m_unk0xc0 <= 0) {
+		case c_maneuverAdfa:
+			if (ManeuverAdfa(p_player, p_target) || p_player->m_mech->m_jumpFuel <= 0) {
 				done = TRUE;
 			}
 			break;
-		case 6:
-			if (FUN_10014d4e(p_player, p_target)) {
+		case c_maneuverKama:
+			if (ManeuverKama(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 7:
-			FUN_100155e1(p_player);
-			if (FUN_10014e5e(p_player, p_target)) {
+		case c_maneuverWchick:
+			BrakeFall(p_player);
+			if (ManeuverWchick(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 8:
-			FUN_100155e1(p_player);
-			if (FUN_10014df1(p_player, p_target)) {
+		case c_maneuverWbackp:
+			BrakeFall(p_player);
+			if (ManeuverWbackp(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 9:
-			if (FUN_10014f23(p_player, p_target)) {
+		case c_maneuverWpeek:
+			if (ManeuverWpeek(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
-		case 10:
-			FUN_10015342(p_player, p_target);
+		case c_maneuverAvoid:
+			ManeuverAvoid(p_player, p_target);
 			break;
-		case 12:
-			FUN_100155e1(p_player);
-			if (FUN_100153e6(p_player, p_target)) {
+		case c_maneuverCircle:
+			BrakeFall(p_player);
+			if (ManeuverCircle(p_player, p_target)) {
 				done = TRUE;
 			}
 			break;
 		}
 
-		if (mech->m_unk0x88 && FUN_10015fa8(mech) && !p_player->m_unk0x196 && p_player->m_unk0x170 != 6 &&
-			p_player->m_ai.m_state != c_aiStateFlee) {
-			if (RandomIntBelow(4) && p_player->m_unk0x172 != 5 && FUN_10016222(p_player, 40)) {
-				p_player->m_unk0x174 = 4;
-				p_player->m_unk0x184 = 1;
+		if (mech->m_topSpeed && IsOutOfAmmo(mech) && !p_player->m_controlsJets &&
+			p_player->m_maneuver != c_maneuverKama && p_player->m_ai.m_state != c_aiStateFlee) {
+			if (RandomIntBelow(4) && p_player->m_lastManeuver != c_maneuverAdfa && CanJump(p_player, 40)) {
+				p_player->m_nextManeuver = c_maneuverAjmpin;
+				p_player->m_maneuverFlag = 1;
 			}
 			else {
 				if (RandomIntBelow(2)) {
-					p_player->m_unk0x174 = 6;
+					p_player->m_nextManeuver = c_maneuverKama;
 				}
 				else {
-					p_player->m_unk0x174 = -2;
+					p_player->m_nextManeuver = -2;
 				}
 
 				if (!p_player->m_skillFlag5) {
-					p_player->m_unk0x174 = -2;
+					p_player->m_nextManeuver = -2;
 				}
 			}
 		}
 
-		if (p_player->m_unk0x00 == 1 && FUN_10016880(mech)) {
+		if (p_player->m_type == c_playerTypeMech && IsStuck(mech)) {
 			done = TRUE;
 		}
 
-		if (p_player->m_unk0x178 && p_player->m_unk0x178 <= g_currentClock) {
+		if (p_player->m_maneuverEnd && p_player->m_maneuverEnd <= g_currentClock) {
 			done = TRUE;
 		}
 
-		if (p_player->m_unk0x174) {
+		if (p_player->m_nextManeuver) {
 			done = TRUE;
 		}
 
 		if (done) {
-			FUN_1001450e(p_player);
+			EndManeuver(p_player);
 		}
 	}
 	else {
-		p_player->m_unk0x170 = FUN_10013d81(p_player);
-		if (p_player->m_unk0x170 != -1) {
-			FUN_10014149(p_player);
+		p_player->m_maneuver = ChooseManeuver(p_player);
+		if (p_player->m_maneuver != -1) {
+			StartManeuver(p_player);
 		}
 	}
 }
 
-// Resets p_player's maneuver state and sets the maneuvers its skill (m_unk0x159, 1 to 4) allows,
-// and fills the maneuver tables the first time.
+// Resets p_player's maneuver state and sets the maneuvers its piloting (1 to 4) allows, and fills
+// the maneuver tables the first time.
 // FUNCTION: MW2 0x100139e9
-void FUN_100139e9(Player* p_player)
+void InitializeManeuvers(Player* p_player)
 {
 	MechS16 i;
 
-	p_player->m_unk0x170 = -1;
-	p_player->m_unk0x172 = -1;
-	p_player->m_unk0x174 = 0;
-	p_player->m_unk0x188 = NULL;
-	p_player->m_unk0x190 = 0;
-	p_player->m_unk0x192 = 1;
-	p_player->m_unk0x18c = 0;
-	memset(p_player->m_unk0x1a2, 0, sizeof(p_player->m_unk0x1a2));
-	if (p_player->m_unk0x159 < 1 || p_player->m_unk0x159 > 4) {
-		p_player->m_unk0x159 = 1;
+	p_player->m_maneuver = -1;
+	p_player->m_lastManeuver = -1;
+	p_player->m_nextManeuver = 0;
+	p_player->m_avoidShape = NULL;
+	p_player->m_avoidSide = 0;
+	p_player->m_probeScale = 1;
+	p_player->m_nextAvoidCheck = 0;
+	memset(p_player->m_placesTaken, 0, sizeof(p_player->m_placesTaken));
+	if (p_player->m_piloting < 1 || p_player->m_piloting > 4) {
+		p_player->m_piloting = 1;
 	}
 
-	if (p_player->m_unk0x159 <= 3) {
+	if (p_player->m_piloting <= 3) {
 		p_player->m_skillFlag0 = 1;
 	}
 	else {
 		p_player->m_skillFlag0 = 0;
 	}
 
-	if (p_player->m_unk0x159 <= 3) {
+	if (p_player->m_piloting <= 3) {
 		p_player->m_skillFlag1 = 1;
 	}
 	else {
 		p_player->m_skillFlag1 = 0;
 	}
 
-	if (p_player->m_unk0x159 <= 2) {
+	if (p_player->m_piloting <= 2) {
 		p_player->m_skillFlag2 = 1;
 	}
 	else {
 		p_player->m_skillFlag2 = 0;
 	}
 
-	if (p_player->m_unk0x00 == 1 && p_player->m_unk0x159 <= 5) {
+	if (p_player->m_type == c_playerTypeMech && p_player->m_piloting <= 5) {
 		p_player->m_skillFlag3 = 1;
 	}
 	else {
 		p_player->m_skillFlag3 = 0;
 	}
 
-	if (p_player->m_unk0x159 <= 4) {
+	if (p_player->m_piloting <= 4) {
 		p_player->m_skillFlag4 = 1;
 	}
 	else {
 		p_player->m_skillFlag4 = 0;
 	}
 
-	if (p_player->m_unk0x00 == 1 && p_player->m_unk0x159 <= 1) {
+	if (p_player->m_type == c_playerTypeMech && p_player->m_piloting <= 1) {
 		p_player->m_skillFlag5 = 1;
 	}
 	else {
 		p_player->m_skillFlag5 = 0;
 	}
 
-	if (p_player->m_unk0x159 <= 5) {
+	if (p_player->m_piloting <= 5) {
 		p_player->m_skillFlag6 = 1;
 	}
 	else {
 		p_player->m_skillFlag6 = 0;
 	}
 
-	if (!g_unk0x100a2ba4) {
+	if (!g_maneuverTablesReady) {
 		for (i = 0; i < 8; i++) {
 			switch (i + 1) {
 			case 1:
-				g_unk0x101748e0[i].m_count = 13;
-				g_unk0x101748e0[i].m_unk0x02 = 7;
-				g_unk0x101748e0[i].m_entries = g_unk0x100a2980;
-				g_unk0x101748e0[8] = g_unk0x101748e0[i];
-				g_unk0x101748e0[8].m_entries = g_unk0x100a2ab8;
+				g_maneuverTables[i].m_count = 13;
+				g_maneuverTables[i].m_followOnly = 7;
+				g_maneuverTables[i].m_entries = g_mechManeuvers;
+				g_maneuverTables[8] = g_maneuverTables[i];
+				g_maneuverTables[8].m_entries = g_altMechManeuvers;
 				break;
 			case 8:
-				g_unk0x101748e0[i].m_count = 1;
-				g_unk0x101748e0[i].m_unk0x02 = 0;
-				g_unk0x101748e0[i].m_entries = &g_unk0x100a2aa0;
+				g_maneuverTables[i].m_count = 1;
+				g_maneuverTables[i].m_followOnly = 0;
+				g_maneuverTables[i].m_entries = &g_behindManeuvers;
 				break;
 			case 5:
-				g_unk0x101748e0[i].m_count = 1;
-				g_unk0x101748e0[i].m_unk0x02 = 0;
-				g_unk0x101748e0[i].m_entries = &g_unk0x100a2a88;
+				g_maneuverTables[i].m_count = 1;
+				g_maneuverTables[i].m_followOnly = 0;
+				g_maneuverTables[i].m_entries = &g_circleManeuvers;
 				break;
 			default:
-				g_unk0x101748e0[i].m_count = 1;
-				g_unk0x101748e0[i].m_unk0x02 = 0;
-				g_unk0x101748e0[i].m_entries = &g_unk0x100a2a70;
+				g_maneuverTables[i].m_count = 1;
+				g_maneuverTables[i].m_followOnly = 0;
+				g_maneuverTables[i].m_entries = &g_stupidManeuvers;
 				break;
 			}
 		}
 
-		g_unk0x100a2ba4 = 1;
+		g_maneuverTablesReady = 1;
 	}
 }
 
@@ -375,68 +377,68 @@ void FUN_100139e9(Player* p_player)
 // first), redrawn until its conditions hold.
 // Stack-slot permutation: mech, table, choice and index.
 // FUNCTION: MW2 0x10013d81
-MechS32 FUN_10013d81(Player* p_player)
+MechS32 ChooseManeuver(Player* p_player)
 {
 	Mech* mech;
-	SilverBrook0x08* table;
+	ManeuverTable* table;
 	MechS16 choice;
 	MechS16 index;
 
 	choice = -1;
-	table = &g_unk0x101748e0[p_player->m_unk0x00 - 1];
+	table = &g_maneuverTables[p_player->m_type - 1];
 	mech = p_player->m_mech;
-	if (mech->m_unk0xe4 == 1) {
-		table = &g_unk0x101748e0[8];
+	if (mech->m_tons == 1) {
+		table = &g_maneuverTables[8];
 	}
 
 	do {
-		FUN_1005372c(p_player, p_player->m_ai.m_target);
-		if (p_player->m_unk0x174) {
-			if (p_player->m_unk0x174 == -2) {
-				FUN_10054684(p_player, 4, p_player->m_ai.m_goal, 0);
+		SetTarget(p_player, p_player->m_ai.m_target);
+		if (p_player->m_nextManeuver) {
+			if (p_player->m_nextManeuver == -2) {
+				SetAIState(p_player, 4, p_player->m_ai.m_goal, 0);
 				p_player->m_ai.m_flags = 1;
 			}
 			else {
-				choice = p_player->m_unk0x174;
+				choice = p_player->m_nextManeuver;
 			}
 
-			p_player->m_unk0x174 = 0;
+			p_player->m_nextManeuver = 0;
 			break;
 		}
 
-		if (p_player->m_unk0x00 == 1) {
-			if (FUN_10016880(mech)) {
-				choice = 10;
+		if (p_player->m_type == c_playerTypeMech) {
+			if (IsStuck(mech)) {
+				choice = c_maneuverAvoid;
 				break;
 			}
 
 			if (!(p_player->m_ai.m_goal & 0x200)) {
-				choice = 0;
+				choice = c_maneuverStupid;
 				break;
 			}
 
-			if (FUN_10016222(p_player, 0x14) && p_player->m_skillFlag1 && FUN_10015520(p_player) &&
-				FUN_10015e74(p_player, p_player->m_targetInfo.m_position.m_y)) {
-				if (!p_player->m_unk0x172) {
-					choice = 9;
+			if (CanJump(p_player, 0x14) && p_player->m_skillFlag1 && IsBelowHiddenTarget(p_player) &&
+				HasLineToTarget(p_player, p_player->m_targetInfo.m_position.m_y)) {
+				if (!p_player->m_lastManeuver) {
+					choice = c_maneuverWpeek;
 				}
 				else {
-					choice = 0;
+					choice = c_maneuverStupid;
 				}
 
 				if (!choice && RandomIntBelow(2)) {
-					choice = 8;
+					choice = c_maneuverWbackp;
 				}
 				break;
 			}
 		}
 
-		if (p_player->m_unk0x172 == -1) {
-			index = RandomIntBelow(table->m_count - table->m_unk0x02);
+		if (p_player->m_lastManeuver == -1) {
+			index = RandomIntBelow(table->m_count - table->m_followOnly);
 			choice = table->m_entries[index].m_list[0];
 		}
 		else {
-			index = FUN_100140e4(table, p_player->m_unk0x172);
+			index = FindManeuver(table, p_player->m_lastManeuver);
 			if (index == -1) {
 				index = 0;
 			}
@@ -444,25 +446,25 @@ MechS32 FUN_10013d81(Player* p_player)
 			choice = table->m_entries[index].m_list[2 + RandomIntBelow(table->m_entries[index].m_list[1])];
 		}
 
-		if (p_player->m_unk0x172 == 4 && p_player->m_unk0x184 == 1) {
-			choice = 5;
+		if (p_player->m_lastManeuver == c_maneuverAjmpin && p_player->m_maneuverFlag == 1) {
+			choice = c_maneuverAdfa;
 			break;
 		}
 
-		if (choice == 4 && (!FUN_10016222(p_player, 0x14) || !p_player->m_skillFlag1)) {
+		if (choice == c_maneuverAjmpin && (!CanJump(p_player, 0x14) || !p_player->m_skillFlag1)) {
 			choice = -1;
 		}
 
-		if (choice == 4 && FUN_1005432f(p_player) > mech->m_unk0xe0) {
-			choice = 0;
+		if (choice == c_maneuverAjmpin && GetTargetBearing(p_player) > mech->m_maxTorsoTwist) {
+			choice = c_maneuverStupid;
 		}
 
-		if (choice == 3 && mech->m_unk0xe0 < 0xa0000) {
-			choice = 2;
+		if (choice == c_maneuverAsrp && mech->m_maxTorsoTwist < 0xa0000) {
+			choice = c_maneuverAchick;
 		}
 
-		if (choice == 5 && p_player->m_unk0x78) {
-			choice = 0;
+		if (choice == c_maneuverAdfa && p_player->m_onGround) {
+			choice = c_maneuverStupid;
 		}
 	} while (choice == -1);
 
@@ -472,7 +474,7 @@ MechS32 FUN_10013d81(Player* p_player)
 // Returns the index of maneuver p_id in p_table, or -1.
 // The original loads the index before m_entries (index order).
 // FUNCTION: MW2 0x100140e4
-MechS16 FUN_100140e4(SilverBrook0x08* p_table, MechS16 p_id)
+MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 {
 	MechS16 i;
 
@@ -485,172 +487,173 @@ MechS16 FUN_100140e4(SilverBrook0x08* p_table, MechS16 p_id)
 	return -1;
 }
 
-// Starts p_player's maneuver (m_unk0x170): resets its state and sets it up, with the time it
-// ends (m_unk0x178).
+// Starts p_player's maneuver (m_maneuver): resets its state and sets it up, with the time it
+// ends (m_maneuverEnd).
 // FUNCTION: MW2 0x10014149
-void FUN_10014149(Player* p_player)
+void StartManeuver(Player* p_player)
 {
 	p_player->m_ai.m_goal = p_player->m_ai.m_target;
-	p_player->m_unk0x17c = 0;
-	p_player->m_unk0x19a = p_player->m_unk0x180 = p_player->m_unk0x184 = 0;
-	p_player->m_unk0x196 = 0;
-	p_player->m_unk0x178 = g_currentClock + 0x235a;
-	switch (p_player->m_unk0x170) {
-	case 0:
-		p_player->m_unk0x178 = (RandomIntBelow(5) + 8) * 181 + g_currentClock;
+	p_player->m_maneuverTimer = 0;
+	p_player->m_lastTargetDistance = p_player->m_maneuverParam = p_player->m_maneuverFlag = 0;
+	p_player->m_controlsJets = 0;
+	p_player->m_maneuverEnd = g_currentClock + 0x235a;
+	switch (p_player->m_maneuver) {
+	case c_maneuverStupid:
+		p_player->m_maneuverEnd = (RandomIntBelow(5) + 8) * 181 + g_currentClock;
 		break;
-	case 1:
-		p_player->m_unk0x178 = g_currentClock + 0xe24;
-		p_player->m_unk0x184 = -1;
+	case c_maneuverBehind:
+		p_player->m_maneuverEnd = g_currentClock + 0xe24;
+		p_player->m_maneuverFlag = -1;
 		break;
-	case 3:
+	case c_maneuverAsrp:
 		if (RandomIntBelow(2)) {
-			p_player->m_unk0x180 = 1;
+			p_player->m_maneuverParam = 1;
 		}
 		else {
-			p_player->m_unk0x180 = -1;
+			p_player->m_maneuverParam = -1;
 		}
 		break;
-	case 4:
+	case c_maneuverAjmpin:
 		p_player->m_steering->m_throttle = 0;
 		p_player->m_steering->m_turn = 0;
-		p_player->m_unk0x196 = 1;
-		FUN_100156f2(p_player, 1);
-		p_player->m_unk0x178 = g_currentClock + 0x389;
+		p_player->m_controlsJets = 1;
+		SetJumpJets(p_player, 1);
+		p_player->m_maneuverEnd = g_currentClock + 0x389;
 		break;
-	case 11:
+	case c_maneuverSprint:
 		p_player->m_steering->m_turn = 0;
-		p_player->m_unk0x196 = 1;
-		if (!p_player->m_unk0x180 || p_player->m_unk0x180 == 2) {
-			p_player->m_steering->m_unk0x1e = 1;
+		p_player->m_controlsJets = 1;
+		if (!p_player->m_maneuverParam || p_player->m_maneuverParam == 2) {
+			p_player->m_steering->m_jumpJetFireLeft = 1;
 		}
 		else {
-			p_player->m_steering->m_unk0x20 = 1;
+			p_player->m_steering->m_jumpJetFireForward = 1;
 		}
 
-		FUN_100156f2(p_player, 1);
-		p_player->m_unk0x178 = g_currentClock + 0x16a;
+		SetJumpJets(p_player, 1);
+		p_player->m_maneuverEnd = g_currentClock + 0x16a;
 		break;
-	case 5:
-		FUN_10016093(p_player);
-		p_player->m_unk0x196 = 1;
+	case c_maneuverAdfa:
+		GetClosingRate(p_player);
+		p_player->m_controlsJets = 1;
 		break;
-	case 8:
-		p_player->m_unk0x178 = (RandomIntBelow(11) + 10) * 181 + g_currentClock;
-		p_player->m_steering->m_unk0x2f = 1;
+	case c_maneuverWbackp:
+		p_player->m_maneuverEnd = (RandomIntBelow(11) + 10) * 181 + g_currentClock;
+		p_player->m_steering->m_reverse = 1;
 		break;
-	case 7:
+	case c_maneuverWchick:
 		if (p_player->m_targetInfo.m_distance < 4000) {
-			FUN_10014723(p_player, p_player->m_index | 0x200, RandomIntBelow(2) ? 4 : 12, 10000);
+			PlaceOffsetNav(p_player, p_player->m_index | 0x200, RandomIntBelow(2) ? 4 : 12, 10000);
 		}
 		else {
-			FUN_10014723(p_player, p_player->m_index | 0x200, RandomIntBelow(2) ? 3 : 15, 10000);
+			PlaceOffsetNav(p_player, p_player->m_index | 0x200, RandomIntBelow(2) ? 3 : 15, 10000);
 		}
 		break;
-	case 9:
-		p_player->m_unk0x180 = 0;
+	case c_maneuverWpeek:
+		p_player->m_maneuverParam = 0;
 		p_player->m_steering->m_turn = 0;
-		p_player->m_unk0x196 = 1;
+		p_player->m_controlsJets = 1;
 		break;
-	case 10:
-		if (!p_player->m_mech->m_unk0xa4 || p_player->m_unk0x172 != 10 || p_player->m_unk0x7c != -1) {
-			p_player->m_steering->m_unk0x2f = 1;
-			p_player->m_unk0x178 = g_currentClock + 0x5a8;
+	case c_maneuverAvoid:
+		if (!p_player->m_mech->m_collisionTicks || p_player->m_lastManeuver != c_maneuverAvoid ||
+			p_player->m_collidedWith != -1) {
+			p_player->m_steering->m_reverse = 1;
+			p_player->m_maneuverEnd = g_currentClock + 0x5a8;
 		}
 		else {
-			p_player->m_unk0x178 = g_currentClock + 0x2d4;
+			p_player->m_maneuverEnd = g_currentClock + 0x2d4;
 		}
 		break;
-	case 12:
-		p_player->m_unk0x178 = g_currentClock + 0x46b4;
-		FUN_10054851(p_player);
+	case c_maneuverCircle:
+		p_player->m_maneuverEnd = g_currentClock + 0x46b4;
+		PlacePatrolNavs(p_player);
 		break;
 	default:
 		break;
 	}
 }
 
-// Ends p_player's maneuver (m_unk0x170): undoes what it set up, records it as the previous one
+// Ends p_player's maneuver (m_maneuver): undoes what it set up, records it as the previous one
 // and makes the goal the target again.
 // FUNCTION: MW2 0x1001450e
-void FUN_1001450e(Player* p_player)
+void EndManeuver(Player* p_player)
 {
-	switch (p_player->m_unk0x170) {
-	case 1:
-		FUN_10054778(p_player);
+	switch (p_player->m_maneuver) {
+	case c_maneuverBehind:
+		ReleaseNavPoints(p_player);
 		if (p_player->m_ai.m_goal & 0x200) {
-			g_players[p_player->m_ai.m_goal & 0xff]->m_unk0x1a2[p_player->m_unk0x180 / 2]--;
+			g_players[p_player->m_ai.m_goal & 0xff]->m_placesTaken[p_player->m_maneuverParam / 2]--;
 		}
 		break;
-	case 4:
-		FUN_100156f2(p_player, 0);
+	case c_maneuverAjmpin:
+		SetJumpJets(p_player, 0);
 		break;
-	case 11:
-		p_player->m_steering->m_unk0x20 = 0;
-		p_player->m_steering->m_unk0x21 = 0;
-		p_player->m_steering->m_unk0x1e = 0;
-		p_player->m_steering->m_unk0x1f = 0;
-		FUN_100156f2(p_player, 0);
+	case c_maneuverSprint:
+		p_player->m_steering->m_jumpJetFireForward = 0;
+		p_player->m_steering->m_jumpJetFireBackward = 0;
+		p_player->m_steering->m_jumpJetFireLeft = 0;
+		p_player->m_steering->m_jumpJetFireRight = 0;
+		SetJumpJets(p_player, 0);
 		break;
-	case 5:
-		FUN_100156f2(p_player, 0);
-		p_player->m_steering->m_unk0x20 = 0;
-		p_player->m_steering->m_unk0x21 = 0;
+	case c_maneuverAdfa:
+		SetJumpJets(p_player, 0);
+		p_player->m_steering->m_jumpJetFireForward = 0;
+		p_player->m_steering->m_jumpJetFireBackward = 0;
 		break;
-	case 8:
-	case 10:
-		p_player->m_steering->m_unk0x2f = 0;
+	case c_maneuverWbackp:
+	case c_maneuverAvoid:
+		p_player->m_steering->m_reverse = 0;
 		break;
-	case 7:
-		FUN_10054778(p_player);
+	case c_maneuverWchick:
+		ReleaseNavPoints(p_player);
 		break;
-	case 9:
-		FUN_100156f2(p_player, 0);
+	case c_maneuverWpeek:
+		SetJumpJets(p_player, 0);
 		break;
-	case 12:
-		FUN_10054778(p_player);
+	case c_maneuverCircle:
+		ReleaseNavPoints(p_player);
 		break;
-	case 2:
-	case 3:
-	case 6:
+	case c_maneuverAchick:
+	case c_maneuverAsrp:
+	case c_maneuverKama:
 		break;
 	}
 
-	FUN_100156f2(p_player, 0);
-	p_player->m_unk0x172 = p_player->m_unk0x170;
-	p_player->m_unk0x170 = -1;
-	p_player->m_unk0x178 = p_player->m_unk0x17c = 0;
+	SetJumpJets(p_player, 0);
+	p_player->m_lastManeuver = p_player->m_maneuver;
+	p_player->m_maneuver = -1;
+	p_player->m_maneuverEnd = p_player->m_maneuverTimer = 0;
 	p_player->m_ai.m_target = p_player->m_ai.m_goal;
-	p_player->m_unk0x180 = p_player->m_unk0x184 = 0;
-	FUN_1005372c(p_player, p_player->m_ai.m_goal);
+	p_player->m_maneuverParam = p_player->m_maneuverFlag = 0;
+	SetTarget(p_player, p_player->m_ai.m_goal);
 }
 
-// Places a nav point for p_player where FUN_100147d0 puts it, and makes it the player's target.
+// Places a nav point for p_player where GetOffsetPoint puts it, and makes it the player's target.
 // The only diff is a stack-slot permutation of x, y, z and nav.
 // FUNCTION: MW2 0x10014723
-void FUN_10014723(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS16 p_unk0x0c)
+void PlaceOffsetNav(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS16 p_unk0x0c)
 {
 	MechS32 z;
 	MechS32 y;
 	MechS32 x;
 	MechS32 nav;
 
-	FUN_100147d0(p_unk0x04, p_unk0x08, &x, &z, &y, p_unk0x0c);
+	GetOffsetPoint(p_unk0x04, p_unk0x08, &x, &z, &y, p_unk0x0c);
 	nav = FUN_1005ec80(p_player->m_index, x, y, z);
 	if (nav != -1) {
 		g_navTable[nav].m_flags |= 1;
 		g_navTable[nav].m_owner = p_player->m_index | 0x200;
-		FUN_10054a30(p_player, 0x100);
+		AdvanceNavTarget(p_player, 0x100);
 	}
 }
 
-// Finds the point p_unk0x14 units out in direction p_unk0x04 (of g_unk0x100a2900's 16) from
+// Finds the point p_unk0x14 units out in direction p_unk0x04 (of g_probeDirections's 16) from
 // target p_unk0x00, a player (0x200) or a game thing (0x400), in world coordinates; for a player
 // *p_y takes its heading. A game thing without an object is offset from its position.
 // The empty else arms give the original's jmp to the next statement after each offset. The only
 // other diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100147d0
-void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p_z, MechS32* p_y, MechS16 p_unk0x14)
+void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p_z, MechS32* p_y, MechS16 p_unk0x14)
 {
 	MechU32 index;
 	MechS32 thing;
@@ -671,14 +674,14 @@ void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p
 		if (!obj) {
 			FUN_10020c6f(thing, p_x, p_y, p_z);
 			*p_y = 0;
-			if (g_unk0x100a2900[p_unk0x04].m_x) {
-				*p_x += p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_x;
+			if (g_probeDirections[p_unk0x04].m_x) {
+				*p_x += p_unk0x14 / g_probeDirections[p_unk0x04].m_x;
 			}
 			else {
 			}
 
-			if (g_unk0x100a2900[p_unk0x04].m_y) {
-				*p_z += p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_y;
+			if (g_probeDirections[p_unk0x04].m_y) {
+				*p_z += p_unk0x14 / g_probeDirections[p_unk0x04].m_y;
 			}
 			else {
 			}
@@ -690,15 +693,15 @@ void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p
 		break;
 	}
 
-	if (g_unk0x100a2900[p_unk0x04].m_x) {
-		*p_x = p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_x;
+	if (g_probeDirections[p_unk0x04].m_x) {
+		*p_x = p_unk0x14 / g_probeDirections[p_unk0x04].m_x;
 	}
 	else {
 		*p_x = 0;
 	}
 
-	if (g_unk0x100a2900[p_unk0x04].m_y) {
-		*p_z = p_unk0x14 / g_unk0x100a2900[p_unk0x04].m_y;
+	if (g_probeDirections[p_unk0x04].m_y) {
+		*p_z = p_unk0x14 / g_probeDirections[p_unk0x04].m_y;
 	}
 	else {
 		*p_z = 0;
@@ -711,7 +714,7 @@ void FUN_100147d0(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p
 // Whether p_turn (16.16 degrees) is a sharp turn, past 5 degrees either way; a stopped player
 // then creeps forward.
 // FUNCTION: MW2 0x1001498c
-MechS32 FUN_1001498c(Player* p_player, MechS32 p_turn)
+MechS32 IsSharpTurn(Player* p_player, MechS32 p_turn)
 {
 	MechS32 sharp;
 
@@ -726,99 +729,100 @@ MechS32 FUN_1001498c(Player* p_player, MechS32 p_turn)
 	return sharp;
 }
 
+// Steers p_player at p_target and closes to 15000, asking for c_maneuverAvoid within 4500.
 // FUNCTION: MW2 0x100149e7
-void FUN_100149e7(Player* p_player, MechS16 p_target)
+void ManeuverStupid(Player* p_player, MechS16 p_target)
 {
 	MechS32 range;
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_target);
-	if (!FUN_10015709(p_player)) {
+	SetTarget(p_player, p_target);
+	if (!AvoidObstacles(p_player)) {
 		range = 15000;
-		p_player->m_steering->m_throttle = FUN_10053811(p_player, range);
-		heading = FUN_1005398f(p_player);
-		FUN_1001498c(p_player, heading);
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, range);
+		heading = SteerToTarget(p_player);
+		IsSharpTurn(p_player, heading);
 	}
 	else {
-		heading = FUN_1005432f(p_player);
+		heading = GetTargetBearing(p_player);
 	}
 
 	if (p_player->m_targetInfo.m_distance < 4500) {
-		p_player->m_unk0x174 = 10;
+		p_player->m_nextManeuver = c_maneuverAvoid;
 	}
 
 	FUN_1004b5a0(p_player, heading);
-	FUN_100160eb(p_player);
+	JumpToTurn(p_player);
 }
 
 // Turns p_player toward its goal and closes on its target; once stopped and turned more than 5
-// degrees away, turns in place (FUN_1001498c) until the target is more than 4500 away.
+// degrees away, turns in place (IsSharpTurn) until the target is more than 4500 away.
 // FUNCTION: MW2 0x10014aa8
-void FUN_10014aa8(Player* p_player, MechS16 p_target)
+void ManeuverBehind(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_player->m_ai.m_goal);
-	heading = FUN_1005432f(p_player);
+	SetTarget(p_player, p_player->m_ai.m_goal);
+	heading = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, heading);
-	if (!p_player->m_unk0x184) {
-		FUN_1005372c(p_player, p_player->m_ai.m_target);
-		if (!FUN_10015709(p_player)) {
-			FUN_1005398f(p_player);
-			p_player->m_steering->m_throttle = FUN_10053811(p_player, 4000);
+	if (!p_player->m_maneuverFlag) {
+		SetTarget(p_player, p_player->m_ai.m_target);
+		if (!AvoidObstacles(p_player)) {
+			SteerToTarget(p_player);
+			p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 4000);
 		}
 
 		if (!p_player->m_steering->m_throttle && abs(heading) > 0x50000) {
-			p_player->m_unk0x184 = 1;
+			p_player->m_maneuverFlag = 1;
 		}
 
-		FUN_100160eb(p_player);
+		JumpToTurn(p_player);
 	}
 
-	if (p_player->m_unk0x184 == 1) {
-		if (FUN_10015709(p_player)) {
-			heading = FUN_1005432f(p_player);
+	if (p_player->m_maneuverFlag == 1) {
+		if (AvoidObstacles(p_player)) {
+			heading = GetTargetBearing(p_player);
 		}
 		else {
-			heading = FUN_1005398f(p_player);
+			heading = SteerToTarget(p_player);
 		}
 
-		if (!FUN_1001498c(p_player, heading)) {
+		if (!IsSharpTurn(p_player, heading)) {
 			p_player->m_steering->m_throttle = 0;
 		}
 		else {
-			FUN_100160eb(p_player);
+			JumpToTurn(p_player);
 		}
 
-		FUN_1005372c(p_player, p_player->m_ai.m_target);
+		SetTarget(p_player, p_player->m_ai.m_target);
 		if (p_player->m_targetInfo.m_distance > 4500) {
-			p_player->m_unk0x184 = 0;
+			p_player->m_maneuverFlag = 0;
 		}
 	}
 }
 
-// Closes on p_target. Whether it is within 8000, or more when closing fast (FUN_10016093, per
+// Closes on p_target. Whether it is within 8000, or more when closing fast (GetClosingRate, per
 // 500000).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10014c3d
-MechS32 FUN_10014c3d(Player* p_player, MechS16 p_target)
+MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 {
 	MechDouble scale;
 	MechS32 heading;
 	MechS32 result;
 
 	result = FALSE;
-	FUN_1005372c(p_player, p_target);
-	if (!FUN_10015709(p_player)) {
-		heading = FUN_1005398f(p_player);
-		p_player->m_steering->m_throttle = FUN_10053811(p_player, 5500);
+	SetTarget(p_player, p_target);
+	if (!AvoidObstacles(p_player)) {
+		heading = SteerToTarget(p_player);
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 5500);
 	}
 	else {
-		heading = FUN_1005432f(p_player);
+		heading = GetTargetBearing(p_player);
 	}
 
 	FUN_1004b5a0(p_player, heading);
-	scale = FixedDiv16(FUN_10016093(p_player) << 16, 500000) / 65536.0;
+	scale = FixedDiv16(GetClosingRate(p_player) << 16, 500000) / 65536.0;
 	if (scale < 1.0) {
 		scale = 1.0;
 	}
@@ -827,108 +831,109 @@ MechS32 FUN_10014c3d(Player* p_player, MechS16 p_target)
 		result = TRUE;
 	}
 
-	FUN_100160eb(p_player);
+	JumpToTurn(p_player);
 	return result;
 }
 
-// Closes on p_target's shape until it is its target's again. Whether it is within 2000 (then it
-// sets steering flag 0x43).
+// Runs at p_target, even when the shape AvoidObstacles steers around is the target's own, and
+// self-destructs within 2000 of it. Whether it did.
 // FUNCTION: MW2 0x10014d4e
-MechS32 FUN_10014d4e(Player* p_player, MechS16 p_target)
+MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 {
 	MechS32 result;
 
 	result = FALSE;
-	FUN_1005372c(p_player, p_target);
-	if (!FUN_10015709(p_player) || FUN_1001627f(p_target) == p_player->m_unk0x188) {
-		FUN_1005398f(p_player);
-		p_player->m_steering->m_throttle = FUN_10053811(p_player, 0);
+	SetTarget(p_player, p_target);
+	if (!AvoidObstacles(p_player) || GetTargetShape(p_target) == p_player->m_avoidShape) {
+		SteerToTarget(p_player);
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 0);
 	}
 
-	if (p_player->m_targetInfo.m_unk0x04 <= 2000) {
-		p_player->m_steering->m_unk0x43 = 1;
+	if (p_player->m_targetInfo.m_range <= 2000) {
+		p_player->m_steering->m_selfDestruct = 1;
 		result = TRUE;
 	}
 
 	return result;
 }
 
+// Backs p_player away from p_target at full throttle, facing it. Whether its mech collides.
 // The only diff is a stack-slot permutation of heading and result.
 // FUNCTION: MW2 0x10014df1
-MechS32 FUN_10014df1(Player* p_player, MechS16 p_target)
+MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 	MechS32 result;
 
-	FUN_1005372c(p_player, p_target);
-	heading = FUN_1005398f(p_player);
+	SetTarget(p_player, p_target);
+	heading = SteerToTarget(p_player);
 	FUN_1004b5a0(p_player, heading);
-	result = p_player->m_mech->m_unk0xa4;
+	result = p_player->m_mech->m_collisionTicks;
 	p_player->m_steering->m_throttle = 0x400;
-	FUN_100160eb(p_player);
+	JumpToTurn(p_player);
 	return result;
 }
 
 // Turns p_player toward its goal and closes on its target. Whether it is within 3000.
 // FUNCTION: MW2 0x10014e5e
-MechS32 FUN_10014e5e(Player* p_player, MechS16 p_target)
+MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_player->m_ai.m_goal);
-	heading = FUN_1005432f(p_player);
+	SetTarget(p_player, p_player->m_ai.m_goal);
+	heading = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, heading);
-	FUN_1005372c(p_player, p_player->m_ai.m_target);
-	if (!FUN_10015709(p_player)) {
-		p_player->m_steering->m_throttle = FUN_10053811(p_player, 3000);
-		FUN_1005398f(p_player);
+	SetTarget(p_player, p_player->m_ai.m_target);
+	if (!AvoidObstacles(p_player)) {
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 3000);
+		SteerToTarget(p_player);
 	}
 
-	FUN_100160eb(p_player);
+	JumpToTurn(p_player);
 	return p_player->m_targetInfo.m_distance <= 3000;
 }
 
-// Turns p_player toward p_target and runs an attack in three steps (m_unk0x180): steer at it
-// while it can fire and has a line to it, then for a second, then FUN_100155e1. Whether that ended.
+// Turns p_player toward p_target and runs an attack in three steps (m_maneuverParam): steer at it
+// while it can fire and has a line to it, then for a second, then BrakeFall. Whether that ended.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10014f23
-MechS32 FUN_10014f23(Player* p_player, MechS16 p_target)
+MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 	MechS32 result;
 
 	result = FALSE;
-	FUN_1005372c(p_player, p_target);
-	heading = FUN_1005432f(p_player);
+	SetTarget(p_player, p_target);
+	heading = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, heading);
-	switch (p_player->m_unk0x180) {
+	switch (p_player->m_maneuverParam) {
 	case 0:
-		if (FUN_10016222(p_player, 40) && FUN_10015520(p_player)) {
-			FUN_100156f2(p_player, 1);
+		if (CanJump(p_player, 40) && IsBelowHiddenTarget(p_player)) {
+			SetJumpJets(p_player, 1);
 		}
 		else {
-			FUN_100156f2(p_player, 0);
-			p_player->m_unk0x180 = 1;
-			if (FUN_10016222(p_player, 20) && !RandomIntBelow(4)) {
-				p_player->m_unk0x174 = 5;
+			SetJumpJets(p_player, 0);
+			p_player->m_maneuverParam = 1;
+			if (CanJump(p_player, 20) && !RandomIntBelow(4)) {
+				p_player->m_nextManeuver = c_maneuverAdfa;
 			}
 
-			p_player->m_unk0x17c = g_currentClock + 181;
+			p_player->m_maneuverTimer = g_currentClock + 181;
 		}
 		break;
 	case 1:
-		if (p_player->m_unk0x17c < g_currentClock) {
-			p_player->m_unk0x180 = 2;
-			FUN_100156f2(p_player, 0);
+		if (p_player->m_maneuverTimer < g_currentClock) {
+			p_player->m_maneuverParam = 2;
+			SetJumpJets(p_player, 0);
 		}
 		else {
-			FUN_100156f2(p_player, 1);
+			SetJumpJets(p_player, 1);
 		}
 
-		FUN_1005398f(p_player);
+		SteerToTarget(p_player);
 		break;
 	case 2:
-		if (FUN_100155e1(p_player)) {
+		if (BrakeFall(p_player)) {
 			result = TRUE;
 		}
 		break;
@@ -939,12 +944,12 @@ MechS32 FUN_10014f23(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target. Whether the player is at least 2000 above it.
 // FUNCTION: MW2 0x100150c1
-MechS32 FUN_100150c1(Player* p_player, MechS16 p_target)
+MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_target);
-	heading = FUN_1005432f(p_player);
+	SetTarget(p_player, p_target);
+	heading = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, heading);
 	if (p_player->m_position.m_y >= p_player->m_targetInfo.m_position.m_y + 2000) {
 		return 1;
@@ -956,21 +961,23 @@ MechS32 FUN_100150c1(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target.
 // FUNCTION: MW2 0x1001512e
-MechS32 FUN_1001512e(Player* p_player, MechS16 p_target)
+MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_target);
-	heading = FUN_1005432f(p_player);
+	SetTarget(p_player, p_target);
+	heading = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, heading);
 	return 0;
 }
 
-// Turns p_player toward p_target and circles it (steering flags 0x20/0x21) while more than 1000
-// away, counting the passes it makes closer in (m_unk0x180). Whether it has weapons ready.
+// Turns p_player toward p_target and jumps at it while more than 1000 away, firing the jets
+// forward or backward by how fast it closes; closer in, it cuts them, counting the ticks it was
+// still jumping (m_maneuverParam; it stops at 2). Whether it is done: on the ground, colliding, or unable to
+// jump on.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015172
-MechS32 FUN_10015172(Player* p_player, MechS16 p_target)
+MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 {
 	MechS32 rate;
 	MechS32 result;
@@ -979,24 +986,24 @@ MechS32 FUN_10015172(Player* p_player, MechS16 p_target)
 	Mech* mech;
 	Mech* targetMech;
 
-	FUN_1005372c(p_player, p_target);
-	turn = FUN_1005432f(p_player);
+	SetTarget(p_player, p_target);
+	turn = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, turn);
-	if (p_player->m_unk0x78 || p_player->m_mech->m_unk0xa4) {
+	if (p_player->m_onGround || p_player->m_mech->m_collisionTicks) {
 		result = TRUE;
 	}
 	else {
 		result = FALSE;
 	}
 
-	if (p_player->m_unk0x180 == 2) {
+	if (p_player->m_maneuverParam == 2) {
 		return result;
 	}
 
 	turn = abs(turn);
 	targetMech = g_players[p_target & 0xff]->m_mech;
 	mech = p_player->m_mech;
-	if (turn > mech->m_unk0xe0 && turn < mech->m_unk0xe0 * 3) {
+	if (turn > mech->m_maxTorsoTwist && turn < mech->m_maxTorsoTwist * 3) {
 		side = 1;
 	}
 	else {
@@ -1004,97 +1011,99 @@ MechS32 FUN_10015172(Player* p_player, MechS16 p_target)
 	}
 
 	if (p_player->m_targetInfo.m_distance > 1000) {
-		rate = FUN_10016093(p_player);
+		rate = GetClosingRate(p_player);
 		if (rate > (p_player->m_targetInfo.m_distance <= 6000 ? 9 : 36)) {
-			FUN_10016057(p_player, side);
+			SetJumpDirection(p_player, side);
 		}
 		else {
-			FUN_10016057(p_player, !side);
+			SetJumpDirection(p_player, !side);
 		}
 
-		FUN_100156f2(p_player, 1);
-		if (!FUN_10016222(p_player, 40)) {
+		SetJumpJets(p_player, 1);
+		if (!CanJump(p_player, 40)) {
 			result = TRUE;
 		}
 	}
 	else {
-		if (p_player->m_steering->m_unk0x1d) {
-			p_player->m_unk0x180++;
+		if (p_player->m_steering->m_jumpJetEnabled) {
+			p_player->m_maneuverParam++;
 		}
 
-		FUN_100156f2(p_player, 0);
-		p_player->m_steering->m_unk0x20 = 0;
-		p_player->m_steering->m_unk0x21 = 0;
+		SetJumpJets(p_player, 0);
+		p_player->m_steering->m_jumpJetFireForward = 0;
+		p_player->m_steering->m_jumpJetFireBackward = 0;
 	}
 
 	return result;
 }
 
+// Drives p_player at full throttle (backwards while StartManeuver set m_reverse), steering
+// towards p_target.
 // FUNCTION: MW2 0x10015342
-void FUN_10015342(Player* p_player, MechS16 p_target)
+void ManeuverAvoid(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 
-	FUN_1005372c(p_player, p_target);
-	if (!p_player->m_steering->m_unk0x2f) {
-		if (!FUN_10015709(p_player)) {
-			heading = FUN_1005398f(p_player);
+	SetTarget(p_player, p_target);
+	if (!p_player->m_steering->m_reverse) {
+		if (!AvoidObstacles(p_player)) {
+			heading = SteerToTarget(p_player);
 		}
 		else {
-			heading = FUN_1005432f(p_player);
+			heading = GetTargetBearing(p_player);
 		}
 	}
 	else {
-		heading = FUN_1005398f(p_player);
+		heading = SteerToTarget(p_player);
 	}
 
 	FUN_1004b5a0(p_player, heading);
 	p_player->m_steering->m_throttle = 0x400;
-	FUN_100160eb(p_player);
+	JumpToTurn(p_player);
 }
 
-// Turns p_player toward its goal and closes on its target, giving up the goal (FUN_10054778,
-// FUN_10054851) now and then while far from the target, and handing the target to FUN_10054a30
+// Turns p_player toward its goal and closes on its target, giving up the goal (ReleaseNavPoints,
+// PlacePatrolNavs) now and then while far from the target, and handing the target to AdvanceNavTarget
 // within 3000.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100153e6
-MechS32 FUN_100153e6(Player* p_player, MechS16 p_target)
+MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 {
 	MechS32 heading;
 	MechS32 result;
 
 	result = 0;
-	FUN_1005372c(p_player, p_player->m_ai.m_goal);
-	if (p_player->m_unk0x17c < g_currentClock) {
+	SetTarget(p_player, p_player->m_ai.m_goal);
+	if (p_player->m_maneuverTimer < g_currentClock) {
 		if (p_player->m_targetInfo.m_distance > 15000.0) {
-			FUN_10054778(p_player);
-			FUN_10054851(p_player);
+			ReleaseNavPoints(p_player);
+			PlacePatrolNavs(p_player);
 		}
 
-		p_player->m_unk0x17c = g_currentClock + 0x5a8;
+		p_player->m_maneuverTimer = g_currentClock + 0x5a8;
 	}
 
-	heading = FUN_1005432f(p_player);
+	heading = GetTargetBearing(p_player);
 	FUN_1004b5a0(p_player, heading);
-	FUN_1005372c(p_player, p_player->m_ai.m_target);
-	if (!FUN_10015709(p_player)) {
-		p_player->m_steering->m_throttle = FUN_10053811(p_player, 3000);
-		FUN_1005398f(p_player);
+	SetTarget(p_player, p_player->m_ai.m_target);
+	if (!AvoidObstacles(p_player)) {
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 3000);
+		SteerToTarget(p_player);
 	}
 
-	FUN_100160eb(p_player);
+	JumpToTurn(p_player);
 	if (p_player->m_targetInfo.m_distance <= 3000) {
-		FUN_10054a30(p_player, p_player->m_ai.m_target);
+		AdvanceNavTarget(p_player, p_player->m_ai.m_target);
 	}
 
 	return result;
 }
 
-// Whether p_player, targeting a player it has a clear line to, is more than 800 below it with
-// m_unk0xc0 not negative.
+// Whether p_player, targeting a player it has no clear line to, is more than 800 below it, with
+// jump jets (its jump fuel not negative).
 // The only diff is a stack-slot permutation of index and below.
 // FUNCTION: MW2 0x10015520
-MechS32 FUN_10015520(Player* p_player)
+MechS32 IsBelowHiddenTarget(Player* p_player)
 {
 	MechS16 index;
 	MechS32 below;
@@ -1105,9 +1114,9 @@ MechS32 FUN_10015520(Player* p_player)
 	default:
 		break;
 	case 0x200:
-		if (!FUN_10015e74(p_player, p_player->m_position.m_y)) {
+		if (!HasLineToTarget(p_player, p_player->m_position.m_y)) {
 			if (p_player->m_targetInfo.m_position.m_y - 800 > p_player->m_position.m_y &&
-				p_player->m_mech->m_unk0xc0 >= 0) {
+				p_player->m_mech->m_jumpFuel >= 0) {
 				below = 1;
 			}
 			else {
@@ -1120,34 +1129,34 @@ MechS32 FUN_10015520(Player* p_player)
 	return below;
 }
 
-// Near the ground, sets the player's m_unk0x1d while its mech falls faster than 85% of the fall
+// Near the ground, fires the player's jump jets while its mech falls faster than 85% of the fall
 // damage speed and clears it once it is slower than 75%, and logs a fall faster than that speed.
-// Returns the player's m_unk0x78.
+// Returns whether the player is on the ground.
 // Stack-slot permutation: line, value and mech.
 // FUNCTION: MW2 0x100155e1
-MechS32 FUN_100155e1(Player* p_player)
+MechS32 BrakeFall(Player* p_player)
 {
 	MechChar line[80];
 	MechS16 value;
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	if (mech->m_unk0xc0 < 0 || !mech->m_unk0xec) {
-		return p_player->m_unk0x78;
+	if (mech->m_jumpFuel < 0 || !mech->m_jumpThrust) {
+		return p_player->m_onGround;
 	}
 
-	value = p_player->m_steering->m_unk0x1d;
+	value = p_player->m_steering->m_jumpJetEnabled;
 	if (p_player->m_position.m_y < 20000) {
-		if (mech->m_unk0xf8 < -0x102762 * 0.85) {
+		if (mech->m_velocityY < -0x102762 * 0.85) {
 			value = 1;
 		}
-		else if (mech->m_unk0xf8 > -0x102762 * 0.75) {
+		else if (mech->m_velocityY > -0x102762 * 0.75) {
 			value = 0;
 		}
 	}
 
-	FUN_100156f2(p_player, value);
-	if (mech->m_unk0xf8 < -0x102762) {
+	SetJumpJets(p_player, value);
+	if (mech->m_velocityY < -0x102762) {
 		sprintf(
 			line,
 			"%6ld : %2d Mech %2d has exceded fall damage speed.\n",
@@ -1158,22 +1167,23 @@ MechS32 FUN_100155e1(Player* p_player)
 		WriteToMw2Log(line);
 	}
 
-	return p_player->m_unk0x78;
+	return p_player->m_onGround;
 }
 
+// Fires (p_value set) or cuts p_player's jump jets.
 // FUNCTION: MW2 0x100156f2
-void FUN_100156f2(Player* p_player, MechS8 p_value)
+void SetJumpJets(Player* p_player, MechS8 p_value)
 {
-	p_player->m_steering->m_unk0x1d = p_value;
+	p_player->m_steering->m_jumpJetEnabled = p_value;
 }
 
-// Steers p_player's mech around what lies ahead: casts up to four probe rays (FUN_10015b9f) on
-// the avoiding side m_unk0x190, as long as the mech's speed (m_unk0x192), and turns away from what
+// Steers p_player's mech around what lies ahead: casts up to four probe rays (BuildProbeRay) on
+// the avoiding side m_avoidSide, as long as the mech's speed (m_probeScale), and turns away from what
 // they hit, slowing down if the first one hits. Returns whether it steered. Between checks (every
 // 10 ticks for the local player, 90 or 181 for others) it returns whether it is avoiding a shape.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015709
-MechS32 FUN_10015709(Player* p_player)
+MechS32 AvoidObstacles(Player* p_player)
 {
 	MechS32 length;
 	Shape* hit;
@@ -1185,68 +1195,75 @@ MechS32 FUN_10015709(Player* p_player)
 
 	turn = 0;
 	mech = p_player->m_mech;
-	if (!mech->m_unk0x88 || (!p_player->m_unk0x190 && !p_player->m_steering->m_throttle) ||
-		p_player->m_steering->m_unk0x2f) {
+	if (!mech->m_topSpeed || (!p_player->m_avoidSide && !p_player->m_steering->m_throttle) ||
+		p_player->m_steering->m_reverse) {
 		return FALSE;
 	}
 
-	if (p_player->m_unk0x18c > g_currentClock) {
-		return p_player->m_unk0x188 ? TRUE : FALSE;
+	if (p_player->m_nextAvoidCheck > g_currentClock) {
+		return p_player->m_avoidShape ? TRUE : FALSE;
 	}
 
-	if (!p_player->m_unk0x190) {
-		length = ApproximateVectorLength(mech->m_unk0xf4, 0, mech->m_unk0xfc);
-		p_player->m_unk0x192 = FixedDiv16(length, 0x7a120);
-		if (p_player->m_unk0x00 != 1) {
-			p_player->m_unk0x192 >>= 1;
+	if (!p_player->m_avoidSide) {
+		length = ApproximateVectorLength(mech->m_velocityX, 0, mech->m_velocityZ);
+		p_player->m_probeScale = FixedDiv16(length, 0x7a120);
+		if (p_player->m_type != c_playerTypeMech) {
+			p_player->m_probeScale >>= 1;
 		}
 
-		if (p_player->m_unk0x192 < 0.3 * 0x10000) {
-			p_player->m_unk0x192 = 0x4ccc;
+		if (p_player->m_probeScale < 0.3 * 0x10000) {
+			p_player->m_probeScale = 0x4ccc;
 		}
 	}
 
 	for (i = 0; i < 4; i++) {
-		FUN_10015b9f(p_player, &ray, p_player->m_unk0x190, i, FixedMul16(p_player->m_unk0x192, 0x13880000) >> 16, 0);
+		BuildProbeRay(
+			p_player,
+			&ray,
+			p_player->m_avoidSide,
+			i,
+			FixedMul16(p_player->m_probeScale, 0x13880000) >> 16,
+			0
+		);
 		if (TestSegmentCollision(&ray, &hit, p_player->m_index)) {
-			if (FUN_10015b40(hit)) {
+			if (IsStandableShape(hit)) {
 				break;
 			}
 
-			if (!p_player->m_unk0x190) {
-				p_player->m_unk0x190 = FUN_10015d2a(
+			if (!p_player->m_avoidSide) {
+				p_player->m_avoidSide = GetAvoidSide(
 					p_player,
 					hit,
 					p_player->m_position.m_x,
 					p_player->m_position.m_y,
 					p_player->m_position.m_z
 				);
-				p_player->m_unk0x188 = hit;
+				p_player->m_avoidShape = hit;
 			}
 
-			turn += (MechS32) (p_player->m_unk0x190 * (0.2 * 0x10000000) / 4);
+			turn += (MechS32) (p_player->m_avoidSide * (0.2 * 0x10000000) / 4);
 		}
 		else {
-			if (i == 0 && abs(FUN_1005432f(p_player)) <= 0x10000) {
-				p_player->m_unk0x188 = NULL;
-				p_player->m_unk0x190 = 0;
+			if (i == 0 && abs(GetTargetBearing(p_player)) <= 0x10000) {
+				p_player->m_avoidShape = NULL;
+				p_player->m_avoidSide = 0;
 			}
 
-			if (i == 0 && p_player->m_unk0x190) {
-				FUN_10015b9f(
+			if (i == 0 && p_player->m_avoidSide) {
+				BuildProbeRay(
 					p_player,
 					&ray,
-					-p_player->m_unk0x190,
+					-p_player->m_avoidSide,
 					1,
-					FixedMul16(p_player->m_unk0x192, 0x13880000) >> 16,
+					FixedMul16(p_player->m_probeScale, 0x13880000) >> 16,
 					1
 				);
 				if (TestSegmentCollision(&ray, &hit, p_player->m_index)) {
-					if (FUN_10015b40(hit)) {
+					if (IsStandableShape(hit)) {
 						break;
 					}
 
-					turn += (MechS32) (p_player->m_unk0x190 * (0.1 * 0x10000000));
+					turn += (MechS32) (p_player->m_avoidSide * (0.1 * 0x10000000));
 				}
 			}
 
@@ -1255,10 +1272,10 @@ MechS32 FUN_10015709(Player* p_player)
 	}
 
 	if (turn) {
-		turn = FUN_10015e34(turn, 0x3333333);
+		turn = ClampMagnitude(turn, 0x3333333);
 		p_player->m_steering->m_turn = turn;
 		if (p_player->m_index == g_localPlayerId) {
-			throttle = p_player->m_unk0x180;
+			throttle = p_player->m_maneuverParam;
 		}
 		else {
 			throttle = 0x400;
@@ -1271,17 +1288,17 @@ MechS32 FUN_10015709(Player* p_player)
 			p_player->m_steering->m_throttle = 0x100;
 		}
 
-		if (p_player->m_unk0x00 == 6) {
+		if (p_player->m_type == c_playerTypeWanderer) {
 			p_player->m_steering->m_throttle = 0;
 			p_player->m_steering->m_turn = 0;
 		}
 	}
 
 	if (p_player->m_index == g_localPlayerId) {
-		p_player->m_unk0x18c = g_currentClock + 10;
+		p_player->m_nextAvoidCheck = g_currentClock + 10;
 	}
 	else {
-		p_player->m_unk0x18c = g_currentClock + (p_player->m_unk0x188 ? 90 : 181);
+		p_player->m_nextAvoidCheck = g_currentClock + (p_player->m_avoidShape ? 90 : 181);
 	}
 
 	return turn ? TRUE : FALSE;
@@ -1289,7 +1306,7 @@ MechS32 FUN_10015709(Player* p_player)
 
 // Whether p_shape is solid ground to stand on: a flat enough face or a shape of type 0x50.
 // FUNCTION: MW2 0x10015b40
-MechS32 FUN_10015b40(Shape* p_shape)
+MechS32 IsStandableShape(Shape* p_shape)
 {
 	if (FUN_10034db8(p_shape) && g_segmentNormalY >= 0xc41b) {
 		return 1;
@@ -1302,7 +1319,7 @@ MechS32 FUN_10015b40(Shape* p_shape)
 // negative p_side) in the mech's frame, from its position or, with p_fromEdge, from its side.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015b9f
-void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, MechS32 p_length, MechS32 p_fromEdge)
+void BuildProbeRay(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, MechS32 p_length, MechS32 p_fromEdge)
 {
 	Matrix* matrix;
 	MechS32 x;
@@ -1316,8 +1333,8 @@ void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, 
 	dy = 0;
 	mech = p_player->m_mech;
 	matrix = FUN_10001e01(p_player->m_obj);
-	dx = g_unk0x100a2900[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_x;
-	dz = g_unk0x100a2900[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_y;
+	dx = g_probeDirections[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_x;
+	dz = g_probeDirections[p_side >= 0 ? p_step : (0x10 - p_step) % 16].m_y;
 	if (dx) {
 		dx = p_length / dx;
 	}
@@ -1351,20 +1368,20 @@ void FUN_10015b9f(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, 
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015d2a
-MechS16 FUN_10015d2a(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 dz;
 	MechS32 unused;
 	MechU32 distance;
 	MechS32 heading;
-	MechS32 pitch;
+	MechS32 length;
 	MechS32 dx;
 	MechS32 dy;
 
 	dx = p_shape->m_centerX - p_x;
 	dy = p_shape->m_centerY - p_y;
 	dz = p_shape->m_centerZ - p_z;
-	FUN_10060197(dx, dy, dz, &heading, &pitch, &distance, &unused);
+	FUN_10060197(dx, dy, dz, &heading, &length, &distance, &unused);
 	heading -= p_player->m_heading;
 	if (heading > 0xb40000) {
 		heading -= 0x1680000;
@@ -1378,21 +1395,21 @@ MechS16 FUN_10015d2a(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y,
 
 // The heading from p_player to p_target (16.16 degrees, 0 to 360), keeping its target.
 // FUNCTION: MW2 0x10015dd6
-MechS32 FUN_10015dd6(Player* p_player, MechS16 p_target)
+MechS32 GetHeadingTo(Player* p_player, MechS16 p_target)
 {
 	MechS32 target;
 	MechS32 heading;
 
 	target = p_player->m_targetInfo.m_target;
-	FUN_1005372c(p_player, p_target);
-	heading = (FUN_1005432f(p_player) + 0x1680000) % 0x1680000;
-	FUN_1005372c(p_player, target);
+	SetTarget(p_player, p_target);
+	heading = (GetTargetBearing(p_player) + 0x1680000) % 0x1680000;
+	SetTarget(p_player, target);
 	return heading;
 }
 
 // Clamps p_value to +/- p_limit.
 // FUNCTION: MW2 0x10015e34
-MechS32 FUN_10015e34(MechS32 p_value, MechS32 p_limit)
+MechS32 ClampMagnitude(MechS32 p_value, MechS32 p_limit)
 {
 	if (p_value > p_limit) {
 		p_value = p_limit;
@@ -1407,7 +1424,7 @@ MechS32 FUN_10015e34(MechS32 p_value, MechS32 p_limit)
 // Whether the segment from p_player at height p_y to its target is clear, or hits the target.
 // The only diff is a stack-slot permutation of ray, hit, target and flags.
 // FUNCTION: MW2 0x10015e74
-MechS32 FUN_10015e74(Player* p_player, MechS32 p_y)
+MechS32 HasLineToTarget(Player* p_player, MechS32 p_y)
 {
 	Ray ray;
 	Shape* hit;
@@ -1445,7 +1462,7 @@ MechS32 FUN_10015e74(Player* p_player, MechS32 p_y)
 // Whether p_mech has weapons but none left that can fire: every one is out of ammunition.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015fa8
-MechS32 FUN_10015fa8(Mech* p_mech)
+MechS32 IsOutOfAmmo(Mech* p_mech)
 {
 	MechS16 i;
 	WeaponSlot* slot;
@@ -1463,21 +1480,22 @@ MechS32 FUN_10015fa8(Mech* p_mech)
 	return !found && p_mech->m_weaponCount;
 }
 
+// Fires p_player's jump jets forward (p_value set) or backward.
 // FUNCTION: MW2 0x10016057
-void FUN_10016057(Player* p_player, MechS16 p_value)
+void SetJumpDirection(Player* p_player, MechS16 p_value)
 {
-	p_player->m_steering->m_unk0x20 = p_value;
+	p_player->m_steering->m_jumpJetFireForward = p_value;
 	if (!p_value) {
-		p_player->m_steering->m_unk0x21 = 1;
+		p_player->m_steering->m_jumpJetFireBackward = 1;
 	}
 	else {
-		p_player->m_steering->m_unk0x21 = 0;
+		p_player->m_steering->m_jumpJetFireBackward = 0;
 	}
 }
 
 // How fast p_player closes on its target since the last call, per tick.
 // FUNCTION: MW2 0x10016093
-MechS32 FUN_10016093(Player* p_player)
+MechS32 GetClosingRate(Player* p_player)
 {
 	MechS32 rate;
 
@@ -1485,49 +1503,52 @@ MechS32 FUN_10016093(Player* p_player)
 		return 0;
 	}
 
-	rate = (p_player->m_unk0x19a - p_player->m_targetInfo.m_distance) / g_deltaTime;
-	p_player->m_unk0x19a = p_player->m_targetInfo.m_distance;
+	rate = (p_player->m_lastTargetDistance - p_player->m_targetInfo.m_distance) / g_deltaTime;
+	p_player->m_lastTargetDistance = p_player->m_targetInfo.m_distance;
 	return rate;
 }
 
+// Fires p_player's jump jets to turn faster in the air while its target is outside the torso's
+// twist, and stops them once it is inside, unless the maneuver works them itself. Only with the
+// piloting skill for it, and not while avoiding.
 // FUNCTION: MW2 0x100160eb
-void FUN_100160eb(Player* p_player)
+void JumpToTurn(Player* p_player)
 {
 	MechS32 turn;
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	if (!p_player->m_skillFlag0 || p_player->m_unk0x190 || p_player->m_unk0x170 == 10) {
+	if (!p_player->m_skillFlag0 || p_player->m_avoidSide || p_player->m_maneuver == c_maneuverAvoid) {
 		return;
 	}
 
-	FUN_1005372c(p_player, p_player->m_ai.m_target);
-	turn = abs(FUN_1005432f(p_player));
-	if (turn >= mech->m_unk0xe0 || (turn <= -mech->m_unk0xe0 && p_player->m_steering->m_throttle)) {
-		if (FUN_10016222(p_player, 20) && p_player->m_unk0x78 && !p_player->m_steering->m_unk0x1d) {
-			FUN_100156f2(p_player, 1);
+	SetTarget(p_player, p_player->m_ai.m_target);
+	turn = abs(GetTargetBearing(p_player));
+	if (turn >= mech->m_maxTorsoTwist || (turn <= -mech->m_maxTorsoTwist && p_player->m_steering->m_throttle)) {
+		if (CanJump(p_player, 20) && p_player->m_onGround && !p_player->m_steering->m_jumpJetEnabled) {
+			SetJumpJets(p_player, 1);
 		}
 	}
-	else if (!p_player->m_unk0x196 && p_player->m_steering->m_unk0x1d && p_player->m_unk0x78) {
-		FUN_100156f2(p_player, 0);
+	else if (!p_player->m_controlsJets && p_player->m_steering->m_jumpJetEnabled && p_player->m_onGround) {
+		SetJumpJets(p_player, 0);
 	}
 }
 
-// Whether p_player's mech can fire: m_unk0xc0 at least 6, m_unk0xec set and the heat
-// (m_unk0x98, 16.16) under p_limit.
+// Whether p_player's mech can jump: jump fuel left (at least 6), jump jets that lift it and its
+// heat (16.16) under p_limit.
 // FUNCTION: MW2 0x10016222
-MechS32 FUN_10016222(Player* p_player, MechS32 p_limit)
+MechS32 CanJump(Player* p_player, MechS32 p_limit)
 {
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	return mech->m_unk0xc0 >= 6 && mech->m_unk0xec && mech->m_unk0x98 >> 16 < p_limit;
+	return mech->m_jumpFuel >= 6 && mech->m_jumpThrust && mech->m_heat >> 16 < p_limit;
 }
 
 // The shape of the player or game thing an AI target id names, or NULL.
 // The only diff is a stack-slot permutation of index, id and obj.
 // FUNCTION: MW2 0x1001627f
-Shape* FUN_1001627f(MechS16 p_target)
+Shape* GetTargetShape(MechS16 p_target)
 {
 	MechS16 index;
 	MechS32 id;
@@ -1554,7 +1575,7 @@ Shape* FUN_1001627f(MechS16 p_target)
 // (state 4).
 // Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
 // FUNCTION: MW2 0x1001632c
-void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
+void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {
 	MechS32 maxAngle;
 	MechS32 index;
@@ -1586,7 +1607,7 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 		return;
 	}
 
-	if (p_mech->m_player->m_unk0x10 == 2) {
+	if (p_mech->m_player->m_aiMode == 2) {
 		id = p_mech->m_player->m_targetInfo.m_target;
 	}
 	else if (p_mech->m_player->m_ai.m_goal & 0x200) {
@@ -1598,11 +1619,11 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 
 	kind = id & 0xf00;
 	index = id & 0xff;
-	if (!index || kind != 0x200 || g_players[index]->m_unk0x174 == 4) {
+	if (!index || kind != 0x200 || g_players[index]->m_nextManeuver == c_maneuverAjmpin) {
 		return;
 	}
 
-	if (p_mech->m_player->m_unk0x10 == 2) {
+	if (p_mech->m_player->m_aiMode == 2) {
 		target = g_players[index];
 	}
 
@@ -1613,17 +1634,17 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 		if (FUN_1004c11d(&x, &y, &z)) {
 			range = 0x30000;
 			maxAngle = 15;
-			pitch = p_mech->m_player->m_targetInfo.m_unk0x18 / 0xf00;
-			bearing = (FUN_1005432f(p_mech->m_player) >> 16) % 360;
+			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
+			bearing = (GetTargetBearing(p_mech->m_player) >> 16) % 360;
 			if (pitch < range && -range < pitch && bearing < maxAngle && -maxAngle < bearing) {
 				target = g_players[index];
 			}
 		}
 	}
 
-	if (target && FUN_10016222(target, 0x41)) {
+	if (target && CanJump(target, 0x41)) {
 		if (RandomIntBelow(3)) {
-			heading = FUN_10015dd6(target, p_mech->m_player->m_index);
+			heading = GetHeadingTo(target, p_mech->m_player->m_index);
 			step = FixedDiv16(heading, 0x5a0000) >> 16;
 			if (RandomIntBelow(2)) {
 				side = -1;
@@ -1634,10 +1655,10 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 
 			step = ((step + 1) % 4) * 4;
 			for (j = 0; j < 2; j++) {
-				FUN_10015b9f(target, &ray, side, step, 5000, 0);
+				BuildProbeRay(target, &ray, side, step, 5000, 0);
 				if (!TestSegmentCollision(&ray, &hit, target->m_index)) {
-					target->m_unk0x174 = 11;
-					target->m_unk0x180 = step;
+					target->m_nextManeuver = c_maneuverSprint;
+					target->m_maneuverParam = step;
 					break;
 				}
 
@@ -1645,8 +1666,8 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 			}
 		}
 
-		if (target->m_unk0x174 == 0 && target->m_skillFlag1) {
-			target->m_unk0x174 = 4;
+		if (target->m_nextManeuver == 0 && target->m_skillFlag1) {
+			target->m_nextManeuver = c_maneuverAjmpin;
 		}
 	}
 }
@@ -1656,7 +1677,7 @@ void FUN_1001632c(WeaponSlot* p_slot, Mech* p_mech)
 // the place.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100166b1
-MechS16 FUN_100166b1(Player* p_player)
+MechS16 ChooseFlankPlace(Player* p_player)
 {
 	MechS32 angle;
 	MechS32 i;
@@ -1665,7 +1686,7 @@ MechS16 FUN_100166b1(Player* p_player)
 	Player* leader;
 
 	leader = g_players[p_player->m_ai.m_goal & 0xff];
-	angle = FixedDiv16(FUN_10015dd6(leader, p_player->m_index | 0x200), 0x2d0000);
+	angle = FixedDiv16(GetHeadingTo(leader, p_player->m_index | 0x200), 0x2d0000);
 	place = (angle + 0x8000) >> 16;
 	if (place >= 8) {
 		place = 0;
@@ -1680,7 +1701,7 @@ MechS16 FUN_100166b1(Player* p_player)
 				place = 6;
 			}
 
-			if (p_player->m_unk0x1a2[place]) {
+			if (p_player->m_placesTaken[place]) {
 				if (place == 2) {
 					place = 6;
 				}
@@ -1702,7 +1723,7 @@ MechS16 FUN_100166b1(Player* p_player)
 		found = FALSE;
 		if (place > 4) {
 			for (i = 6; i > 3 && !found; i--) {
-				if (!leader->m_unk0x1a2[i]) {
+				if (!leader->m_placesTaken[i]) {
 					found = TRUE;
 				}
 			}
@@ -1711,7 +1732,7 @@ MechS16 FUN_100166b1(Player* p_player)
 		}
 		else {
 			for (i = 2; i < 5 && !found; i++) {
-				if (!leader->m_unk0x1a2[i]) {
+				if (!leader->m_placesTaken[i]) {
 					found = TRUE;
 				}
 			}
@@ -1725,9 +1746,10 @@ MechS16 FUN_100166b1(Player* p_player)
 	return place * 2;
 }
 
+// Whether p_mech is stuck: colliding, not reversing, and not in a maneuver that jumps or avoids.
 // FUNCTION: MW2 0x10016880
-MechS32 FUN_10016880(Mech* p_mech)
+MechS32 IsStuck(Mech* p_mech)
 {
-	return p_mech->m_unk0xa4 && p_mech->m_player->m_steering->m_unk0x2f != 1 && !p_mech->m_player->m_unk0x196 &&
-		   p_mech->m_player->m_unk0x170 != 10;
+	return p_mech->m_collisionTicks && p_mech->m_player->m_steering->m_reverse != 1 &&
+		   !p_mech->m_player->m_controlsJets && p_mech->m_player->m_maneuver != c_maneuverAvoid;
 }

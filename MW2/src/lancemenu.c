@@ -32,7 +32,7 @@ MechS32 FUN_10065f50(MenuDefinition* p_menu, MenuPage* p_page)
 		return FALSE;
 	}
 
-	count = FUN_10056230() - 1;
+	count = GetLocalStarSize() - 1;
 	if (count) {
 		src = 5;
 		slot = count + 1;
@@ -42,7 +42,7 @@ MechS32 FUN_10065f50(MenuDefinition* p_menu, MenuPage* p_page)
 		p_page->m_items[slot] = p_page->m_items[src];
 		p_page->m_itemCount = slot + 1;
 		for (i = 0; i < count; i++) {
-			index = FUN_10054ccc(i + 1);
+			index = FindStarSlotPlayer(i + 1);
 			if (index < g_playerCount && g_players[index]->m_ai.m_state == 12) {
 				p_page->m_items[i + 1].m_type = 1;
 				marked++;
@@ -77,10 +77,10 @@ MechS32 FUN_100660c2(MenuDefinition* p_menu, MenuPage* p_page)
 	}
 
 	unk0x08 = p_page->m_unk0x08;
-	count = FUN_10056230() - 1;
+	count = GetLocalStarSize() - 1;
 	valid = unk0x08 <= count;
 	if (valid) {
-		index = FUN_10054ccc(unk0x08);
+		index = FindStarSlotPlayer(unk0x08);
 		valid = index < g_playerCount && g_players[index]->m_ai.m_state != 12;
 	}
 
@@ -136,7 +136,7 @@ MechS32 FUN_10066272(MechS32 p_index)
 
 	state = -1;
 	if (p_index < 8) {
-		index = FUN_10054ccc(p_index);
+		index = FindStarSlotPlayer(p_index);
 		if (index != -1) {
 			player = g_players[index];
 			ai = &player->m_ai;
@@ -194,7 +194,7 @@ void FUN_10066369(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 2;
-		FUN_10054f50(p_index, 2);
+		OrderStarSlot(p_index, 2);
 	}
 
 	RequestMenuClose(1);
@@ -205,7 +205,7 @@ void FUN_100663a4(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 1;
-		FUN_10054f50(p_index, 3);
+		OrderStarSlot(p_index, 3);
 	}
 
 	RequestMenuClose(1);
@@ -216,7 +216,7 @@ void FUN_100663df(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 3;
-		FUN_10054f50(p_index, 5);
+		OrderStarSlot(p_index, 5);
 	}
 
 	RequestMenuClose(1);
@@ -227,7 +227,7 @@ void FUN_1006641a(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 4;
-		FUN_10054f50(p_index, 7);
+		OrderStarSlot(p_index, 7);
 	}
 
 	RequestMenuClose(1);
@@ -238,7 +238,7 @@ void FUN_10066455(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 5;
-		FUN_10054f50(p_index, 8);
+		OrderStarSlot(p_index, 8);
 	}
 
 	RequestMenuClose(1);
@@ -249,7 +249,7 @@ void FUN_10066490(MechS32 p_index, MechS32 p_value)
 {
 	if (p_index < 8) {
 		g_unk0x100acaf0[p_index] = 6;
-		FUN_10054f50(p_index, 0xb);
+		OrderStarSlot(p_index, 0xb);
 	}
 
 	RequestMenuClose(1);
@@ -265,7 +265,7 @@ MechChar* FUN_100664cb(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p
 	MechS32 index;
 	MechS16 goal;
 
-	index = FUN_10054ccc(p_control->m_arg);
+	index = FindStarSlotPlayer(p_control->m_arg);
 	if (index >= g_playerCount) {
 		return NULL;
 	}

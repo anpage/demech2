@@ -297,7 +297,7 @@ void FUN_10021b2a(MechU32 p_pitch)
 	}
 
 	if (g_lockedChannel >= 0) {
-		if (g_players[g_localPlayerId]->m_mech->m_unk0xa0 <= 1) {
+		if (g_players[g_localPlayerId]->m_mech->m_powerState <= 1) {
 			return;
 		}
 

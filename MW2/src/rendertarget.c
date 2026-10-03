@@ -521,8 +521,8 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 		p_player->m_targetInfo.m_target |= 0x1000;
 	}
 
-	if (kind != 0x100 && p_player->m_mech->m_unk0xbc) {
-		p_player->m_steering->m_unk0x42 = 1;
+	if (kind != 0x100 && p_player->m_mech->m_autopilot) {
+		p_player->m_steering->m_autopilot = 1;
 	}
 }
 
@@ -553,9 +553,9 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	MechS32 dy;
 	MechS32 dz;
 	MechS32 heading;
-	MechS32 unk0x04;
+	MechS32 range;
 	MechU32 distance;
-	MechS32 unk0x18;
+	MechS32 pitch;
 
 	if (p_nav < 0) {
 		return -1;
@@ -602,14 +602,14 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
+	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
 	player->m_targetInfo.m_position.m_x = x;
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
 	player->m_targetInfo.m_heading = heading;
-	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
-	player->m_targetInfo.m_unk0x18 = unk0x18;
+	player->m_targetInfo.m_pitch = pitch;
 	return 1;
 }
 
@@ -633,9 +633,9 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	MechS32 dy;
 	MechS32 dz;
 	MechS32 heading;
-	MechS32 unk0x04;
+	MechS32 range;
 	MechU32 distance;
-	MechS32 unk0x18;
+	MechS32 pitch;
 
 	if (p_index == 1 && p_player == g_localPlayerId) {
 		breakpoint = 0;
@@ -701,8 +701,8 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
-	if (!(target->m_flags & 0x1000) && unk0x04 > 0x2ab98 && p_player == g_localPlayerId) {
+	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
+	if (!(target->m_flags & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
 
@@ -710,9 +710,9 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
 	player->m_targetInfo.m_heading = heading;
-	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
-	player->m_targetInfo.m_unk0x18 = unk0x18;
+	player->m_targetInfo.m_pitch = pitch;
 	return 1;
 }
 
@@ -732,9 +732,9 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	MechS32 dy;
 	MechS32 dz;
 	MechS32 heading;
-	MechS32 unk0x04;
+	MechS32 range;
 	MechU32 distance;
-	MechS32 unk0x18;
+	MechS32 pitch;
 
 	if (p_index < 0) {
 		return -1;
@@ -786,8 +786,8 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &unk0x04, &distance, &unk0x18);
-	if (!(thing->m_unk0x00 & 0x1000) && unk0x04 > 0x2ab98 && p_player == g_localPlayerId) {
+	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
+	if (!(thing->m_unk0x00 & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
 
@@ -795,9 +795,9 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
 	player->m_targetInfo.m_heading = heading;
-	player->m_targetInfo.m_unk0x04 = unk0x04;
+	player->m_targetInfo.m_range = range;
 	player->m_targetInfo.m_distance = distance;
-	player->m_targetInfo.m_unk0x18 = unk0x18;
+	player->m_targetInfo.m_pitch = pitch;
 	return 1;
 }
 
@@ -839,7 +839,7 @@ MechS32 FUN_1005fa22(Player* p_player)
 	case 0x100:
 		if (FUN_1005f2ae(p_player->m_index, index, 0) >= 0) {
 			lost = FALSE;
-			if (g_navTable[index].m_radius > p_player->m_targetInfo.m_distance && p_player->m_mech->m_unk0xbc != 1 &&
+			if (g_navTable[index].m_radius > p_player->m_targetInfo.m_distance && p_player->m_mech->m_autopilot != 1 &&
 				p_player->m_index == g_localPlayerId) {
 				if (!(g_navTable[index].m_flags & 0x20)) {
 					g_navTable[index].m_flags |= 0x20;
@@ -864,19 +864,19 @@ MechS32 FUN_1005fa22(Player* p_player)
 		g_unk0x100aaba8 = 0;
 	}
 
-	claim = p_player->m_steering->m_unk0x3a;
+	claim = p_player->m_steering->m_inspectTarget;
 	if (claim) {
-		p_player->m_steering->m_unk0x3a = 0;
+		p_player->m_steering->m_inspectTarget = 0;
 		switch (kind) {
 		case 0x200:
-			if (!(g_players[index]->m_unk0x16 & (1 << p_player->m_team))) {
+			if (!(g_players[index]->m_inspectedBy & (1 << p_player->m_team))) {
 				if (g_players[index]->m_mech->m_radius + 20000 > p_player->m_targetInfo.m_distance) {
 					if (isLocal) {
 						g_unk0x100aaba8 = 1;
 					}
 
 					g_players[index]->m_flags |= 0x20;
-					g_players[index]->m_unk0x16 |= 1 << p_player->m_team;
+					g_players[index]->m_inspectedBy |= 1 << p_player->m_team;
 				}
 				else if (isLocal) {
 					g_unk0x100aaba8 = 2;
@@ -1012,7 +1012,7 @@ void FUN_10060010(void)
 	autopilot = FALSE;
 	player = g_players[g_localPlayerId];
 	previous = player->m_targetInfo.m_target;
-	if (player->m_mech->m_unk0xbc == 1) {
+	if (player->m_mech->m_autopilot == 1) {
 		autopilot = TRUE;
 	}
 
@@ -1031,15 +1031,15 @@ void FUN_10060010(void)
 
 		if (target != -1 && player->m_targetInfo.m_target != target) {
 			player->m_targetInfo.m_target = target;
-			if (player->m_mech->m_unk0xbc) {
-				player->m_steering->m_unk0x42 = 1;
+			if (player->m_mech->m_autopilot) {
+				player->m_steering->m_autopilot = 1;
 			}
 
 			if (!FUN_1005fa22(player)) {
 				player->m_targetInfo.m_target = previous;
 				if (autopilot) {
-					player->m_steering->m_unk0x42 = 0;
-					player->m_mech->m_unk0xbc = 1;
+					player->m_steering->m_autopilot = 0;
+					player->m_mech->m_autopilot = 1;
 				}
 			}
 		}
@@ -1048,8 +1048,8 @@ void FUN_10060010(void)
 	g_unk0x100aabac = 1;
 }
 
-// Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_unk0x0c), its length along the
-// ground (*p_distance), its full length (*p_unk0x10) and its pitch (*p_unk0x18).
+// Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_heading), its length along the
+// ground (*p_distance), its full length (*p_length) and its pitch (*p_pitch).
 // The abs(p_dx)/abs(p_dz) comparison evaluates its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local.
 // FUNCTION: MW2 0x10060197
@@ -1057,10 +1057,10 @@ void FUN_10060197(
 	MechS32 p_dx,
 	MechS32 p_dy,
 	MechS32 p_dz,
-	MechS32* p_unk0x0c,
-	MechS32* p_unk0x10,
+	MechS32* p_heading,
+	MechS32* p_length,
 	MechU32* p_distance,
-	MechS32* p_unk0x18
+	MechS32* p_pitch
 )
 {
 	MechS32 pitch;
@@ -1100,10 +1100,10 @@ void FUN_10060197(
 		length = 0;
 	}
 
-	*p_unk0x0c = heading;
+	*p_heading = heading;
 	*p_distance = ground;
-	*p_unk0x10 = length;
-	*p_unk0x18 = pitch;
+	*p_length = length;
+	*p_pitch = pitch;
 }
 
 // Steps p_player's selected target by p_step, with bit 0x100 of the flags set when p_unk0x08.
@@ -1158,7 +1158,7 @@ void FUN_1006037c(MechS32 p_step)
 
 // Selects the local player's nearest target within 0x2ab98, cycling through them all; keeps the
 // current one if there is none or FUN_1005fa22 refuses it, and then clears the autopilot's
-// steering flag (PlayerSteering::m_unk0x42).
+// steering flag (PlayerSteering::m_autopilot).
 // The distance/bestDistance comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local.
 // FUNCTION: MW2 0x100603ae
@@ -1178,7 +1178,7 @@ void FUN_100603ae(void)
 	autopilot = FALSE;
 	player = g_players[g_localPlayerId];
 	saved = player->m_targetInfo.m_target;
-	if (player->m_mech->m_unk0xbc == 1) {
+	if (player->m_mech->m_autopilot == 1) {
 		autopilot = TRUE;
 	}
 
@@ -1189,7 +1189,7 @@ void FUN_100603ae(void)
 			break;
 		}
 
-		distance = player->m_targetInfo.m_unk0x04;
+		distance = player->m_targetInfo.m_range;
 		if (distance < bestDistance) {
 			best = target;
 			bestDistance = distance;
@@ -1202,7 +1202,7 @@ void FUN_100603ae(void)
 	if (best == -1 || bestDistance > 0x2ab98) {
 		player->m_targetInfo.m_target = saved;
 		if (autopilot) {
-			player->m_steering->m_unk0x42 = 0;
+			player->m_steering->m_autopilot = 0;
 		}
 	}
 	else {
@@ -1210,7 +1210,7 @@ void FUN_100603ae(void)
 		if (!FUN_1005fa22(player)) {
 			player->m_targetInfo.m_target = saved;
 			if (autopilot) {
-				player->m_steering->m_unk0x42 = 0;
+				player->m_steering->m_autopilot = 0;
 			}
 		}
 	}

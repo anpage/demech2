@@ -187,7 +187,7 @@ void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 
 	gauge = g_unk0x100c3280[23];
 	target = g_unk0x100c3280[23]->m_target;
-	height = p_mech->m_player->m_position.m_y - p_mech->m_unk0xcc;
+	height = p_mech->m_player->m_position.m_y - p_mech->m_height;
 	level = (MulDiv64(g_unk0x100be5b8, height - 20100, 100) >> 16) + g_unk0x100a5ed8.m_y;
 	if (g_unk0x100a5ed8.m_y < level) {
 		FUN_10041f06(g_unk0x100a5ed8.m_x, g_unk0x100a5ed8.m_y, 0x115, target);
@@ -195,7 +195,7 @@ void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 
 	FUN_10041f06(g_unk0x100a5ed8.m_x, level, 7, target);
 	FUN_10041f06(g_unk0x100be5c4, g_unk0x100a5ed8.m_y, 1, target);
-	mark = (MulDiv64(g_unk0x100be5b8, height - p_mech->m_player->m_unk0x74, 100) >> 16) + g_unk0x100a5ed8.m_y;
+	mark = (MulDiv64(g_unk0x100be5b8, height - p_mech->m_player->m_groundHeight, 100) >> 16) + g_unk0x100a5ed8.m_y;
 	FUN_10041f06(g_unk0x100be5b0, mark, 4, target);
 	if (!(p_mech->m_player->m_targetInfo.m_target & 0xf00) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
 		return;
@@ -204,7 +204,7 @@ void FUN_10040cbc(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	x = g_unk0x100be5b4;
 	if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x200) {
 		mech = g_players[p_mech->m_player->m_targetInfo.m_target & 0xff]->m_mech;
-		y = (MulDiv64(g_unk0x100be5b8, height - (mech->m_player->m_position.m_y - mech->m_unk0xcc), 100) >> 16) +
+		y = (MulDiv64(g_unk0x100be5b8, height - (mech->m_player->m_position.m_y - mech->m_height), 100) >> 16) +
 			g_unk0x100a5ed8.m_y;
 	}
 	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x400) {
@@ -380,10 +380,10 @@ MechS32 FUN_100412dd(Mech* p_mech, MechS32 p_unk0x04, MechS32 p_unk0x08, MechS32
 				shape = shapeOut;
 			}
 		}
-		else if (p_mech->m_unk0x10c & 0x80) {
+		else if (p_mech->m_flags & 0x80) {
 			shape = 0x61;
 		}
-		else if (p_mech->m_unk0x10c & 0x8000) {
+		else if (p_mech->m_flags & 0x8000) {
 			shape = 0x70;
 		}
 		else {
@@ -476,7 +476,7 @@ void FUN_1004161f(Mech* p_mech, MechS32 p_x, MechS32 p_y, MechS32 p_unk0x0c, Mec
 		p_unk0x0c = p_unk0x10;
 	}
 
-	if (p_mech->m_unk0xbc != 2) {
+	if (p_mech->m_autopilot != 2) {
 		if (!(p_mech->m_player->m_targetInfo.m_target & 0xf00) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
 			return;
 		}

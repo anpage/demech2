@@ -252,7 +252,7 @@ MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04)
 	team = &g_teams[p_team];
 	leader = GetTeamLeader(p_team);
 	if (leader == -1) {
-		leader = FUN_1005212a(p_team);
+		leader = ChooseTeamLeader(p_team);
 		if (leader == -1) {
 			return FALSE;
 		}
@@ -260,7 +260,7 @@ MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04)
 
 	for (i = 0, slot = 1; i < team->m_memberCount; i++) {
 		player = g_players[team->m_members[i]];
-		if (player->m_unk0x00 == 1 && !(player->m_flags & 6)) {
+		if (player->m_type == c_playerTypeMech && !(player->m_flags & 6)) {
 			if (player->m_index == leader) {
 				player->m_slot = 0;
 			}

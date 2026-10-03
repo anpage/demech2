@@ -74,27 +74,27 @@ MechS32 FUN_100758a0(
 	*p_z = z1;
 	shape = NULL;
 	hit = FALSE;
-	if (p_mech->m_unk0xa0 != 2 && p_mech->m_unk0xa0 != 4) {
-		p_mech->m_unk0xa4 = 0;
+	if (p_mech->m_powerState != 2 && p_mech->m_powerState != 4) {
+		p_mech->m_collisionTicks = 0;
 		return 0;
 	}
 	else {
 		if (FUN_10075d7b(p_mech, p_x, p_y, p_z, p_player)) {
-			p_mech->m_player->m_unk0x7c = (*p_player)->m_index;
+			p_mech->m_player->m_collidedWith = (*p_player)->m_index;
 			hit = TRUE;
-			p_mech->m_unk0xa4++;
+			p_mech->m_collisionTicks++;
 			*p_hit = NULL;
 		}
 		else if (FUN_10076295(p_mech, p_x, p_y, p_z, &shape)) {
 			hit = TRUE;
-			p_mech->m_unk0xa4++;
+			p_mech->m_collisionTicks++;
 			*p_hit = shape;
 		}
 		else {
 			if (!p_dx && !p_dy && !p_dz) {
-				if (p_mech->m_unk0xa4) {
-					p_mech->m_unk0xa4++;
-					return p_mech->m_unk0xa4;
+				if (p_mech->m_collisionTicks) {
+					p_mech->m_collisionTicks++;
+					return p_mech->m_collisionTicks;
 				}
 				else {
 					return 0;
@@ -108,11 +108,11 @@ MechS32 FUN_100758a0(
 				lift = -lift;
 			}
 
-			lift = FixedMul16(p_mech->m_radius, 0x10000 - lift) + FixedMul16(p_mech->m_unk0xcc, lift);
+			lift = FixedMul16(p_mech->m_radius, 0x10000 - lift) + FixedMul16(p_mech->m_height, lift);
 			SetRayLength(&ray, length + lift);
 			if (FUN_10035107(&ray, &shape)) {
 				hit = TRUE;
-				p_mech->m_unk0xa4++;
+				p_mech->m_collisionTicks++;
 				*p_hit = shape;
 				if (!g_segmentNormalX && !g_segmentNormalY && !g_segmentNormalZ && shape) {
 					BuildRayFromSegment(
@@ -135,10 +135,12 @@ MechS32 FUN_100758a0(
 				nx = ray.m_dirX - FixedMul16(dot, g_segmentNormalX);
 				ny = ray.m_dirY - FixedMul16(dot, g_segmentNormalY);
 				nz = ray.m_dirZ - FixedMul16(dot, g_segmentNormalZ);
-				bounce = -ApproximateVectorLength(p_mech->m_unk0x100, p_mech->m_unk0x104, p_mech->m_unk0x108) >> 2;
-				p_mech->m_unk0xf4 = FixedMul16(nx, bounce);
-				p_mech->m_unk0xf8 = FixedMul16(ny, bounce);
-				p_mech->m_unk0xfc = FixedMul16(nz, bounce);
+				bounce =
+					-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) >>
+					2;
+				p_mech->m_velocityX = FixedMul16(nx, bounce);
+				p_mech->m_velocityY = FixedMul16(ny, bounce);
+				p_mech->m_velocityZ = FixedMul16(nz, bounce);
 				SetRayLength(&ray, GetRayLength(&ray) - lift);
 				over = length - GetRayLength(&ray);
 				if (over > 0) {
@@ -159,16 +161,16 @@ MechS32 FUN_100758a0(
 	}
 
 	if (!hit) {
-		p_mech->m_unk0xa4 = 0;
+		p_mech->m_collisionTicks = 0;
 		*p_hit = NULL;
 	}
 
-	return p_mech->m_unk0xa4;
+	return p_mech->m_collisionTicks;
 }
 
 // Pushes the point (*p_x, *p_y, *p_z) of p_mech out of the first other mech it overlaps, and
 // gives p_mech a velocity away from it. A mech pushing into one that pushed into it first (whose
-// m_unk0x7c is p_mech's player) always collides. A mech in state 4 is knocked down
+// m_collidedWith is p_mech's player) always collides. A mech in state 4 is knocked down
 // (FUN_10076a23) instead. Returns 1 on a collision, with *p_hit the other mech's player.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10075d7b
@@ -203,7 +205,7 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 			continue;
 		}
 
-		if (mech->m_unk0x10c & 0x100) {
+		if (mech->m_flags & 0x100) {
 			continue;
 		}
 
@@ -211,8 +213,8 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 			continue;
 		}
 
-		if (player->m_unk0x7c == id && i < id) {
-			if (mech->m_unk0xa0 == 4) {
+		if (player->m_collidedWith == id && i < id) {
+			if (mech->m_powerState == 4) {
 				FUN_10076a23(mech);
 			}
 			else {
@@ -237,11 +239,11 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 				*p_x = pos->m_x + FixedMul16(g_segmentNormalX, reach);
 				*p_y = pos->m_y + FixedMul16(g_segmentNormalY, reach);
 				*p_z = pos->m_z + FixedMul16(g_segmentNormalZ, reach);
-				p_mech->m_unk0x108 = mech->m_unk0x108;
+				p_mech->m_newVelocityZ = mech->m_newVelocityZ;
 				speed = ApproximateVectorLength(
-					p_mech->m_unk0x100 - mech->m_unk0x100,
-					p_mech->m_unk0x104 - mech->m_unk0x104,
-					p_mech->m_unk0x108
+					p_mech->m_newVelocityX - mech->m_newVelocityX,
+					p_mech->m_newVelocityY - mech->m_newVelocityY,
+					p_mech->m_newVelocityZ
 				);
 				if (speed > 0x20000) {
 					speed >>= 1;
@@ -250,9 +252,9 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 					speed = 0x10000;
 				}
 
-				p_mech->m_unk0xf4 = FixedMul16(g_segmentNormalX, speed);
-				p_mech->m_unk0xf8 = FixedMul16(g_segmentNormalY, speed);
-				p_mech->m_unk0xfc = FixedMul16(g_segmentNormalZ, speed);
+				p_mech->m_velocityX = FixedMul16(g_segmentNormalX, speed);
+				p_mech->m_velocityY = FixedMul16(g_segmentNormalY, speed);
+				p_mech->m_velocityZ = FixedMul16(g_segmentNormalZ, speed);
 			}
 
 			break;
@@ -266,7 +268,7 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 			reach = otherRadius + radius;
 			dist = ApproximateVectorLength(dx, dy, dz);
 			if (dist < reach) {
-				if (mech->m_unk0xa0 == 4) {
+				if (mech->m_powerState == 4) {
 					FUN_10076a23(mech);
 				}
 				else {
@@ -285,11 +287,11 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 					*p_x = pos->m_x + FixedMul16(g_segmentNormalX, reach);
 					*p_y = pos->m_y + FixedMul16(g_segmentNormalY, reach);
 					*p_z = pos->m_z + FixedMul16(g_segmentNormalZ, reach);
-					p_mech->m_unk0x108 = mech->m_unk0x108;
+					p_mech->m_newVelocityZ = mech->m_newVelocityZ;
 					speed = ApproximateVectorLength(
-						p_mech->m_unk0x100 - mech->m_unk0x100,
-						p_mech->m_unk0x104 - mech->m_unk0x104,
-						p_mech->m_unk0x108
+						p_mech->m_newVelocityX - mech->m_newVelocityX,
+						p_mech->m_newVelocityY - mech->m_newVelocityY,
+						p_mech->m_newVelocityZ
 					);
 					if (speed > 0x20000) {
 						speed >>= 1;
@@ -298,9 +300,9 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 						speed = 0x10000;
 					}
 
-					p_mech->m_unk0xf4 = FixedMul16(g_segmentNormalX, speed);
-					p_mech->m_unk0xf8 = FixedMul16(g_segmentNormalY, speed);
-					p_mech->m_unk0xfc = FixedMul16(g_segmentNormalZ, speed);
+					p_mech->m_velocityX = FixedMul16(g_segmentNormalX, speed);
+					p_mech->m_velocityY = FixedMul16(g_segmentNormalY, speed);
+					p_mech->m_velocityZ = FixedMul16(g_segmentNormalZ, speed);
 				}
 
 				break;
@@ -352,11 +354,11 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 		if (dist < reach) {
 			if ((shape->m_kind & 0xf0) == 0x50) {
 				obj = shape->m_object;
-				dist = ApproximateVectorLength(p_mech->m_unk0xf4, p_mech->m_unk0xf8, p_mech->m_unk0xfc);
+				dist = ApproximateVectorLength(p_mech->m_velocityX, p_mech->m_velocityY, p_mech->m_velocityZ);
 				if (dist > 0) {
 					index = FUN_10004111(obj, 1);
 					if (index >= 0) {
-						FUN_10004a45(index, p_mech->m_unk0xf4 * 2, p_mech->m_unk0xf8 * 2, p_mech->m_unk0xfc * 2);
+						FUN_10004a45(index, p_mech->m_velocityX * 2, p_mech->m_velocityY * 2, p_mech->m_velocityZ * 2);
 						GetObjPosition(obj, &x, &y, &z);
 						x -= g_eyepoint->m_unk0x00;
 						y -= g_eyepoint->m_unk0x04;
@@ -381,7 +383,8 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 			*p_x = shape->m_centerX + FixedMul16(g_segmentNormalX, reach);
 			*p_y = shape->m_centerY + FixedMul16(g_segmentNormalY, reach);
 			*p_z = shape->m_centerZ + FixedMul16(g_segmentNormalZ, reach);
-			bounce = -ApproximateVectorLength(p_mech->m_unk0x100, p_mech->m_unk0x104, p_mech->m_unk0x108) >> 2;
+			bounce =
+				-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) >> 2;
 			if (bounce > 8) {
 				bounce = -bounce >> 1;
 			}
@@ -389,9 +392,9 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 				bounce = -4;
 			}
 
-			p_mech->m_unk0xf4 = FixedMul16(g_segmentNormalX, bounce);
-			p_mech->m_unk0xf8 = FixedMul16(g_segmentNormalY, bounce);
-			p_mech->m_unk0xfc = FixedMul16(g_segmentNormalZ, bounce);
+			p_mech->m_velocityX = FixedMul16(g_segmentNormalX, bounce);
+			p_mech->m_velocityY = FixedMul16(g_segmentNormalY, bounce);
+			p_mech->m_velocityZ = FixedMul16(g_segmentNormalZ, bounce);
 			*p_hit = shape;
 			return 1;
 		}
@@ -414,9 +417,9 @@ void FUN_100765f8(Mech* p_mech, Mech* p_other)
 	}
 
 	speed = ApproximateVectorLength(
-		p_mech->m_unk0x100 - p_other->m_unk0x100,
-		p_mech->m_unk0x104 - p_other->m_unk0x104,
-		p_mech->m_unk0x108 - p_other->m_unk0x108
+		p_mech->m_newVelocityX - p_other->m_newVelocityX,
+		p_mech->m_newVelocityY - p_other->m_newVelocityY,
+		p_mech->m_newVelocityZ - p_other->m_newVelocityZ
 	);
 	if (speed > 200000) {
 		damage = FixedDiv16(speed - 200000, 1300000) * 3;
@@ -448,7 +451,7 @@ void FUN_1007669e(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 			damage = p_damage;
 		}
 		else {
-			damage = MulDiv64(p_damage << 2, p_other->m_unk0xe4, p_mech->m_unk0xe4 > 0 ? p_mech->m_unk0xe4 : 1);
+			damage = MulDiv64(p_damage << 2, p_other->m_tons, p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 			if (damage < p_damage) {
 				damage = p_damage;
 			}
@@ -463,7 +466,7 @@ void FUN_1007669e(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 	}
 	else {
 		angle = FixedAtan2(-g_segmentNormalX, -g_segmentNormalZ) - p_mech->m_player->m_heading -
-				p_mech->m_player->m_unk0x6c;
+				p_mech->m_player->m_torsoTwist;
 		if (angle < -0xb40000) {
 			angle += 0x1680000;
 		}
@@ -513,7 +516,7 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 		FUN_1006bf8c(p_shape->m_owner);
 	}
 	else {
-		speed = ApproximateVectorLength(p_mech->m_unk0x100, p_mech->m_unk0x104, p_mech->m_unk0x108);
+		speed = ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ);
 		if (speed > 200000) {
 			damage = FixedDiv16(speed - 200000, 1300000) * 3;
 			if (g_difficulty->m_collisionDamage) {
@@ -545,7 +548,7 @@ void FUN_10076a23(Mech* p_mech)
 
 	if (!g_netRole || p_mech->m_player->m_index == g_localPlayerId) {
 		FUN_100044f3(p_mech->m_player->m_obj, FUN_1001ddf2, 999);
-		p_mech->m_unk0x10c |= 0x100;
+		p_mech->m_flags |= 0x100;
 	}
 	else {
 		return;

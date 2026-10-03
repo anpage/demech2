@@ -7,17 +7,18 @@
 
 #pragma pack(push, 1)
 
-// What an AI player is aiming at: the target and the distance and bearing to it.
+// What a player is aiming at: the target and the distance, bearing and pitch to it
+// (FUN_10060197).
 // SIZE 0x28
 typedef struct PlayerTargetInfo {
-	MechS32 m_distance; // 0x00 — to the target, in world units
-	MechS32 m_unk0x04;  // 0x04 — a distance: DoAudio warns within 150000
+	MechS32 m_distance; // 0x00 — to the target along the ground
+	MechS32 m_range;    // 0x04 — to the target in a straight line (the target panel's)
 	Vector3 m_position; // 0x08 — the target's
 	MechS32 m_heading;  // 0x14 — 16.16 degrees, towards the target
-	MechS32 m_unk0x18;  // 0x18
+	MechS32 m_pitch;    // 0x18 — 16.16 degrees, towards the target
 	MechS32 m_target;   // 0x1c — an AI target id (see ai.h)
-	MechS32 m_unk0x20;  // 0x20
-	MechS32 m_unk0x24;  // 0x24
+	MechS32 m_unk0x20;  // 0x20 — only ever cleared
+	MechS32 m_unk0x24;  // 0x24 — only ever cleared
 } PlayerTargetInfo;
 
 #pragma pack(pop)

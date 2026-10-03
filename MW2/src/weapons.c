@@ -96,12 +96,12 @@ void UpdateWeaponFireState(Mech* p_mech)
 	MechS32 fired;
 
 	first = FALSE;
-	if (p_mech->m_unk0xa0 != 2) {
+	if (p_mech->m_powerState != 2) {
 		return;
 	}
 
-	p_mech->m_unk0xb8 = p_mech->m_selectedWeapon;
-	if (p_mech->m_player->m_steering->m_unk0x2c) {
+	p_mech->m_lastSelectedWeapon = p_mech->m_selectedWeapon;
+	if (p_mech->m_player->m_steering->m_toggleGroupFire) {
 		if (g_unk0x100a6d38) {
 			g_unk0x100a6d38 = 0;
 			PlayCockpitSound(7, 1);
@@ -112,56 +112,56 @@ void UpdateWeaponFireState(Mech* p_mech)
 		}
 	}
 
-	if (p_mech->m_unk0x10c & 0x4000) {
+	if (p_mech->m_flags & 0x4000) {
 		FUN_10045e25(p_mech);
 	}
 	else if (p_mech->m_selectedWeapon != -1) {
 		slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
 		def = &g_weaponDefs[slot->m_type];
 		if (!g_unk0x100a6d38 && p_mech->m_player->m_index == g_localPlayerId) {
-			p_mech->m_player->m_steering->m_unk0x27 = p_mech->m_player->m_steering->m_unk0x25;
-			p_mech->m_player->m_steering->m_unk0x25 = 0;
+			p_mech->m_player->m_steering->m_weaponFireGroup = p_mech->m_player->m_steering->m_weaponFire;
+			p_mech->m_player->m_steering->m_weaponFire = 0;
 		}
 
-		if (p_mech->m_player->m_steering->m_unk0x27) {
-			if (!(p_mech->m_unk0x10c & 1)) {
-				p_mech->m_unk0x10c |= 1;
+		if (p_mech->m_player->m_steering->m_weaponFireGroup) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
 				FUN_10045cd8();
 			}
 		}
-		else if (p_mech->m_player->m_steering->m_unk0x28) {
-			if (!(p_mech->m_unk0x10c & 1)) {
-				p_mech->m_unk0x10c |= 1;
+		else if (p_mech->m_player->m_steering->m_weaponFireGroup1) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
 				if (FUN_100457d3(p_mech, 0)) {
 					FUN_10045cd8();
 				}
 			}
 		}
-		else if (p_mech->m_player->m_steering->m_unk0x29) {
-			if (!(p_mech->m_unk0x10c & 1)) {
-				p_mech->m_unk0x10c |= 1;
+		else if (p_mech->m_player->m_steering->m_weaponFireGroup2) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
 				if (FUN_100457d3(p_mech, 1)) {
 					FUN_10045cd8();
 				}
 			}
 		}
-		else if (p_mech->m_player->m_steering->m_unk0x2a) {
-			if (!(p_mech->m_unk0x10c & 1)) {
-				p_mech->m_unk0x10c |= 1;
+		else if (p_mech->m_player->m_steering->m_weaponFireGroup3) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
 				if (FUN_100457d3(p_mech, 2)) {
 					FUN_10045cd8();
 				}
 			}
 		}
-		else if (p_mech->m_player->m_steering->m_unk0x25) {
-			if (!(p_mech->m_unk0x10c & 1)) {
-				p_mech->m_unk0x10c |= 1;
+		else if (p_mech->m_player->m_steering->m_weaponFire) {
+			if (!(p_mech->m_flags & 1)) {
+				p_mech->m_flags |= 1;
 				if (slot->m_state == c_weaponReady) {
 					slot->m_state = c_weaponFiring;
 					slot->m_volley = def->m_volley;
 					slot->m_time = 0;
-					FUN_1001632c(slot, p_mech);
-					if (def->m_unk0x18 && (p_mech->m_unk0x10c & 0x80)) {
+					DodgeShot(slot, p_mech);
+					if (def->m_unk0x18 && (p_mech->m_flags & 0x80)) {
 						slot->m_target = p_mech->m_player->m_targetInfo.m_target & 0xff;
 						slot->m_targetKind = p_mech->m_player->m_targetInfo.m_target & 0xf00;
 					}
@@ -174,8 +174,8 @@ void UpdateWeaponFireState(Mech* p_mech)
 				}
 			}
 		}
-		else if (p_mech->m_unk0x10c & 1) {
-			p_mech->m_unk0x10c &= ~1;
+		else if (p_mech->m_flags & 1) {
+			p_mech->m_flags &= ~1;
 			FUN_10045449(p_mech, 0);
 		}
 	}
@@ -196,9 +196,11 @@ void UpdateWeaponFireState(Mech* p_mech)
 			break;
 		case c_weaponHeld:
 			if (g_currentClock - slot->m_time >= def->m_recycle) {
-				if (&p_mech->m_weapons[p_mech->m_selectedWeapon] == slot || p_mech->m_player->m_steering->m_unk0x27 ||
-					p_mech->m_player->m_steering->m_unk0x28 || p_mech->m_player->m_steering->m_unk0x29 ||
-					p_mech->m_player->m_steering->m_unk0x2a) {
+				if (&p_mech->m_weapons[p_mech->m_selectedWeapon] == slot ||
+					p_mech->m_player->m_steering->m_weaponFireGroup ||
+					p_mech->m_player->m_steering->m_weaponFireGroup1 ||
+					p_mech->m_player->m_steering->m_weaponFireGroup2 ||
+					p_mech->m_player->m_steering->m_weaponFireGroup3) {
 					slot->m_state = c_weaponFiring;
 				}
 				else {
@@ -216,7 +218,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 
 				time = slot->m_time + g_deltaTime;
 				while (def->m_interval <= time && slot->m_volley > 0) {
-					p_mech->m_player->m_unk0x48 = p_mech->m_objects[slot->m_hardpoint];
+					p_mech->m_player->m_firingObj = p_mech->m_objects[slot->m_hardpoint];
 					fired = SpawnShot(p_mech->m_player, slot);
 					if (fired) {
 						FUN_1006b1c8(def->m_unk0x08, p_mech->m_player);
@@ -259,9 +261,11 @@ void UpdateWeaponFireState(Mech* p_mech)
 						}
 
 						if (slot->m_volley == 0 && def->m_unk0x10 &&
-							(p_mech->m_player->m_steering->m_unk0x25 || p_mech->m_player->m_steering->m_unk0x27 ||
-							 p_mech->m_player->m_steering->m_unk0x28 || p_mech->m_player->m_steering->m_unk0x29 ||
-							 p_mech->m_player->m_steering->m_unk0x2a)) {
+							(p_mech->m_player->m_steering->m_weaponFire ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup1 ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup2 ||
+							 p_mech->m_player->m_steering->m_weaponFireGroup3)) {
 							slot->m_time = g_currentClock;
 							slot->m_state = c_weaponHeld;
 							slot->m_volley = def->m_volley;
@@ -269,7 +273,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 						}
 					}
 					else {
-						p_mech->m_unk0x10c &= ~1;
+						p_mech->m_flags &= ~1;
 						slot->m_volley = 0;
 					}
 				}
@@ -307,7 +311,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 
 	def = &g_weaponDefs[p_slot->m_type];
 	result = 1;
-	if (!p_player || !p_player->m_unk0x48) {
+	if (!p_player || !p_player->m_firingObj) {
 		return 0;
 	}
 
@@ -672,7 +676,7 @@ void FUN_10045bc8(Mech* p_mech)
 				slot->m_state = c_weaponFiring;
 				slot->m_volley = def->m_volley;
 				slot->m_time = 0;
-				if (def->m_unk0x18 && (p_mech->m_unk0x10c & 0x80)) {
+				if (def->m_unk0x18 && (p_mech->m_flags & 0x80)) {
 					slot->m_target = p_mech->m_player->m_targetInfo.m_target & 0xff;
 					slot->m_targetKind = p_mech->m_player->m_targetInfo.m_target & 0xf00;
 				}
@@ -706,8 +710,8 @@ void FUN_10045cd8(void)
 			slot->m_state = c_weaponFiring;
 			slot->m_volley = def->m_volley;
 			slot->m_time = 0;
-			FUN_1001632c(slot, mech);
-			if (def->m_unk0x18 && (mech->m_unk0x10c & 0x80)) {
+			DodgeShot(slot, mech);
+			if (def->m_unk0x18 && (mech->m_flags & 0x80)) {
 				slot->m_target = mech->m_player->m_targetInfo.m_target & 0xff;
 				slot->m_targetKind = mech->m_player->m_targetInfo.m_target & 0xf00;
 			}
@@ -729,7 +733,7 @@ void FUN_10045e25(Mech* p_mech)
 	MechS32 group;
 	MechS32 next;
 
-	p_mech->m_unk0x10c ^= 0x4000;
+	p_mech->m_flags ^= 0x4000;
 	next = p_mech->m_selectedWeapon;
 	group = p_mech->m_weapons[next].m_group;
 	next++;
@@ -757,13 +761,13 @@ void FUN_10045eac(Mech* p_mech)
 	MechS32 dy;
 	MechS32 heading;
 
-	p_mech->m_unk0x10c &= ~0x80;
+	p_mech->m_flags &= ~0x80;
 	def = &g_weaponDefs[p_mech->m_weapons[p_mech->m_selectedWeapon].m_type];
 	if (p_mech->m_selectedWeapon == -1 || !p_mech->m_player->m_targetInfo.m_target ||
 		(p_mech->m_player->m_targetInfo.m_target & 0x1000) || (p_mech->m_player->m_targetInfo.m_target & 0x100) ||
 		!def->m_unk0x18) {
-		p_mech->m_unk0x10c &= 0x7fff;
-		p_mech->m_unk0x10c &= 0xffbf;
+		p_mech->m_flags &= 0x7fff;
+		p_mech->m_flags &= 0xffbf;
 	}
 	else {
 		dx = p_mech->m_player->m_position.m_x - p_mech->m_player->m_targetInfo.m_position.m_x;
@@ -773,12 +777,12 @@ void FUN_10045eac(Mech* p_mech)
 			inRange = FALSE;
 			yaw = 0x100001;
 			pitch = 0x100001;
-			p_mech->m_unk0x10c &= 0x7fff;
+			p_mech->m_flags &= 0x7fff;
 		}
 		else {
 			inRange = TRUE;
 			heading = (p_mech->m_player->m_heading % 0x1680000 + 0x1680000) % 0x1680000;
-			twist = p_mech->m_player->m_unk0x6c % 0x1680000;
+			twist = p_mech->m_player->m_torsoTwist % 0x1680000;
 			bearing = p_mech->m_player->m_targetInfo.m_heading - heading;
 			if (bearing > 0xb40000) {
 				bearing -= 0x1680000;
@@ -795,29 +799,29 @@ void FUN_10045eac(Mech* p_mech)
 				yaw += 0x1680000;
 			}
 
-			pitch = (p_mech->m_player->m_targetInfo.m_unk0x18 + p_mech->m_unk0x14.m_value) % 0x1680000;
+			pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
 		}
 
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {
-			p_mech->m_unk0x10c |= 0x8000;
-			if (!(p_mech->m_unk0x10c & 0x40)) {
-				p_mech->m_unk0x10c |= 0x40;
-				p_mech->m_unk0x8c = 0x16a;
+			p_mech->m_flags |= 0x8000;
+			if (!(p_mech->m_flags & 0x40)) {
+				p_mech->m_flags |= 0x40;
+				p_mech->m_stateTime = 0x16a;
 			}
-			else if (p_mech->m_unk0x8c <= 0) {
-				p_mech->m_unk0x8c = 0;
-				p_mech->m_unk0x10c |= 0x80;
+			else if (p_mech->m_stateTime <= 0) {
+				p_mech->m_stateTime = 0;
+				p_mech->m_flags |= 0x80;
 			}
 			else {
-				p_mech->m_unk0x8c -= g_deltaTime;
+				p_mech->m_stateTime -= g_deltaTime;
 			}
 		}
 		else {
-			p_mech->m_unk0x10c &= 0x7fff;
-			if (p_mech->m_unk0x10c & 0x40) {
-				p_mech->m_unk0x8c += g_deltaTime;
-				if (p_mech->m_unk0x8c >= 0x16a) {
-					p_mech->m_unk0x10c &= ~0x40;
+			p_mech->m_flags &= 0x7fff;
+			if (p_mech->m_flags & 0x40) {
+				p_mech->m_stateTime += g_deltaTime;
+				if (p_mech->m_stateTime >= 0x16a) {
+					p_mech->m_flags &= ~0x40;
 				}
 			}
 		}
@@ -837,21 +841,21 @@ Shape* FUN_10046269(Player* p_player)
 	MechS32 collided;
 
 	hit = NULL;
-	UpdateRamp(&p_player->m_unk0xa8);
+	UpdateRamp(&p_player->m_aimDistance);
 	FUN_100463e5(p_player, &ray);
 	collided = TestSegmentCollision(&ray, &hit, p_player->m_index);
 	if (collided && hit) {
 		flags = hit->m_kind;
 		if ((flags & 0x100) || (flags & 0x200)) {
 			length = GetRayLength(&ray);
-			p_player->m_unk0xa8.m_value = length > 2000 ? length : 2000;
+			p_player->m_aimDistance.m_value = length > 2000 ? length : 2000;
 			if (p_player->m_index == g_localPlayerId) {
 				g_unk0x100a6d34 = hit;
 			}
 		}
 	}
 
-	p_player->m_aimRange.m_target = p_player->m_unk0xa8.m_value;
+	p_player->m_aimRange.m_target = p_player->m_aimDistance.m_value;
 	UpdateRamp(&p_player->m_aimRange);
 
 	return hit;
@@ -892,7 +896,7 @@ void FUN_100463e5(Player* p_player, Ray* p_ray)
 	MechS32 dx;
 
 	FUN_10046466(p_player, &dx, &dy, &dz);
-	GetObjPosition(p_player->m_unk0x44, &x, &y, &z);
+	GetObjPosition(p_player->m_eyeObj, &x, &y, &z);
 	if (g_unk0x100a2434) {
 		y += *g_unk0x100a2434;
 	}
@@ -912,9 +916,9 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 
 	*p_x = *p_y = 0;
 	*p_z = 0x10000;
-	GetObjWorldPos(p_player->m_unk0x44, &x, &y, &z);
+	GetObjWorldPos(p_player->m_eyeObj, &x, &y, &z);
 	mech = p_player->m_mech;
-	x = mech->m_unk0x14.m_value;
+	x = mech->m_torsoPitch.m_value;
 	BuildMatrix(&matrix, x, y, z, 0, 0, 0);
 	RotatePoint(&matrix, p_x, p_y, p_z);
 }
@@ -922,7 +926,7 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // FUNCTION: MW2 0x100464f3
 void FUN_100464f3(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	GetObjPosition(p_player->m_unk0x48, p_x, p_y, p_z);
+	GetObjPosition(p_player->m_firingObj, p_x, p_y, p_z);
 }
 
 // Places p_obj at the player's current hardpoint.
@@ -934,7 +938,7 @@ void FUN_10046519(Player* p_player, SceneObject* p_obj)
 	MechS32 x;
 
 	FUN_100464f3(p_player, &x, &y, &z);
-	FUN_10001722(p_obj, FUN_10001e01(p_player->m_unk0x48));
+	FUN_10001722(p_obj, FUN_10001e01(p_player->m_firingObj));
 	SetObjPosition(p_obj, x, y, z);
 }
 

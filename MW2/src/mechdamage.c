@@ -58,9 +58,9 @@ MechS32 g_unk0x100a15a4 = 0;
 // GLOBAL: MW2 0x100bdff0
 static MechS32 g_unk0x100bdff0;
 
-// Runs the autopilot (m_unk0xbc): mode 1 follows the nav points in order, skipping the ones
+// Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
 // already reached and marking each one it reaches (turning off after the last); then the AI
-// steers, the throttle saved while FUN_10015709 has it.
+// steers, the throttle saved while AvoidObstacles has it.
 // Stack-slot permutation: index and first.
 // FUNCTION: MW2 0x100079d0
 void FUN_100079d0(Mech* p_mech)
@@ -68,11 +68,11 @@ void FUN_100079d0(Mech* p_mech)
 	MechS32 index;
 	MechS32 first;
 
-	if (p_mech->m_unk0xbc == 0) {
+	if (p_mech->m_autopilot == 0) {
 		return;
 	}
 
-	if (p_mech->m_unk0xbc == 1) {
+	if (p_mech->m_autopilot == 1) {
 		if (!(p_mech->m_player->m_targetInfo.m_target & 0x100) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
 			FUN_100602b2(p_mech->m_player, 0, 0);
 			index = p_mech->m_player->m_targetInfo.m_target & 0xff;
@@ -104,27 +104,27 @@ void FUN_100079d0(Mech* p_mech)
 
 				FUN_100602b2(p_mech->m_player, 1, 0);
 				if ((p_mech->m_player->m_targetInfo.m_target & 0xff) < first) {
-					p_mech->m_unk0xbc = 0;
+					p_mech->m_autopilot = 0;
 					p_mech->m_player->m_targetInfo.m_target |= 0x1000;
 					p_mech->m_player->m_steering->m_throttle = 0;
-					p_mech->m_player->m_steering->m_unk0x24 = 1;
+					p_mech->m_player->m_steering->m_throttleSet = 1;
 					return;
 				}
 			}
 		}
 	}
 
-	if (!FUN_10015709(p_mech->m_player)) {
-		FUN_1005398f(p_mech->m_player);
-		if (p_mech->m_player->m_unk0x184 == 1) {
-			p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_unk0x180;
-			p_mech->m_player->m_unk0x184 = 0;
+	if (!AvoidObstacles(p_mech->m_player)) {
+		SteerToTarget(p_mech->m_player);
+		if (p_mech->m_player->m_maneuverFlag == 1) {
+			p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
+			p_mech->m_player->m_maneuverFlag = 0;
 		}
 
-		p_mech->m_player->m_unk0x180 = p_mech->m_player->m_steering->m_throttle;
+		p_mech->m_player->m_maneuverParam = p_mech->m_player->m_steering->m_throttle;
 	}
 	else {
-		p_mech->m_player->m_unk0x184 = 1;
+		p_mech->m_player->m_maneuverFlag = 1;
 	}
 }
 
@@ -135,11 +135,11 @@ void FUN_10007cb5(Mech* p_mech)
 {
 	MechS32 heading;
 
-	if (p_mech->m_unk0xbc == 1) {
+	if (p_mech->m_autopilot == 1) {
 		return;
 	}
 
-	heading = (p_mech->m_player->m_heading + 0x1680000 + p_mech->m_unk0x04.m_value) % 0x1680000;
+	heading = (p_mech->m_player->m_heading + 0x1680000 + p_mech->m_torsoTwist.m_value) % 0x1680000;
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 
@@ -194,7 +194,7 @@ void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
 }
 
 // Accumulates the mech's heat each frame (m_deltaHeat less its cooling, doubled while shut down)
-// in m_unk0x98, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
+// in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
 // The only diff is a stack-slot permutation of the locals.
@@ -216,27 +216,27 @@ void CalculateHeat(Mech* p_mech)
 	}
 
 	if (!g_difficulty->m_heatTracking && p_mech->m_player->m_index == g_localPlayerId) {
-		p_mech->m_unk0x98 = 0;
+		p_mech->m_heat = 0;
 		p_mech->m_deltaHeat = 0;
 		return;
 	}
 
-	if (p_mech->m_unk0xa0 == 3) {
+	if (p_mech->m_powerState == 3) {
 		shift = 1;
 	}
 
-	cooling = p_mech->m_unk0x9c * g_deltaTime << shift;
+	cooling = p_mech->m_cooling * g_deltaTime << shift;
 	delta = p_mech->m_deltaHeat - cooling;
-	p_mech->m_unk0x98 += delta;
-	if (p_mech->m_unk0x98 < 0) {
-		p_mech->m_unk0x98 = 0;
+	p_mech->m_heat += delta;
+	if (p_mech->m_heat < 0) {
+		p_mech->m_heat = 0;
 	}
 
-	heat = p_mech->m_unk0x98 >> 16;
-	if ((p_mech->m_unk0x10c & 4) && !(p_mech->m_unk0x10c & 8) && p_mech->m_unk0xa0 != 3 &&
-		g_currentClock - p_mech->m_unk0x8c > 1086) {
-		p_mech->m_unk0xa0 = 3;
-		p_mech->m_unk0x8c = g_currentClock;
+	heat = p_mech->m_heat >> 16;
+	if ((p_mech->m_flags & 4) && !(p_mech->m_flags & 8) && p_mech->m_powerState != 3 &&
+		g_currentClock - p_mech->m_stateTime > 1086) {
+		p_mech->m_powerState = 3;
+		p_mech->m_stateTime = g_currentClock;
 		if (p_mech->m_player->m_index == g_localPlayerId) {
 			PlayCockpitSound(13, -1);
 		}
@@ -247,21 +247,21 @@ void CalculateHeat(Mech* p_mech)
 			return;
 		}
 
-		if (p_mech->m_unk0x10c & 8) {
+		if (p_mech->m_flags & 8) {
 			if (g_deltaTime && RandomIntBelow(4000 / g_deltaTime) < 3) {
 				FUN_10007d06(p_mech->m_player->m_index, p_mech);
 			}
 		}
-		else if (g_currentClock - p_mech->m_unk0x8c > 4525) {
+		else if (g_currentClock - p_mech->m_stateTime > 4525) {
 			FUN_1000832b(p_mech->m_player->m_index, p_mech);
 		}
 	}
 	else if (heat > 80.0) {
-		if (!(p_mech->m_unk0x10c & 4)) {
-			p_mech->m_unk0x8c = g_currentClock;
-			p_mech->m_unk0x10c |= 4;
-			if (!(p_mech->m_unk0x10c & 0x1000) && p_mech->m_player->m_index == g_localPlayerId) {
-				p_mech->m_unk0x10c |= 0x1000;
+		if (!(p_mech->m_flags & 4)) {
+			p_mech->m_stateTime = g_currentClock;
+			p_mech->m_flags |= 4;
+			if (!(p_mech->m_flags & 0x1000) && p_mech->m_player->m_index == g_localPlayerId) {
+				p_mech->m_flags |= 0x1000;
 				PlayCockpitSound(3, -1);
 				FUN_1007eb23(0xe9, 100, 0x40, 5, 0x50);
 			}
@@ -274,15 +274,15 @@ void CalculateHeat(Mech* p_mech)
 			PlayCockpitSound(0, -1);
 		}
 	}
-	else if (p_mech->m_unk0x10c & 4) {
-		if (p_mech->m_unk0xa0 == 3 && g_currentClock - p_mech->m_unk0x8c > 724) {
-			p_mech->m_unk0x10c &= ~4;
-			p_mech->m_unk0xa0 = 0;
+	else if (p_mech->m_flags & 4) {
+		if (p_mech->m_powerState == 3 && g_currentClock - p_mech->m_stateTime > 724) {
+			p_mech->m_flags &= ~4;
+			p_mech->m_powerState = 0;
 		}
 
-		if (p_mech->m_unk0x10c & 8) {
-			p_mech->m_unk0x10c &= ~8;
-			p_mech->m_unk0x10c &= ~4;
+		if (p_mech->m_flags & 8) {
+			p_mech->m_flags &= ~8;
+			p_mech->m_flags &= ~4;
 		}
 	}
 	else {
@@ -290,7 +290,7 @@ void CalculateHeat(Mech* p_mech)
 			g_unk0x100a15a4 = 0;
 		}
 
-		p_mech->m_unk0x10c &= ~0x1000;
+		p_mech->m_flags &= ~0x1000;
 	}
 }
 
@@ -322,13 +322,13 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	}
 
 	FUN_1001b21a();
-	if (p_mech->m_unk0xa0 == 5) {
+	if (p_mech->m_powerState == 5) {
 		if (g_unk0x100ba624) {
 			if (p_mech->m_player->m_index == g_localPlayerId) {
 				g_carCfg.m_unk0x1d = 4;
 				PlayCockpitSound(0x20, -1);
 			}
-			p_mech->m_unk0xa0 = 4;
+			p_mech->m_powerState = 4;
 		}
 		else if (p_mech->m_player->m_index == g_localPlayerId) {
 			g_carCfg.m_unk0x1d = 2;
@@ -337,7 +337,7 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	}
 
 	if (p_killer == g_localPlayerId) {
-		if (p_mech->m_player->m_unk0x00 == 1) {
+		if (p_mech->m_player->m_type == c_playerTypeMech) {
 			if (p_mech->m_player->m_index == g_localPlayerId) {
 				g_unk0x100a15a0--;
 			}
@@ -377,7 +377,7 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	}
 
 	if (p_mech->m_player->m_flags & 0x1400) {
-		if (p_mech->m_player->m_unk0x00 == 1) {
+		if (p_mech->m_player->m_type == c_playerTypeMech) {
 			switch (GetPlayerSide(p_mech->m_player->m_index)) {
 			case 0:
 				g_carCfg.m_unk0x22++;
@@ -406,7 +406,7 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	}
 
 	if (g_players[g_localPlayerId]->m_team == p_mech->m_player->m_team) {
-		if (p_mech->m_unk0xa0 == 5) {
+		if (p_mech->m_powerState == 5) {
 			g_carCfg.m_unk0x36++;
 		}
 		else {
@@ -415,7 +415,7 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	}
 
 	if (GetPlayerSide(p_mech->m_player->m_index) == 1) {
-		switch (p_mech->m_player->m_unk0x00) {
+		switch (p_mech->m_player->m_type) {
 		case 1:
 			PlayCockpitSound(0x15, -1);
 			break;
@@ -441,22 +441,22 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	}
 
 	p_mech->m_player->m_flags |= 6;
-	p_mech->m_unk0x8c = 0;
+	p_mech->m_stateTime = 0;
 	if (!g_isNetworkGame) {
-		if (p_mech->m_unk0xa0 != 5 || p_mech->m_player->m_index != g_localPlayerId) {
-			p_mech->m_unk0xa0 = 4;
+		if (p_mech->m_powerState != 5 || p_mech->m_player->m_index != g_localPlayerId) {
+			p_mech->m_powerState = 4;
 		}
 
-		FUN_100518cd(p_mech->m_player);
+		ResetAI(p_mech->m_player);
 		if (GetTeamLeader(p_mech->m_player->m_team) == p_mech->m_player->m_index) {
-			leader = FUN_1005212a(p_mech->m_player->m_team);
-			FUN_100521e0(p_mech->m_player->m_team, p_mech->m_player->m_index, leader);
+			leader = ChooseTeamLeader(p_mech->m_player->m_team);
+			RetargetGoals(p_mech->m_player->m_team, p_mech->m_player->m_index, leader);
 			sprintf(text, "%6ld : New leader for group %d : %d\n", g_currentClock, p_mech->m_player->m_team, leader);
 			WriteToMw2Log(text);
 		}
 	}
 	else {
-		p_mech->m_unk0xa0 = 4;
+		p_mech->m_powerState = 4;
 	}
 
 	if (!g_isNetworkGame && p_mech->m_player->m_index != g_localPlayerId &&
@@ -515,10 +515,10 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 		return;
 	case 7:
 	case 8:
-		if (!(p_mech->m_unk0x10c & 0x20)) {
+		if (!(p_mech->m_flags & 0x20)) {
 			FUN_10002314(p_mech->m_player->m_obj, p_section);
-			p_mech->m_unk0xb0 = 0;
-			p_mech->m_unk0x10c |= 0x20;
+			p_mech->m_mobility = 0;
+			p_mech->m_flags |= 0x20;
 			return;
 		}
 		else {
@@ -540,7 +540,7 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	}
 
 	FUN_10002314(p_mech->m_player->m_obj, p_section);
-	if (p_mech->m_unk0xa0 != 4 && p_mech->m_unk0xa0 != 5 &&
+	if (p_mech->m_powerState != 4 && p_mech->m_powerState != 5 &&
 		(p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
 		FUN_1000832b(p_attacker, p_mech);
 	}
@@ -648,7 +648,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 						break;
 					}
 
-					if (p_mech->m_unk0xa0 == 2) {
+					if (p_mech->m_powerState == 2) {
 						FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 					}
 
@@ -682,7 +682,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 
 				if (!p_recursing && bin->m_unk0x02) {
 					if (p_mech->m_player->m_index == g_localPlayerId) {
-						if (p_mech->m_unk0xa0 == 2) {
+						if (p_mech->m_powerState == 2) {
 							FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 						}
 
@@ -713,7 +713,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 					}
 
 					if (g_unk0x100a1590 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
-						p_mech->m_unk0xa0 = 5;
+						p_mech->m_powerState = 5;
 						FUN_1000832b(p_attacker, p_mech);
 					}
 				}
@@ -744,48 +744,48 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 				break;
 			}
 		case 7000:
-			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0xc0 != 2) {
-				if (p_mech->m_unk0xa0 == 2) {
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_jumpFuel != 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(4);
 			}
 
-			if (p_mech->m_unk0xc4 > 0) {
-				p_mech->m_unk0xec -= p_mech->m_unk0xec / p_mech->m_unk0xc4;
+			if (p_mech->m_jumpJets > 0) {
+				p_mech->m_jumpThrust -= p_mech->m_jumpThrust / p_mech->m_jumpJets;
 			}
 			else {
-				p_mech->m_unk0xec = 0;
+				p_mech->m_jumpThrust = 0;
 			}
 
-			if (p_mech->m_unk0xc4 > 0) {
-				p_mech->m_unk0xc4--;
+			if (p_mech->m_jumpJets > 0) {
+				p_mech->m_jumpJets--;
 			}
 
-			if (!p_mech->m_unk0xc4) {
-				p_mech->m_unk0xc0 = -2;
+			if (!p_mech->m_jumpJets) {
+				p_mech->m_jumpFuel = -2;
 			}
 			break;
 		case 6000:
-			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0x9c) {
-				if (p_mech->m_unk0xa0 == 2) {
+			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_cooling) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(5);
 			}
 
-			if (p_mech->m_unk0x9c > 0) {
-				p_mech->m_unk0x9c -= 50;
+			if (p_mech->m_cooling > 0) {
+				p_mech->m_cooling -= 50;
 			}
 			else {
-				p_mech->m_unk0x9c = 0;
+				p_mech->m_cooling = 0;
 			}
 			break;
 		case 5900:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
@@ -798,35 +798,35 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			break;
 		case 5850:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(7);
 			}
 
-			p_mech->m_unk0xb0 -= 0x199a;
-			if (p_mech->m_unk0xb0 < 0) {
-				p_mech->m_unk0xb0 = 0;
+			p_mech->m_mobility -= 0x199a;
+			if (p_mech->m_mobility < 0) {
+				p_mech->m_mobility = 0;
 			}
 			break;
 		case 5800:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(8);
 			}
 
-			p_mech->m_unk0xb0 -= 0x199a;
-			if (p_mech->m_unk0xb0 < 0) {
-				p_mech->m_unk0xb0 = 0;
+			p_mech->m_mobility -= 0x199a;
+			if (p_mech->m_mobility < 0) {
+				p_mech->m_mobility = 0;
 			}
 
-			p_mech->m_unk0xc0 = -2;
-			p_mech->m_unk0xec = 0;
-			p_mech->m_unk0xc4 = 0;
+			p_mech->m_jumpFuel = -2;
+			p_mech->m_jumpThrust = 0;
+			p_mech->m_jumpJets = 0;
 			break;
 		case 5750:
 			if (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame) {
@@ -835,7 +835,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			break;
 		case 5700:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
@@ -848,37 +848,37 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5600:
 		case 5650:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(10);
 			}
 
-			p_mech->m_unk0xb0 -= 0x199a;
-			if (p_mech->m_unk0xb0 < 0) {
-				p_mech->m_unk0xb0 = 0;
+			p_mech->m_mobility -= 0x199a;
+			if (p_mech->m_mobility < 0) {
+				p_mech->m_mobility = 0;
 			}
 			break;
 		case 5500:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(11);
 			}
 
-			p_mech->m_unk0xb0 -= 0x199a;
-			if (p_mech->m_unk0xb0 < 0) {
-				p_mech->m_unk0xb0 = 0;
+			p_mech->m_mobility -= 0x199a;
+			if (p_mech->m_mobility < 0) {
+				p_mech->m_mobility = 0;
 			}
 			break;
 		case 5350:
 		case 5400:
 		case 5450:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
@@ -889,7 +889,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			break;
 		case 5300:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
-				if (p_mech->m_unk0xa0 == 2) {
+				if (p_mech->m_powerState == 2) {
 					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
 				}
 
@@ -900,8 +900,8 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			break;
 		}
 
-		if (p_mech->m_unk0xb0 && p_mech->m_unk0xb0 < 0x6666) {
-			p_mech->m_unk0xb0 = 0x6666;
+		if (p_mech->m_mobility && p_mech->m_mobility < 0x6666) {
+			p_mech->m_mobility = 0x6666;
 		}
 	}
 
@@ -990,7 +990,8 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 	section->m_armor[side] -= p_damage;
 	section->m_unk0x26 |= 0x8000;
 	if (section->m_armor[side] <= 0) {
-		if (!(section->m_unk0x26 & 0x4000) && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_unk0xa0 == 2) {
+		if (!(section->m_unk0x26 & 0x4000) && p_mech->m_player->m_index == g_localPlayerId &&
+			p_mech->m_powerState == 2) {
 			FUN_1007eb23(0xec, 100, 0x40, 5, 0x50);
 		}
 
@@ -998,7 +999,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		section->m_unk0x08 += section->m_armor[side];
 		section->m_armor[side] = 0;
 		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
-			p_mech->m_unk0xa0 != 4 && p_damage > 0x20000) {
+			p_mech->m_powerState != 4 && p_damage > 0x20000) {
 			g_unk0x100ae380 = 1;
 		}
 
@@ -1042,13 +1043,13 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 // FUNCTION: MW2 0x10009d2a
 void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 {
-	if (p_mech->m_unk0xa0 == 4 || p_mech->m_unk0xa0 == 5) {
+	if (p_mech->m_powerState == 4 || p_mech->m_powerState == 5) {
 		return;
 	}
 
 	if (p_eject && p_mech->m_player->m_index == g_localPlayerId) {
 		if (!g_unk0x100ba624) {
-			p_mech->m_unk0xa0 = 5;
+			p_mech->m_powerState = 5;
 			FUN_1007eb23(0xc5, 100, 0x40, 5, 0x32);
 		}
 		else {

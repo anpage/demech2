@@ -42,10 +42,10 @@ extern "C"
 		MechS32 p_dx,
 		MechS32 p_dy,
 		MechS32 p_dz,
-		MechS32* p_unk0x0c,
-		MechS32* p_unk0x10,
+		MechS32* p_heading,
+		MechS32* p_length,
 		MechU32* p_distance,
-		MechS32* p_unk0x18
+		MechS32* p_pitch
 	);
 	void FUN_100602b2(struct Player* p_player, MechS32 p_step, MechS32 p_unk0x08);
 	void FUN_100602ec(MechS32 p_step);

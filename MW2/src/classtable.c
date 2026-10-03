@@ -39,7 +39,7 @@ MechS32 g_classTableReady = 0;
 // GLOBAL: MW2 0x1012b7e0
 ClassEntry g_classTable[0x30c];
 
-// Loads the shapes of p_player's entries for its level m_unk0x18 into one pool block.
+// Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // Stack-slot permutation: count, i and buffer.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001ce90
@@ -63,9 +63,9 @@ MechS32 FUN_1001ce90(Player* p_player)
 
 	for (i = 0; i < g_classEntryCount; i++) {
 		if (g_classTable[i].m_owner == p_player->m_index) {
-			FUN_1001d3ff(i, p_player->m_unk0x18, buffer);
+			FUN_1001d3ff(i, p_player->m_baseLevel, buffer);
 			buffer += FUN_100023a8();
-			FUN_1001d912(i, p_player->m_unk0x18);
+			FUN_1001d912(i, p_player->m_baseLevel);
 		}
 	}
 
@@ -369,7 +369,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	}
 }
 
-// Releases the shapes of the first player whose m_unk0x1c names a level, and clears it.
+// Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // Operand order: i < g_playerCount loads g_playerCount first in the original.
 // FUNCTION: MW2 0x1001d88b
 void FUN_1001d88b(void)
@@ -379,10 +379,10 @@ void FUN_1001d88b(void)
 
 	done = FALSE;
 	for (i = 0; i < g_playerCount && !done; i++) {
-		if (g_players[i]->m_unk0x1c != -1) {
+		if (g_players[i]->m_detailLevel != -1) {
 			done = TRUE;
-			FUN_1001d3a4(i, g_players[i]->m_unk0x1c);
-			g_players[i]->m_unk0x1c = -1;
+			FUN_1001d3a4(i, g_players[i]->m_detailLevel);
+			g_players[i]->m_detailLevel = -1;
 		}
 	}
 }
@@ -538,9 +538,9 @@ void FUN_1001da44(void)
 		}
 
 		player = g_players[entry->m_player];
-		level = player->m_unk0x1c;
+		level = player->m_detailLevel;
 		if (entry->m_level >= 0 && entry->m_level != level && FUN_1001d292(player->m_index, entry->m_level)) {
-			player->m_unk0x1c = entry->m_level;
+			player->m_detailLevel = entry->m_level;
 		}
 	}
 }

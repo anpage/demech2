@@ -52,7 +52,7 @@ typedef struct MekAmmo {
 	MechS32 m_type; // 0x04 — the MekWeapon::m_type it feeds
 } MekAmmo;
 
-// The value each weapon type adds to a mech's (FUN_1005e534).
+// The value each weapon type adds to a mech's (GetMechValue).
 // GLOBAL: MW2 0x100aa730
 MechU16 g_unk0x100aa730[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,   228, 42, 82, 123,
 							   157, 74,  144, 247, 329, 4,  228, 166, 51, 21, 177, 74,  16, 50, 40};
@@ -137,7 +137,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		_close(file);
 	}
 
-	p_mech->m_unk0x10c = 0;
+	p_mech->m_flags = 0;
 	if (header->m_weaponCount > 10) {
 		header->m_weaponCount = 10;
 	}
@@ -151,7 +151,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	mekSections = (MechSection*) (header + 1);
 	weapons = (MekWeapon*) (mekSections + 8);
 	ammos = (MekAmmo*) (weapons + header->m_weaponCount);
-	p_mech->m_player->m_ai.m_unk0x0c = FUN_1005e534(header, mekSections, weapons);
+	p_mech->m_player->m_ai.m_value = GetMechValue(header, mekSections, weapons);
 	memcpy(p_mech->m_sections, mekSections, 8 * sizeof(MechSection));
 
 	section = p_mech->m_sections;
@@ -168,7 +168,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		WriteToMw2Log(text);
 		for (j = 0; j < 12; j++) {
 			if (section->m_slots[j] >= 5000 && section->m_slots[j] < 5050) {
-				p_mech->m_unk0x10c |= 0x10;
+				p_mech->m_flags |= 0x10;
 			}
 
 			sprintf(text, "%3d ", section->m_slots[j]);
@@ -301,8 +301,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		ammo++;
 	}
 
-	p_mech->m_unk0x88 = FixedMul16(header->m_speed, 0x697e98);
-	p_mech->m_unk0xe4 = header->m_tons;
+	p_mech->m_topSpeed = FixedMul16(header->m_speed, 0x697e98);
+	p_mech->m_tons = header->m_tons;
 	p_mech->m_weaponCount = header->m_weaponCount;
 	p_mech->m_ammoBinCount = header->m_ammoCount;
 	heat = 50;
@@ -342,25 +342,25 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		heat *= 0.9;
 	}
 
-	p_mech->m_unk0x9c = header->m_heatSinks * heat;
+	p_mech->m_cooling = header->m_heatSinks * heat;
 	if (header->m_jump == 0) {
-		p_mech->m_unk0xc0 = -2;
-		p_mech->m_unk0xc4 = 0;
-		p_mech->m_unk0xec = 0;
+		p_mech->m_jumpFuel = -2;
+		p_mech->m_jumpJets = 0;
+		p_mech->m_jumpThrust = 0;
 	}
 	else if (header->m_jump < 0) {
-		p_mech->m_unk0xc0 = -1;
-		p_mech->m_unk0xc4 = 0;
-		p_mech->m_unk0xec = 0;
+		p_mech->m_jumpFuel = -1;
+		p_mech->m_jumpJets = 0;
+		p_mech->m_jumpThrust = 0;
 	}
 	else {
-		p_mech->m_unk0xc0 = 0x712;
-		p_mech->m_unk0xc4 = header->m_jump;
+		p_mech->m_jumpFuel = 0x712;
+		p_mech->m_jumpJets = header->m_jump;
 		jumpRatio = FixedDiv16(header->m_jump, header->m_speed);
-		p_mech->m_unk0xec = FixedMul16(0x1e50, jumpRatio);
+		p_mech->m_jumpThrust = FixedMul16(0x1e50, jumpRatio);
 	}
 
-	sprintf(text, "\njet ddy: %ld", p_mech->m_unk0xec);
+	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);
 	WriteToMw2Log(text);
 	if (fromResource) {
 		FUN_1001a163(p_id, g_resourceTypeTags[c_resTagMek]);
@@ -377,7 +377,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // Stack-slot permutation: the kinds table sits elsewhere in the frame, so its accesses and the
 // jumps over them differ in their encoding.
 // FUNCTION: MW2 0x1005e534
-MechU16 FUN_1005e534(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
+MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
 {
 	MechS32 armor;
 	MechS16 kinds[23][3] = {{5000, 1, 0}, {5050, 1, 0}, {5100, -60, 0}, {5150, -60, 0}, {5200, -50, 0}, {5250, 1, 0},
