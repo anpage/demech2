@@ -1190,12 +1190,19 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 				return 0;
 			}
 		}
+
+		g_netState = 1;
+		ElectMaster();
+		g_currentClock = FUN_1007d05d();
+		g_unk0x100ba54c = FUN_1007d0fb();
+		return 1;
 	}
 
-	g_netState = 1;
-	ElectMaster();
-	g_currentClock = FUN_1007d05d();
-	g_unk0x100ba54c = FUN_1007d0fb();
+	// Unreachable: both arms return.
+	if (p_netLaunch && (p_netLaunch->m_unk0x14 & 1)) {
+		g_stateInterval = 0x2d;
+	}
+
 	return 1;
 }
 

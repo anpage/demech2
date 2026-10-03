@@ -90,10 +90,10 @@ void FUN_1004da30(MissionTable* p_table)
 			}
 
 			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_kind = kind;
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_star =
-				p_table->m_entries[i].m_conditions[j].m_star;
 			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_objective =
 				p_table->m_entries[i].m_conditions[j].m_objective;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_conditions[j].m_star =
+				p_table->m_entries[i].m_conditions[j].m_star;
 		}
 
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_state = 0;
