@@ -5,14 +5,14 @@
 #include "depthsort.h"
 #include "eyepoint.h"
 #include "face.h"
-#include "ivorydelta.h"
 #include "portable.h"
 #include "projectedvertex.h"
+#include "queuedpolygon.h"
 #include "ray.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
 #include "shape.h"
 #include "shapegeom.h"
-#include "slateheron.h"
 #include "transform.h"
 #include "types.h"
 #include "vertex.h"
@@ -2234,7 +2234,7 @@ static void Run10048faf(const AsmModule* p_module, const MechS32* p_args, AsmOut
 #define QUEUE_LOG 64
 #define POLYGON_RECORD_SIZE (0xc + 20 * 4) // a polygon and its points, on x86
 
-// The hooks FUN_10049155 calls through g_unk0x100a6cc8, and what they're passed. The projection
+// The hooks FUN_10049155 calls through g_renderSettings, and what they're passed. The projection
 // hook stands in for FUN_10048ebe: it adds the point to the polygon (up to 20) and ands random
 // outcodes, mostly 0, into g_unk0x1010b5b8, so that most polygons get queued.
 typedef struct QueueHooks {
@@ -2310,11 +2310,11 @@ static void OutputPolygonRecord(
 	MechS32 p_count
 )
 {
-	const IvoryDelta0xc* poly = (const IvoryDelta0xc*) p_record;
+	const QueuedPolygon* poly = (const QueuedPolygon*) p_record;
 	const MechU8* cursor = p_record;
 
 	if (p_end > p_record) {
-		AsmOutputWord(p_output, (MechU16) poly->m_count | ((MechU32) poly->m_unk0x02 << 16));
+		AsmOutputWord(p_output, (MechU16) poly->m_count | ((MechU32) poly->m_flags << 16));
 		AsmOutputWord(p_output, Locate(p_regions, p_count, poly->m_face));
 		AsmOutputWord(p_output, (MechU32) poly->m_depth);
 		for (cursor = p_record + 0xc; cursor + sizeof(void*) <= p_end; cursor += sizeof(void*)) {
@@ -2346,9 +2346,9 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	Vertex vertices[QUEUE_VERTICES];
 	ProjectedVertex copies[QUEUE_VERTICES];
 	ProjectedVertex others[20];
-	AmberDune0x8 polygons[QUEUE_POLYGONS];
+	DepthEntry polygons[QUEUE_POLYGONS];
 	RecordStacks stacks;
-	SlateHeron0x68* hooks = (SlateHeron0x68*) Data(p_module, "g_unk0x100a6cc8");
+	RenderSettings* hooks = (RenderSettings*) Data(p_module, "g_renderSettings");
 	MechU8** cursor = (MechU8**) Data(p_module, "g_unk0x1010b534");
 	MechS32* counters[QUEUE_COUNTERS];
 	MechS32 view[c_viewCount];
@@ -2442,7 +2442,7 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 		polygons[i].m_depth = PortableS32(AsmNext(&state));
 	}
 
-	*(AmberDune0x8**) Data(p_module, "g_unk0x1010b5c4") = polygons;
+	*(DepthEntry**) Data(p_module, "g_unk0x1010b5c4") = polygons;
 	*(MechU32*) Data(p_module, "g_unk0x1010b5c8") = (MechU32) p_args[1];
 	for (i = 0; i < QUEUE_COUNTERS; i++) {
 		counters[i] = (MechS32*) Data(p_module, g_queueCounterNames[i]);
@@ -2470,8 +2470,8 @@ static void Run10049155(const AsmModule* p_module, const MechS32* p_args, AsmOut
 	g_queueHooks.m_regionCount = 6;
 	g_queueHooks.m_state = AsmNext(&state);
 	g_queueHooks.m_logCount = 0;
-	hooks->m_unk0x5c = QueueProjectHook;
-	hooks->m_unk0x60 = QueueDrawHook;
+	hooks->m_projectVertex = QueueProjectHook;
+	hooks->m_drawFace = QueueDrawHook;
 
 	((QueueFaceFn) Function(p_module, "FUN_10049155"))(&face.m_face, vertices);
 

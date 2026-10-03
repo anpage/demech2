@@ -4,7 +4,7 @@
 #include "face.h"
 #include "path.h"
 #include "projectedvertex.h"
-#include "quartzreel.h"
+#include "reel.h"
 #include "resourceref.h"
 #include "types.h"
 #include "vertex.h"
@@ -25,7 +25,7 @@ extern "C"
 	extern ProjectedVertex* g_unk0x1010b550[20];
 	extern MechS32 g_unk0x1010b5b0;
 	extern Path g_paths[0x40];
-	extern QuartzReel0x14* g_unk0x101079e0[0x780];
+	extern Reel* g_reels[0x780];
 
 	MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period);
 	MechS32 FUN_100472fe(MechS32 p_mode, MechS32 p_value);

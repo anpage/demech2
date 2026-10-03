@@ -21,10 +21,10 @@
 #include "random.h"
 #include "refreshmode.h"
 #include "render.h"
+#include "rendersettings.h"
 #include "shapelists.h"
 #include "shots.h"
 #include "simmain.h"
-#include "slateheron.h"
 #include "soundfx.h"
 #include "types.h"
 #include "view.h"
@@ -58,7 +58,7 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 	FUN_1004bc2e(g_eyepoint);
 	FUN_1004bfe8(g_eyepoint);
 	FUN_1004b980(g_eyepoint);
-	if (g_unk0x100a6cc8.m_unk0x1c || g_unk0x100a6cc8.m_unk0x20) {
+	if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
 		FUN_1004320b(g_eyepoint);
 	}
 

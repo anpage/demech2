@@ -24,7 +24,7 @@ if (NOT DEFINED DEMECH2_SOURCE_DIR)
   enable_testing()
   option(ASMEQUIV_SANITIZE "Build asmgolden with UBSan and ASan (GCC, Clang)" OFF)
   # The units' C predates C23, where an empty parameter list means no parameters
-  # (SlateHeron0x68's hooks)
+  # (RenderSettings's hooks)
   set(CMAKE_C_STANDARD 17)
 endif()
 

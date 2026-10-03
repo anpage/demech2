@@ -63,7 +63,7 @@ void FUN_10069a4b(
 	MechS32* p_top
 )
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	FUN_1006e9e6(p_shape);
 	box = p_shape->m_unk0x44;
@@ -97,7 +97,7 @@ MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 	MechS32 tNear;
 	MechS32 axis;
 	MechS32 tEnter;
-	CinderBox0x18* box;
+	BoundBox* box;
 	MechS32 tFar;
 	MechS32 tExit;
 
@@ -192,7 +192,7 @@ MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 // FUNCTION: MW2 0x10069dd4
 MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	FUN_1006e9e6(p_shape);
 	box = p_shape->m_unk0x44;

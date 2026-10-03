@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-// A frame's events in an animation (QuartzReel0x14::m_events): flags that mark the frames an
+// A frame's events in an animation (Reel::m_events): flags that mark the frames an
 // animation jumps between (see FUN_10046750), and the values they compare with the player's
 // animation state.
 // SIZE 0x08

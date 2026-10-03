@@ -12,9 +12,9 @@ extern "C"
 #endif
 
 	extern MechS32 g_unk0x100c1a68;
-	extern AmberDune0x8* g_unk0x100c2280;
+	extern DepthEntry* g_unk0x100c2280;
 	extern MechU8* g_unk0x100c2698;
-	extern AmberDune0x8* g_unk0x100c269c;
+	extern DepthEntry* g_unk0x100c269c;
 	extern MechS32 g_unk0x1010b5ac;
 
 	void FUN_1007d120(void);

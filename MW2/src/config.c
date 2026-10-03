@@ -1,9 +1,9 @@
 #include "config.h"
 
+#include "ammobin.h"
 #include "anim2d.h"
 #include "approxlen.h"
 #include "bargauges.h"
-#include "cobaltharbor.h"
 #include "cockpit.h"
 #include "cockpitpanel.h"
 #include "damagepanel.h"
@@ -25,9 +25,9 @@
 #include "players.h"
 #include "point.h"
 #include "poolsizes.h"
-#include "quartzreel.h"
 #include "random.h"
 #include "recttransition.h"
+#include "reel.h"
 #include "render.h"
 #include "rendertarget.h"
 #include "resource.h"
@@ -35,7 +35,6 @@
 #include "resourceref.h"
 #include "screenscale.h"
 #include "screenshot.h"
-#include "silvertern.h"
 #include "simmain.h"
 #include "soundconfig.h"
 #include "soundfx.h"
@@ -56,7 +55,7 @@
 #include <windows.h>
 
 DECOMP_SIZE_ASSERT(DifficultyCfg, 0x17)
-DECOMP_SIZE_ASSERT(QuartzReel0x14, 0x14)
+DECOMP_SIZE_ASSERT(Reel, 0x14)
 DECOMP_SIZE_ASSERT(GarnetFrame0x8, 0x8)
 
 enum FilePermission {
@@ -215,7 +214,7 @@ MechS32 g_unk0x100c3270;
 
 // The 26 cockpit panels FUN_1006fca5 allocates.
 // GLOBAL: MW2 0x100c3280
-CobaltHarbor0x88* g_unk0x100c3280[26];
+CockpitPanel* g_unk0x100c3280[26];
 
 // Which of the panels are enabled when they are set up.
 // GLOBAL: MW2 0x100c32f0
@@ -267,7 +266,7 @@ void FUN_1006f4fa(Mech* p_mech)
 	MechS32 j;
 	MechS32 index;
 	MechS32 alternate;
-	SilverTern0x14* bin;
+	AmmoBin* bin;
 	MechS32 right;
 
 	alternate = TRUE;
@@ -396,7 +395,7 @@ void FUN_1006f4fa(Mech* p_mech)
 		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
 			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
 			for (j = 0; j < slot->m_binCount; j++) {
-				bin = &((SilverTern0x14*) p_mech->m_unk0x5c)[slot->m_bins[j]];
+				bin = &((AmmoBin*) p_mech->m_ammoBins)[slot->m_bins[j]];
 				bin->m_weapon = index;
 			}
 		}
@@ -410,7 +409,7 @@ void FUN_1006f4fa(Mech* p_mech)
 		if (g_unk0x100c3280[i]->m_unk0x0c != -1) {
 			slot = &p_mech->m_weapons[g_unk0x100c3280[i]->m_unk0x0c];
 			for (j = 0; j < slot->m_binCount; j++) {
-				bin = &((SilverTern0x14*) p_mech->m_unk0x5c)[slot->m_bins[j]];
+				bin = &((AmmoBin*) p_mech->m_ammoBins)[slot->m_bins[j]];
 				bin->m_weapon = index;
 			}
 
@@ -478,8 +477,8 @@ void FUN_1006fca5(void)
 
 	mech = g_players[g_localPlayerId]->m_mech;
 	for (i = 0; i < 26; i++) {
-		g_unk0x100c3280[i] = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CobaltHarbor0x88));
-		FUN_100746c0(g_unk0x100c3280[i]);
+		g_unk0x100c3280[i] = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CockpitPanel));
+		InitCockpitPanel(g_unk0x100c3280[i]);
 		g_unk0x100c3280[i]->m_setUnk0x08(g_unk0x100c3280[i], g_unk0x100ae388[i]);
 		g_unk0x100c3280[i]->m_setTarget(g_unk0x100c3280[i], &g_unk0x100adf58[i]);
 		g_unk0x100c3280[i]->m_setUnk0x34(g_unk0x100c3280[i], &g_unk0x100ae160[i]);
@@ -817,7 +816,7 @@ MechS32 FUN_100707c0(
 }
 
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
-// (FUN_10047462), into g_unk0x101079e0.
+// (FUN_10047462), into g_reels.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100708f4
 MechS32 FUN_100708f4(ResourceRef* p_ref)
@@ -877,19 +876,19 @@ MechS32 FUN_100708f4(ResourceRef* p_ref)
 
 		frames = data + offset;
 		offset += frameCount * sizeof(MechS32);
-		g_unk0x101079e0[index] = StaticPoolAlloc(sizeof(QuartzReel0x14), g_staticPoolTags[5]);
-		if (!g_unk0x101079e0[index]) {
+		g_reels[index] = StaticPoolAlloc(sizeof(Reel), g_staticPoolTags[5]);
+		if (!g_reels[index]) {
 			return FALSE;
 		}
 
-		g_unk0x101079e0[index]->m_amounts = (MechS32*) frames;
-		g_unk0x101079e0[index]->m_kind = unk0x08;
-		g_unk0x101079e0[index]->m_frameCount = frameCount;
+		g_reels[index]->m_amounts = (MechS32*) frames;
+		g_reels[index]->m_kind = unk0x08;
+		g_reels[index]->m_frameCount = frameCount;
 		if (p_ref->m_id == -1) {
-			g_unk0x101079e0[index]->m_unk0x00 = 1;
+			g_reels[index]->m_unk0x00 = 1;
 		}
 		else {
-			g_unk0x101079e0[index]->m_unk0x00 = 0;
+			g_reels[index]->m_unk0x00 = 0;
 		}
 
 		ids[i] = index;
@@ -897,7 +896,7 @@ MechS32 FUN_100708f4(ResourceRef* p_ref)
 
 	end = data + offset;
 	for (i = 0; i < count; i++) {
-		g_unk0x101079e0[ids[i]]->m_events = (ReelEvent*) end;
+		g_reels[ids[i]]->m_events = (ReelEvent*) end;
 	}
 
 	return TRUE;

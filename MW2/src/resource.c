@@ -629,7 +629,7 @@ void CreateObjectNode(
 {
 	MechS32 offset;
 	MechS32 unk0x34;
-	TwilightGrove0x24 xform;
+	Xform xform;
 	MechS32 parent;
 	MechS32 fromResource;
 	MechS32 parentIndex;
@@ -706,16 +706,8 @@ void CreateObjectNode(
 			thing = FindThingIdxById(mapped);
 			parent = MapResourceId(parent);
 			parentIndex = FindThingIdxById(parent);
-			g_unk0x100a3850[g_unk0x1012b7b0] = FUN_1001cf93(
-				resource,
-				xform.m_unk0x18,
-				xform.m_unk0x1c,
-				xform.m_unk0x20,
-				parentIndex,
-				p_level,
-				thing,
-				unk0x34
-			);
+			g_unk0x100a3850[g_unk0x1012b7b0] =
+				FUN_1001cf93(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
 			g_unk0x1012b7b0++;
 			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
@@ -739,7 +731,7 @@ void CreateObjectNode(
 		}
 	}
 
-	SetShapeScale(xform.m_unk0x00, xform.m_unk0x04, xform.m_unk0x08);
+	SetShapeScale(xform.m_scaleX, xform.m_scaleY, xform.m_scaleZ);
 	SetShapeFlags(flags);
 	shape = LoadShapes(data, &offset, size, NULL);
 	if (shape) {
@@ -759,15 +751,7 @@ void CreateObjectNode(
 
 		first = FALSE;
 		if (parent == -2) {
-			FUN_1000e2b9(
-				&matrix,
-				xform.m_unk0x0c,
-				xform.m_unk0x10,
-				xform.m_unk0x14,
-				xform.m_unk0x18,
-				xform.m_unk0x1c,
-				xform.m_unk0x20
-			);
+			BuildMatrix(&matrix, xform.m_angleX, xform.m_angleY, xform.m_angleZ, xform.m_x, xform.m_y, xform.m_z);
 			FUN_10039c36(shape, &matrix);
 			FUN_1006d732(shape);
 			if (shape->m_unk0x24 == 5) {
@@ -785,8 +769,8 @@ void CreateObjectNode(
 			obj = FUN_100012d0(parentObj, 10);
 			FUN_10001532(obj, shape);
 			SetShapeObject(shape, obj);
-			SetObjRotation(obj, xform.m_unk0x0c, xform.m_unk0x10, xform.m_unk0x14, 0);
-			SetObjPosition(obj, xform.m_unk0x18, xform.m_unk0x1c, xform.m_unk0x20);
+			SetObjRotation(obj, xform.m_angleX, xform.m_angleY, xform.m_angleZ, 0);
+			SetObjPosition(obj, xform.m_x, xform.m_y, xform.m_z);
 			FUN_10001cf8(obj);
 			FUN_1006d732(shape);
 		}

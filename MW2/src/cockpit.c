@@ -4,7 +4,7 @@
 #include "bandpoly.h"
 #include "classtable.h"
 #include "clock.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "collision.h"
 #include "config.h"
 #include "decomp.h"
@@ -32,12 +32,12 @@
 #include "random.h"
 #include "recttransition.h"
 #include "render.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
 #include "sagelark.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
-#include "slateheron.h"
 #include "soundfx.h"
 #include "speech.h"
 #include "team.h"
@@ -315,8 +315,8 @@ MechS32 FUN_1003ddd7(void)
 			break;
 		case 3:
 			g_unk0x10109c6c = 4;
-			g_unk0x100a5a1c = g_unk0x100a6cc8.m_frameDrawCallback;
-			g_unk0x100a6cc8.m_frameDrawCallback = FUN_1003e03c;
+			g_unk0x100a5a1c = g_renderSettings.m_frameDrawCallback;
+			g_renderSettings.m_frameDrawCallback = FUN_1003e03c;
 			layout = g_unk0x100ab0e8[4];
 			sound = layout->m_unk0x0c[0];
 			if (sound != -1) {
@@ -326,7 +326,7 @@ MechS32 FUN_1003ddd7(void)
 			PlayCockpitSound(0x12, -1);
 			break;
 		case 5:
-			g_unk0x100a6cc8.m_frameDrawCallback = g_unk0x100a5a1c;
+			g_renderSettings.m_frameDrawCallback = g_unk0x100a5a1c;
 			g_unk0x10109c6c = g_unk0x10109c5c;
 			layout = g_unk0x100ab0e8[4];
 			sound = layout->m_unk0x0c[1];
@@ -441,9 +441,9 @@ void FUN_1003e06c(void)
 
 	FUN_10041fa0(pose, slot, range, farPlane);
 	if (g_cockpitLayoutIndex == 4) {
-		g_unk0x100a6cc8.m_unk0x58 = FUN_1003f00d;
-		g_unk0x100a6cc8.m_unk0x60 = (MechS32 (*)()) FUN_1003f0e7;
-		g_unk0x100a6cc8.m_drawPolygon = FUN_1003f393;
+		g_renderSettings.m_shapeFilter = FUN_1003f00d;
+		g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_1003f0e7;
+		g_renderSettings.m_drawPolygon = FUN_1003f393;
 		zoom = FUN_10011440();
 		FUN_10011401(6);
 		FUN_1001da44();
@@ -876,7 +876,7 @@ void FUN_1003ef07(MechS32 p_zoom)
 	layout->m_unk0x2c = FixedDiv16(layout->m_unk0x20, layout->m_unk0x18);
 }
 
-// The map view's shape filter (SlateHeron0x68::m_unk0x58): skips dead players' shapes and
+// The map view's shape filter (RenderSettings::m_shapeFilter): skips dead players' shapes and
 // shapes of types 0x30 and 0x70, then culls through FUN_10042206.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f00d
@@ -917,7 +917,7 @@ MechS32 FUN_1003f00d(Shape* p_shape)
 	return skip;
 }
 
-// The satellite view's face hook (SlateHeron0x68::m_unk0x60): the color a face of p_face's shape
+// The satellite view's face hook (RenderSettings::m_drawFace): the color a face of p_face's shape
 // draws in, from the view's colors by the shape's kind and side, or the face's own (p_flags).
 // Faces of a textured kind (0x3000) draw in the view's color 10.
 // The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
@@ -941,7 +941,7 @@ MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 
 	colors = layout->m_colors;
 	result = 0;
-	if (g_unk0x100a6cc8.m_unk0x40) {
+	if (g_renderSettings.m_unk0x40) {
 		result |= 0xf0;
 	}
 
@@ -1002,7 +1002,7 @@ MechU32 FUN_1003f0e7(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 	return result;
 }
 
-// The satellite view's polygon hook (SlateHeron0x68::m_drawPolygon): terrain faces (0x4000) are
+// The satellite view's polygon hook (RenderSettings::m_drawPolygon): terrain faces (0x4000) are
 // shaded by height, textured ones (0x3000) drawn as bands, and the rest as usual; plain faces
 // (0) twice, the second time outlined (0x2000).
 // The only diff is a stack-slot permutation of the locals.
@@ -1032,7 +1032,7 @@ void FUN_1003f393(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			point += 6;
 		}
 
-		if (g_unk0x100a6cc8.m_unk0x04) {
+		if (g_renderSettings.m_unk0x04) {
 			VFX_dithered_Gouraud_polygon(&g_currentPane, 0x7fff, p_count, p_points);
 		}
 		else {

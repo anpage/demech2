@@ -335,7 +335,7 @@ void FUN_1004bfe8(Eyepoint* p_eyepoint)
 {
 	Matrix matrix;
 
-	FUN_1000e2b9(
+	BuildMatrix(
 		&matrix,
 		p_eyepoint->m_unk0x10,
 		p_eyepoint->m_unk0x0c,
@@ -427,7 +427,7 @@ MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	return *p_x >= g_unk0x100ea830 && *p_x <= g_unk0x100ea84c && *p_y >= g_unk0x100ea850 && *p_y <= g_unk0x100ea840;
 }
 
-// The scene's shape filter (SlateHeron0x68::m_unk0x58): culls a shape against the view frustum,
+// The scene's shape filter (RenderSettings::m_shapeFilter): culls a shape against the view frustum,
 // like FUN_10042206 the map view's. 1: a shape of kind 0xa0 with g_unk0x100a2420, 5: out of
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
 // Stack-slot permutation of the locals.

@@ -1,8 +1,8 @@
 #include "damagepanel.h"
 
 #include "bargauges.h"
-#include "cobaltharbor.h"
 #include "cockpit.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
@@ -102,7 +102,7 @@ Point g_unk0x100be598;
 // FUNCTION: MW2 0x10040020
 void FUN_10040020(void)
 {
-	CobaltHarbor0x88* panel;
+	CockpitPanel* panel;
 	MechS32 color;
 	MechS32 height2;
 	MechS32 width2;

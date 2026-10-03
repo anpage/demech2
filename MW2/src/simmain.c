@@ -426,7 +426,7 @@ int __stdcall SimMain(
 					}
 
 					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-						g_unk0x100a6cc8.m_frameDrawCallback();
+						g_renderSettings.m_frameDrawCallback();
 						DrawLocalPlayer();
 						UpdateMenus();
 						DrawTimedOverlays();
@@ -450,7 +450,7 @@ int __stdcall SimMain(
 			}
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-				g_unk0x100a6cc8.m_frameDrawCallback();
+				g_renderSettings.m_frameDrawCallback();
 				DrawLocalPlayer();
 				UpdateMenus();
 				DrawTimedOverlays();

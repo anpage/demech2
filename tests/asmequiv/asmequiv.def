@@ -179,7 +179,7 @@ EXPORTS
 	g_unk0x100a54b4 DATA
 	g_unk0x1010b5c4 DATA
 	g_unk0x1010b5c8 DATA
-	g_unk0x100a6cc8 DATA
+	g_renderSettings DATA
 	VFX_describe_driver DATA
 	VFX_init_driver DATA
 	VFX_shutdown_driver DATA

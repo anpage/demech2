@@ -10,14 +10,14 @@
 
 #include <windows.h>
 
-DECOMP_SIZE_ASSERT(CinderBox0x18, 0x18)
+DECOMP_SIZE_ASSERT(BoundBox, 0x18)
 
 // FUNCTION: MW2 0x1006e970
-CinderBox0x18* FUN_1006e970(void)
+BoundBox* CreateBoundBox(void)
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
-	box = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(CinderBox0x18));
+	box = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(BoundBox));
 	if (box) {
 		box->m_minX = box->m_minY = box->m_minZ = 0;
 		box->m_maxX = box->m_maxY = box->m_maxZ = 0;
@@ -30,7 +30,7 @@ CinderBox0x18* FUN_1006e970(void)
 // FUNCTION: MW2 0x1006e9e6
 void FUN_1006e9e6(Shape* p_shape)
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	if (!p_shape) {
 		return;
@@ -41,7 +41,7 @@ void FUN_1006e9e6(Shape* p_shape)
 	}
 
 	if (!p_shape->m_unk0x44) {
-		p_shape->m_unk0x44 = FUN_1006e970();
+		p_shape->m_unk0x44 = CreateBoundBox();
 	}
 
 	box = p_shape->m_unk0x44;
@@ -54,9 +54,9 @@ void FUN_1006e9e6(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006ea90
-CinderBox0x18* FUN_1006ea90(Shape* p_shape)
+BoundBox* FUN_1006ea90(Shape* p_shape)
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	box = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x78);
 	if (box) {
@@ -70,7 +70,7 @@ CinderBox0x18* FUN_1006ea90(Shape* p_shape)
 // FUNCTION: MW2 0x1006eb02
 void FUN_1006eb02(Shape* p_shape)
 {
-	CinderBox0x18* box;
+	BoundBox* box;
 
 	if (!p_shape) {
 		return;

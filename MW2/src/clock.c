@@ -148,7 +148,7 @@ void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 
 	yaw = atan2(p_x, p_z);
 	pitch = -asin(p_y / sqrt((MechDouble) p_x * p_x + (MechDouble) p_y * p_y + (MechDouble) p_z * p_z));
-	FUN_1000e2b9(p_matrix, (MechS32) (pitch * 3754939.378), (MechS32) (yaw * 3754939.378), 0, 0, 0, 0);
+	BuildMatrix(p_matrix, (MechS32) (pitch * 3754939.378), (MechS32) (yaw * 3754939.378), 0, 0, 0, 0);
 }
 
 // Normalizes the rows and columns of the rotation (2.29 fixed point).

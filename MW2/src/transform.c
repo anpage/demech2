@@ -655,7 +655,7 @@ void FUN_1000dcbd(Matrix* p_src, Matrix* p_dst)
 }
 
 // FUNCTION: MW2 0x1000dd4d
-void FUN_1000dd4d(Matrix* p_matrix)
+void SetIdentityMatrix(Matrix* p_matrix)
 {
 	p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2] = 0x20000000;
 	p_matrix->m_rows[1][0] = p_matrix->m_rows[2][0] = p_matrix->m_rows[3][0] = 0;
@@ -664,7 +664,7 @@ void FUN_1000dd4d(Matrix* p_matrix)
 }
 
 // FUNCTION: MW2 0x1000dddf
-void FUN_1000dddf(Matrix* p_src, Matrix* p_dst)
+void CopyMatrix(Matrix* p_src, Matrix* p_dst)
 {
 	MemCopy(p_dst, p_src, sizeof(Matrix));
 }
@@ -703,7 +703,7 @@ void FUN_1000de3b(
 	do {
 		if (p_unk0x04 == 0) {
 			if (p_unk0x08 == 0) {
-				FUN_1000dd4d(p_matrix);
+				SetIdentityMatrix(p_matrix);
 				if (p_unk0x0c) {
 					p_matrix->m_rows[1][1] = FUN_1006973a(p_unk0x0c);
 					p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1];
@@ -713,7 +713,7 @@ void FUN_1000de3b(
 				break;
 			}
 			else if (p_unk0x0c == 0) {
-				FUN_1000dd4d(p_matrix);
+				SetIdentityMatrix(p_matrix);
 				p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x08);
 				p_matrix->m_rows[0][0] = p_matrix->m_rows[2][2];
 				p_matrix->m_rows[0][2] = FUN_100696c0(p_unk0x08);
@@ -722,7 +722,7 @@ void FUN_1000de3b(
 			}
 		}
 		else if (p_unk0x08 == 0 && p_unk0x0c == 0) {
-			FUN_1000dd4d(p_matrix);
+			SetIdentityMatrix(p_matrix);
 			p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x04);
 			p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2];
 			p_matrix->m_rows[2][1] = FUN_100696c0(p_unk0x04);
@@ -789,7 +789,7 @@ void FUN_1000de3b(
 	do {
 		if (p_unk0x04 == 0) {
 			if (p_unk0x08 == 0) {
-				FUN_1000dd4d(p_matrix);
+				SetIdentityMatrix(p_matrix);
 				if (p_unk0x0c) {
 					p_matrix->m_rows[1][1] = FUN_1006973a(p_unk0x0c);
 					p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1];
@@ -799,7 +799,7 @@ void FUN_1000de3b(
 				break;
 			}
 			else if (p_unk0x0c == 0) {
-				FUN_1000dd4d(p_matrix);
+				SetIdentityMatrix(p_matrix);
 				p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x08);
 				p_matrix->m_rows[0][0] = p_matrix->m_rows[2][2];
 				p_matrix->m_rows[0][2] = FUN_100696c0(p_unk0x08);
@@ -808,7 +808,7 @@ void FUN_1000de3b(
 			}
 		}
 		else if (p_unk0x08 == 0 && p_unk0x0c == 0) {
-			FUN_1000dd4d(p_matrix);
+			SetIdentityMatrix(p_matrix);
 			p_matrix->m_rows[2][2] = FUN_1006973a(p_unk0x04);
 			p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2];
 			p_matrix->m_rows[2][1] = FUN_100696c0(p_unk0x04);
@@ -1029,7 +1029,7 @@ void FUN_1000de3b(
 }
 
 // FUNCTION: MW2 0x1000e2b9
-void FUN_1000e2b9(
+void BuildMatrix(
 	Matrix* p_matrix,
 	MechS32 p_unk0x04,
 	MechS32 p_unk0x08,

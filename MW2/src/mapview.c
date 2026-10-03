@@ -11,10 +11,10 @@
 #include "polydraw.h"
 #include "recordstacks.h"
 #include "render.h"
+#include "rendersettings.h"
 #include "rendertarget.h"
 #include "shapelists.h"
 #include "shiftdiv.h"
-#include "slateheron.h"
 #include "types.h"
 #include "view.h"
 
@@ -48,7 +48,7 @@ MechS32 g_unk0x10109bb4;
 MechS32 g_unk0x10109bb8;
 
 // GLOBAL: MW2 0x10109bc0
-SlateHeron0x68 g_unk0x10109bc0;
+RenderSettings g_savedRenderSettings;
 
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
 // rotation) of p_worldSpan units across pane p_slot, as far as p_far.
@@ -70,9 +70,9 @@ void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_eyepoint->m_unk0x08 = p_pose[2];
 	SelectPane(p_slot);
 	g_eyepoint->m_unk0x40 = g_unk0x10109bb4;
-	g_unk0x10109bc0 = g_unk0x100a6cc8;
-	g_unk0x100a6cc8.m_unk0x58 = FUN_10042206;
-	g_unk0x100a6cc8.m_unk0x5c = FUN_100423b3;
+	g_savedRenderSettings = g_renderSettings;
+	g_renderSettings.m_shapeFilter = FUN_10042206;
+	g_renderSettings.m_projectVertex = FUN_100423b3;
 	FUN_1004bc2e(g_eyepoint);
 	g_eyepoint->m_unk0x9c = 0x2000;
 	g_eyepoint->m_unk0xa4 = 3;
@@ -99,7 +99,7 @@ void FUN_1004215f(MechU32 p_flags)
 // FUNCTION: MW2 0x10042195
 void FUN_10042195(void)
 {
-	g_unk0x100a6cc8 = g_unk0x10109bc0;
+	g_renderSettings = g_savedRenderSettings;
 	*g_eyepoint = g_unk0x10109ac0;
 	g_palettePending = g_unk0x10109ab0;
 	FUN_10012e00();

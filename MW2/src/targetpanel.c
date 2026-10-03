@@ -2,7 +2,7 @@
 
 #include "classtable.h"
 #include "clock.h"
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
@@ -64,7 +64,7 @@ MechChar g_unk0x100c26a0[8];
 // Stack-slot permutation of the locals. g_currentClock > g_unk0x100ba4c4 compares with its
 // operands reversed (it flipped when speech.h's declarations were added ahead of it).
 // FUNCTION: MW2 0x1007b930
-void FUN_1007b930(CobaltHarbor0x88* p_panel)
+void FUN_1007b930(CockpitPanel* p_panel)
 {
 	MechS32 index;
 	MechFloat km;
@@ -265,11 +265,11 @@ void FUN_1007b930(CobaltHarbor0x88* p_panel)
 // static while the panel is damaged (m_unk0x06).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
-void FUN_1007c126(CobaltHarbor0x88* p_panel)
+void FUN_1007c126(CockpitPanel* p_panel)
 {
 	MechS32 index;
 	MechS32 dz;
-	SlateHeron0x68 saved;
+	RenderSettings saved;
 	Player* targetPlayer;
 	MechS32 view[7];
 	SceneObject* object;
@@ -395,26 +395,26 @@ void FUN_1007c126(CobaltHarbor0x88* p_panel)
 	view[4] = 0;
 	view[5] = 0;
 	if (g_unk0x100ba4bc == 1) {
-		g_unk0x100a6cc8.m_unk0x34 = 1;
-		g_unk0x100a6cc8.m_unk0x38 = 0;
+		g_renderSettings.m_unk0x34 = 1;
+		g_renderSettings.m_unk0x38 = 0;
 	}
 	else {
-		g_unk0x100a6cc8.m_unk0x34 = 0;
+		g_renderSettings.m_unk0x34 = 0;
 	}
 
-	g_unk0x100a6cc8.m_unk0x1c = g_unk0x100a6cc8.m_unk0x20 = 0;
+	g_renderSettings.m_unk0x1c = g_renderSettings.m_unk0x20 = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_unk0x100c3358 == 2) {
 		FUN_1004c8bd(7, 0x20000, view, object);
 	}
 
 	FUN_100570e9(p_panel->m_target, 8);
-	g_unk0x100a6cc8 = saved;
+	g_renderSettings = saved;
 }
 
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
-void FUN_1007c6df(CobaltHarbor0x88* p_panel)
+void FUN_1007c6df(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
 		return;
@@ -428,7 +428,7 @@ void FUN_1007c6df(CobaltHarbor0x88* p_panel)
 // rectangle (g_panes[7] and the panel's target) for the frame.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
-void FUN_1007c71e(CobaltHarbor0x88* p_panel)
+void FUN_1007c71e(CockpitPanel* p_panel)
 {
 	PANE* rect;
 	RectTransition* transition;
@@ -467,7 +467,7 @@ void FUN_1007c71e(CobaltHarbor0x88* p_panel)
 // 4) already had it closed.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c81c
-void FUN_1007c81c(CobaltHarbor0x88* p_panel)
+void FUN_1007c81c(CockpitPanel* p_panel)
 {
 	PANE* rect;
 	RectTransition* transition;

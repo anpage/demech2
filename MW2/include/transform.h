@@ -5,7 +5,7 @@
 #include "types.h"
 
 /* A 2.29 fixed-point transform: three rotation rows and a translation row
-   (FUN_1000dd4d sets the identity, 0x20000000 on the diagonal). */
+   (SetIdentityMatrix sets the identity, 0x20000000 on the diagonal). */
 typedef struct Matrix Matrix;
 
 // SIZE 0x30
@@ -27,8 +27,8 @@ extern "C"
 	void FUN_1000dbba(Matrix* p_unk0x00, Matrix* p_unk0x04, Matrix* p_unk0x08);
 	void FUN_1000dc33(Matrix* p_src, Matrix* p_dst);
 	void FUN_1000dcbd(Matrix* p_src, Matrix* p_dst);
-	void FUN_1000dd4d(Matrix* p_matrix);
-	void FUN_1000dddf(Matrix* p_src, Matrix* p_dst);
+	void SetIdentityMatrix(Matrix* p_matrix);
+	void CopyMatrix(Matrix* p_src, Matrix* p_dst);
 	void FUN_1000ddfc(Matrix* p_src, Matrix* p_dst);
 	void FUN_1000de3b(
 		Matrix* p_matrix,
@@ -40,7 +40,7 @@ extern "C"
 		MechS32 p_unk0x18,
 		MechU32 p_flags
 	);
-	void FUN_1000e2b9(
+	void BuildMatrix(
 		Matrix* p_matrix,
 		MechS32 p_unk0x04,
 		MechS32 p_unk0x08,

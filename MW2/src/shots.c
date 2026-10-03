@@ -810,9 +810,9 @@ void FUN_1006b1fb(
 						g_eyepoint->m_unk0x2a = 0x40;
 					}
 
-					g_savedUnk0x100a6d04 = g_unk0x100a6cc8.m_unk0x3c;
+					g_savedUnk0x100a6d04 = g_renderSettings.m_unk0x3c;
 					g_eyepoint->m_unk0x28 = 0;
-					g_unk0x100a6cc8.m_unk0x3c = 0;
+					g_renderSettings.m_unk0x3c = 0;
 				}
 
 				g_effectCameraEffect = slot;
@@ -901,7 +901,7 @@ void UpdateEffects(void)
 						g_eyepoint->m_unk0x24 = g_savedEyepointZ;
 						g_eyepoint->m_unk0x28 = g_savedEyepoint0x28;
 						g_eyepoint->m_unk0x2a = g_savedEyepoint0x2a;
-						g_unk0x100a6cc8.m_unk0x3c = g_savedUnk0x100a6d04;
+						g_renderSettings.m_unk0x3c = g_savedUnk0x100a6d04;
 						effect->m_hasCamera = 0;
 						g_effectCameraActive = 0;
 						g_effectCameraEffect = -1;

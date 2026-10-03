@@ -1,6 +1,7 @@
 #include "mechclass.h"
 
 #include "ai.h"
+#include "ammobin.h"
 #include "approxlen.h"
 #include "clock.h"
 #include "collision.h"
@@ -39,7 +40,6 @@
 #include "rendertarget.h"
 #include "resource.h"
 #include "shape.h"
-#include "silvertern.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
@@ -1284,19 +1284,19 @@ MechS32 FUN_100197ca(MechS32 p_index, Player* p_player)
 // FUNCTION: MW2 0x10019881
 void FUN_10019881(struct Mech* p_mech)
 {
-	SilverTern0x14* bin;
+	AmmoBin* bin;
 	WeaponSlot* slot;
-	SilverTern0x14* bins = NULL;
+	AmmoBin* bins = NULL;
 	MechS32 i;
 	WeaponSlot* weapons = NULL;
 	MechSection* sections = NULL;
 
 	weapons = (WeaponSlot*) (p_mech + 1);
 	sections = (MechSection*) (weapons + 10);
-	bins = (SilverTern0x14*) (sections + 8);
+	bins = (AmmoBin*) (sections + 8);
 	p_mech->m_weapons = weapons;
 	p_mech->m_sections = sections;
-	p_mech->m_unk0x5c = bins;
+	p_mech->m_ammoBins = bins;
 	slot = p_mech->m_weapons;
 	for (i = 0; i < 10; i++) {
 		slot->m_unk0x00 = -1;
@@ -1316,7 +1316,7 @@ void FUN_10019881(struct Mech* p_mech)
 		slot++;
 	}
 
-	bin = p_mech->m_unk0x5c;
+	bin = p_mech->m_ammoBins;
 	for (i = 0; i < 25; i++) {
 		bin->m_unk0x00 = -1;
 		bin->m_unk0x02 = 0;

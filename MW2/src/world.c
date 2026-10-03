@@ -50,10 +50,10 @@
 #include "soundfx.h"
 #include "targetpanel.h"
 #include "team.h"
-#include "twilightgrove.h"
 #include "types.h"
 #include "vector3.h"
 #include "wtbshapes.h"
+#include "xform.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -184,8 +184,8 @@ typedef struct BwdOffsetRecord {
 
 // blockxform.
 typedef struct BwdXformRecord {
-	BwdRecord m_header;        // 0x00
-	TwilightGrove0x24 m_xform; // 0x08
+	BwdRecord m_header; // 0x00
+	Xform m_xform;      // 0x08
 } BwdXformRecord;
 
 // A record of an object class or thing, and a value: scrounge, thing, gamepiece, eyeobj, pof,
@@ -347,9 +347,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_unk0x100ba624 = planet->m_unk0x38 == 0;
 			g_unk0x100a555c = planet->m_unk0x3c;
 			g_unk0x100ad454 = planet->m_unk0x40 == 0;
-			g_unk0x100a6cc8.m_unk0x1c = planet->m_unk0x44 == 0;
-			g_unk0x100a6cc8.m_unk0x20 = planet->m_unk0x48 == 0;
-			g_unk0x100a6cc8.m_unk0x24 = planet->m_unk0x4c == 0;
+			g_renderSettings.m_unk0x1c = planet->m_unk0x44 == 0;
+			g_renderSettings.m_unk0x20 = planet->m_unk0x48 == 0;
+			g_renderSettings.m_unk0x24 = planet->m_unk0x4c == 0;
 			if (planet->m_unk0x28 > 0) {
 				g_unk0x100a2bdc = planet->m_unk0x28;
 			}
@@ -461,9 +461,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_unk0x100a6be0.m_unk0x24 = light->m_unk0x18;
 			g_unk0x100a6be0.m_unk0x28 = light->m_unk0x1e;
 			g_eyepoint->m_unk0x2a = light->m_unk0x1c;
-			g_unk0x100a6cc8.m_unk0x44 = light->m_unk0x20;
-			if (g_unk0x100a6cc8.m_unk0x44 > 0) {
-				g_unk0x100a6cc8.m_unk0x3c = 1;
+			g_renderSettings.m_unk0x44 = light->m_unk0x20;
+			if (g_renderSettings.m_unk0x44 > 0) {
+				g_renderSettings.m_unk0x3c = 1;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGroundMap]) {
@@ -1046,7 +1046,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (g_navCount < 0x80 && g_navCount != -1) {
 				nav = &g_navTable[g_navCount];
 				position = navPoint->m_position;
-				FUN_1001fea6(&position.m_x);
+				TransformBlockPoint(&position.m_x);
 				nav->m_position[0] = position.m_x;
 				nav->m_position[1] = position.m_y;
 				nav->m_position[2] = position.m_z;

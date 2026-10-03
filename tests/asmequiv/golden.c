@@ -226,7 +226,7 @@ static const Symbol g_symbols[] = {
 	DATA(g_unk0x100a54b4),
 	DATA(g_unk0x1010b5c4),
 	DATA(g_unk0x1010b5c8),
-	DATA(g_unk0x100a6cc8),
+	DATA(g_renderSettings),
 	FUNCTION(VFX_flat_polygon),
 	FUNCTION(VFX_Gouraud_polygon),
 	FUNCTION(VFX_dithered_Gouraud_polygon),

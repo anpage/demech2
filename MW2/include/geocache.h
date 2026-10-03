@@ -5,8 +5,8 @@
 #include "decomp.h"
 #include "quadtree.h"
 #include "shape.h"
-#include "twilightgrove.h"
 #include "types.h"
+#include "xform.h"
 
 struct GameThing;
 
@@ -44,7 +44,7 @@ extern "C"
 	MechS32 FUN_1001f8b5(
 		MechS32 p_id,
 		MechS32 p_resource,
-		TwilightGrove0x24 p_xform,
+		Xform p_xform,
 		MechS32 p_block,
 		MechS32 p_parent,
 		MechS32 p_unk0x3c,
@@ -60,10 +60,10 @@ extern "C"
 	MechS32 FindStarIdxById(MechS32 p_id);
 	struct Shape* FindClassById(MechS32 p_id);
 	MechS32 FindThingIdxById(MechS32 p_id);
-	void ApplyBlockXform(TwilightGrove0x24 p_xform);
-	void FUN_1001fea6(MechS32* p_point);
-	void FUN_1001feef(MechS32 p_index);
-	void FUN_1001ffda(void);
+	void ApplyBlockXform(Xform p_xform);
+	void TransformBlockPoint(MechS32* p_point);
+	void ResetStaticObject(MechS32 p_index);
+	void ResetStaticCache(void);
 	void FirstStaticCache(void);
 	void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data);
 	void FUN_100200bd(void);
@@ -82,8 +82,8 @@ extern "C"
 	Shape* FUN_10020c26(MechS32 p_index);
 	void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	MechS32 FUN_10020d51(void);
-	void FUN_10021067(AzureThicket0x2c* p_root);
-	void FUN_1002116a(AzureThicket0x2c* p_node, MechU8* p_data, MechS32 p_size);
+	void FUN_10021067(QuadtreeNode* p_root);
+	void FUN_1002116a(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size);
 	MechS32 FUN_10021314(MechU32 p_index);
 	void FUN_100213cf(struct SceneObject* p_obj);
 	MechS32 FUN_10021423(MechS32 p_arg);

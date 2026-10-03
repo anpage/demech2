@@ -915,7 +915,7 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	GetObjWorldPos(p_player->m_unk0x44, &x, &y, &z);
 	mech = p_player->m_mech;
 	x = mech->m_unk0x14.m_value;
-	FUN_1000e2b9(&matrix, x, y, z, 0, 0, 0);
+	BuildMatrix(&matrix, x, y, z, 0, 0, 0);
 	FUN_1000d708(&matrix, p_x, p_y, p_z);
 }
 

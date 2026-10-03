@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "cobaltharbor.h"
+#include "cockpitpanel.h"
 #include "decomp.h"
 #include "rendertarget.h"
 #include "soundconfig.h"
@@ -40,7 +40,7 @@ extern "C"
 	extern MechS32 g_unk0x10109c30[3];
 	extern MechS32 g_unk0x100c326c;
 	extern MechS32 g_unk0x100c3270;
-	extern CobaltHarbor0x88* g_unk0x100c3280[26];
+	extern CockpitPanel* g_unk0x100c3280[26];
 	extern MechS32 g_unk0x100c32f0[26];
 	extern MechS32 g_unk0x100c3358;
 	extern struct PANE g_unk0x100adf58[26];

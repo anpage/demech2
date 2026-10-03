@@ -218,7 +218,7 @@ void UpdateEyepoint(void)
 		}
 	}
 
-	g_unk0x100a6cc8.m_unk0x00 = 0;
+	g_renderSettings.m_unk0x00 = 0;
 	switch (mode) {
 	case 3:
 		FUN_10011819();

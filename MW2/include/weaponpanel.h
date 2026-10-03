@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct CobaltHarbor0x88;
+struct CockpitPanel;
 
 // The functions and globals of weaponpanel.c that other units use.
 #ifdef __cplusplus
@@ -11,8 +11,8 @@ extern "C"
 {
 #endif
 
-	void FUN_10033280(struct CobaltHarbor0x88* p_panel);
-	void FUN_100334d3(struct CobaltHarbor0x88* p_panel);
+	void FUN_10033280(struct CockpitPanel* p_panel);
+	void FUN_100334d3(struct CockpitPanel* p_panel);
 
 #ifdef __cplusplus
 }

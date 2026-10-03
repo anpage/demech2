@@ -70,13 +70,13 @@ SceneObject* FUN_100012d0(SceneObject* p_parent, MechU32 p_flags)
 		}
 	}
 
-	FUN_1000dd4d(&obj->m_local);
+	SetIdentityMatrix(&obj->m_local);
 
 	if (p_parent) {
 		obj->m_world = p_parent->m_world;
 	}
 	else {
-		FUN_1000dd4d(&obj->m_world);
+		SetIdentityMatrix(&obj->m_world);
 	}
 
 	obj->m_unk0x6c = NULL;
@@ -103,13 +103,13 @@ SceneObject* FUN_1000145a(SceneObject* p_parent, void* p_memory)
 		obj->m_nextSibling = NULL;
 	}
 
-	FUN_1000dd4d(&obj->m_local);
+	SetIdentityMatrix(&obj->m_local);
 
 	if (p_parent) {
 		obj->m_world = p_parent->m_world;
 	}
 	else {
-		FUN_1000dd4d(&obj->m_world);
+		SetIdentityMatrix(&obj->m_world);
 	}
 
 	obj->m_unk0x6c = NULL;

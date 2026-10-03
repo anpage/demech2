@@ -64,9 +64,9 @@ MechS32 g_unk0x100ea8c8;
 // The polygon list (depthsort.c) and the rendering hooks (polydraw.c), which the cases set.
 MechS32 g_unk0x100a54b0;
 MechS32 g_unk0x100a54b4;
-AmberDune0x8* g_unk0x1010b5c4;
+DepthEntry* g_unk0x1010b5c4;
 MechU32 g_unk0x1010b5c8;
-SlateHeron0x68 g_unk0x100a6cc8;
+RenderSettings g_renderSettings;
 
 struct Player* g_unk0x100a8638;
 MechU32 g_staticPoolTags[10];

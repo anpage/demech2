@@ -17,7 +17,6 @@
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "geocache.h"
-#include "ivorydelta.h"
 #include "object.h"
 #include "path.h"
 #include "players.h"
@@ -25,9 +24,10 @@
 #include "poolsizes.h"
 #include "portable.h"
 #include "projectedvertex.h"
-#include "quartzreel.h"
+#include "queuedpolygon.h"
 #include "ramp.h"
 #include "recordstacks.h"
+#include "reel.h"
 #include "reelevent.h"
 #include "resource.h"
 #include "resourcename.h"
@@ -87,21 +87,21 @@ typedef struct JadeOrbit0x1c {
 	MechS32 m_lastClock;   // 0x18
 } JadeOrbit0x1c;
 
-// The state of FUN_10046750's callback: an object moving through an animation (QuartzReel0x14)
+// The state of FUN_10046750's callback: an object moving through an animation (Reel)
 // in step with its player's animation state (m_unk0x80-0x94).
 // SIZE 0x2c
 typedef struct JadeMotion0x2c {
-	QuartzReel0x14* m_reel;    // 0x00
-	QuartzReel0x14* m_initial; // 0x04
-	SceneObject* m_object;     // 0x08
-	Player* m_player;          // 0x0c
-	MechS32 m_rate;            // 0x10 — clock ticks per frame
-	MechS32 m_timer;           // 0x14 — until the next frame
-	MechS32 m_amount;          // 0x18 — left to move in this frame
-	MechS32 m_lastClock;       // 0x1c
-	MechS32 m_enabled;         // 0x20
-	MechS32 m_frame;           // 0x24 — -1 before the first
-	MechU32 m_flags;           // 0x28 — 1: drives the player's animation state
+	Reel* m_reel;          // 0x00
+	Reel* m_initial;       // 0x04
+	SceneObject* m_object; // 0x08
+	Player* m_player;      // 0x0c
+	MechS32 m_rate;        // 0x10 — clock ticks per frame
+	MechS32 m_timer;       // 0x14 — until the next frame
+	MechS32 m_amount;      // 0x18 — left to move in this frame
+	MechS32 m_lastClock;   // 0x1c
+	MechS32 m_enabled;     // 0x20
+	MechS32 m_frame;       // 0x24 — -1 before the first
+	MechU32 m_flags;       // 0x28 — 1: drives the player's animation state
 } JadeMotion0x2c;
 
 // The state of FUN_10047f60's callback: a star's object following a path, eased by the ramps.
@@ -201,7 +201,7 @@ Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
 // GLOBAL: MW2 0x101079e0
-QuartzReel0x14* g_unk0x101079e0[0x780];
+Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
 MossLedger0x8 g_unk0x101097e0[60];
@@ -293,8 +293,8 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			}
 
 			motion->m_rate = rate;
-			motion->m_reel = g_unk0x101079e0[number];
-			motion->m_initial = g_unk0x101079e0[number];
+			motion->m_reel = g_reels[number];
+			motion->m_initial = g_reels[number];
 			motion->m_frame = -1;
 			motion->m_timer = 0;
 			motion->m_amount = 0;
@@ -1311,7 +1311,7 @@ static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, Vertex* p_vertex)
 	return PortableS32(PortableShrdRound(sum, 27));
 }
 
-// The call FUN_10049155 makes through g_unk0x100a6cc8.m_unk0x60, which has no prototype: the hook
+// The call FUN_10049155 makes through g_renderSettings.m_drawFace, which has no prototype: the hook
 // is FUN_10036230 in the 3D view, and the map view's FUN_1003f0e7 takes three of the arguments.
 typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flags, MechS32 p_depth);
 
@@ -1970,7 +1970,7 @@ jmp_10049103:
 }
 
 // Queues a face of a model for drawing, unless it faces away: projects the vertices it hasn't
-// yet, clips it to the near plane through the filter hooks (g_unk0x100a6cc8) and adds the
+// yet, clips it to the near plane through the filter hooks (g_renderSettings) and adds the
 // polygon to the list being built (g_unk0x1010b5c4) with its depth, by g_unk0x1010b5c8's rule:
 // the average (2), nearest (4) or farthest of its vertices' depths. The back-face test, the
 // projection, the clipping walk and the depth rules are __asm blocks; the first keeps the normal's
@@ -1983,7 +1983,7 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	Vertex* vertex;
 	Vertex* first;
 	Vertex* previous;
-	IvoryDelta0xc* poly;
+	QueuedPolygon* poly;
 	MechU8* index;
 	MechU16 count;
 	MechU8 andCodes;
@@ -2052,7 +2052,7 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	first = previous = &p_vertices[*index];
 	firstClipped = previousClipped = first->m_unk0x28 & 1;
 	if (!firstClipped) {
-		g_unk0x100a6cc8.m_unk0x5c(FUN_10048c50(first));
+		g_renderSettings.m_projectVertex(FUN_10048c50(first));
 	}
 
 	while (--count) {
@@ -2060,25 +2060,25 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 		vertex = &p_vertices[*index];
 		clipped = vertex->m_unk0x28 & 1;
 		if (clipped != previousClipped) {
-			g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, vertex));
+			g_renderSettings.m_projectVertex(FUN_10048d46(previous, vertex));
 		}
 
 		previous = vertex;
 		previousClipped = clipped;
 		if (!clipped) {
-			g_unk0x100a6cc8.m_unk0x5c(FUN_10048c50(previous));
+			g_renderSettings.m_projectVertex(FUN_10048c50(previous));
 		}
 	}
 
 	if (previousClipped != firstClipped) {
-		g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, first));
+		g_renderSettings.m_projectVertex(FUN_10048d46(previous, first));
 	}
 
 	if ((g_unk0x1010b5b0 < 3 && p_face->m_unk0x02 > 2) || g_unk0x1010b5b8) {
 		return;
 	}
 
-	poly = (IvoryDelta0xc*) FUN_1007d296();
+	poly = (QueuedPolygon*) FUN_1007d296();
 	poly->m_face = p_face;
 	g_unk0x1010b534 = g_unk0x100c2698;
 	poly->m_count = (MechS16) g_unk0x1010b5b0;
@@ -2121,8 +2121,8 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	memcpy(g_unk0x1010b534, g_unk0x1010b550, g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]));
 	g_unk0x1010b534 += g_unk0x1010b5b0 * sizeof(g_unk0x1010b550[0]);
 	g_unk0x100c2698 = g_unk0x1010b534;
-	poly->m_unk0x02 =
-		(MechU16) ((DrawFaceHook) g_unk0x100a6cc8.m_unk0x60)(p_face, p_vertices, p_face->m_unk0x00, depth);
+	poly->m_flags =
+		(MechU16) ((DrawFaceHook) g_renderSettings.m_drawFace)(p_face, p_vertices, p_face->m_unk0x00, depth);
 	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
 		g_unk0x1010b5a8++;
 		if (g_unk0x1010b5b0 > 1) {
@@ -2145,7 +2145,7 @@ void FUN_10049155(Face* p_face, Vertex* p_vertices)
 	MechU16 count;
 	MechS8 orCodes;
 	MechU8* index;
-	IvoryDelta0xc* poly;
+	QueuedPolygon* poly;
 	MechS8 clipped;
 	Vertex* first;
 	Vertex* previous;
@@ -2297,7 +2297,7 @@ projected:
 		call FUN_10048c50
 		add esp, 4
 		push eax
-		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		call dword ptr [g_renderSettings + 0x5c]
 		add esp, 4
 jmp_10049334:
 		dec count
@@ -2323,7 +2323,7 @@ jmp_10049334:
 		call FUN_10048d46
 		add esp, 8
 		push eax
-		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		call dword ptr [g_renderSettings + 0x5c]
 		add esp, 4
 jmp_10049380:
 		mov ebx, cursor
@@ -2343,7 +2343,7 @@ jmp_10049380:
 		call FUN_10048c50
 		add esp, 4
 		push eax
-		call dword ptr [g_unk0x100a6cc8 + 0x5c]
+		call dword ptr [g_renderSettings + 0x5c]
 		add esp, 4
 jmp_100493b8:
 		_emit 0xe9 /* jmp jmp_10049334 */
@@ -2357,7 +2357,7 @@ closed:
 		// clang-format on
 		if (previousClipped != firstClipped)
 	{
-		g_unk0x100a6cc8.m_unk0x5c(FUN_10048d46(previous, first));
+		g_renderSettings.m_projectVertex(FUN_10048d46(previous, first));
 	}
 
 	if ((g_unk0x1010b5b0 < 3 && p_face->m_unk0x02 > 2) || g_unk0x1010b5b8) {
@@ -2365,7 +2365,7 @@ closed:
 	}
 
 	points = g_unk0x1010b550;
-	poly = (IvoryDelta0xc*) FUN_1007d296();
+	poly = (QueuedPolygon*) FUN_1007d296();
 	poly->m_face = p_face;
 	g_unk0x1010b534 = g_unk0x100c2698;
 	poly->m_count = g_unk0x1010b5b0;
@@ -2435,7 +2435,7 @@ jmp_100494d3:
 	}
 
 	g_unk0x100c2698 = g_unk0x1010b534;
-	poly->m_unk0x02 = g_unk0x100a6cc8.m_unk0x60(p_face, p_vertices, p_face->m_unk0x00, depth);
+	poly->m_flags = g_renderSettings.m_drawFace(p_face, p_vertices, p_face->m_unk0x00, depth);
 	if (g_unk0x100a54b0 < g_unk0x100c1a68) {
 		g_unk0x1010b5a8++;
 		if (g_unk0x1010b5b0 > 1) {

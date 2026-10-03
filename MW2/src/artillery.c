@@ -241,7 +241,7 @@ MechS32 FUN_1005a637(MechS32 p_index, Player* p_player)
 	extra = sections + 8;
 	mech->m_weapons = weapons;
 	mech->m_sections = sections;
-	mech->m_unk0x5c = extra;
+	mech->m_ammoBins = extra;
 	mech->m_player = p_player;
 	for (i = 0; i < 8; i++) {
 		mech->m_objects[i] = NULL;
