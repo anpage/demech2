@@ -488,7 +488,7 @@ void UpdateMenus(void)
 		slot->m_state = state;
 		slot->m_requested = requested;
 		if (state == 1) {
-			if (!(slot->m_definition->m_flags & 2) || !g_unk0x10176ebc) {
+			if (!(slot->m_definition->m_flags & 2) || !g_stretchPending) {
 				if (!DrawAndRunMenu(slot->m_definition)) {
 					slot->m_requested = 0;
 				}

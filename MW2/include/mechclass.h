@@ -19,7 +19,7 @@ extern "C"
 	extern MechS32 g_unk0x100a2bec;
 	extern MechS32 g_unk0x100a2bf0;
 	extern MechS32 g_unk0x100a2bf8;
-	extern MechS32 g_unk0x100a2c04;
+	extern MechS32 g_localMechLost;
 	extern MechS32 g_unk0x100a2c08;
 	extern MechS32 g_unk0x100a2c10;
 	extern MechS32 g_unk0x100a2c18;

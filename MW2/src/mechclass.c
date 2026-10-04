@@ -83,7 +83,7 @@ MechS32 g_unk0x100a2bfc = 0;
 MechS32 g_unk0x100a2c00 = 1;
 
 // GLOBAL: MW2 0x100a2c04
-MechS32 g_unk0x100a2c04 = 0;
+MechS32 g_localMechLost = 0;
 
 // A power request for the local mech: 1 powers it up, -1 shuts it down.
 // GLOBAL: MW2 0x100a2c08
@@ -452,7 +452,7 @@ void FUN_10016edf(Mech* p_mech)
 
 			if (g_isNetworkGame && g_segmentNormalY > 0xddb4 && hitPlayer) {
 				FUN_1000faef(hitPlayer->m_index, g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
-				if (isLocal && g_unk0x100a2420 && !g_unk0x100be00c) {
+				if (isLocal && g_inCockpitView && !g_unk0x100be00c) {
 					g_unk0x100be00c = 1;
 					impact = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
 					if (impact > 200000) {
@@ -472,7 +472,7 @@ void FUN_10016edf(Mech* p_mech)
 				height = -1;
 			}
 			else {
-				if (isLocal && g_unk0x100a2420 && !g_unk0x100be00c) {
+				if (isLocal && g_inCockpitView && !g_unk0x100be00c) {
 					g_unk0x100be00c = 1;
 					impact = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
 					if (impact > 200000) {
@@ -1042,11 +1042,11 @@ void FUN_100180cd(Mech* p_mech)
 		dz = mech->m_player->m_position.m_z - g_eyepoint->m_z;
 		if (GetPlayerSide(mech->m_player->m_index) == 1) {
 			if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-				FUN_1007ebd1(dx, dy, dz, 0x104, g_unk0x100a2420);
+				FUN_1007ebd1(dx, dy, dz, 0x104, g_inCockpitView);
 			}
 		}
 		else {
-			FUN_1007ebd1(dx, dy, dz, 0xf7, !g_unk0x100a2420);
+			FUN_1007ebd1(dx, dy, dz, 0xf7, !g_inCockpitView);
 		}
 		break;
 	case 1:
@@ -1090,11 +1090,11 @@ void FUN_100180cd(Mech* p_mech)
 	if (mech->m_player->m_index == g_localPlayerId &&
 		(mech->m_torsoTwist.m_value + 0x20000 < mech->m_torsoTwist.m_target ||
 		 mech->m_torsoTwist.m_value - 0x20000 > mech->m_torsoTwist.m_target) &&
-		g_unk0x100a2420) {
+		g_inCockpitView) {
 		x = mech->m_player->m_position.m_x - g_eyepoint->m_x;
 		y = mech->m_player->m_position.m_y - g_eyepoint->m_y;
 		z = mech->m_player->m_position.m_z - g_eyepoint->m_z;
-		FUN_1007ebd1(x, y, z, 0x13c, g_unk0x100a2420);
+		FUN_1007ebd1(x, y, z, 0x13c, g_inCockpitView);
 	}
 
 	if (!isLocal) {
@@ -1130,18 +1130,18 @@ void FUN_10019368(Mech* p_mech)
 			g_unk0x100a2c1c++;
 		}
 		else if (mech->m_stateTime > g_currentClock) {
-			FUN_10011401(4);
+			SetViewMode(c_viewDrop);
 		}
 		else {
-			g_unk0x100a2c04 = 1;
+			g_localMechLost = 1;
 		}
 		break;
 	case 4:
 		if (!g_unk0x100a2c18) {
 			g_unk0x100a2c18 = 1;
 			FUN_1004ca0d();
-			g_unk0x100a2c04 = 1;
-			FUN_10011401(1);
+			g_localMechLost = 1;
+			SetViewMode(c_viewTrack);
 		}
 		break;
 	case 2:
@@ -1208,7 +1208,7 @@ void FUN_10019368(Mech* p_mech)
 				dx = mech->m_player->m_position.m_x - g_eyepoint->m_x;
 				dy = mech->m_player->m_position.m_y - g_eyepoint->m_y;
 				dz = mech->m_player->m_position.m_z - g_eyepoint->m_z;
-				FUN_1007ebd1(dx, dy, dz, 0xf2, g_unk0x100a2420);
+				FUN_1007ebd1(dx, dy, dz, 0xf2, g_inCockpitView);
 				mech->m_powerState = 3;
 				g_unk0x100a2c08 = 0;
 			}

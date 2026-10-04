@@ -96,7 +96,7 @@ void SelectPane(MechS32 p_index)
 		g_eyepoint->m_offsetY = 0;
 		g_currentPane = *target;
 		g_paneIndex = p_index;
-		g_unk0x100a2460 = 1;
+		g_projectionDirty = 1;
 	}
 }
 

@@ -348,7 +348,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		FUN_1001d292(targetPlayer->m_index, 0);
 	}
 
-	FUN_100114ea(g_eyepoint, view);
+	SaveView(g_eyepoint, view);
 	FUN_10050dc3(&saved);
 	x = player->m_targetInfo.m_position.m_x;
 	y = player->m_targetInfo.m_position.m_y;

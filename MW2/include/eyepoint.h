@@ -53,6 +53,16 @@ typedef struct Eyepoint {
 	undefined4 m_unk0xbc[(0xe0 - 0xbc) / 4]; // 0xbc
 } Eyepoint;
 
+// The camera's view modes (SetViewMode), after the game keys that pick them.
+enum {
+	c_viewCockpit = 0,   // COCKPIT_VIEW
+	c_viewTrack = 1,     // TRACK_VIEW: behind a tracked player
+	c_viewFreeEye = 2,   // FREEEYE_VIEW
+	c_viewOrdinance = 3, // ORDINANCE_VIEW: follows the local player's last shot
+	c_viewDrop = 4,      // after ejecting: the camera drops past the mech
+	c_viewSatellite = 6  // the satellite view's render, from the cockpit
+};
+
 // The functions of eyepoint.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -61,44 +71,58 @@ extern "C"
 
 	extern MechS32 g_normalFov;
 	extern MechS32 g_zoomFov;
-	extern MechS32 g_unk0x100a2414;
-	extern MechS32 g_unk0x100a2410;
-	extern undefined4 g_unk0x100a2420;
-	extern MechS32 g_unk0x100a2424;
-	extern MechS32 g_unk0x100a2428;
+	extern MechS32 g_requestedViewMode;
+	extern MechS32 g_initialViewMode;
+	extern undefined4 g_inCockpitView;
+	extern MechS32 g_lostViewMode;
+	extern MechS32 g_spectating;
 	extern struct Player* g_localPlayer;
-	extern MechS32* g_unk0x100a2434;
-	extern MechS32* g_unk0x100a2438;
-	extern MechS32 g_unk0x100a23ec;
-	extern MechS32 g_unk0x100a23f0;
-	extern MechS32 g_unk0x100a23f4;
-	extern MechS32 g_unk0x100a23f8;
-	extern MechS32 g_unk0x100a23fc;
-	extern MechS32 g_unk0x100a2408;
-	extern MechS32 g_unk0x100a241c;
-	extern MechS8 g_unk0x100a2448;
-	extern MechS32 g_unk0x100a243c;
-	extern MechS32 g_unk0x100a2440;
-	extern MechS32 g_unk0x100a2444;
-	extern MechS32 g_unk0x100a240c;
-	extern MechS32 g_unk0x100a2430;
+	extern MechS32* g_eyeHeightOffset;
+	extern MechS32* g_eyeTwist;
+	extern MechS32 g_trackDistance;
+	extern MechS32 g_trackMinDistance;
+	extern MechS32 g_trackMaxDistance;
+	extern MechS32 g_trackHeight;
+	extern MechS32 g_trackTurn;
+	extern MechS32 g_viewMode;
+	extern MechS32 g_cockpitEyeSteady;
+	extern MechS8 g_glanceReleased;
+	extern MechS32 g_dropSpeed;
+	extern MechS32 g_dropAcceleration;
+	extern MechS32 g_dropStartClock;
+	extern MechS32 g_ordinanceReturnMode;
+	extern MechS32 g_trackedPlayer;
 	extern MechS32 g_unk0x100a2418;
 	void FirstEyepoint(void);
-	void FUN_10011cb0(void);
-	void FUN_10011e45(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	MechS32 FUN_10011440(void);
-	MechS32 FUN_1001156a(Eyepoint* p_eyepoint, MechS32* p_view);
-	void FUN_100115f4(MechS32 p_next, MechS32 p_home);
-	void FUN_100116c3(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_10011819(void);
-	void FUN_10011401(MechS32 p_zoom);
-	MechS32 FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view);
+	void UpdateCockpitView(void);
+	void GetCockpitEyeView(
+		MechS32* p_pitch,
+		MechS32* p_heading,
+		MechS32* p_roll,
+		MechS32* p_x,
+		MechS32* p_y,
+		MechS32* p_z
+	);
+	MechS32 GetViewMode(void);
+	MechS32 RestoreView(Eyepoint* p_eyepoint, MechS32* p_view);
+	void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home);
+	void GetPlayerEyeView(
+		MechS32* p_pitch,
+		MechS32* p_heading,
+		MechS32* p_roll,
+		MechS32* p_x,
+		MechS32* p_y,
+		MechS32* p_z
+	);
+	void UpdateOrdinanceView(void);
+	void SetViewMode(MechS32 p_zoom);
+	MechS32 SaveView(Eyepoint* p_eyepoint, MechS32* p_view);
 	void UpdateEyepoint(void);
 	void ApplyCameraFov(MechS32 p_reset);
-	void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn);
-	void FUN_10011edc(void);
-	void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch);
-	void FUN_1001220a(void);
+	void UpdateTrackView(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn);
+	void UpdateDropView(void);
+	void UpdateFreeEyeView(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch);
+	void TurnBillboards(void);
 
 #ifdef __cplusplus
 }

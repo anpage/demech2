@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 
-// The file name suffixes of the art resolutions (FUN_10012f3c).
+// The file name suffixes of the art resolutions (ShowBanner).
 // GLOBAL: MW2 0x100aa710
 MechChar g_unk0x100aa710[4][2] = {"", "6", "k", ""};
 
@@ -87,7 +87,7 @@ void SetRes(void)
 	SelectPane(0);
 	UpdateProjection(g_eyepoint);
 	UpdateViewMatrix(g_eyepoint);
-	g_unk0x100a2460 = 0;
+	g_projectionDirty = 0;
 	point.m_x = g_unk0x100a6d30;
 	point.m_y = 0;
 	ScalePointFromLowRes(&point, &point);

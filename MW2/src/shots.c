@@ -799,7 +799,7 @@ void FUN_1006b1fb(
 			if (take) {
 				if (!closer) {
 					g_effectCameraActive = 1;
-					g_unk0x100a2470 = 0;
+					g_lightFollowsObject = 0;
 					g_savedLightX = g_eyepoint->m_lightX;
 					g_savedLightY = g_eyepoint->m_lightY;
 					g_savedLightZ = g_eyepoint->m_lightZ;
@@ -832,7 +832,7 @@ void FUN_1006b1fb(
 	}
 
 	if (info->m_sound > 0 && (info->m_soundChance == -1 || RandomIntBelow(100) < info->m_soundChance)) {
-		if (!FUN_10011440() && !quiet) {
+		if (!GetViewMode() && !quiet) {
 			volume = 1;
 		}
 		else {
@@ -895,7 +895,7 @@ void UpdateEffects(void)
 
 				if (release) {
 					if (restore) {
-						g_unk0x100a2470 = 1;
+						g_lightFollowsObject = 1;
 						g_eyepoint->m_lightX = g_savedLightX;
 						g_eyepoint->m_lightY = g_savedLightY;
 						g_eyepoint->m_lightZ = g_savedLightZ;
@@ -1017,7 +1017,7 @@ void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 }
 
 // FUNCTION: MW2 0x1006beb5
-MechS32* FUN_1006beb5(void)
+MechS32* GetTrackedShotView(void)
 {
 	if (g_trackedShot != -1 && g_shots[g_trackedShot].m_tracked) {
 		return g_trackedShotView;
@@ -1030,7 +1030,7 @@ MechS32* FUN_1006beb5(void)
 
 // Starts tracking the local player's last shot, if it is still in flight.
 // FUNCTION: MW2 0x1006bf05
-MechS32 FUN_1006bf05(void)
+MechS32 TrackLastShot(void)
 {
 	if (g_unk0x100ad448 > 0 && g_shots[g_unk0x100ad448].m_flags &&
 		g_shots[g_unk0x100ad448].m_shooter == g_localPlayerId) {

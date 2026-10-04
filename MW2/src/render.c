@@ -43,47 +43,47 @@ MechS32 g_drawModeIndex = -1;
 MechS32 g_initDrawModeParam2 = 1;
 
 // GLOBAL: MW2 0x100a2454
-MechS32 g_unk0x100a2454 = 0;
+MechS32 g_showBoundingSpheres = 0;
 
-// The banner's file name, instead of sbannr (FUN_10012f3c).
+// The banner's file name, instead of sbannr (ShowBanner).
 // GLOBAL: MW2 0x100a2458
-MechChar* g_unk0x100a2458 = NULL;
+MechChar* g_bannerName = NULL;
 
 // GLOBAL: MW2 0x100a245c
-void* g_unk0x100a245c = NULL;
+void* g_bannerBuffer = NULL;
 
 // GLOBAL: MW2 0x100a2460
-MechS32 g_unk0x100a2460 = 1;
+MechS32 g_projectionDirty = 1;
 
 // GLOBAL: MW2 0x100a2464
-MechS32 g_unk0x100a2464 = 0;
+MechS32 g_displayReady = 0;
 
 // GLOBAL: MW2 0x100a2468
-MechS32 g_unk0x100a2468 = 0;
+MechS32 g_framePane = 0;
 
 // GLOBAL: MW2 0x100a246c
-MechS32 g_unk0x100a246c = 0;
+MechS32 g_hasLightObject = 0;
 
 // Cleared while an effect has the camera, set again when it gives it back.
 // GLOBAL: MW2 0x100a2470
-MechS32 g_unk0x100a2470 = 1;
+MechS32 g_lightFollowsObject = 1;
 
 // GLOBAL: MW2 0x100a2474
-MechS32 g_unk0x100a2474 = -1;
+MechS32 g_lightObject = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
 // GLOBAL: MW2 0x100a2478
-SceneObject* g_unk0x100a2478 = NULL;
+SceneObject* g_skyObject = NULL;
 
 // The object of the scene's shape of kind 0xa0.
 // GLOBAL: MW2 0x100a247c
-SceneObject* g_unk0x100a247c = NULL;
+SceneObject* g_cockpitObject = NULL;
 
 // GLOBAL: MW2 0x100a2480
-MechS32 g_unk0x100a2480 = 0;
+MechS32 g_drawnPolygonCount = 0;
 
 // GLOBAL: MW2 0x100bdff8
-PANE g_unk0x100bdff8;
+PANE g_screenPane;
 
 // GLOBAL: MW2 0x10176eb4
 GameWindowGeometry* g_gameWindowGeometry;
@@ -91,12 +91,12 @@ GameWindowGeometry* g_gameWindowGeometry;
 // GLOBAL: MW2 0x10176eb8
 MechS32 g_screenHeight;
 
-// Set when the next Blit should stretch the current pane over the window.
 // GLOBAL: MW2 0x10176eb0
 undefined4 g_unk0x10176eb0;
 
+// Set when the next Blit should stretch the current pane over the window.
 // GLOBAL: MW2 0x10176ebc
-MechS32 g_unk0x10176ebc;
+MechS32 g_stretchPending;
 
 // GLOBAL: MW2 0x10176ec0
 MechS32 g_screenHeightMinus1;
@@ -160,11 +160,11 @@ MechS32 InitDisplayGeometry(void)
 		g_currentPane.m_y0 = 0;
 		g_currentPane.m_x1 = g_gameWindowGeometry->m_width - 1;
 		g_currentPane.m_y1 = g_gameWindowGeometry->m_height - 1;
-		g_unk0x100bdff8 = g_currentPane;
+		g_screenPane = g_currentPane;
 		result = 1;
 		InitPanes(&g_currentPane);
 		FUN_10065f10();
-		g_unk0x100a2464 = 1;
+		g_displayReady = 1;
 	}
 
 	return result;
@@ -198,7 +198,7 @@ void FirstRender(void)
 	InitializeDrawBuffer(0x80, 0x5dc);
 	g_unk0x100a54b8 = 0x578;
 	InitShapeLists();
-	g_renderSettings.m_frameDrawCallback = FUN_10012afe;
+	g_renderSettings.m_frameDrawCallback = DrawScene;
 	g_renderSettings.m_shapeFilter = CullSceneShape;
 	g_renderSettings.m_projectVertex = ProjectVertex;
 	g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_10036230;
@@ -227,15 +227,15 @@ void SecondRender(void)
 
 	for (shape = root->m_next; shape; shape = shape->m_next) {
 		if ((shape->m_kind & 0xf0) == 0x90) {
-			g_unk0x100a2478 = GetShapeObject(shape);
-			DetachObjTreeShapes(g_unk0x100a2478);
+			g_skyObject = GetShapeObject(shape);
+			DetachObjTreeShapes(g_skyObject);
 			break;
 		}
 	}
 
 	for (shape = root->m_next; shape; shape = shape->m_next) {
 		if ((shape->m_kind & 0xf0) == 0xa0) {
-			g_unk0x100a247c = GetShapeObject(shape);
+			g_cockpitObject = GetShapeObject(shape);
 			break;
 		}
 	}
@@ -253,25 +253,24 @@ void SecondRender(void)
 	}
 }
 
-// The normal frame draw callback: renders the 3D view.
 // Draws the 3D view, the normal frame draw callback: clears the frame first when drawing to
 // another pane, updates the eyepoint, draws the scene (without the extra pass on the
 // DirectDraw backend), then the objects of the shapes of kinds 0x90 and 0xa0 with their own clip
 // distances, the scene's objects, and the animations.
 // FUNCTION: MW2 0x10012afe
-void FUN_10012afe(void)
+void DrawScene(void)
 {
 	MechS32 saved;
 	MechS32 pass;
 
-	if (g_unk0x100a2468) {
+	if (g_framePane) {
 		memset(g_mainPixelBuffer.m_buffer, g_unk0x100a5544, g_refreshModePixelCount);
-		SelectPane(g_unk0x100a2468);
+		SelectPane(g_framePane);
 	}
 
-	if (g_unk0x100a2460) {
+	if (g_projectionDirty) {
 		UpdateProjection(g_eyepoint);
-		g_unk0x100a2460 = 0;
+		g_projectionDirty = 0;
 	}
 
 	if (g_renderSettings.m_blankScene) {
@@ -296,35 +295,35 @@ void FUN_10012afe(void)
 		}
 	}
 
-	if (g_unk0x100a246c && g_unk0x100a2470 && g_unk0x100a2474 != -1) {
-		GetStaticObjectPosition(g_unk0x100a2474, &g_eyepoint->m_lightX, &g_eyepoint->m_lightY, &g_eyepoint->m_lightZ);
+	if (g_hasLightObject && g_lightFollowsObject && g_lightObject != -1) {
+		GetStaticObjectPosition(g_lightObject, &g_eyepoint->m_lightX, &g_eyepoint->m_lightY, &g_eyepoint->m_lightZ);
 	}
 
-	g_unk0x100a2480 = 0;
-	if (g_unk0x100a2478) {
+	g_drawnPolygonCount = 0;
+	if (g_skyObject) {
 		saved = g_eyepoint->m_farPlane;
 		SetFarPlane(g_eyepoint, 0x7fffffff);
 		g_renderSettings.m_shapeFilter = CullShapeToFrustum;
-		FUN_10033b9e(g_unk0x100a2478);
-		g_unk0x100a2480 += g_depthEntryCount;
+		FUN_10033b9e(g_skyObject);
+		g_drawnPolygonCount += g_depthEntryCount;
 		SetFarPlane(g_eyepoint, saved);
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
 	FUN_100338bb(g_sceneShapes);
-	g_unk0x100a2480 += g_depthEntryCount;
-	if (g_unk0x100a2420 && g_unk0x100a247c) {
+	g_drawnPolygonCount += g_depthEntryCount;
+	if (g_inCockpitView && g_cockpitObject) {
 		saved = g_eyepoint->m_nearPlane;
 		SetNearPlane(g_eyepoint, 8);
-		g_renderSettings.m_shapeFilter = FUN_1004c779;
-		FUN_10033b9e(g_unk0x100a247c);
-		g_unk0x100a2480 += g_depthEntryCount;
+		g_renderSettings.m_shapeFilter = CullHiddenShape;
+		FUN_10033b9e(g_cockpitObject);
+		g_drawnPolygonCount += g_depthEntryCount;
 		SetNearPlane(g_eyepoint, saved);
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
-	if (g_unk0x100a2454) {
-		FUN_100131f1(g_sceneShapes);
+	if (g_showBoundingSpheres) {
+		DrawBoundingSpheres(g_sceneShapes);
 	}
 
 	FUN_10069591();
@@ -332,18 +331,18 @@ void FUN_10012afe(void)
 }
 
 // FUNCTION: MW2 0x10012dca
-void FUN_10012dca(MechS32 p_value)
+void SetFramePane(MechS32 p_value)
 {
 	if (p_value >= 0 && p_value < 11) {
-		g_unk0x100a2468 = p_value;
+		g_framePane = p_value;
 	}
 	else {
-		g_unk0x100a2468 = 0;
+		g_framePane = 0;
 	}
 }
 
 // FUNCTION: MW2 0x10012e00
-void FUN_10012e00(void)
+void ResetPane(void)
 {
 	SelectPane(0);
 }
@@ -353,12 +352,12 @@ void FUN_10012e00(void)
 // FUNCTION: MW2 0x10012e15
 void Blit(void)
 {
-	if (g_unk0x10176ebc) {
+	if (g_stretchPending) {
 		g_currentRefreshMode
 			->m_stretchBlit(g_currentPane.m_x0 + 1, g_currentPane.m_y0 + 1, g_currentPane.m_x1, g_currentPane.m_y1);
-		g_currentPane = g_unk0x100bdff8;
+		g_currentPane = g_screenPane;
 		g_showHud = g_savedShowHud;
-		g_unk0x10176ebc = 0;
+		g_stretchPending = 0;
 	}
 	else if (g_windowActive) {
 		g_currentRefreshMode->m_flip();
@@ -370,18 +369,18 @@ void ShutdownRender(void)
 {
 	FreeSceneShapes();
 	ShutdownDrawBuffer();
-	if (g_unk0x100a245c && g_currentPane.m_window) {
+	if (g_bannerBuffer && g_currentPane.m_window) {
 		VFX_pane_wipe(&g_currentPane, 0);
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}
 	}
 
-	if (g_unk0x100a245c) {
-		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_unk0x100a245c);
+	if (g_bannerBuffer) {
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_bannerBuffer);
 	}
 
-	g_unk0x100a2464 = 0;
+	g_displayReady = 0;
 	ShutdownRefreshMode();
 }
 
@@ -397,11 +396,11 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 	g_unk0x10176eb0 = p_value;
 }
 
-// Shows the banner GIF (sbannr, or g_unk0x100a2458's name, with the art resolution's suffix) and
+// Shows the banner GIF (sbannr, or g_bannerName's name, with the art resolution's suffix) and
 // fades its palette in. Nothing calls it.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10012f3c
-void FUN_10012f3c(void)
+void ShowBanner(void)
 {
 	void* gif;
 	PANE target;
@@ -409,14 +408,14 @@ void FUN_10012f3c(void)
 	MechChar path[256];
 	PaletteColor* palette;
 
-	if (g_unk0x100a2458 == NULL || *g_unk0x100a2458 == '\0') {
+	if (g_bannerName == NULL || *g_bannerName == '\0') {
 		strcpy(path, "sbannr");
 		strcat(path, g_unk0x100aa710[g_artResolution]);
 		strcat(path, ".");
 		strcat(path, "gif");
 	}
 	else {
-		strcpy(path, g_unk0x100a2458);
+		strcpy(path, g_bannerName);
 		strcat(path, g_unk0x100aa710[g_artResolution]);
 		strcat(path, ".");
 		strcat(path, "gif");
@@ -450,11 +449,11 @@ void FUN_10012f3c(void)
 	}
 }
 
-// Draws the shapes of the list p_root that are drawn as dots (flag 0x100 without 0x800, or kind
-// 0x50) as circles of their radius (m_unk0x40), in color 0xf.
+// Draws the bounding spheres (the "michelin" cheat) of the list p_root's colliding mech shapes
+// (kind 0x100 without flag 0x800) and of kind 0x50, as circles of their radius in color 0xf.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100131f1
-void FUN_100131f1(Shape* p_root)
+void DrawBoundingSpheres(Shape* p_root)
 {
 	MechS32 color;
 	Shape* shape;

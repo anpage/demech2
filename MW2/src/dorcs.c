@@ -507,7 +507,7 @@ MechS32 g_unk0x100b1350 = 0;
 
 // The frame draw callback ShowDorcs replaces.
 // GLOBAL: MW2 0x100b1354
-void (*g_dorcsPreviousDrawCallback)(void) = FUN_10012afe;
+void (*g_dorcsPreviousDrawCallback)(void) = DrawScene;
 
 // GLOBAL: MW2 0x100c2d00
 MenuPage* g_dorcsMenuPageStack[8];
@@ -701,7 +701,7 @@ void UpdateDorcs(void)
 				g_dorcsPreviousDrawCallback();
 			}
 
-			g_unk0x10176ebc = 1;
+			g_stretchPending = 1;
 			g_panes[g_paneIndex] = saved;
 			break;
 		}
@@ -872,7 +872,7 @@ void UpdateDorcs(void)
 			g_dorcsGifState = NULL;
 			g_renderSettings.m_frameDrawCallback = g_dorcsPreviousDrawCallback;
 			g_savedShowHud = 1;
-			g_unk0x10176ebc = 1;
+			g_stretchPending = 1;
 			g_dorcsState = 0;
 		}
 		break;

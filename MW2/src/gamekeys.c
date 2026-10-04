@@ -255,11 +255,11 @@ void HandleCheatInput(MechS16 p_key)
 			g_unk0x100a5eb8 = 0;
 		}
 
-		if (!g_unk0x100a2454) {
-			g_unk0x100a2454 = 1;
+		if (!g_showBoundingSpheres) {
+			g_showBoundingSpheres = 1;
 		}
 		else {
-			g_unk0x100a2454 = 0;
+			g_showBoundingSpheres = 0;
 		}
 
 		ShowInGameMessage("bounding spheres", 1, 0x16a, 0x32);
@@ -278,7 +278,7 @@ void HandleCheatInput(MechS16 p_key)
 		ShowInGameMessage("Freebirth vulgarity will not be tolerated!", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("nstq\x7fhx\x7fvv")) { // "tinkerbell"
-		FUN_10011401(2);
+		SetViewMode(c_viewFreeEye);
 		g_mapFollowsFreeEye = 1;
 		ShowInGameMessage("Free-eye mode ON", 1, 0x16a, 0x32);
 	}
@@ -443,9 +443,9 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 			g_unk0x100aa290 = g_currentClock + 0x71c;
 			ShowInGameMessage("Press CTRL-Q to exit...", 1, 0x1536, 100);
 		}
-		else if (g_unk0x100a2c04) {
+		else if (g_localMechLost) {
 			g_chatRecipient = 0;
-			FUN_100115f4(0, 1);
+			CycleTrackedPlayer(0, 1);
 			g_renderSettings.m_wireframe = 0;
 			SetInfrared(0, 0);
 			g_unk0x100aa294 = g_currentClock + 0x108;
@@ -469,7 +469,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 			g_unk0x100aa290 = -1;
 			ShowInGameMessage("Press SPACEBAR to advance viewpoint, or CTRL-Q to exit.", 1, 0x58610, 100);
 			g_unk0x100aa2c0 = 1;
-			g_unk0x100a2428 = 1;
+			g_spectating = 1;
 		}
 		else {
 			g_unk0x100aa290 = 0;
@@ -512,7 +512,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				g_renderSettings.m_wireframe = 0;
 				SetInfrared(0, 0);
 				FUN_1007fbe0(g_localPlayerId, 0, 0, 0);
-				FUN_10011401(0);
+				SetViewMode(c_viewCockpit);
 				g_sinkPilotTiltReset = 1;
 				g_sinkPilotPanReset = 1;
 				g_sinkZoomFactorReset = 1;
@@ -522,11 +522,11 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				g_unk0x100aa290 = 0;
 				g_unk0x100aa2a8 = 0;
 				g_unk0x100aa2bc = 0;
-				g_unk0x100a2428 = 0;
+				g_spectating = 0;
 				break;
 			}
 		}
-		else if (g_unk0x100a2428) {
+		else if (g_spectating) {
 			switch (p_key) {
 			case 0x59:
 				g_shouldQuit = 1;
@@ -536,7 +536,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				RequestMenu(4);
 				break;
 			case 0x4f:
-				FUN_100115f4(1, 0);
+				CycleTrackedPlayer(1, 0);
 				break;
 			}
 		}
@@ -645,22 +645,22 @@ void FUN_1005c78a(MechS32 p_key)
 		break;
 	case 0x9:
 		if (!(g_players[g_localPlayerId]->m_flags & 2)) {
-			if (FUN_10011440() || IsSatelliteView()) {
+			if (GetViewMode() || IsSatelliteView()) {
 				LeaveSatelliteView();
-				FUN_10011401(0);
+				SetViewMode(c_viewCockpit);
 				g_sinkPilotTiltReset = 1;
 				g_sinkPilotPanReset = 1;
 				g_sinkZoomFactorReset = 1;
 			}
 			else {
-				FUN_10011401(1);
-				FUN_100115f4(0, 1);
+				SetViewMode(c_viewTrack);
+				CycleTrackedPlayer(0, 1);
 			}
 		}
 		break;
 	case 0xe:
-		if (FUN_1006bf05()) {
-			FUN_10011401(3);
+		if (TrackLastShot()) {
+			SetViewMode(c_viewOrdinance);
 		}
 		break;
 	case 0x11:

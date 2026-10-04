@@ -125,8 +125,8 @@ extern "C"
 	void UpdateEffects(void);
 	void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
 	void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
-	MechS32* FUN_1006beb5(void);
-	MechS32 FUN_1006bf05(void);
+	MechS32* GetTrackedShotView(void);
+	MechS32 TrackLastShot(void);
 	void FUN_1006bf8c(MechU32 p_index);
 	void FUN_1006c11c(MechS32 p_owner, struct Shape* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count);

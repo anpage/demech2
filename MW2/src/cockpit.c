@@ -53,7 +53,7 @@ MechS32 g_satelliteStaticState = 0;
 
 // The frame callback the satellite view replaces (SwitchCockpitView).
 // GLOBAL: MW2 0x100a5a1c
-void (*g_savedFrameDrawCallback)(void) = FUN_10012afe;
+void (*g_savedFrameDrawCallback)(void) = DrawScene;
 
 // The overlay settings the satellite view keeps while a cockpit view shows (SwitchCockpitView):
 // g_showCrosshair's, g_showHud's and g_showTargetMarker's, and whether they are held.
@@ -288,7 +288,7 @@ MechS32 SwitchCockpitView(void)
 		g_hudSettingsSaved = 0;
 	}
 
-	if (g_cockpitLayoutIndex == 4 && (g_unk0x100a2c04 || (g_players[g_localPlayerId]->m_flags & 6))) {
+	if (g_cockpitLayoutIndex == 4 && (g_localMechLost || (g_players[g_localPlayerId]->m_flags & 6))) {
 		g_requestedCockpitView = 5;
 	}
 
@@ -340,7 +340,7 @@ MechS32 SwitchCockpitView(void)
 				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
 			}
 
-			if (g_unk0x100a2408 == 1) {
+			if (g_viewMode == c_viewTrack) {
 				PlayCockpitSound(0x11, -1);
 			}
 			break;
@@ -447,18 +447,18 @@ void DrawMapView(void)
 		farPlane = range;
 	}
 
-	FUN_10041fa0(pose, slot, range, farPlane);
+	BeginMapView(pose, slot, range, farPlane);
 	if (g_cockpitLayoutIndex == 4) {
 		g_renderSettings.m_shapeFilter = MapShapeFilter;
 		g_renderSettings.m_drawFace = (MechS32 (*)()) SatelliteFaceColor;
 		g_renderSettings.m_drawPolygon = SatelliteDrawPolygon;
-		zoom = FUN_10011440();
-		FUN_10011401(6);
+		zoom = GetViewMode();
+		SetViewMode(c_viewSatellite);
 		FUN_1001da44();
-		FUN_10011401(zoom);
+		SetViewMode(zoom);
 		VFX_pane_wipe(viewport, g_unk0x100a554c);
 		flags = 0;
-		FUN_1004215f(flags);
+		DrawMapViewScene(flags);
 	}
 
 	if (g_cockpitLayoutIndex != 4 || !(player->m_flags & 0x16)) {
@@ -466,7 +466,7 @@ void DrawMapView(void)
 	}
 
 	DrawMapContents(layout);
-	FUN_10042195();
+	EndMapView();
 	if (layout->m_gauges[0]) {
 		layout->m_gauges[0](viewport, layout->m_colors[12]);
 	}
@@ -517,7 +517,7 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	MechS32 visible;
 
 	viewport = p_layout->m_viewport;
-	visible = FUN_1004251e(&p_pos);
+	visible = ProjectMapPoint(&p_pos);
 	if (visible && p_layout->m_gauges[1]) {
 		visible = p_layout->m_gauges[1](viewport, p_pos.m_xy);
 	}
@@ -597,7 +597,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	pos.m_xy.m_x = player->m_targetInfo.m_position.m_x;
 	pos.m_xy.m_y = player->m_targetInfo.m_position.m_y;
 	pos.m_z = player->m_targetInfo.m_position.m_z;
-	visible = FUN_1004251e(&pos);
+	visible = ProjectMapPoint(&pos);
 	if (visible && p_layout->m_gauges[1]) {
 		visible = p_layout->m_gauges[1](viewport, pos.m_xy);
 	}
@@ -697,7 +697,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 				pos.m_z = nav->m_position[2];
 			}
 
-			visible = FUN_1004251e(&pos);
+			visible = ProjectMapPoint(&pos);
 			if (visible && p_layout->m_gauges[1]) {
 				visible = p_layout->m_gauges[1](viewport, pos.m_xy);
 			}
@@ -885,7 +885,7 @@ void ZoomMapView(MechS32 p_zoom)
 }
 
 // The map view's shape filter (RenderSettings::m_shapeFilter): skips dead players' shapes and
-// shapes of types 0x30 and 0x70, then culls through FUN_10042206.
+// shapes of types 0x30 and 0x70, then culls through CullMapViewShape.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f00d
 MechS32 MapShapeFilter(Shape* p_shape)
@@ -919,7 +919,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 	}
 
 	if (!skip) {
-		skip = FUN_10042206(p_shape);
+		skip = CullMapViewShape(p_shape);
 	}
 
 	return skip;
@@ -1116,7 +1116,7 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 		*viewport = *p_layout->m_savedViewport;
 		if (p_final) {
 			g_currentPane = *rect;
-			g_unk0x10176ebc = 1;
+			g_stretchPending = 1;
 		}
 	}
 

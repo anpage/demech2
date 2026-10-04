@@ -4,7 +4,7 @@
 #include "point.h"
 #include "types.h"
 
-// A point of the map view: a world position until FUN_1004251e projects it in place, then its
+// A point of the map view: a world position until ProjectMapPoint projects it in place, then its
 // position in the view and its depth.
 // SIZE 0xc
 typedef struct MapPoint {

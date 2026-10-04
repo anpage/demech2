@@ -355,7 +355,7 @@ void ShowSceneInfo(void)
 					g_sceneShapeCount,
 					g_sceneFaceCount,
 					g_sceneVertexCount,
-					g_unk0x100a2480
+					g_drawnPolygonCount
 				);
 				ShowInGameMessage(text, 1, 0xb5, 0x50);
 			}

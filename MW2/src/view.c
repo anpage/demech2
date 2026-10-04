@@ -55,10 +55,10 @@ MechS32 g_viewHalfWidth;
 MechS32 g_viewBottom;
 
 // GLOBAL: MW2 0x100ea844
-MechS32 g_unk0x100ea844;
+MechS32 g_viewProjectScaleX;
 
 // GLOBAL: MW2 0x100ea848
-MechS32 g_unk0x100ea848;
+MechS32 g_viewProjectScaleY;
 
 // GLOBAL: MW2 0x100ea84c
 MechS32 g_viewRight;
@@ -67,13 +67,13 @@ MechS32 g_viewRight;
 MechS32 g_viewTop;
 
 // GLOBAL: MW2 0x100ea854
-MechS32 g_unk0x100ea854;
+MechS32 g_viewLeftScaled;
 
 // GLOBAL: MW2 0x100ea858
 MechS32 g_viewCenterY;
 
 // GLOBAL: MW2 0x100ea85c
-MechS32 g_unk0x100ea85c;
+MechS32 g_viewBottomScaled;
 
 // GLOBAL: MW2 0x100ea860
 MechS32 g_viewFarPlane;
@@ -106,10 +106,10 @@ MechS32 g_viewProjZ1;
 MechS32 g_viewProjZ2;
 
 // GLOBAL: MW2 0x100ea888
-MechS32 g_unk0x100ea888;
+MechS32 g_viewProjectScaleX16;
 
 // GLOBAL: MW2 0x100ea88c
-MechS32 g_unk0x100ea88c;
+MechS32 g_viewProjectScaleY16;
 
 // GLOBAL: MW2 0x100ea890
 MechS32 g_viewRotX0;
@@ -157,13 +157,13 @@ MechS32 g_viewLightX;
 MechS32 g_viewLightY;
 
 // GLOBAL: MW2 0x100ea8cc
-MechS32 g_unk0x100ea8cc;
+MechS32 g_viewTopScaled;
 
 // GLOBAL: MW2 0x100ea8d0
 MechS32 g_viewNearPlane;
 
 // GLOBAL: MW2 0x100ea8d4
-MechS32 g_unk0x100ea8d4;
+MechS32 g_viewRightScaled;
 
 // Makes p_eyepoint the current eyepoint and copies what the renderer uses each frame out of it:
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
@@ -175,10 +175,10 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 	g_eyepoint = eyepoint = p_eyepoint;
 	g_ambientLight = eyepoint->m_ambientLight;
 	g_directionalLight = eyepoint->m_directionalLight;
-	g_unk0x100ea888 = eyepoint->m_projectScaleX16;
-	g_unk0x100ea88c = eyepoint->m_projectScaleY16;
-	g_unk0x100ea844 = eyepoint->m_projectScaleX;
-	g_unk0x100ea848 = eyepoint->m_projectScaleY;
+	g_viewProjectScaleX16 = eyepoint->m_projectScaleX16;
+	g_viewProjectScaleY16 = eyepoint->m_projectScaleY16;
+	g_viewProjectScaleX = eyepoint->m_projectScaleX;
+	g_viewProjectScaleY = eyepoint->m_projectScaleY;
 	g_viewRotX0 = eyepoint->m_viewMatrix.m_rows[0][0];
 	g_viewRotX1 = eyepoint->m_viewMatrix.m_rows[0][1];
 	g_viewRotX2 = eyepoint->m_viewMatrix.m_rows[0][2];
@@ -188,12 +188,12 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 	g_viewProjZ0 = g_viewRotZ0 = eyepoint->m_viewMatrix.m_rows[2][0];
 	g_viewProjZ1 = g_viewRotZ1 = eyepoint->m_viewMatrix.m_rows[2][1];
 	g_viewProjZ2 = g_viewRotZ2 = eyepoint->m_viewMatrix.m_rows[2][2];
-	g_viewProjX0 = FixedMul16(g_unk0x100ea888, g_viewRotX0);
-	g_viewProjX1 = FixedMul16(g_unk0x100ea888, g_viewRotX1);
-	g_viewProjX2 = FixedMul16(g_unk0x100ea888, g_viewRotX2);
-	g_viewProjY0 = FixedMul16(g_unk0x100ea88c, g_viewRotY0);
-	g_viewProjY1 = FixedMul16(g_unk0x100ea88c, g_viewRotY1);
-	g_viewProjY2 = FixedMul16(g_unk0x100ea88c, g_viewRotY2);
+	g_viewProjX0 = FixedMul16(g_viewProjectScaleX16, g_viewRotX0);
+	g_viewProjX1 = FixedMul16(g_viewProjectScaleX16, g_viewRotX1);
+	g_viewProjX2 = FixedMul16(g_viewProjectScaleX16, g_viewRotX2);
+	g_viewProjY0 = FixedMul16(g_viewProjectScaleY16, g_viewRotY0);
+	g_viewProjY1 = FixedMul16(g_viewProjectScaleY16, g_viewRotY1);
+	g_viewProjY2 = FixedMul16(g_viewProjectScaleY16, g_viewRotY2);
 	g_viewEyeX = eyepoint->m_viewMatrix.m_rows[3][0];
 	g_viewEyeY = eyepoint->m_viewMatrix.m_rows[3][1];
 	g_viewEyeZ = eyepoint->m_viewMatrix.m_rows[3][2];
@@ -208,10 +208,10 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 	g_viewBottom = eyepoint->m_viewBottom;
 	g_viewFar = g_viewFarPlane << 2;
 	g_viewNear = g_viewNearPlane << 2;
-	g_unk0x100ea8cc = g_viewTop << 2;
-	g_unk0x100ea85c = g_viewBottom << 2;
-	g_unk0x100ea854 = g_viewLeft << 2;
-	g_unk0x100ea8d4 = g_viewRight << 2;
+	g_viewTopScaled = g_viewTop << 2;
+	g_viewBottomScaled = g_viewBottom << 2;
+	g_viewLeftScaled = g_viewLeft << 2;
+	g_viewRightScaled = g_viewRight << 2;
 	g_viewHalfWidth = eyepoint->m_halfWidth;
 	g_viewHalfHeight = eyepoint->m_halfHeight;
 	g_viewCenterX = eyepoint->m_centerX;
@@ -428,7 +428,7 @@ MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 }
 
 // The scene's shape filter (RenderSettings::m_shapeFilter): culls a shape against the view frustum,
-// like FUN_10042206 the map view's. 1: a shape of kind 0xa0 with g_unk0x100a2420, 5: out of
+// like CullMapViewShape the map view's. 1: a shape of kind 0xa0 with g_inCockpitView, 5: out of
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004c2ef
@@ -447,7 +447,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 	MechS32 depth;
 	MechS32 x;
 
-	if (g_unk0x100a2420 && (p_shape->m_kind & 0xf0) == 0xa0) {
+	if (g_inCockpitView && (p_shape->m_kind & 0xf0) == 0xa0) {
 		return 1;
 	}
 
@@ -565,7 +565,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1004c779
-MechS32 FUN_1004c779(MechU16* p_flags)
+MechS32 CullHiddenShape(MechU16* p_flags)
 {
 	if (*p_flags & 0x1000) {
 		return TRUE;

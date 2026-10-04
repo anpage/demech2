@@ -335,15 +335,15 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 	gap = height / 2;
 	pos = *p_panel->m_textOrigin;
 	if (g_unk0x100aa2c0 == 1) {
-		if (GetPlayerSide(g_unk0x100a2430)) {
+		if (GetPlayerSide(g_trackedPlayer)) {
 			color = 0xb;
 		}
 
-		if (g_players[g_unk0x100a2430]->m_flags & 6) {
+		if (g_players[g_trackedPlayer]->m_flags & 6) {
 			state = "(dead)";
 		}
 
-		sprintf(text, "Tracking: %s %s", g_players[g_unk0x100a2430]->m_name, state);
+		sprintf(text, "Tracking: %s %s", g_players[g_trackedPlayer]->m_name, state);
 		g_textColors[0xe] = color;
 		VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
 		g_textColors[0xe] = 0xe;
@@ -504,7 +504,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (g_isNetworkGame && !g_unk0x100aa2c0 && !g_unk0x100a2c04) {
+	if (g_isNetworkGame && !g_unk0x100aa2c0 && !g_localMechLost) {
 		sprintf(text, "Kills: %i", g_unk0x100a15a0);
 		VFX_string_draw(
 			p_panel->m_target,

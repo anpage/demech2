@@ -512,8 +512,8 @@ void InitCockpitPanels(void)
 	g_cockpitPanels[c_panelKills]->m_draw = DrawKillsPanel;
 	FUN_1004d020();
 	FUN_10040020();
-	g_unk0x100a2434 = &mech->m_cockpitHeight;
-	g_unk0x100a2438 = &mech->m_torsoTwist.m_value;
+	g_eyeHeightOffset = &mech->m_cockpitHeight;
+	g_eyeTwist = &mech->m_torsoTwist.m_value;
 	InitHudGauges();
 	if (g_difficulty->m_unk0x09) {
 		InitCockpitViews();
@@ -624,7 +624,16 @@ void UpdateCockpit(Mech* p_mech)
 			}
 		}
 
-		DrawHud(p_mech, g_headingDegrees, g_torsoTwistDegrees, bearing, twistBearing, pitch, distance, g_unk0x100a241c);
+		DrawHud(
+			p_mech,
+			g_headingDegrees,
+			g_torsoTwistDegrees,
+			bearing,
+			twistBearing,
+			pitch,
+			distance,
+			g_cockpitEyeSteady
+		);
 		FUN_10021b2a(p_mech->m_throttle.m_value);
 		break;
 	case 1:
@@ -655,7 +664,7 @@ void UpdateCockpit(Mech* p_mech)
 		break;
 	}
 
-	if (!g_unk0x100a2420) {
+	if (!g_inCockpitView) {
 		FUN_10021c49();
 	}
 }
@@ -716,7 +725,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 		g_unk0x100ae380 = 0;
 	}
 
-	if (g_unk0x100a2420) {
+	if (g_inCockpitView) {
 		if (p_mech->m_flags & 0x80) {
 			if (!g_unk0x100ae3f4 && p_mech->m_weapons[p_mech->m_selectedWeapon].m_state == 1 &&
 				p_mech->m_powerState == 2) {

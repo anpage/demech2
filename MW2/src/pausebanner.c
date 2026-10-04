@@ -105,13 +105,13 @@ void FUN_10009f8d(MechU16 p_key)
 
 	switch (p_key) {
 	case 0xa:
-		FUN_10011401(2);
+		SetViewMode(c_viewFreeEye);
 		break;
 	case 0xc:
-		FUN_100115f4(1, 0);
+		CycleTrackedPlayer(1, 0);
 		break;
 	case 0xd:
-		FUN_100115f4(0, 0);
+		CycleTrackedPlayer(0, 0);
 		break;
 	case 0xf:
 		DebugBreakpoint();

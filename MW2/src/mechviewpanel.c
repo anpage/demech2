@@ -76,10 +76,10 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 	case 0:
 		break;
 	case 5:
-		camera = FUN_1006beb5();
+		camera = GetTrackedShotView();
 		if (!camera) {
-			FUN_1006bf05();
-			camera = FUN_1006beb5();
+			TrackLastShot();
+			camera = GetTrackedShotView();
 		}
 
 		if (!camera) {
@@ -95,7 +95,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		FUN_10050e6c(p_panel, 6, 0xfd);
 		break;
 	case 4:
-		FUN_100114ea(g_eyepoint, view);
+		SaveView(g_eyepoint, view);
 		FUN_10050dc3(&saved);
 		view[0] = mech->m_player->m_position.m_x;
 		view[1] = mech->m_player->m_position.m_y;
@@ -109,7 +109,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		g_renderSettings = saved;
 		break;
 	case 3:
-		FUN_100114ea(g_eyepoint, view);
+		SaveView(g_eyepoint, view);
 		FUN_10050dc3(&saved);
 		if (g_unk0x100ea3e4) {
 			view[3] = mech->m_player->m_torsoTwist + mech->m_player->m_heading;

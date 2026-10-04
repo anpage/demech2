@@ -439,7 +439,7 @@ void FUN_1001da14(MechS32 p_index, MechU16 p_value)
 
 // Chooses each player's model level (Player::m_unk0x1c) by its distance from the eyepoint: the
 // nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
-// The local player's own view (FUN_10011440 == 0) takes level 4, and dead players 0 or 1.
+// The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
 // Stack-slot permutation; i == g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1001da44
 void FUN_1001da44(void)
@@ -487,7 +487,7 @@ void FUN_1001da44(void)
 		entry = &entries[i];
 		entry->m_player = i;
 		player = g_players[i];
-		if (i == g_localPlayerId && !FUN_10011440()) {
+		if (i == g_localPlayerId && !GetViewMode()) {
 			entry->m_level = 4;
 			entry->m_distance = 0;
 		}

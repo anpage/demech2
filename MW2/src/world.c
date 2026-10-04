@@ -1129,9 +1129,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				id = MapResourceId(id);
 				index = FindStarIdxById(id);
 				if (index != -1) {
-					g_unk0x100a246c = 1;
-					g_unk0x100a2470 = 1;
-					g_unk0x100a2474 = index;
+					g_hasLightObject = 1;
+					g_lightFollowsObject = 1;
+					g_lightObject = index;
 				}
 			}
 		}

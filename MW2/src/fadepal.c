@@ -50,11 +50,11 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 
 	fovX = g_eyepoint->m_fovX;
 	palette = g_palettePending;
-	FUN_100114ea(g_eyepoint, view);
+	SaveView(g_eyepoint, view);
 	SelectPane(p_target);
 	g_eyepoint->m_fovX = p_fovX;
 	p_view[6] = 1;
-	FUN_1001156a(g_eyepoint, p_view);
+	RestoreView(g_eyepoint, p_view);
 	UpdateProjection(g_eyepoint);
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
@@ -71,14 +71,14 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 
 	FUN_10069591();
 	g_palettePending = palette;
-	FUN_10012e00();
+	ResetPane();
 	g_eyepoint->m_fovX = fovX;
-	g_unk0x100a2460 = 1;
-	FUN_1001156a(g_eyepoint, view);
+	g_projectionDirty = 1;
+	RestoreView(g_eyepoint, view);
 	UpdateProjection(g_eyepoint);
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
-	g_unk0x100a2460 = 0;
+	g_projectionDirty = 0;
 }
 
 // Fades to palette 0x11 over two seconds (0x16a clock ticks).
@@ -218,7 +218,7 @@ void FUN_1004ccba(Mech* p_mech)
 			FUN_1007eb23(0xde, 100, 0x40, 5, 0x50);
 		}
 		else {
-			FUN_1007ebd1(x, y, z, 0xdf, g_unk0x100a2420);
+			FUN_1007ebd1(x, y, z, 0xdf, g_inCockpitView);
 		}
 	}
 }
@@ -245,7 +245,7 @@ void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
 		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_y,
 		p_mech->m_player->m_position.m_z - g_eyepoint->m_z,
 		sound,
-		g_unk0x100a2420
+		g_inCockpitView
 	);
 }
 

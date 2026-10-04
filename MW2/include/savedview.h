@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-// An eyepoint's position and orientation, saved (FUN_100114ea writes one as seven words, the last
-// marking it set, and FUN_1001156a restores it). FirstEyepoint clears five of them
+// An eyepoint's position and orientation, saved (SaveView writes one as seven words, the last
+// marking it set, and RestoreView restores it). FirstEyepoint clears five of them
 // (g_savedViews), which nothing else uses.
 // SIZE 0x1c
 typedef struct SavedView {

@@ -363,7 +363,7 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 						x -= g_eyepoint->m_x;
 						y -= g_eyepoint->m_y;
 						z -= g_eyepoint->m_z;
-						FUN_1007ebd1(x, y, z, 0xb5, g_unk0x100a2420);
+						FUN_1007ebd1(x, y, z, 0xb5, g_inCockpitView);
 					}
 				}
 
@@ -557,5 +557,5 @@ void FUN_10076a23(Mech* p_mech)
 	x = p_mech->m_player->m_position.m_x - g_eyepoint->m_x;
 	y = p_mech->m_player->m_position.m_y - g_eyepoint->m_y;
 	z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
-	FUN_1007ebd1(x, y, z, 0xb5, g_unk0x100a2420);
+	FUN_1007ebd1(x, y, z, 0xb5, g_inCockpitView);
 }

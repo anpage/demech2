@@ -690,7 +690,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 						y = p_mech->m_player->m_position.m_y - g_eyepoint->m_y;
 						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
 						g_unk0x100ae380 = 1;
-						FUN_1007ebd1(x, y, z, 0xbc, g_unk0x100a2420);
+						FUN_1007ebd1(x, y, z, 0xbc, g_inCockpitView);
 						FUN_10059f6e(1);
 					}
 

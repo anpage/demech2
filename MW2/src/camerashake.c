@@ -83,7 +83,7 @@ MechS32 UpdateCameraShake(void)
 		}
 	}
 
-	FUN_10011e45(&base10, &base0c, &base14, &x, &y, &z);
+	GetCockpitEyeView(&base10, &base0c, &base14, &x, &y, &z);
 	g_eyepoint->m_x = x + UpdateRamp(&g_cameraShakeX);
 	g_eyepoint->m_y = y + UpdateRamp(&g_cameraShakeY);
 	g_eyepoint->m_z = z + UpdateRamp(&g_cameraShakeZ);
@@ -125,7 +125,7 @@ void StartCameraShakeKey(MechS32 p_key)
 	}
 
 	if (p_key == 0) {
-		FUN_10011e45(&off10, &off0c, &off14, &x, &y, &z);
+		GetCockpitEyeView(&off10, &off0c, &off14, &x, &y, &z);
 		x = g_eyepoint->m_x - x;
 		y = g_eyepoint->m_y - y;
 		z = g_eyepoint->m_z - z;

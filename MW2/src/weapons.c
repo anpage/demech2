@@ -235,7 +235,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 							}
 
 							if (def->m_sound > 0) {
-								if (p_mech->m_player->m_index == g_localPlayerId && g_unk0x100a2420) {
+								if (p_mech->m_player->m_index == g_localPlayerId && g_inCockpitView) {
 									switch (slot->m_hardpoint) {
 									case 2:
 									case 5:
@@ -255,7 +255,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 									dx = g_eyepoint->m_x - p_mech->m_player->m_position.m_x;
 									dy = g_eyepoint->m_y - p_mech->m_player->m_position.m_y;
 									dz = g_eyepoint->m_z - p_mech->m_player->m_position.m_z;
-									FUN_1007ebd1(dx, dy, dz, def->m_sound, g_unk0x100a2420);
+									FUN_1007ebd1(dx, dy, dz, def->m_sound, g_inCockpitView);
 								}
 							}
 						}
@@ -897,8 +897,8 @@ void FUN_100463e5(Player* p_player, Ray* p_ray)
 
 	FUN_10046466(p_player, &dx, &dy, &dz);
 	GetObjPosition(p_player->m_eyeObj, &x, &y, &z);
-	if (g_unk0x100a2434) {
-		y += *g_unk0x100a2434;
+	if (g_eyeHeightOffset) {
+		y += *g_eyeHeightOffset;
 	}
 
 	BuildRayFromDirection(p_ray, x, y, z, dx, dy, dz, 150000);

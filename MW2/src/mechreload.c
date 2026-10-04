@@ -105,7 +105,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 
 	if (g_localPlayerId == p_player) {
 		ResetCockpitPanels();
-		g_unk0x100a2c04 = 0;
+		g_localMechLost = 0;
 		g_unk0x100a2c18 = 0;
 		g_unk0x100a2c10 = 0;
 	}

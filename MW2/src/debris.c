@@ -202,7 +202,7 @@ void UpdateDebris(void)
 
 	for (i = 0; i < 0x80; i++) {
 		if (g_debrisChunks[i].m_active == TRUE && g_currentClock - g_debrisChunks[i].m_startTime > 0xe24 &&
-			!g_unk0x100a2c04) {
+			!g_localMechLost) {
 			FUN_1000457e(g_debrisChunks[i].m_obj, g_debrisChunks[i].m_callback);
 			g_debrisChunks[i] = g_emptyDebrisChunk;
 		}
