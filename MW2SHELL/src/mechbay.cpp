@@ -1340,7 +1340,7 @@ TextGlyph* DrawArmorAllocation(ScreenField* p_tab)
 {
 	MekVariant::Armor* armor;
 
-	armor = &g_variant.m_armor[(MechS32) p_tab->m_data];
+	armor = &g_variant.m_armor[MECH_PTR_TO_S32(p_tab->m_data)];
 	if (armor->m_rear >= 0) {
 		sprintf(g_tempBuffer, "~%d/%d", armor->m_front, armor->m_rear);
 	}
@@ -1356,7 +1356,7 @@ TextGlyph* DrawLocationMaxArmor(ScreenField* p_tab)
 {
 	MechS32 location;
 
-	location = (MechS32) p_tab->m_data;
+	location = MECH_PTR_TO_S32(p_tab->m_data);
 	if (location == -1) {
 		return NULL;
 	}
@@ -1426,7 +1426,7 @@ TextGlyph* DrawWeaponTableEntry(ScreenField* p_tab)
 	MechS32 index;
 	undefined* colors;
 
-	index = (MechS32) p_tab->m_data;
+	index = MECH_PTR_TO_S32(p_tab->m_data);
 	colors = p_tab->m_colors;
 	if (index == -1) {
 		return NULL;
@@ -1464,7 +1464,7 @@ TextGlyph* DrawWeaponInfo(ScreenField* p_tab)
 	}
 
 	weapon = g_variant.m_selectedWeapon / 100;
-	switch ((MechS32) p_tab->m_data) {
+	switch (MECH_PTR_TO_S32(p_tab->m_data)) {
 	case 0:
 		if (g_variant.m_selectedWeapon % 100) {
 			sprintf(g_tempBuffer, "%s #%d", g_weapons[weapon].m_name, g_variant.m_selectedWeapon % 100);
@@ -1584,7 +1584,7 @@ TextGlyph* DrawCritical(ScreenField* p_tab)
 		return NULL;
 	}
 
-	id = g_variant.m_criticals[g_variant.m_selectedLocation][(MechS32) p_tab->m_data];
+	id = g_variant.m_criticals[g_variant.m_selectedLocation][MECH_PTR_TO_S32(p_tab->m_data)];
 	if (id == -1) {
 		return NULL;
 	}
@@ -1628,8 +1628,8 @@ TextGlyph* DrawUnassigned(ScreenField* p_tab)
 		return NULL;
 	}
 
-	id = g_variant.m_unassigned[(MechS32) p_tab->m_data].m_id;
-	count = g_variant.m_unassigned[(MechS32) p_tab->m_data].m_criticals;
+	id = g_variant.m_unassigned[MECH_PTR_TO_S32(p_tab->m_data)].m_id;
+	count = g_variant.m_unassigned[MECH_PTR_TO_S32(p_tab->m_data)].m_criticals;
 	if (id == -1 || id == 0 || count == 0) {
 		return NULL;
 	}
@@ -1658,7 +1658,7 @@ TextGlyph* DrawUnassigned(ScreenField* p_tab)
 // FUNCTION: MW2SHELL 0x1000a161
 TextGlyph* DrawMore(ScreenField* p_tab)
 {
-	if (g_variant.m_unassigned[(MechS32) p_tab->m_data].m_id <= 0) {
+	if (g_variant.m_unassigned[MECH_PTR_TO_S32(p_tab->m_data)].m_id <= 0) {
 		return NULL;
 	}
 
@@ -1682,7 +1682,7 @@ TextGlyph* DrawEquipmentName(ScreenField* p_tab)
 	MechS32 id;
 	MechChar* text;
 
-	id = (MechS32) p_tab->m_data;
+	id = MECH_PTR_TO_S32(p_tab->m_data);
 	switch (id) {
 	case 5000:
 		text = "MASC";
@@ -2170,13 +2170,13 @@ void SelectWeaponType(ScreenField* p_tab)
 	if (p_tab) {
 	}
 
-	if ((MechS32) p_tab->m_data * 100 == g_variant.m_selectedWeapon) {
+	if (MECH_PTR_TO_S32(p_tab->m_data) * 100 == g_variant.m_selectedWeapon) {
 		if (g_mouseState->GetDoubleClicked()) {
 			ClickAddWeapon(p_tab);
 		}
 	}
 	else {
-		g_variant.m_selectedWeapon = (MechS32) p_tab->m_data * 100;
+		g_variant.m_selectedWeapon = MECH_PTR_TO_S32(p_tab->m_data) * 100;
 	}
 }
 
@@ -2197,7 +2197,7 @@ void NextLocation(ScreenField* p_tab)
 void SelectLocation(ScreenField* p_tab)
 {
 	g_locationSound->Start();
-	g_variant.m_selectedLocation = (MechS32) p_tab->m_data;
+	g_variant.m_selectedLocation = MECH_PTR_TO_S32(p_tab->m_data);
 }
 
 // Stack-slot permutation: id and count.
@@ -2207,8 +2207,8 @@ void ClickUnassigned(ScreenField* p_tab)
 	MechS32 id;
 	MechS32 count;
 
-	id = g_variant.m_unassigned[(MechS32) p_tab->m_data].m_id;
-	count = g_variant.m_unassigned[(MechS32) p_tab->m_data].m_criticals;
+	id = g_variant.m_unassigned[MECH_PTR_TO_S32(p_tab->m_data)].m_id;
+	count = g_variant.m_unassigned[MECH_PTR_TO_S32(p_tab->m_data)].m_criticals;
 	if (id < 0) {
 		return;
 	}
@@ -2242,7 +2242,7 @@ void ClickCritical(ScreenField* p_tab)
 		return;
 	}
 
-	id = g_variant.m_criticals[g_variant.m_selectedLocation][(MechS32) p_tab->m_data];
+	id = g_variant.m_criticals[g_variant.m_selectedLocation][MECH_PTR_TO_S32(p_tab->m_data)];
 	if (id < 0) {
 		return;
 	}
@@ -2366,7 +2366,7 @@ void ToggleEquipment(ScreenField* p_tab)
 	}
 
 	if (*flag) {
-		switch ((MechS32) p_tab->m_arg) {
+		switch (MECH_PTR_TO_S32(p_tab->m_arg)) {
 		case 5000:
 			for (i = 1; i <= g_variant.m_mascCriticals; i++) {
 				AddUnassigned(i + 5000, 1);
@@ -2401,7 +2401,7 @@ void ToggleEquipment(ScreenField* p_tab)
 		}
 	}
 	else {
-		switch ((MechS32) p_tab->m_arg) {
+		switch (MECH_PTR_TO_S32(p_tab->m_arg)) {
 		case 5000:
 			for (i = 1; i <= g_variant.m_mascCriticals; i++) {
 				DeleteItem(i + 5000);
@@ -2413,7 +2413,7 @@ void ToggleEquipment(ScreenField* p_tab)
 		case 5402:
 		case 5451:
 		case 5452:
-			DeleteItem((MechS32) p_tab->m_arg);
+			DeleteItem(MECH_PTR_TO_S32(p_tab->m_arg));
 			break;
 		}
 	}

@@ -401,7 +401,7 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 	MechS32 format;
 
 	m_subsystem = p_subsystem;
-	m_sample = 0;
+	m_sample = NULL;
 	m_buffer0 = NULL;
 	m_buffer1 = NULL;
 	m_readyBuffer = -1;
@@ -410,7 +410,7 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 		return;
 	}
 
-	m_sample = (undefined4) AIL_allocate_sample_handle(m_subsystem->m_digitalDriver);
+	m_sample = AIL_allocate_sample_handle(m_subsystem->m_digitalDriver);
 	if (!m_sample) {
 		return;
 	}
@@ -447,7 +447,7 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 		if (m_buffer0) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
 		}
-		AIL_release_sample_handle((HSAMPLE) m_sample);
+		AIL_release_sample_handle(m_sample);
 		if (!m_sample) {
 			// Both branches are empty in the original.
 		}
@@ -456,16 +456,16 @@ VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_
 		return;
 	}
 
-	AIL_init_sample((HSAMPLE) m_sample);
-	AIL_set_sample_type((HSAMPLE) m_sample, format, p_wide != 0);
+	AIL_init_sample(m_sample);
+	AIL_set_sample_type(m_sample, format, p_wide != 0);
 }
 
 // FUNCTION: MW2SHELL 0x1003da54
 VideoSound::~VideoSound()
 {
-	if (m_sample != 0) {
-		AIL_end_sample((HSAMPLE) m_sample);
-		AIL_release_sample_handle((HSAMPLE) m_sample);
+	if (m_sample != NULL) {
+		AIL_end_sample(m_sample);
+		AIL_release_sample_handle(m_sample);
 		if (m_buffer0 != NULL) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, m_buffer0);
 		}
@@ -480,7 +480,7 @@ undefined4 VideoSound::IsBufferReady()
 {
 	if (m_sample) {
 		if (m_readyBuffer == -1) {
-			m_readyBuffer = AIL_sample_buffer_ready((HSAMPLE) m_sample);
+			m_readyBuffer = AIL_sample_buffer_ready(m_sample);
 		}
 		if (m_readyBuffer != -1) {
 			return TRUE;
@@ -495,7 +495,7 @@ void* VideoSound::GetReadyBuffer()
 {
 	if (m_sample) {
 		if (m_readyBuffer == -1) {
-			m_readyBuffer = AIL_sample_buffer_ready((HSAMPLE) m_sample);
+			m_readyBuffer = AIL_sample_buffer_ready(m_sample);
 		}
 		if (m_readyBuffer != -1) {
 			return (&m_buffer0)[m_readyBuffer];
@@ -513,7 +513,7 @@ void VideoSound::LoadBuffer(void* p_buffer, MechU32 p_size)
 		if (m_readyBuffer == -1 || (&m_buffer0)[m_readyBuffer] != p_buffer) {
 			return;
 		}
-		AIL_load_sample_buffer((HSAMPLE) m_sample, m_readyBuffer, p_buffer, p_size);
+		AIL_load_sample_buffer(m_sample, m_readyBuffer, p_buffer, p_size);
 		m_readyBuffer = -1;
 	}
 }

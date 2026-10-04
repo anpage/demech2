@@ -256,16 +256,9 @@ TextGlyph* DrawVolumeSlider(ScreenField* p_option)
 
 	position = *(MechS32*) p_option->m_data;
 	position /= 0x100;
-	g_videoDriver->DrawShpFrame(
-		(undefined4) g_sliderImages,
-		1,
-		p_option->m_left,
-		p_option->m_top,
-		p_option->m_width,
-		p_option->m_height
-	);
 	g_videoDriver
-		->DrawShpFrame((undefined4) g_sliderImages, 0, p_option->m_left + position + 8, p_option->m_top - 1, 0xf, 0x1d);
+		->DrawShpFrame(g_sliderImages, 1, p_option->m_left, p_option->m_top, p_option->m_width, p_option->m_height);
+	g_videoDriver->DrawShpFrame(g_sliderImages, 0, p_option->m_left + position + 8, p_option->m_top - 1, 0xf, 0x1d);
 
 	return NULL;
 }

@@ -341,7 +341,7 @@ MechS32 SeekArchiveItem(MechS32 p_handle, MechChar* p_name, MechU32 p_index, voi
 	entries = g_archiveSlots[p_handle].m_header->m_entries;
 	offset = entries[entry].m_baseOffset + *(MechU32*) (offsets + (p_index & 0xffff) * 8);
 	if (p_offset != NULL) {
-		*p_offset = (void*) offset;
+		*p_offset = MECH_S32_TO_PTR(offset);
 	}
 	if (p_size != NULL) {
 		*p_size = *(MechS32*) (offsets + (p_index & 0xffff) * 8 + 4) - entries[entry].m_baseOffset;
@@ -356,7 +356,7 @@ MechS32 SeekArchiveItem(MechS32 p_handle, MechChar* p_name, MechU32 p_index, voi
 void ReadArchiveAt(void* p_data, MechS32 p_handle, void* p_offset, MechU32 p_size)
 {
 	p_handle = g_archiveSlots[p_handle].m_fd;
-	_lseek(p_handle, (MechS32) p_offset, SEEK_SET);
+	_lseek(p_handle, MECH_PTR_TO_S32(p_offset), SEEK_SET);
 	ArchiveRead(p_handle, (MechU8*) p_data, p_size);
 	return;
 }

@@ -2,6 +2,7 @@
 #define VIDEOSOUND_H
 
 #include "decomp.h"
+#include "mss.h"
 #include "types.h"
 
 class AudioSubsystem;
@@ -18,7 +19,7 @@ public:
 
 private:
 	AudioSubsystem* m_subsystem; // 0x00
-	undefined4 m_sample;         // 0x04 — Miles sample handle
+	HSAMPLE m_sample;            // 0x04 — Miles sample handle
 	void* m_buffer0;             // 0x08 — heap buffer
 	void* m_buffer1;             // 0x0c — heap buffer
 	MechS32 m_readyBuffer;       // 0x10 — ready buffer index, -1 until queried

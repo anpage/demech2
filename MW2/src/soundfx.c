@@ -394,13 +394,13 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 	}
 
 	if (p_userData) {
-		AIL_set_sample_user_data(sample, 0, (MechS32) p_userData);
+		AIL_set_sample_user_data(sample, 0, (MECH_INTPTR) p_userData);
 	}
 
 	AIL_set_sample_user_data(sample, 1, p_id);
 	AIL_set_sample_user_data(sample, 2, slot);
 	AIL_set_sample_user_data(sample, 3, 0);
-	AIL_set_sample_user_data(sample, 4, (MechS32) p_data);
+	AIL_set_sample_user_data(sample, 4, (MECH_INTPTR) p_data);
 	AIL_register_EOS_callback(sample, SampleEosCallback);
 
 	if (p_id > 0 && g_soundInfo[p_id].m_count != -1) {

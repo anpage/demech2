@@ -48,7 +48,7 @@ public:
 	void CopyBackgroundToScreen();
 	void LoadPalette(MechS32 p_id);
 	void DrawShpFrame(
-		undefined4 p_shp,
+		void* p_shp,
 		undefined4 p_frame,
 		MechS32 p_left,
 		MechS32 p_top,
@@ -56,7 +56,7 @@ public:
 		MechS32 p_height
 	);
 	void DrawShpFrameClipped(
-		undefined4 p_shp,
+		void* p_shp,
 		undefined4 p_frame,
 		MechS32 p_left,
 		MechS32 p_top,

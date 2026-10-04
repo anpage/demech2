@@ -129,11 +129,11 @@ TextGlyph* DrawRosterLabel(ScreenField* p_tab)
 // FUNCTION: MW2SHELL 0x10014dfe
 TextGlyph* DrawMissionListEntry(ScreenField* p_tab)
 {
-	if ((MechS32) p_tab->m_data >= g_currentPilot->m_mission) {
+	if (MECH_PTR_TO_S32(p_tab->m_data) >= g_currentPilot->m_mission) {
 		return NULL;
 	}
 
-	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_rosterCampaign][(MechS32) p_tab->m_data].m_title);
+	sprintf(g_rosterFieldText, "~%s", g_campaignMissions[g_rosterCampaign][MECH_PTR_TO_S32(p_tab->m_data)].m_title);
 	return g_textFont->AddText(p_tab->m_left + p_tab->m_width / 2, p_tab->m_top, g_rosterFieldText, NULL);
 }
 
@@ -370,8 +370,8 @@ void PilotRosterCallback(
 	if (g_mouseState->GetLeftPressed() == 1) {
 		if (g_missionListShown) {
 			tab = FindFieldAt(g_missionListFields, g_mouseState->m_x, g_mouseState->m_y);
-			if (tab && tab->m_click && g_currentPilot->m_mission > (MechS32) tab->m_data) {
-				*p_scenario = g_campaignMissions[*p_campaign][(MechS32) tab->m_data].m_scenario;
+			if (tab && tab->m_click && g_currentPilot->m_mission > MECH_PTR_TO_S32(tab->m_data)) {
+				*p_scenario = g_campaignMissions[*p_campaign][MECH_PTR_TO_S32(tab->m_data)].m_scenario;
 				SelectStar(0, 0, 3, 1, 100);
 				ShellApplyMissionUiInfo(*p_scenario, 1, 0);
 				SelectStar(1, 0, 0, 0, 100);
