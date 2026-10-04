@@ -570,7 +570,7 @@ void VideoDriver::LoadPalette(MechS32 p_id)
 // Draws frame p_frame of an SHP animation to the screen.
 // FUNCTION: MW2SHELL 0x100073b3
 void VideoDriver::DrawShpFrame(
-	undefined4 p_shp,
+	void* p_shp,
 	undefined4 p_frame,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -579,7 +579,7 @@ void VideoDriver::DrawShpFrame(
 )
 {
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		VFX_shape_draw(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
+		VFX_shape_draw(&m_screenView, p_shp, p_frame, p_left, p_top);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
@@ -588,7 +588,7 @@ void VideoDriver::DrawShpFrame(
 // DrawShpFrame, skipped unless the frame meets the dirty rectangle.
 // FUNCTION: MW2SHELL 0x10007430
 void VideoDriver::DrawShpFrameClipped(
-	undefined4 p_shp,
+	void* p_shp,
 	undefined4 p_frame,
 	MechS32 p_left,
 	MechS32 p_top,
@@ -601,7 +601,7 @@ void VideoDriver::DrawShpFrameClipped(
 	}
 
 	if (ACQUIRE_FRAMEBUFFER() == 0) {
-		VFX_shape_draw(&m_screenView, (void*) p_shp, p_frame, p_left, p_top);
+		VFX_shape_draw(&m_screenView, p_shp, p_frame, p_left, p_top);
 	}
 
 	ExpandRectBySize(p_left, p_top, p_width, p_height);

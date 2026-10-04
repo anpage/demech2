@@ -466,7 +466,7 @@ void UpdateVideos()
 					video->m_flags |= 0x10;
 					if (video->m_flags & 0x100) {
 						g_videoDriver->DrawShpFrame(
-							(undefined4) video->m_shp,
+							video->m_shp,
 							video->m_frame,
 							video->m_left,
 							video->m_top,
@@ -476,7 +476,7 @@ void UpdateVideos()
 					}
 					else {
 						g_videoDriver->DrawShpFrameClipped(
-							(undefined4) video->m_shp,
+							video->m_shp,
 							video->m_frame,
 							video->m_left,
 							video->m_top,

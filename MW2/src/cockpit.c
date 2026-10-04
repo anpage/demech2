@@ -223,13 +223,13 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		rect->m_window = &g_mainPixelBuffer;
 	}
 
-	index = (MechS32) p_layout->m_gauges[0];
+	index = MECH_PTR_TO_S32(p_layout->m_gauges[0]);
 	p_layout->m_gauges[0] = g_cockpitGauges[index];
-	index = (MechS32) p_layout->m_gauges[1];
+	index = MECH_PTR_TO_S32(p_layout->m_gauges[1]);
 	p_layout->m_gauges[1] = g_cockpitGauges[index];
-	index = (MechS32) p_layout->m_gauges[2];
+	index = MECH_PTR_TO_S32(p_layout->m_gauges[2]);
 	p_layout->m_gauges[2] = g_cockpitGauges[index];
-	index = (MechS32) p_layout->m_gauges[3];
+	index = MECH_PTR_TO_S32(p_layout->m_gauges[3]);
 	p_layout->m_gauges[3] = g_cockpitGauges[index];
 	ZoomMapView(0);
 }

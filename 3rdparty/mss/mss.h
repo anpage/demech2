@@ -8,6 +8,15 @@
 // windows.h first: mmsystem.h depends on it
 #include <mmsystem.h>
 
+// The sample user data: 32-bit in this Miles, pointer-sized (SINTa) from later versions on. The game
+// keeps pointers there, so it is pointer-sized where pointers are wider than 32 bits.
+#if defined(_MSC_VER) && _MSC_VER < 1200
+#define SINTa int
+#else
+#include <stdint.h>
+#define SINTa intptr_t
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -71,8 +80,8 @@ extern "C"
 	AILIMPORT void AILCALL AIL_set_sample_loop_count(HSAMPLE p_sample, int p_loopCount);
 	AILIMPORT void AILCALL AIL_set_sample_pan(HSAMPLE p_sample, int p_pan);
 	AILIMPORT void AILCALL AIL_set_sample_playback_rate(HSAMPLE p_sample, int p_rate);
-	AILIMPORT void AILCALL AIL_set_sample_user_data(HSAMPLE p_sample, unsigned int p_index, int p_value);
-	AILIMPORT int AILCALL AIL_sample_user_data(HSAMPLE p_sample, unsigned int p_index);
+	AILIMPORT void AILCALL AIL_set_sample_user_data(HSAMPLE p_sample, unsigned int p_index, SINTa p_value);
+	AILIMPORT SINTa AILCALL AIL_sample_user_data(HSAMPLE p_sample, unsigned int p_index);
 	AILIMPORT AILSAMPLECB AILCALL AIL_register_EOS_callback(HSAMPLE p_sample, AILSAMPLECB p_callback);
 	AILIMPORT HSAMPLE AILCALL AIL_allocate_file_sample(HDIGDRIVER p_driver, void* p_fileImage, int p_block);
 
