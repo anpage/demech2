@@ -96,7 +96,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	g_players[p_player]->m_flags = flags;
 
 	if (g_isNetworkGame) {
-		FUN_1001cc5c(p_player);
+		RestartStarMission(p_player);
 	}
 
 	// gpanim.c's Mech is the player

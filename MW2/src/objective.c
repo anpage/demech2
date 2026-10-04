@@ -29,17 +29,17 @@
 #include <stdio.h>
 #include <string.h>
 
-// Set once the local team's mission result has been announced (FUN_1001b3f4).
 // Set to end the mission as successful (a cheat).
 // GLOBAL: MW2 0x100a3748
-MechS32 g_unk0x100a3748 = 0;
+MechS32 g_forceMissionSuccess = 0;
 
+// Set once the local team's mission result has been announced (AnnounceMissionResult).
 // GLOBAL: MW2 0x100a374c
-MechS32 g_unk0x100a374c = 0;
+MechS32 g_missionResultAnnounced = 0;
 
 // The tag of the mission result EndTheMission2 writes.
 // GLOBAL: MW2 0x100a37bc
-MechU32 g_unk0x100a37bc = 0x4d32574d;
+MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
 MechS32 g_missionTime;
@@ -47,9 +47,9 @@ MechS32 g_missionTime;
 // GLOBAL: MW2 0x10138720
 MechS32 g_currentObjective[16]; // by team
 
-// Whether each objective of the local team has been announced (FUN_1001b0cb).
+// Whether each objective of the local team has been announced (AnnounceObjective).
 // GLOBAL: MW2 0x10138760
-MechS32 g_unk0x10138760[48];
+MechS32 g_objectiveAnnounced[48];
 
 // GLOBAL: MW2 0x10138820
 MechS32 g_objectiveCount;
@@ -59,7 +59,7 @@ StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
 // FUNCTION: MW2 0x1001a910
-void FUN_1001a910(MechChar* p_text)
+void CollapseWhitespace(MechChar* p_text)
 {
 	MechChar* src;
 	MechChar* dst;
@@ -123,7 +123,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 // is an AI target id stored as two bytes, the index and the type.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ab4a
-MechS32 FUN_1001ab4a(MechU8* p_target)
+MechS32 GetObjectiveTargetState(MechU8* p_target)
 {
 	MechU16 index;
 	MechU16 kind;
@@ -149,7 +149,7 @@ MechS32 FUN_1001ab4a(MechU8* p_target)
 // Returns whether team p_team has reached an objective target.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ac06
-MechS32 FUN_1001ac06(MechU8* p_target, MechS32 p_team)
+MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
 	MechU16 kind;
@@ -189,7 +189,7 @@ MechS32 FUN_1001ac06(MechU8* p_target, MechS32 p_team)
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ad5b
-MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
+MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
 	MechU16 kind;
@@ -271,14 +271,14 @@ MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
 // Stack-slot permutation; the original computes the objective's index before the star's (index order)
 // and compares p_star with g_unk0x100a5918 in the other operand order.
 // FUNCTION: MW2 0x1001b0cb
-MechS32 FUN_1001b0cb(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
+MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
 	MechChar text[100];
 	SpeechLine line;
 	MissionObjective* objective;
 
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
-	if (p_star != g_unk0x100a5918 || g_unk0x10138760[p_objective]) {
+	if (p_star != g_unk0x100a5918 || g_objectiveAnnounced[p_objective]) {
 		return TRUE;
 	}
 
@@ -300,9 +300,9 @@ MechS32 FUN_1001b0cb(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 		line.m_text = text;
 	}
 
-	FUN_1001a910(line.m_text);
+	CollapseWhitespace(line.m_text);
 	QueueSpeechLine(&line);
-	g_unk0x10138760[p_objective] = TRUE;
+	g_objectiveAnnounced[p_objective] = TRUE;
 	return TRUE;
 }
 
@@ -310,7 +310,7 @@ MechS32 FUN_1001b0cb(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
 // Stack-slot permutation; score > best compares in the other operand order.
 // FUNCTION: MW2 0x1001b21a
-void FUN_1001b21a(void)
+void ChooseNetworkWinner(void)
 {
 	MissionObjective* objective;
 	MechS32 best;
@@ -374,7 +374,7 @@ void FUN_1001b21a(void)
 // Announces the local team's mission result: successful (2), failed (3) or out of time (4). In a
 // network game, only the first result; a successful one names the local player the winner.
 // FUNCTION: MW2 0x1001b3f4
-MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
+MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 {
 	MechChar text[100];
 	SpeechLine line;
@@ -383,11 +383,11 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 		return TRUE;
 	}
 
-	if (g_unk0x100a374c && g_isNetworkGame) {
+	if (g_missionResultAnnounced && g_isNetworkGame) {
 		return TRUE;
 	}
 	else {
-		g_unk0x100a374c = 1;
+		g_missionResultAnnounced = 1;
 	}
 
 	if (p_status == 2) {
@@ -419,7 +419,7 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 // Stack-slot permutation of objective, other, star, state and kind; the original scales star
 // before other in the objective's address (index order).
 // FUNCTION: MW2 0x1001b580
-MechS32 FUN_1001b580(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
+MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 {
 	MissionObjective* objective;
 	MechS32 other;
@@ -441,7 +441,7 @@ MechS32 FUN_1001b580(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 // Stack-slot permutation of all, objective, result, i and holds; the original computes the
 // objective's index before the star's (index order).
 // FUNCTION: MW2 0x1001b66c
-MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective)
+MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 all;
 	MissionObjective* objective;
@@ -465,7 +465,7 @@ MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective)
 			break;
 		}
 
-		holds = FUN_1001b580(p_star, p_objective, i);
+		holds = TestObjectiveCondition(p_star, p_objective, i);
 		if (!all) {
 			if (holds) {
 				return TRUE;
@@ -493,7 +493,7 @@ MechS32 FUN_1001b66c(MechS32 p_star, MechS32 p_objective)
 // 6 failed, 8 failed for another star, 3 still going.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001b79a
-void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
+void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
 	MissionObjective* objective;
@@ -517,7 +517,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
 	if (g_isNetworkGame && objective->m_state == 5 && objective->m_type == 2) {
 		for (i = 0; i < objective->m_targetCount; i++) {
-			if (done && FUN_1001ab4a((MechU8*) &objective->m_targets[i])) {
+			if (done && GetObjectiveTargetState((MechU8*) &objective->m_targets[i])) {
 				done = TRUE;
 			}
 			else {
@@ -532,7 +532,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		}
 	}
 
-	if (objective->m_state == 5 || objective->m_state == 6 || !FUN_1001b66c(p_star, p_objective)) {
+	if (objective->m_state == 5 || objective->m_state == 6 || !ObjectiveConditionsHold(p_star, p_objective)) {
 		objective->m_active = 0;
 		return;
 	}
@@ -546,7 +546,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 	case 1:
 	case 2:
 		for (i = 0; i < objective->m_targetCount; i++) {
-			if (done && FUN_1001ab4a((MechU8*) &objective->m_targets[i])) {
+			if (done && GetObjectiveTargetState((MechU8*) &objective->m_targets[i])) {
 				done = TRUE;
 			}
 			else {
@@ -556,7 +556,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		break;
 	case 4:
 		for (i = 0; i < objective->m_targetCount; i++) {
-			alive = FUN_1001ab4a((MechU8*) &objective->m_targets[i]);
+			alive = GetObjectiveTargetState((MechU8*) &objective->m_targets[i]);
 			if (done && !alive) {
 				done = TRUE;
 			}
@@ -574,7 +574,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		break;
 	case 8:
 		for (i = 0; i < objective->m_targetCount; i++) {
-			if (done && FUN_1001ac06((MechU8*) &objective->m_targets[i], p_star)) {
+			if (done && HasTeamReachedTarget((MechU8*) &objective->m_targets[i], p_star)) {
 				done = TRUE;
 			}
 			else {
@@ -584,7 +584,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		break;
 	case 0x20:
 		for (i = 0; i < objective->m_targetCount; i++) {
-			if (done && FUN_1001ac06((MechU8*) &objective->m_targets[i], p_star)) {
+			if (done && HasTeamReachedTarget((MechU8*) &objective->m_targets[i], p_star)) {
 				done = TRUE;
 			}
 			else {
@@ -614,7 +614,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		}
 
 		for (i = 0; i < objective->m_targetCount; i++) {
-			if (done && FUN_1001ad5b((MechU8*) &objective->m_targets[i], p_star)) {
+			if (done && IsTeamNearTarget((MechU8*) &objective->m_targets[i], p_star)) {
 				done = TRUE;
 			}
 			else {
@@ -624,7 +624,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		break;
 	case 0x2000:
 		for (i = 0; i < objective->m_targetCount; i++) {
-			if (done && !FUN_1001ad5b((MechU8*) &objective->m_targets[i], p_star)) {
+			if (done && !IsTeamNearTarget((MechU8*) &objective->m_targets[i], p_star)) {
 				done = TRUE;
 			}
 			else {
@@ -674,10 +674,10 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 
 		won = &g_objectiveTable[objective->m_unk0xa9];
 		won->m_status = 2;
-		FUN_1001b3f4(objective->m_unk0xa9, won->m_status);
+		AnnounceMissionResult(objective->m_unk0xa9, won->m_status);
 		won->m_endTime = g_missionTime;
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0x20000:
 		if (objective->m_unk0xa9 > g_objectiveCount) {
@@ -686,10 +686,10 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 
 		lost = &g_objectiveTable[objective->m_unk0xa9];
 		lost->m_status = 3;
-		FUN_1001b3f4(objective->m_unk0xa9, lost->m_status);
+		AnnounceMissionResult(objective->m_unk0xa9, lost->m_status);
 		lost->m_endTime = g_missionTime;
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0x40000:
 		if (objective->m_unk0xa9 > g_objectiveCount ||
@@ -705,7 +705,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		}
 
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0x80000:
 		if (objective->m_unk0xa9 > g_objectiveCount ||
@@ -720,9 +720,9 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 
 		failTarget->m_state = 6;
 		failTarget->m_endTime = g_missionTime;
-		FUN_1001b0cb(objective->m_unk0xa9, objective->m_unk0xab, failTarget->m_state);
+		AnnounceObjective(objective->m_unk0xa9, objective->m_unk0xab, failTarget->m_state);
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0x200000:
 		if (objective->m_unk0xa9 > g_objectiveCount) {
@@ -736,14 +736,14 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 			reset->m_startTime = -1;
 			reset->m_endTime = -1;
 			if (reset->m_type != 0x10) {
-				g_unk0x10138760[j] = 0;
+				g_objectiveAnnounced[j] = 0;
 			}
 		}
 
 		restarted->m_status = 0;
 		restarted->m_endTime = -1;
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0x400000:
 		if (objective->m_unk0xa9 > g_objectiveCount ||
@@ -757,11 +757,11 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 		restartTarget->m_startTime = -1;
 		restartTarget->m_endTime = -1;
 		if (restartTarget->m_type != 0x10) {
-			g_unk0x10138760[i] = 0;
+			g_objectiveAnnounced[i] = 0;
 		}
 
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0x100000:
 		if (objective->m_unk0xa9 > g_objectiveCount ||
@@ -776,9 +776,9 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 
 		succeedTarget->m_state = 5;
 		succeedTarget->m_endTime = g_missionTime;
-		FUN_1001b0cb(objective->m_unk0xa9, objective->m_unk0xab, succeedTarget->m_state);
+		AnnounceObjective(objective->m_unk0xa9, objective->m_unk0xab, succeedTarget->m_state);
 		state = 5;
-		FUN_1001b0cb(p_star, p_objective, state);
+		AnnounceObjective(p_star, p_objective, state);
 		break;
 	case 0:
 	case 0x200:
@@ -791,14 +791,14 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 			}
 
 			state = 5;
-			FUN_1001b0cb(p_star, p_objective, state);
+			AnnounceObjective(p_star, p_objective, state);
 		}
 		break;
 	case 4:
 		if (expired) {
 			if (done) {
 				state = 5;
-				FUN_1001b0cb(p_star, p_objective, state);
+				AnnounceObjective(p_star, p_objective, state);
 			}
 			else {
 				state = 6;
@@ -813,7 +813,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 					state = 8;
 				}
 
-				FUN_1001b0cb(p_star, p_objective, 6);
+				AnnounceObjective(p_star, p_objective, 6);
 			}
 
 			if (untouched) {
@@ -824,11 +824,11 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 	default:
 		if (done) {
 			state = 5;
-			FUN_1001b0cb(p_star, p_objective, state);
+			AnnounceObjective(p_star, p_objective, state);
 		}
 		else if (expired) {
 			state = 6;
-			FUN_1001b0cb(p_star, p_objective, state);
+			AnnounceObjective(p_star, p_objective, state);
 		}
 		break;
 	}
@@ -839,7 +839,7 @@ void FUN_1001b79a(MechS32 p_star, MechS32 p_objective)
 	}
 }
 
-// Updates every star's mission each frame: its objectives (FUN_1001b79a), then, while it is in
+// Updates every star's mission each frame: its objectives (UpdateObjective), then, while it is in
 // progress, whether it succeeded (every listed objective done), failed or ran out of time; and
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
 // FUNCTION: MW2 0x1001c69e
@@ -856,7 +856,7 @@ void UpdateObjectives(void)
 	for (star = 0; star < g_objectiveCount; star++) {
 		mission = &g_objectiveTable[star];
 		for (i = 0; i < mission->m_objectiveCount; i++) {
-			FUN_1001b79a(star, i);
+			UpdateObjective(star, i);
 		}
 
 		if (mission->m_status == 0) {
@@ -885,19 +885,19 @@ void UpdateObjectives(void)
 				}
 			}
 
-			if (success || g_unk0x100a3748) {
+			if (success || g_forceMissionSuccess) {
 				mission->m_status = 2;
-				FUN_1001b3f4(star, mission->m_status);
+				AnnounceMissionResult(star, mission->m_status);
 				mission->m_endTime = g_missionTime;
 			}
 			else if (failed) {
 				mission->m_status = 3;
-				FUN_1001b3f4(star, mission->m_status);
+				AnnounceMissionResult(star, mission->m_status);
 				mission->m_endTime = g_missionTime;
 			}
 			else if (mission->m_timeLimit > 0 && g_missionTime - mission->m_startTime >= mission->m_timeLimit) {
 				mission->m_status = 4;
-				FUN_1001b3f4(star, mission->m_status);
+				AnnounceMissionResult(star, mission->m_status);
 				mission->m_endTime = g_missionTime;
 			}
 		}
@@ -909,7 +909,7 @@ void UpdateObjectives(void)
 
 		current = -1;
 		for (i = 0; i < mission->m_objectiveCount; i++) {
-			if (FUN_1001b66c(star, i) && !(g_objectiveTable[star].m_objectives[i].m_type & 0xffff0000)) {
+			if (ObjectiveConditionsHold(star, i) && !(g_objectiveTable[star].m_objectives[i].m_type & 0xffff0000)) {
 				current = i;
 				break;
 			}
@@ -945,7 +945,7 @@ MechS32 EndTheMission2(void)
 	count = 0;
 	mission = &g_objectiveTable[g_unk0x100a5918];
 	memset(&result, 0, sizeof(result));
-	result.m_tag = g_unk0x100a37bc;
+	result.m_tag = g_missionResultTag;
 	result.m_startTime = mission->m_startTime;
 	result.m_endTime = mission->m_endTime;
 	result.m_status = mission->m_status;
@@ -984,7 +984,7 @@ MechS32 EndTheMission2(void)
 // to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
 // it names is listed on the objectives panel.
 // FUNCTION: MW2 0x1001cc5c
-void FUN_1001cc5c(MechS32 p_star)
+void RestartStarMission(MechS32 p_star)
 {
 	MissionObjective* objective;
 	MechS32 i;

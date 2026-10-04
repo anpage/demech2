@@ -216,7 +216,7 @@ void HandleCheatInput(MechS16 p_key)
 		}
 	}
 	else if (TypedCodeMatches("sy{tnr{yqsn")) { // "icanthackit"
-		g_unk0x100a3748 = 1;
+		g_forceMissionSuccess = 1;
 	}
 	else if (TypedCodeMatches("s~q|{")) { // "idkfa"
 		ShowInGameMessage("This ain't DOOM, Bub.", 1, 0x16a, 0x50);

@@ -1464,7 +1464,7 @@ void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 	}
 
 	if (MessageBox(g_gameWindow, g_unk0x100bf1d0, "MechWarrior2 Message", MB_OKCANCEL | MB_ICONASTERISK) == IDCANCEL) {
-		FUN_1003ba07();
+		ShutdownOnError();
 		exit(p_code);
 	}
 

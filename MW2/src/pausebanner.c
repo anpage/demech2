@@ -96,8 +96,8 @@ void FUN_10009f61(void)
 
 // The debug keys, which RunGameKey passes on while the mission timer is stopped: views, the
 // debug render flags and overlays, the difficulty switches, the objective state of the selected
-// star (g_unk0x100a88f0) and objective (g_unk0x100a88f4), and a number and mech section selection.
-// The original compares g_unk0x100a88f0 with g_objectiveCount in the other operand order.
+// star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
+// The original compares g_debugStar with g_objectiveCount in the other operand order.
 // FUNCTION: MW2 0x10009f8d
 void FUN_10009f8d(MechU16 p_key)
 {
@@ -196,33 +196,33 @@ void FUN_10009f8d(MechU16 p_key)
 	case 0x75:
 	case 0x76:
 	case 0x77:
-		g_unk0x100a88f0 = (p_key & 0xff) - 0x6e;
-		if (g_unk0x100a88f0 >= g_objectiveCount) {
-			g_unk0x100a88f0 = -1;
+		g_debugStar = (p_key & 0xff) - 0x6e;
+		if (g_debugStar >= g_objectiveCount) {
+			g_debugStar = -1;
 		}
 		break;
 	case 0x78:
-		if (g_unk0x100a88f0 == -1) {
-			g_unk0x100a88f0 = -2;
+		if (g_debugStar == -1) {
+			g_debugStar = -2;
 		}
 		else {
-			g_unk0x100a88f0 = -1;
+			g_debugStar = -1;
 		}
 		break;
 	case 0x79:
-		g_unk0x100a88f4--;
+		g_debugObjective--;
 		break;
 	case 0x7a:
-		g_unk0x100a88f4++;
+		g_debugObjective++;
 		break;
 	case 0x7b:
-		if (g_unk0x100a88f0 != -1 && g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state == 3) {
-			g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state = 6;
+		if (g_debugStar != -1 && g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state == 3) {
+			g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state = 6;
 		}
 		break;
 	case 0x7c:
-		if (g_unk0x100a88f0 != -1 && g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state == 3) {
-			g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state = 5;
+		if (g_debugStar != -1 && g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state == 3) {
+			g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state = 5;
 		}
 		break;
 	case 0x7d:

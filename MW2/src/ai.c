@@ -55,19 +55,19 @@ typedef MechS16 (*AiMessageFn)(Player* p_player, MechS16 p_target, MechS16 p_arg
 typedef MechS32 (*AiTransitionFn)(Player* p_player, AiRule* p_rule);
 
 // GLOBAL: MW2 0x100a88f0
-MechS32 g_unk0x100a88f0 = -1;
+MechS32 g_debugStar = -1;
 
 // GLOBAL: MW2 0x100a88f4
-MechS32 g_unk0x100a88f4 = 0;
+MechS32 g_debugObjective = 0;
 
 // GLOBAL: MW2 0x100a88f8
-MechS32 g_unk0x100a88f8 = -1;
+MechS32 g_debugLastLine = -1;
 
 // GLOBAL: MW2 0x100a88fc
-MechS32 g_unk0x100a88fc = -1;
+MechS32 g_debugFirstLine = -1;
 
 // GLOBAL: MW2 0x100a8900
-MechS32 g_unk0x100a8900 = -1;
+MechS32 g_debugListedStar = -1;
 
 // GLOBAL: MW2 0x100a8908
 AiName g_aiMessageNames[8] = {
@@ -153,7 +153,7 @@ AiName g_aiTargetTypeLetters[3] = {
 };
 
 // GLOBAL: MW2 0x100a8ac0
-AiName g_unk0x100a8ac0[3] = {
+AiName g_shapeKindNames[3] = {
 	{"p", 0x100},
 	{"t", 0x200},
 	{"r", 0x800},
@@ -401,7 +401,7 @@ MechS16 g_hiddenTargetCount;
 AiRule* g_aiRules[60][6];
 
 // GLOBAL: MW2 0x100ea3e0
-MechS32 g_unk0x100ea3e0;
+MechS32 g_aiStateTime;
 
 // Runs p_player's AI for a tick: the star leader leads its star (LeadStar); an AI player runs
 // its rules and, unless one changed its state, its state's function; a player the AI doesn't
@@ -805,7 +805,7 @@ void LogPlayerStatusLines(void)
 		}
 
 		if (player->m_avoidShape) {
-			sensor = FindAIName(player->m_avoidShape->m_kind & 0xf00, g_unk0x100a8ac0, 3);
+			sensor = FindAIName(player->m_avoidShape->m_kind & 0xf00, g_shapeKindNames, 3);
 		}
 		else {
 			sensor = " ";
@@ -1133,7 +1133,7 @@ MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	return result;
 }
 
-// Operand order: g_unk0x100a88fc > g_unk0x100a88f4 compares the other way in the original.
+// Operand order: g_debugFirstLine > g_debugObjective compares the other way in the original.
 // Stack-slot permutation: activity, color, line, marker, mission, objective, prefix, priority
 // and secondsLeft and typeName. (which also moves the jump table targets).
 // FUNCTION: MW2 0x1005276a
@@ -1177,34 +1177,34 @@ void LogStarMissionLines(MechS32 p_team)
 	if (g_monoEnabled) {
 	}
 
-	if (g_unk0x100a88fc == -1) {
-		g_unk0x100a88fc = 0;
-		g_unk0x100a88f8 = mission->m_objectiveCount - 1 < 20 ? mission->m_objectiveCount - 1 : 20;
+	if (g_debugFirstLine == -1) {
+		g_debugFirstLine = 0;
+		g_debugLastLine = mission->m_objectiveCount - 1 < 20 ? mission->m_objectiveCount - 1 : 20;
 	}
 
-	if (g_unk0x100a88fc > g_unk0x100a88f4) {
-		if (g_unk0x100a88f4 > 0) {
-			g_unk0x100a88fc = g_unk0x100a88f4;
-			g_unk0x100a88f8 = mission->m_objectiveCount - 1 < g_unk0x100a88fc + 20 ? mission->m_objectiveCount - 1
-																				   : g_unk0x100a88fc + 20;
+	if (g_debugFirstLine > g_debugObjective) {
+		if (g_debugObjective > 0) {
+			g_debugFirstLine = g_debugObjective;
+			g_debugLastLine = mission->m_objectiveCount - 1 < g_debugFirstLine + 20 ? mission->m_objectiveCount - 1
+																					: g_debugFirstLine + 20;
 			ClearAILog();
 		}
 		else {
-			g_unk0x100a88f4 = g_unk0x100a88fc;
+			g_debugObjective = g_debugFirstLine;
 		}
 	}
-	else if (g_unk0x100a88f8 < g_unk0x100a88f4) {
-		if (mission->m_objectiveCount > g_unk0x100a88f4) {
-			g_unk0x100a88f8 = g_unk0x100a88f4;
-			g_unk0x100a88fc = g_unk0x100a88f8 - 20 > 0 ? g_unk0x100a88f8 - 20 : 0;
+	else if (g_debugLastLine < g_debugObjective) {
+		if (mission->m_objectiveCount > g_debugObjective) {
+			g_debugLastLine = g_debugObjective;
+			g_debugFirstLine = g_debugLastLine - 20 > 0 ? g_debugLastLine - 20 : 0;
 			ClearAILog();
 		}
 		else {
-			g_unk0x100a88f4 = g_unk0x100a88f8;
+			g_debugObjective = g_debugLastLine;
 		}
 	}
 
-	for (i = g_unk0x100a88fc; i <= g_unk0x100a88f8; i++) {
+	for (i = g_debugFirstLine; i <= g_debugLastLine; i++) {
 		objective = &g_objectiveTable[p_team].m_objectives[i];
 
 		color = 7;
@@ -1232,7 +1232,7 @@ void LogStarMissionLines(MechS32 p_team)
 
 		typeName = FindAIName(objective->m_type, g_objectiveTypeNames, 14);
 
-		if (g_unk0x100a88f4 == i) {
+		if (g_debugObjective == i) {
 			marker = "=>";
 		}
 		else {
@@ -1396,26 +1396,26 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 	return blocker;
 }
 
-// Logs the AI status page g_unk0x100a88f0 selects: the players (-1), their skills (-2) or a
+// Logs the AI status page g_debugStar selects: the players (-1), their skills (-2) or a
 // star's mission.
 // FUNCTION: MW2 0x10053072
 void LogAIStatus(void)
 {
-	if (g_unk0x100a8900 != g_unk0x100a88f0) {
-		g_unk0x100a8900 = g_unk0x100a88f0;
-		g_unk0x100a88fc = g_unk0x100a88f8 = -1;
-		g_unk0x100a88f4 = 0;
+	if (g_debugListedStar != g_debugStar) {
+		g_debugListedStar = g_debugStar;
+		g_debugFirstLine = g_debugLastLine = -1;
+		g_debugObjective = 0;
 		ClearAILog();
 	}
 
-	if (g_unk0x100a88f0 == -1) {
+	if (g_debugStar == -1) {
 		LogPlayerStatusLines();
 	}
-	else if (g_unk0x100a88f0 == -2) {
+	else if (g_debugStar == -2) {
 		LogPlayerSkillLines();
 	}
 	else {
-		LogStarMissionLines(g_unk0x100a88f0);
+		LogStarMissionLines(g_debugStar);
 	}
 }
 
@@ -1494,7 +1494,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 	SetTarget(p_player, p_target);
 	BrakeFall(p_player);
 	range = GetTargetRange(p_target);
-	g_unk0x100ea3e0 = g_currentClock;
+	g_aiStateTime = g_currentClock;
 
 	switch (p_player->m_ai.m_state) {
 	case c_aiStateTarget:
@@ -1518,7 +1518,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 			SteerToTarget(p_player);
 		}
 
-		g_unk0x100ea3e0 += 0xb5;
+		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFollow:
 		SweepTorso(p_player);
@@ -1528,7 +1528,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		}
 
 		PlaceFormationNav(p_player);
-		g_unk0x100ea3e0 += 0xb5;
+		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFlee:
 		p_player->m_targetInfo.m_heading = (p_player->m_targetInfo.m_heading + 0xb40000) % 0x1680000;
@@ -1537,7 +1537,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 			SteerToTarget(p_player);
 		}
 
-		g_unk0x100ea3e0 += 0xb5;
+		g_aiStateTime += 0xb5;
 		break;
 	default:
 		if (p_player->m_aiMode == 2) {
@@ -1866,7 +1866,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 		break;
 	}
 
-	g_unk0x100ea3e0 = g_currentClock;
+	g_aiStateTime = g_currentClock;
 	p_player->m_ai.m_state = p_state;
 
 	{

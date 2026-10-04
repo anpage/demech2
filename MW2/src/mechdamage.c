@@ -322,7 +322,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 		g_careerRecord.m_kills[p_mech->m_player->m_killer][p_mech->m_player->m_index]++;
 	}
 
-	FUN_1001b21a();
+	ChooseNetworkWinner();
 	if (p_mech->m_powerState == 5) {
 		if (g_unk0x100ba624) {
 			if (p_mech->m_player->m_index == g_localPlayerId) {

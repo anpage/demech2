@@ -66,8 +66,8 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a88f0;
-	extern MechS32 g_unk0x100a88f4;
+	extern MechS32 g_debugStar;
+	extern MechS32 g_debugObjective;
 	extern MechS32 g_lairdoCheat;
 
 	void UpdateAI(struct Player* p_player);
