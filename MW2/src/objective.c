@@ -1,7 +1,7 @@
 #include "objective.h"
 
 #include "ai.h"
-#include "carcfg.h"
+#include "careerrecord.h"
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
@@ -138,7 +138,7 @@ MechS32 FUN_1001ab4a(MechU8* p_target)
 		return player->m_flags & 0xe;
 	case 0x400:
 		thing = &g_gameThings[index];
-		return thing->m_unk0x00 & 0xe;
+		return thing->m_flags & 0xe;
 	case 0x100:
 		return 0;
 	}
@@ -170,7 +170,7 @@ MechS32 FUN_1001ac06(MechU8* p_target, MechS32 p_team)
 		break;
 	case 0x400:
 		thing = &g_gameThings[index];
-		if ((thing->m_unk0x00 & 0x20) && ((1 << p_team) & thing->m_unk0x02)) {
+		if ((thing->m_flags & 0x20) && ((1 << p_team) & thing->m_teamsReached)) {
 			reached = TRUE;
 		}
 		break;
@@ -350,10 +350,10 @@ void FUN_1001b21a(void)
 				score = 0;
 				for (victim = 0; victim < 8; victim++) {
 					if (player == victim) {
-						score -= g_carCfg.m_unk0x52[player][victim];
+						score -= g_careerRecord.m_kills[player][victim];
 					}
 					else {
-						score += g_carCfg.m_unk0x52[player][victim];
+						score += g_careerRecord.m_kills[player][victim];
 					}
 				}
 
@@ -366,7 +366,7 @@ void FUN_1001b21a(void)
 				}
 			}
 
-			g_carCfg.m_unk0xd2 = winner;
+			g_careerRecord.m_winner = winner;
 		}
 	}
 }
@@ -395,7 +395,7 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 		line.m_id = g_objectiveTable[p_star].m_successSpeech;
 		line.m_data = FUN_100073bb(g_objectiveTable[p_star].m_successSound);
 		if (g_isNetworkGame) {
-			g_carCfg.m_unk0xd2 = g_localPlayerId;
+			g_careerRecord.m_winner = g_localPlayerId;
 			SendSuccessMsg();
 		}
 	}

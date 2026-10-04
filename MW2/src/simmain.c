@@ -382,8 +382,8 @@ int __stdcall SimMain(
 			g_goLaunch |= 2;
 		}
 
-		g_carCfg.m_unk0x1d = 1;
-		g_carCfg.m_unk0xd2 = -1;
+		g_careerRecord.m_outcome = 1;
+		g_careerRecord.m_winner = -1;
 		while (g_quitStage < 3) {
 			if (g_goLaunch == 3) {
 				DebugPrint("GoLaunch == GO_READY\n");
@@ -466,7 +466,7 @@ int __stdcall SimMain(
 				AdvanceSpeechQueue();
 			}
 
-			FUN_1007d6bb();
+			UpdateTimeOfDay();
 			UpdateObjectives();
 			LoopCdMusic();
 			UpdatePauseState();
@@ -479,7 +479,7 @@ int __stdcall SimMain(
 			g_goLaunch |= 2;
 		}
 
-		FadeToEndPalette(g_carCfg.m_unk0x1d & 4);
+		FadeToEndPalette(g_careerRecord.m_outcome & 4);
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 			VFX_pane_wipe(&g_currentPane, 0);
 		}
@@ -490,7 +490,7 @@ int __stdcall SimMain(
 		}
 
 		SendMessage(g_gameWindow, 0x41e, 0, 0);
-		SaveCarCfg();
+		SaveCareerRecord();
 		ShutdownAllPlayers();
 		ShutdownNetwork();
 		ShutdownAudio();

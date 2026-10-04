@@ -40,7 +40,7 @@ extern "C"
 	MechS32 GetTeamLeader(MechS32 p_team);
 	MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04);
 	MechS32 GetPlayerSide(MechS32 p_player);
-	MechS32 FUN_1003c30e(MechS32 p_thing);
+	MechS32 GetThingSide(MechS32 p_thing);
 	MechS32 GetNavSide(MechU32 p_nav);
 	MechS32 OnSameSide(MechS32 p_playerA, MechS32 p_playerB);
 

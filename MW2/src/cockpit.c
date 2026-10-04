@@ -558,9 +558,9 @@ void DrawMapUnits(CockpitLayout* p_layout)
 
 	for (i = 0; i < g_gameThingCount; i++) {
 		thing = &g_gameThings[i];
-		if ((thing->m_unk0x00 & 0x1400) && !(thing->m_unk0x00 & 0x1e)) {
+		if ((thing->m_flags & 0x1400) && !(thing->m_flags & 0x1e)) {
 			GetStaticObjectPosition(thing->m_staticObject, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
-			icon = p_layout->m_icons[1][FUN_1003c30e(i)];
+			icon = p_layout->m_icons[1][GetThingSide(i)];
 			DrawMapIcon(p_layout, pos, icon);
 		}
 	}
@@ -620,8 +620,8 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		}
 		break;
 	case 0x400:
-		side = FUN_1003c30e(index);
-		if (g_gameThings[index].m_unk0x00 & 0x1400) {
+		side = GetThingSide(index);
+		if (g_gameThings[index].m_flags & 0x1400) {
 			row = 2;
 		}
 		else {
@@ -963,7 +963,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 		break;
 	case 0x200:
 		index = p_face->m_shape->m_owner;
-		result |= colors[FUN_1003c30e(index) + 3];
+		result |= colors[GetThingSide(index) + 3];
 		break;
 	case 0x400:
 		result |= colors[6];

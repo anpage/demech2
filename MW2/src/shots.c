@@ -3,7 +3,7 @@
 #include "ai.h"
 #include "animation.h"
 #include "approxlen.h"
-#include "carcfg.h"
+#include "careerrecord.h"
 #include "clock.h"
 #include "collision.h"
 #include "config.h"
@@ -47,7 +47,7 @@
 DECOMP_SIZE_ASSERT(Shot, 0x50)
 DECOMP_SIZE_ASSERT(Effect, 0x28)
 DECOMP_SIZE_ASSERT(EffectInfo, 0x1c)
-DECOMP_SIZE_ASSERT(CarCfg, 0xd6)
+DECOMP_SIZE_ASSERT(CareerRecord, 0xd6)
 
 // GLOBAL: MW2 0x100ad440
 MechS32 g_effectCameraActive = 0;
@@ -107,7 +107,7 @@ MechS32 g_savedAmbientLight;
 MechS32 g_savedUnk0x100a6d04;
 
 // GLOBAL: MW2 0x100e9250
-CarCfg g_carCfg;
+CareerRecord g_careerRecord;
 
 // GLOBAL: MW2 0x1017bac0
 Shot g_shots[0xaf];
@@ -142,7 +142,7 @@ void FirstShots(void)
 	g_trackedShotView[0] = g_trackedShotView[1] = g_trackedShotView[2] = 0;
 	g_trackedShotView[3] = g_trackedShotView[5] = g_trackedShotView[4] = 0;
 	g_trackedShotView[6] = 0;
-	memset(&g_carCfg, 0, sizeof(g_carCfg));
+	memset(&g_careerRecord, 0, sizeof(g_careerRecord));
 }
 
 // FUNCTION: MW2 0x1006a349
@@ -311,13 +311,13 @@ void UpdateShot(MechS32 p_index)
 			if (g_lastHitShooter == g_localPlayerId) {
 				switch (GetPlayerSide(victim)) {
 				case 0:
-					g_carCfg.m_unk0x19++;
+					g_careerRecord.m_friendlyHits++;
 					break;
 				case 1:
-					g_carCfg.m_unk0x15++;
+					g_careerRecord.m_hits++;
 					break;
 				case 2:
-					g_carCfg.m_unk0x17++;
+					g_careerRecord.m_neutralHits++;
 					break;
 				}
 			}
@@ -325,23 +325,23 @@ void UpdateShot(MechS32 p_index)
 			if (g_lastHitShooter >= 0 && g_players[g_localPlayerId]->m_team == g_players[g_lastHitShooter]->m_team) {
 				switch (GetPlayerSide(victim)) {
 				case 0:
-					g_carCfg.m_unk0x2c++;
+					g_careerRecord.m_teamFriendlyHits++;
 					break;
 				case 1:
-					g_carCfg.m_unk0x30++;
+					g_careerRecord.m_teamHits++;
 					break;
 				case 2:
-					g_carCfg.m_unk0x2e++;
+					g_careerRecord.m_teamNeutralHits++;
 					break;
 				}
 			}
 
 			if (victim == g_localPlayerId) {
-				g_carCfg.m_unk0x1b++;
+				g_careerRecord.m_hitsTaken++;
 			}
 
 			if (g_players[g_localPlayerId]->m_team == g_players[victim]->m_team) {
-				g_carCfg.m_unk0x32++;
+				g_careerRecord.m_teamHitsTaken++;
 			}
 
 			if (!g_netRole || victim == g_localPlayerId) {
@@ -478,7 +478,7 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		break;
 	case c_shotTargetGameThing:
 		thing = &g_gameThings[p_shot->m_target];
-		if (thing->m_unk0x00 & 4) {
+		if (thing->m_flags & 4) {
 			p_shot->m_steering[0] = p_shot->m_steering[1] = p_shot->m_steering[2] = 0;
 			p_shot->m_targetKind = 0;
 			return;
@@ -1003,7 +1003,7 @@ void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z
 	i = g_gameThingCount;
 	while (i--) {
 		thing = &g_gameThings[i];
-		if (thing->m_unk0x00 & 4) {
+		if (thing->m_flags & 4) {
 			continue;
 		}
 
@@ -1064,41 +1064,41 @@ void KillGameThing(MechU32 p_index)
 		g_aimedShape = NULL;
 	}
 
-	if (thing->m_unk0x00 & 4) {
+	if (thing->m_flags & 4) {
 		return;
 	}
 
 	if (g_lastHitShooter >= 0) {
 		if (g_lastHitShooter == g_localPlayerId) {
-			switch (FUN_1003c30e(p_index)) {
+			switch (GetThingSide(p_index)) {
 			case 0:
-				g_carCfg.m_unk0x11++;
+				g_careerRecord.m_directFriendlyThingKills++;
 				break;
 			case 2:
-				g_carCfg.m_unk0x0f++;
+				g_careerRecord.m_directNeutralThingKills++;
 				break;
 			case 1:
-				g_carCfg.m_unk0x0d++;
+				g_careerRecord.m_directThingKills++;
 				break;
 			}
 		}
 
 		if (g_players[g_localPlayerId]->m_team == g_players[g_lastHitShooter]->m_team) {
-			switch (FUN_1003c30e(p_index)) {
+			switch (GetThingSide(p_index)) {
 			case 0:
-				g_carCfg.m_unk0x28++;
+				g_careerRecord.m_teamFriendlyThingKills++;
 				break;
 			case 2:
-				g_carCfg.m_unk0x26++;
+				g_careerRecord.m_teamNeutralThingKills++;
 				break;
 			case 1:
-				g_carCfg.m_unk0x24++;
+				g_careerRecord.m_teamThingKills++;
 				break;
 			}
 		}
 	}
 
-	if (thing->m_unk0x00 & 0x40) {
+	if (thing->m_flags & 0x40) {
 		FUN_1001cdd1();
 	}
 
@@ -1120,7 +1120,7 @@ void DamageGameThing(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 
 
 	index = p_shape->m_owner;
 	thing = &g_gameThings[index];
-	if (thing->m_unk0x00 & 4) {
+	if (thing->m_flags & 4) {
 		return;
 	}
 
@@ -1179,9 +1179,9 @@ void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 }
 
 // FUNCTION: MW2 0x1006c345
-void SaveCarCfg(void)
+void SaveCareerRecord(void)
 {
-	WriteCarCfgFile("MW2CAR.CFG", &g_carCfg);
+	WriteCareerRecordFile("MW2CAR.CFG", &g_careerRecord);
 }
 
 // Heats up the mechs near burning game things (shapes of type 0x10), the more the closer.

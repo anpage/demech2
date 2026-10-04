@@ -77,7 +77,7 @@ MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 	piece = &g_debrisPieces[i];
 	piece->m_unk0x00 = p_unk0x00;
 	piece->m_obj = p_obj;
-	piece->m_acceleration = -g_unk0x100ba600;
+	piece->m_acceleration = -g_gravity;
 	return i;
 }
 
@@ -92,9 +92,9 @@ void ThrowDebrisPiece(MechS32 p_index)
 		return;
 	}
 
-	piece->m_velocityX = FixedMul16((FUN_100736f5() << 16) / ((g_unk0x100ba604 << 10) >> 16), 0x57e98);
-	piece->m_velocityZ = FixedMul16((FUN_100736f5() << 16) / ((g_unk0x100ba604 << 10) >> 16), 0x57e98);
-	piece->m_velocityY = FixedMul16(((FUN_100736f5() + 0x400) << 16) / ((g_unk0x100ba604 << 10) >> 16), 0x57e98);
+	piece->m_velocityX = FixedMul16((FUN_100736f5() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
+	piece->m_velocityZ = FixedMul16((FUN_100736f5() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
+	piece->m_velocityY = FixedMul16(((FUN_100736f5() + 0x400) << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
 	piece->m_spinX = FUN_100736f5() * 0x7e98 / 0x400;
 	piece->m_spinY = FUN_100736f5() * 0x7e98 / 0x400;
 	piece->m_spinZ = FUN_100736f5() * 0x7e98 / 0x400;

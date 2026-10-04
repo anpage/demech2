@@ -1144,7 +1144,7 @@ MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 }
 
 // FUNCTION: MW2 0x100712b0
-MechS32 WriteCarCfgFile(MechChar* p_name, void* p_data)
+MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 {
 	MechS32 file;
 	MechS32 result;

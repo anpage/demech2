@@ -1,6 +1,6 @@
 #include "weapons.h"
 
-#include "carcfg.h"
+#include "careerrecord.h"
 #include "clock.h"
 #include "collision.h"
 #include "config.h"
@@ -321,11 +321,11 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 	}
 
 	if (p_player->m_index == g_localPlayerId) {
-		g_carCfg.m_unk0x13++;
+		g_careerRecord.m_shotsFired++;
 	}
 
 	if (g_players[p_player->m_index]->m_team == g_players[g_localPlayerId]->m_team) {
-		g_carCfg.m_unk0x2a++;
+		g_careerRecord.m_teamShotsFired++;
 	}
 
 	if (p_slot->m_ammo != -1 && (!g_difficulty->m_unlimitedAmmo || p_player->m_index != g_localPlayerId) &&
@@ -379,7 +379,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_velocity[0] = dx * speed;
 			shot->m_velocity[1] = dy * speed;
 			shot->m_velocity[2] = dz * speed;
-			shot->m_steering[1] = FixedMul16(-g_unk0x100ba600, def->m_gravity << 16);
+			shot->m_steering[1] = FixedMul16(-g_gravity, def->m_gravity << 16);
 			shot->m_steering[0] = shot->m_steering[2] = 0;
 			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, shot->m_type == 3 || shot->m_type == 4);
 			ShowObjTree(shot->m_object);

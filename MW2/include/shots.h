@@ -1,7 +1,7 @@
 #ifndef SHOTS_H
 #define SHOTS_H
 
-#include "carcfg.h"
+#include "careerrecord.h"
 #include "decomp.h"
 #include "effect.h"
 #include "object.h"
@@ -68,7 +68,7 @@ extern "C"
 	extern MechS32 g_trackedShotView[7];
 	extern MechS32 g_nukeRadius;
 	extern Vector3 g_nukePosition;
-	extern CarCfg g_carCfg;
+	extern CareerRecord g_careerRecord;
 	extern Shot g_shots[0xaf];
 	extern Effect g_effects[0x100];
 
@@ -137,7 +137,7 @@ extern "C"
 		MechS32 p_z
 	);
 	void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count);
-	void SaveCarCfg(void);
+	void SaveCareerRecord(void);
 	void HeatMechsNearFires(void);
 	void StartNuke(struct Player* p_player);
 	void UpdateNuke(void);

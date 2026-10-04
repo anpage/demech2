@@ -319,20 +319,20 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 	p_mech->m_player->m_killer = p_killer;
 	if (p_mech->m_player->m_killer >= 0 && p_mech->m_player->m_killer < 8 && p_mech->m_player->m_index < 8) {
-		g_carCfg.m_unk0x52[p_mech->m_player->m_killer][p_mech->m_player->m_index]++;
+		g_careerRecord.m_kills[p_mech->m_player->m_killer][p_mech->m_player->m_index]++;
 	}
 
 	FUN_1001b21a();
 	if (p_mech->m_powerState == 5) {
 		if (g_unk0x100ba624) {
 			if (p_mech->m_player->m_index == g_localPlayerId) {
-				g_carCfg.m_unk0x1d = 4;
+				g_careerRecord.m_outcome = 4;
 				PlayCockpitSound(0x20, -1);
 			}
 			p_mech->m_powerState = 4;
 		}
 		else if (p_mech->m_player->m_index == g_localPlayerId) {
-			g_carCfg.m_unk0x1d = 2;
+			g_careerRecord.m_outcome = 2;
 			PlayCockpitSound(0xc, -1);
 		}
 	}
@@ -348,26 +348,26 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 			switch (GetPlayerSide(p_mech->m_player->m_index)) {
 			case 0:
-				g_carCfg.m_unk0x0b++;
+				g_careerRecord.m_directFriendlyMechKills++;
 				break;
 			case 1:
-				g_carCfg.m_unk0x07++;
+				g_careerRecord.m_directMechKills++;
 				break;
 			case 2:
-				g_carCfg.m_unk0x09++;
+				g_careerRecord.m_directNeutralMechKills++;
 				break;
 			}
 		}
 		else {
 			switch (GetPlayerSide(p_mech->m_player->m_index)) {
 			case 0:
-				g_carCfg.m_unk0x48++;
+				g_careerRecord.m_directFriendlyVehicleKills++;
 				break;
 			case 1:
-				g_carCfg.m_unk0x44++;
+				g_careerRecord.m_directVehicleKills++;
 				break;
 			case 2:
-				g_carCfg.m_unk0x46++;
+				g_careerRecord.m_directNeutralVehicleKills++;
 				break;
 			}
 		}
@@ -381,26 +381,26 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 		if (p_mech->m_player->m_type == c_playerTypeMech) {
 			switch (GetPlayerSide(p_mech->m_player->m_index)) {
 			case 0:
-				g_carCfg.m_unk0x22++;
+				g_careerRecord.m_friendlyMechKills++;
 				break;
 			case 1:
-				g_carCfg.m_unk0x1e++;
+				g_careerRecord.m_mechKills++;
 				break;
 			case 2:
-				g_carCfg.m_unk0x20++;
+				g_careerRecord.m_neutralMechKills++;
 				break;
 			}
 		}
 		else {
 			switch (GetPlayerSide(p_mech->m_player->m_index)) {
 			case 0:
-				g_carCfg.m_unk0x4e++;
+				g_careerRecord.m_friendlyVehicleKills++;
 				break;
 			case 1:
-				g_carCfg.m_unk0x4a++;
+				g_careerRecord.m_vehicleKills++;
 				break;
 			case 2:
-				g_carCfg.m_unk0x4c++;
+				g_careerRecord.m_neutralVehicleKills++;
 				break;
 			}
 		}
@@ -408,10 +408,10 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 	if (g_players[g_localPlayerId]->m_team == p_mech->m_player->m_team) {
 		if (p_mech->m_powerState == 5) {
-			g_carCfg.m_unk0x36++;
+			g_careerRecord.m_wingmenEjected++;
 		}
 		else {
-			g_carCfg.m_unk0x34++;
+			g_careerRecord.m_wingmenLost++;
 		}
 	}
 

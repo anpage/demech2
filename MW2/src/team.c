@@ -281,7 +281,7 @@ MechS32 GetPlayerSide(MechS32 p_player)
 }
 
 // FUNCTION: MW2 0x1003c30e
-MechS32 FUN_1003c30e(MechS32 p_thing)
+MechS32 GetThingSide(MechS32 p_thing)
 {
 	MechS32 index;
 

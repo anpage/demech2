@@ -447,7 +447,7 @@ void DrawTargetMarker(Mech* p_mech)
 		DrawPlayerBrackets(g_players[index], GetPlayerSide(index));
 		return;
 	case 0x400:
-		DrawObjectBrackets(GetLocalTargetObject(), FUN_1003c30e(index));
+		DrawObjectBrackets(GetLocalTargetObject(), GetThingSide(index));
 		return;
 	case 0x100:
 		onScreen = 0xe5;

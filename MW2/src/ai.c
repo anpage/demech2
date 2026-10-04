@@ -2068,7 +2068,7 @@ MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 		flags = &g_players[index]->m_flags;
 		break;
 	case c_aiTargetThing:
-		flags = &g_gameThings[index].m_unk0x00;
+		flags = &g_gameThings[index].m_flags;
 		break;
 	case c_aiTargetNav:
 		flags = &g_navTable[index].m_flags;

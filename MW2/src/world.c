@@ -66,23 +66,23 @@
 
 // planet: the gravity, the time of day and climate, and render switches.
 typedef struct BwdPlanetRecord {
-	BwdRecord m_header;      // 0x00
-	MechS32 m_gravity;       // 0x08 — in g
-	undefined4 m_unk0x0c;    // 0x0c
-	MechS32 m_unk0x10;       // 0x10
-	MechS32 m_secondsPerDay; // 0x14
-	undefined4 m_unk0x18[3]; // 0x18
-	MechS32 m_temperature;   // 0x24
-	MechS32 m_unk0x28;       // 0x28
-	MechS32 m_unk0x2c;       // 0x2c
-	MechS32 m_unk0x30;       // 0x30
-	MechS32 m_unk0x34;       // 0x34
-	MechS32 m_unk0x38;       // 0x38
-	MechS32 m_unk0x3c;       // 0x3c
-	MechS32 m_unk0x40;       // 0x40
-	MechS32 m_unk0x44;       // 0x44
-	MechS32 m_unk0x48;       // 0x48
-	MechS32 m_unk0x4c;       // 0x4c
+	BwdRecord m_header;       // 0x00
+	MechS32 m_gravity;        // 0x08 — in g
+	undefined4 m_unk0x0c;     // 0x0c
+	MechS32 m_daysPerYear;    // 0x10
+	MechS32 m_secondsPerDay;  // 0x14
+	undefined4 m_unk0x18[3];  // 0x18
+	MechS32 m_temperature;    // 0x24
+	MechS32 m_unk0x28;        // 0x28
+	MechS32 m_mapShadeTop;    // 0x2c
+	MechS32 m_mapShadeBase;   // 0x30
+	MechS32 m_slideSlope;     // 0x34
+	MechS32 m_unk0x38;        // 0x38
+	MechS32 m_unk0x3c;        // 0x3c
+	MechS32 m_noEffectCamera; // 0x40
+	MechS32 m_noSky;          // 0x44
+	MechS32 m_noGround;       // 0x48
+	MechS32 m_noHorizonBand;  // 0x4c
 } BwdPlanetRecord;
 
 // The second planet record (c_bwdClimate).
@@ -116,7 +116,7 @@ typedef struct BwdNowRecord {
 	BwdRecord m_header;      // 0x00
 	undefined4 m_unk0x08[2]; // 0x08
 	MechS32 m_timeOfDay;     // 0x10
-	MechS16 m_unk0x14;       // 0x14
+	MechS16 m_dayOfYear;     // 0x14
 } BwdNowRecord;
 
 // palettegroup: the palettes of the 20 slots.
@@ -129,12 +129,12 @@ typedef struct BwdPaletteGroupRecord {
 typedef struct BwdLightRecord {
 	BwdRecord m_header;      // 0x00
 	undefined4 m_unk0x08[2]; // 0x08
-	MechS32 m_unk0x10;       // 0x10
-	MechS32 m_unk0x14;       // 0x14
-	MechS32 m_unk0x18;       // 0x18
-	MechS16 m_unk0x1c;       // 0x1c
-	MechS16 m_unk0x1e;       // 0x1e
-	MechS32 m_unk0x20;       // 0x20
+	MechS32 m_x;             // 0x10
+	MechS32 m_y;             // 0x14
+	MechS32 m_z;             // 0x18
+	MechS16 m_ambient;       // 0x1c
+	MechS16 m_directional;   // 0x1e
+	MechS32 m_fadeDistance;  // 0x20
 } BwdLightRecord;
 
 // A window record's rectangle for one of g_panes.
@@ -203,7 +203,7 @@ typedef struct BwdGameThingRecord {
 	MechS16 m_objects[4][2];    // 0x08 — the object and its replacement
 	MechS16 m_hitPoints;        // 0x18
 	MechU16 m_events;           // 0x1a
-	MechS32 m_unk0x1c;          // 0x1c
+	MechS32 m_flags;            // 0x1c
 	MechChar m_name[0x16];      // 0x20
 	MechChar m_shortName[0x16]; // 0x36
 } BwdGameThingRecord;
@@ -329,13 +329,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdPlanetRecord* planet = (BwdPlanetRecord*) node;
 
 			if (g_difficulty->m_unk0x0f) {
-				g_unk0x100ba600 = FixedMul16(g_difficulty->m_unk0x0f, 0x794);
+				g_gravity = FixedMul16(g_difficulty->m_unk0x0f, 0x794);
 			}
 			else {
-				g_unk0x100ba600 = FixedMul16(planet->m_gravity, 0x794);
+				g_gravity = FixedMul16(planet->m_gravity, 0x794);
 			}
 
-			g_unk0x100ba610 = planet->m_unk0x10;
+			g_daysPerYear = planet->m_daysPerYear;
 			g_secondsPerDay = planet->m_secondsPerDay;
 			if (g_difficulty->m_unk0x13) {
 				g_temperature = g_difficulty->m_unk0x13;
@@ -346,21 +346,21 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			g_unk0x100ba624 = planet->m_unk0x38 == 0;
 			g_unk0x100a555c = planet->m_unk0x3c;
-			g_effectCameraEnabled = planet->m_unk0x40 == 0;
-			g_renderSettings.m_drawSky = planet->m_unk0x44 == 0;
-			g_renderSettings.m_drawGround = planet->m_unk0x48 == 0;
-			g_renderSettings.m_horizonBand = planet->m_unk0x4c == 0;
+			g_effectCameraEnabled = planet->m_noEffectCamera == 0;
+			g_renderSettings.m_drawSky = planet->m_noSky == 0;
+			g_renderSettings.m_drawGround = planet->m_noGround == 0;
+			g_renderSettings.m_horizonBand = planet->m_noHorizonBand == 0;
 			if (planet->m_unk0x28 > 0) {
 				g_unk0x100a2bdc = planet->m_unk0x28;
 			}
 
-			if (planet->m_unk0x2c || planet->m_unk0x30) {
-				g_mapShadeTop = planet->m_unk0x2c;
-				g_mapShadeBase = planet->m_unk0x30;
+			if (planet->m_mapShadeTop || planet->m_mapShadeBase) {
+				g_mapShadeTop = planet->m_mapShadeTop;
+				g_mapShadeBase = planet->m_mapShadeBase;
 			}
 
-			if (planet->m_unk0x34 > 0) {
-				g_slideSlope = planet->m_unk0x34;
+			if (planet->m_slideSlope > 0) {
+				g_slideSlope = planet->m_slideSlope;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdClimate]) {
@@ -429,7 +429,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_timeOfDayPhase = now->m_timeOfDay;
 			}
 
-			g_unk0x100ba614 = now->m_unk0x14;
+			g_dayOfYear = now->m_dayOfYear;
 		}
 		else if (type == g_bwdTypeCodes[c_bwdPaletteGroup]) {
 			MechS32 slot;
@@ -456,12 +456,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdLight]) {
 			BwdLightRecord* light = (BwdLightRecord*) node;
 
-			g_mainEyepoint.m_lightX = light->m_unk0x10;
-			g_mainEyepoint.m_lightY = light->m_unk0x14;
-			g_mainEyepoint.m_lightZ = light->m_unk0x18;
-			g_mainEyepoint.m_directionalLight = light->m_unk0x1e;
-			g_eyepoint->m_ambientLight = light->m_unk0x1c;
-			g_renderSettings.m_fadeDistance = light->m_unk0x20;
+			g_mainEyepoint.m_lightX = light->m_x;
+			g_mainEyepoint.m_lightY = light->m_y;
+			g_mainEyepoint.m_lightZ = light->m_z;
+			g_mainEyepoint.m_directionalLight = light->m_directional;
+			g_eyepoint->m_ambientLight = light->m_ambient;
+			g_renderSettings.m_fadeDistance = light->m_fadeDistance;
 			if (g_renderSettings.m_fadeDistance > 0) {
 				g_renderSettings.m_unk0x3c = 1;
 			}
@@ -905,13 +905,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			index = FindFreeGameThing();
 			if (index != -1) {
 				thing = &g_gameThings[index];
-				thing->m_unk0x00 = gameThing->m_unk0x1c;
+				thing->m_flags = gameThing->m_flags;
 				thing->m_hitPoints = hitPoints;
 				thing->m_unk0x0c = affiliation;
 				strncpy(thing->m_name, gameThing->m_name, 0x16);
 				thing->m_name[0x15] = '\0';
-				strncpy(thing->m_unk0x2a, gameThing->m_shortName, 0x16);
-				thing->m_unk0x2a[0x15] = '\0';
+				strncpy(thing->m_shortName, gameThing->m_shortName, 0x16);
+				thing->m_shortName[0x15] = '\0';
 				object = gameThing->m_objects[i][0];
 				replacement = gameThing->m_objects[i][1];
 				objectIndex = -1;
@@ -1413,33 +1413,33 @@ void AfterWorldLoader(void)
 
 		switch (GetPlayerSide(i)) {
 		case 0:
-			g_carCfg.m_unk0x38[0]++;
+			g_careerRecord.m_sideCounts[0]++;
 			break;
 		case 2:
-			g_carCfg.m_unk0x38[1]++;
+			g_careerRecord.m_sideCounts[1]++;
 			break;
 		case 1:
-			g_carCfg.m_unk0x38[2]++;
+			g_careerRecord.m_sideCounts[2]++;
 			break;
 		}
 	}
 
 	for (i = 0; i < g_gameThingCount; i++) {
-		switch (FUN_1003c30e(i)) {
+		switch (GetThingSide(i)) {
 		case 0:
-			g_carCfg.m_unk0x38[3]++;
+			g_careerRecord.m_sideCounts[3]++;
 			break;
 		case 2:
-			g_carCfg.m_unk0x38[4]++;
+			g_careerRecord.m_sideCounts[4]++;
 			break;
 		case 1:
-			g_carCfg.m_unk0x38[5]++;
+			g_careerRecord.m_sideCounts[5]++;
 			break;
 		}
 
 		obj = GetStaticSceneObject(g_gameThings[i].m_staticObject);
 		if (obj && obj->m_shape) {
-			g_gameThings[i].m_unk0x10 = obj->m_shape->m_radius;
+			g_gameThings[i].m_radius = obj->m_shape->m_radius;
 		}
 	}
 }

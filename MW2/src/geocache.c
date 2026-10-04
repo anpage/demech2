@@ -668,7 +668,7 @@ MechS32 DestroyStaticObject(MechS32 p_index)
 	thing = &g_gameThings[entry->m_thing];
 	entry->m_flags |= 0x200;
 	entry->m_flags |= 0x800;
-	thing->m_unk0x00 |= 4;
+	thing->m_flags |= 4;
 	thing->m_staticObject = -1;
 	RemoveStaticObjectTasks(p_index);
 	shape = entry->m_shape;
@@ -728,7 +728,7 @@ void DestroyThingObject(GameThing* p_thing)
 
 	if (index != -1) {
 		thing = &g_gameThings[g_staticObjects[index].m_thing];
-		if (thing->m_unk0x00 & 0x8000) {
+		if (thing->m_flags & 0x8000) {
 			BlowOffObjTree(g_staticObjects[index].m_object, DestroyObjTreeAndShapes, 0);
 			FreeStaticObjectTree(index);
 		}
@@ -773,7 +773,7 @@ void PropagateStaticObjectStates(void)
 					index = g_staticObjects[i].m_thing;
 					if (index != -1) {
 						thing = &g_gameThings[index];
-						if (thing->m_unk0x00 & 0x8000) {
+						if (thing->m_flags & 0x8000) {
 							BlowOffObjTree(g_staticObjects[i].m_object, DestroyObjTreeAndShapes, 0);
 							FreeStaticObjectTree(i);
 						}
@@ -837,7 +837,7 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 	}
 
 	thing = entry->m_thing;
-	if (thing != -1 && (g_gameThings[thing].m_unk0x00 & 0x8000) && (!g_explosionChunks || IsDebrisFull())) {
+	if (thing != -1 && (g_gameThings[thing].m_flags & 0x8000) && (!g_explosionChunks || IsDebrisFull())) {
 		return FALSE;
 	}
 

@@ -527,7 +527,7 @@ MechS32 PlayPositionalSound(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_
 			volume >>= 1;
 		}
 
-		delay = FixedMul16(distance, g_unk0x100ba5fc);
+		delay = FixedMul16(distance, g_soundDelayPerUnit);
 		PlayDelayedSound(delay, bearing, p_sound, volume, -1, 0x32);
 	}
 

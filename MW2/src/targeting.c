@@ -758,27 +758,27 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 
 	player = g_players[p_player];
 	thing = &g_gameThings[p_index];
-	if (thing->m_unk0x00 & 4) {
+	if (thing->m_flags & 4) {
 		return -3;
 	}
 
-	if (p_flags & 0x10000 & !(thing->m_unk0x00 & 0x40)) {
+	if (p_flags & 0x10000 & !(thing->m_flags & 0x40)) {
 		return -4;
 	}
 
-	if ((p_flags & 0x20000) && FUN_1003c30e(p_index)) {
+	if ((p_flags & 0x20000) && GetThingSide(p_index)) {
 		return -9;
 	}
 
-	if ((p_flags & 0x40000) && FUN_1003c30e(p_index) != 1) {
+	if ((p_flags & 0x40000) && GetThingSide(p_index) != 1) {
 		return -9;
 	}
 
-	if (!g_reticleTargeting && !(thing->m_unk0x00 & 0x1400) && p_player == g_localPlayerId) {
+	if (!g_reticleTargeting && !(thing->m_flags & 0x1400) && p_player == g_localPlayerId) {
 		return -5;
 	}
 
-	if ((thing->m_unk0x00 & 0x800) && p_player == g_localPlayerId) {
+	if ((thing->m_flags & 0x800) && p_player == g_localPlayerId) {
 		return -5;
 	}
 
@@ -795,7 +795,7 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
 	GetBearingAndRange(dx, dy, dz, &heading, &range, &distance, &pitch);
-	if (!(thing->m_unk0x00 & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
+	if (!(thing->m_flags & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
 
@@ -895,14 +895,14 @@ MechS32 UpdateTarget(Player* p_player)
 			}
 			break;
 		case 0x400:
-			if (!(g_gameThings[index].m_unk0x02 & (1 << p_player->m_team))) {
-				if (g_gameThings[index].m_unk0x10 + 20000 > p_player->m_targetInfo.m_distance) {
+			if (!(g_gameThings[index].m_teamsReached & (1 << p_player->m_team))) {
+				if (g_gameThings[index].m_radius + 20000 > p_player->m_targetInfo.m_distance) {
 					if (isLocal) {
 						g_inspectResult = 1;
 					}
 
-					g_gameThings[index].m_unk0x00 |= 0x20;
-					g_gameThings[index].m_unk0x02 |= 1 << p_player->m_team;
+					g_gameThings[index].m_flags |= 0x20;
+					g_gameThings[index].m_teamsReached |= 1 << p_player->m_team;
 				}
 				else if (isLocal) {
 					g_inspectResult = 2;

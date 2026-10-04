@@ -104,7 +104,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x400:
-			p_panel->m_setName(p_panel, g_gameThings[index].m_unk0x2a);
+			p_panel->m_setName(p_panel, g_gameThings[index].m_shortName);
 			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x200:
@@ -136,7 +136,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 			}
 			break;
 		case 0x400:
-			if (!(g_gameThings[index].m_unk0x00 & 0x20) && (g_gameThings[index].m_unk0x00 & 0x100)) {
+			if (!(g_gameThings[index].m_flags & 0x20) && (g_gameThings[index].m_flags & 0x100)) {
 				if (!g_unk0x100c26a0[0]) {
 					strcpy(g_unk0x100c26a0, "Unknown");
 				}
@@ -152,7 +152,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 				}
 
 				if (g_unk0x100ba4c0) {
-					switch (FUN_1003c30e(index)) {
+					switch (GetThingSide(index)) {
 					case 0:
 						PlayCockpitSound(0xf, -1);
 						break;
@@ -204,7 +204,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 	}
 
 	if (kind == 0x400) {
-		switch (FUN_1003c30e(index)) {
+		switch (GetThingSide(index)) {
 		case 0:
 			color = 0xe;
 			break;

@@ -11,7 +11,7 @@
 #include "network.h"
 
 #include "approxlen.h"
-#include "carcfg.h"
+#include "careerrecord.h"
 #include "clock.h"
 #include "collision.h"
 #include "debugprint.h"
@@ -272,7 +272,7 @@ void FirstNetwork(NetLaunchInfo* p_netLaunch)
 			g_playerReady[i] = 0;
 		}
 
-		g_carCfg.m_unk0x50 = g_playerCount;
+		g_careerRecord.m_playerCount = g_playerCount;
 		g_stateMsgSize = sizeof(NetStateMsg);
 		g_stateMsg = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, g_stateMsgSize);
 		memset(g_stateMsg, 0, g_stateMsgSize);
@@ -473,7 +473,7 @@ void SendStateMsg(void)
 	g_stateMsg->m_target = player->m_targetInfo.m_target;
 	if ((player->m_targetInfo.m_target & 0xf00) == 0x400) {
 		thing = player->m_targetInfo.m_target & 0xff;
-		if ((g_gameThings[thing].m_unk0x00 & 0x20) && (g_gameThings[thing].m_unk0x02 & (1 << player->m_team))) {
+		if ((g_gameThings[thing].m_flags & 0x20) && (g_gameThings[thing].m_teamsReached & (1 << player->m_team))) {
 			g_stateMsg->m_flags |= 0x400;
 		}
 	}
@@ -640,8 +640,8 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 	player->m_targetInfo.m_target = msg->m_target;
 	if ((msg->m_target & 0xf00) == 0x400 && (msg->m_flags & 0x400)) {
 		thing = player->m_targetInfo.m_target & 0xff;
-		g_gameThings[thing].m_unk0x00 |= 0x20;
-		g_gameThings[thing].m_unk0x02 |= 1 << player->m_team;
+		g_gameThings[thing].m_flags |= 0x20;
+		g_gameThings[thing].m_teamsReached |= 1 << player->m_team;
 	}
 
 	player->m_killer = msg->m_killer;
@@ -954,7 +954,7 @@ void SendThingsMsg(void)
 	out += 4;
 	for (i = 0; i < 254; i++) {
 		bits <<= 1;
-		if (g_gameThings[i].m_unk0x00 & 4) {
+		if (g_gameThings[i].m_flags & 4) {
 			bits |= 1;
 		}
 
@@ -992,7 +992,7 @@ void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot)
 	g_lastThingsCount[p_slot] = msgCount;
 	bits = *in;
 	for (i = 0; i < 254; i++) {
-		if ((bits & 0x80) && !(g_gameThings[i].m_unk0x00 & 4)) {
+		if ((bits & 0x80) && !(g_gameThings[i].m_flags & 4)) {
 			KillGameThing(i);
 		}
 
@@ -1029,7 +1029,7 @@ void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 
 	sprintf(text, "'%s' successful.", g_players[p_slot]->m_name);
 	ShowInGameMessage(text, 1, 0x712, 0x50);
-	g_carCfg.m_unk0xd2 = p_slot;
+	g_careerRecord.m_winner = p_slot;
 	if (!g_successSent) {
 		g_successSent = 1;
 	}

@@ -197,7 +197,7 @@ void FirstMech(struct Player* p_player)
 	}
 
 	InitializeAI(mech->m_player);
-	mech->m_topSpeed = FixedDiv16(mech->m_topSpeed, g_unk0x100ba604);
+	mech->m_topSpeed = FixedDiv16(mech->m_topSpeed, g_gravityScale);
 }
 
 // Moves p_mech for the tick: eases its ramps, integrates its velocity (towards the speed it is
@@ -285,7 +285,7 @@ void UpdateMech(Mech* p_mech)
 		velY = mech->m_velocityY;
 		velZ = mech->m_velocityZ;
 		accelX = 0;
-		accelY = -g_unk0x100ba600;
+		accelY = -g_gravity;
 		accelZ = 0;
 		dragX = 0;
 		dragZ = 0;
@@ -338,7 +338,7 @@ void UpdateMech(Mech* p_mech)
 			velX = mech->m_velocityX;
 			velZ = mech->m_velocityZ;
 			if (velY > 0) {
-				drag = FixedMul16((g_unk0x100ba600 - mech->m_jumpThrust) * 0xe24, velY) / g_unk0x100a2bdc;
+				drag = FixedMul16((g_gravity - mech->m_jumpThrust) * 0xe24, velY) / g_unk0x100a2bdc;
 			}
 
 			accelY += mech->m_jumpThrust + drag;
@@ -347,7 +347,7 @@ void UpdateMech(Mech* p_mech)
 					accelY = 0;
 				}
 				else {
-					accelY = -g_unk0x100ba600;
+					accelY = -g_gravity;
 				}
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireLeft) {
@@ -355,7 +355,7 @@ void UpdateMech(Mech* p_mech)
 					accelY = 0;
 				}
 				else {
-					accelY = -g_unk0x100ba600;
+					accelY = -g_gravity;
 				}
 
 				accelX += -FixedMul16(mech->m_player->m_headingCos, mech->m_jumpThrust) + dragX;
@@ -366,7 +366,7 @@ void UpdateMech(Mech* p_mech)
 					accelY = 0;
 				}
 				else {
-					accelY = -g_unk0x100ba600;
+					accelY = -g_gravity;
 				}
 
 				accelX += dragX + FixedMul16(mech->m_player->m_headingCos, mech->m_jumpThrust);
@@ -377,7 +377,7 @@ void UpdateMech(Mech* p_mech)
 					accelY = 0;
 				}
 				else {
-					accelY = -g_unk0x100ba600;
+					accelY = -g_gravity;
 				}
 
 				accelX += dragX + FixedMul16(mech->m_player->m_headingSin, mech->m_jumpThrust);
@@ -388,7 +388,7 @@ void UpdateMech(Mech* p_mech)
 					accelY = 0;
 				}
 				else {
-					accelY = -g_unk0x100ba600;
+					accelY = -g_gravity;
 				}
 
 				accelX += -FixedMul16(mech->m_player->m_headingSin, mech->m_jumpThrust) + dragX;
@@ -563,7 +563,7 @@ void UpdateMech(Mech* p_mech)
 			slope = FixedMul16(mech->m_player->m_headingCos, g_groundNormalZ) +
 					FixedMul16(mech->m_player->m_headingSin, g_groundNormalX);
 			if (slope > g_slideSlope || slope < -g_slideSlope) {
-				mech->m_speed.m_value += FixedMul16(FixedMul16(g_unk0x100ba600, slope), g_deltaTime);
+				mech->m_speed.m_value += FixedMul16(FixedMul16(g_gravity, slope), g_deltaTime);
 			}
 		}
 
@@ -837,7 +837,7 @@ void LateUpdateMech(Mech* p_mech)
 	if (mech->m_jumpFuel == -2 && mech->m_player->m_steering->m_grantJumpJets) {
 		mech->m_jumpFuel = 0x712;
 		mech->m_jumpJets = 3;
-		mech->m_jumpThrust = g_unk0x100ba600 * 3;
+		mech->m_jumpThrust = g_gravity * 3;
 	}
 
 	if (mech->m_jumpFuel >= 0) {
