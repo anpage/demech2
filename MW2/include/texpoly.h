@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-	void FUN_1006dd50(
+	void DrawTexturedPolygon(
 		PANE* p_target,
 		MechU8* p_pixels,
 		MechS16 p_width,

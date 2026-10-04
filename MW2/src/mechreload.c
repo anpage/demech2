@@ -1,5 +1,5 @@
 /* Reloading a player's mech: RememberLoadMech and RememberMechSegments save how it was
-   loaded and its scene objects, and FUN_1007fbe0 restores both. */
+   loaded and its scene objects, and ReloadPlayerMech restores both. */
 #include "mechreload.h"
 
 #include "classtable.h"
@@ -22,7 +22,7 @@
 #include <string.h>
 #include <windows.h>
 
-// The player whose mech FUN_1007fbe0 is reloading, or -1.
+// The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
 MechS32 g_reloadingPlayer = -1;
 
@@ -38,7 +38,7 @@ MechSegment* g_mechSegments[60] = {NULL};
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
 // flag 2 set.
 // FUNCTION: MW2 0x1007fbe0
-MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
+MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
 {
 	Mech* mech;
 	MechS16 flags;

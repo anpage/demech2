@@ -29,13 +29,13 @@
 
 #include <stdio.h>
 
-// The debug keys' selections (FUN_10009f8d): a number, and a mech section.
+// The debug keys' selections (HandleDebugKey): a number, and a mech section.
 
 // GLOBAL: MW2 0x100a15d0
-MechS32 g_unk0x100a15d0 = -1;
+MechS32 g_debugSlot = -1;
 
 // GLOBAL: MW2 0x100a15d4
-MechS32 g_unk0x100a15d4 = -1;
+MechS32 g_debugSection = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
@@ -76,7 +76,7 @@ void PlayResumeSound(void)
 
 // Pauses the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f35
-void FUN_10009f35(void)
+void PauseGame(void)
 {
 	if (!g_netRole) {
 		PauseTimer(0x80, 1);
@@ -86,7 +86,7 @@ void FUN_10009f35(void)
 
 // Resumes the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f61
-void FUN_10009f61(void)
+void ResumeGame(void)
 {
 	if (!g_netRole) {
 		PauseTimer(0x80, 0);
@@ -99,7 +99,7 @@ void FUN_10009f61(void)
 // star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
 // The original compares g_debugStar with g_objectiveCount in the other operand order.
 // FUNCTION: MW2 0x10009f8d
-void FUN_10009f8d(MechU16 p_key)
+void HandleDebugKey(MechU16 p_key)
 {
 	MechChar text[40];
 
@@ -117,74 +117,74 @@ void FUN_10009f8d(MechU16 p_key)
 		DebugBreakpoint();
 		break;
 	case 0x5c:
-		g_unk0x100a15d0 = 1;
+		g_debugSlot = 1;
 		break;
 	case 0x5d:
-		g_unk0x100a15d0 = 2;
+		g_debugSlot = 2;
 		break;
 	case 0x5e:
-		g_unk0x100a15d0 = 3;
+		g_debugSlot = 3;
 		break;
 	case 0x5f:
-		g_unk0x100a15d0 = 4;
+		g_debugSlot = 4;
 		break;
 	case 0x60:
-		g_unk0x100a15d0 = 5;
+		g_debugSlot = 5;
 		break;
 	case 0x61:
-		g_unk0x100a15d0 = 6;
+		g_debugSlot = 6;
 		break;
 	case 0x62:
-		g_unk0x100a15d0 = 7;
+		g_debugSlot = 7;
 		break;
 	case 0x63:
-		g_unk0x100a15d0 = 8;
+		g_debugSlot = 8;
 		break;
 	case 0x64:
-		g_unk0x100a15d0 = 9;
+		g_debugSlot = 9;
 		break;
 	case 0x65:
-		g_unk0x100a15d0 = 0;
+		g_debugSlot = 0;
 		break;
 	case 0x66:
 		sprintf(text, "Head Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 1;
+		g_debugSection = 1;
 		break;
 	case 0x67:
 		sprintf(text, "Right Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 2;
+		g_debugSection = 2;
 		break;
 	case 0x68:
 		sprintf(text, "Center Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 3;
+		g_debugSection = 3;
 		break;
 	case 0x69:
 		sprintf(text, "Left Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 4;
+		g_debugSection = 4;
 		break;
 	case 0x6a:
 		sprintf(text, "Right Arm Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 5;
+		g_debugSection = 5;
 		break;
 	case 0x6b:
 		sprintf(text, "Left Arm Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 6;
+		g_debugSection = 6;
 		break;
 	case 0x6c:
 		sprintf(text, "Right Leg Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 7;
+		g_debugSection = 7;
 		break;
 	case 0x6d:
 		sprintf(text, "Left Leg Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 8;
+		g_debugSection = 8;
 		break;
 	case 0x6e:
 	case 0x6f:

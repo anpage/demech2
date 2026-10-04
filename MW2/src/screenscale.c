@@ -461,7 +461,7 @@ PANE* FitRectToText(MechChar* p_text, void* p_font, PANE* p_rect)
 	return p_rect;
 }
 
-// A pane and the colour FUN_100576e9 draws into it.
+// A pane and the colour PlotCenteredPixel draws into it.
 typedef struct CenteredDraw {
 	PANE* m_target; // 0x00
 	MechU8 m_color; // 0x04
@@ -471,7 +471,7 @@ typedef struct CenteredDraw {
 // (16.16 fractions of the target), shows the frame, and returns FALSE if Esc was pressed.
 // Stack-slot permutation: target and pos.
 // FUNCTION: MW2 0x100576e9
-MechS32 FUN_100576e9(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
+MechS32 PlotCenteredPixel(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
 {
 	MechS32 result;
 	PANE* target;

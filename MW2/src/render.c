@@ -153,8 +153,8 @@ MechS32 InitDisplayGeometry(void)
 
 	result = 0;
 	if (InitGameWindowGeometry()) {
-		FUN_1005d44e(g_gameWindowGeometry);
-		FUN_1005d410(g_gameWindowGeometry);
+		ChooseArtResolution(g_gameWindowGeometry);
+		SetPixelAspect(g_gameWindowGeometry);
 		g_currentPane.m_window = &g_mainPixelBuffer;
 		g_currentPane.m_x0 = 0;
 		g_currentPane.m_y0 = 0;
@@ -163,7 +163,7 @@ MechS32 InitDisplayGeometry(void)
 		g_screenPane = g_currentPane;
 		result = 1;
 		InitPanes(&g_currentPane);
-		FUN_10065f10();
+		ResetTextColors();
 		g_displayReady = 1;
 	}
 
@@ -201,7 +201,7 @@ void FirstRender(void)
 	g_renderSettings.m_frameDrawCallback = DrawScene;
 	g_renderSettings.m_shapeFilter = CullSceneShape;
 	g_renderSettings.m_projectVertex = ProjectVertex;
-	g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_10036230;
+	g_renderSettings.m_drawFace = (MechS32 (*)()) GetFaceColor;
 	g_renderSettings.m_drawPolygon = DrawScenePolygon;
 	g_unk0x100a5558 = 0xff;
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
@@ -410,13 +410,13 @@ void ShowBanner(void)
 
 	if (g_bannerName == NULL || *g_bannerName == '\0') {
 		strcpy(path, "sbannr");
-		strcat(path, g_unk0x100aa710[g_artResolution]);
+		strcat(path, g_artResolutionSuffixes[g_artResolution]);
 		strcat(path, ".");
 		strcat(path, "gif");
 	}
 	else {
 		strcpy(path, g_bannerName);
-		strcat(path, g_unk0x100aa710[g_artResolution]);
+		strcat(path, g_artResolutionSuffixes[g_artResolution]);
 		strcat(path, ".");
 		strcat(path, "gif");
 	}

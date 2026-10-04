@@ -76,7 +76,7 @@ extern "C"
 	MechS32 FirstResource(void);
 	void ShutdownMw2Prj(void);
 	void CachePreloads(void);
-	MechS32 FUN_10050862(MechS32 p_id, const char* p_type);
+	MechS32 PreloadResource(MechS32 p_id, const char* p_type);
 	void* Mw2PrjAlloc(MechU32 p_size);
 	void Mw2PrjFree(void* p_block);
 

@@ -17,9 +17,9 @@ extern "C"
 	extern MechS32 g_unk0x100ba664;
 	extern MechU32 g_shapeFlags;
 	extern MechS32 g_unk0x100ba688;
-	extern MechS32 g_unk0x100bfd40;
-	extern MechS32 g_unk0x100bfd44;
-	extern MechS32 g_unk0x100bfd48;
+	extern MechS32 g_shapeOwnerSet;
+	extern MechS32 g_shapeOwnerKind;
+	extern MechS32 g_shapeOwner;
 
 	void SetFaceIds(MechU32* p_ids, MechU32 p_count);
 	void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z);

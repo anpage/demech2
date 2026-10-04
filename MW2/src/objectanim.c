@@ -1313,7 +1313,7 @@ static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, Vertex* p_vertex)
 }
 
 // The call QueueFace makes through g_renderSettings.m_drawFace, which has no prototype: the hook
-// is FUN_10036230 in the 3D view, and the map view's SatelliteFaceColor takes three of the arguments.
+// is GetFaceColor in the 3D view, and the map view's SatelliteFaceColor takes three of the arguments.
 typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flags, MechS32 p_depth);
 
 // A screen offset: p_value shifted left by p_shift (modulo 32, like the shld's count), divided by

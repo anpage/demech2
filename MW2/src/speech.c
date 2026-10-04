@@ -350,7 +350,7 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 
 	slot = -1;
 	g_speechSample = NULL;
-	if (!g_audioEngine || !(g_soundConfig.m_unk0x10 & 2)) {
+	if (!g_audioEngine || !(g_soundConfig.m_simFlags & 2)) {
 		if (p_entry->m_text && p_entry->m_text[0]) {
 			ShowInGameMessage(p_entry->m_text, 0, 0x712, 0x32);
 			p_entry->m_deadline = g_currentClock + 0x712;
@@ -431,7 +431,7 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 // FUNCTION: MW2 0x10059b7b
 void PlayVoiceVolumeTest(void)
 {
-	if (g_soundConfig.m_unk0x10 & 2) {
+	if (g_soundConfig.m_simFlags & 2) {
 		PlaySample(0, 0, 0x36, NULL, 100, g_soundConfig.m_voiceVolume, 0x40, 11025, (MechS32*) -1, 0x250);
 	}
 	else {

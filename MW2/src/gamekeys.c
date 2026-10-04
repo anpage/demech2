@@ -421,7 +421,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 }
 
 // Runs the frame's game keys: after the mission ends, waits a while before offering to quit (or,
-// with DifficultyCfg::m_unk0x08, to look around); otherwise passes the key code (from the local
+// with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
 // FUNCTION: MW2 0x1005c2e1
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
@@ -465,7 +465,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 			g_shouldQuit = 1;
 			g_quitStage = 0x29a;
 		}
-		else if (!g_difficulty->m_unk0x08) {
+		else if (!g_difficulty->m_regenerate) {
 			g_missionEndTime = -1;
 			ShowInGameMessage("Press SPACEBAR to advance viewpoint, or CTRL-Q to exit.", 1, 0x58610, 100);
 			g_statusMessage = 1;
@@ -499,7 +499,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				return;
 			}
 		}
-		else if (g_difficulty->m_unk0x08) {
+		else if (g_difficulty->m_regenerate) {
 			switch (p_key) {
 			case 0x59:
 				g_shouldQuit = 1;
@@ -511,7 +511,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 			case 0x4f:
 				g_renderSettings.m_wireframe = 0;
 				SetInfrared(0, 0);
-				FUN_1007fbe0(g_localPlayerId, 0, 0, 0);
+				ReloadPlayerMech(g_localPlayerId, 0, 0, 0);
 				SetViewMode(c_viewCockpit);
 				g_sinkPilotTiltReset = 1;
 				g_sinkPilotPanReset = 1;
@@ -548,7 +548,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 
 // Performs game key p_key's action: the cockpit's detail and views, the throttle steps (0x1a-0x23),
 // the controls the local steering takes (a flag set for the frame), the menus, the chat
-// recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to FUN_10009f8d while
+// recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to HandleDebugKey while
 // the mission timer is stopped.
 // Stack-slot permutation: mech, step and text.
 // FUNCTION: MW2 0x1005c78a
@@ -568,7 +568,7 @@ void RunGameKey(MechS32 p_key)
 		g_quitStage += 2;
 		break;
 	case 0x2:
-		FUN_100509a0();
+		CycleMechViewMode();
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 0, 0x32);
 		}
@@ -634,9 +634,9 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x8:
-		g_unk0x100ba4bc++;
-		if (g_unk0x100ba4bc > 2) {
-			g_unk0x100ba4bc = 0;
+		g_targetPanelMode++;
+		if (g_targetPanelMode > 2) {
+			g_targetPanelMode = 0;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
@@ -982,7 +982,7 @@ void RunGameKey(MechS32 p_key)
 		break;
 	default:
 		if (g_missionTimerStopped) {
-			FUN_10009f8d(p_key);
+			HandleDebugKey(p_key);
 		}
 		break;
 	}

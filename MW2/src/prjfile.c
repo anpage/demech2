@@ -281,7 +281,7 @@ MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 		id = p_id;
 		entries = g_prjFiles[p_file].m_types[type].m_index->m_entries;
 		types = g_prjFiles[p_file].m_header->m_types;
-		size = entries[id].m_end - types[type].m_unk0x14;
+		size = entries[id].m_end - types[type].m_indexBase;
 		return size > 0 ? size : 0;
 	}
 	else {
@@ -311,13 +311,13 @@ MechS32 SeekPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, Me
 
 	entries = g_prjFiles[p_file].m_types[type].m_index->m_entries;
 	types = g_prjFiles[p_file].m_header->m_types;
-	offset = types[type].m_unk0x14 + entries[p_id].m_offset;
+	offset = types[type].m_indexBase + entries[p_id].m_offset;
 	if (p_offset) {
 		*p_offset = offset;
 	}
 
 	if (p_size) {
-		*p_size = entries[p_id].m_end - types[type].m_unk0x14;
+		*p_size = entries[p_id].m_end - types[type].m_indexBase;
 	}
 
 	_lseek(g_prjFiles[p_file].m_fd, offset, 0);
@@ -352,8 +352,8 @@ MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, vo
 		id = p_id;
 		entries = g_prjFiles[p_file].m_types[type].m_index->m_entries;
 		types = g_prjFiles[p_file].m_header->m_types;
-		offset = types[type].m_unk0x14 + entries[id].m_offset;
-		size = entries[id].m_end - types[type].m_unk0x14;
+		offset = types[type].m_indexBase + entries[id].m_offset;
+		size = entries[id].m_end - types[type].m_indexBase;
 		if (_lseek(g_prjFiles[p_file].m_fd, offset, 0) == -1) {
 			return -1;
 		}
@@ -390,7 +390,7 @@ MechS32 GetPrjResourceOffset(MechS32 p_file, const MechChar* p_type, MechU16 p_i
 		id = p_id;
 		entries = g_prjFiles[p_file].m_types[type].m_index->m_entries;
 		types = g_prjFiles[p_file].m_header->m_types;
-		offset = types[type].m_unk0x14 + entries[id].m_offset;
+		offset = types[type].m_indexBase + entries[id].m_offset;
 		*p_fd = g_prjFiles[p_file].m_fd;
 		return offset;
 	}

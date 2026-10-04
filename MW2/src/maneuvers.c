@@ -109,7 +109,7 @@ MechS32 g_maneuverTablesReady = 0;
 // ground slope (16.16) past which a mech on it slides.
 
 // GLOBAL: MW2 0x100a2bdc
-MechS32 g_unk0x100a2bdc = 100000;
+MechS32 g_jumpJetDrag = 100000;
 
 // GLOBAL: MW2 0x100a2be0
 MechS32 g_slideSlope = 0x2000;
@@ -631,14 +631,14 @@ void EndManeuver(Player* p_player)
 // Places a nav point for p_player where GetOffsetPoint puts it, and makes it the player's target.
 // The only diff is a stack-slot permutation of x, y, z and nav.
 // FUNCTION: MW2 0x10014723
-void PlaceOffsetNav(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS16 p_unk0x0c)
+void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance)
 {
 	MechS32 z;
 	MechS32 y;
 	MechS32 x;
 	MechS32 nav;
 
-	GetOffsetPoint(p_unk0x04, p_unk0x08, &x, &z, &y, p_unk0x0c);
+	GetOffsetPoint(p_target, p_direction, &x, &z, &y, p_distance);
 	nav = AddNavPoint(p_player->m_index, x, y, z);
 	if (nav != -1) {
 		g_navTable[nav].m_flags |= 1;
@@ -647,13 +647,13 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, Mech
 	}
 }
 
-// Finds the point p_unk0x14 units out in direction p_unk0x04 (of g_probeDirections's 16) from
-// target p_unk0x00, a player (0x200) or a game thing (0x400), in world coordinates; for a player
+// Finds the point p_distance units out in direction p_direction (of g_probeDirections's 16) from
+// target p_target, a player (0x200) or a game thing (0x400), in world coordinates; for a player
 // *p_y takes its heading. A game thing without an object is offset from its position.
 // The empty else arms give the original's jmp to the next statement after each offset. The only
 // other diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100147d0
-void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32* p_z, MechS32* p_y, MechS16 p_unk0x14)
+void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32* p_z, MechS32* p_y, MechS16 p_distance)
 {
 	MechU32 index;
 	MechS32 thing;
@@ -662,8 +662,8 @@ void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32*
 	MechS32 y;
 
 	y = 0;
-	index = p_unk0x00 & 0xff;
-	switch (p_unk0x00 & 0xf00) {
+	index = p_target & 0xff;
+	switch (p_target & 0xf00) {
 	case 0x200:
 		*p_y = g_players[index]->m_heading;
 		obj = g_players[index]->m_obj;
@@ -674,14 +674,14 @@ void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32*
 		if (!obj) {
 			GetStaticObjectPosition(thing, p_x, p_y, p_z);
 			*p_y = 0;
-			if (g_probeDirections[p_unk0x04].m_x) {
-				*p_x += p_unk0x14 / g_probeDirections[p_unk0x04].m_x;
+			if (g_probeDirections[p_direction].m_x) {
+				*p_x += p_distance / g_probeDirections[p_direction].m_x;
 			}
 			else {
 			}
 
-			if (g_probeDirections[p_unk0x04].m_y) {
-				*p_z += p_unk0x14 / g_probeDirections[p_unk0x04].m_y;
+			if (g_probeDirections[p_direction].m_y) {
+				*p_z += p_distance / g_probeDirections[p_direction].m_y;
 			}
 			else {
 			}
@@ -693,15 +693,15 @@ void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32*
 		break;
 	}
 
-	if (g_probeDirections[p_unk0x04].m_x) {
-		*p_x = p_unk0x14 / g_probeDirections[p_unk0x04].m_x;
+	if (g_probeDirections[p_direction].m_x) {
+		*p_x = p_distance / g_probeDirections[p_direction].m_x;
 	}
 	else {
 		*p_x = 0;
 	}
 
-	if (g_probeDirections[p_unk0x04].m_y) {
-		*p_z = p_unk0x14 / g_probeDirections[p_unk0x04].m_y;
+	if (g_probeDirections[p_direction].m_y) {
+		*p_z = p_distance / g_probeDirections[p_direction].m_y;
 	}
 	else {
 		*p_z = 0;
@@ -751,7 +751,7 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 		p_player->m_nextManeuver = c_maneuverAvoid;
 	}
 
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	JumpToTurn(p_player);
 }
 
@@ -764,7 +764,7 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	if (!p_player->m_maneuverFlag) {
 		SetTarget(p_player, p_player->m_ai.m_target);
 		if (!AvoidObstacles(p_player)) {
@@ -821,7 +821,7 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 		heading = GetTargetBearing(p_player);
 	}
 
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	scale = FixedDiv16(GetClosingRate(p_player) << 16, 500000) / 65536.0;
 	if (scale < 1.0) {
 		scale = 1.0;
@@ -867,7 +867,7 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 
 	SetTarget(p_player, p_target);
 	heading = SteerToTarget(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	result = p_player->m_mech->m_collisionTicks;
 	p_player->m_steering->m_throttle = 0x400;
 	JumpToTurn(p_player);
@@ -882,7 +882,7 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	SetTarget(p_player, p_player->m_ai.m_target);
 	if (!AvoidObstacles(p_player)) {
 		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 3000);
@@ -905,7 +905,7 @@ MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 	result = FALSE;
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	switch (p_player->m_maneuverParam) {
 	case 0:
 		if (CanJump(p_player, 40) && IsBelowHiddenTarget(p_player)) {
@@ -950,7 +950,7 @@ MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	if (p_player->m_position.m_y >= p_player->m_targetInfo.m_position.m_y + 2000) {
 		return 1;
 	}
@@ -967,7 +967,7 @@ MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	return 0;
 }
 
@@ -988,7 +988,7 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 
 	SetTarget(p_player, p_target);
 	turn = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, turn);
+	RunAIWeapons(p_player, turn);
 	if (p_player->m_onGround || p_player->m_mech->m_collisionTicks) {
 		result = TRUE;
 	}
@@ -1057,7 +1057,7 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 		heading = SteerToTarget(p_player);
 	}
 
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	p_player->m_steering->m_throttle = 0x400;
 	JumpToTurn(p_player);
 }
@@ -1084,7 +1084,7 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 	}
 
 	heading = GetTargetBearing(p_player);
-	FUN_1004b5a0(p_player, heading);
+	RunAIWeapons(p_player, heading);
 	SetTarget(p_player, p_player->m_ai.m_target);
 	if (!AvoidObstacles(p_player)) {
 		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 3000);

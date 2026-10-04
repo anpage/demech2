@@ -183,7 +183,7 @@ undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21
 
 // The local mech's state (Mech::m_powerState) when PlayCockpitWarnings last ran.
 // GLOBAL: MW2 0x100ae3f0
-MechS32 g_unk0x100ae3f0 = 0;
+MechS32 g_lastWarningPowerState = 0;
 
 // GLOBAL: MW2 0x100ae3f4
 MechS32 g_lockedTonePlayed = 0;
@@ -245,7 +245,7 @@ void PreloadCockpitSounds(void)
 	ids[6] = 0xce;
 	ids[7] = 0xfe;
 	for (i = 0; i < 8; i++) {
-		FUN_10050862(ids[i], g_resourceTypeTags[c_resTagSnds]);
+		PreloadResource(ids[i], g_resourceTypeTags[c_resTagSnds]);
 	}
 }
 
@@ -748,7 +748,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 			}
 		}
 
-		if (p_mech->m_powerState != g_unk0x100ae3f0) {
+		if (p_mech->m_powerState != g_lastWarningPowerState) {
 			switch (p_mech->m_powerState) {
 			case 2:
 				PlaySoundEffect(0xce, 100, 0x2f, 5, 0x32);
@@ -763,7 +763,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 		}
 	}
 
-	g_unk0x100ae3f0 = p_mech->m_powerState;
+	g_lastWarningPowerState = p_mech->m_powerState;
 }
 
 // FUNCTION: MW2 0x1007079d
@@ -777,13 +777,13 @@ void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 // FUNCTION: MW2 0x100707c0
 MechS32 LoadMgdFile(
 	ResourceRef* p_ref,
-	MechS32* p_unk0x04,
-	MechS32* p_unk0x08,
+	MechS32* p_height,
+	MechS32* p_cockpitHeight,
 	MechS32* p_unk0x0c,
 	MechS32* p_unk0x10,
 	MechS32* p_unk0x14,
-	MechS32* p_unk0x18,
-	MechS32* p_unk0x1c
+	MechS32* p_maxTorsoTwist,
+	MechS32* p_radius
 )
 {
 	MechS32 size;
@@ -791,7 +791,14 @@ MechS32 LoadMgdFile(
 	MechS32* cursor;
 	FILE* file;
 
-	data = FUN_10073922(p_ref, g_resourceTypeTags[c_resTagMgeo], g_resourceTypeExtensions[c_resExtMgi], 5, &size, NULL);
+	data = LoadResourceByRef(
+		p_ref,
+		g_resourceTypeTags[c_resTagMgeo],
+		g_resourceTypeExtensions[c_resExtMgi],
+		5,
+		&size,
+		NULL
+	);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
@@ -803,9 +810,9 @@ MechS32 LoadMgdFile(
 	}
 
 	cursor = data;
-	*p_unk0x04 = *cursor;
+	*p_height = *cursor;
 	cursor++;
-	*p_unk0x08 = *cursor;
+	*p_cockpitHeight = *cursor;
 	cursor++;
 	*p_unk0x0c = *cursor;
 	cursor++;
@@ -813,9 +820,9 @@ MechS32 LoadMgdFile(
 	cursor++;
 	*p_unk0x14 = *cursor;
 	cursor++;
-	*p_unk0x18 = *cursor;
+	*p_maxTorsoTwist = *cursor;
 	cursor++;
-	*p_unk0x1c = *cursor;
+	*p_radius = *cursor;
 	if (p_ref->m_id == -1) {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
@@ -849,7 +856,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 
 	offset = 0;
 	stride = sizeof(MechS32);
-	data = FUN_10073922(
+	data = LoadResourceByRef(
 		p_ref,
 		g_resourceTypeTags[c_resTagAnim],
 		g_resourceTypeExtensions[c_resExt3di],
@@ -896,10 +903,10 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		g_reels[index]->m_kind = unk0x08;
 		g_reels[index]->m_frameCount = frameCount;
 		if (p_ref->m_id == -1) {
-			g_reels[index]->m_unk0x00 = 1;
+			g_reels[index]->m_byName = 1;
 		}
 		else {
-			g_reels[index]->m_unk0x00 = 0;
+			g_reels[index]->m_byName = 0;
 		}
 
 		ids[i] = index;
@@ -931,7 +938,14 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 	MechS32 top;
 	FILE* file;
 
-	data = FUN_10073922(p_ref, g_resourceTypeTags[c_resTagHud], g_resourceTypeExtensions[c_resExtHdi], 4, &size, NULL);
+	data = LoadResourceByRef(
+		p_ref,
+		g_resourceTypeTags[c_resTagHud],
+		g_resourceTypeExtensions[c_resExtHdi],
+		4,
+		&size,
+		NULL
+	);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
@@ -1003,7 +1017,14 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 		return FALSE;
 	}
 
-	data = FUN_10073922(p_ref, g_resourceTypeTags[c_resTagCpit], g_resourceTypeExtensions[c_resExtCpi], 3, &size, NULL);
+	data = LoadResourceByRef(
+		p_ref,
+		g_resourceTypeTags[c_resTagCpit],
+		g_resourceTypeExtensions[c_resExtCpi],
+		3,
+		&size,
+		NULL
+	);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
@@ -1183,13 +1204,13 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 
 	close(file);
 	if (g_isNetworkGame) {
-		(*p_cfg)->m_unk0x05 = 2;
+		(*p_cfg)->m_enemySkill = 2;
 		(*p_cfg)->m_invulnerable = 0;
 	}
 	else {
-		(*p_cfg)->m_unk0x0f = 0;
+		(*p_cfg)->m_gravity = 0;
 		(*p_cfg)->m_unk0x0b = 0;
-		(*p_cfg)->m_unk0x13 = 0;
+		(*p_cfg)->m_temperature = 0;
 		(*p_cfg)->m_unk0x09 = 1;
 	}
 

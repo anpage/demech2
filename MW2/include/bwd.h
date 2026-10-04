@@ -44,14 +44,14 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a5bec;
-	extern MechS32 g_unk0x100a5bf0;
+	extern MechS32 g_streamsFromFiles;
+	extern MechS32 g_logStreams;
 
 	BwdStream* OpenBwdStream(struct BwdStreamKey* p_key, BwdStream* p_stream);
 	BwdNode* GetNextNode(BwdStream* p_stream);
 	void UnloadResource(BwdStream* p_stream);
 	MechChar* GetKeywordName(MechU32 p_code);
-	void FUN_1003ff75(MechChar* p_text);
+	void LogDebugLine(MechChar* p_text);
 	void LogKeywordName(MechU32 p_code);
 
 #ifdef __cplusplus

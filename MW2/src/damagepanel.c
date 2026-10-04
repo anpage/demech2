@@ -241,7 +241,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		color = 6;
 		index = g_outlinePartSections[i] - 1;
 		section = &p_mech->m_sections[index];
-		scale = (section->m_unk0x26 & 0xf0U) >> 4;
+		scale = (section->m_flags & 0xf0U) >> 4;
 		if (scale) {
 			front = 15 - (section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3 / (scale << 16);
 		}
@@ -253,7 +253,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 			front = 15;
 		}
 
-		scale = section->m_unk0x26 & 0xf;
+		scale = section->m_flags & 0xf;
 		if (scale) {
 			rear = 15 - (section->m_unk0x08 + section->m_armor[0] / g_localArmorPerLevel) * 3 / (scale << 16);
 		}
@@ -266,7 +266,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		}
 
 		level = front > rear ? front : rear;
-		if (section->m_unk0x26 & 0x2000) {
+		if (section->m_flags & 0x2000) {
 			color = 0;
 		}
 		else if (level > 11) {
@@ -326,7 +326,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 			width /= 2;
 		}
 
-		if (section->m_unk0x26 & 0x2000) {
+		if (section->m_flags & 0x2000) {
 			armor = 0;
 			color = 0xf3;
 		}
@@ -366,7 +366,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 		}
 
 		if (i > 0 && i < 4) {
-			if (section->m_unk0x26 & 0x2000) {
+			if (section->m_flags & 0x2000) {
 				armor = 0;
 				color = 0xf3;
 			}

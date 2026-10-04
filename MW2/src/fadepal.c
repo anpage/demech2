@@ -145,8 +145,8 @@ void EmitWreckSmoke(Mech* p_mech)
 		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
-		x += FUN_100736f5() / 2;
-		z += FUN_100736f5() / 2;
+		x += RandomNormal() / 2;
+		z += RandomNormal() / 2;
 		if (RandomIntBelow(100) < 0x3c) {
 			SpawnEffect(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
 		}

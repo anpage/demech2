@@ -21,11 +21,11 @@
 
 // The file name suffixes of the art resolutions (ShowBanner).
 // GLOBAL: MW2 0x100aa710
-MechChar g_unk0x100aa710[4][2] = {"", "6", "k", ""};
+MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 
 // The largest coordinates of the three resolutions the art comes in.
 // GLOBAL: MW2 0x100aa718
-Point g_unk0x100aa718[3] = {{319, 199}, {639, 479}, {1023, 767}};
+Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 
 // GLOBAL: MW2 0x100e9610
 MechS32 g_pixelAspect;
@@ -34,7 +34,7 @@ MechS32 g_pixelAspect;
 MechS32 g_artResolution;
 
 // FUNCTION: MW2 0x1005d410
-void FUN_1005d410(GameWindowGeometry* p_geometry)
+void SetPixelAspect(GameWindowGeometry* p_geometry)
 {
 	g_eyepoint->m_pixelAspect = g_pixelAspect =
 		MulDiv64(p_geometry->m_height << 16, 0x15555, p_geometry->m_width << 16);
@@ -42,7 +42,7 @@ void FUN_1005d410(GameWindowGeometry* p_geometry)
 
 // Picks the art resolution (g_artResolution) closest to the window's.
 // FUNCTION: MW2 0x1005d44e
-void FUN_1005d44e(GameWindowGeometry* p_geometry)
+void ChooseArtResolution(GameWindowGeometry* p_geometry)
 {
 	MechS32 best;
 	MechS32 distance;
@@ -50,8 +50,8 @@ void FUN_1005d44e(GameWindowGeometry* p_geometry)
 
 	best = 7;
 	for (i = 0; i < 3; i++) {
-		distance = abs(g_unk0x100aa718[i].m_y - (p_geometry->m_height - 1)) +
-				   abs(g_unk0x100aa718[i].m_x - (p_geometry->m_width - 1));
+		distance = abs(g_artResolutionSizes[i].m_y - (p_geometry->m_height - 1)) +
+				   abs(g_artResolutionSizes[i].m_x - (p_geometry->m_width - 1));
 		if (distance < best) {
 			best = distance;
 			g_artResolution = i;
@@ -73,8 +73,8 @@ void SetRes(void)
 	}
 
 	for (i = 0; i < 5; i++) {
-		ScaleRectFromLowRes(&g_unk0x100a5a68[i], &g_unk0x100a5a68[i]);
-		ScaleRectToScreen(&g_mainPixelBuffer, &g_unk0x100a5a68[i], &g_unk0x100a5a68[i]);
+		ScaleRectFromLowRes(&g_cockpitGaugePanes[i], &g_cockpitGaugePanes[i]);
+		ScaleRectToScreen(&g_mainPixelBuffer, &g_cockpitGaugePanes[i], &g_cockpitGaugePanes[i]);
 	}
 
 	ScalePointFromLowRes(g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);

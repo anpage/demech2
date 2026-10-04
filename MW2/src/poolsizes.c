@@ -130,7 +130,7 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 		}
 
 		UnloadResource(stream);
-		FUN_100586ec();
+		FreeBwdNames();
 		FreeMissionTables();
 	}
 
@@ -170,12 +170,12 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 			Error(0x3e, NULL);
 		}
 		else {
-			if (FUN_1005860e((BwdName*) &p_stream->m_id)) {
+			if (FindBwdName((BwdName*) &p_stream->m_id)) {
 				known = TRUE;
 			}
 			else {
 				known = FALSE;
-				FUN_10058560((BwdName*) &p_stream->m_id);
+				AddBwdName((BwdName*) &p_stream->m_id);
 			}
 
 			table = (DtblRecord*) node;
@@ -193,7 +193,7 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 
 			while (node) {
 				type = node->m_type;
-				if (g_unk0x100a5bf0) {
+				if (g_logStreams) {
 					LogKeywordName(type);
 				}
 

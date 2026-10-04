@@ -78,7 +78,7 @@ MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 		return FALSE;
 	}
 
-	unk0x08 = p_page->m_unk0x08;
+	unk0x08 = p_page->m_aiSlot;
 	count = GetLocalStarSize() - 1;
 	valid = unk0x08 <= count;
 	if (valid) {
@@ -115,14 +115,14 @@ MechS32 GetLanceOrder(MechS32 p_index)
 // FUNCTION: MW2 0x10066223
 MechS32 GetFormation(MechS32 p_arg)
 {
-	return GetTeamFormation(g_unk0x100a5918);
+	return GetTeamFormation(g_localStar);
 }
 
 // FUNCTION: MW2 0x10066241
 void SelectFormation(MechS32 p_formation, MechS32 p_value)
 {
 	g_lanceOrders[0] = 0;
-	SetTeamFormation(g_unk0x100a5918, p_formation);
+	SetTeamFormation(g_localStar, p_formation);
 	RequestMenuClose(1);
 }
 
@@ -163,7 +163,7 @@ void SetControlSlot(MenuPage* p_page, MenuControl* p_control)
 		return;
 	}
 
-	p_control->m_arg = p_page->m_unk0x08;
+	p_control->m_arg = p_page->m_aiSlot;
 }
 
 // Installs GetSlotGoalName as the suffix of the control's choices.

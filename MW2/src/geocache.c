@@ -861,13 +861,13 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 	}
 
 	if (entry->m_thing != -1) {
-		g_unk0x100bfd40 = 1;
-		g_unk0x100bfd44 = 0x200;
-		g_unk0x100bfd48 = entry->m_thing;
+		g_shapeOwnerSet = 1;
+		g_shapeOwnerKind = 0x200;
+		g_shapeOwner = entry->m_thing;
 	}
 
 	entry->m_shape = LoadShapes(data, &offset, size, parent);
-	g_unk0x100bfd40 = 0;
+	g_shapeOwnerSet = 0;
 	UnlockCachedResource(entry->m_resource, g_resourceTypeTags[c_resTagPoly]);
 	if (!entry->m_shape) {
 		return FALSE;
@@ -1037,8 +1037,14 @@ MechS32 ToggleBlockBoxes(void)
 		ref->m_id = -1;
 		strncpy(ref->m_name, "unitbox", 12);
 		ref->m_name[12] = '\0';
-		data =
-			FUN_10073922(ref, g_resourceTypeTags[c_resTagPoly], g_resourceTypeExtensions[c_resExtWtb], 1, &size, NULL);
+		data = LoadResourceByRef(
+			ref,
+			g_resourceTypeTags[c_resTagPoly],
+			g_resourceTypeExtensions[c_resExtWtb],
+			1,
+			&size,
+			NULL
+		);
 		if (data) {
 			for (i = 0; i < g_nextBlock; i++) {
 				block = &g_staticBlocks[i];
@@ -1115,7 +1121,8 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 	ref->m_id = -1;
 	strncpy(ref->m_name, "unitbox", 12);
 	ref->m_name[12] = '\0';
-	data = FUN_10073922(ref, g_resourceTypeTags[c_resTagPoly], g_resourceTypeExtensions[c_resExtWtb], 1, &size, NULL);
+	data =
+		LoadResourceByRef(ref, g_resourceTypeTags[c_resTagPoly], g_resourceTypeExtensions[c_resExtWtb], 1, &size, NULL);
 	if (data) {
 		LoadQuadtreeBoxes(p_root, data, size);
 		if (ref->m_id == -1) {

@@ -92,12 +92,12 @@ void ThrowDebrisPiece(MechS32 p_index)
 		return;
 	}
 
-	piece->m_velocityX = FixedMul16((FUN_100736f5() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
-	piece->m_velocityZ = FixedMul16((FUN_100736f5() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
-	piece->m_velocityY = FixedMul16(((FUN_100736f5() + 0x400) << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
-	piece->m_spinX = FUN_100736f5() * 0x7e98 / 0x400;
-	piece->m_spinY = FUN_100736f5() * 0x7e98 / 0x400;
-	piece->m_spinZ = FUN_100736f5() * 0x7e98 / 0x400;
+	piece->m_velocityX = FixedMul16((RandomNormal() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
+	piece->m_velocityZ = FixedMul16((RandomNormal() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
+	piece->m_velocityY = FixedMul16(((RandomNormal() + 0x400) << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
+	piece->m_spinX = RandomNormal() * 0x7e98 / 0x400;
+	piece->m_spinY = RandomNormal() * 0x7e98 / 0x400;
+	piece->m_spinZ = RandomNormal() * 0x7e98 / 0x400;
 }
 
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.

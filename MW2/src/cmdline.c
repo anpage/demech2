@@ -62,7 +62,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				break;
 			case 'E':
 				_rmdir("mw2debug.txt");
-				g_unk0x100a5bf0 = 1;
+				g_logStreams = 1;
 				break;
 			case 'F':
 				rate = 10;
@@ -108,13 +108,13 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				}
 				break;
 			case 'P':
-				g_unk0x100a5bec = 1;
+				g_streamsFromFiles = 1;
 				break;
 			case 'Q':
 				DisableQuadtrees();
 				break;
 			case 'R':
-				g_unk0x100acb34 = 1;
+				g_startOnAutopilot = 1;
 				break;
 			case 'S':
 				p_flags[1] = 0;

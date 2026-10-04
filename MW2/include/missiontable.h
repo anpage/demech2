@@ -9,7 +9,7 @@
 #pragma pack(push, 1)
 
 // An entry of a mission table, one per objective of the star's mission (StarMission), which
-// FUN_1004da30 copies into the objective.
+// SetUpStarMission copies into the objective.
 // SIZE 0x97
 typedef struct MissionEntry {
 	MechS32 m_type;                        // 0x00 — the first entry's must be 0x10

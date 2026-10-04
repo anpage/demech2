@@ -107,12 +107,12 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 		return 0;
 	}
 
-	if (FUN_10003445(p_ray->m_x0, p_ray->m_dirX, box->m_minX, box->m_maxX, &tNear, &tFar)) {
+	if (ClipRaySlab(p_ray->m_x0, p_ray->m_dirX, box->m_minX, box->m_maxX, &tNear, &tFar)) {
 		return 0;
 	}
 
 	axis = 0;
-	if (FUN_10003445(p_ray->m_y0, p_ray->m_dirY, box->m_minY, box->m_maxY, &tEnter, &tExit)) {
+	if (ClipRaySlab(p_ray->m_y0, p_ray->m_dirY, box->m_minY, box->m_maxY, &tEnter, &tExit)) {
 		return 0;
 	}
 
@@ -124,7 +124,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 		tFar = tExit;
 	}
 
-	if (FUN_10003445(p_ray->m_z0, p_ray->m_dirZ, box->m_minZ, box->m_maxZ, &tEnter, &tExit)) {
+	if (ClipRaySlab(p_ray->m_z0, p_ray->m_dirZ, box->m_minZ, box->m_maxZ, &tEnter, &tExit)) {
 		return 0;
 	}
 

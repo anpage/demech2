@@ -66,7 +66,7 @@ MechS32 RandomIntBelow(MechS32 p_max)
 }
 
 // FUNCTION: MW2 0x100736f5
-MechS32 FUN_100736f5(void)
+MechS32 RandomNormal(void)
 {
 	MechS32 value;
 
@@ -77,7 +77,7 @@ MechS32 FUN_100736f5(void)
 }
 
 // FUNCTION: MW2 0x10073733
-MechS32 FUN_10073733(MechS32 p_max)
+MechS32 RandomIntBelow2(MechS32 p_max)
 {
 	MechS32 value;
 
@@ -88,7 +88,7 @@ MechS32 FUN_10073733(MechS32 p_max)
 }
 
 // FUNCTION: MW2 0x10073775
-MechS32 FUN_10073775(void)
+MechS32 RandomNormal2(void)
 {
 	MechS32 value;
 

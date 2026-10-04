@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-// A reference to a resource: its id, or -1 to look it up by name (FUN_10073922).
+// A reference to a resource: its id, or -1 to look it up by name (LoadResourceByRef).
 // SIZE 0x10
 typedef struct ResourceRef {
 	MechS16 m_id;        // 0x00

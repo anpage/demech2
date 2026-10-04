@@ -14,24 +14,24 @@
 #include "types.h"
 #include "vertex.h"
 
-// Set by the world stream (BwdExecuteStream): FUN_10036230 brightens detailed shapes instead of
+// Set by the world stream (BwdExecuteStream): GetFaceColor brightens detailed shapes instead of
 // dimming them.
 // GLOBAL: MW2 0x100a555c
-MechS32 g_unk0x100a555c = 0;
+MechS32 g_brightenDetail = 0;
 
-// The eyepoint's ambient light (SelectEyepoint): FUN_100367c5's base shade, out of 0x80.
+// The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
 // GLOBAL: MW2 0x1010b540
 MechS32 g_ambientLight;
 
-MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
+MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
 
 // Returns the color word of face p_face for the draw mode in bits 12-14 of p_color: its shade
-// (FUN_100367c5, from the face's light and p_distance) with the color bits of p_color, or in the
+// (ComputeShade, from the face's light and p_distance) with the color bits of p_color, or in the
 // wireframe views (m_wireframe) a fixed color by the shape's type. Textured faces of the kinds in
 // m_untexturedKinds are drawn in a flat color instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10036230
-MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
+MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
 	MechS32 shade;
 	MechU32 kind;
@@ -177,11 +177,11 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		break;
 	}
 
-	shade = FUN_100367c5(GetFaceShade(p_face, p_vertices), value, p_distance);
+	shade = ComputeShade(GetFaceShade(p_face, p_vertices), value, p_distance);
 	if ((kind & 0x100) || (kind & 0xf0) == 0x50) {
 		detail = (p_face->m_shape->m_flags & 0xf0) >> 4;
 		if (detail > 0) {
-			if (g_unk0x100a555c) {
+			if (g_brightenDetail) {
 				shade += FixedMul16(detail, FixedDiv16(15 - shade, 15));
 			}
 			else {
@@ -209,7 +209,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 // Returns a shade from 0 to 15 for a light level p_light (out of 0x80) and a brightness
 // p_value, dimmed with the distance p_distance.
 // FUNCTION: MW2 0x100367c5
-MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
+MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
 {
 	MechS32 shade;
 

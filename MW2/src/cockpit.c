@@ -97,7 +97,7 @@ CockpitGaugeFn g_cockpitGauges[10] = {
 };
 
 // GLOBAL: MW2 0x100a5a68
-PANE g_unk0x100a5a68[5] = {
+PANE g_cockpitGaugePanes[5] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -571,7 +571,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 // FUNCTION: MW2 0x1003e645
 MechS32 IsNavReached(NavPoint* p_nav, MechS32 p_team)
 {
-	return (p_nav->m_flags & 0x20) && (p_nav->m_unk0x26 | (1 << p_team));
+	return (p_nav->m_flags & 0x20) && (p_nav->m_teamsReached | (1 << p_team));
 }
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
@@ -630,7 +630,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		break;
 	case 0x100:
 		if (visible) {
-			if (IsNavReached(&g_navTable[index], g_unk0x100a5918)) {
+			if (IsNavReached(&g_navTable[index], g_localStar)) {
 				side = 1;
 			}
 			else {
@@ -687,7 +687,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 	viewport = p_layout->m_viewport;
 	for (i = 0; i < g_navCount; i++) {
 		nav = &g_navTable[i];
-		if (nav->m_team == g_unk0x100a5918 && nav->m_unk0x00 && !(nav->m_flags & 1)) {
+		if (nav->m_team == g_localStar && nav->m_used && !(nav->m_flags & 1)) {
 			if (nav->m_obj) {
 				GetObjPosition(nav->m_obj, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
 			}
@@ -703,7 +703,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 			}
 
 			if (visible) {
-				if (IsNavReached(nav, g_unk0x100a5918)) {
+				if (IsNavReached(nav, g_localStar)) {
 					icon = p_layout->m_icons[4][1];
 				}
 				else {
@@ -1050,7 +1050,7 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		break;
 	case 0x3000:
 		color = (p_flags & 0xff0) >> 4;
-		FUN_100107de(color, p_count, (MechS32*) p_points, -1, 1);
+		DrawBand(color, p_count, (MechS32*) p_points, -1, 1);
 		break;
 	case 0:
 		DrawScenePolygon(p_count, p_points, 0);

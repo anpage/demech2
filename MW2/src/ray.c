@@ -197,7 +197,7 @@ void CopyRay(Ray* p_dst, Ray* p_src)
 
 // Matches except for the stack slots of toMax and quotient (a consistent permutation).
 // FUNCTION: MW2 0x10003445
-MechS32 FUN_10003445(MechS32 p_origin, MechS32 p_delta, MechS32 p_min, MechS32 p_max, MechS32* p_tMin, MechS32* p_tMax)
+MechS32 ClipRaySlab(MechS32 p_origin, MechS32 p_delta, MechS32 p_min, MechS32 p_max, MechS32* p_tMin, MechS32* p_tMax)
 {
 	MechS32 toMax;
 	MechS32 t0;

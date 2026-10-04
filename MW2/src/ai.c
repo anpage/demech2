@@ -1288,7 +1288,7 @@ MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distanc
 	}
 
 	if (p_player->m_targetInfo.m_distance < p_distance && (p_target & c_aiTargetPlayer) && dead &&
-		!FUN_1006ca60(p_player, 1)) {
+		!CanSeeTarget(p_player, 1)) {
 		result = FALSE;
 		g_hiddenTargetCount++;
 	}
@@ -1507,7 +1507,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 			heading = GetTargetBearing(p_player);
 		}
 
-		FUN_1004b5a0(p_player, heading);
+		RunAIWeapons(p_player, heading);
 		break;
 	case c_aiStateRecon:
 	case c_aiStatePatrol:
@@ -3090,7 +3090,7 @@ MechS32 GetLocalStarSize(void)
 void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 {
 	if (p_command == -1) {
-		SetTeamFormationByName(g_unk0x100a5918, g_formationTemplates[p_slot].m_name);
+		SetTeamFormationByName(g_localStar, g_formationTemplates[p_slot].m_name);
 		SayFormation(p_slot);
 	}
 	else {

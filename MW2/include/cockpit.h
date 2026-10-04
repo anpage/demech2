@@ -54,7 +54,7 @@ extern "C"
 #endif
 
 	extern CockpitGaugeFn g_cockpitGauges[10];
-	extern PANE g_unk0x100a5a68[5];
+	extern PANE g_cockpitGaugePanes[5];
 	extern void* g_unk0x100a5bb8[4];
 	extern MechS32 g_satelliteStaticState;
 	extern void (*g_savedFrameDrawCallback)(void);

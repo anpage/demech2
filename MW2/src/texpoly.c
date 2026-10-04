@@ -12,7 +12,7 @@ DECOMP_SIZE_ASSERT(VFX_TEXTURE, 0xc)
 // The p_width/p_height comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: i, points, rows and unk0x08.
 // FUNCTION: MW2 0x1006dd50
-void FUN_1006dd50(
+void DrawTexturedPolygon(
 	PANE* p_target,
 	MechU8* p_pixels,
 	MechS16 p_width,

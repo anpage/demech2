@@ -6,7 +6,7 @@
 #include "types.h"
 
 // The texture a polygon maps (VFXREND.H's VFX_TEXTURE): the table of row ("V-baseline") addresses
-// and the tiling limits (FUN_1006dd50 sets both to the texture's height).
+// and the tiling limits (DrawTexturedPolygon sets both to the texture's height).
 // SIZE 0xc
 typedef struct VFX_TEXTURE {
 	MechU8** m_vAddrs; // 0x00
@@ -18,7 +18,7 @@ typedef struct VFX_TEXTURE {
 // portable C in COMPAT_MODE), which both DLLs link. p_cueing and p_translucency are lookaside
 // tables: p_cueing of 256 bytes for flat shading, of 256 rows of 256 for Gouraud shading (a row
 // per shade), p_translucency of 256 bytes. MW2 draws its textured polygons through
-// VFX_polygon_clip_XY_and_render (FUN_1006dd50), and render.c asks GetCodeBlock for the range to
+// VFX_polygon_clip_XY_and_render (DrawTexturedPolygon), and render.c asks GetCodeBlock for the range to
 // make writable. In MW2SHELL the object is believed to be dead: nothing outside it refers into it,
 // and .text is read-only with no VirtualProtect import, so its routines could not patch themselves.
 #ifdef __cplusplus

@@ -727,7 +727,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		switch (i + 1) {
 		case 4:
 			section->m_armor[1] = msg->m_rearArmor3;
-			levels = (section->m_unk0x26 & 0xf0) >> 4;
+			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
 				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
 								   (MechS32) (levels << 16);
@@ -735,7 +735,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 			break;
 		case 3:
 			section->m_armor[1] = msg->m_rearArmor2;
-			levels = (section->m_unk0x26 & 0xf0) >> 4;
+			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
 				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
 								   (MechS32) (levels << 16);
@@ -743,7 +743,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 			break;
 		case 2:
 			section->m_armor[1] = msg->m_rearArmor1;
-			levels = (section->m_unk0x26 & 0xf0) >> 4;
+			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
 				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
 								   (MechS32) (levels << 16);
@@ -753,14 +753,14 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 			break;
 		}
 
-		levels = section->m_unk0x26 & 0xf;
+		levels = section->m_flags & 0xf;
 		if (levels) {
 			damage1 =
 				15 - ((section->m_unk0x08 + section->m_armor[0] / g_localArmorPerLevel) * 3) / (MechS32) (levels << 16);
 		}
 
 		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
-		if (section->m_unk0x08 <= 0 && !(section->m_unk0x26 & 0x2000)) {
+		if (section->m_unk0x08 <= 0 && !(section->m_flags & 0x2000)) {
 			DestroySection(player->m_killer, mech, i + 1);
 		}
 	}
@@ -785,7 +785,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		}
 	}
 	else if (g_playerDestroyed[player->m_index] == 1) {
-		FUN_1007fbe0(player->m_index, 0, 0, 0);
+		ReloadPlayerMech(player->m_index, 0, 0, 0);
 		sprintf(text2, "'%s' resurrected.", player->m_name);
 		ShowInGameMessage(text2, 1, 0x712, 0x50);
 		g_playerDestroyed[player->m_index] = 0;

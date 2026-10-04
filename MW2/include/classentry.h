@@ -20,7 +20,7 @@ typedef struct ClassEntry {
 	undefined4 m_unk0x2c;      // 0x2c
 	undefined4 m_unk0x30;      // 0x30
 	undefined4 m_unk0x34;      // 0x34
-	MechU16 m_unk0x38[5];      // 0x38 — by level; the shape kind in bits 4-7
+	MechU16 m_kinds[5];        // 0x38 — by level; the shape kind in bits 4-7
 	MechS16 m_unk0x42;         // 0x42
 } ClassEntry;
 

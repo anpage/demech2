@@ -16,7 +16,7 @@
 // is never seen.
 // The heading sum has its operands the other way around.
 // FUNCTION: MW2 0x1006ca60
-MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
+MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 {
 	Ray ray;
 	Shape* hit;
@@ -62,7 +62,7 @@ MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
 // Stack-slot permutation of the locals; one height comparison has its operands the other
 // way around.
 // FUNCTION: MW2 0x1006cbe7
-MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 steps;
 	MechS32 level;

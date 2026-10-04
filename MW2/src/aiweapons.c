@@ -18,11 +18,11 @@
 
 // Runs p_player's AI weapons at random intervals (up to m_gunnery x 22 ticks): within 10 degrees
 // of the heading p_heading (always against the local player, else one time in three) it aims at
-// its goal and may fire (FUN_1004b724). Then turns and pitches the torso. Returns whether it
+// its goal and may fire (DecideAIFire). Then turns and pitches the torso. Returns whether it
 // fired.
 // Stack-slot permutation: fired, roll and delta.
 // FUNCTION: MW2 0x1004b5a0
-MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
+MechS32 RunAIWeapons(Player* p_player, MechS32 p_heading)
 {
 	MechS32 fired;
 	MechS32 roll;
@@ -37,8 +37,8 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 			if ((p_player->m_ai.m_goal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
 				SetTarget(p_player, p_player->m_ai.m_goal);
 				if (!roll) {
-					if (FUN_1004b724(p_player)) {
-						if (!(p_player->m_skillFlag4) || FUN_1006ca60(p_player, 1)) {
+					if (DecideAIFire(p_player)) {
+						if (!(p_player->m_skillFlag4) || CanSeeTarget(p_player, 1)) {
 							p_player->m_steering->m_weaponFire = 1;
 							fired = TRUE;
 						}
@@ -62,7 +62,7 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 // Firing weapon types 0 and 4 also steers; a guided weapon's volley may lock on.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004b724
-MechS32 FUN_1004b724(Player* p_player)
+MechS32 DecideAIFire(Player* p_player)
 {
 	MechS32 fire;
 	MechS32 type;

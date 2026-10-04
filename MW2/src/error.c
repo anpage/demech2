@@ -137,7 +137,7 @@ void Error(MechS32 p_code, const char* p_format, ...)
 // FUNCTION: MW2 0x1003ba07
 void ShutdownOnError(void)
 {
-	FUN_100586ec();
+	FreeBwdNames();
 	FreeMissionTables();
 	ShutdownResourceCache();
 	ShutdownNetwork();

@@ -104,7 +104,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		}
 		break;
 	case 0x3000:
-		FUN_10010750(p_flags, p_count, p_points, -1);
+		DrawBandPolygon(p_flags, p_count, p_points, -1);
 		break;
 	case 0x5000:
 		if (!g_renderSettings.m_textures) {

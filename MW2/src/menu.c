@@ -162,7 +162,7 @@ void FreeMenus(void)
 }
 
 // Lays out a menu on the screen: scales its background target to the background shape, spaces
-// its m_unk0x3c lines evenly down the target, and converts its points to pixels. With flag 0x10
+// its m_lineCount lines evenly down the target, and converts its points to pixels. With flag 0x10
 // the background moves to the target's left edge.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003c5a2
@@ -215,23 +215,23 @@ void LayoutMenu(MenuDefinition* p_menu)
 	}
 
 	origin.m_x = 0;
-	origin.m_y = FixedDiv16(1, p_menu->m_unk0x3c + 2);
-	p_menu->m_unk0x48.m_y = FixedDiv16(origin.m_y, 0x20000);
-	p_menu->m_unk0x50.m_y = p_menu->m_unk0x58.m_y = p_menu->m_unk0x60.m_y = origin.m_y + origin.m_y;
+	origin.m_y = FixedDiv16(1, p_menu->m_lineCount + 2);
+	p_menu->m_titleOrigin.m_y = FixedDiv16(origin.m_y, 0x20000);
+	p_menu->m_cursorOrigin.m_y = p_menu->m_itemOrigin.m_y = p_menu->m_controlOrigin.m_y = origin.m_y + origin.m_y;
 	ScaleRectToScreen(target->m_window, target, target);
 	ScaleRectToScreen(background->m_window, background, background);
 	ScalePointToFrame(target, &origin, &origin);
-	ScalePointToFrame(target, &p_menu->m_unk0x48, &p_menu->m_unk0x48);
-	ScalePointToFrame(target, &p_menu->m_unk0x50, &p_menu->m_unk0x50);
-	ScalePointToFrame(target, &p_menu->m_unk0x58, &p_menu->m_unk0x58);
-	ScalePointToFrame(target, &p_menu->m_unk0x60, &p_menu->m_unk0x60);
+	ScalePointToFrame(target, &p_menu->m_titleOrigin, &p_menu->m_titleOrigin);
+	ScalePointToFrame(target, &p_menu->m_cursorOrigin, &p_menu->m_cursorOrigin);
+	ScalePointToFrame(target, &p_menu->m_itemOrigin, &p_menu->m_itemOrigin);
+	ScalePointToFrame(target, &p_menu->m_controlOrigin, &p_menu->m_controlOrigin);
 	if (p_menu->m_flags & 0x10) {
 		dx = background->m_x0 - target->m_x0;
 		background->m_x0 -= dx;
 		background->m_x1 -= dx;
 	}
 
-	p_menu->m_unk0x40 = origin;
+	p_menu->m_textOrigin = origin;
 }
 
 // Loads a menu's background shapes and font.
@@ -250,9 +250,9 @@ void LoadMenuResources(MenuDefinition* p_menu)
 		p_menu->m_background = NULL;
 	}
 
-	if (p_menu->m_unk0x1c != -1) {
+	if (p_menu->m_shape != -1) {
 		p_menu->m_unk0x20 =
-			LoadCachedResource(g_mw2PrjHandle, p_menu->m_unk0x1c + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+			LoadCachedResource(g_mw2PrjHandle, p_menu->m_shape + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 	else {
 		p_menu->m_unk0x20 = NULL;
@@ -311,7 +311,7 @@ void DeactivateMenu(MenuSlot* p_slot)
 		}
 
 		if (menu->m_unk0x20) {
-			UnlockCachedResource(menu->m_unk0x1c + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(menu->m_shape + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 			menu->m_unk0x20 = NULL;
 		}
 
@@ -725,7 +725,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	page->m_selected = selected;
 	g_textColors[0xe] = p_menu->m_color;
 	if (page->m_title) {
-		textPos = p_menu->m_unk0x48;
+		textPos = p_menu->m_titleOrigin;
 		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_textColors);
 	}
 
@@ -737,10 +737,10 @@ void RunMenuItems(MenuDefinition* p_menu)
 	}
 
 	height = VFX_font_height(font);
-	cursor = p_menu->m_unk0x50;
+	cursor = p_menu->m_cursorOrigin;
 	cursor.m_y += height / 2;
-	textPos = p_menu->m_unk0x58;
-	controlPos = p_menu->m_unk0x60;
+	textPos = p_menu->m_itemOrigin;
+	controlPos = p_menu->m_controlOrigin;
 	numberWidth = VFX_character_width(font, '0') * 2;
 	numberWidth += VFX_character_width(font, '.');
 	n = 0;
@@ -755,13 +755,13 @@ void RunMenuItems(MenuDefinition* p_menu)
 
 		item = &page->m_items[i];
 		if (!(p_menu->m_flags & 8) && back == i) {
-			offset += (p_menu->m_unk0x3c - i - 1) * p_menu->m_unk0x40.m_y;
+			offset += (p_menu->m_lineCount - i - 1) * p_menu->m_textOrigin.m_y;
 		}
 
 		textPos.m_y += offset;
 		controlPos.m_y += offset;
 		cursor.m_y += offset;
-		offset = p_menu->m_unk0x40.m_y;
+		offset = p_menu->m_textOrigin.m_y;
 		if (selected == i && p_menu->m_unk0x20) {
 			VFX_shape_draw(target, p_menu->m_unk0x20, 0, cursor.m_x, cursor.m_y);
 		}

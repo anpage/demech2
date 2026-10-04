@@ -5,7 +5,7 @@
 
 // Fills g_textColors with the identity mapping of the 256 palette indices.
 // FUNCTION: MW2 0x10065f10
-void FUN_10065f10(void)
+void ResetTextColors(void)
 {
 	MechS32 i;
 

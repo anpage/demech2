@@ -129,7 +129,7 @@ MechS32 DrawAnimatedPolygon(
 
 	if (p_direct) {
 		luma = g_lumaTables + p_luma * 0x80;
-		FUN_1006dd50(&g_currentPane, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
+		DrawTexturedPolygon(&g_currentPane, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
 	}
 	else {
 		if (useLuma) {
@@ -246,7 +246,7 @@ void PreloadAnimCels(void)
 	MechS32 i;
 
 	for (i = 0; g_preloadCels[i] != -1; i++) {
-		FUN_10050862(g_preloadCels[i], g_resourceTypeTags[c_resTagCel]);
+		PreloadResource(g_preloadCels[i], g_resourceTypeTags[c_resTagCel]);
 	}
 }
 

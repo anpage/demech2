@@ -70,7 +70,7 @@ void CachePreloads(void)
 }
 
 // FUNCTION: MW2 0x10050862
-MechS32 FUN_10050862(MechS32 p_id, const char* p_type)
+MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 {
 	MechS32 result;
 	void* data;

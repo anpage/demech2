@@ -37,31 +37,31 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100ba4bc
-MechS32 g_unk0x100ba4bc = 1;
+MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
 // GLOBAL: MW2 0x100ba4c0
-MechS32 g_unk0x100ba4c0 = 0;
+MechS32 g_announceTargetSide = 0;
 
 // When the target panel goes from the target's short name to its name.
 // GLOBAL: MW2 0x100ba4c4
-MechS32 g_unk0x100ba4c4 = 0;
+MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
-MechS32 g_unk0x100ba4c8 = 0;
+MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
-MechS32 g_unk0x100ba4cc = 0;
+MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation.
 // GLOBAL: MW2 0x100c26a0
-MechChar g_unk0x100c26a0[8];
+MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
 // name after a while), coloured by its side, and its distance.
-// Stack-slot permutation of the locals. g_currentClock > g_unk0x100ba4c4 compares with its
+// Stack-slot permutation of the locals. g_currentClock > g_targetFullNameTime compares with its
 // operands reversed (it flipped when speech.h's declarations were added ahead of it).
 // FUNCTION: MW2 0x1007b930
 void DrawTargetPanelText(CockpitPanel* p_panel)
@@ -87,20 +87,20 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (mech->m_player->m_targetInfo.m_target != g_unk0x100ba4c8) {
-		g_unk0x100ba4c4 = 0;
+	if (mech->m_player->m_targetInfo.m_target != g_lastPanelTarget) {
+		g_targetFullNameTime = 0;
 	}
 
 	if (g_inspectResult == 2) {
-		g_unk0x100ba4c4 = g_currentClock + 362;
+		g_targetFullNameTime = g_currentClock + 362;
 		p_panel->m_setName(p_panel, "Out of range");
 		PlayCockpitSound(0x14, -1);
 	}
 	else if (g_inspectResult) {
-		g_unk0x100ba4c4 = g_currentClock + 362;
+		g_targetFullNameTime = g_currentClock + 362;
 		switch (kind) {
 		case 0x100:
-			p_panel->m_setName(p_panel, g_navTable[index].m_unk0x3e);
+			p_panel->m_setName(p_panel, g_navTable[index].m_shortName);
 			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x400:
@@ -121,8 +121,8 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		}
 	}
 
-	if (!g_unk0x100ba4c4 || g_currentClock > g_unk0x100ba4c4) {
-		g_unk0x100ba4c4 = 0;
+	if (!g_targetFullNameTime || g_currentClock > g_targetFullNameTime) {
+		g_targetFullNameTime = 0;
 		switch (kind) {
 		case 0x100:
 			if (!(g_navTable[index].m_flags & 0x20) && (g_navTable[index].m_flags & 0x100)) {
@@ -137,11 +137,11 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 			break;
 		case 0x400:
 			if (!(g_gameThings[index].m_flags & 0x20) && (g_gameThings[index].m_flags & 0x100)) {
-				if (!g_unk0x100c26a0[0]) {
-					strcpy(g_unk0x100c26a0, "Unknown");
+				if (!g_anonymousInstallationName[0]) {
+					strcpy(g_anonymousInstallationName, "Unknown");
 				}
 
-				p_panel->m_setName(p_panel, g_unk0x100c26a0);
+				p_panel->m_setName(p_panel, g_anonymousInstallationName);
 			}
 			else {
 				if (!strlen(g_gameThings[index].m_name)) {
@@ -151,7 +151,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 					p_panel->m_setName(p_panel, g_gameThings[index].m_name);
 				}
 
-				if (g_unk0x100ba4c0) {
+				if (g_announceTargetSide) {
 					switch (GetThingSide(index)) {
 					case 0:
 						PlayCockpitSound(0xf, -1);
@@ -164,7 +164,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 						break;
 					}
 
-					g_unk0x100ba4c0 = 0;
+					g_announceTargetSide = 0;
 				}
 			}
 			break;
@@ -180,7 +180,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 					p_panel->m_setName(p_panel, g_players[index]->m_name);
 				}
 
-				if (g_unk0x100ba4c0) {
+				if (g_announceTargetSide) {
 					switch (GetPlayerSide(index)) {
 					case 0:
 						PlayCockpitSound(0xf, -1);
@@ -193,7 +193,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 						break;
 					}
 
-					g_unk0x100ba4c0 = 0;
+					g_announceTargetSide = 0;
 				}
 			}
 			break;
@@ -258,7 +258,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 	}
 
 	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
-	g_unk0x100ba4c8 = mech->m_player->m_targetInfo.m_target;
+	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
 }
 
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
@@ -289,15 +289,15 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	void* noObject;
 	MechS32 targetIndex;
 
-	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
 
 	p_panel->m_lastPowerState = g_cockpitPowerState;
 	if (p_panel->m_damage == 1) {
-		if (g_unk0x100ba4cc) {
+		if (g_targetPanelStatic) {
 			if (RandomIntBelow(10) < 7) {
-				g_unk0x100ba4cc = 0;
+				g_targetPanelStatic = 0;
 			}
 
 			DrawTargetStatic(p_panel);
@@ -305,7 +305,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		}
 		else {
 			if (RandomIntBelow(10) < 3) {
-				g_unk0x100ba4cc = 1;
+				g_targetPanelStatic = 1;
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	}
 
 	SaveView(g_eyepoint, view);
-	FUN_10050dc3(&saved);
+	SetMechViewRenderSettings(&saved);
 	x = player->m_targetInfo.m_position.m_x;
 	y = player->m_targetInfo.m_position.m_y;
 	z = player->m_targetInfo.m_position.m_z;
@@ -394,7 +394,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	view[3] = heading;
 	view[4] = 0;
 	view[5] = 0;
-	if (g_unk0x100ba4bc == 1) {
+	if (g_targetPanelMode == 1) {
 		g_renderSettings.m_wireframe = 1;
 		g_renderSettings.m_wireframeColors = 0;
 	}
@@ -435,7 +435,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 	PANE savedView;
 	PANE savedTarget;
 
-	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
 
@@ -474,7 +474,7 @@ void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 	PANE savedView;
 	PANE savedTarget;
 
-	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
 

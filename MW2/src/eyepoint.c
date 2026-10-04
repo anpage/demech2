@@ -73,7 +73,7 @@ MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
 // GLOBAL: MW2 0x100a2418
-MechS32 g_unk0x100a2418 = 1;
+MechS32 g_autopilotStart = 1;
 
 // Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
 // draws the crosshair only then.

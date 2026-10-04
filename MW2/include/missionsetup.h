@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-	void FUN_1004da30(struct MissionTable* p_table);
+	void SetUpStarMission(struct MissionTable* p_table);
 	MechU32 FindEventList(MechChar* p_name);
 	void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target);
 	void FlushEventLists(MechU32 p_lists);

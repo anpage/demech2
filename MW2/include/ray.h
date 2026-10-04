@@ -64,7 +64,7 @@ extern "C"
 	void SetRayEnd(Ray* p_ray, MechS32 p_x1, MechS32 p_y1, MechS32 p_z1);
 	void ClipRayToGround(Ray* p_ray, MechS32 p_y);
 	void CopyRay(Ray* p_dst, Ray* p_src);
-	MechS32 FUN_10003445(
+	MechS32 ClipRaySlab(
 		MechS32 p_origin,
 		MechS32 p_delta,
 		MechS32 p_min,

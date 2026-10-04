@@ -17,12 +17,12 @@ extern "C"
 #endif
 
 	extern struct DifficultyCfg* g_difficulty;
-	extern struct TimedCallback* g_unk0x100acb20;
+	extern struct TimedCallback* g_detachedTasks;
 	extern MechS32 g_shouldQuit;
 	extern MechS32 g_goLaunch;
 	extern MechS32 g_quitStage;
 	extern MechS32 g_localPlayerId;
-	extern MechS32 g_unk0x100acb34;
+	extern MechS32 g_startOnAutopilot;
 	extern struct VideoDriverChoice g_videoDriverChoice;
 	extern HANDLE g_primaryHeap;
 	extern MechS32 g_gameWindowWidth;

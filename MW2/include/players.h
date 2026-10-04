@@ -78,7 +78,7 @@ struct Player {
 	MechS32 m_animRate;                 // 0x94
 	Ramp m_aimRange;                    // 0x98 — eases towards m_aimDistance's
 	Ramp m_aimDistance;                 // 0xa8 — the distance the weapons converge at
-	MechS32 m_headingCos;               // 0xb8 — 16.16 (FUN_1006831a)
+	MechS32 m_headingCos;               // 0xb8 — 16.16 (UpdateDoor)
 	MechS32 m_headingSin;               // 0xbc — 16.16
 	PlayerTargetInfo m_targetInfo;      // 0xc0
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
@@ -147,9 +147,9 @@ extern "C"
 	void ShutdownAllPlayers(void);
 	void ZeroGameThing(MechS32 p_index);
 	void ZeroGamethings(void);
-	void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn);
-	MechS32 FUN_1006d340(MechS32 p_player);
-	void FUN_1006d3a4(Player* p_player);
+	void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn);
+	MechS32 AllocPlayer(MechS32 p_player);
+	void InitPlayer(Player* p_player);
 
 #ifdef __cplusplus
 }

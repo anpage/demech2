@@ -10,9 +10,9 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_10058560(BwdName* p_name);
-	MechS16* FUN_1005860e(BwdName* p_name);
-	void FUN_100586ec(void);
+	MechS32 AddBwdName(BwdName* p_name);
+	MechS16* FindBwdName(BwdName* p_name);
+	void FreeBwdNames(void);
 
 #ifdef __cplusplus
 }

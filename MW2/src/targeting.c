@@ -352,7 +352,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		nav->m_position[0] = p_x;
 		nav->m_position[1] = p_y;
 		nav->m_position[2] = p_z;
-		nav->m_unk0x00 = 1;
+		nav->m_used = 1;
 		nav->m_flags = 0x401;
 		nav->m_owner = p_owner | 0x200;
 		nav->m_team = g_players[p_owner]->m_team;
@@ -582,7 +582,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 
 	player = g_players[p_player];
 	nav = &g_navTable[p_nav];
-	if (!nav->m_unk0x00) {
+	if (!nav->m_used) {
 		return -3;
 	}
 
@@ -854,7 +854,7 @@ MechS32 UpdateTarget(Player* p_player)
 				p_player->m_index == g_localPlayerId) {
 				if (!(g_navTable[index].m_flags & 0x20)) {
 					g_navTable[index].m_flags |= 0x20;
-					g_navTable[index].m_unk0x26 |= 1 << p_player->m_team;
+					g_navTable[index].m_teamsReached |= 1 << p_player->m_team;
 					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
 				}
 

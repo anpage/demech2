@@ -422,11 +422,11 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		return FALSE;
 	}
 
-	if (FUN_10003445(p_ray->m_x0, p_ray->m_dirX, p_node->m_unk0x00, p_node->m_unk0x04, &tMin, &tMax)) {
+	if (ClipRaySlab(p_ray->m_x0, p_ray->m_dirX, p_node->m_unk0x00, p_node->m_unk0x04, &tMin, &tMax)) {
 		return FALSE;
 	}
 
-	if (FUN_10003445(p_ray->m_y0, p_ray->m_dirY, p_node->m_unk0x08, p_node->m_unk0x0c, &t0, &t1)) {
+	if (ClipRaySlab(p_ray->m_y0, p_ray->m_dirY, p_node->m_unk0x08, p_node->m_unk0x0c, &t0, &t1)) {
 		return FALSE;
 	}
 
@@ -438,7 +438,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		tMax = t1;
 	}
 
-	if (FUN_10003445(p_ray->m_z0, p_ray->m_dirZ, p_node->m_unk0x10, p_node->m_unk0x14, &t0, &t1)) {
+	if (ClipRaySlab(p_ray->m_z0, p_ray->m_dirZ, p_node->m_unk0x10, p_node->m_unk0x14, &t0, &t1)) {
 		return FALSE;
 	}
 

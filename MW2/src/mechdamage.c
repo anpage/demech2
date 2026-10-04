@@ -94,7 +94,7 @@ void RunAutopilot(Mech* p_mech)
 				p_mech->m_player->m_index == g_localPlayerId) {
 				if (!(g_navTable[index].m_flags & 0x20)) {
 					g_navTable[index].m_flags |= 0x20;
-					g_navTable[index].m_unk0x26 |= 1 << p_mech->m_player->m_team;
+					g_navTable[index].m_teamsReached |= 1 << p_mech->m_player->m_team;
 					if (g_navTable[index].m_flags & 0x40) {
 						FUN_1001cdd1();
 					}
@@ -163,11 +163,11 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 	if (p_mech->m_ammoBins) {
 		for (i = 0; i < 8; i++) {
 			section = &p_mech->m_sections[i];
-			if (section->m_unk0x26 & 0x2000) {
+			if (section->m_flags & 0x2000) {
 				continue;
 			}
 
-			for (j = 0; j < section->m_unk0x24; j++) {
+			for (j = 0; j < section->m_slotCount; j++) {
 				if (section->m_slots[j] > 10000) {
 					bin = p_mech->m_ammoBins;
 					for (k = 0; k < p_mech->m_ammoBinCount; k++) {
@@ -468,7 +468,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 	LoadClassLevel(p_mech->m_player->m_index, 1);
 }
 
-// Calls DestroyCriticalSlot once for each of section p_section's m_unk0x24.
+// Calls DestroyCriticalSlot once for each of section p_section's m_slotCount.
 // Stack-slot permutation of i, section and count; the loop test compares with i in eax in the
 // original (operand order).
 // FUNCTION: MW2 0x10008938
@@ -479,7 +479,7 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	MechS32 count;
 
 	section = p_mech->m_sections + p_section - 1;
-	count = section->m_unk0x24;
+	count = section->m_slotCount;
 	for (i = 0; i < count; i++) {
 		DestroyCriticalSlot(p_attacker, p_mech, p_section, 0, 1);
 	}
@@ -498,21 +498,21 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	}
 
 	section = p_mech->m_sections + p_section - 1;
-	if (section->m_unk0x26 & 0x2000) {
+	if (section->m_flags & 0x2000) {
 		return;
 	}
 
 	section->m_unk0x08 = 0;
-	section->m_unk0x26 |= 0x2000;
+	section->m_flags |= 0x2000;
 	DestroySectionSlots(p_attacker, p_mech, p_section);
 	switch (p_section) {
 	case 2:
 		DestroySection(p_attacker, p_mech, 5);
-		section->m_unk0x26 &= ~0x2000;
+		section->m_flags &= ~0x2000;
 		return;
 	case 4:
 		DestroySection(p_attacker, p_mech, 6);
-		section->m_unk0x26 &= ~0x2000;
+		section->m_flags &= ~0x2000;
 		return;
 	case 7:
 	case 8:
@@ -573,7 +573,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 		return;
 	}
 
-	if (p_slot >= section->m_unk0x24 || p_slot < 0) {
+	if (p_slot >= section->m_slotCount || p_slot < 0) {
 		return;
 	}
 
@@ -587,7 +587,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				continue;
 			}
 
-			if (weapon->m_unk0x2c == id) {
+			if (weapon->m_slotId == id) {
 				if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && weapon->m_unk0x00) {
 					switch (kind) {
 					case 0:
@@ -730,7 +730,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 		switch (kind) {
 		case 9000:
 			if (!p_recursing) {
-				DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
+				DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_slotCount), 1);
 				return;
 			}
 			else {
@@ -738,7 +738,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			}
 		case 8000:
 			if (!p_recursing) {
-				DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
+				DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_slotCount), 1);
 				return;
 			}
 			else {
@@ -906,12 +906,12 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 		}
 	}
 
-	for (i = p_slot; i < section->m_unk0x24 - 1; i++) {
+	for (i = p_slot; i < section->m_slotCount - 1; i++) {
 		section->m_slots[i] = section->m_slots[i + 1];
 	}
 
 	section->m_slots[i] = 0;
-	section->m_unk0x24--;
+	section->m_slotCount--;
 }
 
 // Deals p_damage (16.16) to section p_section of the mech, on behalf of player p_attacker: to its
@@ -982,21 +982,20 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 	if (rear && (p_section == 2 || p_section == 4 || p_section == 3)) {
 		side = 1;
 		front = FALSE;
-		levels = (section->m_unk0x26 & 0xf0) >> 4;
+		levels = (section->m_flags & 0xf0) >> 4;
 	}
 	else {
-		levels = section->m_unk0x26 & 0xf;
+		levels = section->m_flags & 0xf;
 	}
 
 	section->m_armor[side] -= p_damage;
-	section->m_unk0x26 |= 0x8000;
+	section->m_flags |= 0x8000;
 	if (section->m_armor[side] <= 0) {
-		if (!(section->m_unk0x26 & 0x4000) && p_mech->m_player->m_index == g_localPlayerId &&
-			p_mech->m_powerState == 2) {
+		if (!(section->m_flags & 0x4000) && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_powerState == 2) {
 			PlaySoundEffect(0xec, 100, 0x40, 5, 0x50);
 		}
 
-		section->m_unk0x26 |= 0x4000;
+		section->m_flags |= 0x4000;
 		section->m_unk0x08 += section->m_armor[side];
 		section->m_armor[side] = 0;
 		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
@@ -1011,13 +1010,13 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		else {
 			for (i = 0; i < RandomIntBelow(5); i++) {
 				roll = RandomIntBelow(100);
-				if (roll < 20 && section->m_unk0x24 > 0) {
+				if (roll < 20 && section->m_slotCount > 0) {
 					if (roll == 12) {
 						DestroySection(p_attacker, p_mech, p_section);
 						return;
 					}
 					else {
-						DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 0);
+						DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_slotCount), 0);
 					}
 				}
 			}

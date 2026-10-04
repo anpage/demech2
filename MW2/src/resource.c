@@ -221,7 +221,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 		memcpy(g_missionTables[slot], p_table, p_table->m_header.m_size);
 		g_missionTableCounts[slot] =
 			(g_missionTables[slot]->m_header.m_size - sizeof(BwdRecord)) / sizeof(MissionEntry);
-		FUN_1004da30(g_missionTables[slot]);
+		SetUpStarMission(g_missionTables[slot]);
 	}
 
 	return result;
@@ -357,11 +357,11 @@ void LoadStarTable(StarTable* p_table)
 	for (i = 0; i < count; i++) {
 		g_teams[i].m_unk0x08 = table->m_stars[i].m_unk0x00;
 		g_teams[i].m_side = table->m_stars[i].m_side;
-		g_unk0x1010ae10[table->m_stars[i].m_unk0x00] = table->m_stars[i].m_side;
-		if (g_unk0x100a5918 + 1 == i && g_playerTeamFormation) {
+		g_starSides[table->m_stars[i].m_unk0x00] = table->m_stars[i].m_side;
+		if (g_localStar + 1 == i && g_playerTeamFormation) {
 			SetTeamFormationByName(i, g_playerTeamFormation);
 		}
-		else if (g_unk0x100a5918 + 1 != i && g_otherTeamFormation) {
+		else if (g_localStar + 1 != i && g_otherTeamFormation) {
 			SetTeamFormationByName(i, g_otherTeamFormation);
 		}
 		else {
@@ -583,10 +583,10 @@ void GetPointNormalPlane(
 	MechFloat p_nx,
 	MechFloat p_ny,
 	MechFloat p_nz,
-	undefined4* p_unk0x18,
-	undefined4* p_unk0x1c,
-	undefined4* p_unk0x20,
-	undefined4* p_unk0x24
+	undefined4* p_planeX,
+	undefined4* p_planeY,
+	undefined4* p_planeZ,
+	undefined4* p_planeW
 )
 {
 	MechFloat a;
@@ -598,7 +598,7 @@ void GetPointNormalPlane(
 	b = -p_ny;
 	c = p_nz;
 	d = -(p_x * a + p_y * b + p_z * c);
-	ScalePlane(a, b, c, d, p_unk0x18, p_unk0x1c, p_unk0x20, p_unk0x24);
+	ScalePlane(a, b, c, d, p_planeX, p_planeY, p_planeZ, p_planeW);
 }
 
 // The original loads p_id first; the operand order follows the symbol table.

@@ -40,7 +40,7 @@ typedef struct WeaponSlot {
 	MechS32 m_ammo;       // 0x20 — -1 for unlimited
 	MechS32 m_volley;     // 0x24 — shots left in the current volley
 	MechS32 m_hardpoint;  // 0x28 — an index into Mech::m_objects
-	MechS32 m_unk0x2c;    // 0x2c — the id in MechSection::m_slots
+	MechS32 m_slotId;     // 0x2c — the id in MechSection::m_slots
 	MechS32 m_binCount;   // 0x30
 	MechS32 m_bins[10];   // 0x34 — its ammunition bins, indices into Mech::m_ammoBins
 	MechS32 m_index;      // 0x5c — its bit in the network weapons message

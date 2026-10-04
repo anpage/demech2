@@ -22,11 +22,11 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a5918;
+	extern MechS32 g_localStar;
 	extern MechS32 g_formationTemplateCount;
 	extern TeamFormation g_formationTemplates[32];
 	extern Team g_teams[16];
-	extern MechS32 g_unk0x1010ae10[8];
+	extern MechS32 g_starSides[8];
 	extern TeamFormation g_teamFormations[16];
 
 	void ResetTeams(void);

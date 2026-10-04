@@ -112,7 +112,7 @@ MechS32 g_collisionSoundPlayed;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
 // player, its cockpit), the ramps, weapon and motion state, its object back on the ground and the
-// player's pose from it. With g_unk0x100acb34 the local player starts on the autopilot.
+// player's pose from it. With g_startOnAutopilot the local player starts on the autopilot.
 // FUNCTION: MW2 0x10016ad0
 void FirstMech(struct Player* p_player)
 {
@@ -184,11 +184,11 @@ void FirstMech(struct Player* p_player)
 	mech->m_player->m_steering->m_nextObjective = 0;
 	StartMotion(mech->m_player);
 	EnableObjTreeCollision(mech->m_player->m_obj);
-	if (g_unk0x100acb34 && mech->m_player->m_index == g_localPlayerId) {
+	if (g_startOnAutopilot && mech->m_player->m_index == g_localPlayerId) {
 		mech->m_player->m_steering->m_throttle = 0x333;
 		mech->m_player->m_steering->m_autopilot = 1;
 		mech->m_player->m_steering->m_advanceNav = 1;
-		g_unk0x100a2418 = 1;
+		g_autopilotStart = 1;
 	}
 	else {
 		mech->m_player->m_steering->m_autopilot = 0;
@@ -338,7 +338,7 @@ void UpdateMech(Mech* p_mech)
 			velX = mech->m_velocityX;
 			velZ = mech->m_velocityZ;
 			if (velY > 0) {
-				drag = FixedMul16((g_gravity - mech->m_jumpThrust) * 0xe24, velY) / g_unk0x100a2bdc;
+				drag = FixedMul16((g_gravity - mech->m_jumpThrust) * 0xe24, velY) / g_jumpJetDrag;
 			}
 
 			accelY += mech->m_jumpThrust + drag;
@@ -686,9 +686,9 @@ void LateUpdateMech(Mech* p_mech)
 		UpdateWeaponFireState(mech);
 	}
 
-	if (g_unk0x100a15d0 >= 0 && g_unk0x100a15d4 >= 0 && mech->m_player->m_index == g_localPlayerId) {
-		DestroyCriticalSlot(-1, mech, g_unk0x100a15d4, g_unk0x100a15d0, 0);
-		g_unk0x100a15d0 = -1;
+	if (g_debugSlot >= 0 && g_debugSection >= 0 && mech->m_player->m_index == g_localPlayerId) {
+		DestroyCriticalSlot(-1, mech, g_debugSection, g_debugSlot, 0);
+		g_debugSlot = -1;
 	}
 
 	UpdateAI(mech->m_player);
@@ -1315,7 +1315,7 @@ void InitMechArrays(struct Mech* p_mech)
 		slot->m_targetKind = 0;
 		slot->m_volley = 0;
 		slot->m_hardpoint = -1;
-		slot->m_unk0x2c = 0;
+		slot->m_slotId = 0;
 		slot->m_binCount = 0;
 		slot->m_index = 0;
 		slot++;

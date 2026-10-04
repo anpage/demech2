@@ -18,7 +18,7 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // and each objective's, with its conditions.
 // Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
 // FUNCTION: MW2 0x1004da30
-void FUN_1004da30(MissionTable* p_table)
+void SetUpStarMission(MissionTable* p_table)
 {
 	MechS32 i;
 	MechS32 count;
@@ -47,10 +47,10 @@ void FUN_1004da30(MissionTable* p_table)
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0xa9 = p_table->m_entries[i].m_unk0x53;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0xab = p_table->m_entries[i].m_unk0x55;
 		if (p_table->m_entries[i].m_listed == 'V') {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x74 = 1;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = 1;
 		}
 		else {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x74 = 0;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = 0;
 		}
 
 		if (p_table->m_entries[i].m_unk0x2f == 'M') {

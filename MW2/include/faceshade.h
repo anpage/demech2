@@ -13,10 +13,10 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a555c;
+	extern MechS32 g_brightenDetail;
 	extern MechS32 g_ambientLight;
 
-	MechU32 FUN_10036230(struct Face* p_face, struct Vertex* p_vertices, MechU32 p_color, MechS32 p_distance);
+	MechU32 GetFaceColor(struct Face* p_face, struct Vertex* p_vertices, MechU32 p_color, MechS32 p_distance);
 	void ToggleTextureMaps(MechU32 p_flags);
 	MechS32 AreTextureMapsOn(MechU32 p_flags);
 	void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable);

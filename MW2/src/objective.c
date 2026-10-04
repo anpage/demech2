@@ -176,7 +176,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 		break;
 	case 0x100:
 		nav = &g_navTable[index];
-		if ((nav->m_flags & 0x20) && ((1 << p_team) & nav->m_unk0x26)) {
+		if ((nav->m_flags & 0x20) && ((1 << p_team) & nav->m_teamsReached)) {
 			reached = TRUE;
 		}
 		break;
@@ -251,10 +251,9 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 													  g_players[i]->m_position.m_z - nav->m_position[2],
 													  radius
 												  )) {
-				if (i == g_localPlayerId && (g_players[i]->m_flags & 0x2000) && !(nav->m_flags & 0x20) &&
-					nav->m_unk0x00) {
+				if (i == g_localPlayerId && (g_players[i]->m_flags & 0x2000) && !(nav->m_flags & 0x20) && nav->m_used) {
 					nav->m_flags |= 0x20;
-					nav->m_unk0x26 |= 1 << p_team;
+					nav->m_teamsReached |= 1 << p_team;
 					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
 				}
 
@@ -269,7 +268,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 
 // Announces the local team's objective p_objective as successful (p_state 5) or failed (6), once.
 // Stack-slot permutation; the original computes the objective's index before the star's (index order)
-// and compares p_star with g_unk0x100a5918 in the other operand order.
+// and compares p_star with g_localStar in the other operand order.
 // FUNCTION: MW2 0x1001b0cb
 MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
@@ -278,7 +277,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 	MissionObjective* objective;
 
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
-	if (p_star != g_unk0x100a5918 || g_objectiveAnnounced[p_objective]) {
+	if (p_star != g_localStar || g_objectiveAnnounced[p_objective]) {
 		return TRUE;
 	}
 
@@ -293,7 +292,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 		line.m_data = ReadSoundFile(objective->m_failSound);
 	}
 
-	if (text[0] == ' ' || !objective->m_unk0x74) {
+	if (text[0] == ' ' || !objective->m_listed) {
 		line.m_text = "";
 	}
 	else {
@@ -327,15 +326,15 @@ void ChooseNetworkWinner(void)
 
 	best = -0x7fff;
 	deathmatch = FALSE;
-	mission = &g_objectiveTable[g_unk0x100a5918];
-	team = g_unk0x100a5918;
+	mission = &g_objectiveTable[g_localStar];
+	team = g_localStar;
 	if (g_isNetworkGame && !g_difficulty->m_unk0x0a) {
 		listed = 0;
 		secondary = FALSE;
 		for (i = 0; i < mission->m_objectiveCount; i++) {
-			objective = &g_objectiveTable[g_unk0x100a5918].m_objectives[i];
-			listed += objective->m_unk0x74;
-			if (objective->m_unk0x74 && objective->m_priority == 2) {
+			objective = &g_objectiveTable[g_localStar].m_objectives[i];
+			listed += objective->m_listed;
+			if (objective->m_listed && objective->m_priority == 2) {
 				secondary = TRUE;
 			}
 		}
@@ -379,7 +378,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 	MechChar text[100];
 	SpeechLine line;
 
-	if (p_star != g_unk0x100a5918) {
+	if (p_star != g_localStar) {
 		return TRUE;
 	}
 
@@ -604,7 +603,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 		}
 		break;
 	case 0x100:
-		if (g_unk0x100a5918 != p_star && !g_isNetworkGame) {
+		if (g_localStar != p_star && !g_isNetworkGame) {
 			if (done && g_currentObjective[p_star] == p_objective) {
 				done = TRUE;
 			}
@@ -697,11 +696,11 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 			break;
 		}
 
-		if (!g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74) {
-			g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 1;
+		if (!g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_listed) {
+			g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_listed = 1;
 		}
 		else {
-			g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 0;
+			g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_listed = 0;
 		}
 
 		state = 5;
@@ -806,7 +805,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 		}
 		else {
 			if (!done) {
-				if (g_unk0x100a5918 == p_star) {
+				if (g_localStar == p_star) {
 					state = 6;
 				}
 				else {
@@ -901,7 +900,7 @@ void UpdateObjectives(void)
 				mission->m_endTime = g_missionTime;
 			}
 		}
-		else if (star == g_unk0x100a5918 && !g_missionTimerStopped && !g_speechQueue && !g_missionResolved) {
+		else if (star == g_localStar && !g_missionTimerStopped && !g_speechQueue && !g_missionResolved) {
 			g_missionResolved = 1;
 			g_missionEnded = 0;
 			g_missionEndTime = 0;
@@ -943,14 +942,14 @@ MechS32 EndTheMission2(void)
 	MechS32 count;
 
 	count = 0;
-	mission = &g_objectiveTable[g_unk0x100a5918];
+	mission = &g_objectiveTable[g_localStar];
 	memset(&result, 0, sizeof(result));
 	result.m_tag = g_missionResultTag;
 	result.m_startTime = mission->m_startTime;
 	result.m_endTime = mission->m_endTime;
 	result.m_status = mission->m_status;
 	for (i = 0; i < mission->m_objectiveCount; i++) {
-		if (!mission->m_objectives[i].m_unk0x74) {
+		if (!mission->m_objectives[i].m_listed) {
 			continue;
 		}
 
@@ -995,11 +994,11 @@ void RestartStarMission(MechS32 p_star)
 	for (i = 0; i < mission->m_objectiveCount; i++) {
 		objective = &mission->m_objectives[i];
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
-			if (!g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74) {
-				g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 1;
+			if (!g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_listed) {
+				g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_listed = 1;
 			}
 			else {
-				g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_unk0x74 = 0;
+				g_objectiveTable[objective->m_unk0xa9].m_objectives[objective->m_unk0xab].m_listed = 0;
 			}
 		}
 

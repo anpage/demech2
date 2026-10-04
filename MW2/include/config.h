@@ -20,14 +20,14 @@ typedef struct DifficultyCfg {
 	undefined m_splashDamage;    // 0x02 — splash damage hurts mechs; set in network games with more than one player
 	undefined m_collisionDamage; // 0x03 — collisions hurt mechs; set in network games with more than one player
 	undefined m_heatTracking;    // 0x04 — fires heat mechs nearby; set in network games with more than one player
-	undefined m_unk0x05;         // 0x05 — 2 in network games
+	undefined m_enemySkill;      // 0x05 — 0 easy, 1 medium, 2 hard (MW2SHELL); 2 in network games
 	undefined m_unk0x06[2];      // 0x06
-	undefined m_unk0x08;         // 0x08 — after the mission ends, the view can still be moved
+	undefined m_regenerate;      // 0x08 — after the mission ends, the local player can regenerate
 	undefined m_unk0x09;         // 0x09 — set outside network games
 	undefined m_unk0x0a;         // 0x0a
 	undefined4 m_unk0x0b;        // 0x0b — cleared outside network games
-	undefined4 m_unk0x0f;        // 0x0f — cleared outside network games
-	undefined4 m_unk0x13;        // 0x13 — cleared outside network games
+	undefined4 m_gravity;        // 0x0f — overrides the planet's gravity when set; cleared outside network games
+	undefined4 m_temperature;    // 0x13 — overrides the planet's temperature when set; cleared outside network games
 } DifficultyCfg;
 #pragma pack()
 
@@ -66,13 +66,13 @@ extern "C"
 	void DrawPanelAnim(struct PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
 	MechS32 LoadMgdFile(
 		struct ResourceRef* p_ref,
-		MechS32* p_unk0x04,
-		MechS32* p_unk0x08,
+		MechS32* p_height,
+		MechS32* p_cockpitHeight,
 		MechS32* p_unk0x0c,
 		MechS32* p_unk0x10,
 		MechS32* p_unk0x14,
-		MechS32* p_unk0x18,
-		MechS32* p_unk0x1c
+		MechS32* p_maxTorsoTwist,
+		MechS32* p_radius
 	);
 	MechS32 LoadReels(struct ResourceRef* p_ref);
 	MechS32 LoadHudFile(struct ResourceRef* p_ref);

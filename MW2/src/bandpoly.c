@@ -8,14 +8,14 @@
 
 #include <stdlib.h>
 
-// The texture coordinates of a band's corners (FUN_100107de).
+// The texture coordinates of a band's corners (DrawBand).
 // GLOBAL: MW2 0x100a2330
-Point g_unk0x100a2330[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x10000}};
+Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x10000}};
 
 // Draws a polygon of p_count points in the mode in p_flags' low four bits, in the color in bits
-// 4-11: modes 0 and 3 draw it filled (FUN_100107de) when the render settings allow.
+// 4-11: modes 0 and 3 draw it filled (DrawBand) when the render settings allow.
 // FUNCTION: MW2 0x10010750
-void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
+void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
 {
 	MechU32 color;
 	MechU32 mode;
@@ -26,7 +26,7 @@ void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p
 	case 0:
 	case 3:
 		if (g_renderSettings.m_flags & 1) {
-			FUN_100107de(color, p_count, (MechS32*) p_points, p_unk0x0c, 0);
+			DrawBand(color, p_count, (MechS32*) p_points, p_unk0x0c, 0);
 		}
 		break;
 	case 1:
@@ -41,7 +41,7 @@ void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p
 // 1). A negative mark flips the texture. Returns half the band's width, or 0 without both ends.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100107de
-MechS32 FUN_100107de(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_luma, MechS32 p_mode)
+MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_luma, MechS32 p_mode)
 {
 	MechS32 x0;
 	MechS32 y0;
@@ -123,7 +123,7 @@ MechS32 FUN_100107de(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS3
 	}
 
 	for (i = 0; i < 4; i++) {
-		quad[i][4] = g_unk0x100a2330[i].m_y;
+		quad[i][4] = g_bandTexCoords[i].m_y;
 		if (flip) {
 			if (i % 2) {
 				step = -1;
@@ -132,10 +132,10 @@ MechS32 FUN_100107de(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS3
 				step = 1;
 			}
 
-			quad[i][3] = g_unk0x100a2330[step + i].m_x;
+			quad[i][3] = g_bandTexCoords[step + i].m_x;
 		}
 		else {
-			quad[i][3] = g_unk0x100a2330[i].m_x;
+			quad[i][3] = g_bandTexCoords[i].m_x;
 		}
 	}
 
@@ -148,7 +148,7 @@ MechS32 FUN_10010a7f(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4* p_unk0
 {
 	MechS32 result;
 
-	result = FUN_100107de(p_unk0x00, p_unk0x04, (MechS32*) p_unk0x08, 15, 0);
+	result = DrawBand(p_unk0x00, p_unk0x04, (MechS32*) p_unk0x08, 15, 0);
 	if (result > 60) {
 		StartPaletteFade(17, 181, 1);
 	}

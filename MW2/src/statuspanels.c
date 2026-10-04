@@ -117,16 +117,16 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 	MechChar text[256];
 
 	target = p_panel->m_target;
-	mission = &g_objectiveTable[g_unk0x100a5918];
+	mission = &g_objectiveTable[g_localStar];
 	height = VFX_font_height(p_font);
 	primary = FALSE;
 	if (g_isNetworkGame && !g_difficulty->m_unk0x0a) {
 		count = 0;
 		secondary = FALSE;
 		for (i = 0; i < mission->m_objectiveCount; i++) {
-			objective = &g_objectiveTable[g_unk0x100a5918].m_objectives[i];
-			count += objective->m_unk0x74;
-			if (objective->m_unk0x74 && objective->m_priority == 2) {
+			objective = &g_objectiveTable[g_localStar].m_objectives[i];
+			count += objective->m_listed;
+			if (objective->m_listed && objective->m_priority == 2) {
 				secondary = TRUE;
 			}
 		}
@@ -137,8 +137,8 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 	}
 
 	for (i = 0; i < mission->m_objectiveCount; i++) {
-		objective = &g_objectiveTable[g_unk0x100a5918].m_objectives[i];
-		if (!objective->m_unk0x74 || objective->m_priority != p_priority) {
+		objective = &g_objectiveTable[g_localStar].m_objectives[i];
+		if (!objective->m_listed || objective->m_priority != p_priority) {
 			continue;
 		}
 
@@ -247,7 +247,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	mission = &g_objectiveTable[g_unk0x100a5918];
+	mission = &g_objectiveTable[g_localStar];
 	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;

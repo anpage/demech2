@@ -130,12 +130,12 @@ MechS32 AddClassEntryLevel(
 	}
 
 	entry->m_unk0x08[p_level] = p_unk0x00;
-	entry->m_unk0x38[p_level] = p_unk0x1c;
+	entry->m_kinds[p_level] = p_unk0x1c;
 	if (p_level < 5) {
 		for (i = p_level + 1; i < 5; i++) {
 			if (entry->m_unk0x08[i] == -1) {
 				entry->m_unk0x08[i] = p_unk0x00;
-				entry->m_unk0x38[i] = p_unk0x1c;
+				entry->m_kinds[i] = p_unk0x1c;
 			}
 		}
 	}
@@ -163,7 +163,7 @@ void ResetClassTable(void)
 		entry->m_unk0x2c = entry->m_unk0x30 = entry->m_unk0x34 = 0;
 		for (level = 0; level < 5; level++) {
 			entry->m_unk0x08[level] = -1;
-			entry->m_unk0x38[level] = 0;
+			entry->m_kinds[level] = 0;
 		}
 	}
 
@@ -205,9 +205,9 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 		return 1;
 	}
 
-	g_unk0x100bfd40 = 1;
-	g_unk0x100bfd44 = 0x100;
-	g_unk0x100bfd48 = p_owner;
+	g_shapeOwnerSet = 1;
+	g_shapeOwnerKind = 0x100;
+	g_shapeOwner = p_owner;
 	for (i = 0; i < g_classEntryCount; i++) {
 		entry = &g_classTable[i];
 		if (entry->m_owner == p_owner) {
@@ -224,7 +224,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 		}
 	}
 
-	g_unk0x100bfd40 = 0;
+	g_shapeOwnerSet = 0;
 	return result;
 }
 
@@ -333,7 +333,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 
 		SetObjShape(entry->m_obj, entry->m_shape);
 		SetShapeObject(entry->m_shape, entry->m_obj);
-		kind = entry->m_unk0x38[p_level] & 0xf0;
+		kind = entry->m_kinds[p_level] & 0xf0;
 		SetShapeKind(entry->m_shape, kind | 0x100);
 		SetShapeOwner(entry->m_shape, entry->m_owner);
 		SetShapePartId(entry->m_shape, entry->m_unk0x20);

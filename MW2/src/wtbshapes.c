@@ -70,13 +70,13 @@ MechU32* g_faceIds;
 MechS32 g_shapeHasKey;
 
 // GLOBAL: MW2 0x100bfd40
-MechS32 g_unk0x100bfd40;
+MechS32 g_shapeOwnerSet;
 
 // GLOBAL: MW2 0x100bfd44
-MechS32 g_unk0x100bfd44;
+MechS32 g_shapeOwnerKind;
 
 // GLOBAL: MW2 0x100bfd48
-MechS32 g_unk0x100bfd48;
+MechS32 g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
 void SetFaceIds(MechU32* p_ids, MechU32 p_count)
@@ -379,8 +379,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	return 0;
 }
 
-// Maps a face id: ids 0 and 0x14 take the team colour of player g_unk0x100bfd48 while
-// g_unk0x100bfd40 is set; ids with bit 15 index g_faceIds.
+// Maps a face id: ids 0 and 0x14 take the team colour of player g_shapeOwner while
+// g_shapeOwnerSet is set; ids with bit 15 index g_faceIds.
 // FUNCTION: MW2 0x1007fae3
 MechU32 MapFaceId(MechU32 p_id)
 {
@@ -388,13 +388,13 @@ MechU32 MapFaceId(MechU32 p_id)
 	MechS32 offset;
 
 	offset = 0;
-	if (g_unk0x100bfd40 && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
-		if (g_unk0x100bfd44 == 0x100) {
-			team = g_players[g_unk0x100bfd48]->m_team;
+	if (g_shapeOwnerSet && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
+		if (g_shapeOwnerKind == 0x100) {
+			team = g_players[g_shapeOwner]->m_team;
 			offset = g_teams[team].m_unk0x08;
 		}
-		else if (g_gameThings[g_unk0x100bfd48].m_unk0x0c != -1) {
-			offset = g_gameThings[g_unk0x100bfd48].m_unk0x0c;
+		else if (g_gameThings[g_shapeOwner].m_unk0x0c != -1) {
+			offset = g_gameThings[g_shapeOwner].m_unk0x0c;
 		}
 
 		p_id += offset;

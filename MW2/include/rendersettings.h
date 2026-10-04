@@ -13,7 +13,7 @@ typedef struct RenderSettings {
 	MechS32 m_gouraud;     // 0x04 — DrawScenePolygon blends shaded polygons (VFX_dithered_Gouraud_polygon)
 	undefined4 m_unk0x08;  // 0x08
 	MechS32 m_textures;    // 0x0c — DrawScenePolygon draws textured polygons
-	undefined4 m_flags;    // 0x10 — 1: bands are filled (FUN_10010750); FirstRender sets 8
+	undefined4 m_flags;    // 0x10 — 1: bands are filled (DrawBandPolygon); FirstRender sets 8
 	MechS32 m_drawLines;   // 0x14 — two-point polygons are drawn as lines
 	MechS32 m_drawPixels;  // 0x18 — one-point polygons are drawn as pixels
 	MechS32 m_drawSky;     // 0x1c — the planet's sky (DrawSkyAndGround)
@@ -29,7 +29,7 @@ typedef struct RenderSettings {
 	MechS32 m_unk0x3c;                 // 0x3c — set with a fade distance, cleared while an effect lights
 									   // the scene
 	undefined4 m_unk0x40;              // 0x40
-	MechS32 m_fadeDistance;            // 0x44 — shades dim with the distance over it (FUN_100367c5)
+	MechS32 m_fadeDistance;            // 0x44 — shades dim with the distance over it (ComputeShade)
 	undefined4 m_unk0x48;              // 0x48
 	MechS32 m_affineTextures;          // 0x4c — textures without perspective correction (low display
 									   // detail)
@@ -38,7 +38,7 @@ typedef struct RenderSettings {
 	void (*m_frameDrawCallback)(void); // 0x54
 	MechS32 (*m_shapeFilter)();        // 0x58 — a shape filter: nonzero skips the shape
 	struct ProjectedVertex* (*m_projectVertex)(struct ProjectedVertex* p_vertex); // 0x5c — projects a vertex
-	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (FUN_10036230)
+	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (GetFaceColor)
 	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags);   // 0x64
 } RenderSettings;
 

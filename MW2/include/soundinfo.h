@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// The playback limits of one sound resource, from the table FUN_10013370 unpacks; -1 is unset.
+// The playback limits of one sound resource, from the table InitSoundInfo unpacks; -1 is unset.
 // SIZE 0x08
 typedef struct SoundInfo {
 	MechS16 m_priority; // 0x00

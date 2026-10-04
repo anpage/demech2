@@ -23,7 +23,7 @@ typedef struct Eyepoint {
 	MechS32 m_lightY;                        // 0x20
 	MechS32 m_lightZ;                        // 0x24
 	MechS16 m_directionalLight;              // 0x28 — nonzero: light from the origin's direction
-	MechS16 m_ambientLight;                  // 0x2a — out of 0x80 (FUN_100367c5)
+	MechS16 m_ambientLight;                  // 0x2a — out of 0x80 (ComputeShade)
 	MechS32 m_viewLeft;                      // 0x2c — the view rectangle, in pixels of the pane
 	MechS32 m_viewRight;                     // 0x30
 	MechS32 m_viewTop;                       // 0x34
@@ -92,7 +92,7 @@ extern "C"
 	extern MechS32 g_dropStartClock;
 	extern MechS32 g_ordinanceReturnMode;
 	extern MechS32 g_trackedPlayer;
-	extern MechS32 g_unk0x100a2418;
+	extern MechS32 g_autopilotStart;
 	void FirstEyepoint(void);
 	void UpdateCockpitView(void);
 	void GetCockpitEyeView(

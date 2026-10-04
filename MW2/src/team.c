@@ -20,7 +20,7 @@ DECOMP_SIZE_ASSERT(TeamFormation, 0x70)
 DECOMP_SIZE_ASSERT(Team, 0x38)
 
 // GLOBAL: MW2 0x100a5918
-MechS32 g_unk0x100a5918 = -1;
+MechS32 g_localStar = -1;
 
 // GLOBAL: MW2 0x100a591c
 MechS32 g_formationTemplateCount = 0;
@@ -32,7 +32,7 @@ TeamFormation g_formationTemplates[32];
 Team g_teams[16];
 
 // GLOBAL: MW2 0x1010ae10
-MechS32 g_unk0x1010ae10[8];
+MechS32 g_starSides[8];
 
 // GLOBAL: MW2 0x1010ae30
 TeamFormation g_teamFormations[16];
@@ -90,7 +90,7 @@ void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 		return;
 	}
 
-	if (p_team == g_unk0x100a5918) {
+	if (p_team == g_localStar) {
 		SayFormation(p_formation);
 	}
 
@@ -290,7 +290,7 @@ MechS32 GetThingSide(MechS32 p_thing)
 		return 2;
 	}
 	else {
-		return g_unk0x1010ae10[index];
+		return g_starSides[index];
 	}
 }
 
