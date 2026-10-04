@@ -44,25 +44,25 @@
 // target lock of guided weapons.
 
 // GLOBAL: MW2 0x100a6d34
-Shape* g_unk0x100a6d34 = NULL;
+Shape* g_aimedShape = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
-MechS32 g_unk0x100a6d38 = 1;
+MechS32 g_singleWeaponFire = 1;
 
 // The weapons each remote player's weapons message fired, and those the local player fired since
 // the last one (network.c).
 
 // GLOBAL: MW2 0x101099c0
-MechS32 g_unk0x101099c0[10];
+MechS32 g_remoteWeaponsFired[10];
 
 // GLOBAL: MW2 0x101099f0
-MechS32 g_unk0x101099f0[10];
+MechS32 g_localWeaponsFired[10];
 
 // Index order: the original computes the slot address index first, `&p_mech->m_weapons[i]` loads the base
 // first here (it flips with the symbols declared ahead of it).
 // FUNCTION: MW2 0x10044740
-void FUN_10044740(Mech* p_mech)
+void ReleaseWeaponTriggers(Mech* p_mech)
 {
 	WeaponSlot* slot;
 	MechS32 i;
@@ -75,8 +75,8 @@ void FUN_10044740(Mech* p_mech)
 	}
 
 	for (i = 0; i < 10; i++) {
-		g_unk0x101099f0[i] = 0;
-		g_unk0x101099c0[i] = 0;
+		g_localWeaponsFired[i] = 0;
+		g_remoteWeaponsFired[i] = 0;
 	}
 }
 
@@ -102,23 +102,23 @@ void UpdateWeaponFireState(Mech* p_mech)
 
 	p_mech->m_lastSelectedWeapon = p_mech->m_selectedWeapon;
 	if (p_mech->m_player->m_steering->m_toggleGroupFire) {
-		if (g_unk0x100a6d38) {
-			g_unk0x100a6d38 = 0;
+		if (g_singleWeaponFire) {
+			g_singleWeaponFire = 0;
 			PlayCockpitSound(7, 1);
 		}
 		else {
-			g_unk0x100a6d38 = 1;
+			g_singleWeaponFire = 1;
 			PlayCockpitSound(6, 1);
 		}
 	}
 
 	if (p_mech->m_flags & 0x4000) {
-		FUN_10045e25(p_mech);
+		AddNextWeaponToGroup(p_mech);
 	}
 	else if (p_mech->m_selectedWeapon != -1) {
 		slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
 		def = &g_weaponDefs[slot->m_type];
-		if (!g_unk0x100a6d38 && p_mech->m_player->m_index == g_localPlayerId) {
+		if (!g_singleWeaponFire && p_mech->m_player->m_index == g_localPlayerId) {
 			p_mech->m_player->m_steering->m_weaponFireGroup = p_mech->m_player->m_steering->m_weaponFire;
 			p_mech->m_player->m_steering->m_weaponFire = 0;
 		}
@@ -126,30 +126,30 @@ void UpdateWeaponFireState(Mech* p_mech)
 		if (p_mech->m_player->m_steering->m_weaponFireGroup) {
 			if (!(p_mech->m_flags & 1)) {
 				p_mech->m_flags |= 1;
-				FUN_10045cd8();
+				FireWeaponGroup();
 			}
 		}
 		else if (p_mech->m_player->m_steering->m_weaponFireGroup1) {
 			if (!(p_mech->m_flags & 1)) {
 				p_mech->m_flags |= 1;
-				if (FUN_100457d3(p_mech, 0)) {
-					FUN_10045cd8();
+				if (SelectWeaponGroup(p_mech, 0)) {
+					FireWeaponGroup();
 				}
 			}
 		}
 		else if (p_mech->m_player->m_steering->m_weaponFireGroup2) {
 			if (!(p_mech->m_flags & 1)) {
 				p_mech->m_flags |= 1;
-				if (FUN_100457d3(p_mech, 1)) {
-					FUN_10045cd8();
+				if (SelectWeaponGroup(p_mech, 1)) {
+					FireWeaponGroup();
 				}
 			}
 		}
 		else if (p_mech->m_player->m_steering->m_weaponFireGroup3) {
 			if (!(p_mech->m_flags & 1)) {
 				p_mech->m_flags |= 1;
-				if (FUN_100457d3(p_mech, 2)) {
-					FUN_10045cd8();
+				if (SelectWeaponGroup(p_mech, 2)) {
+					FireWeaponGroup();
 				}
 			}
 		}
@@ -161,7 +161,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 					slot->m_volley = def->m_volley;
 					slot->m_time = 0;
 					DodgeShot(slot, p_mech);
-					if (def->m_unk0x18 && (p_mech->m_flags & 0x80)) {
+					if (def->m_guided && (p_mech->m_flags & 0x80)) {
 						slot->m_target = p_mech->m_player->m_targetInfo.m_target & 0xff;
 						slot->m_targetKind = p_mech->m_player->m_targetInfo.m_target & 0xf00;
 					}
@@ -176,7 +176,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 		}
 		else if (p_mech->m_flags & 1) {
 			p_mech->m_flags &= ~1;
-			FUN_10045449(p_mech, 0);
+			SelectNextWeaponInGroup(p_mech, 0);
 		}
 	}
 
@@ -221,8 +221,8 @@ void UpdateWeaponFireState(Mech* p_mech)
 					p_mech->m_player->m_firingObj = p_mech->m_objects[slot->m_hardpoint];
 					fired = SpawnShot(p_mech->m_player, slot);
 					if (fired) {
-						FUN_1006b1c8(def->m_unk0x08, p_mech->m_player);
-						FUN_1006b1c8(def->m_unk0x0c, p_mech->m_player);
+						SpawnLaunchEffect(def->m_launchEffect, p_mech->m_player);
+						SpawnLaunchEffect(def->m_launchEffect2, p_mech->m_player);
 						slot->m_volley--;
 						time -= def->m_interval;
 						slot->m_time = time;
@@ -231,7 +231,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 						if (first) {
 							first = FALSE;
 							if (p_mech->m_player->m_index == g_localPlayerId) {
-								g_unk0x101099f0[slot->m_index] = 1;
+								g_localWeaponsFired[slot->m_index] = 1;
 							}
 
 							if (def->m_sound > 0) {
@@ -260,7 +260,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 							}
 						}
 
-						if (slot->m_volley == 0 && def->m_unk0x10 &&
+						if (slot->m_volley == 0 && def->m_autoRepeat &&
 							(p_mech->m_player->m_steering->m_weaponFire ||
 							 p_mech->m_player->m_steering->m_weaponFireGroup ||
 							 p_mech->m_player->m_steering->m_weaponFireGroup1 ||
@@ -350,7 +350,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 		}
 	}
 
-	if (def->m_unk0x14) {
+	if (def->m_launchesShot) {
 		for (i = 0; !found && i < 0xaf; i++) {
 			shot = &g_shots[i];
 			if (def->m_shotType == shot->m_type && !shot->m_flags && shot->m_object) {
@@ -360,7 +360,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 
 		if (found) {
 			if (p_player->m_index != g_localPlayerId) {
-				FUN_10046269(p_player);
+				UpdateAimDistance(p_player);
 			}
 
 			shot->m_age = p_slot->m_time;
@@ -379,7 +379,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_velocity[0] = dx * speed;
 			shot->m_velocity[1] = dy * speed;
 			shot->m_velocity[2] = dz * speed;
-			shot->m_steering[1] = FixedMul16(-g_unk0x100ba600, def->m_unk0x28 << 16);
+			shot->m_steering[1] = FixedMul16(-g_unk0x100ba600, def->m_gravity << 16);
 			shot->m_steering[0] = shot->m_steering[2] = 0;
 			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, shot->m_type == 3 || shot->m_type == 4);
 			ShowObjTree(shot->m_object);
@@ -388,10 +388,10 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 
 			if (p_player->m_index == g_localPlayerId) {
 				if (shot->m_type == 3 || shot->m_type == 4) {
-					g_unk0x100ad448 = i - 1;
+					g_lastLocalMissile = i - 1;
 				}
 				else {
-					g_unk0x100ad448 = -1;
+					g_lastLocalMissile = -1;
 				}
 			}
 		}
@@ -404,7 +404,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 // there is none.
 // Stack-slot permutation: index, group, slot, found, i and selected.
 // FUNCTION: MW2 0x10045449
-void FUN_10045449(Mech* p_mech, MechS32 p_wrap)
+void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 {
 	MechS32 index;
 	MechS32 group;
@@ -437,14 +437,14 @@ void FUN_10045449(Mech* p_mech, MechS32 p_wrap)
 	}
 
 	if (!found && p_wrap) {
-		FUN_1004567b(p_mech);
+		SelectNextWeaponGroup(p_mech);
 	}
 }
 
 // Selects the next weapon that still has ammunition.
 // Stack-slot permutation: done and tries.
 // FUNCTION: MW2 0x10045567
-void FUN_10045567(Mech* p_mech)
+void SelectNextWeapon(Mech* p_mech)
 {
 	MechS32 done;
 	MechS32 tries;
@@ -480,7 +480,7 @@ void FUN_10045567(Mech* p_mech)
 // Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: group, i,
 // found, selected and current.
 // FUNCTION: MW2 0x1004567b
-void FUN_1004567b(Mech* p_mech)
+void SelectNextWeaponGroup(Mech* p_mech)
 {
 	MechS32 group;
 	MechS32 i;
@@ -521,7 +521,7 @@ void FUN_1004567b(Mech* p_mech)
 // Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: i, found,
 // selected and current.
 // FUNCTION: MW2 0x100457d3
-MechS32 FUN_100457d3(Mech* p_mech, MechS32 p_group)
+MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 {
 	MechS32 i;
 	MechS32 found;
@@ -561,7 +561,7 @@ MechS32 FUN_100457d3(Mech* p_mech, MechS32 p_group)
 
 // Returns 1 if the selected weapon is ready, 0 if not, -1 without one.
 // FUNCTION: MW2 0x10045919
-MechS32 FUN_10045919(Mech* p_mech)
+MechS32 IsSelectedWeaponReady(Mech* p_mech)
 {
 	MechS32 result;
 
@@ -580,7 +580,7 @@ MechS32 FUN_10045919(Mech* p_mech)
 
 // Dumps the selected weapon's ammunition.
 // FUNCTION: MW2 0x1004597b
-MechS32 FUN_1004597b(Mech* p_mech)
+MechS32 JettisonAmmo(Mech* p_mech)
 {
 	MechChar text[40];
 	WeaponSlot* slot;
@@ -606,7 +606,7 @@ MechS32 FUN_1004597b(Mech* p_mech)
 // Loads the launch sounds of the weapons and the sounds of the effects.
 // Stack-slot permutation: i and def.
 // FUNCTION: MW2 0x10045a5b
-void FUN_10045a5b(void)
+void LoadWeaponSounds(void)
 {
 	MechS32 i;
 	WeaponDef* def;
@@ -626,7 +626,7 @@ void FUN_10045a5b(void)
 }
 
 // FUNCTION: MW2 0x10045b14
-void FUN_10045b14(Mech* p_mech, MechS32 p_index, MechS32 p_group)
+void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 {
 	WeaponSlot* slot;
 
@@ -638,7 +638,7 @@ void FUN_10045b14(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 
 // Moves the local player's selected weapon to p_group.
 // FUNCTION: MW2 0x10045b56
-void FUN_10045b56(MechS32 p_group)
+void SetSelectedWeaponGroup(MechS32 p_group)
 {
 	Mech* mech;
 	WeaponSlot* slot;
@@ -649,34 +649,34 @@ void FUN_10045b56(MechS32 p_group)
 }
 
 // FUNCTION: MW2 0x10045b9c
-void FUN_10045b9c(void)
+void CycleLocalWeaponGroup(void)
 {
 	Mech* mech;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	FUN_1004567b(mech);
+	SelectNextWeaponGroup(mech);
 }
 
-// Fires the weapons g_unk0x101099c0 lists from p_mech.
+// Fires the weapons g_remoteWeaponsFired lists from p_mech.
 // Index order: `&p_mech->m_weapons[i]` loads the base first in the original; stack-slot permutation:
 // slot, def and i.
 // FUNCTION: MW2 0x10045bc8
-void FUN_10045bc8(Mech* p_mech)
+void FireRemoteWeapons(Mech* p_mech)
 {
 	WeaponSlot* slot;
 	WeaponDef* def;
 	MechS32 i;
 
 	for (i = 0; i < 10; i++) {
-		if (g_unk0x101099c0[i]) {
-			g_unk0x101099c0[i] = 0;
+		if (g_remoteWeaponsFired[i]) {
+			g_remoteWeaponsFired[i] = 0;
 			slot = &p_mech->m_weapons[i];
 			def = &g_weaponDefs[slot->m_type];
 			if (slot->m_state != c_weaponEmpty) {
 				slot->m_state = c_weaponFiring;
 				slot->m_volley = def->m_volley;
 				slot->m_time = 0;
-				if (def->m_unk0x18 && (p_mech->m_flags & 0x80)) {
+				if (def->m_guided && (p_mech->m_flags & 0x80)) {
 					slot->m_target = p_mech->m_player->m_targetInfo.m_target & 0xff;
 					slot->m_targetKind = p_mech->m_player->m_targetInfo.m_target & 0xf00;
 				}
@@ -691,7 +691,7 @@ void FUN_10045bc8(Mech* p_mech)
 // Fires every ready weapon of the local player's selected group.
 // Stack-slot permutation: selected, first, def and slot.
 // FUNCTION: MW2 0x10045cd8
-void FUN_10045cd8(void)
+void FireWeaponGroup(void)
 {
 	Mech* mech;
 	MechS32 selected;
@@ -701,7 +701,7 @@ void FUN_10045cd8(void)
 
 	mech = g_players[g_localPlayerId]->m_mech;
 	selected = mech->m_selectedWeapon;
-	FUN_10045449(mech, 0);
+	SelectNextWeaponInGroup(mech, 0);
 	first = mech->m_selectedWeapon;
 	do {
 		slot = &mech->m_weapons[mech->m_selectedWeapon];
@@ -711,7 +711,7 @@ void FUN_10045cd8(void)
 			slot->m_volley = def->m_volley;
 			slot->m_time = 0;
 			DodgeShot(slot, mech);
-			if (def->m_unk0x18 && (mech->m_flags & 0x80)) {
+			if (def->m_guided && (mech->m_flags & 0x80)) {
 				slot->m_target = mech->m_player->m_targetInfo.m_target & 0xff;
 				slot->m_targetKind = mech->m_player->m_targetInfo.m_target & 0xf00;
 			}
@@ -720,7 +720,7 @@ void FUN_10045cd8(void)
 			}
 		}
 
-		FUN_10045449(mech, 0);
+		SelectNextWeaponInGroup(mech, 0);
 	} while (mech->m_selectedWeapon != first);
 
 	mech->m_selectedWeapon = selected;
@@ -728,7 +728,7 @@ void FUN_10045cd8(void)
 
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
-void FUN_10045e25(Mech* p_mech)
+void AddNextWeaponToGroup(Mech* p_mech)
 {
 	MechS32 group;
 	MechS32 next;
@@ -741,14 +741,14 @@ void FUN_10045e25(Mech* p_mech)
 		next = 0;
 	}
 
-	FUN_10045b14(p_mech, next, group);
+	SetWeaponGroup(p_mech, next, group);
 }
 
 // Updates the target lock of the selected weapon: with the target between its two ranges and
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
 // Stack-slot permutation: dx, dy, dz, twist, pitch, yaw, bearing, inRange, def and heading.
 // FUNCTION: MW2 0x10045eac
-void FUN_10045eac(Mech* p_mech)
+void UpdateWeaponLock(Mech* p_mech)
 {
 	MechS32 dz;
 	MechS32 twist;
@@ -765,7 +765,7 @@ void FUN_10045eac(Mech* p_mech)
 	def = &g_weaponDefs[p_mech->m_weapons[p_mech->m_selectedWeapon].m_type];
 	if (p_mech->m_selectedWeapon == -1 || !p_mech->m_player->m_targetInfo.m_target ||
 		(p_mech->m_player->m_targetInfo.m_target & 0x1000) || (p_mech->m_player->m_targetInfo.m_target & 0x100) ||
-		!def->m_unk0x18) {
+		!def->m_guided) {
 		p_mech->m_flags &= 0x7fff;
 		p_mech->m_flags &= 0xffbf;
 	}
@@ -773,7 +773,7 @@ void FUN_10045eac(Mech* p_mech)
 		dx = p_mech->m_player->m_position.m_x - p_mech->m_player->m_targetInfo.m_position.m_x;
 		dy = p_mech->m_player->m_position.m_y - p_mech->m_player->m_targetInfo.m_position.m_y;
 		dz = p_mech->m_player->m_position.m_z - p_mech->m_player->m_targetInfo.m_position.m_z;
-		if (IsWithinRadius(dx, dy, dz, def->m_unk0x3c) || !IsWithinRadius(dx, dy, dz, def->m_unk0x40)) {
+		if (IsWithinRadius(dx, dy, dz, def->m_shortRange) || !IsWithinRadius(dx, dy, dz, def->m_longRange)) {
 			inRange = FALSE;
 			yaw = 0x100001;
 			pitch = 0x100001;
@@ -832,7 +832,7 @@ void FUN_10045eac(Mech* p_mech)
 // building sets the distance the weapons converge at.
 // Stack-slot permutation: length, hit, flags and collided.
 // FUNCTION: MW2 0x10046269
-Shape* FUN_10046269(Player* p_player)
+Shape* UpdateAimDistance(Player* p_player)
 {
 	Ray ray;
 	MechS32 length;
@@ -842,7 +842,7 @@ Shape* FUN_10046269(Player* p_player)
 
 	hit = NULL;
 	UpdateRamp(&p_player->m_aimDistance);
-	FUN_100463e5(p_player, &ray);
+	BuildAimRay(p_player, &ray);
 	collided = TestSegmentCollision(&ray, &hit, p_player->m_index);
 	if (collided && hit) {
 		flags = hit->m_kind;
@@ -850,7 +850,7 @@ Shape* FUN_10046269(Player* p_player)
 			length = GetRayLength(&ray);
 			p_player->m_aimDistance.m_value = length > 2000 ? length : 2000;
 			if (p_player->m_index == g_localPlayerId) {
-				g_unk0x100a6d34 = hit;
+				g_aimedShape = hit;
 			}
 		}
 	}
@@ -862,7 +862,7 @@ Shape* FUN_10046269(Player* p_player)
 }
 
 // FUNCTION: MW2 0x1004635c
-MechS32 FUN_1004635c(Player* p_player)
+MechS32 GetAimRange(Player* p_player)
 {
 	return p_player->m_aimRange.m_value;
 }
@@ -875,9 +875,9 @@ void GetMechAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* 
 	MechS32 y;
 	MechS32 x;
 
-	FUN_100463e5(p_player, &ray);
-	SetRayLength(&ray, FUN_1004635c(p_player));
-	FUN_100464f3(p_player, &x, &y, &z);
+	BuildAimRay(p_player, &ray);
+	SetRayLength(&ray, GetAimRange(p_player));
+	GetFiringPosition(p_player, &x, &y, &z);
 	*p_x = ray.m_x1 - x;
 	*p_y = ray.m_y1 - y;
 	*p_z = ray.m_z1 - z;
@@ -886,7 +886,7 @@ void GetMechAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* 
 // Builds the player's aim ray, 150000 long.
 // Stack-slot permutation: x, y, z, dx, dy and dz.
 // FUNCTION: MW2 0x100463e5
-void FUN_100463e5(Player* p_player, Ray* p_ray)
+void BuildAimRay(Player* p_player, Ray* p_ray)
 {
 	MechS32 z;
 	MechS32 y;
@@ -895,7 +895,7 @@ void FUN_100463e5(Player* p_player, Ray* p_ray)
 	MechS32 dy;
 	MechS32 dx;
 
-	FUN_10046466(p_player, &dx, &dy, &dz);
+	GetEyeAimDirection(p_player, &dx, &dy, &dz);
 	GetObjPosition(p_player->m_eyeObj, &x, &y, &z);
 	if (g_eyeHeightOffset) {
 		y += *g_eyeHeightOffset;
@@ -906,7 +906,7 @@ void FUN_100463e5(Player* p_player, Ray* p_ray)
 
 // The direction the player aims in.
 // FUNCTION: MW2 0x10046466
-void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetEyeAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	Matrix matrix;
 	undefined4 z;
@@ -924,20 +924,20 @@ void FUN_10046466(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 }
 
 // FUNCTION: MW2 0x100464f3
-void FUN_100464f3(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetFiringPosition(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	GetObjPosition(p_player->m_firingObj, p_x, p_y, p_z);
 }
 
 // Places p_obj at the player's current hardpoint.
 // FUNCTION: MW2 0x10046519
-void FUN_10046519(Player* p_player, SceneObject* p_obj)
+void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 {
 	MechS32 z;
 	MechS32 y;
 	MechS32 x;
 
-	FUN_100464f3(p_player, &x, &y, &z);
+	GetFiringPosition(p_player, &x, &y, &z);
 	SetObjRotationMatrix(p_obj, GetObjWorldMatrix(p_player->m_firingObj));
 	SetObjPosition(p_obj, x, y, z);
 }
@@ -966,7 +966,7 @@ void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p
 	yaw = FixedAtan2(p_dx, p_dz);
 	pitch = FixedAsin(p_dy << 13);
 	SetObjRotation(p_obj, -pitch, yaw, 0, 0);
-	FUN_100464f3(p_player, &x, &y, &z);
+	GetFiringPosition(p_player, &x, &y, &z);
 	if (p_spread) {
 		offset = RandomIntBelow(200) - 100;
 		sideX = -p_dz;

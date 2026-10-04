@@ -106,17 +106,17 @@ MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Returns which of the weapon's range bands the player's target is in: 3 within the short
 // range, 2 within the long one, 1 right at it and 0 beyond it.
 // FUNCTION: MW2 0x1006cd45
-MechS32 FUN_1006cd45(Player* p_player, WeaponDef* p_weapon)
+MechS32 GetTargetRangeBand(Player* p_player, WeaponDef* p_weapon)
 {
-	if (p_player->m_targetInfo.m_distance < p_weapon->m_unk0x3c) {
+	if (p_player->m_targetInfo.m_distance < p_weapon->m_shortRange) {
 		return 3;
 	}
 
-	if (p_player->m_targetInfo.m_distance < p_weapon->m_unk0x40) {
+	if (p_player->m_targetInfo.m_distance < p_weapon->m_longRange) {
 		return 2;
 	}
 
-	if (p_player->m_targetInfo.m_distance > p_weapon->m_unk0x40) {
+	if (p_player->m_targetInfo.m_distance > p_weapon->m_longRange) {
 		return 0;
 	}
 

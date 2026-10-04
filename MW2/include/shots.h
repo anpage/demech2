@@ -35,7 +35,7 @@ typedef struct Shot {
 	MechS32 m_steering[3]; // 0x14
 	MechS32 m_age;         // 0x20 — ticks since launch
 	MechS32 m_lifetime;    // 0x24 — ticks left
-	MechS32 m_unk0x28;     // 0x28 — a phase angle (FUN_1006ad78)
+	MechS32 m_swayPhase;   // 0x28 — an angle (SwayShot)
 	SceneObject* m_object; // 0x2c
 	MechS32 m_target;      // 0x30
 	MechS32 m_targetKind;  // 0x34
@@ -58,10 +58,10 @@ extern "C"
 
 	extern MechS32 g_effectCameraActive;
 	extern MechS32 g_effectCameraEffect;
-	extern MechS32 g_unk0x100ad448;
+	extern MechS32 g_lastLocalMissile;
 	extern MechS32 g_trackedShot;
-	extern struct Player* g_unk0x100ad450;
-	extern MechS32 g_unk0x100ad454;
+	extern struct Player* g_launchEffectPlayer;
+	extern MechS32 g_effectCameraEnabled;
 	extern MechS32 g_lastHitShooter;
 	extern MechS32 g_nukeTimeLeft;
 	extern MechS32 g_nukeMaxRadius;
@@ -77,7 +77,7 @@ extern "C"
 	void ResetShotSlot(MechS32 p_index);
 	void UpdateAllShots(void);
 	void UpdateShot(MechS32 p_index);
-	void FUN_1006ad78(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void DetonateShot(
 		MechS32 p_index,
@@ -89,7 +89,7 @@ extern "C"
 		MechS32 p_camY,
 		MechS32 p_camZ
 	);
-	void FUN_1006b152(
+	void SpawnEffect(
 		MechS32 p_owner,
 		MechS32 p_type,
 		MechS32 p_x,
@@ -99,7 +99,7 @@ extern "C"
 		MechS32 p_camY,
 		MechS32 p_camZ
 	);
-	void FUN_1006b18b(
+	void SpawnRotatedEffect(
 		MechS32 p_type,
 		MechS32 p_rotX,
 		MechS32 p_rotY,
@@ -108,8 +108,8 @@ extern "C"
 		MechS32 p_y,
 		MechS32 p_z
 	);
-	void FUN_1006b1c8(MechS32 p_type, struct Player* p_player);
-	void FUN_1006b1fb(
+	void SpawnLaunchEffect(MechS32 p_type, struct Player* p_player);
+	void SpawnEffectEx(
 		MechS32 p_owner,
 		MechS32 p_type,
 		MechS32 p_x,
@@ -123,17 +123,24 @@ extern "C"
 		MechS32 p_rotZ
 	);
 	void UpdateEffects(void);
-	void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
-	void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
+	void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
+	void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
 	MechS32* GetTrackedShotView(void);
 	MechS32 TrackLastShot(void);
-	void FUN_1006bf8c(MechU32 p_index);
-	void FUN_1006c11c(MechS32 p_owner, struct Shape* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count);
+	void KillGameThing(MechU32 p_index);
+	void DamageGameThing(
+		MechS32 p_owner,
+		struct Shape* p_shape,
+		MechS32 p_damage,
+		MechS32 p_x,
+		MechS32 p_y,
+		MechS32 p_z
+	);
+	void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count);
 	void SaveCarCfg(void);
-	void FUN_1006c362(void);
-	void FUN_1006c4e2(struct Player* p_player);
-	void FUN_1006c5e7(void);
+	void HeatMechsNearFires(void);
+	void StartNuke(struct Player* p_player);
+	void UpdateNuke(void);
 
 #ifdef __cplusplus
 }

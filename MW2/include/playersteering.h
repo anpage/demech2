@@ -37,7 +37,7 @@ typedef struct PlayerSteering {
 	MechS8 m_weaponFireGroup2;        // 0x29
 	MechS8 m_weaponFireGroup3;        // 0x2a
 	MechS8 m_weaponCycleGroup;        // 0x2b
-	MechS8 m_toggleGroupFire;         // 0x2c — toggles g_unk0x100a6d38
+	MechS8 m_toggleGroupFire;         // 0x2c — toggles g_singleWeaponFire
 	MechS8 m_legsPanMinus;            // 0x2d
 	MechS8 m_legsPanPlus;             // 0x2e
 	MechS8 m_reverse;                 // 0x2f — the throttle drives the mech backwards (GAMEKEY.MAP toggles it)

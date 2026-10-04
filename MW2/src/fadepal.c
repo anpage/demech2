@@ -141,16 +141,16 @@ void FUN_1004cb11(Mech* p_mech)
 	y = p_mech->m_player->m_position.m_y;
 	z = p_mech->m_player->m_position.m_z;
 	if (!p_mech->m_stateTime) {
-		FUN_1006b152(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
+		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
 		x += FUN_100736f5() / 2;
 		z += FUN_100736f5() / 2;
 		if (RandomIntBelow(100) < 0x3c) {
-			FUN_1006b152(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
+			SpawnEffect(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
 		}
 		else {
-			FUN_1006b152(p_mech->m_player->m_killer, 0x10b, x, y, z, x, y, z);
+			SpawnEffect(p_mech->m_player->m_killer, 0x10b, x, y, z, x, y, z);
 		}
 	}
 }
@@ -171,12 +171,12 @@ void FUN_1004cc27(Mech* p_mech)
 	obj = p_mech->m_player->m_obj;
 	upper = p_mech->m_pitchObj;
 	lower = p_mech->m_torsoObj;
-	upperIndex = FUN_10004111(upper, 1);
-	FUN_10004218(upperIndex);
-	lowerIndex = FUN_10004111(lower, 1);
-	FUN_10004218(lowerIndex);
-	objIndex = FUN_10004111(obj, 1);
-	FUN_10004218(objIndex);
+	upperIndex = AddDebrisPiece(upper, 1);
+	ThrowDebrisPiece(upperIndex);
+	lowerIndex = AddDebrisPiece(lower, 1);
+	ThrowDebrisPiece(lowerIndex);
+	objIndex = AddDebrisPiece(obj, 1);
+	ThrowDebrisPiece(objIndex);
 }
 
 // Sets off the flames of the jump jets and plays their sound.
@@ -197,7 +197,7 @@ void FUN_1004ccba(Mech* p_mech)
 	if (p_mech->m_objects[jet]) {
 		fired = TRUE;
 		player->m_firingObj = p_mech->m_objects[jet];
-		FUN_1006b1c8(0x19, p_mech->m_player);
+		SpawnLaunchEffect(0x19, p_mech->m_player);
 		GetObjPosition(player->m_firingObj, &x, &y, &z);
 	}
 
@@ -205,7 +205,7 @@ void FUN_1004ccba(Mech* p_mech)
 	if (p_mech->m_objects[jet]) {
 		fired = TRUE;
 		player->m_firingObj = p_mech->m_objects[jet];
-		FUN_1006b1c8(0x19, p_mech->m_player);
+		SpawnLaunchEffect(0x19, p_mech->m_player);
 		GetObjPosition(player->m_firingObj, &x, &y, &z);
 	}
 

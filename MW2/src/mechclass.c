@@ -58,7 +58,7 @@ DECOMP_SIZE_ASSERT(Mech, 0x10e)
 // GLOBAL: MW2 0x100a2be4
 MechS32 g_unk0x100a2be4 = 0;
 
-// Set by a game key: run FUN_1004597b on the local mech next tick.
+// Set by a game key: run JettisonAmmo on the local mech next tick.
 // GLOBAL: MW2 0x100a2be8
 MechS32 g_unk0x100a2be8 = 0;
 
@@ -585,13 +585,13 @@ void FUN_10016edf(Mech* p_mech)
 			0
 		);
 		if (isLocal) {
-			FUN_10046269(mech->m_player);
+			UpdateAimDistance(mech->m_player);
 		}
 
 		pitch = mech->m_torsoPitch.m_value >> 1;
 		if (mech->m_pitchObj) {
-			FUN_100463e5(mech->m_player, &ray);
-			rayLength = FUN_1004635c(mech->m_player);
+			BuildAimRay(mech->m_player, &ray);
+			rayLength = GetAimRange(mech->m_player);
 			SetRayLength(&ray, rayLength);
 			GetObjPosition(mech->m_pitchObj, &objX, &objY, &objZ);
 			objX = ray.m_x1 - objX;
@@ -790,7 +790,7 @@ void FUN_100180cd(Mech* p_mech)
 			UpdateTarget(mech->m_player);
 		}
 
-		FUN_10045eac(mech);
+		UpdateWeaponLock(mech);
 
 		if ((mech->m_player->m_steering->m_legsPanDelta || g_unk0x100aa2a0) && mech->m_autopilot) {
 			mech->m_player->m_steering->m_autopilot = 1;
@@ -1021,7 +1021,7 @@ void FUN_100180cd(Mech* p_mech)
 		mech->m_player->m_steering->m_advanceNav = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
 		if (mech->m_player->m_index == g_localPlayerId) {
-			FUN_10044740(mech);
+			ReleaseWeaponTriggers(mech);
 		}
 	}
 
@@ -1148,7 +1148,7 @@ void FUN_10019368(Mech* p_mech)
 		if (g_unk0x100a2bf8) {
 			if (!mech->m_unk0xb4) {
 				FUN_1007eb23(0xfd, 0x32, 0x40, 5, 0x32);
-				FUN_10045567(mech);
+				SelectNextWeapon(mech);
 			}
 
 			g_unk0x100a2bf8 = 0;
@@ -1157,17 +1157,17 @@ void FUN_10019368(Mech* p_mech)
 		if (mech->m_player->m_steering->m_weaponCycle && !mech->m_unk0xb4) {
 			FUN_1007eb23(0xfd, 0x32, 0x40, 5, 0x32);
 			g_unk0x100a2bf8 = 1;
-			FUN_10045567(mech);
+			SelectNextWeapon(mech);
 			g_unk0x100a2bf8 = 0;
 		}
 
 		if (mech->m_player->m_steering->m_weaponCycleGroup) {
-			FUN_10045b9c();
+			CycleLocalWeaponGroup();
 		}
 
 		if (g_unk0x100a2be8) {
 			g_unk0x100a2be8 = 0;
-			FUN_1004597b(mech);
+			JettisonAmmo(mech);
 		}
 
 		if (g_unk0x100a2bec) {

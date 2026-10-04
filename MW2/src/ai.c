@@ -2231,7 +2231,7 @@ void PlacePatrolNavs(Player* p_player)
 
 	switch (p_player->m_ai.m_target & 0xf00) {
 	case c_aiTargetThing:
-		GetStaticObjectPosition(g_gameThings[index].m_unk0x04, &x, &y, &z);
+		GetStaticObjectPosition(g_gameThings[index].m_staticObject, &x, &y, &z);
 		range = 25000;
 		break;
 	case c_aiTargetPlayer:
@@ -3034,7 +3034,7 @@ void LeadStar(MechS32 p_team)
 	switch (type) {
 	case 0x1000:
 		state = c_aiStateIdle;
-		FUN_1006c4e2(player);
+		StartNuke(player);
 		break;
 	case 1:
 	case 2:

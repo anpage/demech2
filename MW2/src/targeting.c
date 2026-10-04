@@ -782,15 +782,15 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 		return -5;
 	}
 
-	if (!GetStaticSceneObject(thing->m_unk0x04)) {
+	if (!GetStaticSceneObject(thing->m_staticObject)) {
 		return -8;
 	}
 
-	if (!GetStaticObjectShape(thing->m_unk0x04)) {
+	if (!GetStaticObjectShape(thing->m_staticObject)) {
 		return -8;
 	}
 
-	GetStaticObjectPosition(thing->m_unk0x04, &x, &y, &z);
+	GetStaticObjectPosition(thing->m_staticObject, &x, &y, &z);
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
@@ -993,7 +993,7 @@ SceneObject* GetLocalTargetObject(void)
 		obj = g_players[index]->m_obj;
 		break;
 	case 0x400:
-		id = g_gameThings[index].m_unk0x04;
+		id = g_gameThings[index].m_staticObject;
 		obj = GetStaticSceneObject(id);
 		break;
 	default:
@@ -1003,7 +1003,7 @@ SceneObject* GetLocalTargetObject(void)
 	return obj;
 }
 
-// Targets the shape the local player points at (g_unk0x100a6d34): a player's mech (0x100) or a
+// Targets the shape the local player points at (g_aimedShape): a player's mech (0x100) or a
 // game thing (0x200), when TargetGamePiece or TargetGameThing allows it. When UpdateTarget rejects the
 // new target, the old one comes back, with the autopilot.
 // Stack-slot permutation of the locals.
@@ -1024,7 +1024,7 @@ void TargetAtReticle(void)
 		autopilot = TRUE;
 	}
 
-	shape = g_unk0x100a6d34;
+	shape = g_aimedShape;
 	if (shape) {
 		if (shape->m_kind & 0x100) {
 			if (TargetGamePiece(g_localPlayerId, shape->m_owner, 0) >= 0) {

@@ -64,7 +64,7 @@ void ShutdownMw2Prj(void)
 // FUNCTION: MW2 0x10050848
 void CachePreloads(void)
 {
-	FUN_10045a5b();
+	LoadWeaponSounds();
 	FUN_1006f480();
 	LoadAIScripts();
 }

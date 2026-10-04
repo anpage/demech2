@@ -233,7 +233,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			slot->m_binCount = 0;
 			slot->m_binIndex = 0;
 			slot->m_bin = bin;
-			if (g_weaponDefs[type].m_unk0x20 == -1) {
+			if (g_weaponDefs[type].m_volleysPerBin == -1) {
 				slot->m_ammo = -1;
 			}
 			else {
@@ -245,7 +245,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			for (j = 0; j < header->m_ammoCount && binCount < 25; j++) {
 				if (ammo->m_type == weapon->m_type) {
 					bin->m_type = ammo->m_type / 100;
-					bin->m_shots = g_weaponDefs[bin->m_type].m_volley * g_weaponDefs[bin->m_type].m_unk0x20;
+					bin->m_shots = g_weaponDefs[bin->m_type].m_volley * g_weaponDefs[bin->m_type].m_volleysPerBin;
 					bin->m_weapon = i;
 					bin->m_id = ammo->m_id;
 					bin->m_damage = g_weaponDefs[bin->m_type].m_damage;

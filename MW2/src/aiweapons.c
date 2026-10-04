@@ -77,7 +77,7 @@ MechS32 FUN_1004b724(Player* p_player)
 		slot = &mech->m_weapons[mech->m_selectedWeapon];
 		type = slot->m_type;
 		def = &g_weaponDefs[type];
-		switch (FUN_1006cd45(p_player, def)) {
+		switch (GetTargetRangeBand(p_player, def)) {
 		case 1:
 		case 2:
 			break;
@@ -88,14 +88,14 @@ MechS32 FUN_1004b724(Player* p_player)
 
 		if (fire) {
 			fire = FALSE;
-			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && FUN_10045919(mech) == 1 && slot->m_ammo &&
+			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 				fire = TRUE;
 			}
 		}
 
 		if (!fire) {
-			FUN_10045449(mech, 1);
+			SelectNextWeaponInGroup(mech, 1);
 		}
 	}
 
@@ -109,7 +109,7 @@ MechS32 FUN_1004b724(Player* p_player)
 		else if (type == 21) {
 		}
 
-		if (g_weaponDefs[type].m_unk0x18) {
+		if (g_weaponDefs[type].m_guided) {
 			if (p_player->m_gunnery <= 4 && !RandomIntBelow(p_player->m_gunnery + 1)) {
 				mech->m_flags |= 0x80;
 			}

@@ -806,9 +806,9 @@ void FUN_1000f989(void)
 	g_weaponsMsg->m_player = player->m_index;
 	g_weaponsMsg->m_weapons = 0;
 	for (i = 0; i < 10; i++) {
-		if (g_unk0x101099f0[i]) {
+		if (g_localWeaponsFired[i]) {
 			g_weaponsMsg->m_weapons |= 1 << i;
-			g_unk0x101099f0[i] = 0;
+			g_localWeaponsFired[i] = 0;
 		}
 	}
 
@@ -838,13 +838,13 @@ void FUN_1000fa58(NetWeaponsMsg* p_msg, MechS32 p_slot)
 	bit = 1;
 	for (i = 0; i < 10; i++) {
 		if (msg->m_weapons & bit) {
-			g_unk0x101099c0[i] = 1;
+			g_remoteWeaponsFired[i] = 1;
 		}
 
 		bit <<= 1;
 	}
 
-	FUN_10045bc8(mech);
+	FireRemoteWeapons(mech);
 }
 
 // Sends player p_slot a collision push along the normal (p_x, p_y, p_z).
@@ -993,7 +993,7 @@ void FUN_1000fe61(MechU8* p_msg, MechS32 p_slot)
 	bits = *in;
 	for (i = 0; i < 254; i++) {
 		if ((bits & 0x80) && !(g_gameThings[i].m_unk0x00 & 4)) {
-			FUN_1006bf8c(i);
+			KillGameThing(i);
 		}
 
 		bits <<= 1;

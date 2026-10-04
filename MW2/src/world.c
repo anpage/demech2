@@ -346,7 +346,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			g_unk0x100ba624 = planet->m_unk0x38 == 0;
 			g_unk0x100a555c = planet->m_unk0x3c;
-			g_unk0x100ad454 = planet->m_unk0x40 == 0;
+			g_effectCameraEnabled = planet->m_unk0x40 == 0;
 			g_renderSettings.m_drawSky = planet->m_unk0x44 == 0;
 			g_renderSettings.m_drawGround = planet->m_unk0x48 == 0;
 			g_renderSettings.m_horizonBand = planet->m_unk0x4c == 0;
@@ -906,7 +906,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (index != -1) {
 				thing = &g_gameThings[index];
 				thing->m_unk0x00 = gameThing->m_unk0x1c;
-				thing->m_unk0x08 = hitPoints;
+				thing->m_hitPoints = hitPoints;
 				thing->m_unk0x0c = affiliation;
 				strncpy(thing->m_name, gameThing->m_name, 0x16);
 				thing->m_name[0x15] = '\0';
@@ -937,7 +937,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					}
 				}
 
-				thing->m_unk0x04 = objectIndex;
+				thing->m_staticObject = objectIndex;
 				if (eventList) {
 					target = (MechU8) index | 0x400;
 					PostEventToList(eventName, events, target);
@@ -1437,7 +1437,7 @@ void AfterWorldLoader(void)
 			break;
 		}
 
-		obj = GetStaticSceneObject(g_gameThings[i].m_unk0x04);
+		obj = GetStaticSceneObject(g_gameThings[i].m_staticObject);
 		if (obj && obj->m_shape) {
 			g_gameThings[i].m_unk0x10 = obj->m_shape->m_radius;
 		}

@@ -146,8 +146,8 @@ void ZeroGameThing(MechS32 p_index)
 	thing = &g_gameThings[p_index];
 	thing->m_unk0x00 = 0;
 	thing->m_unk0x02 = 0;
-	thing->m_unk0x04 = -1;
-	thing->m_unk0x08 = 0;
+	thing->m_staticObject = -1;
+	thing->m_hitPoints = 0;
 	thing->m_unk0x0c = 0;
 	thing->m_name[0] = '\0';
 }

@@ -56,16 +56,16 @@ MechS32 g_effectCameraActive = 0;
 MechS32 g_effectCameraEffect = -1;
 
 // GLOBAL: MW2 0x100ad448
-MechS32 g_unk0x100ad448 = -1;
+MechS32 g_lastLocalMissile = -1;
 
 // GLOBAL: MW2 0x100ad44c
 MechS32 g_trackedShot = -1;
 
 // GLOBAL: MW2 0x100ad450
-Player* g_unk0x100ad450 = NULL;
+Player* g_launchEffectPlayer = NULL;
 
 // GLOBAL: MW2 0x100ad454
-MechS32 g_unk0x100ad454 = 1;
+MechS32 g_effectCameraEnabled = 1;
 
 // The player whose shot hit something last.
 // GLOBAL: MW2 0x100ad458
@@ -167,7 +167,7 @@ void ResetShotSlot(MechS32 p_index)
 	shot->m_velocity[0] = shot->m_velocity[1] = shot->m_velocity[2] = 0;
 	shot->m_steering[0] = shot->m_steering[1] = shot->m_steering[2] = 0;
 	shot->m_age = shot->m_lifetime = 0;
-	shot->m_unk0x28 = 0;
+	shot->m_swayPhase = 0;
 	shot->m_impact = -1;
 	shot->m_target = 0;
 	shot->m_targetKind = 0;
@@ -266,7 +266,7 @@ void UpdateShot(MechS32 p_index)
 			hit = GetObjShape(g_players[shot->m_target]->m_obj);
 		}
 		else if (shot->m_targetKind == c_shotTargetGameThing) {
-			hit = GetStaticObjectShape(g_gameThings[shot->m_target].m_unk0x04);
+			hit = GetStaticObjectShape(g_gameThings[shot->m_target].m_staticObject);
 		}
 
 		hitX = backX = x0;
@@ -367,10 +367,10 @@ void UpdateShot(MechS32 p_index)
 		}
 		else if (surface & 0x200) {
 			shot->m_impact |= c_impactThing;
-			FUN_1006c11c(shot->m_shooter, hit, shot->m_damage, hitX, hitY, hitZ);
+			DamageGameThing(shot->m_shooter, hit, shot->m_damage, hitX, hitY, hitZ);
 		}
 		else if ((surface & 0xf0) == 0x50) {
-			FUN_10004783(hit->m_owner, shot->m_damage << 16);
+			DamageChunk(hit->m_owner, shot->m_damage << 16);
 		}
 		else if (surface & 0x400) {
 			shot->m_impact |= c_impactThing;
@@ -421,9 +421,9 @@ void UpdateShot(MechS32 p_index)
 }
 
 // Sways (p_x, p_y, p_z) sideways and up and down around the shot's line of flight, by the
-// phase in m_unk0x28, and advances the phase.
+// phase in m_swayPhase, and advances the phase.
 // FUNCTION: MW2 0x1006ad78
-void FUN_1006ad78(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	MechS32 sideZ;
 	MechS32 sideY;
@@ -433,11 +433,11 @@ void FUN_1006ad78(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	sideY = 0;
 	sideZ = p_shot->m_velocity[0];
 	NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
-	*p_x += FixedMul29(sideX, FixedSin(p_shot->m_unk0x28)) >> 9;
-	*p_z += FixedMul29(sideZ, FixedSin(p_shot->m_unk0x28)) >> 9;
-	*p_y += FixedMul29(sideZ, FixedCos(p_shot->m_unk0x28)) >> 10;
-	p_shot->m_unk0x28 += g_deltaTime * 0x3fa57;
-	p_shot->m_unk0x28 %= 0x1680000;
+	*p_x += FixedMul29(sideX, FixedSin(p_shot->m_swayPhase)) >> 9;
+	*p_z += FixedMul29(sideZ, FixedSin(p_shot->m_swayPhase)) >> 9;
+	*p_y += FixedMul29(sideZ, FixedCos(p_shot->m_swayPhase)) >> 10;
+	p_shot->m_swayPhase += g_deltaTime * 0x3fa57;
+	p_shot->m_swayPhase %= 0x1680000;
 }
 
 // Steers a guided missile at (p_x, p_y, p_z) toward its target, and arms its proximity fuse
@@ -484,7 +484,7 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 			return;
 		}
 
-		GetStaticObjectPosition(thing->m_unk0x04, &targetX, &targetY, &targetZ);
+		GetStaticObjectPosition(thing->m_staticObject, &targetX, &targetY, &targetZ);
 		break;
 	default:
 		return;
@@ -540,12 +540,12 @@ void DetonateShot(
 	impact = shot->m_impact;
 	ResetShotSlot(p_index);
 	if (p_explode) {
-		FUN_1006b152(shot->m_shooter, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
+		SpawnEffect(shot->m_shooter, impact, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
 	}
 }
 
 // FUNCTION: MW2 0x1006b152
-void FUN_1006b152(
+void SpawnEffect(
 	MechS32 p_owner,
 	MechS32 p_type,
 	MechS32 p_x,
@@ -556,20 +556,28 @@ void FUN_1006b152(
 	MechS32 p_camZ
 )
 {
-	FUN_1006b1fb(p_owner, p_type, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
+	SpawnEffectEx(p_owner, p_type, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
 }
 
 // FUNCTION: MW2 0x1006b18b
-void FUN_1006b18b(MechS32 p_type, MechS32 p_rotX, MechS32 p_rotY, MechS32 p_rotZ, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void SpawnRotatedEffect(
+	MechS32 p_type,
+	MechS32 p_rotX,
+	MechS32 p_rotY,
+	MechS32 p_rotZ,
+	MechS32 p_x,
+	MechS32 p_y,
+	MechS32 p_z
+)
 {
-	FUN_1006b1fb(-2, p_type, p_x, p_y, p_z, p_x, p_y, p_z, p_rotX, p_rotY, p_rotZ);
+	SpawnEffectEx(-2, p_type, p_x, p_y, p_z, p_x, p_y, p_z, p_rotX, p_rotY, p_rotZ);
 }
 
 // FUNCTION: MW2 0x1006b1c8
-void FUN_1006b1c8(MechS32 p_type, Player* p_player)
+void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 {
-	g_unk0x100ad450 = p_player;
-	FUN_1006b1fb(-2, p_type, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	g_launchEffectPlayer = p_player;
+	SpawnEffectEx(-2, p_type, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 // Spawns an effect. The low byte of p_type is the effect; the high byte says what a shot hit
@@ -579,7 +587,7 @@ void FUN_1006b1c8(MechS32 p_type, Player* p_player)
 // Stack-slot permutation of the locals; one distance comparison has its operands the other
 // way around.
 // FUNCTION: MW2 0x1006b1fb
-void FUN_1006b1fb(
+void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
 	MechS32 p_x,
@@ -716,7 +724,7 @@ void FUN_1006b1fb(
 			pieces = 8;
 		}
 
-		FUN_1006c237(p_x, p_y, p_z, pieces);
+		ScatterDebris(p_x, p_y, p_z, pieces);
 		return;
 	default:
 		break;
@@ -762,9 +770,9 @@ void FUN_1006b1fb(
 		effect->m_timeLeft = info->m_duration + g_deltaTime;
 		effect->m_owner = p_owner;
 		if (effect->m_object) {
-			if (p_type >= 0x17 && g_unk0x100ad450) {
-				FUN_10046519(g_unk0x100ad450, effect->m_object);
-				g_unk0x100ad450 = NULL;
+			if (p_type >= 0x17 && g_launchEffectPlayer) {
+				PlaceAtFiringObj(g_launchEffectPlayer, effect->m_object);
+				g_launchEffectPlayer = NULL;
 			}
 			else {
 				SetObjRotation(effect->m_object, p_rotX, p_rotY, p_rotZ, 0);
@@ -780,7 +788,7 @@ void FUN_1006b1fb(
 			}
 		}
 
-		if (info->m_camera && g_unk0x100ad454) {
+		if (info->m_camera && g_effectCameraEnabled) {
 			closer = 0;
 			take = 1;
 			if (g_effectCameraActive) {
@@ -828,7 +836,7 @@ void FUN_1006b1fb(
 	}
 
 	if (chain) {
-		FUN_1006b152(p_owner, chainType, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
+		SpawnEffect(p_owner, chainType, p_x, p_y, p_z, p_camX, p_camY, p_camZ);
 	}
 
 	if (info->m_sound > 0 && (info->m_soundChance == -1 || RandomIntBelow(100) < info->m_soundChance)) {
@@ -859,9 +867,9 @@ void UpdateEffects(void)
 	MechS32 z;
 	MechS32 radius;
 
-	FUN_1006c5e7();
+	UpdateNuke();
 	if (g_difficulty->m_heatTracking) {
-		FUN_1006c362();
+		HeatMechsNearFires();
 	}
 
 	for (i = 0; i < 0x100; i++) {
@@ -873,11 +881,11 @@ void UpdateEffects(void)
 				z = effect->m_position[2];
 				radius = effect->m_object->m_shape->m_radius;
 				if (g_difficulty->m_splashDamage) {
-					FUN_1006bc13(effect->m_owner, x, y, z, radius, 0x100);
+					DamageMechsInRadius(effect->m_owner, x, y, z, radius, 0x100);
 				}
 
-				FUN_1006bdb4(effect->m_owner, x, y, z, radius, 0x100);
-				FUN_10004ce5(x, y, z, radius, 0x100);
+				DamageThingsInRadius(effect->m_owner, x, y, z, radius, 0x100);
+				DamageChunksInRadius(x, y, z, radius, 0x100);
 			}
 
 			effect->m_timeLeft -= g_deltaTime;
@@ -928,7 +936,7 @@ void UpdateEffects(void)
 // Stack-slot permutation of the locals; the i != g_localPlayerId comparison and the
 // p_rate * g_deltaTime product have their operands the other way around.
 // FUNCTION: MW2 0x1006bc13
-void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate)
+void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate)
 {
 	Player* player;
 	MechS32 reach;
@@ -977,7 +985,7 @@ void FUN_1006bc13(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 // Stack-slot permutation of the locals; the distance < reach comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006bdb4
-void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate)
+void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate)
 {
 	MechS32 distance;
 	GameThing* thing;
@@ -999,7 +1007,7 @@ void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 			continue;
 		}
 
-		shape = GetStaticObjectShape(thing->m_unk0x04);
+		shape = GetStaticObjectShape(thing->m_staticObject);
 		if (!shape) {
 			continue;
 		}
@@ -1011,7 +1019,7 @@ void FUN_1006bdb4(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS3
 		reach = radius + p_radius;
 		distance = ApproximateVectorLength(dx, dy, dz);
 		if (distance < reach) {
-			FUN_1006c11c(p_owner, shape, FixedMul16(p_rate, g_deltaTime), x, y, z);
+			DamageGameThing(p_owner, shape, FixedMul16(p_rate, g_deltaTime), x, y, z);
 		}
 	}
 }
@@ -1032,10 +1040,10 @@ MechS32* GetTrackedShotView(void)
 // FUNCTION: MW2 0x1006bf05
 MechS32 TrackLastShot(void)
 {
-	if (g_unk0x100ad448 > 0 && g_shots[g_unk0x100ad448].m_flags &&
-		g_shots[g_unk0x100ad448].m_shooter == g_localPlayerId) {
-		g_trackedShot = g_unk0x100ad448;
-		g_shots[g_unk0x100ad448].m_tracked = 1;
+	if (g_lastLocalMissile > 0 && g_shots[g_lastLocalMissile].m_flags &&
+		g_shots[g_lastLocalMissile].m_shooter == g_localPlayerId) {
+		g_trackedShot = g_lastLocalMissile;
+		g_shots[g_lastLocalMissile].m_tracked = 1;
 		return 1;
 	}
 
@@ -1047,13 +1055,13 @@ MechS32 TrackLastShot(void)
 // removes it.
 // The shooter and local player comparisons have their operands the other way around.
 // FUNCTION: MW2 0x1006bf8c
-void FUN_1006bf8c(MechU32 p_index)
+void KillGameThing(MechU32 p_index)
 {
 	GameThing* thing;
 
 	thing = &g_gameThings[p_index];
-	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_kind & 0x200) && g_unk0x100a6d34->m_owner == p_index) {
-		g_unk0x100a6d34 = NULL;
+	if (g_aimedShape && (g_aimedShape->m_kind & 0x200) && g_aimedShape->m_owner == p_index) {
+		g_aimedShape = NULL;
 	}
 
 	if (thing->m_unk0x00 & 4) {
@@ -1101,7 +1109,7 @@ void FUN_1006bf8c(MechU32 p_index)
 // blows it up and counts it destroyed.
 // Stack-slot permutation: index and thing.
 // FUNCTION: MW2 0x1006c11c
-void FUN_1006c11c(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void DamageGameThing(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechU32 index;
 	GameThing* thing;
@@ -1116,22 +1124,22 @@ void FUN_1006c11c(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x
 		return;
 	}
 
-	if (!thing->m_unk0x08) {
+	if (!thing->m_hitPoints) {
 		return;
 	}
 
-	thing->m_unk0x08 -= p_damage;
-	if (thing->m_unk0x08 <= 0) {
-		thing->m_unk0x08 = 0;
+	thing->m_hitPoints -= p_damage;
+	if (thing->m_hitPoints <= 0) {
+		thing->m_hitPoints = 0;
 		if ((p_shape->m_kind & 0xf0) == 0xb0) {
-			FUN_1006b152(p_owner, 0xd, p_x, p_y, p_z, p_x, p_y, p_z);
+			SpawnEffect(p_owner, 0xd, p_x, p_y, p_z, p_x, p_y, p_z);
 		}
 		else {
-			FUN_1006b152(p_owner, 3, p_x, p_y, p_z, p_x, p_y, p_z);
-			FUN_1006b152(p_owner, 0x20b, p_x, p_y, p_z, p_x, p_y, p_z);
+			SpawnEffect(p_owner, 3, p_x, p_y, p_z, p_x, p_y, p_z);
+			SpawnEffect(p_owner, 0x20b, p_x, p_y, p_z, p_x, p_y, p_z);
 		}
 
-		FUN_1006bf8c(index);
+		KillGameThing(index);
 	}
 }
 
@@ -1139,7 +1147,7 @@ void FUN_1006c11c(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x
 // Stack-slot permutation of the locals; the shown < p_count comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006c237
-void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
+void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 {
 	MechS32 shown;
 	MechS32 piece;
@@ -1156,12 +1164,12 @@ void FUN_1006c237(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 		effect = &g_effects[i];
 		if (!effect->m_active && effect->m_type == 0xb && effect->m_object) {
 			object = effect->m_object;
-			piece = FUN_10004111(object, 1);
+			piece = AddDebrisPiece(object, 1);
 			if (piece != -1) {
 				effect->m_active = 1;
 				effect->m_timeLeft = g_effectInfo[0xb].m_duration;
 				SetObjPosition(object, p_x, p_y, p_z);
-				FUN_10004218(piece);
+				ThrowDebrisPiece(piece);
 				ShowObjTree(object);
 				UpdateObj(object);
 				shown++;
@@ -1180,7 +1188,7 @@ void SaveCarCfg(void)
 // Stack-slot permutation of the locals; the i != g_localPlayerId and distance < reach
 // comparisons have their operands the other way around.
 // FUNCTION: MW2 0x1006c362
-void FUN_1006c362(void)
+void HeatMechsNearFires(void)
 {
 	Shape* root;
 	MechS32 heat;
@@ -1236,10 +1244,10 @@ void FUN_1006c362(void)
 }
 
 // Sets off a nuke at the player's position: the palette flash, the effect, and the blast that
-// grows over the next ticks (FUN_1006c5e7).
+// grows over the next ticks (UpdateNuke).
 // Stack-slot permutation: duration, effect and shape.
 // FUNCTION: MW2 0x1006c4e2
-void FUN_1006c4e2(Player* p_player)
+void StartNuke(Player* p_player)
 {
 	MechS32 i;
 	MechS32 duration;
@@ -1261,7 +1269,7 @@ void FUN_1006c4e2(Player* p_player)
 	g_nukePosition = p_player->m_position;
 	g_nukeTimeLeft = duration;
 	g_nukeRadius = 0;
-	FUN_1006b152(
+	SpawnEffect(
 		-2,
 		0x16,
 		g_nukePosition.m_x,
@@ -1277,7 +1285,7 @@ void FUN_1006c4e2(Player* p_player)
 // The g_nukeRadius > g_nukeMaxRadius comparison has its operands the other way around;
 // defining the two globals the other way around didn't flip it.
 // FUNCTION: MW2 0x1006c5e7
-void FUN_1006c5e7(void)
+void UpdateNuke(void)
 {
 	if (g_nukeTimeLeft <= 0) {
 		return;
@@ -1288,8 +1296,8 @@ void FUN_1006c5e7(void)
 		g_nukeRadius = g_nukeMaxRadius;
 	}
 
-	FUN_1006bc13(-2, g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
-	FUN_1006bdb4(-2, g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
-	FUN_10004ce5(g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
+	DamageMechsInRadius(-2, g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
+	DamageThingsInRadius(-2, g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
+	DamageChunksInRadius(g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
 	g_nukeTimeLeft -= g_deltaTime;
 }

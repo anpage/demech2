@@ -669,7 +669,7 @@ void GetOffsetPoint(MechU32 p_unk0x00, MechS16 p_unk0x04, MechS32* p_x, MechS32*
 		obj = g_players[index]->m_obj;
 		break;
 	case 0x400:
-		thing = g_gameThings[index].m_unk0x04;
+		thing = g_gameThings[index].m_staticObject;
 		obj = GetStaticSceneObject(thing);
 		if (!obj) {
 			GetStaticObjectPosition(thing, p_x, p_y, p_z);
@@ -1561,7 +1561,7 @@ Shape* GetTargetShape(MechS16 p_target)
 		obj = g_players[index]->m_obj;
 		break;
 	case 0x400:
-		id = g_gameThings[index].m_unk0x04;
+		id = g_gameThings[index].m_staticObject;
 		obj = GetStaticSceneObject(id);
 		break;
 	}
@@ -1603,7 +1603,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		return;
 	}
 
-	if (!g_weaponDefs[p_slot->m_type].m_unk0x18 && p_slot->m_type != 21) {
+	if (!g_weaponDefs[p_slot->m_type].m_guided && p_slot->m_type != 21) {
 		return;
 	}
 

@@ -669,7 +669,7 @@ MechS32 DestroyStaticObject(MechS32 p_index)
 	entry->m_flags |= 0x200;
 	entry->m_flags |= 0x800;
 	thing->m_unk0x00 |= 4;
-	thing->m_unk0x04 = -1;
+	thing->m_staticObject = -1;
 	RemoveStaticObjectTasks(p_index);
 	shape = entry->m_shape;
 	if (shape) {
@@ -708,7 +708,7 @@ MechS32 DestroyStaticObject(MechS32 p_index)
 }
 
 // Marks p_thing's cache entry (flag 0x200) and has DestroyStaticObject replace it. When the replacement's
-// game thing has flag 0x8000, its object tree is handed to FUN_100044f3 and FreeStaticObjectTree.
+// game thing has flag 0x8000, its object tree is handed to BlowOffObjTree and FreeStaticObjectTree.
 // Stack-slot permutation: index, current and entry.
 // FUNCTION: MW2 0x10020429
 void DestroyThingObject(GameThing* p_thing)
@@ -719,9 +719,9 @@ void DestroyThingObject(GameThing* p_thing)
 	StaticObject* entry;
 
 	index = -1;
-	entry = &g_staticObjects[p_thing->m_unk0x04];
+	entry = &g_staticObjects[p_thing->m_staticObject];
 	entry->m_flags |= 0x200;
-	current = p_thing->m_unk0x04;
+	current = p_thing->m_staticObject;
 	if (current != -1) {
 		index = DestroyStaticObject(current);
 	}
@@ -729,7 +729,7 @@ void DestroyThingObject(GameThing* p_thing)
 	if (index != -1) {
 		thing = &g_gameThings[g_staticObjects[index].m_thing];
 		if (thing->m_unk0x00 & 0x8000) {
-			FUN_100044f3(g_staticObjects[index].m_object, DestroyObjTreeAndShapes, 0);
+			BlowOffObjTree(g_staticObjects[index].m_object, DestroyObjTreeAndShapes, 0);
 			FreeStaticObjectTree(index);
 		}
 	}
@@ -774,7 +774,7 @@ void PropagateStaticObjectStates(void)
 					if (index != -1) {
 						thing = &g_gameThings[index];
 						if (thing->m_unk0x00 & 0x8000) {
-							FUN_100044f3(g_staticObjects[i].m_object, DestroyObjTreeAndShapes, 0);
+							BlowOffObjTree(g_staticObjects[i].m_object, DestroyObjTreeAndShapes, 0);
 							FreeStaticObjectTree(i);
 						}
 					}
@@ -837,7 +837,7 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 	}
 
 	thing = entry->m_thing;
-	if (thing != -1 && (g_gameThings[thing].m_unk0x00 & 0x8000) && (!g_explosionChunks || FUN_100040b0())) {
+	if (thing != -1 && (g_gameThings[thing].m_unk0x00 & 0x8000) && (!g_explosionChunks || IsDebrisFull())) {
 		return FALSE;
 	}
 

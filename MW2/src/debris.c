@@ -37,7 +37,7 @@ DebrisPiece g_debrisPieces[0x80];
 DebrisChunk g_debrisChunks[0x80];
 
 // FUNCTION: MW2 0x100040b0
-MechS32 FUN_100040b0(void)
+MechS32 IsDebrisFull(void)
 {
 	MechS32 i;
 
@@ -49,7 +49,7 @@ MechS32 FUN_100040b0(void)
 
 // Stack-slot permutation: i and piece.
 // FUNCTION: MW2 0x10004111
-MechS32 FUN_10004111(SceneObject* p_obj, MechS32 p_unk0x00)
+MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 {
 	MechS32 i;
 	DebrisPiece* piece;
@@ -70,7 +70,7 @@ MechS32 FUN_10004111(SceneObject* p_obj, MechS32 p_unk0x00)
 		return -1;
 	}
 
-	FUN_10004c06(i);
+	ResetDebrisPiece(i);
 	g_debrisCount++;
 	DetachObj(p_obj);
 
@@ -83,7 +83,7 @@ MechS32 FUN_10004111(SceneObject* p_obj, MechS32 p_unk0x00)
 
 // Throws the piece off in a random direction, spinning.
 // FUNCTION: MW2 0x10004218
-void FUN_10004218(MechS32 p_index)
+void ThrowDebrisPiece(MechS32 p_index)
 {
 	DebrisPiece* piece;
 
@@ -103,7 +103,7 @@ void FUN_10004218(MechS32 p_index)
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
 // Stack-slot permutation: i and chunk.
 // FUNCTION: MW2 0x10004356
-void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
+void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	MechS32 i;
 	MechS32 destroy;
@@ -125,14 +125,14 @@ void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 
 	if (i == 0x80 || destroy) {
 		DetachObj(p_obj);
-		FUN_1000457e(p_obj, p_callback);
+		DisposeDebris(p_obj, p_callback);
 		return;
 	}
 	else {
 		chunk = &g_debrisChunks[i];
 	}
 
-	piece = FUN_10004111(p_obj, 2);
+	piece = AddDebrisPiece(p_obj, 2);
 	if (piece >= 0) {
 		chunk->m_active = TRUE;
 		chunk->m_obj = p_obj;
@@ -142,16 +142,16 @@ void FUN_10004356(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		ClearObjTreeKind(p_obj, 0x300);
 		SetObjTreeKind(p_obj, 0x50);
 		SetObjTreeOwner(p_obj, i);
-		FUN_10004218(piece);
+		ThrowDebrisPiece(piece);
 	}
 	else {
-		FUN_1000457e(p_obj, p_callback);
+		DisposeDebris(p_obj, p_callback);
 	}
 }
 
 // Stack-slot permutation: child and sibling.
 // FUNCTION: MW2 0x100044f3
-void FUN_100044f3(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
+void BlowOffObjTree(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	SceneObject* child;
 	SceneObject* sibling;
@@ -162,31 +162,31 @@ void FUN_100044f3(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 
 	child = GetObjFirstChild(p_obj);
 	if (child) {
-		FUN_100044f3(child, p_callback, p_unk0x16);
+		BlowOffObjTree(child, p_callback, p_unk0x16);
 	}
 
 	sibling = GetObjNextSibling(p_obj);
 	if (sibling) {
-		FUN_100044f3(sibling, p_callback, p_unk0x16);
+		BlowOffObjTree(sibling, p_callback, p_unk0x16);
 	}
 
-	FUN_10004356(p_obj, p_callback, p_unk0x16);
+	BlowOffChunk(p_obj, p_callback, p_unk0x16);
 }
 
 // FUNCTION: MW2 0x1000457e
-void FUN_1000457e(SceneObject* p_obj, ObjectCallback p_callback)
+void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 index;
 
 	if (p_obj) {
-		FUN_10004e4d(p_obj);
+		HideDebrisObj(p_obj);
 		if (p_callback) {
 			p_callback(p_obj);
 		}
 
-		index = FUN_10004c86(p_obj);
+		index = FindDebrisPiece(p_obj);
 		if (index != -1) {
-			FUN_10004c06(index);
+			ResetDebrisPiece(index);
 		}
 	}
 }
@@ -203,7 +203,7 @@ void UpdateDebris(void)
 	for (i = 0; i < 0x80; i++) {
 		if (g_debrisChunks[i].m_active == TRUE && g_currentClock - g_debrisChunks[i].m_startTime > 0xe24 &&
 			!g_localMechLost) {
-			FUN_1000457e(g_debrisChunks[i].m_obj, g_debrisChunks[i].m_callback);
+			DisposeDebris(g_debrisChunks[i].m_obj, g_debrisChunks[i].m_callback);
 			g_debrisChunks[i] = g_emptyDebrisChunk;
 		}
 	}
@@ -211,7 +211,7 @@ void UpdateDebris(void)
 
 // Blows the chunk up.
 // FUNCTION: MW2 0x100046b2
-void FUN_100046b2(MechS32 p_index)
+void ExplodeChunk(MechS32 p_index)
 {
 	DebrisChunk* chunk;
 	SceneObject* obj;
@@ -224,15 +224,15 @@ void FUN_100046b2(MechS32 p_index)
 	obj = chunk->m_obj;
 	if (obj) {
 		GetShapeBounds(GetObjShape(obj), &x, &y, &z);
-		FUN_1006b152(-2, 7, x, y, z, x, y, z);
-		FUN_10004e4d(obj);
+		SpawnEffect(-2, 7, x, y, z, x, y, z);
+		HideDebrisObj(obj);
 		if (chunk->m_callback) {
 			chunk->m_callback(obj);
 		}
 
-		piece = FUN_10004c86(obj);
+		piece = FindDebrisPiece(obj);
 		if (piece != -1) {
-			FUN_10004c06(piece);
+			ResetDebrisPiece(piece);
 		}
 
 		*chunk = g_emptyDebrisChunk;
@@ -240,11 +240,11 @@ void FUN_100046b2(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10004783
-void FUN_10004783(MechS32 p_index, MechS32 p_damage)
+void DamageChunk(MechS32 p_index, MechS32 p_damage)
 {
 	g_debrisChunks[p_index].m_health -= p_damage;
 	if (g_debrisChunks[p_index].m_health < 0) {
-		FUN_100046b2(p_index);
+		ExplodeChunk(p_index);
 	}
 }
 
@@ -284,7 +284,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 
 	if (velocityY <= 0 && newY <= (ground = GetTerrainHeight(x, y, z))) {
 		if (rising) {
-			FUN_10004e4d(piece->m_obj);
+			HideDebrisObj(piece->m_obj);
 			landed = TRUE;
 		}
 
@@ -318,14 +318,14 @@ void UpdateDebrisPiece(MechS32 p_index)
 
 	if (landed) {
 		g_debrisCount--;
-		FUN_10004c06(p_index);
+		ResetDebrisPiece(p_index);
 	}
 }
 
 // Pushes the piece by (p_x, p_y, p_z) on top of a random throw.
 // Stack-slot permutation: length, speed and piece; and the operand order of length < speed.
 // FUNCTION: MW2 0x10004a45
-void FUN_10004a45(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void PushDebrisPiece(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 length;
 	MechS32 speed;
@@ -341,7 +341,7 @@ void FUN_10004a45(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		return;
 	}
 
-	FUN_10004218(p_index);
+	ThrowDebrisPiece(p_index);
 	speed = ApproximateVectorLength(piece->m_velocityX, piece->m_velocityY, piece->m_velocityZ);
 	if (length < speed) {
 		speed = FixedDiv16(length * 2, speed);
@@ -373,12 +373,12 @@ void ZeroChunx(void)
 	}
 
 	for (i = 0; i < 0x80; i++) {
-		FUN_10004c06(i);
+		ResetDebrisPiece(i);
 	}
 }
 
 // FUNCTION: MW2 0x10004c06
-void FUN_10004c06(MechS32 p_index)
+void ResetDebrisPiece(MechS32 p_index)
 {
 	DebrisPiece* piece;
 
@@ -392,7 +392,7 @@ void FUN_10004c06(MechS32 p_index)
 
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10004c86
-MechS32 FUN_10004c86(SceneObject* p_obj)
+MechS32 FindDebrisPiece(SceneObject* p_obj)
 {
 	MechS32 index;
 	MechS32 i;
@@ -411,7 +411,7 @@ MechS32 FUN_10004c86(SceneObject* p_obj)
 // Damages the chunks within p_radius of (p_x, p_y, p_z) by p_damage per second.
 // Stack-slot permutation of the locals, and the operand order of radius + p_radius.
 // FUNCTION: MW2 0x10004ce5
-void FUN_10004ce5(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_damage)
+void DamageChunksInRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_damage)
 {
 	DebrisChunk* chunk;
 	MechS32 x;
@@ -437,13 +437,13 @@ void FUN_10004ce5(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS
 		dz = z - p_z;
 		reach = radius + p_radius;
 		if (IsWithinRadius(dx, dy, dz, reach)) {
-			FUN_10004783(i, FixedMul16(p_damage, g_deltaTime));
+			DamageChunk(i, FixedMul16(p_damage, g_deltaTime));
 		}
 	}
 }
 
 // FUNCTION: MW2 0x10004dcb
-void FUN_10004dcb(SceneObject* p_obj, ObjectCallback p_callback)
+void RemoveChunk(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 i;
 
@@ -458,11 +458,11 @@ void FUN_10004dcb(SceneObject* p_obj, ObjectCallback p_callback)
 		}
 	}
 
-	FUN_1000457e(p_obj, p_callback);
+	DisposeDebris(p_obj, p_callback);
 }
 
 // FUNCTION: MW2 0x10004e4d
-void FUN_10004e4d(SceneObject* p_obj)
+void HideDebrisObj(SceneObject* p_obj)
 {
 	if (p_obj) {
 		HideObjTree(p_obj);

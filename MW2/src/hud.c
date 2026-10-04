@@ -219,7 +219,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	}
 	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x400) {
 		GetStaticObjectPosition(
-			g_gameThings[p_mech->m_player->m_targetInfo.m_target & 0xff].m_unk0x04,
+			g_gameThings[p_mech->m_player->m_targetInfo.m_target & 0xff].m_staticObject,
 			&unused,
 			&y,
 			&unused
@@ -382,12 +382,12 @@ MechS32 DrawCrosshair(Mech* p_mech, MechS32 p_bearing, MechS32 p_pitch, MechS32 
 			shapeIn = 0x73;
 		}
 
-		if (def->m_unk0x18 == 0) {
+		if (def->m_guided == 0) {
 			range = 0x30000;
 			pitch = 3;
 			if (p_mech->m_player->m_targetInfo.m_target && !(p_mech->m_player->m_targetInfo.m_target & 0x1100) &&
-				def->m_unk0x3c < p_distance && def->m_unk0x40 > p_distance && range > p_pitch && -range < p_pitch &&
-				pitch > p_bearing && -pitch < p_bearing) {
+				def->m_shortRange < p_distance && def->m_longRange > p_distance && range > p_pitch &&
+				-range < p_pitch && pitch > p_bearing && -pitch < p_bearing) {
 				result = TRUE;
 				shape = shapeIn;
 			}
@@ -617,8 +617,8 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 	MechS32 y;
 	MechS32 x;
 
-	FUN_100463e5(p_mech->m_player, &ray);
-	SetRayLength(&ray, FUN_1004635c(p_mech->m_player));
+	BuildAimRay(p_mech->m_player, &ray);
+	SetRayLength(&ray, GetAimRange(p_mech->m_player));
 	x = ray.m_x1;
 	y = ray.m_y1;
 	z = ray.m_z1;

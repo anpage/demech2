@@ -139,7 +139,7 @@ void FUN_1005a2ea(Mech* p_mech)
 			mech->m_player->m_targetInfo.m_target = 0;
 		}
 
-		FUN_10045eac(mech);
+		UpdateWeaponLock(mech);
 		mech->m_autopilot = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
 		if ((mech->m_flags & 4) && !(mech->m_flags & 8)) {

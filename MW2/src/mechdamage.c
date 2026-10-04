@@ -312,8 +312,8 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 		return;
 	}
 
-	if (g_unk0x100a6d34 && (g_unk0x100a6d34->m_kind & 0x100) && p_mech->m_player->m_index == g_unk0x100a6d34->m_owner) {
-		g_unk0x100a6d34 = NULL;
+	if (g_aimedShape && (g_aimedShape->m_kind & 0x100) && p_mech->m_player->m_index == g_aimedShape->m_owner) {
+		g_aimedShape = NULL;
 	}
 
 	p_mech->m_player->m_killer = p_killer;
@@ -701,7 +701,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 
 					if (obj) {
 						GetShapeBounds(GetObjShape(obj), &x, &y, &z);
-						FUN_1006b152(p_attacker, 7, x, y, z, x, y, z);
+						SpawnEffect(p_attacker, 7, x, y, z, x, y, z);
 					}
 
 					damage = bin->m_unk0x02 * bin->m_unk0x0a;

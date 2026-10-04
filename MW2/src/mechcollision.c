@@ -356,9 +356,14 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 				obj = shape->m_object;
 				dist = ApproximateVectorLength(p_mech->m_velocityX, p_mech->m_velocityY, p_mech->m_velocityZ);
 				if (dist > 0) {
-					index = FUN_10004111(obj, 1);
+					index = AddDebrisPiece(obj, 1);
 					if (index >= 0) {
-						FUN_10004a45(index, p_mech->m_velocityX * 2, p_mech->m_velocityY * 2, p_mech->m_velocityZ * 2);
+						PushDebrisPiece(
+							index,
+							p_mech->m_velocityX * 2,
+							p_mech->m_velocityY * 2,
+							p_mech->m_velocityZ * 2
+						);
 						GetObjPosition(obj, &x, &y, &z);
 						x -= g_eyepoint->m_x;
 						y -= g_eyepoint->m_y;
@@ -503,7 +508,7 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 	if (g_isNetworkGame && p_shape && (p_shape->m_kind & 0xf0) == 0xb0) {
 		ApplyDamageToMech(-2, p_mech, 0x320000, 7);
 		ApplyDamageToMech(-2, p_mech, 0x320000, 8);
-		FUN_1006b152(
+		SpawnEffect(
 			p_mech->m_player->m_index,
 			0xd,
 			p_shape->m_centerX,
@@ -513,7 +518,7 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 			p_shape->m_centerY,
 			p_shape->m_centerZ
 		);
-		FUN_1006bf8c(p_shape->m_owner);
+		KillGameThing(p_shape->m_owner);
 	}
 	else {
 		speed = ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ);
@@ -524,7 +529,7 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 			}
 
 			if (p_shape && p_shape->m_kind & 0x200) {
-				FUN_1006c11c(
+				DamageGameThing(
 					p_mech->m_player->m_index,
 					p_shape,
 					damage >> 16,
@@ -547,7 +552,7 @@ void FUN_10076a23(Mech* p_mech)
 	MechS32 z;
 
 	if (!g_netRole || p_mech->m_player->m_index == g_localPlayerId) {
-		FUN_100044f3(p_mech->m_player->m_obj, FUN_1001ddf2, 999);
+		BlowOffObjTree(p_mech->m_player->m_obj, FUN_1001ddf2, 999);
 		p_mech->m_flags |= 0x100;
 	}
 	else {

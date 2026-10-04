@@ -174,7 +174,7 @@ void HandleCheatInput(MechS16 p_key)
 	else if (FUN_1005b807("\x7ftuv{}{c")) { // "enolagay"
 		target = GetLocalTargetGamePiece();
 		if (target >= 0) {
-			FUN_1006c4e2(g_players[target]);
+			StartNuke(g_players[target]);
 		}
 	}
 	else if (FUN_1005b807("|vc}shv")) { // "flygirl"
@@ -928,13 +928,13 @@ void FUN_1005c78a(MechS32 p_key)
 		g_pauseRequested = 1;
 		break;
 	case 0x97:
-		FUN_10045b56(0);
+		SetSelectedWeaponGroup(0);
 		break;
 	case 0x98:
-		FUN_10045b56(1);
+		SetSelectedWeaponGroup(1);
 		break;
 	case 0x99:
-		FUN_10045b56(2);
+		SetSelectedWeaponGroup(2);
 		break;
 	case 0x9a:
 		g_localSteering.m_weaponCycleGroup = 1;

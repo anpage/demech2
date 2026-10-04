@@ -225,7 +225,7 @@ MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
 		return FALSE;
 	case 0x400:
 		thing = &g_gameThings[index];
-		GetStaticObjectPosition(thing->m_unk0x04, &x, &y, &z);
+		GetStaticObjectPosition(thing->m_staticObject, &x, &y, &z);
 		for (i = 0; i < g_playerCount; i++) {
 			if (g_players[i]->m_team == p_team && IsWithinRadius(
 													  g_players[i]->m_position.m_x - x,
