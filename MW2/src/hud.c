@@ -581,7 +581,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechS32 p_heading, MechS32 p_twist)
 	if (p_twist) {
 		offset = p_twist;
 		if (offset < 0) {
-			FUN_1004d8ae(
+			DrawHorizontalBar(
 				target,
 				g_compassOrigin.m_x + offset,
 				g_compassOrigin.m_y - g_compassTapeAbove,
@@ -591,7 +591,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechS32 p_heading, MechS32 p_twist)
 			);
 		}
 		else {
-			FUN_1004d8ae(
+			DrawHorizontalBar(
 				target,
 				g_compassOrigin.m_x,
 				g_compassOrigin.m_y - g_compassTapeAbove,

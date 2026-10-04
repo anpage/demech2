@@ -30,9 +30,9 @@ MechS32 g_unk0x100a88e8 = 0;
 // FUNCTION: MW2 0x100509a0
 void FUN_100509a0(void)
 {
-	g_unk0x100aa2a4++;
-	if (g_unk0x100aa2a4 == 6) {
-		g_unk0x100aa2a4 = 1;
+	g_mechViewMode++;
+	if (g_mechViewMode == 6) {
+		g_mechViewMode = 1;
 	}
 }
 
@@ -47,12 +47,12 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 	Mech* mech;
 
 	camera = NULL;
-	if (!p_panel->m_enabled || !g_unk0x100aa2a4) {
+	if (!p_panel->m_enabled || !g_mechViewMode) {
 		return;
 	}
 
 	p_panel->m_lastPowerState = g_cockpitPowerState;
-	if (p_panel->m_damage == 1 && g_unk0x100aa2a4 != 1 && g_unk0x100aa2a4 != 2) {
+	if (p_panel->m_damage == 1 && g_mechViewMode != 1 && g_mechViewMode != 2) {
 		if (g_unk0x100a88e8) {
 			if (RandomIntBelow(10) < 7) {
 				g_unk0x100a88e8 = 0;
@@ -66,13 +66,13 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			g_unk0x100a88e8 = 1;
 		}
 	}
-	else if (p_panel->m_damage > 2 && g_unk0x100aa2a4 != 1 && g_unk0x100aa2a4 != 2) {
+	else if (p_panel->m_damage > 2 && g_mechViewMode != 1 && g_mechViewMode != 2) {
 		DrawMechViewStatic(p_panel);
 		return;
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	switch (g_unk0x100aa2a4) {
+	switch (g_mechViewMode) {
 	case 0:
 		break;
 	case 5:
@@ -111,7 +111,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 	case 3:
 		SaveView(g_eyepoint, view);
 		FUN_10050dc3(&saved);
-		if (g_unk0x100ea3e4) {
+		if (g_frontViewForRear) {
 			view[3] = mech->m_player->m_torsoTwist + mech->m_player->m_heading;
 		}
 		else {
@@ -122,7 +122,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, 0x20000, view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-		if (g_unk0x100ea3e4) {
+		if (g_frontViewForRear) {
 			OutlinePane(p_panel->m_target, 6);
 		}
 		else {
@@ -132,10 +132,10 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		g_renderSettings = saved;
 		break;
 	case 2:
-		FUN_100407b6(mech, p_panel->m_target);
+		DrawArmorBars(mech, p_panel->m_target);
 		break;
 	default:
-		FUN_10040511(mech, p_panel->m_target);
+		DrawDamageOutline(mech, p_panel->m_target);
 		break;
 	}
 }
@@ -156,7 +156,7 @@ void FUN_10050dc3(RenderSettings* p_saved)
 // FUNCTION: MW2 0x10050e20
 void DrawMechViewStatic(CockpitPanel* p_panel)
 {
-	if (!p_panel->m_enabled || !g_unk0x100aa2a4) {
+	if (!p_panel->m_enabled || !g_mechViewMode) {
 		return;
 	}
 
@@ -188,7 +188,7 @@ void DrawMechViewStartup(CockpitPanel* p_panel)
 	RectTransition* transition;
 	PANE* frame;
 
-	if (!p_panel->m_enabled || !g_unk0x100aa2a4 || g_unk0x100aa2a4 == 2 || g_unk0x100aa2a4 == 1) {
+	if (!p_panel->m_enabled || !g_mechViewMode || g_mechViewMode == 2 || g_mechViewMode == 1) {
 		return;
 	}
 
@@ -225,7 +225,7 @@ void DrawMechViewShutdown(CockpitPanel* p_panel)
 	RectTransition* transition;
 	PANE* frame;
 
-	if (!p_panel->m_enabled || !g_unk0x100aa2a4 || g_unk0x100aa2a4 == 2 || g_unk0x100aa2a4 == 1) {
+	if (!p_panel->m_enabled || !g_mechViewMode || g_mechViewMode == 2 || g_mechViewMode == 1) {
 		return;
 	}
 

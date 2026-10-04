@@ -901,10 +901,10 @@ void UpdateObjectives(void)
 				mission->m_endTime = g_missionTime;
 			}
 		}
-		else if (star == g_unk0x100a5918 && !g_missionTimerStopped && !g_speechQueue && !g_unk0x100aa2bc) {
-			g_unk0x100aa2bc = 1;
-			g_unk0x100aa2a8 = 0;
-			g_unk0x100aa290 = 0;
+		else if (star == g_unk0x100a5918 && !g_missionTimerStopped && !g_speechQueue && !g_missionResolved) {
+			g_missionResolved = 1;
+			g_missionEnded = 0;
+			g_missionEndTime = 0;
 		}
 
 		current = -1;

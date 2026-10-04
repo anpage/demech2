@@ -391,14 +391,14 @@ int __stdcall SimMain(
 				DebugPrint("WinMain(2): pause_timer(false)");
 				PauseTimer(0x80, FALSE);
 				StartMissionMusic();
-				g_unk0x100aa2c0 = 0;
+				g_statusMessage = 0;
 			}
 			else if (g_isNetworkGame && !(g_goLaunch & 0x80000000)) {
 				if (g_unk0x100acb2c == 0) {
 					g_unk0x100acb2c = g_realClock + 0xb5;
 				}
 				else if (g_unk0x100acb2c < g_realClock) {
-					g_unk0x100aa2c0 = 3;
+					g_statusMessage = 3;
 				}
 			}
 

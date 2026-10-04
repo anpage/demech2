@@ -512,8 +512,8 @@ void InitCockpitPanels(void)
 	g_cockpitPanels[c_panelHeatRate]->m_draw = DrawHeatRatePanel;
 	g_cockpitPanels[c_panelJets]->m_draw = DrawJetsPanel;
 	g_cockpitPanels[c_panelKills]->m_draw = DrawKillsPanel;
-	FUN_1004d020();
-	FUN_10040020();
+	ScaleBarGauges();
+	InitDamagePanel();
 	g_eyeHeightOffset = &mech->m_cockpitHeight;
 	g_eyeTwist = &mech->m_torsoTwist.m_value;
 	InitHudGauges();
@@ -914,7 +914,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 }
 
 // Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
-// (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_unk0x100a5cf8), any of
+// (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_outlinePartRects), any of
 // them out of range cleared.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070bda
@@ -969,10 +969,10 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 			left = top = right = bottom = 0;
 		}
 
-		g_unk0x100a5cf8[i].m_x0 = left;
-		g_unk0x100a5cf8[i].m_y0 = top;
-		g_unk0x100a5cf8[i].m_x1 = right;
-		g_unk0x100a5cf8[i].m_y1 = bottom;
+		g_outlinePartRects[i].m_x0 = left;
+		g_outlinePartRects[i].m_y0 = top;
+		g_outlinePartRects[i].m_x1 = right;
+		g_outlinePartRects[i].m_y1 = bottom;
 	}
 
 	if (p_ref->m_id == -1) {

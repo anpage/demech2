@@ -11,12 +11,12 @@ extern "C"
 {
 #endif
 
-	extern PANE g_unk0x100a5cf8[16];
-	extern MechS32 g_unk0x100a5eb8;
+	extern PANE g_outlinePartRects[16];
+	extern MechS32 g_frameOutlineParts;
 
-	void FUN_10040020(void);
-	void FUN_10040511(Mech* p_mech, PANE* p_target);
-	void FUN_100407b6(Mech* p_mech, PANE* p_target);
+	void InitDamagePanel(void);
+	void DrawDamageOutline(Mech* p_mech, PANE* p_target);
+	void DrawArmorBars(Mech* p_mech, PANE* p_target);
 
 #ifdef __cplusplus
 }

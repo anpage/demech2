@@ -94,7 +94,7 @@ void FUN_10009f61(void)
 	}
 }
 
-// The debug keys, which FUN_1005c78a passes on while the mission timer is stopped: views, the
+// The debug keys, which RunGameKey passes on while the mission timer is stopped: views, the
 // debug render flags and overlays, the difficulty switches, the objective state of the selected
 // star (g_unk0x100a88f0) and objective (g_unk0x100a88f4), and a number and mech section selection.
 // The original compares g_unk0x100a88f0 with g_objectiveCount in the other operand order.

@@ -797,7 +797,7 @@ void LateUpdateMech(Mech* p_mech)
 
 		UpdateWeaponLock(mech);
 
-		if ((mech->m_player->m_steering->m_legsPanDelta || g_unk0x100aa2a0) && mech->m_autopilot) {
+		if ((mech->m_player->m_steering->m_legsPanDelta || g_feetToTorso) && mech->m_autopilot) {
 			mech->m_player->m_steering->m_autopilot = 1;
 		}
 
@@ -827,7 +827,7 @@ void LateUpdateMech(Mech* p_mech)
 
 		mech->m_throttle.m_target = FixedMul16(mech->m_player->m_steering->m_throttle, mech->m_mobility) + 0x400;
 		if (mech->m_player->m_aiMode != 2 && mech->m_throttle.m_target == 0x400 &&
-			(mech->m_player->m_steering->m_turn || g_unk0x100aa2a0)) {
+			(mech->m_player->m_steering->m_turn || g_feetToTorso)) {
 			mech->m_throttle.m_target = 0x480;
 		}
 	}
@@ -891,7 +891,7 @@ void LateUpdateMech(Mech* p_mech)
 		mech->m_turnRate.m_target = 0;
 	}
 
-	if (isLocal && g_unk0x100aa2a0) {
+	if (isLocal && g_feetToTorso) {
 		heading = mech->m_player->m_heading;
 		degrees = heading >> 16;
 		if (degrees > 180) {
@@ -926,7 +926,7 @@ void LateUpdateMech(Mech* p_mech)
 			mech->m_torsoTwist.m_value = mech->m_torsoTwist.m_target = 0;
 			g_localSteering.m_torsoPanReset = 1;
 			mech->m_player->m_steering->m_torsoPan = 0;
-			g_unk0x100aa2a0 = 0;
+			g_feetToTorso = 0;
 		}
 		else if (mech->m_torsoTwist.m_value > 0) {
 			mech->m_turnRate.m_target = 0x370000;
@@ -982,7 +982,7 @@ void LateUpdateMech(Mech* p_mech)
 			}
 		}
 
-		if (!g_unk0x100aa2a0 && (isLocal || !g_isNetworkGame)) {
+		if (!g_feetToTorso && (isLocal || !g_isNetworkGame)) {
 			mech->m_torsoTwist.m_target = mech->m_player->m_steering->m_torsoPan;
 		}
 

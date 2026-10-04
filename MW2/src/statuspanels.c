@@ -322,7 +322,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (!g_unk0x100aa2c0 && !g_chatRecipient) {
+	if (!g_statusMessage && !g_chatRecipient) {
 		return;
 	}
 
@@ -334,7 +334,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 	height = VFX_font_height(font);
 	gap = height / 2;
 	pos = *p_panel->m_textOrigin;
-	if (g_unk0x100aa2c0 == 1) {
+	if (g_statusMessage == 1) {
 		if (GetPlayerSide(g_trackedPlayer)) {
 			color = 0xb;
 		}
@@ -348,7 +348,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
 		g_textColors[0xe] = 0xe;
 	}
-	else if (g_unk0x100aa2c0 == 2) {
+	else if (g_statusMessage == 2) {
 		g_textColors[0xe] = 6;
 		VFX_string_draw(
 			p_panel->m_target,
@@ -360,7 +360,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		);
 		g_textColors[0xe] = 0xe;
 	}
-	else if (g_unk0x100aa2c0 == 3) {
+	else if (g_statusMessage == 3) {
 		g_textColors[0xe] = 0xe;
 		VFX_string_draw(
 			p_panel->m_target,
@@ -504,7 +504,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (g_isNetworkGame && !g_unk0x100aa2c0 && !g_localMechLost) {
+	if (g_isNetworkGame && !g_statusMessage && !g_localMechLost) {
 		sprintf(text, "Kills: %i", g_killCount);
 		VFX_string_draw(
 			p_panel->m_target,
@@ -604,7 +604,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	);
 	g_textColors[0xe] = 0xe;
 	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
-	FUN_1004d48a(p_panel->m_target);
+	DrawThrottleGauge(p_panel->m_target);
 }
 
 // Labels the MASC panel while MASC is available.
@@ -677,7 +677,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 	);
 	g_textColors[0xe] = 0xe;
 	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
-	FUN_1004d175(p_panel->m_target);
+	DrawHeatBar(p_panel->m_target);
 }
 
 // Labels the heat rate panel and draws its bar.
@@ -705,7 +705,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 		g_textColors
 	);
 	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
-	FUN_1004d310(p_panel->m_target);
+	DrawHeatRateBar(p_panel->m_target);
 }
 
 // Labels the jump jet panel of a mech with jump jets and draws the fuel bar.
@@ -737,5 +737,5 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 		g_textColors
 	);
 	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
-	FUN_1004d660(p_panel->m_target);
+	DrawJumpFuelBar(p_panel->m_target);
 }

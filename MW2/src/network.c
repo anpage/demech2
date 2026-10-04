@@ -374,7 +374,7 @@ MechS32 UpdateNetwork(void)
 			ReceiveSuccessMsg(g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "SS") == 0) {
-			if (!g_unk0x100aa2bc) {
+			if (!g_missionResolved) {
 				KillMech(-2, player->m_mech);
 			}
 
