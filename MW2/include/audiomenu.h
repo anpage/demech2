@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-	extern MechChar g_unk0x100a5288[];
+	extern MechChar g_audioItem[];
 	extern MenuPage g_audioPage;
 
 #ifdef __cplusplus

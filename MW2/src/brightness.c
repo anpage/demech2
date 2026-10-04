@@ -14,7 +14,7 @@
 MechS32 g_displayBrightness = 9;
 
 // GLOBAL: MW2 0x100a946c
-MechS32 g_unk0x100a946c = 9;
+MechS32 g_brightnessSetting = 9;
 
 // GLOBAL: MW2 0x100e96a0
 PaletteColor g_paletteColorsPreBrightness[0x100];

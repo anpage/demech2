@@ -28,13 +28,13 @@ TimeOfDayPhase g_timeOfDayPhases[4] = {{4, 2715}, {0, 2715}, {4, 3620}, {8, 2715
 MechS32 g_timeOfDayPhase = -1;
 
 // GLOBAL: MW2 0x100ba5fc
-MechS32 g_unk0x100ba5fc = 0x168;
+MechS32 g_soundDelayPerUnit = 0x168;
 
 // GLOBAL: MW2 0x100ba600
-MechS32 g_unk0x100ba600 = 0x794;
+MechS32 g_gravity = 0x794;
 
 // GLOBAL: MW2 0x100ba604
-MechS32 g_unk0x100ba604 = 0x10000;
+MechS32 g_gravityScale = 0x10000;
 
 // GLOBAL: MW2 0x100ba608
 MechS32 g_unk0x100ba608 = 0;
@@ -43,38 +43,38 @@ MechS32 g_unk0x100ba608 = 0;
 MechS32 g_secondsPerDay = 86400;
 
 // GLOBAL: MW2 0x100ba610
-MechS32 g_unk0x100ba610 = 365;
+MechS32 g_daysPerYear = 365;
 
 // GLOBAL: MW2 0x100ba614
-MechS32 g_unk0x100ba614 = 0;
+MechS32 g_dayOfYear = 0;
 
 // GLOBAL: MW2 0x100ba618
 MechS32 g_timeOfDay = 43200;
 
 // GLOBAL: MW2 0x100ba61c
-MechS32 g_unk0x100ba61c = 43200;
+MechS32 g_startTimeOfDay = 43200;
 
 // GLOBAL: MW2 0x100bfaa0
-MechS32 g_unk0x100bfaa0;
+MechS32 g_timeOfDayFrames;
 
 // GLOBAL: MW2 0x100bfaa8
 MechS32 g_timeOfDayStarts[4];
 
 // GLOBAL: MW2 0x100bfab8
-MechS32 g_unk0x100bfab8;
+MechS32 g_timeOfDayEnabled;
 
 // GLOBAL: MW2 0x100bfd4c
-MechS32 g_unk0x100bfd4c;
+MechS32 g_nextTimeOfDayUpdate;
 
 // GLOBAL: MW2 0x100bfd50
-MechS32 g_unk0x100bfd50;
+MechS32 g_infraredOn;
 
 // FUNCTION: MW2 0x1007d610
 void FirstEnvironment(void)
 {
 	MechS32 hour;
 
-	g_unk0x100bfab8 = 1;
+	g_timeOfDayEnabled = 1;
 	hour = g_secondsPerDay / 24;
 	g_timeOfDayStarts[0] = hour * 5;
 	g_timeOfDayStarts[1] = hour * 7;
@@ -84,14 +84,14 @@ void FirstEnvironment(void)
 		g_timeOfDay = g_timeOfDayStarts[g_timeOfDayPhase];
 	}
 
-	g_unk0x100ba61c = g_timeOfDay;
+	g_startTimeOfDay = g_timeOfDay;
 	g_timeOfDayPhase = -1;
-	g_unk0x100ba604 = FixedDiv16(g_unk0x100ba600, 0x794);
+	g_gravityScale = FixedDiv16(g_gravity, 0x794);
 }
 
 // Stack slots: seconds, time and i are permuted.
 // FUNCTION: MW2 0x1007d6bb
-void FUN_1007d6bb(void)
+void UpdateTimeOfDay(void)
 {
 	MechS32 phase;
 	MechS32 seconds;
@@ -99,26 +99,26 @@ void FUN_1007d6bb(void)
 	MechS32 i;
 
 	phase = 3;
-	if (g_unk0x100c3280[0]->m_unk0x06 >= 1 && g_unk0x100bfd50 == 1) {
-		FUN_1007d88a(0, 0);
-		g_unk0x100bfd50 = 0;
+	if (g_cockpitPanels[c_panelRadar]->m_damage >= 1 && g_infraredOn == 1) {
+		SetInfrared(0, 0);
+		g_infraredOn = 0;
 	}
 
-	if (g_unk0x100bfaa0 < 2) {
-		g_unk0x100bfaa0++;
-		g_unk0x100bfd4c = 0;
+	if (g_timeOfDayFrames < 2) {
+		g_timeOfDayFrames++;
+		g_nextTimeOfDayUpdate = 0;
 	}
 	else {
-		if (g_currentClock < g_unk0x100bfd4c) {
+		if (g_currentClock < g_nextTimeOfDayUpdate) {
 			return;
 		}
 
-		g_unk0x100bfd4c = g_currentClock + 0x712;
+		g_nextTimeOfDayUpdate = g_currentClock + 0x712;
 		seconds = g_currentClock / 181;
-		time = (g_unk0x100ba61c + seconds) % g_secondsPerDay;
+		time = (g_startTimeOfDay + seconds) % g_secondsPerDay;
 		if (time < g_timeOfDay) {
-			g_unk0x100ba614++;
-			g_unk0x100ba614 %= g_unk0x100ba610;
+			g_dayOfYear++;
+			g_dayOfYear %= g_daysPerYear;
 		}
 
 		g_timeOfDay = time;
@@ -128,66 +128,66 @@ void FUN_1007d6bb(void)
 			}
 		}
 
-		FUN_1007d7e3(phase);
+		FadeToTimeOfDayPhase(phase);
 	}
 }
 
 // Operand order: the original compares p_phase != g_timeOfDayPhase with g_timeOfDayPhase in eax.
 // FUNCTION: MW2 0x1007d7e3
-void FUN_1007d7e3(MechS32 p_phase)
+void FadeToTimeOfDayPhase(MechS32 p_phase)
 {
 	MechS32 duration;
 
-	if (g_unk0x100bfab8 == 1 && p_phase != g_timeOfDayPhase) {
-		if (g_unk0x100bfd50 == 1) {
+	if (g_timeOfDayEnabled == 1 && p_phase != g_timeOfDayPhase) {
+		if (g_infraredOn == 1) {
 			duration = 181;
-			g_unk0x100bfd50 = 0;
+			g_infraredOn = 0;
 		}
 		else {
 			duration = g_timeOfDayPhases[p_phase].m_duration;
 		}
 
-		if (g_unk0x100bfaa0 == 2) {
-			g_unk0x100bfaa0++;
+		if (g_timeOfDayFrames == 2) {
+			g_timeOfDayFrames++;
 			duration = 362;
 		}
 
-		FUN_10002a24(g_timeOfDayPhases[p_phase].m_palette, duration);
+		FadeToBasePalette(g_timeOfDayPhases[p_phase].m_palette, duration);
 		g_timeOfDayPhase = p_phase;
 	}
 }
 
 // FUNCTION: MW2 0x1007d875
-MechS32 FUN_1007d875(undefined4 p_unk0x00)
+MechS32 IsInfraredOn(undefined4 p_unk0x00)
 {
-	return g_unk0x100bfd50;
+	return g_infraredOn;
 }
 
-// Operand order: the original compares g_unk0x100bfd50 != p_state with p_state in eax.
+// Operand order: the original compares g_infraredOn != p_state with p_state in eax.
 // FUNCTION: MW2 0x1007d88a
-void FUN_1007d88a(undefined4 p_unk0x00, MechS32 p_state)
+void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 {
-	if (g_unk0x100bfd50 != p_state) {
+	if (g_infraredOn != p_state) {
 		if (p_state == 1) {
-			if (g_unk0x100c3280[0]->m_unk0x06 < 1) {
-				g_unk0x100bfd50 = 1;
-				g_unk0x100bfab8 = 0;
-				FUN_10002a24(12, 181);
-				FUN_1007eb23(0xb2, 100, 0x40, 5, 0x50);
+			if (g_cockpitPanels[c_panelRadar]->m_damage < 1) {
+				g_infraredOn = 1;
+				g_timeOfDayEnabled = 0;
+				FadeToBasePalette(12, 181);
+				PlaySoundEffect(0xb2, 100, 0x40, 5, 0x50);
 				PlayCockpitSound(0x1c, 1);
 			}
 		}
 		else if (p_state == 0) {
-			g_unk0x100bfab8 = 1;
+			g_timeOfDayEnabled = 1;
 			g_timeOfDayPhase = -1;
-			g_unk0x100bfd4c = 0;
+			g_nextTimeOfDayUpdate = 0;
 		}
 	}
 }
 
 // Stack slots: i and mech are swapped.
 // FUNCTION: MW2 0x1007d931
-void FUN_1007d931(void)
+void QuadrupleMechCooling(void)
 {
 	MechS32 i;
 	Mech* mech;
@@ -200,7 +200,7 @@ void FUN_1007d931(void)
 
 // Stack slots: i and mech are swapped.
 // FUNCTION: MW2 0x1007d97c
-void FUN_1007d97c(void)
+void QuarterMechCooling(void)
 {
 	MechS32 i;
 	Mech* mech;

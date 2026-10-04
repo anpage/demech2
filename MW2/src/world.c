@@ -39,7 +39,6 @@
 #include "playertype.h"
 #include "polydraw.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "resourcename.h"
 #include "resourceref.h"
@@ -48,6 +47,7 @@
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "targetpanel.h"
 #include "team.h"
 #include "types.h"
@@ -66,23 +66,23 @@
 
 // planet: the gravity, the time of day and climate, and render switches.
 typedef struct BwdPlanetRecord {
-	BwdRecord m_header;      // 0x00
-	MechS32 m_gravity;       // 0x08 — in g
-	undefined4 m_unk0x0c;    // 0x0c
-	MechS32 m_unk0x10;       // 0x10
-	MechS32 m_secondsPerDay; // 0x14
-	undefined4 m_unk0x18[3]; // 0x18
-	MechS32 m_temperature;   // 0x24
-	MechS32 m_unk0x28;       // 0x28
-	MechS32 m_unk0x2c;       // 0x2c
-	MechS32 m_unk0x30;       // 0x30
-	MechS32 m_unk0x34;       // 0x34
-	MechS32 m_unk0x38;       // 0x38
-	MechS32 m_unk0x3c;       // 0x3c
-	MechS32 m_unk0x40;       // 0x40
-	MechS32 m_unk0x44;       // 0x44
-	MechS32 m_unk0x48;       // 0x48
-	MechS32 m_unk0x4c;       // 0x4c
+	BwdRecord m_header;       // 0x00
+	MechS32 m_gravity;        // 0x08 — in g
+	undefined4 m_unk0x0c;     // 0x0c
+	MechS32 m_daysPerYear;    // 0x10
+	MechS32 m_secondsPerDay;  // 0x14
+	undefined4 m_unk0x18[3];  // 0x18
+	MechS32 m_temperature;    // 0x24
+	MechS32 m_jumpJetDrag;    // 0x28
+	MechS32 m_mapShadeTop;    // 0x2c
+	MechS32 m_mapShadeBase;   // 0x30
+	MechS32 m_slideSlope;     // 0x34
+	MechS32 m_breathable;     // 0x38
+	MechS32 m_brightenDamage; // 0x3c
+	MechS32 m_noEffectCamera; // 0x40
+	MechS32 m_noSky;          // 0x44
+	MechS32 m_noGround;       // 0x48
+	MechS32 m_noHorizonBand;  // 0x4c
 } BwdPlanetRecord;
 
 // The second planet record (c_bwdClimate).
@@ -116,7 +116,7 @@ typedef struct BwdNowRecord {
 	BwdRecord m_header;      // 0x00
 	undefined4 m_unk0x08[2]; // 0x08
 	MechS32 m_timeOfDay;     // 0x10
-	MechS16 m_unk0x14;       // 0x14
+	MechS16 m_dayOfYear;     // 0x14
 } BwdNowRecord;
 
 // palettegroup: the palettes of the 20 slots.
@@ -129,12 +129,12 @@ typedef struct BwdPaletteGroupRecord {
 typedef struct BwdLightRecord {
 	BwdRecord m_header;      // 0x00
 	undefined4 m_unk0x08[2]; // 0x08
-	MechS32 m_unk0x10;       // 0x10
-	MechS32 m_unk0x14;       // 0x14
-	MechS32 m_unk0x18;       // 0x18
-	MechS16 m_unk0x1c;       // 0x1c
-	MechS16 m_unk0x1e;       // 0x1e
-	MechS32 m_unk0x20;       // 0x20
+	MechS32 m_x;             // 0x10
+	MechS32 m_y;             // 0x14
+	MechS32 m_z;             // 0x18
+	MechS16 m_ambient;       // 0x1c
+	MechS16 m_directional;   // 0x1e
+	MechS32 m_fadeDistance;  // 0x20
 } BwdLightRecord;
 
 // A window record's rectangle for one of g_panes.
@@ -189,12 +189,12 @@ typedef struct BwdXformRecord {
 } BwdXformRecord;
 
 // A record of an object class or thing, and a value: scrounge, thing, gamepiece, eyeobj, pof,
-// objloc, booyowthing, xplode, lightobj.
+// objloc, booyowthing, xplode, lightobj. Only xplode records carry m_effectType.
 typedef struct BwdIdRecord {
-	BwdRecord m_header; // 0x00
-	MechS16 m_id;       // 0x08
-	MechS16 m_value;    // 0x0a
-	MechS16 m_unk0x0c;  // 0x0c
+	BwdRecord m_header;   // 0x00
+	MechS16 m_id;         // 0x08
+	MechS16 m_value;      // 0x0a
+	MechS16 m_effectType; // 0x0c
 } BwdIdRecord;
 
 // gamething: an object (and its replacement) that counts for the mission.
@@ -203,7 +203,7 @@ typedef struct BwdGameThingRecord {
 	MechS16 m_objects[4][2];    // 0x08 — the object and its replacement
 	MechS16 m_hitPoints;        // 0x18
 	MechU16 m_events;           // 0x1a
-	MechS32 m_unk0x1c;          // 0x1c
+	MechS32 m_flags;            // 0x1c
 	MechChar m_name[0x16];      // 0x20
 	MechChar m_shortName[0x16]; // 0x36
 } BwdGameThingRecord;
@@ -213,7 +213,7 @@ typedef struct BwdNavPointRecord {
 	BwdRecord m_header;    // 0x00
 	Vector3 m_position;    // 0x08
 	MechS32 m_heading;     // 0x14
-	MechS16 m_unk0x18;     // 0x18
+	MechS16 m_used;        // 0x18
 	MechS16 m_flags;       // 0x1a
 	MechS16 m_owner;       // 0x1c
 	MechS16 m_team;        // 0x1e
@@ -234,7 +234,7 @@ typedef struct BwdNavObjectRecord {
 // task: a timed callback, on an object or detached.
 typedef struct BwdTaskRecord {
 	BwdRecord m_header; // 0x00
-	MechS16 m_kind;     // 0x08 — an index into g_unk0x100a8640
+	MechS16 m_kind;     // 0x08 — an index into g_taskFns
 	MechS32 m_period;   // 0x0a
 	MechChar m_data[1]; // 0x0e — "object;..."
 } BwdTaskRecord;
@@ -266,27 +266,27 @@ typedef struct BwdAnim2dRecord {
 
 // Set by the local player's gpspec record: its hudfile record loads the HUD once.
 // GLOBAL: MW2 0x100a173c
-MechS32 g_unk0x100a173c = 0;
+MechS32 g_loadHudFile = 0;
 
 // The next g_shots slot a booyowthing record fills.
 // GLOBAL: MW2 0x100a1740
-MechS32 g_unk0x100a1740 = 0;
+MechS32 g_nextShotRecord = 0;
 
 // The next g_effects slot an xplode record fills.
 // GLOBAL: MW2 0x100a1744
-MechS32 g_unk0x100a1744 = 0;
+MechS32 g_nextEffectRecord = 0;
 
 // The name of the mission's music (the world stream's music record).
 // GLOBAL: MW2 0x100e9330
-MechChar g_unk0x100e9330[12];
+MechChar g_musicName[12];
 
 // The mission's "MUS" resource.
 // GLOBAL: MW2 0x100e9340
-MechS32 g_unk0x100e9340;
+MechS32 g_musicResource;
 
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
 // FUNCTION: MW2 0x1000a9c0
-MechU32 FUN_1000a9c0(MechU32 p_flags)
+MechU32 WidenEventFlags(MechU32 p_flags)
 {
 	if (p_flags & 0x730) {
 		p_flags |= 0x730;
@@ -304,7 +304,7 @@ MechU32 FUN_1000a9c0(MechU32 p_flags)
 // points it creates are posted to the stream's event list (the mission table's, once one is
 // read). Returns whether every stream it executed loaded.
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
-// Operand order: the rep record's i < g_unk0x1010b6a0 loads g_unk0x1010b6a0 first in the original.
+// Operand order: the rep record's i < g_thingCapacity loads g_thingCapacity first in the original.
 // FUNCTION: MW2 0x1000a9f5
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
@@ -328,39 +328,39 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		if (type == g_bwdTypeCodes[c_bwdPlanet]) {
 			BwdPlanetRecord* planet = (BwdPlanetRecord*) node;
 
-			if (g_difficulty->m_unk0x0f) {
-				g_unk0x100ba600 = FixedMul16(g_difficulty->m_unk0x0f, 0x794);
+			if (g_difficulty->m_gravity) {
+				g_gravity = FixedMul16(g_difficulty->m_gravity, 0x794);
 			}
 			else {
-				g_unk0x100ba600 = FixedMul16(planet->m_gravity, 0x794);
+				g_gravity = FixedMul16(planet->m_gravity, 0x794);
 			}
 
-			g_unk0x100ba610 = planet->m_unk0x10;
+			g_daysPerYear = planet->m_daysPerYear;
 			g_secondsPerDay = planet->m_secondsPerDay;
-			if (g_difficulty->m_unk0x13) {
-				g_unk0x100ba620 = g_difficulty->m_unk0x13;
+			if (g_difficulty->m_temperature) {
+				g_temperature = g_difficulty->m_temperature;
 			}
 			else {
-				g_unk0x100ba620 = planet->m_temperature;
+				g_temperature = planet->m_temperature;
 			}
 
-			g_unk0x100ba624 = planet->m_unk0x38 == 0;
-			g_unk0x100a555c = planet->m_unk0x3c;
-			g_unk0x100ad454 = planet->m_unk0x40 == 0;
-			g_renderSettings.m_unk0x1c = planet->m_unk0x44 == 0;
-			g_renderSettings.m_unk0x20 = planet->m_unk0x48 == 0;
-			g_renderSettings.m_unk0x24 = planet->m_unk0x4c == 0;
-			if (planet->m_unk0x28 > 0) {
-				g_unk0x100a2bdc = planet->m_unk0x28;
+			g_hostileAtmosphere = planet->m_breathable == 0;
+			g_brightenDamage = planet->m_brightenDamage;
+			g_effectCameraEnabled = planet->m_noEffectCamera == 0;
+			g_renderSettings.m_drawSky = planet->m_noSky == 0;
+			g_renderSettings.m_drawGround = planet->m_noGround == 0;
+			g_renderSettings.m_horizonBand = planet->m_noHorizonBand == 0;
+			if (planet->m_jumpJetDrag > 0) {
+				g_jumpJetDrag = planet->m_jumpJetDrag;
 			}
 
-			if (planet->m_unk0x2c || planet->m_unk0x30) {
-				g_unk0x100a5a34 = planet->m_unk0x2c;
-				g_unk0x100a5a30 = planet->m_unk0x30;
+			if (planet->m_mapShadeTop || planet->m_mapShadeBase) {
+				g_mapShadeTop = planet->m_mapShadeTop;
+				g_mapShadeBase = planet->m_mapShadeBase;
 			}
 
-			if (planet->m_unk0x34 > 0) {
-				g_slideSlope = planet->m_unk0x34;
+			if (planet->m_slideSlope > 0) {
+				g_slideSlope = planet->m_slideSlope;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdClimate]) {
@@ -371,13 +371,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdHiddenText]) {
 			BwdTextRecord* text = (BwdTextRecord*) node;
 
-			strcpy(g_unk0x100c26a0, text->m_text);
+			strcpy(g_anonymousInstallationName, text->m_text);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdView]) {
 			BwdPairRecord* view = (BwdPairRecord*) node;
 
-			g_unk0x100a6be0.m_unk0x3c = view->m_a;
-			g_unk0x100a6be0.m_unk0x40 = view->m_b;
+			g_mainEyepoint.m_nearPlane = view->m_a;
+			g_mainEyepoint.m_farPlane = view->m_b;
 		}
 		else if (type == g_bwdTypeCodes[c_bwdLuma]) {
 			MechS32 id;
@@ -395,12 +395,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdMusic]) {
 			BwdResourceRecord* music = (BwdResourceRecord*) node;
 
-			g_unk0x100e9340 = music->m_ref.m_id;
-			if (g_unk0x100e9340 == -1) {
-				g_unk0x100e9340 = FindResourceIdByName(0xc, music->m_ref.m_name);
+			g_musicResource = music->m_ref.m_id;
+			if (g_musicResource == -1) {
+				g_musicResource = FindResourceIdByName(0xc, music->m_ref.m_name);
 			}
 
-			strcpy(g_unk0x100e9330, music->m_ref.m_name);
+			strcpy(g_musicName, music->m_ref.m_name);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdAnimSound]) {
 			BwdResourceRecord* sound = (BwdResourceRecord*) node;
@@ -423,13 +423,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdNowRecord* now = (BwdNowRecord*) node;
 
 			if (g_isNetworkGame && g_difficulty) {
-				g_timeOfDayPhase = g_difficulty->m_unk0x0b;
+				g_timeOfDayPhase = g_difficulty->m_timeOfDay;
 			}
 			else {
 				g_timeOfDayPhase = now->m_timeOfDay;
 			}
 
-			g_unk0x100ba614 = now->m_unk0x14;
+			g_dayOfYear = now->m_dayOfYear;
 		}
 		else if (type == g_bwdTypeCodes[c_bwdPaletteGroup]) {
 			MechS32 slot;
@@ -456,24 +456,24 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdLight]) {
 			BwdLightRecord* light = (BwdLightRecord*) node;
 
-			g_unk0x100a6be0.m_unk0x1c = light->m_unk0x10;
-			g_unk0x100a6be0.m_unk0x20 = light->m_unk0x14;
-			g_unk0x100a6be0.m_unk0x24 = light->m_unk0x18;
-			g_unk0x100a6be0.m_unk0x28 = light->m_unk0x1e;
-			g_eyepoint->m_unk0x2a = light->m_unk0x1c;
-			g_renderSettings.m_unk0x44 = light->m_unk0x20;
-			if (g_renderSettings.m_unk0x44 > 0) {
-				g_renderSettings.m_unk0x3c = 1;
+			g_mainEyepoint.m_lightX = light->m_x;
+			g_mainEyepoint.m_lightY = light->m_y;
+			g_mainEyepoint.m_lightZ = light->m_z;
+			g_mainEyepoint.m_directionalLight = light->m_directional;
+			g_eyepoint->m_ambientLight = light->m_ambient;
+			g_renderSettings.m_fadeDistance = light->m_fadeDistance;
+			if (g_renderSettings.m_fadeDistance > 0) {
+				g_renderSettings.m_distanceFade = 1;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGroundMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_unk0x100a554c, NULL, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_groundColor, NULL, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdHorizonMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_unk0x100a5550, &g_unk0x100a6d30, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_horizonMapColor, &g_horizonBandHeight, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdSkyMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_unk0x100a5548, NULL, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_skyColor, NULL, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdWindow]) {
 			MechS32 count;
@@ -507,13 +507,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdStart]) {
 			BwdStartRecord* start = (BwdStartRecord*) node;
 
-			g_unk0x100a6be0.m_unk0x00 = start->m_values[0];
-			g_unk0x100a6be0.m_unk0x04 = start->m_values[1];
-			g_unk0x100a6be0.m_unk0x08 = start->m_values[2];
-			g_unk0x100a6be0.m_unk0x0c = start->m_values[3];
-			g_unk0x100a6be0.m_unk0x10 = start->m_values[4];
-			g_unk0x100a6be0.m_unk0x14 = start->m_values[5];
-			g_unk0x100a6be0.m_fovX = start->m_values[6];
+			g_mainEyepoint.m_x = start->m_values[0];
+			g_mainEyepoint.m_y = start->m_values[1];
+			g_mainEyepoint.m_z = start->m_values[2];
+			g_mainEyepoint.m_heading = start->m_values[3];
+			g_mainEyepoint.m_pitch = start->m_values[4];
+			g_mainEyepoint.m_roll = start->m_values[5];
+			g_mainEyepoint.m_fovX = start->m_values[6];
 		}
 		else if (type == g_bwdTypeCodes[c_bwdScenarioTable]) {
 			LoadScenarioTable((ScenarioTable*) node);
@@ -542,7 +542,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			if (id != -1) {
-				FUN_10069124(id, -1);
+				AddAnimFrame(id, -1);
 			}
 			else {
 				Error(0x28, NULL);
@@ -553,7 +553,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechS32 id;
 
 			id = list->m_ref.m_id;
-			FUN_10069288(id, -1);
+			StartAnimation(id, -1);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdBitmapSection]) {
 			BwdIdPairRecord* section = (BwdIdPairRecord*) node;
@@ -562,8 +562,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			index = section->m_a;
 			delay = section->m_b;
-			FUN_10069564(index, delay);
-			FUN_1006946f(index, 1);
+			SetAnimDelay(index, delay);
+			SetAnimMode(index, 1);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdBitmapEnable]) {
 			BwdIdPairRecord* enable = (BwdIdPairRecord*) node;
@@ -572,7 +572,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			index = enable->m_a;
 			mode = enable->m_b;
-			FUN_1006946f(index, mode);
+			SetAnimMode(index, mode);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdFramePrj]) {
 			MechS16 b;
@@ -614,20 +614,20 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdRep]) {
 			MechS32 i;
 
-			if (!g_unk0x100a3858) {
-				g_unk0x100a3858 = 1;
-				g_unk0x100a385c = 0;
-				g_unk0x1012b7b0 = 0;
-				for (i = 0; i < g_unk0x1010b6a0; i++) {
-					g_unk0x100a3850[i] = -1;
+			if (!g_inRepeat) {
+				g_inRepeat = 1;
+				g_repeatPass = 0;
+				g_thingCount = 0;
+				for (i = 0; i < g_thingCapacity; i++) {
+					g_thingIndices[i] = -1;
 				}
 			}
 			else {
-				g_unk0x100a385c++;
+				g_repeatPass++;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdEndRep]) {
-			g_unk0x100a3858 = 0;
+			g_inRepeat = 0;
 		}
 		else if (type == g_bwdTypeCodes[c_bwdBlock]) {
 			BeginBlock((BwdBlockRecord*) node);
@@ -639,7 +639,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			EndBlock(p_stream);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdObject]) {
-			CreateObjectNode((BwdObjectRecord*) node, unk0x18, 0, g_blockDepth, g_unk0x100a3858, g_unk0x100a385c);
+			CreateObjectNode((BwdObjectRecord*) node, unk0x18, 0, g_blockDepth, g_inRepeat, g_repeatPass);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdAnimFile]) {
 			ResourceRef* ref;
@@ -660,7 +660,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			id = MapResourceId(id);
 			shape = FindClassById(id);
 			if (shape && (obj = GetShapeObject(shape)) != NULL) {
-				FUN_1004b130(obj);
+				SetGridObject(obj);
 			}
 			else {
 				Error(0x2e, NULL);
@@ -673,11 +673,11 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			id = thing->m_id;
 			id = MapResourceId(id);
-			if (g_unk0x100a8620 < 0x96) {
+			if (g_thingRecordCount < 0x96) {
 				index = FindThingIdxById(id);
 				if (index != -1) {
-					g_unk0x100ea580[g_unk0x100a8620] = index;
-					g_unk0x100a8620++;
+					g_thingRecordIndices[g_thingRecordCount] = index;
+					g_thingRecordCount++;
 				}
 				else {
 					Error(0x2f, NULL);
@@ -722,7 +722,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						}
 
 						playerType = &g_playerTypes[typeIndex];
-						FUN_1006d282(g_playerCount, playerType->m_create);
+						CreateSimPlayer(g_playerCount, playerType->m_create);
 						player = g_players[g_playerCount];
 						if (!player) {
 							Error(0xd, NULL);
@@ -736,7 +736,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						player->m_updateFn = playerType->m_updateFn;
 						player->m_lateUpdateFn = playerType->m_lateUpdateFn;
 						player->m_shutdownFn = playerType->m_shutdownFn;
-						player->m_baseLevel = g_unk0x100a385c;
+						player->m_baseLevel = g_repeatPass;
 						player->m_detailLevel = -1;
 						if (g_localPlayerId == g_playerCount) {
 							player->m_aiMode = 0;
@@ -753,8 +753,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						g_lastPlayer = player;
 						player->m_obj = obj;
 						player->m_eyeObj = obj;
-						FUN_1001d220(player);
-						FUN_1001ce90(player);
+						ClaimNewClassEntries(player);
+						LoadBaseLevelShapes(player);
 					}
 				}
 				else {
@@ -772,7 +772,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			ref = &cockpit->m_ref;
 			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
-				FUN_10070e22(ref, g_unk0x100a5a68, g_unk0x100adf58, g_unk0x100a5bb8[3]);
+				LoadCptFile(ref, g_cockpitGaugePanes, g_cockpitPanelPanes, g_unk0x100a5bb8[3]);
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdPitFile]) {
@@ -822,9 +822,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdResourceRecord* hud = (BwdResourceRecord*) node;
 
 			ref = &hud->m_ref;
-			if (g_lastPlayer && g_unk0x100a173c) {
-				FUN_10070bda(ref);
-				g_unk0x100a173c = 0;
+			if (g_lastPlayer && g_loadHudFile) {
+				LoadHudFile(ref);
+				g_loadHudFile = 0;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdMgdFile]) {
@@ -835,7 +835,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			ref = &mgd->m_ref;
 			if (g_lastPlayer) {
 				mech = g_lastPlayer->m_mech;
-				FUN_100707c0(
+				LoadMgdFile(
 					ref,
 					&mech->m_height,
 					&mech->m_cockpitHeight,
@@ -901,17 +901,17 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			i = 0;
 			thing = NULL;
 			hitPoints = gameThing->m_hitPoints;
-			events = FUN_1000a9c0(gameThing->m_events);
-			index = FUN_1005072f();
+			events = WidenEventFlags(gameThing->m_events);
+			index = FindFreeGameThing();
 			if (index != -1) {
 				thing = &g_gameThings[index];
-				thing->m_unk0x00 = gameThing->m_unk0x1c;
-				thing->m_unk0x08 = hitPoints;
-				thing->m_unk0x0c = affiliation;
+				thing->m_flags = gameThing->m_flags;
+				thing->m_hitPoints = hitPoints;
+				thing->m_affiliation = affiliation;
 				strncpy(thing->m_name, gameThing->m_name, 0x16);
 				thing->m_name[0x15] = '\0';
-				strncpy(thing->m_unk0x2a, gameThing->m_shortName, 0x16);
-				thing->m_unk0x2a[0x15] = '\0';
+				strncpy(thing->m_shortName, gameThing->m_shortName, 0x16);
+				thing->m_shortName[0x15] = '\0';
 				object = gameThing->m_objects[i][0];
 				replacement = gameThing->m_objects[i][1];
 				objectIndex = -1;
@@ -920,7 +920,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					object = MapResourceId(object);
 					objectIndex = FindStarIdxById(object);
 					if (objectIndex == -1) {
-						objectIndex = FindObjIdxById(object);
+						objectIndex = AllocStaticObject(object);
 					}
 
 					replacementIndex = -1;
@@ -928,16 +928,16 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						replacement = MapResourceId(replacement);
 						replacementIndex = FindStarIdxById(replacement);
 						if (replacementIndex == -1) {
-							replacementIndex = FindObjIdxById(replacement);
+							replacementIndex = AllocStaticObject(replacement);
 						}
 					}
 
 					if (objectIndex != -1) {
-						FUN_100201fe(objectIndex, replacementIndex, index);
+						LinkStaticObjectThing(objectIndex, replacementIndex, index);
 					}
 				}
 
-				thing->m_unk0x04 = objectIndex;
+				thing->m_staticObject = objectIndex;
 				if (eventList) {
 					target = (MechU8) index | 0x400;
 					PostEventToList(eventName, events, target);
@@ -956,7 +956,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (value != -1) {
 				index = FindThingIdxById(id);
 				if (index != -1) {
-					FUN_1001da14(index, value);
+					SetClassEntryPartId(index, value);
 				}
 			}
 		}
@@ -969,24 +969,24 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			id = booyow->m_id;
 			shotType = booyow->m_value;
-			if (g_unk0x100a1740 < 0xaf && g_unk0x100a1740 > -1) {
+			if (g_nextShotRecord < 0xaf && g_nextShotRecord > -1) {
 				id = MapResourceId(id);
-				if (!g_shots[g_unk0x100a1740].m_object) {
+				if (!g_shots[g_nextShotRecord].m_object) {
 					shape = FindClassById(id);
 					if (shape) {
 						obj = GetShapeObject(shape);
 						if (obj) {
-							g_shots[g_unk0x100a1740].m_type = shotType;
-							g_shots[g_unk0x100a1740].m_object = obj;
-							g_shots[g_unk0x100a1740].m_unk0x3c = 0;
-							FUN_100018ca(obj);
-							FUN_1000199a(obj);
-							SetObjTreeFlag(obj, 0x400);
+							g_shots[g_nextShotRecord].m_type = shotType;
+							g_shots[g_nextShotRecord].m_object = obj;
+							g_shots[g_nextShotRecord].m_unk0x3c = 0;
+							HideObjTree(obj);
+							DisableObjTreeCollision(obj);
+							SetObjTreeKind(obj, 0x400);
 						}
 					}
 				}
 
-				g_unk0x100a1740++;
+				g_nextShotRecord++;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdXplode]) {
@@ -1000,13 +1000,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			id = xplode->m_id;
 			animation = xplode->m_value;
-			effectType = xplode->m_unk0x0c;
-			if (g_unk0x100a1744 >= 0 && g_unk0x100a1744 < 0x100) {
+			effectType = xplode->m_effectType;
+			if (g_nextEffectRecord >= 0 && g_nextEffectRecord < 0x100) {
 				if (effectType < 0 || effectType >= 0x20) {
 					effectType = 3;
 				}
 
-				effect = &g_effects[g_unk0x100a1744];
+				effect = &g_effects[g_nextEffectRecord];
 				if (!effect->m_object) {
 					if (id != -1) {
 						id = MapResourceId(id);
@@ -1015,15 +1015,15 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 							obj = GetShapeObject(shape);
 							if (obj) {
 								effect->m_object = obj;
-								FUN_100018ca(obj);
-								FUN_1000199a(obj);
+								HideObjTree(obj);
+								DisableObjTreeCollision(obj);
 								if (!(shape->m_kind & 0xf0)) {
-									SetObjTreeFlag(obj, 0x20);
+									SetObjTreeKind(obj, 0x20);
 								}
 
 								effect->m_animation = animation;
 								if (animation > 0) {
-									FUN_1006946f(effect->m_animation, 2);
+									SetAnimMode(effect->m_animation, 2);
 								}
 							}
 						}
@@ -1033,7 +1033,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					effect->m_active = 0;
 				}
 
-				g_unk0x100a1744++;
+				g_nextEffectRecord++;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdNavPoint]) {
@@ -1050,7 +1050,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				nav->m_position[0] = position.m_x;
 				nav->m_position[1] = position.m_y;
 				nav->m_position[2] = position.m_z;
-				nav->m_unk0x00 = navPoint->m_unk0x18;
+				nav->m_used = navPoint->m_used;
 				nav->m_flags = navPoint->m_flags;
 				nav->m_team = navPoint->m_team;
 				nav->m_owner = navPoint->m_owner;
@@ -1059,7 +1059,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				nav->m_obj = NULL;
 				strncpy(nav->m_name, navPoint->m_name, 0x15);
 				nav->m_name[0x15] = '\0';
-				events = FUN_1000a9c0(navPoint->m_events);
+				events = WidenEventFlags(navPoint->m_events);
 				target = (MechU8) g_navCount | 0x100;
 				g_navCount++;
 				if (eventList) {
@@ -1086,7 +1086,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				id = MapResourceId(id);
 				index = FindStarIdxById(id);
 				if (index != -1) {
-					FUN_10020c6f(index, &x, &y, &z);
+					GetStaticObjectPosition(index, &x, &y, &z);
 					g_navTable[g_navCount].m_position[0] = x;
 					g_navTable[g_navCount].m_position[1] = y;
 					g_navTable[g_navCount].m_position[2] = z;
@@ -1097,7 +1097,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 					if (shape) {
 						obj = GetShapeObject(shape);
 						if (obj) {
-							GetObjWorldPos(obj, &x, &y, &z);
+							GetObjWorldAngles(obj, &x, &y, &z);
 							g_navTable[g_navCount].m_obj = obj;
 							g_navTable[g_navCount].m_heading = y;
 							found = TRUE;
@@ -1107,10 +1107,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 				if (found) {
 					g_navTable[g_navCount].m_radius = navObject->m_radius;
-					g_navTable[g_navCount].m_unk0x00 = 1;
+					g_navTable[g_navCount].m_used = 1;
 					g_navTable[g_navCount].m_flags = 0;
 					g_navTable[g_navCount].m_owner = 0;
-					events = FUN_1000a9c0(navObject->m_events);
+					events = WidenEventFlags(navObject->m_events);
 					target = (MechU8) g_navCount | 0x100;
 					g_navCount++;
 					if (eventList) {
@@ -1129,9 +1129,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				id = MapResourceId(id);
 				index = FindStarIdxById(id);
 				if (index != -1) {
-					g_unk0x100a246c = 1;
-					g_unk0x100a2470 = 1;
-					g_unk0x100a2474 = index;
+					g_hasLightObject = 1;
+					g_lightFollowsObject = 1;
+					g_lightObject = index;
 				}
 			}
 		}
@@ -1159,10 +1159,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (kind >= 0 && kind < 6) {
 				index = FindStarIdxById(objectId);
 				if (index != -1) {
-					AttachTaskToObj(index, g_unk0x100a8640[kind], period, data);
+					AttachTaskToObj(index, g_taskFns[kind], period, data);
 				}
 				else {
-					CreateDetachedTask(&g_unk0x100acb20, g_unk0x100a8640[kind], period, data);
+					CreateDetachedTask(&g_detachedTasks, g_taskFns[kind], period, data);
 				}
 			}
 			else {
@@ -1225,7 +1225,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			result &= ExecuteInclude((IncludeRecord*) node, BwdExecuteStream);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGroup]) {
-			FUN_1004fc48((struct FormationNames*) node);
+			SetTeamFormations((struct FormationNames*) node);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGpSpec]) {
 			Mech* mech;
@@ -1259,12 +1259,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			leader = gpSpec->m_leader;
 			ai = gpSpec->m_ai;
 			if (ai == 0) {
-				g_unk0x100a5918 = team;
-				g_unk0x100a173c = 1;
+				g_localStar = team;
+				g_loadHudFile = 1;
 			}
 
-			events = FUN_1000a9c0(gpSpec->m_events);
-			if (FUN_1004fcac(gpSpec, BwdExecuteStream)) {
+			events = WidenEventFlags(gpSpec->m_events);
+			if (RunIncludedStream(gpSpec, BwdExecuteStream)) {
 				if (g_lastPlayer) {
 					index = g_lastPlayer->m_index;
 					for (i = 0; i < 8; i++) {
@@ -1273,9 +1273,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 					g_lastPlayer->m_aiMode = ai;
 					g_lastPlayer->m_flags = gpSpec->m_flags;
-					strncpy(g_lastPlayer->m_name, gpSpec->m_unk0x36, 0x16);
+					strncpy(g_lastPlayer->m_name, gpSpec->m_playerName, 0x16);
 					g_lastPlayer->m_name[0x15] = '\0';
-					strncpy(g_lastPlayer->m_shortName, gpSpec->m_unk0x4c, 0x16);
+					strncpy(g_lastPlayer->m_shortName, gpSpec->m_playerShortName, 0x16);
 					g_lastPlayer->m_shortName[0x15] = '\0';
 					if (eventList) {
 						target = (MechU8) index | 0x200;
@@ -1312,8 +1312,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			SetMangleBase(0);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdMangleOn]) {
-			g_unk0x100a862c += 0x10000;
-			SetMangleBase(g_unk0x100a862c);
+			g_nextMangleBase += 0x10000;
+			SetMangleBase(g_nextMangleBase);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdAnim2d]) {
 			BwdAnim2dSpec* spec;
@@ -1354,11 +1354,11 @@ MechS32 LoadWorld(MechChar* p_name)
 	result = FALSE;
 	ResetTeams();
 	for (i = 0; i < 0x96; i++) {
-		g_unk0x100ea580[i] = -1;
+		g_thingRecordIndices[i] = -1;
 	}
 
-	g_unk0x100a8620 = 0;
-	g_unk0x100a8624 = 0;
+	g_thingRecordCount = 0;
+	g_nextThingRecord = 0;
 	SetShapeOffset(0, 0, 0);
 	key = &keyData;
 	if (isdigit(*p_name)) {
@@ -1372,12 +1372,12 @@ MechS32 LoadWorld(MechChar* p_name)
 	key->m_name[0xc] = '\0';
 	SetMangleBase(0);
 	stream = OpenBwdStream(key, (BwdStream*) buffer);
-	if (stream && FUN_1001f3e0()) {
+	if (stream && AllocGeoTables()) {
 		result = BwdExecuteStream(stream);
 		UnloadResource(stream);
-		FUN_1004fd55();
-		FUN_1001f5cb();
-		if (!FUN_10020684()) {
+		FreeMissionTables();
+		FreeGeoTables();
+		if (!AreStaticObjectsComplete()) {
 			Error(0x4b, NULL);
 		}
 	}
@@ -1393,8 +1393,8 @@ MechS32 LoadWorld(MechChar* p_name)
 
 // Counts the players and game things of each side and gives each game thing the radius of its
 // object's shape. In a network game, every player's team but the local one is on side 1.
-// Stack-slot permutation: obj and i. Operand order: i == g_unk0x100a5918 loads
-// g_unk0x100a5918 first in the original.
+// Stack-slot permutation: obj and i. Operand order: i == g_localStar loads
+// g_localStar first in the original.
 // FUNCTION: MW2 0x1000d4a6
 void AfterWorldLoader(void)
 {
@@ -1403,7 +1403,7 @@ void AfterWorldLoader(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		if (g_isNetworkGame) {
-			if (i == g_unk0x100a5918) {
+			if (i == g_localStar) {
 				g_teams[i].m_side = 0;
 			}
 			else {
@@ -1413,33 +1413,33 @@ void AfterWorldLoader(void)
 
 		switch (GetPlayerSide(i)) {
 		case 0:
-			g_carCfg.m_unk0x38[0]++;
+			g_careerRecord.m_sideCounts[0]++;
 			break;
 		case 2:
-			g_carCfg.m_unk0x38[1]++;
+			g_careerRecord.m_sideCounts[1]++;
 			break;
 		case 1:
-			g_carCfg.m_unk0x38[2]++;
+			g_careerRecord.m_sideCounts[2]++;
 			break;
 		}
 	}
 
 	for (i = 0; i < g_gameThingCount; i++) {
-		switch (FUN_1003c30e(i)) {
+		switch (GetThingSide(i)) {
 		case 0:
-			g_carCfg.m_unk0x38[3]++;
+			g_careerRecord.m_sideCounts[3]++;
 			break;
 		case 2:
-			g_carCfg.m_unk0x38[4]++;
+			g_careerRecord.m_sideCounts[4]++;
 			break;
 		case 1:
-			g_carCfg.m_unk0x38[5]++;
+			g_careerRecord.m_sideCounts[5]++;
 			break;
 		}
 
-		obj = FUN_10020bdd(g_gameThings[i].m_unk0x04);
-		if (obj && obj->m_unk0x6c) {
-			g_gameThings[i].m_unk0x10 = obj->m_unk0x6c->m_radius;
+		obj = GetStaticSceneObject(g_gameThings[i].m_staticObject);
+		if (obj && obj->m_shape) {
+			g_gameThings[i].m_radius = obj->m_shape->m_radius;
 		}
 	}
 }

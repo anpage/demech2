@@ -63,7 +63,7 @@ extern "C"
 	void DisableGameplayInput(void);
 	void EnableGameplayInput(void);
 	MechS16 LookupGameKey(MechS16 p_keyCode);
-	void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device);
+	void ReportInputDeviceError(MechS32 p_code, MechChar* p_channel, MechChar* p_device);
 
 #ifdef __cplusplus
 }

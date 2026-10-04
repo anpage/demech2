@@ -72,7 +72,7 @@ typedef struct FormationRecord {
 
 // A star record's entry: a team's two values and its formation's name.
 typedef struct StarEntry {
-	MechS32 m_unk0x00;     // 0x00
+	MechS32 m_affiliation; // 0x00
 	MechS32 m_side;        // 0x04
 	MechChar m_name[0x10]; // 0x08
 } StarEntry;
@@ -98,36 +98,37 @@ void* g_unk0x100a860c = NULL;
 // GLOBAL: MW2 0x100a8610
 MechS32 g_nextScenario = 0;
 
-// The number of entries in g_unk0x100ea580, and the next one FUN_100506d8 returns.
+// The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
 // GLOBAL: MW2 0x100a8620
-MechS32 g_unk0x100a8620 = 0;
+MechS32 g_thingRecordCount = 0;
 
 // GLOBAL: MW2 0x100a8624
-MechS32 g_unk0x100a8624 = 0;
+MechS32 g_nextThingRecord = 0;
 
 // GLOBAL: MW2 0x100a8628
-MechS32 g_unk0x100a8628 = 0;
+MechS32 g_mangleBase = 0;
 
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
 // GLOBAL: MW2 0x100a862c
-MechS32 g_unk0x100a862c = 0;
+MechS32 g_nextMangleBase = 0;
 
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8630
-MechChar* g_unk0x100a8630 = NULL;
+MechChar* g_playerTeamFormation = NULL;
 
 // The formation LoadStarTable gives the other teams, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8634
-MechChar* g_unk0x100a8634 = NULL;
+MechChar* g_otherTeamFormation = NULL;
 
-// The player the world stream (BwdExecuteStream) created last, for FUN_10046750.
+// The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
 // GLOBAL: MW2 0x100a8638
 struct Player* g_lastPlayer = NULL;
 
-// The task kinds of a world stream's task record (BwdExecuteStream).
+// The task kinds of a world stream's task record (BwdExecuteStream): 0 spins a star's object, 1
+// cycles its face colors, 2 moves it around a circle, 3 moves a thing's object through an
+// animation, 4 loops a sound on a star's object, 5 moves it along a path.
 // GLOBAL: MW2 0x100a8640
-TimedCallbackFn g_unk0x100a8640[6] =
-	{FUN_1004771e, FUN_1004748c, FUN_100479ec, FUN_10046750, FUN_10047d10, FUN_10047f60};
+TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionTask, AmbientSoundTask, PathTask};
 
 // GLOBAL: MW2 0x100ea500
 MissionTable* g_missionTables[16];
@@ -137,7 +138,7 @@ MissionTable* g_missionTables[16];
 MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
-MechS32 g_unk0x100ea580[0x96];
+MechS32 g_thingRecordIndices[0x96];
 
 // The number of names in g_scenarios.
 // GLOBAL: MW2 0x100ea7d8
@@ -220,7 +221,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 		memcpy(g_missionTables[slot], p_table, p_table->m_header.m_size);
 		g_missionTableCounts[slot] =
 			(g_missionTables[slot]->m_header.m_size - sizeof(BwdRecord)) / sizeof(MissionEntry);
-		FUN_1004da30(g_missionTables[slot]);
+		SetUpStarMission(g_missionTables[slot]);
 	}
 
 	return result;
@@ -252,10 +253,10 @@ MechS32 LoadPathTable(PathRecord* p_record)
 		g_paths[index].m_points[i].m_x = record->m_points[i].m_x;
 		g_paths[index].m_points[i].m_y = record->m_points[i].m_y;
 		g_paths[index].m_points[i].m_z = record->m_points[i].m_z;
-		g_paths[index].m_points[i].m_unk0x0c = record->m_points[i].m_unk0x0c << 16;
-		g_paths[index].m_points[i].m_unk0x10 = record->m_points[i].m_unk0x10 << 16;
-		g_paths[index].m_points[i].m_unk0x14 = record->m_points[i].m_unk0x14 << 16;
-		g_paths[index].m_points[i].m_unk0x18 = record->m_points[i].m_unk0x18;
+		g_paths[index].m_points[i].m_pitch = record->m_points[i].m_pitch << 16;
+		g_paths[index].m_points[i].m_heading = record->m_points[i].m_heading << 16;
+		g_paths[index].m_points[i].m_roll = record->m_points[i].m_roll << 16;
+		g_paths[index].m_points[i].m_duration = record->m_points[i].m_duration;
 	}
 
 	return TRUE;
@@ -354,14 +355,14 @@ void LoadStarTable(StarTable* p_table)
 	table = p_table;
 	count = (table->m_header.m_size - 8) / sizeof(StarEntry);
 	for (i = 0; i < count; i++) {
-		g_teams[i].m_unk0x08 = table->m_stars[i].m_unk0x00;
+		g_teams[i].m_affiliation = table->m_stars[i].m_affiliation;
 		g_teams[i].m_side = table->m_stars[i].m_side;
-		g_unk0x1010ae10[table->m_stars[i].m_unk0x00] = table->m_stars[i].m_side;
-		if (g_unk0x100a5918 + 1 == i && g_unk0x100a8630) {
-			SetTeamFormationByName(i, g_unk0x100a8630);
+		g_starSides[table->m_stars[i].m_affiliation] = table->m_stars[i].m_side;
+		if (g_localStar + 1 == i && g_playerTeamFormation) {
+			SetTeamFormationByName(i, g_playerTeamFormation);
 		}
-		else if (g_unk0x100a5918 + 1 != i && g_unk0x100a8634) {
-			SetTeamFormationByName(i, g_unk0x100a8634);
+		else if (g_localStar + 1 != i && g_otherTeamFormation) {
+			SetTeamFormationByName(i, g_otherTeamFormation);
 		}
 		else {
 			SetTeamFormationByName(i, table->m_stars[i].m_name);
@@ -373,7 +374,7 @@ void LoadStarTable(StarTable* p_table)
 
 // Gives the sixteen teams the formations a record names.
 // FUNCTION: MW2 0x1004fc48
-void FUN_1004fc48(FormationNames* p_record)
+void SetTeamFormations(FormationNames* p_record)
 {
 	FormationNames* record;
 	MechS32 i;
@@ -388,7 +389,7 @@ void FUN_1004fc48(FormationNames* p_record)
 // Runs p_fn on the stream a record names.
 // Stack-slot permutation: record, keyData and buffer.
 // FUNCTION: MW2 0x1004fcac
-MechS32 FUN_1004fcac(IncludeRecord2* p_record, BwdStreamFn p_fn)
+MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
 	BwdStreamKey keyData;
@@ -420,7 +421,7 @@ MechS32 FUN_1004fcac(IncludeRecord2* p_record, BwdStreamFn p_fn)
 
 // Frees the mission tables' blocks.
 // FUNCTION: MW2 0x1004fd55
-void FUN_1004fd55(void)
+void FreeMissionTables(void)
 {
 	MechS32 i;
 
@@ -447,7 +448,7 @@ void FUN_1004fd55(void)
 // Scales the vector (p_a, p_b, p_c) to integers whose absolute values add up to 2^29. A vector
 // that small is left alone.
 // FUNCTION: MW2 0x1004fe0f
-void FUN_1004fe0f(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, undefined4* p_y, undefined4* p_z)
+void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, undefined4* p_y, undefined4* p_z)
 {
 	MechFloat scale;
 
@@ -461,9 +462,9 @@ void FUN_1004fe0f(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, 
 	}
 }
 
-// Scales the plane (p_a, p_b, p_c, p_d) like FUN_1004fe0f.
+// Scales the plane (p_a, p_b, p_c, p_d) like ScaleNormal.
 // FUNCTION: MW2 0x1004fe85
-void FUN_1004fe85(
+void ScalePlane(
 	MechFloat p_a,
 	MechFloat p_b,
 	MechFloat p_c,
@@ -489,10 +490,10 @@ void FUN_1004fe85(
 }
 
 // The normal of the triangle (p_x1, p_y1, p_z1), (p_x2, p_y2, p_z2), (p_x3, p_y3, p_z3), scaled
-// by FUN_1004fe0f.
+// by ScaleNormal.
 // Stack-slot permutation of a and c (and so the operand order of vz * ux).
 // FUNCTION: MW2 0x1004ff16
-void FUN_1004ff16(
+void GetTriangleNormal(
 	MechFloat p_x1,
 	MechFloat p_y1,
 	MechFloat p_z1,
@@ -526,13 +527,13 @@ void FUN_1004ff16(
 	a = (vz = p_z3 - p_y1) * uy - vy * uz;
 	b = vz * ux - vx * uz;
 	c = vy * ux - vx * uy;
-	FUN_1004fe0f(a, b, c, p_x, p_y, p_z);
+	ScaleNormal(a, b, c, p_x, p_y, p_z);
 }
 
-// The plane of the triangle, scaled by FUN_1004fe85.
+// The plane of the triangle, scaled by ScalePlane.
 // Stack-slot permutation of the locals, which also swaps the operands of two products.
 // FUNCTION: MW2 0x1004ffaa
-void FUN_1004ffaa(
+void GetTrianglePlane(
 	MechFloat p_x1,
 	MechFloat p_y1,
 	MechFloat p_z1,
@@ -568,24 +569,24 @@ void FUN_1004ffaa(
 	a = (vz = p_z3 - p_y1) * uy - vy * uz;
 	b = vz * ux - vx * uz;
 	d = -((c = vy * ux - vx * uy) * p_z1 + b * p_y1 + a * p_x1);
-	FUN_1004fe85(a, b, c, d, p_x, p_y, p_z, p_w);
+	ScalePlane(a, b, c, d, p_x, p_y, p_z, p_w);
 }
 
 /* The only diff is the order of the three products in d (and of each product's operands), which
    follows the symbol table, not the source. It matches with seven more symbols declared ahead of
    the function (placeholder prototypes do it); stubbing the object's other functions does not. */
 // FUNCTION: MW2 0x1005005e
-void FUN_1005005e(
+void GetPointNormalPlane(
 	MechFloat p_x,
 	MechFloat p_y,
 	MechFloat p_z,
 	MechFloat p_nx,
 	MechFloat p_ny,
 	MechFloat p_nz,
-	undefined4* p_unk0x18,
-	undefined4* p_unk0x1c,
-	undefined4* p_unk0x20,
-	undefined4* p_unk0x24
+	undefined4* p_planeX,
+	undefined4* p_planeY,
+	undefined4* p_planeZ,
+	undefined4* p_planeW
 )
 {
 	MechFloat a;
@@ -597,20 +598,20 @@ void FUN_1005005e(
 	b = -p_ny;
 	c = p_nz;
 	d = -(p_x * a + p_y * b + p_z * c);
-	FUN_1004fe85(a, b, c, d, p_unk0x18, p_unk0x1c, p_unk0x20, p_unk0x24);
+	ScalePlane(a, b, c, d, p_planeX, p_planeY, p_planeZ, p_planeW);
 }
 
 // The original loads p_id first; the operand order follows the symbol table.
 // FUNCTION: MW2 0x100500c3
 MechS32 MapResourceId(MechS32 p_id)
 {
-	return g_unk0x100a8628 + p_id;
+	return g_mangleBase + p_id;
 }
 
 // FUNCTION: MW2 0x100500dc
 void SetMangleBase(MechS32 p_base)
 {
-	g_unk0x100a8628 = p_base;
+	g_mangleBase = p_base;
 }
 
 // Creates the shape of a world stream's object record: a static object of the current block
@@ -662,7 +663,7 @@ void CreateObjectNode(
 	id = record->m_id;
 	parent = record->m_parent;
 	kind = record->m_kind;
-	unk0x34 = record->m_unk0x34;
+	unk0x34 = record->m_shapeKind;
 	if (kind < 0 || kind >= 8) {
 		kind = 4;
 	}
@@ -670,7 +671,7 @@ void CreateObjectNode(
 	xform = record->m_xform;
 	flags = record->m_flags;
 	if (resource != -1) {
-		data = FUN_1001a19f(g_mw2PrjHandle, resource, g_resourceTypeTags[c_resTagPoly], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, resource, g_resourceTypeTags[c_resTagPoly], 0);
 		if (data) {
 			size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], resource);
 			fromResource = TRUE;
@@ -696,20 +697,20 @@ void CreateObjectNode(
 			}
 
 			id = MapResourceId(id);
-			FUN_1001f8b5(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
-			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
+			PlaceStaticObject(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
+			UnlockCachedResource(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
-		else if (p_class && g_unk0x1010b6a0 > g_unk0x1012b7b0) {
-			g_unk0x100a3854[g_unk0x1012b7b0] = MapResourceId(id);
+		else if (p_class && g_thingCapacity > g_thingCount) {
+			g_thingIds[g_thingCount] = MapResourceId(id);
 			mapped = MapResourceId(id);
 			thing = FindThingIdxById(mapped);
 			parent = MapResourceId(parent);
 			parentIndex = FindThingIdxById(parent);
-			g_unk0x100a3850[g_unk0x1012b7b0] =
-				FUN_1001cf93(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
-			g_unk0x1012b7b0++;
-			FUN_1001a163(resource, g_resourceTypeTags[c_resTagPoly]);
+			g_thingIndices[g_thingCount] =
+				AddClassEntryLevel(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
+			g_thingCount++;
+			UnlockCachedResource(resource, g_resourceTypeTags[c_resTagPoly]);
 			return;
 		}
 	}
@@ -737,25 +738,25 @@ void CreateObjectNode(
 	if (shape) {
 		shape->m_kind = unk0x34;
 		if (kind >= 0 && kind < 8) {
-			FUN_10034a40(shape, kind);
+			SetShapeCollisionType(shape, kind);
 		}
 		else {
-			FUN_10034a40(shape, 4);
+			SetShapeCollisionType(shape, 4);
 			Error(0x37, NULL);
 		}
 
 		if (first) {
 			mapped = MapResourceId(id);
-			FUN_1001f504(mapped, shape);
+			AddClass(mapped, shape);
 		}
 
 		first = FALSE;
 		if (parent == -2) {
 			BuildMatrix(&matrix, xform.m_angleX, xform.m_angleY, xform.m_angleZ, xform.m_x, xform.m_y, xform.m_z);
 			TransformShape(shape, &matrix);
-			FUN_1006d732(shape);
+			AddSceneShape(shape);
 			if (shape->m_collisionType == 5) {
-				FUN_1001df00(shape);
+				BuildShapeQuadtree(shape);
 			}
 		}
 		else {
@@ -766,13 +767,13 @@ void CreateObjectNode(
 				parentObj = GetShapeObject(classShape);
 			}
 
-			obj = FUN_100012d0(parentObj, 10);
-			FUN_10001532(obj, shape);
+			obj = CreateObj(parentObj, 10);
+			SetObjShape(obj, shape);
 			SetShapeObject(shape, obj);
 			SetObjRotation(obj, xform.m_angleX, xform.m_angleY, xform.m_angleZ, 0);
 			SetObjPosition(obj, xform.m_x, xform.m_y, xform.m_z);
 			UpdateObj(obj);
-			FUN_1006d732(shape);
+			AddSceneShape(shape);
 		}
 	}
 
@@ -780,22 +781,22 @@ void CreateObjectNode(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a4e5(resource, g_resourceTypeTags[c_resTagPoly]);
+		FreeCachedResource(resource, g_resourceTypeTags[c_resTagPoly]);
 	}
 }
 
-// Returns the object of the next entry of g_unk0x100ea580, or NULL after the last.
+// Returns the object of the next entry of g_thingRecordIndices, or NULL after the last.
 // Stack-slot permutation of id and obj.
 // FUNCTION: MW2 0x100506d8
-struct SceneObject* FUN_100506d8(void)
+struct SceneObject* NextThingRecordObject(void)
 {
 	MechS32 id;
 	struct SceneObject* obj;
 
-	if (g_unk0x100a8624 < g_unk0x100a8620) {
-		id = g_unk0x100ea580[g_unk0x100a8624];
+	if (g_nextThingRecord < g_thingRecordCount) {
+		id = g_thingRecordIndices[g_nextThingRecord];
 		obj = GetClassObject(id);
-		g_unk0x100a8624++;
+		g_nextThingRecord++;
 	}
 	else {
 		obj = NULL;
@@ -806,7 +807,7 @@ struct SceneObject* FUN_100506d8(void)
 
 // Returns the next free game thing index, or -1 when all 254 are taken.
 // FUNCTION: MW2 0x1005072f
-MechS32 FUN_1005072f(void)
+MechS32 FindFreeGameThing(void)
 {
 	MechS32 index;
 

@@ -22,8 +22,8 @@ void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 	MechS32 brightness;
 
 	brightness = FixedMul16(p_value, 15);
-	if (brightness != g_unk0x100a946c) {
-		g_unk0x100a946c = brightness;
+	if (brightness != g_brightnessSetting) {
+		g_brightnessSetting = brightness;
 		PreviewBrightness(brightness);
 	}
 }
@@ -31,7 +31,7 @@ void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 // FUNCTION: MW2 0x1007464f
 void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
-	g_displayBrightness = g_unk0x100a946c = FixedMul16(p_value, 15);
+	g_displayBrightness = g_brightnessSetting = FixedMul16(p_value, 15);
 	g_mw2SndCfgData->m_displayBrightness = g_displayBrightness;
 	PreviewBrightness(g_displayBrightness);
 }
@@ -39,6 +39,6 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 // FUNCTION: MW2 0x10074693
 void RestoreBrightness(MechS32 p_arg)
 {
-	g_unk0x100a946c = g_displayBrightness;
+	g_brightnessSetting = g_displayBrightness;
 	PreviewBrightness(g_displayBrightness);
 }

@@ -31,7 +31,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 	MechChar name[12];
 
 	result = -1;
-	table = FUN_1001a19f(g_mw2PrjHandle, p_table, g_resourceTypeTags[c_resTagTable], 1);
+	table = LoadCachedResource(g_mw2PrjHandle, p_table, g_resourceTypeTags[c_resTagTable], 1);
 	if (table) {
 		header = table;
 		entry = table + 0xc;
@@ -56,7 +56,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 			result = *(MechS16*) (entry + 0xa);
 		}
 
-		FUN_1001a163(p_table, g_resourceTypeTags[c_resTagTable]);
+		UnlockCachedResource(p_table, g_resourceTypeTags[c_resTagTable]);
 	}
 
 	return result;
@@ -67,7 +67,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // is copied into the static pool. Stores the id found (-1 for a file) and returns the data.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073922
-void* FUN_10073922(
+void* LoadResourceByRef(
 	ResourceRef* p_ref,
 	const char* p_type,
 	const char* p_ext,
@@ -94,7 +94,7 @@ void* FUN_10073922(
 	}
 
 	if (id != -1) {
-		data = FUN_1001a19f(g_mw2PrjHandle, id, p_type, 0);
+		data = LoadCachedResource(g_mw2PrjHandle, id, p_type, 0);
 		*p_size = GetPrjResourceSize(g_mw2PrjHandle, p_type, id);
 		if (data) {
 			fromResource = TRUE;
@@ -123,7 +123,7 @@ void* FUN_10073922(
 		}
 
 		if (fromResource) {
-			FUN_1001a163(id, p_type);
+			UnlockCachedResource(id, p_type);
 		}
 		else {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, loaded);

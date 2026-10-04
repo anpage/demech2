@@ -31,5 +31,5 @@ void DebugPrint(const MechChar* p_format, ...)
 	va_start(args, p_format);
 	_vsnprintf(g_debugPrintBuffer, sizeof(g_debugPrintBuffer), p_format, args);
 	va_end(args);
-	FUN_1003a432(g_debugPrintBuffer);
+	DebugPrintInternal(g_debugPrintBuffer);
 }

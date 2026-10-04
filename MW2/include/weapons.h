@@ -18,34 +18,34 @@ extern "C"
 {
 #endif
 
-	extern struct Shape* g_unk0x100a6d34;
-	extern MechS32 g_unk0x101099c0[10];
-	extern MechS32 g_unk0x101099f0[10];
+	extern struct Shape* g_aimedShape;
+	extern MechS32 g_remoteWeaponsFired[10];
+	extern MechS32 g_localWeaponsFired[10];
 
-	void FUN_10044740(struct Mech* p_mech);
+	void ReleaseWeaponTriggers(struct Mech* p_mech);
 	void UpdateWeaponFireState(struct Mech* p_mech);
 	MechS32 SpawnShot(struct Player* p_player, struct WeaponSlot* p_slot);
-	void FUN_10045449(struct Mech* p_mech, MechS32 p_wrap);
-	void FUN_10045567(struct Mech* p_mech);
-	void FUN_1004567b(struct Mech* p_mech);
-	MechS32 FUN_100457d3(struct Mech* p_mech, MechS32 p_group);
-	MechS32 FUN_10045919(struct Mech* p_mech);
-	MechS32 FUN_1004597b(struct Mech* p_mech);
-	void FUN_10045a5b(void);
-	void FUN_10045b14(struct Mech* p_mech, MechS32 p_index, MechS32 p_group);
-	void FUN_10045b56(MechS32 p_group);
-	void FUN_10045b9c(void);
-	void FUN_10045bc8(struct Mech* p_mech);
-	void FUN_10045cd8(void);
-	void FUN_10045e25(struct Mech* p_mech);
-	void FUN_10045eac(struct Mech* p_mech);
-	struct Shape* FUN_10046269(struct Player* p_player);
-	MechS32 FUN_1004635c(struct Player* p_player);
+	void SelectNextWeaponInGroup(struct Mech* p_mech, MechS32 p_wrap);
+	void SelectNextWeapon(struct Mech* p_mech);
+	void SelectNextWeaponGroup(struct Mech* p_mech);
+	MechS32 SelectWeaponGroup(struct Mech* p_mech, MechS32 p_group);
+	MechS32 IsSelectedWeaponReady(struct Mech* p_mech);
+	MechS32 JettisonAmmo(struct Mech* p_mech);
+	void LoadWeaponSounds(void);
+	void SetWeaponGroup(struct Mech* p_mech, MechS32 p_index, MechS32 p_group);
+	void SetSelectedWeaponGroup(MechS32 p_group);
+	void CycleLocalWeaponGroup(void);
+	void FireRemoteWeapons(struct Mech* p_mech);
+	void FireWeaponGroup(void);
+	void AddNextWeaponToGroup(struct Mech* p_mech);
+	void UpdateWeaponLock(struct Mech* p_mech);
+	struct Shape* UpdateAimDistance(struct Player* p_player);
+	MechS32 GetAimRange(struct Player* p_player);
 	void GetMechAimDirection(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_100463e5(struct Player* p_player, struct Ray* p_ray);
-	void FUN_10046466(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_100464f3(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_10046519(struct Player* p_player, struct SceneObject* p_obj);
+	void BuildAimRay(struct Player* p_player, struct Ray* p_ray);
+	void GetEyeAimDirection(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void GetFiringPosition(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void PlaceAtFiringObj(struct Player* p_player, struct SceneObject* p_obj);
 	void SpawnLaunchFx(
 		struct Player* p_player,
 		struct SceneObject* p_obj,

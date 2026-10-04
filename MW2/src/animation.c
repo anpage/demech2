@@ -55,7 +55,7 @@ WINDOW g_animFrameBuffer;
 
 // Stack-slot permutation: anim, data, height, i, luma, mode and useLuma and width.
 // FUNCTION: MW2 0x10068d10
-MechS32 FUN_10068d10(
+MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
 	MechS32 p_count,
 	MechU32* p_points,
@@ -98,7 +98,7 @@ MechS32 FUN_10068d10(
 	frame->m_useCount++;
 	data = frame->m_data;
 	if (!data) {
-		data = FUN_1001a19f(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
 		if (!data) {
 			return 0;
 		}
@@ -124,12 +124,12 @@ MechS32 FUN_10068d10(
 	}
 
 	if (!g_lumaTables) {
-		g_lumaTables = FUN_1001a19f(g_mw2PrjHandle, g_lumaResourceId, g_resourceTypeTags[c_resTagLuma], 0);
+		g_lumaTables = LoadCachedResource(g_mw2PrjHandle, g_lumaResourceId, g_resourceTypeTags[c_resTagLuma], 0);
 	}
 
 	if (p_direct) {
 		luma = g_lumaTables + p_luma * 0x80;
-		FUN_1006dd50(&g_currentPane, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
+		DrawTexturedPolygon(&g_currentPane, (MechU8*) data, width, height, p_count, p_points, useLuma, luma);
 	}
 	else {
 		if (useLuma) {
@@ -195,7 +195,7 @@ void AdvanceAnimations(void)
 
 // Stack-slot permutation: found and slot.
 // FUNCTION: MW2 0x10069124
-MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set)
+MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
 	MechS32 slot;
@@ -203,7 +203,7 @@ MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set)
 	slot = 0;
 	found = FALSE;
 	if (g_animInitialized == -2) {
-		FUN_10069360();
+		InitAnimations();
 	}
 
 	if (p_set == -1) {
@@ -241,17 +241,17 @@ MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set)
 }
 
 // FUNCTION: MW2 0x1006923c
-void FUN_1006923c(void)
+void PreloadAnimCels(void)
 {
 	MechS32 i;
 
 	for (i = 0; g_preloadCels[i] != -1; i++) {
-		FUN_10050862(g_preloadCels[i], g_resourceTypeTags[c_resTagCel]);
+		PreloadResource(g_preloadCels[i], g_resourceTypeTags[c_resTagCel]);
 	}
 }
 
 // FUNCTION: MW2 0x10069288
-MechS32 FUN_10069288(MechS32 p_index, MechS32 p_set)
+MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 {
 	if (p_set == -1) {
 		p_set = g_currentAnimSet;
@@ -274,7 +274,7 @@ MechS32 FUN_10069288(MechS32 p_index, MechS32 p_set)
 }
 
 // FUNCTION: MW2 0x10069360
-void FUN_10069360(void)
+void InitAnimations(void)
 {
 	MechS32 j;
 	MechS32 i;
@@ -307,7 +307,7 @@ void FUN_10069360(void)
 }
 
 // FUNCTION: MW2 0x1006946f
-void FUN_1006946f(MechS16 p_index, MechS16 p_mode)
+void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 {
 	if (g_animations[p_index].m_flags != -2) {
 		g_animations[p_index].m_mode = p_mode;
@@ -319,7 +319,7 @@ void FUN_1006946f(MechS16 p_index, MechS16 p_mode)
 }
 
 // FUNCTION: MW2 0x100694df
-void FUN_100694df(MechS16 p_index, MechU16 p_frame)
+void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;
 
@@ -339,7 +339,7 @@ void FUN_100694df(MechS16 p_index, MechU16 p_frame)
 }
 
 // FUNCTION: MW2 0x10069564
-void FUN_10069564(MechS16 p_index, MechU16 p_delay)
+void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 {
 	g_animations[p_index].m_delay = p_delay;
 }
@@ -354,10 +354,10 @@ void FUN_10069591(void)
 {
 }
 
-// Index order: &g_animFrames[i][j] loads i first in the original (FUN_10069360 matches with the
+// Index order: &g_animFrames[i][j] loads i first in the original (InitAnimations matches with the
 // same statement).
 // FUNCTION: MW2 0x1006959c
-void FUN_1006959c(void)
+void FreeAnimations(void)
 {
 	MechS32 j;
 	MechS32 i;
@@ -368,7 +368,7 @@ void FUN_1006959c(void)
 		for (j = 0; j < 0x20; j++) {
 			frame = &g_animFrames[i][j];
 			if (frame->m_data) {
-				FUN_1001a163(frame->m_resourceId, g_resourceTypeTags[c_resTagCel]);
+				UnlockCachedResource(frame->m_resourceId, g_resourceTypeTags[c_resTagCel]);
 				frame->m_data = NULL;
 			}
 
@@ -377,7 +377,7 @@ void FUN_1006959c(void)
 		}
 	}
 
-	FUN_1001a163(g_lumaResourceId, g_resourceTypeTags[c_resTagLuma]);
+	UnlockCachedResource(g_lumaResourceId, g_resourceTypeTags[c_resTagLuma]);
 	for (i = 0; i < 0x200; i++) {
 		anim = &g_animations[i];
 		anim->m_set = -1;

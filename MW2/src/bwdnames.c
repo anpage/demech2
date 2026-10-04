@@ -14,7 +14,7 @@
 DECOMP_SIZE_ASSERT(BwdName, 0x10)
 DECOMP_SIZE_ASSERT(BwdNameNode, 0xf)
 
-// The list of BWD names FUN_10058560 adds to.
+// The list of BWD names AddBwdName adds to.
 // GLOBAL: MW2 0x100a9470
 BwdNameNode* g_bwdNames = NULL;
 
@@ -27,7 +27,7 @@ BwdNameNode* g_bwdNamesTail;
 // Appends a copy of a BWD name to the list.
 // Stack-slot permutation: result and node.
 // FUNCTION: MW2 0x10058560
-MechS32 FUN_10058560(BwdName* p_name)
+MechS32 AddBwdName(BwdName* p_name)
 {
 	MechS32 result;
 	BwdNameNode* node;
@@ -60,7 +60,7 @@ MechS32 FUN_10058560(BwdName* p_name)
 // Finds a BWD name in the list: by name for a named entry (-1 or -2), by number otherwise.
 // Stack-slot permutation: node and found.
 // FUNCTION: MW2 0x1005860e
-MechS16* FUN_1005860e(BwdName* p_name)
+MechS16* FindBwdName(BwdName* p_name)
 {
 	BwdNameNode* node;
 	MechS16* found;
@@ -84,7 +84,7 @@ MechS16* FUN_1005860e(BwdName* p_name)
 }
 
 // FUNCTION: MW2 0x100586ec
-void FUN_100586ec(void)
+void FreeBwdNames(void)
 {
 	BwdNameNode* node;
 	BwdNameNode* next;

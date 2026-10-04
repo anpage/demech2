@@ -57,7 +57,7 @@ void StopMidiSequences(void)
 		}
 
 		if (g_midiSequenceIds[i]) {
-			FUN_1001a163(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
+			UnlockCachedResource(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
 			g_midiSequenceIds[i] = 0;
 		}
 	}
@@ -153,7 +153,7 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 			AIL_release_sequence_handle(sequence);
 			g_midiSequences[i] = (HSEQUENCE) -1;
 			sequence = g_midiSequences[i];
-			FUN_1001a163(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
+			UnlockCachedResource(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
 			g_midiSequenceIds[i] = 0;
 		}
 
@@ -166,11 +166,11 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 		return -8;
 	}
 
-	data = FUN_1001a19f(p_unk0x00, p_id, g_resourceTypeTags[c_resTagXmid], 0);
+	data = LoadCachedResource(p_unk0x00, p_id, g_resourceTypeTags[c_resTagXmid], 0);
 	if (data && g_midiDriver) {
 		sequence = AIL_allocate_sequence_handle(g_midiDriver);
 		if (sequence == NULL) {
-			FUN_1001a163(p_id, g_resourceTypeTags[c_resTagXmid]);
+			UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagXmid]);
 			return -10;
 		}
 
@@ -202,7 +202,7 @@ void ShutdownMidi(void)
 // Returns whether a sequence is playing; when none is, releases them all.
 // Stack-slot permutation: i and playing.
 // FUNCTION: MW2 0x100218bf
-MechS16 FUN_100218bf(void)
+MechS16 AnyMidiPlaying(void)
 {
 	MechS32 i;
 	MechS32 playing;
@@ -236,7 +236,7 @@ void SetMidiVolume(MechS16 p_volume)
 		return;
 	}
 
-	if (FUN_100218bf()) {
+	if (AnyMidiPlaying()) {
 		for (i = 0; i < 8; i++) {
 			if (g_midiSequences[i] != (HSEQUENCE) -1 && AIL_sequence_status(g_midiSequences[i]) == SEQ_PLAYING) {
 				AIL_set_sequence_volume(g_midiSequences[i], p_volume, 1000);
@@ -246,11 +246,11 @@ void SetMidiVolume(MechS16 p_volume)
 }
 
 // FUNCTION: MW2 0x100219ea
-void FUN_100219ea(void)
+void ApplyMidiVolume(void)
 {
 }
 
-// Has the same parameters as FUN_1007eb64, which plays the sound itself when this returns
+// Has the same parameters as PlayDelayedSound, which plays the sound itself when this returns
 // 0 or less.
 // FUNCTION: MW2 0x100219f5
 MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_flags)
@@ -259,9 +259,9 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 }
 
 // Locks a MIDI channel and starts the held note on it: program 3, pitch bend 0x1800, centered,
-// silent until FUN_10021b2a sets its volume.
+// silent until UpdateEngineNote sets its volume.
 // FUNCTION: MW2 0x10021a07
-void FUN_10021a07(void)
+void StartEngineNote(void)
 {
 	if (g_midiDriver == NULL) {
 		return;
@@ -290,7 +290,7 @@ void FUN_10021a07(void)
 // Bends the held note by p_pitch and sets its volume from the effects volume, while the local
 // mech's power state is above 1.
 // FUNCTION: MW2 0x10021b2a
-void FUN_10021b2a(MechU32 p_pitch)
+void UpdateEngineNote(MechU32 p_pitch)
 {
 	if (g_midiDriver == NULL) {
 		return;
@@ -322,7 +322,7 @@ void FUN_10021b2a(MechU32 p_pitch)
 
 // Ends the held note and unlocks its channel.
 // FUNCTION: MW2 0x10021be2
-void FUN_10021be2(void)
+void StopEngineNote(void)
 {
 	if (g_midiDriver == NULL) {
 		return;
@@ -337,7 +337,7 @@ void FUN_10021be2(void)
 
 // Silences the held note.
 // FUNCTION: MW2 0x10021c49
-void FUN_10021c49(void)
+void MuteEngineNote(void)
 {
 	if (g_midiDriver == NULL) {
 		return;
@@ -350,7 +350,7 @@ void FUN_10021c49(void)
 
 // Restores the held note's volume from the effects volume.
 // FUNCTION: MW2 0x10021c94
-void FUN_10021c94(void)
+void UnmuteEngineNote(void)
 {
 	if (g_midiDriver == NULL) {
 		return;

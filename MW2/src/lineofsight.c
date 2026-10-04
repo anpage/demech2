@@ -6,8 +6,8 @@
 #include "fixedtrig.h"
 #include "players.h"
 #include "ray.h"
-#include "rendertarget.h"
 #include "shape.h"
+#include "targeting.h"
 #include "types.h"
 #include "weapondef.h"
 
@@ -16,7 +16,7 @@
 // is never seen.
 // The heading sum has its operands the other way around.
 // FUNCTION: MW2 0x1006ca60
-MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
+MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 {
 	Ray ray;
 	Shape* hit;
@@ -62,7 +62,7 @@ MechS32 FUN_1006ca60(Player* p_player, MechS32 p_ahead)
 // Stack-slot permutation of the locals; one height comparison has its operands the other
 // way around.
 // FUNCTION: MW2 0x1006cbe7
-MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 steps;
 	MechS32 level;
@@ -77,7 +77,7 @@ MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	MechS32 stepZ;
 
 	level = 0;
-	FUN_10060197(
+	GetBearingAndRange(
 		p_player->m_position.m_x - p_x,
 		p_player->m_position.m_y - p_y,
 		p_player->m_position.m_z - p_z,
@@ -106,17 +106,17 @@ MechS32 FUN_1006cbe7(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Returns which of the weapon's range bands the player's target is in: 3 within the short
 // range, 2 within the long one, 1 right at it and 0 beyond it.
 // FUNCTION: MW2 0x1006cd45
-MechS32 FUN_1006cd45(Player* p_player, WeaponDef* p_weapon)
+MechS32 GetTargetRangeBand(Player* p_player, WeaponDef* p_weapon)
 {
-	if (p_player->m_targetInfo.m_distance < p_weapon->m_unk0x3c) {
+	if (p_player->m_targetInfo.m_distance < p_weapon->m_shortRange) {
 		return 3;
 	}
 
-	if (p_player->m_targetInfo.m_distance < p_weapon->m_unk0x40) {
+	if (p_player->m_targetInfo.m_distance < p_weapon->m_longRange) {
 		return 2;
 	}
 
-	if (p_player->m_targetInfo.m_distance > p_weapon->m_unk0x40) {
+	if (p_player->m_targetInfo.m_distance > p_weapon->m_longRange) {
 		return 0;
 	}
 

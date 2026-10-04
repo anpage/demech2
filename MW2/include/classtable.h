@@ -19,8 +19,8 @@ extern "C"
 	extern MechS32 g_classTableReady;
 	extern ClassEntry g_classTable[0x30c];
 
-	MechS32 FUN_1001ce90(struct Player* p_player);
-	MechS32 FUN_1001cf93(
+	MechS32 LoadBaseLevelShapes(struct Player* p_player);
+	MechS32 AddClassEntryLevel(
 		MechS32 p_unk0x00,
 		undefined4 p_unk0x04,
 		undefined4 p_unk0x08,
@@ -31,18 +31,18 @@ extern "C"
 		MechS16 p_unk0x1c
 	);
 	void ResetClassTable(void);
-	void FUN_1001d220(struct Player* p_player);
-	MechS32 FUN_1001d292(MechS32 p_owner, MechS32 p_level);
-	void FUN_1001d3a4(MechS32 p_owner, MechS32 p_level);
-	MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer);
-	void FUN_1001d88b(void);
-	void FUN_1001d912(MechS32 p_index, MechS32 p_level);
+	void ClaimNewClassEntries(struct Player* p_player);
+	MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level);
+	void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level);
+	MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer);
+	void ReleasePendingDetailLevel(void);
+	void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level);
 	struct SceneObject* GetClassObject(MechS32 p_index);
 	Shape* GetClassShape(MechS32 p_index);
-	void FUN_1001da14(MechS32 p_index, MechU16 p_value);
-	void FUN_1001da44(void);
-	void FUN_1001ddf2(struct SceneObject* p_obj);
-	void FUN_1001de84(struct SceneObject* p_obj);
+	void SetClassEntryPartId(MechS32 p_index, MechU16 p_value);
+	void ChoosePlayerDetailLevels(void);
+	void ReleaseObjShape(struct SceneObject* p_obj);
+	void ForgetObjShape(struct SceneObject* p_obj);
 
 #ifdef __cplusplus
 }

@@ -11,7 +11,7 @@
 #include "network.h"
 
 #include "approxlen.h"
-#include "carcfg.h"
+#include "careerrecord.h"
 #include "clock.h"
 #include "collision.h"
 #include "debugprint.h"
@@ -45,28 +45,28 @@
 // DA: a player's state, filled from the local player every g_stateInterval ticks.
 // SIZE 0x85
 typedef struct NetStateMsg {
-	MechChar m_tag[2];     // 0x00
-	MechU8 m_player;       // 0x02
-	MechS16 m_target;      // 0x03 — the player's target (PlayerTargetInfo::m_target)
-	MechS16 m_killer;      // 0x05
-	MechU16 m_flags;       // 0x07 — the power state in the low nibble
-	MechS32 m_unk0x09;     // 0x09 — section 3's m_unk0x04
-	MechS32 m_unk0x0d;     // 0x0d — section 2's
-	MechS32 m_unk0x11;     // 0x11 — section 1's
-	MechS32 m_unk0x15[8];  // 0x15 — each section's m_unk0x00
-	MechS32 m_unk0x35[8];  // 0x35 — each section's m_unk0x08
-	MechS32 m_clock;       // 0x55
-	MechS32 m_x;           // 0x59
-	MechS32 m_y;           // 0x5d
-	MechS32 m_z;           // 0x61
-	MechS32 m_unk0x65;     // 0x65
-	MechS32 m_heading;     // 0x69
-	MechS32 m_unk0x6d;     // 0x6d
-	MechS32 m_mechUnk0x2c; // 0x71
-	MechS32 m_mechUnk0x4c; // 0x75
-	MechS32 m_mechUnk0x38; // 0x79
-	MechS32 m_mechUnk0x08; // 0x7d
-	MechS32 m_mechUnk0x18; // 0x81
+	MechChar m_tag[2];       // 0x00
+	MechU8 m_player;         // 0x02
+	MechS16 m_target;        // 0x03 — the player's target (PlayerTargetInfo::m_target)
+	MechS16 m_killer;        // 0x05
+	MechU16 m_flags;         // 0x07 — the power state in the low nibble
+	MechS32 m_rearArmor3;    // 0x09 — m_sections[3].m_armor[1]
+	MechS32 m_rearArmor2;    // 0x0d — m_sections[2]'s
+	MechS32 m_rearArmor1;    // 0x11 — m_sections[1]'s
+	MechS32 m_frontArmor[8]; // 0x15 — each section's m_armor[0]
+	MechS32 m_internal[8];   // 0x35 — each section's m_unk0x08
+	MechS32 m_clock;         // 0x55
+	MechS32 m_x;             // 0x59
+	MechS32 m_y;             // 0x5d
+	MechS32 m_z;             // 0x61
+	MechS32 m_pitch;         // 0x65
+	MechS32 m_heading;       // 0x69
+	MechS32 m_roll;          // 0x6d
+	MechS32 m_speed;         // 0x71
+	MechS32 m_throttle;      // 0x75
+	MechS32 m_turnRate;      // 0x79
+	MechS32 m_torsoTwist;    // 0x7d
+	MechS32 m_torsoPitch;    // 0x81
 } NetStateMsg;
 
 // WE: the weapons a player fired since the last one, a bit each.
@@ -80,13 +80,13 @@ typedef struct NetWeaponsMsg {
 // CO: a collision push, sent to the player pushed.
 // SIZE 0x1a
 typedef struct NetCollisionMsg {
-	MechChar m_tag[2]; // 0x00
-	MechS32 m_normalX; // 0x02
-	MechS32 m_normalY; // 0x06
-	MechS32 m_normalZ; // 0x0a
-	MechS32 m_unk0x0e; // 0x0e — the pusher's Mech::m_unk0x100
-	MechS32 m_unk0x12; // 0x12
-	MechS32 m_unk0x16; // 0x16
+	MechChar m_tag[2];   // 0x00
+	MechS32 m_normalX;   // 0x02
+	MechS32 m_normalY;   // 0x06
+	MechS32 m_normalZ;   // 0x0a
+	MechS32 m_velocityX; // 0x0e — the pusher's Mech::m_newVelocityX
+	MechS32 m_velocityY; // 0x12
+	MechS32 m_velocityZ; // 0x16
 } NetCollisionMsg;
 
 // CH: a chat line.
@@ -98,21 +98,21 @@ typedef struct NetChatMsg {
 
 #pragma pack(pop)
 
-void FUN_1000ebad(void);
-void FUN_1000f171(NetChatMsg* p_msg, MechS32 p_slot);
-void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot);
-void FUN_1000f989(void);
-void FUN_1000fa58(NetWeaponsMsg* p_msg, MechS32 p_slot);
-void FUN_1000fb8f(NetCollisionMsg* p_msg, MechS32 p_slot);
-void FUN_1000fca8(void);
-void FUN_1000fcf5(MechChar* p_msg, MechS32 p_slot);
-void FUN_1000fda6(void);
-void FUN_1000fe61(MechU8* p_msg, MechS32 p_slot);
-void FUN_1000ff70(MechChar* p_msg, MechS32 p_slot);
-BOOL PASCAL FUN_1000ffe6(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context);
-BOOL PASCAL FUN_1001001a(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_timeout, DWORD p_flags);
-BOOL PASCAL FUN_10010098(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context);
-MechS32 FUN_100100cc(LPDPSESSIONDESC p_desc);
+void SendStateMsg(void);
+void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot);
+void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot);
+void SendWeaponsMsg(void);
+void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot);
+void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot);
+void SendGoMsg(void);
+void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot);
+void SendThingsMsg(void);
+void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot);
+void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot);
+BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context);
+BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_timeout, DWORD p_flags);
+BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context);
+MechS32 FindSession(LPDPSESSIONDESC p_desc);
 
 // GLOBAL: MW2 0x100a1758
 MechS32 g_stateInterval = 36;
@@ -272,7 +272,7 @@ void FirstNetwork(NetLaunchInfo* p_netLaunch)
 			g_playerReady[i] = 0;
 		}
 
-		g_carCfg.m_unk0x50 = g_playerCount;
+		g_careerRecord.m_playerCount = g_playerCount;
 		g_stateMsgSize = sizeof(NetStateMsg);
 		g_stateMsg = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, g_stateMsgSize);
 		memset(g_stateMsg, 0, g_stateMsgSize);
@@ -330,7 +330,7 @@ MechS32 UpdateNetwork(void)
 	}
 
 	g_clockSynced = 0;
-	g_unk0x100ba54c = FUN_1007d0fb();
+	g_realClock = GetRealClock();
 	while ((from = NetReceive()) != -1) {
 		g_messagesReceived++;
 		slot = GetPlayerSlotFromNetId(from);
@@ -346,36 +346,36 @@ MechS32 UpdateNetwork(void)
 		tag[0] = g_netRecvBuffer[0];
 		tag[1] = g_netRecvBuffer[1];
 		tag[2] = 0;
-		g_lastHeard[slot] = g_unk0x100ba54c;
+		g_lastHeard[slot] = g_realClock;
 		if (player->m_flags & 0x4000) {
-			FUN_10001926(player->m_obj);
-			FUN_100019f6(player->m_obj);
+			ShowObjTree(player->m_obj);
+			EnableObjTreeCollision(player->m_obj);
 			UpdateObj(player->m_obj);
 			player->m_flags &= ~0x4800;
 			ElectMaster();
 		}
 
 		if (_strcmpi(tag, "DA") == 0) {
-			FUN_1000f1ee((NetStateMsg*) g_netRecvBuffer, slot);
+			ReceiveStateMsg((NetStateMsg*) g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "WE") == 0) {
-			FUN_1000fa58((NetWeaponsMsg*) g_netRecvBuffer, slot);
+			ReceiveWeaponsMsg((NetWeaponsMsg*) g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "CO") == 0) {
-			FUN_1000fb8f((NetCollisionMsg*) g_netRecvBuffer, slot);
+			ReceiveCollisionMsg((NetCollisionMsg*) g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "GO") == 0) {
-			FUN_1000fcf5(g_netRecvBuffer, slot);
+			ReceiveGoMsg(g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "SN") == 0) {
-			FUN_1000fe61((MechU8*) g_netRecvBuffer, slot);
+			ReceiveThingsMsg((MechU8*) g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "SU") == 0) {
-			FUN_1000ff70(g_netRecvBuffer, slot);
+			ReceiveSuccessMsg(g_netRecvBuffer, slot);
 		}
 		else if (_strcmpi(tag, "SS") == 0) {
-			if (!g_unk0x100aa2bc) {
-				FUN_1000832b(-2, player->m_mech);
+			if (!g_missionResolved) {
+				KillMech(-2, player->m_mech);
 			}
 
 			ElectMaster();
@@ -384,35 +384,35 @@ MechS32 UpdateNetwork(void)
 			break;
 		}
 		else if (_strcmpi(tag, "CH") == 0) {
-			FUN_1000f171((NetChatMsg*) g_netRecvBuffer, slot);
+			ReceiveChatMsg((NetChatMsg*) g_netRecvBuffer, slot);
 		}
 		else {
 			g_unrecognizedMessages++;
 		}
 	}
 
-	if (g_nextStateTime <= g_unk0x100ba54c) {
-		g_nextStateTime = g_stateInterval + g_unk0x100ba54c;
+	if (g_nextStateTime <= g_realClock) {
+		g_nextStateTime = g_stateInterval + g_realClock;
 		for (i = 0; i < 8; i++) {
 			if (i != g_localPlayerId && g_players[i] != NULL && !(g_players[i]->m_flags & 0x4000) &&
-				g_unk0x100ba54c - g_lastHeard[i] > 0x38e) {
-				FUN_100018ca(g_players[i]->m_obj);
-				FUN_1000199a(g_players[i]->m_obj);
+				g_realClock - g_lastHeard[i] > 0x38e) {
+				HideObjTree(g_players[i]->m_obj);
+				DisableObjTreeCollision(g_players[i]->m_obj);
 				g_players[i]->m_flags |= 0x4800;
 				ElectMaster();
 			}
 		}
 
 		if (g_gameStarted) {
-			FUN_1000ebad();
-			FUN_1000f989();
+			SendStateMsg();
+			SendWeaponsMsg();
 			g_stateCount++;
 			if (g_stateCount & 1) {
-				FUN_1000fda6();
+				SendThingsMsg();
 			}
 		}
 		else if (g_netRole == 2) {
-			FUN_1000fca8();
+			SendGoMsg();
 		}
 		else {
 			g_playerReady[g_localPlayerId] = 1;
@@ -420,11 +420,11 @@ MechS32 UpdateNetwork(void)
 	}
 
 	if (!g_clockSynced && g_netRole == 2) {
-		g_currentClock += FUN_1007d07b();
+		g_currentClock += GetTicksSinceSync();
 	}
 
 	if (g_netRole == 2) {
-		FUN_1007d099();
+		ResetSyncTicks();
 	}
 
 	return 1;
@@ -455,7 +455,7 @@ void ShutdownNetwork(void)
 // Sends the local player's state.
 // The only diff is a stack-slot permutation of player, thing, mech, i, section and steering.
 // FUNCTION: MW2 0x1000ebad
-void FUN_1000ebad(void)
+void SendStateMsg(void)
 {
 	Player* player;
 	MechU32 thing;
@@ -473,7 +473,7 @@ void FUN_1000ebad(void)
 	g_stateMsg->m_target = player->m_targetInfo.m_target;
 	if ((player->m_targetInfo.m_target & 0xf00) == 0x400) {
 		thing = player->m_targetInfo.m_target & 0xff;
-		if ((g_gameThings[thing].m_unk0x00 & 0x20) && (g_gameThings[thing].m_unk0x02 & (1 << player->m_team))) {
+		if ((g_gameThings[thing].m_flags & 0x20) && (g_gameThings[thing].m_teamsReached & (1 << player->m_team))) {
 			g_stateMsg->m_flags |= 0x400;
 		}
 	}
@@ -482,14 +482,14 @@ void FUN_1000ebad(void)
 	g_stateMsg->m_x = player->m_position.m_x;
 	g_stateMsg->m_y = player->m_position.m_y;
 	g_stateMsg->m_z = player->m_position.m_z;
-	g_stateMsg->m_unk0x65 = player->m_pitch;
+	g_stateMsg->m_pitch = player->m_pitch;
 	g_stateMsg->m_heading = player->m_heading;
-	g_stateMsg->m_unk0x6d = player->m_roll;
-	g_stateMsg->m_mechUnk0x2c = mech->m_speed.m_value;
-	g_stateMsg->m_mechUnk0x4c = mech->m_throttle.m_value;
-	g_stateMsg->m_mechUnk0x38 = mech->m_turnRate.m_target;
-	g_stateMsg->m_mechUnk0x08 = mech->m_torsoTwist.m_target;
-	g_stateMsg->m_mechUnk0x18 = mech->m_torsoPitch.m_target;
+	g_stateMsg->m_roll = player->m_roll;
+	g_stateMsg->m_speed = mech->m_speed.m_value;
+	g_stateMsg->m_throttle = mech->m_throttle.m_value;
+	g_stateMsg->m_turnRate = mech->m_turnRate.m_target;
+	g_stateMsg->m_torsoTwist = mech->m_torsoTwist.m_target;
+	g_stateMsg->m_torsoPitch = mech->m_torsoPitch.m_target;
 	g_stateMsg->m_flags |= mech->m_powerState & 0xf;
 	if (mech->m_flags & 0x80) {
 		g_stateMsg->m_flags |= 0x800;
@@ -527,20 +527,20 @@ void FUN_1000ebad(void)
 		section = &mech->m_sections[i];
 		switch (i + 1) {
 		case 4:
-			g_stateMsg->m_unk0x09 = section->m_armor[1];
+			g_stateMsg->m_rearArmor3 = section->m_armor[1];
 			break;
 		case 3:
-			g_stateMsg->m_unk0x0d = section->m_armor[1];
+			g_stateMsg->m_rearArmor2 = section->m_armor[1];
 			break;
 		case 2:
-			g_stateMsg->m_unk0x11 = section->m_armor[1];
+			g_stateMsg->m_rearArmor1 = section->m_armor[1];
 			break;
 		default:
 			break;
 		}
 
-		g_stateMsg->m_unk0x15[i] = section->m_armor[0];
-		g_stateMsg->m_unk0x35[i] = section->m_unk0x08;
+		g_stateMsg->m_frontArmor[i] = section->m_armor[0];
+		g_stateMsg->m_internal[i] = section->m_internal;
 	}
 
 	NetSend((MechU8*) g_stateMsg, g_stateMsgSize);
@@ -551,7 +551,7 @@ void FUN_1000ebad(void)
 // Matches except for a stack-slot permutation of i and size, the operand order of the
 // comparison of i with g_localPlayerId and the order the m_playerIds[p_to] index loads in.
 // FUNCTION: MW2 0x1000efa4
-MechS32 FUN_1000efa4(MechS32 p_to, MechChar* p_text)
+MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text)
 {
 	MechS32 i;
 	MechU32 size;
@@ -591,7 +591,7 @@ MechS32 FUN_1000efa4(MechS32 p_to, MechChar* p_text)
 }
 
 // FUNCTION: MW2 0x1000f171
-void FUN_1000f171(NetChatMsg* p_msg, MechS32 p_slot)
+void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text[100];
 
@@ -602,13 +602,13 @@ void FUN_1000f171(NetChatMsg* p_msg, MechS32 p_slot)
 	p_msg->m_text[0x50] = 0; // one past the line: the buffer is the 0x100-byte receive buffer
 	sprintf(text, "%s: %s", g_players[p_slot]->m_name, p_msg->m_text);
 	ShowInGameMessage(text, 1, 0x43e, 0x32);
-	FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+	PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 }
 
 // Applies a player's state message.
 // The only diff is a stack-slot permutation of its locals.
 // FUNCTION: MW2 0x1000f1ee
-void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
+void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text2[40];
 	MechChar text[40];
@@ -640,8 +640,8 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	player->m_targetInfo.m_target = msg->m_target;
 	if ((msg->m_target & 0xf00) == 0x400 && (msg->m_flags & 0x400)) {
 		thing = player->m_targetInfo.m_target & 0xff;
-		g_gameThings[thing].m_unk0x00 |= 0x20;
-		g_gameThings[thing].m_unk0x02 |= 1 << player->m_team;
+		g_gameThings[thing].m_flags |= 0x20;
+		g_gameThings[thing].m_teamsReached |= 1 << player->m_team;
 	}
 
 	player->m_killer = msg->m_killer;
@@ -656,19 +656,19 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	player->m_position.m_x = msg->m_x;
 	player->m_position.m_y = msg->m_y;
 	player->m_position.m_z = msg->m_z;
-	player->m_pitch = msg->m_unk0x65;
+	player->m_pitch = msg->m_pitch;
 	player->m_heading = msg->m_heading;
-	player->m_roll = msg->m_unk0x6d;
+	player->m_roll = msg->m_roll;
 	SetObjPosition(player->m_obj, player->m_position.m_x, player->m_position.m_y, player->m_position.m_z);
 	SetObjRotation(player->m_obj, player->m_pitch, player->m_heading, player->m_roll, 0);
 	UpdateObj(player->m_obj);
-	mech->m_speed.m_value = msg->m_mechUnk0x2c;
-	mech->m_speed.m_target = msg->m_mechUnk0x2c;
-	mech->m_throttle.m_value = msg->m_mechUnk0x4c;
-	mech->m_throttle.m_target = msg->m_mechUnk0x4c;
-	mech->m_turnRate.m_target = msg->m_mechUnk0x38;
-	mech->m_torsoTwist.m_target = msg->m_mechUnk0x08;
-	mech->m_torsoPitch.m_target = msg->m_mechUnk0x18;
+	mech->m_speed.m_value = msg->m_speed;
+	mech->m_speed.m_target = msg->m_speed;
+	mech->m_throttle.m_value = msg->m_throttle;
+	mech->m_throttle.m_target = msg->m_throttle;
+	mech->m_turnRate.m_target = msg->m_turnRate;
+	mech->m_torsoTwist.m_target = msg->m_torsoTwist;
+	mech->m_torsoPitch.m_target = msg->m_torsoPitch;
 	mech->m_powerState = msg->m_flags & 0xf;
 	if (msg->m_flags & 0x800) {
 		mech->m_flags |= 0x80;
@@ -722,52 +722,52 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 	for (i = 0; i < 8; i++) {
 		damage1 = damage2 = 0;
 		section = &mech->m_sections[i];
-		section->m_armor[0] = msg->m_unk0x15[i];
-		section->m_unk0x08 = msg->m_unk0x35[i];
+		section->m_armor[0] = msg->m_frontArmor[i];
+		section->m_internal = msg->m_internal[i];
 		switch (i + 1) {
 		case 4:
-			section->m_armor[1] = msg->m_unk0x09;
-			levels = (section->m_unk0x26 & 0xf0) >> 4;
+			section->m_armor[1] = msg->m_rearArmor3;
+			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
-				damage2 =
-					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				damage2 = 15 - ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+								   (MechS32) (levels << 16);
 			}
 			break;
 		case 3:
-			section->m_armor[1] = msg->m_unk0x0d;
-			levels = (section->m_unk0x26 & 0xf0) >> 4;
+			section->m_armor[1] = msg->m_rearArmor2;
+			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
-				damage2 =
-					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				damage2 = 15 - ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+								   (MechS32) (levels << 16);
 			}
 			break;
 		case 2:
-			section->m_armor[1] = msg->m_unk0x11;
-			levels = (section->m_unk0x26 & 0xf0) >> 4;
+			section->m_armor[1] = msg->m_rearArmor1;
+			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
-				damage2 =
-					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				damage2 = 15 - ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+								   (MechS32) (levels << 16);
 			}
 			break;
 		default:
 			break;
 		}
 
-		levels = section->m_unk0x26 & 0xf;
+		levels = section->m_flags & 0xf;
 		if (levels) {
-			damage1 =
-				15 - ((section->m_unk0x08 + section->m_armor[0] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+			damage1 = 15 - ((section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3) /
+							   (MechS32) (levels << 16);
 		}
 
-		FUN_10002246(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
-		if (section->m_unk0x08 <= 0 && !(section->m_unk0x26 & 0x2000)) {
-			FUN_1000899d(player->m_killer, mech, i + 1);
+		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
+		if (section->m_internal <= 0 && !(section->m_flags & 0x2000)) {
+			DestroySection(player->m_killer, mech, i + 1);
 		}
 	}
 
 	if (mech->m_powerState == 4 || mech->m_powerState == 5) {
 		if (g_playerDestroyed[player->m_index] != 1) {
-			FUN_1000832b(player->m_killer, mech);
+			KillMech(player->m_killer, mech);
 			if (player->m_killer >= 0 && player->m_killer < 8) {
 				if (player->m_killer == player->m_index) {
 					sprintf(text, "'%s' destroyed.", player->m_name);
@@ -785,7 +785,7 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 		}
 	}
 	else if (g_playerDestroyed[player->m_index] == 1) {
-		FUN_1007fbe0(player->m_index, 0, 0, 0);
+		ReloadPlayerMech(player->m_index, 0, 0, 0);
 		sprintf(text2, "'%s' resurrected.", player->m_name);
 		ShowInGameMessage(text2, 1, 0x712, 0x50);
 		g_playerDestroyed[player->m_index] = 0;
@@ -794,7 +794,7 @@ void FUN_1000f1ee(NetStateMsg* p_msg, MechS32 p_slot)
 
 // Sends the weapons the local player fired since the last time, if any.
 // FUNCTION: MW2 0x1000f989
-void FUN_1000f989(void)
+void SendWeaponsMsg(void)
 {
 	Player* player;
 	Mech* mech;
@@ -806,9 +806,9 @@ void FUN_1000f989(void)
 	g_weaponsMsg->m_player = player->m_index;
 	g_weaponsMsg->m_weapons = 0;
 	for (i = 0; i < 10; i++) {
-		if (g_unk0x101099f0[i]) {
+		if (g_localWeaponsFired[i]) {
 			g_weaponsMsg->m_weapons |= 1 << i;
-			g_unk0x101099f0[i] = 0;
+			g_localWeaponsFired[i] = 0;
 		}
 	}
 
@@ -820,7 +820,7 @@ void FUN_1000f989(void)
 // Fires the weapons of a player's weapons message.
 // The only diff is a stack-slot permutation of player, msg, bit, mech and i.
 // FUNCTION: MW2 0x1000fa58
-void FUN_1000fa58(NetWeaponsMsg* p_msg, MechS32 p_slot)
+void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 {
 	Player* player;
 	NetWeaponsMsg* msg;
@@ -838,18 +838,18 @@ void FUN_1000fa58(NetWeaponsMsg* p_msg, MechS32 p_slot)
 	bit = 1;
 	for (i = 0; i < 10; i++) {
 		if (msg->m_weapons & bit) {
-			g_unk0x101099c0[i] = 1;
+			g_remoteWeaponsFired[i] = 1;
 		}
 
 		bit <<= 1;
 	}
 
-	FUN_10045bc8(mech);
+	FireRemoteWeapons(mech);
 }
 
 // Sends player p_slot a collision push along the normal (p_x, p_y, p_z).
 // FUNCTION: MW2 0x1000faef
-void FUN_1000faef(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void SendCollisionMsg(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	Mech* mech;
 	NetCollisionMsg* msg;
@@ -860,15 +860,15 @@ void FUN_1000faef(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	msg->m_normalY = -p_y;
 	msg->m_normalZ = -p_z;
 	mech = g_players[g_localPlayerId]->m_mech;
-	msg->m_unk0x0e = mech->m_newVelocityX;
-	msg->m_unk0x12 = mech->m_newVelocityY;
-	msg->m_unk0x16 = mech->m_newVelocityZ;
+	msg->m_velocityX = mech->m_newVelocityX;
+	msg->m_velocityY = mech->m_newVelocityY;
+	msg->m_velocityZ = mech->m_newVelocityZ;
 	NetSendTo(g_netLaunch->m_playerIds[p_slot], msg, sizeof(NetCollisionMsg));
 }
 
 // Applies a collision push from player p_slot to the local mech.
 // FUNCTION: MW2 0x1000fb8f
-void FUN_1000fb8f(NetCollisionMsg* p_msg, MechS32 p_slot)
+void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 {
 	MechS32 volume;
 	Mech* mech;
@@ -883,22 +883,22 @@ void FUN_1000fb8f(NetCollisionMsg* p_msg, MechS32 p_slot)
 	g_segmentNormalX = msg->m_normalX;
 	g_segmentNormalY = msg->m_normalY;
 	g_segmentNormalZ = msg->m_normalZ;
-	mech->m_newVelocityX = msg->m_unk0x0e;
-	mech->m_newVelocityY = msg->m_unk0x12;
-	mech->m_newVelocityZ = msg->m_unk0x16;
+	mech->m_newVelocityX = msg->m_velocityX;
+	mech->m_newVelocityY = msg->m_velocityY;
+	mech->m_newVelocityZ = msg->m_velocityZ;
 	volume = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
 	if (volume > 1500000) {
 		volume = 1500000;
 	}
 
 	volume = MulDiv64(200, volume, 1500000);
-	FUN_1007eb23(0xf0, volume, 0x40, 5, 0x32);
-	FUN_100765f8(g_players[g_localPlayerId]->m_mech, g_players[p_slot]->m_mech);
+	PlaySoundEffect(0xf0, volume, 0x40, 5, 0x32);
+	DamageMechsInCollision(g_players[g_localPlayerId]->m_mech, g_players[p_slot]->m_mech);
 }
 
 // Sends GO: a slave is ready, or the master starts the game.
 // FUNCTION: MW2 0x1000fca8
-void FUN_1000fca8(void)
+void SendGoMsg(void)
 {
 	MechChar msg[] = "GO";
 
@@ -910,7 +910,7 @@ void FUN_1000fca8(void)
 }
 
 // FUNCTION: MW2 0x1000fcf5
-void FUN_1000fcf5(MechChar* p_msg, MechS32 p_slot)
+void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechS32 i;
 
@@ -927,7 +927,7 @@ void FUN_1000fcf5(MechChar* p_msg, MechS32 p_slot)
 		}
 
 		if (i == g_playersFound) {
-			FUN_1000fca8();
+			SendGoMsg();
 		}
 	}
 	else if (GetPlayerSlotFromNetId(g_masterDpid) == p_slot) {
@@ -939,7 +939,7 @@ void FUN_1000fcf5(MechChar* p_msg, MechS32 p_slot)
 // Sends the game things destroyed so far.
 // The only diff is a stack-slot permutation of out, i, count and bits.
 // FUNCTION: MW2 0x1000fda6
-void FUN_1000fda6(void)
+void SendThingsMsg(void)
 {
 	MechU8* out;
 	MechS32 i;
@@ -954,7 +954,7 @@ void FUN_1000fda6(void)
 	out += 4;
 	for (i = 0; i < 254; i++) {
 		bits <<= 1;
-		if (g_gameThings[i].m_unk0x00 & 4) {
+		if (g_gameThings[i].m_flags & 4) {
 			bits |= 1;
 		}
 
@@ -973,7 +973,7 @@ void FUN_1000fda6(void)
 // Destroys the game things a player's things message has destroyed.
 // The only diff is a stack-slot permutation of in, msgCount, i, count and bits.
 // FUNCTION: MW2 0x1000fe61
-void FUN_1000fe61(MechU8* p_msg, MechS32 p_slot)
+void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot)
 {
 	MechU8* in;
 	MechS32 msgCount;
@@ -992,8 +992,8 @@ void FUN_1000fe61(MechU8* p_msg, MechS32 p_slot)
 	g_lastThingsCount[p_slot] = msgCount;
 	bits = *in;
 	for (i = 0; i < 254; i++) {
-		if ((bits & 0x80) && !(g_gameThings[i].m_unk0x00 & 4)) {
-			FUN_1006bf8c(i);
+		if ((bits & 0x80) && !(g_gameThings[i].m_flags & 4)) {
+			KillGameThing(i);
 		}
 
 		bits <<= 1;
@@ -1008,7 +1008,7 @@ void FUN_1000fe61(MechU8* p_msg, MechS32 p_slot)
 
 // Sends SU once: the local player's objectives succeeded.
 // FUNCTION: MW2 0x1000ff29
-void FUN_1000ff29(void)
+void SendSuccessMsg(void)
 {
 	MechChar msg[] = "SU";
 
@@ -1019,7 +1019,7 @@ void FUN_1000ff29(void)
 }
 
 // FUNCTION: MW2 0x1000ff70
-void FUN_1000ff70(MechChar* p_msg, MechS32 p_slot)
+void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechChar text[80];
 
@@ -1029,7 +1029,7 @@ void FUN_1000ff70(MechChar* p_msg, MechS32 p_slot)
 
 	sprintf(text, "'%s' successful.", g_players[p_slot]->m_name);
 	ShowInGameMessage(text, 1, 0x712, 0x50);
-	g_carCfg.m_unk0xd2 = p_slot;
+	g_careerRecord.m_winner = p_slot;
 	if (!g_successSent) {
 		g_successSent = 1;
 	}
@@ -1038,7 +1038,7 @@ void FUN_1000ff70(MechChar* p_msg, MechS32 p_slot)
 // Counts the players and keeps the lowest id as the master's.
 // The only diff is the operand order of the comparison of p_id with g_masterDpid.
 // FUNCTION: MW2 0x1000ffe6
-BOOL PASCAL FUN_1000ffe6(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context)
+BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context)
 {
 	if (p_id < g_masterDpid) {
 		g_masterDpid = p_id;
@@ -1050,7 +1050,7 @@ BOOL PASCAL FUN_1000ffe6(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DW
 
 // Copies the session named g_sessionName into p_context.
 // FUNCTION: MW2 0x1001001a
-BOOL PASCAL FUN_1001001a(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_timeout, DWORD p_flags)
+BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_timeout, DWORD p_flags)
 {
 	if (p_flags & DPESC_TIMEDOUT) {
 		return FALSE;
@@ -1065,7 +1065,7 @@ BOOL PASCAL FUN_1001001a(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_tim
 
 // Picks the IPX service provider.
 // FUNCTION: MW2 0x10010098
-BOOL PASCAL FUN_10010098(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context)
+BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context)
 {
 	if (memcmp(p_name, "WinSock IPX Connection For DirectPlay", 38) == 0) {
 		g_serviceProvider = p_guid;
@@ -1077,14 +1077,14 @@ BOOL PASCAL FUN_10010098(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_min
 // Looks for the session named g_sessionName, into p_desc.
 // The only diff is a stack-slot permutation of result and desc.
 // FUNCTION: MW2 0x100100cc
-MechS32 FUN_100100cc(LPDPSESSIONDESC p_desc)
+MechS32 FindSession(LPDPSESSIONDESC p_desc)
 {
 	HRESULT result;
 	DPSESSIONDESC desc;
 
 	desc = *p_desc;
-	result =
-		g_directPlay->lpVtbl->EnumSessions(g_directPlay, &desc, 500, FUN_1001001a, p_desc, DPENUMSESSIONS_AVAILABLE);
+	result = g_directPlay->lpVtbl
+				 ->EnumSessions(g_directPlay, &desc, 500, FindSessionCallback, p_desc, DPENUMSESSIONS_AVAILABLE);
 	if (result) {
 		return 0;
 	}
@@ -1117,12 +1117,12 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 		g_masterDpid = g_localDpid;
 		g_netState = 1;
 		ElectMaster();
-		g_currentClock = FUN_1007d05d();
-		g_unk0x100ba54c = FUN_1007d0fb();
+		g_currentClock = GetGameClock();
+		g_realClock = GetRealClock();
 		return 1;
 	}
 	else {
-		DirectPlayEnumerate(FUN_10010098, NULL);
+		DirectPlayEnumerate(FindIpxProviderCallback, NULL);
 		if (!g_serviceProvider) {
 			DebugPrint("StartExternalIO() No DPlay service provider.");
 			return 0;
@@ -1153,7 +1153,7 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 		else {
 			DebugPrint("StartExternalIO() Searching for session...");
 			for (;;) {
-				if (FUN_100100cc(&desc)) {
+				if (FindSession(&desc)) {
 					break;
 				}
 
@@ -1182,7 +1182,8 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 			if (g_directPlay) {
 				g_masterDpid = g_localDpid;
 				g_playersFound = 0;
-				result = g_directPlay->lpVtbl->EnumPlayers(g_directPlay, 500, FUN_1000ffe6, NULL, DPENUMPLAYERS_ALL);
+				result =
+					g_directPlay->lpVtbl->EnumPlayers(g_directPlay, 500, CountPlayersCallback, NULL, DPENUMPLAYERS_ALL);
 			}
 
 			DebugPrint("StartExternalIO() Located %d of %d players.", g_playersFound, g_isNetworkGame);
@@ -1193,8 +1194,8 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 
 		g_netState = 1;
 		ElectMaster();
-		g_currentClock = FUN_1007d05d();
-		g_unk0x100ba54c = FUN_1007d0fb();
+		g_currentClock = GetGameClock();
+		g_realClock = GetRealClock();
 		return 1;
 	}
 
@@ -1239,7 +1240,7 @@ MechS32 StopExternalIO(void)
 	}
 
 	g_netRole = 0;
-	g_unk0x100ba554 = 0;
+	g_clockMode = 0;
 }
 
 // Counts the players and elects the one with the lowest id master. Alone, the network stops.
@@ -1251,22 +1252,22 @@ void ElectMaster(void)
 	if (g_directPlay) {
 		g_masterDpid = g_localDpid;
 		g_playersFound = 0;
-		result = g_directPlay->lpVtbl->EnumPlayers(g_directPlay, 0, FUN_1000ffe6, NULL, DPENUMPLAYERS_GROUP);
+		result = g_directPlay->lpVtbl->EnumPlayers(g_directPlay, 0, CountPlayersCallback, NULL, DPENUMPLAYERS_GROUP);
 	}
 
 	DebugPrint("ElectMaster() found %d players.  MasterDPID is %d\n", g_playersFound, g_masterDpid);
 	if (g_playersFound == 1) {
 		g_netState = 2;
 		g_netRole = 0;
-		g_unk0x100ba554 = 0;
+		g_clockMode = 0;
 		g_goLaunch |= 1;
 	}
 	else if (g_localDpid == g_masterDpid) {
 		g_netRole = 1;
-		g_unk0x100ba554 = 0;
+		g_clockMode = 0;
 	}
 	else {
 		g_netRole = 2;
-		g_unk0x100ba554 = 2;
+		g_clockMode = 2;
 	}
 }

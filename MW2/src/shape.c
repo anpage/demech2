@@ -16,12 +16,12 @@
 
 // The flags a new shape starts with (CreateShape).
 // GLOBAL: MW2 0x100a5898
-MechU32 g_unk0x100a5898 = 0;
+MechU32 g_newShapeFlags = 0;
 
 // FUNCTION: MW2 0x1003a530
 MechU32 GetNewShapeFlags(void)
 {
-	return g_unk0x100a5898;
+	return g_newShapeFlags;
 }
 
 // Sets the flags new shapes start with; returns the previous ones.
@@ -30,8 +30,8 @@ MechU32 SetNewShapeFlags(MechU32 p_flags)
 {
 	MechU32 previous;
 
-	previous = g_unk0x100a5898;
-	g_unk0x100a5898 = p_flags;
+	previous = g_newShapeFlags;
+	g_newShapeFlags = p_flags;
 	return previous;
 }
 
@@ -148,7 +148,7 @@ void SelectModelByKey(Shape* p_shape, MechS32 p_key)
 }
 
 // FUNCTION: MW2 0x1003a7f9
-void FUN_1003a7f9(Shape* p_shape, MechS32 p_key)
+void SetModelKey(Shape* p_shape, MechS32 p_key)
 {
 	Model* model;
 
@@ -161,7 +161,7 @@ void FUN_1003a7f9(Shape* p_shape, MechS32 p_key)
 }
 
 // FUNCTION: MW2 0x1003a827
-MechS32 FUN_1003a827(Shape* p_shape)
+MechS32 GetModelKey(Shape* p_shape)
 {
 	Model* model;
 
@@ -210,7 +210,7 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 		return NULL;
 	}
 
-	shape->m_flags = g_unk0x100a5898 | 0x8000;
+	shape->m_flags = g_newShapeFlags | 0x8000;
 	shape->m_object = NULL;
 	shape->m_model = shape->m_models = NULL;
 	if (!AddModel(shape, 0, p_vertexCount, p_faceCount, p_extra, p_extraData)) {
@@ -234,7 +234,7 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 
 // Appends a vertex to the selected model.
 // FUNCTION: MW2 0x1003aa1d
-void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_unk0x18, undefined4 p_unk0x1c)
+void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v)
 {
 	Model* model;
 	Vertex* vertex;
@@ -248,15 +248,15 @@ void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undef
 	vertex->m_worldX = vertex->m_modelX = p_x;
 	vertex->m_worldY = vertex->m_modelY = p_y;
 	vertex->m_worldZ = vertex->m_modelZ = p_z;
-	vertex->m_u = p_unk0x18;
-	vertex->m_v = p_unk0x1c;
+	vertex->m_u = p_u;
+	vertex->m_v = p_v;
 	model->m_vertexCount++;
 }
 
 // Appends a face to the selected model, its vertex indices at p_indices.
 // The only diff is a stack-slot permutation of model and face.
 // FUNCTION: MW2 0x1003aab5
-Face* AddShapeFace(Shape* p_shape, MechU16 p_unk0x00, MechU8* p_indices)
+Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices)
 {
 	Model* model;
 	Face* face;
@@ -269,7 +269,7 @@ Face* AddShapeFace(Shape* p_shape, MechU16 p_unk0x00, MechU8* p_indices)
 	face = (Face*) ((MechU8*) model + model->m_faceOffset) + model->m_faceCount;
 	face->m_indexOffset = (MechU16) (p_indices - (MechU8*) face);
 	face->m_shape = p_shape;
-	face->m_color = p_unk0x00;
+	face->m_color = p_color;
 	face->m_indexCount = 0;
 	model->m_faceCount++;
 	return face;
@@ -347,20 +347,20 @@ void FreeShape(Shape* p_shape)
 		FreeModel(current);
 	}
 
-	FUN_1006ed30(p_shape);
+	FreeBoundBox(p_shape);
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_shape);
 }
 
 // FUNCTION: MW2 0x1003acbe
-void FUN_1003acbe(Shape* p_shape, MechS32 p_unk0x04)
+void SetShapeState(Shape* p_shape, MechS32 p_flags)
 {
 	if (p_shape) {
-		p_shape->m_flags = (p_shape->m_flags & ~0x7ef0) | (p_unk0x04 & 0x7ef0) | 0x8000;
+		p_shape->m_flags = (p_shape->m_flags & ~0x7ef0) | (p_flags & 0x7ef0) | 0x8000;
 	}
 }
 
 // FUNCTION: MW2 0x1003acf7
-MechU32 FUN_1003acf7(Shape* p_shape)
+MechU32 GetShapeState(Shape* p_shape)
 {
 	if (p_shape) {
 		return p_shape->m_flags & 0x7ef0;
@@ -371,56 +371,56 @@ MechU32 FUN_1003acf7(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003ad2d
-void FUN_1003ad2d(Shape* p_shape, MechS32 p_unk0x02)
+void SetShapeKind(Shape* p_shape, MechS32 p_kind)
 {
 	if (p_shape) {
-		p_shape->m_kind = p_unk0x02;
+		p_shape->m_kind = p_kind;
 	}
 }
 
 // FUNCTION: MW2 0x1003ad4c
-void FUN_1003ad4c(Shape* p_shape, MechU16 p_unk0x16)
+void SetShapePartId(Shape* p_shape, MechU16 p_partId)
 {
-	p_shape->m_partId = p_unk0x16;
+	p_shape->m_partId = p_partId;
 }
 
 // FUNCTION: MW2 0x1003ad62
-void FUN_1003ad62(Shape* p_shape, MechU16 p_unk0x14)
+void SetShapeOwner(Shape* p_shape, MechU16 p_owner)
 {
-	p_shape->m_owner = p_unk0x14;
+	p_shape->m_owner = p_owner;
 }
 
 // FUNCTION: MW2 0x1003ad78
-MechU32 FUN_1003ad78(Shape* p_shape)
+MechU32 GetShapeKind(Shape* p_shape)
 {
 	return p_shape->m_kind;
 }
 
 // FUNCTION: MW2 0x1003ad93
-MechU32 FUN_1003ad93(Shape* p_shape)
+MechU32 GetShapePartId(Shape* p_shape)
 {
 	return p_shape->m_partId;
 }
 
 // FUNCTION: MW2 0x1003adae
-MechU32 FUN_1003adae(Shape* p_shape)
+MechU32 GetShapeOwner(Shape* p_shape)
 {
 	return p_shape->m_owner;
 }
 
 // FUNCTION: MW2 0x1003adc9
-MechS32 FUN_1003adc9(Shape* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c)
+MechS32 GetShapeBounds(Shape* p_shape, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
-	if (p_unk0x34) {
-		*p_unk0x34 = p_shape->m_centerX;
+	if (p_x) {
+		*p_x = p_shape->m_centerX;
 	}
 
-	if (p_unk0x38) {
-		*p_unk0x38 = p_shape->m_centerY;
+	if (p_y) {
+		*p_y = p_shape->m_centerY;
 	}
 
-	if (p_unk0x3c) {
-		*p_unk0x3c = p_shape->m_centerZ;
+	if (p_z) {
+		*p_z = p_shape->m_centerZ;
 	}
 
 	return p_shape->m_radius;
@@ -723,10 +723,10 @@ void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p
 
 // Returns a face of the selected model and up to p_max of its vertex indices.
 // FUNCTION: MW2 0x1003b5d6
-void FUN_1003b5d6(
+void GetShapeFace(
 	Shape* p_shape,
 	MechS32 p_index,
-	MechU32* p_unk0x00,
+	MechU32* p_color,
 	MechU32* p_count,
 	MechU32* p_indices,
 	MechS32 p_max
@@ -742,8 +742,8 @@ void FUN_1003b5d6(
 	}
 
 	face = (Face*) ((MechU8*) model + model->m_faceOffset) + p_index;
-	if (p_unk0x00) {
-		*p_unk0x00 = face->m_color;
+	if (p_color) {
+		*p_color = face->m_color;
 	}
 
 	count = face->m_indexCount;
@@ -763,7 +763,7 @@ void FUN_1003b5d6(
 }
 
 // FUNCTION: MW2 0x1003b696
-void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
+void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_color)
 {
 	Model* model;
 
@@ -773,7 +773,7 @@ void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00)
 	}
 
 	if (p_index < model->m_faceCount) {
-		((Face*) ((MechU8*) model + model->m_faceOffset) + p_index)->m_color = p_unk0x00;
+		((Face*) ((MechU8*) model + model->m_faceOffset) + p_index)->m_color = p_color;
 	}
 }
 
@@ -784,19 +784,19 @@ struct SceneObject* GetShapeObject(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003b6fb
-void SetShapeObject(Shape* p_shape, struct SceneObject* p_unk0x18)
+void SetShapeObject(Shape* p_shape, struct SceneObject* p_object)
 {
-	p_shape->m_object = p_unk0x18;
+	p_shape->m_object = p_object;
 }
 
 // FUNCTION: MW2 0x1003b70f
-MechU32 FUN_1003b70f(Shape* p_shape)
+MechU32 GetShapeLoadFlags(Shape* p_shape)
 {
 	return p_shape->m_flags & 0x10f;
 }
 
 // FUNCTION: MW2 0x1003b72f
-void FUN_1003b72f(Shape* p_shape, MechU32 p_flags)
+void SetShapeLoadFlags(Shape* p_shape, MechU32 p_flags)
 {
 	p_shape->m_flags = (p_shape->m_flags & ~0x10f) | (p_flags & 0x10f) | 0x8000;
 }
@@ -806,20 +806,20 @@ void FUN_1003b72f(Shape* p_shape, MechU32 p_flags)
 void DestroyShape(Shape* p_shape)
 {
 	if (p_shape) {
-		FUN_1006d7fb(p_shape);
+		RemoveSceneShape(p_shape);
 		FreeShape(p_shape);
 	}
 }
 
-// Detaches the shape from its scene object and frees it. A ShapeCallback (FUN_10001f82).
+// Detaches the shape from its scene object and frees it. A ShapeCallback (DestroyObjTree).
 // FUNCTION: MW2 0x1003b78b
-void FUN_1003b78b(Shape* p_shape)
+void DestroyObjShape(Shape* p_shape)
 {
 	struct SceneObject* obj;
 
 	obj = GetShapeObject(p_shape);
 	if (obj) {
-		FUN_10001532(obj, NULL);
+		SetObjShape(obj, NULL);
 	}
 
 	DestroyShape(p_shape);
@@ -854,5 +854,5 @@ MechS32 GetShapeMemorySize(Shape* p_shape)
 		}
 	}
 
-	return size + FUN_1006edc3(p_shape);
+	return size + GetBoundBoxSize(p_shape);
 }

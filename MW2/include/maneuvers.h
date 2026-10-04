@@ -35,7 +35,7 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a2bdc;
+	extern MechS32 g_jumpJetDrag;
 	extern MechS32 g_slideSlope;
 	void RunManeuver(struct Player* p_player, MechU16 p_target);
 	void InitializeManeuvers(struct Player* p_player);
@@ -43,14 +43,14 @@ extern "C"
 	MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id);
 	void StartManeuver(struct Player* p_player);
 	void EndManeuver(struct Player* p_player);
-	void PlaceOffsetNav(struct Player* p_player, MechU32 p_unk0x04, MechS16 p_unk0x08, MechS16 p_unk0x0c);
+	void PlaceOffsetNav(struct Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance);
 	void GetOffsetPoint(
-		MechU32 p_unk0x00,
-		MechS16 p_unk0x04,
+		MechU32 p_target,
+		MechS16 p_direction,
 		MechS32* p_x,
 		MechS32* p_z,
 		MechS32* p_y,
-		MechS16 p_unk0x14
+		MechS16 p_distance
 	);
 	MechS32 IsSharpTurn(struct Player* p_player, MechS32 p_turn);
 	void ManeuverStupid(struct Player* p_player, MechS16 p_target);

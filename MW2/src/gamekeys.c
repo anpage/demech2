@@ -27,12 +27,12 @@
 #include "refreshmode.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
 #include "statuspanels.h"
+#include "targeting.h"
 #include "targetpanel.h"
 #include "ticks.h"
 #include "timedoverlays.h"
@@ -44,59 +44,59 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100aa290
-MechS32 g_unk0x100aa290 = 0;
+MechS32 g_missionEndTime = 0;
 
 // GLOBAL: MW2 0x100aa294
-MechS32 g_unk0x100aa294 = 0;
+MechS32 g_speechFlushTime = 0;
 
-// A game-key toggle (FUN_1005e9b0's setting 0x40).
+// A game-key toggle (GetSystemSetting's setting 0x40).
 // GLOBAL: MW2 0x100aa298
-MechS32 g_unk0x100aa298 = 0;
+MechS32 g_overrideShutdown = 0;
 
 // Set by game key 0x11.
 // GLOBAL: MW2 0x100aa2a0
-MechS32 g_unk0x100aa2a0 = 0;
+MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
-MechS32 g_unk0x100aa2a4 = 1;
+MechS32 g_mechViewMode = 1;
 
 // GLOBAL: MW2 0x100aa2a8
-MechS32 g_unk0x100aa2a8 = 0;
+MechS32 g_missionEnded = 0;
 
 // GLOBAL: MW2 0x100aa2ac
 MechS32 g_missionTimerStopped = 0;
 
 // The "meepmeep" cheat: enables the time compression key.
 // GLOBAL: MW2 0x100aa2b0
-MechS32 g_unk0x100aa2b0 = 0;
+MechS32 g_timeCompressionCheat = 0;
 
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
-MechS32 g_unk0x100aa2b8 = 0;
+MechS32 g_chatLength = 0;
 
 // GLOBAL: MW2 0x100aa2bc
-MechS32 g_unk0x100aa2bc = 0;
+MechS32 g_missionResolved = 0;
 
 // GLOBAL: MW2 0x100aa2c0
-MechS32 g_unk0x100aa2c0 = 0;
+MechS32 g_statusMessage = 0;
 
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
-MechChar g_unk0x100e9620[0xf];
+MechChar g_typedKeys[0xf];
 
 // GLOBAL: MW2 0x100ea3e4
-MechS32 g_unk0x100ea3e4;
+MechS32 g_frontViewForRear;
 
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
 // FUNCTION: MW2 0x1005b7c0
-MechS32 FUN_1005b7c0(MechS16 p_key)
+MechS32 AppendTypedKey(MechS16 p_key)
 {
 	if ((p_key & 0xff00) != 0x700) {
 		return FALSE;
 	}
 
-	memmove(g_unk0x100e9620, &g_unk0x100e9620[1], 0xe);
-	g_unk0x100e9620[0xe] = (MechChar) p_key;
+	memmove(g_typedKeys, &g_typedKeys[1], 0xe);
+	g_typedKeys[0xe] = (MechChar) p_key;
 	return TRUE;
 }
 
@@ -104,14 +104,14 @@ MechS32 FUN_1005b7c0(MechS16 p_key)
 // with 0x1a.
 // Stack-slot permutation of n and c.
 // FUNCTION: MW2 0x1005b807
-MechS32 FUN_1005b807(MechChar* p_code)
+MechS32 TypedCodeMatches(MechChar* p_code)
 {
 	MechChar* typed;
 	MechU32 n;
 	MechChar* c;
 
 	n = strlen(p_code);
-	typed = &g_unk0x100e9620[0xe];
+	typed = &g_typedKeys[0xe];
 	for (c = &p_code[n - 1]; n; n--, c--, typed--) {
 		if ((*c ^ 0x1a) != *typed) {
 			return FALSE;
@@ -121,7 +121,7 @@ MechS32 FUN_1005b807(MechChar* p_code)
 	return TRUE;
 }
 
-// Takes a typed key for the cheat codes: when the last keys typed spell one (FUN_1005b807; the codes
+// Takes a typed key for the cheat codes: when the last keys typed spell one (TypedCodeMatches; the codes
 // are stored XORed with 0x1a), toggles or runs its cheat and says so.
 // Stack-slot permutation: target and victim.
 // FUNCTION: MW2 0x1005b883
@@ -130,11 +130,11 @@ void HandleCheatInput(MechS16 p_key)
 	MechS32 target;
 	MechS32 victim;
 
-	if (!FUN_1005b7c0(p_key)) {
+	if (!AppendTypedKey(p_key)) {
 		return;
 	}
 
-	if (FUN_1005b807("xvuhx")) { // "blorb"
+	if (TypedCodeMatches("xvuhx")) { // "blorb"
 		if (!g_difficulty->m_invulnerable) {
 			g_difficulty->m_invulnerable = 1;
 			ShowInGameMessage("Invulnerability ON", 1, 0x16a, 0x32);
@@ -144,7 +144,7 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Invulnerability OFF", 1, 0x16a, 0x32);
 		}
 	}
-	else if (FUN_1005b807("ys{")) { // "cia"
+	else if (TypedCodeMatches("ys{")) { // "cia"
 		if (!g_difficulty->m_unlimitedAmmo) {
 			g_difficulty->m_unlimitedAmmo = 1;
 			ShowInGameMessage("Unlimited Ammo ON", 1, 0x16a, 0x32);
@@ -154,7 +154,7 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Unlimited Ammo OFF", 1, 0x16a, 0x32);
 		}
 	}
-	else if (FUN_1005b807("yuv~wsi\x7fh")) { // "coldmiser"
+	else if (TypedCodeMatches("yuv~wsi\x7fh")) { // "coldmiser"
 		if (!g_difficulty->m_heatTracking) {
 			g_difficulty->m_heatTracking = 1;
 			ShowInGameMessage("Heat tracking ON", 1, 0x16a, 0x32);
@@ -164,43 +164,43 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Heat tracking OFF", 1, 0x16a, 0x32);
 		}
 	}
-	else if (FUN_1005b807("~\x7fs")) { // "dei"
+	else if (TypedCodeMatches("~\x7fs")) { // "dei"
 		ShowInGameMessage("F E I F", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("~uhyi")) { // "dorcs"
+	else if (TypedCodeMatches("~uhyi")) { // "dorcs"
 		ShowDorcs();
 		ShowInGameMessage("You asked for it!", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("\x7ftuv{}{c")) { // "enolagay"
-		target = FUN_1005fe63();
+	else if (TypedCodeMatches("\x7ftuv{}{c")) { // "enolagay"
+		target = GetLocalTargetGamePiece();
 		if (target >= 0) {
-			FUN_1006c4e2(g_players[target]);
+			StartNuke(g_players[target]);
 		}
 	}
-	else if (FUN_1005b807("|vc}shv")) { // "flygirl"
+	else if (TypedCodeMatches("|vc}shv")) { // "flygirl"
 		g_localSteering.m_grantJumpJets = 1;
 		ShowInGameMessage("Jumpjets", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("|hutn")) { // "front"
-		if (!g_unk0x100ea3e4) {
-			g_unk0x100ea3e4 = 1;
+	else if (TypedCodeMatches("|hutn")) { // "front"
+		if (!g_frontViewForRear) {
+			g_frontViewForRear = 1;
 			ShowInGameMessage("forward view instead of rear ON", 1, 0x16a, 0x32);
 		}
 		else {
-			g_unk0x100ea3e4 = 0;
+			g_frontViewForRear = 0;
 			ShowInGameMessage("forward view instead of rear OFF", 1, 0x16a, 0x32);
 		}
 	}
-	else if (FUN_1005b807("|oyq")) { // "fuck"
+	else if (TypedCodeMatches("|oyq")) { // "fuck"
 		ShowInGameMessage("Freebirth vulgarity will not be tolerated!", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("}{tq\x7fw")) { // "gankem"
-		victim = FUN_1005fe63();
+	else if (TypedCodeMatches("}{tq\x7fw")) { // "gankem"
+		victim = GetLocalTargetGamePiece();
 		if (victim >= 0) {
-			FUN_1000832b(g_localPlayerId, g_players[victim]->m_mech);
+			KillMech(g_localPlayerId, g_players[victim]->m_mech);
 		}
 	}
-	else if (FUN_1005b807("r{t}{huot~")) { // "hangaround"
+	else if (TypedCodeMatches("r{t}{huot~")) { // "hangaround"
 		if (!g_missionTimerStopped) {
 			g_missionTimerStopped = 1;
 		}
@@ -215,14 +215,14 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Now how do I win!", 1, 0xb5, 0x32);
 		}
 	}
-	else if (FUN_1005b807("sy{tnr{yqsn")) { // "icanthackit"
-		g_unk0x100a3748 = 1;
+	else if (TypedCodeMatches("sy{tnr{yqsn")) { // "icanthackit"
+		g_forceMissionSuccess = 1;
 	}
-	else if (FUN_1005b807("s~q|{")) { // "idkfa"
+	else if (TypedCodeMatches("s~q|{")) { // "idkfa"
 		ShowInGameMessage("This ain't DOOM, Bub.", 1, 0x16a, 0x50);
-		FUN_1005c78a(0x3b);
+		RunGameKey(0x3b);
 	}
-	else if (FUN_1005b807("v{sh~u")) { // "lairdo"
+	else if (TypedCodeMatches("v{sh~u")) { // "lairdo"
 		if (!g_lairdoCheat) {
 			g_lairdoCheat = 1;
 		}
@@ -232,62 +232,62 @@ void HandleCheatInput(MechS16 p_key)
 
 		ShowInGameMessage("ATTENTION ENEMIES: Don't mess with the blimp.", 1, 0xb5, 0x32);
 	}
-	else if (FUN_1005b807("w\x7f\x7fjw\x7f\x7fj")) { // "meepmeep"
-		if (!g_unk0x100aa2b0) {
-			g_unk0x100aa2b0 = 1;
+	else if (TypedCodeMatches("w\x7f\x7fjw\x7f\x7fj")) { // "meepmeep"
+		if (!g_timeCompressionCheat) {
+			g_timeCompressionCheat = 1;
 		}
 		else {
-			g_unk0x100aa2b0 = 0;
+			g_timeCompressionCheat = 0;
 		}
 
-		if (g_unk0x100aa2b0) {
+		if (g_timeCompressionCheat) {
 			ShowInGameMessage("Time Compression key enabled", 1, 0xb5, 0x32);
 		}
 		else {
 			ShowInGameMessage("Time Compression key disabled", 1, 0xb5, 0x32);
 		}
 	}
-	else if (FUN_1005b807("wsyr\x7fvst")) { // "michelin"
-		if (!g_unk0x100a5eb8) {
-			g_unk0x100a5eb8 = 1;
+	else if (TypedCodeMatches("wsyr\x7fvst")) { // "michelin"
+		if (!g_frameOutlineParts) {
+			g_frameOutlineParts = 1;
 		}
 		else {
-			g_unk0x100a5eb8 = 0;
+			g_frameOutlineParts = 0;
 		}
 
-		if (!g_unk0x100a2454) {
-			g_unk0x100a2454 = 1;
+		if (!g_showBoundingSpheres) {
+			g_showBoundingSpheres = 1;
 		}
 		else {
-			g_unk0x100a2454 = 0;
+			g_showBoundingSpheres = 0;
 		}
 
 		ShowInGameMessage("bounding spheres", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("ws}rncwuoi\x7f")) { // "mightymouse"
-		if (!g_unk0x100a2be4) {
-			g_unk0x100a2be4 = 1;
+	else if (TypedCodeMatches("ws}rncwuoi\x7f")) { // "mightymouse"
+		if (!g_infiniteJumpFuel) {
+			g_infiniteJumpFuel = 1;
 			ShowInGameMessage("Infinite Jumpjet juice ON", 1, 0x16a, 0x32);
 		}
 		else {
-			g_unk0x100a2be4 = 0;
+			g_infiniteJumpFuel = 0;
 			ShowInGameMessage("Infinite Jumpjet juice OFF", 1, 0x16a, 0x32);
 		}
 	}
-	else if (FUN_1005b807("irsn")) { // "shit"
+	else if (TypedCodeMatches("irsn")) { // "shit"
 		ShowInGameMessage("Freebirth vulgarity will not be tolerated!", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("nstq\x7fhx\x7fvv")) { // "tinkerbell"
-		FUN_10011401(2);
-		g_unk0x10109c70 = 1;
+	else if (TypedCodeMatches("nstq\x7fhx\x7fvv")) { // "tinkerbell"
+		SetViewMode(c_viewFreeEye);
+		g_mapFollowsFreeEye = 1;
 		ShowInGameMessage("Free-eye mode ON", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("bh{c")) { // "xray"
-		g_renderSettings.m_unk0x34 = 2;
-		g_renderSettings.m_unk0x38 = 0;
+	else if (TypedCodeMatches("bh{c")) { // "xray"
+		g_renderSettings.m_wireframe = 2;
+		g_renderSettings.m_wireframeColors = 0;
 		ShowInGameMessage("X-Ray vision enabled", 1, 0x16a, 0x32);
 	}
-	else if (FUN_1005b807("`w{q")) { // "zmak"
+	else if (TypedCodeMatches("`w{q")) { // "zmak"
 		if (!g_timeExpansionEnabled) {
 			g_timeExpansionEnabled = 1;
 		}
@@ -306,7 +306,7 @@ void HandleCheatInput(MechS16 p_key)
 
 // Turns a typed character into the one its key gives with shift held (the US layout).
 // FUNCTION: MW2 0x1005bf7c
-void FUN_1005bf7c(MechChar* p_char)
+void ShiftCharacter(MechChar* p_char)
 {
 	MechChar shifted[16] = {'<', '_', '>', '?', ')', '!', '@', '#', '$', '%', '^', '&', '*', '(', ':', ':'};
 
@@ -325,10 +325,10 @@ void FUN_1005bf7c(MechChar* p_char)
 	}
 }
 
-// Takes a key while a chat message is being typed (g_unk0x100a116c is the recipient): Backspace
+// Takes a key while a chat message is being typed (g_chatRecipient is the recipient): Backspace
 // edits, Enter sends it (to everyone from -1), Esc cancels, F-keys e and f pick the team (-3) or
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
-// Stack-slot permutation; g_localPlayerId == g_unk0x100a116c compares in the other operand order.
+// Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
 // FUNCTION: MW2 0x1005c057
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
@@ -336,11 +336,11 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 	MechChar c;
 	MechS32 to;
 
-	if (g_localPlayerId == g_unk0x100a116c) {
+	if (g_localPlayerId == g_chatRecipient) {
 		to = 0;
 	}
 	else {
-		to = g_unk0x100a116c;
+		to = g_chatRecipient;
 	}
 
 	if (p_keyCode & 0x400) {
@@ -349,44 +349,44 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 
 	c = (MechChar) p_keyCode;
 	if (c == '\b') {
-		if (g_unk0x100aa2b8 > 0) {
-			g_unk0x100aa2b8--;
+		if (g_chatLength > 0) {
+			g_chatLength--;
 		}
 
-		g_unk0x10179e90[g_unk0x100aa2b8] = '\0';
+		g_chatMessage[g_chatLength] = '\0';
 		return TRUE;
 	}
 
 	switch (c) {
 	case 0x1b:
-		g_unk0x100a116c = 0;
-		memset(g_unk0x10179e90, 0, 40);
-		g_unk0x100aa2b8 = 0;
+		g_chatRecipient = 0;
+		memset(g_chatMessage, 0, 40);
+		g_chatLength = 0;
 		return TRUE;
 	case '\r':
-		if (g_unk0x100a116c > 0) {
-			g_unk0x100a116c = 0;
+		if (g_chatRecipient > 0) {
+			g_chatRecipient = 0;
 		}
-		else if (g_unk0x100a116c == -1) {
+		else if (g_chatRecipient == -1) {
 			to = -1;
-			g_unk0x100a116c = 0;
+			g_chatRecipient = 0;
 		}
 	}
 
-	if (g_unk0x100aa2b8 > 39) {
+	if (g_chatLength > 39) {
 		return TRUE;
 	}
 
 	if (p_keyCode & 0x100) {
-		if (g_unk0x100a116c == -1) {
+		if (g_chatRecipient == -1) {
 			switch (c) {
 			case 'f':
 				to = -2;
-				g_unk0x100a116c = 0;
+				g_chatRecipient = 0;
 				break;
 			case 'e':
 				to = -3;
-				g_unk0x100a116c = 0;
+				g_chatRecipient = 0;
 				break;
 			default:
 				return FALSE;
@@ -399,15 +399,15 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 
 	if (p_keyCode & 0x200) {
 		c = toupper(c);
-		FUN_1005bf7c(&c);
+		ShiftCharacter(&c);
 	}
 
-	if (g_unk0x100a116c == 0) {
-		FUN_1000efa4(to, g_unk0x10179e90);
-		sprintf(text, "%s: %s", g_players[g_localPlayerId]->m_name, g_unk0x10179e90);
+	if (g_chatRecipient == 0) {
+		SendChatMsg(to, g_chatMessage);
+		sprintf(text, "%s: %s", g_players[g_localPlayerId]->m_name, g_chatMessage);
 		ShowInGameMessage(text, 1, 0x2d4, 0x32);
-		memset(g_unk0x10179e90, 0, 40);
-		g_unk0x100aa2b8 = 0;
+		memset(g_chatMessage, 0, 40);
+		g_chatLength = 0;
 		return TRUE;
 	}
 
@@ -415,14 +415,14 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 		return FALSE;
 	}
 
-	g_unk0x10179e90[g_unk0x100aa2b8] = c;
-	g_unk0x100aa2b8++;
+	g_chatMessage[g_chatLength] = c;
+	g_chatLength++;
 	return TRUE;
 }
 
 // Runs the frame's game keys: after the mission ends, waits a while before offering to quit (or,
-// with DifficultyCfg::m_unk0x08, to look around); otherwise passes the key code (from the local
-// steering, through the cheat codes, the chat message and LookupGameKey) to FUN_1005c78a.
+// with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
+// steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
 // FUNCTION: MW2 0x1005c2e1
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
@@ -430,50 +430,50 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		return;
 	}
 
-	if (g_unk0x100aa294 > 0 && g_currentClock > g_unk0x100aa294) {
+	if (g_speechFlushTime > 0 && g_currentClock > g_speechFlushTime) {
 		FlushSpeechQueue(1);
-		g_unk0x100aa294 = 0;
+		g_speechFlushTime = 0;
 	}
 
-	if (!g_unk0x100aa290 && !g_unk0x100aa2a8) {
-		if (g_unk0x100aa2bc || g_unk0x100b1350) {
-			g_unk0x100aa2c0 = 0;
-			g_unk0x100aa2a8 = 1;
-			g_unk0x100aa294 = g_currentClock + 0x108;
-			g_unk0x100aa290 = g_currentClock + 0x71c;
+	if (!g_missionEndTime && !g_missionEnded) {
+		if (g_missionResolved || g_fledToWindows) {
+			g_statusMessage = 0;
+			g_missionEnded = 1;
+			g_speechFlushTime = g_currentClock + 0x108;
+			g_missionEndTime = g_currentClock + 0x71c;
 			ShowInGameMessage("Press CTRL-Q to exit...", 1, 0x1536, 100);
 		}
-		else if (g_unk0x100a2c04) {
-			g_unk0x100a116c = 0;
-			FUN_100115f4(0, 1);
-			g_renderSettings.m_unk0x34 = 0;
-			FUN_1007d88a(0, 0);
-			g_unk0x100aa294 = g_currentClock + 0x108;
+		else if (g_localMechLost) {
+			g_chatRecipient = 0;
+			CycleTrackedPlayer(0, 1);
+			g_renderSettings.m_wireframe = 0;
+			SetInfrared(0, 0);
+			g_speechFlushTime = g_currentClock + 0x108;
 			if (!g_netRole) {
-				g_unk0x100aa2a8 = 1;
-				g_unk0x100aa290 = g_currentClock + 0x71c;
+				g_missionEnded = 1;
+				g_missionEndTime = g_currentClock + 0x71c;
 				ShowInGameMessage("Press CTRL-Q to exit...", 1, 0x1536, 100);
 			}
 			else {
-				g_unk0x100aa290 = g_currentClock + 0x43e;
+				g_missionEndTime = g_currentClock + 0x43e;
 			}
 		}
 	}
-	else if (g_unk0x100aa290 > 0 && g_currentClock > g_unk0x100aa290) {
-		g_unk0x100aa2a8 = 1;
-		if (!g_netRole || g_unk0x100aa2bc || g_unk0x100b1350) {
+	else if (g_missionEndTime > 0 && g_currentClock > g_missionEndTime) {
+		g_missionEnded = 1;
+		if (!g_netRole || g_missionResolved || g_fledToWindows) {
 			g_shouldQuit = 1;
 			g_quitStage = 0x29a;
 		}
-		else if (!g_difficulty->m_unk0x08) {
-			g_unk0x100aa290 = -1;
+		else if (!g_difficulty->m_regenerate) {
+			g_missionEndTime = -1;
 			ShowInGameMessage("Press SPACEBAR to advance viewpoint, or CTRL-Q to exit.", 1, 0x58610, 100);
-			g_unk0x100aa2c0 = 1;
-			g_unk0x100a2428 = 1;
+			g_statusMessage = 1;
+			g_spectating = 1;
 		}
 		else {
-			g_unk0x100aa290 = 0;
-			g_unk0x100aa2c0 = 2;
+			g_missionEndTime = 0;
+			g_statusMessage = 2;
 		}
 	}
 
@@ -482,7 +482,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		HandleCheatInput(p_key);
 	}
 
-	if (g_unk0x100a116c && HandleChatKey(p_key)) {
+	if (g_chatRecipient && HandleChatKey(p_key)) {
 		return;
 	}
 
@@ -491,15 +491,15 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 		return;
 	}
 
-	if (g_unk0x100aa2a8) {
-		if (!g_netRole || g_unk0x100aa2bc || g_unk0x100b1350) {
+	if (g_missionEnded) {
+		if (!g_netRole || g_missionResolved || g_fledToWindows) {
 			if (p_key == 0x59) {
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;
 				return;
 			}
 		}
-		else if (g_difficulty->m_unk0x08) {
+		else if (g_difficulty->m_regenerate) {
 			switch (p_key) {
 			case 0x59:
 				g_shouldQuit = 1;
@@ -509,24 +509,24 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				RequestMenu(4);
 				break;
 			case 0x4f:
-				g_renderSettings.m_unk0x34 = 0;
-				FUN_1007d88a(0, 0);
-				FUN_1007fbe0(g_localPlayerId, 0, 0, 0);
-				FUN_10011401(0);
+				g_renderSettings.m_wireframe = 0;
+				SetInfrared(0, 0);
+				ReloadPlayerMech(g_localPlayerId, 0, 0, 0);
+				SetViewMode(c_viewCockpit);
 				g_sinkPilotTiltReset = 1;
 				g_sinkPilotPanReset = 1;
 				g_sinkZoomFactorReset = 1;
 				g_speechLocked = 0;
-				g_unk0x100aa294 = 0;
-				g_unk0x100aa2c0 = 0;
-				g_unk0x100aa290 = 0;
-				g_unk0x100aa2a8 = 0;
-				g_unk0x100aa2bc = 0;
-				g_unk0x100a2428 = 0;
+				g_speechFlushTime = 0;
+				g_statusMessage = 0;
+				g_missionEndTime = 0;
+				g_missionEnded = 0;
+				g_missionResolved = 0;
+				g_spectating = 0;
 				break;
 			}
 		}
-		else if (g_unk0x100a2428) {
+		else if (g_spectating) {
 			switch (p_key) {
 			case 0x59:
 				g_shouldQuit = 1;
@@ -536,23 +536,23 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 				RequestMenu(4);
 				break;
 			case 0x4f:
-				FUN_100115f4(1, 0);
+				CycleTrackedPlayer(1, 0);
 				break;
 			}
 		}
 	}
 	else {
-		FUN_1005c78a(p_key);
+		RunGameKey(p_key);
 	}
 }
 
 // Performs game key p_key's action: the cockpit's detail and views, the throttle steps (0x1a-0x23),
 // the controls the local steering takes (a flag set for the frame), the menus, the chat
-// recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to FUN_10009f8d while
+// recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to HandleDebugKey while
 // the mission timer is stopped.
 // Stack-slot permutation: mech, step and text.
 // FUNCTION: MW2 0x1005c78a
-void FUN_1005c78a(MechS32 p_key)
+void RunGameKey(MechS32 p_key)
 {
 	Mech* mech;
 	MechS32 step;
@@ -568,121 +568,121 @@ void FUN_1005c78a(MechS32 p_key)
 		g_quitStage += 2;
 		break;
 	case 0x2:
-		FUN_100509a0();
+		CycleMechViewMode();
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 0, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 0, 0x32);
 		}
 		break;
 	case 0x3:
-		if (g_unk0x100aa2a4 == 2) {
-			g_unk0x100aa2a4 = 0;
+		if (g_mechViewMode == 2) {
+			g_mechViewMode = 0;
 		}
 		else {
-			g_unk0x100aa2a4 = 2;
+			g_mechViewMode = 2;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 1, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 1, 0x32);
 		}
 		break;
 	case 0x4:
-		if (g_unk0x100aa2a4 == 3) {
-			g_unk0x100aa2a4 = 0;
+		if (g_mechViewMode == 3) {
+			g_mechViewMode = 0;
 		}
 		else {
-			g_unk0x100aa2a4 = 3;
+			g_mechViewMode = 3;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 2, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 2, 0x32);
 		}
 		break;
 	case 0x5:
-		if (g_unk0x100aa2a4 == 4) {
-			g_unk0x100aa2a4 = 0;
+		if (g_mechViewMode == 4) {
+			g_mechViewMode = 0;
 		}
 		else {
-			g_unk0x100aa2a4 = 4;
+			g_mechViewMode = 4;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 3, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 3, 0x32);
 		}
 		break;
 	case 0x6:
-		if (g_unk0x100aa2a4 == 5) {
-			g_unk0x100aa2a4 = 0;
+		if (g_mechViewMode == 5) {
+			g_mechViewMode = 0;
 		}
 		else {
-			g_unk0x100aa2a4 = 5;
+			g_mechViewMode = 5;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 4, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 4, 0x32);
 		}
 		break;
 	case 0x7:
-		if (g_unk0x100aa2a4 == 1) {
-			g_unk0x100aa2a4 = 0;
+		if (g_mechViewMode == 1) {
+			g_mechViewMode = 0;
 		}
 		else {
-			g_unk0x100aa2a4 = 1;
+			g_mechViewMode = 1;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 6, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 6, 0x32);
 		}
 		break;
 	case 0x8:
-		g_unk0x100ba4bc++;
-		if (g_unk0x100ba4bc > 2) {
-			g_unk0x100ba4bc = 0;
+		g_targetPanelMode++;
+		if (g_targetPanelMode > 2) {
+			g_targetPanelMode = 0;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 7, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 7, 0x32);
 		}
 		break;
 	case 0x9:
 		if (!(g_players[g_localPlayerId]->m_flags & 2)) {
-			if (FUN_10011440() || FUN_1003ee69()) {
-				FUN_1003ee92();
-				FUN_10011401(0);
+			if (GetViewMode() || IsSatelliteView()) {
+				LeaveSatelliteView();
+				SetViewMode(c_viewCockpit);
 				g_sinkPilotTiltReset = 1;
 				g_sinkPilotPanReset = 1;
 				g_sinkZoomFactorReset = 1;
 			}
 			else {
-				FUN_10011401(1);
-				FUN_100115f4(0, 1);
+				SetViewMode(c_viewTrack);
+				CycleTrackedPlayer(0, 1);
 			}
 		}
 		break;
 	case 0xe:
-		if (FUN_1006bf05()) {
-			FUN_10011401(3);
+		if (TrackLastShot()) {
+			SetViewMode(c_viewOrdinance);
 		}
 		break;
 	case 0x11:
-		g_unk0x100aa2a0 = 1;
+		g_feetToTorso = 1;
 		break;
 	case 0x12:
 		g_localSteering.m_inspectTarget = 1;
 		break;
 	case 0x13:
-		if (!g_unk0x100a5f18) {
-			g_unk0x100a5f18 = 1;
+		if (!g_showHud) {
+			g_showHud = 1;
 		}
 		else {
-			g_unk0x100a5f18 = 0;
+			g_showHud = 0;
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 8, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 8, 0x32);
 		}
 		break;
 	case 0x14:
-		g_unk0x100a2be8 = 1;
+		g_jettisonAmmoRequested = 1;
 		break;
 	case 0x17:
 		g_sinkZoomFactorReset = 1;
@@ -709,7 +709,7 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_resetGamething = 1;
 		break;
 	case 0x27:
-		FUN_1005f284();
+		ResetTargeting();
 		break;
 	case 0x28:
 		g_localSteering.m_advanceNav = 1;
@@ -730,19 +730,19 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_resetGamepiece = 1;
 		break;
 	case 0x2e:
-		FUN_1003ee26();
+		CycleCockpitView();
 		break;
 	case 0x2f:
-		FUN_1003ef07(1);
+		ZoomMapView(1);
 		break;
 	case 0x30:
-		FUN_1003ef07(2);
+		ZoomMapView(2);
 		break;
 	case 0x31:
-		FUN_1003ef07(0);
+		ZoomMapView(0);
 		break;
 	case 0x32:
-		FUN_1003eeaf();
+		ToggleSatelliteView();
 		break;
 	case 0x33:
 		RequestMenu(4);
@@ -751,60 +751,60 @@ void FUN_1005c78a(MechS32 p_key)
 		ToggleMenu(5);
 		break;
 	case 0x42:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = -1;
+			g_chatRecipient = -1;
 		}
 		else {
 			ToggleMenu(1);
 		}
 		break;
 	case 0x43:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 1;
+			g_chatRecipient = 1;
 		}
 		else {
 			ToggleMenu(7);
 		}
 		break;
 	case 0x44:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 2;
+			g_chatRecipient = 2;
 		}
 		else {
 			ToggleMenu(8);
 		}
 		break;
 	case 0x45:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 3;
+			g_chatRecipient = 3;
 		}
 		break;
 	case 0x46:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 4;
+			g_chatRecipient = 4;
 		}
 		break;
 	case 0x47:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 5;
+			g_chatRecipient = 5;
 		}
 		break;
 	case 0x48:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 6;
+			g_chatRecipient = 6;
 		}
 		break;
 	case 0x49:
-		g_unk0x100a1170 = 0;
+		g_showObjectives = 0;
 		if (g_isNetworkGame) {
-			g_unk0x100a116c = 7;
+			g_chatRecipient = 7;
 		}
 		break;
 	case 0x3b:
@@ -812,13 +812,13 @@ void FUN_1005c78a(MechS32 p_key)
 		break;
 	case 0x3c:
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			if (g_unk0x100a1590) {
-				g_unk0x100a1590 = 0;
+			if (g_autoEject) {
+				g_autoEject = 0;
 				sprintf(text, "Automatic ejection OFF");
 				ShowInGameMessage(text, 1, 0x16a, 0x32);
 			}
 			else {
-				g_unk0x100a1590 = 1;
+				g_autoEject = 1;
 				sprintf(text, "Automatic ejection ON");
 				ShowInGameMessage(text, 1, 0x16a, 0x32);
 			}
@@ -826,22 +826,22 @@ void FUN_1005c78a(MechS32 p_key)
 		break;
 	case 0x3d:
 		if (mech->m_powerState == 3) {
-			g_unk0x100a2c08 = 1;
+			g_powerRequest = 1;
 		}
 		else {
-			g_unk0x100a2c08 = -1;
+			g_powerRequest = -1;
 		}
 		break;
 	case 0x3e:
 		if (mech->m_powerState == 3) {
-			g_unk0x100a2c08 = 1;
+			g_powerRequest = 1;
 		}
 		else {
 			if (mech->m_powerState == 7) {
 				break;
 			}
 
-			g_unk0x100a2c08 = -1;
+			g_powerRequest = -1;
 		}
 		break;
 	case 0x3f:
@@ -853,28 +853,28 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 		break;
 	case 0x40:
-		g_unk0x100aa298 = 1;
+		g_overrideShutdown = 1;
 		break;
 	case 0xa7:
-		if (g_renderSettings.m_unk0x34 != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
-			g_renderSettings.m_unk0x34 = 1;
-			g_renderSettings.m_unk0x38 = 0;
+		if (g_renderSettings.m_wireframe != 1 && (g_players[g_localPlayerId]->m_flags & 0x2000)) {
+			g_renderSettings.m_wireframe = 1;
+			g_renderSettings.m_wireframeColors = 0;
 			PlayCockpitSound(0x1b, 1);
 		}
 		else {
-			g_renderSettings.m_unk0x34 = 0;
+			g_renderSettings.m_wireframe = 0;
 		}
 		break;
 	case 0xa6:
-		FUN_1007d88a(0, !g_unk0x100bfd50);
+		SetInfrared(0, !g_infraredOn);
 		break;
 	case 0x41:
-		g_unk0x100a116c = 0;
-		if (!g_unk0x100a1170) {
-			g_unk0x100a1170 = 1;
+		g_chatRecipient = 0;
+		if (!g_showObjectives) {
+			g_showObjectives = 1;
 		}
 		else {
-			g_unk0x100a1170 = 0;
+			g_showObjectives = 0;
 		}
 		break;
 	case 0x4a:
@@ -908,10 +908,10 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_targetReticle = 1;
 		break;
 	case 0x55:
-		g_unk0x100ae37c = 1;
+		g_punchInAutoHeadingRequested = 1;
 		break;
 	case 0x56:
-		g_unk0x100a2bec = 1;
+		g_toggleMascRequested = 1;
 		break;
 	case 0x57:
 		g_localSteering.m_selfDestruct = 1;
@@ -928,13 +928,13 @@ void FUN_1005c78a(MechS32 p_key)
 		g_pauseRequested = 1;
 		break;
 	case 0x97:
-		FUN_10045b56(0);
+		SetSelectedWeaponGroup(0);
 		break;
 	case 0x98:
-		FUN_10045b56(1);
+		SetSelectedWeaponGroup(1);
 		break;
 	case 0x99:
-		FUN_10045b56(2);
+		SetSelectedWeaponGroup(2);
 		break;
 	case 0x9a:
 		g_localSteering.m_weaponCycleGroup = 1;
@@ -952,7 +952,7 @@ void FUN_1005c78a(MechS32 p_key)
 		g_localSteering.m_weaponFireGroup3 = 1;
 		break;
 	case 0x92:
-		if (!g_unk0x100aa2b0) {
+		if (!g_timeCompressionCheat) {
 			break;
 		}
 
@@ -975,14 +975,14 @@ void FUN_1005c78a(MechS32 p_key)
 	case 0x5b:
 		PauseTimer(0x80, 1);
 		g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1;
-		FUN_100715a2();
+		SaveScreenshot();
 		PauseTimer(0x80, 0);
 		sprintf(text, "GIF saved - MW2000?.GIF");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		break;
 	default:
 		if (g_missionTimerStopped) {
-			FUN_10009f8d(p_key);
+			HandleDebugKey(p_key);
 		}
 		break;
 	}

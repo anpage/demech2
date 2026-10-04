@@ -22,10 +22,10 @@
 #include "refreshmode.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 
@@ -33,52 +33,52 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100ae760
-MechChar g_unk0x100ae760[] = "MW2 Programmer Dorcs Page";
+MechChar g_dorcsPageTitle[] = "MW2 Programmer Dorcs Page";
 
 // GLOBAL: MW2 0x100ae780
-MechChar g_unk0x100ae780[] = "About Dorcs";
+MechChar g_dorcsAboutItem[] = "About Dorcs";
 
 // GLOBAL: MW2 0x100ae790
-MechChar g_unk0x100ae790[] = "John A. Clarke";
+MechChar g_dorcsClarkeName[] = "John A. Clarke";
 
 // GLOBAL: MW2 0x100ae7a0
-MechChar g_unk0x100ae7a0[] = "Michael H. Douglas";
+MechChar g_dorcsDouglasName[] = "Michael H. Douglas";
 
 // GLOBAL: MW2 0x100ae7b8
-MechChar g_unk0x100ae7b8[] = "Scott T. Etherton";
+MechChar g_dorcsEthertonName[] = "Scott T. Etherton";
 
 // GLOBAL: MW2 0x100ae7d0
-MechChar g_unk0x100ae7d0[] = "Sverre H. Huseby";
+MechChar g_dorcsHusebyName[] = "Sverre H. Huseby";
 
 // GLOBAL: MW2 0x100ae7e8
-MechChar g_unk0x100ae7e8[] = "Dan Kamins";
+MechChar g_dorcsKaminsName[] = "Dan Kamins";
 
 // GLOBAL: MW2 0x100ae7f8
-MechChar g_unk0x100ae7f8[] = "John Keating";
+MechChar g_dorcsKeatingName[] = "John Keating";
 
 // GLOBAL: MW2 0x100ae808
-MechChar g_unk0x100ae808[] = "John Miles";
+MechChar g_dorcsMilesName[] = "John Miles";
 
 // GLOBAL: MW2 0x100ae818
-MechChar g_unk0x100ae818[] = "Tim Morten";
+MechChar g_dorcsMortenName[] = "Tim Morten";
 
 // GLOBAL: MW2 0x100ae828
-MechChar g_unk0x100ae828[] = "Bob Mortensen";
+MechChar g_dorcsMortensenName[] = "Bob Mortensen";
 
 // GLOBAL: MW2 0x100ae838
-MechChar g_unk0x100ae838[] = "Eric Peterson";
+MechChar g_dorcsPetersonName[] = "Eric Peterson";
 
 // GLOBAL: MW2 0x100ae848
-MechChar g_unk0x100ae848[] = "Dan Stanfill";
+MechChar g_dorcsStanfillName[] = "Dan Stanfill";
 
 // GLOBAL: MW2 0x100ae858
-MechChar g_unk0x100ae858[] = "David White";
+MechChar g_dorcsWhiteName[] = "David White";
 
 // GLOBAL: MW2 0x100ae868
-MechChar g_unk0x100ae868[] = "Dave Zobel";
+MechChar g_dorcsZobelName[] = "Dave Zobel";
 
 // GLOBAL: MW2 0x100ae878
-MechChar g_unk0x100ae878[] =
+MechChar g_dorcsAboutText[] =
 	"Hi MW2 Fans,\n"
 	"\n"
 	"Welcome to the MW2 Sim Programmer Dorcs Web page.  We hope you'll spend a few minutes here to learn a bit about "
@@ -92,7 +92,7 @@ MechChar g_unk0x100ae878[] =
 	"MW2 Programmers";
 
 // GLOBAL: MW2 0x100aeab8
-MechChar g_unk0x100aeab8[] =
+MechChar g_dorcsClarkeText[] =
 	"Hi MW2 fans,\n"
 	"\n"
 	"I can't believe it finally over.  My tour of duty has been 18 months long.  I am looking forward to spending lots "
@@ -106,7 +106,7 @@ MechChar g_unk0x100aeab8[] =
 	"ATTENTION ALL PROGRAMMERS! ALL CLEAR FOR DORCS CO! GET GIDDI TOO!";
 
 // GLOBAL: MW2 0x100aed58
-MechChar g_unk0x100aed58[] =
+MechChar g_dorcsDouglasText[] =
 	"    If I had known six months ago how crazy working on MWII was going to be, I'm not sure I would have done it. "
 	"But, after countless late nights and thousands of ornery bugs, we've finally got a killer game.\n"
 	"    I'd like to thank John Spinale and Josh Resnick for bringing me on. They've put together the best development "
@@ -120,16 +120,16 @@ MechChar g_unk0x100aed58[] =
 	"P.S. - No, I'm not THAT Michael Douglas.";
 
 // GLOBAL: MW2 0x100aefe0
-MechChar g_unk0x100aefe0[] = "I just love to code.  That's all there is to it.";
+MechChar g_dorcsEthertonText[] = "I just love to code.  That's all there is to it.";
 
 // GLOBAL: MW2 0x100af018
-MechChar g_unk0x100af018[] =
+MechChar g_dorcsHusebyText[] =
 	"We don't know much about this guy except that he lives in Norway and probably has a thick Norwegian accent.  He "
 	"wrote some handy freeware called GifSave and was kind enough to post it on the net.  You can thank him personally "
 	"at sverrehu@ifi.uio.no for the cool high res screen shots.\n";
 
 // GLOBAL: MW2 0x100af138
-MechChar g_unk0x100af138[] =
+MechChar g_dorcsKaminsText[] =
 	"  Thanks to all!\n"
 	"  I'd take better advantage of my DORCSOpportunity (TM) here, except for the fact that I have 34 bugs to fix.\n"
 	"  By the way, I wrote the NetDemo network shell.\n"
@@ -138,7 +138,7 @@ MechChar g_unk0x100af138[] =
 	"dkamins@husc.harvard.edu\n";
 
 // GLOBAL: MW2 0x100af238
-MechChar g_unk0x100af238[] =
+MechChar g_dorcsKeatingText[] =
 	"John drew on his experience defending his turf and scrapping in the gutters as a kid in San Antonio's roughest "
 	"neighborhood, \"Alamo Heights\", to create the battle AI for MechWarrior.  A Mac guy living in a hostile PC "
 	"world, he is naturally short tempered and combative.  For the part of drill instructor John was influenced "
@@ -146,7 +146,7 @@ MechChar g_unk0x100af238[] =
 	"or any reply from those lacking a \"Y\" chromosome at Marshall1@aol.com.";
 
 // GLOBAL: MW2 0x100af438
-MechChar g_unk0x100af438[] =
+MechChar g_dorcsMilesText[] =
 	"This guy wrote all the graphics and sound packages (along with John Lemberger) We could dorcs co his API with "
 	"confidence because we knew we were getting high quality, efficient and reliable code.  Once we converted to the "
 	"world of PANES, high res was easy.  The DLL loader just made us giddi.  We even used it for these menus.\n"
@@ -154,7 +154,7 @@ MechChar g_unk0x100af438[] =
 	"Thanks to to John for all the support.";
 
 // GLOBAL: MW2 0x100af5a8
-MechChar g_unk0x100af5a8[] =
+MechChar g_dorcsMortenText[] =
 	"Tim's Liner Notes\n"
 	"\n"
 	"Is it done?  Can I leave my cube?  Where is everybody?\n"
@@ -167,7 +167,7 @@ MechChar g_unk0x100af5a8[] =
 	"Tim Morten";
 
 // GLOBAL: MW2 0x100af6d8
-MechChar g_unk0x100af6d8[] =
+MechChar g_dorcsMortensenText[] =
 	"I'm so HONORED!  Only three months on the project and I'm an official DORCS.\n"
 	"\n"
 	"Of course I'll have to thank my wife and kids, that is if I can ever remember their names....  Hmmmm, oh yeah.... "
@@ -178,7 +178,7 @@ MechChar g_unk0x100af6d8[] =
 	"BobM";
 
 // GLOBAL: MW2 0x100af858
-MechChar g_unk0x100af858[] =
+MechChar g_dorcsPetersonText[] =
 	"Eric no longer works here but he is really the grand-pappy of the Sim engine.  The original concept was his and "
 	"he single-handedly wrote the first real mode version (including all tools and much of the art).  Without Eric's "
 	"dedication to Warthink, we would'nt have a snowball's chance in heck of completing this game.\n"
@@ -186,7 +186,7 @@ MechChar g_unk0x100af858[] =
 	"By the way, if anyone sees Eric, would they mind asking him what \"booyow\" means?";
 
 // GLOBAL: MW2 0x100af9e8
-MechChar g_unk0x100af9e8[] =
+MechChar g_dorcsStanfillText[] =
 	"We made it!\n"
 	"\n"
 	"I want to thank John Spinale, Josh Resnick, and Howard Marks for putting together such a stellar team for this "
@@ -196,278 +196,278 @@ MechChar g_unk0x100af9e8[] =
 	"months and for tolerating my constant absence while we built the coolest game ever!";
 
 // GLOBAL: MW2 0x100afb30
-MechChar g_unk0x100afb30[] = "I just love to code.  That's all there is to it.";
+MechChar g_dorcsWhiteText[] = "I just love to code.  That's all there is to it.";
 
 // GLOBAL: MW2 0x100afb68
-MechChar g_unk0x100afb68[] = "Dave Zobel was last seen plunging into the darkness beyond the Wall of Testosterone.";
+MechChar g_dorcsZobelText[] = "Dave Zobel was last seen plunging into the darkness beyond the Wall of Testosterone.";
 
 // GLOBAL: MW2 0x100afbc0
-MechChar g_unk0x100afbc0[] = "This is boring!";
+MechChar g_dorcsExitItem[] = "This is boring!";
 
 // GLOBAL: MW2 0x100afbd0
-PANE g_unk0x100afbd0 = {NULL, 0, 0x2666, 0x10000, 0x10000};
+PANE g_dorcsTextRect = {NULL, 0, 0x2666, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100afbe8
-MenuTextBox g_unk0x100afbe8 = {&g_unk0x100afbd0, g_unk0x100ae878};
+MenuTextBox g_dorcsAboutTextBox = {&g_dorcsTextRect, g_dorcsAboutText};
 
 // GLOBAL: MW2 0x100afbf0
-MenuTextBox g_unk0x100afbf0 = {&g_unk0x100afbd0, g_unk0x100aeab8};
+MenuTextBox g_dorcsClarkeTextBox = {&g_dorcsTextRect, g_dorcsClarkeText};
 
 // GLOBAL: MW2 0x100afbf8
-MenuTextBox g_unk0x100afbf8 = {&g_unk0x100afbd0, g_unk0x100aed58};
+MenuTextBox g_dorcsDouglasTextBox = {&g_dorcsTextRect, g_dorcsDouglasText};
 
 // GLOBAL: MW2 0x100afc00
-MenuTextBox g_unk0x100afc00 = {&g_unk0x100afbd0, g_unk0x100aefe0};
+MenuTextBox g_dorcsEthertonTextBox = {&g_dorcsTextRect, g_dorcsEthertonText};
 
 // GLOBAL: MW2 0x100afc08
-MenuTextBox g_unk0x100afc08 = {&g_unk0x100afbd0, g_unk0x100af018};
+MenuTextBox g_dorcsHusebyTextBox = {&g_dorcsTextRect, g_dorcsHusebyText};
 
 // GLOBAL: MW2 0x100afc10
-MenuTextBox g_unk0x100afc10 = {&g_unk0x100afbd0, g_unk0x100af138};
+MenuTextBox g_dorcsKaminsTextBox = {&g_dorcsTextRect, g_dorcsKaminsText};
 
 // GLOBAL: MW2 0x100afc18
-MenuTextBox g_unk0x100afc18 = {&g_unk0x100afbd0, g_unk0x100af238};
+MenuTextBox g_dorcsKeatingTextBox = {&g_dorcsTextRect, g_dorcsKeatingText};
 
 // GLOBAL: MW2 0x100afc20
-MenuTextBox g_unk0x100afc20 = {&g_unk0x100afbd0, g_unk0x100af438};
+MenuTextBox g_dorcsMilesTextBox = {&g_dorcsTextRect, g_dorcsMilesText};
 
 // GLOBAL: MW2 0x100afc28
-MenuTextBox g_unk0x100afc28 = {&g_unk0x100afbd0, g_unk0x100af5a8};
+MenuTextBox g_dorcsMortenTextBox = {&g_dorcsTextRect, g_dorcsMortenText};
 
 // GLOBAL: MW2 0x100afc30
-MenuTextBox g_unk0x100afc30 = {&g_unk0x100afbd0, g_unk0x100af6d8};
+MenuTextBox g_dorcsMortensenTextBox = {&g_dorcsTextRect, g_dorcsMortensenText};
 
 // GLOBAL: MW2 0x100afc38
-MenuTextBox g_unk0x100afc38 = {&g_unk0x100afbd0, g_unk0x100af858};
+MenuTextBox g_dorcsPetersonTextBox = {&g_dorcsTextRect, g_dorcsPetersonText};
 
 // GLOBAL: MW2 0x100afc40
-MenuTextBox g_unk0x100afc40 = {&g_unk0x100afbd0, g_unk0x100af9e8};
+MenuTextBox g_dorcsStanfillTextBox = {&g_dorcsTextRect, g_dorcsStanfillText};
 
 // GLOBAL: MW2 0x100afc48
-MenuTextBox g_unk0x100afc48 = {&g_unk0x100afbd0, g_unk0x100afb30};
+MenuTextBox g_dorcsWhiteTextBox = {&g_dorcsTextRect, g_dorcsWhiteText};
 
 // GLOBAL: MW2 0x100afc50
-MenuTextBox g_unk0x100afc50 = {&g_unk0x100afbd0, g_unk0x100afb68};
+MenuTextBox g_dorcsZobelTextBox = {&g_dorcsTextRect, g_dorcsZobelText};
 
 // GLOBAL: MW2 0x100afc58
-MenuControl g_unk0x100afc58 = {2, 0, &g_unk0x100afbe8, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsAboutControl = {2, 0, &g_dorcsAboutTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afc80
-MenuControl g_unk0x100afc80 = {2, 0, &g_unk0x100afbf0, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsClarkeControl = {2, 0, &g_dorcsClarkeTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afca8
-MenuControl g_unk0x100afca8 = {2, 0, &g_unk0x100afbf8, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsDouglasControl = {2, 0, &g_dorcsDouglasTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afcd0
-MenuControl g_unk0x100afcd0 = {2, 0, &g_unk0x100afc00, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsEthertonControl = {2, 0, &g_dorcsEthertonTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afcf8
-MenuControl g_unk0x100afcf8 = {2, 0, &g_unk0x100afc08, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsHusebyControl = {2, 0, &g_dorcsHusebyTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd20
-MenuControl g_unk0x100afd20 = {2, 0, &g_unk0x100afc10, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsKaminsControl = {2, 0, &g_dorcsKaminsTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd48
-MenuControl g_unk0x100afd48 = {2, 0, &g_unk0x100afc18, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsKeatingControl = {2, 0, &g_dorcsKeatingTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd70
-MenuControl g_unk0x100afd70 = {2, 0, &g_unk0x100afc20, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsMilesControl = {2, 0, &g_dorcsMilesTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afd98
-MenuControl g_unk0x100afd98 = {2, 0, &g_unk0x100afc28, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsMortenControl = {2, 0, &g_dorcsMortenTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afdc0
-MenuControl g_unk0x100afdc0 = {2, 0, &g_unk0x100afc30, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsMortensenControl = {2, 0, &g_dorcsMortensenTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afde8
-MenuControl g_unk0x100afde8 = {2, 0, &g_unk0x100afc38, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsPetersonControl = {2, 0, &g_dorcsPetersonTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe10
-MenuControl g_unk0x100afe10 = {2, 0, &g_unk0x100afc40, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsStanfillControl = {2, 0, &g_dorcsStanfillTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe38
-MenuControl g_unk0x100afe38 = {2, 0, &g_unk0x100afc48, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsWhiteControl = {2, 0, &g_dorcsWhiteTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe60
-MenuControl g_unk0x100afe60 = {2, 0, &g_unk0x100afc50, 0, NULL, NULL, NULL, NULL, NULL};
+MenuControl g_dorcsZobelControl = {2, 0, &g_dorcsZobelTextBox, 0, NULL, NULL, NULL, NULL, NULL};
 
 // GLOBAL: MW2 0x100afe88
-MenuPage g_unk0x100afe88 = {
+MenuPage g_dorcsAboutPage = {
 	0,
-	g_unk0x100ae780,
+	g_dorcsAboutItem,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afc58, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsAboutControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100affe0
-MenuPage g_unk0x100affe0 = {
+MenuPage g_dorcsClarkePage = {
 	0,
-	g_unk0x100ae790,
+	g_dorcsClarkeName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afc80, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsClarkeControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0138
-MenuPage g_unk0x100b0138 = {
+MenuPage g_dorcsDouglasPage = {
 	0,
-	g_unk0x100ae7a0,
+	g_dorcsDouglasName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afca8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsDouglasControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0290
-MenuPage g_unk0x100b0290 = {
+MenuPage g_dorcsEthertonPage = {
 	0,
-	g_unk0x100ae7b8,
+	g_dorcsEthertonName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afcd0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsEthertonControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b03e8
-MenuPage g_unk0x100b03e8 = {
+MenuPage g_dorcsHusebyPage = {
 	0,
-	g_unk0x100ae7d0,
+	g_dorcsHusebyName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afcf8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsHusebyControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0540
-MenuPage g_unk0x100b0540 = {
+MenuPage g_dorcsKaminsPage = {
 	0,
-	g_unk0x100ae7e8,
+	g_dorcsKaminsName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd20, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsKaminsControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0698
-MenuPage g_unk0x100b0698 = {
+MenuPage g_dorcsKeatingPage = {
 	0,
-	g_unk0x100ae7f8,
+	g_dorcsKeatingName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd48, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsKeatingControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b07f0
-MenuPage g_unk0x100b07f0 = {
+MenuPage g_dorcsMilesPage = {
 	0,
-	g_unk0x100ae808,
+	g_dorcsMilesName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd70, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsMilesControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0948
-MenuPage g_unk0x100b0948 = {
+MenuPage g_dorcsMortenPage = {
 	0,
-	g_unk0x100ae818,
+	g_dorcsMortenName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afd98, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsMortenControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0aa0
-MenuPage g_unk0x100b0aa0 = {
+MenuPage g_dorcsMortensenPage = {
 	0,
-	g_unk0x100ae828,
+	g_dorcsMortensenName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afdc0, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsMortensenControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0bf8
-MenuPage g_unk0x100b0bf8 = {
+MenuPage g_dorcsPetersonPage = {
 	0,
-	g_unk0x100ae838,
+	g_dorcsPetersonName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afde8, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsPetersonControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0d50
-MenuPage g_unk0x100b0d50 = {
+MenuPage g_dorcsStanfillPage = {
 	0,
-	g_unk0x100ae848,
+	g_dorcsStanfillName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afe10, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsStanfillControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b0ea8
-MenuPage g_unk0x100b0ea8 = {
+MenuPage g_dorcsWhitePage = {
 	0,
-	g_unk0x100ae858,
+	g_dorcsWhiteName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afe38, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsWhiteControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b1000
-MenuPage g_unk0x100b1000 = {
+MenuPage g_dorcsZobelPage = {
 	0,
-	g_unk0x100ae868,
+	g_dorcsZobelName,
 	0,
 	2,
 	0,
 	NULL,
-	{{3, NULL, FUN_100734ad, &g_unk0x100afe60, NULL}, {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{3, NULL, RunMenuTextBox, &g_dorcsZobelControl, NULL}, {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b1158
 MenuPage g_dorcsPage = {
 	0,
-	g_unk0x100ae760,
+	g_dorcsPageTitle,
 	0,
 	15,
 	0,
 	NULL,
-	{{0, g_unk0x100ae780, NULL, NULL, &g_unk0x100afe88},
-	 {0, g_unk0x100ae790, NULL, NULL, &g_unk0x100affe0},
-	 {0, g_unk0x100ae7a0, NULL, NULL, &g_unk0x100b0138},
-	 {0, g_unk0x100ae7b8, NULL, NULL, &g_unk0x100b0290},
-	 {0, g_unk0x100ae7d0, NULL, NULL, &g_unk0x100b03e8},
-	 {0, g_unk0x100ae7e8, NULL, NULL, &g_unk0x100b0540},
-	 {0, g_unk0x100ae7f8, NULL, NULL, &g_unk0x100b0698},
-	 {0, g_unk0x100ae808, NULL, NULL, &g_unk0x100b07f0},
-	 {0, g_unk0x100ae818, NULL, NULL, &g_unk0x100b0948},
-	 {0, g_unk0x100ae828, NULL, NULL, &g_unk0x100b0aa0},
-	 {0, g_unk0x100ae838, NULL, NULL, &g_unk0x100b0bf8},
-	 {0, g_unk0x100ae848, NULL, NULL, &g_unk0x100b0d50},
-	 {0, g_unk0x100ae858, NULL, NULL, &g_unk0x100b0ea8},
-	 {0, g_unk0x100ae868, NULL, NULL, &g_unk0x100b1000},
-	 {2, g_unk0x100afbc0, NULL, NULL, NULL}}
+	{{0, g_dorcsAboutItem, NULL, NULL, &g_dorcsAboutPage},
+	 {0, g_dorcsClarkeName, NULL, NULL, &g_dorcsClarkePage},
+	 {0, g_dorcsDouglasName, NULL, NULL, &g_dorcsDouglasPage},
+	 {0, g_dorcsEthertonName, NULL, NULL, &g_dorcsEthertonPage},
+	 {0, g_dorcsHusebyName, NULL, NULL, &g_dorcsHusebyPage},
+	 {0, g_dorcsKaminsName, NULL, NULL, &g_dorcsKaminsPage},
+	 {0, g_dorcsKeatingName, NULL, NULL, &g_dorcsKeatingPage},
+	 {0, g_dorcsMilesName, NULL, NULL, &g_dorcsMilesPage},
+	 {0, g_dorcsMortenName, NULL, NULL, &g_dorcsMortenPage},
+	 {0, g_dorcsMortensenName, NULL, NULL, &g_dorcsMortensenPage},
+	 {0, g_dorcsPetersonName, NULL, NULL, &g_dorcsPetersonPage},
+	 {0, g_dorcsStanfillName, NULL, NULL, &g_dorcsStanfillPage},
+	 {0, g_dorcsWhiteName, NULL, NULL, &g_dorcsWhitePage},
+	 {0, g_dorcsZobelName, NULL, NULL, &g_dorcsZobelPage},
+	 {2, g_dorcsExitItem, NULL, NULL, NULL}}
 };
 
 // GLOBAL: MW2 0x100b12b0
@@ -503,11 +503,11 @@ MenuDefinition g_dorcsMenu = {
 };
 
 // GLOBAL: MW2 0x100b1350
-MechS32 g_unk0x100b1350 = 0;
+MechS32 g_fledToWindows = 0;
 
 // The frame draw callback ShowDorcs replaces.
 // GLOBAL: MW2 0x100b1354
-void (*g_dorcsPreviousDrawCallback)(void) = FUN_10012afe;
+void (*g_dorcsPreviousDrawCallback)(void) = DrawScene;
 
 // GLOBAL: MW2 0x100c2d00
 MenuPage* g_dorcsMenuPageStack[8];
@@ -557,7 +557,7 @@ MechS32 g_dorcsReverse = 1;
 // A menu item's action: ejects the local player (game key 0x3b) without its sound.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073af0
-void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 saved;
 	MechS32 digit;
@@ -571,10 +571,10 @@ void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	selected = p_page->m_selected == p_index;
 	if ((selected && g_menuKey == '\r') || digit) {
 		g_difficulty->m_invulnerable = 0;
-		saved = g_unk0x100ba624;
-		g_unk0x100ba624 = 0;
-		FUN_1005c78a(0x3b);
-		g_unk0x100ba624 = saved;
+		saved = g_hostileAtmosphere;
+		g_hostileAtmosphere = 0;
+		RunGameKey(0x3b);
+		g_hostileAtmosphere = saved;
 		FreeMenus();
 	}
 }
@@ -582,7 +582,7 @@ void FUN_10073af0(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 // A menu item's action: ejects the local player's mech.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073ba6
-void FUN_10073ba6(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void FleeToWindowsAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 digit;
 	MechS32 selected;
@@ -595,7 +595,7 @@ void FUN_10073ba6(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 	digit = g_menuKey - '1' == p_index;
 	selected = p_page->m_selected == p_index;
 	if ((selected && g_menuKey == '\r') || digit) {
-		g_unk0x100b1350 = 1;
+		g_fledToWindows = 1;
 		g_difficulty->m_invulnerable = 0;
 		player = g_players[g_localPlayerId];
 		EjectPlayer(player->m_mech, 0);
@@ -616,7 +616,7 @@ void* ReadVfxBin(MechChar* p_name)
 }
 
 // FUNCTION: MW2 0x10073cb5
-void FUN_10073cb5(void)
+void CloseInGameMenus(void)
 {
 	RequestMenuClose(6);
 	RequestMenuClose(2);
@@ -637,7 +637,7 @@ PANE g_dorcsSavedTarget;
 PANE g_dorcsGifTarget;
 
 // GLOBAL: MW2 0x100c2cec
-PaletteColor g_unk0x100c2cec;
+PaletteColor g_dorcsBlack;
 
 // The dorcs sequence's frame draw callback: steps the sequence (g_dorcsState) each frame.
 // FUNCTION: MW2 0x10073cfc
@@ -687,9 +687,9 @@ void UpdateDorcs(void)
 		StartRectTransition(&g_dorcsTransition);
 		g_dorcsState = 2;
 	case 2:
-		g_unk0x100a5a24 = g_unk0x100a5f18;
-		g_unk0x100a5f18 = 0;
-		FUN_10073cb5();
+		g_savedShowHud = g_showHud;
+		g_showHud = 0;
+		CloseInGameMenus();
 		rect = UpdateRectTransition(g_dorcsReverse, &g_dorcsTransition);
 		if (rect) {
 			saved = g_panes[g_paneIndex];
@@ -701,7 +701,7 @@ void UpdateDorcs(void)
 				g_dorcsPreviousDrawCallback();
 			}
 
-			g_unk0x10176ebc = 1;
+			g_stretchPending = 1;
 			g_panes[g_paneIndex] = saved;
 			break;
 		}
@@ -717,8 +717,8 @@ void UpdateDorcs(void)
 			g_dorcsState = 3;
 		}
 	case 3:
-		g_unk0x100a5f18 = 0;
-		FUN_10073cb5();
+		g_showHud = 0;
+		CloseInGameMenus();
 		rect = UpdateRectTransitionByAxis(1, &g_dorcsTransition);
 		if (rect) {
 			saved = g_panes[g_paneIndex];
@@ -731,7 +731,7 @@ void UpdateDorcs(void)
 				g_dorcsPreviousDrawCallback();
 			}
 
-			FUN_100570e9(&g_currentPane, 10);
+			OutlinePane(&g_currentPane, 10);
 			g_panes[g_paneIndex] = saved;
 			g_currentPane = g_dorcsSavedTarget;
 			break;
@@ -743,8 +743,8 @@ void UpdateDorcs(void)
 			g_dorcsState = 4;
 		}
 	case 4:
-		g_unk0x100a5f18 = 0;
-		FUN_10073cb5();
+		g_showHud = 0;
+		CloseInGameMenus();
 		g_dorcsGifTarget = g_currentPane;
 		g_dorcsGifState = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x502e);
 		if (g_dorcsGifState) {
@@ -754,7 +754,7 @@ void UpdateDorcs(void)
 				g_currentDisplayBackend->m_setPalette(0, 0x100, g_dorcsPalette, 1);
 				g_dorcsGif = ReadVfxBin("vfxjk");
 				if (g_dorcsGif) {
-					FUN_1005705e(&g_dorcsGifTarget, &g_dorcsGifTarget, g_dorcsGif);
+					FitRectToGif(&g_dorcsGifTarget, &g_dorcsGifTarget, g_dorcsGif);
 					VFX_pane_wipe(&g_currentPane, 0);
 					VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
 					if (g_windowActive) {
@@ -772,8 +772,8 @@ void UpdateDorcs(void)
 		g_dorcsState = 5;
 		break;
 	case 5:
-		g_unk0x100a5f18 = 0;
-		FUN_10073cb5();
+		g_showHud = 0;
+		CloseInGameMenus();
 		if (g_currentClock < g_dorcsTime) {
 			if (g_dorcsGifLoaded) {
 				VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
@@ -790,7 +790,7 @@ void UpdateDorcs(void)
 			g_dorcsGif = ReadVfxBin("vfxhd");
 			if (g_dorcsGif && g_dorcsGifLoaded) {
 				for (i = 0; i < 0x100; i++) {
-					g_dorcsPalette[i] = g_unk0x100c2cec;
+					g_dorcsPalette[i] = g_dorcsBlack;
 				}
 
 				g_currentDisplayBackend->m_blendPalettes(g_dorcsPalette, 0x5a);
@@ -812,8 +812,8 @@ void UpdateDorcs(void)
 		}
 		break;
 	case 6:
-		g_unk0x100a5f18 = 0;
-		FUN_10073cb5();
+		g_showHud = 0;
+		CloseInGameMenus();
 		if (g_currentClock < g_dorcsTime) {
 			if (g_dorcsGifLoaded) {
 				VFX_GIF_draw(&g_dorcsGifTarget, g_dorcsGif, g_dorcsGifState);
@@ -840,8 +840,8 @@ void UpdateDorcs(void)
 		}
 		break;
 	case -1:
-		g_unk0x100a5f18 = 0;
-		FUN_10073cb5();
+		g_showHud = 0;
+		CloseInGameMenus();
 		if (g_currentClock < g_dorcsTime) {
 			VFX_pane_wipe(&g_currentPane, 0);
 			if (g_dorcsGifLoaded) {
@@ -871,8 +871,8 @@ void UpdateDorcs(void)
 
 			g_dorcsGifState = NULL;
 			g_renderSettings.m_frameDrawCallback = g_dorcsPreviousDrawCallback;
-			g_unk0x100a5a24 = 1;
-			g_unk0x10176ebc = 1;
+			g_savedShowHud = 1;
+			g_stretchPending = 1;
 			g_dorcsState = 0;
 		}
 		break;

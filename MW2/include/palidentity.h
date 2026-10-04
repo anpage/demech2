@@ -7,7 +7,7 @@ extern "C"
 {
 #endif
 
-	void FUN_10065f10(void);
+	void ResetTextColors(void);
 
 #ifdef __cplusplus
 }

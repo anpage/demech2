@@ -2,7 +2,7 @@
 #define ANIM2D_H
 
 #include "decomp.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // SIZE 0x08
@@ -34,7 +34,7 @@ typedef struct Anim2d {
 	MechS32 m_frameTime;  // 0x08 — clock ticks per frame
 	MechS32 m_startTime;  // 0x0c — 0: not started
 	MechU32 m_flags;      // 0x10
-	MechS32 m_resourceId; // 0x14 — a SHP resource, relative to g_unk0x100e9614
+	MechS32 m_resourceId; // 0x14 — a SHP resource, relative to g_artResolution
 	void* m_shape;        // 0x18 — loaded on first draw
 } Anim2d;
 

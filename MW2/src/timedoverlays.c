@@ -7,9 +7,9 @@
 #include "mw2prj.h"
 #include "point.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
+#include "targeting.h"
 #include "timedoverlay.h"
 #include "types.h"
 
@@ -18,27 +18,27 @@
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
-PANE g_unk0x100adee0 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+PANE g_topMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
 undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
-PANE g_unk0x100adef8 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
 undefined4 g_unk0x100adf0c = 0;
 
 // GLOBAL: MW2 0x100c3360
-static MechChar g_unk0x100c3360[0x100];
+static MechChar g_bottomMessageText[0x100];
 
 // GLOBAL: MW2 0x100c3460
-static MechChar g_unk0x100c3460[0x100];
+static MechChar g_topMessageText[0x100];
 
 // GLOBAL: MW2 0x100adf10
 TimedOverlay g_timedOverlays[2] = {
-	{g_unk0x100c3460, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_unk0x100adee0},
-	{g_unk0x100c3360, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_unk0x100adef8}
+	{g_topMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_topMessagePane},
+	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_bottomMessagePane}
 };
 
 // Lays out the message boxes: scales their rectangles to the screen and to their background
@@ -46,7 +46,7 @@ TimedOverlay g_timedOverlays[2] = {
 // text vertically.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006ee60
-void FUN_1006ee60(void)
+void LayoutMessageBoxes(void)
 {
 	MechS32 fontHeight;
 	MechS32 sign;
@@ -63,10 +63,14 @@ void FUN_1006ee60(void)
 		overlay = &g_timedOverlays[i];
 		target = overlay->m_target;
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-		shape =
-			FUN_1001a19f(g_mw2PrjHandle, overlay->m_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(
+			g_mw2PrjHandle,
+			overlay->m_background + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 		if (shape != NULL) {
-			FUN_10056fcf(target, target, shape, 0);
+			FitRectToShape(target, target, shape, 0);
 		}
 
 		if (i == 0) {
@@ -82,9 +86,10 @@ void FUN_1006ee60(void)
 		target->m_y0 += dy;
 		target->m_x1 += dx;
 		target->m_y1 += dy;
-		FUN_10056bc1(target, &overlay->m_textPos, &overlay->m_textPos);
+		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+		font =
+			LoadCachedResource(g_mw2PrjHandle, overlay->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 		if (font != NULL) {
 			height = target->m_y1 - target->m_y0 + 1;
 			fontHeight = VFX_font_height(font);
@@ -144,7 +149,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 		overlay->m_text[0xff] = '\0';
 		overlay->m_active = 1;
 		overlay->m_priority = p_priority;
-		overlay->m_expireTime = p_duration + FUN_1007d05d();
+		overlay->m_expireTime = p_duration + GetGameClock();
 		if (p_font < 1) {
 			overlay->m_font = 1;
 		}
@@ -168,17 +173,17 @@ void DrawTimedOverlays(void)
 	for (i = 0; i < 2; i++) {
 		overlay = &g_timedOverlays[i];
 		if (overlay->m_active) {
-			if (FUN_1007d05d() < overlay->m_expireTime) {
-				font = FUN_1001a19f(
+			if (GetGameClock() < overlay->m_expireTime) {
+				font = LoadCachedResource(
 					g_mw2PrjHandle,
-					overlay->m_font + g_unk0x100e9614,
+					overlay->m_font + g_artResolution,
 					g_resourceTypeTags[c_resTagFont],
 					0
 				);
 				if (font != NULL) {
-					background = FUN_1001a19f(
+					background = LoadCachedResource(
 						g_mw2PrjHandle,
-						overlay->m_background + g_unk0x100e9614,
+						overlay->m_background + g_artResolution,
 						g_resourceTypeTags[c_resTagShp],
 						0
 					);
@@ -190,7 +195,7 @@ void DrawTimedOverlays(void)
 							overlay->m_textPos.m_y,
 							font,
 							overlay->m_text,
-							g_unk0x100e9350
+							g_textColors
 						);
 					}
 				}
@@ -206,7 +211,7 @@ void DrawTimedOverlays(void)
 // at p_x, p_y or centered on the screen along an axis where that is negative.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f28f
-void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
+void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
 	PANE centered;
 	void* background;
@@ -219,13 +224,14 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 	}
 
 	if (p_background != -1) {
-		background = FUN_1001a19f(g_mw2PrjHandle, p_background + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		background =
+			LoadCachedResource(g_mw2PrjHandle, p_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
-		FUN_100575b9(p_text, font, &rect);
+		FitRectToText(p_text, font, &rect);
 		if (p_x >= 0) {
 			rect.m_x0 += p_x;
 			rect.m_x1 += p_x;
@@ -249,22 +255,22 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 		}
 
 		if (background != NULL) {
-			FUN_10057896(&rect, background, 0);
+			TilePane(&rect, background, 0);
 		}
 
-		FUN_10057396(&rect, p_text, font);
+		DrawWrappedText(&rect, p_text, font);
 	}
 }
 
-// Draws a TEXT resource, stored with each character negated (mod 256), as FUN_1006f28f does.
+// Draws a TEXT resource, stored with each character negated (mod 256), as DrawTextBox does.
 // FUNCTION: MW2 0x1006f3ea
-void FUN_1006f3ea(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
+void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
 {
 	MechChar* text;
 	MechChar* c;
 	MechS32 ch;
 
-	text = FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagText], 0);
+	text = LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagText], 0);
 	if (text != NULL) {
 		c = text;
 		while (*c != '\0') {
@@ -274,6 +280,6 @@ void FUN_1006f3ea(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_
 			c++;
 		}
 
-		FUN_1006f28f(p_background, p_font, text, p_x, p_y);
+		DrawTextBox(p_background, p_font, text, p_x, p_y);
 	}
 }

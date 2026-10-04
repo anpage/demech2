@@ -37,17 +37,17 @@ typedef MechS32 (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 // SIZE 0x1aa
 struct Player {
-	MechS32 m_type;                           // 0x00 — c_playerType…
-	MechS32 m_index;                          // 0x04
-	MechS32 m_team;                           // 0x08
-	MechS32 m_slot;                           // 0x0c — the player's place in its team's formation
-	MechS32 m_aiMode;                         // 0x10 — the gpspec's ai: 0 the user, 2 the AI drives it
-	MechS16 m_flags;                          // 0x14
-	MechS16 m_inspectedBy;                    // 0x16 — a bit per team that inspected it (m_inspectTarget)
-	MechS32 m_baseLevel;                      // 0x18 — the world stream's repeat pass it was made in (FUN_1001ce90)
-	MechS32 m_detailLevel;                    // 0x1c — the level of detail whose shapes are loaded, or -1
-	Mech* m_mech;                             // 0x20
-	undefined4 m_mechSize;                    // 0x24 — sizeof(Mech) for the types that have one
+	MechS32 m_type;        // 0x00 — c_playerType…
+	MechS32 m_index;       // 0x04
+	MechS32 m_team;        // 0x08
+	MechS32 m_slot;        // 0x0c — the player's place in its team's formation
+	MechS32 m_aiMode;      // 0x10 — the gpspec's ai: 0 the user, 2 the AI drives it
+	MechS16 m_flags;       // 0x14
+	MechS16 m_inspectedBy; // 0x16 — a bit per team that inspected it (m_inspectTarget)
+	MechS32 m_baseLevel;   // 0x18 — the world stream's repeat pass it was made in (LoadBaseLevelShapes)
+	MechS32 m_detailLevel; // 0x1c — the level of detail whose shapes are loaded, or -1
+	Mech* m_mech;          // 0x20
+	undefined4 m_mechSize; // 0x24 — sizeof(Mech) for the types that have one
 	void (*m_firstClassFn)(Player* p_player); // 0x28
 	PlayerMechFn m_updateFn;                  // 0x2c
 	PlayerMechFn m_lateUpdateFn;              // 0x30
@@ -78,7 +78,7 @@ struct Player {
 	MechS32 m_animRate;                 // 0x94
 	Ramp m_aimRange;                    // 0x98 — eases towards m_aimDistance's
 	Ramp m_aimDistance;                 // 0xa8 — the distance the weapons converge at
-	MechS32 m_headingCos;               // 0xb8 — 16.16 (FUN_1006831a)
+	MechS32 m_headingCos;               // 0xb8 — 16.16 (UpdateDoor)
 	MechS32 m_headingSin;               // 0xbc — 16.16
 	PlayerTargetInfo m_targetInfo;      // 0xc0
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
@@ -147,9 +147,9 @@ extern "C"
 	void ShutdownAllPlayers(void);
 	void ZeroGameThing(MechS32 p_index);
 	void ZeroGamethings(void);
-	void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn);
-	MechS32 FUN_1006d340(MechS32 p_player);
-	void FUN_1006d3a4(Player* p_player);
+	void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn);
+	MechS32 AllocPlayer(MechS32 p_player);
+	void InitPlayer(Player* p_player);
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// The header of a shape record ("WTBO") that FUN_1007f2d5 reads: m_vertexCount WtbVertex
+// The header of a shape record ("WTBO") that LoadShapeRecord reads: m_vertexCount WtbVertex
 // entries and m_faceCount WtbFace entries follow it.
 // SIZE 0x20
 typedef struct WtbHeader {

@@ -46,12 +46,12 @@ typedef struct Mech {
 	MechS32 m_jumpJets;               // 0xc4 — the .MEK's jump jets: each critical hit takes one
 	MechS32 m_ammoBinCount;           // 0xc8
 	MechS32 m_height;                 // 0xcc — of its object's origin above its feet (the MGD's)
-	MechS32 m_cockpitHeight;          // 0xd0 — added to the eyepoint (g_unk0x100a2434)
+	MechS32 m_cockpitHeight;          // 0xd0 — added to the eyepoint (g_eyeHeightOffset)
 	MechS32 m_unk0xd4;                // 0xd4 — the MGD's third to fifth values: nothing reads them
 	MechS32 m_unk0xd8;                // 0xd8
 	MechS32 m_unk0xdc;                // 0xdc
 	MechS32 m_maxTorsoTwist;          // 0xe0 — 16.16 degrees either way
-	MechS32 m_tons;                   // 0xe4 — FUN_1007669e scales collision damage by it
+	MechS32 m_tons;                   // 0xe4 — ApplyCollisionDamage scales collision damage by it
 	MechS32 m_radius;                 // 0xe8 — splash damage reaches it this much further
 	MechS32 m_jumpThrust;             // 0xec — the jump jets' upward acceleration
 	MechS32 m_unk0xf0;                // 0xf0 — only ever cleared

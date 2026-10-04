@@ -13,42 +13,45 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a5288
-MechChar g_unk0x100a5288[] = "Audio Ctrl";
+MechChar g_audioItem[] = "Audio Ctrl";
 
 // GLOBAL: MW2 0x100a5298
-MechChar g_unk0x100a5298[] = "SET AUDIO VOLUME";
+MechChar g_audioTitle[] = "SET AUDIO VOLUME";
 
 // GLOBAL: MW2 0x100a52b0
-MechChar g_unk0x100a52b0[] = "Betty Message";
+MechChar g_bettyMessageItem[] = "Betty Message";
 
 // GLOBAL: MW2 0x100a52c0
-MechChar g_unk0x100a52c0[] = "Sound Effects";
+MechChar g_soundEffectsItem[] = "Sound Effects";
 
 // GLOBAL: MW2 0x100a52d0
-MechChar g_unk0x100a52d0[] = "Voice";
+MechChar g_voiceItem[] = "Voice";
 
 // GLOBAL: MW2 0x100a52d8
-MechChar g_unk0x100a52d8[] = "Music";
+MechChar g_musicItem[] = "Music";
 
 // GLOBAL: MW2 0x100a52e0
-MenuControl g_unk0x100a52e0 = {2, 0, g_unk0x100a1cc0, 0, NULL, FUN_10006760, FUN_10006845, FUN_100069c9, FUN_10006b3a};
+MenuControl g_soundEffectsControl =
+	{2, 0, g_sliderShapes, 0, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5308
-MenuControl g_unk0x100a5308 = {2, 0, g_unk0x100a1cc0, 1, NULL, FUN_10006760, FUN_10006845, FUN_100069c9, FUN_10006b3a};
+MenuControl g_voiceControl =
+	{2, 0, g_sliderShapes, 1, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5330
-MenuControl g_unk0x100a5330 = {2, 0, g_unk0x100a1cc0, 2, NULL, FUN_10006760, FUN_10006845, FUN_100069c9, FUN_10006b3a};
+MenuControl g_musicControl =
+	{2, 0, g_sliderShapes, 2, NULL, GetSoundSetting, PreviewSoundSetting, SetSoundSetting, RestoreSoundSetting};
 
 // GLOBAL: MW2 0x100a5358
 MenuPage g_audioPage = {
 	0,
-	g_unk0x100a5298,
+	g_audioTitle,
 	0,
 	4,
 	0,
 	NULL,
-	{{1, g_unk0x100a52d8, RunMenuSlider, &g_unk0x100a5330, NULL},
-	 {1, g_unk0x100a52c0, RunMenuSlider, &g_unk0x100a52e0, NULL},
-	 {1, g_unk0x100a52d0, RunMenuSlider, &g_unk0x100a5308, NULL},
-	 {2, g_unk0x100a1ad8, NULL, NULL, NULL}}
+	{{1, g_musicItem, RunMenuSlider, &g_musicControl, NULL},
+	 {1, g_soundEffectsItem, RunMenuSlider, &g_soundEffectsControl, NULL},
+	 {1, g_voiceItem, RunMenuSlider, &g_voiceControl, NULL},
+	 {2, g_acceptText, NULL, NULL, NULL}}
 };

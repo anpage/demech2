@@ -133,7 +133,7 @@ void FUN_10007c5a(MechChar* p_mechFile, MechChar* p_text, MechS32 p_textSize)
 				text,
 				"\t%d T (%d)\r\n",
 				ammoCount,
-				g_weaponDefs[weapons[i].m_type / 100].m_volley * g_weaponDefs[weapons[i].m_type / 100].m_unk0x20 *
+				g_weaponDefs[weapons[i].m_type / 100].m_volley * g_weaponDefs[weapons[i].m_type / 100].m_volleysPerBin *
 					ammoCount
 			);
 			strcat(line, text);

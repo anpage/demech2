@@ -15,7 +15,7 @@ extern "C"
 {
 #endif
 
-	extern MechU16 g_unk0x100aa730[30];
+	extern MechU16 g_weaponValues[30];
 
 	MechS32 LoadMechConfig(struct Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config);
 	MechU16 GetMechValue(struct MekHeader* p_header, struct MechSection* p_sections, struct MekWeapon* p_weapons);

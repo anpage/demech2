@@ -346,7 +346,7 @@ extern "C" MechS32 __stdcall Launcher(NetLaunchInfo* p_info)
 		}
 
 		options = g_unk0x1001ca90.m_settings.m_options;
-		FUN_1000f52c(
+		WriteNetDifficultyCfg(
 			options.m_bits,
 			g_unk0x1001ca90.m_settings.m_unk0x4a,
 			g_unk0x1001ca90.m_settings.m_unk0x4b,

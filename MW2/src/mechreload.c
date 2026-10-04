@@ -1,5 +1,5 @@
 /* Reloading a player's mech: RememberLoadMech and RememberMechSegments save how it was
-   loaded and its scene objects, and FUN_1007fbe0 restores both. */
+   loaded and its scene objects, and ReloadPlayerMech restores both. */
 #include "mechreload.h"
 
 #include "classtable.h"
@@ -22,7 +22,7 @@
 #include <string.h>
 #include <windows.h>
 
-// The player whose mech FUN_1007fbe0 is reloading, or -1.
+// The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
 MechS32 g_reloadingPlayer = -1;
 
@@ -38,7 +38,7 @@ MechSegment* g_mechSegments[60] = {NULL};
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
 // flag 2 set.
 // FUNCTION: MW2 0x1007fbe0
-MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
+MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
 {
 	Mech* mech;
 	MechS16 flags;
@@ -77,15 +77,15 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	mech->m_player->m_steering->m_autopilot = 0;
 
 	g_reloadingPlayer = p_player;
-	FUN_10019881(mech);
+	InitMechArrays(mech);
 	LoadMechConfig(
 		mech,
 		g_rememberedMechs[p_player].m_name,
-		g_rememberedMechs[p_player].m_unk0x00,
-		g_rememberedMechs[p_player].m_unk0x0d
+		g_rememberedMechs[p_player].m_id,
+		g_rememberedMechs[p_player].m_config
 	);
 	mech->m_player->m_obj = RestoreMechSegments(g_mechSegments[p_player]);
-	FUN_10001926(mech->m_player->m_obj);
+	ShowObjTree(mech->m_player->m_obj);
 	UpdateObj(mech->m_player->m_obj);
 	mech->m_player->m_detailLevel = -1;
 	mech->m_player->m_targetInfo.m_target = 0x1000;
@@ -96,18 +96,18 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	g_players[p_player]->m_flags = flags;
 
 	if (g_isNetworkGame) {
-		FUN_1001cc5c(p_player);
+		RestartStarMission(p_player);
 	}
 
 	// gpanim.c's Mech is the player
-	FUN_10003a10(mech->m_player);
-	FUN_10016ad0(mech->m_player);
+	ResetMotion(mech->m_player);
+	FirstMech(mech->m_player);
 
 	if (g_localPlayerId == p_player) {
-		FUN_1006ff7b();
-		g_unk0x100a2c04 = 0;
-		g_unk0x100a2c18 = 0;
-		g_unk0x100a2c10 = 0;
+		ResetCockpitPanels();
+		g_localMechLost = 0;
+		g_localMechDestroyed = 0;
+		g_mechPoweredUp = 0;
 	}
 
 	g_reloadingPlayer = -1;
@@ -115,7 +115,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 }
 
 // FUNCTION: MW2 0x1007fecf
-void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechChar* p_unk0x0c)
+void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechS32 id;
 
@@ -129,9 +129,9 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechCha
 		return;
 	}
 
-	g_rememberedMechs[id].m_unk0x00 = p_unk0x08;
+	g_rememberedMechs[id].m_id = p_id;
 	strcpy(g_rememberedMechs[id].m_name, p_name);
-	strcpy(g_rememberedMechs[id].m_unk0x0d, p_unk0x0c);
+	strcpy(g_rememberedMechs[id].m_config, p_config);
 }
 
 // FUNCTION: MW2 0x1007ff9c
@@ -166,8 +166,8 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 
 	obj = p_segment->m_obj;
 	if (obj) {
-		FUN_10004dcb(obj, FUN_1001ddf2);
-		FUN_1001de84(obj);
+		RemoveChunk(obj, ReleaseObjShape);
+		ForgetObjShape(obj);
 		SetObjPosition(obj, p_segment->m_position[0], p_segment->m_position[1], p_segment->m_position[2]);
 		SetObjRotation(obj, p_segment->m_rotation[0], p_segment->m_rotation[1], p_segment->m_rotation[2], 0);
 		obj->m_firstChild = RestoreMechSegments(p_segment->m_firstChild);
@@ -197,8 +197,8 @@ MechSegment* SaveMechSegments(SceneObject* p_obj)
 	segment->m_parent = p_obj->m_parent;
 	segment->m_firstChild = SaveMechSegments(p_obj->m_firstChild);
 	segment->m_nextSibling = SaveMechSegments(p_obj->m_nextSibling);
-	FUN_1000160e(p_obj, &segment->m_position[0], &segment->m_position[1], &segment->m_position[2]);
-	FUN_100015bc(p_obj, &segment->m_rotation[0], &segment->m_rotation[1], &segment->m_rotation[2]);
+	GetObjLocalPosition(p_obj, &segment->m_position[0], &segment->m_position[1], &segment->m_position[2]);
+	GetObjAngles(p_obj, &segment->m_rotation[0], &segment->m_rotation[1], &segment->m_rotation[2]);
 
 	return segment;
 }

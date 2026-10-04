@@ -29,11 +29,12 @@
 #include "types.h"
 #include "view.h"
 
+// The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
-void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
+void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan)
 {
-	if (p_unk0x04 > 0) {
-		FUN_1007eb64(0, 0, p_unk0x04, 0x32, p_unk0x08, 0x32);
+	if (p_sound > 0) {
+		PlayDelayedSound(0, 0, p_sound, 0x32, p_pan, 0x32);
 	}
 }
 
@@ -42,7 +43,7 @@ void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
 // and the pending palette.
 // Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
-void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
+void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
 	MechS32 fovX;
 	MechS32 palette;
@@ -50,47 +51,47 @@ void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct Scen
 
 	fovX = g_eyepoint->m_fovX;
 	palette = g_palettePending;
-	FUN_100114ea(g_eyepoint, view);
+	SaveView(g_eyepoint, view);
 	SelectPane(p_target);
 	g_eyepoint->m_fovX = p_fovX;
 	p_view[6] = 1;
-	FUN_1001156a(g_eyepoint, p_view);
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
-	if (g_renderSettings.m_unk0x1c || g_renderSettings.m_unk0x20) {
-		FUN_1004320b(g_eyepoint);
+	RestoreView(g_eyepoint, p_view);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
+		DrawSkyAndGround(g_eyepoint);
 	}
 
 	if (p_object) {
-		FUN_10033b9e(p_object);
+		DrawObjTreeShapes(p_object);
 	}
 	else {
-		FUN_100338bb(g_unk0x100ad5e8);
+		DrawShapeList(g_sceneShapes);
 	}
 
 	FUN_10069591();
 	g_palettePending = palette;
-	FUN_10012e00();
+	ResetPane();
 	g_eyepoint->m_fovX = fovX;
-	g_unk0x100a2460 = 1;
-	FUN_1001156a(g_eyepoint, view);
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
-	g_unk0x100a2460 = 0;
+	g_projectionDirty = 1;
+	RestoreView(g_eyepoint, view);
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	g_projectionDirty = 0;
 }
 
-// Fades to palette 0x11 over two seconds (0x16a clock ticks).
+// Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
-void FUN_1004ca0d(void)
+void FlashZappedPalette(void)
 {
 	StartPaletteFade(0x11, 0x16a, 1);
 }
 
-// Fades to palette 0x11 over p_level (0-15) fifteenths of two seconds.
+// Flashes palette slot 0x11 (ZAPPED) over p_level (0-15) fifteenths of two seconds.
 // FUNCTION: MW2 0x1004ca29
-void FUN_1004ca29(MechU32 p_level)
+void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
 
@@ -121,17 +122,17 @@ void FadeToEndPalette(MechS32 p_alternate)
 		slot = 0x10;
 	}
 
-	palette = FUN_1001a19f(g_mw2PrjHandle, g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal], 0);
+	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal], 0);
 	if (palette) {
 		g_currentDisplayBackend->m_blendPalettes(palette, 0x3c);
-		FUN_1001a163(g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal]);
+		UnlockCachedResource(g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal]);
 		ApplyPaletteResource(slot);
 	}
 }
 
 // Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
-void FUN_1004cb11(Mech* p_mech)
+void EmitWreckSmoke(Mech* p_mech)
 {
 	MechS32 x;
 	MechS32 y;
@@ -141,16 +142,16 @@ void FUN_1004cb11(Mech* p_mech)
 	y = p_mech->m_player->m_position.m_y;
 	z = p_mech->m_player->m_position.m_z;
 	if (!p_mech->m_stateTime) {
-		FUN_1006b152(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
+		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
-		x += FUN_100736f5() / 2;
-		z += FUN_100736f5() / 2;
+		x += RandomNormal() / 2;
+		z += RandomNormal() / 2;
 		if (RandomIntBelow(100) < 0x3c) {
-			FUN_1006b152(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
+			SpawnEffect(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
 		}
 		else {
-			FUN_1006b152(p_mech->m_player->m_killer, 0x10b, x, y, z, x, y, z);
+			SpawnEffect(p_mech->m_player->m_killer, 0x10b, x, y, z, x, y, z);
 		}
 	}
 }
@@ -158,7 +159,7 @@ void FUN_1004cb11(Mech* p_mech)
 // Breaks a destroyed mech's model into debris.
 // Stack-slot permutation: obj, upper, lower and the three indices.
 // FUNCTION: MW2 0x1004cc27
-void FUN_1004cc27(Mech* p_mech)
+void BreakUpMech(Mech* p_mech)
 {
 	SceneObject* obj;
 	SceneObject* upper;
@@ -167,22 +168,22 @@ void FUN_1004cc27(Mech* p_mech)
 	MechS32 lowerIndex;
 	MechS32 objIndex;
 
-	FUN_10001926(p_mech->m_player->m_obj);
+	ShowObjTree(p_mech->m_player->m_obj);
 	obj = p_mech->m_player->m_obj;
 	upper = p_mech->m_pitchObj;
 	lower = p_mech->m_torsoObj;
-	upperIndex = FUN_10004111(upper, 1);
-	FUN_10004218(upperIndex);
-	lowerIndex = FUN_10004111(lower, 1);
-	FUN_10004218(lowerIndex);
-	objIndex = FUN_10004111(obj, 1);
-	FUN_10004218(objIndex);
+	upperIndex = AddDebrisPiece(upper, 1);
+	ThrowDebrisPiece(upperIndex);
+	lowerIndex = AddDebrisPiece(lower, 1);
+	ThrowDebrisPiece(lowerIndex);
+	objIndex = AddDebrisPiece(obj, 1);
+	ThrowDebrisPiece(objIndex);
 }
 
 // Sets off the flames of the jump jets and plays their sound.
 // Stack-slot permutation: x, y, z, player, jet and fired.
 // FUNCTION: MW2 0x1004ccba
-void FUN_1004ccba(Mech* p_mech)
+void FireJumpJetEffects(Mech* p_mech)
 {
 	MechS32 z;
 	MechS32 y;
@@ -197,7 +198,7 @@ void FUN_1004ccba(Mech* p_mech)
 	if (p_mech->m_objects[jet]) {
 		fired = TRUE;
 		player->m_firingObj = p_mech->m_objects[jet];
-		FUN_1006b1c8(0x19, p_mech->m_player);
+		SpawnLaunchEffect(0x19, p_mech->m_player);
 		GetObjPosition(player->m_firingObj, &x, &y, &z);
 	}
 
@@ -205,27 +206,27 @@ void FUN_1004ccba(Mech* p_mech)
 	if (p_mech->m_objects[jet]) {
 		fired = TRUE;
 		player->m_firingObj = p_mech->m_objects[jet];
-		FUN_1006b1c8(0x19, p_mech->m_player);
+		SpawnLaunchEffect(0x19, p_mech->m_player);
 		GetObjPosition(player->m_firingObj, &x, &y, &z);
 	}
 
 	if (fired) {
-		x -= g_eyepoint->m_unk0x00;
-		y -= g_eyepoint->m_unk0x04;
-		z -= g_eyepoint->m_unk0x08;
+		x -= g_eyepoint->m_x;
+		y -= g_eyepoint->m_y;
+		z -= g_eyepoint->m_z;
 		if (p_mech->m_player->m_index == g_localPlayerId && p_mech->m_jumpFuel < 0x1c4 &&
 			p_mech->m_jumpFuel + g_deltaTime > 0x1c4) {
-			FUN_1007eb23(0xde, 100, 0x40, 5, 0x50);
+			PlaySoundEffect(0xde, 100, 0x40, 5, 0x50);
 		}
 		else {
-			FUN_1007ebd1(x, y, z, 0xdf, g_unk0x100a2420);
+			PlaySoundAt(x, y, z, 0xdf, g_inCockpitView);
 		}
 	}
 }
 
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
-void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
+void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
 {
 	MechS32 sound;
 
@@ -240,12 +241,12 @@ void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
 		sound = 0xe5;
 	}
 
-	FUN_1007ebd1(
-		p_mech->m_player->m_position.m_x - g_eyepoint->m_unk0x00,
-		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_unk0x04,
-		p_mech->m_player->m_position.m_z - g_eyepoint->m_unk0x08,
+	PlaySoundAt(
+		p_mech->m_player->m_position.m_x - g_eyepoint->m_x,
+		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_y,
+		p_mech->m_player->m_position.m_z - g_eyepoint->m_z,
 		sound,
-		g_unk0x100a2420
+		g_inCockpitView
 	);
 }
 

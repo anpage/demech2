@@ -27,21 +27,21 @@ extern "C"
 {
 #endif
 
-	extern MechS32* g_unk0x100a3850;
-	extern MechS32* g_unk0x100a3854;
-	extern MechS32 g_unk0x100a3858;
-	extern MechS32 g_unk0x100a385c;
+	extern MechS32* g_thingIndices;
+	extern MechS32* g_thingIds;
+	extern MechS32 g_inRepeat;
+	extern MechS32 g_repeatPass;
 	extern MechS32 g_blockDepth;
 	extern MechS32 g_currentBlock;
-	extern MechS32 g_unk0x1010b6a0;
-	extern MechS32 g_unk0x1012b7b0;
+	extern MechS32 g_thingCapacity;
+	extern MechS32 g_thingCount;
 
-	MechS32 FUN_1001f3e0(void);
-	MechS32 FUN_1001f504(MechS32 p_id, Shape* p_class);
-	void FUN_1001f5cb(void);
+	MechS32 AllocGeoTables(void);
+	MechS32 AddClass(MechS32 p_id, Shape* p_class);
+	void FreeGeoTables(void);
 	Shape** GetStaticShapeSlot(MechS32 p_index);
 	Shape* GetStaticShape(MechS32 p_index);
-	MechS32 FUN_1001f8b5(
+	MechS32 PlaceStaticObject(
 		MechS32 p_id,
 		MechS32 p_resource,
 		Xform p_xform,
@@ -50,11 +50,11 @@ extern "C"
 		MechS32 p_unk0x3c,
 		MechU32 p_flags,
 		MechU32 p_kind,
-		undefined4 p_unk0x48
+		undefined4 p_shapeKind
 	);
 	void UpdateGeoCache(void);
 	void BeginBlock(struct BwdBlockRecord* p_record);
-	MechS32 FindObjIdxById(undefined4 p_unk0x08);
+	MechS32 AllocStaticObject(undefined4 p_id);
 	void HandleElseBlock(void);
 	void EndBlock(struct BwdStream* p_stream);
 	MechS32 FindStarIdxById(MechS32 p_id);
@@ -66,27 +66,27 @@ extern "C"
 	void ResetStaticCache(void);
 	void FirstStaticCache(void);
 	void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data);
-	void FUN_100200bd(void);
-	void FUN_1002012a(MechS32 p_index, TimedCallback* p_callback);
-	void FUN_1002015f(MechS32 p_index);
-	void FUN_10020190(MechS32 p_index);
-	void FUN_100201c1(MechS32 p_index, MechU32 p_unk0x0c);
-	void FUN_100201fe(MechS32 p_index, MechS32 p_replacement, MechS32 p_thing);
-	MechS32 FUN_10020292(MechS32 p_index);
-	void FUN_10020429(struct GameThing* p_thing);
-	void FUN_100204e8(void);
-	MechS32 FUN_10020684(void);
-	MechS32 FUN_10020704(MechS32 p_index, MechS32 p_block);
-	void FUN_10020b95(MechS32 p_index);
-	struct SceneObject* FUN_10020bdd(MechS32 p_index);
-	Shape* FUN_10020c26(MechS32 p_index);
-	void FUN_10020c6f(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	MechS32 FUN_10020d51(void);
-	void FUN_10021067(QuadtreeNode* p_root);
-	void FUN_1002116a(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size);
-	MechS32 FUN_10021314(MechU32 p_index);
-	void FUN_100213cf(struct SceneObject* p_obj);
-	MechS32 FUN_10021423(MechS32 p_arg);
+	void RunStaticObjectTasks(void);
+	void RemoveStaticObjectTask(MechS32 p_index, TimedCallback* p_callback);
+	void RemoveStaticObjectTasks(MechS32 p_index);
+	void SignalStaticObjectTasks(MechS32 p_index);
+	void SetStaticObjectKind(MechS32 p_index, MechU32 p_kind);
+	void LinkStaticObjectThing(MechS32 p_index, MechS32 p_replacement, MechS32 p_thing);
+	MechS32 DestroyStaticObject(MechS32 p_index);
+	void DestroyThingObject(struct GameThing* p_thing);
+	void PropagateStaticObjectStates(void);
+	MechS32 AreStaticObjectsComplete(void);
+	MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block);
+	void UnloadStaticObject(MechS32 p_index);
+	struct SceneObject* GetStaticSceneObject(MechS32 p_index);
+	Shape* GetStaticObjectShape(MechS32 p_index);
+	void GetStaticObjectPosition(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	MechS32 ToggleBlockBoxes(void);
+	void ShowQuadtreeBoxes(QuadtreeNode* p_root);
+	void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size);
+	MechS32 FreeStaticObjectTree(MechU32 p_index);
+	void DestroyObjTreeAndShapes(struct SceneObject* p_obj);
+	MechS32 GetExplosionChunks(MechS32 p_arg);
 	void SetExplosionChunks(MechS32 p_arg, MechS32 p_explosionChunks);
 
 #ifdef __cplusplus

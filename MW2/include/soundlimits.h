@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// An entry of the sound table FUN_10013370 unpacks into g_soundInfo.
+// An entry of the sound table InitSoundInfo unpacks into g_soundInfo.
 // SIZE 0x08
 typedef struct SoundTableEntry {
 	MechS16 m_id;       // 0x00 — the sound resource
@@ -21,7 +21,7 @@ extern "C"
 
 	extern SoundTableEntry g_soundTable[0x8c];
 
-	void FUN_10013370(void);
+	void InitSoundInfo(void);
 
 #ifdef __cplusplus
 }

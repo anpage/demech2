@@ -55,7 +55,7 @@ MechU32 g_shapeFlags = 0;
 MechU32 g_faceIdCount = 0;
 
 // GLOBAL: MW2 0x100ba688
-MechS32 g_unk0x100ba688 = 4;
+MechS32 g_subShapeCollisionType = 4;
 
 // GLOBAL: MW2 0x100ba68c
 MechS32 g_unk0x100ba68c = 0;
@@ -70,13 +70,13 @@ MechU32* g_faceIds;
 MechS32 g_shapeHasKey;
 
 // GLOBAL: MW2 0x100bfd40
-MechS32 g_unk0x100bfd40;
+MechS32 g_shapeOwnerSet;
 
 // GLOBAL: MW2 0x100bfd44
-MechS32 g_unk0x100bfd44;
+MechS32 g_shapeOwnerKind;
 
 // GLOBAL: MW2 0x100bfd48
-MechS32 g_unk0x100bfd48;
+MechS32 g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
 void SetFaceIds(MechU32* p_ids, MechU32 p_count)
@@ -137,13 +137,13 @@ Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject
 		next = shape;
 		while (*p_offset < p_size && LoadShapeRecord(p_data, p_offset, &next, p_parent, &count) == 0) {
 			if (next) {
-				FUN_1003b72f(next, g_shapeFlags);
+				SetShapeLoadFlags(next, g_shapeFlags);
 			}
 		}
 	}
 
 	if (shape) {
-		FUN_1003b72f(shape, g_shapeFlags);
+		SetShapeLoadFlags(shape, g_shapeFlags);
 	}
 
 	return shape;
@@ -270,7 +270,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 			return -1;
 		}
 
-		FUN_1003a7f9(*p_shape, key);
+		SetModelKey(*p_shape, key);
 	}
 	else if (g_shapeHasKey && !AddModel(*p_shape, key, vertexCount, header->m_faceCount, extraSize, (void**) &extra)) {
 		g_shapeLoadError = -2;
@@ -282,8 +282,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		x = vertex->m_x;
 		y = vertex->m_y;
 		z = vertex->m_z;
-		u = vertex->m_unk0x0c;
-		v = vertex->m_unk0x0e;
+		u = vertex->m_u;
+		v = vertex->m_v;
 		if (i < vertexCount) {
 			AddShapeVertex(
 				*p_shape,
@@ -298,8 +298,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		checksum += vertex->m_x;
 		checksum += vertex->m_y;
 		checksum += vertex->m_z;
-		checksum += vertex->m_unk0x0c;
-		checksum += vertex->m_unk0x0e;
+		checksum += vertex->m_u;
+		checksum += vertex->m_v;
 		checksum = checksum % 0x100000;
 	}
 
@@ -352,25 +352,25 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	g_shapeLoadError = 0;
 
 	if (g_shapeHasObject) {
-		if ((!p_parent || (obj = FUN_100020fa(p_parent, *p_count)) == NULL) &&
-			(obj = FUN_100012d0(p_parent, 0x14)) == NULL) {
+		if ((!p_parent || (obj = GetObjChild(p_parent, *p_count)) == NULL) &&
+			(obj = CreateObj(p_parent, 0x14)) == NULL) {
 			g_shapeLoadError = -2;
 			return -1;
 		}
 
-		if (obj->m_unk0x6c && (obj = FUN_100012d0(p_parent, 0xc)) == NULL) {
+		if (obj->m_shape && (obj = CreateObj(p_parent, 0xc)) == NULL) {
 			g_shapeLoadError = -2;
 			return -1;
 		}
 
 		SetObjPosition(obj, vertex->m_x, vertex->m_y, vertex->m_z);
-		FUN_10001532(obj, *p_shape);
+		SetObjShape(obj, *p_shape);
 		SetShapeObject(*p_shape, obj);
 		UpdateObj(obj);
 		if (*p_count) {
-			FUN_1006d732(*p_shape);
-			FUN_10034a40(*p_shape, g_unk0x100ba688);
-			FUN_1003ad2d(*p_shape, 0x50);
+			AddSceneShape(*p_shape);
+			SetShapeCollisionType(*p_shape, g_subShapeCollisionType);
+			SetShapeKind(*p_shape, 0x50);
 		}
 
 		(*p_count)++;
@@ -379,8 +379,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	return 0;
 }
 
-// Maps a face id: ids 0 and 0x14 take the team colour of player g_unk0x100bfd48 while
-// g_unk0x100bfd40 is set; ids with bit 15 index g_faceIds.
+// Maps a face id: ids 0 and 0x14 take the team colour of player g_shapeOwner while
+// g_shapeOwnerSet is set; ids with bit 15 index g_faceIds.
 // FUNCTION: MW2 0x1007fae3
 MechU32 MapFaceId(MechU32 p_id)
 {
@@ -388,13 +388,13 @@ MechU32 MapFaceId(MechU32 p_id)
 	MechS32 offset;
 
 	offset = 0;
-	if (g_unk0x100bfd40 && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
-		if (g_unk0x100bfd44 == 0x100) {
-			team = g_players[g_unk0x100bfd48]->m_team;
-			offset = g_teams[team].m_unk0x08;
+	if (g_shapeOwnerSet && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
+		if (g_shapeOwnerKind == 0x100) {
+			team = g_players[g_shapeOwner]->m_team;
+			offset = g_teams[team].m_affiliation;
 		}
-		else if (g_gameThings[g_unk0x100bfd48].m_unk0x0c != -1) {
-			offset = g_gameThings[g_unk0x100bfd48].m_unk0x0c;
+		else if (g_gameThings[g_shapeOwner].m_affiliation != -1) {
+			offset = g_gameThings[g_shapeOwner].m_affiliation;
 		}
 
 		p_id += offset;

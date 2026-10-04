@@ -14,24 +14,24 @@
 #include "types.h"
 #include "vertex.h"
 
-// Set by the world stream (BwdExecuteStream): FUN_10036230 brightens detailed shapes instead of
+// Set by the world stream (BwdExecuteStream): GetFaceColor brightens damaged shapes instead of
 // dimming them.
 // GLOBAL: MW2 0x100a555c
-MechS32 g_unk0x100a555c = 0;
+MechS32 g_brightenDamage = 0;
 
-// Set by FUN_1004b980: FUN_100367c5's base shade, out of 0x80.
+// The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
 // GLOBAL: MW2 0x1010b540
-MechS32 g_unk0x1010b540;
+MechS32 g_ambientLight;
 
-MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
+MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
 
 // Returns the color word of face p_face for the draw mode in bits 12-14 of p_color: its shade
-// (FUN_100367c5, from the face's light and p_distance) with the color bits of p_color, or in the
-// debug views (m_unk0x34) a fixed color by the shape's type. Highlights the shapes whose kind
-// matches m_unk0x50.
+// (ComputeShade, from the face's light and p_distance) with the color bits of p_color, or in the
+// wireframe views (m_wireframe) a fixed color by the shape's type. Textured faces of the kinds in
+// m_untexturedKinds are drawn in a flat color instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10036230
-MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
+MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
 	MechS32 shade;
 	MechU32 kind;
@@ -47,8 +47,8 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	shade = -1;
 	mode = p_color & 0x7000;
 	kind = p_face->m_shape->m_kind;
-	if (g_renderSettings.m_unk0x34) {
-		if (g_renderSettings.m_unk0x38 == 1) {
+	if (g_renderSettings.m_wireframe) {
+		if (g_renderSettings.m_wireframeColors == 1) {
 			switch (p_face->m_shape->m_collisionType) {
 			case 0:
 				return 0xd;
@@ -68,7 +68,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 				return 0xff;
 			}
 		}
-		else if (g_renderSettings.m_unk0x38 == 2) {
+		else if (g_renderSettings.m_wireframeColors == 2) {
 			switch (p_face->m_shape->m_flags & 0x10f) {
 			case 0:
 				return 0xd;
@@ -116,7 +116,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	switch (mode) {
 	case 0:
 		value = (p_color & 0xf0) >> 4;
-		if (g_renderSettings.m_unk0x40) {
+		if (g_renderSettings.m_greyscale) {
 			value >>= 2;
 			high = 0xf0;
 		}
@@ -130,8 +130,8 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		result = (p_color & 0xff0) >> 4;
 		return result | mode;
 	case 0x3000:
-		if (g_renderSettings.m_unk0x50) {
-			if (kind & g_renderSettings.m_unk0x50) {
+		if (g_renderSettings.m_untexturedKinds) {
+			if (kind & g_renderSettings.m_untexturedKinds) {
 				mode = 0x1000;
 				value = p_color & 0xf0;
 			}
@@ -147,12 +147,12 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	case 0x6000:
 	case 0x7000:
 		value = 0xff;
-		if (g_renderSettings.m_unk0x50) {
-			if ((g_renderSettings.m_unk0x50 & 0x100) && ((kind & 0x100) || (kind & 0xf0) == 0x50)) {
+		if (g_renderSettings.m_untexturedKinds) {
+			if ((g_renderSettings.m_untexturedKinds & 0x100) && ((kind & 0x100) || (kind & 0xf0) == 0x50)) {
 				mode = 0x1000;
 				value = 0xa0;
 			}
-			else if (kind & g_renderSettings.m_unk0x50) {
+			else if (kind & g_renderSettings.m_untexturedKinds) {
 				mode = 0x1000;
 				if (kind & 0x200) {
 					value = 0xd0;
@@ -177,11 +177,11 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		break;
 	}
 
-	shade = FUN_100367c5(GetFaceShade(p_face, p_vertices), value, p_distance);
+	shade = ComputeShade(GetFaceShade(p_face, p_vertices), value, p_distance);
 	if ((kind & 0x100) || (kind & 0xf0) == 0x50) {
 		detail = (p_face->m_shape->m_flags & 0xf0) >> 4;
 		if (detail > 0) {
-			if (g_unk0x100a555c) {
+			if (g_brightenDamage) {
 				shade += FixedMul16(detail, FixedDiv16(15 - shade, 15));
 			}
 			else {
@@ -195,7 +195,7 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		shade <<= 8;
 		high = 0;
 	}
-	else if (g_renderSettings.m_unk0x40) {
+	else if (g_renderSettings.m_greyscale) {
 		high = 0xf0;
 	}
 	else {
@@ -209,13 +209,13 @@ MechU32 FUN_10036230(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 // Returns a shade from 0 to 15 for a light level p_light (out of 0x80) and a brightness
 // p_value, dimmed with the distance p_distance.
 // FUNCTION: MW2 0x100367c5
-MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
+MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
 {
 	MechS32 shade;
 
-	shade = (((0x80 - g_unk0x1010b540) * p_light >> 7) + g_unk0x1010b540) * (p_value >> 1) / 0x440;
-	if (g_renderSettings.m_unk0x44) {
-		shade -= (p_distance << 4) / g_renderSettings.m_unk0x44 >> 4;
+	shade = (((0x80 - g_ambientLight) * p_light >> 7) + g_ambientLight) * (p_value >> 1) / 0x440;
+	if (g_renderSettings.m_fadeDistance) {
+		shade -= (p_distance << 4) / g_renderSettings.m_fadeDistance >> 4;
 	}
 
 	if (shade < 1) {
@@ -228,42 +228,45 @@ MechS32 FUN_100367c5(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
 	return shade;
 }
 
+// Switches the texture maps of the shape kinds in p_flags on or off (the TOGGLE_..._TEXT_MAPS
+// keys).
 // FUNCTION: MW2 0x10036853
-void FUN_10036853(MechU32 p_flags)
+void ToggleTextureMaps(MechU32 p_flags)
 {
-	g_renderSettings.m_unk0x50 ^= p_flags;
+	g_renderSettings.m_untexturedKinds ^= p_flags;
 }
 
 // FUNCTION: MW2 0x10036867
-MechS32 FUN_10036867(MechU32 p_flags)
+MechS32 AreTextureMapsOn(MechU32 p_flags)
 {
-	return !(p_flags & g_renderSettings.m_unk0x50);
+	return !(p_flags & g_renderSettings.m_untexturedKinds);
 }
 
 // FUNCTION: MW2 0x10036891
-void FUN_10036891(MechU32 p_flags, MechS32 p_enable)
+void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 {
 	if (p_enable) {
-		g_renderSettings.m_unk0x50 &= ~p_flags;
+		g_renderSettings.m_untexturedKinds &= ~p_flags;
 	}
 	else {
-		g_renderSettings.m_unk0x50 |= p_flags;
+		g_renderSettings.m_untexturedKinds |= p_flags;
 	}
 }
 
+// The display detail setting: textures with perspective correction.
 // FUNCTION: MW2 0x100368bf
-MechS32 FUN_100368bf(undefined4 p_unk0x00)
+MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 {
-	return !g_renderSettings.m_unk0x4c;
+	return !g_renderSettings.m_affineTextures;
 }
 
 // FUNCTION: MW2 0x100368e8
-void FUN_100368e8(undefined4 p_unk0x00, MechS32 p_enable)
+void EnablePerspectiveTextures(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (!p_enable) {
-		g_renderSettings.m_unk0x4c = TRUE;
+		g_renderSettings.m_affineTextures = TRUE;
 	}
 	else {
-		g_renderSettings.m_unk0x4c = FALSE;
+		g_renderSettings.m_affineTextures = FALSE;
 	}
 }

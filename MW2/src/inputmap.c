@@ -462,9 +462,9 @@ GameKeyModifier g_gameKeyModifiers[] = {
 	{"GREY MINUS", 0xcc}, {"GREY PLUS", 0xcd},
 };
 
-// The text of FUN_1007b7b1's message box.
+// The text of ReportInputDeviceError's message box.
 // GLOBAL: MW2 0x100bf1d0
-MechChar g_unk0x100bf1d0[0x400];
+MechChar g_inputErrorText[0x400];
 
 // GLOBAL: MW2 0x100bf5d0
 MechS32 g_inputDevicePresent[5];
@@ -511,7 +511,7 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 							g_inputDrivers[index] = g_inputDriverClasses[driver];
 							g_inputDeviceCount++;
 							if (g_inputDrivers[index]->m_openDevice(&g_inputDeviceInfos[index])) {
-								FUN_1007b7b1(0x70, NULL, g_inputDeviceInfos[index].m_displayName);
+								ReportInputDeviceError(0x70, NULL, g_inputDeviceInfos[index].m_displayName);
 								g_inputDevicePresent[index] = FALSE;
 								return -1;
 							}
@@ -533,7 +533,7 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 	g_inputDeviceCount++;
 	strcpy(g_inputDeviceNames[index], p_name);
 	g_inputDevicePresent[index] = FALSE;
-	FUN_1007b7b1(0x6e, NULL, p_name);
+	ReportInputDeviceError(0x6e, NULL, p_name);
 	return -1;
 }
 
@@ -592,7 +592,7 @@ MechS32 FindInputAxis(MechS32 p_device, MechChar* p_name)
 		}
 	}
 
-	FUN_1007b7b1(0x6f, p_name, g_inputDeviceInfos[p_device].m_displayName);
+	ReportInputDeviceError(0x6f, p_name, g_inputDeviceInfos[p_device].m_displayName);
 	return -1;
 }
 
@@ -623,7 +623,7 @@ MechS32 FindInputButton(MechS32 p_device, MechChar* p_name)
 		}
 	}
 
-	FUN_1007b7b1(0x6f, p_name, g_inputDeviceInfos[p_device].m_displayName);
+	ReportInputDeviceError(0x6f, p_name, g_inputDeviceInfos[p_device].m_displayName);
 	return -1;
 }
 
@@ -1302,7 +1302,7 @@ void UpdateInputs(void)
 	}
 
 	for (i = 0; i < g_inputDeviceCount; i++) {
-		if (g_inputDevicePresent[i] && (!g_unk0x100a116c || i != g_keyboardDeviceIndex)) {
+		if (g_inputDevicePresent[i] && (!g_chatRecipient || i != g_keyboardDeviceIndex)) {
 			g_inputDrivers[i]->m_poll(
 				g_inputDeviceInfos[i].m_driverData,
 				g_inputDeviceStates[i].m_axes,
@@ -1405,7 +1405,7 @@ MechS16 LookupGameKey(MechS16 p_keyCode)
 // Reports an input device error p_code in a message box: 0x6e a missing device, 0x6f a missing
 // channel, 0x70 a device that doesn't open. Cancel exits the game.
 // FUNCTION: MW2 0x1007b7b1
-void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
+void ReportInputDeviceError(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 {
 	MechS32 hidden;
 
@@ -1413,7 +1413,7 @@ void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 	switch (p_code) {
 	case 0x6e:
 		sprintf(
-			g_unk0x100bf1d0,
+			g_inputErrorText,
 			"The input device \"%s\" does not exist or is not configured properly.\n\nTo eliminate the problem, "
 			"you should check the Windows Joystick Control Panel settings, or reconfigure your Cockpit Controls "
 			"in the Clan Hall without using \"%s\".\n\nPush OK to disable this device and continue, or push "
@@ -1424,7 +1424,7 @@ void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 		break;
 	case 0x6f:
 		sprintf(
-			g_unk0x100bf1d0,
+			g_inputErrorText,
 			"The input channel \"%s\" on device \"%s\" does not exist.\n\nIf you have changed your joystick "
 			"configuration, you should also reconfigure your Cockpit Controls in the Clan Hall.\n\nPush OK to "
 			"disable this control and continue, or push CANCEL to abort the mission.",
@@ -1434,7 +1434,7 @@ void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 		break;
 	case 0x70:
 		sprintf(
-			g_unk0x100bf1d0,
+			g_inputErrorText,
 			"The input device \"%s\" is not connected properly.\n\nTo eliminate the problem, you should check "
 			"that your joystick is plugged in correctly and check the Windows Control Panel settings. "
 			"Alternatively, you could reconfigure your Cockpit Controls in the Clan Hall without using "
@@ -1445,14 +1445,14 @@ void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 		break;
 	default:
 		sprintf(
-			g_unk0x100bf1d0,
+			g_inputErrorText,
 			"An input device has caused an undefined error. Sorry, no other information is available.\nPush OK "
 			"to ignore this error and continue, or push CANCEL to abort the mission."
 		);
 		break;
 	}
 
-	WriteToMw2Log(g_unk0x100bf1d0);
+	WriteToMw2Log(g_inputErrorText);
 	if (ShowCursor(TRUE) <= 0) {
 		hidden = TRUE;
 		while (ShowCursor(TRUE) < 0) {
@@ -1463,8 +1463,8 @@ void FUN_1007b7b1(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 		ShowWindow(g_gameWindow, SW_SHOWMINNOACTIVE);
 	}
 
-	if (MessageBox(g_gameWindow, g_unk0x100bf1d0, "MechWarrior2 Message", MB_OKCANCEL | MB_ICONASTERISK) == IDCANCEL) {
-		FUN_1003ba07();
+	if (MessageBox(g_gameWindow, g_inputErrorText, "MechWarrior2 Message", MB_OKCANCEL | MB_ICONASTERISK) == IDCANCEL) {
+		ShutdownOnError();
 		exit(p_code);
 	}
 

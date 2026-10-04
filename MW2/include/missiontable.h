@@ -9,7 +9,7 @@
 #pragma pack(push, 1)
 
 // An entry of a mission table, one per objective of the star's mission (StarMission), which
-// FUN_1004da30 copies into the objective.
+// SetUpStarMission copies into the objective.
 // SIZE 0x97
 typedef struct MissionEntry {
 	MechS32 m_type;                        // 0x00 — the first entry's must be 0x10
@@ -20,16 +20,16 @@ typedef struct MissionEntry {
 	MissionEntryCondition m_conditions[8]; // 0x0a
 	MechS32 m_timeLimit;                   // 0x2a
 	MechU8 m_priority;                     // 0x2e
-	MechU8 m_unk0x2f;                      // 0x2f — 'M' sets the objective's m_unk0x75
-	MechU8 m_requiredCount;                // 0x30
-	MechU8 m_unk0x31;                      // 0x31
-	undefined m_unk0x32[0x34 - 0x32];      // 0x32
-	MechChar m_successSound[0x3f - 0x34];  // 0x34
-	MechChar m_failSound[0x4a - 0x3f];     // 0x3f
-	MechChar m_name[0x53 - 0x4a];          // 0x4a — the event list the objective waits on
-	MechS16 m_unk0x53;                     // 0x53
-	MechS16 m_unk0x55;                     // 0x55
-	MechChar m_title[0x97 - 0x57];         // 0x57
+	MechU8 m_requirement;             // 0x2f — 'M' mandatory (MissionObjective::m_mandatory), 'O' optional, 'N' neither
+	MechU8 m_requiredCount;           // 0x30
+	MechU8 m_engagement;              // 0x31
+	undefined m_unk0x32[0x34 - 0x32]; // 0x32
+	MechChar m_successSound[0x3f - 0x34]; // 0x34
+	MechChar m_failSound[0x4a - 0x3f];    // 0x3f
+	MechChar m_name[0x53 - 0x4a];         // 0x4a — the event list the objective waits on
+	MechS16 m_targetStar;                 // 0x53
+	MechS16 m_targetObjective;            // 0x55
+	MechChar m_title[0x97 - 0x57];        // 0x57
 } MissionEntry;
 
 // A mission table (LoadMissionTable): a star's mission and its objectives.

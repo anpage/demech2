@@ -11,8 +11,8 @@ extern "C"
 {
 #endif
 
-	void FUN_10033280(struct CockpitPanel* p_panel);
-	void FUN_100334d3(struct CockpitPanel* p_panel);
+	void DrawWeaponPanel(struct CockpitPanel* p_panel);
+	void DrawWeaponPanelStartup(struct CockpitPanel* p_panel);
 
 #ifdef __cplusplus
 }

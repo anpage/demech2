@@ -20,16 +20,16 @@
 #include "playersteering.h"
 #include "poolsizes.h"
 #include "ramp.h"
-#include "rendertarget.h"
 #include "starmission.h"
 #include "staticmem.h"
+#include "targeting.h"
 #include "types.h"
 #include "weaponslot.h"
 
 // Resets the player's mech of this class: clears its state, stands its object up at its current
 // place and starts its position ramps there.
 // FUNCTION: MW2 0x100680a0
-void FUN_100680a0(Player* p_player)
+void FirstDoor(Player* p_player)
 {
 	Mech* mech;
 
@@ -54,7 +54,7 @@ void FUN_100680a0(Player* p_player)
 	mech->m_unk0xf0 = 0;
 	MoveObj(mech->m_player->m_obj, 0, mech->m_height, 0);
 	UpdateObj(mech->m_player->m_obj);
-	GetObjWorldPos(
+	GetObjWorldAngles(
 		mech->m_player->m_obj,
 		&mech->m_player->m_pitch,
 		&mech->m_player->m_heading,
@@ -73,7 +73,7 @@ void FUN_100680a0(Player* p_player)
 	mech->m_player->m_speedLevel = 0;
 	mech->m_player->m_nextMotionState = -1;
 	mech->m_player->m_pendingSound = -1;
-	FUN_100019f6(mech->m_player->m_obj);
+	EnableObjTreeCollision(mech->m_player->m_obj);
 	mech->m_player->m_headingSin = 0;
 	mech->m_player->m_headingCos = 0x10000;
 	InitializeAI(mech->m_player);
@@ -82,7 +82,7 @@ void FUN_100680a0(Player* p_player)
 // Moves a mech in state 2 along its position ramps and places its object there, facing its
 // player's heading.
 // FUNCTION: MW2 0x1006831a
-void FUN_1006831a(Mech* p_mech)
+void UpdateDoor(Mech* p_mech)
 {
 	MechS32 heading;
 	Mech* mech;
@@ -125,7 +125,7 @@ void FUN_1006831a(Mech* p_mech)
 // Stack-slot permutation of the locals. The original tests the target's kind by loading its high
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1006844e
-void FUN_1006844e(Mech* p_mech)
+void LateUpdateDoor(Mech* p_mech)
 {
 	Mech* mech;
 	MechS32 team;
@@ -201,14 +201,14 @@ void FUN_1006844e(Mech* p_mech)
 		}
 
 		if (mech->m_stateTime > g_currentClock) {
-			FUN_1004cb11(mech);
+			EmitWreckSmoke(mech);
 		}
 		break;
 	}
 }
 
 // FUNCTION: MW2 0x10068758
-void FUN_10068758(Mech* p_mech)
+void ShutdownDoor(Mech* p_mech)
 {
 	if (!p_mech) {
 		return;
@@ -218,7 +218,7 @@ void FUN_10068758(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10068772
-MechS32 FUN_10068772(MechS32 p_index, Player* p_player)
+MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
 	MechSection* sections = NULL;
@@ -230,7 +230,7 @@ MechS32 FUN_10068772(MechS32 p_index, Player* p_player)
 	MechS32 size;
 
 	p_player->m_mech = NULL;
-	size = FUN_10019a0a();
+	size = GetMechAllocSize();
 	buffer = StaticPoolAlloc(size, g_staticPoolTags[1]);
 	if (!buffer) {
 		return FALSE;
@@ -252,7 +252,7 @@ MechS32 FUN_10068772(MechS32 p_index, Player* p_player)
 	p_player->m_mechSize = 0x10e;
 	slot = mech->m_weapons;
 	for (i = 0; i < 10; i++) {
-		slot->m_unk0x00 = -1;
+		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;
 		slot->m_time = 0;

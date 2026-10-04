@@ -9,15 +9,15 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a15d0;
-	extern MechS32 g_unk0x100a15d4;
+	extern MechS32 g_debugSlot;
+	extern MechS32 g_debugSection;
 
 	void DrawPausedBanner(void);
 	void PlayPauseSound(void);
 	void PlayResumeSound(void);
-	void FUN_10009f35(void);
-	void FUN_10009f61(void);
-	void FUN_10009f8d(MechU16 p_key);
+	void PauseGame(void);
+	void ResumeGame(void);
+	void HandleDebugKey(MechU16 p_key);
 
 #ifdef __cplusplus
 }

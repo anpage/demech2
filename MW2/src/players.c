@@ -23,14 +23,14 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // GLOBAL: MW2 0x100ad4a0
 PlayerType g_playerTypes[9] = {
 	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
-	{1, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{2, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{3, FUN_1005a637, FUN_10059fc0, FUN_1005a203, FUN_1005a2ea, NULL, NULL, FUN_1005a61d},
-	{4, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{5, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{6, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{7, FUN_10068772, FUN_100680a0, FUN_1006831a, FUN_1006844e, NULL, NULL, FUN_10068758},
-	{8, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{1, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{2, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{3, CreateArtillery, FirstArtillery, UpdateArtillery, LateUpdateArtillery, NULL, NULL, ShutdownArtillery},
+	{4, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{5, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{6, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{7, CreateDoor, FirstDoor, UpdateDoor, LateUpdateDoor, NULL, NULL, ShutdownDoor},
+	{8, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
 };
 
 // GLOBAL: MW2 0x100ad5e0
@@ -144,11 +144,11 @@ void ZeroGameThing(MechS32 p_index)
 	GameThing* thing;
 
 	thing = &g_gameThings[p_index];
-	thing->m_unk0x00 = 0;
-	thing->m_unk0x02 = 0;
-	thing->m_unk0x04 = -1;
-	thing->m_unk0x08 = 0;
-	thing->m_unk0x0c = 0;
+	thing->m_flags = 0;
+	thing->m_teamsReached = 0;
+	thing->m_staticObject = -1;
+	thing->m_hitPoints = 0;
+	thing->m_affiliation = 0;
 	thing->m_name[0] = '\0';
 }
 
@@ -166,7 +166,7 @@ void ZeroGamethings(void)
 // the local player, the room after it otherwise), and passes it to p_fn if given.
 // The original loads g_localPlayerId into eax for the comparison with p_player (operand order).
 // FUNCTION: MW2 0x1006d282
-void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn)
+void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 {
 	PlayerCreatedFn fn;
 	Player* player;
@@ -174,9 +174,9 @@ void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn)
 	fn = NULL;
 	g_players[p_player] = NULL;
 	fn = p_fn;
-	if (FUN_1006d340(p_player)) {
+	if (AllocPlayer(p_player)) {
 		player = g_players[p_player];
-		FUN_1006d3a4(player);
+		InitPlayer(player);
 		player->m_index = p_player;
 		if (p_player == g_localPlayerId) {
 			player->m_steering = &g_localSteering;
@@ -199,7 +199,7 @@ void FUN_1006d282(MechS32 p_player, PlayerCreatedFn p_fn)
 // Stack-slot permutation of player and size; the original compares p_player with
 // g_localPlayerId in eax (operand order).
 // FUNCTION: MW2 0x1006d340
-MechS32 FUN_1006d340(MechS32 p_player)
+MechS32 AllocPlayer(MechS32 p_player)
 {
 	Player* player;
 	MechU32 size;
@@ -220,7 +220,7 @@ MechS32 FUN_1006d340(MechS32 p_player)
 
 // Sets up a newly allocated player.
 // FUNCTION: MW2 0x1006d3a4
-void FUN_1006d3a4(Player* p_player)
+void InitPlayer(Player* p_player)
 {
 	p_player->m_type = 0;
 	p_player->m_index = 0;

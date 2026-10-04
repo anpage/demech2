@@ -2,7 +2,7 @@
 #define TIMEDOVERLAY_H
 
 #include "point.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // One of the two in-game message boxes: ShowInGameMessage fills the one it may replace,

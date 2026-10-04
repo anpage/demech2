@@ -26,14 +26,14 @@ extern "C"
 
 	extern MissionTable* g_missionTables[16];
 	extern MechS32 g_missionTableCounts[16];
-	extern MechS32 g_unk0x100a8620;
-	extern MechChar* g_unk0x100a8630;
-	extern MechChar* g_unk0x100a8634;
+	extern MechS32 g_thingRecordCount;
+	extern MechChar* g_playerTeamFormation;
+	extern MechChar* g_otherTeamFormation;
 	extern struct Player* g_lastPlayer;
-	extern MechS32 g_unk0x100a862c;
-	extern TimedCallbackFn g_unk0x100a8640[6];
-	extern MechS32 g_unk0x100a8624;
-	extern MechS32 g_unk0x100ea580[0x96];
+	extern MechS32 g_nextMangleBase;
+	extern TimedCallbackFn g_taskFns[6];
+	extern MechS32 g_nextThingRecord;
+	extern MechS32 g_thingRecordIndices[0x96];
 
 	void LoadMapBitmap(struct BwdRecord* p_record, MechS32* p_width, MechS32* p_height, MechS32* p_data);
 	MechS32 LoadScenarioTable(struct ScenarioTable* p_table);
@@ -41,10 +41,10 @@ extern "C"
 	MechS32 LoadPathTable(struct PathRecord* p_record);
 	MechS32 LoadFormationTable(struct FormationRecord* p_record);
 	void LoadStarTable(struct StarTable* p_table);
-	void FUN_1004fc48(struct FormationNames* p_record);
+	void SetTeamFormations(struct FormationNames* p_record);
 	MechS32 ExecuteInclude(struct IncludeRecord* p_record, BwdStreamFn p_fn);
-	MechS32 FUN_1004fcac(struct IncludeRecord2* p_record, BwdStreamFn p_fn);
-	void FUN_1004fd55(void);
+	MechS32 RunIncludedStream(struct IncludeRecord2* p_record, BwdStreamFn p_fn);
+	void FreeMissionTables(void);
 	MechS32 MapResourceId(MechS32 p_id);
 	void SetMangleBase(MechS32 p_base);
 	void CreateObjectNode(
@@ -55,8 +55,8 @@ extern "C"
 		MechS32 p_class,
 		MechS32 p_level
 	);
-	struct SceneObject* FUN_100506d8(void);
-	MechS32 FUN_1005072f(void);
+	struct SceneObject* NextThingRecordObject(void);
+	MechS32 FindFreeGameThing(void);
 
 #ifdef __cplusplus
 }

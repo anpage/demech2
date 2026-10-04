@@ -52,7 +52,6 @@
 #include "random.h"
 #include "refreshmode.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "screenscale.h"
 #include "setres.h"
@@ -62,6 +61,7 @@
 #include "startup.h"
 #include "staticmem.h"
 #include "supanim.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -85,7 +85,7 @@ MechS32 g_shouldQuit = 0;
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
-TimedCallback* g_unk0x100acb20 = NULL;
+TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
 DifficultyCfg* g_difficulty = NULL;
@@ -94,17 +94,17 @@ DifficultyCfg* g_difficulty = NULL;
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
-MechS32 g_unk0x100acb2c = 0;
+MechS32 g_remoteWaitTime = 0;
 
-// Set when the local player starts on the autopilot (FUN_10016ad0).
+// Set when the local player starts on the autopilot (FirstMech).
 // GLOBAL: MW2 0x100acb34
-MechS32 g_unk0x100acb34 = 0;
+MechS32 g_startOnAutopilot = 0;
 
 // GLOBAL: MW2 0x100acb60
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
-HINSTANCE g_unk0x100acb64 = NULL;
+HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
 HANDLE g_primaryHeap = NULL;
@@ -119,7 +119,7 @@ MechS32 g_gameWindowHeight = 0;
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
-MechS32 g_unk0x100acb78 = 0;
+MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
 undefined4 g_shouldToggleFullscreen = 0;
@@ -182,7 +182,7 @@ int __stdcall SimMain(
 	quitLatched = 0;
 	seed = 0;
 	g_gameWindow = p_hWnd;
-	g_unk0x100acb64 = p_module;
+	g_simModule = p_module;
 	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
 	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
 	g_primaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
@@ -208,7 +208,7 @@ int __stdcall SimMain(
 		g_soundConfig = *g_mw2SndCfgData;
 	}
 
-	g_displayBrightness = g_unk0x100a946c = g_mw2SndCfgData->m_displayBrightness;
+	g_displayBrightness = g_brightnessSetting = g_mw2SndCfgData->m_displayBrightness;
 	g_videoDriverChoice.m_flags = 0;
 	if (g_mw2SndCfgData->m_videoDriver[0]) {
 		g_videoDriverChoice.m_flags |= 1;
@@ -354,14 +354,14 @@ int __stdcall SimMain(
 		else {
 			hasPalette = g_paletteResourceIds[0x10] != -1;
 			if (hasPalette) {
-				palette = FUN_1001a19f(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+				palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
 				if (palette) {
 					g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
 				}
 			}
 		}
 
-		g_unk0x100acb78 = 1;
+		g_drawModeReady = 1;
 		DebugPrint("InitDrawMode()\n");
 		if (!InitRefreshMode(
 				g_drawModeIndex,
@@ -382,8 +382,8 @@ int __stdcall SimMain(
 			g_goLaunch |= 2;
 		}
 
-		g_carCfg.m_unk0x1d = 1;
-		g_carCfg.m_unk0xd2 = -1;
+		g_careerRecord.m_outcome = 1;
+		g_careerRecord.m_winner = -1;
 		while (g_quitStage < 3) {
 			if (g_goLaunch == 3) {
 				DebugPrint("GoLaunch == GO_READY\n");
@@ -391,14 +391,14 @@ int __stdcall SimMain(
 				DebugPrint("WinMain(2): pause_timer(false)");
 				PauseTimer(0x80, FALSE);
 				StartMissionMusic();
-				g_unk0x100aa2c0 = 0;
+				g_statusMessage = 0;
 			}
 			else if (g_isNetworkGame && !(g_goLaunch & 0x80000000)) {
-				if (g_unk0x100acb2c == 0) {
-					g_unk0x100acb2c = g_unk0x100ba54c + 0xb5;
+				if (g_remoteWaitTime == 0) {
+					g_remoteWaitTime = g_realClock + 0xb5;
 				}
-				else if (g_unk0x100acb2c < g_unk0x100ba54c) {
-					g_unk0x100aa2c0 = 3;
+				else if (g_remoteWaitTime < g_realClock) {
+					g_statusMessage = 3;
 				}
 			}
 
@@ -408,7 +408,7 @@ int __stdcall SimMain(
 			UpdateInputs();
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
-			RunTimedCallbacks(&g_unk0x100acb20);
+			RunTimedCallbacks(&g_detachedTasks);
 			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
 				UpdateAllPlayers();
 			}
@@ -422,7 +422,7 @@ int __stdcall SimMain(
 			if (g_refreshModeFallback) {
 				while (g_refreshModeFallback) {
 					if (g_currentDisplayBackend->m_id == 0) {
-						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
+						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
 					}
 
 					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
@@ -430,7 +430,7 @@ int __stdcall SimMain(
 						DrawLocalPlayer();
 						UpdateMenus();
 						DrawTimedOverlays();
-						FUN_10058750();
+						DrawDebugOverlays();
 					}
 
 					Blit();
@@ -446,7 +446,7 @@ int __stdcall SimMain(
 			UpdatePaletteFade();
 			ApplyPendingPalette();
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
-				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
+				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
 			}
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
@@ -454,7 +454,7 @@ int __stdcall SimMain(
 				DrawLocalPlayer();
 				UpdateMenus();
 				DrawTimedOverlays();
-				FUN_10058750();
+				DrawDebugOverlays();
 				if (g_simPaused && g_pauseRequested) {
 					DrawPausedBanner();
 				}
@@ -466,20 +466,20 @@ int __stdcall SimMain(
 				AdvanceSpeechQueue();
 			}
 
-			FUN_1007d6bb();
+			UpdateTimeOfDay();
 			UpdateObjectives();
 			LoopCdMusic();
 			UpdatePauseState();
 			if (g_shouldQuit && !quitLatched) {
 				g_quitStage++;
 				quitLatched = 1;
-				g_unk0x100acb78 = 0;
+				g_drawModeReady = 0;
 			}
 
 			g_goLaunch |= 2;
 		}
 
-		FadeToEndPalette(g_carCfg.m_unk0x1d & 4);
+		FadeToEndPalette(g_careerRecord.m_outcome & 4);
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 			VFX_pane_wipe(&g_currentPane, 0);
 		}
@@ -490,7 +490,7 @@ int __stdcall SimMain(
 		}
 
 		SendMessage(g_gameWindow, 0x41e, 0, 0);
-		SaveCarCfg();
+		SaveCareerRecord();
 		ShutdownAllPlayers();
 		ShutdownNetwork();
 		ShutdownAudio();
@@ -520,7 +520,7 @@ int __stdcall SimMain(
 	while (ShowCursor(TRUE) < 1) {
 	}
 
-	result = g_unk0x100b1350 ? 0xff : 0;
+	result = g_fledToWindows ? 0xff : 0;
 	return result;
 }
 
@@ -587,7 +587,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 		}
 		return 0;
 	case WM_PAINT:
-		if (g_unk0x100acb78 && g_windowMode == c_windowModeWindowed) {
+		if (g_drawModeReady && g_windowMode == c_windowModeWindowed) {
 			g_currentRefreshMode->m_flip();
 			ValidateRect(p_hWnd, NULL);
 			return 0;

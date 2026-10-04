@@ -54,14 +54,14 @@ typedef struct MekAmmo {
 
 // The value each weapon type adds to a mech's (GetMechValue).
 // GLOBAL: MW2 0x100aa730
-MechU16 g_unk0x100aa730[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,   228, 42, 82, 123,
-							   157, 74,  144, 247, 329, 4,  228, 166, 51, 21, 177, 74,  16, 50, 40};
+MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,   228, 42, 82, 123,
+							  157, 74,  144, 247, 329, 4,  228, 166, 51, 21, 177, 74,  16, 50, 40};
 
 // Loads mech p_mech's configuration mek\<p_config>.mek (or MEK resource p_id when the file is
 // missing) for chassis p_name, logging it to mw2.log: the sections, whose armor the difficulty
-// scales (the local player's by g_unk0x100a1598, its side's by armorScale, the others' by
-// g_unk0x100a1594), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
-// and the temperature, g_unk0x100ba620) and the jump jets. Returns TRUE.
+// scales (the local player's by g_localArmorPerLevel, its side's by armorScale, the others' by
+// g_otherArmorPerLevel), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
+// and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005d6d0
 MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
@@ -94,21 +94,21 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 
 	fromResource = 0;
 	RememberLoadMech(p_mech, p_name, p_id, p_config);
-	switch (g_difficulty->m_unk0x05) {
+	switch (g_difficulty->m_enemySkill) {
 	case 0:
-		g_unk0x100a1594 = 1;
+		g_otherArmorPerLevel = 1;
 		armorScale = 3;
-		g_unk0x100a1598 = 4;
+		g_localArmorPerLevel = 4;
 		break;
 	case 1:
-		g_unk0x100a1594 = 3;
+		g_otherArmorPerLevel = 3;
 		armorScale = 3;
-		g_unk0x100a1598 = 4;
+		g_localArmorPerLevel = 4;
 		break;
 	case 2:
-		g_unk0x100a1594 = 4;
+		g_otherArmorPerLevel = 4;
 		armorScale = 4;
-		g_unk0x100a1598 = 4;
+		g_localArmorPerLevel = 4;
 		break;
 	}
 
@@ -121,7 +121,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	file = LoadFile(BuildGamePath(name), &size, (void**) &header, NULL);
 	if (file == -1) {
 		if (p_id > 0) {
-			header = FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagMek], 0);
+			header = LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagMek], 0);
 			if (header == NULL) {
 				Error(0x21, "%s ID %d", name, p_id, 0);
 			}
@@ -162,8 +162,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			piece,
 			section->m_armor[0],
 			section->m_armor[1],
-			section->m_unk0x08,
-			section->m_unk0x26
+			section->m_internal,
+			section->m_flags
 		);
 		WriteToMw2Log(text);
 		for (j = 0; j < 12; j++) {
@@ -175,8 +175,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			WriteToMw2Log(text);
 		}
 
-		section->m_unk0x26 &= 0xff00;
-		level = (section->m_armor[0] + section->m_unk0x08) / 5;
+		section->m_flags &= 0xff00;
+		level = (section->m_armor[0] + section->m_internal) / 5;
 		if (level > 15) {
 			level = 15;
 		}
@@ -184,8 +184,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			level = 0;
 		}
 
-		section->m_unk0x26 |= level;
-		level = (section->m_armor[1] + section->m_unk0x08) / 5;
+		section->m_flags |= level;
+		level = (section->m_armor[1] + section->m_internal) / 5;
 		if (level > 15) {
 			level = 15;
 		}
@@ -193,23 +193,23 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			level = 0;
 		}
 
-		section->m_unk0x26 |= level << 4;
+		section->m_flags |= level << 4;
 		if (p_mech->m_player->m_index == g_localPlayerId) {
-			section->m_armor[0] *= g_unk0x100a1598;
-			section->m_armor[1] *= g_unk0x100a1598;
+			section->m_armor[0] *= g_localArmorPerLevel;
+			section->m_armor[1] *= g_localArmorPerLevel;
 		}
 		else if (!GetPlayerSide(p_mech->m_player->m_index)) {
 			section->m_armor[0] *= armorScale;
 			section->m_armor[1] *= armorScale;
 		}
 		else {
-			section->m_armor[0] *= g_unk0x100a1594;
-			section->m_armor[1] *= g_unk0x100a1594;
+			section->m_armor[0] *= g_otherArmorPerLevel;
+			section->m_armor[1] *= g_otherArmorPerLevel;
 		}
 
 		section->m_armor[0] <<= 16;
 		section->m_armor[1] <<= 16;
-		section->m_unk0x08 <<= 16;
+		section->m_internal <<= 16;
 		section++;
 	}
 
@@ -223,17 +223,17 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	if (header->m_weaponCount > 0) {
 		do {
 			type = weapon->m_type / 100;
-			slot->m_unk0x00 = 1;
+			slot->m_status = 1;
 			slot->m_type = type;
 			slot->m_state = c_weaponReady;
 			slot->m_time = 0;
 			slot->m_unk0x14 = 0;
 			slot->m_group = group;
-			slot->m_unk0x2c = weapon->m_type;
+			slot->m_slotId = weapon->m_type;
 			slot->m_binCount = 0;
 			slot->m_binIndex = 0;
 			slot->m_bin = bin;
-			if (g_weaponDefs[type].m_unk0x20 == -1) {
+			if (g_weaponDefs[type].m_volleysPerBin == -1) {
 				slot->m_ammo = -1;
 			}
 			else {
@@ -245,7 +245,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			for (j = 0; j < header->m_ammoCount && binCount < 25; j++) {
 				if (ammo->m_type == weapon->m_type) {
 					bin->m_type = ammo->m_type / 100;
-					bin->m_shots = g_weaponDefs[bin->m_type].m_volley * g_weaponDefs[bin->m_type].m_unk0x20;
+					bin->m_shots = g_weaponDefs[bin->m_type].m_volley * g_weaponDefs[bin->m_type].m_volleysPerBin;
 					bin->m_weapon = i;
 					bin->m_id = ammo->m_id;
 					bin->m_damage = g_weaponDefs[bin->m_type].m_damage;
@@ -307,38 +307,38 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	p_mech->m_ammoBinCount = header->m_ammoCount;
 	heat = 50;
 	if (p_mech->m_player->m_index == g_localPlayerId) {
-		switch (g_difficulty->m_unk0x05) {
+		switch (g_difficulty->m_enemySkill) {
 		case 0:
 			heat *= 1.4;
-			if (g_unk0x100ba620 < -30) {
+			if (g_temperature < -30) {
 				heat *= 2;
 			}
-			else if (g_unk0x100ba620 > 50) {
+			else if (g_temperature > 50) {
 			}
 			break;
 		case 1:
-			if (g_unk0x100ba620 < -30) {
+			if (g_temperature < -30) {
 				heat *= 2;
 			}
-			else if (g_unk0x100ba620 > 50) {
+			else if (g_temperature > 50) {
 				heat *= 0.9;
 			}
 			break;
 		case 2:
 			heat *= 0.9;
-			if (g_unk0x100ba620 < -30) {
+			if (g_temperature < -30) {
 				heat *= 1.5;
 			}
-			else if (g_unk0x100ba620 > 50) {
+			else if (g_temperature > 50) {
 				heat *= 0.8;
 			}
 			break;
 		}
 	}
-	else if (g_unk0x100ba620 < -30) {
+	else if (g_temperature < -30) {
 		heat *= 2;
 	}
-	else if (g_unk0x100ba620 > 50) {
+	else if (g_temperature > 50) {
 		heat *= 0.9;
 	}
 
@@ -363,7 +363,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);
 	WriteToMw2Log(text);
 	if (fromResource) {
-		FUN_1001a163(p_id, g_resourceTypeTags[c_resTagMek]);
+		UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagMek]);
 	}
 	else {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, header);
@@ -394,7 +394,7 @@ MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_
 	count = 0;
 	armor = 0;
 	for (i = 0; i < 8; i++, p_sections++) {
-		for (j = 0; j < p_sections->m_unk0x24; j++) {
+		for (j = 0; j < p_sections->m_slotCount; j++) {
 			armor += p_sections->m_armor[0] + p_sections->m_armor[1];
 			for (k = 22; k >= 0; k--) {
 				if (p_sections->m_slots[j] > kinds[k][0]) {
@@ -424,11 +424,11 @@ MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_
 		}
 
 		value += armor;
-		value += (MechU16) p_sections->m_unk0x08;
+		value += (MechU16) p_sections->m_internal;
 	}
 
 	for (i = 0; i < p_header->m_weaponCount && i < 10; i++, p_weapons++) {
-		value += g_unk0x100aa730[p_weapons->m_type / 100];
+		value += g_weaponValues[p_weapons->m_type / 100];
 	}
 
 	return value;

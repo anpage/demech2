@@ -18,11 +18,11 @@
 
 // Runs p_player's AI weapons at random intervals (up to m_gunnery x 22 ticks): within 10 degrees
 // of the heading p_heading (always against the local player, else one time in three) it aims at
-// its goal and may fire (FUN_1004b724). Then turns and pitches the torso. Returns whether it
+// its goal and may fire (DecideAIFire). Then turns and pitches the torso. Returns whether it
 // fired.
 // Stack-slot permutation: fired, roll and delta.
 // FUNCTION: MW2 0x1004b5a0
-MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
+MechS32 RunAIWeapons(Player* p_player, MechS32 p_heading)
 {
 	MechS32 fired;
 	MechS32 roll;
@@ -37,8 +37,8 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 			if ((p_player->m_ai.m_goal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
 				SetTarget(p_player, p_player->m_ai.m_goal);
 				if (!roll) {
-					if (FUN_1004b724(p_player)) {
-						if (!(p_player->m_skillFlag4) || FUN_1006ca60(p_player, 1)) {
+					if (DecideAIFire(p_player)) {
+						if (!(p_player->m_skillFlag4) || CanSeeTarget(p_player, 1)) {
 							p_player->m_steering->m_weaponFire = 1;
 							fired = TRUE;
 						}
@@ -62,7 +62,7 @@ MechS32 FUN_1004b5a0(Player* p_player, MechS32 p_heading)
 // Firing weapon types 0 and 4 also steers; a guided weapon's volley may lock on.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004b724
-MechS32 FUN_1004b724(Player* p_player)
+MechS32 DecideAIFire(Player* p_player)
 {
 	MechS32 fire;
 	MechS32 type;
@@ -77,7 +77,7 @@ MechS32 FUN_1004b724(Player* p_player)
 		slot = &mech->m_weapons[mech->m_selectedWeapon];
 		type = slot->m_type;
 		def = &g_weaponDefs[type];
-		switch (FUN_1006cd45(p_player, def)) {
+		switch (GetTargetRangeBand(p_player, def)) {
 		case 1:
 		case 2:
 			break;
@@ -88,14 +88,14 @@ MechS32 FUN_1004b724(Player* p_player)
 
 		if (fire) {
 			fire = FALSE;
-			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && FUN_10045919(mech) == 1 && slot->m_ammo &&
+			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 				fire = TRUE;
 			}
 		}
 
 		if (!fire) {
-			FUN_10045449(mech, 1);
+			SelectNextWeaponInGroup(mech, 1);
 		}
 	}
 
@@ -109,13 +109,13 @@ MechS32 FUN_1004b724(Player* p_player)
 		else if (type == 21) {
 		}
 
-		if (g_weaponDefs[type].m_unk0x18) {
+		if (g_weaponDefs[type].m_guided) {
 			if (p_player->m_gunnery <= 4 && !RandomIntBelow(p_player->m_gunnery + 1)) {
 				mech->m_flags |= 0x80;
 			}
 
 			if (p_player->m_ai.m_goal == (g_localPlayerId | 0x200)) {
-				FUN_1007eb23(0x6f, 100, 0x40, 5, 0x32);
+				PlaySoundEffect(0x6f, 100, 0x40, 5, 0x32);
 			}
 		}
 	}

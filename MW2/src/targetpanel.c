@@ -22,13 +22,13 @@
 #include "polydraw.h"
 #include "random.h"
 #include "recttransition.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 #include "vfxa.h"
@@ -37,34 +37,34 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100ba4bc
-MechS32 g_unk0x100ba4bc = 1;
+MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
 // GLOBAL: MW2 0x100ba4c0
-MechS32 g_unk0x100ba4c0 = 0;
+MechS32 g_announceTargetSide = 0;
 
 // When the target panel goes from the target's short name to its name.
 // GLOBAL: MW2 0x100ba4c4
-MechS32 g_unk0x100ba4c4 = 0;
+MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
-MechS32 g_unk0x100ba4c8 = 0;
+MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
-MechS32 g_unk0x100ba4cc = 0;
+MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation.
 // GLOBAL: MW2 0x100c26a0
-MechChar g_unk0x100c26a0[8];
+MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
 // name after a while), coloured by its side, and its distance.
-// Stack-slot permutation of the locals. g_currentClock > g_unk0x100ba4c4 compares with its
+// Stack-slot permutation of the locals. g_currentClock > g_targetFullNameTime compares with its
 // operands reversed (it flipped when speech.h's declarations were added ahead of it).
 // FUNCTION: MW2 0x1007b930
-void FUN_1007b930(CockpitPanel* p_panel)
+void DrawTargetPanelText(CockpitPanel* p_panel)
 {
 	MechS32 index;
 	MechFloat km;
@@ -87,29 +87,29 @@ void FUN_1007b930(CockpitPanel* p_panel)
 		return;
 	}
 
-	if (mech->m_player->m_targetInfo.m_target != g_unk0x100ba4c8) {
-		g_unk0x100ba4c4 = 0;
+	if (mech->m_player->m_targetInfo.m_target != g_lastPanelTarget) {
+		g_targetFullNameTime = 0;
 	}
 
-	if (g_unk0x100aaba8 == 2) {
-		g_unk0x100ba4c4 = g_currentClock + 362;
+	if (g_inspectResult == 2) {
+		g_targetFullNameTime = g_currentClock + 362;
 		p_panel->m_setName(p_panel, "Out of range");
 		PlayCockpitSound(0x14, -1);
 	}
-	else if (g_unk0x100aaba8) {
-		g_unk0x100ba4c4 = g_currentClock + 362;
+	else if (g_inspectResult) {
+		g_targetFullNameTime = g_currentClock + 362;
 		switch (kind) {
 		case 0x100:
-			p_panel->m_setName(p_panel, g_navTable[index].m_unk0x3e);
-			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			p_panel->m_setName(p_panel, g_navTable[index].m_shortName);
+			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x400:
-			p_panel->m_setName(p_panel, g_gameThings[index].m_unk0x2a);
-			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			p_panel->m_setName(p_panel, g_gameThings[index].m_shortName);
+			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x200:
 			p_panel->m_setName(p_panel, g_players[index]->m_shortName);
-			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		default:
 			p_panel->m_setName(p_panel, "");
@@ -121,8 +121,8 @@ void FUN_1007b930(CockpitPanel* p_panel)
 		}
 	}
 
-	if (!g_unk0x100ba4c4 || g_currentClock > g_unk0x100ba4c4) {
-		g_unk0x100ba4c4 = 0;
+	if (!g_targetFullNameTime || g_currentClock > g_targetFullNameTime) {
+		g_targetFullNameTime = 0;
 		switch (kind) {
 		case 0x100:
 			if (!(g_navTable[index].m_flags & 0x20) && (g_navTable[index].m_flags & 0x100)) {
@@ -136,12 +136,12 @@ void FUN_1007b930(CockpitPanel* p_panel)
 			}
 			break;
 		case 0x400:
-			if (!(g_gameThings[index].m_unk0x00 & 0x20) && (g_gameThings[index].m_unk0x00 & 0x100)) {
-				if (!g_unk0x100c26a0[0]) {
-					strcpy(g_unk0x100c26a0, "Unknown");
+			if (!(g_gameThings[index].m_flags & 0x20) && (g_gameThings[index].m_flags & 0x100)) {
+				if (!g_anonymousInstallationName[0]) {
+					strcpy(g_anonymousInstallationName, "Unknown");
 				}
 
-				p_panel->m_setName(p_panel, g_unk0x100c26a0);
+				p_panel->m_setName(p_panel, g_anonymousInstallationName);
 			}
 			else {
 				if (!strlen(g_gameThings[index].m_name)) {
@@ -151,8 +151,8 @@ void FUN_1007b930(CockpitPanel* p_panel)
 					p_panel->m_setName(p_panel, g_gameThings[index].m_name);
 				}
 
-				if (g_unk0x100ba4c0) {
-					switch (FUN_1003c30e(index)) {
+				if (g_announceTargetSide) {
+					switch (GetThingSide(index)) {
 					case 0:
 						PlayCockpitSound(0xf, -1);
 						break;
@@ -164,7 +164,7 @@ void FUN_1007b930(CockpitPanel* p_panel)
 						break;
 					}
 
-					g_unk0x100ba4c0 = 0;
+					g_announceTargetSide = 0;
 				}
 			}
 			break;
@@ -180,7 +180,7 @@ void FUN_1007b930(CockpitPanel* p_panel)
 					p_panel->m_setName(p_panel, g_players[index]->m_name);
 				}
 
-				if (g_unk0x100ba4c0) {
+				if (g_announceTargetSide) {
 					switch (GetPlayerSide(index)) {
 					case 0:
 						PlayCockpitSound(0xf, -1);
@@ -193,7 +193,7 @@ void FUN_1007b930(CockpitPanel* p_panel)
 						break;
 					}
 
-					g_unk0x100ba4c0 = 0;
+					g_announceTargetSide = 0;
 				}
 			}
 			break;
@@ -204,7 +204,7 @@ void FUN_1007b930(CockpitPanel* p_panel)
 	}
 
 	if (kind == 0x400) {
-		switch (FUN_1003c30e(index)) {
+		switch (GetThingSide(index)) {
 		case 0:
 			color = 0xe;
 			break;
@@ -238,34 +238,34 @@ void FUN_1007b930(CockpitPanel* p_panel)
 		}
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
 
-	g_unk0x100e9350[0xe] = color;
-	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
-	g_unk0x100e9350[0xe] = 0xe;
+	g_textColors[0xe] = color;
+	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
+	g_textColors[0xe] = 0xe;
 	meters = mech->m_player->m_targetInfo.m_range / 100;
 	if (meters > 1000) {
 		km = meters / 1000.0;
 		sprintf(text, "\n%2.2fk", km);
-		FUN_10057396(p_panel->m_target, text, font);
+		DrawWrappedText(p_panel->m_target, text, font);
 	}
 	else {
 		sprintf(text, "\n%3ldm", meters);
-		FUN_10057396(p_panel->m_target, text, font);
+		DrawWrappedText(p_panel->m_target, text, font);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
-	g_unk0x100ba4c8 = mech->m_player->m_targetInfo.m_target;
+	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
 }
 
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
-// static while the panel is damaged (m_unk0x06).
+// static while the panel is damaged (m_damage).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
-void FUN_1007c126(CockpitPanel* p_panel)
+void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;
 	MechS32 dz;
@@ -289,28 +289,28 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	void* noObject;
 	MechS32 targetIndex;
 
-	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
-	if (p_panel->m_unk0x06 == 1) {
-		if (g_unk0x100ba4cc) {
+	p_panel->m_lastPowerState = g_cockpitPowerState;
+	if (p_panel->m_damage == 1) {
+		if (g_targetPanelStatic) {
 			if (RandomIntBelow(10) < 7) {
-				g_unk0x100ba4cc = 0;
+				g_targetPanelStatic = 0;
 			}
 
-			FUN_1007c6df(p_panel);
+			DrawTargetStatic(p_panel);
 			return;
 		}
 		else {
 			if (RandomIntBelow(10) < 3) {
-				g_unk0x100ba4cc = 1;
+				g_targetPanelStatic = 1;
 			}
 		}
 	}
-	else if (p_panel->m_unk0x06 > 2) {
-		FUN_1007c6df(p_panel);
+	else if (p_panel->m_damage > 2) {
+		DrawTargetStatic(p_panel);
 		return;
 	}
 
@@ -320,7 +320,7 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	index = mech->m_player->m_targetInfo.m_target & 0xff;
 	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
 		VFX_pane_wipe(p_panel->m_target, 0);
-		FUN_100570e9(p_panel->m_target, 8);
+		OutlinePane(p_panel->m_target, 8);
 		return;
 	}
 
@@ -336,8 +336,8 @@ void FUN_1007c126(CockpitPanel* p_panel)
 
 		if (icon) {
 			VFX_pane_wipe(p_panel->m_target, 0);
-			FUN_10041f06(centerX, centerY, icon, p_panel->m_target);
-			FUN_100570e9(p_panel->m_target, 8);
+			DrawPaneShape(centerX, centerY, icon, p_panel->m_target);
+			OutlinePane(p_panel->m_target, 8);
 		}
 
 		return;
@@ -345,41 +345,41 @@ void FUN_1007c126(CockpitPanel* p_panel)
 
 	if (kind == 0x200) {
 		targetPlayer = g_players[mech->m_player->m_targetInfo.m_target & 0xff];
-		FUN_1001d292(targetPlayer->m_index, 0);
+		LoadClassLevel(targetPlayer->m_index, 0);
 	}
 
-	FUN_100114ea(g_eyepoint, view);
-	FUN_10050dc3(&saved);
+	SaveView(g_eyepoint, view);
+	SetMechViewRenderSettings(&saved);
 	x = player->m_targetInfo.m_position.m_x;
 	y = player->m_targetInfo.m_position.m_y;
 	z = player->m_targetInfo.m_position.m_z;
 	heading = player->m_targetInfo.m_heading;
-	object = FUN_1005ff56();
+	object = GetLocalTargetObject();
 	if (!object) {
-		noTarget = FUN_1001a19f(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
+		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
 		if (noTarget) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
-			FUN_100570e9(p_panel->m_target, 8);
-			FUN_1001a163(0x5b, g_resourceTypeTags[c_resTagShp]);
+			OutlinePane(p_panel->m_target, 8);
+			UnlockCachedResource(0x5b, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		return;
 	}
-	else if (!object->m_unk0x6c) {
-		noObject = FUN_1001a19f(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
+	else if (!object->m_shape) {
+		noObject = LoadCachedResource(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
-			FUN_100570e9(p_panel->m_target, 8);
-			FUN_1001a163(0x58, g_resourceTypeTags[c_resTagShp]);
+			OutlinePane(p_panel->m_target, 8);
+			UnlockCachedResource(0x58, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		return;
 	}
 
 	if (kind == 0x400) {
-		distance = FUN_1003adc9(object->m_unk0x6c, &x, &y, &z) * 3;
+		distance = GetShapeBounds(object->m_shape, &x, &y, &z) * 3;
 	}
 	else {
 		targetIndex = player->m_targetInfo.m_target & 0xff;
@@ -394,54 +394,54 @@ void FUN_1007c126(CockpitPanel* p_panel)
 	view[3] = heading;
 	view[4] = 0;
 	view[5] = 0;
-	if (g_unk0x100ba4bc == 1) {
-		g_renderSettings.m_unk0x34 = 1;
-		g_renderSettings.m_unk0x38 = 0;
+	if (g_targetPanelMode == 1) {
+		g_renderSettings.m_wireframe = 1;
+		g_renderSettings.m_wireframeColors = 0;
 	}
 	else {
-		g_renderSettings.m_unk0x34 = 0;
+		g_renderSettings.m_wireframe = 0;
 	}
 
-	g_renderSettings.m_unk0x1c = g_renderSettings.m_unk0x20 = 0;
+	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
-	if (g_unk0x100c3358 == 2) {
-		FUN_1004c8bd(7, 0x20000, view, object);
+	if (g_cockpitPowerState == 2) {
+		RenderViewToPane(7, 0x20000, view, object);
 	}
 
-	FUN_100570e9(p_panel->m_target, 8);
+	OutlinePane(p_panel->m_target, 8);
 	g_renderSettings = saved;
 }
 
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
-void FUN_1007c6df(CockpitPanel* p_panel)
+void DrawTargetStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
 		return;
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
-	FUN_1007079d(p_panel->m_target, 0, 0, 0);
+	p_panel->m_lastPowerState = g_cockpitPowerState;
+	DrawPanelAnim(p_panel->m_target, 0, 0, 0);
 }
 
 // Draws the target panel while its transition opens it, the view resized to the transition's
 // rectangle (g_panes[7] and the panel's target) for the frame.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
-void FUN_1007c71e(CockpitPanel* p_panel)
+void DrawTargetPanelStartup(CockpitPanel* p_panel)
 {
 	PANE* rect;
 	RectTransition* transition;
 	PANE savedView;
 	PANE savedTarget;
 
-	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
 
 	transition = p_panel->m_transition;
 	if (transition) {
-		if (p_panel->m_unk0x3c != 1) {
+		if (p_panel->m_lastPowerState != 1) {
 			StartRectTransition(transition);
 		}
 
@@ -451,36 +451,36 @@ void FUN_1007c71e(CockpitPanel* p_panel)
 			savedTarget = *p_panel->m_target;
 			g_panes[7] = *rect;
 			*p_panel->m_target = *rect;
-			FUN_1007c126(p_panel);
+			DrawTargetPanel(p_panel);
 			g_panes[7] = savedView;
 			*p_panel->m_target = savedTarget;
 		}
 		else {
-			FUN_1007c126(p_panel);
+			DrawTargetPanel(p_panel);
 		}
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
+	p_panel->m_lastPowerState = g_cockpitPowerState;
 }
 
 // Draws the target panel while its transition closes it, unless the view it last drew (0, 3 or
 // 4) already had it closed.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c81c
-void FUN_1007c81c(CockpitPanel* p_panel)
+void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 {
 	PANE* rect;
 	RectTransition* transition;
 	PANE savedView;
 	PANE savedTarget;
 
-	if (!p_panel->m_enabled || !g_unk0x100ba4bc) {
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
 
 	transition = p_panel->m_transition;
 	if (transition) {
-		if (p_panel->m_unk0x3c != 0 && p_panel->m_unk0x3c != 3 && p_panel->m_unk0x3c != 4) {
+		if (p_panel->m_lastPowerState != 0 && p_panel->m_lastPowerState != 3 && p_panel->m_lastPowerState != 4) {
 			StartRectTransition(transition);
 		}
 
@@ -490,11 +490,11 @@ void FUN_1007c81c(CockpitPanel* p_panel)
 			savedTarget = *p_panel->m_target;
 			g_panes[7] = *rect;
 			*p_panel->m_target = *rect;
-			FUN_1007c126(p_panel);
+			DrawTargetPanel(p_panel);
 			g_panes[7] = savedView;
 			*p_panel->m_target = savedTarget;
 		}
 	}
 
-	p_panel->m_unk0x3c = g_unk0x100c3358;
+	p_panel->m_lastPowerState = g_cockpitPowerState;
 }

@@ -16,9 +16,9 @@
 #include "poolsizes.h"
 #include "ramp.h"
 #include "random.h"
-#include "rendertarget.h"
 #include "resource.h"
 #include "staticmem.h"
+#include "targeting.h"
 #include "types.h"
 #include "weapons.h"
 #include "weaponslot.h"
@@ -26,7 +26,7 @@
 // Resets the player's mech of this class: its torso objects and ramps, state and weapons, stands
 // its object up where it is and clears the player's steering.
 // FUNCTION: MW2 0x10059fc0
-void FUN_10059fc0(Player* p_player)
+void FirstArtillery(Player* p_player)
 {
 	Mech* mech;
 
@@ -35,8 +35,8 @@ void FUN_10059fc0(Player* p_player)
 		return;
 	}
 
-	mech->m_torsoObj = FUN_100506d8();
-	mech->m_pitchObj = FUN_100506d8();
+	mech->m_torsoObj = NextThingRecordObject();
+	mech->m_pitchObj = NextThingRecordObject();
 	StartRamp(&mech->m_torsoTwist, 0, 0, 0.8);
 	StartRamp(&mech->m_torsoPitch, 0, 0, 0.8);
 	mech->m_selectedWeapon = 0;
@@ -54,7 +54,7 @@ void FUN_10059fc0(Player* p_player)
 	mech->m_unk0xf0 = 0;
 	MoveObj(mech->m_player->m_obj, 0, mech->m_height, 0);
 	UpdateObj(mech->m_player->m_obj);
-	GetObjWorldPos(
+	GetObjWorldAngles(
 		mech->m_player->m_obj,
 		&mech->m_player->m_pitch,
 		&mech->m_player->m_heading,
@@ -69,7 +69,7 @@ void FUN_10059fc0(Player* p_player)
 	mech->m_player->m_torsoPitch = mech->m_player->m_torsoTwist = mech->m_player->m_torsoRoll = 0;
 	mech->m_player->m_speedLevel = 0;
 	mech->m_player->m_nextMotionState = -1;
-	FUN_100019f6(mech->m_player->m_obj);
+	EnableObjTreeCollision(mech->m_player->m_obj);
 	mech->m_player->m_steering->m_autopilot = 0;
 	mech->m_player->m_steering->m_throttle = 0;
 	mech->m_player->m_steering->m_advanceNav = 0;
@@ -78,9 +78,9 @@ void FUN_10059fc0(Player* p_player)
 }
 
 // Updates the mech's torso: clears the tick's heat, steps the twist and pitch ramps and turns the
-// torso objects (m_unk0x64 by the pitch, m_unk0x60 by the player's view angles with the twist).
+// torso objects (m_pitchObj by the pitch, m_torsoObj by the player's view angles with the twist).
 // FUNCTION: MW2 0x1005a203
-void FUN_1005a203(Mech* p_mech)
+void UpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
 
@@ -119,7 +119,7 @@ void FUN_1005a203(Mech* p_mech)
 // time has passed, 3 starts over and 4 is destroyed.
 // Stack-slot permutation: mech, twist and delta.
 // FUNCTION: MW2 0x1005a2ea
-void FUN_1005a2ea(Mech* p_mech)
+void LateUpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
 	MechS32 twist;
@@ -131,7 +131,7 @@ void FUN_1005a2ea(Mech* p_mech)
 		UpdateWeaponFireState(mech);
 		if (mech->m_player->m_aiMode != 2) {
 			if (mech->m_player->m_targetInfo.m_target && !(mech->m_player->m_targetInfo.m_target & 0x1000) &&
-				!FUN_1005fa22(mech->m_player)) {
+				!UpdateTarget(mech->m_player)) {
 				mech->m_player->m_targetInfo.m_target = 0;
 			}
 		}
@@ -139,7 +139,7 @@ void FUN_1005a2ea(Mech* p_mech)
 			mech->m_player->m_targetInfo.m_target = 0;
 		}
 
-		FUN_10045eac(mech);
+		UpdateWeaponLock(mech);
 		mech->m_autopilot = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
 		if ((mech->m_flags & 4) && !(mech->m_flags & 8)) {
@@ -200,14 +200,14 @@ void FUN_1005a2ea(Mech* p_mech)
 		}
 
 		if (mech->m_stateTime > g_currentClock) {
-			FUN_1004cb11(mech);
+			EmitWreckSmoke(mech);
 		}
 		break;
 	}
 }
 
 // FUNCTION: MW2 0x1005a61d
-void FUN_1005a61d(Mech* p_mech)
+void ShutdownArtillery(Mech* p_mech)
 {
 	if (!p_mech) {
 		return;
@@ -217,7 +217,7 @@ void FUN_1005a61d(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005a637
-MechS32 FUN_1005a637(MechS32 p_index, Player* p_player)
+MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
 	MechSection* sections = NULL;
@@ -229,7 +229,7 @@ MechS32 FUN_1005a637(MechS32 p_index, Player* p_player)
 	MechS32 size;
 
 	p_player->m_mech = NULL;
-	size = FUN_10019a0a();
+	size = GetMechAllocSize();
 	buffer = StaticPoolAlloc(size, g_staticPoolTags[1]);
 	if (!buffer) {
 		return FALSE;
@@ -251,7 +251,7 @@ MechS32 FUN_1005a637(MechS32 p_index, Player* p_player)
 	p_player->m_mechSize = 0x10e;
 	slot = mech->m_weapons;
 	for (i = 0; i < 10; i++) {
-		slot->m_unk0x00 = -1;
+		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;
 		slot->m_time = 0;

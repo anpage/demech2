@@ -10,8 +10,8 @@
 #include "polydraw.h"
 #include "refreshmode.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "types.h"
 
@@ -28,10 +28,10 @@ MechS32 g_currentPalette = 0x10;
 MechS32 g_palettePending = 0;
 
 // GLOBAL: MW2 0x100a00d8
-MechS32 g_unk0x100a00d8 = 0;
+MechS32 g_basePalette = 0;
 
 // GLOBAL: MW2 0x100a00dc
-MechS32 g_unk0x100a00dc = 0x10;
+MechS32 g_settledPalette = 0x10;
 
 // GLOBAL: MW2 0x100a00e0
 MechS32 g_paletteFadeTarget = -1;
@@ -88,26 +88,26 @@ void SelectPane(MechS32 p_index)
 
 	if (p_index != g_paneIndex) {
 		target = &g_panes[p_index];
-		g_eyepoint->m_unk0x2c = 0;
-		g_eyepoint->m_unk0x34 = 0;
-		g_eyepoint->m_unk0x30 = target->m_x1 - target->m_x0;
-		g_eyepoint->m_unk0x38 = target->m_y1 - target->m_y0;
-		g_eyepoint->m_unk0x4c = 0;
-		g_eyepoint->m_unk0x50 = 0;
+		g_eyepoint->m_viewLeft = 0;
+		g_eyepoint->m_viewTop = 0;
+		g_eyepoint->m_viewRight = target->m_x1 - target->m_x0;
+		g_eyepoint->m_viewBottom = target->m_y1 - target->m_y0;
+		g_eyepoint->m_offsetX = 0;
+		g_eyepoint->m_offsetY = 0;
 		g_currentPane = *target;
 		g_paneIndex = p_index;
-		g_unk0x100a2460 = 1;
+		g_projectionDirty = 1;
 	}
 }
 
 // FUNCTION: MW2 0x100024f0
-void FUN_100024f0(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
+void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 {
 	MechS32 x;
 	MechS32 y;
 
-	x = p_eyepoint->m_unk0x4c + (p_eyepoint->m_unk0x2c + p_eyepoint->m_unk0x30) / 2;
-	y = p_eyepoint->m_unk0x50 + (p_eyepoint->m_unk0x34 + p_eyepoint->m_unk0x38) / 2;
+	x = p_eyepoint->m_offsetX + (p_eyepoint->m_viewLeft + p_eyepoint->m_viewRight) / 2;
+	y = p_eyepoint->m_offsetY + (p_eyepoint->m_viewTop + p_eyepoint->m_viewBottom) / 2;
 	*p_x = x;
 	*p_y = y;
 }
@@ -117,8 +117,8 @@ void ApplyPendingPalette(void)
 {
 	if (g_palettePending && g_paletteFadeSteps <= 0) {
 		g_palettePending = 0;
-		ApplyPaletteResource(g_unk0x100a00dc);
-		g_currentPalette = g_unk0x100a00dc;
+		ApplyPaletteResource(g_settledPalette);
+		g_currentPalette = g_settledPalette;
 	}
 }
 
@@ -130,10 +130,10 @@ void ApplyPaletteResource(MechS32 p_slot)
 
 	id = &g_paletteResourceIds[p_slot];
 	if (*id > 0) {
-		palette = FUN_1001a19f(g_mw2PrjHandle, *id, g_resourceTypeTags[c_resTagPal], 0);
+		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resourceTypeTags[c_resTagPal], 0);
 		if (palette) {
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
-			FUN_1001a163(*id, g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(*id, g_resourceTypeTags[c_resTagPal]);
 		}
 	}
 }
@@ -177,11 +177,11 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 	}
 	else if (g_paletteFadeSteps <= 0) {
 		fromSlot = g_currentPalette;
-		from = FUN_1001a19f(g_mw2PrjHandle, g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal], 0);
+		from = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal], 0);
 	}
 
 	if (from) {
-		to = FUN_1001a19f(g_mw2PrjHandle, g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal], 0);
+		to = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal], 0);
 		if (to) {
 			g_paletteFadeTarget = p_palette;
 			g_paletteFadeBack = fromSlot;
@@ -224,14 +224,14 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 
 			InitPaletteFade(&g_paletteFade, from, to, 0, 0x100, steps);
 			result = 1;
-			FUN_1001a163(g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal]);
 		}
 
 		if (fromSlot == -1) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, from);
 		}
 		else {
-			FUN_1001a163(g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal]);
 		}
 	}
 
@@ -239,9 +239,9 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 }
 
 // FUNCTION: MW2 0x1000288e
-MechS32 FUN_1000288e(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
+MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 {
-	return StartPaletteFade(p_offset + g_unk0x100a00d8, p_duration, p_mode);
+	return StartPaletteFade(p_offset + g_basePalette, p_duration, p_mode);
 }
 
 // FUNCTION: MW2 0x100028b7
@@ -255,7 +255,7 @@ void StartPaletteCycle(MechU8 p_first, MechS32 p_count)
 
 	g_paletteCycling = 1;
 	g_paletteCycleResource = g_paletteResourceIds[g_currentPalette];
-	palette = FUN_1001a19f(g_mw2PrjHandle, g_paletteCycleResource, g_resourceTypeTags[c_resTagPal], 0);
+	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteCycleResource, g_resourceTypeTags[c_resTagPal], 0);
 	if (palette == NULL) {
 		return;
 	}
@@ -276,7 +276,7 @@ void StopPaletteCycle(void)
 
 	FreePaletteCycle(&g_paletteCycle);
 	g_paletteCycling = 0;
-	FUN_1001a163(g_paletteCycleResource, g_resourceTypeTags[c_resTagPal]);
+	UnlockCachedResource(g_paletteCycleResource, g_resourceTypeTags[c_resTagPal]);
 	g_paletteCycleResource = -1;
 	ApplyPendingPalette();
 }
@@ -288,27 +288,27 @@ MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 
 	old = g_paletteResourceIds[p_slot];
 	g_paletteResourceIds[p_slot] = p_id;
-	FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagPal], 0);
-	FUN_1001a163(p_id, g_resourceTypeTags[c_resTagPal]);
+	LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagPal], 0);
+	UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagPal]);
 	return old;
 }
 
 // FUNCTION: MW2 0x10002a24
-void FUN_10002a24(MechS32 p_palette, MechS32 p_duration)
+void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration)
 {
 	MechS32 palette;
 
 	palette = p_palette;
 	StartPaletteFade(palette, p_duration, 0);
-	g_unk0x100a00d8 = p_palette;
-	g_unk0x100a00dc = palette;
+	g_basePalette = p_palette;
+	g_settledPalette = palette;
 }
 
 // FUNCTION: MW2 0x10002a5a
-void FUN_10002a5a(MechS32 p_palette)
+void SetBasePalette(MechS32 p_palette)
 {
-	g_unk0x100a00d8 = p_palette;
-	g_unk0x100a00dc = p_palette;
+	g_basePalette = p_palette;
+	g_settledPalette = p_palette;
 }
 
 // Brings up the start palette (slot 0x10): with p_dissolve, it dissolves the screen to black
@@ -335,11 +335,11 @@ void StartPalettes(MechS32 p_dissolve)
 	ticks = 0;
 	hasPalette = g_paletteResourceIds[0x10] != -1;
 	if (hasPalette) {
-		palette = FUN_1001a19f(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
 		if (palette) {
 			if (p_dissolve == 0) {
 				g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
-				FUN_1001a163(hasPalette, g_resourceTypeTags[c_resTagPal]);
+				UnlockCachedResource(hasPalette, g_resourceTypeTags[c_resTagPal]);
 				g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 			}
 			else {
@@ -378,11 +378,11 @@ void StartPalettes(MechS32 p_dissolve)
 	}
 
 	g_currentPalette = 0x10;
-	g_unk0x100a00dc = 0x10;
+	g_settledPalette = 0x10;
 }
 
 // FUNCTION: MW2 0x10002c76
-MechS32 FUN_10002c76(void)
+MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;
 }

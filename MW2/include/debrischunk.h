@@ -4,8 +4,8 @@
 #include "object.h"
 #include "types.h"
 
-// A scene object blown off a model (FUN_10004356): it flies as a DebrisPiece until it is shot
-// to pieces (FUN_10004783) or times out (UpdateDebris), then goes to its callback.
+// A scene object blown off a model (BlowOffChunk): it flies as a DebrisPiece until it is shot
+// to pieces (DamageChunk) or times out (UpdateDebris), then goes to its callback.
 // SIZE 0x14
 typedef struct DebrisChunk {
 	MechS32 m_active;          // 0x00

@@ -10,9 +10,9 @@
 #include "menutextbox.h"
 #include "mw2prj.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 
@@ -144,10 +144,10 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		break;
 	}
 
-	left = FUN_1001a19f(g_mw2PrjHandle, shapes[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
-	bar = FUN_1001a19f(g_mw2PrjHandle, shapes[2] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
-	knob = FUN_1001a19f(g_mw2PrjHandle, shapes[6] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
-	right = FUN_1001a19f(g_mw2PrjHandle, shapes[4] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+	left = LoadCachedResource(g_mw2PrjHandle, shapes[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	bar = LoadCachedResource(g_mw2PrjHandle, shapes[2] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	knob = LoadCachedResource(g_mw2PrjHandle, shapes[6] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	right = LoadCachedResource(g_mw2PrjHandle, shapes[4] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	if (bar && knob) {
 		size = VFX_shape_bounds(bar, 0);
 		width = size >> 16;
@@ -189,17 +189,17 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	}
 
 	p_control->m_value = value;
-	FUN_1001a163(shapes[0] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
-	FUN_1001a163(shapes[2] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
-	FUN_1001a163(shapes[4] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
-	FUN_1001a163(shapes[6] + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[2] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[4] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[6] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 }
 
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
 // callbacks.
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // FUNCTION: MW2 0x10072dab
-void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
 	MechS32 value;
@@ -310,7 +310,7 @@ void FUN_10072dab(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 			}
 		}
 
-		VFX_string_draw(target, p_pos.m_x, p_pos.m_y, p_menu->m_font, text, g_unk0x100e9350);
+		VFX_string_draw(target, p_pos.m_x, p_pos.m_y, p_menu->m_font, text, g_textColors);
 	}
 
 	if (selected) {
@@ -448,7 +448,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 			p_pos.m_y,
 			p_menu->m_font,
 			((MenuChoices*) p_control->m_data)->m_texts[value],
-			g_unk0x100e9350
+			g_textColors
 		);
 	}
 
@@ -470,7 +470,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100734ad
-void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
+void RunMenuTextBox(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MenuTextBox* box;
 	MechU32 state;
@@ -519,10 +519,10 @@ void FUN_100734ad(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_inde
 
 	if (!rect->m_window) {
 		rect->m_window = &g_mainPixelBuffer;
-		FUN_1005699f(target, rect, rect);
+		ScaleRectToFrame(target, rect, rect);
 	}
 
-	FUN_10057396(rect, text, font);
+	DrawWrappedText(rect, text, font);
 	if (p_control->m_preview && state != 4 && state != 5) {
 		p_control->m_preview(p_control->m_arg, 0);
 	}

@@ -10,9 +10,9 @@ typedef struct CameraShakeKey {
 	MechS32 m_x;        // 0x00
 	MechS32 m_y;        // 0x04
 	MechS32 m_z;        // 0x08
-	MechS32 m_unk0x0c;  // 0x0c
-	MechS32 m_unk0x10;  // 0x10
-	MechS32 m_unk0x14;  // 0x14
+	MechS32 m_heading;  // 0x0c
+	MechS32 m_pitch;    // 0x10
+	MechS32 m_roll;     // 0x14
 	MechS32 m_duration; // 0x18 — in clock ticks
 } CameraShakeKey;
 
@@ -35,9 +35,9 @@ extern "C"
 		MechS32 p_x,
 		MechS32 p_y,
 		MechS32 p_z,
-		MechS32 p_unk0x10,
-		MechS32 p_unk0x0c,
-		MechS32 p_unk0x14,
+		MechS32 p_pitch,
+		MechS32 p_heading,
+		MechS32 p_roll,
 		MechDouble p_seconds
 	);
 	MechS32 IsCameraShaking(void);

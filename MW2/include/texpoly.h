@@ -1,7 +1,7 @@
 #ifndef TEXPOLY_H
 #define TEXPOLY_H
 
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 
 // The functions and globals of texpoly.c that other units use.
@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-	void FUN_1006dd50(
+	void DrawTexturedPolygon(
 		PANE* p_target,
 		MechU8* p_pixels,
 		MechS16 p_width,

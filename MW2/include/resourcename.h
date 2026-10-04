@@ -11,7 +11,7 @@ extern "C"
 #endif
 
 	MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name);
-	void* FUN_10073922(
+	void* LoadResourceByRef(
 		ResourceRef* p_ref,
 		const char* p_type,
 		const char* p_ext,

@@ -13,28 +13,28 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100be00c;
-	extern MechS32 g_unk0x100a2be4;
-	extern MechS32 g_unk0x100a2be8;
-	extern MechS32 g_unk0x100a2bec;
-	extern MechS32 g_unk0x100a2bf0;
-	extern MechS32 g_unk0x100a2bf8;
-	extern MechS32 g_unk0x100a2c04;
-	extern MechS32 g_unk0x100a2c08;
-	extern MechS32 g_unk0x100a2c10;
-	extern MechS32 g_unk0x100a2c18;
+	extern MechS32 g_collisionSoundPlayed;
+	extern MechS32 g_infiniteJumpFuel;
+	extern MechS32 g_jettisonAmmoRequested;
+	extern MechS32 g_toggleMascRequested;
+	extern MechS32 g_mascEngaged;
+	extern MechS32 g_manualWeaponCycle;
+	extern MechS32 g_localMechLost;
+	extern MechS32 g_powerRequest;
+	extern MechS32 g_mechPoweredUp;
+	extern MechS32 g_localMechDestroyed;
 
-	void FUN_10016ad0(struct Player* p_player);
-	void FUN_10016edf(struct Mech* p_mech);
-	void FUN_100180cd(struct Mech* p_mech);
-	void FUN_10019368(struct Mech* p_mech);
-	void FUN_1001975a(struct Mech* p_mech);
-	void FUN_1001978e(struct Mech* p_mech);
-	MechS32 FUN_100197ca(MechS32 p_index, struct Player* p_player);
-	void FUN_10019881(struct Mech* p_mech);
-	MechS32 FUN_10019a0a(void);
+	void FirstMech(struct Player* p_player);
+	void UpdateMech(struct Mech* p_mech);
+	void LateUpdateMech(struct Mech* p_mech);
+	void UpdateLocalMech(struct Mech* p_mech);
+	void DrawMechCockpit(struct Mech* p_mech);
+	void ShutdownMech(struct Mech* p_mech);
+	MechS32 CreateMech(MechS32 p_index, struct Player* p_player);
+	void InitMechArrays(struct Mech* p_mech);
+	MechS32 GetMechAllocSize(void);
 	MechS32 GetLastSelectedWeapon(struct Player* p_player);
-	void FUN_10019a61(struct Player* p_player, MechS32 p_weapon);
+	void SetSelectedWeapon(struct Player* p_player, MechS32 p_weapon);
 	MechS32 GetMechHeight(struct Player* p_player);
 
 #ifdef __cplusplus

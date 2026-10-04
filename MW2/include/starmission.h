@@ -16,10 +16,10 @@ typedef struct StarMission {
 	MechS32 m_timeLimit;               // 0x0c
 	MechS32 m_successSpeech;           // 0x10 — a sound resource, announced when successful
 	MechS32 m_failSpeech;              // 0x14 — when failed
-	MechChar m_successSound[0x10];     // 0x18 — a sound file, loaded by FUN_100073bb
+	MechChar m_successSound[0x10];     // 0x18 — a sound file, loaded by ReadSoundFile
 	MechChar m_failSound[0x10];        // 0x28
 	MechU8 m_status;                   // 0x38 — 0 in progress, 2 successful, 3 failed, 4 out of time
-	undefined m_unk0x39;               // 0x39
+	undefined m_affiliation;           // 0x39
 	MissionObjective m_objectives[48]; // 0x3a
 } StarMission;
 

@@ -25,7 +25,7 @@
 #include <string.h>
 
 // Parses the command line MECH2.EXE passes: switches start with / or -, anything else names the
-// mission (p_mission, "s.$" by default), which is shown with FUN_100590ea. /C sets p_flags[0];
+// mission (p_mission, "s.$" by default), which is shown with MonoPrintLine. /C sets p_flags[0];
 // /S and /X clear p_flags[1]. Returns FALSE without a command line (not launched by MECH2.EXE).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ee80
@@ -62,7 +62,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				break;
 			case 'E':
 				_rmdir("mw2debug.txt");
-				g_unk0x100a5bf0 = 1;
+				g_logStreams = 1;
 				break;
 			case 'F':
 				rate = 10;
@@ -86,7 +86,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				g_logFileEnabled = 1;
 				break;
 			case 'M':
-				FUN_10058958();
+				InitializeMono();
 				g_missionTimerStopped = 1;
 				break;
 			case 'N':
@@ -99,22 +99,22 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				if (arg[3] == '=') {
 					switch (toupper(arg[2])) {
 					case 'F':
-						g_unk0x100a8630 = arg + 4;
+						g_playerTeamFormation = arg + 4;
 						break;
 					case 'E':
-						g_unk0x100a8634 = arg + 4;
+						g_otherTeamFormation = arg + 4;
 						break;
 					}
 				}
 				break;
 			case 'P':
-				g_unk0x100a5bec = 1;
+				g_streamsFromFiles = 1;
 				break;
 			case 'Q':
-				FUN_1001edfa();
+				DisableQuadtrees();
 				break;
 			case 'R':
-				g_unk0x100acb34 = 1;
+				g_startOnAutopilot = 1;
 				break;
 			case 'S':
 				p_flags[1] = 0;
@@ -140,18 +140,18 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				if (arg[2] == '=') {
 					switch (toupper(arg[3])) {
 					case 'F':
-						FUN_1003a37c(4);
+						SetDebugOutputMode(4);
 						break;
 					case 'S':
-						FUN_1003a37c(2);
+						SetDebugOutputMode(2);
 						break;
 					case 'M':
-						FUN_1003a37c(1);
+						SetDebugOutputMode(1);
 						break;
 					}
 				}
 
-				FUN_10058958();
+				InitializeMono();
 				g_missionTimerStopped = 1;
 				p_flags[1] = 0;
 				break;
@@ -179,6 +179,6 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 		arg = strtok(NULL, " ,");
 	}
 
-	FUN_100590ea(p_mission);
+	MonoPrintLine(p_mission);
 	return result;
 }

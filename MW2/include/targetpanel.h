@@ -11,14 +11,14 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100ba4bc;
-	extern MechChar g_unk0x100c26a0[8];
+	extern MechS32 g_targetPanelMode;
+	extern MechChar g_anonymousInstallationName[8];
 
-	void FUN_1007b930(struct CockpitPanel* p_panel);
-	void FUN_1007c126(struct CockpitPanel* p_panel);
-	void FUN_1007c6df(struct CockpitPanel* p_panel);
-	void FUN_1007c71e(struct CockpitPanel* p_panel);
-	void FUN_1007c81c(struct CockpitPanel* p_panel);
+	void DrawTargetPanelText(struct CockpitPanel* p_panel);
+	void DrawTargetPanel(struct CockpitPanel* p_panel);
+	void DrawTargetStatic(struct CockpitPanel* p_panel);
+	void DrawTargetPanelStartup(struct CockpitPanel* p_panel);
+	void DrawTargetPanelShutdown(struct CockpitPanel* p_panel);
 
 #ifdef __cplusplus
 }

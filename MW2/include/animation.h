@@ -29,7 +29,7 @@ extern "C"
 	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
 
-	MechS32 FUN_10068d10(
+	MechS32 DrawAnimatedPolygon(
 		MechS32 p_index,
 		MechS32 p_count,
 		MechU32* p_points,
@@ -38,16 +38,16 @@ extern "C"
 		MechS32 p_direct
 	);
 	void AdvanceAnimations(void);
-	MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set);
-	void FUN_1006923c(void);
-	MechS32 FUN_10069288(MechS32 p_index, MechS32 p_set);
-	void FUN_10069360(void);
-	void FUN_1006946f(MechS16 p_index, MechS16 p_mode);
-	void FUN_100694df(MechS16 p_index, MechU16 p_frame);
-	void FUN_10069564(MechS16 p_index, MechU16 p_delay);
+	MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set);
+	void PreloadAnimCels(void);
+	MechS32 StartAnimation(MechS32 p_index, MechS32 p_set);
+	void InitAnimations(void);
+	void SetAnimMode(MechS16 p_index, MechS16 p_mode);
+	void SetAnimFrame(MechS16 p_index, MechU16 p_frame);
+	void SetAnimDelay(MechS16 p_index, MechU16 p_delay);
 	void FUN_10069586(void);
 	void FUN_10069591(void);
-	void FUN_1006959c(void);
+	void FreeAnimations(void);
 
 #ifdef __cplusplus
 }

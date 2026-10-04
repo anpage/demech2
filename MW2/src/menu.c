@@ -12,12 +12,12 @@
 #include "menupage.h"
 #include "mw2prj.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "settings.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "types.h"
 #include "vfxa.h"
@@ -47,7 +47,7 @@ MenuDefinition* g_menuDefinitions[11] = {
 };
 
 // GLOBAL: MW2 0x100e9350
-undefined g_unk0x100e9350[0x100];
+undefined g_textColors[0x100];
 
 // GLOBAL: MW2 0x10109c78
 MechS32 g_openMenuCount;
@@ -162,11 +162,11 @@ void FreeMenus(void)
 }
 
 // Lays out a menu on the screen: scales its background target to the background shape, spaces
-// its m_unk0x3c lines evenly down the target, and converts its points to pixels. With flag 0x10
+// its m_lineCount lines evenly down the target, and converts its points to pixels. With flag 0x10
 // the background moves to the target's left edge.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003c5a2
-void FUN_1003c5a2(MenuDefinition* p_menu)
+void LayoutMenu(MenuDefinition* p_menu)
 {
 	Point scale;
 	void* shape;
@@ -195,39 +195,43 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 	}
 
 	if (p_menu->m_backgroundId != -1) {
-		shape =
-			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(
+			g_mw2PrjHandle,
+			p_menu->m_backgroundId + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 		if (shape) {
 			size = VFX_shape_bounds(shape, 0);
-			FUN_1001a163(p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(p_menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 			scale.m_x = size >> 16;
 			scale.m_y = size & 0xffff;
 			scale.m_x = FixedDiv16(scale.m_x, g_screenWidthMinus1 + 1);
 			scale.m_y = FixedDiv16(scale.m_y, g_screenHeightMinus1 + 1);
 			scale.m_x = FixedDiv16(scale.m_x, background->m_x1 - background->m_x0 + 1);
 			scale.m_y = FixedDiv16(scale.m_y, background->m_y1 - background->m_y0 + 1);
-			FUN_10056ec5(background, background, scale);
+			ScaleRectAboutCenter(background, background, scale);
 		}
 	}
 
 	origin.m_x = 0;
-	origin.m_y = FixedDiv16(1, p_menu->m_unk0x3c + 2);
-	p_menu->m_unk0x48.m_y = FixedDiv16(origin.m_y, 0x20000);
-	p_menu->m_unk0x50.m_y = p_menu->m_unk0x58.m_y = p_menu->m_unk0x60.m_y = origin.m_y + origin.m_y;
+	origin.m_y = FixedDiv16(1, p_menu->m_lineCount + 2);
+	p_menu->m_titleOrigin.m_y = FixedDiv16(origin.m_y, 0x20000);
+	p_menu->m_cursorOrigin.m_y = p_menu->m_itemOrigin.m_y = p_menu->m_controlOrigin.m_y = origin.m_y + origin.m_y;
 	ScaleRectToScreen(target->m_window, target, target);
 	ScaleRectToScreen(background->m_window, background, background);
-	FUN_10056bc1(target, &origin, &origin);
-	FUN_10056bc1(target, &p_menu->m_unk0x48, &p_menu->m_unk0x48);
-	FUN_10056bc1(target, &p_menu->m_unk0x50, &p_menu->m_unk0x50);
-	FUN_10056bc1(target, &p_menu->m_unk0x58, &p_menu->m_unk0x58);
-	FUN_10056bc1(target, &p_menu->m_unk0x60, &p_menu->m_unk0x60);
+	ScalePointToFrame(target, &origin, &origin);
+	ScalePointToFrame(target, &p_menu->m_titleOrigin, &p_menu->m_titleOrigin);
+	ScalePointToFrame(target, &p_menu->m_cursorOrigin, &p_menu->m_cursorOrigin);
+	ScalePointToFrame(target, &p_menu->m_itemOrigin, &p_menu->m_itemOrigin);
+	ScalePointToFrame(target, &p_menu->m_controlOrigin, &p_menu->m_controlOrigin);
 	if (p_menu->m_flags & 0x10) {
 		dx = background->m_x0 - target->m_x0;
 		background->m_x0 -= dx;
 		background->m_x1 -= dx;
 	}
 
-	p_menu->m_unk0x40 = origin;
+	p_menu->m_textOrigin = origin;
 }
 
 // Loads a menu's background shapes and font.
@@ -235,23 +239,31 @@ void FUN_1003c5a2(MenuDefinition* p_menu)
 void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
-		p_menu->m_background =
-			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+		p_menu->m_background = LoadCachedResource(
+			g_mw2PrjHandle,
+			p_menu->m_backgroundId + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 	}
 	else {
 		p_menu->m_background = NULL;
 	}
 
-	if (p_menu->m_unk0x1c != -1) {
-		p_menu->m_unk0x20 =
-			FUN_1001a19f(g_mw2PrjHandle, p_menu->m_unk0x1c + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp], 0);
+	if (p_menu->m_cursorShapeId != -1) {
+		p_menu->m_cursorShape = LoadCachedResource(
+			g_mw2PrjHandle,
+			p_menu->m_cursorShapeId + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 	}
 	else {
-		p_menu->m_unk0x20 = NULL;
+		p_menu->m_cursorShape = NULL;
 	}
 
 	p_menu->m_font =
-		FUN_1001a19f(g_mw2PrjHandle, p_menu->m_fontId + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont], 0);
+		LoadCachedResource(g_mw2PrjHandle, p_menu->m_fontId + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 }
 
 // Opens a menu on its root page. Menus with flag 1 take the controls, so this calls
@@ -298,17 +310,17 @@ void DeactivateMenu(MenuSlot* p_slot)
 	menu = p_slot->m_definition;
 	if (menu) {
 		if (menu->m_background) {
-			FUN_1001a163(menu->m_backgroundId + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 			menu->m_background = NULL;
 		}
 
-		if (menu->m_unk0x20) {
-			FUN_1001a163(menu->m_unk0x1c + g_unk0x100e9614, g_resourceTypeTags[c_resTagShp]);
-			menu->m_unk0x20 = NULL;
+		if (menu->m_cursorShape) {
+			UnlockCachedResource(menu->m_cursorShapeId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			menu->m_cursorShape = NULL;
 		}
 
 		if (menu->m_font) {
-			FUN_1001a163(menu->m_fontId + g_unk0x100e9614, g_resourceTypeTags[c_resTagFont]);
+			UnlockCachedResource(menu->m_fontId + g_artResolution, g_resourceTypeTags[c_resTagFont]);
 			menu->m_font = NULL;
 		}
 
@@ -354,7 +366,7 @@ void FirstMenu(void)
 			if (menu->m_target && menu->m_backgroundTarget) {
 				menu->m_backgroundTarget->m_window = &g_mainPixelBuffer;
 				menu->m_target->m_window = menu->m_backgroundTarget->m_window;
-				FUN_1003c5a2(menu);
+				LayoutMenu(menu);
 				page = menu->m_rootPage;
 				if (page) {
 					ok = 1;
@@ -488,7 +500,7 @@ void UpdateMenus(void)
 		slot->m_state = state;
 		slot->m_requested = requested;
 		if (state == 1) {
-			if (!(slot->m_definition->m_flags & 2) || !g_unk0x10176ebc) {
+			if (!(slot->m_definition->m_flags & 2) || !g_stretchPending) {
 				if (!DrawAndRunMenu(slot->m_definition)) {
 					slot->m_requested = 0;
 				}
@@ -530,7 +542,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 	}
 
 	if (p_menu->m_flags & 4) {
-		FUN_100570e9(target, 1);
+		OutlinePane(target, 1);
 	}
 
 	RunMenuItems(p_menu);
@@ -690,7 +702,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 			}
 
 			if (page->m_selected != selected && p_menu->m_moveSound != -1) {
-				FUN_1007ebd1(0, 0, 0, p_menu->m_moveSound, 0);
+				PlaySoundAt(0, 0, 0, p_menu->m_moveSound, 0);
 			}
 		}
 	}
@@ -715,47 +727,47 @@ void RunMenuItems(MenuDefinition* p_menu)
 	}
 
 	page->m_selected = selected;
-	g_unk0x100e9350[0xe] = p_menu->m_color;
+	g_textColors[0xe] = p_menu->m_color;
 	if (page->m_title) {
-		textPos = p_menu->m_unk0x48;
-		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_unk0x100e9350);
+		textPos = p_menu->m_titleOrigin;
+		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_textColors);
 	}
 
 	if (p_menu->m_flags & 4) {
-		FUN_1005718d(target, textPos, font, 1);
+		DrawRuleUnderRow(target, textPos, font, 1);
 	}
 	else {
-		FUN_100571ea(target, page->m_title, textPos, font, 1);
+		UnderlineText(target, page->m_title, textPos, font, 1);
 	}
 
 	height = VFX_font_height(font);
-	cursor = p_menu->m_unk0x50;
+	cursor = p_menu->m_cursorOrigin;
 	cursor.m_y += height / 2;
-	textPos = p_menu->m_unk0x58;
-	controlPos = p_menu->m_unk0x60;
+	textPos = p_menu->m_itemOrigin;
+	controlPos = p_menu->m_controlOrigin;
 	numberWidth = VFX_character_width(font, '0') * 2;
 	numberWidth += VFX_character_width(font, '.');
 	n = 0;
 	offset = 0;
 	for (i = 0; i < page->m_itemCount; i++) {
 		if (selected == i) {
-			g_unk0x100e9350[0xe] = p_menu->m_highlightColor;
+			g_textColors[0xe] = p_menu->m_highlightColor;
 		}
 		else {
-			g_unk0x100e9350[0xe] = p_menu->m_color;
+			g_textColors[0xe] = p_menu->m_color;
 		}
 
 		item = &page->m_items[i];
 		if (!(p_menu->m_flags & 8) && back == i) {
-			offset += (p_menu->m_unk0x3c - i - 1) * p_menu->m_unk0x40.m_y;
+			offset += (p_menu->m_lineCount - i - 1) * p_menu->m_textOrigin.m_y;
 		}
 
 		textPos.m_y += offset;
 		controlPos.m_y += offset;
 		cursor.m_y += offset;
-		offset = p_menu->m_unk0x40.m_y;
-		if (selected == i && p_menu->m_unk0x20) {
-			VFX_shape_draw(target, p_menu->m_unk0x20, 0, cursor.m_x, cursor.m_y);
+		offset = p_menu->m_textOrigin.m_y;
+		if (selected == i && p_menu->m_cursorShape) {
+			VFX_shape_draw(target, p_menu->m_cursorShape, 0, cursor.m_x, cursor.m_y);
 		}
 
 		if (item->m_type != 3) {
@@ -767,11 +779,11 @@ void RunMenuItems(MenuDefinition* p_menu)
 			}
 
 			_itoa(n, number, 10);
-			VFX_string_draw(target, textPos.m_x, textPos.m_y, font, number, g_unk0x100e9350);
+			VFX_string_draw(target, textPos.m_x, textPos.m_y, font, number, g_textColors);
 		}
 
 		if (item->m_text) {
-			VFX_string_draw(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_unk0x100e9350);
+			VFX_string_draw(target, textPos.m_x + numberWidth, textPos.m_y, font, item->m_text, g_textColors);
 		}
 
 		if (item->m_run) {
@@ -779,7 +791,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		}
 	}
 
-	g_unk0x100e9350[0xe] = 0xe;
+	g_textColors[0xe] = 0xe;
 	switch (page->m_state) {
 	case 4:
 	case 5:
@@ -792,7 +804,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		if (page->m_items[selected].m_subpage) {
 			PushMenuPage(p_menu, page->m_items[selected].m_subpage);
 			if (p_menu->m_openSound != -1) {
-				FUN_1007ebd1(0, 0, 0, p_menu->m_openSound, 0);
+				PlaySoundAt(0, 0, 0, p_menu->m_openSound, 0);
 			}
 		}
 		break;

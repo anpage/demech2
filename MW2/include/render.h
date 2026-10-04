@@ -2,7 +2,7 @@
 #define RENDER_H
 
 #include "decomp.h"
-#include "rendertarget.h"
+#include "targeting.h"
 #include "types.h"
 #include "window.h"
 
@@ -24,19 +24,19 @@ extern "C"
 {
 #endif
 
-	extern MechChar* g_unk0x100a2458;
-	extern void* g_unk0x100a245c;
-	extern MechS32 g_unk0x100a2460;
-	extern MechS32 g_unk0x100a2464;
-	extern MechS32 g_unk0x100a2454;
+	extern MechChar* g_bannerName;
+	extern void* g_bannerBuffer;
+	extern MechS32 g_projectionDirty;
+	extern MechS32 g_displayReady;
+	extern MechS32 g_showBoundingSpheres;
 	extern MechS32 g_drawModeIndex;
 	extern MechS32 g_initDrawModeParam2;
-	extern PANE g_unk0x100bdff8;
+	extern PANE g_screenPane;
 	extern PANE g_currentPane;
 	extern WINDOW g_mainPixelBuffer;
-	extern MechS32 g_unk0x100a246c;
-	extern MechS32 g_unk0x100a2470;
-	extern MechS32 g_unk0x100a2474;
+	extern MechS32 g_hasLightObject;
+	extern MechS32 g_lightFollowsObject;
+	extern MechS32 g_lightObject;
 	extern GameWindowGeometry* g_gameWindowGeometry;
 	extern MechS32 g_screenHeight;
 	extern MechS32 g_screenHeightMinus1;
@@ -46,22 +46,22 @@ extern "C"
 	extern MechS32 g_screenHalfWidth;
 	extern MechS32 g_screenHalfHeight;
 	extern undefined4 g_unk0x10176eb0;
-	extern MechS32 g_unk0x10176ebc;
-	extern MechS32 g_unk0x100a2468;
-	extern MechS32 g_unk0x100a2480;
+	extern MechS32 g_stretchPending;
+	extern MechS32 g_framePane;
+	extern MechS32 g_drawnPolygonCount;
 
 	MechS32 InitGameWindowGeometry(void);
 	MechS32 InitDisplayGeometry(void);
 	void FirstRender(void);
 	void SecondRender(void);
-	void FUN_10012afe(void);
-	void FUN_10012dca(MechS32 p_value);
-	void FUN_10012e00(void);
+	void DrawScene(void);
+	void SetFramePane(MechS32 p_value);
+	void ResetPane(void);
 	void Blit(void);
 	void ShutdownRender(void);
 	undefined4 FUN_10012f14(void);
 	void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value);
-	void FUN_100131f1(struct Shape* p_root);
+	void DrawBoundingSpheres(struct Shape* p_root);
 
 #ifdef __cplusplus
 }

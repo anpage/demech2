@@ -186,12 +186,12 @@ MechS32 FUN_1000f487(MechChar* p_code)
 // from MW2NET.CFG or else MW2DIF.CFG.
 // Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000f52c
-void FUN_1000f52c(
+void WriteNetDifficultyCfg(
 	CopperField0x4d::Options p_options,
-	MechU8 p_unk0x13,
-	MechU8 p_unk0x0f,
-	MechU8 p_unk0x0b,
-	MechU8 p_unk0x0a
+	MechU8 p_temperature,
+	MechU8 p_gravity,
+	MechU8 p_timeOfDay,
+	MechU8 p_teamGame
 )
 {
 	DifficultyCfg cfg;
@@ -209,27 +209,27 @@ void FUN_1000f52c(
 	fclose(file);
 
 	cfg.m_unlimitedAmmo = p_options.m_option1 ? TRUE : FALSE;
-	cfg.m_unk0x08 = p_options.m_option0 ? TRUE : FALSE;
+	cfg.m_regenerate = p_options.m_option0 ? TRUE : FALSE;
 	cfg.m_splashDamage = p_options.m_option3 ? TRUE : FALSE;
 	cfg.m_collisionDamage = p_options.m_option4 ? TRUE : FALSE;
 	cfg.m_heatTracking = p_options.m_option2 ? TRUE : FALSE;
-	cfg.m_unk0x09 = p_options.m_option5 ? TRUE : FALSE;
+	cfg.m_radar = p_options.m_option5 ? TRUE : FALSE;
 
-	switch (p_unk0x13) {
+	switch (p_temperature) {
 	case 1:
-		cfg.m_unk0x13 = -50;
+		cfg.m_temperature = -50;
 		break;
 	case 2:
-		cfg.m_unk0x13 = 10;
+		cfg.m_temperature = 10;
 		break;
 	case 3:
-		cfg.m_unk0x13 = 70;
+		cfg.m_temperature = 70;
 		break;
 	}
 
-	cfg.m_unk0x0f = p_unk0x0f << 12;
-	cfg.m_unk0x0b = p_unk0x0b;
-	cfg.m_unk0x0a = p_unk0x0a;
+	cfg.m_gravity = p_gravity << 12;
+	cfg.m_timeOfDay = p_timeOfDay;
+	cfg.m_teamGame = p_teamGame;
 
 	file = fopen("MW2NET.CFG", "wb");
 	if (file) {

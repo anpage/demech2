@@ -8,21 +8,21 @@
 #include "mw2prj.h"
 #include "players.h"
 #include "point.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 
 #include <stdio.h>
 
-// Draws a weapon panel: the name of the local mech's weapon p_panel->m_unk0x0c with its ammo,
+// Draws a weapon panel: the name of the local mech's weapon p_panel->m_weapon with its ammo,
 // in the color of its state (and the weapon group's, while it is ready), and frames the panel
 // in that color if the weapon is selected.
 // The selected-weapon comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: color, font, mech, text and weapon.
 // FUNCTION: MW2 0x10033280
-void FUN_10033280(CockpitPanel* p_panel)
+void DrawWeaponPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
 	MechS32 color;
@@ -30,12 +30,12 @@ void FUN_10033280(CockpitPanel* p_panel)
 	MechChar text[64];
 	WeaponSlot* weapon;
 
-	if (!p_panel->m_enabled || p_panel->m_unk0x0c < 0) {
+	if (!p_panel->m_enabled || p_panel->m_weapon < 0) {
 		return;
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	weapon = &mech->m_weapons[p_panel->m_unk0x0c];
+	weapon = &mech->m_weapons[p_panel->m_weapon];
 	if (weapon->m_type < 0) {
 		return;
 	}
@@ -68,71 +68,71 @@ void FUN_10033280(CockpitPanel* p_panel)
 		break;
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
-		g_unk0x100e9350[0xe] = color;
+		g_textColors[0xe] = color;
 		if (weapon->m_ammo < 0) {
 			sprintf(text, "%s", p_panel->m_name);
 			VFX_string_draw(
 				p_panel->m_target,
-				p_panel->m_unk0x34->m_x,
-				p_panel->m_unk0x34->m_y,
+				p_panel->m_textOrigin->m_x,
+				p_panel->m_textOrigin->m_y,
 				font,
 				text,
-				g_unk0x100e9350
+				g_textColors
 			);
 		}
 		else {
 			sprintf(text, "%s %d", p_panel->m_name, weapon->m_ammo);
 			VFX_string_draw(
 				p_panel->m_target,
-				p_panel->m_unk0x34->m_x,
-				p_panel->m_unk0x34->m_y,
+				p_panel->m_textOrigin->m_x,
+				p_panel->m_textOrigin->m_y,
 				font,
 				text,
-				g_unk0x100e9350
+				g_textColors
 			);
 		}
 
-		g_unk0x100e9350[0xe] = 0xe;
-		FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
+		g_textColors[0xe] = 0xe;
+		UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
-	if (p_panel->m_unk0x0c == mech->m_selectedWeapon) {
-		FUN_100570e9(p_panel->m_target, color);
+	if (p_panel->m_weapon == mech->m_selectedWeapon) {
+		OutlinePane(p_panel->m_target, color);
 	}
 }
 
-// Draws a panel's name once the clock passes p_panel->m_unk0x08, if the local mech has the
-// weapon p_panel->m_unk0x0c.
+// Draws a panel's name once the clock passes p_panel->m_lightUpTime, if the local mech has the
+// weapon p_panel->m_weapon.
 // Stack-slot permutation: clock, font, mech and weapon.
 // FUNCTION: MW2 0x100334d3
-void FUN_100334d3(CockpitPanel* p_panel)
+void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 {
 	Mech* mech;
 	WeaponSlot* weapon;
 	MechS32 clock;
 	void* font;
 
-	if (!p_panel->m_enabled || p_panel->m_unk0x0c < 0) {
+	if (!p_panel->m_enabled || p_panel->m_weapon < 0) {
 		return;
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	weapon = &mech->m_weapons[p_panel->m_unk0x0c];
+	weapon = &mech->m_weapons[p_panel->m_weapon];
 	if (weapon->m_type < 0) {
 		return;
 	}
 
 	clock = g_currentClock;
-	font = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
 
-	if (p_panel->m_enabled && p_panel->m_unk0x08 < clock) {
-		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_unk0x100e9350);
+	if (p_panel->m_enabled && p_panel->m_lightUpTime < clock) {
+		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
 	}
 
-	FUN_1001a163(g_unk0x100e9614 + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 }

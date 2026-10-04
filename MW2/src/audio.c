@@ -53,7 +53,7 @@ MechS32 g_nextEngageCheck;
 
 // Returns setting p_setting. Asking for the music volume turns the CD music on.
 // FUNCTION: MW2 0x10006760
-MechS32 FUN_10006760(MechS32 p_setting)
+MechS32 GetSoundSetting(MechS32 p_setting)
 {
 	MechS32 value;
 
@@ -71,14 +71,14 @@ MechS32 FUN_10006760(MechS32 p_setting)
 			break;
 		case 2:
 			value = g_soundConfig.m_midiVolume;
-			g_soundConfig.m_unk0x10 |= 8;
+			g_soundConfig.m_simFlags |= 8;
 			if (!g_isNetworkGame) {
 				StartMissionMusic();
 				PauseMusic();
 			}
 			break;
 		case 4:
-			value = (g_soundConfig.m_unk0x10 & 2) ? 1 : 0;
+			value = (g_soundConfig.m_simFlags & 2) ? 1 : 0;
 			break;
 		default:
 			break;
@@ -90,7 +90,7 @@ MechS32 FUN_10006760(MechS32 p_setting)
 
 // Sets setting p_setting to p_value, and lets the sound system that uses it know.
 // FUNCTION: MW2 0x10006845
-void FUN_10006845(MechS32 p_setting, MechS32 p_value)
+void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	MechS32 old;
 	void (*notify)(void);
@@ -114,32 +114,32 @@ void FUN_10006845(MechS32 p_setting, MechS32 p_value)
 			old = g_soundConfig.m_effectsVolume;
 			g_soundConfig.m_effectsVolume = p_value;
 			if (g_soundConfig.m_effectsVolume != old) {
-				notify = FUN_1007e9dc;
+				notify = PlayEffectsVolumeTest;
 			}
 			break;
 		case 1:
 			old = g_soundConfig.m_voiceVolume;
 			g_soundConfig.m_voiceVolume = p_value;
 			if (p_value) {
-				g_soundConfig.m_unk0x10 |= 2;
+				g_soundConfig.m_simFlags |= 2;
 			}
 			else {
-				g_soundConfig.m_unk0x10 &= ~2;
+				g_soundConfig.m_simFlags &= ~2;
 			}
 
 			if (g_soundConfig.m_voiceVolume != old) {
-				notify = FUN_10059b7b;
+				notify = PlayVoiceVolumeTest;
 			}
 			break;
 		case 2:
 			old = g_soundConfig.m_midiVolume;
 			g_soundConfig.m_midiVolume = p_value;
 			if (g_soundConfig.m_midiVolume != old) {
-				if (FUN_1005b696()) {
-					notify = FUN_1005b7a0;
+				if (IsCdAudioInitialized()) {
+					notify = ApplyCdAudioVolume;
 				}
 				else {
-					notify = FUN_100219ea;
+					notify = ApplyMidiVolume;
 				}
 
 				if (!old) {
@@ -163,7 +163,7 @@ void FUN_10006845(MechS32 p_setting, MechS32 p_value)
 
 // Sets setting p_setting to p_value, in the settings MW2SND.CFG saves too.
 // FUNCTION: MW2 0x100069c9
-void FUN_100069c9(MechS32 p_setting, MechS32 p_value)
+void SetSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	if (p_setting >= 0 && p_setting < 5) {
 		switch (p_setting) {
@@ -176,38 +176,38 @@ void FUN_100069c9(MechS32 p_setting, MechS32 p_value)
 		case 1:
 			g_mw2SndCfgData->m_voiceVolume = g_soundConfig.m_voiceVolume = p_value;
 			if (p_value) {
-				g_soundConfig.m_unk0x10 |= 2;
+				g_soundConfig.m_simFlags |= 2;
 			}
 			else {
-				g_soundConfig.m_unk0x10 &= ~2;
+				g_soundConfig.m_simFlags &= ~2;
 			}
 			break;
 		case 2:
 			g_mw2SndCfgData->m_midiVolume = g_soundConfig.m_midiVolume = p_value;
 			if (p_value) {
-				g_mw2SndCfgData->m_unk0x10 |= 8;
-				g_mw2SndCfgData->m_unk0x10 |= 4;
+				g_mw2SndCfgData->m_simFlags |= 8;
+				g_mw2SndCfgData->m_simFlags |= 4;
 				if (!g_isNetworkGame) {
 					PauseMusic();
 				}
 			}
 			else {
-				g_mw2SndCfgData->m_unk0x10 &= ~8;
-				g_mw2SndCfgData->m_unk0x10 &= ~4;
+				g_mw2SndCfgData->m_simFlags &= ~8;
+				g_mw2SndCfgData->m_simFlags &= ~4;
 				StopMusic();
 			}
 
-			g_soundConfig.m_unk0x10 = g_mw2SndCfgData->m_unk0x10;
+			g_soundConfig.m_simFlags = g_mw2SndCfgData->m_simFlags;
 			break;
 		case 4:
 			if (p_value) {
-				g_mw2SndCfgData->m_unk0x10 |= 2;
+				g_mw2SndCfgData->m_simFlags |= 2;
 			}
 			else {
-				g_mw2SndCfgData->m_unk0x10 &= ~2;
+				g_mw2SndCfgData->m_simFlags &= ~2;
 			}
 
-			g_soundConfig.m_unk0x10 = g_mw2SndCfgData->m_unk0x10;
+			g_soundConfig.m_simFlags = g_mw2SndCfgData->m_simFlags;
 			break;
 		default:
 			break;
@@ -217,7 +217,7 @@ void FUN_100069c9(MechS32 p_setting, MechS32 p_value)
 
 // Restores setting p_setting from the settings MW2SND.CFG saves.
 // FUNCTION: MW2 0x10006b3a
-void FUN_10006b3a(MechS32 p_setting)
+void RestoreSoundSetting(MechS32 p_setting)
 {
 	if (p_setting >= 0 && p_setting < 5) {
 		switch (p_setting) {
@@ -230,30 +230,30 @@ void FUN_10006b3a(MechS32 p_setting)
 		case 1:
 			g_soundConfig.m_voiceVolume = g_mw2SndCfgData->m_voiceVolume;
 			if (g_soundConfig.m_voiceVolume) {
-				g_soundConfig.m_unk0x10 |= 2;
+				g_soundConfig.m_simFlags |= 2;
 			}
 			else {
-				g_soundConfig.m_unk0x10 &= ~2;
+				g_soundConfig.m_simFlags &= ~2;
 			}
 			break;
 		case 2:
 			g_soundConfig.m_midiVolume = g_mw2SndCfgData->m_midiVolume;
 			if (g_soundConfig.m_midiVolume) {
-				g_soundConfig.m_unk0x10 |= 8;
-				g_soundConfig.m_unk0x10 |= 4;
-				FUN_1005b7a0();
+				g_soundConfig.m_simFlags |= 8;
+				g_soundConfig.m_simFlags |= 4;
+				ApplyCdAudioVolume();
 				if (!g_isNetworkGame) {
 					PauseMusic();
 				}
 			}
 			else {
-				g_soundConfig.m_unk0x10 &= ~8;
-				g_soundConfig.m_unk0x10 &= ~4;
+				g_soundConfig.m_simFlags &= ~8;
+				g_soundConfig.m_simFlags &= ~4;
 				StopMusic();
 			}
 			break;
 		case 4:
-			g_soundConfig.m_unk0x10 = g_mw2SndCfgData->m_unk0x10;
+			g_soundConfig.m_simFlags = g_mw2SndCfgData->m_simFlags;
 			break;
 		default:
 			break;
@@ -268,21 +268,21 @@ void StartMissionMusic(void)
 
 	if (!g_musicStarted) {
 		g_musicStarted = 1;
-		if (g_unk0x100e9340 <= 0 ||
-			(music = FUN_1001a19f(0, g_unk0x100e9340, g_resourceTypeTags[c_resTagMus], 0)) == NULL) {
+		if (g_musicResource <= 0 ||
+			(music = LoadCachedResource(0, g_musicResource, g_resourceTypeTags[c_resTagMus], 0)) == NULL) {
 			return;
 		}
 
 		sscanf(music, "%d %d", &g_cdTrack, &g_midiSequence);
-		FUN_1001a163(g_unk0x100e9340, g_resourceTypeTags[c_resTagMus]);
+		UnlockCachedResource(g_musicResource, g_resourceTypeTags[c_resTagMus]);
 	}
 
-	if (!FUN_1005b696() || GetCdStatus() == 1 || !FUN_1005b6ab(g_cdTrack)) {
+	if (!IsCdAudioInitialized() || GetCdStatus() == 1 || !IsCdTrackOnDisc(g_cdTrack)) {
 		g_cdTrack = -1;
 	}
-	else if (g_soundConfig.m_unk0x10 & 8) {
-		FUN_1005b22f(g_cdTrack);
-		if (FUN_1005ad0a() != 3) {
+	else if (g_soundConfig.m_simFlags & 8) {
+		PlayCdTrack(g_cdTrack);
+		if (RefreshCdStatus() != 3) {
 			g_cdTrack = -1;
 		}
 		else {
@@ -297,11 +297,11 @@ void StartMissionMusic(void)
 void PauseMusic(void)
 {
 	if (!g_audioPaused) {
-		if (g_midiSequence != -1 && (g_soundConfig.m_unk0x10 & 4)) {
+		if (g_midiSequence != -1 && (g_soundConfig.m_simFlags & 4)) {
 			PauseMidiSequences();
 		}
 
-		if (g_cdTrack != -1 && (g_soundConfig.m_unk0x10 & 8)) {
+		if (g_cdTrack != -1 && (g_soundConfig.m_simFlags & 8)) {
 			CdAudioTogglePaused();
 		}
 
@@ -313,11 +313,11 @@ void PauseMusic(void)
 void ResumeMusic(void)
 {
 	if (g_audioPaused) {
-		if (g_midiSequence != -1 && (g_soundConfig.m_unk0x10 & 4)) {
+		if (g_midiSequence != -1 && (g_soundConfig.m_simFlags & 4)) {
 			ResumeMidiSequences();
 		}
 
-		if (g_cdTrack != -1 && (g_soundConfig.m_unk0x10 & 8)) {
+		if (g_cdTrack != -1 && (g_soundConfig.m_simFlags & 8)) {
 			CdAudioTogglePaused();
 		}
 
@@ -329,7 +329,7 @@ void ResumeMusic(void)
 void StopMusic(void)
 {
 	if (g_cdTrack != -1) {
-		FUN_1005ae7b();
+		StopCdAudioAndWait();
 	}
 
 	if (g_midiSequence != -1) {
@@ -340,10 +340,10 @@ void StopMusic(void)
 // FUNCTION: MW2 0x10006e62
 void LoopCdMusic(void)
 {
-	if (!g_audioPaused && (g_soundConfig.m_unk0x10 & 8)) {
-		if (FUN_1005b00b() && g_cdTrack != -1) {
-			FUN_1005b22f(g_cdTrack);
-			FUN_1005ad0a();
+	if (!g_audioPaused && (g_soundConfig.m_simFlags & 8)) {
+		if (PollCdDrive() && g_cdTrack != -1) {
+			PlayCdTrack(g_cdTrack);
+			RefreshCdStatus();
 		}
 	}
 }
@@ -354,7 +354,7 @@ MechS32 FirstAudio(void)
 	InitializeDigitalAudio(8);
 	InitializeMidi();
 	StartCdAudio();
-	FUN_10013370();
+	InitSoundInfo();
 	g_nextEngageCheck = g_currentClock + 0x389;
 	return 1;
 }
@@ -383,7 +383,7 @@ void DoAudio(void)
 				if ((player->m_ai.m_goal & 0xff) == g_localPlayerId &&
 					(player->m_ai.m_state == 2 || player->m_ai.m_state == 3) &&
 					player->m_targetInfo.m_range <= 150000) {
-					FUN_1007eb23(0x100, 100, 0x40, 5, 0x32);
+					PlaySoundEffect(0x100, 100, 0x40, 5, 0x32);
 					break;
 				}
 			}
@@ -406,9 +406,9 @@ void ShutdownAudio(void)
 void PauseAudio(void)
 {
 	StopSamples(0);
-	FUN_10059d8b();
+	StopSpeech();
 	PauseMusic();
-	FUN_10021c49();
+	MuteEngineNote();
 }
 
 // FUNCTION: MW2 0x10007064

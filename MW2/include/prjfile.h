@@ -13,7 +13,7 @@ typedef struct PrjType {
 	MechS32 m_indexOffset;            // 0x04 — in the file, 0: no index
 	MechU32 m_indexSize;              // 0x08
 	undefined m_unk0x0c[0x14 - 0x0c]; // 0x0c
-	MechU16 m_unk0x14;                // 0x14 — a base the index's entries are relative to
+	MechU16 m_indexBase;              // 0x14 — a base the index's entries are relative to
 	undefined2 m_unk0x16;             // 0x16
 } PrjType;
 

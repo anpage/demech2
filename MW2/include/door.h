@@ -13,11 +13,11 @@ extern "C"
 {
 #endif
 
-	void FUN_100680a0(struct Player* p_player);
-	void FUN_1006831a(struct Mech* p_mech);
-	void FUN_1006844e(struct Mech* p_mech);
-	void FUN_10068758(struct Mech* p_mech);
-	MechS32 FUN_10068772(MechS32 p_index, struct Player* p_player);
+	void FirstDoor(struct Player* p_player);
+	void UpdateDoor(struct Mech* p_mech);
+	void LateUpdateDoor(struct Mech* p_mech);
+	void ShutdownDoor(struct Mech* p_mech);
+	MechS32 CreateDoor(MechS32 p_index, struct Player* p_player);
 
 #ifdef __cplusplus
 }

@@ -17,10 +17,10 @@
 #include "overlay.h"
 #include "players.h"
 #include "random.h"
-#include "rendertarget.h"
 #include "shots.h"
 #include "simmain.h"
 #include "speech.h"
+#include "targeting.h"
 #include "team.h"
 #include "types.h"
 
@@ -55,19 +55,19 @@ typedef MechS16 (*AiMessageFn)(Player* p_player, MechS16 p_target, MechS16 p_arg
 typedef MechS32 (*AiTransitionFn)(Player* p_player, AiRule* p_rule);
 
 // GLOBAL: MW2 0x100a88f0
-MechS32 g_unk0x100a88f0 = -1;
+MechS32 g_debugStar = -1;
 
 // GLOBAL: MW2 0x100a88f4
-MechS32 g_unk0x100a88f4 = 0;
+MechS32 g_debugObjective = 0;
 
 // GLOBAL: MW2 0x100a88f8
-MechS32 g_unk0x100a88f8 = -1;
+MechS32 g_debugLastLine = -1;
 
 // GLOBAL: MW2 0x100a88fc
-MechS32 g_unk0x100a88fc = -1;
+MechS32 g_debugFirstLine = -1;
 
 // GLOBAL: MW2 0x100a8900
-MechS32 g_unk0x100a8900 = -1;
+MechS32 g_debugListedStar = -1;
 
 // GLOBAL: MW2 0x100a8908
 AiName g_aiMessageNames[8] = {
@@ -153,7 +153,7 @@ AiName g_aiTargetTypeLetters[3] = {
 };
 
 // GLOBAL: MW2 0x100a8ac0
-AiName g_unk0x100a8ac0[3] = {
+AiName g_shapeKindNames[3] = {
 	{"p", 0x100},
 	{"t", 0x200},
 	{"r", 0x800},
@@ -347,10 +347,10 @@ MechS16 g_helicopterScripts[15][2] = {
 MechS32 g_lairdoCheat = 0;
 
 // GLOBAL: MW2 0x100a90b8
-MechS32 g_unk0x100a90b8 = 1;
+MechS32 g_aiSpreadTargets = 1;
 
 // GLOBAL: MW2 0x100a90c0
-MechS32 g_unk0x100a90c0 = 0;
+MechS32 g_localStarAssigned = 0;
 
 // GLOBAL: MW2 0x100a90c8
 AiStateFn g_aiStateFns[14] = {
@@ -401,7 +401,7 @@ MechS16 g_hiddenTargetCount;
 AiRule* g_aiRules[60][6];
 
 // GLOBAL: MW2 0x100ea3e0
-MechS32 g_unk0x100ea3e0;
+MechS32 g_aiStateTime;
 
 // Runs p_player's AI for a tick: the star leader leads its star (LeadStar); an AI player runs
 // its rules and, unless one changed its state, its state's function; a player the AI doesn't
@@ -415,7 +415,7 @@ void UpdateAI(Player* p_player)
 		return;
 	}
 
-	if (p_player->m_index == g_localPlayerId && g_unk0x100e9630) {
+	if (p_player->m_index == g_localPlayerId && g_monoEnabled) {
 		LogAIStatus();
 	}
 
@@ -571,7 +571,7 @@ void FirstAI(void)
 {
 	MechS32 i;
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	for (i = 0; i < g_objectiveCount; i++) {
@@ -722,7 +722,7 @@ void ClearAILog(void)
 	MechS32 i;
 
 	for (i = 3; i < 25; i++) {
-		if (g_unk0x100e9630) {
+		if (g_monoEnabled) {
 		}
 	}
 }
@@ -749,10 +749,10 @@ void LogPlayerStatusLines(void)
 	Player saved;
 	MechS16 target;
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	for (i = 0; i < g_playerCount; i++) {
@@ -805,7 +805,7 @@ void LogPlayerStatusLines(void)
 		}
 
 		if (player->m_avoidShape) {
-			sensor = FindAIName(player->m_avoidShape->m_kind & 0xf00, g_unk0x100a8ac0, 3);
+			sensor = FindAIName(player->m_avoidShape->m_kind & 0xf00, g_shapeKindNames, 3);
 		}
 		else {
 			sensor = " ";
@@ -850,7 +850,7 @@ void LogPlayerStatusLines(void)
 			color |= 8;
 		}
 
-		if (player->m_index + 4 < 25 && g_unk0x100e9630) {
+		if (player->m_index + 4 < 25 && g_monoEnabled) {
 		}
 
 		if ((player->m_ai.m_goal == 0 || player->m_ai.m_target == 0) && ++g_invalidTargetLogCount < 10) {
@@ -876,7 +876,7 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 	MechS32 unused;
 	MechU32 distance;
 
-	FUN_10060197(p_a[0] - p_b[0], p_a[1] - p_b[1], p_a[2] - p_b[2], &unused, &unused, &distance, &unused);
+	GetBearingAndRange(p_a[0] - p_b[0], p_a[1] - p_b[1], p_a[2] - p_b[2], &unused, &unused, &distance, &unused);
 	return distance;
 }
 
@@ -952,7 +952,7 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 			return nearest;
 		}
 
-		if (!g_unk0x100a90b8) {
+		if (!g_aiSpreadTargets) {
 			return best;
 		}
 
@@ -1059,7 +1059,7 @@ void LogPlayerSkillLines(void)
 	MechChar line[100];
 	Player* player;
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
 	for (i = 0; i < g_playerCount; i++) {
@@ -1080,7 +1080,7 @@ void LogPlayerSkillLines(void)
 			color |= 8;
 		}
 
-		if (player->m_index + 4 < 25 && g_unk0x100e9630) {
+		if (player->m_index + 4 < 25 && g_monoEnabled) {
 		}
 	}
 }
@@ -1133,7 +1133,7 @@ MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	return result;
 }
 
-// Operand order: g_unk0x100a88fc > g_unk0x100a88f4 compares the other way in the original.
+// Operand order: g_debugFirstLine > g_debugObjective compares the other way in the original.
 // Stack-slot permutation: activity, color, line, marker, mission, objective, prefix, priority
 // and secondsLeft and typeName. (which also moves the jump table targets).
 // FUNCTION: MW2 0x1005276a
@@ -1174,37 +1174,37 @@ void LogStarMissionLines(MechS32 p_team)
 		break;
 	}
 
-	if (g_unk0x100e9630) {
+	if (g_monoEnabled) {
 	}
 
-	if (g_unk0x100a88fc == -1) {
-		g_unk0x100a88fc = 0;
-		g_unk0x100a88f8 = mission->m_objectiveCount - 1 < 20 ? mission->m_objectiveCount - 1 : 20;
+	if (g_debugFirstLine == -1) {
+		g_debugFirstLine = 0;
+		g_debugLastLine = mission->m_objectiveCount - 1 < 20 ? mission->m_objectiveCount - 1 : 20;
 	}
 
-	if (g_unk0x100a88fc > g_unk0x100a88f4) {
-		if (g_unk0x100a88f4 > 0) {
-			g_unk0x100a88fc = g_unk0x100a88f4;
-			g_unk0x100a88f8 = mission->m_objectiveCount - 1 < g_unk0x100a88fc + 20 ? mission->m_objectiveCount - 1
-																				   : g_unk0x100a88fc + 20;
+	if (g_debugFirstLine > g_debugObjective) {
+		if (g_debugObjective > 0) {
+			g_debugFirstLine = g_debugObjective;
+			g_debugLastLine = mission->m_objectiveCount - 1 < g_debugFirstLine + 20 ? mission->m_objectiveCount - 1
+																					: g_debugFirstLine + 20;
 			ClearAILog();
 		}
 		else {
-			g_unk0x100a88f4 = g_unk0x100a88fc;
+			g_debugObjective = g_debugFirstLine;
 		}
 	}
-	else if (g_unk0x100a88f8 < g_unk0x100a88f4) {
-		if (mission->m_objectiveCount > g_unk0x100a88f4) {
-			g_unk0x100a88f8 = g_unk0x100a88f4;
-			g_unk0x100a88fc = g_unk0x100a88f8 - 20 > 0 ? g_unk0x100a88f8 - 20 : 0;
+	else if (g_debugLastLine < g_debugObjective) {
+		if (mission->m_objectiveCount > g_debugObjective) {
+			g_debugLastLine = g_debugObjective;
+			g_debugFirstLine = g_debugLastLine - 20 > 0 ? g_debugLastLine - 20 : 0;
 			ClearAILog();
 		}
 		else {
-			g_unk0x100a88f4 = g_unk0x100a88f8;
+			g_debugObjective = g_debugLastLine;
 		}
 	}
 
-	for (i = g_unk0x100a88fc; i <= g_unk0x100a88f8; i++) {
+	for (i = g_debugFirstLine; i <= g_debugLastLine; i++) {
 		objective = &g_objectiveTable[p_team].m_objectives[i];
 
 		color = 7;
@@ -1232,7 +1232,7 @@ void LogStarMissionLines(MechS32 p_team)
 
 		typeName = FindAIName(objective->m_type, g_objectiveTypeNames, 14);
 
-		if (g_unk0x100a88f4 == i) {
+		if (g_debugObjective == i) {
 			marker = "=>";
 		}
 		else {
@@ -1266,7 +1266,7 @@ void LogStarMissionLines(MechS32 p_team)
 			break;
 		}
 
-		if (g_unk0x100e9630) {
+		if (g_monoEnabled) {
 		}
 	}
 }
@@ -1288,7 +1288,7 @@ MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distanc
 	}
 
 	if (p_player->m_targetInfo.m_distance < p_distance && (p_target & c_aiTargetPlayer) && dead &&
-		!FUN_1006ca60(p_player, 1)) {
+		!CanSeeTarget(p_player, 1)) {
 		result = FALSE;
 		g_hiddenTargetCount++;
 	}
@@ -1396,26 +1396,26 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 	return blocker;
 }
 
-// Logs the AI status page g_unk0x100a88f0 selects: the players (-1), their skills (-2) or a
+// Logs the AI status page g_debugStar selects: the players (-1), their skills (-2) or a
 // star's mission.
 // FUNCTION: MW2 0x10053072
 void LogAIStatus(void)
 {
-	if (g_unk0x100a8900 != g_unk0x100a88f0) {
-		g_unk0x100a8900 = g_unk0x100a88f0;
-		g_unk0x100a88fc = g_unk0x100a88f8 = -1;
-		g_unk0x100a88f4 = 0;
+	if (g_debugListedStar != g_debugStar) {
+		g_debugListedStar = g_debugStar;
+		g_debugFirstLine = g_debugLastLine = -1;
+		g_debugObjective = 0;
 		ClearAILog();
 	}
 
-	if (g_unk0x100a88f0 == -1) {
+	if (g_debugStar == -1) {
 		LogPlayerStatusLines();
 	}
-	else if (g_unk0x100a88f0 == -2) {
+	else if (g_debugStar == -2) {
 		LogPlayerSkillLines();
 	}
 	else {
-		LogStarMissionLines(g_unk0x100a88f0);
+		LogStarMissionLines(g_debugStar);
 	}
 }
 
@@ -1442,7 +1442,7 @@ MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	}
 
 	FindNearestTarget(p_player, p_target, p_arg, &nearest, &best);
-	if (g_unk0x100a90b8) {
+	if (g_aiSpreadTargets) {
 		return nearest;
 	}
 	else {
@@ -1470,7 +1470,7 @@ MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target)
 		p_target = 0;
 	}
 	else if (GetTeamLeader(p_player->m_team) == g_localPlayerId) {
-		FUN_10059e63(5, p_player->m_slot);
+		SayLancemateReport(5, p_player->m_slot);
 	}
 
 	return p_target;
@@ -1494,7 +1494,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 	SetTarget(p_player, p_target);
 	BrakeFall(p_player);
 	range = GetTargetRange(p_target);
-	g_unk0x100ea3e0 = g_currentClock;
+	g_aiStateTime = g_currentClock;
 
 	switch (p_player->m_ai.m_state) {
 	case c_aiStateTarget:
@@ -1507,7 +1507,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 			heading = GetTargetBearing(p_player);
 		}
 
-		FUN_1004b5a0(p_player, heading);
+		RunAIWeapons(p_player, heading);
 		break;
 	case c_aiStateRecon:
 	case c_aiStatePatrol:
@@ -1518,7 +1518,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 			SteerToTarget(p_player);
 		}
 
-		g_unk0x100ea3e0 += 0xb5;
+		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFollow:
 		SweepTorso(p_player);
@@ -1528,7 +1528,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		}
 
 		PlaceFormationNav(p_player);
-		g_unk0x100ea3e0 += 0xb5;
+		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFlee:
 		p_player->m_targetInfo.m_heading = (p_player->m_targetInfo.m_heading + 0xb40000) % 0x1680000;
@@ -1537,7 +1537,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 			SteerToTarget(p_player);
 		}
 
-		g_unk0x100ea3e0 += 0xb5;
+		g_aiStateTime += 0xb5;
 		break;
 	default:
 		if (p_player->m_aiMode == 2) {
@@ -1641,13 +1641,13 @@ MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, Mech
 	return result;
 }
 
-// Makes p_target p_player's target and works out the distance and bearing to it (FUN_1005fa22).
+// Makes p_target p_player's target and works out the distance and bearing to it (UpdateTarget).
 // Whether the target is valid.
 // FUNCTION: MW2 0x1005372c
 MechS32 SetTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
-	return FUN_1005fa22(p_player) > 0;
+	return UpdateTarget(p_player) > 0;
 }
 
 // The range within which p_target counts as reached.
@@ -1773,7 +1773,7 @@ void LeaveAIState(Player* p_player)
 	switch (p_player->m_ai.m_state) {
 	case c_aiStatePatrol:
 		if (IsTargetDone(p_player->m_ai.m_goal, 4) && (p_player->m_ai.m_flags & 0x10)) {
-			FUN_10059e63(10, p_player->m_slot);
+			SayLancemateReport(10, p_player->m_slot);
 		}
 	case c_aiStateFollow:
 		ReleaseNavPoints(p_player);
@@ -1785,7 +1785,7 @@ void LeaveAIState(Player* p_player)
 		p_player->m_steering->m_torsoPan = 0;
 	case c_aiStateRecon:
 		if (IsTargetDone(p_player->m_ai.m_goal, 8) && (p_player->m_ai.m_flags & 0x10)) {
-			FUN_10059e63(10, p_player->m_slot);
+			SayLancemateReport(10, p_player->m_slot);
 		}
 		break;
 	case c_aiStateTarget:
@@ -1793,7 +1793,7 @@ void LeaveAIState(Player* p_player)
 			flags = p_player->m_ai.m_flags;
 		}
 		else if (p_player->m_ai.m_flags & 0x10) {
-			FUN_10059e63(10, p_player->m_slot);
+			SayLancemateReport(10, p_player->m_slot);
 		}
 		break;
 	case c_aiStateFlee:
@@ -1828,7 +1828,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 		p_player->m_nextFireTime = RandomIntBelow(10) * 0x16 + g_currentClock;
 		if (GetTeamLeader(p_player->m_team != g_localPlayerId) && p_player->m_ai.m_state == c_aiStatePatrol &&
 			(p_player->m_nav & 0x1000) &&
-			(nav = FUN_1005ec80(
+			(nav = AddNavPoint(
 				 p_player->m_index,
 				 p_player->m_position.m_x,
 				 p_player->m_position.m_y,
@@ -1866,7 +1866,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 		break;
 	}
 
-	g_unk0x100ea3e0 = g_currentClock;
+	g_aiStateTime = g_currentClock;
 	p_player->m_ai.m_state = p_state;
 
 	{
@@ -2068,7 +2068,7 @@ MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 		flags = &g_players[index]->m_flags;
 		break;
 	case c_aiTargetThing:
-		flags = &g_gameThings[index].m_unk0x00;
+		flags = &g_gameThings[index].m_flags;
 		break;
 	case c_aiTargetNav:
 		flags = &g_navTable[index].m_flags;
@@ -2198,11 +2198,11 @@ void ReleaseNavPoints(Player* p_player)
 			if ((g_navTable[i].m_flags & 1) && g_navTable[i].m_owner == (p_player->m_index | c_aiTargetPlayer)) {
 				if (!(p_player->m_nav & 0x1000)) {
 					if ((p_player->m_nav & 0xff) != i) {
-						FUN_1005ed4f(p_player->m_index, i | c_aiTargetNav);
+						RemoveNavPoint(p_player->m_index, i | c_aiTargetNav);
 					}
 				}
 				else {
-					FUN_1005ed4f(p_player->m_index, i | c_aiTargetNav);
+					RemoveNavPoint(p_player->m_index, i | c_aiTargetNav);
 				}
 			}
 		}
@@ -2231,7 +2231,7 @@ void PlacePatrolNavs(Player* p_player)
 
 	switch (p_player->m_ai.m_target & 0xf00) {
 	case c_aiTargetThing:
-		FUN_10020c6f(g_gameThings[index].m_unk0x04, &x, &y, &z);
+		GetStaticObjectPosition(g_gameThings[index].m_staticObject, &x, &y, &z);
 		range = 25000;
 		break;
 	case c_aiTargetPlayer:
@@ -2255,16 +2255,16 @@ void PlacePatrolNavs(Player* p_player)
 		return;
 	}
 
-	if (FUN_1005ec80(owner, x - range, y, z) == -1) {
+	if (AddNavPoint(owner, x - range, y, z) == -1) {
 	}
 
-	if (FUN_1005ec80(owner, x, y, z - range) == -1) {
+	if (AddNavPoint(owner, x, y, z - range) == -1) {
 	}
 
-	if (FUN_1005ec80(owner, x + range, y, z) == -1) {
+	if (AddNavPoint(owner, x + range, y, z) == -1) {
 	}
 
-	if (FUN_1005ec80(owner, x, y, z + range) == -1) {
+	if (AddNavPoint(owner, x, y, z + range) == -1) {
 	}
 
 	AdvanceNavTarget(p_player, c_aiTargetNav);
@@ -2276,9 +2276,9 @@ void PlacePatrolNavs(Player* p_player)
 void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
-	FUN_100602b2(p_player, 1, 1);
+	CycleNavTarget(p_player, 1, 1);
 	if (p_player->m_nav == p_player->m_targetInfo.m_target) {
-		FUN_100602b2(p_player, 1, 1);
+		CycleNavTarget(p_player, 1, 1);
 	}
 
 	p_player->m_ai.m_target = p_player->m_targetInfo.m_target;
@@ -2296,7 +2296,7 @@ void PlaceFormationNav(Player* p_player)
 
 	ReleaseNavPoints(p_player);
 	if (GetTeamSlotPosition(p_player->m_index, &x, &z, &heading)) {
-		nav = FUN_1005ec80(p_player->m_index, x, heading, z);
+		nav = AddNavPoint(p_player->m_index, x, heading, z);
 		if (nav != -1) {
 			g_navTable[nav].m_flags |= 1;
 			g_navTable[nav].m_owner = p_player->m_index | c_aiTargetPlayer;
@@ -2341,7 +2341,7 @@ MechS32 LoadAIScripts(void)
 
 	g_aiScripts[0] = NULL;
 	for (i = 0; i < 9; i++) {
-		g_aiScripts[i + 1] = FUN_1001a19f(g_mw2PrjHandle, i + 1, g_resourceTypeTags[c_resTagAit], 0);
+		g_aiScripts[i + 1] = LoadCachedResource(g_mw2PrjHandle, i + 1, g_resourceTypeTags[c_resTagAit], 0);
 	}
 
 	return TRUE;
@@ -2535,7 +2535,7 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 	}
 
 	if (speech != -1) {
-		FUN_10059e63(speech, p_slot);
+		SayLancemateReport(speech, p_slot);
 	}
 
 	return TRUE;
@@ -2623,7 +2623,7 @@ void AssignStarObjective(MechS32 p_team)
 	}
 
 	flags = 0x40;
-	flags = FUN_10055485(mission->m_objectives[objective].m_unk0x7d) | flags;
+	flags = GetEngagementAIFlags(mission->m_objectives[objective].m_engagement) | flags;
 
 	for (bit = 0; bit < 16 && !((1 << bit) & type); bit++) {
 	}
@@ -2635,7 +2635,7 @@ void AssignStarObjective(MechS32 p_team)
 		}
 
 		SetAIScript(member, 2, bit + 1, leader);
-		if (leader == g_localPlayerId && g_unk0x100a90c0) {
+		if (leader == g_localPlayerId && g_localStarAssigned) {
 			continue;
 		}
 
@@ -2652,12 +2652,12 @@ void AssignStarObjective(MechS32 p_team)
 	}
 
 	if (GetTeamLeader(p_team) == g_localPlayerId && type != 0x10) {
-		g_unk0x100a90c0 = 1;
+		g_localStarAssigned = 1;
 	}
 }
 
 // FUNCTION: MW2 0x10055485
-MechS16 FUN_10055485(MechS32 p_value)
+MechS16 GetEngagementAIFlags(MechS32 p_value)
 {
 	if (p_value == 1) {
 		return 2;
@@ -3028,13 +3028,13 @@ void LeadStar(MechS32 p_team)
 	}
 
 	flags = 0x40;
-	flags = FUN_10055485(mission->m_objectives[objectiveIndex].m_unk0x7d) | flags;
+	flags = GetEngagementAIFlags(mission->m_objectives[objectiveIndex].m_engagement) | flags;
 
 	state = -1;
 	switch (type) {
 	case 0x1000:
 		state = c_aiStateIdle;
-		FUN_1006c4e2(player);
+		StartNuke(player);
 		break;
 	case 1:
 	case 2:
@@ -3074,7 +3074,7 @@ void ReleaseAnchorNav(Player* p_player)
 		return;
 	}
 
-	FUN_1005ed4f(p_player->m_index, p_player->m_nav);
+	RemoveNavPoint(p_player->m_index, p_player->m_nav);
 	p_player->m_nav = 0x1000;
 }
 
@@ -3090,8 +3090,8 @@ MechS32 GetLocalStarSize(void)
 void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 {
 	if (p_command == -1) {
-		SetTeamFormationByName(g_unk0x100a5918, g_formationTemplates[p_slot].m_name);
-		FUN_10059ed2(p_slot);
+		SetTeamFormationByName(g_localStar, g_formationTemplates[p_slot].m_name);
+		SayFormation(p_slot);
 	}
 	else {
 		OrderStarSlot(p_slot, p_command);

@@ -195,7 +195,7 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 	MechS32 result;
 
 	result = 1;
-	entry = FUN_1005640e(p_mission);
+	entry = ReadStaticMemoryTable(p_mission);
 	if (entry != NULL) {
 		for (i = 0; i < 7; i++) {
 			AddStaticPoolType(entry->m_size, entry->m_tag);

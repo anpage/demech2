@@ -8,7 +8,7 @@ struct MenuControl;
 struct MenuDefinition;
 struct MenuPage;
 
-// The text a list control appends to its choice (FUN_10072dab).
+// The text a list control appends to its choice (RunMenuStatus).
 typedef MechChar* (*MenuChoicesSuffixFn)(
 	struct MenuDefinition* p_menu,
 	struct MenuControl* p_control,

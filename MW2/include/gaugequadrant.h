@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-// The direction of a gauge needle from the center of its rectangle, as FUN_10057bf3 and
-// FUN_100582c4 switch on it: the needle points left (x at or left of the center), up, and
+// The direction of a gauge needle from the center of its rectangle, as GetRectEdgeAtSlope and
+// GetEllipseEdgeAtAngle switch on it: the needle points left (x at or left of the center), up, and
 // too steeply for a 16.16 slope.
 // SIZE 0x4
 typedef union GaugeQuadrant {

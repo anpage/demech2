@@ -12,7 +12,7 @@ struct SoundConfig {
 	MechS32 m_effectsVolume;             // 0x04
 	MechS32 m_voiceVolume;               // 0x08
 	MechS32 m_midiVolume;                // 0x0c — the simulator plays its music from the CD
-	undefined4 m_unk0x10;                // 0x10 — the simulator's sound flags
+	undefined4 m_simFlags;               // 0x10 — the simulator's sound flags
 	MechS32 m_objectTextmaps;            // 0x14
 	MechS32 m_terrainTextmaps;           // 0x18
 	MechS32 m_displayDetail;             // 0x1c — high or low

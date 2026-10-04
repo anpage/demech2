@@ -28,7 +28,7 @@ BoundBox* CreateBoundBox(void)
 
 // Gives the shape a bounding box, once.
 // FUNCTION: MW2 0x1006e9e6
-void FUN_1006e9e6(Shape* p_shape)
+void EnsureBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
 
@@ -49,26 +49,26 @@ void FUN_1006e9e6(Shape* p_shape)
 		return;
 	}
 
-	FUN_1006eb80(p_shape, &box->m_minX, &box->m_maxX, &box->m_minY, &box->m_maxY, &box->m_minZ, &box->m_maxZ);
+	ComputeModelBounds(p_shape, &box->m_minX, &box->m_maxX, &box->m_minY, &box->m_maxY, &box->m_minZ, &box->m_maxZ);
 	p_shape->m_flags |= 0x200;
 }
 
 // FUNCTION: MW2 0x1006ea90
-BoundBox* FUN_1006ea90(Shape* p_shape)
+BoundBox* CreateShapeBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
 
 	box = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x78);
 	if (box) {
 		memset(box, 0, 0x78);
-		FUN_1006eb80(p_shape, &box->m_minX, &box->m_maxX, &box->m_minY, &box->m_maxY, &box->m_minZ, &box->m_maxZ);
+		ComputeModelBounds(p_shape, &box->m_minX, &box->m_maxX, &box->m_minY, &box->m_maxY, &box->m_minZ, &box->m_maxZ);
 	}
 
 	return box;
 }
 
 // FUNCTION: MW2 0x1006eb02
-void FUN_1006eb02(Shape* p_shape)
+void AttachShapeBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
 
@@ -81,7 +81,7 @@ void FUN_1006eb02(Shape* p_shape)
 	}
 
 	if (!p_shape->m_collisionData) {
-		p_shape->m_collisionData = FUN_1006ea90(p_shape);
+		p_shape->m_collisionData = CreateShapeBoundBox(p_shape);
 	}
 
 	box = p_shape->m_collisionData;
@@ -96,7 +96,7 @@ void FUN_1006eb02(Shape* p_shape)
 // The model/shape stamp comparison loads its operands in the other order (the unit's symbol
 // table), and model, vertex and selected sit in permuted stack slots.
 // FUNCTION: MW2 0x1006eb80
-void FUN_1006eb80(
+void ComputeModelBounds(
 	Shape* p_shape,
 	MechS32* p_minX,
 	MechS32* p_maxX,
@@ -120,7 +120,7 @@ void FUN_1006eb80(
 	if (model->m_transformCount != p_shape->m_transformCount) {
 		selected = p_shape->m_model;
 		p_shape->m_model = model;
-		FUN_1000188b(p_shape);
+		TransformShapeModel(p_shape);
 		p_shape->m_model = selected;
 	}
 
@@ -156,7 +156,7 @@ void FUN_1006eb80(
 
 // Frees the shape's bounding data.
 // FUNCTION: MW2 0x1006ed30
-void FUN_1006ed30(Shape* p_shape)
+void FreeBoundBox(Shape* p_shape)
 {
 	void* data;
 
@@ -174,7 +174,7 @@ void FUN_1006ed30(Shape* p_shape)
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 		break;
 	case 5:
-		FUN_1001e50d(data);
+		FreeQuadtree(data);
 		break;
 	}
 
@@ -183,7 +183,7 @@ void FUN_1006ed30(Shape* p_shape)
 
 // Returns the bytes the shape's bounding data take.
 // FUNCTION: MW2 0x1006edc3
-MechS32 FUN_1006edc3(Shape* p_shape)
+MechS32 GetBoundBoxSize(Shape* p_shape)
 {
 	MechS32 size;
 	void* data;
@@ -202,7 +202,7 @@ MechS32 FUN_1006edc3(Shape* p_shape)
 		size = 0x78;
 		break;
 	case 5:
-		size = FUN_1001ee0f(data);
+		size = GetQuadtreeSize(data);
 		break;
 	default:
 		size = 0;

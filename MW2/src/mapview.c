@@ -12,40 +12,40 @@
 #include "recordstacks.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "shapelists.h"
 #include "shiftdiv.h"
+#include "targeting.h"
 #include "types.h"
 #include "view.h"
 
 // The map (satellite) view's projection: a top-down view of p_worldSpan units across.
 
 // GLOBAL: MW2 0x10109ab0
-MechS32 g_unk0x10109ab0;
+MechS32 g_savedPalettePending;
 
 // GLOBAL: MW2 0x10109ac0
-Eyepoint g_unk0x10109ac0;
+Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
-MechS32 g_unk0x10109ba0;
+MechS32 g_mapViewMinX;
 
 // GLOBAL: MW2 0x10109ba4
-MechS32 g_unk0x10109ba4;
+MechS32 g_mapViewMaxX;
 
 // GLOBAL: MW2 0x10109ba8
-MechS32 g_unk0x10109ba8;
+MechS32 g_mapViewMaxY;
 
 // GLOBAL: MW2 0x10109bac
-MechS32 g_unk0x10109bac;
+MechS32 g_mapViewMinY;
 
 // GLOBAL: MW2 0x10109bb0
-MechS32 g_unk0x10109bb0;
+MechS32 g_mapViewNear;
 
 // GLOBAL: MW2 0x10109bb4
-MechS32 g_unk0x10109bb4;
+MechS32 g_mapViewFar;
 
 // GLOBAL: MW2 0x10109bb8
-MechS32 g_unk0x10109bb8;
+MechS32 g_mapViewScale;
 
 // GLOBAL: MW2 0x10109bc0
 RenderSettings g_savedRenderSettings;
@@ -53,67 +53,67 @@ RenderSettings g_savedRenderSettings;
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
 // rotation) of p_worldSpan units across pane p_slot, as far as p_far.
 // FUNCTION: MW2 0x10041fa0
-void FUN_10041fa0(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
+void BeginMapView(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
-	g_unk0x10109bb8 = p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
-	g_unk0x10109ba4 = -(g_unk0x10109ba0 = -(p_worldSpan / 2));
-	g_unk0x10109bac = -(g_unk0x10109ba8 = (g_panes[p_slot].m_y1 - g_panes[p_slot].m_y0 + 1) * g_unk0x10109bb8 / 2);
-	g_unk0x10109bb0 = 0;
-	g_unk0x10109bb4 = p_far;
-	g_unk0x10109ab0 = g_palettePending;
-	g_unk0x10109ac0 = *g_eyepoint;
-	g_eyepoint->m_unk0x0c = p_pose[3];
-	g_eyepoint->m_unk0x10 = p_pose[4];
-	g_eyepoint->m_unk0x14 = p_pose[5];
-	g_eyepoint->m_unk0x00 = p_pose[0];
-	g_eyepoint->m_unk0x04 = p_pose[1];
-	g_eyepoint->m_unk0x08 = p_pose[2];
+	g_mapViewScale = p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
+	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2));
+	g_mapViewMinY = -(g_mapViewMaxY = (g_panes[p_slot].m_y1 - g_panes[p_slot].m_y0 + 1) * g_mapViewScale / 2);
+	g_mapViewNear = 0;
+	g_mapViewFar = p_far;
+	g_savedPalettePending = g_palettePending;
+	g_savedEyepoint = *g_eyepoint;
+	g_eyepoint->m_heading = p_pose[3];
+	g_eyepoint->m_pitch = p_pose[4];
+	g_eyepoint->m_roll = p_pose[5];
+	g_eyepoint->m_x = p_pose[0];
+	g_eyepoint->m_y = p_pose[1];
+	g_eyepoint->m_z = p_pose[2];
 	SelectPane(p_slot);
-	g_eyepoint->m_unk0x40 = g_unk0x10109bb4;
+	g_eyepoint->m_farPlane = g_mapViewFar;
 	g_savedRenderSettings = g_renderSettings;
-	g_renderSettings.m_shapeFilter = FUN_10042206;
-	g_renderSettings.m_projectVertex = FUN_100423b3;
-	FUN_1004bc2e(g_eyepoint);
+	g_renderSettings.m_shapeFilter = CullMapViewShape;
+	g_renderSettings.m_projectVertex = ProjectMapViewVertex;
+	UpdateProjection(g_eyepoint);
 	g_eyepoint->m_projectScaleX16 = 0x2000;
 	g_eyepoint->m_projectShiftX = 3;
 	g_eyepoint->m_projectScaleY16 = g_eyepoint->m_pixelAspect >> 3;
 	g_eyepoint->m_projectShiftY = 3;
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
-	g_unk0x100a2460 = 0;
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	g_projectionDirty = 0;
 }
 
 // Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes.
 // FUNCTION: MW2 0x1004215f
-void FUN_1004215f(MechU32 p_flags)
+void DrawMapViewScene(MechU32 p_flags)
 {
 	if (p_flags & 1) {
-		FUN_1004320b(g_eyepoint);
+		DrawSkyAndGround(g_eyepoint);
 	}
 
-	FUN_100338bb(g_unk0x100ad5e8);
+	DrawShapeList(g_sceneShapes);
 	FUN_10069591();
 }
 
-// Restores the eyepoint and the rendering settings FUN_10041fa0 saved.
+// Restores the eyepoint and the rendering settings BeginMapView saved.
 // FUNCTION: MW2 0x10042195
-void FUN_10042195(void)
+void EndMapView(void)
 {
 	g_renderSettings = g_savedRenderSettings;
-	*g_eyepoint = g_unk0x10109ac0;
-	g_palettePending = g_unk0x10109ab0;
-	FUN_10012e00();
-	FUN_1004bc2e(g_eyepoint);
-	FUN_1004bfe8(g_eyepoint);
-	FUN_1004b980(g_eyepoint);
-	g_unk0x100a2460 = 0;
+	*g_eyepoint = g_savedEyepoint;
+	g_palettePending = g_savedPalettePending;
+	ResetPane();
+	UpdateProjection(g_eyepoint);
+	UpdateViewMatrix(g_eyepoint);
+	SelectEyepoint(g_eyepoint);
+	g_projectionDirty = 0;
 }
 
 // Culls a shape against the map view's frustum: 1 hidden, 4 in front of the near plane, 5 past
-// the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_unk0x1010b5a4.
+// the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10042206
-MechS32 FUN_10042206(Shape* p_shape)
+MechS32 CullMapViewShape(Shape* p_shape)
 {
 	MechS32 y;
 	MechS32 z;
@@ -138,7 +138,7 @@ MechS32 FUN_10042206(Shape* p_shape)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
 	if (depth + radius < g_viewNearPlane) {
 		return 4;
 	}
@@ -149,10 +149,10 @@ MechS32 FUN_10042206(Shape* p_shape)
 
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 	if (side > 0) {
-		dist = side - g_unk0x10109ba4;
+		dist = side - g_mapViewMaxX;
 	}
 	else {
-		dist = g_unk0x10109ba0 - side;
+		dist = g_mapViewMinX - side;
 	}
 
 	if (dist > radius) {
@@ -161,10 +161,10 @@ MechS32 FUN_10042206(Shape* p_shape)
 
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 	if (height > 0) {
-		dist = height - g_unk0x10109ba8;
+		dist = height - g_mapViewMaxY;
 	}
 	else {
-		dist = g_unk0x10109bac - height;
+		dist = g_mapViewMinY - height;
 	}
 
 	if (dist > radius) {
@@ -178,7 +178,7 @@ MechS32 FUN_10042206(Shape* p_shape)
 // outcodes, and adds it to the polygon being built: ProjectVertex's map-view counterpart.
 // Stack-slot permutation: outcode and y.
 // FUNCTION: MW2 0x100423b3
-ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
+ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 {
 	MechS32 x;
 	MechU8 outcode;
@@ -188,8 +188,8 @@ ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
 	if (!p_vertex->m_projected) {
 		x = p_vertex->m_x;
 		y = p_vertex->m_y;
-		x = ProjectCoordinate(x, g_unk0x10109bb8, g_viewShiftX, g_viewCenterX);
-		y = g_viewBottom - g_viewTop - ProjectCoordinate(y, g_unk0x10109bb8, g_viewShiftY, g_viewCenterY);
+		x = ProjectCoordinate(x, g_mapViewScale, g_viewShiftX, g_viewCenterX);
+		y = g_viewBottom - g_viewTop - ProjectCoordinate(y, g_mapViewScale, g_viewShiftY, g_viewCenterY);
 		if (x - g_viewLeft < 0) {
 			outcode |= 1;
 		}
@@ -229,7 +229,7 @@ ProjectedVertex* FUN_100423b3(ProjectedVertex* p_vertex)
 // on the screen.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004251e
-MechS32 FUN_1004251e(MapPoint* p_point)
+MechS32 ProjectMapPoint(MapPoint* p_point)
 {
 	MechS32 visible;
 	MechS32 x;
@@ -249,8 +249,8 @@ MechS32 FUN_1004251e(MapPoint* p_point)
 	x = FixedDot27(dx, g_viewProjX0, dy, g_viewProjX1, dz, g_viewProjX2);
 	y = FixedDot27(dx, g_viewProjY0, dy, g_viewProjY1, dz, g_viewProjY2);
 	z = FixedDot27(dx, g_viewProjZ0, dy, g_viewProjZ1, dz, g_viewProjZ2);
-	p_point->m_xy.m_x = ProjectCoordinate(x, g_unk0x10109bb8, g_viewShiftX, g_viewCenterX);
-	p_point->m_xy.m_y = g_viewBottom - g_viewTop - ProjectCoordinate(y, g_unk0x10109bb8, g_viewShiftY, g_viewCenterY);
+	p_point->m_xy.m_x = ProjectCoordinate(x, g_mapViewScale, g_viewShiftX, g_viewCenterX);
+	p_point->m_xy.m_y = g_viewBottom - g_viewTop - ProjectCoordinate(y, g_mapViewScale, g_viewShiftY, g_viewCenterY);
 	p_point->m_z = z;
 	if (z > 0) {
 		if (p_point->m_xy.m_x >= g_viewLeft && p_point->m_xy.m_x <= g_viewRight && p_point->m_xy.m_y >= g_viewTop &&

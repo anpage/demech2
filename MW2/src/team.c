@@ -5,8 +5,8 @@
 #include "gamething.h"
 #include "object.h"
 #include "players.h"
-#include "rendertarget.h"
 #include "speech.h"
+#include "targeting.h"
 #include "transform.h"
 #include "types.h"
 
@@ -20,7 +20,7 @@ DECOMP_SIZE_ASSERT(TeamFormation, 0x70)
 DECOMP_SIZE_ASSERT(Team, 0x38)
 
 // GLOBAL: MW2 0x100a5918
-MechS32 g_unk0x100a5918 = -1;
+MechS32 g_localStar = -1;
 
 // GLOBAL: MW2 0x100a591c
 MechS32 g_formationTemplateCount = 0;
@@ -32,7 +32,7 @@ TeamFormation g_formationTemplates[32];
 Team g_teams[16];
 
 // GLOBAL: MW2 0x1010ae10
-MechS32 g_unk0x1010ae10[8];
+MechS32 g_starSides[8];
 
 // GLOBAL: MW2 0x1010ae30
 TeamFormation g_teamFormations[16];
@@ -90,8 +90,8 @@ void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 		return;
 	}
 
-	if (p_team == g_unk0x100a5918) {
-		FUN_10059ed2(p_formation);
+	if (p_team == g_localStar) {
+		SayFormation(p_formation);
 	}
 
 	g_teams[p_team].m_formation = p_formation;
@@ -214,7 +214,7 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechS32* p_x, MechS32* p_z, MechS3
 		*p_z = g_teamFormations[team].m_z[slot];
 		*p_heading = g_teamFormations[team].m_heading[slot];
 		obj = g_players[leader]->m_obj;
-		matrix = FUN_10001e01(obj);
+		matrix = GetObjWorldMatrix(obj);
 		TransformPoint(matrix, p_x, &y, p_z);
 	}
 	else {
@@ -281,16 +281,16 @@ MechS32 GetPlayerSide(MechS32 p_player)
 }
 
 // FUNCTION: MW2 0x1003c30e
-MechS32 FUN_1003c30e(MechS32 p_thing)
+MechS32 GetThingSide(MechS32 p_thing)
 {
 	MechS32 index;
 
-	index = g_gameThings[p_thing].m_unk0x0c;
+	index = g_gameThings[p_thing].m_affiliation;
 	if (index < 0) {
 		return 2;
 	}
 	else {
-		return g_unk0x1010ae10[index];
+		return g_starSides[index];
 	}
 }
 

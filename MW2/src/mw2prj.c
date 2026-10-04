@@ -38,7 +38,7 @@ MechS32 FirstResource(void)
 
 	result = TRUE;
 	SetPrjAllocator(Mw2PrjAlloc, Mw2PrjFree);
-	FUN_10019d73();
+	InitializeResourceCache();
 	if (!g_mw2PrjPath) {
 		g_mw2PrjPath = (MechChar*) _mbsdup((unsigned char*) BuildGamePath("mw2.prj"));
 	}
@@ -64,21 +64,21 @@ void ShutdownMw2Prj(void)
 // FUNCTION: MW2 0x10050848
 void CachePreloads(void)
 {
-	FUN_10045a5b();
-	FUN_1006f480();
+	LoadWeaponSounds();
+	PreloadCockpitSounds();
 	LoadAIScripts();
 }
 
 // FUNCTION: MW2 0x10050862
-MechS32 FUN_10050862(MechS32 p_id, const char* p_type)
+MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 {
 	MechS32 result;
 	void* data;
 
-	data = FUN_1001a19f(g_mw2PrjHandle, p_id, p_type, 0);
+	data = LoadCachedResource(g_mw2PrjHandle, p_id, p_type, 0);
 	if (data) {
 		result = TRUE;
-		FUN_1001a163(p_id, p_type);
+		UnlockCachedResource(p_id, p_type);
 	}
 	else {
 		result = FALSE;

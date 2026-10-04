@@ -13,7 +13,7 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
-Every game-code function of all four binaries is decompiled. Two kinds of work remain. One is raising the match: plenty of functions are still short of byte-identical, and many of those differ only by compiler artifacts (stack-slot assignment, operand order), which reccmp still scores as differences. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100acb2c`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
+Every game-code function of all four binaries is decompiled. Two kinds of work remain. One is raising the match: plenty of functions are still short of byte-identical, and many of those differ only by compiler artifacts (stack-slot assignment, operand order), which reccmp still scores as differences. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
 
 The continuous release ([`continuous`](https://github.com/anpage/demech2/releases/tag/continuous)) carries the latest recompiled binaries from `main`, with their PDBs and progress reports.
 

@@ -26,16 +26,16 @@ extern "C"
 	MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority);
 	void AdvanceSpeechQueue(void);
 	MechS32 StartSpeech(SpeechEntry* p_entry);
-	void FUN_10059b7b(void);
+	void PlayVoiceVolumeTest(void);
 	void FlushSpeechQueue(MechS32 p_keep);
 	SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry);
-	void FUN_10059d8b(void);
+	void StopSpeech(void);
 	void ResumeSpeech(void);
-	void FUN_10059e63(MechS32 p_message, MechS32 p_slot);
-	void FUN_10059ed2(MechS32 p_formation);
+	void SayLancemateReport(MechS32 p_message, MechS32 p_slot);
+	void SayFormation(MechS32 p_formation);
 	void PlayCockpitSound(MechS32 p_message, MechS32 p_engage);
-	void FUN_10059f6e(MechS32 p_part);
-	MechS32 FUN_10059f9c(SpeechLine* p_line);
+	void SayCriticalHit(MechS32 p_part);
+	MechS32 QueueSpeechLine(SpeechLine* p_line);
 
 #ifdef __cplusplus
 }

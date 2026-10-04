@@ -1,6 +1,7 @@
-#include "rendertarget.h"
+#include "targeting.h"
 
 #include "cockpit.h"
+#include "cockpitreadout.h"
 #include "compat.h"
 #include "decomp.h"
 #include "fixeddiv29.h"
@@ -12,7 +13,6 @@
 #include "players.h"
 #include "playersteering.h"
 #include "recttransition.h"
-#include "sagelark.h"
 #include "shape.h"
 #include "simmain.h"
 #include "soundfx.h"
@@ -22,6 +22,12 @@
 
 #include <stdlib.h>
 
+// Targeting: the nav points and the AI target ids (0x100 | nav, 0x200 | game piece, 0x400 |
+// game thing; 0x1000 marks the target lost), cycling the target through them, and the cockpit's
+// map and satellite views. The flags of CycleTarget pick what it may select: 1 nav points only
+// (0x100 too: only the player's own), 2 game pieces only, 4 game things only, 8 game pieces and
+// things, with 0x10000 those flagged 0x40, 0x20000 friends and 0x40000 enemies (GetPlayerSide).
+
 DECOMP_SIZE_ASSERT(WINDOW, 0x14)
 DECOMP_SIZE_ASSERT(PANE, 0x14)
 DECOMP_SIZE_ASSERT(NavPoint, 0x54)
@@ -29,97 +35,99 @@ DECOMP_SIZE_ASSERT(NavPoint, 0x54)
 // GLOBAL: MW2 0x100aaba4
 MechS32 g_navCount = 0;
 
-// What claiming the local player's target did (FUN_1005fa22): 1 claimed it, 2 too far, 3 already
-// claimed by the team, 0 nothing.
+// What inspecting the local player's target did (UpdateTarget): 1 inspected it, 2 too far, 3
+// already inspected by the team, 0 nothing. The target panel reports it.
 // GLOBAL: MW2 0x100aaba8
-MechS32 g_unk0x100aaba8 = 0;
+MechS32 g_inspectResult = 0;
 
-// Set when the local player's target has changed (FUN_10060010).
+// Set once the local player has targeted at the reticle (TargetAtReticle), cleared when they
+// cycle targets: while it is clear, the local player's cycling skips game pieces flagged 0x10
+// and anything without flag 0x400 or 0x1000.
 // GLOBAL: MW2 0x100aabac
-MechS32 g_unk0x100aabac = 0;
+MechS32 g_reticleTargeting = 0;
 
 // The cockpit layouts' text buffers and saved viewports.
 
 // GLOBAL: MW2 0x100e9450
-MechChar g_unk0x100e9450[0x40];
+MechChar g_satelliteRangeText[0x40];
 
 // GLOBAL: MW2 0x100e9490
-MechChar g_unk0x100e9490[0x20];
+MechChar g_satelliteExtraText[0x20];
 
 // GLOBAL: MW2 0x100e94b0
-PANE g_unk0x100e94b0;
+PANE g_satelliteSavedViewport;
 
 // GLOBAL: MW2 0x100e94d0
-MechChar g_unk0x100e94d0[0x20];
+MechChar g_smallMapRangeText[0x20];
 
 // GLOBAL: MW2 0x100e94f0
-MechChar g_unk0x100e94f0[0x20];
+MechChar g_smallMapExtraText[0x20];
 
 // GLOBAL: MW2 0x100e9510
-MechChar g_unk0x100e9510[0x20];
+MechChar g_readoutText[0x20];
 
 // GLOBAL: MW2 0x100e9530
-PANE g_unk0x100e9530;
+PANE g_largeMapSavedViewport;
 
 // GLOBAL: MW2 0x100e9550
-MechChar g_unk0x100e9550[0x20];
+MechChar g_largeMapRangeText[0x20];
 
 // GLOBAL: MW2 0x100e9570
-MechChar g_unk0x100e9570[0x20];
+MechChar g_bearingText[0x20];
 
 // GLOBAL: MW2 0x100e9590
-PANE g_unk0x100e9590;
+PANE g_smallMapSavedViewport;
 
 // GLOBAL: MW2 0x100e95d0
-MechChar g_unk0x100e95d0[0x20];
+MechChar g_largeMapExtraText[0x20];
 
-// The cockpit views' layouts (g_unk0x100ab0e8): the map view of cockpit views 1 and 2 and the
+// The cockpit views' layouts (g_cockpitLayouts): the map view of cockpit views 1 and 2 and the
 // satellite view (4), with their labels, icons, colors, rectangles and transitions.
 
 // GLOBAL: MW2 0x100aabb0
-MechChar g_unk0x100aabb0[8] = "x";
+MechChar g_readoutLabel[8] = "x";
 
 // GLOBAL: MW2 0x100aabb8
-SageLark0x1c g_unk0x100aabb8 = {1, 0, -1, g_unk0x100aabb0, g_unk0x100e9510, {0x28f, 0x28f}};
+CockpitReadout g_readout = {1, 0, -1, g_readoutLabel, g_readoutText, {0x28f, 0x28f}};
 
 // GLOBAL: MW2 0x100aabd4
-SageLark0x1c* g_unk0x100aabd4 = &g_unk0x100aabb8;
+CockpitReadout* g_cockpitReadout = &g_readout;
 
 // GLOBAL: MW2 0x100aabd8
-MechChar g_unk0x100aabd8[4] = "x";
+MechChar g_smallMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabdc
-MechChar g_unk0x100aabdc[4] = "R: ";
+MechChar g_smallMapRangeLabel[4] = "R: ";
 
 // GLOBAL: MW2 0x100aabe0
-MechChar g_unk0x100aabe0[12] = "Bearing: ";
+MechChar g_smallMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aabec
-MechChar g_unk0x100aabec[4] = "x";
+MechChar g_largeMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabf0
-MechChar g_unk0x100aabf0[8] = "R: ";
+MechChar g_largeMapRangeLabel[8] = "R: ";
 
 // GLOBAL: MW2 0x100aabf8
-MechChar g_unk0x100aabf8[12] = "Bearing: ";
+MechChar g_largeMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac04
-MechChar g_unk0x100aac04[4] = "x";
+MechChar g_satelliteExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aac08
-MechChar g_unk0x100aac08[8] = "Range: ";
+MechChar g_satelliteRangeLabel[8] = "Range: ";
 
 // GLOBAL: MW2 0x100aac10
-MechChar g_unk0x100aac10[12] = "Bearing: ";
+MechChar g_bearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac1c
-MechChar g_unk0x100aac1c[4] = "m";
+MechChar g_metersUnit[4] = "m";
 
 // GLOBAL: MW2 0x100aac20
-MechChar g_unk0x100aac20[8] = "km";
+MechChar g_kilometersUnit[8] = "km";
 
 // GLOBAL: MW2 0x100aac28
-MechS32 g_unk0x100aac28[7][3] = {
+MechS32 g_smallMapColors[7][3] = {
 	{0xac, 0xac, 0xac},
 	{0x7c, 0x79, 0x7f},
 	{0x91, 0x8e, 0x94},
@@ -130,7 +138,7 @@ MechS32 g_unk0x100aac28[7][3] = {
 };
 
 // GLOBAL: MW2 0x100aac80
-MechS32 g_unk0x100aac80[7][3] = {
+MechS32 g_largeMapColors[7][3] = {
 	{0xac, 0xac, 0xac},
 	{0x7c, 0x79, 0x7f},
 	{0x91, 0x8e, 0x94},
@@ -141,7 +149,7 @@ MechS32 g_unk0x100aac80[7][3] = {
 };
 
 // GLOBAL: MW2 0x100aacd8
-MechS32 g_unk0x100aacd8[7][3] = {
+MechS32 g_satelliteColors[7][3] = {
 	{0xac, 0xac, 0xac},
 	{0x7c, 0x79, 0x7f},
 	{0x91, 0x8e, 0x94},
@@ -152,78 +160,81 @@ MechS32 g_unk0x100aacd8[7][3] = {
 };
 
 // GLOBAL: MW2 0x100aad30
-MechS32 g_unk0x100aad30[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 1, 2};
+MechS32 g_mapColors[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 1, 2};
 
 // GLOBAL: MW2 0x100aad68
-MechS32 g_unk0x100aad68[5] = {-1, -1, -1, -1, -1};
+MechS32 g_smallMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad80
-MechS32 g_unk0x100aad80[5] = {-1, -1, -1, -1, -1};
+MechS32 g_largeMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad98
-MechS32 g_unk0x100aad98[5] = {-1, -1, -1, -1, -1};
+MechS32 g_satelliteAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aadb0
-PANE g_unk0x100aadb0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_smallMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aadc8
-PANE g_unk0x100aadc8 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_smallMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aade0
-PANE g_unk0x100aade0 = {NULL, 0, 0, 0, 0};
+PANE g_smallMapTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aadf8
-RectTransitionState g_unk0x100aadf8 = {0, 0, 0};
+RectTransitionState g_mapTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100aae08
-RectTransitionDef g_unk0x100aae08 = {0xb5, &g_unk0x100aadb0, &g_unk0x100aadc8, &g_unk0x100aade0};
+RectTransitionDef g_smallMapTransitionDef =
+	{0xb5, &g_smallMapTransitionFirst, &g_smallMapTransitionSecond, &g_smallMapTransitionRect};
 
 // GLOBAL: MW2 0x100aae18
-RectTransition g_unk0x100aae18 = {&g_unk0x100aadf8, &g_unk0x100aae08};
+RectTransition g_smallMapTransition = {&g_mapTransitionState, &g_smallMapTransitionDef};
 
 // GLOBAL: MW2 0x100aae20
-PANE g_unk0x100aae20 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_largeMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aae38
-PANE g_unk0x100aae38 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_largeMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aae50
-PANE g_unk0x100aae50 = {NULL, 0, 0, 0, 0};
+PANE g_largeMapTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aae68
-RectTransitionDef g_unk0x100aae68 = {0xb5, &g_unk0x100aae20, &g_unk0x100aae38, &g_unk0x100aae50};
+RectTransitionDef g_largeMapTransitionDef =
+	{0xb5, &g_largeMapTransitionFirst, &g_largeMapTransitionSecond, &g_largeMapTransitionRect};
 
 // GLOBAL: MW2 0x100aae78
-RectTransition g_unk0x100aae78 = {&g_unk0x100aadf8, &g_unk0x100aae68};
+RectTransition g_largeMapTransition = {&g_mapTransitionState, &g_largeMapTransitionDef};
 
 // GLOBAL: MW2 0x100aae80
-PANE g_unk0x100aae80 = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
+PANE g_satelliteTransitionFirst = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
 
 // GLOBAL: MW2 0x100aae98
-PANE g_unk0x100aae98 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_satelliteTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aaeb0
-PANE g_unk0x100aaeb0 = {NULL, 0, 0, 0, 0};
+PANE g_satelliteTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aaec8
-RectTransitionState g_unk0x100aaec8 = {0, 0, 0};
+RectTransitionState g_satelliteTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100aaed8
-RectTransitionDef g_unk0x100aaed8 = {0x21f, &g_unk0x100aae80, &g_unk0x100aae98, &g_unk0x100aaeb0};
+RectTransitionDef g_satelliteTransitionDef =
+	{0x21f, &g_satelliteTransitionFirst, &g_satelliteTransitionSecond, &g_satelliteTransitionRect};
 
 // GLOBAL: MW2 0x100aaee8
-RectTransition g_unk0x100aaee8 = {&g_unk0x100aaec8, &g_unk0x100aaed8};
+RectTransition g_satelliteTransition = {&g_satelliteTransitionState, &g_satelliteTransitionDef};
 
 // GLOBAL: MW2 0x100aaef0
-PANE g_unk0x100aaef0 = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
+PANE g_smallMapViewport = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
 
 // GLOBAL: MW2 0x100aaf08
-CockpitLayout g_unk0x100aaf08 = {
-	&g_unk0x100aaef0,
-	&g_unk0x100e9590,
+CockpitLayout g_smallMapLayout = {
+	&g_smallMapViewport,
+	&g_smallMapSavedViewport,
 	8,
 	{-1, -1},
-	&g_unk0x100aae18,
+	&g_smallMapTransition,
 	0x30d40,
 	-1,
 	0x30d40,
@@ -231,34 +242,34 @@ CockpitLayout g_unk0x100aaf08 = {
 	0x61a80,
 	0,
 	1,
-	g_unk0x100aabd8,
-	g_unk0x100e94f0,
-	g_unk0x100aabdc,
-	g_unk0x100e94d0,
-	g_unk0x100aac10,
-	g_unk0x100e9570,
+	g_smallMapExtraLabel,
+	g_smallMapExtraText,
+	g_smallMapRangeLabel,
+	g_smallMapRangeText,
+	g_bearingLabel,
+	g_bearingText,
 	-1,
-	g_unk0x100aac1c,
-	g_unk0x100aac20,
+	g_metersUnit,
+	g_kilometersUnit,
 	{0, 0},
 	{0, 0xa3d},
 	{0, 0},
-	g_unk0x100aac28,
-	g_unk0x100aad30,
-	g_unk0x100aad68,
+	g_smallMapColors,
+	g_mapColors,
+	g_smallMapAnims,
 	{(CockpitGaugeFn) 2, (CockpitGaugeFn) 4, (CockpitGaugeFn) 6, (CockpitGaugeFn) 8}
 };
 
 // GLOBAL: MW2 0x100aaf98
-PANE g_unk0x100aaf98 = {NULL, 0x2148, 0, 0xdeb8, 0x10000};
+PANE g_largeMapViewport = {NULL, 0x2148, 0, 0xdeb8, 0x10000};
 
 // GLOBAL: MW2 0x100aafb0
-CockpitLayout g_unk0x100aafb0 = {
-	&g_unk0x100aaf98,
-	&g_unk0x100e9530,
+CockpitLayout g_largeMapLayout = {
+	&g_largeMapViewport,
+	&g_largeMapSavedViewport,
 	9,
 	{-1, -1},
-	&g_unk0x100aae78,
+	&g_largeMapTransition,
 	0x30d40,
 	-1,
 	0x30d40,
@@ -266,34 +277,34 @@ CockpitLayout g_unk0x100aafb0 = {
 	0x61a80,
 	0,
 	1,
-	g_unk0x100aabec,
-	g_unk0x100e95d0,
-	g_unk0x100aabf0,
-	g_unk0x100e9550,
-	g_unk0x100aac10,
-	g_unk0x100e9570,
+	g_largeMapExtraLabel,
+	g_largeMapExtraText,
+	g_largeMapRangeLabel,
+	g_largeMapRangeText,
+	g_bearingLabel,
+	g_bearingText,
 	-1,
-	g_unk0x100aac1c,
-	g_unk0x100aac20,
+	g_metersUnit,
+	g_kilometersUnit,
 	{0, 0},
 	{0x147b, 0x2148},
 	{0, 0},
-	g_unk0x100aac80,
-	g_unk0x100aad30,
-	g_unk0x100aad80,
+	g_largeMapColors,
+	g_mapColors,
+	g_largeMapAnims,
 	{(CockpitGaugeFn) 2, (CockpitGaugeFn) 4, (CockpitGaugeFn) 6, (CockpitGaugeFn) 8}
 };
 
 // GLOBAL: MW2 0x100ab040
-PANE g_unk0x100ab040 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_satelliteViewport = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ab058
-CockpitLayout g_unk0x100ab058 = {
-	&g_unk0x100ab040,
-	&g_unk0x100e94b0,
+CockpitLayout g_satelliteLayout = {
+	&g_satelliteViewport,
+	&g_satelliteSavedViewport,
 	10,
 	{0xe8, 0xe8},
-	&g_unk0x100aaee8,
+	&g_satelliteTransition,
 	0x186a0,
 	-1,
 	0x186a0,
@@ -301,27 +312,27 @@ CockpitLayout g_unk0x100ab058 = {
 	0x186a0,
 	0,
 	1,
-	g_unk0x100aac04,
-	g_unk0x100e9490,
-	g_unk0x100aac08,
-	g_unk0x100e9450,
-	g_unk0x100aac10,
-	g_unk0x100e9570,
+	g_satelliteExtraLabel,
+	g_satelliteExtraText,
+	g_satelliteRangeLabel,
+	g_satelliteRangeText,
+	g_bearingLabel,
+	g_bearingText,
 	-1,
-	g_unk0x100aac1c,
-	g_unk0x100aac20,
+	g_metersUnit,
+	g_kilometersUnit,
 	{0, 0},
 	{0x28f, 0x28f},
 	{0x28f, 0xccd},
-	g_unk0x100aacd8,
-	g_unk0x100aad30,
-	g_unk0x100aad98,
+	g_satelliteColors,
+	g_mapColors,
+	g_satelliteAnims,
 	{(CockpitGaugeFn) 0, (CockpitGaugeFn) 3, (CockpitGaugeFn) 5, (CockpitGaugeFn) 7}
 };
 
 // The layout of each cockpit view, NULL where it has none.
 // GLOBAL: MW2 0x100ab0e8
-CockpitLayout* g_unk0x100ab0e8[6] = {NULL, &g_unk0x100aaf08, &g_unk0x100aafb0, NULL, &g_unk0x100ab058, NULL};
+CockpitLayout* g_cockpitLayouts[6] = {NULL, &g_smallMapLayout, &g_largeMapLayout, NULL, &g_satelliteLayout, NULL};
 
 // GLOBAL: MW2 0x10177160
 NavPoint g_navTable[128];
@@ -330,7 +341,7 @@ NavPoint g_navTable[128];
 // -1 if the table is full.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005ec80
-MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 AddNavPoint(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 index;
 	NavPoint* nav;
@@ -341,7 +352,7 @@ MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		nav->m_position[0] = p_x;
 		nav->m_position[1] = p_y;
 		nav->m_position[2] = p_z;
-		nav->m_unk0x00 = 1;
+		nav->m_used = 1;
 		nav->m_flags = 0x401;
 		nav->m_owner = p_owner | 0x200;
 		nav->m_team = g_players[p_owner]->m_team;
@@ -362,7 +373,7 @@ MechS32 FUN_1005ec80(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Stack-slot permutation of the locals. Operand order: the second loop test (i < g_playerCount)
 // compares with i in eax in the original.
 // FUNCTION: MW2 0x1005ed4f
-MechS32 FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
+MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 {
 	MechS32 index;
 	MechS32 i;
@@ -419,7 +430,7 @@ MechS32 FUN_1005ed4f(MechU32 p_owner, MechU32 p_nav)
 // turns the autopilot's steering over.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005ef5e
-void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
+void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 {
 	MechS32 target;
 	MechS32 result;
@@ -431,7 +442,7 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 
 	found = FALSE;
 	if (p_player->m_index == g_localPlayerId) {
-		g_unk0x100aabac = 0;
+		g_reticleTargeting = 0;
 	}
 
 	target = p_player->m_targetInfo.m_target;
@@ -451,7 +462,7 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 	while (tries++ < limit && !found) {
 		switch (kind) {
 		case 0x100:
-			result = FUN_1005f2ae(p_player->m_index, index, p_flags);
+			result = TargetNavPoint(p_player->m_index, index, p_flags);
 			switch (result) {
 			case -1:
 				index = g_gameThingCount - 1;
@@ -470,7 +481,7 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 			}
 			break;
 		case 0x200:
-			result = FUN_1005f4ac(p_player->m_index, index, p_flags);
+			result = TargetGamePiece(p_player->m_index, index, p_flags);
 			switch (result) {
 			case -1:
 				index = g_navCount - 1;
@@ -489,7 +500,7 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 			}
 			break;
 		case 0x400:
-			result = FUN_1005f798(p_player->m_index, index, p_flags);
+			result = TargetGameThing(p_player->m_index, index, p_flags);
 			switch (result) {
 			case -1:
 				index = g_playerCount - 1;
@@ -528,7 +539,7 @@ void FUN_1005ef5e(Player* p_player, MechS32 p_step, MechU32 p_flags)
 
 // Marks the local player's target (bit 0x1000).
 // FUNCTION: MW2 0x1005f284
-void FUN_1005f284(void)
+void ResetTargeting(void)
 {
 	Player* player;
 
@@ -542,7 +553,7 @@ void FUN_1005f284(void)
 // (flag 0x100 accepts only a nav its owner placed).
 // Stack-slot permutation of the locals; p_nav >= g_navCount compares in the other operand order.
 // FUNCTION: MW2 0x1005f2ae
-MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
+MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 {
 	Player* player;
 	NavPoint* nav;
@@ -571,7 +582,7 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 
 	player = g_players[p_player];
 	nav = &g_navTable[p_nav];
-	if (!nav->m_unk0x00) {
+	if (!nav->m_used) {
 		return -3;
 	}
 
@@ -602,7 +613,7 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
+	GetBearingAndRange(dx, dy, dz, &heading, &range, &distance, &pitch);
 	player->m_targetInfo.m_position.m_x = x;
 	player->m_targetInfo.m_position.m_y = y;
 	player->m_targetInfo.m_position.m_z = z;
@@ -613,7 +624,7 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 	return 1;
 }
 
-// Makes player p_index player p_player's target, like FUN_1005f2ae for a nav point. Returns 1, or
+// Makes player p_index player p_player's target, like TargetNavPoint for a nav point. Returns 1, or
 // a negative code: -1 and -2 for an index out of range, -9 for flags 0x15 or the wrong side
 // (flags 0x20000 and 0x40000), -3 for a player that can't be targeted or is p_player, -4 when
 // flag 0x10000 asks for a player with flag 0x40, -5 and -7 for targets the local player may not
@@ -621,7 +632,7 @@ MechS32 FUN_1005f2ae(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
 // order.
 // FUNCTION: MW2 0x1005f4ac
-MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
+MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	MechS32 breakpoint;
 	Player* player;
@@ -655,7 +666,7 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 
 	player = g_players[p_player];
 	target = g_players[p_index];
-	if (!g_unk0x100aabac && (target->m_flags & 0x10) && p_player == g_localPlayerId) {
+	if (!g_reticleTargeting && (target->m_flags & 0x10) && p_player == g_localPlayerId) {
 		return -3;
 	}
 
@@ -679,7 +690,7 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 		return -9;
 	}
 
-	if (!g_unk0x100aabac && !(target->m_flags & 0x1400) && p_player == g_localPlayerId) {
+	if (!g_reticleTargeting && !(target->m_flags & 0x1400) && p_player == g_localPlayerId) {
 		return -5;
 	}
 
@@ -691,7 +702,7 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 		return -8;
 	}
 
-	if (!FUN_1000154d(target->m_obj)) {
+	if (!GetObjShape(target->m_obj)) {
 		return -8;
 	}
 
@@ -701,7 +712,7 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
+	GetBearingAndRange(dx, dy, dz, &heading, &range, &distance, &pitch);
 	if (!(target->m_flags & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
@@ -716,12 +727,12 @@ MechS32 FUN_1005f4ac(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 	return 1;
 }
 
-// Makes game thing p_index player p_player's target, like FUN_1005f4ac for a player. Returns 1,
+// Makes game thing p_index player p_player's target, like TargetGamePiece for a player. Returns 1,
 // or the same negative codes; its test of flag 0x10000 can never succeed.
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
 // order.
 // FUNCTION: MW2 0x1005f798
-MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
+MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	Player* player;
 	GameThing* thing;
@@ -750,44 +761,44 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 
 	player = g_players[p_player];
 	thing = &g_gameThings[p_index];
-	if (thing->m_unk0x00 & 4) {
+	if (thing->m_flags & 4) {
 		return -3;
 	}
 
-	if (p_flags & 0x10000 & !(thing->m_unk0x00 & 0x40)) {
+	if (p_flags & 0x10000 & !(thing->m_flags & 0x40)) {
 		return -4;
 	}
 
-	if ((p_flags & 0x20000) && FUN_1003c30e(p_index)) {
+	if ((p_flags & 0x20000) && GetThingSide(p_index)) {
 		return -9;
 	}
 
-	if ((p_flags & 0x40000) && FUN_1003c30e(p_index) != 1) {
+	if ((p_flags & 0x40000) && GetThingSide(p_index) != 1) {
 		return -9;
 	}
 
-	if (!g_unk0x100aabac && !(thing->m_unk0x00 & 0x1400) && p_player == g_localPlayerId) {
+	if (!g_reticleTargeting && !(thing->m_flags & 0x1400) && p_player == g_localPlayerId) {
 		return -5;
 	}
 
-	if ((thing->m_unk0x00 & 0x800) && p_player == g_localPlayerId) {
+	if ((thing->m_flags & 0x800) && p_player == g_localPlayerId) {
 		return -5;
 	}
 
-	if (!FUN_10020bdd(thing->m_unk0x04)) {
+	if (!GetStaticSceneObject(thing->m_staticObject)) {
 		return -8;
 	}
 
-	if (!FUN_10020c26(thing->m_unk0x04)) {
+	if (!GetStaticObjectShape(thing->m_staticObject)) {
 		return -8;
 	}
 
-	FUN_10020c6f(thing->m_unk0x04, &x, &y, &z);
+	GetStaticObjectPosition(thing->m_staticObject, &x, &y, &z);
 	dx = x - player->m_position.m_x;
 	dy = y - player->m_position.m_y;
 	dz = z - player->m_position.m_z;
-	FUN_10060197(dx, dy, dz, &heading, &range, &distance, &pitch);
-	if (!(thing->m_unk0x00 & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
+	GetBearingAndRange(dx, dy, dz, &heading, &range, &distance, &pitch);
+	if (!(thing->m_flags & 0x1000) && range > 0x2ab98 && p_player == g_localPlayerId) {
 		return -7;
 	}
 
@@ -803,12 +814,12 @@ MechS32 FUN_1005f798(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 
 // Revalidates p_player's target (m_targetInfo.m_target: a nav, player or game thing index) and
 // updates the target info. Reaching a nav target's radius marks the nav reached by the team; with
-// the claim key (steering m_unk0x3a) pressed, a player or game thing within 20000 of its splash
-// radius is claimed for the team. Returns 0, flagging the target lost (0x1000), when it no longer
+// the inspect key (PlayerSteering::m_inspectTarget) pressed, a player or game thing within 20000
+// of its radius is inspected for the team. Returns 0, flagging the target lost (0x1000), when it no longer
 // qualifies.
 // The only diff is a stack-slot permutation of lost, claim, index and kind.
 // FUNCTION: MW2 0x1005fa22
-MechS32 FUN_1005fa22(Player* p_player)
+MechS32 UpdateTarget(Player* p_player)
 {
 	MechS32 isLocal;
 	MechS32 claim;
@@ -827,27 +838,27 @@ MechS32 FUN_1005fa22(Player* p_player)
 	kind = p_player->m_targetInfo.m_target & 0xf00;
 	switch (kind) {
 	case 0x200:
-		if (FUN_1005f4ac(p_player->m_index, index, 0) >= 0) {
+		if (TargetGamePiece(p_player->m_index, index, 0) >= 0) {
 			lost = FALSE;
 		}
 		break;
 	case 0x400:
-		if (FUN_1005f798(p_player->m_index, index, 0) >= 0) {
+		if (TargetGameThing(p_player->m_index, index, 0) >= 0) {
 			lost = FALSE;
 		}
 		break;
 	case 0x100:
-		if (FUN_1005f2ae(p_player->m_index, index, 0) >= 0) {
+		if (TargetNavPoint(p_player->m_index, index, 0) >= 0) {
 			lost = FALSE;
 			if (g_navTable[index].m_radius > p_player->m_targetInfo.m_distance && p_player->m_mech->m_autopilot != 1 &&
 				p_player->m_index == g_localPlayerId) {
 				if (!(g_navTable[index].m_flags & 0x20)) {
 					g_navTable[index].m_flags |= 0x20;
-					g_navTable[index].m_unk0x26 |= 1 << p_player->m_team;
-					FUN_1007eb23(0xe7, 100, 0x40, 5, 0x50);
+					g_navTable[index].m_teamsReached |= 1 << p_player->m_team;
+					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_100602b2(p_player, 1, 0);
+				CycleNavTarget(p_player, 1, 0);
 			}
 		}
 		break;
@@ -861,7 +872,7 @@ MechS32 FUN_1005fa22(Player* p_player)
 	}
 
 	if (isLocal) {
-		g_unk0x100aaba8 = 0;
+		g_inspectResult = 0;
 	}
 
 	claim = p_player->m_steering->m_inspectTarget;
@@ -872,36 +883,36 @@ MechS32 FUN_1005fa22(Player* p_player)
 			if (!(g_players[index]->m_inspectedBy & (1 << p_player->m_team))) {
 				if (g_players[index]->m_mech->m_radius + 20000 > p_player->m_targetInfo.m_distance) {
 					if (isLocal) {
-						g_unk0x100aaba8 = 1;
+						g_inspectResult = 1;
 					}
 
 					g_players[index]->m_flags |= 0x20;
 					g_players[index]->m_inspectedBy |= 1 << p_player->m_team;
 				}
 				else if (isLocal) {
-					g_unk0x100aaba8 = 2;
+					g_inspectResult = 2;
 				}
 			}
 			else if (isLocal) {
-				g_unk0x100aaba8 = 3;
+				g_inspectResult = 3;
 			}
 			break;
 		case 0x400:
-			if (!(g_gameThings[index].m_unk0x02 & (1 << p_player->m_team))) {
-				if (g_gameThings[index].m_unk0x10 + 20000 > p_player->m_targetInfo.m_distance) {
+			if (!(g_gameThings[index].m_teamsReached & (1 << p_player->m_team))) {
+				if (g_gameThings[index].m_radius + 20000 > p_player->m_targetInfo.m_distance) {
 					if (isLocal) {
-						g_unk0x100aaba8 = 1;
+						g_inspectResult = 1;
 					}
 
-					g_gameThings[index].m_unk0x00 |= 0x20;
-					g_gameThings[index].m_unk0x02 |= 1 << p_player->m_team;
+					g_gameThings[index].m_flags |= 0x20;
+					g_gameThings[index].m_teamsReached |= 1 << p_player->m_team;
 				}
 				else if (isLocal) {
-					g_unk0x100aaba8 = 2;
+					g_inspectResult = 2;
 				}
 			}
 			else if (isLocal) {
-				g_unk0x100aaba8 = 3;
+				g_inspectResult = 3;
 			}
 			break;
 		default:
@@ -915,7 +926,7 @@ MechS32 FUN_1005fa22(Player* p_player)
 // Returns the player the local player targets, or -1.
 // The only diff is a stack-slot permutation of index, player and kind.
 // FUNCTION: MW2 0x1005fe63
-MechS32 FUN_1005fe63(void)
+MechS32 GetLocalTargetGamePiece(void)
 {
 	MechS32 index;
 	Player* player;
@@ -934,7 +945,7 @@ MechS32 FUN_1005fe63(void)
 // Returns the game thing the local player targets, or -1.
 // The only diff is a stack-slot permutation of index, player and kind.
 // FUNCTION: MW2 0x1005febe
-MechS32 FUN_1005febe(void)
+MechS32 GetLocalTargetGameThing(void)
 {
 	MechS32 index;
 	Player* player;
@@ -952,13 +963,13 @@ MechS32 FUN_1005febe(void)
 
 // Returns the shape of the local player's target, or NULL.
 // FUNCTION: MW2 0x1005ff19
-Shape* FUN_1005ff19(void)
+Shape* GetLocalTargetShape(void)
 {
 	SceneObject* obj;
 
-	obj = FUN_1005ff56();
+	obj = GetLocalTargetObject();
 	if (obj) {
-		return FUN_1000154d(obj);
+		return GetObjShape(obj);
 	}
 	else {
 		return NULL;
@@ -968,7 +979,7 @@ Shape* FUN_1005ff19(void)
 // Returns the scene object of the local player's target: a player's or a game thing's.
 // The only diff is a stack-slot permutation of index, player, obj, kind and id.
 // FUNCTION: MW2 0x1005ff56
-SceneObject* FUN_1005ff56(void)
+SceneObject* GetLocalTargetObject(void)
 {
 	MechS32 index;
 	Player* player;
@@ -985,8 +996,8 @@ SceneObject* FUN_1005ff56(void)
 		obj = g_players[index]->m_obj;
 		break;
 	case 0x400:
-		id = g_gameThings[index].m_unk0x04;
-		obj = FUN_10020bdd(id);
+		id = g_gameThings[index].m_staticObject;
+		obj = GetStaticSceneObject(id);
 		break;
 	default:
 		break;
@@ -995,12 +1006,12 @@ SceneObject* FUN_1005ff56(void)
 	return obj;
 }
 
-// Targets the shape the local player points at (g_unk0x100a6d34): a player's mech (0x100) or a
-// game thing (0x200), when FUN_1005f4ac or FUN_1005f798 allows it. When FUN_1005fa22 rejects the
+// Targets the shape the local player points at (g_aimedShape): a player's mech (0x100) or a
+// game thing (0x200), when TargetGamePiece or TargetGameThing allows it. When UpdateTarget rejects the
 // new target, the old one comes back, with the autopilot.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10060010
-void FUN_10060010(void)
+void TargetAtReticle(void)
 {
 	MechS32 autopilot;
 	Player* player;
@@ -1016,15 +1027,15 @@ void FUN_10060010(void)
 		autopilot = TRUE;
 	}
 
-	shape = g_unk0x100a6d34;
+	shape = g_aimedShape;
 	if (shape) {
 		if (shape->m_kind & 0x100) {
-			if (FUN_1005f4ac(g_localPlayerId, shape->m_owner, 0) >= 0) {
+			if (TargetGamePiece(g_localPlayerId, shape->m_owner, 0) >= 0) {
 				target = shape->m_owner | 0x200;
 			}
 		}
 		else if (shape->m_kind & 0x200) {
-			if (FUN_1005f798(g_localPlayerId, shape->m_owner, 0) >= 0) {
+			if (TargetGameThing(g_localPlayerId, shape->m_owner, 0) >= 0) {
 				target = shape->m_owner | 0x400;
 			}
 		}
@@ -1035,7 +1046,7 @@ void FUN_10060010(void)
 				player->m_steering->m_autopilot = 1;
 			}
 
-			if (!FUN_1005fa22(player)) {
+			if (!UpdateTarget(player)) {
 				player->m_targetInfo.m_target = previous;
 				if (autopilot) {
 					player->m_steering->m_autopilot = 0;
@@ -1045,7 +1056,7 @@ void FUN_10060010(void)
 		}
 	}
 
-	g_unk0x100aabac = 1;
+	g_reticleTargeting = 1;
 }
 
 // Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_heading), its length along the
@@ -1053,7 +1064,7 @@ void FUN_10060010(void)
 // The abs(p_dx)/abs(p_dz) comparison evaluates its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local.
 // FUNCTION: MW2 0x10060197
-void FUN_10060197(
+void GetBearingAndRange(
 	MechS32 p_dx,
 	MechS32 p_dy,
 	MechS32 p_dz,
@@ -1106,63 +1117,63 @@ void FUN_10060197(
 	*p_pitch = pitch;
 }
 
-// Steps p_player's selected target by p_step, with bit 0x100 of the flags set when p_unk0x08.
+// Steps p_player's nav point by p_step; with p_ownOnly, through the navs p_player placed only.
 // FUNCTION: MW2 0x100602b2
-void FUN_100602b2(Player* p_player, MechS32 p_step, MechS32 p_unk0x08)
+void CycleNavTarget(Player* p_player, MechS32 p_step, MechS32 p_ownOnly)
 {
 	MechU32 flags;
 
 	flags = 1;
-	if (p_unk0x08) {
+	if (p_ownOnly) {
 		flags |= 0x100;
 	}
 
-	FUN_1005ef5e(p_player, p_step, flags);
+	CycleTarget(p_player, p_step, flags);
 }
 
 // FUNCTION: MW2 0x100602ec
-void FUN_100602ec(MechS32 p_step)
+void CycleGameThingTarget(MechS32 p_step)
 {
 	Player* player;
 
 	player = g_players[g_localPlayerId];
-	FUN_1005ef5e(player, p_step, 4);
+	CycleTarget(player, p_step, 4);
 }
 
 // FUNCTION: MW2 0x1006031b
-void FUN_1006031b(MechS32 p_step)
+void CycleGamePieceTarget(MechS32 p_step)
 {
 	Player* player;
 
 	player = g_players[g_localPlayerId];
-	FUN_1005ef5e(player, p_step, 2);
+	CycleTarget(player, p_step, 2);
 }
 
 // FUNCTION: MW2 0x1006034a
-void FUN_1006034a(MechS32 p_step)
+void CycleFriendlyTarget(MechS32 p_step)
 {
 	Player* player;
 
 	player = g_players[g_localPlayerId];
-	FUN_1005ef5e(player, p_step, 0x20008);
+	CycleTarget(player, p_step, 0x20008);
 }
 
 // FUNCTION: MW2 0x1006037c
-void FUN_1006037c(MechS32 p_step)
+void CycleEnemyTarget(MechS32 p_step)
 {
 	Player* player;
 
 	player = g_players[g_localPlayerId];
-	FUN_1005ef5e(player, p_step, 0x40008);
+	CycleTarget(player, p_step, 0x40008);
 }
 
 // Selects the local player's nearest target within 0x2ab98, cycling through them all; keeps the
-// current one if there is none or FUN_1005fa22 refuses it, and then clears the autopilot's
+// current one if there is none or UpdateTarget refuses it, and then clears the autopilot's
 // steering flag (PlayerSteering::m_autopilot).
 // The distance/bestDistance comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local.
 // FUNCTION: MW2 0x100603ae
-void FUN_100603ae(void)
+void TargetNearestEnemy(void)
 {
 	MechS32 autopilot;
 	MechS32 target;
@@ -1182,7 +1193,7 @@ void FUN_100603ae(void)
 		autopilot = TRUE;
 	}
 
-	FUN_1006037c(0);
+	CycleEnemyTarget(0);
 	while (best != target) {
 		target = player->m_targetInfo.m_target;
 		if (target & 0x1000) {
@@ -1196,7 +1207,7 @@ void FUN_100603ae(void)
 			target = 0;
 		}
 
-		FUN_1006037c(1);
+		CycleEnemyTarget(1);
 	}
 
 	if (best == -1 || bestDistance > 0x2ab98) {
@@ -1207,7 +1218,7 @@ void FUN_100603ae(void)
 	}
 	else {
 		player->m_targetInfo.m_target = best;
-		if (!FUN_1005fa22(player)) {
+		if (!UpdateTarget(player)) {
 			player->m_targetInfo.m_target = saved;
 			if (autopilot) {
 				player->m_steering->m_autopilot = 0;

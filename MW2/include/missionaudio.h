@@ -10,7 +10,7 @@ extern "C"
 #endif
 
 	void CollectMissionAudio(void);
-	void* FUN_100073bb(MechChar* p_name);
+	void* ReadSoundFile(MechChar* p_name);
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-	MechS32 FUN_100758a0(
+	MechS32 MoveMechWithCollisions(
 		struct Mech* p_mech,
 		struct Shape** p_hit,
 		struct Player** p_player,
@@ -24,12 +24,12 @@ extern "C"
 		MechS32* p_y,
 		MechS32* p_z
 	);
-	MechS32 FUN_10075d7b(struct Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, struct Player** p_hit);
-	MechS32 FUN_10076295(struct Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, struct Shape** p_hit);
-	void FUN_100765f8(struct Mech* p_mech, struct Mech* p_other);
-	void FUN_1007669e(struct Mech* p_mech, struct Mech* p_other, MechS32 p_damage);
-	void FUN_100768a8(struct Mech* p_mech, struct Shape* p_shape);
-	void FUN_10076a23(struct Mech* p_mech);
+	MechS32 CollideWithMechs(struct Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, struct Player** p_hit);
+	MechS32 CollideWithBuildings(struct Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, struct Shape** p_hit);
+	void DamageMechsInCollision(struct Mech* p_mech, struct Mech* p_other);
+	void ApplyCollisionDamage(struct Mech* p_mech, struct Mech* p_other, MechS32 p_damage);
+	void DamageMechHittingShape(struct Mech* p_mech, struct Shape* p_shape);
+	void KnockMechOver(struct Mech* p_mech);
 
 #ifdef __cplusplus
 }

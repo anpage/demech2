@@ -11,11 +11,11 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100ad43c;
+	extern MechS32 g_rayBoxEntryBehind;
 
-	MechS32 FUN_100699a0(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_100699da(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
-	void FUN_10069a4b(
+	MechS32 TestPointInBox(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 GetBoxTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
+	void ClassifyPointInBox(
 		Shape* p_shape,
 		MechS32 p_x,
 		MechS32 p_y,
@@ -24,16 +24,16 @@ extern "C"
 		MechS32* p_inColumn,
 		MechS32* p_top
 	);
-	MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray);
-	MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069e54(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069e66(Shape* p_shape, Ray* p_ray);
-	MechS32 FUN_10069e78(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10069fd4(Shape* p_shape, Ray* p_ray);
-	MechS32 FUN_1006a001(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
-	MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_1006a190(Shape* p_shape, Ray* p_ray);
+	MechS32 TestRayBox(Shape* p_shape, Ray* p_ray);
+	MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestPointNever(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestRayNever(Shape* p_shape, Ray* p_ray);
+	MechS32 TestPointUnderFloor(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray);
+	MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
+	MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray);
 
 #ifdef __cplusplus
 }

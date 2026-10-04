@@ -53,19 +53,19 @@
 #define PORTABLE_C_LABELS
 #endif
 
-// The state of FUN_1004748c's callback: the faces of a shape cycle through up to sixteen colors.
+// The state of ColorCycleTask's callback: the faces of a shape cycle through up to sixteen colors.
 // SIZE 0x50
-typedef struct JadeCycle0x50 {
+typedef struct ColorCycle {
 	Shape** m_shape;      // 0x00 — the star's shape (GetStaticShapeSlot)
 	Shape* m_model;       // 0x04
 	MechS32 m_faceCount;  // 0x08 — -1 until counted
 	MechS32 m_colorCount; // 0x0c
 	MechS32 m_colors[16]; // 0x10
-} JadeCycle0x50;
+} ColorCycle;
 
-// The state of FUN_1004771e's callback: an object turning at constant rates.
+// The state of SpinTask's callback: an object turning at constant rates.
 // SIZE 0x1c
-typedef struct JadeSpin0x1c {
+typedef struct ObjectSpin {
 	Shape** m_shape;       // 0x00
 	SceneObject* m_object; // 0x04
 	MechS32 m_rateX;       // 0x08 — 16.16 per period
@@ -73,11 +73,11 @@ typedef struct JadeSpin0x1c {
 	MechS32 m_rateZ;       // 0x10
 	MechS32 m_period;      // 0x14 — clock ticks
 	MechS32 m_lastClock;   // 0x18
-} JadeSpin0x1c;
+} ObjectSpin;
 
-// The state of FUN_100479ec's callback: an object circling while it turns.
+// The state of OrbitTask's callback: an object circling while it turns.
 // SIZE 0x1c
-typedef struct JadeOrbit0x1c {
+typedef struct ObjectOrbit {
 	Shape** m_shape;       // 0x00
 	SceneObject* m_object; // 0x04
 	MechS32 m_angle;       // 0x08 — 16.16 degrees
@@ -85,12 +85,12 @@ typedef struct JadeOrbit0x1c {
 	MechS32 m_speed;       // 0x10
 	MechS32 m_enabled;     // 0x14
 	MechS32 m_lastClock;   // 0x18
-} JadeOrbit0x1c;
+} ObjectOrbit;
 
-// The state of FUN_10046750's callback: an object moving through an animation (Reel)
+// The state of ReelMotionTask's callback: an object moving through an animation (Reel)
 // in step with its player's animation state (m_animFlags to m_animRate).
 // SIZE 0x2c
-typedef struct JadeMotion0x2c {
+typedef struct ReelMotion {
 	Reel* m_reel;          // 0x00
 	Reel* m_initial;       // 0x04
 	SceneObject* m_object; // 0x08
@@ -102,11 +102,11 @@ typedef struct JadeMotion0x2c {
 	MechS32 m_enabled;     // 0x20
 	MechS32 m_frame;       // 0x24 — -1 before the first
 	MechU32 m_flags;       // 0x28 — 1: drives the player's animation state
-} JadeMotion0x2c;
+} ReelMotion;
 
-// The state of FUN_10047f60's callback: a star's object following a path, eased by the ramps.
+// The state of PathTask's callback: a star's object following a path, eased by the ramps.
 // SIZE 0x88
-typedef struct JadePath0x88 {
+typedef struct PathFollower {
 	Shape** m_shape;       // 0x00 — the star's shape (GetStaticShapeSlot)
 	SceneObject* m_object; // 0x04
 	Path* m_path;          // 0x08
@@ -120,44 +120,44 @@ typedef struct JadePath0x88 {
 	WrappedRamp m_pitch;   // 0x4c
 	WrappedRamp m_heading; // 0x60
 	WrappedRamp m_roll;    // 0x74
-} JadePath0x88;
+} PathFollower;
 
 // An animation file LoadAnimFile has loaded: its id and the base of its animation numbers.
 // SIZE 0x8
-typedef struct MossLedger0x8 {
+typedef struct AnimFile {
 	MechS32 m_id;   // 0x00
 	MechS32 m_base; // 0x04
-} MossLedger0x8;
+} AnimFile;
 
 DECOMP_SIZE_ASSERT(AmbientSound, 0x1e)
 DECOMP_SIZE_ASSERT(PathPoint, 0x1c)
 DECOMP_SIZE_ASSERT(Path, 0x744)
-DECOMP_SIZE_ASSERT(JadeCycle0x50, 0x50)
-DECOMP_SIZE_ASSERT(JadeSpin0x1c, 0x1c)
-DECOMP_SIZE_ASSERT(JadeOrbit0x1c, 0x1c)
-DECOMP_SIZE_ASSERT(MossLedger0x8, 0x8)
-DECOMP_SIZE_ASSERT(JadeMotion0x2c, 0x2c)
-DECOMP_SIZE_ASSERT(JadePath0x88, 0x88)
+DECOMP_SIZE_ASSERT(ColorCycle, 0x50)
+DECOMP_SIZE_ASSERT(ObjectSpin, 0x1c)
+DECOMP_SIZE_ASSERT(ObjectOrbit, 0x1c)
+DECOMP_SIZE_ASSERT(AnimFile, 0x8)
+DECOMP_SIZE_ASSERT(ReelMotion, 0x2c)
+DECOMP_SIZE_ASSERT(PathFollower, 0x88)
 DECOMP_SIZE_ASSERT(ReelEvent, 0x8)
 
-// Why FUN_10046750 last failed: 1 no player, 2 disabled, 3 no object, 4-7 missing state.
+// Why ReelMotionTask last failed: 1 no player, 2 disabled, 3 no object, 4-7 missing state.
 // GLOBAL: MW2 0x100a6d64
-MechS32 g_unk0x100a6d64 = 0;
+MechS32 g_reelMotionError = 0;
 
 // The number of entries in g_paths.
 // GLOBAL: MW2 0x100a6d68
 MechS32 g_pathCount = 0;
 
 // GLOBAL: MW2 0x100a6d6c
-MechS32 g_unk0x100a6d6c = 0;
+MechS32 g_maxAnimNumber = 0;
 
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
-MechS32 g_unk0x100a6d70 = 0;
+MechS32 g_animBase = 0;
 
-// The number of entries in g_unk0x101097e0.
+// The number of entries in g_animFiles.
 // GLOBAL: MW2 0x100a6d74
-MechS32 g_unk0x100a6d74 = 0;
+MechS32 g_animFileCount = 0;
 
 // Set to shade from the origin rather than the light (GetFaceShade).
 // GLOBAL: MW2 0x1010b530
@@ -204,7 +204,7 @@ Path g_paths[0x40];
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
-MossLedger0x8 g_unk0x101097e0[60];
+AnimFile g_animFiles[60];
 
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
 // "<thing or class id>;<rate>,<flags>,<animation>", made for the player being created
@@ -214,7 +214,7 @@ MossLedger0x8 g_unk0x101097e0[60];
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
 // m_values[i] reads (index order).
 // FUNCTION: MW2 0x10046750
-MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechS32 next;
 	MechS32 elapsed;
@@ -222,7 +222,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 	MechChar* token;
 	MechS32 z;
 	MechS32 jump;
-	JadeMotion0x2c* motion;
+	ReelMotion* motion;
 	MechS32 thing;
 	MechS32 back;
 	MechS32 enabled;
@@ -252,13 +252,13 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 	thing = -1;
 	switch (p_event) {
 	case 0:
-		motion = StaticPoolAlloc(sizeof(JadeMotion0x2c), g_staticPoolTags[4]);
+		motion = StaticPoolAlloc(sizeof(ReelMotion), g_staticPoolTags[4]);
 		if (!motion) {
 			return 0;
 		}
 
 		if (!g_lastPlayer) {
-			g_unk0x100a6d64 = 1;
+			g_reelMotionError = 1;
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, motion);
 			return 0;
 		}
@@ -276,9 +276,9 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			*token = '\0';
 			token++;
 			sscanf(token, "%ld,%d,%d", &rate, &enabled, &number);
-			number += g_unk0x100a6d70;
-			if (number > g_unk0x100a6d6c) {
-				g_unk0x100a6d6c = number;
+			number += g_animBase;
+			if (number > g_maxAnimNumber) {
+				g_maxAnimNumber = number;
 			}
 
 			if (enabled) {
@@ -289,7 +289,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			}
 			else {
 				motion->m_enabled = 0;
-				g_unk0x100a6d64 = 2;
+				g_reelMotionError = 2;
 			}
 
 			motion->m_rate = rate;
@@ -317,7 +317,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 
 		if (!motion->m_object) {
-			g_unk0x100a6d64 = 3;
+			g_reelMotionError = 3;
 		}
 		break;
 	case 1:
@@ -332,12 +332,12 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 
 		if (!motion->m_player) {
-			g_unk0x100a6d64 = 5;
+			g_reelMotionError = 5;
 			return 0;
 		}
 
 		if (!motion->m_enabled) {
-			g_unk0x100a6d64 = 4;
+			g_reelMotionError = 4;
 			return 0;
 		}
 
@@ -357,12 +357,12 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 		else if (motion->m_player->m_animFlags & 1) {
 			if (!motion->m_rate) {
-				g_unk0x100a6d64 = 6;
+				g_reelMotionError = 6;
 				return 0;
 			}
 
 			if (!motion->m_player->m_animRate) {
-				g_unk0x100a6d64 = 7;
+				g_reelMotionError = 7;
 				return 0;
 			}
 
@@ -566,7 +566,8 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 					motion->m_player->m_animFlags &= ~2;
 					motion->m_player->m_animFlags &= ~8;
 					if (motion->m_frame != -1) {
-						motion->m_player->m_animRate = FUN_100472fe(motion->m_player->m_speedLevel, motion->m_rate);
+						motion->m_player->m_animRate =
+							ScaleBySpeedLevel(motion->m_player->m_speedLevel, motion->m_rate);
 						if (motion->m_reel->m_events[motion->m_frame].m_flags & 0x10) {
 							motion->m_player->m_animFlags |= 2;
 						}
@@ -585,7 +586,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		else if (motion->m_flags & 1) {
 			if (motion->m_player->m_nextMotionState != -1 || motion->m_player->m_motionState != -1) {
 				motion->m_player->m_animFlags |= 1;
-				motion->m_player->m_animRate = FUN_100472fe(motion->m_player->m_speedLevel, motion->m_rate);
+				motion->m_player->m_animRate = ScaleBySpeedLevel(motion->m_player->m_speedLevel, motion->m_rate);
 			}
 		}
 		break;
@@ -598,7 +599,7 @@ MechS32 FUN_10046750(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 // Scales p_value by mode p_mode: 1 by 1.5, 3 by 0.75, any other mode leaves it.
 // FUNCTION: MW2 0x100472fe
-MechS32 FUN_100472fe(MechS32 p_mode, MechS32 p_value)
+MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 {
 	MechS32 result;
 
@@ -621,7 +622,7 @@ MechS32 FUN_100472fe(MechS32 p_mode, MechS32 p_value)
 }
 
 // Loads the animation file p_ref unless it has been, and sets the base of its animation numbers
-// (g_unk0x100a6d70). Returns -1 if it was already loaded.
+// (g_animBase). Returns -1 if it was already loaded.
 // FUNCTION: MW2 0x10047380
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
@@ -631,35 +632,35 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 
 	result = 0;
 	id = p_ref->m_id;
-	for (i = 0; i < g_unk0x100a6d74 && g_unk0x101097e0[i].m_id != id; i++) {
+	for (i = 0; i < g_animFileCount && g_animFiles[i].m_id != id; i++) {
 	}
 
-	if (i < g_unk0x100a6d74) {
-		g_unk0x100a6d70 = g_unk0x101097e0[i].m_base;
+	if (i < g_animFileCount) {
+		g_animBase = g_animFiles[i].m_base;
 		result = -1;
 	}
-	else if (g_unk0x100a6d74 < 60) {
-		if (g_unk0x100a6d6c > 0) {
-			g_unk0x100a6d70 = g_unk0x100a6d6c + 1;
+	else if (g_animFileCount < 60) {
+		if (g_maxAnimNumber > 0) {
+			g_animBase = g_maxAnimNumber + 1;
 		}
 
 		result = LoadReels(p_ref);
-		g_unk0x101097e0[g_unk0x100a6d74].m_base = g_unk0x100a6d70;
-		g_unk0x101097e0[g_unk0x100a6d74].m_id = id;
-		g_unk0x100a6d74++;
+		g_animFiles[g_animFileCount].m_base = g_animBase;
+		g_animFiles[g_animFileCount].m_id = id;
+		g_animFileCount++;
 	}
 
 	return result;
 }
 
 // FUNCTION: MW2 0x10047462
-MechS32 FUN_10047462(void)
+MechS32 GetAnimBase(void)
 {
-	return g_unk0x100a6d70;
+	return g_animBase;
 }
 
 // FUNCTION: MW2 0x10047477
-MechS32 FUN_10047477(void)
+MechS32 GetReelMotionSize(void)
 {
 	return 0x2c;
 }
@@ -668,10 +669,10 @@ MechS32 FUN_10047477(void)
 // "<star id>;<color>,<color>,...": up to sixteen colors, each a palette row.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004748c
-MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
-	JadeCycle0x50* cycle;
+	ColorCycle* cycle;
 	MechS32 vertexCount;
 	MechS32 offset;
 	MechS32 i;
@@ -685,7 +686,7 @@ MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 	switch (p_event) {
 	case 0:
-		cycle = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(JadeCycle0x50));
+		cycle = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(ColorCycle));
 		if (!cycle) {
 			return 0;
 		}
@@ -755,11 +756,11 @@ MechS32 FUN_1004748c(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 // "<star id>;<x>,<y>,<z>,<period>": the turns in degrees per period of seconds.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004771e
-MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechS32 dz;
 	MechChar* token;
-	JadeSpin0x1c* spin;
+	ObjectSpin* spin;
 	MechFloat x;
 	MechFloat y;
 	MechFloat z;
@@ -773,7 +774,7 @@ MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 	switch (p_event) {
 	case 0:
-		spin = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(JadeSpin0x1c));
+		spin = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(ObjectSpin));
 		if (!spin) {
 			return 0;
 		}
@@ -842,12 +843,12 @@ MechS32 FUN_1004771e(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 // "<star id>;<radius>,<period>,<enabled>,<unused>".
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100479ec
-MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
 	MechS32 z;
 	MechS32 cosine;
-	JadeOrbit0x1c* orbit;
+	ObjectOrbit* orbit;
 	MechS32 t;
 	MechS32 step;
 	MechS32 star;
@@ -862,7 +863,7 @@ MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 	switch (p_event) {
 	case 0:
-		orbit = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(JadeOrbit0x1c));
+		orbit = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(ObjectOrbit));
 		if (!orbit) {
 			return 0;
 		}
@@ -931,10 +932,10 @@ MechS32 FUN_100479ec(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 }
 
 // A timed callback (TimedCallbackFn) looping a sound on a star's object. Its data is
-// "<star id>;<range>,<sound name>,<unk0x14>".
+// "<star id>;<range>,<sound name>,<enabled>".
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10047d10
-MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
 	AmbientSound* sound;
@@ -959,7 +960,7 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		if (token) {
 			*token = '\0';
 			token++;
-			sscanf(token, "%d,%[^,],%d", &sound->m_range, name, &sound->m_unk0x14);
+			sscanf(token, "%d,%[^,],%d", &sound->m_range, name, &sound->m_enabled);
 			sound->m_range *= 100;
 		}
 
@@ -968,7 +969,7 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		id = MapResourceId(id);
 		star = FindStarIdxById(id);
 		if (star != -1) {
-			sound->m_unk0x0c = GetStaticShapeSlot(star);
+			sound->m_shape = GetStaticShapeSlot(star);
 		}
 		else {
 			return 0;
@@ -980,17 +981,17 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		if (!sound) {
 			return 0;
 		}
-		else if (!sound->m_unk0x0c || !sound->m_unk0x14) {
+		else if (!sound->m_shape || !sound->m_enabled) {
 			StopAmbientSound(sound);
 			return 0;
 		}
 
-		if (!*sound->m_unk0x0c) {
+		if (!*sound->m_shape) {
 			StopAmbientSound(sound);
 			return 0;
 		}
 
-		sound->m_obj = GetShapeObject(*sound->m_unk0x0c);
+		sound->m_obj = GetShapeObject(*sound->m_shape);
 		UpdateAmbientSound(sound);
 		break;
 	case 2:
@@ -1007,17 +1008,16 @@ MechS32 FUN_10047d10(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 	return 1;
 }
 
-// A timed callback (TimedCallbackFn).
 // A timed callback (TimedCallbackFn) moving a star's object along a path. Its data is
 // "<star id>;<mode>,<rotate>,<path name>": mode "loop", "repeat" or else stop at the end, and
 // "rotate" to turn the object along the path. Event -1 restarts it.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10047f60
-MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
+MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar rotate[64];
 	MechChar* token;
-	JadePath0x88* follower;
+	PathFollower* follower;
 	MechS32 total;
 	MechChar name[64];
 	MechS32 i;
@@ -1056,7 +1056,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
 			total = 0;
 			for (i = 0; i < follower->m_path->m_count; i++) {
-				total += follower->m_path->m_points[i].m_unk0x18;
+				total += follower->m_path->m_points[i].m_duration;
 			}
 
 			follower->m_duration = total;
@@ -1074,7 +1074,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		}
 		break;
 	case 0:
-		follower = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(JadePath0x88));
+		follower = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(PathFollower));
 		if (!follower) {
 			return 0;
 		}
@@ -1124,7 +1124,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
 			total = 0;
 			for (i = 0; i < follower->m_path->m_count; i++) {
-				total += follower->m_path->m_points[i].m_unk0x18;
+				total += follower->m_path->m_points[i].m_duration;
 			}
 
 			follower->m_duration = total;
@@ -1171,7 +1171,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 		start = 0;
 		for (i = 0; i < path->m_count; i++) {
 			start = end;
-			end += path->m_points[i].m_unk0x18;
+			end += path->m_points[i].m_duration;
 			if (end >= elapsed) {
 				break;
 			}
@@ -1186,7 +1186,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 				elapsed = 0;
 				follower->m_startClock = p_clock;
 				start = 0;
-				end = path->m_points[0].m_unk0x18;
+				end = path->m_points[0].m_duration;
 				StartRamp(&follower->m_x, path->m_points[0].m_x, path->m_points[0].m_x, 0.3);
 				StartRamp(&follower->m_y, path->m_points[0].m_y, path->m_points[0].m_y, 0.3);
 				StartRamp(&follower->m_z, path->m_points[0].m_z, path->m_points[0].m_z, 0.3);
@@ -1199,7 +1199,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 				elapsed -= follower->m_duration;
 				follower->m_startClock = p_clock - elapsed;
 				start = 0;
-				end = path->m_points[0].m_unk0x18;
+				end = path->m_points[0].m_duration;
 			}
 		}
 
@@ -1211,7 +1211,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			next = &path->m_points[i + 1];
 		}
 
-		t = FixedDiv16(elapsed - start, point->m_unk0x18);
+		t = FixedDiv16(elapsed - start, point->m_duration);
 		follower->m_x.m_target = point->m_x + FixedMul16(t, next->m_x - point->m_x);
 		follower->m_y.m_target = point->m_y + FixedMul16(t, next->m_y - point->m_y);
 		follower->m_z.m_target = point->m_z + FixedMul16(t, next->m_z - point->m_z);
@@ -1221,7 +1221,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 			UpdateRamp(&follower->m_y),
 			UpdateRamp(&follower->m_z)
 		);
-		angle = point->m_unk0x10;
+		angle = point->m_heading;
 		if (follower->m_rotate) {
 			angle += FixedAtan2(next->m_x - point->m_x, next->m_z - point->m_z);
 		}
@@ -1237,7 +1237,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 		follower->m_heading.m_target = angle;
 		follower->m_heading.m_value = angle - delta;
-		angle = point->m_unk0x0c;
+		angle = point->m_pitch;
 		if (follower->m_rotate) {
 			angle -= FixedAsin((next->m_y - point->m_y) << 13);
 		}
@@ -1253,7 +1253,7 @@ MechS32 FUN_10047f60(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32
 
 		follower->m_pitch.m_target = angle;
 		follower->m_pitch.m_value = angle - delta;
-		angle = point->m_unk0x14;
+		angle = point->m_roll;
 		delta = angle - follower->m_roll.m_value;
 		while (delta > 0xb40000) {
 			delta -= 0x1680000;
@@ -1313,7 +1313,7 @@ static MechS32 ViewRow(MechS32 p_a, MechS32 p_b, MechS32 p_c, Vertex* p_vertex)
 }
 
 // The call QueueFace makes through g_renderSettings.m_drawFace, which has no prototype: the hook
-// is FUN_10036230 in the 3D view, and the map view's FUN_1003f0e7 takes three of the arguments.
+// is GetFaceColor in the 3D view, and the map view's SatelliteFaceColor takes three of the arguments.
 typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flags, MechS32 p_depth);
 
 // A screen offset: p_value shifted left by p_shift (modulo 32, like the shld's count), divided by

@@ -9,8 +9,8 @@
 #include "palettecolor.h"
 #include "refreshmode.h"
 #include "render.h"
-#include "rendertarget.h"
 #include "simmain.h"
+#include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
 #include "window.h"
@@ -194,7 +194,7 @@ void StartSupAnim(MechS32 p_slowFade)
 // FUNCTION: MW2 0x10003f3d
 void SupAnimTimerCallback(void)
 {
-	if (!g_unk0x100a2464 || !g_supAnimBackdrop || !g_supAnimShape || g_supAnimFrameCount < 2) {
+	if (!g_displayReady || !g_supAnimBackdrop || !g_supAnimShape || g_supAnimFrameCount < 2) {
 		return;
 	}
 

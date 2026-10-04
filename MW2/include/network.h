@@ -26,12 +26,12 @@ extern "C"
 	MechS32 FirstExternalCtrl(void);
 	MechS32 UpdateNetwork(void);
 	void ShutdownNetwork(void);
-	MechS32 FUN_1000efa4(MechS32 p_to, MechChar* p_text);
-	void FUN_1000faef(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text);
+	void SendCollisionMsg(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	MechS32 StartExternalIO(struct NetLaunchInfo* p_netLaunch);
 	MechS32 StopExternalIO(void);
 	void ElectMaster(void);
-	void FUN_1000ff29(void);
+	void SendSuccessMsg(void);
 
 #ifdef __cplusplus
 }

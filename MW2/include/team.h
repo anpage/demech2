@@ -7,13 +7,13 @@
 
 // SIZE 0x38
 typedef struct Team {
-	MechS32 m_leader;      // 0x00 — a player index, or -1
-	MechS32 m_memberCount; // 0x04
-	undefined4 m_unk0x08;  // 0x08
-	undefined4 m_unk0x0c;  // 0x0c
-	MechS32 m_side;        // 0x10
-	MechS32 m_formation;   // 0x14 — the template g_teamFormations copies
-	MechS32 m_members[8];  // 0x18 — player indices
+	MechS32 m_leader;         // 0x00 — a player index, or -1
+	MechS32 m_memberCount;    // 0x04
+	undefined4 m_affiliation; // 0x08
+	undefined4 m_unk0x0c;     // 0x0c
+	MechS32 m_side;           // 0x10
+	MechS32 m_formation;      // 0x14 — the template g_teamFormations copies
+	MechS32 m_members[8];     // 0x18 — player indices
 } Team;
 
 // The functions and globals of team.c that other units use.
@@ -22,11 +22,11 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a5918;
+	extern MechS32 g_localStar;
 	extern MechS32 g_formationTemplateCount;
 	extern TeamFormation g_formationTemplates[32];
 	extern Team g_teams[16];
-	extern MechS32 g_unk0x1010ae10[8];
+	extern MechS32 g_starSides[8];
 	extern TeamFormation g_teamFormations[16];
 
 	void ResetTeams(void);
@@ -40,7 +40,7 @@ extern "C"
 	MechS32 GetTeamLeader(MechS32 p_team);
 	MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04);
 	MechS32 GetPlayerSide(MechS32 p_player);
-	MechS32 FUN_1003c30e(MechS32 p_thing);
+	MechS32 GetThingSide(MechS32 p_thing);
 	MechS32 GetNavSide(MechU32 p_nav);
 	MechS32 OnSameSide(MechS32 p_playerA, MechS32 p_playerB);
 

@@ -38,12 +38,12 @@ targets:
     report:
       icon: assets/dll.png
       # The cockpit layouts keep indices into g_cockpitGauges in their gauge function pointers
-      # until LoadCockpitLayout resolves them (rendertarget.c), which datacmp reports as diffs
+      # until LoadCockpitLayout resolves them (targeting.c), which datacmp reports as diffs
       # even when both sides hold the same values. They matched member for member when added.
       ignore-variables:
-        - g_unk0x100aaf08
-        - g_unk0x100aafb0
-        - g_unk0x100ab058
+        - g_smallMapLayout
+        - g_largeMapLayout
+        - g_satelliteLayout
   NETMECHW:
     filename: NETMECHW.DLL
     source-root:

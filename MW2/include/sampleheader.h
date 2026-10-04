@@ -10,10 +10,10 @@
 // sample. The sample data follows.
 // SIZE 0x0e
 typedef struct SampleHeader {
-	MechChar m_tag[4];    // 0x00 — "SFLX"
-	undefined4 m_unk0x04; // 0x04
-	MechU32 m_length;     // 0x08 — in samples
-	MechU16 m_frameSize;  // 0x0c — bytes per sample
+	MechChar m_tag[4];   // 0x00 — "SFLX"
+	undefined4 m_size;   // 0x04
+	MechU32 m_length;    // 0x08 — in samples
+	MechU16 m_frameSize; // 0x0c — bytes per sample
 } SampleHeader;
 
 #pragma pack(pop)

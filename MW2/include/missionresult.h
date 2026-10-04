@@ -17,7 +17,7 @@ typedef struct MissionResult {
 		MechS32 m_priority;    // 0x04
 		MechS32 m_startTime;   // 0x08
 		MechS32 m_endTime;     // 0x0c
-		MechS32 m_unk0x10;     // 0x10 — MissionObjective::m_unk0x75
+		MechS32 m_mandatory;   // 0x10 — MissionObjective::m_mandatory
 		MechChar m_name[0x20]; // 0x14
 	} m_objectives[48];        // 0x14
 } MissionResult;

@@ -9,14 +9,15 @@ struct SceneObject;
 struct Face;
 struct Vertex;
 
-/* A shape hung on a scene object (SceneObject::m_unk0x6c): a list of models by level of
+/* A shape hung on a scene object (SceneObject::m_shape): a list of models by level of
    detail and the one in use. CreateShape allocates it. */
 typedef struct Shape Shape;
 
 // SIZE 0x4c
 struct Shape {
-	MechU16 m_flags; // 0x00 — 0x200: transformed bounds current, 0x800: not in the collision list, 0x1000: the second
-					 // render list
+	MechU16 m_flags; // 0x00 — 0x10f: the load flags (SetShapeLoadFlags), 0xf0: the damage level (RaisePartDamageLevel),
+					 // 0x200: transformed bounds current, 0x800: not in the collision list, 0x1000: hidden
+					 // (in g_hiddenShapes)
 	MechU16 m_kind;  // 0x02 — 0xf00: the owner class (0x100 player, 0x200 thing), 0xf0: the type
 	struct Shape* m_prev;         // 0x04 — the previous shape in its list
 	struct Shape* m_next;         // 0x08 — the next shape in its list
@@ -59,33 +60,26 @@ extern "C"
 		void** p_extraData
 	);
 	void SelectModelByKey(Shape* p_shape, MechS32 p_key);
-	void FUN_1003a7f9(Shape* p_shape, MechS32 p_key);
-	MechS32 FUN_1003a827(Shape* p_shape);
+	void SetModelKey(Shape* p_shape, MechS32 p_key);
+	MechS32 GetModelKey(Shape* p_shape);
 	void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14);
 	MechU32 FUN_1003a889(Shape* p_shape);
 	Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData);
-	void AddShapeVertex(
-		Shape* p_shape,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z,
-		undefined4 p_unk0x18,
-		undefined4 p_unk0x1c
-	);
-	struct Face* AddShapeFace(Shape* p_shape, MechU16 p_unk0x00, MechU8* p_indices);
+	void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v);
+	struct Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices);
 	void AddShapeFaceIndex(Shape* p_shape, struct Face* p_face, MechU32 p_index);
 	void FreeModel(Model* p_model);
 	void RemoveSelectedModel(Shape* p_shape);
 	void FreeShape(Shape* p_shape);
-	void FUN_1003acbe(Shape* p_shape, MechS32 p_unk0x04);
-	MechU32 FUN_1003acf7(Shape* p_shape);
-	void FUN_1003ad2d(Shape* p_shape, MechS32 p_unk0x02);
-	void FUN_1003ad4c(Shape* p_shape, MechU16 p_unk0x16);
-	void FUN_1003ad62(Shape* p_shape, MechU16 p_unk0x14);
-	MechU32 FUN_1003ad78(Shape* p_shape);
-	MechU32 FUN_1003ad93(Shape* p_shape);
-	MechU32 FUN_1003adae(Shape* p_shape);
-	MechS32 FUN_1003adc9(Shape* p_shape, MechS32* p_unk0x34, MechS32* p_unk0x38, MechS32* p_unk0x3c);
+	void SetShapeState(Shape* p_shape, MechS32 p_flags);
+	MechU32 GetShapeState(Shape* p_shape);
+	void SetShapeKind(Shape* p_shape, MechS32 p_kind);
+	void SetShapePartId(Shape* p_shape, MechU16 p_partId);
+	void SetShapeOwner(Shape* p_shape, MechU16 p_owner);
+	MechU32 GetShapeKind(Shape* p_shape);
+	MechU32 GetShapePartId(Shape* p_shape);
+	MechU32 GetShapeOwner(Shape* p_shape);
+	MechS32 GetShapeBounds(Shape* p_shape, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void ComputeNormalsAndBounds(Shape* p_shape);
 	void ComputeShapeBounds(Shape* p_shape);
 	void ComputeFaceNormal(struct Face* p_face, struct Vertex* p_vertices);
@@ -93,21 +87,21 @@ extern "C"
 	void ForEachShape(Shape* p_shape, void (*p_fn)(Shape*));
 	void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void FUN_1003b5d6(
+	void GetShapeFace(
 		Shape* p_shape,
 		MechS32 p_index,
-		MechU32* p_unk0x00,
+		MechU32* p_color,
 		MechU32* p_count,
 		MechU32* p_indices,
 		MechS32 p_max
 	);
-	void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_unk0x00);
+	void SetFaceColor(Shape* p_shape, MechS32 p_index, MechS32 p_color);
 	struct SceneObject* GetShapeObject(Shape* p_shape);
-	void SetShapeObject(Shape* p_shape, struct SceneObject* p_unk0x18);
-	MechU32 FUN_1003b70f(Shape* p_shape);
-	void FUN_1003b72f(Shape* p_shape, MechU32 p_flags);
+	void SetShapeObject(Shape* p_shape, struct SceneObject* p_object);
+	MechU32 GetShapeLoadFlags(Shape* p_shape);
+	void SetShapeLoadFlags(Shape* p_shape, MechU32 p_flags);
 	void DestroyShape(Shape* p_shape);
-	void FUN_1003b78b(Shape* p_shape);
+	void DestroyObjShape(Shape* p_shape);
 	MechS32 GetShapeMemorySize(Shape* p_shape);
 
 #ifdef __cplusplus

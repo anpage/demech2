@@ -10,7 +10,6 @@
 #include "gridobject.h"
 #include "inputmap.h"
 #include "integrate.h"
-#include "linengull.h"
 #include "mechclass.h"
 #include "muldiv.h"
 #include "object.h"
@@ -18,35 +17,37 @@
 #include "polydraw.h"
 #include "ramp.h"
 #include "render.h"
-#include "rendertarget.h"
+#include "savedview.h"
 #include "shape.h"
 #include "shapelists.h"
 #include "shots.h"
 #include "simmain.h"
 #include "soundfx.h"
 #include "speech.h"
+#include "targeting.h"
 #include "transform.h"
 #include "types.h"
 
 #include <stdlib.h>
 
-// The distance FUN_10011f9a moves the free camera back from the mech's eye.
+// The track view's distance from the mech; UpdateFreeEyeView also starts the free camera that far
+// back from it.
 // GLOBAL: MW2 0x100a23ec
-MechS32 g_unk0x100a23ec = 0;
+MechS32 g_trackDistance = 0;
 
-// The external view's distance limits, height and turn (FUN_100118bc).
+// The track view's distance limits, height and turn around the mech (UpdateTrackView).
 
 // GLOBAL: MW2 0x100a23f0
-MechS32 g_unk0x100a23f0 = 0;
+MechS32 g_trackMinDistance = 0;
 
 // GLOBAL: MW2 0x100a23f4
-MechS32 g_unk0x100a23f4 = 0;
+MechS32 g_trackMaxDistance = 0;
 
 // GLOBAL: MW2 0x100a23f8
-MechS32 g_unk0x100a23f8 = 0;
+MechS32 g_trackHeight = 0;
 
 // GLOBAL: MW2 0x100a23fc
-MechS32 g_unk0x100a23fc = 0xb40000;
+MechS32 g_trackTurn = 0xb40000;
 
 // GLOBAL: MW2 0x100a2400
 MechS32 g_normalFov = 0x10000;
@@ -54,137 +55,148 @@ MechS32 g_normalFov = 0x10000;
 // GLOBAL: MW2 0x100a2404
 MechS32 g_zoomFov = 0x10000;
 
-// The camera's view mode, or -1.
+// The view mode the camera was updated in last (c_view...), or -1.
 // GLOBAL: MW2 0x100a2408
-MechS32 g_unk0x100a2408 = -1;
+MechS32 g_viewMode = -1;
 
-// The view mode to return to from the external view.
+// The view mode to return to from the ordinance view.
 // GLOBAL: MW2 0x100a240c
-MechS32 g_unk0x100a240c = -1;
+MechS32 g_ordinanceReturnMode = -1;
 
-// The zoom FirstEyepoint starts the camera at.
+// The view mode FirstEyepoint starts the camera in.
 // GLOBAL: MW2 0x100a2410
-MechS32 g_unk0x100a2410 = 0;
+MechS32 g_initialViewMode = 0;
 
+// The view mode SetViewMode asked for; UpdateEyepoint switches to it.
 // GLOBAL: MW2 0x100a2414
-MechS32 g_unk0x100a2414 = 0;
+MechS32 g_requestedViewMode = 0;
 
-// Set by FUN_10011e45.
+// Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
 // GLOBAL: MW2 0x100a2418
-MechS32 g_unk0x100a2418 = 1;
+MechS32 g_autopilotStart = 1;
 
+// Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
+// draws the crosshair only then.
 // GLOBAL: MW2 0x100a241c
-MechS32 g_unk0x100a241c = 0;
+MechS32 g_cockpitEyeSteady = 0;
 
+// Set while the camera is in the cockpit view: the cockpit's own shape (g_cockpitObject) is drawn
+// separately, and the 3D sound calls get it.
 // GLOBAL: MW2 0x100a2420
-undefined4 g_unk0x100a2420 = 0;
+undefined4 g_inCockpitView = 0;
 
+// The view mode SetViewMode forces once the local mech is lost (g_localMechLost): the track view.
 // GLOBAL: MW2 0x100a2424
-MechS32 g_unk0x100a2424 = -1;
+MechS32 g_lostViewMode = -1;
 
+// Set while a network game's lost player advances the viewpoint between players; until then the
+// track view circles the mech.
 // GLOBAL: MW2 0x100a2428
-MechS32 g_unk0x100a2428 = 0;
+MechS32 g_spectating = 0;
 
 // GLOBAL: MW2 0x100a242c
 struct Player* g_localPlayer = NULL;
 
 // The player the camera tracks.
 // GLOBAL: MW2 0x100a2430
-MechS32 g_unk0x100a2430 = 0;
+MechS32 g_trackedPlayer = 0;
 
+// The local mech's cockpit height and torso twist (InitCockpitPanels): the first raises the eye
+// (GetPlayerEyeView, the aim ray); nothing reads the second.
 // GLOBAL: MW2 0x100a2434
-MechS32* g_unk0x100a2434 = NULL;
+MechS32* g_eyeHeightOffset = NULL;
 
 // GLOBAL: MW2 0x100a2438
-MechS32* g_unk0x100a2438 = NULL;
+MechS32* g_eyeTwist = NULL;
 
-// The drop camera (FUN_10011edc): its vertical speed, acceleration and start clock.
+// The drop camera (UpdateDropView): its vertical speed, acceleration and start clock.
 // GLOBAL: MW2 0x100a243c
-MechS32 g_unk0x100a243c = 0;
+MechS32 g_dropSpeed = 0;
 
 // GLOBAL: MW2 0x100a2440
-MechS32 g_unk0x100a2440 = 0x3ca0;
+MechS32 g_dropAcceleration = 0x3ca0;
 
 // GLOBAL: MW2 0x100a2444
-MechS32 g_unk0x100a2444 = 0;
+MechS32 g_dropStartClock = 0;
 
-// Set while no glance key is held (FUN_10011cb0).
+// Set while no glance key is held (UpdateCockpitView).
 // GLOBAL: MW2 0x100a2448
-MechS8 g_unk0x100a2448 = 0;
+MechS8 g_glanceReleased = 0;
 
-// The view FUN_10011819 saves when it leaves the cockpit view.
+// The view UpdateOrdinanceView saves when it enters the ordinance view.
 // GLOBAL: MW2 0x10176f10
-MechS32 g_unk0x10176f10[7];
+MechS32 g_ordinanceSavedView[7];
 
-// The external view's height limits (FUN_100118bc).
+// The track view's height limits (UpdateTrackView).
 // GLOBAL: MW2 0x10176f2c
-MechS32 g_unk0x10176f2c;
+MechS32 g_trackMaxHeight;
 
+// The track view's eased offsets from the mech and its eased heading and pitch.
 // GLOBAL: MW2 0x10176f30
-Ramp g_unk0x10176f30;
+Ramp g_trackOffsetZ;
 
 // GLOBAL: MW2 0x10176f40
-WrappedRamp g_unk0x10176f40;
+WrappedRamp g_trackPitch;
 
 // GLOBAL: MW2 0x10176f60
-WrappedRamp g_unk0x10176f60;
+WrappedRamp g_trackHeading;
 
 // GLOBAL: MW2 0x10176f74
-MechS32 g_unk0x10176f74;
+MechS32 g_trackMinHeight;
 
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
 // GLOBAL: MW2 0x10176f80
-Ramp g_unk0x10176f80;
+Ramp g_pilotTilt;
 
 // GLOBAL: MW2 0x10176f90
-Ramp g_unk0x10176f90;
+Ramp g_trackOffsetY;
 
 // GLOBAL: MW2 0x10176fa0
-LinenGull0x1c g_unk0x10176fa0[5];
+SavedView g_savedViews[5];
 
 // The cockpit view's pan, eased toward g_sinkPilotPan.
 // GLOBAL: MW2 0x10177030
-Ramp g_unk0x10177030;
+Ramp g_pilotPan;
 
 // The free camera's forward speed.
 // GLOBAL: MW2 0x10177040
-Ramp g_unk0x10177040;
+Ramp g_freeEyeSpeed;
 
 // GLOBAL: MW2 0x10177050
-Ramp g_unk0x10177050;
+Ramp g_trackOffsetX;
 
-// Resets the camera: its ramps, the five camera slots and the view scale, follows the local player
+// Resets the camera: its ramps, the saved views and the view scale, follows the local player
 // and resets the camera shake and the zoom.
 // FUNCTION: MW2 0x10010ee0
 void FirstEyepoint(void)
 {
 	MechS32 i;
 
-	StartRamp(&g_unk0x10177050, 0, 0, 0.5);
-	StartRamp(&g_unk0x10176f30, 0, 0, 0.5);
-	StartRamp(&g_unk0x10176f90, 0, 0, 0.7);
-	StartRamp(&g_unk0x10177040, 0, 0, 1.0);
-	StartRamp(&g_unk0x10177030, 0, 0, 0.2);
-	StartRamp(&g_unk0x10176f80, 0, 0, 0.2);
-	StartWrappedRamp(&g_unk0x10176f60, 0, 0, 0.2, 0x1680000);
-	StartWrappedRamp(&g_unk0x10176f40, 0, 0, 0.2, 0x1680000);
+	StartRamp(&g_trackOffsetX, 0, 0, 0.5);
+	StartRamp(&g_trackOffsetZ, 0, 0, 0.5);
+	StartRamp(&g_trackOffsetY, 0, 0, 0.7);
+	StartRamp(&g_freeEyeSpeed, 0, 0, 1.0);
+	StartRamp(&g_pilotPan, 0, 0, 0.2);
+	StartRamp(&g_pilotTilt, 0, 0, 0.2);
+	StartWrappedRamp(&g_trackHeading, 0, 0, 0.2, 0x1680000);
+	StartWrappedRamp(&g_trackPitch, 0, 0, 0.2, 0x1680000);
 	g_sinkZoomFactor = 0x10000;
 	for (i = 0; i < 5; i++) {
-		g_unk0x10176fa0[i].m_unk0x00 = g_unk0x10176fa0[i].m_unk0x04 = g_unk0x10176fa0[i].m_unk0x08 = 0;
-		g_unk0x10176fa0[i].m_unk0x0c = g_unk0x10176fa0[i].m_unk0x10 = g_unk0x10176fa0[i].m_unk0x14 = 0;
-		g_unk0x10176fa0[i].m_unk0x18 = 0;
+		g_savedViews[i].m_x = g_savedViews[i].m_y = g_savedViews[i].m_z = 0;
+		g_savedViews[i].m_heading = g_savedViews[i].m_pitch = g_savedViews[i].m_roll = 0;
+		g_savedViews[i].m_set = 0;
 	}
 
 	if (g_players[g_localPlayerId]) {
 		g_localPlayer = g_players[g_localPlayerId];
-		g_unk0x100a2430 = g_localPlayerId;
+		g_trackedPlayer = g_localPlayerId;
 	}
 
 	ResetCameraShake();
-	FUN_10011401(g_unk0x100a2410);
+	SetViewMode(g_initialViewMode);
 }
 
-// Updates the camera for the frame in the view mode FUN_10011440 picks (the free camera without a
+// Updates the camera for the frame in the view mode GetViewMode picks (the free camera without a
 // local player): the cockpit, tracking, external, drop or free camera, driven by INPUT.MAP's
 // eyepoint and track sinks.
 // Stack-slot permutation of the locals.
@@ -201,45 +213,45 @@ void UpdateEyepoint(void)
 
 	g_normalFov = g_sinkZoomFactor;
 	ApplyCameraFov(0);
-	g_unk0x100a2420 = g_unk0x100a241c = 0;
+	g_inCockpitView = g_cockpitEyeSteady = 0;
 	if (!g_playerCount) {
-		mode = 2;
-		FUN_10011401(2);
+		mode = c_viewFreeEye;
+		SetViewMode(c_viewFreeEye);
 		g_localPlayer = NULL;
 	}
 	else {
-		mode = FUN_10011440();
+		mode = GetViewMode();
 		if (!mode) {
 			g_localPlayer = g_players[g_localPlayerId];
 		}
 
 		if (!g_localPlayer) {
-			mode = 2;
+			mode = c_viewFreeEye;
 		}
 	}
 
-	g_renderSettings.m_unk0x00 = 0;
+	g_renderSettings.m_blankScene = 0;
 	switch (mode) {
-	case 3:
-		FUN_10011819();
+	case c_viewOrdinance:
+		UpdateOrdinanceView();
 		break;
-	case 1:
+	case c_viewTrack:
 		speed = MulDiv64(g_sinkTrackDistanceDelta, g_deltaTime, 0xb5) >> 16;
 		strafe = MulDiv64(g_sinkTrackHeightDelta, g_deltaTime, 0xb5) >> 16;
 		turn = g_sinkEyepointTilt;
 		pan = MulDiv64(g_sinkEyepointPanDelta, g_deltaTime, 0xb5);
-		if (g_unk0x100a2c04 && !g_unk0x100a2428) {
+		if (g_localMechLost && !g_spectating) {
 			pan = g_deltaTime << 14;
 		}
 
-		FUN_100118bc(speed, strafe, turn, pan);
+		UpdateTrackView(speed, strafe, turn, pan);
 		break;
-	case 0:
-	case 6:
-		FUN_10011cb0();
+	case c_viewCockpit:
+	case c_viewSatellite:
+		UpdateCockpitView();
 		break;
-	case 4:
-		FUN_10011edc();
+	case c_viewDrop:
+		UpdateDropView();
 		break;
 	default:
 		climb = MulDiv64(g_sinkTrackHeightDelta, g_deltaTime, 0xb5) >> 15;
@@ -257,21 +269,21 @@ void UpdateEyepoint(void)
 		}
 
 		g_sinkEyepointTiltReset = 1;
-		FUN_10011f9a(climb, speed, strafe, turn, pitch);
+		UpdateFreeEyeView(climb, speed, strafe, turn, pitch);
 		break;
 	}
 
-	g_unk0x100a2408 = mode;
-	FUN_1004b344();
-	FUN_1001220a();
+	g_viewMode = mode;
+	UpdateGridObject();
+	TurnBillboards();
 }
 
 // FUNCTION: MW2 0x100113af
-MechS32 FUN_100113af(Eyepoint* p_eyepoint)
+MechS32 GetCameraFloor(Eyepoint* p_eyepoint)
 {
 	MechS32 height;
 
-	height = FUN_10034cbc(p_eyepoint->m_unk0x00, p_eyepoint->m_unk0x04, p_eyepoint->m_unk0x08);
+	height = GetHighestSurface(p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
 	if (height > 0) {
 		height += 500;
 	}
@@ -283,23 +295,23 @@ MechS32 FUN_100113af(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x10011401
-void FUN_10011401(MechS32 p_zoom)
+void SetViewMode(MechS32 p_zoom)
 {
-	if (g_unk0x100a2c04) {
-		if (g_unk0x100a2424 == -1) {
-			g_unk0x100a2424 = 1;
+	if (g_localMechLost) {
+		if (g_lostViewMode == -1) {
+			g_lostViewMode = 1;
 		}
 
-		p_zoom = g_unk0x100a2424;
+		p_zoom = g_lostViewMode;
 	}
 
-	g_unk0x100a2414 = p_zoom;
+	g_requestedViewMode = p_zoom;
 }
 
 // FUNCTION: MW2 0x10011440
-MechS32 FUN_10011440(void)
+MechS32 GetViewMode(void)
 {
-	return g_unk0x100a2414;
+	return g_requestedViewMode;
 }
 
 // Sets the eyepoint's field of view to the normal or the zoomed one (both reset to 1.0 if
@@ -315,7 +327,7 @@ void ApplyCameraFov(MechS32 p_reset)
 		g_zoomFov = 0x10000;
 	}
 
-	if (!FUN_10011440()) {
+	if (!GetViewMode()) {
 		g_eyepoint->m_fovX = g_normalFov;
 	}
 	else {
@@ -323,34 +335,34 @@ void ApplyCameraFov(MechS32 p_reset)
 	}
 
 	if (g_eyepoint->m_fovX != fov) {
-		g_unk0x100a2460 = 1;
-		FUN_1007eb23(0x147, 100, 0x40, 5, 0x50);
+		g_projectionDirty = 1;
+		PlaySoundEffect(0x147, 100, 0x40, 5, 0x50);
 	}
 }
 
 // Saves the eyepoint's position and orientation (0x00-0x14) to p_view, marking it (p_view[6])
 // as set. Returns 0 without both.
 // FUNCTION: MW2 0x100114ea
-MechS32 FUN_100114ea(Eyepoint* p_eyepoint, MechS32* p_view)
+MechS32 SaveView(Eyepoint* p_eyepoint, MechS32* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
 		return 0;
 	}
 
-	p_view[0] = p_eyepoint->m_unk0x00;
-	p_view[1] = p_eyepoint->m_unk0x04;
-	p_view[2] = p_eyepoint->m_unk0x08;
-	p_view[3] = p_eyepoint->m_unk0x0c;
-	p_view[4] = p_eyepoint->m_unk0x10;
-	p_view[5] = p_eyepoint->m_unk0x14;
+	p_view[0] = p_eyepoint->m_x;
+	p_view[1] = p_eyepoint->m_y;
+	p_view[2] = p_eyepoint->m_z;
+	p_view[3] = p_eyepoint->m_heading;
+	p_view[4] = p_eyepoint->m_pitch;
+	p_view[5] = p_eyepoint->m_roll;
 	p_view[6] = 1;
 	return 1;
 }
 
-// Restores the eyepoint's position and orientation from p_view, if FUN_100114ea set it. Returns
+// Restores the eyepoint's position and orientation from p_view, if SaveView set it. Returns
 // 0 without both, or when the view is not set.
 // FUNCTION: MW2 0x1001156a
-MechS32 FUN_1001156a(Eyepoint* p_eyepoint, MechS32* p_view)
+MechS32 RestoreView(Eyepoint* p_eyepoint, MechS32* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
 		return 0;
@@ -360,19 +372,19 @@ MechS32 FUN_1001156a(Eyepoint* p_eyepoint, MechS32* p_view)
 		return 0;
 	}
 
-	p_eyepoint->m_unk0x00 = p_view[0];
-	p_eyepoint->m_unk0x04 = p_view[1];
-	p_eyepoint->m_unk0x08 = p_view[2];
-	p_eyepoint->m_unk0x0c = p_view[3];
-	p_eyepoint->m_unk0x10 = p_view[4];
-	p_eyepoint->m_unk0x14 = p_view[5];
+	p_eyepoint->m_x = p_view[0];
+	p_eyepoint->m_y = p_view[1];
+	p_eyepoint->m_z = p_view[2];
+	p_eyepoint->m_heading = p_view[3];
+	p_eyepoint->m_pitch = p_view[4];
+	p_eyepoint->m_roll = p_view[5];
 	return 1;
 }
 
 // Moves the camera to the next (p_next) or previous player, or back to the local player
 // (p_home), skipping players who left or whose mechs are gone.
 // FUNCTION: MW2 0x100115f4
-void FUN_100115f4(MechS32 p_next, MechS32 p_home)
+void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;
 
@@ -382,65 +394,65 @@ void FUN_100115f4(MechS32 p_next, MechS32 p_home)
 	}
 
 	if (p_home) {
-		g_unk0x100a2430 = g_localPlayerId;
+		g_trackedPlayer = g_localPlayerId;
 		step = 0;
 	}
 	else if (p_next) {
 		step = 1;
 	}
 
-	g_unk0x100a2430 += step;
-	if (g_unk0x100a2430 < 0) {
-		g_unk0x100a2430 = g_playerCount - 1;
+	g_trackedPlayer += step;
+	if (g_trackedPlayer < 0) {
+		g_trackedPlayer = g_playerCount - 1;
 	}
-	else if (g_unk0x100a2430 >= g_playerCount) {
-		g_unk0x100a2430 = 0;
+	else if (g_trackedPlayer >= g_playerCount) {
+		g_trackedPlayer = 0;
 	}
 
-	g_localPlayer = g_players[g_unk0x100a2430];
+	g_localPlayer = g_players[g_trackedPlayer];
 	if (g_localPlayer->m_flags & 0x4800) {
-		FUN_100115f4(p_next, p_home);
+		CycleTrackedPlayer(p_next, p_home);
 	}
 
-	g_unk0x100a2408 = -1;
+	g_viewMode = -1;
 }
 
 // Returns the camera player's view: its orientation and, from the cockpit, the position of its
 // eye object (at half the object's height outside the external views).
 // Stack-slot permutation of player, x, y and z.
 // FUNCTION: MW2 0x100116c3
-void FUN_100116c3(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetPlayerEyeView(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	Player* player;
 	MechS32 x;
 	MechS32 y;
 	MechS32 z;
 
-	*p_unk0x10 = *p_unk0x0c = *p_unk0x14 = *p_x = *p_y = *p_z = 0;
+	*p_pitch = *p_heading = *p_roll = *p_x = *p_y = *p_z = 0;
 	player = g_localPlayer;
 	if (!player) {
 		return;
 	}
 
-	*p_unk0x10 = player->m_pitch;
-	*p_unk0x0c = player->m_heading;
-	*p_unk0x14 = player->m_roll;
+	*p_pitch = player->m_pitch;
+	*p_heading = player->m_heading;
+	*p_roll = player->m_roll;
 	if (player->m_eyeObj) {
-		if (g_unk0x100a2434) {
-			*p_y += *g_unk0x100a2434;
+		if (g_eyeHeightOffset) {
+			*p_y += *g_eyeHeightOffset;
 		}
 
-		TransformPoint(FUN_10001e01(player->m_eyeObj), p_x, p_y, p_z);
-		GetObjWorldPos(player->m_eyeObj, &x, &y, &z);
-		if (g_unk0x100a2c04) {
-			*p_unk0x10 = x;
-			*p_unk0x0c = y;
-			*p_unk0x14 = z;
+		TransformPoint(GetObjWorldMatrix(player->m_eyeObj), p_x, p_y, p_z);
+		GetObjWorldAngles(player->m_eyeObj, &x, &y, &z);
+		if (g_localMechLost) {
+			*p_pitch = x;
+			*p_heading = y;
+			*p_roll = z;
 		}
 		else {
-			*p_unk0x10 += player->m_torsoPitch;
-			*p_unk0x0c += player->m_torsoTwist;
-			*p_unk0x14 = z >> 1;
+			*p_pitch += player->m_torsoPitch;
+			*p_heading += player->m_torsoTwist;
+			*p_roll = z >> 1;
 		}
 	}
 	else {
@@ -450,39 +462,40 @@ void FUN_100116c3(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, Me
 	}
 }
 
-// Switches to the external view (mode 3): saves the view and zooms out the first time, then
-// follows the view camera, or else restores the saved view.
+// The ordinance view: saves the view and zooms out the first time, then follows the tracked
+// shot; once it is gone, returns to the previous view mode (restoring the saved view for the free
+// camera).
 // FUNCTION: MW2 0x10011819
-void FUN_10011819(void)
+void UpdateOrdinanceView(void)
 {
 	MechS32* camera;
 
-	if (g_unk0x100a2408 != 3) {
-		g_unk0x100a240c = g_unk0x100a2408;
-		FUN_100114ea(g_eyepoint, g_unk0x10176f10);
+	if (g_viewMode != c_viewOrdinance) {
+		g_ordinanceReturnMode = g_viewMode;
+		SaveView(g_eyepoint, g_ordinanceSavedView);
 		g_zoomFov = 0x20000;
 		ApplyCameraFov(0);
 	}
 
-	camera = FUN_1006beb5();
+	camera = GetTrackedShotView();
 	if (camera) {
-		FUN_1001156a(g_eyepoint, camera);
+		RestoreView(g_eyepoint, camera);
 	}
 	else {
-		FUN_10011401(g_unk0x100a240c);
-		if (g_unk0x100a240c == 2) {
-			FUN_1001156a(g_eyepoint, g_unk0x10176f10);
+		SetViewMode(g_ordinanceReturnMode);
+		if (g_ordinanceReturnMode == c_viewFreeEye) {
+			RestoreView(g_eyepoint, g_ordinanceSavedView);
 		}
 	}
 }
 
-// Places the external view behind the local mech: p_distance and p_height move it out and up,
+// The track view: places the camera behind the tracked player's mech: p_distance and p_height move it out and up,
 // within limits taken from the mech's size the first time, p_turn turns it around the mech and
 // p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
-// Stack-slot permutation of the locals. The original compares g_unk0x100a23f8 with
-// g_unk0x10176f2c in the other operand order.
+// Stack-slot permutation of the locals. The original compares g_trackHeight with
+// g_trackMaxHeight in the other operand order.
 // FUNCTION: MW2 0x100118bc
-void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn)
+void UpdateTrackView(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn)
 {
 	MechS32 y;
 	MechS32 dx;
@@ -507,61 +520,61 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 	MechS32 unused;
 	Mech* mech;
 
-	FUN_100116c3(&pitch, &heading, &roll, &x, &y, &z);
-	if (g_unk0x100a2408 != 1) {
-		if (!g_unk0x100a2c04) {
+	GetPlayerEyeView(&pitch, &heading, &roll, &x, &y, &z);
+	if (g_viewMode != c_viewTrack) {
+		if (!g_localMechLost) {
 			PlayCockpitSound(0x11, -1);
 		}
 
-		if (g_unk0x100a23ec == 0) {
+		if (g_trackDistance == 0) {
 			mech = g_players[0]->m_mech;
-			g_unk0x100a23ec = mech->m_radius * 3;
-			g_unk0x100a23f0 = g_unk0x100a23ec >> 1;
-			g_unk0x100a23f4 = g_unk0x100a23ec << 2;
-			g_unk0x100a23f8 = g_unk0x100a23ec >> 2;
-			g_unk0x10176f2c = g_unk0x100a23f4;
-			g_unk0x10176f74 = -mech->m_height + 200;
+			g_trackDistance = mech->m_radius * 3;
+			g_trackMinDistance = g_trackDistance >> 1;
+			g_trackMaxDistance = g_trackDistance << 2;
+			g_trackHeight = g_trackDistance >> 2;
+			g_trackMaxHeight = g_trackMaxDistance;
+			g_trackMinHeight = -mech->m_height + 200;
 		}
 
-		g_unk0x10177050.m_time = g_currentClock;
-		g_unk0x10176f90.m_time = g_currentClock;
-		g_unk0x10176f30.m_time = g_currentClock;
-		g_unk0x10176f60.m_time = g_currentClock;
-		g_unk0x10176f40.m_time = g_currentClock;
-		g_unk0x10177050.m_value = g_eyepoint->m_unk0x00 - x;
-		g_unk0x10176f90.m_value = g_eyepoint->m_unk0x04 - y;
-		g_unk0x10176f30.m_value = g_eyepoint->m_unk0x08 - z;
-		g_unk0x10176f60.m_value = g_eyepoint->m_unk0x0c;
-		g_unk0x10176f40.m_value = g_eyepoint->m_unk0x10;
-		g_eyepoint->m_unk0x14 = 0;
-		if (g_eyepoint->m_unk0x00 == x) {
-			g_eyepoint->m_unk0x00 += 10;
+		g_trackOffsetX.m_time = g_currentClock;
+		g_trackOffsetY.m_time = g_currentClock;
+		g_trackOffsetZ.m_time = g_currentClock;
+		g_trackHeading.m_time = g_currentClock;
+		g_trackPitch.m_time = g_currentClock;
+		g_trackOffsetX.m_value = g_eyepoint->m_x - x;
+		g_trackOffsetY.m_value = g_eyepoint->m_y - y;
+		g_trackOffsetZ.m_value = g_eyepoint->m_z - z;
+		g_trackHeading.m_value = g_eyepoint->m_heading;
+		g_trackPitch.m_value = g_eyepoint->m_pitch;
+		g_eyepoint->m_roll = 0;
+		if (g_eyepoint->m_x == x) {
+			g_eyepoint->m_x += 10;
 		}
 
 		g_zoomFov = 0x10000;
 		ApplyCameraFov(0);
 	}
 
-	g_unk0x100a23ec += p_distance;
-	if (g_unk0x100a23ec > g_unk0x100a23f4) {
-		g_unk0x100a23ec = g_unk0x100a23f4;
+	g_trackDistance += p_distance;
+	if (g_trackDistance > g_trackMaxDistance) {
+		g_trackDistance = g_trackMaxDistance;
 	}
-	else if (g_unk0x100a23ec < g_unk0x100a23f0) {
-		g_unk0x100a23ec = g_unk0x100a23f0;
+	else if (g_trackDistance < g_trackMinDistance) {
+		g_trackDistance = g_trackMinDistance;
 	}
 
-	height = p_height + g_unk0x100a23f8;
-	g_unk0x100a23fc += p_turn;
-	g_unk0x100a23fc %= 0x1680000;
-	dy = y - g_eyepoint->m_unk0x04;
-	dz = z - g_eyepoint->m_unk0x08;
-	dx = x - g_eyepoint->m_unk0x00;
-	FUN_10060197(dx, dy, dz, &turn, &unused, &distance, &tilt);
-	SetWrappedRampTarget(&g_unk0x10176f40, -tilt - (p_tilt >> 1));
-	g_eyepoint->m_unk0x10 = UpdateWrappedRamp(&g_unk0x10176f40);
-	SetWrappedRampTarget(&g_unk0x10176f60, turn);
-	g_eyepoint->m_unk0x0c = UpdateWrappedRamp(&g_unk0x10176f60);
-	angle = heading - g_unk0x100a23fc;
+	height = p_height + g_trackHeight;
+	g_trackTurn += p_turn;
+	g_trackTurn %= 0x1680000;
+	dy = y - g_eyepoint->m_y;
+	dz = z - g_eyepoint->m_z;
+	dx = x - g_eyepoint->m_x;
+	GetBearingAndRange(dx, dy, dz, &turn, &unused, &distance, &tilt);
+	SetWrappedRampTarget(&g_trackPitch, -tilt - (p_tilt >> 1));
+	g_eyepoint->m_pitch = UpdateWrappedRamp(&g_trackPitch);
+	SetWrappedRampTarget(&g_trackHeading, turn);
+	g_eyepoint->m_heading = UpdateWrappedRamp(&g_trackHeading);
+	angle = heading - g_trackTurn;
 	angle %= 0x1680000;
 	if (angle < -0xb40000) {
 		angle += 0x1680000;
@@ -572,47 +585,47 @@ void FUN_100118bc(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 
 
 	cosine = FixedCos(angle);
 	sine = FixedSin(angle);
-	offsetX = FixedMul16(g_unk0x100a23ec, sine) >> 13;
-	offsetZ = FixedMul16(g_unk0x100a23ec, cosine) >> 13;
+	offsetX = FixedMul16(g_trackDistance, sine) >> 13;
+	offsetZ = FixedMul16(g_trackDistance, cosine) >> 13;
 	offsetY = height;
-	g_unk0x10177050.m_target = offsetX;
-	g_eyepoint->m_unk0x00 = x + UpdateRamp(&g_unk0x10177050);
-	g_unk0x10176f30.m_target = offsetZ;
-	g_eyepoint->m_unk0x08 = z + UpdateRamp(&g_unk0x10176f30);
-	floor = FUN_100113af(g_eyepoint);
+	g_trackOffsetX.m_target = offsetX;
+	g_eyepoint->m_x = x + UpdateRamp(&g_trackOffsetX);
+	g_trackOffsetZ.m_target = offsetZ;
+	g_eyepoint->m_z = z + UpdateRamp(&g_trackOffsetZ);
+	floor = GetCameraFloor(g_eyepoint);
 	if (y + offsetY < floor) {
 		offsetY = floor - y;
 	}
 
-	g_unk0x100a23f8 = height;
-	if (g_unk0x100a23f8 > g_unk0x10176f2c) {
-		g_unk0x100a23f8 = g_unk0x10176f2c;
+	g_trackHeight = height;
+	if (g_trackHeight > g_trackMaxHeight) {
+		g_trackHeight = g_trackMaxHeight;
 	}
-	else if (g_unk0x100a23f8 < g_unk0x10176f74) {
-		g_unk0x100a23f8 = g_unk0x10176f74;
+	else if (g_trackHeight < g_trackMinHeight) {
+		g_trackHeight = g_trackMinHeight;
 	}
 
-	g_unk0x10176f90.m_target = offsetY;
-	g_eyepoint->m_unk0x04 = y + UpdateRamp(&g_unk0x10176f90);
+	g_trackOffsetY.m_target = offsetY;
+	g_eyepoint->m_y = y + UpdateRamp(&g_trackOffsetY);
 }
 
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
 // the view towards a held glance key (or back ahead once all are released), then places the
 // eyepoint unless the camera is shaking.
 // FUNCTION: MW2 0x10011cb0
-void FUN_10011cb0(void)
+void UpdateCockpitView(void)
 {
-	if (g_unk0x100a2408) {
-		g_unk0x10177030.m_time = g_currentClock;
-		g_unk0x10177030.m_value = 0;
-		g_unk0x10176f80.m_time = g_currentClock;
-		g_unk0x10176f80.m_value = 0;
+	if (g_viewMode) {
+		g_pilotPan.m_time = g_currentClock;
+		g_pilotPan.m_value = 0;
+		g_pilotTilt.m_time = g_currentClock;
+		g_pilotTilt.m_value = 0;
 		ClearCameraShakeKeys();
 		ApplyCameraFov(0);
 	}
 
-	g_unk0x100a2420 = 1;
-	g_unk0x100a241c = 0;
+	g_inCockpitView = 1;
+	g_cockpitEyeSteady = 0;
 	if (g_sinkGlanceLeft) {
 		g_sinkPilotPan = -0x460000;
 	}
@@ -625,57 +638,57 @@ void FUN_10011cb0(void)
 	else if (g_sinkGlanceDown) {
 		g_sinkPilotTilt = 0x280000;
 	}
-	else if (!g_unk0x100a2448) {
+	else if (!g_glanceReleased) {
 		g_sinkPilotPan = 0;
 		g_sinkPilotTilt = 0;
 	}
 
 	if (!g_sinkGlanceRight && !g_sinkGlanceLeft && !g_sinkGlanceUp && !g_sinkGlanceDown) {
-		g_unk0x100a2448 = 1;
+		g_glanceReleased = 1;
 	}
 	else {
-		g_unk0x100a2448 = 0;
+		g_glanceReleased = 0;
 	}
 
 	if (!UpdateCameraShake()) {
-		FUN_10011e45(
-			&g_eyepoint->m_unk0x10,
-			&g_eyepoint->m_unk0x0c,
-			&g_eyepoint->m_unk0x14,
-			&g_eyepoint->m_unk0x00,
-			&g_eyepoint->m_unk0x04,
-			&g_eyepoint->m_unk0x08
+		GetCockpitEyeView(
+			&g_eyepoint->m_pitch,
+			&g_eyepoint->m_heading,
+			&g_eyepoint->m_roll,
+			&g_eyepoint->m_x,
+			&g_eyepoint->m_y,
+			&g_eyepoint->m_z
 		);
 	}
 }
 
-// FUN_100116c3's view, turned from the cockpit by the pilot's pan and tilt.
+// GetPlayerEyeView's view, turned from the cockpit by the pilot's pan and tilt.
 // Stack-slot permutation: pan and tilt.
 // FUNCTION: MW2 0x10011e45
-void FUN_10011e45(MechS32* p_unk0x10, MechS32* p_unk0x0c, MechS32* p_unk0x14, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetCockpitEyeView(MechS32* p_pitch, MechS32* p_heading, MechS32* p_roll, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	MechS32 pan;
 	MechS32 tilt;
 
 	pan = 0;
 	tilt = 0;
-	FUN_100116c3(p_unk0x10, p_unk0x0c, p_unk0x14, p_x, p_y, p_z);
-	if (!g_unk0x100a2c04) {
-		g_unk0x10177030.m_target = g_sinkPilotPan;
-		pan = UpdateRamp(&g_unk0x10177030);
-		g_unk0x10176f80.m_target = g_sinkPilotTilt;
-		tilt = UpdateRamp(&g_unk0x10176f80);
-		*p_unk0x0c += pan;
-		*p_unk0x10 += tilt;
+	GetPlayerEyeView(p_pitch, p_heading, p_roll, p_x, p_y, p_z);
+	if (!g_localMechLost) {
+		g_pilotPan.m_target = g_sinkPilotPan;
+		pan = UpdateRamp(&g_pilotPan);
+		g_pilotTilt.m_target = g_sinkPilotTilt;
+		tilt = UpdateRamp(&g_pilotTilt);
+		*p_heading += pan;
+		*p_pitch += tilt;
 	}
 
-	g_unk0x100a241c = 1;
+	g_cockpitEyeSteady = 1;
 }
 
 // Switches to the drop view (mode 4): the camera starts level at the mech and falls, turning.
 // Stack-slot permutation: the six locals.
 // FUNCTION: MW2 0x10011edc
-void FUN_10011edc(void)
+void UpdateDropView(void)
 {
 	MechS32 unk0x10;
 	MechS32 unk0x0c;
@@ -684,25 +697,25 @@ void FUN_10011edc(void)
 	MechS32 y;
 	MechS32 z;
 
-	FUN_100116c3(&unk0x10, &unk0x0c, &unk0x14, &x, &y, &z);
-	if (g_unk0x100a2408 != 4) {
-		g_unk0x100a243c = 0;
-		g_eyepoint->m_unk0x10 = 0x5a0000;
-		g_unk0x100a2444 = g_currentClock;
+	GetPlayerEyeView(&unk0x10, &unk0x0c, &unk0x14, &x, &y, &z);
+	if (g_viewMode != c_viewDrop) {
+		g_dropSpeed = 0;
+		g_eyepoint->m_pitch = 0x5a0000;
+		g_dropStartClock = g_currentClock;
 		ApplyCameraFov(0);
 	}
 
-	IntegrateMidpoint(&g_eyepoint->m_unk0x04, &g_unk0x100a243c, g_unk0x100a2440, g_deltaTime);
-	g_eyepoint->m_unk0x00 = x;
-	g_eyepoint->m_unk0x08 = z;
-	g_eyepoint->m_unk0x0c += (g_currentClock - g_unk0x100a2444) * 300;
+	IntegrateMidpoint(&g_eyepoint->m_y, &g_dropSpeed, g_dropAcceleration, g_deltaTime);
+	g_eyepoint->m_x = x;
+	g_eyepoint->m_z = z;
+	g_eyepoint->m_heading += (g_currentClock - g_dropStartClock) * 300;
 }
 
 // Moves the free camera (mode 2): p_climb raises it, p_speed drives it forward (eased),
 // p_strafe moves it sideways, and p_turn and p_pitch turn it. It stays above the ground.
 // Stack-slot permutation: sinHeading, cosHeading, cosPitch and speed.
 // FUNCTION: MW2 0x10011f9a
-void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch)
+void UpdateFreeEyeView(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch)
 {
 	MechS32 sinHeading;
 	MechS32 cosHeading;
@@ -711,53 +724,53 @@ void FUN_10011f9a(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_
 	MechS32 speed;
 	MechS32 cosPitch;
 
-	sinHeading = FixedSin(g_eyepoint->m_unk0x0c);
-	cosHeading = FixedCos(g_eyepoint->m_unk0x0c);
-	sinPitch = FixedSin(g_eyepoint->m_unk0x10);
-	cosPitch = FixedCos(g_eyepoint->m_unk0x10);
-	if (g_unk0x100a2408 != 2) {
-		if (g_unk0x100a2c04) {
-			g_eyepoint->m_unk0x00 -= FixedMul16(g_unk0x100a23ec, sinHeading) >> 13;
-			g_eyepoint->m_unk0x08 -= FixedMul16(g_unk0x100a23ec, cosHeading) >> 13;
+	sinHeading = FixedSin(g_eyepoint->m_heading);
+	cosHeading = FixedCos(g_eyepoint->m_heading);
+	sinPitch = FixedSin(g_eyepoint->m_pitch);
+	cosPitch = FixedCos(g_eyepoint->m_pitch);
+	if (g_viewMode != c_viewFreeEye) {
+		if (g_localMechLost) {
+			g_eyepoint->m_x -= FixedMul16(g_trackDistance, sinHeading) >> 13;
+			g_eyepoint->m_z -= FixedMul16(g_trackDistance, cosHeading) >> 13;
 		}
 
-		g_eyepoint->m_unk0x14 = 0;
-		g_unk0x10177040.m_value = 0;
-		g_unk0x10177040.m_time = g_currentClock;
+		g_eyepoint->m_roll = 0;
+		g_freeEyeSpeed.m_value = 0;
+		g_freeEyeSpeed.m_time = g_currentClock;
 		g_zoomFov = g_normalFov;
 		ApplyCameraFov(0);
 	}
 
-	g_eyepoint->m_unk0x00 += FixedMul16(p_strafe, cosHeading) >> 11;
-	g_eyepoint->m_unk0x08 -= FixedMul16(p_strafe, sinHeading) >> 11;
-	g_eyepoint->m_unk0x10 -= p_pitch;
-	if (g_eyepoint->m_unk0x10 > 0x5a0000) {
-		g_eyepoint->m_unk0x10 = 0x5a0000;
+	g_eyepoint->m_x += FixedMul16(p_strafe, cosHeading) >> 11;
+	g_eyepoint->m_z -= FixedMul16(p_strafe, sinHeading) >> 11;
+	g_eyepoint->m_pitch -= p_pitch;
+	if (g_eyepoint->m_pitch > 0x5a0000) {
+		g_eyepoint->m_pitch = 0x5a0000;
 	}
-	else if (g_eyepoint->m_unk0x10 < -0x5a0000) {
-		g_eyepoint->m_unk0x10 = -0x5a0000;
+	else if (g_eyepoint->m_pitch < -0x5a0000) {
+		g_eyepoint->m_pitch = -0x5a0000;
 	}
 
-	g_eyepoint->m_unk0x04 += p_climb * 4;
-	g_unk0x10177040.m_target = p_speed * 16;
-	speed = UpdateRamp(&g_unk0x10177040);
+	g_eyepoint->m_y += p_climb * 4;
+	g_freeEyeSpeed.m_target = p_speed * 16;
+	speed = UpdateRamp(&g_freeEyeSpeed);
 	if (speed < 0x20 && speed > -0x20) {
 		speed = 0;
 	}
 
-	g_eyepoint->m_unk0x0c += p_turn;
-	g_eyepoint->m_unk0x00 -= FixedMul16(FixedMul16(speed, sinHeading) >> 13, cosPitch) >> 13;
-	g_eyepoint->m_unk0x08 -= FixedMul16(FixedMul16(speed, cosHeading) >> 13, cosPitch) >> 13;
-	floor = FUN_100113af(g_eyepoint);
-	if (g_eyepoint->m_unk0x04 < floor) {
-		g_eyepoint->m_unk0x04 = max(g_eyepoint->m_unk0x04, floor);
+	g_eyepoint->m_heading += p_turn;
+	g_eyepoint->m_x -= FixedMul16(FixedMul16(speed, sinHeading) >> 13, cosPitch) >> 13;
+	g_eyepoint->m_z -= FixedMul16(FixedMul16(speed, cosHeading) >> 13, cosPitch) >> 13;
+	floor = GetCameraFloor(g_eyepoint);
+	if (g_eyepoint->m_y < floor) {
+		g_eyepoint->m_y = max(g_eyepoint->m_y, floor);
 	}
 }
 
 // Turns the world's shapes of types 0x10 and 0x60 to face the eyepoint, or to a fixed angle when
-// FUN_1003ee69 is set.
+// IsSatelliteView is set.
 // FUNCTION: MW2 0x1001220a
-void FUN_1001220a(void)
+void TurnBillboards(void)
 {
 	MechS32 pitch;
 	Shape* shape;
@@ -767,17 +780,17 @@ void FUN_1001220a(void)
 	MechS32 x;
 	MechS32 heading;
 
-	for (shape = g_unk0x100ad5e8->m_next; shape; shape = shape->m_next) {
+	for (shape = g_sceneShapes->m_next; shape; shape = shape->m_next) {
 		if ((shape->m_kind & 0xf0) == 0x10 || (shape->m_kind & 0xf0) == 0x60) {
 			obj = shape->m_object;
 			if (obj) {
 				GetObjPosition(obj, &x, &y, &z);
-				if (FUN_1003ee69()) {
+				if (IsSatelliteView()) {
 					heading = 0xb40000;
 					pitch = -0x2d0000;
 				}
 				else {
-					heading = FixedAtan2(g_eyepoint->m_unk0x00 - x, g_eyepoint->m_unk0x08 - z);
+					heading = FixedAtan2(g_eyepoint->m_x - x, g_eyepoint->m_z - z);
 					pitch = 0;
 				}
 

@@ -9,9 +9,9 @@
 // The arguments a player's mech was loaded with (RememberLoadMech), to load it again.
 // SIZE 0x16
 typedef struct RememberedMech {
-	MechS32 m_unk0x00;     // 0x00
-	MechChar m_name[9];    // 0x04
-	MechChar m_unk0x0d[9]; // 0x0d
+	MechS32 m_id;         // 0x00
+	MechChar m_name[9];   // 0x04
+	MechChar m_config[9]; // 0x0d
 } RememberedMech;
 
 #pragma pack(pop)

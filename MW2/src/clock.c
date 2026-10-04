@@ -15,17 +15,19 @@
 // GLOBAL: MW2 0x100ba548
 MechS32 g_currentClock = 0;
 
+// Ticks that run on while the game clock is paused; the network times its messages by them.
 // GLOBAL: MW2 0x100ba54c
-MechS32 g_unk0x100ba54c = 0;
+MechS32 g_realClock = 0;
 
 // GLOBAL: MW2 0x100ba550
 MechS32 g_deltaTime = 0;
 
+// 0 the game clock runs on its own ticks, 2 a slave's follows the master's, 3 paused.
 // GLOBAL: MW2 0x100ba554
-MechS32 g_unk0x100ba554 = 0;
+MechS32 g_clockMode = 0;
 
 // GLOBAL: MW2 0x100ba558
-MechS32 g_unk0x100ba558 = 0;
+MechS32 g_clockPaused = 0;
 
 // GLOBAL: MW2 0x100ba55c
 HTIMER g_ticksTimer = -1;
@@ -42,20 +44,22 @@ MechS32 g_framerateLimit = 0;
 // GLOBAL: MW2 0x100ba56c
 MechS32 g_clockHandle = -1;
 
+// The ticks since a slave's last UpdateNetwork: they advance its game clock when the master's
+// clock didn't arrive.
 // GLOBAL: MW2 0x100ba570
-MechS32 g_unk0x100ba570 = -1;
+MechS32 g_syncTicksHandle = -1;
 
 // GLOBAL: MW2 0x100ba574
 MechS32 g_unk0x100ba574 = -1;
 
 // GLOBAL: MW2 0x100ba578
-MechS32 g_unk0x100ba578 = -1;
+MechS32 g_realClockHandle = -1;
 
 // GLOBAL: MW2 0x100ba57c
 MechS32 g_previousClock = 0;
 
 // GLOBAL: MW2 0x100ba580
-MechS32 g_unk0x100ba580 = 0;
+MechS32 g_clockModeBeforePause = 0;
 
 // GLOBAL: MW2 0x100ba584
 BOOL g_ticksTimerInitialized = FALSE;
@@ -64,10 +68,10 @@ BOOL g_ticksTimerInitialized = FALSE;
 MechS16* g_sqrtTable;
 
 // GLOBAL: MW2 0x100bfd60
-MechS32 g_unk0x100bfd60[800];
+MechS32 g_slopeSines[800];
 
 // GLOBAL: MW2 0x100c09e0
-MechS32 g_unk0x100c09e0[800];
+MechS32 g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
 MechS32 g_sinTable[0x102];
@@ -104,8 +108,8 @@ MechS32 InitSlopeTables(void)
 	MechDouble cosine;
 
 	for (i = 0; i < 800; i++) {
-		g_unk0x100c09e0[i] = (MechS32) ((cosine = 1.0 / sqrt(i / 16.0 * (i / 16.0) + 1.0)) * 536870912.0);
-		g_unk0x100bfd60[i] = (MechS32) (i / 16.0 * cosine * 536870912.0);
+		g_slopeCosines[i] = (MechS32) ((cosine = 1.0 / sqrt(i / 16.0 * (i / 16.0) + 1.0)) * 536870912.0);
+		g_slopeSines[i] = (MechS32) (i / 16.0 * cosine * 536870912.0);
 	}
 
 	return TRUE;
@@ -141,7 +145,7 @@ MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
 // Operand order: the original loads the squares of p_x, p_z and p_y in that order; this
 // build loads p_z, p_y and p_x, and swaps the stack slots of pitch and yaw.
 // FUNCTION: MW2 0x1007cb3d
-void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechDouble pitch;
 	MechDouble yaw;
@@ -153,19 +157,19 @@ void FUN_1007cb3d(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
-void FUN_1007cbf1(Matrix* p_matrix)
+void NormalizeRotation(Matrix* p_matrix)
 {
-	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
-	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
-	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
-	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
-	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
-	FUN_1007ccc2(0x20000000, &p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
+	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
+	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
+	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
+	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
+	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
 }
 
 // Scales (*p_x, *p_y, *p_z) to length p_length.
 // FUNCTION: MW2 0x1007ccc2
-void FUN_1007ccc2(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void ScaleVectorToLength(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	MechDouble scale;
 	MechDouble x;
@@ -188,17 +192,17 @@ void FirstClock(void)
 		g_ticksTimer = AIL_register_timer((AILTIMERCB) GameTickTimerCallback);
 		AIL_set_timer_divisor(g_ticksTimer, 6556);
 		AIL_start_timer(g_ticksTimer);
-		g_unk0x100ba578 = AllocTicks(0x100);
+		g_realClockHandle = AllocTicks(0x100);
 		g_clockHandle = AllocTicks(0x80);
-		g_unk0x100ba570 = AllocTicks(0x80);
-		ResetTicks(g_unk0x100ba578);
-		ResetTicks(g_unk0x100ba570);
+		g_syncTicksHandle = AllocTicks(0x80);
+		ResetTicks(g_realClockHandle);
+		ResetTicks(g_syncTicksHandle);
 		ResetTicks(g_clockHandle);
 		g_ticksTimerInitialized = TRUE;
 	}
 
 	g_currentClock = g_previousClock = 0;
-	g_unk0x100ba54c = 0;
+	g_realClock = 0;
 }
 
 // FUNCTION: MW2 0x1007ce2c
@@ -208,7 +212,7 @@ void NextClock(void)
 		return;
 	}
 
-	if (g_unk0x100ba554 == 0) {
+	if (g_clockMode == 0) {
 		g_currentClock = GetTicks(g_clockHandle);
 		if (g_framerateLimit > 0) {
 			while (g_currentClock - g_previousClock < g_framerateLimit) {
@@ -216,17 +220,17 @@ void NextClock(void)
 			}
 		}
 
-		if (g_unk0x100ba558) {
-			g_unk0x100ba580 = g_unk0x100ba554;
-			g_unk0x100ba554 = 3;
+		if (g_clockPaused) {
+			g_clockModeBeforePause = g_clockMode;
+			g_clockMode = 3;
 			DebugPrint("NextClock(1): pause_timer(TRUE)");
 			PauseTimer(0x80, TRUE);
 		}
 	}
-	else if (g_unk0x100ba554 == 3) {
+	else if (g_clockMode == 3) {
 		g_currentClock += 12;
-		if (!g_unk0x100ba558) {
-			g_unk0x100ba554 = g_unk0x100ba580;
+		if (!g_clockPaused) {
+			g_clockMode = g_clockModeBeforePause;
 			DebugPrint("NextClock(2): pause_timer(FALSE)");
 			PauseTimer(0x80, FALSE);
 			SetTicks(g_clockHandle, g_currentClock);
@@ -259,9 +263,9 @@ void NextClock(void)
 void StopTimers(void)
 {
 	if (g_ticksTimerInitialized) {
-		FreeTicks(g_unk0x100ba570);
+		FreeTicks(g_syncTicksHandle);
 		FreeTicks(g_clockHandle);
-		FreeTicks(g_unk0x100ba578);
+		FreeTicks(g_realClockHandle);
 		AIL_release_timer_handle(g_ticksTimer);
 		g_ticksTimer = -1;
 		AIL_shutdown();
@@ -270,34 +274,34 @@ void StopTimers(void)
 }
 
 // FUNCTION: MW2 0x1007d05d
-MechS32 FUN_1007d05d(void)
+MechS32 GetGameClock(void)
 {
 	return GetTicks(g_clockHandle);
 }
 
 // FUNCTION: MW2 0x1007d07b
-MechS32 FUN_1007d07b(void)
+MechS32 GetTicksSinceSync(void)
 {
-	return GetTicks(g_unk0x100ba570);
+	return GetTicks(g_syncTicksHandle);
 }
 
 // FUNCTION: MW2 0x1007d099
-void FUN_1007d099(void)
+void ResetSyncTicks(void)
 {
-	ResetTicks(g_unk0x100ba570);
+	ResetTicks(g_syncTicksHandle);
 }
 
 // FUNCTION: MW2 0x1007d0b2
 void ResetClocks(void)
 {
-	ResetTicks(g_unk0x100ba578);
-	ResetTicks(g_unk0x100ba570);
+	ResetTicks(g_realClockHandle);
+	ResetTicks(g_syncTicksHandle);
 	ResetTicks(g_clockHandle);
 	g_currentClock = g_previousClock = 0;
 }
 
 // FUNCTION: MW2 0x1007d0fb
-MechS32 FUN_1007d0fb(void)
+MechS32 GetRealClock(void)
 {
-	return GetTicks(g_unk0x100ba578);
+	return GetTicks(g_realClockHandle);
 }

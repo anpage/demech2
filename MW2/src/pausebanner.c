@@ -17,11 +17,11 @@
 #include "polydraw.h"
 #include "render.h"
 #include "rendersettings.h"
-#include "rendertarget.h"
 #include "screenscale.h"
 #include "setres.h"
 #include "simmain.h"
 #include "soundfx.h"
+#include "targeting.h"
 #include "ticks.h"
 #include "timedoverlays.h"
 #include "types.h"
@@ -29,13 +29,13 @@
 
 #include <stdio.h>
 
-// The debug keys' selections (FUN_10009f8d): a number, and a mech section.
+// The debug keys' selections (HandleDebugKey): a number, and a mech section.
 
 // GLOBAL: MW2 0x100a15d0
-MechS32 g_unk0x100a15d0 = -1;
+MechS32 g_debugSlot = -1;
 
 // GLOBAL: MW2 0x100a15d4
-MechS32 g_unk0x100a15d4 = -1;
+MechS32 g_debugSection = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
@@ -49,12 +49,12 @@ void DrawPausedBanner(void)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x100e9614 + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
 			g_pausedBannerRect.m_window = &g_mainPixelBuffer;
 			ScaleRectToScreen(&g_mainPixelBuffer, &g_pausedBannerRect, &g_pausedBannerRect);
-			FUN_10056fcf(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
+			FitRectToShape(&g_pausedBannerRect, &g_pausedBannerRect, shape, 0);
 			g_pausedBannerUnscaled = 0;
 		}
 
@@ -65,18 +65,18 @@ void DrawPausedBanner(void)
 // FUNCTION: MW2 0x10009ef1
 void PlayPauseSound(void)
 {
-	FUN_1007ea11(0xc6, 100, 0x40, RandomSampleRate());
+	PlaySoundOnce(0xc6, 100, 0x40, RandomSampleRate());
 }
 
 // FUNCTION: MW2 0x10009f13
 void PlayResumeSound(void)
 {
-	FUN_1007ea11(0xf1, 0x32, 0x40, RandomSampleRate());
+	PlaySoundOnce(0xf1, 0x32, 0x40, RandomSampleRate());
 }
 
 // Pauses the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f35
-void FUN_10009f35(void)
+void PauseGame(void)
 {
 	if (!g_netRole) {
 		PauseTimer(0x80, 1);
@@ -86,7 +86,7 @@ void FUN_10009f35(void)
 
 // Resumes the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f61
-void FUN_10009f61(void)
+void ResumeGame(void)
 {
 	if (!g_netRole) {
 		PauseTimer(0x80, 0);
@@ -94,97 +94,97 @@ void FUN_10009f61(void)
 	}
 }
 
-// The debug keys, which FUN_1005c78a passes on while the mission timer is stopped: views, the
+// The debug keys, which RunGameKey passes on while the mission timer is stopped: views, the
 // debug render flags and overlays, the difficulty switches, the objective state of the selected
-// star (g_unk0x100a88f0) and objective (g_unk0x100a88f4), and a number and mech section selection.
-// The original compares g_unk0x100a88f0 with g_objectiveCount in the other operand order.
+// star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
+// The original compares g_debugStar with g_objectiveCount in the other operand order.
 // FUNCTION: MW2 0x10009f8d
-void FUN_10009f8d(MechU16 p_key)
+void HandleDebugKey(MechU16 p_key)
 {
 	MechChar text[40];
 
 	switch (p_key) {
 	case 0xa:
-		FUN_10011401(2);
+		SetViewMode(c_viewFreeEye);
 		break;
 	case 0xc:
-		FUN_100115f4(1, 0);
+		CycleTrackedPlayer(1, 0);
 		break;
 	case 0xd:
-		FUN_100115f4(0, 0);
+		CycleTrackedPlayer(0, 0);
 		break;
 	case 0xf:
 		DebugBreakpoint();
 		break;
 	case 0x5c:
-		g_unk0x100a15d0 = 1;
+		g_debugSlot = 1;
 		break;
 	case 0x5d:
-		g_unk0x100a15d0 = 2;
+		g_debugSlot = 2;
 		break;
 	case 0x5e:
-		g_unk0x100a15d0 = 3;
+		g_debugSlot = 3;
 		break;
 	case 0x5f:
-		g_unk0x100a15d0 = 4;
+		g_debugSlot = 4;
 		break;
 	case 0x60:
-		g_unk0x100a15d0 = 5;
+		g_debugSlot = 5;
 		break;
 	case 0x61:
-		g_unk0x100a15d0 = 6;
+		g_debugSlot = 6;
 		break;
 	case 0x62:
-		g_unk0x100a15d0 = 7;
+		g_debugSlot = 7;
 		break;
 	case 0x63:
-		g_unk0x100a15d0 = 8;
+		g_debugSlot = 8;
 		break;
 	case 0x64:
-		g_unk0x100a15d0 = 9;
+		g_debugSlot = 9;
 		break;
 	case 0x65:
-		g_unk0x100a15d0 = 0;
+		g_debugSlot = 0;
 		break;
 	case 0x66:
 		sprintf(text, "Head Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 1;
+		g_debugSection = 1;
 		break;
 	case 0x67:
 		sprintf(text, "Right Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 2;
+		g_debugSection = 2;
 		break;
 	case 0x68:
 		sprintf(text, "Center Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 3;
+		g_debugSection = 3;
 		break;
 	case 0x69:
 		sprintf(text, "Left Torso Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 4;
+		g_debugSection = 4;
 		break;
 	case 0x6a:
 		sprintf(text, "Right Arm Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 5;
+		g_debugSection = 5;
 		break;
 	case 0x6b:
 		sprintf(text, "Left Arm Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 6;
+		g_debugSection = 6;
 		break;
 	case 0x6c:
 		sprintf(text, "Right Leg Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 7;
+		g_debugSection = 7;
 		break;
 	case 0x6d:
 		sprintf(text, "Left Leg Selected");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		g_unk0x100a15d4 = 8;
+		g_debugSection = 8;
 		break;
 	case 0x6e:
 	case 0x6f:
@@ -196,99 +196,99 @@ void FUN_10009f8d(MechU16 p_key)
 	case 0x75:
 	case 0x76:
 	case 0x77:
-		g_unk0x100a88f0 = (p_key & 0xff) - 0x6e;
-		if (g_unk0x100a88f0 >= g_objectiveCount) {
-			g_unk0x100a88f0 = -1;
+		g_debugStar = (p_key & 0xff) - 0x6e;
+		if (g_debugStar >= g_objectiveCount) {
+			g_debugStar = -1;
 		}
 		break;
 	case 0x78:
-		if (g_unk0x100a88f0 == -1) {
-			g_unk0x100a88f0 = -2;
+		if (g_debugStar == -1) {
+			g_debugStar = -2;
 		}
 		else {
-			g_unk0x100a88f0 = -1;
+			g_debugStar = -1;
 		}
 		break;
 	case 0x79:
-		g_unk0x100a88f4--;
+		g_debugObjective--;
 		break;
 	case 0x7a:
-		g_unk0x100a88f4++;
+		g_debugObjective++;
 		break;
 	case 0x7b:
-		if (g_unk0x100a88f0 != -1 && g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state == 3) {
-			g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state = 6;
+		if (g_debugStar != -1 && g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state == 3) {
+			g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state = 6;
 		}
 		break;
 	case 0x7c:
-		if (g_unk0x100a88f0 != -1 && g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state == 3) {
-			g_objectiveTable[g_unk0x100a88f0].m_objectives[g_unk0x100a88f4].m_state = 5;
+		if (g_debugStar != -1 && g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state == 3) {
+			g_objectiveTable[g_debugStar].m_objectives[g_debugObjective].m_state = 5;
 		}
 		break;
 	case 0x7d:
-		FUN_10036853(0x100);
+		ToggleTextureMaps(0x100);
 		break;
 	case 0x7e:
-		FUN_10036853(0x200);
+		ToggleTextureMaps(0x200);
 		break;
 	case 0x7f:
-		FUN_10036853(0x400);
+		ToggleTextureMaps(0x400);
 		break;
 	case 0x80:
-		FUN_10036853(0x800);
+		ToggleTextureMaps(0x800);
 		break;
 	case 0x82:
-		if (!g_unk0x100a94f0) {
-			g_unk0x100a94f0 = 1;
+		if (!g_showMemInfo) {
+			g_showMemInfo = 1;
 		}
 		else {
-			g_unk0x100a94f0 = 0;
+			g_showMemInfo = 0;
 		}
 
-		g_unk0x100a94f4 = g_unk0x100a94f0;
+		g_showMemInfoMain = g_showMemInfo;
 		break;
 	case 0x84:
-		switch (g_renderSettings.m_unk0x38) {
+		switch (g_renderSettings.m_wireframeColors) {
 		case 1:
-			g_renderSettings.m_unk0x38 = 2;
+			g_renderSettings.m_wireframeColors = 2;
 			break;
 		case 0:
-			g_renderSettings.m_unk0x38 = 1;
+			g_renderSettings.m_wireframeColors = 1;
 			break;
 		default:
-			g_renderSettings.m_unk0x38 = 0;
+			g_renderSettings.m_wireframeColors = 0;
 			break;
 		}
 		break;
 	case 0x85:
-		if (!g_unk0x100a94b4) {
-			g_unk0x100a94b4 = 1;
+		if (!g_showFrameRate) {
+			g_showFrameRate = 1;
 		}
 		else {
-			g_unk0x100a94b4 = 0;
+			g_showFrameRate = 0;
 		}
 
-		g_unk0x100a94b8 = g_unk0x100a94b4;
+		g_showFrameRateMain = g_showFrameRate;
 		break;
 	case 0x87:
-		if (!g_unk0x100a94d8) {
-			g_unk0x100a94d8 = 1;
+		if (!g_showSceneInfo) {
+			g_showSceneInfo = 1;
 		}
 		else {
-			g_unk0x100a94d8 = 0;
+			g_showSceneInfo = 0;
 		}
 
-		g_unk0x100a94dc = g_unk0x100a94d8;
+		g_showSceneInfoMain = g_showSceneInfo;
 		break;
 	case 0x88:
-		if (!g_unk0x100a94e4) {
-			g_unk0x100a94e4 = 1;
+		if (!g_showEyePosition) {
+			g_showEyePosition = 1;
 		}
 		else {
-			g_unk0x100a94e4 = 0;
+			g_showEyePosition = 0;
 		}
 
-		g_unk0x100a94e8 = g_unk0x100a94e4;
+		g_showEyePositionMain = g_showEyePosition;
 		break;
 	case 0x8b:
 		if (!g_difficulty->m_splashDamage) {
@@ -327,73 +327,73 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x8e:
-		if (g_unk0x100a712c == 2) {
-			g_unk0x100a712c = 1;
+		if (g_lodQuality == 2) {
+			g_lodQuality = 1;
 			sprintf(text, "LOD Quality HIGH");
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		else {
-			g_unk0x100a712c = 2;
+			g_lodQuality = 2;
 			sprintf(text, "LOD Quality LOW");
 			ShowInGameMessage(text, 1, 0x16a, 0x32);
 		}
 		break;
 	case 0x8f:
-		FUN_10019fef();
+		DumpResourceCache();
 		break;
 	case 0x90:
 		break;
 	case 0x91:
-		if (!g_unk0x100a94b4) {
-			g_unk0x100a94b4 = 1;
+		if (!g_showFrameRate) {
+			g_showFrameRate = 1;
 		}
 		else {
-			g_unk0x100a94b4 = 0;
+			g_showFrameRate = 0;
 		}
 		break;
 	case 0x86:
-		if (!g_unk0x100c3280[0]->m_unk0x06) {
-			g_unk0x100c3280[0]->m_unk0x06 = 1;
+		if (!g_cockpitPanels[c_panelRadar]->m_damage) {
+			g_cockpitPanels[c_panelRadar]->m_damage = 1;
 		}
 		else {
-			g_unk0x100c3280[0]->m_unk0x06 = 0;
+			g_cockpitPanels[c_panelRadar]->m_damage = 0;
 		}
 		break;
 	case 0x93:
-		if (!g_unk0x100a94e4) {
-			g_unk0x100a94e4 = 1;
+		if (!g_showEyePosition) {
+			g_showEyePosition = 1;
 		}
 		else {
-			g_unk0x100a94e4 = 0;
+			g_showEyePosition = 0;
 		}
 		break;
 	case 0x94:
-		if (!g_unk0x100a94d8) {
-			g_unk0x100a94d8 = 1;
+		if (!g_showSceneInfo) {
+			g_showSceneInfo = 1;
 		}
 		else {
-			g_unk0x100a94d8 = 0;
+			g_showSceneInfo = 0;
 		}
 		break;
 	case 0x95:
-		switch (g_renderSettings.m_unk0x34) {
+		switch (g_renderSettings.m_wireframe) {
 		case 0:
-			g_renderSettings.m_unk0x34 = 2;
+			g_renderSettings.m_wireframe = 2;
 			break;
 		case 1:
-			g_renderSettings.m_unk0x34 = 0;
+			g_renderSettings.m_wireframe = 0;
 			break;
 		default:
-			g_renderSettings.m_unk0x34 = 1;
+			g_renderSettings.m_wireframe = 1;
 			break;
 		}
 		break;
 	case 0x96:
-		if (!g_unk0x100a949c) {
-			g_unk0x100a949c = 1;
+		if (!g_showPalette) {
+			g_showPalette = 1;
 		}
 		else {
-			g_unk0x100a949c = 0;
+			g_showPalette = 0;
 		}
 		break;
 	default:

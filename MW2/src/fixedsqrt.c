@@ -65,7 +65,7 @@ void NormalizeVectorGuarded(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 }
 
 // FUNCTION: MW2 0x10016a2e
-MechS32 FUN_10016a2e(MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 FloatVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechDouble x = p_x;
 	MechDouble y = p_y;

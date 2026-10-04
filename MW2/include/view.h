@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a712c;
+	extern MechS32 g_lodQuality;
 	extern MechS32 g_viewNear;
 	extern MechS32 g_viewShiftX;
 	extern MechS32 g_viewShiftY;
@@ -51,20 +51,20 @@ extern "C"
 	extern MechS32 g_viewLightY;
 	extern MechS32 g_viewNearPlane;
 
-	void FUN_1004b980(Eyepoint* p_eyepoint);
-	void FUN_1004bc2e(Eyepoint* p_eyepoint);
-	void FUN_1004bf61(Eyepoint* p_eyepoint, MechS32 p_value);
-	void FUN_1004bf8a(Eyepoint* p_eyepoint, MechS32 p_value);
-	void FUN_1004bfe8(Eyepoint* p_eyepoint);
-	void FUN_1004c05c(Eyepoint* p_eyepoint);
-	void FUN_1004c093(Eyepoint* p_eyepoint, Matrix* p_matrix);
-	void FUN_1004c0d8(Eyepoint* p_eyepoint, Matrix* p_matrix);
-	MechS32 FUN_1004c11d(MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	MechS32 FUN_1004c2ef(struct Shape* p_shape);
-	MechS32 FUN_1004c565(struct Shape* p_shape);
-	MechS32 FUN_1004c779(MechU16* p_flags);
-	MechS32 FUN_1004c7a6(undefined4 p_unk0x00);
-	void FUN_1004c7cf(undefined4 p_unk0x00, MechS32 p_enable);
+	void SelectEyepoint(Eyepoint* p_eyepoint);
+	void UpdateProjection(Eyepoint* p_eyepoint);
+	void SetNearPlane(Eyepoint* p_eyepoint, MechS32 p_value);
+	void SetFarPlane(Eyepoint* p_eyepoint, MechS32 p_value);
+	void UpdateViewMatrix(Eyepoint* p_eyepoint);
+	void ResetEyepointView(Eyepoint* p_eyepoint);
+	void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix);
+	void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix);
+	MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	MechS32 CullSceneShape(struct Shape* p_shape);
+	MechS32 CullShapeToFrustum(struct Shape* p_shape);
+	MechS32 CullHiddenShape(MechU16* p_flags);
+	MechS32 IsLodQualityHigh(undefined4 p_unk0x00);
+	void SetLodQualityHigh(undefined4 p_unk0x00, MechS32 p_enable);
 
 #ifdef __cplusplus
 }

@@ -18,7 +18,7 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // and each objective's, with its conditions.
 // Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
 // FUNCTION: MW2 0x1004da30
-void FUN_1004da30(MissionTable* p_table)
+void SetUpStarMission(MissionTable* p_table)
 {
 	MechS32 i;
 	MechS32 count;
@@ -30,7 +30,7 @@ void FUN_1004da30(MissionTable* p_table)
 		Error(0x4a, NULL);
 	}
 
-	g_objectiveTable[p_table->m_star].m_unk0x39 = g_teams[p_table->m_star].m_unk0x08;
+	g_objectiveTable[p_table->m_star].m_affiliation = g_teams[p_table->m_star].m_affiliation;
 	g_objectiveTable[p_table->m_star].m_timeLimit = p_table->m_timeLimit;
 	g_objectiveTable[p_table->m_star].m_startTime = -1;
 	g_objectiveTable[p_table->m_star].m_endTime = -1;
@@ -44,24 +44,24 @@ void FUN_1004da30(MissionTable* p_table)
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_timeLimit = p_table->m_entries[i].m_timeLimit;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_startTime = -1;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_endTime = -1;
-		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0xa9 = p_table->m_entries[i].m_unk0x53;
-		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0xab = p_table->m_entries[i].m_unk0x55;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_targetStar = p_table->m_entries[i].m_targetStar;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_targetObjective = p_table->m_entries[i].m_targetObjective;
 		if (p_table->m_entries[i].m_listed == 'V') {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x74 = 1;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = 1;
 		}
 		else {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x74 = 0;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = 0;
 		}
 
-		if (p_table->m_entries[i].m_unk0x2f == 'M') {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x75 = 1;
+		if (p_table->m_entries[i].m_requirement == 'M') {
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_mandatory = 1;
 		}
 		else {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x75 = 0;
+			g_objectiveTable[p_table->m_star].m_objectives[i].m_mandatory = 0;
 		}
 
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_requiredCount = p_table->m_entries[i].m_requiredCount;
-		g_objectiveTable[p_table->m_star].m_objectives[i].m_unk0x7d = p_table->m_entries[i].m_unk0x31;
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_engagement = p_table->m_entries[i].m_engagement;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_successSpeech =
 			FindResourceIdByName(0xb, p_table->m_entries[i].m_successSound);
 		strcpy(g_objectiveTable[p_table->m_star].m_objectives[i].m_successSound, p_table->m_entries[i].m_successSound);

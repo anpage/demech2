@@ -262,7 +262,7 @@ MechS32 GetCdStatus(void)
 }
 
 // FUNCTION: MW2 0x1005ad0a
-MechS32 FUN_1005ad0a(void)
+MechS32 RefreshCdStatus(void)
 {
 	return g_cdStatus = GetCdStatus();
 }
@@ -299,7 +299,7 @@ void CdAudioTogglePaused(void)
 }
 
 // FUNCTION: MW2 0x1005adef
-void FUN_1005adef(void)
+void ContinueCdAudio(void)
 {
 	if (g_cdAudioInitialized) {
 		switch (GetCdStatus()) {
@@ -320,7 +320,7 @@ void FUN_1005adef(void)
 
 // Stops the disc, retrying until the drive reports it stopped.
 // FUNCTION: MW2 0x1005ae7b
-void FUN_1005ae7b(void)
+void StopCdAudioAndWait(void)
 {
 	MechS32 status;
 
@@ -334,18 +334,18 @@ void FUN_1005ae7b(void)
 }
 
 // FUNCTION: MW2 0x1005aeb9
-void FUN_1005aeb9(void)
+void PreviousCdTrack(void)
 {
 	if (g_cdAudioInitialized) {
-		FUN_1005b10b(&g_cdAudioTracks, -1);
+		SkipCdTracks(&g_cdAudioTracks, -1);
 	}
 }
 
 // FUNCTION: MW2 0x1005aee0
-void FUN_1005aee0(void)
+void NextCdTrack(void)
 {
 	if (g_cdAudioInitialized) {
-		FUN_1005b10b(&g_cdAudioTracks, 1);
+		SkipCdTracks(&g_cdAudioTracks, 1);
 	}
 }
 
@@ -400,7 +400,7 @@ void FUN_1005aff8(undefined4 p_unk0x00)
 // state changed.
 // Stack-slot permutation: status and i.
 // FUNCTION: MW2 0x1005b00b
-MechS32 FUN_1005b00b(void)
+MechS32 PollCdDrive(void)
 {
 	MechS32 status;
 	MechS32 i;
@@ -437,7 +437,7 @@ MechS32 FUN_1005b00b(void)
 // Skips p_step tracks from the current one.
 // Stack-slot permutation: status and track.
 // FUNCTION: MW2 0x1005b10b
-void FUN_1005b10b(CdAudioTracks* p_tracks, MechS32 p_step)
+void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step)
 {
 	MechS32 status;
 	MechS32 track;
@@ -475,7 +475,7 @@ void FUN_1005b10b(CdAudioTracks* p_tracks, MechS32 p_step)
 // Plays track p_track to its end.
 // Stack-slot permutation: tracks and status.
 // FUNCTION: MW2 0x1005b22f
-void FUN_1005b22f(MechS32 p_track)
+void PlayCdTrack(MechS32 p_track)
 {
 	CdAudioPosition position;
 	CdAudioTracks* tracks;
@@ -626,14 +626,14 @@ void GetCdAudioPosition(CdAudioPosition* p_position)
 }
 
 // FUNCTION: MW2 0x1005b696
-MechS32 FUN_1005b696(void)
+MechS32 IsCdAudioInitialized(void)
 {
 	return g_cdAudioInitialized;
 }
 
 // Returns whether p_track is on the disc.
 // FUNCTION: MW2 0x1005b6ab
-MechS32 FUN_1005b6ab(MechS32 p_track)
+MechS32 IsCdTrackOnDisc(MechS32 p_track)
 {
 	if (p_track >= g_cdAudioTracks.m_firstTrack && p_track <= g_cdAudioTracks.m_numberOfTracks) {
 		return 1;
@@ -672,7 +672,7 @@ MechS32 SetCdAudioVolume(MechS32 p_volume)
 }
 
 // FUNCTION: MW2 0x1005b7a0
-void FUN_1005b7a0(void)
+void ApplyCdAudioVolume(void)
 {
 	SetCdAudioVolume(g_soundConfig.m_midiVolume);
 }
