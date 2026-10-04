@@ -139,7 +139,7 @@ void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 					notify = ApplyCdAudioVolume;
 				}
 				else {
-					notify = FUN_100219ea;
+					notify = ApplyMidiVolume;
 				}
 
 				if (!old) {

@@ -19,7 +19,7 @@ typedef struct StarMission {
 	MechChar m_successSound[0x10];     // 0x18 — a sound file, loaded by ReadSoundFile
 	MechChar m_failSound[0x10];        // 0x28
 	MechU8 m_status;                   // 0x38 — 0 in progress, 2 successful, 3 failed, 4 out of time
-	undefined m_unk0x39;               // 0x39
+	undefined m_affiliation;           // 0x39
 	MissionObjective m_objectives[48]; // 0x3a
 } StarMission;
 

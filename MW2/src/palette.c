@@ -31,7 +31,7 @@ MechS32 g_palettePending = 0;
 MechS32 g_basePalette = 0;
 
 // GLOBAL: MW2 0x100a00dc
-MechS32 g_unk0x100a00dc = 0x10;
+MechS32 g_settledPalette = 0x10;
 
 // GLOBAL: MW2 0x100a00e0
 MechS32 g_paletteFadeTarget = -1;
@@ -117,8 +117,8 @@ void ApplyPendingPalette(void)
 {
 	if (g_palettePending && g_paletteFadeSteps <= 0) {
 		g_palettePending = 0;
-		ApplyPaletteResource(g_unk0x100a00dc);
-		g_currentPalette = g_unk0x100a00dc;
+		ApplyPaletteResource(g_settledPalette);
+		g_currentPalette = g_settledPalette;
 	}
 }
 
@@ -301,14 +301,14 @@ void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration)
 	palette = p_palette;
 	StartPaletteFade(palette, p_duration, 0);
 	g_basePalette = p_palette;
-	g_unk0x100a00dc = palette;
+	g_settledPalette = palette;
 }
 
 // FUNCTION: MW2 0x10002a5a
 void SetBasePalette(MechS32 p_palette)
 {
 	g_basePalette = p_palette;
-	g_unk0x100a00dc = p_palette;
+	g_settledPalette = p_palette;
 }
 
 // Brings up the start palette (slot 0x10): with p_dissolve, it dissolves the screen to black
@@ -378,7 +378,7 @@ void StartPalettes(MechS32 p_dissolve)
 	}
 
 	g_currentPalette = 0x10;
-	g_unk0x100a00dc = 0x10;
+	g_settledPalette = 0x10;
 }
 
 // FUNCTION: MW2 0x10002c76

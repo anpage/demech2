@@ -120,7 +120,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 	mission = &g_objectiveTable[g_localStar];
 	height = VFX_font_height(p_font);
 	primary = FALSE;
-	if (g_isNetworkGame && !g_difficulty->m_unk0x0a) {
+	if (g_isNetworkGame && !g_difficulty->m_teamGame) {
 		count = 0;
 		secondary = FALSE;
 		for (i = 0; i < mission->m_objectiveCount; i++) {
@@ -382,7 +382,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			g_textColors[0xe] = 0xe;
 			UnderlineText(p_panel->m_target, "Communication", pos, font, 2);
 			cursor->m_y += gap + height;
-			if (g_difficulty->m_unk0x0a) {
+			if (g_difficulty->m_teamGame) {
 				g_textColors[0xe] = 0xe;
 				VFX_string_draw(
 					p_panel->m_target,

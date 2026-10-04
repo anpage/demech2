@@ -29,8 +29,10 @@
 // GLOBAL: MW2 0x100ba620
 MechS32 g_temperature = 25;
 
+// Set on a planet without a breathable atmosphere: the local player can't eject (the cockpit says
+// so), a life support hit kills, and a mech whose pilot ejects counts as lost.
 // GLOBAL: MW2 0x100ba624
-MechS32 g_unk0x100ba624 = 0;
+MechS32 g_hostileAtmosphere = 0;
 
 // GLOBAL: MW2 0x100ba628
 MechS32 g_sampleRates[10] = {9922, 10143, 10364, 10584, 10804, 11025, 11246, 11466, 11686, 11907};

@@ -347,10 +347,10 @@ MechS16 g_helicopterScripts[15][2] = {
 MechS32 g_lairdoCheat = 0;
 
 // GLOBAL: MW2 0x100a90b8
-MechS32 g_unk0x100a90b8 = 1;
+MechS32 g_aiSpreadTargets = 1;
 
 // GLOBAL: MW2 0x100a90c0
-MechS32 g_unk0x100a90c0 = 0;
+MechS32 g_localStarAssigned = 0;
 
 // GLOBAL: MW2 0x100a90c8
 AiStateFn g_aiStateFns[14] = {
@@ -952,7 +952,7 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 			return nearest;
 		}
 
-		if (!g_unk0x100a90b8) {
+		if (!g_aiSpreadTargets) {
 			return best;
 		}
 
@@ -1442,7 +1442,7 @@ MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	}
 
 	FindNearestTarget(p_player, p_target, p_arg, &nearest, &best);
-	if (g_unk0x100a90b8) {
+	if (g_aiSpreadTargets) {
 		return nearest;
 	}
 	else {
@@ -2623,7 +2623,7 @@ void AssignStarObjective(MechS32 p_team)
 	}
 
 	flags = 0x40;
-	flags = FUN_10055485(mission->m_objectives[objective].m_unk0x7d) | flags;
+	flags = GetEngagementAIFlags(mission->m_objectives[objective].m_engagement) | flags;
 
 	for (bit = 0; bit < 16 && !((1 << bit) & type); bit++) {
 	}
@@ -2635,7 +2635,7 @@ void AssignStarObjective(MechS32 p_team)
 		}
 
 		SetAIScript(member, 2, bit + 1, leader);
-		if (leader == g_localPlayerId && g_unk0x100a90c0) {
+		if (leader == g_localPlayerId && g_localStarAssigned) {
 			continue;
 		}
 
@@ -2652,12 +2652,12 @@ void AssignStarObjective(MechS32 p_team)
 	}
 
 	if (GetTeamLeader(p_team) == g_localPlayerId && type != 0x10) {
-		g_unk0x100a90c0 = 1;
+		g_localStarAssigned = 1;
 	}
 }
 
 // FUNCTION: MW2 0x10055485
-MechS16 FUN_10055485(MechS32 p_value)
+MechS16 GetEngagementAIFlags(MechS32 p_value)
 {
 	if (p_value == 1) {
 		return 2;
@@ -3028,7 +3028,7 @@ void LeadStar(MechS32 p_team)
 	}
 
 	flags = 0x40;
-	flags = FUN_10055485(mission->m_objectives[objectiveIndex].m_unk0x7d) | flags;
+	flags = GetEngagementAIFlags(mission->m_objectives[objectiveIndex].m_engagement) | flags;
 
 	state = -1;
 	switch (type) {

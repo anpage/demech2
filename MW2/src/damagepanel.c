@@ -243,7 +243,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		section = &p_mech->m_sections[index];
 		scale = (section->m_flags & 0xf0U) >> 4;
 		if (scale) {
-			front = 15 - (section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3 / (scale << 16);
+			front = 15 - (section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3 / (scale << 16);
 		}
 
 		if (front < 1) {
@@ -255,7 +255,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 
 		scale = section->m_flags & 0xf;
 		if (scale) {
-			rear = 15 - (section->m_unk0x08 + section->m_armor[0] / g_localArmorPerLevel) * 3 / (scale << 16);
+			rear = 15 - (section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3 / (scale << 16);
 		}
 
 		if (rear < 1) {

@@ -26,9 +26,9 @@ typedef struct RenderSettings {
 									   // (TOGGLE_WIREFRAME)
 	MechS32 m_wireframeColors;         // 0x38 — in wireframe, colors faces by the shape's kind (0),
 									   // collision type (1) or flags (2) (COLLISION_WIREFRAME)
-	MechS32 m_unk0x3c;                 // 0x3c — set with a fade distance, cleared while an effect lights
+	MechS32 m_distanceFade;            // 0x3c — set with a fade distance, cleared while an effect lights
 									   // the scene
-	undefined4 m_unk0x40;              // 0x40
+	undefined4 m_greyscale;            // 0x40
 	MechS32 m_fadeDistance;            // 0x44 — shades dim with the distance over it (ComputeShade)
 	undefined4 m_unk0x48;              // 0x48
 	MechS32 m_affineTextures;          // 0x4c — textures without perspective correction (low display

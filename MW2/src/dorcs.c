@@ -571,10 +571,10 @@ void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 
 	selected = p_page->m_selected == p_index;
 	if ((selected && g_menuKey == '\r') || digit) {
 		g_difficulty->m_invulnerable = 0;
-		saved = g_unk0x100ba624;
-		g_unk0x100ba624 = 0;
+		saved = g_hostileAtmosphere;
+		g_hostileAtmosphere = 0;
 		RunGameKey(0x3b);
-		g_unk0x100ba624 = saved;
+		g_hostileAtmosphere = saved;
 		FreeMenus();
 	}
 }

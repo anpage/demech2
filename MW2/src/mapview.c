@@ -39,7 +39,7 @@ MechS32 g_mapViewMaxY;
 MechS32 g_mapViewMinY;
 
 // GLOBAL: MW2 0x10109bb0
-MechS32 g_unk0x10109bb0;
+MechS32 g_mapViewNear;
 
 // GLOBAL: MW2 0x10109bb4
 MechS32 g_mapViewFar;
@@ -58,7 +58,7 @@ void BeginMapView(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	g_mapViewScale = p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2));
 	g_mapViewMinY = -(g_mapViewMaxY = (g_panes[p_slot].m_y1 - g_panes[p_slot].m_y0 + 1) * g_mapViewScale / 2);
-	g_unk0x10109bb0 = 0;
+	g_mapViewNear = 0;
 	g_mapViewFar = p_far;
 	g_savedPalettePending = g_palettePending;
 	g_savedEyepoint = *g_eyepoint;

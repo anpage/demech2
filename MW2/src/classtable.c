@@ -108,16 +108,16 @@ MechS32 AddClassEntryLevel(
 	if (p_level == 0) {
 		entry = &g_classTable[g_classEntryCount];
 		entry->m_owner = -2;
-		entry->m_unk0x04 = -1;
-		entry->m_unk0x1c = p_unk0x10;
-		entry->m_unk0x2c = p_unk0x04;
-		entry->m_unk0x30 = p_unk0x08;
-		entry->m_unk0x34 = p_unk0x0c;
-		entry->m_unk0x08[p_level] = p_unk0x00;
+		entry->m_loadedLevel = -1;
+		entry->m_parent = p_unk0x10;
+		entry->m_x = p_unk0x04;
+		entry->m_y = p_unk0x08;
+		entry->m_z = p_unk0x0c;
+		entry->m_resourceIds[p_level] = p_unk0x00;
 		entry->m_shape = NULL;
 		entry->m_obj = NULL;
-		entry->m_unk0x20 = 0;
-		entry->m_unk0x42 = 0;
+		entry->m_partId = 0;
+		entry->m_released = 0;
 		index = g_classEntryCount++;
 	}
 	else {
@@ -129,12 +129,12 @@ MechS32 AddClassEntryLevel(
 		entry = &g_classTable[index];
 	}
 
-	entry->m_unk0x08[p_level] = p_unk0x00;
+	entry->m_resourceIds[p_level] = p_unk0x00;
 	entry->m_kinds[p_level] = p_unk0x1c;
 	if (p_level < 5) {
 		for (i = p_level + 1; i < 5; i++) {
-			if (entry->m_unk0x08[i] == -1) {
-				entry->m_unk0x08[i] = p_unk0x00;
+			if (entry->m_resourceIds[i] == -1) {
+				entry->m_resourceIds[i] = p_unk0x00;
 				entry->m_kinds[i] = p_unk0x1c;
 			}
 		}
@@ -154,15 +154,15 @@ void ResetClassTable(void)
 	for (i = 0; i < 0x30c; i++) {
 		entry = &g_classTable[i];
 		entry->m_owner = -1;
-		entry->m_unk0x04 = -1;
-		entry->m_unk0x1c = -1;
+		entry->m_loadedLevel = -1;
+		entry->m_parent = -1;
 		entry->m_shape = NULL;
 		entry->m_obj = NULL;
-		entry->m_unk0x20 = 0;
-		entry->m_unk0x42 = 0;
-		entry->m_unk0x2c = entry->m_unk0x30 = entry->m_unk0x34 = 0;
+		entry->m_partId = 0;
+		entry->m_released = 0;
+		entry->m_x = entry->m_y = entry->m_z = 0;
 		for (level = 0; level < 5; level++) {
-			entry->m_unk0x08[level] = -1;
+			entry->m_resourceIds[level] = -1;
 			entry->m_kinds[level] = 0;
 		}
 	}
@@ -183,8 +183,8 @@ void ClaimNewClassEntries(Player* p_player)
 		entry = &g_classTable[i];
 		if (entry->m_owner == -2) {
 			entry->m_owner = p_player->m_index;
-			if (entry->m_unk0x1c == -1) {
-				entry->m_unk0x1c = -2;
+			if (entry->m_parent == -1) {
+				entry->m_parent = -2;
 			}
 		}
 	}
@@ -211,14 +211,14 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 	for (i = 0; i < g_classEntryCount; i++) {
 		entry = &g_classTable[i];
 		if (entry->m_owner == p_owner) {
-			if ((g_players[entry->m_owner]->m_flags & 2) && !entry->m_unk0x20) {
+			if ((g_players[entry->m_owner]->m_flags & 2) && !entry->m_partId) {
 				HideShape(entry->m_shape);
 			}
 			else if (!LoadClassEntryShape(i, p_level, NULL)) {
 				result = 0;
 			}
 
-			if (!entry->m_unk0x20) {
+			if (!entry->m_partId) {
 				DisableShapeCollision(entry->m_shape);
 			}
 		}
@@ -263,7 +263,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	offset = 0;
 	flags = 0;
 	entry = &g_classTable[p_index];
-	if (entry->m_unk0x42) {
+	if (entry->m_released) {
 		return TRUE;
 	}
 
@@ -277,15 +277,15 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		entry->m_shape = NULL;
 	}
 
-	data = LoadCachedResource(g_mw2PrjHandle, entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly], 0);
+	data = LoadCachedResource(g_mw2PrjHandle, entry->m_resourceIds[p_level], g_resourceTypeTags[c_resTagPoly], 0);
 	if (data) {
-		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_unk0x08[p_level]);
+		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_resourceIds[p_level]);
 	}
 	else {
 		return FALSE;
 	}
 
-	entry->m_unk0x04 = -1;
+	entry->m_loadedLevel = -1;
 	SetShapeScale(1, 1, 1);
 	SetShapeFlags(0);
 	while (!entry->m_shape) {
@@ -295,14 +295,14 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		}
 	}
 
-	UnlockCachedResource(entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly]);
+	UnlockCachedResource(entry->m_resourceIds[p_level], g_resourceTypeTags[c_resTagPoly]);
 	if (entry->m_shape) {
 		parent = NULL;
 		placed = FALSE;
 		SetShapeState(entry->m_shape, flags);
-		entry->m_unk0x04 = p_level;
+		entry->m_loadedLevel = p_level;
 		if (!entry->m_obj) {
-			if (entry->m_unk0x1c == -2) {
+			if (entry->m_parent == -2) {
 				if (!p_buffer) {
 					entry->m_obj = CreateObj(g_players[entry->m_owner]->m_obj, 10);
 				}
@@ -311,9 +311,9 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 				}
 			}
 			else {
-				parent = g_classTable[entry->m_unk0x1c].m_obj;
+				parent = g_classTable[entry->m_parent].m_obj;
 				if (!parent) {
-					shape = g_classTable[entry->m_unk0x1c].m_shape;
+					shape = g_classTable[entry->m_parent].m_shape;
 					parent = GetShapeObject(shape);
 				}
 
@@ -336,7 +336,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		kind = entry->m_kinds[p_level] & 0xf0;
 		SetShapeKind(entry->m_shape, kind | 0x100);
 		SetShapeOwner(entry->m_shape, entry->m_owner);
-		SetShapePartId(entry->m_shape, entry->m_unk0x20);
+		SetShapePartId(entry->m_shape, entry->m_partId);
 		AddSceneShape(entry->m_shape);
 		if (kind == 0x70) {
 			HideShape(entry->m_shape);
@@ -358,7 +358,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		}
 
 		if (placed) {
-			SetObjPosition(entry->m_obj, entry->m_unk0x2c, entry->m_unk0x30, entry->m_unk0x34);
+			SetObjPosition(entry->m_obj, entry->m_x, entry->m_y, entry->m_z);
 		}
 
 		UpdateObj(entry->m_obj);
@@ -394,10 +394,10 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 	ClassEntry* entry;
 
 	entry = &g_classTable[p_index];
-	if (entry->m_unk0x04 >= 0 && entry->m_unk0x04 == p_level && entry->m_shape) {
+	if (entry->m_loadedLevel >= 0 && entry->m_loadedLevel == p_level && entry->m_shape) {
 		DestroyObjShape(entry->m_shape);
 		entry->m_shape = NULL;
-		entry->m_unk0x04 = -1;
+		entry->m_loadedLevel = -1;
 	}
 }
 
@@ -429,15 +429,15 @@ Shape* GetClassShape(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1001da14
-void FUN_1001da14(MechS32 p_index, MechU16 p_value)
+void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 {
 	ClassEntry* entry;
 
 	entry = &g_classTable[p_index];
-	entry->m_unk0x20 = p_value;
+	entry->m_partId = p_value;
 }
 
-// Chooses each player's model level (Player::m_unk0x1c) by its distance from the eyepoint: the
+// Chooses each player's model level (Player::m_detailLevel) by its distance from the eyepoint: the
 // nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
 // Stack-slot permutation; i == g_localPlayerId compares in the other operand order.
@@ -561,8 +561,8 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 			}
 
 			entry->m_shape = NULL;
-			entry->m_unk0x04 = -1;
-			entry->m_unk0x42 = 1;
+			entry->m_loadedLevel = -1;
+			entry->m_released = 1;
 			break;
 		}
 	}
@@ -580,8 +580,8 @@ void ForgetObjShape(struct SceneObject* p_obj)
 		entry = &g_classTable[i];
 		if (entry->m_obj == p_obj) {
 			entry->m_shape = NULL;
-			entry->m_unk0x04 = -1;
-			entry->m_unk0x42 = 0;
+			entry->m_loadedLevel = -1;
+			entry->m_released = 0;
 			break;
 		}
 	}

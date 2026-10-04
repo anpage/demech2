@@ -908,7 +908,7 @@ void RunGameKey(MechS32 p_key)
 		g_localSteering.m_targetReticle = 1;
 		break;
 	case 0x55:
-		g_unk0x100ae37c = 1;
+		g_punchInAutoHeadingRequested = 1;
 		break;
 	case 0x56:
 		g_toggleMascRequested = 1;

@@ -55,28 +55,28 @@ void BuildShapeQuadtree(Shape* p_shape)
 
 		for (i = 1; i < model->m_vertexCount; i++) {
 			vertex++;
-			if (root->m_unk0x04 < vertex->m_worldX) {
-				root->m_unk0x04 = vertex->m_worldX;
+			if (root->m_maxX < vertex->m_worldX) {
+				root->m_maxX = vertex->m_worldX;
 			}
 
-			if (vertex->m_worldX < root->m_unk0x00) {
-				root->m_unk0x00 = vertex->m_worldX;
+			if (vertex->m_worldX < root->m_minX) {
+				root->m_minX = vertex->m_worldX;
 			}
 
-			if (root->m_unk0x14 < vertex->m_worldZ) {
-				root->m_unk0x14 = vertex->m_worldZ;
+			if (root->m_maxZ < vertex->m_worldZ) {
+				root->m_maxZ = vertex->m_worldZ;
 			}
 
-			if (vertex->m_worldZ < root->m_unk0x10) {
-				root->m_unk0x10 = vertex->m_worldZ;
+			if (vertex->m_worldZ < root->m_minZ) {
+				root->m_minZ = vertex->m_worldZ;
 			}
 
-			if (root->m_unk0x0c < vertex->m_worldY) {
-				root->m_unk0x0c = vertex->m_worldY;
+			if (root->m_maxY < vertex->m_worldY) {
+				root->m_maxY = vertex->m_worldY;
 			}
 
-			if (root->m_unk0x08 > vertex->m_worldY) {
-				root->m_unk0x08 = vertex->m_worldY;
+			if (root->m_minY > vertex->m_worldY) {
+				root->m_minY = vertex->m_worldY;
 			}
 		}
 
@@ -111,21 +111,21 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 	Face** faces;
 
 	if (p_quadrant & 1) {
-		minX = ((p_node->m_unk0x04 + p_node->m_unk0x00) >> 1) + 1;
-		maxX = p_node->m_unk0x04;
+		minX = ((p_node->m_maxX + p_node->m_minX) >> 1) + 1;
+		maxX = p_node->m_maxX;
 	}
 	else {
-		minX = p_node->m_unk0x00;
-		maxX = (p_node->m_unk0x04 + p_node->m_unk0x00) >> 1;
+		minX = p_node->m_minX;
+		maxX = (p_node->m_maxX + p_node->m_minX) >> 1;
 	}
 
 	if (p_quadrant & 2) {
-		minZ = ((p_node->m_unk0x14 + p_node->m_unk0x10) >> 1) + 1;
-		maxZ = p_node->m_unk0x14;
+		minZ = ((p_node->m_maxZ + p_node->m_minZ) >> 1) + 1;
+		maxZ = p_node->m_maxZ;
 	}
 	else {
-		minZ = p_node->m_unk0x10;
-		maxZ = (p_node->m_unk0x14 + p_node->m_unk0x10) >> 1;
+		minZ = p_node->m_minZ;
+		maxZ = (p_node->m_maxZ + p_node->m_minZ) >> 1;
 	}
 
 	if (minX >= maxX || minZ >= maxZ) {
@@ -151,20 +151,20 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 					node->m_children[j] = BuildQuadtreeChild(node, j, p_model);
 					child = node->m_children[j];
 					if (child) {
-						if (child->m_unk0x0c > highY) {
-							highY = child->m_unk0x0c;
+						if (child->m_maxY > highY) {
+							highY = child->m_maxY;
 						}
 
-						if (child->m_unk0x08 < lowY) {
-							lowY = child->m_unk0x08;
+						if (child->m_minY < lowY) {
+							lowY = child->m_minY;
 						}
 					}
 				}
 
-				node->m_unk0x0c = highY;
-				node->m_unk0x08 = lowY;
-				if (node->m_unk0x08 == 0x7fffffff) {
-					node->m_unk0x08 = node->m_unk0x0c = 0;
+				node->m_maxY = highY;
+				node->m_minY = lowY;
+				if (node->m_minY == 0x7fffffff) {
+					node->m_minY = node->m_maxY = 0;
 				}
 
 				return node;
@@ -199,40 +199,40 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 	return node;
 }
 
-// Allocates a quadtree node with room for p_unk0x18 entries, cleared.
+// Allocates a quadtree node with room for p_faceCount entries, cleared.
 // The only diff is a stack-slot permutation of entries and node.
 // FUNCTION: MW2 0x1001e429
 QuadtreeNode* AllocQuadtreeNode(
-	undefined4 p_unk0x00,
-	undefined4 p_unk0x04,
-	undefined4 p_unk0x08,
-	undefined4 p_unk0x0c,
-	undefined4 p_unk0x10,
-	undefined4 p_unk0x14,
-	MechS32 p_unk0x18
+	undefined4 p_minX,
+	undefined4 p_maxX,
+	undefined4 p_minY,
+	undefined4 p_maxY,
+	undefined4 p_minZ,
+	undefined4 p_maxZ,
+	MechS32 p_faceCount
 )
 {
 	undefined4* entries;
 	QuadtreeNode* node;
 	MechS32 i;
 
-	node = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_unk0x18 * sizeof(undefined4) + sizeof(QuadtreeNode));
+	node = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, p_faceCount * sizeof(undefined4) + sizeof(QuadtreeNode));
 	if (node) {
-		node->m_unk0x00 = p_unk0x00;
-		node->m_unk0x04 = p_unk0x04;
-		node->m_unk0x08 = p_unk0x08;
-		node->m_unk0x0c = p_unk0x0c;
-		node->m_unk0x10 = p_unk0x10;
-		node->m_unk0x14 = p_unk0x14;
-		node->m_unk0x18 = p_unk0x18;
+		node->m_minX = p_minX;
+		node->m_maxX = p_maxX;
+		node->m_minY = p_minY;
+		node->m_maxY = p_maxY;
+		node->m_minZ = p_minZ;
+		node->m_maxZ = p_maxZ;
+		node->m_faceCount = p_faceCount;
 		i = 4;
 		while (i--) {
 			node->m_children[i] = NULL;
 		}
 
-		if (p_unk0x18 > 0) {
+		if (p_faceCount > 0) {
 			entries = (undefined4*) (node + 1);
-			memset(entries, 0, p_unk0x18 * sizeof(undefined4));
+			memset(entries, 0, p_faceCount * sizeof(undefined4));
 		}
 	}
 	else {
@@ -252,7 +252,7 @@ void FreeQuadtree(QuadtreeNode* p_node)
 		return;
 	}
 
-	if (p_node->m_unk0x18 == 0) {
+	if (p_node->m_faceCount == 0) {
 		for (i = 0; i < 4; i++) {
 			FreeQuadtree(p_node->m_children[i]);
 		}
@@ -351,19 +351,19 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechS32 p_x,
 		return 0;
 	}
 
-	if (p_node->m_unk0x00 > p_x || p_node->m_unk0x04 < p_x || p_node->m_unk0x10 > p_z || p_node->m_unk0x14 < p_z) {
+	if (p_node->m_minX > p_x || p_node->m_maxX < p_x || p_node->m_minZ > p_z || p_node->m_maxZ < p_z) {
 		return 0;
 	}
 
-	if (p_node->m_unk0x0c < p_y) {
+	if (p_node->m_maxY < p_y) {
 		return 2;
 	}
 
-	if (p_node->m_unk0x08 > p_y) {
+	if (p_node->m_minY > p_y) {
 		return 3;
 	}
 
-	if (p_node->m_unk0x18 == 0) {
+	if (p_node->m_faceCount == 0) {
 		result = ClassifyQuadtreePoint(p_node->m_children[0], p_model, p_x, p_y, p_z);
 		if (result) {
 			return result;
@@ -389,7 +389,7 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechS32 p_x,
 
 	vertices = (Vertex*) (p_model + 1);
 	faces = (Face**) (p_node + 1);
-	for (i = 0; i < p_node->m_unk0x18; i++) {
+	for (i = 0; i < p_node->m_faceCount; i++) {
 		face = *faces++;
 		if (face->m_normal[1] > 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
 			if (IsBelowFacePlane(face, vertices, p_x, p_y, p_z, &height)) {
@@ -422,11 +422,11 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		return FALSE;
 	}
 
-	if (ClipRaySlab(p_ray->m_x0, p_ray->m_dirX, p_node->m_unk0x00, p_node->m_unk0x04, &tMin, &tMax)) {
+	if (ClipRaySlab(p_ray->m_x0, p_ray->m_dirX, p_node->m_minX, p_node->m_maxX, &tMin, &tMax)) {
 		return FALSE;
 	}
 
-	if (ClipRaySlab(p_ray->m_y0, p_ray->m_dirY, p_node->m_unk0x08, p_node->m_unk0x0c, &t0, &t1)) {
+	if (ClipRaySlab(p_ray->m_y0, p_ray->m_dirY, p_node->m_minY, p_node->m_maxY, &t0, &t1)) {
 		return FALSE;
 	}
 
@@ -438,7 +438,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		tMax = t1;
 	}
 
-	if (ClipRaySlab(p_ray->m_z0, p_ray->m_dirZ, p_node->m_unk0x10, p_node->m_unk0x14, &t0, &t1)) {
+	if (ClipRaySlab(p_ray->m_z0, p_ray->m_dirZ, p_node->m_minZ, p_node->m_maxZ, &t0, &t1)) {
 		return FALSE;
 	}
 
@@ -467,7 +467,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		return FALSE;
 	}
 
-	if (p_node->m_unk0x18 == 0) {
+	if (p_node->m_faceCount == 0) {
 		if (TestQuadtreeChildrenRay(p_node, p_model, p_ray)) {
 			return TRUE;
 		}
@@ -477,7 +477,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 
 	vertices = (Vertex*) (p_model + 1);
 	faces = (Face**) (p_node + 1);
-	for (i = 0; i < p_node->m_unk0x18; i++) {
+	for (i = 0; i < p_node->m_faceCount; i++) {
 		face = *faces++;
 		if (IntersectRayFace(face, vertices, p_ray)) {
 			return TRUE;
@@ -536,11 +536,11 @@ MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS3
 		return FALSE;
 	}
 
-	if (p_node->m_unk0x00 > p_x || p_node->m_unk0x04 < p_x || p_node->m_unk0x10 > p_z || p_node->m_unk0x14 < p_z) {
+	if (p_node->m_minX > p_x || p_node->m_maxX < p_x || p_node->m_minZ > p_z || p_node->m_maxZ < p_z) {
 		return FALSE;
 	}
 
-	if (p_node->m_unk0x18 == 0) {
+	if (p_node->m_faceCount == 0) {
 		if (GetQuadtreeTop(p_node->m_children[0], p_model, p_x, p_y, p_z, p_top)) {
 			return TRUE;
 		}
@@ -563,7 +563,7 @@ MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS3
 
 	vertices = (Vertex*) (p_model + 1);
 	faces = (Face**) (p_node + 1);
-	for (i = 0; i < p_node->m_unk0x18; i++) {
+	for (i = 0; i < p_node->m_faceCount; i++) {
 		face = *faces++;
 		if (face->m_normal[1] > 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
 			IsBelowFacePlane(face, vertices, p_x, p_y, p_z, p_top);
@@ -592,7 +592,7 @@ MechS32 GetQuadtreeSize(QuadtreeNode* p_node)
 		return 0;
 	}
 
-	size = p_node->m_unk0x18 * sizeof(undefined4) + sizeof(QuadtreeNode);
+	size = p_node->m_faceCount * sizeof(undefined4) + sizeof(QuadtreeNode);
 	for (i = 0; i < 4; i++) {
 		size += GetQuadtreeSize(p_node->m_children[i]);
 	}

@@ -29,7 +29,7 @@ enum {
 // One of a mech's ten weapons (Mech::m_weapons). A slot with m_unk0x00 at -1 ends the list.
 // SIZE 0x68
 typedef struct WeaponSlot {
-	MechS32 m_unk0x00;    // 0x00
+	MechS32 m_status;     // 0x00
 	MechS32 m_type;       // 0x04 — an index into g_weaponDefs, or negative for none
 	MechS32 m_state;      // 0x08
 	MechS32 m_group;      // 0x0c — the weapon group, 0 to 2

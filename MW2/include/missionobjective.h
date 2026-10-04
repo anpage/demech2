@@ -30,15 +30,15 @@ typedef struct MissionObjective {
 	MechS32 m_timeLimit;                // 0x6f
 	MechU8 m_active;                    // 0x73
 	MechU8 m_listed;                    // 0x74 — listed on the objectives panel
-	MechS32 m_unk0x75;                  // 0x75
+	MechS32 m_mandatory;                // 0x75
 	MechS32 m_requiredCount;            // 0x79 — how many targets must be done; 0 for all of them
-	MechS32 m_unk0x7d;                  // 0x7d
+	MechS32 m_engagement;               // 0x7d
 	MechS32 m_successSpeech;            // 0x81 — a sound resource, announced when successful
 	MechS32 m_failSpeech;               // 0x85 — when failed
 	MechChar m_successSound[0x10];      // 0x89 — a sound file, loaded by ReadSoundFile
 	MechChar m_failSound[0x10];         // 0x99
-	MechS16 m_unk0xa9;                  // 0xa9 — a star: RestartStarMission toggles its objective m_unk0xab's m_listed
-	MechS16 m_unk0xab;                  // 0xab
+	MechS16 m_targetStar;               // 0xa9 — the star whose objective m_targetObjective types 0x10000 and up act on
+	MechS16 m_targetObjective;          // 0xab
 	MechChar m_name[0xee - 0xad];       // 0xad
 	MechU8 m_targetCount;               // 0xee
 	MechU16 m_targets[40];              // 0xef — AI target ids

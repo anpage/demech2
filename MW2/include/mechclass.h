@@ -18,7 +18,7 @@ extern "C"
 	extern MechS32 g_jettisonAmmoRequested;
 	extern MechS32 g_toggleMascRequested;
 	extern MechS32 g_mascEngaged;
-	extern MechS32 g_unk0x100a2bf8;
+	extern MechS32 g_manualWeaponCycle;
 	extern MechS32 g_localMechLost;
 	extern MechS32 g_powerRequest;
 	extern MechS32 g_mechPoweredUp;

@@ -26,7 +26,7 @@ extern "C"
 	void ShutdownMidi(void);
 	MechS16 AnyMidiPlaying(void);
 	void SetMidiVolume(MechS16 p_volume);
-	void FUN_100219ea(void);
+	void ApplyMidiVolume(void);
 	MechS32 FUN_100219f5(
 		MechS32 p_delay,
 		MechS32 p_bearing,

@@ -162,7 +162,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			piece,
 			section->m_armor[0],
 			section->m_armor[1],
-			section->m_unk0x08,
+			section->m_internal,
 			section->m_flags
 		);
 		WriteToMw2Log(text);
@@ -176,7 +176,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		}
 
 		section->m_flags &= 0xff00;
-		level = (section->m_armor[0] + section->m_unk0x08) / 5;
+		level = (section->m_armor[0] + section->m_internal) / 5;
 		if (level > 15) {
 			level = 15;
 		}
@@ -185,7 +185,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		}
 
 		section->m_flags |= level;
-		level = (section->m_armor[1] + section->m_unk0x08) / 5;
+		level = (section->m_armor[1] + section->m_internal) / 5;
 		if (level > 15) {
 			level = 15;
 		}
@@ -209,7 +209,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 
 		section->m_armor[0] <<= 16;
 		section->m_armor[1] <<= 16;
-		section->m_unk0x08 <<= 16;
+		section->m_internal <<= 16;
 		section++;
 	}
 
@@ -223,7 +223,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	if (header->m_weaponCount > 0) {
 		do {
 			type = weapon->m_type / 100;
-			slot->m_unk0x00 = 1;
+			slot->m_status = 1;
 			slot->m_type = type;
 			slot->m_state = c_weaponReady;
 			slot->m_time = 0;
@@ -424,7 +424,7 @@ MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_
 		}
 
 		value += armor;
-		value += (MechU16) p_sections->m_unk0x08;
+		value += (MechU16) p_sections->m_internal;
 	}
 
 	for (i = 0; i < p_header->m_weaponCount && i < 10; i++, p_weapons++) {

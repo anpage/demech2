@@ -22,7 +22,7 @@ MechS32 g_cameraShakeKeyCount = 10;
 MechS32 g_cameraShakeActive = 0;
 
 // GLOBAL: MW2 0x100becc8
-Ramp g_cameraShake0c;
+Ramp g_cameraShakeHeading;
 
 // GLOBAL: MW2 0x100becd8
 MechS32 g_cameraShakeKey;
@@ -34,13 +34,13 @@ Ramp g_cameraShakeZ;
 MechS32 g_cameraShakeKeyTime;
 
 // GLOBAL: MW2 0x100becf8
-Ramp g_cameraShake14;
+Ramp g_cameraShakeRoll;
 
 // GLOBAL: MW2 0x100bed08
 Ramp g_cameraShakeX;
 
 // GLOBAL: MW2 0x100bed18
-Ramp g_cameraShake10;
+Ramp g_cameraShakePitch;
 
 // GLOBAL: MW2 0x100bed28
 CameraShakeKey g_cameraShakeKeys[10];
@@ -87,9 +87,9 @@ MechS32 UpdateCameraShake(void)
 	g_eyepoint->m_x = x + UpdateRamp(&g_cameraShakeX);
 	g_eyepoint->m_y = y + UpdateRamp(&g_cameraShakeY);
 	g_eyepoint->m_z = z + UpdateRamp(&g_cameraShakeZ);
-	g_eyepoint->m_pitch = base10 + UpdateRamp(&g_cameraShake10);
-	g_eyepoint->m_heading = base0c + UpdateRamp(&g_cameraShake0c);
-	g_eyepoint->m_roll = base14 + UpdateRamp(&g_cameraShake14);
+	g_eyepoint->m_pitch = base10 + UpdateRamp(&g_cameraShakePitch);
+	g_eyepoint->m_heading = base0c + UpdateRamp(&g_cameraShakeHeading);
+	g_eyepoint->m_roll = base14 + UpdateRamp(&g_cameraShakeRoll);
 	return TRUE;
 }
 
@@ -137,9 +137,9 @@ void StartCameraShakeKey(MechS32 p_key)
 		x = g_cameraShakeX.m_value;
 		y = g_cameraShakeY.m_value;
 		z = g_cameraShakeZ.m_value;
-		off10 = g_cameraShake10.m_value;
-		off0c = g_cameraShake0c.m_value;
-		off14 = g_cameraShake14.m_value;
+		off10 = g_cameraShakePitch.m_value;
+		off0c = g_cameraShakeHeading.m_value;
+		off14 = g_cameraShakeRoll.m_value;
 	}
 
 	key = &g_cameraShakeKeys[p_key];
@@ -147,9 +147,9 @@ void StartCameraShakeKey(MechS32 p_key)
 	StartRamp(&g_cameraShakeX, key->m_x, x, seconds);
 	StartRamp(&g_cameraShakeY, key->m_y, y, seconds);
 	StartRamp(&g_cameraShakeZ, key->m_z, z, seconds);
-	StartRamp(&g_cameraShake10, key->m_unk0x10, off10, seconds);
-	StartRamp(&g_cameraShake0c, key->m_unk0x0c, off0c, seconds);
-	StartRamp(&g_cameraShake14, key->m_unk0x14, off14, seconds);
+	StartRamp(&g_cameraShakePitch, key->m_pitch, off10, seconds);
+	StartRamp(&g_cameraShakeHeading, key->m_heading, off0c, seconds);
+	StartRamp(&g_cameraShakeRoll, key->m_roll, off14, seconds);
 }
 
 // FUNCTION: MW2 0x10066968
@@ -167,9 +167,9 @@ void AddCameraShakeKey(
 	MechS32 p_x,
 	MechS32 p_y,
 	MechS32 p_z,
-	MechS32 p_unk0x10,
-	MechS32 p_unk0x0c,
-	MechS32 p_unk0x14,
+	MechS32 p_pitch,
+	MechS32 p_heading,
+	MechS32 p_roll,
 	MechDouble p_seconds
 )
 {
@@ -183,9 +183,9 @@ void AddCameraShakeKey(
 	key->m_x = p_x;
 	key->m_y = p_y;
 	key->m_z = p_z;
-	key->m_unk0x10 = p_unk0x10;
-	key->m_unk0x0c = p_unk0x0c;
-	key->m_unk0x14 = p_unk0x14;
+	key->m_pitch = p_pitch;
+	key->m_heading = p_heading;
+	key->m_roll = p_roll;
 	key->m_duration = p_seconds * 181.0;
 	g_cameraShakeKeyCount++;
 }

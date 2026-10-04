@@ -252,7 +252,7 @@ MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 	p_player->m_mechSize = 0x10e;
 	slot = mech->m_weapons;
 	for (i = 0; i < 10; i++) {
-		slot->m_unk0x00 = -1;
+		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;
 		slot->m_time = 0;

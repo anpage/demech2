@@ -1167,9 +1167,9 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 		return;
 	}
 
-	dx = p_node->m_unk0x04 - p_node->m_unk0x00;
-	dy = p_node->m_unk0x0c - p_node->m_unk0x08;
-	dz = p_node->m_unk0x14 - p_node->m_unk0x10;
+	dx = p_node->m_maxX - p_node->m_minX;
+	dy = p_node->m_maxY - p_node->m_minY;
+	dz = p_node->m_maxZ - p_node->m_minZ;
 	dx = abs(dx);
 	dy = abs(dy);
 	dz = abs(dz);
@@ -1183,9 +1183,9 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	if (shape) {
 		result = TRUE;
 		SetShapeCollisionType(shape, 4);
-		x = (p_node->m_unk0x04 + p_node->m_unk0x00) >> 1;
-		y = (p_node->m_unk0x08 + p_node->m_unk0x0c) >> 1;
-		z = (p_node->m_unk0x14 + p_node->m_unk0x10) >> 1;
+		x = (p_node->m_maxX + p_node->m_minX) >> 1;
+		y = (p_node->m_minY + p_node->m_maxY) >> 1;
+		z = (p_node->m_maxZ + p_node->m_minZ) >> 1;
 		BuildMatrix(&matrix, 0, 0, 0, x, y, z);
 		TransformShape(shape, &matrix);
 		AddSceneShape(shape);

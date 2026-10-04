@@ -1056,7 +1056,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
 			total = 0;
 			for (i = 0; i < follower->m_path->m_count; i++) {
-				total += follower->m_path->m_points[i].m_unk0x18;
+				total += follower->m_path->m_points[i].m_duration;
 			}
 
 			follower->m_duration = total;
@@ -1124,7 +1124,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
 			total = 0;
 			for (i = 0; i < follower->m_path->m_count; i++) {
-				total += follower->m_path->m_points[i].m_unk0x18;
+				total += follower->m_path->m_points[i].m_duration;
 			}
 
 			follower->m_duration = total;
@@ -1171,7 +1171,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		start = 0;
 		for (i = 0; i < path->m_count; i++) {
 			start = end;
-			end += path->m_points[i].m_unk0x18;
+			end += path->m_points[i].m_duration;
 			if (end >= elapsed) {
 				break;
 			}
@@ -1186,7 +1186,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 				elapsed = 0;
 				follower->m_startClock = p_clock;
 				start = 0;
-				end = path->m_points[0].m_unk0x18;
+				end = path->m_points[0].m_duration;
 				StartRamp(&follower->m_x, path->m_points[0].m_x, path->m_points[0].m_x, 0.3);
 				StartRamp(&follower->m_y, path->m_points[0].m_y, path->m_points[0].m_y, 0.3);
 				StartRamp(&follower->m_z, path->m_points[0].m_z, path->m_points[0].m_z, 0.3);
@@ -1199,7 +1199,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 				elapsed -= follower->m_duration;
 				follower->m_startClock = p_clock - elapsed;
 				start = 0;
-				end = path->m_points[0].m_unk0x18;
+				end = path->m_points[0].m_duration;
 			}
 		}
 
@@ -1211,7 +1211,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			next = &path->m_points[i + 1];
 		}
 
-		t = FixedDiv16(elapsed - start, point->m_unk0x18);
+		t = FixedDiv16(elapsed - start, point->m_duration);
 		follower->m_x.m_target = point->m_x + FixedMul16(t, next->m_x - point->m_x);
 		follower->m_y.m_target = point->m_y + FixedMul16(t, next->m_y - point->m_y);
 		follower->m_z.m_target = point->m_z + FixedMul16(t, next->m_z - point->m_z);
@@ -1221,7 +1221,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			UpdateRamp(&follower->m_y),
 			UpdateRamp(&follower->m_z)
 		);
-		angle = point->m_unk0x10;
+		angle = point->m_heading;
 		if (follower->m_rotate) {
 			angle += FixedAtan2(next->m_x - point->m_x, next->m_z - point->m_z);
 		}
@@ -1237,7 +1237,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 
 		follower->m_heading.m_target = angle;
 		follower->m_heading.m_value = angle - delta;
-		angle = point->m_unk0x0c;
+		angle = point->m_pitch;
 		if (follower->m_rotate) {
 			angle -= FixedAsin((next->m_y - point->m_y) << 13);
 		}
@@ -1253,7 +1253,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 
 		follower->m_pitch.m_target = angle;
 		follower->m_pitch.m_value = angle - delta;
-		angle = point->m_unk0x14;
+		angle = point->m_roll;
 		delta = angle - follower->m_roll.m_value;
 		while (delta > 0xb40000) {
 			delta -= 0x1680000;

@@ -18,8 +18,8 @@ typedef struct MenuDefinition {
 	MechS32 m_backgroundId;        // 0x10 — a SHP resource, -1: none
 	void* m_background;            // 0x14
 	PANE* m_backgroundTarget;      // 0x18
-	MechS32 m_shape;               // 0x1c — a SHP resource, -1: none
-	void* m_unk0x20;               // 0x20
+	MechS32 m_cursorShapeId;       // 0x1c — a SHP resource, -1: none
+	void* m_cursorShape;           // 0x20
 	MechS32 m_openSound;           // 0x24 — played on opening a subpage, -1: none
 	MechS32 m_moveSound;           // 0x28 — played on moving the selection, -1: none
 	MechS32 m_fontId;              // 0x2c — a FONT resource

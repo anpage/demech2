@@ -10,7 +10,7 @@
 // SIZE 0x28
 typedef struct MechSection {
 	MechS32 m_armor[2];  // 0x00 — front and rear
-	MechS32 m_unk0x08;   // 0x08
+	MechS32 m_internal;  // 0x08
 	MechU16 m_slots[12]; // 0x0c — critical slots; above 10000, an ammunition bin id
 	MechS16 m_slotCount; // 0x24 — the slots in use
 	MechS16 m_flags;     // 0x26 — 0x2000: destroyed

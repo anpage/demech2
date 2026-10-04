@@ -55,7 +55,7 @@ MechU32 g_shapeFlags = 0;
 MechU32 g_faceIdCount = 0;
 
 // GLOBAL: MW2 0x100ba688
-MechS32 g_unk0x100ba688 = 4;
+MechS32 g_subShapeCollisionType = 4;
 
 // GLOBAL: MW2 0x100ba68c
 MechS32 g_unk0x100ba68c = 0;
@@ -282,8 +282,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		x = vertex->m_x;
 		y = vertex->m_y;
 		z = vertex->m_z;
-		u = vertex->m_unk0x0c;
-		v = vertex->m_unk0x0e;
+		u = vertex->m_u;
+		v = vertex->m_v;
 		if (i < vertexCount) {
 			AddShapeVertex(
 				*p_shape,
@@ -298,8 +298,8 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		checksum += vertex->m_x;
 		checksum += vertex->m_y;
 		checksum += vertex->m_z;
-		checksum += vertex->m_unk0x0c;
-		checksum += vertex->m_unk0x0e;
+		checksum += vertex->m_u;
+		checksum += vertex->m_v;
 		checksum = checksum % 0x100000;
 	}
 
@@ -369,7 +369,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		UpdateObj(obj);
 		if (*p_count) {
 			AddSceneShape(*p_shape);
-			SetShapeCollisionType(*p_shape, g_unk0x100ba688);
+			SetShapeCollisionType(*p_shape, g_subShapeCollisionType);
 			SetShapeKind(*p_shape, 0x50);
 		}
 
@@ -391,10 +391,10 @@ MechU32 MapFaceId(MechU32 p_id)
 	if (g_shapeOwnerSet && ((p_id & 0xff) == 0 || (p_id & 0xff) == 0x14)) {
 		if (g_shapeOwnerKind == 0x100) {
 			team = g_players[g_shapeOwner]->m_team;
-			offset = g_teams[team].m_unk0x08;
+			offset = g_teams[team].m_affiliation;
 		}
-		else if (g_gameThings[g_shapeOwner].m_unk0x0c != -1) {
-			offset = g_gameThings[g_shapeOwner].m_unk0x0c;
+		else if (g_gameThings[g_shapeOwner].m_affiliation != -1) {
+			offset = g_gameThings[g_shapeOwner].m_affiliation;
 		}
 
 		p_id += offset;

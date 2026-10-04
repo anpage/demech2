@@ -26,8 +26,8 @@ extern "C"
 	void FadeToTimeOfDayPhase(MechS32 p_index);
 	MechS32 IsInfraredOn(undefined4 p_unk0x00);
 	void SetInfrared(undefined4 p_unk0x00, MechS32 p_state);
-	void FUN_1007d931(void);
-	void FUN_1007d97c(void);
+	void QuadrupleMechCooling(void);
+	void QuarterMechCooling(void);
 
 #ifdef __cplusplus
 }

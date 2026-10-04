@@ -15,14 +15,14 @@ struct DifficultyCfg {
 	MechU8 m_splashDamage;    // 0x02
 	MechU8 m_collisionDamage; // 0x03
 	MechU8 m_heatTracking;    // 0x04
-	MechU8 m_unk0x05;         // 0x05
+	MechU8 m_enemySkill;      // 0x05
 	undefined m_unk0x06[2];   // 0x06
-	MechU8 m_unk0x08;         // 0x08
-	MechU8 m_unk0x09;         // 0x09
-	MechU8 m_unk0x0a;         // 0x0a
-	MechS32 m_unk0x0b;        // 0x0b
-	MechS32 m_unk0x0f;        // 0x0f
-	MechS32 m_unk0x13;        // 0x13
+	MechU8 m_regenerate;      // 0x08
+	MechU8 m_radar;           // 0x09
+	MechU8 m_teamGame;        // 0x0a
+	MechS32 m_timeOfDay;      // 0x0b
+	MechS32 m_gravity;        // 0x0f
+	MechS32 m_temperature;    // 0x13
 };
 
 #pragma pack()

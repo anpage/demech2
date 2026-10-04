@@ -16,8 +16,8 @@ extern "C"
 
 	void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan);
 	void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object);
-	void FUN_1004ca0d(void);
-	void FUN_1004ca29(MechU32 p_level);
+	void FlashZappedPalette(void);
+	void FlashZappedPaletteLevel(MechU32 p_level);
 	void FadeToEndPalette(MechS32 p_alternate);
 	void EmitWreckSmoke(struct Mech* p_mech);
 	void BreakUpMech(struct Mech* p_mech);

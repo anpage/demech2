@@ -23,11 +23,12 @@ typedef struct DifficultyCfg {
 	undefined m_enemySkill;      // 0x05 — 0 easy, 1 medium, 2 hard (MW2SHELL); 2 in network games
 	undefined m_unk0x06[2];      // 0x06
 	undefined m_regenerate;      // 0x08 — after the mission ends, the local player can regenerate
-	undefined m_unk0x09;         // 0x09 — set outside network games
-	undefined m_unk0x0a;         // 0x0a
-	undefined4 m_unk0x0b;        // 0x0b — cleared outside network games
-	undefined4 m_gravity;        // 0x0f — overrides the planet's gravity when set; cleared outside network games
-	undefined4 m_temperature;    // 0x13 — overrides the planet's temperature when set; cleared outside network games
+	undefined
+		m_radar; // 0x09 — the radar and auto targeting (NETMECHW's "Radar + Auto Targeting"); set outside network games
+	undefined m_teamGame;     // 0x0a
+	undefined4 m_timeOfDay;   // 0x0b — the time of day phase a network game starts at; cleared outside network games
+	undefined4 m_gravity;     // 0x0f — overrides the planet's gravity when set; cleared outside network games
+	undefined4 m_temperature; // 0x13 — overrides the planet's temperature when set; cleared outside network games
 } DifficultyCfg;
 #pragma pack()
 
@@ -44,7 +45,7 @@ extern "C"
 	extern MechS32 g_cockpitPanelEnabled[c_panelCount];
 	extern MechS32 g_cockpitPowerState;
 	extern struct PANE g_cockpitPanelPanes[c_panelCount];
-	extern MechS32 g_unk0x100ae37c;
+	extern MechS32 g_punchInAutoHeadingRequested;
 	extern MechChar g_gameDir[256];
 	extern MechS32 g_hitFadePending;
 

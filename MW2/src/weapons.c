@@ -429,7 +429,7 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 			continue;
 		}
 
-		if (slot->m_unk0x00 != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty && index != selected) {
+		if (slot->m_status != -1 && slot->m_group == group && slot->m_state != c_weaponEmpty && index != selected) {
 			found = TRUE;
 			p_mech->m_selectedWeapon = index;
 			break;
@@ -462,11 +462,11 @@ void SelectNextWeapon(Mech* p_mech)
 			continue;
 		}
 
-		if (g_unk0x100a2bf8 && p_mech->m_player->m_index == g_localPlayerId) {
+		if (g_manualWeaponCycle && p_mech->m_player->m_index == g_localPlayerId) {
 			return;
 		}
 
-		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_unk0x00 == -1) {
+		if (p_mech->m_weapons[p_mech->m_selectedWeapon].m_status == -1) {
 			p_mech->m_selectedWeapon = 0;
 		}
 
@@ -504,7 +504,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 				continue;
 			}
 
-			if (p_mech->m_weapons[i].m_unk0x00 != -1 && p_mech->m_weapons[i].m_group == group &&
+			if (p_mech->m_weapons[i].m_status != -1 && p_mech->m_weapons[i].m_group == group &&
 				p_mech->m_weapons[i].m_state != c_weaponEmpty) {
 				found = TRUE;
 				p_mech->m_selectedWeapon = selected = i;
@@ -548,7 +548,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 			continue;
 		}
 
-		if (p_mech->m_weapons[i].m_unk0x00 != -1 && p_mech->m_weapons[i].m_group == p_group &&
+		if (p_mech->m_weapons[i].m_status != -1 && p_mech->m_weapons[i].m_group == p_group &&
 			p_mech->m_weapons[i].m_state != c_weaponEmpty) {
 			found = TRUE;
 			p_mech->m_selectedWeapon = selected = i;
@@ -737,7 +737,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 	next = p_mech->m_selectedWeapon;
 	group = p_mech->m_weapons[next].m_group;
 	next++;
-	if (p_mech->m_weapons[next].m_unk0x00 == -1) {
+	if (p_mech->m_weapons[next].m_status == -1) {
 		next = 0;
 	}
 

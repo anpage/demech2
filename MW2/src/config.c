@@ -168,9 +168,9 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL
 };
 
-// Set when UpdateCockpit should run FUN_10007cb5 on its next frame.
+// Set when UpdateCockpit should run PunchInAutoHeading on its next frame.
 // GLOBAL: MW2 0x100ae37c
-MechS32 g_unk0x100ae37c = 0;
+MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
 MechS32 g_hitFadePending = 0;
@@ -473,7 +473,7 @@ void InitCockpitPanels(void)
 	}
 
 	g_cockpitPanelEnabled[1] = FALSE;
-	if (!g_difficulty->m_unk0x09) {
+	if (!g_difficulty->m_radar) {
 		g_cockpitPanelEnabled[c_panelTarget] = FALSE;
 	}
 
@@ -517,7 +517,7 @@ void InitCockpitPanels(void)
 	g_eyeHeightOffset = &mech->m_cockpitHeight;
 	g_eyeTwist = &mech->m_torsoTwist.m_value;
 	InitHudGauges();
-	if (g_difficulty->m_unk0x09) {
+	if (g_difficulty->m_radar) {
 		InitCockpitViews();
 	}
 }
@@ -595,12 +595,12 @@ void UpdateCockpit(Mech* p_mech)
 		p_mech->m_player->m_targetInfo.m_position.m_y - p_mech->m_player->m_position.m_y,
 		p_mech->m_player->m_targetInfo.m_position.m_z - p_mech->m_player->m_position.m_z
 	);
-	if (g_unk0x100ae37c) {
+	if (g_punchInAutoHeadingRequested) {
 		if (g_cockpitPowerState == 2) {
-			FUN_10007cb5(p_mech);
+			PunchInAutoHeading(p_mech);
 		}
 
-		g_unk0x100ae37c = 0;
+		g_punchInAutoHeadingRequested = 0;
 	}
 
 	if (g_overrideShutdown && g_cockpitPowerState != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
@@ -616,7 +616,7 @@ void UpdateCockpit(Mech* p_mech)
 	PlayCockpitWarnings(p_mech);
 	switch (g_cockpitPowerState) {
 	case 2:
-		if (g_difficulty->m_unk0x09) {
+		if (g_difficulty->m_radar) {
 			RunMapView();
 		}
 
@@ -639,7 +639,7 @@ void UpdateCockpit(Mech* p_mech)
 		UpdateEngineNote(p_mech->m_throttle.m_value);
 		break;
 	case 1:
-		if (g_difficulty->m_unk0x09) {
+		if (g_difficulty->m_radar) {
 			PowerUpMapView();
 		}
 
@@ -652,7 +652,7 @@ void UpdateCockpit(Mech* p_mech)
 		StartEngineNote();
 		break;
 	default:
-		if (g_difficulty->m_unk0x09) {
+		if (g_difficulty->m_radar) {
 			PowerDownMapView();
 		}
 
@@ -671,14 +671,14 @@ void UpdateCockpit(Mech* p_mech)
 	}
 }
 
-// Shuts the cockpit panels down: ResetMapView outside network games (DifficultyCfg::m_unk0x09),
+// Shuts the cockpit panels down: ResetMapView with the radar on (DifficultyCfg::m_radar),
 // each panel's m_shutdown hook, then every 2D animation.
 // FUNCTION: MW2 0x100704c1
 void ShutdownCockpitPanels(void)
 {
 	MechS32 i;
 
-	if (g_difficulty->m_unk0x09) {
+	if (g_difficulty->m_radar) {
 		ResetMapView();
 	}
 
@@ -723,7 +723,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_hitFadePending) {
 		g_hitFadeCount++;
-		FUN_1004ca29(g_hitFadeCount * 3);
+		FlashZappedPaletteLevel(g_hitFadeCount * 3);
 		g_hitFadePending = 0;
 	}
 
@@ -1209,9 +1209,9 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 	}
 	else {
 		(*p_cfg)->m_gravity = 0;
-		(*p_cfg)->m_unk0x0b = 0;
+		(*p_cfg)->m_timeOfDay = 0;
 		(*p_cfg)->m_temperature = 0;
-		(*p_cfg)->m_unk0x09 = 1;
+		(*p_cfg)->m_radar = 1;
 	}
 
 	if (g_isNetworkGame > 1) {

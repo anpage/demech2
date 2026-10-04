@@ -7,12 +7,12 @@
 // The functions and globals of unk1000f0f0.cpp that other units use.
 void FUN_1000f0f0();
 void FUN_1000f172();
-void FUN_1000f52c(
+void WriteNetDifficultyCfg(
 	CopperField0x4d::Options p_options,
-	MechU8 p_unk0x13,
-	MechU8 p_unk0x0f,
-	MechU8 p_unk0x0b,
-	MechU8 p_unk0x0a
+	MechU8 p_temperature,
+	MechU8 p_gravity,
+	MechU8 p_timeOfDay,
+	MechU8 p_teamGame
 );
 
 #endif // UNK1000F0F0_H

@@ -15,7 +15,7 @@ extern "C"
 #endif
 
 	extern MechS32 g_temperature;
-	extern MechS32 g_unk0x100ba624;
+	extern MechS32 g_hostileAtmosphere;
 	extern MechS32 g_sampleRates[10];
 	extern AudioEngine* g_audioEngine;
 	extern SoundInfo g_soundInfo[1200];

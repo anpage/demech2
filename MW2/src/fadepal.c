@@ -82,16 +82,16 @@ void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct 
 	g_projectionDirty = 0;
 }
 
-// Fades to palette 0x11 over two seconds (0x16a clock ticks).
+// Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
-void FUN_1004ca0d(void)
+void FlashZappedPalette(void)
 {
 	StartPaletteFade(0x11, 0x16a, 1);
 }
 
-// Fades to palette 0x11 over p_level (0-15) fifteenths of two seconds.
+// Flashes palette slot 0x11 (ZAPPED) over p_level (0-15) fifteenths of two seconds.
 // FUNCTION: MW2 0x1004ca29
-void FUN_1004ca29(MechU32 p_level)
+void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
 

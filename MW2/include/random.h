@@ -14,8 +14,8 @@ extern "C"
 	MechS32 RandomNormal(void);
 	MechS32 RandomIntBelow2(MechS32 p_max);
 	MechS32 RandomNormal2(void);
-	MechS32 FUN_100737b3(void);
-	MechS32 FUN_100737c5(void);
+	MechS32 RandomNormalMean(void);
+	MechS32 RandomNormalDeviation(void);
 
 #ifdef __cplusplus
 }

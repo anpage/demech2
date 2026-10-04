@@ -250,12 +250,16 @@ void LoadMenuResources(MenuDefinition* p_menu)
 		p_menu->m_background = NULL;
 	}
 
-	if (p_menu->m_shape != -1) {
-		p_menu->m_unk0x20 =
-			LoadCachedResource(g_mw2PrjHandle, p_menu->m_shape + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	if (p_menu->m_cursorShapeId != -1) {
+		p_menu->m_cursorShape = LoadCachedResource(
+			g_mw2PrjHandle,
+			p_menu->m_cursorShapeId + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 	}
 	else {
-		p_menu->m_unk0x20 = NULL;
+		p_menu->m_cursorShape = NULL;
 	}
 
 	p_menu->m_font =
@@ -310,9 +314,9 @@ void DeactivateMenu(MenuSlot* p_slot)
 			menu->m_background = NULL;
 		}
 
-		if (menu->m_unk0x20) {
-			UnlockCachedResource(menu->m_shape + g_artResolution, g_resourceTypeTags[c_resTagShp]);
-			menu->m_unk0x20 = NULL;
+		if (menu->m_cursorShape) {
+			UnlockCachedResource(menu->m_cursorShapeId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			menu->m_cursorShape = NULL;
 		}
 
 		if (menu->m_font) {
@@ -762,8 +766,8 @@ void RunMenuItems(MenuDefinition* p_menu)
 		controlPos.m_y += offset;
 		cursor.m_y += offset;
 		offset = p_menu->m_textOrigin.m_y;
-		if (selected == i && p_menu->m_unk0x20) {
-			VFX_shape_draw(target, p_menu->m_unk0x20, 0, cursor.m_x, cursor.m_y);
+		if (selected == i && p_menu->m_cursorShape) {
+			VFX_shape_draw(target, p_menu->m_cursorShape, 0, cursor.m_x, cursor.m_y);
 		}
 
 		if (item->m_type != 3) {

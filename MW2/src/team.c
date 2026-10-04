@@ -285,7 +285,7 @@ MechS32 GetThingSide(MechS32 p_thing)
 {
 	MechS32 index;
 
-	index = g_gameThings[p_thing].m_unk0x0c;
+	index = g_gameThings[p_thing].m_affiliation;
 	if (index < 0) {
 		return 2;
 	}

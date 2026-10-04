@@ -54,7 +54,7 @@ typedef struct NetStateMsg {
 	MechS32 m_rearArmor2;    // 0x0d — m_sections[2]'s
 	MechS32 m_rearArmor1;    // 0x11 — m_sections[1]'s
 	MechS32 m_frontArmor[8]; // 0x15 — each section's m_armor[0]
-	MechS32 m_unk0x35[8];    // 0x35 — each section's m_unk0x08
+	MechS32 m_internal[8];   // 0x35 — each section's m_unk0x08
 	MechS32 m_clock;         // 0x55
 	MechS32 m_x;             // 0x59
 	MechS32 m_y;             // 0x5d
@@ -540,7 +540,7 @@ void SendStateMsg(void)
 		}
 
 		g_stateMsg->m_frontArmor[i] = section->m_armor[0];
-		g_stateMsg->m_unk0x35[i] = section->m_unk0x08;
+		g_stateMsg->m_internal[i] = section->m_internal;
 	}
 
 	NetSend((MechU8*) g_stateMsg, g_stateMsgSize);
@@ -723,13 +723,13 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		damage1 = damage2 = 0;
 		section = &mech->m_sections[i];
 		section->m_armor[0] = msg->m_frontArmor[i];
-		section->m_unk0x08 = msg->m_unk0x35[i];
+		section->m_internal = msg->m_internal[i];
 		switch (i + 1) {
 		case 4:
 			section->m_armor[1] = msg->m_rearArmor3;
 			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
-				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+				damage2 = 15 - ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) /
 								   (MechS32) (levels << 16);
 			}
 			break;
@@ -737,7 +737,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 			section->m_armor[1] = msg->m_rearArmor2;
 			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
-				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+				damage2 = 15 - ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) /
 								   (MechS32) (levels << 16);
 			}
 			break;
@@ -745,7 +745,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 			section->m_armor[1] = msg->m_rearArmor1;
 			levels = (section->m_flags & 0xf0) >> 4;
 			if (levels) {
-				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+				damage2 = 15 - ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) /
 								   (MechS32) (levels << 16);
 			}
 			break;
@@ -755,12 +755,12 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 
 		levels = section->m_flags & 0xf;
 		if (levels) {
-			damage1 =
-				15 - ((section->m_unk0x08 + section->m_armor[0] / g_localArmorPerLevel) * 3) / (MechS32) (levels << 16);
+			damage1 = 15 - ((section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3) /
+							   (MechS32) (levels << 16);
 		}
 
 		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
-		if (section->m_unk0x08 <= 0 && !(section->m_flags & 0x2000)) {
+		if (section->m_internal <= 0 && !(section->m_flags & 0x2000)) {
 			DestroySection(player->m_killer, mech, i + 1);
 		}
 	}

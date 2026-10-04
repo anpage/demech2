@@ -39,7 +39,7 @@ extern "C"
 	void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level);
 	struct SceneObject* GetClassObject(MechS32 p_index);
 	Shape* GetClassShape(MechS32 p_index);
-	void FUN_1001da14(MechS32 p_index, MechU16 p_value);
+	void SetClassEntryPartId(MechS32 p_index, MechU16 p_value);
 	void ChoosePlayerDetailLevels(void);
 	void ReleaseObjShape(struct SceneObject* p_obj);
 	void ForgetObjShape(struct SceneObject* p_obj);

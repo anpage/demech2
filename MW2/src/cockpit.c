@@ -950,7 +950,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 
 	colors = layout->m_colors;
 	result = 0;
-	if (g_renderSettings.m_unk0x40) {
+	if (g_renderSettings.m_greyscale) {
 		result |= 0xf0;
 	}
 

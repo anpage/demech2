@@ -18,7 +18,7 @@ extern "C"
 	extern MechS32 g_killCount;
 
 	void RunAutopilot(struct Mech* p_mech);
-	void FUN_10007cb5(struct Mech* p_mech);
+	void PunchInAutoHeading(struct Mech* p_mech);
 	void CalculateHeat(struct Mech* p_mech);
 	void DestroyMech(MechS32 p_killer, struct Mech* p_mech);
 	void KillMech(MechS32 p_killer, struct Mech* p_mech);

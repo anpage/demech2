@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_brightenDetail;
+	extern MechS32 g_brightenDamage;
 	extern MechS32 g_ambientLight;
 
 	MechU32 GetFaceColor(struct Face* p_face, struct Vertex* p_vertices, MechU32 p_color, MechS32 p_distance);

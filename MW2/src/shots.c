@@ -104,7 +104,7 @@ MechS32 g_savedDirectionalLight;
 MechS32 g_savedAmbientLight;
 
 // GLOBAL: MW2 0x100c7604
-MechS32 g_savedUnk0x100a6d04;
+MechS32 g_savedDistanceFade;
 
 // GLOBAL: MW2 0x100e9250
 CareerRecord g_careerRecord;
@@ -818,9 +818,9 @@ void SpawnEffectEx(
 						g_eyepoint->m_ambientLight = 0x40;
 					}
 
-					g_savedUnk0x100a6d04 = g_renderSettings.m_unk0x3c;
+					g_savedDistanceFade = g_renderSettings.m_distanceFade;
 					g_eyepoint->m_directionalLight = 0;
-					g_renderSettings.m_unk0x3c = 0;
+					g_renderSettings.m_distanceFade = 0;
 				}
 
 				g_effectCameraEffect = slot;
@@ -909,7 +909,7 @@ void UpdateEffects(void)
 						g_eyepoint->m_lightZ = g_savedLightZ;
 						g_eyepoint->m_directionalLight = g_savedDirectionalLight;
 						g_eyepoint->m_ambientLight = g_savedAmbientLight;
-						g_renderSettings.m_unk0x3c = g_savedUnk0x100a6d04;
+						g_renderSettings.m_distanceFade = g_savedDistanceFade;
 						effect->m_hasCamera = 0;
 						g_effectCameraActive = 0;
 						g_effectCameraEffect = -1;

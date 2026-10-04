@@ -99,13 +99,13 @@ MechS32 RandomNormal2(void)
 }
 
 // FUNCTION: MW2 0x100737b3
-MechS32 FUN_100737b3(void)
+MechS32 RandomNormalMean(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x100737c5
-MechS32 FUN_100737c5(void)
+MechS32 RandomNormalDeviation(void)
 {
 	return 0x400;
 }

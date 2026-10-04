@@ -148,7 +148,7 @@ void ZeroGameThing(MechS32 p_index)
 	thing->m_teamsReached = 0;
 	thing->m_staticObject = -1;
 	thing->m_hitPoints = 0;
-	thing->m_unk0x0c = 0;
+	thing->m_affiliation = 0;
 	thing->m_name[0] = '\0';
 }
 

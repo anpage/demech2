@@ -77,8 +77,8 @@ typedef struct BwdPlanetRecord {
 	MechS32 m_mapShadeTop;    // 0x2c
 	MechS32 m_mapShadeBase;   // 0x30
 	MechS32 m_slideSlope;     // 0x34
-	MechS32 m_unk0x38;        // 0x38
-	MechS32 m_unk0x3c;        // 0x3c
+	MechS32 m_breathable;     // 0x38
+	MechS32 m_brightenDamage; // 0x3c
 	MechS32 m_noEffectCamera; // 0x40
 	MechS32 m_noSky;          // 0x44
 	MechS32 m_noGround;       // 0x48
@@ -189,12 +189,12 @@ typedef struct BwdXformRecord {
 } BwdXformRecord;
 
 // A record of an object class or thing, and a value: scrounge, thing, gamepiece, eyeobj, pof,
-// objloc, booyowthing, xplode, lightobj.
+// objloc, booyowthing, xplode, lightobj. Only xplode records carry m_effectType.
 typedef struct BwdIdRecord {
-	BwdRecord m_header; // 0x00
-	MechS16 m_id;       // 0x08
-	MechS16 m_value;    // 0x0a
-	MechS16 m_unk0x0c;  // 0x0c
+	BwdRecord m_header;   // 0x00
+	MechS16 m_id;         // 0x08
+	MechS16 m_value;      // 0x0a
+	MechS16 m_effectType; // 0x0c
 } BwdIdRecord;
 
 // gamething: an object (and its replacement) that counts for the mission.
@@ -213,7 +213,7 @@ typedef struct BwdNavPointRecord {
 	BwdRecord m_header;    // 0x00
 	Vector3 m_position;    // 0x08
 	MechS32 m_heading;     // 0x14
-	MechS16 m_unk0x18;     // 0x18
+	MechS16 m_used;        // 0x18
 	MechS16 m_flags;       // 0x1a
 	MechS16 m_owner;       // 0x1c
 	MechS16 m_team;        // 0x1e
@@ -344,8 +344,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_temperature = planet->m_temperature;
 			}
 
-			g_unk0x100ba624 = planet->m_unk0x38 == 0;
-			g_brightenDetail = planet->m_unk0x3c;
+			g_hostileAtmosphere = planet->m_breathable == 0;
+			g_brightenDamage = planet->m_brightenDamage;
 			g_effectCameraEnabled = planet->m_noEffectCamera == 0;
 			g_renderSettings.m_drawSky = planet->m_noSky == 0;
 			g_renderSettings.m_drawGround = planet->m_noGround == 0;
@@ -423,7 +423,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdNowRecord* now = (BwdNowRecord*) node;
 
 			if (g_isNetworkGame && g_difficulty) {
-				g_timeOfDayPhase = g_difficulty->m_unk0x0b;
+				g_timeOfDayPhase = g_difficulty->m_timeOfDay;
 			}
 			else {
 				g_timeOfDayPhase = now->m_timeOfDay;
@@ -463,7 +463,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_eyepoint->m_ambientLight = light->m_ambient;
 			g_renderSettings.m_fadeDistance = light->m_fadeDistance;
 			if (g_renderSettings.m_fadeDistance > 0) {
-				g_renderSettings.m_unk0x3c = 1;
+				g_renderSettings.m_distanceFade = 1;
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGroundMap]) {
@@ -907,7 +907,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				thing = &g_gameThings[index];
 				thing->m_flags = gameThing->m_flags;
 				thing->m_hitPoints = hitPoints;
-				thing->m_unk0x0c = affiliation;
+				thing->m_affiliation = affiliation;
 				strncpy(thing->m_name, gameThing->m_name, 0x16);
 				thing->m_name[0x15] = '\0';
 				strncpy(thing->m_shortName, gameThing->m_shortName, 0x16);
@@ -956,7 +956,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (value != -1) {
 				index = FindThingIdxById(id);
 				if (index != -1) {
-					FUN_1001da14(index, value);
+					SetClassEntryPartId(index, value);
 				}
 			}
 		}
@@ -1000,7 +1000,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			id = xplode->m_id;
 			animation = xplode->m_value;
-			effectType = xplode->m_unk0x0c;
+			effectType = xplode->m_effectType;
 			if (g_nextEffectRecord >= 0 && g_nextEffectRecord < 0x100) {
 				if (effectType < 0 || effectType >= 0x20) {
 					effectType = 3;
@@ -1050,7 +1050,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				nav->m_position[0] = position.m_x;
 				nav->m_position[1] = position.m_y;
 				nav->m_position[2] = position.m_z;
-				nav->m_used = navPoint->m_unk0x18;
+				nav->m_used = navPoint->m_used;
 				nav->m_flags = navPoint->m_flags;
 				nav->m_team = navPoint->m_team;
 				nav->m_owner = navPoint->m_owner;

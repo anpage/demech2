@@ -73,7 +73,7 @@ MechS32 g_mascEngaged = 0;
 MechS32 g_unk0x100a2bf4 = 0;
 
 // GLOBAL: MW2 0x100a2bf8
-MechS32 g_unk0x100a2bf8 = 0;
+MechS32 g_manualWeaponCycle = 0;
 
 // Set when the local mech lands while g_unk0x100a2c00 is on (UpdateMech).
 // GLOBAL: MW2 0x100a2bfc
@@ -1144,26 +1144,26 @@ void UpdateLocalMech(Mech* p_mech)
 	case 4:
 		if (!g_localMechDestroyed) {
 			g_localMechDestroyed = 1;
-			FUN_1004ca0d();
+			FlashZappedPalette();
 			g_localMechLost = 1;
 			SetViewMode(c_viewTrack);
 		}
 		break;
 	case 2:
-		if (g_unk0x100a2bf8) {
+		if (g_manualWeaponCycle) {
 			if (!mech->m_unk0xb4) {
 				PlaySoundEffect(0xfd, 0x32, 0x40, 5, 0x32);
 				SelectNextWeapon(mech);
 			}
 
-			g_unk0x100a2bf8 = 0;
+			g_manualWeaponCycle = 0;
 		}
 
 		if (mech->m_player->m_steering->m_weaponCycle && !mech->m_unk0xb4) {
 			PlaySoundEffect(0xfd, 0x32, 0x40, 5, 0x32);
-			g_unk0x100a2bf8 = 1;
+			g_manualWeaponCycle = 1;
 			SelectNextWeapon(mech);
-			g_unk0x100a2bf8 = 0;
+			g_manualWeaponCycle = 0;
 		}
 
 		if (mech->m_player->m_steering->m_weaponCycleGroup) {
@@ -1304,7 +1304,7 @@ void InitMechArrays(struct Mech* p_mech)
 	p_mech->m_ammoBins = bins;
 	slot = p_mech->m_weapons;
 	for (i = 0; i < 10; i++) {
-		slot->m_unk0x00 = -1;
+		slot->m_status = -1;
 		slot->m_type = -1;
 		slot->m_state = c_weaponEmpty;
 		slot->m_time = 0;
@@ -1323,14 +1323,14 @@ void InitMechArrays(struct Mech* p_mech)
 
 	bin = p_mech->m_ammoBins;
 	for (i = 0; i < 25; i++) {
-		bin->m_unk0x00 = -1;
-		bin->m_unk0x02 = 0;
+		bin->m_type = -1;
+		bin->m_shots = 0;
 		bin->m_weapon = -1;
 		bin->m_id = 0;
 		bin->m_unk0x08 = 0;
-		bin->m_unk0x0a = 0;
-		bin->m_unk0x0c = 0;
-		bin->m_unk0x10 = 0;
+		bin->m_damage = 0;
+		bin->m_shotHeat = 0;
+		bin->m_heat = 0;
 		bin++;
 	}
 }

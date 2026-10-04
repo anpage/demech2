@@ -81,8 +81,8 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
 	LoadMechConfig(
 		mech,
 		g_rememberedMechs[p_player].m_name,
-		g_rememberedMechs[p_player].m_unk0x00,
-		g_rememberedMechs[p_player].m_unk0x0d
+		g_rememberedMechs[p_player].m_id,
+		g_rememberedMechs[p_player].m_config
 	);
 	mech->m_player->m_obj = RestoreMechSegments(g_mechSegments[p_player]);
 	ShowObjTree(mech->m_player->m_obj);
@@ -115,7 +115,7 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
 }
 
 // FUNCTION: MW2 0x1007fecf
-void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechChar* p_unk0x0c)
+void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechS32 id;
 
@@ -129,9 +129,9 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_unk0x08, MechCha
 		return;
 	}
 
-	g_rememberedMechs[id].m_unk0x00 = p_unk0x08;
+	g_rememberedMechs[id].m_id = p_id;
 	strcpy(g_rememberedMechs[id].m_name, p_name);
-	strcpy(g_rememberedMechs[id].m_unk0x0d, p_unk0x0c);
+	strcpy(g_rememberedMechs[id].m_config, p_config);
 }
 
 // FUNCTION: MW2 0x1007ff9c

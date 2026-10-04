@@ -246,7 +246,7 @@ void SetMidiVolume(MechS16 p_volume)
 }
 
 // FUNCTION: MW2 0x100219ea
-void FUN_100219ea(void)
+void ApplyMidiVolume(void)
 {
 }
 

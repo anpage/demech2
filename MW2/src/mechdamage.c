@@ -128,10 +128,10 @@ void RunAutopilot(Mech* p_mech)
 	}
 }
 
-// Turns the mech's player towards the mech's heading offset (m_unk0x0c) unless the autopilot
-// steers it.
+// The PUNCH_IN_AUTO_HDG game key: sets the player's target heading (the HUD's bearing marker,
+// which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
-void FUN_10007cb5(Mech* p_mech)
+void PunchInAutoHeading(Mech* p_mech)
 {
 	MechS32 heading;
 
@@ -324,7 +324,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 	ChooseNetworkWinner();
 	if (p_mech->m_powerState == 5) {
-		if (g_unk0x100ba624) {
+		if (g_hostileAtmosphere) {
 			if (p_mech->m_player->m_index == g_localPlayerId) {
 				g_careerRecord.m_outcome = 4;
 				PlayCockpitSound(0x20, -1);
@@ -502,7 +502,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 		return;
 	}
 
-	section->m_unk0x08 = 0;
+	section->m_internal = 0;
 	section->m_flags |= 0x2000;
 	DestroySectionSlots(p_attacker, p_mech, p_section);
 	switch (p_section) {
@@ -588,7 +588,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			}
 
 			if (weapon->m_slotId == id) {
-				if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && weapon->m_unk0x00) {
+				if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && weapon->m_status) {
 					switch (kind) {
 					case 0:
 					case 1:
@@ -656,7 +656,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					SayCriticalHit(0);
 				}
 
-				weapon->m_unk0x00 = 0;
+				weapon->m_status = 0;
 				weapon->m_state = c_weaponEmpty;
 				break;
 			}
@@ -674,14 +674,14 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				}
 
 				if (weapon) {
-					weapon->m_ammo -= bin->m_unk0x02;
+					weapon->m_ammo -= bin->m_shots;
 					if (!weapon->m_ammo) {
-						weapon->m_unk0x00 = 0;
+						weapon->m_status = 0;
 						weapon->m_state = c_weaponEmpty;
 					}
 				}
 
-				if (!p_recursing && bin->m_unk0x02) {
+				if (!p_recursing && bin->m_shots) {
 					if (p_mech->m_player->m_index == g_localPlayerId) {
 						if (p_mech->m_powerState == 2) {
 							PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
@@ -705,10 +705,10 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 						SpawnEffect(p_attacker, 7, x, y, z, x, y, z);
 					}
 
-					damage = bin->m_unk0x02 * bin->m_unk0x0a;
-					section->m_unk0x08 -= damage << 16;
-					if (section->m_unk0x08 < 0) {
-						section->m_unk0x08 = 0;
+					damage = bin->m_shots * bin->m_damage;
+					section->m_internal -= damage << 16;
+					if (section->m_internal < 0) {
+						section->m_internal = 0;
 						section->m_slots[p_slot] = 0;
 						DestroySection(p_attacker, p_mech, p_section);
 					}
@@ -719,7 +719,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					}
 				}
 
-				bin->m_unk0x02 = 0;
+				bin->m_shots = 0;
 			}
 
 			bin++;
@@ -793,7 +793,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(6);
 			}
 
-			if (g_unk0x100ba624 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
+			if (g_hostileAtmosphere && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
 				KillMech(p_attacker, p_mech);
 			}
 			break;
@@ -996,14 +996,14 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		}
 
 		section->m_flags |= 0x4000;
-		section->m_unk0x08 += section->m_armor[side];
+		section->m_internal += section->m_armor[side];
 		section->m_armor[side] = 0;
 		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
 			p_mech->m_powerState != 4 && p_damage > 0x20000) {
 			g_hitFadePending = 1;
 		}
 
-		if (section->m_unk0x08 <= 0) {
+		if (section->m_internal <= 0) {
 			DestroySection(p_attacker, p_mech, p_section);
 			return;
 		}
@@ -1025,11 +1025,11 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 
 	if (levels) {
 		if (p_mech->m_player->m_index == g_localPlayerId) {
-			level = 15 - ((section->m_unk0x08 + section->m_armor[side] / g_localArmorPerLevel) * 3) /
+			level = 15 - ((section->m_internal + section->m_armor[side] / g_localArmorPerLevel) * 3) /
 							 (MechS32) (levels << 16);
 		}
 		else {
-			level = 15 - ((section->m_unk0x08 + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
+			level = 15 - ((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
 							 (MechS32) (levels << 16);
 		}
 	}
@@ -1048,7 +1048,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 	}
 
 	if (p_eject && p_mech->m_player->m_index == g_localPlayerId) {
-		if (!g_unk0x100ba624) {
+		if (!g_hostileAtmosphere) {
 			p_mech->m_powerState = 5;
 			PlaySoundEffect(0xc5, 100, 0x40, 5, 0x32);
 		}

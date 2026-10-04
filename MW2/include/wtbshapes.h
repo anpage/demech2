@@ -16,7 +16,7 @@ extern "C"
 	extern MechS32 g_unk0x100ba660;
 	extern MechS32 g_unk0x100ba664;
 	extern MechU32 g_shapeFlags;
-	extern MechS32 g_unk0x100ba688;
+	extern MechS32 g_subShapeCollisionType;
 	extern MechS32 g_shapeOwnerSet;
 	extern MechS32 g_shapeOwnerKind;
 	extern MechS32 g_shapeOwner;

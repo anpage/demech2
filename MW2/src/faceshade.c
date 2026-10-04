@@ -14,10 +14,10 @@
 #include "types.h"
 #include "vertex.h"
 
-// Set by the world stream (BwdExecuteStream): GetFaceColor brightens detailed shapes instead of
+// Set by the world stream (BwdExecuteStream): GetFaceColor brightens damaged shapes instead of
 // dimming them.
 // GLOBAL: MW2 0x100a555c
-MechS32 g_brightenDetail = 0;
+MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
 // GLOBAL: MW2 0x1010b540
@@ -116,7 +116,7 @@ MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	switch (mode) {
 	case 0:
 		value = (p_color & 0xf0) >> 4;
-		if (g_renderSettings.m_unk0x40) {
+		if (g_renderSettings.m_greyscale) {
 			value >>= 2;
 			high = 0xf0;
 		}
@@ -181,7 +181,7 @@ MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 	if ((kind & 0x100) || (kind & 0xf0) == 0x50) {
 		detail = (p_face->m_shape->m_flags & 0xf0) >> 4;
 		if (detail > 0) {
-			if (g_brightenDetail) {
+			if (g_brightenDamage) {
 				shade += FixedMul16(detail, FixedDiv16(15 - shade, 15));
 			}
 			else {
@@ -195,7 +195,7 @@ MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 
 		shade <<= 8;
 		high = 0;
 	}
-	else if (g_renderSettings.m_unk0x40) {
+	else if (g_renderSettings.m_greyscale) {
 		high = 0xf0;
 	}
 	else {

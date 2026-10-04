@@ -72,7 +72,7 @@ typedef struct FormationRecord {
 
 // A star record's entry: a team's two values and its formation's name.
 typedef struct StarEntry {
-	MechS32 m_unk0x00;     // 0x00
+	MechS32 m_affiliation; // 0x00
 	MechS32 m_side;        // 0x04
 	MechChar m_name[0x10]; // 0x08
 } StarEntry;
@@ -253,10 +253,10 @@ MechS32 LoadPathTable(PathRecord* p_record)
 		g_paths[index].m_points[i].m_x = record->m_points[i].m_x;
 		g_paths[index].m_points[i].m_y = record->m_points[i].m_y;
 		g_paths[index].m_points[i].m_z = record->m_points[i].m_z;
-		g_paths[index].m_points[i].m_unk0x0c = record->m_points[i].m_unk0x0c << 16;
-		g_paths[index].m_points[i].m_unk0x10 = record->m_points[i].m_unk0x10 << 16;
-		g_paths[index].m_points[i].m_unk0x14 = record->m_points[i].m_unk0x14 << 16;
-		g_paths[index].m_points[i].m_unk0x18 = record->m_points[i].m_unk0x18;
+		g_paths[index].m_points[i].m_pitch = record->m_points[i].m_pitch << 16;
+		g_paths[index].m_points[i].m_heading = record->m_points[i].m_heading << 16;
+		g_paths[index].m_points[i].m_roll = record->m_points[i].m_roll << 16;
+		g_paths[index].m_points[i].m_duration = record->m_points[i].m_duration;
 	}
 
 	return TRUE;
@@ -355,9 +355,9 @@ void LoadStarTable(StarTable* p_table)
 	table = p_table;
 	count = (table->m_header.m_size - 8) / sizeof(StarEntry);
 	for (i = 0; i < count; i++) {
-		g_teams[i].m_unk0x08 = table->m_stars[i].m_unk0x00;
+		g_teams[i].m_affiliation = table->m_stars[i].m_affiliation;
 		g_teams[i].m_side = table->m_stars[i].m_side;
-		g_starSides[table->m_stars[i].m_unk0x00] = table->m_stars[i].m_side;
+		g_starSides[table->m_stars[i].m_affiliation] = table->m_stars[i].m_side;
 		if (g_localStar + 1 == i && g_playerTeamFormation) {
 			SetTeamFormationByName(i, g_playerTeamFormation);
 		}
@@ -663,7 +663,7 @@ void CreateObjectNode(
 	id = record->m_id;
 	parent = record->m_parent;
 	kind = record->m_kind;
-	unk0x34 = record->m_unk0x34;
+	unk0x34 = record->m_shapeKind;
 	if (kind < 0 || kind >= 8) {
 		kind = 4;
 	}

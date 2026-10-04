@@ -14,13 +14,13 @@ struct Shape;
 // when the shape's m_collisionType is 5.
 // SIZE 0x2c
 typedef struct QuadtreeNode {
-	MechS32 m_unk0x00;                  // 0x00
-	MechS32 m_unk0x04;                  // 0x04
-	MechS32 m_unk0x08;                  // 0x08
-	MechS32 m_unk0x0c;                  // 0x0c
-	MechS32 m_unk0x10;                  // 0x10
-	MechS32 m_unk0x14;                  // 0x14
-	MechS32 m_unk0x18;                  // 0x18
+	MechS32 m_minX;                     // 0x00
+	MechS32 m_maxX;                     // 0x04
+	MechS32 m_minY;                     // 0x08
+	MechS32 m_maxY;                     // 0x0c
+	MechS32 m_minZ;                     // 0x10
+	MechS32 m_maxZ;                     // 0x14
+	MechS32 m_faceCount;                // 0x18
 	struct QuadtreeNode* m_children[4]; // 0x1c
 } QuadtreeNode;
 
@@ -33,13 +33,13 @@ extern "C"
 	void BuildShapeQuadtree(struct Shape* p_shape);
 	QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model);
 	QuadtreeNode* AllocQuadtreeNode(
-		undefined4 p_unk0x00,
-		undefined4 p_unk0x04,
-		undefined4 p_unk0x08,
-		undefined4 p_unk0x0c,
-		undefined4 p_unk0x10,
-		undefined4 p_unk0x14,
-		MechS32 p_unk0x18
+		undefined4 p_minX,
+		undefined4 p_maxX,
+		undefined4 p_minY,
+		undefined4 p_maxY,
+		undefined4 p_minZ,
+		undefined4 p_maxZ,
+		MechS32 p_faceCount
 	);
 	void FreeQuadtree(QuadtreeNode* p_node);
 	MechS32 FaceOverlapsBox(

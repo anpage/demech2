@@ -187,7 +187,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 
 // Stack slots: i and mech are swapped.
 // FUNCTION: MW2 0x1007d931
-void FUN_1007d931(void)
+void QuadrupleMechCooling(void)
 {
 	MechS32 i;
 	Mech* mech;
@@ -200,7 +200,7 @@ void FUN_1007d931(void)
 
 // Stack slots: i and mech are swapped.
 // FUNCTION: MW2 0x1007d97c
-void FUN_1007d97c(void)
+void QuarterMechCooling(void)
 {
 	MechS32 i;
 	Mech* mech;
