@@ -27,8 +27,8 @@ typedef struct CockpitLayout {
 	MechS32 m_maxRange;           // 0x28 — the longest range
 	MechS32 m_zoom;               // 0x2c — the zoom: m_startRange over m_range
 	MechS32 m_font;               // 0x30 — its font, from g_artResolution
-	MechChar* m_unk0x34;          // 0x34
-	MechChar* m_unk0x38;          // 0x38
+	MechChar* m_extraLabel;       // 0x34 — a third label and text, which nothing draws
+	MechChar* m_extraText;        // 0x38
 	MechChar* m_rangeLabel;       // 0x3c — the range label
 	MechChar* m_rangeText;        // 0x40 — the range text
 	MechChar* m_headingLabel;     // 0x44 — the heading label
@@ -36,7 +36,7 @@ typedef struct CockpitLayout {
 	MechS32 m_formattedHeading;   // 0x4c — the heading it last formatted
 	MechChar* m_shortUnit;        // 0x50 — the unit of short ranges
 	MechChar* m_longUnit;         // 0x54 — the unit of long ranges
-	Point m_unk0x58;              // 0x58
+	Point m_extraTextOrigin;      // 0x58
 	Point m_rangeTextOrigin;      // 0x60
 	Point m_headingTextOrigin;    // 0x68
 	MechS32 (*m_icons)[3];        // 0x70 — SHP ids by row and side: 0 the center, 1 players

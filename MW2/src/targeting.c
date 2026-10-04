@@ -52,7 +52,7 @@ MechS32 g_reticleTargeting = 0;
 MechChar g_satelliteRangeText[0x40];
 
 // GLOBAL: MW2 0x100e9490
-MechChar g_unk0x100e9490[0x20];
+MechChar g_satelliteExtraText[0x20];
 
 // GLOBAL: MW2 0x100e94b0
 PANE g_satelliteSavedViewport;
@@ -61,10 +61,10 @@ PANE g_satelliteSavedViewport;
 MechChar g_smallMapRangeText[0x20];
 
 // GLOBAL: MW2 0x100e94f0
-MechChar g_unk0x100e94f0[0x20];
+MechChar g_smallMapExtraText[0x20];
 
 // GLOBAL: MW2 0x100e9510
-MechChar g_unk0x100e9510[0x20];
+MechChar g_readoutText[0x20];
 
 // GLOBAL: MW2 0x100e9530
 PANE g_largeMapSavedViewport;
@@ -79,40 +79,40 @@ MechChar g_bearingText[0x20];
 PANE g_smallMapSavedViewport;
 
 // GLOBAL: MW2 0x100e95d0
-MechChar g_unk0x100e95d0[0x20];
+MechChar g_largeMapExtraText[0x20];
 
 // The cockpit views' layouts (g_cockpitLayouts): the map view of cockpit views 1 and 2 and the
 // satellite view (4), with their labels, icons, colors, rectangles and transitions.
 
 // GLOBAL: MW2 0x100aabb0
-MechChar g_unk0x100aabb0[8] = "x";
+MechChar g_readoutLabel[8] = "x";
 
 // GLOBAL: MW2 0x100aabb8
-CockpitReadout g_unk0x100aabb8 = {1, 0, -1, g_unk0x100aabb0, g_unk0x100e9510, {0x28f, 0x28f}};
+CockpitReadout g_readout = {1, 0, -1, g_readoutLabel, g_readoutText, {0x28f, 0x28f}};
 
 // GLOBAL: MW2 0x100aabd4
-CockpitReadout* g_cockpitReadout = &g_unk0x100aabb8;
+CockpitReadout* g_cockpitReadout = &g_readout;
 
 // GLOBAL: MW2 0x100aabd8
-MechChar g_unk0x100aabd8[4] = "x";
+MechChar g_smallMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabdc
 MechChar g_smallMapRangeLabel[4] = "R: ";
 
 // GLOBAL: MW2 0x100aabe0
-MechChar g_unk0x100aabe0[12] = "Bearing: ";
+MechChar g_smallMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aabec
-MechChar g_unk0x100aabec[4] = "x";
+MechChar g_largeMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabf0
 MechChar g_largeMapRangeLabel[8] = "R: ";
 
 // GLOBAL: MW2 0x100aabf8
-MechChar g_unk0x100aabf8[12] = "Bearing: ";
+MechChar g_largeMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac04
-MechChar g_unk0x100aac04[4] = "x";
+MechChar g_satelliteExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aac08
 MechChar g_satelliteRangeLabel[8] = "Range: ";
@@ -160,67 +160,70 @@ MechS32 g_satelliteColors[7][3] = {
 };
 
 // GLOBAL: MW2 0x100aad30
-MechS32 g_unk0x100aad30[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 1, 2};
+MechS32 g_mapColors[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 1, 2};
 
 // GLOBAL: MW2 0x100aad68
-MechS32 g_unk0x100aad68[5] = {-1, -1, -1, -1, -1};
+MechS32 g_smallMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad80
-MechS32 g_unk0x100aad80[5] = {-1, -1, -1, -1, -1};
+MechS32 g_largeMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad98
-MechS32 g_unk0x100aad98[5] = {-1, -1, -1, -1, -1};
+MechS32 g_satelliteAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aadb0
-PANE g_unk0x100aadb0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_smallMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aadc8
-PANE g_unk0x100aadc8 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_smallMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aade0
-PANE g_unk0x100aade0 = {NULL, 0, 0, 0, 0};
+PANE g_smallMapTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aadf8
-RectTransitionState g_unk0x100aadf8 = {0, 0, 0};
+RectTransitionState g_mapTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100aae08
-RectTransitionDef g_unk0x100aae08 = {0xb5, &g_unk0x100aadb0, &g_unk0x100aadc8, &g_unk0x100aade0};
+RectTransitionDef g_smallMapTransitionDef =
+	{0xb5, &g_smallMapTransitionFirst, &g_smallMapTransitionSecond, &g_smallMapTransitionRect};
 
 // GLOBAL: MW2 0x100aae18
-RectTransition g_smallMapTransition = {&g_unk0x100aadf8, &g_unk0x100aae08};
+RectTransition g_smallMapTransition = {&g_mapTransitionState, &g_smallMapTransitionDef};
 
 // GLOBAL: MW2 0x100aae20
-PANE g_unk0x100aae20 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_largeMapTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100aae38
-PANE g_unk0x100aae38 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_largeMapTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aae50
-PANE g_unk0x100aae50 = {NULL, 0, 0, 0, 0};
+PANE g_largeMapTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aae68
-RectTransitionDef g_unk0x100aae68 = {0xb5, &g_unk0x100aae20, &g_unk0x100aae38, &g_unk0x100aae50};
+RectTransitionDef g_largeMapTransitionDef =
+	{0xb5, &g_largeMapTransitionFirst, &g_largeMapTransitionSecond, &g_largeMapTransitionRect};
 
 // GLOBAL: MW2 0x100aae78
-RectTransition g_largeMapTransition = {&g_unk0x100aadf8, &g_unk0x100aae68};
+RectTransition g_largeMapTransition = {&g_mapTransitionState, &g_largeMapTransitionDef};
 
 // GLOBAL: MW2 0x100aae80
-PANE g_unk0x100aae80 = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
+PANE g_satelliteTransitionFirst = {NULL, 0x599a, 0x599a, 0xa666, 0xa666};
 
 // GLOBAL: MW2 0x100aae98
-PANE g_unk0x100aae98 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_satelliteTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100aaeb0
-PANE g_unk0x100aaeb0 = {NULL, 0, 0, 0, 0};
+PANE g_satelliteTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100aaec8
-RectTransitionState g_unk0x100aaec8 = {0, 0, 0};
+RectTransitionState g_satelliteTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100aaed8
-RectTransitionDef g_unk0x100aaed8 = {0x21f, &g_unk0x100aae80, &g_unk0x100aae98, &g_unk0x100aaeb0};
+RectTransitionDef g_satelliteTransitionDef =
+	{0x21f, &g_satelliteTransitionFirst, &g_satelliteTransitionSecond, &g_satelliteTransitionRect};
 
 // GLOBAL: MW2 0x100aaee8
-RectTransition g_satelliteTransition = {&g_unk0x100aaec8, &g_unk0x100aaed8};
+RectTransition g_satelliteTransition = {&g_satelliteTransitionState, &g_satelliteTransitionDef};
 
 // GLOBAL: MW2 0x100aaef0
 PANE g_smallMapViewport = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
@@ -239,8 +242,8 @@ CockpitLayout g_smallMapLayout = {
 	0x61a80,
 	0,
 	1,
-	g_unk0x100aabd8,
-	g_unk0x100e94f0,
+	g_smallMapExtraLabel,
+	g_smallMapExtraText,
 	g_smallMapRangeLabel,
 	g_smallMapRangeText,
 	g_bearingLabel,
@@ -252,8 +255,8 @@ CockpitLayout g_smallMapLayout = {
 	{0, 0xa3d},
 	{0, 0},
 	g_smallMapColors,
-	g_unk0x100aad30,
-	g_unk0x100aad68,
+	g_mapColors,
+	g_smallMapAnims,
 	{(CockpitGaugeFn) 2, (CockpitGaugeFn) 4, (CockpitGaugeFn) 6, (CockpitGaugeFn) 8}
 };
 
@@ -274,8 +277,8 @@ CockpitLayout g_largeMapLayout = {
 	0x61a80,
 	0,
 	1,
-	g_unk0x100aabec,
-	g_unk0x100e95d0,
+	g_largeMapExtraLabel,
+	g_largeMapExtraText,
 	g_largeMapRangeLabel,
 	g_largeMapRangeText,
 	g_bearingLabel,
@@ -287,8 +290,8 @@ CockpitLayout g_largeMapLayout = {
 	{0x147b, 0x2148},
 	{0, 0},
 	g_largeMapColors,
-	g_unk0x100aad30,
-	g_unk0x100aad80,
+	g_mapColors,
+	g_largeMapAnims,
 	{(CockpitGaugeFn) 2, (CockpitGaugeFn) 4, (CockpitGaugeFn) 6, (CockpitGaugeFn) 8}
 };
 
@@ -309,8 +312,8 @@ CockpitLayout g_satelliteLayout = {
 	0x186a0,
 	0,
 	1,
-	g_unk0x100aac04,
-	g_unk0x100e9490,
+	g_satelliteExtraLabel,
+	g_satelliteExtraText,
 	g_satelliteRangeLabel,
 	g_satelliteRangeText,
 	g_bearingLabel,
@@ -322,8 +325,8 @@ CockpitLayout g_satelliteLayout = {
 	{0x28f, 0x28f},
 	{0x28f, 0xccd},
 	g_satelliteColors,
-	g_unk0x100aad30,
-	g_unk0x100aad98,
+	g_mapColors,
+	g_satelliteAnims,
 	{(CockpitGaugeFn) 0, (CockpitGaugeFn) 3, (CockpitGaugeFn) 5, (CockpitGaugeFn) 7}
 };
 

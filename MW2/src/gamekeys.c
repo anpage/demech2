@@ -436,7 +436,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 	}
 
 	if (!g_missionEndTime && !g_missionEnded) {
-		if (g_missionResolved || g_unk0x100b1350) {
+		if (g_missionResolved || g_fledToWindows) {
 			g_statusMessage = 0;
 			g_missionEnded = 1;
 			g_speechFlushTime = g_currentClock + 0x108;
@@ -461,7 +461,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 	}
 	else if (g_missionEndTime > 0 && g_currentClock > g_missionEndTime) {
 		g_missionEnded = 1;
-		if (!g_netRole || g_missionResolved || g_unk0x100b1350) {
+		if (!g_netRole || g_missionResolved || g_fledToWindows) {
 			g_shouldQuit = 1;
 			g_quitStage = 0x29a;
 		}
@@ -492,7 +492,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 	}
 
 	if (g_missionEnded) {
-		if (!g_netRole || g_missionResolved || g_unk0x100b1350) {
+		if (!g_netRole || g_missionResolved || g_fledToWindows) {
 			if (p_key == 0x59) {
 				g_shouldQuit = 1;
 				g_quitStage = 0x29a;

@@ -194,7 +194,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	}
 
 	g_panes[p_layout->m_paneSlot] = *viewport;
-	ScalePointToFrame(viewport, &p_layout->m_unk0x58, &p_layout->m_unk0x58);
+	ScalePointToFrame(viewport, &p_layout->m_extraTextOrigin, &p_layout->m_extraTextOrigin);
 	ScalePointToFrame(viewport, &p_layout->m_rangeTextOrigin, &p_layout->m_rangeTextOrigin);
 	ScalePointToFrame(viewport, &p_layout->m_headingTextOrigin, &p_layout->m_headingTextOrigin);
 	transition = p_layout->m_transition;

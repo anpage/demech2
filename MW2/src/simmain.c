@@ -520,7 +520,7 @@ int __stdcall SimMain(
 	while (ShowCursor(TRUE) < 1) {
 	}
 
-	result = g_unk0x100b1350 ? 0xff : 0;
+	result = g_fledToWindows ? 0xff : 0;
 	return result;
 }
 
