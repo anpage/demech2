@@ -10,13 +10,13 @@ struct ProjectedVertex;
 // Rendering settings (g_renderSettings) the map view saves and replaces as one block.
 typedef struct RenderSettings {
 	MechS32 m_blankScene;  // 0x00 — the frame draw callback only clears the pane
-	MechS32 m_gouraud;     // 0x04 — FUN_10042e00 blends shaded polygons (VFX_dithered_Gouraud_polygon)
+	MechS32 m_gouraud;     // 0x04 — DrawScenePolygon blends shaded polygons (VFX_dithered_Gouraud_polygon)
 	undefined4 m_unk0x08;  // 0x08
-	MechS32 m_textures;    // 0x0c — FUN_10042e00 draws textured polygons
+	MechS32 m_textures;    // 0x0c — DrawScenePolygon draws textured polygons
 	undefined4 m_flags;    // 0x10 — 1: bands are filled (FUN_10010750); FirstRender sets 8
 	MechS32 m_drawLines;   // 0x14 — two-point polygons are drawn as lines
 	MechS32 m_drawPixels;  // 0x18 — one-point polygons are drawn as pixels
-	MechS32 m_drawSky;     // 0x1c — the planet's sky (FUN_1004320b)
+	MechS32 m_drawSky;     // 0x1c — the planet's sky (DrawSkyAndGround)
 	MechS32 m_drawGround;  // 0x20 — and its ground
 	MechS32 m_horizonBand; // 0x24 — a shaded band blends the sky into the ground
 	undefined4 m_unk0x28[(0x30 - 0x28) / 4]; // 0x28

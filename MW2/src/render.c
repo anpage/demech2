@@ -196,13 +196,13 @@ void FirstRender(void)
 	}
 
 	InitializeDrawBuffer(0x80, 0x5dc);
-	g_unk0x100a54b8 = 0x578;
+	g_maxPolygons = 0x578;
 	InitShapeLists();
 	g_renderSettings.m_frameDrawCallback = DrawScene;
 	g_renderSettings.m_shapeFilter = CullSceneShape;
 	g_renderSettings.m_projectVertex = ProjectVertex;
 	g_renderSettings.m_drawFace = (MechS32 (*)()) FUN_10036230;
-	g_renderSettings.m_drawPolygon = FUN_10042e00;
+	g_renderSettings.m_drawPolygon = DrawScenePolygon;
 	g_unk0x100a5558 = 0xff;
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
 		g_renderSettings.m_clearFrame = 0;
@@ -287,11 +287,11 @@ void DrawScene(void)
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
 			pass = g_renderSettings.m_drawGround;
 			g_renderSettings.m_drawGround = 0;
-			FUN_1004320b(g_eyepoint);
+			DrawSkyAndGround(g_eyepoint);
 			g_renderSettings.m_drawGround = pass;
 		}
 		else {
-			FUN_1004320b(g_eyepoint);
+			DrawSkyAndGround(g_eyepoint);
 		}
 	}
 
@@ -304,19 +304,19 @@ void DrawScene(void)
 		saved = g_eyepoint->m_farPlane;
 		SetFarPlane(g_eyepoint, 0x7fffffff);
 		g_renderSettings.m_shapeFilter = CullShapeToFrustum;
-		FUN_10033b9e(g_skyObject);
+		DrawObjTreeShapes(g_skyObject);
 		g_drawnPolygonCount += g_depthEntryCount;
 		SetFarPlane(g_eyepoint, saved);
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
-	FUN_100338bb(g_sceneShapes);
+	DrawShapeList(g_sceneShapes);
 	g_drawnPolygonCount += g_depthEntryCount;
 	if (g_inCockpitView && g_cockpitObject) {
 		saved = g_eyepoint->m_nearPlane;
 		SetNearPlane(g_eyepoint, 8);
 		g_renderSettings.m_shapeFilter = CullHiddenShape;
-		FUN_10033b9e(g_cockpitObject);
+		DrawObjTreeShapes(g_cockpitObject);
 		g_drawnPolygonCount += g_depthEntryCount;
 		SetNearPlane(g_eyepoint, saved);
 		g_renderSettings.m_shapeFilter = CullSceneShape;

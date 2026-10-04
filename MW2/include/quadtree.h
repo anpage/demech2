@@ -10,7 +10,7 @@ struct Shape;
 #include "shapegeom.h"
 
 // A quadtree node: its bounds, its four children (m_unk0x18 == 0) and m_unk0x18 entries
-// after the header (undefined4 each). FUN_1001e429 allocates it; Shape::m_collisionData holds the root
+// after the header (undefined4 each). AllocQuadtreeNode allocates it; Shape::m_collisionData holds the root
 // when the shape's m_collisionType is 5.
 // SIZE 0x2c
 typedef struct QuadtreeNode {
@@ -30,9 +30,9 @@ extern "C"
 {
 #endif
 
-	void FUN_1001df00(struct Shape* p_shape);
-	QuadtreeNode* FUN_1001e0a7(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model);
-	QuadtreeNode* FUN_1001e429(
+	void BuildShapeQuadtree(struct Shape* p_shape);
+	QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model);
+	QuadtreeNode* AllocQuadtreeNode(
 		undefined4 p_unk0x00,
 		undefined4 p_unk0x04,
 		undefined4 p_unk0x08,
@@ -41,8 +41,8 @@ extern "C"
 		undefined4 p_unk0x14,
 		MechS32 p_unk0x18
 	);
-	void FUN_1001e50d(QuadtreeNode* p_node);
-	MechS32 FUN_1001e57a(
+	void FreeQuadtree(QuadtreeNode* p_node);
+	MechS32 FaceOverlapsBox(
 		struct Face* p_face,
 		Model* p_model,
 		MechS32 p_minX,
@@ -52,12 +52,12 @@ extern "C"
 		MechS32* p_minY,
 		MechS32* p_maxY
 	);
-	MechS32 FUN_1001e6dc(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_1001e90f(QuadtreeNode* p_node, Model* p_model, Ray* p_ray);
-	MechS32 FUN_1001eb25(QuadtreeNode* p_node, Model* p_model, Ray* p_ray);
-	MechS32 FUN_1001ebfa(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
-	void FUN_1001edfa(void);
-	MechS32 FUN_1001ee0f(QuadtreeNode* p_node);
+	MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray);
+	MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray);
+	MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
+	void DisableQuadtrees(void);
+	MechS32 GetQuadtreeSize(QuadtreeNode* p_node);
 
 #ifdef __cplusplus
 }

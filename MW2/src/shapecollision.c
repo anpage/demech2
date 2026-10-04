@@ -65,7 +65,7 @@ void ClassifyPointInBox(
 {
 	BoundBox* box;
 
-	FUN_1006e9e6(p_shape);
+	EnsureBoundBox(p_shape);
 	box = p_shape->m_collisionData;
 	if (!box) {
 		*p_inColumn = 0;
@@ -101,7 +101,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 	MechS32 tFar;
 	MechS32 tExit;
 
-	FUN_1006e9e6(p_shape);
+	EnsureBoundBox(p_shape);
 	box = p_shape->m_collisionData;
 	if (!box) {
 		return 0;
@@ -194,7 +194,7 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p
 {
 	BoundBox* box;
 
-	FUN_1006e9e6(p_shape);
+	EnsureBoundBox(p_shape);
 	box = p_shape->m_collisionData;
 	if (!box) {
 		return 0;
@@ -256,7 +256,7 @@ MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 
 	model = p_shape->m_models;
 	if (p_shape->m_collisionData) {
-		return FUN_1001e6dc(p_shape->m_collisionData, model, p_x, p_y, p_z) & 1;
+		return ClassifyQuadtreePoint(p_shape->m_collisionData, model, p_x, p_y, p_z) & 1;
 	}
 	else {
 		return TestPointUnderFloor(p_shape, p_x, p_y, p_z);
@@ -266,13 +266,13 @@ MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // FUNCTION: MW2 0x10069fd4
 MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 {
-	return FUN_1001e90f(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
+	return TestQuadtreeRay(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
 }
 
 // FUNCTION: MW2 0x1006a001
 MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
-	return FUN_1001ebfa(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
+	return GetQuadtreeTop(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
 }
 
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.

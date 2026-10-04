@@ -66,11 +66,11 @@ MechS32 g_segmentNormalZ = 0;
 // GLOBAL: MW2 0x100a5544
 MechS32 g_backgroundColor = 0;
 
-// The sky's color (FUN_1004320b; the ground's is g_groundColor).
+// The sky's color (DrawSkyAndGround; the ground's is g_groundColor).
 // GLOBAL: MW2 0x100a5548
 MechS32 g_skyColor = 0xe0;
 
-// The ground's color (FUN_1004320b; the sky's is g_skyColor).
+// The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
 // GLOBAL: MW2 0x100a554c
 MechS32 g_groundColor = 0xef;
 

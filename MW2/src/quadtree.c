@@ -16,13 +16,13 @@
 DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
-MechS32 g_unk0x100a37dc = 0;
+MechS32 g_quadtreesDisabled = 0;
 
-// Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_unk0x100a37dc is set.
+// Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_quadtreesDisabled is set.
 // Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_worldZ loads
 // the vertex's first in the original.
 // FUNCTION: MW2 0x1001df00
-void FUN_1001df00(Shape* p_shape)
+void BuildShapeQuadtree(Shape* p_shape)
 {
 	Model* model;
 	QuadtreeNode* root;
@@ -31,7 +31,7 @@ void FUN_1001df00(Shape* p_shape)
 	MechS32 i;
 	MechS32 j;
 
-	if (g_unk0x100a37dc) {
+	if (g_quadtreesDisabled) {
 		return;
 	}
 
@@ -39,7 +39,7 @@ void FUN_1001df00(Shape* p_shape)
 	if (model) {
 		vertex = (Vertex*) (model + 1);
 		vertices = vertex;
-		root = FUN_1001e429(
+		root = AllocQuadtreeNode(
 			vertex->m_worldX,
 			vertex->m_worldX,
 			vertex->m_worldY,
@@ -81,7 +81,7 @@ void FUN_1001df00(Shape* p_shape)
 		}
 
 		for (j = 0; j < 4; j++) {
-			root->m_children[j] = FUN_1001e0a7(root, j, model);
+			root->m_children[j] = BuildQuadtreeChild(root, j, model);
 		}
 	}
 }
@@ -91,7 +91,7 @@ void FUN_1001df00(Shape* p_shape)
 // Stack-slot permutation; minX >= maxX, minZ >= maxZ and faceHigh > highY compare in the other
 // operand order.
 // FUNCTION: MW2 0x1001e0a7
-QuadtreeNode* FUN_1001e0a7(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
+QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
 {
 	MechS32 j;
 	MechS32 i;
@@ -137,18 +137,18 @@ QuadtreeNode* FUN_1001e0a7(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_mo
 	highY = -0x7fffffff;
 	for (i = 0; i < p_model->m_faceCount; i++) {
 		face = (Face*) ((MechU8*) p_model + p_model->m_faceOffset) + i;
-		if (FUN_1001e57a(face, p_model, minX, maxX, minZ, maxZ, &faceLow, &faceHigh)) {
+		if (FaceOverlapsBox(face, p_model, minX, maxX, minZ, maxZ, &faceLow, &faceHigh)) {
 			count++;
 			if (count > 25) {
 				lowY = 0x7fffffff;
 				highY = -0x7fffffff;
-				node = FUN_1001e429(minX, maxX, lowY, highY, minZ, maxZ, 0);
+				node = AllocQuadtreeNode(minX, maxX, lowY, highY, minZ, maxZ, 0);
 				if (!node) {
 					return NULL;
 				}
 
 				for (j = 0; j < 4; j++) {
-					node->m_children[j] = FUN_1001e0a7(node, j, p_model);
+					node->m_children[j] = BuildQuadtreeChild(node, j, p_model);
 					child = node->m_children[j];
 					if (child) {
 						if (child->m_unk0x0c > highY) {
@@ -186,7 +186,7 @@ QuadtreeNode* FUN_1001e0a7(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_mo
 		lowY = highY = 0;
 	}
 
-	node = FUN_1001e429(minX, maxX, lowY, highY, minZ, maxZ, count);
+	node = AllocQuadtreeNode(minX, maxX, lowY, highY, minZ, maxZ, count);
 	if (!node) {
 		return NULL;
 	}
@@ -202,7 +202,7 @@ QuadtreeNode* FUN_1001e0a7(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_mo
 // Allocates a quadtree node with room for p_unk0x18 entries, cleared.
 // The only diff is a stack-slot permutation of entries and node.
 // FUNCTION: MW2 0x1001e429
-QuadtreeNode* FUN_1001e429(
+QuadtreeNode* AllocQuadtreeNode(
 	undefined4 p_unk0x00,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -244,7 +244,7 @@ QuadtreeNode* FUN_1001e429(
 
 // Frees a quadtree.
 // FUNCTION: MW2 0x1001e50d
-void FUN_1001e50d(QuadtreeNode* p_node)
+void FreeQuadtree(QuadtreeNode* p_node)
 {
 	MechS32 i;
 
@@ -254,7 +254,7 @@ void FUN_1001e50d(QuadtreeNode* p_node)
 
 	if (p_node->m_unk0x18 == 0) {
 		for (i = 0; i < 4; i++) {
-			FUN_1001e50d(p_node->m_children[i]);
+			FreeQuadtree(p_node->m_children[i]);
 		}
 	}
 
@@ -266,7 +266,7 @@ void FUN_1001e50d(QuadtreeNode* p_node)
 // Stack-slot permutation; the min/max tests and the final bounds tests compare in the other operand
 // order.
 // FUNCTION: MW2 0x1001e57a
-MechS32 FUN_1001e57a(
+MechS32 FaceOverlapsBox(
 	Face* p_face,
 	Model* p_model,
 	MechS32 p_minX,
@@ -338,7 +338,7 @@ MechS32 FUN_1001e57a(
 // ground area, 2 above the faces under it, 3 below one of them.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001e6dc
-MechS32 FUN_1001e6dc(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 result;
 	Vertex* vertices;
@@ -364,22 +364,22 @@ MechS32 FUN_1001e6dc(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 
 	}
 
 	if (p_node->m_unk0x18 == 0) {
-		result = FUN_1001e6dc(p_node->m_children[0], p_model, p_x, p_y, p_z);
+		result = ClassifyQuadtreePoint(p_node->m_children[0], p_model, p_x, p_y, p_z);
 		if (result) {
 			return result;
 		}
 
-		result = FUN_1001e6dc(p_node->m_children[1], p_model, p_x, p_y, p_z);
+		result = ClassifyQuadtreePoint(p_node->m_children[1], p_model, p_x, p_y, p_z);
 		if (result) {
 			return result;
 		}
 
-		result = FUN_1001e6dc(p_node->m_children[2], p_model, p_x, p_y, p_z);
+		result = ClassifyQuadtreePoint(p_node->m_children[2], p_model, p_x, p_y, p_z);
 		if (result) {
 			return result;
 		}
 
-		result = FUN_1001e6dc(p_node->m_children[3], p_model, p_x, p_y, p_z);
+		result = ClassifyQuadtreePoint(p_node->m_children[3], p_model, p_x, p_y, p_z);
 		if (result) {
 			return result;
 		}
@@ -407,7 +407,7 @@ MechS32 FUN_1001e6dc(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 
 // Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
 // Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
 // FUNCTION: MW2 0x1001e90f
-MechS32 FUN_1001e90f(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
+MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 tMin;
 	Vertex* vertices;
@@ -468,7 +468,7 @@ MechS32 FUN_1001e90f(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 	}
 
 	if (p_node->m_unk0x18 == 0) {
-		if (FUN_1001eb25(p_node, p_model, p_ray)) {
+		if (TestQuadtreeChildrenRay(p_node, p_model, p_ray)) {
 			return TRUE;
 		}
 
@@ -491,7 +491,7 @@ MechS32 FUN_1001e90f(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 // child was hit.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001eb25
-MechS32 FUN_1001eb25(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
+MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechS32 length;
 	MechS32 i;
@@ -502,7 +502,7 @@ MechS32 FUN_1001eb25(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 	nearest = 0x7fffffff;
 	CopyRay(&ray, p_ray);
 	for (i = 0; i < 4; i++) {
-		if (FUN_1001e90f(p_node->m_children[i], p_model, &ray)) {
+		if (TestQuadtreeRay(p_node->m_children[i], p_model, &ray)) {
 			length = GetRayLength(&ray);
 			if (length < nearest) {
 				nearest = length;
@@ -525,7 +525,7 @@ MechS32 FUN_1001eb25(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 // p_top, or 0 if there is none. Returns FALSE outside the tree's ground area.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ebfa
-MechS32 FUN_1001ebfa(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
 	Vertex* vertices;
 	Face** faces;
@@ -541,19 +541,19 @@ MechS32 FUN_1001ebfa(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 
 	}
 
 	if (p_node->m_unk0x18 == 0) {
-		if (FUN_1001ebfa(p_node->m_children[0], p_model, p_x, p_y, p_z, p_top)) {
+		if (GetQuadtreeTop(p_node->m_children[0], p_model, p_x, p_y, p_z, p_top)) {
 			return TRUE;
 		}
 
-		if (FUN_1001ebfa(p_node->m_children[1], p_model, p_x, p_y, p_z, p_top)) {
+		if (GetQuadtreeTop(p_node->m_children[1], p_model, p_x, p_y, p_z, p_top)) {
 			return TRUE;
 		}
 
-		if (FUN_1001ebfa(p_node->m_children[2], p_model, p_x, p_y, p_z, p_top)) {
+		if (GetQuadtreeTop(p_node->m_children[2], p_model, p_x, p_y, p_z, p_top)) {
 			return TRUE;
 		}
 
-		if (FUN_1001ebfa(p_node->m_children[3], p_model, p_x, p_y, p_z, p_top)) {
+		if (GetQuadtreeTop(p_node->m_children[3], p_model, p_x, p_y, p_z, p_top)) {
 			return TRUE;
 		}
 
@@ -576,14 +576,14 @@ MechS32 FUN_1001ebfa(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 
 }
 
 // FUNCTION: MW2 0x1001edfa
-void FUN_1001edfa(void)
+void DisableQuadtrees(void)
 {
-	g_unk0x100a37dc = 1;
+	g_quadtreesDisabled = 1;
 }
 
 // Returns the bytes a quadtree takes.
 // FUNCTION: MW2 0x1001ee0f
-MechS32 FUN_1001ee0f(QuadtreeNode* p_node)
+MechS32 GetQuadtreeSize(QuadtreeNode* p_node)
 {
 	MechS32 i;
 	MechS32 size;
@@ -594,7 +594,7 @@ MechS32 FUN_1001ee0f(QuadtreeNode* p_node)
 
 	size = p_node->m_unk0x18 * sizeof(undefined4) + sizeof(QuadtreeNode);
 	for (i = 0; i < 4; i++) {
-		size += FUN_1001ee0f(p_node->m_children[i]);
+		size += GetQuadtreeSize(p_node->m_children[i]);
 	}
 
 	return size;

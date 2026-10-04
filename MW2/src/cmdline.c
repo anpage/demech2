@@ -111,7 +111,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				g_unk0x100a5bec = 1;
 				break;
 			case 'Q':
-				FUN_1001edfa();
+				DisableQuadtrees();
 				break;
 			case 'R':
 				g_unk0x100acb34 = 1;

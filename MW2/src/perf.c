@@ -131,14 +131,14 @@ void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 // FUNCTION: MW2 0x10076c19
 MechS32 GetTerrainTextmaps(MechS32 p_arg)
 {
-	return AreTextureMapsOn(0x800) || g_unk0x100a7120;
+	return AreTextureMapsOn(0x800) || g_gridObjectShown;
 }
 
 // FUNCTION: MW2 0x10076c57
 void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 {
 	EnableTextureMaps(0x800, p_terrainTextmaps);
-	FUN_1004b539(p_terrainTextmaps);
+	ShowGridObject(p_terrainTextmaps);
 	g_mw2SndCfgData->m_terrainTextmaps = p_terrainTextmaps;
 }
 

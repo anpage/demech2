@@ -28,7 +28,7 @@ MechS32 g_currentPalette = 0x10;
 MechS32 g_palettePending = 0;
 
 // GLOBAL: MW2 0x100a00d8
-MechS32 g_unk0x100a00d8 = 0;
+MechS32 g_basePalette = 0;
 
 // GLOBAL: MW2 0x100a00dc
 MechS32 g_unk0x100a00dc = 0x10;
@@ -101,7 +101,7 @@ void SelectPane(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x100024f0
-void FUN_100024f0(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
+void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 {
 	MechS32 x;
 	MechS32 y;
@@ -239,9 +239,9 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 }
 
 // FUNCTION: MW2 0x1000288e
-MechS32 FUN_1000288e(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
+MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 {
-	return StartPaletteFade(p_offset + g_unk0x100a00d8, p_duration, p_mode);
+	return StartPaletteFade(p_offset + g_basePalette, p_duration, p_mode);
 }
 
 // FUNCTION: MW2 0x100028b7
@@ -294,20 +294,20 @@ MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 }
 
 // FUNCTION: MW2 0x10002a24
-void FUN_10002a24(MechS32 p_palette, MechS32 p_duration)
+void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration)
 {
 	MechS32 palette;
 
 	palette = p_palette;
 	StartPaletteFade(palette, p_duration, 0);
-	g_unk0x100a00d8 = p_palette;
+	g_basePalette = p_palette;
 	g_unk0x100a00dc = palette;
 }
 
 // FUNCTION: MW2 0x10002a5a
-void FUN_10002a5a(MechS32 p_palette)
+void SetBasePalette(MechS32 p_palette)
 {
-	g_unk0x100a00d8 = p_palette;
+	g_basePalette = p_palette;
 	g_unk0x100a00dc = p_palette;
 }
 
@@ -382,7 +382,7 @@ void StartPalettes(MechS32 p_dissolve)
 }
 
 // FUNCTION: MW2 0x10002c76
-MechS32 FUN_10002c76(void)
+MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;
 }

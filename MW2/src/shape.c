@@ -347,7 +347,7 @@ void FreeShape(Shape* p_shape)
 		FreeModel(current);
 	}
 
-	FUN_1006ed30(p_shape);
+	FreeBoundBox(p_shape);
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_shape);
 }
 
@@ -854,5 +854,5 @@ MechS32 GetShapeMemorySize(Shape* p_shape)
 		}
 	}
 
-	return size + FUN_1006edc3(p_shape);
+	return size + GetBoundBoxSize(p_shape);
 }

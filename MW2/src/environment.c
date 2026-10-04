@@ -152,7 +152,7 @@ void FadeToTimeOfDayPhase(MechS32 p_phase)
 			duration = 362;
 		}
 
-		FUN_10002a24(g_timeOfDayPhases[p_phase].m_palette, duration);
+		FadeToBasePalette(g_timeOfDayPhases[p_phase].m_palette, duration);
 		g_timeOfDayPhase = p_phase;
 	}
 }
@@ -172,7 +172,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 			if (g_cockpitPanels[c_panelRadar]->m_damage < 1) {
 				g_infraredOn = 1;
 				g_timeOfDayEnabled = 0;
-				FUN_10002a24(12, 181);
+				FadeToBasePalette(12, 181);
 				PlaySoundEffect(0xb2, 100, 0x40, 5, 0x50);
 				PlayCockpitSound(0x1c, 1);
 			}

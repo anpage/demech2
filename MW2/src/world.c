@@ -470,7 +470,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			LoadMapBitmap((BwdRecord*) node, &g_groundColor, NULL, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdHorizonMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_horizonMapColor, &g_unk0x100a6d30, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_horizonMapColor, &g_horizonBandHeight, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdSkyMap]) {
 			LoadMapBitmap((BwdRecord*) node, &g_skyColor, NULL, NULL);
@@ -542,7 +542,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			if (id != -1) {
-				FUN_10069124(id, -1);
+				AddAnimFrame(id, -1);
 			}
 			else {
 				Error(0x28, NULL);
@@ -553,7 +553,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			MechS32 id;
 
 			id = list->m_ref.m_id;
-			FUN_10069288(id, -1);
+			StartAnimation(id, -1);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdBitmapSection]) {
 			BwdIdPairRecord* section = (BwdIdPairRecord*) node;
@@ -562,8 +562,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			index = section->m_a;
 			delay = section->m_b;
-			FUN_10069564(index, delay);
-			FUN_1006946f(index, 1);
+			SetAnimDelay(index, delay);
+			SetAnimMode(index, 1);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdBitmapEnable]) {
 			BwdIdPairRecord* enable = (BwdIdPairRecord*) node;
@@ -572,7 +572,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			index = enable->m_a;
 			mode = enable->m_b;
-			FUN_1006946f(index, mode);
+			SetAnimMode(index, mode);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdFramePrj]) {
 			MechS16 b;
@@ -660,7 +660,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			id = MapResourceId(id);
 			shape = FindClassById(id);
 			if (shape && (obj = GetShapeObject(shape)) != NULL) {
-				FUN_1004b130(obj);
+				SetGridObject(obj);
 			}
 			else {
 				Error(0x2e, NULL);
@@ -1023,7 +1023,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 								effect->m_animation = animation;
 								if (animation > 0) {
-									FUN_1006946f(effect->m_animation, 2);
+									SetAnimMode(effect->m_animation, 2);
 								}
 							}
 						}

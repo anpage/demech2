@@ -36,14 +36,14 @@ MechS32 g_depthEntryCount = 0;
 MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
-MechS32 g_unk0x100a54b8 = 0;
+MechS32 g_maxPolygons = 0;
 
 // GLOBAL: MW2 0x1010b5a0
-MechS32 g_unk0x1010b5a0;
+MechS32 g_shapesDrawn;
 
 // The depth the shapes are queued at.
 // GLOBAL: MW2 0x1010b5a4
-MechS32 g_unk0x1010b5a4;
+MechS32 g_queueDepth;
 
 // The list being built: g_depthQueue or g_drawList.
 // GLOBAL: MW2 0x1010b5c4
@@ -54,13 +54,13 @@ DepthEntry* g_depthList;
 MechU32 g_queuedShapeFlags;
 
 // GLOBAL: MW2 0x1010b5cc
-MechS32 g_unk0x1010b5cc;
+MechS32 g_shapesConsidered;
 
 // Selects the shape's level of detail for p_depth (the first model whose distance, scaled by the
 // eyepoint, lies beyond it, or the last) and queues its faces. Returns 1 if it has no model.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x100335d0
-MechS32 FUN_100335d0(Shape* p_shape, MechS32 p_depth)
+MechS32 QueueShapeLod(Shape* p_shape, MechS32 p_depth)
 {
 	Model* model;
 	Face* face;
@@ -199,9 +199,9 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 }
 
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
-// whole and expanded after the sort (FUN_10033a06).
+// whole and expanded after the sort (DrawDepthQueue).
 // FUNCTION: MW2 0x100338bb
-void FUN_100338bb(Shape* p_root)
+void DrawShapeList(Shape* p_root)
 {
 	Shape* shape;
 
@@ -215,34 +215,34 @@ void FUN_100338bb(Shape* p_root)
 	g_queueHasRoom = 1;
 	g_depthList = g_depthQueue;
 	for (shape = p_root->m_next; shape; shape = shape->m_next) {
-		g_unk0x1010b5cc++;
+		g_shapesConsidered++;
 		if (!g_renderSettings.m_shapeFilter(shape)) {
-			g_unk0x1010b5a0++;
+			g_shapesDrawn++;
 			g_queuedShapeFlags = shape->m_flags;
 			if (g_queuedShapeFlags & 0x100) {
 				shape->m_flags |= 0x8000;
 				g_depthList[g_depthEntryCount].m_poly = (QueuedPolygon*) shape;
-				g_depthList[g_depthEntryCount].m_depth = g_unk0x1010b5a4;
+				g_depthList[g_depthEntryCount].m_depth = g_queueDepth;
 				g_depthEntryCount++;
 			}
 			else {
-				FUN_100335d0(shape, g_unk0x1010b5a4);
-				if (!g_queueHasRoom || g_polygonCount >= g_unk0x100a54b8) {
+				QueueShapeLod(shape, g_queueDepth);
+				if (!g_queueHasRoom || g_polygonCount >= g_maxPolygons) {
 					break;
 				}
 			}
 		}
 	}
 
-	FUN_10033a06();
+	DrawDepthQueue();
 }
 
-// Sorts the queue FUN_100338bb built, moves its polygons to g_drawList in order, expanding
+// Sorts the queue DrawShapeList built, moves its polygons to g_drawList in order, expanding
 // each whole shape into its own sorted run of polygons, and draws them.
-// The i/count and g_polygonCount/g_unk0x100a54b8 comparisons load their operands in the opposite
+// The i/count and g_polygonCount/g_maxPolygons comparisons load their operands in the opposite
 // order (reccmp scores it as an effective match).
 // FUNCTION: MW2 0x10033a06
-void FUN_10033a06(void)
+void DrawDepthQueue(void)
 {
 	MechS32 count;
 	MechS32 i;
@@ -263,7 +263,7 @@ void FUN_10033a06(void)
 		}
 		else if (g_queueHasRoom) {
 			start = g_depthEntryCount;
-			FUN_100335d0((Shape*) g_depthQueue[i].m_poly, g_depthQueue[i].m_depth);
+			QueueShapeLod((Shape*) g_depthQueue[i].m_poly, g_depthQueue[i].m_depth);
 			if (!g_queueHasRoom) {
 				break;
 			}
@@ -273,7 +273,7 @@ void FUN_10033a06(void)
 			}
 		}
 
-		if (g_polygonCount >= g_unk0x100a54b8) {
+		if (g_polygonCount >= g_maxPolygons) {
 			break;
 		}
 	}
@@ -285,7 +285,7 @@ void FUN_10033a06(void)
 
 // Draws the shapes of the scene tree p_root, farthest first.
 // FUNCTION: MW2 0x10033b9e
-void FUN_10033b9e(SceneObject* p_root)
+void DrawObjTreeShapes(SceneObject* p_root)
 {
 	MechS32 i;
 
@@ -294,7 +294,7 @@ void FUN_10033b9e(SceneObject* p_root)
 	g_polygonCount = 0;
 	g_queueHasRoom = 1;
 	g_depthList = g_drawList;
-	FUN_10033c4b(p_root);
+	QueueObjTree(p_root);
 	if (g_depthEntryCount > 1) {
 		SortDepthEntries(g_drawList, &g_drawList[g_depthEntryCount - 1]);
 	}
@@ -306,34 +306,34 @@ void FUN_10033b9e(SceneObject* p_root)
 
 // Queues the polygons of p_object's shape and of its descendants' shapes.
 // FUNCTION: MW2 0x10033c4b
-void FUN_10033c4b(SceneObject* p_object)
+void QueueObjTree(SceneObject* p_object)
 {
 	SceneObject* child;
 	Shape* shape;
 
-	if (!p_object || !g_queueHasRoom || g_polygonCount >= g_unk0x100a54b8) {
+	if (!p_object || !g_queueHasRoom || g_polygonCount >= g_maxPolygons) {
 		return;
 	}
 
 	shape = p_object->m_shape;
 	if (shape) {
-		g_unk0x1010b5cc++;
+		g_shapesConsidered++;
 		if (!(shape->m_flags & 0x1000) && !g_renderSettings.m_shapeFilter(shape)) {
-			g_unk0x1010b5a0++;
-			FUN_100335d0(shape, g_unk0x1010b5a4);
+			g_shapesDrawn++;
+			QueueShapeLod(shape, g_queueDepth);
 		}
 	}
 
 	for (child = p_object->m_firstChild; child; child = child->m_nextSibling) {
-		FUN_10033c4b(child);
+		QueueObjTree(child);
 	}
 }
 
 // FUNCTION: MW2 0x10033d0f
-void FUN_10033d0f(Shape* p_root, Eyepoint* p_eyepoint)
+void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
 {
 	SelectEyepoint(p_eyepoint);
-	FUN_100338bb(p_root);
+	DrawShapeList(p_root);
 }
 
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.
@@ -374,7 +374,7 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 	}
 
 	if (count > 0) {
-		FUN_100445d2(count, points, p_poly->m_flags);
+		DrawPolygonOrLine(count, points, p_poly->m_flags);
 	}
 }
 
@@ -569,7 +569,7 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 // the screen column (p_isX) or row p_edge.
 // Stack-slot permutation: da, dz, t and z.
 // FUNCTION: MW2 0x10034499
-MechS32 FUN_10034499(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1)
+MechS32 GetEdgeCrossingDepth(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1)
 {
 	MechS32 dz;
 	MechS32 t;
@@ -611,7 +611,7 @@ void ClipEdgeToColumn(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_x, P
 	MechS32 dx;
 	MechS32 dy;
 
-	p_out->m_z = FUN_10034499(p_a->m_x, p_b->m_x, p_x, 1, p_a->m_z, p_b->m_z);
+	p_out->m_z = GetEdgeCrossingDepth(p_a->m_x, p_b->m_x, p_x, 1, p_a->m_z, p_b->m_z);
 	z = p_out->m_z;
 	p_out->m_screenX = p_x;
 	p_out->m_screenY = Lerp(p_a->m_screenX, p_b->m_screenX, p_x, p_a->m_screenY, p_b->m_screenY);
@@ -650,7 +650,7 @@ void ClipEdgeToRow(ProjectedVertex* p_a, ProjectedVertex* p_b, MechS32 p_y, Proj
 	MechS32 dx;
 	MechS32 dy;
 
-	p_out->m_z = FUN_10034499(p_a->m_y, p_b->m_y, p_y, 0, p_a->m_z, p_b->m_z);
+	p_out->m_z = GetEdgeCrossingDepth(p_a->m_y, p_b->m_y, p_y, 0, p_a->m_z, p_b->m_z);
 	z = p_out->m_z;
 	p_out->m_screenX = Lerp(p_a->m_screenY, p_b->m_screenY, p_y, p_a->m_screenX, p_b->m_screenX);
 	p_out->m_screenY = p_y;

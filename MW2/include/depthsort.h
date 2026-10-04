@@ -25,23 +25,23 @@ extern "C"
 
 	extern MechS32 g_depthEntryCount;
 	extern MechS32 g_polygonCount;
-	extern MechS32 g_unk0x100a54b8;
-	extern MechS32 g_unk0x1010b5a0;
-	extern MechS32 g_unk0x1010b5a4;
+	extern MechS32 g_maxPolygons;
+	extern MechS32 g_shapesDrawn;
+	extern MechS32 g_queueDepth;
 	extern DepthEntry* g_depthList;
 	extern MechU32 g_queuedShapeFlags;
-	extern MechS32 g_unk0x1010b5cc;
+	extern MechS32 g_shapesConsidered;
 
-	MechS32 FUN_100335d0(struct Shape* p_shape, MechS32 p_depth);
+	MechS32 QueueShapeLod(struct Shape* p_shape, MechS32 p_depth);
 	void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last);
-	void FUN_100338bb(struct Shape* p_root);
-	void FUN_10033a06(void);
-	void FUN_10033b9e(struct SceneObject* p_root);
-	void FUN_10033c4b(struct SceneObject* p_object);
-	void FUN_10033d0f(struct Shape* p_root, struct Eyepoint* p_eyepoint);
+	void DrawShapeList(struct Shape* p_root);
+	void DrawDepthQueue(void);
+	void DrawObjTreeShapes(struct SceneObject* p_root);
+	void QueueObjTree(struct SceneObject* p_object);
+	void DrawShapeListFrom(struct Shape* p_root, struct Eyepoint* p_eyepoint);
 	void DrawQueuedPolygon(struct QueuedPolygon* p_poly);
 	MechS32 ClipPolygonToScreen(struct QueuedPolygon* p_poly, MechU32* p_points);
-	MechS32 FUN_10034499(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1);
+	MechS32 GetEdgeCrossingDepth(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1);
 	void ClipEdgeToColumn(
 		struct ProjectedVertex* p_a,
 		struct ProjectedVertex* p_b,

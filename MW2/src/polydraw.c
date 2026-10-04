@@ -30,21 +30,21 @@ RenderSettings g_renderSettings = {0, 1, 1,       1,       1, 1, 1,    1,    1, 
 								   0, 0, 0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
 
 // GLOBAL: MW2 0x100a6d30
-MechS32 g_unk0x100a6d30 = 0x24;
+MechS32 g_horizonBandHeight = 0x24;
 
 // Polygon drawing: a polygon is p_count points of 6 dwords each (x, y, a shade, two texture
 // coordinates and a depth), and the mode in bits 12 to 14 of p_flags picks how it is drawn.
 
-// The end of the last line FUN_10044590 drew.
+// The end of the last line DrawLineTo drew.
 // GLOBAL: MW2 0x100be5d4
-MechS32 g_unk0x100be5d4;
+MechS32 g_lineEndX;
 
 // GLOBAL: MW2 0x100be5d8
-MechS32 g_unk0x100be5d8;
+MechS32 g_lineEndY;
 
 // Stack-slot permutation: luma, saved, mode, index, scale, shade and fraction.
 // FUNCTION: MW2 0x10042e00
-void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
+void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
 	MechS32 luma;
 	MechS32 saved;
@@ -71,13 +71,13 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		break;
 	case 0x2000:
 		p_flags &= 0xff;
-		g_unk0x100be5d4 = p_points[0];
-		g_unk0x100be5d8 = p_points[1];
+		g_lineEndX = p_points[0];
+		g_lineEndY = p_points[1];
 		for (i = 1; i < p_count; i++) {
-			FUN_10044590(p_points[i * 6], p_points[i * 6 + 1], p_flags);
+			DrawLineTo(p_points[i * 6], p_points[i * 6 + 1], p_flags);
 		}
 
-		FUN_10044590(p_points[0], p_points[1], p_flags);
+		DrawLineTo(p_points[0], p_points[1], p_flags);
 		break;
 	case 0x4000:
 		p_flags &= 0xff;
@@ -122,7 +122,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 			}
 		}
 
-		FUN_10068d10(index, p_count, p_points, luma, 0, 1);
+		DrawAnimatedPolygon(index, p_count, p_points, luma, 0, 1);
 		break;
 	case 0x6000:
 		if (!g_renderSettings.m_textures) {
@@ -133,7 +133,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		index = p_flags & 0xff;
 		saved = g_renderSettings.m_affineTextures;
 		g_renderSettings.m_affineTextures = TRUE;
-		FUN_10068d10(index, p_count, p_points, luma, 0, 1);
+		DrawAnimatedPolygon(index, p_count, p_points, luma, 0, 1);
 		g_renderSettings.m_affineTextures = saved;
 		break;
 	case 0x7000:
@@ -143,7 +143,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 
 		luma = (p_flags & 0xf00) >> 8;
 		index = p_flags & 0xff;
-		FUN_10068d10(index, p_count, p_points, luma, 0, 0);
+		DrawAnimatedPolygon(index, p_count, p_points, luma, 0, 0);
 		break;
 	default:
 		break;
@@ -158,7 +158,7 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 // Stack-slot permutation; the original calls IsAboveHorizon for the corners in the order of the
 // terms, (x0, y1) first (commutative operand order).
 // FUNCTION: MW2 0x1004320b
-void FUN_1004320b(Eyepoint* p_eyepoint)
+void DrawSkyAndGround(Eyepoint* p_eyepoint)
 {
 	MechS32 y1;
 	MechS32 x1;
@@ -184,7 +184,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	gradient = FALSE;
 	rect = g_currentPane;
 	dx = dz = 0;
-	dy = g_unk0x100a6d30;
+	dy = g_horizonBandHeight;
 	SetIdentityMatrix(&roll);
 	roll.m_rows[0][0] = roll.m_rows[1][1] = FixedCos(p_eyepoint->m_roll);
 	roll.m_rows[1][0] = FixedSin(p_eyepoint->m_roll);
@@ -261,11 +261,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 		else {
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_skyColor);
+				DrawQuad(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_skyColor);
 			}
 
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_groundColor);
+				DrawQuad(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_groundColor);
 			}
 		}
 		break;
@@ -302,11 +302,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 		else {
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_groundColor);
+				DrawQuad(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_groundColor);
 			}
 
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_skyColor);
+				DrawQuad(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_skyColor);
 			}
 		}
 		break;
@@ -333,11 +333,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 		else {
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_skyColor);
+				DrawQuad(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_skyColor);
 			}
 
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_groundColor);
+				DrawQuad(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_groundColor);
 			}
 		}
 
@@ -376,11 +376,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		}
 		else {
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_groundColor);
+				DrawQuad(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_groundColor);
 			}
 
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_skyColor);
+				DrawQuad(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_skyColor);
 			}
 		}
 
@@ -400,55 +400,55 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_skyColor);
+			DrawTriangle(x0, y0, x0, yLeft, xTop, y0, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_groundColor);
+			DrawPentagon(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_groundColor);
 		}
 		break;
 	case 14:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_groundColor);
+			DrawTriangle(x0, y0, x0, yLeft, xTop, y0, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_skyColor);
+			DrawPentagon(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_skyColor);
 		}
 		break;
 	case 2:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_skyColor);
+			DrawTriangle(x1, y0, xTop, y0, x1, yRight, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_groundColor);
+			DrawPentagon(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_groundColor);
 		}
 		break;
 	case 13:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_groundColor);
+			DrawTriangle(x1, y0, xTop, y0, x1, yRight, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_skyColor);
+			DrawPentagon(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_skyColor);
 		}
 		break;
 	case 4:
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_skyColor);
+			DrawTriangle(x0, yLeft, x0, y1, xBottom, y1, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_groundColor);
+			DrawPentagon(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_groundColor);
 		}
 		break;
 	case 11:
@@ -456,11 +456,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_groundColor);
+			DrawTriangle(x0, yLeft, x0, y1, xBottom, y1, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_skyColor);
+			DrawPentagon(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_skyColor);
 			if (g_renderSettings.m_horizonBand) {
 				band[6] = band[12] = x0;
 				band[18] = band[0] = x1;
@@ -476,11 +476,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_skyColor);
+			DrawTriangle(xBottom, y1, x1, y1, x1, yRight, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_groundColor);
+			DrawPentagon(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_groundColor);
 		}
 		break;
 	case 7:
@@ -488,11 +488,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_groundColor);
+			DrawTriangle(xBottom, y1, x1, y1, x1, yRight, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_skyColor);
+			DrawPentagon(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_skyColor);
 			if (g_renderSettings.m_horizonBand) {
 				band[6] = band[12] = x0;
 				band[18] = band[0] = x1;
@@ -513,7 +513,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 
 // Draws a closed polygon of five points.
 // FUNCTION: MW2 0x1004440d
-void FUN_1004440d(
+void DrawPentagon(
 	MechS32 p_x0,
 	MechS32 p_y0,
 	MechS32 p_x1,
@@ -543,7 +543,7 @@ void FUN_1004440d(
 }
 
 // FUNCTION: MW2 0x100444a6
-void FUN_100444a6(
+void DrawQuad(
 	MechS32 p_x0,
 	MechS32 p_y0,
 	MechS32 p_x1,
@@ -569,7 +569,7 @@ void FUN_100444a6(
 }
 
 // FUNCTION: MW2 0x10044527
-void FUN_10044527(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS32 p_x2, MechS32 p_y2, MechU32 p_flags)
+void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS32 p_x2, MechS32 p_y2, MechU32 p_flags)
 {
 	MechU32 points[3 * 6];
 
@@ -584,17 +584,17 @@ void FUN_10044527(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 
 // Draws a line from the end of the last one to (p_x, p_y).
 // FUNCTION: MW2 0x10044590
-void FUN_10044590(MechS32 p_x, MechS32 p_y, MechU32 p_color)
+void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color)
 {
-	VFX_line_draw(&g_currentPane, p_x, p_y, g_unk0x100be5d4, g_unk0x100be5d8, 0, p_color);
-	g_unk0x100be5d4 = p_x;
-	g_unk0x100be5d8 = p_y;
+	VFX_line_draw(&g_currentPane, p_x, p_y, g_lineEndX, g_lineEndY, 0, p_color);
+	g_lineEndX = p_x;
+	g_lineEndY = p_y;
 }
 
 // Draws a polygon: a point or a line with the pane's own routines where the settings
 // allow, else through g_renderSettings's polygon callback, filled, outlined or both.
 // FUNCTION: MW2 0x100445d2
-void FUN_100445d2(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
+void DrawPolygonOrLine(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
 	if (p_count == 1 && g_renderSettings.m_drawPixels) {
 		if (p_flags == 0x1000) {

@@ -10,12 +10,12 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a7120;
-	extern SceneObject* g_unk0x100a7128;
+	extern MechS32 g_gridObjectShown;
+	extern SceneObject* g_gridObject;
 
-	void FUN_1004b130(SceneObject* p_obj);
-	void FUN_1004b344(void);
-	void FUN_1004b539(MechS32 p_enable);
+	void SetGridObject(SceneObject* p_obj);
+	void UpdateGridObject(void);
+	void ShowGridObject(MechS32 p_enable);
 
 #ifdef __cplusplus
 }

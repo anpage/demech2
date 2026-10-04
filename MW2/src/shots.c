@@ -783,8 +783,8 @@ void SpawnEffectEx(
 			DisableObjTreeCollision(effect->m_object);
 			UpdateObj(effect->m_object);
 			if (effect->m_animation != -1) {
-				FUN_100694df(effect->m_animation, 0);
-				FUN_1006946f(effect->m_animation, 2);
+				SetAnimFrame(effect->m_animation, 0);
+				SetAnimMode(effect->m_animation, 2);
 			}
 		}
 
@@ -829,7 +829,7 @@ void SpawnEffectEx(
 				g_eyepoint->m_lightY = p_camY;
 				g_eyepoint->m_lightZ = p_camZ;
 				if (info->m_flash > -1) {
-					FUN_1000288e(info->m_flash, info->m_duration, 1);
+					StartPaletteFlash(info->m_flash, info->m_duration, 1);
 				}
 			}
 		}
@@ -893,7 +893,7 @@ void UpdateEffects(void)
 				release = 1;
 				restore = 0;
 				if (effect->m_hasCamera && g_effectCameraActive && i == g_effectCameraEffect) {
-					if (!FUN_10002c76()) {
+					if (!GetPaletteFadeSteps()) {
 						restore = 1;
 					}
 					else {
@@ -920,8 +920,8 @@ void UpdateEffects(void)
 					}
 
 					if (effect->m_animation > 0) {
-						FUN_1006946f(effect->m_animation, 0);
-						FUN_100694df(effect->m_animation, 0);
+						SetAnimMode(effect->m_animation, 0);
+						SetAnimFrame(effect->m_animation, 0);
 					}
 
 					ResetEffectSlot(i);

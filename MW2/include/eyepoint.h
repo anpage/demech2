@@ -6,7 +6,7 @@
 #include "types.h"
 
 // The view the scene is drawn from (g_eyepoint): its position and rotation, the light, the view
-// rectangle on the pane (SelectPane sizes it to the pane; FUN_100024f0 reads its centre, moved
+// rectangle on the pane (SelectPane sizes it to the pane; GetViewCenter reads its centre, moved
 // by m_offsetX/m_offsetY), the clip planes and the projection UpdateProjection derives from them.
 // The rotation is in 16.16 degrees: m_pitch about x, m_heading about y, m_roll about z, as
 // BuildMatrix takes them (the overlay's eye position readout prints them in that order).

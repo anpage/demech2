@@ -6,7 +6,7 @@
 #include "types.h"
 
 // The bounding box of a shape's selected model (Shape::m_collisionData), from the
-// transformed vertices. FUN_1006ea90 allocates it inside a larger 0x78-byte block.
+// transformed vertices. CreateShapeBoundBox allocates it inside a larger 0x78-byte block.
 // SIZE 0x18
 typedef struct BoundBox {
 	MechS32 m_minX; // 0x00
@@ -24,10 +24,10 @@ extern "C"
 #endif
 
 	BoundBox* CreateBoundBox(void);
-	void FUN_1006e9e6(Shape* p_shape);
-	BoundBox* FUN_1006ea90(Shape* p_shape);
-	void FUN_1006eb02(Shape* p_shape);
-	void FUN_1006eb80(
+	void EnsureBoundBox(Shape* p_shape);
+	BoundBox* CreateShapeBoundBox(Shape* p_shape);
+	void AttachShapeBoundBox(Shape* p_shape);
+	void ComputeModelBounds(
 		Shape* p_shape,
 		MechS32* p_minX,
 		MechS32* p_maxX,
@@ -36,8 +36,8 @@ extern "C"
 		MechS32* p_minZ,
 		MechS32* p_maxZ
 	);
-	void FUN_1006ed30(Shape* p_shape);
-	MechS32 FUN_1006edc3(Shape* p_shape);
+	void FreeBoundBox(Shape* p_shape);
+	MechS32 GetBoundBoxSize(Shape* p_shape);
 
 #ifdef __cplusplus
 }

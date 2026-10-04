@@ -274,7 +274,7 @@ void UpdateEyepoint(void)
 	}
 
 	g_viewMode = mode;
-	FUN_1004b344();
+	UpdateGridObject();
 	TurnBillboards();
 }
 

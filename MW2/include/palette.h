@@ -22,19 +22,19 @@ extern "C"
 
 	void InitPanes(PANE* p_target);
 	void SelectPane(MechS32 p_index);
-	void FUN_100024f0(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y);
+	void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y);
 	void ApplyPendingPalette(void);
 	void ApplyPaletteResource(MechS32 p_slot);
 	void UpdatePaletteFade(void);
 	MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode);
-	MechS32 FUN_1000288e(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode);
+	MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode);
 	void StartPaletteCycle(MechU8 p_first, MechS32 p_count);
 	void StopPaletteCycle(void);
 	MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot);
-	void FUN_10002a24(MechS32 p_palette, MechS32 p_duration);
-	void FUN_10002a5a(MechS32 p_palette);
+	void FadeToBasePalette(MechS32 p_palette, MechS32 p_duration);
+	void SetBasePalette(MechS32 p_palette);
 	void StartPalettes(MechS32 p_dissolve);
-	MechS32 FUN_10002c76(void);
+	MechS32 GetPaletteFadeSteps(void);
 
 #ifdef __cplusplus
 }

@@ -182,7 +182,7 @@ void FirstMech(struct Player* p_player)
 	mech->m_player->m_steering->m_resetTarget = 0;
 	mech->m_player->m_steering->m_nearestEnemy = 0;
 	mech->m_player->m_steering->m_nextObjective = 0;
-	FUN_1000365a(mech->m_player);
+	StartMotion(mech->m_player);
 	EnableObjTreeCollision(mech->m_player->m_obj);
 	if (g_unk0x100acb34 && mech->m_player->m_index == g_localPlayerId) {
 		mech->m_player->m_steering->m_throttle = 0x333;
@@ -832,7 +832,7 @@ void LateUpdateMech(Mech* p_mech)
 		}
 	}
 
-	FUN_10003710(mech->m_player);
+	UpdateMotion(mech->m_player);
 
 	if (mech->m_jumpFuel == -2 && mech->m_player->m_steering->m_grantJumpJets) {
 		mech->m_jumpFuel = 0x712;
@@ -1005,7 +1005,7 @@ void LateUpdateMech(Mech* p_mech)
 	}
 
 	if (mech->m_powerState != 2) {
-		FUN_1000369e(mech->m_player);
+		StopMotion(mech->m_player);
 		mech->m_throttle.m_target = 0x400;
 		mech->m_speed.m_target = 0;
 		mech->m_torsoTwist.m_target = 0;

@@ -12,38 +12,38 @@
 
 #include <stdlib.h>
 
-// The grid FUN_1004b130 sets up: its cell size, whether the object is on, has been shown and
+// The grid SetGridObject sets up: its cell size, whether the object is on, has been shown and
 // snaps to the nearest cell.
 
 // GLOBAL: MW2 0x100a7114
-MechS32 g_unk0x100a7114 = 0;
+MechS32 g_gridCellSize = 0;
 
 // GLOBAL: MW2 0x100a7118
-MechS32 g_unk0x100a7118 = 0;
+MechS32 g_gridObjectSet = 0;
 
 // GLOBAL: MW2 0x100a711c
-MechS32 g_unk0x100a711c = 0;
+MechS32 g_gridObjectPlaced = 0;
 
 // GLOBAL: MW2 0x100a7120
-MechS32 g_unk0x100a7120 = 0;
+MechS32 g_gridObjectShown = 0;
 
 // GLOBAL: MW2 0x100a7124
-MechS32 g_unk0x100a7124 = 0;
+MechS32 g_gridObjectSnaps = 0;
 
 // GLOBAL: MW2 0x100a7128
-SceneObject* g_unk0x100a7128 = NULL;
+SceneObject* g_gridObject = NULL;
 
 // The eyepoint's cell and the object's position.
 
 // GLOBAL: MW2 0x100be9e0
-static Vector3 g_unk0x100be9e0;
+static Vector3 g_gridCell;
 
 // GLOBAL: MW2 0x100be9f0
-static Vector3 g_unk0x100be9f0;
+static Vector3 g_gridAnchor;
 
 // How far the eyepoint may stray from the object before it snaps to another cell.
 // GLOBAL: MW2 0x100be9fc
-static MechS32 g_unk0x100be9fc;
+static MechS32 g_gridSnapDistance;
 
 // Makes p_obj the object that follows the eyepoint on a grid, a cell at a time: the cells are its
 // model's span (with children) or a third of it, in steps of 0x4000, and it is snapped to the
@@ -51,7 +51,7 @@ static MechS32 g_unk0x100be9fc;
 // under the eyepoint.
 // Stack-slot permutation; depth > span compares in the other operand order.
 // FUNCTION: MW2 0x1004b130
-void FUN_1004b130(SceneObject* p_obj)
+void SetGridObject(SceneObject* p_obj)
 {
 	MechS32 depth;
 	MechS32 minX;
@@ -108,29 +108,29 @@ void FUN_1004b130(SceneObject* p_obj)
 	}
 
 	if (!p_obj->m_firstChild) {
-		g_unk0x100a7114 = (span / 3 / 0x4000 + 1) * 0x4000;
-		g_unk0x100a7124 = 0;
+		g_gridCellSize = (span / 3 / 0x4000 + 1) * 0x4000;
+		g_gridObjectSnaps = 0;
 	}
 	else {
-		g_unk0x100a7114 = (span / 0x4000 + 1) * 0x4000;
-		g_unk0x100a7124 = 1;
+		g_gridCellSize = (span / 0x4000 + 1) * 0x4000;
+		g_gridObjectSnaps = 1;
 	}
 
-	g_unk0x100be9fc = ((g_unk0x100a7114 >> 3) + g_unk0x100a7114) >> 1;
-	g_unk0x100a7128 = p_obj;
-	g_unk0x100a7118 = 1;
-	g_unk0x100a7120 = 1;
-	g_unk0x100a711c = 0;
-	g_unk0x100be9f0.m_x = g_unk0x100be9f0.m_y = g_unk0x100be9f0.m_z = 0;
-	g_unk0x100be9e0.m_x = g_unk0x100be9e0.m_y = g_unk0x100be9e0.m_z = 0;
+	g_gridSnapDistance = ((g_gridCellSize >> 3) + g_gridCellSize) >> 1;
+	g_gridObject = p_obj;
+	g_gridObjectSet = 1;
+	g_gridObjectShown = 1;
+	g_gridObjectPlaced = 0;
+	g_gridAnchor.m_x = g_gridAnchor.m_y = g_gridAnchor.m_z = 0;
+	g_gridCell.m_x = g_gridCell.m_y = g_gridCell.m_z = 0;
 	HideObjTree(p_obj);
 	DisableObjTreeCollision(p_obj);
 }
 
-// Moves the grid object (FUN_1004b130) to the eyepoint's cell when that changes.
-// Stack-slot permutation; dz > g_unk0x100be9fc compares in the other operand order.
+// Moves the grid object (SetGridObject) to the eyepoint's cell when that changes.
+// Stack-slot permutation; dz > g_gridSnapDistance compares in the other operand order.
 // FUNCTION: MW2 0x1004b344
-void FUN_1004b344(void)
+void UpdateGridObject(void)
 {
 	MechS32 dx;
 	MechS32 dz;
@@ -141,74 +141,74 @@ void FUN_1004b344(void)
 	MechS32 cellX;
 	MechS32 z;
 
-	if (g_unk0x100a7120 && g_unk0x100a7118) {
+	if (g_gridObjectShown && g_gridObjectSet) {
 		x = g_eyepoint->m_x;
 		z = g_eyepoint->m_z;
-		if (g_unk0x100a7124) {
-			dx = abs(x - g_unk0x100be9f0.m_x);
-			dz = abs(z - g_unk0x100be9f0.m_z);
-			if (dx > g_unk0x100be9fc || dz > g_unk0x100be9fc) {
+		if (g_gridObjectSnaps) {
+			dx = abs(x - g_gridAnchor.m_x);
+			dz = abs(z - g_gridAnchor.m_z);
+			if (dx > g_gridSnapDistance || dz > g_gridSnapDistance) {
 				if (x >= 0) {
-					halfX = g_unk0x100a7114 >> 1;
+					halfX = g_gridCellSize >> 1;
 				}
 				else {
-					halfX = -g_unk0x100a7114 >> 1;
+					halfX = -g_gridCellSize >> 1;
 				}
 
 				if (z >= 0) {
-					halfZ = g_unk0x100a7114 >> 1;
+					halfZ = g_gridCellSize >> 1;
 				}
 				else {
-					halfZ = -g_unk0x100a7114 >> 1;
+					halfZ = -g_gridCellSize >> 1;
 				}
 
-				cellX = (x + halfX) / g_unk0x100a7114;
-				cellZ = (z + halfZ) / g_unk0x100a7114;
+				cellX = (x + halfX) / g_gridCellSize;
+				cellZ = (z + halfZ) / g_gridCellSize;
 			}
 			else {
-				cellX = g_unk0x100be9e0.m_x;
-				cellZ = g_unk0x100be9e0.m_z;
+				cellX = g_gridCell.m_x;
+				cellZ = g_gridCell.m_z;
 			}
 		}
 		else {
-			cellX = x / g_unk0x100a7114;
-			cellZ = z / g_unk0x100a7114;
+			cellX = x / g_gridCellSize;
+			cellZ = z / g_gridCellSize;
 		}
 
-		if (!g_unk0x100a711c) {
-			ShowObjTree(g_unk0x100a7128);
-			g_unk0x100a711c = 1;
+		if (!g_gridObjectPlaced) {
+			ShowObjTree(g_gridObject);
+			g_gridObjectPlaced = 1;
 		}
 
-		if (g_unk0x100be9e0.m_x != cellX || g_unk0x100be9e0.m_z != cellZ) {
-			g_unk0x100be9f0.m_x = cellX * g_unk0x100a7114;
-			g_unk0x100be9f0.m_y = 0;
-			g_unk0x100be9f0.m_z = cellZ * g_unk0x100a7114;
-			if (g_unk0x100a7128) {
-				ShowObjTree(g_unk0x100a7128);
-				SetObjPosition(g_unk0x100a7128, g_unk0x100be9f0.m_x, g_unk0x100be9f0.m_y, g_unk0x100be9f0.m_z);
-				UpdateObj(g_unk0x100a7128);
+		if (g_gridCell.m_x != cellX || g_gridCell.m_z != cellZ) {
+			g_gridAnchor.m_x = cellX * g_gridCellSize;
+			g_gridAnchor.m_y = 0;
+			g_gridAnchor.m_z = cellZ * g_gridCellSize;
+			if (g_gridObject) {
+				ShowObjTree(g_gridObject);
+				SetObjPosition(g_gridObject, g_gridAnchor.m_x, g_gridAnchor.m_y, g_gridAnchor.m_z);
+				UpdateObj(g_gridObject);
 			}
 		}
 
-		g_unk0x100be9e0.m_x = cellX;
-		g_unk0x100be9e0.m_y = 0;
-		g_unk0x100be9e0.m_z = cellZ;
+		g_gridCell.m_x = cellX;
+		g_gridCell.m_y = 0;
+		g_gridCell.m_z = cellZ;
 	}
 }
 
 // FUNCTION: MW2 0x1004b539
-void FUN_1004b539(MechS32 p_enable)
+void ShowGridObject(MechS32 p_enable)
 {
-	if (g_unk0x100a7128) {
+	if (g_gridObject) {
 		if (p_enable) {
-			ShowObjTree(g_unk0x100a7128);
+			ShowObjTree(g_gridObject);
 		}
 		else {
-			HideObjTree(g_unk0x100a7128);
+			HideObjTree(g_gridObject);
 		}
 
-		UpdateObj(g_unk0x100a7128);
-		g_unk0x100a7120 = p_enable;
+		UpdateObj(g_gridObject);
+		g_gridObjectShown = p_enable;
 	}
 }

@@ -55,7 +55,7 @@ WINDOW g_animFrameBuffer;
 
 // Stack-slot permutation: anim, data, height, i, luma, mode and useLuma and width.
 // FUNCTION: MW2 0x10068d10
-MechS32 FUN_10068d10(
+MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
 	MechS32 p_count,
 	MechU32* p_points,
@@ -195,7 +195,7 @@ void AdvanceAnimations(void)
 
 // Stack-slot permutation: found and slot.
 // FUNCTION: MW2 0x10069124
-MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set)
+MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
 	MechS32 slot;
@@ -203,7 +203,7 @@ MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set)
 	slot = 0;
 	found = FALSE;
 	if (g_animInitialized == -2) {
-		FUN_10069360();
+		InitAnimations();
 	}
 
 	if (p_set == -1) {
@@ -241,7 +241,7 @@ MechS32 FUN_10069124(MechS32 p_resourceId, MechS32 p_set)
 }
 
 // FUNCTION: MW2 0x1006923c
-void FUN_1006923c(void)
+void PreloadAnimCels(void)
 {
 	MechS32 i;
 
@@ -251,7 +251,7 @@ void FUN_1006923c(void)
 }
 
 // FUNCTION: MW2 0x10069288
-MechS32 FUN_10069288(MechS32 p_index, MechS32 p_set)
+MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 {
 	if (p_set == -1) {
 		p_set = g_currentAnimSet;
@@ -274,7 +274,7 @@ MechS32 FUN_10069288(MechS32 p_index, MechS32 p_set)
 }
 
 // FUNCTION: MW2 0x10069360
-void FUN_10069360(void)
+void InitAnimations(void)
 {
 	MechS32 j;
 	MechS32 i;
@@ -307,7 +307,7 @@ void FUN_10069360(void)
 }
 
 // FUNCTION: MW2 0x1006946f
-void FUN_1006946f(MechS16 p_index, MechS16 p_mode)
+void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 {
 	if (g_animations[p_index].m_flags != -2) {
 		g_animations[p_index].m_mode = p_mode;
@@ -319,7 +319,7 @@ void FUN_1006946f(MechS16 p_index, MechS16 p_mode)
 }
 
 // FUNCTION: MW2 0x100694df
-void FUN_100694df(MechS16 p_index, MechU16 p_frame)
+void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;
 
@@ -339,7 +339,7 @@ void FUN_100694df(MechS16 p_index, MechU16 p_frame)
 }
 
 // FUNCTION: MW2 0x10069564
-void FUN_10069564(MechS16 p_index, MechU16 p_delay)
+void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 {
 	g_animations[p_index].m_delay = p_delay;
 }
@@ -354,10 +354,10 @@ void FUN_10069591(void)
 {
 }
 
-// Index order: &g_animFrames[i][j] loads i first in the original (FUN_10069360 matches with the
+// Index order: &g_animFrames[i][j] loads i first in the original (InitAnimations matches with the
 // same statement).
 // FUNCTION: MW2 0x1006959c
-void FUN_1006959c(void)
+void FreeAnimations(void)
 {
 	MechS32 j;
 	MechS32 i;

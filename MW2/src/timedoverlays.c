@@ -18,27 +18,27 @@
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
-PANE g_unk0x100adee0 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+PANE g_topMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
 undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
-PANE g_unk0x100adef8 = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
+PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
 undefined4 g_unk0x100adf0c = 0;
 
 // GLOBAL: MW2 0x100c3360
-static MechChar g_unk0x100c3360[0x100];
+static MechChar g_bottomMessageText[0x100];
 
 // GLOBAL: MW2 0x100c3460
-static MechChar g_unk0x100c3460[0x100];
+static MechChar g_topMessageText[0x100];
 
 // GLOBAL: MW2 0x100adf10
 TimedOverlay g_timedOverlays[2] = {
-	{g_unk0x100c3460, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_unk0x100adee0},
-	{g_unk0x100c3360, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_unk0x100adef8}
+	{g_topMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_topMessagePane},
+	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_bottomMessagePane}
 };
 
 // Lays out the message boxes: scales their rectangles to the screen and to their background
@@ -46,7 +46,7 @@ TimedOverlay g_timedOverlays[2] = {
 // text vertically.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006ee60
-void FUN_1006ee60(void)
+void LayoutMessageBoxes(void)
 {
 	MechS32 fontHeight;
 	MechS32 sign;
@@ -211,7 +211,7 @@ void DrawTimedOverlays(void)
 // at p_x, p_y or centered on the screen along an axis where that is negative.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f28f
-void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
+void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
 	PANE centered;
 	void* background;
@@ -262,9 +262,9 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 	}
 }
 
-// Draws a TEXT resource, stored with each character negated (mod 256), as FUN_1006f28f does.
+// Draws a TEXT resource, stored with each character negated (mod 256), as DrawTextBox does.
 // FUNCTION: MW2 0x1006f3ea
-void FUN_1006f3ea(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
+void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
 {
 	MechChar* text;
 	MechChar* c;
@@ -280,6 +280,6 @@ void FUN_1006f3ea(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_
 			c++;
 		}
 
-		FUN_1006f28f(p_background, p_font, text, p_x, p_y);
+		DrawTextBox(p_background, p_font, text, p_x, p_y);
 	}
 }

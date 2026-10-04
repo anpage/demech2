@@ -462,7 +462,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
-	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
 	if (radius + depth < g_viewNearPlane) {
 		return 4;
 	}
@@ -530,7 +530,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 1;
 	}
 
-	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
 	if (radius + depth < g_viewNearPlane) {
 		return 4;
 	}

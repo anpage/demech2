@@ -100,7 +100,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	}
 
 	// gpanim.c's Mech is the player
-	FUN_10003a10(mech->m_player);
+	ResetMotion(mech->m_player);
 	FirstMech(mech->m_player);
 
 	if (g_localPlayerId == p_player) {

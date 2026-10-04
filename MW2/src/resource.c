@@ -756,7 +756,7 @@ void CreateObjectNode(
 			TransformShape(shape, &matrix);
 			AddSceneShape(shape);
 			if (shape->m_collisionType == 5) {
-				FUN_1001df00(shape);
+				BuildShapeQuadtree(shape);
 			}
 		}
 		else {

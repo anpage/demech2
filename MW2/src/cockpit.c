@@ -1053,11 +1053,11 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		FUN_100107de(color, p_count, (MechS32*) p_points, -1, 1);
 		break;
 	case 0:
-		FUN_10042e00(p_count, p_points, 0);
-		FUN_10042e00(p_count, p_points, p_flags | 0x2000);
+		DrawScenePolygon(p_count, p_points, 0);
+		DrawScenePolygon(p_count, p_points, p_flags | 0x2000);
 		break;
 	default:
-		FUN_10042e00(p_count, p_points, p_flags);
+		DrawScenePolygon(p_count, p_points, p_flags);
 		break;
 	}
 }

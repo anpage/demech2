@@ -88,12 +88,12 @@ void SetRes(void)
 	UpdateProjection(g_eyepoint);
 	UpdateViewMatrix(g_eyepoint);
 	g_projectionDirty = 0;
-	point.m_x = g_unk0x100a6d30;
+	point.m_x = g_horizonBandHeight;
 	point.m_y = 0;
 	ScalePointFromLowRes(&point, &point);
 	ScalePointToScreen(&g_mainPixelBuffer, &point, &point);
-	g_unk0x100a6d30 = point.m_x;
+	g_horizonBandHeight = point.m_x;
 	ScaleCockpitLayout();
-	FUN_1006ee60();
+	LayoutMessageBoxes();
 	ScaleOverlayPositions();
 }

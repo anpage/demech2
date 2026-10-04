@@ -60,14 +60,14 @@ void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct 
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
-		FUN_1004320b(g_eyepoint);
+		DrawSkyAndGround(g_eyepoint);
 	}
 
 	if (p_object) {
-		FUN_10033b9e(p_object);
+		DrawObjTreeShapes(p_object);
 	}
 	else {
-		FUN_100338bb(g_sceneShapes);
+		DrawShapeList(g_sceneShapes);
 	}
 
 	FUN_10069591();

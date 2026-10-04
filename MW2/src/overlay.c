@@ -311,7 +311,7 @@ void ShowFrameRate(void)
 
 	if (g_showFrameRateMain && g_frameRate > 0) {
 		sprintf(text, "%ld.%ld", g_frameRate, g_frameRateTenths);
-		FUN_1006f28f(0x4f, 1, text, g_frameRateOrigin.m_x, g_frameRateOrigin.m_y);
+		DrawTextBox(0x4f, 1, text, g_frameRateOrigin.m_x, g_frameRateOrigin.m_y);
 	}
 
 	g_frameRateShown = 1;
@@ -440,7 +440,7 @@ void ShowEyePosition(Eyepoint* p_eyepoint)
 			(p_eyepoint->m_heading >> 16) % 360,
 			(p_eyepoint->m_roll >> 16) % 360
 		);
-		FUN_1006f28f(0x4f, 1, text, g_eyePositionOrigin.m_x, g_eyePositionOrigin.m_y);
+		DrawTextBox(0x4f, 1, text, g_eyePositionOrigin.m_x, g_eyePositionOrigin.m_y);
 	}
 
 	g_eyePositionShown = 1;
@@ -495,7 +495,7 @@ void ShowMemInfo(void)
 	sprintf(text, "%8.8ld", value);
 	DRAW_DEBUG_TEXT();
 	if (g_showMemInfoMain) {
-		FUN_1006f28f(0x4f, 1, text, g_memInfoOrigin.m_x, g_memInfoOrigin.m_y);
+		DrawTextBox(0x4f, 1, text, g_memInfoOrigin.m_x, g_memInfoOrigin.m_y);
 	}
 }
 

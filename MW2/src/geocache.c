@@ -927,7 +927,7 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 	}
 
 	if (kind == 5) {
-		FUN_1001df00(entry->m_shape);
+		BuildShapeQuadtree(entry->m_shape);
 	}
 
 	return TRUE;

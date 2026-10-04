@@ -88,10 +88,10 @@ void BeginMapView(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 void DrawMapViewScene(MechU32 p_flags)
 {
 	if (p_flags & 1) {
-		FUN_1004320b(g_eyepoint);
+		DrawSkyAndGround(g_eyepoint);
 	}
 
-	FUN_100338bb(g_sceneShapes);
+	DrawShapeList(g_sceneShapes);
 	FUN_10069591();
 }
 
@@ -110,7 +110,7 @@ void EndMapView(void)
 }
 
 // Culls a shape against the map view's frustum: 1 hidden, 4 in front of the near plane, 5 past
-// the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_unk0x1010b5a4.
+// the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10042206
 MechS32 CullMapViewShape(Shape* p_shape)
@@ -138,7 +138,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-	depth = g_unk0x1010b5a4 = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
 	if (depth + radius < g_viewNearPlane) {
 		return 4;
 	}

@@ -36,7 +36,7 @@ void FUN_10010750(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p
 	}
 }
 
-// Draws a band as a textured quad (FUN_10068d10) from the first three points of a polygon: the
+// Draws a band as a textured quad (DrawAnimatedPolygon) from the first three points of a polygon: the
 // two whose m_unk0x0c/m_unk0x10 mark its ends (mode 0), or a square about the second one (mode
 // 1). A negative mark flips the texture. Returns half the band's width, or 0 without both ends.
 // The only diff is a stack-slot permutation of the locals.
@@ -139,7 +139,7 @@ MechS32 FUN_100107de(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS3
 		}
 	}
 
-	FUN_10068d10(p_color, 4, quad[0], p_luma, 1, 0);
+	DrawAnimatedPolygon(p_color, 4, quad[0], p_luma, 1, 0);
 	return dx;
 }
 
