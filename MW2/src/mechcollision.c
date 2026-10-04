@@ -26,13 +26,13 @@
 #include "types.h"
 
 // Moves p_mech by (p_dx, p_dy, p_dz) from its player's position, into (*p_x, *p_y, *p_z), and
-// stops it at the first mech (FUN_10075d7b), building (FUN_10076295) or terrain shape it hits,
+// stops it at the first mech (CollideWithMechs), building (CollideWithBuildings) or terrain shape it hits,
 // bouncing its velocity off the surface. Returns the number of ticks it has been colliding (0:
 // free); *p_hit is the shape it hit and *p_player the mech's player.
 // Stack-slot permutation of the locals. The original sums dot's three products in source order;
 // the build starts with the second.
 // FUNCTION: MW2 0x100758a0
-MechS32 FUN_100758a0(
+MechS32 MoveMechWithCollisions(
 	Mech* p_mech,
 	Shape** p_hit,
 	Player** p_player,
@@ -79,13 +79,13 @@ MechS32 FUN_100758a0(
 		return 0;
 	}
 	else {
-		if (FUN_10075d7b(p_mech, p_x, p_y, p_z, p_player)) {
+		if (CollideWithMechs(p_mech, p_x, p_y, p_z, p_player)) {
 			p_mech->m_player->m_collidedWith = (*p_player)->m_index;
 			hit = TRUE;
 			p_mech->m_collisionTicks++;
 			*p_hit = NULL;
 		}
-		else if (FUN_10076295(p_mech, p_x, p_y, p_z, &shape)) {
+		else if (CollideWithBuildings(p_mech, p_x, p_y, p_z, &shape)) {
 			hit = TRUE;
 			p_mech->m_collisionTicks++;
 			*p_hit = shape;
@@ -110,7 +110,7 @@ MechS32 FUN_100758a0(
 
 			lift = FixedMul16(p_mech->m_radius, 0x10000 - lift) + FixedMul16(p_mech->m_height, lift);
 			SetRayLength(&ray, length + lift);
-			if (FUN_10035107(&ray, &shape)) {
+			if (TestSceneryCollision(&ray, &shape)) {
 				hit = TRUE;
 				p_mech->m_collisionTicks++;
 				*p_hit = shape;
@@ -171,10 +171,10 @@ MechS32 FUN_100758a0(
 // Pushes the point (*p_x, *p_y, *p_z) of p_mech out of the first other mech it overlaps, and
 // gives p_mech a velocity away from it. A mech pushing into one that pushed into it first (whose
 // m_collidedWith is p_mech's player) always collides. A mech in state 4 is knocked down
-// (FUN_10076a23) instead. Returns 1 on a collision, with *p_hit the other mech's player.
+// (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10075d7b
-MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Player** p_hit)
+MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Player** p_hit)
 {
 	MechS32 radius;
 	MechS32 otherRadius;
@@ -215,7 +215,7 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 
 		if (player->m_collidedWith == id && i < id) {
 			if (mech->m_powerState == 4) {
-				FUN_10076a23(mech);
+				KnockMechOver(mech);
 			}
 			else {
 				result = 1;
@@ -269,7 +269,7 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 			dist = ApproximateVectorLength(dx, dy, dz);
 			if (dist < reach) {
 				if (mech->m_powerState == 4) {
-					FUN_10076a23(mech);
+					KnockMechOver(mech);
 				}
 				else {
 					result = 1;
@@ -319,7 +319,7 @@ MechS32 FUN_10075d7b(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Pla
 // Stack-slot permutation of the locals. Operand order: dist < reach loads reach first in the
 // original.
 // FUNCTION: MW2 0x10076295
-MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Shape** p_hit)
+MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Shape** p_hit)
 {
 	MechS32 dz;
 	Shape* root;
@@ -412,7 +412,7 @@ MechS32 FUN_10076295(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Sha
 // they met faster than 200000.
 // The only diff is a stack-slot permutation of speed and damage.
 // FUNCTION: MW2 0x100765f8
-void FUN_100765f8(Mech* p_mech, Mech* p_other)
+void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 {
 	MechS32 speed;
 	MechS32 damage;
@@ -428,7 +428,7 @@ void FUN_100765f8(Mech* p_mech, Mech* p_other)
 	);
 	if (speed > 200000) {
 		damage = FixedDiv16(speed - 200000, 1300000) * 3;
-		FUN_1007669e(p_mech, p_other, damage);
+		ApplyCollisionDamage(p_mech, p_other, damage);
 	}
 }
 
@@ -438,7 +438,7 @@ void FUN_100765f8(Mech* p_mech, Mech* p_other)
 // Stack-slot permutation: attacker and angle. Operand order: damage < p_damage loads p_damage
 // first in the original.
 // FUNCTION: MW2 0x1007669e
-void FUN_1007669e(Mech* p_mech, Mech* p_other, MechS32 p_damage)
+void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 {
 	MechS32 attacker;
 	MechS32 damage;
@@ -500,7 +500,7 @@ void FUN_1007669e(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 // when it can be damaged. In a network game, a shape of kind 0xb0 destroys both legs and itself.
 // Stack-slot permutation: damage and speed.
 // FUNCTION: MW2 0x100768a8
-void FUN_100768a8(Mech* p_mech, Shape* p_shape)
+void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 {
 	MechS32 damage;
 	MechS32 speed;
@@ -525,7 +525,7 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 		if (speed > 200000) {
 			damage = FixedDiv16(speed - 200000, 1300000) * 3;
 			if (g_difficulty->m_collisionDamage) {
-				FUN_1007669e(p_mech, NULL, damage);
+				ApplyCollisionDamage(p_mech, NULL, damage);
 			}
 
 			if (p_shape && p_shape->m_kind & 0x200) {
@@ -545,7 +545,7 @@ void FUN_100768a8(Mech* p_mech, Shape* p_shape)
 // Knocks p_mech over: plays its fall (unless another machine of a network game controls it),
 // marks it fallen and plays the crash sound.
 // FUNCTION: MW2 0x10076a23
-void FUN_10076a23(Mech* p_mech)
+void KnockMechOver(Mech* p_mech)
 {
 	MechS32 x;
 	MechS32 y;

@@ -418,7 +418,7 @@ void UpdateMech(Mech* p_mech)
 		hitPlayer = NULL;
 		mech->m_player->m_collidedWith = -1;
 
-		if (FUN_100758a0(mech, &hitShape, &hitPlayer, dx, dy, dz, &posX, &posY, &posZ)) {
+		if (MoveMechWithCollisions(mech, &hitShape, &hitPlayer, dx, dy, dz, &posX, &posY, &posZ)) {
 			dx = posX - mech->m_player->m_position.m_x;
 			dy = posY - mech->m_player->m_position.m_y;
 			dz = posZ - mech->m_player->m_position.m_z;
@@ -427,7 +427,7 @@ void UpdateMech(Mech* p_mech)
 			velZ = mech->m_velocityZ;
 			savedUnk0xa4 = mech->m_collisionTicks;
 
-			if (FUN_100758a0(mech, &hitShape2, &hitPlayer, dx, dy, dz, &posX2, &posY2, &posZ2)) {
+			if (MoveMechWithCollisions(mech, &hitShape2, &hitPlayer, dx, dy, dz, &posX2, &posY2, &posZ2)) {
 				if (hitShape2 != hitShape) {
 					posX = mech->m_player->m_position.m_x;
 					posY = mech->m_player->m_position.m_y;
@@ -441,7 +441,7 @@ void UpdateMech(Mech* p_mech)
 
 			mech->m_collisionTicks = savedUnk0xa4;
 			if (mech->m_powerState == 4) {
-				FUN_10076a23(mech);
+				KnockMechOver(mech);
 				mech->m_player->m_onGround = 1;
 				return;
 			}
@@ -507,10 +507,10 @@ void UpdateMech(Mech* p_mech)
 				}
 
 				if (hitPlayer) {
-					FUN_100765f8(mech, hitPlayer->m_mech);
+					DamageMechsInCollision(mech, hitPlayer->m_mech);
 				}
 				else {
-					FUN_100768a8(mech, hitShape);
+					DamageMechHittingShape(mech, hitShape);
 				}
 			}
 		}
@@ -539,7 +539,7 @@ void UpdateMech(Mech* p_mech)
 				if (height < 0) {
 					if (velY < -0x56276) {
 						if (mech->m_powerState == 4) {
-							FUN_10076a23(mech);
+							KnockMechOver(mech);
 							return;
 						}
 						else {
@@ -687,7 +687,7 @@ void LateUpdateMech(Mech* p_mech)
 	}
 
 	if (g_unk0x100a15d0 >= 0 && g_unk0x100a15d4 >= 0 && mech->m_player->m_index == g_localPlayerId) {
-		FUN_10008c0f(-1, mech, g_unk0x100a15d4, g_unk0x100a15d0, 0);
+		DestroyCriticalSlot(-1, mech, g_unk0x100a15d4, g_unk0x100a15d0, 0);
 		g_unk0x100a15d0 = -1;
 	}
 
@@ -822,7 +822,7 @@ void LateUpdateMech(Mech* p_mech)
 		}
 
 		if (!mech->m_player->m_aiMode) {
-			FUN_100079d0(mech);
+			RunAutopilot(mech);
 		}
 
 		mech->m_throttle.m_target = FixedMul16(mech->m_player->m_steering->m_throttle, mech->m_mobility) + 0x400;

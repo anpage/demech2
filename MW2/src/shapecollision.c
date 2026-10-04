@@ -16,31 +16,31 @@
    terrain shape. Each hit leaves the surface normal in g_hitNormal. */
 
 // GLOBAL: MW2 0x100ad43c
-MechS32 g_unk0x100ad43c = 0;
+MechS32 g_rayBoxEntryBehind = 0;
 
 // Stack-slot permutation: inColumn and top.
 // FUNCTION: MW2 0x100699a0
-MechS32 FUN_100699a0(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointInBox(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 inColumn;
 	MechS32 top;
 	MechS32 inside;
 
-	FUN_10069a4b(p_shape, p_x, p_y, p_z, &inside, &inColumn, &top);
+	ClassifyPointInBox(p_shape, p_x, p_y, p_z, &inside, &inColumn, &top);
 	return inside;
 }
 
 // Tests whether (p_x, p_z) lies over the shape's bounding box; if it does, returns the top in
 // p_top and an upward normal.
 // FUNCTION: MW2 0x100699da
-MechS32 FUN_100699da(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 GetBoxTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
 	MechS32 top;
 	MechS32 inColumn;
 	MechS32 inside;
 
 	inColumn = 0;
-	FUN_10069a4b(p_shape, p_x, p_y, p_z, &inside, &inColumn, &top);
+	ClassifyPointInBox(p_shape, p_x, p_y, p_z, &inside, &inColumn, &top);
 	if (inColumn) {
 		*p_top = top;
 		g_hitNormalX = g_hitNormalZ = 0;
@@ -53,7 +53,7 @@ MechS32 FUN_100699da(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, Mech
 // Tests the point against the shape's bounding box: p_inColumn is set when (p_x, p_z) lies
 // within it, with the box's top in p_top, and p_inside when p_y does as well.
 // FUNCTION: MW2 0x10069a4b
-void FUN_10069a4b(
+void ClassifyPointInBox(
 	Shape* p_shape,
 	MechS32 p_x,
 	MechS32 p_y,
@@ -92,7 +92,7 @@ void FUN_10069a4b(
 // Stack-slot permutation of the locals; the tNear/tEnter and tFar/tExit comparisons
 // have their operands the other way around.
 // FUNCTION: MW2 0x10069b2a
-MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
+MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 {
 	MechS32 tNear;
 	MechS32 axis;
@@ -141,7 +141,7 @@ MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 	}
 
 	if (tNear < 0) {
-		g_unk0x100ad43c = tNear;
+		g_rayBoxEntryBehind = tNear;
 		tNear = 0;
 	}
 
@@ -190,7 +190,7 @@ MechS32 FUN_10069b2a(Shape* p_shape, Ray* p_ray)
 
 // Tests whether (p_x, p_z) lies over the shape's bounding box.
 // FUNCTION: MW2 0x10069dd4
-MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	BoundBox* box;
 
@@ -204,13 +204,13 @@ MechS32 FUN_10069dd4(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10069e54
-MechS32 FUN_10069e54(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointNever(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x10069e66
-MechS32 FUN_10069e66(Shape* p_shape, Ray* p_ray)
+MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 {
 	return 0;
 }
@@ -218,7 +218,7 @@ MechS32 FUN_10069e66(Shape* p_shape, Ray* p_ray)
 // Finds the upward-facing face under (p_x, p_z) and tests whether p_y lies below it.
 // Stack-slot permutation: i, done, face and height.
 // FUNCTION: MW2 0x10069e78
-MechS32 FUN_10069e78(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointUnderFloor(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 i;
 	MechS32 height;
@@ -229,9 +229,9 @@ MechS32 FUN_10069e78(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	done = FALSE;
 	while (!done) {
 		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
-		if (face->m_normal[1] > 0 && FUN_100357f8(face, (Vertex*) (p_shape->m_model + 1), p_x, p_z)) {
+		if (face->m_normal[1] > 0 && IsPointInFaceXZ(face, (Vertex*) (p_shape->m_model + 1), p_x, p_z)) {
 			done = TRUE;
-			if (FUN_10034a7b(face, (Vertex*) (p_shape->m_model + 1), p_x, p_y, p_z, &height)) {
+			if (IsBelowFacePlane(face, (Vertex*) (p_shape->m_model + 1), p_x, p_y, p_z, &height)) {
 				return 1;
 			}
 			else {
@@ -250,7 +250,7 @@ MechS32 FUN_10069e78(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10069f67
-MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	Model* model;
 
@@ -259,18 +259,18 @@ MechS32 FUN_10069f67(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		return FUN_1001e6dc(p_shape->m_collisionData, model, p_x, p_y, p_z) & 1;
 	}
 	else {
-		return FUN_10069e78(p_shape, p_x, p_y, p_z);
+		return TestPointUnderFloor(p_shape, p_x, p_y, p_z);
 	}
 }
 
 // FUNCTION: MW2 0x10069fd4
-MechS32 FUN_10069fd4(Shape* p_shape, Ray* p_ray)
+MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 {
 	return FUN_1001e90f(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
 }
 
 // FUNCTION: MW2 0x1006a001
-MechS32 FUN_1006a001(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
 	return FUN_1001ebfa(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
 }
@@ -279,7 +279,7 @@ MechS32 FUN_1006a001(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, Mech
 // Stack-slot permutation of the locals; the p_y > height comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006a037
-MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 i;
 	Vertex* vertices;
@@ -293,7 +293,7 @@ MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	vertices = (Vertex*) (p_shape->m_model + 1);
 	while (!done) {
 		face = (Face*) ((MechU8*) p_shape->m_model + p_shape->m_model->m_faceOffset) + i;
-		if (face->m_normal[1] < 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
+		if (face->m_normal[1] < 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
 			done = TRUE;
 			vertex = &vertices[*((MechU8*) face + face->m_indexOffset)];
 			height = vertex->m_worldY - SolvePlaneY(
@@ -328,7 +328,7 @@ MechS32 FUN_1006a037(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Tests the ray against each face of the shape's model.
 // Stack-slot permutation: vertices, i and face.
 // FUNCTION: MW2 0x1006a190
-MechS32 FUN_1006a190(Shape* p_shape, Ray* p_ray)
+MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 {
 	Model* model;
 	Vertex* vertices;
@@ -343,7 +343,7 @@ MechS32 FUN_1006a190(Shape* p_shape, Ray* p_ray)
 	vertices = (Vertex*) (model + 1);
 	for (i = 0; i < model->m_faceCount; i++) {
 		face = (Face*) ((MechU8*) model + model->m_faceOffset) + i;
-		if (FUN_100354d3(face, vertices, p_ray)) {
+		if (IntersectRayFace(face, vertices, p_ray)) {
 			return 1;
 		}
 	}

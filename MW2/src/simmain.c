@@ -422,7 +422,7 @@ int __stdcall SimMain(
 			if (g_refreshModeFallback) {
 				while (g_refreshModeFallback) {
 					if (g_currentDisplayBackend->m_id == 0) {
-						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
+						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
 					}
 
 					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
@@ -446,7 +446,7 @@ int __stdcall SimMain(
 			UpdatePaletteFade();
 			ApplyPendingPalette();
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
-				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_unk0x100a554c);
+				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
 			}
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {

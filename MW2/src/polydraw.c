@@ -152,8 +152,8 @@ void FUN_10042e00(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 
 // Draws the sky and the ground of the view from p_eyepoint: the horizon, rolled with the view,
 // splits the view rectangle (m_viewLeft-m_viewBottom). Each corner's side of it (IsAboveHorizon) makes
-// one bit of the case; the parts are filled in g_unk0x100a5548 (the sky, with m_drawSky) and
-// g_unk0x100a554c (the ground, with m_drawGround), and with m_horizonBand a shaded band over the
+// one bit of the case; the parts are filled in g_skyColor (the sky, with m_drawSky) and
+// g_groundColor (the ground, with m_drawGround), and with m_horizonBand a shaded band over the
 // horizon blends the sky into the ground.
 // Stack-slot permutation; the original calls IsAboveHorizon for the corners in the order of the
 // terms, (x0, y1) first (commutative operand order).
@@ -193,8 +193,8 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 	TransformPoint(&roll, &dx, &dy, &dz);
 	corners = IsAboveHorizon(x0, y1, p_eyepoint) * 4 + IsAboveHorizon(x1, y1, p_eyepoint) * 8 +
 			  IsAboveHorizon(x1, y0, p_eyepoint) * 2 + IsAboveHorizon(x0, y0, p_eyepoint);
-	band[2] = band[8] = g_unk0x100a5548 << 16;
-	band[14] = band[20] = (g_unk0x100a554c - 1) << 16;
+	band[2] = band[8] = g_skyColor << 16;
+	band[14] = band[20] = (g_groundColor - 1) << 16;
 	switch (corners) {
 	case 0:
 		if (g_renderSettings.m_drawGround) {
@@ -202,7 +202,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			rect.m_y0 += y0;
 			rect.m_x1 = rect.m_x0 + x1 - x0;
 			rect.m_y1 = rect.m_y0 + y1 - y0;
-			VFX_pane_wipe(&rect, g_unk0x100a554c);
+			VFX_pane_wipe(&rect, g_groundColor);
 		}
 		break;
 	case 15:
@@ -225,7 +225,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 			rect.m_y0 += y0;
 			rect.m_x1 = rect.m_x0 + x1 - x0;
 			rect.m_y1 = rect.m_y0 + y1 - y0;
-			VFX_pane_wipe(&rect, g_unk0x100a5548);
+			VFX_pane_wipe(&rect, g_skyColor);
 		}
 		break;
 	case 3:
@@ -247,7 +247,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + yLeft - y0;
-				VFX_pane_wipe(&rect, g_unk0x100a5548);
+				VFX_pane_wipe(&rect, g_skyColor);
 			}
 
 			if (g_renderSettings.m_drawGround) {
@@ -256,16 +256,16 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += yLeft;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + y1 - yLeft;
-				VFX_pane_wipe(&rect, g_unk0x100a554c);
+				VFX_pane_wipe(&rect, g_groundColor);
 			}
 		}
 		else {
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_unk0x100a5548);
+				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_skyColor);
 			}
 
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_unk0x100a554c);
+				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_groundColor);
 			}
 		}
 		break;
@@ -288,7 +288,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + yLeft - y0;
-				VFX_pane_wipe(&rect, g_unk0x100a554c);
+				VFX_pane_wipe(&rect, g_groundColor);
 			}
 
 			if (g_renderSettings.m_drawSky) {
@@ -297,16 +297,16 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += yLeft;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + y1 - yLeft;
-				VFX_pane_wipe(&rect, g_unk0x100a5548);
+				VFX_pane_wipe(&rect, g_skyColor);
 			}
 		}
 		else {
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_unk0x100a554c);
+				FUN_100444a6(x1, y0, x0, y0, x0, yLeft, x1, yRight, g_groundColor);
 			}
 
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_unk0x100a5548);
+				FUN_100444a6(x0, y1, x1, y1, x1, yRight, x0, yLeft, g_skyColor);
 			}
 		}
 		break;
@@ -319,7 +319,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				VFX_pane_wipe(&rect, g_unk0x100a5548);
+				VFX_pane_wipe(&rect, g_skyColor);
 			}
 
 			if (g_renderSettings.m_drawGround) {
@@ -328,16 +328,16 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - xTop - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				VFX_pane_wipe(&rect, g_unk0x100a554c);
+				VFX_pane_wipe(&rect, g_groundColor);
 			}
 		}
 		else {
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_unk0x100a5548);
+				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_skyColor);
 			}
 
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_unk0x100a554c);
+				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_groundColor);
 			}
 		}
 
@@ -362,7 +362,7 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				VFX_pane_wipe(&rect, g_unk0x100a554c);
+				VFX_pane_wipe(&rect, g_groundColor);
 			}
 
 			if (g_renderSettings.m_drawSky) {
@@ -371,16 +371,16 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - xTop - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				VFX_pane_wipe(&rect, g_unk0x100a5548);
+				VFX_pane_wipe(&rect, g_skyColor);
 			}
 		}
 		else {
 			if (g_renderSettings.m_drawGround) {
-				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_unk0x100a554c);
+				FUN_100444a6(x0, y0, x0, y1, xBottom, y1, xTop, y0, g_groundColor);
 			}
 
 			if (g_renderSettings.m_drawSky) {
-				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_unk0x100a5548);
+				FUN_100444a6(x1, y1, x1, y0, xTop, y0, xBottom, y1, g_skyColor);
 			}
 		}
 
@@ -400,55 +400,55 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_unk0x100a5548);
+			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_unk0x100a554c);
+			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_groundColor);
 		}
 		break;
 	case 14:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_unk0x100a554c);
+			FUN_10044527(x0, y0, x0, yLeft, xTop, y0, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_unk0x100a5548);
+			FUN_1004440d(x0, y1, x1, y1, x1, y0, xTop, y0, x0, yLeft, g_skyColor);
 		}
 		break;
 	case 2:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_unk0x100a5548);
+			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_unk0x100a554c);
+			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_groundColor);
 		}
 		break;
 	case 13:
 		xTop = HorizonXAtY(y0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_unk0x100a554c);
+			FUN_10044527(x1, y0, xTop, y0, x1, yRight, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_unk0x100a5548);
+			FUN_1004440d(x0, y0, x0, y1, x1, y1, x1, yRight, xTop, y0, g_skyColor);
 		}
 		break;
 	case 4:
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_unk0x100a5548);
+			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_unk0x100a554c);
+			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_groundColor);
 		}
 		break;
 	case 11:
@@ -456,11 +456,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_unk0x100a554c);
+			FUN_10044527(x0, yLeft, x0, y1, xBottom, y1, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_unk0x100a5548);
+			FUN_1004440d(x1, y1, x1, y0, x0, y0, x0, yLeft, xBottom, y1, g_skyColor);
 			if (g_renderSettings.m_horizonBand) {
 				band[6] = band[12] = x0;
 				band[18] = band[0] = x1;
@@ -476,11 +476,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		xBottom = HorizonXAtY(y1, p_eyepoint);
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		if (g_renderSettings.m_drawSky) {
-			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_unk0x100a5548);
+			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_skyColor);
 		}
 
 		if (g_renderSettings.m_drawGround) {
-			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_unk0x100a554c);
+			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_groundColor);
 		}
 		break;
 	case 7:
@@ -488,11 +488,11 @@ void FUN_1004320b(Eyepoint* p_eyepoint)
 		yRight = HorizonYAtX(x1, p_eyepoint);
 		yLeft = HorizonYAtX(x0, p_eyepoint);
 		if (g_renderSettings.m_drawGround) {
-			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_unk0x100a554c);
+			FUN_10044527(xBottom, y1, x1, y1, x1, yRight, g_groundColor);
 		}
 
 		if (g_renderSettings.m_drawSky) {
-			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_unk0x100a5548);
+			FUN_1004440d(x1, y0, x0, y0, x0, y1, xBottom, y1, x1, yRight, g_skyColor);
 			if (g_renderSettings.m_horizonBand) {
 				band[6] = band[12] = x0;
 				band[18] = band[0] = x1;

@@ -505,7 +505,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 	}
 
 	if (g_isNetworkGame && !g_unk0x100aa2c0 && !g_localMechLost) {
-		sprintf(text, "Kills: %i", g_unk0x100a15a0);
+		sprintf(text, "Kills: %i", g_killCount);
 		VFX_string_draw(
 			p_panel->m_target,
 			p_panel->m_textOrigin->m_x,

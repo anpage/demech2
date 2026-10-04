@@ -391,8 +391,8 @@ MechS32 FUN_1001e6dc(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 
 	faces = (Face**) (p_node + 1);
 	for (i = 0; i < p_node->m_unk0x18; i++) {
 		face = *faces++;
-		if (face->m_normal[1] > 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
-			if (FUN_10034a7b(face, vertices, p_x, p_y, p_z, &height)) {
+		if (face->m_normal[1] > 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
+			if (IsBelowFacePlane(face, vertices, p_x, p_y, p_z, &height)) {
 				return 3;
 			}
 			else {
@@ -479,7 +479,7 @@ MechS32 FUN_1001e90f(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 	faces = (Face**) (p_node + 1);
 	for (i = 0; i < p_node->m_unk0x18; i++) {
 		face = *faces++;
-		if (FUN_100354d3(face, vertices, p_ray)) {
+		if (IntersectRayFace(face, vertices, p_ray)) {
 			return TRUE;
 		}
 	}
@@ -565,8 +565,8 @@ MechS32 FUN_1001ebfa(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 
 	faces = (Face**) (p_node + 1);
 	for (i = 0; i < p_node->m_unk0x18; i++) {
 		face = *faces++;
-		if (face->m_normal[1] > 0 && FUN_100357f8(face, vertices, p_x, p_z)) {
-			FUN_10034a7b(face, vertices, p_x, p_y, p_z, p_top);
+		if (face->m_normal[1] > 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
+			IsBelowFacePlane(face, vertices, p_x, p_y, p_z, p_top);
 			return TRUE;
 		}
 	}

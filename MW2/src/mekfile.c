@@ -59,8 +59,8 @@ MechU16 g_unk0x100aa730[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,
 
 // Loads mech p_mech's configuration mek\<p_config>.mek (or MEK resource p_id when the file is
 // missing) for chassis p_name, logging it to mw2.log: the sections, whose armor the difficulty
-// scales (the local player's by g_unk0x100a1598, its side's by armorScale, the others' by
-// g_unk0x100a1594), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
+// scales (the local player's by g_localArmorPerLevel, its side's by armorScale, the others' by
+// g_otherArmorPerLevel), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005d6d0
@@ -96,19 +96,19 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	RememberLoadMech(p_mech, p_name, p_id, p_config);
 	switch (g_difficulty->m_unk0x05) {
 	case 0:
-		g_unk0x100a1594 = 1;
+		g_otherArmorPerLevel = 1;
 		armorScale = 3;
-		g_unk0x100a1598 = 4;
+		g_localArmorPerLevel = 4;
 		break;
 	case 1:
-		g_unk0x100a1594 = 3;
+		g_otherArmorPerLevel = 3;
 		armorScale = 3;
-		g_unk0x100a1598 = 4;
+		g_localArmorPerLevel = 4;
 		break;
 	case 2:
-		g_unk0x100a1594 = 4;
+		g_otherArmorPerLevel = 4;
 		armorScale = 4;
-		g_unk0x100a1598 = 4;
+		g_localArmorPerLevel = 4;
 		break;
 	}
 
@@ -195,16 +195,16 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 
 		section->m_unk0x26 |= level << 4;
 		if (p_mech->m_player->m_index == g_localPlayerId) {
-			section->m_armor[0] *= g_unk0x100a1598;
-			section->m_armor[1] *= g_unk0x100a1598;
+			section->m_armor[0] *= g_localArmorPerLevel;
+			section->m_armor[1] *= g_localArmorPerLevel;
 		}
 		else if (!GetPlayerSide(p_mech->m_player->m_index)) {
 			section->m_armor[0] *= armorScale;
 			section->m_armor[1] *= armorScale;
 		}
 		else {
-			section->m_armor[0] *= g_unk0x100a1594;
-			section->m_armor[1] *= g_unk0x100a1594;
+			section->m_armor[0] *= g_otherArmorPerLevel;
+			section->m_armor[1] *= g_otherArmorPerLevel;
 		}
 
 		section->m_armor[0] <<= 16;

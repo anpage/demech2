@@ -36,34 +36,34 @@
 // GLOBAL: MW2 0x100a1590
 MechS32 g_autoEject = 0;
 
-// The armor per damage level of other players' sections (the local player's: g_unk0x100a1598).
+// The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
-MechS32 g_unk0x100a1594 = 4;
+MechS32 g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
-MechS32 g_unk0x100a1598 = 4;
+MechS32 g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
-MechS32 g_unk0x100a159c = 0;
+MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
-MechS32 g_unk0x100a15a0 = 0;
+MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
-MechS32 g_unk0x100a15a4 = 0;
+MechS32 g_criticalHeatWarned = 0;
 
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
-static MechS32 g_unk0x100bdff0;
+static MechS32 g_criticalHeatWarningTime;
 
 // Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
 // already reached and marking each one it reaches (turning off after the last); then the AI
 // steers, the throttle saved while AvoidObstacles has it.
 // Stack-slot permutation: index and first.
 // FUNCTION: MW2 0x100079d0
-void FUN_100079d0(Mech* p_mech)
+void RunAutopilot(Mech* p_mech)
 {
 	MechS32 index;
 	MechS32 first;
@@ -144,10 +144,10 @@ void FUN_10007cb5(Mech* p_mech)
 }
 
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
-// section holding an ammunition bin with ammunition left blows up first (FUN_10008c0f) instead.
+// section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10007d06
-void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
+void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	WeaponSlot* weapon;
 	MechS32 i;
@@ -174,7 +174,7 @@ void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
 						if (section->m_slots[j] == bin->m_id) {
 							weapon = &p_mech->m_weapons[bin->m_weapon];
 							if (weapon && weapon->m_ammo > 0) {
-								FUN_10008c0f(p_killer, p_mech, i + 1, j, 0);
+								DestroyCriticalSlot(p_killer, p_mech, i + 1, j, 0);
 								return;
 							}
 						}
@@ -190,7 +190,7 @@ void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
 		PlayCockpitSound(0, -1);
 	}
 
-	FUN_1000832b(p_killer, p_mech);
+	KillMech(p_killer, p_mech);
 }
 
 // Accumulates the mech's heat each frame (m_deltaHeat less its cooling, doubled while shut down)
@@ -249,11 +249,11 @@ void CalculateHeat(Mech* p_mech)
 
 		if (p_mech->m_flags & 8) {
 			if (g_deltaTime && RandomIntBelow(4000 / g_deltaTime) < 3) {
-				FUN_10007d06(p_mech->m_player->m_index, p_mech);
+				DestroyMech(p_mech->m_player->m_index, p_mech);
 			}
 		}
 		else if (g_currentClock - p_mech->m_stateTime > 4525) {
-			FUN_1000832b(p_mech->m_player->m_index, p_mech);
+			KillMech(p_mech->m_player->m_index, p_mech);
 		}
 	}
 	else if (heat > 80.0) {
@@ -268,9 +268,9 @@ void CalculateHeat(Mech* p_mech)
 		}
 	}
 	else if (heat > 65.0) {
-		if (p_mech->m_player->m_index == g_localPlayerId && !g_unk0x100a15a4 && delta > 0) {
-			g_unk0x100bdff0 = g_currentClock;
-			g_unk0x100a15a4 = 1;
+		if (p_mech->m_player->m_index == g_localPlayerId && !g_criticalHeatWarned && delta > 0) {
+			g_criticalHeatWarningTime = g_currentClock;
+			g_criticalHeatWarned = 1;
 			PlayCockpitSound(0, -1);
 		}
 	}
@@ -286,8 +286,9 @@ void CalculateHeat(Mech* p_mech)
 		}
 	}
 	else {
-		if (g_unk0x100a15a4 && g_currentClock - g_unk0x100bdff0 > 724 && p_mech->m_player->m_index == g_localPlayerId) {
-			g_unk0x100a15a4 = 0;
+		if (g_criticalHeatWarned && g_currentClock - g_criticalHeatWarningTime > 724 &&
+			p_mech->m_player->m_index == g_localPlayerId) {
+			g_criticalHeatWarned = 0;
 		}
 
 		p_mech->m_flags &= ~0x1000;
@@ -298,7 +299,7 @@ void CalculateHeat(Mech* p_mech)
 // Stack-slot permutation: next and text. The original compares p_killer with g_localPlayerId and
 // indexes m_unk0x52 in the other operand order.
 // FUNCTION: MW2 0x1000832b
-void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
+void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
 	MechS32 next;
@@ -339,10 +340,10 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	if (p_killer == g_localPlayerId) {
 		if (p_mech->m_player->m_type == c_playerTypeMech) {
 			if (p_mech->m_player->m_index == g_localPlayerId) {
-				g_unk0x100a15a0--;
+				g_killCount--;
 			}
 			else {
-				g_unk0x100a15a0++;
+				g_killCount++;
 			}
 
 			switch (GetPlayerSide(p_mech->m_player->m_index)) {
@@ -467,11 +468,11 @@ void FUN_1000832b(MechS32 p_killer, Mech* p_mech)
 	FUN_1001d292(p_mech->m_player->m_index, 1);
 }
 
-// Calls FUN_10008c0f once for each of section p_section's m_unk0x24.
+// Calls DestroyCriticalSlot once for each of section p_section's m_unk0x24.
 // Stack-slot permutation of i, section and count; the loop test compares with i in eax in the
 // original (operand order).
 // FUNCTION: MW2 0x10008938
-void FUN_10008938(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
+void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechS32 i;
 	MechSection* section;
@@ -480,7 +481,7 @@ void FUN_10008938(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	section = p_mech->m_sections + p_section - 1;
 	count = section->m_unk0x24;
 	for (i = 0; i < count; i++) {
-		FUN_10008c0f(p_attacker, p_mech, p_section, 0, 1);
+		DestroyCriticalSlot(p_attacker, p_mech, p_section, 0, 1);
 	}
 }
 
@@ -488,7 +489,7 @@ void FUN_10008938(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // Destroying section 3 takes sections 1, 2 and 4 to 6 with it; section 2 takes 5, and 4 takes 6.
 // Of sections 7 and 8, the first to go only marks the mech (0x20); the second destroys 1 and 3.
 // FUNCTION: MW2 0x1000899d
-void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
+void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechSection* section;
 
@@ -503,14 +504,14 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 
 	section->m_unk0x08 = 0;
 	section->m_unk0x26 |= 0x2000;
-	FUN_10008938(p_attacker, p_mech, p_section);
+	DestroySectionSlots(p_attacker, p_mech, p_section);
 	switch (p_section) {
 	case 2:
-		FUN_1000899d(p_attacker, p_mech, 5);
+		DestroySection(p_attacker, p_mech, 5);
 		section->m_unk0x26 &= ~0x2000;
 		return;
 	case 4:
-		FUN_1000899d(p_attacker, p_mech, 6);
+		DestroySection(p_attacker, p_mech, 6);
 		section->m_unk0x26 &= ~0x2000;
 		return;
 	case 7:
@@ -522,16 +523,16 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 			return;
 		}
 		else {
-			FUN_1000899d(p_attacker, p_mech, 1);
-			FUN_1000899d(p_attacker, p_mech, 3);
+			DestroySection(p_attacker, p_mech, 1);
+			DestroySection(p_attacker, p_mech, 3);
 		}
 		break;
 	case 3:
-		FUN_1000899d(p_attacker, p_mech, 5);
-		FUN_1000899d(p_attacker, p_mech, 2);
-		FUN_1000899d(p_attacker, p_mech, 4);
-		FUN_1000899d(p_attacker, p_mech, 6);
-		FUN_1000899d(p_attacker, p_mech, 1);
+		DestroySection(p_attacker, p_mech, 5);
+		DestroySection(p_attacker, p_mech, 2);
+		DestroySection(p_attacker, p_mech, 4);
+		DestroySection(p_attacker, p_mech, 6);
+		DestroySection(p_attacker, p_mech, 1);
 		break;
 	case 5:
 	case 6:
@@ -542,7 +543,7 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 	BlowOffPart(p_mech->m_player->m_obj, p_section);
 	if (p_mech->m_powerState != 4 && p_mech->m_powerState != 5 &&
 		(p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
-		FUN_1000832b(p_attacker, p_mech);
+		KillMech(p_attacker, p_mech);
 	}
 }
 
@@ -553,7 +554,7 @@ void FUN_1000899d(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10008c0f
-void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
+void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
 	MechS32 id;
 	WeaponSlot* weapon;
@@ -709,12 +710,12 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 					if (section->m_unk0x08 < 0) {
 						section->m_unk0x08 = 0;
 						section->m_slots[p_slot] = 0;
-						FUN_1000899d(p_attacker, p_mech, p_section);
+						DestroySection(p_attacker, p_mech, p_section);
 					}
 
 					if (g_autoEject && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
 						p_mech->m_powerState = 5;
-						FUN_1000832b(p_attacker, p_mech);
+						KillMech(p_attacker, p_mech);
 					}
 				}
 
@@ -729,7 +730,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		switch (kind) {
 		case 9000:
 			if (!p_recursing) {
-				FUN_10008c0f(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
+				DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
 				return;
 			}
 			else {
@@ -737,7 +738,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			}
 		case 8000:
 			if (!p_recursing) {
-				FUN_10008c0f(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
+				DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 1);
 				return;
 			}
 			else {
@@ -793,7 +794,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			}
 
 			if (g_unk0x100ba624 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
-				FUN_1000832b(p_attacker, p_mech);
+				KillMech(p_attacker, p_mech);
 			}
 			break;
 		case 5850:
@@ -830,7 +831,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 			break;
 		case 5750:
 			if (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame) {
-				FUN_1000832b(p_attacker, p_mech);
+				KillMech(p_attacker, p_mech);
 			}
 			break;
 		case 5700:
@@ -1004,7 +1005,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		}
 
 		if (section->m_unk0x08 <= 0) {
-			FUN_1000899d(p_attacker, p_mech, p_section);
+			DestroySection(p_attacker, p_mech, p_section);
 			return;
 		}
 		else {
@@ -1012,11 +1013,11 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 				roll = RandomIntBelow(100);
 				if (roll < 20 && section->m_unk0x24 > 0) {
 					if (roll == 12) {
-						FUN_1000899d(p_attacker, p_mech, p_section);
+						DestroySection(p_attacker, p_mech, p_section);
 						return;
 					}
 					else {
-						FUN_10008c0f(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 0);
+						DestroyCriticalSlot(p_attacker, p_mech, p_section, RandomIntBelow(section->m_unk0x24), 0);
 					}
 				}
 			}
@@ -1025,12 +1026,12 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 
 	if (levels) {
 		if (p_mech->m_player->m_index == g_localPlayerId) {
-			level =
-				15 - ((section->m_unk0x08 + section->m_armor[side] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+			level = 15 - ((section->m_unk0x08 + section->m_armor[side] / g_localArmorPerLevel) * 3) /
+							 (MechS32) (levels << 16);
 		}
 		else {
-			level =
-				15 - ((section->m_unk0x08 + section->m_armor[side] / g_unk0x100a1594) * 3) / (MechS32) (levels << 16);
+			level = 15 - ((section->m_unk0x08 + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
+							 (MechS32) (levels << 16);
 		}
 	}
 
@@ -1057,20 +1058,20 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 		}
 	}
 
-	FUN_1000832b(p_mech->m_player->m_index, p_mech);
+	KillMech(p_mech->m_player->m_index, p_mech);
 	return;
 }
 
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
-void FUN_10009dd2(void)
+void ToggleLocalMechVisible(void)
 {
-	if (!g_unk0x100a159c) {
+	if (!g_localMechHidden) {
 		HideObjTree(g_players[g_localPlayerId]->m_obj);
 	}
 	else {
 		ShowObjTree(g_players[g_localPlayerId]->m_obj);
 	}
 
-	g_unk0x100a159c = !g_unk0x100a159c;
+	g_localMechHidden = !g_localMechHidden;
 }

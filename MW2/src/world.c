@@ -467,13 +467,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGroundMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_unk0x100a554c, NULL, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_groundColor, NULL, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdHorizonMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_unk0x100a5550, &g_unk0x100a6d30, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_horizonMapColor, &g_unk0x100a6d30, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdSkyMap]) {
-			LoadMapBitmap((BwdRecord*) node, &g_unk0x100a5548, NULL, NULL);
+			LoadMapBitmap((BwdRecord*) node, &g_skyColor, NULL, NULL);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdWindow]) {
 			MechS32 count;

@@ -51,7 +51,7 @@ typedef struct Mech {
 	MechS32 m_unk0xd8;                // 0xd8
 	MechS32 m_unk0xdc;                // 0xdc
 	MechS32 m_maxTorsoTwist;          // 0xe0 — 16.16 degrees either way
-	MechS32 m_tons;                   // 0xe4 — FUN_1007669e scales collision damage by it
+	MechS32 m_tons;                   // 0xe4 — ApplyCollisionDamage scales collision damage by it
 	MechS32 m_radius;                 // 0xe8 — splash damage reaches it this much further
 	MechS32 m_jumpThrust;             // 0xec — the jump jets' upward acceleration
 	MechS32 m_unk0xf0;                // 0xf0 — only ever cleared

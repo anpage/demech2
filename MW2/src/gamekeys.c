@@ -197,7 +197,7 @@ void HandleCheatInput(MechS16 p_key)
 	else if (FUN_1005b807("}{tq\x7fw")) { // "gankem"
 		victim = GetLocalTargetGamePiece();
 		if (victim >= 0) {
-			FUN_1000832b(g_localPlayerId, g_players[victim]->m_mech);
+			KillMech(g_localPlayerId, g_players[victim]->m_mech);
 		}
 	}
 	else if (FUN_1005b807("r{t}{huot~")) { // "hangaround"

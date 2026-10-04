@@ -283,7 +283,7 @@ MechS32 GetCameraFloor(Eyepoint* p_eyepoint)
 {
 	MechS32 height;
 
-	height = FUN_10034cbc(p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
+	height = GetHighestSurface(p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
 	if (height > 0) {
 		height += 500;
 	}

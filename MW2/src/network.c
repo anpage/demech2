@@ -375,7 +375,7 @@ MechS32 UpdateNetwork(void)
 		}
 		else if (_strcmpi(tag, "SS") == 0) {
 			if (!g_unk0x100aa2bc) {
-				FUN_1000832b(-2, player->m_mech);
+				KillMech(-2, player->m_mech);
 			}
 
 			ElectMaster();
@@ -729,24 +729,24 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 			section->m_armor[1] = msg->m_rearArmor3;
 			levels = (section->m_unk0x26 & 0xf0) >> 4;
 			if (levels) {
-				damage2 =
-					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+								   (MechS32) (levels << 16);
 			}
 			break;
 		case 3:
 			section->m_armor[1] = msg->m_rearArmor2;
 			levels = (section->m_unk0x26 & 0xf0) >> 4;
 			if (levels) {
-				damage2 =
-					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+								   (MechS32) (levels << 16);
 			}
 			break;
 		case 2:
 			section->m_armor[1] = msg->m_rearArmor1;
 			levels = (section->m_unk0x26 & 0xf0) >> 4;
 			if (levels) {
-				damage2 =
-					15 - ((section->m_unk0x08 + section->m_armor[1] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				damage2 = 15 - ((section->m_unk0x08 + section->m_armor[1] / g_localArmorPerLevel) * 3) /
+								   (MechS32) (levels << 16);
 			}
 			break;
 		default:
@@ -756,18 +756,18 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		levels = section->m_unk0x26 & 0xf;
 		if (levels) {
 			damage1 =
-				15 - ((section->m_unk0x08 + section->m_armor[0] / g_unk0x100a1598) * 3) / (MechS32) (levels << 16);
+				15 - ((section->m_unk0x08 + section->m_armor[0] / g_localArmorPerLevel) * 3) / (MechS32) (levels << 16);
 		}
 
 		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
 		if (section->m_unk0x08 <= 0 && !(section->m_unk0x26 & 0x2000)) {
-			FUN_1000899d(player->m_killer, mech, i + 1);
+			DestroySection(player->m_killer, mech, i + 1);
 		}
 	}
 
 	if (mech->m_powerState == 4 || mech->m_powerState == 5) {
 		if (g_playerDestroyed[player->m_index] != 1) {
-			FUN_1000832b(player->m_killer, mech);
+			KillMech(player->m_killer, mech);
 			if (player->m_killer >= 0 && player->m_killer < 8) {
 				if (player->m_killer == player->m_index) {
 					sprintf(text, "'%s' destroyed.", player->m_name);
@@ -893,7 +893,7 @@ void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 
 	volume = MulDiv64(200, volume, 1500000);
 	PlaySoundEffect(0xf0, volume, 0x40, 5, 0x32);
-	FUN_100765f8(g_players[g_localPlayerId]->m_mech, g_players[p_slot]->m_mech);
+	DamageMechsInCollision(g_players[g_localPlayerId]->m_mech, g_players[p_slot]->m_mech);
 }
 
 // Sends GO: a slave is ready, or the master starts the game.

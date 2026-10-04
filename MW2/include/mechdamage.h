@@ -13,21 +13,27 @@ extern "C"
 #endif
 
 	extern MechS32 g_autoEject;
-	extern MechS32 g_unk0x100a1594;
-	extern MechS32 g_unk0x100a1598;
-	extern MechS32 g_unk0x100a15a0;
+	extern MechS32 g_otherArmorPerLevel;
+	extern MechS32 g_localArmorPerLevel;
+	extern MechS32 g_killCount;
 
-	void FUN_100079d0(struct Mech* p_mech);
+	void RunAutopilot(struct Mech* p_mech);
 	void FUN_10007cb5(struct Mech* p_mech);
 	void CalculateHeat(struct Mech* p_mech);
-	void FUN_10007d06(MechS32 p_killer, struct Mech* p_mech);
-	void FUN_1000832b(MechS32 p_killer, struct Mech* p_mech);
-	void FUN_10008938(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
-	void FUN_1000899d(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
-	void FUN_10008c0f(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing);
+	void DestroyMech(MechS32 p_killer, struct Mech* p_mech);
+	void KillMech(MechS32 p_killer, struct Mech* p_mech);
+	void DestroySectionSlots(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
+	void DestroySection(MechS32 p_attacker, struct Mech* p_mech, MechU32 p_section);
+	void DestroyCriticalSlot(
+		MechS32 p_attacker,
+		struct Mech* p_mech,
+		MechU32 p_section,
+		MechS32 p_slot,
+		MechS32 p_recursing
+	);
 	void ApplyDamageToMech(MechS32 p_attacker, struct Mech* p_mech, MechS32 p_damage, MechS32 p_section);
 	void EjectPlayer(struct Mech* p_mech, MechS32 p_eject);
-	void FUN_10009dd2(void);
+	void ToggleLocalMechVisible(void);
 
 #ifdef __cplusplus
 }

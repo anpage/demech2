@@ -456,7 +456,7 @@ void DrawMapView(void)
 		SetViewMode(c_viewSatellite);
 		FUN_1001da44();
 		SetViewMode(zoom);
-		VFX_pane_wipe(viewport, g_unk0x100a554c);
+		VFX_pane_wipe(viewport, g_groundColor);
 		flags = 0;
 		DrawMapViewScene(flags);
 	}

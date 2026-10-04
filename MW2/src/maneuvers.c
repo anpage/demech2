@@ -1308,7 +1308,7 @@ MechS32 AvoidObstacles(Player* p_player)
 // FUNCTION: MW2 0x10015b40
 MechS32 IsStandableShape(Shape* p_shape)
 {
-	if (FUN_10034db8(p_shape) && g_segmentNormalY >= 0xc41b) {
+	if (HasHeightTest(p_shape) && g_segmentNormalY >= 0xc41b) {
 		return 1;
 	}
 

@@ -264,7 +264,7 @@ void DrawScene(void)
 	MechS32 pass;
 
 	if (g_framePane) {
-		memset(g_mainPixelBuffer.m_buffer, g_unk0x100a5544, g_refreshModePixelCount);
+		memset(g_mainPixelBuffer.m_buffer, g_backgroundColor, g_refreshModePixelCount);
 		SelectPane(g_framePane);
 	}
 
@@ -274,14 +274,14 @@ void DrawScene(void)
 	}
 
 	if (g_renderSettings.m_blankScene) {
-		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
+		VFX_pane_wipe(&g_currentPane, g_backgroundColor);
 		return;
 	}
 
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_clearFrame || g_renderSettings.m_wireframe) {
-		VFX_pane_wipe(&g_currentPane, g_unk0x100a5544);
+		VFX_pane_wipe(&g_currentPane, g_backgroundColor);
 	}
 	else if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {

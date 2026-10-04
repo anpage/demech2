@@ -22,8 +22,8 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x100a554c;
-	extern MechS32 g_unk0x100a5550;
+	extern MechS32 g_groundColor;
+	extern MechS32 g_horizonMapColor;
 	extern MechS32 g_unk0x100a5558;
 	extern ShapeCollisionFns g_shapeCollisionFns[8];
 	extern MechS32 g_hitNormalX;
@@ -35,11 +35,11 @@ extern "C"
 	extern MechS32 g_segmentNormalX;
 	extern MechS32 g_segmentNormalY;
 	extern MechS32 g_segmentNormalZ;
-	extern MechS32 g_unk0x100a5544;
-	extern MechS32 g_unk0x100a5548;
+	extern MechS32 g_backgroundColor;
+	extern MechS32 g_skyColor;
 
 	void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType);
-	MechS32 FUN_10034a7b(
+	MechS32 IsBelowFacePlane(
 		struct Face* p_face,
 		struct Vertex* p_vertices,
 		MechS32 p_x,
@@ -48,20 +48,20 @@ extern "C"
 		MechS32* p_height
 	);
 	MechS32 GetTerrainHeight(MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10034cbc(MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10034db8(Shape* p_shape);
+	MechS32 GetHighestSurface(MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 HasHeightTest(Shape* p_shape);
 	MechS32 TestPointCollision(MechS32 p_x, MechS32 p_y, MechS32 p_z, Shape** p_hit);
-	Shape* FUN_10034e59(Shape* p_root, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_10034ee7(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	Shape* FindNearestShape(Shape* p_root, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestShapePoint(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude);
-	MechS32 FUN_10035107(Ray* p_ray, Shape** p_hit);
-	MechS32 FUN_100352ad(Shape* p_shape, Ray* p_ray, MechS32 p_distance);
-	void FUN_10035423(Shape* p_shape, Ray* p_ray, MechS32 p_distance);
-	MechS32 FUN_100354d3(struct Face* p_face, struct Vertex* p_vertices, Ray* p_ray);
-	MechS32 FUN_10035722(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 FUN_100357f8(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_x, MechS32 p_z);
-	MechS32 FUN_10035b5b(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_x, MechS32 p_y);
-	MechS32 FUN_10035ebe(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_y, MechS32 p_z);
+	MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit);
+	MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechS32 p_distance);
+	void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechS32 p_distance);
+	MechS32 IntersectRayFace(struct Face* p_face, struct Vertex* p_vertices, Ray* p_ray);
+	MechS32 IsPointInFace(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 IsPointInFaceXZ(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_x, MechS32 p_z);
+	MechS32 IsPointInFaceXY(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_x, MechS32 p_y);
+	MechS32 IsPointInFaceYZ(struct Face* p_face, struct Vertex* p_vertices, MechS32 p_y, MechS32 p_z);
 
 #ifdef __cplusplus
 }
