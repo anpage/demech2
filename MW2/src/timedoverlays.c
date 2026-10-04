@@ -144,7 +144,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 		overlay->m_text[0xff] = '\0';
 		overlay->m_active = 1;
 		overlay->m_priority = p_priority;
-		overlay->m_expireTime = p_duration + FUN_1007d05d();
+		overlay->m_expireTime = p_duration + GetGameClock();
 		if (p_font < 1) {
 			overlay->m_font = 1;
 		}
@@ -168,7 +168,7 @@ void DrawTimedOverlays(void)
 	for (i = 0; i < 2; i++) {
 		overlay = &g_timedOverlays[i];
 		if (overlay->m_active) {
-			if (FUN_1007d05d() < overlay->m_expireTime) {
+			if (GetGameClock() < overlay->m_expireTime) {
 				font = FUN_1001a19f(
 					g_mw2PrjHandle,
 					overlay->m_font + g_artResolution,

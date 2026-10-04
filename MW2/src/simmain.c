@@ -395,9 +395,9 @@ int __stdcall SimMain(
 			}
 			else if (g_isNetworkGame && !(g_goLaunch & 0x80000000)) {
 				if (g_unk0x100acb2c == 0) {
-					g_unk0x100acb2c = g_unk0x100ba54c + 0xb5;
+					g_unk0x100acb2c = g_realClock + 0xb5;
 				}
-				else if (g_unk0x100acb2c < g_unk0x100ba54c) {
+				else if (g_unk0x100acb2c < g_realClock) {
 					g_unk0x100aa2c0 = 3;
 				}
 			}

@@ -451,7 +451,7 @@ void FUN_10016edf(Mech* p_mech)
 			height = posY - mech->m_height - mech->m_player->m_groundHeight;
 
 			if (g_isNetworkGame && g_segmentNormalY > 0xddb4 && hitPlayer) {
-				FUN_1000faef(hitPlayer->m_index, g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
+				SendCollisionMsg(hitPlayer->m_index, g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
 				if (isLocal && g_inCockpitView && !g_unk0x100be00c) {
 					g_unk0x100be00c = 1;
 					impact = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
@@ -478,7 +478,12 @@ void FUN_10016edf(Mech* p_mech)
 					if (impact > 200000) {
 						if (hitPlayer) {
 							if (g_isNetworkGame) {
-								FUN_1000faef(hitPlayer->m_index, g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
+								SendCollisionMsg(
+									hitPlayer->m_index,
+									g_segmentNormalX,
+									g_segmentNormalY,
+									g_segmentNormalZ
+								);
 							}
 
 							sound = 0xf0;

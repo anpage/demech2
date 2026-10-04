@@ -403,7 +403,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 	}
 
 	if (g_chatRecipient == 0) {
-		FUN_1000efa4(to, g_chatMessage);
+		SendChatMsg(to, g_chatMessage);
 		sprintf(text, "%s: %s", g_players[g_localPlayerId]->m_name, g_chatMessage);
 		ShowInGameMessage(text, 1, 0x2d4, 0x32);
 		memset(g_chatMessage, 0, 40);

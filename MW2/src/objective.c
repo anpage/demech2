@@ -396,7 +396,7 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 		line.m_data = FUN_100073bb(g_objectiveTable[p_star].m_successSound);
 		if (g_isNetworkGame) {
 			g_carCfg.m_unk0xd2 = g_localPlayerId;
-			FUN_1000ff29();
+			SendSuccessMsg();
 		}
 	}
 	else if (p_status == 3) {

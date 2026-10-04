@@ -288,8 +288,8 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 		d = 799;
 	}
 
-	eyepoint->m_frustumScaleX = FixedMul29(fov, g_unk0x100bfd60[a]) + (g_unk0x100c09e0[a] >> 13);
-	eyepoint->m_frustumScaleY = FixedMul29(fovY, g_unk0x100bfd60[c]) + (g_unk0x100c09e0[c] >> 13);
+	eyepoint->m_frustumScaleX = FixedMul29(fov, g_slopeSines[a]) + (g_slopeCosines[a] >> 13);
+	eyepoint->m_frustumScaleY = FixedMul29(fovY, g_slopeSines[c]) + (g_slopeCosines[c] >> 13);
 	shift2 = shift1 = 2;
 	MulNormalize16(&low1, &scaled1, &shift1, halfWidth, FixedMul16(fov, aspect));
 	MulNormalize16(&low2, &scaled2, &shift2, halfWidth, fov);
