@@ -91,7 +91,7 @@ void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 	}
 
 	if (p_team == g_unk0x100a5918) {
-		FUN_10059ed2(p_formation);
+		SayFormation(p_formation);
 	}
 
 	g_teams[p_team].m_formation = p_formation;

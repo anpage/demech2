@@ -23,29 +23,29 @@ typedef struct ProjectFileEntry {
 DECOMP_SIZE_ASSERT(ProjectFileEntry, 0x14)
 
 // GLOBAL: MW2 0x100a14f4
-MechS32 g_unk0x100a14f4 = 0;
+MechS32 g_soundFileCount = 0;
 
 // GLOBAL: MW2 0x100bcdb8
-static ProjectFileEntry g_unk0x100bcdb8[200];
+static ProjectFileEntry g_soundFileEntries[200];
 
 // GLOBAL: MW2 0x100bdd58
-static ProjectFileEntry* g_unk0x100bdd58[0x65];
+static ProjectFileEntry* g_soundFileTable[0x65];
 
 // The directory of the mission's sound files.
 // GLOBAL: MW2 0x100bdef0
-MechChar g_unk0x100bdef0[0x100];
+MechChar g_soundFileDir[0x100];
 
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
 // Stack-slot permutation of entry, added and slot.
 // FUNCTION: MW2 0x10007140
-ProjectFileEntry* FUN_10007140(MechChar* p_name, MechS32 p_add)
+ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 {
 	ProjectFileEntry* entry;
 	ProjectFileEntry* added;
 	MechU32 slot;
 
 	slot = HashName(p_name) % 0x65;
-	for (entry = g_unk0x100bdd58[slot]; entry; entry = entry->m_next) {
+	for (entry = g_soundFileTable[slot]; entry; entry = entry->m_next) {
 		if (!_strcmpi(entry->m_name, p_name)) {
 			return entry;
 		}
@@ -55,20 +55,20 @@ ProjectFileEntry* FUN_10007140(MechChar* p_name, MechS32 p_add)
 		return NULL;
 	}
 
-	entry = g_unk0x100bdd58[slot];
-	if (g_unk0x100a14f4 >= 200) {
+	entry = g_soundFileTable[slot];
+	if (g_soundFileCount >= 200) {
 		Error(0x23, "Too many project file entries", 0);
 	}
 
-	added = &g_unk0x100bcdb8[g_unk0x100a14f4++];
+	added = &g_soundFileEntries[g_soundFileCount++];
 	strcpy(added->m_name, p_name);
-	added->m_next = g_unk0x100bdd58[slot];
-	g_unk0x100bdd58[slot] = added;
+	added->m_next = g_soundFileTable[slot];
+	g_soundFileTable[slot] = added;
 	return added;
 }
 
 // Lists the mission's sound files (keating\*.sfl, on the game CD when they aren't installed) in
-// the project file table and keeps their directory in g_unk0x100bdef0.
+// the project file table and keeps their directory in g_soundFileDir.
 // FUNCTION: MW2 0x10007252
 void CollectMissionAudio(void)
 {
@@ -77,16 +77,16 @@ void CollectMissionAudio(void)
 	WIN32_FIND_DATA data;
 
 	drive = '\0';
-	sprintf(g_unk0x100bdef0, "%s\\*.sfl", "keating");
-	find = FindFirstFile(g_unk0x100bdef0, &data);
+	sprintf(g_soundFileDir, "%s\\*.sfl", "keating");
+	find = FindFirstFile(g_soundFileDir, &data);
 	if (find == INVALID_HANDLE_VALUE) {
 		drive = FindGameCdDrive();
 		if (!drive) {
 			return;
 		}
 
-		sprintf(g_unk0x100bdef0, "%c:\\%s\\*.sfl", drive, "keating");
-		find = FindFirstFile(g_unk0x100bdef0, &data);
+		sprintf(g_soundFileDir, "%c:\\%s\\*.sfl", drive, "keating");
+		find = FindFirstFile(g_soundFileDir, &data);
 		if (find == INVALID_HANDLE_VALUE) {
 			return;
 		}
@@ -94,10 +94,10 @@ void CollectMissionAudio(void)
 
 	for (;;) {
 		if (!data.cAlternateFileName[0]) {
-			FUN_10007140(data.cFileName, 1);
+			FindSoundFile(data.cFileName, 1);
 		}
 		else {
-			FUN_10007140(data.cAlternateFileName, 1);
+			FindSoundFile(data.cAlternateFileName, 1);
 		}
 
 		if (!FindNextFile(find, &data)) {
@@ -107,10 +107,10 @@ void CollectMissionAudio(void)
 
 	FindClose(find);
 	if (drive) {
-		sprintf(g_unk0x100bdef0, "%c:\\%s", drive, "keating");
+		sprintf(g_soundFileDir, "%c:\\%s", drive, "keating");
 	}
 	else {
-		sprintf(g_unk0x100bdef0, "%s", "keating");
+		sprintf(g_soundFileDir, "%s", "keating");
 	}
 }
 
@@ -118,22 +118,22 @@ void CollectMissionAudio(void)
 // file lists it. Returns the data, or NULL.
 // Stack-slot permutation of path and name.
 // FUNCTION: MW2 0x100073bb
-void* FUN_100073bb(MechChar* p_name)
+void* ReadSoundFile(MechChar* p_name)
 {
 	MechChar path[0x100];
 	MechChar name[0x100];
 
-	if (!g_unk0x100bdef0) {
+	if (!g_soundFileDir) {
 		return NULL;
 	}
 
 	strcpy(name, p_name);
 	strcat(name, ".sfl");
-	if (!FUN_10007140(name, FALSE)) {
+	if (!FindSoundFile(name, FALSE)) {
 		return NULL;
 	}
 
-	strcpy(path, g_unk0x100bdef0);
+	strcpy(path, g_soundFileDir);
 	strcat(path, "\\");
 	strcat(path, name);
 	return FILE_read(path, NULL);

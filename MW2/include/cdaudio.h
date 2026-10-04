@@ -45,30 +45,30 @@ extern "C"
 	MechS32 StartCdAudio(void);
 	void DeInitCdAudio(void);
 	MechS32 GetCdStatus(void);
-	MechS32 FUN_1005ad0a(void);
+	MechS32 RefreshCdStatus(void);
 	void OpenCdDoor(void);
 	void CdAudioTogglePaused(void);
-	void FUN_1005adef(void);
-	void FUN_1005ae7b(void);
-	void FUN_1005aeb9(void);
-	void FUN_1005aee0(void);
+	void ContinueCdAudio(void);
+	void StopCdAudioAndWait(void);
+	void PreviousCdTrack(void);
+	void NextCdTrack(void);
 	void UpdateCdAudioPosition(CdAudioPosition* p_position);
 	undefined4 FUN_1005afbb(void);
 	void FUN_1005afd0(undefined4 p_unk0x00);
 	undefined4 FUN_1005afe3(void);
 	void FUN_1005aff8(undefined4 p_unk0x00);
-	MechS32 FUN_1005b00b(void);
-	void FUN_1005b10b(CdAudioTracks* p_tracks, MechS32 p_step);
-	void FUN_1005b22f(MechS32 p_track);
+	MechS32 PollCdDrive(void);
+	void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step);
+	void PlayCdTrack(MechS32 p_track);
 	void PlayNewCdAudio(MechU32 p_from, MechU32 p_to);
 	MechS32 GetCdAudioTracks(CdAudioTracks* p_tracks);
 	void FreeCdAudioTracks(CdAudioTracks* p_tracks);
 	void GetCdAudioPosition(CdAudioPosition* p_position);
-	MechS32 FUN_1005b696(void);
-	MechS32 FUN_1005b6ab(MechS32 p_track);
+	MechS32 IsCdAudioInitialized(void);
+	MechS32 IsCdTrackOnDisc(MechS32 p_track);
 	MechS32 GetCdAudioVolume(void);
 	MechS32 SetCdAudioVolume(MechS32 p_volume);
-	void FUN_1005b7a0(void);
+	void ApplyCdAudioVolume(void);
 
 #ifdef __cplusplus
 }

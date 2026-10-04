@@ -285,12 +285,12 @@ MechS32 FUN_1001b0cb(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 	if (p_state == 5) {
 		sprintf(text, "%s successful", objective->m_name);
 		line.m_id = objective->m_successSpeech;
-		line.m_data = FUN_100073bb(objective->m_successSound);
+		line.m_data = ReadSoundFile(objective->m_successSound);
 	}
 	else if (p_state == 6) {
 		sprintf(text, "%s failed", objective->m_name);
 		line.m_id = objective->m_failSpeech;
-		line.m_data = FUN_100073bb(objective->m_failSound);
+		line.m_data = ReadSoundFile(objective->m_failSound);
 	}
 
 	if (text[0] == ' ' || !objective->m_unk0x74) {
@@ -301,7 +301,7 @@ MechS32 FUN_1001b0cb(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 	}
 
 	FUN_1001a910(line.m_text);
-	FUN_10059f9c(&line);
+	QueueSpeechLine(&line);
 	g_unk0x10138760[p_objective] = TRUE;
 	return TRUE;
 }
@@ -393,7 +393,7 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 	if (p_status == 2) {
 		sprintf(text, "Mission successful");
 		line.m_id = g_objectiveTable[p_star].m_successSpeech;
-		line.m_data = FUN_100073bb(g_objectiveTable[p_star].m_successSound);
+		line.m_data = ReadSoundFile(g_objectiveTable[p_star].m_successSound);
 		if (g_isNetworkGame) {
 			g_careerRecord.m_winner = g_localPlayerId;
 			SendSuccessMsg();
@@ -402,16 +402,16 @@ MechS32 FUN_1001b3f4(MechS32 p_star, MechS32 p_status)
 	else if (p_status == 3) {
 		sprintf(text, "Mission failed");
 		line.m_id = g_objectiveTable[p_star].m_failSpeech;
-		line.m_data = FUN_100073bb(g_objectiveTable[p_star].m_failSound);
+		line.m_data = ReadSoundFile(g_objectiveTable[p_star].m_failSound);
 	}
 	else if (p_status == 4) {
 		sprintf(text, "Mission time exceeded");
 		line.m_id = FindResourceIdByName(0xb, "BET68");
-		line.m_data = FUN_100073bb("BET68");
+		line.m_data = ReadSoundFile("BET68");
 	}
 
 	line.m_text = text;
-	FUN_10059f9c(&line);
+	QueueSpeechLine(&line);
 	return TRUE;
 }
 

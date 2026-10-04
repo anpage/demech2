@@ -429,7 +429,7 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 }
 
 // FUNCTION: MW2 0x10059b7b
-void FUN_10059b7b(void)
+void PlayVoiceVolumeTest(void)
 {
 	if (g_soundConfig.m_unk0x10 & 2) {
 		PlaySample(0, 0, 0x36, NULL, 100, g_soundConfig.m_voiceVolume, 0x40, 11025, (MechS32*) -1, 0x250);
@@ -510,7 +510,7 @@ SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 
 // Drops the messages after the current one and stops it.
 // FUNCTION: MW2 0x10059d8b
-void FUN_10059d8b(void)
+void StopSpeech(void)
 {
 	SpeechEntry* entry;
 
@@ -548,7 +548,7 @@ void ResumeSpeech(void)
 
 // A lancemate's report: p_message of g_lancemateSpeech, addressed by p_slot (-1: none).
 // FUNCTION: MW2 0x10059e63
-void FUN_10059e63(MechS32 p_message, MechS32 p_slot)
+void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 {
 	SpeechLine* slot;
 	SpeechLine* message;
@@ -569,7 +569,7 @@ void FUN_10059e63(MechS32 p_message, MechS32 p_slot)
 }
 
 // FUNCTION: MW2 0x10059ed2
-void FUN_10059ed2(MechS32 p_formation)
+void SayFormation(MechS32 p_formation)
 {
 	if (p_formation >= 0 && p_formation < 6) {
 		QueueSpeech(g_formationSpeech, &g_formationSpeech[p_formation + 1], -1);
@@ -597,13 +597,13 @@ void PlayCockpitSound(MechS32 p_message, MechS32 p_engage)
 
 // "Critical hit : " and the part of g_damageSpeech.
 // FUNCTION: MW2 0x10059f6e
-void FUN_10059f6e(MechS32 p_part)
+void SayCriticalHit(MechS32 p_part)
 {
 	QueueSpeech(&g_cockpitSpeech[11], &g_damageSpeech[p_part], -1);
 }
 
 // FUNCTION: MW2 0x10059f9c
-MechS32 FUN_10059f9c(SpeechLine* p_line)
+MechS32 QueueSpeechLine(SpeechLine* p_line)
 {
 	return QueueSpeech(p_line, NULL, 0x50);
 }

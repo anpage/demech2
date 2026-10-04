@@ -1470,7 +1470,7 @@ MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target)
 		p_target = 0;
 	}
 	else if (GetTeamLeader(p_player->m_team) == g_localPlayerId) {
-		FUN_10059e63(5, p_player->m_slot);
+		SayLancemateReport(5, p_player->m_slot);
 	}
 
 	return p_target;
@@ -1773,7 +1773,7 @@ void LeaveAIState(Player* p_player)
 	switch (p_player->m_ai.m_state) {
 	case c_aiStatePatrol:
 		if (IsTargetDone(p_player->m_ai.m_goal, 4) && (p_player->m_ai.m_flags & 0x10)) {
-			FUN_10059e63(10, p_player->m_slot);
+			SayLancemateReport(10, p_player->m_slot);
 		}
 	case c_aiStateFollow:
 		ReleaseNavPoints(p_player);
@@ -1785,7 +1785,7 @@ void LeaveAIState(Player* p_player)
 		p_player->m_steering->m_torsoPan = 0;
 	case c_aiStateRecon:
 		if (IsTargetDone(p_player->m_ai.m_goal, 8) && (p_player->m_ai.m_flags & 0x10)) {
-			FUN_10059e63(10, p_player->m_slot);
+			SayLancemateReport(10, p_player->m_slot);
 		}
 		break;
 	case c_aiStateTarget:
@@ -1793,7 +1793,7 @@ void LeaveAIState(Player* p_player)
 			flags = p_player->m_ai.m_flags;
 		}
 		else if (p_player->m_ai.m_flags & 0x10) {
-			FUN_10059e63(10, p_player->m_slot);
+			SayLancemateReport(10, p_player->m_slot);
 		}
 		break;
 	case c_aiStateFlee:
@@ -2535,7 +2535,7 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 	}
 
 	if (speech != -1) {
-		FUN_10059e63(speech, p_slot);
+		SayLancemateReport(speech, p_slot);
 	}
 
 	return TRUE;
@@ -3091,7 +3091,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 {
 	if (p_command == -1) {
 		SetTeamFormationByName(g_unk0x100a5918, g_formationTemplates[p_slot].m_name);
-		FUN_10059ed2(p_slot);
+		SayFormation(p_slot);
 	}
 	else {
 		OrderStarSlot(p_slot, p_command);

@@ -636,7 +636,7 @@ void UpdateCockpit(Mech* p_mech)
 			distance,
 			g_cockpitEyeSteady
 		);
-		FUN_10021b2a(p_mech->m_throttle.m_value);
+		UpdateEngineNote(p_mech->m_throttle.m_value);
 		break;
 	case 1:
 		if (g_difficulty->m_unk0x09) {
@@ -649,7 +649,7 @@ void UpdateCockpit(Mech* p_mech)
 			}
 		}
 
-		FUN_10021a07();
+		StartEngineNote();
 		break;
 	default:
 		if (g_difficulty->m_unk0x09) {
@@ -662,12 +662,12 @@ void UpdateCockpit(Mech* p_mech)
 			}
 		}
 
-		FUN_10021be2();
+		StopEngineNote();
 		break;
 	}
 
 	if (!g_inCockpitView) {
-		FUN_10021c49();
+		MuteEngineNote();
 	}
 }
 

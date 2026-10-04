@@ -128,15 +128,15 @@ void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 			}
 
 			if (g_soundConfig.m_voiceVolume != old) {
-				notify = FUN_10059b7b;
+				notify = PlayVoiceVolumeTest;
 			}
 			break;
 		case 2:
 			old = g_soundConfig.m_midiVolume;
 			g_soundConfig.m_midiVolume = p_value;
 			if (g_soundConfig.m_midiVolume != old) {
-				if (FUN_1005b696()) {
-					notify = FUN_1005b7a0;
+				if (IsCdAudioInitialized()) {
+					notify = ApplyCdAudioVolume;
 				}
 				else {
 					notify = FUN_100219ea;
@@ -241,7 +241,7 @@ void RestoreSoundSetting(MechS32 p_setting)
 			if (g_soundConfig.m_midiVolume) {
 				g_soundConfig.m_unk0x10 |= 8;
 				g_soundConfig.m_unk0x10 |= 4;
-				FUN_1005b7a0();
+				ApplyCdAudioVolume();
 				if (!g_isNetworkGame) {
 					PauseMusic();
 				}
@@ -277,12 +277,12 @@ void StartMissionMusic(void)
 		UnlockCachedResource(g_unk0x100e9340, g_resourceTypeTags[c_resTagMus]);
 	}
 
-	if (!FUN_1005b696() || GetCdStatus() == 1 || !FUN_1005b6ab(g_cdTrack)) {
+	if (!IsCdAudioInitialized() || GetCdStatus() == 1 || !IsCdTrackOnDisc(g_cdTrack)) {
 		g_cdTrack = -1;
 	}
 	else if (g_soundConfig.m_unk0x10 & 8) {
-		FUN_1005b22f(g_cdTrack);
-		if (FUN_1005ad0a() != 3) {
+		PlayCdTrack(g_cdTrack);
+		if (RefreshCdStatus() != 3) {
 			g_cdTrack = -1;
 		}
 		else {
@@ -329,7 +329,7 @@ void ResumeMusic(void)
 void StopMusic(void)
 {
 	if (g_cdTrack != -1) {
-		FUN_1005ae7b();
+		StopCdAudioAndWait();
 	}
 
 	if (g_midiSequence != -1) {
@@ -341,9 +341,9 @@ void StopMusic(void)
 void LoopCdMusic(void)
 {
 	if (!g_audioPaused && (g_soundConfig.m_unk0x10 & 8)) {
-		if (FUN_1005b00b() && g_cdTrack != -1) {
-			FUN_1005b22f(g_cdTrack);
-			FUN_1005ad0a();
+		if (PollCdDrive() && g_cdTrack != -1) {
+			PlayCdTrack(g_cdTrack);
+			RefreshCdStatus();
 		}
 	}
 }
@@ -406,9 +406,9 @@ void ShutdownAudio(void)
 void PauseAudio(void)
 {
 	StopSamples(0);
-	FUN_10059d8b();
+	StopSpeech();
 	PauseMusic();
-	FUN_10021c49();
+	MuteEngineNote();
 }
 
 // FUNCTION: MW2 0x10007064

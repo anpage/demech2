@@ -462,7 +462,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 
 	if (!g_isNetworkGame && p_mech->m_player->m_index != g_localPlayerId &&
 		GetTeamLeader(p_mech->m_player->m_team) == g_localPlayerId) {
-		FUN_10059e63(6, p_mech->m_player->m_slot);
+		SayLancemateReport(6, p_mech->m_player->m_slot);
 	}
 
 	LoadClassLevel(p_mech->m_player->m_index, 1);
@@ -594,58 +594,58 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					case 1:
 					case 2:
 					case 3:
-						FUN_10059f6e(0x16);
+						SayCriticalHit(0x16);
 						break;
 					case 4:
 					case 5:
 					case 6:
-						FUN_10059f6e(0x17);
+						SayCriticalHit(0x17);
 						break;
 					case 7:
 					case 8:
 					case 9:
-						FUN_10059f6e(0x18);
+						SayCriticalHit(0x18);
 						break;
 					case 10:
-						FUN_10059f6e(0x19);
+						SayCriticalHit(0x19);
 						break;
 					case 11:
-						FUN_10059f6e(0x1a);
+						SayCriticalHit(0x1a);
 						break;
 					case 12:
 					case 13:
 					case 14:
 					case 15:
-						FUN_10059f6e(0x1b);
+						SayCriticalHit(0x1b);
 						break;
 					case 16:
 					case 17:
 					case 18:
 					case 19:
-						FUN_10059f6e(0x1c);
+						SayCriticalHit(0x1c);
 						break;
 					case 20:
 						break;
 					case 21:
-						FUN_10059f6e(0x1d);
+						SayCriticalHit(0x1d);
 						break;
 					case 22:
-						FUN_10059f6e(0x1e);
+						SayCriticalHit(0x1e);
 						break;
 					case 23:
-						FUN_10059f6e(0x1f);
+						SayCriticalHit(0x1f);
 						break;
 					case 24:
-						FUN_10059f6e(0x20);
+						SayCriticalHit(0x20);
 						break;
 					case 25:
-						FUN_10059f6e(0x21);
+						SayCriticalHit(0x21);
 						break;
 					case 26:
-						FUN_10059f6e(0x22);
+						SayCriticalHit(0x22);
 						break;
 					case 27:
-						FUN_10059f6e(0x23);
+						SayCriticalHit(0x23);
 						break;
 					}
 
@@ -653,7 +653,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 						PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 					}
 
-					FUN_10059f6e(0);
+					SayCriticalHit(0);
 				}
 
 				weapon->m_unk0x00 = 0;
@@ -692,7 +692,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
 						g_hitFadePending = 1;
 						PlaySoundAt(x, y, z, 0xbc, g_inCockpitView);
-						FUN_10059f6e(1);
+						SayCriticalHit(1);
 					}
 
 					obj = FindObjByPart(p_mech->m_player->m_obj, p_section);
@@ -750,7 +750,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(4);
+				SayCriticalHit(4);
 			}
 
 			if (p_mech->m_jumpJets > 0) {
@@ -774,7 +774,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(5);
+				SayCriticalHit(5);
 			}
 
 			if (p_mech->m_cooling > 0) {
@@ -790,7 +790,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(6);
+				SayCriticalHit(6);
 			}
 
 			if (g_unk0x100ba624 && (p_mech->m_player->m_index == g_localPlayerId || !g_isNetworkGame)) {
@@ -803,7 +803,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(7);
+				SayCriticalHit(7);
 			}
 
 			p_mech->m_mobility -= 0x199a;
@@ -817,7 +817,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(8);
+				SayCriticalHit(8);
 			}
 
 			p_mech->m_mobility -= 0x199a;
@@ -840,7 +840,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(9);
+				SayCriticalHit(9);
 			}
 
 			DamageCockpitPanels(p_mech, 1);
@@ -853,7 +853,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(10);
+				SayCriticalHit(10);
 			}
 
 			p_mech->m_mobility -= 0x199a;
@@ -867,7 +867,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(11);
+				SayCriticalHit(11);
 			}
 
 			p_mech->m_mobility -= 0x199a;
@@ -883,7 +883,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(12);
+				SayCriticalHit(12);
 			}
 
 			DamageCockpitPanels(p_mech, 0);
@@ -894,7 +894,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
-				FUN_10059f6e(9);
+				SayCriticalHit(9);
 			}
 
 			DamageCockpitPanels(p_mech, 0);

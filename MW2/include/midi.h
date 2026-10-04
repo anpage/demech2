@@ -24,7 +24,7 @@ extern "C"
 	MechS32 InitializeMidi(void);
 	MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceNum);
 	void ShutdownMidi(void);
-	MechS16 FUN_100218bf(void);
+	MechS16 AnyMidiPlaying(void);
 	void SetMidiVolume(MechS16 p_volume);
 	void FUN_100219ea(void);
 	MechS32 FUN_100219f5(
@@ -35,11 +35,11 @@ extern "C"
 		MechS32 p_pan,
 		MechS32 p_flags
 	);
-	void FUN_10021a07(void);
-	void FUN_10021b2a(MechU32 p_pitch);
-	void FUN_10021be2(void);
-	void FUN_10021c49(void);
-	void FUN_10021c94(void);
+	void StartEngineNote(void);
+	void UpdateEngineNote(MechU32 p_pitch);
+	void StopEngineNote(void);
+	void MuteEngineNote(void);
+	void UnmuteEngineNote(void);
 
 #ifdef __cplusplus
 }
