@@ -496,8 +496,8 @@ extern "C" int __stdcall ShellMain(
 	g_textFont = g_bodyFont;
 	g_defaultFont = g_textFont;
 
-	g_mw2Database->GetDBItem(0x19, &g_unk0x10071200, &itemSize);
-	g_mouseState = new MouseState(g_videoDriver, g_defaultFont, g_unk0x10071200);
+	g_mw2Database->GetDBItem(0x19, &g_cursorShape, &itemSize);
+	g_mouseState = new MouseState(g_videoDriver, g_defaultFont, g_cursorShape);
 	g_keyboardInput = new KeyboardInput();
 	g_projectArchive = new ProjectArchive("MW2.PRJ");
 
