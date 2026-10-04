@@ -93,7 +93,7 @@ void SetRes(void)
 	ScalePointFromLowRes(&point, &point);
 	ScalePointToScreen(&g_mainPixelBuffer, &point, &point);
 	g_unk0x100a6d30 = point.m_x;
-	FUN_1006fba3();
+	ScaleCockpitLayout();
 	FUN_1006ee60();
 	ScaleOverlayPositions();
 }

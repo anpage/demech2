@@ -62,7 +62,7 @@ enum FilePermission {
 	c_permissionWrite = 0x80 // _S_IWRITE (sys/stat.h)
 };
 
-// The 26 cockpit panels' rectangles, in 320x200 screen coordinates (FUN_1006fba3 scales them to the
+// The 26 cockpit panels' rectangles, in 320x200 screen coordinates (ScaleCockpitLayout scales them to the
 // screen).
 // GLOBAL: MW2 0x100adf58
 PANE g_cockpitPanelPanes[c_panelCount] = {
@@ -100,47 +100,49 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 // The transitions of panels 13 and 2.
 
 // GLOBAL: MW2 0x100ae230
-RectTransitionState g_unk0x100ae230 = {0, 0, 0};
+RectTransitionState g_targetTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae240
-RectTransitionState g_unk0x100ae240 = {0, 0, 0};
+RectTransitionState g_mechViewTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae250
-PANE g_unk0x100ae250 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_targetTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae268
-PANE g_unk0x100ae268 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_targetTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae280
-PANE g_unk0x100ae280 = {NULL, 0, 0, 0, 0};
+PANE g_targetTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae298
-RectTransitionDef g_unk0x100ae298 = {0xb5, &g_unk0x100ae250, &g_unk0x100ae268, &g_unk0x100ae280};
+RectTransitionDef g_targetTransitionDef =
+	{0xb5, &g_targetTransitionFirst, &g_targetTransitionSecond, &g_targetTransitionRect};
 
 // GLOBAL: MW2 0x100ae2a8
-RectTransition g_unk0x100ae2a8 = {&g_unk0x100ae230, &g_unk0x100ae298};
+RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransitionDef};
 
 // GLOBAL: MW2 0x100ae2b0
-PANE g_unk0x100ae2b0 = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
+PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
-PANE g_unk0x100ae2c8 = {NULL, 0, 0, 0x10000, 0x10000};
+PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
-PANE g_unk0x100ae2e0 = {NULL, 0, 0, 0, 0};
+PANE g_mechViewTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
-RectTransitionDef g_unk0x100ae2f8 = {0xb5, &g_unk0x100ae2b0, &g_unk0x100ae2c8, &g_unk0x100ae2e0};
+RectTransitionDef g_mechViewTransitionDef =
+	{0xb5, &g_mechViewTransitionFirst, &g_mechViewTransitionSecond, &g_mechViewTransitionRect};
 
 // GLOBAL: MW2 0x100ae308
-RectTransition g_unk0x100ae308 = {&g_unk0x100ae240, &g_unk0x100ae2f8};
+RectTransition g_mechViewTransition = {&g_mechViewTransitionState, &g_mechViewTransitionDef};
 
 // The panels' transitions.
 // GLOBAL: MW2 0x100ae310
 RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL,
 	NULL,
-	&g_unk0x100ae308,
+	&g_mechViewTransition,
 	NULL,
 	NULL,
 	NULL,
@@ -151,7 +153,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL,
 	NULL,
 	NULL,
-	&g_unk0x100ae2a8,
+	&g_targetTransition,
 	NULL,
 	NULL,
 	NULL,
@@ -171,7 +173,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 MechS32 g_unk0x100ae37c = 0;
 
 // GLOBAL: MW2 0x100ae380
-MechS32 g_unk0x100ae380 = 0;
+MechS32 g_hitFadePending = 0;
 
 // The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
 // GLOBAL: MW2 0x100ae388
@@ -184,19 +186,19 @@ undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21
 MechS32 g_unk0x100ae3f0 = 0;
 
 // GLOBAL: MW2 0x100ae3f4
-MechS32 g_unk0x100ae3f4 = 0;
+MechS32 g_lockedTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3f8
-MechS32 g_unk0x100ae3f8 = 0;
+MechS32 g_lockingTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3fc
-MechS32 g_unk0x100ae3fc = 0;
+MechS32 g_hitFadeCount = 0;
 
 // The game directory (the MECHWARRIOR environment variable).
 // GLOBAL: MW2 0x100ae400
 MechChar g_gameDir[256] = {0};
 
-// The number of the next screenshot FUN_100715a2 saves.
+// The number of the next screenshot SaveScreenshot saves.
 // GLOBAL: MW2 0x100ae500
 MechS32 g_screenshotCount = 0;
 
@@ -223,13 +225,13 @@ MechS32 g_cockpitPanelEnabled[c_panelCount];
 // GLOBAL: MW2 0x100c3358
 MechS32 g_cockpitPowerState;
 
-// The three values of the HUD layout (FUN_10070bda).
+// The three values of the HUD layout (LoadHudFile).
 // GLOBAL: MW2 0x10109c30
-MechS32 g_unk0x10109c30[3];
+MechS32 g_hudLayoutValues[3];
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
-void FUN_1006f480(void)
+void PreloadCockpitSounds(void)
 {
 	MechS32 ids[8];
 	MechU32 i;
@@ -431,7 +433,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // Stack-slot permutation: rect, transition, i and target.
 // FUNCTION: MW2 0x1006fba3
-void FUN_1006fba3(void)
+void ScaleCockpitLayout(void)
 {
 	PANE* rect;
 	RectTransition* transition;
@@ -719,30 +721,30 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 // FUNCTION: MW2 0x100705dd
 void PlayCockpitWarnings(Mech* p_mech)
 {
-	if (g_unk0x100ae380) {
-		g_unk0x100ae3fc++;
-		FUN_1004ca29(g_unk0x100ae3fc * 3);
-		g_unk0x100ae380 = 0;
+	if (g_hitFadePending) {
+		g_hitFadeCount++;
+		FUN_1004ca29(g_hitFadeCount * 3);
+		g_hitFadePending = 0;
 	}
 
 	if (g_inCockpitView) {
 		if (p_mech->m_flags & 0x80) {
-			if (!g_unk0x100ae3f4 && p_mech->m_weapons[p_mech->m_selectedWeapon].m_state == 1 &&
+			if (!g_lockedTonePlayed && p_mech->m_weapons[p_mech->m_selectedWeapon].m_state == 1 &&
 				p_mech->m_powerState == 2) {
-				g_unk0x100ae3f4 = 1;
+				g_lockedTonePlayed = 1;
 				PlaySoundEffect(0xfe, 100, 0x5f, 5, 0x32);
 			}
 		}
 		else {
-			g_unk0x100ae3f4 = 0;
+			g_lockedTonePlayed = 0;
 			if (p_mech->m_flags & 0x40) {
-				if (!g_unk0x100ae3f8 && p_mech->m_powerState == 2) {
-					g_unk0x100ae3f8 = 1;
+				if (!g_lockingTonePlayed && p_mech->m_powerState == 2) {
+					g_lockingTonePlayed = 1;
 					PlaySoundEffect(0xcf, 100, 0x1f, 5, 0x32);
 				}
 			}
 			else {
-				g_unk0x100ae3f8 = 0;
+				g_lockingTonePlayed = 0;
 			}
 		}
 
@@ -773,7 +775,7 @@ void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 // Loads seven values from resource p_ref.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100707c0
-MechS32 FUN_100707c0(
+MechS32 LoadMgdFile(
 	ResourceRef* p_ref,
 	MechS32* p_unk0x04,
 	MechS32* p_unk0x08,
@@ -818,7 +820,7 @@ MechS32 FUN_100707c0(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a163(p_ref->m_id, g_resourceTypeTags[c_resTagMgeo]);
+		UnlockCachedResource(p_ref->m_id, g_resourceTypeTags[c_resTagMgeo]);
 	}
 
 	return TRUE;
@@ -912,11 +914,11 @@ MechS32 LoadReels(ResourceRef* p_ref)
 }
 
 // Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
-// (g_unk0x10109c30) and fifteen rectangles in percent of the screen (g_unk0x100a5cf8), any of
+// (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_unk0x100a5cf8), any of
 // them out of range cleared.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070bda
-MechS32 FUN_10070bda(ResourceRef* p_ref)
+MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
 	MechS32 value;
@@ -951,7 +953,7 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 	for (i = 0; i < 3; i++) {
 		value = *cursor;
 		cursor++;
-		g_unk0x10109c30[i] = value;
+		g_hudLayoutValues[i] = value;
 	}
 
 	for (i = 0; i < 15; i++) {
@@ -977,7 +979,7 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a163(p_ref->m_id, g_resourceTypeTags[c_resTagHud]);
+		UnlockCachedResource(p_ref->m_id, g_resourceTypeTags[c_resTagHud]);
 	}
 
 	return TRUE;
@@ -987,7 +989,7 @@ MechS32 FUN_10070bda(ResourceRef* p_ref)
 // and a point.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070e22
-MechS32 FUN_10070e22(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p_point)
+MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p_point)
 {
 	MechS32 size;
 	PANE* target;
@@ -1042,7 +1044,7 @@ MechS32 FUN_10070e22(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* 
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FUN_1001a163(p_ref->m_id, g_resourceTypeTags[c_resTagCpit]);
+		UnlockCachedResource(p_ref->m_id, g_resourceTypeTags[c_resTagCpit]);
 	}
 
 	return TRUE;
@@ -1052,7 +1054,7 @@ MechS32 FUN_10070e22(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* 
 // the main pixel buffer. Returns whether it could.
 // Stack-slot permutation: header, file and pixels.
 // FUNCTION: MW2 0x10071026
-MechS32 FUN_10071026(MechChar* p_path, void* p_palette)
+MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 {
 	void* header;
 	MechS32 file;
@@ -1064,7 +1066,7 @@ MechS32 FUN_10071026(MechChar* p_path, void* p_palette)
 		return FALSE;
 	}
 
-	header = FUN_1001a19f(g_mw2PrjHandle, 15, g_resourceTypeTags[c_resTagTable], 1);
+	header = LoadCachedResource(g_mw2PrjHandle, 15, g_resourceTypeTags[c_resTagTable], 1);
 	if (header == NULL) {
 		close(file);
 		return FALSE;
@@ -1075,7 +1077,7 @@ MechS32 FUN_10071026(MechChar* p_path, void* p_palette)
 	pixels = g_mainPixelBuffer.m_buffer;
 	write(file, pixels, g_screenPixelCount);
 	close(file);
-	FUN_1001a163(15, g_resourceTypeTags[c_resTagTable]);
+	UnlockCachedResource(15, g_resourceTypeTags[c_resTagTable]);
 	return TRUE;
 }
 
@@ -1125,7 +1127,7 @@ MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_po
 // Reads a game file into memory. Returns the file (closed), or -1.
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071251
-MechS32 FUN_10071251(MechChar* p_name, void** p_data)
+MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 {
 	MechS32 size;
 	MechS32 file;
@@ -1142,7 +1144,7 @@ MechS32 FUN_10071251(MechChar* p_name, void** p_data)
 }
 
 // FUNCTION: MW2 0x100712b0
-MechS32 FUN_100712b0(MechChar* p_name, void* p_data)
+MechS32 WriteCarCfgFile(MechChar* p_name, void* p_data)
 {
 	MechS32 file;
 	MechS32 result;
@@ -1263,7 +1265,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
 // FUNCTION: MW2 0x100715a2
-void FUN_100715a2(void)
+void SaveScreenshot(void)
 {
 	MechS32 count;
 	PANE target;
@@ -1306,7 +1308,7 @@ MechChar* BuildGamePath(MechChar* p_name)
 
 // Returns the path of a file in g_gameDir.
 // FUNCTION: MW2 0x100716ec
-MechChar* FUN_100716ec(MechChar* p_name)
+MechChar* BuildGameDirPath(MechChar* p_name)
 {
 	MechS32 i;
 

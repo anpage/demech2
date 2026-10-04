@@ -144,10 +144,10 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 		break;
 	}
 
-	left = FUN_1001a19f(g_mw2PrjHandle, shapes[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
-	bar = FUN_1001a19f(g_mw2PrjHandle, shapes[2] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
-	knob = FUN_1001a19f(g_mw2PrjHandle, shapes[6] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
-	right = FUN_1001a19f(g_mw2PrjHandle, shapes[4] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	left = LoadCachedResource(g_mw2PrjHandle, shapes[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	bar = LoadCachedResource(g_mw2PrjHandle, shapes[2] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	knob = LoadCachedResource(g_mw2PrjHandle, shapes[6] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	right = LoadCachedResource(g_mw2PrjHandle, shapes[4] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	if (bar && knob) {
 		size = VFX_shape_bounds(bar, 0);
 		width = size >> 16;
@@ -189,10 +189,10 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	}
 
 	p_control->m_value = value;
-	FUN_1001a163(shapes[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
-	FUN_1001a163(shapes[2] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
-	FUN_1001a163(shapes[4] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
-	FUN_1001a163(shapes[6] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[2] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[4] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(shapes[6] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 }
 
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its

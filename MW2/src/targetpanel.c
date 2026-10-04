@@ -238,7 +238,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		}
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -257,7 +257,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		DrawWrappedText(p_panel->m_target, text, font);
 	}
 
-	FUN_1001a163(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 	g_unk0x100ba4c8 = mech->m_player->m_targetInfo.m_target;
 }
 
@@ -345,7 +345,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 
 	if (kind == 0x200) {
 		targetPlayer = g_players[mech->m_player->m_targetInfo.m_target & 0xff];
-		FUN_1001d292(targetPlayer->m_index, 0);
+		LoadClassLevel(targetPlayer->m_index, 0);
 	}
 
 	SaveView(g_eyepoint, view);
@@ -356,23 +356,23 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	heading = player->m_targetInfo.m_heading;
 	object = GetLocalTargetObject();
 	if (!object) {
-		noTarget = FUN_1001a19f(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
+		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
 		if (noTarget) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
-			FUN_1001a163(0x5b, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(0x5b, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		return;
 	}
 	else if (!object->m_shape) {
-		noObject = FUN_1001a19f(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
+		noObject = LoadCachedResource(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
-			FUN_1001a163(0x58, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(0x58, g_resourceTypeTags[c_resTagShp]);
 		}
 
 		return;

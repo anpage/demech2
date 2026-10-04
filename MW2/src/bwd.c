@@ -98,7 +98,7 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 	if (!data && id != -1) {
 		p_stream->m_fromResource = 1;
 		p_stream->m_id = id;
-		data = FUN_1001a19f(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagBwd], 1);
+		data = LoadCachedResource(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagBwd], 1);
 		if (!data) {
 			Error(0x2a, "%s ID %d", p_key->m_name, p_key->m_id, 0);
 		}
@@ -162,7 +162,7 @@ void UnloadResource(BwdStream* p_stream)
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_stream->m_data);
 		}
 		else {
-			FUN_1001a4e5(p_stream->m_id, g_resourceTypeTags[c_resTagBwd]);
+			FreeCachedResource(p_stream->m_id, g_resourceTypeTags[c_resTagBwd]);
 		}
 	}
 }

@@ -53,7 +53,7 @@ MechS32 g_unk0x100a5cd8 = 0;
 // GLOBAL: MW2 0x100a5ce0
 PANE g_unk0x100a5ce0 = {NULL, 0, 0, 0, 0};
 
-// The outline's sixteen parts: rectangles in the outline shape's pixels (FUN_10070bda reads them)
+// The outline's sixteen parts: rectangles in the outline shape's pixels (LoadHudFile reads them)
 // until FUN_10040020 places them on the screen.
 // GLOBAL: MW2 0x100a5cf8
 PANE g_unk0x100a5cf8[16] = {0};
@@ -121,18 +121,23 @@ void FUN_10040020(void)
 		g_unk0x100be498[i] = i;
 	}
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0], g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		height1 = VFX_shape_resolution(shape, 0);
-		FUN_1001a163(g_unk0x10109c30[0], g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(g_hudLayoutValues[0], g_resourceTypeTags[c_resTagShp]);
 		width1 = height1 >> 16;
 		height1 &= 0xffff;
-		shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(
+			g_mw2PrjHandle,
+			g_hudLayoutValues[0] + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 	}
 
 	if (shape) {
 		height2 = VFX_shape_resolution(shape, 0);
-		FUN_1001a163(g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 		width2 = height2 >> 16;
 		height2 &= 0xffff;
 		g_unk0x100a5ce0.m_window = &g_mainPixelBuffer;
@@ -216,7 +221,8 @@ void FUN_10040511(Mech* p_mech, PANE* p_target)
 
 	rear = 0;
 	front = 0;
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	shape =
+		LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	if (!shape) {
 		return;
 	}
@@ -278,7 +284,7 @@ void FUN_10040511(Mech* p_mech, PANE* p_target)
 		}
 	}
 
-	FUN_1001a163(g_unk0x10109c30[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 }
 
 // Draws the damage panel's armor bars: each section's front armor, and the rear armor of the
@@ -297,14 +303,14 @@ void FUN_100407b6(Mech* p_mech, PANE* p_target)
 	MechSection* section;
 
 	g_textColors[0xe] = 6;
-	font = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		VFX_string_draw(p_target, g_unk0x100a5cb8.m_x, g_unk0x100a5cb8.m_y, font, g_unk0x100a5ebc, g_textColors);
 		VFX_string_draw(p_target, g_unk0x100a5cc0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec0, g_textColors);
 		VFX_string_draw(p_target, g_unk0x100a5cc8.m_x, g_unk0x100a5cc8.m_y, font, g_unk0x100a5ec4, g_textColors);
 		VFX_string_draw(p_target, g_unk0x100a5cd0.m_x, g_unk0x100a5cc0.m_y, font, g_unk0x100a5ec8, g_textColors);
 		g_textColors[0xe] = 0xe;
-		FUN_1001a163(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	for (i = 0; i < 8; i++) {

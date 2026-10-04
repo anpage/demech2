@@ -37,7 +37,7 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_unk0x10109c30[3];
+	extern MechS32 g_hudLayoutValues[3];
 	extern MechS32 g_torsoTwistDegrees;
 	extern MechS32 g_headingDegrees;
 	extern CockpitPanel* g_cockpitPanels[c_panelCount];
@@ -46,17 +46,17 @@ extern "C"
 	extern struct PANE g_cockpitPanelPanes[c_panelCount];
 	extern MechS32 g_unk0x100ae37c;
 	extern MechChar g_gameDir[256];
-	extern MechS32 g_unk0x100ae380;
+	extern MechS32 g_hitFadePending;
 
 	MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_poolTag);
-	void FUN_100715a2(void);
+	void SaveScreenshot(void);
 	MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg);
-	MechS32 FUN_100712b0(MechChar* p_name, void* p_data);
+	MechS32 WriteCarCfgFile(MechChar* p_name, void* p_data);
 	MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg);
 	MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg);
 	MechChar* BuildGamePath(MechChar* p_name);
 	void LayoutWeaponPanels(struct Mech* p_mech);
-	void FUN_1006fba3(void);
+	void ScaleCockpitLayout(void);
 	void InitCockpitPanels(void);
 	void ResetCockpitPanels(void);
 	void UpdateCockpit(struct Mech* p_mech);
@@ -64,7 +64,7 @@ extern "C"
 	void DamageCockpitPanels(struct Mech* p_mech, MechS32 p_heavy);
 	void PlayCockpitWarnings(struct Mech* p_mech);
 	void DrawPanelAnim(struct PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
-	MechS32 FUN_100707c0(
+	MechS32 LoadMgdFile(
 		struct ResourceRef* p_ref,
 		MechS32* p_unk0x04,
 		MechS32* p_unk0x08,
@@ -75,14 +75,9 @@ extern "C"
 		MechS32* p_unk0x1c
 	);
 	MechS32 LoadReels(struct ResourceRef* p_ref);
-	MechS32 FUN_10070bda(struct ResourceRef* p_ref);
-	MechS32 FUN_10070e22(
-		struct ResourceRef* p_ref,
-		struct PANE* p_gauges,
-		struct PANE* p_panels,
-		struct Point* p_point
-	);
-	void FUN_1006f480(void);
+	MechS32 LoadHudFile(struct ResourceRef* p_ref);
+	MechS32 LoadCptFile(struct ResourceRef* p_ref, struct PANE* p_gauges, struct PANE* p_panels, struct Point* p_point);
+	void PreloadCockpitSounds(void);
 
 #ifdef __cplusplus
 }

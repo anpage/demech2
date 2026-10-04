@@ -552,7 +552,7 @@ void KnockMechOver(Mech* p_mech)
 	MechS32 z;
 
 	if (!g_netRole || p_mech->m_player->m_index == g_localPlayerId) {
-		BlowOffObjTree(p_mech->m_player->m_obj, FUN_1001ddf2, 999);
+		BlowOffObjTree(p_mech->m_player->m_obj, ReleaseObjShape, 999);
 		p_mech->m_flags |= 0x100;
 	}
 	else {

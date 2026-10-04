@@ -68,7 +68,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 		break;
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		g_textColors[0xe] = color;
 		if (weapon->m_ammo < 0) {
@@ -95,7 +95,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 		}
 
 		g_textColors[0xe] = 0xe;
-		FUN_1001a163(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	if (p_panel->m_weapon == mech->m_selectedWeapon) {
@@ -125,7 +125,7 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 	}
 
 	clock = g_currentClock;
-	font = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -134,5 +134,5 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
 	}
 
-	FUN_1001a163(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 }

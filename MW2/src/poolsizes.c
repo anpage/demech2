@@ -30,16 +30,16 @@ typedef struct RevRecord {
 
 // A mission stream's data table: the counts its static memory pools are sized for.
 typedef struct DtblRecord {
-	BwdRecord m_header; // 0x00
-	MechS16 m_unk0x08;  // 0x08 — players
-	MechS16 m_unk0x0a;  // 0x0a
-	MechS16 m_unk0x0c;  // 0x0c
-	MechS16 m_unk0x0e;  // 0x0e
-	MechS16 m_unk0x10;  // 0x10
-	MechS16 m_unk0x12;  // 0x12
-	MechS16 m_unk0x14;  // 0x14
-	MechS16 m_unk0x16;  // 0x16
-	MechS32 m_unk0x18;  // 0x18
+	BwdRecord m_header;       // 0x00
+	MechS16 m_players;        // 0x08
+	MechS16 m_unk0x0a;        // 0x0a
+	MechS16 m_objects;        // 0x0c
+	MechS16 m_classEntries;   // 0x0e
+	MechS16 m_unk0x10;        // 0x10
+	MechS16 m_unk0x12;        // 0x12
+	MechS16 m_anims;          // 0x14
+	MechS16 m_animTracks;     // 0x16
+	MechS32 m_animFrameBytes; // 0x18
 } DtblRecord;
 
 // A four-character tag read as a big-endian number, so that versions compare in order.
@@ -56,16 +56,16 @@ MechU32 g_staticPoolTags[10] =
 // memory pools.
 
 // GLOBAL: MW2 0x100e9da8
-MechS16 g_unk0x100e9da8;
+MechS16 g_missionPlayers;
 
 // GLOBAL: MW2 0x100e9daa
 MechS16 g_unk0x100e9daa;
 
 // GLOBAL: MW2 0x100e9dac
-MechS16 g_unk0x100e9dac;
+MechS16 g_missionObjects;
 
 // GLOBAL: MW2 0x100e9dae
-MechS16 g_unk0x100e9dae;
+MechS16 g_missionClassEntries;
 
 // GLOBAL: MW2 0x100e9db0
 MechS16 g_unk0x100e9db0;
@@ -74,15 +74,15 @@ MechS16 g_unk0x100e9db0;
 MechS16 g_unk0x100e9db2;
 
 // GLOBAL: MW2 0x100e9db4
-MechS16 g_unk0x100e9db4;
+MechS16 g_missionAnims;
 
 // GLOBAL: MW2 0x100e9db6
-MechS16 g_unk0x100e9db6;
+MechS16 g_missionAnimTracks;
 
 // GLOBAL: MW2 0x100e9db8
-MechS32 g_unk0x100e9db8;
+MechS32 g_missionAnimFrameBytes;
 
-// The mission's static memory table, which FUN_1005640e fills.
+// The mission's static memory table, which ReadStaticMemoryTable fills.
 // GLOBAL: MW2 0x100e9dc0
 StaticPoolSize g_staticPoolSizes[10];
 
@@ -104,7 +104,7 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 // named by a number is looked up by that resource id.
 // Stack-slot permutation: result, key, keyData and buffer.
 // FUNCTION: MW2 0x1005640e
-StaticPoolSize* FUN_1005640e(char* p_mission)
+StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 {
 	BwdStream* stream;
 	BwdStreamKey* key;
@@ -125,13 +125,13 @@ StaticPoolSize* FUN_1005640e(char* p_mission)
 
 	stream = OpenBwdStream(key, (BwdStream*) buffer);
 	if (stream) {
-		if (FUN_10056503(stream)) {
-			result = FUN_100567ed();
+		if (CountMissionStream(stream)) {
+			result = BuildStaticMemoryTable();
 		}
 
 		UnloadResource(stream);
 		FUN_100586ec();
-		FUN_1004fd55();
+		FreeMissionTables();
 	}
 
 	return result;
@@ -144,7 +144,7 @@ StaticPoolSize* FUN_1005640e(char* p_mission)
 // takes its terms in another order (the original moves the top byte in with mov al, cl), and
 // rev, node, table, known and type are a stack-slot permutation.
 // FUNCTION: MW2 0x10056503
-MechS32 FUN_10056503(BwdStream* p_stream)
+MechS32 CountMissionStream(BwdStream* p_stream)
 {
 	MechS32 result;
 	RevRecord* rev;
@@ -179,16 +179,16 @@ MechS32 FUN_10056503(BwdStream* p_stream)
 			}
 
 			table = (DtblRecord*) node;
-			g_unk0x100e9da8 += table->m_unk0x08;
+			g_missionPlayers += table->m_players;
 			g_unk0x100e9daa += table->m_unk0x0a;
-			g_unk0x100e9dac += table->m_unk0x0c;
-			g_unk0x100e9dae += table->m_unk0x0e;
+			g_missionObjects += table->m_objects;
+			g_missionClassEntries += table->m_classEntries;
 			g_unk0x100e9db0 += table->m_unk0x10;
 			g_unk0x100e9db2 += table->m_unk0x12;
-			g_unk0x100e9db4 += table->m_unk0x14;
+			g_missionAnims += table->m_anims;
 			if (!known) {
-				g_unk0x100e9db6 += table->m_unk0x16;
-				g_unk0x100e9db8 += table->m_unk0x18;
+				g_missionAnimTracks += table->m_animTracks;
+				g_missionAnimFrameBytes += table->m_animFrameBytes;
 			}
 
 			while (node) {
@@ -201,10 +201,10 @@ MechS32 FUN_10056503(BwdStream* p_stream)
 					result &= LoadScenarioTable((ScenarioTable*) node);
 				}
 				else if (g_bwdTypeCodes[50] == type) {
-					result &= ExecuteInclude((IncludeRecord*) node, FUN_10056503);
+					result &= ExecuteInclude((IncludeRecord*) node, CountMissionStream);
 				}
 				else if (g_bwdTypeCodes[52] == type) {
-					result &= FUN_1004fcac((IncludeRecord2*) node, FUN_10056503);
+					result &= RunIncludedStream((IncludeRecord2*) node, CountMissionStream);
 				}
 
 				node = GetNextNode(p_stream);
@@ -217,27 +217,27 @@ MechS32 FUN_10056503(BwdStream* p_stream)
 
 // Fills the static memory table from the mission's counts: each pool's tag and size.
 // FUNCTION: MW2 0x100567ed
-StaticPoolSize* FUN_100567ed(void)
+StaticPoolSize* BuildStaticMemoryTable(void)
 {
-	g_staticPoolSizes[0].m_size = g_unk0x100e9da8 * 0x1f2;
+	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x1f2;
 	g_staticPoolSizes[0].m_tag = g_staticPoolTags[0];
-	g_staticPoolSizes[1].m_size = GetMechAllocSize() * g_unk0x100e9da8;
+	g_staticPoolSizes[1].m_size = GetMechAllocSize() * g_missionPlayers;
 	g_staticPoolSizes[1].m_tag = g_staticPoolTags[1];
-	g_staticPoolSizes[2].m_size = GetObjSize() * g_unk0x100e9dac;
+	g_staticPoolSizes[2].m_size = GetObjSize() * g_missionObjects;
 	g_staticPoolSizes[2].m_tag = g_staticPoolTags[2];
-	g_staticPoolSizes[3].m_size = GetTimedCallbackSize() * g_unk0x100e9db4;
+	g_staticPoolSizes[3].m_size = GetTimedCallbackSize() * g_missionAnims;
 	g_staticPoolSizes[3].m_tag = g_staticPoolTags[3];
-	g_staticPoolSizes[4].m_size = g_unk0x100e9db4 * 0x2c;
+	g_staticPoolSizes[4].m_size = g_missionAnims * 0x2c;
 	g_staticPoolSizes[4].m_tag = g_staticPoolTags[4];
-	g_staticPoolSizes[5].m_size = g_unk0x100e9db6 * 0x14;
+	g_staticPoolSizes[5].m_size = g_missionAnimTracks * 0x14;
 	g_staticPoolSizes[5].m_tag = g_staticPoolTags[5];
-	g_staticPoolSizes[6].m_size = g_unk0x100e9db8;
+	g_staticPoolSizes[6].m_size = g_missionAnimFrameBytes;
 	g_staticPoolSizes[6].m_tag = g_staticPoolTags[6];
-	g_staticPoolSizes[7].m_size = g_unk0x100e9dae * 8;
+	g_staticPoolSizes[7].m_size = g_missionClassEntries * 8;
 	g_staticPoolSizes[7].m_tag = g_staticPoolTags[7];
-	g_staticPoolSizes[8].m_size = g_unk0x100e9dae * 4;
+	g_staticPoolSizes[8].m_size = g_missionClassEntries * 4;
 	g_staticPoolSizes[8].m_tag = g_staticPoolTags[8];
-	g_staticPoolSizes[9].m_size = g_unk0x100e9dae * 4;
+	g_staticPoolSizes[9].m_size = g_missionClassEntries * 4;
 	g_staticPoolSizes[9].m_tag = g_staticPoolTags[9];
 	return g_staticPoolSizes;
 }

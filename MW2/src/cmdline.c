@@ -99,10 +99,10 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				if (arg[3] == '=') {
 					switch (toupper(arg[2])) {
 					case 'F':
-						g_unk0x100a8630 = arg + 4;
+						g_playerTeamFormation = arg + 4;
 						break;
 					case 'E':
-						g_unk0x100a8634 = arg + 4;
+						g_otherTeamFormation = arg + 4;
 						break;
 					}
 				}
@@ -140,13 +140,13 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				if (arg[2] == '=') {
 					switch (toupper(arg[3])) {
 					case 'F':
-						FUN_1003a37c(4);
+						SetDebugOutputMode(4);
 						break;
 					case 'S':
-						FUN_1003a37c(2);
+						SetDebugOutputMode(2);
 						break;
 					case 'M':
-						FUN_1003a37c(1);
+						SetDebugOutputMode(1);
 						break;
 					}
 				}

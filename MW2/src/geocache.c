@@ -271,7 +271,7 @@ void UpdateGeoCache(void)
 		g_staticObjectsChanged = 0;
 	}
 
-	FUN_1001da44();
+	ChoosePlayerDetailLevels();
 	RunStaticObjectTasks();
 }
 
@@ -845,7 +845,7 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 		return TRUE;
 	}
 
-	data = FUN_1001a19f(g_mw2PrjHandle, entry->m_resource, g_resourceTypeTags[c_resTagPoly], 0);
+	data = LoadCachedResource(g_mw2PrjHandle, entry->m_resource, g_resourceTypeTags[c_resTagPoly], 0);
 	if (data) {
 		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_resource);
 	}
@@ -868,7 +868,7 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 
 	entry->m_shape = LoadShapes(data, &offset, size, parent);
 	g_unk0x100bfd40 = 0;
-	FUN_1001a163(entry->m_resource, g_resourceTypeTags[c_resTagPoly]);
+	UnlockCachedResource(entry->m_resource, g_resourceTypeTags[c_resTagPoly]);
 	if (!entry->m_shape) {
 		return FALSE;
 	}
@@ -1074,7 +1074,7 @@ MechS32 ToggleBlockBoxes(void)
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 			}
 			else {
-				FUN_1001a163(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
+				UnlockCachedResource(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
 			}
 		}
 		else {
@@ -1122,7 +1122,7 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 		}
 		else {
-			FUN_1001a163(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
+			UnlockCachedResource(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
 		}
 	}
 	else {

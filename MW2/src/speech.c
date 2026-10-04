@@ -378,9 +378,9 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 	}
 
 	if (suffix) {
-		if (FUN_1001a19f(0, suffix, g_resourceTypeTags[c_resTagSnds], 0)) {
-			if (!FUN_1001a19f(0, id, g_resourceTypeTags[c_resTagSnds], 0)) {
-				FUN_1001a163(suffix, g_resourceTypeTags[c_resTagSnds]);
+		if (LoadCachedResource(0, suffix, g_resourceTypeTags[c_resTagSnds], 0)) {
+			if (!LoadCachedResource(0, id, g_resourceTypeTags[c_resTagSnds], 0)) {
+				UnlockCachedResource(suffix, g_resourceTypeTags[c_resTagSnds]);
 			}
 			else {
 				slot = PlaySample(

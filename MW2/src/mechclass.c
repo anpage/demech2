@@ -124,8 +124,8 @@ void FirstMech(struct Player* p_player)
 	}
 
 	if (p_player->m_index != g_reloadingPlayer) {
-		mech->m_torsoObj = FUN_100506d8();
-		mech->m_pitchObj = FUN_100506d8();
+		mech->m_torsoObj = NextThingRecordObject();
+		mech->m_pitchObj = NextThingRecordObject();
 		RememberMechSegments(mech);
 		if (mech->m_player->m_index == g_localPlayerId) {
 			InitCockpitPanels();

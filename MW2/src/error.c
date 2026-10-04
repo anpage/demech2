@@ -138,8 +138,8 @@ void Error(MechS32 p_code, const char* p_format, ...)
 void FUN_1003ba07(void)
 {
 	FUN_100586ec();
-	FUN_1004fd55();
-	FUN_10019cc2();
+	FreeMissionTables();
+	ShutdownResourceCache();
 	ShutdownNetwork();
 	CloseInputDevices();
 	CloseMw2Log();

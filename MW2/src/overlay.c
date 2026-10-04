@@ -464,7 +464,7 @@ void ShowCacheInfo(void)
 {
 	MechChar text[28];
 
-	sprintf(text, "Items in cache: %li     ", g_cacheItemCount);
+	sprintf(text, "Items in cache: %li     ", g_cacheEntryCount);
 	DRAW_DEBUG_TEXT();
 	g_cacheInfoShown = 1;
 }

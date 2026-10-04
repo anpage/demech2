@@ -673,11 +673,11 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			id = thing->m_id;
 			id = MapResourceId(id);
-			if (g_unk0x100a8620 < 0x96) {
+			if (g_thingRecordCount < 0x96) {
 				index = FindThingIdxById(id);
 				if (index != -1) {
-					g_unk0x100ea580[g_unk0x100a8620] = index;
-					g_unk0x100a8620++;
+					g_thingRecordIndices[g_thingRecordCount] = index;
+					g_thingRecordCount++;
 				}
 				else {
 					Error(0x2f, NULL);
@@ -753,8 +753,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						g_lastPlayer = player;
 						player->m_obj = obj;
 						player->m_eyeObj = obj;
-						FUN_1001d220(player);
-						FUN_1001ce90(player);
+						ClaimNewClassEntries(player);
+						LoadBaseLevelShapes(player);
 					}
 				}
 				else {
@@ -772,7 +772,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			ref = &cockpit->m_ref;
 			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
-				FUN_10070e22(ref, g_unk0x100a5a68, g_cockpitPanelPanes, g_unk0x100a5bb8[3]);
+				LoadCptFile(ref, g_unk0x100a5a68, g_cockpitPanelPanes, g_unk0x100a5bb8[3]);
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdPitFile]) {
@@ -823,7 +823,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			ref = &hud->m_ref;
 			if (g_lastPlayer && g_unk0x100a173c) {
-				FUN_10070bda(ref);
+				LoadHudFile(ref);
 				g_unk0x100a173c = 0;
 			}
 		}
@@ -835,7 +835,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			ref = &mgd->m_ref;
 			if (g_lastPlayer) {
 				mech = g_lastPlayer->m_mech;
-				FUN_100707c0(
+				LoadMgdFile(
 					ref,
 					&mech->m_height,
 					&mech->m_cockpitHeight,
@@ -902,7 +902,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			thing = NULL;
 			hitPoints = gameThing->m_hitPoints;
 			events = FUN_1000a9c0(gameThing->m_events);
-			index = FUN_1005072f();
+			index = FindFreeGameThing();
 			if (index != -1) {
 				thing = &g_gameThings[index];
 				thing->m_unk0x00 = gameThing->m_unk0x1c;
@@ -1225,7 +1225,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			result &= ExecuteInclude((IncludeRecord*) node, BwdExecuteStream);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGroup]) {
-			FUN_1004fc48((struct FormationNames*) node);
+			SetTeamFormations((struct FormationNames*) node);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdGpSpec]) {
 			Mech* mech;
@@ -1264,7 +1264,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			events = FUN_1000a9c0(gpSpec->m_events);
-			if (FUN_1004fcac(gpSpec, BwdExecuteStream)) {
+			if (RunIncludedStream(gpSpec, BwdExecuteStream)) {
 				if (g_lastPlayer) {
 					index = g_lastPlayer->m_index;
 					for (i = 0; i < 8; i++) {
@@ -1312,8 +1312,8 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			SetMangleBase(0);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdMangleOn]) {
-			g_unk0x100a862c += 0x10000;
-			SetMangleBase(g_unk0x100a862c);
+			g_nextMangleBase += 0x10000;
+			SetMangleBase(g_nextMangleBase);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdAnim2d]) {
 			BwdAnim2dSpec* spec;
@@ -1354,11 +1354,11 @@ MechS32 LoadWorld(MechChar* p_name)
 	result = FALSE;
 	ResetTeams();
 	for (i = 0; i < 0x96; i++) {
-		g_unk0x100ea580[i] = -1;
+		g_thingRecordIndices[i] = -1;
 	}
 
-	g_unk0x100a8620 = 0;
-	g_unk0x100a8624 = 0;
+	g_thingRecordCount = 0;
+	g_nextThingRecord = 0;
 	SetShapeOffset(0, 0, 0);
 	key = &keyData;
 	if (isdigit(*p_name)) {
@@ -1375,7 +1375,7 @@ MechS32 LoadWorld(MechChar* p_name)
 	if (stream && AllocGeoTables()) {
 		result = BwdExecuteStream(stream);
 		UnloadResource(stream);
-		FUN_1004fd55();
+		FreeMissionTables();
 		FreeGeoTables();
 		if (!AreStaticObjectsComplete()) {
 			Error(0x4b, NULL);

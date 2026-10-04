@@ -37,17 +37,17 @@ typedef MechS32 (*PlayerCreatedFn)(MechS32 p_index, Player* p_player);
 
 // SIZE 0x1aa
 struct Player {
-	MechS32 m_type;                           // 0x00 — c_playerType…
-	MechS32 m_index;                          // 0x04
-	MechS32 m_team;                           // 0x08
-	MechS32 m_slot;                           // 0x0c — the player's place in its team's formation
-	MechS32 m_aiMode;                         // 0x10 — the gpspec's ai: 0 the user, 2 the AI drives it
-	MechS16 m_flags;                          // 0x14
-	MechS16 m_inspectedBy;                    // 0x16 — a bit per team that inspected it (m_inspectTarget)
-	MechS32 m_baseLevel;                      // 0x18 — the world stream's repeat pass it was made in (FUN_1001ce90)
-	MechS32 m_detailLevel;                    // 0x1c — the level of detail whose shapes are loaded, or -1
-	Mech* m_mech;                             // 0x20
-	undefined4 m_mechSize;                    // 0x24 — sizeof(Mech) for the types that have one
+	MechS32 m_type;        // 0x00 — c_playerType…
+	MechS32 m_index;       // 0x04
+	MechS32 m_team;        // 0x08
+	MechS32 m_slot;        // 0x0c — the player's place in its team's formation
+	MechS32 m_aiMode;      // 0x10 — the gpspec's ai: 0 the user, 2 the AI drives it
+	MechS16 m_flags;       // 0x14
+	MechS16 m_inspectedBy; // 0x16 — a bit per team that inspected it (m_inspectTarget)
+	MechS32 m_baseLevel;   // 0x18 — the world stream's repeat pass it was made in (LoadBaseLevelShapes)
+	MechS32 m_detailLevel; // 0x1c — the level of detail whose shapes are loaded, or -1
+	Mech* m_mech;          // 0x20
+	undefined4 m_mechSize; // 0x24 — sizeof(Mech) for the types that have one
 	void (*m_firstClassFn)(Player* p_player); // 0x28
 	PlayerMechFn m_updateFn;                  // 0x2c
 	PlayerMechFn m_lateUpdateFn;              // 0x30

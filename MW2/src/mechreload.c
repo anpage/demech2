@@ -166,8 +166,8 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 
 	obj = p_segment->m_obj;
 	if (obj) {
-		RemoveChunk(obj, FUN_1001ddf2);
-		FUN_1001de84(obj);
+		RemoveChunk(obj, ReleaseObjShape);
+		ForgetObjShape(obj);
 		SetObjPosition(obj, p_segment->m_position[0], p_segment->m_position[1], p_segment->m_position[2]);
 		SetObjRotation(obj, p_segment->m_rotation[0], p_segment->m_rotation[1], p_segment->m_rotation[2], 0);
 		obj->m_firstChild = RestoreMechSegments(p_segment->m_firstChild);

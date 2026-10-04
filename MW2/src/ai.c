@@ -2341,7 +2341,7 @@ MechS32 LoadAIScripts(void)
 
 	g_aiScripts[0] = NULL;
 	for (i = 0; i < 9; i++) {
-		g_aiScripts[i + 1] = FUN_1001a19f(g_mw2PrjHandle, i + 1, g_resourceTypeTags[c_resTagAit], 0);
+		g_aiScripts[i + 1] = LoadCachedResource(g_mw2PrjHandle, i + 1, g_resourceTypeTags[c_resTagAit], 0);
 	}
 
 	return TRUE;

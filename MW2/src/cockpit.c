@@ -454,7 +454,7 @@ void DrawMapView(void)
 		g_renderSettings.m_drawPolygon = SatelliteDrawPolygon;
 		zoom = GetViewMode();
 		SetViewMode(c_viewSatellite);
-		FUN_1001da44();
+		ChoosePlayerDetailLevels();
 		SetViewMode(zoom);
 		VFX_pane_wipe(viewport, g_groundColor);
 		flags = 0;
@@ -497,10 +497,10 @@ void DrawMapContents(CockpitLayout* p_layout)
 		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
 		id = p_layout->m_icons[0][0] + g_artResolution;
-		shape = FUN_1001a19f(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			VFX_shape_draw(viewport, shape, 0, x, y);
-			FUN_1001a163(id, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(id, g_resourceTypeTags[c_resTagShp]);
 			DrawMapUnits(p_layout);
 		}
 	}
@@ -523,10 +523,10 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	}
 
 	if (visible) {
-		shape = FUN_1001a19f(g_mw2PrjHandle, p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
-			FUN_1001a163(p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 		}
 	}
 }
@@ -657,7 +657,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		return;
 	}
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (visible) {
 			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
@@ -667,7 +667,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
 
-		FUN_1001a163(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -711,10 +711,11 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 				}
 
 				if (icon != -1) {
-					shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
+					shape =
+						LoadCachedResource(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
 					if (shape) {
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
-						FUN_1001a163(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
+						UnlockCachedResource(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
 					}
 				}
 			}
@@ -766,7 +767,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 
 	viewport = p_layout->m_viewport;
 	player = g_players[g_localPlayerId];
-	font = FUN_1001a19f(g_mw2PrjHandle, p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		if (p_layout->m_range != p_layout->m_formattedRange) {
 			range = p_layout->m_range / 2;
@@ -811,7 +812,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			);
 		}
 
-		FUN_1001a163(p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont]);
 	}
 }
 

@@ -712,8 +712,8 @@ void BlowOffPart(SceneObject* p_obj, MechU32 p_partId)
 	BlowOffPart(p_obj->m_nextSibling, p_partId);
 
 	if (p_obj->m_shape && p_obj->m_shape->m_partId == p_partId) {
-		BlowOffObjTree(p_obj->m_firstChild, FUN_1001ddf2, p_partId);
-		BlowOffChunk(p_obj, FUN_1001ddf2, p_partId);
+		BlowOffObjTree(p_obj->m_firstChild, ReleaseObjShape, p_partId);
+		BlowOffChunk(p_obj, ReleaseObjShape, p_partId);
 	}
 	else {
 		BlowOffPart(p_obj->m_firstChild, p_partId);

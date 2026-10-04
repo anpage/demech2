@@ -1181,7 +1181,7 @@ void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 // FUNCTION: MW2 0x1006c345
 void SaveCarCfg(void)
 {
-	FUN_100712b0("MW2CAR.CFG", &g_carCfg);
+	WriteCarCfgFile("MW2CAR.CFG", &g_carCfg);
 }
 
 // Heats up the mechs near burning game things (shapes of type 0x10), the more the closer.

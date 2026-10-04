@@ -975,7 +975,7 @@ void FUN_1005c78a(MechS32 p_key)
 	case 0x5b:
 		PauseTimer(0x80, 1);
 		g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1;
-		FUN_100715a2();
+		SaveScreenshot();
 		PauseTimer(0x80, 0);
 		sprintf(text, "GIF saved - MW2000?.GIF");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);

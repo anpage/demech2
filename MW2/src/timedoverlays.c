@@ -63,8 +63,12 @@ void FUN_1006ee60(void)
 		overlay = &g_timedOverlays[i];
 		target = overlay->m_target;
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-		shape =
-			FUN_1001a19f(g_mw2PrjHandle, overlay->m_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(
+			g_mw2PrjHandle,
+			overlay->m_background + g_artResolution,
+			g_resourceTypeTags[c_resTagShp],
+			0
+		);
 		if (shape != NULL) {
 			FitRectToShape(target, target, shape, 0);
 		}
@@ -84,7 +88,8 @@ void FUN_1006ee60(void)
 		target->m_y1 += dy;
 		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font = FUN_1001a19f(g_mw2PrjHandle, overlay->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+		font =
+			LoadCachedResource(g_mw2PrjHandle, overlay->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 		if (font != NULL) {
 			height = target->m_y1 - target->m_y0 + 1;
 			fontHeight = VFX_font_height(font);
@@ -169,14 +174,14 @@ void DrawTimedOverlays(void)
 		overlay = &g_timedOverlays[i];
 		if (overlay->m_active) {
 			if (GetGameClock() < overlay->m_expireTime) {
-				font = FUN_1001a19f(
+				font = LoadCachedResource(
 					g_mw2PrjHandle,
 					overlay->m_font + g_artResolution,
 					g_resourceTypeTags[c_resTagFont],
 					0
 				);
 				if (font != NULL) {
-					background = FUN_1001a19f(
+					background = LoadCachedResource(
 						g_mw2PrjHandle,
 						overlay->m_background + g_artResolution,
 						g_resourceTypeTags[c_resTagShp],
@@ -219,10 +224,11 @@ void FUN_1006f28f(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS3
 	}
 
 	if (p_background != -1) {
-		background = FUN_1001a19f(g_mw2PrjHandle, p_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+		background =
+			LoadCachedResource(g_mw2PrjHandle, p_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
-	font = FUN_1001a19f(g_mw2PrjHandle, p_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
 		FitRectToText(p_text, font, &rect);
@@ -264,7 +270,7 @@ void FUN_1006f3ea(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_
 	MechChar* c;
 	MechS32 ch;
 
-	text = FUN_1001a19f(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagText], 0);
+	text = LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagText], 0);
 	if (text != NULL) {
 		c = text;
 		while (*c != '\0') {

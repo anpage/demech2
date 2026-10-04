@@ -465,7 +465,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 		FUN_10059e63(6, p_mech->m_player->m_slot);
 	}
 
-	FUN_1001d292(p_mech->m_player->m_index, 1);
+	LoadClassLevel(p_mech->m_player->m_index, 1);
 }
 
 // Calls DestroyCriticalSlot once for each of section p_section's m_unk0x24.
@@ -690,7 +690,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 						x = p_mech->m_player->m_position.m_x - g_eyepoint->m_x;
 						y = p_mech->m_player->m_position.m_y - g_eyepoint->m_y;
 						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
-						g_unk0x100ae380 = 1;
+						g_hitFadePending = 1;
 						PlaySoundAt(x, y, z, 0xbc, g_inCockpitView);
 						FUN_10059f6e(1);
 					}
@@ -1001,7 +1001,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		section->m_armor[side] = 0;
 		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
 			p_mech->m_powerState != 4 && p_damage > 0x20000) {
-			g_unk0x100ae380 = 1;
+			g_hitFadePending = 1;
 		}
 
 		if (section->m_unk0x08 <= 0) {

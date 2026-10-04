@@ -22,7 +22,7 @@
 
 DECOMP_SIZE_ASSERT(ClassEntry, 0x44)
 
-// A player's model level as FUN_1001da44 chooses it.
+// A player's model level as ChoosePlayerDetailLevels chooses it.
 // SIZE 0x0c
 typedef struct PlayerDetail {
 	MechS32 m_distance; // 0x00 — from the eyepoint
@@ -43,7 +43,7 @@ ClassEntry g_classTable[0x30c];
 // Stack-slot permutation: count, i and buffer.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001ce90
-MechS32 FUN_1001ce90(Player* p_player)
+MechS32 LoadBaseLevelShapes(Player* p_player)
 {
 	MechS32 i;
 	MechS32 count;
@@ -63,9 +63,9 @@ MechS32 FUN_1001ce90(Player* p_player)
 
 	for (i = 0; i < g_classEntryCount; i++) {
 		if (g_classTable[i].m_owner == p_player->m_index) {
-			FUN_1001d3ff(i, p_player->m_baseLevel, buffer);
+			LoadClassEntryShape(i, p_player->m_baseLevel, buffer);
 			buffer += GetObjSize();
-			FUN_1001d912(i, p_player->m_baseLevel);
+			ReleaseClassEntryShape(i, p_player->m_baseLevel);
 		}
 	}
 
@@ -77,7 +77,7 @@ MechS32 FUN_1001ce90(Player* p_player)
 // index, or -1.
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x1001cf93
-MechS32 FUN_1001cf93(
+MechS32 AddClassEntryLevel(
 	MechS32 p_unk0x00,
 	undefined4 p_unk0x04,
 	undefined4 p_unk0x08,
@@ -174,7 +174,7 @@ void ResetClassTable(void)
 // Gives the entries added since the last call (owner -2) to p_player.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001d220
-void FUN_1001d220(Player* p_player)
+void ClaimNewClassEntries(Player* p_player)
 {
 	MechS32 i;
 	ClassEntry* entry;
@@ -194,7 +194,7 @@ void FUN_1001d220(Player* p_player)
 // shape already loaded. Returns 0 when a shape doesn't load.
 // Stack-slot permutation: i and result.
 // FUNCTION: MW2 0x1001d292
-MechS32 FUN_1001d292(MechS32 p_owner, MechS32 p_level)
+MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
 	ClassEntry* entry;
@@ -214,7 +214,7 @@ MechS32 FUN_1001d292(MechS32 p_owner, MechS32 p_level)
 			if ((g_players[entry->m_owner]->m_flags & 2) && !entry->m_unk0x20) {
 				HideShape(entry->m_shape);
 			}
-			else if (!FUN_1001d3ff(i, p_level, NULL)) {
+			else if (!LoadClassEntryShape(i, p_level, NULL)) {
 				result = 0;
 			}
 
@@ -230,13 +230,13 @@ MechS32 FUN_1001d292(MechS32 p_owner, MechS32 p_level)
 
 // Releases the level-p_level shapes of p_owner's entries.
 // FUNCTION: MW2 0x1001d3a4
-void FUN_1001d3a4(MechS32 p_owner, MechS32 p_level)
+void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
 
 	for (i = 0; i < g_classEntryCount; i++) {
 		if (g_classTable[i].m_owner == p_owner) {
-			FUN_1001d912(i, p_level);
+			ReleaseClassEntryShape(i, p_level);
 		}
 	}
 }
@@ -246,7 +246,7 @@ void FUN_1001d3a4(MechS32 p_owner, MechS32 p_level)
 // p_buffer if given. Returns whether the entry has its shape.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001d3ff
-MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
+MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 {
 	MechS32 kind;
 	MechS32 offset;
@@ -277,7 +277,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		entry->m_shape = NULL;
 	}
 
-	data = FUN_1001a19f(g_mw2PrjHandle, entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly], 0);
+	data = LoadCachedResource(g_mw2PrjHandle, entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly], 0);
 	if (data) {
 		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_unk0x08[p_level]);
 	}
@@ -290,12 +290,12 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 	SetShapeFlags(0);
 	while (!entry->m_shape) {
 		entry->m_shape = LoadShapes(data, &offset, size, NULL);
-		if (!entry->m_shape && !FUN_1001a563()) {
+		if (!entry->m_shape && !PurgeOldestCacheEntry()) {
 			break;
 		}
 	}
 
-	FUN_1001a163(entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly]);
+	UnlockCachedResource(entry->m_unk0x08[p_level], g_resourceTypeTags[c_resTagPoly]);
 	if (entry->m_shape) {
 		parent = NULL;
 		placed = FALSE;
@@ -372,7 +372,7 @@ MechS32 FUN_1001d3ff(MechS32 p_index, MechS32 p_level, void* p_buffer)
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // Operand order: i < g_playerCount loads g_playerCount first in the original.
 // FUNCTION: MW2 0x1001d88b
-void FUN_1001d88b(void)
+void ReleasePendingDetailLevel(void)
 {
 	MechS32 i;
 	MechS32 done;
@@ -381,7 +381,7 @@ void FUN_1001d88b(void)
 	for (i = 0; i < g_playerCount && !done; i++) {
 		if (g_players[i]->m_detailLevel != -1) {
 			done = TRUE;
-			FUN_1001d3a4(i, g_players[i]->m_detailLevel);
+			ReleaseClassLevel(i, g_players[i]->m_detailLevel);
 			g_players[i]->m_detailLevel = -1;
 		}
 	}
@@ -389,7 +389,7 @@ void FUN_1001d88b(void)
 
 // Releases entry p_index's shape if it is the one loaded for level p_level.
 // FUNCTION: MW2 0x1001d912
-void FUN_1001d912(MechS32 p_index, MechS32 p_level)
+void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 {
 	ClassEntry* entry;
 
@@ -442,7 +442,7 @@ void FUN_1001da14(MechS32 p_index, MechU16 p_value)
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
 // Stack-slot permutation; i == g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1001da44
-void FUN_1001da44(void)
+void ChoosePlayerDetailLevels(void)
 {
 	MechS32 scale;
 	MechS32 third;
@@ -539,7 +539,7 @@ void FUN_1001da44(void)
 
 		player = g_players[entry->m_player];
 		level = player->m_detailLevel;
-		if (entry->m_level >= 0 && entry->m_level != level && FUN_1001d292(player->m_index, entry->m_level)) {
+		if (entry->m_level >= 0 && entry->m_level != level && LoadClassLevel(player->m_index, entry->m_level)) {
 			player->m_detailLevel = entry->m_level;
 		}
 	}
@@ -548,7 +548,7 @@ void FUN_1001da44(void)
 // Releases the shape of the entry whose object is p_obj.
 // Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x1001ddf2
-void FUN_1001ddf2(struct SceneObject* p_obj)
+void ReleaseObjShape(struct SceneObject* p_obj)
 {
 	MechS32 i;
 	ClassEntry* entry;
@@ -571,7 +571,7 @@ void FUN_1001ddf2(struct SceneObject* p_obj)
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001de84
-void FUN_1001de84(struct SceneObject* p_obj)
+void ForgetObjShape(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;
 	MechS32 i;

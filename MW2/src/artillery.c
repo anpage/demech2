@@ -35,8 +35,8 @@ void FUN_10059fc0(Player* p_player)
 		return;
 	}
 
-	mech->m_torsoObj = FUN_100506d8();
-	mech->m_pitchObj = FUN_100506d8();
+	mech->m_torsoObj = NextThingRecordObject();
+	mech->m_pitchObj = NextThingRecordObject();
 	StartRamp(&mech->m_torsoTwist, 0, 0, 0.8);
 	StartRamp(&mech->m_torsoPitch, 0, 0, 0.8);
 	mech->m_selectedWeapon = 0;

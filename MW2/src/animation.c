@@ -98,7 +98,7 @@ MechS32 FUN_10068d10(
 	frame->m_useCount++;
 	data = frame->m_data;
 	if (!data) {
-		data = FUN_1001a19f(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
 		if (!data) {
 			return 0;
 		}
@@ -124,7 +124,7 @@ MechS32 FUN_10068d10(
 	}
 
 	if (!g_lumaTables) {
-		g_lumaTables = FUN_1001a19f(g_mw2PrjHandle, g_lumaResourceId, g_resourceTypeTags[c_resTagLuma], 0);
+		g_lumaTables = LoadCachedResource(g_mw2PrjHandle, g_lumaResourceId, g_resourceTypeTags[c_resTagLuma], 0);
 	}
 
 	if (p_direct) {
@@ -368,7 +368,7 @@ void FUN_1006959c(void)
 		for (j = 0; j < 0x20; j++) {
 			frame = &g_animFrames[i][j];
 			if (frame->m_data) {
-				FUN_1001a163(frame->m_resourceId, g_resourceTypeTags[c_resTagCel]);
+				UnlockCachedResource(frame->m_resourceId, g_resourceTypeTags[c_resTagCel]);
 				frame->m_data = NULL;
 			}
 
@@ -377,7 +377,7 @@ void FUN_1006959c(void)
 		}
 	}
 
-	FUN_1001a163(g_lumaResourceId, g_resourceTypeTags[c_resTagLuma]);
+	UnlockCachedResource(g_lumaResourceId, g_resourceTypeTags[c_resTagLuma]);
 	for (i = 0; i < 0x200; i++) {
 		anim = &g_animations[i];
 		anim->m_set = -1;

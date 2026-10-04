@@ -269,20 +269,20 @@ void InitHudGauges(void)
 
 	target = g_cockpitPanels[c_panelAltimeter]->m_target;
 	ScalePointToFrame(target, &g_altimeterOrigin, &g_altimeterOrigin);
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_altimeterMarkWidth = extent >> 16;
 		g_altimeterMarkHeight = extent & 0xffff;
-		FUN_1001a163(extent + 1, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 1, g_resourceTypeTags[c_resTagShp]);
 	}
 
 	g_altimeterLevelX = g_altimeterOrigin.m_x;
 	g_altimeterGroundX = g_altimeterMarkWidth + g_altimeterLevelX;
 	g_altimeterTargetX = g_altimeterMarkWidth + g_altimeterGroundX;
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 7, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 7, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
@@ -290,24 +290,24 @@ void InitHudGauges(void)
 		width = extent >> 16;
 		height = extent & 0xffff;
 		g_altimeterOrigin.m_x -= width;
-		FUN_1001a163(extent + 7, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 7, g_resourceTypeTags[c_resTagShp]);
 		g_altimeterScale = (height << 16) / 0xe8;
 	}
 
 	target = g_cockpitPanels[c_panelCompass]->m_target;
 	ScalePointToFrame(target, &g_compassOrigin, &g_compassOrigin);
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 0x19, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x19, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
-		FUN_1001a163(extent + 0x19, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 0x19, g_resourceTypeTags[c_resTagShp]);
 		g_compassScale = (width << 16) / 0x168;
 	}
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 0x13, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x13, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 		MechS32 origin;
@@ -318,27 +318,27 @@ void InitHudGauges(void)
 		origin &= 0xffff;
 		g_compassTapeBelow = extent - origin;
 		g_compassTapeAbove = origin;
-		FUN_1001a163(extent + 0x13, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 0x13, g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 0x25, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x25, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_compassArrowWidth = extent >> 16;
 		g_compassArrowHeight = extent & 0xffff;
-		FUN_1001a163(extent + 0x25, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 0x25, g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 0x1f, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x1f, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_compassSideArrowWidth = extent >> 16;
 		g_compassSideArrowHeight = extent & 0xffff;
-		FUN_1001a163(extent + 0x1f, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 0x1f, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -797,10 +797,10 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, p_id + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		VFX_shape_draw(&g_currentPane, shape, 0, p_x, p_y);
-		FUN_1001a163(p_id + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(p_id + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -811,10 +811,10 @@ void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, p_id + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, p_id + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
-		FUN_1001a163(p_id + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(p_id + g_artResolution, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 

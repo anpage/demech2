@@ -16,50 +16,50 @@
 #include <string.h>
 #include <windows.h>
 
-DECOMP_SIZE_ASSERT(CacheItem, 0x14)
+DECOMP_SIZE_ASSERT(ResourceCacheEntry, 0x14)
 
 // The resource cache's hash chains, 0x3f1 of them.
 // GLOBAL: MW2 0x100a2c5c
-CacheItem** g_cacheTable = NULL;
+ResourceCacheEntry** g_cacheTable = NULL;
 
 // The number of the next cache log.
 // GLOBAL: MW2 0x100a2c60
-MechS32 g_unk0x100a2c60 = 0;
+MechS32 g_cacheDumpNumber = 0;
 
 // GLOBAL: MW2 0x101748d0
-MechS32 g_cacheItemCount;
+MechS32 g_cacheEntryCount;
 
 // The purge list: unlocked items, oldest first.
 // GLOBAL: MW2 0x101748d4
-CacheItem* g_purgeHead;
+ResourceCacheEntry* g_purgeListHead;
 
 // GLOBAL: MW2 0x101748d8
-CacheItem* g_purgeTail;
+ResourceCacheEntry* g_purgeListTail;
 // Unlocks an item and appends it to the purge list.
 // FUNCTION: MW2 0x10019af0
-void FUN_10019af0(CacheItem* p_item)
+void UnlockCacheEntry(ResourceCacheEntry* p_item)
 {
 	if (p_item->m_lock == 0) {
 		return;
 	}
 
 	p_item->m_lock = 0;
-	if (g_purgeTail) {
-		g_purgeTail->m_purgeNext = p_item;
+	if (g_purgeListTail) {
+		g_purgeListTail->m_purgeNext = p_item;
 	}
 
-	p_item->m_purgePrev = g_purgeTail;
-	g_purgeTail = p_item;
+	p_item->m_purgePrev = g_purgeListTail;
+	g_purgeListTail = p_item;
 	p_item->m_purgeNext = NULL;
-	if (!g_purgeHead) {
-		g_purgeHead = p_item;
+	if (!g_purgeListHead) {
+		g_purgeListHead = p_item;
 	}
 }
 
 // Locks an item and takes it off the purge list.
 // The two list-end comparisons load their operands in the other order (the unit's symbol table).
 // FUNCTION: MW2 0x10019b63
-void FUN_10019b63(CacheItem* p_item)
+void LockCacheEntry(ResourceCacheEntry* p_item)
 {
 	if (p_item->m_lock == 1) {
 		return;
@@ -74,12 +74,12 @@ void FUN_10019b63(CacheItem* p_item)
 		p_item->m_purgePrev->m_purgeNext = p_item->m_purgeNext;
 	}
 
-	if (g_purgeHead == p_item) {
-		g_purgeHead = p_item->m_purgeNext;
+	if (g_purgeListHead == p_item) {
+		g_purgeListHead = p_item->m_purgeNext;
 	}
 
-	if (g_purgeTail == p_item) {
-		g_purgeTail = p_item->m_purgePrev;
+	if (g_purgeListTail == p_item) {
+		g_purgeListTail = p_item->m_purgePrev;
 	}
 
 	p_item->m_purgeNext = NULL;
@@ -87,25 +87,25 @@ void FUN_10019b63(CacheItem* p_item)
 }
 
 // FUNCTION: MW2 0x10019c0c
-void FUN_10019c0c(void)
+void AllocateCacheTable(void)
 {
-	g_cacheTable = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 0x3f1 * sizeof(CacheItem*));
+	g_cacheTable = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 0x3f1 * sizeof(ResourceCacheEntry*));
 }
 
 // Rebuilds the purge list from the unlocked items.
 // FUNCTION: MW2 0x10019c2f
-void FUN_10019c2f(void)
+void RebuildPurgeList(void)
 {
-	CacheItem* item;
+	ResourceCacheEntry* item;
 	MechS32 i;
 
-	g_purgeHead = NULL;
-	g_purgeTail = NULL;
+	g_purgeListHead = NULL;
+	g_purgeListTail = NULL;
 	for (i = 0; i < 0x3f1; i++) {
 		for (item = g_cacheTable[i]; item; item = item->m_next) {
 			if (item->m_lock == 0) {
 				item->m_lock = 1;
-				FUN_10019af0(item);
+				UnlockCacheEntry(item);
 			}
 		}
 	}
@@ -113,11 +113,11 @@ void FUN_10019c2f(void)
 
 // Frees every cached item and the hash table.
 // FUNCTION: MW2 0x10019cc2
-void FUN_10019cc2(void)
+void ShutdownResourceCache(void)
 {
-	CacheItem* item;
+	ResourceCacheEntry* item;
 	MechS32 i;
-	CacheItem* next;
+	ResourceCacheEntry* next;
 
 	if (!g_cacheTable) {
 		return;
@@ -126,23 +126,23 @@ void FUN_10019cc2(void)
 	for (i = 0; i < 0x3f1; i++) {
 		for (item = g_cacheTable[i]; item; item = next) {
 			next = item->m_next;
-			FUN_10019e53(item);
+			FreeCacheEntry(item);
 		}
 	}
 
-	g_cacheItemCount = 0;
-	g_purgeHead = NULL;
-	g_purgeTail = NULL;
+	g_cacheEntryCount = 0;
+	g_purgeListHead = NULL;
+	g_purgeListTail = NULL;
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_cacheTable);
 }
 
 // FUNCTION: MW2 0x10019d73
-void FUN_10019d73(void)
+void InitializeResourceCache(void)
 {
-	g_cacheItemCount = 0;
-	g_purgeHead = NULL;
-	g_purgeTail = NULL;
-	FUN_10019c0c();
+	g_cacheEntryCount = 0;
+	g_purgeListHead = NULL;
+	g_purgeListTail = NULL;
+	AllocateCacheTable();
 }
 
 // FUNCTION: MW2 0x10019da1
@@ -153,9 +153,9 @@ void FUN_10019da1(void)
 // Returns the cached item of an ID and type, or NULL.
 // The only diff is a stack-slot permutation of item and slot.
 // FUNCTION: MW2 0x10019dac
-CacheItem* FUN_10019dac(MechS32 p_id, const char* p_type)
+ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 {
-	CacheItem* item;
+	ResourceCacheEntry* item;
 	MechS32 slot;
 
 	if (p_id < 0) {
@@ -176,9 +176,9 @@ CacheItem* FUN_10019dac(MechS32 p_id, const char* p_type)
 // Stack-slot permutation of prev and slot; the original adds type[3] before type[2] (commutative
 // operand order).
 // FUNCTION: MW2 0x10019e53
-void FUN_10019e53(CacheItem* p_item)
+void FreeCacheEntry(ResourceCacheEntry* p_item)
 {
-	CacheItem* prev = NULL;
+	ResourceCacheEntry* prev = NULL;
 	MechChar type[5];
 	MechS32 slot;
 	MechChar text[100];
@@ -188,7 +188,7 @@ void FUN_10019e53(CacheItem* p_item)
 	}
 
 	p_item->m_lock = 0;
-	FUN_10019b63(p_item);
+	LockCacheEntry(p_item);
 	type[4] = '\0';
 	*(MechS32*) type = p_item->m_type;
 	slot = (type[2] + type[3] + type[0] + type[1] + p_item->m_id) % 0x3f1;
@@ -207,8 +207,8 @@ void FUN_10019e53(CacheItem* p_item)
 		}
 		else {
 			Error(0x20, "Freeing bad item (type: %s  id: %i)\n", type, p_item->m_id);
-			if (g_purgeHead == p_item) {
-				FUN_10019c2f();
+			if (g_purgeListHead == p_item) {
+				RebuildPurgeList();
 			}
 
 			if (g_missionTimerStopped) {
@@ -221,21 +221,21 @@ void FUN_10019e53(CacheItem* p_item)
 	}
 
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_item);
-	g_cacheItemCount--;
+	g_cacheEntryCount--;
 }
 
 // Writes the cache's hash chains and purge list to the next dbugcch<n>.log.
 // Stack-slot permutation of i, type, item and name.
 // FUNCTION: MW2 0x10019fef
-void FUN_10019fef(void)
+void DumpResourceCache(void)
 {
 	FILE* file;
 	MechS32 i;
 	MechChar type[5];
-	CacheItem* item;
+	ResourceCacheEntry* item;
 	MechChar name[100];
 
-	sprintf(name, "dbugcch%d.log", g_unk0x100a2c60++);
+	sprintf(name, "dbugcch%d.log", g_cacheDumpNumber++);
 	file = fopen(name, "w");
 	type[4] = '\0';
 	fprintf(file, "Cache table\n-----------------------\n");
@@ -254,7 +254,7 @@ void FUN_10019fef(void)
 	}
 
 	fprintf(file, "\nPurge list\n-----------------------\n");
-	for (item = g_purgeHead; item; item = item->m_purgeNext) {
+	for (item = g_purgeListHead; item; item = item->m_purgeNext) {
 		*(MechS32*) type = item->m_type;
 		fprintf(
 			file,
@@ -275,16 +275,16 @@ void FUN_1001a158(void)
 }
 
 // FUNCTION: MW2 0x1001a163
-void FUN_1001a163(MechS32 p_id, const char* p_type)
+void UnlockCachedResource(MechS32 p_id, const char* p_type)
 {
-	CacheItem* entry;
+	ResourceCacheEntry* entry;
 
-	entry = FUN_10019dac(p_id, p_type);
+	entry = FindCacheEntry(p_id, p_type);
 	if (entry == NULL) {
 		return;
 	}
 
-	FUN_10019af0(entry);
+	UnlockCacheEntry(entry);
 }
 
 // Returns resource p_id of type p_type from project file p_file, locked in the cache: the cached
@@ -292,10 +292,10 @@ void FUN_1001a163(MechS32 p_id, const char* p_type)
 // missing resource is logged to symlog.txt and reported. p_unk0x0c goes unused.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001a19f
-void* FUN_1001a19f(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 p_unk0x0c)
+void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 p_unk0x0c)
 {
-	CacheItem* entry;
-	CacheItem* item;
+	ResourceCacheEntry* entry;
+	ResourceCacheEntry* item;
 	MechS32 hash;
 	MechS32 size;
 	FILE* file;
@@ -307,15 +307,15 @@ void* FUN_1001a19f(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 
 		return NULL;
 	}
 
-	entry = FUN_10019dac(p_id, p_type);
+	entry = FindCacheEntry(p_id, p_type);
 	if (entry) {
-		FUN_10019b63(entry);
+		LockCacheEntry(entry);
 		return entry + 1;
 	}
 
-	if (g_cacheItemCount >= 1000) {
-		if (g_purgeHead) {
-			FUN_10019e53(g_purgeHead);
+	if (g_cacheEntryCount >= 1000) {
+		if (g_purgeListHead) {
+			FreeCacheEntry(g_purgeListHead);
 		}
 		else {
 			if (g_missionTimerStopped) {
@@ -346,9 +346,9 @@ void* FUN_1001a19f(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 
 		return NULL;
 	}
 
-	while ((item = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size + sizeof(CacheItem))) == NULL) {
-		if (g_purgeHead) {
-			FUN_10019e53(g_purgeHead);
+	while ((item = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size + sizeof(ResourceCacheEntry))) == NULL) {
+		if (g_purgeListHead) {
+			FreeCacheEntry(g_purgeListHead);
 		}
 		else {
 			ShowInGameMessage("Memory running low (1) -- strange things may happen", 1, 0x712, 100);
@@ -380,21 +380,21 @@ void* FUN_1001a19f(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 
 	item->m_type = *(MechS32*) p_type;
 	item->m_purgeNext = NULL;
 	item->m_purgePrev = NULL;
-	g_cacheItemCount++;
+	g_cacheEntryCount++;
 	return item + 1;
 }
 
 // FUNCTION: MW2 0x1001a4e5
-void FUN_1001a4e5(MechS32 p_id, const char* p_type)
+void FreeCachedResource(MechS32 p_id, const char* p_type)
 {
-	CacheItem* entry;
+	ResourceCacheEntry* entry;
 
-	entry = FUN_10019dac(p_id, p_type);
+	entry = FindCacheEntry(p_id, p_type);
 	if (entry == NULL) {
 		return;
 	}
 
-	FUN_10019e53(entry);
+	FreeCacheEntry(entry);
 }
 
 // FUNCTION: MW2 0x1001a521
@@ -411,14 +411,14 @@ undefined4 FUN_1001a52c(undefined4 p_unk0x00)
 // FUNCTION: MW2 0x1001a53f
 void* FUN_1001a53f(MechS32 p_id, const char* p_type)
 {
-	return FUN_1001a19f(0, p_id, p_type, 0);
+	return LoadCachedResource(0, p_id, p_type, 0);
 }
 
 // FUNCTION: MW2 0x1001a563
-MechS32 FUN_1001a563(void)
+MechS32 PurgeOldestCacheEntry(void)
 {
-	if (g_purgeHead) {
-		FUN_10019e53(g_purgeHead);
+	if (g_purgeListHead) {
+		FreeCacheEntry(g_purgeListHead);
 		return 1;
 	}
 

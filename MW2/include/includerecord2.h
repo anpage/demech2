@@ -5,7 +5,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// A world stream's gamepiece record (gpspec): the stream that creates the player (FUN_1004fcac),
+// A world stream's gamepiece record (gpspec): the stream that creates the player (RunIncludedStream),
 // the player's team, AI parameters and names, and its mech's chassis and MEK configuration.
 // SIZE 0x62
 typedef struct IncludeRecord2 {

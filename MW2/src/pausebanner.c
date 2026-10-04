@@ -49,7 +49,7 @@ void DrawPausedBanner(void)
 {
 	void* shape;
 
-	shape = FUN_1001a19f(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
 			g_pausedBannerRect.m_window = &g_mainPixelBuffer;
@@ -339,7 +339,7 @@ void FUN_10009f8d(MechU16 p_key)
 		}
 		break;
 	case 0x8f:
-		FUN_10019fef();
+		DumpResourceCache();
 		break;
 	case 0x90:
 		break;

@@ -10,7 +10,7 @@ struct Shape;
 // SIZE 0x44
 // An entry of g_classTable: a shape a player's mech uses, with up to five levels of detail.
 typedef struct ClassEntry {
-	MechS32 m_owner;           // 0x00 — a player index; -1 free, -2 until FUN_1001d220
+	MechS32 m_owner;           // 0x00 — a player index; -1 free, -2 until ClaimNewClassEntries
 	MechS32 m_unk0x04;         // 0x04 — -1 while m_shape isn't loaded
 	MechS32 m_unk0x08[5];      // 0x08 — by level; -1 unset
 	MechS32 m_unk0x1c;         // 0x1c
