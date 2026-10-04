@@ -88,7 +88,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		else {
 			FUN_10050dc3(&saved);
 			camera[4] = 0;
-			FUN_1004c8bd(5, 0x20000, camera, 0);
+			RenderViewToPane(5, 0x20000, camera, 0);
 			g_renderSettings = saved;
 		}
 
@@ -103,7 +103,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		view[4] = 0x5a0000;
 		view[5] = 0;
 		HideObjTree(mech->m_player->m_obj);
-		FUN_1004c8bd(5, 0x20000, view, 0);
+		RenderViewToPane(5, 0x20000, view, 0);
 		ShowObjTree(mech->m_player->m_obj);
 		FUN_10050e6c(p_panel, 6, 0xf7);
 		g_renderSettings = saved;
@@ -120,7 +120,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 
 		view[4] = 0;
 		HideObjTree(mech->m_player->m_obj);
-		FUN_1004c8bd(5, 0x20000, view, 0);
+		RenderViewToPane(5, 0x20000, view, 0);
 		ShowObjTree(mech->m_player->m_obj);
 		if (g_unk0x100ea3e4) {
 			OutlinePane(p_panel->m_target, 6);

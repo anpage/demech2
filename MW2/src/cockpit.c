@@ -326,7 +326,7 @@ MechS32 SwitchCockpitView(void)
 			layout = g_cockpitLayouts[4];
 			sound = layout->m_sounds[0];
 			if (sound != -1) {
-				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
+				PlaySoundEffect(sound, 100, 0x40, 5, 0x50);
 			}
 
 			PlayCockpitSound(0x12, -1);
@@ -337,7 +337,7 @@ MechS32 SwitchCockpitView(void)
 			layout = g_cockpitLayouts[4];
 			sound = layout->m_sounds[1];
 			if (sound != -1) {
-				FUN_1007eb23(sound, 100, 0x40, 5, 0x50);
+				PlaySoundEffect(sound, 100, 0x40, 5, 0x50);
 			}
 
 			if (g_viewMode == c_viewTrack) {

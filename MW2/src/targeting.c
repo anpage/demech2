@@ -852,7 +852,7 @@ MechS32 UpdateTarget(Player* p_player)
 				if (!(g_navTable[index].m_flags & 0x20)) {
 					g_navTable[index].m_flags |= 0x20;
 					g_navTable[index].m_unk0x26 |= 1 << p_player->m_team;
-					FUN_1007eb23(0xe7, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
 				}
 
 				CycleNavTarget(p_player, 1, 0);

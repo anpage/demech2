@@ -65,13 +65,13 @@ void DrawPausedBanner(void)
 // FUNCTION: MW2 0x10009ef1
 void PlayPauseSound(void)
 {
-	FUN_1007ea11(0xc6, 100, 0x40, RandomSampleRate());
+	PlaySoundOnce(0xc6, 100, 0x40, RandomSampleRate());
 }
 
 // FUNCTION: MW2 0x10009f13
 void PlayResumeSound(void)
 {
-	FUN_1007ea11(0xf1, 0x32, 0x40, RandomSampleRate());
+	PlaySoundOnce(0xf1, 0x32, 0x40, RandomSampleRate());
 }
 
 // Pauses the clock and the audio, outside a network game.

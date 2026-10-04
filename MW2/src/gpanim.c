@@ -103,7 +103,7 @@ void FUN_10003710(Player* p_player)
 	if (p_player->m_pendingSound != -1 && p_player->m_animFlags & 8) {
 		p_player->m_animFlags &= ~8;
 		offset = FUN_100036c3(p_player, position);
-		FUN_1007ebd1(position[0], position[1], position[2], p_player->m_pendingSound, g_inCockpitView);
+		PlaySoundAt(position[0], position[1], position[2], p_player->m_pendingSound, g_inCockpitView);
 	}
 
 	if (p_player->m_index == g_localPlayerId) {
@@ -135,7 +135,7 @@ void FUN_100038c2(Player* p_player, MechS32 (*p_sounds)[4], MechS32* p_offset)
 				p_offset = FUN_100036c3(p_player, offset);
 			}
 
-			FUN_1007ebd1(p_offset[0], p_offset[1], p_offset[2], sound, g_inCockpitView);
+			PlaySoundAt(p_offset[0], p_offset[1], p_offset[2], sound, g_inCockpitView);
 		}
 
 		if (p_player->m_motionState != p_player->m_nextMotionState) {

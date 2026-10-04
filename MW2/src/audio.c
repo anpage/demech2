@@ -114,7 +114,7 @@ void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 			old = g_soundConfig.m_effectsVolume;
 			g_soundConfig.m_effectsVolume = p_value;
 			if (g_soundConfig.m_effectsVolume != old) {
-				notify = FUN_1007e9dc;
+				notify = PlayEffectsVolumeTest;
 			}
 			break;
 		case 1:
@@ -383,7 +383,7 @@ void DoAudio(void)
 				if ((player->m_ai.m_goal & 0xff) == g_localPlayerId &&
 					(player->m_ai.m_state == 2 || player->m_ai.m_state == 3) &&
 					player->m_targetInfo.m_range <= 150000) {
-					FUN_1007eb23(0x100, 100, 0x40, 5, 0x32);
+					PlaySoundEffect(0x100, 100, 0x40, 5, 0x32);
 					break;
 				}
 			}

@@ -23,14 +23,14 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // GLOBAL: MW2 0x100ad4a0
 PlayerType g_playerTypes[9] = {
 	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
-	{1, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{2, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{1, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{2, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
 	{3, FUN_1005a637, FUN_10059fc0, FUN_1005a203, FUN_1005a2ea, NULL, NULL, FUN_1005a61d},
-	{4, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{5, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
-	{6, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{4, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{5, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
+	{6, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
 	{7, FUN_10068772, FUN_100680a0, FUN_1006831a, FUN_1006844e, NULL, NULL, FUN_10068758},
-	{8, FUN_100197ca, FUN_10016ad0, FUN_10016edf, FUN_100180cd, FUN_10019368, FUN_1001975a, FUN_1001978e},
+	{8, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
 };
 
 // GLOBAL: MW2 0x100ad5e0

@@ -613,7 +613,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 {
 	void* font;
 
-	if (!p_panel->m_enabled || !g_unk0x100a2bf0) {
+	if (!p_panel->m_enabled || !g_mascEngaged) {
 		return;
 	}
 

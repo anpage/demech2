@@ -27,7 +27,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100ba620
-MechS32 g_unk0x100ba620 = 25;
+MechS32 g_temperature = 25;
 
 // GLOBAL: MW2 0x100ba624
 MechS32 g_unk0x100ba624 = 0;
@@ -470,19 +470,26 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 }
 
 // FUNCTION: MW2 0x1007e9dc
-void FUN_1007e9dc(void)
+void PlayEffectsVolumeTest(void)
 {
 	PlaySample(0, 0, 0xd2, NULL, 100, g_soundConfig.m_effectsVolume, 0x40, RandomSampleRate(), (MechS32*) -1, 0x250);
 }
 
 // FUNCTION: MW2 0x1007ea11
-MechS32 FUN_1007ea11(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate)
+MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate)
 {
 	return PlaySample(0, 0, p_id, NULL, p_volume, g_soundConfig.m_effectsVolume, p_pan, p_rate, (MechS32*) -1, 0x450);
 }
 
 // FUNCTION: MW2 0x1007ea4c
-MechS32 FUN_1007ea4c(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechU16 p_flags)
+MechS32 PlaySoundRandomRate(
+	MechS32 p_delay,
+	MechS32 p_bearing,
+	MechS32 p_id,
+	MechU32 p_volume,
+	MechS32 p_pan,
+	MechU16 p_flags
+)
 {
 	return PlaySample(
 		p_delay,
@@ -502,7 +509,7 @@ MechS32 FUN_1007ea4c(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // and fading with it; p_half halves the volume. Returns the distance.
 // Stack slots: horizontal, delay, pitch, volume, bearing, distance and range are permuted.
 // FUNCTION: MW2 0x1007ea8c
-MechS32 FUN_1007ea8c(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, MechS32 p_half)
+MechS32 PlayPositionalSound(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, MechS32 p_half)
 {
 	MechS32 horizontal;
 	MechS32 delay;
@@ -514,21 +521,21 @@ MechS32 FUN_1007ea8c(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, 
 
 	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (MechU32*) &horizontal, &pitch);
 	range = distance;
-	volume = FUN_1007f0d9(range);
+	volume = GetDistanceVolume(range);
 	if (volume > 0) {
 		if (p_half) {
 			volume >>= 1;
 		}
 
 		delay = FixedMul16(distance, g_unk0x100ba5fc);
-		FUN_1007eb64(delay, bearing, p_sound, volume, -1, 0x32);
+		PlayDelayedSound(delay, bearing, p_sound, volume, -1, 0x32);
 	}
 
 	return distance;
 }
 
 // FUNCTION: MW2 0x1007eb23
-MechS32 FUN_1007eb23(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags)
+MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags)
 {
 	return PlaySample(
 		0,
@@ -545,7 +552,14 @@ MechS32 FUN_1007eb23(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_ra
 }
 
 // FUNCTION: MW2 0x1007eb64
-MechS32 FUN_1007eb64(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechU16 p_flags)
+MechS32 PlayDelayedSound(
+	MechS32 p_delay,
+	MechS32 p_bearing,
+	MechS32 p_id,
+	MechU32 p_volume,
+	MechS32 p_pan,
+	MechU16 p_flags
+)
 {
 	MechS32 result;
 
@@ -554,13 +568,13 @@ MechS32 FUN_1007eb64(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 		return result;
 	}
 
-	return FUN_1007ea4c(p_delay, p_bearing, p_id, p_volume, p_pan, p_flags);
+	return PlaySoundRandomRate(p_delay, p_bearing, p_id, p_volume, p_pan, p_flags);
 }
 
 // FUNCTION: MW2 0x1007ebd1
-MechS32 FUN_1007ebd1(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, MechS32 p_half)
+MechS32 PlaySoundAt(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, MechS32 p_half)
 {
-	return FUN_1007ea8c(p_x, p_y, p_z, p_sound, p_half);
+	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
 }
 
 // FUNCTION: MW2 0x1007ebfd
@@ -683,7 +697,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	}
 
 	sample = g_audioEngine->m_samples[p_sound->m_slot];
-	volume = FUN_1007f0d9(distance);
+	volume = GetDistanceVolume(distance);
 	if (volume <= 0) {
 		StopAmbientSound(p_sound);
 		return;
@@ -723,7 +737,7 @@ void StopAmbientSound(AmbientSound* p_sound)
 
 // The volume, 0-100, at p_distance: full at 0, silent from 50000.
 // FUNCTION: MW2 0x1007f0d9
-MechS32 FUN_1007f0d9(MechS32 p_distance)
+MechS32 GetDistanceVolume(MechS32 p_distance)
 {
 	MechS32 volume;
 

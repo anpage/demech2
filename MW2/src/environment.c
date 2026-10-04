@@ -173,7 +173,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 				g_infraredOn = 1;
 				g_unk0x100bfab8 = 0;
 				FUN_10002a24(12, 181);
-				FUN_1007eb23(0xb2, 100, 0x40, 5, 0x50);
+				PlaySoundEffect(0xb2, 100, 0x40, 5, 0x50);
 				PlayCockpitSound(0x1c, 1);
 			}
 		}

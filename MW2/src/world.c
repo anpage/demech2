@@ -338,10 +338,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_unk0x100ba610 = planet->m_unk0x10;
 			g_secondsPerDay = planet->m_secondsPerDay;
 			if (g_difficulty->m_unk0x13) {
-				g_unk0x100ba620 = g_difficulty->m_unk0x13;
+				g_temperature = g_difficulty->m_unk0x13;
 			}
 			else {
-				g_unk0x100ba620 = planet->m_temperature;
+				g_temperature = planet->m_temperature;
 			}
 
 			g_unk0x100ba624 = planet->m_unk0x38 == 0;

@@ -99,7 +99,7 @@ void FUN_100079d0(Mech* p_mech)
 						FUN_1001cdd1();
 					}
 
-					FUN_1007eb23(0xe7, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
 				}
 
 				CycleNavTarget(p_mech->m_player, 1, 0);
@@ -143,7 +143,7 @@ void FUN_10007cb5(Mech* p_mech)
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 
-// Destroys p_mech on behalf of player p_killer, unless g_unk0x100a2c10 is clear: an intact
+// Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (FUN_10008c0f) instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10007d06
@@ -156,7 +156,7 @@ void FUN_10007d06(MechS32 p_killer, Mech* p_mech)
 	MechSection* section;
 	AmmoBin* bin;
 
-	if (!g_unk0x100a2c10) {
+	if (!g_mechPoweredUp) {
 		return;
 	}
 
@@ -263,7 +263,7 @@ void CalculateHeat(Mech* p_mech)
 			if (!(p_mech->m_flags & 0x1000) && p_mech->m_player->m_index == g_localPlayerId) {
 				p_mech->m_flags |= 0x1000;
 				PlayCockpitSound(3, -1);
-				FUN_1007eb23(0xe9, 100, 0x40, 5, 0x50);
+				PlaySoundEffect(0xe9, 100, 0x40, 5, 0x50);
 			}
 		}
 	}
@@ -649,7 +649,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 					}
 
 					if (p_mech->m_powerState == 2) {
-						FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+						PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 					}
 
 					FUN_10059f6e(0);
@@ -683,14 +683,14 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 				if (!p_recursing && bin->m_unk0x02) {
 					if (p_mech->m_player->m_index == g_localPlayerId) {
 						if (p_mech->m_powerState == 2) {
-							FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+							PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 						}
 
 						x = p_mech->m_player->m_position.m_x - g_eyepoint->m_x;
 						y = p_mech->m_player->m_position.m_y - g_eyepoint->m_y;
 						z = p_mech->m_player->m_position.m_z - g_eyepoint->m_z;
 						g_unk0x100ae380 = 1;
-						FUN_1007ebd1(x, y, z, 0xbc, g_inCockpitView);
+						PlaySoundAt(x, y, z, 0xbc, g_inCockpitView);
 						FUN_10059f6e(1);
 					}
 
@@ -746,7 +746,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 7000:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_jumpFuel != 2) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(4);
@@ -770,7 +770,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 6000:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_cooling) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(5);
@@ -786,7 +786,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5900:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(6);
@@ -799,7 +799,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5850:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(7);
@@ -813,7 +813,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5800:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(8);
@@ -836,7 +836,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5700:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(9);
@@ -849,7 +849,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5650:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(10);
@@ -863,7 +863,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5500:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(11);
@@ -879,7 +879,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5450:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(12);
@@ -890,7 +890,7 @@ void FUN_10008c0f(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p
 		case 5300:
 			if (!p_recursing && p_mech->m_player->m_index == g_localPlayerId) {
 				if (p_mech->m_powerState == 2) {
-					FUN_1007eb23(0xd0, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xd0, 100, 0x40, 5, 0x50);
 				}
 
 				FUN_10059f6e(9);
@@ -941,7 +941,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		return;
 	}
 
-	if (!g_unk0x100a2c10) {
+	if (!g_mechPoweredUp) {
 		return;
 	}
 
@@ -992,7 +992,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 	if (section->m_armor[side] <= 0) {
 		if (!(section->m_unk0x26 & 0x4000) && p_mech->m_player->m_index == g_localPlayerId &&
 			p_mech->m_powerState == 2) {
-			FUN_1007eb23(0xec, 100, 0x40, 5, 0x50);
+			PlaySoundEffect(0xec, 100, 0x40, 5, 0x50);
 		}
 
 		section->m_unk0x26 |= 0x4000;
@@ -1050,7 +1050,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 	if (p_eject && p_mech->m_player->m_index == g_localPlayerId) {
 		if (!g_unk0x100ba624) {
 			p_mech->m_powerState = 5;
-			FUN_1007eb23(0xc5, 100, 0x40, 5, 0x32);
+			PlaySoundEffect(0xc5, 100, 0x40, 5, 0x32);
 		}
 		else {
 			PlayCockpitSound(0x20, -1);

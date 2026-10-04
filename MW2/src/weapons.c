@@ -170,7 +170,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 					}
 				}
 				else {
-					FUN_1007eb23(0x149, 100, 0x40, 5, 0x32);
+					PlaySoundEffect(0x149, 100, 0x40, 5, 0x32);
 				}
 			}
 		}
@@ -249,13 +249,13 @@ void UpdateWeaponFireState(Mech* p_mech)
 										pan = 0x40;
 									}
 
-									FUN_1004c890(def->m_shotType, def->m_sound, pan);
+									PlayWeaponLaunchSound(def->m_shotType, def->m_sound, pan);
 								}
 								else {
 									dx = g_eyepoint->m_x - p_mech->m_player->m_position.m_x;
 									dy = g_eyepoint->m_y - p_mech->m_player->m_position.m_y;
 									dz = g_eyepoint->m_z - p_mech->m_player->m_position.m_z;
-									FUN_1007ebd1(dx, dy, dz, def->m_sound, g_inCockpitView);
+									PlaySoundAt(dx, dy, dz, def->m_sound, g_inCockpitView);
 								}
 							}
 						}
@@ -591,10 +591,10 @@ MechS32 JettisonAmmo(Mech* p_mech)
 
 	slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
 	if (g_weaponDefs[slot->m_type].m_volley > 0 && slot->m_ammo > 0) {
-		FUN_1007eb23(0xb3, 100, 0x40, 5, 0x50);
+		PlaySoundEffect(0xb3, 100, 0x40, 5, 0x50);
 		sprintf(text, "Ammo for current weapon jettisonned.");
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
-		FUN_1007eb23(0xb3, 100, 0x40, 5, 0x32);
+		PlaySoundEffect(0xb3, 100, 0x40, 5, 0x32);
 		slot->m_ammo = 0;
 		slot->m_state = c_weaponEmpty;
 		return 1;

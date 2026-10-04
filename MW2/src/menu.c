@@ -690,7 +690,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 			}
 
 			if (page->m_selected != selected && p_menu->m_moveSound != -1) {
-				FUN_1007ebd1(0, 0, 0, p_menu->m_moveSound, 0);
+				PlaySoundAt(0, 0, 0, p_menu->m_moveSound, 0);
 			}
 		}
 	}
@@ -792,7 +792,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		if (page->m_items[selected].m_subpage) {
 			PushMenuPage(p_menu, page->m_items[selected].m_subpage);
 			if (p_menu->m_openSound != -1) {
-				FUN_1007ebd1(0, 0, 0, p_menu->m_openSound, 0);
+				PlaySoundAt(0, 0, 0, p_menu->m_openSound, 0);
 			}
 		}
 		break;

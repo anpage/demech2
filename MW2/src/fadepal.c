@@ -29,11 +29,12 @@
 #include "types.h"
 #include "view.h"
 
+// The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
-void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
+void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan)
 {
-	if (p_unk0x04 > 0) {
-		FUN_1007eb64(0, 0, p_unk0x04, 0x32, p_unk0x08, 0x32);
+	if (p_sound > 0) {
+		PlayDelayedSound(0, 0, p_sound, 0x32, p_pan, 0x32);
 	}
 }
 
@@ -42,7 +43,7 @@ void FUN_1004c890(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4 p_unk0x08)
 // and the pending palette.
 // Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
-void FUN_1004c8bd(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
+void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
 	MechS32 fovX;
 	MechS32 palette;
@@ -131,7 +132,7 @@ void FadeToEndPalette(MechS32 p_alternate)
 
 // Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
-void FUN_1004cb11(Mech* p_mech)
+void EmitWreckSmoke(Mech* p_mech)
 {
 	MechS32 x;
 	MechS32 y;
@@ -158,7 +159,7 @@ void FUN_1004cb11(Mech* p_mech)
 // Breaks a destroyed mech's model into debris.
 // Stack-slot permutation: obj, upper, lower and the three indices.
 // FUNCTION: MW2 0x1004cc27
-void FUN_1004cc27(Mech* p_mech)
+void BreakUpMech(Mech* p_mech)
 {
 	SceneObject* obj;
 	SceneObject* upper;
@@ -182,7 +183,7 @@ void FUN_1004cc27(Mech* p_mech)
 // Sets off the flames of the jump jets and plays their sound.
 // Stack-slot permutation: x, y, z, player, jet and fired.
 // FUNCTION: MW2 0x1004ccba
-void FUN_1004ccba(Mech* p_mech)
+void FireJumpJetEffects(Mech* p_mech)
 {
 	MechS32 z;
 	MechS32 y;
@@ -215,17 +216,17 @@ void FUN_1004ccba(Mech* p_mech)
 		z -= g_eyepoint->m_z;
 		if (p_mech->m_player->m_index == g_localPlayerId && p_mech->m_jumpFuel < 0x1c4 &&
 			p_mech->m_jumpFuel + g_deltaTime > 0x1c4) {
-			FUN_1007eb23(0xde, 100, 0x40, 5, 0x50);
+			PlaySoundEffect(0xde, 100, 0x40, 5, 0x50);
 		}
 		else {
-			FUN_1007ebd1(x, y, z, 0xdf, g_inCockpitView);
+			PlaySoundAt(x, y, z, 0xdf, g_inCockpitView);
 		}
 	}
 }
 
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
-void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
+void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
 {
 	MechS32 sound;
 
@@ -240,7 +241,7 @@ void FUN_1004ce3e(Mech* p_mech, MechS32 p_speed)
 		sound = 0xe5;
 	}
 
-	FUN_1007ebd1(
+	PlaySoundAt(
 		p_mech->m_player->m_position.m_x - g_eyepoint->m_x,
 		p_mech->m_player->m_position.m_y - p_mech->m_height - g_eyepoint->m_y,
 		p_mech->m_player->m_position.m_z - g_eyepoint->m_z,

@@ -61,7 +61,7 @@ MechU16 g_unk0x100aa730[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,
 // missing) for chassis p_name, logging it to mw2.log: the sections, whose armor the difficulty
 // scales (the local player's by g_unk0x100a1598, its side's by armorScale, the others' by
 // g_unk0x100a1594), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
-// and the temperature, g_unk0x100ba620) and the jump jets. Returns TRUE.
+// and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005d6d0
 MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
@@ -310,35 +310,35 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		switch (g_difficulty->m_unk0x05) {
 		case 0:
 			heat *= 1.4;
-			if (g_unk0x100ba620 < -30) {
+			if (g_temperature < -30) {
 				heat *= 2;
 			}
-			else if (g_unk0x100ba620 > 50) {
+			else if (g_temperature > 50) {
 			}
 			break;
 		case 1:
-			if (g_unk0x100ba620 < -30) {
+			if (g_temperature < -30) {
 				heat *= 2;
 			}
-			else if (g_unk0x100ba620 > 50) {
+			else if (g_temperature > 50) {
 				heat *= 0.9;
 			}
 			break;
 		case 2:
 			heat *= 0.9;
-			if (g_unk0x100ba620 < -30) {
+			if (g_temperature < -30) {
 				heat *= 1.5;
 			}
-			else if (g_unk0x100ba620 > 50) {
+			else if (g_temperature > 50) {
 				heat *= 0.8;
 			}
 			break;
 		}
 	}
-	else if (g_unk0x100ba620 < -30) {
+	else if (g_temperature < -30) {
 		heat *= 2;
 	}
-	else if (g_unk0x100ba620 > 50) {
+	else if (g_temperature > 50) {
 		heat *= 0.9;
 	}
 

@@ -602,7 +602,7 @@ void UpdateCockpit(Mech* p_mech)
 	}
 
 	if (g_overrideShutdown && g_cockpitPowerState != 3 && (p_mech->m_flags & 4) && !(p_mech->m_flags & 8)) {
-		FUN_1007eb23(0xcd, 100, 0x40, 5, 0x32);
+		PlaySoundEffect(0xcd, 100, 0x40, 5, 0x32);
 		PlayCockpitSound(2, -1);
 		p_mech->m_flags |= 8;
 		g_overrideShutdown = 0;
@@ -730,7 +730,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 			if (!g_unk0x100ae3f4 && p_mech->m_weapons[p_mech->m_selectedWeapon].m_state == 1 &&
 				p_mech->m_powerState == 2) {
 				g_unk0x100ae3f4 = 1;
-				FUN_1007eb23(0xfe, 100, 0x5f, 5, 0x32);
+				PlaySoundEffect(0xfe, 100, 0x5f, 5, 0x32);
 			}
 		}
 		else {
@@ -738,7 +738,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 			if (p_mech->m_flags & 0x40) {
 				if (!g_unk0x100ae3f8 && p_mech->m_powerState == 2) {
 					g_unk0x100ae3f8 = 1;
-					FUN_1007eb23(0xcf, 100, 0x1f, 5, 0x32);
+					PlaySoundEffect(0xcf, 100, 0x1f, 5, 0x32);
 				}
 			}
 			else {
@@ -749,11 +749,11 @@ void PlayCockpitWarnings(Mech* p_mech)
 		if (p_mech->m_powerState != g_unk0x100ae3f0) {
 			switch (p_mech->m_powerState) {
 			case 2:
-				FUN_1007eb23(0xce, 100, 0x2f, 5, 0x32);
+				PlaySoundEffect(0xce, 100, 0x2f, 5, 0x32);
 				break;
 			case 0:
 			case 4:
-				FUN_1007eb23(0xf6, 100, 0x40, 5, 0x32);
+				PlaySoundEffect(0xf6, 100, 0x40, 5, 0x32);
 				break;
 			default:
 				break;

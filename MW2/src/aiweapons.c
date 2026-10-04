@@ -115,7 +115,7 @@ MechS32 FUN_1004b724(Player* p_player)
 			}
 
 			if (p_player->m_ai.m_goal == (g_localPlayerId | 0x200)) {
-				FUN_1007eb23(0x6f, 100, 0x40, 5, 0x32);
+				PlaySoundEffect(0x6f, 100, 0x40, 5, 0x32);
 			}
 		}
 	}

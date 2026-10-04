@@ -77,7 +77,7 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 	mech->m_player->m_steering->m_autopilot = 0;
 
 	g_reloadingPlayer = p_player;
-	FUN_10019881(mech);
+	InitMechArrays(mech);
 	LoadMechConfig(
 		mech,
 		g_rememberedMechs[p_player].m_name,
@@ -101,13 +101,13 @@ MechS32 FUN_1007fbe0(MechS32 p_player, MechS32 p_force)
 
 	// gpanim.c's Mech is the player
 	FUN_10003a10(mech->m_player);
-	FUN_10016ad0(mech->m_player);
+	FirstMech(mech->m_player);
 
 	if (g_localPlayerId == p_player) {
 		ResetCockpitPanels();
 		g_localMechLost = 0;
-		g_unk0x100a2c18 = 0;
-		g_unk0x100a2c10 = 0;
+		g_localMechDestroyed = 0;
+		g_mechPoweredUp = 0;
 	}
 
 	g_reloadingPlayer = -1;

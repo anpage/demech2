@@ -336,7 +336,7 @@ void ApplyCameraFov(MechS32 p_reset)
 
 	if (g_eyepoint->m_fovX != fov) {
 		g_projectionDirty = 1;
-		FUN_1007eb23(0x147, 100, 0x40, 5, 0x50);
+		PlaySoundEffect(0x147, 100, 0x40, 5, 0x50);
 	}
 }
 

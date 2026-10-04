@@ -96,7 +96,7 @@ MechS32 g_localPlayerId = 0;
 // GLOBAL: MW2 0x100acb2c
 MechS32 g_unk0x100acb2c = 0;
 
-// Set when the local player starts on the autopilot (FUN_10016ad0).
+// Set when the local player starts on the autopilot (FirstMech).
 // GLOBAL: MW2 0x100acb34
 MechS32 g_unk0x100acb34 = 0;
 

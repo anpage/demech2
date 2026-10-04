@@ -250,7 +250,7 @@ void FUN_100219ea(void)
 {
 }
 
-// Has the same parameters as FUN_1007eb64, which plays the sound itself when this returns
+// Has the same parameters as PlayDelayedSound, which plays the sound itself when this returns
 // 0 or less.
 // FUNCTION: MW2 0x100219f5
 MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_flags)

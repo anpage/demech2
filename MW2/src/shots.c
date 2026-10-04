@@ -847,7 +847,7 @@ void SpawnEffectEx(
 			volume = 0;
 		}
 
-		FUN_1007ebd1(dx, dy, dz, info->m_sound, volume);
+		PlaySoundAt(dx, dy, dz, info->m_sound, volume);
 	}
 }
 

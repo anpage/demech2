@@ -255,7 +255,7 @@ MechS32 FUN_1001ad5b(MechU8* p_target, MechS32 p_team)
 					nav->m_unk0x00) {
 					nav->m_flags |= 0x20;
 					nav->m_unk0x26 |= 1 << p_team;
-					FUN_1007eb23(0xe7, 100, 0x40, 5, 0x50);
+					PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
 				}
 
 				return TRUE;

@@ -265,12 +265,12 @@ void HandleCheatInput(MechS16 p_key)
 		ShowInGameMessage("bounding spheres", 1, 0x16a, 0x32);
 	}
 	else if (FUN_1005b807("ws}rncwuoi\x7f")) { // "mightymouse"
-		if (!g_unk0x100a2be4) {
-			g_unk0x100a2be4 = 1;
+		if (!g_infiniteJumpFuel) {
+			g_infiniteJumpFuel = 1;
 			ShowInGameMessage("Infinite Jumpjet juice ON", 1, 0x16a, 0x32);
 		}
 		else {
-			g_unk0x100a2be4 = 0;
+			g_infiniteJumpFuel = 0;
 			ShowInGameMessage("Infinite Jumpjet juice OFF", 1, 0x16a, 0x32);
 		}
 	}
@@ -570,7 +570,7 @@ void FUN_1005c78a(MechS32 p_key)
 	case 0x2:
 		FUN_100509a0();
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 0, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 0, 0x32);
 		}
 		break;
 	case 0x3:
@@ -582,7 +582,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 1, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 1, 0x32);
 		}
 		break;
 	case 0x4:
@@ -594,7 +594,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 2, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 2, 0x32);
 		}
 		break;
 	case 0x5:
@@ -606,7 +606,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 3, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 3, 0x32);
 		}
 		break;
 	case 0x6:
@@ -618,7 +618,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 4, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 4, 0x32);
 		}
 		break;
 	case 0x7:
@@ -630,7 +630,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 6, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 6, 0x32);
 		}
 		break;
 	case 0x8:
@@ -640,7 +640,7 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 7, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 7, 0x32);
 		}
 		break;
 	case 0x9:
@@ -678,11 +678,11 @@ void FUN_1005c78a(MechS32 p_key)
 		}
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
-			FUN_1007eb23(0xdc, 100, 0x40, 8, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 8, 0x32);
 		}
 		break;
 	case 0x14:
-		g_unk0x100a2be8 = 1;
+		g_jettisonAmmoRequested = 1;
 		break;
 	case 0x17:
 		g_sinkZoomFactorReset = 1;
@@ -826,22 +826,22 @@ void FUN_1005c78a(MechS32 p_key)
 		break;
 	case 0x3d:
 		if (mech->m_powerState == 3) {
-			g_unk0x100a2c08 = 1;
+			g_powerRequest = 1;
 		}
 		else {
-			g_unk0x100a2c08 = -1;
+			g_powerRequest = -1;
 		}
 		break;
 	case 0x3e:
 		if (mech->m_powerState == 3) {
-			g_unk0x100a2c08 = 1;
+			g_powerRequest = 1;
 		}
 		else {
 			if (mech->m_powerState == 7) {
 				break;
 			}
 
-			g_unk0x100a2c08 = -1;
+			g_powerRequest = -1;
 		}
 		break;
 	case 0x3f:
@@ -911,7 +911,7 @@ void FUN_1005c78a(MechS32 p_key)
 		g_unk0x100ae37c = 1;
 		break;
 	case 0x56:
-		g_unk0x100a2bec = 1;
+		g_toggleMascRequested = 1;
 		break;
 	case 0x57:
 		g_localSteering.m_selfDestruct = 1;

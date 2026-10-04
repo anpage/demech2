@@ -221,7 +221,7 @@ StaticPoolSize* FUN_100567ed(void)
 {
 	g_staticPoolSizes[0].m_size = g_unk0x100e9da8 * 0x1f2;
 	g_staticPoolSizes[0].m_tag = g_staticPoolTags[0];
-	g_staticPoolSizes[1].m_size = FUN_10019a0a() * g_unk0x100e9da8;
+	g_staticPoolSizes[1].m_size = GetMechAllocSize() * g_unk0x100e9da8;
 	g_staticPoolSizes[1].m_tag = g_staticPoolTags[1];
 	g_staticPoolSizes[2].m_size = GetObjSize() * g_unk0x100e9dac;
 	g_staticPoolSizes[2].m_tag = g_staticPoolTags[2];

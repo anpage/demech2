@@ -200,7 +200,7 @@ void FUN_1005a2ea(Mech* p_mech)
 		}
 
 		if (mech->m_stateTime > g_currentClock) {
-			FUN_1004cb11(mech);
+			EmitWreckSmoke(mech);
 		}
 		break;
 	}
@@ -229,7 +229,7 @@ MechS32 FUN_1005a637(MechS32 p_index, Player* p_player)
 	MechS32 size;
 
 	p_player->m_mech = NULL;
-	size = FUN_10019a0a();
+	size = GetMechAllocSize();
 	buffer = StaticPoolAlloc(size, g_staticPoolTags[1]);
 	if (!buffer) {
 		return FALSE;

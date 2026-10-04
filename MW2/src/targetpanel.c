@@ -101,15 +101,15 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		switch (kind) {
 		case 0x100:
 			p_panel->m_setName(p_panel, g_navTable[index].m_unk0x3e);
-			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x400:
 			p_panel->m_setName(p_panel, g_gameThings[index].m_unk0x2a);
-			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		case 0x200:
 			p_panel->m_setName(p_panel, g_players[index]->m_shortName);
-			FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+			PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 			break;
 		default:
 			p_panel->m_setName(p_panel, "");
@@ -405,7 +405,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_cockpitPowerState == 2) {
-		FUN_1004c8bd(7, 0x20000, view, object);
+		RenderViewToPane(7, 0x20000, view, object);
 	}
 
 	OutlinePane(p_panel->m_target, 8);

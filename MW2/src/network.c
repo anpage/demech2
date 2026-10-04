@@ -602,7 +602,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 	p_msg->m_text[0x50] = 0; // one past the line: the buffer is the 0x100-byte receive buffer
 	sprintf(text, "%s: %s", g_players[p_slot]->m_name, p_msg->m_text);
 	ShowInGameMessage(text, 1, 0x43e, 0x32);
-	FUN_1007eb23(0xdc, 100, 0x40, 5, 0x32);
+	PlaySoundEffect(0xdc, 100, 0x40, 5, 0x32);
 }
 
 // Applies a player's state message.
@@ -892,7 +892,7 @@ void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 	}
 
 	volume = MulDiv64(200, volume, 1500000);
-	FUN_1007eb23(0xf0, volume, 0x40, 5, 0x32);
+	PlaySoundEffect(0xf0, volume, 0x40, 5, 0x32);
 	FUN_100765f8(g_players[g_localPlayerId]->m_mech, g_players[p_slot]->m_mech);
 }
 
