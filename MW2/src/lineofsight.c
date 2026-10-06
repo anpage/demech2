@@ -2,6 +2,7 @@
 
 #include "collision.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "players.h"
@@ -24,7 +25,9 @@ MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 	MechU32 target;
 	MechU16 surface;
 
-	bearing = (p_player->m_heading + p_player->m_torsoTwist - p_player->m_targetInfo.m_heading + 0x1680000) % 0x1680000;
+	bearing = FIXED_MOD360(
+		p_player->m_heading + p_player->m_torsoTwist - p_player->m_targetInfo.m_heading + FIXED_CONST(360)
+	);
 	if (p_ahead && bearing < 0x10e0000 && bearing > 0x5a0000) {
 		return FALSE;
 	}

@@ -12,6 +12,7 @@
 #include "environment.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "fixedfloat.h"
 #include "gamekeys.h"
 #include "hud.h"
 #include "loadres.h"
@@ -590,10 +591,10 @@ void UpdateCockpit(Mech* p_mech)
 		return;
 	}
 
-	g_headingDegrees = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
+	g_headingDegrees = (FIXED_TO_INT(p_mech->m_player->m_heading) % 360 % 360 + 360) % 360;
 	g_torsoTwistDegrees = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
-	pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
-	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_headingDegrees;
+	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
+	bearing = FIXED_TO_INT(p_mech->m_player->m_targetInfo.m_heading) % 360 - g_headingDegrees;
 	if (bearing > 180) {
 		bearing -= 360;
 	}

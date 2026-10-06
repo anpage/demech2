@@ -1016,9 +1016,9 @@ void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z
 	Shape* shape;
 	MechS32 reach;
 	MechS32 radius;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 
 	i = g_gameThingCount;
 	while (i--) {
@@ -1221,9 +1221,9 @@ void HeatMechsNearFires(void)
 	MechS32 reach;
 	MechS32 radius;
 	MechS32 distance;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	Mech* mech;
 	MechS32 i;
 	MechS32 dx;

@@ -99,6 +99,7 @@ MechS32 GetSoundSetting(MechS32 p_setting)
 
 // Sets setting p_setting to p_value, and lets the sound system that uses it know.
 // FUNCTION: MW2 0x10006845
+// FUNCTION: MW2MATROX 0x100447b5
 void PreviewSoundSetting(MechS32 p_setting, MechS32 p_value)
 {
 	MechS32 old;
@@ -381,6 +382,7 @@ MechS32 FirstAudio(void)
 // Operand order: g_nextEngageCheck <= g_currentClock and i < g_playerCount load the other
 // operand first in the original.
 // FUNCTION: MW2 0x10006ef1
+// FUNCTION: MW2MATROX 0x10044e61
 void DoAudio(void)
 {
 	Player* player;

@@ -3,6 +3,7 @@
 #include "clock.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "gamekeys.h"
 #include "loadres.h"
 #include "mw2prj.h"
@@ -18,6 +19,13 @@
 
 #include <stdio.h>
 #include <string.h>
+
+// The debug overlays' text color (the Matrox edition's palette has it elsewhere).
+#ifdef MW2_MATROX
+#define OVERLAY_TEXT_COLOR 0x52
+#else
+#define OVERLAY_TEXT_COLOR 0x4f
+#endif
 
 // The debug overlays: frame rate, scene counts, the eyepoint's position, memory and cache
 // sizes, the palette and an activity spinner. Each has a flag the debug keys toggle
@@ -322,6 +330,7 @@ void InitializeMono(void)
 
 // Stack-slot permutation: text and rate.
 // FUNCTION: MW2 0x100589ae
+// FUNCTION: MW2MATROX 0x1008de15
 void ShowFrameRate(void)
 {
 	MechChar text[64];
@@ -348,7 +357,7 @@ void ShowFrameRate(void)
 
 	if (g_showFrameRateMain && g_frameRate > 0) {
 		sprintf(text, "%ld.%ld", g_frameRate, g_frameRateTenths);
-		DrawTextBox(0x4f, 1, text, g_frameRateOrigin.m_x, g_frameRateOrigin.m_y);
+		DrawTextBox(OVERLAY_TEXT_COLOR, 1, text, g_frameRateOrigin.m_x, g_frameRateOrigin.m_y);
 	}
 
 	g_frameRateShown = 1;
@@ -464,9 +473,9 @@ void ShowEyePosition(Eyepoint* p_eyepoint)
 	sprintf(
 		text,
 		"rxyz:  %04.4ld %04.4ld %04.4ld",
-		(p_eyepoint->m_pitch >> 16) % 360,
-		(p_eyepoint->m_heading >> 16) % 360,
-		(p_eyepoint->m_roll >> 16) % 360
+		FIXED_TO_INT(p_eyepoint->m_pitch) % 360,
+		FIXED_TO_INT(p_eyepoint->m_heading) % 360,
+		FIXED_TO_INT(p_eyepoint->m_roll) % 360
 	);
 	DRAW_DEBUG_TEXT();
 
@@ -477,11 +486,11 @@ void ShowEyePosition(Eyepoint* p_eyepoint)
 			p_eyepoint->m_x,
 			p_eyepoint->m_y,
 			p_eyepoint->m_z,
-			(p_eyepoint->m_pitch >> 16) % 360,
-			(p_eyepoint->m_heading >> 16) % 360,
-			(p_eyepoint->m_roll >> 16) % 360
+			FIXED_TO_INT(p_eyepoint->m_pitch) % 360,
+			FIXED_TO_INT(p_eyepoint->m_heading) % 360,
+			FIXED_TO_INT(p_eyepoint->m_roll) % 360
 		);
-		DrawTextBox(0x4f, 1, text, g_eyePositionOrigin.m_x, g_eyePositionOrigin.m_y);
+		DrawTextBox(OVERLAY_TEXT_COLOR, 1, text, g_eyePositionOrigin.m_x, g_eyePositionOrigin.m_y);
 	}
 
 	g_eyePositionShown = 1;
@@ -524,6 +533,7 @@ void HideCacheInfo(void)
 
 // Stack-slot permutation: text and value.
 // FUNCTION: MW2 0x10058fb2
+// FUNCTION: MW2MATROX 0x1008e26d
 void ShowMemInfo(void)
 {
 	MechChar text[40];
@@ -538,7 +548,7 @@ void ShowMemInfo(void)
 	sprintf(text, "%8.8ld", value);
 	DRAW_DEBUG_TEXT();
 	if (g_showMemInfoMain) {
-		DrawTextBox(0x4f, 1, text, g_memInfoOrigin.m_x, g_memInfoOrigin.m_y);
+		DrawTextBox(OVERLAY_TEXT_COLOR, 1, text, g_memInfoOrigin.m_x, g_memInfoOrigin.m_y);
 	}
 }
 

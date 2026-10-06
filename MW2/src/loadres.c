@@ -189,6 +189,7 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 // Stack-slot permutation of prev and slot; the original adds type[3] before type[2] (commutative
 // operand order).
 // FUNCTION: MW2 0x10019e53
+// FUNCTION: MW2MATROX 0x10055bf3
 void FreeCacheEntry(ResourceCacheEntry* p_item)
 {
 	ResourceCacheEntry* prev = NULL;

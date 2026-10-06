@@ -8,6 +8,7 @@
 #include "debris.h"
 #include "decomp.h"
 #include "error.h"
+#include "fixedfloat.h"
 #include "gamething.h"
 #include "loadres.h"
 #include "mw2prj.h"
@@ -612,6 +613,7 @@ void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, Me
 // Runs the timed callbacks of the cache entries.
 // The only diff is a stack-slot permutation of i and entry.
 // FUNCTION: MW2 0x100200bd
+// FUNCTION: MW2MATROX 0x10053804
 void RunStaticObjectTasks(void)
 {
 	MechS32 i;
@@ -795,6 +797,7 @@ void DestroyThingObject(GameThing* p_thing)
 // Stack-slot permutation of the locals. Operand order: the loop test (i < g_staticObjectCount)
 // loads g_staticObjectCount first in the original.
 // FUNCTION: MW2 0x100204e8
+// FUNCTION: MW2MATROX 0x10053c30
 void PropagateStaticObjectStates(void)
 {
 	GameThing* thing;
@@ -840,6 +843,7 @@ void PropagateStaticObjectStates(void)
 
 // Returns whether every static object in use has a resource (the world loader's check).
 // FUNCTION: MW2 0x10020684
+// FUNCTION: MW2MATROX 0x10053dcd
 MechS32 AreStaticObjectsComplete(void)
 {
 	MechS32 i;
@@ -1000,6 +1004,7 @@ void UnloadStaticObject(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10020bdd
+// FUNCTION: MW2MATROX 0x10054327
 struct SceneObject* GetStaticSceneObject(MechS32 p_index)
 {
 	struct SceneObject* result;
@@ -1013,6 +1018,7 @@ struct SceneObject* GetStaticSceneObject(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10020c26
+// FUNCTION: MW2MATROX 0x10054371
 Shape* GetStaticObjectShape(MechS32 p_index)
 {
 	Shape* result;
@@ -1237,9 +1243,9 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	if (shape) {
 		result = TRUE;
 		SetShapeCollisionType(shape, 4);
-		x = (p_node->m_maxX + p_node->m_minX) >> 1;
-		y = (p_node->m_minY + p_node->m_maxY) >> 1;
-		z = (p_node->m_maxZ + p_node->m_minZ) >> 1;
+		x = FIXED_SHR(p_node->m_maxX + p_node->m_minX, 1);
+		y = FIXED_SHR(p_node->m_minY + p_node->m_maxY, 1);
+		z = FIXED_SHR(p_node->m_maxZ + p_node->m_minZ, 1);
 		BuildMatrix(&matrix, 0, 0, 0, x, y, z);
 		TransformShape(shape, &matrix);
 		AddSceneShape(shape);
@@ -1254,6 +1260,7 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 // Returns whether p_index is an entry.
 // Stack-slot permutation; the loop test compares in the other operand order.
 // FUNCTION: MW2 0x10021314
+// FUNCTION: MW2MATROX 0x10054b2f
 MechS32 FreeStaticObjectTree(MechU32 p_index)
 {
 	MechS32 result;

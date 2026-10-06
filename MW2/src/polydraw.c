@@ -6,6 +6,7 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fixeddivu.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedmul30.h"
 #include "fixedtrig.h"
@@ -20,8 +21,8 @@
 
 // GLOBAL: MW2 0x100a6be0
 // GLOBAL: MW2MATROX 0x100addd0
-Eyepoint g_mainEyepoint = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
-						   0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
+Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000, -1000, 1, 0x48, 0, 319, 0, 199, 0x40,
+						   0x249f0, 0, 0, 0, 0, {0}};
 
 // GLOBAL: MW2 0x100a6cc0
 // GLOBAL: MW2MATROX 0x100ade74

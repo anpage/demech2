@@ -3,6 +3,7 @@
 #include "ai.h"
 #include "clock.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "lineofsight.h"
 #include "mech.h"
 #include "players.h"
@@ -22,7 +23,7 @@
 // fired.
 // Stack-slot permutation: fired, roll and delta.
 // FUNCTION: MW2 0x1004b5a0
-MechS32 RunAIWeapons(Player* p_player, MechS32 p_heading)
+MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 {
 	MechS32 fired;
 	MechS32 roll;

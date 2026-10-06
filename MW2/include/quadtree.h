@@ -2,6 +2,7 @@
 #define QUADTREE_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "ray.h"
 #include "types.h"
 
@@ -14,12 +15,12 @@ struct Shape;
 // when the shape's m_collisionType is 5.
 // SIZE 0x2c
 typedef struct QuadtreeNode {
-	MechS32 m_minX;                     // 0x00
-	MechS32 m_maxX;                     // 0x04
-	MechS32 m_minY;                     // 0x08
-	MechS32 m_maxY;                     // 0x0c
-	MechS32 m_minZ;                     // 0x10
-	MechS32 m_maxZ;                     // 0x14
+	MechScalar m_minX;                  // 0x00
+	MechScalar m_maxX;                  // 0x04
+	MechScalar m_minY;                  // 0x08
+	MechScalar m_maxY;                  // 0x0c
+	MechScalar m_minZ;                  // 0x10
+	MechScalar m_maxZ;                  // 0x14
 	MechS32 m_faceCount;                // 0x18
 	struct QuadtreeNode* m_children[4]; // 0x1c
 } QuadtreeNode;

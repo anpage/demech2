@@ -184,6 +184,7 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 }
 
 // FUNCTION: MW2 0x100800e3
+// FUNCTION: MW2MATROX 0x100914d2
 MechSegment* SaveMechSegments(SceneObject* p_obj)
 {
 	MechSegment* segment;

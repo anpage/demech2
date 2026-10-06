@@ -2,6 +2,7 @@
 #define BOUNDBOX_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "shape.h"
 #include "types.h"
 
@@ -9,12 +10,12 @@
 // transformed vertices. CreateShapeBoundBox allocates it inside a larger 0x78-byte block.
 // SIZE 0x18
 typedef struct BoundBox {
-	MechS32 m_minX; // 0x00
-	MechS32 m_maxX; // 0x04
-	MechS32 m_minY; // 0x08
-	MechS32 m_maxY; // 0x0c
-	MechS32 m_minZ; // 0x10
-	MechS32 m_maxZ; // 0x14
+	MechScalar m_minX; // 0x00
+	MechScalar m_maxX; // 0x04
+	MechScalar m_minY; // 0x08
+	MechScalar m_maxY; // 0x0c
+	MechScalar m_minZ; // 0x10
+	MechScalar m_maxZ; // 0x14
 } BoundBox;
 
 // The functions and globals of boundbox.c that other units use.

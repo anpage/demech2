@@ -5,6 +5,7 @@
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
+#include "fixedfloat.h"
 #include "muldiv.h"
 #include "players.h"
 #include "point.h"
@@ -210,7 +211,7 @@ void DrawHeatRateBar(PANE* p_target)
 	mech = g_players[g_localPlayerId]->m_mech;
 	fill = 0;
 	level = 0;
-	g_heatRateBarLevel.m_target = (mech->m_deltaHeat - mech->m_cooling * g_deltaTime) >> 6;
+	g_heatRateBarLevel.m_target = FIXED_SHR(mech->m_deltaHeat - mech->m_cooling * g_deltaTime, 6);
 	level = UpdateEasedValue(&g_heatRateBarLevel);
 	if (level < 1) {
 		fillColor = 7;

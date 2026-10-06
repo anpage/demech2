@@ -277,8 +277,14 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // Locks a MIDI channel and starts the held note on it: program 3, pitch bend 0x1800, centered,
 // silent until UpdateEngineNote sets its volume.
 // FUNCTION: MW2 0x10021a07
+// FUNCTION: MW2MATROX 0x10044107
 void StartEngineNote(void)
 {
+#ifdef MW2_MATROX
+	// The edition doesn't play the engine note.
+	return;
+#endif
+
 	if (g_midiDriver == NULL) {
 		return;
 	}

@@ -204,6 +204,7 @@ void ServeSamples(void)
 // Returns the sample slot, or a negative error.
 // Operand order: p_delay > g_deltaTime.
 // FUNCTION: MW2 0x1007dfe7
+// FUNCTION: MW2MATROX 0x100866b2
 MechS32 PlaySample(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -280,6 +281,7 @@ MechS32 PlaySample(
 // Stack slots: sample, victim, i, slot and flags are permuted. Operand order:
 // m_chunkFrames[slot] > m_remaining[slot].
 // FUNCTION: MW2 0x1007e1cf
+// FUNCTION: MW2MATROX 0x1008689b
 MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot, MechS32* p_userData)
 {
 	HSAMPLE sample;

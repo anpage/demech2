@@ -86,6 +86,7 @@ void UpdateAllPlayers(void)
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
 // FUNCTION: MW2 0x1006d068
+// FUNCTION: MW2MATROX 0x10054ef7
 void LateUpdateAllPlayers(void)
 {
 	MechS32 i;

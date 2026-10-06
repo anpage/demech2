@@ -170,6 +170,7 @@ void FadeToTimeOfDayPhase(MechS32 p_phase)
 }
 
 // FUNCTION: MW2 0x1007d875
+// FUNCTION: MW2MATROX 0x10085ef4
 MechS32 IsInfraredOn(undefined4 p_unk0x00)
 {
 	return g_infraredOn;
@@ -206,7 +207,11 @@ void QuadrupleMechCooling(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
+#ifdef MW2_MATROX
+		mech->m_cooling *= 4;
+#else
 		mech->m_cooling <<= 2;
+#endif
 	}
 }
 
@@ -219,6 +224,10 @@ void QuarterMechCooling(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
+#ifdef MW2_MATROX
+		mech->m_cooling /= 4;
+#else
 		mech->m_cooling >>= 2;
+#endif
 	}
 }

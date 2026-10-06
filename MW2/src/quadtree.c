@@ -3,6 +3,7 @@
 #include "collision.h"
 #include "decomp.h"
 #include "face.h"
+#include "fixedfloat.h"
 #include "overlay.h"
 #include "ray.h"
 #include "shape.h"
@@ -112,21 +113,21 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 	Face** faces;
 
 	if (p_quadrant & 1) {
-		minX = ((p_node->m_maxX + p_node->m_minX) >> 1) + 1;
+		minX = FIXED_SHR(p_node->m_maxX + p_node->m_minX, 1) + 1;
 		maxX = p_node->m_maxX;
 	}
 	else {
 		minX = p_node->m_minX;
-		maxX = (p_node->m_maxX + p_node->m_minX) >> 1;
+		maxX = FIXED_SHR(p_node->m_maxX + p_node->m_minX, 1);
 	}
 
 	if (p_quadrant & 2) {
-		minZ = ((p_node->m_maxZ + p_node->m_minZ) >> 1) + 1;
+		minZ = FIXED_SHR(p_node->m_maxZ + p_node->m_minZ, 1) + 1;
 		maxZ = p_node->m_maxZ;
 	}
 	else {
 		minZ = p_node->m_minZ;
-		maxZ = (p_node->m_maxZ + p_node->m_minZ) >> 1;
+		maxZ = FIXED_SHR(p_node->m_maxZ + p_node->m_minZ, 1);
 	}
 
 	if (minX >= maxX || minZ >= maxZ) {

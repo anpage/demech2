@@ -13,6 +13,7 @@
 DECOMP_SIZE_ASSERT(BoundBox, 0x18)
 
 // FUNCTION: MW2 0x1006e970
+// FUNCTION: MW2MATROX 0x1000a4f0
 BoundBox* CreateBoundBox(void)
 {
 	BoundBox* box;

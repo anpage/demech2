@@ -568,6 +568,7 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 // if it isn't there.
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x1007959c
+// FUNCTION: MW2MATROX 0x1007bd5c
 MechS32 FindInputDevice(MechChar* p_name)
 {
 	MechS32 index;
@@ -710,6 +711,7 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 // The loop compares i and g_inputAxisCount in the other operand order, and i, suffix, sink and
 // name are a stack-slot permutation.
 // FUNCTION: MW2 0x10079aac
+// FUNCTION: MW2MATROX 0x1007c26b
 InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 {
 	MechChar* suffix;
@@ -866,6 +868,7 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 // brace. Returns 0 on an error, or if the last button isn't there.
 // Stack-slot permutation: device, line, sign, button and name.
 // FUNCTION: MW2 0x1007a168
+// FUNCTION: MW2MATROX 0x1007c926
 MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_conditions)
 {
 	MechS32 device;
@@ -941,6 +944,7 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // keys move it.
 // Stack-slot permutation: index, channelName, deviceName, channel and sign.
 // FUNCTION: MW2 0x1007a3d1
+// FUNCTION: MW2MATROX 0x1007cb6b
 MechS32 ParseInputMap(FILE* p_file)
 {
 	MechChar line[256];
@@ -1074,6 +1078,7 @@ MechS32 ParseInputMap(FILE* p_file)
 // digits>.std.
 // Stack-slot permutation: name and i.
 // FUNCTION: MW2 0x1007a97a
+// FUNCTION: MW2MATROX 0x1007d0ba
 MechS32 LoadInputMap(void)
 {
 	MechChar name[256];

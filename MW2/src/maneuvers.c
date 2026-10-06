@@ -580,6 +580,7 @@ void StartManeuver(Player* p_player)
 // Ends p_player's maneuver (m_maneuver): undoes what it set up, records it as the previous one
 // and makes the goal the target again.
 // FUNCTION: MW2 0x1001450e
+// FUNCTION: MW2MATROX 0x1001a106
 void EndManeuver(Player* p_player)
 {
 	switch (p_player->m_maneuver) {
@@ -739,7 +740,7 @@ MechS32 IsSharpTurn(Player* p_player, MechS32 p_turn)
 void ManeuverStupid(Player* p_player, MechS16 p_target)
 {
 	MechS32 range;
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	if (!AvoidObstacles(p_player)) {
@@ -765,7 +766,7 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10014aa8
 void ManeuverBehind(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
@@ -813,7 +814,7 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 {
 	MechDouble scale;
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 result;
 
 	result = FALSE;
@@ -883,7 +884,7 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10014e5e
 MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
@@ -904,7 +905,7 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10014f23
 MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 result;
 
 	result = FALSE;
@@ -949,9 +950,10 @@ MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target. Whether the player is at least 2000 above it.
 // FUNCTION: MW2 0x100150c1
+// FUNCTION: MW2MATROX 0x1001ae00
 MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
@@ -966,9 +968,10 @@ MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target.
 // FUNCTION: MW2 0x1001512e
+// FUNCTION: MW2MATROX 0x1001ae73
 MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
@@ -986,7 +989,7 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 {
 	MechS32 rate;
 	MechS32 result;
-	MechS32 turn;
+	MechScalar turn;
 	MechS16 side;
 	Mech* mech;
 	Mech* targetMech;
@@ -1047,7 +1050,7 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x10015342
 void ManeuverAvoid(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	if (!p_player->m_steering->m_reverse) {
@@ -1074,7 +1077,7 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2 0x100153e6
 MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 result;
 
 	result = 0;
@@ -1139,6 +1142,7 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // Returns whether the player is on the ground.
 // Stack-slot permutation: line, value and mech.
 // FUNCTION: MW2 0x100155e1
+// FUNCTION: MW2MATROX 0x1001b359
 MechS32 BrakeFall(Player* p_player)
 {
 	MechChar line[80];
@@ -1408,7 +1412,7 @@ MechS32 GetHeadingTo(Player* p_player, MechS16 p_target)
 
 	target = p_player->m_targetInfo.m_target;
 	SetTarget(p_player, p_target);
-	heading = (GetTargetBearing(p_player) + 0x1680000) % 0x1680000;
+	heading = FIXED_MOD360(GetTargetBearing(p_player) + FIXED_CONST(360));
 	SetTarget(p_player, target);
 	return heading;
 }
@@ -1645,7 +1649,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 			range = 0x30000;
 			maxAngle = 15;
 			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
-			bearing = (GetTargetBearing(p_mech->m_player) >> 16) % 360;
+			bearing = FIXED_TO_INT(GetTargetBearing(p_mech->m_player)) % 360;
 			if (pitch < range && -range < pitch && bearing < maxAngle && -maxAngle < bearing) {
 				target = g_players[index];
 			}

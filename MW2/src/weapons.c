@@ -9,6 +9,7 @@
 #include "environment.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedsqrt.h"
 #include "fixedtrig.h"
@@ -796,8 +797,8 @@ void UpdateWeaponLock(Mech* p_mech)
 		}
 		else {
 			inRange = TRUE;
-			heading = (p_mech->m_player->m_heading % 0x1680000 + 0x1680000) % 0x1680000;
-			twist = p_mech->m_player->m_torsoTwist % 0x1680000;
+			heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading) + FIXED_CONST(360));
+			twist = FIXED_MOD360(p_mech->m_player->m_torsoTwist);
 			bearing = p_mech->m_player->m_targetInfo.m_heading - heading;
 			if (bearing > 0xb40000) {
 				bearing -= 0x1680000;
@@ -814,7 +815,7 @@ void UpdateWeaponLock(Mech* p_mech)
 				yaw += 0x1680000;
 			}
 
-			pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
+			pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
 		}
 
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {

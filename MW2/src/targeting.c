@@ -379,6 +379,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Stack-slot permutation of the locals. Operand order: the second loop test (i < g_playerCount)
 // compares with i in eax in the original.
 // FUNCTION: MW2 0x1005ed4f
+// FUNCTION: MW2MATROX 0x100065bf
 MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 {
 	MechS32 index;
@@ -436,6 +437,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // turns the autopilot's steering over.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005ef5e
+// FUNCTION: MW2MATROX 0x100067cc
 void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 {
 	MechS32 target;
@@ -826,6 +828,7 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // qualifies.
 // The only diff is a stack-slot permutation of lost, claim, index and kind.
 // FUNCTION: MW2 0x1005fa22
+// FUNCTION: MW2MATROX 0x100072a6
 MechS32 UpdateTarget(Player* p_player)
 {
 	MechS32 isLocal;
@@ -906,7 +909,11 @@ MechS32 UpdateTarget(Player* p_player)
 			break;
 		case 0x400:
 			if (!(g_gameThings[index].m_teamsReached & (1 << p_player->m_team))) {
+#ifdef MW2_MATROX
+				if (g_gameThings[index].m_radius + 20000.0f > p_player->m_targetInfo.m_distance) {
+#else
 				if (g_gameThings[index].m_radius + 20000 > p_player->m_targetInfo.m_distance) {
+#endif
 					if (isLocal) {
 						g_inspectResult = 1;
 					}

@@ -2,6 +2,7 @@
 #define SHAPE_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "shapegeom.h"
 #include "types.h"
 
@@ -32,10 +33,10 @@ struct Shape {
 	MechS32 m_modelCenterX;       // 0x28 — the center ComputeShapeBounds computes
 	MechS32 m_modelCenterY;       // 0x2c
 	MechS32 m_modelCenterZ;       // 0x30
-	MechS32 m_centerX;            // 0x34 — the center transformed (TransformShapeCenter)
-	MechS32 m_centerY;            // 0x38
-	MechS32 m_centerZ;            // 0x3c
-	MechS32 m_radius;             // 0x40 — the bounding sphere around the center
+	MechScalar m_centerX;         // 0x34 — the center transformed (TransformShapeCenter)
+	MechScalar m_centerY;         // 0x38
+	MechScalar m_centerZ;         // 0x3c
+	MechScalar m_radius;          // 0x40 — the bounding sphere around the center
 	void* m_collisionData;        // 0x44 — a BoundBox (type 0) or a QuadtreeNode (type 5)
 	undefined4 m_transformCount;  // 0x48 — bumped per transform; Model::m_transformCount stamps it
 };
@@ -79,7 +80,7 @@ extern "C"
 	MechU32 GetShapeKind(Shape* p_shape);
 	MechU32 GetShapePartId(Shape* p_shape);
 	MechU32 GetShapeOwner(Shape* p_shape);
-	MechS32 GetShapeBounds(Shape* p_shape, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	void ComputeNormalsAndBounds(Shape* p_shape);
 	void ComputeShapeBounds(Shape* p_shape);
 	void ComputeFaceNormal(struct Face* p_face, struct Vertex* p_vertices);

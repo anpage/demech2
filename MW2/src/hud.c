@@ -740,9 +740,9 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	MechS32 bottomRight;
 	MechS32 sx;
 	MechS32 sy;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechS32 size;
 	Point point;
 
@@ -828,6 +828,7 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y.
 // Operand order: p_id + g_artResolution loads p_id first in the original.
 // FUNCTION: MW2 0x10041f06
+// FUNCTION: MW2MATROX 0x1001e0cb
 void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
 	void* shape;

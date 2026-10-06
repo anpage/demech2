@@ -3,6 +3,7 @@
 
 #include "aimessage.h"
 #include "airule.h"
+#include "fixedfloat.h"
 #include "types.h"
 
 struct Player;
@@ -122,7 +123,7 @@ extern "C"
 	void LeaveAIState(struct Player* p_player);
 	void EnterAIState(struct Player* p_player, MechU16 p_state);
 	MechS16 NextTarget(struct Player* p_player, MechS16 p_target, MechS16 p_previous);
-	MechS32 GetTargetBearing(struct Player* p_player);
+	MechScalar GetTargetBearing(struct Player* p_player);
 	MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check);
 	void QueueAIState(struct Player* p_player, MechS16 p_state, MechU16 p_target);
 	MechS32 HasAIState(struct Player* p_player, MechS16 p_state);

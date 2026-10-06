@@ -230,6 +230,7 @@ void ShutdownRefreshMode(void)
 // Operand order: the original compares the high parts as `cmp [g_profileStart+4], eax` with
 // end.HighPart in eax; swapping the operands doesn't flip it.
 // FUNCTION: MW2 0x100770a8
+// FUNCTION: MW2MATROX 0x1007b124
 void ProfileRefreshModes(void)
 {
 	LARGE_INTEGER end;
@@ -300,6 +301,7 @@ void ProfileRefreshModes(void)
 
 // Switches to the available refresh mode with the shortest profile time.
 // FUNCTION: MW2 0x100772a4
+// FUNCTION: MW2MATROX 0x1007b31f
 void SelectFastestRefreshMode(void)
 {
 	MechS32 i;
@@ -332,6 +334,7 @@ void SelectFastestRefreshMode(void)
 // whole screen, unless g_shouldToggleFullscreen is set.
 // Stack-slot permutation: i, mode and backend.
 // FUNCTION: MW2 0x10077392
+// FUNCTION: MW2MATROX 0x1007b40e
 void ToggleFullScreen(void)
 {
 	MechS32 i;
@@ -350,6 +353,9 @@ void ToggleFullScreen(void)
 	PauseTimer(0x80, TRUE);
 
 	if (g_currentDisplayBackend->m_windowMode == c_windowModeFullscreen) {
+#ifdef MW2_MATROX
+		g_fastestRefreshMode = g_currentRefreshMode;
+#endif
 		for (i = 0; i < 6; i++) {
 			mode = g_refreshModes[i];
 			backend = g_displayBackends[mode->m_backend];

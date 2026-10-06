@@ -349,6 +349,7 @@ MechS32 FirstExternalCtrl(void)
 // Matches except for a stack-slot permutation of from, player, i, tag and text, and the
 // operand order of the comparisons of slot and i with g_localPlayerId and of the state timer.
 // FUNCTION: MW2 0x1000e68c
+// FUNCTION: MW2MATROX 0x1000406c
 MechS32 UpdateNetwork(void)
 {
 	MechChar text[80];
@@ -952,6 +953,7 @@ void SendGoMsg(void)
 }
 
 // FUNCTION: MW2 0x1000fcf5
+// FUNCTION: MW2MATROX 0x10005ab4
 void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechS32 i;
@@ -1146,6 +1148,7 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 
 // The only diff is a stack-slot permutation of result, desc, guid and unk0x04.
 // FUNCTION: MW2 0x10010178
+// FUNCTION: MW2MATROX 0x10005f38
 MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 {
 	HRESULT result;

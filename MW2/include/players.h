@@ -5,6 +5,7 @@
 #include "airule.h"
 #include "aistackentry.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "gamething.h"
 #include "mech.h"
 #include "playerai.h"
@@ -59,13 +60,13 @@ struct Player {
 	struct SceneObject* m_firingObj; // 0x48 — the hardpoint of the weapon firing
 	PlayerSteering* m_steering;      // 0x4c
 	Vector3 m_position;              // 0x50
-	MechS32 m_pitch;                 // 0x5c — 16.16 degrees, about x
-	MechS32 m_heading;               // 0x60 — 16.16 degrees, about y
-	MechS32 m_roll;                  // 0x64 — 16.16 degrees, about z
-	MechS32 m_torsoPitch;            // 0x68 — the torso object's rotation, relative to m_obj
-	MechS32 m_torsoTwist;            // 0x6c — added to the heading for the forward view
-	MechS32 m_torsoRoll;             // 0x70
-	MechS32 m_groundHeight;          // 0x74 — the terrain's under the mech
+	MechScalar m_pitch;              // 0x5c — 16.16 degrees, about x
+	MechScalar m_heading;            // 0x60 — 16.16 degrees, about y
+	MechScalar m_roll;               // 0x64 — 16.16 degrees, about z
+	MechScalar m_torsoPitch;         // 0x68 — the torso object's rotation, relative to m_obj
+	MechScalar m_torsoTwist;         // 0x6c — added to the heading for the forward view
+	MechScalar m_torsoRoll;          // 0x70
+	MechScalar m_groundHeight;       // 0x74 — the terrain's under the mech
 	MechS32 m_onGround;              // 0x78
 	MechS32 m_collidedWith;          // 0x7c — the player its mech ran into this tick, or -1
 	// 0x80: 0x1 animating, 0x2 the frame is a stride (the speed eases, MASC can fail), 0x4 airborne,

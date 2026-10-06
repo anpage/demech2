@@ -410,6 +410,7 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 }
 
 // FUNCTION: MW2 0x1001d980
+// FUNCTION: MW2MATROX 0x1006e07c
 struct SceneObject* GetClassObject(MechS32 p_index)
 {
 	struct SceneObject* obj;
@@ -424,6 +425,7 @@ struct SceneObject* GetClassObject(MechS32 p_index)
 
 // Operand order: p_index < g_classEntryCount loads p_index first in the original.
 // FUNCTION: MW2 0x1001d9ca
+// FUNCTION: MW2MATROX 0x1006e0c6
 Shape* GetClassShape(MechS32 p_index)
 {
 	Shape* shape;

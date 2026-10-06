@@ -128,6 +128,7 @@ MechS32 GetJoystickDeviceCount(void)
 // buttons, the POV directions after the buttons. Returns 1 on failure.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049e86
+// FUNCTION: MW2MATROX 0x10025f56
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	JOYCAPS caps;

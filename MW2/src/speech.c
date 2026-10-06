@@ -182,6 +182,7 @@ SpeechEntry g_speechEntries[8];
 // Stack slots: entry, i, prev and cur are permuted. Operand order: cur->m_priority <
 // entry->m_priority.
 // FUNCTION: MW2 0x10059390
+// FUNCTION: MW2MATROX 0x1008b510
 MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority)
 {
 	SpeechEntry* entry;

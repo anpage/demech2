@@ -8,6 +8,7 @@
 #include "decomp.h"
 #include "environment.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "inradius.h"
 #include "integrate.h"
@@ -108,6 +109,7 @@ void ThrowDebrisPiece(MechS32 p_index)
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
 // Stack-slot permutation: i and chunk.
 // FUNCTION: MW2 0x10004356
+// FUNCTION: MW2MATROX 0x1002a703
 void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	MechS32 i;
@@ -223,9 +225,9 @@ void ExplodeChunk(MechS32 p_index)
 {
 	DebrisChunk* chunk;
 	SceneObject* obj;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechS32 piece;
 
 	chunk = &g_debrisChunks[p_index];
@@ -266,11 +268,11 @@ void UpdateDebrisPiece(MechS32 p_index)
 	DebrisPiece* piece;
 	MechS32 ground;
 	MechS32 radius;
-	MechS32 z;
+	MechScalar z;
 	MechS32 spinZ;
-	MechS32 y;
+	MechScalar y;
 	MechS32 spinY;
-	MechS32 x;
+	MechScalar x;
 	MechS32 spinX;
 	MechS32 dz;
 	MechS32 newY;
@@ -304,13 +306,13 @@ void UpdateDebrisPiece(MechS32 p_index)
 		velocityY = -(velocityY >> 2);
 		if (RandomIntBelow(2)) {
 			velocityY >>= 1;
-			piece->m_velocityX = -(piece->m_velocityX >> 1);
-			piece->m_velocityZ = -(piece->m_velocityZ >> 1);
+			piece->m_velocityX = -FIXED_SHR(piece->m_velocityX, 1);
+			piece->m_velocityZ = -FIXED_SHR(piece->m_velocityZ, 1);
 		}
 
-		piece->m_spinX = -(piece->m_spinX >> 1);
-		piece->m_spinY = -(piece->m_spinY >> 1);
-		piece->m_spinZ = -(piece->m_spinZ >> 1);
+		piece->m_spinX = -FIXED_SHR(piece->m_spinX, 1);
+		piece->m_spinY = -FIXED_SHR(piece->m_spinY, 1);
+		piece->m_spinZ = -FIXED_SHR(piece->m_spinZ, 1);
 	}
 
 	piece->m_velocityY = velocityY;
@@ -387,6 +389,7 @@ void ZeroChunx(void)
 }
 
 // FUNCTION: MW2 0x10004c06
+// FUNCTION: MW2MATROX 0x1002b0b5
 void ResetDebrisPiece(MechS32 p_index)
 {
 	DebrisPiece* piece;
@@ -424,9 +427,9 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 void DamageChunksInRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_damage)
 {
 	DebrisChunk* chunk;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechS32 radius;
 	MechS32 dx;
 	MechS32 dy;

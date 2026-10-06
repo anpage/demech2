@@ -601,6 +601,7 @@ void CollectAIRules(Player* p_player)
 
 // Operand order: the loop test (i < g_objectiveCount) compares with i in eax in the original.
 // FUNCTION: MW2 0x1005166e
+// FUNCTION: MW2MATROX 0x100807ee
 void FirstAI(void)
 {
 	MechS32 i;
@@ -959,6 +960,7 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
 // Stack-slot permutation: i and player.
 // FUNCTION: MW2 0x100521e0
+// FUNCTION: MW2MATROX 0x1008131f
 void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 {
 	MechS32 i;
@@ -1316,6 +1318,7 @@ void LogStarMissionLines(MechS32 p_team)
 // p_distance it has no line of sight to is hidden, checked with p_check at most every 0x21f ticks
 // (m_nextDetectCheck). Nothing calls it.
 // FUNCTION: MW2 0x10052cb7
+// FUNCTION: MW2MATROX 0x10081e45
 MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check)
 {
 	MechS32 dead;
@@ -1534,7 +1537,7 @@ void AiStateIdle(Player* p_player)
 // FUNCTION: MW2 0x10053275
 void AiStateMove(Player* p_player, MechU16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 range;
 
 	SetTarget(p_player, p_target);
@@ -1577,7 +1580,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFlee:
-		p_player->m_targetInfo.m_heading = (p_player->m_targetInfo.m_heading + 0xb40000) % 0x1680000;
+		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + FIXED_CONST(180));
 		if (!AvoidObstacles(p_player)) {
 			p_player->m_steering->m_throttle = 0x400;
 			SteerToTarget(p_player);
@@ -1796,12 +1799,12 @@ MechS32 AimTorsoTilt(Player* p_player, MechS32 p_delta)
 // FUNCTION: MW2 0x1005398f
 MechS32 SteerToTarget(Player* p_player)
 {
-	MechS32 delta;
+	MechScalar delta;
 	MechS32 scaled;
 	MechS32 degrees;
 
 	delta = GetTargetBearing(p_player);
-	degrees = (delta >> 16) % 360;
+	degrees = FIXED_TO_INT(delta) % 360;
 
 	if (degrees > 45) {
 		p_player->m_steering->m_turn = 0x3333333;
@@ -2087,7 +2090,7 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 
 // The bearing to p_player's target, 16.16 degrees either way.
 // FUNCTION: MW2 0x1005432f
-MechS32 GetTargetBearing(Player* p_player)
+MechScalar GetTargetBearing(Player* p_player)
 {
 	MechS32 delta;
 
@@ -2376,6 +2379,7 @@ void PlaceFormationNav(Player* p_player)
 // player or on a network game.
 // Stack-slot permutation: line and player.
 // FUNCTION: MW2 0x10054b50
+// FUNCTION: MW2MATROX 0x10083dca
 void RecordAttack(MechS32 p_index, MechU32 p_target)
 {
 	MechChar line[80];
@@ -2433,6 +2437,7 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
 // team comparison loads the other operand first. Stack-slot permutation: player and team.
 // FUNCTION: MW2 0x10054ccc
+// FUNCTION: MW2MATROX 0x10083f47
 MechS32 FindStarSlotPlayer(MechS32 p_slot)
 {
 	MechS32 team;

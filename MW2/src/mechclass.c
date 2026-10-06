@@ -12,6 +12,7 @@
 #include "fadepal.h"
 #include "fixeddiv.h"
 #include "fixeddiv29.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedmul29.h"
 #include "fixedtrig.h"
@@ -576,7 +577,11 @@ void UpdateMech(Mech* p_mech)
 		mech->m_player->m_position.m_y = posY;
 		mech->m_player->m_position.m_z = posZ;
 		mech->m_player->m_heading += mech->m_turnRate.m_value * g_deltaTime / 0xb5;
+#ifdef MW2_MATROX
+		mech->m_player->m_heading = fmod(mech->m_player->m_heading, 360.0);
+#else
 		mech->m_player->m_heading %= 0x1680000;
+#endif
 		mech->m_velocityX = velX;
 		mech->m_velocityY = velY;
 		mech->m_velocityZ = velZ;

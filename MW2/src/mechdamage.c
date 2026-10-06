@@ -142,7 +142,7 @@ void PunchInAutoHeading(Mech* p_mech)
 		return;
 	}
 
-	heading = (p_mech->m_player->m_heading + 0x1680000 + p_mech->m_torsoTwist.m_value) % 0x1680000;
+	heading = FIXED_MOD360(p_mech->m_player->m_heading + FIXED_CONST(360) + p_mech->m_torsoTwist.m_value);
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 
@@ -228,7 +228,7 @@ void CalculateHeat(Mech* p_mech)
 		shift = 1;
 	}
 
-	cooling = p_mech->m_cooling * g_deltaTime << shift;
+	cooling = FIXED_SHL(p_mech->m_cooling * g_deltaTime, shift);
 	delta = p_mech->m_deltaHeat - cooling;
 	p_mech->m_heat += delta;
 	if (p_mech->m_heat < 0) {
@@ -302,6 +302,7 @@ void CalculateHeat(Mech* p_mech)
 // Stack-slot permutation: next and text. The original compares p_killer with g_localPlayerId and
 // indexes m_unk0x52 in the other operand order.
 // FUNCTION: MW2 0x1000832b
+// FUNCTION: MW2MATROX 0x10010bd8
 void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
@@ -493,6 +494,7 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // Destroying section 3 takes sections 1, 2 and 4 to 6 with it; section 2 takes 5, and 4 takes 6.
 // Of sections 7 and 8, the first to go only marks the mech (0x20); the second destroys 1 and 3.
 // FUNCTION: MW2 0x1000899d
+// FUNCTION: MW2MATROX 0x1001124b
 void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechSection* section;
@@ -562,10 +564,10 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 {
 	MechS32 id;
 	WeaponSlot* weapon;
-	MechS32 x;
-	MechS32 y;
+	MechScalar x;
+	MechScalar y;
 	MechS32 i;
-	MechS32 z;
+	MechScalar z;
 	struct SceneObject* obj;
 	MechS32 kind;
 	MechSection* section;

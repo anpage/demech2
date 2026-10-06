@@ -2,6 +2,7 @@
 #define EYEPOINT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "transform.h"
 #include "types.h"
 
@@ -12,24 +13,24 @@
 // BuildMatrix takes them (the overlay's eye position readout prints them in that order).
 // SIZE 0xe0
 typedef struct Eyepoint {
-	MechS32 m_x;                             // 0x00
-	MechS32 m_y;                             // 0x04
-	MechS32 m_z;                             // 0x08
-	MechS32 m_heading;                       // 0x0c
-	MechS32 m_pitch;                         // 0x10 — clamped to +-90 degrees by the free camera
-	MechS32 m_roll;                          // 0x14
-	MechS32 m_fovX;                          // 0x18 — 16.16
-	MechS32 m_lightX;                        // 0x1c — the light's position (an effect's flash moves it)
-	MechS32 m_lightY;                        // 0x20
-	MechS32 m_lightZ;                        // 0x24
+	MechScalar m_x;                          // 0x00
+	MechScalar m_y;                          // 0x04
+	MechScalar m_z;                          // 0x08
+	MechScalar m_heading;                    // 0x0c
+	MechScalar m_pitch;                      // 0x10 — clamped to +-90 degrees by the free camera
+	MechScalar m_roll;                       // 0x14
+	MechScalar m_fovX;                       // 0x18 — 16.16
+	MechScalar m_lightX;                     // 0x1c — the light's position (an effect's flash moves it)
+	MechScalar m_lightY;                     // 0x20
+	MechScalar m_lightZ;                     // 0x24
 	MechS16 m_directionalLight;              // 0x28 — nonzero: light from the origin's direction
 	MechS16 m_ambientLight;                  // 0x2a — out of 0x80 (ComputeShade)
 	MechS32 m_viewLeft;                      // 0x2c — the view rectangle, in pixels of the pane
 	MechS32 m_viewRight;                     // 0x30
 	MechS32 m_viewTop;                       // 0x34
 	MechS32 m_viewBottom;                    // 0x38
-	MechS32 m_nearPlane;                     // 0x3c
-	MechS32 m_farPlane;                      // 0x40
+	MechScalar m_nearPlane;                  // 0x3c
+	MechScalar m_farPlane;                   // 0x40
 	MechS32 m_pixelAspect;                   // 0x44 — pixel width / height, 16.16
 	MechS32 m_unk0x48;                       // 0x48 — nothing uses it
 	MechS32 m_offsetX;                       // 0x4c — moves the projection centre off the view's

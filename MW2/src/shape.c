@@ -423,7 +423,8 @@ MechU32 GetShapeOwner(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1003adc9
-MechS32 GetShapeBounds(Shape* p_shape, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x100283fa
+MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	if (p_x) {
 		*p_x = p_shape->m_centerX;

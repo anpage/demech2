@@ -313,6 +313,7 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 // scenario table's next name.
 // Stack-slot permutation: record, keyData, ok and buffer.
 // FUNCTION: MW2 0x1004f9a8
+// FUNCTION: MW2MATROX 0x1004959b
 MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -468,6 +469,7 @@ void FreeMissionTables(void)
 // Scales the vector (p_a, p_b, p_c) to integers whose absolute values add up to 2^29. A vector
 // that small is left alone.
 // FUNCTION: MW2 0x1004fe0f
+// FUNCTION: MW2MATROX 0x10049a00
 void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, undefined4* p_y, undefined4* p_z)
 {
 	MechFloat scale;
@@ -484,6 +486,7 @@ void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, u
 
 // Scales the plane (p_a, p_b, p_c, p_d) like ScaleNormal.
 // FUNCTION: MW2 0x1004fe85
+// FUNCTION: MW2MATROX 0x10049acb
 void ScalePlane(
 	MechFloat p_a,
 	MechFloat p_b,
@@ -513,6 +516,7 @@ void ScalePlane(
 // by ScaleNormal.
 // Stack-slot permutation of a and c (and so the operand order of vz * ux).
 // FUNCTION: MW2 0x1004ff16
+// FUNCTION: MW2MATROX 0x10049bc4
 void GetTriangleNormal(
 	MechFloat p_x1,
 	MechFloat p_y1,

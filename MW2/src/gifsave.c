@@ -160,6 +160,7 @@ static MechS32 (*g_getPixel)(MechS32 p_x, MechS32 p_y);
 // Operand order: the loop test (q < tabSize) compares with tabSize in eax in the original, and the
 // color table size's bitfield store loads the byte before the value.
 // FUNCTION: MW2 0x10074920
+// FUNCTION: MW2MATROX 0x10089dd0
 MechS32 GifCreate(
 	const MechChar* p_filename,
 	MechU32 p_width,
@@ -634,6 +635,7 @@ static void ClearStringTable(MechS32 p_codeSize)
 }
 
 // FUNCTION: MW2 0x10075665
+// FUNCTION: MW2MATROX 0x1008ab15
 static MechS32 InputByte(void)
 {
 	MechS32 ret;

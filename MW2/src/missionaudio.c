@@ -75,6 +75,7 @@ ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 // Lists the mission's sound files (keating\*.sfl, on the game CD when they aren't installed) in
 // the project file table and keeps their directory in g_soundFileDir.
 // FUNCTION: MW2 0x10007252
+// FUNCTION: MW2MATROX 0x10001112
 void CollectMissionAudio(void)
 {
 	MechChar drive;

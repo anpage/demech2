@@ -363,18 +363,17 @@ def swapped_comparison(window_s, window_t, base_s, base_t, source, target, key):
 def flipped_equivalent(source, target, f, address, end):
     """True when the target's function at address is the source function f but for the
     operand order of some comparisons (the symbol-table entropy of VC++ 4.x: the operands of a
-    cmp swap places and its jump mirrors) and a permutation of its stack slots, with the same
-    size."""
+    cmp swap places and its jump mirrors) and a permutation of its stack slots."""
     from collections import Counter
 
-    if end - address != len(f.code):
-        return False
     disasm = Cs(CS_ARCH_X86, CS_MODE_32)
     disasm.skipdata = True
     disasm.detail = True
     src = [x for x in disasm.disasm(f.code, f.start) if x.id]
-    tgt = [x for x in disasm.disasm(target.read(address, end - address), address) if x.id]
-    if len(src) != len(tgt):
+    # A swapped comparison can change the size (mov eax, [global] has a short form), so the
+    # target is read for as many instructions, up to its end.
+    tgt = [x for x in disasm.disasm(target.read(address, end - address + 16), address) if x.id][: len(src)]
+    if len(src) != len(tgt) or tgt[-1].address + tgt[-1].size > end + 16:
         return False
 
     slot = re.compile(r"ebp - (0x[0-9a-f]+|\d+)")

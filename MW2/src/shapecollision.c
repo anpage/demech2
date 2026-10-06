@@ -205,12 +205,14 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p
 }
 
 // FUNCTION: MW2 0x10069e54
+// FUNCTION: MW2MATROX 0x10052696
 MechS32 TestPointNever(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x10069e66
+// FUNCTION: MW2MATROX 0x100526a8
 MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 {
 	return 0;

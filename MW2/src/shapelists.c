@@ -86,6 +86,7 @@ void AddSceneShape(Shape* p_shape)
 
 // Operand order: the original compares p_shape with g_sceneShapes the other way round.
 // FUNCTION: MW2 0x1006d7fb
+// FUNCTION: MW2MATROX 0x1000374b
 void RemoveSceneShape(Shape* p_shape)
 {
 	if (!p_shape || p_shape == g_sceneShapes || p_shape == (Shape*) &g_hiddenShapeHead) {

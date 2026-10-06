@@ -282,9 +282,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	MechS32 centerY;
 	MechS32 distance;
 	MechS32 heading;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechS32 dx;
 	MechS32 icon;
 	void* noTarget;

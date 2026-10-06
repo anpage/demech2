@@ -210,6 +210,7 @@ void LogDebugLine(MechChar* p_text)
 // Logs a keyword's name with LogDebugLine.
 // Stack-slot permutation: line and name.
 // FUNCTION: MW2 0x1003ffcf
+// FUNCTION: MW2MATROX 0x1002a3bf
 void LogKeywordName(MechU32 p_code)
 {
 	MechChar line[256];
