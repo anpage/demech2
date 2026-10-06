@@ -337,6 +337,94 @@ def aligned_pairs(source, target, mapping, functions, log):
     return pairs, placed
 
 
+MIRROR = {"jl": "jg", "jg": "jl", "jle": "jge", "jge": "jle", "jb": "ja", "ja": "jb", "jbe": "jae", "jae": "jbe"}
+
+
+def swapped_comparison(window_s, window_t, base_s, base_t, source, target, key):
+    """True for mov r, X; cmp Y, r; jcc against mov r, Y; cmp X, r; the mirrored jcc."""
+    if len(window_s) != 3 or len(window_t) != 3:
+        return False
+    (ms, cs, js), (mt, ct, jt) = window_s, window_t
+    if [ms.mnemonic, cs.mnemonic] != ["mov", "cmp"] or [mt.mnemonic, ct.mnemonic] != ["mov", "cmp"]:
+        return False
+    if MIRROR.get(js.mnemonic) != jt.mnemonic:
+        return False
+
+    def parts(z, base, image):
+        return [p.strip() for p in key(z, base, image).split(" ", 1)[1].split(",")]
+
+    reg_s, x_s = parts(ms, base_s, source)
+    y_s, r2_s = parts(cs, base_s, source)
+    reg_t, x_t = parts(mt, base_t, target)
+    y_t, r2_t = parts(ct, base_t, target)
+    return reg_s == r2_s == reg_t == r2_t and x_s == y_t and y_s == x_t
+
+
+def flipped_equivalent(source, target, f, address, end):
+    """True when the target's function at address is the source function f but for the
+    operand order of some comparisons (the symbol-table entropy of VC++ 4.x: the operands of a
+    cmp swap places and its jump mirrors) and a permutation of its stack slots, with the same
+    size."""
+    from collections import Counter
+
+    if end - address != len(f.code):
+        return False
+    disasm = Cs(CS_ARCH_X86, CS_MODE_32)
+    disasm.skipdata = True
+    disasm.detail = True
+    src = [x for x in disasm.disasm(f.code, f.start) if x.id]
+    tgt = [x for x in disasm.disasm(target.read(address, end - address), address) if x.id]
+    if len(src) != len(tgt):
+        return False
+
+    slot = re.compile(r"ebp - (0x[0-9a-f]+|\d+)")
+
+    def masked(x, image):
+        # The instruction with its addresses masked: relocated operands and branch targets.
+        text = x.mnemonic + " " + x.op_str
+        if any(x.address + k in image.relocs for k in range(x.size)) or x.group(1) or x.group(2) or x.group(7):
+            text = re.sub(r"0x[0-9a-f]{5,}", "A", text)
+        return text
+
+    # The target's stack slots in the source's terms, by majority over the instructions that
+    # only differ in their slots (a permutation, as Function.matches allows).
+    votes = defaultdict(Counter)
+    for x, y in zip(src, tgt):
+        a, b = masked(x, source), masked(y, target)
+        if slot.sub("S", a) == slot.sub("S", b):
+            for u, v in zip(slot.findall(a), slot.findall(b)):
+                votes[v][u] += 1
+    slots = {v: c.most_common(1)[0][0] for v, c in votes.items()}
+    if len(set(slots.values())) != len(slots):
+        return False
+
+    def key(x, base, image):
+        text = masked(x, image)
+        if image is target:
+            text = slot.sub(lambda m: "ebp - " + slots.get(m.group(1), "?"), text)
+        return text
+
+    window_s, window_t, flipped = [], [], False
+    for x, y in zip(src + [None], tgt + [None]):
+        if x is not None and key(x, f.start, source) == key(y, address, target):
+            if window_s:
+                return False
+            continue
+        if x is not None:
+            window_s.append(x)
+            window_t.append(y)
+            # A window closes at its jump.
+            if not (x.group(1) or x.group(7)):
+                continue
+        if not window_s:
+            continue
+        if not swapped_comparison(window_s, window_t, f.start, address, source, target, key):
+            return False
+        flipped = True
+        window_s, window_t = [], []
+    return flipped
+
+
 def match_globals(source, target, exact_pairs, near_pairs, globals_, log):
     """Map the source's global addresses through relocation pairs. Each global takes the
     displacement that a majority of the pairs addressing its first byte agree on, or without
@@ -470,6 +558,16 @@ def main():
     near_pairs, placed = aligned_pairs(source, target, mapping, functions, log)
     print("%s functions placed by their neighbours: %d" % (src_module, sum(1 for m in game if m[4] in placed)))
     global_map = match_globals(source, target, exact_pairs, near_pairs, globals_, log)
+    # The functions placed by their neighbours that only differ in the operand order of
+    # comparisons are the same source: annotate them too.
+    flipped = set()
+    taken = set(mapping.values())
+    for a, (b, end) in placed.items():
+        if b not in taken and flipped_equivalent(source, target, functions[a], b, end):
+            mapping[a] = b
+            flipped.add(a)
+    print("%s functions placed by their neighbours that only differ in comparison order: %d"
+          % (src_module, sum(1 for m in game if m[4] in flipped)))
     annotated_globals = [m for m in src if m[2] == "GLOBAL"]
     print("%s globals: %d of %d mapped" % (src_module, sum(1 for m in annotated_globals if m[4] in global_map),
                                           len(annotated_globals)))

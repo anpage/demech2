@@ -37,6 +37,5 @@ demech2_add_import_library(wail32 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32.c")
 
 include("${DEMECH2_SOURCE_DIR}/cmake/game_dll.cmake")
-include("${DEMECH2_SOURCE_DIR}/MW2/sources.cmake")
 include("${PROJECT_SOURCE_DIR}/targets.cmake")
 demech2_add_mw2matrox()

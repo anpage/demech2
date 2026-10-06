@@ -613,6 +613,7 @@ static MechU32 FindCharString(MechU32 p_index, MechU8 p_byte)
 }
 
 // FUNCTION: MW2 0x100755d6
+// FUNCTION: MW2MATROX 0x1008aa86
 static void ClearStringTable(MechS32 p_codeSize)
 {
 	MechS32 q;

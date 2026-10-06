@@ -1,5 +1,4 @@
-# MW2.DLL's sources in link order: the 1.1 simulator's, and the Matrox edition's for now.
-# Included by the top-level project and by vc40/. Expects DEMECH2_SOURCE_DIR, and asm_or_c and
+# MW2.DLL's sources, in link order. Expects DEMECH2_SOURCE_DIR, and asm_or_c and
 # ${vfxa} from cmake/masm.cmake.
 set(mw2_sources
   "${DEMECH2_SOURCE_DIR}/MW2/src/netio.c"

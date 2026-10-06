@@ -717,6 +717,7 @@ SceneObject* FindObjByPart(SceneObject* p_obj, MechU32 p_partId)
 // The remaining diffs are a stack-slot permutation of current and child, and the operand
 // order of p_level > current (declaration order didn't flip it).
 // FUNCTION: MW2 0x10002246
+// FUNCTION: MW2MATROX 0x10041d58
 void RaisePartDamageLevel(SceneObject* p_obj, MechS32 p_level, MechU32 p_partId)
 {
 	MechS32 current;

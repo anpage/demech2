@@ -352,6 +352,7 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 // Draws text word-wrapped into a pane, inside the margins, until it runs out of lines.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057396
+// FUNCTION: MW2MATROX 0x10071e00
 void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 {
 	MechS32 x;
