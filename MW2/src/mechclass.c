@@ -970,7 +970,11 @@ void LateUpdateMech(Mech* p_mech)
 					sprintf(text, "MASC malfunction.");
 					ShowInGameMessage(text, 1, 0x16a, 0x32);
 					PlaySoundEffect(0xc9, 100, 0x40, 5, 0x50);
+#ifdef MW2_MATROX
+					mech->m_heat += mech->m_heat / 4;
+#else
 					mech->m_heat += mech->m_heat >> 2;
+#endif
 					g_mascEngaged = 0;
 				}
 			}

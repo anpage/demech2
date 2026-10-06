@@ -7,6 +7,7 @@
 #include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "maneuvers.h"
 #include "mech.h"
 #include "mechclass.h"
@@ -234,7 +235,7 @@ void CalculateHeat(Mech* p_mech)
 		p_mech->m_heat = 0;
 	}
 
-	heat = p_mech->m_heat >> 16;
+	heat = FIXED_TO_INT(p_mech->m_heat);
 	if ((p_mech->m_flags & 4) && !(p_mech->m_flags & 8) && p_mech->m_powerState != 3 &&
 		g_currentClock - p_mech->m_stateTime > 1086) {
 		p_mech->m_powerState = 3;

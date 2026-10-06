@@ -5,6 +5,7 @@
 #include "debugbreak.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "geocache.h"
 #include "lineofsight.h"
@@ -873,7 +874,7 @@ void LogPlayerStatusLines(void)
 			player->m_targetInfo.m_distance,
 			player->m_steering->m_throttle,
 			FindAIName(player->m_mech->m_powerState, g_powerStateNames, 8),
-			player->m_mech->m_heat >> 16,
+			FIXED_TO_INT(player->m_mech->m_heat),
 			player->m_steering->m_turn >> 16,
 			player->m_name,
 			input,
@@ -1755,7 +1756,11 @@ MechS32 GetApproachThrottle(Player* p_player, MechS32 p_range)
 		}
 	}
 
+#ifdef MW2_MATROX
+	if (p_player->m_mech->m_heat > 65.0f) {
+#else
 	if ((p_player->m_mech->m_heat >> 16) > 65.0) {
+#endif
 		throttle >>= 1;
 	}
 

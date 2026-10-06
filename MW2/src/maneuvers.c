@@ -7,6 +7,7 @@
 #include "collision.h"
 #include "decomp.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "geocache.h"
 #include "hud.h"
@@ -1550,7 +1551,7 @@ MechS32 CanJump(Player* p_player, MechS32 p_limit)
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	return mech->m_jumpFuel >= 6 && mech->m_jumpThrust && mech->m_heat >> 16 < p_limit;
+	return mech->m_jumpFuel >= 6 && mech->m_jumpThrust && FIXED_TO_INT(mech->m_heat) < p_limit;
 }
 
 // The shape of the player or game thing an AI target id names, or NULL.

@@ -136,7 +136,11 @@ void ScaleBarGauges(void)
 // Draws the heat bar: a band from each end that meets in the middle as the heat rises.
 // Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
 // height, target and color).
+// MW2MATROX: the heat converts as the edition does (fld, __ftol); the remaining diff is a
+// stack-slot permutation, the operand order of `level >= width`, and DrawHorizontalBar, which
+// the edition changed and has no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1004d175
+// FUNCTION: MW2MATROX 0x10089195
 void DrawHeatBar(PANE* p_target)
 {
 	MechS32 heat;
@@ -161,7 +165,12 @@ void DrawHeatBar(PANE* p_target)
 	height = g_heatBarSize.m_y - 1;
 	target = MulDiv64(heat, width, 100);
 	g_heatBarLevel.m_target = target;
+#ifdef MW2_MATROX
+	// The edition's heat is in plain units already.
+	level = UpdateEasedValue(&g_heatBarLevel);
+#else
 	level = UpdateEasedValue(&g_heatBarLevel) >> 16;
+#endif
 	if (level >= width) {
 		DrawHorizontalBar(p_target, g_heatBarPosition.m_x, g_heatBarPosition.m_y, g_heatBarSize.m_x, height, 0xb);
 		return;
