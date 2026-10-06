@@ -1,5 +1,5 @@
 name: 'Setup the decomp toolchains'
-description: 'Check out MSVC 4.1, MASM 6.11 and MSVC 2.2 (msvc410, masm611, msvc220) and install CMake 3.26.6'
+description: 'Check out MSVC 4.1, MASM 6.11, MSVC 2.2 and MSVC 4.0 (msvc410, masm611, msvc220, msvc400) and install CMake 3.26.6'
 runs:
   using: 'composite'
   steps:
@@ -24,6 +24,16 @@ runs:
         repository: archaic-msvc/msvc220
         ref: c0fff2aecaa88576c685de79173be4ead4dbe42c
         path: msvc220
+
+    - name: "Checkout MSVC 4.0 toolchain"
+      uses: actions/checkout@v6
+      with:
+        # MW2_MATROX.DLL (the Matrox Mystique edition's simulator) was built
+        # with VC++ 4.0: CMake builds it with this toolchain in a nested build
+        # (build/vc40).
+        repository: itsmattkc/MSVC400
+        ref: 821e942fd95bd16d01649401de7943ef87ae9f54
+        path: msvc400
 
     - name: "Setup cmake"
       uses: jwlawson/actions-setup-cmake@v2

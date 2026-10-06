@@ -138,7 +138,7 @@ jobs:
           rem ML.EXE is passed explicitly rather than put on PATH: MASM's BIN
           rem also holds a 16-bit LINK, LIB and NMAKE.
           call .\msvc410\bin\VCVARS32.BAT x86
-          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220"
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220" "-DDEMECH2_MSVC40_ROOT:PATH=%CD%\msvc400"
           cmake --build build
 
       - name: Upload Artifact
@@ -154,6 +154,9 @@ jobs:
             build/vc22/NETMECHW.map
             build/vc22/MECH2.exe
             build/vc22/MECH2.pdb
+            build/vc40/MW2_MATROX.dll
+            build/vc40/MW2_MATROX.pdb
+            build/vc40/MW2_MATROX.map
 
   asmequiv:
     name: "asmequiv (MSVC 4.1)"
@@ -184,7 +187,7 @@ jobs:
         shell: cmd
         run: |
           call .\msvc410\bin\VCVARS32.BAT x86
-          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220"
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220" "-DDEMECH2_MSVC40_ROOT:PATH=%CD%\msvc400"
           cmake --build build --target asmequiv asmgolden
 
       - name: Test

@@ -2,14 +2,15 @@
 
 Decompilation of MechWarrior 2 (Windows 95 release) using Microsoft Visual C++ 4.1 (`cl` 10.10.6038, `_MSC_VER` 1010). Modeled after the [LEGO Island](https://github.com/isledecomp/isle) and [LEGO Racers](https://github.com/isledecomp/racers) decompilations.
 
-Four reccmp targets:
+Five reccmp targets:
 
 - **MW2SHELL** — `MW2SHELL.DLL`: shell (FMV, menus, settings, metagame), from the freely downloadable 1.1 patch. A mixture of C and C++.
 - **MW2** — `MW2.DLL`: simulator (in-mission gameplay), from the same patch. Probably all C.
 - **NETMECHW** — `NETMECHW.DLL`: NetMech's lobby (the shell's multiplayer counterpart: `MECH2.EXE` calls its `Launcher` export, then runs `MW2.DLL` with the launch record it fills in), from the retail release, built with VC++ 2.2 (`cl` 9.10, `_MSC_VER` 900). A mixture of C and C++ like the shell, 244 game-code functions in 42 objects, no hand-written assembly. Every game function is decompiled: the units it shares with the shell are per-target copies (`debugout.c`, `mw2prj.c`, `prjfile.c`, `resourcecache.c`, `resourcefile.c`, `resourcename.c`, and the CD check, which NETMECHW links inside the results dialog's object, `unk10010460.cpp`), and so are MW2's data-only `bwdkeywords.c` and `weapondata.c`. The rest is the lobby: `Launcher`, the lobby window and the pane switch (`unk10003660.cpp`), one dialog per pane (connection, sessions, host options, guest lobby, player slots, briefing, mech selection, launch, results), the DirectPlay session list, threads and messages, the chat, the player table, the `.MEK` mech files and their network form (`unk10007c30.c`), and the mission files left for the simulator (`unk1000f0f0.cpp`, `bwdwriter.c`).
 - **MECH2** — `MECH2.EXE`: retail launcher that loads the DLLs, built with VC++ 2.2 too. Its 21 game-code functions are annotated for reccmp.
+- **MW2MATROX** — `MW2_MATROX.DLL`: the simulator of the Matrox Mystique edition (its `MW2.DLL`, linked 1996-08-22), built with VC++ 4.0 (`cl` 10.00, LINK 3.00). It is 1.1's C at `/Od`, drawing through Matrox's `MSI95.DLL` instead of DirectDraw: it shares the `MW2/` sources, and most of its functions carry a `MW2MATROX` annotation under MW2's (see "Other builds of the simulator").
 
-The build uses 2.2 for the last two when configured (see "Building"); otherwise it builds them with the project's compiler, which cannot match the originals.
+The build uses 2.2 for NETMECHW and MECH2, and 4.0 for MW2MATROX, when configured (see "Building"); otherwise it builds them with the project's compiler, which cannot match the originals.
 
 Not targets: the third-party DLLs `WAIL32.DLL` (Miles Sound System) and `SMACKW32.DLL` (Smacker), which we only link against.
 
@@ -22,13 +23,15 @@ Machine-specific instructions live in `CLAUDE.local.md` at the repository root (
 ```
 <path-to-msvc41>\BIN\VCVARS32.BAT
 mkdir build && cd build
-cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDEMECH2_MSVC22_ROOT=<path-to-msvc22>
+cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDEMECH2_MSVC22_ROOT=<path-to-msvc22> -DDEMECH2_MSVC40_ROOT=<path-to-msvc40>
 cmake --build .
 ```
 
 Portable VC++ 4.1: https://github.com/madebr/msvc410. MASM 6.11 (ML, for the MASM objects; see "Hand-written Assembly"): https://github.com/shengyanli1982/MASM611, passed to the configure step as `-DCMAKE_ASM_MASM_COMPILER=<path-to-masm>\BIN\ML.EXE` (never put its `BIN` on `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE`). CMake 3.26.6 (i386) is known to drive the VC++ 4.1 NMake generator.
 
 **VC++ 2.2** (for `NETMECHW.DLL` and `MECH2.EXE`): https://github.com/archaic-msvc/msvc220 at `c0fff2a`. One CMake project can use only one compiler per language, so the 2.2 targets live in the `vc22/` sub-project, which the top-level build configures and builds as a nested build in `<build>/vc22` (`ExternalProject`), setting 2.2's `PATH`/`INCLUDE`/`LIB` itself (through the generated `<build>/vc22-env.cmake`): only the 4.1 `VCVARS32.BAT` needs to run. The targets are defined once, in `vc22/targets.cmake`: without `DEMECH2_MSVC22_ROOT`, or with a modern compiler, the top-level project builds them itself. The comparison build compiles with 2.2's `cl` and `/Z7` and links with **4.1's LINK** against 2.2's libraries: reccmp's `cvdump` can't read a 2.x PDB, but reads LINK 3.10's. Never `/Zi` for 2.2 objects.
+
+**VC++ 4.0** (for `MW2_MATROX.DLL`): https://github.com/itsmattkc/MSVC400 at `821e942`. The `vc40/` sub-project, a nested build in `<build>/vc40` like `vc22/`, builds it with 4.0's `cl`, LINK and libraries (`<build>/vc40-env.cmake`); reccmp reads LINK 3.00's PDB. It shares the 4.1 build's setup through `cmake/` (`masm.cmake`, `decomp_flags.cmake`, `game_dll.cmake`) and MW2's source list (`MW2/sources.cmake`). Without `DEMECH2_MSVC40_ROOT`, the 4.1 build builds the target itself (`vc40/targets.cmake`); modern compilers don't build it.
 
 Build configuration:
 
@@ -38,6 +41,7 @@ Build configuration:
 | MW2SHELL | C++ (C files: no `/GX`) | `/Od /Oi /G5 /Ob1 /GX` | `/MT` (static)                             | `/DLL` (comparison build adds `/DEBUG` for the PDB) |
 | NETMECHW | C and C++ (VC++ 2.2; no `/GX`) | `/Od /Oi /Z7`   | `/MT` (static `LIBCMT`)                    | `/DLL` (comparison build adds `/DEBUG /INCREMENTAL:no`) |
 | MECH2    | C (VC++ 2.2)            | `/Od /Oi /G5 /Z7`      | `/ML` (single-threaded `LIBC`)             | incremental EXE (comparison build adds `/DEBUG`)    |
+| MW2MATROX | C (VC++ 4.0)           | `/Od /Oi /G5`          | `/MT` (static `LIBCMT`)                    | `/DLL /DEBUG /INCREMENTAL:no`                       |
 
 The CRT is selected through `MSVC_RUNTIME_LIBRARY` under `CMP0091 NEW` (`MultiThreadedDebug` for MW2, `MultiThreaded` for MW2SHELL and NETMECHW; CMake has no value for `/ML`, so MECH2 sets an empty one and passes the flag). No CRT patching is needed: the originals match 4.1's `LIBCMTD.LIB` (MW2) and `LIBCMT.LIB` (MW2SHELL), and 2.2's `LIBCMT.LIB` (NETMECHW) and `LIBC.LIB` (MECH2) as-is.
 
@@ -55,24 +59,28 @@ reccmp-reccmp --target MW2SHELL --print-rec-addr
 reccmp-reccmp --target MW2 --verbose 0x10003580 --print-rec-addr
 reccmp-reccmp --target NETMECHW --print-rec-addr
 reccmp-reccmp --target MECH2 --print-rec-addr
+reccmp-reccmp --target MW2MATROX --print-rec-addr
 
 # Game-code progress, as CI reports it
 reccmp-reccmp --target MW2SHELL --silent --nolib --total 770
 reccmp-reccmp --target MW2 --silent --nolib --total 1537
 reccmp-reccmp --target NETMECHW --silent --nolib --total 244
 reccmp-reccmp --target MECH2 --silent --nolib --total 21
+reccmp-reccmp --target MW2MATROX --silent --nolib --total 1597
 
 # Compare global variable data values
 reccmp-datacmp --target MW2SHELL --verbose --print-rec-addr
 reccmp-datacmp --target MW2 --verbose --print-rec-addr
 reccmp-datacmp --target NETMECHW --verbose --print-rec-addr
 reccmp-datacmp --target MECH2 --verbose --print-rec-addr
+reccmp-datacmp --target MW2MATROX --verbose --print-rec-addr
 
 # Lint annotations (pass source dirs to avoid scanning gitignored files)
 reccmp-decomplint --module MW2SHELL --warnfail <path-to-MW2SHELL>
 reccmp-decomplint --module MW2 --warnfail <path-to-MW2>
 reccmp-decomplint --module NETMECHW --warnfail <path-to-NETMECHW>
 reccmp-decomplint --module MECH2 --warnfail <path-to-MECH2>
+reccmp-decomplint --module MW2MATROX --warnfail <path-to-MW2> <path-to-common>
 
 # Blocks of globals (see "Annotations"): the original's block operations against the
 # recompiled layout (from build/), and the source's (from the repository root; needs the
@@ -86,7 +94,7 @@ python ../tools/check_units.py --target MW2SHELL
 
 `tools/requirements.txt` pins a fork of reccmp (`anpage/reccmp`): `isledecomp/reccmp` reads an incremental link's thunk table only when the image has a debug directory, and `MECH2.EXE` has none, so every call through its thunks would score as a diff. pip doesn't reinstall a git requirement whose version number hasn't changed: after the pin moves, update an existing venv with `pip install --force-reinstall --no-deps -r tools/requirements.txt`.
 
-`reccmp-user.yml` (gitignored) points to the original binaries for local comparison. Progress counts **game code only**: `--nolib` drops the `LIBRARY` entries from both the matched count and the denominator, and `--total` is the Ghidra original's game-code function count, everything below the shell's import thunks (`0x100492a2`) or MW2's CRT (`0x10080490`): **770** for MW2SHELL, **1537** for MW2, **244** for the retail NETMECHW.DLL (before the DPLAY import thunks at `0x10013b70`; its CRT starts at `0x10013b7c`), and **21** for the retail MECH2.EXE (before its import thunks at `0x004022be`). Without these flags, reccmp divides by the annotated functions only, which overstates progress. `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The CRT is left out until the game code is done: its `LIBRARY` entries only match once the game code that calls them is linked. The public-target CI list is in `.github/workflows/build.yml` (`targets` job). The retail targets (NETMECHW, MECH2) are listed in `.github/workflows/verify-retail.yml`, a `workflow_run` workflow that runs after Build: it checks the originals out of a private repository and runs the base branch's reccmp and check scripts against the PR's sources and the Build run's artifact. It also posts the PR comment and, on pushes to main, publishes every target's progress report (release and GitHub Pages).
+`reccmp-user.yml` (gitignored) points to the original binaries for local comparison. Progress counts **game code only**: `--nolib` drops the `LIBRARY` entries from both the matched count and the denominator, and `--total` is the Ghidra original's game-code function count, everything below the shell's import thunks (`0x100492a2`) or MW2's CRT (`0x10080490`): **770** for MW2SHELL, **1537** for MW2, **244** for the retail NETMECHW.DLL (before the DPLAY import thunks at `0x10013b70`; its CRT starts at `0x10013b7c`), and **21** for the retail MECH2.EXE (before its import thunks at `0x004022be`); **1597** for MW2_MATROX.DLL (before its CRT at `0x10092d30`). Without these flags, reccmp divides by the annotated functions only, which overstates progress. `--total` is only a floor — reccmp uses whichever is larger, the annotated function count or `--total`. The CRT is left out until the game code is done: its `LIBRARY` entries only match once the game code that calls them is linked. The public-target CI list is in `.github/workflows/build.yml` (`targets` job). The retail targets (NETMECHW, MECH2) are listed in `.github/workflows/verify-retail.yml`, a `workflow_run` workflow that runs after Build: it checks the originals out of a private repository and runs the base branch's reccmp and check scripts against the PR's sources and the Build run's artifact. It also posts the PR comment and, on pushes to main, publishes every target's progress report (release and GitHub Pages).
 
 Linux notes: reccmp runs `wine cvdump.exe` and `winepath`; `winepath` must be on PATH, tool output must go to a file rather than a pipe, and a persistent wineserver avoids per-call stalls. Run reccmp from the build directory: it finds `reccmp-build.yml` by searching the current directory and its parents. A build under Wine (e.g. the Docker image) writes `project: 'Z:/…'` into `reccmp-build.yml`, but the target paths are relative to the file, so Linux reccmp can read the build as long as the build directory sits inside the repository (it finds `reccmp-project.yml` by searching upward). A build directory outside the repository needs its `project:` path rewritten.
 
@@ -114,7 +122,7 @@ Run `reccmp-datacmp` after adding/modifying globals with non-zero initial values
 
 **Blocks of globals are one struct.** When the original reads, writes, copies or clears a run of globals as one unit (`fread(&first, 0x3c, 1, file)`), declare the run as a single struct global. Separate globals only sit together by accident, in the declared order and within one translation unit, and not at all in the modern-compiler builds; datacmp and reccmp compare symbol by symbol and pass either way. `SoundConfig g_soundConfig` (MW2SND.CFG) is the example. CI enforces this from both sides: `tools/check_block_sizes.py` checks the source's constant-size block calls against their objects, and `tools/check_block_layout.py` checks the original's block calls and inline `rep stos`/`rep movs` against the recompiled object at each address. The same tool fails on a global declared larger than the original's room for it before the next known address: in the original, code reaching its last elements touches the neighbour (the modifier bits in the last word of the key states, a NULL terminator the original's table doesn't have), and datacmp can't see that either.
 
-When a shared function carries annotations for more than one target, they follow the target order in `reccmp-project.yml`: MW2SHELL, MW2, NETMECHW, MECH2.
+When a shared function carries annotations for more than one target, they follow the target order in `reccmp-project.yml`: MW2SHELL, MW2, MW2MATROX, NETMECHW, MECH2.
 
 **CRT names differ between the debug and release CRT**: LIBCMTD (MW2) carries CodeView procedure symbols, so reccmp sees the C name (`_vsnprintf`, `_DllMainCRTStartup`); LIBCMT (MW2SHELL) has only publics, so it sees the decorated name (`__vsnprintf`, `__DllMainCRTStartup@12`). `library_msvc.h` therefore matches public CRT functions by their public symbol, which both libraries share: `// LIBRARY: MW2 0x10080490 SYMBOL` followed by `// _sprintf`. Static CRT functions have no public symbol: MW2 names them by their CodeView C name (when unique), and MW2SHELL's stay unmatched but still mark library addresses. The 2.2 CRTs (NETMECHW's `LIBCMT`, MECH2's `LIBC`) have only publics too, so they follow MW2SHELL's rules. At an alias address (`__chkstk`/`__alloca_probe`), use the symbol reccmp keeps.
 
@@ -165,7 +173,7 @@ undefined m_unk0x92c[0x944 - 0x92c]; // 0x92c
 
 - **Bit tests:** `if (flags & c_flagCached)` / `if (!(flags & c_flagCached))` — no `!= 0` / `== 0`.
 - **Address padding:** 8 hex digits, lowercase: `0x10003580`.
-- **Annotation ordering:** when a function has annotations for several targets, they go in the order MW2SHELL, MW2, NETMECHW, MECH2.
+- **Annotation ordering:** when a function has annotations for several targets, they go in the order MW2SHELL, MW2, MW2MATROX, NETMECHW, MECH2.
 - **No redundant `this->`.** Write `m_member`, `Method()`, `BaseClass::VirtualMethod()` directly.
 - **Win32 API: prefer un-suffixed names.** Use `CreateWindowEx`, `DEVMODE`, `MSG`, `WIN32_FIND_DATA`, etc. — NOT `CreateWindowExA`/`DEVMODEA`. The un-suffixed names are macros that resolve to the `A` form when `UNICODE` is undefined; the compiled binary still imports the `A` symbols. Disassemblers show the resolved `*A` symbol — translate back to the macro.
 - **Pointer/bool constants:** use `NULL` for null pointer assignments/returns, `TRUE`/`FALSE` for boolean values, and plain `0` only for scalar values and status codes.
@@ -459,6 +467,16 @@ The upstream LEGO Racers decomp documented extensive `cl` 12.00 `/O2` codegen lo
 - **MECH2's incremental link.** The original is an incremental EXE without `/DEBUG`: calls go through a table of `jmp` thunks at the start of `.text`, and each object is padded with `0xCC` to `align16(size * 1.25)`, the linker's reserve for relinking. The comparison build (LINK 3.10, `/INCREMENTAL:yes /DEBUG`) pads differently, so recompiled addresses drift from the original's past the first object: always pass `--print-rec-addr`. `tools/check_units.py` doesn't understand this layout yet, and the nested build writes no map file for it, so it doesn't run on MECH2.
 - **MECH2's object order** is `winmain.c`, `cdcheck.c`, `debug.c`.
 
+## Other builds of the simulator (MW2MATROX)
+
+The 3D-card editions shipped their own `MW2.DLL`, built from 1.1's source. Matrox's is the one built like 1.1 (`/Od`, VC++ 4.0); the ATI, S3, PowerVR and 3Dfx editions' are optimized builds (`__fastcall`, frame pointers omitted; VC++ 2.x, S3's 4.x) and aren't targets.
+
+- **Shared source, one annotation per target.** An MW2 function the Matrox build has too carries `// FUNCTION: MW2MATROX 0x…` under its MW2 line, and so do globals and the CRT entries in `MW2/library_msvc.h`. Code that differs goes behind `#ifdef MW2_MATROX` (the target defines it); the edition's own units (the `MSI95.DLL` renderer) will be files only it builds.
+- **`tools/port_annotations.py`** writes those annotations: it finds each annotated MW2 function in the other binary (byte for byte apart from relocations and outgoing branches, or with a consistent permutation of its `[ebp-N]` slots), places duplicates by their neighbours, drops matches whose calls disagree, maps globals through the relocations the matched functions share (by majority vote), and matches the CRT from 1.1's and the shell's. It skips markers that already have one for the target, so rerun it after decompiling MW2 functions: `python tools/port_annotations.py --from MW2 MW2.DLL --to MW2MATROX MW2_MATROX.DLL --dirs MW2 common --csv reccmp/mw2-vfx.csv:reccmp/mw2matrox-vfx.csv --library-from MW2SHELL MW2SHELL.DLL MW2SHELL/library_msvc.h --library-to MW2/library_msvc.h --write`.
+- **What doesn't port:** functions the edition changed (a renderer that uses floats where 1.1 has fixed point: `g_mainEyepoint`, `g_probeDirections`), globals only those functions use, and functions the edition placed in another order within their unit (half of `config.c`, `ai.c`'s `FindAIName`; a unit's annotations must be in address order for every target).
+- **Stack slots:** 4.0's slot assignment differs from 4.1's, and as under 4.1 it depends on the whole unit, whose Matrox version declared other things: functions identical in both originals can be slot-permuted in either rebuild. A closed question, as for 4.1.
+- **Link order:** for now the target builds MW2's sources in 1.1's link order; the edition orders its objects differently, so `tools/check_units.py` doesn't run on it.
+
 ## Ghidra ↔ Source
 
 - **Bootstrap is minimal.** Don't import Ghidra names wholesale. Start with `// LIBRARY:` annotations for identified CRT functions plus the export entry points (`ShellMain`, `ShellWindowProc`, `SimMain`, `SimWindowProc`) as the first units to decompile. No generated `// STUB:` skeletons — stubs are written by hand as callees of the function being worked on.
@@ -521,10 +539,11 @@ common/       # what both DLLs share: Miles Design VFX's headers (include/) and 
               # from its July 2000 open-source release, as both DLLs link it (changes marked)
 util/         # decomp.h, compat.h, types.h
 vc22/         # the VC++ 2.2 sub-project (CMakeLists.txt) and the 2.2 targets' definitions (targets.cmake): NETMECHW, MECH2
+vc40/         # the VC++ 4.0 sub-project and its target's definition: MW2MATROX (MW2's sources)
 cmake/        # reccmp CMake integration, shared CMake helpers
 tools/        # ncc, lint scripts, requirements
 tests/        # asmequiv: the portable C against the hand-written assembly (ctest; also a standalone project)
 reccmp/       # reccmp data sources (CSVs, added as needed)
-docker/       # VC++ 4.1 + VC++ 2.2 + CMake under Wine build image
+docker/       # VC++ 4.1 + VC++ 2.2 + VC++ 4.0 + CMake under Wine build image
 assets/       # progress report icons
 ```

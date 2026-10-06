@@ -39,35 +39,7 @@ endif()
 
 message(STATUS "MSVC for decompilation: ${MSVC_FOR_DECOMP}")
 
-# The original's hand-written assembly objects are assembled with MASM 6.11 (ML). Pass ML.EXE as
-# CMAKE_ASM_MASM_COMPILER rather than putting MASM's BIN on PATH: it also holds a 16-bit LINK,
-# LIB and NMAKE that would shadow VC++ 4.1's. Other compilers build the units' C stubs instead.
-if (MSVC_FOR_DECOMP)
-  # CMake writes the path into a generated script, where a Windows path's backslashes are escapes
-  if (CMAKE_ASM_MASM_COMPILER)
-    file(TO_CMAKE_PATH "${CMAKE_ASM_MASM_COMPILER}" CMAKE_ASM_MASM_COMPILER)
-  endif()
-  enable_language(ASM_MASM)
-  set(CMAKE_ASM_MASM_FLAGS "/nologo /coff")
-  set(CMAKE_ASM_MASM_FLAGS_DEBUG "/Zi")
-  set(CMAKE_ASM_MASM_FLAGS_RELEASE "")
-  set(CMAKE_ASM_MASM_FLAGS_RELWITHDEBINFO "/Zi")
-  set(CMAKE_ASM_MASM_FLAGS_MINSIZEREL "")
-  set(asm_or_c asm)
-  # Miles Design's VFX (3rdparty/vfx): built with ML's MASM syntax and flat model, publics in their
-  # declared case
-  set(vfxa 3rdparty/vfx/VFXA.ASM)
-  set(vfx3d 3rdparty/vfx/VFX3D.ASM)
-  set(vfxrend 3rdparty/vfx/VFXREND.ASM)
-  set_source_files_properties(${vfxa} ${vfx3d} ${vfxrend} PROPERTIES
-    LANGUAGE ASM_MASM
-    COMPILE_OPTIONS "/Cx;/DMASM;/DFLAT_MODEL;/I${CMAKE_SOURCE_DIR}/3rdparty/vfx")
-else()
-  set(asm_or_c c)
-  set(vfxa common/src/vfxa.c)
-  set(vfx3d common/src/vfx3d.c)
-  set(vfxrend common/src/vfxrend.c)
-endif()
+include("${DEMECH2_SOURCE_DIR}/cmake/masm.cmake")
 # A unit of hand-written assembly is listed as <dir>/<name>.${asm_or_c}: MW2's .asm, or its .c
 # of portable C. The VFX objects both DLLs link are ${vfxa}, ${vfx3d} and ${vfxrend}: VFX's source,
 # or common/src's portable C and stubs, declared in common/include.
@@ -116,32 +88,7 @@ endif()
 # default import libraries (.idata descriptor order follows library processing order).
 # Replace them all; each target sets its own codegen extras, runtime and link flags.
 if (MSVC_FOR_DECOMP)
-  foreach(lang C CXX)
-    set(CMAKE_${lang}_FLAGS "/DWIN32 /D_WINDOWS /W3 /Od /Oi")
-    set(CMAKE_${lang}_FLAGS_DEBUG "/Zi")
-    set(CMAKE_${lang}_FLAGS_RELEASE "/DNDEBUG")
-    set(CMAKE_${lang}_FLAGS_RELWITHDEBINFO "/Zi /DNDEBUG")
-    set(CMAKE_${lang}_FLAGS_MINSIZEREL "/DNDEBUG")
-    set(CMAKE_${lang}_STANDARD_LIBRARIES "")
-  endforeach()
-  # LINK 3.10 crashes on Windows ("Internal error during Pass1", at a varying object) once
-  # the object names it is given total about 4K: MW2's 100 objects as CMakeFiles\mw2.dir\...
-  # paths did (4226 bytes; 91 linked at 3843), and so did MW2SHELL's 60 as absolute paths
-  # (5016 bytes; 3309 as relative ones linked). Response-file lines are not the limit (the
-  # linker allows 16K per line), and Wine's LINK, which runs on Wine's C runtime instead of
-  # the system's MSVCRT40, links them all. So the DLLs are linked from copies of their
-  # objects in a flat directory under their base names (o\MW2\overlay.c.obj), which
-  # demech2_add_dll copies before each link, and the response file lists those.
-  foreach(lang C CXX)
-    string(REPLACE "<OBJECTS>" "@<TARGET_BASE>.objects.rsp"
-      CMAKE_${lang}_CREATE_SHARED_LIBRARY "${CMAKE_${lang}_CREATE_SHARED_LIBRARY}")
-  endforeach()
-  foreach(kind SHARED EXE)
-    set(CMAKE_${kind}_LINKER_FLAGS "/machine:I386")
-    foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-      set(CMAKE_${kind}_LINKER_FLAGS_${config} "")
-    endforeach()
-  endforeach()
+  include("${DEMECH2_SOURCE_DIR}/cmake/decomp_flags.cmake")
 endif()
 
 if (DEMECH2_DECOMP_ASSERT)
@@ -162,71 +109,10 @@ demech2_add_import_library(wail32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/mss/wail32
   SOURCES 3rdparty/mss/wail32.c)
 demech2_add_import_library(smackw32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/smacker/smackw32.def")
 
-# Every VC++ 4.1 DLL links from copies of its objects (see "Compiler and linker flags"). The
-# objects, in link order, for cmake/link_objects.cmake: it copies them to o/<name>/ under their
-# base names and writes <name>.objects.rsp, which CMAKE_<LANG>_CREATE_SHARED_LIBRARY reads
-# instead of <OBJECTS>.
-function(demech2_link_object_copies TARGET)
-  if (MSVC_FOR_DECOMP)
-    set(dir "$<TARGET_FILE_DIR:${TARGET}>")
-    set(name "$<TARGET_FILE_BASE_NAME:${TARGET}>")
-    file(GENERATE OUTPUT "${dir}/${name}.objects.list"
-      CONTENT "$<JOIN:$<TARGET_OBJECTS:${TARGET}>,\n>\n")
-    add_custom_command(TARGET ${TARGET} PRE_LINK
-      COMMAND "${CMAKE_COMMAND}"
-        "-DLIST=${dir}/${name}.objects.list" "-DDEST=${dir}/o/${name}"
-        "-DRSP=${dir}/${name}.objects.rsp" "-DPREFIX=o\\${name}"
-        -P "${PROJECT_SOURCE_DIR}/cmake/link_objects.cmake"
-      COMMENT "Copying ${TARGET} objects to o/${name}"
-      VERBATIM
-    )
-  endif()
-endfunction()
-
 # --- Game DLLs ---
 #
-# Adds a game DLL and registers it with reccmp. SOURCES must follow the original link
-# order: object order determines function addresses. SOURCE_DIR is the directory whose include/
-# the target uses (default: ID). LIBRARIES are the import
-# libraries, in the order of the original's .idata descriptors (library processing
-# order decides it). RUNTIME is the MSVC_RUNTIME_LIBRARY value, COMPILE_OPTIONS and
-# LINK_OPTIONS the target's own codegen and link flags.
-function(demech2_add_dll TARGET)
-  cmake_parse_arguments(ARGS "" "ID;SOURCE_DIR;OUTPUT_NAME;RUNTIME"
-    "SOURCES;LIBRARIES;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
-  if (NOT ARGS_SOURCE_DIR)
-    set(ARGS_SOURCE_DIR "${ARGS_ID}")
-  endif()
-  add_library(${TARGET} SHARED ${ARGS_SOURCES} util/decomp.cpp)
-  set_target_properties(${TARGET} PROPERTIES
-    OUTPUT_NAME "${ARGS_OUTPUT_NAME}"
-    MSVC_RUNTIME_LIBRARY "${ARGS_RUNTIME}"
-  )
-  target_include_directories(${TARGET} PRIVATE
-    "${PROJECT_SOURCE_DIR}/util"
-    "${PROJECT_SOURCE_DIR}/${ARGS_SOURCE_DIR}/include"
-    "${PROJECT_SOURCE_DIR}/common/include"
-  )
-  target_include_directories(${TARGET} SYSTEM PRIVATE
-    "${PROJECT_SOURCE_DIR}/3rdparty/dispdib"
-    "${PROJECT_SOURCE_DIR}/3rdparty/dx2/INC"
-    "${PROJECT_SOURCE_DIR}/3rdparty/mss"
-    "${PROJECT_SOURCE_DIR}/3rdparty/smacker"
-  )
-  target_compile_options(${TARGET} PRIVATE ${ARGS_COMPILE_OPTIONS})
-  if (DEMECH2_DECOMP_ASSERT)
-    target_compile_definitions(${TARGET} PRIVATE ENABLE_DECOMP_ASSERTS)
-  endif()
-  if (MSVC)
-    target_link_options(${TARGET} PRIVATE
-      "/MAP:${CMAKE_CURRENT_BINARY_DIR}/${ARGS_OUTPUT_NAME}.map"
-      ${ARGS_LINK_OPTIONS}
-    )
-  endif()
-  target_link_libraries(${TARGET} PRIVATE ${ARGS_LIBRARIES})
-  demech2_link_object_copies(${TARGET})
-  reccmp_add_target(${TARGET} ID ${ARGS_ID})
-endfunction()
+# demech2_add_dll and its helpers are in cmake/game_dll.cmake, which vc40/ uses too.
+include("${DEMECH2_SOURCE_DIR}/cmake/game_dll.cmake")
 
 # MW2SHELL.DLL: /Od /Oi /G5 /Ob1 (C++ adds /GX), the release CRT (4.1's LIBCMT). The C units
 # need /Ob1 too: mouse.c expands an __inline bounds test, with a jmp per return.
@@ -356,167 +242,7 @@ set(mw2_link_options "")
 if (MSVC_FOR_DECOMP)
   set(mw2_link_options /DEBUG /INCREMENTAL:no)
 endif()
-set(mw2_sources
-  MW2/src/netio.c
-  MW2/src/object.c
-  MW2/src/palette.c
-  MW2/src/fixeddiv.c
-  MW2/src/gamecd.c
-  MW2/src/ray.c
-  MW2/src/fixedmul.c
-  MW2/src/muldiv.c
-  MW2/src/approxlen.c
-  MW2/src/gpanim.c
-  MW2/src/supanim.c
-  MW2/src/weapondata.c
-  MW2/src/debris.c
-  MW2/src/integrate.c
-  MW2/src/inradius.c
-  MW2/src/emptyfns.c
-  MW2/src/statuspanels.c
-  MW2/src/audio.c
-  MW2/src/missionaudio.c
-  MW2/src/namehash.c
-  MW2/src/anim2d.c
-  MW2/src/mechdamage.c
-  MW2/src/pausebanner.c
-  MW2/src/debugbreak.c
-  MW2/src/world.c
-  MW2/src/transform.c
-  MW2/src/network.c
-  MW2/src/mainmenu.c
-  MW2/src/bandpoly.c
-  MW2/src/commandpointmenu.c
-  MW2/src/palfade.c
-  MW2/src/eyepoint.c
-  MW2/src/recttransition.c
-  MW2/src/render.c
-  MW2/src/muldiv14.c
-  MW2/src/soundlimits.c
-  MW2/src/maneuvers.c
-  MW2/src/fixedsqrt.c
-  MW2/src/sqrtguess.c
-  MW2/src/mechclass.c
-  MW2/src/fixeddiv29.c
-  MW2/src/fixedmul29.c
-  MW2/src/loadres.c
-  MW2/src/sndunpack.${asm_or_c}
-  MW2/src/objective.c
-  MW2/src/classtable.c
-  MW2/src/quadtree.c
-  MW2/src/cmdline.c
-  MW2/src/geocache.c
-  MW2/src/midi.c
-  ${vfxrend}
-  MW2/src/weaponpanel.c
-  MW2/src/audiomenu.c
-  MW2/src/depthsort.c
-  MW2/src/scaledelta.c
-  MW2/src/crossdiv.c
-  MW2/src/lerp.c
-  MW2/src/collision.c
-  MW2/src/faceshade.c
-  ${vfx3d}
-  MW2/src/shapegeom.c
-  MW2/src/logwindow.c
-  MW2/src/shape.c
-  MW2/src/error.c
-  MW2/src/team.c
-  MW2/src/menu.c
-  MW2/src/cockpit.c
-  MW2/src/bwd.c
-  MW2/src/damagepanel.c
-  MW2/src/hud.c
-  MW2/src/mapview.c
-  MW2/src/fixeddot27.c
-  MW2/src/fixeddot29.c
-  MW2/src/shiftdiv.c
-  MW2/src/keyboard.c
-  MW2/src/bwdkeywords.c
-  MW2/src/polydraw.c
-  MW2/src/fixeddivu.c
-  MW2/src/fixedmul30.c
-  MW2/src/weapons.c
-  MW2/src/objectanim.c
-  MW2/src/ramp.c
-  MW2/src/staticmem.c
-  MW2/src/joystick.c
-  MW2/src/gridobject.c
-  MW2/src/aiweapons.c
-  MW2/src/view.c
-  MW2/src/commandmenu.c
-  MW2/src/mulratio.c
-  MW2/src/mulnorm16.c
-  MW2/src/muladddiv.c
-  MW2/src/fadepal.c
-  MW2/src/bargauges.c
-  MW2/src/missionsetup.c
-  MW2/src/dispdib.c
-  MW2/src/resource.c
-  MW2/src/mw2prj.c
-  MW2/src/debugprint.c
-  MW2/src/mechviewpanel.c
-  MW2/src/ai.c
-  MW2/src/poolsizes.c
-  MW2/src/screenscale.c
-  MW2/src/brightness.c
-  MW2/src/bwdnames.c
-  MW2/src/overlay.c
-  MW2/src/speech.c
-  MW2/src/artillery.c
-  MW2/src/cdaudio.c
-  MW2/src/gamekeys.c
-  MW2/src/setres.c
-  MW2/src/mekfile.c
-  MW2/src/settings.c
-  MW2/src/targeting.c
-  ${vfxa}
-  MW2/src/palidentity.c
-  MW2/src/lancemenu.c
-  MW2/src/camerashake.c
-  MW2/src/simmain.c
-  MW2/src/ticks.${asm_or_c}
-  MW2/src/door.c
-  MW2/src/mouse.c
-  MW2/src/animation.c
-  MW2/src/fixedtrig.c
-  MW2/src/shapecollision.c
-  MW2/src/shots.c
-  MW2/src/inifile.c
-  MW2/src/lineofsight.c
-  MW2/src/screenshot.c
-  MW2/src/players.c
-  MW2/src/shapelists.c
-  MW2/src/texpoly.c
-  MW2/src/gdi.c
-  MW2/src/boundbox.c
-  MW2/src/timedoverlays.c
-  MW2/src/config.c
-  MW2/src/startup.c
-  MW2/src/mw2log.c
-  MW2/src/horizon.c
-  MW2/src/prjfile.c
-  MW2/src/menucontrols.c
-  MW2/src/random.c
-  MW2/src/resourcename.c
-  MW2/src/dorcs.c
-  MW2/src/brightnessmenu.c
-  MW2/src/cockpitpanel.c
-  MW2/src/gifsave.c
-  MW2/src/mechcollision.c
-  MW2/src/perf.c
-  MW2/src/refreshmode.c
-  MW2/src/directdraw.c
-  MW2/src/inputmap.c
-  MW2/src/targetpanel.c
-  MW2/src/clock.c
-  MW2/src/recordstacks.c
-  MW2/src/callbacks.c
-  MW2/src/environment.c
-  MW2/src/soundfx.c
-  MW2/src/wtbshapes.c
-  MW2/src/mechreload.c
-)
+include("${DEMECH2_SOURCE_DIR}/MW2/sources.cmake")
 demech2_add_dll(mw2
   ID MW2
   OUTPUT_NAME MW2
@@ -528,27 +254,6 @@ demech2_add_dll(mw2
   LINK_OPTIONS ${mw2_link_options}
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
-
-# MW2_MATROX.DLL, the simulator of the Matrox Mystique edition (linked 1996-08-22 by LINK 3.00,
-# VC++ 4.0's): the same C at /Od, with the release CRT (4.0's LIBCMT), drawing through Matrox's
-# MSI95.DLL instead of DirectDraw. Most of its functions are 1.1's, byte for byte or with their
-# stack slots permuted (4.0's slot assignment differs from 4.1's), and carry MW2MATROX
-# annotations next to MW2's (tools/port_annotations.py). For now it builds 1.1's sources in
-# 1.1's link order: reccmp compares the shared functions, wherever the linker puts them.
-if (MSVC_FOR_DECOMP)
-  demech2_add_dll(mw2matrox
-    ID MW2MATROX
-    SOURCE_DIR MW2
-    OUTPUT_NAME MW2_MATROX
-    RUNTIME MultiThreaded
-    SOURCES
-      ${mw2_sources}
-      MW2/MW2.def
-    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_MATROX>"
-    LINK_OPTIONS /DEBUG /INCREMENTAL:no
-    LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
-  )
-endif()
 
 # --- VC++ 2.2 targets ---
 #
@@ -571,11 +276,11 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
   # 2.2's bin ahead of this build's PATH, and INCLUDE and LIB as 2.2's VCVARS32.BAT sets
   # them (winres.h is in mfc\include).
   file(TO_NATIVE_PATH "${DEMECH2_MSVC22_ROOT}" msvc22)
-  set(vc22_path "${msvc22}\\bin;$ENV{PATH}")
-  set(vc22_include "${msvc22}\\include;${msvc22}\\mfc\\include")
-  set(vc22_lib "${msvc22}\\lib;${msvc22}\\mfc\\lib")
+  set(env_path "${msvc22}\\bin;$ENV{PATH}")
+  set(env_include "${msvc22}\\include;${msvc22}\\mfc\\include")
+  set(env_lib "${msvc22}\\lib;${msvc22}\\mfc\\lib")
   set(vc22_env_script "${PROJECT_BINARY_DIR}/vc22-env.cmake")
-  configure_file("${PROJECT_SOURCE_DIR}/cmake/vc22-env.cmake.in" "${vc22_env_script}" @ONLY)
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/nested-env.cmake.in" "${vc22_env_script}" @ONLY)
   set(vc22_env "${CMAKE_COMMAND}" -P "${vc22_env_script}" --)
   # This build's NMake by its full path: 2.2's bin comes first on the nested build's PATH.
   find_program(vc22_make_program NAMES "${CMAKE_MAKE_PROGRAM}" NO_CACHE REQUIRED)
@@ -614,6 +319,52 @@ else()
   include("${PROJECT_SOURCE_DIR}/vc22/targets.cmake")
   demech2_add_mech2()
   demech2_add_netmechw()
+endif()
+
+# --- VC++ 4.0 targets ---
+#
+# MW2_MATROX.DLL, the Matrox Mystique edition's simulator, was built with VC++ 4.0: the vc40/
+# sub-project builds it with 4.0's cl, LINK and libraries (DEMECH2_MSVC40_ROOT, e.g. a clone
+# of itsmattkc/MSVC400), configured and built from here as a nested build under <build>/vc40,
+# like vc22/. Without VC++ 4.0, the 4.1 build builds the same target itself
+# (vc40/targets.cmake), which only differs in stack slots and the CRT. Modern compilers don't
+# build it: it is MW2.DLL's code.
+set(DEMECH2_MSVC40_ROOT "" CACHE PATH "VC++ 4.0 root directory (bin, include, lib), for MW2_MATROX.DLL")
+if (MSVC_FOR_DECOMP AND DEMECH2_MSVC40_ROOT)
+  message(STATUS "VC++ 4.0: ${DEMECH2_MSVC40_ROOT} (vc40/, built in ${PROJECT_BINARY_DIR}/vc40)")
+  include(ExternalProject)
+  file(TO_NATIVE_PATH "${DEMECH2_MSVC40_ROOT}" msvc40)
+  set(env_path "${msvc40}\\bin;$ENV{PATH}")
+  set(env_include "${msvc40}\\include")
+  set(env_lib "${msvc40}\\lib")
+  set(vc40_env_script "${PROJECT_BINARY_DIR}/vc40-env.cmake")
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/nested-env.cmake.in" "${vc40_env_script}" @ONLY)
+  set(vc40_env "${CMAKE_COMMAND}" -P "${vc40_env_script}" --)
+  find_program(vc40_make_program NAMES "${CMAKE_MAKE_PROGRAM}" NO_CACHE REQUIRED)
+  ExternalProject_Add(vc40
+    SOURCE_DIR "${PROJECT_SOURCE_DIR}/vc40"
+    BINARY_DIR "${PROJECT_BINARY_DIR}/vc40"
+    CONFIGURE_COMMAND ${vc40_env} "${CMAKE_COMMAND}" -S <SOURCE_DIR> -B <BINARY_DIR>
+      -G "${CMAKE_GENERATOR}"
+      "-DCMAKE_MAKE_PROGRAM=${vc40_make_program}"
+      "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+      "-DCMAKE_C_COMPILER=${DEMECH2_MSVC40_ROOT}/bin/cl.exe"
+      "-DCMAKE_CXX_COMPILER=${DEMECH2_MSVC40_ROOT}/bin/cl.exe"
+      "-DCMAKE_LINKER=${DEMECH2_MSVC40_ROOT}/bin/link.exe"
+      "-DCMAKE_ASM_MASM_COMPILER=${CMAKE_ASM_MASM_COMPILER}"
+      "-DDEMECH2_DECOMP_ASSERT=${DEMECH2_DECOMP_ASSERT}"
+    BUILD_COMMAND ${vc40_env} "${CMAKE_COMMAND}" --build <BINARY_DIR>
+    INSTALL_COMMAND ""
+    BUILD_ALWAYS TRUE
+  )
+  reccmp_add_external_target(MW2MATROX
+    PATH "${PROJECT_BINARY_DIR}/vc40/MW2_MATROX.dll"
+    PDB "${PROJECT_BINARY_DIR}/vc40/MW2_MATROX.pdb"
+  )
+elseif (MSVC_FOR_DECOMP)
+  message(STATUS "VC++ 4.0: none (DEMECH2_MSVC40_ROOT); building MW2_MATROX.DLL with VC++ 4.1, which only differs in stack slots and the CRT")
+  include("${PROJECT_SOURCE_DIR}/vc40/targets.cmake")
+  demech2_add_mw2matrox()
 endif()
 
 # --- Modern compiler compatibility ---

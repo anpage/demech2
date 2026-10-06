@@ -17,9 +17,10 @@ wine reg ADD 'HKCU\Environment' /v LIB /d 'C:\msvc\lib' /f
 wine reg ADD 'HKCU\Environment' /v TMP /d 'Z:\build' /f
 wine reg ADD 'HKCU\Environment' /v TEMP /d 'Z:\build' /f
 
-# Configure build with CMake. MSVC 2.2 builds MECH2.EXE and NETMECHW.DLL in a nested build (build/vc22).
+# Configure build with CMake. MSVC 2.2 builds MECH2.EXE and NETMECHW.DLL in a nested build (build/vc22),
+# MSVC 4.0 MW2_MATROX.DLL in another (build/vc40).
 # ML.EXE is passed explicitly: MASM's BIN also holds a 16-bit LINK, LIB and NMAKE
-wine cmake -B build demech2 -G "NMake Makefiles" -DCMAKE_ASM_MASM_COMPILER=C:/masm/BIN/ML.EXE -DDEMECH2_MSVC22_ROOT=C:/msvc22 $CMAKE_FLAGS
+wine cmake -B build demech2 -G "NMake Makefiles" -DCMAKE_ASM_MASM_COMPILER=C:/masm/BIN/ML.EXE -DDEMECH2_MSVC22_ROOT=C:/msvc22 -DDEMECH2_MSVC40_ROOT=C:/msvc40 $CMAKE_FLAGS
 
 # Start compiling MechWarrior 2
 wine cmake --build build
