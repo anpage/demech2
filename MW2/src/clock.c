@@ -13,55 +13,70 @@
 // The game clock, in ticks of the 181 Hz Miles timer FirstClock registers.
 
 // GLOBAL: MW2 0x100ba548
+// GLOBAL: MW2MATROX 0x100a4e50
 MechS32 g_currentClock = 0;
 
 // Ticks that run on while the game clock is paused; the network times its messages by them.
 // GLOBAL: MW2 0x100ba54c
+// GLOBAL: MW2MATROX 0x100a4e54
 MechS32 g_realClock = 0;
 
 // GLOBAL: MW2 0x100ba550
+// GLOBAL: MW2MATROX 0x100a4e58
 MechS32 g_deltaTime = 0;
 
 // 0 the game clock runs on its own ticks, 2 a slave's follows the master's, 3 paused.
 // GLOBAL: MW2 0x100ba554
+// GLOBAL: MW2MATROX 0x100a4e5c
 MechS32 g_clockMode = 0;
 
 // GLOBAL: MW2 0x100ba558
+// GLOBAL: MW2MATROX 0x100a4e60
 MechS32 g_clockPaused = 0;
 
 // GLOBAL: MW2 0x100ba55c
+// GLOBAL: MW2MATROX 0x100a4e64
 HTIMER g_ticksTimer = -1;
 
 // GLOBAL: MW2 0x100ba560
+// GLOBAL: MW2MATROX 0x100a4e68
 MechS32 g_timeCompressionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba564
+// GLOBAL: MW2MATROX 0x100a4e6c
 MechS32 g_timeExpansionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba568
+// GLOBAL: MW2MATROX 0x100a4e70
 MechS32 g_framerateLimit = 0;
 
 // GLOBAL: MW2 0x100ba56c
+// GLOBAL: MW2MATROX 0x100a4e74
 MechS32 g_clockHandle = -1;
 
 // The ticks since a slave's last UpdateNetwork: they advance its game clock when the master's
 // clock didn't arrive.
 // GLOBAL: MW2 0x100ba570
+// GLOBAL: MW2MATROX 0x100a4e78
 MechS32 g_syncTicksHandle = -1;
 
 // GLOBAL: MW2 0x100ba574
 MechS32 g_unk0x100ba574 = -1;
 
 // GLOBAL: MW2 0x100ba578
+// GLOBAL: MW2MATROX 0x100a4e80
 MechS32 g_realClockHandle = -1;
 
 // GLOBAL: MW2 0x100ba57c
+// GLOBAL: MW2MATROX 0x100a4e84
 MechS32 g_previousClock = 0;
 
 // GLOBAL: MW2 0x100ba580
+// GLOBAL: MW2MATROX 0x100a4e88
 MechS32 g_clockModeBeforePause = 0;
 
 // GLOBAL: MW2 0x100ba584
+// GLOBAL: MW2MATROX 0x100a4e8c
 BOOL g_ticksTimerInitialized = FALSE;
 
 // GLOBAL: MW2 0x100bfd54
@@ -185,6 +200,7 @@ void ScaleVectorToLength(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* 
 }
 
 // FUNCTION: MW2 0x1007cd50
+// FUNCTION: MW2MATROX 0x1001e8e0
 void FirstClock(void)
 {
 	if (!g_ticksTimerInitialized) {
@@ -206,6 +222,7 @@ void FirstClock(void)
 }
 
 // FUNCTION: MW2 0x1007ce2c
+// FUNCTION: MW2MATROX 0x1001e9bc
 void NextClock(void)
 {
 	if (!g_ticksTimerInitialized) {
@@ -260,6 +277,7 @@ void NextClock(void)
 }
 
 // FUNCTION: MW2 0x1007cff5
+// FUNCTION: MW2MATROX 0x1001eb85
 void StopTimers(void)
 {
 	if (g_ticksTimerInitialized) {
@@ -274,24 +292,28 @@ void StopTimers(void)
 }
 
 // FUNCTION: MW2 0x1007d05d
+// FUNCTION: MW2MATROX 0x1001ebed
 MechS32 GetGameClock(void)
 {
 	return GetTicks(g_clockHandle);
 }
 
 // FUNCTION: MW2 0x1007d07b
+// FUNCTION: MW2MATROX 0x1001ec0b
 MechS32 GetTicksSinceSync(void)
 {
 	return GetTicks(g_syncTicksHandle);
 }
 
 // FUNCTION: MW2 0x1007d099
+// FUNCTION: MW2MATROX 0x1001ec29
 void ResetSyncTicks(void)
 {
 	ResetTicks(g_syncTicksHandle);
 }
 
 // FUNCTION: MW2 0x1007d0b2
+// FUNCTION: MW2MATROX 0x1001ec42
 void ResetClocks(void)
 {
 	ResetTicks(g_realClockHandle);
@@ -301,6 +323,7 @@ void ResetClocks(void)
 }
 
 // FUNCTION: MW2 0x1007d0fb
+// FUNCTION: MW2MATROX 0x1001ec8b
 MechS32 GetRealClock(void)
 {
 	return GetTicks(g_realClockHandle);

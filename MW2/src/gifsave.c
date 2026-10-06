@@ -76,65 +76,85 @@ static void GifCloseFile(void);
 // The bit file: the current data sub-block and the bits left in its current byte.
 
 // GLOBAL: MW2 0x100bf1b4
+// GLOBAL: MW2MATROX 0x1012542c
 static FILE* g_outFile;
 
 // GLOBAL: MW2 0x100bf0a0
+// GLOBAL: MW2MATROX 0x10125318
 static MechU8 g_gifBuffer[256];
 
 // GLOBAL: MW2 0x100bf1b0
+// GLOBAL: MW2MATROX 0x10125310
 static MechS32 g_gifIndex;
 
 // GLOBAL: MW2 0x100bf1b8
+// GLOBAL: MW2MATROX 0x10125308
 static MechS32 g_bitsLeft;
 
 // The LZW string table: each string's last byte, its prefix string, and the hash table.
 
 // GLOBAL: MW2 0x100b141c
+// GLOBAL: MW2MATROX 0x100bbe78
 static MechU8* g_strChr = NULL;
 
 // GLOBAL: MW2 0x100b1420
+// GLOBAL: MW2MATROX 0x100bbe7c
 static MechU32* g_strNxt = NULL;
 
 // GLOBAL: MW2 0x100b1424
+// GLOBAL: MW2MATROX 0x100bbe80
 static MechU32* g_strHsh = NULL;
 
 // GLOBAL: MW2 0x100bf1c0
+// GLOBAL: MW2MATROX 0x10125420
 static MechU32 g_numStrings;
 
 // GLOBAL: MW2 0x100bf09c
+// GLOBAL: MW2MATROX 0x101252f4
 static MechS32 g_bitsPrPrimColor;
 
 // GLOBAL: MW2 0x100bf1bc
+// GLOBAL: MW2MATROX 0x1012530c
 static MechS32 g_numColors;
 
 // GLOBAL: MW2 0x100b1428
+// GLOBAL: MW2MATROX 0x100bbe84
 static MechU8* g_colorTable = NULL;
 
 // GLOBAL: MW2 0x100bf08c
+// GLOBAL: MW2MATROX 0x101252fc
 static MechU32 g_gifScreenHeight;
 
 // GLOBAL: MW2 0x100bf088
+// GLOBAL: MW2MATROX 0x10125300
 static MechU32 g_gifScreenWidth;
 
 // GLOBAL: MW2 0x100bf1a0
+// GLOBAL: MW2MATROX 0x10125304
 static MechU32 g_imageHeight;
 
 // GLOBAL: MW2 0x100bf1ac
+// GLOBAL: MW2MATROX 0x10125424
 static MechU32 g_imageWidth;
 
 // GLOBAL: MW2 0x100bf1a8
+// GLOBAL: MW2MATROX 0x101252f8
 static MechU32 g_imageLeft;
 
 // GLOBAL: MW2 0x100bf090
+// GLOBAL: MW2MATROX 0x10125428
 static MechU32 g_imageTop;
 
 // GLOBAL: MW2 0x100bf098
+// GLOBAL: MW2MATROX 0x10125418
 static MechU32 g_relPixX;
 
 // GLOBAL: MW2 0x100bf094
+// GLOBAL: MW2MATROX 0x1012541c
 static MechU32 g_relPixY;
 
 // GLOBAL: MW2 0x100bf1a4
+// GLOBAL: MW2MATROX 0x101252f0
 static MechS32 (*g_getPixel)(MechS32 p_x, MechS32 p_y);
 
 // Operand order: the loop test (q < tabSize) compares with tabSize in eax in the original, and the
@@ -205,6 +225,7 @@ MechS32 GifCreate(
 }
 
 // FUNCTION: MW2 0x10074ae9
+// FUNCTION: MW2MATROX 0x10089f99
 static MechS32 GifOpenFile(const MechChar* p_filename)
 {
 	if ((g_outFile = fopen(p_filename, "wb")) == NULL) {
@@ -215,6 +236,7 @@ static MechS32 GifOpenFile(const MechChar* p_filename)
 }
 
 // FUNCTION: MW2 0x10074b28
+// FUNCTION: MW2MATROX 0x10089fd8
 static MechS32 GifWrite(const void* p_buffer, MechU32 p_length)
 {
 	if (fwrite(p_buffer, sizeof(MechU8), p_length, g_outFile) < p_length) {
@@ -225,6 +247,7 @@ static MechS32 GifWrite(const void* p_buffer, MechU32 p_length)
 }
 
 // FUNCTION: MW2 0x10074b65
+// FUNCTION: MW2MATROX 0x1008a015
 static MechS32 BitsNeeded(MechU32 p_n)
 {
 	MechS32 ret = 1;
@@ -267,6 +290,7 @@ static MechS32 WriteScreenDescriptor(GifScreenDescriptor* p_descriptor)
 }
 
 // FUNCTION: MW2 0x10074cba
+// FUNCTION: MW2MATROX 0x1008a16a
 static MechS32 GifWriteByte(MechU8 p_byte)
 {
 	if (putc(p_byte, g_outFile) == EOF) {
@@ -277,6 +301,7 @@ static MechS32 GifWriteByte(MechU8 p_byte)
 }
 
 // FUNCTION: MW2 0x10074cf3
+// FUNCTION: MW2MATROX 0x1008a1a3
 static MechS32 GifWriteWord(MechU32 p_word)
 {
 	if (putc(p_word & 0xff, g_outFile) == EOF) {
@@ -290,6 +315,7 @@ static MechS32 GifWriteWord(MechU32 p_word)
 }
 
 // FUNCTION: MW2 0x10074d57
+// FUNCTION: MW2MATROX 0x1008a207
 void GifSetColor(MechS32 p_colorNum, MechS32 p_red, MechS32 p_green, MechS32 p_blue)
 {
 	MechS32 maxColor;
@@ -303,6 +329,7 @@ void GifSetColor(MechS32 p_colorNum, MechS32 p_red, MechS32 p_green, MechS32 p_b
 }
 
 // FUNCTION: MW2 0x10074dc7
+// FUNCTION: MW2MATROX 0x1008a277
 MechS32 GifCompressImage(
 	MechS32 p_left,
 	MechS32 p_top,
@@ -374,6 +401,7 @@ MechS32 GifCompressImage(
 
 // Stack-slot permutation: clearCode, endOfInfo and limit.
 // FUNCTION: MW2 0x10074f76
+// FUNCTION: MW2MATROX 0x1008a426
 static MechS32 LzwCompress(MechS32 p_codeSize, MechS32 (*p_inputByte)(void))
 {
 	MechS32 c;
@@ -432,6 +460,7 @@ static MechS32 LzwCompress(MechS32 p_codeSize, MechS32 (*p_inputByte)(void))
 }
 
 // FUNCTION: MW2 0x100750db
+// FUNCTION: MW2MATROX 0x1008a58b
 static void InitBitFile(void)
 {
 	g_gifBuffer[g_gifIndex = 0] = 0;
@@ -439,6 +468,7 @@ static void InitBitFile(void)
 }
 
 // FUNCTION: MW2 0x10075106
+// FUNCTION: MW2MATROX 0x1008a5b6
 static MechS32 ResetOutBitFile(void)
 {
 	MechU8 numBytes;
@@ -461,6 +491,7 @@ static MechS32 ResetOutBitFile(void)
 // Stack-slot permutation: bitsWritten and numBytes. Operand order: the original compares
 // p_numBits <= g_bitsLeft with g_bitsLeft in eax.
 // FUNCTION: MW2 0x100751a0
+// FUNCTION: MW2MATROX 0x1008a650
 static MechS32 WriteBits(MechS32 p_bits, MechS32 p_numBits)
 {
 	MechS32 bitsWritten = 0;
@@ -498,6 +529,7 @@ static MechS32 WriteBits(MechS32 p_bits, MechS32 p_numBits)
 }
 
 // FUNCTION: MW2 0x1007532b
+// FUNCTION: MW2MATROX 0x1008a7db
 static void FreeStringTable(void)
 {
 	if (g_strHsh) {
@@ -515,6 +547,7 @@ static void FreeStringTable(void)
 }
 
 // FUNCTION: MW2 0x100753a5
+// FUNCTION: MW2MATROX 0x1008a855
 static MechS32 AllocStringTable(void)
 {
 	FreeStringTable();
@@ -536,6 +569,7 @@ static MechS32 AllocStringTable(void)
 }
 
 // FUNCTION: MW2 0x10075446
+// FUNCTION: MW2MATROX 0x1008a8f6
 static MechU32 AddCharString(MechU32 p_index, MechU8 p_byte)
 {
 	MechU32 hshIdx;
@@ -557,6 +591,7 @@ static MechU32 AddCharString(MechU32 p_index, MechU8 p_byte)
 }
 
 // FUNCTION: MW2 0x10075523
+// FUNCTION: MW2MATROX 0x1008a9d3
 static MechU32 FindCharString(MechU32 p_index, MechU8 p_byte)
 {
 	MechU32 hshIdx;
@@ -646,6 +681,7 @@ static MechS32 WriteImageDescriptor(GifImageDescriptor* p_descriptor)
 }
 
 // FUNCTION: MW2 0x10075823
+// FUNCTION: MW2MATROX 0x1008acd3
 MechS32 GifClose(void)
 {
 	GifImageDescriptor id;
@@ -666,6 +702,7 @@ MechS32 GifClose(void)
 }
 
 // FUNCTION: MW2 0x10075884
+// FUNCTION: MW2MATROX 0x1008ad34
 static void GifCloseFile(void)
 {
 	fclose(g_outFile);

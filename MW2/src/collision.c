@@ -21,6 +21,7 @@ DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 
 // The collision tests of each shape type (Shape::m_collisionType).
 // GLOBAL: MW2 0x100a54c0
+// GLOBAL: MW2MATROX 0x100a5550
 ShapeCollisionFns g_shapeCollisionFns[8] = {
 	{TestPointInBox, TestRayBox, GetBoxTop},
 	{TestPointInBoxColumn, TestRayBox, NULL},
@@ -34,22 +35,28 @@ ShapeCollisionFns g_shapeCollisionFns[8] = {
 
 // The normal of the surface the last collision test hit, 16.16.
 // GLOBAL: MW2 0x100a5520
+// GLOBAL: MW2MATROX 0x100a55b0
 MechS32 g_hitNormalX = 0;
 
 // GLOBAL: MW2 0x100a5524
+// GLOBAL: MW2MATROX 0x100a55b4
 MechS32 g_hitNormalY = 0;
 
 // GLOBAL: MW2 0x100a5528
+// GLOBAL: MW2MATROX 0x100a55b8
 MechS32 g_hitNormalZ = 0;
 
 // The normal of the ground GetTerrainHeight found.
 // GLOBAL: MW2 0x100a552c
+// GLOBAL: MW2MATROX 0x100a55bc
 MechS32 g_groundNormalX = 0;
 
 // GLOBAL: MW2 0x100a5530
+// GLOBAL: MW2MATROX 0x100a55c0
 MechS32 g_groundNormalY = 0;
 
 // GLOBAL: MW2 0x100a5534
+// GLOBAL: MW2MATROX 0x100a55c4
 MechS32 g_groundNormalZ = 0;
 
 // The normal of the surface TestSegmentCollision hit.
@@ -64,24 +71,30 @@ MechS32 g_segmentNormalZ = 0;
 
 // The background color the 3D view is cleared to.
 // GLOBAL: MW2 0x100a5544
+// GLOBAL: MW2MATROX 0x100a4940
 MechS32 g_backgroundColor = 0;
 
 // The sky's color (DrawSkyAndGround; the ground's is g_groundColor).
 // GLOBAL: MW2 0x100a5548
+// GLOBAL: MW2MATROX 0x100a4944
 MechS32 g_skyColor = 0xe0;
 
 // The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
 // GLOBAL: MW2 0x100a554c
+// GLOBAL: MW2MATROX 0x100a4948
 MechS32 g_groundColor = 0xef;
 
 // The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
 // GLOBAL: MW2 0x100a5550
+// GLOBAL: MW2MATROX 0x100a494c
 MechS32 g_horizonMapColor = 0xea;
 
 // GLOBAL: MW2 0x100a5558
+// GLOBAL: MW2MATROX 0x100a4954
 MechS32 g_unk0x100a5558 = -1;
 
 // FUNCTION: MW2 0x10034a40
+// FUNCTION: MW2MATROX 0x10023910
 void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 {
 	p_shape->m_collisionType = p_collisionType;
@@ -222,6 +235,7 @@ MechS32 GetHighestSurface(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10034db8
+// FUNCTION: MW2MATROX 0x10023cd0
 MechS32 HasHeightTest(Shape* p_shape)
 {
 	return g_shapeCollisionFns[p_shape->m_collisionType].m_getHeight != NULL;
@@ -229,6 +243,7 @@ MechS32 HasHeightTest(Shape* p_shape)
 
 // Tests the point against the world's shape nearest to it, returned in p_hit.
 // FUNCTION: MW2 0x10034deb
+// FUNCTION: MW2MATROX 0x10023d03
 MechS32 TestPointCollision(MechS32 p_x, MechS32 p_y, MechS32 p_z, Shape** p_hit)
 {
 	*p_hit = FindNearestShape(g_sceneShapes, p_x, p_y, p_z);
@@ -269,6 +284,7 @@ Shape* FindNearestShape(Shape* p_root, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 
 // Tests the point against the shape; a shape type without a point test always hits.
 // FUNCTION: MW2 0x10034ee7
+// FUNCTION: MW2MATROX 0x10023e01
 MechS32 TestShapePoint(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 (*testPoint)(Shape*, MechS32, MechS32, MechS32);

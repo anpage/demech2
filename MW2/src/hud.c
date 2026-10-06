@@ -30,57 +30,73 @@
 
 // The size of the altimeter's mark shape (InitHudGauges), which spaces its columns.
 // GLOBAL: MW2 0x100a5ed0
+// GLOBAL: MW2MATROX 0x100a4de8
 MechS32 g_altimeterMarkWidth = 0xf0f;
 
 // GLOBAL: MW2 0x100a5ed4
+// GLOBAL: MW2MATROX 0x100a4dec
 MechS32 g_altimeterMarkHeight = 0xd79;
 
 // The altimeter's place, in 16.16 fractions of its gauge until InitHudGauges scales it.
 // GLOBAL: MW2 0x100a5ed8
+// GLOBAL: MW2MATROX 0x100a4df0
 Point g_altimeterOrigin = {0xb333, 0x8000};
 
 // The compass's place, likewise.
 // GLOBAL: MW2 0x100a5ee0
+// GLOBAL: MW2MATROX 0x100a4df8
 Point g_compassOrigin = {0x8000, 0x6666};
 
 // GLOBAL: MW2 0x100a5ee8
+// GLOBAL: MW2MATROX 0x100a4e00
 Point g_hudGaugePositions[6] = {{0x73, 0x10}, {8, 0x4a}, {4, 0x28}, {4, 0x4a}, {0, 0}, {0, 0}};
 
 // The HUD's display options: the HUD itself, the crosshair, the target marker, the compass and
 // the altimeter.
 // GLOBAL: MW2 0x100a5f18
+// GLOBAL: MW2MATROX 0x100a4e30
 undefined4 g_showHud = 1;
 
 // GLOBAL: MW2 0x100a5f1c
+// GLOBAL: MW2MATROX 0x100a4e34
 MechS32 g_showCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5f20
+// GLOBAL: MW2MATROX 0x100a4e38
 MechS32 g_showTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5f24
+// GLOBAL: MW2MATROX 0x100a4e3c
 MechS32 g_showCompass = 1;
 
 // GLOBAL: MW2 0x100a5f2c
+// GLOBAL: MW2MATROX 0x100a4e44
 MechS32 g_showAltimeter = 1;
 
 // The layout of the altimeter and the compass, from their shapes' extents (InitHudGauges).
 
 // GLOBAL: MW2 0x100be5a0
+// GLOBAL: MW2MATROX 0x100c1e58
 static MechS32 g_compassArrowWidth;
 
 // GLOBAL: MW2 0x100be5a4
+// GLOBAL: MW2MATROX 0x100c1e5c
 static MechS32 g_compassArrowHeight;
 
 // GLOBAL: MW2 0x100be5a8
+// GLOBAL: MW2MATROX 0x100c1e50
 static MechS32 g_compassSideArrowWidth;
 
 // GLOBAL: MW2 0x100be5ac
+// GLOBAL: MW2MATROX 0x100c1e54
 static MechS32 g_compassSideArrowHeight;
 
 // GLOBAL: MW2 0x100be5b0
+// GLOBAL: MW2MATROX 0x100c1e48
 static MechS32 g_altimeterGroundX;
 
 // GLOBAL: MW2 0x100be5b4
+// GLOBAL: MW2MATROX 0x100c1e64
 static MechS32 g_altimeterTargetX;
 
 // The altimeter's scale: pixels per 16.16 unit of height.
@@ -92,12 +108,15 @@ static MechS32 g_altimeterScale;
 static MechS32 g_compassScale;
 
 // GLOBAL: MW2 0x100be5c0
+// GLOBAL: MW2MATROX 0x100c1e68
 static MechS32 g_compassTapeAbove;
 
 // GLOBAL: MW2 0x100be5c4
+// GLOBAL: MW2MATROX 0x100c1e40
 static MechS32 g_altimeterLevelX;
 
 // GLOBAL: MW2 0x100be5c8
+// GLOBAL: MW2MATROX 0x100c1e60
 static MechS32 g_compassTapeBelow;
 
 // Draws the HUD's overlays the display options enable: the compass and its target markers, the
@@ -145,6 +164,7 @@ void DrawHudAt(
 // DrawHudAt with the overlays at their default places, and the crosshair only with
 // p_drawCrosshair (the view is the cockpit's).
 // FUNCTION: MW2 0x10040bfd
+// FUNCTION: MW2MATROX 0x1001ca30
 void DrawHud(
 	Mech* p_mech,
 	MechS32 p_heading,
@@ -344,6 +364,7 @@ void InitHudGauges(void)
 
 // Returns the HUD gauges' positions (the compass's, then the altimeter's).
 // FUNCTION: MW2 0x100412c8
+// FUNCTION: MW2MATROX 0x1001d1a4
 Point* GetHudGaugePositions(void)
 {
 	return g_hudGaugePositions;
@@ -820,6 +841,7 @@ void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 
 // Draws DrawHudShape's shape at p_x, p_y of pane p_target.
 // FUNCTION: MW2 0x10041f73
+// FUNCTION: MW2MATROX 0x1001e136
 void DrawShapeOverPane(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
 	DrawHudShape(p_target->m_x0 + p_x, p_target->m_y0 + p_y, p_id);

@@ -470,6 +470,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100734ad
+// FUNCTION: MW2MATROX 0x1007eca5
 void RunMenuTextBox(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MenuTextBox* box;

@@ -32,20 +32,24 @@
 // Who the chat message goes to: 0 nobody (no message is being typed), -1 everybody, or a
 // player.
 // GLOBAL: MW2 0x100a116c
+// GLOBAL: MW2MATROX 0x100a4ff4
 MechS32 g_chatRecipient = 0;
 
 // Whether the objectives panel shows.
 // GLOBAL: MW2 0x100a1170
+// GLOBAL: MW2MATROX 0x100a4ff8
 MechS32 g_showObjectives = 0;
 
 // GLOBAL: MW2 0x100bcd88
 static MechChar g_ticksText[16];
 
 // GLOBAL: MW2 0x100bcd98
+// GLOBAL: MW2MATROX 0x100c1e80
 static MechChar g_secondsText[16];
 
 // The chat message being typed. HandleChatKey edits it.
 // GLOBAL: MW2 0x10179e90
+// GLOBAL: MW2MATROX 0x101d6990
 MechChar g_chatMessage[0x30];
 
 // Formats a tick count (181 per second) as hours:minutes:seconds.
@@ -65,6 +69,7 @@ MechChar* FormatTicks(MechS32 p_ticks)
 
 // Formats a count of seconds as hours:minutes:seconds.
 // FUNCTION: MW2 0x10004ff5
+// FUNCTION: MW2MATROX 0x10021941
 MechChar* FormatSeconds(MechS32 p_seconds)
 {
 	MechS32 seconds;
@@ -81,6 +86,7 @@ MechChar* FormatSeconds(MechS32 p_seconds)
 // Matches except for the stack slots of width and c (a consistent permutation).
 // Returns the width of p_text in p_font.
 // FUNCTION: MW2 0x1000507d
+// FUNCTION: MW2MATROX 0x100219c9
 MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 {
 	MechS32 width;

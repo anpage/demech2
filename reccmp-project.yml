@@ -44,6 +44,22 @@ targets:
         - g_smallMapLayout
         - g_largeMapLayout
         - g_satelliteLayout
+  MW2MATROX:
+    filename: MW2_MATROX.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: 444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220
+    data-sources:
+      - reccmp/mw2matrox-vfx.csv
+    report:
+      icon: assets/dll.png
+      # As MW2's.
+      ignore-variables:
+        - g_smallMapLayout
+        - g_largeMapLayout
+        - g_satelliteLayout
   NETMECHW:
     filename: NETMECHW.DLL
     source-root:

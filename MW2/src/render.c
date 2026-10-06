@@ -37,12 +37,14 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a244c
+// GLOBAL: MW2MATROX 0x100a49fc
 MechS32 g_drawModeIndex = -1;
 
 // GLOBAL: MW2 0x100a2450
 MechS32 g_initDrawModeParam2 = 1;
 
 // GLOBAL: MW2 0x100a2454
+// GLOBAL: MW2MATROX 0x100a4a04
 MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
@@ -53,42 +55,54 @@ MechChar* g_bannerName = NULL;
 void* g_bannerBuffer = NULL;
 
 // GLOBAL: MW2 0x100a2460
+// GLOBAL: MW2MATROX 0x100a4a10
 MechS32 g_projectionDirty = 1;
 
 // GLOBAL: MW2 0x100a2464
+// GLOBAL: MW2MATROX 0x100a4a14
 MechS32 g_displayReady = 0;
 
 // GLOBAL: MW2 0x100a2468
+// GLOBAL: MW2MATROX 0x100a4a18
 MechS32 g_framePane = 0;
 
 // GLOBAL: MW2 0x100a246c
+// GLOBAL: MW2MATROX 0x100a4a1c
 MechS32 g_hasLightObject = 0;
 
 // Cleared while an effect has the camera, set again when it gives it back.
 // GLOBAL: MW2 0x100a2470
+// GLOBAL: MW2MATROX 0x100a4a20
 MechS32 g_lightFollowsObject = 1;
 
 // GLOBAL: MW2 0x100a2474
+// GLOBAL: MW2MATROX 0x100a4a24
 MechS32 g_lightObject = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
 // GLOBAL: MW2 0x100a2478
+// GLOBAL: MW2MATROX 0x100a4a28
 SceneObject* g_skyObject = NULL;
 
 // The object of the scene's shape of kind 0xa0.
 // GLOBAL: MW2 0x100a247c
+// GLOBAL: MW2MATROX 0x100a4a2c
 SceneObject* g_cockpitObject = NULL;
 
 // GLOBAL: MW2 0x100a2480
+// GLOBAL: MW2MATROX 0x100a4a30
 MechS32 g_drawnPolygonCount = 0;
 
 // GLOBAL: MW2 0x100bdff8
+// GLOBAL: MW2MATROX 0x100c1e28
 PANE g_screenPane;
 
 // GLOBAL: MW2 0x10176eb4
+// GLOBAL: MW2MATROX 0x10212da8
 GameWindowGeometry* g_gameWindowGeometry;
 
 // GLOBAL: MW2 0x10176eb8
+// GLOBAL: MW2MATROX 0x10212dac
 MechS32 g_screenHeight;
 
 // GLOBAL: MW2 0x10176eb0
@@ -96,33 +110,43 @@ undefined4 g_unk0x10176eb0;
 
 // Set when the next Blit should stretch the current pane over the window.
 // GLOBAL: MW2 0x10176ebc
+// GLOBAL: MW2MATROX 0x10212da4
 MechS32 g_stretchPending;
 
 // GLOBAL: MW2 0x10176ec0
+// GLOBAL: MW2MATROX 0x10212da0
 MechS32 g_screenHeightMinus1;
 
 // GLOBAL: MW2 0x10176ec4
+// GLOBAL: MW2MATROX 0x10212d50
 MechS32 g_screenPixelCount;
 
 // GLOBAL: MW2 0x10176ec8
+// GLOBAL: MW2MATROX 0x10212d74
 MechS32 g_screenWidth;
 
 // GLOBAL: MW2 0x10176ed0
+// GLOBAL: MW2MATROX 0x10212d80
 PANE g_currentPane;
 
 // GLOBAL: MW2 0x10176ee4
+// GLOBAL: MW2MATROX 0x10212d54
 MechS32 g_screenWidthMinus1;
 
 // GLOBAL: MW2 0x10176ee8
+// GLOBAL: MW2MATROX 0x10212d94
 MechS32 g_screenHalfWidth;
 
 // GLOBAL: MW2 0x10176eec
+// GLOBAL: MW2MATROX 0x10212d98
 MechS32 g_screenHalfHeight;
 
 // GLOBAL: MW2 0x10176ef0
+// GLOBAL: MW2MATROX 0x10212d60
 WINDOW g_mainPixelBuffer;
 
 // FUNCTION: MW2 0x10012720
+// FUNCTION: MW2MATROX 0x10017370
 MechS32 InitGameWindowGeometry(void)
 {
 	g_gameWindowGeometry = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, sizeof(GameWindowGeometry));
@@ -147,6 +171,7 @@ MechS32 InitGameWindowGeometry(void)
 }
 
 // FUNCTION: MW2 0x10012802
+// FUNCTION: MW2MATROX 0x10017452
 MechS32 InitDisplayGeometry(void)
 {
 	MechS32 result;
@@ -214,6 +239,7 @@ void FirstRender(void)
 // Makes the objects of the scene's shapes of kinds 0x90 and 0xa0, and sets up its shapes of kind
 // 0x70 and type 4.
 // FUNCTION: MW2 0x100129b7
+// FUNCTION: MW2MATROX 0x10017607
 void SecondRender(void)
 {
 	Shape* root;
@@ -331,6 +357,7 @@ void DrawScene(void)
 }
 
 // FUNCTION: MW2 0x10012dca
+// FUNCTION: MW2MATROX 0x10017a14
 void SetFramePane(MechS32 p_value)
 {
 	if (p_value >= 0 && p_value < 11) {
@@ -342,6 +369,7 @@ void SetFramePane(MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10012e00
+// FUNCTION: MW2MATROX 0x10017a4a
 void ResetPane(void)
 {
 	SelectPane(0);
@@ -350,6 +378,7 @@ void ResetPane(void)
 // Presents the frame, or stretches the current pane over the window when a stretch is
 // pending, restoring the pane afterwards.
 // FUNCTION: MW2 0x10012e15
+// FUNCTION: MW2MATROX 0x10017a5f
 void Blit(void)
 {
 	if (g_stretchPending) {

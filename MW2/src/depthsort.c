@@ -30,12 +30,14 @@ DECOMP_SIZE_ASSERT(QueuedPolygon, 0xc)
 
 // The number of entries in the list being built.
 // GLOBAL: MW2 0x100a54b0
+// GLOBAL: MW2MATROX 0x100a5540
 MechS32 g_depthEntryCount = 0;
 
 // GLOBAL: MW2 0x100a54b4
 MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
+// GLOBAL: MW2MATROX 0x100a5548
 MechS32 g_maxPolygons = 0;
 
 // GLOBAL: MW2 0x1010b5a0

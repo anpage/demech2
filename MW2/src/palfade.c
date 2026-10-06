@@ -13,6 +13,7 @@ DECOMP_SIZE_ASSERT(PaletteFade, 0x19)
 
 // Matches except for the stack slots of i and dst (a consistent permutation).
 // FUNCTION: MW2 0x10010ad0
+// FUNCTION: MW2MATROX 0x10050540
 MechS32 InitPaletteCycle(PaletteCycle* p_cycle, MechU8* p_palette, MechU8 p_first, MechS32 p_count)
 {
 	MechU8* working;
@@ -36,6 +37,7 @@ MechS32 InitPaletteCycle(PaletteCycle* p_cycle, MechU8* p_palette, MechU8 p_firs
 }
 
 // FUNCTION: MW2 0x10010b6e
+// FUNCTION: MW2MATROX 0x100505de
 void RotatePaletteCycle(PaletteCycle* p_cycle)
 {
 	MechU8* p;
@@ -63,6 +65,7 @@ void RotatePaletteCycle(PaletteCycle* p_cycle)
 }
 
 // FUNCTION: MW2 0x10010c3d
+// FUNCTION: MW2MATROX 0x100506ad
 void FreePaletteCycle(PaletteCycle* p_cycle)
 {
 	if (p_cycle->m_working) {
@@ -116,6 +119,7 @@ MechS32 InitPaletteFade(
 
 // Matches except for the stack slots of i and accum (a consistent permutation).
 // FUNCTION: MW2 0x10010d99
+// FUNCTION: MW2MATROX 0x10050809
 void StepPaletteFade(PaletteFade* p_fade)
 {
 	MechU8* palette;

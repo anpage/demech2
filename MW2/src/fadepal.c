@@ -31,6 +31,7 @@
 
 // The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
+// FUNCTION: MW2MATROX 0x100450c0
 void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan)
 {
 	if (p_sound > 0) {
@@ -84,6 +85,7 @@ void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct 
 
 // Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
+// FUNCTION: MW2MATROX 0x1004526f
 void FlashZappedPalette(void)
 {
 	StartPaletteFade(0x11, 0x16a, 1);
@@ -110,6 +112,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 // that slot.
 // Stack-slot permutation: slot and palette.
 // FUNCTION: MW2 0x1004ca82
+// FUNCTION: MW2MATROX 0x100452f9
 void FadeToEndPalette(MechS32 p_alternate)
 {
 	MechS32 slot;
@@ -159,6 +162,7 @@ void EmitWreckSmoke(Mech* p_mech)
 // Breaks a destroyed mech's model into debris.
 // Stack-slot permutation: obj, upper, lower and the three indices.
 // FUNCTION: MW2 0x1004cc27
+// FUNCTION: MW2MATROX 0x100454de
 void BreakUpMech(Mech* p_mech)
 {
 	SceneObject* obj;

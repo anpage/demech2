@@ -110,6 +110,7 @@ MenuPage* g_systemsMenuPageStack[8];
 
 // Returns the setting p_id, or 0.
 // FUNCTION: MW2 0x1005e9b0
+// FUNCTION: MW2MATROX 0x10044400
 MechS32 GetSystemSetting(MechS32 p_id)
 {
 	MechS32 value;
@@ -145,6 +146,7 @@ MechS32 GetSystemSetting(MechS32 p_id)
 
 // Changes the setting p_id (see GetSystemSetting) to p_value.
 // FUNCTION: MW2 0x1005eb10
+// FUNCTION: MW2MATROX 0x10044560
 void SetSystemSetting(MechS32 p_id, MechS32 p_value)
 {
 	switch (p_id) {

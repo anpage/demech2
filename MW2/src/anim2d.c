@@ -19,18 +19,23 @@ DECOMP_SIZE_ASSERT(FramePrj, 0x08)
 DECOMP_SIZE_ASSERT(Anim2d, 0x1c)
 
 // GLOBAL: MW2 0x100a156c
+// GLOBAL: MW2MATROX 0x100a20a8
 MechS32 g_framePrjCount = -1;
 
 // GLOBAL: MW2 0x100a158c
+// GLOBAL: MW2MATROX 0x100a20c8
 MechS32 g_anim2dCount = 0;
 
 // GLOBAL: MW2 0x10179b60
+// GLOBAL: MW2MATROX 0x102184d0
 Anim2d* g_anim2ds[7];
 
 // GLOBAL: MW2 0x10179b80
+// GLOBAL: MW2MATROX 0x102184f0
 FramePrj g_framePrjs[0x60];
 
 // FUNCTION: MW2 0x10007510
+// FUNCTION: MW2MATROX 0x100013b0
 MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 {
 	FramePrj* prj;
@@ -51,6 +56,7 @@ MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 }
 
 // FUNCTION: MW2 0x1000759c
+// FUNCTION: MW2MATROX 0x1000143c
 void ResetFramePrjs(void)
 {
 	MechS32 i;
@@ -65,6 +71,7 @@ void ResetFramePrjs(void)
 }
 
 // FUNCTION: MW2 0x100075eb
+// FUNCTION: MW2MATROX 0x1000148b
 void ClearFramePrj(FramePrj* p_prj)
 {
 	p_prj->m_id = -1;
@@ -73,6 +80,7 @@ void ClearFramePrj(FramePrj* p_prj)
 }
 
 // FUNCTION: MW2 0x10007611
+// FUNCTION: MW2MATROX 0x100014b1
 MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16* p_resourceId)
 {
 	Anim2d* anim;
@@ -106,6 +114,7 @@ MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16
 
 // Frees one animation, or all of them for a negative index.
 // FUNCTION: MW2 0x100076ea
+// FUNCTION: MW2MATROX 0x1000158a
 void FreeAnim2ds(MechS32 p_index)
 {
 	if (p_index >= 0) {
@@ -119,6 +128,7 @@ void FreeAnim2ds(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1000773a
+// FUNCTION: MW2MATROX 0x100015da
 void FreeAnim2d(MechS32 p_index)
 {
 	if (g_anim2ds[p_index]) {
@@ -135,6 +145,7 @@ void FreeAnim2d(MechS32 p_index)
 // rejects anything (the original tests p_index < 0 && p_index >= 7).
 // Stack-slot permutation: frame and anim.
 // FUNCTION: MW2 0x100077b3
+// FUNCTION: MW2MATROX 0x10001653
 void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 frame;
@@ -212,6 +223,7 @@ void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 
 // Restarts the animation. As in DrawAnim2d, the index test never rejects anything.
 // FUNCTION: MW2 0x10007987
+// FUNCTION: MW2MATROX 0x10001827
 void RestartAnim2d(MechS32 p_index)
 {
 	if (p_index < 0 && p_index >= 7) {

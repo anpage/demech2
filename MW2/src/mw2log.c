@@ -9,13 +9,16 @@
 
 // Set by the command line; SimMain opens mw2.log when it is.
 // GLOBAL: MW2 0x100ae6d4
+// GLOBAL: MW2MATROX 0x100b19ec
 MechS32 g_logFileEnabled = 0;
 
 // GLOBAL: MW2 0x100ae6d8
+// GLOBAL: MW2MATROX 0x100b19f0
 FILE* g_mw2Log = NULL;
 
 // Opens mw2.log and writes the build date and the time to it. Returns whether it could.
 // FUNCTION: MW2 0x100717e0
+// FUNCTION: MW2MATROX 0x1007ac80
 MechS32 OpenMw2Log(void)
 {
 	FILE* file = NULL;
@@ -37,6 +40,7 @@ MechS32 OpenMw2Log(void)
 // Writes the time to mw2.log and closes it. Returns whether it was open.
 // Stack-slot permutation: line and now.
 // FUNCTION: MW2 0x10071869
+// FUNCTION: MW2MATROX 0x1007ad09
 MechS32 CloseMw2Log(void)
 {
 	MechChar line[80];
@@ -55,6 +59,7 @@ MechS32 CloseMw2Log(void)
 
 // Writes a line to mw2.log. Returns whether logging is on and the log is open.
 // FUNCTION: MW2 0x100718da
+// FUNCTION: MW2MATROX 0x1007ad7a
 MechS32 WriteToMw2Log(MechChar* p_text)
 {
 	if (g_logFileEnabled && g_mw2Log) {

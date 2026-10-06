@@ -25,6 +25,7 @@ DECOMP_SIZE_ASSERT(TimeOfDayPhase, 0x08)
 TimeOfDayPhase g_timeOfDayPhases[4] = {{4, 2715}, {0, 2715}, {4, 3620}, {8, 2715}};
 
 // GLOBAL: MW2 0x100ba5f8
+// GLOBAL: MW2MATROX 0x100bbba0
 MechS32 g_timeOfDayPhase = -1;
 
 // GLOBAL: MW2 0x100ba5fc
@@ -37,36 +38,46 @@ MechS32 g_gravity = 0x794;
 MechS32 g_gravityScale = 0x10000;
 
 // GLOBAL: MW2 0x100ba608
+// GLOBAL: MW2MATROX 0x100bbbb0
 MechS32 g_unk0x100ba608 = 0;
 
 // GLOBAL: MW2 0x100ba60c
+// GLOBAL: MW2MATROX 0x100bbbb4
 MechS32 g_secondsPerDay = 86400;
 
 // GLOBAL: MW2 0x100ba610
+// GLOBAL: MW2MATROX 0x100bbbb8
 MechS32 g_daysPerYear = 365;
 
 // GLOBAL: MW2 0x100ba614
+// GLOBAL: MW2MATROX 0x100bbbbc
 MechS32 g_dayOfYear = 0;
 
 // GLOBAL: MW2 0x100ba618
+// GLOBAL: MW2MATROX 0x100bbbc0
 MechS32 g_timeOfDay = 43200;
 
 // GLOBAL: MW2 0x100ba61c
+// GLOBAL: MW2MATROX 0x100bbbc4
 MechS32 g_startTimeOfDay = 43200;
 
 // GLOBAL: MW2 0x100bfaa0
+// GLOBAL: MW2MATROX 0x101252d4
 MechS32 g_timeOfDayFrames;
 
 // GLOBAL: MW2 0x100bfaa8
+// GLOBAL: MW2MATROX 0x101252d8
 MechS32 g_timeOfDayStarts[4];
 
 // GLOBAL: MW2 0x100bfab8
 MechS32 g_timeOfDayEnabled;
 
 // GLOBAL: MW2 0x100bfd4c
+// GLOBAL: MW2MATROX 0x1012c1f0
 MechS32 g_nextTimeOfDayUpdate;
 
 // GLOBAL: MW2 0x100bfd50
+// GLOBAL: MW2MATROX 0x1012c1f4
 MechS32 g_infraredOn;
 
 // FUNCTION: MW2 0x1007d610
@@ -91,6 +102,7 @@ void FirstEnvironment(void)
 
 // Stack slots: seconds, time and i are permuted.
 // FUNCTION: MW2 0x1007d6bb
+// FUNCTION: MW2MATROX 0x10085d3b
 void UpdateTimeOfDay(void)
 {
 	MechS32 phase;

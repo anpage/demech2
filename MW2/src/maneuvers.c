@@ -36,6 +36,7 @@
 // Sixteen directions around a mech, as (x, z) divisors of a length: BuildProbeRay's probe rays
 // and GetOffsetPoint's offsets.
 // GLOBAL: MW2 0x100a2900
+// GLOBAL: MW2MATROX 0x100a4b08
 Point g_probeDirections[16] = {
 	{0, 1},
 	{2, 1},
@@ -103,6 +104,7 @@ ManeuverEntry g_altMechManeuvers[13] = {
 
 // Set once InitializeManeuvers has filled g_maneuverTables.
 // GLOBAL: MW2 0x100a2ba4
+// GLOBAL: MW2MATROX 0x100a4dac
 MechS32 g_maneuverTablesReady = 0;
 
 // Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
@@ -474,6 +476,7 @@ MechS32 ChooseManeuver(Player* p_player)
 // Returns the index of maneuver p_id in p_table, or -1.
 // The original loads the index before m_entries (index order).
 // FUNCTION: MW2 0x100140e4
+// FUNCTION: MW2MATROX 0x10019cd8
 MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 {
 	MechS16 i;
@@ -631,6 +634,7 @@ void EndManeuver(Player* p_player)
 // Places a nav point for p_player where GetOffsetPoint puts it, and makes it the player's target.
 // The only diff is a stack-slot permutation of x, y, z and nav.
 // FUNCTION: MW2 0x10014723
+// FUNCTION: MW2MATROX 0x1001a31b
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance)
 {
 	MechS32 z;
@@ -1172,6 +1176,7 @@ MechS32 BrakeFall(Player* p_player)
 
 // Fires (p_value set) or cuts p_player's jump jets.
 // FUNCTION: MW2 0x100156f2
+// FUNCTION: MW2MATROX 0x1001b476
 void SetJumpJets(Player* p_player, MechS8 p_value)
 {
 	p_player->m_steering->m_jumpJetEnabled = p_value;
@@ -1424,6 +1429,7 @@ MechS32 ClampMagnitude(MechS32 p_value, MechS32 p_limit)
 // Whether the segment from p_player at height p_y to its target is clear, or hits the target.
 // The only diff is a stack-slot permutation of ray, hit, target and flags.
 // FUNCTION: MW2 0x10015e74
+// FUNCTION: MW2MATROX 0x1001bcd8
 MechS32 HasLineToTarget(Player* p_player, MechS32 p_y)
 {
 	Ray ray;
@@ -1462,6 +1468,7 @@ MechS32 HasLineToTarget(Player* p_player, MechS32 p_y)
 // Whether p_mech has weapons but none left that can fire: every one is out of ammunition.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015fa8
+// FUNCTION: MW2MATROX 0x1001be0c
 MechS32 IsOutOfAmmo(Mech* p_mech)
 {
 	MechS16 i;
@@ -1482,6 +1489,7 @@ MechS32 IsOutOfAmmo(Mech* p_mech)
 
 // Fires p_player's jump jets forward (p_value set) or backward.
 // FUNCTION: MW2 0x10016057
+// FUNCTION: MW2MATROX 0x1001bebb
 void SetJumpDirection(Player* p_player, MechS16 p_value)
 {
 	p_player->m_steering->m_jumpJetFireForward = p_value;
@@ -1548,6 +1556,7 @@ MechS32 CanJump(Player* p_player, MechS32 p_limit)
 // The shape of the player or game thing an AI target id names, or NULL.
 // The only diff is a stack-slot permutation of index, id and obj.
 // FUNCTION: MW2 0x1001627f
+// FUNCTION: MW2MATROX 0x1001c11d
 Shape* GetTargetShape(MechS16 p_target)
 {
 	MechS16 index;
@@ -1748,6 +1757,7 @@ MechS16 ChooseFlankPlace(Player* p_player)
 
 // Whether p_mech is stuck: colliding, not reversing, and not in a maneuver that jumps or avoids.
 // FUNCTION: MW2 0x10016880
+// FUNCTION: MW2MATROX 0x1001c761
 MechS32 IsStuck(Mech* p_mech)
 {
 	return p_mech->m_collisionTicks && p_mech->m_player->m_steering->m_reverse != 1 &&

@@ -24,10 +24,12 @@ DECOMP_SIZE_ASSERT(BwdStream, 0x1f)
 // Set by a command-line switch: OpenBwdStream reads every stream from a file, even one with a
 // resource id.
 // GLOBAL: MW2 0x100a5bec
+// GLOBAL: MW2MATROX 0x100a5998
 MechS32 g_streamsFromFiles = 0;
 
 // Set by a command-line switch: OpenBwdStream logs each stream it opens to mw2debug.txt.
 // GLOBAL: MW2 0x100a5bf0
+// GLOBAL: MW2MATROX 0x100a599c
 MechS32 g_logStreams = 0;
 
 // Only LogKeywordName's dead first store takes its address.
@@ -39,6 +41,7 @@ MechChar g_unk0x10109c40[1];
 // when there is no such file, from the resource file. Returns p_stream, or NULL.
 // Stack-slot permutation: line, result, id, dot, file, size and data.
 // FUNCTION: MW2 0x1003fb00
+// FUNCTION: MW2MATROX 0x10029ef0
 BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 {
 	MechChar line[256];
@@ -155,6 +158,7 @@ BwdNode* GetNextNode(BwdStream* p_stream)
 
 // Frees a stream's data, or releases its resource.
 // FUNCTION: MW2 0x1003feb8
+// FUNCTION: MW2MATROX 0x1002a2a8
 void UnloadResource(BwdStream* p_stream)
 {
 	if (p_stream) {
@@ -169,6 +173,7 @@ void UnloadResource(BwdStream* p_stream)
 
 // Returns the name of the keyword with tag p_code, or "unknown".
 // FUNCTION: MW2 0x1003ff09
+// FUNCTION: MW2MATROX 0x1002a2f9
 MechChar* GetKeywordName(MechU32 p_code)
 {
 	MechS32 i;
@@ -189,6 +194,7 @@ MechChar* GetKeywordName(MechU32 p_code)
 
 // Appends a line to mw2debug.txt and shows it on screen.
 // FUNCTION: MW2 0x1003ff75
+// FUNCTION: MW2MATROX 0x1002a365
 void LogDebugLine(MechChar* p_text)
 {
 	FILE* file;

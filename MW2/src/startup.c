@@ -7,6 +7,7 @@
 
 // Prints the revision strings of the simulator and of its project file.
 // FUNCTION: MW2 0x10071790
+// FUNCTION: MW2MATROX 0x1007ac30
 void PrintVersion(void)
 {
 	printf("\n%s\n", "MW2 FM $Name: BETA_PATCH $            $Revision: 1.61 $ $Date: 1995/06/25 15:47:38 $");
@@ -18,6 +19,7 @@ void PrintVersion(void)
 
 // Always returns 0. SimMain raises Error(0x51) if it doesn't, so it's a stubbed-out startup check.
 // FUNCTION: MW2 0x100717bf
+// FUNCTION: MW2MATROX 0x1007ac5f
 MechS32 StartupCheckStub(void)
 {
 	return 0;

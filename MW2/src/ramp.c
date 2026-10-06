@@ -12,6 +12,7 @@ DECOMP_SIZE_ASSERT(WrappedRamp, 0x14)
 DECOMP_SIZE_ASSERT(EasedValue, 0x0c)
 
 // FUNCTION: MW2 0x100495b0
+// FUNCTION: MW2MATROX 0x1002dfe0
 MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -28,6 +29,7 @@ MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_
 }
 
 // FUNCTION: MW2 0x10049611
+// FUNCTION: MW2MATROX 0x1002e041
 MechS32 UpdateRamp(Ramp* p_ramp)
 {
 	MechS32 delta;
@@ -117,6 +119,7 @@ MechS32 SetWrappedRampTarget(WrappedRamp* p_ramp, MechS32 p_target)
 }
 
 // FUNCTION: MW2 0x10049871
+// FUNCTION: MW2MATROX 0x1002e471
 MechS32 UpdateEasedValue(EasedValue* p_value)
 {
 	MechS32 delta;

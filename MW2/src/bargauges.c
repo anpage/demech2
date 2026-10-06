@@ -19,24 +19,28 @@
 // until ScaleBarGauges scales them to pixels.
 
 // GLOBAL: MW2 0x100a82f0
+// GLOBAL: MW2MATROX 0x100bbd50
 EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
 undefined4 g_unk0x100a82fc = 0;
 
 // GLOBAL: MW2 0x100a8300
+// GLOBAL: MW2MATROX 0x100bbd60
 EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
 undefined4 g_unk0x100a830c = 0;
 
 // GLOBAL: MW2 0x100a8310
+// GLOBAL: MW2MATROX 0x100bbd70
 EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
 undefined4 g_unk0x100a831c = 0;
 
 // GLOBAL: MW2 0x100a8320
+// GLOBAL: MW2MATROX 0x100bbd80
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
@@ -44,51 +48,65 @@ undefined4 g_unk0x100a832c = 0;
 
 // The size of the throttle gauge.
 // GLOBAL: MW2 0x100a8330
+// GLOBAL: MW2MATROX 0x100bbd90
 Point g_throttleGaugeSize = {0x1e7a, 0x8dc9};
 
 // The throttle gauge's frame: left, top, right and bottom.
 // GLOBAL: MW2 0x100a8338
+// GLOBAL: MW2MATROX 0x100bbd98
 MechS32 g_throttleFrameLeft = 0;
 
 // GLOBAL: MW2 0x100a833c
+// GLOBAL: MW2MATROX 0x100bbd9c
 MechS32 g_throttleFrameTop = 0;
 
 // GLOBAL: MW2 0x100a8340
+// GLOBAL: MW2MATROX 0x100bbda0
 MechS32 g_throttleFrameRight = 0;
 
 // GLOBAL: MW2 0x100a8344
+// GLOBAL: MW2MATROX 0x100bbda4
 MechS32 g_throttleFrameBottom = 0;
 
 // The left of the throttle bar and the level of zero throttle.
 // GLOBAL: MW2 0x100a8348
+// GLOBAL: MW2MATROX 0x100bbda8
 MechS32 g_throttleBarLeft = 0;
 
 // GLOBAL: MW2 0x100a834c
+// GLOBAL: MW2MATROX 0x100bbdac
 MechS32 g_throttleZeroY = 0;
 
 // The heat bar: its position and size.
 // GLOBAL: MW2 0x100a8350
+// GLOBAL: MW2MATROX 0x100bbdb0
 Point g_heatBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8358
+// GLOBAL: MW2MATROX 0x100bbdb8
 Point g_heatBarSize = {0xea4e, 0x5555};
 
 // The heat rate bar.
 // GLOBAL: MW2 0x100a8360
+// GLOBAL: MW2MATROX 0x100bbdc0
 Point g_heatRateBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8368
+// GLOBAL: MW2MATROX 0x100bbdc8
 Point g_heatRateBarSize = {0xdf2e, 0x5555};
 
 // The jump jet fuel bar.
 // GLOBAL: MW2 0x100a8370
+// GLOBAL: MW2MATROX 0x100bbdd0
 Point g_jumpFuelBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8378
+// GLOBAL: MW2MATROX 0x100bbdd8
 Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 
 // Scales the gauges' rectangles to their panels.
 // FUNCTION: MW2 0x1004d020
+// FUNCTION: MW2MATROX 0x10089040
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;
@@ -299,6 +317,7 @@ void DrawThrottleGauge(PANE* p_target)
 
 // Draws the jump jet fuel bar.
 // FUNCTION: MW2 0x1004d660
+// FUNCTION: MW2MATROX 0x100896bf
 void DrawJumpFuelBar(PANE* p_target)
 {
 	MechS32 fill;

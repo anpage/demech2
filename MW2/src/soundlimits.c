@@ -12,6 +12,7 @@ DECOMP_SIZE_ASSERT(SoundTableEntry, 0x08)
 // The playback limits of the sound resources that have any: a resource id and its SoundInfo
 // values (-1: unset).
 // GLOBAL: MW2 0x100a24a0
+// GLOBAL: MW2MATROX 0x100a4110
 SoundTableEntry g_soundTable[0x8c] = {
 	{15, 80, 1, -1},   {14, 80, 1, -1},    {64, 80, 1, -1},   {327, 10, 1, -1},   {136, 80, -1, -1}, {118, 80, -1, -1},
 	{120, 80, -1, -1}, {121, 80, -1, -1},  {131, 80, -1, -1}, {135, 80, -1, -1},  {64, 80, -1, -1},  {75, 80, -1, -1},
@@ -42,6 +43,7 @@ SoundTableEntry g_soundTable[0x8c] = {
 // Fills g_soundInfo from the sound table.
 // Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x10013370
+// FUNCTION: MW2MATROX 0x1000be30
 void InitSoundInfo(void)
 {
 	MechU32 i;

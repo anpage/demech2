@@ -34,6 +34,7 @@
 
 // A game-key toggle (GetSystemSetting's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
+// GLOBAL: MW2MATROX 0x100a4618
 MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
@@ -44,6 +45,7 @@ MechS32 g_otherArmorPerLevel = 4;
 MechS32 g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
+// GLOBAL: MW2MATROX 0x100a4624
 MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
@@ -472,6 +474,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 // Stack-slot permutation of i, section and count; the loop test compares with i in eax in the
 // original (operand order).
 // FUNCTION: MW2 0x10008938
+// FUNCTION: MW2MATROX 0x100111e6
 void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechS32 i;
@@ -1041,6 +1044,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 // Ejects from p_mech, unless it is already shutting down or ejecting: the local player (p_eject)
 // ejects with a sound, or hears that the ejection system is disabled, and the mech is destroyed.
 // FUNCTION: MW2 0x10009d2a
+// FUNCTION: MW2MATROX 0x100126e4
 void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 {
 	if (p_mech->m_powerState == 4 || p_mech->m_powerState == 5) {
@@ -1063,6 +1067,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
+// FUNCTION: MW2MATROX 0x1001278c
 void ToggleLocalMechVisible(void)
 {
 	if (!g_localMechHidden) {

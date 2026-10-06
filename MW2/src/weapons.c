@@ -44,19 +44,23 @@
 // target lock of guided weapons.
 
 // GLOBAL: MW2 0x100a6d34
+// GLOBAL: MW2MATROX 0x100a61c8
 Shape* g_aimedShape = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
 // GLOBAL: MW2 0x100a6d38
+// GLOBAL: MW2MATROX 0x100a61cc
 MechS32 g_singleWeaponFire = 1;
 
 // The weapons each remote player's weapons message fired, and those the local player fired since
 // the last one (network.c).
 
 // GLOBAL: MW2 0x101099c0
+// GLOBAL: MW2MATROX 0x101d4bd0
 MechS32 g_remoteWeaponsFired[10];
 
 // GLOBAL: MW2 0x101099f0
+// GLOBAL: MW2MATROX 0x101d4c00
 MechS32 g_localWeaponsFired[10];
 
 // Index order: the original computes the slot address index first, `&p_mech->m_weapons[i]` loads the base
@@ -404,6 +408,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 // there is none.
 // Stack-slot permutation: index, group, slot, found, i and selected.
 // FUNCTION: MW2 0x10045449
+// FUNCTION: MW2MATROX 0x1002c1ef
 void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 {
 	MechS32 index;
@@ -444,6 +449,7 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 // Selects the next weapon that still has ammunition.
 // Stack-slot permutation: done and tries.
 // FUNCTION: MW2 0x10045567
+// FUNCTION: MW2MATROX 0x1002c30d
 void SelectNextWeapon(Mech* p_mech)
 {
 	MechS32 done;
@@ -480,6 +486,7 @@ void SelectNextWeapon(Mech* p_mech)
 // Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: group, i,
 // found, selected and current.
 // FUNCTION: MW2 0x1004567b
+// FUNCTION: MW2MATROX 0x1002c421
 void SelectNextWeaponGroup(Mech* p_mech)
 {
 	MechS32 group;
@@ -521,6 +528,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 // Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: i, found,
 // selected and current.
 // FUNCTION: MW2 0x100457d3
+// FUNCTION: MW2MATROX 0x1002c579
 MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 {
 	MechS32 i;
@@ -561,6 +569,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 
 // Returns 1 if the selected weapon is ready, 0 if not, -1 without one.
 // FUNCTION: MW2 0x10045919
+// FUNCTION: MW2MATROX 0x1002c6bf
 MechS32 IsSelectedWeaponReady(Mech* p_mech)
 {
 	MechS32 result;
@@ -580,6 +589,7 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 
 // Dumps the selected weapon's ammunition.
 // FUNCTION: MW2 0x1004597b
+// FUNCTION: MW2MATROX 0x1002c721
 MechS32 JettisonAmmo(Mech* p_mech)
 {
 	MechChar text[40];
@@ -606,6 +616,7 @@ MechS32 JettisonAmmo(Mech* p_mech)
 // Loads the launch sounds of the weapons and the sounds of the effects.
 // Stack-slot permutation: i and def.
 // FUNCTION: MW2 0x10045a5b
+// FUNCTION: MW2MATROX 0x1002c801
 void LoadWeaponSounds(void)
 {
 	MechS32 i;
@@ -638,6 +649,7 @@ void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 
 // Moves the local player's selected weapon to p_group.
 // FUNCTION: MW2 0x10045b56
+// FUNCTION: MW2MATROX 0x1002c8fc
 void SetSelectedWeaponGroup(MechS32 p_group)
 {
 	Mech* mech;
@@ -649,6 +661,7 @@ void SetSelectedWeaponGroup(MechS32 p_group)
 }
 
 // FUNCTION: MW2 0x10045b9c
+// FUNCTION: MW2MATROX 0x1002c942
 void CycleLocalWeaponGroup(void)
 {
 	Mech* mech;
@@ -691,6 +704,7 @@ void FireRemoteWeapons(Mech* p_mech)
 // Fires every ready weapon of the local player's selected group.
 // Stack-slot permutation: selected, first, def and slot.
 // FUNCTION: MW2 0x10045cd8
+// FUNCTION: MW2MATROX 0x1002ca7e
 void FireWeaponGroup(void)
 {
 	Mech* mech;
@@ -728,6 +742,7 @@ void FireWeaponGroup(void)
 
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
+// FUNCTION: MW2MATROX 0x1002cbcb
 void AddNextWeaponToGroup(Mech* p_mech)
 {
 	MechS32 group;
@@ -924,6 +939,7 @@ void GetEyeAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p
 }
 
 // FUNCTION: MW2 0x100464f3
+// FUNCTION: MW2MATROX 0x1002d364
 void GetFiringPosition(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	GetObjPosition(p_player->m_firingObj, p_x, p_y, p_z);
@@ -931,6 +947,7 @@ void GetFiringPosition(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_
 
 // Places p_obj at the player's current hardpoint.
 // FUNCTION: MW2 0x10046519
+// FUNCTION: MW2MATROX 0x1002d38a
 void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 {
 	MechS32 z;

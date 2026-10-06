@@ -594,6 +594,7 @@ void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 // Composes p_b with p_a into p_dst: the rotations' product, and p_b's
 // translation transformed by p_a.
 // FUNCTION: MW2 0x1000dbba
+// FUNCTION: MW2MATROX 0x10001d1d
 void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
 	MechS32 z;
@@ -663,6 +664,7 @@ void SetIdentityMatrix(Matrix* p_matrix)
 }
 
 // FUNCTION: MW2 0x1000dddf
+// FUNCTION: MW2MATROX 0x10001f42
 void CopyMatrix(Matrix* p_src, Matrix* p_dst)
 {
 	MemCopy(p_dst, p_src, sizeof(Matrix));
@@ -1028,6 +1030,7 @@ void BuildMatrixEx(
 }
 
 // FUNCTION: MW2 0x1000e2b9
+// FUNCTION: MW2MATROX 0x1000230e
 void BuildMatrix(
 	Matrix* p_matrix,
 	MechS32 p_angleX,

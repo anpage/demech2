@@ -25,9 +25,11 @@
 // target, optionally through the panel's rectangle transition.
 
 // GLOBAL: MW2 0x100a88e8
+// GLOBAL: MW2MATROX 0x100bbe94
 MechS32 g_mechViewStatic = 0;
 
 // FUNCTION: MW2 0x100509a0
+// FUNCTION: MW2MATROX 0x1008ad50
 void CycleMechViewMode(void)
 {
 	g_mechViewMode++;
@@ -154,6 +156,7 @@ void SetMechViewRenderSettings(RenderSettings* p_saved)
 }
 
 // FUNCTION: MW2 0x10050e20
+// FUNCTION: MW2MATROX 0x1008b237
 void DrawMechViewStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled || !g_mechViewMode) {
@@ -166,6 +169,7 @@ void DrawMechViewStatic(CockpitPanel* p_panel)
 
 // Stack-slot permutation: target and y.
 // FUNCTION: MW2 0x10050e6c
+// FUNCTION: MW2MATROX 0x1008b283
 void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId)
 {
 	PANE* target;
@@ -181,6 +185,7 @@ void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId
 
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050ebe
+// FUNCTION: MW2MATROX 0x1008b2d5
 void DrawMechViewStartup(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
@@ -218,6 +223,7 @@ void DrawMechViewStartup(CockpitPanel* p_panel)
 
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050fd6
+// FUNCTION: MW2MATROX 0x1008b3ed
 void DrawMechViewShutdown(CockpitPanel* p_panel)
 {
 	PANE savedTarget;

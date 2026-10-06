@@ -93,12 +93,14 @@ MenuPage g_combatVariablesPage = {
 };
 
 // FUNCTION: MW2 0x10076af0
+// FUNCTION: MW2MATROX 0x10078cc0
 void FirstPerfSetting(void)
 {
 	ApplyPerfSettings(NULL, NULL);
 }
 
 // FUNCTION: MW2 0x10076b07
+// FUNCTION: MW2MATROX 0x10078cd7
 MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 result = 1;
@@ -115,12 +117,14 @@ MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x10076b9a
+// FUNCTION: MW2MATROX 0x10078d6a
 MechS32 GetObjectTextmaps(MechS32 p_arg)
 {
 	return AreTextureMapsOn(0x100) || AreTextureMapsOn(0x200);
 }
 
 // FUNCTION: MW2 0x10076be0
+// FUNCTION: MW2MATROX 0x10078db0
 void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 {
 	EnableTextureMaps(0x100, p_objectTextmaps);
@@ -129,12 +133,14 @@ void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 }
 
 // FUNCTION: MW2 0x10076c19
+// FUNCTION: MW2MATROX 0x10078de9
 MechS32 GetTerrainTextmaps(MechS32 p_arg)
 {
 	return AreTextureMapsOn(0x800) || g_gridObjectShown;
 }
 
 // FUNCTION: MW2 0x10076c57
+// FUNCTION: MW2MATROX 0x10078e27
 void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 {
 	EnableTextureMaps(0x800, p_terrainTextmaps);
@@ -143,12 +149,14 @@ void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 }
 
 // FUNCTION: MW2 0x10076c8b
+// FUNCTION: MW2MATROX 0x10078e5b
 MechS32 GetDisplayDetail(MechS32 p_arg)
 {
 	return IsLodQualityHigh(p_arg) || ArePerspectiveTexturesOn(p_arg);
 }
 
 // FUNCTION: MW2 0x10076ccf
+// FUNCTION: MW2MATROX 0x10078e9f
 void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 {
 	SetLodQualityHigh(p_arg, p_displayDetail);
@@ -157,12 +165,14 @@ void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 }
 
 // FUNCTION: MW2 0x10076d06
+// FUNCTION: MW2MATROX 0x10078ed6
 MechS32 GetObjectDensity(MechS32 p_arg)
 {
 	return g_mw2SndCfgData->m_objectDensity;
 }
 
 // FUNCTION: MW2 0x10076d1e
+// FUNCTION: MW2MATROX 0x10078eee
 void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity)
 {
 	ShowDensityShapes(p_objectDensity);

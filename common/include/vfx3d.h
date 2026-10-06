@@ -37,18 +37,22 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x1002b68b
 // FUNCTION: MW2 0x1003763b
+// FUNCTION: MW2MATROX 0x100134f7
 // VFX_dithered_Gouraud_polygon
 
 // FUNCTION: MW2SHELL 0x1002bf39
 // FUNCTION: MW2 0x10037ee9
+// FUNCTION: MW2MATROX 0x10013da5
 // VFX_translate_polygon
 
 // FUNCTION: MW2SHELL 0x1002c48d
 // FUNCTION: MW2 0x1003843d
+// FUNCTION: MW2MATROX 0x100142f9
 // VFX_illuminate_polygon
 
 // FUNCTION: MW2SHELL 0x1002cd3d
 // FUNCTION: MW2 0x10038ced
+// FUNCTION: MW2MATROX 0x10014ba9
 // VFX_map_lookaside
 
 // About 93%: VFX keeps the table of span routines (__map_logic) and the span routines inside
@@ -56,6 +60,7 @@ extern "C"
 // compare by value. The object is identical to the game's.
 // FUNCTION: MW2SHELL 0x1002cd5d
 // FUNCTION: MW2 0x10038d0d
+// FUNCTION: MW2MATROX 0x10014bc9
 // VFX_map_polygon
 
 #endif // VFX3D_H

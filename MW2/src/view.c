@@ -25,6 +25,7 @@
 
 // The level of detail: 1 high, 2 low (TOGGLE_LOD_QUALITY); it divides Eyepoint::m_detailScale.
 // GLOBAL: MW2 0x100a712c
+// GLOBAL: MW2MATROX 0x100a5968
 MechS32 g_lodQuality = 1;
 
 // GLOBAL: MW2 0x100ea820
@@ -565,6 +566,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1004c779
+// FUNCTION: MW2MATROX 0x10029e62
 MechS32 CullHiddenShape(MechU16* p_flags)
 {
 	if (*p_flags & 0x1000) {
@@ -575,12 +577,14 @@ MechS32 CullHiddenShape(MechU16* p_flags)
 }
 
 // FUNCTION: MW2 0x1004c7a6
+// FUNCTION: MW2MATROX 0x10029e8f
 MechS32 IsLodQualityHigh(undefined4 p_unk0x00)
 {
 	return g_lodQuality == 1;
 }
 
 // FUNCTION: MW2 0x1004c7cf
+// FUNCTION: MW2MATROX 0x10029eb8
 void SetLodQualityHigh(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (p_enable) {

@@ -56,6 +56,7 @@ DECOMP_SIZE_ASSERT(Mech, 0x10e)
 
 // The "mightymouse" cheat: infinite jump jet fuel.
 // GLOBAL: MW2 0x100a2be4
+// GLOBAL: MW2MATROX 0x100a45a0
 MechS32 g_infiniteJumpFuel = 0;
 
 // Set by a game key: run JettisonAmmo on the local mech next tick.
@@ -73,6 +74,7 @@ MechS32 g_mascEngaged = 0;
 MechS32 g_unk0x100a2bf4 = 0;
 
 // GLOBAL: MW2 0x100a2bf8
+// GLOBAL: MW2MATROX 0x100a45b4
 MechS32 g_manualWeaponCycle = 0;
 
 // Set when the local mech lands while g_unk0x100a2c00 is on (UpdateMech).
@@ -83,6 +85,7 @@ MechS32 g_unk0x100a2bfc = 0;
 MechS32 g_unk0x100a2c00 = 1;
 
 // GLOBAL: MW2 0x100a2c04
+// GLOBAL: MW2MATROX 0x100a45c0
 MechS32 g_localMechLost = 0;
 
 // A power request for the local mech: 1 powers it up, -1 shuts it down.
@@ -94,6 +97,7 @@ MechS32 g_powerRequest = 0;
 MechS32 g_recenterLastHeading = 0;
 
 // GLOBAL: MW2 0x100a2c10
+// GLOBAL: MW2MATROX 0x100a45c8
 MechS32 g_mechPoweredUp = 0;
 
 // The clock at the last MASC malfunction roll (LateUpdateMech).
@@ -108,6 +112,7 @@ MechS32 g_ejectStarted = 0;
 
 // Set once the local mech's collision sound played; cleared when it moves freely (UpdateMech).
 // GLOBAL: MW2 0x100be00c
+// GLOBAL: MW2MATROX 0x100c21f4
 MechS32 g_collisionSoundPlayed;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
@@ -1224,6 +1229,7 @@ void UpdateLocalMech(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1001975a
+// FUNCTION: MW2MATROX 0x1000ff1c
 void DrawMechCockpit(Mech* p_mech)
 {
 	Mech* mech;
@@ -1240,6 +1246,7 @@ void DrawMechCockpit(Mech* p_mech)
 
 // Runs ShutdownCockpitPanels for the local player's mech.
 // FUNCTION: MW2 0x1001978e
+// FUNCTION: MW2MATROX 0x1000ff50
 void ShutdownMech(Mech* p_mech)
 {
 	Mech* mech;
@@ -1257,6 +1264,7 @@ void ShutdownMech(Mech* p_mech)
 // Allocates p_player's mech and sets it up.
 // Stack-slot permutation of buffer, i, size and mech.
 // FUNCTION: MW2 0x100197ca
+// FUNCTION: MW2MATROX 0x1000ff8c
 MechS32 CreateMech(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
@@ -1351,6 +1359,7 @@ MechS32 GetMechAllocSize(void)
 
 // Nothing calls it.
 // FUNCTION: MW2 0x10019a3c
+// FUNCTION: MW2MATROX 0x100101ff
 MechS32 GetLastSelectedWeapon(Player* p_player)
 {
 	Mech* mech;
@@ -1361,6 +1370,7 @@ MechS32 GetLastSelectedWeapon(Player* p_player)
 
 // Selects weapon p_weapon of p_player's mech.
 // FUNCTION: MW2 0x10019a61
+// FUNCTION: MW2MATROX 0x10010224
 void SetSelectedWeapon(Player* p_player, MechS32 p_weapon)
 {
 	Mech* mech;

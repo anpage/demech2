@@ -27,26 +27,33 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100ba620
+// GLOBAL: MW2MATROX 0x100bbbc8
 MechS32 g_temperature = 25;
 
 // Set on a planet without a breathable atmosphere: the local player can't eject (the cockpit says
 // so), a life support hit kills, and a mech whose pilot ejects counts as lost.
 // GLOBAL: MW2 0x100ba624
+// GLOBAL: MW2MATROX 0x100bbbcc
 MechS32 g_hostileAtmosphere = 0;
 
 // GLOBAL: MW2 0x100ba628
+// GLOBAL: MW2MATROX 0x100bbbd0
 MechS32 g_sampleRates[10] = {9922, 10143, 10364, 10584, 10804, 11025, 11246, 11466, 11686, 11907};
 
 // GLOBAL: MW2 0x100ba650
+// GLOBAL: MW2MATROX 0x100bbbf8
 AudioEngine* g_audioEngine = NULL;
 
 // GLOBAL: MW2 0x100ba654
+// GLOBAL: MW2MATROX 0x100bbbfc
 MechChar g_sampleTag[] = "SFLX";
 
 // GLOBAL: MW2 0x10174930
+// GLOBAL: MW2MATROX 0x10215d20
 SoundInfo g_soundInfo[1200];
 
 // FUNCTION: MW2 0x1007d9d0
+// FUNCTION: MW2MATROX 0x10086090
 MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 {
 	MechU32 i;
@@ -101,6 +108,7 @@ MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 }
 
 // FUNCTION: MW2 0x1007dbce
+// FUNCTION: MW2MATROX 0x1008628e
 void ShutdownDigitalAudio(void)
 {
 	MechU32 i;
@@ -414,6 +422,7 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 // next (-1 for none), 4 heap data to free.
 // Stack slots: id, data, next, slot and done are permuted.
 // FUNCTION: MW2 0x1007e80e
+// FUNCTION: MW2MATROX 0x10086eda
 void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 {
 	MechS32 id;
@@ -472,18 +481,21 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 }
 
 // FUNCTION: MW2 0x1007e9dc
+// FUNCTION: MW2MATROX 0x100870a8
 void PlayEffectsVolumeTest(void)
 {
 	PlaySample(0, 0, 0xd2, NULL, 100, g_soundConfig.m_effectsVolume, 0x40, RandomSampleRate(), (MechS32*) -1, 0x250);
 }
 
 // FUNCTION: MW2 0x1007ea11
+// FUNCTION: MW2MATROX 0x100870dd
 MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate)
 {
 	return PlaySample(0, 0, p_id, NULL, p_volume, g_soundConfig.m_effectsVolume, p_pan, p_rate, (MechS32*) -1, 0x450);
 }
 
 // FUNCTION: MW2 0x1007ea4c
+// FUNCTION: MW2MATROX 0x10087118
 MechS32 PlaySoundRandomRate(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -537,6 +549,7 @@ MechS32 PlayPositionalSound(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_
 }
 
 // FUNCTION: MW2 0x1007eb23
+// FUNCTION: MW2MATROX 0x100871f4
 MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags)
 {
 	return PlaySample(
@@ -554,6 +567,7 @@ MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p
 }
 
 // FUNCTION: MW2 0x1007eb64
+// FUNCTION: MW2MATROX 0x10087235
 MechS32 PlayDelayedSound(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -574,6 +588,7 @@ MechS32 PlayDelayedSound(
 }
 
 // FUNCTION: MW2 0x1007ebd1
+// FUNCTION: MW2MATROX 0x100872a2
 MechS32 PlaySoundAt(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, MechS32 p_half)
 {
 	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
@@ -599,6 +614,7 @@ MechS32 CalculateSamplePan(MechS32 p_bearing)
 }
 
 // FUNCTION: MW2 0x1007ec5e
+// FUNCTION: MW2MATROX 0x10087337
 MechS32 RandomSampleRate(void)
 {
 	return g_sampleRates[RandomIntBelow(10)];
@@ -606,6 +622,7 @@ MechS32 RandomSampleRate(void)
 
 // Stops the playing samples; p_all stops the speech sample too.
 // FUNCTION: MW2 0x1007ec7f
+// FUNCTION: MW2MATROX 0x10087358
 void StopSamples(MechS32 p_all)
 {
 	MechS32 i;
@@ -718,6 +735,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 }
 
 // FUNCTION: MW2 0x1007f01f
+// FUNCTION: MW2MATROX 0x10087708
 void StopAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;
@@ -739,6 +757,7 @@ void StopAmbientSound(AmbientSound* p_sound)
 
 // The volume, 0-100, at p_distance: full at 0, silent from 50000.
 // FUNCTION: MW2 0x1007f0d9
+// FUNCTION: MW2MATROX 0x100877c2
 MechS32 GetDistanceVolume(MechS32 p_distance)
 {
 	MechS32 volume;

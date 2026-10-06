@@ -10,6 +10,7 @@
 MechChar g_gameCdDrive = 0;
 
 // GLOBAL: MW2 0x100a00fc
+// GLOBAL: MW2MATROX 0x100a20f4
 MechS32 g_gameCdNumber = 0;
 
 // Finds the CD-ROM drive holding the game disc (the one with \OLD_HERC.DRV) and caches its
@@ -58,6 +59,7 @@ MechChar FindGameCdDrive(void)
 }
 
 // FUNCTION: MW2 0x10002df5
+// FUNCTION: MW2MATROX 0x10003dc7
 MechS32 GetGameCdNumber(void)
 {
 	if (g_gameCdNumber == 0) {

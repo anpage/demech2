@@ -10,6 +10,7 @@
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // FUNCTION: MW2 0x10003580
+// FUNCTION: MW2MATROX 0x100172a0
 MechS32 FixedMul16(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C

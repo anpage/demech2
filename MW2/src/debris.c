@@ -25,18 +25,23 @@ DECOMP_SIZE_ASSERT(DebrisChunk, 0x14)
 // come to rest; the chunks among them can be shot to pieces and time out.
 
 // GLOBAL: MW2 0x100a1150
+// GLOBAL: MW2MATROX 0x100a5a28
 MechS32 g_debrisCount = 0;
 
 // GLOBAL: MW2 0x100a1158
+// GLOBAL: MW2MATROX 0x100a5a30
 DebrisChunk g_emptyDebrisChunk = {0};
 
 // GLOBAL: MW2 0x10179ec0
+// GLOBAL: MW2MATROX 0x101d5630
 DebrisPiece g_debrisPieces[0x80];
 
 // GLOBAL: MW2 0x1017b0c0
+// GLOBAL: MW2MATROX 0x101d4c30
 DebrisChunk g_debrisChunks[0x80];
 
 // FUNCTION: MW2 0x100040b0
+// FUNCTION: MW2MATROX 0x1002a420
 MechS32 IsDebrisFull(void)
 {
 	MechS32 i;
@@ -151,6 +156,7 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 
 // Stack-slot permutation: child and sibling.
 // FUNCTION: MW2 0x100044f3
+// FUNCTION: MW2MATROX 0x1002a8a0
 void BlowOffObjTree(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	SceneObject* child;
@@ -174,6 +180,7 @@ void BlowOffObjTree(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk
 }
 
 // FUNCTION: MW2 0x1000457e
+// FUNCTION: MW2MATROX 0x1002a92b
 void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 index;
@@ -192,6 +199,7 @@ void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback)
 }
 
 // FUNCTION: MW2 0x100045db
+// FUNCTION: MW2MATROX 0x1002a988
 void UpdateDebris(void)
 {
 	MechS32 i;
@@ -358,6 +366,7 @@ void PushDebrisPiece(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // The only diff is the indirect call's displacement (g_debrisChunks[0].m_callback), which
 // reccmp leaves unmapped.
 // FUNCTION: MW2 0x10004b4f
+// FUNCTION: MW2MATROX 0x1002affe
 void ZeroChunx(void)
 {
 	MechS32 i;
@@ -392,6 +401,7 @@ void ResetDebrisPiece(MechS32 p_index)
 
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10004c86
+// FUNCTION: MW2MATROX 0x1002b135
 MechS32 FindDebrisPiece(SceneObject* p_obj)
 {
 	MechS32 index;
@@ -443,6 +453,7 @@ void DamageChunksInRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radiu
 }
 
 // FUNCTION: MW2 0x10004dcb
+// FUNCTION: MW2MATROX 0x1002b29d
 void RemoveChunk(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 i;
@@ -462,6 +473,7 @@ void RemoveChunk(SceneObject* p_obj, ObjectCallback p_callback)
 }
 
 // FUNCTION: MW2 0x10004e4d
+// FUNCTION: MW2MATROX 0x1002b31f
 void HideDebrisObj(SceneObject* p_obj)
 {
 	if (p_obj) {

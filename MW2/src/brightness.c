@@ -11,15 +11,19 @@
 // Display brightness: a gamma table with one row per brightness level, applied to the palette.
 
 // GLOBAL: MW2 0x100a9468
+// GLOBAL: MW2MATROX 0x100bcbe4
 MechS32 g_displayBrightness = 9;
 
 // GLOBAL: MW2 0x100a946c
+// GLOBAL: MW2MATROX 0x100bcbe8
 MechS32 g_brightnessSetting = 9;
 
 // GLOBAL: MW2 0x100e96a0
+// GLOBAL: MW2MATROX 0x1012bdf0
 PaletteColor g_paletteColorsPreBrightness[0x100];
 
 // GLOBAL: MW2 0x100e99a0
+// GLOBAL: MW2MATROX 0x1012b9f0
 MechU8 g_gammaTable[16][64];
 
 // Row i maps a 6-bit color component c to 63 * (c / 63) ^ (1 / (0.5 + i / 16)).
@@ -45,6 +49,7 @@ void InitGammaTable(void)
 }
 
 // FUNCTION: MW2 0x100584a7
+// FUNCTION: MW2MATROX 0x1008db2f
 void SavePreBrightnessPalette(void)
 {
 	GetPaletteColors(0, 0x100, g_paletteColorsPreBrightness);
@@ -52,6 +57,7 @@ void SavePreBrightnessPalette(void)
 
 // Sets the palette at brightness p_brightness without changing g_displayBrightness.
 // FUNCTION: MW2 0x100584c6
+// FUNCTION: MW2MATROX 0x1008db4e
 void PreviewBrightness(MechS32 p_brightness)
 {
 	MechS32 brightness;
@@ -63,6 +69,7 @@ void PreviewBrightness(MechS32 p_brightness)
 }
 
 // FUNCTION: MW2 0x100584fc
+// FUNCTION: MW2MATROX 0x1008db84
 void CopyPaletteColorWithBrightness(PaletteColor* p_src, PaletteColor* p_dst)
 {
 	MechU8* row;

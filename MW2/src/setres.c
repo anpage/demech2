@@ -31,6 +31,7 @@ Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 MechS32 g_pixelAspect;
 
 // GLOBAL: MW2 0x100e9614
+// GLOBAL: MW2MATROX 0x1012c1e8
 MechS32 g_artResolution;
 
 // FUNCTION: MW2 0x1005d410

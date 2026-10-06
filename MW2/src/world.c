@@ -266,26 +266,32 @@ typedef struct BwdAnim2dRecord {
 
 // Set by the local player's gpspec record: its hudfile record loads the HUD once.
 // GLOBAL: MW2 0x100a173c
+// GLOBAL: MW2MATROX 0x100a85c8
 MechS32 g_loadHudFile = 0;
 
 // The next g_shots slot a booyowthing record fills.
 // GLOBAL: MW2 0x100a1740
+// GLOBAL: MW2MATROX 0x100a85cc
 MechS32 g_nextShotRecord = 0;
 
 // The next g_effects slot an xplode record fills.
 // GLOBAL: MW2 0x100a1744
+// GLOBAL: MW2MATROX 0x100a85d0
 MechS32 g_nextEffectRecord = 0;
 
 // The name of the mission's music (the world stream's music record).
 // GLOBAL: MW2 0x100e9330
+// GLOBAL: MW2MATROX 0x10125870
 MechChar g_musicName[12];
 
 // The mission's "MUS" resource.
 // GLOBAL: MW2 0x100e9340
+// GLOBAL: MW2MATROX 0x1012587c
 MechS32 g_musicResource;
 
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
 // FUNCTION: MW2 0x1000a9c0
+// FUNCTION: MW2MATROX 0x100461c0
 MechU32 WidenEventFlags(MechU32 p_flags)
 {
 	if (p_flags & 0x730) {
@@ -1342,6 +1348,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 // thing table and the shape offset, then executes its BWD stream. Returns whether it loaded.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1000d30f
+// FUNCTION: MW2MATROX 0x10048c6d
 MechS32 LoadWorld(MechChar* p_name)
 {
 	BwdStream* stream;

@@ -19,9 +19,11 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x1009de38
+// GLOBAL: MW2MATROX 0x100a0b18
 const MechS32 g_wtbTag = 0x4f425457;
 
 // GLOBAL: MW2 0x100ba65c
+// GLOBAL: MW2MATROX 0x100a55d4
 MechS32 g_shapeLoadError = 0;
 
 // GLOBAL: MW2 0x100ba660
@@ -49,6 +51,7 @@ MechS32 g_shapeScaleY = 1;
 MechS32 g_shapeScaleZ = 1;
 
 // GLOBAL: MW2 0x100ba680
+// GLOBAL: MW2MATROX 0x100a55f8
 MechU32 g_shapeFlags = 0;
 
 // GLOBAL: MW2 0x100ba684
@@ -70,12 +73,15 @@ MechU32* g_faceIds;
 MechS32 g_shapeHasKey;
 
 // GLOBAL: MW2 0x100bfd40
+// GLOBAL: MW2MATROX 0x101d68f0
 MechS32 g_shapeOwnerSet;
 
 // GLOBAL: MW2 0x100bfd44
+// GLOBAL: MW2MATROX 0x101d68f4
 MechS32 g_shapeOwnerKind;
 
 // GLOBAL: MW2 0x100bfd48
+// GLOBAL: MW2MATROX 0x101d68f8
 MechS32 g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
@@ -113,6 +119,7 @@ void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x1007f1e6
+// FUNCTION: MW2MATROX 0x10025318
 void SetShapeFlags(MechU32 p_flags)
 {
 	g_shapeFlags = p_flags;
@@ -122,6 +129,7 @@ void SetShapeFlags(MechU32 p_flags)
 // its levels of detail.
 // Stack slots: next and count are swapped.
 // FUNCTION: MW2 0x1007f1f9
+// FUNCTION: MW2MATROX 0x1002532b
 Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject* p_parent)
 {
 	Shape* next;

@@ -311,6 +311,7 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 
 // Transforms a shape and each of its models by p_matrix.
 // FUNCTION: MW2 0x10039c36
+// FUNCTION: MW2MATROX 0x10028db4
 void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 {
 	Model* model;

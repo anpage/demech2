@@ -22,9 +22,11 @@
 
 // Indexed by DisplayBackend::m_id.
 // GLOBAL: MW2 0x100b1748
+// GLOBAL: MW2MATROX 0x100b1a50
 DisplayBackend* g_displayBackends[3] = {&g_directDrawBackend, &g_dispDibBackend, &g_gdiBackend};
 
 // GLOBAL: MW2 0x100b1758
+// GLOBAL: MW2MATROX 0x100b1a60
 RefreshMode* g_refreshModes[6] = {
 	&g_ddrawFlipRefreshMode,
 	&g_ddrawBlitFlipRefreshMode,
@@ -35,55 +37,70 @@ RefreshMode* g_refreshModes[6] = {
 };
 
 // GLOBAL: MW2 0x100b1770
+// GLOBAL: MW2MATROX 0x100b1a78
 DisplayBackend* g_currentDisplayBackend = NULL;
 
 // GLOBAL: MW2 0x100b1774
+// GLOBAL: MW2MATROX 0x100b1a7c
 RefreshMode* g_currentRefreshMode = NULL;
 
 // The fastest refresh mode found by the profiling, the one to return to from windowed mode.
 // GLOBAL: MW2 0x100b1778
+// GLOBAL: MW2MATROX 0x100b1a80
 RefreshMode* g_fastestRefreshMode = NULL;
 
 // GLOBAL: MW2 0x100b177c
+// GLOBAL: MW2MATROX 0x100b1a84
 MechS32 g_refreshModeFallback = FALSE;
 
 // The last refresh mode the profiling tries.
 // GLOBAL: MW2 0x100b1780
+// GLOBAL: MW2MATROX 0x100b1a88
 MechS32 g_lastProfiledRefreshMode = 4;
 
 // The buffer the active refresh mode renders into.
 // GLOBAL: MW2 0x100b1784
+// GLOBAL: MW2MATROX 0x100b1a8c
 WINDOW* g_refreshModeBuffer = NULL;
 
 // GLOBAL: MW2 0x100b1788
+// GLOBAL: MW2MATROX 0x100b1a90
 PaletteColor g_paletteColors[0x100] = {0};
 
 // The DIB bits of the GDI and DisplayDib back ends, restored into g_refreshModeBuffer by
 // m_acquireFramebuffer.
 // GLOBAL: MW2 0x100b1a88
+// GLOBAL: MW2MATROX 0x100b1d90
 undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2 0x100b1aa4
+// GLOBAL: MW2MATROX 0x100b1dac
 MechS32 g_windowMode = 0;
 
 // GLOBAL: MW2 0x100b1aa8
+// GLOBAL: MW2MATROX 0x100b1db0
 MechS32 g_refreshModeInactive = 1;
 
 // GLOBAL: MW2 0x100b1aac
+// GLOBAL: MW2MATROX 0x100b1db4
 MechS32 g_profileFrame = 0;
 
 // GLOBAL: MW2 0x100bf1c8
+// GLOBAL: MW2MATROX 0x101249f8
 static LARGE_INTEGER g_profileStart;
 
 // The window's position and size in windowed mode (SetWindowPos arguments, not corners).
 // GLOBAL: MW2 0x100c2890
+// GLOBAL: MW2MATROX 0x1012f950
 RECT g_windowedRect;
 
 // GLOBAL: MW2 0x100c28a0
+// GLOBAL: MW2MATROX 0x1012f520
 DrawBitmapInfo g_bitmapInfo;
 
 // The frame's size in pixels, p_width * p_height of InitRefreshMode.
 // GLOBAL: MW2 0x100c2cc8
+// GLOBAL: MW2MATROX 0x1012f510
 MechS32 g_refreshModePixelCount;
 
 // GLOBAL: MW2 0x100c2ce4
@@ -195,6 +212,7 @@ MechS32 InitRefreshMode(
 }
 
 // FUNCTION: MW2 0x10077069
+// FUNCTION: MW2MATROX 0x1007b0e5
 void ShutdownRefreshMode(void)
 {
 	if (g_currentRefreshMode != NULL) {
@@ -382,6 +400,7 @@ void ToggleFullScreen(void)
 
 // A top-down 8-bit DIB of p_width x p_height.
 // FUNCTION: MW2 0x100775b4
+// FUNCTION: MW2MATROX 0x1007b63a
 void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 {
 	g_bitmapInfo.m_header.biSize = sizeof(BITMAPINFOHEADER);
@@ -400,6 +419,7 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 // Restyles the game window for p_backend's window mode, and sets g_windowMode: a mode that
 // covers the whole screen counts as fullscreen.
 // FUNCTION: MW2 0x1007762f
+// FUNCTION: MW2MATROX 0x1007b6b5
 void AdjustWindowSize(DisplayBackend* p_backend)
 {
 	if (p_backend == NULL) {
@@ -449,6 +469,7 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 
 // Copies p_count colors of g_paletteColors from p_first into p_palette.
 // FUNCTION: MW2 0x100777a5
+// FUNCTION: MW2MATROX 0x1007b82b
 MechS32 GetPaletteColors(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)
 {
 	MechS32 i;

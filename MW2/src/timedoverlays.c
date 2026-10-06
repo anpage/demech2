@@ -36,6 +36,7 @@ static MechChar g_bottomMessageText[0x100];
 static MechChar g_topMessageText[0x100];
 
 // GLOBAL: MW2 0x100adf10
+// GLOBAL: MW2MATROX 0x100b10f8
 TimedOverlay g_timedOverlays[2] = {
 	{g_topMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_topMessagePane},
 	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_bottomMessagePane}
@@ -46,6 +47,7 @@ TimedOverlay g_timedOverlays[2] = {
 // text vertically.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006ee60
+// FUNCTION: MW2MATROX 0x10078690
 void LayoutMessageBoxes(void)
 {
 	MechS32 fontHeight;
@@ -102,6 +104,7 @@ void LayoutMessageBoxes(void)
 // priority not above p_priority (of those, the one that expires last). Returns 1 if shown.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006efd4
+// FUNCTION: MW2MATROX 0x10078804
 MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, MechS32 p_priority)
 {
 	MechS32 result;
@@ -264,6 +267,7 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 
 // Draws a TEXT resource, stored with each character negated (mod 256), as DrawTextBox does.
 // FUNCTION: MW2 0x1006f3ea
+// FUNCTION: MW2MATROX 0x10078c33
 void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
 {
 	MechChar* text;

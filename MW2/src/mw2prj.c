@@ -16,22 +16,27 @@
 // has them. In the original this object's data (the tables, their strings, then FirstResource's
 // literals) follows the rest of resource.c's.
 // GLOBAL: MW2 0x100a8674
+// GLOBAL: MW2MATROX 0x100a5a44
 char* g_resourceTypeTags[26] = {"SNDS", "CEL",  "XYC",  "SHP",  "FONT", "MENU", "DISP", "XMID", "PAL",
 								"TABL", "POLY", "TEXT", "ANIM", "MGEO", "HUD",  "CPIT", "VPT",  "MPIT",
 								"BWD",  "VER",  "AIT",  "MEK",  "LUMA", "MUS",  "GIF",  "NTXT"};
 
 // GLOBAL: MW2 0x100a86dc
+// GLOBAL: MW2MATROX 0x100a5aac
 char* g_resourceTypeExtensions[25] = {".sfl", ".xel", ".xyc", ".shp", ".fnt", ".dll", ".dll", ".xmi", ".col",
 									  ".tbl", ".wtb", ".xxt", ".3di", ".mgi", ".hdi", ".cpi", ".vpi", ".pit",
 									  ".bwd", ".ait", ".mek", ".lum", ".mus", ".gif", ".txt"};
 
 // GLOBAL: MW2 0x100a8740
+// GLOBAL: MW2MATROX 0x100a5b10
 MechS32 g_mw2PrjHandle = -1;
 
 // GLOBAL: MW2 0x100a8744
+// GLOBAL: MW2MATROX 0x100a5b14
 char* g_mw2PrjPath = NULL;
 
 // FUNCTION: MW2 0x10050780
+// FUNCTION: MW2MATROX 0x1002b360
 MechS32 FirstResource(void)
 {
 	MechS32 result;
@@ -56,12 +61,14 @@ MechS32 FirstResource(void)
 }
 
 // FUNCTION: MW2 0x1005082f
+// FUNCTION: MW2MATROX 0x1002b40f
 void ShutdownMw2Prj(void)
 {
 	ClosePrjFile(g_mw2PrjHandle);
 }
 
 // FUNCTION: MW2 0x10050848
+// FUNCTION: MW2MATROX 0x1002b428
 void CachePreloads(void)
 {
 	LoadWeaponSounds();
@@ -70,6 +77,7 @@ void CachePreloads(void)
 }
 
 // FUNCTION: MW2 0x10050862
+// FUNCTION: MW2MATROX 0x1002b442
 MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 {
 	MechS32 result;

@@ -186,13 +186,17 @@ endfunction()
 # --- Game DLLs ---
 #
 # Adds a game DLL and registers it with reccmp. SOURCES must follow the original link
-# order: object order determines function addresses. LIBRARIES are the import
+# order: object order determines function addresses. SOURCE_DIR is the directory whose include/
+# the target uses (default: ID). LIBRARIES are the import
 # libraries, in the order of the original's .idata descriptors (library processing
 # order decides it). RUNTIME is the MSVC_RUNTIME_LIBRARY value, COMPILE_OPTIONS and
 # LINK_OPTIONS the target's own codegen and link flags.
 function(demech2_add_dll TARGET)
-  cmake_parse_arguments(ARGS "" "ID;OUTPUT_NAME;RUNTIME"
+  cmake_parse_arguments(ARGS "" "ID;SOURCE_DIR;OUTPUT_NAME;RUNTIME"
     "SOURCES;LIBRARIES;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
+  if (NOT ARGS_SOURCE_DIR)
+    set(ARGS_SOURCE_DIR "${ARGS_ID}")
+  endif()
   add_library(${TARGET} SHARED ${ARGS_SOURCES} util/decomp.cpp)
   set_target_properties(${TARGET} PROPERTIES
     OUTPUT_NAME "${ARGS_OUTPUT_NAME}"
@@ -200,7 +204,7 @@ function(demech2_add_dll TARGET)
   )
   target_include_directories(${TARGET} PRIVATE
     "${PROJECT_SOURCE_DIR}/util"
-    "${PROJECT_SOURCE_DIR}/${ARGS_ID}/include"
+    "${PROJECT_SOURCE_DIR}/${ARGS_SOURCE_DIR}/include"
     "${PROJECT_SOURCE_DIR}/common/include"
   )
   target_include_directories(${TARGET} SYSTEM PRIVATE
@@ -352,175 +356,199 @@ set(mw2_link_options "")
 if (MSVC_FOR_DECOMP)
   set(mw2_link_options /DEBUG /INCREMENTAL:no)
 endif()
+set(mw2_sources
+  MW2/src/netio.c
+  MW2/src/object.c
+  MW2/src/palette.c
+  MW2/src/fixeddiv.c
+  MW2/src/gamecd.c
+  MW2/src/ray.c
+  MW2/src/fixedmul.c
+  MW2/src/muldiv.c
+  MW2/src/approxlen.c
+  MW2/src/gpanim.c
+  MW2/src/supanim.c
+  MW2/src/weapondata.c
+  MW2/src/debris.c
+  MW2/src/integrate.c
+  MW2/src/inradius.c
+  MW2/src/emptyfns.c
+  MW2/src/statuspanels.c
+  MW2/src/audio.c
+  MW2/src/missionaudio.c
+  MW2/src/namehash.c
+  MW2/src/anim2d.c
+  MW2/src/mechdamage.c
+  MW2/src/pausebanner.c
+  MW2/src/debugbreak.c
+  MW2/src/world.c
+  MW2/src/transform.c
+  MW2/src/network.c
+  MW2/src/mainmenu.c
+  MW2/src/bandpoly.c
+  MW2/src/commandpointmenu.c
+  MW2/src/palfade.c
+  MW2/src/eyepoint.c
+  MW2/src/recttransition.c
+  MW2/src/render.c
+  MW2/src/muldiv14.c
+  MW2/src/soundlimits.c
+  MW2/src/maneuvers.c
+  MW2/src/fixedsqrt.c
+  MW2/src/sqrtguess.c
+  MW2/src/mechclass.c
+  MW2/src/fixeddiv29.c
+  MW2/src/fixedmul29.c
+  MW2/src/loadres.c
+  MW2/src/sndunpack.${asm_or_c}
+  MW2/src/objective.c
+  MW2/src/classtable.c
+  MW2/src/quadtree.c
+  MW2/src/cmdline.c
+  MW2/src/geocache.c
+  MW2/src/midi.c
+  ${vfxrend}
+  MW2/src/weaponpanel.c
+  MW2/src/audiomenu.c
+  MW2/src/depthsort.c
+  MW2/src/scaledelta.c
+  MW2/src/crossdiv.c
+  MW2/src/lerp.c
+  MW2/src/collision.c
+  MW2/src/faceshade.c
+  ${vfx3d}
+  MW2/src/shapegeom.c
+  MW2/src/logwindow.c
+  MW2/src/shape.c
+  MW2/src/error.c
+  MW2/src/team.c
+  MW2/src/menu.c
+  MW2/src/cockpit.c
+  MW2/src/bwd.c
+  MW2/src/damagepanel.c
+  MW2/src/hud.c
+  MW2/src/mapview.c
+  MW2/src/fixeddot27.c
+  MW2/src/fixeddot29.c
+  MW2/src/shiftdiv.c
+  MW2/src/keyboard.c
+  MW2/src/bwdkeywords.c
+  MW2/src/polydraw.c
+  MW2/src/fixeddivu.c
+  MW2/src/fixedmul30.c
+  MW2/src/weapons.c
+  MW2/src/objectanim.c
+  MW2/src/ramp.c
+  MW2/src/staticmem.c
+  MW2/src/joystick.c
+  MW2/src/gridobject.c
+  MW2/src/aiweapons.c
+  MW2/src/view.c
+  MW2/src/commandmenu.c
+  MW2/src/mulratio.c
+  MW2/src/mulnorm16.c
+  MW2/src/muladddiv.c
+  MW2/src/fadepal.c
+  MW2/src/bargauges.c
+  MW2/src/missionsetup.c
+  MW2/src/dispdib.c
+  MW2/src/resource.c
+  MW2/src/mw2prj.c
+  MW2/src/debugprint.c
+  MW2/src/mechviewpanel.c
+  MW2/src/ai.c
+  MW2/src/poolsizes.c
+  MW2/src/screenscale.c
+  MW2/src/brightness.c
+  MW2/src/bwdnames.c
+  MW2/src/overlay.c
+  MW2/src/speech.c
+  MW2/src/artillery.c
+  MW2/src/cdaudio.c
+  MW2/src/gamekeys.c
+  MW2/src/setres.c
+  MW2/src/mekfile.c
+  MW2/src/settings.c
+  MW2/src/targeting.c
+  ${vfxa}
+  MW2/src/palidentity.c
+  MW2/src/lancemenu.c
+  MW2/src/camerashake.c
+  MW2/src/simmain.c
+  MW2/src/ticks.${asm_or_c}
+  MW2/src/door.c
+  MW2/src/mouse.c
+  MW2/src/animation.c
+  MW2/src/fixedtrig.c
+  MW2/src/shapecollision.c
+  MW2/src/shots.c
+  MW2/src/inifile.c
+  MW2/src/lineofsight.c
+  MW2/src/screenshot.c
+  MW2/src/players.c
+  MW2/src/shapelists.c
+  MW2/src/texpoly.c
+  MW2/src/gdi.c
+  MW2/src/boundbox.c
+  MW2/src/timedoverlays.c
+  MW2/src/config.c
+  MW2/src/startup.c
+  MW2/src/mw2log.c
+  MW2/src/horizon.c
+  MW2/src/prjfile.c
+  MW2/src/menucontrols.c
+  MW2/src/random.c
+  MW2/src/resourcename.c
+  MW2/src/dorcs.c
+  MW2/src/brightnessmenu.c
+  MW2/src/cockpitpanel.c
+  MW2/src/gifsave.c
+  MW2/src/mechcollision.c
+  MW2/src/perf.c
+  MW2/src/refreshmode.c
+  MW2/src/directdraw.c
+  MW2/src/inputmap.c
+  MW2/src/targetpanel.c
+  MW2/src/clock.c
+  MW2/src/recordstacks.c
+  MW2/src/callbacks.c
+  MW2/src/environment.c
+  MW2/src/soundfx.c
+  MW2/src/wtbshapes.c
+  MW2/src/mechreload.c
+)
 demech2_add_dll(mw2
   ID MW2
   OUTPUT_NAME MW2
   RUNTIME MultiThreadedDebug
   SOURCES
-    MW2/src/netio.c
-    MW2/src/object.c
-    MW2/src/palette.c
-    MW2/src/fixeddiv.c
-    MW2/src/gamecd.c
-    MW2/src/ray.c
-    MW2/src/fixedmul.c
-    MW2/src/muldiv.c
-    MW2/src/approxlen.c
-    MW2/src/gpanim.c
-    MW2/src/supanim.c
-    MW2/src/weapondata.c
-    MW2/src/debris.c
-    MW2/src/integrate.c
-    MW2/src/inradius.c
-    MW2/src/emptyfns.c
-    MW2/src/statuspanels.c
-    MW2/src/audio.c
-    MW2/src/missionaudio.c
-    MW2/src/namehash.c
-    MW2/src/anim2d.c
-    MW2/src/mechdamage.c
-    MW2/src/pausebanner.c
-    MW2/src/debugbreak.c
-    MW2/src/world.c
-    MW2/src/transform.c
-    MW2/src/network.c
-    MW2/src/mainmenu.c
-    MW2/src/bandpoly.c
-    MW2/src/commandpointmenu.c
-    MW2/src/palfade.c
-    MW2/src/eyepoint.c
-    MW2/src/recttransition.c
-    MW2/src/render.c
-    MW2/src/muldiv14.c
-    MW2/src/soundlimits.c
-    MW2/src/maneuvers.c
-    MW2/src/fixedsqrt.c
-    MW2/src/sqrtguess.c
-    MW2/src/mechclass.c
-    MW2/src/fixeddiv29.c
-    MW2/src/fixedmul29.c
-    MW2/src/loadres.c
-    MW2/src/sndunpack.${asm_or_c}
-    MW2/src/objective.c
-    MW2/src/classtable.c
-    MW2/src/quadtree.c
-    MW2/src/cmdline.c
-    MW2/src/geocache.c
-    MW2/src/midi.c
-    ${vfxrend}
-    MW2/src/weaponpanel.c
-    MW2/src/audiomenu.c
-    MW2/src/depthsort.c
-    MW2/src/scaledelta.c
-    MW2/src/crossdiv.c
-    MW2/src/lerp.c
-    MW2/src/collision.c
-    MW2/src/faceshade.c
-    ${vfx3d}
-    MW2/src/shapegeom.c
-    MW2/src/logwindow.c
-    MW2/src/shape.c
-    MW2/src/error.c
-    MW2/src/team.c
-    MW2/src/menu.c
-    MW2/src/cockpit.c
-    MW2/src/bwd.c
-    MW2/src/damagepanel.c
-    MW2/src/hud.c
-    MW2/src/mapview.c
-    MW2/src/fixeddot27.c
-    MW2/src/fixeddot29.c
-    MW2/src/shiftdiv.c
-    MW2/src/keyboard.c
-    MW2/src/bwdkeywords.c
-    MW2/src/polydraw.c
-    MW2/src/fixeddivu.c
-    MW2/src/fixedmul30.c
-    MW2/src/weapons.c
-    MW2/src/objectanim.c
-    MW2/src/ramp.c
-    MW2/src/staticmem.c
-    MW2/src/joystick.c
-    MW2/src/gridobject.c
-    MW2/src/aiweapons.c
-    MW2/src/view.c
-    MW2/src/commandmenu.c
-    MW2/src/mulratio.c
-    MW2/src/mulnorm16.c
-    MW2/src/muladddiv.c
-    MW2/src/fadepal.c
-    MW2/src/bargauges.c
-    MW2/src/missionsetup.c
-    MW2/src/dispdib.c
-    MW2/src/resource.c
-    MW2/src/mw2prj.c
-    MW2/src/debugprint.c
-    MW2/src/mechviewpanel.c
-    MW2/src/ai.c
-    MW2/src/poolsizes.c
-    MW2/src/screenscale.c
-    MW2/src/brightness.c
-    MW2/src/bwdnames.c
-    MW2/src/overlay.c
-    MW2/src/speech.c
-    MW2/src/artillery.c
-    MW2/src/cdaudio.c
-    MW2/src/gamekeys.c
-    MW2/src/setres.c
-    MW2/src/mekfile.c
-    MW2/src/settings.c
-    MW2/src/targeting.c
-    ${vfxa}
-    MW2/src/palidentity.c
-    MW2/src/lancemenu.c
-    MW2/src/camerashake.c
-    MW2/src/simmain.c
-    MW2/src/ticks.${asm_or_c}
-    MW2/src/door.c
-    MW2/src/mouse.c
-    MW2/src/animation.c
-    MW2/src/fixedtrig.c
-    MW2/src/shapecollision.c
-    MW2/src/shots.c
-    MW2/src/inifile.c
-    MW2/src/lineofsight.c
-    MW2/src/screenshot.c
-    MW2/src/players.c
-    MW2/src/shapelists.c
-    MW2/src/texpoly.c
-    MW2/src/gdi.c
-    MW2/src/boundbox.c
-    MW2/src/timedoverlays.c
-    MW2/src/config.c
-    MW2/src/startup.c
-    MW2/src/mw2log.c
-    MW2/src/horizon.c
-    MW2/src/prjfile.c
-    MW2/src/menucontrols.c
-    MW2/src/random.c
-    MW2/src/resourcename.c
-    MW2/src/dorcs.c
-    MW2/src/brightnessmenu.c
-    MW2/src/cockpitpanel.c
-    MW2/src/gifsave.c
-    MW2/src/mechcollision.c
-    MW2/src/perf.c
-    MW2/src/refreshmode.c
-    MW2/src/directdraw.c
-    MW2/src/inputmap.c
-    MW2/src/targetpanel.c
-    MW2/src/clock.c
-    MW2/src/recordstacks.c
-    MW2/src/callbacks.c
-    MW2/src/environment.c
-    MW2/src/soundfx.c
-    MW2/src/wtbshapes.c
-    MW2/src/mechreload.c
+    ${mw2_sources}
     MW2/MW2.def
   COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5>"
   LINK_OPTIONS ${mw2_link_options}
   LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
 )
+
+# MW2_MATROX.DLL, the simulator of the Matrox Mystique edition (linked 1996-08-22 by LINK 3.00,
+# VC++ 4.0's): the same C at /Od, with the release CRT (4.0's LIBCMT), drawing through Matrox's
+# MSI95.DLL instead of DirectDraw. Most of its functions are 1.1's, byte for byte or with their
+# stack slots permuted (4.0's slot assignment differs from 4.1's), and carry MW2MATROX
+# annotations next to MW2's (tools/port_annotations.py). For now it builds 1.1's sources in
+# 1.1's link order: reccmp compares the shared functions, wherever the linker puts them.
+if (MSVC_FOR_DECOMP)
+  demech2_add_dll(mw2matrox
+    ID MW2MATROX
+    SOURCE_DIR MW2
+    OUTPUT_NAME MW2_MATROX
+    RUNTIME MultiThreaded
+    SOURCES
+      ${mw2_sources}
+      MW2/MW2.def
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_MATROX>"
+    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
+  )
+endif()
 
 # --- VC++ 2.2 targets ---
 #

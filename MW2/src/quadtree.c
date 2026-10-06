@@ -16,6 +16,7 @@
 DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
+// GLOBAL: MW2MATROX 0x100a4834
 MechS32 g_quadtreesDisabled = 0;
 
 // Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_quadtreesDisabled is set.
@@ -244,6 +245,7 @@ QuadtreeNode* AllocQuadtreeNode(
 
 // Frees a quadtree.
 // FUNCTION: MW2 0x1001e50d
+// FUNCTION: MW2MATROX 0x10015fca
 void FreeQuadtree(QuadtreeNode* p_node)
 {
 	MechS32 i;
@@ -576,6 +578,7 @@ MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS3
 }
 
 // FUNCTION: MW2 0x1001edfa
+// FUNCTION: MW2MATROX 0x1001695e
 void DisableQuadtrees(void)
 {
 	g_quadtreesDisabled = 1;
@@ -583,6 +586,7 @@ void DisableQuadtrees(void)
 
 // Returns the bytes a quadtree takes.
 // FUNCTION: MW2 0x1001ee0f
+// FUNCTION: MW2MATROX 0x10016973
 MechS32 GetQuadtreeSize(QuadtreeNode* p_node)
 {
 	MechS32 i;

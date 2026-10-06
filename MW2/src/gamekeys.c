@@ -44,6 +44,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100aa290
+// GLOBAL: MW2MATROX 0x100a7cb8
 MechS32 g_missionEndTime = 0;
 
 // GLOBAL: MW2 0x100aa294
@@ -51,6 +52,7 @@ MechS32 g_speechFlushTime = 0;
 
 // A game-key toggle (GetSystemSetting's setting 0x40).
 // GLOBAL: MW2 0x100aa298
+// GLOBAL: MW2MATROX 0x100a7cc0
 MechS32 g_overrideShutdown = 0;
 
 // Set by game key 0x11.
@@ -58,37 +60,47 @@ MechS32 g_overrideShutdown = 0;
 MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
+// GLOBAL: MW2MATROX 0x100a7ccc
 MechS32 g_mechViewMode = 1;
 
 // GLOBAL: MW2 0x100aa2a8
+// GLOBAL: MW2MATROX 0x100a7cd0
 MechS32 g_missionEnded = 0;
 
 // GLOBAL: MW2 0x100aa2ac
+// GLOBAL: MW2MATROX 0x100a7cd4
 MechS32 g_missionTimerStopped = 0;
 
 // The "meepmeep" cheat: enables the time compression key.
 // GLOBAL: MW2 0x100aa2b0
+// GLOBAL: MW2MATROX 0x100a7cd8
 MechS32 g_timeCompressionCheat = 0;
 
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
+// GLOBAL: MW2MATROX 0x100a7ce0
 MechS32 g_chatLength = 0;
 
 // GLOBAL: MW2 0x100aa2bc
+// GLOBAL: MW2MATROX 0x100a7ce4
 MechS32 g_missionResolved = 0;
 
 // GLOBAL: MW2 0x100aa2c0
+// GLOBAL: MW2MATROX 0x100a7d04
 MechS32 g_statusMessage = 0;
 
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
+// GLOBAL: MW2MATROX 0x101d4a80
 MechChar g_typedKeys[0xf];
 
 // GLOBAL: MW2 0x100ea3e4
+// GLOBAL: MW2MATROX 0x1012c1ec
 MechS32 g_frontViewForRear;
 
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
 // FUNCTION: MW2 0x1005b7c0
+// FUNCTION: MW2MATROX 0x10041ed0
 MechS32 AppendTypedKey(MechS16 p_key)
 {
 	if ((p_key & 0xff00) != 0x700) {
@@ -104,6 +116,7 @@ MechS32 AppendTypedKey(MechS16 p_key)
 // with 0x1a.
 // Stack-slot permutation of n and c.
 // FUNCTION: MW2 0x1005b807
+// FUNCTION: MW2MATROX 0x10041f17
 MechS32 TypedCodeMatches(MechChar* p_code)
 {
 	MechChar* typed;
@@ -306,6 +319,7 @@ void HandleCheatInput(MechS16 p_key)
 
 // Turns a typed character into the one its key gives with shift held (the US layout).
 // FUNCTION: MW2 0x1005bf7c
+// FUNCTION: MW2MATROX 0x100426b2
 void ShiftCharacter(MechChar* p_char)
 {
 	MechChar shifted[16] = {'<', '_', '>', '?', ')', '!', '@', '#', '$', '%', '^', '&', '*', '(', ':', ':'};
@@ -330,6 +344,7 @@ void ShiftCharacter(MechChar* p_char)
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
 // Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
 // FUNCTION: MW2 0x1005c057
+// FUNCTION: MW2MATROX 0x1004278d
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
 	MechChar text[80];

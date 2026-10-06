@@ -21,6 +21,7 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // The kinds of player a gamepiece record can create, by Player::m_type: 3 has its own
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
+// GLOBAL: MW2MATROX 0x100aa738
 PlayerType g_playerTypes[9] = {
 	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
 	{1, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
@@ -34,17 +35,21 @@ PlayerType g_playerTypes[9] = {
 };
 
 // GLOBAL: MW2 0x100ad5e0
+// GLOBAL: MW2MATROX 0x100aa878
 MechS32 g_playerCount = 0;
 
 // GLOBAL: MW2 0x100ad5e4
+// GLOBAL: MW2MATROX 0x100aa87c
 MechS32 g_gameThingCount = 0;
 
 // The world loader stops at 0x3c players (BwdExecuteStream), which fill the original's room
 // before g_gameThings.
 // GLOBAL: MW2 0x100c3570
+// GLOBAL: MW2MATROX 0x1015e8d0
 Player* g_players[0x3c];
 
 // GLOBAL: MW2 0x100c3660
+// GLOBAL: MW2MATROX 0x1015e9c0
 GameThing g_gameThings[254];
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
@@ -63,6 +68,7 @@ void FirstClassFunctions(void)
 }
 
 // FUNCTION: MW2 0x1006cffa
+// FUNCTION: MW2MATROX 0x10054e89
 void UpdateAllPlayers(void)
 {
 	PlayerMechFn update;
@@ -94,6 +100,7 @@ void LateUpdateAllPlayers(void)
 }
 
 // FUNCTION: MW2 0x1006d0e5
+// FUNCTION: MW2MATROX 0x10054f73
 void UpdateLocalPlayer(void)
 {
 	Player* player;
@@ -109,6 +116,7 @@ void UpdateLocalPlayer(void)
 }
 
 // FUNCTION: MW2 0x1006d139
+// FUNCTION: MW2MATROX 0x10054fc7
 void DrawLocalPlayer(void)
 {
 	Player* player;
@@ -125,6 +133,7 @@ void DrawLocalPlayer(void)
 
 // Stack slots: shutdown and i are swapped.
 // FUNCTION: MW2 0x1006d18d
+// FUNCTION: MW2MATROX 0x1005501b
 void ShutdownAllPlayers(void)
 {
 	PlayerMechFn shutdown;
@@ -139,6 +148,7 @@ void ShutdownAllPlayers(void)
 }
 
 // FUNCTION: MW2 0x1006d1f5
+// FUNCTION: MW2MATROX 0x10055083
 void ZeroGameThing(MechS32 p_index)
 {
 	GameThing* thing;
@@ -153,6 +163,7 @@ void ZeroGameThing(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1006d247
+// FUNCTION: MW2MATROX 0x100550d5
 void ZeroGamethings(void)
 {
 	MechS32 i;

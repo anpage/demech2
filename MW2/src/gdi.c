@@ -44,31 +44,40 @@ typedef struct GdiLogPalette {
 DECOMP_SIZE_ASSERT(GdiLogPalette, 0x404)
 
 // GLOBAL: MW2 0x100ad5f0
+// GLOBAL: MW2MATROX 0x100a2d40
 HDC g_gdiWindowDc = NULL;
 
 // GLOBAL: MW2 0x100ad5f4
+// GLOBAL: MW2MATROX 0x100a2d44
 HPALETTE g_gdiPalette = NULL;
 
 // GLOBAL: MW2 0x100ad5f8
+// GLOBAL: MW2MATROX 0x100a2d48
 RGBQUAD g_gdiColorTable[256] = {0};
 
 // Cleared by GdiEnd, never set.
 // GLOBAL: MW2 0x100ad9f8
+// GLOBAL: MW2MATROX 0x100a3148
 HANDLE g_unk0x100ad9f8 = NULL;
 
 // GLOBAL: MW2 0x100ad9fc
+// GLOBAL: MW2MATROX 0x100a314c
 HDC g_gdiMemoryDc = NULL;
 
 // GLOBAL: MW2 0x100ada00
+// GLOBAL: MW2MATROX 0x100a3150
 HBITMAP g_gdiDibSection = NULL;
 
 // GLOBAL: MW2 0x100ada04
+// GLOBAL: MW2MATROX 0x100a3154
 undefined4 g_unk0x100ada04 = 0;
 
 // GLOBAL: MW2 0x100ada08
+// GLOBAL: MW2MATROX 0x100a3158
 MechS32 g_gdiInitialized = FALSE;
 
 // GLOBAL: MW2 0x100ada10
+// GLOBAL: MW2MATROX 0x100a3160
 GdiLogPalette g_gdiLogPalette = {0x300, 256};
 
 // GLOBAL: MW2 0x100ade18
@@ -91,15 +100,19 @@ RefreshMode g_gdiRefreshMode =
 
 // The shell's GdiSetPalette keeps its p_allColors here; the simulator's never touches it.
 // GLOBAL: MW2 0x100ade64
+// GLOBAL: MW2MATROX 0x100a35b4
 MechS32 g_gdiAllColors = TRUE;
 
 // GLOBAL: MW2 0x100c3560
+// GLOBAL: MW2MATROX 0x102183fc
 MechS32 g_gdiResult;
 
 // GLOBAL: MW2 0x100c3564
+// GLOBAL: MW2MATROX 0x10218404
 HGDIOBJ g_gdiOldBitmap;
 
 // GLOBAL: MW2 0x100c356c
+// GLOBAL: MW2MATROX 0x10218400
 HPALETTE g_gdiOldPalette;
 
 // Switches to the GDI extension and allocates the frame p_buffer describes: a p_width x p_height
@@ -156,6 +169,7 @@ MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 }
 
 // FUNCTION: MW2 0x1006dffe
+// FUNCTION: MW2MATROX 0x10008158
 MechS32 GdiEnd(void)
 {
 	g_gdiInitialized = FALSE;
@@ -185,6 +199,7 @@ MechS32 GdiEnd(void)
 // Unreferenced: an older path that drew into a DIB section instead of a heap buffer. The first call
 // creates the section as the frame; later calls only refresh its colour table.
 // FUNCTION: MW2 0x1006e0d8
+// FUNCTION: MW2MATROX 0x10008232
 MechS32 GdiUpdateDibSection(void)
 {
 	if (g_gdiDibSection) {
@@ -212,6 +227,7 @@ MechS32 GdiUpdateDibSection(void)
 }
 
 // FUNCTION: MW2 0x1006e197
+// FUNCTION: MW2MATROX 0x100082f1
 MechS32 GdiBlitFlip(void)
 {
 	g_gdiResult = SetDIBitsToDevice(
@@ -237,6 +253,7 @@ MechS32 GdiBlitFlip(void)
 
 // Presents the inclusive rectangle (p_left, p_top)-(p_right, p_bottom). The DIB is bottom-up.
 // FUNCTION: MW2 0x1006e21f
+// FUNCTION: MW2MATROX 0x10008379
 MechS32 GdiBitBltRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = SetDIBitsToDevice(
@@ -262,6 +279,7 @@ MechS32 GdiBitBltRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_
 
 // Unreferenced: GdiBitBltRect shifted up by the menu bar, without flipping the source.
 // FUNCTION: MW2 0x1006e2b9
+// FUNCTION: MW2MATROX 0x10008413
 MechS32 GdiBitBltRectWithMenu(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = SetDIBitsToDevice(
@@ -287,6 +305,7 @@ MechS32 GdiBitBltRectWithMenu(MechS32 p_left, MechS32 p_top, MechS32 p_right, Me
 
 // Stretches the inclusive rectangle (p_left, p_top)-(p_right, p_bottom) over the whole window.
 // FUNCTION: MW2 0x1006e357
+// FUNCTION: MW2MATROX 0x100084b1
 MechS32 GdiStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = StretchDIBits(
@@ -310,6 +329,7 @@ MechS32 GdiStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p
 
 // Unreferenced: the same as GdiStretchBlit.
 // FUNCTION: MW2 0x1006e3d5
+// FUNCTION: MW2MATROX 0x1000852f
 MechS32 GdiStretchBlit2(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = StretchDIBits(
@@ -366,6 +386,7 @@ MechS32 GdiRealizePalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 }
 
 // FUNCTION: MW2 0x1006e5d8
+// FUNCTION: MW2MATROX 0x10008732
 MechS32 GdiSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 result;
@@ -384,6 +405,7 @@ MechS32 GdiSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette,
 
 // Keeps p_palette in g_paletteColorsPreBrightness and loads their brightness-adjusted copies.
 // FUNCTION: MW2 0x1006e633
+// FUNCTION: MW2MATROX 0x1000878d
 MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 {
 	MechS32 i;

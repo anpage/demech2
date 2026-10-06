@@ -190,6 +190,7 @@ void ClipRayToGround(Ray* p_ray, MechS32 p_y)
 }
 
 // FUNCTION: MW2 0x1000342d
+// FUNCTION: MW2MATROX 0x10087e35
 void CopyRay(Ray* p_dst, Ray* p_src)
 {
 	*p_dst = *p_src;

@@ -79,18 +79,23 @@ DECOMP_SIZE_ASSERT(StarMission, 0x3c0a)
 DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 
 // GLOBAL: MW2 0x100acb18
+// GLOBAL: MW2MATROX 0x100be4c0
 MechS32 g_shouldQuit = 0;
 
 // GLOBAL: MW2 0x100acb1c
+// GLOBAL: MW2MATROX 0x100be4c4
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
+// GLOBAL: MW2MATROX 0x100be4c8
 TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
+// GLOBAL: MW2MATROX 0x100be4cc
 DifficultyCfg* g_difficulty = NULL;
 
 // GLOBAL: MW2 0x100acb28
+// GLOBAL: MW2MATROX 0x100be4d0
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
@@ -98,30 +103,37 @@ MechS32 g_remoteWaitTime = 0;
 
 // Set when the local player starts on the autopilot (FirstMech).
 // GLOBAL: MW2 0x100acb34
+// GLOBAL: MW2MATROX 0x100be4dc
 MechS32 g_startOnAutopilot = 0;
 
 // GLOBAL: MW2 0x100acb60
+// GLOBAL: MW2MATROX 0x100be50c
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
 HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
+// GLOBAL: MW2MATROX 0x100be514
 HANDLE g_primaryHeap = NULL;
 
 // GLOBAL: MW2 0x100acb6c
+// GLOBAL: MW2MATROX 0x100be518
 MechS32 g_gameWindowWidth = 0;
 
 // GLOBAL: MW2 0x100acb70
+// GLOBAL: MW2MATROX 0x100be51c
 MechS32 g_gameWindowHeight = 0;
 
 // GLOBAL: MW2 0x100acb74
+// GLOBAL: MW2MATROX 0x100be520
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
 MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
+// GLOBAL: MW2MATROX 0x100be528
 undefined4 g_shouldToggleFullscreen = 0;
 
 // GLOBAL: MW2 0x100acb80
@@ -131,27 +143,35 @@ MechS32 g_desktopWidth = 0;
 MechS32 g_desktopHeight = 0;
 
 // GLOBAL: MW2 0x100acb88
+// GLOBAL: MW2MATROX 0x100be534
 MechS32 g_simPaused = 0;
 
 // GLOBAL: MW2 0x100acb8c
+// GLOBAL: MW2MATROX 0x100be538
 MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
+// GLOBAL: MW2MATROX 0x100be53c
 undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
+// GLOBAL: MW2MATROX 0x100be540
 MechS32 g_mouseOutsideClientWindow = 0;
 
 // GLOBAL: MW2 0x100acb98
+// GLOBAL: MW2MATROX 0x100be548
 MechS32 g_goLaunch = 0;
 
 // GLOBAL: MW2 0x100e9240
+// GLOBAL: MW2MATROX 0x1012595c
 MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2 0x100e933c
+// GLOBAL: MW2MATROX 0x10125958
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2 0x1012b7c0
+// GLOBAL: MW2MATROX 0x101d69c0
 VideoDriverChoice g_videoDriverChoice;
 
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
@@ -678,6 +698,7 @@ void HandleMessages(void)
 }
 
 // FUNCTION: MW2 0x10067c79
+// FUNCTION: MW2MATROX 0x10090d71
 void UpdatePauseState(void)
 {
 	if (g_pauseRequested) {
@@ -726,6 +747,7 @@ void UpdatePauseState(void)
 }
 
 // FUNCTION: MW2 0x10067e23
+// FUNCTION: MW2MATROX 0x10090f1b
 void SetGameResolution(char* p_driverName)
 {
 	if (_strcmpi(p_driverName, "MCGA.DLL") == 0) {

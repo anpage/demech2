@@ -31,18 +31,22 @@ typedef struct PlayerDetail {
 } PlayerDetail;
 
 // GLOBAL: MW2 0x100a37d4
+// GLOBAL: MW2MATROX 0x100ae0e4
 MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
+// GLOBAL: MW2MATROX 0x100ae0e8
 MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
+// GLOBAL: MW2MATROX 0x10150690
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // Stack-slot permutation: count, i and buffer.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001ce90
+// FUNCTION: MW2MATROX 0x1006d550
 MechS32 LoadBaseLevelShapes(Player* p_player)
 {
 	MechS32 i;
@@ -174,6 +178,7 @@ void ResetClassTable(void)
 // Gives the entries added since the last call (owner -2) to p_player.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001d220
+// FUNCTION: MW2MATROX 0x1006d8e0
 void ClaimNewClassEntries(Player* p_player)
 {
 	MechS32 i;
@@ -230,6 +235,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 
 // Releases the level-p_level shapes of p_owner's entries.
 // FUNCTION: MW2 0x1001d3a4
+// FUNCTION: MW2MATROX 0x1006da7e
 void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
@@ -372,6 +378,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // Operand order: i < g_playerCount loads g_playerCount first in the original.
 // FUNCTION: MW2 0x1001d88b
+// FUNCTION: MW2MATROX 0x1006df87
 void ReleasePendingDetailLevel(void)
 {
 	MechS32 i;
@@ -389,6 +396,7 @@ void ReleasePendingDetailLevel(void)
 
 // Releases entry p_index's shape if it is the one loaded for level p_level.
 // FUNCTION: MW2 0x1001d912
+// FUNCTION: MW2MATROX 0x1006e00e
 void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 {
 	ClassEntry* entry;
@@ -429,6 +437,7 @@ Shape* GetClassShape(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1001da14
+// FUNCTION: MW2MATROX 0x1006e10f
 void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 {
 	ClassEntry* entry;
@@ -548,6 +557,7 @@ void ChoosePlayerDetailLevels(void)
 // Releases the shape of the entry whose object is p_obj.
 // Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x1001ddf2
+// FUNCTION: MW2MATROX 0x1006e63c
 void ReleaseObjShape(struct SceneObject* p_obj)
 {
 	MechS32 i;
@@ -571,6 +581,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
 // FUNCTION: MW2 0x1001de84
+// FUNCTION: MW2MATROX 0x1006e6ce
 void ForgetObjShape(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;

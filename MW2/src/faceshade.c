@@ -17,6 +17,7 @@
 // Set by the world stream (BwdExecuteStream): GetFaceColor brightens damaged shapes instead of
 // dimming them.
 // GLOBAL: MW2 0x100a555c
+// GLOBAL: MW2MATROX 0x100a4958
 MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
@@ -231,18 +232,21 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance)
 // Switches the texture maps of the shape kinds in p_flags on or off (the TOGGLE_..._TEXT_MAPS
 // keys).
 // FUNCTION: MW2 0x10036853
+// FUNCTION: MW2MATROX 0x100170d8
 void ToggleTextureMaps(MechU32 p_flags)
 {
 	g_renderSettings.m_untexturedKinds ^= p_flags;
 }
 
 // FUNCTION: MW2 0x10036867
+// FUNCTION: MW2MATROX 0x100170ec
 MechS32 AreTextureMapsOn(MechU32 p_flags)
 {
 	return !(p_flags & g_renderSettings.m_untexturedKinds);
 }
 
 // FUNCTION: MW2 0x10036891
+// FUNCTION: MW2MATROX 0x10017116
 void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 {
 	if (p_enable) {
@@ -255,12 +259,14 @@ void EnableTextureMaps(MechU32 p_flags, MechS32 p_enable)
 
 // The display detail setting: textures with perspective correction.
 // FUNCTION: MW2 0x100368bf
+// FUNCTION: MW2MATROX 0x10017144
 MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 {
 	return !g_renderSettings.m_affineTextures;
 }
 
 // FUNCTION: MW2 0x100368e8
+// FUNCTION: MW2MATROX 0x1001716d
 void EnablePerspectiveTextures(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (!p_enable) {

@@ -21,23 +21,29 @@
 // The dropship animation of the loading screen ("sup anim"), drawn by an AIL timer.
 
 // GLOBAL: MW2 0x100a0150
+// GLOBAL: MW2MATROX 0x100a8650
 HTIMER g_supAnimTimer = -1;
 
 // GLOBAL: MW2 0x100a0154
+// GLOBAL: MW2MATROX 0x100a8654
 void* g_supAnimBackdrop = NULL;
 
 // GLOBAL: MW2 0x100a0158
+// GLOBAL: MW2MATROX 0x100a8658
 void* g_supAnimShape = NULL;
 
 // GLOBAL: MW2 0x100a015c
+// GLOBAL: MW2MATROX 0x100a865c
 MechS32 g_supAnimFrameCount = 0;
 
 // The command line's overrides of the backdrop and dropship file names (ProcessCmdLineArgs).
 
 // GLOBAL: MW2 0x100a0160
+// GLOBAL: MW2MATROX 0x100a8660
 MechChar* g_supAnimBackdropName = NULL;
 
 // GLOBAL: MW2 0x100a0164
+// GLOBAL: MW2MATROX 0x100a8664
 MechChar* g_supAnimShapeName = NULL;
 
 // The first 16 palette entries in single player.
@@ -213,6 +219,7 @@ void SupAnimTimerCallback(void)
 
 // Releases the timer and frees the backdrop and the dropship.
 // FUNCTION: MW2 0x10004031
+// FUNCTION: MW2MATROX 0x1004aaa6
 void StopSupAnim(void)
 {
 	if (g_supAnimTimer != -1) {

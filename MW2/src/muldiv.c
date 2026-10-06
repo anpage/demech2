@@ -10,6 +10,7 @@
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // FUNCTION: MW2 0x100035a0
+// FUNCTION: MW2MATROX 0x10089ae0
 MechS32 MulDiv64(MechS32 p_a, MechS32 p_b, MechS32 p_c)
 {
 #ifdef PORTABLE_C

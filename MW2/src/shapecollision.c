@@ -20,6 +20,7 @@ MechS32 g_rayBoxEntryBehind = 0;
 
 // Stack-slot permutation: inColumn and top.
 // FUNCTION: MW2 0x100699a0
+// FUNCTION: MW2MATROX 0x10052170
 MechS32 TestPointInBox(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	MechS32 inColumn;
@@ -250,6 +251,7 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_
 }
 
 // FUNCTION: MW2 0x10069f67
+// FUNCTION: MW2MATROX 0x100527b3
 MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	Model* model;
@@ -264,12 +266,14 @@ MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10069fd4
+// FUNCTION: MW2MATROX 0x10052820
 MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 {
 	return TestQuadtreeRay(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
 }
 
 // FUNCTION: MW2 0x1006a001
+// FUNCTION: MW2MATROX 0x1005284d
 MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
 {
 	return GetQuadtreeTop(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
@@ -328,6 +332,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_
 // Tests the ray against each face of the shape's model.
 // Stack-slot permutation: vertices, i and face.
 // FUNCTION: MW2 0x1006a190
+// FUNCTION: MW2MATROX 0x100529df
 MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 {
 	Model* model;

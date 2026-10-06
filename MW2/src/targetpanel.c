@@ -37,6 +37,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100ba4bc
+// GLOBAL: MW2MATROX 0x100a4a4c
 MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
@@ -57,6 +58,7 @@ MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation.
 // GLOBAL: MW2 0x100c26a0
+// GLOBAL: MW2MATROX 0x10212d40
 MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
@@ -414,6 +416,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
+// FUNCTION: MW2MATROX 0x10018db0
 void DrawTargetStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
@@ -428,6 +431,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // rectangle (g_panes[7] and the panel's target) for the frame.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
+// FUNCTION: MW2MATROX 0x10018def
 void DrawTargetPanelStartup(CockpitPanel* p_panel)
 {
 	PANE* rect;
@@ -467,6 +471,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // 4) already had it closed.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c81c
+// FUNCTION: MW2MATROX 0x10018eed
 void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 {
 	PANE* rect;

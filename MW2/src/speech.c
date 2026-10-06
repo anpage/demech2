@@ -22,6 +22,7 @@
 
 // The lancemates a message addresses.
 // GLOBAL: MW2 0x100a96c8
+// GLOBAL: MW2MATROX 0x100bbe98
 SpeechLine g_slotSpeech[3] = {
 	{2, "All points", NULL},
 	{0x108, "Point 2", NULL},
@@ -33,6 +34,7 @@ MechS32 g_unk0x100a96ec = 0;
 
 // What a lancemate reports.
 // GLOBAL: MW2 0x100a96f0
+// GLOBAL: MW2MATROX 0x100bbec0
 SpeechLine g_lancemateSpeech[11] = {
 	{0, "cannot do this", NULL},
 	{0xa, "attacking your target", NULL},
@@ -51,6 +53,7 @@ SpeechLine g_lancemateSpeech[11] = {
 MechS32 g_unk0x100a9774 = 0;
 
 // GLOBAL: MW2 0x100a9778
+// GLOBAL: MW2MATROX 0x100bbf48
 SpeechLine g_formationSpeech[7] = {
 	{0xb, "Formation change to", NULL},
 	{0x4f, "echelon left", NULL},
@@ -65,6 +68,7 @@ SpeechLine g_formationSpeech[7] = {
 MechS32 g_unk0x100a97cc = 0;
 
 // GLOBAL: MW2 0x100a97d0
+// GLOBAL: MW2MATROX 0x100bbfa0
 SpeechLine g_engageSpeech[3] = {
 	{0x54, "disengaged", NULL},
 	{0x50, "engaged", NULL},
@@ -75,6 +79,7 @@ SpeechLine g_engageSpeech[3] = {
 MechS32 g_unk0x100a97f4 = 0;
 
 // GLOBAL: MW2 0x100a97f8
+// GLOBAL: MW2MATROX 0x100bbfc8
 SpeechLine g_cockpitSpeech[34] = {
 	{0x40, "Heat level critical", NULL},
 	{0x4b, "Thermal threshold has been exceeded. Shutdown sequence initiated", NULL},
@@ -114,6 +119,7 @@ SpeechLine g_cockpitSpeech[34] = {
 
 // The damaged parts "Critical hit : " names.
 // GLOBAL: MW2 0x100a9990
+// GLOBAL: MW2MATROX 0x100bc160
 SpeechLine g_damageSpeech[39] = {
 	{0x14, "weapon destroyed", NULL},
 	{0x30, "internal ammo explosion detected", NULL},
@@ -157,12 +163,15 @@ SpeechLine g_damageSpeech[39] = {
 };
 
 // GLOBAL: MW2 0x100a9b64
+// GLOBAL: MW2MATROX 0x100bc334
 SpeechEntry* g_speechQueue = NULL;
 
 // GLOBAL: MW2 0x100a9b68
+// GLOBAL: MW2MATROX 0x100bc338
 HSAMPLE g_speechSample = NULL;
 
 // GLOBAL: MW2 0x100a9b6c
+// GLOBAL: MW2MATROX 0x100bc33c
 MechS32 g_speechLocked = 0;
 
 // GLOBAL: MW2 0x100bea10
@@ -310,6 +319,7 @@ MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority
 
 // Moves to the next queued message once the current one has finished.
 // FUNCTION: MW2 0x10059827
+// FUNCTION: MW2MATROX 0x1008b9a7
 void AdvanceSpeechQueue(void)
 {
 	MechS32 done;
@@ -342,6 +352,7 @@ void AdvanceSpeechQueue(void)
 // Plays a queued message: the line and its suffix as sounds, or its text.
 // Stack slots: id and slot are swapped.
 // FUNCTION: MW2 0x100598f6
+// FUNCTION: MW2MATROX 0x1008ba76
 MechS32 StartSpeech(SpeechEntry* p_entry)
 {
 	MechS32 id;
@@ -429,6 +440,7 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 }
 
 // FUNCTION: MW2 0x10059b7b
+// FUNCTION: MW2MATROX 0x1008bcfb
 void PlayVoiceVolumeTest(void)
 {
 	if (g_soundConfig.m_simFlags & 2) {
@@ -443,6 +455,7 @@ void PlayVoiceVolumeTest(void)
 // messages of priority 0x50 and above.
 // Stack slots: remove and cur are swapped.
 // FUNCTION: MW2 0x10059be3
+// FUNCTION: MW2MATROX 0x1008bd63
 void FlushSpeechQueue(MechS32 p_keep)
 {
 	SpeechEntry* prev;
@@ -490,6 +503,7 @@ void FlushSpeechQueue(MechS32 p_keep)
 
 // Frees an entry's sound data. Returns the next entry.
 // FUNCTION: MW2 0x10059d15
+// FUNCTION: MW2MATROX 0x1008be95
 SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 {
 	SpeechEntry* next;
@@ -510,6 +524,7 @@ SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 
 // Drops the messages after the current one and stops it.
 // FUNCTION: MW2 0x10059d8b
+// FUNCTION: MW2MATROX 0x1008bf0b
 void StopSpeech(void)
 {
 	SpeechEntry* entry;
@@ -529,6 +544,7 @@ void StopSpeech(void)
 
 // Stack slots: slot and volume are swapped.
 // FUNCTION: MW2 0x10059deb
+// FUNCTION: MW2MATROX 0x1008bf6b
 void ResumeSpeech(void)
 {
 	MechS32 slot;
@@ -548,6 +564,7 @@ void ResumeSpeech(void)
 
 // A lancemate's report: p_message of g_lancemateSpeech, addressed by p_slot (-1: none).
 // FUNCTION: MW2 0x10059e63
+// FUNCTION: MW2MATROX 0x1008bfe3
 void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 {
 	SpeechLine* slot;
@@ -569,6 +586,7 @@ void SayLancemateReport(MechS32 p_message, MechS32 p_slot)
 }
 
 // FUNCTION: MW2 0x10059ed2
+// FUNCTION: MW2MATROX 0x1008c052
 void SayFormation(MechS32 p_formation)
 {
 	if (p_formation >= 0 && p_formation < 6) {
@@ -577,6 +595,7 @@ void SayFormation(MechS32 p_formation)
 }
 
 // FUNCTION: MW2 0x10059f0f
+// FUNCTION: MW2MATROX 0x1008c08f
 void PlayCockpitSound(MechS32 p_message, MechS32 p_engage)
 {
 	SpeechLine* suffix;
@@ -597,12 +616,14 @@ void PlayCockpitSound(MechS32 p_message, MechS32 p_engage)
 
 // "Critical hit : " and the part of g_damageSpeech.
 // FUNCTION: MW2 0x10059f6e
+// FUNCTION: MW2MATROX 0x1008c0ee
 void SayCriticalHit(MechS32 p_part)
 {
 	QueueSpeech(&g_cockpitSpeech[11], &g_damageSpeech[p_part], -1);
 }
 
 // FUNCTION: MW2 0x10059f9c
+// FUNCTION: MW2MATROX 0x1008c11c
 MechS32 QueueSpeechLine(SpeechLine* p_line)
 {
 	return QueueSpeech(p_line, NULL, 0x50);

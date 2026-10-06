@@ -89,59 +89,74 @@ typedef struct FormationNames {
 } FormationNames;
 
 // GLOBAL: MW2 0x100a8608
+// GLOBAL: MW2MATROX 0x100a85e0
 ScenarioTable* g_scenarios = NULL;
 
 // GLOBAL: MW2 0x100a860c
+// GLOBAL: MW2MATROX 0x100a85e4
 void* g_unk0x100a860c = NULL;
 
 // The next name of g_scenarios ExecuteInclude substitutes.
 // GLOBAL: MW2 0x100a8610
+// GLOBAL: MW2MATROX 0x100a85e8
 MechS32 g_nextScenario = 0;
 
 // The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
 // GLOBAL: MW2 0x100a8620
+// GLOBAL: MW2MATROX 0x100a85f8
 MechS32 g_thingRecordCount = 0;
 
 // GLOBAL: MW2 0x100a8624
+// GLOBAL: MW2MATROX 0x100a85fc
 MechS32 g_nextThingRecord = 0;
 
 // GLOBAL: MW2 0x100a8628
+// GLOBAL: MW2MATROX 0x100a8600
 MechS32 g_mangleBase = 0;
 
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
 // GLOBAL: MW2 0x100a862c
+// GLOBAL: MW2MATROX 0x100a8604
 MechS32 g_nextMangleBase = 0;
 
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8630
+// GLOBAL: MW2MATROX 0x100a8608
 MechChar* g_playerTeamFormation = NULL;
 
 // The formation LoadStarTable gives the other teams, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8634
+// GLOBAL: MW2MATROX 0x100a860c
 MechChar* g_otherTeamFormation = NULL;
 
 // The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
 // GLOBAL: MW2 0x100a8638
+// GLOBAL: MW2MATROX 0x100a8610
 struct Player* g_lastPlayer = NULL;
 
 // The task kinds of a world stream's task record (BwdExecuteStream): 0 spins a star's object, 1
 // cycles its face colors, 2 moves it around a circle, 3 moves a thing's object through an
 // animation, 4 loops a sound on a star's object, 5 moves it along a path.
 // GLOBAL: MW2 0x100a8640
+// GLOBAL: MW2MATROX 0x100a8618
 TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionTask, AmbientSoundTask, PathTask};
 
 // GLOBAL: MW2 0x100ea500
+// GLOBAL: MW2MATROX 0x101d4770
 MissionTable* g_missionTables[16];
 
 // The number of entries of each of g_missionTables.
 // GLOBAL: MW2 0x100ea540
+// GLOBAL: MW2MATROX 0x101d4730
 MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
+// GLOBAL: MW2MATROX 0x101d47b0
 MechS32 g_thingRecordIndices[0x96];
 
 // The number of names in g_scenarios.
 // GLOBAL: MW2 0x100ea7d8
+// GLOBAL: MW2MATROX 0x101d4720
 MechS32 g_scenarioCount;
 
 // Copies a bitmap record's size to p_width and p_height and its data to p_data, each if not NULL.
@@ -172,6 +187,7 @@ void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, Mec
 
 // Replaces the scenario table with a copy of p_table.
 // FUNCTION: MW2 0x1004f47a
+// FUNCTION: MW2MATROX 0x1004903a
 MechS32 LoadScenarioTable(ScenarioTable* p_table)
 {
 	MechS32 result;
@@ -199,6 +215,7 @@ MechS32 LoadScenarioTable(ScenarioTable* p_table)
 
 // Replaces the mission table in p_table's slot with a copy of it.
 // FUNCTION: MW2 0x1004f545
+// FUNCTION: MW2MATROX 0x10049105
 MechS32 LoadMissionTable(MissionTable* p_table)
 {
 	MechS32 result;
@@ -374,6 +391,7 @@ void LoadStarTable(StarTable* p_table)
 
 // Gives the sixteen teams the formations a record names.
 // FUNCTION: MW2 0x1004fc48
+// FUNCTION: MW2MATROX 0x10049839
 void SetTeamFormations(FormationNames* p_record)
 {
 	FormationNames* record;
@@ -389,6 +407,7 @@ void SetTeamFormations(FormationNames* p_record)
 // Runs p_fn on the stream a record names.
 // Stack-slot permutation: record, keyData and buffer.
 // FUNCTION: MW2 0x1004fcac
+// FUNCTION: MW2MATROX 0x1004989d
 MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -421,6 +440,7 @@ MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 
 // Frees the mission tables' blocks.
 // FUNCTION: MW2 0x1004fd55
+// FUNCTION: MW2MATROX 0x10049946
 void FreeMissionTables(void)
 {
 	MechS32 i;
@@ -603,12 +623,14 @@ void GetPointNormalPlane(
 
 // The original loads p_id first; the operand order follows the symbol table.
 // FUNCTION: MW2 0x100500c3
+// FUNCTION: MW2MATROX 0x10049d71
 MechS32 MapResourceId(MechS32 p_id)
 {
 	return g_mangleBase + p_id;
 }
 
 // FUNCTION: MW2 0x100500dc
+// FUNCTION: MW2MATROX 0x10049d8a
 void SetMangleBase(MechS32 p_base)
 {
 	g_mangleBase = p_base;
@@ -788,6 +810,7 @@ void CreateObjectNode(
 // Returns the object of the next entry of g_thingRecordIndices, or NULL after the last.
 // Stack-slot permutation of id and obj.
 // FUNCTION: MW2 0x100506d8
+// FUNCTION: MW2MATROX 0x1004a45a
 struct SceneObject* NextThingRecordObject(void)
 {
 	MechS32 id;
@@ -807,6 +830,7 @@ struct SceneObject* NextThingRecordObject(void)
 
 // Returns the next free game thing index, or -1 when all 254 are taken.
 // FUNCTION: MW2 0x1005072f
+// FUNCTION: MW2MATROX 0x1004a4b1
 MechS32 FindFreeGameThing(void)
 {
 	MechS32 index;

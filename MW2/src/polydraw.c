@@ -19,17 +19,21 @@
 #include "vfxa.h"
 
 // GLOBAL: MW2 0x100a6be0
+// GLOBAL: MW2MATROX 0x100addd0
 Eyepoint g_mainEyepoint = {0, 0,   0, 0,   0,    0,       0x10000, 1000, 10000, -1000, 1,  0x48,
 						   0, 319, 0, 199, 0x40, 0x249f0, 0,       0,    0,     0,     {0}};
 
 // GLOBAL: MW2 0x100a6cc0
+// GLOBAL: MW2MATROX 0x100ade74
 Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
+// GLOBAL: MW2MATROX 0x100ade78
 RenderSettings g_renderSettings = {0, 1, 1,       1,       1, 1, 1,    1,    1,    1, {0xe0, 0xef}, 1, 0, 0,
 								   0, 0, 0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
 
 // GLOBAL: MW2 0x100a6d30
+// GLOBAL: MW2MATROX 0x100adee8
 MechS32 g_horizonBandHeight = 0x24;
 
 // Polygon drawing: a polygon is p_count points of 6 dwords each (x, y, a shade, two texture

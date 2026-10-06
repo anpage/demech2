@@ -15,15 +15,19 @@ DECOMP_SIZE_ASSERT(PrjTypeSlot, 0x08)
 DECOMP_SIZE_ASSERT(PrjFile, 0x14a)
 
 // GLOBAL: MW2 0x100ae734
+// GLOBAL: MW2MATROX 0x100a4580
 PrjAllocFn g_prjAlloc = NULL;
 
 // GLOBAL: MW2 0x100ae738
+// GLOBAL: MW2MATROX 0x100a4584
 PrjFreeFn g_prjFree = NULL;
 
 // GLOBAL: MW2 0x100c3120
+// GLOBAL: MW2MATROX 0x102157d0
 PrjFile g_prjFiles[1];
 
 // FUNCTION: MW2 0x10071ad0
+// FUNCTION: MW2MATROX 0x1000c110
 void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 {
 	g_prjAlloc = p_alloc;
@@ -31,12 +35,14 @@ void SetPrjAllocator(PrjAllocFn p_alloc, PrjFreeFn p_free)
 }
 
 // FUNCTION: MW2 0x10071aeb
+// FUNCTION: MW2MATROX 0x1000c12b
 void* PrjAlloc(MechU32 p_size)
 {
 	return g_prjAlloc(p_size);
 }
 
 // FUNCTION: MW2 0x10071b08
+// FUNCTION: MW2MATROX 0x1000c148
 void PrjFreeBlock(void* p_block)
 {
 	g_prjFree(p_block);
@@ -45,6 +51,7 @@ void PrjFreeBlock(void* p_block)
 // Writes in chunks of at most 16K. Returns p_length, or -1 on a short write.
 // Stack-slot permutation: chunk, left and buffer.
 // FUNCTION: MW2 0x10071b20
+// FUNCTION: MW2MATROX 0x1000c160
 MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 {
 	MechU32 chunk;
@@ -70,6 +77,7 @@ MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // Reads in chunks of at most 16K. Returns p_length, or -1 on a short read.
 // Stack-slot permutation: chunk, left and buffer.
 // FUNCTION: MW2 0x10071b9e
+// FUNCTION: MW2MATROX 0x1000c1de
 MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 {
 	MechU32 chunk;
@@ -96,6 +104,7 @@ MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 // Returns its slot, -1 on failure or -2 for a rejected file.
 // Stack-slot permutation: tag, fd, size, slot and header.
 // FUNCTION: MW2 0x10071c1c
+// FUNCTION: MW2MATROX 0x1000c25c
 MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 {
 	MechChar tag[12];
@@ -170,6 +179,7 @@ MechS32 OpenPrjFile(const MechChar* p_name, MechChar p_mode)
 }
 
 // FUNCTION: MW2 0x10071f09
+// FUNCTION: MW2MATROX 0x1000c549
 MechS32 ClosePrjFile(MechS32 p_file)
 {
 	MechU16 i;
@@ -196,6 +206,7 @@ MechS32 ClosePrjFile(MechS32 p_file)
 // Returns the type's index in the header, or 0xffff.
 // Operand order: the original tests count > i with setg.
 // FUNCTION: MW2 0x100720b7
+// FUNCTION: MW2MATROX 0x1000c6f7
 MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 {
 	MechS8 found;
@@ -227,6 +238,7 @@ MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 // Loads every type's index.
 // Stack-slot permutation: types, count, index, i and size.
 // FUNCTION: MW2 0x1007218f
+// FUNCTION: MW2MATROX 0x1000c7cf
 MechS32 LoadPrjIndexes(MechS32 p_file)
 {
 	PrjType* types;
@@ -260,6 +272,7 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 
 // Stack-slot permutation: entries, size, types, type and id.
 // FUNCTION: MW2 0x100722f5
+// FUNCTION: MW2MATROX 0x1000c935
 MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 {
 	PrjIndexEntry* entries;
@@ -293,6 +306,7 @@ MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 // 16-bit index compared with -1).
 // Stack-slot permutation: entries, types, offset and type.
 // FUNCTION: MW2 0x10072405
+// FUNCTION: MW2MATROX 0x1000ca45
 MechS32 SeekPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, MechS32* p_offset, MechS32* p_size)
 {
 	PrjIndexEntry* entries;
@@ -325,6 +339,7 @@ MechS32 SeekPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, Me
 }
 
 // FUNCTION: MW2 0x10072560
+// FUNCTION: MW2MATROX 0x1000cba0
 MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_length)
 {
 	p_file = g_prjFiles[p_file].m_fd;
@@ -334,6 +349,7 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 
 // Stack-slot permutation: entries, types, offset, type, size and id.
 // FUNCTION: MW2 0x100725ae
+// FUNCTION: MW2MATROX 0x1000cbee
 MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, void* p_buffer)
 {
 	PrjIndexEntry* entries;
@@ -373,6 +389,7 @@ MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, vo
 // Returns a resource's offset in the file, and the file's descriptor.
 // Stack-slot permutation: entries, types, offset, type and id.
 // FUNCTION: MW2 0x10072734
+// FUNCTION: MW2MATROX 0x1000cd74
 MechS32 GetPrjResourceOffset(MechS32 p_file, const MechChar* p_type, MechU16 p_id, MechS32* p_fd)
 {
 	PrjIndexEntry* entries;

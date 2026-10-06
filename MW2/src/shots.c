@@ -50,28 +50,36 @@ DECOMP_SIZE_ASSERT(EffectInfo, 0x1c)
 DECOMP_SIZE_ASSERT(CareerRecord, 0xd6)
 
 // GLOBAL: MW2 0x100ad440
+// GLOBAL: MW2MATROX 0x100ae0a4
 MechS32 g_effectCameraActive = 0;
 
 // GLOBAL: MW2 0x100ad444
+// GLOBAL: MW2MATROX 0x100ae0a8
 MechS32 g_effectCameraEffect = -1;
 
 // GLOBAL: MW2 0x100ad448
+// GLOBAL: MW2MATROX 0x100ae0ac
 MechS32 g_lastLocalMissile = -1;
 
 // GLOBAL: MW2 0x100ad44c
+// GLOBAL: MW2MATROX 0x100ae0b0
 MechS32 g_trackedShot = -1;
 
 // GLOBAL: MW2 0x100ad450
+// GLOBAL: MW2MATROX 0x100ae0b4
 Player* g_launchEffectPlayer = NULL;
 
 // GLOBAL: MW2 0x100ad454
+// GLOBAL: MW2MATROX 0x100ae0b8
 MechS32 g_effectCameraEnabled = 1;
 
 // The player whose shot hit something last.
 // GLOBAL: MW2 0x100ad458
+// GLOBAL: MW2MATROX 0x100ae0bc
 MechS32 g_lastHitShooter = -1;
 
 // GLOBAL: MW2 0x100ad45c
+// GLOBAL: MW2MATROX 0x100ae0c0
 MechS32 g_nukeTimeLeft = 0;
 
 // GLOBAL: MW2 0x100bee50
@@ -79,6 +87,7 @@ MechS32 g_nukeMaxRadius;
 
 // The view that follows a tracked shot: its position, heading and three more angles.
 // GLOBAL: MW2 0x100bee58
+// GLOBAL: MW2MATROX 0x10124708
 MechS32 g_trackedShotView[7];
 
 // GLOBAL: MW2 0x100bee74
@@ -101,22 +110,28 @@ MechS32 g_savedLightZ;
 MechS32 g_savedDirectionalLight;
 
 // GLOBAL: MW2 0x100c7600
+// GLOBAL: MW2MATROX 0x1015d5d0
 MechS32 g_savedAmbientLight;
 
 // GLOBAL: MW2 0x100c7604
+// GLOBAL: MW2MATROX 0x1015d5d4
 MechS32 g_savedDistanceFade;
 
 // GLOBAL: MW2 0x100e9250
+// GLOBAL: MW2MATROX 0x10125880
 CareerRecord g_careerRecord;
 
 // GLOBAL: MW2 0x1017bac0
+// GLOBAL: MW2MATROX 0x10125970
 Shot g_shots[0xaf];
 
 // GLOBAL: MW2 0x1017f170
+// GLOBAL: MW2MATROX 0x10129020
 Effect g_effects[0x100];
 
 // Stack-slot permutation: i, shot and effect.
 // FUNCTION: MW2 0x1006a230
+// FUNCTION: MW2MATROX 0x1006ad30
 void FirstShots(void)
 {
 	MechS32 i;
@@ -180,6 +195,7 @@ void ResetShotSlot(MechS32 p_index)
 // Ages every shot in flight by g_deltaTime and moves it on.
 // Stack-slot permutation: i and shot.
 // FUNCTION: MW2 0x1006a486
+// FUNCTION: MW2MATROX 0x1006af86
 void UpdateAllShots(void)
 {
 	MechS32 i;
@@ -516,6 +532,7 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Removes the shot from the world and frees its slot; p_explode spawns the effect its impact
 // calls for at (p_x, p_y, p_z), with the camera looking from (p_camX, p_camY, p_camZ).
 // FUNCTION: MW2 0x1006b0b4
+// FUNCTION: MW2MATROX 0x1006bc89
 void DetonateShot(
 	MechS32 p_index,
 	MechS32 p_explode,
@@ -545,6 +562,7 @@ void DetonateShot(
 }
 
 // FUNCTION: MW2 0x1006b152
+// FUNCTION: MW2MATROX 0x1006bd27
 void SpawnEffect(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -560,6 +578,7 @@ void SpawnEffect(
 }
 
 // FUNCTION: MW2 0x1006b18b
+// FUNCTION: MW2MATROX 0x1006bd60
 void SpawnRotatedEffect(
 	MechS32 p_type,
 	MechS32 p_rotX,
@@ -574,6 +593,7 @@ void SpawnRotatedEffect(
 }
 
 // FUNCTION: MW2 0x1006b1c8
+// FUNCTION: MW2MATROX 0x1006bd9d
 void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 {
 	g_launchEffectPlayer = p_player;
@@ -1025,6 +1045,7 @@ void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z
 }
 
 // FUNCTION: MW2 0x1006beb5
+// FUNCTION: MW2MATROX 0x1006cad9
 MechS32* GetTrackedShotView(void)
 {
 	if (g_trackedShot != -1 && g_shots[g_trackedShot].m_tracked) {
@@ -1038,6 +1059,7 @@ MechS32* GetTrackedShotView(void)
 
 // Starts tracking the local player's last shot, if it is still in flight.
 // FUNCTION: MW2 0x1006bf05
+// FUNCTION: MW2MATROX 0x1006cb29
 MechS32 TrackLastShot(void)
 {
 	if (g_lastLocalMissile > 0 && g_shots[g_lastLocalMissile].m_flags &&
@@ -1055,6 +1077,7 @@ MechS32 TrackLastShot(void)
 // removes it.
 // The shooter and local player comparisons have their operands the other way around.
 // FUNCTION: MW2 0x1006bf8c
+// FUNCTION: MW2MATROX 0x1006cbb0
 void KillGameThing(MechU32 p_index)
 {
 	GameThing* thing;
@@ -1147,6 +1170,7 @@ void DamageGameThing(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 
 // Stack-slot permutation of the locals; the shown < p_count comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006c237
+// FUNCTION: MW2MATROX 0x1006ce62
 void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 {
 	MechS32 shown;
@@ -1179,6 +1203,7 @@ void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 }
 
 // FUNCTION: MW2 0x1006c345
+// FUNCTION: MW2MATROX 0x1006cf70
 void SaveCareerRecord(void)
 {
 	WriteCareerRecordFile("MW2CAR.CFG", &g_careerRecord);

@@ -57,6 +57,7 @@ MechS32 g_zoomFov = 0x10000;
 
 // The view mode the camera was updated in last (c_view...), or -1.
 // GLOBAL: MW2 0x100a2408
+// GLOBAL: MW2MATROX 0x100a3648
 MechS32 g_viewMode = -1;
 
 // The view mode to return to from the ordinance view.
@@ -69,6 +70,7 @@ MechS32 g_initialViewMode = 0;
 
 // The view mode SetViewMode asked for; UpdateEyepoint switches to it.
 // GLOBAL: MW2 0x100a2414
+// GLOBAL: MW2MATROX 0x100a3654
 MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
@@ -78,15 +80,18 @@ MechS32 g_autopilotStart = 1;
 // Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
 // draws the crosshair only then.
 // GLOBAL: MW2 0x100a241c
+// GLOBAL: MW2MATROX 0x100a365c
 MechS32 g_cockpitEyeSteady = 0;
 
 // Set while the camera is in the cockpit view: the cockpit's own shape (g_cockpitObject) is drawn
 // separately, and the 3D sound calls get it.
 // GLOBAL: MW2 0x100a2420
+// GLOBAL: MW2MATROX 0x100a3660
 undefined4 g_inCockpitView = 0;
 
 // The view mode SetViewMode forces once the local mech is lost (g_localMechLost): the track view.
 // GLOBAL: MW2 0x100a2424
+// GLOBAL: MW2MATROX 0x100a3664
 MechS32 g_lostViewMode = -1;
 
 // Set while a network game's lost player advances the viewpoint between players; until then the
@@ -95,18 +100,22 @@ MechS32 g_lostViewMode = -1;
 MechS32 g_spectating = 0;
 
 // GLOBAL: MW2 0x100a242c
+// GLOBAL: MW2MATROX 0x100a366c
 struct Player* g_localPlayer = NULL;
 
 // The player the camera tracks.
 // GLOBAL: MW2 0x100a2430
+// GLOBAL: MW2MATROX 0x100a3670
 MechS32 g_trackedPlayer = 0;
 
 // The local mech's cockpit height and torso twist (InitCockpitPanels): the first raises the eye
 // (GetPlayerEyeView, the aim ray); nothing reads the second.
 // GLOBAL: MW2 0x100a2434
+// GLOBAL: MW2MATROX 0x100a3674
 MechS32* g_eyeHeightOffset = NULL;
 
 // GLOBAL: MW2 0x100a2438
+// GLOBAL: MW2MATROX 0x100a3678
 MechS32* g_eyeTwist = NULL;
 
 // The drop camera (UpdateDropView): its vertical speed, acceleration and start clock.
@@ -295,6 +304,7 @@ MechS32 GetCameraFloor(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x10011401
+// FUNCTION: MW2MATROX 0x1000916a
 void SetViewMode(MechS32 p_zoom)
 {
 	if (g_localMechLost) {
@@ -309,6 +319,7 @@ void SetViewMode(MechS32 p_zoom)
 }
 
 // FUNCTION: MW2 0x10011440
+// FUNCTION: MW2MATROX 0x100091a9
 MechS32 GetViewMode(void)
 {
 	return g_requestedViewMode;
@@ -384,6 +395,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechS32* p_view)
 // Moves the camera to the next (p_next) or previous player, or back to the local player
 // (p_home), skipping players who left or whose mechs are gone.
 // FUNCTION: MW2 0x100115f4
+// FUNCTION: MW2MATROX 0x10009362
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;

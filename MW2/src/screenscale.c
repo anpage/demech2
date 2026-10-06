@@ -29,6 +29,7 @@ DECOMP_SIZE_ASSERT(Rect, 0x10)
 
 // The margins FitRectToText leaves around a text block, in 16.16 fractions.
 // GLOBAL: MW2 0x100a9450
+// GLOBAL: MW2MATROX 0x100ae330
 Point g_textMargins = {0x28f, 0x28f};
 
 // DrawPulsingFrame's state: the frame's inset (1 or 2, alternating each call), its color (0xf0
@@ -47,6 +48,7 @@ MechS32 g_pulseStep = 0;
 
 // Maps 16.16 fractions of the screen onto pixels.
 // FUNCTION: MW2 0x10056920
+// FUNCTION: MW2MATROX 0x10071320
 PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	p_dst->m_x0 = FixedMul16(g_screenWidthMinus1, p_src->m_x0);
@@ -59,6 +61,7 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 // Maps 16.16 fractions of p_frame onto pixels.
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x1005699f
+// FUNCTION: MW2MATROX 0x1007139f
 PANE* ScaleRectToFrame(PANE* p_frame, PANE* p_src, PANE* p_dst)
 {
 	MechS32 width;
@@ -79,6 +82,7 @@ PANE* ScaleRectToFrame(PANE* p_frame, PANE* p_src, PANE* p_dst)
 
 // ScaleRectToScreen for a Rect.
 // FUNCTION: MW2 0x10056a67
+// FUNCTION: MW2MATROX 0x10071467
 Rect* ScaleBoundsToScreen(WINDOW* p_buffer, Rect* p_src, Rect* p_dst)
 {
 	p_dst->m_left = FixedMul16(g_screenWidthMinus1, p_src->m_left);
@@ -89,6 +93,7 @@ Rect* ScaleBoundsToScreen(WINDOW* p_buffer, Rect* p_src, Rect* p_dst)
 }
 
 // FUNCTION: MW2 0x10056ae4
+// FUNCTION: MW2MATROX 0x100714e4
 Point* ScalePointToScreen(WINDOW* p_buffer, Point* p_src, Point* p_dst)
 {
 	p_dst->m_x = FixedMul16(g_screenWidthMinus1, p_src->m_x);
@@ -100,6 +105,7 @@ Point* ScalePointToScreen(WINDOW* p_buffer, Point* p_src, Point* p_dst)
 // ScaleRectToFrame, it doesn't add the frame's origin).
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x10056b2b
+// FUNCTION: MW2MATROX 0x1007152b
 Rect* ScaleBoundsToFrame(PANE* p_frame, Rect* p_src, Rect* p_dst)
 {
 	MechS32 width;
@@ -117,6 +123,7 @@ Rect* ScaleBoundsToFrame(PANE* p_frame, Rect* p_src, Rect* p_dst)
 // Maps a point in 16.16 fractions of p_frame's size onto pixels, relative to the frame.
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x10056bc1
+// FUNCTION: MW2MATROX 0x100715c1
 Point* ScalePointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 {
 	MechS32 width;
@@ -148,6 +155,7 @@ PANE* ScaleRectToLowRes(PANE* p_rect, MechS32 p_aspect)
 
 // Maps 320x200 coordinates to 16.16 fractions of the screen.
 // FUNCTION: MW2 0x10056ce9
+// FUNCTION: MW2MATROX 0x100716f9
 PANE* ScaleRectFromLowRes(PANE* p_src, PANE* p_dst)
 {
 	p_dst->m_x0 = FixedDiv16(p_src->m_x0, 319);
@@ -158,6 +166,7 @@ PANE* ScaleRectFromLowRes(PANE* p_src, PANE* p_dst)
 }
 
 // FUNCTION: MW2 0x10056d64
+// FUNCTION: MW2MATROX 0x10071774
 Rect* ScaleBoundsFromLowRes(Rect* p_src, Rect* p_dst)
 {
 	p_dst->m_left = FixedDiv16(p_src->m_left, 319);
@@ -168,6 +177,7 @@ Rect* ScaleBoundsFromLowRes(Rect* p_src, Rect* p_dst)
 }
 
 // FUNCTION: MW2 0x10056ddd
+// FUNCTION: MW2MATROX 0x100717ed
 Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 {
 	p_dst->m_x = FixedDiv16(p_src->m_x, 319);
@@ -177,6 +187,7 @@ Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 
 // Centers a rectangle of p_src's size on the screen.
 // FUNCTION: MW2 0x10056e22
+// FUNCTION: MW2MATROX 0x10071832
 PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	PANE rect;
@@ -200,6 +211,7 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 // Scales p_src about its center by p_scale (16.16).
 // Stack-slot permutation: centerX and centerY.
 // FUNCTION: MW2 0x10056ec5
+// FUNCTION: MW2MATROX 0x100718d5
 PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 {
 	MechS32 centerX;
@@ -225,6 +237,7 @@ PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 // Scales p_src about its center to the size of a shape frame.
 // Stack-slot permutation: size and scale.
 // FUNCTION: MW2 0x10056fcf
+// FUNCTION: MW2MATROX 0x100719df
 PANE* FitRectToShape(PANE* p_src, PANE* p_dst, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;
@@ -242,6 +255,7 @@ PANE* FitRectToShape(PANE* p_src, PANE* p_dst, void* p_shape, MechS32 p_frame)
 // Scales p_src about its center to the size of a shape.
 // Stack-slot permutation: size and scale.
 // FUNCTION: MW2 0x1005705e
+// FUNCTION: MW2MATROX 0x10071a6e
 PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
 {
 	MechS32 size;
@@ -419,6 +433,7 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 // Sizes p_rect to fit a block of text, lines separated by newlines, plus the margins.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x100575b9
+// FUNCTION: MW2MATROX 0x10072023
 PANE* FitRectToText(MechChar* p_text, void* p_font, PANE* p_rect)
 {
 	MechS32 lineWidth;
@@ -531,6 +546,7 @@ void DrawPulsingFrame(PANE* p_target)
 // Tiles a pane with a shape frame.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057896
+// FUNCTION: MW2MATROX 0x10072153
 void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;

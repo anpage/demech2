@@ -56,6 +56,7 @@ PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 // The outline's sixteen parts: rectangles in the outline shape's pixels (LoadHudFile reads them)
 // until InitDamagePanel places them on the screen.
 // GLOBAL: MW2 0x100a5cf8
+// GLOBAL: MW2MATROX 0x100ac728
 PANE g_outlinePartRects[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
@@ -64,6 +65,7 @@ Point g_outlinePartOffsets[16] = {0};
 
 // Frames the outline's parts (OutlinePane) when set.
 // GLOBAL: MW2 0x100a5eb8
+// GLOBAL: MW2MATROX 0x100ac8e8
 MechS32 g_frameOutlineParts = 0;
 
 // The armor bars' labels.

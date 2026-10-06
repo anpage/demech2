@@ -16,33 +16,42 @@
 #include "types.h"
 
 // GLOBAL: MW2 0x100ba5cc
+// GLOBAL: MW2MATROX 0x100a4fc4
 MechS32 g_drawBufferSize = 0x80;
 
 // GLOBAL: MW2 0x100ba5d0
+// GLOBAL: MW2MATROX 0x100a4fc8
 MechU8* g_drawBufferMemory = NULL;
 
 // GLOBAL: MW2 0x100c1a68
+// GLOBAL: MW2MATROX 0x100a4fc0
 MechS32 g_depthListCapacity;
 
 // GLOBAL: MW2 0x100c1a6c
+// GLOBAL: MW2MATROX 0x100a4fb4
 MechU8* g_drawBuffer;
 
 // GLOBAL: MW2 0x100c1a70
+// GLOBAL: MW2MATROX 0x100a4fb8
 MechU8* g_drawBufferTop;
 
 // GLOBAL: MW2 0x100c2280
+// GLOBAL: MW2MATROX 0x100a4fac
 DepthEntry* g_drawList;
 
 // GLOBAL: MW2 0x100c2698
+// GLOBAL: MW2MATROX 0x100a4fbc
 MechU8* g_drawBufferBottom;
 
 // GLOBAL: MW2 0x100c269c
+// GLOBAL: MW2MATROX 0x100a4fb0
 DepthEntry* g_depthQueue;
 
 // GLOBAL: MW2 0x1010b5ac
 MechS32 g_queueHasRoom;
 
 // FUNCTION: MW2 0x1007d120
+// FUNCTION: MW2MATROX 0x100216a0
 void ShutdownDrawBuffer(void)
 {
 	if (g_drawBufferMemory != NULL) {
@@ -78,6 +87,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 }
 
 // FUNCTION: MW2 0x1007d220
+// FUNCTION: MW2MATROX 0x100217b3
 void ResetDrawBuffer(void)
 {
 	g_drawBufferBottom = g_drawBuffer;

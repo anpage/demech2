@@ -146,17 +146,21 @@ MechS32 g_reelMotionError = 0;
 
 // The number of entries in g_paths.
 // GLOBAL: MW2 0x100a6d68
+// GLOBAL: MW2MATROX 0x100ae2b8
 MechS32 g_pathCount = 0;
 
 // GLOBAL: MW2 0x100a6d6c
+// GLOBAL: MW2MATROX 0x100ae2bc
 MechS32 g_maxAnimNumber = 0;
 
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
+// GLOBAL: MW2MATROX 0x100ae2c0
 MechS32 g_animBase = 0;
 
 // The number of entries in g_animFiles.
 // GLOBAL: MW2 0x100a6d74
+// GLOBAL: MW2MATROX 0x100ae2c4
 MechS32 g_animFileCount = 0;
 
 // Set to shade from the origin rather than the light (GetFaceShade).
@@ -197,6 +201,7 @@ MechS32 g_verticesTransformed;
 MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
+// GLOBAL: MW2MATROX 0x101315a0
 Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
@@ -204,6 +209,7 @@ Path g_paths[0x40];
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
+// GLOBAL: MW2MATROX 0x1014e6a0
 AnimFile g_animFiles[60];
 
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
@@ -599,6 +605,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 
 // Scales p_value by mode p_mode: 1 by 1.5, 3 by 0.75, any other mode leaves it.
 // FUNCTION: MW2 0x100472fe
+// FUNCTION: MW2MATROX 0x1006f8d3
 MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 {
 	MechS32 result;
@@ -624,6 +631,7 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // Loads the animation file p_ref unless it has been, and sets the base of its animation numbers
 // (g_animBase). Returns -1 if it was already loaded.
 // FUNCTION: MW2 0x10047380
+// FUNCTION: MW2MATROX 0x1006f955
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
 	MechS32 result;
@@ -654,12 +662,14 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 }
 
 // FUNCTION: MW2 0x10047462
+// FUNCTION: MW2MATROX 0x1006fa37
 MechS32 GetAnimBase(void)
 {
 	return g_animBase;
 }
 
 // FUNCTION: MW2 0x10047477
+// FUNCTION: MW2MATROX 0x1006fa4c
 MechS32 GetReelMotionSize(void)
 {
 	return 0x2c;
@@ -669,6 +679,7 @@ MechS32 GetReelMotionSize(void)
 // "<star id>;<color>,<color>,...": up to sixteen colors, each a palette row.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004748c
+// FUNCTION: MW2MATROX 0x1006fa61
 MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -935,6 +946,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 // "<star id>;<range>,<sound name>,<enabled>".
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10047d10
+// FUNCTION: MW2MATROX 0x100702a2
 MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;

@@ -15,15 +15,18 @@ DECOMP_SIZE_ASSERT(TimedCallback, 0x18)
 
 // The callback being created, run or removed.
 // GLOBAL: MW2 0x100ba5d4
+// GLOBAL: MW2MATROX 0x100a5948
 TimedCallback* g_currentCallback = NULL;
 
 // FUNCTION: MW2 0x1007d2e0
+// FUNCTION: MW2MATROX 0x100272b0
 TimedCallback* GetCurrentCallback(void)
 {
 	return g_currentCallback;
 }
 
 // FUNCTION: MW2 0x1007d2f5
+// FUNCTION: MW2MATROX 0x100272c5
 TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data)
 {
 	TimedCallback* callback;
@@ -50,6 +53,7 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 }
 
 // FUNCTION: MW2 0x1007d3bf
+// FUNCTION: MW2MATROX 0x1002738f
 void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	TimedCallback* callback;
@@ -76,6 +80,7 @@ void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 }
 
 // FUNCTION: MW2 0x1007d475
+// FUNCTION: MW2MATROX 0x10027445
 void RemoveAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
@@ -86,12 +91,14 @@ void RemoveAllTasks(TimedCallback** p_list)
 }
 
 // FUNCTION: MW2 0x1007d4b8
+// FUNCTION: MW2MATROX 0x10027488
 void SignalTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	p_callback->m_fn(-1, NULL, g_currentClock, p_callback->m_period);
 }
 
 // FUNCTION: MW2 0x1007d4dc
+// FUNCTION: MW2MATROX 0x100274ac
 void SignalAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
@@ -102,12 +109,14 @@ void SignalAllTasks(TimedCallback** p_list)
 }
 
 // FUNCTION: MW2 0x1007d51f
+// FUNCTION: MW2MATROX 0x100274ef
 void** GetCallbackData(TimedCallback* p_callback)
 {
 	return &p_callback->m_data;
 }
 
 // FUNCTION: MW2 0x1007d535
+// FUNCTION: MW2MATROX 0x10027505
 void RunTimedCallbacks(TimedCallback** p_list)
 {
 	for (g_currentCallback = *p_list; g_currentCallback != NULL; g_currentCallback = g_currentCallback->m_next) {
@@ -124,6 +133,7 @@ void RunTimedCallbacks(TimedCallback** p_list)
 }
 
 // FUNCTION: MW2 0x1007d5f1
+// FUNCTION: MW2MATROX 0x100275c1
 MechS32 GetTimedCallbackSize(void)
 {
 	return sizeof(TimedCallback);
