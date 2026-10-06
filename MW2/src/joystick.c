@@ -118,6 +118,7 @@ MechChar g_joystickOemName[0x40];
 MechChar g_joystickRegistryKey[0x100];
 
 // FUNCTION: MW2 0x10049e70
+// FUNCTION: MW2MATROX 0x10025f40
 MechS32 GetJoystickDeviceCount(void)
 {
 	return joyGetNumDevs();

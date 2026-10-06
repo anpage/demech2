@@ -673,6 +673,7 @@ void InitializeAI(Player* p_player)
 
 // Clears p_player's AI state, target, goal, scripts, stack and posted message.
 // FUNCTION: MW2 0x100518cd
+// FUNCTION: MW2MATROX 0x10080aab
 void ResetAI(Player* p_player)
 {
 	MechS32 i;
@@ -705,6 +706,7 @@ void ResetAI(Player* p_player)
 // it is busy with that player already, calling off the teammate on it (FindNearestTarget).
 // Stack-slot permutation: best, nearest and other and target.
 // FUNCTION: MW2 0x100519b3
+// FUNCTION: MW2MATROX 0x10081144
 void TargetAttacker(Player* p_player)
 {
 	MechS16 target;

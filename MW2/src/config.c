@@ -251,6 +251,7 @@ MechS32 g_hudLayoutValues[3];
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
+// FUNCTION: MW2MATROX 0x100794d0
 void PreloadCockpitSounds(void)
 {
 	MechS32 ids[8];
@@ -453,6 +454,7 @@ void LayoutWeaponPanels(Mech* p_mech)
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // Stack-slot permutation: rect, transition, i and target.
 // FUNCTION: MW2 0x1006fba3
+// FUNCTION: MW2MATROX 0x10079bfb
 void ScaleCockpitLayout(void)
 {
 	PANE* rect;
@@ -483,6 +485,7 @@ void ScaleCockpitLayout(void)
 // fourteenth, lays out the local mech's weapon panels (LayoutWeaponPanels) and installs the panels'
 // handlers.
 // FUNCTION: MW2 0x1006fca5
+// FUNCTION: MW2MATROX 0x10079cfd
 void InitCockpitPanels(void)
 {
 	Mech* mech;
@@ -544,6 +547,7 @@ void InitCockpitPanels(void)
 
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b
+// FUNCTION: MW2MATROX 0x10079fd3
 void ResetCockpitPanels(void)
 {
 	Mech* mech;
@@ -694,6 +698,7 @@ void UpdateCockpit(Mech* p_mech)
 // Shuts the cockpit panels down: ResetMapView with the radar on (DifficultyCfg::m_radar),
 // each panel's m_shutdown hook, then every 2D animation.
 // FUNCTION: MW2 0x100704c1
+// FUNCTION: MW2MATROX 0x1007a53c
 void ShutdownCockpitPanels(void)
 {
 	MechS32 i;
@@ -714,6 +719,7 @@ void ShutdownCockpitPanels(void)
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
 // (p_heavy: five) in ten chance of stepping its damage.
 // FUNCTION: MW2 0x1007053d
+// FUNCTION: MW2MATROX 0x1007a5b8
 void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 {
 	MechS32 chance;
@@ -739,6 +745,7 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
 // FUNCTION: MW2 0x100705dd
+// FUNCTION: MW2MATROX 0x1007a658
 void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_hitFadePending) {

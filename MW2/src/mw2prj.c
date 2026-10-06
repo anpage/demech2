@@ -96,12 +96,14 @@ MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 }
 
 // FUNCTION: MW2 0x100508c0
+// FUNCTION: MW2MATROX 0x1002b4a0
 void* Mw2PrjAlloc(MechU32 p_size)
 {
 	return MemAlloc(p_size);
 }
 
 // FUNCTION: MW2 0x100508dc
+// FUNCTION: MW2MATROX 0x1002b4bc
 void Mw2PrjFree(void* p_block)
 {
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);
