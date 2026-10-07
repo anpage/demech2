@@ -64,6 +64,7 @@ void UnlockCacheEntry(ResourceCacheEntry* p_item)
 
 // Locks an item and takes it off the purge list.
 // The two list-end comparisons load their operands in the other order (the unit's symbol table).
+// MW2MATROX: the two list-end comparisons compare in the other operand order.
 // FUNCTION: MW2 0x10019b63
 // FUNCTION: MW2MATROX 0x10055903
 void LockCacheEntry(ResourceCacheEntry* p_item)

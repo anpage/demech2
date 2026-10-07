@@ -210,6 +210,7 @@ Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
 // GLOBAL: MW2 0x101079e0
+// GLOBAL: MW2MATROX 0x1014e880
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0

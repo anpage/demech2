@@ -19,6 +19,10 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // GLOBAL: MW2 0x100a00cc
 // GLOBAL: MW2MATROX 0x100a61f8
 MechS32 g_paneIndex = -1;
@@ -425,9 +429,24 @@ void SetBasePalette(MechS32 p_palette)
 // to the loader, so it always loads PAL resource 1 (SimMain has the same test).
 // Matches except for the stack slots of all its locals (a consistent permutation).
 // FUNCTION: MW2 0x10002a75
+// FUNCTION: MW2MATROX 0x1002dd33
 void StartPalettes(MechS32 p_dissolve)
 {
 	MechU8* palette;
+#ifdef MW2_MATROX
+	MechS32 hasPalette;
+
+	// The Matrox edition has no dissolve.
+	hasPalette = g_paletteResourceIds[0x10] != -1;
+	if (hasPalette) {
+		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+		if (palette) {
+			g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
+			UnlockCachedResource(hasPalette, g_resourceTypeTags[c_resTagPal]);
+			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
+		}
+	}
+#else
 	MechS32 last;
 	MechS32 handle;
 	WINDOW buffer;
@@ -485,12 +504,14 @@ void StartPalettes(MechS32 p_dissolve)
 			}
 		}
 	}
+#endif
 
 	g_currentPalette = 0x10;
 	g_settledPalette = 0x10;
 }
 
 // FUNCTION: MW2 0x10002c76
+// FUNCTION: MW2MATROX 0x1002ddd8
 MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;

@@ -122,10 +122,12 @@ MechS32 g_maneuverTablesReady = 0;
 // ground slope (16.16) past which a mech on it slides.
 
 // GLOBAL: MW2 0x100a2bdc
-MechS32 g_jumpJetDrag = 100000;
+// GLOBAL: MW2MATROX 0x100a4598
+MechScalar g_jumpJetDrag = 100000;
 
 // GLOBAL: MW2 0x100a2be0
-MechS32 g_slideSlope = 0x2000;
+// GLOBAL: MW2MATROX 0x100a459c
+MechScalar g_slideSlope = FIXED_RAW(0x2000);
 
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
 // first.
@@ -1385,7 +1387,7 @@ MechS32 AvoidObstacles(Player* p_player)
 		p_player->m_steering->m_turn = turn;
 		// The local player's throttle is a float in m_maneuverParam.
 		throttle = p_player->m_index == g_localPlayerId ? *(MechScalar*) &p_player->m_maneuverParam : 0.015625f;
-		p_player->m_steering->m_throttle = (MechFloat) (i == 0 ? throttle : 0.0078125f);
+		p_player->m_steering->m_throttle = (MechFloat) (i == 0 ? throttle : 0.00390625f);
 		if (p_player->m_type == c_playerTypeWanderer) {
 			p_player->m_steering->m_throttle = 0;
 			p_player->m_steering->m_turn = 0;

@@ -59,7 +59,7 @@ extern "C"
 	void ResetEyepointView(Eyepoint* p_eyepoint);
 	void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix);
 	void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix);
-	MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	MechS32 CullSceneShape(struct Shape* p_shape);
 	MechS32 CullShapeToFrustum(struct Shape* p_shape);
 	MechS32 CullHiddenShape(MechU16* p_flags);

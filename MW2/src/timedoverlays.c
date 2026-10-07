@@ -16,6 +16,10 @@
 
 #include <string.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0

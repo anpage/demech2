@@ -53,6 +53,7 @@ Player* g_players[0x3c];
 GameThing g_gameThings[254];
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1006cf80
 // FUNCTION: MW2MATROX 0x10054e10
 void FirstClassFunctions(void)
@@ -86,6 +87,7 @@ void UpdateAllPlayers(void)
 }
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1006d068
 // FUNCTION: MW2MATROX 0x10054ef7
 void LateUpdateAllPlayers(void)
@@ -134,6 +136,7 @@ void DrawLocalPlayer(void)
 }
 
 // Stack slots: shutdown and i are swapped.
+// MW2MATROX: the loop test (i < g_playerCount) compares in the other operand order.
 // FUNCTION: MW2 0x1006d18d
 // FUNCTION: MW2MATROX 0x1005501b
 void ShutdownAllPlayers(void)
@@ -212,6 +215,7 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 // Allocates player p_player: a remote player gets room for its steering after it.
 // Stack-slot permutation of player and size; the original compares p_player with
 // g_localPlayerId in eax (operand order).
+// MW2MATROX: p_player == g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1006d340
 // FUNCTION: MW2MATROX 0x100551cf
 MechS32 AllocPlayer(MechS32 p_player)

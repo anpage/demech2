@@ -12,6 +12,10 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // Frame projections (a table of 96) and 2D animations: up to seven SHP resources whose frames
 // play on the clock, once or looping, drawn into a pane.
 

@@ -19,6 +19,8 @@
 #include "error.h"
 #include "eyepoint.h"
 #include "faceshade.h"
+#include "filevector3.h"
+#include "filexform.h"
 #include "fixedmul.h"
 #include "gamething.h"
 #include "geocache.h"
@@ -185,7 +187,7 @@ typedef struct BwdOffsetRecord {
 // blockxform.
 typedef struct BwdXformRecord {
 	BwdRecord m_header; // 0x00
-	Xform m_xform;      // 0x08
+	FileXform m_xform;  // 0x08
 } BwdXformRecord;
 
 // A record of an object class or thing, and a value: scrounge, thing, gamepiece, eyeobj, pof,
@@ -210,16 +212,16 @@ typedef struct BwdGameThingRecord {
 
 // navpoint.
 typedef struct BwdNavPointRecord {
-	BwdRecord m_header;    // 0x00
-	Vector3 m_position;    // 0x08
-	MechS32 m_heading;     // 0x14
-	MechS16 m_used;        // 0x18
-	MechS16 m_flags;       // 0x1a
-	MechS16 m_owner;       // 0x1c
-	MechS16 m_team;        // 0x1e
-	MechU16 m_radius;      // 0x20 — in hundreds
-	MechU16 m_events;      // 0x22
-	MechChar m_name[0x16]; // 0x24
+	BwdRecord m_header;     // 0x00
+	FileVector3 m_position; // 0x08
+	MechS32 m_heading;      // 0x14
+	MechS16 m_used;         // 0x18
+	MechS16 m_flags;        // 0x1a
+	MechS16 m_owner;        // 0x1c
+	MechS16 m_team;         // 0x1e
+	MechU16 m_radius;       // 0x20 — in hundreds
+	MechU16 m_events;       // 0x22
+	MechChar m_name[0x16];  // 0x24
 } BwdNavPointRecord;
 
 // navobject: a nav point on an object.
@@ -312,6 +314,7 @@ MechU32 WidenEventFlags(MechU32 p_flags)
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
 // Operand order: the rep record's i < g_thingCapacity loads g_thingCapacity first in the original.
 // FUNCTION: MW2 0x1000a9f5
+// FUNCTION: MW2MATROX 0x100461f5
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
 	MechS32 result;
@@ -335,10 +338,18 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdPlanetRecord* planet = (BwdPlanetRecord*) node;
 
 			if (g_difficulty->m_gravity) {
+#ifdef MW2_MATROX
+				g_gravity = FIXED_TO_SCALAR((MechS32) g_difficulty->m_gravity) * FIXED_LITERAL(0x794, 0.0296f);
+#else
 				g_gravity = FixedMul16(g_difficulty->m_gravity, 0x794);
+#endif
 			}
 			else {
+#ifdef MW2_MATROX
+				g_gravity = FIXED_TO_SCALAR(planet->m_gravity) * FIXED_LITERAL(0x794, 0.0296f);
+#else
 				g_gravity = FixedMul16(planet->m_gravity, 0x794);
+#endif
 			}
 
 			g_daysPerYear = planet->m_daysPerYear;
@@ -366,7 +377,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			}
 
 			if (planet->m_slideSlope > 0) {
-				g_slideSlope = planet->m_slideSlope;
+				g_slideSlope = FIXED_TO_SCALAR(planet->m_slideSlope);
 			}
 		}
 		else if (type == g_bwdTypeCodes[c_bwdClimate]) {
@@ -462,9 +473,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdLight]) {
 			BwdLightRecord* light = (BwdLightRecord*) node;
 
-			g_mainEyepoint.m_lightX = light->m_x;
-			g_mainEyepoint.m_lightY = light->m_y;
-			g_mainEyepoint.m_lightZ = light->m_z;
+			g_mainEyepoint.m_lightX = FIXED_TO_SCALAR(light->m_x);
+			g_mainEyepoint.m_lightY = FIXED_TO_SCALAR(light->m_y);
+			g_mainEyepoint.m_lightZ = FIXED_TO_SCALAR(light->m_z);
 			g_mainEyepoint.m_directionalLight = light->m_directional;
 			g_eyepoint->m_ambientLight = light->m_ambient;
 			g_renderSettings.m_fadeDistance = light->m_fadeDistance;
@@ -516,10 +527,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_mainEyepoint.m_x = start->m_values[0];
 			g_mainEyepoint.m_y = start->m_values[1];
 			g_mainEyepoint.m_z = start->m_values[2];
-			g_mainEyepoint.m_heading = start->m_values[3];
-			g_mainEyepoint.m_pitch = start->m_values[4];
-			g_mainEyepoint.m_roll = start->m_values[5];
-			g_mainEyepoint.m_fovX = start->m_values[6];
+			g_mainEyepoint.m_heading = FIXED_TO_SCALAR(start->m_values[3]);
+			g_mainEyepoint.m_pitch = FIXED_TO_SCALAR(start->m_values[4]);
+			g_mainEyepoint.m_roll = FIXED_TO_SCALAR(start->m_values[5]);
+			g_mainEyepoint.m_fovX = FIXED_TO_SCALAR(start->m_values[6]);
 		}
 		else if (type == g_bwdTypeCodes[c_bwdScenarioTable]) {
 			LoadScenarioTable((ScenarioTable*) node);
@@ -1048,10 +1059,20 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			Vector3 position;
 			MechU16 target;
 			NavPoint* nav;
+#ifdef MW2_MATROX
+			FileVector3 stored;
+#endif
 
 			if (g_navCount < 0x80 && g_navCount != -1) {
 				nav = &g_navTable[g_navCount];
+#ifdef MW2_MATROX
+				stored = navPoint->m_position;
+				position.m_x = stored.m_x;
+				position.m_y = stored.m_y;
+				position.m_z = stored.m_z;
+#else
 				position = navPoint->m_position;
+#endif
 				TransformBlockPoint(&position.m_x);
 				nav->m_position[0] = position.m_x;
 				nav->m_position[1] = position.m_y;
@@ -1060,8 +1081,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				nav->m_flags = navPoint->m_flags;
 				nav->m_team = navPoint->m_team;
 				nav->m_owner = navPoint->m_owner;
-				nav->m_heading = navPoint->m_heading;
+				nav->m_heading = FIXED_TO_SCALAR(navPoint->m_heading);
+#ifdef MW2_MATROX
+				nav->m_radius = (MechU32) navPoint->m_radius * 100.0f;
+#else
 				nav->m_radius = navPoint->m_radius * 100;
+#endif
 				nav->m_obj = NULL;
 				strncpy(nav->m_name, navPoint->m_name, 0x15);
 				nav->m_name[0x15] = '\0';
@@ -1078,10 +1103,10 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			SceneObject* obj;
 			MechS32 index;
 			MechU32 events;
-			MechS32 x;
+			MechScalar x;
 			MechS32 found;
-			MechS32 y;
-			MechS32 z;
+			MechScalar y;
+			MechScalar z;
 			Shape* shape;
 			MechS32 id;
 			MechU16 target;
@@ -1178,9 +1203,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		else if (type == g_bwdTypeCodes[c_bwdPosition]) {
 			SceneObject* obj;
 			BwdPlaceRecord* position = (BwdPlaceRecord*) node;
-			MechS32 x;
-			MechS32 y;
-			MechS32 z;
+			MechScalar x;
+			MechScalar y;
+			MechScalar z;
 			Shape* shape;
 			MechS32 id;
 
@@ -1200,9 +1225,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 		}
 		else if (type == g_bwdTypeCodes[c_bwdRotate]) {
 			SceneObject* obj;
-			MechS32 x;
-			MechS32 y;
-			MechS32 z;
+			MechScalar x;
+			MechScalar y;
+			MechScalar z;
 			Shape* shape;
 			BwdPlaceRecord* rotate = (BwdPlaceRecord*) node;
 			MechS32 id;
@@ -1216,6 +1241,9 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (shape) {
 				obj = GetShapeObject(shape);
 				if (obj) {
+#ifdef MW2_MATROX
+					SetObjRotation(obj, x, y, z, 0);
+#else
 					SetObjRotation(
 						obj,
 						(MechS32) (x * 65536.0 + 0.5),
@@ -1223,6 +1251,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 						(MechS32) (z * 65536.0 + 0.5),
 						0
 					);
+#endif
 					UpdateObj(obj);
 				}
 			}
@@ -1408,6 +1437,7 @@ MechS32 LoadWorld(MechChar* p_name)
 // Stack-slot permutation: obj and i. Operand order: i == g_localStar loads
 // g_localStar first in the original.
 // FUNCTION: MW2 0x1000d4a6
+// FUNCTION: MW2MATROX 0x10048e04
 void AfterWorldLoader(void)
 {
 	SceneObject* obj;

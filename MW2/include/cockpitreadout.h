@@ -2,6 +2,7 @@
 #define COCKPITREADOUT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "point.h"
 #include "types.h"
 
@@ -9,12 +10,12 @@
 // it, at a place in 16.16 fractions of the screen.
 // SIZE 0x1c
 typedef struct CockpitReadout {
-	MechS32 m_font;           // 0x00 — its font, from g_artResolution
-	MechS32 m_unk0x04;        // 0x04
-	MechS32 m_formattedValue; // 0x08 — the value it last formatted
-	MechChar* m_label;        // 0x0c
-	MechChar* m_text;         // 0x10
-	Point m_position;         // 0x14
+	MechS32 m_font;              // 0x00 — its font, from g_artResolution
+	MechS32 m_unk0x04;           // 0x04
+	MechScalar m_formattedValue; // 0x08 — the value it last formatted (a float in the Matrox edition)
+	MechChar* m_label;           // 0x0c
+	MechChar* m_text;            // 0x10
+	Point m_position;            // 0x14
 } CockpitReadout;
 
 #endif // COCKPITREADOUT_H

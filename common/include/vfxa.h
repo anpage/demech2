@@ -8,6 +8,9 @@
 
 // VFXA, Miles Design VFX's 2D primitives (3rdparty/vfx/VFXA.ASM; its portable C, common/src/vfxa.c,
 // in COMPAT_MODE), which both DLLs link.
+// The Matrox edition links it too, but its VFX_shape_draw, VFX_shape_translate_draw, VFX_pane_wipe
+// and VFX_character_draw differ from 1.1's (and from this source): they are STUBs for MW2MATROX,
+// named so that their callers compare.
 #ifdef __cplusplus
 extern "C"
 {
@@ -181,6 +184,7 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x10032f84
 // FUNCTION: MW2 0x10061228
+// STUB: MW2MATROX 0x1004b858
 // VFX_shape_draw
 
 // FUNCTION: MW2SHELL 0x100333f8
@@ -194,6 +198,7 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x1003351a
 // FUNCTION: MW2 0x100617be
+// STUB: MW2MATROX 0x1004bd5e
 // VFX_shape_translate_draw
 
 // FUNCTION: MW2SHELL 0x10033980
@@ -232,6 +237,7 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x10034e15
 // FUNCTION: MW2 0x100630b9
+// STUB: MW2MATROX 0x1004d708
 // VFX_pane_wipe
 
 // FUNCTION: MW2SHELL 0x10034f18
@@ -256,6 +262,7 @@ extern "C"
 
 // GLOBAL: MW2SHELL 0x10035af0
 // GLOBAL: MW2 0x10063d94
+// GLOBAL: MW2MATROX 0x1004e3bf
 // CosTable
 
 // FUNCTION: MW2SHELL 0x10036904
@@ -285,6 +292,7 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x10036adc
 // FUNCTION: MW2 0x10064d80
+// STUB: MW2MATROX 0x1004f3ab
 // VFX_character_draw
 
 // FUNCTION: MW2SHELL 0x10036c67
@@ -299,14 +307,17 @@ extern "C"
 
 // GLOBAL: MW2SHELL 0x10036da1
 // GLOBAL: MW2 0x10065045
+// GLOBAL: MW2MATROX 0x1004f678
 // BMHD_prop
 
 // GLOBAL: MW2SHELL 0x10036da5
 // GLOBAL: MW2 0x10065049
+// GLOBAL: MW2MATROX 0x1004f67c
 // CMAP_prop
 
 // GLOBAL: MW2SHELL 0x10036da9
 // GLOBAL: MW2 0x1006504d
+// GLOBAL: MW2MATROX 0x1004f680
 // BODY_prop
 
 // FUNCTION: MW2SHELL 0x10036dad
@@ -436,7 +447,7 @@ extern "C"
 
 // GLOBAL: MW2SHELL 0x1003775b
 // GLOBAL: MW2 0x100659ff
-// GLOBAL: MW2MATROX 0x10068c47
+// GLOBAL: MW2MATROX 0x10050032
 // pf_constants
 
 // FUNCTION: MW2SHELL 0x100377d7
@@ -461,18 +472,22 @@ extern "C"
 
 // GLOBAL: MW2SHELL 0x100687d0
 // GLOBAL: MW2 0x100ab104
+// GLOBAL: MW2MATROX 0x100a875c
 // VFX_init_driver
 
 // GLOBAL: MW2SHELL 0x100687d4
 // GLOBAL: MW2 0x100ab108
+// GLOBAL: MW2MATROX 0x100a8760
 // VFX_shutdown_driver
 
 // GLOBAL: MW2SHELL 0x100687d8
 // GLOBAL: MW2 0x100ab10c
+// GLOBAL: MW2MATROX 0x100a8764
 // VFX_area_wipe
 
 // GLOBAL: MW2SHELL 0x100687dc
 // GLOBAL: MW2 0x100ab110
+// GLOBAL: MW2MATROX 0x100a8768
 // VFX_wait_vblank
 
 // GLOBAL: MW2SHELL 0x100687e0
@@ -482,10 +497,12 @@ extern "C"
 
 // GLOBAL: MW2SHELL 0x100687e4
 // GLOBAL: MW2 0x100ab118
+// GLOBAL: MW2MATROX 0x100a8770
 // VFX_window_refresh
 
 // GLOBAL: MW2SHELL 0x100687e8
 // GLOBAL: MW2 0x100ab11c
+// GLOBAL: MW2MATROX 0x100a8774
 // VFX_window_read
 
 // GLOBAL: MW2SHELL 0x100687ec
@@ -500,14 +517,17 @@ extern "C"
 
 // GLOBAL: MW2SHELL 0x100687f4
 // GLOBAL: MW2 0x100ab128
+// GLOBAL: MW2MATROX 0x100a8780
 // VFX_bank_reset
 
 // GLOBAL: MW2SHELL 0x100687f8
 // GLOBAL: MW2 0x100ab12c
+// GLOBAL: MW2MATROX 0x100a8784
 // VFX_pane_refresh
 
 // GLOBAL: MW2SHELL 0x100687fc
 // GLOBAL: MW2 0x100ab130
+// GLOBAL: MW2MATROX 0x100a8788
 // VFX_line_address
 
 // GLOBAL: MW2SHELL 0x10068800

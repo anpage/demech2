@@ -51,28 +51,22 @@ MechU32 FixedSqrt16(MechU32 p_value)
 	return root;
 }
 
-// Scales the vector to length 1.0 (16.16); a zero vector stays as it is.
+// Scales the vector to length 1.0 (16.16); a zero vector stays as it is. The Matrox edition's
+// is in matrox/floatmath.c.
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x100169b4
-// FUNCTION: MW2MATROX 0x1007f461
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar length;
 
 	length = ApproximateVectorLength(*p_x, *p_y, *p_z);
-#ifdef MW2_MATROX
-	if (length > 1e-07f) {
-		*p_x /= length;
-		*p_y /= length;
-		*p_z /= length;
-	}
-#else
 	if (length > 0) {
 		*p_x = FixedDiv16(*p_x, length);
 		*p_y = FixedDiv16(*p_y, length);
 		*p_z = FixedDiv16(*p_z, length);
 	}
-#endif
 }
+#endif
 
 // FUNCTION: MW2 0x10016a2e
 MechS32 FloatVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z)

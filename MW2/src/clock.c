@@ -101,6 +101,8 @@ MechS16 g_sqrtTableData[0x400];
 // GLOBAL: MW2MATROX 0x1012ec50
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
+// The Matrox edition's tables, Hypot2D and trigonometry are its own float code, in matrox/floatmath.c.
+#ifndef MW2_MATROX
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
 // FUNCTION: MW2 0x1007c930
@@ -134,6 +136,8 @@ MechS32 InitSlopeTables(void)
 	return TRUE;
 }
 
+#endif
+
 // The square roots of 0 to 1023 (6.10 fixed point).
 // FUNCTION: MW2 0x1007ca8e
 MechS32 InitSqrtTable(void)
@@ -148,17 +152,10 @@ MechS32 InitSqrtTable(void)
 	return TRUE;
 }
 
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x1007caf7
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
-#ifdef MW2_MATROX
-	MechDouble x;
-	MechDouble y;
-
-	x = p_x;
-	y = p_y;
-	return sqrt(x * x + y * y);
-#else
 	MechS32 length;
 	MechDouble x;
 	MechDouble y;
@@ -166,8 +163,8 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 	x = p_x;
 	length = (MechS32) sqrt((y = p_y) * y + x * x);
 	return length;
-#endif
 }
+#endif
 
 // Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
 // Operand order: the original loads the squares of p_x, p_z and p_y in that order; this
@@ -183,51 +180,10 @@ void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS3
 	BuildMatrix(p_matrix, (MechS32) (pitch * 3754939.378), (MechS32) (yaw * 3754939.378), 0, 0, 0, 0);
 }
 
-// Normalizes the rows and columns of the rotation (2.29 fixed point).
-// FUNCTION: MW2 0x1007cbf1
-// FUNCTION: MW2MATROX 0x10002479
-void NormalizeRotation(Matrix* p_matrix)
-{
-#ifdef MW2_MATROX
-	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
-	ScaleVectorToLength(&p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
-	ScaleVectorToLength(&p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
-	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
-	ScaleVectorToLength(&p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
-	ScaleVectorToLength(&p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
-#else
-	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
-	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
-	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
-	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
-	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
-	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+// The rotation's normalization: 1.1 has it here, the Matrox edition at the end of transform.c's object.
+#ifndef MW2_MATROX
+#include "normalizerotation.c"
 #endif
-}
-
-// Scales (*p_x, *p_y, *p_z) to length p_length (the Matrox edition always to 1).
-// FUNCTION: MW2 0x1007ccc2
-// FUNCTION: MW2MATROX 0x1000252c
-void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
-{
-	MechDouble scale;
-	MechDouble x;
-	MechDouble y;
-	MechDouble z;
-
-	x = *p_x;
-	y = *p_y;
-	z = *p_z;
-#ifdef MW2_MATROX
-	*p_x = (scale = 1.0 / sqrt(x * x + y * y + z * z)) * x;
-	*p_y = y * scale;
-	*p_z = z * scale;
-#else
-	*p_x = (MechS32) ((scale = p_length / sqrt(x * x + y * y + z * z)) * x);
-	*p_y = (MechS32) (y * scale);
-	*p_z = (MechS32) (z * scale);
-#endif
-}
 
 // FUNCTION: MW2 0x1007cd50
 // FUNCTION: MW2MATROX 0x1001e8e0

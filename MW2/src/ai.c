@@ -675,70 +675,10 @@ void InitializeAI(Player* p_player)
 	InitializeManeuvers(p_player);
 }
 
-// Clears p_player's AI state, target, goal, scripts, stack and posted message.
-// FUNCTION: MW2 0x100518cd
-void ResetAI(Player* p_player)
-{
-	MechS32 i;
-
-	LeaveAIState(p_player);
-	p_player->m_ai.m_target = 0;
-	p_player->m_ai.m_goal = 0;
-	p_player->m_ai.m_flags = 0;
-
-	if (p_player->m_aiMode != 2) {
-		p_player->m_ai.m_state = c_aiStateIdle;
-	}
-	else {
-		p_player->m_ai.m_state = c_aiStateDead;
-	}
-
-	for (i = 0; i < 3; i++) {
-		SetAIScript(p_player, i, -1, 0);
-	}
-
-	p_player->m_rules[0] = NULL;
-	p_player->m_stackCount = 0;
-	p_player->m_ai.m_posted.m_message = 0;
-	p_player->m_nextFireTime = 0;
-	ReleaseAnchorNav(p_player);
-	CollectAIRules(p_player);
-}
-
-// Turns p_player on a player attacking it (FindAttacker), unless its AI flags hold it (bit 0) or
-// it is busy with that player already, calling off the teammate on it (FindNearestTarget).
-// Stack-slot permutation: best, nearest and other and target.
-// FUNCTION: MW2 0x100519b3
-void TargetAttacker(Player* p_player)
-{
-	MechS16 target;
-	MechS16 nearest;
-	Player* other;
-	MechS16 best;
-
-	if (p_player->m_ai.m_flags & 1) {
-		return;
-	}
-
-	target = FindAttacker(p_player);
-	if (target != -1 && (p_player->m_ai.m_goal != p_player->m_nav || p_player->m_ai.m_state != c_aiStateGoDirect) &&
-		((p_player->m_ai.m_state != c_aiStateTarget && p_player->m_ai.m_state != c_aiStateAttack) ||
-		 p_player->m_ai.m_goal != target)) {
-		other = FindNearestTarget(p_player, target, -3, &best, &nearest);
-		if (other) {
-			if (other->m_ai.m_flags & 0x40) {
-				target = -1;
-			}
-			else {
-				SetAIState(other, c_aiStateIdle, 0, 0);
-			}
-		}
-
-		if (target != -1) {
-			SetAIState(p_player, c_aiStateTarget, target, 1);
-		}
-	}
-}
+#ifndef MW2_MATROX
+#include "aiattacker.c"
+#include "aireset.c"
+#endif
 
 // Returns the name of p_value in p_names, or NULL.
 // FUNCTION: MW2 0x10051ad8
@@ -755,6 +695,11 @@ const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 
 	return NULL;
 }
+
+// The Matrox edition places ResetAI here.
+#ifdef MW2_MATROX
+#include "aireset.c"
+#endif
 
 // Clears the AI log page's lines (the drawing is compiled out).
 // FUNCTION: MW2 0x10051b35
@@ -912,6 +857,11 @@ void LogPlayerStatusLines(void)
 	}
 }
 
+// The Matrox edition places TargetAttacker here.
+#ifdef MW2_MATROX
+#include "aiattacker.c"
+#endif
+
 // Returns the distance between the points p_a and p_b.
 // Stack-slot permutation: distance and unused.
 // FUNCTION: MW2 0x100520d7
@@ -1060,48 +1010,13 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	return result;
 }
 
-// M_PROX: the nearest of p_target's targets closer than p_arg hundreds.
-// Operand order: the final test (nearest < limit) compares with nearest in eax in the original.
-// Stack-slot permutation: limit, nearest, nearestTarget and result and target.
-// FUNCTION: MW2 0x10052445
-MechS16 AiMessageProx(Player* p_player, MechS16 p_target, MechS16 p_arg)
-{
-	MechS16 nearestTarget;
-	MechS16 result;
-	MechS32 limit;
-	MechS32 nearest;
-	MechS16 target;
-
-	result = 0;
-	nearestTarget = -1;
-	target = -1;
-
-	if (p_arg == -3) {
-		limit = 100000000;
-	}
-	else {
-		limit = p_arg * 100;
-	}
-
-	nearest = limit;
-	while ((target = NextTarget(p_player, p_target, target)) != -1) {
-		if (!IsTargetDone(target, 2) && SetTarget(p_player, target) && p_player->m_targetInfo.m_distance < nearest) {
-			nearest = p_player->m_targetInfo.m_distance;
-			nearestTarget = target;
-		}
-	}
-
-	if (nearest < limit && nearestTarget != -1) {
-		result = nearestTarget;
-	}
-
-	return result;
-}
+#ifndef MW2_MATROX
+#include "aiprox.c"
+#endif
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
 // player == g_localPlayer subtraction runs the other way. Stack-slot permutation: color, i and
-// line and player. MW2MATROX: the same comparisons the other way round. The Matrox edition places this
-// function before AiMessageProx, so AiMessageProx stays unannotated for it.
+// line and player. MW2MATROX: the same comparisons the other way round.
 // FUNCTION: MW2 0x1005253c
 // FUNCTION: MW2MATROX 0x1008159c
 void LogPlayerSkillLines(void)
@@ -1137,59 +1052,19 @@ void LogPlayerSkillLines(void)
 	}
 }
 
-// M_DIST: the farthest of p_target's targets farther than p_arg hundreds (-4: p_player's leash
-// range, -2: its alert range).
-// Operand order: the final test (limit < farthest) compares the other way in the original.
-// Stack-slot permutation: farthest, farthestTarget, limit and result and target.
-// FUNCTION: MW2 0x10052617
-MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
-{
-	MechS16 farthestTarget;
-	MechS16 result;
-	MechS32 limit;
-	MechS32 farthest;
-	MechS16 target;
+// The Matrox edition places AiMessageProx here.
+#ifdef MW2_MATROX
+#include "aiprox.c"
+#endif
 
-	result = 0;
-	farthestTarget = -1;
-	target = -1;
-
-	if (p_arg == -3) {
-		limit = 0;
-	}
-	else if (p_arg == -4) {
-		limit = p_player->m_leashRange;
-	}
-	else if (p_arg == -2) {
-		limit = p_player->m_alertRange;
-	}
-	else if (p_arg == 0) {
-		limit = GetTargetRange(p_target);
-	}
-	else {
-		limit = p_arg * 100;
-	}
-
-	farthest = limit;
-	while ((target = NextTarget(p_player, p_target, target)) != -1) {
-		if (!IsTargetDone(target, 2) && SetTarget(p_player, target) && farthest < p_player->m_targetInfo.m_distance) {
-			farthest = p_player->m_targetInfo.m_distance;
-			farthestTarget = target;
-		}
-	}
-
-	if (limit < farthest && farthestTarget != -1) {
-		result = farthestTarget;
-	}
-
-	return result;
-}
+#ifndef MW2_MATROX
+#include "aidist.c"
+#endif
 
 // Operand order: g_debugFirstLine > g_debugObjective compares the other way in the original.
 // Stack-slot permutation: activity, color, line, marker, mission, objective, prefix, priority
 // and secondsLeft and typeName. (which also moves the jump table targets). MW2MATROX: the same
-// comparisons the other way round. The Matrox edition places this function before AiMessageDist, so
-// AiMessageDist stays unannotated for it.
+// comparisons the other way round.
 // FUNCTION: MW2 0x1005276a
 // FUNCTION: MW2MATROX 0x10081777
 void LogStarMissionLines(MechS32 p_team)
@@ -1325,6 +1200,11 @@ void LogStarMissionLines(MechS32 p_team)
 		}
 	}
 }
+
+// The Matrox edition places AiMessageDist here.
+#ifdef MW2_MATROX
+#include "aidist.c"
+#endif
 
 // Whether p_player can detect player p_target: a powered-down target (flag 0x10) within
 // p_distance it has no line of sight to is hidden, checked with p_check at most every 0x21f ticks

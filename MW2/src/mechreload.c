@@ -41,6 +41,8 @@ MechSegment* g_mechSegments[60] = {NULL};
 
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
 // flag 2 set.
+// MW2MATROX: p_player == g_localPlayerId compares in the other operand order, and
+// ResetCockpitPanels (config.c) has no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1007fbe0
 // FUNCTION: MW2MATROX 0x10090fd0
 MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)

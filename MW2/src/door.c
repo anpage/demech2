@@ -154,7 +154,12 @@ void LateUpdateDoor(Mech* p_mech)
 		objective = &g_objectiveTable[team].m_objectives[g_currentObjective[team]];
 		mech->m_player->m_targetInfo.m_target = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
+#ifdef MW2_MATROX
+		if (objective->m_type == 0x100 && objective->m_targetCount > 0 &&
+			(MechU16) ((MechU8) (objective->m_targets[0] >> 8) << 8) == 0x100) {
+#else
 		if (objective->m_type == 0x100 && objective->m_targetCount > 0 && (objective->m_targets[0] & 0xff00) == 0x100) {
+#endif
 			nav = (MechU8) objective->m_targets[0];
 			GetObjPosition(mech->m_player->m_obj, &x, &y, &z);
 			navX = g_navTable[nav].m_position[0];

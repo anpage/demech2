@@ -16,6 +16,10 @@
 #include "targeting.h"
 #include "types.h"
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // The cockpit's bar gauges: the heat, the rate the heat changes at, the throttle and the jump
 // jet fuel. Each eases towards its value, and the rectangles are fractions of their panels
 // until ScaleBarGauges scales them to pixels.

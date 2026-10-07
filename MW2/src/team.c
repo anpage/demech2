@@ -20,9 +20,15 @@
 DECOMP_SIZE_ASSERT(TeamFormation, 0x70)
 DECOMP_SIZE_ASSERT(Team, 0x38)
 
+// The Matrox edition starts it at 0, 1.1 at -1.
 // GLOBAL: MW2 0x100a5918
 // GLOBAL: MW2MATROX 0x100ae338
-MechS32 g_localStar = -1;
+MechS32 g_localStar =
+#ifdef MW2_MATROX
+	0;
+#else
+	-1;
+#endif
 
 // GLOBAL: MW2 0x100a591c
 // GLOBAL: MW2MATROX 0x100ae33c

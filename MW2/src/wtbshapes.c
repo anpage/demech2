@@ -193,6 +193,7 @@ Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject
 // compares only as many bytes of the original as the recompiled function has. Operand order:
 // j < count.
 // FUNCTION: MW2 0x1007f2d5
+// STUB: MW2MATROX 0x10025407
 MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, SceneObject* p_parent, MechS32* p_count)
 {
 	MechChar* suffix;

@@ -16,12 +16,15 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a7130
+// GLOBAL: MW2MATROX 0x100a84a0
 PANE g_commandPoint2MenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a7148
+// GLOBAL: MW2MATROX 0x100a84b8
 PANE g_commandPoint2MenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a7160
+// GLOBAL: MW2MATROX 0x100a84d0
 MenuDefinition g_commandPoint2Menu = {
 	&g_commandPoint2MenuTarget,
 	10,
@@ -349,6 +352,7 @@ MenuPage g_commandAllPage = {
 };
 
 // GLOBAL: MW2 0x100a7b98
+// GLOBAL: MW2MATROX 0x100ba8b0
 MenuPage g_commandPoint2Page = {
 	0,
 	g_commandPoint2Title,
@@ -367,6 +371,7 @@ MenuPage g_commandPoint2Page = {
 };
 
 // GLOBAL: MW2 0x100a7cf0
+// GLOBAL: MW2MATROX 0x100baa08
 MenuPage g_commandPoint3Page = {
 	0,
 	g_commandPoint3Title,
@@ -421,6 +426,7 @@ MenuPage g_commandPoint5Page = {
 };
 
 // GLOBAL: MW2 0x100a80f8
+// GLOBAL: MW2MATROX 0x100bae10
 MenuPage g_commandComputerPage = {
 	0,
 	g_commandComputerTitle,
@@ -439,12 +445,15 @@ MenuPage g_commandComputerPage = {
 };
 
 // GLOBAL: MW2 0x100a8250
+// GLOBAL: MW2MATROX 0x100baf68
 PANE g_commandMenuTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a8268
+// GLOBAL: MW2MATROX 0x100baf80
 PANE g_commandMenuBackgroundTarget = {NULL, 0x3852, 0x4ccd, 0x10000, 0x999a};
 
 // GLOBAL: MW2 0x100a8280
+// GLOBAL: MW2MATROX 0x100baf98
 MenuDefinition g_commandMenu = {
 	&g_commandMenuTarget,
 	10,
@@ -471,7 +480,9 @@ MenuDefinition g_commandMenu = {
 };
 
 // GLOBAL: MW2 0x100ea7e0
+// GLOBAL: MW2MATROX 0x1012f450
 MenuPage* g_commandMenuPageStack[8];
 
 // GLOBAL: MW2 0x100ea800
+// GLOBAL: MW2MATROX 0x101d4a10
 MenuPage* g_commandPoint2MenuPageStack[8];

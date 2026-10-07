@@ -36,6 +36,11 @@ OBJECTS = {
         ("VP_R", 0x100A5560, 0x1D0),
         ("dfactor_1", 0x100A3958, 0x1920),
     ],
+    "MW2MATROX": [
+        ("VFX_describe_driver", 0x100A8758, 0x19F0),
+        ("VP_R", 0x100A4664, 0x1D0),
+        ("dfactor_1", 0x100A6394, 0x1920),
+    ],
 }
 
 HEADERS = ["vfxa.h", "vfx3d.h", "vfxrend.h"]

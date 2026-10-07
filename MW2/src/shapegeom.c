@@ -575,7 +575,8 @@ done:;
 // triangle gets the normal (-1, -1, -1) and 0. The products and the scaling are __asm blocks.
 // Stack-slot permutation of the locals.
 // The Matrox edition's is float C, which returns the cross product's length: it sits with the
-// trigonometry (0x1007f368), out of this unit's order, so it isn't annotated.
+// trigonometry, in matrox/floatmath.c.
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x10039dda
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
@@ -592,21 +593,7 @@ MechS32 ComputeTriangleNormal(
 	MechScalar* p_nz
 )
 {
-#if defined(MW2_MATROX)
-	MechScalar length;
-	MechScalar nx;
-	MechScalar ny;
-	MechScalar nz;
-
-	nx = -((p_z2 - p_z1) * (p_y1 - p_y0) - (p_z1 - p_z0) * (p_y2 - p_y1));
-	ny = -((p_z1 - p_z0) * (p_x2 - p_x1) - (p_z2 - p_z1) * (p_x1 - p_x0));
-	nz = -((p_x1 - p_x0) * (p_y2 - p_y1) - (p_y1 - p_y0) * (p_x2 - p_x1));
-	length = sqrt(ny * ny + nz * nz + nx * nx);
-	*p_nx = nx / length;
-	*p_ny = ny / length;
-	*p_nz = nz / length;
-	return (MechS32) length;
-#elif defined(PORTABLE_C_LABELS)
+#if defined(PORTABLE_C_LABELS)
 	MechS64 normal[3];
 	MechU32 values[3];
 	MechS32 quotients[3];
@@ -889,6 +876,7 @@ normalize:
 	return shift;
 #endif
 }
+#endif
 
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d

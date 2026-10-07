@@ -1,5 +1,8 @@
 /* The digital sound effects (AudioEngine): Miles samples streamed from the sound resources,
    positioned sounds panned by their bearing from the eyepoint, and the looping ambient sounds. */
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "soundfx.h"
 
 #include "ambientsound.h"
@@ -609,14 +612,20 @@ MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_so
 	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
 }
 
+// MW2MATROX scales the float sine by 64.
 // FUNCTION: MW2 0x1007ebfd
+// FUNCTION: MW2MATROX 0x100872ce
 MechS32 CalculateSamplePan(MechScalar p_bearing)
 {
 	MechS32 pan;
-	MechS32 angle;
+	MechScalar angle;
 
 	angle = g_eyepoint->m_heading - p_bearing;
+#ifdef MW2_MATROX
+	pan = FixedSin(angle) * 64.0;
+#else
 	pan = FixedSin(angle) >> 23;
+#endif
 	pan += 0x40;
 	if (pan < 0xf) {
 		pan = 0xf;

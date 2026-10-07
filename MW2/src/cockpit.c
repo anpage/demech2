@@ -48,6 +48,10 @@
 
 #include <stdio.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // The satellite view's display option, 0 or 1 (DrawSatelliteStatic).
 // GLOBAL: MW2 0x100a5a18
 // GLOBAL: MW2MATROX 0x100ae400
@@ -106,8 +110,12 @@ CockpitGaugeFn g_cockpitGauges[10] = {
 	NULL
 };
 
-// GLOBAL: MW2 0x100a5a68
+// The Matrox edition leaves them uninitialized (in .bss).
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012fc80
+PANE g_cockpitGaugePanes[5];
+#else
+// GLOBAL: MW2 0x100a5a68
 PANE g_cockpitGaugePanes[5] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -115,6 +123,7 @@ PANE g_cockpitGaugePanes[5] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
 	{&g_mainPixelBuffer, 0, 0, 0, 0}
 };
+#endif
 
 // GLOBAL: MW2 0x100a5ad0
 PANE g_unk0x100a5ad0[8] = {
@@ -302,6 +311,7 @@ void RunMapView(void)
 // player dies. Returns whether the view changed.
 // Stack-slot permutation; g_cockpitLayoutIndex != g_requestedCockpitView compares in the other operand
 // order.
+// MW2MATROX: the same comparison, the other way around.
 // FUNCTION: MW2 0x1003ddd7
 // FUNCTION: MW2MATROX 0x10073ab1
 MechS32 SwitchCockpitView(void)
@@ -402,8 +412,10 @@ void DrawCockpitView(void)
 // the field of view, the icons, the view's own gauge and, in the map views, the readouts.
 // The pose has a seventh element nothing uses. The only diff is a stack-slot permutation of the
 // locals.
+// MW2MATROX clears the satellite view with the A3D pane wipe (FUN_1005f8a0); BeginMapView and
+// EndMapView (mapview.c) have no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1003e06c
-// STUB: MW2MATROX 0x10073d46
+// FUNCTION: MW2MATROX 0x10073d46
 void DrawMapView(void)
 {
 	MechS32 farPlane;
@@ -487,7 +499,11 @@ void DrawMapView(void)
 		SetViewMode(c_viewSatellite);
 		ChoosePlayerDetailLevels();
 		SetViewMode(zoom);
+#ifdef MW2_MATROX
+		FUN_1005f8a0(viewport, PIXEL_COLOR(g_groundColor));
+#else
 		VFX_pane_wipe(viewport, PIXEL_COLOR(g_groundColor));
+#endif
 		flags = 0;
 		DrawMapViewScene(flags);
 	}
@@ -514,7 +530,10 @@ void DrawMapView(void)
 // Draws the map view's contents: the nav points, the center icon and the other players and
 // things, and the target.
 // The only diff is a stack-slot permutation of the locals. The original has an unused local (unused).
+// MW2MATROX: DrawMapTarget has no MW2MATROX annotation (the edition places it before IsNavReached),
+// so its call stays unnamed.
 // FUNCTION: MW2 0x1003e32c
+// FUNCTION: MW2MATROX 0x10074024
 void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
@@ -571,6 +590,7 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 // Draws the other live players and the live game things, by side.
 // Stack-slot permutation; i < g_gameThingCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e4cd
+// STUB: MW2MATROX 0x10074102
 void DrawMapUnits(CockpitLayout* p_layout)
 {
 	Player* player;
@@ -712,6 +732,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // Draws the local team's nav points, marking the ones reached.
 // Stack-slot permutation; i < g_navCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e974
+// STUB: MW2MATROX 0x1007465e
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
 	MapPoint pos;
@@ -808,23 +829,46 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 // Draws the view's range readout and, in the satellite view, the heading readout, formatting them
 // again only when they change.
 // Stack-slot permutation: every local.
+// MW2MATROX: formats the range and heading as floats; m_range != m_formattedRange compares in the
+// other operand order.
 // FUNCTION: MW2 0x1003ec35
+// FUNCTION: MW2MATROX 0x10074945
 void DrawMapViewText(CockpitLayout* p_layout)
 {
+#ifdef MW2_MATROX
+	MechFloat value;
+#else
 	MechDouble value;
+#endif
 	MechChar* units;
+#ifndef MW2_MATROX
 	MechS32 range;
+#endif
 	void* font;
 	PANE* viewport;
-	MechS32 heading;
+	MechScalar heading;
 	Player* player;
+#ifndef MW2_MATROX
 	MechDouble degrees;
+#endif
 
 	viewport = p_layout->m_viewport;
 	player = g_players[g_localPlayerId];
-	font = LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+	font =
+		LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		if (p_layout->m_range != p_layout->m_formattedRange) {
+#ifdef MW2_MATROX
+			value = p_layout->m_range / 2;
+			if (value >= 100000) {
+				value = value / 100000;
+				units = p_layout->m_longUnit;
+			}
+			else {
+				value = value / 100;
+				units = p_layout->m_shortUnit;
+			}
+#else
 			range = p_layout->m_range / 2;
 			if (range >= 100000) {
 				range = FixedDiv16(range, 100000);
@@ -836,6 +880,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			}
 
 			value = range / 65536.0;
+#endif
 			sprintf(p_layout->m_rangeText, "%s%3.1lf%s", p_layout->m_rangeLabel, value, units);
 			p_layout->m_formattedRange = p_layout->m_range;
 		}
@@ -850,10 +895,16 @@ void DrawMapViewText(CockpitLayout* p_layout)
 		);
 		if (g_cockpitLayoutIndex == 4) {
 			heading = player->m_heading;
+#ifdef MW2_MATROX
+			heading = fmod(fmod(heading, 360.0) + 360.0, 360.0);
+			if (p_layout->m_formattedHeading != heading) {
+				sprintf(p_layout->m_headingText, "%s%3.1lf", p_layout->m_headingLabel, heading);
+#else
 			heading = (heading % 0x1680000 + 0x1680000) % 0x1680000;
 			if (p_layout->m_formattedHeading != heading) {
 				degrees = heading / 65536.0;
 				sprintf(p_layout->m_headingText, "%s%3.1lf", p_layout->m_headingLabel, degrees);
+#endif
 				p_layout->m_formattedHeading = heading;
 			}
 
@@ -867,7 +918,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			);
 		}
 
-		UnlockCachedResource(p_layout->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(p_layout->m_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont]);
 	}
 }
 
@@ -999,11 +1050,20 @@ MechS32 MapShapeFilter(Shape* p_shape)
 	return skip;
 }
 
+#ifdef MW2_MATROX
+#define FACE_KIND_MASK 0xf000
+#else
+#define FACE_KIND_MASK 0x7000
+#endif
+
 // The satellite view's face hook (RenderSettings::m_drawFace): the color a face of p_face's shape
 // draws in, from the view's colors by the shape's kind and side, or the face's own (p_flags).
 // Faces of a textured kind (0x3000) draw in the view's color 10.
 // The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
+// MW2MATROX tests the kind with the face flags' whole top nibble (0xf000).
+// MW2MATROX: also ends the outer default with a break.
 // FUNCTION: MW2 0x1003f0e7
+// FUNCTION: MW2MATROX 0x10074de6
 MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 {
 	MechU32 color;
@@ -1042,7 +1102,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 		result |= colors[6];
 		break;
 	case 0x800:
-		if ((p_flags & 0x7000) == 0x3000) {
+		if ((p_flags & FACE_KIND_MASK) == 0x3000) {
 			color = colors[10];
 		}
 		else {
@@ -1069,7 +1129,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 			result = p_flags;
 			break;
 		default:
-			if ((p_flags & 0x7000) == 0x3000) {
+			if ((p_flags & FACE_KIND_MASK) == 0x3000) {
 				color = colors[10];
 			}
 			else {
@@ -1079,6 +1139,9 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 			result = color | 0x4000;
 			break;
 		}
+#ifdef MW2_MATROX
+		break;
+#endif
 	}
 
 	return result;
@@ -1089,6 +1152,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 // (0) twice, the second time outlined (0x2000).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f393
+// STUB: MW2MATROX 0x10075097
 void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
 	MechU32 shade;
@@ -1200,6 +1264,7 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 
 // The map view while the local mech starts up: slides the view's rectangle in (its transition),
 // then draws it.
+// MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
 // FUNCTION: MW2 0x1003f66d
 // FUNCTION: MW2MATROX 0x10075428
 void PowerUpMapView(void)
@@ -1241,6 +1306,7 @@ void PowerUpMapView(void)
 // reset (g_satelliteClean), cleanly; otherwise clean until a random time, then the view's
 // transition breaks it up until another random time.
 // The two clock comparisons compare in the other operand order.
+// MW2MATROX: the same two clock comparisons, the other way around.
 // FUNCTION: MW2 0x1003f74e
 // FUNCTION: MW2MATROX 0x10075509
 void DrawSatelliteStatic(void)
@@ -1343,6 +1409,7 @@ void DrawDamagedMapView(void)
 }
 
 // The map view while the local mech shuts down or is off: slides the view's rectangle out.
+// MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
 // FUNCTION: MW2 0x1003fa05
 // FUNCTION: MW2MATROX 0x100757c0
 void PowerDownMapView(void)

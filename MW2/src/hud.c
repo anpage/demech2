@@ -30,6 +30,10 @@
 #include "weapondata.h"
 #include "weapons.h"
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // The Matrox edition's HUD art numbers the compass's and the crosshair's shapes three further on.
 #ifdef MW2_MATROX
 #define HUD_SHAPE(id) ((id) + 3)
@@ -1000,6 +1004,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y.
 // Operand order: p_id + HUD_ART_RESOLUTION loads p_id first in the original.
+// MW2MATROX: p_id + HUD_ART_RESOLUTION loads the art resolution first (commutative operands).
 // FUNCTION: MW2 0x10041f06
 // FUNCTION: MW2MATROX 0x1001e0cb
 void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)

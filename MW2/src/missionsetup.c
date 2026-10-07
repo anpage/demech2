@@ -112,6 +112,7 @@ void SetUpStarMission(MissionTable* p_table)
 // Returns the objectives that wait (state 0, 1 or 7) on the event list p_name, marking them as
 // waiting (7): bit j for objective j, bit 16 + i for mission table i.
 // Stack-slot permutation: every local.
+// MW2MATROX: the loop test (i < g_objectiveCount) compares in the other operand order.
 // FUNCTION: MW2 0x1004e35b
 // FUNCTION: MW2MATROX 0x1007fe7b
 MechU32 FindEventList(MechChar* p_name)

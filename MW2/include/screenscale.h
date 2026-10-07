@@ -38,18 +38,22 @@ extern "C"
 	void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame);
 	MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope);
 	Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out);
-	Point* GetRectNeedleAt(PANE* p_target, MechS32 p_angle, Point* p_out);
+	Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out);
 	Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_slope, Point* p_out);
 	void DrawGaugeEllipse(PANE* p_target, MechS32 p_color);
 	void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color);
-	MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y);
+#ifdef MW2_MATROX
+	MechS32 IsInsideGaugeEllipse(PANE* p_target, Point* p_point);
+#else
+MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y);
+#endif
 	Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out);
-	Point* GetEllipseNeedleAt(PANE* p_target, MechS32 p_angle, Point* p_out);
+	Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out);
 	Point* GetEllipseEdgeAtAngle(
 		PANE* p_target,
 		Point* p_center,
 		GaugeQuadrant p_quadrant,
-		MechS32 p_angle,
+		MechScalar p_angle,
 		Point* p_out
 	);
 	PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale);

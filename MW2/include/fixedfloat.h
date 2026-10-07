@@ -18,7 +18,8 @@
 // FIXED_MAX, FIXED_MIN: the extremes searches start from (0x7fffffff and -0x7fffffff in 1.1,
 // +-3.4e+38 in the Matrox edition); FIXED_TO_SCALAR(x): a 16.16 value the data holds (a record's
 // angle) as a MechScalar; FIXED_LITERAL(x, f): 1.1's raw 16.16 constant x where the Matrox edition wrote
-// its own float literal f (0.0296f for gravity's 0x794).
+// its own float literal f (0.0296f for gravity's 0x794); SCALAR_TO_INT(x): a MechScalar in whole
+// units (a distance) as an integer, which 1.1's is already.
 #ifdef MW2_MATROX
 #include <math.h>
 
@@ -36,6 +37,7 @@
 #define FIXED_MIN (-3.4e+38f)
 #define FIXED_TO_SCALAR(x) ((x) * (1.0f / 65536.0f))
 #define FIXED_LITERAL(x, f) (f)
+#define SCALAR_TO_INT(x) ((MechS32) (x))
 #else
 #define MechScalar MechS32
 #define FIXED_TO_INT(x) ((x) >> 16)
@@ -51,6 +53,7 @@
 #define FIXED_MIN (-0x7fffffff)
 #define FIXED_TO_SCALAR(x) (x)
 #define FIXED_LITERAL(x, f) (x)
+#define SCALAR_TO_INT(x) (x)
 #endif
 
 #endif // FIXEDFLOAT_H

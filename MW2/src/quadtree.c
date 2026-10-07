@@ -421,8 +421,7 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 // Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
 // Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
 // MW2MATROX: the comparisons of t0 and t1 with tMin and tMax have their operands the other way
-// round, and t0 < tMax stores t0 before it compares (fst, fcomp) where the original compares first
-// (fcom, fstp).
+// round.
 // FUNCTION: MW2 0x1001e90f
 // FUNCTION: MW2MATROX 0x10016422
 MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
@@ -476,8 +475,12 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		tMin = 0;
 	}
 
+#ifdef MW2_MATROX
+	if ((t0 = GetRayLength(p_ray)) < tMax) {
+#else
 	t0 = GetRayLength(p_ray);
 	if (t0 < tMax) {
+#endif
 		tMax = t0;
 	}
 

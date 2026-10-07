@@ -122,7 +122,10 @@ MechS32 g_refreshModeHeight;
 // is unavailable if p_allowFallback is set. The window covers the screen unless p_width x
 // p_height is smaller.
 // Stack-slot permutation: mode, backend, screenWidth, screenHeight and unused.
+// The Matrox edition's rebuild compares p_height and the mode index in the other operand order
+// (entropy).
 // FUNCTION: MW2 0x10076d50
+// FUNCTION: MW2MATROX 0x1007add0
 MechS32 InitRefreshMode(
 	MechS32 p_mode,
 	MechS32 p_allowFallback,
@@ -201,7 +204,11 @@ MechS32 InitRefreshMode(
 	g_refreshModePixelCount = p_height * p_width;
 	g_refreshModeBuffer = p_buffer;
 
+#ifdef MW2_MATROX
+	while (g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
+#else
 	while (g_currentRefreshMode->m_available && g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
+#endif
 		DebugPrint("RefreshMode %d not available\n", g_currentRefreshMode->m_index);
 		g_currentRefreshMode->m_available = FALSE;
 		if (!g_refreshModeFallback || g_currentRefreshMode->m_index == 5) {
@@ -211,6 +218,9 @@ MechS32 InitRefreshMode(
 		g_currentRefreshMode = g_refreshModes[g_currentRefreshMode->m_index + 1];
 	}
 
+#ifdef MW2_MATROX
+	g_currentRefreshMode->m_available = TRUE;
+#endif
 	if (g_refreshModeInactive && backend->m_id != c_displayBackendGdi) {
 		ShowWindow(g_gameWindow, SW_SHOWDEFAULT);
 		UpdateWindow(g_gameWindow);

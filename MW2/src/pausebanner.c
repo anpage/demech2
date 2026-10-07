@@ -30,6 +30,10 @@
 
 #include <stdio.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // The debug keys' selections (HandleDebugKey): a number, and a mech section.
 
 // GLOBAL: MW2 0x100a15d0

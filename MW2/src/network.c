@@ -135,6 +135,7 @@ BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, 
 MechS32 FindSession(LPDPSESSIONDESC p_desc);
 
 // GLOBAL: MW2 0x100a1758
+// GLOBAL: MW2MATROX 0x100a2108
 MechS32 g_stateInterval = 36;
 
 // The number of players of a network game, or 0.
@@ -514,7 +515,10 @@ void ShutdownNetwork(void)
 
 // Sends the local player's state.
 // The only diff is a stack-slot permutation of player, thing, mech, i, section and steering.
+// The Matrox edition's rebuild also loads the operands of `m_flags |= m_powerState & 0xf` in the
+// other order (entropy).
 // FUNCTION: MW2 0x1000ebad
+// FUNCTION: MW2MATROX 0x1000458e
 void SendStateMsg(void)
 {
 	Player* player;
@@ -670,6 +674,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 // Applies a player's state message.
 // The only diff is a stack-slot permutation of its locals.
 // FUNCTION: MW2 0x1000f1ee
+// FUNCTION: MW2MATROX 0x10004cbc
 void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text2[40];
@@ -818,7 +823,11 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		}
 
 		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
+#ifdef MW2_MATROX
+		if (section->m_internal < 1e-07f && !(section->m_flags & 0x2000)) {
+#else
 		if (section->m_internal <= 0 && !(section->m_flags & 0x2000)) {
+#endif
 			DestroySection(player->m_killer, mech, i + 1);
 		}
 	}

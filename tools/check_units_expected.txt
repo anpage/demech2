@@ -26,3 +26,19 @@ NETMECHW split 0x1000d1f0  # ChatLog::Lock (chatlog.cpp)
 NETMECHW split 0x1000d220  # ChatLog::Unlock (chatlog.cpp)
 NETMECHW split 0x1000f050  # IronLantern0x160::FUN_1000f050 (unk1000e410.cpp)
 NETMECHW split 0x1000f0a0  # IronLantern0x160::FUN_1000f0a0 (unk1000e410.cpp)
+
+# MW2MATROX: the Matrox edition's objects that hold code or data of more than one of 1.1's units,
+# not split yet. Edition-only functions annotated in palette.c sit in the edition's own objects:
+# the 16-bit 2D drawing after loadres.c, the A3D renderer after damagepanel.c, and one after ray.c.
+MW2MATROX start 0x10028adb  # shape.c's and shapegeom.c's functions share objects in another layout (0x10027a60, 0x100285d0)
+MW2MATROX order 0x1005708c  # FUN_1005708c, FUN_100570aa (palette.c): the 16-bit 2D object
+MW2MATROX order 0x1005f790  # palette.c's and render.c's functions in the A3D renderer
+MW2MATROX order 0x100773f0  # ProjectVertex (objectanim.c) sits after mechcollision.c
+MW2MATROX order 0x10088246  # FUN_10088246, FUN_10088280 (palette.c) sit between ray.c and door.c
+MW2MATROX order 0x100a4598  # g_jumpJetDrag, g_slideSlope (maneuvers.c) sit with mechclass.c's data
+MW2MATROX order 0x100a4940  # collision.c's colours sit with quadtree.c's and faceshade.c's data
+MW2MATROX order 0x100a4960  # commandpointmenu.c's menu sits between faceshade.c's and render.c's data
+MW2MATROX order 0x100a84a0  # commandmenu.c's menus sit between settings.c's and audio.c's data
+MW2MATROX order 0x100aa1d0  # g_unk0x100aa1d0 (palette.c) sits inside animation.c's data
+MW2MATROX order 0x100ba8b0  # commandmenu.c's pages sit between inputmap.c's and ai.c's data
+MW2MATROX order 0x100bcdd0  # targeting.c's readout labels sit between overlay.c's and lancemenu.c's data

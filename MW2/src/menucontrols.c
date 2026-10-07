@@ -18,6 +18,10 @@
 
 #include <string.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // A slider from 0 to 0x10000 (MenuControl::m_data holds its shapes: the left cap, the bar, the
 // right cap and the knob): while selected, Space or Right (0xc8) raises it by a tenth and Left
 // (0xc9) lowers it, and its number key raises it too.
