@@ -21,6 +21,8 @@ function(demech2_add_mw2matrox)
     ID MW2MATROX
     SOURCE_DIR MW2
     OUTPUT_NAME MW2_MATROX
+    # o\MW2_MATROX\ would take its 160 object names past LINK's 4K limit on Windows (4678 bytes)
+    LINK_DIR mx
     RUNTIME MultiThreaded
     SOURCES
       "${DEMECH2_SOURCE_DIR}/MW2/src/missionaudio.c"
