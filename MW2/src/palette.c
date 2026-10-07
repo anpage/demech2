@@ -184,7 +184,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 			// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
 			for (i = 0; i < 0x100; i++) {
 				color = ((PaletteColor*) palette)[i];
-				FUN_1005708c(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
+				VFX_lookaside_write16(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
 			}
 
 			ResetTextColors();
@@ -518,19 +518,6 @@ MechS32 GetPaletteFadeSteps(void)
 }
 
 #ifdef MW2_MATROX
-// STUB: MW2MATROX 0x1005708c
-void FUN_1005708c(MechS32 p_index, MechS32 p_pixel)
-{
-	STUB(0x1005708c);
-}
-
-// STUB: MW2MATROX 0x100570aa
-MechS32 FUN_100570aa(MechS32 p_color)
-{
-	STUB(0x100570aa);
-	return 0;
-}
-
 // STUB: MW2MATROX 0x1005f790
 void FUN_1005f790(PaletteColor* p_palette)
 {

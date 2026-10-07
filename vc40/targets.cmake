@@ -106,7 +106,8 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/vfx16.c"
+      # The 16-bit 2D primitives, a MASM object: only built with ML (this target needs a VC++ 4.x build)
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/vfx16.asm"
       "${DEMECH2_SOURCE_DIR}/MW2/src/camerashake.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/error.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"

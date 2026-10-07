@@ -23,7 +23,7 @@ for ML 6.11 (`.model flat, c`) to assemble back to the original's bytes. See CLA
 --check assembles the output with ML and compares its code and data with the original byte for
 byte, including the relocation targets, and lists the differences.
 
-usage: python tools/asm2masm.py --target MW2 START END [--data START END] [--split A,B,...]
+usage: python tools/asm2masm.py --target MW2|MW2SHELL|MW2MATROX START END [--data START END] [--split A,B,...]
                                 [--check --ml PATH/ML.EXE] [-o FILE]
 Needs capstone (installed with reccmp).
 """
@@ -123,10 +123,16 @@ class Symbol:
         self.declaration = declaration
 
 
+# Source directories and original DLL of the modules whose names aren't their directory's
+SOURCE_DIRS = {"MW2MATROX": ("MW2", "common")}
+ORIGINALS = {"MW2MATROX": "MW2_MATROX.DLL"}
+
+
 def module_sources(module):
     paths = []
-    for pattern in ("*.c", "*.cpp", "*.h"):
-        paths += glob.glob(os.path.join(ROOT, module, "**", pattern), recursive=True)
+    for directory in SOURCE_DIRS.get(module, (module,)):
+        for pattern in ("*.c", "*.cpp", "*.h"):
+            paths += glob.glob(os.path.join(ROOT, directory, "**", pattern), recursive=True)
     return sorted(paths)
 
 
@@ -169,7 +175,8 @@ def declared_params(module, name):
             params = [p.strip() for p in m.group(1).split(",") if p.strip()]
             if params in ([], ["void"]):
                 return []
-            return [re.search(r"(\w+)\s*(\[[^]]*\])?$", p).group(1) for p in params]
+            names = [re.search(r"(\w+)\s*(\[[^]]*\])?$", p) for p in params]
+            return [n.group(1) for n in names] if all(names) else None  # None: a function pointer parameter
     return None
 
 
@@ -880,7 +887,7 @@ def check(image, symbols, obj, bases, limit=40):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--target", required=True, help="MW2 or MW2SHELL")
+    parser.add_argument("--target", required=True, help="MW2, MW2SHELL or MW2MATROX")
     parser.add_argument("--dll", help="The original DLL (default: <target>.DLL in the repository root)")
     parser.add_argument("start", help="The object's first code address (hex)")
     parser.add_argument("end", help="The address after its code (hex)")
@@ -893,7 +900,7 @@ def main():
     parser.add_argument("--wine", default=os.environ.get("WINE", "wine"), help="Wine for --check off Windows")
     args = parser.parse_args()
 
-    image = Image(args.dll or os.path.join(ROOT, args.target + ".DLL"))
+    image = Image(args.dll or os.path.join(ROOT, ORIGINALS.get(args.target, args.target + ".DLL")))
     symbols = annotated_symbols(args.target)
     for symbol in symbols.values():
         if symbol.kind == "data" and symbol.declaration is None:
