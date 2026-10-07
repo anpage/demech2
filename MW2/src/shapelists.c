@@ -13,21 +13,27 @@ DECOMP_SIZE_ASSERT(ShapeListHead, 0x18)
 // also starts the collision list), the hidden ones (flag 0x1000: counted, not drawn), and the
 // detached ones, drawn on their own (the sky objects SecondRender finds).
 // GLOBAL: MW2 0x100ad5e8
+// GLOBAL: MW2MATROX 0x100a20e8
 Shape* g_sceneShapes = NULL;
 
 // GLOBAL: MW2 0x100ad5ec
+// GLOBAL: MW2MATROX 0x100a20ec
 Shape* g_hiddenShapes = NULL;
 
 // GLOBAL: MW2 0x100bef10
+// GLOBAL: MW2MATROX 0x100c1c68
 ShapeListHead g_sceneShapeHead;
 
 // GLOBAL: MW2 0x100bef28
+// GLOBAL: MW2MATROX 0x100c1c50
 ShapeListHead g_hiddenShapeHead;
 
 // GLOBAL: MW2 0x100bef40
+// GLOBAL: MW2MATROX 0x100c1c80
 ShapeListHead g_detachedShapeHead;
 
 // FUNCTION: MW2 0x1006d680
+// FUNCTION: MW2MATROX 0x100035d0
 void InitShapeLists(void)
 {
 	g_sceneShapeHead.m_prev = g_sceneShapeHead.m_prevCollider = NULL;
@@ -46,6 +52,7 @@ void InitShapeLists(void)
 // Links a new shape into the scene, or the hidden list for flag 0x1000, and into the collision
 // list unless it has collision type 4 (none) or flag 0x800.
 // FUNCTION: MW2 0x1006d732
+// FUNCTION: MW2MATROX 0x10003682
 void AddSceneShape(Shape* p_shape)
 {
 	Shape* list;
@@ -79,6 +86,7 @@ void AddSceneShape(Shape* p_shape)
 
 // Operand order: the original compares p_shape with g_sceneShapes the other way round.
 // FUNCTION: MW2 0x1006d7fb
+// FUNCTION: MW2MATROX 0x1000374b
 void RemoveSceneShape(Shape* p_shape)
 {
 	if (!p_shape || p_shape == g_sceneShapes || p_shape == (Shape*) &g_hiddenShapeHead) {
@@ -98,6 +106,7 @@ void RemoveSceneShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d88a
+// FUNCTION: MW2MATROX 0x100037db
 void DetachShape(Shape* p_shape)
 {
 	if (g_sceneShapes != (Shape*) &g_sceneShapeHead || !p_shape) {
@@ -109,6 +118,7 @@ void DetachShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d8d1
+// FUNCTION: MW2MATROX 0x10003822
 void EnableShapeCollision(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -138,6 +148,7 @@ void EnableShapeCollision(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006d989
+// FUNCTION: MW2MATROX 0x100038da
 void DisableShapeCollision(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -165,6 +176,7 @@ void DisableShapeCollision(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006da2d
+// FUNCTION: MW2MATROX 0x1000397e
 void HideShape(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -185,6 +197,7 @@ void HideShape(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006daa0
+// FUNCTION: MW2MATROX 0x100039f1
 void ShowShape(Shape* p_shape)
 {
 	if (!p_shape) {
@@ -206,6 +219,7 @@ void ShowShape(Shape* p_shape)
 
 // Frees the shapes of all three lists.
 // FUNCTION: MW2 0x1006db28
+// FUNCTION: MW2MATROX 0x10003a79
 void FreeSceneShapes(void)
 {
 	Shape* shape;
@@ -233,6 +247,7 @@ void FreeSceneShapes(void)
 
 // Unlinks the shape from its list.
 // FUNCTION: MW2 0x1006dbe2
+// FUNCTION: MW2MATROX 0x10003b33
 void UnlinkShape(Shape* p_shape)
 {
 	if (p_shape->m_next) {
@@ -248,6 +263,7 @@ void UnlinkShape(Shape* p_shape)
 
 // Links the shape in at the front of p_list.
 // FUNCTION: MW2 0x1006dc3b
+// FUNCTION: MW2MATROX 0x10003b8c
 void LinkShape(Shape* p_shape, Shape* p_list)
 {
 	if (p_list->m_next) {
@@ -262,6 +278,7 @@ void LinkShape(Shape* p_shape, Shape* p_list)
 // Shows the shapes of kind 0xc0 (the object density setting) with their collisions, or hides
 // them without.
 // FUNCTION: MW2 0x1006dc7d
+// FUNCTION: MW2MATROX 0x10003bce
 void ShowDensityShapes(MechS32 p_enable)
 {
 	Shape* shape;

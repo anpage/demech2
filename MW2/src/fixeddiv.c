@@ -10,6 +10,7 @@
 
 // Divides two 16.16 fixed-point values (no check for a zero divisor).
 // FUNCTION: MW2 0x10002c90
+// FUNCTION: MW2MATROX 0x100461a0
 MechS32 FixedDiv16(MechS32 p_a, MechS32 p_b)
 {
 #ifdef PORTABLE_C

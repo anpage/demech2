@@ -18,6 +18,7 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // and each objective's, with its conditions.
 // Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
 // FUNCTION: MW2 0x1004da30
+// FUNCTION: MW2MATROX 0x1007f550
 void SetUpStarMission(MissionTable* p_table)
 {
 	MechS32 i;
@@ -112,6 +113,7 @@ void SetUpStarMission(MissionTable* p_table)
 // waiting (7): bit j for objective j, bit 16 + i for mission table i.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x1004e35b
+// FUNCTION: MW2MATROX 0x1007fe7b
 MechU32 FindEventList(MechChar* p_name)
 {
 	MechU32 unk0x04;
@@ -147,8 +149,10 @@ MechU32 FindEventList(MechChar* p_name)
 // Adds the target p_target to the waiting objectives on the event list p_name whose type is in
 // p_types.
 // The objective's address scales i and j in the opposite order (index order), and stack-slot
-// permutation: count, i, j and state.
+// permutation: count, i, j and state. MW2MATROX: the loop test (i < g_objectiveCount) compares
+// in the other operand order.
 // FUNCTION: MW2 0x1004e4e6
+// FUNCTION: MW2MATROX 0x10080007
 void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 {
 	MechS32 count;
@@ -177,6 +181,7 @@ void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 // with them.
 // Stack-slot permutation: i and j.
 // FUNCTION: MW2 0x1004e69c
+// FUNCTION: MW2MATROX 0x100801be
 void FlushEventLists(MechU32 p_lists)
 {
 	MechS32 j;

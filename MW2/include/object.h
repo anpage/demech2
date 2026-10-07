@@ -2,6 +2,7 @@
 #define OBJECT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "shape.h"
 #include "transform.h"
 #include "types.h"
@@ -44,18 +45,24 @@ extern "C"
 	Shape* GetObjShape(SceneObject* p_obj);
 	MechChar* GetObjName(SceneObject* p_obj);
 	void SetObjName(SceneObject* p_obj, MechChar* p_name);
-	void GetObjWorldAngles(SceneObject* p_obj, undefined4* p_angleX, undefined4* p_angleY, undefined4* p_angleZ);
-	void GetObjAngles(SceneObject* p_obj, undefined4* p_angleX, undefined4* p_angleY, undefined4* p_angleZ);
-	void GetObjPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void GetObjLocalPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	void MoveObj(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void GetObjWorldAngles(SceneObject* p_obj, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ);
+	void GetObjAngles(SceneObject* p_obj, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ);
+	void GetObjPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
+	void GetObjLocalPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
+	void SetObjPosition(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z);
+	void MoveObj(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	void SetObjTransform(SceneObject* p_obj, Matrix* p_matrix);
 	void TransformObj(SceneObject* p_obj, Matrix* p_matrix);
 	void SetObjRotationMatrix(SceneObject* p_obj, Matrix* p_matrix);
 	void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix);
-	void SetObjRotation(SceneObject* p_obj, MechS32 p_angleX, MechS32 p_angleY, MechS32 p_angleZ, MechU32 p_flags);
-	void RotateObj(SceneObject* p_obj, MechS32 p_angleX, MechS32 p_angleY, MechS32 p_angleZ, MechU32 p_flags);
+	void SetObjRotation(
+		SceneObject* p_obj,
+		MechScalar p_angleX,
+		MechScalar p_angleY,
+		MechScalar p_angleZ,
+		MechU32 p_flags
+	);
+	void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, MechScalar p_angleZ, MechU32 p_flags);
 	void TransformShapeModel(Shape* p_shape);
 	void HideObjTree(SceneObject* p_obj);
 	void ShowObjTree(SceneObject* p_obj);

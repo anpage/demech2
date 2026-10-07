@@ -29,6 +29,7 @@
 // /S and /X clear p_flags[1]. Returns FALSE without a command line (not launched by MECH2.EXE).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ee80
+// FUNCTION: MW2MATROX 0x10021140
 MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p_mission)
 {
 	MechS32 result;

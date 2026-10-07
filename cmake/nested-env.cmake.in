@@ -1,13 +1,14 @@
-# Generated from cmake/vc22-env.cmake.in (see "VC++ 2.2 targets" in CMakeLists.txt).
-# Runs the command after "--" with VC++ 2.2's PATH, INCLUDE and LIB:
+# Generated from cmake/nested-env.cmake.in for a nested build (see "VC++ 2.2 targets" and
+# "VC++ 4.0 targets" in CMakeLists.txt). Runs the command after "--" with the nested
+# toolchain's PATH, INCLUDE and LIB:
 #
-#   cmake -P vc22-env.cmake -- <command> [args...]
+#   cmake -P vc22-env.cmake -- <command> [args...]   (or vc40-env.cmake)
 #
 # The environment lives here rather than on the command line, where the whole PATH would
 # end up in every nested-build command of the generated Makefiles.
-set(ENV{PATH} [==[@vc22_path@]==])
-set(ENV{INCLUDE} [==[@vc22_include@]==])
-set(ENV{LIB} [==[@vc22_lib@]==])
+set(ENV{PATH} [==[@env_path@]==])
+set(ENV{INCLUDE} [==[@env_include@]==])
+set(ENV{LIB} [==[@env_lib@]==])
 
 set(command "")
 set(found FALSE)

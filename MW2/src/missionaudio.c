@@ -23,21 +23,26 @@ typedef struct ProjectFileEntry {
 DECOMP_SIZE_ASSERT(ProjectFileEntry, 0x14)
 
 // GLOBAL: MW2 0x100a14f4
+// GLOBAL: MW2MATROX 0x100a2030
 MechS32 g_soundFileCount = 0;
 
 // GLOBAL: MW2 0x100bcdb8
+// GLOBAL: MW2MATROX 0x100c0af8
 static ProjectFileEntry g_soundFileEntries[200];
 
 // GLOBAL: MW2 0x100bdd58
+// GLOBAL: MW2MATROX 0x100c1a98
 static ProjectFileEntry* g_soundFileTable[0x65];
 
 // The directory of the mission's sound files.
 // GLOBAL: MW2 0x100bdef0
+// GLOBAL: MW2MATROX 0x100c09f8
 MechChar g_soundFileDir[0x100];
 
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
 // Stack-slot permutation of entry, added and slot.
 // FUNCTION: MW2 0x10007140
+// FUNCTION: MW2MATROX 0x10001000
 ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 {
 	ProjectFileEntry* entry;
@@ -70,6 +75,7 @@ ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 // Lists the mission's sound files (keating\*.sfl, on the game CD when they aren't installed) in
 // the project file table and keeps their directory in g_soundFileDir.
 // FUNCTION: MW2 0x10007252
+// FUNCTION: MW2MATROX 0x10001112
 void CollectMissionAudio(void)
 {
 	MechChar drive;
@@ -118,6 +124,7 @@ void CollectMissionAudio(void)
 // file lists it. Returns the data, or NULL.
 // Stack-slot permutation of path and name.
 // FUNCTION: MW2 0x100073bb
+// FUNCTION: MW2MATROX 0x10001257
 void* ReadSoundFile(MechChar* p_name)
 {
 	MechChar path[0x100];

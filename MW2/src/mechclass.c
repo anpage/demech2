@@ -12,6 +12,7 @@
 #include "fadepal.h"
 #include "fixeddiv.h"
 #include "fixeddiv29.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedmul29.h"
 #include "fixedtrig.h"
@@ -56,64 +57,81 @@ DECOMP_SIZE_ASSERT(Mech, 0x10e)
 
 // The "mightymouse" cheat: infinite jump jet fuel.
 // GLOBAL: MW2 0x100a2be4
+// GLOBAL: MW2MATROX 0x100a45a0
 MechS32 g_infiniteJumpFuel = 0;
 
 // Set by a game key: run JettisonAmmo on the local mech next tick.
 // GLOBAL: MW2 0x100a2be8
+// GLOBAL: MW2MATROX 0x100a45a4
 MechS32 g_jettisonAmmoRequested = 0;
 
 // Set by the MASC game key: toggle the local mech's MASC next tick.
 // GLOBAL: MW2 0x100a2bec
+// GLOBAL: MW2MATROX 0x100a45a8
 MechS32 g_toggleMascRequested = 0;
 
 // GLOBAL: MW2 0x100a2bf0
+// GLOBAL: MW2MATROX 0x100a45ac
 MechS32 g_mascEngaged = 0;
 
 // GLOBAL: MW2 0x100a2bf4
+// GLOBAL: MW2MATROX 0x100a45b0
 MechS32 g_unk0x100a2bf4 = 0;
 
 // GLOBAL: MW2 0x100a2bf8
+// GLOBAL: MW2MATROX 0x100a45b4
 MechS32 g_manualWeaponCycle = 0;
 
 // Set when the local mech lands while g_unk0x100a2c00 is on (UpdateMech).
 // GLOBAL: MW2 0x100a2bfc
+// GLOBAL: MW2MATROX 0x100a45b8
 MechS32 g_unk0x100a2bfc = 0;
 
 // GLOBAL: MW2 0x100a2c00
+// GLOBAL: MW2MATROX 0x100a45bc
 MechS32 g_unk0x100a2c00 = 1;
 
 // GLOBAL: MW2 0x100a2c04
+// GLOBAL: MW2MATROX 0x100a45c0
 MechS32 g_localMechLost = 0;
 
 // A power request for the local mech: 1 powers it up, -1 shuts it down.
 // GLOBAL: MW2 0x100a2c08
+// GLOBAL: MW2MATROX 0x100a45c4
 MechS32 g_powerRequest = 0;
 
 // The local player's heading at the last tick, while the torso recenters (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c0c
+// GLOBAL: MW2MATROX 0x100a45cc
 MechS32 g_recenterLastHeading = 0;
 
 // GLOBAL: MW2 0x100a2c10
+// GLOBAL: MW2MATROX 0x100a45c8
 MechS32 g_mechPoweredUp = 0;
 
 // The clock at the last MASC malfunction roll (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c14
+// GLOBAL: MW2MATROX 0x100a45d0
 MechS32 g_lastMascRoll = 0;
 
 // GLOBAL: MW2 0x100a2c18
+// GLOBAL: MW2MATROX 0x100a45d4
 MechS32 g_localMechDestroyed = 0;
 
 // GLOBAL: MW2 0x100a2c1c
+// GLOBAL: MW2MATROX 0x100a45d8
 MechS32 g_ejectStarted = 0;
 
 // Set once the local mech's collision sound played; cleared when it moves freely (UpdateMech).
 // GLOBAL: MW2 0x100be00c
+// GLOBAL: MW2MATROX 0x100c21f4
 MechS32 g_collisionSoundPlayed;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
 // player, its cockpit), the ramps, weapon and motion state, its object back on the ground and the
 // player's pose from it. With g_startOnAutopilot the local player starts on the autopilot.
 // FUNCTION: MW2 0x10016ad0
+// FUNCTION: MW2MATROX 0x1000ce80
 void FirstMech(struct Player* p_player)
 {
 	Mech* mech;
@@ -133,16 +151,16 @@ void FirstMech(struct Player* p_player)
 	}
 
 	if (mech->m_player->m_index == g_localPlayerId || g_isNetworkGame) {
-		StartRamp(&mech->m_torsoTwist, 0, 0, 0.2);
+		StartScalarRamp(&mech->m_torsoTwist, 0, 0, 0.2);
 	}
 	else {
-		StartRamp(&mech->m_torsoTwist, 0, 0, 0.6);
+		StartScalarRamp(&mech->m_torsoTwist, 0, 0, 0.6);
 	}
 
-	StartRamp(&mech->m_speed, 0, 0, 0.2);
-	StartRamp(&mech->m_turnRate, 0, 0, 0.3);
-	StartRamp(&mech->m_torsoPitch, 0, 0, 0.2);
-	StartRamp(&mech->m_throttle, 0x400, 0x400, 0.2);
+	StartScalarRamp(&mech->m_speed, 0, 0, 0.2);
+	StartScalarRamp(&mech->m_turnRate, 0, 0, 0.3);
+	StartScalarRamp(&mech->m_torsoPitch, 0, 0, 0.2);
+	StartScalarRamp(&mech->m_throttle, FIXED_RAW(0x400), FIXED_RAW(0x400), 0.2);
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
 	mech->m_lastSelectedWeapon = 0;
@@ -161,7 +179,7 @@ void FirstMech(struct Player* p_player)
 	mech->m_newVelocityY = 0;
 	mech->m_newVelocityZ = 0;
 	mech->m_unk0xf0 = 0;
-	mech->m_mobility = 0x10000;
+	mech->m_mobility = FIXED_RAW(0x10000);
 	MoveObj(mech->m_player->m_obj, 0, mech->m_height, 0);
 	UpdateObj(mech->m_player->m_obj);
 	GetObjWorldAngles(
@@ -185,7 +203,7 @@ void FirstMech(struct Player* p_player)
 	StartMotion(mech->m_player);
 	EnableObjTreeCollision(mech->m_player->m_obj);
 	if (g_startOnAutopilot && mech->m_player->m_index == g_localPlayerId) {
-		mech->m_player->m_steering->m_throttle = 0x333;
+		mech->m_player->m_steering->m_throttle = FIXED_LITERAL(0x333, 0.0125f);
 		mech->m_player->m_steering->m_autopilot = 1;
 		mech->m_player->m_steering->m_advanceNav = 1;
 		g_autopilotStart = 1;
@@ -197,7 +215,11 @@ void FirstMech(struct Player* p_player)
 	}
 
 	InitializeAI(mech->m_player);
+#ifdef MW2_MATROX
+	mech->m_topSpeed = mech->m_topSpeed / g_gravityScale;
+#else
 	mech->m_topSpeed = FixedDiv16(mech->m_topSpeed, g_gravityScale);
+#endif
 }
 
 // Moves p_mech for the tick: eases its ramps, integrates its velocity (towards the speed it is
@@ -206,6 +228,7 @@ void FirstMech(struct Player* p_player)
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
 // FUNCTION: MW2 0x10016edf
+// STUB: MW2MATROX 0x1000d29c
 void UpdateMech(Mech* p_mech)
 {
 	MechS32 height;
@@ -275,11 +298,11 @@ void UpdateMech(Mech* p_mech)
 	isLocal = mech->m_player->m_index == g_localPlayerId;
 
 	if (!(mech->m_player->m_flags & 1)) {
-		UpdateRamp(&mech->m_torsoTwist);
-		UpdateRamp(&mech->m_torsoPitch);
-		UpdateRamp(&mech->m_turnRate);
-		UpdateRamp(&mech->m_throttle);
-		UpdateRamp(&mech->m_speed);
+		UpdateScalarRamp(&mech->m_torsoTwist);
+		UpdateScalarRamp(&mech->m_torsoPitch);
+		UpdateScalarRamp(&mech->m_turnRate);
+		UpdateScalarRamp(&mech->m_throttle);
+		UpdateScalarRamp(&mech->m_speed);
 
 		velX = mech->m_velocityX;
 		velY = mech->m_velocityY;
@@ -571,7 +594,11 @@ void UpdateMech(Mech* p_mech)
 		mech->m_player->m_position.m_y = posY;
 		mech->m_player->m_position.m_z = posZ;
 		mech->m_player->m_heading += mech->m_turnRate.m_value * g_deltaTime / 0xb5;
+#ifdef MW2_MATROX
+		mech->m_player->m_heading = fmod(mech->m_player->m_heading, 360.0);
+#else
 		mech->m_player->m_heading %= 0x1680000;
+#endif
 		mech->m_velocityX = velX;
 		mech->m_velocityY = velY;
 		mech->m_velocityZ = velZ;
@@ -593,7 +620,7 @@ void UpdateMech(Mech* p_mech)
 			UpdateAimDistance(mech->m_player);
 		}
 
-		pitch = mech->m_torsoPitch.m_value >> 1;
+		pitch = FIXED_SHR(mech->m_torsoPitch.m_value, 1);
 		if (mech->m_pitchObj) {
 			BuildAimRay(mech->m_player, &ray);
 			rayLength = GetAimRange(mech->m_player);
@@ -641,6 +668,7 @@ void UpdateMech(Mech* p_mech)
 // Every player type's late update (PlayerType::m_lateUpdateFn).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100180cd
+// STUB: MW2MATROX 0x1000e721
 void LateUpdateMech(Mech* p_mech)
 {
 	MechS32 throttle;
@@ -954,7 +982,11 @@ void LateUpdateMech(Mech* p_mech)
 
 		mech->m_speed.m_target = mech->m_topSpeed * throttle;
 		if (mech->m_speed.m_target && mech->m_player->m_motionState == 2) {
+#ifdef MW2_MATROX
+			mech->m_speed.m_target /= 2;
+#else
 			mech->m_speed.m_target >>= 1;
+#endif
 			mech->m_speed.m_target *= -1;
 		}
 
@@ -965,7 +997,11 @@ void LateUpdateMech(Mech* p_mech)
 					sprintf(text, "MASC malfunction.");
 					ShowInGameMessage(text, 1, 0x16a, 0x32);
 					PlaySoundEffect(0xc9, 100, 0x40, 5, 0x50);
+#ifdef MW2_MATROX
+					mech->m_heat += mech->m_heat / 4;
+#else
 					mech->m_heat += mech->m_heat >> 2;
+#endif
 					g_mascEngaged = 0;
 				}
 			}
@@ -978,7 +1014,7 @@ void LateUpdateMech(Mech* p_mech)
 			}
 
 			if (g_mascEngaged && mech->m_player->m_index == g_localPlayerId) {
-				mech->m_speed.m_target += mech->m_speed.m_target >> 1;
+				mech->m_speed.m_target += FIXED_SHR(mech->m_speed.m_target, 1);
 			}
 		}
 
@@ -1113,12 +1149,13 @@ void LateUpdateMech(Mech* p_mech)
 // mech down, or powers up a shut-down mech that isn't overheating.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10019368
+// FUNCTION: MW2MATROX 0x1000fb2d
 void UpdateLocalMech(Mech* p_mech)
 {
-	MechS32 dx;
+	MechScalar dx;
 	Mech* mech;
-	MechS32 dy;
-	MechS32 dz;
+	MechScalar dy;
+	MechScalar dz;
 	MechChar text[40];
 
 	if (p_mech) {
@@ -1224,6 +1261,7 @@ void UpdateLocalMech(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1001975a
+// FUNCTION: MW2MATROX 0x1000ff1c
 void DrawMechCockpit(Mech* p_mech)
 {
 	Mech* mech;
@@ -1240,6 +1278,7 @@ void DrawMechCockpit(Mech* p_mech)
 
 // Runs ShutdownCockpitPanels for the local player's mech.
 // FUNCTION: MW2 0x1001978e
+// FUNCTION: MW2MATROX 0x1000ff50
 void ShutdownMech(Mech* p_mech)
 {
 	Mech* mech;
@@ -1257,6 +1296,7 @@ void ShutdownMech(Mech* p_mech)
 // Allocates p_player's mech and sets it up.
 // Stack-slot permutation of buffer, i, size and mech.
 // FUNCTION: MW2 0x100197ca
+// FUNCTION: MW2MATROX 0x1000ff8c
 MechS32 CreateMech(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
@@ -1287,6 +1327,7 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 // and empties the weapons and the bins.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10019881
+// FUNCTION: MW2MATROX 0x10010043
 void InitMechArrays(struct Mech* p_mech)
 {
 	AmmoBin* bin;
@@ -1338,6 +1379,7 @@ void InitMechArrays(struct Mech* p_mech)
 // Returns the size of a mech's allocation: the mech, its ten weapons and eight sections, and 500
 // bytes more.
 // FUNCTION: MW2 0x10019a0a
+// FUNCTION: MW2MATROX 0x100101cd
 MechS32 GetMechAllocSize(void)
 {
 	MechS32 size;
@@ -1345,12 +1387,13 @@ MechS32 GetMechAllocSize(void)
 	size = sizeof(Mech);
 	size += 10 * sizeof(WeaponSlot);
 	size += 8 * sizeof(MechSection);
-	size += 500;
+	size += 25 * sizeof(AmmoBin);
 	return size;
 }
 
 // Nothing calls it.
 // FUNCTION: MW2 0x10019a3c
+// FUNCTION: MW2MATROX 0x100101ff
 MechS32 GetLastSelectedWeapon(Player* p_player)
 {
 	Mech* mech;
@@ -1361,6 +1404,7 @@ MechS32 GetLastSelectedWeapon(Player* p_player)
 
 // Selects weapon p_weapon of p_player's mech.
 // FUNCTION: MW2 0x10019a61
+// FUNCTION: MW2MATROX 0x10010224
 void SetSelectedWeapon(Player* p_player, MechS32 p_weapon)
 {
 	Mech* mech;

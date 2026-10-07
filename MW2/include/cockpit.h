@@ -2,6 +2,7 @@
 #define COCKPIT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "mappoint.h"
 #include "navpoint.h"
 #include "point.h"
@@ -25,7 +26,7 @@ typedef struct CockpitLayout {
 	MechS32 m_startRange;         // 0x20 — the range to start at
 	MechS32 m_minRange;           // 0x24 — the shortest range
 	MechS32 m_maxRange;           // 0x28 — the longest range
-	MechS32 m_zoom;               // 0x2c — the zoom: m_startRange over m_range
+	MechScalar m_zoom;            // 0x2c — the zoom: m_startRange over m_range
 	MechS32 m_font;               // 0x30 — its font, from g_artResolution
 	MechChar* m_extraLabel;       // 0x34 — a third label and text, which nothing draws
 	MechChar* m_extraText;        // 0x38
@@ -85,7 +86,7 @@ extern "C"
 	MechS32 IsNavReached(NavPoint* p_nav, MechS32 p_team);
 	void DrawMapTarget(CockpitLayout* p_layout);
 	void DrawMapNavPoints(CockpitLayout* p_layout);
-	void DrawMapFieldOfView(CockpitLayout* p_layout, MechS32 p_heading);
+	void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading);
 	void DrawMapViewText(CockpitLayout* p_layout);
 	void CycleCockpitView(void);
 	MechS32 IsSatelliteView(void);

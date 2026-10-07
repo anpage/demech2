@@ -64,6 +64,7 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005d6d0
+// STUB: MW2MATROX 0x1008c850
 MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechS32 armorScale;
@@ -207,9 +208,17 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			section->m_armor[1] *= g_otherArmorPerLevel;
 		}
 
+#ifdef MW2_MATROX
+		// Unproven: the Matrox edition's armor and internal structure are floats (ApplyDamageToMech,
+		// DestroyCriticalSlot); 1.1's shifts kept as products until this function is matched.
+		section->m_armor[0] *= 0x10000;
+		section->m_armor[1] *= 0x10000;
+		section->m_internal *= 0x10000;
+#else
 		section->m_armor[0] <<= 16;
 		section->m_armor[1] <<= 16;
 		section->m_internal <<= 16;
+#endif
 		section++;
 	}
 
@@ -377,6 +386,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // Stack-slot permutation: the kinds table sits elsewhere in the frame, so its accesses and the
 // jumps over them differ in their encoding.
 // FUNCTION: MW2 0x1005e534
+// STUB: MW2MATROX 0x1008d62b
 MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
 {
 	MechS32 armor;

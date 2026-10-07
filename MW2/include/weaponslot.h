@@ -2,9 +2,14 @@
 #define WEAPONSLOT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 
-// An ammunition bin of a weapon (WeaponSlot::m_bin).
+// An ammunition bin of a weapon (WeaponSlot::m_bin). The Matrox edition's m_damage is a float, which
+// moves the members after it by two bytes (SIZE 0x16, as AmmoBin; SpawnShot steps by it).
+#ifdef MW2_MATROX
+#pragma pack(push, 1)
+#endif
 // SIZE 0x14
 typedef struct WeaponBin {
 	MechU16 m_type;       // 0x00 — an index into g_weaponDefs
@@ -12,10 +17,17 @@ typedef struct WeaponBin {
 	MechU16 m_weapon;     // 0x04 — the index of its weapon in Mech::m_weapons
 	MechU16 m_id;         // 0x06 — its id in MechSection::m_slots
 	undefined2 m_unk0x08; // 0x08
-	MechU16 m_damage;     // 0x0a — WeaponDef::m_damage
-	MechS32 m_shotHeat;   // 0x0c — WeaponDef::m_shotHeat
-	MechS32 m_heat;       // 0x10 — WeaponDef::m_heat
+#ifdef MW2_MATROX
+	MechScalar m_damage; // 0x0a — WeaponDef::m_damage
+#else
+	MechU16 m_damage; // 0x0a — WeaponDef::m_damage
+#endif
+	MechS32 m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the Matrox edition)
+	MechS32 m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the Matrox edition)
 } WeaponBin;
+#ifdef MW2_MATROX
+#pragma pack(pop)
+#endif
 
 // WeaponSlot::m_state.
 enum {

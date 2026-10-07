@@ -19,9 +19,17 @@ typedef struct RenderSettings {
 	MechS32 m_drawSky;     // 0x1c — the planet's sky (DrawSkyAndGround)
 	MechS32 m_drawGround;  // 0x20 — and its ground
 	MechS32 m_horizonBand; // 0x24 — a shaded band blends the sky into the ground
+#ifdef MW2_MATROX
+	// The Matrox edition's is 0x70 bytes, with two members of its own here (initialized to 1; the Matrox edition's
+	// FadeToView clears them around DrawSkyAndGround), so that every member from 1.1's 0x28 on sits
+	// 8 bytes further: FirstRender sets m_clearFrame at 0x38 and the callbacks at 0x5c to 0x6c.
+	undefined4 m_unk0x28[2]; // 0x28
+	undefined4 m_unk0x30[2]; // 0x30 — 1.1's pair at 0x28
+#else
 	undefined4 m_unk0x28[(0x30 - 0x28) / 4]; // 0x28
-	MechS32 m_clearFrame;                    // 0x30 — clears the pane each frame; FirstRender clears it when
-											 // the sky or the ground covers the view
+#endif
+	MechS32 m_clearFrame;              // 0x30 — clears the pane each frame; FirstRender clears it when
+									   // the sky or the ground covers the view
 	MechS32 m_wireframe;               // 0x34 — 0 fills polygons, 1 fills and outlines (ENHANCED_VISION), else outlines
 									   // (TOGGLE_WIREFRAME)
 	MechS32 m_wireframeColors;         // 0x38 — in wireframe, colors faces by the shape's kind (0),

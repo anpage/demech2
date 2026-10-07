@@ -4,6 +4,7 @@
 #include "config.h"
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "hud.h"
 #include "muldiv.h"
 #include "overlay.h"
@@ -25,23 +26,38 @@ MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 
 // The largest coordinates of the three resolutions the art comes in.
 // GLOBAL: MW2 0x100aa718
+// GLOBAL: MW2MATROX 0x100bca50
 Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 
 // GLOBAL: MW2 0x100e9610
-MechS32 g_pixelAspect;
+// GLOBAL: MW2MATROX 0x1012c1e0
+MechScalar g_pixelAspect;
+
+#ifdef MW2_MATROX
+// The Matrox edition's: the art resolution ChooseArtResolution picked before its 512x384 override.
+// GLOBAL: MW2MATROX 0x1012c1e4
+MechS32 g_unk0x1012c1e4;
+#endif
 
 // GLOBAL: MW2 0x100e9614
+// GLOBAL: MW2MATROX 0x1012c1e8
 MechS32 g_artResolution;
 
 // FUNCTION: MW2 0x1005d410
+// FUNCTION: MW2MATROX 0x1008c140
 void SetPixelAspect(GameWindowGeometry* p_geometry)
 {
+#ifdef MW2_MATROX
+	g_eyepoint->m_pixelAspect = g_pixelAspect = p_geometry->m_height * 1.3333334f / p_geometry->m_width;
+#else
 	g_eyepoint->m_pixelAspect = g_pixelAspect =
 		MulDiv64(p_geometry->m_height << 16, 0x15555, p_geometry->m_width << 16);
+#endif
 }
 
 // Picks the art resolution (g_artResolution) closest to the window's.
 // FUNCTION: MW2 0x1005d44e
+// FUNCTION: MW2MATROX 0x1008c195
 void ChooseArtResolution(GameWindowGeometry* p_geometry)
 {
 	MechS32 best;
@@ -54,9 +70,22 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 				   abs(g_artResolutionSizes[i].m_x - (p_geometry->m_width - 1));
 		if (distance < best) {
 			best = distance;
+#ifdef MW2_MATROX
+			g_artResolution = g_unk0x1012c1e4 = i;
+#else
 			g_artResolution = i;
+#endif
 		}
 	}
+#ifdef MW2_MATROX
+
+	if (p_geometry->m_width == 512 && p_geometry->m_height == 384) {
+		g_artResolution = 1;
+	}
+	if (p_geometry->m_width == 640 && p_geometry->m_height == 400) {
+		g_artResolution = g_unk0x1012c1e4 = 1;
+	}
+#endif
 }
 
 // Rescales the tables authored in 320x200 coordinates to the screen, and sets up what depends on

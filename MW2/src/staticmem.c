@@ -16,15 +16,19 @@ DECOMP_SIZE_ASSERT(StaticPool, 0x14)
 DECOMP_SIZE_ASSERT(StaticPoolGroup, 0x0c)
 
 // GLOBAL: MW2 0x100a6ddc
+// GLOBAL: MW2MATROX 0x100b1450
 MechS32 g_staticPoolGroupCount = 0;
 
 // GLOBAL: MW2 0x100a6de0
+// GLOBAL: MW2MATROX 0x100b1454
 MechS32 g_staticPoolCount = 0;
 
 // GLOBAL: MW2 0x100be5e0
+// GLOBAL: MW2MATROX 0x101249b8
 StaticPoolGroup g_staticPoolGroups[5];
 
 // GLOBAL: MW2 0x100be620
+// GLOBAL: MW2MATROX 0x10124738
 StaticPool g_staticPools[32];
 
 void ResetStaticPools(void);
@@ -37,6 +41,7 @@ MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag);
 // Stack-slot permutation: i, pool, j, group and best. The loop tests and the comparisons of the
 // groups' free room follow the unit's symbol table in the other operand order.
 // FUNCTION: MW2 0x100498b0
+// FUNCTION: MW2MATROX 0x10078f20
 MechS32 InitStaticMem(char* p_mission)
 {
 	MechS32 i;
@@ -103,8 +108,10 @@ MechS32 InitStaticMem(char* p_mission)
 }
 
 // Takes a block from the pool of a tag, logging the call to mw2.log.
-// Stack-slot permutation: i, pool, block and group.
+// Stack-slot permutation: i, pool, block and group. MW2MATROX: the tests of i against
+// g_staticPoolCount take the other operand order.
 // FUNCTION: MW2 0x10049afb
+// FUNCTION: MW2MATROX 0x1007916a
 void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 {
 	MechS32 i;
@@ -143,7 +150,9 @@ void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 
 // Frees the groups' blocks.
 // The loop test compares in the other operand order (the unit's symbol table).
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x10049c55
+// FUNCTION: MW2MATROX 0x100792c2
 void FreeStaticMem(void)
 {
 	MechS32 i;
@@ -160,6 +169,7 @@ void FreeStaticMem(void)
 // Orders pools by size, largest first (for qsort).
 // Stack-slot permutation: b and difference.
 // FUNCTION: MW2 0x10049cc7
+// FUNCTION: MW2MATROX 0x10079334
 int CompareStaticPools(const void* p_a, const void* p_b)
 {
 	StaticPool* a;
@@ -181,6 +191,7 @@ int CompareStaticPools(const void* p_a, const void* p_b)
 }
 
 // FUNCTION: MW2 0x10049d1f
+// FUNCTION: MW2MATROX 0x1007938c
 void ResetStaticPools(void)
 {
 }
@@ -188,6 +199,7 @@ void ResetStaticPools(void)
 // Adds the pool sizes of the mission's static memory table (seven tag and size pairs).
 // Returns whether the mission has the table.
 // FUNCTION: MW2 0x10049d2a
+// FUNCTION: MW2MATROX 0x10079397
 MechS32 ParseStaticPoolConfig(char* p_mission)
 {
 	StaticPoolSize* entry;
@@ -213,7 +225,9 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 // group.
 // Stack-slot permutation: pool and i. Both tests against g_staticPoolCount compare in the other
 // operand order (the unit's symbol table).
+// MW2MATROX: the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x10049da3
+// FUNCTION: MW2MATROX 0x10079410
 MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag)
 {
 	StaticPool* pool;

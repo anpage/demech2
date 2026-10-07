@@ -1,6 +1,7 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include "fixedfloat.h"
 #include "types.h"
 
 #include <dplay.h>
@@ -27,7 +28,7 @@ extern "C"
 	MechS32 UpdateNetwork(void);
 	void ShutdownNetwork(void);
 	MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text);
-	void SendCollisionMsg(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	MechS32 StartExternalIO(struct NetLaunchInfo* p_netLaunch);
 	MechS32 StopExternalIO(void);
 	void ElectMaster(void);

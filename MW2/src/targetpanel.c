@@ -7,6 +7,7 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "fixedfloat.h"
 #include "fixedmul29.h"
 #include "fixedtrig.h"
 #include "hud.h"
@@ -37,6 +38,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x100ba4bc
+// GLOBAL: MW2MATROX 0x100a4a4c
 MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
@@ -53,10 +55,12 @@ MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
+// GLOBAL: MW2MATROX 0x100a4a64
 MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation.
 // GLOBAL: MW2 0x100c26a0
+// GLOBAL: MW2MATROX 0x10212d40
 MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
@@ -265,6 +269,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // static while the panel is damaged (m_damage).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
+// STUB: MW2MATROX 0x10018683
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;
@@ -280,9 +285,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	MechS32 centerY;
 	MechS32 distance;
 	MechS32 heading;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechS32 dx;
 	MechS32 icon;
 	void* noTarget;
@@ -405,7 +410,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_cockpitPowerState == 2) {
-		RenderViewToPane(7, 0x20000, view, object);
+		RenderViewToPane(7, FIXED_CONST(2), view, object);
 	}
 
 	OutlinePane(p_panel->m_target, 8);
@@ -414,6 +419,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
+// FUNCTION: MW2MATROX 0x10018db0
 void DrawTargetStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
@@ -428,6 +434,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // rectangle (g_panes[7] and the panel's target) for the frame.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
+// FUNCTION: MW2MATROX 0x10018def
 void DrawTargetPanelStartup(CockpitPanel* p_panel)
 {
 	PANE* rect;
@@ -467,6 +474,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // 4) already had it closed.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c81c
+// FUNCTION: MW2MATROX 0x10018eed
 void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 {
 	PANE* rect;

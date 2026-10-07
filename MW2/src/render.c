@@ -36,13 +36,22 @@
 #include <string.h>
 #include <windows.h>
 
+// The draw mode the game starts in: none in 1.1, the first in the Matrox edition.
+#ifdef MW2_MATROX
+#define INITIAL_DRAW_MODE 0
+#else
+#define INITIAL_DRAW_MODE -1
+#endif
+
 // GLOBAL: MW2 0x100a244c
-MechS32 g_drawModeIndex = -1;
+// GLOBAL: MW2MATROX 0x100a49fc
+MechS32 g_drawModeIndex = INITIAL_DRAW_MODE;
 
 // GLOBAL: MW2 0x100a2450
 MechS32 g_initDrawModeParam2 = 1;
 
 // GLOBAL: MW2 0x100a2454
+// GLOBAL: MW2MATROX 0x100a4a04
 MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
@@ -50,45 +59,58 @@ MechS32 g_showBoundingSpheres = 0;
 MechChar* g_bannerName = NULL;
 
 // GLOBAL: MW2 0x100a245c
+// GLOBAL: MW2MATROX 0x100a4a0c
 void* g_bannerBuffer = NULL;
 
 // GLOBAL: MW2 0x100a2460
+// GLOBAL: MW2MATROX 0x100a4a10
 MechS32 g_projectionDirty = 1;
 
 // GLOBAL: MW2 0x100a2464
+// GLOBAL: MW2MATROX 0x100a4a14
 MechS32 g_displayReady = 0;
 
 // GLOBAL: MW2 0x100a2468
+// GLOBAL: MW2MATROX 0x100a4a18
 MechS32 g_framePane = 0;
 
 // GLOBAL: MW2 0x100a246c
+// GLOBAL: MW2MATROX 0x100a4a1c
 MechS32 g_hasLightObject = 0;
 
 // Cleared while an effect has the camera, set again when it gives it back.
 // GLOBAL: MW2 0x100a2470
+// GLOBAL: MW2MATROX 0x100a4a20
 MechS32 g_lightFollowsObject = 1;
 
 // GLOBAL: MW2 0x100a2474
+// GLOBAL: MW2MATROX 0x100a4a24
 MechS32 g_lightObject = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
 // GLOBAL: MW2 0x100a2478
+// GLOBAL: MW2MATROX 0x100a4a28
 SceneObject* g_skyObject = NULL;
 
 // The object of the scene's shape of kind 0xa0.
 // GLOBAL: MW2 0x100a247c
+// GLOBAL: MW2MATROX 0x100a4a2c
 SceneObject* g_cockpitObject = NULL;
 
 // GLOBAL: MW2 0x100a2480
+// GLOBAL: MW2MATROX 0x100a4a30
 MechS32 g_drawnPolygonCount = 0;
 
 // GLOBAL: MW2 0x100bdff8
+// GLOBAL: MW2MATROX 0x100c1e28
 PANE g_screenPane;
 
 // GLOBAL: MW2 0x10176eb4
+// GLOBAL: MW2MATROX 0x10212da8
 GameWindowGeometry* g_gameWindowGeometry;
 
 // GLOBAL: MW2 0x10176eb8
+// GLOBAL: MW2MATROX 0x10212dac
 MechS32 g_screenHeight;
 
 // GLOBAL: MW2 0x10176eb0
@@ -96,33 +118,43 @@ undefined4 g_unk0x10176eb0;
 
 // Set when the next Blit should stretch the current pane over the window.
 // GLOBAL: MW2 0x10176ebc
+// GLOBAL: MW2MATROX 0x10212da4
 MechS32 g_stretchPending;
 
 // GLOBAL: MW2 0x10176ec0
+// GLOBAL: MW2MATROX 0x10212da0
 MechS32 g_screenHeightMinus1;
 
 // GLOBAL: MW2 0x10176ec4
+// GLOBAL: MW2MATROX 0x10212d50
 MechS32 g_screenPixelCount;
 
 // GLOBAL: MW2 0x10176ec8
+// GLOBAL: MW2MATROX 0x10212d74
 MechS32 g_screenWidth;
 
 // GLOBAL: MW2 0x10176ed0
+// GLOBAL: MW2MATROX 0x10212d80
 PANE g_currentPane;
 
 // GLOBAL: MW2 0x10176ee4
+// GLOBAL: MW2MATROX 0x10212d54
 MechS32 g_screenWidthMinus1;
 
 // GLOBAL: MW2 0x10176ee8
+// GLOBAL: MW2MATROX 0x10212d94
 MechS32 g_screenHalfWidth;
 
 // GLOBAL: MW2 0x10176eec
+// GLOBAL: MW2MATROX 0x10212d98
 MechS32 g_screenHalfHeight;
 
 // GLOBAL: MW2 0x10176ef0
+// GLOBAL: MW2MATROX 0x10212d60
 WINDOW g_mainPixelBuffer;
 
 // FUNCTION: MW2 0x10012720
+// FUNCTION: MW2MATROX 0x10017370
 MechS32 InitGameWindowGeometry(void)
 {
 	g_gameWindowGeometry = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, sizeof(GameWindowGeometry));
@@ -147,6 +179,7 @@ MechS32 InitGameWindowGeometry(void)
 }
 
 // FUNCTION: MW2 0x10012802
+// FUNCTION: MW2MATROX 0x10017452
 MechS32 InitDisplayGeometry(void)
 {
 	MechS32 result;
@@ -174,6 +207,7 @@ MechS32 InitDisplayGeometry(void)
 // buffers and the scene, and installs the normal render hooks.
 // Stack-slot permutation: size, start, segment and oldProtect.
 // FUNCTION: MW2 0x100128b5
+// FUNCTION: MW2MATROX 0x10017505
 void FirstRender(void)
 {
 	MechS32 segment;
@@ -195,8 +229,13 @@ void FirstRender(void)
 		Error(0x4d, NULL);
 	}
 
+#ifdef MW2_MATROX
+	InitializeDrawBuffer(0x140, 0xbb8);
+	g_maxPolygons = 0xaf0;
+#else
 	InitializeDrawBuffer(0x80, 0x5dc);
 	g_maxPolygons = 0x578;
+#endif
 	InitShapeLists();
 	g_renderSettings.m_frameDrawCallback = DrawScene;
 	g_renderSettings.m_shapeFilter = CullSceneShape;
@@ -214,6 +253,7 @@ void FirstRender(void)
 // Makes the objects of the scene's shapes of kinds 0x90 and 0xa0, and sets up its shapes of kind
 // 0x70 and type 4.
 // FUNCTION: MW2 0x100129b7
+// FUNCTION: MW2MATROX 0x10017607
 void SecondRender(void)
 {
 	Shape* root;
@@ -253,14 +293,24 @@ void SecondRender(void)
 	}
 }
 
+// The 3D view's pane wipe: the Matrox edition's goes through its A3D layer, with a 16-bit pixel.
+#ifdef MW2_MATROX
+#define SCENE_PANE_WIPE(p_pane, p_color) FUN_1005f8a0(p_pane, PIXEL_COLOR(p_color))
+#else
+#define SCENE_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
+#endif
+
 // Draws the 3D view, the normal frame draw callback: clears the frame first when drawing to
 // another pane, updates the eyepoint, draws the scene (without the extra pass on the
 // DirectDraw backend), then the objects of the shapes of kinds 0x90 and 0xa0 with their own clip
 // distances, the scene's objects, and the animations.
+// MW2MATROX: wipes with the background's 16-bit pixel, keeps the clip distance it restores as a
+// float, and doesn't draw the bounding spheres.
 // FUNCTION: MW2 0x10012afe
+// FUNCTION: MW2MATROX 0x1001774e
 void DrawScene(void)
 {
-	MechS32 saved;
+	MechScalar saved;
 	MechS32 pass;
 
 	if (g_framePane) {
@@ -274,14 +324,14 @@ void DrawScene(void)
 	}
 
 	if (g_renderSettings.m_blankScene) {
-		VFX_pane_wipe(&g_currentPane, g_backgroundColor);
+		SCENE_PANE_WIPE(&g_currentPane, g_backgroundColor);
 		return;
 	}
 
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_clearFrame || g_renderSettings.m_wireframe) {
-		VFX_pane_wipe(&g_currentPane, g_backgroundColor);
+		SCENE_PANE_WIPE(&g_currentPane, g_backgroundColor);
 	}
 	else if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
 		if (g_currentDisplayBackend->m_id == c_displayBackendDirectDraw) {
@@ -322,15 +372,18 @@ void DrawScene(void)
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
+#ifndef MW2_MATROX
 	if (g_showBoundingSpheres) {
 		DrawBoundingSpheres(g_sceneShapes);
 	}
+#endif
 
 	FUN_10069591();
 	SelectPane(0);
 }
 
 // FUNCTION: MW2 0x10012dca
+// FUNCTION: MW2MATROX 0x10017a14
 void SetFramePane(MechS32 p_value)
 {
 	if (p_value >= 0 && p_value < 11) {
@@ -342,6 +395,7 @@ void SetFramePane(MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10012e00
+// FUNCTION: MW2MATROX 0x10017a4a
 void ResetPane(void)
 {
 	SelectPane(0);
@@ -350,6 +404,7 @@ void ResetPane(void)
 // Presents the frame, or stretches the current pane over the window when a stretch is
 // pending, restoring the pane afterwards.
 // FUNCTION: MW2 0x10012e15
+// FUNCTION: MW2MATROX 0x10017a5f
 void Blit(void)
 {
 	if (g_stretchPending) {
@@ -364,13 +419,15 @@ void Blit(void)
 	}
 }
 
+// MW2MATROX: wipes with a 16-bit pixel, through the Matrox edition's own (16-bit) VFX_pane_wipe.
 // FUNCTION: MW2 0x10012e91
+// FUNCTION: MW2MATROX 0x10017adb
 void ShutdownRender(void)
 {
 	FreeSceneShapes();
 	ShutdownDrawBuffer();
 	if (g_bannerBuffer && g_currentPane.m_window) {
-		VFX_pane_wipe(&g_currentPane, 0);
+		VFX_pane_wipe(&g_currentPane, PIXEL_COLOR(0));
 		if (g_windowActive) {
 			g_currentRefreshMode->m_flip();
 		}
@@ -483,3 +540,11 @@ void DrawBoundingSpheres(Shape* p_root)
 		}
 	}
 }
+
+#ifdef MW2_MATROX
+// STUB: MW2MATROX 0x1005f8a0
+void FUN_1005f8a0(PANE* p_pane, MechS32 p_color)
+{
+	STUB(0x1005f8a0);
+}
+#endif

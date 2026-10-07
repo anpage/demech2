@@ -24,18 +24,24 @@
 
 #include <string.h>
 
+#ifdef MW2_MATROX
+DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
+#else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
+#endif
 DECOMP_SIZE_ASSERT(ProjectedVertex, 0x20)
 DECOMP_SIZE_ASSERT(QueuedPolygon, 0xc)
 
 // The number of entries in the list being built.
 // GLOBAL: MW2 0x100a54b0
+// GLOBAL: MW2MATROX 0x100a5540
 MechS32 g_depthEntryCount = 0;
 
 // GLOBAL: MW2 0x100a54b4
 MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
+// GLOBAL: MW2MATROX 0x100a5548
 MechS32 g_maxPolygons = 0;
 
 // GLOBAL: MW2 0x1010b5a0
@@ -201,6 +207,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
 // whole and expanded after the sort (DrawDepthQueue).
 // FUNCTION: MW2 0x100338bb
+// STUB: MW2MATROX 0x100235a0
 void DrawShapeList(Shape* p_root)
 {
 	Shape* shape;
@@ -285,6 +292,7 @@ void DrawDepthQueue(void)
 
 // Draws the shapes of the scene tree p_root, farthest first.
 // FUNCTION: MW2 0x10033b9e
+// STUB: MW2MATROX 0x10023860
 void DrawObjTreeShapes(SceneObject* p_root)
 {
 	MechS32 i;

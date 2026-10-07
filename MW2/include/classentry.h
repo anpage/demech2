@@ -7,6 +7,14 @@
 struct SceneObject;
 struct Shape;
 
+// The type of an entry's position: a float in the Matrox edition (MW2_MATROX). A macro, so
+// that 1.1's units see no new symbols.
+#ifdef MW2_MATROX
+#define ClassEntryCoord MechFloat
+#else
+#define ClassEntryCoord undefined4
+#endif
+
 // SIZE 0x44
 // An entry of g_classTable: a shape a player's mech uses, with up to five levels of detail.
 typedef struct ClassEntry {
@@ -17,9 +25,9 @@ typedef struct ClassEntry {
 	MechS32 m_partId;          // 0x20
 	struct Shape* m_shape;     // 0x24
 	struct SceneObject* m_obj; // 0x28
-	undefined4 m_x;            // 0x2c
-	undefined4 m_y;            // 0x30
-	undefined4 m_z;            // 0x34
+	ClassEntryCoord m_x;       // 0x2c
+	ClassEntryCoord m_y;       // 0x30
+	ClassEntryCoord m_z;       // 0x34
 	MechU16 m_kinds[5];        // 0x38 — by level; the shape kind in bits 4-7
 	MechS16 m_released;        // 0x42
 } ClassEntry;

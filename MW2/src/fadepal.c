@@ -31,6 +31,7 @@
 
 // The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
+// FUNCTION: MW2MATROX 0x100450c0
 void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan)
 {
 	if (p_sound > 0) {
@@ -43,11 +44,16 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 // and the pending palette.
 // Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
-void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
+// FUNCTION: MW2MATROX 0x100450ed
+void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
-	MechS32 fovX;
+	MechScalar fovX;
 	MechS32 palette;
 	MechS32 view[7];
+#ifdef MW2_MATROX
+	undefined4 saved0x28;
+	undefined4 saved0x2c;
+#endif
 
 	fovX = g_eyepoint->m_fovX;
 	palette = g_palettePending;
@@ -60,7 +66,17 @@ void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct 
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
+#ifdef MW2_MATROX
+		saved0x28 = g_renderSettings.m_unk0x28[0];
+		saved0x2c = g_renderSettings.m_unk0x28[1];
+		g_renderSettings.m_unk0x28[0] = 0;
+		g_renderSettings.m_unk0x28[1] = 0;
 		DrawSkyAndGround(g_eyepoint);
+		g_renderSettings.m_unk0x28[0] = saved0x28;
+		g_renderSettings.m_unk0x28[1] = saved0x2c;
+#else
+		DrawSkyAndGround(g_eyepoint);
+#endif
 	}
 
 	if (p_object) {
@@ -84,6 +100,7 @@ void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct 
 
 // Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
+// FUNCTION: MW2MATROX 0x1004526f
 void FlashZappedPalette(void)
 {
 	StartPaletteFade(0x11, 0x16a, 1);
@@ -91,10 +108,19 @@ void FlashZappedPalette(void)
 
 // Flashes palette slot 0x11 (ZAPPED) over p_level (0-15) fifteenths of two seconds.
 // FUNCTION: MW2 0x1004ca29
+// FUNCTION: MW2MATROX 0x1004528b
 void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
 
+#ifdef MW2_MATROX
+	if (p_level > 15) {
+		duration = 0x16a;
+	}
+	else {
+		duration = p_level / 15.0f * 362.0f;
+	}
+#else
 	if (p_level > 15) {
 		p_level = 0x10000;
 	}
@@ -103,6 +129,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 	}
 
 	duration = FixedMul16(0x16a, p_level);
+#endif
 	StartPaletteFade(0x11, duration, 1);
 }
 
@@ -110,6 +137,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 // that slot.
 // Stack-slot permutation: slot and palette.
 // FUNCTION: MW2 0x1004ca82
+// FUNCTION: MW2MATROX 0x100452f9
 void FadeToEndPalette(MechS32 p_alternate)
 {
 	MechS32 slot;
@@ -132,11 +160,12 @@ void FadeToEndPalette(MechS32 p_alternate)
 
 // Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
+// FUNCTION: MW2MATROX 0x10045388
 void EmitWreckSmoke(Mech* p_mech)
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 
 	x = p_mech->m_player->m_position.m_x;
 	y = p_mech->m_player->m_position.m_y;
@@ -145,8 +174,13 @@ void EmitWreckSmoke(Mech* p_mech)
 		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
+#ifdef MW2_MATROX
+		x += RandomNormal() / 2.0f;
+		z += RandomNormal() / 2.0f;
+#else
 		x += RandomNormal() / 2;
 		z += RandomNormal() / 2;
+#endif
 		if (RandomIntBelow(100) < 0x3c) {
 			SpawnEffect(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
 		}
@@ -159,6 +193,7 @@ void EmitWreckSmoke(Mech* p_mech)
 // Breaks a destroyed mech's model into debris.
 // Stack-slot permutation: obj, upper, lower and the three indices.
 // FUNCTION: MW2 0x1004cc27
+// FUNCTION: MW2MATROX 0x100454de
 void BreakUpMech(Mech* p_mech)
 {
 	SceneObject* obj;
@@ -183,11 +218,12 @@ void BreakUpMech(Mech* p_mech)
 // Sets off the flames of the jump jets and plays their sound.
 // Stack-slot permutation: x, y, z, player, jet and fired.
 // FUNCTION: MW2 0x1004ccba
+// FUNCTION: MW2MATROX 0x10045571
 void FireJumpJetEffects(Mech* p_mech)
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 	Player* player;
 	MechS32 jet;
 	MechS32 fired;
@@ -226,7 +262,8 @@ void FireJumpJetEffects(Mech* p_mech)
 
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
-void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
+// FUNCTION: MW2MATROX 0x100456ef
+void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 {
 	MechS32 sound;
 
@@ -234,7 +271,7 @@ void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
 		PlayPlayerHitFeedback(0, -p_speed, 0);
 	}
 
-	if (p_speed >= -0x102762) {
+	if (p_speed >= FIXED_RAW(-0x102762)) {
 		sound = 0xe6;
 	}
 	else {
@@ -253,11 +290,11 @@ void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
 // Shakes the camera away from a hit's direction, unless a shake is already playing.
 // Stack-slot permutation: off10 and off0c.
 // FUNCTION: MW2 0x1004cee2
-void PlayPlayerHitFeedback(MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-	MechS32 off10;
-	MechS32 off0c;
-	MechS32 off14;
+	MechScalar off10;
+	MechScalar off0c;
+	MechScalar off14;
 
 	if (IsCameraShaking()) {
 		return;
@@ -278,7 +315,15 @@ void PlayPlayerHitFeedback(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	p_z = FixedMul16(p_z, -25);
 	ClearCameraShakeKeys();
 	AddCameraShakeKey(p_x, p_y, p_z, off10, off0c, off14, 0.2);
-	AddCameraShakeKey(-(p_x >> 1), -(p_y >> 1), -(p_z >> 1), -(off10 >> 1), -(off0c >> 1), -(off14 >> 1), 0.5);
+	AddCameraShakeKey(
+		-FIXED_SHR(p_x, 1),
+		-FIXED_SHR(p_y, 1),
+		-FIXED_SHR(p_z, 1),
+		-FIXED_SHR(off10, 1),
+		-FIXED_SHR(off0c, 1),
+		-FIXED_SHR(off14, 1),
+		0.5
+	);
 	AddCameraShakeKey(0, 0, 0, 0, 0, 0, 0.2);
 	StartCameraShake();
 }

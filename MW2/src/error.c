@@ -22,22 +22,27 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a589c
+// GLOBAL: MW2MATROX 0x100ac62c
 MechChar* g_fatalErrorTitle = "\nMW2.EXE - fatal error";
 
 // GLOBAL: MW2 0x100a58a0
+// GLOBAL: MW2MATROX 0x100ac630
 MechChar* g_warningTitle = "\nMW2.EXE - warning";
 
 // The code of the last error.
 // GLOBAL: MW2 0x100a58a4
+// GLOBAL: MW2MATROX 0x100ac634
 MechS32 g_errorCode = 0;
 
 // The error message; the length is unknown.
 // GLOBAL: MW2 0x100be010
+// GLOBAL: MW2MATROX 0x100c21f8
 MechChar g_errorMessage[0x400];
 
 // Reports error p_code, with a printf-style message: codes that are warnings are logged, the
 // others are fatal and end the game, most of them after shutting the subsystems down.
 // FUNCTION: MW2 0x1003b8c0
+// FUNCTION: MW2MATROX 0x10059620
 void Error(MechS32 p_code, const char* p_format, ...)
 {
 	g_errorCode = p_code;
@@ -135,6 +140,7 @@ void Error(MechS32 p_code, const char* p_format, ...)
 
 // Shuts the subsystems down before the game exits on an error.
 // FUNCTION: MW2 0x1003ba07
+// FUNCTION: MW2MATROX 0x10059767
 void ShutdownOnError(void)
 {
 	FreeBwdNames();
@@ -149,6 +155,7 @@ void ShutdownOnError(void)
 
 // Shows a fatal error's message, logs it, and exits.
 // FUNCTION: MW2 0x1003ba3a
+// FUNCTION: MW2MATROX 0x1005979a
 void ShowFatalError(const char** p_args)
 {
 	ShutdownRender();
@@ -170,8 +177,10 @@ void ShowFatalError(const char** p_args)
 
 // Formats an error's message: p_title, the code, the code's text from the "SystemError" section,
 // and the printf-style message p_args points at, if any. The message is logged and shown.
-// Stack-slot permutation of code and args.
+// Stack-slot permutation of code and args. MW2MATROX: the inlined strlen reads g_errorMessage - 1,
+// which reccmp names after a different neighbour on each side.
 // FUNCTION: MW2 0x1003bad1
+// FUNCTION: MW2MATROX 0x10059831
 MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args)
 {
 	MechChar code[4];
@@ -194,6 +203,7 @@ MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_a
 
 // Logs a warning's message and clears the error code.
 // FUNCTION: MW2 0x1003bbb1
+// FUNCTION: MW2MATROX 0x10059911
 void LogWarning(const char** p_args)
 {
 	FormatErrorMessage(g_warningTitle, g_errorCode, p_args);

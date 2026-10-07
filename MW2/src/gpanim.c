@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "mech.h"
 #include "players.h"
 #include "playersteering.h"
@@ -11,13 +12,16 @@
 #include "types.h"
 
 // GLOBAL: MW2 0x100a0110
+// GLOBAL: MW2MATROX 0x100bca68
 MechS32 g_motionSounds[4][4] =
 	{{-1, 0x12e, 0x12e, -1}, {0x14f, -1, -1, 0x14f}, {0x11a, 0x11a, 0x148, 0x11a}, {0x119, 0x119, 0x119, 0x12d}};
 
 // GLOBAL: MW2 0x10181970
+// GLOBAL: MW2MATROX 0x1012c0f0
 MechS32 g_lastMotionSound[60];
 
 // FUNCTION: MW2 0x10003620
+// FUNCTION: MW2MATROX 0x1008c3e0
 void FirstGPAnim(void)
 {
 	MechS32 i;
@@ -28,6 +32,7 @@ void FirstGPAnim(void)
 }
 
 // FUNCTION: MW2 0x1000365a
+// FUNCTION: MW2MATROX 0x1008c41a
 void StartMotion(Player* p_player)
 {
 	if (p_player->m_index != g_localPlayerId) {
@@ -39,6 +44,7 @@ void StartMotion(Player* p_player)
 }
 
 // FUNCTION: MW2 0x1000369e
+// FUNCTION: MW2MATROX 0x1008c45e
 void StopMotion(Player* p_player)
 {
 	p_player->m_speedLevel = 0;
@@ -46,7 +52,8 @@ void StopMotion(Player* p_player)
 }
 
 // FUNCTION: MW2 0x100036c3
-MechS32* GetEyepointOffset(Player* p_player, MechS32* p_offset)
+// FUNCTION: MW2MATROX 0x1008c483
+MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 {
 	p_offset[0] = g_eyepoint->m_x - p_player->m_position.m_x;
 	p_offset[1] = g_eyepoint->m_y - p_player->m_position.m_y;
@@ -59,27 +66,32 @@ MechS32* GetEyepointOffset(Player* p_player, MechS32* p_offset)
 // m_animFlags), and for the local player updates the looping sounds (UpdateMotionSounds).
 // Stack-slot permutation: offset and position.
 // FUNCTION: MW2 0x10003710
+// FUNCTION: MW2MATROX 0x1008c4d0
 void UpdateMotion(Player* p_player)
 {
-	MechS32* offset;
-	MechS32 position[3];
-	MechS32 height;
+	MechScalar* offset;
+	MechScalar position[3];
+	MechScalar height;
 
 	offset = NULL;
-	if (p_player->m_mech->m_throttle.m_value <= 0x420) {
+	if (p_player->m_mech->m_throttle.m_value <= FIXED_RAW(0x420)) {
 		StopMotion(p_player);
 	}
 	else {
-		height = p_player->m_mech->m_throttle.m_value - 0x400;
+		height = p_player->m_mech->m_throttle.m_value - FIXED_RAW(0x400);
+#ifdef MW2_MATROX
+		if (height < 1e-07f) {
+#else
 		if (height < 0) {
+#endif
 			height = 0;
 		}
 
 		p_player->m_nextMotionState = 0;
-		if (height < 0x100) {
+		if (height < FIXED_RAW(0x100)) {
 			p_player->m_speedLevel = 1;
 		}
-		else if (height < 0x300) {
+		else if (height < FIXED_RAW(0x300)) {
 			p_player->m_speedLevel = 2;
 		}
 		else {
@@ -114,9 +126,10 @@ void UpdateMotion(Player* p_player)
 // Matches except for the stack slots of offset, sound and id (a consistent permutation) and
 // the order the p_sounds index loads its row and column in.
 // FUNCTION: MW2 0x100038c2
-void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechS32* p_offset)
+// FUNCTION: MW2MATROX 0x1008c69f
+void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechScalar* p_offset)
 {
-	MechS32 offset[3];
+	MechScalar offset[3];
 	MechS32 sound;
 	MechS32 id;
 
@@ -148,6 +161,7 @@ void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechS32* p_off
 }
 
 // FUNCTION: MW2 0x10003a10
+// FUNCTION: MW2MATROX 0x1008c7ed
 void ResetMotion(Player* p_player)
 {
 	MechS32 id;

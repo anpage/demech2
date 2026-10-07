@@ -16,22 +16,28 @@
 __inline MechS32 IsInsideWindow(MechS32 p_x, MechS32 p_y);
 
 // GLOBAL: MW2 0x100ad218
+// GLOBAL: MW2MATROX 0x100aa148
 MechChar* g_mouseAxisNames[] = {"Mouse Down/Up Movement", "Mouse Left/Right Movement"};
 
 // GLOBAL: MW2 0x100ad220
+// GLOBAL: MW2MATROX 0x100aa150
 MechChar* g_mouseAxisTypes[] = {"Down/Up", "Left/Right"};
 
 // GLOBAL: MW2 0x100ad228
+// GLOBAL: MW2MATROX 0x100aa158
 MechChar* g_mouseButtonNames[] = {"Left button", "Middle button", "Right button", NULL};
 
 // Three entries, no terminator: g_cursorClipped follows in the original.
 // GLOBAL: MW2 0x100ad238
+// GLOBAL: MW2MATROX 0x100aa168
 MechChar* g_mouseButtonTypes[] = {"LeftBtn", "MiddleBtn", "RightBtn"};
 
 // GLOBAL: MW2 0x100ad244
+// GLOBAL: MW2MATROX 0x100aa174
 BOOL g_cursorClipped = FALSE;
 
 // GLOBAL: MW2 0x100ad248
+// GLOBAL: MW2MATROX 0x100aa178
 undefined4 g_reclipCursor = 0;
 
 MechS32 GetMouseDeviceCount(void);
@@ -45,6 +51,7 @@ MechS32 MouseFlushKeyCodes(void);
 void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height);
 
 // GLOBAL: MW2 0x100ad250
+// GLOBAL: MW2MATROX 0x100aa180
 InputDriverModule g_mouseDriver = {
 	GetMouseDeviceCount,
 	FillMouseDeviceInfo,
@@ -57,24 +64,30 @@ InputDriverModule g_mouseDriver = {
 };
 
 // GLOBAL: MW2 0x100ad270
+// GLOBAL: MW2MATROX 0x100aa1a0
 MechChar g_mouseDeviceName[8] = "mouse";
 
 // GLOBAL: MW2 0x100ad278
+// GLOBAL: MW2MATROX 0x100aa1a8
 MechChar g_mouseDisplayName[8] = "Mouse";
 
 // GLOBAL: MW2 0x100ad280
+// GLOBAL: MW2MATROX 0x100aa1b0
 MechChar g_mouseTypeName[8] = "mouse";
 
 // GLOBAL: MW2 0x100e9230
+// GLOBAL: MW2MATROX 0x101d4710
 RECT g_cursorClipRect;
 
 // FUNCTION: MW2 0x100688e0
+// FUNCTION: MW2MATROX 0x10050950
 MechS32 GetMouseDeviceCount(void)
 {
 	return 1;
 }
 
 // FUNCTION: MW2 0x100688f5
+// FUNCTION: MW2MATROX 0x10050965
 MechS32 FillMouseDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	p_info->m_axisCount = 2;
@@ -92,12 +105,14 @@ MechS32 FillMouseDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 }
 
 // FUNCTION: MW2 0x10068986
+// FUNCTION: MW2MATROX 0x100509f6
 MechS32 MouseOpenDevice(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x10068998
+// FUNCTION: MW2MATROX 0x10050a08
 MechS32 MouseCloseDevice(void)
 {
 	ClipCursor(NULL);
@@ -106,6 +121,7 @@ MechS32 MouseCloseDevice(void)
 }
 
 // FUNCTION: MW2 0x100689bc
+// FUNCTION: MW2MATROX 0x10050a2c
 MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 {
 	POINT point;
@@ -128,6 +144,7 @@ MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 }
 
 // FUNCTION: MW2 0x10068a49
+// FUNCTION: MW2MATROX 0x10050ab9
 MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 {
 	MechS16 left;
@@ -190,18 +207,21 @@ MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 }
 
 // FUNCTION: MW2 0x10068c19
+// FUNCTION: MW2MATROX 0x10050ccf
 MechS32 MouseReadKeyCode(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x10068c2b
+// FUNCTION: MW2MATROX 0x10050ce1
 MechS32 MouseFlushKeyCodes(void)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x10068c3d
+// FUNCTION: MW2MATROX 0x10050cf3
 void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height)
 {
 	POINT point;

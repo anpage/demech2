@@ -53,27 +53,35 @@ MechChar g_confirmCowardiceText[] = "Confirm your cowardice";
 MechChar g_confirmationRequestedText[] = "Confirmation requested";
 
 // GLOBAL: MW2 0x100a1b78
+// GLOBAL: MW2MATROX 0x100a2500
 MechChar g_noText[] = "No";
 
 // GLOBAL: MW2 0x100a1b7c
+// GLOBAL: MW2MATROX 0x100a2504
 MechChar g_yesText[] = "Yes";
 
 // GLOBAL: MW2 0x100a1b80
+// GLOBAL: MW2MATROX 0x100a2508
 MechChar g_offText[] = "Off";
 
 // GLOBAL: MW2 0x100a1b84
+// GLOBAL: MW2MATROX 0x100a250c
 MechChar g_onText[] = "On";
 
 // GLOBAL: MW2 0x100a1b88
+// GLOBAL: MW2MATROX 0x100a2510
 MechChar g_lowText[] = "Low";
 
 // GLOBAL: MW2 0x100a1b90
+// GLOBAL: MW2MATROX 0x100a2518
 MechChar g_mediumText[] = "Medium";
 
 // GLOBAL: MW2 0x100a1b98
+// GLOBAL: MW2MATROX 0x100a2520
 MechChar g_highText[] = "High";
 
 // GLOBAL: MW2 0x100a1ba0
+// GLOBAL: MW2MATROX 0x100a2528
 MenuChoices g_offOnChoices = {NULL, 2, {g_offText, g_onText}};
 
 // GLOBAL: MW2 0x100a1be8

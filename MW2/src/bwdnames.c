@@ -16,17 +16,20 @@ DECOMP_SIZE_ASSERT(BwdNameNode, 0xf)
 
 // The list of BWD names AddBwdName adds to.
 // GLOBAL: MW2 0x100a9470
+// GLOBAL: MW2MATROX 0x100a6224
 BwdNameNode* g_bwdNames = NULL;
 
 // GLOBAL: MW2 0x100a9474
 undefined4 g_unk0x100a9474 = 0;
 
 // GLOBAL: MW2 0x100e9694
+// GLOBAL: MW2MATROX 0x101d4a90
 BwdNameNode* g_bwdNamesTail;
 
 // Appends a copy of a BWD name to the list.
 // Stack-slot permutation: result and node.
 // FUNCTION: MW2 0x10058560
+// FUNCTION: MW2MATROX 0x1002ddf0
 MechS32 AddBwdName(BwdName* p_name)
 {
 	MechS32 result;
@@ -60,6 +63,7 @@ MechS32 AddBwdName(BwdName* p_name)
 // Finds a BWD name in the list: by name for a named entry (-1 or -2), by number otherwise.
 // Stack-slot permutation: node and found.
 // FUNCTION: MW2 0x1005860e
+// FUNCTION: MW2MATROX 0x1002de9e
 MechS16* FindBwdName(BwdName* p_name)
 {
 	BwdNameNode* node;
@@ -84,6 +88,7 @@ MechS16* FindBwdName(BwdName* p_name)
 }
 
 // FUNCTION: MW2 0x100586ec
+// FUNCTION: MW2MATROX 0x1002df7c
 void FreeBwdNames(void)
 {
 	BwdNameNode* node;

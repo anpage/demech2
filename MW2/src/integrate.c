@@ -6,6 +6,7 @@
 #include "portable.h"
 #include "types.h"
 
+#ifndef MW2_MATROX
 // Advances p_velocity by p_acceleration * p_time and p_position by the midpoint velocity
 // times p_time (16.16 fixed point, with a 64-bit product).
 // FUNCTION: MW2 0x10004e90
@@ -36,3 +37,4 @@ void IntegrateMidpoint(MechS32* p_position, MechS32* p_velocity, MechS32 p_accel
 	}
 #endif
 }
+#endif

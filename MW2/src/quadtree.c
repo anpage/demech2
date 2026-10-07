@@ -3,6 +3,7 @@
 #include "collision.h"
 #include "decomp.h"
 #include "face.h"
+#include "fixedfloat.h"
 #include "overlay.h"
 #include "ray.h"
 #include "shape.h"
@@ -16,12 +17,16 @@
 DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
+// GLOBAL: MW2MATROX 0x100a4834
 MechS32 g_quadtreesDisabled = 0;
 
 // Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_quadtreesDisabled is set.
 // Stack-slot permutation of the locals. Operand order: root->m_unk0x14 < vertex->m_worldZ loads
 // the vertex's first in the original.
+// MW2MATROX: the comparisons of root's bounds with the vertex's coordinates have their operands the
+// other way round.
 // FUNCTION: MW2 0x1001df00
+// FUNCTION: MW2MATROX 0x100158f0
 void BuildShapeQuadtree(Shape* p_shape)
 {
 	Model* model;
@@ -90,42 +95,46 @@ void BuildShapeQuadtree(Shape* p_shape)
 // faces; with more, the child is split again.
 // Stack-slot permutation; minX >= maxX, minZ >= maxZ and faceHigh > highY compare in the other
 // operand order.
+// MW2MATROX: the sums of the node's bounds add their operands in the other order, the minX >= maxX,
+// minZ >= maxZ and faceHigh > highY comparisons have their operands the other way round, and
+// entries sits in another stack slot.
 // FUNCTION: MW2 0x1001e0a7
+// FUNCTION: MW2MATROX 0x10015ab5
 QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
 {
 	MechS32 j;
 	MechS32 i;
 	Face* entries[25];
 	QuadtreeNode* node;
-	MechS32 faceLow;
-	MechS32 minX;
-	MechS32 lowY;
-	MechS32 minZ;
+	MechScalar faceLow;
+	MechScalar minX;
+	MechScalar lowY;
+	MechScalar minZ;
 	MechS32 count;
 	QuadtreeNode* child;
 	Face* face;
-	MechS32 faceHigh;
-	MechS32 maxX;
-	MechS32 highY;
-	MechS32 maxZ;
+	MechScalar faceHigh;
+	MechScalar maxX;
+	MechScalar highY;
+	MechScalar maxZ;
 	Face** faces;
 
 	if (p_quadrant & 1) {
-		minX = ((p_node->m_maxX + p_node->m_minX) >> 1) + 1;
+		minX = FIXED_SHR(p_node->m_maxX + p_node->m_minX, 1) + 1;
 		maxX = p_node->m_maxX;
 	}
 	else {
 		minX = p_node->m_minX;
-		maxX = (p_node->m_maxX + p_node->m_minX) >> 1;
+		maxX = FIXED_SHR(p_node->m_maxX + p_node->m_minX, 1);
 	}
 
 	if (p_quadrant & 2) {
-		minZ = ((p_node->m_maxZ + p_node->m_minZ) >> 1) + 1;
+		minZ = FIXED_SHR(p_node->m_maxZ + p_node->m_minZ, 1) + 1;
 		maxZ = p_node->m_maxZ;
 	}
 	else {
 		minZ = p_node->m_minZ;
-		maxZ = (p_node->m_maxZ + p_node->m_minZ) >> 1;
+		maxZ = FIXED_SHR(p_node->m_maxZ + p_node->m_minZ, 1);
 	}
 
 	if (minX >= maxX || minZ >= maxZ) {
@@ -133,15 +142,15 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 	}
 
 	count = 0;
-	lowY = 0x7fffffff;
-	highY = -0x7fffffff;
+	lowY = FIXED_MAX;
+	highY = FIXED_MIN;
 	for (i = 0; i < p_model->m_faceCount; i++) {
 		face = (Face*) ((MechU8*) p_model + p_model->m_faceOffset) + i;
 		if (FaceOverlapsBox(face, p_model, minX, maxX, minZ, maxZ, &faceLow, &faceHigh)) {
 			count++;
 			if (count > 25) {
-				lowY = 0x7fffffff;
-				highY = -0x7fffffff;
+				lowY = FIXED_MAX;
+				highY = FIXED_MIN;
 				node = AllocQuadtreeNode(minX, maxX, lowY, highY, minZ, maxZ, 0);
 				if (!node) {
 					return NULL;
@@ -202,13 +211,14 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 // Allocates a quadtree node with room for p_faceCount entries, cleared.
 // The only diff is a stack-slot permutation of entries and node.
 // FUNCTION: MW2 0x1001e429
+// FUNCTION: MW2MATROX 0x10015ee6
 QuadtreeNode* AllocQuadtreeNode(
-	undefined4 p_minX,
-	undefined4 p_maxX,
-	undefined4 p_minY,
-	undefined4 p_maxY,
-	undefined4 p_minZ,
-	undefined4 p_maxZ,
+	MechScalar p_minX,
+	MechScalar p_maxX,
+	MechScalar p_minY,
+	MechScalar p_maxY,
+	MechScalar p_minZ,
+	MechScalar p_maxZ,
 	MechS32 p_faceCount
 )
 {
@@ -244,6 +254,7 @@ QuadtreeNode* AllocQuadtreeNode(
 
 // Frees a quadtree.
 // FUNCTION: MW2 0x1001e50d
+// FUNCTION: MW2MATROX 0x10015fca
 void FreeQuadtree(QuadtreeNode* p_node)
 {
 	MechS32 i;
@@ -265,36 +276,38 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // (p_maxX, p_maxZ), seen from above; if it does, stores the face's height range.
 // Stack-slot permutation; the min/max tests and the final bounds tests compare in the other operand
 // order.
+// MW2MATROX: the min/max tests and the final bounds tests have their operands the other way round.
 // FUNCTION: MW2 0x1001e57a
+// FUNCTION: MW2MATROX 0x10016037
 MechS32 FaceOverlapsBox(
 	Face* p_face,
 	Model* p_model,
-	MechS32 p_minX,
-	MechS32 p_maxX,
-	MechS32 p_minZ,
-	MechS32 p_maxZ,
-	MechS32* p_minY,
-	MechS32* p_maxY
+	MechScalar p_minX,
+	MechScalar p_maxX,
+	MechScalar p_minZ,
+	MechScalar p_maxZ,
+	MechScalar* p_minY,
+	MechScalar* p_maxY
 )
 {
 	MechS32 count;
-	MechS32 maxY;
-	MechS32 maxZ;
-	MechS32 minX;
+	MechScalar maxY;
+	MechScalar maxZ;
+	MechScalar minX;
 	Vertex* vertices;
 	Vertex* vertex;
-	MechS32 x;
-	MechS32 y;
+	MechScalar x;
+	MechScalar y;
 	MechS32 i;
-	MechS32 z;
-	MechS32 minY;
-	MechS32 minZ;
-	MechS32 maxX;
+	MechScalar z;
+	MechScalar minY;
+	MechScalar minZ;
+	MechScalar maxX;
 
 	count = p_face->m_indexCount;
 	vertices = (Vertex*) (p_model + 1);
-	minX = minY = minZ = 0x7fffffff;
-	maxX = maxY = maxZ = -0x7fffffff;
+	minX = minY = minZ = FIXED_MAX;
+	maxX = maxY = maxZ = FIXED_MIN;
 	for (i = 0; i < count; i++) {
 		vertex = &vertices[((MechU8*) p_face)[p_face->m_indexOffset + i]];
 		x = vertex->m_worldX;
@@ -338,14 +351,15 @@ MechS32 FaceOverlapsBox(
 // ground area, 2 above the faces under it, 3 below one of them.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001e6dc
-MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x100161c7
+MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 result;
 	Vertex* vertices;
 	Face** faces;
 	MechS32 i;
 	Face* face;
-	MechS32 height;
+	MechScalar height;
 
 	if (!p_node) {
 		return 0;
@@ -406,16 +420,20 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechS32 p_x,
 
 // Returns whether p_ray hits one of the quadtree's faces, shortening it to the hit.
 // Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
+// MW2MATROX: the comparisons of t0 and t1 with tMin and tMax have their operands the other way
+// round, and t0 < tMax stores t0 before it compares (fst, fcomp) where the original compares first
+// (fcom, fstp).
 // FUNCTION: MW2 0x1001e90f
+// FUNCTION: MW2MATROX 0x10016422
 MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
-	MechS32 tMin;
+	MechScalar tMin;
 	Vertex* vertices;
-	MechS32 t0;
+	MechScalar t0;
 	Face** faces;
 	MechS32 i;
-	MechS32 t1;
-	MechS32 tMax;
+	MechScalar t1;
+	MechScalar tMax;
 	Face* face;
 
 	if (!p_node) {
@@ -491,15 +509,16 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 // child was hit.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001eb25
+// FUNCTION: MW2MATROX 0x10016662
 MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
-	MechS32 length;
+	MechScalar length;
 	MechS32 i;
 	Ray best;
 	Ray ray;
-	MechS32 nearest;
+	MechScalar nearest;
 
-	nearest = 0x7fffffff;
+	nearest = FIXED_MAX;
 	CopyRay(&ray, p_ray);
 	for (i = 0; i < 4; i++) {
 		if (TestQuadtreeRay(p_node->m_children[i], p_model, &ray)) {
@@ -513,6 +532,7 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 		}
 	}
 
+	// The Matrox edition compares with the integer 0x7fffffff (2147483648.0f), not with FIXED_MAX.
 	if (nearest < 0x7fffffff) {
 		CopyRay(p_ray, &best);
 		return TRUE;
@@ -525,7 +545,15 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 // p_top, or 0 if there is none. Returns FALSE outside the tree's ground area.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ebfa
-MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+// FUNCTION: MW2MATROX 0x10016740
+MechS32 GetQuadtreeTop(
+	QuadtreeNode* p_node,
+	Model* p_model,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar* p_top
+)
 {
 	Vertex* vertices;
 	Face** faces;
@@ -576,6 +604,7 @@ MechS32 GetQuadtreeTop(QuadtreeNode* p_node, Model* p_model, MechS32 p_x, MechS3
 }
 
 // FUNCTION: MW2 0x1001edfa
+// FUNCTION: MW2MATROX 0x1001695e
 void DisableQuadtrees(void)
 {
 	g_quadtreesDisabled = 1;
@@ -583,6 +612,7 @@ void DisableQuadtrees(void)
 
 // Returns the bytes a quadtree takes.
 // FUNCTION: MW2 0x1001ee0f
+// FUNCTION: MW2MATROX 0x10016973
 MechS32 GetQuadtreeSize(QuadtreeNode* p_node)
 {
 	MechS32 i;

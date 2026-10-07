@@ -2,6 +2,7 @@
 #define WEAPONDEF_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 
 // A weapon type, from the table of weapon definitions (g_weaponDefs: LLASER, MLASER, ...).
@@ -19,9 +20,9 @@ typedef struct WeaponDef {
 	MechS32 m_sound;         // 0x24 — the launch sound, or <= 0
 	MechS32 m_gravity;       // 0x28 — scales the gravity on the shot
 	MechS32 m_speed;         // 0x2c
-	MechS32 m_damage;        // 0x30
-	MechS32 m_heat;          // 0x34 — added to the firing mech's heat per shot
-	MechS32 m_shotHeat;      // 0x38 — added to the heat of the mech the shot hits
+	MechScalar m_damage;     // 0x30
+	MechScalar m_heat;       // 0x34 — added to the firing mech's heat per shot
+	MechScalar m_shotHeat;   // 0x38 — added to the heat of the mech the shot hits
 	MechS32 m_shortRange;    // 0x3c
 	MechS32 m_longRange;     // 0x40 — a target lock needs the target between the two ranges
 	MechS32 m_recycle;       // 0x44 — ticks between volleys

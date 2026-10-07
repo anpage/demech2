@@ -17,6 +17,7 @@ MechS32 GetBrightnessFraction(MechS32 p_arg)
 }
 
 // FUNCTION: MW2 0x1007460e
+// FUNCTION: MW2MATROX 0x100171eb
 void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
 	MechS32 brightness;
@@ -29,6 +30,7 @@ void PreviewBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x1007464f
+// FUNCTION: MW2MATROX 0x1001722c
 void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 {
 	g_displayBrightness = g_brightnessSetting = FixedMul16(p_value, 15);
@@ -37,6 +39,7 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 }
 
 // FUNCTION: MW2 0x10074693
+// FUNCTION: MW2MATROX 0x10017270
 void RestoreBrightness(MechS32 p_arg)
 {
 	g_brightnessSetting = g_displayBrightness;

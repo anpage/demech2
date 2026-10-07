@@ -10,10 +10,11 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 <a href="https://anpage.github.io/demech2/MECH2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MECH2PROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2SHELLPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2SHELLPROGRESS.SVG" width="50%"></a>
 <a href="https://anpage.github.io/demech2/NETMECHWPROGRESS.HTML"><img src="https://anpage.github.io/demech2/NETMECHWPROGRESS.SVG" width="50%"></a><a href="https://anpage.github.io/demech2/MW2PROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2PROGRESS.SVG" width="50%"></a>
+<a href="https://anpage.github.io/demech2/MW2MATROXPROGRESS.HTML"><img src="https://anpage.github.io/demech2/MW2MATROXPROGRESS.SVG" width="50%"></a>
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
-Every game-code function of all four binaries is decompiled. Two kinds of work remain. One is raising the match: plenty of functions are still short of byte-identical, and many of those differ only by compiler artifacts (stack-slot assignment, operand order), which reccmp still scores as differences. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
+Every game-code function of the four binaries of the 1.1 patch and the retail release is decompiled. A fifth target, the simulator of the Matrox Mystique edition (`MW2_MATROX.DLL`), is built from the same simulator source, where its differences (it keeps the simulation's values as floats, and draws through Matrox's API) are being worked in. Beyond that edition, two kinds of work remain. One is raising the match: plenty of functions are still short of byte-identical, and many of those differ only by compiler artifacts (stack-slot assignment, operand order), which reccmp still scores as differences. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
 
 The continuous release ([`continuous`](https://github.com/anpage/demech2/releases/tag/continuous)) carries the latest recompiled binaries from `main`, with their PDBs and progress reports.
 
@@ -30,6 +31,7 @@ You will need the following software installed:
 - Microsoft Visual C++ 4.1. A [portable version](https://github.com/madebr/msvc410) is available that can be downloaded and used quickly.
 - MASM 6.11 (ML), for the original's hand-written assembly. A [ready-to-use copy](https://github.com/shengyanli1982/MASM611) is available; the build only needs its `BIN\ML.EXE`. Don't put its `BIN` on your `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE` that would shadow Visual C++ 4.1's.
 - Microsoft Visual C++ 2.2, for `MECH2.EXE` and `NETMECHW.DLL` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, both are built with Visual C++ 4.1 instead, which isn't their original toolchain.
+- Microsoft Visual C++ 4.0, for the Matrox edition's `MW2_MATROX.DLL` (optional). A [portable version](https://github.com/itsmattkc/MSVC400) is available. Without it, the Matrox edition is built with Visual C++ 4.1, whose stack-slot assignment and C runtime differ from its original toolchain's.
 - [CMake](https://cmake.org/). A copy is often included with the "Desktop development with C++" workload in newer versions of Visual Studio; however, it can also be installed as a standalone app. Version 3.26.6 (i386) is known to work with the VC++ 4.1 NMake generator.
 
 #### Compiling
@@ -49,10 +51,11 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 - `RelWithDebInfo` is recommended because it will produce debug symbols useful for further decompilation work.
 - `NMake Makefiles` is most recommended because it will be immediately compatible with Visual C++ 4.1.
 - To build `MECH2.EXE` and `NETMECHW.DLL` with Visual C++ 2.2, add `-DDEMECH2_MSVC22_ROOT=<path-to-msvc22>`. CMake builds them in a nested build and sets up Visual C++ 2.2's environment itself, so only Visual C++ 4.1's `VCVARS32.BAT` needs to run.
+- To build `MW2_MATROX.DLL` with Visual C++ 4.0, add `-DDEMECH2_MSVC40_ROOT=<path-to-msvc40>`: another nested build, set up the same way.
 - The shell's dialogs show an icon that is not included in this repository. If the original 1.1 `MW2SHELL.DLL` is in the repository root, the build takes the icon from it; point `-DDEMECH2_MW2SHELL_ORIGINAL=<path>` at a copy elsewhere. Without it, the shell still builds and runs, and those dialogs just show no icon. The same goes for the launcher's window icons and the original `MECH2.EXE` (`-DDEMECH2_MECH2_ORIGINAL=<path>`), and for the NetMech lobby's icons and bitmaps and the original `NETMECHW.DLL` (`-DDEMECH2_NETMECHW_ORIGINAL=<path>`).
 
 1. Build the project by running `nmake` or `cmake --build <build-folder>`
-2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL`, `NETMECHW.DLL` and `MECH2.EXE` in the build folder (the last two in its `vc22` subfolder when built with Visual C++ 2.2).
+2. When this is done, there should be a recompiled `MW2SHELL.DLL`, `MW2.DLL`, `NETMECHW.DLL`, `MECH2.EXE` and `MW2_MATROX.DLL` in the build folder (`NETMECHW.DLL` and `MECH2.EXE` in its `vc22` subfolder when built with Visual C++ 2.2, `MW2_MATROX.DLL` in its `vc40` subfolder when built with Visual C++ 4.0).
 
 The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for the Visual C++ 2.2 targets, so reccmp can read their PDBs):
 
@@ -62,6 +65,7 @@ The build configuration for each binary (comparison builds use Visual C++ 4.1's 
 | `MW2SHELL.DLL` | C++ (some C files)         | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                           |
 | `NETMECHW.DLL` | C and C++ (Visual C++ 2.2) | `/Od /Oi /Z7` (no `/GX`)                   | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
 | `MECH2.EXE`    | C (Visual C++ 2.2)         | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`        |
+| `MW2_MATROX.DLL` | C (Visual C++ 4.0)       | `/Od /Oi /G5`                              | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
 
 ### Docker
 
@@ -104,6 +108,8 @@ targets:
     path: path/to/NETMECHW.DLL
   MECH2:
     path: path/to/MECH2.EXE
+  MW2MATROX:
+    path: path/to/MW2_MATROX.DLL
 ```
 
 Then run:
@@ -113,6 +119,7 @@ reccmp-reccmp --target MW2SHELL -S MW2SHELLPROGRESS.SVG
 reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
 reccmp-reccmp --target NETMECHW --nolib --total 244
 reccmp-reccmp --target MECH2 --nolib --total 21
+reccmp-reccmp --target MW2MATROX --nolib --total 1597
 ```
 
 #### Continuous integration

@@ -12,6 +12,7 @@
 #include "environment.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "fixedfloat.h"
 #include "gamekeys.h"
 #include "hud.h"
 #include "loadres.h"
@@ -22,6 +23,7 @@
 #include "mw2prj.h"
 #include "network.h"
 #include "objectanim.h"
+#include "palette.h"
 #include "players.h"
 #include "point.h"
 #include "poolsizes.h"
@@ -65,6 +67,7 @@ enum FilePermission {
 // The 26 cockpit panels' rectangles, in 320x200 screen coordinates (ScaleCockpitLayout scales them to the
 // screen).
 // GLOBAL: MW2 0x100adf58
+// GLOBAL: MW2MATROX 0x100b1478
 PANE g_cockpitPanelPanes[c_panelCount] = {
 	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
 	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
@@ -83,6 +86,7 @@ PANE g_cockpitPanelPanes[c_panelCount] = {
 
 // The panels' text positions (16.16 fractions of their rectangles).
 // GLOBAL: MW2 0x100ae160
+// GLOBAL: MW2MATROX 0x100b1680
 Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 												 {0, 0},           {0x11ec, 0x2148},
 												 {0x11ec, 0x2148}, {0x11ec, 0x2148},
@@ -100,45 +104,58 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 // The transitions of panels 13 and 2.
 
 // GLOBAL: MW2 0x100ae230
+// GLOBAL: MW2MATROX 0x100b1750
 RectTransitionState g_targetTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae240
+// GLOBAL: MW2MATROX 0x100b1760
 RectTransitionState g_mechViewTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae250
+// GLOBAL: MW2MATROX 0x100b1770
 PANE g_targetTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae268
+// GLOBAL: MW2MATROX 0x100b1788
 PANE g_targetTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae280
+// GLOBAL: MW2MATROX 0x100b17a0
 PANE g_targetTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae298
+// GLOBAL: MW2MATROX 0x100b17b8
 RectTransitionDef g_targetTransitionDef =
 	{0xb5, &g_targetTransitionFirst, &g_targetTransitionSecond, &g_targetTransitionRect};
 
 // GLOBAL: MW2 0x100ae2a8
+// GLOBAL: MW2MATROX 0x100b17c8
 RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransitionDef};
 
 // GLOBAL: MW2 0x100ae2b0
+// GLOBAL: MW2MATROX 0x100b17d0
 PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
+// GLOBAL: MW2MATROX 0x100b17e8
 PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
+// GLOBAL: MW2MATROX 0x100b1800
 PANE g_mechViewTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
+// GLOBAL: MW2MATROX 0x100b1818
 RectTransitionDef g_mechViewTransitionDef =
 	{0xb5, &g_mechViewTransitionFirst, &g_mechViewTransitionSecond, &g_mechViewTransitionRect};
 
 // GLOBAL: MW2 0x100ae308
+// GLOBAL: MW2MATROX 0x100b1828
 RectTransition g_mechViewTransition = {&g_mechViewTransitionState, &g_mechViewTransitionDef};
 
 // The panels' transitions.
 // GLOBAL: MW2 0x100ae310
+// GLOBAL: MW2MATROX 0x100b1830
 RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL,
 	NULL,
@@ -170,63 +187,79 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 
 // Set when UpdateCockpit should run PunchInAutoHeading on its next frame.
 // GLOBAL: MW2 0x100ae37c
+// GLOBAL: MW2MATROX 0x100b189c
 MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
+// GLOBAL: MW2MATROX 0x100b18a0
 MechS32 g_hitFadePending = 0;
 
 // The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
 // GLOBAL: MW2 0x100ae388
+// GLOBAL: MW2MATROX 0x100b18a8
 undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297, 0x32e,
 													   0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
 													   0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
 
 // The local mech's state (Mech::m_powerState) when PlayCockpitWarnings last ran.
 // GLOBAL: MW2 0x100ae3f0
+// GLOBAL: MW2MATROX 0x100b1910
 MechS32 g_lastWarningPowerState = 0;
 
 // GLOBAL: MW2 0x100ae3f4
+// GLOBAL: MW2MATROX 0x100b1914
 MechS32 g_lockedTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3f8
+// GLOBAL: MW2MATROX 0x100b1918
 MechS32 g_lockingTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3fc
+// GLOBAL: MW2MATROX 0x100b191c
 MechS32 g_hitFadeCount = 0;
 
 // The game directory (the MECHWARRIOR environment variable).
 // GLOBAL: MW2 0x100ae400
+// GLOBAL: MW2MATROX 0x100a3f00
 MechChar g_gameDir[256] = {0};
 
 // The number of the next screenshot SaveScreenshot saves.
 // GLOBAL: MW2 0x100ae500
+// GLOBAL: MW2MATROX 0x100a4000
 MechS32 g_screenshotCount = 0;
 
 // The path BuildGamePath returns.
 // GLOBAL: MW2 0x100bef58
+// GLOBAL: MW2MATROX 0x100c1d20
 MechChar g_gamePath[0x50];
 
 // The local player's heading and torso twist, in whole degrees (UpdateCockpit).
 
 // GLOBAL: MW2 0x100c326c
+// GLOBAL: MW2MATROX 0x1012f964
 MechS32 g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
+// GLOBAL: MW2MATROX 0x1012f960
 MechS32 g_headingDegrees;
 
 // The 26 cockpit panels InitCockpitPanels allocates.
 // GLOBAL: MW2 0x100c3280
+// GLOBAL: MW2MATROX 0x1012f970
 CockpitPanel* g_cockpitPanels[c_panelCount];
 
 // Which of the panels are enabled when they are set up.
 // GLOBAL: MW2 0x100c32f0
+// GLOBAL: MW2MATROX 0x1012f9e0
 MechS32 g_cockpitPanelEnabled[c_panelCount];
 
 // GLOBAL: MW2 0x100c3358
+// GLOBAL: MW2MATROX 0x1012f9d8
 MechS32 g_cockpitPowerState;
 
 // The three values of the HUD layout (LoadHudFile).
 // GLOBAL: MW2 0x10109c30
+// GLOBAL: MW2MATROX 0x1015e8b0
 MechS32 g_hudLayoutValues[3];
 
 // Loads eight sounds ahead of their use.
@@ -571,10 +604,10 @@ void UpdateCockpit(Mech* p_mech)
 		return;
 	}
 
-	g_headingDegrees = ((p_mech->m_player->m_heading >> 16) % 360 % 360 + 360) % 360;
-	g_torsoTwistDegrees = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
-	pitch = (p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value) % 0x1680000;
-	bearing = (p_mech->m_player->m_targetInfo.m_heading >> 16) % 360 - g_headingDegrees;
+	g_headingDegrees = (FIXED_TO_INT(p_mech->m_player->m_heading) % 360 % 360 + 360) % 360;
+	g_torsoTwistDegrees = FIXED_TO_INT(p_mech->m_torsoTwist.m_value) % 360 % 360;
+	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
+	bearing = FIXED_TO_INT(p_mech->m_player->m_targetInfo.m_heading) % 360 - g_headingDegrees;
 	if (bearing > 180) {
 		bearing -= 360;
 	}
@@ -770,6 +803,9 @@ void PlayCockpitWarnings(Mech* p_mech)
 void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
+#ifdef MW2_MATROX
+	FUN_10088280(p_target);
+#endif
 }
 
 // Loads seven values from resource p_ref.
@@ -837,6 +873,7 @@ MechS32 LoadMgdFile(
 // (GetAnimBase), into g_reels.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100708f4
+// FUNCTION: MW2MATROX 0x1000ae34
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -853,6 +890,10 @@ MechS32 LoadReels(ResourceRef* p_ref)
 	MechU8* end;
 	MechS32 index;
 	FILE* file;
+#ifdef MW2_MATROX
+	MechS32 j;
+	MechS32* amount;
+#endif
 
 	offset = 0;
 	stride = sizeof(MechS32);
@@ -898,6 +939,21 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		if (!g_reels[index]) {
 			return FALSE;
 		}
+#ifdef MW2_MATROX
+
+		// The Matrox edition's reels hold floats: plain values below kind 3, 16.16 from it.
+		if (frameCount) {
+			for (j = 0; j < frameCount; j++) {
+				amount = (MechS32*) frames + j;
+				if (unk0x08 < 3) {
+					((MechFloat*) frames)[j] = *amount;
+				}
+				else {
+					((MechFloat*) frames)[j] = *amount * (1.0f / 65536.0f);
+				}
+			}
+		}
+#endif
 
 		g_reels[index]->m_amounts = (MechS32*) frames;
 		g_reels[index]->m_kind = unk0x08;
@@ -925,6 +981,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // them out of range cleared.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070bda
+// FUNCTION: MW2MATROX 0x1000b1c6
 MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
@@ -1003,6 +1060,7 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 // and a point.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070e22
+// FUNCTION: MW2MATROX 0x1000b40e
 MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p_point)
 {
 	MechS32 size;
@@ -1075,6 +1133,7 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 // the main pixel buffer. Returns whether it could.
 // Stack-slot permutation: header, file and pixels.
 // FUNCTION: MW2 0x10071026
+// FUNCTION: MW2MATROX 0x1000b612
 MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 {
 	void* header;
@@ -1106,6 +1165,7 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 // Returns the open file, or -1 (logging the path to symlog.txt when it can't be opened).
 // Stack-slot permutation: log and file.
 // FUNCTION: MW2 0x10071108
+// FUNCTION: MW2MATROX 0x1000b6f4
 MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_poolTag)
 {
 	FILE* log;
@@ -1148,6 +1208,7 @@ MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_po
 // Reads a game file into memory. Returns the file (closed), or -1.
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071251
+// FUNCTION: MW2MATROX 0x1000b83d
 MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 {
 	MechS32 size;
@@ -1165,6 +1226,7 @@ MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 }
 
 // FUNCTION: MW2 0x100712b0
+// FUNCTION: MW2MATROX 0x1000b89c
 MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 {
 	MechS32 file;
@@ -1187,6 +1249,7 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 // Returns 1, or -1 if there is no block.
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071326
+// FUNCTION: MW2MATROX 0x1000b912
 MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 {
 	MechS32 size;
@@ -1225,6 +1288,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 }
 
 // FUNCTION: MW2 0x10071440
+// FUNCTION: MW2MATROX 0x1000ba2c
 MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 {
 	MechS32 file;
@@ -1246,6 +1310,7 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 // Reads the sound settings, or allocates cleared ones. Returns 1, or -1 if it couldn't read them.
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x100714b3
+// FUNCTION: MW2MATROX 0x1000ba9f
 MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 {
 	MechS32 size;
@@ -1266,6 +1331,7 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 }
 
 // FUNCTION: MW2 0x1007152f
+// FUNCTION: MW2MATROX 0x1000bb1b
 MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 {
 	MechS32 file;
@@ -1286,11 +1352,20 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
 // FUNCTION: MW2 0x100715a2
+// FUNCTION: MW2MATROX 0x1000bb8e
 void SaveScreenshot(void)
 {
 	MechS32 count;
 	PANE target;
 	MechChar name[16];
+#ifdef MW2_MATROX
+	FILE* file;
+	MechU16* pixel;
+	MechU32 n;
+	MechU32 rgb;
+	MechU16 width;
+	MechU16 height;
+#endif
 
 	target.m_window = &g_mainPixelBuffer;
 	target.m_x0 = 0;
@@ -1299,16 +1374,40 @@ void SaveScreenshot(void)
 	target.m_y1 = g_screenHeightMinus1;
 	if (g_screenshotCount < 1000) {
 		count = g_screenshotCount++;
+#ifdef MW2_MATROX
+		// The Matrox edition saves the 16-bit screen as raw 24-bit pixels, after a header of two words
+		// it never sets.
+		sprintf(name, "mw2%04d.888", count);
+		file = fopen(name, "wb");
+		if (!file) {
+			return;
+		}
+
+		fwrite(&width, 2, 1, file);
+		fwrite(&height, 2, 1, file);
+		pixel = (MechU16*) g_mainPixelBuffer.m_buffer;
+		for (n = (g_screenHeightMinus1 + 1) * (g_screenWidthMinus1 + 1); n > 0; n--) {
+			rgb = ((*pixel >> 10) & 0x1f) * 8;
+			rgb |= ((*pixel >> 5) & 0x1f) << 11;
+			rgb |= (*pixel & 0x1f) << 19;
+			fwrite(&rgb, 3, 1, file);
+			pixel++;
+		}
+
+		fclose(file);
+#else
 		sprintf(name, "mw2%04d.gif", count);
 		ScreenshotBegin(name);
 		ScreenshotWritePalette();
 		ScreenshotWriteImage(&target);
 		ScreenshotEnd();
+#endif
 	}
 }
 
 // Returns the path of a game file: in g_gameDir unless the name has a directory already.
 // FUNCTION: MW2 0x1007162a
+// FUNCTION: MW2MATROX 0x1000bcd2
 MechChar* BuildGamePath(MechChar* p_name)
 {
 	MechS32 i;
@@ -1329,6 +1428,7 @@ MechChar* BuildGamePath(MechChar* p_name)
 
 // Returns the path of a file in g_gameDir.
 // FUNCTION: MW2 0x100716ec
+// FUNCTION: MW2MATROX 0x1000bd94
 MechChar* BuildGameDirPath(MechChar* p_name)
 {
 	MechS32 i;

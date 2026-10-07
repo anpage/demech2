@@ -5,6 +5,7 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "gamekeys.h"
 #include "gamething.h"
 #include "geocache.h"
@@ -31,34 +32,43 @@
 
 // Set to end the mission as successful (a cheat).
 // GLOBAL: MW2 0x100a3748
+// GLOBAL: MW2MATROX 0x100a4ed4
 MechS32 g_forceMissionSuccess = 0;
 
 // Set once the local team's mission result has been announced (AnnounceMissionResult).
 // GLOBAL: MW2 0x100a374c
+// GLOBAL: MW2MATROX 0x100a4ed8
 MechS32 g_missionResultAnnounced = 0;
 
 // The tag of the mission result EndTheMission2 writes.
 // GLOBAL: MW2 0x100a37bc
+// GLOBAL: MW2MATROX 0x100a4f48
 MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
+// GLOBAL: MW2MATROX 0x101d69e0
 MechS32 g_missionTime;
 
 // GLOBAL: MW2 0x10138720
+// GLOBAL: MW2MATROX 0x101d69f0
 MechS32 g_currentObjective[16]; // by team
 
 // Whether each objective of the local team has been announced (AnnounceObjective).
 // GLOBAL: MW2 0x10138760
+// GLOBAL: MW2MATROX 0x101d6a30
 MechS32 g_objectiveAnnounced[48];
 
 // GLOBAL: MW2 0x10138820
+// GLOBAL: MW2MATROX 0x101d6af0
 MechS32 g_objectiveCount;
 
 // GLOBAL: MW2 0x10138830
+// GLOBAL: MW2MATROX 0x101d6b00
 StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
 // FUNCTION: MW2 0x1001a910
+// FUNCTION: MW2MATROX 0x1001ecb0
 void CollapseWhitespace(MechChar* p_text)
 {
 	MechChar* src;
@@ -87,15 +97,23 @@ void CollapseWhitespace(MechChar* p_text)
 // Stack-slot permutation of the locals. The original tests the target's kind by loading its high
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1001aa02
+// FUNCTION: MW2MATROX 0x1001eda2
 MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechU16 nav;
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 found;
 
+#ifdef MW2_MATROX
+	found = FALSE;
+	x = y = z = heading = 0;
+	g_missionTime = g_currentClock / 181;
+	if (p_mission->m_objectives[0].m_targetCount > 0 &&
+		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
+#else
 	x = 0;
 	y = 0;
 	z = 0;
@@ -103,6 +121,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 	found = FALSE;
 	g_missionTime = g_currentClock / 181;
 	if (p_mission->m_objectives[0].m_targetCount > 0 && (p_mission->m_objectives[0].m_targets[0] & 0xff00) == 0x100) {
+#endif
 		nav = (MechU8) p_mission->m_objectives[0].m_targets[0];
 		if (nav < g_navCount) {
 			x = g_navTable[nav].m_position[0];
@@ -123,6 +142,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 // is an AI target id stored as two bytes, the index and the type.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ab4a
+// FUNCTION: MW2MATROX 0x1001eee7
 MechS32 GetObjectiveTargetState(MechU8* p_target)
 {
 	MechU16 index;
@@ -149,6 +169,7 @@ MechS32 GetObjectiveTargetState(MechU8* p_target)
 // Returns whether team p_team has reached an objective target.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ac06
+// FUNCTION: MW2MATROX 0x1001efa3
 MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -270,6 +291,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 // Stack-slot permutation; the original computes the objective's index before the star's (index order)
 // and compares p_star with g_localStar in the other operand order.
 // FUNCTION: MW2 0x1001b0cb
+// FUNCTION: MW2MATROX 0x1001f428
 MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
 	MechChar text[100];
@@ -308,7 +330,9 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // In a network game with a single listed objective, a secondary one, picks the player with the
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
 // Stack-slot permutation; score > best compares in the other operand order.
+// MW2MATROX: score > best compares in the other operand order.
 // FUNCTION: MW2 0x1001b21a
+// FUNCTION: MW2MATROX 0x1001f577
 void ChooseNetworkWinner(void)
 {
 	MissionObjective* objective;
@@ -373,6 +397,7 @@ void ChooseNetworkWinner(void)
 // Announces the local team's mission result: successful (2), failed (3) or out of time (4). In a
 // network game, only the first result; a successful one names the local player the winner.
 // FUNCTION: MW2 0x1001b3f4
+// FUNCTION: MW2MATROX 0x1001f751
 MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 {
 	MechChar text[100];
@@ -418,6 +443,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // Stack-slot permutation of objective, other, star, state and kind; the original scales star
 // before other in the objective's address (index order).
 // FUNCTION: MW2 0x1001b580
+// FUNCTION: MW2MATROX 0x1001f8dd
 MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 {
 	MissionObjective* objective;
@@ -440,6 +466,7 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // Stack-slot permutation of all, objective, result, i and holds; the original computes the
 // objective's index before the star's (index order).
 // FUNCTION: MW2 0x1001b66c
+// FUNCTION: MW2MATROX 0x1001f9c9
 MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 all;
@@ -465,6 +492,17 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		}
 
 		holds = TestObjectiveCondition(p_star, p_objective, i);
+#ifdef MW2_MATROX
+		if (all) {
+			result &= holds;
+			if (!result) {
+				return FALSE;
+			}
+		}
+		else if (holds) {
+			return TRUE;
+		}
+#else
 		if (!all) {
 			if (holds) {
 				return TRUE;
@@ -476,22 +514,35 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 				return FALSE;
 			}
 		}
+#endif
 	}
 
+#ifdef MW2_MATROX
+	if (all) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+#else
 	if (!all) {
 		return FALSE;
 	}
 	else {
 		return TRUE;
 	}
+#endif
 }
 
 // Updates star p_star's objective p_objective while its conditions hold: whether its targets are
 // done (by its type: destroyed, reached, ...), whether its time is up, and what it does when done
 // (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
 // 6 failed, 8 failed for another star, 3 still going.
-// The only diff is a stack-slot permutation of the locals.
+// The only diff is a stack-slot permutation of the locals. MW2MATROX: the objectives the
+// types 0x10000 and up name compute their star's index before the objective's (index order), and
+// the jump table's entries differ by address only.
 // FUNCTION: MW2 0x1001b79a
+// FUNCTION: MW2MATROX 0x1001faf7
 void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
@@ -514,6 +565,12 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	untouched = TRUE;
 	state = 3;
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
+#ifdef MW2_MATROX
+	if (!g_players[p_star] && g_isNetworkGame) {
+		return;
+	}
+
+#endif
 	if (g_isNetworkGame && objective->m_state == 5 && objective->m_type == 2) {
 		for (i = 0; i < objective->m_targetCount; i++) {
 			if (done && GetObjectiveTargetState((MechU8*) &objective->m_targets[i])) {
@@ -784,10 +841,16 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	case 0x400:
 	case 0x800:
 		if (expired) {
+#ifdef MW2_MATROX
+			if (g_players[p_star] && g_isNetworkGame && (g_players[p_star]->m_flags & 2)) {
+				return;
+			}
+#else
 			if (g_players[g_teams[p_star].m_leader] && (g_players[g_teams[p_star].m_leader]->m_flags & 2) &&
 				g_isNetworkGame) {
 				return;
 			}
+#endif
 
 			state = 5;
 			AnnounceObjective(p_star, p_objective, state);
@@ -841,7 +904,10 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // Updates every star's mission each frame: its objectives (UpdateObjective), then, while it is in
 // progress, whether it succeeded (every listed objective done), failed or ran out of time; and
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
+// MW2MATROX: the loop tests compare in the other operand order, and the m_objectives index scales
+// its terms in the other order (index order).
 // FUNCTION: MW2 0x1001c69e
+// FUNCTION: MW2MATROX 0x10020a02
 void UpdateObjectives(void)
 {
 	MechS32 star;
@@ -923,6 +989,7 @@ void UpdateObjectives(void)
 
 // Counts the mission time in seconds.
 // FUNCTION: MW2 0x1001c9d5
+// FUNCTION: MW2MATROX 0x10020d39
 void EndTheMission1(void)
 {
 	g_missionTime = g_currentClock / 181;
@@ -933,6 +1000,7 @@ void EndTheMission1(void)
 // status and the objectives listed on the objectives panel. Returns whether it could.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001c9f7
+// FUNCTION: MW2MATROX 0x10020d5b
 MechS32 EndTheMission2(void)
 {
 	FILE* file;
@@ -981,8 +1049,9 @@ MechS32 EndTheMission2(void)
 
 // Restarts star p_star's mission (a player's own, in a network game): every objective goes back
 // to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
-// it names is listed on the objectives panel.
+// it names is listed on the objectives panel (not in the Matrox edition).
 // FUNCTION: MW2 0x1001cc5c
+// FUNCTION: MW2MATROX 0x10020fde
 void RestartStarMission(MechS32 p_star)
 {
 	MissionObjective* objective;
@@ -993,6 +1062,7 @@ void RestartStarMission(MechS32 p_star)
 	mission = &g_objectiveTable[p_star];
 	for (i = 0; i < mission->m_objectiveCount; i++) {
 		objective = &mission->m_objectives[i];
+#ifndef MW2_MATROX
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
 			if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
 				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
@@ -1001,6 +1071,7 @@ void RestartStarMission(MechS32 p_star)
 				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 0;
 			}
 		}
+#endif
 
 		objective->m_state = 3;
 		objective->m_startTime = -1;
@@ -1013,13 +1084,19 @@ void RestartStarMission(MechS32 p_star)
 }
 
 // FUNCTION: MW2 0x1001cdd1
+// FUNCTION: MW2MATROX 0x10021086
 void FUN_1001cdd1(void)
 {
 	return;
 }
 
 // FUNCTION: MW2 0x1001cde1
+// FUNCTION: MW2MATROX 0x10021096
+#ifdef MW2_MATROX
+MechS32 FUN_1001cde1(MechU16 p_unk0x00)
+#else
 MechS32 FUN_1001cde1(undefined4 p_unk0x00)
+#endif
 {
 	return 1;
 }
@@ -1028,6 +1105,7 @@ MechS32 FUN_1001cde1(undefined4 p_unk0x00)
 // first target: the AI's "home" nav.
 // Stack-slot permutation: mission and i.
 // FUNCTION: MW2 0x1001cdf6
+// FUNCTION: MW2MATROX 0x100210ab
 MechU16 GetTeamHomeTarget(MechS32 p_team)
 {
 	StarMission* mission;

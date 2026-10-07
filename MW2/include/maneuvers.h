@@ -1,6 +1,7 @@
 #ifndef MANEUVERS_H
 #define MANEUVERS_H
 
+#include "fixedfloat.h"
 #include "maneuvertable.h"
 #include "types.h"
 
@@ -43,16 +44,28 @@ extern "C"
 	MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id);
 	void StartManeuver(struct Player* p_player);
 	void EndManeuver(struct Player* p_player);
-	void PlaceOffsetNav(struct Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance);
+#ifdef MW2_MATROX
+	void PlaceOffsetNav(struct Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance);
 	void GetOffsetPoint(
 		MechU32 p_target,
 		MechS16 p_direction,
-		MechS32* p_x,
-		MechS32* p_z,
-		MechS32* p_y,
-		MechS16 p_distance
+		MechScalar* p_x,
+		MechScalar* p_z,
+		MechScalar* p_y,
+		MechFloat p_distance
 	);
-	MechS32 IsSharpTurn(struct Player* p_player, MechS32 p_turn);
+#else
+void PlaceOffsetNav(struct Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance);
+void GetOffsetPoint(
+	MechU32 p_target,
+	MechS16 p_direction,
+	MechS32* p_x,
+	MechS32* p_z,
+	MechS32* p_y,
+	MechS16 p_distance
+);
+#endif
+	MechS32 IsSharpTurn(struct Player* p_player, MechScalar p_turn);
 	void ManeuverStupid(struct Player* p_player, MechS16 p_target);
 	void ManeuverBehind(struct Player* p_player, MechS16 p_target);
 	MechS32 ManeuverAchick(struct Player* p_player, MechS16 p_target);
@@ -75,16 +88,22 @@ extern "C"
 		struct Ray* p_ray,
 		MechS32 p_side,
 		MechS16 p_step,
-		MechS32 p_length,
+		MechScalar p_length,
 		MechS32 p_fromEdge
 	);
-	MechS16 GetAvoidSide(struct Player* p_player, struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 GetHeadingTo(struct Player* p_player, MechS16 p_target);
-	MechS32 ClampMagnitude(MechS32 p_value, MechS32 p_limit);
-	MechS32 HasLineToTarget(struct Player* p_player, MechS32 p_y);
+	MechS16 GetAvoidSide(
+		struct Player* p_player,
+		struct Shape* p_shape,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z
+	);
+	MechScalar GetHeadingTo(struct Player* p_player, MechS16 p_target);
+	MechScalar ClampMagnitude(MechScalar p_value, MechScalar p_limit);
+	MechS32 HasLineToTarget(struct Player* p_player, MechScalar p_y);
 	MechS32 IsOutOfAmmo(struct Mech* p_mech);
 	void SetJumpDirection(struct Player* p_player, MechS16 p_value);
-	MechS32 GetClosingRate(struct Player* p_player);
+	MechScalar GetClosingRate(struct Player* p_player);
 	void JumpToTurn(struct Player* p_player);
 	MechS32 CanJump(struct Player* p_player, MechS32 p_limit);
 	struct Shape* GetTargetShape(MechS16 p_target);

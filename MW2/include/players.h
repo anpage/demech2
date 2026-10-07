@@ -5,6 +5,7 @@
 #include "airule.h"
 #include "aistackentry.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "gamething.h"
 #include "mech.h"
 #include "playerai.h"
@@ -59,13 +60,13 @@ struct Player {
 	struct SceneObject* m_firingObj; // 0x48 — the hardpoint of the weapon firing
 	PlayerSteering* m_steering;      // 0x4c
 	Vector3 m_position;              // 0x50
-	MechS32 m_pitch;                 // 0x5c — 16.16 degrees, about x
-	MechS32 m_heading;               // 0x60 — 16.16 degrees, about y
-	MechS32 m_roll;                  // 0x64 — 16.16 degrees, about z
-	MechS32 m_torsoPitch;            // 0x68 — the torso object's rotation, relative to m_obj
-	MechS32 m_torsoTwist;            // 0x6c — added to the heading for the forward view
-	MechS32 m_torsoRoll;             // 0x70
-	MechS32 m_groundHeight;          // 0x74 — the terrain's under the mech
+	MechScalar m_pitch;              // 0x5c — 16.16 degrees, about x
+	MechScalar m_heading;            // 0x60 — 16.16 degrees, about y
+	MechScalar m_roll;               // 0x64 — 16.16 degrees, about z
+	MechScalar m_torsoPitch;         // 0x68 — the torso object's rotation, relative to m_obj
+	MechScalar m_torsoTwist;         // 0x6c — added to the heading for the forward view
+	MechScalar m_torsoRoll;          // 0x70
+	MechScalar m_groundHeight;       // 0x74 — the terrain's under the mech
 	MechS32 m_onGround;              // 0x78
 	MechS32 m_collidedWith;          // 0x7c — the player its mech ran into this tick, or -1
 	// 0x80: 0x1 animating, 0x2 the frame is a stride (the speed eases, MASC can fail), 0x4 airborne,
@@ -78,8 +79,8 @@ struct Player {
 	MechS32 m_animRate;                 // 0x94
 	Ramp m_aimRange;                    // 0x98 — eases towards m_aimDistance's
 	Ramp m_aimDistance;                 // 0xa8 — the distance the weapons converge at
-	MechS32 m_headingCos;               // 0xb8 — 16.16 (UpdateDoor)
-	MechS32 m_headingSin;               // 0xbc — 16.16
+	MechScalar m_headingCos;            // 0xb8 — 16.16 (UpdateDoor)
+	MechScalar m_headingSin;            // 0xbc — 16.16
 	PlayerTargetInfo m_targetInfo;      // 0xc0
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
 	MechChar m_shortName[0x114 - 0xfe]; // 0xfe — for the target panel
@@ -112,9 +113,9 @@ struct Player {
 	struct Shape* m_avoidShape;      // 0x188 — the shape AvoidObstacles steers around
 	MechS32 m_nextAvoidCheck;        // 0x18c — the clock when AvoidObstacles next probes
 	MechS16 m_avoidSide;             // 0x190 — 1 or -1 while avoiding, else 0
-	MechS32 m_probeScale;            // 0x192 — 16.16, the probe rays' length from the speed
+	MechScalar m_probeScale;         // 0x192 — 16.16, the probe rays' length from the speed
 	MechS32 m_controlsJets;          // 0x196 — the maneuver works the jump jets itself
-	MechS32 m_lastTargetDistance;    // 0x19a — at the last GetClosingRate
+	MechScalar m_lastTargetDistance; // 0x19a — at the last GetClosingRate
 	MechU32 m_skillFlag0 : 1;        // 0x19e — the maneuvers its piloting allows (InitializeManeuvers)
 	MechU32 m_skillFlag1 : 1;        // 0x19e
 	MechU32 m_skillFlag2 : 1;        // 0x19e

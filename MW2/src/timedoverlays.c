@@ -5,6 +5,7 @@
 #include "loadres.h"
 #include "menu.h"
 #include "mw2prj.h"
+#include "palette.h"
 #include "point.h"
 #include "render.h"
 #include "screenscale.h"
@@ -36,6 +37,7 @@ static MechChar g_bottomMessageText[0x100];
 static MechChar g_topMessageText[0x100];
 
 // GLOBAL: MW2 0x100adf10
+// GLOBAL: MW2MATROX 0x100b10f8
 TimedOverlay g_timedOverlays[2] = {
 	{g_topMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_topMessagePane},
 	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_bottomMessagePane}
@@ -46,6 +48,7 @@ TimedOverlay g_timedOverlays[2] = {
 // text vertically.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006ee60
+// FUNCTION: MW2MATROX 0x10078690
 void LayoutMessageBoxes(void)
 {
 	MechS32 fontHeight;
@@ -65,7 +68,7 @@ void LayoutMessageBoxes(void)
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
 		shape = LoadCachedResource(
 			g_mw2PrjHandle,
-			overlay->m_background + g_artResolution,
+			overlay->m_background + HUD_ART_RESOLUTION,
 			g_resourceTypeTags[c_resTagShp],
 			0
 		);
@@ -88,8 +91,12 @@ void LayoutMessageBoxes(void)
 		target->m_y1 += dy;
 		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font =
-			LoadCachedResource(g_mw2PrjHandle, overlay->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+		font = LoadCachedResource(
+			g_mw2PrjHandle,
+			overlay->m_font + HUD_ART_RESOLUTION,
+			g_resourceTypeTags[c_resTagFont],
+			0
+		);
 		if (font != NULL) {
 			height = target->m_y1 - target->m_y0 + 1;
 			fontHeight = VFX_font_height(font);
@@ -102,6 +109,7 @@ void LayoutMessageBoxes(void)
 // priority not above p_priority (of those, the one that expires last). Returns 1 if shown.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006efd4
+// FUNCTION: MW2MATROX 0x10078804
 MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, MechS32 p_priority)
 {
 	MechS32 result;
@@ -150,12 +158,21 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 		overlay->m_active = 1;
 		overlay->m_priority = p_priority;
 		overlay->m_expireTime = p_duration + GetGameClock();
+#ifdef MW2_MATROX
+		if (p_font > 0) {
+			overlay->m_font = p_font;
+		}
+		else {
+			overlay->m_font = 1;
+		}
+#else
 		if (p_font < 1) {
 			overlay->m_font = 1;
 		}
 		else {
 			overlay->m_font = p_font;
 		}
+#endif
 	}
 
 	return result;
@@ -163,6 +180,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f179
+// FUNCTION: MW2MATROX 0x100789a9
 void DrawTimedOverlays(void)
 {
 	MechS32 i;
@@ -176,14 +194,14 @@ void DrawTimedOverlays(void)
 			if (GetGameClock() < overlay->m_expireTime) {
 				font = LoadCachedResource(
 					g_mw2PrjHandle,
-					overlay->m_font + g_artResolution,
+					overlay->m_font + HUD_ART_RESOLUTION,
 					g_resourceTypeTags[c_resTagFont],
 					0
 				);
 				if (font != NULL) {
 					background = LoadCachedResource(
 						g_mw2PrjHandle,
-						overlay->m_background + g_artResolution,
+						overlay->m_background + HUD_ART_RESOLUTION,
 						g_resourceTypeTags[c_resTagShp],
 						0
 					);
@@ -197,6 +215,9 @@ void DrawTimedOverlays(void)
 							overlay->m_text,
 							g_textColors
 						);
+#ifdef MW2_MATROX
+						FUN_10088280(overlay->m_target);
+#endif
 					}
 				}
 			}
@@ -211,6 +232,7 @@ void DrawTimedOverlays(void)
 // at p_x, p_y or centered on the screen along an axis where that is negative.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f28f
+// FUNCTION: MW2MATROX 0x10078ace
 void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
 	PANE centered;
@@ -225,10 +247,10 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 
 	if (p_background != -1) {
 		background =
-			LoadCachedResource(g_mw2PrjHandle, p_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+			LoadCachedResource(g_mw2PrjHandle, p_background + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, p_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
 		FitRectToText(p_text, font, &rect);
@@ -259,11 +281,15 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 		}
 
 		DrawWrappedText(&rect, p_text, font);
+#ifdef MW2_MATROX
+		FUN_10088280(&rect);
+#endif
 	}
 }
 
 // Draws a TEXT resource, stored with each character negated (mod 256), as DrawTextBox does.
 // FUNCTION: MW2 0x1006f3ea
+// FUNCTION: MW2MATROX 0x10078c33
 void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
 {
 	MechChar* text;

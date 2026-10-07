@@ -13,74 +13,93 @@
 // The game clock, in ticks of the 181 Hz Miles timer FirstClock registers.
 
 // GLOBAL: MW2 0x100ba548
+// GLOBAL: MW2MATROX 0x100a4e50
 MechS32 g_currentClock = 0;
 
 // Ticks that run on while the game clock is paused; the network times its messages by them.
 // GLOBAL: MW2 0x100ba54c
+// GLOBAL: MW2MATROX 0x100a4e54
 MechS32 g_realClock = 0;
 
 // GLOBAL: MW2 0x100ba550
+// GLOBAL: MW2MATROX 0x100a4e58
 MechS32 g_deltaTime = 0;
 
 // 0 the game clock runs on its own ticks, 2 a slave's follows the master's, 3 paused.
 // GLOBAL: MW2 0x100ba554
+// GLOBAL: MW2MATROX 0x100a4e5c
 MechS32 g_clockMode = 0;
 
 // GLOBAL: MW2 0x100ba558
+// GLOBAL: MW2MATROX 0x100a4e60
 MechS32 g_clockPaused = 0;
 
 // GLOBAL: MW2 0x100ba55c
+// GLOBAL: MW2MATROX 0x100a4e64
 HTIMER g_ticksTimer = -1;
 
 // GLOBAL: MW2 0x100ba560
+// GLOBAL: MW2MATROX 0x100a4e68
 MechS32 g_timeCompressionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba564
+// GLOBAL: MW2MATROX 0x100a4e6c
 MechS32 g_timeExpansionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba568
+// GLOBAL: MW2MATROX 0x100a4e70
 MechS32 g_framerateLimit = 0;
 
 // GLOBAL: MW2 0x100ba56c
+// GLOBAL: MW2MATROX 0x100a4e74
 MechS32 g_clockHandle = -1;
 
 // The ticks since a slave's last UpdateNetwork: they advance its game clock when the master's
 // clock didn't arrive.
 // GLOBAL: MW2 0x100ba570
+// GLOBAL: MW2MATROX 0x100a4e78
 MechS32 g_syncTicksHandle = -1;
 
 // GLOBAL: MW2 0x100ba574
 MechS32 g_unk0x100ba574 = -1;
 
 // GLOBAL: MW2 0x100ba578
+// GLOBAL: MW2MATROX 0x100a4e80
 MechS32 g_realClockHandle = -1;
 
 // GLOBAL: MW2 0x100ba57c
+// GLOBAL: MW2MATROX 0x100a4e84
 MechS32 g_previousClock = 0;
 
 // GLOBAL: MW2 0x100ba580
+// GLOBAL: MW2MATROX 0x100a4e88
 MechS32 g_clockModeBeforePause = 0;
 
 // GLOBAL: MW2 0x100ba584
+// GLOBAL: MW2MATROX 0x100a4e8c
 BOOL g_ticksTimerInitialized = FALSE;
 
 // GLOBAL: MW2 0x100bfd54
 MechS16* g_sqrtTable;
 
 // GLOBAL: MW2 0x100bfd60
-MechS32 g_slopeSines[800];
+// GLOBAL: MW2MATROX 0x1012d7d0
+MechScalar g_slopeSines[800];
 
 // GLOBAL: MW2 0x100c09e0
-MechS32 g_slopeCosines[800];
+// GLOBAL: MW2MATROX 0x1012cb50
+MechScalar g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
-MechS32 g_sinTable[0x102];
+// GLOBAL: MW2MATROX 0x1012e450
+MechScalar g_sinTable[TRIG_TABLE_SIZE];
 
 // GLOBAL: MW2 0x100c1a80
 MechS16 g_sqrtTableData[0x400];
 
 // GLOBAL: MW2 0x100c2290
-MechS32 g_atanTable[0x102];
+// GLOBAL: MW2MATROX 0x1012ec50
+MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
@@ -130,8 +149,16 @@ MechS32 InitSqrtTable(void)
 }
 
 // FUNCTION: MW2 0x1007caf7
-MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
+MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
+#ifdef MW2_MATROX
+	MechDouble x;
+	MechDouble y;
+
+	x = p_x;
+	y = p_y;
+	return sqrt(x * x + y * y);
+#else
 	MechS32 length;
 	MechDouble x;
 	MechDouble y;
@@ -139,6 +166,7 @@ MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
 	x = p_x;
 	length = (MechS32) sqrt((y = p_y) * y + x * x);
 	return length;
+#endif
 }
 
 // Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
@@ -157,19 +185,30 @@ void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS3
 
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
+// FUNCTION: MW2MATROX 0x10002479
 void NormalizeRotation(Matrix* p_matrix)
 {
+#ifdef MW2_MATROX
+	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
+	ScaleVectorToLength(&p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
+	ScaleVectorToLength(&p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
+	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
+	ScaleVectorToLength(&p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
+	ScaleVectorToLength(&p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+#else
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+#endif
 }
 
-// Scales (*p_x, *p_y, *p_z) to length p_length.
+// Scales (*p_x, *p_y, *p_z) to length p_length (the Matrox edition always to 1).
 // FUNCTION: MW2 0x1007ccc2
-void ScaleVectorToLength(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1000252c
+void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
 {
 	MechDouble scale;
 	MechDouble x;
@@ -179,12 +218,19 @@ void ScaleVectorToLength(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* 
 	x = *p_x;
 	y = *p_y;
 	z = *p_z;
+#ifdef MW2_MATROX
+	*p_x = (scale = 1.0 / sqrt(x * x + y * y + z * z)) * x;
+	*p_y = y * scale;
+	*p_z = z * scale;
+#else
 	*p_x = (MechS32) ((scale = p_length / sqrt(x * x + y * y + z * z)) * x);
 	*p_y = (MechS32) (y * scale);
 	*p_z = (MechS32) (z * scale);
+#endif
 }
 
 // FUNCTION: MW2 0x1007cd50
+// FUNCTION: MW2MATROX 0x1001e8e0
 void FirstClock(void)
 {
 	if (!g_ticksTimerInitialized) {
@@ -206,6 +252,7 @@ void FirstClock(void)
 }
 
 // FUNCTION: MW2 0x1007ce2c
+// FUNCTION: MW2MATROX 0x1001e9bc
 void NextClock(void)
 {
 	if (!g_ticksTimerInitialized) {
@@ -260,6 +307,7 @@ void NextClock(void)
 }
 
 // FUNCTION: MW2 0x1007cff5
+// FUNCTION: MW2MATROX 0x1001eb85
 void StopTimers(void)
 {
 	if (g_ticksTimerInitialized) {
@@ -274,24 +322,28 @@ void StopTimers(void)
 }
 
 // FUNCTION: MW2 0x1007d05d
+// FUNCTION: MW2MATROX 0x1001ebed
 MechS32 GetGameClock(void)
 {
 	return GetTicks(g_clockHandle);
 }
 
 // FUNCTION: MW2 0x1007d07b
+// FUNCTION: MW2MATROX 0x1001ec0b
 MechS32 GetTicksSinceSync(void)
 {
 	return GetTicks(g_syncTicksHandle);
 }
 
 // FUNCTION: MW2 0x1007d099
+// FUNCTION: MW2MATROX 0x1001ec29
 void ResetSyncTicks(void)
 {
 	ResetTicks(g_syncTicksHandle);
 }
 
 // FUNCTION: MW2 0x1007d0b2
+// FUNCTION: MW2MATROX 0x1001ec42
 void ResetClocks(void)
 {
 	ResetTicks(g_realClockHandle);
@@ -301,6 +353,7 @@ void ResetClocks(void)
 }
 
 // FUNCTION: MW2 0x1007d0fb
+// FUNCTION: MW2MATROX 0x1001ec8b
 MechS32 GetRealClock(void)
 {
 	return GetTicks(g_realClockHandle);

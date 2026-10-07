@@ -6,6 +6,7 @@
 #include "eyepoint.h"
 #include "fixeddot27.h"
 #include "fixeddot29.h"
+#include "fixedfloat.h"
 #include "objectanim.h"
 #include "palette.h"
 #include "polydraw.h"
@@ -53,7 +54,7 @@ RenderSettings g_savedRenderSettings;
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
 // rotation) of p_worldSpan units across pane p_slot, as far as p_far.
 // FUNCTION: MW2 0x10041fa0
-void BeginMapView(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
+void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
 	g_mapViewScale = p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2));
@@ -76,7 +77,7 @@ void BeginMapView(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 	UpdateProjection(g_eyepoint);
 	g_eyepoint->m_projectScaleX16 = 0x2000;
 	g_eyepoint->m_projectShiftX = 3;
-	g_eyepoint->m_projectScaleY16 = g_eyepoint->m_pixelAspect >> 3;
+	g_eyepoint->m_projectScaleY16 = FIXED_SHR(g_eyepoint->m_pixelAspect, 3);
 	g_eyepoint->m_projectShiftY = 3;
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
@@ -85,6 +86,7 @@ void BeginMapView(MechS32* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 
 
 // Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes.
 // FUNCTION: MW2 0x1004215f
+// FUNCTION: MW2MATROX 0x1001e36d
 void DrawMapViewScene(MechU32 p_flags)
 {
 	if (p_flags & 1) {
@@ -113,6 +115,7 @@ void EndMapView(void)
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10042206
+// STUB: MW2MATROX 0x1001e414
 MechS32 CullMapViewShape(Shape* p_shape)
 {
 	MechS32 y;

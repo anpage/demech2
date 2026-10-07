@@ -5,7 +5,9 @@
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
+#include "fixedfloat.h"
 #include "muldiv.h"
+#include "palette.h"
 #include "players.h"
 #include "point.h"
 #include "ramp.h"
@@ -19,24 +21,28 @@
 // until ScaleBarGauges scales them to pixels.
 
 // GLOBAL: MW2 0x100a82f0
+// GLOBAL: MW2MATROX 0x100bbd50
 EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
 undefined4 g_unk0x100a82fc = 0;
 
 // GLOBAL: MW2 0x100a8300
+// GLOBAL: MW2MATROX 0x100bbd60
 EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
 undefined4 g_unk0x100a830c = 0;
 
 // GLOBAL: MW2 0x100a8310
+// GLOBAL: MW2MATROX 0x100bbd70
 EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
 undefined4 g_unk0x100a831c = 0;
 
 // GLOBAL: MW2 0x100a8320
+// GLOBAL: MW2MATROX 0x100bbd80
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
@@ -44,51 +50,65 @@ undefined4 g_unk0x100a832c = 0;
 
 // The size of the throttle gauge.
 // GLOBAL: MW2 0x100a8330
+// GLOBAL: MW2MATROX 0x100bbd90
 Point g_throttleGaugeSize = {0x1e7a, 0x8dc9};
 
 // The throttle gauge's frame: left, top, right and bottom.
 // GLOBAL: MW2 0x100a8338
+// GLOBAL: MW2MATROX 0x100bbd98
 MechS32 g_throttleFrameLeft = 0;
 
 // GLOBAL: MW2 0x100a833c
+// GLOBAL: MW2MATROX 0x100bbd9c
 MechS32 g_throttleFrameTop = 0;
 
 // GLOBAL: MW2 0x100a8340
+// GLOBAL: MW2MATROX 0x100bbda0
 MechS32 g_throttleFrameRight = 0;
 
 // GLOBAL: MW2 0x100a8344
+// GLOBAL: MW2MATROX 0x100bbda4
 MechS32 g_throttleFrameBottom = 0;
 
 // The left of the throttle bar and the level of zero throttle.
 // GLOBAL: MW2 0x100a8348
+// GLOBAL: MW2MATROX 0x100bbda8
 MechS32 g_throttleBarLeft = 0;
 
 // GLOBAL: MW2 0x100a834c
+// GLOBAL: MW2MATROX 0x100bbdac
 MechS32 g_throttleZeroY = 0;
 
 // The heat bar: its position and size.
 // GLOBAL: MW2 0x100a8350
+// GLOBAL: MW2MATROX 0x100bbdb0
 Point g_heatBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8358
+// GLOBAL: MW2MATROX 0x100bbdb8
 Point g_heatBarSize = {0xea4e, 0x5555};
 
 // The heat rate bar.
 // GLOBAL: MW2 0x100a8360
+// GLOBAL: MW2MATROX 0x100bbdc0
 Point g_heatRateBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8368
+// GLOBAL: MW2MATROX 0x100bbdc8
 Point g_heatRateBarSize = {0xdf2e, 0x5555};
 
 // The jump jet fuel bar.
 // GLOBAL: MW2 0x100a8370
+// GLOBAL: MW2MATROX 0x100bbdd0
 Point g_jumpFuelBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8378
+// GLOBAL: MW2MATROX 0x100bbdd8
 Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 
 // Scales the gauges' rectangles to their panels.
 // FUNCTION: MW2 0x1004d020
+// FUNCTION: MW2MATROX 0x10089040
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;
@@ -118,7 +138,11 @@ void ScaleBarGauges(void)
 // Draws the heat bar: a band from each end that meets in the middle as the heat rises.
 // Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
 // height, target and color).
+// MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol); the remaining diff is a
+// stack-slot permutation, the operand order of `level >= width`, and DrawHorizontalBar, which
+// the Matrox edition changed and has no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1004d175
+// FUNCTION: MW2MATROX 0x10089195
 void DrawHeatBar(PANE* p_target)
 {
 	MechS32 heat;
@@ -143,7 +167,12 @@ void DrawHeatBar(PANE* p_target)
 	height = g_heatBarSize.m_y - 1;
 	target = MulDiv64(heat, width, 100);
 	g_heatBarLevel.m_target = target;
+#ifdef MW2_MATROX
+	// The Matrox edition's heat is in plain units already.
+	level = UpdateEasedValue(&g_heatBarLevel);
+#else
 	level = UpdateEasedValue(&g_heatBarLevel) >> 16;
+#endif
 	if (level >= width) {
 		DrawHorizontalBar(p_target, g_heatBarPosition.m_x, g_heatBarPosition.m_y, g_heatBarSize.m_x, height, 0xb);
 		return;
@@ -172,6 +201,7 @@ void DrawHeatBar(PANE* p_target)
 // Draws the heat rate bar.
 // Stack-slot permutation: level, backColor, fill, fillColor and mech.
 // FUNCTION: MW2 0x1004d310
+// FUNCTION: MW2MATROX 0x10089332
 void DrawHeatRateBar(PANE* p_target)
 {
 	MechS32 level;
@@ -183,7 +213,11 @@ void DrawHeatRateBar(PANE* p_target)
 	mech = g_players[g_localPlayerId]->m_mech;
 	fill = 0;
 	level = 0;
-	g_heatRateBarLevel.m_target = (mech->m_deltaHeat - mech->m_cooling * g_deltaTime) >> 6;
+#ifdef MW2_MATROX
+	g_heatRateBarLevel.m_target = (MechS32) (mech->m_deltaHeat - mech->m_cooling * g_deltaTime) << 10;
+#else
+	g_heatRateBarLevel.m_target = FIXED_SHR(mech->m_deltaHeat - mech->m_cooling * g_deltaTime, 6);
+#endif
 	level = UpdateEasedValue(&g_heatRateBarLevel);
 	if (level < 1) {
 		fillColor = 7;
@@ -236,6 +270,7 @@ void DrawHeatRateBar(PANE* p_target)
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
 // Stack-slot permutation: color, mech, width, height, x, y and value.
 // FUNCTION: MW2 0x1004d48a
+// FUNCTION: MW2MATROX 0x100894b4
 void DrawThrottleGauge(PANE* p_target)
 {
 	MechS32 color;
@@ -247,7 +282,15 @@ void DrawThrottleGauge(PANE* p_target)
 	MechS32 value;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	VFX_line_draw(p_target, g_throttleFrameLeft, g_throttleFrameTop, g_throttleFrameLeft, g_throttleFrameBottom, 0, 10);
+	VFX_line_draw(
+		p_target,
+		g_throttleFrameLeft,
+		g_throttleFrameTop,
+		g_throttleFrameLeft,
+		g_throttleFrameBottom,
+		0,
+		PIXEL_COLOR(10)
+	);
 	VFX_line_draw(
 		p_target,
 		g_throttleFrameRight,
@@ -255,9 +298,17 @@ void DrawThrottleGauge(PANE* p_target)
 		g_throttleFrameRight,
 		g_throttleFrameBottom,
 		0,
-		10
+		PIXEL_COLOR(10)
 	);
-	VFX_line_draw(p_target, g_throttleFrameLeft, g_throttleFrameTop, g_throttleFrameRight, g_throttleFrameTop, 0, 10);
+	VFX_line_draw(
+		p_target,
+		g_throttleFrameLeft,
+		g_throttleFrameTop,
+		g_throttleFrameRight,
+		g_throttleFrameTop,
+		0,
+		PIXEL_COLOR(10)
+	);
 	VFX_line_draw(
 		p_target,
 		g_throttleFrameLeft,
@@ -265,9 +316,13 @@ void DrawThrottleGauge(PANE* p_target)
 		g_throttleFrameRight,
 		g_throttleFrameBottom,
 		0,
-		10
+		PIXEL_COLOR(10)
 	);
+#ifdef MW2_MATROX
+	value = (MechS32) (mech->m_player->m_steering->m_throttle * 65536.0f + 0.5f) << 16;
+#else
 	value = mech->m_player->m_steering->m_throttle << 16;
+#endif
 	value = MulDiv64(value, g_throttleGaugeSize.m_y, 0x400);
 	if (mech->m_player->m_steering->m_reverse) {
 		value /= -2;
@@ -299,6 +354,7 @@ void DrawThrottleGauge(PANE* p_target)
 
 // Draws the jump jet fuel bar.
 // FUNCTION: MW2 0x1004d660
+// FUNCTION: MW2MATROX 0x100896bf
 void DrawJumpFuelBar(PANE* p_target)
 {
 	MechS32 fill;
@@ -335,6 +391,7 @@ void DrawJumpFuelBar(PANE* p_target)
 // Draws a bar p_height up from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, top and i.
 // FUNCTION: MW2 0x1004d732
+// FUNCTION: MW2MATROX 0x10089791
 void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
@@ -354,26 +411,27 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 	}
 
 	for (i = 0; i < end; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; i < half; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, p_color);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(p_color));
 	}
 
 	end = half + (p_width - half) / 2;
 	for (i = half; i < end; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; p_width > i; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, darker);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(darker));
 	}
 }
 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, right and i.
 // FUNCTION: MW2 0x1004d8ae
+// FUNCTION: MW2MATROX 0x10089931
 void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
@@ -393,19 +451,19 @@ void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width
 	}
 
 	for (i = 0; i < end; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; i < half; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, p_color);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(p_color));
 	}
 
 	end = half + (p_height - half) / 2;
 	for (i = half; i < end; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; p_height > i; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, darker);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(darker));
 	}
 }

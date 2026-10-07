@@ -1,6 +1,7 @@
 #ifndef AIWEAPONS_H
 #define AIWEAPONS_H
 
+#include "fixedfloat.h"
 #include "types.h"
 
 struct Mech;
@@ -12,7 +13,7 @@ extern "C"
 {
 #endif
 
-	MechS32 RunAIWeapons(struct Player* p_player, MechS32 p_heading);
+	MechS32 RunAIWeapons(struct Player* p_player, MechScalar p_heading);
 	MechS32 DecideAIFire(struct Player* p_player);
 
 #ifdef __cplusplus

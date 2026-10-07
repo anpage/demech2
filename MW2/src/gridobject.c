@@ -25,12 +25,14 @@ MechS32 g_gridObjectSet = 0;
 MechS32 g_gridObjectPlaced = 0;
 
 // GLOBAL: MW2 0x100a7120
+// GLOBAL: MW2MATROX 0x100a5958
 MechS32 g_gridObjectShown = 0;
 
 // GLOBAL: MW2 0x100a7124
 MechS32 g_gridObjectSnaps = 0;
 
 // GLOBAL: MW2 0x100a7128
+// GLOBAL: MW2MATROX 0x100a5960
 SceneObject* g_gridObject = NULL;
 
 // The eyepoint's cell and the object's position.
@@ -51,6 +53,7 @@ static MechS32 g_gridSnapDistance;
 // under the eyepoint.
 // Stack-slot permutation; depth > span compares in the other operand order.
 // FUNCTION: MW2 0x1004b130
+// STUB: MW2MATROX 0x100275e0
 void SetGridObject(SceneObject* p_obj)
 {
 	MechS32 depth;
@@ -130,6 +133,7 @@ void SetGridObject(SceneObject* p_obj)
 // Moves the grid object (SetGridObject) to the eyepoint's cell when that changes.
 // Stack-slot permutation; dz > g_gridSnapDistance compares in the other operand order.
 // FUNCTION: MW2 0x1004b344
+// STUB: MW2MATROX 0x100277fe
 void UpdateGridObject(void)
 {
 	MechS32 dx;
@@ -198,6 +202,7 @@ void UpdateGridObject(void)
 }
 
 // FUNCTION: MW2 0x1004b539
+// FUNCTION: MW2MATROX 0x100279f9
 void ShowGridObject(MechS32 p_enable)
 {
 	if (g_gridObject) {

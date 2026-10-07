@@ -2,6 +2,7 @@
 #define TEAM_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "teamformation.h"
 #include "types.h"
 
@@ -35,8 +36,8 @@ extern "C"
 	void SetTeamFormation(MechS32 p_team, MechS32 p_formation);
 	MechS32 SetPlayerSlot(MechU32 p_player, MechU32 p_slot);
 	MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player);
-	MechS32 PlaceTeam(MechS32 p_team, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_heading);
-	MechS32 GetTeamSlotPosition(MechU32 p_player, MechS32* p_x, MechS32* p_z, MechS32* p_heading);
+	MechS32 PlaceTeam(MechS32 p_team, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_heading);
+	MechS32 GetTeamSlotPosition(MechU32 p_player, MechScalar* p_x, MechScalar* p_z, MechScalar* p_heading);
 	MechS32 GetTeamLeader(MechS32 p_team);
 	MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04);
 	MechS32 GetPlayerSide(MechS32 p_player);

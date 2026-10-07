@@ -2,6 +2,7 @@
 #define NAVPOINT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 
 struct SceneObject;
@@ -14,9 +15,9 @@ typedef struct NavPoint {
 	struct SceneObject* m_obj;         // 0x04 — the object it follows, or NULL
 	MechU32 m_owner;                   // 0x08 — the AI target id (player | 0x200) that placed it
 	MechS32 m_team;                    // 0x0c
-	MechS32 m_radius;                  // 0x10
-	MechS32 m_heading;                 // 0x14 — the heading of a team placed at it (DoFirstObjtv)
-	MechS32 m_position[3];             // 0x18
+	MechScalar m_radius;               // 0x10
+	MechScalar m_heading;              // 0x14 — the heading of a team placed at it (DoFirstObjtv)
+	MechScalar m_position[3];          // 0x18
 	MechS16 m_flags;                   // 0x24
 	MechS16 m_teamsReached;            // 0x26 — a bit per team
 	MechChar m_name[0x3e - 0x28];      // 0x28

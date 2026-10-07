@@ -1,6 +1,7 @@
 #ifndef DEBRISPIECE_H
 #define DEBRISPIECE_H
 
+#include "fixedfloat.h"
 #include "types.h"
 
 struct SceneObject;
@@ -11,13 +12,13 @@ struct SceneObject;
 typedef struct DebrisPiece {
 	MechS32 m_unk0x00;         // 0x00
 	struct SceneObject* m_obj; // 0x04
-	MechS32 m_velocityX;       // 0x08
-	MechS32 m_velocityY;       // 0x0c
-	MechS32 m_velocityZ;       // 0x10
-	MechS32 m_spinX;           // 0x14
-	MechS32 m_spinY;           // 0x18
-	MechS32 m_spinZ;           // 0x1c
-	MechS32 m_acceleration;    // 0x20
+	MechScalar m_velocityX;    // 0x08
+	MechScalar m_velocityY;    // 0x0c
+	MechScalar m_velocityZ;    // 0x10
+	MechScalar m_spinX;        // 0x14
+	MechScalar m_spinY;        // 0x18
+	MechScalar m_spinZ;        // 0x1c
+	MechScalar m_acceleration; // 0x20
 } DebrisPiece;
 
 #endif // DEBRISPIECE_H

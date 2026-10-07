@@ -29,54 +29,70 @@ void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail);
 void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity);
 
 // GLOBAL: MW2 0x100b1438
+// GLOBAL: MW2MATROX 0x100b1140
 MechChar g_combatVariablesItem[] = "Combat Variables";
 
 // GLOBAL: MW2 0x100b1450
+// GLOBAL: MW2MATROX 0x100b1158
 MechChar g_combatVariablesTitle[] = "COMBAT VARIABLES";
 
 // GLOBAL: MW2 0x100b1468
+// GLOBAL: MW2MATROX 0x100b1170
 MechChar g_objectTextmapsItem[] = "Object textmaps";
 
 // GLOBAL: MW2 0x100b1478
+// GLOBAL: MW2MATROX 0x100b1180
 MechChar g_terrainTextmapsItem[] = "Terrain textmaps";
 
 // GLOBAL: MW2 0x100b1490
+// GLOBAL: MW2MATROX 0x100b1198
 MechChar g_displayDetailItem[] = "Display detail";
 
 // GLOBAL: MW2 0x100b14a0
+// GLOBAL: MW2MATROX 0x100b11a8
 MechChar g_objectDensityItem[] = "Object density";
 
 // GLOBAL: MW2 0x100b14b0
+// GLOBAL: MW2MATROX 0x100b11b8
 MechChar g_explosionChunksItem[] = "Explosion chunks";
 
 // GLOBAL: MW2 0x100b14c8
+// GLOBAL: MW2MATROX 0x100b11d0
 MechChar g_affineText[] = "Affine";
 
 // GLOBAL: MW2 0x100b14d0
+// GLOBAL: MW2MATROX 0x100b11d8
 MechChar g_perspectiveText[] = "Perspective";
 
 // GLOBAL: MW2 0x100b14e0
+// GLOBAL: MW2MATROX 0x100b11e8
 MenuChoices g_affinePerspectiveChoices = {NULL, 2, {g_affineText, g_perspectiveText}};
 
 // GLOBAL: MW2 0x100b1528
+// GLOBAL: MW2MATROX 0x100b1230
 MenuControl g_objectTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetObjectTextmaps, NULL, SetObjectTextmaps, NULL};
 
 // GLOBAL: MW2 0x100b1550
+// GLOBAL: MW2MATROX 0x100b1258
 MenuControl g_terrainTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTerrainTextmaps, NULL, SetTerrainTextmaps, NULL};
 
 // GLOBAL: MW2 0x100b1578
+// GLOBAL: MW2MATROX 0x100b1280
 MenuControl g_displayDetailControl = {2, 0, &g_lowHighChoices, 0, NULL, GetDisplayDetail, NULL, SetDisplayDetail, NULL};
 
 // GLOBAL: MW2 0x100b15a0
+// GLOBAL: MW2MATROX 0x100b12a8
 MenuControl g_objectDensityControl = {2, 0, &g_lowHighChoices, 0, NULL, GetObjectDensity, NULL, SetObjectDensity, NULL};
 
 // GLOBAL: MW2 0x100b15c8
+// GLOBAL: MW2MATROX 0x100b12d0
 MenuControl g_explosionChunksControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetExplosionChunks, NULL, SetExplosionChunks, NULL};
 
 // GLOBAL: MW2 0x100b15f0
+// GLOBAL: MW2MATROX 0x100b12f8
 MenuPage g_combatVariablesPage = {
 	0,
 	g_combatVariablesTitle,
@@ -93,12 +109,14 @@ MenuPage g_combatVariablesPage = {
 };
 
 // FUNCTION: MW2 0x10076af0
+// FUNCTION: MW2MATROX 0x10078cc0
 void FirstPerfSetting(void)
 {
 	ApplyPerfSettings(NULL, NULL);
 }
 
 // FUNCTION: MW2 0x10076b07
+// FUNCTION: MW2MATROX 0x10078cd7
 MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 result = 1;
@@ -115,12 +133,14 @@ MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x10076b9a
+// FUNCTION: MW2MATROX 0x10078d6a
 MechS32 GetObjectTextmaps(MechS32 p_arg)
 {
 	return AreTextureMapsOn(0x100) || AreTextureMapsOn(0x200);
 }
 
 // FUNCTION: MW2 0x10076be0
+// FUNCTION: MW2MATROX 0x10078db0
 void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 {
 	EnableTextureMaps(0x100, p_objectTextmaps);
@@ -129,12 +149,14 @@ void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 }
 
 // FUNCTION: MW2 0x10076c19
+// FUNCTION: MW2MATROX 0x10078de9
 MechS32 GetTerrainTextmaps(MechS32 p_arg)
 {
 	return AreTextureMapsOn(0x800) || g_gridObjectShown;
 }
 
 // FUNCTION: MW2 0x10076c57
+// FUNCTION: MW2MATROX 0x10078e27
 void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 {
 	EnableTextureMaps(0x800, p_terrainTextmaps);
@@ -143,12 +165,14 @@ void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 }
 
 // FUNCTION: MW2 0x10076c8b
+// FUNCTION: MW2MATROX 0x10078e5b
 MechS32 GetDisplayDetail(MechS32 p_arg)
 {
 	return IsLodQualityHigh(p_arg) || ArePerspectiveTexturesOn(p_arg);
 }
 
 // FUNCTION: MW2 0x10076ccf
+// FUNCTION: MW2MATROX 0x10078e9f
 void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 {
 	SetLodQualityHigh(p_arg, p_displayDetail);
@@ -157,12 +181,14 @@ void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 }
 
 // FUNCTION: MW2 0x10076d06
+// FUNCTION: MW2MATROX 0x10078ed6
 MechS32 GetObjectDensity(MechS32 p_arg)
 {
 	return g_mw2SndCfgData->m_objectDensity;
 }
 
 // FUNCTION: MW2 0x10076d1e
+// FUNCTION: MW2MATROX 0x10078eee
 void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity)
 {
 	ShowDensityShapes(p_objectDensity);

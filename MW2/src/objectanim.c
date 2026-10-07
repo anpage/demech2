@@ -2,6 +2,9 @@
    functions with __asm bodies, and QueueFace has __asm blocks. Their portable C (PORTABLE_C)
    is tested against the assembly by tests/asmequiv: it replaces each whole function, whose C
    wraps where standard C overflows. */
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "objectanim.h"
 
 #include "ambientsound.h"
@@ -68,10 +71,10 @@ typedef struct ColorCycle {
 typedef struct ObjectSpin {
 	Shape** m_shape;       // 0x00
 	SceneObject* m_object; // 0x04
-	MechS32 m_rateX;       // 0x08 — 16.16 per period
-	MechS32 m_rateY;       // 0x0c
-	MechS32 m_rateZ;       // 0x10
-	MechS32 m_period;      // 0x14 — clock ticks
+	MechScalar m_rateX;    // 0x08 — 16.16 per period
+	MechScalar m_rateY;    // 0x0c
+	MechScalar m_rateZ;    // 0x10
+	MechScalar m_period;   // 0x14 — clock ticks
 	MechS32 m_lastClock;   // 0x18
 } ObjectSpin;
 
@@ -80,9 +83,9 @@ typedef struct ObjectSpin {
 typedef struct ObjectOrbit {
 	Shape** m_shape;       // 0x00
 	SceneObject* m_object; // 0x04
-	MechS32 m_angle;       // 0x08 — 16.16 degrees
-	MechS32 m_turnRate;    // 0x0c
-	MechS32 m_speed;       // 0x10
+	MechScalar m_angle;    // 0x08 — 16.16 degrees
+	MechScalar m_turnRate; // 0x0c
+	MechScalar m_speed;    // 0x10
 	MechS32 m_enabled;     // 0x14
 	MechS32 m_lastClock;   // 0x18
 } ObjectOrbit;
@@ -146,21 +149,26 @@ MechS32 g_reelMotionError = 0;
 
 // The number of entries in g_paths.
 // GLOBAL: MW2 0x100a6d68
+// GLOBAL: MW2MATROX 0x100ae2b8
 MechS32 g_pathCount = 0;
 
 // GLOBAL: MW2 0x100a6d6c
+// GLOBAL: MW2MATROX 0x100ae2bc
 MechS32 g_maxAnimNumber = 0;
 
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
+// GLOBAL: MW2MATROX 0x100ae2c0
 MechS32 g_animBase = 0;
 
 // The number of entries in g_animFiles.
 // GLOBAL: MW2 0x100a6d74
+// GLOBAL: MW2MATROX 0x100ae2c4
 MechS32 g_animFileCount = 0;
 
 // Set to shade from the origin rather than the light (GetFaceShade).
 // GLOBAL: MW2 0x1010b530
+// GLOBAL: MW2MATROX 0x101d6908
 MechS32 g_directionalLight;
 
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
@@ -197,6 +205,7 @@ MechS32 g_verticesTransformed;
 MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
+// GLOBAL: MW2MATROX 0x101315a0
 Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
@@ -204,6 +213,7 @@ Path g_paths[0x40];
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
+// GLOBAL: MW2MATROX 0x1014e6a0
 AnimFile g_animFiles[60];
 
 // A timed callback (TimedCallbackFn) moving a thing's object through an animation. Its data is
@@ -599,6 +609,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 
 // Scales p_value by mode p_mode: 1 by 1.5, 3 by 0.75, any other mode leaves it.
 // FUNCTION: MW2 0x100472fe
+// FUNCTION: MW2MATROX 0x1006f8d3
 MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 {
 	MechS32 result;
@@ -623,7 +634,10 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 
 // Loads the animation file p_ref unless it has been, and sets the base of its animation numbers
 // (g_animBase). Returns -1 if it was already loaded.
+// Stack-slot permutation; MW2MATROX: the loop tests compare with g_animFileCount in the other
+// operand order.
 // FUNCTION: MW2 0x10047380
+// FUNCTION: MW2MATROX 0x1006f955
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
 	MechS32 result;
@@ -654,12 +668,14 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 }
 
 // FUNCTION: MW2 0x10047462
+// FUNCTION: MW2MATROX 0x1006fa37
 MechS32 GetAnimBase(void)
 {
 	return g_animBase;
 }
 
 // FUNCTION: MW2 0x10047477
+// FUNCTION: MW2MATROX 0x1006fa4c
 MechS32 GetReelMotionSize(void)
 {
 	return 0x2c;
@@ -669,6 +685,7 @@ MechS32 GetReelMotionSize(void)
 // "<star id>;<color>,<color>,...": up to sixteen colors, each a palette row.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004748c
+// FUNCTION: MW2MATROX 0x1006fa61
 MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -755,10 +772,12 @@ MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // A timed callback (TimedCallbackFn) turning a star's object. Its data is
 // "<star id>;<x>,<y>,<z>,<period>": the turns in degrees per period of seconds.
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: the rates and the period are floats, the rates in degrees.
 // FUNCTION: MW2 0x1004771e
+// FUNCTION: MW2MATROX 0x1006fcf3
 MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
-	MechS32 dz;
+	MechScalar dz;
 	MechChar* token;
 	ObjectSpin* spin;
 	MechFloat x;
@@ -766,11 +785,11 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 	MechFloat z;
 	MechFloat period;
 	MechS32 star;
-	MechS32 t;
+	MechScalar t;
 	MechS32 id;
-	MechS32 dx;
+	MechScalar dx;
 	void** slot;
-	MechS32 dy;
+	MechScalar dy;
 
 	switch (p_event) {
 	case 0:
@@ -788,11 +807,17 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			*token = '\0';
 			token++;
 			sscanf(token, "%f,%f,%f,%f", &x, &y, &z, &period);
+#ifdef MW2_MATROX
+			spin->m_rateX = x;
+			spin->m_rateY = y;
+			spin->m_rateZ = z;
+#else
 			spin->m_rateX = x * 65536.0 + 0.5;
 			spin->m_rateY = y * 65536.0 + 0.5;
 			spin->m_rateZ = z * 65536.0 + 0.5;
+#endif
 			spin->m_period = period * 181.0f;
-			if (!spin->m_period) {
+			if (!FIXED_IS_NONZERO(spin->m_period)) {
 				spin->m_period = 181;
 			}
 
@@ -824,10 +849,17 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		}
 
 		spin->m_object = GetShapeObject(*spin->m_shape);
+#ifdef MW2_MATROX
+		t = (p_clock - spin->m_lastClock) / spin->m_period;
+		dx = t * spin->m_rateX;
+		dy = spin->m_rateY * t;
+		dz = spin->m_rateZ * t;
+#else
 		t = ((p_clock - spin->m_lastClock) << 16) / spin->m_period;
 		dx = FixedMul16(spin->m_rateX, t);
 		dy = FixedMul16(spin->m_rateY, t);
 		dz = FixedMul16(spin->m_rateZ, t);
+#endif
 		spin->m_lastClock = p_clock;
 		RotateObj(spin->m_object, dx, dy, dz, 0);
 		UpdateObj(spin->m_object);
@@ -842,24 +874,26 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 // A timed callback (TimedCallbackFn) moving a star's object around a circle. Its data is
 // "<star id>;<radius>,<period>,<enabled>,<unused>".
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: the angle, rates and steps are floats, the angle in degrees.
 // FUNCTION: MW2 0x100479ec
+// FUNCTION: MW2MATROX 0x1006ff89
 MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
-	MechS32 z;
-	MechS32 cosine;
+	MechScalar z;
+	MechScalar cosine;
 	ObjectOrbit* orbit;
-	MechS32 t;
-	MechS32 step;
+	MechScalar t;
+	MechScalar step;
 	MechS32 star;
-	MechS32 sine;
+	MechScalar sine;
 	MechS32 enabled;
 	MechFloat radius;
 	MechS32 unused;
 	MechFloat period;
 	MechS32 id;
 	void** slot;
-	MechS32 x;
+	MechScalar x;
 
 	switch (p_event) {
 	case 0:
@@ -877,8 +911,13 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 			*token = '\0';
 			token++;
 			sscanf(token, "%f,%f,%d,%d", &radius, &period, &enabled, &unused);
+#ifdef MW2_MATROX
+			orbit->m_turnRate = 360.0 / period;
+			orbit->m_speed = radius * 6.283185307179586 / period;
+#else
 			orbit->m_turnRate = 360.0 / period * 65536.0 + 0.5;
 			orbit->m_speed = radius * 6.283185307179586 / period * 65536.0 + 0.5;
+#endif
 			orbit->m_enabled = enabled;
 			orbit->m_angle = 0;
 		}
@@ -911,18 +950,34 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 		orbit->m_object = GetShapeObject(*orbit->m_shape);
 		cosine = FixedCos(orbit->m_angle);
 		sine = FixedSin(orbit->m_angle);
+#ifdef MW2_MATROX
+		t = (p_clock - orbit->m_lastClock) / 181.0f;
+		orbit->m_lastClock = p_clock;
+		step = t * orbit->m_speed;
+		x = step * cosine;
+		z = -(sine * step);
+#else
 		t = FixedDiv16(p_clock - orbit->m_lastClock, 181);
 		orbit->m_lastClock = p_clock;
 		step = FixedMul16(orbit->m_speed, t) >> 16;
 		x = FixedMul16(cosine, step) >> 13;
 		z = FixedMul16(-sine, step) >> 13;
+#endif
 		MoveObj(orbit->m_object, x, 0, z);
 		UpdateObj(orbit->m_object);
+#ifdef MW2_MATROX
+		step = orbit->m_turnRate * t;
+#else
 		step = FixedMul16(orbit->m_turnRate, t);
+#endif
 		RotateObj(orbit->m_object, 0, step, 0, 0);
 		UpdateObj(orbit->m_object);
 		orbit->m_angle += step;
+#ifdef MW2_MATROX
+		orbit->m_angle = FIXED_MOD360(orbit->m_angle);
+#else
 		orbit->m_angle %= 0x1680000;
+#endif
 		break;
 	default:
 		break;
@@ -935,6 +990,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 // "<star id>;<range>,<sound name>,<enabled>".
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10047d10
+// FUNCTION: MW2MATROX 0x100702a2
 MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -1239,7 +1295,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		follower->m_heading.m_value = angle - delta;
 		angle = point->m_pitch;
 		if (follower->m_rotate) {
-			angle -= FixedAsin((next->m_y - point->m_y) << 13);
+			angle -= FixedAsin(FIXED_SHL(next->m_y - point->m_y, 13));
 		}
 
 		delta = angle - follower->m_pitch.m_value;
@@ -1671,6 +1727,7 @@ jmp_10048e8f:
 // outcodes (m_unk0x1c: 1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the
 // polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.
 // FUNCTION: MW2 0x10048ebe
+// STUB: MW2MATROX 0x100773f0
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS

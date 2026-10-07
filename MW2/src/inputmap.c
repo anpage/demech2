@@ -7,6 +7,7 @@
 #include "decomp.h"
 #include "discretebinding.h"
 #include "error.h"
+#include "fixedfloat.h"
 #include "gamekeymodifier.h"
 #include "gamekeyname.h"
 #include "inputaxis.h"
@@ -32,6 +33,7 @@
 
 // The local player's steering: the outputs of INPUT.MAP's sinks.
 // GLOBAL: MW2 0x100b2500
+// GLOBAL: MW2MATROX 0x1012f4c0
 PlayerSteering g_localSteering = {0};
 
 // The outputs of INPUT.MAP's sinks past the steering. pilot_tilt and pilot_pan are the cockpit
@@ -137,60 +139,78 @@ MechS8 g_sinkZoomFactorMinus = 0;
 MechS8 g_sinkZoomFactorReset = 0;
 
 // GLOBAL: MW2 0x100b2588
-MechS32 g_sinkMenuItem = 0;
+// GLOBAL: MW2MATROX 0x1012f470
+MechScalar g_sinkMenuItem = 0;
 
 // GLOBAL: MW2 0x100b258c
-MechS32 g_sinkMenuValue = 0;
+// GLOBAL: MW2MATROX 0x1012f474
+MechScalar g_sinkMenuValue = 0;
 
 // GLOBAL: MW2 0x100b2592
+// GLOBAL: MW2MATROX 0x1012f47a
 MechS8 g_sinkMenuItemReset = 0;
 
 // GLOBAL: MW2 0x100b2595
+// GLOBAL: MW2MATROX 0x1012f47d
 MechS8 g_sinkMenuValueReset = 0;
 
 // GLOBAL: MW2 0x100b2596
+// GLOBAL: MW2MATROX 0x1012f47e
 MechS8 g_sinkMenuEnter = 0;
 
 // GLOBAL: MW2 0x100b2597
+// GLOBAL: MW2MATROX 0x1012f47f
 MechS8 g_sinkMenuAbort = 0;
 
 // GLOBAL: MW2 0x100b2598
+// GLOBAL: MW2MATROX 0x100b1fc0
 MechS32 g_analogBindingCount = 0;
 
 // GLOBAL: MW2 0x100b259c
+// GLOBAL: MW2MATROX 0x100b1fc4
 MechS32 g_inputAxisCount = 0;
 
 // GLOBAL: MW2 0x100b25a0
+// GLOBAL: MW2MATROX 0x100b1fc8
 MechS32 g_discreteBindingCount = 0;
 
 // GLOBAL: MW2 0x100b25a4
+// GLOBAL: MW2MATROX 0x100b1fcc
 MechS32 g_gameplayInputEnabled = 1;
 
 // GLOBAL: MW2 0x100b25a8
+// GLOBAL: MW2MATROX 0x100b1fd0
 MechS32 g_keyboardDeviceIndex = 0;
 
 // The line of INPUT.MAP being parsed.
 // GLOBAL: MW2 0x100b25ac
+// GLOBAL: MW2MATROX 0x100b1fd4
 MechS32 g_inputMapLine = 0;
 
 // GLOBAL: MW2 0x100b25b0
+// GLOBAL: MW2MATROX 0x100b1fd8
 AnalogBinding g_analogBindings[50] = {0};
 
 // GLOBAL: MW2 0x100b3eb0
+// GLOBAL: MW2MATROX 0x100b38d8
 InputAxis g_inputAxes[50] = {0};
 
 // GLOBAL: MW2 0x100b4878
+// GLOBAL: MW2MATROX 0x100b42a0
 DiscreteBinding g_discreteBindings[100] = {0};
 
 // GLOBAL: MW2 0x100b7370
+// GLOBAL: MW2MATROX 0x100b6d98
 MechS32 g_inputDeviceCount = 0;
 
 // The input driver classes, in the order RegisterInputDevice asks them for a device.
 // GLOBAL: MW2 0x100b7378
+// GLOBAL: MW2MATROX 0x100b6da0
 InputDriverModule* g_inputDriverClasses[3] = {&g_keyboardDriver, &g_mouseDriver, &g_joystickDriver};
 
 // The sinks INPUT.MAP can bind.
 // GLOBAL: MW2 0x100b7388
+// GLOBAL: MW2MATROX 0x100b6db0
 InputSink g_inputSinks[] = {
 	{"torso_tilt", &g_localSteering.m_torsoTilt, 0, 0, -60, 60, 4, 0},
 	{"torso_tilt_plus", &g_localSteering.m_torsoTiltPlus, 1, 0, 0, 0, 0, 0},
@@ -283,6 +303,7 @@ InputSink g_inputSinks[] = {
 
 // The GAMEKEY.MAP action names.
 // GLOBAL: MW2 0x100b7e68
+// GLOBAL: MW2MATROX 0x100b7890
 GameKeyName g_gameKeyNames[] = {
 	{"RESET_INPUTS", 1},
 	{"MFD_CYCLE", 2},
@@ -449,10 +470,12 @@ GameKeyName g_gameKeyNames[] = {
 
 // The game key action of each key code (0: none), loaded from GAMEKEY.MAP.
 // GLOBAL: MW2 0x100b8190
+// GLOBAL: MW2MATROX 0x100b7bb8
 MechU8 g_gameKeyByKeyCode[0x800] = {0};
 
 // The key names GAMEKEY.MAP can use in a key sequence, and their key codes (or modifier bits).
 // GLOBAL: MW2 0x100b8990
+// GLOBAL: MW2MATROX 0x100b83b8
 GameKeyModifier g_gameKeyModifiers[] = {
 	{"ALT", 0x400},       {"CTRL", 0x100},     {"SHIFT", 0x200}, {"F1", 0xb1},         {"F2", 0xb2},
 	{"F3", 0xb3},         {"F4", 0xb4},        {"F5", 0xb5},     {"F6", 0xb6},         {"F7", 0xb7},
@@ -464,29 +487,36 @@ GameKeyModifier g_gameKeyModifiers[] = {
 
 // The text of ReportInputDeviceError's message box.
 // GLOBAL: MW2 0x100bf1d0
+// GLOBAL: MW2MATROX 0x10124d40
 MechChar g_inputErrorText[0x400];
 
 // GLOBAL: MW2 0x100bf5d0
+// GLOBAL: MW2MATROX 0x10124d28
 MechS32 g_inputDevicePresent[5];
 
 // GLOBAL: MW2 0x100bf5e8
+// GLOBAL: MW2MATROX 0x10124a00
 InputDeviceInfo g_inputDeviceInfos[5];
 
 // What each device's last poll reported.
 // GLOBAL: MW2 0x100bf830
+// GLOBAL: MW2MATROX 0x10125140
 InputDeviceState g_inputDeviceStates[5];
 
 // The INPUT.MAP name of each device.
 // GLOBAL: MW2 0x100bf9c0
+// GLOBAL: MW2MATROX 0x10124c60
 MechChar g_inputDeviceNames[5][0x28];
 
 // GLOBAL: MW2 0x100bfa88
+// GLOBAL: MW2MATROX 0x10124c48
 InputDriverModule* g_inputDrivers[5];
 
 // Finds the device INPUT.MAP calls p_name among the drivers' devices and opens it. Returns its
 // index, or -1 if it can't be opened; a missing device still takes an index.
 // Stack-slot permutation: index, driver, i and count.
 // FUNCTION: MW2 0x10079340
+// FUNCTION: MW2MATROX 0x1007bb00
 MechS32 RegisterInputDevice(MechChar* p_name)
 {
 	MechS32 index;
@@ -541,6 +571,7 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 // if it isn't there.
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x1007959c
+// FUNCTION: MW2MATROX 0x1007bd5c
 MechS32 FindInputDevice(MechChar* p_name)
 {
 	MechS32 index;
@@ -568,6 +599,7 @@ MechS32 FindInputDevice(MechChar* p_name)
 // Returns the axis of device p_device that INPUT.MAP names p_name, a number or a short name, or
 // -1.
 // FUNCTION: MW2 0x1007966a
+// FUNCTION: MW2MATROX 0x1007be29
 MechS32 FindInputAxis(MechS32 p_device, MechChar* p_name)
 {
 	MechS32 i;
@@ -599,6 +631,7 @@ MechS32 FindInputAxis(MechS32 p_device, MechChar* p_name)
 // Returns the button of device p_device that INPUT.MAP names p_name, a number or a short name,
 // or -1.
 // FUNCTION: MW2 0x100797de
+// FUNCTION: MW2MATROX 0x1007bf9d
 MechS32 FindInputButton(MechS32 p_device, MechChar* p_name)
 {
 	MechS32 i;
@@ -629,6 +662,7 @@ MechS32 FindInputButton(MechS32 p_device, MechChar* p_name)
 
 // Returns the sink INPUT.MAP calls p_name, or NULL.
 // FUNCTION: MW2 0x10079952
+// FUNCTION: MW2MATROX 0x1007c111
 InputSink* FindInputSink(MechChar* p_name)
 {
 	MechS32 i;
@@ -645,6 +679,7 @@ InputSink* FindInputSink(MechChar* p_name)
 // Reads the next line of INPUT.MAP that isn't blank once its comment is cut off. Returns 0 at
 // the end of the file.
 // FUNCTION: MW2 0x100799b7
+// FUNCTION: MW2MATROX 0x1007c176
 MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 {
 	MechChar* p;
@@ -679,6 +714,7 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 // The loop compares i and g_inputAxisCount in the other operand order, and i, suffix, sink and
 // name are a stack-slot permutation.
 // FUNCTION: MW2 0x10079aac
+// FUNCTION: MW2MATROX 0x1007c26b
 InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 {
 	MechChar* suffix;
@@ -774,6 +810,7 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // index, or -1.
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10079f71
+// FUNCTION: MW2MATROX 0x1007c72f
 MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_channel)
 {
 	MechS32 device;
@@ -835,6 +872,7 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 // brace. Returns 0 on an error, or if the last button isn't there.
 // Stack-slot permutation: device, line, sign, button and name.
 // FUNCTION: MW2 0x1007a168
+// FUNCTION: MW2MATROX 0x1007c926
 MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_conditions)
 {
 	MechS32 device;
@@ -883,6 +921,7 @@ MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_c
 
 // Returns whether all p_count conditions hold.
 // FUNCTION: MW2 0x1007a330
+// FUNCTION: MW2MATROX 0x1007caca
 MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 {
 	MechS32 i;
@@ -909,6 +948,7 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // keys move it.
 // Stack-slot permutation: index, channelName, deviceName, channel and sign.
 // FUNCTION: MW2 0x1007a3d1
+// FUNCTION: MW2MATROX 0x1007cb6b
 MechS32 ParseInputMap(FILE* p_file)
 {
 	MechChar line[256];
@@ -1042,6 +1082,7 @@ MechS32 ParseInputMap(FILE* p_file)
 // digits>.std.
 // Stack-slot permutation: name and i.
 // FUNCTION: MW2 0x1007a97a
+// FUNCTION: MW2MATROX 0x1007d0ba
 MechS32 LoadInputMap(void)
 {
 	MechChar name[256];
@@ -1078,8 +1119,10 @@ MechS32 LoadInputMap(void)
 }
 
 // Loads GAMEKEY.MAP: an action name and its key sequence ("CTRL+F1") a line.
-// Stack-slot permutation: keyCode, i, keys, action, file and code.
+// Stack-slot permutation: keyCode, i, keys, action, file and code. The Matrox edition compares the two
+// game key actions in the other operand order.
 // FUNCTION: MW2 0x1007aba9
+// FUNCTION: MW2MATROX 0x1007d2c1
 MechS32 LoadGamekeyMap(void)
 {
 	MechChar line[256];
@@ -1160,6 +1203,7 @@ MechS32 LoadGamekeyMap(void)
 // axis, _plus and _minus ramp it. Returns whether the axis was driven.
 // Stack-slot permutation: driven, device, channel and position.
 // FUNCTION: MW2 0x1007aecc
+// FUNCTION: MW2MATROX 0x1007d57b
 MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 {
 	InputAxis* axis;
@@ -1182,7 +1226,11 @@ MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 		driven = TRUE;
 	}
 	else if (axis->m_setHeld && *axis->m_setHeld) {
+#ifdef MW2_MATROX
+		position = (MechS32) (*axis->m_output * 65536.0f + 0.5f) << axis->m_outputShift;
+#else
 		position = *axis->m_output << axis->m_outputShift;
+#endif
 		position -= axis->m_minFixed;
 		position *= 2.0;
 		position /= axis->m_range;
@@ -1240,6 +1288,7 @@ MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 
 // Loads INPUT.MAP and GAMEKEY.MAP and flushes the keyboard's key codes.
 // FUNCTION: MW2 0x1007b177
+// FUNCTION: MW2MATROX 0x1007d84b
 void FirstInputs(void)
 {
 	LoadInputMap();
@@ -1254,6 +1303,7 @@ void FirstInputs(void)
 // The loops compare i with the counts (and the keyboard's index) in the other operand order, and
 // the locals are a stack-slot permutation.
 // FUNCTION: MW2 0x1007b19b
+// FUNCTION: MW2MATROX 0x1007d86f
 void UpdateInputs(void)
 {
 	MechS32 i;
@@ -1283,7 +1333,11 @@ void UpdateInputs(void)
 			binding->m_lastValue = 0;
 		}
 		else if (axis->m_setHeld && *axis->m_setHeld) {
+#ifdef MW2_MATROX
+			position = (MechS32) (*axis->m_output * 65536.0f + 0.5f) << axis->m_outputShift;
+#else
 			position = *axis->m_output << axis->m_outputShift;
+#endif
 			position -= axis->m_minFixed;
 			position *= 2.0;
 			position /= axis->m_range;
@@ -1334,7 +1388,11 @@ void UpdateInputs(void)
 				if (g_analogBindings[i].m_lastValue != value) {
 					g_analogBindings[i].m_axis->m_position = value;
 				}
+#ifdef MW2_MATROX
+				else if (g_analogBindings[i].m_axis->m_rate == &g_analogBindings[i].m_axis->m_position) {
+#else
 				else if (*g_analogBindings[i].m_axis->m_rate == g_analogBindings[i].m_axis->m_position) {
+#endif
 					g_analogBindings[i].m_axis->m_position = value;
 				}
 
@@ -1354,7 +1412,12 @@ void UpdateInputs(void)
 			value = g_analogBindings[i].m_axis->m_range * value;
 			value /= 2;
 			value += g_analogBindings[i].m_axis->m_minFixed;
+#ifdef MW2_MATROX
+			value >>= g_analogBindings[i].m_axis->m_outputShift;
+			*g_analogBindings[i].m_axis->m_output = value * (1.0f / 65536.0f);
+#else
 			*g_analogBindings[i].m_axis->m_output = value >> g_analogBindings[i].m_axis->m_outputShift;
+#endif
 		}
 	}
 
@@ -1362,15 +1425,20 @@ void UpdateInputs(void)
 		g_inputDrivers[g_keyboardDeviceIndex]->m_readKeyCode(&keyCode);
 	}
 
+#ifdef MW2_MATROX
+	g_localSteering.m_keyCode = keyCode;
+#else
 	if (keyCode == 0x40d) {
 		ToggleFullScreen();
 	}
 	else {
 		g_localSteering.m_keyCode = keyCode;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1007b704
+// FUNCTION: MW2MATROX 0x1007ddf3
 void CloseInputDevices(void)
 {
 	MechS32 i;
@@ -1384,12 +1452,14 @@ void CloseInputDevices(void)
 }
 
 // FUNCTION: MW2 0x1007b768
+// FUNCTION: MW2MATROX 0x1007de57
 void DisableGameplayInput(void)
 {
 	g_gameplayInputEnabled = FALSE;
 }
 
 // FUNCTION: MW2 0x1007b77d
+// FUNCTION: MW2MATROX 0x1007de6c
 void EnableGameplayInput(void)
 {
 	g_gameplayInputEnabled = TRUE;
@@ -1397,6 +1467,7 @@ void EnableGameplayInput(void)
 
 // The game key action of p_keyCode.
 // FUNCTION: MW2 0x1007b792
+// FUNCTION: MW2MATROX 0x1007de81
 MechS16 LookupGameKey(MechS16 p_keyCode)
 {
 	return g_gameKeyByKeyCode[p_keyCode];
@@ -1405,6 +1476,7 @@ MechS16 LookupGameKey(MechS16 p_keyCode)
 // Reports an input device error p_code in a message box: 0x6e a missing device, 0x6f a missing
 // channel, 0x70 a device that doesn't open. Cancel exits the game.
 // FUNCTION: MW2 0x1007b7b1
+// FUNCTION: MW2MATROX 0x1007dea0
 void ReportInputDeviceError(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 {
 	MechS32 hidden;

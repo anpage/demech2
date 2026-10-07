@@ -11,6 +11,7 @@
 #include "menucontrol.h"
 #include "menupage.h"
 #include "mw2prj.h"
+#include "palette.h"
 #include "render.h"
 #include "screenscale.h"
 #include "setres.h"
@@ -27,11 +28,13 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a59e0
+// GLOBAL: MW2MATROX 0x100bf0a0
 MechS32 g_menuRepeatTimer = -1;
 
 // The in-mission menus by ID (RegisterMenu): 4 the main menu, 5 the systems status, 1 the lance
 // command computer, 7 and 8 command points 2 and 3, 3 the programmers' page.
 // GLOBAL: MW2 0x100a59e8
+// GLOBAL: MW2MATROX 0x100bf0a8
 MenuDefinition* g_menuDefinitions[11] = {
 	NULL,
 	&g_commandMenu,
@@ -46,20 +49,29 @@ MenuDefinition* g_menuDefinitions[11] = {
 	NULL,
 };
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012c950
+undefined2 g_textColors[0x100];
+#else
 // GLOBAL: MW2 0x100e9350
 undefined g_textColors[0x100];
+#endif
 
 // GLOBAL: MW2 0x10109c78
+// GLOBAL: MW2MATROX 0x10125864
 MechS32 g_openMenuCount;
 
 // GLOBAL: MW2 0x10109c7c
+// GLOBAL: MW2MATROX 0x10125868
 MenuSlot* g_menuSlotsTail;
 
 // GLOBAL: MW2 0x10109c80
+// GLOBAL: MW2MATROX 0x1012585c
 MenuSlot* g_menuSlots;
 
 // The key the open menu acts on this frame (0: none).
 // GLOBAL: MW2 0x10109c84
+// GLOBAL: MW2MATROX 0x10125860
 MechS32 g_menuKey;
 
 MechS32 ActivateMenu(MenuSlot* p_slot);
@@ -75,6 +87,7 @@ MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu);
 
 // Adds a slot for a menu ID at the end of g_menuSlots. Returns whether it could.
 // FUNCTION: MW2 0x1003c3e0
+// FUNCTION: MW2MATROX 0x100915b0
 MechS32 RegisterMenu(MechS32 p_id)
 {
 	MechS32 result;
@@ -103,6 +116,7 @@ MechS32 RegisterMenu(MechS32 p_id)
 // Asks for an in-mission menu to open (4 is the mission menu), if no menu is open already.
 // Returns whether it will.
 // FUNCTION: MW2 0x1003c46b
+// FUNCTION: MW2MATROX 0x1009163b
 MechS32 RequestMenu(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -122,6 +136,7 @@ MechS32 RequestMenu(MechS32 p_id)
 
 // Asks for a closed menu to open or an open one to close. Returns whether it asked to open it.
 // FUNCTION: MW2 0x1003c4bf
+// FUNCTION: MW2MATROX 0x1009168f
 MechS32 ToggleMenu(MechS32 p_id)
 {
 	MechS32 result;
@@ -144,6 +159,7 @@ MechS32 ToggleMenu(MechS32 p_id)
 
 // Stack-slot permutation: slot and freed.
 // FUNCTION: MW2 0x1003c53c
+// FUNCTION: MW2MATROX 0x1009170c
 void FreeMenus(void)
 {
 	MenuSlot* slot;
@@ -166,6 +182,7 @@ void FreeMenus(void)
 // the background moves to the target's left edge.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003c5a2
+// FUNCTION: MW2MATROX 0x10091772
 void LayoutMenu(MenuDefinition* p_menu)
 {
 	Point scale;
@@ -236,6 +253,7 @@ void LayoutMenu(MenuDefinition* p_menu)
 
 // Loads a menu's background shapes and font.
 // FUNCTION: MW2 0x1003c844
+// FUNCTION: MW2MATROX 0x10091a14
 void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
@@ -270,6 +288,7 @@ void LoadMenuResources(MenuDefinition* p_menu)
 // DisableGameplayInput; DeactivateMenu calls EnableGameplayInput again. Returns whether the menu
 // has a definition (the original reads the definition uninitialized for a menu ID outside 1-10).
 // FUNCTION: MW2 0x1003c902
+// FUNCTION: MW2MATROX 0x10091ad2
 MechS32 ActivateMenu(MenuSlot* p_slot)
 {
 	MechS32 result;
@@ -303,6 +322,7 @@ MechS32 ActivateMenu(MenuSlot* p_slot)
 
 // Closes a menu and frees its resources.
 // FUNCTION: MW2 0x1003c9d2
+// FUNCTION: MW2MATROX 0x10091ba2
 void DeactivateMenu(MenuSlot* p_slot)
 {
 	MenuDefinition* menu;
@@ -335,6 +355,7 @@ void DeactivateMenu(MenuSlot* p_slot)
 
 // Asks for a menu to close.
 // FUNCTION: MW2 0x1003caab
+// FUNCTION: MW2MATROX 0x10091c7b
 void RequestMenuClose(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -349,6 +370,7 @@ void RequestMenuClose(MechS32 p_id)
 // the definitions whose root page or its subpages fail their init callbacks.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003cadc
+// FUNCTION: MW2MATROX 0x10091cac
 void FirstMenu(void)
 {
 	MechS32 ok;
@@ -395,6 +417,7 @@ void FirstMenu(void)
 // that take navigation keys (repeating while they are held), and takes the key code it uses.
 // Stack-slot permutation: menu and flags.
 // FUNCTION: MW2 0x1003cc20
+// FUNCTION: MW2MATROX 0x10091df0
 void UpdateMenuKey(void)
 {
 	MenuDefinition* menu;
@@ -473,6 +496,7 @@ void UpdateMenuKey(void)
 // Stack-slot permutation: slot, done and requested. The original compares state against
 // requested in the other operand order.
 // FUNCTION: MW2 0x1003ce91
+// FUNCTION: MW2MATROX 0x1009207d
 void UpdateMenus(void)
 {
 	MechS32 requested;
@@ -515,6 +539,7 @@ void UpdateMenus(void)
 // Draws the open in-mission menu and acts on g_menuKey. Returns FALSE when the menu should close.
 // Stack-slot permutation: target and backgroundTarget.
 // FUNCTION: MW2 0x1003cf96
+// FUNCTION: MW2MATROX 0x10092182
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 {
 	MechS32 result;
@@ -534,11 +559,14 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 
 	LoadMenuResources(p_menu);
 	if (p_menu->m_flags & 0x20) {
-		VFX_pane_wipe(target, 0);
+		VFX_pane_wipe(target, PIXEL_COLOR(0));
 	}
 
 	if (p_menu->m_background) {
 		VFX_shape_draw(backgroundTarget, p_menu->m_background, 0, 0, 0);
+#ifdef MW2_MATROX
+		FUN_10088280(backgroundTarget);
+#endif
 	}
 
 	if (p_menu->m_flags & 4) {
@@ -546,6 +574,9 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 	}
 
 	RunMenuItems(p_menu);
+#ifdef MW2_MATROX
+	FUN_10088280(target);
+#endif
 	if (!IsMenuPageStackEmpty(p_menu)) {
 		result = TRUE;
 	}
@@ -560,6 +591,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 // action 3; 2 goes back, action 4; 5 and 6 close, action 5); Escape closes (action 5); Down (0xc7)
 // and Tab move the selection +1 through *p_move; Up (0xc6) and Shift+Tab (0x209) move it -1.
 // FUNCTION: MW2 0x1003d083
+// FUNCTION: MW2MATROX 0x10092290
 void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32* p_move)
 {
 	switch (p_key) {
@@ -601,6 +633,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003d1a7
+// FUNCTION: MW2MATROX 0x100923b4
 void RunMenuItems(MenuDefinition* p_menu)
 {
 	MechS32 back;
@@ -727,7 +760,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	}
 
 	page->m_selected = selected;
-	g_textColors[0xe] = p_menu->m_color;
+	g_textColors[0xe] = PIXEL_COLOR(p_menu->m_color);
 	if (page->m_title) {
 		textPos = p_menu->m_titleOrigin;
 		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_textColors);
@@ -751,10 +784,10 @@ void RunMenuItems(MenuDefinition* p_menu)
 	offset = 0;
 	for (i = 0; i < page->m_itemCount; i++) {
 		if (selected == i) {
-			g_textColors[0xe] = p_menu->m_highlightColor;
+			g_textColors[0xe] = PIXEL_COLOR(p_menu->m_highlightColor);
 		}
 		else {
-			g_textColors[0xe] = p_menu->m_color;
+			g_textColors[0xe] = PIXEL_COLOR(p_menu->m_color);
 		}
 
 		item = &page->m_items[i];
@@ -791,7 +824,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		}
 	}
 
-	g_textColors[0xe] = 0xe;
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	switch (page->m_state) {
 	case 4:
 	case 5:
@@ -815,6 +848,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 
 // Finds the g_menuSlots entry for a menu ID, or NULL.
 // FUNCTION: MW2 0x1003d85b
+// FUNCTION: MW2MATROX 0x10092a8f
 MenuSlot* FindMenuSlot(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -832,6 +866,7 @@ MenuSlot* FindMenuSlot(MechS32 p_id)
 
 // Returns the definition of an open menu, or NULL.
 // FUNCTION: MW2 0x1003d8a4
+// FUNCTION: MW2MATROX 0x10092ad8
 MenuDefinition* FindMenuDefinition(MechS32 p_id)
 {
 	MenuSlot* slot;
@@ -854,6 +889,7 @@ MenuDefinition* FindMenuDefinition(MechS32 p_id)
 }
 
 // FUNCTION: MW2 0x1003d907
+// FUNCTION: MW2MATROX 0x10092b3b
 MenuPage* PopMenuPage(MenuDefinition* p_menu)
 {
 	MenuPage* page;
@@ -868,6 +904,7 @@ MenuPage* PopMenuPage(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d949
+// FUNCTION: MW2MATROX 0x10092b7d
 MenuPage* PeekMenuPage(MenuDefinition* p_menu)
 {
 	MenuPage* page;
@@ -881,6 +918,7 @@ MenuPage* PeekMenuPage(MenuDefinition* p_menu)
 }
 
 // FUNCTION: MW2 0x1003d986
+// FUNCTION: MW2MATROX 0x10092bba
 MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 result;
@@ -896,12 +934,14 @@ MechS32 PushMenuPage(MenuDefinition* p_menu, MenuPage* p_page)
 }
 
 // FUNCTION: MW2 0x1003d9cf
+// FUNCTION: MW2MATROX 0x10092c03
 void ClearMenuPages(MenuDefinition* p_menu)
 {
 	p_menu->m_pageDepth = 0;
 }
 
 // FUNCTION: MW2 0x1003d9e4
+// FUNCTION: MW2MATROX 0x10092c18
 MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu)
 {
 	return p_menu->m_pageDepth == 0;
@@ -909,6 +949,7 @@ MechS32 IsMenuPageStackEmpty(MenuDefinition* p_menu)
 
 // Returns the open in-mission menu's definition, or NULL if none is open.
 // FUNCTION: MW2 0x1003da0d
+// FUNCTION: MW2MATROX 0x10092c41
 MenuDefinition* GetOpenMenu(void)
 {
 	MenuSlot* slot;
@@ -930,6 +971,7 @@ MenuDefinition* GetOpenMenu(void)
 // Returns a menu's state (1: open), or 0 if it isn't registered.
 // Stack-slot permutation: slot and result.
 // FUNCTION: MW2 0x1003da65
+// FUNCTION: MW2MATROX 0x10092c99
 MechS32 GetMenuSlotState(MechS32 p_id)
 {
 	MenuSlot* slot;

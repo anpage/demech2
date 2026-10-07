@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "eyepoint.h"
 
 #include "camerashake.h"
@@ -50,13 +53,16 @@ MechS32 g_trackHeight = 0;
 MechS32 g_trackTurn = 0xb40000;
 
 // GLOBAL: MW2 0x100a2400
-MechS32 g_normalFov = 0x10000;
+// GLOBAL: MW2MATROX 0x100a3640
+MechScalar g_normalFov = FIXED_CONST(1);
 
 // GLOBAL: MW2 0x100a2404
-MechS32 g_zoomFov = 0x10000;
+// GLOBAL: MW2MATROX 0x100a3644
+MechScalar g_zoomFov = FIXED_CONST(1);
 
 // The view mode the camera was updated in last (c_view...), or -1.
 // GLOBAL: MW2 0x100a2408
+// GLOBAL: MW2MATROX 0x100a3648
 MechS32 g_viewMode = -1;
 
 // The view mode to return to from the ordinance view.
@@ -69,6 +75,7 @@ MechS32 g_initialViewMode = 0;
 
 // The view mode SetViewMode asked for; UpdateEyepoint switches to it.
 // GLOBAL: MW2 0x100a2414
+// GLOBAL: MW2MATROX 0x100a3654
 MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
@@ -78,15 +85,18 @@ MechS32 g_autopilotStart = 1;
 // Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
 // draws the crosshair only then.
 // GLOBAL: MW2 0x100a241c
+// GLOBAL: MW2MATROX 0x100a365c
 MechS32 g_cockpitEyeSteady = 0;
 
 // Set while the camera is in the cockpit view: the cockpit's own shape (g_cockpitObject) is drawn
 // separately, and the 3D sound calls get it.
 // GLOBAL: MW2 0x100a2420
+// GLOBAL: MW2MATROX 0x100a3660
 undefined4 g_inCockpitView = 0;
 
 // The view mode SetViewMode forces once the local mech is lost (g_localMechLost): the track view.
 // GLOBAL: MW2 0x100a2424
+// GLOBAL: MW2MATROX 0x100a3664
 MechS32 g_lostViewMode = -1;
 
 // Set while a network game's lost player advances the viewpoint between players; until then the
@@ -95,18 +105,22 @@ MechS32 g_lostViewMode = -1;
 MechS32 g_spectating = 0;
 
 // GLOBAL: MW2 0x100a242c
+// GLOBAL: MW2MATROX 0x100a366c
 struct Player* g_localPlayer = NULL;
 
 // The player the camera tracks.
 // GLOBAL: MW2 0x100a2430
+// GLOBAL: MW2MATROX 0x100a3670
 MechS32 g_trackedPlayer = 0;
 
 // The local mech's cockpit height and torso twist (InitCockpitPanels): the first raises the eye
 // (GetPlayerEyeView, the aim ray); nothing reads the second.
 // GLOBAL: MW2 0x100a2434
-MechS32* g_eyeHeightOffset = NULL;
+// GLOBAL: MW2MATROX 0x100a3674
+MechScalar* g_eyeHeightOffset = NULL;
 
 // GLOBAL: MW2 0x100a2438
+// GLOBAL: MW2MATROX 0x100a3678
 MechS32* g_eyeTwist = NULL;
 
 // The drop camera (UpdateDropView): its vertical speed, acceleration and start clock.
@@ -125,7 +139,7 @@ MechS8 g_glanceReleased = 0;
 
 // The view UpdateOrdinanceView saves when it enters the ordinance view.
 // GLOBAL: MW2 0x10176f10
-MechS32 g_ordinanceSavedView[7];
+MechScalar g_ordinanceSavedView[7];
 
 // The track view's height limits (UpdateTrackView).
 // GLOBAL: MW2 0x10176f2c
@@ -295,6 +309,7 @@ MechS32 GetCameraFloor(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x10011401
+// FUNCTION: MW2MATROX 0x1000916a
 void SetViewMode(MechS32 p_zoom)
 {
 	if (g_localMechLost) {
@@ -309,6 +324,7 @@ void SetViewMode(MechS32 p_zoom)
 }
 
 // FUNCTION: MW2 0x10011440
+// FUNCTION: MW2MATROX 0x100091a9
 MechS32 GetViewMode(void)
 {
 	return g_requestedViewMode;
@@ -317,14 +333,15 @@ MechS32 GetViewMode(void)
 // Sets the eyepoint's field of view to the normal or the zoomed one (both reset to 1.0 if
 // p_reset), and plays a sound when it changes.
 // FUNCTION: MW2 0x10011455
+// FUNCTION: MW2MATROX 0x100091be
 void ApplyCameraFov(MechS32 p_reset)
 {
-	MechS32 fov;
+	MechScalar fov;
 
 	fov = g_eyepoint->m_fovX;
 	if (p_reset) {
-		g_normalFov = 0x10000;
-		g_zoomFov = 0x10000;
+		g_normalFov = FIXED_CONST(1);
+		g_zoomFov = FIXED_CONST(1);
 	}
 
 	if (!GetViewMode()) {
@@ -343,7 +360,8 @@ void ApplyCameraFov(MechS32 p_reset)
 // Saves the eyepoint's position and orientation (0x00-0x14) to p_view, marking it (p_view[6])
 // as set. Returns 0 without both.
 // FUNCTION: MW2 0x100114ea
-MechS32 SaveView(Eyepoint* p_eyepoint, MechS32* p_view)
+// FUNCTION: MW2MATROX 0x10009258
+MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
 		return 0;
@@ -355,22 +373,34 @@ MechS32 SaveView(Eyepoint* p_eyepoint, MechS32* p_view)
 	p_view[3] = p_eyepoint->m_heading;
 	p_view[4] = p_eyepoint->m_pitch;
 	p_view[5] = p_eyepoint->m_roll;
+#ifdef MW2_MATROX
+	/* The mark stays an integer word after the Matrox edition's floats. */
+	*(MechS32*) &p_view[6] = 1;
+#else
 	p_view[6] = 1;
+#endif
 	return 1;
 }
 
 // Restores the eyepoint's position and orientation from p_view, if SaveView set it. Returns
 // 0 without both, or when the view is not set.
 // FUNCTION: MW2 0x1001156a
-MechS32 RestoreView(Eyepoint* p_eyepoint, MechS32* p_view)
+// FUNCTION: MW2MATROX 0x100092d8
+MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
 		return 0;
 	}
 
+#ifdef MW2_MATROX
+	if (!*(MechS32*) &p_view[6]) {
+		return 0;
+	}
+#else
 	if (!p_view[6]) {
 		return 0;
 	}
+#endif
 
 	p_eyepoint->m_x = p_view[0];
 	p_eyepoint->m_y = p_view[1];
@@ -384,6 +414,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechS32* p_view)
 // Moves the camera to the next (p_next) or previous player, or back to the local player
 // (p_home), skipping players who left or whose mechs are gone.
 // FUNCTION: MW2 0x100115f4
+// FUNCTION: MW2MATROX 0x10009362
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;

@@ -30,72 +30,95 @@ void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps);
 // names in INPUT.MAP.
 
 // GLOBAL: MW2 0x100a6e08
+// GLOBAL: MW2MATROX 0x100a5608
 MechChar g_downUpAxisName[] = "Down/Up Movement";
 
 // GLOBAL: MW2 0x100a6e20
+// GLOBAL: MW2MATROX 0x100a5620
 MechChar g_leftRightAxisName[] = "Left/Right Movement";
 
 // GLOBAL: MW2 0x100a6e38
+// GLOBAL: MW2MATROX 0x100a5638
 MechChar g_throttleAxisName[] = "Throttle Control";
 
 // GLOBAL: MW2 0x100a6e50
+// GLOBAL: MW2MATROX 0x100a5650
 MechChar g_rudderAxisName[] = "Rudder Movement";
 
 // GLOBAL: MW2 0x100a6e60
+// GLOBAL: MW2MATROX 0x100a5660
 MechChar g_fifthAxisName[] = "5th axis Movement";
 
 // GLOBAL: MW2 0x100a6e78
+// GLOBAL: MW2MATROX 0x100a5678
 MechChar g_sixthAxisName[] = "6th axis Movement";
 
 // GLOBAL: MW2 0x100a6e90
+// GLOBAL: MW2MATROX 0x100a5690
 MechChar g_downUpAxisShortName[] = "Down/Up";
 
 // GLOBAL: MW2 0x100a6e98
+// GLOBAL: MW2MATROX 0x100a5698
 MechChar g_leftRightAxisShortName[] = "Left/Right";
 
 // GLOBAL: MW2 0x100a6ea8
+// GLOBAL: MW2MATROX 0x100a56a8
 MechChar g_throttleAxisShortName[] = "Throttle";
 
 // GLOBAL: MW2 0x100a6eb8
+// GLOBAL: MW2MATROX 0x100a56b8
 MechChar g_rudderAxisShortName[] = "Rudder";
 
 // GLOBAL: MW2 0x100a6ec0
+// GLOBAL: MW2MATROX 0x100a56c0
 MechChar g_fifthAxisShortName[] = "5thAxis";
 
 // GLOBAL: MW2 0x100a6ec8
+// GLOBAL: MW2MATROX 0x100a56c8
 MechChar g_sixthAxisShortName[] = "6thAxis";
 
 // GLOBAL: MW2 0x100a6ed0
+// GLOBAL: MW2MATROX 0x100a56d0
 MechChar g_headRollAxisName[] = "Left/Right Head Roll";
 
 // GLOBAL: MW2 0x100a6ee8
+// GLOBAL: MW2MATROX 0x100a56e8
 MechChar g_headRollAxisShortName[] = "HeadRoll";
 
 // GLOBAL: MW2 0x100a6ef8
+// GLOBAL: MW2MATROX 0x100a56f8
 MechChar g_hatUpName[] = "Hat Up";
 
 // GLOBAL: MW2 0x100a6f00
+// GLOBAL: MW2MATROX 0x100a5700
 MechChar g_hatRightName[] = "Hat Right";
 
 // GLOBAL: MW2 0x100a6f10
+// GLOBAL: MW2MATROX 0x100a5710
 MechChar g_hatDownName[] = "Hat Down";
 
 // GLOBAL: MW2 0x100a6f20
+// GLOBAL: MW2MATROX 0x100a5720
 MechChar g_hatLeftName[] = "Hat Left";
 
 // GLOBAL: MW2 0x100a6f30
+// GLOBAL: MW2MATROX 0x100a5730
 MechChar g_hatUpShortName[] = "HatUp";
 
 // GLOBAL: MW2 0x100a6f38
+// GLOBAL: MW2MATROX 0x100a5738
 MechChar g_hatRightShortName[] = "HatRight";
 
 // GLOBAL: MW2 0x100a6f48
+// GLOBAL: MW2MATROX 0x100a5748
 MechChar g_hatDownShortName[] = "HatDown";
 
 // GLOBAL: MW2 0x100a6f50
+// GLOBAL: MW2MATROX 0x100a5750
 MechChar g_hatLeftShortName[] = "HatLeft";
 
 // GLOBAL: MW2 0x100a6f58
+// GLOBAL: MW2MATROX 0x100a5758
 InputDriverModule g_joystickDriver = {
 	GetJoystickDeviceCount,
 	FillJoystickDeviceInfo,
@@ -109,12 +132,15 @@ InputDriverModule g_joystickDriver = {
 
 // The registry key and value ReadJoystickOemName reads.
 // GLOBAL: MW2 0x100be8a0
+// GLOBAL: MW2MATROX 0x100c1ea0
 MechChar g_joystickOemName[0x40];
 
 // GLOBAL: MW2 0x100be8e0
+// GLOBAL: MW2MATROX 0x100c1ee0
 MechChar g_joystickRegistryKey[0x100];
 
 // FUNCTION: MW2 0x10049e70
+// FUNCTION: MW2MATROX 0x10025f40
 MechS32 GetJoystickDeviceCount(void)
 {
 	return joyGetNumDevs();
@@ -125,6 +151,7 @@ MechS32 GetJoystickDeviceCount(void)
 // buttons, the POV directions after the buttons. Returns 1 on failure.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049e86
+// FUNCTION: MW2MATROX 0x10025f56
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	JOYCAPS caps;
@@ -241,19 +268,29 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // Opens the joystick: fails (1) without driver data, capabilities or while unplugged; otherwise
 // sets the JOYINFOEX flags to read with, each axis's center, dead zone (a sixteenth of its range,
 // an eighth for the rudder) and scale to +-0x10000, and the buttons the POV directions set: the
-// four after the device's own.
+// four after the device's own. The Matrox edition reads the extended position only, without
+// setting its size.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004a3be
+// FUNCTION: MW2MATROX 0x10026380
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
 	JOYCAPS caps;
+#ifndef MW2_MATROX
 	JOYINFO info;
+#endif
 	MechDouble range;
 	MechS32 button;
 	JOYINFOEX infoEx;
 
 	data = p_info->m_driverData;
+#ifdef MW2_MATROX
+	if (!data || joyGetDevCaps(data->m_id, &caps, sizeof(caps)) ||
+		joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
+		return 1;
+	}
+#else
 	if (!data) {
 		return 1;
 	}
@@ -274,6 +311,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 			return 1;
 		}
 	}
+#endif
 
 	data->m_flags = 0x483;
 	data->m_centers[0] = caps.wXmin + (MechS32) ((range = caps.wXmax - caps.wXmin + 1) / 2.0);
@@ -355,6 +393,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 
 // Frees the names and the driver data FillJoystickDeviceInfo and JoystickOpenDevice allocated.
 // FUNCTION: MW2 0x1004a947
+// FUNCTION: MW2MATROX 0x1002699d
 MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 {
 	if (p_info) {
@@ -391,6 +430,7 @@ MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 }
 
 // FUNCTION: MW2 0x1004aa59
+// FUNCTION: MW2MATROX 0x10026aaf
 MechS32 JoystickCenterAxis(void)
 {
 	return 0;
@@ -486,6 +526,7 @@ MechS32 JoystickFlushKeyCodes(void)
 // Scales a joystick axis reading about p_center to -0x10000..0x10000 by p_scale, with a dead
 // zone of p_deadZone on either side.
 // FUNCTION: MW2 0x1004ad6c
+// FUNCTION: MW2MATROX 0x10026ac1
 MechS32 ScaleJoystickAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale)
 {
 	if ((p_value -= p_center) < 0) {
@@ -517,6 +558,7 @@ MechS32 ScaleJoystickAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center,
 // Reads the OEM name of joystick p_index of the driver p_driverKey from the registry into
 // p_name. Returns TRUE on success.
 // FUNCTION: MW2 0x1004ae29
+// FUNCTION: MW2MATROX 0x10026fa3
 BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_name, MechU32 p_size)
 {
 	HKEY key;
@@ -563,6 +605,7 @@ BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_nam
 // Picks the name INPUT.MAP knows the joystick by: from its display name, or from the axes, hat
 // and buttons it reports.
 // FUNCTION: MW2 0x1004af8c
+// FUNCTION: MW2MATROX 0x10027106
 void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 {
 	MechU16 caps;

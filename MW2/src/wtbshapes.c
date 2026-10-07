@@ -4,6 +4,7 @@
 
 #include "collision.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "object.h"
 #include "players.h"
 #include "shape.h"
@@ -19,9 +20,11 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x1009de38
+// GLOBAL: MW2MATROX 0x100a0414
 const MechS32 g_wtbTag = 0x4f425457;
 
 // GLOBAL: MW2 0x100ba65c
+// GLOBAL: MW2MATROX 0x100a55d4
 MechS32 g_shapeLoadError = 0;
 
 // GLOBAL: MW2 0x100ba660
@@ -31,24 +34,31 @@ MechS32 g_unk0x100ba660 = 0;
 MechS32 g_unk0x100ba664 = 0;
 
 // GLOBAL: MW2 0x100ba668
-MechS32 g_shapeOffsetX = 0;
+// GLOBAL: MW2MATROX 0x100a55e0
+MechScalar g_shapeOffsetX = 0;
 
 // GLOBAL: MW2 0x100ba66c
-MechS32 g_shapeOffsetY = 0;
+// GLOBAL: MW2MATROX 0x100a55e4
+MechScalar g_shapeOffsetY = 0;
 
 // GLOBAL: MW2 0x100ba670
-MechS32 g_shapeOffsetZ = 0;
+// GLOBAL: MW2MATROX 0x100a55e8
+MechScalar g_shapeOffsetZ = 0;
 
 // GLOBAL: MW2 0x100ba674
-MechS32 g_shapeScaleX = 1;
+// GLOBAL: MW2MATROX 0x100a55ec
+MechScalar g_shapeScaleX = 1;
 
 // GLOBAL: MW2 0x100ba678
-MechS32 g_shapeScaleY = 1;
+// GLOBAL: MW2MATROX 0x100a55f0
+MechScalar g_shapeScaleY = 1;
 
 // GLOBAL: MW2 0x100ba67c
-MechS32 g_shapeScaleZ = 1;
+// GLOBAL: MW2MATROX 0x100a55f4
+MechScalar g_shapeScaleZ = 1;
 
 // GLOBAL: MW2 0x100ba680
+// GLOBAL: MW2MATROX 0x100a55f8
 MechU32 g_shapeFlags = 0;
 
 // GLOBAL: MW2 0x100ba684
@@ -70,12 +80,15 @@ MechU32* g_faceIds;
 MechS32 g_shapeHasKey;
 
 // GLOBAL: MW2 0x100bfd40
+// GLOBAL: MW2MATROX 0x101d68f0
 MechS32 g_shapeOwnerSet;
 
 // GLOBAL: MW2 0x100bfd44
+// GLOBAL: MW2MATROX 0x101d68f4
 MechS32 g_shapeOwnerKind;
 
 // GLOBAL: MW2 0x100bfd48
+// GLOBAL: MW2MATROX 0x101d68f8
 MechS32 g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
@@ -86,6 +99,7 @@ void SetFaceIds(MechU32* p_ids, MechU32 p_count)
 }
 
 // FUNCTION: MW2 0x1007f15b
+// FUNCTION: MW2MATROX 0x1002524b
 void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	g_shapeOffsetX = p_x;
@@ -94,8 +108,31 @@ void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x1007f17e
-void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x10025286
+void SetShapeScale(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
+#ifdef MW2_MATROX
+	if ((MechFloat) fabs(p_x) >= 1e-07f) {
+		g_shapeScaleX = p_x;
+	}
+	else {
+		g_shapeScaleX = 1;
+	}
+
+	if ((MechFloat) fabs(p_y) >= 1e-07f) {
+		g_shapeScaleY = p_y;
+	}
+	else {
+		g_shapeScaleY = 1;
+	}
+
+	if ((MechFloat) fabs(p_z) >= 1e-07f) {
+		g_shapeScaleZ = p_z;
+	}
+	else {
+		g_shapeScaleZ = 1;
+	}
+#else
 	g_shapeScaleX = p_x;
 	if (!g_shapeScaleX) {
 		g_shapeScaleX = 1;
@@ -110,9 +147,11 @@ void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	if (!g_shapeScaleZ) {
 		g_shapeScaleZ = 1;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1007f1e6
+// FUNCTION: MW2MATROX 0x10025318
 void SetShapeFlags(MechU32 p_flags)
 {
 	g_shapeFlags = p_flags;
@@ -122,6 +161,7 @@ void SetShapeFlags(MechU32 p_flags)
 // its levels of detail.
 // Stack slots: next and count are swapped.
 // FUNCTION: MW2 0x1007f1f9
+// FUNCTION: MW2MATROX 0x1002532b
 Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject* p_parent)
 {
 	Shape* next;

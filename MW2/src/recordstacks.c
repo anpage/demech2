@@ -9,12 +9,39 @@
 
 #include "clock.h"
 #include "compat.h"
+#include "debugprint.h"
 #include "decomp.h"
 #include "depthsort.h"
 #include "error.h"
 #include "loadres.h"
 #include "types.h"
 
+#ifdef MW2_MATROX
+// The Matrox edition defines the draw buffer's globals in another order, all initialized.
+// GLOBAL: MW2MATROX 0x100a4fac
+DepthEntry* g_drawList = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fb0
+DepthEntry* g_depthQueue = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fb4
+MechU8* g_drawBuffer = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fb8
+MechU8* g_drawBufferTop = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fbc
+MechU8* g_drawBufferBottom = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fc0
+MechS32 g_depthListCapacity = 0;
+
+// GLOBAL: MW2MATROX 0x100a4fc4
+MechS32 g_drawBufferSize = 0x140;
+
+// GLOBAL: MW2MATROX 0x100a4fc8
+MechU8* g_drawBufferMemory = NULL;
+#else
 // GLOBAL: MW2 0x100ba5cc
 MechS32 g_drawBufferSize = 0x80;
 
@@ -38,11 +65,13 @@ MechU8* g_drawBufferBottom;
 
 // GLOBAL: MW2 0x100c269c
 DepthEntry* g_depthQueue;
+#endif
 
 // GLOBAL: MW2 0x1010b5ac
 MechS32 g_queueHasRoom;
 
 // FUNCTION: MW2 0x1007d120
+// FUNCTION: MW2MATROX 0x100216a0
 void ShutdownDrawBuffer(void)
 {
 	if (g_drawBufferMemory != NULL) {
@@ -54,13 +83,18 @@ void ShutdownDrawBuffer(void)
 // Operand order: the original computes g_depthListCapacity << 4 before p_kilobytes << 10 in size
 // (both front ends reorder commutative operands).
 // FUNCTION: MW2 0x1007d150
+// FUNCTION: MW2MATROX 0x100216d0
 void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 {
 	MechU32 size;
 
 	g_depthListCapacity = p_entries;
 	g_drawBufferSize = p_kilobytes << 10;
+#ifdef MW2_MATROX
+	size = g_depthListCapacity * (2 * sizeof(DepthEntry)) + (p_kilobytes << 10);
+#else
 	size = (g_depthListCapacity << 4) + (p_kilobytes << 10);
+#endif
 	g_drawBufferMemory = MemAlloc(size);
 	if (g_drawBufferMemory == NULL) {
 		Error(0x18, NULL);
@@ -71,13 +105,19 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 	g_drawList = (DepthEntry*) (g_drawBufferMemory + g_drawBufferSize);
 	g_depthQueue = g_drawList + g_depthListCapacity;
 	g_drawBufferBottom = g_drawBuffer;
+#ifdef MW2_MATROX
+	g_drawBufferTop = g_drawBuffer + g_drawBufferSize - 0x30;
+	DebugPrint("setup_render: npalloc=%x nvalloc=%x\n", g_drawBufferBottom, g_drawBufferTop);
+#else
 	g_drawBufferTop = g_drawBuffer + (g_drawBufferSize << 5) - 0x600;
 	InitSqrtTable();
+#endif
 	InitSinAtanTables();
 	InitSlopeTables();
 }
 
 // FUNCTION: MW2 0x1007d220
+// FUNCTION: MW2MATROX 0x100217b3
 void ResetDrawBuffer(void)
 {
 	g_drawBufferBottom = g_drawBuffer;

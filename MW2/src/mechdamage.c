@@ -6,7 +6,11 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
+#ifdef MW2_MATROX
+#include "debugprint.h"
+#endif
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "maneuvers.h"
 #include "mech.h"
 #include "mechclass.h"
@@ -34,35 +38,45 @@
 
 // A game-key toggle (GetSystemSetting's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
+// GLOBAL: MW2MATROX 0x100a4618
 MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
-MechS32 g_otherArmorPerLevel = 4;
+// GLOBAL: MW2MATROX 0x100a461c
+MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
-MechS32 g_localArmorPerLevel = 4;
+// GLOBAL: MW2MATROX 0x100a4620
+MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
+// GLOBAL: MW2MATROX 0x100a4624
 MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
+// GLOBAL: MW2MATROX 0x100a4628
 MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
+// GLOBAL: MW2MATROX 0x100a462c
 MechS32 g_criticalHeatWarned = 0;
 
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
+// GLOBAL: MW2MATROX 0x100c1e24
 static MechS32 g_criticalHeatWarningTime;
 
 // Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
 // already reached and marking each one it reaches (turning off after the last); then the AI
 // steers, the throttle saved while AvoidObstacles has it.
 // Stack-slot permutation: index and first.
+// MW2MATROX (0x10010250) copies m_maneuverParam and the steering's float throttle into each
+// other as they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
+// STUB: MW2MATROX 0x10010250
 void RunAutopilot(Mech* p_mech)
 {
 	MechS32 index;
@@ -131,15 +145,21 @@ void RunAutopilot(Mech* p_mech)
 // The PUNCH_IN_AUTO_HDG game key: sets the player's target heading (the HUD's bearing marker,
 // which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
+// FUNCTION: MW2MATROX 0x1001053c
 void PunchInAutoHeading(Mech* p_mech)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	if (p_mech->m_autopilot == 1) {
 		return;
 	}
 
-	heading = (p_mech->m_player->m_heading + 0x1680000 + p_mech->m_torsoTwist.m_value) % 0x1680000;
+#ifdef MW2_MATROX
+	// The Matrox edition wraps the sum first, then adds the full turn.
+	heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading + p_mech->m_torsoTwist.m_value) + 360.0);
+#else
+	heading = FIXED_MOD360(p_mech->m_player->m_heading + FIXED_CONST(360) + p_mech->m_torsoTwist.m_value);
+#endif
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 
@@ -147,6 +167,7 @@ void PunchInAutoHeading(Mech* p_mech)
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10007d06
+// FUNCTION: MW2MATROX 0x1001059a
 void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	WeaponSlot* weapon;
@@ -156,6 +177,9 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 	MechSection* section;
 	AmmoBin* bin;
 
+#ifdef MW2_MATROX
+	DebugPrint("BlowAmmo\n");
+#endif
 	if (!g_mechPoweredUp) {
 		return;
 	}
@@ -197,16 +221,27 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
-// The only diff is a stack-slot permutation of the locals.
+// The only diff is a stack-slot permutation of the locals. MW2MATROX: the cooling product
+// multiplies its operands in another order.
 // FUNCTION: MW2 0x10007e86
+// FUNCTION: MW2MATROX 0x10010727
 void CalculateHeat(Mech* p_mech)
 {
+#ifdef MW2_MATROX
+	MechFloat delta;
+	MechFloat cooling;
+	MechFloat heat;
+	MechFloat factor;
+
+	factor = 1.0f;
+#else
 	MechS32 delta;
 	MechS32 cooling;
 	MechS32 heat;
 	MechS32 shift;
 
 	shift = 0;
+#endif
 	if ((p_mech->m_player->m_flags & 2) || (p_mech->m_player->m_flags & 4)) {
 		return;
 	}
@@ -221,18 +256,34 @@ void CalculateHeat(Mech* p_mech)
 		return;
 	}
 
+#ifdef MW2_MATROX
+	// The Matrox edition doubles the cooling of a shut-down mech with a factor, not a shift.
+	if (p_mech->m_powerState == 3) {
+		factor = 2.0f;
+	}
+
+	cooling = p_mech->m_cooling * factor * g_deltaTime;
+	delta = p_mech->m_deltaHeat - cooling;
+	p_mech->m_heat += delta;
+	if (FIXED_IS_NEGATIVE(p_mech->m_heat)) {
+		p_mech->m_heat = 0;
+	}
+
+	heat = p_mech->m_heat;
+#else
 	if (p_mech->m_powerState == 3) {
 		shift = 1;
 	}
 
-	cooling = p_mech->m_cooling * g_deltaTime << shift;
+	cooling = FIXED_SHL(p_mech->m_cooling * g_deltaTime, shift);
 	delta = p_mech->m_deltaHeat - cooling;
 	p_mech->m_heat += delta;
 	if (p_mech->m_heat < 0) {
 		p_mech->m_heat = 0;
 	}
 
-	heat = p_mech->m_heat >> 16;
+	heat = FIXED_TO_INT(p_mech->m_heat);
+#endif
 	if ((p_mech->m_flags & 4) && !(p_mech->m_flags & 8) && p_mech->m_powerState != 3 &&
 		g_currentClock - p_mech->m_stateTime > 1086) {
 		p_mech->m_powerState = 3;
@@ -256,7 +307,7 @@ void CalculateHeat(Mech* p_mech)
 			KillMech(p_mech->m_player->m_index, p_mech);
 		}
 	}
-	else if (heat > 80.0) {
+	else if (heat > FIXED_LITERAL(80.0, 80.0f)) {
 		if (!(p_mech->m_flags & 4)) {
 			p_mech->m_stateTime = g_currentClock;
 			p_mech->m_flags |= 4;
@@ -267,7 +318,7 @@ void CalculateHeat(Mech* p_mech)
 			}
 		}
 	}
-	else if (heat > 65.0) {
+	else if (heat > FIXED_LITERAL(65.0, 65.0f)) {
 		if (p_mech->m_player->m_index == g_localPlayerId && !g_criticalHeatWarned && delta > 0) {
 			g_criticalHeatWarningTime = g_currentClock;
 			g_criticalHeatWarned = 1;
@@ -299,6 +350,7 @@ void CalculateHeat(Mech* p_mech)
 // Stack-slot permutation: next and text. The original compares p_killer with g_localPlayerId and
 // indexes m_unk0x52 in the other operand order.
 // FUNCTION: MW2 0x1000832b
+// FUNCTION: MW2MATROX 0x10010bd8
 void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
@@ -472,6 +524,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 // Stack-slot permutation of i, section and count; the loop test compares with i in eax in the
 // original (operand order).
 // FUNCTION: MW2 0x10008938
+// FUNCTION: MW2MATROX 0x100111e6
 void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechS32 i;
@@ -489,6 +542,7 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // Destroying section 3 takes sections 1, 2 and 4 to 6 with it; section 2 takes 5, and 4 takes 6.
 // Of sections 7 and 8, the first to go only marks the mech (0x20); the second destroys 1 and 3.
 // FUNCTION: MW2 0x1000899d
+// FUNCTION: MW2MATROX 0x1001124b
 void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechSection* section;
@@ -554,19 +608,20 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10008c0f
+// FUNCTION: MW2MATROX 0x100114bd
 void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
 	MechS32 id;
 	WeaponSlot* weapon;
-	MechS32 x;
-	MechS32 y;
+	MechScalar x;
+	MechScalar y;
 	MechS32 i;
-	MechS32 z;
+	MechScalar z;
 	struct SceneObject* obj;
 	MechS32 kind;
 	MechSection* section;
 	AmmoBin* bin;
-	MechS32 damage;
+	MechScalar damage;
 
 	section = p_mech->m_sections + p_section - 1;
 	if (!section) {
@@ -706,8 +761,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					}
 
 					damage = bin->m_shots * bin->m_damage;
-					section->m_internal -= damage << 16;
-					if (section->m_internal < 0) {
+					section->m_internal -= FIXED_FROM_INT(damage);
+					if (FIXED_IS_NEGATIVE(section->m_internal)) {
 						section->m_internal = 0;
 						section->m_slots[p_slot] = 0;
 						DestroySection(p_attacker, p_mech, p_section);
@@ -778,7 +833,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			}
 
 			if (p_mech->m_cooling > 0) {
-				p_mech->m_cooling -= 50;
+				p_mech->m_cooling -= FIXED_RAW(50);
 			}
 			else {
 				p_mech->m_cooling = 0;
@@ -806,8 +861,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(7);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 			break;
@@ -820,8 +875,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(8);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 
@@ -856,8 +911,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(10);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 			break;
@@ -870,8 +925,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(11);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 			break;
@@ -901,9 +956,15 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			break;
 		}
 
+#ifdef MW2_MATROX
+		if (FIXED_IS_NONZERO(p_mech->m_mobility) && p_mech->m_mobility < 0.4f) {
+			p_mech->m_mobility = 0.4f;
+		}
+#else
 		if (p_mech->m_mobility && p_mech->m_mobility < 0x6666) {
 			p_mech->m_mobility = 0x6666;
 		}
+#endif
 	}
 
 	for (i = p_slot; i < section->m_slotCount - 1; i++) {
@@ -922,7 +983,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // The original ends in an explicit return (the jmp to the epilogue). The only diff is a stack-slot
 // permutation of the locals.
 // FUNCTION: MW2 0x1000991b
-void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS32 p_section)
+// FUNCTION: MW2MATROX 0x10012243
+void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;
 	MechU32 levels;
@@ -950,7 +1012,11 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		return;
 	}
 
+#ifdef MW2_MATROX
+	if (p_damage < 1e-07f) {
+#else
 	if (p_damage <= 0) {
+#endif
 		return;
 	}
 
@@ -990,7 +1056,11 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 
 	section->m_armor[side] -= p_damage;
 	section->m_flags |= 0x8000;
+#ifdef MW2_MATROX
+	if (section->m_armor[side] < 1e-07f) {
+#else
 	if (section->m_armor[side] <= 0) {
+#endif
 		if (!(section->m_flags & 0x4000) && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_powerState == 2) {
 			PlaySoundEffect(0xec, 100, 0x40, 5, 0x50);
 		}
@@ -999,11 +1069,15 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		section->m_internal += section->m_armor[side];
 		section->m_armor[side] = 0;
 		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
-			p_mech->m_powerState != 4 && p_damage > 0x20000) {
+			p_mech->m_powerState != 4 && p_damage > FIXED_RAW(0x20000)) {
 			g_hitFadePending = 1;
 		}
 
+#ifdef MW2_MATROX
+		if (section->m_internal < 1e-07f) {
+#else
 		if (section->m_internal <= 0) {
+#endif
 			DestroySection(p_attacker, p_mech, p_section);
 			return;
 		}
@@ -1025,12 +1099,12 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 
 	if (levels) {
 		if (p_mech->m_player->m_index == g_localPlayerId) {
-			level = 15 - ((section->m_internal + section->m_armor[side] / g_localArmorPerLevel) * 3) /
-							 (MechS32) (levels << 16);
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_localArmorPerLevel) * 3) /
+									(MechS32) FIXED_FROM_INT(levels));
 		}
 		else {
-			level = 15 - ((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
-							 (MechS32) (levels << 16);
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
+									(MechS32) FIXED_FROM_INT(levels));
 		}
 	}
 
@@ -1041,6 +1115,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 // Ejects from p_mech, unless it is already shutting down or ejecting: the local player (p_eject)
 // ejects with a sound, or hears that the ejection system is disabled, and the mech is destroyed.
 // FUNCTION: MW2 0x10009d2a
+// FUNCTION: MW2MATROX 0x100126e4
 void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 {
 	if (p_mech->m_powerState == 4 || p_mech->m_powerState == 5) {
@@ -1063,6 +1138,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
+// FUNCTION: MW2MATROX 0x1001278c
 void ToggleLocalMechVisible(void)
 {
 	if (!g_localMechHidden) {

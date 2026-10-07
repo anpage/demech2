@@ -16,6 +16,7 @@
 #include "mw2prj.h"
 #include "network.h"
 #include "objective.h"
+#include "palette.h"
 #include "players.h"
 #include "point.h"
 #include "screenscale.h"
@@ -32,24 +33,30 @@
 // Who the chat message goes to: 0 nobody (no message is being typed), -1 everybody, or a
 // player.
 // GLOBAL: MW2 0x100a116c
+// GLOBAL: MW2MATROX 0x100a4ff4
 MechS32 g_chatRecipient = 0;
 
 // Whether the objectives panel shows.
 // GLOBAL: MW2 0x100a1170
+// GLOBAL: MW2MATROX 0x100a4ff8
 MechS32 g_showObjectives = 0;
 
 // GLOBAL: MW2 0x100bcd88
+// GLOBAL: MW2MATROX 0x100c1e70
 static MechChar g_ticksText[16];
 
 // GLOBAL: MW2 0x100bcd98
+// GLOBAL: MW2MATROX 0x100c1e80
 static MechChar g_secondsText[16];
 
 // The chat message being typed. HandleChatKey edits it.
 // GLOBAL: MW2 0x10179e90
+// GLOBAL: MW2MATROX 0x101d6990
 MechChar g_chatMessage[0x30];
 
 // Formats a tick count (181 per second) as hours:minutes:seconds.
 // FUNCTION: MW2 0x10004f40
+// FUNCTION: MW2MATROX 0x10021870
 MechChar* FormatTicks(MechS32 p_ticks)
 {
 	MechDouble seconds;
@@ -65,6 +72,7 @@ MechChar* FormatTicks(MechS32 p_ticks)
 
 // Formats a count of seconds as hours:minutes:seconds.
 // FUNCTION: MW2 0x10004ff5
+// FUNCTION: MW2MATROX 0x10021941
 MechChar* FormatSeconds(MechS32 p_seconds)
 {
 	MechS32 seconds;
@@ -81,6 +89,7 @@ MechChar* FormatSeconds(MechS32 p_seconds)
 // Matches except for the stack slots of width and c (a consistent permutation).
 // Returns the width of p_text in p_font.
 // FUNCTION: MW2 0x1000507d
+// FUNCTION: MW2MATROX 0x100219c9
 MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 {
 	MechS32 width;
@@ -99,7 +108,10 @@ MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 // lines. In a network game whose only listed objective is a secondary one, it counts as primary.
 // Stack-slot permutation of the locals (label, objective, twoLines, height, i, target, mission,
 // primary, secondary, count, x and y).
+// MW2MATROX: &g_objectiveTable[g_localStar].m_objectives[i] loads g_localStar first (index
+// operand order).
 // FUNCTION: MW2 0x100050d1
+// FUNCTION: MW2MATROX 0x10021a1d
 void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8 p_priority)
 {
 	PANE* target;
@@ -168,29 +180,29 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 				break;
 			}
 
-			g_textColors[0xe] = 6;
+			g_textColors[0xe] = PIXEL_COLOR(6);
 			VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, label, g_textColors);
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			p_pos->m_x += GetTextWidth("Secondary: ", p_font);
 			if (strlen(objective->m_name) < 0x20) {
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, objective->m_name, g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 			}
 			else {
 				x = p_pos->m_x;
 				y = p_pos->m_y;
 				strncpy(text, objective->m_name, 0x20);
 				text[0x20] = '\0';
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				p_pos->m_x = x;
 				p_pos->m_y += height;
 				strcpy(text, objective->m_name + 0x20);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				p_pos->m_x = x;
 				p_pos->m_y = y;
 				twoLines = TRUE;
@@ -200,23 +212,23 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 			case 5:
 				sprintf(text, "Successful");
 				p_pos->m_x = target->m_x1 - target->m_x0 - GetTextWidth(text, p_font);
-				g_textColors[0xe] = 7;
+				g_textColors[0xe] = PIXEL_COLOR(7);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				break;
 			case 6:
 				sprintf(text, "Failed");
 				p_pos->m_x = target->m_x1 - target->m_x0 - GetTextWidth(text, p_font);
-				g_textColors[0xe] = 0xb;
+				g_textColors[0xe] = PIXEL_COLOR(0xb);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				break;
 			default:
 				sprintf(text, "In progress");
 				p_pos->m_x = target->m_x1 - target->m_x0 - GetTextWidth(text, p_font);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(p_panel->m_target, p_pos->m_x, p_pos->m_y, p_font, text, g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				break;
 			}
 
@@ -232,6 +244,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // mission ended.
 // Stack-slot permutation of the locals (cursor, mission, font, height, gap, ticks and text).
 // FUNCTION: MW2 0x100056f0
+// FUNCTION: MW2MATROX 0x100220de
 void DrawObjectivesPanel(CockpitPanel* p_panel)
 {
 	StarMission* mission;
@@ -248,7 +261,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 	}
 
 	mission = &g_objectiveTable[g_localStar];
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -256,9 +269,9 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 	height = VFX_font_height(font);
 	gap = height / 2;
 	pos = *p_panel->m_textOrigin;
-	g_textColors[0xe] = 6;
+	g_textColors[0xe] = PIXEL_COLOR(6);
 	VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, "MISSION OBJECTIVES", g_textColors);
-	g_textColors[0xe] = 0xe;
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnderlineText(p_panel->m_target, "MISSION OBJECTIVES", pos, font, 6);
 	cursor->m_y += gap + height;
 	DrawObjectiveList(p_panel, cursor, font, 1);
@@ -293,10 +306,13 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 		break;
 	}
 
-	g_textColors[0xe] = 6;
+	g_textColors[0xe] = PIXEL_COLOR(6);
 	VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
-	g_textColors[0xe] = 0xe;
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Draws the network status panel: whom the camera tracks, or how to regenerate, or that the
@@ -304,6 +320,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // a cursor.
 // Stack-slot permutation of the locals (state, cursor, pos, color, height, player, gap, text and font).
 // FUNCTION: MW2 0x10005add
+// FUNCTION: MW2MATROX 0x100224b9
 void DrawNetworkPanel(CockpitPanel* p_panel)
 {
 	MechChar* state;
@@ -326,7 +343,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -344,12 +361,12 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		}
 
 		sprintf(text, "Tracking: %s %s", g_players[g_trackedPlayer]->m_name, state);
-		g_textColors[0xe] = color;
+		g_textColors[0xe] = PIXEL_COLOR(color);
 		VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 	}
 	else if (g_statusMessage == 2) {
-		g_textColors[0xe] = 6;
+		g_textColors[0xe] = PIXEL_COLOR(6);
 		VFX_string_draw(
 			p_panel->m_target,
 			cursor->m_x,
@@ -358,10 +375,10 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			"Press SPACEBAR to regenerate, or CTRL-Q to exit.",
 			g_textColors
 		);
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 	}
 	else if (g_statusMessage == 3) {
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 		VFX_string_draw(
 			p_panel->m_target,
 			cursor->m_x,
@@ -370,20 +387,20 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			"         Waiting for remote players...",
 			g_textColors
 		);
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 	}
 
 	cursor->m_y += gap + height;
 	if (g_chatRecipient) {
 		switch (g_chatRecipient) {
 		case -1:
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, "Communication", g_textColors);
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			UnderlineText(p_panel->m_target, "Communication", pos, font, 2);
 			cursor->m_y += gap + height;
 			if (g_difficulty->m_teamGame) {
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(
 					p_panel->m_target,
 					cursor->m_x,
@@ -392,9 +409,9 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 					" [Enter] Send to all",
 					g_textColors
 				);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				cursor->m_y += height;
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(
 					p_panel->m_target,
 					cursor->m_x,
@@ -403,9 +420,9 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 					" CTRL-F  Send to friendly mechs",
 					g_textColors
 				);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				cursor->m_y += height;
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(
 					p_panel->m_target,
 					cursor->m_x,
@@ -414,14 +431,14 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 					" CTRL-E  Send to enemy mechs",
 					g_textColors
 				);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				cursor->m_y += height;
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, " [Esc] to abort", g_textColors);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 			}
 			else {
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 				VFX_string_draw(
 					p_panel->m_target,
 					cursor->m_x,
@@ -430,7 +447,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 					" [Enter] Send to all,    [Esc] to abort",
 					g_textColors
 				);
-				g_textColors[0xe] = 0xe;
+				g_textColors[0xe] = PIXEL_COLOR(0xe);
 			}
 
 			cursor->m_y += gap + height;
@@ -450,20 +467,26 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			}
 
 			if (!g_players[player] || g_players[player]->m_type != c_playerTypeMech) {
+#ifdef MW2_MATROX
+				FUN_10088280(p_panel->m_target);
+#endif
 				return;
 			}
 
 			if (g_players[player]->m_flags & 0x4800) {
+#ifdef MW2_MATROX
+				FUN_10088280(p_panel->m_target);
+#endif
 				return;
 			}
 
 			sprintf(text, "Communication to %s", g_players[player]->m_name);
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			UnderlineText(p_panel->m_target, text, pos, font, 2);
 			cursor->m_y += gap + height;
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			VFX_string_draw(
 				p_panel->m_target,
 				cursor->m_x,
@@ -472,24 +495,28 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 				" [Enter] to send,    [ESC] to abort",
 				g_textColors
 			);
-			g_textColors[0xe] = 0xe;
+			g_textColors[0xe] = PIXEL_COLOR(0xe);
 			cursor->m_y += gap + height;
 			break;
 		}
 
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 		VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, g_chatMessage, g_textColors);
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 		BoxText(p_panel->m_target, "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM", pos, font, 6);
 		cursor->m_x = GetTextWidth(g_chatMessage, font);
 		UnderlineText(p_panel->m_target, " ", pos, font, 0xe);
 	}
 
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Shows the local player's kill count in a network game.
 // FUNCTION: MW2 0x100060b6
+// FUNCTION: MW2MATROX 0x10022b98
 void DrawKillsPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -499,7 +526,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -516,12 +543,16 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 		);
 	}
 
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Shows the autopilot's state.
 // Stack-slot permutation of text and font.
 // FUNCTION: MW2 0x10006189
+// FUNCTION: MW2MATROX 0x10022c7a
 void DrawAutopilotPanel(CockpitPanel* p_panel)
 {
 	MechChar* text;
@@ -545,7 +576,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -559,9 +590,12 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 			text,
 			g_textColors
 		);
+#ifdef MW2_MATROX
+		FUN_10088280(p_panel->m_target);
+#endif
 	}
 
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 }
 
 // Stack-slot permutation of mech and font.
@@ -582,13 +616,13 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
 	if (mech->m_speed.m_value < 0) {
 		speed = -speed;
-		g_textColors[0xe] = 6;
+		g_textColors[0xe] = PIXEL_COLOR(6);
 	}
 	else {
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -602,13 +636,17 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 		text,
 		g_textColors
 	);
-	g_textColors[0xe] = 0xe;
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawThrottleGauge(p_panel->m_target);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Labels the MASC panel while MASC is available.
 // FUNCTION: MW2 0x100063cd
+// FUNCTION: MW2MATROX 0x10022ef9
 void DrawMascPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -618,7 +656,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "MASC");
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -631,12 +669,16 @@ void DrawMascPanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Stack-slot permutation of mech and font.
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
+// FUNCTION: MW2MATROX 0x10022fbf
 void DrawHeatPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -647,7 +689,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -655,16 +697,16 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 	if (mech->m_flags & 4) {
 		if (!(mech->m_flags & 8)) {
 			p_panel->m_setName(p_panel, "Shutdown...");
-			g_textColors[0xe] = 0xb;
+			g_textColors[0xe] = PIXEL_COLOR(0xb);
 		}
 		else {
 			p_panel->m_setName(p_panel, "Overridden");
-			g_textColors[0xe] = 0xb;
+			g_textColors[0xe] = PIXEL_COLOR(0xb);
 		}
 	}
 	else {
 		p_panel->m_setName(p_panel, "Heat");
-		g_textColors[0xe] = 0xe;
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
 	}
 
 	VFX_string_draw(
@@ -675,13 +717,17 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	g_textColors[0xe] = 0xe;
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawHeatBar(p_panel->m_target);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Labels the heat rate panel and draws its bar.
 // FUNCTION: MW2 0x100065c3
+// FUNCTION: MW2MATROX 0x10023131
 void DrawHeatRatePanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -691,7 +737,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "dH/dT");
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -704,12 +750,16 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawHeatRateBar(p_panel->m_target);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Labels the jump jet panel of a mech with jump jets and draws the fuel bar.
 // FUNCTION: MW2 0x1000667c
+// FUNCTION: MW2MATROX 0x100231f9
 void DrawJetsPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -723,7 +773,7 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "Jets");
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
@@ -736,6 +786,9 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawJumpFuelBar(p_panel->m_target);
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }

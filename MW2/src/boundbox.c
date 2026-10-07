@@ -13,6 +13,7 @@
 DECOMP_SIZE_ASSERT(BoundBox, 0x18)
 
 // FUNCTION: MW2 0x1006e970
+// FUNCTION: MW2MATROX 0x1000a4f0
 BoundBox* CreateBoundBox(void)
 {
 	BoundBox* box;
@@ -28,6 +29,7 @@ BoundBox* CreateBoundBox(void)
 
 // Gives the shape a bounding box, once.
 // FUNCTION: MW2 0x1006e9e6
+// FUNCTION: MW2MATROX 0x1000a566
 void EnsureBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -54,6 +56,7 @@ void EnsureBoundBox(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006ea90
+// FUNCTION: MW2MATROX 0x1000a610
 BoundBox* CreateShapeBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -68,6 +71,7 @@ BoundBox* CreateShapeBoundBox(Shape* p_shape)
 }
 
 // FUNCTION: MW2 0x1006eb02
+// FUNCTION: MW2MATROX 0x1000a682
 void AttachShapeBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -96,14 +100,15 @@ void AttachShapeBoundBox(Shape* p_shape)
 // The model/shape stamp comparison loads its operands in the other order (the unit's symbol
 // table), and model, vertex and selected sit in permuted stack slots.
 // FUNCTION: MW2 0x1006eb80
+// FUNCTION: MW2MATROX 0x1000a700
 void ComputeModelBounds(
 	Shape* p_shape,
-	MechS32* p_minX,
-	MechS32* p_maxX,
-	MechS32* p_minY,
-	MechS32* p_maxY,
-	MechS32* p_minZ,
-	MechS32* p_maxZ
+	MechScalar* p_minX,
+	MechScalar* p_maxX,
+	MechScalar* p_minY,
+	MechScalar* p_maxY,
+	MechScalar* p_minZ,
+	MechScalar* p_maxZ
 )
 {
 	Model* model;
@@ -125,8 +130,8 @@ void ComputeModelBounds(
 	}
 
 	vertex = (Vertex*) (model + 1);
-	*p_minX = *p_minY = *p_minZ = 0x7fffffff;
-	*p_maxX = *p_maxY = *p_maxZ = -0x7fffffff;
+	*p_minX = *p_minY = *p_minZ = FIXED_MAX;
+	*p_maxX = *p_maxY = *p_maxZ = FIXED_MIN;
 	for (count = model->m_vertexCount; count--; vertex++) {
 		if (vertex->m_worldX > *p_maxX) {
 			*p_maxX = vertex->m_worldX;
@@ -156,6 +161,7 @@ void ComputeModelBounds(
 
 // Frees the shape's bounding data.
 // FUNCTION: MW2 0x1006ed30
+// FUNCTION: MW2MATROX 0x1000a8ce
 void FreeBoundBox(Shape* p_shape)
 {
 	void* data;
@@ -183,6 +189,7 @@ void FreeBoundBox(Shape* p_shape)
 
 // Returns the bytes the shape's bounding data take.
 // FUNCTION: MW2 0x1006edc3
+// FUNCTION: MW2MATROX 0x1000a961
 MechS32 GetBoundBoxSize(Shape* p_shape)
 {
 	MechS32 size;

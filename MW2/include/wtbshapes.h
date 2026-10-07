@@ -2,6 +2,7 @@
 #define WTBSHAPES_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "object.h"
 #include "shape.h"
 #include "types.h"
@@ -23,7 +24,7 @@ extern "C"
 
 	void SetFaceIds(MechU32* p_ids, MechU32 p_count);
 	void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void SetShapeScale(MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	void SetShapeFlags(MechU32 p_flags);
 	Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject* p_parent);
 	MechS32 LoadShapeRecord(

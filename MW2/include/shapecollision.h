@@ -1,6 +1,7 @@
 #ifndef SHAPECOLLISION_H
 #define SHAPECOLLISION_H
 
+#include "fixedfloat.h"
 #include "ray.h"
 #include "shape.h"
 #include "types.h"
@@ -13,26 +14,26 @@ extern "C"
 
 	extern MechS32 g_rayBoxEntryBehind;
 
-	MechS32 TestPointInBox(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 GetBoxTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
+	MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
+	MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top);
 	void ClassifyPointInBox(
 		Shape* p_shape,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
 		MechS32* p_inside,
 		MechS32* p_inColumn,
-		MechS32* p_top
+		MechScalar* p_top
 	);
 	MechS32 TestRayBox(Shape* p_shape, Ray* p_ray);
-	MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 TestPointNever(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
+	MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	MechS32 TestRayNever(Shape* p_shape, Ray* p_ray);
-	MechS32 TestPointUnderFloor(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
-	MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
+	MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray);
-	MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top);
-	MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top);
+	MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray);
 
 #ifdef __cplusplus

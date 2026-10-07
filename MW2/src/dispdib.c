@@ -36,27 +36,35 @@ enum DispDibDrawFlags {
 };
 
 // GLOBAL: MW2 0x100a8380
+// GLOBAL: MW2MATROX 0x100be238
 HWND g_dispDibWindow = NULL;
 
 // GLOBAL: MW2 0x100a8384
+// GLOBAL: MW2MATROX 0x100be23c
 HDC g_dispDibWindowDc = NULL;
 
 // GLOBAL: MW2 0x100a8388
+// GLOBAL: MW2MATROX 0x100be240
 HDC g_dispDibDc = NULL;
 
 // GLOBAL: MW2 0x100a838c
+// GLOBAL: MW2MATROX 0x100be244
 HDC g_dispDibStretchDc = NULL;
 
 // GLOBAL: MW2 0x100a8390
+// GLOBAL: MW2MATROX 0x100be248
 HBITMAP g_dispDibBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8394
+// GLOBAL: MW2MATROX 0x100be24c
 HBITMAP g_dispDibStretchBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8398
+// GLOBAL: MW2MATROX 0x100be250
 undefined* g_dispDibStretchBits = NULL;
 
 // GLOBAL: MW2 0x100a839c
+// GLOBAL: MW2MATROX 0x100be254
 MechS32 g_dispDibInitialized = FALSE;
 
 // GLOBAL: MW2 0x100a83a0
@@ -74,6 +82,7 @@ DisplayBackend g_dispDibBackend = {
 };
 
 // GLOBAL: MW2 0x100a83c8
+// GLOBAL: MW2MATROX 0x100be280
 RefreshMode g_dispDibRefreshMode =
 	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
@@ -182,6 +191,7 @@ MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 }
 
 // FUNCTION: MW2 0x1004ea78
+// FUNCTION: MW2MATROX 0x1008f08b
 MechS32 DispDibEnd(void)
 {
 	MechS32 result;
@@ -266,6 +276,7 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 }
 
 // FUNCTION: MW2 0x1004ed1c
+// FUNCTION: MW2MATROX 0x1008f3d4
 MechS32 DispDibAcquireFramebuffer(void)
 {
 	g_refreshModeBuffer->m_buffer = g_dibBits;

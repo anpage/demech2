@@ -1,6 +1,7 @@
 #ifndef INPUTMAP_H
 #define INPUTMAP_H
 
+#include "fixedfloat.h"
 #include "playersteering.h"
 #include "types.h"
 
@@ -44,8 +45,8 @@ extern "C"
 	extern MechS8 g_sinkZoomFactorPlus;
 	extern MechS8 g_sinkZoomFactorMinus;
 	extern MechS8 g_sinkZoomFactorReset;
-	extern MechS32 g_sinkMenuItem;
-	extern MechS32 g_sinkMenuValue;
+	extern MechScalar g_sinkMenuItem;
+	extern MechScalar g_sinkMenuValue;
 	extern MechS8 g_sinkMenuItemReset;
 	extern MechS8 g_sinkMenuValueReset;
 	extern MechS8 g_sinkMenuEnter;

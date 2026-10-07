@@ -1,6 +1,7 @@
 #ifndef INPUTAXIS_H
 #define INPUTAXIS_H
 
+#include "fixedfloat.h"
 #include "types.h"
 
 #pragma pack(push, 1)
@@ -8,7 +9,7 @@
 // The state of an axis sink that analog bindings drive: its position and the keys that move it.
 // SIZE 0x32
 typedef struct InputAxis {
-	MechS32* m_output;    // 0x00 — the sink's output
+	MechScalar* m_output; // 0x00 — the sink's output
 	MechS32* m_rate;      // 0x04 — m_ownRate, or m_position for a _delta sink
 	MechS32 m_range;      // 0x08 — max - min
 	MechS32 m_minFixed;   // 0x0c — min (16.16)

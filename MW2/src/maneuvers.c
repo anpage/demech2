@@ -7,6 +7,7 @@
 #include "collision.h"
 #include "decomp.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "geocache.h"
 #include "hud.h"
@@ -16,7 +17,7 @@
 #include "object.h"
 #include "players.h"
 #include "playersteering.h"
-#include "point.h"
+#include "probedirection.h"
 #include "random.h"
 #include "ray.h"
 #include "shape.h"
@@ -33,10 +34,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef MW2_MATROX
+// The Matrox edition divides by a probe direction only when it isn't 1.
+#define PROBE_DIVIDE(p_n, p_d) ((MechFloat) ((p_d) == 1 ? (p_n) : (p_n) / (p_d)))
+#endif
+
 // Sixteen directions around a mech, as (x, z) divisors of a length: BuildProbeRay's probe rays
 // and GetOffsetPoint's offsets.
 // GLOBAL: MW2 0x100a2900
-Point g_probeDirections[16] = {
+// GLOBAL: MW2MATROX 0x100a4b08
+ProbeDirection g_probeDirections[16] = {
 	{0, 1},
 	{2, 1},
 	{1, 1},
@@ -58,6 +65,7 @@ Point g_probeDirections[16] = {
 // The maneuver tables: the maneuvers a mech chooses among and those that may follow each.
 
 // GLOBAL: MW2 0x100a2980
+// GLOBAL: MW2MATROX 0x100a4b88
 ManeuverEntry g_mechManeuvers[13] = {
 	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
 	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
@@ -75,16 +83,20 @@ ManeuverEntry g_mechManeuvers[13] = {
 };
 
 // GLOBAL: MW2 0x100a2a70
+// GLOBAL: MW2MATROX 0x100a4c78
 ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
+// GLOBAL: MW2MATROX 0x100a4c90
 ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2aa0
+// GLOBAL: MW2MATROX 0x100a4ca8
 ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
+// GLOBAL: MW2MATROX 0x100a4cc0
 ManeuverEntry g_altMechManeuvers[13] = {
 	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
 	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
@@ -103,6 +115,7 @@ ManeuverEntry g_altMechManeuvers[13] = {
 
 // Set once InitializeManeuvers has filled g_maneuverTables.
 // GLOBAL: MW2 0x100a2ba4
+// GLOBAL: MW2MATROX 0x100a4dac
 MechS32 g_maneuverTablesReady = 0;
 
 // Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
@@ -117,6 +130,7 @@ MechS32 g_slideSlope = 0x2000;
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
 // first.
 // GLOBAL: MW2 0x101748e0
+// GLOBAL: MW2MATROX 0x10212cf0
 ManeuverTable g_maneuverTables[9];
 
 // Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
@@ -124,6 +138,7 @@ ManeuverTable g_maneuverTables[9];
 // runs at the target, or flees) or when its time is up; with no maneuver, chooses and starts one.
 // Stack-slot permutation: done, mech and leader.
 // FUNCTION: MW2 0x10013430
+// FUNCTION: MW2MATROX 0x10019000
 void RunManeuver(Player* p_player, MechU16 p_target)
 {
 	MechS32 done;
@@ -172,7 +187,11 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 			}
 
 			if (!AvoidObstacles(p_player)) {
+#ifdef MW2_MATROX
+				p_player->m_steering->m_turn += p_player->m_maneuverParam * 450;
+#else
 				p_player->m_steering->m_turn += p_player->m_maneuverParam * 0x1c20000;
+#endif
 			}
 
 			if (p_player->m_maneuverTimer <= g_currentClock) {
@@ -275,6 +294,7 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 // Resets p_player's maneuver state and sets the maneuvers its piloting (1 to 4) allows, and fills
 // the maneuver tables the first time.
 // FUNCTION: MW2 0x100139e9
+// FUNCTION: MW2MATROX 0x100195d1
 void InitializeManeuvers(Player* p_player)
 {
 	MechS16 i;
@@ -377,6 +397,7 @@ void InitializeManeuvers(Player* p_player)
 // first), redrawn until its conditions hold.
 // Stack-slot permutation: mech, table, choice and index.
 // FUNCTION: MW2 0x10013d81
+// FUNCTION: MW2MATROX 0x10019969
 MechS32 ChooseManeuver(Player* p_player)
 {
 	Mech* mech;
@@ -459,7 +480,7 @@ MechS32 ChooseManeuver(Player* p_player)
 			choice = c_maneuverStupid;
 		}
 
-		if (choice == c_maneuverAsrp && mech->m_maxTorsoTwist < 0xa0000) {
+		if (choice == c_maneuverAsrp && mech->m_maxTorsoTwist < FIXED_CONST(10)) {
 			choice = c_maneuverAchick;
 		}
 
@@ -474,6 +495,7 @@ MechS32 ChooseManeuver(Player* p_player)
 // Returns the index of maneuver p_id in p_table, or -1.
 // The original loads the index before m_entries (index order).
 // FUNCTION: MW2 0x100140e4
+// FUNCTION: MW2MATROX 0x10019cd8
 MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 {
 	MechS16 i;
@@ -490,11 +512,17 @@ MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 // Starts p_player's maneuver (m_maneuver): resets its state and sets it up, with the time it
 // ends (m_maneuverEnd).
 // FUNCTION: MW2 0x10014149
+// FUNCTION: MW2MATROX 0x10019d3d
 void StartManeuver(Player* p_player)
 {
 	p_player->m_ai.m_goal = p_player->m_ai.m_target;
 	p_player->m_maneuverTimer = 0;
+#ifdef MW2_MATROX
+	p_player->m_lastTargetDistance = 0;
+	p_player->m_maneuverParam = p_player->m_maneuverFlag = 0;
+#else
 	p_player->m_lastTargetDistance = p_player->m_maneuverParam = p_player->m_maneuverFlag = 0;
+#endif
 	p_player->m_controlsJets = 0;
 	p_player->m_maneuverEnd = g_currentClock + 0x235a;
 	switch (p_player->m_maneuver) {
@@ -576,6 +604,7 @@ void StartManeuver(Player* p_player)
 // Ends p_player's maneuver (m_maneuver): undoes what it set up, records it as the previous one
 // and makes the goal the target again.
 // FUNCTION: MW2 0x1001450e
+// FUNCTION: MW2MATROX 0x1001a106
 void EndManeuver(Player* p_player)
 {
 	switch (p_player->m_maneuver) {
@@ -631,11 +660,16 @@ void EndManeuver(Player* p_player)
 // Places a nav point for p_player where GetOffsetPoint puts it, and makes it the player's target.
 // The only diff is a stack-slot permutation of x, y, z and nav.
 // FUNCTION: MW2 0x10014723
+// FUNCTION: MW2MATROX 0x1001a31b
+#ifdef MW2_MATROX
+void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance)
+#else
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance)
+#endif
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 	MechS32 nav;
 
 	GetOffsetPoint(p_target, p_direction, &x, &z, &y, p_distance);
@@ -653,13 +687,28 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // The empty else arms give the original's jmp to the next statement after each offset. The only
 // other diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100147d0
+// FUNCTION: MW2MATROX 0x1001a3c8
+#ifdef MW2_MATROX
+void GetOffsetPoint(
+	MechU32 p_target,
+	MechS16 p_direction,
+	MechScalar* p_x,
+	MechScalar* p_z,
+	MechScalar* p_y,
+	MechFloat p_distance
+)
+#else
 void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32* p_z, MechS32* p_y, MechS16 p_distance)
+#endif
 {
 	MechU32 index;
 	MechS32 thing;
 	Matrix* matrix;
 	struct SceneObject* obj;
-	MechS32 y;
+	MechScalar y;
+#ifdef MW2_MATROX
+	MechScalar divisor;
+#endif
 
 	y = 0;
 	index = p_target & 0xff;
@@ -674,6 +723,12 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 		if (!obj) {
 			GetStaticObjectPosition(thing, p_x, p_y, p_z);
 			*p_y = 0;
+#ifdef MW2_MATROX
+			divisor = g_probeDirections[p_direction].m_x;
+			*p_x += (MechFloat) (divisor == 0 ? 0 : PROBE_DIVIDE(p_distance, divisor));
+			divisor = g_probeDirections[p_direction].m_y;
+			*p_z += (MechFloat) (divisor == 0 ? 0 : PROBE_DIVIDE(p_distance, divisor));
+#else
 			if (g_probeDirections[p_direction].m_x) {
 				*p_x += p_distance / g_probeDirections[p_direction].m_x;
 			}
@@ -685,6 +740,7 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 			}
 			else {
 			}
+#endif
 
 			return;
 		}
@@ -693,6 +749,12 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 		break;
 	}
 
+#ifdef MW2_MATROX
+	divisor = g_probeDirections[p_direction].m_x;
+	*p_x = (MechFloat) (divisor == 0 ? 0 : PROBE_DIVIDE(p_distance, divisor));
+	divisor = g_probeDirections[p_direction].m_y;
+	*p_z = (MechFloat) (divisor == 0 ? 0 : PROBE_DIVIDE(p_distance, divisor));
+#else
 	if (g_probeDirections[p_direction].m_x) {
 		*p_x = p_distance / g_probeDirections[p_direction].m_x;
 	}
@@ -706,6 +768,7 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 	else {
 		*p_z = 0;
 	}
+#endif
 
 	matrix = GetObjWorldMatrix(obj);
 	TransformPoint(matrix, p_x, &y, p_z);
@@ -714,32 +777,49 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 // Whether p_turn (16.16 degrees) is a sharp turn, past 5 degrees either way; a stopped player
 // then creeps forward.
 // FUNCTION: MW2 0x1001498c
-MechS32 IsSharpTurn(Player* p_player, MechS32 p_turn)
+// FUNCTION: MW2MATROX 0x1001a6a8
+MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 {
 	MechS32 sharp;
 
 	sharp = 0;
+#ifdef MW2_MATROX
+	if ((MechFloat) fabs(p_turn) > 5.0f) {
+		sharp = 1;
+		if (!p_player->m_steering->m_throttle) {
+			p_player->m_steering->m_throttle = 0.0015625f;
+		}
+	}
+#else
 	if (p_turn > 0x50000 || p_turn < -0x50000) {
 		sharp = 1;
 		if (!p_player->m_steering->m_throttle) {
 			p_player->m_steering->m_throttle = 0x66;
 		}
 	}
+#endif
 
 	return sharp;
 }
 
 // Steers p_player at p_target and closes to 15000, asking for c_maneuverAvoid within 4500.
 // FUNCTION: MW2 0x100149e7
+// FUNCTION: MW2MATROX 0x1001a709
 void ManeuverStupid(Player* p_player, MechS16 p_target)
 {
+#ifndef MW2_MATROX
 	MechS32 range;
-	MechS32 heading;
+#endif
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	if (!AvoidObstacles(p_player)) {
+#ifdef MW2_MATROX
+		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 15000);
+#else
 		range = 15000;
 		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, range);
+#endif
 		heading = SteerToTarget(p_player);
 		IsSharpTurn(p_player, heading);
 	}
@@ -758,9 +838,10 @@ void ManeuverStupid(Player* p_player, MechS16 p_target)
 // Turns p_player toward its goal and closes on its target; once stopped and turned more than 5
 // degrees away, turns in place (IsSharpTurn) until the target is more than 4500 away.
 // FUNCTION: MW2 0x10014aa8
+// FUNCTION: MW2MATROX 0x1001a7cb
 void ManeuverBehind(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
@@ -772,7 +853,11 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 			p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 4000);
 		}
 
+#ifdef MW2_MATROX
+		if ((MechFloat) fabs(p_player->m_steering->m_throttle) < 1e-7f && fabs(heading) > 5.0) {
+#else
 		if (!p_player->m_steering->m_throttle && abs(heading) > 0x50000) {
+#endif
 			p_player->m_maneuverFlag = 1;
 		}
 
@@ -805,10 +890,15 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 // 500000).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10014c3d
+// FUNCTION: MW2MATROX 0x1001a978
 MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 {
+#ifdef MW2_MATROX
+	MechFloat scale;
+#else
 	MechDouble scale;
-	MechS32 heading;
+#endif
+	MechScalar heading;
 	MechS32 result;
 
 	result = FALSE;
@@ -822,6 +912,16 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 	}
 
 	RunAIWeapons(p_player, heading);
+#ifdef MW2_MATROX
+	scale = GetClosingRate(p_player) / 7.7f;
+	if (scale < 1) {
+		scale = 1;
+	}
+
+	if (p_player->m_targetInfo.m_distance <= scale * 8000) {
+		result = TRUE;
+	}
+#else
 	scale = FixedDiv16(GetClosingRate(p_player) << 16, 500000) / 65536.0;
 	if (scale < 1.0) {
 		scale = 1.0;
@@ -830,6 +930,7 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 	if (p_player->m_targetInfo.m_distance <= scale * 8000.0) {
 		result = TRUE;
 	}
+#endif
 
 	JumpToTurn(p_player);
 	return result;
@@ -838,6 +939,7 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 // Runs at p_target, even when the shape AvoidObstacles steers around is the target's own, and
 // self-destructs within 2000 of it. Whether it did.
 // FUNCTION: MW2 0x10014d4e
+// FUNCTION: MW2MATROX 0x1001aa79
 MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 {
 	MechS32 result;
@@ -860,25 +962,27 @@ MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 // Backs p_player away from p_target at full throttle, facing it. Whether its mech collides.
 // The only diff is a stack-slot permutation of heading and result.
 // FUNCTION: MW2 0x10014df1
+// FUNCTION: MW2MATROX 0x1001ab25
 MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 result;
 
 	SetTarget(p_player, p_target);
 	heading = SteerToTarget(p_player);
 	RunAIWeapons(p_player, heading);
 	result = p_player->m_mech->m_collisionTicks;
-	p_player->m_steering->m_throttle = 0x400;
+	p_player->m_steering->m_throttle = FIXED_RAW(0x400);
 	JumpToTurn(p_player);
 	return result;
 }
 
 // Turns p_player toward its goal and closes on its target. Whether it is within 3000.
 // FUNCTION: MW2 0x10014e5e
+// FUNCTION: MW2MATROX 0x1001ab92
 MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_player->m_ai.m_goal);
 	heading = GetTargetBearing(p_player);
@@ -897,9 +1001,10 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 // while it can fire and has a line to it, then for a second, then BrakeFall. Whether that ended.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10014f23
+// FUNCTION: MW2MATROX 0x1001ac60
 MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 result;
 
 	result = FALSE;
@@ -944,9 +1049,10 @@ MechS32 ManeuverWpeek(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target. Whether the player is at least 2000 above it.
 // FUNCTION: MW2 0x100150c1
+// FUNCTION: MW2MATROX 0x1001ae00
 MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
@@ -961,9 +1067,10 @@ MechS32 ManeuverAjmpin(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target.
 // FUNCTION: MW2 0x1001512e
+// FUNCTION: MW2MATROX 0x1001ae73
 MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	heading = GetTargetBearing(p_player);
@@ -977,11 +1084,12 @@ MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 // jump on.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015172
+// FUNCTION: MW2MATROX 0x1001aeb7
 MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 {
-	MechS32 rate;
+	MechScalar rate;
 	MechS32 result;
-	MechS32 turn;
+	MechScalar turn;
 	MechS16 side;
 	Mech* mech;
 	Mech* targetMech;
@@ -1000,7 +1108,11 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 		return result;
 	}
 
+#ifdef MW2_MATROX
+	turn = fabs(turn);
+#else
 	turn = abs(turn);
+#endif
 	targetMech = g_players[p_target & 0xff]->m_mech;
 	mech = p_player->m_mech;
 	if (turn > mech->m_maxTorsoTwist && turn < mech->m_maxTorsoTwist * 3) {
@@ -1012,7 +1124,11 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 
 	if (p_player->m_targetInfo.m_distance > 1000) {
 		rate = GetClosingRate(p_player);
+#ifdef MW2_MATROX
+		if (rate > (p_player->m_targetInfo.m_distance <= 6000 ? 9.0f : 36.0f)) {
+#else
 		if (rate > (p_player->m_targetInfo.m_distance <= 6000 ? 9 : 36)) {
+#endif
 			SetJumpDirection(p_player, side);
 		}
 		else {
@@ -1040,9 +1156,10 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 // Drives p_player at full throttle (backwards while StartManeuver set m_reverse), steering
 // towards p_target.
 // FUNCTION: MW2 0x10015342
+// FUNCTION: MW2MATROX 0x1001b0b1
 void ManeuverAvoid(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	if (!p_player->m_steering->m_reverse) {
@@ -1058,7 +1175,7 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 	}
 
 	RunAIWeapons(p_player, heading);
-	p_player->m_steering->m_throttle = 0x400;
+	p_player->m_steering->m_throttle = FIXED_RAW(0x400);
 	JumpToTurn(p_player);
 }
 
@@ -1067,9 +1184,10 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // within 3000.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100153e6
+// FUNCTION: MW2MATROX 0x1001b155
 MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 {
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 result;
 
 	result = 0;
@@ -1103,6 +1221,7 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 // jump jets (its jump fuel not negative).
 // The only diff is a stack-slot permutation of index and below.
 // FUNCTION: MW2 0x10015520
+// FUNCTION: MW2MATROX 0x1001b292
 MechS32 IsBelowHiddenTarget(Player* p_player)
 {
 	MechS16 index;
@@ -1134,6 +1253,7 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // Returns whether the player is on the ground.
 // Stack-slot permutation: line, value and mech.
 // FUNCTION: MW2 0x100155e1
+// FUNCTION: MW2MATROX 0x1001b359
 MechS32 BrakeFall(Player* p_player)
 {
 	MechChar line[80];
@@ -1147,16 +1267,16 @@ MechS32 BrakeFall(Player* p_player)
 
 	value = p_player->m_steering->m_jumpJetEnabled;
 	if (p_player->m_position.m_y < 20000) {
-		if (mech->m_velocityY < -0x102762 * 0.85) {
+		if (mech->m_velocityY < FIXED_RAW(-0x102762) * 0.85) {
 			value = 1;
 		}
-		else if (mech->m_velocityY > -0x102762 * 0.75) {
+		else if (mech->m_velocityY > FIXED_RAW(-0x102762) * 0.75) {
 			value = 0;
 		}
 	}
 
 	SetJumpJets(p_player, value);
-	if (mech->m_velocityY < -0x102762) {
+	if (mech->m_velocityY < FIXED_RAW(-0x102762)) {
 		sprintf(
 			line,
 			"%6ld : %2d Mech %2d has exceded fall damage speed.\n",
@@ -1172,6 +1292,7 @@ MechS32 BrakeFall(Player* p_player)
 
 // Fires (p_value set) or cuts p_player's jump jets.
 // FUNCTION: MW2 0x100156f2
+// FUNCTION: MW2MATROX 0x1001b476
 void SetJumpJets(Player* p_player, MechS8 p_value)
 {
 	p_player->m_steering->m_jumpJetEnabled = p_value;
@@ -1183,8 +1304,103 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // 10 ticks for the local player, 90 or 181 for others) it returns whether it is avoiding a shape.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015709
+// FUNCTION: MW2MATROX 0x1001b48d
 MechS32 AvoidObstacles(Player* p_player)
 {
+#ifdef MW2_MATROX
+	MechScalar length;
+	Shape* hit;
+	Ray ray;
+	Mech* mech;
+	MechS16 i;
+	MechScalar turn;
+	MechScalar throttle;
+
+	turn = 0;
+	mech = p_player->m_mech;
+	if (!mech->m_topSpeed || (!p_player->m_avoidSide && !p_player->m_steering->m_throttle) ||
+		p_player->m_steering->m_reverse) {
+		return FALSE;
+	}
+
+	if (p_player->m_nextAvoidCheck > g_currentClock) {
+		return p_player->m_avoidShape ? TRUE : FALSE;
+	}
+
+	if (!p_player->m_avoidSide) {
+		length = ApproximateVectorLength(mech->m_velocityX, 0, mech->m_velocityZ);
+		p_player->m_probeScale = length / 7.7f;
+		if (p_player->m_type != c_playerTypeMech) {
+			p_player->m_probeScale /= 2;
+		}
+
+		if (p_player->m_probeScale < 0.3f) {
+			p_player->m_probeScale = 0.3f;
+		}
+	}
+
+	for (i = 0; i < 4; i++) {
+		BuildProbeRay(p_player, &ray, p_player->m_avoidSide, i, p_player->m_probeScale * 5000, 0);
+		if (TestSegmentCollision(&ray, &hit, p_player->m_index)) {
+			if (IsStandableShape(hit)) {
+				break;
+			}
+
+			if (!p_player->m_avoidSide) {
+				p_player->m_avoidSide = GetAvoidSide(
+					p_player,
+					hit,
+					p_player->m_position.m_x,
+					p_player->m_position.m_y,
+					p_player->m_position.m_z
+				);
+				p_player->m_avoidShape = hit;
+			}
+
+			turn += p_player->m_avoidSide * 819.2f / 4;
+		}
+		else {
+			if (i == 0 && (MechFloat) fabs(GetTargetBearing(p_player)) <= 1.0f) {
+				p_player->m_avoidShape = NULL;
+				p_player->m_avoidSide = 0;
+			}
+
+			if (i == 0 && p_player->m_avoidSide) {
+				BuildProbeRay(p_player, &ray, -p_player->m_avoidSide, 1, p_player->m_probeScale * 5000, 1);
+				if (TestSegmentCollision(&ray, &hit, p_player->m_index)) {
+					if (IsStandableShape(hit)) {
+						break;
+					}
+
+					turn += p_player->m_avoidSide * 409.6f;
+				}
+			}
+
+			break;
+		}
+	}
+
+	if (turn) {
+		turn = ClampMagnitude(turn, 819.2f);
+		p_player->m_steering->m_turn = turn;
+		// The local player's throttle is a float in m_maneuverParam.
+		throttle = p_player->m_index == g_localPlayerId ? *(MechScalar*) &p_player->m_maneuverParam : 0.015625f;
+		p_player->m_steering->m_throttle = (MechFloat) (i == 0 ? throttle : 0.0078125f);
+		if (p_player->m_type == c_playerTypeWanderer) {
+			p_player->m_steering->m_throttle = 0;
+			p_player->m_steering->m_turn = 0;
+		}
+	}
+
+	if (p_player->m_index == g_localPlayerId) {
+		p_player->m_nextAvoidCheck = g_currentClock + 10;
+	}
+	else {
+		p_player->m_nextAvoidCheck = g_currentClock + (p_player->m_avoidShape ? 90 : 181);
+	}
+
+	return turn ? TRUE : FALSE;
+#else
 	MechS32 length;
 	Shape* hit;
 	Ray ray;
@@ -1302,13 +1518,20 @@ MechS32 AvoidObstacles(Player* p_player)
 	}
 
 	return turn ? TRUE : FALSE;
+#endif
 }
 
 // Whether p_shape is solid ground to stand on: a flat enough face or a shape of type 0x50.
 // FUNCTION: MW2 0x10015b40
+// FUNCTION: MW2MATROX 0x1001b91f
 MechS32 IsStandableShape(Shape* p_shape)
 {
+#ifdef MW2_MATROX
+	// 0.766 (cos 40 degrees), where 1.1 has 0xc41b.
+	if (HasHeightTest(p_shape) && g_segmentNormalY >= 0.766f) {
+#else
 	if (HasHeightTest(p_shape) && g_segmentNormalY >= 0xc41b) {
+#endif
 		return 1;
 	}
 
@@ -1319,8 +1542,62 @@ MechS32 IsStandableShape(Shape* p_shape)
 // negative p_side) in the mech's frame, from its position or, with p_fromEdge, from its side.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015b9f
-void BuildProbeRay(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, MechS32 p_length, MechS32 p_fromEdge)
+// FUNCTION: MW2MATROX 0x1001b985
+void BuildProbeRay(
+	Player* p_player,
+	Ray* p_ray,
+	MechS32 p_side,
+	MechS16 p_step,
+	MechScalar p_length,
+	MechS32 p_fromEdge
+)
 {
+#ifdef MW2_MATROX
+	Matrix* matrix;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar dx;
+	Mech* mech;
+	MechScalar dz;
+	MechS32 index;
+	MechScalar dy;
+
+	dy = 0;
+	mech = p_player->m_mech;
+	matrix = GetObjWorldMatrix(p_player->m_obj);
+	index = p_side >= 0 ? p_step : (0x10 - p_step) % 16;
+	dx = g_probeDirections[index].m_x;
+	if (dx) {
+		dx = PROBE_DIVIDE(p_length, dx);
+	}
+
+	dz = g_probeDirections[index].m_y;
+	if (dz) {
+		dz = PROBE_DIVIDE(p_length, dz);
+	}
+
+	TransformPoint(matrix, &dx, &dy, &dz);
+	if (p_fromEdge) {
+		if (p_side >= 0) {
+			x = mech->m_radius - 1;
+		}
+		else {
+			x = -mech->m_radius + 1;
+		}
+
+		z = 0;
+		TransformPoint(matrix, &x, &dy, &z);
+		y = p_player->m_position.m_y;
+	}
+	else {
+		y = p_player->m_position.m_y;
+		x = p_player->m_position.m_x;
+		z = p_player->m_position.m_z;
+	}
+
+	BuildRayFromSegment(p_ray, x, y, z, dx, y, dz);
+#else
 	Matrix* matrix;
 	MechS32 x;
 	MechS32 y;
@@ -1363,13 +1640,39 @@ void BuildProbeRay(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step,
 	}
 
 	BuildRayFromSegment(p_ray, x, y, z, dx, y, dz);
+#endif
 }
 
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015d2a
-MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x1001bb6c
+MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
+#ifdef MW2_MATROX
+	MechScalar dz;
+	MechScalar unused;
+	MechScalar distance;
+	MechScalar heading;
+	MechScalar length;
+	MechScalar dx;
+	MechScalar dy;
+
+	dx = p_shape->m_centerX - p_x;
+	dy = p_shape->m_centerY - p_y;
+	dz = p_shape->m_centerZ - p_z;
+	GetBearingAndRange(dx, dy, dz, &heading, &length, &distance, &unused);
+	heading -= p_player->m_heading;
+	if (heading > FIXED_CONST(180)) {
+		heading -= FIXED_CONST(360);
+	}
+	else if (heading < FIXED_CONST(-180)) {
+		heading += FIXED_CONST(360);
+	}
+
+	// The Matrox edition tests the float's sign bit.
+	return (*(MechU32*) &heading & 0x80000000) ? 1 : -1;
+#else
 	MechS32 dz;
 	MechS32 unused;
 	MechU32 distance;
@@ -1391,25 +1694,32 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y,
 	}
 
 	return heading >= 0 ? -1 : 1;
+#endif
 }
 
 // The heading from p_player to p_target (16.16 degrees, 0 to 360), keeping its target.
 // FUNCTION: MW2 0x10015dd6
-MechS32 GetHeadingTo(Player* p_player, MechS16 p_target)
+// FUNCTION: MW2MATROX 0x1001bc2c
+MechScalar GetHeadingTo(Player* p_player, MechS16 p_target)
 {
 	MechS32 target;
-	MechS32 heading;
+	MechScalar heading;
 
 	target = p_player->m_targetInfo.m_target;
 	SetTarget(p_player, p_target);
-	heading = (GetTargetBearing(p_player) + 0x1680000) % 0x1680000;
+#ifdef MW2_MATROX
+	heading = FIXED_MOD360(GetTargetBearing(p_player) + 360.0);
+#else
+	heading = FIXED_MOD360(GetTargetBearing(p_player) + FIXED_CONST(360));
+#endif
 	SetTarget(p_player, target);
 	return heading;
 }
 
 // Clamps p_value to +/- p_limit.
 // FUNCTION: MW2 0x10015e34
-MechS32 ClampMagnitude(MechS32 p_value, MechS32 p_limit)
+// FUNCTION: MW2MATROX 0x1001bc8e
+MechScalar ClampMagnitude(MechScalar p_value, MechScalar p_limit)
 {
 	if (p_value > p_limit) {
 		p_value = p_limit;
@@ -1424,7 +1734,8 @@ MechS32 ClampMagnitude(MechS32 p_value, MechS32 p_limit)
 // Whether the segment from p_player at height p_y to its target is clear, or hits the target.
 // The only diff is a stack-slot permutation of ray, hit, target and flags.
 // FUNCTION: MW2 0x10015e74
-MechS32 HasLineToTarget(Player* p_player, MechS32 p_y)
+// FUNCTION: MW2MATROX 0x1001bcd8
+MechS32 HasLineToTarget(Player* p_player, MechScalar p_y)
 {
 	Ray ray;
 	Shape* hit;
@@ -1462,6 +1773,7 @@ MechS32 HasLineToTarget(Player* p_player, MechS32 p_y)
 // Whether p_mech has weapons but none left that can fire: every one is out of ammunition.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015fa8
+// FUNCTION: MW2MATROX 0x1001be0c
 MechS32 IsOutOfAmmo(Mech* p_mech)
 {
 	MechS16 i;
@@ -1482,6 +1794,7 @@ MechS32 IsOutOfAmmo(Mech* p_mech)
 
 // Fires p_player's jump jets forward (p_value set) or backward.
 // FUNCTION: MW2 0x10016057
+// FUNCTION: MW2MATROX 0x1001bebb
 void SetJumpDirection(Player* p_player, MechS16 p_value)
 {
 	p_player->m_steering->m_jumpJetFireForward = p_value;
@@ -1495,9 +1808,10 @@ void SetJumpDirection(Player* p_player, MechS16 p_value)
 
 // How fast p_player closes on its target since the last call, per tick.
 // FUNCTION: MW2 0x10016093
-MechS32 GetClosingRate(Player* p_player)
+// FUNCTION: MW2MATROX 0x1001bef7
+MechScalar GetClosingRate(Player* p_player)
 {
-	MechS32 rate;
+	MechScalar rate;
 
 	if (!g_deltaTime) {
 		return 0;
@@ -1512,9 +1826,10 @@ MechS32 GetClosingRate(Player* p_player)
 // twist, and stops them once it is inside, unless the maneuver works them itself. Only with the
 // piloting skill for it, and not while avoiding.
 // FUNCTION: MW2 0x100160eb
+// FUNCTION: MW2MATROX 0x1001bf6d
 void JumpToTurn(Player* p_player)
 {
-	MechS32 turn;
+	MechScalar turn;
 	Mech* mech;
 
 	mech = p_player->m_mech;
@@ -1523,7 +1838,11 @@ void JumpToTurn(Player* p_player)
 	}
 
 	SetTarget(p_player, p_player->m_ai.m_target);
+#ifdef MW2_MATROX
+	turn = fabs(GetTargetBearing(p_player));
+#else
 	turn = abs(GetTargetBearing(p_player));
+#endif
 	if (turn >= mech->m_maxTorsoTwist || (turn <= -mech->m_maxTorsoTwist && p_player->m_steering->m_throttle)) {
 		if (CanJump(p_player, 20) && p_player->m_onGround && !p_player->m_steering->m_jumpJetEnabled) {
 			SetJumpJets(p_player, 1);
@@ -1537,17 +1856,24 @@ void JumpToTurn(Player* p_player)
 // Whether p_player's mech can jump: jump fuel left (at least 6), jump jets that lift it and its
 // heat (16.16) under p_limit.
 // FUNCTION: MW2 0x10016222
+// FUNCTION: MW2MATROX 0x1001c0b2
 MechS32 CanJump(Player* p_player, MechS32 p_limit)
 {
 	Mech* mech;
 
 	mech = p_player->m_mech;
-	return mech->m_jumpFuel >= 6 && mech->m_jumpThrust && mech->m_heat >> 16 < p_limit;
+#ifdef MW2_MATROX
+	return mech->m_jumpFuel >= 6 && (MechFloat) fabs(mech->m_jumpThrust) >= 1e-7f &&
+		   FIXED_TO_INT(mech->m_heat) < p_limit;
+#else
+	return mech->m_jumpFuel >= 6 && mech->m_jumpThrust && FIXED_TO_INT(mech->m_heat) < p_limit;
+#endif
 }
 
 // The shape of the player or game thing an AI target id names, or NULL.
 // The only diff is a stack-slot permutation of index, id and obj.
 // FUNCTION: MW2 0x1001627f
+// FUNCTION: MW2MATROX 0x1001c11d
 Shape* GetTargetShape(MechS16 p_target)
 {
 	MechS16 index;
@@ -1574,24 +1900,26 @@ Shape* GetTargetShape(MechS16 p_target)
 // sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
 // (state 4).
 // Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
+// MW2MATROX: pitch < range and bearing < maxAngle compare in the other operand order.
 // FUNCTION: MW2 0x1001632c
+// FUNCTION: MW2MATROX 0x1001c1ca
 void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {
-	MechS32 maxAngle;
+	MechScalar maxAngle;
 	MechS32 index;
-	MechS32 pitch;
+	MechScalar pitch;
 	MechS32 kind;
 	Player* target;
 	MechU32 id;
-	MechS32 bearing;
-	MechS32 x;
-	MechS32 y;
-	MechS32 range;
+	MechScalar bearing;
+	MechScalar x;
+	MechScalar y;
+	MechScalar range;
 	MechS32 sx;
-	MechS32 z;
+	MechScalar z;
 	MechS32 sy;
 	Shape* hit;
-	MechS32 heading;
+	MechScalar heading;
 	Ray ray;
 	MechS16 side;
 	MechS16 j;
@@ -1632,10 +1960,14 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 		y = g_players[index]->m_position.m_y;
 		z = g_players[index]->m_position.m_z;
 		if (ProjectWorldPoint(&x, &y, &z)) {
-			range = 0x30000;
+			range = FIXED_CONST(3);
 			maxAngle = 15;
 			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
-			bearing = (GetTargetBearing(p_mech->m_player) >> 16) % 360;
+#ifdef MW2_MATROX
+			bearing = fmod(GetTargetBearing(p_mech->m_player), 360.0);
+#else
+			bearing = FIXED_TO_INT(GetTargetBearing(p_mech->m_player)) % 360;
+#endif
 			if (pitch < range && -range < pitch && bearing < maxAngle && -maxAngle < bearing) {
 				target = g_players[index];
 			}
@@ -1645,7 +1977,11 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 	if (target && CanJump(target, 0x41)) {
 		if (RandomIntBelow(3)) {
 			heading = GetHeadingTo(target, p_mech->m_player->m_index);
+#ifdef MW2_MATROX
+			step = heading / 90;
+#else
 			step = FixedDiv16(heading, 0x5a0000) >> 16;
+#endif
 			if (RandomIntBelow(2)) {
 				side = -1;
 			}
@@ -1677,17 +2013,23 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 // the place.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100166b1
+// FUNCTION: MW2MATROX 0x1001c584
 MechS16 ChooseFlankPlace(Player* p_player)
 {
-	MechS32 angle;
+	MechScalar angle;
 	MechS32 i;
 	MechS32 place;
 	MechS32 found;
 	Player* leader;
 
 	leader = g_players[p_player->m_ai.m_goal & 0xff];
+#ifdef MW2_MATROX
+	angle = GetHeadingTo(leader, p_player->m_index | 0x200) / 45;
+	place = angle + 0.5f;
+#else
 	angle = FixedDiv16(GetHeadingTo(leader, p_player->m_index | 0x200), 0x2d0000);
 	place = (angle + 0x8000) >> 16;
+#endif
 	if (place >= 8) {
 		place = 0;
 	}
@@ -1748,6 +2090,7 @@ MechS16 ChooseFlankPlace(Player* p_player)
 
 // Whether p_mech is stuck: colliding, not reversing, and not in a maneuver that jumps or avoids.
 // FUNCTION: MW2 0x10016880
+// FUNCTION: MW2MATROX 0x1001c761
 MechS32 IsStuck(Mech* p_mech)
 {
 	return p_mech->m_collisionTicks && p_mech->m_player->m_steering->m_reverse != 1 &&

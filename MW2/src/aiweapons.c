@@ -3,6 +3,7 @@
 #include "ai.h"
 #include "clock.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "lineofsight.h"
 #include "mech.h"
 #include "players.h"
@@ -22,18 +23,19 @@
 // fired.
 // Stack-slot permutation: fired, roll and delta.
 // FUNCTION: MW2 0x1004b5a0
-MechS32 RunAIWeapons(Player* p_player, MechS32 p_heading)
+// FUNCTION: MW2MATROX 0x1007a850
+MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 {
 	MechS32 fired;
 	MechS32 roll;
-	MechS32 delta;
+	MechScalar delta;
 
 	fired = FALSE;
 	if (p_player->m_nextFireTime <= g_currentClock) {
 		roll = RandomIntBelow(p_player->m_gunnery);
 		p_player->m_nextFireTime = roll * 22 + g_currentClock;
 		delta = p_heading - p_player->m_torsoTwist;
-		if (delta < 0xa0000 && delta > -0xa0000) {
+		if (delta < FIXED_CONST(10) && delta > FIXED_CONST(-10)) {
 			if ((p_player->m_ai.m_goal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
 				SetTarget(p_player, p_player->m_ai.m_goal);
 				if (!roll) {
@@ -88,8 +90,14 @@ MechS32 DecideAIFire(Player* p_player)
 
 		if (fire) {
 			fire = FALSE;
+#ifdef MW2_MATROX
+			// Not found in the Matrox edition: a translation that compiles.
+			if (def->m_heat + mech->m_heat < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
+				!RandomIntBelow(def->m_recycle / 90 + 1)) {
+#else
 			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
+#endif
 				fire = TRUE;
 			}
 		}

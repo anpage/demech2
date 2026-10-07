@@ -19,6 +19,7 @@
 // are 12 bytes from 0x0c: a name of 10 bytes, each stored as 0x100 minus the character, and the id.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100737e0
+// FUNCTION: MW2MATROX 0x100734f0
 MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 {
 	MechS32 j;
@@ -67,6 +68,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // is copied into the static pool. Stores the id found (-1 for a file) and returns the data.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073922
+// FUNCTION: MW2MATROX 0x10073632
 void* LoadResourceByRef(
 	ResourceRef* p_ref,
 	const char* p_type,

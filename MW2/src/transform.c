@@ -2,6 +2,9 @@
    are __asm blocks, and TransformPoint, RotatePoint, OrthogonalizeMatrixColumn and BuildMatrixEx have __asm
    blocks. Their portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it
    replaces BuildMatrixEx's whole body, whose C wraps where standard C overflows. */
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "transform.h"
 
 #include "clock.h"
@@ -51,10 +54,26 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // Transforms the point (*p_x, *p_y, *p_z) by p_matrix: its 2.29 rotation, then its translation.
 // The products are an __asm block.
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: commutative operand order, the products of each sum are loaded in another order.
 // FUNCTION: MW2 0x1000d650
-void TransformPoint(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x10001870
+void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	MechFloat x;
+	MechFloat y;
+	MechFloat z;
+
+	x = *p_x;
+	y = *p_y;
+	z = *p_z;
+	*p_x =
+		p_matrix->m_rows[0][0] * x + p_matrix->m_rows[0][1] * y + p_matrix->m_rows[0][2] * z + p_matrix->m_rows[3][0];
+	*p_y =
+		p_matrix->m_rows[1][0] * x + p_matrix->m_rows[1][1] * y + p_matrix->m_rows[1][2] * z + p_matrix->m_rows[3][1];
+	*p_z =
+		p_matrix->m_rows[2][0] * x + p_matrix->m_rows[2][1] * y + p_matrix->m_rows[2][2] * z + p_matrix->m_rows[3][2];
+#elif defined(PORTABLE_C)
 	MechS32 x = *p_x;
 	MechS32 y = *p_y;
 	MechS32 z = *p_z;
@@ -131,10 +150,23 @@ void TransformPoint(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // Rotates the point (*p_x, *p_y, *p_z) by p_matrix's 2.29 rotation. The products are an __asm
 // block.
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: commutative operand order, the products of each sum are loaded in another order.
 // FUNCTION: MW2 0x1000d708
-void RotatePoint(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x10001913
+void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	MechFloat x;
+	MechFloat y;
+	MechFloat z;
+
+	x = *p_x;
+	y = *p_y;
+	z = *p_z;
+	*p_x = p_matrix->m_rows[0][0] * x + p_matrix->m_rows[0][1] * y + p_matrix->m_rows[0][2] * z;
+	*p_y = p_matrix->m_rows[1][0] * x + p_matrix->m_rows[1][1] * y + p_matrix->m_rows[1][2] * z;
+	*p_z = p_matrix->m_rows[2][0] * x + p_matrix->m_rows[2][1] * y + p_matrix->m_rows[2][2] * z;
+#elif defined(PORTABLE_C)
 	MechS32 x = *p_x;
 	MechS32 y = *p_y;
 	MechS32 z = *p_z;
@@ -212,9 +244,68 @@ void RotatePoint(Matrix* p_matrix, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // which makes it orthogonal to them again. The products are an __asm block.
 // Stack-slot permutation: the column values and x, y and z.
 // FUNCTION: MW2 0x1000d7c0
+// FUNCTION: MW2MATROX 0x100019a4
 void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	MechFloat a0;
+	MechFloat b0;
+	MechFloat a1;
+	MechFloat b1;
+	MechFloat a2;
+	MechFloat b2;
+	MechFloat x;
+	MechFloat y;
+	MechFloat z;
+
+	switch (p_column) {
+	case 0:
+		a0 = p_matrix->m_rows[0][1];
+		a1 = p_matrix->m_rows[1][1];
+		a2 = p_matrix->m_rows[2][1];
+		b0 = p_matrix->m_rows[0][2];
+		b1 = p_matrix->m_rows[1][2];
+		b2 = p_matrix->m_rows[2][2];
+		break;
+	case 1:
+		a0 = p_matrix->m_rows[0][2];
+		a1 = p_matrix->m_rows[1][2];
+		a2 = p_matrix->m_rows[2][2];
+		b0 = p_matrix->m_rows[0][0];
+		b1 = p_matrix->m_rows[1][0];
+		b2 = p_matrix->m_rows[2][0];
+		break;
+	case 2:
+		a0 = p_matrix->m_rows[0][0];
+		a1 = p_matrix->m_rows[1][0];
+		a2 = p_matrix->m_rows[2][0];
+		b0 = p_matrix->m_rows[0][1];
+		b1 = p_matrix->m_rows[1][1];
+		b2 = p_matrix->m_rows[2][1];
+		break;
+	}
+
+	x = a1 * b2 - b1 * a2;
+	y = a2 * b0 - b2 * a0;
+	z = a0 * b1 - b0 * a1;
+	switch (p_column) {
+	case 0:
+		p_matrix->m_rows[0][0] = x;
+		p_matrix->m_rows[1][0] = y;
+		p_matrix->m_rows[2][0] = z;
+		break;
+	case 1:
+		p_matrix->m_rows[0][1] = x;
+		p_matrix->m_rows[1][1] = y;
+		p_matrix->m_rows[2][1] = z;
+		break;
+	case 2:
+		p_matrix->m_rows[0][2] = x;
+		p_matrix->m_rows[1][2] = y;
+		p_matrix->m_rows[2][2] = z;
+		break;
+	}
+#elif defined(PORTABLE_C)
 	MechS32 a;
 	MechS32 b;
 	MechS32 cross[3];
@@ -396,9 +487,57 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 // products are an __asm block.
 // Stack-slot permutation of the locals the __asm block names.
 // FUNCTION: MW2 0x1000da0c
+// FUNCTION: MW2MATROX 0x10001b59
 void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	MechDouble a00;
+	MechDouble a01;
+	MechDouble a02;
+	MechDouble a10;
+	MechDouble a11;
+	MechDouble a12;
+	MechDouble a20;
+	MechDouble a21;
+	MechDouble a22;
+	MechDouble b00;
+	MechDouble b01;
+	MechDouble b02;
+	MechDouble b10;
+	MechDouble b11;
+	MechDouble b12;
+	MechDouble b20;
+	MechDouble b21;
+	MechDouble b22;
+
+	a00 = p_a->m_rows[0][0];
+	a01 = p_a->m_rows[0][1];
+	a02 = p_a->m_rows[0][2];
+	a10 = p_a->m_rows[1][0];
+	a11 = p_a->m_rows[1][1];
+	a12 = p_a->m_rows[1][2];
+	a20 = p_a->m_rows[2][0];
+	a21 = p_a->m_rows[2][1];
+	a22 = p_a->m_rows[2][2];
+	b00 = p_b->m_rows[0][0];
+	b01 = p_b->m_rows[0][1];
+	b02 = p_b->m_rows[0][2];
+	b10 = p_b->m_rows[1][0];
+	b11 = p_b->m_rows[1][1];
+	b12 = p_b->m_rows[1][2];
+	b20 = p_b->m_rows[2][0];
+	b21 = p_b->m_rows[2][1];
+	b22 = p_b->m_rows[2][2];
+	p_dst->m_rows[0][0] = a00 * b00 + a01 * b10 + a02 * b20;
+	p_dst->m_rows[0][1] = a00 * b01 + a01 * b11 + a02 * b21;
+	p_dst->m_rows[0][2] = a00 * b02 + a01 * b12 + a02 * b22;
+	p_dst->m_rows[1][0] = a10 * b00 + a11 * b10 + a12 * b20;
+	p_dst->m_rows[1][1] = a10 * b01 + a11 * b11 + a12 * b21;
+	p_dst->m_rows[1][2] = a10 * b02 + a11 * b12 + a12 * b22;
+	p_dst->m_rows[2][0] = a20 * b00 + a21 * b10 + a22 * b20;
+	p_dst->m_rows[2][1] = a20 * b01 + a21 * b11 + a22 * b21;
+	p_dst->m_rows[2][2] = a20 * b02 + a21 * b12 + a22 * b22;
+#elif defined(PORTABLE_C)
 	/* Every product is read before the first store: p_dst may be either operand. */
 	MechS32 result[3][3];
 	MechS32 i;
@@ -594,11 +733,12 @@ void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 // Composes p_b with p_a into p_dst: the rotations' product, and p_b's
 // translation transformed by p_a.
 // FUNCTION: MW2 0x1000dbba
+// FUNCTION: MW2MATROX 0x10001d1d
 void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 	Matrix result;
 
 	MultiplyRotations(p_a, p_b, &result);
@@ -614,9 +754,10 @@ void MultiplyMatrix(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 
 // Transposes the rotation of p_src into p_dst.
 // FUNCTION: MW2 0x1000dc33
+// FUNCTION: MW2MATROX 0x10001d96
 void TransposeRotation(Matrix* p_src, Matrix* p_dst)
 {
-	MechS32 temp;
+	MechScalar temp;
 
 	p_dst->m_rows[0][0] = p_src->m_rows[0][0];
 	p_dst->m_rows[1][1] = p_src->m_rows[1][1];
@@ -634,11 +775,12 @@ void TransposeRotation(Matrix* p_src, Matrix* p_dst)
 
 // Inverts a rigid transform: the transposed rotation, and the negated translation rotated by it.
 // FUNCTION: MW2 0x1000dcbd
+// FUNCTION: MW2MATROX 0x10001e20
 void InvertMatrix(Matrix* p_src, Matrix* p_dst)
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 
 	x = -p_src->m_rows[3][0];
 	y = -p_src->m_rows[3][1];
@@ -654,15 +796,21 @@ void InvertMatrix(Matrix* p_src, Matrix* p_dst)
 }
 
 // FUNCTION: MW2 0x1000dd4d
+// FUNCTION: MW2MATROX 0x10001eb0
 void SetIdentityMatrix(Matrix* p_matrix)
 {
+#ifdef MW2_MATROX
+	p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2] = 1.0;
+#else
 	p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2] = 0x20000000;
+#endif
 	p_matrix->m_rows[1][0] = p_matrix->m_rows[2][0] = p_matrix->m_rows[3][0] = 0;
 	p_matrix->m_rows[0][1] = p_matrix->m_rows[2][1] = p_matrix->m_rows[3][1] = 0;
 	p_matrix->m_rows[0][2] = p_matrix->m_rows[1][2] = p_matrix->m_rows[3][2] = 0;
 }
 
 // FUNCTION: MW2 0x1000dddf
+// FUNCTION: MW2MATROX 0x10001f42
 void CopyMatrix(Matrix* p_src, Matrix* p_dst)
 {
 	MemCopy(p_dst, p_src, sizeof(Matrix));
@@ -680,18 +828,109 @@ void CopyRotation(Matrix* p_src, Matrix* p_dst)
 // only is built directly. The products are __asm blocks.
 // Stack-slot permutation: t, the sines and the cosines.
 // FUNCTION: MW2 0x1000de3b
+// FUNCTION: MW2MATROX 0x10001f5f
 void BuildMatrixEx(
 	Matrix* p_matrix,
-	MechS32 p_angleX,
-	MechS32 p_angleY,
-	MechS32 p_angleZ,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
+	MechScalar p_angleX,
+	MechScalar p_angleY,
+	MechScalar p_angleZ,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
 	MechU32 p_flags
 )
 {
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	MechDouble ca;
+	MechDouble cb;
+	MechDouble cc;
+	MechDouble sa;
+	MechDouble sb;
+	MechDouble sc;
+	MechDouble a;
+	MechDouble b;
+	MechDouble c;
+
+	a = p_angleX * 0.017453292519943295;
+	b = p_angleY * 0.017453292519943295;
+	c = p_angleZ * 0.017453292519943295;
+	do {
+		if ((MechFloat) fabs(p_angleX) < 1e-7f) {
+			if ((MechFloat) fabs(p_angleY) < 1e-7f) {
+				SetIdentityMatrix(p_matrix);
+				if ((MechFloat) fabs(p_angleZ) >= 1e-7f) {
+					p_matrix->m_rows[1][1] = cos(c);
+					p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1];
+					p_matrix->m_rows[1][0] = sin(c);
+					p_matrix->m_rows[0][1] = -p_matrix->m_rows[1][0];
+				}
+				break;
+			}
+			else if ((MechFloat) fabs(p_angleZ) < 1e-7f) {
+				SetIdentityMatrix(p_matrix);
+				p_matrix->m_rows[2][2] = cos(b);
+				p_matrix->m_rows[0][0] = p_matrix->m_rows[2][2];
+				p_matrix->m_rows[0][2] = sin(b);
+				p_matrix->m_rows[2][0] = -p_matrix->m_rows[0][2];
+				break;
+			}
+		}
+		else if ((MechFloat) fabs(p_angleY) < 1e-7f && (MechFloat) fabs(p_angleZ) < 1e-7f) {
+			SetIdentityMatrix(p_matrix);
+			p_matrix->m_rows[2][2] = cos(a);
+			p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2];
+			p_matrix->m_rows[2][1] = sin(a);
+			p_matrix->m_rows[1][2] = -p_matrix->m_rows[2][1];
+			break;
+		}
+
+		ca = cos(a);
+		cb = cos(b);
+		cc = cos(c);
+		sa = sin(a);
+		sb = sin(b);
+		sc = sin(c);
+		if (p_flags & 4) {
+			sa = -sa;
+			sb = -sb;
+			sc = -sc;
+		}
+
+		switch (p_flags & 3) {
+		case 1:
+			p_matrix->m_rows[0][0] = cc * cb;
+			p_matrix->m_rows[1][0] = ca * sc + cc * sb * sa;
+			p_matrix->m_rows[2][0] = sc * sa - cc * sb * ca;
+			p_matrix->m_rows[0][2] = sb;
+			p_matrix->m_rows[1][2] = -(cb * sa);
+			p_matrix->m_rows[2][2] = cb * ca;
+			OrthogonalizeMatrixColumn(p_matrix, 1);
+			break;
+		case 0:
+			p_matrix->m_rows[0][0] = cc * cb + sc * sb * sa;
+			p_matrix->m_rows[1][0] = sc * ca;
+			p_matrix->m_rows[2][0] = sc * cb * sa - cc * sb;
+			p_matrix->m_rows[0][2] = sb * ca;
+			p_matrix->m_rows[1][2] = -sa;
+			p_matrix->m_rows[2][2] = cb * ca;
+			OrthogonalizeMatrixColumn(p_matrix, 1);
+			break;
+		case 2:
+			p_matrix->m_rows[0][0] = cc * cb;
+			p_matrix->m_rows[1][0] = sb * sa + sc * cb * ca;
+			p_matrix->m_rows[2][0] = sc * cb * sa - sb * ca;
+			p_matrix->m_rows[0][1] = -sc;
+			p_matrix->m_rows[1][1] = cc * ca;
+			p_matrix->m_rows[2][1] = cc * sa;
+			OrthogonalizeMatrixColumn(p_matrix, 2);
+			break;
+		}
+
+		if (p_flags & 4) {
+			TransposeRotation(p_matrix, p_matrix);
+		}
+	} while (0);
+#elif defined(PORTABLE_C)
 	MechS32 sa;
 	MechS32 sb;
 	MechS32 sc;
@@ -1028,14 +1267,15 @@ void BuildMatrixEx(
 }
 
 // FUNCTION: MW2 0x1000e2b9
+// FUNCTION: MW2MATROX 0x1000230e
 void BuildMatrix(
 	Matrix* p_matrix,
-	MechS32 p_angleX,
-	MechS32 p_angleY,
-	MechS32 p_angleZ,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z
+	MechScalar p_angleX,
+	MechScalar p_angleY,
+	MechScalar p_angleZ,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z
 )
 {
 	BuildMatrixEx(p_matrix, p_angleX, p_angleY, p_angleZ, p_x, p_y, p_z, 0);
@@ -1046,13 +1286,39 @@ void BuildMatrix(
 // the yaw is taken as 90 degrees and the roll from the first row.
 // Stack-slot permutation: pitch, roll, length and yaw.
 // FUNCTION: MW2 0x1000e2ea
-void GetMatrixAngles(Matrix* p_matrix, undefined4* p_angleX, undefined4* p_angleY, undefined4* p_angleZ)
+// FUNCTION: MW2MATROX 0x1000233f
+void GetMatrixAngles(Matrix* p_matrix, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ)
 {
-	MechS32 pitch;
-	MechS32 roll;
-	MechS32 length;
-	MechS32 yaw;
+	MechScalar pitch;
+	MechScalar roll;
+	MechScalar length;
+	MechScalar yaw;
 
+#ifdef MW2_MATROX
+	if (p_matrix->m_rows[1][2] > 0.1 || p_matrix->m_rows[1][2] < -0.1) {
+		if ((length = Hypot2D(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2])) > 0.003725290298462) {
+			pitch = acos(length) * 57.29577951308232;
+			if (FIXED_IS_NEGATIVE(p_matrix->m_rows[1][2])) {
+				pitch = -pitch;
+			}
+		}
+		else {
+			if (FIXED_IS_NEGATIVE(p_matrix->m_rows[1][2])) {
+				yaw = 90.0;
+			}
+			else {
+				yaw = -90.0;
+			}
+
+			pitch = 0;
+			roll = FixedAtan2(p_matrix->m_rows[0][1], p_matrix->m_rows[0][0]);
+			goto done;
+		}
+	}
+	else {
+		pitch = -(asin(p_matrix->m_rows[1][2]) * 57.29577951308232);
+	}
+#else
 	if (p_matrix->m_rows[1][2] > 0x1ff7ced9 || p_matrix->m_rows[1][2] < -0x1ff7ced9) {
 		length = Hypot2D(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2]);
 		if (length > 2000000) {
@@ -1077,6 +1343,7 @@ void GetMatrixAngles(Matrix* p_matrix, undefined4* p_angleX, undefined4* p_angle
 	else {
 		pitch = -FixedAsin(p_matrix->m_rows[1][2]);
 	}
+#endif
 
 	yaw = FixedAtan2(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2]);
 	roll = FixedAtan2(p_matrix->m_rows[1][0], p_matrix->m_rows[1][1]);
