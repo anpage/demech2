@@ -16,37 +16,56 @@
 #include "loadres.h"
 #include "types.h"
 
-// GLOBAL: MW2 0x100ba5cc
+#ifdef MW2_MATROX
+// The edition defines the draw buffer's globals in another order, all initialized.
+// GLOBAL: MW2MATROX 0x100a4fac
+DepthEntry* g_drawList = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fb0
+DepthEntry* g_depthQueue = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fb4
+MechU8* g_drawBuffer = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fb8
+MechU8* g_drawBufferTop = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fbc
+MechU8* g_drawBufferBottom = NULL;
+
+// GLOBAL: MW2MATROX 0x100a4fc0
+MechS32 g_depthListCapacity = 0;
+
 // GLOBAL: MW2MATROX 0x100a4fc4
+MechS32 g_drawBufferSize = 0x140;
+
+// GLOBAL: MW2MATROX 0x100a4fc8
+MechU8* g_drawBufferMemory = NULL;
+#else
+// GLOBAL: MW2 0x100ba5cc
 MechS32 g_drawBufferSize = 0x80;
 
 // GLOBAL: MW2 0x100ba5d0
-// GLOBAL: MW2MATROX 0x100a4fc8
 MechU8* g_drawBufferMemory = NULL;
 
 // GLOBAL: MW2 0x100c1a68
-// GLOBAL: MW2MATROX 0x100a4fc0
 MechS32 g_depthListCapacity;
 
 // GLOBAL: MW2 0x100c1a6c
-// GLOBAL: MW2MATROX 0x100a4fb4
 MechU8* g_drawBuffer;
 
 // GLOBAL: MW2 0x100c1a70
-// GLOBAL: MW2MATROX 0x100a4fb8
 MechU8* g_drawBufferTop;
 
 // GLOBAL: MW2 0x100c2280
-// GLOBAL: MW2MATROX 0x100a4fac
 DepthEntry* g_drawList;
 
 // GLOBAL: MW2 0x100c2698
-// GLOBAL: MW2MATROX 0x100a4fbc
 MechU8* g_drawBufferBottom;
 
 // GLOBAL: MW2 0x100c269c
-// GLOBAL: MW2MATROX 0x100a4fb0
 DepthEntry* g_depthQueue;
+#endif
 
 // GLOBAL: MW2 0x1010b5ac
 MechS32 g_queueHasRoom;

@@ -532,7 +532,8 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 		}
 	}
 
-	if (nearest < FIXED_MAX) {
+	// The edition compares with the integer 0x7fffffff (2147483648.0f), not with FIXED_MAX.
+	if (nearest < 0x7fffffff) {
 		CopyRay(p_ray, &best);
 		return TRUE;
 	}

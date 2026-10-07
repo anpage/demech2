@@ -54,6 +54,7 @@ GameThing g_gameThings[254];
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
 // FUNCTION: MW2 0x1006cf80
+// FUNCTION: MW2MATROX 0x10054e10
 void FirstClassFunctions(void)
 {
 	MechS32 i;
@@ -178,6 +179,7 @@ void ZeroGamethings(void)
 // the local player, the room after it otherwise), and passes it to p_fn if given.
 // The original loads g_localPlayerId into eax for the comparison with p_player (operand order).
 // FUNCTION: MW2 0x1006d282
+// FUNCTION: MW2MATROX 0x10055110
 void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 {
 	PlayerCreatedFn fn;
@@ -211,6 +213,7 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 // Stack-slot permutation of player and size; the original compares p_player with
 // g_localPlayerId in eax (operand order).
 // FUNCTION: MW2 0x1006d340
+// FUNCTION: MW2MATROX 0x100551cf
 MechS32 AllocPlayer(MechS32 p_player)
 {
 	Player* player;
@@ -232,6 +235,7 @@ MechS32 AllocPlayer(MechS32 p_player)
 
 // Sets up a newly allocated player.
 // FUNCTION: MW2 0x1006d3a4
+// FUNCTION: MW2MATROX 0x10055234
 void InitPlayer(Player* p_player)
 {
 	p_player->m_type = 0;

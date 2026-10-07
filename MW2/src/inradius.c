@@ -9,6 +9,7 @@
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // Returns 1 if p_x^2 + p_y^2 + p_z^2 (64-bit) is at most p_radius^2.
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x10004ec0
 MechS32 IsWithinRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius)
 {
@@ -54,3 +55,4 @@ done:
 	}
 #endif
 }
+#endif

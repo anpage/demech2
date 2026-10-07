@@ -29,6 +29,7 @@ MechU8 g_gammaTable[16][64];
 // Row i maps a 6-bit color component c to 63 * (c / 63) ^ (1 / (0.5 + i / 16)).
 // Stack-slot permutation: i, j, row, x and exponent.
 // FUNCTION: MW2 0x10058400
+// FUNCTION: MW2MATROX 0x1008da50
 void InitGammaTable(void)
 {
 	double x;

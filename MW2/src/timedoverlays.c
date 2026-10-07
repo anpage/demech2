@@ -158,12 +158,21 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 		overlay->m_active = 1;
 		overlay->m_priority = p_priority;
 		overlay->m_expireTime = p_duration + GetGameClock();
+#ifdef MW2_MATROX
+		if (p_font > 0) {
+			overlay->m_font = p_font;
+		}
+		else {
+			overlay->m_font = 1;
+		}
+#else
 		if (p_font < 1) {
 			overlay->m_font = 1;
 		}
 		else {
 			overlay->m_font = p_font;
 		}
+#endif
 	}
 
 	return result;

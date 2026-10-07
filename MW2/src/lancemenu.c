@@ -21,6 +21,7 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // templates 7 and 6.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10065f50
+// FUNCTION: MW2MATROX 0x1008e640
 MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 marked;
@@ -66,6 +67,7 @@ MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 // items.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100660c2
+// FUNCTION: MW2MATROX 0x1008e7b2
 MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 count;
@@ -275,6 +277,7 @@ void OrderShutdown(MechS32 p_index, MechS32 p_value)
 // Returns the name of the goal of the control's AI player: a nav, a player or a game thing.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100664cb
+// FUNCTION: MW2MATROX 0x1008ebbc
 MechChar* GetSlotGoalName(
 	MenuDefinition* p_menu,
 	MenuControl* p_control,

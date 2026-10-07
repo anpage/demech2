@@ -23,8 +23,8 @@ extern "C"
 	void EmitWreckSmoke(struct Mech* p_mech);
 	void BreakUpMech(struct Mech* p_mech);
 	void FireJumpJetEffects(struct Mech* p_mech);
-	void PlayMechLanding(struct Mech* p_mech, MechS32 p_speed);
-	void PlayPlayerHitFeedback(MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void PlayMechLanding(struct Mech* p_mech, MechScalar p_speed);
+	void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z);
 
 #ifdef __cplusplus
 }

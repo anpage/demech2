@@ -62,12 +62,15 @@ MechScalar g_groundNormalZ = 0;
 
 // The normal of the surface TestSegmentCollision hit.
 // GLOBAL: MW2 0x100a5538
+// GLOBAL: MW2MATROX 0x100a55c8
 MechScalar g_segmentNormalX = 0;
 
 // GLOBAL: MW2 0x100a553c
+// GLOBAL: MW2MATROX 0x100a55cc
 MechScalar g_segmentNormalY = 0;
 
 // GLOBAL: MW2 0x100a5540
+// GLOBAL: MW2MATROX 0x100a55d0
 MechScalar g_segmentNormalZ = 0;
 
 // The background color the 3D view is cleared to.

@@ -48,6 +48,7 @@
 MechS32 g_missionEndTime = 0;
 
 // GLOBAL: MW2 0x100aa294
+// GLOBAL: MW2MATROX 0x100a7cbc
 MechS32 g_speechFlushTime = 0;
 
 // A game-key toggle (GetSystemSetting's setting 0x40).
@@ -57,6 +58,7 @@ MechS32 g_overrideShutdown = 0;
 
 // Set by game key 0x11.
 // GLOBAL: MW2 0x100aa2a0
+// GLOBAL: MW2MATROX 0x100a7cc8
 MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
@@ -86,7 +88,7 @@ MechS32 g_chatLength = 0;
 MechS32 g_missionResolved = 0;
 
 // GLOBAL: MW2 0x100aa2c0
-// GLOBAL: MW2MATROX 0x100a7d04
+// GLOBAL: MW2MATROX 0x100a7ce8
 MechS32 g_statusMessage = 0;
 
 // The last 15 characters typed, the newest last.
@@ -452,6 +454,7 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
 // FUNCTION: MW2 0x1005c2e1
+// FUNCTION: MW2MATROX 0x10042a17
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
 	if (g_simPaused) {

@@ -332,6 +332,7 @@ MechS32 FindStarIdxById(MechS32 p_id)
 
 // Takes the next free static object for ID p_id, mapping the ID to it. Returns its index, or -1
 // when the cache or the map is full.
+// MW2MATROX: g_starCount >= g_starCapacity compares in the other operand order.
 // FUNCTION: MW2 0x1001f7eb
 // FUNCTION: MW2MATROX 0x10052e8b
 MechS32 AllocStaticObject(undefined4 p_id)
@@ -435,6 +436,8 @@ MechS32 PlaceStaticObject(
 // also clears the placed-object list.
 // Stack-slot permutation; i < g_starCapacity compares in the other operand order, and the second
 // center sum adds its operands in the other order.
+// MW2MATROX: reccmp can't name the original's g_blockStack[g_blockDepth - 1] (the address before
+// the array).
 // FUNCTION: MW2 0x1001fa05
 // FUNCTION: MW2MATROX 0x100530a5
 void BeginBlock(BwdBlockRecord* p_record)
@@ -1025,6 +1028,7 @@ struct SceneObject* GetStaticSceneObject(MechS32 p_index)
 	return result;
 }
 
+// MW2MATROX: the bounds test compares p_index with g_staticObjectCount in the other operand order.
 // FUNCTION: MW2 0x10020c26
 // FUNCTION: MW2MATROX 0x10054371
 Shape* GetStaticObjectShape(MechS32 p_index)

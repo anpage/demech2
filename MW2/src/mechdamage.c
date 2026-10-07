@@ -6,6 +6,9 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
+#ifdef MW2_MATROX
+#include "debugprint.h"
+#endif
 #include "eyepoint.h"
 #include "fixedfloat.h"
 #include "maneuvers.h"
@@ -53,21 +56,27 @@ MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
+// GLOBAL: MW2MATROX 0x100a4628
 MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
+// GLOBAL: MW2MATROX 0x100a462c
 MechS32 g_criticalHeatWarned = 0;
 
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
+// GLOBAL: MW2MATROX 0x100c1e24
 static MechS32 g_criticalHeatWarningTime;
 
 // Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
 // already reached and marking each one it reaches (turning off after the last); then the AI
 // steers, the throttle saved while AvoidObstacles has it.
 // Stack-slot permutation: index and first.
+// MW2MATROX (0x10010250) copies m_maneuverParam and the steering's float throttle into each
+// other as they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
+// STUB: MW2MATROX 0x10010250
 void RunAutopilot(Mech* p_mech)
 {
 	MechS32 index;
@@ -136,15 +145,21 @@ void RunAutopilot(Mech* p_mech)
 // The PUNCH_IN_AUTO_HDG game key: sets the player's target heading (the HUD's bearing marker,
 // which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
+// FUNCTION: MW2MATROX 0x1001053c
 void PunchInAutoHeading(Mech* p_mech)
 {
-	MechS32 heading;
+	MechScalar heading;
 
 	if (p_mech->m_autopilot == 1) {
 		return;
 	}
 
+#ifdef MW2_MATROX
+	// The edition wraps the sum first, then adds the full turn.
+	heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading + p_mech->m_torsoTwist.m_value) + 360.0);
+#else
 	heading = FIXED_MOD360(p_mech->m_player->m_heading + FIXED_CONST(360) + p_mech->m_torsoTwist.m_value);
+#endif
 	p_mech->m_player->m_targetInfo.m_heading = heading;
 }
 
@@ -152,6 +167,7 @@ void PunchInAutoHeading(Mech* p_mech)
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10007d06
+// FUNCTION: MW2MATROX 0x1001059a
 void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	WeaponSlot* weapon;
@@ -161,6 +177,9 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 	MechSection* section;
 	AmmoBin* bin;
 
+#ifdef MW2_MATROX
+	DebugPrint("BlowAmmo\n");
+#endif
 	if (!g_mechPoweredUp) {
 		return;
 	}
@@ -202,16 +221,27 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
-// The only diff is a stack-slot permutation of the locals.
+// The only diff is a stack-slot permutation of the locals. MW2MATROX: the cooling product
+// multiplies its operands in another order.
 // FUNCTION: MW2 0x10007e86
+// FUNCTION: MW2MATROX 0x10010727
 void CalculateHeat(Mech* p_mech)
 {
+#ifdef MW2_MATROX
+	MechFloat delta;
+	MechFloat cooling;
+	MechFloat heat;
+	MechFloat factor;
+
+	factor = 1.0f;
+#else
 	MechS32 delta;
 	MechS32 cooling;
 	MechS32 heat;
 	MechS32 shift;
 
 	shift = 0;
+#endif
 	if ((p_mech->m_player->m_flags & 2) || (p_mech->m_player->m_flags & 4)) {
 		return;
 	}
@@ -226,6 +256,21 @@ void CalculateHeat(Mech* p_mech)
 		return;
 	}
 
+#ifdef MW2_MATROX
+	// The edition doubles the cooling of a shut-down mech with a factor, not a shift.
+	if (p_mech->m_powerState == 3) {
+		factor = 2.0f;
+	}
+
+	cooling = p_mech->m_cooling * factor * g_deltaTime;
+	delta = p_mech->m_deltaHeat - cooling;
+	p_mech->m_heat += delta;
+	if (FIXED_IS_NEGATIVE(p_mech->m_heat)) {
+		p_mech->m_heat = 0;
+	}
+
+	heat = p_mech->m_heat;
+#else
 	if (p_mech->m_powerState == 3) {
 		shift = 1;
 	}
@@ -238,6 +283,7 @@ void CalculateHeat(Mech* p_mech)
 	}
 
 	heat = FIXED_TO_INT(p_mech->m_heat);
+#endif
 	if ((p_mech->m_flags & 4) && !(p_mech->m_flags & 8) && p_mech->m_powerState != 3 &&
 		g_currentClock - p_mech->m_stateTime > 1086) {
 		p_mech->m_powerState = 3;
@@ -261,7 +307,7 @@ void CalculateHeat(Mech* p_mech)
 			KillMech(p_mech->m_player->m_index, p_mech);
 		}
 	}
-	else if (heat > 80.0) {
+	else if (heat > FIXED_LITERAL(80.0, 80.0f)) {
 		if (!(p_mech->m_flags & 4)) {
 			p_mech->m_stateTime = g_currentClock;
 			p_mech->m_flags |= 4;
@@ -272,7 +318,7 @@ void CalculateHeat(Mech* p_mech)
 			}
 		}
 	}
-	else if (heat > 65.0) {
+	else if (heat > FIXED_LITERAL(65.0, 65.0f)) {
 		if (p_mech->m_player->m_index == g_localPlayerId && !g_criticalHeatWarned && delta > 0) {
 			g_criticalHeatWarningTime = g_currentClock;
 			g_criticalHeatWarned = 1;

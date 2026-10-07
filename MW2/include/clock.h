@@ -28,8 +28,8 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_slopeSines[800];
-	extern MechS32 g_slopeCosines[800];
+	extern MechScalar g_slopeSines[800];
+	extern MechScalar g_slopeCosines[800];
 	extern MechS32 g_currentClock;
 	extern MechS32 g_framerateLimit;
 	extern MechS32 g_timeExpansionEnabled;

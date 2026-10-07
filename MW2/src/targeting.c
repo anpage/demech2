@@ -89,6 +89,7 @@ MechChar g_largeMapExtraText[0x20];
 // satellite view (4), with their labels, icons, colors, rectangles and transitions.
 
 // GLOBAL: MW2 0x100aabb0
+// GLOBAL: MW2MATROX 0x100bcdd0
 MechChar g_readoutLabel[8] = "x";
 
 // GLOBAL: MW2 0x100aabb8
@@ -99,36 +100,47 @@ CockpitReadout g_readout = {1, 0, -1, g_readoutLabel, g_readoutText, {0x28f, 0x2
 CockpitReadout* g_cockpitReadout = &g_readout;
 
 // GLOBAL: MW2 0x100aabd8
+// GLOBAL: MW2MATROX 0x100bcdf8
 MechChar g_smallMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabdc
+// GLOBAL: MW2MATROX 0x100bcdfc
 MechChar g_smallMapRangeLabel[4] = "R: ";
 
 // GLOBAL: MW2 0x100aabe0
+// GLOBAL: MW2MATROX 0x100bce00
 MechChar g_smallMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aabec
+// GLOBAL: MW2MATROX 0x100bce0c
 MechChar g_largeMapExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aabf0
+// GLOBAL: MW2MATROX 0x100bce10
 MechChar g_largeMapRangeLabel[8] = "R: ";
 
 // GLOBAL: MW2 0x100aabf8
+// GLOBAL: MW2MATROX 0x100bce18
 MechChar g_largeMapBearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac04
+// GLOBAL: MW2MATROX 0x100bce24
 MechChar g_satelliteExtraLabel[4] = "x";
 
 // GLOBAL: MW2 0x100aac08
+// GLOBAL: MW2MATROX 0x100bce28
 MechChar g_satelliteRangeLabel[8] = "Range: ";
 
 // GLOBAL: MW2 0x100aac10
+// GLOBAL: MW2MATROX 0x100bce30
 MechChar g_bearingLabel[12] = "Bearing: ";
 
 // GLOBAL: MW2 0x100aac1c
+// GLOBAL: MW2MATROX 0x100bce3c
 MechChar g_metersUnit[4] = "m";
 
 // GLOBAL: MW2 0x100aac20
+// GLOBAL: MW2MATROX 0x100bce40
 MechChar g_kilometersUnit[8] = "km";
 
 // GLOBAL: MW2 0x100aac28
@@ -165,15 +177,19 @@ MechS32 g_satelliteColors[7][3] = {
 };
 
 // GLOBAL: MW2 0x100aad30
+// GLOBAL: MW2MATROX 0x100bcf50
 MechS32 g_mapColors[13] = {0xe, 0xa, 6, 0xf, 0xb, 0xf5, 2, 3, 0xf9, 0xff, 0xf0, 1, 2};
 
 // GLOBAL: MW2 0x100aad68
+// GLOBAL: MW2MATROX 0x100bcf88
 MechS32 g_smallMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad80
+// GLOBAL: MW2MATROX 0x100bcfa0
 MechS32 g_largeMapAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aad98
+// GLOBAL: MW2MATROX 0x100bcfb8
 MechS32 g_satelliteAnims[5] = {-1, -1, -1, -1, -1};
 
 // GLOBAL: MW2 0x100aadb0
@@ -438,6 +454,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // the target missing (0x1000) when none qualifies, and a change of target outside the nav points
 // turns the autopilot's steering over.
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2MATROX 0x100067cc
 void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
@@ -563,6 +580,7 @@ void ResetTargeting(void)
 // -4 when flag 0x10000 asks for a nav with flag 0x40, and -6 for a nav of another owner or team
 // (flag 0x100 accepts only a nav its owner placed).
 // Stack-slot permutation of the locals; p_nav >= g_navCount compares in the other operand order.
+// MW2MATROX: p_nav >= g_navCount compares in the other operand order, and stack-slot permutation.
 // FUNCTION: MW2 0x1005f2ae
 // FUNCTION: MW2MATROX 0x10006b1c
 MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
@@ -744,6 +762,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // or the same negative codes; its test of flag 0x10000 can never succeed.
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
 // order.
+// MW2MATROX: the comparisons with g_localPlayerId load their operands in the other order.
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2MATROX 0x10007012
 MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
@@ -1200,8 +1219,10 @@ void CycleEnemyTarget(MechS32 p_step)
 // current one if there is none or UpdateTarget refuses it, and then clears the autopilot's
 // steering flag (PlayerSteering::m_autopilot).
 // The distance/bestDistance comparison loads its operands in the opposite order (one attempt at
-// swapping them didn't flip it), and stack-slot permutation: every local.
+// swapping them didn't flip it), and stack-slot permutation: every local. MW2MATROX: the same
+// comparison, as floats.
 // FUNCTION: MW2 0x100603ae
+// FUNCTION: MW2MATROX 0x10007c8f
 void TargetNearestEnemy(void)
 {
 	MechS32 autopilot;
@@ -1209,12 +1230,12 @@ void TargetNearestEnemy(void)
 	Player* player;
 	MechS32 best;
 	MechS32 saved;
-	MechS32 distance;
-	MechS32 bestDistance;
+	MechScalar distance;
+	MechScalar bestDistance;
 
 	target = 0;
 	best = -1;
-	bestDistance = 0x7fffffff;
+	bestDistance = FIXED_MAX;
 	autopilot = FALSE;
 	player = g_players[g_localPlayerId];
 	saved = player->m_targetInfo.m_target;

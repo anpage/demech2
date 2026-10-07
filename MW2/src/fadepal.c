@@ -160,11 +160,12 @@ void FadeToEndPalette(MechS32 p_alternate)
 
 // Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
+// FUNCTION: MW2MATROX 0x10045388
 void EmitWreckSmoke(Mech* p_mech)
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 
 	x = p_mech->m_player->m_position.m_x;
 	y = p_mech->m_player->m_position.m_y;
@@ -173,8 +174,13 @@ void EmitWreckSmoke(Mech* p_mech)
 		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
+#ifdef MW2_MATROX
+		x += RandomNormal() / 2.0f;
+		z += RandomNormal() / 2.0f;
+#else
 		x += RandomNormal() / 2;
 		z += RandomNormal() / 2;
+#endif
 		if (RandomIntBelow(100) < 0x3c) {
 			SpawnEffect(p_mech->m_player->m_killer, 3, x, y, z, x, y, z);
 		}
@@ -212,11 +218,12 @@ void BreakUpMech(Mech* p_mech)
 // Sets off the flames of the jump jets and plays their sound.
 // Stack-slot permutation: x, y, z, player, jet and fired.
 // FUNCTION: MW2 0x1004ccba
+// FUNCTION: MW2MATROX 0x10045571
 void FireJumpJetEffects(Mech* p_mech)
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 	Player* player;
 	MechS32 jet;
 	MechS32 fired;
@@ -255,7 +262,8 @@ void FireJumpJetEffects(Mech* p_mech)
 
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
-void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
+// FUNCTION: MW2MATROX 0x100456ef
+void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 {
 	MechS32 sound;
 
@@ -263,7 +271,7 @@ void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
 		PlayPlayerHitFeedback(0, -p_speed, 0);
 	}
 
-	if (p_speed >= -0x102762) {
+	if (p_speed >= FIXED_RAW(-0x102762)) {
 		sound = 0xe6;
 	}
 	else {
@@ -282,11 +290,11 @@ void PlayMechLanding(Mech* p_mech, MechS32 p_speed)
 // Shakes the camera away from a hit's direction, unless a shake is already playing.
 // Stack-slot permutation: off10 and off0c.
 // FUNCTION: MW2 0x1004cee2
-void PlayPlayerHitFeedback(MechS32 p_x, MechS32 p_y, MechS32 p_z)
+void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-	MechS32 off10;
-	MechS32 off0c;
-	MechS32 off14;
+	MechScalar off10;
+	MechScalar off0c;
+	MechScalar off14;
 
 	if (IsCameraShaking()) {
 		return;
@@ -307,7 +315,15 @@ void PlayPlayerHitFeedback(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	p_z = FixedMul16(p_z, -25);
 	ClearCameraShakeKeys();
 	AddCameraShakeKey(p_x, p_y, p_z, off10, off0c, off14, 0.2);
-	AddCameraShakeKey(-(p_x >> 1), -(p_y >> 1), -(p_z >> 1), -(off10 >> 1), -(off0c >> 1), -(off14 >> 1), 0.5);
+	AddCameraShakeKey(
+		-FIXED_SHR(p_x, 1),
+		-FIXED_SHR(p_y, 1),
+		-FIXED_SHR(p_z, 1),
+		-FIXED_SHR(off10, 1),
+		-FIXED_SHR(off0c, 1),
+		-FIXED_SHR(off14, 1),
+		0.5
+	);
 	AddCameraShakeKey(0, 0, 0, 0, 0, 0, 0.2);
 	StartCameraShake();
 }

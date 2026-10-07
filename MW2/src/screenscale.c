@@ -605,14 +605,28 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 	}
 }
 
+// The edition's slopes are floats: a product or a quotient with one converts to an integer.
+#ifdef MW2_MATROX
+#define SLOPE_DIV(a, b) ((MechS32) ((a) / (b)))
+#define SLOPE_MUL(a, b) ((MechS32) ((a) * (b)))
+#else
+#define SLOPE_DIV(a, b) FixedDiv16(a, b)
+#define SLOPE_MUL(a, b) FixedMul16(a, b)
+#endif
+
 // Returns 1 if the line through (0, 0) and (p_dx, p_dy) is too steep for a 16.16 slope,
 // otherwise 0 with the slope in p_slope.
 // FUNCTION: MW2 0x1005798d
-MechS32 GetLineSlope(MechS32 p_dx, MechS32 p_dy, MechS32* p_slope)
+// FUNCTION: MW2MATROX 0x1007224a
+MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 {
 	MechS32 steep;
 
+#ifdef MW2_MATROX
+	if (!FIXED_IS_NONZERO(p_dx)) {
+#else
 	if (p_dx == 0 || p_dy / p_dx > 0x7fff || p_dy / p_dx < -0x8000) {
+#endif
 		steep = 1;
 	}
 	else {
@@ -620,7 +634,11 @@ MechS32 GetLineSlope(MechS32 p_dx, MechS32 p_dy, MechS32* p_slope)
 	}
 
 	if (!steep) {
+#ifdef MW2_MATROX
+		*p_slope = p_dy / p_dx;
+#else
 		*p_slope = FixedDiv16(p_dy, p_dx);
+#endif
 	}
 
 	return steep;
@@ -629,10 +647,11 @@ MechS32 GetLineSlope(MechS32 p_dx, MechS32 p_dy, MechS32* p_slope)
 // Where the needle from the center of a gauge rectangle towards p_point leaves the rectangle.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057a03
+// FUNCTION: MW2MATROX 0x100722b1
 Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 {
 	GaugeQuadrant quadrant;
-	MechS32 slope;
+	MechScalar slope;
 	Point half;
 	MechS32 dx;
 	MechS32 dy;
@@ -701,12 +720,13 @@ Point* GetRectNeedleAt(PANE* p_target, MechS32 p_angle, Point* p_out)
 // Where a line from the center of a rectangle (p_half: its half size) leaves it, for the
 // slope p_slope and the direction bits of p_quadrant (GetRectNeedleToward).
 // FUNCTION: MW2 0x10057bf3
-Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechS32 p_slope, Point* p_out)
+// FUNCTION: MW2MATROX 0x100724c7
+Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_slope, Point* p_out)
 {
 	MechS32 height;
 	MechS32 width;
-	MechS32 ratio;
-	MechS32 negRatio;
+	MechScalar ratio;
+	MechScalar negRatio;
 	Point result;
 
 	width = p_half->m_x * 2;
@@ -715,7 +735,11 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechS32 p_slo
 		ratio = 0;
 	}
 	else {
+#ifdef MW2_MATROX
+		ratio = (MechScalar) p_half->m_y / p_half->m_x;
+#else
 		ratio = FixedDiv16(p_half->m_y, p_half->m_x);
+#endif
 	}
 	negRatio = -ratio;
 
@@ -723,41 +747,41 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechS32 p_slo
 	case 3:
 		if (ratio < p_slope) {
 			result.m_y = 0;
-			result.m_x = p_half->m_x - FixedDiv16(p_half->m_y, p_slope);
+			result.m_x = p_half->m_x - SLOPE_DIV(p_half->m_y, p_slope);
 		}
 		else {
 			result.m_x = 0;
-			result.m_y = p_half->m_y - FixedMul16(p_half->m_x, p_slope);
+			result.m_y = p_half->m_y - SLOPE_MUL(p_half->m_x, p_slope);
 		}
 		break;
 	case 2:
 		if (p_slope < negRatio) {
 			result.m_y = 0;
-			result.m_x = p_half->m_x - FixedDiv16(p_half->m_y, p_slope);
+			result.m_x = p_half->m_x - SLOPE_DIV(p_half->m_y, p_slope);
 		}
 		else {
 			result.m_x = width;
-			result.m_y = p_half->m_y + FixedMul16(p_half->m_x, p_slope);
+			result.m_y = p_half->m_y + SLOPE_MUL(p_half->m_x, p_slope);
 		}
 		break;
 	case 0:
 		if (ratio < p_slope) {
 			result.m_y = height;
-			result.m_x = p_half->m_x + FixedDiv16(p_half->m_y, p_slope);
+			result.m_x = p_half->m_x + SLOPE_DIV(p_half->m_y, p_slope);
 		}
 		else {
 			result.m_x = width;
-			result.m_y = p_half->m_y + FixedMul16(p_half->m_x, p_slope);
+			result.m_y = p_half->m_y + SLOPE_MUL(p_half->m_x, p_slope);
 		}
 		break;
 	case 1:
 		if (p_slope < negRatio) {
 			result.m_y = height;
-			result.m_x = p_half->m_x + FixedDiv16(p_half->m_y, p_slope);
+			result.m_x = p_half->m_x + SLOPE_DIV(p_half->m_y, p_slope);
 		}
 		else {
 			result.m_x = 0;
-			result.m_y = p_half->m_y - FixedMul16(p_half->m_x, p_slope);
+			result.m_y = p_half->m_y - SLOPE_MUL(p_half->m_x, p_slope);
 		}
 		break;
 	case 7:
@@ -781,12 +805,20 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechS32 p_slo
 // Draws the ellipse inscribed in a pane, corrected for the pixel aspect.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057e56
+// FUNCTION: MW2MATROX 0x100727aa
 void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 {
 	MechS32 centerX;
 	MechS32 centerY;
 	MechS32 radiusY;
 	MechS32 radius;
+#ifdef MW2_MATROX
+	centerX = (p_target->m_x1 - p_target->m_x0 + 1) >> 1;
+	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
+	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
+	radiusY = (MechS32) (radius * g_eyepoint->m_pixelAspect);
+	VFX_ellipse_draw(p_target, centerX, centerY, radius, radiusY, PIXEL_COLOR(p_color));
+#else
 	MechS32 aspect;
 
 	aspect = g_eyepoint->m_pixelAspect;
@@ -795,6 +827,7 @@ void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
 	radiusY = FixedMul16(radius, aspect);
 	VFX_ellipse_draw(p_target, centerX, centerY, radius, radiusY, p_color);
+#endif
 }
 
 // Fills the part of the ellipse inscribed in a pane that lies in p_rect.

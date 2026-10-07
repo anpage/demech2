@@ -29,6 +29,7 @@
 // Resets the player's mech of this class: clears its state, stands its object up at its current
 // place and starts its position ramps there.
 // FUNCTION: MW2 0x100680a0
+// FUNCTION: MW2MATROX 0x100887e0
 void FirstDoor(Player* p_player)
 {
 	Mech* mech;
@@ -40,7 +41,7 @@ void FirstDoor(Player* p_player)
 
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
-	mech->m_mobility = 0x10000;
+	mech->m_mobility = FIXED_RAW(0x10000);
 	mech->m_lastSelectedWeapon = 0;
 	mech->m_weaponCount = 0;
 	mech->m_collisionTicks = 0;
@@ -66,22 +67,25 @@ void FirstDoor(Player* p_player)
 		&mech->m_player->m_position.m_y,
 		&mech->m_player->m_position.m_z
 	);
-	StartRamp(&mech->m_speed, mech->m_player->m_position.m_x, mech->m_player->m_position.m_x, 0.3);
-	StartRamp(&mech->m_throttle, mech->m_player->m_position.m_y, mech->m_player->m_position.m_y, 0.3);
-	StartRamp(&mech->m_turnRate, mech->m_player->m_position.m_z, mech->m_player->m_position.m_z, 0.3);
+	StartScalarRamp(&mech->m_speed, mech->m_player->m_position.m_x, mech->m_player->m_position.m_x, 0.3);
+	StartScalarRamp(&mech->m_throttle, mech->m_player->m_position.m_y, mech->m_player->m_position.m_y, 0.3);
+	StartScalarRamp(&mech->m_turnRate, mech->m_player->m_position.m_z, mech->m_player->m_position.m_z, 0.3);
 	mech->m_player->m_torsoPitch = mech->m_player->m_torsoTwist = mech->m_player->m_torsoRoll = 0;
 	mech->m_player->m_speedLevel = 0;
 	mech->m_player->m_nextMotionState = -1;
 	mech->m_player->m_pendingSound = -1;
 	EnableObjTreeCollision(mech->m_player->m_obj);
 	mech->m_player->m_headingSin = 0;
-	mech->m_player->m_headingCos = 0x10000;
+	mech->m_player->m_headingCos = FIXED_RAW(0x10000);
 	InitializeAI(mech->m_player);
 }
 
 // Moves a mech in state 2 along its position ramps and places its object there, facing its
 // player's heading.
+// MW2MATROX (0x10088a5a) takes the heading's sine and cosine as floats, from the edition's
+// FixedSin of a float angle (the cosine is FixedSin(heading + 90)), without the >> 13.
 // FUNCTION: MW2 0x1006831a
+// STUB: MW2MATROX 0x10088a5a
 void UpdateDoor(Mech* p_mech)
 {
 	MechS32 heading;
@@ -93,9 +97,9 @@ void UpdateDoor(Mech* p_mech)
 
 	mech = p_mech;
 	if (mech->m_powerState == 2) {
-		UpdateRamp(&mech->m_speed);
-		UpdateRamp(&mech->m_throttle);
-		UpdateRamp(&mech->m_turnRate);
+		UpdateScalarRamp(&mech->m_speed);
+		UpdateScalarRamp(&mech->m_throttle);
+		UpdateScalarRamp(&mech->m_turnRate);
 		mech->m_player->m_position.m_x = mech->m_speed.m_value;
 		mech->m_player->m_position.m_y = mech->m_throttle.m_value;
 		mech->m_player->m_position.m_z = mech->m_turnRate.m_value;
@@ -125,22 +129,23 @@ void UpdateDoor(Mech* p_mech)
 // Stack-slot permutation of the locals. The original tests the target's kind by loading its high
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1006844e
+// FUNCTION: MW2MATROX 0x10088b99
 void LateUpdateDoor(Mech* p_mech)
 {
 	Mech* mech;
 	MechS32 team;
 	MissionObjective* objective;
-	MechS32 dz;
+	MechScalar dz;
 	MechS32 nav;
-	MechS32 x;
-	MechS32 navX;
-	MechS32 step;
-	MechS32 y;
-	MechS32 navY;
-	MechS32 z;
-	MechS32 navZ;
-	MechS32 dx;
-	MechS32 dy;
+	MechScalar x;
+	MechScalar navX;
+	MechScalar step;
+	MechScalar y;
+	MechScalar navY;
+	MechScalar z;
+	MechScalar navZ;
+	MechScalar dx;
+	MechScalar dy;
 
 	mech = p_mech;
 	UpdateAI(mech->m_player);
@@ -158,12 +163,22 @@ void LateUpdateDoor(Mech* p_mech)
 			dx = navX - x;
 			dy = navY - y;
 			dz = navZ - z;
+#ifdef MW2_MATROX
+			step = mech->m_topSpeed * g_deltaTime / FIXED_RAW(0x697e98);
+#else
 			step = FixedDiv16(mech->m_topSpeed * g_deltaTime, 0x697e98);
+#endif
 			if (IsWithinRadius(dx, dy, dz, step)) {
 				NormalizeVectorGuarded(&dx, &dy, &dz);
+#ifdef MW2_MATROX
+				dx *= step;
+				dy *= step;
+				dz *= step;
+#else
 				dx = FixedMul16(dx, step);
 				dy = FixedMul16(dy, step);
 				dz = FixedMul16(dz, step);
+#endif
 			}
 			else {
 				dx = navX;
@@ -208,6 +223,7 @@ void LateUpdateDoor(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x10068758
+// FUNCTION: MW2MATROX 0x10088eba
 void ShutdownDoor(Mech* p_mech)
 {
 	if (!p_mech) {
@@ -218,6 +234,7 @@ void ShutdownDoor(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10068772
+// FUNCTION: MW2MATROX 0x10088ed4
 MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;

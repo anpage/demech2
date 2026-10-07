@@ -26,6 +26,7 @@
 // Resets the player's mech of this class: its torso objects and ramps, state and weapons, stands
 // its object up where it is and clears the player's steering.
 // FUNCTION: MW2 0x10059fc0
+// FUNCTION: MW2MATROX 0x1002e4b0
 void FirstArtillery(Player* p_player)
 {
 	Mech* mech;
@@ -37,8 +38,8 @@ void FirstArtillery(Player* p_player)
 
 	mech->m_torsoObj = NextThingRecordObject();
 	mech->m_pitchObj = NextThingRecordObject();
-	StartRamp(&mech->m_torsoTwist, 0, 0, 0.8);
-	StartRamp(&mech->m_torsoPitch, 0, 0, 0.8);
+	StartScalarRamp(&mech->m_torsoTwist, 0, 0, 0.8);
+	StartScalarRamp(&mech->m_torsoPitch, 0, 0, 0.8);
 	mech->m_selectedWeapon = 0;
 	mech->m_heat = 0;
 	mech->m_lastSelectedWeapon = 0;
@@ -80,6 +81,7 @@ void FirstArtillery(Player* p_player)
 // Updates the mech's torso: clears the tick's heat, steps the twist and pitch ramps and turns the
 // torso objects (m_pitchObj by the pitch, m_torsoObj by the player's view angles with the twist).
 // FUNCTION: MW2 0x1005a203
+// FUNCTION: MW2MATROX 0x1002e6f3
 void UpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
@@ -90,8 +92,8 @@ void UpdateArtillery(Mech* p_mech)
 
 	mech = p_mech;
 	mech->m_deltaHeat = 0;
-	UpdateRamp(&mech->m_torsoTwist);
-	UpdateRamp(&mech->m_torsoPitch);
+	UpdateScalarRamp(&mech->m_torsoTwist);
+	UpdateScalarRamp(&mech->m_torsoPitch);
 	if (mech->m_pitchObj) {
 		SetObjRotation(mech->m_pitchObj, mech->m_torsoPitch.m_value, 0, 0, 0);
 	}
@@ -119,11 +121,12 @@ void UpdateArtillery(Mech* p_mech)
 // time has passed, 3 starts over and 4 is destroyed.
 // Stack-slot permutation: mech, twist and delta.
 // FUNCTION: MW2 0x1005a2ea
+// FUNCTION: MW2MATROX 0x1002e7de
 void LateUpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
-	MechS32 twist;
-	MechS32 delta;
+	MechScalar twist;
+	MechScalar delta;
 
 	mech = p_mech;
 	UpdateAI(mech->m_player);
@@ -147,14 +150,14 @@ void LateUpdateArtillery(Mech* p_mech)
 		}
 
 		twist = mech->m_player->m_steering->m_torsoPan;
-		if (mech->m_maxTorsoTwist >= 0x1680000) {
+		if (mech->m_maxTorsoTwist >= FIXED_CONST(360)) {
 			delta = twist - mech->m_torsoTwist.m_value;
-			while (delta > 0xb40000) {
-				delta -= 0x1680000;
+			while (delta > FIXED_CONST(180)) {
+				delta -= FIXED_CONST(360);
 			}
 
-			while (delta < -0xb40000) {
-				delta += 0x1680000;
+			while (delta < -FIXED_CONST(180)) {
+				delta += FIXED_CONST(360);
 			}
 
 			mech->m_torsoTwist.m_target = twist;
@@ -207,6 +210,7 @@ void LateUpdateArtillery(Mech* p_mech)
 }
 
 // FUNCTION: MW2 0x1005a61d
+// FUNCTION: MW2MATROX 0x1002eb3a
 void ShutdownArtillery(Mech* p_mech)
 {
 	if (!p_mech) {
@@ -217,6 +221,7 @@ void ShutdownArtillery(Mech* p_mech)
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005a637
+// FUNCTION: MW2MATROX 0x1002eb54
 MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;

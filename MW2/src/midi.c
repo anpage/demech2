@@ -375,6 +375,7 @@ void MuteEngineNote(void)
 
 // Restores the held note's volume from the effects volume.
 // FUNCTION: MW2 0x10021c94
+// FUNCTION: MW2MATROX 0x10044399
 void UnmuteEngineNote(void)
 {
 	if (g_midiDriver == NULL) {

@@ -7,6 +7,7 @@
 #include <windows.h>
 
 // GLOBAL: MW2 0x100a00f8
+// GLOBAL: MW2MATROX 0x100a20f0
 MechChar g_gameCdDrive = 0;
 
 // GLOBAL: MW2 0x100a00fc

@@ -17,6 +17,13 @@
 
 #include <windows.h>
 
+// The edition's messages end in a newline.
+#ifdef MW2_MATROX
+#define TEXT_LINE(text) text "\n"
+#else
+#define TEXT_LINE(text) text
+#endif
+
 // The refresh mode manager, the simulator's copy of the shell's. The DirectDraw back end lives in
 // directdraw.c, the DisplayDib one in dispdib.c, the GDI one in gdi.c.
 
@@ -104,9 +111,11 @@ DrawBitmapInfo g_bitmapInfo;
 MechS32 g_refreshModePixelCount;
 
 // GLOBAL: MW2 0x100c2ce4
+// GLOBAL: MW2MATROX 0x1012f50c
 MechS32 g_refreshModeWidth;
 
 // GLOBAL: MW2 0x100c2ce8
+// GLOBAL: MW2MATROX 0x1012f508
 MechS32 g_refreshModeHeight;
 
 // Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
@@ -349,7 +358,7 @@ void ToggleFullScreen(void)
 		return;
 	}
 
-	DebugPrint("ToggleFullScreen(1): pause_timer(TRUE)");
+	DebugPrint(TEXT_LINE("ToggleFullScreen(1): pause_timer(TRUE)"));
 	PauseTimer(0x80, TRUE);
 
 	if (g_currentDisplayBackend->m_windowMode == c_windowModeFullscreen) {
@@ -365,9 +374,11 @@ void ToggleFullScreen(void)
 		}
 
 		if (i == 6) {
-			ShowMessage("MechWarrior2 cannot run in a window in the current resolution on your video hardware");
+			ShowMessage(
+				TEXT_LINE("MechWarrior2 cannot run in a window in the current resolution on your video hardware")
+			);
 			if (!g_simPaused) {
-				DebugPrint("ToggleFullScreen(2): pause_timer(FALSE)");
+				DebugPrint(TEXT_LINE("ToggleFullScreen(2): pause_timer(FALSE)"));
 				PauseTimer(0x80, FALSE);
 			}
 			return;
@@ -379,7 +390,7 @@ void ToggleFullScreen(void)
 				"MechWarrior2 cannot support full screen mode in the current resolution on your video hardware"
 			);
 			if (!g_simPaused) {
-				DebugPrint("ToggleFullScreen(3): pause_timer(FALSE)");
+				DebugPrint(TEXT_LINE("ToggleFullScreen(3): pause_timer(FALSE)"));
 				PauseTimer(0x80, FALSE);
 			}
 			return;
@@ -399,7 +410,7 @@ void ToggleFullScreen(void)
 	g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, TRUE);
 	g_reclipCursor = 1;
 	if (!g_simPaused) {
-		DebugPrint("ToggleFullScreen(4): pause_timer(FALSE)");
+		DebugPrint(TEXT_LINE("ToggleFullScreen(4): pause_timer(FALSE)"));
 		PauseTimer(0x80, FALSE);
 	}
 }

@@ -69,6 +69,7 @@ ClassEntry g_classTable[0x30c];
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
 // Stack-slot permutation: count, i and buffer.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
+// MW2MATROX: the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2MATROX 0x1006d550
 MechS32 LoadBaseLevelShapes(Player* p_player)
@@ -203,6 +204,7 @@ void ResetClassTable(void)
 
 // Gives the entries added since the last call (owner -2) to p_player.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1001d220
 // FUNCTION: MW2MATROX 0x1006d8e0
 void ClaimNewClassEntries(Player* p_player)
@@ -416,6 +418,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // Operand order: i < g_playerCount loads g_playerCount first in the original.
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1001d88b
 // FUNCTION: MW2MATROX 0x1006df87
 void ReleasePendingDetailLevel(void)
@@ -463,6 +466,7 @@ struct SceneObject* GetClassObject(MechS32 p_index)
 }
 
 // Operand order: p_index < g_classEntryCount loads p_index first in the original.
+// MW2MATROX: p_index < g_classEntryCount compares in the other operand order.
 // FUNCTION: MW2 0x1001d9ca
 // FUNCTION: MW2MATROX 0x1006e0c6
 Shape* GetClassShape(MechS32 p_index)
@@ -490,11 +494,14 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 // Chooses each player's model level (Player::m_detailLevel) by its distance from the eyepoint: the
 // nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
-// Stack-slot permutation; i == g_localPlayerId compares in the other operand order.
+// Stack-slot permutation; i == g_localPlayerId compares in the other operand order. MW2MATROX: the
+// loop tests (i < g_playerCount) compare in the other operand order, and entries sits in another
+// stack slot.
 // FUNCTION: MW2 0x1001da44
+// FUNCTION: MW2MATROX 0x1006e13f
 void ChoosePlayerDetailLevels(void)
-#ifdef MW2_MATROX
 {
+#ifdef MW2_MATROX
 	FILE* file;
 	MechChar line[0x100];
 	MechScalar length;
@@ -622,9 +629,7 @@ void ChoosePlayerDetailLevels(void)
 			LoadClassLevel(player->m_index, entry->m_level);
 		}
 	}
-}
 #else
-{
 	MechS32 scale;
 	MechS32 third;
 	MechS32 second;
@@ -724,8 +729,8 @@ void ChoosePlayerDetailLevels(void)
 			player->m_detailLevel = entry->m_level;
 		}
 	}
-}
 #endif
+}
 
 // Releases the shape of the entry whose object is p_obj.
 // Stack-slot permutation: i and entry.
@@ -753,6 +758,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 
 // Forgets the shape of the entry whose object is p_obj without releasing it.
 // Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1001de84
 // FUNCTION: MW2MATROX 0x1006e6ce
 void ForgetObjShape(struct SceneObject* p_obj)

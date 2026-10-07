@@ -207,6 +207,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
 // whole and expanded after the sort (DrawDepthQueue).
 // FUNCTION: MW2 0x100338bb
+// STUB: MW2MATROX 0x100235a0
 void DrawShapeList(Shape* p_root)
 {
 	Shape* shape;
@@ -291,6 +292,7 @@ void DrawDepthQueue(void)
 
 // Draws the shapes of the scene tree p_root, farthest first.
 // FUNCTION: MW2 0x10033b9e
+// STUB: MW2MATROX 0x10023860
 void DrawObjTreeShapes(SceneObject* p_root)
 {
 	MechS32 i;

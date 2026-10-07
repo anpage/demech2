@@ -23,6 +23,7 @@
 // (0xc9) lowers it, and its number key raises it too.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10072840
+// FUNCTION: MW2MATROX 0x1007e020
 void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -199,6 +200,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // callbacks.
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // FUNCTION: MW2 0x10072dab
+// FUNCTION: MW2MATROX 0x1007e58b
 void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -330,6 +332,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // (0xc9) the previous, wrapping, and its number key the next.
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // FUNCTION: MW2 0x10073136
+// FUNCTION: MW2MATROX 0x1007e92e
 void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;

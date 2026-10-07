@@ -190,6 +190,13 @@ function(demech2_add_mw2matrox)
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
   )
-  # The edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it.
-  set_source_files_properties("${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c" PROPERTIES COMPILE_OPTIONS /Ob1)
+  # The edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
+  # its __inline IsWithinRadius (inradius.h) into its callers.
+  set_source_files_properties(
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
+    PROPERTIES COMPILE_OPTIONS /Ob1
+  )
 endfunction()

@@ -65,6 +65,7 @@ ProbeDirection g_probeDirections[16] = {
 // The maneuver tables: the maneuvers a mech chooses among and those that may follow each.
 
 // GLOBAL: MW2 0x100a2980
+// GLOBAL: MW2MATROX 0x100a4b88
 ManeuverEntry g_mechManeuvers[13] = {
 	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
 	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
@@ -82,16 +83,20 @@ ManeuverEntry g_mechManeuvers[13] = {
 };
 
 // GLOBAL: MW2 0x100a2a70
+// GLOBAL: MW2MATROX 0x100a4c78
 ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
+// GLOBAL: MW2MATROX 0x100a4c90
 ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2aa0
+// GLOBAL: MW2MATROX 0x100a4ca8
 ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
+// GLOBAL: MW2MATROX 0x100a4cc0
 ManeuverEntry g_altMechManeuvers[13] = {
 	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
 	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
@@ -125,6 +130,7 @@ MechS32 g_slideSlope = 0x2000;
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
 // first.
 // GLOBAL: MW2 0x101748e0
+// GLOBAL: MW2MATROX 0x10212cf0
 ManeuverTable g_maneuverTables[9];
 
 // Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
@@ -391,6 +397,7 @@ void InitializeManeuvers(Player* p_player)
 // first), redrawn until its conditions hold.
 // Stack-slot permutation: mech, table, choice and index.
 // FUNCTION: MW2 0x10013d81
+// FUNCTION: MW2MATROX 0x10019969
 MechS32 ChooseManeuver(Player* p_player)
 {
 	Mech* mech;
@@ -473,7 +480,7 @@ MechS32 ChooseManeuver(Player* p_player)
 			choice = c_maneuverStupid;
 		}
 
-		if (choice == c_maneuverAsrp && mech->m_maxTorsoTwist < 0xa0000) {
+		if (choice == c_maneuverAsrp && mech->m_maxTorsoTwist < FIXED_CONST(10)) {
 			choice = c_maneuverAchick;
 		}
 
@@ -965,7 +972,7 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 	heading = SteerToTarget(p_player);
 	RunAIWeapons(p_player, heading);
 	result = p_player->m_mech->m_collisionTicks;
-	p_player->m_steering->m_throttle = 0x400;
+	p_player->m_steering->m_throttle = FIXED_RAW(0x400);
 	JumpToTurn(p_player);
 	return result;
 }
@@ -1168,7 +1175,7 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 	}
 
 	RunAIWeapons(p_player, heading);
-	p_player->m_steering->m_throttle = 0x400;
+	p_player->m_steering->m_throttle = FIXED_RAW(0x400);
 	JumpToTurn(p_player);
 }
 
@@ -1260,16 +1267,16 @@ MechS32 BrakeFall(Player* p_player)
 
 	value = p_player->m_steering->m_jumpJetEnabled;
 	if (p_player->m_position.m_y < 20000) {
-		if (mech->m_velocityY < -0x102762 * 0.85) {
+		if (mech->m_velocityY < FIXED_RAW(-0x102762) * 0.85) {
 			value = 1;
 		}
-		else if (mech->m_velocityY > -0x102762 * 0.75) {
+		else if (mech->m_velocityY > FIXED_RAW(-0x102762) * 0.75) {
 			value = 0;
 		}
 	}
 
 	SetJumpJets(p_player, value);
-	if (mech->m_velocityY < -0x102762) {
+	if (mech->m_velocityY < FIXED_RAW(-0x102762)) {
 		sprintf(
 			line,
 			"%6ld : %2d Mech %2d has exceded fall damage speed.\n",
@@ -1298,9 +1305,9 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015709
 // FUNCTION: MW2MATROX 0x1001b48d
-#ifdef MW2_MATROX
 MechS32 AvoidObstacles(Player* p_player)
 {
+#ifdef MW2_MATROX
 	MechScalar length;
 	Shape* hit;
 	Ray ray;
@@ -1393,10 +1400,7 @@ MechS32 AvoidObstacles(Player* p_player)
 	}
 
 	return turn ? TRUE : FALSE;
-}
 #else
-MechS32 AvoidObstacles(Player* p_player)
-{
 	MechS32 length;
 	Shape* hit;
 	Ray ray;
@@ -1514,15 +1518,20 @@ MechS32 AvoidObstacles(Player* p_player)
 	}
 
 	return turn ? TRUE : FALSE;
-}
 #endif
+}
 
 // Whether p_shape is solid ground to stand on: a flat enough face or a shape of type 0x50.
 // FUNCTION: MW2 0x10015b40
 // FUNCTION: MW2MATROX 0x1001b91f
 MechS32 IsStandableShape(Shape* p_shape)
 {
+#ifdef MW2_MATROX
+	// 0.766 (cos 40 degrees), where 1.1 has 0xc41b.
+	if (HasHeightTest(p_shape) && g_segmentNormalY >= 0.766f) {
+#else
 	if (HasHeightTest(p_shape) && g_segmentNormalY >= 0xc41b) {
+#endif
 		return 1;
 	}
 
@@ -1534,7 +1543,6 @@ MechS32 IsStandableShape(Shape* p_shape)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015b9f
 // FUNCTION: MW2MATROX 0x1001b985
-#ifdef MW2_MATROX
 void BuildProbeRay(
 	Player* p_player,
 	Ray* p_ray,
@@ -1544,6 +1552,7 @@ void BuildProbeRay(
 	MechS32 p_fromEdge
 )
 {
+#ifdef MW2_MATROX
 	Matrix* matrix;
 	MechScalar x;
 	MechScalar y;
@@ -1588,10 +1597,7 @@ void BuildProbeRay(
 	}
 
 	BuildRayFromSegment(p_ray, x, y, z, dx, y, dz);
-}
 #else
-void BuildProbeRay(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step, MechS32 p_length, MechS32 p_fromEdge)
-{
 	Matrix* matrix;
 	MechS32 x;
 	MechS32 y;
@@ -1634,16 +1640,16 @@ void BuildProbeRay(Player* p_player, Ray* p_ray, MechS32 p_side, MechS16 p_step,
 	}
 
 	BuildRayFromSegment(p_ray, x, y, z, dx, y, dz);
-}
 #endif
+}
 
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015d2a
 // FUNCTION: MW2MATROX 0x1001bb6c
-#ifdef MW2_MATROX
 MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
+#ifdef MW2_MATROX
 	MechScalar dz;
 	MechScalar unused;
 	MechScalar distance;
@@ -1666,10 +1672,7 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScala
 
 	// The edition tests the float's sign bit.
 	return (*(MechU32*) &heading & 0x80000000) ? 1 : -1;
-}
 #else
-MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
-{
 	MechS32 dz;
 	MechS32 unused;
 	MechU32 distance;
@@ -1691,8 +1694,8 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechS32 p_x, MechS32 p_y,
 	}
 
 	return heading >= 0 ? -1 : 1;
-}
 #endif
+}
 
 // The heading from p_player to p_target (16.16 degrees, 0 to 360), keeping its target.
 // FUNCTION: MW2 0x10015dd6
@@ -1897,7 +1900,7 @@ Shape* GetTargetShape(MechS16 p_target)
 // sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
 // (state 4).
 // Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
-// MW2MATROX: bearing < maxAngle compares in the other operand order.
+// MW2MATROX: pitch < range and bearing < maxAngle compare in the other operand order.
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2MATROX 0x1001c1ca
 void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)

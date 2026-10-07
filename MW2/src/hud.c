@@ -30,11 +30,25 @@
 #include "weapondata.h"
 #include "weapons.h"
 
-// The edition's HUD art numbers the compass's shapes three further on.
+// The edition's HUD art numbers the compass's and the crosshair's shapes three further on.
 #ifdef MW2_MATROX
-#define COMPASS_SHAPE(id) ((id) + 3)
+#define HUD_SHAPE(id) ((id) + 3)
 #else
-#define COMPASS_SHAPE(id) (id)
+#define HUD_SHAPE(id) (id)
+#endif
+
+// The compass's bearing marks are drawn with the edition's FUN_1001e01a.
+#ifdef MW2_MATROX
+#define DRAW_MARK_SHAPE FUN_1001e01a
+#else
+#define DRAW_MARK_SHAPE DrawPaneShape
+#endif
+
+// And the target markers six further on.
+#ifdef MW2_MATROX
+#define HUD_MARKER_SHAPE(id) ((id) + 6)
+#else
+#define HUD_MARKER_SHAPE(id) (id)
 #endif
 
 // The size of the altimeter's mark shape (InitHudGauges), which spaces its columns.
@@ -135,12 +149,12 @@ static MechS32 g_compassTapeBelow;
 // FUNCTION: MW2 0x10040b30
 void DrawHudAt(
 	Mech* p_mech,
-	MechS32 p_heading,
-	MechS32 p_twist,
-	MechS32 p_bearing,
-	MechS32 p_twistBearing,
-	MechS32 p_pitch,
-	MechS32 p_distance
+	MechScalar p_heading,
+	MechScalar p_twist,
+	MechScalar p_bearing,
+	MechScalar p_twistBearing,
+	MechScalar p_pitch,
+	MechScalar p_distance
 )
 {
 	if (!g_showHud) {
@@ -178,12 +192,12 @@ void DrawHudAt(
 // FUNCTION: MW2MATROX 0x1001ca30
 void DrawHud(
 	Mech* p_mech,
-	MechS32 p_heading,
-	MechS32 p_twist,
-	MechS32 p_bearing,
-	MechS32 p_twistBearing,
-	MechS32 p_pitch,
-	MechS32 p_distance,
+	MechScalar p_heading,
+	MechScalar p_twist,
+	MechScalar p_bearing,
+	MechScalar p_twistBearing,
+	MechScalar p_pitch,
+	MechScalar p_distance,
 	MechS32 p_drawCrosshair
 )
 {
@@ -311,16 +325,16 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 
 	if (y < 0) {
 		y = 0;
-		shape = COMPASS_SHAPE(0x25);
+		shape = HUD_SHAPE(0x25);
 		x += g_altimeterMarkWidth;
 	}
 	else if (gauge->m_height < y) {
 		y = gauge->m_height;
-		shape = COMPASS_SHAPE(0x1c);
+		shape = HUD_SHAPE(0x1c);
 		x += g_altimeterMarkWidth;
 	}
 	else {
-		shape = COMPASS_SHAPE(0x1f);
+		shape = HUD_SHAPE(0x1f);
 	}
 
 	DrawShapeOverPane(x, y, shape, target);
@@ -374,19 +388,15 @@ void InitHudGauges(void)
 
 	target = g_cockpitPanels[c_panelCompass]->m_target;
 	ScalePointToFrame(target, &g_compassOrigin, &g_compassOrigin);
-	shape = LoadCachedResource(
-		g_mw2PrjHandle,
-		HUD_ART_RESOLUTION + COMPASS_SHAPE(0x19),
-		g_resourceTypeTags[c_resTagShp],
-		0
-	);
+	shape =
+		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x19), g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
-		UnlockCachedResource(extent + COMPASS_SHAPE(0x19), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x19), g_resourceTypeTags[c_resTagShp]);
 #ifdef MW2_MATROX
 		g_compassScale = width / 360.0f;
 #else
@@ -394,12 +404,8 @@ void InitHudGauges(void)
 #endif
 	}
 
-	shape = LoadCachedResource(
-		g_mw2PrjHandle,
-		HUD_ART_RESOLUTION + COMPASS_SHAPE(0x13),
-		g_resourceTypeTags[c_resTagShp],
-		0
-	);
+	shape =
+		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x13), g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 		MechS32 origin;
@@ -410,37 +416,29 @@ void InitHudGauges(void)
 		origin &= 0xffff;
 		g_compassTapeBelow = extent - origin;
 		g_compassTapeAbove = origin;
-		UnlockCachedResource(extent + COMPASS_SHAPE(0x13), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x13), g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = LoadCachedResource(
-		g_mw2PrjHandle,
-		HUD_ART_RESOLUTION + COMPASS_SHAPE(0x25),
-		g_resourceTypeTags[c_resTagShp],
-		0
-	);
+	shape =
+		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x25), g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_compassArrowWidth = extent >> 16;
 		g_compassArrowHeight = extent & 0xffff;
-		UnlockCachedResource(extent + COMPASS_SHAPE(0x25), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x25), g_resourceTypeTags[c_resTagShp]);
 	}
 
-	shape = LoadCachedResource(
-		g_mw2PrjHandle,
-		HUD_ART_RESOLUTION + COMPASS_SHAPE(0x1f),
-		g_resourceTypeTags[c_resTagShp],
-		0
-	);
+	shape =
+		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x1f), g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_compassSideArrowWidth = extent >> 16;
 		g_compassSideArrowHeight = extent & 0xffff;
-		UnlockCachedResource(extent + COMPASS_SHAPE(0x1f), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x1f), g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -458,7 +456,8 @@ Point* GetHudGaugePositions(void)
 // weapon.
 // Stack-slot permutation; range > p_pitch compares in the other operand order.
 // FUNCTION: MW2 0x100412dd
-MechS32 DrawCrosshair(Mech* p_mech, MechS32 p_bearing, MechS32 p_pitch, MechS32 p_distance)
+// FUNCTION: MW2MATROX 0x1001d1b9
+MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, MechScalar p_distance)
 {
 	MechS32 x;
 	MechS32 pitch;
@@ -472,21 +471,21 @@ MechS32 DrawCrosshair(Mech* p_mech, MechS32 p_bearing, MechS32 p_pitch, MechS32 
 	MechS32 y;
 
 	result = FALSE;
-	shape = 0x76;
+	shape = HUD_SHAPE(0x76);
 	slot = &p_mech->m_weapons[p_mech->m_selectedWeapon];
 	def = &g_weaponDefs[slot->m_type];
 	if (slot->m_state == 1) {
 		if (def->m_shotType == 3) {
-			shapeIn = 0x6a;
-			shapeOut = 0x6d;
+			shapeIn = HUD_SHAPE(0x6a);
+			shapeOut = HUD_SHAPE(0x6d);
 		}
 		else {
-			shapeOut = 0x76;
-			shapeIn = 0x73;
+			shapeOut = HUD_SHAPE(0x76);
+			shapeIn = HUD_SHAPE(0x73);
 		}
 
 		if (def->m_guided == 0) {
-			range = 0x30000;
+			range = FIXED_FROM_INT(3);
 			pitch = 3;
 			if (p_mech->m_player->m_targetInfo.m_target && !(p_mech->m_player->m_targetInfo.m_target & 0x1100) &&
 				def->m_shortRange < p_distance && def->m_longRange > p_distance && range > p_pitch &&
@@ -499,17 +498,17 @@ MechS32 DrawCrosshair(Mech* p_mech, MechS32 p_bearing, MechS32 p_pitch, MechS32 
 			}
 		}
 		else if (p_mech->m_flags & 0x80) {
-			shape = 0x61;
+			shape = HUD_SHAPE(0x61);
 		}
 		else if (p_mech->m_flags & 0x8000) {
-			shape = 0x70;
+			shape = HUD_SHAPE(0x70);
 		}
 		else {
-			shape = 0x6d;
+			shape = HUD_SHAPE(0x6d);
 		}
 	}
 	else {
-		shape = 0x67;
+		shape = HUD_SHAPE(0x67);
 	}
 
 	if (!ProjectAimPoint(p_mech, &x, &y)) {
@@ -554,13 +553,8 @@ void DrawTargetMarker(Mech* p_mech)
 		DrawObjectBrackets(GetLocalTargetObject(), GetThingSide(index));
 		return;
 	case 0x100:
-#ifdef MW2_MATROX
-		onScreen = 0xeb;
-		offScreen = 0xf1;
-#else
-		onScreen = 0xe5;
-		offScreen = 0xeb;
-#endif
+		onScreen = HUD_MARKER_SHAPE(0xe5);
+		offScreen = HUD_MARKER_SHAPE(0xeb);
 		break;
 	default:
 		return;
@@ -584,14 +578,17 @@ void DrawTargetMarker(Mech* p_mech)
 // torso, p_twistBearing, unless the target is a nav point), and the arrows above and below while
 // its pitch p_pitch is beyond 3 degrees. p_x and p_y go unused.
 // Stack-slot permutation; the two y sums load g_compassOrigin.m_y first (commutative operands).
+// MW2MATROX: the two side arrows' y sums load g_compassOrigin.m_y first, and the bearing mark's
+// product p_bearing (commutative operands).
 // FUNCTION: MW2 0x1004161f
+// FUNCTION: MW2MATROX 0x1001d551
 void DrawCompassMarkers(
 	Mech* p_mech,
 	MechS32 p_x,
 	MechS32 p_y,
-	MechS32 p_bearing,
-	MechS32 p_twistBearing,
-	MechS32 p_pitch
+	MechScalar p_bearing,
+	MechScalar p_twistBearing,
+	MechScalar p_pitch
 )
 {
 	CockpitPanel* gauge;
@@ -612,51 +609,60 @@ void DrawCompassMarkers(
 			return;
 		}
 
-		if (p_pitch > -0x30000) {
+		if (p_pitch > -FIXED_CONST(3)) {
 			DrawShapeOverPane(
 				g_compassOrigin.m_x,
 				g_compassOrigin.m_y - g_compassArrowHeight - g_compassTapeAbove,
-				0x25,
+				HUD_SHAPE(0x25),
 				target
 			);
 		}
 
-		if (p_pitch < 0x30000) {
+		if (p_pitch < FIXED_CONST(3)) {
 			DrawShapeOverPane(
 				g_compassOrigin.m_x,
 				g_compassArrowHeight + g_compassOrigin.m_y + g_compassTapeBelow,
-				0x1c,
+				HUD_SHAPE(0x1c),
 				target
 			);
 		}
 	}
 
-	if (p_bearing == 0) {
-		DrawPaneShape(g_compassOrigin.m_x, g_compassOrigin.m_y, 0x10, target);
+	if (!FIXED_IS_NONZERO(p_bearing)) {
+		DRAW_MARK_SHAPE(g_compassOrigin.m_x, g_compassOrigin.m_y, HUD_SHAPE(0x10), target);
 	}
 	else {
+#ifdef MW2_MATROX
+		FUN_1001e01a(
+			g_compassOrigin.m_x + (MechS32) (g_compassScale * p_bearing),
+			g_compassOrigin.m_y,
+			HUD_SHAPE(0xd),
+			target
+		);
+#else
 		DrawPaneShape(g_compassOrigin.m_x + FixedMul16(g_compassScale, p_bearing), g_compassOrigin.m_y, 0xd, target);
+#endif
 	}
 
-	if (p_bearing == 0) {
-		DrawPaneShape(g_compassOrigin.m_x, g_compassOrigin.m_y, 0x16, target);
+	if (!FIXED_IS_NONZERO(p_bearing)) {
+		DRAW_MARK_SHAPE(g_compassOrigin.m_x, g_compassOrigin.m_y, HUD_SHAPE(0x16), target);
 	}
 
 	if (p_bearing > -3) {
 		x = gauge->m_width + g_compassSideArrowWidth - 1;
 		y = g_compassOrigin.m_y + g_compassSideArrowHeight / 2;
-		DrawShapeOverPane(x, y, 0x22, target);
+		DrawShapeOverPane(x, y, HUD_SHAPE(0x22), target);
 		if (p_bearing > 0x5a) {
-			DrawShapeOverPane(x + 1, y, 0x22, target);
+			DrawShapeOverPane(x + 1, y, HUD_SHAPE(0x22), target);
 		}
 	}
 
 	if (p_bearing < 3) {
 		x2 = -g_compassSideArrowWidth;
 		y2 = g_compassOrigin.m_y + g_compassSideArrowHeight / 2;
-		DrawShapeOverPane(x2, y2, 0x1f, target);
+		DrawShapeOverPane(x2, y2, HUD_SHAPE(0x1f), target);
 		if (p_bearing < -0x5a) {
-			DrawShapeOverPane(x2 - 1, y2, 0x1f, target);
+			DrawShapeOverPane(x2 - 1, y2, HUD_SHAPE(0x1f), target);
 		}
 	}
 }
@@ -664,18 +670,31 @@ void DrawCompassMarkers(
 // Draws the compass tape at heading p_heading (degrees), twice to wrap around, and the torso twist
 // p_twist as a bar from the center. p_x and p_y go unused.
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: the negative twist bar's x converts the offset before it loads g_compassOrigin.m_x
+// (commutative operands).
 // FUNCTION: MW2 0x1004183a
-void DrawCompass(MechS32 p_x, MechS32 p_y, MechS32 p_heading, MechS32 p_twist)
+// FUNCTION: MW2MATROX 0x1001d7b6
+void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_twist)
 {
 	CockpitPanel* gauge;
 	MechS32 x2;
 	MechS32 x;
-	MechS32 heading;
+	MechScalar heading;
 	PANE* target;
-	MechS32 offset;
+	MechScalar offset;
 
 	gauge = g_cockpitPanels[c_panelCompass];
 	target = g_cockpitPanels[c_panelCompass]->m_target;
+#ifdef MW2_MATROX
+	heading = fmod(fmod(p_heading, 360.0) + 360.0, 360.0);
+	x = g_compassOrigin.m_x + (MechS32) (heading * g_compassScale);
+	if (gauge->m_width > x) {
+		x2 = x + (MechS32) (g_compassScale * 360);
+	}
+	else {
+		x2 = x - (MechS32) (g_compassScale * 360);
+	}
+#else
 	heading = (p_heading + 360) % 360;
 	x = g_compassOrigin.m_x + FixedMul16(g_compassScale, heading);
 	if (gauge->m_width > x) {
@@ -684,17 +703,18 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechS32 p_heading, MechS32 p_twist)
 	else {
 		x2 = x - FixedMul16(g_compassScale, 360);
 	}
+#endif
 
-	DrawPaneShape(x, g_compassOrigin.m_y, 0x19, target);
-	DrawPaneShape(x2, g_compassOrigin.m_y, 0x19, target);
-	if (p_twist) {
+	DrawPaneShape(x, g_compassOrigin.m_y, HUD_SHAPE(0x19), target);
+	DrawPaneShape(x2, g_compassOrigin.m_y, HUD_SHAPE(0x19), target);
+	if (FIXED_IS_NONZERO(p_twist)) {
 		offset = p_twist;
-		if (offset < 0) {
+		if (FIXED_IS_NEGATIVE(offset)) {
 			DrawHorizontalBar(
 				target,
-				g_compassOrigin.m_x + offset,
+				g_compassOrigin.m_x + (MechS32) offset,
 				g_compassOrigin.m_y - g_compassTapeAbove,
-				-offset,
+				-(MechS32) offset,
 				g_compassTapeAbove,
 				0xf
 			);
@@ -704,27 +724,31 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechS32 p_heading, MechS32 p_twist)
 				target,
 				g_compassOrigin.m_x,
 				g_compassOrigin.m_y - g_compassTapeAbove,
-				offset,
+				(MechS32) offset,
 				g_compassTapeAbove,
 				0xf
 			);
 		}
 	}
 
-	DrawPaneShape(g_compassOrigin.m_x, g_compassOrigin.m_y, 0x13, target);
+	DrawPaneShape(g_compassOrigin.m_x, g_compassOrigin.m_y, HUD_SHAPE(0x13), target);
+#ifdef MW2_MATROX
+	FUN_10088280(target);
+#endif
 }
 
 // Projects the end of the mech's player's aim ray to the screen: returns ProjectWorldPoint's result,
 // and the point in p_x and p_y.
 // Stack-slot permutation: result, ray, x, y and z.
 // FUNCTION: MW2 0x10041998
+// FUNCTION: MW2MATROX 0x1001d942
 MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 {
 	MechS32 result;
 	Ray ray;
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 
 	BuildAimRay(p_mech->m_player, &ray);
 	SetRayLength(&ray, GetAimRange(p_mech->m_player));
@@ -741,18 +765,19 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 // and depth, in its side's shapes; off the screen, an arrow at the edge.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10041a14
+// FUNCTION: MW2MATROX 0x1001d9cd
 void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 {
 	MechS32 topLeft;
 	MechS32 topRight;
 	MechS32 bottomLeft;
 	MechS32 bottomRight;
-	MechS32 sx;
-	MechS32 sy;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 size;
+	MechScalar sx;
+	MechScalar sy;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar size;
 	Point point;
 
 	x = p_player->m_position.m_x;
@@ -764,13 +789,13 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 		GetRectNeedleToward(&g_currentPane, &point, &point);
 		switch (p_side) {
 		case 0:
-			topLeft = 0xeb;
+			topLeft = HUD_MARKER_SHAPE(0xeb);
 			break;
 		case 2:
-			topLeft = 0xee;
+			topLeft = HUD_MARKER_SHAPE(0xee);
 			break;
 		default:
-			topLeft = 0xe8;
+			topLeft = HUD_MARKER_SHAPE(0xe8);
 			break;
 		}
 
@@ -778,25 +803,29 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	}
 	else {
 		size = p_player->m_mech->m_radius;
+#ifdef MW2_MATROX
+		size = g_eyepoint->m_projectScaleX * size / z;
+#else
 		size = ProjectRadius(g_eyepoint->m_projectScaleX, size, z);
+#endif
 		switch (p_side) {
 		case 0:
-			topLeft = 0xb8;
-			topRight = 0xc1;
-			bottomLeft = 0xca;
-			bottomRight = 0xd3;
+			topLeft = HUD_MARKER_SHAPE(0xb8);
+			topRight = HUD_MARKER_SHAPE(0xc1);
+			bottomLeft = HUD_MARKER_SHAPE(0xca);
+			bottomRight = HUD_MARKER_SHAPE(0xd3);
 			break;
 		case 2:
-			topLeft = 0xbe;
-			topRight = 0xc7;
-			bottomLeft = 0xd0;
-			bottomRight = 0xd9;
+			topLeft = HUD_MARKER_SHAPE(0xbe);
+			topRight = HUD_MARKER_SHAPE(0xc7);
+			bottomLeft = HUD_MARKER_SHAPE(0xd0);
+			bottomRight = HUD_MARKER_SHAPE(0xd9);
 			break;
 		case 1:
-			topLeft = 0xbb;
-			topRight = 0xc4;
-			bottomLeft = 0xcd;
-			bottomRight = 0xd6;
+			topLeft = HUD_MARKER_SHAPE(0xbb);
+			topRight = HUD_MARKER_SHAPE(0xc4);
+			bottomLeft = HUD_MARKER_SHAPE(0xcd);
+			bottomRight = HUD_MARKER_SHAPE(0xd6);
 			break;
 		}
 
@@ -819,19 +848,20 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // at most half the screen apart, or an arrow at the edge.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10041c3c
+// FUNCTION: MW2MATROX 0x1001dc23
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 {
-	MechS32 maxSize;
+	MechScalar maxSize;
 	MechS32 topLeft;
 	MechS32 topRight;
 	MechS32 bottomLeft;
 	MechS32 bottomRight;
-	MechS32 sx;
-	MechS32 sy;
+	MechScalar sx;
+	MechScalar sy;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
-	MechS32 size;
+	MechScalar size;
 	Point point;
 
 	if (!p_object || !p_object->m_shape) {
@@ -845,42 +875,49 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 		GetRectNeedleToward(&g_currentPane, &point, &point);
 		switch (p_side) {
 		case 0:
-			topLeft = 0xeb;
+			topLeft = HUD_MARKER_SHAPE(0xeb);
 			break;
 		case 2:
-			topLeft = 0xee;
+			topLeft = HUD_MARKER_SHAPE(0xee);
 			break;
 		default:
-			topLeft = 0xe8;
+			topLeft = HUD_MARKER_SHAPE(0xe8);
 			break;
 		}
 
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
+#ifdef MW2_MATROX
+		size = size / 2 * g_eyepoint->m_projectScaleX / z;
+		if (size > (maxSize = (MechScalar) g_eyepoint->m_halfWidth / 2)) {
+			size = maxSize;
+		}
+#else
 		size = ProjectRadius(g_eyepoint->m_projectScaleX, size >> 1, z);
 		maxSize = g_eyepoint->m_halfWidth >> 1;
 		if (size > maxSize) {
 			size = maxSize;
 		}
+#endif
 		switch (p_side) {
 		case 0:
-			topLeft = 0xb8;
-			topRight = 0xc1;
-			bottomLeft = 0xca;
-			bottomRight = 0xd3;
+			topLeft = HUD_MARKER_SHAPE(0xb8);
+			topRight = HUD_MARKER_SHAPE(0xc1);
+			bottomLeft = HUD_MARKER_SHAPE(0xca);
+			bottomRight = HUD_MARKER_SHAPE(0xd3);
 			break;
 		case 2:
-			topLeft = 0xbe;
-			topRight = 0xc7;
-			bottomLeft = 0xd0;
-			bottomRight = 0xd9;
+			topLeft = HUD_MARKER_SHAPE(0xbe);
+			topRight = HUD_MARKER_SHAPE(0xc7);
+			bottomLeft = HUD_MARKER_SHAPE(0xd0);
+			bottomRight = HUD_MARKER_SHAPE(0xd9);
 			break;
 		case 1:
-			topLeft = 0xbb;
-			topRight = 0xc4;
-			bottomLeft = 0xcd;
-			bottomRight = 0xd6;
+			topLeft = HUD_MARKER_SHAPE(0xbb);
+			topRight = HUD_MARKER_SHAPE(0xc4);
+			bottomLeft = HUD_MARKER_SHAPE(0xcd);
+			bottomRight = HUD_MARKER_SHAPE(0xd6);
 			break;
 		}
 
@@ -939,6 +976,24 @@ void ClipRectToPane(PANE* p_pane, Rect* p_rect)
 	}
 	if (p_pane->m_y1 < p_rect->m_bottom) {
 		p_rect->m_bottom = p_pane->m_y1;
+	}
+}
+
+// The edition's DrawPaneShape that also passes the drawn rectangle, clipped to p_target, on to
+// FUN_10088246 (DrawCompassMarkers' bearing marks).
+// FUNCTION: MW2MATROX 0x1001e01a
+void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
+{
+	void* shape;
+	Rect bounds;
+
+	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
+	if (shape) {
+		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
+		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
+		ClipRectToPane(p_target, &bounds);
+		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
+		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 #endif

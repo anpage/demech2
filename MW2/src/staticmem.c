@@ -41,6 +41,7 @@ MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag);
 // Stack-slot permutation: i, pool, j, group and best. The loop tests and the comparisons of the
 // groups' free room follow the unit's symbol table in the other operand order.
 // FUNCTION: MW2 0x100498b0
+// FUNCTION: MW2MATROX 0x10078f20
 MechS32 InitStaticMem(char* p_mission)
 {
 	MechS32 i;
@@ -149,6 +150,7 @@ void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 
 // Frees the groups' blocks.
 // The loop test compares in the other operand order (the unit's symbol table).
+// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x10049c55
 // FUNCTION: MW2MATROX 0x100792c2
 void FreeStaticMem(void)
@@ -223,6 +225,7 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 // group.
 // Stack-slot permutation: pool and i. Both tests against g_staticPoolCount compare in the other
 // operand order (the unit's symbol table).
+// MW2MATROX: the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x10049da3
 // FUNCTION: MW2MATROX 0x10079410
 MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag)

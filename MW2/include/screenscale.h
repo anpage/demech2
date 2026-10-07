@@ -36,10 +36,10 @@ extern "C"
 	PANE* FitRectToText(MechChar* p_text, void* p_font, PANE* p_rect);
 	void DrawPulsingFrame(PANE* p_target);
 	void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame);
-	MechS32 GetLineSlope(MechS32 p_dx, MechS32 p_dy, MechS32* p_slope);
+	MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope);
 	Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out);
 	Point* GetRectNeedleAt(PANE* p_target, MechS32 p_angle, Point* p_out);
-	Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechS32 p_slope, Point* p_out);
+	Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_slope, Point* p_out);
 	void DrawGaugeEllipse(PANE* p_target, MechS32 p_color);
 	void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color);
 	MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y);

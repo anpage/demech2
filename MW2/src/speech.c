@@ -175,6 +175,7 @@ HSAMPLE g_speechSample = NULL;
 MechS32 g_speechLocked = 0;
 
 // GLOBAL: MW2 0x100bea10
+// GLOBAL: MW2MATROX 0x10125430
 SpeechEntry g_speechEntries[8];
 
 // Queues p_line, followed by p_suffix, by priority (-1: the sound's own). Returns whether it

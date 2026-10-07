@@ -8,6 +8,7 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "mech.h"
@@ -32,6 +33,7 @@
 // Stack-slot permutation of the locals. The original sums dot's three products in source order;
 // the build starts with the second.
 // FUNCTION: MW2 0x100758a0
+// STUB: MW2MATROX 0x10075a80
 MechS32 MoveMechWithCollisions(
 	Mech* p_mech,
 	Shape** p_hit,
@@ -175,6 +177,7 @@ MechS32 MoveMechWithCollisions(
 // (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10075d7b
+// STUB: MW2MATROX 0x10075f6c
 MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Player** p_hit)
 {
 	MechS32 radius;
@@ -320,6 +323,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 // Stack-slot permutation of the locals. Operand order: dist < reach loads reach first in the
 // original.
 // FUNCTION: MW2 0x10076295
+// STUB: MW2MATROX 0x1007649e
 MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Shape** p_hit)
 {
 	MechS32 dz;
@@ -415,10 +419,11 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* 
 // they met faster than 200000.
 // The only diff is a stack-slot permutation of speed and damage.
 // FUNCTION: MW2 0x100765f8
+// FUNCTION: MW2MATROX 0x1007685c
 void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 {
-	MechS32 speed;
-	MechS32 damage;
+	MechScalar speed;
+	MechScalar damage;
 
 	if (!g_difficulty->m_collisionDamage) {
 		return;
@@ -429,8 +434,12 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 		p_mech->m_newVelocityY - p_other->m_newVelocityY,
 		p_mech->m_newVelocityZ - p_other->m_newVelocityZ
 	);
-	if (speed > 200000) {
+	if (speed > FIXED_LITERAL(200000, 3.0693676f)) {
+#ifdef MW2_MATROX
+		damage = (speed - 3.0693676f) / 19.95089f * 3;
+#else
 		damage = FixedDiv16(speed - 200000, 1300000) * 3;
+#endif
 		ApplyCollisionDamage(p_mech, p_other, damage);
 	}
 }
@@ -439,13 +448,14 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // down) the legs, scaled by the other mech's mass, from above both side torsos at half, and
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
 // Stack-slot permutation: attacker and angle. Operand order: damage < p_damage loads p_damage
-// first in the original.
+// first in the original. MW2MATROX multiplies p_damage * 2 * m_tons in another order.
 // FUNCTION: MW2 0x1007669e
-void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechS32 p_damage)
+// FUNCTION: MW2MATROX 0x10076927
+void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 {
 	MechS32 attacker;
-	MechS32 damage;
-	MechS32 angle;
+	MechScalar damage;
+	MechScalar angle;
 
 	if (p_other) {
 		attacker = p_other->m_player->m_index;
@@ -454,12 +464,17 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 		attacker = -2;
 	}
 
-	if (g_segmentNormalY < -0xddb4) {
+	if (g_segmentNormalY < FIXED_LITERAL(-0xddb4, -0.866f)) {
 		if (!p_other) {
 			damage = p_damage;
 		}
 		else {
+#ifdef MW2_MATROX
+			// Twice the damage scaled by the masses, where 1.1 has four times.
+			damage = p_damage * 2 * p_other->m_tons / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
+#else
 			damage = MulDiv64(p_damage << 2, p_other->m_tons, p_mech->m_tons > 0 ? p_mech->m_tons : 1);
+#endif
 			if (damage < p_damage) {
 				damage = p_damage;
 			}
@@ -467,30 +482,34 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 
 		ApplyDamageToMech(attacker, p_mech, damage, 1);
 	}
-	else if (g_segmentNormalY > 0xb505) {
+	else if (g_segmentNormalY > FIXED_LITERAL(0xb505, 0.7071f)) {
+#ifdef MW2_MATROX
+		p_damage /= 2;
+#else
 		p_damage >>= 1;
+#endif
 		ApplyDamageToMech(attacker, p_mech, p_damage, 7);
 		ApplyDamageToMech(attacker, p_mech, p_damage, 8);
 	}
 	else {
 		angle = FixedAtan2(-g_segmentNormalX, -g_segmentNormalZ) - p_mech->m_player->m_heading -
 				p_mech->m_player->m_torsoTwist;
-		if (angle < -0xb40000) {
-			angle += 0x1680000;
+		if (angle < -FIXED_CONST(180)) {
+			angle += FIXED_CONST(360);
 		}
-		else if (angle > 0xb40000) {
-			angle -= 0x1680000;
+		else if (angle > FIXED_CONST(180)) {
+			angle -= FIXED_CONST(360);
 		}
 
-		if (angle > 0) {
-			if (angle < 0x2d0000 || angle > 0x870000) {
+		if (angle > FIXED_LITERAL(0, 1e-07f)) {
+			if (angle < FIXED_CONST(45) || angle > FIXED_CONST(135)) {
 				ApplyDamageToMech(attacker, p_mech, p_damage, 2);
 			}
 			else {
 				ApplyDamageToMech(attacker, p_mech, p_damage, 5);
 			}
 		}
-		else if (angle > -0x2d0000 || angle < -0x870000) {
+		else if (angle > -FIXED_CONST(45) || angle < -FIXED_CONST(135)) {
 			ApplyDamageToMech(attacker, p_mech, p_damage, 4);
 		}
 		else {
@@ -503,14 +522,15 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechS32 p_damage)
 // when it can be damaged. In a network game, a shape of kind 0xb0 destroys both legs and itself.
 // Stack-slot permutation: damage and speed.
 // FUNCTION: MW2 0x100768a8
+// FUNCTION: MW2MATROX 0x10076bc3
 void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 {
-	MechS32 damage;
-	MechS32 speed;
+	MechScalar damage;
+	MechScalar speed;
 
 	if (g_isNetworkGame && p_shape && (p_shape->m_kind & 0xf0) == 0xb0) {
-		ApplyDamageToMech(-2, p_mech, 0x320000, 7);
-		ApplyDamageToMech(-2, p_mech, 0x320000, 8);
+		ApplyDamageToMech(-2, p_mech, FIXED_RAW(0x320000), 7);
+		ApplyDamageToMech(-2, p_mech, FIXED_RAW(0x320000), 8);
 		SpawnEffect(
 			p_mech->m_player->m_index,
 			0xd,
@@ -525,8 +545,12 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 	}
 	else {
 		speed = ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ);
-		if (speed > 200000) {
+		if (speed > FIXED_LITERAL(200000, 3.0693676f)) {
+#ifdef MW2_MATROX
+			damage = (speed - 3.0693676f) / 19.95089f * 3;
+#else
 			damage = FixedDiv16(speed - 200000, 1300000) * 3;
+#endif
 			if (g_difficulty->m_collisionDamage) {
 				ApplyCollisionDamage(p_mech, NULL, damage);
 			}
@@ -535,7 +559,7 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 				DamageGameThing(
 					p_mech->m_player->m_index,
 					p_shape,
-					damage >> 16,
+					FIXED_LITERAL(damage >> 16, damage),
 					p_shape->m_centerX,
 					p_shape->m_centerY,
 					p_shape->m_centerZ
@@ -548,11 +572,12 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 // Knocks p_mech over: plays its fall (unless another machine of a network game controls it),
 // marks it fallen and plays the crash sound.
 // FUNCTION: MW2 0x10076a23
+// FUNCTION: MW2MATROX 0x10076d51
 void KnockMechOver(Mech* p_mech)
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 
 	if (!g_netRole || p_mech->m_player->m_index == g_localPlayerId) {
 		BlowOffObjTree(p_mech->m_player->m_obj, ReleaseObjShape, 999);

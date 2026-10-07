@@ -76,6 +76,7 @@ MechS32 g_debugFirstLine = -1;
 MechS32 g_debugListedStar = -1;
 
 // GLOBAL: MW2 0x100a8908
+// GLOBAL: MW2MATROX 0x100bb020
 AiName g_aiMessageNames[8] = {
 	{"NO_MESSAGE", c_aiMessageNone},
 	{"M_PROX", c_aiMessageProx},
@@ -88,6 +89,7 @@ AiName g_aiMessageNames[8] = {
 };
 
 // GLOBAL: MW2 0x100a8948
+// GLOBAL: MW2MATROX 0x100bb060
 AiName g_aiTransitionNames[7] = {
 	{"T_NULL", c_aiTransitionNull},
 	{"T_CLEAR_STACK", c_aiTransitionClearStack},
@@ -148,6 +150,7 @@ AiName g_aiSymbolicTargetNames[7] = {
 };
 
 // GLOBAL: MW2 0x100a8a90
+// GLOBAL: MW2MATROX 0x100bb1a8
 AiName g_aiTargetTypeNames[3] = {
 	{"nv", c_aiTargetNav},
 	{"gp", c_aiTargetPlayer},
@@ -171,6 +174,7 @@ AiName g_shapeKindNames[3] = {
 };
 
 // GLOBAL: MW2 0x100a8ad8
+// GLOBAL: MW2MATROX 0x100bb1f0
 AiName g_playerTypeNames[9] = {
 	{"GP_NULL", 0},
 	{"GP_MW2MECH", 1},
@@ -1456,6 +1460,7 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 
 // Logs the AI status page g_debugStar selects: the players (-1), their skills (-2) or a
 // star's mission.
+// MW2MATROX: g_debugListedStar != g_debugStar compares in the other operand order.
 // FUNCTION: MW2 0x10053072
 // FUNCTION: MW2MATROX 0x10082215
 void LogAIStatus(void)
@@ -1602,7 +1607,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + FIXED_CONST(180));
 #endif
 		if (!AvoidObstacles(p_player)) {
-			p_player->m_steering->m_throttle = 0x400;
+			p_player->m_steering->m_throttle = FIXED_RAW(0x400);
 			SteerToTarget(p_player);
 		}
 
@@ -1610,7 +1615,11 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		break;
 	default:
 		if (p_player->m_aiMode == 2) {
+#ifdef MW2_MATROX
+			p_player->m_steering->m_throttle = 0.0125f; // 1.1's 0x333, rounded
+#else
 			p_player->m_steering->m_throttle = 0x333;
+#endif
 		}
 		break;
 	}
@@ -2408,6 +2417,7 @@ void PlacePatrolNavs(Player* p_player)
 
 // Targets p_target and steps p_player's target on to the next of its own nav points, past its
 // anchor nav, and makes that its AI target.
+// MW2MATROX: m_nav == m_targetInfo.m_target compares in the other operand order.
 // FUNCTION: MW2 0x10054a30
 // FUNCTION: MW2MATROX 0x10083caa
 void AdvanceNavTarget(Player* p_player, MechS16 p_target)
@@ -2446,6 +2456,7 @@ void PlaceFormationNav(Player* p_player)
 // Makes player p_index attack player p_target (logging the first time), when it is the local
 // player or on a network game.
 // Stack-slot permutation: line and player.
+// MW2MATROX: the comparison with g_localPlayerId loads its operands in the other order.
 // FUNCTION: MW2 0x10054b50
 // FUNCTION: MW2MATROX 0x10083dca
 void RecordAttack(MechS32 p_index, MechU32 p_target)
@@ -2539,7 +2550,8 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 
 // Orders the players of p_targets into p_state with p_target (the local player's orders to its
 // star). Returns how many it skipped.
-// Stack-slot permutation: player and skipped and target.
+// Stack-slot permutation: player and skipped and target. MW2MATROX: p_target == target compares
+// in the other operand order.
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2MATROX 0x10084002
 MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS16 p_target)
@@ -3273,18 +3285,29 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 
 // Sweeps a mech's torso pan from side to side, 5 degrees every 0x20 ticks (0x40 while stopped),
 // turning back past 45.
-// Operand order: period + g_currentClock adds in the other order (commutative).
+// Operand order: period + g_currentClock adds in the other order (commutative). MW2MATROX: the
+// first m_maneuverEnd comparison loads its operands in the other order.
 // FUNCTION: MW2 0x100562b4
+// FUNCTION: MW2MATROX 0x1008554f
 void SweepTorso(Player* p_player)
 {
 	MechS32 period;
 
+#ifdef MW2_MATROX
+	if (FIXED_IS_NONZERO(p_player->m_steering->m_throttle)) {
+		period = 0x20;
+	}
+	else {
+		period = 0x40;
+	}
+#else
 	if (p_player->m_steering->m_throttle == 0) {
 		period = 0x40;
 	}
 	else {
 		period = 0x20;
 	}
+#endif
 
 	if (p_player->m_type != c_playerTypeMech) {
 		return;
@@ -3298,6 +3321,16 @@ void SweepTorso(Player* p_player)
 		return;
 	}
 
+#ifdef MW2_MATROX
+	if (p_player->m_maneuverParam) {
+		p_player->m_steering->m_torsoPan += 5;
+	}
+	else {
+		p_player->m_steering->m_torsoPan += -5;
+	}
+
+	if ((MechFloat) fabs(p_player->m_steering->m_torsoPan) > 45) {
+#else
 	if (p_player->m_maneuverParam) {
 		p_player->m_steering->m_torsoPan += 0x50000;
 	}
@@ -3306,6 +3339,7 @@ void SweepTorso(Player* p_player)
 	}
 
 	if (abs(p_player->m_steering->m_torsoPan) > 0x2d0000) {
+#endif
 		if (!p_player->m_maneuverParam) {
 			p_player->m_maneuverParam = 1;
 		}

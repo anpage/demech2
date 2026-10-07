@@ -34,11 +34,11 @@ MechS32 g_timeOfDayPhase = -1;
 
 // GLOBAL: MW2 0x100ba5fc
 // GLOBAL: MW2MATROX 0x100bbba4
-MechScalar g_soundDelayPerUnit = FIXED_RAW(0x168);
+MechScalar g_soundDelayPerUnit = FIXED_LITERAL(0x168, 0.00549f);
 
 // GLOBAL: MW2 0x100ba600
 // GLOBAL: MW2MATROX 0x100bbba8
-MechScalar g_gravity = FIXED_RAW(0x794);
+MechScalar g_gravity = FIXED_LITERAL(0x794, 0.0296f);
 
 // GLOBAL: MW2 0x100ba604
 // GLOBAL: MW2MATROX 0x100bbbac
@@ -89,6 +89,7 @@ MechS32 g_nextTimeOfDayUpdate;
 MechS32 g_infraredOn;
 
 // FUNCTION: MW2 0x1007d610
+// FUNCTION: MW2MATROX 0x10085c80
 void FirstEnvironment(void)
 {
 	MechS32 hour;
@@ -105,10 +106,15 @@ void FirstEnvironment(void)
 
 	g_startTimeOfDay = g_timeOfDay;
 	g_timeOfDayPhase = -1;
+#ifdef MW2_MATROX
+	g_gravityScale = g_gravity / FIXED_LITERAL(0x794, 0.0296f);
+#else
 	g_gravityScale = FixedDiv16(g_gravity, 0x794);
+#endif
 }
 
-// Stack slots: seconds, time and i are permuted.
+// Stack slots: seconds, time and i are permuted. MW2MATROX: the g_currentClock and
+// g_nextTimeOfDayUpdate comparison has its operands the other way around.
 // FUNCTION: MW2 0x1007d6bb
 // FUNCTION: MW2MATROX 0x10085d3b
 void UpdateTimeOfDay(void)
@@ -215,8 +221,10 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 	}
 }
 
-// Stack slots: i and mech are swapped.
+// Stack slots: i and mech are swapped. MW2MATROX: the i < g_playerCount comparison has its
+// operands the other way around.
 // FUNCTION: MW2 0x1007d931
+// FUNCTION: MW2MATROX 0x10085fbe
 void QuadrupleMechCooling(void)
 {
 	MechS32 i;
@@ -232,8 +240,10 @@ void QuadrupleMechCooling(void)
 	}
 }
 
-// Stack slots: i and mech are swapped.
+// Stack slots: i and mech are swapped. MW2MATROX: the i < g_playerCount comparison has its
+// operands the other way around.
 // FUNCTION: MW2 0x1007d97c
+// FUNCTION: MW2MATROX 0x10086017
 void QuarterMechCooling(void)
 {
 	MechS32 i;

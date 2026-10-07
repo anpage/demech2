@@ -2,6 +2,7 @@
 #define HUD_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "mech.h"
 #include "point.h"
 #include "rect.h"
@@ -26,43 +27,44 @@ extern "C"
 	extern MechS32 g_showAltimeter;
 	void DrawHudAt(
 		Mech* p_mech,
-		MechS32 p_heading,
-		MechS32 p_twist,
-		MechS32 p_bearing,
-		MechS32 p_twistBearing,
-		MechS32 p_pitch,
-		MechS32 p_distance
+		MechScalar p_heading,
+		MechScalar p_twist,
+		MechScalar p_bearing,
+		MechScalar p_twistBearing,
+		MechScalar p_pitch,
+		MechScalar p_distance
 	);
 	void DrawHud(
 		Mech* p_mech,
-		MechS32 p_heading,
-		MechS32 p_twist,
-		MechS32 p_bearing,
-		MechS32 p_twistBearing,
-		MechS32 p_pitch,
-		MechS32 p_distance,
+		MechScalar p_heading,
+		MechScalar p_twist,
+		MechScalar p_bearing,
+		MechScalar p_twistBearing,
+		MechScalar p_pitch,
+		MechScalar p_distance,
 		MechS32 p_drawCrosshair
 	);
 	void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y);
 	void InitHudGauges(void);
 	Point* GetHudGaugePositions(void);
-	MechS32 DrawCrosshair(Mech* p_mech, MechS32 p_bearing, MechS32 p_pitch, MechS32 p_distance);
+	MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, MechScalar p_distance);
 	void DrawTargetMarker(Mech* p_mech);
 	void DrawCompassMarkers(
 		Mech* p_mech,
 		MechS32 p_x,
 		MechS32 p_y,
-		MechS32 p_bearing,
-		MechS32 p_twistBearing,
-		MechS32 p_pitch
+		MechScalar p_bearing,
+		MechScalar p_twistBearing,
+		MechScalar p_pitch
 	);
-	void DrawCompass(MechS32 p_x, MechS32 p_y, MechS32 p_heading, MechS32 p_twist);
+	void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_twist);
 	MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y);
 	void DrawPlayerBrackets(struct Player* p_player, MechS32 p_side);
 	void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side);
 	void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id);
 #ifdef MW2_MATROX
 	void ClipRectToPane(PANE* p_pane, Rect* p_rect);
+	void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
 #endif
 	void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
 	void DrawShapeOverPane(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);

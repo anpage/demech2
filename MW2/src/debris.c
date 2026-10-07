@@ -157,8 +157,7 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		chunk->m_callback = p_callback;
 		chunk->m_startTime = g_currentClock;
 #ifdef MW2_MATROX
-		// 1.1's 16.16 value, stored into the float as it is.
-		*(MechS32*) &chunk->m_health = 0x100000;
+		chunk->m_health = 16.0f;
 #else
 		chunk->m_health = 0x100000;
 #endif
@@ -276,26 +275,29 @@ void DamageChunk(MechS32 p_index, MechScalar p_damage)
 	}
 }
 
-// Stack-slot permutation of the locals, and the operand order of newY <= ground.
+// Stack-slot permutation of the locals, and the operand order of newY <= ground. MW2MATROX
+// stores velocityY and ground before comparing them (fst, fcomp) where the rebuild compares first
+// (fcom, fstp), the symbol-order entropy of UpdateWrappedRamp's comparison.
 // FUNCTION: MW2 0x100047c2
+// FUNCTION: MW2MATROX 0x1002ab7a
 void UpdateDebrisPiece(MechS32 p_index)
 {
-	MechS32 velocityY;
+	MechScalar velocityY;
 	MechS32 rising;
 	MechS32 landed;
 	DebrisPiece* piece;
-	MechS32 ground;
-	MechS32 radius;
+	MechScalar ground;
+	MechScalar radius;
 	MechScalar z;
-	MechS32 spinZ;
+	MechScalar spinZ;
 	MechScalar y;
-	MechS32 spinY;
+	MechScalar spinY;
 	MechScalar x;
-	MechS32 spinX;
-	MechS32 dz;
-	MechS32 newY;
-	MechS32 dx;
-	MechS32 dy;
+	MechScalar spinX;
+	MechScalar dz;
+	MechScalar newY;
+	MechScalar dx;
+	MechScalar dy;
 
 	landed = FALSE;
 	piece = &g_debrisPieces[p_index];
@@ -304,26 +306,38 @@ void UpdateDebrisPiece(MechS32 p_index)
 	}
 
 	radius = GetShapeBounds(GetObjShape(piece->m_obj), &x, &y, &z);
-	y = y - (radius >> 1);
+	y = y - FIXED_SHR(radius, 1);
 	newY = y;
 	velocityY = piece->m_velocityY;
+#ifdef MW2_MATROX
+	rising = velocityY > 1e-07f;
+#else
 	rising = velocityY > 0;
+#endif
 	IntegrateMidpoint(&newY, &velocityY, piece->m_acceleration, g_deltaTime);
 
+#ifdef MW2_MATROX
+	if (velocityY < 1e-07f && newY <= (ground = GetTerrainHeight(x, y, z))) {
+#else
 	if (velocityY <= 0 && newY <= (ground = GetTerrainHeight(x, y, z))) {
+#endif
 		if (rising) {
 			HideDebrisObj(piece->m_obj);
 			landed = TRUE;
 		}
 
-		if (velocityY > -0x8d6f) {
+		if (velocityY > FIXED_LITERAL(-0x8d6f, -0.5524862f)) {
 			landed = TRUE;
 		}
 
 		newY = ground;
-		velocityY = -(velocityY >> 2);
+		velocityY = -FIXED_SHR(velocityY, 2);
 		if (RandomIntBelow(2)) {
+#ifdef MW2_MATROX
+			velocityY /= 2;
+#else
 			velocityY >>= 1;
+#endif
 			piece->m_velocityX = -FIXED_SHR(piece->m_velocityX, 1);
 			piece->m_velocityZ = -FIXED_SHR(piece->m_velocityZ, 1);
 		}
@@ -334,12 +348,21 @@ void UpdateDebrisPiece(MechS32 p_index)
 	}
 
 	piece->m_velocityY = velocityY;
+#ifdef MW2_MATROX
+	dx = piece->m_velocityX * g_deltaTime;
+	dy = newY - y;
+	dz = piece->m_velocityZ * g_deltaTime;
+	spinX = piece->m_spinX * g_deltaTime;
+	spinY = piece->m_spinY * g_deltaTime;
+	spinZ = piece->m_spinZ * g_deltaTime;
+#else
 	dx = FixedMul16(piece->m_velocityX, g_deltaTime);
 	dy = newY - y;
 	dz = FixedMul16(piece->m_velocityZ, g_deltaTime);
 	spinX = FixedMul16(piece->m_spinX, g_deltaTime << 16);
 	spinY = FixedMul16(piece->m_spinY, g_deltaTime << 16);
 	spinZ = FixedMul16(piece->m_spinZ, g_deltaTime << 16);
+#endif
 	MoveObj(piece->m_obj, dx, dy, dz);
 	RotateObj(piece->m_obj, spinX, spinY, spinZ, 0);
 	UpdateObj(piece->m_obj);
@@ -353,10 +376,11 @@ void UpdateDebrisPiece(MechS32 p_index)
 // Pushes the piece by (p_x, p_y, p_z) on top of a random throw.
 // Stack-slot permutation: length, speed and piece; and the operand order of length < speed.
 // FUNCTION: MW2 0x10004a45
-void PushDebrisPiece(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x1002aeed
+void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-	MechS32 length;
-	MechS32 speed;
+	MechScalar length;
+	MechScalar speed;
 	DebrisPiece* piece;
 
 	piece = &g_debrisPieces[p_index];
@@ -372,10 +396,17 @@ void PushDebrisPiece(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	ThrowDebrisPiece(p_index);
 	speed = ApproximateVectorLength(piece->m_velocityX, piece->m_velocityY, piece->m_velocityZ);
 	if (length < speed) {
+#ifdef MW2_MATROX
+		speed = length * 2 / speed;
+		piece->m_velocityX *= speed;
+		piece->m_velocityY *= speed;
+		piece->m_velocityZ *= speed;
+#else
 		speed = FixedDiv16(length * 2, speed);
 		piece->m_velocityX = FixedMul16(piece->m_velocityX, speed);
 		piece->m_velocityY = FixedMul16(piece->m_velocityY, speed);
 		piece->m_velocityZ = FixedMul16(piece->m_velocityZ, speed);
+#endif
 	}
 
 	piece->m_velocityX += p_x;
@@ -442,17 +473,18 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 // Damages the chunks within p_radius of (p_x, p_y, p_z) by p_damage per second.
 // Stack-slot permutation of the locals, and the operand order of radius + p_radius.
 // FUNCTION: MW2 0x10004ce5
-void DamageChunksInRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_damage)
+// FUNCTION: MW2MATROX 0x1002b194
+void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_radius, MechScalar p_damage)
 {
 	DebrisChunk* chunk;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
-	MechS32 radius;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
-	MechS32 reach;
+	MechScalar radius;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechScalar reach;
 	MechS32 i;
 
 	i = 0x80;
@@ -468,7 +500,11 @@ void DamageChunksInRadius(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radiu
 		dz = z - p_z;
 		reach = radius + p_radius;
 		if (IsWithinRadius(dx, dy, dz, reach)) {
+#ifdef MW2_MATROX
+			DamageChunk(i, p_damage * g_deltaTime);
+#else
 			DamageChunk(i, FixedMul16(p_damage, g_deltaTime));
+#endif
 		}
 	}
 }

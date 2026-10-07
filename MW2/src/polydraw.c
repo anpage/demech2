@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the edition's sine (fixedtrig.h) */
+#endif
 #include "polydraw.h"
 
 #include "animation.h"
@@ -30,8 +33,36 @@ Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8
 // GLOBAL: MW2MATROX 0x100ade78
-RenderSettings g_renderSettings = {0, 1, 1,       1,       1, 1, 1,    1,    1,    1, {0xe0, 0xef}, 1, 0, 0,
-								   0, 0, 0x186a0, 0x10000, 0, 0, NULL, NULL, NULL, 0, NULL};
+RenderSettings g_renderSettings = {
+	0,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+#ifdef MW2_MATROX
+	{1, 1},
+#endif
+	{0xe0, 0xef},
+	1,
+	0,
+	0,
+	0,
+	0,
+	0x186a0,
+	0x10000,
+	0,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	NULL
+};
 
 // GLOBAL: MW2 0x100a6d30
 // GLOBAL: MW2MATROX 0x100adee8
@@ -49,6 +80,7 @@ MechS32 g_lineEndY;
 
 // Stack-slot permutation: luma, saved, mode, index, scale, shade and fraction.
 // FUNCTION: MW2 0x10042e00
+// STUB: MW2MATROX 0x100683ba
 void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 {
 	MechS32 luma;
@@ -163,6 +195,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 // Stack-slot permutation; the original calls IsAboveHorizon for the corners in the order of the
 // terms, (x0, y1) first (commutative operand order).
 // FUNCTION: MW2 0x1004320b
+// STUB: MW2MATROX 0x10069419
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
 {
 	MechS32 y1;

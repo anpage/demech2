@@ -6,6 +6,7 @@
    TransformShapeCenter and RayShapeDistance with float C. */
 #include "shapegeom.h"
 
+#include "approxlen.h"
 #include "clock.h"
 #include "compat.h"
 #include "decomp.h"
@@ -423,9 +424,26 @@ MechS32 SolvePlaneY(
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // Stack-slot permutation: radius, deltaY and deltaZ.
 // FUNCTION: MW2 0x10039ccc
+// FUNCTION: MW2MATROX 0x10028e14
 MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-#ifdef PORTABLE_C_LABELS
+#if defined(MW2_MATROX)
+	MechScalar deltaX;
+	MechScalar deltaY;
+	MechScalar deltaZ;
+	MechScalar radius;
+
+	deltaX = p_shape->m_centerX - p_x;
+	deltaY = p_shape->m_centerY - p_y;
+	deltaZ = p_shape->m_centerZ - p_z;
+	radius = p_shape->m_radius;
+	if (radius >= deltaX && -radius <= deltaX && radius >= deltaY && -radius <= deltaY && radius >= deltaZ &&
+		-radius <= deltaZ && radius * radius - (deltaZ * deltaZ + deltaY * deltaY + deltaX * deltaX) > 0) {
+		return ApproximateVectorLength(deltaX, deltaY, deltaZ);
+	}
+
+	return FIXED_MAX;
+#elif defined(PORTABLE_C_LABELS)
 	MechS32 deltaX = Difference(p_shape->m_centerX, p_x);
 	MechS32 deltaY = Difference(p_shape->m_centerY, p_y);
 	MechS32 deltaZ = Difference(p_shape->m_centerZ, p_z);
@@ -556,23 +574,39 @@ done:;
 // product of its edges, scaled to 2.29 fixed point; returns the scale's exponent. A degenerate
 // triangle gets the normal (-1, -1, -1) and 0. The products and the scaling are __asm blocks.
 // Stack-slot permutation of the locals.
+// The Matrox edition's is float C, which returns the cross product's length: it sits with the
+// trigonometry (0x1007f368), out of this unit's order, so it isn't annotated.
 // FUNCTION: MW2 0x10039dda
 MechS32 ComputeTriangleNormal(
-	MechS32 p_x0,
-	MechS32 p_y0,
-	MechS32 p_z0,
-	MechS32 p_x1,
-	MechS32 p_y1,
-	MechS32 p_z1,
-	MechS32 p_x2,
-	MechS32 p_y2,
-	MechS32 p_z2,
-	MechS32* p_nx,
-	MechS32* p_ny,
-	MechS32* p_nz
+	MechScalar p_x0,
+	MechScalar p_y0,
+	MechScalar p_z0,
+	MechScalar p_x1,
+	MechScalar p_y1,
+	MechScalar p_z1,
+	MechScalar p_x2,
+	MechScalar p_y2,
+	MechScalar p_z2,
+	MechScalar* p_nx,
+	MechScalar* p_ny,
+	MechScalar* p_nz
 )
 {
-#ifdef PORTABLE_C_LABELS
+#if defined(MW2_MATROX)
+	MechScalar length;
+	MechScalar nx;
+	MechScalar ny;
+	MechScalar nz;
+
+	nx = -((p_z2 - p_z1) * (p_y1 - p_y0) - (p_z1 - p_z0) * (p_y2 - p_y1));
+	ny = -((p_z1 - p_z0) * (p_x2 - p_x1) - (p_z2 - p_z1) * (p_x1 - p_x0));
+	nz = -((p_x1 - p_x0) * (p_y2 - p_y1) - (p_y1 - p_y0) * (p_x2 - p_x1));
+	length = sqrt(ny * ny + nz * nz + nx * nx);
+	*p_nx = nx / length;
+	*p_ny = ny / length;
+	*p_nz = nz / length;
+	return (MechS32) length;
+#elif defined(PORTABLE_C_LABELS)
 	MechS64 normal[3];
 	MechU32 values[3];
 	MechS32 quotients[3];

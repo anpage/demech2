@@ -26,6 +26,7 @@ MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 
 // The largest coordinates of the three resolutions the art comes in.
 // GLOBAL: MW2 0x100aa718
+// GLOBAL: MW2MATROX 0x100bca50
 Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 
 // GLOBAL: MW2 0x100e9610

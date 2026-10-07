@@ -34,12 +34,15 @@ MechS32 g_logStreams = 0;
 
 // Only LogKeywordName's dead first store takes its address.
 // GLOBAL: MW2 0x10109c40
+// GLOBAL: MW2MATROX 0x101d6830
 MechChar g_unk0x10109c40[1];
 
 // Opens the BWD stream p_key names into p_stream: from a file when the key has no resource id
 // (a name without an extension gets ".BWD"), or always with g_streamsFromFiles, and otherwise, or
 // when there is no such file, from the resource file. Returns p_stream, or NULL.
 // Stack-slot permutation: line, result, id, dot, file, size and data.
+// MW2MATROX: the comparison of the node's type with g_bwdTypeCodes has its operands the other way
+// round.
 // FUNCTION: MW2 0x1003fb00
 // FUNCTION: MW2MATROX 0x10029ef0
 BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)

@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the edition's sine (fixedtrig.h) */
+#endif
 #include "eyepoint.h"
 
 #include "camerashake.h"
@@ -50,9 +53,11 @@ MechS32 g_trackHeight = 0;
 MechS32 g_trackTurn = 0xb40000;
 
 // GLOBAL: MW2 0x100a2400
+// GLOBAL: MW2MATROX 0x100a3640
 MechScalar g_normalFov = FIXED_CONST(1);
 
 // GLOBAL: MW2 0x100a2404
+// GLOBAL: MW2MATROX 0x100a3644
 MechScalar g_zoomFov = FIXED_CONST(1);
 
 // The view mode the camera was updated in last (c_view...), or -1.

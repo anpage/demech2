@@ -20,7 +20,7 @@
 #include <string.h>
 
 // GLOBAL: MW2 0x1009de38
-// GLOBAL: MW2MATROX 0x100a0b18
+// GLOBAL: MW2MATROX 0x100a0414
 const MechS32 g_wtbTag = 0x4f425457;
 
 // GLOBAL: MW2 0x100ba65c

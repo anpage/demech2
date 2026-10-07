@@ -10,8 +10,17 @@ extern "C"
 {
 #endif
 
-	MechS32 FixedSin(MechS32 p_angle);
-	MechS32 FixedCos(MechS32 p_angle);
+#if defined(MW2_MATROX) && defined(FIXEDTRIG_FLOAT_SINE)
+	// The edition's sine takes and returns degrees as floats, and its callers expand the cosine
+	// (FixedSin(p_angle + 90.0f)). Only fixedtrig.c sees this declaration for now: door.c,
+	// mechclass.c, screenscale.c and soundfx.c still shift the 16.16 result (FixedSin(x) >> n), which
+	// a float doesn't compile with.
+	MechScalar FixedSin(MechScalar p_angle);
+#define FixedCos(p_angle) FixedSin((p_angle) + 90.0f)
+#else
+MechS32 FixedSin(MechS32 p_angle);
+MechS32 FixedCos(MechS32 p_angle);
+#endif
 	MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z);
 #ifdef MW2_MATROX
 	// The edition's arcsine and arccosine are the CRT's, in degrees.

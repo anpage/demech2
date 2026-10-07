@@ -71,8 +71,12 @@ def shape(text):
     return ADDRESS.sub("A", SLOT.sub("ebp-S", text))
 
 
-def ishape(x):
-    return x.mnemonic + " " + shape(x.op_str)
+def ishape(x, image=None):
+    """An instruction without its stack slots, and without its addresses when it has any: a
+    relocated operand, or a branch's target. Other immediates (a float constant) stay."""
+    if image is None or x.group(1) or x.group(2) or x.group(7) or any(x.address + k in image.relocs for k in range(x.size)):
+        return x.mnemonic + " " + shape(x.op_str)
+    return x.mnemonic + " " + SLOT.sub("ebp-S", x.op_str)
 
 
 def text(x):
@@ -234,7 +238,9 @@ def compare(rebuild, original, name, address, end=None):
     d = rebuild.disasm
     R = instructions(d, rebuild.image, f.start, f.start + len(f.code))
     T = instructions(d, original, address, end or address + len(f.code) + 0x40)
-    sm = difflib.SequenceMatcher(None, [ishape(x) for x in R], [ishape(x) for x in T], autojunk=False)
+    sm = difflib.SequenceMatcher(
+        None, [ishape(x, rebuild.image) for x in R], [ishape(x, original) for x in T], autojunk=False
+    )
     ops = [o for o in sm.get_opcodes() if o[0] != "equal"]
     if ops and ops[-1][0] == "insert" and ops[-1][1] == len(R):
         ops = ops[:-1]  # past the rebuilt function's end: the original's next function

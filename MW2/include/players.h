@@ -79,8 +79,8 @@ struct Player {
 	MechS32 m_animRate;                 // 0x94
 	Ramp m_aimRange;                    // 0x98 — eases towards m_aimDistance's
 	Ramp m_aimDistance;                 // 0xa8 — the distance the weapons converge at
-	MechS32 m_headingCos;               // 0xb8 — 16.16 (UpdateDoor)
-	MechS32 m_headingSin;               // 0xbc — 16.16
+	MechScalar m_headingCos;            // 0xb8 — 16.16 (UpdateDoor)
+	MechScalar m_headingSin;            // 0xbc — 16.16
 	PlayerTargetInfo m_targetInfo;      // 0xc0
 	MechChar m_name[0xfe - 0xe8];       // 0xe8
 	MechChar m_shortName[0x114 - 0xfe]; // 0xfe — for the target panel

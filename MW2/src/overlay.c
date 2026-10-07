@@ -7,6 +7,7 @@
 #include "gamekeys.h"
 #include "loadres.h"
 #include "mw2prj.h"
+#include "palette.h"
 #include "point.h"
 #include "polydraw.h"
 #include "render.h"
@@ -125,6 +126,7 @@ MechS32 g_showMemInfoMain = 0;
 MechS32 g_memInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94fc
+// GLOBAL: MW2MATROX 0x100bcc74
 MechS32 g_showCacheInfo = 0;
 
 // GLOBAL: MW2 0x100a9500
@@ -132,6 +134,7 @@ MechS32 g_showCacheInfo = 0;
 MechS32 g_cacheInfoShown = 0;
 
 // GLOBAL: MW2 0x100a9504
+// GLOBAL: MW2MATROX 0x100bcc7c
 MechS32 g_showSpinner = 1;
 
 // The spinner StepSpinner steps through: the CP437 arrows up, left, down and right.
@@ -142,15 +145,19 @@ MechChar g_spinnerArrows[4] = {0x1e, 0x11, 0x1f, 0x10};
 // A repeated cache dump (DUMP_CACHE_REPEAT, whose key does nothing in this build) every
 // second.
 // GLOBAL: MW2 0x100a950c
+// GLOBAL: MW2MATROX 0x100bcc84
 MechS32 g_nextCacheDump = 0;
 
 // GLOBAL: MW2 0x100a9510
+// GLOBAL: MW2MATROX 0x100bcc88
 MechS32 g_dumpCacheRepeat = 0;
 
 // GLOBAL: MW2 0x100a9514
+// GLOBAL: MW2MATROX 0x100bcc8c
 MechS32 g_unk0x100a9514 = 0;
 
 // GLOBAL: MW2 0x100a9518
+// GLOBAL: MW2MATROX 0x100bcc90
 MechS32 g_unk0x100a9518 = 0;
 
 // The frame rate, in whole frames per second and tenths, over the last ten frames.
@@ -229,6 +236,7 @@ MechChar g_monoBlankLineEnd;
 
 // Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
 // FUNCTION: MW2 0x10058750
+// FUNCTION: MW2MATROX 0x1008dbe0
 void DrawDebugOverlays(void)
 {
 	if (g_showPalette) {
@@ -252,6 +260,7 @@ void DrawDebugOverlays(void)
 		HideSceneInfo();
 	}
 
+#ifndef MW2_MATROX
 	if (g_showEyePosition) {
 		ShowEyePosition(g_eyepoint);
 	}
@@ -259,6 +268,7 @@ void DrawDebugOverlays(void)
 		HideEyePosition();
 	}
 
+#endif
 	if (g_showMemInfo) {
 		ShowMemInfo();
 	}
@@ -285,6 +295,7 @@ void DrawDebugOverlays(void)
 // Draws the 256 palette colours as a grid of 16 swatches per row.
 // Stack-slot permutation: x, y, color and i.
 // FUNCTION: MW2 0x100588a7
+// FUNCTION: MW2MATROX 0x1008dd05
 void DrawPaletteGrid(void)
 {
 	MechS32 x;
@@ -296,7 +307,7 @@ void DrawPaletteGrid(void)
 	y = 10;
 	for (color = 0; color < 0x100; color++) {
 		for (i = 0; i < 2; i++) {
-			VFX_line_draw(&g_currentPane, x, i + y, x + 3, i + y, 0, color);
+			VFX_line_draw(&g_currentPane, x, i + y, x + 3, i + y, 0, PIXEL_COLOR(color));
 		}
 
 		if ((color + 1) % 16 == 0) {

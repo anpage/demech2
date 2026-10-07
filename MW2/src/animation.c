@@ -47,11 +47,20 @@ MechU16* g_lumaTables = NULL;
 // GLOBAL: MW2 0x100ad2a0
 // GLOBAL: MW2MATROX 0x100aa1d8
 MechS32 g_preloadCels[] = {
+#ifdef MW2_MATROX
+	// The edition's resource file numbers the cels differently.
+	598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618,
+	619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 94,  95,  96,  97,  98,  99,  100, 101, 102, 103,
+	104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
+	125, 427, 428, 429, 430, 431, 432, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203,
+	204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, -1,
+#else
 	562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579, 580, 581, 582,
 	583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 88,  89,  90,  91,  92,  93,  94,  95,  96,  97,
 	98,  99,  100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
 	119, 428, 429, 430, 431, 432, 433, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
 	238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, -1,
+#endif
 };
 
 // GLOBAL: MW2 0x100c7610
@@ -66,7 +75,9 @@ Animation g_animations[0x200];
 WINDOW g_animFrameBuffer;
 
 // Stack-slot permutation: anim, data, height, i, luma, mode and useLuma and width.
+// MW2MATROX's (0x10050dbc) is another function: it draws through the edition's renderer.
 // FUNCTION: MW2 0x10068d10
+// STUB: MW2MATROX 0x10050dbc
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
 	MechS32 p_count,
@@ -159,8 +170,10 @@ MechS32 DrawAnimatedPolygon(
 	return 1;
 }
 
-// Stack-slot permutation: frame, i and now and remainder.
+// Stack-slot permutation: frame, i and now and remainder. MW2MATROX: a comparison has its
+// operands the other way around.
 // FUNCTION: MW2 0x10068fb8
+// FUNCTION: MW2MATROX 0x10051278
 void AdvanceAnimations(void)
 {
 	MechS32 remainder;
@@ -205,8 +218,10 @@ void AdvanceAnimations(void)
 	}
 }
 
-// Stack-slot permutation: found and slot.
+// Stack-slot permutation: found and slot. MW2MATROX: index order, g_animFrames[p_set][slot]
+// loads p_set first.
 // FUNCTION: MW2 0x10069124
+// FUNCTION: MW2MATROX 0x100513ed
 MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
@@ -376,8 +391,9 @@ void FUN_10069591(void)
 }
 
 // Index order: &g_animFrames[i][j] loads i first in the original (InitAnimations matches with the
-// same statement).
+// same statement). MW2MATROX loads them the other way around.
 // FUNCTION: MW2 0x1006959c
+// FUNCTION: MW2MATROX 0x1005188b
 void FreeAnimations(void)
 {
 	MechS32 j;

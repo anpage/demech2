@@ -14,6 +14,7 @@
 #include "eyepoint.h"
 #include "fadepal.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedmul29.h"
 #include "fixedsqrt.h"
@@ -83,7 +84,8 @@ MechS32 g_lastHitShooter = -1;
 MechS32 g_nukeTimeLeft = 0;
 
 // GLOBAL: MW2 0x100bee50
-MechS32 g_nukeMaxRadius;
+// GLOBAL: MW2MATROX 0x10124724
+MechScalar g_nukeMaxRadius;
 
 // The view that follows a tracked shot: its position, heading and three more angles.
 // GLOBAL: MW2 0x100bee58
@@ -91,23 +93,29 @@ MechS32 g_nukeMaxRadius;
 MechS32 g_trackedShotView[7];
 
 // GLOBAL: MW2 0x100bee74
-MechS32 g_nukeRadius;
+// GLOBAL: MW2MATROX 0x10124728
+MechScalar g_nukeRadius;
 
 // GLOBAL: MW2 0x100bee78
+// GLOBAL: MW2MATROX 0x101246f8
 Vector3 g_nukePosition;
 
 // The eyepoint's settings while an effect has the camera.
 // GLOBAL: MW2 0x100c75f0
-MechS32 g_savedLightX;
+// GLOBAL: MW2MATROX 0x1015d5c0
+MechScalar g_savedLightX;
 
 // GLOBAL: MW2 0x100c75f4
-MechS32 g_savedLightY;
+// GLOBAL: MW2MATROX 0x1015d5c4
+MechScalar g_savedLightY;
 
 // GLOBAL: MW2 0x100c75f8
-MechS32 g_savedLightZ;
+// GLOBAL: MW2MATROX 0x1015d5c8
+MechScalar g_savedLightZ;
 
 // GLOBAL: MW2 0x100c75fc
-MechS32 g_savedDirectionalLight;
+// GLOBAL: MW2MATROX 0x1015d5cc
+MechScalar g_savedDirectionalLight;
 
 // GLOBAL: MW2 0x100c7600
 // GLOBAL: MW2MATROX 0x1015d5d0
@@ -225,6 +233,7 @@ void UpdateAllShots(void)
 // Stack-slot permutation of the locals; the y < groundY comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006a533
+// STUB: MW2MATROX 0x1006b033
 void UpdateShot(MechS32 p_index)
 {
 	MechS32 hitResult;
@@ -441,6 +450,7 @@ void UpdateShot(MechS32 p_index)
 // Sways (p_x, p_y, p_z) sideways and up and down around the shot's line of flight, by the
 // phase in m_swayPhase, and advances the phase.
 // FUNCTION: MW2 0x1006ad78
+// STUB: MW2MATROX 0x1006b93e
 void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
 	MechS32 sideZ;
@@ -462,20 +472,21 @@ void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 // within 100 units of it.
 // Stack-slot permutation: every local but distance.
 // FUNCTION: MW2 0x1006ae5a
-void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x1006ba0e
+void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-	MechS32 targetY;
-	MechS32 targetZ;
+	MechScalar targetY;
+	MechScalar targetZ;
 	Player* player;
-	MechS32 dy;
-	MechS32 dx;
-	MechS32 dz;
+	MechScalar dy;
+	MechScalar dx;
+	MechScalar dz;
 	GameThing* thing;
-	MechS32 distance;
-	MechS32 vx;
-	MechS32 vy;
-	MechS32 vz;
-	MechS32 targetX;
+	MechScalar distance;
+	MechScalar vx;
+	MechScalar vy;
+	MechScalar vz;
+	MechScalar targetX;
 
 	if (p_shot->m_target < 0) {
 		return;
@@ -516,9 +527,15 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 		p_shot->m_flags |= c_shotProximityFuse;
 	}
 
+#ifdef MW2_MATROX
+	dx /= distance;
+	dy /= distance;
+	dz /= distance;
+#else
 	dx = FixedDiv16(dx, distance);
 	dy = FixedDiv16(dy, distance);
 	dz = FixedDiv16(dz, distance);
+#endif
 	vx = p_shot->m_velocity[0];
 	vy = p_shot->m_velocity[1];
 	vz = p_shot->m_velocity[2];
@@ -527,7 +544,11 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	p_shot->m_steering[1] = dy - vy;
 	p_shot->m_steering[2] = dz - vz;
 	targetY = FixedAtan2(vx, vz);
+#ifdef MW2_MATROX
+	targetX = -FixedAsin(vy);
+#else
 	targetX = -FixedAsin(vy << 13);
+#endif
 	SetObjRotation(p_shot->m_object, targetX, targetY, 0, 0);
 }
 
@@ -538,12 +559,12 @@ void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 void DetonateShot(
 	MechS32 p_index,
 	MechS32 p_explode,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
-	MechS32 p_camX,
-	MechS32 p_camY,
-	MechS32 p_camZ
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar p_camX,
+	MechScalar p_camY,
+	MechScalar p_camZ
 )
 {
 	Shot* shot;
@@ -583,12 +604,12 @@ void SpawnEffect(
 // FUNCTION: MW2MATROX 0x1006bd60
 void SpawnRotatedEffect(
 	MechS32 p_type,
-	MechS32 p_rotX,
-	MechS32 p_rotY,
-	MechS32 p_rotZ,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z
+	MechScalar p_rotX,
+	MechScalar p_rotY,
+	MechScalar p_rotZ,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z
 )
 {
 	SpawnEffectEx(-2, p_type, p_x, p_y, p_z, p_x, p_y, p_z, p_rotX, p_rotY, p_rotZ);
@@ -607,8 +628,10 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // The effect takes a free slot of its type (none if three of them already burn within 500
 // units), and the effect camera may follow it from (p_camX, p_camY, p_camZ).
 // Stack-slot permutation of the locals; one distance comparison has its operands the other
-// way around.
+// way around. MW2MATROX (0x1006bdd0) matches but for m_distanceFade (see UpdateEffects), and
+// adds cameraX * cameraX + cameraZ * cameraZ the other way around.
 // FUNCTION: MW2 0x1006b1fb
+// STUB: MW2MATROX 0x1006bdd0
 void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -618,26 +641,26 @@ void SpawnEffectEx(
 	MechScalar p_camX,
 	MechScalar p_camY,
 	MechScalar p_camZ,
-	MechS32 p_rotX,
-	MechS32 p_rotY,
-	MechS32 p_rotZ
+	MechScalar p_rotX,
+	MechScalar p_rotY,
+	MechScalar p_rotZ
 )
 {
 	MechS32 pieces;
-	MechS32 distance;
-	MechS32 dy;
+	MechScalar distance;
+	MechScalar dy;
 	MechS32 flags;
-	MechS32 dx;
+	MechScalar dx;
 	MechS32 chainType;
 	MechS32 chain;
-	MechS32 cameraX;
-	MechS32 dz;
+	MechScalar cameraX;
+	MechScalar dz;
 	MechS32 quiet;
-	MechS32 current;
+	MechScalar current;
 	EffectInfo* info;
 	MechS32 slot;
 	MechS32 i;
-	MechS32 cameraZ;
+	MechScalar cameraZ;
 	Effect* effect;
 	MechS32 take;
 	MechS32 closer;
@@ -876,18 +899,20 @@ void SpawnEffectEx(
 // Counts down the effects, lets the damaging ones hurt what is near them, and frees them when
 // their time runs out, giving the camera back if one had it.
 // Stack-slot permutation of the locals; the i == g_effectCameraEffect comparison has its
-// operands the other way around.
+// operands the other way around. MW2MATROX (0x1006c584) matches but for m_distanceFade, at 0x44 in
+// the edition's RenderSettings (two more dwords from 0x28 on; see SetMechViewRenderSettings).
 // FUNCTION: MW2 0x1006b99a
+// STUB: MW2MATROX 0x1006c584
 void UpdateEffects(void)
 {
 	MechS32 release;
 	MechS32 i;
 	MechS32 restore;
 	Effect* effect;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 radius;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar radius;
 
 	UpdateNuke();
 	if (g_difficulty->m_heatTracking) {
@@ -903,11 +928,11 @@ void UpdateEffects(void)
 				z = effect->m_position[2];
 				radius = effect->m_object->m_shape->m_radius;
 				if (g_difficulty->m_splashDamage) {
-					DamageMechsInRadius(effect->m_owner, x, y, z, radius, 0x100);
+					DamageMechsInRadius(effect->m_owner, x, y, z, radius, FIXED_RAW(0x100));
 				}
 
-				DamageThingsInRadius(effect->m_owner, x, y, z, radius, 0x100);
-				DamageChunksInRadius(x, y, z, radius, 0x100);
+				DamageThingsInRadius(effect->m_owner, x, y, z, radius, FIXED_RAW(0x100));
+				DamageChunksInRadius(x, y, z, radius, FIXED_RAW(0x100));
 			}
 
 			effect->m_timeLeft -= g_deltaTime;
@@ -958,16 +983,24 @@ void UpdateEffects(void)
 // Stack-slot permutation of the locals; the i != g_localPlayerId comparison and the
 // p_rate * g_deltaTime product have their operands the other way around.
 // FUNCTION: MW2 0x1006bc13
-void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate)
+// FUNCTION: MW2MATROX 0x1006c803
+void DamageMechsInRadius(
+	MechS32 p_owner,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar p_radius,
+	MechScalar p_rate
+)
 {
 	Player* player;
-	MechS32 reach;
+	MechScalar reach;
 	Mech* mech;
 	MechS32 i;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
-	MechS32 damage;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechScalar damage;
 
 	i = g_playerCount;
 	while (i--) {
@@ -988,10 +1021,19 @@ void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z,
 		if (ApproximateVectorLength(dx, dy, dz) < reach) {
 			damage = p_rate * g_deltaTime;
 			if (mech->m_powerState == 4) {
+#ifdef MW2_MATROX
+				damage *= 2;
+#else
 				damage <<= 1;
+#endif
 			}
 
+#ifdef MW2_MATROX
+			// Half the damage to the head, where 1.1 gives a quarter.
+			ApplyDamageToMech(p_owner, mech, damage / 2, 1);
+#else
 			ApplyDamageToMech(p_owner, mech, damage >> 2, 1);
+#endif
 			ApplyDamageToMech(p_owner, mech, damage, 2);
 			ApplyDamageToMech(p_owner, mech, damage, 3);
 			ApplyDamageToMech(p_owner, mech, damage, 4);
@@ -1005,7 +1047,7 @@ void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z,
 
 // Damages every game thing whose shape comes within p_radius of (p_x, p_y, p_z).
 // Stack-slot permutation of the locals; the distance < reach comparison has its operands the
-// other way around.
+// other way around; MW2MATROX adds radius + p_radius the other way around too.
 // FUNCTION: MW2 0x1006bdb4
 // FUNCTION: MW2MATROX 0x1006c9d5
 void DamageThingsInRadius(
@@ -1302,6 +1344,7 @@ void HeatMechsNearFires(void)
 // grows over the next ticks (UpdateNuke).
 // Stack-slot permutation: duration, effect and shape.
 // FUNCTION: MW2 0x1006c4e2
+// FUNCTION: MW2MATROX 0x1006d136
 void StartNuke(Player* p_player)
 {
 	MechS32 i;
@@ -1338,8 +1381,10 @@ void StartNuke(Player* p_player)
 
 // Grows the nuke's blast and damages everything in it.
 // The g_nukeRadius > g_nukeMaxRadius comparison has its operands the other way around;
-// defining the two globals the other way around didn't flip it.
+// defining the two globals the other way around didn't flip it. MW2MATROX stores g_nukeRadius before
+// the comparison (fst, fcomp) where the rebuild compares first (fcom, fstp), the same entropy.
 // FUNCTION: MW2 0x1006c5e7
+// FUNCTION: MW2MATROX 0x1006d239
 void UpdateNuke(void)
 {
 	if (g_nukeTimeLeft <= 0) {
@@ -1351,8 +1396,22 @@ void UpdateNuke(void)
 		g_nukeRadius = g_nukeMaxRadius;
 	}
 
-	DamageMechsInRadius(-2, g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
-	DamageThingsInRadius(-2, g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
-	DamageChunksInRadius(g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, 0x1000);
+	DamageMechsInRadius(
+		-2,
+		g_nukePosition.m_x,
+		g_nukePosition.m_y,
+		g_nukePosition.m_z,
+		g_nukeRadius,
+		FIXED_RAW(0x1000)
+	);
+	DamageThingsInRadius(
+		-2,
+		g_nukePosition.m_x,
+		g_nukePosition.m_y,
+		g_nukePosition.m_z,
+		g_nukeRadius,
+		FIXED_RAW(0x1000)
+	);
+	DamageChunksInRadius(g_nukePosition.m_x, g_nukePosition.m_y, g_nukePosition.m_z, g_nukeRadius, FIXED_RAW(0x1000));
 	g_nukeTimeLeft -= g_deltaTime;
 }

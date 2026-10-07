@@ -24,9 +24,11 @@
 
 // The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
+// GLOBAL: MW2MATROX 0x100bea18
 MechS32 g_reloadingPlayer = -1;
 
 // GLOBAL: MW2 0x100ba694
+// GLOBAL: MW2MATROX 0x100bea1c
 MechS32 g_unk0x100ba694 = 0;
 
 // GLOBAL: MW2 0x100ba698
@@ -40,6 +42,7 @@ MechSegment* g_mechSegments[60] = {NULL};
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
 // flag 2 set.
 // FUNCTION: MW2 0x1007fbe0
+// FUNCTION: MW2MATROX 0x10090fd0
 MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
 {
 	Mech* mech;

@@ -5,6 +5,7 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "gamekeys.h"
 #include "gamething.h"
 #include "geocache.h"
@@ -96,15 +97,23 @@ void CollapseWhitespace(MechChar* p_text)
 // Stack-slot permutation of the locals. The original tests the target's kind by loading its high
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1001aa02
+// FUNCTION: MW2MATROX 0x1001eda2
 MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 	MechU16 nav;
-	MechS32 heading;
+	MechScalar heading;
 	MechS32 found;
 
+#ifdef MW2_MATROX
+	found = FALSE;
+	x = y = z = heading = 0;
+	g_missionTime = g_currentClock / 181;
+	if (p_mission->m_objectives[0].m_targetCount > 0 &&
+		(MechU16) ((MechU8) (p_mission->m_objectives[0].m_targets[0] >> 8) << 8) == 0x100) {
+#else
 	x = 0;
 	y = 0;
 	z = 0;
@@ -112,6 +121,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 	found = FALSE;
 	g_missionTime = g_currentClock / 181;
 	if (p_mission->m_objectives[0].m_targetCount > 0 && (p_mission->m_objectives[0].m_targets[0] & 0xff00) == 0x100) {
+#endif
 		nav = (MechU8) p_mission->m_objectives[0].m_targets[0];
 		if (nav < g_navCount) {
 			x = g_navTable[nav].m_position[0];
@@ -320,6 +330,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // In a network game with a single listed objective, a secondary one, picks the player with the
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
 // Stack-slot permutation; score > best compares in the other operand order.
+// MW2MATROX: score > best compares in the other operand order.
 // FUNCTION: MW2 0x1001b21a
 // FUNCTION: MW2MATROX 0x1001f577
 void ChooseNetworkWinner(void)
@@ -893,6 +904,8 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // Updates every star's mission each frame: its objectives (UpdateObjective), then, while it is in
 // progress, whether it succeeded (every listed objective done), failed or ran out of time; and
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
+// MW2MATROX: the loop tests compare in the other operand order, and the m_objectives index scales
+// its terms in the other order (index order).
 // FUNCTION: MW2 0x1001c69e
 // FUNCTION: MW2MATROX 0x10020a02
 void UpdateObjectives(void)
@@ -1079,7 +1092,11 @@ void FUN_1001cdd1(void)
 
 // FUNCTION: MW2 0x1001cde1
 // FUNCTION: MW2MATROX 0x10021096
+#ifdef MW2_MATROX
+MechS32 FUN_1001cde1(MechU16 p_unk0x00)
+#else
 MechS32 FUN_1001cde1(undefined4 p_unk0x00)
+#endif
 {
 	return 1;
 }

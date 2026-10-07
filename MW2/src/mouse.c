@@ -51,6 +51,7 @@ MechS32 MouseFlushKeyCodes(void);
 void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height);
 
 // GLOBAL: MW2 0x100ad250
+// GLOBAL: MW2MATROX 0x100aa180
 InputDriverModule g_mouseDriver = {
 	GetMouseDeviceCount,
 	FillMouseDeviceInfo,

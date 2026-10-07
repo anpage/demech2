@@ -177,7 +177,8 @@ void ShowFatalError(const char** p_args)
 
 // Formats an error's message: p_title, the code, the code's text from the "SystemError" section,
 // and the printf-style message p_args points at, if any. The message is logged and shown.
-// Stack-slot permutation of code and args.
+// Stack-slot permutation of code and args. MW2MATROX: the inlined strlen reads g_errorMessage - 1,
+// which reccmp names after a different neighbour on each side.
 // FUNCTION: MW2 0x1003bad1
 // FUNCTION: MW2MATROX 0x10059831
 MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args)

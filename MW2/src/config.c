@@ -104,41 +104,53 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 // The transitions of panels 13 and 2.
 
 // GLOBAL: MW2 0x100ae230
+// GLOBAL: MW2MATROX 0x100b1750
 RectTransitionState g_targetTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae240
+// GLOBAL: MW2MATROX 0x100b1760
 RectTransitionState g_mechViewTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae250
+// GLOBAL: MW2MATROX 0x100b1770
 PANE g_targetTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae268
+// GLOBAL: MW2MATROX 0x100b1788
 PANE g_targetTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae280
+// GLOBAL: MW2MATROX 0x100b17a0
 PANE g_targetTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae298
+// GLOBAL: MW2MATROX 0x100b17b8
 RectTransitionDef g_targetTransitionDef =
 	{0xb5, &g_targetTransitionFirst, &g_targetTransitionSecond, &g_targetTransitionRect};
 
 // GLOBAL: MW2 0x100ae2a8
+// GLOBAL: MW2MATROX 0x100b17c8
 RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransitionDef};
 
 // GLOBAL: MW2 0x100ae2b0
+// GLOBAL: MW2MATROX 0x100b17d0
 PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
+// GLOBAL: MW2MATROX 0x100b17e8
 PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
+// GLOBAL: MW2MATROX 0x100b1800
 PANE g_mechViewTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
+// GLOBAL: MW2MATROX 0x100b1818
 RectTransitionDef g_mechViewTransitionDef =
 	{0xb5, &g_mechViewTransitionFirst, &g_mechViewTransitionSecond, &g_mechViewTransitionRect};
 
 // GLOBAL: MW2 0x100ae308
+// GLOBAL: MW2MATROX 0x100b1828
 RectTransition g_mechViewTransition = {&g_mechViewTransitionState, &g_mechViewTransitionDef};
 
 // The panels' transitions.
@@ -593,7 +605,7 @@ void UpdateCockpit(Mech* p_mech)
 	}
 
 	g_headingDegrees = (FIXED_TO_INT(p_mech->m_player->m_heading) % 360 % 360 + 360) % 360;
-	g_torsoTwistDegrees = (p_mech->m_torsoTwist.m_value >> 16) % 360 % 360;
+	g_torsoTwistDegrees = FIXED_TO_INT(p_mech->m_torsoTwist.m_value) % 360 % 360;
 	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
 	bearing = FIXED_TO_INT(p_mech->m_player->m_targetInfo.m_heading) % 360 - g_headingDegrees;
 	if (bearing > 180) {

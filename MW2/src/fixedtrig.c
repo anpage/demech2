@@ -1,6 +1,9 @@
 /* Hand-written assembly: FixedSin (sine), FixedAsin (arcsine) and FixedAtan2
    (arctangent) are C functions with __asm bodies over clock.c's tables. Their portable C
    (PORTABLE_C) is tested against the assembly by tests/asmequiv. */
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE
+#endif
 #include "fixedtrig.h"
 
 #include "clock.h"
@@ -11,6 +14,46 @@
 
 #pragma warning(disable : 4035) /* FixedAtan2 leaves its result in eax */
 
+#ifdef MW2_MATROX
+// Returns the sine of p_angle (degrees) from the table's quarter wave, whose 512 steps make
+// 512 / 90 of them to the degree, mirrored and negated by quadrant.
+// FUNCTION: MW2MATROX 0x1007ee7b
+MechScalar FixedSin(MechScalar p_angle)
+{
+	MechScalar sine;
+	MechS32 negative;
+	MechScalar result;
+
+	negative = 0;
+	if ((MechFloat) fabs(p_angle) < 1e-07f) {
+		return 0.0f;
+	}
+
+	if (FIXED_IS_NEGATIVE(p_angle)) {
+		p_angle = -p_angle;
+		negative = 1;
+	}
+
+	while (p_angle > 360.0f) {
+		p_angle -= 360.0f;
+	}
+
+	if (p_angle > 180.0f) {
+		p_angle -= 180.0f;
+		negative ^= 1;
+	}
+
+	if (p_angle <= 90.0f) {
+		sine = g_sinTable[(MechS32) (p_angle * 5.688889f + 0.5f)];
+	}
+	else {
+		sine = g_sinTable[(MechS32) ((180.0f - p_angle) * 5.688889f + 0.5f)];
+	}
+
+	result = negative ? -sine : sine;
+	return result;
+}
+#else
 // Returns the sine of p_angle (16.16 degrees) from the table, as 16.16: the angle is scaled
 // to 1024 steps to the circle (0x5b05b05b is 2^37 / 360), and the table's quarter wave is
 // interpolated, mirrored and negated by quadrant.
@@ -87,6 +130,17 @@ MechS32 FixedCos(MechS32 p_angle)
 	return FixedSin(p_angle + 0x5a0000);
 #endif
 }
+#endif
+
+#ifdef MW2_MATROX
+// Not in the edition, whose callers expand the cosine: the units that still declare FixedSin and
+// FixedCos with 16.16 values link to this until they move to the float sine.
+#undef FixedCos
+MechS32 FixedCos(MechS32 p_angle)
+{
+	return (MechS32) FixedSin(p_angle + 90.0f);
+}
+#endif
 
 #ifndef MW2_MATROX
 // Returns the arcsine of p_sine (2.29 fixed point, as the table holds it) in 16.16 degrees: a
@@ -247,6 +301,7 @@ MechS32 FixedAcos(MechS32 p_cosine)
 
 // Returns the bearing of (p_x, p_z) in 16.16 degrees: the arctangent of the smaller over the
 // larger component from the table, folded into its octant. The result is also left in dx:ax.
+// MW2MATROX: Stack-slot permutation; p_z > p_x compares in the other operand order.
 // FUNCTION: MW2 0x100698de
 // FUNCTION: MW2MATROX 0x1007ef93
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)

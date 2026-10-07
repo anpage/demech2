@@ -22,6 +22,7 @@ MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
 // GLOBAL: MW2 0x1010b540
+// GLOBAL: MW2MATROX 0x101d6960
 MechS32 g_ambientLight;
 
 MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
@@ -32,6 +33,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechS32 p_distance);
 // m_untexturedKinds are drawn in a flat color instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10036230
+// STUB: MW2MATROX 0x10016b60
 MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
 	MechS32 shade;

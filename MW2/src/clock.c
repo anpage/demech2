@@ -83,18 +83,22 @@ BOOL g_ticksTimerInitialized = FALSE;
 MechS16* g_sqrtTable;
 
 // GLOBAL: MW2 0x100bfd60
-MechS32 g_slopeSines[800];
+// GLOBAL: MW2MATROX 0x1012d7d0
+MechScalar g_slopeSines[800];
 
 // GLOBAL: MW2 0x100c09e0
-MechS32 g_slopeCosines[800];
+// GLOBAL: MW2MATROX 0x1012cb50
+MechScalar g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
+// GLOBAL: MW2MATROX 0x1012e450
 MechScalar g_sinTable[TRIG_TABLE_SIZE];
 
 // GLOBAL: MW2 0x100c1a80
 MechS16 g_sqrtTableData[0x400];
 
 // GLOBAL: MW2 0x100c2290
+// GLOBAL: MW2MATROX 0x1012ec50
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of

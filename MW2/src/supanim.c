@@ -48,6 +48,7 @@ MechChar* g_supAnimShapeName = NULL;
 
 // The first 16 palette entries in single player.
 // GLOBAL: MW2 0x100a0168
+// GLOBAL: MW2MATROX 0x100a8668
 PaletteColor g_supAnimPalette[16] = {
 	{0x00, 0x00, 0x00},
 	{0x33, 0x34, 0x36},
@@ -68,21 +69,30 @@ PaletteColor g_supAnimPalette[16] = {
 };
 
 // GLOBAL: MW2 0x100a0198
+// GLOBAL: MW2MATROX 0x100a8698
 MechS32 g_supAnimFrame = 0;
 
 // GLOBAL: MW2 0x100bcd50
+// GLOBAL: MW2MATROX 0x100c2068
 MechS32 g_supAnimY;
 
 // GLOBAL: MW2 0x100bcd54
+// GLOBAL: MW2MATROX 0x100c2064
 MechS32 g_supAnimX;
 
 // GLOBAL: MW2 0x100bcd58
+// GLOBAL: MW2MATROX 0x100c2038
 PANE g_supAnimTarget;
 
 // GLOBAL: MW2 0x100bcd70
+// GLOBAL: MW2MATROX 0x100c2050
 WINDOW g_supAnimBuffer;
 
+#ifdef MW2_MATROX
+void __stdcall SupAnimTimerCallback(MechU32 p_user);
+#else
 void SupAnimTimerCallback(void);
+#endif
 
 // Starts the dropship loading screen: loads the backdrop (<drive>:\\launch\\supanm6.shp, netmech6.shp
 // in a network game, or the command line's override), from the CD if it isn't on the current
@@ -90,6 +100,7 @@ void SupAnimTimerCallback(void);
 // (launch6.shp) and animates it on an AIL timer. On the DisplayDib back end it draws one frame.
 // Stack-slot permutation: backdropPath, shapePath and palette.
 // FUNCTION: MW2 0x10003a70
+// FUNCTION: MW2MATROX 0x1004a510
 void StartSupAnim(MechS32 p_slowFade)
 {
 	MechChar backdropPath[256];
@@ -196,9 +207,15 @@ void StartSupAnim(MechS32 p_slowFade)
 }
 
 // Draws the backdrop and the next frame of the dropship, and presents them. AIL calls it as a
-// timer callback, which takes an argument this one doesn't pop.
+// timer callback, which takes an argument this one doesn't pop (1.1).
 // FUNCTION: MW2 0x10003f3d
+// FUNCTION: MW2MATROX 0x1004a9b0
+#ifdef MW2_MATROX
+// The edition's pops the timer's argument (AIL's callbacks are __stdcall).
+void __stdcall SupAnimTimerCallback(MechU32 p_user)
+#else
 void SupAnimTimerCallback(void)
+#endif
 {
 	if (!g_displayReady || !g_supAnimBackdrop || !g_supAnimShape || g_supAnimFrameCount < 2) {
 		return;

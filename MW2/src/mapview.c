@@ -115,6 +115,7 @@ void EndMapView(void)
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10042206
+// STUB: MW2MATROX 0x1001e414
 MechS32 CullMapViewShape(Shape* p_shape)
 {
 	MechS32 y;

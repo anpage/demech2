@@ -67,6 +67,7 @@ MechS32 g_localWeaponsFired[10];
 // Index order: the original computes the slot address index first, `&p_mech->m_weapons[i]` loads the base
 // first here (it flips with the symbols declared ahead of it).
 // FUNCTION: MW2 0x10044740
+// FUNCTION: MW2MATROX 0x1002b4e0
 void ReleaseWeaponTriggers(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -85,14 +86,16 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 	}
 }
 
-// Stack-slot permutation: dx, dy, dz, first, slot, time, def, i, pan and fired.
+// Stack-slot permutation: dx, dy, dz, first, slot, time, def, i, pan and fired. MW2MATROX: index
+// order (&p_mech->m_weapons[i] loads i first) and the operand order of m_deltaHeat += m_heat.
 // FUNCTION: MW2 0x100447e1
+// FUNCTION: MW2MATROX 0x1002b581
 void UpdateWeaponFireState(Mech* p_mech)
 {
-	MechS32 dy;
+	MechScalar dy;
 	MechS32 first;
-	MechS32 dx;
-	MechS32 dz;
+	MechScalar dx;
+	MechScalar dz;
 	WeaponSlot* slot;
 	MechS32 time;
 	WeaponDef* def;
@@ -302,17 +305,18 @@ void UpdateWeaponFireState(Mech* p_mech)
 // Stack-slot permutation: result, shot, def, found, dx, dy, dz, i and speed. Comparison order: the
 // original compares m_binCount with m_binIndex the other way round (either source order compiles alike).
 // FUNCTION: MW2 0x1004506c
+// FUNCTION: MW2MATROX 0x1002be15
 MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 {
 	MechS32 result;
 	Shot* shot;
 	WeaponDef* def;
 	MechS32 found;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
 	MechS32 i;
-	MechS32 speed;
+	MechScalar speed;
 
 	def = &g_weaponDefs[p_slot->m_type];
 	result = 1;
@@ -384,7 +388,11 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_velocity[0] = dx * speed;
 			shot->m_velocity[1] = dy * speed;
 			shot->m_velocity[2] = dz * speed;
+#ifdef MW2_MATROX
+			shot->m_steering[1] = -(def->m_gravity * g_gravity);
+#else
 			shot->m_steering[1] = FixedMul16(-g_gravity, def->m_gravity << 16);
+#endif
 			shot->m_steering[0] = shot->m_steering[2] = 0;
 			SpawnLaunchFx(p_player, shot->m_object, dx, dy, dz, shot->m_type == 3 || shot->m_type == 4);
 			ShowObjTree(shot->m_object);
@@ -767,6 +775,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
 // Stack-slot permutation: dx, dy, dz, twist, pitch, yaw, bearing, inRange, def and heading.
 // FUNCTION: MW2 0x10045eac
+// STUB: MW2MATROX 0x1002cc52
 void UpdateWeaponLock(Mech* p_mech)
 {
 	MechS32 dz;
@@ -942,15 +951,21 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Matrix matrix;
+#ifdef MW2_MATROX
+	MechScalar z;
+	MechScalar y;
+	Mech* mech;
+	MechScalar x;
+#else
 	undefined4 z;
 	undefined4 y;
 	Mech* mech;
 	undefined4 x;
+#endif
 
 	*p_x = *p_y = 0;
 #ifdef MW2_MATROX
-	// 1.1's 16.16 one, stored into the float as it is.
-	*(MechS32*) p_z = 0x10000;
+	*p_z = 1.0f;
 #else
 	*p_z = 0x10000;
 #endif
@@ -963,7 +978,7 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 
 // FUNCTION: MW2 0x100464f3
 // FUNCTION: MW2MATROX 0x1002d364
-void GetFiringPosition(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	GetObjPosition(p_player->m_firingObj, p_x, p_y, p_z);
 }
@@ -973,9 +988,9 @@ void GetFiringPosition(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_
 // FUNCTION: MW2MATROX 0x1002d38a
 void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 
 	GetFiringPosition(p_player, &x, &y, &z);
 	SetObjRotationMatrix(p_obj, GetObjWorldMatrix(p_player->m_firingObj));
@@ -987,7 +1002,15 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // Commutative operand order: the original calls FixedMul16(p_dz, sideX) first for upY. Stack-slot
 // permutation of the locals.
 // FUNCTION: MW2 0x10046573
-void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_spread)
+// STUB: MW2MATROX 0x1002d3e4
+void SpawnLaunchFx(
+	Player* p_player,
+	SceneObject* p_obj,
+	MechScalar p_dx,
+	MechScalar p_dy,
+	MechScalar p_dz,
+	MechS32 p_spread
+)
 {
 	MechS32 x;
 	MechS32 y;
@@ -1004,7 +1027,11 @@ void SpawnLaunchFx(Player* p_player, SceneObject* p_obj, MechS32 p_dx, MechS32 p
 	MechS32 sideY;
 
 	yaw = FixedAtan2(p_dx, p_dz);
+#ifdef MW2_MATROX
+	pitch = FixedAsin(p_dy);
+#else
 	pitch = FixedAsin(p_dy << 13);
+#endif
 	SetObjRotation(p_obj, -pitch, yaw, 0, 0);
 	GetFiringPosition(p_player, &x, &y, &z);
 	if (p_spread) {

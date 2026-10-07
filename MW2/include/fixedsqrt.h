@@ -1,6 +1,7 @@
 #ifndef FIXEDSQRT_H
 #define FIXEDSQRT_H
 
+#include "fixedfloat.h"
 #include "types.h"
 
 // The functions and globals of fixedsqrt.c that other units use.
@@ -10,7 +11,7 @@ extern "C"
 #endif
 
 	MechU32 FixedSqrt16(MechU32 p_value);
-	void NormalizeVectorGuarded(MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 
 #ifdef __cplusplus
 }

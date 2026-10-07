@@ -65,9 +65,9 @@ extern "C"
 	extern MechS32 g_effectCameraEnabled;
 	extern MechS32 g_lastHitShooter;
 	extern MechS32 g_nukeTimeLeft;
-	extern MechS32 g_nukeMaxRadius;
+	extern MechScalar g_nukeMaxRadius;
 	extern MechS32 g_trackedShotView[7];
-	extern MechS32 g_nukeRadius;
+	extern MechScalar g_nukeRadius;
 	extern Vector3 g_nukePosition;
 	extern CareerRecord g_careerRecord;
 	extern Shot g_shots[0xaf];
@@ -79,16 +79,16 @@ extern "C"
 	void UpdateAllShots(void);
 	void UpdateShot(MechS32 p_index);
 	void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z);
-	void GuideMissileToTarget(Shot* p_shot, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	void DetonateShot(
 		MechS32 p_index,
 		MechS32 p_explode,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z,
-		MechS32 p_camX,
-		MechS32 p_camY,
-		MechS32 p_camZ
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_camX,
+		MechScalar p_camY,
+		MechScalar p_camZ
 	);
 	void SpawnEffect(
 		MechS32 p_owner,
@@ -102,12 +102,12 @@ extern "C"
 	);
 	void SpawnRotatedEffect(
 		MechS32 p_type,
-		MechS32 p_rotX,
-		MechS32 p_rotY,
-		MechS32 p_rotZ,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z
+		MechScalar p_rotX,
+		MechScalar p_rotY,
+		MechScalar p_rotZ,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z
 	);
 	void SpawnLaunchEffect(MechS32 p_type, struct Player* p_player);
 	void SpawnEffectEx(
@@ -119,12 +119,19 @@ extern "C"
 		MechScalar p_camX,
 		MechScalar p_camY,
 		MechScalar p_camZ,
-		MechS32 p_rotX,
-		MechS32 p_rotY,
-		MechS32 p_rotZ
+		MechScalar p_rotX,
+		MechScalar p_rotY,
+		MechScalar p_rotZ
 	);
 	void UpdateEffects(void);
-	void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
+	void DamageMechsInRadius(
+		MechS32 p_owner,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_radius,
+		MechScalar p_rate
+	);
 	void DamageThingsInRadius(
 		MechS32 p_owner,
 		MechScalar p_x,

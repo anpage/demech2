@@ -276,6 +276,7 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 }
 
 // FUNCTION: MW2 0x1004ed1c
+// FUNCTION: MW2MATROX 0x1008f3d4
 MechS32 DispDibAcquireFramebuffer(void)
 {
 	g_refreshModeBuffer->m_buffer = g_dibBits;

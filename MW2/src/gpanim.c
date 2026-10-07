@@ -66,27 +66,32 @@ MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 // m_animFlags), and for the local player updates the looping sounds (UpdateMotionSounds).
 // Stack-slot permutation: offset and position.
 // FUNCTION: MW2 0x10003710
+// FUNCTION: MW2MATROX 0x1008c4d0
 void UpdateMotion(Player* p_player)
 {
 	MechScalar* offset;
 	MechScalar position[3];
-	MechS32 height;
+	MechScalar height;
 
 	offset = NULL;
-	if (p_player->m_mech->m_throttle.m_value <= 0x420) {
+	if (p_player->m_mech->m_throttle.m_value <= FIXED_RAW(0x420)) {
 		StopMotion(p_player);
 	}
 	else {
-		height = p_player->m_mech->m_throttle.m_value - 0x400;
+		height = p_player->m_mech->m_throttle.m_value - FIXED_RAW(0x400);
+#ifdef MW2_MATROX
+		if (height < 1e-07f) {
+#else
 		if (height < 0) {
+#endif
 			height = 0;
 		}
 
 		p_player->m_nextMotionState = 0;
-		if (height < 0x100) {
+		if (height < FIXED_RAW(0x100)) {
 			p_player->m_speedLevel = 1;
 		}
-		else if (height < 0x300) {
+		else if (height < FIXED_RAW(0x300)) {
 			p_player->m_speedLevel = 2;
 		}
 		else {

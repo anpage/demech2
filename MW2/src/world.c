@@ -1393,9 +1393,14 @@ MechS32 LoadWorld(MechChar* p_name)
 		Error(0xb, "%s", key->m_name);
 		return FALSE;
 	}
+#ifdef MW2_MATROX
+
+	return TRUE;
+#else
 	else {
 		return TRUE;
 	}
+#endif
 }
 
 // Counts the players and game things of each side and gives each game thing the radius of its

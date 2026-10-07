@@ -556,17 +556,20 @@ void ComputeShapeBounds(Shape* p_shape)
 // Sets the face's normal (both copies) from its vertices: a triangle's directly, otherwise from
 // its longest edge and the vertex that gives the largest area with it, stopping at the first
 // area over 16. A face of fewer than 3 vertices keeps the default (0x20000000, 0, 0).
+// MW2MATROX: length > best stores length before it compares (fst, fcomp) where the original
+// compares first (fcom, fstp), an effect of the symbol order.
 // FUNCTION: MW2 0x1003b0e4
+// FUNCTION: MW2MATROX 0x100284c7
 void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 {
-	MechS32 length;
-	MechS32 nx;
+	MechScalar length;
+	MechScalar nx;
 	Vertex* vertex;
-	MechS32 ny;
-	MechS32 nz;
+	MechScalar ny;
+	MechScalar nz;
 	Vertex* prev;
 	Vertex* a;
-	MechS32 best;
+	MechScalar best;
 	MechS32 i;
 	MechS32 area;
 	Vertex* b;
@@ -577,7 +580,11 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 
 	i = 0;
 	best = 0;
+#ifdef MW2_MATROX
+	p_face->m_modelNormalX = p_face->m_normal[0] = 1.0f;
+#else
 	p_face->m_modelNormalX = p_face->m_normal[0] = 0x20000000;
+#endif
 	p_face->m_modelNormalY = p_face->m_normal[1] = 0;
 	p_face->m_modelNormalZ = p_face->m_normal[2] = 0;
 	if (p_face->m_indexCount < 3) {
@@ -623,7 +630,7 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 		}
 	}
 
-	if (best == 0) {
+	if (!FIXED_IS_NONZERO(best)) {
 		return;
 	}
 

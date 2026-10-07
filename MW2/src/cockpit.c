@@ -79,6 +79,7 @@ MechS32 g_hudSettingsSaved = 0;
 
 // The height the map view's shading starts at (GetMapHeightShade).
 // GLOBAL: MW2 0x100a5a30
+// GLOBAL: MW2MATROX 0x100ae418
 MechS32 g_mapShadeBase = 0;
 
 // GLOBAL: MW2 0x100a5a34
@@ -402,6 +403,7 @@ void DrawCockpitView(void)
 // The pose has a seventh element nothing uses. The only diff is a stack-slot permutation of the
 // locals.
 // FUNCTION: MW2 0x1003e06c
+// STUB: MW2MATROX 0x10073d46
 void DrawMapView(void)
 {
 	MechS32 farPlane;
@@ -517,7 +519,9 @@ void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
 	PANE* viewport;
+#ifndef MW2_MATROX
 	MechS32 unused;
+#endif
 	MechS32 y;
 	MechS32 x;
 	Player* player;
@@ -529,7 +533,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 	if (g_cockpitLayoutIndex != 4) {
 		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
-		id = p_layout->m_icons[0][0] + g_artResolution;
+		id = p_layout->m_icons[0][0] + HUD_ART_RESOLUTION;
 		shape = LoadCachedResource(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 			VFX_shape_draw(viewport, shape, 0, x, y);

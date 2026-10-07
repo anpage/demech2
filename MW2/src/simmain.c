@@ -99,6 +99,7 @@ DifficultyCfg* g_difficulty = NULL;
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
+// GLOBAL: MW2MATROX 0x100be4d4
 MechS32 g_remoteWaitTime = 0;
 
 // Set when the local player starts on the autopilot (FirstMech).
@@ -111,6 +112,7 @@ MechS32 g_startOnAutopilot = 0;
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
+// GLOBAL: MW2MATROX 0x100be510
 HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
@@ -130,6 +132,7 @@ MechS32 g_gameWindowHeight = 0;
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
+// GLOBAL: MW2MATROX 0x100be524
 MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
@@ -137,9 +140,11 @@ MechS32 g_drawModeReady = 0;
 undefined4 g_shouldToggleFullscreen = 0;
 
 // GLOBAL: MW2 0x100acb80
+// GLOBAL: MW2MATROX 0x100be52c
 MechS32 g_desktopWidth = 0;
 
 // GLOBAL: MW2 0x100acb84
+// GLOBAL: MW2MATROX 0x100be530
 MechS32 g_desktopHeight = 0;
 
 // GLOBAL: MW2 0x100acb88
@@ -302,7 +307,11 @@ int __stdcall SimMain(
 		FirstNetwork(p_netLaunch);
 		DebugPrint("ResetClocks()\n");
 		ResetClocks();
+#ifdef MW2_MATROX
+		DebugPrint("WinMain(1): pause_timer(TRUE)\n");
+#else
 		DebugPrint("WinMain(1): pause_timer(TRUE)");
+#endif
 		PauseTimer(0x80, TRUE);
 		DebugPrint("FirstShots()\n");
 		FirstShots();
@@ -408,7 +417,11 @@ int __stdcall SimMain(
 			if (g_goLaunch == 3) {
 				DebugPrint("GoLaunch == GO_READY\n");
 				g_goLaunch |= 0x80000000;
+#ifdef MW2_MATROX
+				DebugPrint("WinMain(2): pause_timer(false)\n");
+#else
 				DebugPrint("WinMain(2): pause_timer(false)");
+#endif
 				PauseTimer(0x80, FALSE);
 				StartMissionMusic();
 				g_statusMessage = 0;
@@ -674,6 +687,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 }
 
 // FUNCTION: MW2 0x10067bbc
+// FUNCTION: MW2MATROX 0x10090ca7
 void HandleMessages(void)
 {
 	MSG msg;
@@ -684,7 +698,13 @@ void HandleMessages(void)
 
 	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
+#ifdef MW2_MATROX
+			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				return;
+			}
+#else
 			PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+#endif
 		}
 
 		if (msg.hwnd != NULL && msg.message == WM_QUIT) {
@@ -718,7 +738,11 @@ void UpdatePauseState(void)
 			}
 
 			g_mouseOutsideClientWindow = FALSE;
+#ifdef MW2_MATROX
+			DebugPrint("WinMain(3): pause_timer(false)\n");
+#else
 			DebugPrint("WinMain(3): pause_timer(false)");
+#endif
 			PauseTimer(0x80, FALSE);
 			ResumeAudio();
 			EnableGameplayInput();
@@ -738,7 +762,11 @@ void UpdatePauseState(void)
 			g_mouseOutsideClientWindow = TRUE;
 		}
 
+#ifdef MW2_MATROX
+		DebugPrint("WinMain(4): pause_timer(TRUE)\n");
+#else
 		DebugPrint("WinMain(4): pause_timer(TRUE)");
+#endif
 		PauseTimer(0x80, TRUE);
 		PauseAudio();
 		DisableGameplayInput();

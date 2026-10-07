@@ -14,6 +14,7 @@
 #include "network.h"
 #include "objective.h"
 #include "overlay.h"
+#include "palette.h"
 #include "polydraw.h"
 #include "render.h"
 #include "rendersettings.h"
@@ -41,6 +42,7 @@ MechS32 g_debugSection = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
+// GLOBAL: MW2MATROX 0x100a6238
 PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 
 // GLOBAL: MW2 0x100a15f4
@@ -48,11 +50,16 @@ PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 MechS32 g_pausedBannerUnscaled = 1;
 
 // FUNCTION: MW2 0x10009e50
+// FUNCTION: MW2MATROX 0x1002ecc0
 void DrawPausedBanner(void)
 {
 	void* shape;
 
+#ifdef MW2_MATROX
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x61, g_resourceTypeTags[c_resTagShp], 0);
+#else
 	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+#endif
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
 			g_pausedBannerRect.m_window = &g_mainPixelBuffer;
@@ -62,6 +69,9 @@ void DrawPausedBanner(void)
 		}
 
 		VFX_shape_draw(&g_pausedBannerRect, shape, 0, 0, 0);
+#ifdef MW2_MATROX
+		FUN_10088280(&g_pausedBannerRect);
+#endif
 	}
 }
 

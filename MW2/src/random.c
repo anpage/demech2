@@ -36,6 +36,7 @@ MechS32 g_randomInts[127];
 
 // Stack-slot permutation: sum, scale, i, j and range.
 // FUNCTION: MW2 0x100735e0
+// FUNCTION: MW2MATROX 0x1000bef0
 void InitRandom(MechU32 p_seed)
 {
 	MechS32 sum;

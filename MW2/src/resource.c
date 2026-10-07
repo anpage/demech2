@@ -383,7 +383,8 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 }
 
 // Sets up the teams from a star record: each team's values, and its formation.
-// MW2MATROX: the loop test compares count with i (operand order).
+// MW2MATROX: the local team is g_localStar itself, not the one after it. The loop test compares
+// count with i (operand order).
 // FUNCTION: MW2 0x1004fb0b
 // FUNCTION: MW2MATROX 0x100496fe
 void LoadStarTable(StarTable* p_table)
@@ -398,10 +399,17 @@ void LoadStarTable(StarTable* p_table)
 		g_teams[i].m_affiliation = table->m_stars[i].m_affiliation;
 		g_teams[i].m_side = table->m_stars[i].m_side;
 		g_starSides[table->m_stars[i].m_affiliation] = table->m_stars[i].m_side;
+#ifdef MW2_MATROX
+		if (g_localStar == i && g_playerTeamFormation) {
+			SetTeamFormationByName(i, g_playerTeamFormation);
+		}
+		else if (g_localStar != i && g_otherTeamFormation) {
+#else
 		if (g_localStar + 1 == i && g_playerTeamFormation) {
 			SetTeamFormationByName(i, g_playerTeamFormation);
 		}
 		else if (g_localStar + 1 != i && g_otherTeamFormation) {
+#endif
 			SetTeamFormationByName(i, g_otherTeamFormation);
 		}
 		else {
@@ -670,7 +678,10 @@ void SetMangleBase(MechS32 p_base)
 // (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,
 // in the world or under its parent's object.
 // Stack-slot permutation of the locals.
+// MW2MATROX: the record's transform is converted member by member; g_thingCapacity > g_thingCount
+// compares in the other operand order.
 // FUNCTION: MW2 0x100500ef
+// FUNCTION: MW2MATROX 0x10049d9d
 void CreateObjectNode(
 	BwdObjectRecord* p_record,
 	undefined4 p_unk0x04,
@@ -720,7 +731,19 @@ void CreateObjectNode(
 		kind = 4;
 	}
 
+#ifdef MW2_MATROX
+	xform.m_scaleX = record->m_xform.m_scaleX;
+	xform.m_scaleY = record->m_xform.m_scaleY;
+	xform.m_scaleZ = record->m_xform.m_scaleZ;
+	xform.m_angleX = FIXED_TO_SCALAR(record->m_xform.m_angleX);
+	xform.m_angleY = FIXED_TO_SCALAR(record->m_xform.m_angleY);
+	xform.m_angleZ = FIXED_TO_SCALAR(record->m_xform.m_angleZ);
+	xform.m_x = record->m_xform.m_x;
+	xform.m_y = record->m_xform.m_y;
+	xform.m_z = record->m_xform.m_z;
+#else
 	xform = record->m_xform;
+#endif
 	flags = record->m_flags;
 	if (resource != -1) {
 		data = LoadCachedResource(g_mw2PrjHandle, resource, g_resourceTypeTags[c_resTagPoly], 0);
@@ -839,6 +862,7 @@ void CreateObjectNode(
 
 // Returns the object of the next entry of g_thingRecordIndices, or NULL after the last.
 // Stack-slot permutation of id and obj.
+// MW2MATROX: g_nextThingRecord < g_thingRecordCount compares in the other operand order.
 // FUNCTION: MW2 0x100506d8
 // FUNCTION: MW2MATROX 0x1004a45a
 struct SceneObject* NextThingRecordObject(void)

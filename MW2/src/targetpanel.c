@@ -55,6 +55,7 @@ MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
+// GLOBAL: MW2MATROX 0x100a4a64
 MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation.
@@ -268,6 +269,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // static while the panel is damaged (m_damage).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
+// STUB: MW2MATROX 0x10018683
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;

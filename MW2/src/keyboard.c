@@ -90,9 +90,11 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 // the original, instead of an empty literal of their own. Like the strings, it is const data.
 // Being the empty string is their only role, so they keep their placeholders.
 // GLOBAL: MW2 0x1009d150
+// GLOBAL: MW2MATROX 0x100a0768
 const MechChar g_unk0x1009d150[] = "";
 
 // GLOBAL: MW2 0x1009d54c
+// GLOBAL: MW2MATROX 0x100a0b64
 const MechChar g_unk0x1009d54c[] = "";
 
 // clang-format off

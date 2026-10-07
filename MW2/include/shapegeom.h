@@ -29,18 +29,18 @@ extern "C"
 	);
 	MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	MechS32 ComputeTriangleNormal(
-		MechS32 p_x0,
-		MechS32 p_y0,
-		MechS32 p_z0,
-		MechS32 p_x1,
-		MechS32 p_y1,
-		MechS32 p_z1,
-		MechS32 p_x2,
-		MechS32 p_y2,
-		MechS32 p_z2,
-		MechS32* p_nx,
-		MechS32* p_ny,
-		MechS32* p_nz
+		MechScalar p_x0,
+		MechScalar p_y0,
+		MechScalar p_z0,
+		MechScalar p_x1,
+		MechScalar p_y1,
+		MechScalar p_z1,
+		MechScalar p_x2,
+		MechScalar p_y2,
+		MechScalar p_z2,
+		MechScalar* p_nx,
+		MechScalar* p_ny,
+		MechScalar* p_nz
 	);
 	MechScalar RayShapeDistance(struct Shape* p_shape, struct Ray* p_ray);
 
