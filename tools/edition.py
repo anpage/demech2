@@ -469,10 +469,10 @@ def cmd_audit(args):
 
 
 def cmd_annotate(args):
-    functions = functions_in_sources()
     for item in args.items:
         name, address = item.split("=")
-        print(name, "annotated" if add_annotation(name, int(address, 16), functions) else "already annotated")
+        # Each insertion moves the lines after it: read the sources again for every name.
+        print(name, "annotated" if add_annotation(name, int(address, 16)) else "not annotated")
 
 
 def cmd_users(args):
