@@ -5,6 +5,7 @@
 #include "loadres.h"
 #include "menu.h"
 #include "mw2prj.h"
+#include "palette.h"
 #include "point.h"
 #include "render.h"
 #include "screenscale.h"
@@ -67,7 +68,7 @@ void LayoutMessageBoxes(void)
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
 		shape = LoadCachedResource(
 			g_mw2PrjHandle,
-			overlay->m_background + g_artResolution,
+			overlay->m_background + HUD_ART_RESOLUTION,
 			g_resourceTypeTags[c_resTagShp],
 			0
 		);
@@ -90,8 +91,12 @@ void LayoutMessageBoxes(void)
 		target->m_y1 += dy;
 		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font =
-			LoadCachedResource(g_mw2PrjHandle, overlay->m_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+		font = LoadCachedResource(
+			g_mw2PrjHandle,
+			overlay->m_font + HUD_ART_RESOLUTION,
+			g_resourceTypeTags[c_resTagFont],
+			0
+		);
 		if (font != NULL) {
 			height = target->m_y1 - target->m_y0 + 1;
 			fontHeight = VFX_font_height(font);
@@ -166,6 +171,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f179
+// FUNCTION: MW2MATROX 0x100789a9
 void DrawTimedOverlays(void)
 {
 	MechS32 i;
@@ -179,14 +185,14 @@ void DrawTimedOverlays(void)
 			if (GetGameClock() < overlay->m_expireTime) {
 				font = LoadCachedResource(
 					g_mw2PrjHandle,
-					overlay->m_font + g_artResolution,
+					overlay->m_font + HUD_ART_RESOLUTION,
 					g_resourceTypeTags[c_resTagFont],
 					0
 				);
 				if (font != NULL) {
 					background = LoadCachedResource(
 						g_mw2PrjHandle,
-						overlay->m_background + g_artResolution,
+						overlay->m_background + HUD_ART_RESOLUTION,
 						g_resourceTypeTags[c_resTagShp],
 						0
 					);
@@ -200,6 +206,9 @@ void DrawTimedOverlays(void)
 							overlay->m_text,
 							g_textColors
 						);
+#ifdef MW2_MATROX
+						FUN_10088280(overlay->m_target);
+#endif
 					}
 				}
 			}
@@ -214,6 +223,7 @@ void DrawTimedOverlays(void)
 // at p_x, p_y or centered on the screen along an axis where that is negative.
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f28f
+// FUNCTION: MW2MATROX 0x10078ace
 void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
 	PANE centered;
@@ -228,10 +238,10 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 
 	if (p_background != -1) {
 		background =
-			LoadCachedResource(g_mw2PrjHandle, p_background + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+			LoadCachedResource(g_mw2PrjHandle, p_background + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, p_font + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont], 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
 		FitRectToText(p_text, font, &rect);
@@ -262,6 +272,9 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 		}
 
 		DrawWrappedText(&rect, p_text, font);
+#ifdef MW2_MATROX
+		FUN_10088280(&rect);
+#endif
 	}
 }
 

@@ -115,11 +115,11 @@ extern "C"
 	MechU16 FindAttacker(struct Player* p_player);
 	MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, MechS16 p_target);
 	MechS32 SetTarget(struct Player* p_player, MechS16 p_target);
-	MechS32 GetTargetRange(MechS16 p_target);
-	MechS32 GetApproachThrottle(struct Player* p_player, MechS32 p_range);
-	MechS32 AimTorsoPan(struct Player* p_player, MechS32 p_angle, MechS32 p_delta);
-	MechS32 AimTorsoTilt(struct Player* p_player, MechS32 p_delta);
-	MechS32 SteerToTarget(struct Player* p_player);
+	MechScalar GetTargetRange(MechS16 p_target);
+	MechScalar GetApproachThrottle(struct Player* p_player, MechScalar p_range);
+	MechScalar AimTorsoPan(struct Player* p_player, MechScalar p_angle, MechS32 p_delta);
+	MechScalar AimTorsoTilt(struct Player* p_player, MechS32 p_delta);
+	MechScalar SteerToTarget(struct Player* p_player);
 	void LeaveAIState(struct Player* p_player);
 	void EnterAIState(struct Player* p_player, MechU16 p_state);
 	MechS16 NextTarget(struct Player* p_player, MechS16 p_target, MechS16 p_previous);
@@ -139,7 +139,7 @@ extern "C"
 	void PostAIMessage(struct Player* p_player, MechS16 p_message, MechU16 p_target, MechS16 p_arg);
 	MechS16 OrderPlayers(struct Player* p_player, MechS16 p_targets, MechS16 p_state, MechS16 p_target);
 	MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command);
-	MechS32 AddClamped(MechS32 p_value, MechS32 p_delta, MechS32 p_sameSign);
+	MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign);
 	void ResetStarOrders(MechS32 p_team);
 	void AssignStarObjective(MechS32 p_team);
 	MechS16 GetEngagementAIFlags(MechS32 p_value);

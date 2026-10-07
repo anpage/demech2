@@ -156,20 +156,21 @@ void SetObjName(SceneObject* p_obj, MechChar* p_name)
 
 // FUNCTION: MW2 0x10001596
 // FUNCTION: MW2MATROX 0x10041096
-void GetObjWorldAngles(SceneObject* p_obj, undefined4* p_angleX, undefined4* p_angleY, undefined4* p_angleZ)
+void GetObjWorldAngles(SceneObject* p_obj, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ)
 {
 	GetMatrixAngles(&p_obj->m_world, p_angleX, p_angleY, p_angleZ);
 }
 
 // FUNCTION: MW2 0x100015bc
 // FUNCTION: MW2MATROX 0x100410bc
-void GetObjAngles(SceneObject* p_obj, undefined4* p_angleX, undefined4* p_angleY, undefined4* p_angleZ)
+void GetObjAngles(SceneObject* p_obj, MechScalar* p_angleX, MechScalar* p_angleY, MechScalar* p_angleZ)
 {
 	GetMatrixAngles(&p_obj->m_local, p_angleX, p_angleY, p_angleZ);
 }
 
 // FUNCTION: MW2 0x100015e2
-void GetObjPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x100410e2
+void GetObjPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	*p_x = p_obj->m_world.m_rows[3][0];
 	*p_y = p_obj->m_world.m_rows[3][1];
@@ -177,7 +178,8 @@ void GetObjPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z
 }
 
 // FUNCTION: MW2 0x1000160e
-void GetObjLocalPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1004110e
+void GetObjLocalPosition(SceneObject* p_obj, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	*p_x = p_obj->m_local.m_rows[3][0];
 	*p_y = p_obj->m_local.m_rows[3][1];
@@ -185,7 +187,8 @@ void GetObjLocalPosition(SceneObject* p_obj, MechS32* p_x, MechS32* p_y, MechS32
 }
 
 // FUNCTION: MW2 0x1000163a
-void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x1004113a
+void SetObjPosition(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	p_obj->m_local.m_rows[3][0] = p_x;
 	p_obj->m_local.m_rows[3][1] = p_y;
@@ -194,7 +197,8 @@ void SetObjPosition(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x10001667
-void MoveObj(SceneObject* p_obj, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x10041167
+void MoveObj(SceneObject* p_obj, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	p_obj->m_local.m_rows[3][0] += p_x;
 	p_obj->m_local.m_rows[3][1] += p_y;
@@ -227,6 +231,7 @@ void TransformObj(SceneObject* p_obj, Matrix* p_matrix)
 }
 
 // FUNCTION: MW2 0x10001722
+// FUNCTION: MW2MATROX 0x10041234
 void SetObjRotationMatrix(SceneObject* p_obj, Matrix* p_matrix)
 {
 	p_obj->m_local.m_rows[0][0] = p_matrix->m_rows[0][0];
@@ -258,7 +263,7 @@ void RotateObjMatrix(SceneObject* p_obj, Matrix* p_matrix)
 
 // FUNCTION: MW2 0x1000180b
 // FUNCTION: MW2MATROX 0x1004131d
-void SetObjRotation(SceneObject* p_obj, MechS32 p_angleX, MechS32 p_angleY, MechS32 p_angleZ, MechU32 p_flags)
+void SetObjRotation(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, MechScalar p_angleZ, MechU32 p_flags)
 {
 	Matrix matrix;
 
@@ -268,7 +273,7 @@ void SetObjRotation(SceneObject* p_obj, MechS32 p_angleX, MechS32 p_angleY, Mech
 
 // FUNCTION: MW2 0x1000184b
 // FUNCTION: MW2MATROX 0x1004135d
-void RotateObj(SceneObject* p_obj, MechS32 p_angleX, MechS32 p_angleY, MechS32 p_angleZ, MechU32 p_flags)
+void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, MechScalar p_angleZ, MechU32 p_flags)
 {
 	Matrix matrix;
 

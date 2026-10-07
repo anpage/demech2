@@ -1251,7 +1251,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		follower->m_heading.m_value = angle - delta;
 		angle = point->m_pitch;
 		if (follower->m_rotate) {
-			angle -= FixedAsin((next->m_y - point->m_y) << 13);
+			angle -= FixedAsin(FIXED_SHL(next->m_y - point->m_y, 13));
 		}
 
 		delta = angle - follower->m_pitch.m_value;

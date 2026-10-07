@@ -246,19 +246,29 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // Opens the joystick: fails (1) without driver data, capabilities or while unplugged; otherwise
 // sets the JOYINFOEX flags to read with, each axis's center, dead zone (a sixteenth of its range,
 // an eighth for the rudder) and scale to +-0x10000, and the buttons the POV directions set: the
-// four after the device's own.
+// four after the device's own. The Matrox edition reads the extended position only, without
+// setting its size.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004a3be
+// FUNCTION: MW2MATROX 0x10026380
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
 	JOYCAPS caps;
+#ifndef MW2_MATROX
 	JOYINFO info;
+#endif
 	MechDouble range;
 	MechS32 button;
 	JOYINFOEX infoEx;
 
 	data = p_info->m_driverData;
+#ifdef MW2_MATROX
+	if (!data || joyGetDevCaps(data->m_id, &caps, sizeof(caps)) ||
+		joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
+		return 1;
+	}
+#else
 	if (!data) {
 		return 1;
 	}
@@ -279,6 +289,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 			return 1;
 		}
 	}
+#endif
 
 	data->m_flags = 0x483;
 	data->m_centers[0] = caps.wXmin + (MechS32) ((range = caps.wXmax - caps.wXmin + 1) / 2.0);

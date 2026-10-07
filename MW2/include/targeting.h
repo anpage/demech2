@@ -2,11 +2,20 @@
 #define TARGETING_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "navpoint.h"
 #include "pane.h"
 #include "types.h"
 #include "vfxa.h"
 #include "window.h"
+
+// The type of GetBearingAndRange's distance: unsigned 16.16 in 1.1, a float in the Matrox
+// edition (MW2_MATROX).
+#ifdef MW2_MATROX
+#define BearingDistance MechFloat
+#else
+#define BearingDistance MechU32
+#endif
 
 struct SceneObject;
 struct Player;
@@ -25,7 +34,7 @@ extern "C"
 	extern struct CockpitLayout* g_cockpitLayouts[6];
 	extern NavPoint g_navTable[128];
 
-	MechS32 AddNavPoint(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav);
 	void CycleTarget(struct Player* p_player, MechS32 p_step, MechU32 p_flags);
 	void ResetTargeting(void);
@@ -39,13 +48,13 @@ extern "C"
 	struct SceneObject* GetLocalTargetObject(void);
 	void TargetAtReticle(void);
 	void GetBearingAndRange(
-		MechS32 p_dx,
-		MechS32 p_dy,
-		MechS32 p_dz,
-		MechS32* p_heading,
-		MechS32* p_length,
-		MechU32* p_distance,
-		MechS32* p_pitch
+		MechScalar p_dx,
+		MechScalar p_dy,
+		MechScalar p_dz,
+		MechScalar* p_heading,
+		MechScalar* p_length,
+		BearingDistance* p_distance,
+		MechScalar* p_pitch
 	);
 	void CycleNavTarget(struct Player* p_player, MechS32 p_step, MechS32 p_ownOnly);
 	void CycleGameThingTarget(MechS32 p_step);

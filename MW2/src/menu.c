@@ -11,6 +11,7 @@
 #include "menucontrol.h"
 #include "menupage.h"
 #include "mw2prj.h"
+#include "palette.h"
 #include "render.h"
 #include "screenscale.h"
 #include "setres.h"
@@ -48,9 +49,13 @@ MenuDefinition* g_menuDefinitions[11] = {
 	NULL,
 };
 
-// GLOBAL: MW2 0x100e9350
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012c950
+undefined2 g_textColors[0x100];
+#else
+// GLOBAL: MW2 0x100e9350
 undefined g_textColors[0x100];
+#endif
 
 // GLOBAL: MW2 0x10109c78
 // GLOBAL: MW2MATROX 0x10125864
@@ -412,6 +417,7 @@ void FirstMenu(void)
 // that take navigation keys (repeating while they are held), and takes the key code it uses.
 // Stack-slot permutation: menu and flags.
 // FUNCTION: MW2 0x1003cc20
+// FUNCTION: MW2MATROX 0x10091df0
 void UpdateMenuKey(void)
 {
 	MenuDefinition* menu;
@@ -533,6 +539,7 @@ void UpdateMenus(void)
 // Draws the open in-mission menu and acts on g_menuKey. Returns FALSE when the menu should close.
 // Stack-slot permutation: target and backgroundTarget.
 // FUNCTION: MW2 0x1003cf96
+// FUNCTION: MW2MATROX 0x10092182
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 {
 	MechS32 result;
@@ -552,11 +559,14 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 
 	LoadMenuResources(p_menu);
 	if (p_menu->m_flags & 0x20) {
-		VFX_pane_wipe(target, 0);
+		VFX_pane_wipe(target, PIXEL_COLOR(0));
 	}
 
 	if (p_menu->m_background) {
 		VFX_shape_draw(backgroundTarget, p_menu->m_background, 0, 0, 0);
+#ifdef MW2_MATROX
+		FUN_10088280(backgroundTarget);
+#endif
 	}
 
 	if (p_menu->m_flags & 4) {
@@ -564,6 +574,9 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 	}
 
 	RunMenuItems(p_menu);
+#ifdef MW2_MATROX
+	FUN_10088280(target);
+#endif
 	if (!IsMenuPageStackEmpty(p_menu)) {
 		result = TRUE;
 	}
@@ -620,6 +633,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003d1a7
+// FUNCTION: MW2MATROX 0x100923b4
 void RunMenuItems(MenuDefinition* p_menu)
 {
 	MechS32 back;
@@ -746,7 +760,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 	}
 
 	page->m_selected = selected;
-	g_textColors[0xe] = p_menu->m_color;
+	g_textColors[0xe] = PIXEL_COLOR(p_menu->m_color);
 	if (page->m_title) {
 		textPos = p_menu->m_titleOrigin;
 		VFX_string_draw(target, textPos.m_x, textPos.m_y, font, page->m_title, g_textColors);
@@ -770,10 +784,10 @@ void RunMenuItems(MenuDefinition* p_menu)
 	offset = 0;
 	for (i = 0; i < page->m_itemCount; i++) {
 		if (selected == i) {
-			g_textColors[0xe] = p_menu->m_highlightColor;
+			g_textColors[0xe] = PIXEL_COLOR(p_menu->m_highlightColor);
 		}
 		else {
-			g_textColors[0xe] = p_menu->m_color;
+			g_textColors[0xe] = PIXEL_COLOR(p_menu->m_color);
 		}
 
 		item = &page->m_items[i];
@@ -810,7 +824,7 @@ void RunMenuItems(MenuDefinition* p_menu)
 		}
 	}
 
-	g_textColors[0xe] = 0xe;
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	switch (page->m_state) {
 	case 4:
 	case 5:

@@ -3,6 +3,7 @@
 
 #include "decomp.h"
 #include "eyepoint.h"
+#include "palettecolor.h"
 #include "targeting.h"
 #include "types.h"
 
@@ -35,6 +36,30 @@ extern "C"
 	void SetBasePalette(MechS32 p_palette);
 	void StartPalettes(MechS32 p_dissolve);
 	MechS32 GetPaletteFadeSteps(void);
+
+#ifdef MW2_MATROX
+	// The edition's: the 16-bit pixel of a palette color (a lookup in a word table). Its callers
+	// use the whole of eax (they called it undeclared, as an int function).
+	MechS32 FUN_100570aa(MechS32 p_color);
+	// The edition's: sets a palette color's 16-bit pixel (FUN_100570aa's table).
+	void FUN_1005708c(MechS32 p_index, MechS32 p_pixel);
+	// The edition's: sets the display's palette (1.1 calls m_setPaletteWithBrightness).
+	void FUN_1005f790(PaletteColor* p_palette);
+	extern MechS32 g_unk0x100aa1d0;
+	extern MechFloat g_unk0x10184700[3];
+
+	// The edition's: marks a rectangle of the screen (right and bottom exclusive) for presenting.
+	void FUN_10088246(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
+	// The edition's: marks a pane's rectangle of the screen for presenting.
+	void FUN_10088280(PANE* p_pane);
+#endif
+
+// A color passed to a drawing primitive: the edition draws 16-bit pixels.
+#ifdef MW2_MATROX
+#define PIXEL_COLOR(c) FUN_100570aa(c)
+#else
+#define PIXEL_COLOR(c) (c)
+#endif
 
 #ifdef __cplusplus
 }

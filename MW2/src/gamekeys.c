@@ -138,6 +138,7 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 // are stored XORed with 0x1a), toggles or runs its cheat and says so.
 // Stack-slot permutation: target and victim.
 // FUNCTION: MW2 0x1005b883
+// FUNCTION: MW2MATROX 0x10041f93
 void HandleCheatInput(MechS16 p_key)
 {
 	MechS32 target;
@@ -157,6 +158,16 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Invulnerability OFF", 1, 0x16a, 0x32);
 		}
 	}
+#ifdef MW2_MATROX
+	else if (TypedCodeMatches("v\x7fwwc")) { // "lemmy"
+		g_difficulty->m_invulnerable = 1;
+		g_difficulty->m_unlimitedAmmo = 1;
+		g_difficulty->m_heatTracking = 0;
+		g_localSteering.m_grantJumpJets = 1;
+		g_infiniteJumpFuel = 1;
+		ShowInGameMessage("Invulnerable, Lot's o' Ammo, No Heat, & Jets", 1, 0x16a, 0x32);
+	}
+#endif
 	else if (TypedCodeMatches("ys{")) { // "cia"
 		if (!g_difficulty->m_unlimitedAmmo) {
 			g_difficulty->m_unlimitedAmmo = 1;
@@ -180,10 +191,12 @@ void HandleCheatInput(MechS16 p_key)
 	else if (TypedCodeMatches("~\x7fs")) { // "dei"
 		ShowInGameMessage("F E I F", 1, 0x16a, 0x32);
 	}
+#ifndef MW2_MATROX
 	else if (TypedCodeMatches("~uhyi")) { // "dorcs"
 		ShowDorcs();
 		ShowInGameMessage("You asked for it!", 1, 0x16a, 0x32);
 	}
+#endif
 	else if (TypedCodeMatches("\x7ftuv{}{c")) { // "enolagay"
 		target = GetLocalTargetGamePiece();
 		if (target >= 0) {
@@ -567,6 +580,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // the mission timer is stopped.
 // Stack-slot permutation: mech, step and text.
 // FUNCTION: MW2 0x1005c78a
+// FUNCTION: MW2MATROX 0x10042ec0
 void RunGameKey(MechS32 p_key)
 {
 	Mech* mech;
@@ -840,6 +854,12 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3d:
+#ifdef MW2_MATROX
+		if (mech->m_powerState == 7) {
+			break;
+		}
+
+#endif
 		if (mech->m_powerState == 3) {
 			g_powerRequest = 1;
 		}
@@ -848,6 +868,18 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3e:
+#ifdef MW2_MATROX
+		if (mech->m_powerState == 7) {
+			break;
+		}
+
+		if (mech->m_powerState == 3) {
+			g_powerRequest = 1;
+		}
+		else {
+			g_powerRequest = -1;
+		}
+#else
 		if (mech->m_powerState == 3) {
 			g_powerRequest = 1;
 		}
@@ -858,6 +890,7 @@ void RunGameKey(MechS32 p_key)
 
 			g_powerRequest = -1;
 		}
+#endif
 		break;
 	case 0x3f:
 		if (!g_localSteering.m_reverse) {
@@ -989,10 +1022,22 @@ void RunGameKey(MechS32 p_key)
 		break;
 	case 0x5b:
 		PauseTimer(0x80, 1);
+#ifdef MW2_MATROX
+		if (g_windowActive) {
+			g_currentDisplayBackend->m_acquireFramebuffer();
+		}
+		else {
+		}
+
+		SaveScreenshot();
+		PauseTimer(0x80, 0);
+		sprintf(text, "Image saved - MW2000?.888");
+#else
 		g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1;
 		SaveScreenshot();
 		PauseTimer(0x80, 0);
 		sprintf(text, "GIF saved - MW2000?.GIF");
+#endif
 		ShowInGameMessage(text, 1, 0x16a, 0x32);
 		break;
 	default:
@@ -1003,7 +1048,11 @@ void RunGameKey(MechS32 p_key)
 	}
 
 	if (step != -1) {
+#ifdef MW2_MATROX
+		g_localSteering.m_throttle = step * (1.0f / 576.0f);
+#else
 		g_localSteering.m_throttle = step * 113;
+#endif
 		g_localSteering.m_throttleSet = 1;
 	}
 }

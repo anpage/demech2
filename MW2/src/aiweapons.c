@@ -23,18 +23,19 @@
 // fired.
 // Stack-slot permutation: fired, roll and delta.
 // FUNCTION: MW2 0x1004b5a0
+// FUNCTION: MW2MATROX 0x1007a850
 MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 {
 	MechS32 fired;
 	MechS32 roll;
-	MechS32 delta;
+	MechScalar delta;
 
 	fired = FALSE;
 	if (p_player->m_nextFireTime <= g_currentClock) {
 		roll = RandomIntBelow(p_player->m_gunnery);
 		p_player->m_nextFireTime = roll * 22 + g_currentClock;
 		delta = p_heading - p_player->m_torsoTwist;
-		if (delta < 0xa0000 && delta > -0xa0000) {
+		if (delta < FIXED_CONST(10) && delta > FIXED_CONST(-10)) {
 			if ((p_player->m_ai.m_goal & 0xff) == g_localPlayerId || !RandomIntBelow(3)) {
 				SetTarget(p_player, p_player->m_ai.m_goal);
 				if (!roll) {

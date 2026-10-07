@@ -126,8 +126,10 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 
 // Steps p_stream to its next node and returns it, or NULL at the end of the stream or on a node
 // of a bad size.
-// Stack-slot permutation: next and result.
+// Stack-slot permutation: next and result. MW2MATROX: the comparison next->m_size <=
+// p_stream->m_maxNodeSize has its operands the other way round.
 // FUNCTION: MW2 0x1003fdfb
+// FUNCTION: MW2MATROX 0x1002a1eb
 BwdNode* GetNextNode(BwdStream* p_stream)
 {
 	BwdNode* next;

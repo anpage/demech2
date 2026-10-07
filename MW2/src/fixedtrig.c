@@ -88,6 +88,7 @@ MechS32 FixedCos(MechS32 p_angle)
 #endif
 }
 
+#ifndef MW2_MATROX
 // Returns the arcsine of p_sine (2.29 fixed point, as the table holds it) in 16.16 degrees: a
 // binary search of the table's quarter wave, interpolated between the two entries found.
 // Stack-slot permutation: result and table.
@@ -242,13 +243,71 @@ MechS32 FixedAcos(MechS32 p_cosine)
 {
 	return 0x5a0000 - FixedAsin(p_cosine);
 }
+#endif
 
 // Returns the bearing of (p_x, p_z) in 16.16 degrees: the arctangent of the smaller over the
 // larger component from the table, folded into its octant. The result is also left in dx:ax.
 // FUNCTION: MW2 0x100698de
-MechS32 FixedAtan2(MechS32 p_x, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x1007ef93
+MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	MechS32 zNegative;
+	MechS32 xNegative;
+	MechFloat angle;
+
+	zNegative = 0;
+	xNegative = 0;
+	if ((MechFloat) fabs(p_x) < 1e-7f) {
+		if ((MechFloat) fabs(p_z) < 1e-7f) {
+			return 45.0f;
+		}
+		else if (FIXED_IS_NEGATIVE(p_z)) {
+			return 180.0f;
+		}
+		else {
+			return 0.0f;
+		}
+	}
+	else if ((MechFloat) fabs(p_z) < 1e-7f) {
+		if (FIXED_IS_NEGATIVE(p_x)) {
+			return -90.0f;
+		}
+		else {
+			return 90.0f;
+		}
+	}
+
+	if (FIXED_IS_NEGATIVE(p_x)) {
+		p_x = -p_x;
+		xNegative = 1;
+	}
+
+	if (FIXED_IS_NEGATIVE(p_z)) {
+		p_z = -p_z;
+		zNegative = 1;
+	}
+
+	if ((MechFloat) fabs(p_x - p_z) < 1e-7f) {
+		angle = 45.0f;
+	}
+	else if (p_z > p_x) {
+		angle = g_atanTable[(MechS32) (p_x / p_z * 512.0f + 0.5f)];
+	}
+	else {
+		angle = 90.0f - g_atanTable[(MechS32) (p_z / p_x * 512.0f + 0.5f)];
+	}
+
+	if (zNegative) {
+		angle = 180.0f - angle;
+	}
+
+	if (xNegative) {
+		angle = -angle;
+	}
+
+	return angle;
+#elif defined(PORTABLE_C)
 	/* The magnitudes wrap like neg (INT_MIN stays negative) and compare signed; the quotient,
 	   interpolation and folding are unsigned. */
 	MechS32 smaller = p_x < 0 ? PortableS32(0 - (MechU32) p_x) : p_x;

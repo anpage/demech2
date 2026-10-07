@@ -455,6 +455,7 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // Stack-slot permutation of all, objective, result, i and holds; the original computes the
 // objective's index before the star's (index order).
 // FUNCTION: MW2 0x1001b66c
+// FUNCTION: MW2MATROX 0x1001f9c9
 MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 all;
@@ -480,6 +481,17 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		}
 
 		holds = TestObjectiveCondition(p_star, p_objective, i);
+#ifdef MW2_MATROX
+		if (all) {
+			result &= holds;
+			if (!result) {
+				return FALSE;
+			}
+		}
+		else if (holds) {
+			return TRUE;
+		}
+#else
 		if (!all) {
 			if (holds) {
 				return TRUE;
@@ -491,22 +503,35 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 				return FALSE;
 			}
 		}
+#endif
 	}
 
+#ifdef MW2_MATROX
+	if (all) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+#else
 	if (!all) {
 		return FALSE;
 	}
 	else {
 		return TRUE;
 	}
+#endif
 }
 
 // Updates star p_star's objective p_objective while its conditions hold: whether its targets are
 // done (by its type: destroyed, reached, ...), whether its time is up, and what it does when done
 // (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
 // 6 failed, 8 failed for another star, 3 still going.
-// The only diff is a stack-slot permutation of the locals.
+// The only diff is a stack-slot permutation of the locals. MW2MATROX: the objectives the
+// types 0x10000 and up name compute their star's index before the objective's (index order), and
+// the jump table's entries differ by address only.
 // FUNCTION: MW2 0x1001b79a
+// FUNCTION: MW2MATROX 0x1001faf7
 void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
@@ -529,6 +554,12 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	untouched = TRUE;
 	state = 3;
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
+#ifdef MW2_MATROX
+	if (!g_players[p_star] && g_isNetworkGame) {
+		return;
+	}
+
+#endif
 	if (g_isNetworkGame && objective->m_state == 5 && objective->m_type == 2) {
 		for (i = 0; i < objective->m_targetCount; i++) {
 			if (done && GetObjectiveTargetState((MechU8*) &objective->m_targets[i])) {
@@ -799,10 +830,16 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	case 0x400:
 	case 0x800:
 		if (expired) {
+#ifdef MW2_MATROX
+			if (g_players[p_star] && g_isNetworkGame && (g_players[p_star]->m_flags & 2)) {
+				return;
+			}
+#else
 			if (g_players[g_teams[p_star].m_leader] && (g_players[g_teams[p_star].m_leader]->m_flags & 2) &&
 				g_isNetworkGame) {
 				return;
 			}
+#endif
 
 			state = 5;
 			AnnounceObjective(p_star, p_objective, state);
@@ -950,6 +987,7 @@ void EndTheMission1(void)
 // status and the objectives listed on the objectives panel. Returns whether it could.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001c9f7
+// FUNCTION: MW2MATROX 0x10020d5b
 MechS32 EndTheMission2(void)
 {
 	FILE* file;
@@ -998,8 +1036,9 @@ MechS32 EndTheMission2(void)
 
 // Restarts star p_star's mission (a player's own, in a network game): every objective goes back
 // to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
-// it names is listed on the objectives panel.
+// it names is listed on the objectives panel (not in the Matrox edition).
 // FUNCTION: MW2 0x1001cc5c
+// FUNCTION: MW2MATROX 0x10020fde
 void RestartStarMission(MechS32 p_star)
 {
 	MissionObjective* objective;
@@ -1010,6 +1049,7 @@ void RestartStarMission(MechS32 p_star)
 	mission = &g_objectiveTable[p_star];
 	for (i = 0; i < mission->m_objectiveCount; i++) {
 		objective = &mission->m_objectives[i];
+#ifndef MW2_MATROX
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
 			if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
 				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
@@ -1018,6 +1058,7 @@ void RestartStarMission(MechS32 p_star)
 				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 0;
 			}
 		}
+#endif
 
 		objective->m_state = 3;
 		objective->m_startTime = -1;

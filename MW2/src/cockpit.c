@@ -13,6 +13,7 @@
 #include "eyepoint.h"
 #include "face.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "gamething.h"
@@ -193,9 +194,12 @@ MechS32 g_satelliteClean;
 // gauge functions.
 // Stack-slot permutation: index, rect, transition and viewport.
 // FUNCTION: MW2 0x1003dab0
+// FUNCTION: MW2MATROX 0x10073800
 void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 {
+#ifndef MW2_MATROX
 	MechS32 index;
+#endif
 	PANE* rect;
 	RectTransition* transition;
 	PANE* viewport;
@@ -242,6 +246,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		rect->m_window = &g_mainPixelBuffer;
 	}
 
+#ifndef MW2_MATROX
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[0]);
 	p_layout->m_gauges[0] = g_cockpitGauges[index];
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[1]);
@@ -250,6 +255,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 	p_layout->m_gauges[2] = g_cockpitGauges[index];
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[3]);
 	p_layout->m_gauges[3] = g_cockpitGauges[index];
+#endif
 	ZoomMapView(0);
 }
 
@@ -296,6 +302,7 @@ void RunMapView(void)
 // Stack-slot permutation; g_cockpitLayoutIndex != g_requestedCockpitView compares in the other operand
 // order.
 // FUNCTION: MW2 0x1003ddd7
+// FUNCTION: MW2MATROX 0x10073ab1
 MechS32 SwitchCockpitView(void)
 {
 	MechS32 changed;
@@ -398,17 +405,17 @@ void DrawCockpitView(void)
 void DrawMapView(void)
 {
 	MechS32 farPlane;
-	MechS32 heading;
-	MechS32 angle;
+	MechScalar heading;
+	MechScalar angle;
 	struct SceneObject* obj;
 	MechS32 zoom;
-	MechS32 pose[7];
+	MechScalar pose[7];
 	PANE* viewport;
 	CockpitLayout* layout;
 	MechS32 range;
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 	MechS32 slot;
 	Player* player;
 	MechU32 flags;
@@ -428,7 +435,7 @@ void DrawMapView(void)
 	g_panes[slot] = *viewport;
 	angle = player->m_mech->m_torsoTwist.m_value;
 	heading = player->m_heading;
-	pose[4] = 0x5a0000;
+	pose[4] = FIXED_CONST(90);
 	pose[5] = 0;
 	switch (g_cockpitLayoutIndex) {
 	case 1:
@@ -478,7 +485,7 @@ void DrawMapView(void)
 		SetViewMode(c_viewSatellite);
 		ChoosePlayerDetailLevels();
 		SetViewMode(zoom);
-		VFX_pane_wipe(viewport, g_groundColor);
+		VFX_pane_wipe(viewport, PIXEL_COLOR(g_groundColor));
 		flags = 0;
 		DrawMapViewScene(flags);
 	}
@@ -496,6 +503,10 @@ void DrawMapView(void)
 	if (g_mapViewMode == 4 && (g_cockpitLayoutIndex != 4 || g_satelliteStaticState <= 1)) {
 		DrawMapViewText(layout);
 	}
+#ifdef MW2_MATROX
+
+	FUN_10088280(viewport);
+#endif
 }
 
 // Draws the map view's contents: the nav points, the center icon and the other players and
@@ -749,9 +760,10 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003eb22
-void DrawMapFieldOfView(CockpitLayout* p_layout, MechS32 p_heading)
+// FUNCTION: MW2MATROX 0x1007480f
+void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 {
-	MechS32 halfFov;
+	MechScalar halfFov;
 	PANE* viewport;
 	Point end;
 	MechS32 y;
@@ -760,16 +772,32 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechS32 p_heading)
 
 	viewport = p_layout->m_viewport;
 	colors = p_layout->m_colors;
+#ifdef MW2_MATROX
+	p_heading = fmod(fmod(p_heading, 360.0) + 360.0, 360.0);
+#else
 	p_heading = (p_heading % 0x1680000 + 0x1680000) % 0x1680000;
+#endif
 	x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 	y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
+#ifdef MW2_MATROX
+	halfFov = FixedAtan2(1.0f, g_eyepoint->m_fovX);
+#else
 	halfFov = FixedAtan2(0x10000, g_eyepoint->m_fovX);
-	p_heading = 0x5a0000 - p_heading;
+#endif
+	p_heading = FIXED_CONST(90) - p_heading;
 	if (p_layout->m_gauges[3]) {
+#ifdef MW2_MATROX
+		// The edition's map gauge takes a float heading.
+		((void (*)(PANE*, MechFloat, Point*)) p_layout->m_gauges[3])(viewport, p_heading - halfFov, &end);
+		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, PIXEL_COLOR(colors[11]));
+		((void (*)(PANE*, MechFloat, Point*)) p_layout->m_gauges[3])(viewport, halfFov + p_heading, &end);
+		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, PIXEL_COLOR(colors[11]));
+#else
 		p_layout->m_gauges[3](viewport, p_heading - halfFov, &end);
 		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
 		p_layout->m_gauges[3](viewport, halfFov + p_heading, &end);
 		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, colors[11]);
+#endif
 	}
 }
 
@@ -882,6 +910,7 @@ void ToggleSatelliteView(void)
 // Zooms the current view's map: p_zoom 0 resets the range, 1 halves it (wrapping to the longest
 // below the shortest) and 2 doubles it (wrapping to the shortest).
 // FUNCTION: MW2 0x1003ef07
+// FUNCTION: MW2MATROX 0x10074c26
 void ZoomMapView(MechS32 p_zoom)
 {
 	CockpitLayout* layout;
@@ -896,20 +925,32 @@ void ZoomMapView(MechS32 p_zoom)
 		layout->m_range = layout->m_startRange;
 		break;
 	case 1:
+#ifdef MW2_MATROX
+		layout->m_range /= 2;
+#else
 		layout->m_range = FixedDiv16(layout->m_range, 0x20000);
+#endif
 		if (layout->m_minRange > layout->m_range) {
 			layout->m_range = layout->m_maxRange;
 		}
 		break;
 	case 2:
+#ifdef MW2_MATROX
+		layout->m_range <<= 1;
+#else
 		layout->m_range = FixedMul16(layout->m_range, 0x20000);
+#endif
 		if (layout->m_maxRange < layout->m_range) {
 			layout->m_range = layout->m_minRange;
 		}
 		break;
 	}
 
+#ifdef MW2_MATROX
+	layout->m_zoom = layout->m_startRange / layout->m_range;
+#else
 	layout->m_zoom = FixedDiv16(layout->m_startRange, layout->m_range);
+#endif
 }
 
 // The map view's shape filter (RenderSettings::m_shapeFilter): skips dead players' shapes and

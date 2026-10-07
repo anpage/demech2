@@ -4,6 +4,7 @@
 #include "decomp.h"
 #include "mech.h"
 #include "point.h"
+#include "rect.h"
 #include "targeting.h"
 #include "types.h"
 
@@ -60,6 +61,9 @@ extern "C"
 	void DrawPlayerBrackets(struct Player* p_player, MechS32 p_side);
 	void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side);
 	void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id);
+#ifdef MW2_MATROX
+	void ClipRectToPane(PANE* p_pane, Rect* p_rect);
+#endif
 	void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
 	void DrawShapeOverPane(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
 

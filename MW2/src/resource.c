@@ -49,11 +49,28 @@ typedef struct BitmapRecord {
 	MechS32 m_data[1];  // 0x10 — up to the record's end
 } BitmapRecord;
 
+#ifdef MW2_MATROX
+// A path record's waypoint: the edition's PathPoint holds floats, the record integers.
+typedef struct PathRecordPoint {
+	MechS32 m_x;        // 0x00
+	MechS32 m_y;        // 0x04
+	MechS32 m_z;        // 0x08
+	MechS32 m_pitch;    // 0x0c
+	MechS32 m_heading;  // 0x10
+	MechS32 m_roll;     // 0x14
+	MechS32 m_duration; // 0x18
+} PathRecordPoint;
+#endif
+
 // A path record: the path's name and its waypoints.
 typedef struct PathRecord {
 	BwdRecord m_header;    // 0x00
 	MechChar m_name[0x40]; // 0x08
+#ifdef MW2_MATROX
+	PathRecordPoint m_points[1]; // 0x48
+#else
 	PathPoint m_points[1]; // 0x48 — up to the record's end
+#endif
 } PathRecord;
 
 // A formation record's slot: its offset from the leader and its heading.
@@ -248,6 +265,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 // Stack-slot permutation: count, index, i and record (and so the loop test's operand order and
 // the order of the waypoint index's scaling).
 // FUNCTION: MW2 0x1004f64a
+// FUNCTION: MW2MATROX 0x1004920a
 MechS32 LoadPathTable(PathRecord* p_record)
 {
 	MechS32 count;
@@ -270,9 +288,9 @@ MechS32 LoadPathTable(PathRecord* p_record)
 		g_paths[index].m_points[i].m_x = record->m_points[i].m_x;
 		g_paths[index].m_points[i].m_y = record->m_points[i].m_y;
 		g_paths[index].m_points[i].m_z = record->m_points[i].m_z;
-		g_paths[index].m_points[i].m_pitch = record->m_points[i].m_pitch << 16;
-		g_paths[index].m_points[i].m_heading = record->m_points[i].m_heading << 16;
-		g_paths[index].m_points[i].m_roll = record->m_points[i].m_roll << 16;
+		g_paths[index].m_points[i].m_pitch = FIXED_FROM_INT(record->m_points[i].m_pitch);
+		g_paths[index].m_points[i].m_heading = FIXED_FROM_INT(record->m_points[i].m_heading);
+		g_paths[index].m_points[i].m_roll = FIXED_FROM_INT(record->m_points[i].m_roll);
 		g_paths[index].m_points[i].m_duration = record->m_points[i].m_duration;
 	}
 
@@ -282,7 +300,9 @@ MechS32 LoadPathTable(PathRecord* p_record)
 // Adds a formation to g_formationTemplates, or returns FALSE if the table or the formation is
 // full.
 // Stack-slot permutation: count, index, i and record (and so the loop test's operand order).
+// MW2MATROX: the stores compute the template index and the slot index in the other order.
 // FUNCTION: MW2 0x1004f891
+// FUNCTION: MW2MATROX 0x1004946c
 MechS32 LoadFormationTable(FormationRecord* p_record)
 {
 	MechS32 count;
@@ -303,7 +323,7 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 	for (i = 0; i < count; i++) {
 		g_formationTemplates[index].m_x[i] = record->m_slots[i].m_x;
 		g_formationTemplates[index].m_z[i] = record->m_slots[i].m_z;
-		g_formationTemplates[index].m_heading[i] = record->m_slots[i].m_heading;
+		g_formationTemplates[index].m_heading[i] = FIXED_TO_SCALAR(record->m_slots[i].m_heading);
 	}
 
 	return TRUE;
@@ -363,7 +383,9 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 }
 
 // Sets up the teams from a star record: each team's values, and its formation.
+// MW2MATROX: the loop test compares count with i (operand order).
 // FUNCTION: MW2 0x1004fb0b
+// FUNCTION: MW2MATROX 0x100496fe
 void LoadStarTable(StarTable* p_table)
 {
 	MechS32 count;
@@ -556,7 +578,9 @@ void GetTriangleNormal(
 
 // The plane of the triangle, scaled by ScalePlane.
 // Stack-slot permutation of the locals, which also swaps the operands of two products.
+// MW2MATROX: commutative operand order of the products.
 // FUNCTION: MW2 0x1004ffaa
+// FUNCTION: MW2MATROX 0x10049c58
 void GetTrianglePlane(
 	MechFloat p_x1,
 	MechFloat p_y1,
@@ -599,7 +623,9 @@ void GetTrianglePlane(
 /* The only diff is the order of the three products in d (and of each product's operands), which
    follows the symbol table, not the source. It matches with seven more symbols declared ahead of
    the function (placeholder prototypes do it); stubbing the object's other functions does not. */
+// MW2MATROX: commutative operand order of the products.
 // FUNCTION: MW2 0x1005005e
+// FUNCTION: MW2MATROX 0x10049d0f
 void GetPointNormalPlane(
 	MechFloat p_x,
 	MechFloat p_y,

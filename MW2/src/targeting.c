@@ -5,6 +5,7 @@
 #include "compat.h"
 #include "decomp.h"
 #include "fixeddiv29.h"
+#include "fixedfloat.h"
 #include "fixedtrig.h"
 #include "gamething.h"
 #include "geocache.h"
@@ -347,7 +348,8 @@ NavPoint g_navTable[128];
 // -1 if the table is full.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005ec80
-MechS32 AddNavPoint(MechU32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x100064f0
+MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 index;
 	NavPoint* nav;
@@ -562,20 +564,21 @@ void ResetTargeting(void)
 // (flag 0x100 accepts only a nav its owner placed).
 // Stack-slot permutation of the locals; p_nav >= g_navCount compares in the other operand order.
 // FUNCTION: MW2 0x1005f2ae
+// FUNCTION: MW2MATROX 0x10006b1c
 MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 {
 	Player* player;
 	NavPoint* nav;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
-	MechS32 heading;
-	MechS32 range;
-	MechU32 distance;
-	MechS32 pitch;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechScalar heading;
+	MechScalar range;
+	BearingDistance distance;
+	MechScalar pitch;
 
 	if (p_nav < 0) {
 		return -1;
@@ -639,23 +642,24 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // flag 0x10000 asks for a player with flag 0x40, -5 and -7 for targets the local player may not
 // pick, and -8 for a player without a shape.
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
-// order.
+// order. MW2MATROX: so do p_player == g_localPlayerId and p_index >= g_playerCount.
 // FUNCTION: MW2 0x1005f4ac
+// FUNCTION: MW2MATROX 0x10006d1a
 MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	MechS32 breakpoint;
 	Player* player;
 	Player* target;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
-	MechS32 heading;
-	MechS32 range;
-	MechU32 distance;
-	MechS32 pitch;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechScalar heading;
+	MechScalar range;
+	BearingDistance distance;
+	MechScalar pitch;
 
 	if (p_index == 1 && p_player == g_localPlayerId) {
 		breakpoint = 0;
@@ -741,20 +745,21 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
 // order.
 // FUNCTION: MW2 0x1005f798
+// FUNCTION: MW2MATROX 0x10007012
 MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	Player* player;
 	GameThing* thing;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
-	MechS32 heading;
-	MechS32 range;
-	MechU32 distance;
-	MechS32 pitch;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
+	MechScalar heading;
+	MechScalar range;
+	BearingDistance distance;
+	MechScalar pitch;
 
 	if (p_index < 0) {
 		return -1;
@@ -1084,13 +1089,13 @@ void TargetAtReticle(void)
 // swapping them didn't flip it), and stack-slot permutation: every local.
 // FUNCTION: MW2 0x10060197
 void GetBearingAndRange(
-	MechS32 p_dx,
-	MechS32 p_dy,
-	MechS32 p_dz,
-	MechS32* p_heading,
-	MechS32* p_length,
-	MechU32* p_distance,
-	MechS32* p_pitch
+	MechScalar p_dx,
+	MechScalar p_dy,
+	MechScalar p_dz,
+	MechScalar* p_heading,
+	MechScalar* p_length,
+	BearingDistance* p_distance,
+	MechScalar* p_pitch
 )
 {
 	MechS32 pitch;

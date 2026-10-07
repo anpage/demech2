@@ -76,8 +76,10 @@ void FreePaletteCycle(PaletteCycle* p_cycle)
 	g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) p_cycle->m_original);
 }
 
-// Matches except for the stack slots of i and accum (a consistent permutation).
+// Matches except for the stack slots of i and accum (a consistent permutation). The edition adds
+// p_count * 3 and p_first * 3 in the other operand order.
 // FUNCTION: MW2 0x10010c85
+// FUNCTION: MW2MATROX 0x100506f5
 MechS32 InitPaletteFade(
 	PaletteFade* p_fade,
 	MechU8* p_from,
@@ -117,7 +119,8 @@ MechS32 InitPaletteFade(
 	return 1;
 }
 
-// Matches except for the stack slots of i and accum (a consistent permutation).
+// Matches except for the stack slots of i and accum (a consistent permutation). The edition adds
+// p_count * 3 and p_first * 3 in the other operand order.
 // FUNCTION: MW2 0x10010d99
 // FUNCTION: MW2MATROX 0x10050809
 void StepPaletteFade(PaletteFade* p_fade)

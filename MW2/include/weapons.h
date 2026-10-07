@@ -2,6 +2,7 @@
 #define WEAPONS_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 #include "weapondef.h"
 
@@ -40,10 +41,10 @@ extern "C"
 	void AddNextWeaponToGroup(struct Mech* p_mech);
 	void UpdateWeaponLock(struct Mech* p_mech);
 	struct Shape* UpdateAimDistance(struct Player* p_player);
-	MechS32 GetAimRange(struct Player* p_player);
-	void GetMechAimDirection(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	MechScalar GetAimRange(struct Player* p_player);
+	void GetMechAimDirection(struct Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	void BuildAimRay(struct Player* p_player, struct Ray* p_ray);
-	void GetEyeAimDirection(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void GetEyeAimDirection(struct Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	void GetFiringPosition(struct Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z);
 	void PlaceAtFiringObj(struct Player* p_player, struct SceneObject* p_obj);
 	void SpawnLaunchFx(

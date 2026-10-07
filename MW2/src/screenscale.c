@@ -3,11 +3,13 @@
 #include "clock.h"
 #include "decomp.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "gaugequadrant.h"
 #include "keyboard.h"
 #include "menu.h"
+#include "palette.h"
 #include "point.h"
 #include "polydraw.h"
 #include "rect.h"
@@ -139,10 +141,20 @@ Point* ScalePointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // Scales 16.16 fractions to 320x200 (low resolution) coordinates, correcting the height for the aspect ratio
 // p_aspect (16.16, 0xd555 = 5:6 for none).
 // FUNCTION: MW2 0x10056c25
-PANE* ScaleRectToLowRes(PANE* p_rect, MechS32 p_aspect)
+// FUNCTION: MW2MATROX 0x10071625
+PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect)
 {
-	MechS32 scale;
+	MechScalar scale;
 
+#ifdef MW2_MATROX
+	scale = p_aspect / 0.8333333f;
+	p_rect->m_x0 = FixedMul16(p_rect->m_x0, 319);
+	p_rect->m_y0 = FixedMul16(p_rect->m_y0, 199);
+	p_rect->m_y0 = p_rect->m_y0 * scale;
+	p_rect->m_x1 = FixedMul16(p_rect->m_x1, 319);
+	p_rect->m_y1 = FixedMul16(p_rect->m_y1, 199);
+	p_rect->m_y1 = p_rect->m_y1 * scale;
+#else
 	scale = FixedDiv16(p_aspect, 0xd555);
 	p_rect->m_x0 = FixedMul16(p_rect->m_x0, 319);
 	p_rect->m_y0 = FixedMul16(p_rect->m_y0, 199);
@@ -150,6 +162,7 @@ PANE* ScaleRectToLowRes(PANE* p_rect, MechS32 p_aspect)
 	p_rect->m_x1 = FixedMul16(p_rect->m_x1, 319);
 	p_rect->m_y1 = FixedMul16(p_rect->m_y1, 199);
 	p_rect->m_y1 = FixedMul16(p_rect->m_y1, scale);
+#endif
 	return p_rect;
 }
 
@@ -273,6 +286,7 @@ PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
 // Outlines a pane.
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x100570e9
+// FUNCTION: MW2MATROX 0x10071af9
 void OutlinePane(PANE* p_target, MechS32 p_color)
 {
 	MechS32 width;
@@ -280,15 +294,16 @@ void OutlinePane(PANE* p_target, MechS32 p_color)
 
 	width = p_target->m_x1 - p_target->m_x0;
 	height = p_target->m_y1 - p_target->m_y0;
-	VFX_line_draw(p_target, 0, 0, width, 0, 0, p_color);
-	VFX_line_draw(p_target, width, 0, width, height, 0, p_color);
-	VFX_line_draw(p_target, width, height, 0, height, 0, p_color);
-	VFX_line_draw(p_target, 0, height, 0, 0, 0, p_color);
+	VFX_line_draw(p_target, 0, 0, width, 0, 0, PIXEL_COLOR(p_color));
+	VFX_line_draw(p_target, width, 0, width, height, 0, PIXEL_COLOR(p_color));
+	VFX_line_draw(p_target, width, height, 0, height, 0, PIXEL_COLOR(p_color));
+	VFX_line_draw(p_target, 0, height, 0, 0, 0, PIXEL_COLOR(p_color));
 }
 
 // Draws a line across the pane under a line of text at p_pos.
 // Stack-slot permutation: height and width.
 // FUNCTION: MW2 0x1005718d
+// FUNCTION: MW2MATROX 0x10071bc1
 void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 height;
@@ -298,12 +313,13 @@ void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color
 	p_pos.m_x = 0;
 	p_pos.m_y += height;
 	width = p_target->m_x1 - p_target->m_x0 + 1;
-	VFX_line_draw(p_target, p_pos.m_x, p_pos.m_y, width - 1, p_pos.m_y, 0, p_color);
+	VFX_line_draw(p_target, p_pos.m_x, p_pos.m_y, width - 1, p_pos.m_y, 0, PIXEL_COLOR(p_color));
 }
 
 // Underlines text drawn at p_pos.
 // Stack-slot permutation: width, height and i.
 // FUNCTION: MW2 0x100571ea
+// FUNCTION: MW2MATROX 0x10071c27
 void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 width;
@@ -317,12 +333,13 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 		width += VFX_character_width(p_font, p_text[i]);
 	}
 
-	VFX_line_draw(p_target, p_pos.m_x, p_pos.m_y, p_pos.m_x + width - 1, p_pos.m_y, 0, p_color);
+	VFX_line_draw(p_target, p_pos.m_x, p_pos.m_y, p_pos.m_x + width - 1, p_pos.m_y, 0, PIXEL_COLOR(p_color));
 }
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
-// Stack-slot permutation: the locals.
+// Stack-slot permutation: the locals. The edition's build loads p_text[i]'s index before its base.
 // FUNCTION: MW2 0x10057282
+// FUNCTION: MW2MATROX 0x10071cc8
 void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 left;
@@ -340,13 +357,19 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 	}
 
 	left = p_pos.m_x;
+#ifdef MW2_MATROX
+	top = p_pos.m_y - 1;
+	right = p_pos.m_x + width;
+	bottom = p_pos.m_y + height + 1;
+#else
 	right = p_pos.m_x + width;
 	bottom = p_pos.m_y + height + 1;
 	top = p_pos.m_y - 1;
-	VFX_line_draw(p_target, left, top, right, top, 0, p_color);
-	VFX_line_draw(p_target, left, bottom, right, bottom, 0, p_color);
-	VFX_line_draw(p_target, left, top, left, bottom, 0, p_color);
-	VFX_line_draw(p_target, right, top, right, bottom, 0, p_color);
+#endif
+	VFX_line_draw(p_target, left, top, right, top, 0, PIXEL_COLOR(p_color));
+	VFX_line_draw(p_target, left, bottom, right, bottom, 0, PIXEL_COLOR(p_color));
+	VFX_line_draw(p_target, left, top, left, bottom, 0, PIXEL_COLOR(p_color));
+	VFX_line_draw(p_target, right, top, right, bottom, 0, PIXEL_COLOR(p_color));
 }
 
 // Draws text word-wrapped into a pane, inside the margins, until it runs out of lines.

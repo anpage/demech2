@@ -44,11 +44,16 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 // and the pending palette.
 // Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
-void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct SceneObject* p_object)
+// FUNCTION: MW2MATROX 0x100450ed
+void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
-	MechS32 fovX;
+	MechScalar fovX;
 	MechS32 palette;
 	MechS32 view[7];
+#ifdef MW2_MATROX
+	undefined4 saved0x28;
+	undefined4 saved0x2c;
+#endif
 
 	fovX = g_eyepoint->m_fovX;
 	palette = g_palettePending;
@@ -61,7 +66,17 @@ void RenderViewToPane(MechU32 p_target, MechS32 p_fovX, MechS32* p_view, struct 
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
+#ifdef MW2_MATROX
+		saved0x28 = g_renderSettings.m_unk0x28[0];
+		saved0x2c = g_renderSettings.m_unk0x28[1];
+		g_renderSettings.m_unk0x28[0] = 0;
+		g_renderSettings.m_unk0x28[1] = 0;
 		DrawSkyAndGround(g_eyepoint);
+		g_renderSettings.m_unk0x28[0] = saved0x28;
+		g_renderSettings.m_unk0x28[1] = saved0x2c;
+#else
+		DrawSkyAndGround(g_eyepoint);
+#endif
 	}
 
 	if (p_object) {
@@ -93,10 +108,19 @@ void FlashZappedPalette(void)
 
 // Flashes palette slot 0x11 (ZAPPED) over p_level (0-15) fifteenths of two seconds.
 // FUNCTION: MW2 0x1004ca29
+// FUNCTION: MW2MATROX 0x1004528b
 void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
 
+#ifdef MW2_MATROX
+	if (p_level > 15) {
+		duration = 0x16a;
+	}
+	else {
+		duration = p_level / 15.0f * 362.0f;
+	}
+#else
 	if (p_level > 15) {
 		p_level = 0x10000;
 	}
@@ -105,6 +129,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 	}
 
 	duration = FixedMul16(0x16a, p_level);
+#endif
 	StartPaletteFade(0x11, duration, 1);
 }
 

@@ -107,8 +107,10 @@ MechS32 InitStaticMem(char* p_mission)
 }
 
 // Takes a block from the pool of a tag, logging the call to mw2.log.
-// Stack-slot permutation: i, pool, block and group.
+// Stack-slot permutation: i, pool, block and group. MW2MATROX: the tests of i against
+// g_staticPoolCount take the other operand order.
 // FUNCTION: MW2 0x10049afb
+// FUNCTION: MW2MATROX 0x1007916a
 void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 {
 	MechS32 i;

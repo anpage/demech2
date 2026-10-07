@@ -20,6 +20,7 @@ MechChar g_iniLine[0x85];
 // be opened or 0x3f when the section isn't there. A line starting with '[' ends the search.
 // Stack-slot permutation: line, end and buffer.
 // FUNCTION: MW2 0x1006c6c0
+// FUNCTION: MW2MATROX 0x1000a170
 MechS32 FindIniSection(MechChar* p_section)
 {
 	FILE* file;

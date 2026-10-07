@@ -23,6 +23,7 @@
 #include "mw2prj.h"
 #include "network.h"
 #include "objectanim.h"
+#include "palette.h"
 #include "players.h"
 #include "point.h"
 #include "poolsizes.h"
@@ -251,7 +252,6 @@ MechS32 g_hudLayoutValues[3];
 
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
-// FUNCTION: MW2MATROX 0x100794d0
 void PreloadCockpitSounds(void)
 {
 	MechS32 ids[8];
@@ -454,7 +454,6 @@ void LayoutWeaponPanels(Mech* p_mech)
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // Stack-slot permutation: rect, transition, i and target.
 // FUNCTION: MW2 0x1006fba3
-// FUNCTION: MW2MATROX 0x10079bfb
 void ScaleCockpitLayout(void)
 {
 	PANE* rect;
@@ -485,7 +484,6 @@ void ScaleCockpitLayout(void)
 // fourteenth, lays out the local mech's weapon panels (LayoutWeaponPanels) and installs the panels'
 // handlers.
 // FUNCTION: MW2 0x1006fca5
-// FUNCTION: MW2MATROX 0x10079cfd
 void InitCockpitPanels(void)
 {
 	Mech* mech;
@@ -547,7 +545,6 @@ void InitCockpitPanels(void)
 
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b
-// FUNCTION: MW2MATROX 0x10079fd3
 void ResetCockpitPanels(void)
 {
 	Mech* mech;
@@ -698,7 +695,6 @@ void UpdateCockpit(Mech* p_mech)
 // Shuts the cockpit panels down: ResetMapView with the radar on (DifficultyCfg::m_radar),
 // each panel's m_shutdown hook, then every 2D animation.
 // FUNCTION: MW2 0x100704c1
-// FUNCTION: MW2MATROX 0x1007a53c
 void ShutdownCockpitPanels(void)
 {
 	MechS32 i;
@@ -719,7 +715,6 @@ void ShutdownCockpitPanels(void)
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
 // (p_heavy: five) in ten chance of stepping its damage.
 // FUNCTION: MW2 0x1007053d
-// FUNCTION: MW2MATROX 0x1007a5b8
 void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 {
 	MechS32 chance;
@@ -745,7 +740,6 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
 // FUNCTION: MW2 0x100705dd
-// FUNCTION: MW2MATROX 0x1007a658
 void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_hitFadePending) {
@@ -797,6 +791,9 @@ void PlayCockpitWarnings(Mech* p_mech)
 void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
+#ifdef MW2_MATROX
+	FUN_10088280(p_target);
+#endif
 }
 
 // Loads seven values from resource p_ref.
@@ -864,6 +861,7 @@ MechS32 LoadMgdFile(
 // (GetAnimBase), into g_reels.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100708f4
+// FUNCTION: MW2MATROX 0x1000ae34
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -880,6 +878,10 @@ MechS32 LoadReels(ResourceRef* p_ref)
 	MechU8* end;
 	MechS32 index;
 	FILE* file;
+#ifdef MW2_MATROX
+	MechS32 j;
+	MechS32* amount;
+#endif
 
 	offset = 0;
 	stride = sizeof(MechS32);
@@ -925,6 +927,21 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		if (!g_reels[index]) {
 			return FALSE;
 		}
+#ifdef MW2_MATROX
+
+		// The edition's reels hold floats: plain values below kind 3, 16.16 from it.
+		if (frameCount) {
+			for (j = 0; j < frameCount; j++) {
+				amount = (MechS32*) frames + j;
+				if (unk0x08 < 3) {
+					((MechFloat*) frames)[j] = *amount;
+				}
+				else {
+					((MechFloat*) frames)[j] = *amount * (1.0f / 65536.0f);
+				}
+			}
+		}
+#endif
 
 		g_reels[index]->m_amounts = (MechS32*) frames;
 		g_reels[index]->m_kind = unk0x08;
@@ -1323,11 +1340,20 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
 // FUNCTION: MW2 0x100715a2
+// FUNCTION: MW2MATROX 0x1000bb8e
 void SaveScreenshot(void)
 {
 	MechS32 count;
 	PANE target;
 	MechChar name[16];
+#ifdef MW2_MATROX
+	FILE* file;
+	MechU16* pixel;
+	MechU32 n;
+	MechU32 rgb;
+	MechU16 width;
+	MechU16 height;
+#endif
 
 	target.m_window = &g_mainPixelBuffer;
 	target.m_x0 = 0;
@@ -1336,11 +1362,34 @@ void SaveScreenshot(void)
 	target.m_y1 = g_screenHeightMinus1;
 	if (g_screenshotCount < 1000) {
 		count = g_screenshotCount++;
+#ifdef MW2_MATROX
+		// The edition saves the 16-bit screen as raw 24-bit pixels, after a header of two words
+		// it never sets.
+		sprintf(name, "mw2%04d.888", count);
+		file = fopen(name, "wb");
+		if (!file) {
+			return;
+		}
+
+		fwrite(&width, 2, 1, file);
+		fwrite(&height, 2, 1, file);
+		pixel = (MechU16*) g_mainPixelBuffer.m_buffer;
+		for (n = (g_screenHeightMinus1 + 1) * (g_screenWidthMinus1 + 1); n > 0; n--) {
+			rgb = ((*pixel >> 10) & 0x1f) * 8;
+			rgb |= ((*pixel >> 5) & 0x1f) << 11;
+			rgb |= (*pixel & 0x1f) << 19;
+			fwrite(&rgb, 3, 1, file);
+			pixel++;
+		}
+
+		fclose(file);
+#else
 		sprintf(name, "mw2%04d.gif", count);
 		ScreenshotBegin(name);
 		ScreenshotWritePalette();
 		ScreenshotWriteImage(&target);
 		ScreenshotEnd();
+#endif
 	}
 }
 

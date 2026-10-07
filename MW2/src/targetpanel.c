@@ -7,6 +7,7 @@
 #include "decomp.h"
 #include "eyepoint.h"
 #include "fadepal.h"
+#include "fixedfloat.h"
 #include "fixedmul29.h"
 #include "fixedtrig.h"
 #include "hud.h"
@@ -407,7 +408,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
 	VFX_pane_wipe(p_panel->m_target, 0);
 	if (g_cockpitPowerState == 2) {
-		RenderViewToPane(7, 0x20000, view, object);
+		RenderViewToPane(7, FIXED_CONST(2), view, object);
 	}
 
 	OutlinePane(p_panel->m_target, 8);

@@ -7,6 +7,7 @@
 #include "environment.h"
 #include "fixedfloat.h"
 #include "muldiv.h"
+#include "palette.h"
 #include "players.h"
 #include "point.h"
 #include "ramp.h"
@@ -200,6 +201,7 @@ void DrawHeatBar(PANE* p_target)
 // Draws the heat rate bar.
 // Stack-slot permutation: level, backColor, fill, fillColor and mech.
 // FUNCTION: MW2 0x1004d310
+// FUNCTION: MW2MATROX 0x10089332
 void DrawHeatRateBar(PANE* p_target)
 {
 	MechS32 level;
@@ -211,7 +213,11 @@ void DrawHeatRateBar(PANE* p_target)
 	mech = g_players[g_localPlayerId]->m_mech;
 	fill = 0;
 	level = 0;
+#ifdef MW2_MATROX
+	g_heatRateBarLevel.m_target = (MechS32) (mech->m_deltaHeat - mech->m_cooling * g_deltaTime) << 10;
+#else
 	g_heatRateBarLevel.m_target = FIXED_SHR(mech->m_deltaHeat - mech->m_cooling * g_deltaTime, 6);
+#endif
 	level = UpdateEasedValue(&g_heatRateBarLevel);
 	if (level < 1) {
 		fillColor = 7;
@@ -264,6 +270,7 @@ void DrawHeatRateBar(PANE* p_target)
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
 // Stack-slot permutation: color, mech, width, height, x, y and value.
 // FUNCTION: MW2 0x1004d48a
+// FUNCTION: MW2MATROX 0x100894b4
 void DrawThrottleGauge(PANE* p_target)
 {
 	MechS32 color;
@@ -275,7 +282,15 @@ void DrawThrottleGauge(PANE* p_target)
 	MechS32 value;
 
 	mech = g_players[g_localPlayerId]->m_mech;
-	VFX_line_draw(p_target, g_throttleFrameLeft, g_throttleFrameTop, g_throttleFrameLeft, g_throttleFrameBottom, 0, 10);
+	VFX_line_draw(
+		p_target,
+		g_throttleFrameLeft,
+		g_throttleFrameTop,
+		g_throttleFrameLeft,
+		g_throttleFrameBottom,
+		0,
+		PIXEL_COLOR(10)
+	);
 	VFX_line_draw(
 		p_target,
 		g_throttleFrameRight,
@@ -283,9 +298,17 @@ void DrawThrottleGauge(PANE* p_target)
 		g_throttleFrameRight,
 		g_throttleFrameBottom,
 		0,
-		10
+		PIXEL_COLOR(10)
 	);
-	VFX_line_draw(p_target, g_throttleFrameLeft, g_throttleFrameTop, g_throttleFrameRight, g_throttleFrameTop, 0, 10);
+	VFX_line_draw(
+		p_target,
+		g_throttleFrameLeft,
+		g_throttleFrameTop,
+		g_throttleFrameRight,
+		g_throttleFrameTop,
+		0,
+		PIXEL_COLOR(10)
+	);
 	VFX_line_draw(
 		p_target,
 		g_throttleFrameLeft,
@@ -293,9 +316,13 @@ void DrawThrottleGauge(PANE* p_target)
 		g_throttleFrameRight,
 		g_throttleFrameBottom,
 		0,
-		10
+		PIXEL_COLOR(10)
 	);
+#ifdef MW2_MATROX
+	value = (MechS32) (mech->m_player->m_steering->m_throttle * 65536.0f + 0.5f) << 16;
+#else
 	value = mech->m_player->m_steering->m_throttle << 16;
+#endif
 	value = MulDiv64(value, g_throttleGaugeSize.m_y, 0x400);
 	if (mech->m_player->m_steering->m_reverse) {
 		value /= -2;
@@ -383,26 +410,27 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 	}
 
 	for (i = 0; i < end; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; i < half; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, p_color);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(p_color));
 	}
 
 	end = half + (p_width - half) / 2;
 	for (i = half; i < end; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, dark);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; p_width > i; i++) {
-		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, darker);
+		VFX_line_draw(p_target, i + p_x, p_y, i + p_x, top, 0, PIXEL_COLOR(darker));
 	}
 }
 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, right and i.
 // FUNCTION: MW2 0x1004d8ae
+// FUNCTION: MW2MATROX 0x10089931
 void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;
@@ -422,19 +450,19 @@ void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width
 	}
 
 	for (i = 0; i < end; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; i < half; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, p_color);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(p_color));
 	}
 
 	end = half + (p_height - half) / 2;
 	for (i = half; i < end; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, dark);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(dark));
 	}
 
 	for (i = end; p_height > i; i++) {
-		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, darker);
+		VFX_line_draw(p_target, p_x, i + p_y, right, i + p_y, 0, PIXEL_COLOR(darker));
 	}
 }

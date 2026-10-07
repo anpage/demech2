@@ -1,6 +1,7 @@
 #ifndef SCREENSCALE_H
 #define SCREENSCALE_H
 
+#include "fixedfloat.h"
 #include "gaugequadrant.h"
 #include "point.h"
 #include "rect.h"
@@ -18,7 +19,7 @@ extern "C"
 	PANE* ScaleRectToFrame(PANE* p_frame, PANE* p_src, PANE* p_dst);
 	Point* ScalePointToScreen(WINDOW* p_buffer, Point* p_src, Point* p_dst);
 	Point* ScalePointToFrame(PANE* p_frame, Point* p_src, Point* p_dst);
-	PANE* ScaleRectToLowRes(PANE* p_rect, MechS32 p_aspect);
+	PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect);
 	PANE* ScaleRectFromLowRes(PANE* p_src, PANE* p_dst);
 	Point* ScalePointFromLowRes(Point* p_src, Point* p_dst);
 	PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst);

@@ -155,8 +155,11 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 // FALSE on an error.
 // The data table's tag test compares in the other operand order, the REV record's byte swap
 // takes its terms in another order (the original moves the top byte in with mov al, cl), and
-// rev, node, table, known and type are a stack-slot permutation.
+// rev, node, table, known and type are a stack-slot permutation. MW2MATROX: the version test
+// and the data table's tag test compare in the other operand order (swapping the version test's
+// operands changed nothing), and the byte swap takes its terms in the original's order.
 // FUNCTION: MW2 0x10056503
+// FUNCTION: MW2MATROX 0x100857c3
 MechS32 CountMissionStream(BwdStream* p_stream)
 {
 	MechS32 result;

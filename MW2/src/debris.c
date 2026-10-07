@@ -55,6 +55,7 @@ MechS32 IsDebrisFull(void)
 
 // Stack-slot permutation: i and piece.
 // FUNCTION: MW2 0x10004111
+// FUNCTION: MW2MATROX 0x1002a481
 MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 {
 	MechS32 i;
@@ -89,6 +90,7 @@ MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 
 // Throws the piece off in a random direction, spinning.
 // FUNCTION: MW2 0x10004218
+// FUNCTION: MW2MATROX 0x1002a589
 void ThrowDebrisPiece(MechS32 p_index)
 {
 	DebrisPiece* piece;
@@ -98,12 +100,21 @@ void ThrowDebrisPiece(MechS32 p_index)
 		return;
 	}
 
+#ifdef MW2_MATROX
+	piece->m_velocityX = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
+	piece->m_velocityZ = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
+	piece->m_velocityY = (RandomNormal() + 0x400) / (g_gravityScale * 1024.0f) * 5.5f;
+	piece->m_spinX = RandomNormal() * 0.5f / 1024.0f;
+	piece->m_spinY = RandomNormal() * 0.5f / 1024.0f;
+	piece->m_spinZ = RandomNormal() * 0.5f / 1024.0f;
+#else
 	piece->m_velocityX = FixedMul16((RandomNormal() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
 	piece->m_velocityZ = FixedMul16((RandomNormal() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
 	piece->m_velocityY = FixedMul16(((RandomNormal() + 0x400) << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
 	piece->m_spinX = RandomNormal() * 0x7e98 / 0x400;
 	piece->m_spinY = RandomNormal() * 0x7e98 / 0x400;
 	piece->m_spinZ = RandomNormal() * 0x7e98 / 0x400;
+#endif
 }
 
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
@@ -145,7 +156,12 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		chunk->m_obj = p_obj;
 		chunk->m_callback = p_callback;
 		chunk->m_startTime = g_currentClock;
+#ifdef MW2_MATROX
+		// 1.1's 16.16 value, stored into the float as it is.
+		*(MechS32*) &chunk->m_health = 0x100000;
+#else
 		chunk->m_health = 0x100000;
+#endif
 		ClearObjTreeKind(p_obj, 0x300);
 		SetObjTreeKind(p_obj, 0x50);
 		SetObjTreeOwner(p_obj, i);
@@ -221,6 +237,7 @@ void UpdateDebris(void)
 
 // Blows the chunk up.
 // FUNCTION: MW2 0x100046b2
+// FUNCTION: MW2MATROX 0x1002aa5f
 void ExplodeChunk(MechS32 p_index)
 {
 	DebrisChunk* chunk;
@@ -250,10 +267,11 @@ void ExplodeChunk(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x10004783
-void DamageChunk(MechS32 p_index, MechS32 p_damage)
+// FUNCTION: MW2MATROX 0x1002ab32
+void DamageChunk(MechS32 p_index, MechScalar p_damage)
 {
 	g_debrisChunks[p_index].m_health -= p_damage;
-	if (g_debrisChunks[p_index].m_health < 0) {
+	if (FIXED_IS_NEGATIVE(g_debrisChunks[p_index].m_health)) {
 		ExplodeChunk(p_index);
 	}
 }

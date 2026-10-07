@@ -161,6 +161,7 @@ void FirstShots(void)
 }
 
 // FUNCTION: MW2 0x1006a349
+// FUNCTION: MW2MATROX 0x1006ae49
 void ResetEffectSlot(MechS32 p_index)
 {
 	Effect* effect;
@@ -174,6 +175,7 @@ void ResetEffectSlot(MechS32 p_index)
 }
 
 // FUNCTION: MW2 0x1006a3b1
+// FUNCTION: MW2MATROX 0x1006aeb1
 void ResetShotSlot(MechS32 p_index)
 {
 	Shot* shot;
@@ -365,7 +367,7 @@ void UpdateShot(MechS32 p_index)
 				ApplyDamageToMech(
 					shot->m_shooter,
 					g_players[victim]->m_mech,
-					shot->m_damage << 16,
+					FIXED_FROM_INT(shot->m_damage),
 					hit->m_partId | damageFlags
 				);
 			}
@@ -386,7 +388,7 @@ void UpdateShot(MechS32 p_index)
 			DamageGameThing(shot->m_shooter, hit, shot->m_damage, hitX, hitY, hitZ);
 		}
 		else if ((surface & 0xf0) == 0x50) {
-			DamageChunk(hit->m_owner, shot->m_damage << 16);
+			DamageChunk(hit->m_owner, FIXED_FROM_INT(shot->m_damage));
 		}
 		else if (surface & 0x400) {
 			shot->m_impact |= c_impactThing;
@@ -566,12 +568,12 @@ void DetonateShot(
 void SpawnEffect(
 	MechS32 p_owner,
 	MechS32 p_type,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
-	MechS32 p_camX,
-	MechS32 p_camY,
-	MechS32 p_camZ
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar p_camX,
+	MechScalar p_camY,
+	MechScalar p_camZ
 )
 {
 	SpawnEffectEx(p_owner, p_type, p_x, p_y, p_z, p_camX, p_camY, p_camZ, 0, 0, 0);
@@ -610,12 +612,12 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
-	MechS32 p_camX,
-	MechS32 p_camY,
-	MechS32 p_camZ,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar p_camX,
+	MechScalar p_camY,
+	MechScalar p_camZ,
 	MechS32 p_rotX,
 	MechS32 p_rotY,
 	MechS32 p_rotZ
@@ -1005,17 +1007,25 @@ void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z,
 // Stack-slot permutation of the locals; the distance < reach comparison has its operands the
 // other way around.
 // FUNCTION: MW2 0x1006bdb4
-void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate)
+// FUNCTION: MW2MATROX 0x1006c9d5
+void DamageThingsInRadius(
+	MechS32 p_owner,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+	MechScalar p_radius,
+	MechScalar p_rate
+)
 {
-	MechS32 distance;
+	MechScalar distance;
 	GameThing* thing;
 	MechS32 i;
-	MechS32 dx;
-	MechS32 dy;
-	MechS32 dz;
+	MechScalar dx;
+	MechScalar dy;
+	MechScalar dz;
 	Shape* shape;
-	MechS32 reach;
-	MechS32 radius;
+	MechScalar reach;
+	MechScalar radius;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
@@ -1037,9 +1047,17 @@ void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z
 		dy = y - p_y;
 		dz = z - p_z;
 		reach = radius + p_radius;
+#ifdef MW2_MATROX
+		if ((distance = ApproximateVectorLength(dx, dy, dz)) < reach) {
+#else
 		distance = ApproximateVectorLength(dx, dy, dz);
 		if (distance < reach) {
+#endif
+#ifdef MW2_MATROX
+			DamageGameThing(p_owner, shape, p_rate * g_deltaTime, x, y, z);
+#else
 			DamageGameThing(p_owner, shape, FixedMul16(p_rate, g_deltaTime), x, y, z);
+#endif
 		}
 	}
 }
@@ -1132,7 +1150,15 @@ void KillGameThing(MechU32 p_index)
 // blows it up and counts it destroyed.
 // Stack-slot permutation: index and thing.
 // FUNCTION: MW2 0x1006c11c
-void DamageGameThing(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x1006cd40
+void DamageGameThing(
+	MechS32 p_owner,
+	Shape* p_shape,
+	MechScalar p_damage,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z
+)
 {
 	MechU32 index;
 	GameThing* thing;
@@ -1151,7 +1177,7 @@ void DamageGameThing(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 
 		return;
 	}
 
-	thing->m_hitPoints -= p_damage;
+	thing->m_hitPoints -= (MechS32) p_damage;
 	if (thing->m_hitPoints <= 0) {
 		thing->m_hitPoints = 0;
 		if ((p_shape->m_kind & 0xf0) == 0xb0) {
@@ -1171,7 +1197,7 @@ void DamageGameThing(MechS32 p_owner, Shape* p_shape, MechS32 p_damage, MechS32 
 // other way around.
 // FUNCTION: MW2 0x1006c237
 // FUNCTION: MW2MATROX 0x1006ce62
-void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
+void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_count)
 {
 	MechS32 shown;
 	MechS32 piece;
@@ -1179,6 +1205,10 @@ void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count)
 	MechS32 i;
 	SceneObject* object;
 
+#ifdef MW2_MATROX
+	effect = NULL;
+	object = NULL;
+#endif
 	shown = 0;
 	if (!p_count) {
 		p_count = 0x100;

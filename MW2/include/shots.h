@@ -4,6 +4,7 @@
 #include "careerrecord.h"
 #include "decomp.h"
 #include "effect.h"
+#include "fixedfloat.h"
 #include "object.h"
 #include "types.h"
 #include "vector3.h"
@@ -29,22 +30,22 @@ enum {
 // A projectile in flight.
 // SIZE 0x50
 typedef struct Shot {
-	MechS32 m_type;        // 0x00 — 7 for a shot that knocks mechs down
-	MechS32 m_impact;      // 0x04 — the effect it sets off, with c_impactMech etc.
-	MechS32 m_velocity[3]; // 0x08
-	MechS32 m_steering[3]; // 0x14
-	MechS32 m_age;         // 0x20 — ticks since launch
-	MechS32 m_lifetime;    // 0x24 — ticks left
-	MechS32 m_swayPhase;   // 0x28 — an angle (SwayShot)
-	SceneObject* m_object; // 0x2c
-	MechS32 m_target;      // 0x30
-	MechS32 m_targetKind;  // 0x34
-	MechU32 m_flags;       // 0x38
-	MechS32 m_unk0x3c;     // 0x3c
-	MechS32 m_shooter;     // 0x40 — a player index
-	MechS32 m_damage;      // 0x44
-	MechS32 m_heat;        // 0x48 — added to the heat of the mech it hits
-	MechS32 m_tracked;     // 0x4c — the tracked-shot view follows it
+	MechS32 m_type;           // 0x00 — 7 for a shot that knocks mechs down
+	MechS32 m_impact;         // 0x04 — the effect it sets off, with c_impactMech etc.
+	MechScalar m_velocity[3]; // 0x08
+	MechScalar m_steering[3]; // 0x14
+	MechS32 m_age;            // 0x20 — ticks since launch
+	MechS32 m_lifetime;       // 0x24 — ticks left
+	MechS32 m_swayPhase;      // 0x28 — an angle (SwayShot)
+	SceneObject* m_object;    // 0x2c
+	MechS32 m_target;         // 0x30
+	MechS32 m_targetKind;     // 0x34
+	MechU32 m_flags;          // 0x38
+	MechS32 m_unk0x3c;        // 0x3c
+	MechS32 m_shooter;        // 0x40 — a player index
+	MechScalar m_damage;      // 0x44
+	MechScalar m_heat;        // 0x48 — added to the heat of the mech it hits
+	MechS32 m_tracked;        // 0x4c — the tracked-shot view follows it
 } Shot;
 
 struct Player;
@@ -92,12 +93,12 @@ extern "C"
 	void SpawnEffect(
 		MechS32 p_owner,
 		MechS32 p_type,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z,
-		MechS32 p_camX,
-		MechS32 p_camY,
-		MechS32 p_camZ
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_camX,
+		MechScalar p_camY,
+		MechScalar p_camZ
 	);
 	void SpawnRotatedEffect(
 		MechS32 p_type,
@@ -112,31 +113,38 @@ extern "C"
 	void SpawnEffectEx(
 		MechS32 p_owner,
 		MechS32 p_type,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z,
-		MechS32 p_camX,
-		MechS32 p_camY,
-		MechS32 p_camZ,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_camX,
+		MechScalar p_camY,
+		MechScalar p_camZ,
 		MechS32 p_rotX,
 		MechS32 p_rotY,
 		MechS32 p_rotZ
 	);
 	void UpdateEffects(void);
 	void DamageMechsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
-	void DamageThingsInRadius(MechS32 p_owner, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_radius, MechS32 p_rate);
+	void DamageThingsInRadius(
+		MechS32 p_owner,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechScalar p_radius,
+		MechScalar p_rate
+	);
 	MechS32* GetTrackedShotView(void);
 	MechS32 TrackLastShot(void);
 	void KillGameThing(MechU32 p_index);
 	void DamageGameThing(
 		MechS32 p_owner,
 		struct Shape* p_shape,
-		MechS32 p_damage,
-		MechS32 p_x,
-		MechS32 p_y,
-		MechS32 p_z
+		MechScalar p_damage,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z
 	);
-	void ScatterDebris(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_count);
+	void ScatterDebris(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_count);
 	void SaveCareerRecord(void);
 	void HeatMechsNearFires(void);
 	void StartNuke(struct Player* p_player);

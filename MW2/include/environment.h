@@ -2,6 +2,7 @@
 #define ENVIRONMENT_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 
 // The functions and globals of environment.c that other units use.
@@ -12,14 +13,14 @@ extern "C"
 
 	extern MechS32 g_infraredOn;
 
-	extern MechS32 g_soundDelayPerUnit;
-	extern MechS32 g_gravity;
+	extern MechScalar g_soundDelayPerUnit;
+	extern MechScalar g_gravity;
 	extern MechS32 g_unk0x100ba608;
 	extern MechS32 g_daysPerYear;
 	extern MechS32 g_dayOfYear;
 	extern MechS32 g_secondsPerDay;
 	extern MechS32 g_timeOfDayPhase;
-	extern MechS32 g_gravityScale;
+	extern MechScalar g_gravityScale;
 
 	void FirstEnvironment(void);
 	void UpdateTimeOfDay(void);

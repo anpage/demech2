@@ -100,14 +100,15 @@ void AttachShapeBoundBox(Shape* p_shape)
 // The model/shape stamp comparison loads its operands in the other order (the unit's symbol
 // table), and model, vertex and selected sit in permuted stack slots.
 // FUNCTION: MW2 0x1006eb80
+// FUNCTION: MW2MATROX 0x1000a700
 void ComputeModelBounds(
 	Shape* p_shape,
-	MechS32* p_minX,
-	MechS32* p_maxX,
-	MechS32* p_minY,
-	MechS32* p_maxY,
-	MechS32* p_minZ,
-	MechS32* p_maxZ
+	MechScalar* p_minX,
+	MechScalar* p_maxX,
+	MechScalar* p_minY,
+	MechScalar* p_maxY,
+	MechScalar* p_minZ,
+	MechScalar* p_maxZ
 )
 {
 	Model* model;
@@ -129,8 +130,8 @@ void ComputeModelBounds(
 	}
 
 	vertex = (Vertex*) (model + 1);
-	*p_minX = *p_minY = *p_minZ = 0x7fffffff;
-	*p_maxX = *p_maxY = *p_maxZ = -0x7fffffff;
+	*p_minX = *p_minY = *p_minZ = FIXED_MAX;
+	*p_maxX = *p_maxY = *p_maxZ = FIXED_MIN;
 	for (count = model->m_vertexCount; count--; vertex++) {
 		if (vertex->m_worldX > *p_maxX) {
 			*p_maxX = vertex->m_worldX;

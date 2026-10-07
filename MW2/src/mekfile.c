@@ -207,9 +207,17 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			section->m_armor[1] *= g_otherArmorPerLevel;
 		}
 
+#ifdef MW2_MATROX
+		// Unproven: the edition's armor and internal structure are floats (ApplyDamageToMech,
+		// DestroyCriticalSlot); 1.1's shifts kept as products until this function is matched.
+		section->m_armor[0] *= 0x10000;
+		section->m_armor[1] *= 0x10000;
+		section->m_internal *= 0x10000;
+#else
 		section->m_armor[0] <<= 16;
 		section->m_armor[1] <<= 16;
 		section->m_internal <<= 16;
+#endif
 		section++;
 	}
 

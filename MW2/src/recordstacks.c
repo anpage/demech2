@@ -9,6 +9,7 @@
 
 #include "clock.h"
 #include "compat.h"
+#include "debugprint.h"
 #include "decomp.h"
 #include "depthsort.h"
 #include "error.h"
@@ -63,13 +64,18 @@ void ShutdownDrawBuffer(void)
 // Operand order: the original computes g_depthListCapacity << 4 before p_kilobytes << 10 in size
 // (both front ends reorder commutative operands).
 // FUNCTION: MW2 0x1007d150
+// FUNCTION: MW2MATROX 0x100216d0
 void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 {
 	MechU32 size;
 
 	g_depthListCapacity = p_entries;
 	g_drawBufferSize = p_kilobytes << 10;
+#ifdef MW2_MATROX
+	size = g_depthListCapacity * (2 * sizeof(DepthEntry)) + (p_kilobytes << 10);
+#else
 	size = (g_depthListCapacity << 4) + (p_kilobytes << 10);
+#endif
 	g_drawBufferMemory = MemAlloc(size);
 	if (g_drawBufferMemory == NULL) {
 		Error(0x18, NULL);
@@ -80,8 +86,13 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 	g_drawList = (DepthEntry*) (g_drawBufferMemory + g_drawBufferSize);
 	g_depthQueue = g_drawList + g_depthListCapacity;
 	g_drawBufferBottom = g_drawBuffer;
+#ifdef MW2_MATROX
+	g_drawBufferTop = g_drawBuffer + g_drawBufferSize - 0x30;
+	DebugPrint("setup_render: npalloc=%x nvalloc=%x\n", g_drawBufferBottom, g_drawBufferTop);
+#else
 	g_drawBufferTop = g_drawBuffer + (g_drawBufferSize << 5) - 0x600;
 	InitSqrtTable();
+#endif
 	InitSinAtanTables();
 	InitSlopeTables();
 }

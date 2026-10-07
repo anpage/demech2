@@ -637,7 +637,9 @@ void LoadWeaponSounds(void)
 	}
 }
 
+// MW2MATROX: index order, the original loads the index of `&p_mech->m_weapons[...]` first.
 // FUNCTION: MW2 0x10045b14
+// FUNCTION: MW2MATROX 0x1002c8ba
 void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 {
 	WeaponSlot* slot;
@@ -673,8 +675,9 @@ void CycleLocalWeaponGroup(void)
 
 // Fires the weapons g_remoteWeaponsFired lists from p_mech.
 // Index order: `&p_mech->m_weapons[i]` loads the base first in the original; stack-slot permutation:
-// slot, def and i.
+// slot, def and i. MW2MATROX: the same index, loading the index first.
 // FUNCTION: MW2 0x10045bc8
+// FUNCTION: MW2MATROX 0x1002c96e
 void FireRemoteWeapons(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -848,10 +851,11 @@ void UpdateWeaponLock(Mech* p_mech)
 // building sets the distance the weapons converge at.
 // Stack-slot permutation: length, hit, flags and collided.
 // FUNCTION: MW2 0x10046269
+// FUNCTION: MW2MATROX 0x1002d0b1
 Shape* UpdateAimDistance(Player* p_player)
 {
 	Ray ray;
-	MechS32 length;
+	MechScalar length;
 	Shape* hit;
 	MechU16 flags;
 	MechS32 collided;
@@ -863,8 +867,17 @@ Shape* UpdateAimDistance(Player* p_player)
 	if (collided && hit) {
 		flags = hit->m_kind;
 		if ((flags & 0x100) || (flags & 0x200)) {
+#ifdef MW2_MATROX
+			if ((length = GetRayLength(&ray)) > 2000) {
+				p_player->m_aimDistance.m_value = length;
+			}
+			else {
+				p_player->m_aimDistance.m_value = 2000;
+			}
+#else
 			length = GetRayLength(&ray);
 			p_player->m_aimDistance.m_value = length > 2000 ? length : 2000;
+#endif
 			if (p_player->m_index == g_localPlayerId) {
 				g_aimedShape = hit;
 			}
@@ -878,18 +891,20 @@ Shape* UpdateAimDistance(Player* p_player)
 }
 
 // FUNCTION: MW2 0x1004635c
-MechS32 GetAimRange(Player* p_player)
+// FUNCTION: MW2MATROX 0x1002d1bc
+MechScalar GetAimRange(Player* p_player)
 {
 	return p_player->m_aimRange.m_value;
 }
 
 // FUNCTION: MW2 0x10046375
-void GetMechAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1002d1de
+void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Ray ray;
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
 
 	BuildAimRay(p_player, &ray);
 	SetRayLength(&ray, GetAimRange(p_player));
@@ -902,14 +917,15 @@ void GetMechAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* 
 // Builds the player's aim ray, 150000 long.
 // Stack-slot permutation: x, y, z, dx, dy and dz.
 // FUNCTION: MW2 0x100463e5
+// FUNCTION: MW2MATROX 0x1002d253
 void BuildAimRay(Player* p_player, Ray* p_ray)
 {
-	MechS32 z;
-	MechS32 y;
-	MechS32 x;
-	MechS32 dz;
-	MechS32 dy;
-	MechS32 dx;
+	MechScalar z;
+	MechScalar y;
+	MechScalar x;
+	MechScalar dz;
+	MechScalar dy;
+	MechScalar dx;
 
 	GetEyeAimDirection(p_player, &dx, &dy, &dz);
 	GetObjPosition(p_player->m_eyeObj, &x, &y, &z);
@@ -922,7 +938,8 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 
 // The direction the player aims in.
 // FUNCTION: MW2 0x10046466
-void GetEyeAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1002d2d7
+void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Matrix matrix;
 	undefined4 z;
@@ -931,7 +948,12 @@ void GetEyeAimDirection(Player* p_player, MechS32* p_x, MechS32* p_y, MechS32* p
 	undefined4 x;
 
 	*p_x = *p_y = 0;
+#ifdef MW2_MATROX
+	// 1.1's 16.16 one, stored into the float as it is.
+	*(MechS32*) p_z = 0x10000;
+#else
 	*p_z = 0x10000;
+#endif
 	GetObjWorldAngles(p_player->m_eyeObj, &x, &y, &z);
 	mech = p_player->m_mech;
 	x = mech->m_torsoPitch.m_value;

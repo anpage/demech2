@@ -6,6 +6,7 @@
 #include "config.h"
 #include "decomp.h"
 #include "environment.h"
+#include "fixedfloat.h"
 #include "loadres.h"
 #include "mech.h"
 #include "mechdamage.h"
@@ -30,6 +31,16 @@
 // GLOBAL: MW2 0x100a5c78
 MechS32 g_outlinePartSections[16] = {1, 3, 3, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0};
 
+// The edition keeps the full armor values as floats.
+#ifdef MW2_MATROX
+typedef struct ArmorPoint {
+	MechScalar m_x; // 0x00
+	MechScalar m_y; // 0x04
+} ArmorPoint;
+#else
+#define ArmorPoint Point
+#endif
+
 // The places of the armor bars' four labels, in 16.16 fractions of the panel until InitDamagePanel
 // scales them.
 
@@ -47,7 +58,8 @@ Point g_htalLabelLPosition = {0xd2d3, 0x199a};
 
 // The largest armor value of the local mech's sections.
 // GLOBAL: MW2 0x100a5cd8
-MechS32 g_maxSectionArmor = 0;
+// GLOBAL: MW2MATROX 0x100ac708
+MechScalar g_maxSectionArmor = 0;
 
 // The outline's rectangle, centered in the panel.
 // GLOBAL: MW2 0x100a5ce0
@@ -88,7 +100,8 @@ Point g_armorBarPositions[8];
 
 // Each section's full front and rear armor.
 // GLOBAL: MW2 0x100be458
-Point g_fullSectionArmor[8];
+// GLOBAL: MW2MATROX 0x100c2640
+ArmorPoint g_fullSectionArmor[8];
 
 // The remap table that colors an outline part (entry 6) by its damage.
 // GLOBAL: MW2 0x100be498
@@ -102,6 +115,7 @@ Point g_armorBarSize;
 // labels and armor bars' places, and the local mech's full armor.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10040020
+// FUNCTION: MW2MATROX 0x10059940
 void InitDamagePanel(void)
 {
 	CockpitPanel* panel;
@@ -118,10 +132,12 @@ void InitDamagePanel(void)
 	MechSection* section;
 
 	panel = g_cockpitPanels[c_panelMechView];
+#ifndef MW2_MATROX
 	i = 0x100;
 	while (i--) {
 		g_outlineRemap[i] = i;
 	}
+#endif
 
 	shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0], g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
@@ -334,7 +350,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 		}
 		else {
 			armor = section->m_armor[0];
-			if (g_fullSectionArmor[i].m_x >> 2 >= armor) {
+			if (FIXED_SHR(g_fullSectionArmor[i].m_x, 2) >= armor) {
 				color = 0xb;
 			}
 			else {
@@ -374,7 +390,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 			}
 			else {
 				armor = section->m_armor[1];
-				if (g_fullSectionArmor[i].m_y >> 2 >= armor) {
+				if (FIXED_SHR(g_fullSectionArmor[i].m_y, 2) >= armor) {
 					color = 0xb;
 				}
 				else {

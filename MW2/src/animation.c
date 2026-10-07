@@ -14,7 +14,11 @@
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
 
+#ifdef MW2_MATROX
+DECOMP_SIZE_ASSERT(AnimFrame, 0x14)
+#else
 DECOMP_SIZE_ASSERT(AnimFrame, 0x08)
+#endif
 DECOMP_SIZE_ASSERT(Animation, 0x0e)
 
 // GLOBAL: MW2 0x100ad288
@@ -283,7 +287,9 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 	return 1;
 }
 
+// MW2MATROX: stack-slot permutation of i and j.
 // FUNCTION: MW2 0x10069360
+// FUNCTION: MW2MATROX 0x1005163e
 void InitAnimations(void)
 {
 	MechS32 j;
@@ -330,6 +336,7 @@ void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 }
 
 // FUNCTION: MW2 0x100694df
+// FUNCTION: MW2MATROX 0x100517c5
 void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;

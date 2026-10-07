@@ -10,6 +10,9 @@
 #include "simmain.h"
 #include "types.h"
 #include "vertex.h"
+#ifdef MW2_MATROX
+#include "weapons.h"
+#endif
 
 #include <math.h>
 #include <windows.h>
@@ -468,21 +471,23 @@ void ComputeNormalsAndBounds(Shape* p_shape)
 // Stack-slot permutation of the locals. The vertex address loads the index first where the
 // original loads the model first (index order), and 4.1 sums the squares in another order, which
 // also compares d before storing it; a probe of the same source picks yet another order.
+// MW2MATROX: d > max compares before it stores d (fcom, fstp) where the original stores first (fst,
+// fcomp), an effect of the symbol order.
 // FUNCTION: MW2 0x1003ae96
 void ComputeShapeBounds(Shape* p_shape)
 {
 	MechDouble dz;
 	Model* model;
 	MechDouble max;
-	MechS32 minX;
+	MechScalar minX;
 	MechS32 i;
-	MechS32 minY;
-	MechS32 minZ;
+	MechScalar minY;
+	MechScalar minZ;
 	MechDouble d;
-	MechS32 maxX;
-	MechS32 maxY;
+	MechScalar maxX;
+	MechScalar maxY;
 	MechDouble dx;
-	MechS32 maxZ;
+	MechScalar maxZ;
 	Vertex* v;
 	MechDouble dy;
 
@@ -518,9 +523,15 @@ void ComputeShapeBounds(Shape* p_shape)
 		}
 	}
 
+#ifdef MW2_MATROX
+	p_shape->m_modelCenterX = p_shape->m_centerX = (maxX + minX) * 0.5f;
+	p_shape->m_modelCenterY = p_shape->m_centerY = (maxY + minY) * 0.5f;
+	p_shape->m_modelCenterZ = p_shape->m_centerZ = (maxZ + minZ) * 0.5f;
+#else
 	p_shape->m_modelCenterX = p_shape->m_centerX = (maxX + minX) >> 1;
 	p_shape->m_modelCenterY = p_shape->m_centerY = (maxY + minY) >> 1;
 	p_shape->m_modelCenterZ = p_shape->m_centerZ = (maxZ + minZ) >> 1;
+#endif
 
 	max = 0.0;
 	i = model->m_vertexCount;
@@ -535,7 +546,11 @@ void ComputeShapeBounds(Shape* p_shape)
 		}
 	}
 
+#ifdef MW2_MATROX
+	p_shape->m_radius = sqrt(max);
+#else
 	p_shape->m_radius = (MechS32) sqrt(max);
+#endif
 }
 
 // Sets the face's normal (both copies) from its vertices: a triangle's directly, otherwise from
@@ -836,6 +851,7 @@ void DestroyShape(Shape* p_shape)
 
 // Detaches the shape from its scene object and frees it. A ShapeCallback (DestroyObjTree).
 // FUNCTION: MW2 0x1003b78b
+// FUNCTION: MW2MATROX 0x1002899a
 void DestroyObjShape(Shape* p_shape)
 {
 	struct SceneObject* obj;
@@ -845,12 +861,18 @@ void DestroyObjShape(Shape* p_shape)
 		SetObjShape(obj, NULL);
 	}
 
+#ifdef MW2_MATROX
+	if (p_shape == g_aimedShape) {
+		g_aimedShape = NULL;
+	}
+#endif
 	DestroyShape(p_shape);
 }
 
 // Returns the bytes the shape, its models and its bounding data take.
 // The only diff is a stack-slot permutation of model, vertex and size.
 // FUNCTION: MW2 0x1003b7cc
+// FUNCTION: MW2MATROX 0x100289f3
 MechS32 GetShapeMemorySize(Shape* p_shape)
 {
 	Model* model;
@@ -877,5 +899,10 @@ MechS32 GetShapeMemorySize(Shape* p_shape)
 		}
 	}
 
+#ifdef MW2_MATROX
+	size += GetBoundBoxSize(p_shape);
+	return size;
+#else
 	return size + GetBoundBoxSize(p_shape);
+#endif
 }

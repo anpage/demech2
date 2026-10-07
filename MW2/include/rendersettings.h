@@ -40,6 +40,11 @@ typedef struct RenderSettings {
 	struct ProjectedVertex* (*m_projectVertex)(struct ProjectedVertex* p_vertex); // 0x5c — projects a vertex
 	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (GetFaceColor)
 	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags);   // 0x64
+#ifdef MW2_MATROX
+	// The edition's is 0x70 bytes (SetMechViewRenderSettings copies 0x1c dwords). Where its eight
+	// more bytes sit is unproven: the members from 0x54 on may have moved.
+	undefined4 m_unk0x68[2]; // 0x68
+#endif
 } RenderSettings;
 
 #endif // RENDERSETTINGS_H

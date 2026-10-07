@@ -80,7 +80,7 @@ extern "C"
 	void UnloadStaticObject(MechS32 p_index);
 	struct SceneObject* GetStaticSceneObject(MechS32 p_index);
 	Shape* GetStaticObjectShape(MechS32 p_index);
-	void GetStaticObjectPosition(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	MechS32 ToggleBlockBoxes(void);
 	void ShowQuadtreeBoxes(QuadtreeNode* p_root);
 	void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size);

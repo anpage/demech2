@@ -3,6 +3,10 @@
 
 #include "types.h"
 
+#ifdef MW2_MATROX
+#include "decomp.h"
+#endif
+
 struct SceneObject;
 struct ProjectedVertex;
 struct Eyepoint;
@@ -11,10 +15,13 @@ struct Shape;
 
 // An entry of the depth-sorted draw lists (g_depthQueue, g_drawList): a polygon, or a
 // shape whose polygons are queued once the list is sorted (QueuedPolygon::m_count bit 15).
-// SIZE 0x8
+// SIZE 0x8 (0xc in the Matrox edition)
 typedef struct DepthEntry {
 	struct QueuedPolygon* m_poly; // 0x00
 	MechS32 m_depth;              // 0x04
+#ifdef MW2_MATROX
+	undefined4 m_unk0x08; // 0x08
+#endif
 } DepthEntry;
 
 // The functions and globals of depthsort.c that other units use.

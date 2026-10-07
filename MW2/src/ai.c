@@ -673,7 +673,6 @@ void InitializeAI(Player* p_player)
 
 // Clears p_player's AI state, target, goal, scripts, stack and posted message.
 // FUNCTION: MW2 0x100518cd
-// FUNCTION: MW2MATROX 0x10080aab
 void ResetAI(Player* p_player)
 {
 	MechS32 i;
@@ -706,7 +705,6 @@ void ResetAI(Player* p_player)
 // it is busy with that player already, calling off the teammate on it (FindNearestTarget).
 // Stack-slot permutation: best, nearest and other and target.
 // FUNCTION: MW2 0x100519b3
-// FUNCTION: MW2MATROX 0x10081144
 void TargetAttacker(Player* p_player)
 {
 	MechS16 target;
@@ -771,8 +769,10 @@ void ClearAILog(void)
 // secondsLeft, sensor and steering and target. The original addresses player at [ebp-0x1b4]
 // (disp32), so its code is longer and reccmp compares only the recompiled length of it. Operand
 // order: the loop test (i < g_playerCount) compares with i in eax in the original. The four
-// inputs are summed in a different order (commutative).
+// inputs are summed in a different order (commutative). MW2MATROX: player == g_localPlayer
+// compares with the operands the other way round.
 // FUNCTION: MW2 0x10051b6e
+// FUNCTION: MW2MATROX 0x10080bca
 void LogPlayerStatusLines(void)
 {
 	const MechChar* behavior;
@@ -878,7 +878,7 @@ void LogPlayerStatusLines(void)
 			player->m_steering->m_throttle,
 			FindAIName(player->m_mech->m_powerState, g_powerStateNames, 8),
 			FIXED_TO_INT(player->m_mech->m_heat),
-			player->m_steering->m_turn >> 16,
+			FIXED_TO_INT(player->m_steering->m_turn),
 			player->m_name,
 			input,
 			player->m_steering->m_weaponFire ? '*' : ' ',
@@ -1025,6 +1025,7 @@ MechS16 AiMessageFalse(void)
 // M_REACH: whether p_player is within its range of p_target (p_arg hundreds, or the target's
 // range); reaching its anchor nav releases it, and a patrol moves on to the next nav.
 // FUNCTION: MW2 0x10052338
+// FUNCTION: MW2MATROX 0x10081476
 MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 result;
@@ -1095,8 +1096,10 @@ MechS16 AiMessageProx(Player* p_player, MechS16 p_target, MechS16 p_arg)
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
 // player == g_localPlayer subtraction runs the other way. Stack-slot permutation: color, i and
-// line and player.
+// line and player. MW2MATROX: the same comparisons the other way round. The edition places this
+// function before AiMessageProx, so AiMessageProx stays unannotated for it.
 // FUNCTION: MW2 0x1005253c
+// FUNCTION: MW2MATROX 0x1008159c
 void LogPlayerSkillLines(void)
 {
 	MechS32 color;
@@ -1180,8 +1183,11 @@ MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 
 // Operand order: g_debugFirstLine > g_debugObjective compares the other way in the original.
 // Stack-slot permutation: activity, color, line, marker, mission, objective, prefix, priority
-// and secondsLeft and typeName. (which also moves the jump table targets).
+// and secondsLeft and typeName. (which also moves the jump table targets). MW2MATROX: the same
+// comparisons the other way round. The edition places this function before AiMessageDist, so
+// AiMessageDist stays unannotated for it.
 // FUNCTION: MW2 0x1005276a
+// FUNCTION: MW2MATROX 0x10081777
 void LogStarMissionLines(MechS32 p_team)
 {
 	const MechChar* activity;
@@ -1347,8 +1353,10 @@ MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distanc
 // Finds the nearest of p_target's targets for p_player (*p_best) and the nearest that no
 // teammate already attacks (*p_nearest), both within p_arg. Returns the teammate that does.
 // Stack-slot permutation: blocker, closer, count, i, member, mission, nearest, objective and
-// target and type.
+// target and type. MW2MATROX: also members, and p_player->m_index == member->m_index compares
+// with the operands the other way round.
 // FUNCTION: MW2 0x10052d8b
+// FUNCTION: MW2MATROX 0x10081f24
 Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, MechS16* p_nearest, MechS16* p_best)
 {
 	MechS32 closer;
@@ -1386,7 +1394,11 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 			continue;
 		}
 
+#ifdef MW2_MATROX
+		if ((MechS32) p_player->m_targetInfo.m_distance < nearest) {
+#else
 		if (p_player->m_targetInfo.m_distance < nearest) {
+#endif
 			nearest = p_player->m_targetInfo.m_distance;
 			*p_best = target;
 			closer = TRUE;
@@ -1469,6 +1481,7 @@ void LogAIStatus(void)
 // M_TGTABLE: the nearest of p_target's targets within p_arg hundreds (-2: p_player's alert range,
 // -1: its resting one).
 // FUNCTION: MW2 0x100530f7
+// FUNCTION: MW2MATROX 0x1008229a
 MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 nearest;
@@ -1537,10 +1550,11 @@ void AiStateIdle(Player* p_player)
 
 // Drives p_player towards p_target, or away from it when fleeing.
 // FUNCTION: MW2 0x10053275
+// FUNCTION: MW2MATROX 0x10082431
 void AiStateMove(Player* p_player, MechU16 p_target)
 {
 	MechScalar heading;
-	MechS32 range;
+	MechScalar range;
 
 	SetTarget(p_player, p_target);
 	BrakeFall(p_player);
@@ -1582,7 +1596,11 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFlee:
+#ifdef MW2_MATROX
+		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + 180.0);
+#else
 		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + FIXED_CONST(180));
+#endif
 		if (!AvoidObstacles(p_player)) {
 			p_player->m_steering->m_throttle = 0x400;
 			SteerToTarget(p_player);
@@ -1711,9 +1729,10 @@ MechS32 SetTarget(Player* p_player, MechS16 p_target)
 
 // The range within which p_target counts as reached.
 // FUNCTION: MW2 0x10053769
-MechS32 GetTargetRange(MechS16 p_target)
+// FUNCTION: MW2MATROX 0x1008292f
+MechScalar GetTargetRange(MechS16 p_target)
 {
-	MechS32 range;
+	MechScalar range;
 
 	switch (p_target & 0xf00) {
 	case c_aiTargetNav:
@@ -1739,10 +1758,38 @@ MechS32 GetTargetRange(MechS16 p_target)
 // The throttle for p_player to close to p_range of its target: full beyond twice the range,
 // stopped inside it, slower while turning hard or running hot.
 // FUNCTION: MW2 0x10053811
-MechS32 GetApproachThrottle(Player* p_player, MechS32 p_range)
+// FUNCTION: MW2MATROX 0x100829e1
+MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 {
-	MechS32 throttle;
+	MechScalar throttle;
 
+#ifdef MW2_MATROX
+	throttle = p_player->m_steering->m_throttle;
+	if (p_range * 2 < p_player->m_targetInfo.m_distance) {
+		throttle = 0.015625f;
+	}
+	else if (p_player->m_targetInfo.m_distance < p_range) {
+		throttle = 0;
+	}
+	else {
+		throttle = 0.0125f;
+	}
+
+	if ((MechFloat) fabs(throttle) >= 1e-7f && (MechFloat) fabs(p_player->m_steering->m_turn) > 45.0f) {
+		throttle = 0.015625f - (MechFloat) fabs(p_player->m_steering->m_turn) / 1.5f / 65536.0f;
+		if (throttle < 0.0015625f) {
+			throttle = 0.0015625f;
+		}
+	}
+
+	if (p_player->m_mech->m_heat > 65.0f) {
+		throttle /= 2;
+	}
+
+	if (throttle < 0.0015625f) {
+		throttle = 0;
+	}
+#else
 	throttle = p_player->m_steering->m_throttle;
 	if (p_range * 2 < p_player->m_targetInfo.m_distance) {
 		throttle = 0x400;
@@ -1761,26 +1808,24 @@ MechS32 GetApproachThrottle(Player* p_player, MechS32 p_range)
 		}
 	}
 
-#ifdef MW2_MATROX
-	if (p_player->m_mech->m_heat > 65.0f) {
-#else
 	if ((p_player->m_mech->m_heat >> 16) > 65.0) {
-#endif
 		throttle >>= 1;
 	}
 
 	if (throttle < 0x66) {
 		throttle = 0;
 	}
+#endif
 
 	return throttle;
 }
 
 // The torso pan towards p_angle, off by p_delta (AddClamped).
 // FUNCTION: MW2 0x1005391f
-MechS32 AimTorsoPan(Player* p_player, MechS32 p_angle, MechS32 p_delta)
+// FUNCTION: MW2MATROX 0x10082b46
+MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 {
-	MechS32 value;
+	MechScalar value;
 
 	value = p_angle / 0x2d00;
 	return AddClamped(value, p_delta * 2, TRUE);
@@ -1788,9 +1833,10 @@ MechS32 AimTorsoPan(Player* p_player, MechS32 p_angle, MechS32 p_delta)
 
 // The torso tilt towards the target, off by p_delta (AddClamped).
 // FUNCTION: MW2 0x10053954
-MechS32 AimTorsoTilt(Player* p_player, MechS32 p_delta)
+// FUNCTION: MW2MATROX 0x10082b8f
+MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 {
-	MechS32 value;
+	MechScalar value;
 
 	value = p_player->m_targetInfo.m_pitch / 0xf00;
 	return AddClamped(value, p_delta * 2, TRUE);
@@ -1799,8 +1845,24 @@ MechS32 AimTorsoTilt(Player* p_player, MechS32 p_delta)
 // Turns p_player towards its target. Returns the bearing to it.
 // Stack-slot permutation: degrees and scaled.
 // FUNCTION: MW2 0x1005398f
-MechS32 SteerToTarget(Player* p_player)
+// FUNCTION: MW2MATROX 0x10082bde
+MechScalar SteerToTarget(Player* p_player)
 {
+#ifdef MW2_MATROX
+	// The edition steers by the bearing wrapped to +-360 degrees, and returns it wrapped.
+	MechScalar delta;
+
+	delta = fmod(GetTargetBearing(p_player), 360.0);
+	if (delta > 45) {
+		p_player->m_steering->m_turn = 819.2f;
+	}
+	else if (delta < -45) {
+		p_player->m_steering->m_turn = -819.2f;
+	}
+	else {
+		p_player->m_steering->m_turn = delta * 819.2f / 45;
+	}
+#else
 	MechScalar delta;
 	MechS32 scaled;
 	MechS32 degrees;
@@ -1819,6 +1881,7 @@ MechS32 SteerToTarget(Player* p_player)
 		scaled /= 45;
 		p_player->m_steering->m_turn = FixedMul16(0x3333333, scaled);
 	}
+#endif
 
 	return delta;
 }
@@ -1872,6 +1935,7 @@ void LeaveAIState(Player* p_player)
 // Stack-slot permutation: the logging block's targetType, goalType, mech, logged, gt, goalName
 // and line and navName.
 // FUNCTION: MW2 0x10053be9
+// FUNCTION: MW2MATROX 0x10082e40
 void EnterAIState(Player* p_player, MechU16 p_state)
 {
 	MechU32 nav;
@@ -2092,16 +2156,17 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 
 // The bearing to p_player's target, 16.16 degrees either way.
 // FUNCTION: MW2 0x1005432f
+// FUNCTION: MW2MATROX 0x10083580
 MechScalar GetTargetBearing(Player* p_player)
 {
-	MechS32 delta;
+	MechScalar delta;
 
 	delta = p_player->m_targetInfo.m_heading - p_player->m_heading;
-	if (delta > 0xb40000) {
-		delta -= 0x1680000;
+	if (delta > FIXED_CONST(180)) {
+		delta -= FIXED_CONST(360);
 	}
-	else if (delta < -0xb40000) {
-		delta += 0x1680000;
+	else if (delta < FIXED_CONST(-180)) {
+		delta += FIXED_CONST(360);
 	}
 
 	return delta;
@@ -2282,14 +2347,15 @@ void ReleaseNavPoints(Player* p_player)
 // Places four nav points around p_player's target and targets them.
 // Stack-slot permutation: found, index, nav, owner, player and range and y.
 // FUNCTION: MW2 0x10054851
+// FUNCTION: MW2MATROX 0x10083ab7
 void PlacePatrolNavs(Player* p_player)
 {
 	MechU32 index;
-	MechS32 range;
-	MechS32 x;
+	MechScalar range;
+	MechScalar x;
 	MechU32 owner;
-	MechS32 y;
-	MechS32 z;
+	MechScalar y;
+	MechScalar z;
 	MechS32 found;
 	Player* player;
 	NavPoint* nav;
@@ -2361,9 +2427,9 @@ void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 // FUNCTION: MW2MATROX 0x10083d0d
 void PlaceFormationNav(Player* p_player)
 {
-	MechS32 z;
-	MechS32 heading;
-	MechS32 x;
+	MechScalar z;
+	MechScalar heading;
+	MechScalar x;
 	MechS32 nav;
 
 	ReleaseNavPoints(p_player);
@@ -2541,6 +2607,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 // Operand order: index == g_localPlayerId compares the other way in the original. Stack-slot
 // permutation: local and speech.
 // FUNCTION: MW2 0x10054f50
+// FUNCTION: MW2MATROX 0x100841ca
 MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 {
 	MechS16 target;
@@ -2622,8 +2689,23 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 // Adds p_delta to p_value (with p_value's sign with p_sameSign), clamped to +/-0x400.
 // Operand order: the two sign tests evaluate p_value and p_delta in the other order.
 // FUNCTION: MW2 0x10055131
-MechS32 AddClamped(MechS32 p_value, MechS32 p_delta, MechS32 p_sameSign)
+// FUNCTION: MW2MATROX 0x100843ac
+MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 {
+#ifdef MW2_MATROX
+	// The edition tests the float's sign bit, and adds p_delta as 16.16.
+	if (p_sameSign && ((*(MechU32*) &p_value & 0x80000000) ? -1 : 1) != (p_delta < 0 ? -1 : 1)) {
+		p_delta = -p_delta;
+	}
+
+	p_value += p_delta * (1.0f / 65536.0f);
+	if (p_value > 0.015625f) {
+		p_value = 0.015625f;
+	}
+	else if (p_value < -0.015625f) {
+		p_value = -0.015625f;
+	}
+#else
 	if (p_sameSign && (p_value < 0 ? -1 : 1) != (p_delta < 0 ? -1 : 1)) {
 		p_delta = -p_delta;
 	}
@@ -2635,6 +2717,7 @@ MechS32 AddClamped(MechS32 p_value, MechS32 p_delta, MechS32 p_sameSign)
 	else if (p_value < -0x400) {
 		p_value = -0x400;
 	}
+#endif
 
 	return p_value;
 }

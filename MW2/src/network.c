@@ -16,6 +16,7 @@
 #include "collision.h"
 #include "debugprint.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "gamekeys.h"
 #include "keyboard.h"
 #include "mech.h"
@@ -39,6 +40,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
+
+// The messages carry 16.16 fixed point: the Matrox edition (MW2_MATROX) converts its floats,
+// rounding.
+#ifdef MW2_MATROX
+#define NET_FIXED(x) ((MechS32) ((x) * 65536.0f + 0.5f))
+#define NET_UNFIXED(x) ((x) * (1.0f / 65536.0f))
+#else
+#define NET_FIXED(x) (x)
+#define NET_UNFIXED(x) (x)
+#endif
 
 #pragma pack(push, 1)
 
@@ -590,6 +601,7 @@ void SendStateMsg(void)
 // Matches except for a stack-slot permutation of i and size, the operand order of the
 // comparison of i with g_localPlayerId and the order the m_playerIds[p_to] index loads in.
 // FUNCTION: MW2 0x1000efa4
+// FUNCTION: MW2MATROX 0x10004a71
 MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text)
 {
 	MechS32 i;
@@ -890,21 +902,23 @@ void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 }
 
 // Sends player p_slot a collision push along the normal (p_x, p_y, p_z).
+// MW2MATROX: the m_playerIds[p_slot] index loads in the other order.
 // FUNCTION: MW2 0x1000faef
-void SendCollisionMsg(MechS32 p_slot, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x100057cc
+void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Mech* mech;
 	NetCollisionMsg* msg;
 
 	msg = (NetCollisionMsg*) g_stateMsg;
 	memcpy(msg->m_tag, "CO", 2);
-	msg->m_normalX = -p_x;
-	msg->m_normalY = -p_y;
-	msg->m_normalZ = -p_z;
+	msg->m_normalX = NET_FIXED(-p_x);
+	msg->m_normalY = NET_FIXED(-p_y);
+	msg->m_normalZ = NET_FIXED(-p_z);
 	mech = g_players[g_localPlayerId]->m_mech;
-	msg->m_velocityX = mech->m_newVelocityX;
-	msg->m_velocityY = mech->m_newVelocityY;
-	msg->m_velocityZ = mech->m_newVelocityZ;
+	msg->m_velocityX = NET_FIXED(mech->m_newVelocityX);
+	msg->m_velocityY = NET_FIXED(mech->m_newVelocityY);
+	msg->m_velocityZ = NET_FIXED(mech->m_newVelocityZ);
 	NetSendTo(g_netLaunch->m_playerIds[p_slot], msg, sizeof(NetCollisionMsg));
 }
 

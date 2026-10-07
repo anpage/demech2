@@ -4,6 +4,7 @@
 #include "collision.h"
 #include "decomp.h"
 #include "face.h"
+#include "fixedfloat.h"
 #include "quadtree.h"
 #include "ray.h"
 #include "shape.h"
@@ -21,10 +22,10 @@ MechS32 g_rayBoxEntryBehind = 0;
 // Stack-slot permutation: inColumn and top.
 // FUNCTION: MW2 0x100699a0
 // FUNCTION: MW2MATROX 0x10052170
-MechS32 TestPointInBox(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 inColumn;
-	MechS32 top;
+	MechScalar top;
 	MechS32 inside;
 
 	ClassifyPointInBox(p_shape, p_x, p_y, p_z, &inside, &inColumn, &top);
@@ -34,9 +35,10 @@ MechS32 TestPointInBox(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 // Tests whether (p_x, p_z) lies over the shape's bounding box; if it does, returns the top in
 // p_top and an upward normal.
 // FUNCTION: MW2 0x100699da
-MechS32 GetBoxTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+// FUNCTION: MW2MATROX 0x100521aa
+MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
-	MechS32 top;
+	MechScalar top;
 	MechS32 inColumn;
 	MechS32 inside;
 
@@ -45,7 +47,7 @@ MechS32 GetBoxTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32
 	if (inColumn) {
 		*p_top = top;
 		g_hitNormalX = g_hitNormalZ = 0;
-		g_hitNormalY = 0x10000;
+		g_hitNormalY = FIXED_CONST(1);
 	}
 
 	return inColumn;
@@ -54,14 +56,15 @@ MechS32 GetBoxTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32
 // Tests the point against the shape's bounding box: p_inColumn is set when (p_x, p_z) lies
 // within it, with the box's top in p_top, and p_inside when p_y does as well.
 // FUNCTION: MW2 0x10069a4b
+// FUNCTION: MW2MATROX 0x1005221b
 void ClassifyPointInBox(
 	Shape* p_shape,
-	MechS32 p_x,
-	MechS32 p_y,
-	MechS32 p_z,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
 	MechS32* p_inside,
 	MechS32* p_inColumn,
-	MechS32* p_top
+	MechScalar* p_top
 )
 {
 	BoundBox* box;
@@ -92,15 +95,17 @@ void ClassifyPointInBox(
 // ray's start to the entry point and sets the normal of the face it entered through.
 // Stack-slot permutation of the locals; the tNear/tEnter and tFar/tExit comparisons
 // have their operands the other way around.
+// MW2MATROX: the tNear/tEnter and tFar/tExit comparisons have their operands the other way round.
 // FUNCTION: MW2 0x10069b2a
+// FUNCTION: MW2MATROX 0x10052318
 MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 {
-	MechS32 tNear;
+	MechScalar tNear;
 	MechS32 axis;
-	MechS32 tEnter;
+	MechScalar tEnter;
 	BoundBox* box;
-	MechS32 tFar;
-	MechS32 tExit;
+	MechScalar tFar;
+	MechScalar tExit;
 
 	EnsureBoundBox(p_shape);
 	box = p_shape->m_collisionData;
@@ -142,7 +147,9 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 	}
 
 	if (tNear < 0) {
+#ifndef MW2_MATROX
 		g_rayBoxEntryBehind = tNear;
+#endif
 		tNear = 0;
 	}
 
@@ -160,28 +167,28 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 	case 0:
 		g_hitNormalY = g_hitNormalZ = 0;
 		if (p_ray->m_dx > 0) {
-			g_hitNormalX = -0x10000;
+			g_hitNormalX = -FIXED_CONST(1);
 		}
 		else {
-			g_hitNormalX = 0x10000;
+			g_hitNormalX = FIXED_CONST(1);
 		}
 		break;
 	case 1:
 		g_hitNormalX = g_hitNormalZ = 0;
 		if (p_ray->m_dy > 0) {
-			g_hitNormalY = -0x10000;
+			g_hitNormalY = -FIXED_CONST(1);
 		}
 		else {
-			g_hitNormalY = 0x10000;
+			g_hitNormalY = FIXED_CONST(1);
 		}
 		break;
 	case 2:
 		g_hitNormalX = g_hitNormalY = 0;
 		if (p_ray->m_dz > 0) {
-			g_hitNormalZ = -0x10000;
+			g_hitNormalZ = -FIXED_CONST(1);
 		}
 		else {
-			g_hitNormalZ = 0x10000;
+			g_hitNormalZ = FIXED_CONST(1);
 		}
 		break;
 	}
@@ -191,7 +198,8 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 
 // Tests whether (p_x, p_z) lies over the shape's bounding box.
 // FUNCTION: MW2 0x10069dd4
-MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x10052602
+MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	BoundBox* box;
 
@@ -206,7 +214,7 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p
 
 // FUNCTION: MW2 0x10069e54
 // FUNCTION: MW2MATROX 0x10052696
-MechS32 TestPointNever(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	return 0;
 }
@@ -221,10 +229,11 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 // Finds the upward-facing face under (p_x, p_z) and tests whether p_y lies below it.
 // Stack-slot permutation: i, done, face and height.
 // FUNCTION: MW2 0x10069e78
-MechS32 TestPointUnderFloor(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x100526ba
+MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
-	MechS32 height;
+	MechScalar height;
 	MechS32 done;
 	Face* face;
 
@@ -254,7 +263,7 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_
 
 // FUNCTION: MW2 0x10069f67
 // FUNCTION: MW2MATROX 0x100527b3
-MechS32 TestPointTerrain(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Model* model;
 
@@ -276,7 +285,7 @@ MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 
 // FUNCTION: MW2 0x1006a001
 // FUNCTION: MW2MATROX 0x1005284d
-MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32* p_top)
+MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	return GetQuadtreeTop(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
 }
@@ -284,14 +293,17 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.
 // Stack-slot permutation of the locals; the p_y > height comparison has its operands the
 // other way around.
+// MW2MATROX: height stays on the FPU stack past the hit normal's stores in the original (fst, then
+// fcomp), where the rebuild stores and reloads it, an effect of the symbol order.
 // FUNCTION: MW2 0x1006a037
-MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x10052883
+MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
 	Vertex* vertices;
 	MechS32 done;
 	Face* face;
-	MechS32 height;
+	MechScalar height;
 	Vertex* vertex;
 
 	i = 0;
@@ -302,6 +314,15 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_
 		if (face->m_normal[1] < 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
 			done = TRUE;
 			vertex = &vertices[*((MechU8*) face + face->m_indexOffset)];
+#ifdef MW2_MATROX
+			height = vertex->m_worldY -
+					 ((p_z - vertex->m_worldZ) * face->m_normal[2] + (p_x - vertex->m_worldX) * face->m_normal[0]) /
+						 face->m_normal[1];
+			g_hitNormalX = face->m_normal[0];
+			g_hitNormalY = face->m_normal[1];
+			g_hitNormalZ = face->m_normal[2];
+			if (height < p_y) {
+#else
 			height = vertex->m_worldY - SolvePlaneY(
 											face->m_normal[0],
 											face->m_normal[1],
@@ -314,6 +335,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_
 			g_hitNormalY = face->m_normal[1] >> 13;
 			g_hitNormalZ = face->m_normal[2] >> 13;
 			if (p_y > height) {
+#endif
 				return 1;
 			}
 			else {

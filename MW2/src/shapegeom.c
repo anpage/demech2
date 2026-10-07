@@ -2,7 +2,8 @@
    DivDifference17 and RayShapeDistance are C functions with __asm bodies, and TransformModel has an __asm block. Their
    portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it replaces
    TransformShapeCenter's __asm block, and the others' whole bodies, whose C wraps where standard C
-   overflows. */
+   overflows. The Matrox edition (MW2_MATROX) replaced the assembly of TransformModel,
+   TransformShapeCenter and RayShapeDistance with float C. */
 #include "shapegeom.h"
 
 #include "clock.h"
@@ -58,10 +59,53 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // Transforms p_model's vertices (their positions into m_worldX-m_worldZ) and face normals by
 // p_matrix. The products are an __asm block.
 // Stack-slot permutation of the locals.
+// MW2MATROX: the float products and their sums take their operands in other orders (commutative
+// operand order).
 // FUNCTION: MW2 0x10039a30
+// FUNCTION: MW2MATROX 0x10028adb
 void TransformModel(Model* p_model, Matrix* p_matrix)
 {
-#ifdef PORTABLE_C_LABELS
+#if defined(MW2_MATROX)
+	Face* face;
+	Vertex* vertex;
+	MechS32 count;
+
+	vertex = (Vertex*) (p_model + 1);
+	face = (Face*) ((MechU8*) p_model + p_model->m_faceOffset);
+	count = p_model->m_vertexCount;
+	while (count--) {
+		vertex->m_worldX = vertex->m_modelX * p_matrix->m_rows[0][0] + vertex->m_modelY * p_matrix->m_rows[0][1] +
+						   vertex->m_modelZ * p_matrix->m_rows[0][2] + p_matrix->m_rows[3][0];
+		vertex->m_worldY = vertex->m_modelX * p_matrix->m_rows[1][0] + vertex->m_modelY * p_matrix->m_rows[1][1] +
+						   vertex->m_modelZ * p_matrix->m_rows[1][2] + p_matrix->m_rows[3][1];
+		vertex->m_worldZ = vertex->m_modelX * p_matrix->m_rows[2][0] + vertex->m_modelY * p_matrix->m_rows[2][1] +
+						   vertex->m_modelZ * p_matrix->m_rows[2][2] + p_matrix->m_rows[3][2];
+		vertex->m_normalX = vertex->m_modelNormalX * p_matrix->m_rows[0][0] +
+							vertex->m_modelNormalY * p_matrix->m_rows[0][1] +
+							vertex->m_modelNormalZ * p_matrix->m_rows[0][2];
+		vertex->m_normalY = vertex->m_modelNormalX * p_matrix->m_rows[1][0] +
+							vertex->m_modelNormalY * p_matrix->m_rows[1][1] +
+							vertex->m_modelNormalZ * p_matrix->m_rows[1][2];
+		vertex->m_normalZ = vertex->m_modelNormalX * p_matrix->m_rows[2][0] +
+							vertex->m_modelNormalY * p_matrix->m_rows[2][1] +
+							vertex->m_modelNormalZ * p_matrix->m_rows[2][2];
+		vertex++;
+	}
+
+	count = p_model->m_faceCount;
+	while (count--) {
+		face->m_normal[0] = face->m_modelNormalX * p_matrix->m_rows[0][0] +
+							face->m_modelNormalY * p_matrix->m_rows[0][1] +
+							face->m_modelNormalZ * p_matrix->m_rows[0][2];
+		face->m_normal[1] = face->m_modelNormalX * p_matrix->m_rows[1][0] +
+							face->m_modelNormalY * p_matrix->m_rows[1][1] +
+							face->m_modelNormalZ * p_matrix->m_rows[1][2];
+		face->m_normal[2] = face->m_modelNormalX * p_matrix->m_rows[2][0] +
+							face->m_modelNormalY * p_matrix->m_rows[2][1] +
+							face->m_modelNormalZ * p_matrix->m_rows[2][2];
+		face++;
+	}
+#elif defined(PORTABLE_C_LABELS)
 	Vertex* vertex = (Vertex*) (p_model + 1);
 	Face* face = (Face*) ((MechU8*) p_model + p_model->m_faceOffset);
 	MechU16 count;
@@ -225,11 +269,24 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 
 // Transforms the shape's position (m_modelCenterX-Z) by p_matrix into m_centerX-Z, and bumps its
 // transform count (m_transformCount). The products are an __asm block.
+// MW2MATROX: the float products and their sums take their operands in other orders (commutative
+// operand order).
 // FUNCTION: MW2 0x10039b94
+// FUNCTION: MW2MATROX 0x10028cf4
 void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 {
 	p_shape->m_flags &= ~0x200;
-#ifdef PORTABLE_C
+#if defined(MW2_MATROX)
+	p_shape->m_centerX = p_shape->m_modelCenterX * p_matrix->m_rows[0][0] +
+						 p_shape->m_modelCenterY * p_matrix->m_rows[0][1] +
+						 p_shape->m_modelCenterZ * p_matrix->m_rows[0][2] + p_matrix->m_rows[3][0];
+	p_shape->m_centerY = p_shape->m_modelCenterX * p_matrix->m_rows[1][0] +
+						 p_shape->m_modelCenterY * p_matrix->m_rows[1][1] +
+						 p_shape->m_modelCenterZ * p_matrix->m_rows[1][2] + p_matrix->m_rows[3][1];
+	p_shape->m_centerZ = p_shape->m_modelCenterX * p_matrix->m_rows[2][0] +
+						 p_shape->m_modelCenterY * p_matrix->m_rows[2][1] +
+						 p_shape->m_modelCenterZ * p_matrix->m_rows[2][2] + p_matrix->m_rows[3][2];
+#elif defined(PORTABLE_C)
 	p_shape->m_centerX = TransformRow(
 		p_matrix,
 		0,
@@ -366,7 +423,7 @@ MechS32 SolvePlaneY(
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // Stack-slot permutation: radius, deltaY and deltaZ.
 // FUNCTION: MW2 0x10039ccc
-MechS32 ApproximateShapeDistance(struct Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z)
+MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 #ifdef PORTABLE_C_LABELS
 	MechS32 deltaX = Difference(p_shape->m_centerX, p_x);
@@ -835,10 +892,54 @@ done:
 // Returns how far along p_ray it passes closest to the shape's center, less the radius, or
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
 // The only diff is a stack-slot permutation of the locals.
+// MW2MATROX: the sum of squares starts from deltaX where the original's starts from deltaZ (kept on
+// the FPU stack after its store), a commutative operand order.
 // FUNCTION: MW2 0x1003a096
-MechS32 RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
+// FUNCTION: MW2MATROX 0x10028f0e
+MechScalar RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
-#ifdef PORTABLE_C_LABELS
+#if defined(MW2_MATROX)
+	MechScalar radius;
+	MechScalar deltaX;
+	MechScalar check;
+	MechScalar deltaY;
+	MechScalar deltaZ;
+	MechScalar excess;
+	MechScalar t;
+	MechScalar result;
+
+	radius = p_shape->m_radius;
+	if (radius < 1e-07f) {
+		return FIXED_MAX;
+	}
+
+	deltaX = p_shape->m_centerX - p_ray->m_x0;
+	deltaY = p_shape->m_centerY - p_ray->m_y0;
+	deltaZ = p_shape->m_centerZ - p_ray->m_z0;
+	excess = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ - radius * radius;
+	if (FIXED_IS_NEGATIVE(excess)) {
+		return 10;
+	}
+
+	t = deltaX * p_ray->m_dx + deltaY * p_ray->m_dy + deltaZ * p_ray->m_dz;
+	if (FIXED_IS_NEGATIVE(t)) {
+		return FIXED_MAX;
+	}
+
+	t /= p_ray->m_length;
+	check = t * t - excess;
+	if (FIXED_IS_NEGATIVE(check)) {
+		return FIXED_MAX;
+	}
+
+	t -= radius;
+	if (FIXED_IS_NEGATIVE(t)) {
+		return 0;
+	}
+
+	result = t >= GetRayLength(p_ray) ? FIXED_MAX : t;
+	return result;
+#elif defined(PORTABLE_C_LABELS)
 	MechS32 radius = p_shape->m_radius;
 	MechS32 deltaX;
 	MechS32 deltaY;

@@ -30,12 +30,12 @@ extern "C"
 	void AttachShapeBoundBox(Shape* p_shape);
 	void ComputeModelBounds(
 		Shape* p_shape,
-		MechS32* p_minX,
-		MechS32* p_maxX,
-		MechS32* p_minY,
-		MechS32* p_maxY,
-		MechS32* p_minZ,
-		MechS32* p_maxZ
+		MechScalar* p_minX,
+		MechScalar* p_maxX,
+		MechScalar* p_minY,
+		MechScalar* p_maxY,
+		MechScalar* p_minZ,
+		MechScalar* p_maxZ
 	);
 	void FreeBoundBox(Shape* p_shape);
 	MechS32 GetBoundBoxSize(Shape* p_shape);

@@ -52,7 +52,11 @@ extern "C"
 {
 #endif
 
-	extern undefined g_textColors[0x100];
+#ifdef MW2_MATROX
+	extern undefined2 g_textColors[0x100];
+#else
+extern undefined g_textColors[0x100];
+#endif
 	extern MechS32 g_menuRepeatTimer;
 	extern MechS32 g_menuKey;
 	extern MenuDefinition* g_menuDefinitions[11];

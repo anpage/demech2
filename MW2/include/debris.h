@@ -3,6 +3,7 @@
 
 #include "debrischunk.h"
 #include "debrispiece.h"
+#include "fixedfloat.h"
 #include "object.h"
 #include "types.h"
 
@@ -25,7 +26,7 @@ extern "C"
 	void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback);
 	void UpdateDebris(void);
 	void ExplodeChunk(MechS32 p_index);
-	void DamageChunk(MechS32 p_index, MechS32 p_damage);
+	void DamageChunk(MechS32 p_index, MechScalar p_damage);
 	void UpdateDebrisPiece(MechS32 p_index);
 	void PushDebrisPiece(MechS32 p_index, MechS32 p_x, MechS32 p_y, MechS32 p_z);
 	void ZeroChunx(void);

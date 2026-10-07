@@ -12,6 +12,9 @@ comparisons and of commutative operations. Run it from the repository root.
     python tools/edition.py cmp NAME               # one function's diff, rebuild against original
     python tools/edition.py auto                   # annotate the functions that match up to entropy
     python tools/edition.py annotate NAME=0xADDR   # add a MW2MATROX annotation by hand
+    python tools/edition.py fix-order              # drop annotations that break a file's address order
+    python tools/edition.py crt                    # annotate the edition's C runtime from the rebuild's
+    python tools/edition.py audit REPORT.json      # sort the annotated functions below 100% by what's left
     python tools/edition.py users REGEX            # functions whose body matches, with their state
     python tools/edition.py global 0xADDR          # the annotated symbol at or before an address
     python tools/edition.py scalar HEADER MEMBER...        # MechS32 members become MechScalar
@@ -102,10 +105,23 @@ def functions_in_sources():
     return result
 
 
+def file_order_allows(functions, path, i, address):
+    """Whether a MW2MATROX annotation at address keeps the file's annotations in address order."""
+    before = [t for p, j, _, t in functions.values() if p == path and j < i and t is not None]
+    after = [t for p, j, _, t in functions.values() if p == path and j > i and t is not None]
+    return all(t < address for t in before) and all(t > address for t in after)
+
+
 def add_annotation(name, address, functions=None):
     functions = functions or functions_in_sources()
     path, i, _, target = functions[name]
     if target is not None:
+        return False
+    marker = "// FUNCTION: %s %#010x" % (TARGET, address)
+    if any(marker in open(p, encoding="utf-8").read() for p in glob.glob("MW2/src/*.c")):
+        return False  # annotated already (the edition's own version of the function, say)
+    if not file_order_allows(functions, path, i, address):
+        print("%s at %#x would break %s's address order; left out" % (name, address, os.path.basename(path)))
         return False
     lines = open(path, encoding="utf-8").read().split("\n")
     lines.insert(i + 1, "// FUNCTION: %s %#010x" % (TARGET, address))
@@ -308,9 +324,148 @@ def cmd_auto(args):
         result = compare(rebuild, original, name, b, end)
         if result and result[0] == "match":
             done.append((name, b))
-    for name, b in done:
-        add_annotation(name, b)
-    print("annotated %d: %s" % (len(done), " ".join(n for n, _ in done)))
+    added = [n for n, b in done if add_annotation(n, b)]
+    print("annotated %d: %s" % (len(added), " ".join(added)))
+
+
+def cmd_fix_order(args):
+    """Drop the MW2MATROX function annotations that break a file's address order, keeping the
+    longest run in order."""
+    from port_annotations import longest_increasing
+
+    by_path = {}
+    for name, (path, i, _, target) in functions_in_sources().items():
+        if target is not None:
+            by_path.setdefault(path, []).append((i, target, name))
+    for path, items in by_path.items():
+        items.sort()
+        keep = longest_increasing([t for _, t, _ in items])
+        drop = [items[k] for k in range(len(items)) if k not in keep]
+        if not drop:
+            continue
+        lines = open(path, encoding="utf-8").read().split("\n")
+        for i, t, name in sorted(drop, reverse=True):
+            for k in range(i + 1, i + 4):
+                if lines[k] == "// FUNCTION: %s %#010x" % (TARGET, t):
+                    del lines[k]
+                    break
+            print("%s: dropped %s (%#x)" % (os.path.basename(path), name, t))
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(lines))
+
+
+def cmd_crt(args):
+    """Annotate the edition's C runtime from the rebuild's: the rebuild links VC++ 4.0's LIBCMT,
+    as the edition did. Functions match by their bytes (relocations masked) and take the map's
+    public symbol; the CRT data they address takes its C name through the relocations they share."""
+    base = os.path.join(args.build, "vc40", "MW2_MATROX")
+    rebuilt, original = Image(base + ".dll"), Image(TARGET_BINARY)
+    publics = []
+    for line in open(base + ".map", errors="replace"):
+        m = re.match(r"\s*(000[1-9]):[0-9a-f]{8}\s+(\S+)\s+([0-9a-f]{8})\s+(f\s+)?(\S+)\s*$", line)
+        if m:
+            publics.append((int(m.group(3), 16), m.group(2), m.group(1), m.group(5)))
+    code = sorted({a for a, _, sec, _ in publics if sec == "0001"})
+    following = dict(zip(code, code[1:] + [rebuilt.text[1]]))
+    by_address = {}
+    for a, name, sec, obj in publics:
+        by_address.setdefault(a, (name, sec, obj))
+    d = disasm()
+    functions, pairs = {}, []
+    for a, name, sec, obj in publics:
+        if sec != "0001" or not obj.startswith("LIBCMT:") or a in functions.values():
+            continue
+        f = Function(rebuilt, a, following[a], d)
+        if len(f.code) < 8:
+            continue
+        found = [original.text[0] + m.start() for m in f.pattern().finditer(original.text_bytes)]
+        found = [b for b in found if f.matches(original, b) == "same"]
+        if len(found) == 1:
+            functions[name] = found[0]
+            pairs += [(rebuilt.u32(a + r), original.u32(found[0] + r)) for r in f.relocs]
+    data = {}
+    for s_, t in pairs:
+        entry = by_address.get(s_)
+        if entry and entry[1] != "0001" and entry[2].startswith("LIBCMT:"):
+            data.setdefault(entry[0], set()).add(t)
+    data = {name[1:]: next(iter(v)) for name, v in data.items() if len(v) == 1}
+    print("CRT functions matched: %d, data: %d" % (len(functions), len(data)))
+
+    path = "MW2/library_msvc.h"
+    lines = open(path, encoding="utf-8").read().split("\n")
+    have = set()
+    for i, line in enumerate(lines):
+        m = re.match(r"// (LIBRARY|GLOBAL): %s (0x[0-9a-f]+)" % TARGET, line)
+        if m:
+            have.add(int(m.group(2), 16))
+    # Stack on 1.1's entry for the same name, else append.
+    entries = [("LIBRARY", n, a, " SYMBOL") for n, a in functions.items()] + [("GLOBAL", n, a, "") for n, a in data.items()]
+    appended = []
+    for kind, name, address, rest in sorted(entries, key=lambda e: e[2]):
+        if address in have:
+            continue
+        marker = "// %s: %s %#010x%s" % (kind, TARGET, address, rest)
+        for i in range(len(lines) - 1):
+            if re.match(r"// %s: %s 0x[0-9a-f]+%s$" % (kind, SOURCE, rest), lines[i]):
+                k = i + 1
+                while k < len(lines) and re.match(r"// (LIBRARY|GLOBAL): ", lines[k]):
+                    k += 1
+                if k < len(lines) and lines[k] == "// " + name and not any(
+                    re.match(r"// %s: %s " % (kind, TARGET), lines[j]) for j in range(i, k)
+                ):
+                    lines.insert(k, marker)
+                    break
+        else:
+            appended += [marker, "// " + name, ""]
+        have.add(address)
+    if appended:
+        end = max(i for i, l in enumerate(lines) if l.startswith("#endif"))
+        lines[end:end] = ["// %s's C runtime, matched against the rebuild's (tools/edition.py crt)." % TARGET, ""] + appended
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines))
+
+
+def cmd_audit(args):
+    """Sort the annotated functions below 100% by what is left, from a reccmp JSON report
+    (reccmp-reccmp --target MW2MATROX --json FILE): entropy (the same instructions, reordered or in
+    other stack slots), references the original's side can't name yet, or other differences."""
+    import ast
+    from collections import Counter
+
+    stubs = set()
+    for path in glob.glob("MW2/src/*.c"):
+        stubs |= {int(m, 16) for m in re.findall(r"// STUB: %s (0x[0-9a-f]+)" % TARGET, open(path, encoding="utf-8").read())}
+
+    def norm(line):
+        line = re.sub(r"\s*\t\(.*\)$", "", line)
+        line = SLOT.sub("ebp-S", line)
+        return re.sub(r"^(j\w+|call) -?0x[0-9a-f]+$", r"\1 J", line)
+
+    kinds, rows = Counter(), []
+    for e in json.load(open(args.json))["data"]:
+        address = int(e["address"], 16)
+        if address >= args.code_end or address in stubs or float(e["matching"]) >= 1.0 or not e.get("diff"):
+            continue
+        diff = ast.literal_eval(e["diff"]) if isinstance(e["diff"], str) else e["diff"]
+        old, new = Counter(), Counter()
+        for _, blocks in diff:
+            for b in blocks:
+                old.update(norm(x[1]) for x in b.get("orig", []))
+                new.update(norm(x[1]) for x in b.get("recomp", []))
+        only_old, only_new = old - new, new - old
+        if not only_old and not only_new:
+            kind = "entropy"
+        elif all("<OFFSET" in x for x in only_old):
+            kind = "unnamed"
+        else:
+            kind = "other"
+        kinds[kind] += 1
+        rows.append((kind, float(e["matching"]), e["name"], list(only_old.elements())[:3], list(only_new.elements())[:3]))
+    print(dict(kinds))
+    for kind, score, name, o, n in sorted(rows):
+        if args.kind in (None, kind):
+            print("%-8s %.2f %-28s MX: %s" % (kind, score, name, " | ".join(o)))
+            print("%-8s %4s %-28s RB: %s" % ("", "", "", " | ".join(n)))
 
 
 def cmd_annotate(args):
@@ -440,6 +595,13 @@ def main():
     p = sub.add_parser("auto")
     p.add_argument("--unit")
     p.set_defaults(fn=cmd_auto)
+    sub.add_parser("fix-order").set_defaults(fn=cmd_fix_order)
+    sub.add_parser("crt").set_defaults(fn=cmd_crt)
+    p = sub.add_parser("audit")
+    p.add_argument("json")
+    p.add_argument("--kind", choices=["entropy", "unnamed", "other"])
+    p.add_argument("--code-end", type=lambda x: int(x, 16), default=0x10092D30)
+    p.set_defaults(fn=cmd_audit)
     p = sub.add_parser("annotate")
     p.add_argument("items", nargs="+")
     p.set_defaults(fn=cmd_annotate)

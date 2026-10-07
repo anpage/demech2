@@ -29,7 +29,7 @@ typedef struct Mech {
 	struct SceneObject* m_torsoObj;   // 0x60 — turns with the player's torso pitch, twist and roll
 	struct SceneObject* m_pitchObj;   // 0x64 — pitches towards the point the weapons converge at
 	struct SceneObject* m_objects[8]; // 0x68 — parts: the weapons fire from them, 6 and 7 are the jump jets
-	MechS32 m_topSpeed;               // 0x88 — the .MEK's speed, per throttle unit
+	MechScalar m_topSpeed;            // 0x88 — the .MEK's speed, per throttle unit
 	MechS32 m_stateTime;              // 0x8c — the clock when the power or heat state changed (self-destruct's end)
 	MechS32 m_unk0x90;                // 0x90 — only ever cleared
 	MechScalar m_deltaHeat;           // 0x94 — heat added this tick
@@ -47,11 +47,11 @@ typedef struct Mech {
 	MechS32 m_jumpJets;               // 0xc4 — the .MEK's jump jets: each critical hit takes one
 	MechS32 m_ammoBinCount;           // 0xc8
 	MechScalar m_height;              // 0xcc — of its object's origin above its feet (the MGD's)
-	MechS32 m_cockpitHeight;          // 0xd0 — added to the eyepoint (g_eyeHeightOffset)
+	MechScalar m_cockpitHeight;       // 0xd0 — added to the eyepoint (g_eyeHeightOffset)
 	MechS32 m_unk0xd4;                // 0xd4 — the MGD's third to fifth values: nothing reads them
 	MechS32 m_unk0xd8;                // 0xd8
 	MechS32 m_unk0xdc;                // 0xdc
-	MechS32 m_maxTorsoTwist;          // 0xe0 — 16.16 degrees either way
+	MechScalar m_maxTorsoTwist;       // 0xe0 — 16.16 degrees either way
 	MechS32 m_tons;                   // 0xe4 — ApplyCollisionDamage scales collision damage by it
 	MechScalar m_radius;              // 0xe8 — splash damage reaches it this much further
 	MechScalar m_jumpThrust;          // 0xec — the jump jets' upward acceleration

@@ -1,6 +1,7 @@
 #ifndef APPROXLEN_H
 #define APPROXLEN_H
 
+#include "fixedfloat.h"
 #include "types.h"
 
 // The functions and globals of approxlen.c that other units use.
@@ -9,7 +10,7 @@ extern "C"
 {
 #endif
 
-	MechS32 ApproximateVectorLength(MechS32 p_x, MechS32 p_y, MechS32 p_z);
+	MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z);
 
 #ifdef __cplusplus
 }

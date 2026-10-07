@@ -1304,6 +1304,7 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 // and empties the weapons and the bins.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10019881
+// FUNCTION: MW2MATROX 0x10010043
 void InitMechArrays(struct Mech* p_mech)
 {
 	AmmoBin* bin;
@@ -1355,6 +1356,7 @@ void InitMechArrays(struct Mech* p_mech)
 // Returns the size of a mech's allocation: the mech, its ten weapons and eight sections, and 500
 // bytes more.
 // FUNCTION: MW2 0x10019a0a
+// FUNCTION: MW2MATROX 0x100101cd
 MechS32 GetMechAllocSize(void)
 {
 	MechS32 size;
@@ -1362,7 +1364,7 @@ MechS32 GetMechAllocSize(void)
 	size = sizeof(Mech);
 	size += 10 * sizeof(WeaponSlot);
 	size += 8 * sizeof(MechSection);
-	size += 500;
+	size += 25 * sizeof(AmmoBin);
 	return size;
 }
 

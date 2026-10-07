@@ -24,7 +24,11 @@
 
 #include <string.h>
 
+#ifdef MW2_MATROX
+DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
+#else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
+#endif
 DECOMP_SIZE_ASSERT(ProjectedVertex, 0x20)
 DECOMP_SIZE_ASSERT(QueuedPolygon, 0xc)
 

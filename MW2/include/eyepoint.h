@@ -13,44 +13,68 @@
 // BuildMatrix takes them (the overlay's eye position readout prints them in that order).
 // SIZE 0xe0
 typedef struct Eyepoint {
-	MechScalar m_x;                          // 0x00
-	MechScalar m_y;                          // 0x04
-	MechScalar m_z;                          // 0x08
-	MechScalar m_heading;                    // 0x0c
-	MechScalar m_pitch;                      // 0x10 — clamped to +-90 degrees by the free camera
-	MechScalar m_roll;                       // 0x14
-	MechScalar m_fovX;                       // 0x18 — 16.16
-	MechScalar m_lightX;                     // 0x1c — the light's position (an effect's flash moves it)
-	MechScalar m_lightY;                     // 0x20
-	MechScalar m_lightZ;                     // 0x24
-	MechS16 m_directionalLight;              // 0x28 — nonzero: light from the origin's direction
-	MechS16 m_ambientLight;                  // 0x2a — out of 0x80 (ComputeShade)
-	MechS32 m_viewLeft;                      // 0x2c — the view rectangle, in pixels of the pane
-	MechS32 m_viewRight;                     // 0x30
-	MechS32 m_viewTop;                       // 0x34
-	MechS32 m_viewBottom;                    // 0x38
-	MechScalar m_nearPlane;                  // 0x3c
-	MechScalar m_farPlane;                   // 0x40
-	MechS32 m_pixelAspect;                   // 0x44 — pixel width / height, 16.16
-	MechS32 m_unk0x48;                       // 0x48 — nothing uses it
-	MechS32 m_offsetX;                       // 0x4c — moves the projection centre off the view's
-	MechS32 m_offsetY;                       // 0x50
-	Matrix m_viewMatrix;                     // 0x54 — rows 0-2 the view rotation, row 3 the eye position
-	MechS32 m_halfWidth;                     // 0x84
-	MechS32 m_halfHeight;                    // 0x88
-	MechS32 m_centerX;                       // 0x8c
-	MechS32 m_centerY;                       // 0x90
-	MechS32 m_projectScaleX;                 // 0x94 — half width times the horizontal field of view
-	MechS32 m_projectScaleY;                 // 0x98
-	MechS32 m_projectScaleX16;               // 0x9c — m_projectScaleX in 16 bits, shifted by m_projectShiftX
-	MechS32 m_projectScaleY16;               // 0xa0
-	MechS16 m_projectShiftX;                 // 0xa4
-	MechS16 m_projectShiftY;                 // 0xa6
-	MechS32 m_frustumScaleX;                 // 0xa8 — the side planes' scale for the visibility tests
-	MechS32 m_frustumScaleY;                 // 0xac — the top and bottom planes'
-	MechS32 m_fovY;                          // 0xb0
-	MechS32 m_cullDistance;                  // 0xb4 — the far plane, or 0x7fffffff for an unlimited one
-	MechS32 m_detailScale;                   // 0xb8 — scales distances for the level of detail
+	MechScalar m_x;             // 0x00
+	MechScalar m_y;             // 0x04
+	MechScalar m_z;             // 0x08
+	MechScalar m_heading;       // 0x0c
+	MechScalar m_pitch;         // 0x10 — clamped to +-90 degrees by the free camera
+	MechScalar m_roll;          // 0x14
+	MechScalar m_fovX;          // 0x18 — 16.16
+	MechScalar m_lightX;        // 0x1c — the light's position (an effect's flash moves it)
+	MechScalar m_lightY;        // 0x20
+	MechScalar m_lightZ;        // 0x24
+	MechS16 m_directionalLight; // 0x28 — nonzero: light from the origin's direction
+	MechS16 m_ambientLight;     // 0x2a — out of 0x80 (ComputeShade)
+	MechS32 m_viewLeft;         // 0x2c — the view rectangle, in pixels of the pane
+	MechS32 m_viewRight;        // 0x30
+	MechS32 m_viewTop;          // 0x34
+	MechS32 m_viewBottom;       // 0x38
+	MechScalar m_nearPlane;     // 0x3c
+	MechScalar m_farPlane;      // 0x40
+	MechScalar m_pixelAspect;   // 0x44 — pixel width / height
+	MechS32 m_unk0x48;          // 0x48 — nothing uses it
+#ifdef MW2_MATROX
+	// The edition has no projection offset, no 16-bit projection scales and no cull distance: the
+	// view matrix follows m_unk0x48, and its members past it move up. The members it dropped
+	// follow its own, unused, so that the shared code still compiles.
+	Matrix m_viewMatrix;        // 0x4c
+	MechS32 m_halfWidth;        // 0x7c
+	MechS32 m_halfHeight;       // 0x80
+	MechS32 m_centerX;          // 0x84
+	MechS32 m_centerY;          // 0x88
+	MechScalar m_projectScaleX; // 0x8c
+	MechScalar m_projectScaleY; // 0x90
+	MechScalar m_frustumScaleX; // 0x94
+	MechScalar m_frustumScaleY; // 0x98
+	MechScalar m_fovY;          // 0x9c
+	MechScalar m_detailScale;   // 0xa0
+	MechS32 m_offsetX;          // 0xa4
+	MechS32 m_offsetY;          // 0xa8
+	MechS32 m_projectScaleX16;  // 0xac
+	MechS32 m_projectScaleY16;  // 0xb0
+	MechS16 m_projectShiftX;    // 0xb4
+	MechS16 m_projectShiftY;    // 0xb6
+	MechS32 m_cullDistance;     // 0xb8
+#else
+	MechS32 m_offsetX;         // 0x4c — moves the projection centre off the view's
+	MechS32 m_offsetY;         // 0x50
+	Matrix m_viewMatrix;       // 0x54 — rows 0-2 the view rotation, row 3 the eye position
+	MechS32 m_halfWidth;       // 0x84
+	MechS32 m_halfHeight;      // 0x88
+	MechS32 m_centerX;         // 0x8c
+	MechS32 m_centerY;         // 0x90
+	MechS32 m_projectScaleX;   // 0x94 — half width times the horizontal field of view
+	MechS32 m_projectScaleY;   // 0x98
+	MechS32 m_projectScaleX16; // 0x9c — m_projectScaleX in 16 bits, shifted by m_projectShiftX
+	MechS32 m_projectScaleY16; // 0xa0
+	MechS16 m_projectShiftX;   // 0xa4
+	MechS16 m_projectShiftY;   // 0xa6
+	MechS32 m_frustumScaleX;   // 0xa8 — the side planes' scale for the visibility tests
+	MechS32 m_frustumScaleY;   // 0xac — the top and bottom planes'
+	MechS32 m_fovY;            // 0xb0
+	MechS32 m_cullDistance;    // 0xb4 — the far plane, or 0x7fffffff for an unlimited one
+	MechS32 m_detailScale;     // 0xb8 — scales distances for the level of detail
+#endif
 	undefined4 m_unk0xbc[(0xe0 - 0xbc) / 4]; // 0xbc
 } Eyepoint;
 
@@ -70,15 +94,15 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_normalFov;
-	extern MechS32 g_zoomFov;
+	extern MechScalar g_normalFov;
+	extern MechScalar g_zoomFov;
 	extern MechS32 g_requestedViewMode;
 	extern MechS32 g_initialViewMode;
 	extern undefined4 g_inCockpitView;
 	extern MechS32 g_lostViewMode;
 	extern MechS32 g_spectating;
 	extern struct Player* g_localPlayer;
-	extern MechS32* g_eyeHeightOffset;
+	extern MechScalar* g_eyeHeightOffset;
 	extern MechS32* g_eyeTwist;
 	extern MechS32 g_trackDistance;
 	extern MechS32 g_trackMinDistance;
@@ -105,7 +129,7 @@ extern "C"
 		MechS32* p_z
 	);
 	MechS32 GetViewMode(void);
-	MechS32 RestoreView(Eyepoint* p_eyepoint, MechS32* p_view);
+	MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view);
 	void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home);
 	void GetPlayerEyeView(
 		MechS32* p_pitch,
@@ -117,7 +141,7 @@ extern "C"
 	);
 	void UpdateOrdinanceView(void);
 	void SetViewMode(MechS32 p_zoom);
-	MechS32 SaveView(Eyepoint* p_eyepoint, MechS32* p_view);
+	MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view);
 	void UpdateEyepoint(void);
 	void ApplyCameraFov(MechS32 p_reset);
 	void UpdateTrackView(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn);

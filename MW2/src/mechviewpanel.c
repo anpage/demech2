@@ -143,6 +143,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 }
 
 // FUNCTION: MW2 0x10050dc3
+// FUNCTION: MW2MATROX 0x1008b1da
 void SetMechViewRenderSettings(RenderSettings* p_saved)
 {
 	*p_saved = g_renderSettings;

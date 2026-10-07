@@ -4,6 +4,7 @@
 #include "ambientsound.h"
 #include "audioengine.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "mss.h"
 #include "soundinfo.h"
 #include "types.h"
@@ -47,7 +48,7 @@ extern "C"
 		MechS32 p_pan,
 		MechU16 p_flags
 	);
-	MechS32 PlayPositionalSound(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, MechS32 p_half);
+	MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half);
 	MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags);
 	MechS32 PlayDelayedSound(
 		MechS32 p_delay,
@@ -57,8 +58,8 @@ extern "C"
 		MechS32 p_pan,
 		MechU16 p_flags
 	);
-	MechS32 PlaySoundAt(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, MechS32 p_half);
-	MechS32 CalculateSamplePan(MechS32 p_bearing);
+	MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_sound, MechS32 p_half);
+	MechS32 CalculateSamplePan(MechScalar p_bearing);
 	MechS32 RandomSampleRate(void);
 	void StopSamples(MechS32 p_all);
 	void UpdateAmbientSound(AmbientSound* p_sound);

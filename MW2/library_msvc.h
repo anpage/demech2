@@ -52,11 +52,13 @@
 // strncpy.obj
 
 // LIBRARY: MW2 0x10080650 SYMBOL
+// LIBRARY: MW2MATROX 0x100945c0 SYMBOL
 // _strncpy
 
 // sscanf.obj
 
 // LIBRARY: MW2 0x10080750 SYMBOL
+// LIBRARY: MW2MATROX 0x10094630 SYMBOL
 // _sscanf
 
 // atox.obj
@@ -72,6 +74,7 @@
 // strchr.obj
 
 // LIBRARY: MW2 0x10080970 SYMBOL
+// LIBRARY: MW2MATROX 0x100940b0 SYMBOL
 // _strchr
 
 // LIBRARY: MW2 0x10080976 SYMBOL
@@ -115,6 +118,7 @@
 // _fwrite
 
 // LIBRARY: MW2 0x10080eb0 SYMBOL
+// LIBRARY: MW2MATROX 0x10094400 SYMBOL
 // __fwrite_lk
 
 // strtok.obj
@@ -129,6 +133,7 @@
 // __toupper
 
 // LIBRARY: MW2 0x10081270 SYMBOL
+// LIBRARY: MW2MATROX 0x10094760 SYMBOL
 // _toupper
 
 // LIBRARY: MW2 0x10081320 SYMBOL
@@ -138,12 +143,14 @@
 // strtol.obj
 
 // LIBRARY: MW2 0x10081460 SYMBOL
+// LIBRARY: MW2MATROX 0x10094960 SYMBOL
 // _strtol
 
 // LIBRARY: MW2 0x10081490
 // strtoxl
 
 // LIBRARY: MW2 0x10081830 SYMBOL
+// LIBRARY: MW2MATROX 0x10094bd0 SYMBOL
 // _strtoul
 
 // rmdir.obj
@@ -159,6 +166,7 @@
 // printf.obj
 
 // LIBRARY: MW2 0x100818e0 SYMBOL
+// LIBRARY: MW2MATROX 0x10094c20 SYMBOL
 // _printf
 
 // memmove.obj
@@ -238,6 +246,7 @@
 // vsprintf.obj
 
 // LIBRARY: MW2 0x10082240 SYMBOL
+// LIBRARY: MW2MATROX 0x10094e80 SYMBOL
 // _vsprintf
 
 // tolower.obj
@@ -246,6 +255,7 @@
 // __tolower
 
 // LIBRARY: MW2 0x10082350 SYMBOL
+// LIBRARY: MW2MATROX 0x10095100 SYMBOL
 // _tolower
 
 // LIBRARY: MW2 0x10082400 SYMBOL
@@ -255,6 +265,7 @@
 // qsort.obj
 
 // LIBRARY: MW2 0x10082540 SYMBOL
+// LIBRARY: MW2MATROX 0x100956b0 SYMBOL
 // _qsort
 
 // LIBRARY: MW2 0x100827a0
@@ -266,6 +277,7 @@
 // strstr.obj
 
 // LIBRARY: MW2 0x10082890 SYMBOL
+// LIBRARY: MW2MATROX 0x10094cf0 SYMBOL
 // _strstr
 
 // chkstk.obj
@@ -304,6 +316,7 @@
 // strncat.obj
 
 // LIBRARY: MW2 0x10082990 SYMBOL
+// LIBRARY: MW2MATROX 0x10095670 SYMBOL
 // _strncat
 
 // exsup.obj
@@ -342,9 +355,11 @@
 // getenv.obj
 
 // LIBRARY: MW2 0x10082bb0 SYMBOL
+// LIBRARY: MW2MATROX 0x10095b70 SYMBOL
 // _getenv
 
 // LIBRARY: MW2 0x10082bf0 SYMBOL
+// LIBRARY: MW2MATROX 0x10095ba0 SYMBOL
 // __getenv_lk
 
 // exsup3.obj
@@ -360,9 +375,11 @@
 // ftell.obj
 
 // LIBRARY: MW2 0x10082dc0 SYMBOL
+// LIBRARY: MW2MATROX 0x10093ed0 SYMBOL
 // _ftell
 
 // LIBRARY: MW2 0x10082e30 SYMBOL
+// LIBRARY: MW2MATROX 0x10093f00 SYMBOL
 // __ftell_lk
 
 // strspn.obj
@@ -374,6 +391,7 @@
 // fgets.obj
 
 // LIBRARY: MW2 0x10083130 SYMBOL
+// LIBRARY: MW2MATROX 0x10094110 SYMBOL
 // _fgets
 
 // fseek.obj
@@ -389,11 +407,13 @@
 // ctime.obj
 
 // LIBRARY: MW2 0x10083440 SYMBOL
+// LIBRARY: MW2MATROX 0x100958a0 SYMBOL
 // _ctime
 
 // time.obj
 
 // LIBRARY: MW2 0x10083490 SYMBOL
+// LIBRARY: MW2MATROX 0x100958c0 SYMBOL
 // _time
 
 // strncmp.obj
@@ -422,24 +442,28 @@
 // __malloc_dbg
 
 // LIBRARY: MW2 0x10083730 SYMBOL
+// LIBRARY: MW2MATROX 0x10095940 SYMBOL
 // __nh_malloc
 
 // LIBRARY: MW2 0x10083760 SYMBOL
 // __nh_malloc_dbg
 
 // LIBRARY: MW2 0x100837e0 SYMBOL
+// LIBRARY: MW2MATROX 0x10095980 SYMBOL
 // __heap_alloc
 
 // LIBRARY: MW2 0x10083810 SYMBOL
 // __heap_alloc_dbg
 
 // LIBRARY: MW2 0x10083b40 SYMBOL
+// LIBRARY: MW2MATROX 0x1009cec0 SYMBOL
 // _calloc
 
 // LIBRARY: MW2 0x10083b70 SYMBOL
 // __calloc_dbg
 
 // LIBRARY: MW2 0x10083be0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f380 SYMBOL
 // _realloc
 
 // LIBRARY: MW2 0x10083c10 SYMBOL
@@ -527,9 +551,11 @@
 // fputc.obj
 
 // LIBRARY: MW2 0x10085890 SYMBOL
+// LIBRARY: MW2MATROX 0x100959c0 SYMBOL
 // _fputc
 
 // LIBRARY: MW2 0x10085940 SYMBOL
+// LIBRARY: MW2MATROX 0x10095a10 SYMBOL
 // _putc
 
 // 87ctriga.obj
@@ -585,6 +611,7 @@
 // __CRT_INIT@12
 
 // LIBRARY: MW2 0x10085bc0 SYMBOL
+// LIBRARY: MW2MATROX 0x10095e70 SYMBOL
 // __DllMainCRTStartup@12
 
 // LIBRARY: MW2 0x10085d10 SYMBOL
@@ -600,6 +627,7 @@
 // output.obj
 
 // LIBRARY: MW2 0x10086010 SYMBOL
+// LIBRARY: MW2MATROX 0x100960d0 SYMBOL
 // __output
 
 // LIBRARY: MW2 0x10086dc0
@@ -682,6 +710,7 @@
 // __ms_p5_test_fdiv
 
 // LIBRARY: MW2 0x10087af0 SYMBOL
+// LIBRARY: MW2MATROX 0x10096c30 SYMBOL
 // __ms_p5_mp_test_fdiv
 
 // cvt.obj
@@ -730,6 +759,7 @@
 // input.obj
 
 // LIBRARY: MW2 0x10088170 SYMBOL
+// LIBRARY: MW2MATROX 0x10098960 SYMBOL
 // __input
 
 // cscanf.obj
@@ -751,6 +781,7 @@
 // strlen.obj
 
 // LIBRARY: MW2 0x10089660 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f550 SYMBOL
 // _strlen
 
 // aw_str.obj
@@ -834,6 +865,7 @@
 // stream.obj
 
 // LIBRARY: MW2 0x1008a5d0 SYMBOL
+// LIBRARY: MW2MATROX 0x10098210 SYMBOL
 // __getstream
 
 // write.obj
@@ -842,6 +874,7 @@
 // __write
 
 // LIBRARY: MW2 0x1008a820 SYMBOL
+// LIBRARY: MW2MATROX 0x10098590 SYMBOL
 // __write_lk
 
 // memcpy.obj
@@ -912,6 +945,7 @@
 // _wcsncnt
 
 // LIBRARY: MW2 0x1008be30 SYMBOL
+// LIBRARY: MW2MATROX 0x100996c0 SYMBOL
 // ___crtLCMapStringA
 
 // LIBRARY: MW2 0x1008c150 SYMBOL
@@ -934,6 +968,7 @@
 // _file.obj
 
 // LIBRARY: MW2 0x1008c2e0 SYMBOL
+// LIBRARY: MW2MATROX 0x10099920 SYMBOL
 // ___initstdio
 
 // LIBRARY: MW2 0x1008c440 SYMBOL
@@ -943,6 +978,7 @@
 // commit.obj
 
 // LIBRARY: MW2 0x1008c470 SYMBOL
+// LIBRARY: MW2MATROX 0x1009a890 SYMBOL
 // __commit
 
 // 87tran.obj
@@ -988,6 +1024,7 @@
 // ioinit.obj
 
 // LIBRARY: MW2 0x1008c8e0 SYMBOL
+// LIBRARY: MW2MATROX 0x10097c20 SYMBOL
 // __ioinit
 
 // LIBRARY: MW2 0x1008cc20 SYMBOL
@@ -1013,6 +1050,7 @@
 // asctime.obj
 
 // LIBRARY: MW2 0x1008d070 SYMBOL
+// LIBRARY: MW2MATROX 0x1009a940 SYMBOL
 // _asctime
 
 // LIBRARY: MW2 0x1008d220
@@ -1021,11 +1059,13 @@
 // localtim.obj
 
 // LIBRARY: MW2 0x1008d260 SYMBOL
+// LIBRARY: MW2MATROX 0x1009aa50 SYMBOL
 // _localtime
 
 // dtoxtime.obj
 
 // LIBRARY: MW2 0x1008d4c0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009ac00 SYMBOL
 // ___loctotime_t
 
 // handler.obj
@@ -1117,6 +1157,7 @@
 // stdenvp.obj
 
 // LIBRARY: MW2 0x1008dcb0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009b030 SYMBOL
 // __setenvp
 
 // stdargv.obj
@@ -1131,6 +1172,7 @@
 // mbctype.obj
 
 // LIBRARY: MW2 0x1008e280 SYMBOL
+// LIBRARY: MW2MATROX 0x1009b390 SYMBOL
 // __setmbcp
 
 // LIBRARY: MW2 0x1008e600
@@ -1155,6 +1197,7 @@
 // ___crtGetEnvironmentStringsW
 
 // LIBRARY: MW2 0x1008eab0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009b6b0 SYMBOL
 // ___crtGetEnvironmentStringsA
 
 // errmode.obj
@@ -1179,6 +1222,7 @@
 // __FF_MSGBANNER
 
 // LIBRARY: MW2 0x1008ee20 SYMBOL
+// LIBRARY: MW2MATROX 0x1009b8b0 SYMBOL
 // __NMSG_WRITE
 
 // LIBRARY: MW2 0x1008f030 SYMBOL
@@ -1187,6 +1231,7 @@
 // _getbuf.obj
 
 // LIBRARY: MW2 0x1008f0b0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009baa0 SYMBOL
 // __getbuf
 
 // isatty.obj
@@ -1198,6 +1243,7 @@
 // wctomb.obj
 
 // LIBRARY: MW2 0x1008f1c0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009bb20 SYMBOL
 // _wctomb
 
 // LIBRARY: MW2 0x1008f240 SYMBOL
@@ -1219,6 +1265,7 @@
 // xtoa.obj
 
 // LIBRARY: MW2 0x1008f410 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f230 SYMBOL
 // __itoa
 
 // LIBRARY: MW2 0x1008f470
@@ -1267,6 +1314,7 @@
 // crtmbox.obj
 
 // LIBRARY: MW2 0x1008fe10 SYMBOL
+// LIBRARY: MW2MATROX 0x1009e770 SYMBOL
 // ___crtMessageBoxA
 
 // 87disp.obj
@@ -1407,6 +1455,7 @@
 // __IsZeroMan
 
 // LIBRARY: MW2 0x10090640 SYMBOL
+// LIBRARY: MW2MATROX 0x1009c070 SYMBOL
 // __ShrMan
 
 // LIBRARY: MW2 0x100906f0 SYMBOL
@@ -1448,14 +1497,17 @@
 // __fltout2
 
 // LIBRARY: MW2 0x10090bc0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009c4d0 SYMBOL
 // ___dtold
 
 // mbtowc.obj
 
 // LIBRARY: MW2 0x10090c80 SYMBOL
+// LIBRARY: MW2MATROX 0x1009cf60 SYMBOL
 // _mbtowc
 
 // LIBRARY: MW2 0x10090d00 SYMBOL
+// LIBRARY: MW2MATROX 0x1009cfa0 SYMBOL
 // __mbtowc_lk
 
 // _ctype.obj
@@ -1476,6 +1528,7 @@
 // _isxdigit
 
 // LIBRARY: MW2 0x10091040 SYMBOL
+// LIBRARY: MW2MATROX 0x1009d0b0 SYMBOL
 // _isspace
 
 // LIBRARY: MW2 0x10091090 SYMBOL
@@ -1517,12 +1570,15 @@
 // osfinfo.obj
 
 // LIBRARY: MW2 0x10091510 SYMBOL
+// LIBRARY: MW2MATROX 0x1009c6b0 SYMBOL
 // __alloc_osfhnd
 
 // LIBRARY: MW2 0x10091700 SYMBOL
+// LIBRARY: MW2MATROX 0x1009c800 SYMBOL
 // __set_osfhnd
 
 // LIBRARY: MW2 0x10091810 SYMBOL
+// LIBRARY: MW2MATROX 0x1009c8b0 SYMBOL
 // __free_osfhnd
 
 // LIBRARY: MW2 0x10091950 SYMBOL
@@ -1642,6 +1698,7 @@
 // closeall.obj
 
 // LIBRARY: MW2 0x10094380 SYMBOL
+// LIBRARY: MW2MATROX 0x1009d170 SYMBOL
 // __fcloseall
 
 // powhlp.obj
@@ -1751,6 +1808,7 @@
 // _wcsncnt
 
 // LIBRARY: MW2 0x10095830 SYMBOL
+// LIBRARY: MW2MATROX 0x1009e130 SYMBOL
 // ___crtCompareStringA
 
 // LIBRARY: MW2 0x10095c90 SYMBOL
@@ -1759,6 +1817,7 @@
 // setenv.obj
 
 // LIBRARY: MW2 0x10095d00 SYMBOL
+// LIBRARY: MW2MATROX 0x1009e450 SYMBOL
 // ___crtsetenv
 
 // LIBRARY: MW2 0x10096070
@@ -1773,6 +1832,7 @@
 // _read
 
 // LIBRARY: MW2 0x100962c0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009a660 SYMBOL
 // __read_lk
 
 // tzset.obj
@@ -1788,6 +1848,7 @@
 // _tzset_lk
 
 // LIBRARY: MW2 0x10096b90 SYMBOL
+// LIBRARY: MW2MATROX 0x1009dd90 SYMBOL
 // __isindst
 
 // LIBRARY: MW2 0x10096bd0
@@ -1862,6 +1923,7 @@
 // __clrfp
 
 // LIBRARY: MW2 0x10097e10 SYMBOL
+// LIBRARY: MW2MATROX 0x10099af0 SYMBOL
 // __ctrlfp
 
 // LIBRARY: MW2 0x10097e50 SYMBOL
@@ -1871,6 +1933,7 @@
 // mantold.obj
 
 // LIBRARY: MW2 0x10097eb0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009e810 SYMBOL
 // ___addl
 
 // LIBRARY: MW2 0x10097ee0 SYMBOL
@@ -1886,11 +1949,13 @@
 // ___shr_12
 
 // LIBRARY: MW2 0x10097fd0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009e930 SYMBOL
 // ___mtold12
 
 // strgtold.obj
 
 // LIBRARY: MW2 0x100980c0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009d210 SYMBOL
 // ___strgtold12
 
 // LIBRARY: MW2 0x10098810 SYMBOL
@@ -1899,6 +1964,7 @@
 // x10fout.obj
 
 // LIBRARY: MW2 0x10098860 SYMBOL
+// LIBRARY: MW2MATROX 0x1009ea20 SYMBOL
 // _$I10_OUTPUT
 
 // chsize.obj
@@ -2040,9 +2106,11 @@
 // tenpow.obj
 
 // LIBRARY: MW2 0x1009b570 SYMBOL
+// LIBRARY: MW2MATROX 0x1009ef00 SYMBOL
 // ___ld12mul
 
 // LIBRARY: MW2 0x1009b820 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f1b0 SYMBOL
 // ___multtenpow12
 
 // setmode.obj
@@ -2051,6 +2119,7 @@
 // __setmode
 
 // LIBRARY: MW2 0x1009b940 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f4e0 SYMBOL
 // __setmode_lk
 
 // towupper.obj
@@ -2083,14 +2152,17 @@
 // putch.obj
 
 // LIBRARY: MW2 0x1009c130 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f770 SYMBOL
 // __putch
 
 // LIBRARY: MW2 0x1009c170 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f7a0 SYMBOL
 // __putch_lk
 
 // flength.obj
 
 // LIBRARY: MW2 0x1009c1e0 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f7f0 SYMBOL
 // _filelength
 
 // strnset.obj
@@ -2102,6 +2174,7 @@
 // strnicmp.obj
 
 // LIBRARY: MW2 0x1009c300 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f8c0 SYMBOL
 // __strnicmp
 
 // initcon.obj
@@ -2113,6 +2186,7 @@
 // ___initconout
 
 // LIBRARY: MW2 0x1009c460 SYMBOL
+// LIBRARY: MW2MATROX 0x1009f9d0 SYMBOL
 // ___termcon
 
 // CRT data the game reads (the ctype.h macros)
@@ -2193,5 +2267,355 @@
 
 // LIBRARY: MW2MATROX 0x1009e700 SYMBOL
 // _copy_environ
+
+// MW2MATROX's C runtime, matched against the rebuild's (tools/edition.py crt).
+
+// LIBRARY: MW2MATROX 0x10093cc0 SYMBOL
+// _doexit
+
+// LIBRARY: MW2MATROX 0x10093dfa SYMBOL
+// __CIfmod
+
+// LIBRARY: MW2MATROX 0x10094980 SYMBOL
+// _strtoxl
+
+// LIBRARY: MW2MATROX 0x100954d0 SYMBOL
+// _flsall
+
+// LIBRARY: MW2MATROX 0x10095810 SYMBOL
+// _shortsort
+
+// LIBRARY: MW2MATROX 0x10096f10 SYMBOL
+// __cftoe2
+
+// LIBRARY: MW2MATROX 0x10097070 SYMBOL
+// __cftof2
+
+// LIBRARY: MW2MATROX 0x10099600 SYMBOL
+// __hextodec
+
+// LIBRARY: MW2MATROX 0x10099640 SYMBOL
+// __inc
+
+// LIBRARY: MW2MATROX 0x10099670 SYMBOL
+// __un_inc
+
+// LIBRARY: MW2MATROX 0x10099690 SYMBOL
+// __whiteout
+
+// LIBRARY: MW2MATROX 0x1009a3b0 SYMBOL
+// __get_fname
+
+// LIBRARY: MW2MATROX 0x1009aa20 SYMBOL
+// _store_dt
+
+// LIBRARY: MW2MATROX 0x1009b1b0 SYMBOL
+// _parse_cmdline
+
+// LIBRARY: MW2MATROX 0x1009cf20 SYMBOL
+// __allmul
+
+// LIBRARY: MW2MATROX 0x1009db10 SYMBOL
+// __tzset_lk
+
+// LIBRARY: MW2MATROX 0x1009e6a0 SYMBOL
+// _findenv
+
+// LIBRARY: MW2MATROX 0x1009f270 SYMBOL
+// _xtoa
+
+// LIBRARY: MW2MATROX 0x1009f5d0 SYMBOL
+// _strcpy
+
+// LIBRARY: MW2MATROX 0x1009f6c0 SYMBOL
+// __stricmp
+
+// LIBRARY: MW2MATROX 0x1009f990 SYMBOL
+// ___initcon
+
+// GLOBAL: MW2MATROX 0x100a15e8
+// __lookuptable
+
+// GLOBAL: MW2MATROX 0x100a16b0
+// __dnames
+
+// GLOBAL: MW2MATROX 0x100a2000
+// __xc_a
+
+// GLOBAL: MW2MATROX 0x100a2004
+// __xc_z
+
+// GLOBAL: MW2MATROX 0x100a2008
+// __xi_a
+
+// GLOBAL: MW2MATROX 0x100a2014
+// __xi_z
+
+// GLOBAL: MW2MATROX 0x100a2018
+// __xp_a
+
+// GLOBAL: MW2MATROX 0x100a2024
+// __xp_z
+
+// GLOBAL: MW2MATROX 0x100a2028
+// __xt_a
+
+// GLOBAL: MW2MATROX 0x100a202c
+// __xt_z
+
+// GLOBAL: MW2MATROX 0x100bf0dc
+// __fastflag
+
+// GLOBAL: MW2MATROX 0x100bf0e0
+// _adjust_fdiv
+
+// GLOBAL: MW2MATROX 0x100bf0e4
+// _FPinit
+
+// GLOBAL: MW2MATROX 0x100bf250
+// _umaskval
+
+// GLOBAL: MW2MATROX 0x100bf254
+// _osver
+
+// GLOBAL: MW2MATROX 0x100bf258
+// _winver
+
+// GLOBAL: MW2MATROX 0x100bf25c
+// _winmajor
+
+// GLOBAL: MW2MATROX 0x100bf260
+// _winminor
+
+// GLOBAL: MW2MATROX 0x100bf264
+// __argc
+
+// GLOBAL: MW2MATROX 0x100bf268
+// __argv
+
+// GLOBAL: MW2MATROX 0x100bf270
+// _environ
+
+// GLOBAL: MW2MATROX 0x100bf274
+// __initenv
+
+// GLOBAL: MW2MATROX 0x100bf278
+// _wenviron
+
+// GLOBAL: MW2MATROX 0x100bf280
+// _pgmptr
+
+// GLOBAL: MW2MATROX 0x100bf288
+// _exitflag
+
+// GLOBAL: MW2MATROX 0x100bf28c
+// _C_Termination_Done
+
+// GLOBAL: MW2MATROX 0x100bf290
+// _OP_FMODjmptab
+
+// GLOBAL: MW2MATROX 0x100bf4f0
+// __decimal_point
+
+// GLOBAL: MW2MATROX 0x100bf4fc
+// _NLG_Destination
+
+// GLOBAL: MW2MATROX 0x100bf510
+// _aenvptr
+
+// GLOBAL: MW2MATROX 0x100bf518
+// _aexit_rtn
+
+// GLOBAL: MW2MATROX 0x100bf51c
+// __error_mode
+
+// GLOBAL: MW2MATROX 0x100bf520
+// __app_type
+
+// GLOBAL: MW2MATROX 0x100bf524
+// ?_C@_05EODD@IsTNT?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf52c
+// ?_C@_0N@IDOE@kernel32?4dll?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf554
+// __nullstring
+
+// GLOBAL: MW2MATROX 0x100bf558
+// __wnullstring
+
+// GLOBAL: MW2MATROX 0x100bf55c
+// ?_C@_0BB@JPOE@GetCurrentThread?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf570
+// ?_C@_0BG@PMJE@SetThreadAffinityMask?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf588
+// ?_C@_0BC@CFOG@GetCurrentProcess?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf59c
+// ?_C@_0BH@KAJB@GetProcessAffinityMask?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf5b4
+// ?_C@_08OBID@KERNEL32?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf5c0
+// _cfltcvt_tab
+
+// GLOBAL: MW2MATROX 0x100bf5d8
+// ?_C@_05OFLO@e?$CL000?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf730
+// _locktable
+
+// GLOBAL: MW2MATROX 0x100bf7f0
+// _indefinite
+
+// GLOBAL: MW2MATROX 0x100bf7fa
+// _piby2
+
+// GLOBAL: MW2MATROX 0x100bf820
+// __badioinfo
+
+// GLOBAL: MW2MATROX 0x100bf9b8
+// ?_C@_01A@?$AA?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf9bc
+// ?_C@_13A@?$AA?$AA?$AA?$AA?$AA?$AD?$AA?$AA@
+
+// GLOBAL: MW2MATROX 0x100bf9c0
+// _stdbuf
+
+// GLOBAL: MW2MATROX 0x100bf9c8
+// __tlsindex
+
+// GLOBAL: MW2MATROX 0x100bf9d8
+// __lc_handle
+
+// GLOBAL: MW2MATROX 0x100bf9f0
+// __lc_codepage
+
+// GLOBAL: MW2MATROX 0x100bfa00
+// _iob
+
+// GLOBAL: MW2MATROX 0x100bfc80
+// _cflush
+
+// GLOBAL: MW2MATROX 0x100bfe30
+// _d_inf
+
+// GLOBAL: MW2MATROX 0x100bfe38
+// _d_ind
+
+// GLOBAL: MW2MATROX 0x100bfe40
+// _d_max
+
+// GLOBAL: MW2MATROX 0x100bfe50
+// _d_mzero
+
+// GLOBAL: MW2MATROX 0x100bfe58
+// _newmode
+
+// GLOBAL: MW2MATROX 0x100bfe60
+// _infinity
+
+// GLOBAL: MW2MATROX 0x100bfe6a
+// _minfinity
+
+// GLOBAL: MW2MATROX 0x100bff50
+// _mbctype
+
+// GLOBAL: MW2MATROX 0x100c0054
+// __mbcodepage
+
+// GLOBAL: MW2MATROX 0x100c0058
+// __mblcid
+
+// GLOBAL: MW2MATROX 0x100c0060
+// __mbulinfo
+
+// GLOBAL: MW2MATROX 0x100c0460
+// _adbgmsg
+
+// GLOBAL: MW2MATROX 0x100c0464
+// ?_C@_0CF@JPDF@Microsoft?5Visual?5C?$CL?$CL?5Runtime?5Lib@
+
+// GLOBAL: MW2MATROX 0x100c048c
+// ?_C@_02JJJH@?6?6?$AA@
+
+// GLOBAL: MW2MATROX 0x100c0490
+// ?_C@_0BK@DEOK@Runtime?5Error?$CB?6?6Program?3?5?$AA@
+
+// GLOBAL: MW2MATROX 0x100c04ac
+// ?_C@_03NAME@?4?4?4?$AA@
+
+// GLOBAL: MW2MATROX 0x100c04b0
+// ?_C@_0BH@NNCD@?$DMprogram?5name?5unknown?$DO?$AA@
+
+// GLOBAL: MW2MATROX 0x100c04f8
+// _commode
+
+// GLOBAL: MW2MATROX 0x100c0500
+// _XcptActTab
+
+// GLOBAL: MW2MATROX 0x100c0590
+// _timezone
+
+// GLOBAL: MW2MATROX 0x100c0594
+// _daylight
+
+// GLOBAL: MW2MATROX 0x100c05b8
+// _tzname
+
+// GLOBAL: MW2MATROX 0x100c05ec
+// ?_C@_02JHIA@TZ?$AA@
+
+// GLOBAL: MW2MATROX 0x100c05f0
+// _lpdays
+
+// GLOBAL: MW2MATROX 0x100c0628
+// _days
+
+// GLOBAL: MW2MATROX 0x100c06a8
+// ?_C@_0BD@NJFP@GetLastActivePopup?$AA@
+
+// GLOBAL: MW2MATROX 0x100c06bc
+// ?_C@_0BA@GILI@GetActiveWindow?$AA@
+
+// GLOBAL: MW2MATROX 0x100c06cc
+// ?_C@_0M@PKCK@MessageBoxA?$AA@
+
+// GLOBAL: MW2MATROX 0x100c06d8
+// ?_C@_0L@HKL@user32?4dll?$AA@
+
+// GLOBAL: MW2MATROX 0x100c06f8
+// ?_C@_06PAPI@1?$CDQNAN?$AA@
+
+// GLOBAL: MW2MATROX 0x100c0700
+// ?_C@_05BGNL@1?$CDINF?$AA@
+
+// GLOBAL: MW2MATROX 0x100c0708
+// ?_C@_05EDPF@1?$CDIND?$AA@
+
+// GLOBAL: MW2MATROX 0x100c0710
+// ?_C@_06LKFM@1?$CDSNAN?$AA@
+
+// GLOBAL: MW2MATROX 0x100c0718
+// _fmode
+
+// GLOBAL: MW2MATROX 0x100c09dc
+// _coninpfh
+
+// GLOBAL: MW2MATROX 0x100c09e0
+// _confh
+
+// GLOBAL: MW2MATROX 0x100c09e4
+// ?_C@_07GLCC@CONOUT$?$AA@
+
+// GLOBAL: MW2MATROX 0x100c09ec
+// ?_C@_06MICP@CONIN$?$AA@
+
+// GLOBAL: MW2MATROX 0x10125754
+// _pnhHeap@@3P6AHI@ZA
 
 #endif

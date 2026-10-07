@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "mech.h"
 #include "players.h"
 #include "playersteering.h"
@@ -51,7 +52,8 @@ void StopMotion(Player* p_player)
 }
 
 // FUNCTION: MW2 0x100036c3
-MechS32* GetEyepointOffset(Player* p_player, MechS32* p_offset)
+// FUNCTION: MW2MATROX 0x1008c483
+MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 {
 	p_offset[0] = g_eyepoint->m_x - p_player->m_position.m_x;
 	p_offset[1] = g_eyepoint->m_y - p_player->m_position.m_y;
@@ -66,8 +68,8 @@ MechS32* GetEyepointOffset(Player* p_player, MechS32* p_offset)
 // FUNCTION: MW2 0x10003710
 void UpdateMotion(Player* p_player)
 {
-	MechS32* offset;
-	MechS32 position[3];
+	MechScalar* offset;
+	MechScalar position[3];
 	MechS32 height;
 
 	offset = NULL;
@@ -120,9 +122,9 @@ void UpdateMotion(Player* p_player)
 // the order the p_sounds index loads its row and column in.
 // FUNCTION: MW2 0x100038c2
 // FUNCTION: MW2MATROX 0x1008c69f
-void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechS32* p_offset)
+void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechScalar* p_offset)
 {
-	MechS32 offset[3];
+	MechScalar offset[3];
 	MechS32 sound;
 	MechS32 id;
 

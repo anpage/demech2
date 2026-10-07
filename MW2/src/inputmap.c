@@ -7,6 +7,7 @@
 #include "decomp.h"
 #include "discretebinding.h"
 #include "error.h"
+#include "fixedfloat.h"
 #include "gamekeymodifier.h"
 #include "gamekeyname.h"
 #include "inputaxis.h"
@@ -138,10 +139,12 @@ MechS8 g_sinkZoomFactorMinus = 0;
 MechS8 g_sinkZoomFactorReset = 0;
 
 // GLOBAL: MW2 0x100b2588
-MechS32 g_sinkMenuItem = 0;
+// GLOBAL: MW2MATROX 0x1012f470
+MechScalar g_sinkMenuItem = 0;
 
 // GLOBAL: MW2 0x100b258c
-MechS32 g_sinkMenuValue = 0;
+// GLOBAL: MW2MATROX 0x1012f474
+MechScalar g_sinkMenuValue = 0;
 
 // GLOBAL: MW2 0x100b2592
 // GLOBAL: MW2MATROX 0x1012f47a
@@ -807,6 +810,7 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // index, or -1.
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10079f71
+// FUNCTION: MW2MATROX 0x1007c72f
 MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_channel)
 {
 	MechS32 device;
@@ -1115,8 +1119,10 @@ MechS32 LoadInputMap(void)
 }
 
 // Loads GAMEKEY.MAP: an action name and its key sequence ("CTRL+F1") a line.
-// Stack-slot permutation: keyCode, i, keys, action, file and code.
+// Stack-slot permutation: keyCode, i, keys, action, file and code. The edition compares the two
+// game key actions in the other operand order.
 // FUNCTION: MW2 0x1007aba9
+// FUNCTION: MW2MATROX 0x1007d2c1
 MechS32 LoadGamekeyMap(void)
 {
 	MechChar line[256];
@@ -1197,6 +1203,7 @@ MechS32 LoadGamekeyMap(void)
 // axis, _plus and _minus ramp it. Returns whether the axis was driven.
 // Stack-slot permutation: driven, device, channel and position.
 // FUNCTION: MW2 0x1007aecc
+// FUNCTION: MW2MATROX 0x1007d57b
 MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 {
 	InputAxis* axis;
@@ -1219,7 +1226,11 @@ MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 		driven = TRUE;
 	}
 	else if (axis->m_setHeld && *axis->m_setHeld) {
+#ifdef MW2_MATROX
+		position = (MechS32) (*axis->m_output * 65536.0f + 0.5f) << axis->m_outputShift;
+#else
 		position = *axis->m_output << axis->m_outputShift;
+#endif
 		position -= axis->m_minFixed;
 		position *= 2.0;
 		position /= axis->m_range;
@@ -1292,6 +1303,7 @@ void FirstInputs(void)
 // The loops compare i with the counts (and the keyboard's index) in the other operand order, and
 // the locals are a stack-slot permutation.
 // FUNCTION: MW2 0x1007b19b
+// FUNCTION: MW2MATROX 0x1007d86f
 void UpdateInputs(void)
 {
 	MechS32 i;
@@ -1321,7 +1333,11 @@ void UpdateInputs(void)
 			binding->m_lastValue = 0;
 		}
 		else if (axis->m_setHeld && *axis->m_setHeld) {
+#ifdef MW2_MATROX
+			position = (MechS32) (*axis->m_output * 65536.0f + 0.5f) << axis->m_outputShift;
+#else
 			position = *axis->m_output << axis->m_outputShift;
+#endif
 			position -= axis->m_minFixed;
 			position *= 2.0;
 			position /= axis->m_range;
@@ -1372,7 +1388,11 @@ void UpdateInputs(void)
 				if (g_analogBindings[i].m_lastValue != value) {
 					g_analogBindings[i].m_axis->m_position = value;
 				}
+#ifdef MW2_MATROX
+				else if (g_analogBindings[i].m_axis->m_rate == &g_analogBindings[i].m_axis->m_position) {
+#else
 				else if (*g_analogBindings[i].m_axis->m_rate == g_analogBindings[i].m_axis->m_position) {
+#endif
 					g_analogBindings[i].m_axis->m_position = value;
 				}
 
@@ -1392,7 +1412,12 @@ void UpdateInputs(void)
 			value = g_analogBindings[i].m_axis->m_range * value;
 			value /= 2;
 			value += g_analogBindings[i].m_axis->m_minFixed;
+#ifdef MW2_MATROX
+			value >>= g_analogBindings[i].m_axis->m_outputShift;
+			*g_analogBindings[i].m_axis->m_output = value * (1.0f / 65536.0f);
+#else
 			*g_analogBindings[i].m_axis->m_output = value >> g_analogBindings[i].m_axis->m_outputShift;
+#endif
 		}
 	}
 
@@ -1400,12 +1425,16 @@ void UpdateInputs(void)
 		g_inputDrivers[g_keyboardDeviceIndex]->m_readKeyCode(&keyCode);
 	}
 
+#ifdef MW2_MATROX
+	g_localSteering.m_keyCode = keyCode;
+#else
 	if (keyCode == 0x40d) {
 		ToggleFullScreen();
 	}
 	else {
 		g_localSteering.m_keyCode = keyCode;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1007b704

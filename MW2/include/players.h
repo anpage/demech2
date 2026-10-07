@@ -113,9 +113,9 @@ struct Player {
 	struct Shape* m_avoidShape;      // 0x188 — the shape AvoidObstacles steers around
 	MechS32 m_nextAvoidCheck;        // 0x18c — the clock when AvoidObstacles next probes
 	MechS16 m_avoidSide;             // 0x190 — 1 or -1 while avoiding, else 0
-	MechS32 m_probeScale;            // 0x192 — 16.16, the probe rays' length from the speed
+	MechScalar m_probeScale;         // 0x192 — 16.16, the probe rays' length from the speed
 	MechS32 m_controlsJets;          // 0x196 — the maneuver works the jump jets itself
-	MechS32 m_lastTargetDistance;    // 0x19a — at the last GetClosingRate
+	MechScalar m_lastTargetDistance; // 0x19a — at the last GetClosingRate
 	MechU32 m_skillFlag0 : 1;        // 0x19e — the maneuvers its piloting allows (InitializeManeuvers)
 	MechU32 m_skillFlag1 : 1;        // 0x19e
 	MechU32 m_skillFlag2 : 1;        // 0x19e

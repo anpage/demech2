@@ -17,18 +17,19 @@
 // is never seen.
 // The heading sum has its operands the other way around.
 // FUNCTION: MW2 0x1006ca60
+// FUNCTION: MW2MATROX 0x1006d320
 MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 {
 	Ray ray;
 	Shape* hit;
-	MechS32 bearing;
+	MechScalar bearing;
 	MechU32 target;
 	MechU16 surface;
 
 	bearing = FIXED_MOD360(
 		p_player->m_heading + p_player->m_torsoTwist - p_player->m_targetInfo.m_heading + FIXED_CONST(360)
 	);
-	if (p_ahead && bearing < 0x10e0000 && bearing > 0x5a0000) {
+	if (p_ahead && bearing < FIXED_CONST(270) && bearing > FIXED_CONST(90)) {
 		return FALSE;
 	}
 
@@ -109,6 +110,7 @@ MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 
 // Returns which of the weapon's range bands the player's target is in: 3 within the short
 // range, 2 within the long one, 1 right at it and 0 beyond it.
 // FUNCTION: MW2 0x1006cd45
+// FUNCTION: MW2MATROX 0x1006d4b9
 MechS32 GetTargetRangeBand(Player* p_player, WeaponDef* p_weapon)
 {
 	if (p_player->m_targetInfo.m_distance < p_weapon->m_shortRange) {

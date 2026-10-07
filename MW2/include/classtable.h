@@ -22,9 +22,9 @@ extern "C"
 	MechS32 LoadBaseLevelShapes(struct Player* p_player);
 	MechS32 AddClassEntryLevel(
 		MechS32 p_unk0x00,
-		undefined4 p_unk0x04,
-		undefined4 p_unk0x08,
-		undefined4 p_unk0x0c,
+		ClassEntryCoord p_unk0x04,
+		ClassEntryCoord p_unk0x08,
+		ClassEntryCoord p_unk0x0c,
 		MechS32 p_unk0x10,
 		MechS32 p_level,
 		MechS32 p_index,

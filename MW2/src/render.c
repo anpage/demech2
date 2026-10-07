@@ -199,6 +199,7 @@ MechS32 InitDisplayGeometry(void)
 // buffers and the scene, and installs the normal render hooks.
 // Stack-slot permutation: size, start, segment and oldProtect.
 // FUNCTION: MW2 0x100128b5
+// FUNCTION: MW2MATROX 0x10017505
 void FirstRender(void)
 {
 	MechS32 segment;
@@ -220,8 +221,13 @@ void FirstRender(void)
 		Error(0x4d, NULL);
 	}
 
+#ifdef MW2_MATROX
+	InitializeDrawBuffer(0x140, 0xbb8);
+	g_maxPolygons = 0xaf0;
+#else
 	InitializeDrawBuffer(0x80, 0x5dc);
 	g_maxPolygons = 0x578;
+#endif
 	InitShapeLists();
 	g_renderSettings.m_frameDrawCallback = DrawScene;
 	g_renderSettings.m_shapeFilter = CullSceneShape;

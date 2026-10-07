@@ -30,9 +30,9 @@ struct Shape {
 	Model* m_models;              // 0x1c
 	Model* m_model;               // 0x20
 	MechS32 m_collisionType;      // 0x24 — indexes g_shapeCollisionFns; picks m_collisionData
-	MechS32 m_modelCenterX;       // 0x28 — the center ComputeShapeBounds computes
-	MechS32 m_modelCenterY;       // 0x2c
-	MechS32 m_modelCenterZ;       // 0x30
+	MechScalar m_modelCenterX;    // 0x28 — the center ComputeShapeBounds computes
+	MechScalar m_modelCenterY;    // 0x2c
+	MechScalar m_modelCenterZ;    // 0x30
 	MechScalar m_centerX;         // 0x34 — the center transformed (TransformShapeCenter)
 	MechScalar m_centerY;         // 0x38
 	MechScalar m_centerZ;         // 0x3c

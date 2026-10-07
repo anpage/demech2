@@ -2,6 +2,7 @@
 #define PLAYERSTEERING_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 
 // A player's controls, set each frame by INPUT.MAP for the local player (g_localSteering) and by the
@@ -9,10 +10,10 @@
 // are buttons, which the mech's update clears once it has acted on them.
 // SIZE 0x48
 typedef struct PlayerSteering {
-	MechS32 m_torsoTilt;              // 0x00
-	MechS32 m_torsoPan;               // 0x04 — swept between ±45 degrees by SweepTorso
-	MechS32 m_throttle;               // 0x08
-	MechS32 m_turn;                   // 0x0c
+	MechScalar m_torsoTilt;           // 0x00
+	MechScalar m_torsoPan;            // 0x04 — swept between ±45 degrees by SweepTorso
+	MechScalar m_throttle;            // 0x08
+	MechScalar m_turn;                // 0x0c
 	MechS32 m_legsPanDelta;           // 0x10 — copied into m_turn
 	MechS16 m_keyCode;                // 0x14 — the local player's: the key INPUT.MAP passed on
 	MechS8 m_torsoTiltPlus;           // 0x16

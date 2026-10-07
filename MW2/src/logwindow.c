@@ -168,6 +168,7 @@ void SetDebugLogName(const MechChar* p_path)
 
 // Stack-slot permutation: message and args (which moves the jump table targets).
 // FUNCTION: MW2 0x1003a432
+// FUNCTION: MW2MATROX 0x1006e9c2
 void DebugPrintInternal(const MechChar* p_format, ...)
 {
 	MechChar message[0x100];

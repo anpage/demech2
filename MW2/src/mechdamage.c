@@ -40,10 +40,12 @@ MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
-MechS32 g_otherArmorPerLevel = 4;
+// GLOBAL: MW2MATROX 0x100a461c
+MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
-MechS32 g_localArmorPerLevel = 4;
+// GLOBAL: MW2MATROX 0x100a4620
+MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
 // GLOBAL: MW2MATROX 0x100a4624
@@ -560,6 +562,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10008c0f
+// FUNCTION: MW2MATROX 0x100114bd
 void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
 	MechS32 id;
@@ -572,7 +575,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 	MechS32 kind;
 	MechSection* section;
 	AmmoBin* bin;
-	MechS32 damage;
+	MechScalar damage;
 
 	section = p_mech->m_sections + p_section - 1;
 	if (!section) {
@@ -712,8 +715,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 					}
 
 					damage = bin->m_shots * bin->m_damage;
-					section->m_internal -= damage << 16;
-					if (section->m_internal < 0) {
+					section->m_internal -= FIXED_FROM_INT(damage);
+					if (FIXED_IS_NEGATIVE(section->m_internal)) {
 						section->m_internal = 0;
 						section->m_slots[p_slot] = 0;
 						DestroySection(p_attacker, p_mech, p_section);
@@ -784,7 +787,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			}
 
 			if (p_mech->m_cooling > 0) {
-				p_mech->m_cooling -= 50;
+				p_mech->m_cooling -= FIXED_RAW(50);
 			}
 			else {
 				p_mech->m_cooling = 0;
@@ -812,8 +815,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(7);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 			break;
@@ -826,8 +829,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(8);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 
@@ -862,8 +865,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(10);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 			break;
@@ -876,8 +879,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 				SayCriticalHit(11);
 			}
 
-			p_mech->m_mobility -= 0x199a;
-			if (p_mech->m_mobility < 0) {
+			p_mech->m_mobility -= FIXED_RAW(0x199a);
+			if (FIXED_IS_NEGATIVE(p_mech->m_mobility)) {
 				p_mech->m_mobility = 0;
 			}
 			break;
@@ -907,9 +910,15 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			break;
 		}
 
+#ifdef MW2_MATROX
+		if (FIXED_IS_NONZERO(p_mech->m_mobility) && p_mech->m_mobility < 0.4f) {
+			p_mech->m_mobility = 0.4f;
+		}
+#else
 		if (p_mech->m_mobility && p_mech->m_mobility < 0x6666) {
 			p_mech->m_mobility = 0x6666;
 		}
+#endif
 	}
 
 	for (i = p_slot; i < section->m_slotCount - 1; i++) {
@@ -928,7 +937,8 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // The original ends in an explicit return (the jmp to the epilogue). The only diff is a stack-slot
 // permutation of the locals.
 // FUNCTION: MW2 0x1000991b
-void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS32 p_section)
+// FUNCTION: MW2MATROX 0x10012243
+void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;
 	MechU32 levels;
@@ -956,7 +966,11 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		return;
 	}
 
+#ifdef MW2_MATROX
+	if (p_damage < 1e-07f) {
+#else
 	if (p_damage <= 0) {
+#endif
 		return;
 	}
 
@@ -996,7 +1010,11 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 
 	section->m_armor[side] -= p_damage;
 	section->m_flags |= 0x8000;
+#ifdef MW2_MATROX
+	if (section->m_armor[side] < 1e-07f) {
+#else
 	if (section->m_armor[side] <= 0) {
+#endif
 		if (!(section->m_flags & 0x4000) && p_mech->m_player->m_index == g_localPlayerId && p_mech->m_powerState == 2) {
 			PlaySoundEffect(0xec, 100, 0x40, 5, 0x50);
 		}
@@ -1005,11 +1023,15 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 		section->m_internal += section->m_armor[side];
 		section->m_armor[side] = 0;
 		if (p_mech->m_player->m_index == g_localPlayerId && (p_section == 1 || p_section == 3) &&
-			p_mech->m_powerState != 4 && p_damage > 0x20000) {
+			p_mech->m_powerState != 4 && p_damage > FIXED_RAW(0x20000)) {
 			g_hitFadePending = 1;
 		}
 
+#ifdef MW2_MATROX
+		if (section->m_internal < 1e-07f) {
+#else
 		if (section->m_internal <= 0) {
+#endif
 			DestroySection(p_attacker, p_mech, p_section);
 			return;
 		}
@@ -1031,12 +1053,12 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechS32 p_damage, MechS
 
 	if (levels) {
 		if (p_mech->m_player->m_index == g_localPlayerId) {
-			level = 15 - ((section->m_internal + section->m_armor[side] / g_localArmorPerLevel) * 3) /
-							 (MechS32) (levels << 16);
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_localArmorPerLevel) * 3) /
+									(MechS32) FIXED_FROM_INT(levels));
 		}
 		else {
-			level = 15 - ((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
-							 (MechS32) (levels << 16);
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
+									(MechS32) FIXED_FROM_INT(levels));
 		}
 	}
 

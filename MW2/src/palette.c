@@ -7,6 +7,7 @@
 #include "mw2prj.h"
 #include "palcycle.h"
 #include "palfade.h"
+#include "palidentity.h"
 #include "polydraw.h"
 #include "refreshmode.h"
 #include "render.h"
@@ -62,6 +63,16 @@ MechS32 g_paletteCycling = 0;
 // GLOBAL: MW2MATROX 0x100a6220
 MechS32 g_paletteCycleResource = -1;
 
+#ifdef MW2_MATROX
+// The edition's tint for the palettes 0xc, 0x10 and 0x11 (StartPaletteFade): whether it is on, and
+// its color.
+// GLOBAL: MW2MATROX 0x100aa1d0
+MechS32 g_unk0x100aa1d0 = 0;
+
+// GLOBAL: MW2MATROX 0x10184700
+MechFloat g_unk0x10184700[3];
+#endif
+
 // GLOBAL: MW2 0x100bcd20
 // GLOBAL: MW2MATROX 0x100c1ff8
 static PaletteFade g_paletteFade;
@@ -94,6 +105,7 @@ void InitPanes(PANE* p_target)
 }
 
 // FUNCTION: MW2 0x1000242f
+// FUNCTION: MW2MATROX 0x1002d5cf
 void SelectPane(MechS32 p_index)
 {
 	PANE* target;
@@ -108,22 +120,31 @@ void SelectPane(MechS32 p_index)
 		g_eyepoint->m_viewTop = 0;
 		g_eyepoint->m_viewRight = target->m_x1 - target->m_x0;
 		g_eyepoint->m_viewBottom = target->m_y1 - target->m_y0;
+#ifndef MW2_MATROX
 		g_eyepoint->m_offsetX = 0;
 		g_eyepoint->m_offsetY = 0;
+#endif
 		g_currentPane = *target;
 		g_paneIndex = p_index;
 		g_projectionDirty = 1;
 	}
 }
 
+// The edition adds m_viewLeft and m_viewRight in the other operand order.
 // FUNCTION: MW2 0x100024f0
+// FUNCTION: MW2MATROX 0x1002d678
 void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 {
 	MechS32 x;
 	MechS32 y;
 
+#ifdef MW2_MATROX
+	x = (p_eyepoint->m_viewLeft + p_eyepoint->m_viewRight) / 2;
+	y = (p_eyepoint->m_viewTop + p_eyepoint->m_viewBottom) / 2;
+#else
 	x = p_eyepoint->m_offsetX + (p_eyepoint->m_viewLeft + p_eyepoint->m_viewRight) / 2;
 	y = p_eyepoint->m_offsetY + (p_eyepoint->m_viewTop + p_eyepoint->m_viewBottom) / 2;
+#endif
 	*p_x = x;
 	*p_y = y;
 }
@@ -139,17 +160,34 @@ void ApplyPendingPalette(void)
 	}
 }
 
+// The edition ors the pixel's green and blue parts in the other order.
 // FUNCTION: MW2 0x1000258d
+// FUNCTION: MW2MATROX 0x1002d705
 void ApplyPaletteResource(MechS32 p_slot)
 {
 	MechU8* palette;
 	MechS32* id;
+#ifdef MW2_MATROX
+	MechS32 i;
+	PaletteColor color;
+#endif
 
 	id = &g_paletteResourceIds[p_slot];
 	if (*id > 0) {
 		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resourceTypeTags[c_resTagPal], 0);
 		if (palette) {
+#ifdef MW2_MATROX
+			// The edition's 16-bit pixels: RGB565 from the 6-bit components.
+			for (i = 0; i < 0x100; i++) {
+				color = ((PaletteColor*) palette)[i];
+				FUN_1005708c(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
+			}
+
+			ResetTextColors();
+			FUN_1005f790((PaletteColor*) palette);
+#else
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
+#endif
 			UnlockCachedResource(*id, g_resourceTypeTags[c_resTagPal]);
 		}
 	}
@@ -179,6 +217,7 @@ void UpdatePaletteFade(void)
 
 // Matches except for the stack slots of fromSlot, steps and to (a consistent permutation).
 // FUNCTION: MW2 0x10002687
+// FUNCTION: MW2MATROX 0x1002d865
 MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 {
 	MechU8* to;
@@ -208,6 +247,18 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 					p_duration >>= 1;
 				}
 
+#ifdef MW2_MATROX
+				if (g_deltaTime > 0) {
+					steps = (MechFloat) p_duration / g_deltaTime + 0.5f;
+				}
+				else {
+					steps = 10;
+				}
+
+				if (steps == 0) {
+					steps = 1;
+				}
+#else
 				if (g_deltaTime > 0) {
 					steps = FixedDiv16(p_duration, g_deltaTime);
 				}
@@ -221,6 +272,7 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 				else {
 					steps = 1;
 				}
+#endif
 			}
 			else {
 				steps = 20;
@@ -233,12 +285,45 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 				g_paletteFadeSteps = steps;
 			}
 
+#ifdef MW2_MATROX
+			if (p_mode == 1 || p_mode == 2) {
+				g_paletteFadeBackSteps = p_duration;
+			}
+			else {
+				g_paletteFadeBackSteps = 0;
+			}
+
+			switch (p_palette) {
+			case 0xc:
+				g_unk0x100aa1d0 = 1;
+				g_unk0x10184700[0] = 0.0f;
+				g_unk0x10184700[1] = 255.0f;
+				g_unk0x10184700[2] = 8.0f;
+				break;
+			case 0x11:
+				g_unk0x100aa1d0 = 1;
+				g_unk0x10184700[0] = 255.0f;
+				g_unk0x10184700[1] = 8.0f;
+				g_unk0x10184700[2] = 8.0f;
+				break;
+			case 0x10:
+				g_unk0x100aa1d0 = 1;
+				g_unk0x10184700[0] = 0.0f;
+				g_unk0x10184700[1] = 0.0f;
+				g_unk0x10184700[2] = 0.0f;
+				break;
+			default:
+				g_unk0x100aa1d0 = 0;
+				break;
+			}
+#else
 			if (p_mode == 1 || p_mode == 2) {
 				g_paletteFadeBackSteps = steps;
 			}
 			else {
 				g_paletteFadeBackSteps = 0;
 			}
+#endif
 
 			InitPaletteFade(&g_paletteFade, from, to, 0, 0x100, steps);
 			result = 1;
@@ -410,3 +495,36 @@ MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;
 }
+
+#ifdef MW2_MATROX
+// STUB: MW2MATROX 0x1005708c
+void FUN_1005708c(MechS32 p_index, MechS32 p_pixel)
+{
+	STUB(0x1005708c);
+}
+
+// STUB: MW2MATROX 0x100570aa
+MechS32 FUN_100570aa(MechS32 p_color)
+{
+	STUB(0x100570aa);
+	return 0;
+}
+
+// STUB: MW2MATROX 0x1005f790
+void FUN_1005f790(PaletteColor* p_palette)
+{
+	STUB(0x1005f790);
+}
+
+// STUB: MW2MATROX 0x10088246
+void FUN_10088246(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
+{
+	STUB(0x10088246);
+}
+
+// STUB: MW2MATROX 0x10088280
+void FUN_10088280(PANE* p_pane)
+{
+	STUB(0x10088280);
+}
+#endif

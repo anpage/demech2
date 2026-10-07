@@ -135,9 +135,10 @@ MechS32 MoveMechWithCollisions(
 				nx = ray.m_dirX - FixedMul16(dot, g_segmentNormalX);
 				ny = ray.m_dirY - FixedMul16(dot, g_segmentNormalY);
 				nz = ray.m_dirZ - FixedMul16(dot, g_segmentNormalZ);
-				bounce =
-					-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) >>
-					2;
+				bounce = FIXED_SHR(
+					-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ),
+					2
+				);
 				p_mech->m_velocityX = FixedMul16(nx, bounce);
 				p_mech->m_velocityY = FixedMul16(ny, bounce);
 				p_mech->m_velocityZ = FixedMul16(nz, bounce);
@@ -388,8 +389,10 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* 
 			*p_x = shape->m_centerX + FixedMul16(g_segmentNormalX, reach);
 			*p_y = shape->m_centerY + FixedMul16(g_segmentNormalY, reach);
 			*p_z = shape->m_centerZ + FixedMul16(g_segmentNormalZ, reach);
-			bounce =
-				-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) >> 2;
+			bounce = FIXED_SHR(
+				-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ),
+				2
+			);
 			if (bounce > 8) {
 				bounce = -bounce >> 1;
 			}

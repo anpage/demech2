@@ -7,6 +7,7 @@
 #include "config.h"
 #include "decomp.h"
 #include "fixeddiv.h"
+#include "fixedfloat.h"
 #include "mech.h"
 #include "palette.h"
 #include "players.h"
@@ -22,20 +23,26 @@ typedef struct TimeOfDayPhase {
 DECOMP_SIZE_ASSERT(TimeOfDayPhase, 0x08)
 
 // GLOBAL: MW2 0x100ba5d8
+// GLOBAL: MW2MATROX 0x100bbb80
 TimeOfDayPhase g_timeOfDayPhases[4] = {{4, 2715}, {0, 2715}, {4, 3620}, {8, 2715}};
 
 // GLOBAL: MW2 0x100ba5f8
 // GLOBAL: MW2MATROX 0x100bbba0
 MechS32 g_timeOfDayPhase = -1;
 
+// The edition keeps these three as floats, in plain units.
+
 // GLOBAL: MW2 0x100ba5fc
-MechS32 g_soundDelayPerUnit = 0x168;
+// GLOBAL: MW2MATROX 0x100bbba4
+MechScalar g_soundDelayPerUnit = FIXED_RAW(0x168);
 
 // GLOBAL: MW2 0x100ba600
-MechS32 g_gravity = 0x794;
+// GLOBAL: MW2MATROX 0x100bbba8
+MechScalar g_gravity = FIXED_RAW(0x794);
 
 // GLOBAL: MW2 0x100ba604
-MechS32 g_gravityScale = 0x10000;
+// GLOBAL: MW2MATROX 0x100bbbac
+MechScalar g_gravityScale = FIXED_RAW(0x10000);
 
 // GLOBAL: MW2 0x100ba608
 // GLOBAL: MW2MATROX 0x100bbbb0
@@ -70,6 +77,7 @@ MechS32 g_timeOfDayFrames;
 MechS32 g_timeOfDayStarts[4];
 
 // GLOBAL: MW2 0x100bfab8
+// GLOBAL: MW2MATROX 0x101252d0
 MechS32 g_timeOfDayEnabled;
 
 // GLOBAL: MW2 0x100bfd4c
@@ -146,11 +154,16 @@ void UpdateTimeOfDay(void)
 
 // Operand order: the original compares p_phase != g_timeOfDayPhase with g_timeOfDayPhase in eax.
 // FUNCTION: MW2 0x1007d7e3
+// FUNCTION: MW2MATROX 0x10085e63
 void FadeToTimeOfDayPhase(MechS32 p_phase)
 {
 	MechS32 duration;
 
+#ifdef MW2_MATROX
+	if (g_timeOfDayEnabled == 1 && g_timeOfDayPhase == -1) {
+#else
 	if (g_timeOfDayEnabled == 1 && p_phase != g_timeOfDayPhase) {
+#endif
 		if (g_infraredOn == 1) {
 			duration = 181;
 			g_infraredOn = 0;
@@ -178,6 +191,7 @@ MechS32 IsInfraredOn(undefined4 p_unk0x00)
 
 // Operand order: the original compares g_infraredOn != p_state with p_state in eax.
 // FUNCTION: MW2 0x1007d88a
+// FUNCTION: MW2MATROX 0x10085f09
 void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 {
 	if (g_infraredOn != p_state) {
@@ -191,6 +205,9 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 			}
 		}
 		else if (p_state == 0) {
+#ifdef MW2_MATROX
+			FadeToBasePalette(0, 181);
+#endif
 			g_timeOfDayEnabled = 1;
 			g_timeOfDayPhase = -1;
 			g_nextTimeOfDayUpdate = 0;

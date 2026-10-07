@@ -4,6 +4,7 @@
 
 #include "collision.h"
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "object.h"
 #include "players.h"
 #include "shape.h"
@@ -33,22 +34,28 @@ MechS32 g_unk0x100ba660 = 0;
 MechS32 g_unk0x100ba664 = 0;
 
 // GLOBAL: MW2 0x100ba668
-MechS32 g_shapeOffsetX = 0;
+// GLOBAL: MW2MATROX 0x100a55e0
+MechScalar g_shapeOffsetX = 0;
 
 // GLOBAL: MW2 0x100ba66c
-MechS32 g_shapeOffsetY = 0;
+// GLOBAL: MW2MATROX 0x100a55e4
+MechScalar g_shapeOffsetY = 0;
 
 // GLOBAL: MW2 0x100ba670
-MechS32 g_shapeOffsetZ = 0;
+// GLOBAL: MW2MATROX 0x100a55e8
+MechScalar g_shapeOffsetZ = 0;
 
 // GLOBAL: MW2 0x100ba674
-MechS32 g_shapeScaleX = 1;
+// GLOBAL: MW2MATROX 0x100a55ec
+MechScalar g_shapeScaleX = 1;
 
 // GLOBAL: MW2 0x100ba678
-MechS32 g_shapeScaleY = 1;
+// GLOBAL: MW2MATROX 0x100a55f0
+MechScalar g_shapeScaleY = 1;
 
 // GLOBAL: MW2 0x100ba67c
-MechS32 g_shapeScaleZ = 1;
+// GLOBAL: MW2MATROX 0x100a55f4
+MechScalar g_shapeScaleZ = 1;
 
 // GLOBAL: MW2 0x100ba680
 // GLOBAL: MW2MATROX 0x100a55f8
@@ -92,6 +99,7 @@ void SetFaceIds(MechU32* p_ids, MechU32 p_count)
 }
 
 // FUNCTION: MW2 0x1007f15b
+// FUNCTION: MW2MATROX 0x1002524b
 void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
 	g_shapeOffsetX = p_x;
@@ -100,8 +108,31 @@ void SetShapeOffset(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 }
 
 // FUNCTION: MW2 0x1007f17e
-void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z)
+// FUNCTION: MW2MATROX 0x10025286
+void SetShapeScale(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
+#ifdef MW2_MATROX
+	if ((MechFloat) fabs(p_x) >= 1e-07f) {
+		g_shapeScaleX = p_x;
+	}
+	else {
+		g_shapeScaleX = 1;
+	}
+
+	if ((MechFloat) fabs(p_y) >= 1e-07f) {
+		g_shapeScaleY = p_y;
+	}
+	else {
+		g_shapeScaleY = 1;
+	}
+
+	if ((MechFloat) fabs(p_z) >= 1e-07f) {
+		g_shapeScaleZ = p_z;
+	}
+	else {
+		g_shapeScaleZ = 1;
+	}
+#else
 	g_shapeScaleX = p_x;
 	if (!g_shapeScaleX) {
 		g_shapeScaleX = 1;
@@ -116,6 +147,7 @@ void SetShapeScale(MechS32 p_x, MechS32 p_y, MechS32 p_z)
 	if (!g_shapeScaleZ) {
 		g_shapeScaleZ = 1;
 	}
+#endif
 }
 
 // FUNCTION: MW2 0x1007f1e6

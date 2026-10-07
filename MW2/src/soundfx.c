@@ -8,6 +8,7 @@
 #include "clock.h"
 #include "decomp.h"
 #include "environment.h"
+#include "fixedfloat.h"
 #include "fixedmul.h"
 #include "fixedtrig.h"
 #include "loadres.h"
@@ -135,6 +136,7 @@ void ShutdownDigitalAudio(void)
 // Stack slots: i, size and buffer are permuted. Operand order: the index of m_buffers[i][buffer],
 // m_remaining[i] <= m_chunkFrames[i] and the product for size.
 // FUNCTION: MW2 0x1007dc89
+// FUNCTION: MW2MATROX 0x10086349
 void ServeSamples(void)
 {
 	MechU32 i;
@@ -525,25 +527,36 @@ MechS32 PlaySoundRandomRate(
 // and fading with it; p_half halves the volume. Returns the distance.
 // Stack slots: horizontal, delay, pitch, volume, bearing, distance and range are permuted.
 // FUNCTION: MW2 0x1007ea8c
-MechS32 PlayPositionalSound(MechS32 p_dx, MechS32 p_dy, MechS32 p_dz, MechS32 p_sound, MechS32 p_half)
+// FUNCTION: MW2MATROX 0x10087158
+MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half)
 {
-	MechS32 horizontal;
+	MechScalar horizontal;
 	MechS32 delay;
-	MechS32 pitch;
+	MechScalar pitch;
 	MechS32 volume;
-	MechS32 bearing;
-	MechS32 distance;
+	MechScalar bearing;
+	MechScalar distance;
+#ifndef MW2_MATROX
 	MechS32 range;
+#endif
 
-	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (MechU32*) &horizontal, &pitch);
+	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (BearingDistance*) &horizontal, &pitch);
+#ifdef MW2_MATROX
+	volume = GetDistanceVolume(distance);
+#else
 	range = distance;
 	volume = GetDistanceVolume(range);
+#endif
 	if (volume > 0) {
 		if (p_half) {
 			volume >>= 1;
 		}
 
+#ifdef MW2_MATROX
+		delay = distance * g_soundDelayPerUnit;
+#else
 		delay = FixedMul16(distance, g_soundDelayPerUnit);
+#endif
 		PlayDelayedSound(delay, bearing, p_sound, volume, -1, 0x32);
 	}
 
@@ -591,13 +604,13 @@ MechS32 PlayDelayedSound(
 
 // FUNCTION: MW2 0x1007ebd1
 // FUNCTION: MW2MATROX 0x100872a2
-MechS32 PlaySoundAt(MechS32 p_x, MechS32 p_y, MechS32 p_z, MechS32 p_sound, MechS32 p_half)
+MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_sound, MechS32 p_half)
 {
 	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
 }
 
 // FUNCTION: MW2 0x1007ebfd
-MechS32 CalculateSamplePan(MechS32 p_bearing)
+MechS32 CalculateSamplePan(MechScalar p_bearing)
 {
 	MechS32 pan;
 	MechS32 angle;
@@ -647,17 +660,21 @@ void StopSamples(MechS32 p_all)
 
 // Stack slots: i, x, started, distance and y are permuted.
 // FUNCTION: MW2 0x1007ed1e
+// FUNCTION: MW2MATROX 0x100873f7
 void UpdateAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;
 	MechS32 i;
 	MechS32 volume;
-	MechS32 x;
+	MechScalar x;
 	MechS32 started;
-	MechS32 distance;
-	MechS32 bearing;
-	MechS32 y;
-	MechS32 z;
+	MechScalar distance;
+	MechScalar bearing;
+	MechScalar y;
+	MechScalar z;
+#ifdef MW2_MATROX
+	MechScalar unused;
+#endif
 
 	started = 0;
 	if (!g_audioEngine) {
@@ -673,7 +690,11 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	x = g_eyepoint->m_x - x;
 	y = g_eyepoint->m_y - y;
 	z = g_eyepoint->m_z - z;
-	GetBearingAndRange(x, y, z, &bearing, &distance, (MechU32*) &i, &i);
+#ifdef MW2_MATROX
+	GetBearingAndRange(x, y, z, &bearing, &distance, &unused, &unused);
+#else
+	GetBearingAndRange(x, y, z, &bearing, &distance, (BearingDistance*) &i, &i);
+#endif
 
 	if (p_sound->m_range < distance) {
 		StopAmbientSound(p_sound);

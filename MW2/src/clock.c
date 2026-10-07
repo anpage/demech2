@@ -89,13 +89,13 @@ MechS32 g_slopeSines[800];
 MechS32 g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
-MechS32 g_sinTable[0x102];
+MechScalar g_sinTable[TRIG_TABLE_SIZE];
 
 // GLOBAL: MW2 0x100c1a80
 MechS16 g_sqrtTableData[0x400];
 
 // GLOBAL: MW2 0x100c2290
-MechS32 g_atanTable[0x102];
+MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
@@ -145,8 +145,16 @@ MechS32 InitSqrtTable(void)
 }
 
 // FUNCTION: MW2 0x1007caf7
-MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
+MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
+#ifdef MW2_MATROX
+	MechDouble x;
+	MechDouble y;
+
+	x = p_x;
+	y = p_y;
+	return sqrt(x * x + y * y);
+#else
 	MechS32 length;
 	MechDouble x;
 	MechDouble y;
@@ -154,6 +162,7 @@ MechS32 Hypot2D(MechS32 p_x, MechS32 p_y)
 	x = p_x;
 	length = (MechS32) sqrt((y = p_y) * y + x * x);
 	return length;
+#endif
 }
 
 // Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
@@ -172,19 +181,30 @@ void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS3
 
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
+// FUNCTION: MW2MATROX 0x10002479
 void NormalizeRotation(Matrix* p_matrix)
 {
+#ifdef MW2_MATROX
+	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
+	ScaleVectorToLength(&p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
+	ScaleVectorToLength(&p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
+	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
+	ScaleVectorToLength(&p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
+	ScaleVectorToLength(&p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+#else
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][0], &p_matrix->m_rows[1][0], &p_matrix->m_rows[2][0]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][1], &p_matrix->m_rows[1][1], &p_matrix->m_rows[2][1]);
 	ScaleVectorToLength(0x20000000, &p_matrix->m_rows[0][2], &p_matrix->m_rows[1][2], &p_matrix->m_rows[2][2]);
+#endif
 }
 
-// Scales (*p_x, *p_y, *p_z) to length p_length.
+// Scales (*p_x, *p_y, *p_z) to length p_length (the Matrox edition always to 1).
 // FUNCTION: MW2 0x1007ccc2
-void ScaleVectorToLength(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1000252c
+void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
 {
 	MechDouble scale;
 	MechDouble x;
@@ -194,9 +214,15 @@ void ScaleVectorToLength(MechS32 p_length, MechS32* p_x, MechS32* p_y, MechS32* 
 	x = *p_x;
 	y = *p_y;
 	z = *p_z;
+#ifdef MW2_MATROX
+	*p_x = (scale = 1.0 / sqrt(x * x + y * y + z * z)) * x;
+	*p_y = y * scale;
+	*p_z = z * scale;
+#else
 	*p_x = (MechS32) ((scale = p_length / sqrt(x * x + y * y + z * z)) * x);
 	*p_y = (MechS32) (y * scale);
 	*p_z = (MechS32) (z * scale);
+#endif
 }
 
 // FUNCTION: MW2 0x1007cd50

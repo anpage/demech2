@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "approxlen.h"
 #include "clock.h"
 #include "decomp.h"
 #include "depthsort.h"
@@ -56,10 +57,10 @@ MechS32 g_viewHalfWidth;
 MechS32 g_viewBottom;
 
 // GLOBAL: MW2 0x100ea844
-MechS32 g_viewProjectScaleX;
+MechScalar g_viewProjectScaleX;
 
 // GLOBAL: MW2 0x100ea848
-MechS32 g_viewProjectScaleY;
+MechScalar g_viewProjectScaleY;
 
 // GLOBAL: MW2 0x100ea84c
 MechS32 g_viewRight;
@@ -77,34 +78,34 @@ MechS32 g_viewCenterY;
 MechS32 g_viewBottomScaled;
 
 // GLOBAL: MW2 0x100ea860
-MechS32 g_viewFarPlane;
+MechScalar g_viewFarPlane;
 
 // GLOBAL: MW2 0x100ea864
-MechS32 g_viewProjX0;
+MechScalar g_viewProjX0;
 
 // GLOBAL: MW2 0x100ea868
-MechS32 g_viewProjX1;
+MechScalar g_viewProjX1;
 
 // GLOBAL: MW2 0x100ea86c
-MechS32 g_viewProjX2;
+MechScalar g_viewProjX2;
 
 // GLOBAL: MW2 0x100ea870
-MechS32 g_viewProjY0;
+MechScalar g_viewProjY0;
 
 // GLOBAL: MW2 0x100ea874
-MechS32 g_viewProjY1;
+MechScalar g_viewProjY1;
 
 // GLOBAL: MW2 0x100ea878
-MechS32 g_viewProjY2;
+MechScalar g_viewProjY2;
 
 // GLOBAL: MW2 0x100ea87c
-MechS32 g_viewProjZ0;
+MechScalar g_viewProjZ0;
 
 // GLOBAL: MW2 0x100ea880
-MechS32 g_viewProjZ1;
+MechScalar g_viewProjZ1;
 
 // GLOBAL: MW2 0x100ea884
-MechS32 g_viewProjZ2;
+MechScalar g_viewProjZ2;
 
 // GLOBAL: MW2 0x100ea888
 MechS32 g_viewProjectScaleX16;
@@ -113,68 +114,124 @@ MechS32 g_viewProjectScaleX16;
 MechS32 g_viewProjectScaleY16;
 
 // GLOBAL: MW2 0x100ea890
-MechS32 g_viewRotX0;
+MechScalar g_viewRotX0;
 
 // GLOBAL: MW2 0x100ea894
-MechS32 g_viewRotX1;
+MechScalar g_viewRotX1;
 
 // GLOBAL: MW2 0x100ea898
-MechS32 g_viewRotX2;
+MechScalar g_viewRotX2;
 
 // GLOBAL: MW2 0x100ea89c
-MechS32 g_viewRotY0;
+MechScalar g_viewRotY0;
 
 // GLOBAL: MW2 0x100ea8a0
-MechS32 g_viewRotY1;
+MechScalar g_viewRotY1;
 
 // GLOBAL: MW2 0x100ea8a4
-MechS32 g_viewRotY2;
+MechScalar g_viewRotY2;
 
 // GLOBAL: MW2 0x100ea8a8
-MechS32 g_viewRotZ0;
+MechScalar g_viewRotZ0;
 
 // GLOBAL: MW2 0x100ea8ac
-MechS32 g_viewRotZ1;
+MechScalar g_viewRotZ1;
 
 // GLOBAL: MW2 0x100ea8b0
-MechS32 g_viewRotZ2;
+MechScalar g_viewRotZ2;
 
 // GLOBAL: MW2 0x100ea8b4
-MechS32 g_viewEyeY;
+MechScalar g_viewEyeY;
 
 // GLOBAL: MW2 0x100ea8b8
-MechS32 g_viewEyeX;
+MechScalar g_viewEyeX;
 
 // GLOBAL: MW2 0x100ea8bc
-MechS32 g_viewEyeZ;
+MechScalar g_viewEyeZ;
 
 // GLOBAL: MW2 0x100ea8c0
-MechS32 g_viewLightZ;
+MechScalar g_viewLightZ;
 
 // GLOBAL: MW2 0x100ea8c4
-MechS32 g_viewLightX;
+MechScalar g_viewLightX;
 
 // GLOBAL: MW2 0x100ea8c8
-MechS32 g_viewLightY;
+MechScalar g_viewLightY;
 
 // GLOBAL: MW2 0x100ea8cc
 MechS32 g_viewTopScaled;
 
 // GLOBAL: MW2 0x100ea8d0
-MechS32 g_viewNearPlane;
+MechScalar g_viewNearPlane;
 
 // GLOBAL: MW2 0x100ea8d4
 MechS32 g_viewRightScaled;
 
+#ifdef MW2_MATROX
+// The edition's shading: the ambient light as a fraction (out of 256), and the length of the
+// light's position and that over 128 (SelectEyepoint).
+// GLOBAL: MW2MATROX 0x101d68a0
+MechFloat g_viewAmbientScale;
+
+// GLOBAL: MW2MATROX 0x101d6858
+MechFloat g_viewLightLength;
+
+// GLOBAL: MW2MATROX 0x101d68b8
+MechFloat g_viewLightScale;
+#endif
+
 // Makes p_eyepoint the current eyepoint and copies what the renderer uses each frame out of it:
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
 // FUNCTION: MW2 0x1004b980
+// FUNCTION: MW2MATROX 0x10029070
 void SelectEyepoint(Eyepoint* p_eyepoint)
 {
 	Eyepoint* eyepoint;
 
 	g_eyepoint = eyepoint = p_eyepoint;
 	g_ambientLight = eyepoint->m_ambientLight;
+#ifdef MW2_MATROX
+	g_viewAmbientScale = g_ambientLight / 256.0f;
+	g_directionalLight = eyepoint->m_directionalLight;
+	g_viewProjectScaleX = eyepoint->m_projectScaleX;
+	g_viewProjectScaleY = eyepoint->m_projectScaleY;
+	g_viewRotX0 = eyepoint->m_viewMatrix.m_rows[0][0];
+	g_viewRotX1 = eyepoint->m_viewMatrix.m_rows[0][1];
+	g_viewRotX2 = eyepoint->m_viewMatrix.m_rows[0][2];
+	g_viewRotY0 = eyepoint->m_viewMatrix.m_rows[1][0];
+	g_viewRotY1 = eyepoint->m_viewMatrix.m_rows[1][1];
+	g_viewRotY2 = eyepoint->m_viewMatrix.m_rows[1][2];
+	g_viewProjZ0 = g_viewRotZ0 = eyepoint->m_viewMatrix.m_rows[2][0];
+	g_viewProjZ1 = g_viewRotZ1 = eyepoint->m_viewMatrix.m_rows[2][1];
+	g_viewProjZ2 = g_viewRotZ2 = eyepoint->m_viewMatrix.m_rows[2][2];
+	g_viewProjX0 = g_viewRotX0 * g_viewProjectScaleX;
+	g_viewProjX1 = g_viewRotX1 * g_viewProjectScaleX;
+	g_viewProjX2 = g_viewRotX2 * g_viewProjectScaleX;
+	g_viewProjY0 = g_viewRotY0 * g_viewProjectScaleY;
+	g_viewProjY1 = g_viewRotY1 * g_viewProjectScaleY;
+	g_viewProjY2 = g_viewRotY2 * g_viewProjectScaleY;
+	g_viewEyeX = eyepoint->m_viewMatrix.m_rows[3][0];
+	g_viewEyeY = eyepoint->m_viewMatrix.m_rows[3][1];
+	g_viewEyeZ = eyepoint->m_viewMatrix.m_rows[3][2];
+	g_viewLightX = eyepoint->m_lightX;
+	g_viewLightY = eyepoint->m_lightY;
+	g_viewLightZ = eyepoint->m_lightZ;
+	if (g_directionalLight) {
+		g_viewLightScale =
+			(g_viewLightLength = ApproximateVectorLength(g_viewLightX, g_viewLightY, g_viewLightZ)) * 0.0078125f;
+	}
+
+	g_viewNearPlane = eyepoint->m_nearPlane;
+	g_viewLeft = eyepoint->m_viewLeft;
+	g_viewFarPlane = eyepoint->m_farPlane;
+	g_viewTop = eyepoint->m_viewTop;
+	g_viewRight = eyepoint->m_viewRight;
+	g_viewBottom = eyepoint->m_viewBottom;
+	g_viewHalfWidth = eyepoint->m_halfWidth;
+	g_viewHalfHeight = eyepoint->m_halfHeight;
+	g_viewCenterX = eyepoint->m_centerX;
+	g_viewCenterY = eyepoint->m_centerY;
+#else
 	g_directionalLight = eyepoint->m_directionalLight;
 	g_viewProjectScaleX16 = eyepoint->m_projectScaleX16;
 	g_viewProjectScaleY16 = eyepoint->m_projectScaleY16;
@@ -219,6 +276,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 	g_viewCenterY = eyepoint->m_centerY;
 	g_viewShiftX = eyepoint->m_projectShiftX;
 	g_viewShiftY = eyepoint->m_projectShiftY;
+#endif
 }
 
 // Sets up the eyepoint's projection from its view rectangle, field of view and pixel aspect.
@@ -310,16 +368,21 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x1004bf61
-void SetNearPlane(Eyepoint* p_eyepoint, MechS32 p_value)
+// FUNCTION: MW2MATROX 0x10029608
+void SetNearPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 {
 	p_eyepoint->m_nearPlane = g_viewNearPlane = p_value;
+#ifndef MW2_MATROX
 	g_viewNear = p_value << 2;
+#endif
 }
 
 // FUNCTION: MW2 0x1004bf8a
-void SetFarPlane(Eyepoint* p_eyepoint, MechS32 p_value)
+// FUNCTION: MW2MATROX 0x10029627
+void SetFarPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 {
 	p_eyepoint->m_farPlane = g_viewFarPlane = p_value;
+#ifndef MW2_MATROX
 	if (p_value < 0x1fffffff) {
 		g_viewFar = p_value << 2;
 		p_eyepoint->m_cullDistance = p_value;
@@ -328,11 +391,13 @@ void SetFarPlane(Eyepoint* p_eyepoint, MechS32 p_value)
 		g_viewFar = 0x7fffffff;
 		p_eyepoint->m_cullDistance = 0x7fffffff;
 	}
+#endif
 }
 
 // Builds the eyepoint's view matrix (its rotation transposed, and its position) from its
 // position and rotation.
 // FUNCTION: MW2 0x1004bfe8
+// FUNCTION: MW2MATROX 0x10029646
 void UpdateViewMatrix(Eyepoint* p_eyepoint)
 {
 	Matrix matrix;

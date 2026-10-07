@@ -436,6 +436,7 @@ MechS32 PlaceStaticObject(
 // Stack-slot permutation; i < g_starCapacity compares in the other operand order, and the second
 // center sum adds its operands in the other order.
 // FUNCTION: MW2 0x1001fa05
+// FUNCTION: MW2MATROX 0x100530a5
 void BeginBlock(BwdBlockRecord* p_record)
 {
 	StaticBlock* block;
@@ -467,19 +468,19 @@ void BeginBlock(BwdBlockRecord* p_record)
 		block->m_maxZ = p_record->m_size[2];
 		block->m_parent = g_blockStack[g_blockDepth - 1];
 		block->m_xform = g_pendingXform;
-		if (block->m_maxX < 0) {
+		if (FIXED_IS_NEGATIVE(block->m_maxX)) {
 			block->m_minX += block->m_maxX;
 			block->m_maxX = -block->m_maxX;
 		}
 
 		block->m_maxX += block->m_minX;
-		if (block->m_maxY < 0) {
+		if (FIXED_IS_NEGATIVE(block->m_maxY)) {
 			block->m_minY += block->m_maxY;
 			block->m_maxY = -block->m_maxY;
 		}
 
 		block->m_maxY += block->m_minY;
-		if (block->m_maxZ < 0) {
+		if (FIXED_IS_NEGATIVE(block->m_maxZ)) {
 			block->m_minZ += block->m_maxZ;
 			block->m_maxZ = -block->m_maxZ;
 		}
@@ -490,9 +491,15 @@ void BeginBlock(BwdBlockRecord* p_record)
 		block->m_centerZ = (block->m_maxZ + block->m_minZ) / 2;
 		matrix = &block->m_matrix;
 		SetIdentityMatrix(&rotation);
+#ifdef MW2_MATROX
+		rotation.m_rows[0][0] = block->m_xform.m_scaleX;
+		rotation.m_rows[1][1] = block->m_xform.m_scaleY;
+		rotation.m_rows[2][2] = block->m_xform.m_scaleZ;
+#else
 		rotation.m_rows[0][0] = block->m_xform.m_scaleX << 29;
 		rotation.m_rows[1][1] = block->m_xform.m_scaleY << 29;
 		rotation.m_rows[2][2] = block->m_xform.m_scaleZ << 29;
+#endif
 		BuildMatrix(&translate, 0, 0, 0, -block->m_centerX, -block->m_centerY, -block->m_centerZ);
 		BuildMatrix(&scale, block->m_xform.m_angleX, block->m_xform.m_angleY, block->m_xform.m_angleZ, 0, 0, 0);
 		MultiplyMatrix(&scale, &translate, matrix);
@@ -551,6 +558,7 @@ void TransformBlockPoint(MechS32* p_point)
 
 // Resets a static object cache entry.
 // FUNCTION: MW2 0x1001feef
+// FUNCTION: MW2MATROX 0x10053636
 void ResetStaticObject(MechS32 p_index)
 {
 	StaticObject* entry;
@@ -1036,7 +1044,8 @@ Shape* GetStaticObjectShape(MechS32 p_index)
 // Stack-slot permutation: obj and entry. Operand order: p_index > g_staticObjectCount loads
 // g_staticObjectCount first in the original.
 // FUNCTION: MW2 0x10020c6f
-void GetStaticObjectPosition(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x100543ba
+void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	struct SceneObject* obj;
 	StaticObject* entry;
@@ -1069,17 +1078,18 @@ void GetStaticObjectPosition(MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS3
 // shown. Returns whether any is shown.
 // Stack-slot permutation; the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x10020d51
+// FUNCTION: MW2MATROX 0x1005449d
 MechS32 ToggleBlockBoxes(void)
 {
 	MechS32 result;
 	MechS32 size;
 	ResourceRef* ref;
-	MechS32 dz;
-	MechS32 dy;
-	MechS32 dx;
-	MechS32 scaleZ;
-	MechS32 scaleY;
-	MechS32 scaleX;
+	MechScalar dz;
+	MechScalar dy;
+	MechScalar dx;
+	MechScalar scaleZ;
+	MechScalar scaleY;
+	MechScalar scaleX;
 	MechS32 offset;
 	Shape* shape;
 	StaticBlock* block;
@@ -1114,9 +1124,15 @@ MechS32 ToggleBlockBoxes(void)
 				dx = block->m_maxX - block->m_minX;
 				dy = block->m_maxY - block->m_minY;
 				dz = block->m_maxZ - block->m_minZ;
+#ifdef MW2_MATROX
+				dx = fabs(dx);
+				dy = fabs(dy);
+				dz = fabs(dz);
+#else
 				dx = abs(dx);
 				dy = abs(dy);
 				dz = abs(dz);
+#endif
 				scaleX = (dx + 9) / 10;
 				scaleY = (dy + 9) / 10;
 				scaleZ = (dz + 9) / 10;
@@ -1205,21 +1221,22 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 // Loads model p_data scaled to the box of p_node at its center, then to its children's.
 // Stack-slot permutation; the original loads m_unk0x14 first in z's sum (commutative operand order).
 // FUNCTION: MW2 0x1002116a
+// FUNCTION: MW2MATROX 0x100548f9
 void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 {
 	MechS32 result;
-	MechS32 dz;
-	MechS32 dy;
-	MechS32 dx;
-	MechS32 scaleZ;
-	MechS32 scaleY;
-	MechS32 scaleX;
+	MechScalar dz;
+	MechScalar dy;
+	MechScalar dx;
+	MechScalar scaleZ;
+	MechScalar scaleY;
+	MechScalar scaleX;
 	MechS32 offset;
-	MechS32 x;
+	MechScalar x;
 	Shape* shape;
-	MechS32 z;
+	MechScalar z;
 	MechS32 i;
-	MechS32 y;
+	MechScalar y;
 	Matrix matrix;
 
 	result = FALSE;
@@ -1230,11 +1247,21 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	dx = p_node->m_maxX - p_node->m_minX;
 	dy = p_node->m_maxY - p_node->m_minY;
 	dz = p_node->m_maxZ - p_node->m_minZ;
+#ifdef MW2_MATROX
+	dx = fabs(dx);
+	dy = fabs(dy);
+	dz = fabs(dz);
+#else
 	dx = abs(dx);
 	dy = abs(dy);
 	dz = abs(dz);
+#endif
 	scaleX = (dx + 9) / 10;
+#ifdef MW2_MATROX
+	scaleY = (dy + 9) * 2 / 10;
+#else
 	scaleY = (dy * 2 + 18) / 10;
+#endif
 	scaleZ = (dz + 9) / 10;
 	SetShapeScale(scaleX, scaleY, scaleZ);
 	SetShapeFlags(4);

@@ -265,6 +265,7 @@ static MechS32 BitsNeeded(MechU32 p_n)
 
 // Operand order: the original evaluates the flag bits' `|` operands in a different order.
 // FUNCTION: MW2 0x10074bb1
+// FUNCTION: MW2MATROX 0x1008a061
 static MechS32 WriteScreenDescriptor(GifScreenDescriptor* p_descriptor)
 {
 	MechU8 tmp;
@@ -655,6 +656,7 @@ static MechS32 InputByte(void)
 
 // Operand order: the original evaluates the flag bits' `|` operands in a different order.
 // FUNCTION: MW2 0x100756e1
+// FUNCTION: MW2MATROX 0x1008ab91
 static MechS32 WriteImageDescriptor(GifImageDescriptor* p_descriptor)
 {
 	MechU8 tmp;
