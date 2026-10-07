@@ -34,7 +34,7 @@ Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 MechScalar g_pixelAspect;
 
 #ifdef MW2_MATROX
-// The edition's: the art resolution ChooseArtResolution picked before its 512x384 override.
+// The Matrox edition's: the art resolution ChooseArtResolution picked before its 512x384 override.
 // GLOBAL: MW2MATROX 0x1012c1e4
 MechS32 g_unk0x1012c1e4;
 #endif

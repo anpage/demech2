@@ -5,7 +5,7 @@
 #include "fixedfloat.h"
 #include "types.h"
 
-// An ammunition bin of a weapon (WeaponSlot::m_bin). The edition's m_damage is a float, which
+// An ammunition bin of a weapon (WeaponSlot::m_bin). The Matrox edition's m_damage is a float, which
 // moves the members after it by two bytes (SIZE 0x16, as AmmoBin; SpawnShot steps by it).
 #ifdef MW2_MATROX
 #pragma pack(push, 1)
@@ -22,8 +22,8 @@ typedef struct WeaponBin {
 #else
 	MechU16 m_damage; // 0x0a — WeaponDef::m_damage
 #endif
-	MechS32 m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the edition)
-	MechS32 m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the edition)
+	MechS32 m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the Matrox edition)
+	MechS32 m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the Matrox edition)
 } WeaponBin;
 #ifdef MW2_MATROX
 #pragma pack(pop)

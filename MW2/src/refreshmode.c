@@ -17,7 +17,7 @@
 
 #include <windows.h>
 
-// The edition's messages end in a newline.
+// The Matrox edition's messages end in a newline.
 #ifdef MW2_MATROX
 #define TEXT_LINE(text) text "\n"
 #else

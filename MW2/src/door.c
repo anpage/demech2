@@ -82,7 +82,7 @@ void FirstDoor(Player* p_player)
 
 // Moves a mech in state 2 along its position ramps and places its object there, facing its
 // player's heading.
-// MW2MATROX (0x10088a5a) takes the heading's sine and cosine as floats, from the edition's
+// MW2MATROX (0x10088a5a) takes the heading's sine and cosine as floats, from the Matrox edition's
 // FixedSin of a float angle (the cosine is FixedSin(heading + 90)), without the >> 13.
 // FUNCTION: MW2 0x1006831a
 // STUB: MW2MATROX 0x10088a5a

@@ -11,7 +11,7 @@
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 #ifdef MW2_MATROX
-// The edition's is C, on floats, and takes the absolute values in the order x, z, y.
+// The Matrox edition's is C, on floats, and takes the absolute values in the order x, z, y.
 // FUNCTION: MW2MATROX 0x1007f25b
 MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {

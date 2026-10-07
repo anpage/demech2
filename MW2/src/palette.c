@@ -64,7 +64,7 @@ MechS32 g_paletteCycling = 0;
 MechS32 g_paletteCycleResource = -1;
 
 #ifdef MW2_MATROX
-// The edition's tint for the palettes 0xc, 0x10 and 0x11 (StartPaletteFade): whether it is on, and
+// The Matrox edition's tint for the palettes 0xc, 0x10 and 0x11 (StartPaletteFade): whether it is on, and
 // its color.
 // GLOBAL: MW2MATROX 0x100aa1d0
 MechS32 g_unk0x100aa1d0 = 0;
@@ -130,7 +130,7 @@ void SelectPane(MechS32 p_index)
 	}
 }
 
-// The edition adds m_viewLeft and m_viewRight in the other operand order.
+// The Matrox edition adds m_viewLeft and m_viewRight in the other operand order.
 // FUNCTION: MW2 0x100024f0
 // FUNCTION: MW2MATROX 0x1002d678
 void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
@@ -160,7 +160,7 @@ void ApplyPendingPalette(void)
 	}
 }
 
-// The edition ors the pixel's green and blue parts in the other order.
+// The Matrox edition ors the pixel's green and blue parts in the other order.
 // FUNCTION: MW2 0x1000258d
 // FUNCTION: MW2MATROX 0x1002d705
 void ApplyPaletteResource(MechS32 p_slot)
@@ -177,7 +177,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resourceTypeTags[c_resTagPal], 0);
 		if (palette) {
 #ifdef MW2_MATROX
-			// The edition's 16-bit pixels: RGB565 from the 6-bit components.
+			// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
 			for (i = 0; i < 0x100; i++) {
 				color = ((PaletteColor*) palette)[i];
 				FUN_1005708c(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);

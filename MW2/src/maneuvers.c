@@ -35,7 +35,7 @@
 #include <string.h>
 
 #ifdef MW2_MATROX
-// The edition divides by a probe direction only when it isn't 1.
+// The Matrox edition divides by a probe direction only when it isn't 1.
 #define PROBE_DIVIDE(p_n, p_d) ((MechFloat) ((p_d) == 1 ? (p_n) : (p_n) / (p_d)))
 #endif
 
@@ -1670,7 +1670,7 @@ MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScala
 		heading += FIXED_CONST(360);
 	}
 
-	// The edition tests the float's sign bit.
+	// The Matrox edition tests the float's sign bit.
 	return (*(MechU32*) &heading & 0x80000000) ? 1 : -1;
 #else
 	MechS32 dz;

@@ -55,7 +55,7 @@ MechS32 UpdateRamp(Ramp* p_ramp)
 }
 
 #ifdef MW2_MATROX
-// The edition's ramps of float values (Mech's, the camera's).
+// The Matrox edition's ramps of float values (Mech's, the camera's).
 // FUNCTION: MW2MATROX 0x1002e0db
 MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value, MechDouble p_seconds)
 {

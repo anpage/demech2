@@ -32,7 +32,7 @@
 // GLOBAL: MW2MATROX 0x100ac6a8
 MechS32 g_outlinePartSections[16] = {1, 3, 3, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0};
 
-// The edition keeps the full armor values as floats.
+// The Matrox edition keeps the full armor values as floats.
 #ifdef MW2_MATROX
 typedef struct ArmorPoint {
 	MechScalar m_x; // 0x00

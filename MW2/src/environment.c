@@ -30,7 +30,7 @@ TimeOfDayPhase g_timeOfDayPhases[4] = {{4, 2715}, {0, 2715}, {4, 3620}, {8, 2715
 // GLOBAL: MW2MATROX 0x100bbba0
 MechS32 g_timeOfDayPhase = -1;
 
-// The edition keeps these three as floats, in plain units.
+// The Matrox edition keeps these three as floats, in plain units.
 
 // GLOBAL: MW2 0x100ba5fc
 // GLOBAL: MW2MATROX 0x100bbba4

@@ -1100,7 +1100,7 @@ MechS16 AiMessageProx(Player* p_player, MechS16 p_target, MechS16 p_arg)
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
 // player == g_localPlayer subtraction runs the other way. Stack-slot permutation: color, i and
-// line and player. MW2MATROX: the same comparisons the other way round. The edition places this
+// line and player. MW2MATROX: the same comparisons the other way round. The Matrox edition places this
 // function before AiMessageProx, so AiMessageProx stays unannotated for it.
 // FUNCTION: MW2 0x1005253c
 // FUNCTION: MW2MATROX 0x1008159c
@@ -1188,7 +1188,7 @@ MechS16 AiMessageDist(Player* p_player, MechS16 p_target, MechS16 p_arg)
 // Operand order: g_debugFirstLine > g_debugObjective compares the other way in the original.
 // Stack-slot permutation: activity, color, line, marker, mission, objective, prefix, priority
 // and secondsLeft and typeName. (which also moves the jump table targets). MW2MATROX: the same
-// comparisons the other way round. The edition places this function before AiMessageDist, so
+// comparisons the other way round. The Matrox edition places this function before AiMessageDist, so
 // AiMessageDist stays unannotated for it.
 // FUNCTION: MW2 0x1005276a
 // FUNCTION: MW2MATROX 0x10081777
@@ -1858,7 +1858,7 @@ MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 MechScalar SteerToTarget(Player* p_player)
 {
 #ifdef MW2_MATROX
-	// The edition steers by the bearing wrapped to +-360 degrees, and returns it wrapped.
+	// The Matrox edition steers by the bearing wrapped to +-360 degrees, and returns it wrapped.
 	MechScalar delta;
 
 	delta = fmod(GetTargetBearing(p_player), 360.0);
@@ -2705,7 +2705,7 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 {
 #ifdef MW2_MATROX
-	// The edition tests the float's sign bit, and adds p_delta as 16.16.
+	// The Matrox edition tests the float's sign bit, and adds p_delta as 16.16.
 	if (p_sameSign && ((*(MechU32*) &p_value & 0x80000000) ? -1 : 1) != (p_delta < 0 ? -1 : 1)) {
 		p_delta = -p_delta;
 	}

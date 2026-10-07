@@ -1,5 +1,5 @@
 #ifdef MW2_MATROX
-#define FIXEDTRIG_FLOAT_SINE /* the edition's sine (fixedtrig.h) */
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "eyepoint.h"
 
@@ -374,7 +374,7 @@ MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 	p_view[4] = p_eyepoint->m_pitch;
 	p_view[5] = p_eyepoint->m_roll;
 #ifdef MW2_MATROX
-	/* The mark stays an integer word after the edition's floats. */
+	/* The mark stays an integer word after the Matrox edition's floats. */
 	*(MechS32*) &p_view[6] = 1;
 #else
 	p_view[6] = 1;

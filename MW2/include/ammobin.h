@@ -7,7 +7,7 @@
 
 // An ammunition bin of a mech (Mech::m_ammoBins, Mech::m_ammoBinCount of them): the weapon it feeds and
 // the critical-slot id it occupies (DestroyMech).
-// The edition's m_damage is a float, which moves the members after it by two bytes (SIZE 0x16).
+// The Matrox edition's m_damage is a float, which moves the members after it by two bytes (SIZE 0x16).
 #pragma pack(push, 1)
 
 // SIZE 0x14
@@ -22,8 +22,8 @@ typedef struct AmmoBin {
 #else
 	MechS16 m_damage; // 0x0a
 #endif
-	MechS32 m_shotHeat; // 0x0c (0x0e in the edition)
-	MechS32 m_heat;     // 0x10 (0x12 in the edition)
+	MechS32 m_shotHeat; // 0x0c (0x0e in the Matrox edition)
+	MechS32 m_heat;     // 0x10 (0x12 in the Matrox edition)
 } AmmoBin;
 #ifdef MW2_MATROX
 #pragma pack(pop)

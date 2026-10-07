@@ -211,7 +211,7 @@ void StartSupAnim(MechS32 p_slowFade)
 // FUNCTION: MW2 0x10003f3d
 // FUNCTION: MW2MATROX 0x1004a9b0
 #ifdef MW2_MATROX
-// The edition's pops the timer's argument (AIL's callbacks are __stdcall).
+// The Matrox edition's pops the timer's argument (AIL's callbacks are __stdcall).
 void __stdcall SupAnimTimerCallback(MechU32 p_user)
 #else
 void SupAnimTimerCallback(void)

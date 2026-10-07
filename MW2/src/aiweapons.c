@@ -91,7 +91,7 @@ MechS32 DecideAIFire(Player* p_player)
 		if (fire) {
 			fire = FALSE;
 #ifdef MW2_MATROX
-			// Not found in the edition: a translation that compiles.
+			// Not found in the Matrox edition: a translation that compiles.
 			if (def->m_heat + mech->m_heat < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 #else

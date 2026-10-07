@@ -49,7 +49,7 @@ extern "C"
 	extern MechS32 g_stretchPending;
 	extern MechS32 g_framePane;
 #ifdef MW2_MATROX
-	// The edition's A3D layer's pane wipe (a 16-bit color), which its DrawScene uses.
+	// The Matrox edition's A3D layer's pane wipe (a 16-bit color), which its DrawScene uses.
 	void FUN_1005f8a0(PANE* p_pane, MechS32 p_color);
 #endif
 	extern MechS32 g_drawnPolygonCount;

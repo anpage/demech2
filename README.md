@@ -31,7 +31,7 @@ You will need the following software installed:
 - Microsoft Visual C++ 4.1. A [portable version](https://github.com/madebr/msvc410) is available that can be downloaded and used quickly.
 - MASM 6.11 (ML), for the original's hand-written assembly. A [ready-to-use copy](https://github.com/shengyanli1982/MASM611) is available; the build only needs its `BIN\ML.EXE`. Don't put its `BIN` on your `PATH`: it also holds a 16-bit `LINK`, `LIB` and `NMAKE` that would shadow Visual C++ 4.1's.
 - Microsoft Visual C++ 2.2, for `MECH2.EXE` and `NETMECHW.DLL` (optional). A [portable version](https://github.com/archaic-msvc/msvc220) is available too. Without it, both are built with Visual C++ 4.1 instead, which isn't their original toolchain.
-- Microsoft Visual C++ 4.0, for the Matrox edition's `MW2_MATROX.DLL` (optional). A [portable version](https://github.com/itsmattkc/MSVC400) is available. Without it, the edition is built with Visual C++ 4.1, whose stack-slot assignment and C runtime differ from its original toolchain's.
+- Microsoft Visual C++ 4.0, for the Matrox edition's `MW2_MATROX.DLL` (optional). A [portable version](https://github.com/itsmattkc/MSVC400) is available. Without it, the Matrox edition is built with Visual C++ 4.1, whose stack-slot assignment and C runtime differ from its original toolchain's.
 - [CMake](https://cmake.org/). A copy is often included with the "Desktop development with C++" workload in newer versions of Visual Studio; however, it can also be installed as a standalone app. Version 3.26.6 (i386) is known to work with the VC++ 4.1 NMake generator.
 
 #### Compiling

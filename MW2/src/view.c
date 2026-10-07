@@ -33,7 +33,7 @@
 MechS32 g_lodQuality = 1;
 
 #ifdef MW2_MATROX
-// The edition's: a further scale of Eyepoint::m_detailScale, which UpdateProjection reads once
+// The Matrox edition's: a further scale of Eyepoint::m_detailScale, which UpdateProjection reads once
 // from LOD.PAR's LOD_SCALE line.
 // GLOBAL: MW2MATROX 0x100a596c
 MechFloat g_lodScale = 1.0f;
@@ -217,7 +217,7 @@ MechScalar g_viewNearPlane;
 MechS32 g_viewRightScaled;
 
 #ifdef MW2_MATROX
-// The edition's shading: the ambient light as a fraction (out of 256), and the length of the
+// The Matrox edition's shading: the ambient light as a fraction (out of 256), and the length of the
 // light's position and that over 128 (SelectEyepoint).
 // GLOBAL: MW2MATROX 0x101d68a0
 MechFloat g_viewAmbientScale;

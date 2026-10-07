@@ -791,7 +791,7 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 	p_heading = FIXED_CONST(90) - p_heading;
 	if (p_layout->m_gauges[3]) {
 #ifdef MW2_MATROX
-		// The edition's map gauge takes a float heading.
+		// The Matrox edition's map gauge takes a float heading.
 		((void (*)(PANE*, MechFloat, Point*)) p_layout->m_gauges[3])(viewport, p_heading - halfFov, &end);
 		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, PIXEL_COLOR(colors[11]));
 		((void (*)(PANE*, MechFloat, Point*)) p_layout->m_gauges[3])(viewport, halfFov + p_heading, &end);

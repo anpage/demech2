@@ -281,7 +281,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 void StartEngineNote(void)
 {
 #ifdef MW2_MATROX
-	// The edition doesn't play the engine note.
+	// The Matrox edition doesn't play the engine note.
 	return;
 #endif
 

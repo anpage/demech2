@@ -900,7 +900,7 @@ void SpawnEffectEx(
 // their time runs out, giving the camera back if one had it.
 // Stack-slot permutation of the locals; the i == g_effectCameraEffect comparison has its
 // operands the other way around. MW2MATROX (0x1006c584) matches but for m_distanceFade, at 0x44 in
-// the edition's RenderSettings (two more dwords from 0x28 on; see SetMechViewRenderSettings).
+// the Matrox edition's RenderSettings (two more dwords from 0x28 on; see SetMechViewRenderSettings).
 // FUNCTION: MW2 0x1006b99a
 // STUB: MW2MATROX 0x1006c584
 void UpdateEffects(void)

@@ -1,5 +1,5 @@
 #ifdef MW2_MATROX
-#define FIXEDTRIG_FLOAT_SINE /* the edition's sine (fixedtrig.h) */
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "polydraw.h"
 

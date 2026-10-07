@@ -36,7 +36,7 @@
 #include <string.h>
 #include <windows.h>
 
-// The draw mode the game starts in: none in 1.1, the first in the edition.
+// The draw mode the game starts in: none in 1.1, the first in the Matrox edition.
 #ifdef MW2_MATROX
 #define INITIAL_DRAW_MODE 0
 #else
@@ -293,7 +293,7 @@ void SecondRender(void)
 	}
 }
 
-// The 3D view's pane wipe: the edition's goes through its A3D layer, with a 16-bit pixel.
+// The 3D view's pane wipe: the Matrox edition's goes through its A3D layer, with a 16-bit pixel.
 #ifdef MW2_MATROX
 #define SCENE_PANE_WIPE(p_pane, p_color) FUN_1005f8a0(p_pane, PIXEL_COLOR(p_color))
 #else
@@ -419,7 +419,7 @@ void Blit(void)
 	}
 }
 
-// MW2MATROX: wipes with a 16-bit pixel, through the edition's own (16-bit) VFX_pane_wipe.
+// MW2MATROX: wipes with a 16-bit pixel, through the Matrox edition's own (16-bit) VFX_pane_wipe.
 // FUNCTION: MW2 0x10012e91
 // FUNCTION: MW2MATROX 0x10017adb
 void ShutdownRender(void)

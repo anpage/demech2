@@ -155,7 +155,7 @@ void PunchInAutoHeading(Mech* p_mech)
 	}
 
 #ifdef MW2_MATROX
-	// The edition wraps the sum first, then adds the full turn.
+	// The Matrox edition wraps the sum first, then adds the full turn.
 	heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading + p_mech->m_torsoTwist.m_value) + 360.0);
 #else
 	heading = FIXED_MOD360(p_mech->m_player->m_heading + FIXED_CONST(360) + p_mech->m_torsoTwist.m_value);
@@ -257,7 +257,7 @@ void CalculateHeat(Mech* p_mech)
 	}
 
 #ifdef MW2_MATROX
-	// The edition doubles the cooling of a shut-down mech with a factor, not a shift.
+	// The Matrox edition doubles the cooling of a shut-down mech with a factor, not a shift.
 	if (p_mech->m_powerState == 3) {
 		factor = 2.0f;
 	}

@@ -941,7 +941,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		}
 #ifdef MW2_MATROX
 
-		// The edition's reels hold floats: plain values below kind 3, 16.16 from it.
+		// The Matrox edition's reels hold floats: plain values below kind 3, 16.16 from it.
 		if (frameCount) {
 			for (j = 0; j < frameCount; j++) {
 				amount = (MechS32*) frames + j;
@@ -1375,7 +1375,7 @@ void SaveScreenshot(void)
 	if (g_screenshotCount < 1000) {
 		count = g_screenshotCount++;
 #ifdef MW2_MATROX
-		// The edition saves the 16-bit screen as raw 24-bit pixels, after a header of two words
+		// The Matrox edition saves the 16-bit screen as raw 24-bit pixels, after a header of two words
 		// it never sets.
 		sprintf(name, "mw2%04d.888", count);
 		file = fopen(name, "wb");

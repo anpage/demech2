@@ -117,7 +117,7 @@ HGDIOBJ g_gdiOldBitmap;
 // GLOBAL: MW2MATROX 0x10218400
 HPALETTE g_gdiOldPalette;
 
-// The bytes of p_count 8-bit pixels: the edition writes them as bits over 8.
+// The bytes of p_count 8-bit pixels: the Matrox edition writes them as bits over 8.
 #ifdef MW2_MATROX
 #define PIXEL_BYTES(p_count) ((p_count) * 8 / 8)
 #else

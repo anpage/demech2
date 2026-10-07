@@ -337,7 +337,7 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 }
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
-// Stack-slot permutation: the locals. The edition's build loads p_text[i]'s index before its base.
+// Stack-slot permutation: the locals. The Matrox edition's build loads p_text[i]'s index before its base.
 // FUNCTION: MW2 0x10057282
 // FUNCTION: MW2MATROX 0x10071cc8
 void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
@@ -605,7 +605,7 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 	}
 }
 
-// The edition's slopes are floats: a product or a quotient with one converts to an integer.
+// The Matrox edition's slopes are floats: a product or a quotient with one converts to an integer.
 #ifdef MW2_MATROX
 #define SLOPE_DIV(a, b) ((MechS32) ((a) / (b)))
 #define SLOPE_MUL(a, b) ((MechS32) ((a) * (b)))

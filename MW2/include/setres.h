@@ -20,7 +20,7 @@ extern "C"
 	extern MechS32 g_unk0x1012c1e4;
 #endif
 
-// The art resolution the HUD and the text boxes load their shapes and fonts at: the edition's
+// The art resolution the HUD and the text boxes load their shapes and fonts at: the Matrox edition's
 // own (ChooseArtResolution), g_artResolution in 1.1.
 #ifdef MW2_MATROX
 #define HUD_ART_RESOLUTION g_unk0x1012c1e4

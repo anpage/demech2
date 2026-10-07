@@ -144,7 +144,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 }
 
 // MW2MATROX (0x1008b1da) writes m_affineTextures and m_untexturedKinds 8 bytes further on
-// (0x54, 0x58): the edition's RenderSettings has its two extra dwords at 0x28 or 0x30 (its
+// (0x54, 0x58): the Matrox edition's RenderSettings has its two extra dwords at 0x28 or 0x30 (its
 // g_renderSettings holds 1, 1, 0xe0, 0xef from 0x28, and RenderViewToPane saves and clears
 // 0x28 and 0x2c), not at the end.
 // FUNCTION: MW2 0x10050dc3

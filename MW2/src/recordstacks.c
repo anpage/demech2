@@ -17,7 +17,7 @@
 #include "types.h"
 
 #ifdef MW2_MATROX
-// The edition defines the draw buffer's globals in another order, all initialized.
+// The Matrox edition defines the draw buffer's globals in another order, all initialized.
 // GLOBAL: MW2MATROX 0x100a4fac
 DepthEntry* g_drawList = NULL;
 

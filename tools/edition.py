@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Work on another edition of the simulator (MW2MATROX) against MW2's shared sources.
 
-The edition's functions are 1.1's, changed or not. This tool keeps the pairing of the two
+The Matrox edition's functions are 1.1's, changed or not. This tool keeps the pairing of the two
 originals' functions (tools/port_annotations.py's matching, the functions placed by their
 neighbours, and those named by the calls of matched ones), and compares the rebuilt edition with
 its original, tolerating what VC++ 4.x varies on its own: stack slots, the operand order of
@@ -13,7 +13,7 @@ comparisons and of commutative operations. Run it from the repository root.
     python tools/edition.py auto                   # annotate the functions that match up to entropy
     python tools/edition.py annotate NAME=0xADDR   # add a MW2MATROX annotation by hand
     python tools/edition.py fix-order              # drop annotations that break a file's address order
-    python tools/edition.py crt                    # annotate the edition's C runtime from the rebuild's
+    python tools/edition.py crt                    # annotate the Matrox edition's C runtime from the rebuild's
     python tools/edition.py audit REPORT.json      # sort the annotated functions below 100% by what's left
     python tools/edition.py users REGEX            # functions whose body matches, with their state
     python tools/edition.py global 0xADDR          # the annotated symbol at or before an address
@@ -21,7 +21,7 @@ comparisons and of commutative operations. Run it from the repository root.
     python tools/edition.py scalar-locals FILE FUNCTION VAR...  # likewise a function's locals
     python tools/edition.py include FILE...        # #include "fixedfloat.h" in sorted position
 
-Options: --build DIR (default build-wine): the edition's rebuild is DIR/vc40/MW2_MATROX.dll and
+Options: --build DIR (default build-wine): the Matrox edition's rebuild is DIR/vc40/MW2_MATROX.dll and
 its map. The cache is DIR/edition-MW2MATROX.json.
 """
 
@@ -123,7 +123,7 @@ def add_annotation(name, address, functions=None):
         return False
     marker = "// FUNCTION: %s %#010x" % (TARGET, address)
     if any(marker in open(p, encoding="utf-8").read() for p in glob.glob("MW2/src/*.c")):
-        return False  # annotated already (the edition's own version of the function, say)
+        return False  # annotated already (the Matrox edition's own version of the function, say)
     if not file_order_allows(functions, path, i, address):
         print("%s at %#x would break %s's address order; left out" % (name, address, os.path.basename(path)))
         return False
@@ -148,7 +148,7 @@ def compute_state(path):
     known = dict(mapping)
     known.update({a: b for a, (b, e) in placed.items()})
 
-    # The calls of the paired functions name the edition's version of more of them.
+    # The calls of the paired functions name the Matrox edition's version of more of them.
     d = disasm()
     from collections import Counter, defaultdict
 
@@ -268,7 +268,7 @@ def entropy_only(R, T, op):
 
 
 def candidates(state, functions, unit=None):
-    """The unannotated functions with an address in the edition: (name, address, end)."""
+    """The unannotated functions with an address in the Matrox edition: (name, address, end)."""
     mapping, placed, inferred = state
     for name, (path, i, address, target) in sorted(functions.items()):
         if target is not None or (unit and os.path.basename(path) != unit):
@@ -311,7 +311,7 @@ def cmd_cmp(args):
     path, i, address, target = functions[args.name]
     b = int(args.address, 16) if args.address else (target or target_address(state, address)[0])
     if b is None:
-        sys.exit("%s has no address in the edition (try --address)" % args.name)
+        sys.exit("%s has no address in the Matrox edition (try --address)" % args.name)
     end = state[1][address][1] if address in state[1] else None
     result = compare(Rebuild(args.build), Image(TARGET_BINARY), args.name, b, end)
     verdict, ratio, ops, R, T = result
@@ -361,8 +361,8 @@ def cmd_fix_order(args):
 
 
 def cmd_crt(args):
-    """Annotate the edition's C runtime from the rebuild's: the rebuild links VC++ 4.0's LIBCMT,
-    as the edition did. Functions match by their bytes (relocations masked) and take the map's
+    """Annotate the Matrox edition's C runtime from the rebuild's: the rebuild links VC++ 4.0's LIBCMT,
+    as the Matrox edition did. Functions match by their bytes (relocations masked) and take the map's
     public symbol; the CRT data they address takes its C name through the relocations they share."""
     base = os.path.join(args.build, "vc40", "MW2_MATROX")
     rebuilt, original = Image(base + ".dll"), Image(TARGET_BINARY)

@@ -10,11 +10,11 @@
 # the release CRT (4.0's LIBCMT, which its CRT matches far better than 4.1's), drawing through
 # Matrox's MSI95.DLL instead of DirectDraw. Most of its functions are 1.1's, byte for byte or
 # with their stack slots permuted, and carry MW2MATROX annotations next to MW2's
-# (tools/port_annotations.py). MW2_MATROX is defined for the edition's own code.
+# (tools/port_annotations.py). MW2_MATROX is defined for the Matrox edition's own code.
 #
-# The sources are MW2's, in the edition's link order: its objects hold MW2's units in another
+# The sources are MW2's, in the Matrox edition's link order: its objects hold MW2's units in another
 # order, found from the functions they share (config.c's first ten functions sit in an object
-# of their own, after staticmem.c, which a shared unit can't reproduce). The edition's own
+# of their own, after staticmem.c, which a shared unit can't reproduce). The Matrox edition's own
 # objects (the A3D renderer, the units it rewrote) aren't written yet.
 function(demech2_add_mw2matrox)
   demech2_add_dll(mw2matrox
@@ -141,7 +141,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/simmain.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
-      # Not placed yet: units with no function found in the edition (data-only units, fixed-point
+      # Not placed yet: units with no function found in the Matrox edition (data-only units, fixed-point
       # helpers it may have replaced, and the units the renderer replaced, such as directdraw.c),
       # linked after the others until the callers' Matrox versions are written, in MW2's order.
       "${DEMECH2_SOURCE_DIR}/MW2/src/approxlen.c"
@@ -192,7 +192,7 @@ function(demech2_add_mw2matrox)
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
   )
-  # The edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
+  # The Matrox edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
   # its __inline IsWithinRadius (inradius.h) into its callers.
   set_source_files_properties(
     "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"

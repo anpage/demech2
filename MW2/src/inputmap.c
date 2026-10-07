@@ -1119,7 +1119,7 @@ MechS32 LoadInputMap(void)
 }
 
 // Loads GAMEKEY.MAP: an action name and its key sequence ("CTRL+F1") a line.
-// Stack-slot permutation: keyCode, i, keys, action, file and code. The edition compares the two
+// Stack-slot permutation: keyCode, i, keys, action, file and code. The Matrox edition compares the two
 // game key actions in the other operand order.
 // FUNCTION: MW2 0x1007aba9
 // FUNCTION: MW2MATROX 0x1007d2c1

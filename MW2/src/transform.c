@@ -3,7 +3,7 @@
    blocks. Their portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it
    replaces BuildMatrixEx's whole body, whose C wraps where standard C overflows. */
 #ifdef MW2_MATROX
-#define FIXEDTRIG_FLOAT_SINE /* the edition's sine (fixedtrig.h) */
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "transform.h"
 

@@ -133,7 +133,7 @@ MechS32 FixedCos(MechS32 p_angle)
 #endif
 
 #ifdef MW2_MATROX
-// Not in the edition, whose callers expand the cosine: the units that still declare FixedSin and
+// Not in the Matrox edition, whose callers expand the cosine: the units that still declare FixedSin and
 // FixedCos with 16.16 values link to this until they move to the float sine.
 #undef FixedCos
 MechS32 FixedCos(MechS32 p_angle)

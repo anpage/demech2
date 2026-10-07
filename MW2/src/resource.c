@@ -50,7 +50,7 @@ typedef struct BitmapRecord {
 } BitmapRecord;
 
 #ifdef MW2_MATROX
-// A path record's waypoint: the edition's PathPoint holds floats, the record integers.
+// A path record's waypoint: the Matrox edition's PathPoint holds floats, the record integers.
 typedef struct PathRecordPoint {
 	MechS32 m_x;        // 0x00
 	MechS32 m_y;        // 0x04

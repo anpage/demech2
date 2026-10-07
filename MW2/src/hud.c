@@ -30,14 +30,14 @@
 #include "weapondata.h"
 #include "weapons.h"
 
-// The edition's HUD art numbers the compass's and the crosshair's shapes three further on.
+// The Matrox edition's HUD art numbers the compass's and the crosshair's shapes three further on.
 #ifdef MW2_MATROX
 #define HUD_SHAPE(id) ((id) + 3)
 #else
 #define HUD_SHAPE(id) (id)
 #endif
 
-// The compass's bearing marks are drawn with the edition's FUN_1001e01a.
+// The compass's bearing marks are drawn with the Matrox edition's FUN_1001e01a.
 #ifdef MW2_MATROX
 #define DRAW_MARK_SHAPE FUN_1001e01a
 #else
@@ -960,7 +960,7 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 }
 
 #ifdef MW2_MATROX
-// The edition's: clips p_rect to p_pane's rectangle.
+// The Matrox edition's: clips p_rect to p_pane's rectangle.
 // The last comparison loads its operands in the other order.
 // FUNCTION: MW2MATROX 0x1001df99
 void ClipRectToPane(PANE* p_pane, Rect* p_rect)
@@ -979,7 +979,7 @@ void ClipRectToPane(PANE* p_pane, Rect* p_rect)
 	}
 }
 
-// The edition's DrawPaneShape that also passes the drawn rectangle, clipped to p_target, on to
+// The Matrox edition's DrawPaneShape that also passes the drawn rectangle, clipped to p_target, on to
 // FUN_10088246 (DrawCompassMarkers' bearing marks).
 // FUNCTION: MW2MATROX 0x1001e01a
 void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
