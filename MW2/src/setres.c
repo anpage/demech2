@@ -22,6 +22,7 @@
 
 // The file name suffixes of the art resolutions (ShowBanner).
 // GLOBAL: MW2 0x100aa710
+// GLOBAL: MW2MATROX 0x100bca48
 MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 
 // The largest coordinates of the three resolutions the art comes in.

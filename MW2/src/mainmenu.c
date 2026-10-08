@@ -1,10 +1,14 @@
-/* The main in-mission menu (menu 4): abort the mission, the monitor brightness, the audio and
-   combat settings, flee to Windows. A data-only object: its data follows network.c's. */
+/* The main in-mission menu (menu 4): abort the mission, the monitor brightness (in the Matrox
+   edition, the graphics page of matrox/graphicsmenu.c), the audio and combat settings, flee to
+   Windows. A data-only object: its data follows network.c's. */
 #include "mainmenu.h"
 
 #include "audiomenu.h"
 #include "brightnessmenu.h"
 #include "dorcs.h"
+#ifdef MW2_MATROX
+#include "matrox/graphicsmenu.h"
+#endif
 #include "menu.h"
 #include "menuchoices.h"
 #include "menucontrol.h"
@@ -17,39 +21,53 @@
 #include <stddef.h>
 
 // GLOBAL: MW2 0x100a1a90
+// GLOBAL: MW2MATROX 0x100a2448
 MechChar g_mainMenuTitle[] = "MAIN MENU";
 
 // GLOBAL: MW2 0x100a1aa0
+// GLOBAL: MW2MATROX 0x100a2458
 MechChar g_abortMissionItem[] = "Abort Mission";
 
+#ifndef MW2_MATROX
 // GLOBAL: MW2 0x100a1ab0
 MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
+#endif
 
 // GLOBAL: MW2 0x100a1ac8
+// GLOBAL: MW2MATROX 0x100a2468
 MechChar g_fleeToWindowsItem[] = "Flee to Windows";
 
 // GLOBAL: MW2 0x100a1ad8
+// GLOBAL: MW2MATROX 0x100a2478
 MechChar g_acceptText[] = "Accept (Esc to cancel)";
 
 // GLOBAL: MW2 0x100a1af0
+// GLOBAL: MW2MATROX 0x100a2490
 MechChar g_escToExitText[] = "(Esc to exit)";
 
 // GLOBAL: MW2 0x100a1b00
+// GLOBAL: MW2MATROX 0x100a24a0
 MechChar g_fleeToWindowsTitle[] = "FLEE TO WINDOWS";
 
 // GLOBAL: MW2 0x100a1b10
+// GLOBAL: MW2MATROX 0x100a24b0
 MechChar g_abortMissionTitle[] = "ABORT MISSION";
 
+#ifndef MW2_MATROX
 // GLOBAL: MW2 0x100a1b20
 MechChar g_monitorBrightnessTitle[] = "MONITOR BRIGHTNESS";
+#endif
 
 // GLOBAL: MW2 0x100a1b38
+// GLOBAL: MW2MATROX 0x100a24c0
 MechChar g_areYouSureText[] = "Are you sure?";
 
 // GLOBAL: MW2 0x100a1b48
+// GLOBAL: MW2MATROX 0x100a24d0
 MechChar g_confirmCowardiceText[] = "Confirm your cowardice";
 
 // GLOBAL: MW2 0x100a1b60
+// GLOBAL: MW2MATROX 0x100a24e8
 MechChar g_confirmationRequestedText[] = "Confirmation requested";
 
 // GLOBAL: MW2 0x100a1b78
@@ -97,11 +115,34 @@ MenuChoices g_lowHighChoices = {NULL, 2, {g_lowText, g_highText}};
 MenuChoices g_offLowMediumHighChoices = {NULL, 4, {g_offText, g_lowText, g_mediumText, g_highText}};
 
 // GLOBAL: MW2 0x100a1cc0
-MechS32 g_sliderShapes[8] = {67, 0, 64, 0, 70, 0, 82, 0};
+// GLOBAL: MW2MATROX 0x100a2648
+MechS32 g_sliderShapes[8] = {
+#ifdef MW2_MATROX
+	70,
+	0,
+	67,
+	0,
+	73,
+	0,
+	85,
+	0
+#else
+	67,
+	0,
+	64,
+	0,
+	70,
+	0,
+	82,
+	0
+#endif
+};
 
 // GLOBAL: MW2 0x100a1ce0
+// GLOBAL: MW2MATROX 0x100a2668
 MenuControl g_confirmControl = {2, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL};
 
+#ifndef MW2_MATROX
 // GLOBAL: MW2 0x100a1d08
 MenuControl g_brightnessControl = {
 	2,
@@ -114,8 +155,10 @@ MenuControl g_brightnessControl = {
 	SetBrightnessFraction,
 	RestoreBrightness
 };
+#endif
 
 // GLOBAL: MW2 0x100a1d30
+// GLOBAL: MW2MATROX 0x100a2690
 MenuPage g_abortMissionPage = {
 	0,
 	g_abortMissionTitle,
@@ -126,6 +169,7 @@ MenuPage g_abortMissionPage = {
 	{{3, g_confirmationRequestedText, NULL, NULL, NULL}, {1, g_acceptText, AbortMissionAction, &g_confirmControl, NULL}}
 };
 
+#ifndef MW2_MATROX
 // GLOBAL: MW2 0x100a1e88
 MenuPage g_brightnessPage = {
 	0,
@@ -136,8 +180,10 @@ MenuPage g_brightnessPage = {
 	NULL,
 	{{1, g_monitorBrightnessItem, RunMenuSlider, &g_brightnessControl, NULL}, {2, g_acceptText, NULL, NULL, NULL}}
 };
+#endif
 
 // GLOBAL: MW2 0x100a1fe0
+// GLOBAL: MW2MATROX 0x100a27e8
 MenuPage g_fleePage = {
 	0,
 	g_fleeToWindowsTitle,
@@ -158,7 +204,11 @@ MenuPage g_mainMenuPage = {
 	0,
 	NULL,
 	{{0, g_abortMissionItem, NULL, NULL, &g_abortMissionPage},
+#ifdef MW2_MATROX
+	 {0, g_graphicsItem, NULL, NULL, &g_graphicsPage},
+#else
 	 {0, g_monitorBrightnessItem, NULL, NULL, &g_brightnessPage},
+#endif
 	 {0, g_audioItem, NULL, NULL, &g_audioPage},
 	 {0, g_combatVariablesItem, NULL, NULL, &g_combatVariablesPage},
 	 {0, g_fleeToWindowsItem, NULL, NULL, &g_fleePage},

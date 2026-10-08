@@ -145,6 +145,7 @@ DECOMP_SIZE_ASSERT(ReelEvent, 0x8)
 
 // Why ReelMotionTask last failed: 1 no player, 2 disabled, 3 no object, 4-7 missing state.
 // GLOBAL: MW2 0x100a6d64
+// GLOBAL: MW2MATROX 0x100ae2b4
 MechS32 g_reelMotionError = 0;
 
 // The number of entries in g_paths.

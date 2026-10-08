@@ -64,6 +64,7 @@ MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
 // GLOBAL: MW2 0x100a2458
+// GLOBAL: MW2MATROX 0x100a4a08
 MechChar* g_bannerName = NULL;
 
 // GLOBAL: MW2 0x100a245c
@@ -122,6 +123,7 @@ GameWindowGeometry* g_gameWindowGeometry;
 MechS32 g_screenHeight;
 
 // GLOBAL: MW2 0x10176eb0
+// GLOBAL: MW2MATROX 0x10212d9c
 undefined4 g_unk0x10176eb0;
 
 // Set when the next Blit should stretch the current pane over the window.
@@ -465,7 +467,8 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 
 // Shows the banner GIF (sbannr, or g_bannerName's name, with the art resolution's suffix) and
 // fades its palette in. Nothing calls it.
-// Stack-slot permutation of the locals.
+// Stack-slot permutation of the locals. The Matrox edition's takes the suffix from the art
+// resolution before its 512x384 override (g_unk0x1012c1e4).
 // FUNCTION: MW2 0x10012f3c
 // FUNCTION: MW2MATROX 0x10017b8f
 void ShowBanner(void)
@@ -478,13 +481,21 @@ void ShowBanner(void)
 
 	if (g_bannerName == NULL || *g_bannerName == '\0') {
 		strcpy(path, "sbannr");
+#ifdef MW2_MATROX
+		strcat(path, g_artResolutionSuffixes[g_unk0x1012c1e4]);
+#else
 		strcat(path, g_artResolutionSuffixes[g_artResolution]);
+#endif
 		strcat(path, ".");
 		strcat(path, "gif");
 	}
 	else {
 		strcpy(path, g_bannerName);
+#ifdef MW2_MATROX
+		strcat(path, g_artResolutionSuffixes[g_unk0x1012c1e4]);
+#else
 		strcat(path, g_artResolutionSuffixes[g_artResolution]);
+#endif
 		strcat(path, ".");
 		strcat(path, "gif");
 	}

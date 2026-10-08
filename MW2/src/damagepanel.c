@@ -14,6 +14,7 @@
 #include "menu.h"
 #include "muldiv.h"
 #include "mw2prj.h"
+#include "palette.h"
 #include "players.h"
 #include "point.h"
 #include "render.h"
@@ -23,6 +24,11 @@
 #include "targeting.h"
 #include "types.h"
 #include "vfxa.h"
+
+#ifdef MW2_MATROX
+#include "matrox/msidraw.h"
+#include "matrox/vfx16.h"
+#endif
 
 // The damage panel (panel 2): the mech's outline, its sections shaded by damage, and bars of each
 // section's front and rear armor.
@@ -236,8 +242,9 @@ void InitDamagePanel(void)
 // Draws the damage panel's outline, each part shaded by its section's damage: yellow, then red
 // as its armor goes, black once the section is destroyed.
 // The original loads m_sections before scaling index, and the locals are a stack-slot permutation.
+// MW2MATROX: a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10040511
-// STUB: MW2MATROX 0x10059e60
+// FUNCTION: MW2MATROX 0x10059e60
 void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 {
 	MechS32 rear;
@@ -275,7 +282,11 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		section = &p_mech->m_sections[index];
 		scale = (section->m_flags & 0xf0U) >> 4;
 		if (scale) {
+#ifdef MW2_MATROX
+			front = 15 - (MechS32) ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3 / scale);
+#else
 			front = 15 - (section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3 / (scale << 16);
+#endif
 		}
 
 		if (front < 1) {
@@ -287,7 +298,11 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 
 		scale = section->m_flags & 0xf;
 		if (scale) {
+#ifdef MW2_MATROX
+			rear = 15 - (MechS32) ((section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3 / scale);
+#else
 			rear = 15 - (section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3 / (scale << 16);
+#endif
 		}
 
 		if (rear < 1) {
@@ -309,6 +324,13 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		}
 
 		if (color != 6) {
+#ifdef MW2_MATROX
+			// The Matrox edition recolors the lookaside table's entry 6 for the part, then restores it.
+			remap = VFX_lookaside_read16(6);
+			VFX_lookaside_write16(6, VFX_lookaside_read16(color));
+			VFX_shape_draw(&g_outlinePartRects[i], shape, 0, g_outlinePartOffsets[i].m_x, g_outlinePartOffsets[i].m_y);
+			VFX_lookaside_write16(6, remap);
+#else
 			remap = color;
 			g_outlineRemap[6] = remap;
 			VFX_shape_lookaside(g_outlineRemap);
@@ -319,37 +341,42 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 				g_outlinePartOffsets[i].m_x,
 				g_outlinePartOffsets[i].m_y
 			);
+#endif
 		}
 	}
 
 	UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+#ifdef MW2_MATROX
+	FUN_10088280(&g_outlineRect);
+#endif
 }
 
 // Draws the damage panel's armor bars: each section's front armor, and the rear armor of the
 // torso sections (1 to 3) beside it, full height for the section's full armor.
 // The two full > armor tests take their operands in the other order, and the locals are a
 // stack-slot permutation.
+// MW2MATROX: a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100407b6
-// STUB: MW2MATROX 0x1005a18b
+// FUNCTION: MW2MATROX 0x1005a18b
 void DrawArmorBars(Mech* p_mech, PANE* p_target)
 {
-	MechS32 full;
+	MechScalar full;
 	MechS32 i;
 	MechS32 color;
 	void* font;
-	MechS32 armor;
+	MechScalar armor;
 	MechS32 width;
 	MechSection* section;
 
-	g_textColors[0xe] = 6;
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	g_textColors[0xe] = PIXEL_COLOR(6);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		VFX_string_draw(p_target, g_htalLabelHPosition.m_x, g_htalLabelHPosition.m_y, font, g_htalLabelH, g_textColors);
 		VFX_string_draw(p_target, g_htalLabelTPosition.m_x, g_htalLabelTPosition.m_y, font, g_htalLabelT, g_textColors);
 		VFX_string_draw(p_target, g_htalLabelAPosition.m_x, g_htalLabelAPosition.m_y, font, g_htalLabelA, g_textColors);
 		VFX_string_draw(p_target, g_htalLabelLPosition.m_x, g_htalLabelTPosition.m_y, font, g_htalLabelL, g_textColors);
-		g_textColors[0xe] = 0xe;
-		UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
+		UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	for (i = 0; i < 8; i++) {
@@ -372,17 +399,29 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 				color = 3;
 			}
 
+#ifdef MW2_MATROX
+			armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
+#else
+#ifdef MW2_MATROX
+			armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
+#else
 			armor = MulDiv64(armor, g_armorBarSize.m_y, g_maxSectionArmor);
+#endif
+#endif
 		}
 
+#ifdef MW2_MATROX
+		full = g_armorBarSize.m_y * g_fullSectionArmor[i].m_x / g_maxSectionArmor;
+#else
 		full = MulDiv64(g_fullSectionArmor[i].m_x, g_armorBarSize.m_y, g_maxSectionArmor);
-		if (armor) {
+#endif
+		if (FIXED_IS_NONZERO(armor)) {
 			DrawVerticalBar(
 				p_target,
 				g_armorBarPositions[i].m_x,
-				g_armorBarPositions[i].m_y + armor,
+				g_armorBarPositions[i].m_y + SCALAR_TO_INT(armor),
 				width,
-				armor,
+				SCALAR_TO_INT(armor),
 				0xf
 			);
 		}
@@ -391,9 +430,9 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 			DrawVerticalBar(
 				p_target,
 				g_armorBarPositions[i].m_x,
-				g_armorBarPositions[i].m_y + full,
+				g_armorBarPositions[i].m_y + SCALAR_TO_INT(full),
 				width,
-				full - armor,
+				SCALAR_TO_INT(full - armor),
 				color
 			);
 		}
@@ -412,17 +451,25 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 					color = 3;
 				}
 
+#ifdef MW2_MATROX
+				armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
+#else
 				armor = MulDiv64(armor, g_armorBarSize.m_y, g_maxSectionArmor);
+#endif
 			}
 
+#ifdef MW2_MATROX
+			full = g_armorBarSize.m_y * g_fullSectionArmor[i].m_y / g_maxSectionArmor;
+#else
 			full = MulDiv64(g_fullSectionArmor[i].m_y, g_armorBarSize.m_y, g_maxSectionArmor);
+#endif
 			if (armor) {
 				DrawVerticalBar(
 					p_target,
 					g_armorBarPositions[i].m_x + width,
-					g_armorBarPositions[i].m_y + armor,
+					g_armorBarPositions[i].m_y + SCALAR_TO_INT(armor),
 					width,
-					armor,
+					SCALAR_TO_INT(armor),
 					0xf
 				);
 			}
@@ -431,9 +478,9 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 				DrawVerticalBar(
 					p_target,
 					g_armorBarPositions[i].m_x + width,
-					g_armorBarPositions[i].m_y + full,
+					g_armorBarPositions[i].m_y + SCALAR_TO_INT(full),
 					width,
-					full - armor,
+					SCALAR_TO_INT(full - armor),
 					color
 				);
 			}

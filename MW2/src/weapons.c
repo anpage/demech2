@@ -1007,7 +1007,7 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // Commutative operand order: the original calls FixedMul16(p_dz, sideX) first for upY. Stack-slot
 // permutation of the locals.
 // FUNCTION: MW2 0x10046573
-// STUB: MW2MATROX 0x1002d3e4
+// FUNCTION: MW2MATROX 0x1002d3e4
 void SpawnLaunchFx(
 	Player* p_player,
 	SceneObject* p_obj,
@@ -1017,19 +1017,19 @@ void SpawnLaunchFx(
 	MechS32 p_spread
 )
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 pitch;
-	MechS32 yaw;
-	MechS32 speed;
-	MechS32 sideZ;
-	MechS32 offset;
-	MechS32 upX;
-	MechS32 upY;
-	MechS32 upZ;
-	MechS32 sideX;
-	MechS32 sideY;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar pitch;
+	MechScalar yaw;
+	MechScalar speed;
+	MechScalar sideZ;
+	MechScalar offset;
+	MechScalar upX;
+	MechScalar upY;
+	MechScalar upZ;
+	MechScalar sideX;
+	MechScalar sideY;
 
 	yaw = FixedAtan2(p_dx, p_dz);
 #ifdef MW2_MATROX
@@ -1045,6 +1045,16 @@ void SpawnLaunchFx(
 		sideY = 0;
 		sideZ = p_dx;
 		NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
+#ifdef MW2_MATROX
+		x += offset * sideX;
+		z += offset * sideZ;
+		upX = p_dy * sideZ;
+		upY = p_dz * sideX + p_dx * sideZ;
+		upZ = -(p_dy * sideX);
+		x += offset * upX;
+		y += offset * upY;
+		z += offset * upZ;
+#else
 		x += FixedMul16(offset, sideX);
 		z += FixedMul16(offset, sideZ);
 		upX = FixedMul16(p_dy, sideZ);
@@ -1053,12 +1063,19 @@ void SpawnLaunchFx(
 		x += FixedMul16(offset, upX);
 		y += FixedMul16(offset, upY);
 		z += FixedMul16(offset, upZ);
+#endif
 	}
 
 	SetObjPosition(p_obj, x, y, z);
 	speed = p_obj->m_shape->m_radius * 2;
+#ifdef MW2_MATROX
+	p_dx *= speed;
+	p_dy *= speed;
+	p_dz *= speed;
+#else
 	p_dx = FixedMul16(p_dx, speed);
 	p_dy = FixedMul16(p_dy, speed);
 	p_dz = FixedMul16(p_dz, speed);
+#endif
 	MoveObj(p_obj, p_dx, p_dy, p_dz);
 }

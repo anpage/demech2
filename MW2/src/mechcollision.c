@@ -32,37 +32,38 @@
 // free); *p_hit is the shape it hit and *p_player the mech's player.
 // Stack-slot permutation of the locals. The original sums dot's three products in source order;
 // the build starts with the second.
+// MW2MATROX: a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100758a0
-// STUB: MW2MATROX 0x10075a80
+// FUNCTION: MW2MATROX 0x10075a80
 MechS32 MoveMechWithCollisions(
 	Mech* p_mech,
 	Shape** p_hit,
 	Player** p_player,
-	MechS32 p_dx,
-	MechS32 p_dy,
-	MechS32 p_dz,
-	MechS32* p_x,
-	MechS32* p_y,
-	MechS32* p_z
+	MechScalar p_dx,
+	MechScalar p_dy,
+	MechScalar p_dz,
+	MechScalar* p_x,
+	MechScalar* p_y,
+	MechScalar* p_z
 )
 {
-	MechS32 bounce;
-	MechS32 nx;
-	MechS32 ny;
-	MechS32 nz;
-	MechS32 x0;
-	MechS32 over;
-	MechS32 y0;
+	MechScalar bounce;
+	MechScalar nx;
+	MechScalar ny;
+	MechScalar nz;
+	MechScalar x0;
+	MechScalar over;
+	MechScalar y0;
 	MechS32 hit;
-	MechS32 z0;
+	MechScalar z0;
 	Shape* shape;
-	MechS32 x1;
-	MechS32 y1;
-	MechS32 length;
-	MechS32 z1;
+	MechScalar x1;
+	MechScalar y1;
+	MechScalar length;
+	MechScalar z1;
 	Ray ray;
-	MechS32 lift;
-	MechS32 dot;
+	MechScalar lift;
+	MechScalar dot;
 	Ray normal;
 
 	x0 = p_mech->m_player->m_position.m_x;
@@ -106,11 +107,15 @@ MechS32 MoveMechWithCollisions(
 			BuildRayFromSegment(&ray, x0, y0, z0, x1, y1, z1);
 			length = GetRayLength(&ray);
 			lift = ray.m_dirY;
-			if (lift < 0) {
+			if (FIXED_IS_NEGATIVE(lift)) {
 				lift = -lift;
 			}
 
+#ifdef MW2_MATROX
+			lift = p_mech->m_radius * (1 - lift) + p_mech->m_height * lift;
+#else
 			lift = FixedMul16(p_mech->m_radius, 0x10000 - lift) + FixedMul16(p_mech->m_height, lift);
+#endif
 			SetRayLength(&ray, length + lift);
 			if (TestSceneryCollision(&ray, &shape)) {
 				hit = TRUE;
@@ -132,6 +137,19 @@ MechS32 MoveMechWithCollisions(
 					g_segmentNormalZ = normal.m_dirZ;
 				}
 
+#ifdef MW2_MATROX
+				dot = g_segmentNormalX * 2 * ray.m_dirX + g_segmentNormalY * 2 * ray.m_dirY +
+					  g_segmentNormalZ * 2 * ray.m_dirZ;
+				nx = ray.m_dirX - dot * g_segmentNormalX;
+				ny = ray.m_dirY - dot * g_segmentNormalY;
+				nz = ray.m_dirZ - dot * g_segmentNormalZ;
+				bounce =
+					-(ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) /
+					  4);
+				p_mech->m_velocityX = nx * bounce;
+				p_mech->m_velocityY = ny * bounce;
+				p_mech->m_velocityZ = nz * bounce;
+#else
 				dot = FixedMul16(g_segmentNormalX * 2, ray.m_dirX) + FixedMul16(g_segmentNormalY * 2, ray.m_dirY) +
 					  FixedMul16(g_segmentNormalZ * 2, ray.m_dirZ);
 				nx = ray.m_dirX - FixedMul16(dot, g_segmentNormalX);
@@ -144,15 +162,22 @@ MechS32 MoveMechWithCollisions(
 				p_mech->m_velocityX = FixedMul16(nx, bounce);
 				p_mech->m_velocityY = FixedMul16(ny, bounce);
 				p_mech->m_velocityZ = FixedMul16(nz, bounce);
+#endif
 				SetRayLength(&ray, GetRayLength(&ray) - lift);
 				over = length - GetRayLength(&ray);
 				if (over > 0) {
+#ifdef MW2_MATROX
+					*p_x = over * nx / 4 + ray.m_x1;
+					*p_y = over * ny / 4 + ray.m_y1;
+					*p_z = over * nz / 4 + ray.m_z1;
+#else
 					nx = FixedMul16(nx, over) >> 2;
 					ny = FixedMul16(ny, over) >> 2;
 					nz = FixedMul16(nz, over) >> 2;
 					*p_x = ray.m_x1 + nx;
 					*p_y = ray.m_y1 + ny;
 					*p_z = ray.m_z1 + nz;
+#endif
 				}
 				else {
 					*p_x = ray.m_x1;
@@ -176,23 +201,25 @@ MechS32 MoveMechWithCollisions(
 // m_collidedWith is p_mech's player) always collides. A mech in state 4 is knocked down
 // (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
 // Stack-slot permutation of the locals.
+// MW2MATROX: a stack-slot permutation, and i < g_playerCount loads g_playerCount first in the
+// original.
 // FUNCTION: MW2 0x10075d7b
-// STUB: MW2MATROX 0x10075f6c
-MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Player** p_hit)
+// FUNCTION: MW2MATROX 0x10075f6c
+MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Player** p_hit)
 {
-	MechS32 radius;
-	MechS32 otherRadius;
+	MechScalar radius;
+	MechScalar otherRadius;
 	Player* player;
-	MechS32 reach;
-	MechS32 dist;
+	MechScalar reach;
+	MechScalar dist;
 	MechS32 result;
 	MechS32 i;
 	Vector3* pos;
-	MechS32 dx;
-	MechS32 dy;
+	MechScalar dx;
+	MechScalar dy;
 	Mech* mech;
-	MechS32 dz;
-	MechS32 speed;
+	MechScalar dz;
+	MechScalar speed;
 	MechS32 id;
 
 	id = p_mech->m_player->m_index;
@@ -229,6 +256,17 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 				dy = *p_y - pos->m_y;
 				dz = *p_z - pos->m_z;
 				dist = ApproximateVectorLength(dx, dy, dz);
+#ifdef MW2_MATROX
+				if (dist > 1e-07f) {
+					g_segmentNormalX = dx / dist;
+					g_segmentNormalY = dy / dist;
+					g_segmentNormalZ = dz / dist;
+				}
+				else {
+					g_segmentNormalX = g_segmentNormalY = 0;
+					g_segmentNormalZ = 1;
+				}
+#else
 				if (dist == 0) {
 					g_segmentNormalX = g_segmentNormalY = 0;
 					g_segmentNormalZ = 0x10000;
@@ -238,12 +276,34 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 					g_segmentNormalY = FixedDiv16(dy, dist);
 					g_segmentNormalZ = FixedDiv16(dz, dist);
 				}
+#endif
 
 				reach = mech->m_radius + radius;
+#ifdef MW2_MATROX
+				*p_x = reach * g_segmentNormalX + pos->m_x;
+				*p_y = reach * g_segmentNormalY + pos->m_y;
+				*p_z = reach * g_segmentNormalZ + pos->m_z;
+#else
 				*p_x = pos->m_x + FixedMul16(g_segmentNormalX, reach);
 				*p_y = pos->m_y + FixedMul16(g_segmentNormalY, reach);
 				*p_z = pos->m_z + FixedMul16(g_segmentNormalZ, reach);
+#endif
 				p_mech->m_newVelocityZ = mech->m_newVelocityZ;
+#ifdef MW2_MATROX
+				speed = ApproximateVectorLength(
+							p_mech->m_newVelocityX - mech->m_newVelocityX,
+							p_mech->m_newVelocityY - mech->m_newVelocityY,
+							p_mech->m_newVelocityZ
+						) /
+						2;
+				if (speed < 1) {
+					speed = 1;
+				}
+
+				p_mech->m_velocityX = speed * g_segmentNormalX;
+				p_mech->m_velocityY = speed * g_segmentNormalY;
+				p_mech->m_velocityZ = speed * g_segmentNormalZ;
+#else
 				speed = ApproximateVectorLength(
 					p_mech->m_newVelocityX - mech->m_newVelocityX,
 					p_mech->m_newVelocityY - mech->m_newVelocityY,
@@ -259,6 +319,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 				p_mech->m_velocityX = FixedMul16(g_segmentNormalX, speed);
 				p_mech->m_velocityY = FixedMul16(g_segmentNormalY, speed);
 				p_mech->m_velocityZ = FixedMul16(g_segmentNormalZ, speed);
+#endif
 			}
 
 			break;
@@ -278,6 +339,17 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 				else {
 					result = 1;
 					*p_hit = player;
+#ifdef MW2_MATROX
+					if (dist > 1e-07f) {
+						g_segmentNormalX = dx / dist;
+						g_segmentNormalY = dy / dist;
+						g_segmentNormalZ = dz / dist;
+					}
+					else {
+						g_segmentNormalX = g_segmentNormalY = 0;
+						g_segmentNormalZ = 1;
+					}
+#else
 					if (dist == 0) {
 						g_segmentNormalX = g_segmentNormalY = 0;
 						g_segmentNormalZ = 0x10000;
@@ -287,11 +359,33 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 						g_segmentNormalY = FixedDiv16(dy, dist);
 						g_segmentNormalZ = FixedDiv16(dz, dist);
 					}
+#endif
 
+#ifdef MW2_MATROX
+					*p_x = reach * g_segmentNormalX + pos->m_x;
+					*p_y = reach * g_segmentNormalY + pos->m_y;
+					*p_z = reach * g_segmentNormalZ + pos->m_z;
+#else
 					*p_x = pos->m_x + FixedMul16(g_segmentNormalX, reach);
 					*p_y = pos->m_y + FixedMul16(g_segmentNormalY, reach);
 					*p_z = pos->m_z + FixedMul16(g_segmentNormalZ, reach);
+#endif
 					p_mech->m_newVelocityZ = mech->m_newVelocityZ;
+#ifdef MW2_MATROX
+					speed = ApproximateVectorLength(
+								p_mech->m_newVelocityX - mech->m_newVelocityX,
+								p_mech->m_newVelocityY - mech->m_newVelocityY,
+								p_mech->m_newVelocityZ
+							) /
+							2;
+					if (speed < 1) {
+						speed = 1;
+					}
+
+					p_mech->m_velocityX = speed * g_segmentNormalX;
+					p_mech->m_velocityY = speed * g_segmentNormalY;
+					p_mech->m_velocityZ = speed * g_segmentNormalZ;
+#else
 					speed = ApproximateVectorLength(
 						p_mech->m_newVelocityX - mech->m_newVelocityX,
 						p_mech->m_newVelocityY - mech->m_newVelocityY,
@@ -307,6 +401,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 					p_mech->m_velocityX = FixedMul16(g_segmentNormalX, speed);
 					p_mech->m_velocityY = FixedMul16(g_segmentNormalY, speed);
 					p_mech->m_velocityZ = FixedMul16(g_segmentNormalZ, speed);
+#endif
 				}
 
 				break;
@@ -322,23 +417,25 @@ MechS32 CollideWithMechs(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z,
 // push and a sound. Returns 1 on a collision, with *p_hit the shape.
 // Stack-slot permutation of the locals. Operand order: dist < reach loads reach first in the
 // original.
+// MW2MATROX: a stack-slot permutation, and the products of the normal with reach and bounce load
+// the normal first in the original.
 // FUNCTION: MW2 0x10076295
-// STUB: MW2MATROX 0x1007649e
-MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* p_z, Shape** p_hit)
+// FUNCTION: MW2MATROX 0x1007649e
+MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Shape** p_hit)
 {
-	MechS32 dz;
+	MechScalar dz;
 	Shape* root;
-	MechS32 reach;
-	MechS32 dist;
+	MechScalar reach;
+	MechScalar dist;
 	Shape* shape;
-	MechS32 bounce;
-	MechS32 dx;
-	MechS32 dy;
+	MechScalar bounce;
+	MechScalar dx;
+	MechScalar dy;
 	SceneObject* obj;
 	MechS32 index;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 
 	root = g_sceneShapes;
 	if (!root) {
@@ -380,6 +477,34 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* 
 				return 0;
 			}
 
+#ifdef MW2_MATROX
+			if (dist > 1e-07f) {
+				g_segmentNormalX = dx / dist;
+				g_segmentNormalY = dy / dist;
+				g_segmentNormalZ = dz / dist;
+			}
+			else {
+				g_segmentNormalX = g_segmentNormalY = 0;
+				g_segmentNormalZ = 1;
+			}
+
+			*p_x = reach * g_segmentNormalX + shape->m_centerX;
+			*p_y = reach * g_segmentNormalY + shape->m_centerY;
+			*p_z = reach * g_segmentNormalZ + shape->m_centerZ;
+			// The Matrox edition doesn't negate the speed, and halves it either way.
+			bounce =
+				ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) / 4;
+			if (bounce > 8) {
+				bounce /= -2;
+			}
+			else {
+				bounce /= 2;
+			}
+
+			p_mech->m_velocityX = bounce * g_segmentNormalX;
+			p_mech->m_velocityY = bounce * g_segmentNormalY;
+			p_mech->m_velocityZ = bounce * g_segmentNormalZ;
+#else
 			if (dist == 0) {
 				g_segmentNormalX = g_segmentNormalY = 0;
 				g_segmentNormalZ = 0x10000;
@@ -407,6 +532,7 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechS32* p_x, MechS32* p_y, MechS32* 
 			p_mech->m_velocityX = FixedMul16(g_segmentNormalX, bounce);
 			p_mech->m_velocityY = FixedMul16(g_segmentNormalY, bounce);
 			p_mech->m_velocityZ = FixedMul16(g_segmentNormalZ, bounce);
+#endif
 			*p_hit = shape;
 			return 1;
 		}

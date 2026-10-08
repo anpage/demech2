@@ -76,7 +76,8 @@ RenderSettings g_renderSettings = {
 	1,
 	1,
 #ifdef MW2_MATROX
-	{1, 1},
+	1,
+	1,
 #endif
 	{0xe0, 0xef},
 	1,
@@ -466,7 +467,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		luma = (p_flags & 0xf00) >> 8;
 		index = p_flags & 0xff;
 		if (index == 0x8c) {
-			if (g_renderSettings.m_unk0x28[0]) {
+			if (g_renderSettings.m_texturedSky) {
 				DrawAnimatedPolygon(
 					index,
 					p_count,
@@ -1019,11 +1020,11 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		FUN_10069172(p_eyepoint);
 	}
 
-	if (g_renderSettings.m_unk0x28[0]) {
+	if (g_renderSettings.m_texturedSky) {
 		FUN_10068e33(p_eyepoint);
 	}
 
-	if (g_renderSettings.m_unk0x28[1]) {
+	if (g_renderSettings.m_texturedGround) {
 		g_renderSettings.m_drawGround = FALSE;
 		FUN_100692db(p_eyepoint);
 	}
@@ -1031,7 +1032,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		g_renderSettings.m_drawGround = TRUE;
 	}
 
-	if (g_renderSettings.m_unk0x28[0]) {
+	if (g_renderSettings.m_texturedSky) {
 		g_renderSettings.m_drawSky = FALSE;
 		FUN_10069172(p_eyepoint);
 	}

@@ -18,7 +18,7 @@
 #endif
 
 // Draws icon p_icon at the world position p_pos, if the map view shows it. The Matrox edition
-// takes the position by address, and adds p_icon and g_artResolution in the other operand order.
+// takes the position by address, and adds p_icon and the HUD's art resolution in the other operand order.
 // MW2MATROX: stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003e40a
 // FUNCTION: MW2MATROX 0x1007426c
@@ -49,14 +49,14 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 #endif
 
 	if (visible) {
-		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
 #ifdef MW2_MATROX
 			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
 #endif
-			UnlockCachedResource(p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(p_icon + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
 		}
 	}
 }

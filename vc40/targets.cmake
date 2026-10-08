@@ -107,6 +107,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/animation.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/shapecollision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/graphicsmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
@@ -207,7 +208,7 @@ function(demech2_add_mw2matrox)
   )
   # The Matrox edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
   # its __inline IsWithinRadius (inradius.h) into its callers, the DisplayDib header's __inline helpers
-  # into dispdib.c's functions, and mapview.c its projection.
+  # into dispdib.c's functions, and mapview.c its projection (view.c: IsWithinRadius).
   set_source_files_properties(
     "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
@@ -215,6 +216,7 @@ function(demech2_add_mw2matrox)
     "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/objective.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/view.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
     PROPERTIES COMPILE_OPTIONS /Ob1
   )
