@@ -124,7 +124,7 @@ MechS32 g_ejectStarted = 0;
 
 // Set once the local mech's collision sound played; cleared when it moves freely (UpdateMech).
 // GLOBAL: MW2 0x100be00c
-// GLOBAL: MW2MATROX 0x100c21f4
+// GLOBAL: MW2MATROX 0x100c1e20
 MechS32 g_collisionSoundPlayed;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local

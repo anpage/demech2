@@ -556,14 +556,17 @@ void UpdateViewMatrix(Eyepoint* p_eyepoint)
 // FUNCTION: MW2 0x1004c05c
 void ResetEyepointView(Eyepoint* p_eyepoint)
 {
+#ifndef MW2_MATROX
 	p_eyepoint->m_offsetX = 0;
 	p_eyepoint->m_offsetY = 0;
+#endif
 	UpdateProjection(p_eyepoint);
 	UpdateViewMatrix(p_eyepoint);
 }
 
 // Sets the eyepoint's view from a transform.
 // FUNCTION: MW2 0x1004c093
+// FUNCTION: MW2MATROX 0x100296da
 void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 {
 	TransposeRotation(p_matrix, &p_eyepoint->m_viewMatrix);
@@ -574,6 +577,7 @@ void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 
 // Gets the eyepoint's view as a transform.
 // FUNCTION: MW2 0x1004c0d8
+// FUNCTION: MW2MATROX 0x1002971c
 void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 {
 	TransposeRotation(&p_eyepoint->m_viewMatrix, p_matrix);
@@ -585,17 +589,23 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // Projects the world point (*p_x, *p_y, *p_z) onto the screen in place (*p_z the depth). A point
 // at or behind the near plane is projected mirrored. Returns whether it is in front and on the
 // screen.
-// Stack-slot permutation of the locals.
+// Stack-slot permutation of the locals. The Matrox edition's rebuild sums the dot products' terms
+// and compares the depth and the screen bounds in the other operand order (entropy).
 // FUNCTION: MW2 0x1004c11d
-MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1002975e
+MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 dx;
-	MechS32 dy;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar dx;
+	MechScalar dy;
 	MechS32 behind;
-	MechS32 dz;
+	MechScalar dz;
+#ifdef MW2_MATROX
+	MechS32 screenX;
+	MechS32 screenY;
+#endif
 
 	x = *p_x;
 	y = *p_y;
@@ -603,6 +613,41 @@ MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
+#ifdef MW2_MATROX
+	// The Matrox edition projects in floats, dividing by the depth.
+	x = dx * g_viewProjX0 + dy * g_viewProjX1 + dz * g_viewProjX2;
+	y = dx * g_viewProjY0 + dy * g_viewProjY1 + dz * g_viewProjY2;
+	z = dx * g_viewProjZ0 + dy * g_viewProjZ1 + dz * g_viewProjZ2;
+	*p_z = z;
+	if (z <= g_viewNearPlane) {
+		behind = TRUE;
+		if (FIXED_IS_NEGATIVE(z)) {
+			z = -z;
+		}
+		else if (!FIXED_IS_NONZERO(z)) {
+			z = 1.0f;
+		}
+	}
+	else {
+		behind = FALSE;
+	}
+
+	screenX = (MechS32) (x / z) + g_viewCenterX;
+	// Two jumps to the next instruction in the original.
+	if (0) {
+	}
+	if (0) {
+	}
+	screenY = g_viewBottom - g_viewTop - ((MechS32) (y / z) + g_viewCenterY);
+	*p_x = screenX;
+	*p_y = screenY;
+	if (behind) {
+		return 0;
+	}
+	else {
+		return screenX >= g_viewLeft && screenX <= g_viewRight && screenY >= g_viewTop && screenY <= g_viewBottom;
+	}
+#else
 	x = FixedDot27(dx, g_viewProjX0, dy, g_viewProjX1, dz, g_viewProjX2);
 	y = FixedDot27(dx, g_viewProjY0, dy, g_viewProjY1, dz, g_viewProjY2);
 	z = FixedDot27(dx, g_viewProjZ0, dy, g_viewProjZ1, dz, g_viewProjZ2);
@@ -627,6 +672,7 @@ MechS32 ProjectWorldPoint(MechS32* p_x, MechS32* p_y, MechS32* p_z)
 	}
 
 	return *p_x >= g_viewLeft && *p_x <= g_viewRight && *p_y >= g_viewTop && *p_y <= g_viewBottom;
+#endif
 }
 
 // The scene's shape filter (RenderSettings::m_shapeFilter): culls a shape against the view frustum,
@@ -661,7 +707,17 @@ MechS32 CullSceneShape(Shape* p_shape)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-	if (!IsWithinRadius(dx, dy, dz, g_eyepoint->m_cullDistance + radius)) {
+	// The Matrox edition has no cull distance and tests against the far plane.
+	if (!IsWithinRadius(
+			dx,
+			dy,
+			dz,
+#ifdef MW2_MATROX
+			g_eyepoint->m_farPlane + radius
+#else
+			g_eyepoint->m_cullDistance + radius
+#endif
+		)) {
 		return 5;
 	}
 

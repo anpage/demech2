@@ -22,33 +22,43 @@
 // The map (satellite) view's projection: a top-down view of p_worldSpan units across.
 
 // GLOBAL: MW2 0x10109ab0
+// GLOBAL: MW2MATROX 0x10212cc0
 MechS32 g_savedPalettePending;
 
 // GLOBAL: MW2 0x10109ac0
+// GLOBAL: MW2MATROX 0x10212ba0
 Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
+// GLOBAL: MW2MATROX 0x10212cd0
 MechS32 g_mapViewMinX;
 
 // GLOBAL: MW2 0x10109ba4
+// GLOBAL: MW2MATROX 0x10212cd4
 MechS32 g_mapViewMaxX;
 
 // GLOBAL: MW2 0x10109ba8
+// GLOBAL: MW2MATROX 0x10212cd8
 MechS32 g_mapViewMaxY;
 
 // GLOBAL: MW2 0x10109bac
+// GLOBAL: MW2MATROX 0x10212cdc
 MechS32 g_mapViewMinY;
 
 // GLOBAL: MW2 0x10109bb0
+// GLOBAL: MW2MATROX 0x10212ce0
 MechS32 g_mapViewNear;
 
 // GLOBAL: MW2 0x10109bb4
+// GLOBAL: MW2MATROX 0x10212ce4
 MechS32 g_mapViewFar;
 
 // GLOBAL: MW2 0x10109bb8
+// GLOBAL: MW2MATROX 0x10212cc4
 MechS32 g_mapViewScale;
 
 // GLOBAL: MW2 0x10109bc0
+// GLOBAL: MW2MATROX 0x10212c50
 RenderSettings g_savedRenderSettings;
 
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
@@ -75,10 +85,15 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 	g_renderSettings.m_shapeFilter = CullMapViewShape;
 	g_renderSettings.m_projectVertex = ProjectMapViewVertex;
 	UpdateProjection(g_eyepoint);
+#ifdef MW2_MATROX
+	g_eyepoint->m_projectScaleX = 1.0;
+	g_eyepoint->m_projectScaleY = g_eyepoint->m_pixelAspect;
+#else
 	g_eyepoint->m_projectScaleX16 = 0x2000;
 	g_eyepoint->m_projectShiftX = 3;
 	g_eyepoint->m_projectScaleY16 = FIXED_SHR(g_eyepoint->m_pixelAspect, 3);
 	g_eyepoint->m_projectShiftY = 3;
+#endif
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	g_projectionDirty = 0;

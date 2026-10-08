@@ -27,6 +27,10 @@
 #include <stdlib.h>
 #include <windows.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // GLOBAL: MW2 0x100a59e0
 // GLOBAL: MW2MATROX 0x100bf0a0
 MechS32 g_menuRepeatTimer = -1;

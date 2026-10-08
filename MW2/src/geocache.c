@@ -543,16 +543,30 @@ void EndBlock(struct BwdStream* p_stream)
 }
 
 // Sets the transform the next block opens with.
+// The Matrox edition converts the stream's 16.16 values (FileXform).
 // FUNCTION: MW2 0x1001fe8c
-void ApplyBlockXform(Xform p_xform)
+// FUNCTION: MW2MATROX 0x10053546
+void ApplyBlockXform(FileXform p_xform)
 {
+#ifdef MW2_MATROX
+	g_pendingXform.m_scaleX = p_xform.m_scaleX;
+	g_pendingXform.m_scaleY = p_xform.m_scaleY;
+	g_pendingXform.m_scaleZ = p_xform.m_scaleZ;
+	g_pendingXform.m_angleX = FIXED_TO_SCALAR(p_xform.m_angleX);
+	g_pendingXform.m_angleY = FIXED_TO_SCALAR(p_xform.m_angleY);
+	g_pendingXform.m_angleZ = FIXED_TO_SCALAR(p_xform.m_angleZ);
+	g_pendingXform.m_x = p_xform.m_x;
+	g_pendingXform.m_y = p_xform.m_y;
+	g_pendingXform.m_z = p_xform.m_z;
+#else
 	g_pendingXform = p_xform;
+#endif
 }
 
 // Transforms a point by the current block's matrix.
 // FUNCTION: MW2 0x1001fea6
 // FUNCTION: MW2MATROX 0x100535ed
-void TransformBlockPoint(MechS32* p_point)
+void TransformBlockPoint(MechScalar* p_point)
 {
 	if (g_currentBlock != -1) {
 		TransformPoint(&g_staticBlocks[g_currentBlock].m_matrix, p_point, p_point + 1, p_point + 2);

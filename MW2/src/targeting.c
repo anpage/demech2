@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "targeting.h"
 
 #include "cockpit.h"
@@ -93,6 +96,7 @@ MechChar g_largeMapExtraText[0x20];
 MechChar g_readoutLabel[8] = "x";
 
 // GLOBAL: MW2 0x100aabb8
+// GLOBAL: MW2MATROX 0x100bcdd8
 CockpitReadout g_readout = {1, 0, -1, g_readoutLabel, g_readoutText, {0x28f, 0x28f}};
 
 // GLOBAL: MW2 0x100aabd4
@@ -250,6 +254,7 @@ RectTransition g_satelliteTransition = {&g_satelliteTransitionState, &g_satellit
 PANE g_smallMapViewport = {NULL, 0x51f, 0x51f, 0x428f, 0x570a};
 
 // GLOBAL: MW2 0x100aaf08
+// GLOBAL: MW2MATROX 0x100bd128
 CockpitLayout g_smallMapLayout = {
 	&g_smallMapViewport,
 	&g_smallMapSavedViewport,
@@ -285,6 +290,7 @@ CockpitLayout g_smallMapLayout = {
 PANE g_largeMapViewport = {NULL, 0x2148, 0, 0xdeb8, 0x10000};
 
 // GLOBAL: MW2 0x100aafb0
+// GLOBAL: MW2MATROX 0x100bd1d0
 CockpitLayout g_largeMapLayout = {
 	&g_largeMapViewport,
 	&g_largeMapSavedViewport,
@@ -320,6 +326,7 @@ CockpitLayout g_largeMapLayout = {
 PANE g_satelliteViewport = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ab058
+// GLOBAL: MW2MATROX 0x100bd278
 CockpitLayout g_satelliteLayout = {
 	&g_satelliteViewport,
 	&g_satelliteSavedViewport,
@@ -396,6 +403,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // player's own target). Returns the new nav count, or -1.
 // Stack-slot permutation of the locals. Operand order: the second loop test (i < g_playerCount)
 // compares with i in eax in the original.
+// MW2MATROX: both loop tests compare in the other operand order.
 // FUNCTION: MW2 0x1005ed4f
 // FUNCTION: MW2MATROX 0x100065bf
 MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
@@ -763,6 +771,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
 // order.
 // MW2MATROX: the comparisons with g_localPlayerId load their operands in the other order.
+// MW2MATROX: p_index < g_gameThingCount compares in the other operand order too.
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2MATROX 0x10007012
 MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
@@ -1102,11 +1111,22 @@ void TargetAtReticle(void)
 	g_reticleTargeting = 1;
 }
 
+#ifdef MW2_MATROX
+#define BEARING_ABS(x) fabs(x)
+#define BEARING_DIV(p_a, p_b) ((p_a) / (p_b))
+#else
+#define BEARING_ABS(x) abs(x)
+#define BEARING_DIV(p_a, p_b) FixedDiv29(p_a, p_b)
+#endif
+
 // Turns the vector (p_dx, p_dy, p_dz) into its heading (*p_heading), its length along the
 // ground (*p_distance), its full length (*p_length) and its pitch (*p_pitch).
 // The abs(p_dx)/abs(p_dz) comparison evaluates its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local.
+// MW2MATROX: floats throughout (the divisions are plain, the zero tests FIXED_IS_NONZERO); a
+// stack-slot permutation of the locals is left.
 // FUNCTION: MW2 0x10060197
+// FUNCTION: MW2MATROX 0x10007a32
 void GetBearingAndRange(
 	MechScalar p_dx,
 	MechScalar p_dy,
@@ -1117,19 +1137,19 @@ void GetBearingAndRange(
 	MechScalar* p_pitch
 )
 {
-	MechS32 pitch;
-	MechS32 cosine;
-	MechS32 ground;
-	MechS32 heading;
-	MechS32 sine;
-	MechS32 length;
-	MechS32 pitchCosine;
+	MechScalar pitch;
+	MechScalar cosine;
+	MechScalar ground;
+	MechScalar heading;
+	MechScalar sine;
+	MechScalar length;
+	MechScalar pitchCosine;
 
 	heading = FixedAtan2(p_dx, p_dz);
-	if (abs(p_dx) > abs(p_dz)) {
+	if (BEARING_ABS(p_dx) > BEARING_ABS(p_dz)) {
 		sine = FixedSin(heading);
-		if (sine) {
-			ground = FixedDiv29(p_dx, sine);
+		if (FIXED_IS_NONZERO(sine)) {
+			ground = BEARING_DIV(p_dx, sine);
 		}
 		else {
 			ground = 0;
@@ -1137,8 +1157,8 @@ void GetBearingAndRange(
 	}
 	else {
 		cosine = FixedCos(heading);
-		if (cosine) {
-			ground = FixedDiv29(p_dz, cosine);
+		if (FIXED_IS_NONZERO(cosine)) {
+			ground = BEARING_DIV(p_dz, cosine);
 		}
 		else {
 			ground = 0;
@@ -1147,8 +1167,8 @@ void GetBearingAndRange(
 
 	pitch = FixedAtan2(p_dy, ground);
 	pitchCosine = FixedCos(pitch);
-	if (pitchCosine) {
-		length = FixedDiv29(ground, pitchCosine);
+	if (FIXED_IS_NONZERO(pitchCosine)) {
+		length = BEARING_DIV(ground, pitchCosine);
 	}
 	else {
 		length = 0;

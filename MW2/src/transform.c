@@ -1353,3 +1353,8 @@ done:
 	*p_angleX = pitch;
 	*p_angleZ = roll;
 }
+
+// The Matrox edition ends this object with the rotation's normalization, which 1.1 has in clock.c's.
+#ifdef MW2_MATROX
+#include "normalizerotation.c"
+#endif

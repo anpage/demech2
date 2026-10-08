@@ -19,6 +19,10 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // GLOBAL: MW2 0x100a00cc
 // GLOBAL: MW2MATROX 0x100a61f8
 MechS32 g_paneIndex = -1;
@@ -180,7 +184,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 			// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
 			for (i = 0; i < 0x100; i++) {
 				color = ((PaletteColor*) palette)[i];
-				FUN_1005708c(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
+				VFX_lookaside_write16(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
 			}
 
 			ResetTextColors();
@@ -425,9 +429,24 @@ void SetBasePalette(MechS32 p_palette)
 // to the loader, so it always loads PAL resource 1 (SimMain has the same test).
 // Matches except for the stack slots of all its locals (a consistent permutation).
 // FUNCTION: MW2 0x10002a75
+// FUNCTION: MW2MATROX 0x1002dd33
 void StartPalettes(MechS32 p_dissolve)
 {
 	MechU8* palette;
+#ifdef MW2_MATROX
+	MechS32 hasPalette;
+
+	// The Matrox edition has no dissolve.
+	hasPalette = g_paletteResourceIds[0x10] != -1;
+	if (hasPalette) {
+		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+		if (palette) {
+			g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
+			UnlockCachedResource(hasPalette, g_resourceTypeTags[c_resTagPal]);
+			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
+		}
+	}
+#else
 	MechS32 last;
 	MechS32 handle;
 	WINDOW buffer;
@@ -485,31 +504,20 @@ void StartPalettes(MechS32 p_dissolve)
 			}
 		}
 	}
+#endif
 
 	g_currentPalette = 0x10;
 	g_settledPalette = 0x10;
 }
 
 // FUNCTION: MW2 0x10002c76
+// FUNCTION: MW2MATROX 0x1002ddd8
 MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;
 }
 
 #ifdef MW2_MATROX
-// STUB: MW2MATROX 0x1005708c
-void FUN_1005708c(MechS32 p_index, MechS32 p_pixel)
-{
-	STUB(0x1005708c);
-}
-
-// STUB: MW2MATROX 0x100570aa
-MechS32 FUN_100570aa(MechS32 p_color)
-{
-	STUB(0x100570aa);
-	return 0;
-}
-
 // STUB: MW2MATROX 0x1005f790
 void FUN_1005f790(PaletteColor* p_palette)
 {

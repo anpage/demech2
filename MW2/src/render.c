@@ -36,6 +36,10 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // The draw mode the game starts in: none in 1.1, the first in the Matrox edition.
 #ifdef MW2_MATROX
 #define INITIAL_DRAW_MODE 0
@@ -442,12 +446,14 @@ void ShutdownRender(void)
 }
 
 // FUNCTION: MW2 0x10012f14
+// FUNCTION: MW2MATROX 0x10017b67
 undefined4 FUN_10012f14(void)
 {
 	return g_unk0x10176eb0;
 }
 
 // FUNCTION: MW2 0x10012f29
+// FUNCTION: MW2MATROX 0x10017b7c
 void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 {
 	g_unk0x10176eb0 = p_value;
@@ -457,6 +463,7 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 // fades its palette in. Nothing calls it.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10012f3c
+// FUNCTION: MW2MATROX 0x10017b8f
 void ShowBanner(void)
 {
 	void* gif;

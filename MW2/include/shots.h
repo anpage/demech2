@@ -36,7 +36,7 @@ typedef struct Shot {
 	MechScalar m_steering[3]; // 0x14
 	MechS32 m_age;            // 0x20 — ticks since launch
 	MechS32 m_lifetime;       // 0x24 — ticks left
-	MechS32 m_swayPhase;      // 0x28 — an angle (SwayShot)
+	MechScalar m_swayPhase;   // 0x28 — an angle (SwayShot)
 	SceneObject* m_object;    // 0x2c
 	MechS32 m_target;         // 0x30
 	MechS32 m_targetKind;     // 0x34
@@ -78,7 +78,7 @@ extern "C"
 	void ResetShotSlot(MechS32 p_index);
 	void UpdateAllShots(void);
 	void UpdateShot(MechS32 p_index);
-	void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z);
+	void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z);
 	void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScalar p_z);
 	void DetonateShot(
 		MechS32 p_index,

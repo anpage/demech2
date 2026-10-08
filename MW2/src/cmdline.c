@@ -28,6 +28,7 @@
 // mission (p_mission, "s.$" by default), which is shown with MonoPrintLine. /C sets p_flags[0];
 // /S and /X clear p_flags[1]. Returns FALSE without a command line (not launched by MECH2.EXE).
 // Stack-slot permutation of the locals.
+// MW2MATROX: /E deletes mw2debug.txt with remove; only a stack-slot permutation is left.
 // FUNCTION: MW2 0x1001ee80
 // FUNCTION: MW2MATROX 0x10021140
 MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p_mission)
@@ -62,7 +63,11 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				g_missionTimerStopped = 1;
 				break;
 			case 'E':
+#ifdef MW2_MATROX
+				remove("mw2debug.txt");
+#else
 				_rmdir("mw2debug.txt");
+#endif
 				g_logStreams = 1;
 				break;
 			case 'F':

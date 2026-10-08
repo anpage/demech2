@@ -74,6 +74,10 @@
 #include <string.h>
 #include <windows.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
 DECOMP_SIZE_ASSERT(StarMission, 0x3c0a)
 DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)

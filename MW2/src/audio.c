@@ -381,6 +381,7 @@ MechS32 FirstAudio(void)
 // 150000 attacks the local player.
 // Operand order: g_nextEngageCheck <= g_currentClock and i < g_playerCount load the other
 // operand first in the original.
+// MW2MATROX: both comparisons compare in the other operand order.
 // FUNCTION: MW2 0x10006ef1
 // FUNCTION: MW2MATROX 0x10044e61
 void DoAudio(void)

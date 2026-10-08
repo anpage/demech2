@@ -36,17 +36,21 @@
 // The track view's distance from the mech; UpdateFreeEyeView also starts the free camera that far
 // back from it.
 // GLOBAL: MW2 0x100a23ec
+// GLOBAL: MW2MATROX 0x100a362c
 MechS32 g_trackDistance = 0;
 
 // The track view's distance limits, height and turn around the mech (UpdateTrackView).
 
 // GLOBAL: MW2 0x100a23f0
+// GLOBAL: MW2MATROX 0x100a3630
 MechS32 g_trackMinDistance = 0;
 
 // GLOBAL: MW2 0x100a23f4
+// GLOBAL: MW2MATROX 0x100a3634
 MechS32 g_trackMaxDistance = 0;
 
 // GLOBAL: MW2 0x100a23f8
+// GLOBAL: MW2MATROX 0x100a3638
 MechS32 g_trackHeight = 0;
 
 // GLOBAL: MW2 0x100a23fc
@@ -67,10 +71,12 @@ MechS32 g_viewMode = -1;
 
 // The view mode to return to from the ordinance view.
 // GLOBAL: MW2 0x100a240c
+// GLOBAL: MW2MATROX 0x100a364c
 MechS32 g_ordinanceReturnMode = -1;
 
 // The view mode FirstEyepoint starts the camera in.
 // GLOBAL: MW2 0x100a2410
+// GLOBAL: MW2MATROX 0x100a3650
 MechS32 g_initialViewMode = 0;
 
 // The view mode SetViewMode asked for; UpdateEyepoint switches to it.
@@ -80,6 +86,7 @@ MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
 // GLOBAL: MW2 0x100a2418
+// GLOBAL: MW2MATROX 0x100a3658
 MechS32 g_autopilotStart = 1;
 
 // Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
@@ -102,6 +109,7 @@ MechS32 g_lostViewMode = -1;
 // Set while a network game's lost player advances the viewpoint between players; until then the
 // track view circles the mech.
 // GLOBAL: MW2 0x100a2428
+// GLOBAL: MW2MATROX 0x100a3668
 MechS32 g_spectating = 0;
 
 // GLOBAL: MW2 0x100a242c
@@ -125,16 +133,19 @@ MechS32* g_eyeTwist = NULL;
 
 // The drop camera (UpdateDropView): its vertical speed, acceleration and start clock.
 // GLOBAL: MW2 0x100a243c
+// GLOBAL: MW2MATROX 0x100a367c
 MechS32 g_dropSpeed = 0;
 
 // GLOBAL: MW2 0x100a2440
 MechS32 g_dropAcceleration = 0x3ca0;
 
 // GLOBAL: MW2 0x100a2444
+// GLOBAL: MW2MATROX 0x100a3684
 MechS32 g_dropStartClock = 0;
 
 // Set while no glance key is held (UpdateCockpitView).
 // GLOBAL: MW2 0x100a2448
+// GLOBAL: MW2MATROX 0x100a3688
 MechS8 g_glanceReleased = 0;
 
 // The view UpdateOrdinanceView saves when it enters the ordinance view.

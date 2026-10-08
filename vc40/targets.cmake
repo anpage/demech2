@@ -13,9 +13,11 @@
 # (tools/port_annotations.py). MW2_MATROX is defined for the Matrox edition's own code.
 #
 # The sources are MW2's, in the Matrox edition's link order: its objects hold MW2's units in another
-# order, found from the functions they share (config.c's first ten functions sit in an object
-# of their own, after staticmem.c, which a shared unit can't reproduce). The Matrox edition's own
-# objects (the A3D renderer, the units it rewrote) aren't written yet.
+# order, found from the functions and data they share. Code the Matrox edition moved into another
+# object is a fragment both units include, one per target (config.c's cockpit panels end
+# staticmem.c's object, clock.c's rotation normalization transform.c's), and its float math
+# object is a unit of its own (matrox/floatmath.c), which replaces fixedtrig.c and approxlen.c.
+# The rest of its own objects (the A3D renderer, the units it rewrote) aren't written yet.
 function(demech2_add_mw2matrox)
   demech2_add_dll(mw2matrox
     ID MW2MATROX
@@ -34,6 +36,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/gamecd.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/targeting.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/mainmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/ticks.${asm_or_c}"
       "${DEMECH2_SOURCE_DIR}/MW2/src/gdi.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/eyepoint.c"
@@ -62,6 +65,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/cmdline.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/recordstacks.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/statuspanels.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/depthsort.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/collision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/wtbshapes.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/joystick.c"
@@ -73,10 +77,13 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/bwd.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mw2prj.c"
+      # bwdkeywords.c has no code: placed by its data (0x100a5ca8), between mw2prj.c's and weapons.c's.
+      "${DEMECH2_SOURCE_DIR}/MW2/src/bwdkeywords.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/palette.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/bwdnames.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/ramp.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/artillery.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/pausebanner.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/debugbreak.c"
       ${vfxrend}
@@ -99,10 +106,15 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
+      # The 16-bit 2D primitives, a MASM object: only built with ML (this target needs a VC++ 4.x build)
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/vfx16.asm"
       "${DEMECH2_SOURCE_DIR}/MW2/src/camerashake.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/error.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/keyboard.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/polydraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/lineofsight.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/classtable.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/logwindow.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/screenshot.c"
@@ -112,14 +124,18 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/resourcename.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/cockpit.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/dorcs.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/mechcollision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/timedoverlays.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/perf.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/staticmem.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/aiweapons.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/startup.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mw2log.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/refreshmode.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/inputmap.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/menucontrols.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/floatmath.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/missionsetup.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/ai.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/poolsizes.c"
@@ -127,29 +143,30 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/environment.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/soundfx.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/ray.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/bargauges.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/netio.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/gifsave.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechviewpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/speech.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/setres.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/gpanim.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/mekfile.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/brightness.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/overlay.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/lancemenu.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/weapondata.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/dispdib.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/simmain.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
-      # Not placed yet: units with no function found in the Matrox edition (data-only units, fixed-point
-      # helpers it may have replaced, and the units the renderer replaced, such as directdraw.c),
-      # linked after the others until the callers' Matrox versions are written, in MW2's order.
-      "${DEMECH2_SOURCE_DIR}/MW2/src/approxlen.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/weapondata.c"
+      # Not placed yet: units with nothing found in the Matrox edition (fixed-point helpers it may have
+      # replaced, and the units the renderer replaced, such as directdraw.c), linked after the others
+      # until the callers' Matrox versions are written, in MW2's order.
       "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/mainmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/bandpoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/commandpointmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
@@ -159,33 +176,20 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/depthsort.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot27.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot29.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/bwdkeywords.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/polydraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/aiweapons.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/commandmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/artillery.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/setres.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/mekfile.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/fixedtrig.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/lineofsight.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/horizon.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/mechcollision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_MATROX>"
@@ -198,6 +202,7 @@ function(demech2_add_mw2matrox)
     "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/objective.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
     PROPERTIES COMPILE_OPTIONS /Ob1
   )

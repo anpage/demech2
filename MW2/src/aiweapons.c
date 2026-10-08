@@ -62,8 +62,10 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 // Decides whether p_player's AI fires its selected weapon: in range of its target, cool enough, the
 // weapon ready and loaded, and by chance per recycle time; otherwise it selects the next weapon.
 // Firing weapon types 0 and 4 also steers; a guided weapon's volley may lock on.
-// The only diff is a stack-slot permutation of the locals.
+// The only diff is a stack-slot permutation of the locals. The Matrox edition's rebuild also adds
+// the two heats in the other order (entropy).
 // FUNCTION: MW2 0x1004b724
+// FUNCTION: MW2MATROX 0x1007a9d9
 MechS32 DecideAIFire(Player* p_player)
 {
 	MechS32 fire;
@@ -91,8 +93,7 @@ MechS32 DecideAIFire(Player* p_player)
 		if (fire) {
 			fire = FALSE;
 #ifdef MW2_MATROX
-			// Not found in the Matrox edition: a translation that compiles.
-			if (def->m_heat + mech->m_heat < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
+			if (def->m_heat + mech->m_heat < 65.0f && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 #else
 			if ((def->m_heat + mech->m_heat) >> 16 < 65.0 && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
@@ -114,8 +115,10 @@ MechS32 DecideAIFire(Player* p_player)
 		else if (type == 4) {
 			p_player->m_steering->m_torsoTilt += 0x3c000;
 		}
+#ifndef MW2_MATROX
 		else if (type == 21) {
 		}
+#endif
 
 		if (g_weaponDefs[type].m_guided) {
 			if (p_player->m_gunnery <= 4 && !RandomIntBelow(p_player->m_gunnery + 1)) {

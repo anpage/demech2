@@ -85,12 +85,15 @@ MechChar g_highText[] = "High";
 MenuChoices g_offOnChoices = {NULL, 2, {g_offText, g_onText}};
 
 // GLOBAL: MW2 0x100a1be8
+// GLOBAL: MW2MATROX 0x100a2570
 MenuChoices g_noYesChoices = {NULL, 2, {g_noText, g_yesText}};
 
 // GLOBAL: MW2 0x100a1c30
+// GLOBAL: MW2MATROX 0x100a25b8
 MenuChoices g_lowHighChoices = {NULL, 2, {g_lowText, g_highText}};
 
 // GLOBAL: MW2 0x100a1c78
+// GLOBAL: MW2MATROX 0x100a2600
 MenuChoices g_offLowMediumHighChoices = {NULL, 4, {g_offText, g_lowText, g_mediumText, g_highText}};
 
 // GLOBAL: MW2 0x100a1cc0
@@ -146,6 +149,7 @@ MenuPage g_fleePage = {
 };
 
 // GLOBAL: MW2 0x100a2138
+// GLOBAL: MW2MATROX 0x100a2940
 MenuPage g_mainMenuPage = {
 	0,
 	g_mainMenuTitle,
@@ -162,18 +166,25 @@ MenuPage g_mainMenuPage = {
 };
 
 // GLOBAL: MW2 0x100a2290
+// GLOBAL: MW2MATROX 0x100a2a98
 PANE g_mainMenuTarget = {NULL, 0x4000, 0x3333, 0x10000, 0xcccd};
 
 // GLOBAL: MW2 0x100a22a8
+// GLOBAL: MW2MATROX 0x100a2ab0
 PANE g_mainMenuBackgroundTarget = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100a22c0
+// GLOBAL: MW2MATROX 0x100a2ac8
 MenuDefinition g_mainMenu = {
 	&g_mainMenuTarget,
 	17,
 	g_mainMenuPageStack,
 	0,
+#ifdef MW2_MATROX
+	0x118,
+#else
 	0x112,
+#endif
 	NULL,
 	&g_mainMenuBackgroundTarget,
 	-1,
@@ -194,4 +205,5 @@ MenuDefinition g_mainMenu = {
 };
 
 // GLOBAL: MW2 0x10177080
+// GLOBAL: MW2MATROX 0x10218410
 MenuPage* g_mainMenuPageStack[8];

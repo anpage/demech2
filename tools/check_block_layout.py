@@ -27,7 +27,8 @@ terminator added to a table the original ends without one).
 tools/check_block_sizes.py checks the same calls in the source; this tool also
 covers calls whose size the source computes (`sizeof` of the wrong object).
 
-The Miles Design VFX objects (3rdparty/vfx) are left out: their source declares its
+The Miles Design VFX objects (3rdparty/vfx, and the Matrox edition's 16-bit port of
+VFXA, MW2/src/matrox/vfx16.asm) are left out: their source declares its
 buffers as labels and untyped data, which ML's debug information sizes as one
 element, and runs of separately named variables are one block there by design
 (VFX_register_driver copies the driver's table over its 13 entry points).
@@ -56,8 +57,9 @@ logging.getLogger("reccmp.compare").addHandler(logging.NullHandler())
 
 logger = logging.getLogger()
 
-# Miles Design VFX's objects (3rdparty/vfx), whose functions aren't scanned (see above).
-VFX_OBJECTS = {"VFXA.ASM.obj", "VFX3D.ASM.obj", "VFXREND.ASM.obj"}
+# Miles Design VFX's objects (3rdparty/vfx, and the Matrox edition's 16-bit VFXA), whose
+# functions aren't scanned (see above).
+VFX_OBJECTS = {"VFXA.ASM.obj", "VFX3D.ASM.obj", "VFXREND.ASM.obj", "vfx16.asm.obj"}
 
 # Block functions: (argument count, pointer argument indices, size argument
 # indices). The size is the product of the size arguments.

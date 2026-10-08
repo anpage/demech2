@@ -90,7 +90,7 @@ def functions_in_sources():
     """Every function MW2 annotates in MW2/src: name -> (path, marker line index, MW2 address,
     MW2MATROX address or None)."""
     result = {}
-    for path in sorted(glob.glob("MW2/src/*.c")):
+    for path in sorted(glob.glob("MW2/src/**/*.c", recursive=True)):
         lines = open(path, encoding="utf-8").read().split("\n")
         for i, line in enumerate(lines):
             m = re.match(r"// FUNCTION: %s (0x[0-9a-f]+)$" % SOURCE, line)
@@ -109,6 +109,15 @@ def functions_in_sources():
     return result
 
 
+def annotated_targets():
+    """The addresses MW2MATROX annotates in MW2/src, the Matrox edition's own files included."""
+    result = set()
+    for path in glob.glob("MW2/src/**/*.c", recursive=True):
+        for m in re.finditer(r"^// FUNCTION: %s (0x[0-9a-f]+)$" % TARGET, open(path, encoding="utf-8").read(), re.M):
+            result.add(int(m.group(1), 16))
+    return result
+
+
 def file_order_allows(functions, path, i, address):
     """Whether a MW2MATROX annotation at address keeps the file's annotations in address order."""
     before = [t for p, j, _, t in functions.values() if p == path and j < i and t is not None]
@@ -122,7 +131,7 @@ def add_annotation(name, address, functions=None):
     if target is not None:
         return False
     marker = "// FUNCTION: %s %#010x" % (TARGET, address)
-    if any(marker in open(p, encoding="utf-8").read() for p in glob.glob("MW2/src/*.c")):
+    if any(marker in open(p, encoding="utf-8").read() for p in glob.glob("MW2/src/**/*.c", recursive=True)):
         return False  # annotated already (the Matrox edition's own version of the function, say)
     if not file_order_allows(functions, path, i, address):
         print("%s at %#x would break %s's address order; left out" % (name, address, os.path.basename(path)))
@@ -270,12 +279,13 @@ def entropy_only(R, T, op):
 def candidates(state, functions, unit=None):
     """The unannotated functions with an address in the Matrox edition: (name, address, end)."""
     mapping, placed, inferred = state
+    annotated = annotated_targets()
     for name, (path, i, address, target) in sorted(functions.items()):
         if target is not None or (unit and os.path.basename(path) != unit):
             continue
         b, _ = target_address(state, address)
-        if b is None:
-            continue
+        if b is None or b in annotated:
+            continue  # annotated already: the Matrox edition's own version, in another file
         end = placed[address][1] if address in placed else None
         yield name, path, b, end
 
@@ -439,7 +449,7 @@ def cmd_audit(args):
     from collections import Counter
 
     stubs = set()
-    for path in glob.glob("MW2/src/*.c"):
+    for path in glob.glob("MW2/src/**/*.c", recursive=True):
         stubs |= {int(m, 16) for m in re.findall(r"// STUB: %s (0x[0-9a-f]+)" % TARGET, open(path, encoding="utf-8").read())}
 
     def norm(line):
@@ -499,7 +509,7 @@ def cmd_users(args):
 
 def cmd_global(args):
     entries = []
-    for path in glob.glob("MW2/src/*.c") + glob.glob("MW2/include/*.h") + glob.glob("common/include/*.h"):
+    for path in glob.glob("MW2/src/**/*.c", recursive=True) + glob.glob("MW2/include/*.h") + glob.glob("common/include/*.h"):
         lines = open(path, encoding="utf-8").read().split("\n")
         for i, line in enumerate(lines):
             m = re.match(r"// (GLOBAL|FUNCTION|LIBRARY): %s (0x[0-9a-f]+)" % TARGET, line)

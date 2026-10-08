@@ -16,36 +16,36 @@ typedef MechS32 (*CockpitGaugeFn)();
 
 // The layout of one cockpit view (4: the satellite view).
 typedef struct CockpitLayout {
-	PANE* m_viewport;             // 0x00 — in 16.16 fractions of the screen
-	PANE* m_savedViewport;        // 0x04 — the viewport, saved while a transition moves it
-	MechS32 m_paneSlot;           // 0x08 — in g_panes
-	MechS32 m_sounds[2];          // 0x0c — the sounds of entering and leaving the view, -1: none
-	RectTransition* m_transition; // 0x14
-	MechS32 m_range;              // 0x18 — the range the readout shows
-	MechS32 m_formattedRange;     // 0x1c — the range it last formatted
-	MechS32 m_startRange;         // 0x20 — the range to start at
-	MechS32 m_minRange;           // 0x24 — the shortest range
-	MechS32 m_maxRange;           // 0x28 — the longest range
-	MechScalar m_zoom;            // 0x2c — the zoom: m_startRange over m_range
-	MechS32 m_font;               // 0x30 — its font, from g_artResolution
-	MechChar* m_extraLabel;       // 0x34 — a third label and text, which nothing draws
-	MechChar* m_extraText;        // 0x38
-	MechChar* m_rangeLabel;       // 0x3c — the range label
-	MechChar* m_rangeText;        // 0x40 — the range text
-	MechChar* m_headingLabel;     // 0x44 — the heading label
-	MechChar* m_headingText;      // 0x48 — the heading text
-	MechS32 m_formattedHeading;   // 0x4c — the heading it last formatted
-	MechChar* m_shortUnit;        // 0x50 — the unit of short ranges
-	MechChar* m_longUnit;         // 0x54 — the unit of long ranges
-	Point m_extraTextOrigin;      // 0x58
-	Point m_rangeTextOrigin;      // 0x60
-	Point m_headingTextOrigin;    // 0x68
-	MechS32 (*m_icons)[3];        // 0x70 — SHP ids by row and side: 0 the center, 1 players
-	MechS32* m_colors;            // 0x74
-	MechS32* m_anims;             // 0x78 — 2D animations; [2] plays over a damaged map view
-	CockpitGaugeFn m_gauges[4];   // 0x7c — indices in g_cockpitGauges until loaded; in the
-								  // map view, 1 tests a point, 2 clamps it to the view
-								  // and 3 projects a bearing to its edge
+	PANE* m_viewport;              // 0x00 — in 16.16 fractions of the screen
+	PANE* m_savedViewport;         // 0x04 — the viewport, saved while a transition moves it
+	MechS32 m_paneSlot;            // 0x08 — in g_panes
+	MechS32 m_sounds[2];           // 0x0c — the sounds of entering and leaving the view, -1: none
+	RectTransition* m_transition;  // 0x14
+	MechS32 m_range;               // 0x18 — the range the readout shows
+	MechS32 m_formattedRange;      // 0x1c — the range it last formatted
+	MechS32 m_startRange;          // 0x20 — the range to start at
+	MechS32 m_minRange;            // 0x24 — the shortest range
+	MechS32 m_maxRange;            // 0x28 — the longest range
+	MechScalar m_zoom;             // 0x2c — the zoom: m_startRange over m_range
+	MechS32 m_font;                // 0x30 — its font, from g_artResolution
+	MechChar* m_extraLabel;        // 0x34 — a third label and text, which nothing draws
+	MechChar* m_extraText;         // 0x38
+	MechChar* m_rangeLabel;        // 0x3c — the range label
+	MechChar* m_rangeText;         // 0x40 — the range text
+	MechChar* m_headingLabel;      // 0x44 — the heading label
+	MechChar* m_headingText;       // 0x48 — the heading text
+	MechScalar m_formattedHeading; // 0x4c — the heading it last formatted
+	MechChar* m_shortUnit;         // 0x50 — the unit of short ranges
+	MechChar* m_longUnit;          // 0x54 — the unit of long ranges
+	Point m_extraTextOrigin;       // 0x58
+	Point m_rangeTextOrigin;       // 0x60
+	Point m_headingTextOrigin;     // 0x68
+	MechS32 (*m_icons)[3];         // 0x70 — SHP ids by row and side: 0 the center, 1 players
+	MechS32* m_colors;             // 0x74
+	MechS32* m_anims;              // 0x78 — 2D animations; [2] plays over a damaged map view
+	CockpitGaugeFn m_gauges[4];    // 0x7c — indices in g_cockpitGauges until loaded; in the
+								   // map view, 1 tests a point, 2 clamps it to the view
+								   // and 3 projects a bearing to its edge
 } CockpitLayout;
 
 // The functions and globals of cockpit.c that other units use.

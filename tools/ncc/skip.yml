@@ -16,3 +16,5 @@ VFX_line_address: 'Miles Design VFX: a registered driver entry point VFXA.ASM de
 driver_name: 'Miles Design VFX: the driver name VFXA.ASM defines, public for tests/asmequiv (3rdparty/vfx)'
 lookaside: 'Miles Design VFX: the shape lookaside table VFXA.ASM defines, public for tests/asmequiv (3rdparty/vfx)'
 color_error: "Miles Design VFX: the fade's error terms VFXA.ASM defines, public for tests/asmequiv (3rdparty/vfx)"
+CosTable16: "the Matrox edition's 16-bit VFXA port: VFX_Cos_Sin16's table, after VFXA's CosTable (MW2/src/matrox/vfx16.asm)"
+lookaside16: "the Matrox edition's 16-bit VFXA port: its shape lookaside table, after VFXA's lookaside (MW2/src/matrox/vfx16.asm)"

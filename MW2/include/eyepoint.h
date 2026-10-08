@@ -11,7 +11,7 @@
 // by m_offsetX/m_offsetY), the clip planes and the projection UpdateProjection derives from them.
 // The rotation is in 16.16 degrees: m_pitch about x, m_heading about y, m_roll about z, as
 // BuildMatrix takes them (the overlay's eye position readout prints them in that order).
-// SIZE 0xe0
+// SIZE 0xe0 (0xa4 in the Matrox edition)
 typedef struct Eyepoint {
 	MechScalar m_x;             // 0x00
 	MechScalar m_y;             // 0x04
@@ -34,9 +34,9 @@ typedef struct Eyepoint {
 	MechScalar m_pixelAspect;   // 0x44 — pixel width / height
 	MechS32 m_unk0x48;          // 0x48 — nothing uses it
 #ifdef MW2_MATROX
-	// The Matrox edition has no projection offset, no 16-bit projection scales and no cull distance: the
-	// view matrix follows m_unk0x48, and its members past it move up. The members it dropped
-	// follow its own, unused, so that the shared code still compiles.
+	// The Matrox edition's is 0xa4 bytes: it has no projection offset, no 16-bit projection scales
+	// and no cull distance (CullSceneShape tests against m_farPlane), so the view matrix follows
+	// m_unk0x48 and the members past it move up.
 	Matrix m_viewMatrix;        // 0x4c
 	MechS32 m_halfWidth;        // 0x7c
 	MechS32 m_halfHeight;       // 0x80
@@ -48,34 +48,27 @@ typedef struct Eyepoint {
 	MechScalar m_frustumScaleY; // 0x98
 	MechScalar m_fovY;          // 0x9c
 	MechScalar m_detailScale;   // 0xa0
-	MechS32 m_offsetX;          // 0xa4
-	MechS32 m_offsetY;          // 0xa8
-	MechS32 m_projectScaleX16;  // 0xac
-	MechS32 m_projectScaleY16;  // 0xb0
-	MechS16 m_projectShiftX;    // 0xb4
-	MechS16 m_projectShiftY;    // 0xb6
-	MechS32 m_cullDistance;     // 0xb8
 #else
-	MechS32 m_offsetX;         // 0x4c — moves the projection centre off the view's
-	MechS32 m_offsetY;         // 0x50
-	Matrix m_viewMatrix;       // 0x54 — rows 0-2 the view rotation, row 3 the eye position
-	MechS32 m_halfWidth;       // 0x84
-	MechS32 m_halfHeight;      // 0x88
-	MechS32 m_centerX;         // 0x8c
-	MechS32 m_centerY;         // 0x90
-	MechS32 m_projectScaleX;   // 0x94 — half width times the horizontal field of view
-	MechS32 m_projectScaleY;   // 0x98
-	MechS32 m_projectScaleX16; // 0x9c — m_projectScaleX in 16 bits, shifted by m_projectShiftX
-	MechS32 m_projectScaleY16; // 0xa0
-	MechS16 m_projectShiftX;   // 0xa4
-	MechS16 m_projectShiftY;   // 0xa6
-	MechS32 m_frustumScaleX;   // 0xa8 — the side planes' scale for the visibility tests
-	MechS32 m_frustumScaleY;   // 0xac — the top and bottom planes'
-	MechS32 m_fovY;            // 0xb0
-	MechS32 m_cullDistance;    // 0xb4 — the far plane, or 0x7fffffff for an unlimited one
-	MechS32 m_detailScale;     // 0xb8 — scales distances for the level of detail
-#endif
+	MechS32 m_offsetX;                       // 0x4c — moves the projection centre off the view's
+	MechS32 m_offsetY;                       // 0x50
+	Matrix m_viewMatrix;                     // 0x54 — rows 0-2 the view rotation, row 3 the eye position
+	MechS32 m_halfWidth;                     // 0x84
+	MechS32 m_halfHeight;                    // 0x88
+	MechS32 m_centerX;                       // 0x8c
+	MechS32 m_centerY;                       // 0x90
+	MechS32 m_projectScaleX;                 // 0x94 — half width times the horizontal field of view
+	MechS32 m_projectScaleY;                 // 0x98
+	MechS32 m_projectScaleX16;               // 0x9c — m_projectScaleX in 16 bits, shifted by m_projectShiftX
+	MechS32 m_projectScaleY16;               // 0xa0
+	MechS16 m_projectShiftX;                 // 0xa4
+	MechS16 m_projectShiftY;                 // 0xa6
+	MechS32 m_frustumScaleX;                 // 0xa8 — the side planes' scale for the visibility tests
+	MechS32 m_frustumScaleY;                 // 0xac — the top and bottom planes'
+	MechS32 m_fovY;                          // 0xb0
+	MechS32 m_cullDistance;                  // 0xb4 — the far plane, or 0x7fffffff for an unlimited one
+	MechS32 m_detailScale;                   // 0xb8 — scales distances for the level of detail
 	undefined4 m_unk0xbc[(0xe0 - 0xbc) / 4]; // 0xbc
+#endif
 } Eyepoint;
 
 // The camera's view modes (SetViewMode), after the game keys that pick them.

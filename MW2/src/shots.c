@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "shots.h"
 
 #include "ai.h"
@@ -449,23 +452,33 @@ void UpdateShot(MechS32 p_index)
 
 // Sways (p_x, p_y, p_z) sideways and up and down around the shot's line of flight, by the
 // phase in m_swayPhase, and advances the phase.
+// MW2MATROX: in floats, with the phase in degrees (3.9779005 a tick) and no scaling of the sway;
+// only the stack slots differ.
 // FUNCTION: MW2 0x1006ad78
-// STUB: MW2MATROX 0x1006b93e
-void SwayShot(Shot* p_shot, MechS32* p_x, MechS32* p_y, MechS32* p_z)
+// FUNCTION: MW2MATROX 0x1006b93e
+void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
-	MechS32 sideZ;
-	MechS32 sideY;
-	MechS32 sideX;
+	MechScalar sideZ;
+	MechScalar sideY;
+	MechScalar sideX;
 
 	sideX = -p_shot->m_velocity[2];
 	sideY = 0;
 	sideZ = p_shot->m_velocity[0];
 	NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
+#ifdef MW2_MATROX
+	*p_x += sideX * FixedSin(p_shot->m_swayPhase);
+	*p_z += sideZ * FixedSin(p_shot->m_swayPhase);
+	*p_y += sideZ * FixedCos(p_shot->m_swayPhase);
+	p_shot->m_swayPhase += g_deltaTime * 3.9779005f;
+	p_shot->m_swayPhase = FIXED_MOD360(p_shot->m_swayPhase);
+#else
 	*p_x += FixedMul29(sideX, FixedSin(p_shot->m_swayPhase)) >> 9;
 	*p_z += FixedMul29(sideZ, FixedSin(p_shot->m_swayPhase)) >> 9;
 	*p_y += FixedMul29(sideZ, FixedCos(p_shot->m_swayPhase)) >> 10;
 	p_shot->m_swayPhase += g_deltaTime * 0x3fa57;
 	p_shot->m_swayPhase %= 0x1680000;
+#endif
 }
 
 // Steers a guided missile at (p_x, p_y, p_z) toward its target, and arms its proximity fuse
@@ -631,7 +644,7 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // way around. MW2MATROX (0x1006bdd0) matches but for m_distanceFade (see UpdateEffects), and
 // adds cameraX * cameraX + cameraZ * cameraZ the other way around.
 // FUNCTION: MW2 0x1006b1fb
-// STUB: MW2MATROX 0x1006bdd0
+// FUNCTION: MW2MATROX 0x1006bdd0
 void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -901,8 +914,9 @@ void SpawnEffectEx(
 // Stack-slot permutation of the locals; the i == g_effectCameraEffect comparison has its
 // operands the other way around. MW2MATROX (0x1006c584) matches but for m_distanceFade, at 0x44 in
 // the Matrox edition's RenderSettings (two more dwords from 0x28 on; see SetMechViewRenderSettings).
+// GetPaletteFadeSteps (palette.c) has no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1006b99a
-// STUB: MW2MATROX 0x1006c584
+// FUNCTION: MW2MATROX 0x1006c584
 void UpdateEffects(void)
 {
 	MechS32 release;
@@ -982,6 +996,7 @@ void UpdateEffects(void)
 // tick in each of its sections, twice as much when its power is off.
 // Stack-slot permutation of the locals; the i != g_localPlayerId comparison and the
 // p_rate * g_deltaTime product have their operands the other way around.
+// MW2MATROX: i != g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1006bc13
 // FUNCTION: MW2MATROX 0x1006c803
 void DamageMechsInRadius(
@@ -1136,6 +1151,7 @@ MechS32 TrackLastShot(void)
 // Counts the destruction of game thing p_index for the last shooter's side and team, and
 // removes it.
 // The shooter and local player comparisons have their operands the other way around.
+// MW2MATROX: g_lastHitShooter == g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1006bf8c
 // FUNCTION: MW2MATROX 0x1006cbb0
 void KillGameThing(MechU32 p_index)
@@ -1284,24 +1300,28 @@ void SaveCareerRecord(void)
 // Heats up the mechs near burning game things (shapes of type 0x10), the more the closer.
 // Stack-slot permutation of the locals; the i != g_localPlayerId and distance < reach
 // comparisons have their operands the other way around.
+// MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts by
+// 3; distance < reach stores before it compares (fst, fcomp) where the rebuild compares first, and
+// i != g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1006c362
+// FUNCTION: MW2MATROX 0x1006cf8d
 void HeatMechsNearFires(void)
 {
 	Shape* root;
-	MechS32 heat;
+	MechScalar heat;
 	Player* player;
-	MechS32 reach;
-	MechS32 radius;
-	MechS32 distance;
+	MechScalar reach;
+	MechScalar radius;
+	MechScalar distance;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
 	Mech* mech;
 	MechS32 i;
-	MechS32 dx;
-	MechS32 dy;
+	MechScalar dx;
+	MechScalar dy;
 	Shape* shape;
-	MechS32 dz;
+	MechScalar dz;
 
 	root = g_sceneShapes;
 	if (!root) {
@@ -1332,8 +1352,13 @@ void HeatMechsNearFires(void)
 			reach = mech->m_radius + radius;
 			distance = ApproximateVectorLength(dx, dy, dz);
 			if (distance < reach) {
+#ifdef MW2_MATROX
+				heat = FIXED_TO_SCALAR(radius);
+				heat = (heat - heat * distance / reach) * 0.25f;
+#else
 				heat = radius;
 				heat = heat - heat * distance / reach >> 3;
+#endif
 				mech->m_deltaHeat += heat * g_deltaTime;
 			}
 		}

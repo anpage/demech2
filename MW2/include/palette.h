@@ -38,11 +38,12 @@ extern "C"
 	MechS32 GetPaletteFadeSteps(void);
 
 #ifdef MW2_MATROX
-	// The Matrox edition's: the 16-bit pixel of a palette color (a lookup in a word table). Its callers
-	// use the whole of eax (they called it undeclared, as an int function).
-	MechS32 FUN_100570aa(MechS32 p_color);
-	// The Matrox edition's: sets a palette color's 16-bit pixel (FUN_100570aa's table).
-	void FUN_1005708c(MechS32 p_index, MechS32 p_pixel);
+	// The Matrox edition's 16-bit 2D object (matrox/vfx16.asm, annotated in matrox/vfx16.h), declared
+	// here for PIXEL_COLOR's users. The 16-bit pixel of a palette color, from the object's lookaside
+	// table; its callers use the whole of eax (they called it undeclared, as an int function).
+	MechS32 VFX_lookaside_read16(MechS32 p_color);
+	// Sets a palette color's 16-bit pixel in the lookaside table.
+	void VFX_lookaside_write16(MechS32 p_index, MechS32 p_pixel);
 	// The Matrox edition's: sets the display's palette (1.1 calls m_setPaletteWithBrightness).
 	void FUN_1005f790(PaletteColor* p_palette);
 	extern MechS32 g_unk0x100aa1d0;
@@ -56,7 +57,7 @@ extern "C"
 
 // A color passed to a drawing primitive: the Matrox edition draws 16-bit pixels.
 #ifdef MW2_MATROX
-#define PIXEL_COLOR(c) FUN_100570aa(c)
+#define PIXEL_COLOR(c) VFX_lookaside_read16(c)
 #else
 #define PIXEL_COLOR(c) (c)
 #endif

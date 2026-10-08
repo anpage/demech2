@@ -36,8 +36,8 @@ extern "C"
 {
 #endif
 
-	extern MechS32 g_jumpJetDrag;
-	extern MechS32 g_slideSlope;
+	extern MechScalar g_jumpJetDrag;
+	extern MechScalar g_slideSlope;
 	void RunManeuver(struct Player* p_player, MechU16 p_target);
 	void InitializeManeuvers(struct Player* p_player);
 	MechS32 ChooseManeuver(struct Player* p_player);

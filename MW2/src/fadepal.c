@@ -289,7 +289,9 @@ void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 
 // Shakes the camera away from a hit's direction, unless a shake is already playing.
 // Stack-slot permutation: off10 and off0c.
+// MW2MATROX: the products are float products; only a stack-slot permutation is left.
 // FUNCTION: MW2 0x1004cee2
+// FUNCTION: MW2MATROX 0x100457ab
 void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar off10;
@@ -310,9 +312,15 @@ void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 
 	off0c = 0;
 	off14 = 0;
+#ifdef MW2_MATROX
+	p_x = p_x * -25;
+	p_y = p_y * -25;
+	p_z = p_z * -25;
+#else
 	p_x = FixedMul16(p_x, -25);
 	p_y = FixedMul16(p_y, -25);
 	p_z = FixedMul16(p_z, -25);
+#endif
 	ClearCameraShakeKeys();
 	AddCameraShakeKey(p_x, p_y, p_z, off10, off0c, off14, 0.2);
 	AddCameraShakeKey(

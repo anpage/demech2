@@ -37,6 +37,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // GLOBAL: MW2 0x100ba4bc
 // GLOBAL: MW2MATROX 0x100a4a4c
 MechS32 g_targetPanelMode = 1;

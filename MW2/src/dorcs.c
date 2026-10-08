@@ -446,6 +446,7 @@ MenuPage g_dorcsZobelPage = {
 };
 
 // GLOBAL: MW2 0x100b1158
+// GLOBAL: MW2MATROX 0x100b0e40
 MenuPage g_dorcsPage = {
 	0,
 	g_dorcsPageTitle,
@@ -471,12 +472,15 @@ MenuPage g_dorcsPage = {
 };
 
 // GLOBAL: MW2 0x100b12b0
+// GLOBAL: MW2MATROX 0x100b0f98
 PANE g_dorcsMenuTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12c8
+// GLOBAL: MW2MATROX 0x100b0fb0
 PANE g_dorcsMenuBackgroundTarget = {NULL, 0x199a, 0x199a, 0xe666, 0xe666};
 
 // GLOBAL: MW2 0x100b12e0
+// GLOBAL: MW2MATROX 0x100b0fc8
 MenuDefinition g_dorcsMenu = {
 	&g_dorcsMenuTarget,
 	37,
@@ -511,6 +515,7 @@ MechS32 g_fledToWindows = 0;
 void (*g_dorcsPreviousDrawCallback)(void) = DrawScene;
 
 // GLOBAL: MW2 0x100c2d00
+// GLOBAL: MW2MATROX 0x1012fc50
 MenuPage* g_dorcsMenuPageStack[8];
 
 // The dorcs sequence (ShowDorcs): the view shrinks to a point (g_dorcsTransition), a picture

@@ -3,6 +3,7 @@
 
 #include "callbacks.h"
 #include "decomp.h"
+#include "filexform.h"
 #include "quadtree.h"
 #include "shape.h"
 #include "types.h"
@@ -60,8 +61,8 @@ extern "C"
 	MechS32 FindStarIdxById(MechS32 p_id);
 	struct Shape* FindClassById(MechS32 p_id);
 	MechS32 FindThingIdxById(MechS32 p_id);
-	void ApplyBlockXform(Xform p_xform);
-	void TransformBlockPoint(MechS32* p_point);
+	void ApplyBlockXform(FileXform p_xform);
+	void TransformBlockPoint(MechScalar* p_point);
 	void ResetStaticObject(MechS32 p_index);
 	void ResetStaticCache(void);
 	void FirstStaticCache(void);

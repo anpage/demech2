@@ -208,23 +208,82 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 
 // Returns whether a live member of team p_team is near an objective target (within 20000, or a
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
-// The only diff is a stack-slot permutation of the locals.
+// The only diff is a stack-slot permutation of the locals. The Matrox edition's rebuild sums the
+// squared distances' terms in another order (entropy).
 // FUNCTION: MW2 0x1001ad5b
+// FUNCTION: MW2MATROX 0x1001f0f8
 MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
 	MechU16 kind;
+#ifndef MW2_MATROX
 	MechS32 i;
+#endif
 	Player* target;
 	GameThing* thing;
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
-	MechS32 radius;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar radius;
 	NavPoint* nav;
+#ifdef MW2_MATROX
+	Player* leader;
+#endif
 
 	index = p_target[0];
 	kind = p_target[1] << 8;
+#ifdef MW2_MATROX
+	// The Matrox edition only tests the team's leader.
+	leader = g_players[g_teams[p_team].m_leader];
+	if (g_teams[p_team].m_leader < 0) {
+		return FALSE;
+	}
+
+	switch (kind) {
+	case 0x200:
+		target = g_players[index];
+		return IsWithinRadius(
+			leader->m_position.m_x - target->m_position.m_x,
+			leader->m_position.m_y - target->m_position.m_y,
+			leader->m_position.m_z - target->m_position.m_z,
+			20000
+		);
+	case 0x400:
+		thing = &g_gameThings[index];
+		GetStaticObjectPosition(thing->m_staticObject, &x, &y, &z);
+		return IsWithinRadius(
+			leader->m_position.m_x - x,
+			leader->m_position.m_y - y,
+			leader->m_position.m_z - z,
+			20000
+		);
+	case 0x100:
+		nav = &g_navTable[index];
+		radius = nav->m_radius;
+		if (radius <= 0) {
+			radius = 20000;
+		}
+
+		if (IsWithinRadius(
+				leader->m_position.m_x - nav->m_position[0],
+				leader->m_position.m_y - nav->m_position[1],
+				leader->m_position.m_z - nav->m_position[2],
+				radius
+			)) {
+			if (g_teams[p_team].m_leader == g_localPlayerId && (leader->m_flags & 0x2000) && !(nav->m_flags & 0x20) &&
+				nav->m_used) {
+				nav->m_flags |= 0x20;
+				nav->m_teamsReached |= 1 << leader->m_team;
+				PlaySoundEffect(0xe7, 100, 0x40, 5, 0x50);
+			}
+
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
+	}
+#else
 	if (g_teams[p_team].m_leader < 0 && !g_isNetworkGame) {
 		return FALSE;
 	}
@@ -283,6 +342,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 		}
 		return FALSE;
 	}
+#endif
 
 	return FALSE;
 }

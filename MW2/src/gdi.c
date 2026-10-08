@@ -364,6 +364,7 @@ MechS32 GdiStretchBlit2(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 
 // Stores p_count colours from p_first in g_paletteColors, then loads all 256 into the GDI palette
 // (scaled from 6 to 8 bits) and realizes it.
+// MW2MATROX: p_first + i loads i first (commutative operands).
 // FUNCTION: MW2 0x1006e453
 // FUNCTION: MW2MATROX 0x100085ad
 MechS32 GdiRealizePalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)

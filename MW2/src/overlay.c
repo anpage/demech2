@@ -21,6 +21,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // The debug overlays' text color (the Matrox edition's palette has it elsewhere).
 #ifdef MW2_MATROX
 #define OVERLAY_TEXT_COLOR 0x52

@@ -774,20 +774,21 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // Updates the target lock of the selected weapon: with the target between its two ranges and
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
 // Stack-slot permutation: dx, dy, dz, twist, pitch, yaw, bearing, inRange, def and heading.
+// MW2MATROX: in floats (degrees); only a stack-slot permutation is left.
 // FUNCTION: MW2 0x10045eac
-// STUB: MW2MATROX 0x1002cc52
+// FUNCTION: MW2MATROX 0x1002cc52
 void UpdateWeaponLock(Mech* p_mech)
 {
-	MechS32 dz;
-	MechS32 twist;
-	MechS32 pitch;
-	MechS32 yaw;
-	MechS32 bearing;
+	MechScalar dz;
+	MechScalar twist;
+	MechScalar pitch;
+	MechScalar yaw;
+	MechScalar bearing;
 	MechS32 inRange;
-	MechS32 dx;
+	MechScalar dx;
 	WeaponDef* def;
-	MechS32 dy;
-	MechS32 heading;
+	MechScalar dy;
+	MechScalar heading;
 
 	p_mech->m_flags &= ~0x80;
 	def = &g_weaponDefs[p_mech->m_weapons[p_mech->m_selectedWeapon].m_type];
@@ -803,8 +804,8 @@ void UpdateWeaponLock(Mech* p_mech)
 		dz = p_mech->m_player->m_position.m_z - p_mech->m_player->m_targetInfo.m_position.m_z;
 		if (IsWithinRadius(dx, dy, dz, def->m_shortRange) || !IsWithinRadius(dx, dy, dz, def->m_longRange)) {
 			inRange = FALSE;
-			yaw = 0x100001;
-			pitch = 0x100001;
+			yaw = FIXED_LITERAL(0x100001, 17.0f);
+			pitch = FIXED_LITERAL(0x100001, 17.0f);
 			p_mech->m_flags &= 0x7fff;
 		}
 		else {
@@ -812,25 +813,29 @@ void UpdateWeaponLock(Mech* p_mech)
 			heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading) + FIXED_CONST(360));
 			twist = FIXED_MOD360(p_mech->m_player->m_torsoTwist);
 			bearing = p_mech->m_player->m_targetInfo.m_heading - heading;
-			if (bearing > 0xb40000) {
-				bearing -= 0x1680000;
+			if (bearing > FIXED_CONST(180)) {
+				bearing -= FIXED_CONST(360);
 			}
-			else if (bearing < -0xb40000) {
-				bearing += 0x1680000;
+			else if (bearing < -FIXED_CONST(180)) {
+				bearing += FIXED_CONST(360);
 			}
 
 			yaw = bearing - twist;
-			if (yaw > 0xb40000) {
-				yaw -= 0x1680000;
+			if (yaw > FIXED_CONST(180)) {
+				yaw -= FIXED_CONST(360);
 			}
-			else if (yaw < -0xb40000) {
-				yaw += 0x1680000;
+			else if (yaw < -FIXED_CONST(180)) {
+				yaw += FIXED_CONST(360);
 			}
 
 			pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
 		}
 
+#ifdef MW2_MATROX
+		if (inRange && fabs(yaw) < 16 && fabs(pitch) < 16) {
+#else
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {
+#endif
 			p_mech->m_flags |= 0x8000;
 			if (!(p_mech->m_flags & 0x40)) {
 				p_mech->m_flags |= 0x40;

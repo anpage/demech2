@@ -30,6 +30,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#endif
+
 // Who the chat message goes to: 0 nobody (no message is being typed), -1 everybody, or a
 // player.
 // GLOBAL: MW2 0x100a116c
@@ -243,6 +247,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // Draws the objectives panel: the objectives by priority, then the mission clock or how the
 // mission ended.
 // Stack-slot permutation of the locals (cursor, mission, font, height, gap, ticks and text).
+// MW2MATROX: the original's longer displacements shift the jump table's offsets.
 // FUNCTION: MW2 0x100056f0
 // FUNCTION: MW2MATROX 0x100220de
 void DrawObjectivesPanel(CockpitPanel* p_panel)
@@ -319,6 +324,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // game waits for the other players; then the chat message being typed, with its recipients and
 // a cursor.
 // Stack-slot permutation of the locals (state, cursor, pos, color, height, player, gap, text and font).
+// MW2MATROX: g_chatRecipient == g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x10005add
 // FUNCTION: MW2MATROX 0x100224b9
 void DrawNetworkPanel(CockpitPanel* p_panel)

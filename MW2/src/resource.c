@@ -660,6 +660,7 @@ void GetPointNormalPlane(
 }
 
 // The original loads p_id first; the operand order follows the symbol table.
+// MW2MATROX: p_id + g_mangleBase loads g_mangleBase first (commutative operands).
 // FUNCTION: MW2 0x100500c3
 // FUNCTION: MW2MATROX 0x10049d71
 MechS32 MapResourceId(MechS32 p_id)

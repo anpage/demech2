@@ -10,53 +10,6 @@
 
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
-#ifdef MW2_MATROX
-// The Matrox edition's is C, on floats, and takes the absolute values in the order x, z, y.
-// FUNCTION: MW2MATROX 0x1007f25b
-MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
-{
-	MechScalar z;
-	MechScalar y;
-	MechScalar x;
-	MechScalar swap;
-	MechScalar swap2;
-
-	if (FIXED_IS_NEGATIVE(p_x)) {
-		x = -p_x;
-	}
-	else {
-		x = p_x;
-	}
-
-	if (FIXED_IS_NEGATIVE(p_z)) {
-		z = -p_z;
-	}
-	else {
-		z = p_z;
-	}
-
-	if (FIXED_IS_NEGATIVE(p_y)) {
-		y = -p_y;
-	}
-	else {
-		y = p_y;
-	}
-
-	if (x < z) {
-		swap = x;
-		x = z;
-		z = swap;
-	}
-
-	if (x < y) {
-		swap2 = x;
-		x = y;
-		y = swap2;
-	}
-
-	return (x * 4 + y + z) / 4;
-}
-#else
 // Approximates the length of (p_x, p_y, p_z) as (max * 4 + the other two) / 4 of the absolute
 // values.
 // FUNCTION: MW2 0x100035c0
@@ -114,4 +67,3 @@ x_above_z:
 	}
 #endif
 }
-#endif

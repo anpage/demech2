@@ -31,136 +31,330 @@
 #include <string.h>
 #include <windows.h>
 
-// The local player's steering: the outputs of INPUT.MAP's sinks.
-// GLOBAL: MW2 0x100b2500
+// The local player's steering: the outputs of INPUT.MAP's sinks. The Matrox edition leaves it and
+// the sinks below uninitialized (in .bss), where 1.1 initializes them.
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f4c0
+PlayerSteering g_localSteering;
+#else
+// GLOBAL: MW2 0x100b2500
 PlayerSteering g_localSteering = {0};
+#endif
 
 // The outputs of INPUT.MAP's sinks past the steering. pilot_tilt and pilot_pan are the cockpit
 // view's look offsets, zoom_factor the view scale (16.16, reset to 1 by FirstEyepoint), and the
 // glance sinks look aside while one is held.
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f480
+MechS32 g_sinkPilotTilt;
+#else
 // GLOBAL: MW2 0x100b2548
 MechS32 g_sinkPilotTilt = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f484
+MechS32 g_sinkPilotPan;
+#else
 // GLOBAL: MW2 0x100b254c
 MechS32 g_sinkPilotPan = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f488
+MechS32 g_sinkEyepointTilt;
+#else
 // GLOBAL: MW2 0x100b2550
 MechS32 g_sinkEyepointTilt = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f48c
+MechS32 g_sinkEyepointPanDelta;
+#else
 // GLOBAL: MW2 0x100b2554
 MechS32 g_sinkEyepointPanDelta = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f490
+MechS32 g_sinkEyepointSlideDelta;
+#else
 // GLOBAL: MW2 0x100b2558
 MechS32 g_sinkEyepointSlideDelta = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f494
+MechS32 g_sinkTrackDistanceDelta;
+#else
 // GLOBAL: MW2 0x100b255c
 MechS32 g_sinkTrackDistanceDelta = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f498
+MechS32 g_sinkTrackHeightDelta;
+#else
 // GLOBAL: MW2 0x100b2560
 MechS32 g_sinkTrackHeightDelta = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f49c
+MechS32 g_sinkZoomFactor;
+#else
 // GLOBAL: MW2 0x100b2564
 MechS32 g_sinkZoomFactor = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a0
+MechS8 g_sinkPilotTiltPlus;
+#else
 // GLOBAL: MW2 0x100b2568
 MechS8 g_sinkPilotTiltPlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a1
+MechS8 g_sinkPilotTiltMinus;
+#else
 // GLOBAL: MW2 0x100b2569
 MechS8 g_sinkPilotTiltMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a2
+MechS8 g_sinkPilotTiltReset;
+#else
 // GLOBAL: MW2 0x100b256a
 MechS8 g_sinkPilotTiltReset = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a3
+MechS8 g_sinkPilotPanPlus;
+#else
 // GLOBAL: MW2 0x100b256b
 MechS8 g_sinkPilotPanPlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a4
+MechS8 g_sinkPilotPanMinus;
+#else
 // GLOBAL: MW2 0x100b256c
 MechS8 g_sinkPilotPanMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a5
+MechS8 g_sinkPilotPanReset;
+#else
 // GLOBAL: MW2 0x100b256d
 MechS8 g_sinkPilotPanReset = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a6
+MechS8 g_sinkGlanceLeft;
+#else
 // GLOBAL: MW2 0x100b256e
 MechS8 g_sinkGlanceLeft = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a7
+MechS8 g_sinkGlanceRight;
+#else
 // GLOBAL: MW2 0x100b256f
 MechS8 g_sinkGlanceRight = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a8
+MechS8 g_sinkGlanceUp;
+#else
 // GLOBAL: MW2 0x100b2570
 MechS8 g_sinkGlanceUp = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4a9
+MechS8 g_sinkGlanceDown;
+#else
 // GLOBAL: MW2 0x100b2571
 MechS8 g_sinkGlanceDown = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4aa
+MechS8 g_sinkEyepointTiltPlus;
+#else
 // GLOBAL: MW2 0x100b2572
 MechS8 g_sinkEyepointTiltPlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4ab
+MechS8 g_sinkEyepointTiltMinus;
+#else
 // GLOBAL: MW2 0x100b2573
 MechS8 g_sinkEyepointTiltMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4ac
+MechS8 g_sinkEyepointTiltReset;
+#else
 // GLOBAL: MW2 0x100b2574
 MechS8 g_sinkEyepointTiltReset = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4ad
+MechS8 g_sinkEyepointPanPlus;
+#else
 // GLOBAL: MW2 0x100b2575
 MechS8 g_sinkEyepointPanPlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4ae
+MechS8 g_sinkEyepointPanMinus;
+#else
 // GLOBAL: MW2 0x100b2576
 MechS8 g_sinkEyepointPanMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4af
+MechS8 g_sinkEyepointPanReset;
+#else
 // GLOBAL: MW2 0x100b2577
 MechS8 g_sinkEyepointPanReset = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b0
+MechS8 g_sinkEyepointSlidePlus;
+#else
 // GLOBAL: MW2 0x100b2578
 MechS8 g_sinkEyepointSlidePlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b1
+MechS8 g_sinkEyepointSlideMinus;
+#else
 // GLOBAL: MW2 0x100b2579
 MechS8 g_sinkEyepointSlideMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b2
+MechS8 g_sinkTrackDistancePlus;
+#else
 // GLOBAL: MW2 0x100b257a
 MechS8 g_sinkTrackDistancePlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b3
+MechS8 g_sinkTrackDistanceMinus;
+#else
 // GLOBAL: MW2 0x100b257b
 MechS8 g_sinkTrackDistanceMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b4
+MechS8 g_sinkTrackHeightPlus;
+#else
 // GLOBAL: MW2 0x100b257c
 MechS8 g_sinkTrackHeightPlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b5
+MechS8 g_sinkTrackHeightMinus;
+#else
 // GLOBAL: MW2 0x100b257d
 MechS8 g_sinkTrackHeightMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b6
+MechS8 g_sinkZoomFactorPlus;
+#else
 // GLOBAL: MW2 0x100b257e
 MechS8 g_sinkZoomFactorPlus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b7
+MechS8 g_sinkZoomFactorMinus;
+#else
 // GLOBAL: MW2 0x100b257f
 MechS8 g_sinkZoomFactorMinus = 0;
+#endif
 
+#ifdef MW2_MATROX
+// GLOBAL: MW2MATROX 0x1012f4b8
+MechS8 g_sinkZoomFactorReset;
+#else
 // GLOBAL: MW2 0x100b2580
 MechS8 g_sinkZoomFactorReset = 0;
+#endif
 
-// GLOBAL: MW2 0x100b2588
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f470
+MechScalar g_sinkMenuItem;
+#else
+// GLOBAL: MW2 0x100b2588
 MechScalar g_sinkMenuItem = 0;
+#endif
 
-// GLOBAL: MW2 0x100b258c
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f474
+MechScalar g_sinkMenuValue;
+#else
+// GLOBAL: MW2 0x100b258c
 MechScalar g_sinkMenuValue = 0;
+#endif
 
-// GLOBAL: MW2 0x100b2592
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f47a
+MechS8 g_sinkMenuItemReset;
+#else
+// GLOBAL: MW2 0x100b2592
 MechS8 g_sinkMenuItemReset = 0;
+#endif
 
-// GLOBAL: MW2 0x100b2595
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f47d
+MechS8 g_sinkMenuValueReset;
+#else
+// GLOBAL: MW2 0x100b2595
 MechS8 g_sinkMenuValueReset = 0;
+#endif
 
-// GLOBAL: MW2 0x100b2596
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f47e
+MechS8 g_sinkMenuEnter;
+#else
+// GLOBAL: MW2 0x100b2596
 MechS8 g_sinkMenuEnter = 0;
+#endif
 
-// GLOBAL: MW2 0x100b2597
+#ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f47f
+MechS8 g_sinkMenuAbort;
+#else
+// GLOBAL: MW2 0x100b2597
 MechS8 g_sinkMenuAbort = 0;
+#endif
 
 // GLOBAL: MW2 0x100b2598
 // GLOBAL: MW2MATROX 0x100b1fc0
