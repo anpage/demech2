@@ -128,7 +128,7 @@ MechS32 MsiInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 	}
 
 	g_msiWindow = NULL;
-	if (FUN_10066d30(MsiWindowProc, p_width, p_height)) {
+	if (A3D_Init(MsiWindowProc, p_width, p_height)) {
 		return -1;
 	}
 

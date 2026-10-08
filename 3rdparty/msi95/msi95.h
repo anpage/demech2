@@ -30,6 +30,9 @@ extern "C"
 		int p_color,
 		int p_mask
 	);
+	void msiDrawSingleLine(int p_color, int p_from, int p_to, int p_unk0x0c);
+	void msiRenderTriangle(void* p_a, void* p_b, void* p_c, int p_unk0x0c);
+	void* msiInit(int p_width, int p_height, int p_bits, int p_unk0x0c, int p_unk0x10, void* p_windowProc);
 	void msiExit(void);
 
 #ifdef __cplusplus

@@ -47,8 +47,9 @@ extern "C"
 	MechU32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechU32 p_count, MechS32 p_unk0x10);
 	// Releases the texture cache (a jump to FUN_1005d0a0).
 	void FUN_1005d090(void);
-	// Returns the cached texture of the CEL resource p_id.
-	A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_unk0x08, MechU32 p_mode);
+	// Returns the cached texture of the CEL resource p_id (loading it with p_levels levels, 8-bit when
+	// p_paletted, if it isn't cached).
+	A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels);
 	// Starts a frame (msiStartFrame), unless one is started.
 	void FUN_1005f710(void);
 	// Ends the frame (msiEndFrame), if one is started.
@@ -61,14 +62,18 @@ extern "C"
 	void FUN_1005f820(MechS32 p_clear, MechU32 p_color);
 	// Fills p_pane with a 16-bit color (DrawScene's pane wipe).
 	void FUN_1005f8a0(PANE* p_pane, MechS32 p_color);
-	void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechS32 p_count);
-	void FUN_10061cb0(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices);
+	// Draws the outline of the polygon p_vertices of p_count vertices on p_pane, in the color of its
+	// first vertex.
+	void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count);
+	// Draws the shaded polygon p_vertices of p_count vertices on p_pane.
+	void FUN_10061cb0(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices);
 	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
 	// for its shades and 2 for its fourth argument).
-	void FUN_10062010(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
+	void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
+	// Draws a textured polygon, perspective-corrected with p_flags 0x200 or 0x400.
 	void FUN_10062630(
 		PANE* p_pane,
-		MechS32 p_count,
+		MechU32 p_count,
 		A3DVertex* p_vertices,
 		MechU32 p_flags,
 		undefined4 p_unk0x10,
@@ -112,7 +117,7 @@ extern "C"
 	);
 	// Opens MSI95.DLL's display at p_width x p_height (msiInit), with p_windowProc as its window's
 	// procedure; returns 0 on success.
-	MechS32 FUN_10066d30(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height);
+	MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height);
 	// "A3D_shutdown()": closes the display (msiExit).
 	void A3D_shutdown(void);
 

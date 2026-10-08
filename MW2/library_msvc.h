@@ -256,6 +256,11 @@
 // LIBRARY: MW2MATROX 0x10094e80 SYMBOL
 // _vsprintf
 
+// fabs.obj
+
+// LIBRARY: MW2MATROX 0x10094ef0 SYMBOL
+// _fabs
+
 // tolower.obj
 
 // LIBRARY: MW2 0x10082330 SYMBOL
