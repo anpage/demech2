@@ -14,6 +14,7 @@
 #include "eyepoint.h"
 #include "fixedfloat.h"
 #include "matrox/a3d.h"
+#include "matrox/texturepoly.h"
 #include "palette.h"
 #include "polydraw.h"
 #include "prjfile.h"
@@ -21,6 +22,7 @@
 #include "simmain.h"
 #include "view.h"
 
+#include <math.h>
 #include <windows.h>
 #endif
 
@@ -106,8 +108,10 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 #endif
 // Stack-slot permutation: anim, data, height, i, luma, mode and useLuma and width.
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
+// MW2MATROX: a stack-slot permutation of the locals, and the loop's i < p_count has its operands
+// the other way around.
 // FUNCTION: MW2 0x10068d10
-// STUB: MW2MATROX 0x10050dbc
+// FUNCTION: MW2MATROX 0x10050dbc
 #ifdef MW2_MATROX
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
@@ -131,8 +135,138 @@ MechS32 DrawAnimatedPolygon(
 #endif
 {
 #ifdef MW2_MATROX
-	STUB(0x10050dbc);
-	return 0;
+	A3DTexture* texture;
+	MechFloat w;
+	AnimFrame* frame;
+	MechU32 flags;
+	undefined4 luma;
+	MechFloat offset;
+	Animation* anim;
+	MechFloat angle;
+	MechS32 rotate;
+	MechFloat cosine;
+	MechS32 i;
+	MechS16 height;
+	MechS32 useLuma;
+	MechFloat sine;
+	MechS16 width;
+	A3DVertex* vertex;
+	ProjectedVertex* point;
+	undefined4 data;
+
+	data = 0;
+	luma = 0;
+	flags = 0;
+	rotate = FALSE;
+	if (p_unk0x1c) {
+		flags = 2;
+	}
+
+	if (p_count < 3) {
+		return 0;
+	}
+
+	if (p_index == 0x8c) {
+		rotate = TRUE;
+		angle = p_unk0x1c * 0.017453292f;
+		offset = p_scale / 100000.0f;
+		cosine = cos(angle);
+		sine = sin(angle);
+		p_unk0x1c = 0;
+		p_scale = 0;
+		p_index += 0x100;
+	}
+	else {
+		rotate = FALSE;
+		if (!p_scale) {
+			p_index += 0x100;
+		}
+	}
+
+	anim = &g_animations[p_index];
+	if (anim->m_mode == 0 || anim->m_flags < 0) {
+		return 0;
+	}
+
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return 0;
+	}
+
+	frame->m_useCount++;
+	texture = FUN_1005d600(frame->m_resourceId, 1, 1);
+	if (!texture) {
+		return 0;
+	}
+
+	width = texture->m_unk0x1c;
+	height = texture->m_unk0x20;
+	if (!(anim->m_flags & 4) && p_luma > -1 && p_luma < 15) {
+		useLuma = TRUE;
+	}
+	else {
+		useLuma = FALSE;
+	}
+
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		if (p_direct && !g_renderSettings.m_affineTextures) {
+			w = g_eyepoint->m_projectScaleX / point->m_z;
+			vertex->m_z = point->m_z;
+			vertex->m_w = w;
+			vertex->m_u = w * point->m_u / width;
+			vertex->m_v = point->m_v * w / height;
+		}
+		else if (p_scale) {
+			vertex->m_u = point->m_u;
+			vertex->m_v = point->m_v;
+			vertex->m_w = 1;
+		}
+		else {
+			vertex->m_u = point->m_u / width;
+			vertex->m_v = point->m_v / height;
+			vertex->m_w = 1;
+			if (rotate) {
+				vertex->m_u += offset;
+				RotateTexturePoint(cosine, sine, &vertex->m_u, &vertex->m_v);
+			}
+		}
+
+		if (g_unk0x100aa1d0) {
+			vertex->m_blue = g_unk0x10184700[2];
+			vertex->m_green = g_unk0x10184700[1];
+			vertex->m_red = g_unk0x10184700[0];
+			flags |= 1;
+		}
+		else if ((p_direct || useLuma) && p_luma != (MechS32) 0x80000000) {
+			vertex->m_blue = point->m_light * 255;
+			vertex->m_green = point->m_light * 255;
+			vertex->m_red = point->m_light * 255;
+		}
+		else {
+			vertex->m_blue = 255;
+			vertex->m_green = 255;
+			vertex->m_red = 255;
+		}
+
+		vertex++;
+	}
+
+	if (p_direct) {
+		FUN_100172c0(&g_currentPane, texture, p_count, g_a3dVertices, 0, luma, p_unk0x1c);
+	}
+	else {
+		if (useLuma) {
+			flags |= 1;
+		}
+
+		FUN_10062010(&g_currentPane, p_count, g_a3dVertices, texture, flags);
+	}
+
+	return 1;
 #else
 	MechS16 height;
 	MechS32 i;

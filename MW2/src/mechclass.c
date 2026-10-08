@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "mechclass.h"
 
 #include "ai.h"
@@ -103,7 +106,7 @@ MechS32 g_powerRequest = 0;
 // The local player's heading at the last tick, while the torso recenters (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c0c
 // GLOBAL: MW2MATROX 0x100a45cc
-MechS32 g_recenterLastHeading = 0;
+MechScalar g_recenterLastHeading = 0;
 
 // GLOBAL: MW2 0x100a2c10
 // GLOBAL: MW2MATROX 0x100a45c8
@@ -228,58 +231,58 @@ void FirstMech(struct Player* p_player)
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
 // FUNCTION: MW2 0x10016edf
-// STUB: MW2MATROX 0x1000d29c
+// FUNCTION: MW2MATROX 0x1000d29c
 void UpdateMech(Mech* p_mech)
 {
-	MechS32 height;
-	MechS32 accelY;
-	MechS32 velZ;
+	MechScalar height;
+	MechScalar accelY;
+	MechScalar velZ;
 	MechScalar posZ;
 	MechScalar dy;
 	MechS32 isLocal;
 	Player* hitPlayer;
-	MechS32 speed;
-	MechS32 length;
-	MechS32 dragX;
-	MechS32 accelZ;
+	MechScalar speed;
+	MechScalar length;
+	MechScalar dragX;
+	MechScalar accelZ;
 	MechScalar dz;
 	struct Shape* hitShape;
-	MechS32 dragZ;
-	MechS32 targetX;
-	MechS32 topSpeed;
-	MechS32 drag;
+	MechScalar dragZ;
+	MechScalar targetX;
+	MechScalar topSpeed;
+	MechScalar drag;
 	Mech* mech;
-	MechS32 heading;
-	MechS32 targetZ;
-	MechS32 pitch;
-	MechS32 impact;
-	MechS32 velX;
+	MechScalar heading;
+	MechScalar targetZ;
+	MechScalar pitch;
+	MechScalar impact;
+	MechScalar velX;
 	MechScalar posX;
-	MechS32 accelX;
-	MechS32 velY;
+	MechScalar accelX;
+	MechScalar velY;
 	MechScalar posY;
 	MechScalar dx;
-	MechS32 a;
-	MechS32 b;
-	MechS32 c;
-	MechS32 topSpeed2;
+	MechScalar a;
+	MechScalar b;
+	MechScalar c;
+	MechScalar topSpeed2;
 	MechScalar posX2;
 	MechScalar posY2;
 	MechScalar posZ2;
 	struct Shape* hitShape2;
 	MechS32 savedUnk0xa4;
 	MechS32 sound;
-	MechS32 volume;
+	MechScalar volume;
 	MechS32 sound2;
-	MechS32 volume2;
-	MechS32 damage;
-	MechS32 slope;
-	MechS32 objY;
-	MechS32 angle;
-	MechS32 objZ;
-	MechS32 rayLength;
+	MechScalar volume2;
+	MechScalar damage;
+	MechScalar slope;
+	MechScalar objY;
+	MechScalar angle;
+	MechScalar objZ;
+	MechScalar rayLength;
 	Ray ray;
-	MechS32 objX;
+	MechScalar objX;
 
 	height = 0;
 	hitShape = NULL;
@@ -315,12 +318,17 @@ void UpdateMech(Mech* p_mech)
 
 		if (mech->m_player->m_onGround && (!mech->m_player->m_steering->m_jumpJetEnabled || mech->m_jumpFuel <= 0)) {
 			speed = mech->m_speed.m_value;
-			if (speed < 0x20 && speed > -0x20) {
+			if (speed < FIXED_RAW(0x20) && speed > -FIXED_RAW(0x20)) {
 				speed = 0;
 			}
 
+#ifdef MW2_MATROX
+			targetX = mech->m_player->m_headingSin * speed;
+			targetZ = mech->m_player->m_headingCos * speed;
+#else
 			targetX = FixedMul16(speed, mech->m_player->m_headingSin);
 			targetZ = FixedMul16(speed, mech->m_player->m_headingCos);
+#endif
 			if (g_deltaTime < 0x2d) {
 				accelX = (targetX - mech->m_velocityX) / 0x2d;
 				accelZ = (targetZ - mech->m_velocityZ) / 0x2d;
@@ -336,6 +344,20 @@ void UpdateMech(Mech* p_mech)
 		}
 		else {
 			length = ApproximateVectorLength(velX, 0, velZ);
+#ifdef MW2_MATROX
+			topSpeed = mech->m_topSpeed * 0.0390625f;
+			if (length > 1e-07f && topSpeed > 1e-07f && mech->m_jumpThrust > 1e-07f) {
+				topSpeed2 = topSpeed * topSpeed;
+				a = mech->m_jumpThrust - mech->m_jumpThrust / topSpeed / 3;
+				c = topSpeed2 - topSpeed * 0.75f;
+				a = a / c;
+				b = mech->m_jumpThrust - a * topSpeed2;
+				b = b / topSpeed;
+				drag = -((b + a * length) * length);
+				dragX = drag * velX / length;
+				dragZ = drag * velZ / length;
+			}
+#else
 			topSpeed = MulDiv64(0x1400, mech->m_topSpeed, 2);
 			if (length > 0 && topSpeed > 0 && mech->m_jumpThrust > 0) {
 				topSpeed2 = FixedMul16(topSpeed, topSpeed);
@@ -348,6 +370,7 @@ void UpdateMech(Mech* p_mech)
 				dragX = MulDiv64(drag, velX, length);
 				dragZ = MulDiv64(drag, velZ, length);
 			}
+#endif
 			else {
 				dragX = 0;
 				dragZ = 0;
@@ -360,13 +383,23 @@ void UpdateMech(Mech* p_mech)
 		if (mech->m_player->m_steering->m_jumpJetEnabled && mech->m_jumpFuel > 0 && mech->m_powerState == 2) {
 			velX = mech->m_velocityX;
 			velZ = mech->m_velocityZ;
+#ifdef MW2_MATROX
+			if (velY > 1e-07f) {
+				drag = (g_gravity - mech->m_jumpThrust) * velY * 3620 / g_jumpJetDrag;
+			}
+#else
 			if (velY > 0) {
 				drag = FixedMul16((g_gravity - mech->m_jumpThrust) * 0xe24, velY) / g_jumpJetDrag;
 			}
+#endif
 
 			accelY += mech->m_jumpThrust + drag;
-			if (mech->m_player->m_steering->m_turn) {
+			if (FIXED_IS_NONZERO(mech->m_player->m_steering->m_turn)) {
+#ifdef MW2_MATROX
+				if (velY < 1e-07f) {
+#else
 				if (velY <= 0) {
+#endif
 					accelY = 0;
 				}
 				else {
@@ -374,50 +407,110 @@ void UpdateMech(Mech* p_mech)
 				}
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireLeft) {
+#ifdef MW2_MATROX
+				if (velY < 1e-07f) {
+#else
 				if (velY <= 0) {
+#endif
 					accelY = 0;
 				}
 				else {
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_MATROX
+				accelX += -(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragX;
+				accelZ += dragZ + mech->m_player->m_headingSin * mech->m_jumpThrust;
+#else
 				accelX += -FixedMul16(mech->m_player->m_headingCos, mech->m_jumpThrust) + dragX;
 				accelZ += dragZ + FixedMul16(mech->m_player->m_headingSin, mech->m_jumpThrust);
+#endif
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireRight) {
+#ifdef MW2_MATROX
+				if (velY < 1e-07f) {
+#else
 				if (velY <= 0) {
+#endif
 					accelY = 0;
 				}
 				else {
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_MATROX
+				accelX += dragX + mech->m_player->m_headingCos * mech->m_jumpThrust;
+				accelZ += -(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragZ;
+#else
 				accelX += dragX + FixedMul16(mech->m_player->m_headingCos, mech->m_jumpThrust);
 				accelZ += -FixedMul16(mech->m_player->m_headingSin, mech->m_jumpThrust) + dragZ;
+#endif
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireForward) {
+#ifdef MW2_MATROX
+				if (velY < 1e-07f) {
+#else
 				if (velY <= 0) {
+#endif
 					accelY = 0;
 				}
 				else {
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_MATROX
+				accelX += dragX + mech->m_player->m_headingSin * mech->m_jumpThrust;
+				accelZ += dragZ + mech->m_player->m_headingCos * mech->m_jumpThrust;
+#else
 				accelX += dragX + FixedMul16(mech->m_player->m_headingSin, mech->m_jumpThrust);
 				accelZ += dragZ + FixedMul16(mech->m_player->m_headingCos, mech->m_jumpThrust);
+#endif
 			}
 			else if (mech->m_player->m_steering->m_jumpJetFireBackward) {
+#ifdef MW2_MATROX
+				if (velY < 1e-07f) {
+#else
 				if (velY <= 0) {
+#endif
 					accelY = 0;
 				}
 				else {
 					accelY = -g_gravity;
 				}
 
+#ifdef MW2_MATROX
+				accelX += -(mech->m_player->m_headingSin * mech->m_jumpThrust) + dragX;
+				accelZ += -(mech->m_player->m_headingCos * mech->m_jumpThrust) + dragZ;
+#else
 				accelX += -FixedMul16(mech->m_player->m_headingSin, mech->m_jumpThrust) + dragX;
 				accelZ += -FixedMul16(mech->m_player->m_headingCos, mech->m_jumpThrust) + dragZ;
+#endif
 			}
 		}
+#ifdef MW2_MATROX
+		else if ((MechFloat) fabs(velY) < 1e-07f && mech->m_player->m_onGround) {
+			velY = 0;
+			accelY = 0;
+		}
+
+		IntegrateMidpoint(&dx, &velX, accelX, g_deltaTime);
+		IntegrateMidpoint(&dz, &velZ, accelZ, g_deltaTime);
+		if ((MechFloat) fabs(velX) < 0.0625f) {
+			velX = 0;
+			dx = 0;
+		}
+		if ((MechFloat) fabs(velZ) < 0.0625f) {
+			velZ = 0;
+			dz = 0;
+		}
+
+		if (velY == 0 && accelY == 0) {
+			dy = 0;
+		}
+		else {
+			IntegrateMidpoint(&dy, &velY, accelY, g_deltaTime);
+		}
+#else
 		else if (velY == 0 && mech->m_player->m_onGround) {
 			accelY = 0;
 		}
@@ -431,6 +524,7 @@ void UpdateMech(Mech* p_mech)
 		if (velZ < 0x1000 && velZ > -0x1000) {
 			velZ = 0;
 		}
+#endif
 
 		mech->m_newVelocityX = velX;
 		mech->m_newVelocityY = velY;
@@ -473,24 +567,28 @@ void UpdateMech(Mech* p_mech)
 			mech->m_player->m_groundHeight = GetTerrainHeight(posX, posY, posZ);
 			height = posY - mech->m_height - mech->m_player->m_groundHeight;
 
-			if (g_isNetworkGame && g_segmentNormalY > 0xddb4 && hitPlayer) {
+			if (g_isNetworkGame && g_segmentNormalY > FIXED_LITERAL(0xddb4, 0.866f) && hitPlayer) {
 				SendCollisionMsg(hitPlayer->m_index, g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
 				if (isLocal && g_inCockpitView && !g_collisionSoundPlayed) {
 					g_collisionSoundPlayed = 1;
 					impact = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
-					if (impact > 200000) {
+					if (impact > FIXED_LITERAL(200000, 3.0693676f)) {
 						sound2 = 0xf0;
 						volume2 = impact;
-						if (volume2 > 1500000) {
-							volume2 = 1500000;
+						if (volume2 > FIXED_LITERAL(1500000, 23.020258f)) {
+							volume2 = FIXED_LITERAL(1500000, 23.020258f);
 						}
 
+#ifdef MW2_MATROX
+						volume2 = volume2 * 200 / 150 / 6.516f;
+#else
 						volume2 = MulDiv64(200, volume2, 1500000);
+#endif
 						PlaySoundEffect(sound2, volume2, 0x40, 5, 0x32);
 					}
 				}
 			}
-			else if (g_segmentNormalY > 0xb505 && height < 1000 && height > -10000) {
+			else if (g_segmentNormalY > FIXED_LITERAL(0xb505, 0.7071f) && height < 1000 && height > -10000) {
 				mech->m_collisionTicks = 0;
 				height = -1;
 			}
@@ -498,7 +596,7 @@ void UpdateMech(Mech* p_mech)
 				if (isLocal && g_inCockpitView && !g_collisionSoundPlayed) {
 					g_collisionSoundPlayed = 1;
 					impact = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ);
-					if (impact > 200000) {
+					if (impact > FIXED_LITERAL(200000, 3.0693676f)) {
 						if (hitPlayer) {
 							if (g_isNetworkGame) {
 								SendCollisionMsg(
@@ -519,11 +617,22 @@ void UpdateMech(Mech* p_mech)
 						}
 
 						volume = impact;
+#ifdef MW2_MATROX
+						if (volume > 23.020258f) {
+							volume = 1;
+						}
+						else {
+							volume = volume / 23.020258f;
+						}
+
+						volume = volume * 200;
+#else
 						if (volume > 1500000) {
 							volume = 1500000;
 						}
 
 						volume = MulDiv64(200, volume, 1500000);
+#endif
 						PlaySoundEffect(sound, volume, 0x40, 5, 0x32);
 						PlayPlayerHitFeedback(g_segmentNormalX, g_segmentNormalY, g_segmentNormalZ);
 					}
@@ -557,10 +666,14 @@ void UpdateMech(Mech* p_mech)
 		}
 		else {
 			mech->m_player->m_animFlags &= ~4;
+#ifdef MW2_MATROX
+			if (height < 1e-07f) {
+#else
 			if (height <= 0) {
+#endif
 				mech->m_player->m_onGround = 1;
-				if (height < 0) {
-					if (velY < -0x56276) {
+				if (FIXED_IS_NEGATIVE(height)) {
+					if (velY < FIXED_LITERAL(-0x56276, -5.384613f)) {
 						if (mech->m_powerState == 4) {
 							KnockMechOver(mech);
 							return;
@@ -570,8 +683,12 @@ void UpdateMech(Mech* p_mech)
 						}
 					}
 
-					if (velY < -0x102762 && g_difficulty->m_collisionDamage) {
+					if (velY < FIXED_LITERAL(-0x102762, -16.15384f) && g_difficulty->m_collisionDamage) {
+#ifdef MW2_MATROX
+						damage = (velY - -16.15384f) * 50 / -32.30768f;
+#else
 						damage = FixedDiv16(velY + 0x102762, -0x204ec4) * 50;
+#endif
 						ApplyDamageToMech(g_localPlayerId, mech, damage, 8);
 						ApplyDamageToMech(g_localPlayerId, mech, damage, 7);
 					}
@@ -582,6 +699,14 @@ void UpdateMech(Mech* p_mech)
 			}
 		}
 
+#ifdef MW2_MATROX
+		if ((FIXED_IS_NONZERO(g_groundNormalX) || FIXED_IS_NONZERO(g_groundNormalZ)) && mech->m_player->m_onGround &&
+			((slope = mech->m_player->m_headingSin * g_groundNormalX + mech->m_player->m_headingCos * g_groundNormalZ) >
+				 g_slideSlope ||
+			 slope < -g_slideSlope)) {
+			mech->m_speed.m_value += g_deltaTime * (slope * g_gravity) / 65536;
+		}
+#else
 		if ((g_groundNormalX || g_groundNormalZ) && mech->m_player->m_onGround) {
 			slope = FixedMul16(mech->m_player->m_headingCos, g_groundNormalZ) +
 					FixedMul16(mech->m_player->m_headingSin, g_groundNormalX);
@@ -589,11 +714,16 @@ void UpdateMech(Mech* p_mech)
 				mech->m_speed.m_value += FixedMul16(FixedMul16(g_gravity, slope), g_deltaTime);
 			}
 		}
+#endif
 
 		mech->m_player->m_position.m_x = posX;
 		mech->m_player->m_position.m_y = posY;
 		mech->m_player->m_position.m_z = posZ;
+#ifdef MW2_MATROX
+		mech->m_player->m_heading += g_deltaTime / 181.0f * mech->m_turnRate.m_value;
+#else
 		mech->m_player->m_heading += mech->m_turnRate.m_value * g_deltaTime / 0xb5;
+#endif
 #ifdef MW2_MATROX
 		mech->m_player->m_heading = fmod(mech->m_player->m_heading, 360.0);
 #else
@@ -629,7 +759,11 @@ void UpdateMech(Mech* p_mech)
 			objX = ray.m_x1 - objX;
 			objY = ray.m_y1 - objY;
 			objZ = ray.m_z1 - objZ;
+#ifdef MW2_MATROX
+			angle = objY / ApproximateVectorLength(objX, objY, objZ);
+#else
 			angle = FixedDiv29(objY, ApproximateVectorLength(objX, objY, objZ));
+#endif
 			angle = -FixedAsin(angle) - pitch;
 			SetObjRotation(mech->m_pitchObj, angle, 0, 0, 0);
 		}
@@ -657,8 +791,13 @@ void UpdateMech(Mech* p_mech)
 	}
 
 	heading = mech->m_player->m_heading;
+#ifdef MW2_MATROX
+	mech->m_player->m_headingSin = FixedSin(heading);
+	mech->m_player->m_headingCos = FixedCos(heading);
+#else
 	mech->m_player->m_headingSin = FixedSin(heading) >> 13;
 	mech->m_player->m_headingCos = FixedCos(heading) >> 13;
+#endif
 }
 
 // Runs p_mech's systems for the tick: the cockpit keys of a running mech (eject, view and display
@@ -668,29 +807,29 @@ void UpdateMech(Mech* p_mech)
 // Every player type's late update (PlayerType::m_lateUpdateFn).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100180cd
-// STUB: MW2MATROX 0x1000e721
+// FUNCTION: MW2MATROX 0x1000e721
 void LateUpdateMech(Mech* p_mech)
 {
-	MechS32 throttle;
+	MechScalar throttle;
 	MechS32 isLocal;
-	MechS32 cosine;
+	MechScalar cosine;
 	MechS32 jumping;
-	MechS32 turn;
-	MechS32 speed;
-	MechS32 dx;
+	MechScalar turn;
+	MechScalar speed;
+	MechScalar dx;
 	Mech* mech;
-	MechS32 dy;
-	MechS32 dz;
-	MechS32 turnRate;
+	MechScalar dy;
+	MechScalar dz;
+	MechScalar turnRate;
 	MechS32 active;
-	MechS32 previousDegrees;
-	MechS32 degrees;
-	MechS32 heading;
-	MechS32 delta;
+	MechScalar previousDegrees;
+	MechScalar degrees;
+	MechScalar heading;
+	MechScalar delta;
 	MechChar text[40];
-	MechS32 x;
-	MechS32 y;
-	MechS32 z;
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
 
 	jumping = 0;
 	speed = 0;
@@ -825,7 +964,7 @@ void LateUpdateMech(Mech* p_mech)
 
 		UpdateWeaponLock(mech);
 
-		if ((mech->m_player->m_steering->m_legsPanDelta || g_feetToTorso) && mech->m_autopilot) {
+		if ((FIXED_IS_NONZERO(mech->m_player->m_steering->m_legsPanDelta) || g_feetToTorso) && mech->m_autopilot) {
 			mech->m_player->m_steering->m_autopilot = 1;
 		}
 
@@ -853,11 +992,26 @@ void LateUpdateMech(Mech* p_mech)
 			RunAutopilot(mech);
 		}
 
+#ifdef MW2_MATROX
+		if (mech->m_player->m_steering->m_throttle == 0) {
+			if (mech->m_player->m_aiMode != 2 &&
+				(FIXED_IS_NONZERO(mech->m_player->m_steering->m_turn) || g_feetToTorso)) {
+				mech->m_throttle.m_target = FIXED_RAW(0x480);
+			}
+			else {
+				mech->m_throttle.m_target = FIXED_RAW(0x400);
+			}
+		}
+		else {
+			mech->m_throttle.m_target = mech->m_player->m_steering->m_throttle * mech->m_mobility + FIXED_RAW(0x400);
+		}
+#else
 		mech->m_throttle.m_target = FixedMul16(mech->m_player->m_steering->m_throttle, mech->m_mobility) + 0x400;
 		if (mech->m_player->m_aiMode != 2 && mech->m_throttle.m_target == 0x400 &&
 			(mech->m_player->m_steering->m_turn || g_feetToTorso)) {
 			mech->m_throttle.m_target = 0x480;
 		}
+#endif
 	}
 
 	UpdateMotion(mech->m_player);
@@ -891,7 +1045,11 @@ void LateUpdateMech(Mech* p_mech)
 		turn = 0;
 		if (mech->m_jumpFuel > 0) {
 			FireJumpJetEffects(mech);
+#ifdef MW2_MATROX
+			mech->m_deltaHeat += (MechFloat) g_deltaTime * mech->m_jumpJets * FIXED_RAW(0x180);
+#else
 			mech->m_deltaHeat += mech->m_jumpJets * g_deltaTime * 0x180;
+#endif
 			mech->m_player->m_animFlags &= ~4;
 			mech->m_player->m_animFlags &= ~1;
 			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
@@ -900,6 +1058,17 @@ void LateUpdateMech(Mech* p_mech)
 		mech->m_turnRate.m_target = turn * 2;
 	}
 	else if (!(mech->m_player->m_animFlags & 4) && active) {
+#ifdef MW2_MATROX
+		speed = mech->m_speed.m_value * 6.516f;
+		if (speed || (isLocal && mech->m_mobility > 1e-07f)) {
+			if (speed > 80) {
+				speed = 80;
+			}
+
+			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
+			cosine = FixedCos(speed);
+			turnRate = cosine * turn;
+#else
 		speed = mech->m_speed.m_value / 10000;
 		if (speed || (isLocal && mech->m_mobility > 0)) {
 			if (speed > 0x50) {
@@ -909,6 +1078,7 @@ void LateUpdateMech(Mech* p_mech)
 			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
 			cosine = FixedCos(speed << 16);
 			turnRate = FixedMul29(turn, cosine);
+#endif
 			mech->m_turnRate.m_target = turnRate;
 		}
 		else {
@@ -920,6 +1090,56 @@ void LateUpdateMech(Mech* p_mech)
 	}
 
 	if (isLocal && g_feetToTorso) {
+#ifdef MW2_MATROX
+		heading = mech->m_player->m_heading;
+		degrees = heading;
+		if (degrees > 180) {
+			heading = -(360 - heading);
+			degrees = heading;
+		}
+		else if (degrees < -180) {
+			heading += 360;
+			degrees = heading;
+		}
+
+		previousDegrees = g_recenterLastHeading;
+		if (previousDegrees > 180) {
+			g_recenterLastHeading = -(360 - g_recenterLastHeading);
+			previousDegrees = g_recenterLastHeading;
+		}
+		else if (previousDegrees < -180) {
+			g_recenterLastHeading += 360;
+			previousDegrees = g_recenterLastHeading;
+		}
+
+		if (degrees > 90 && previousDegrees < -90) {
+			heading = -(360 - heading);
+		}
+		else if (previousDegrees > 90 && degrees < -90) {
+			heading += 360;
+		}
+
+		delta = heading - g_recenterLastHeading;
+		if (mech->m_torsoTwist.m_value > -1 && mech->m_torsoTwist.m_value < 1) {
+			mech->m_turnRate.m_value = mech->m_turnRate.m_target = 0;
+			mech->m_torsoTwist.m_value = mech->m_torsoTwist.m_target = 0;
+			g_localSteering.m_torsoPanReset = 1;
+			mech->m_player->m_steering->m_torsoPan = 0;
+			g_feetToTorso = 0;
+		}
+		else if (mech->m_torsoTwist.m_value > 1e-07f) {
+			mech->m_turnRate.m_target = 55;
+			if (delta) {
+				mech->m_torsoTwist.m_value = mech->m_torsoTwist.m_target = mech->m_torsoTwist.m_value - delta;
+			}
+		}
+		else {
+			mech->m_turnRate.m_target = -55;
+			if (delta) {
+				mech->m_torsoTwist.m_value = mech->m_torsoTwist.m_target = mech->m_torsoTwist.m_value - delta;
+			}
+		}
+#else
 		heading = mech->m_player->m_heading;
 		degrees = heading >> 16;
 		if (degrees > 180) {
@@ -969,12 +1189,28 @@ void LateUpdateMech(Mech* p_mech)
 			}
 		}
 
+#endif
+
 		if (isLocal) {
 			g_recenterLastHeading = mech->m_player->m_heading;
 		}
 	}
 
 	if (active) {
+#ifdef MW2_MATROX
+		throttle = mech->m_throttle.m_value - FIXED_RAW(0x400);
+		if (throttle < FIXED_RAW(0x20)) {
+			mech->m_speed.m_target = 0;
+		}
+		else {
+			throttle = mech->m_topSpeed * throttle;
+			if (mech->m_player->m_motionState == 2) {
+				throttle /= -2;
+			}
+
+			mech->m_speed.m_target = throttle;
+		}
+#else
 		throttle = mech->m_throttle.m_value - 0x400;
 		if (throttle < 0x20) {
 			throttle = 0;
@@ -982,13 +1218,10 @@ void LateUpdateMech(Mech* p_mech)
 
 		mech->m_speed.m_target = mech->m_topSpeed * throttle;
 		if (mech->m_speed.m_target && mech->m_player->m_motionState == 2) {
-#ifdef MW2_MATROX
-			mech->m_speed.m_target /= 2;
-#else
 			mech->m_speed.m_target >>= 1;
-#endif
 			mech->m_speed.m_target *= -1;
 		}
+#endif
 
 		if (!jumping && (mech->m_player->m_animFlags & 2)) {
 			if (g_mascEngaged && isLocal && g_currentClock - g_lastMascRoll > 0xb5) {
@@ -1007,10 +1240,10 @@ void LateUpdateMech(Mech* p_mech)
 			}
 
 			if (mech->m_speed.m_target > mech->m_speed.m_value) {
-				mech->m_speed.m_duration = 0x5a;
+				mech->m_speed.m_duration = FIXED_LITERAL(0x5a, 90.5f);
 			}
 			else {
-				mech->m_speed.m_duration = 0x5a;
+				mech->m_speed.m_duration = FIXED_LITERAL(0x5a, 90.5f);
 			}
 
 			if (g_mascEngaged && mech->m_player->m_index == g_localPlayerId) {
@@ -1037,12 +1270,16 @@ void LateUpdateMech(Mech* p_mech)
 			mech->m_torsoPitch.m_target = mech->m_player->m_steering->m_torsoTilt;
 		}
 
+#ifdef MW2_MATROX
+		mech->m_deltaHeat += (mech->m_throttle.m_value - FIXED_RAW(0x400)) * mech->m_cooling / FIXED_RAW(0x2800);
+#else
 		mech->m_deltaHeat += MulDiv64(mech->m_throttle.m_value - 0x400, mech->m_cooling, 0x2800);
+#endif
 	}
 
 	if (mech->m_powerState != 2) {
 		StopMotion(mech->m_player);
-		mech->m_throttle.m_target = 0x400;
+		mech->m_throttle.m_target = FIXED_RAW(0x400);
 		mech->m_speed.m_target = 0;
 		mech->m_torsoTwist.m_target = 0;
 		mech->m_turnRate.m_target = 0;
@@ -1129,8 +1366,8 @@ void LateUpdateMech(Mech* p_mech)
 	}
 
 	if (mech->m_player->m_index == g_localPlayerId &&
-		(mech->m_torsoTwist.m_value + 0x20000 < mech->m_torsoTwist.m_target ||
-		 mech->m_torsoTwist.m_value - 0x20000 > mech->m_torsoTwist.m_target) &&
+		(mech->m_torsoTwist.m_value + FIXED_CONST(2) < mech->m_torsoTwist.m_target ||
+		 mech->m_torsoTwist.m_value - FIXED_CONST(2) > mech->m_torsoTwist.m_target) &&
 		g_inCockpitView) {
 		x = mech->m_player->m_position.m_x - g_eyepoint->m_x;
 		y = mech->m_player->m_position.m_y - g_eyepoint->m_y;

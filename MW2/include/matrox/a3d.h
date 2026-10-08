@@ -61,6 +61,9 @@ extern "C"
 	void FUN_1005f820(MechS32 p_clear, MechU32 p_color);
 	void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechS32 p_count);
 	void FUN_10061cb0(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices);
+	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
+	// for its shades and 2 for its fourth argument).
+	void FUN_10062010(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
 	void FUN_10062630(
 		PANE* p_pane,
 		MechS32 p_count,
