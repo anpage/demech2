@@ -1,5 +1,5 @@
 /* The Matrox edition's A3D renderer (0x1005a5f0 to 0x10067500): one object compiled with /Ox /G5 /Op,
-   where the rest of the edition is /Od (CLAUDE.md, "The A3D layer"). */
+   where the rest of the Matrox edition is /Od (CLAUDE.md, "The A3D layer"). */
 #include "matrox/a3d.h"
 
 #include "debugprint.h"

@@ -12,7 +12,7 @@
 #include <windows.h>
 
 // The Matrox edition's A3D renderer (0x1005a5f0-0x10067500, between damagepanel.c's and
-// keyboard.c's objects): optimized code the edition draws its polygons through, in place of VFX's
+// keyboard.c's objects): optimized code the Matrox edition draws its polygons through, in place of VFX's
 // (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op. matrox/a3d.c is partly written: the rest
 // of the entry points the game code calls are stubs.
 

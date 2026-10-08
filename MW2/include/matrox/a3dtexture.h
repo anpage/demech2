@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-// A texture as the A3D renderer takes it, from the edition's texture cache (DrawAnimatedPolygon).
+// A texture as the A3D renderer takes it, from the Matrox edition's texture cache (DrawAnimatedPolygon).
 // Only the members the game code reads are known; the size isn't.
 typedef struct A3DTexture {
 	undefined m_unk0x00[0x10];        // 0x00
