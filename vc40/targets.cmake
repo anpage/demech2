@@ -18,10 +18,15 @@
 # staticmem.c's object, clock.c's rotation normalization transform.c's), and its float math
 # object is a unit of its own (matrox/floatmath.c), which replaces fixedtrig.c and approxlen.c.
 # The rest of its own objects (the units it rewrote) aren't written yet. Its A3D renderer is
-# optimized code: VC++ 4.0 at /Ox /G5 /Op, where everything else is /Od (CLAUDE.md, "The A3D layer").
+# optimized code: VC++ 4.0 at /Ox /G5 /Op, where everything else is /Od (CLAUDE.md, "The A3D layer"),
+# and so is its depth sort object (depthsort.c, with /Oa too).
 function(demech2_add_mw2matrox)
   set_source_files_properties("${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
     PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Op")
+  # Its depth sort object is optimized code too, assuming no aliasing as well (/Oa): DrawShapeList
+  # keeps g_depthList and g_depthEntryCount in registers across its store to the shape's flags.
+  set_source_files_properties("${DEMECH2_SOURCE_DIR}/MW2/src/depthsort.c"
+    PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Oa;/Op")
   demech2_add_dll(mw2matrox
     ID MW2MATROX
     SOURCE_DIR MW2
