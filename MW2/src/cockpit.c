@@ -729,7 +729,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		return;
 	}
 
-	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
 #ifdef MW2_MATROX
 		if (visible) {
@@ -749,7 +749,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		}
 #endif
 
-		UnlockCachedResource(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
@@ -819,15 +819,19 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 				}
 
 				if (icon != -1) {
-					shape =
-						LoadCachedResource(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
+					shape = LoadCachedResource(
+						g_mw2PrjHandle,
+						HUD_ART_RESOLUTION + icon,
+						g_resourceTypeTags[c_resTagShp],
+						0
+					);
 					if (shape) {
 #ifdef MW2_MATROX
 						VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 #endif
-						UnlockCachedResource(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
+						UnlockCachedResource(HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp]);
 					}
 				}
 			}

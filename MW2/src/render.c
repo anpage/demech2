@@ -64,6 +64,7 @@ MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
 // GLOBAL: MW2 0x100a2458
+// GLOBAL: MW2MATROX 0x100a4a08
 MechChar* g_bannerName = NULL;
 
 // GLOBAL: MW2 0x100a245c
@@ -122,6 +123,7 @@ GameWindowGeometry* g_gameWindowGeometry;
 MechS32 g_screenHeight;
 
 // GLOBAL: MW2 0x10176eb0
+// GLOBAL: MW2MATROX 0x10212d9c
 undefined4 g_unk0x10176eb0;
 
 // Set when the next Blit should stretch the current pane over the window.

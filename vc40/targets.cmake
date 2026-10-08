@@ -107,6 +107,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/animation.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/shapecollision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/graphicsmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
