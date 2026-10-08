@@ -49,6 +49,7 @@
 #include <stdio.h>
 
 #ifdef MW2_MATROX
+#include "matrox/a3d.h"
 #include "matrox/vfx16.h"
 #endif
 
@@ -564,51 +565,44 @@ void DrawMapContents(CockpitLayout* p_layout)
 	DrawMapTarget(p_layout);
 }
 
-// Draws icon p_icon at the world position p_pos, if the map view shows it.
-// FUNCTION: MW2 0x1003e40a
-void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
-{
-	PANE* viewport;
-	void* shape;
-	MechS32 visible;
-
-	viewport = p_layout->m_viewport;
-	visible = ProjectMapPoint(&p_pos);
-	if (visible && p_layout->m_gauges[1]) {
-		visible = p_layout->m_gauges[1](viewport, p_pos.m_xy);
-	}
-
-	if (visible) {
-		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
-		if (shape) {
-			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
-			UnlockCachedResource(p_icon + g_artResolution, g_resourceTypeTags[c_resTagShp]);
-		}
-	}
-}
+#ifndef MW2_MATROX
+#include "mapicon.c"
+#endif
 
 // Draws the other live players and the live game things, by side.
 // Stack-slot permutation; i < g_gameThingCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e4cd
-// STUB: MW2MATROX 0x10074102
+// FUNCTION: MW2MATROX 0x10074102
 void DrawMapUnits(CockpitLayout* p_layout)
 {
 	Player* player;
 	MechS32 icon;
 	GameThing* thing;
 	MechS32 i;
+#ifdef MW2_MATROX
+	Vector3 pos;
+#else
 	MapPoint pos;
+#endif
 
 	for (i = 0; i < g_playerCount; i++) {
 		if (i != g_localPlayerId) {
 			player = g_players[i];
 			if ((player->m_flags & 0x1400) && !(player->m_flags & 0x800) && !(player->m_flags & 0x4000) &&
 				!(player->m_flags & 0x16)) {
+#ifdef MW2_MATROX
+				pos.m_x = player->m_position.m_x;
+				pos.m_y = player->m_position.m_y;
+				pos.m_z = player->m_position.m_z;
+				icon = p_layout->m_icons[1][GetPlayerSide(i)];
+				DrawMapIcon(p_layout, &pos, icon);
+#else
 				pos.m_xy.m_x = player->m_position.m_x;
 				pos.m_xy.m_y = player->m_position.m_y;
 				pos.m_z = player->m_position.m_z;
 				icon = p_layout->m_icons[1][GetPlayerSide(i)];
 				DrawMapIcon(p_layout, pos, icon);
+#endif
 			}
 		}
 	}
@@ -616,25 +610,30 @@ void DrawMapUnits(CockpitLayout* p_layout)
 	for (i = 0; i < g_gameThingCount; i++) {
 		thing = &g_gameThings[i];
 		if ((thing->m_flags & 0x1400) && !(thing->m_flags & 0x1e)) {
+#ifdef MW2_MATROX
+			GetStaticObjectPosition(thing->m_staticObject, &pos.m_x, &pos.m_y, &pos.m_z);
+			icon = p_layout->m_icons[1][GetThingSide(i)];
+			DrawMapIcon(p_layout, &pos, icon);
+#else
 			GetStaticObjectPosition(thing->m_staticObject, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
 			icon = p_layout->m_icons[1][GetThingSide(i)];
 			DrawMapIcon(p_layout, pos, icon);
+#endif
 		}
 	}
 }
 
-// Returns whether team p_team has reached the nav point. The team test is an | where an & was
-// meant: any reached nav counts.
-// FUNCTION: MW2 0x1003e645
-// FUNCTION: MW2MATROX 0x1007461a
-MechS32 IsNavReached(NavPoint* p_nav, MechS32 p_team)
-{
-	return (p_nav->m_flags & 0x20) && (p_nav->m_teamsReached | (1 << p_team));
-}
+// The Matrox edition places DrawMapIcon here, and IsNavReached after DrawMapTarget.
+#ifdef MW2_MATROX
+#include "mapicon.c"
+#else
+#include "navreached.c"
+#endif
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // Stack-slot permutation; m_icons[row][side] loads the table before the row (index order).
 // FUNCTION: MW2 0x1003e689
+// FUNCTION: MW2MATROX 0x1007432d
 void DrawMapTarget(CockpitLayout* p_layout)
 {
 	MechS32 index;
@@ -644,7 +643,12 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	MechS32 side;
 	MechS32 kind;
 	PANE* viewport;
+#ifdef MW2_MATROX
+	Vector3 pos;
+	Point screen;
+#else
 	MapPoint pos;
+#endif
 	MechS32 row;
 	MechU32 target;
 	void* shape;
@@ -652,6 +656,15 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	viewport = p_layout->m_viewport;
 	icon = -1;
 	player = g_players[g_localPlayerId];
+#ifdef MW2_MATROX
+	pos.m_x = player->m_targetInfo.m_position.m_x;
+	pos.m_y = player->m_targetInfo.m_position.m_y;
+	pos.m_z = player->m_targetInfo.m_position.m_z;
+	visible = ProjectMapPoint(&pos, &screen);
+	if (visible && p_layout->m_gauges[1]) {
+		visible = p_layout->m_gauges[1](viewport, &screen);
+	}
+#else
 	pos.m_xy.m_x = player->m_targetInfo.m_position.m_x;
 	pos.m_xy.m_y = player->m_targetInfo.m_position.m_y;
 	pos.m_z = player->m_targetInfo.m_position.m_z;
@@ -659,6 +672,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	if (visible && p_layout->m_gauges[1]) {
 		visible = p_layout->m_gauges[1](viewport, pos.m_xy);
 	}
+#endif
 
 	target = player->m_targetInfo.m_target;
 	if (!target || (target & 0x1000)) {
@@ -717,6 +731,15 @@ void DrawMapTarget(CockpitLayout* p_layout)
 
 	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
+#ifdef MW2_MATROX
+		if (visible) {
+			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
+		}
+		else if (p_layout->m_gauges[2]) {
+			p_layout->m_gauges[2](viewport, &screen, &screen);
+			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
+		}
+#else
 		if (visible) {
 			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
@@ -724,18 +747,28 @@ void DrawMapTarget(CockpitLayout* p_layout)
 			p_layout->m_gauges[2](viewport, &pos, &pos);
 			VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 		}
+#endif
 
 		UnlockCachedResource(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
 	}
 }
 
+#ifdef MW2_MATROX
+#include "navreached.c"
+#endif
+
 // Draws the local team's nav points, marking the ones reached.
 // Stack-slot permutation; i < g_navCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e974
-// STUB: MW2MATROX 0x1007465e
+// FUNCTION: MW2MATROX 0x1007465e
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
+#ifdef MW2_MATROX
+	Vector3 pos;
+	Point screen;
+#else
 	MapPoint pos;
+#endif
 	MechS32 i;
 	PANE* viewport;
 	MechS32 icon;
@@ -747,6 +780,21 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 	for (i = 0; i < g_navCount; i++) {
 		nav = &g_navTable[i];
 		if (nav->m_team == g_localStar && nav->m_used && !(nav->m_flags & 1)) {
+#ifdef MW2_MATROX
+			if (nav->m_obj) {
+				GetObjPosition(nav->m_obj, &pos.m_x, &pos.m_y, &pos.m_z);
+			}
+			else {
+				pos.m_x = nav->m_position[0];
+				pos.m_y = nav->m_position[1];
+				pos.m_z = nav->m_position[2];
+			}
+
+			visible = ProjectMapPoint(&pos, &screen);
+			if (visible && p_layout->m_gauges[1]) {
+				visible = p_layout->m_gauges[1](viewport, &screen);
+			}
+#else
 			if (nav->m_obj) {
 				GetObjPosition(nav->m_obj, &pos.m_xy.m_x, &pos.m_xy.m_y, &pos.m_z);
 			}
@@ -760,6 +808,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 			if (visible && p_layout->m_gauges[1]) {
 				visible = p_layout->m_gauges[1](viewport, pos.m_xy);
 			}
+#endif
 
 			if (visible) {
 				if (IsNavReached(nav, g_localStar)) {
@@ -773,7 +822,11 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 					shape =
 						LoadCachedResource(g_mw2PrjHandle, g_artResolution + icon, g_resourceTypeTags[c_resTagShp], 0);
 					if (shape) {
+#ifdef MW2_MATROX
+						VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
+#else
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
+#endif
 						UnlockCachedResource(g_artResolution + icon, g_resourceTypeTags[c_resTagShp]);
 					}
 				}
@@ -1152,9 +1205,42 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 // (0) twice, the second time outlined (0x2000).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f393
-// STUB: MW2MATROX 0x10075097
+// FUNCTION: MW2MATROX 0x10075097
+#ifdef MW2_MATROX
+void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
+#else
 void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
+#endif
 {
+#ifdef MW2_MATROX
+	MechU32 kind;
+	CockpitLayout* layout;
+	MechU32 color;
+
+	layout = g_cockpitLayouts[g_cockpitLayoutIndex];
+	if (!layout) {
+		return;
+	}
+
+	kind = p_flags & 0xf000;
+	switch (kind) {
+	case 0x4000:
+		p_flags &= 0xf0;
+		FUN_100751a9(layout, p_count, p_points, p_flags);
+		break;
+	case 0x3000:
+		color = (p_flags & 0xff0) >> 4;
+		DrawBand(color, p_count, p_points, -1, 1, p_unk0x0c);
+		break;
+	case 0:
+		DrawScenePolygon(p_count, p_points, 0, 0);
+		DrawScenePolygon(p_count, p_points, p_flags | 0x2000, 0);
+		break;
+	default:
+		DrawScenePolygon(p_count, p_points, p_flags, 0);
+		break;
+	}
+#else
 	MechU32 shade;
 	MechU32 kind;
 	MechS32 i;
@@ -1197,21 +1283,69 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 		DrawScenePolygon(p_count, p_points, p_flags);
 		break;
 	}
+#endif
 }
+
+#ifdef MW2_MATROX
+// The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
+// in the colors p_flags picks.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2MATROX 0x100751a9
+void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags)
+{
+	A3DVertex* vertices;
+	MechS32 x;
+	MechS32 y;
+	MechU32 shade;
+	MechS32 i;
+	A3DVertex* vertex;
+	ProjectedVertex* point;
+
+	vertices = g_a3dClipped;
+	vertex = vertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points++;
+		x = point->m_screenX;
+		y = point->m_screenY;
+		vertex->m_x = x;
+		vertex->m_y = y;
+		shade = GetMapHeightShade(p_layout, point->m_z);
+		vertex->m_blue = g_paletteRgb[shade | p_flags][2];
+		vertex->m_green = g_paletteRgb[shade | p_flags][1];
+		vertex->m_red = g_paletteRgb[shade | p_flags][0];
+		vertex++;
+	}
+
+	if (g_renderSettings.m_gouraud) {
+		FUN_10061cb0(&g_currentPane, p_count, vertices);
+	}
+	else {
+		FUN_10061cb0(&g_currentPane, p_count, vertices);
+	}
+}
+#endif
 
 // Returns the shade (0-15) of a height p_height in the map view.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f513
-MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechS32 p_height)
+// FUNCTION: MW2MATROX 0x100752b7
+MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height)
 {
 	MechS32 shade;
 	MechS32 height;
-	MechS32 fraction;
+	MechScalar fraction;
 
+#ifdef MW2_MATROX
+	height = p_layout->m_range - (MechS32) p_height;
+	height -= g_mapShadeBase;
+	fraction = (MechFloat) height / g_mapShadeRange;
+	shade = fraction * 16;
+#else
 	height = p_layout->m_range - (p_height >> 2);
 	height -= g_mapShadeBase;
 	fraction = FixedDiv16(height, g_mapShadeRange);
 	shade = FixedMul16(fraction, 0x10);
+#endif
 	if (shade < 0) {
 		shade = 0;
 	}

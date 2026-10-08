@@ -19,8 +19,17 @@
 
 // The flags a new shape starts with (CreateShape).
 // GLOBAL: MW2 0x100a5898
+// GLOBAL: MW2MATROX 0x100a5964
 MechU32 g_newShapeFlags = 0;
 
+// The Matrox edition starts this object with ComputeShapeBounds and AddModel, which 1.1 has
+// further down.
+#ifdef MW2_MATROX
+#include "addmodel.c"
+#include "shapebounds.c"
+#endif
+
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x1003a530
 MechU32 GetNewShapeFlags(void)
 {
@@ -44,6 +53,7 @@ void SelectFirstModel(Shape* p_shape)
 {
 	SelectModel(p_shape, p_shape->m_models);
 }
+#endif
 
 // FUNCTION: MW2 0x1003a589
 // FUNCTION: MW2MATROX 0x10027e7e
@@ -52,6 +62,7 @@ void SelectModel(Shape* p_shape, Model* p_model)
 	p_shape->m_model = p_model;
 }
 
+#ifndef MW2_MATROX
 // Selects the next model, wrapping around to the first.
 // FUNCTION: MW2 0x1003a59d
 void SelectNextModel(Shape* p_shape)
@@ -63,80 +74,13 @@ void SelectNextModel(Shape* p_shape)
 		SelectModel(p_shape, p_shape->m_model->m_next);
 	}
 }
+#endif
 
-// Allocates a model with room for the vertices, the faces and p_extra more bytes (returned in
-// p_extraData), inserts it into the shape's list by p_key and selects it.
-// The size sum adds p_extra and vertexBytes in the other order, and the locals sit in
-// permuted stack slots.
-// FUNCTION: MW2 0x1003a5f3
-Model* AddModel(
-	Shape* p_shape,
-	MechS32 p_key,
-	MechS32 p_vertexCount,
-	MechS32 p_faceCount,
-	MechS32 p_extra,
-	void** p_extraData
-)
-{
-	Model* model;
-	MechS32 vertexBytes;
-	Model* cursor;
-	void* memory;
-	MechU32 size;
-	MechS32 faceBytes;
+#ifndef MW2_MATROX
+#include "addmodel.c"
+#endif
 
-	size = 0;
-	faceBytes = 0;
-	vertexBytes = 0;
-	if (!p_shape) {
-		return NULL;
-	}
-
-	vertexBytes = p_vertexCount * sizeof(Vertex);
-	faceBytes = p_faceCount * sizeof(Face);
-	size = p_extra + vertexBytes + faceBytes + 0x18;
-	memory = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size);
-	if (!memory) {
-		return NULL;
-	}
-
-	memset(memory, 0, size);
-	model = memory;
-	model->m_key = p_key;
-	model->m_vertexCount = 0;
-	model->m_faceCount = 0;
-	model->m_transformCount = 0;
-	model->m_unk0x14 = 0;
-	model->m_faceOffset = (MechU16) (vertexBytes + sizeof(Model));
-	*p_extraData = (Face*) ((MechU8*) model + model->m_faceOffset) + p_faceCount;
-	SelectModel(p_shape, model);
-
-	if (!p_shape->m_models) {
-		p_shape->m_models = model;
-		model->m_next = NULL;
-		return model;
-	}
-
-	cursor = p_shape->m_models;
-	if (cursor->m_key > p_key) {
-		model->m_next = cursor;
-		p_shape->m_models = model;
-		return model;
-	}
-
-	while (cursor->m_next) {
-		if (cursor->m_next->m_key > p_key) {
-			break;
-		}
-
-		cursor = cursor->m_next;
-	}
-
-	model->m_next = cursor->m_next;
-	cursor->m_next = model;
-	return model;
-}
-
+#ifndef MW2_MATROX
 // Selects the first model whose key is at most p_key.
 // FUNCTION: MW2 0x1003a7a2
 void SelectModelByKey(Shape* p_shape, MechS32 p_key)
@@ -150,9 +94,11 @@ void SelectModelByKey(Shape* p_shape, MechS32 p_key)
 		}
 	}
 }
+#endif
 
 // FUNCTION: MW2 0x1003a7f9
-void SetModelKey(Shape* p_shape, MechS32 p_key)
+// FUNCTION: MW2MATROX 0x10027e92
+void SetModelKey(Shape* p_shape, MechScalar p_key)
 {
 	Model* model;
 
@@ -164,6 +110,7 @@ void SetModelKey(Shape* p_shape, MechS32 p_key)
 	model->m_key = p_key;
 }
 
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x1003a827
 MechS32 GetModelKey(Shape* p_shape)
 {
@@ -202,9 +149,11 @@ MechU32 FUN_1003a889(Shape* p_shape)
 
 	return model->m_unk0x14;
 }
+#endif
 
 // Allocates a shape with one model (AddModel).
 // FUNCTION: MW2 0x1003a8c1
+// FUNCTION: MW2MATROX 0x10027ec0
 Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData)
 {
 	Shape* shape;
@@ -238,7 +187,26 @@ Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, 
 
 // Appends a vertex to the selected model.
 // FUNCTION: MW2 0x1003aa1d
-void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v)
+// FUNCTION: MW2MATROX 0x1002801c
+void AddShapeVertex(
+	Shape* p_shape,
+	MechScalar p_x,
+	MechScalar p_y,
+	MechScalar p_z,
+#ifdef MW2_MATROX
+	MechFloat p_u,
+	MechFloat p_v,
+	MechFloat p_red,
+	MechFloat p_green,
+	MechFloat p_blue,
+	MechFloat p_normalX,
+	MechFloat p_normalY,
+	MechFloat p_normalZ
+#else
+	undefined4 p_u,
+	undefined4 p_v
+#endif
+)
 {
 	Model* model;
 	Vertex* vertex;
@@ -254,6 +222,14 @@ void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undef
 	vertex->m_worldZ = vertex->m_modelZ = p_z;
 	vertex->m_u = p_u;
 	vertex->m_v = p_v;
+#ifdef MW2_MATROX
+	vertex->m_red = p_red;
+	vertex->m_green = p_green;
+	vertex->m_blue = p_blue;
+	vertex->m_modelNormalX = p_normalX;
+	vertex->m_modelNormalY = p_normalY;
+	vertex->m_modelNormalZ = p_normalZ;
+#endif
 	model->m_vertexCount++;
 }
 
@@ -466,92 +442,9 @@ void ComputeNormalsAndBounds(Shape* p_shape)
 	ComputeShapeBounds(p_shape);
 }
 
-// Sets p_shape's center to the middle of its first model's bounding box, and its radius to the
-// distance from there to the farthest vertex.
-// Stack-slot permutation of the locals. The vertex address loads the index first where the
-// original loads the model first (index order), and 4.1 sums the squares in another order, which
-// also compares d before storing it; a probe of the same source picks yet another order.
-// MW2MATROX: d > max compares before it stores d (fcom, fstp) where the original stores first (fst,
-// fcomp), an effect of the symbol order.
-// FUNCTION: MW2 0x1003ae96
-void ComputeShapeBounds(Shape* p_shape)
-{
-	MechDouble dz;
-	Model* model;
-	MechDouble max;
-	MechScalar minX;
-	MechS32 i;
-	MechScalar minY;
-	MechScalar minZ;
-	MechDouble d;
-	MechScalar maxX;
-	MechScalar maxY;
-	MechDouble dx;
-	MechScalar maxZ;
-	Vertex* v;
-	MechDouble dy;
-
-	model = p_shape->m_models;
-	if (!model) {
-		return;
-	}
-
-	i = model->m_vertexCount - 1;
-	v = (Vertex*) (model + 1) + i;
-	minX = maxX = v->m_worldX;
-	minY = maxY = v->m_worldY;
-	minZ = maxZ = v->m_worldZ;
-	while (i--) {
-		v = (Vertex*) (model + 1) + i;
-		if (v->m_worldX < minX) {
-			minX = v->m_worldX;
-		}
-		if (v->m_worldY < minY) {
-			minY = v->m_worldY;
-		}
-		if (v->m_worldZ < minZ) {
-			minZ = v->m_worldZ;
-		}
-		if (v->m_worldX > maxX) {
-			maxX = v->m_worldX;
-		}
-		if (v->m_worldY > maxY) {
-			maxY = v->m_worldY;
-		}
-		if (v->m_worldZ > maxZ) {
-			maxZ = v->m_worldZ;
-		}
-	}
-
-#ifdef MW2_MATROX
-	p_shape->m_modelCenterX = p_shape->m_centerX = (maxX + minX) * 0.5f;
-	p_shape->m_modelCenterY = p_shape->m_centerY = (maxY + minY) * 0.5f;
-	p_shape->m_modelCenterZ = p_shape->m_centerZ = (maxZ + minZ) * 0.5f;
-#else
-	p_shape->m_modelCenterX = p_shape->m_centerX = (maxX + minX) >> 1;
-	p_shape->m_modelCenterY = p_shape->m_centerY = (maxY + minY) >> 1;
-	p_shape->m_modelCenterZ = p_shape->m_centerZ = (maxZ + minZ) >> 1;
+#ifndef MW2_MATROX
+#include "shapebounds.c"
 #endif
-
-	max = 0.0;
-	i = model->m_vertexCount;
-	while (i--) {
-		v = (Vertex*) (model + 1) + i;
-		dx = v->m_worldX - p_shape->m_centerX;
-		dy = v->m_worldY - p_shape->m_centerY;
-		dz = v->m_worldZ - p_shape->m_centerZ;
-		d = dx * dx + dy * dy + dz * dz;
-		if (d > max) {
-			max = d;
-		}
-	}
-
-#ifdef MW2_MATROX
-	p_shape->m_radius = sqrt(max);
-#else
-	p_shape->m_radius = (MechS32) sqrt(max);
-#endif
-}
 
 // Sets the face's normal (both copies) from its vertices: a triangle's directly, otherwise from
 // its longest edge and the vertex that gives the largest area with it, stopping at the first
@@ -713,6 +606,7 @@ void ForEachShape(Shape* p_shape, void (*p_fn)(Shape*))
 	}
 }
 
+#ifndef MW2_MATROX
 // Returns a vertex's transformed position.
 // FUNCTION: MW2 0x1003b4dd
 void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
@@ -807,6 +701,7 @@ void GetShapeFace(
 		}
 	}
 }
+#endif
 
 // FUNCTION: MW2 0x1003b696
 // FUNCTION: MW2MATROX 0x100288c5
@@ -838,11 +733,13 @@ void SetShapeObject(Shape* p_shape, struct SceneObject* p_object)
 	p_shape->m_object = p_object;
 }
 
+#ifndef MW2_MATROX
 // FUNCTION: MW2 0x1003b70f
 MechU32 GetShapeLoadFlags(Shape* p_shape)
 {
 	return p_shape->m_flags & 0x10f;
 }
+#endif
 
 // FUNCTION: MW2 0x1003b72f
 // FUNCTION: MW2MATROX 0x1002893e
@@ -919,3 +816,8 @@ MechS32 GetShapeMemorySize(Shape* p_shape)
 	return size + GetBoundBoxSize(p_shape);
 #endif
 }
+
+// The Matrox edition ends this object with shapegeom.c's functions, a unit of its own in 1.1.
+#ifdef MW2_MATROX
+#include "shapegeom.c"
+#endif

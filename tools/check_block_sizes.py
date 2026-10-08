@@ -65,6 +65,7 @@ COMMON_INCLUDES = [
     "common/include",
     "3rdparty/dispdib",
     "3rdparty/mss",
+    "3rdparty/msi95",
     "3rdparty/smacker",
 ]
 

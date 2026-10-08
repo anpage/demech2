@@ -68,6 +68,7 @@ DepthEntry* g_depthQueue;
 #endif
 
 // GLOBAL: MW2 0x1010b5ac
+// GLOBAL: MW2MATROX 0x101d6968
 MechS32 g_queueHasRoom;
 
 // FUNCTION: MW2 0x1007d120
@@ -124,9 +125,21 @@ void ResetDrawBuffer(void)
 	g_drawBufferTop = g_drawBuffer + g_drawBufferSize - 0x30;
 }
 
+// The Matrox edition's is C, for its 0x3c-byte records.
 // FUNCTION: MW2 0x1007d248
+// FUNCTION: MW2MATROX 0x100217db
 ProjectedVertex* AllocProjectedVertex(void)
 {
+#ifdef MW2_MATROX
+	ProjectedVertex* record;
+
+	g_drawBufferTop -= 0x3c;
+	record = (ProjectedVertex*) g_drawBufferTop;
+	record->m_projected = 0;
+	if (g_drawBufferTop - 0xc8 <= g_drawBufferBottom) {
+		g_queueHasRoom = 0;
+	}
+#else
 	MechS32 recordSize;
 	ProjectedVertex* record;
 
@@ -156,17 +169,24 @@ ProjectedVertex* AllocProjectedVertex(void)
 done:
 	}
 #endif
+#endif
 
 	return record;
 }
 
+// The Matrox edition's takes 0x10-byte records.
 // FUNCTION: MW2 0x1007d296
+// FUNCTION: MW2MATROX 0x10021827
 MechU8* AllocQueuedPolygon(void)
 {
 	MechS32 recordSize;
 	MechU8* record;
 
+#ifdef MW2_MATROX
+	recordSize = 0x10;
+#else
 	recordSize = 0xc;
+#endif
 #ifdef PORTABLE_C
 	record = g_drawBufferBottom;
 	g_drawBufferBottom += recordSize;

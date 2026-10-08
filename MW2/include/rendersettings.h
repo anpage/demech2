@@ -47,7 +47,17 @@ typedef struct RenderSettings {
 	MechS32 (*m_shapeFilter)();        // 0x58 — a shape filter: nonzero skips the shape
 	struct ProjectedVertex* (*m_projectVertex)(struct ProjectedVertex* p_vertex); // 0x5c — projects a vertex
 	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (GetFaceColor)
-	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags);   // 0x64
+#ifdef MW2_MATROX
+	// The Matrox edition's takes the projected vertices themselves, and a fourth argument.
+	void (*m_drawPolygon)(
+		MechS32 p_count,
+		struct ProjectedVertex** p_points,
+		MechU32 p_flags,
+		MechS32 p_unk0x0c
+	); // 0x64
+#else
+	void (*m_drawPolygon)(MechS32 p_count, MechU32* p_points, MechU32 p_flags); // 0x64
+#endif
 } RenderSettings;
 
 #endif // RENDERSETTINGS_H

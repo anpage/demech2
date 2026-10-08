@@ -1,3 +1,6 @@
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "targetpanel.h"
 
 #include "classtable.h"
@@ -39,6 +42,10 @@
 
 #ifdef MW2_MATROX
 #include "matrox/vfx16.h"
+#include "render.h"
+#include "view.h"
+
+MechS32 IsPlayerInView(Player* p_player);
 #endif
 
 // GLOBAL: MW2 0x100ba4bc
@@ -47,14 +54,27 @@ MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
 // GLOBAL: MW2 0x100ba4c0
+// GLOBAL: MW2MATROX 0x100a4a50
 MechS32 g_announceTargetSide = 0;
+
+#ifdef MW2_MATROX
+// The level of detail the target panel loads a target mech's class at (LOD.PAR's
+// TargetWindowREP, read once).
+// GLOBAL: MW2MATROX 0x100a4a54
+MechS32 g_targetWindowRep = 0;
+
+// GLOBAL: MW2MATROX 0x100a4a58
+MechS32 g_targetLodParRead = 0;
+#endif
 
 // When the target panel goes from the target's short name to its name.
 // GLOBAL: MW2 0x100ba4c4
+// GLOBAL: MW2MATROX 0x100a4a5c
 MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
+// GLOBAL: MW2MATROX 0x100a4a60
 MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
@@ -72,6 +92,7 @@ MechChar g_anonymousInstallationName[8];
 // Stack-slot permutation of the locals. g_currentClock > g_targetFullNameTime compares with its
 // operands reversed (it flipped when speech.h's declarations were added ahead of it).
 // FUNCTION: MW2 0x1007b930
+// FUNCTION: MW2MATROX 0x10017e50
 void DrawTargetPanelText(CockpitPanel* p_panel)
 {
 	MechS32 index;
@@ -246,17 +267,26 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		}
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (!font) {
 		return;
 	}
 
+#ifdef MW2_MATROX
+	g_textColors[0xe] = PIXEL_COLOR(color);
+	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
+	g_textColors[0xe] = PIXEL_COLOR(0xe);
+	meters = FIXED_TO_INT(mech->m_player->m_targetInfo.m_range) / 100;
+	if (meters > 1000) {
+		km = meters / 1000.0f;
+#else
 	g_textColors[0xe] = color;
 	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
 	g_textColors[0xe] = 0xe;
 	meters = mech->m_player->m_targetInfo.m_range / 100;
 	if (meters > 1000) {
 		km = meters / 1000.0;
+#endif
 		sprintf(text, "\n%2.2fk", km);
 		DrawWrappedText(p_panel->m_target, text, font);
 	}
@@ -265,39 +295,196 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		DrawWrappedText(p_panel->m_target, text, font);
 	}
 
-	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
+#ifdef MW2_MATROX
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
 // static while the panel is damaged (m_damage).
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
-// STUB: MW2MATROX 0x10018683
+// FUNCTION: MW2MATROX 0x10018683
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;
-	MechS32 dz;
+	MechScalar dz;
 	RenderSettings saved;
 	Player* targetPlayer;
-	MechS32 view[7];
+	MechScalar view[7];
 	SceneObject* object;
 	MechS32 kind;
 	Mech* mech;
 	MechS32 centerX;
 	Player* player;
 	MechS32 centerY;
-	MechS32 distance;
-	MechS32 heading;
+	MechScalar distance;
+	MechScalar heading;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
-	MechS32 dx;
+	MechScalar dx;
 	MechS32 icon;
 	void* noTarget;
 	void* noObject;
 	MechS32 targetIndex;
+#ifdef MW2_MATROX
+	MechChar line[0x100];
+	FILE* file;
+#endif
 
+#ifdef MW2_MATROX
+	if (!p_panel->m_enabled || !g_targetPanelMode) {
+		return;
+	}
+
+	p_panel->m_lastPowerState = g_cockpitPowerState;
+	if (p_panel->m_damage == 1) {
+		if (g_targetPanelStatic) {
+			if (RandomIntBelow(10) < 7) {
+				g_targetPanelStatic = 0;
+			}
+
+			DrawTargetStatic(p_panel);
+			return;
+		}
+		else {
+			if (RandomIntBelow(10) < 3) {
+				g_targetPanelStatic = 1;
+			}
+		}
+	}
+	else if (p_panel->m_damage > 2) {
+		DrawTargetStatic(p_panel);
+		return;
+	}
+
+	mech = g_players[g_localPlayerId]->m_mech;
+	player = mech->m_player;
+	kind = player->m_targetInfo.m_target & 0xf00;
+	index = mech->m_player->m_targetInfo.m_target & 0xff;
+	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
+		VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
+		OutlinePane(p_panel->m_target, 8);
+		FUN_10088280(p_panel->m_target);
+		return;
+	}
+
+	if (kind == 0x100) {
+		centerX = (p_panel->m_target->m_x1 - p_panel->m_target->m_x0) / 2;
+		centerY = (p_panel->m_target->m_y1 - p_panel->m_target->m_y0) / 2;
+		if (!(g_navTable[index].m_flags & 0x20)) {
+			icon = 0x106;
+		}
+		else {
+			icon = 0x109;
+		}
+
+		if (icon) {
+			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
+			FUN_1001e01a(centerX, centerY, icon, p_panel->m_target);
+			OutlinePane(p_panel->m_target, 8);
+			FUN_10088280(p_panel->m_target);
+		}
+
+		return;
+	}
+
+	if (kind == 0x200) {
+		if (!g_targetLodParRead) {
+			file = fopen("LOD.PAR", "rt");
+			if (file) {
+				while (fgets(line, 0x100, file)) {
+					if (line[0] == '/') {
+						continue;
+					}
+
+					if (sscanf(line, "TargetWindowREP = %i", &g_targetWindowRep)) {
+						continue;
+					}
+				}
+
+				fclose(file);
+			}
+
+			g_targetLodParRead = 1;
+		}
+
+		targetPlayer = g_players[mech->m_player->m_targetInfo.m_target & 0xff];
+		if (!IsPlayerInView(targetPlayer)) {
+			LoadClassLevel(targetPlayer->m_index, g_targetWindowRep);
+		}
+	}
+
+	SaveView(g_eyepoint, view);
+	SetMechViewRenderSettings(&saved);
+	x = player->m_targetInfo.m_position.m_x;
+	y = player->m_targetInfo.m_position.m_y;
+	z = player->m_targetInfo.m_position.m_z;
+	heading = player->m_targetInfo.m_heading;
+	object = GetLocalTargetObject();
+	if (!object) {
+		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+		if (noTarget) {
+			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
+			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
+			OutlinePane(p_panel->m_target, 8);
+			UnlockCachedResource(0x5e, g_resourceTypeTags[c_resTagShp]);
+			FUN_10088280(p_panel->m_target);
+		}
+
+		return;
+	}
+	else if (!object->m_shape) {
+		noObject = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
+		if (noObject) {
+			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
+			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
+			OutlinePane(p_panel->m_target, 8);
+			UnlockCachedResource(0x5b, g_resourceTypeTags[c_resTagShp]);
+			FUN_10088280(p_panel->m_target);
+		}
+
+		return;
+	}
+
+	if (kind == 0x400) {
+		distance = GetShapeBounds(object->m_shape, &x, &y, &z) * 3;
+	}
+	else {
+		targetIndex = player->m_targetInfo.m_target & 0xff;
+		distance = g_players[targetIndex]->m_mech->m_radius * 3;
+	}
+
+	dx = -(FixedSin(heading) * distance);
+	view[0] = x + dx;
+	view[1] = y;
+	dz = -(FixedCos(heading) * distance);
+	view[2] = z + dz;
+	view[3] = heading;
+	view[4] = 0;
+	view[5] = 0;
+	if (g_targetPanelMode == 1) {
+		g_renderSettings.m_wireframe = 1;
+		g_renderSettings.m_wireframeColors = 0;
+	}
+	else {
+		g_renderSettings.m_wireframe = 0;
+	}
+
+	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
+	FUN_1005f8a0(p_panel->m_target, PIXEL_COLOR(0));
+	if (g_cockpitPowerState == 2) {
+		RenderViewToPane(7, FIXED_CONST(2), view, object);
+	}
+
+	VFX_pane_wipe(p_panel->m_target, 0xfffe);
+	OutlinePane(p_panel->m_target, 8);
+	g_renderSettings = saved;
+	FUN_10088280(p_panel->m_target);
+#else
 	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
@@ -419,8 +606,31 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 
 	OutlinePane(p_panel->m_target, 8);
 	g_renderSettings = saved;
+#endif
 }
 
+#ifdef MW2_MATROX
+// Whether p_player's position projects into the main view (the target panel then leaves its
+// level of detail alone).
+// FUNCTION: MW2MATROX 0x10018d55
+MechS32 IsPlayerInView(Player* p_player)
+{
+	MechScalar x;
+	MechScalar y;
+	MechScalar z;
+
+	x = p_player->m_position.m_x;
+	y = p_player->m_position.m_y;
+	z = p_player->m_position.m_z;
+	if (ProjectWorldPoint(&x, &y, &z)) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+#endif
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
 // FUNCTION: MW2MATROX 0x10018db0

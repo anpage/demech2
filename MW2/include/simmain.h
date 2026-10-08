@@ -42,6 +42,9 @@ extern "C"
 	void HandleMessages(void);
 	void UpdatePauseState(void);
 	void SetGameResolution(char* p_driverName);
+#ifdef MW2_MATROX
+	LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
+#endif
 
 #ifdef __cplusplus
 }

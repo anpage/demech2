@@ -14,6 +14,11 @@
 #include "wtbface.h"
 #include "wtbheader.h"
 #include "wtbvertex.h"
+#ifdef MW2_MATROX
+#include "face.h"
+#include "model.h"
+#include "vertex.h"
+#endif
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -28,9 +33,11 @@ const MechS32 g_wtbTag = 0x4f425457;
 MechS32 g_shapeLoadError = 0;
 
 // GLOBAL: MW2 0x100ba660
+// GLOBAL: MW2MATROX 0x100a55d8
 MechS32 g_unk0x100ba660 = 0;
 
 // GLOBAL: MW2 0x100ba664
+// GLOBAL: MW2MATROX 0x100a55dc
 MechS32 g_unk0x100ba664 = 0;
 
 // GLOBAL: MW2 0x100ba668
@@ -62,21 +69,26 @@ MechScalar g_shapeScaleZ = 1;
 MechU32 g_shapeFlags = 0;
 
 // GLOBAL: MW2 0x100ba684
+// GLOBAL: MW2MATROX 0x100a55fc
 MechU32 g_faceIdCount = 0;
 
 // GLOBAL: MW2 0x100ba688
+// GLOBAL: MW2MATROX 0x100a5600
 MechS32 g_subShapeCollisionType = 4;
 
 // GLOBAL: MW2 0x100ba68c
 MechS32 g_unk0x100ba68c = 0;
 
 // GLOBAL: MW2 0x100bfabc
+// GLOBAL: MW2MATROX 0x100c1e94
 MechS32 g_shapeHasObject;
 
 // GLOBAL: MW2 0x100bfac0
+// GLOBAL: MW2MATROX 0x100c1e98
 MechU32* g_faceIds;
 
 // GLOBAL: MW2 0x100bfac4
+// GLOBAL: MW2MATROX 0x100c1e90
 MechS32 g_shapeHasKey;
 
 // GLOBAL: MW2 0x100bfd40
@@ -92,6 +104,7 @@ MechS32 g_shapeOwnerKind;
 MechS32 g_shapeOwner;
 
 // FUNCTION: MW2 0x1007f140
+// FUNCTION: MW2MATROX 0x10025230
 void SetFaceIds(MechU32* p_ids, MechU32 p_count)
 {
 	g_faceIds = p_ids;
@@ -193,13 +206,13 @@ Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject
 // compares only as many bytes of the original as the recompiled function has. Operand order:
 // j < count.
 // FUNCTION: MW2 0x1007f2d5
-// STUB: MW2MATROX 0x10025407
+// FUNCTION: MW2MATROX 0x10025407
 MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, SceneObject* p_parent, MechS32* p_count)
 {
 	MechChar* suffix;
 	MechS32 checksum;
 	MechU16* indices;
-	MechS32 key;
+	MechScalar key;
 	MechS32 facesSize;
 	MechU8* extra;
 	MechS32 extraSize;
@@ -207,24 +220,45 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	MechS32 count;
 	WtbVertex* vertices;
 	MechS32 id;
+#ifdef MW2_MATROX
+	MechFloat u;
+#else
 	MechS32 u;
+#endif
 	MechS32 vertexCount;
+#ifdef MW2_MATROX
+	MechFloat v;
+#else
 	MechS32 v;
-	MechS32 x;
+#endif
+	MechScalar x;
 	MechChar name[40];
 	MechS32 size;
 	MechU8* face;
 	MechU8* faces;
-	MechS32 y;
+	MechScalar y;
 	MechS32 i;
 	WtbHeader* header;
 	MechU8* record;
-	MechS32 z;
+	MechScalar z;
 	MechS32 j;
 	struct Face* polygon;
 	WtbVertex* vertex;
+#ifdef MW2_MATROX
+	MechFloat red;
+	MechFloat green;
+	MechFloat blue;
+	MechFloat normalX;
+	MechFloat normalY;
+	MechFloat normalZ;
+	struct Face* modelFace;
+	Vertex* modelVertices;
+	Vertex* modelVertex;
+#endif
 
+#ifndef MW2_MATROX
 	key = 0;
+#endif
 	checksum = 0;
 	if (!*p_shape) {
 		g_shapeHasObject = 0;
@@ -261,7 +295,11 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		break;
 	}
 
+#ifdef MW2_MATROX
+	if ((MechU8) header->m_name[0] > 0x80) {
+#else
 	if (header->m_name[0] > 0x80) {
+#endif
 		for (i = 0; i < 16; i++) {
 			j = header->m_name[i];
 			j = 0x100 - j;
@@ -275,7 +313,11 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		*suffix = '\0';
 		suffix++;
 		if (isdigit(*suffix)) {
+#ifdef MW2_MATROX
+			key = atof(suffix);
+#else
 			key = atol(suffix);
+#endif
 		}
 	}
 
@@ -287,10 +329,18 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	while (i--) {
 		count = ((WtbFace*) face)->m_count;
 		if (count > 4) {
+#ifdef MW2_MATROX
+			size = 0x2e;
+#else
 			size = 0x12;
+#endif
 		}
 		else {
+#ifdef MW2_MATROX
+			size = 0x28;
+#else
 			size = 0xc;
+#endif
 		}
 
 		extraSize += count * 4;
@@ -323,6 +373,38 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		x = vertex->m_x;
 		y = vertex->m_y;
 		z = vertex->m_z;
+#ifdef MW2_MATROX
+		u = vertex->m_texture.m_uv[0];
+		v = vertex->m_texture.m_uv[1];
+		red = vertex->m_texture.m_bytes[1];
+		green = vertex->m_texture.m_bytes[2];
+		blue = vertex->m_texture.m_bytes[3];
+		normalX = -vertex->m_normalX;
+		normalY = -vertex->m_normalY;
+		normalZ = -vertex->m_normalZ;
+		if (i < vertexCount) {
+			AddShapeVertex(
+				*p_shape,
+				x * g_shapeScaleX + g_shapeOffsetX,
+				y * g_shapeScaleY + g_shapeOffsetY,
+				z * g_shapeScaleZ + g_shapeOffsetZ,
+				u,
+				v,
+				red,
+				green,
+				blue,
+				normalX,
+				normalY,
+				normalZ
+			);
+		}
+
+		checksum += vertex->m_x;
+		checksum += vertex->m_y;
+		checksum += vertex->m_z;
+		checksum += vertex->m_texture.m_uv[0];
+		checksum += vertex->m_texture.m_uv[1];
+#else
 		u = vertex->m_u;
 		v = vertex->m_v;
 		if (i < vertexCount) {
@@ -341,6 +423,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		checksum += vertex->m_z;
 		checksum += vertex->m_u;
 		checksum += vertex->m_v;
+#endif
 		checksum = checksum % 0x100000;
 	}
 
@@ -349,10 +432,18 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	for (i = 0; i < header->m_faceCount; i++) {
 		count = ((WtbFace*) face)->m_count;
 		if (count > 4) {
+#ifdef MW2_MATROX
+			size = 0x2e;
+#else
 			size = 0x12;
+#endif
 		}
 		else {
+#ifdef MW2_MATROX
+			size = 0x28;
+#else
 			size = 0xc;
+#endif
 		}
 
 		id = MapFaceId(((WtbFace*) face)->m_id);
@@ -361,6 +452,12 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 			g_shapeLoadError = -9;
 			return -1;
 		}
+
+#ifdef MW2_MATROX
+		polygon->m_modelNormalX = polygon->m_normal[0] = -((WtbFace*) face)->m_normalX;
+		polygon->m_modelNormalY = polygon->m_normal[1] = -((WtbFace*) face)->m_normalY;
+		polygon->m_modelNormalZ = polygon->m_normal[2] = -((WtbFace*) face)->m_normalZ;
+#endif
 
 		extra += count * 4;
 		indices = ((WtbFace*) face)->m_indices;
@@ -376,6 +473,19 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 		checksum += ((WtbFace*) face)->m_id;
 		checksum += count;
 		checksum = checksum % 0x100000;
+#ifdef MW2_MATROX
+		// Faces of draw mode 4 give their vertices the record's three bytes.
+		modelFace = (struct Face*) ((MechU8*) (*p_shape)->m_model + (*p_shape)->m_model->m_faceOffset) + i;
+		if ((modelFace->m_color & 0xf000) == 0x4000) {
+			modelVertices = (Vertex*) ((*p_shape)->m_model + 1);
+			for (j = 0; j < modelFace->m_indexCount; j++) {
+				modelVertex = &modelVertices[((MechU8*) modelFace)[modelFace->m_indexOffset + j]];
+				modelVertex->m_red = ((WtbFace*) face)->m_bytes[0];
+				modelVertex->m_green = ((WtbFace*) face)->m_bytes[1];
+				modelVertex->m_blue = ((WtbFace*) face)->m_bytes[2];
+			}
+		}
+#endif
 		facesSize += size;
 		face += size;
 	}
@@ -423,6 +533,7 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 // Maps a face id: ids 0 and 0x14 take the team colour of player g_shapeOwner while
 // g_shapeOwnerSet is set; ids with bit 15 index g_faceIds.
 // FUNCTION: MW2 0x1007fae3
+// FUNCTION: MW2MATROX 0x10025e94
 MechU32 MapFaceId(MechU32 p_id)
 {
 	MechS32 team;
@@ -439,9 +550,14 @@ MechU32 MapFaceId(MechU32 p_id)
 		}
 
 		p_id += offset;
+#ifndef MW2_MATROX
 		return p_id;
+#endif
 	}
 
+#ifdef MW2_MATROX
+	return p_id;
+#else
 	if (!(p_id & 0x8000)) {
 		return p_id;
 	}
@@ -456,4 +572,5 @@ MechU32 MapFaceId(MechU32 p_id)
 	}
 
 	return g_faceIds[p_id];
+#endif
 }

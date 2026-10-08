@@ -170,11 +170,15 @@ def compute_state(path):
         if len(sc) == len(tc):
             for x, y in zip(sc, tc):
                 votes[int(x.op_str, 16)][int(y.op_str, 16)] += 1
+    # A call the Matrox edition makes into its C runtime (the /QIfdiv helpers, say) names no
+    # function of the game: leave the CRT's addresses out, from its first LIBRARY annotation on.
+    library = [m[4] for m in markers if m[3] == TARGET and m[2] == "LIBRARY"]
+    crt = min(library) if library else None
     inferred = {}
     for x, c in votes.items():
         if x in functions and x not in known:
             y, n = c.most_common(1)[0]
-            if n > sum(c.values()) - n:
+            if n > sum(c.values()) - n and (crt is None or y < crt):
                 inferred[x] = y
     state = {
         "mapping": {str(a): b for a, b in mapping.items()},

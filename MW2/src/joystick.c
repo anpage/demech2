@@ -130,6 +130,16 @@ InputDriverModule g_joystickDriver = {
 	JoystickFlushKeyCodes,
 };
 
+#ifdef MW2_MATROX
+// The Matrox edition's JoystickPoll sums each axis over the reads between two polls that read the
+// joystick, then keeps the sums as the axes it returns until the next.
+// GLOBAL: MW2MATROX 0x100a5778
+MechS32 g_joystickAxes[6] = {0};
+
+// GLOBAL: MW2MATROX 0x100a5790
+MechS32 g_joystickAxisSums[6] = {0};
+#endif
+
 // The registry key and value ReadJoystickOemName reads.
 // GLOBAL: MW2 0x100be8a0
 // GLOBAL: MW2MATROX 0x100c1ea0
@@ -436,12 +446,124 @@ MechS32 JoystickCenterAxis(void)
 	return 0;
 }
 
+#ifdef MW2_MATROX
+#include "joystickscale.c"
+#endif
+
 // Reads the joystick into the six axes (Y and X first, then Z, R, U and V as far as the device has
 // them) and the two button words, the POV hat setting the buttons its directions map to.
 // Returns 1 without somewhere to put them, else 0.
+// The Matrox edition's differs from the original only in its stack slots (i and info).
 // FUNCTION: MW2 0x1004aa6b
+// FUNCTION: MW2MATROX 0x10026b7e
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
+#ifdef MW2_MATROX
+	MMRESULT result;
+	MechS32 i;
+	JOYINFOEX info;
+
+	if (!p_buttons || !p_axes) {
+		return 1;
+	}
+
+	if (!g_windowActive) {
+		p_buttons[0] = p_buttons[1] = 0;
+		for (i = 0; i < 6; i++) {
+			p_axes[i] = 0;
+		}
+
+		return 0;
+	}
+
+	info.dwFlags = p_data->m_flags;
+	result = joyGetPosEx(p_data->m_id, &info);
+	if (result == JOYERR_NOERROR) {
+		p_buttons[0] = p_buttons[1] = 0;
+		for (i = 0; i < 6; i++) {
+			p_axes[i] = 0;
+		}
+
+		p_buttons[0] = info.dwButtons;
+		if (p_data->m_flags & JOY_RETURNPOV) {
+			switch (info.dwPOV) {
+			case JOY_POVFORWARD:
+				p_buttons[p_data->m_povButtons[0]] |= p_data->m_povMasks[0];
+				break;
+			case JOY_POVRIGHT:
+				p_buttons[p_data->m_povButtons[1]] |= p_data->m_povMasks[1];
+				break;
+			case JOY_POVBACKWARD:
+				p_buttons[p_data->m_povButtons[2]] |= p_data->m_povMasks[2];
+				break;
+			case JOY_POVLEFT:
+				p_buttons[p_data->m_povButtons[3]] |= p_data->m_povMasks[3];
+				break;
+			}
+		}
+
+		g_joystickAxisSums[0] +=
+			ScaleJoystickAxis(info.dwYpos, p_data->m_deadZones[1], p_data->m_centers[1], p_data->m_scales[1]);
+		g_joystickAxisSums[1] +=
+			ScaleJoystickAxis(info.dwXpos, p_data->m_deadZones[0], p_data->m_centers[0], p_data->m_scales[0]);
+		i = 2;
+		if (p_data->m_flags & JOY_RETURNZ) {
+			g_joystickAxisSums[i] +=
+				ScaleJoystickAxis(info.dwZpos, p_data->m_deadZones[2], p_data->m_centers[2], p_data->m_scales[2]);
+			i++;
+		}
+
+		if (p_data->m_flags & JOY_RETURNR) {
+			g_joystickAxisSums[i] +=
+				ScaleJoystickAxis(info.dwRpos, p_data->m_deadZones[3], p_data->m_centers[3], p_data->m_scales[3]);
+			i++;
+		}
+
+		if (p_data->m_flags & JOY_RETURNU) {
+			g_joystickAxisSums[i] +=
+				ScaleJoystickAxis(info.dwUpos, p_data->m_deadZones[4], p_data->m_centers[4], p_data->m_scales[4]);
+			i++;
+		}
+
+		if (p_data->m_flags & JOY_RETURNV) {
+			g_joystickAxisSums[i] +=
+				ScaleJoystickAxis(info.dwVpos, p_data->m_deadZones[5], p_data->m_centers[5], p_data->m_scales[5]);
+			i++;
+		}
+
+		for (i = 0; i < 6; i++) {
+			g_joystickAxes[i] = g_joystickAxisSums[i];
+			g_joystickAxisSums[i] = 0;
+		}
+	}
+	else {
+	}
+
+	p_axes[0] = g_joystickAxes[0];
+	p_axes[1] = g_joystickAxes[1];
+	i = 2;
+	if (p_data->m_flags & JOY_RETURNZ) {
+		p_axes[i] = g_joystickAxes[i];
+		i++;
+	}
+
+	if (p_data->m_flags & JOY_RETURNR) {
+		p_axes[i] = g_joystickAxes[i];
+		i++;
+	}
+
+	if (p_data->m_flags & JOY_RETURNU) {
+		p_axes[i] = g_joystickAxes[i];
+		i++;
+	}
+
+	if (p_data->m_flags & JOY_RETURNV) {
+		p_axes[i] = g_joystickAxes[i];
+		i++;
+	}
+
+	return 0;
+#else
 	MechS32 i;
 	JOYINFOEX info;
 
@@ -509,51 +631,26 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 	}
 
 	return 0;
+#endif
 }
 
 // FUNCTION: MW2 0x1004ad42
+// FUNCTION: MW2MATROX 0x10026f79
 MechS32 JoystickReadKeyCode(void)
 {
 	return 2;
 }
 
 // FUNCTION: MW2 0x1004ad57
+// FUNCTION: MW2MATROX 0x10026f8e
 MechS32 JoystickFlushKeyCodes(void)
 {
 	return 2;
 }
 
-// Scales a joystick axis reading about p_center to -0x10000..0x10000 by p_scale, with a dead
-// zone of p_deadZone on either side.
-// FUNCTION: MW2 0x1004ad6c
-// FUNCTION: MW2MATROX 0x10026ac1
-MechS32 ScaleJoystickAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center, MechDouble p_scale)
-{
-	if ((p_value -= p_center) < 0) {
-		if (p_value < -p_deadZone) {
-			p_value += p_deadZone;
-			p_value = p_value * p_scale;
-			if (p_value < -0x10000) {
-				p_value = -0x10000;
-			}
-		}
-		else {
-			p_value = 0;
-		}
-	}
-	else if (p_value > p_deadZone) {
-		p_value -= p_deadZone;
-		p_value = p_value * p_scale;
-		if (p_value > 0x10000) {
-			p_value = 0x10000;
-		}
-	}
-	else {
-		p_value = 0;
-	}
-
-	return p_value;
-}
+#ifndef MW2_MATROX
+#include "joystickscale.c"
+#endif
 
 // Reads the OEM name of joystick p_index of the driver p_driverKey from the registry into
 // p_name. Returns TRUE on success.

@@ -108,6 +108,7 @@ demech2_add_import_library(dplay DEF "${PROJECT_SOURCE_DIR}/3rdparty/dplay/dplay
 demech2_add_import_library(wail32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/mss/wail32.def"
   SOURCES 3rdparty/mss/wail32.c)
 demech2_add_import_library(smackw32 DEF "${PROJECT_SOURCE_DIR}/3rdparty/smacker/smackw32.def")
+demech2_add_import_library(msi95 DEF "${PROJECT_SOURCE_DIR}/3rdparty/msi95/msi95.def")
 
 # --- Game DLLs ---
 #

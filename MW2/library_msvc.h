@@ -171,6 +171,11 @@
 // LIBRARY: MW2MATROX 0x10094c20 SYMBOL
 // _printf
 
+// atof.obj (the Matrox edition only: LoadShapeRecord)
+
+// LIBRARY: MW2MATROX 0x10094c80 SYMBOL
+// _atof
+
 // memmove.obj
 
 // LIBRARY: MW2 0x100819a0 SYMBOL

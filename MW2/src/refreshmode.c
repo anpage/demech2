@@ -7,6 +7,9 @@
 #include "displaybackend.h"
 #include "drawbitmapinfo.h"
 #include "gdi.h"
+#ifdef MW2_MATROX
+#include "matrox/msidraw.h"
+#endif
 #include "menu.h"
 #include "mouse.h"
 #include "palettecolor.h"
@@ -27,18 +30,34 @@
 // The refresh mode manager, the simulator's copy of the shell's. The DirectDraw back end lives in
 // directdraw.c, the DisplayDib one in dispdib.c, the GDI one in gdi.c.
 
-// Indexed by DisplayBackend::m_id.
+// Indexed by DisplayBackend::m_id. The Matrox edition's first back end and refresh modes are
+// matrox/msidraw.c's, in DirectDraw's place.
 // GLOBAL: MW2 0x100b1748
 // GLOBAL: MW2MATROX 0x100b1a50
-DisplayBackend* g_displayBackends[3] = {&g_directDrawBackend, &g_dispDibBackend, &g_gdiBackend};
+DisplayBackend* g_displayBackends[3] = {
+#ifdef MW2_MATROX
+	&g_msiBackend,
+#else
+	&g_directDrawBackend,
+#endif
+	&g_dispDibBackend,
+	&g_gdiBackend
+};
 
 // GLOBAL: MW2 0x100b1758
 // GLOBAL: MW2MATROX 0x100b1a60
 RefreshMode* g_refreshModes[6] = {
+#ifdef MW2_MATROX
+	&g_msiFlipRefreshMode,
+	&g_msiBlitFlipRefreshMode,
+	&g_msiVideoMemoryRefreshMode,
+	&g_msiSystemMemoryRefreshMode,
+#else
 	&g_ddrawFlipRefreshMode,
 	&g_ddrawBlitFlipRefreshMode,
 	&g_ddrawVideoMemoryRefreshMode,
 	&g_ddrawSystemMemoryRefreshMode,
+#endif
 	&g_dispDibRefreshMode,
 	&g_gdiRefreshMode,
 };
@@ -318,7 +337,9 @@ void ProfileRefreshModes(void)
 	}
 }
 
-// Switches to the available refresh mode with the shortest profile time.
+// Switches to the available refresh mode with the shortest profile time. MW2MATROX: stack-slot
+// permutation of i and best, and the operands of the comparison with g_currentRefreshMode
+// the other way.
 // FUNCTION: MW2 0x100772a4
 // FUNCTION: MW2MATROX 0x1007b31f
 void SelectFastestRefreshMode(void)

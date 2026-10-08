@@ -97,16 +97,16 @@ extern "C"
 	extern struct Player* g_localPlayer;
 	extern MechScalar* g_eyeHeightOffset;
 	extern MechS32* g_eyeTwist;
-	extern MechS32 g_trackDistance;
-	extern MechS32 g_trackMinDistance;
-	extern MechS32 g_trackMaxDistance;
-	extern MechS32 g_trackHeight;
-	extern MechS32 g_trackTurn;
+	extern MechScalar g_trackDistance;
+	extern MechScalar g_trackMinDistance;
+	extern MechScalar g_trackMaxDistance;
+	extern MechScalar g_trackHeight;
+	extern MechScalar g_trackTurn;
 	extern MechS32 g_viewMode;
 	extern MechS32 g_cockpitEyeSteady;
 	extern MechS8 g_glanceReleased;
-	extern MechS32 g_dropSpeed;
-	extern MechS32 g_dropAcceleration;
+	extern MechScalar g_dropSpeed;
+	extern MechScalar g_dropAcceleration;
 	extern MechS32 g_dropStartClock;
 	extern MechS32 g_ordinanceReturnMode;
 	extern MechS32 g_trackedPlayer;
@@ -114,32 +114,38 @@ extern "C"
 	void FirstEyepoint(void);
 	void UpdateCockpitView(void);
 	void GetCockpitEyeView(
-		MechS32* p_pitch,
-		MechS32* p_heading,
-		MechS32* p_roll,
-		MechS32* p_x,
-		MechS32* p_y,
-		MechS32* p_z
+		MechScalar* p_pitch,
+		MechScalar* p_heading,
+		MechScalar* p_roll,
+		MechScalar* p_x,
+		MechScalar* p_y,
+		MechScalar* p_z
 	);
 	MechS32 GetViewMode(void);
 	MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view);
 	void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home);
 	void GetPlayerEyeView(
-		MechS32* p_pitch,
-		MechS32* p_heading,
-		MechS32* p_roll,
-		MechS32* p_x,
-		MechS32* p_y,
-		MechS32* p_z
+		MechScalar* p_pitch,
+		MechScalar* p_heading,
+		MechScalar* p_roll,
+		MechScalar* p_x,
+		MechScalar* p_y,
+		MechScalar* p_z
 	);
 	void UpdateOrdinanceView(void);
 	void SetViewMode(MechS32 p_zoom);
 	MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view);
 	void UpdateEyepoint(void);
 	void ApplyCameraFov(MechS32 p_reset);
-	void UpdateTrackView(MechS32 p_distance, MechS32 p_height, MechS32 p_tilt, MechS32 p_turn);
+	void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_tilt, MechScalar p_turn);
 	void UpdateDropView(void);
-	void UpdateFreeEyeView(MechS32 p_climb, MechS32 p_speed, MechS32 p_strafe, MechS32 p_turn, MechS32 p_pitch);
+	void UpdateFreeEyeView(
+		MechScalar p_climb,
+		MechScalar p_speed,
+		MechScalar p_strafe,
+		MechScalar p_turn,
+		MechScalar p_pitch
+	);
 	void TurnBillboards(void);
 
 #ifdef __cplusplus

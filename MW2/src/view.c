@@ -554,6 +554,7 @@ void UpdateViewMatrix(Eyepoint* p_eyepoint)
 }
 
 // FUNCTION: MW2 0x1004c05c
+// FUNCTION: MW2MATROX 0x100296b7
 void ResetEyepointView(Eyepoint* p_eyepoint)
 {
 #ifndef MW2_MATROX

@@ -7,6 +7,12 @@
 #include "targeting.h"
 #include "types.h"
 
+#ifdef MW2_MATROX
+// FUN_1005f790 (the A3D renderer) and FUN_10088246/FUN_10088280 (the MSI back end), for palette.h's users.
+#include "matrox/a3d.h"
+#include "matrox/msidraw.h"
+#endif
+
 // The functions and globals of palette.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -44,15 +50,8 @@ extern "C"
 	MechS32 VFX_lookaside_read16(MechS32 p_color);
 	// Sets a palette color's 16-bit pixel in the lookaside table.
 	void VFX_lookaside_write16(MechS32 p_index, MechS32 p_pixel);
-	// The Matrox edition's: sets the display's palette (1.1 calls m_setPaletteWithBrightness).
-	void FUN_1005f790(PaletteColor* p_palette);
 	extern MechS32 g_unk0x100aa1d0;
 	extern MechFloat g_unk0x10184700[3];
-
-	// The Matrox edition's: marks a rectangle of the screen (right and bottom exclusive) for presenting.
-	void FUN_10088246(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
-	// The Matrox edition's: marks a pane's rectangle of the screen for presenting.
-	void FUN_10088280(PANE* p_pane);
 #endif
 
 // A color passed to a drawing primitive: the Matrox edition draws 16-bit pixels.

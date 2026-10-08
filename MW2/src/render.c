@@ -40,11 +40,14 @@
 #include "matrox/vfx16.h"
 #endif
 
-// The draw mode the game starts in: none in 1.1, the first in the Matrox edition.
+// The draw mode the game starts in: none in 1.1, the first in the Matrox edition, which doesn't
+// fall back to the others (InitRefreshMode's p_allowFallback).
 #ifdef MW2_MATROX
 #define INITIAL_DRAW_MODE 0
+#define INITIAL_DRAW_MODE_FALLBACK 0
 #else
 #define INITIAL_DRAW_MODE -1
+#define INITIAL_DRAW_MODE_FALLBACK 1
 #endif
 
 // GLOBAL: MW2 0x100a244c
@@ -52,7 +55,8 @@
 MechS32 g_drawModeIndex = INITIAL_DRAW_MODE;
 
 // GLOBAL: MW2 0x100a2450
-MechS32 g_initDrawModeParam2 = 1;
+// GLOBAL: MW2MATROX 0x100a4a00
+MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 
 // GLOBAL: MW2 0x100a2454
 // GLOBAL: MW2MATROX 0x100a4a04

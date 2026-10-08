@@ -92,15 +92,16 @@ MechS32 g_hudLayoutValues[3];
 // Loads seven values from resource p_ref.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100707c0
+// FUNCTION: MW2MATROX 0x1000acd0
 MechS32 LoadMgdFile(
 	ResourceRef* p_ref,
-	MechS32* p_height,
-	MechS32* p_cockpitHeight,
-	MechS32* p_unk0x0c,
-	MechS32* p_unk0x10,
-	MechS32* p_unk0x14,
-	MechS32* p_maxTorsoTwist,
-	MechS32* p_radius
+	MechScalar* p_height,
+	MechScalar* p_cockpitHeight,
+	MechScalar* p_unk0x0c,
+	MechScalar* p_unk0x10,
+	MechScalar* p_unk0x14,
+	MechScalar* p_maxTorsoTwist,
+	MechScalar* p_radius
 )
 {
 	MechS32 size;
@@ -137,7 +138,7 @@ MechS32 LoadMgdFile(
 	cursor++;
 	*p_unk0x14 = *cursor;
 	cursor++;
-	*p_maxTorsoTwist = *cursor;
+	*p_maxTorsoTwist = FIXED_TO_SCALAR(*cursor);
 	cursor++;
 	*p_radius = *cursor;
 	if (p_ref->m_id == -1) {
@@ -236,7 +237,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		}
 #endif
 
-		g_reels[index]->m_amounts = (MechS32*) frames;
+		g_reels[index]->m_amounts = (MechScalar*) frames;
 		g_reels[index]->m_kind = unk0x08;
 		g_reels[index]->m_frameCount = frameCount;
 		if (p_ref->m_id == -1) {

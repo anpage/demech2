@@ -93,7 +93,7 @@ MechScalar g_nukeMaxRadius;
 // The view that follows a tracked shot: its position, heading and three more angles.
 // GLOBAL: MW2 0x100bee58
 // GLOBAL: MW2MATROX 0x10124708
-MechS32 g_trackedShotView[7];
+MechScalar g_trackedShotView[7];
 
 // GLOBAL: MW2 0x100bee74
 // GLOBAL: MW2MATROX 0x10124728
@@ -234,36 +234,38 @@ void UpdateAllShots(void)
 // thing or the ground. A hit detonates the shot, just short of the point of impact; otherwise
 // it detonates when its lifetime runs out, or steers on toward its target.
 // Stack-slot permutation of the locals; the y < groundY comparison has its operands the
-// other way around.
+// other way around. The Matrox edition's applies the damage after RecordAttack; it differs in a
+// comparison's operand order (victim with g_localPlayerId), the y < groundY test (it stores
+// groundY before comparing) and its stack slots.
 // FUNCTION: MW2 0x1006a533
-// STUB: MW2MATROX 0x1006b033
+// FUNCTION: MW2MATROX 0x1006b033
 void UpdateShot(MechS32 p_index)
 {
 	MechS32 hitResult;
-	MechS32 velZ;
+	MechScalar velZ;
 	MechU16 surface;
 	Shape* hit;
 	Shot* shot;
 	MechS32 victim;
-	MechS32 backX;
-	MechS32 x;
-	MechS32 backY;
-	MechS32 x0;
+	MechScalar backX;
+	MechScalar x;
+	MechScalar backY;
+	MechScalar x0;
 	MechS32 damageFlags;
-	MechS32 y;
-	MechS32 backZ;
-	MechS32 y0;
-	MechS32 z;
-	MechS32 z0;
+	MechScalar y;
+	MechScalar backZ;
+	MechScalar y0;
+	MechScalar z;
+	MechScalar z0;
 	MechS32 dt;
-	MechS32 hitX;
-	MechS32 hitY;
+	MechScalar hitX;
+	MechScalar hitY;
 	Ray ray;
-	MechS32 hitZ;
-	MechS32 velX;
-	MechS32 bearing;
-	MechS32 velY;
-	MechS32 groundY;
+	MechScalar hitZ;
+	MechScalar velX;
+	MechScalar bearing;
+	MechScalar velY;
+	MechScalar groundY;
 
 	hit = NULL;
 	dt = g_deltaTime;
@@ -309,9 +311,15 @@ void UpdateShot(MechS32 p_index)
 			hitX = ray.m_x1;
 			hitY = ray.m_y1;
 			hitZ = ray.m_z1;
+#ifdef MW2_MATROX
+			backX = hitX - ray.m_dirX * 100;
+			backY = hitY - ray.m_dirY * 100;
+			backZ = hitZ - ray.m_dirZ * 100;
+#else
 			backX = hitX - FixedMul16(100, ray.m_dirX);
 			backY = hitY - FixedMul16(100, ray.m_dirY);
 			backZ = hitZ - FixedMul16(100, ray.m_dirZ);
+#endif
 		}
 	}
 
@@ -326,15 +334,19 @@ void UpdateShot(MechS32 p_index)
 			}
 
 			bearing = g_players[victim]->m_heading - FixedAtan2(shot->m_velocity[0], shot->m_velocity[2]);
+#ifdef MW2_MATROX
+			bearing = fmod(bearing, 360.0);
+#else
 			bearing %= 0x1680000;
-			if (bearing > 0xb40000) {
-				bearing -= 0x1680000;
+#endif
+			if (bearing > FIXED_CONST(180)) {
+				bearing -= FIXED_CONST(360);
 			}
-			else if (bearing < -0xb40000) {
-				bearing += 0x1680000;
+			else if (bearing < FIXED_CONST(-180)) {
+				bearing += FIXED_CONST(360);
 			}
 
-			if (bearing < 0x5a0000 && bearing > -0x5a0000) {
+			if (bearing < FIXED_CONST(90) && bearing > FIXED_CONST(-90)) {
 				damageFlags |= 0x8000;
 			}
 
@@ -374,6 +386,7 @@ void UpdateShot(MechS32 p_index)
 				g_careerRecord.m_teamHitsTaken++;
 			}
 
+#ifndef MW2_MATROX
 			if (!g_netRole || victim == g_localPlayerId) {
 				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
 				ApplyDamageToMech(
@@ -383,6 +396,7 @@ void UpdateShot(MechS32 p_index)
 					hit->m_partId | damageFlags
 				);
 			}
+#endif
 
 			if (victim == g_localPlayerId) {
 				shot->m_impact |= 0x4000;
@@ -394,6 +408,18 @@ void UpdateShot(MechS32 p_index)
 			}
 
 			RecordAttack(shot->m_shooter, victim);
+#ifdef MW2_MATROX
+
+			if (!g_netRole || victim == g_localPlayerId) {
+				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
+				ApplyDamageToMech(
+					shot->m_shooter,
+					g_players[victim]->m_mech,
+					FIXED_FROM_INT(shot->m_damage),
+					hit->m_partId | damageFlags
+				);
+			}
+#endif
 		}
 		else if (surface & 0x200) {
 			shot->m_impact |= c_impactThing;
@@ -445,7 +471,12 @@ void UpdateShot(MechS32 p_index)
 			g_trackedShotView[3] = FixedAtan2(velX, velZ);
 			g_trackedShotView[4] = 0;
 			g_trackedShotView[5] = 0;
+#ifdef MW2_MATROX
+			/* The mark stays an integer word after the Matrox edition's floats (SaveView). */
+			*(MechS32*) &g_trackedShotView[6] = 1;
+#else
 			g_trackedShotView[6] = 1;
+#endif
 		}
 	}
 }
@@ -1121,7 +1152,7 @@ void DamageThingsInRadius(
 
 // FUNCTION: MW2 0x1006beb5
 // FUNCTION: MW2MATROX 0x1006cad9
-MechS32* GetTrackedShotView(void)
+MechScalar* GetTrackedShotView(void)
 {
 	if (g_trackedShot != -1 && g_shots[g_trackedShot].m_tracked) {
 		return g_trackedShotView;

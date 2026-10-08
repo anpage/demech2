@@ -14,6 +14,11 @@
 #include "targeting.h"
 #include "types.h"
 
+#ifdef MW2_MATROX
+#include "matrox/vfx16.h"
+#include "palette.h"
+#endif
+
 #include <stdio.h>
 
 // Draws a weapon panel: the name of the local mech's weapon p_panel->m_weapon with its ammo,
@@ -22,6 +27,7 @@
 // The selected-weapon comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: color, font, mech, text and weapon.
 // FUNCTION: MW2 0x10033280
+// FUNCTION: MW2MATROX 0x10055510
 void DrawWeaponPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -70,7 +76,11 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 
 	font = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 1, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
+#ifdef MW2_MATROX
+		g_textColors[0xe] = PIXEL_COLOR(color);
+#else
 		g_textColors[0xe] = color;
+#endif
 		if (weapon->m_ammo < 0) {
 			sprintf(text, "%s", p_panel->m_name);
 			VFX_string_draw(
@@ -94,19 +104,28 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 			);
 		}
 
+#ifdef MW2_MATROX
+		g_textColors[0xe] = PIXEL_COLOR(0xe);
+#else
 		g_textColors[0xe] = 0xe;
+#endif
 		UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);
 	}
 
 	if (p_panel->m_weapon == mech->m_selectedWeapon) {
 		OutlinePane(p_panel->m_target, color);
 	}
+#ifdef MW2_MATROX
+
+	FUN_10088280(p_panel->m_target);
+#endif
 }
 
 // Draws a panel's name once the clock passes p_panel->m_lightUpTime, if the local mech has the
 // weapon p_panel->m_weapon.
 // Stack-slot permutation: clock, font, mech and weapon.
 // FUNCTION: MW2 0x100334d3
+// FUNCTION: MW2MATROX 0x10055785
 void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -132,6 +151,9 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 
 	if (p_panel->m_enabled && p_panel->m_lightUpTime < clock) {
 		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
+#ifdef MW2_MATROX
+		FUN_10088280(p_panel->m_target);
+#endif
 	}
 
 	UnlockCachedResource(g_artResolution + 1, g_resourceTypeTags[c_resTagFont]);

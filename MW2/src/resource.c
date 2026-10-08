@@ -179,6 +179,7 @@ MechS32 g_scenarioCount;
 // Copies a bitmap record's size to p_width and p_height and its data to p_data, each if not NULL.
 // Stack-slot permutation: record, count and i (and so the loop test's operand order).
 // FUNCTION: MW2 0x1004f3f0
+// FUNCTION: MW2MATROX 0x10048fb0
 void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, MechS32* p_data)
 {
 	BitmapRecord* record;

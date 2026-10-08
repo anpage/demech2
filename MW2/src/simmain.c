@@ -49,6 +49,12 @@
 #include "players.h"
 #include "point.h"
 #include "polydraw.h"
+#ifdef MW2_MATROX
+#include "matrox/a3d.h"
+#include "matrox/msidraw.h"
+#include "matrox/registry.h"
+#include "mouse.h"
+#endif
 #include "random.h"
 #include "refreshmode.h"
 #include "render.h"
@@ -73,6 +79,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+
+#ifdef MW2_MATROX
+#include <msi95.h>
+#endif
 
 #ifdef MW2_MATROX
 #include "matrox/vfx16.h"
@@ -111,6 +121,12 @@ MechS32 g_remoteWaitTime = 0;
 // GLOBAL: MW2MATROX 0x100be4dc
 MechS32 g_startOnAutopilot = 0;
 
+#ifdef MW2_MATROX
+// The Matrox edition's: the window SimMain was given (the shell's), next to the renderer's.
+// GLOBAL: MW2MATROX 0x100be508
+HWND g_unk0x100be508 = NULL;
+
+#endif
 // GLOBAL: MW2 0x100acb60
 // GLOBAL: MW2MATROX 0x100be50c
 HWND g_gameWindow = NULL;
@@ -167,6 +183,13 @@ undefined4 g_windowedSwitchPending = 0;
 // GLOBAL: MW2MATROX 0x100be540
 MechS32 g_mouseOutsideClientWindow = 0;
 
+#ifdef MW2_MATROX
+// The Matrox edition's: set by SimMain, keeps SimWindowProc from handling the shell's window's
+// activation.
+// GLOBAL: MW2MATROX 0x100be544
+MechS32 g_unk0x100be544 = 0;
+
+#endif
 // GLOBAL: MW2 0x100acb98
 // GLOBAL: MW2MATROX 0x100be548
 MechS32 g_goLaunch = 0;
@@ -183,11 +206,36 @@ MechU32 g_windowedSwitchDeadline;
 // GLOBAL: MW2MATROX 0x101d69c0
 VideoDriverChoice g_videoDriverChoice;
 
+#ifdef MW2_MATROX
+// The Matrox edition's: reads the renderer's settings from the registry, the sky and the ground
+// (drawn unless set to 0) and the texture filter.
+// FUNCTION: MW2MATROX 0x1008fad0
+void FUN_1008fad0(void)
+{
+	DWORD filter;
+
+	if (!ReadRegistryDword("Sky", (DWORD*) g_renderSettings.m_unk0x28)) {
+		g_renderSettings.m_unk0x28[0] = 1;
+	}
+
+	if (!ReadRegistryDword("Ground", (DWORD*) &g_renderSettings.m_unk0x28[1])) {
+		g_renderSettings.m_unk0x28[1] = 1;
+	}
+
+	if (!ReadRegistryDword("Filter", &filter)) {
+		filter = 1;
+	}
+
+	FUN_1005f810(filter);
+}
+#endif
+
 // Matches except for the stack slots of seven locals (a consistent permutation; the original
 // assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The
 // operand order of the DoFirstObjtv loop test and of the network start test follows the unit's
 // symbol table: both have flipped back and forth as declarations moved between units.
 // FUNCTION: MW2 0x10066a50
+// FUNCTION: MW2MATROX 0x1008fb5a
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -207,10 +255,18 @@ int __stdcall SimMain(
 	MechS32 unk0x24;
 	MechS32 seed;
 	MechS32 quitLatched;
+#ifdef MW2_MATROX
+	MechChar cmdLine[512];
+#endif
 
 	quitLatched = 0;
 	seed = 0;
+#ifdef MW2_MATROX
+	g_unk0x100be544 = 0;
+	g_unk0x100be508 = g_gameWindow = p_hWnd;
+#else
 	g_gameWindow = p_hWnd;
+#endif
 	g_simModule = p_module;
 	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
 	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -250,22 +306,39 @@ int __stdcall SimMain(
 		}
 	}
 
+#ifdef MW2_MATROX
+	strcpy(cmdLine, p_cmdLine);
+#endif
 	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
 		return 0;
 	}
 
+#ifdef MW2_MATROX
+	DebugPrint("SimMain(): lpszCmdParam = %s\n\n", cmdLine);
+#endif
 	if (StartupCheckStub()) {
 		Error(0x51, NULL);
 	}
 
+#ifdef MW2_MATROX
+	// The Matrox edition always runs at 640x400.
+	g_gameWindowWidth = 640;
+	g_gameWindowHeight = 400;
+#else
 	SetGameResolution(g_videoDriverChoice.m_name);
+#endif
 	if (g_logFileEnabled) {
 		OpenMw2Log();
 	}
 
 	InitRefreshMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
+#ifdef MW2_MATROX
+	SendMessage(g_unk0x100be508, 0x41f, 0, 0);
+	SendMessage(g_unk0x100be508, WM_ACTIVATEAPP, TRUE, 0);
+#else
 	SendMessage(g_gameWindow, 0x41f, 0, 0);
 	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
+#endif
 	if (!InitDisplayGeometry()) {
 		Error(0x50, NULL);
 	}
@@ -290,6 +363,9 @@ int __stdcall SimMain(
 		}
 	}
 
+#ifdef MW2_MATROX
+	LoadSkyGroundSettings(missionName);
+#endif
 	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
@@ -337,6 +413,10 @@ int __stdcall SimMain(
 		CachePreloads();
 		DebugPrint("AfterWorldLoader()\n");
 		AfterWorldLoader();
+#ifdef MW2_MATROX
+		DebugPrint("CalcAverageBitmapColors()\n");
+		CalcAverageBitmapColors();
+#endif
 		DebugPrint("FirstGPAnim()\n");
 		FirstGPAnim();
 		DebugPrint("FirstEyepoint()\n");
@@ -395,7 +475,12 @@ int __stdcall SimMain(
 		}
 
 		g_drawModeReady = 1;
+#ifdef MW2_MATROX
+		g_unk0x100be544 = 1;
+		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
+#else
 		DebugPrint("InitDrawMode()\n");
+#endif
 		if (!InitRefreshMode(
 				g_drawModeIndex,
 				g_initDrawModeParam2,
@@ -407,6 +492,9 @@ int __stdcall SimMain(
 			Error(0x50, "Error profiling video modes.");
 		}
 
+#ifdef MW2_MATROX
+		FUN_1008fad0();
+#endif
 		while (ShowCursor(FALSE) >= 0) {
 		}
 
@@ -417,8 +505,18 @@ int __stdcall SimMain(
 
 		g_careerRecord.m_outcome = 1;
 		g_careerRecord.m_winner = -1;
+#ifdef MW2_MATROX
+		DebugPrint("Entering Main Loop...\n");
+		g_gameWindow = g_msiWindow;
+		g_reclipCursor = 1;
+		ShowWindow(g_unk0x100be508, SW_HIDE);
+#endif
 		while (g_quitStage < 3) {
+#ifdef MW2_MATROX
+			if (g_goLaunch == 7) {
+#else
 			if (g_goLaunch == 3) {
+#endif
 				DebugPrint("GoLaunch == GO_READY\n");
 				g_goLaunch |= 0x80000000;
 #ifdef MW2_MATROX
@@ -442,13 +540,20 @@ int __stdcall SimMain(
 			HandleMessages();
 			UpdateNetwork();
 			NextClock();
+#ifdef MW2_MATROX
+			msiSync();
+#endif
 			UpdateInputs();
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
 			RunTimedCallbacks(&g_detachedTasks);
+#ifdef MW2_MATROX
+			UpdateAllPlayers();
+#else
 			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
 				UpdateAllPlayers();
 			}
+#endif
 
 			UpdateEyepoint();
 			UpdateAllShots();
@@ -456,6 +561,9 @@ int __stdcall SimMain(
 			UpdateLocalPlayer();
 			LateUpdateAllPlayers();
 			UpdateDebris();
+#ifdef MW2_MATROX
+			FUN_1005f820(1, 0);
+#else
 			if (g_refreshModeFallback) {
 				while (g_refreshModeFallback) {
 					if (g_currentDisplayBackend->m_id == 0) {
@@ -474,6 +582,7 @@ int __stdcall SimMain(
 					ProfileRefreshModes();
 				}
 			}
+#endif
 
 			if (g_goLaunch & 0x80000000) {
 				UpdateGeoCache();
@@ -482,11 +591,20 @@ int __stdcall SimMain(
 			AdvanceAnimations();
 			UpdatePaletteFade();
 			ApplyPendingPalette();
+#ifdef MW2_MATROX
+			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_unk0x28[1]) {
+				FUN_1005f820(1, PIXEL_COLOR(g_groundColor));
+			}
+#else
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
 				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
 			}
+#endif
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+#ifdef MW2_MATROX
+				MsiClearFrame();
+#endif
 				g_renderSettings.m_frameDrawCallback();
 				DrawLocalPlayer();
 				UpdateMenus();
@@ -495,6 +613,9 @@ int __stdcall SimMain(
 				if (g_simPaused && g_pauseRequested) {
 					DrawPausedBanner();
 				}
+#ifdef MW2_MATROX
+				MsiSwapBuffers();
+#endif
 			}
 
 			Blit();
@@ -513,20 +634,33 @@ int __stdcall SimMain(
 				g_drawModeReady = 0;
 			}
 
+#ifdef MW2_MATROX
+			g_goLaunch |= 6;
+#else
 			g_goLaunch |= 2;
+#endif
 		}
 
 		FadeToEndPalette(g_careerRecord.m_outcome & 4);
 		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-			VFX_pane_wipe(&g_currentPane, 0);
+			VFX_pane_wipe(&g_currentPane, PIXEL_COLOR(0));
 		}
 
+#ifdef MW2_MATROX
+		Blit();
+		g_unk0x100be544 = 0;
+#else
 		DebugPrint("Calling Blit()\n");
 		Blit();
+#endif
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		}
 
+#ifdef MW2_MATROX
+		SendMessage(g_unk0x100be508, 0x41e, 0, 0);
+#else
 		SendMessage(g_gameWindow, 0x41e, 0, 0);
+#endif
 		SaveCareerRecord();
 		ShutdownAllPlayers();
 		ShutdownNetwork();
@@ -535,6 +669,9 @@ int __stdcall SimMain(
 		StopTimers();
 		ShutdownMw2Prj();
 		ShutdownRender();
+#ifdef MW2_MATROX
+		g_gameWindow = g_unk0x100be508;
+#endif
 		CloseInputDevices();
 		if (g_logFileEnabled) {
 			CloseMw2Log();
@@ -546,7 +683,11 @@ int __stdcall SimMain(
 	}
 	__finally {
 		if (AbnormalTermination() && g_ticksTimerInitialized) {
+#ifdef MW2_MATROX
+			SendMessage(g_unk0x100be508, 0x41e, 0, 0);
+#else
 			SendMessage(g_gameWindow, 0x41e, 0, 0);
+#endif
 			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
 			AIL_shutdown();
 		}
@@ -565,11 +706,21 @@ int __stdcall SimMain(
 // first in the original. The test's comparisons follow the unit's symbol table: the other two flipped when
 // the shell's Miles declarations joined mss.h and back when the unit's declarations moved into
 // headers.
+// MW2MATROX: stack-slot permutation of windowPos and time, and the operands of time < g_windowedSwitchTime
+// the other way.
 // FUNCTION: MW2 0x10067757
+// FUNCTION: MW2MATROX 0x100908a4
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;
 
+#ifdef MW2_MATROX
+	// The renderer's window takes the messages, and the other windows only their activation.
+	if (g_msiWindow && p_hWnd != g_msiWindow && p_msg != WM_ACTIVATEAPP) {
+		return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
+	}
+
+#endif
 	if (p_msg >= WM_KEYFIRST && p_msg <= WM_KEYLAST) {
 		HandleKeyboardMessages(p_msg, p_wParam, p_lParam);
 		return 0;
@@ -581,6 +732,43 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			break;
 		}
 
+#ifdef MW2_MATROX
+		if (p_hWnd == g_unk0x100be508 && !g_unk0x100be544) {
+			g_windowActive = p_wParam;
+			if (g_windowActive) {
+				ShowWindow(p_hWnd, SW_RESTORE);
+			}
+			else {
+				ShowWindow(p_hWnd, SW_MINIMIZE);
+			}
+
+			if (g_currentDisplayBackend) {
+				g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
+			}
+			return 0;
+		}
+
+		if (p_hWnd == g_msiWindow) {
+			if ((g_windowActive && p_wParam) || (!g_windowActive && !p_wParam)) {
+				return 0;
+			}
+
+			g_windowActive = p_wParam;
+			if (p_wParam) {
+				KeyboardClearKeyStates();
+				FUN_1005d090();
+				if (g_msiWindow) {
+					g_gameWindow = g_msiWindow;
+				}
+			}
+			else {
+			}
+
+			return 0;
+		}
+
+		return 0;
+#else
 		g_windowActive = p_wParam;
 		if (g_windowActive == TRUE) {
 			KeyboardClearKeyStates();
@@ -623,15 +811,20 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 		}
 		return 0;
+#endif
 	case WM_PAINT:
 		if (g_drawModeReady && g_windowMode == c_windowModeWindowed) {
 			g_currentRefreshMode->m_flip();
 			ValidateRect(p_hWnd, NULL);
 			return 0;
 		}
+#ifdef MW2_MATROX
+		break;
+#else
 		else {
 			break;
 		}
+#endif
 	case WM_NCMOUSEMOVE:
 		if (g_mouseOutsideClientWindow == FALSE && g_windowMode == c_windowModeWindowed) {
 			while (ShowCursor(TRUE) < 0) {
@@ -666,17 +859,25 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			}
 			return 0;
 		}
+#ifdef MW2_MATROX
+		break;
+#else
 		else {
 			break;
 		}
+#endif
 	case WM_QUERYNEWPALETTE:
 		if (g_currentDisplayBackend) {
 			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 			return 1;
 		}
+#ifdef MW2_MATROX
+		return 0;
+#else
 		else {
 			return 0;
 		}
+#endif
 	case WM_CLOSE:
 		g_shouldQuit = TRUE;
 		g_quitStage += 2;

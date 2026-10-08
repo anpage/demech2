@@ -35,6 +35,12 @@ MechChar g_debugLogName[0x100] = "debug.log";
 // GLOBAL: MW2MATROX 0x100ae248
 MechChar g_debugMessageTitle[0x50] = "DEBUG Message";
 
+#ifdef MW2_MATROX
+// The digits MonoPrintHex writes.
+// GLOBAL: MW2MATROX 0x100ae298
+MechChar g_monoHexDigits[16] = "0123456789abcdef";
+#endif
+
 // Scrolls the monochrome screen up a line.
 // FUNCTION: MW2 0x1003a1c0
 // FUNCTION: MW2MATROX 0x1006e750
@@ -197,3 +203,25 @@ void DebugPrintInternal(const MechChar* p_format, ...)
 		break;
 	}
 }
+
+#ifdef MW2_MATROX
+// Writes p_value's low four hex digits on the monochrome display's row p_row + 1, ending at its
+// last column.
+// FUNCTION: MW2MATROX 0x1006eab0
+void MonoPrintHex(MechU32 p_value, MechU32 p_row)
+{
+	MechChar* cell;
+	MechU32 i;
+
+	if (p_row > 25) {
+		return;
+	}
+
+	cell = (MechChar*) ((p_row + 1) * 0xa0 + 0xafffe);
+	for (i = 0; i < 4; i++) {
+		*cell = g_monoHexDigits[p_value & 0xf];
+		cell -= 2;
+		p_value >>= 4;
+	}
+}
+#endif
