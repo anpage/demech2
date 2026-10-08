@@ -16,7 +16,7 @@
 // (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op. matrox/a3d.c is partly written: the rest
 // of the entry points the game code calls are stubs.
 
-// A vertex of the textured polygons FUN_10062cd0 draws, in doubles: the screen position, the depth
+// A vertex of the textured polygons A3D_GroundSkyPolyPlot draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
 // (times m_w).
 // SIZE 0x60
@@ -42,9 +42,9 @@ extern "C"
 	extern MechU32 g_unk0x100ac924;
 	extern MechU32 g_unk0x100ac928;
 
-	// Clips the polygon p_in of p_count projected vertices (ProjectPolygon's) into p_out; returns
-	// the clipped polygon's vertex count.
-	MechU32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechU32 p_count, MechS32 p_unk0x10);
+	// Clips the polygon p_in of p_count projected vertices (ProjectPolygon's) against the view's
+	// planes p_flags selects into p_out; returns the clipped polygon's vertex count.
+	MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_count, MechU32 p_flags);
 	// Releases the texture cache (a jump to FUN_1005d0a0).
 	void FUN_1005d090(void);
 	// Returns the cached texture of the CEL resource p_id (loading it with p_levels levels, 8-bit when
@@ -81,15 +81,16 @@ extern "C"
 		undefined4 p_unk0x18,
 		undefined4 p_unk0x1c
 	);
-	// Draws a textured polygon of p_count vertices on p_pane.
-	MechS32 FUN_10062cd0(
+	// "A3D_GroundSkyPolyPlot()": draws the textured polygon p_vertices of p_count vertices on p_pane
+	// (the ground's and the sky's), clipped to the depth p_depth or, negative, put at -p_depth.
+	void A3D_GroundSkyPolyPlot(
 		PANE* p_pane,
-		MechS32 p_count,
+		MechU32 p_count,
 		A3DPolyVertex* p_vertices,
 		A3DTexture* p_texture,
 		MechS32 p_unk0x10,
 		MechDouble p_depth,
-		MechS32 p_unk0x1c
+		MechS32 p_mip
 	);
 	// Puts in p_out the point where the edge from p_a to p_b crosses p_edge on the axis p_axis (1 x,
 	// 2 y), interpolating the colors (p_flags 1), the texture coordinates (4) and m_w (8).

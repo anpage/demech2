@@ -691,7 +691,7 @@ void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFlo
 }
 
 // Draws the polygon of p_count projected points with animation p_index + 0x100's texture, through
-// the renderer (FUN_10062cd0), at three quarters of the far plane's depth; returns 0 for fewer than
+// the renderer (A3D_GroundSkyPolyPlot), at three quarters of the far plane's depth; returns 0 for fewer than
 // three points or no texture.
 // The v product takes its operands in the other order (commutative operand order).
 // Stack-slot permutation of the locals.
@@ -740,8 +740,16 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		vertex++;
 	}
 
-	// The result is left as the renderer's: the original returns without a return statement.
-	FUN_10062cd0(&g_currentPane, p_count, vertices, texture, p_unk0x0c, g_viewFarPlane * 0.75, g_unk0x100ac924 > 1);
+	// The original returns without a return statement (eax as A3D_GroundSkyPolyPlot leaves it).
+	A3D_GroundSkyPolyPlot(
+		&g_currentPane,
+		p_count,
+		vertices,
+		texture,
+		p_unk0x0c,
+		g_viewFarPlane * 0.75,
+		g_unk0x100ac924 > 1
+	);
 }
 
 // Returns the texture of animation p_index's current frame (FUN_1005d600), and its size.
@@ -812,8 +820,8 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 		vertex++;
 	}
 
-	// The result is left as the renderer's: the original returns without a return statement.
-	FUN_10062cd0(&g_currentPane, p_count, vertices, texture, p_unk0x0c, -500000.0, g_unk0x100ac928 > 1);
+	// The original returns without a return statement (eax as A3D_GroundSkyPolyPlot leaves it).
+	A3D_GroundSkyPolyPlot(&g_currentPane, p_count, vertices, texture, p_unk0x0c, -500000.0, g_unk0x100ac928 > 1);
 }
 
 // Computes the average color of every playing animation's current frame (FUN_100519b0).

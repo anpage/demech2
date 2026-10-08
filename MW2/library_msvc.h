@@ -261,6 +261,11 @@
 // LIBRARY: MW2MATROX 0x10094ef0 SYMBOL
 // _fabs
 
+// floor.obj
+
+// LIBRARY: MW2MATROX 0x10094fe0 SYMBOL
+// _floor
+
 // tolower.obj
 
 // LIBRARY: MW2 0x10082330 SYMBOL

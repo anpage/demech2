@@ -11,6 +11,7 @@
 #include "prjfile.h"
 #include "simmain.h"
 #include "types.h"
+#include "view.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -18,6 +19,20 @@
 #include <windows.h>
 
 typedef struct A3DHeapBlock A3DHeapBlock;
+
+// A color of the palette FUN_1005f0c0 builds: its index, its pixel count, the sums of its pixels'
+// components and its components (5 bits each).
+// SIZE 0x20
+typedef struct A3DPaletteEntry {
+	MechU32 m_index;    // 0x00
+	MechU32 m_count;    // 0x04
+	MechU32 m_sumRed;   // 0x08
+	MechU32 m_sumGreen; // 0x0c
+	MechU32 m_sumBlue;  // 0x10
+	MechU32 m_red;      // 0x14
+	MechU32 m_green;    // 0x18
+	MechU32 m_blue;     // 0x1c
+} A3DPaletteEntry;
 
 // The display msiInit returns.
 typedef struct A3DDisplay {
@@ -224,10 +239,10 @@ A3DCacheItem* g_unk0x100acb30 = NULL;
 A3DCacheItem* g_unk0x100acb34 = NULL;
 
 // GLOBAL: MW2MATROX 0x100acb38
-MechS32 g_unk0x100acb38 = 0;
+MechU32 g_unk0x100acb38 = 0;
 
 // GLOBAL: MW2MATROX 0x100acb3c
-MechS32 g_unk0x100acb3c = 0;
+MechU32 g_unk0x100acb3c = 0;
 
 // GLOBAL: MW2MATROX 0x100acb40
 A3DCacheItem* g_unk0x100acb40 = NULL;
@@ -236,10 +251,10 @@ A3DCacheItem* g_unk0x100acb40 = NULL;
 A3DCacheItem* g_unk0x100acb44 = NULL;
 
 // GLOBAL: MW2MATROX 0x100acb48
-MechS32 g_unk0x100acb48 = 0;
+MechU32 g_unk0x100acb48 = 0;
 
 // GLOBAL: MW2MATROX 0x100acb4c
-MechS32 g_unk0x100acb4c = 0;
+MechU32 g_unk0x100acb4c = 0;
 
 // GLOBAL: MW2MATROX 0x100acb50
 MechS32 g_unk0x100acb50 = 0;
@@ -251,7 +266,7 @@ undefined4 g_unk0x100acb54 = 0;
 MechS32 g_unk0x100acb58 = 0;
 
 // GLOBAL: MW2MATROX 0x100acb5c
-undefined4 g_unk0x100acb5c = 1;
+MechU32 g_unk0x100acb5c = 1;
 
 // The cached items by ID.
 // GLOBAL: MW2MATROX 0x100c2680
@@ -262,7 +277,14 @@ static A3DCacheItem* g_unk0x100d2680[0x4000];
 
 // The buffer FUN_10066c40 fills rectangles from.
 // GLOBAL: MW2MATROX 0x100e2680
-static undefined g_unk0x100e2680[0x20];
+static undefined g_unk0x100e2680[0x10];
+
+// The slopes of the side clip planes (x and y against the depth): one over the view's center.
+// GLOBAL: MW2MATROX 0x100e2690
+static MechDouble g_unk0x100e2690;
+
+// GLOBAL: MW2MATROX 0x100e2698
+static MechDouble g_unk0x100e2698;
 
 // The MIP map thresholds (MYSTIQUE.PAR's, times its MIPmaxZ), ending in 1e8; room for eight before the
 // texture at 0x100e26e0.
@@ -272,6 +294,14 @@ static MechDouble g_unk0x100e26a0[8];
 // The 64x64 16-bit texture FUN_1005e2c0 loads for the ID 0x29b6.
 // GLOBAL: MW2MATROX 0x100e26e0
 undefined g_unk0x100e26e0[0x2000];
+
+// The palette entries of FUN_1005f0c0's 15-bit colors and of its 12-bit colors (the low bit of each
+// component dropped).
+// GLOBAL: MW2MATROX 0x100e46e0
+static A3DPaletteEntry* g_unk0x100e46e0[0x8000];
+
+// GLOBAL: MW2MATROX 0x101046e0
+static A3DPaletteEntry* g_unk0x101046e0[0x8000];
 
 // The bounds of the polygon being drawn (maximum x and y, minimum x and y).
 // GLOBAL: MW2MATROX 0x101246e0
@@ -469,6 +499,93 @@ MechFloat g_unk0x101246ec;
 		p_out = ((p_b) - (p_a)) * (p_t) + (p_a);                                                                       \
 	}
 
+// The point where the edge from the clipper's vertex a to b (inside and outside, or the reverse)
+// crosses the clip edge p_edge, on x or y: its coordinates (p_lerp: A3D_LERP or A3D_LERP_DOUBLE)
+// in to, and the interpolation factor in t.
+#define A3D_CROSS_X(p_lerp, p_edge)                                                                                    \
+	t = ((p_edge) - a->m_x) / (b->m_x - a->m_x);                                                                       \
+	to->m_x = p_edge;                                                                                                  \
+	p_lerp(to->m_y, a->m_y, b->m_y, t)
+
+#define A3D_CROSS_Y(p_lerp, p_edge)                                                                                    \
+	t = ((p_edge) - a->m_y) / (b->m_y - a->m_y);                                                                       \
+	p_lerp(to->m_x, a->m_x, b->m_x, t) to->m_y = p_edge;
+
+// One pass of the clippers (FUN_1005fd70, FUN_10063150): clips the polygon from of count vertices
+// against the edge p_edge on p_axis (keeping the vertices with p_axis p_inside p_edge) into p_to,
+// p_cross and p_lerpRest (FUN_10061510, FUN_10064e20) interpolating the points where it crosses
+// the edge (p_index: 0 left, 1 right, 2 top, 3 bottom); from and count become p_to's. Takes the
+// locals a, b, to, n, i and t.
+#define A3D_CLIP_PASS(                                                                                                 \
+	p_to,                                                                                                              \
+	p_axis,                                                                                                            \
+	p_inside,                                                                                                          \
+	p_outside,                                                                                                         \
+	p_edge,                                                                                                            \
+	p_cross,                                                                                                           \
+	p_lerp,                                                                                                            \
+	p_lerpRest,                                                                                                        \
+	p_flags,                                                                                                           \
+	p_clip,                                                                                                            \
+	p_index                                                                                                            \
+)                                                                                                                      \
+	to = p_to;                                                                                                         \
+	n = 0;                                                                                                             \
+	a = from;                                                                                                          \
+	b = from + 1;                                                                                                      \
+	for (i = 0; i < count; i++) {                                                                                      \
+		if (count - i == 1) {                                                                                          \
+			b = from;                                                                                                  \
+		}                                                                                                              \
+		if (a->p_axis p_inside p_edge) {                                                                               \
+			if (b->p_axis p_outside p_edge) {                                                                          \
+				*to = *a;                                                                                              \
+				n++;                                                                                                   \
+				to++;                                                                                                  \
+				p_cross(p_lerp, p_edge) p_lerpRest(to, a, b, t, p_flags, p_clip, p_index);                             \
+				n++;                                                                                                   \
+				to++;                                                                                                  \
+			}                                                                                                          \
+			else {                                                                                                     \
+				*to = *a;                                                                                              \
+				n++;                                                                                                   \
+				to++;                                                                                                  \
+			}                                                                                                          \
+		}                                                                                                              \
+		else if (b->p_axis p_inside p_edge) {                                                                          \
+			p_cross(p_lerp, p_edge) p_lerpRest(to, a, b, t, p_flags, p_clip, p_index);                                 \
+			n++;                                                                                                       \
+			to++;                                                                                                      \
+		}                                                                                                              \
+		a++;                                                                                                           \
+		b++;                                                                                                           \
+	}                                                                                                                  \
+	from = p_to;                                                                                                       \
+	count = n;
+
+// The steps p_step of the edge from p_start to p_end per row (p_dy rows): its x, texture
+// coordinates, m_w and colors.
+#define A3D_EDGE_STEP(p_step, p_start, p_end, p_dy)                                                                    \
+	p_dy = (p_end)->m_y - (p_start)->m_y;                                                                              \
+	p_step.m_x = ((p_end)->m_x - (p_start)->m_x) / p_dy;                                                               \
+	p_step.m_u = ((p_end)->m_u - (p_start)->m_u) / p_dy;                                                               \
+	p_step.m_v = ((p_end)->m_v - (p_start)->m_v) / p_dy;                                                               \
+	p_step.m_w = ((p_end)->m_w - (p_start)->m_w) / p_dy;                                                               \
+	p_step.m_red = ((p_end)->m_red - (p_start)->m_red) / p_dy;                                                         \
+	p_step.m_green = ((p_end)->m_green - (p_start)->m_green) / p_dy;                                                   \
+	p_step.m_blue = ((p_end)->m_blue - (p_start)->m_blue) / p_dy;
+
+// Moves the edge vertex p_vertex down p_rows rows by the steps p_step.
+#define A3D_EDGE_ADVANCE(p_vertex, p_step, p_rows)                                                                     \
+	p_vertex.m_y += p_rows;                                                                                            \
+	p_vertex.m_x += p_step.m_x * p_rows;                                                                               \
+	p_vertex.m_u += p_step.m_u * p_rows;                                                                               \
+	p_vertex.m_v += p_step.m_v * p_rows;                                                                               \
+	p_vertex.m_w += p_step.m_w * p_rows;                                                                               \
+	p_vertex.m_red += p_step.m_red * p_rows;                                                                           \
+	p_vertex.m_green += p_step.m_green * p_rows;                                                                       \
+	p_vertex.m_blue += p_step.m_blue * p_rows;
+
 void FUN_1005d0a0(void);
 void FUN_1005d140(A3DHeapBlock* p_block);
 void FUN_1005d440(A3DHeapBlock* p_block);
@@ -482,6 +599,35 @@ void FUN_1005ec40(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level, Mech
 MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level);
 void FUN_1005ebb0(A3DCacheItem* p_item);
 MechU32 FUN_1005fd70(A3DVertex* p_in, A3DVertex* p_out, MechU32 p_count, MechFloat* p_clip, MechS32 p_flags);
+__inline void FUN_10061510(
+	A3DVertex* p_out,
+	A3DVertex* p_a,
+	A3DVertex* p_b,
+	MechDouble p_t,
+	MechS32 p_perspective,
+	MechFloat* p_clip,
+	MechS32 p_edge
+);
+MechU32 FUN_10063150(
+	A3DPolyVertex* p_in,
+	A3DPolyVertex* p_out,
+	MechU32 p_count,
+	MechFloat* p_clip,
+	MechS32 p_perspective
+);
+MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count);
+MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_depth);
+void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3DTexture* p_texture, MechS32 p_mip);
+void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3DTexture* p_texture, MechS32 p_mip);
+__inline void FUN_10064e20(
+	A3DPolyVertex* p_out,
+	A3DPolyVertex* p_a,
+	A3DPolyVertex* p_b,
+	MechDouble p_t,
+	MechS32 p_perspective,
+	MechFloat* p_clip,
+	MechS32 p_edge
+);
 void FUN_10061ca0(void);
 void FUN_10066fd0(void);
 void FUN_10067080(void);
@@ -629,11 +775,498 @@ __inline static A3DCacheItem* HeapCacheFindItem(MechS32 p_id)
 	return g_unk0x100d2680[p_id];
 }
 
-// STUB: MW2MATROX 0x1005a5f0
-MechU32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechU32 p_count, MechS32 p_unk0x10)
+// A vertex of the polygon FUN_1005a5f0 clips, in doubles: the view-space position, the texture
+// coordinates and the color.
+// SIZE 0x40
+typedef struct A3DClipVertex {
+	MechDouble m_x;     // 0x00
+	MechDouble m_y;     // 0x08
+	MechDouble m_z;     // 0x10 — the depth
+	MechDouble m_u;     // 0x18
+	MechDouble m_v;     // 0x20
+	MechDouble m_red;   // 0x28
+	MechDouble m_green; // 0x30
+	MechDouble m_blue;  // 0x38
+} A3DClipVertex;
+
+// The clip planes of FUN_1005a5f0 (A3DClipEdge's p_plane), with the flags that select them.
+enum A3DClipPlane {
+	c_clipPlaneLeft = 0,   // flag 0x10
+	c_clipPlaneRight = 1,  // flag 0x20
+	c_clipPlaneTop = 2,    // flag 4
+	c_clipPlaneBottom = 3, // flag 8
+	c_clipPlaneNear = 4,   // flag 1
+	c_clipPlaneFar = 5     // flag 2
+};
+
+__inline static void A3DClipEdge(A3DClipVertex* p_out, A3DClipVertex* p_a, A3DClipVertex* p_b, MechS32 p_plane);
+
+// Clips the polygon p_in of p_count vertices against the view's planes selected by p_flags (1 near,
+// 2 far, 4 top, 8 bottom, 0x10 left, 0x20 right) into p_out; returns the clipped polygon's vertex
+// count (0 when nothing is left).
+// FUNCTION: MW2MATROX 0x1005a5f0
+MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_count, MechU32 p_flags)
 {
-	STUB(0x1005a5f0);
-	return 0;
+	A3DClipVertex in[64];
+	A3DClipVertex nearOut[64];
+	A3DClipVertex farOut[64];
+	A3DClipVertex topOut[64];
+	A3DClipVertex bottomOut[64];
+	A3DClipVertex leftOut[64];
+	A3DClipVertex rightOut[64];
+	A3DClipVertex* vertex;
+	A3DClipVertex* cur;
+	A3DClipVertex* next;
+	A3DClipVertex* out;
+	A3DClipVertex* src;
+	MechDouble minZ;
+	MechDouble maxZ;
+	MechDouble curEdge;
+	MechDouble nextEdge;
+	MechS32 i;
+	MechS32 n;
+	MechS32 outCount;
+
+	vertex = in;
+	for (i = 0; i < p_count; i++) {
+		vertex->m_x = p_in->m_x;
+		vertex->m_y = p_in->m_y;
+		vertex->m_z = p_in->m_z;
+		vertex->m_u = p_in->m_u;
+		vertex->m_v = p_in->m_v;
+		vertex->m_red = p_in->m_red;
+		vertex->m_green = p_in->m_green;
+		vertex->m_blue = p_in->m_blue;
+		p_in++;
+		vertex++;
+	}
+
+	minZ = maxZ = in[0].m_z;
+	vertex = &in[1];
+	for (i = 1; i < p_count; i++) {
+		if (vertex->m_z < minZ) {
+			minZ = vertex->m_z;
+		}
+		if (vertex->m_z > maxZ) {
+			maxZ = vertex->m_z;
+		}
+		vertex++;
+	}
+
+	if ((p_flags & 1) && maxZ < g_viewNearPlane) {
+		return 0;
+	}
+	if ((p_flags & 2) && minZ > g_viewFarPlane) {
+		return 0;
+	}
+
+	g_unk0x100e2690 = 1.0 / g_viewCenterX;
+	g_unk0x100e2698 = 1.0 / g_viewCenterY;
+
+	src = in;
+	n = p_count;
+
+	if (p_flags & 1) {
+		out = nearOut;
+		outCount = 0;
+		cur = src;
+		next = src + 1;
+		for (i = 0; i < n; i++) {
+			if (n - i == 1) {
+				next = src;
+			}
+			if (cur->m_z >= g_viewNearPlane) {
+				*out = *cur;
+				outCount++;
+				out++;
+				if (next->m_z < g_viewNearPlane) {
+					A3DClipEdge(out, cur, next, c_clipPlaneNear);
+					outCount++;
+					out++;
+				}
+			}
+			else if (next->m_z >= g_viewNearPlane) {
+				A3DClipEdge(out, cur, next, c_clipPlaneNear);
+				outCount++;
+				out++;
+			}
+			cur++;
+			next++;
+		}
+		src = nearOut;
+		n = outCount;
+	}
+	if (n == 0) {
+		return 0;
+	}
+
+	if (p_flags & 2) {
+		out = farOut;
+		outCount = 0;
+		cur = src;
+		next = src + 1;
+		for (i = 0; i < n; i++) {
+			if (n - i == 1) {
+				next = src;
+			}
+			if (cur->m_z <= g_viewFarPlane) {
+				*out = *cur;
+				outCount++;
+				out++;
+				if (next->m_z > g_viewFarPlane) {
+					A3DClipEdge(out, cur, next, c_clipPlaneFar);
+					outCount++;
+					out++;
+				}
+			}
+			else if (next->m_z <= g_viewFarPlane) {
+				A3DClipEdge(out, cur, next, c_clipPlaneFar);
+				outCount++;
+				out++;
+			}
+			cur++;
+			next++;
+		}
+		src = farOut;
+		n = outCount;
+	}
+	if (n == 0) {
+		return 0;
+	}
+
+	if (p_flags & 4) {
+		out = topOut;
+		outCount = 0;
+		cur = src;
+		next = src + 1;
+		for (i = 0; i < n; i++) {
+			if (n - i == 1) {
+				next = src;
+			}
+			curEdge = cur->m_y * g_unk0x100e2698;
+			nextEdge = next->m_y * g_unk0x100e2698;
+			if (cur->m_z >= curEdge) {
+				*out = *cur;
+				outCount++;
+				out++;
+				if (next->m_z < nextEdge) {
+					A3DClipEdge(out, cur, next, c_clipPlaneTop);
+					outCount++;
+					out++;
+				}
+			}
+			else if (next->m_z >= nextEdge) {
+				A3DClipEdge(out, cur, next, c_clipPlaneTop);
+				outCount++;
+				out++;
+			}
+			cur++;
+			next++;
+		}
+		src = topOut;
+		n = outCount;
+	}
+	if (n == 0) {
+		return 0;
+	}
+
+	if (p_flags & 8) {
+		out = bottomOut;
+		outCount = 0;
+		cur = src;
+		next = src + 1;
+		for (i = 0; i < n; i++) {
+			if (n - i == 1) {
+				next = src;
+			}
+			curEdge = cur->m_y * g_unk0x100e2698;
+			nextEdge = next->m_y * g_unk0x100e2698;
+			if (curEdge >= -cur->m_z) {
+				*out = *cur;
+				outCount++;
+				out++;
+				if (nextEdge < -next->m_z) {
+					A3DClipEdge(out, cur, next, c_clipPlaneBottom);
+					outCount++;
+					out++;
+				}
+			}
+			else if (nextEdge >= -next->m_z) {
+				A3DClipEdge(out, cur, next, c_clipPlaneBottom);
+				outCount++;
+				out++;
+			}
+			cur++;
+			next++;
+		}
+		src = bottomOut;
+		n = outCount;
+	}
+	if (n == 0) {
+		return 0;
+	}
+
+	if (p_flags & 0x10) {
+		out = leftOut;
+		outCount = 0;
+		cur = src;
+		next = src + 1;
+		for (i = 0; i < n; i++) {
+			if (n - i == 1) {
+				next = src;
+			}
+			curEdge = cur->m_x * g_unk0x100e2690;
+			nextEdge = next->m_x * g_unk0x100e2690;
+			if (curEdge >= -cur->m_z) {
+				*out = *cur;
+				outCount++;
+				out++;
+				if (nextEdge < -next->m_z) {
+					A3DClipEdge(out, cur, next, c_clipPlaneLeft);
+					outCount++;
+					out++;
+				}
+			}
+			else if (nextEdge >= -next->m_z) {
+				A3DClipEdge(out, cur, next, c_clipPlaneLeft);
+				outCount++;
+				out++;
+			}
+			cur++;
+			next++;
+		}
+		src = leftOut;
+		n = outCount;
+	}
+	if (n == 0) {
+		return 0;
+	}
+
+	if (p_flags & 0x20) {
+		out = rightOut;
+		outCount = 0;
+		cur = src;
+		next = src + 1;
+		for (i = 0; i < n; i++) {
+			if (n - i == 1) {
+				next = src;
+			}
+			curEdge = cur->m_x * g_unk0x100e2690;
+			nextEdge = next->m_x * g_unk0x100e2690;
+			if (cur->m_z >= curEdge) {
+				*out = *cur;
+				outCount++;
+				out++;
+				if (next->m_z < nextEdge) {
+					A3DClipEdge(out, cur, next, c_clipPlaneRight);
+					outCount++;
+					out++;
+				}
+			}
+			else if (next->m_z >= nextEdge) {
+				A3DClipEdge(out, cur, next, c_clipPlaneRight);
+				outCount++;
+				out++;
+			}
+			cur++;
+			next++;
+		}
+		src = rightOut;
+		n = outCount;
+	}
+	if (n == 0) {
+		return 0;
+	}
+
+	for (i = 0; i < n; i++) {
+		p_out->m_x = (MechFloat) src->m_x;
+		p_out->m_y = (MechFloat) src->m_y;
+		p_out->m_z = (MechFloat) src->m_z;
+		p_out->m_u = (MechFloat) src->m_u;
+		p_out->m_v = (MechFloat) src->m_v;
+		p_out->m_red = (MechFloat) src->m_red;
+		p_out->m_green = (MechFloat) src->m_green;
+		p_out->m_blue = (MechFloat) src->m_blue;
+		src++;
+		p_out++;
+	}
+
+	return n;
+}
+
+// Puts in p_out the point where the edge from p_a to p_b crosses the clip plane p_plane. FUN_1005a5f0
+// expands its first two calls (the near plane's) and calls it out of line for the others.
+// FUNCTION: MW2MATROX 0x1005c430
+__inline static void A3DClipEdge(A3DClipVertex* p_out, A3DClipVertex* p_a, A3DClipVertex* p_b, MechS32 p_plane)
+{
+	MechDouble t;
+	MechDouble slope;
+	MechDouble intercept;
+
+	if ((MechFloat) fabs(p_a->m_z - p_b->m_z) < 1e-7f) {
+		switch (p_plane) {
+		case c_clipPlaneLeft:
+			p_out->m_x = -(p_a->m_z / g_unk0x100e2690);
+			t = (p_out->m_x - p_a->m_x) / (p_b->m_x - p_a->m_x);
+			A3D_LERP_DOUBLE(p_out->m_y, p_a->m_y, p_b->m_y, t);
+			A3D_LERP_DOUBLE(p_out->m_z, p_a->m_z, p_b->m_z, t);
+			break;
+		case c_clipPlaneRight:
+			p_out->m_x = p_a->m_z / g_unk0x100e2690;
+			t = (p_out->m_x - p_a->m_x) / (p_b->m_x - p_a->m_x);
+			A3D_LERP_DOUBLE(p_out->m_y, p_a->m_y, p_b->m_y, t);
+			A3D_LERP_DOUBLE(p_out->m_z, p_a->m_z, p_b->m_z, t);
+			break;
+		case c_clipPlaneTop:
+			p_out->m_y = p_a->m_z / g_unk0x100e2698;
+			t = (p_out->m_y - p_a->m_y) / (p_b->m_y - p_a->m_y);
+			A3D_LERP_DOUBLE(p_out->m_x, p_a->m_x, p_b->m_x, t);
+			A3D_LERP_DOUBLE(p_out->m_z, p_a->m_z, p_b->m_z, t);
+			break;
+		case c_clipPlaneBottom:
+			p_out->m_y = -(p_a->m_z / g_unk0x100e2698);
+			t = (p_out->m_y - p_a->m_y) / (p_b->m_y - p_a->m_y);
+			A3D_LERP_DOUBLE(p_out->m_x, p_a->m_x, p_b->m_x, t);
+			A3D_LERP_DOUBLE(p_out->m_z, p_a->m_z, p_b->m_z, t);
+			break;
+		case c_clipPlaneNear:
+		case c_clipPlaneFar:
+#if defined(_MSC_VER) && defined(_M_IX86)
+			__asm int 3
+#endif
+				break;
+		}
+	}
+	else {
+		switch (p_plane) {
+		case c_clipPlaneLeft:
+			if ((MechFloat) fabs(p_a->m_x - p_b->m_x) < 1e-7f) {
+				p_out->m_z = -(p_a->m_x * g_unk0x100e2690);
+			}
+			else {
+				slope = (p_b->m_z - p_a->m_z) / (p_b->m_x - p_a->m_x);
+				intercept = p_a->m_z - p_a->m_x * slope;
+				p_out->m_z = -(intercept * g_unk0x100e2690) / (-g_unk0x100e2690 - slope);
+			}
+			break;
+		case c_clipPlaneRight:
+			if ((MechFloat) fabs(p_a->m_x - p_b->m_x) < 1e-7f) {
+				p_out->m_z = p_a->m_x * g_unk0x100e2690;
+			}
+			else {
+				slope = (p_b->m_z - p_a->m_z) / (p_b->m_x - p_a->m_x);
+				intercept = p_a->m_z - p_a->m_x * slope;
+				p_out->m_z = intercept * g_unk0x100e2690 / (g_unk0x100e2690 - slope);
+			}
+			break;
+		case c_clipPlaneTop:
+			if ((MechFloat) fabs(p_a->m_y - p_b->m_y) < 1e-7f) {
+				p_out->m_z = p_a->m_y * g_unk0x100e2698;
+			}
+			else {
+				slope = (p_b->m_z - p_a->m_z) / (p_b->m_y - p_a->m_y);
+				intercept = p_a->m_z - p_a->m_y * slope;
+				p_out->m_z = intercept * g_unk0x100e2698 / (g_unk0x100e2698 - slope);
+			}
+			break;
+		case c_clipPlaneBottom:
+			if ((MechFloat) fabs(p_a->m_y - p_b->m_y) < 1e-7f) {
+				p_out->m_z = -(p_a->m_y * g_unk0x100e2698);
+			}
+			else {
+				slope = (p_b->m_z - p_a->m_z) / (p_b->m_y - p_a->m_y);
+				intercept = p_a->m_z - p_a->m_y * slope;
+				p_out->m_z = -(intercept * g_unk0x100e2698) / (-g_unk0x100e2698 - slope);
+			}
+			break;
+		case c_clipPlaneNear:
+			p_out->m_z = g_viewNearPlane;
+			break;
+		case c_clipPlaneFar:
+			p_out->m_z = g_viewFarPlane;
+			break;
+		}
+
+		t = (p_out->m_z - p_a->m_z) / (p_b->m_z - p_a->m_z);
+		A3D_LERP_DOUBLE(p_out->m_x, p_a->m_x, p_b->m_x, t);
+		A3D_LERP_DOUBLE(p_out->m_y, p_a->m_y, p_b->m_y, t);
+	}
+
+	A3D_LERP_DOUBLE(p_out->m_red, p_a->m_red, p_b->m_red, t);
+	A3D_LERP_DOUBLE(p_out->m_green, p_a->m_green, p_b->m_green, t);
+	A3D_LERP_DOUBLE(p_out->m_blue, p_a->m_blue, p_b->m_blue, t);
+	A3D_LERP_DOUBLE(p_out->m_u, p_a->m_u, p_b->m_u, t);
+	A3D_LERP_DOUBLE(p_out->m_v, p_a->m_v, p_b->m_v, t);
+}
+
+// Prints the texture caches' statistics with OutputDebugString every 60 calls, and resets the
+// counters.
+// FUNCTION: MW2MATROX 0x1005ce20
+void FUN_1005ce20(void)
+{
+	MechChar buffer[0x100];
+	MechU32 hits;
+	MechU32 misses;
+	MechFloat ratio;
+	MechS32 heapUsed;
+	MechS32 vramUsed;
+
+	if (g_unk0x100acb5c++ % 60 == 0) {
+		hits = g_unk0x100acb38;
+		misses = g_unk0x100acb3c;
+		ratio = (MechFloat) hits / (MechFloat) (hits + misses);
+		sprintf(buffer, "TEXTURE Hits: %i  Misses: %i   Hit Percentage: %i\n", hits, misses, (MechS32) (ratio * 100.0));
+		OutputDebugString(buffer);
+		g_unk0x100acb38 = 0;
+		g_unk0x100acb3c = 0;
+
+		hits = g_unk0x100acb48;
+		misses = g_unk0x100acb4c;
+		ratio = (MechFloat) hits / (MechFloat) (hits + misses);
+		sprintf(
+			buffer,
+			"HEAP    Hits: %i  Misses: %i   Hit Percentage: %i\n\n",
+			hits,
+			misses,
+			(MechS32) (ratio * 100.0)
+		);
+		OutputDebugString(buffer);
+		g_unk0x100acb48 = 0;
+		g_unk0x100acb4c = 0;
+
+		heapUsed = 100 - (MechS32) ((MechDouble) g_unk0x100acb18 / (g_unk0x100ac91c << 12) * 100.0);
+		vramUsed = 100 - (MechS32) ((MechDouble) g_unk0x100acafc / (MechS32) g_unk0x100ac930->m_unk0x50 * 100.0);
+		sprintf(
+			buffer,
+			"HEAP Used:%i%% (%i left)     VRAM Used:%i%%  (%i left)\n",
+			heapUsed,
+			g_unk0x100acb18,
+			vramUsed,
+			g_unk0x100acafc
+		);
+		OutputDebugString(buffer);
+
+		sprintf(
+			buffer,
+			"HEAP Defrags:%i    VRAM Defrags:%i    Forced Renders:%i\n",
+			g_unk0x100acb24,
+			g_unk0x100acb08,
+			g_unk0x100acb2c
+		);
+		OutputDebugString(buffer);
+		g_unk0x100acb24 = 0;
+		g_unk0x100acb08 = 0;
+
+		sprintf(
+			buffer,
+			"HEAPCACHEnotextures:%i  HEAPnoblocks:%i  VRAMnoblocks:%i\n",
+			g_unk0x100acb50,
+			g_unk0x100acb28,
+			g_unk0x100acb04
+		);
+		OutputDebugString(buffer);
+		OutputDebugString("\n\n");
+	}
 }
 
 // FUNCTION: MW2MATROX 0x1005d090
@@ -1465,11 +2098,242 @@ void FUN_1005ec40(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level, Mech
 
 // Quantizes the level p_level of p_item, p_pixels, to a palette of 16 or 256 colors; returns the
 // color count.
-// STUB: MW2MATROX 0x1005f0c0
+// "Distance" search of FUN_1005f0c0: the entry of p_colors (255 entries) nearest the color p_red,
+// p_green, p_blue, stopping at the first within a distance of 3.
+#define A3D_NEAREST_COLOR(p_best, p_colors, p_red, p_green, p_blue)                                                    \
+	{                                                                                                                  \
+		A3DPaletteEntry* entry;                                                                                        \
+		MechU32 bestDist;                                                                                              \
+		MechU32 dist;                                                                                                  \
+                                                                                                                       \
+		p_best = NULL;                                                                                                 \
+		bestDist = 0xffffffff;                                                                                         \
+		for (entry = p_colors; entry < p_colors + 255; entry++) {                                                      \
+			dist = (entry->m_red - (p_red)) * (entry->m_red - (p_red)) +                                               \
+				   (entry->m_green - (p_green)) * (entry->m_green - (p_green)) +                                       \
+				   (entry->m_blue - (p_blue)) * (entry->m_blue - (p_blue));                                            \
+			if (dist < bestDist) {                                                                                     \
+				p_best = entry;                                                                                        \
+				bestDist = dist;                                                                                       \
+				if (dist <= 3) {                                                                                       \
+					break;                                                                                             \
+				}                                                                                                      \
+			}                                                                                                          \
+		}                                                                                                              \
+	}
+
+// Converts the level p_level of p_item, the 15-bit pixels p_pixels (bit 15 set where opaque), into a
+// 4-bit (16 colors or fewer, one level) or 8-bit paletted texture in its heap block, with the palette
+// before it; returns the palette's color count. Colors past 255 fall back to 12-bit colors, and past
+// 255 of those, to the nearest of the 255 first.
+// FUNCTION: MW2MATROX 0x1005f0c0
 MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level)
 {
-	STUB(0x1005f0c0);
-	return 0;
+	A3DPaletteEntry reduced[256];
+	A3DPaletteEntry full[256];
+	A3DPaletteEntry* nextFull;
+	A3DPaletteEntry* nextReduced;
+	A3DPaletteEntry* colors;
+	A3DPaletteEntry* entry;
+	A3DPaletteEntry* best;
+	A3DPaletteEntry** table;
+	MechU16* pixel;
+	MechU16* end;
+	MechU16* palette;
+	MechU8* dest;
+	MechU32 size;
+	MechU32 fullCount;
+	MechU32 reducedCount;
+	MechU32 count;
+	MechU32 color;
+	MechU32 red;
+	MechU32 green;
+	MechU32 blue;
+	MechU32 index;
+	MechU32 i;
+	MechS32 fullOverflow;
+	MechS32 reducedOverflow;
+	MechS32 transparent;
+	MechU16 mask;
+
+	memset(g_unk0x100e46e0, 0, sizeof(g_unk0x100e46e0));
+	memset(g_unk0x101046e0, 0, sizeof(g_unk0x101046e0));
+
+	size = p_item->m_height * p_item->m_width / ((1 << p_level) << p_level);
+	fullCount = 0;
+	reducedCount = 0;
+	fullOverflow = FALSE;
+	transparent = 0;
+	reducedOverflow = FALSE;
+	end = p_pixels + size;
+	nextReduced = reduced;
+	nextFull = full;
+	for (pixel = p_pixels; pixel < end; pixel++) {
+		color = *pixel;
+		if (!(color & 0x8000)) {
+			transparent = 1;
+			continue;
+		}
+
+		color &= 0x7fff;
+		if (!fullOverflow) {
+			if (g_unk0x100e46e0[color]) {
+				g_unk0x100e46e0[color]->m_count++;
+			}
+			else if (nextFull < &full[255]) {
+				g_unk0x100e46e0[color] = nextFull;
+				nextFull->m_index = fullCount++;
+				nextFull->m_red = color >> 10;
+				nextFull->m_count = 1;
+				nextFull->m_green = (color & 0x3e0) >> 5;
+				nextFull->m_blue = color & 0x1f;
+				nextFull++;
+			}
+			else {
+				fullOverflow = TRUE;
+			}
+		}
+
+		color &= 0x7bde;
+		if (g_unk0x101046e0[color]) {
+			g_unk0x101046e0[color]->m_count++;
+		}
+		else if (nextReduced == &reduced[255]) {
+			reducedOverflow = TRUE;
+			break;
+		}
+		else {
+			g_unk0x101046e0[color] = nextReduced;
+			nextReduced->m_index = reducedCount++;
+			nextReduced->m_red = color >> 10;
+			nextReduced->m_count = 1;
+			nextReduced->m_green = (color & 0x3e0) >> 5;
+			nextReduced->m_blue = color & 0x1f;
+			nextReduced++;
+		}
+	}
+
+	if (fullOverflow) {
+		count = reducedCount;
+		table = g_unk0x101046e0;
+		mask = 0x7bde;
+		colors = reduced;
+	}
+	else {
+		count = fullCount;
+		table = g_unk0x100e46e0;
+		mask = 0x7fff;
+		colors = full;
+	}
+
+	if (reducedOverflow) {
+		for (entry = colors; entry < colors + count; entry++) {
+			entry->m_sumRed = entry->m_red * entry->m_count;
+			entry->m_sumGreen = entry->m_green * entry->m_count;
+			entry->m_sumBlue = entry->m_blue * entry->m_count;
+		}
+
+		for (; pixel < end; pixel++) {
+			color = *pixel;
+			if (!(color & 0x8000)) {
+				transparent = 1;
+				continue;
+			}
+
+			color &= mask;
+			red = color >> 10;
+			green = (color & 0x3e0) >> 5;
+			blue = color & 0x1f;
+			A3D_NEAREST_COLOR(best, colors, red, green, blue);
+			best->m_count++;
+			best->m_sumRed += red;
+			best->m_sumGreen += green;
+			best->m_sumBlue += blue;
+			best->m_red = (best->m_sumRed + best->m_count / 2) / best->m_count;
+			best->m_green = (best->m_sumGreen + best->m_count / 2) / best->m_count;
+			best->m_blue = (best->m_sumBlue + best->m_count / 2) / best->m_count;
+			table[color] = best;
+		}
+
+		for (color = 0; color < 0x8000; color++) {
+			if (table[color]) {
+				red = color >> 10;
+				green = (color & 0x3e0) >> 5;
+				blue = color & 0x1f;
+				A3D_NEAREST_COLOR(best, colors, red, green, blue);
+				table[color] = best;
+			}
+		}
+	}
+
+	if (transparent) {
+		count++;
+	}
+	if (p_level == 0) {
+		p_item->m_unk0x60[p_level] = 0;
+	}
+	p_item->m_unk0x28 = count;
+	p_item->m_unk0x2c = transparent;
+
+	if (count <= 16 && p_item->m_levels == 1) {
+		p_item->m_format = 4;
+		p_item->m_offsets[p_level] = p_item->m_unk0x60[p_level] + 0x20;
+		p_item->m_size += (size >> 1) + 0x20;
+		dest = (MechU8*) p_item->m_unk0x18->m_unk0x20 + p_item->m_offsets[p_level];
+		for (i = 0; p_pixels < end; p_pixels++) {
+			if (!(*p_pixels & 0x8000)) {
+				index = 0;
+			}
+			else {
+				index = table[*p_pixels & mask]->m_index + transparent;
+			}
+			if (i & 1) {
+				*dest++ |= index;
+			}
+			else {
+				*dest = index << 4;
+			}
+			i++;
+		}
+	}
+	else {
+		p_item->m_format = 8;
+		p_item->m_offsets[p_level] = p_item->m_unk0x60[p_level] + 0x200;
+		p_item->m_size += size + 0x200;
+		dest = (MechU8*) p_item->m_unk0x18->m_unk0x20 + p_item->m_offsets[p_level];
+		for (; p_pixels < end; p_pixels++) {
+			if (!(*p_pixels & 0x8000)) {
+				*dest = 0;
+			}
+			else {
+				*dest = table[*p_pixels & mask]->m_index + transparent;
+			}
+			dest++;
+		}
+	}
+
+	p_item->m_unk0x60[p_level + 1] = p_item->m_offsets[p_level] + size;
+	palette = (MechU16*) (p_item->m_unk0x18->m_unk0x20 + p_item->m_unk0x60[p_level]);
+	if (transparent) {
+		*palette++ = 0;
+	}
+	for (entry = colors; entry < colors + (count - transparent); entry++) {
+		*palette++ = entry->m_green << 6 | entry->m_red << 11 | entry->m_blue;
+	}
+
+	return count;
+}
+
+// The counterpart of FUN_1005f6e0: sets the parameters to 0 (msiSetParameters), unless they are set.
+// FUNCTION: MW2MATROX 0x1005f6b0
+void FUN_1005f6b0(void)
+{
+	g_unk0x100acb54++;
+	if (!g_unk0x100ac904) {
+		g_unk0x100ac9d0 = -1;
+		msiSetParameters(0);
+		g_unk0x100ac904 = 1;
+	}
 }
 
 // FUNCTION: MW2MATROX 0x1005f6e0
@@ -1660,17 +2524,53 @@ void FUN_1005f8a0(PANE* p_pane, MechS32 p_color)
 
 // Clips the polygon p_in of p_count vertices to the rectangle p_clip (left, right, top, bottom) into
 // p_out; returns the clipped polygon's vertex count.
-// STUB: MW2MATROX 0x1005fd70
+// FUNCTION: MW2MATROX 0x1005fd70
 MechU32 FUN_1005fd70(A3DVertex* p_in, A3DVertex* p_out, MechU32 p_count, MechFloat* p_clip, MechS32 p_flags)
 {
-	STUB(0x1005fd70);
-	return 0;
+	A3DVertex* from;
+	A3DVertex* a;
+	A3DVertex* b;
+	A3DVertex* to;
+	MechU32 count;
+	MechU32 n;
+	MechU32 i;
+	MechDouble t;
+	A3DVertex top[0x40];
+	A3DVertex bottom[0x40];
+	A3DVertex left[0x40];
+	A3DVertex right[0x40];
+
+	from = p_in;
+	count = p_count;
+	if (g_unk0x101246ec < p_clip[2]) {
+		A3D_CLIP_PASS(top, m_y, >=, <, p_clip[2], A3D_CROSS_Y, A3D_LERP, FUN_10061510, p_flags, p_clip, 2)
+	}
+	if (g_unk0x101246e4 > p_clip[3]) {
+		A3D_CLIP_PASS(bottom, m_y, <=, >, p_clip[3], A3D_CROSS_Y, A3D_LERP, FUN_10061510, p_flags, p_clip, 3)
+	}
+	if (g_unk0x101246e8 < p_clip[0]) {
+		A3D_CLIP_PASS(left, m_x, >=, <, p_clip[0], A3D_CROSS_X, A3D_LERP, FUN_10061510, p_flags, p_clip, 0)
+	}
+	if (g_unk0x101246e0 > p_clip[1]) {
+		A3D_CLIP_PASS(right, m_x, <=, >, p_clip[1], A3D_CROSS_X, A3D_LERP, FUN_10061510, p_flags, p_clip, 1)
+	}
+
+	memcpy(p_out, from, count * sizeof(A3DVertex));
+	return count;
 }
 
 // Interpolates the vertices p_a and p_b at p_t into p_out, past a clip edge on x: the colors and
 // the texture coordinates, and with p_perspective, m_w and the depth from it.
 // FUNCTION: MW2MATROX 0x10061510
-void FUN_10061510(A3DVertex* p_out, A3DVertex* p_a, A3DVertex* p_b, MechDouble p_t, MechS32 p_perspective)
+__inline void FUN_10061510(
+	A3DVertex* p_out,
+	A3DVertex* p_a,
+	A3DVertex* p_b,
+	MechDouble p_t,
+	MechS32 p_perspective,
+	MechFloat* p_clip,
+	MechS32 p_edge
+)
 {
 	if (!p_perspective) {
 		A3D_LERP(p_out->m_red, p_a->m_red, p_b->m_red, p_t)
@@ -2180,19 +3080,371 @@ void FUN_10062630(
 	}
 }
 
-// STUB: MW2MATROX 0x10062cd0
-MechS32 FUN_10062cd0(
+// "A3D_GroundSkyPolyPlot()": draws the textured polygon p_vertices of p_count vertices on p_pane
+// (the ground and the sky: AnimateGroundPolygon's and AnimateSkyPolygon's), in strips of
+// p_unk0x10 rows unless it is a triangle (g_unk0x100ac92c's with p_mip), choosing the MIP map level
+// by depth with p_mip. A positive p_depth clips it to that depth; a negative one, -p_depth, puts the
+// polygon at that depth instead.
+// FUNCTION: MW2MATROX 0x10062cd0
+void A3D_GroundSkyPolyPlot(
 	PANE* p_pane,
-	MechS32 p_count,
+	MechU32 p_count,
 	A3DPolyVertex* p_vertices,
 	A3DTexture* p_texture,
 	MechS32 p_unk0x10,
 	MechDouble p_depth,
-	MechS32 p_unk0x1c
+	MechS32 p_mip
 )
 {
-	STUB(0x10062cd0);
-	return 0;
+	MechDouble dx;
+	MechDouble dy;
+	MechDouble scale;
+	MechDouble z;
+	A3DPolyVertex* vertex;
+	A3DPolyVertex* end;
+	MechS32 left;
+	MechS32 top;
+	MechS32 right;
+	MechS32 bottom;
+	MechU32 i;
+	MechFloat clip[4];
+	A3DPolyVertex polygon[0x40];
+
+	if (!p_count) {
+		return;
+	}
+	if (!p_texture) {
+		DebugPrint("A3D_GroundSkyPolyPlot(): NULL textureptr passed\n");
+		return;
+	}
+
+	if (p_mip) {
+		p_unk0x10 = g_unk0x100ac92c;
+	}
+	g_unk0x100ac9d0 = 4;
+	g_unk0x100ac9d8 = -1;
+	p_texture->m_unk0x38 = 0;
+	g_unk0x100acad8 = 0;
+	g_unk0x100acad0 = 0;
+	g_unk0x100acada = 0;
+	g_unk0x100acacc = 0;
+	g_unk0x100acac8 = 1;
+	g_unk0x100acad4 = 0;
+	g_unk0x100acad6 = 0;
+	g_unk0x100aca98[1] = p_texture->m_unk0x1c;
+	g_unk0x100aca98[2] = p_texture->m_unk0x20;
+	g_unk0x100aca98[3] = p_texture->m_unk0x24;
+	g_unk0x100aca98[4] = 0;
+	g_unk0x100aca98[5] = 0;
+	g_unk0x100aca98[6] = p_texture->m_unk0x3c[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
+	if (p_texture->m_unk0x24 >= 0xf) {
+		g_unk0x100aca98[7] = 0;
+		g_unk0x100aca98[8] = 0;
+		g_unk0x100aca98[9] = 0;
+	}
+	else {
+		g_unk0x100aca98[7] = 0;
+		g_unk0x100aca98[8] = 0;
+		g_unk0x100aca98[9] = p_texture->m_unk0x60[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
+	}
+	if (!p_mip) {
+		msiSetParameters((int) g_unk0x100aca98);
+		g_unk0x100ac904 = 0;
+	}
+
+	left = p_pane->m_x0;
+	if (left || p_pane->m_y0) {
+		dx = (MechDouble) left;
+		dy = (MechDouble) p_pane->m_y0;
+		for (vertex = p_vertices; vertex < p_vertices + p_count; vertex++) {
+			vertex->m_x += dx;
+			vertex->m_y += dy;
+		}
+	}
+
+	top = p_pane->m_y0;
+	bottom = p_pane->m_y1 + 1;
+	right = p_pane->m_x1 + 1;
+	if (left < 0) {
+		left = 0;
+	}
+	if ((MechS32) g_unk0x100ac938 < right) {
+		right = (MechS32) g_unk0x100ac938;
+	}
+	if (top < 0) {
+		top = 0;
+	}
+	if ((MechS32) g_unk0x100ac93c < bottom) {
+		bottom = (MechS32) g_unk0x100ac93c;
+	}
+	clip[0] = (MechFloat) left;
+	clip[1] = (MechFloat) right;
+	clip[2] = (MechFloat) top;
+	clip[3] = (MechFloat) bottom;
+
+	p_count = FUN_10063150(p_vertices, polygon, p_count, clip, 1);
+	if (p_count < 3) {
+		return;
+	}
+	if (p_count > 3) {
+		p_count = FUN_100651a0(polygon, p_count);
+	}
+	if (p_count < 3) {
+		return;
+	}
+	if (p_depth > 1.0) {
+		p_count = FUN_10065710(polygon, p_count, p_depth);
+	}
+	if (p_count < 3) {
+		return;
+	}
+
+	if (p_depth < 0.0) {
+		p_depth = -p_depth;
+		scale = g_eyepoint->m_projectScaleX;
+		p_depth -= scale;
+		end = polygon + p_count;
+		for (vertex = polygon; vertex < end; vertex++) {
+			vertex->m_u = vertex->m_u / vertex->m_w;
+			vertex->m_v = vertex->m_v / vertex->m_w;
+			z = scale / vertex->m_w;
+			z = (z - scale) * p_depth / (153600000.0 - scale);
+			z = z + scale;
+			vertex->m_z = z;
+			vertex->m_w = scale / z;
+			vertex->m_u *= vertex->m_w;
+			vertex->m_v *= vertex->m_w;
+		}
+	}
+
+	if (p_count != 3 && p_unk0x10) {
+		FUN_10065ce0(polygon, p_count, p_unk0x10, p_texture, p_mip);
+		return;
+	}
+
+	vertex = &polygon[1];
+	for (i = p_count - 2; i; i--) {
+		FUN_100659f0(polygon, vertex, vertex + 1, p_texture, p_mip);
+		vertex++;
+	}
+}
+
+// Clips the polygon p_in of p_count vertices to the rectangle p_clip (left, right, top, bottom) into
+// p_out, interpolating m_w with p_perspective; returns the clipped polygon's vertex count.
+// FUNCTION: MW2MATROX 0x10063150
+MechU32 FUN_10063150(
+	A3DPolyVertex* p_in,
+	A3DPolyVertex* p_out,
+	MechU32 p_count,
+	MechFloat* p_clip,
+	MechS32 p_perspective
+)
+{
+	MechDouble minX;
+	MechDouble maxX;
+	MechDouble minY;
+	MechDouble maxY;
+	MechDouble t;
+	A3DPolyVertex* vertex;
+	A3DPolyVertex* from;
+	A3DPolyVertex* a;
+	A3DPolyVertex* b;
+	A3DPolyVertex* to;
+	MechU32 count;
+	MechU32 n;
+	MechU32 i;
+	A3DPolyVertex top[0x40];
+	A3DPolyVertex bottom[0x40];
+	A3DPolyVertex left[0x40];
+	A3DPolyVertex right[0x40];
+
+	minX = maxX = p_in->m_x;
+	minY = maxY = p_in->m_y;
+	vertex = p_in + 1;
+	for (i = 1; i < p_count; i++) {
+		if (vertex->m_x < minX) {
+			minX = vertex->m_x;
+		}
+		if (vertex->m_x > maxX) {
+			maxX = vertex->m_x;
+		}
+		if (vertex->m_y < minY) {
+			minY = vertex->m_y;
+		}
+		if (vertex->m_y > maxY) {
+			maxY = vertex->m_y;
+		}
+		vertex++;
+	}
+
+	if (p_clip[0] <= minX && maxX <= p_clip[1] && p_clip[2] <= minY && maxY <= p_clip[3]) {
+		memcpy(p_out, p_in, p_count * sizeof(A3DPolyVertex));
+		return p_count;
+	}
+	if (p_clip[1] < minX || maxX < p_clip[0] || p_clip[3] < minY || maxY < p_clip[2]) {
+		return 0;
+	}
+
+	from = p_in;
+	count = p_count;
+	if (minY < p_clip[2]) {
+		A3D_CLIP_PASS(top, m_y, >=, <, p_clip[2], A3D_CROSS_Y, A3D_LERP_DOUBLE, FUN_10064e20, p_perspective, p_clip, 2)
+	}
+	if (maxY > p_clip[3]) {
+		A3D_CLIP_PASS(
+			bottom,
+			m_y,
+			<=,
+			>,
+			p_clip[3],
+			A3D_CROSS_Y,
+			A3D_LERP_DOUBLE,
+			FUN_10064e20,
+			p_perspective,
+			p_clip,
+			3
+		)
+	}
+	if (minX < p_clip[0]) {
+		A3D_CLIP_PASS(left, m_x, >=, <, p_clip[0], A3D_CROSS_X, A3D_LERP_DOUBLE, FUN_10064e20, p_perspective, p_clip, 0)
+	}
+	if (maxX > p_clip[1]) {
+		A3D_CLIP_PASS(
+			right,
+			m_x,
+			<=,
+			>,
+			p_clip[1],
+			A3D_CROSS_X,
+			A3D_LERP_DOUBLE,
+			FUN_10064e20,
+			p_perspective,
+			p_clip,
+			1
+		)
+	}
+
+	memcpy(p_out, from, count * sizeof(A3DPolyVertex));
+	return count;
+}
+
+// FUN_10061510 for A3DPolyVertex: interpolates the vertices p_a and p_b at p_t into p_out, past the
+// clip edge p_edge of p_clip (unused).
+// FUNCTION: MW2MATROX 0x10064e20
+__inline void FUN_10064e20(
+	A3DPolyVertex* p_out,
+	A3DPolyVertex* p_a,
+	A3DPolyVertex* p_b,
+	MechDouble p_t,
+	MechS32 p_perspective,
+	MechFloat* p_clip,
+	MechS32 p_edge
+)
+{
+	if (!p_perspective) {
+		A3D_LERP_DOUBLE(p_out->m_red, p_a->m_red, p_b->m_red, p_t)
+		A3D_LERP_DOUBLE(p_out->m_green, p_a->m_green, p_b->m_green, p_t)
+		A3D_LERP_DOUBLE(p_out->m_blue, p_a->m_blue, p_b->m_blue, p_t)
+		A3D_LERP_DOUBLE(p_out->m_u, p_a->m_u, p_b->m_u, p_t)
+		A3D_LERP_DOUBLE(p_out->m_v, p_a->m_v, p_b->m_v, p_t)
+		p_out->m_z = 0.0;
+	}
+	else {
+		A3D_LERP_DOUBLE(p_out->m_u, p_a->m_u, p_b->m_u, p_t)
+		A3D_LERP_DOUBLE(p_out->m_v, p_a->m_v, p_b->m_v, p_t)
+		A3D_LERP_DOUBLE(p_out->m_red, p_a->m_red, p_b->m_red, p_t)
+		A3D_LERP_DOUBLE(p_out->m_green, p_a->m_green, p_b->m_green, p_t)
+		A3D_LERP_DOUBLE(p_out->m_blue, p_a->m_blue, p_b->m_blue, p_t)
+		A3D_LERP_DOUBLE(p_out->m_w, p_a->m_w, p_b->m_w, p_t)
+		p_out->m_z = g_eyepoint->m_projectScaleX / p_out->m_w;
+	}
+}
+
+// Whether the vertex p_vertex lies on the edge from p_prev to p_next (within a pixel of either end,
+// or of the line where the edge isn't axis-aligned).
+__inline static MechS32 A3DIsRedundantVertex(A3DPolyVertex* p_prev, A3DPolyVertex* p_vertex, A3DPolyVertex* p_next)
+{
+	MechDouble tx;
+	MechDouble ty;
+
+	if (((p_prev->m_x <= p_vertex->m_x && p_vertex->m_x <= p_next->m_x) ||
+		 (p_vertex->m_x <= p_prev->m_x && p_next->m_x <= p_vertex->m_x)) &&
+		((p_prev->m_y <= p_vertex->m_y && p_vertex->m_y <= p_next->m_y) ||
+		 (p_vertex->m_y <= p_prev->m_y && p_next->m_y <= p_vertex->m_y))) {
+		if (fabs(p_vertex->m_x - p_prev->m_x) < 1.0 && fabs(p_vertex->m_y - p_prev->m_y) < 1.0) {
+			return TRUE;
+		}
+		if (fabs(p_vertex->m_x - p_next->m_x) < 1.0 && fabs(p_vertex->m_y - p_next->m_y) < 1.0) {
+			return TRUE;
+		}
+		if (fabs(p_next->m_x - p_prev->m_x) < 1.0) {
+			return TRUE;
+		}
+		if (fabs(p_next->m_y - p_prev->m_y) < 1.0) {
+			return TRUE;
+		}
+		tx = (p_vertex->m_x - p_prev->m_x) / (p_next->m_x - p_prev->m_x);
+		ty = (p_vertex->m_y - p_prev->m_y) / (p_next->m_y - p_prev->m_y);
+		if (fabs(tx - ty) < 0.001) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+// Drops the vertices of the polygon p_vertices of p_count vertices that are within a pixel of the
+// next one or on an edge between their neighbours; returns the remaining vertex count.
+// FUNCTION: MW2MATROX 0x100651a0
+MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count)
+{
+	A3DPolyVertex* a;
+	A3DPolyVertex* b;
+	A3DPolyVertex* to;
+	A3DPolyVertex* out;
+	MechU32 i;
+	MechU32 n;
+	A3DPolyVertex polygon[0x40];
+
+	out = p_vertices;
+	n = 0;
+	to = polygon;
+	a = p_vertices;
+	for (i = 0; i < p_count; i++) {
+		b = a + 1;
+		if (p_count - i == 1) {
+			b = out;
+		}
+		if (fabs(a->m_x - b->m_x) >= 1.0 || fabs(a->m_y - b->m_y) >= 1.0) {
+			*to = *a;
+			to++;
+			n++;
+		}
+		a++;
+	}
+
+	p_count = n;
+	n = 0;
+	if (!A3DIsRedundantVertex(&polygon[p_count - 1], polygon, &polygon[1])) {
+		*out = polygon[0];
+		out++;
+		n++;
+	}
+	a = polygon;
+	for (i = 1; i < p_count; i++) {
+		b = a + 2;
+		if (p_count - i == 1) {
+			b = polygon;
+		}
+		if (!A3DIsRedundantVertex(a, a + 1, b)) {
+			*out = a[1];
+			out++;
+			n++;
+		}
+		a++;
+	}
+
+	return n;
 }
 
 // Clips the polygon p_vertices of p_count vertices to the depth p_depth (by m_w, the projection
@@ -2219,8 +3471,8 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 			b = polygon;
 		}
 		if (a->m_w >= w) {
-			*p_vertices = *a;
 			if (b->m_w < w) {
+				*p_vertices = *a;
 				count++;
 				p_vertices++;
 				*p_vertices = *b;
@@ -2228,9 +3480,14 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 				A3D_LERP_DOUBLE(p_vertices->m_u, a->m_u, b->m_u, t)
 				A3D_LERP_DOUBLE(p_vertices->m_v, a->m_v, b->m_v, t)
 				p_vertices->m_w = w;
+				count++;
+				p_vertices++;
 			}
-			count++;
-			p_vertices++;
+			else {
+				*p_vertices = *a;
+				count++;
+				p_vertices++;
+			}
 		}
 		else if (b->m_w >= w) {
 			*p_vertices = *a;
@@ -2329,6 +3586,168 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 	}
 
 	msiRenderTriangle(&triangle[0], &triangle[1], &triangle[2], 100);
+}
+
+// Draws the textured polygon p_vertices of p_count vertices in strips of p_rows rows, from its top
+// down: each strip is a pair of triangles between the left and right edges.
+// FUNCTION: MW2MATROX 0x10065ce0
+void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3DTexture* p_texture, MechS32 p_mip)
+{
+	A3DPolyVertex* last;
+	A3DPolyVertex* top;
+	A3DPolyVertex* vertex;
+	A3DPolyVertex* leftStart;
+	A3DPolyVertex* leftEnd;
+	A3DPolyVertex* rightStart;
+	A3DPolyVertex* rightEnd;
+	MechDouble maxY;
+	MechDouble rows;
+	MechDouble step;
+	MechDouble remain;
+	MechDouble dy;
+	MechU32 i;
+	MechS32 leftDone;
+	MechS32 rightDone;
+	A3DPolyVertex right;
+	A3DPolyVertex left;
+	A3DPolyVertex rightStep;
+	A3DPolyVertex leftStep;
+	A3DPolyVertex left0;
+	A3DPolyVertex right0;
+
+	if ((MechS32) p_count < 3) {
+		return;
+	}
+
+	top = p_vertices;
+	maxY = -1.0;
+	last = &p_vertices[p_count - 1];
+	vertex = p_vertices + 1;
+	for (i = 1; i < p_count; i++) {
+		vertex->m_x = floor(vertex->m_x + 0.5);
+		vertex->m_y = floor(vertex->m_y + 0.5);
+		if (vertex->m_y > maxY) {
+			maxY = vertex->m_y;
+		}
+		if (vertex->m_y <= top->m_y && (vertex->m_y != top->m_y || top->m_x > vertex->m_x)) {
+			top = vertex;
+		}
+		vertex++;
+	}
+
+	leftEnd = top;
+	do {
+		leftStart = leftEnd;
+		leftEnd = leftStart - 1;
+		if (leftEnd < p_vertices) {
+			leftEnd = last;
+		}
+	} while (leftEnd != top && leftEnd->m_y - leftStart->m_y < 1.0);
+	left = *leftStart;
+	left0 = left;
+	A3D_EDGE_STEP(leftStep, leftStart, leftEnd, dy)
+
+	rightEnd = top;
+	do {
+		rightStart = rightEnd;
+		rightEnd = rightStart + 1;
+		if (rightEnd > last) {
+			rightEnd = p_vertices;
+		}
+	} while (rightEnd != leftEnd && rightEnd->m_y - rightStart->m_y < 1.0);
+	right = *rightStart;
+	right0 = right;
+	A3D_EDGE_STEP(rightStep, rightStart, rightEnd, dy)
+
+	rows = (MechDouble) p_rows;
+	if (maxY - top->m_y < rows) {
+		rows = maxY - top->m_y;
+	}
+	leftDone = FALSE;
+	rightDone = FALSE;
+	remain = 0.0;
+	while (TRUE) {
+		step = rows;
+		if (remain != 0.0) {
+			step = remain;
+		}
+
+		if (rightEnd->m_y > leftEnd->m_y) {
+			A3D_EDGE_ADVANCE(left, leftStep, step)
+			if (leftEnd->m_y <= left.m_y + 0.5) {
+				left = *leftEnd;
+				step = left.m_y - left0.m_y;
+				leftDone = TRUE;
+			}
+			A3D_EDGE_ADVANCE(right, rightStep, step)
+			if (rightEnd->m_y <= right.m_y + 0.5) {
+				right = *rightEnd;
+				step = right.m_y - right0.m_y;
+				rightDone = TRUE;
+			}
+		}
+		else {
+			A3D_EDGE_ADVANCE(right, rightStep, step)
+			if (rightEnd->m_y <= right.m_y + 0.5) {
+				right = *rightEnd;
+				step = right.m_y - right0.m_y;
+				rightDone = TRUE;
+			}
+			A3D_EDGE_ADVANCE(left, leftStep, step)
+			if (leftEnd->m_y <= left.m_y + 0.5) {
+				left = *leftEnd;
+				step = left.m_y - left0.m_y;
+				leftDone = TRUE;
+			}
+		}
+
+		if (leftStart != rightStart || fabs(left0.m_x - right0.m_x) >= 1.0 || fabs(left0.m_y - right0.m_y) >= 1.0) {
+			if (rightEnd == leftEnd) {
+				FUN_100659f0(&left0, &right0, leftEnd, p_texture, p_mip);
+				return;
+			}
+			FUN_100659f0(&left0, &right0, &right, p_texture, p_mip);
+		}
+		FUN_100659f0(&left0, &right, &left, p_texture, p_mip);
+		left0 = left;
+		right0 = right;
+
+		remain = 0.0;
+		if (leftDone) {
+			remain = rows - step;
+			do {
+				leftStart = leftEnd;
+				leftEnd = leftStart - 1;
+				if (leftEnd < p_vertices) {
+					leftEnd = last;
+				}
+			} while (rightEnd != leftEnd && leftEnd->m_y - leftStart->m_y < 1.0);
+			left = *leftStart;
+			left0 = left;
+			A3D_EDGE_STEP(leftStep, leftStart, leftEnd, dy)
+			if (dy < 1.0) {
+				return;
+			}
+			leftDone = FALSE;
+		}
+		else if (rightDone) {
+			remain = rows - step;
+			do {
+				rightStart = rightEnd;
+				rightEnd = rightStart + 1;
+				if (rightEnd > last) {
+					rightEnd = p_vertices;
+				}
+			} while (rightEnd != leftEnd && rightEnd->m_y - rightStart->m_y < 1.0);
+			right = *rightStart;
+			right0 = right;
+			A3D_EDGE_STEP(rightStep, rightStart, rightEnd, dy)
+			if (dy < 1.0) {
+				return;
+			}
+			rightDone = FALSE;
+		}
+	}
 }
 
 // The original interleaves the color and texture interpolations on the FPU stack, which neither
