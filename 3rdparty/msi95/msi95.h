@@ -2,9 +2,8 @@
 #define MSI95_H
 
 // MSI95.DLL (Matrox Simple Interface, the Mystique's 3D API), which the Matrox edition draws
-// through: only what the decompiled code calls (msi95.def). The A3D renderer calls
-// the rest (msiInit, msiExit, msiStartFrame, msiEndFrame, msiRenderTriangle, msiDrawSingleLine,
-// msiBlitRect, msiSetParameters, msiAllocTextureHeap, msiFreeTextureHeap and two by ordinal).
+// through: only what the decompiled code calls (msi95.def). The A3D renderer calls the rest
+// (msiInit, msiRenderTriangle, msiDrawSingleLine and two by ordinal).
 #ifdef __cplusplus
 extern "C"
 {
@@ -12,6 +11,26 @@ extern "C"
 
 	// Waits for the card (SimMain calls it once a frame).
 	void msiSync(void);
+
+	// The A3D renderer's (matrox/a3d.c). Parameter types are those its calls prove.
+	void msiSetParameters(int p_parameters);
+	void msiStartFrame(int p_clear, float p_red, float p_green, float p_blue, int p_unk0x10, int p_unk0x14);
+	void msiEndFrame(int p_unk0x00, int p_unk0x04, int p_unk0x08);
+	void msiFreeTextureHeap(void* p_heap);
+	void* msiAllocTextureHeap(unsigned int p_pages);
+	void msiBlitRect(
+		void* p_heap,
+		void* p_destination,
+		void* p_source,
+		int p_pitch,
+		int p_bits,
+		int p_width,
+		int p_height,
+		int p_offset,
+		int p_color,
+		int p_mask
+	);
+	void msiExit(void);
 
 #ifdef __cplusplus
 }

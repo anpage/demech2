@@ -11,10 +11,10 @@
 
 #include <windows.h>
 
-// The Matrox edition's A3D renderer (0x1005a5f0-0x100673c0, between damagepanel.c's and
+// The Matrox edition's A3D renderer (0x1005a5f0-0x10067500, between damagepanel.c's and
 // keyboard.c's objects): optimized code the edition draws its polygons through, in place of VFX's
-// (CLAUDE.md, "The A3D layer"). It isn't written yet: matrox/a3d.c stubs the entry points the game
-// code calls.
+// (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op. matrox/a3d.c is partly written: the rest
+// of the entry points the game code calls are stubs.
 
 // A vertex of the textured polygons FUN_10062cd0 draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
@@ -59,6 +59,8 @@ extern "C"
 	void FUN_1005f810(MechS32 p_filter);
 	// Sets whether and in which 16-bit color the frame is cleared (red, green and blue as floats).
 	void FUN_1005f820(MechS32 p_clear, MechU32 p_color);
+	// Fills p_pane with a 16-bit color (DrawScene's pane wipe).
+	void FUN_1005f8a0(PANE* p_pane, MechS32 p_color);
 	void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechS32 p_count);
 	void FUN_10061cb0(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices);
 	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
@@ -84,13 +86,15 @@ extern "C"
 		MechDouble p_depth,
 		MechS32 p_unk0x1c
 	);
+	// Puts in p_out the point where the edge from p_a to p_b crosses p_edge on the axis p_axis (1 x,
+	// 2 y), interpolating the colors (p_flags 1), the texture coordinates (4) and m_w (8).
 	void FUN_10066a50(
 		MechS32 p_axis,
 		MechFloat p_edge,
 		A3DVertex* p_a,
 		A3DVertex* p_b,
 		A3DVertex* p_out,
-		MechS32 p_unk0x14
+		MechU32 p_flags
 	);
 	// Frees the texture heap FUN_10066c10 allocated (msiFreeTextureHeap).
 	void FUN_10066c00(undefined* p_heap);
@@ -110,7 +114,7 @@ extern "C"
 	// procedure; returns 0 on success.
 	MechS32 FUN_10066d30(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height);
 	// "A3D_shutdown()": closes the display (msiExit).
-	void FUN_100671e0(void);
+	void A3D_shutdown(void);
 
 #ifdef __cplusplus
 }

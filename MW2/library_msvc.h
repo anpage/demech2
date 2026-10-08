@@ -2231,9 +2231,6 @@
 
 // MW2MATROX's C runtime functions that only MW2SHELL's matched (tools/port_annotations.py).
 
-// LIBRARY: MW2MATROX 0x10067248 SYMBOL
-// ___inittime
-
 // LIBRARY: MW2MATROX 0x10093d70 SYMBOL
 // __initterm
 

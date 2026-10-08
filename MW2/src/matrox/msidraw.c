@@ -106,7 +106,7 @@ void MsiClose(void)
 
 	DebugPrint("DDRAW_Close() Called...\n");
 	FUN_10066c00(g_msiHeap);
-	FUN_100671e0();
+	A3D_shutdown();
 	g_msiInitialized = FALSE;
 	g_msiWindow = NULL;
 }

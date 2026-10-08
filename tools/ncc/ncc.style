@@ -2,8 +2,9 @@ ClassName: '^[A-Z][a-zA-Z0-9]+$'
 CppMethod: '^operator|^FUN_[a-f0-9]{8}$|^VTable0x[a-f0-9]{1,8}$|^(?!VTable)[A-Z][a-zA-Z0-9]+$'
 EnumName: '^\(unnamed|^[A-Z][a-zA-Z0-9]+$'
 EnumConstantName: '^(c_|e_)[a-z][a-zA-Z0-9]*|ID[CD]_[A-Z0-9_]+$'
-# Miles Design VFX's routines (3rdparty/vfx) keep their names: the assembly defines them.
-FunctionName: '^operator|^FUN_[a-f0-9]{8}$|^VTable0x[a-f0-9]{1,8}$|^(?!VTable)[A-Z][a-zA-Z0-9]+$|^(VFX|GIF)_[A-Za-z0-9_]+$|^(F16_div_to_F30|F30_reciprocal|mul_F30|find_ILBM_property)$'
+# Miles Design VFX's routines (3rdparty/vfx) keep their names: the assembly defines them. So do the
+# Matrox edition's A3D renderer's (MW2/src/matrox/a3d.c), named in its log strings.
+FunctionName: '^operator|^FUN_[a-f0-9]{8}$|^VTable0x[a-f0-9]{1,8}$|^(?!VTable)[A-Z][a-zA-Z0-9]+$|^(VFX|GIF|A3D)_[A-Za-z0-9_]+$|^(F16_div_to_F30|F30_reciprocal|mul_F30|find_ILBM_property)$'
 ParameterName: '^p_(unk0x[a-f0-9]{1,8}$|(?!unk)[a-z][a-zA-Z0-9]*)$|^$'
 StructName: '^\(anon|^\(unnamed|^[A-Z][a-zA-Z0-9]+$|^VFX_[A-Z0-9_]+$'
 TypedefName: '^[A-Z][a-zA-Z0-9]+$|^VFX_[A-Z0-9_]+$'
