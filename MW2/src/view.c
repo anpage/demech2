@@ -679,23 +679,25 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // The scene's shape filter (RenderSettings::m_shapeFilter): culls a shape against the view frustum,
 // like CullMapViewShape the map view's. 1: a shape of kind 0xa0 with g_inCockpitView, 5: out of
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
-// Stack-slot permutation of the locals.
+// Stack-slot permutation of the locals. In the Matrox edition, the sums and products take their
+// operands in another order, and the range test keeps dz on the FPU stack (fst) where the rebuild
+// reloads it.
 // FUNCTION: MW2 0x1004c2ef
-// STUB: MW2MATROX 0x10029957
+// FUNCTION: MW2MATROX 0x10029957
 MechS32 CullSceneShape(Shape* p_shape)
 {
-	MechS32 y;
-	MechS32 z;
-	MechS32 radius;
-	MechS32 limit;
-	MechS32 dx;
-	MechS32 side;
-	MechS32 dy;
-	MechS32 height;
-	MechS32 fov;
-	MechS32 dz;
-	MechS32 depth;
-	MechS32 x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar radius;
+	MechScalar limit;
+	MechScalar dx;
+	MechScalar side;
+	MechScalar dy;
+	MechScalar height;
+	MechScalar fov;
+	MechScalar dz;
+	MechScalar depth;
+	MechScalar x;
 
 	if (g_inCockpitView && (p_shape->m_kind & 0xf0) == 0xa0) {
 		return 1;
@@ -722,7 +724,11 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
+#ifdef MW2_MATROX
+	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
+#else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+#endif
 	if (radius + depth < g_viewNearPlane) {
 		return 4;
 	}
@@ -731,27 +737,53 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
+#ifdef MW2_MATROX
+	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
+#else
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
+#endif
 	fov = g_eyepoint->m_fovX;
+#ifdef MW2_MATROX
+	if (!FIXED_IS_NEGATIVE(side)) {
+		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+	}
+	else {
+		limit = (-side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+	}
+#else
 	if (side > 0) {
 		limit = MulAddDiv(fov, side, -depth, g_eyepoint->m_frustumScaleX);
 	}
 	else {
 		limit = MulAddDiv(fov, -side, -depth, g_eyepoint->m_frustumScaleX);
 	}
+#endif
 
 	if (limit > radius) {
 		return 6;
 	}
 
+#ifdef MW2_MATROX
+	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
+#else
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
+#endif
 	fov = g_eyepoint->m_fovY;
+#ifdef MW2_MATROX
+	if (!FIXED_IS_NEGATIVE(height)) {
+		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+	}
+	else {
+		limit = (-height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+	}
+#else
 	if (height > 0) {
 		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_frustumScaleY);
 	}
 	else {
 		limit = MulAddDiv(fov, -height, -depth, g_eyepoint->m_frustumScaleY);
 	}
+#endif
 
 	if (limit > radius) {
 		return 7;
@@ -762,23 +794,24 @@ MechS32 CullSceneShape(Shape* p_shape)
 
 // Culls a shape against the view frustum like CullSceneShape, without its range test. 1 for a
 // hidden shape (bit 0x1000).
-// Stack-slot permutation of the locals.
+// Stack-slot permutation of the locals. In the Matrox edition, the sums and products take their
+// operands in another order.
 // FUNCTION: MW2 0x1004c565
-// STUB: MW2MATROX 0x10029c23
+// FUNCTION: MW2MATROX 0x10029c23
 MechS32 CullShapeToFrustum(Shape* p_shape)
 {
-	MechS32 y;
-	MechS32 z;
-	MechS32 radius;
-	MechS32 limit;
-	MechS32 dx;
-	MechS32 side;
-	MechS32 dy;
-	MechS32 height;
-	MechS32 fov;
-	MechS32 dz;
-	MechS32 depth;
-	MechS32 x;
+	MechScalar y;
+	MechScalar z;
+	MechScalar radius;
+	MechScalar limit;
+	MechScalar dx;
+	MechScalar side;
+	MechScalar dy;
+	MechScalar height;
+	MechScalar fov;
+	MechScalar dz;
+	MechScalar depth;
+	MechScalar x;
 
 	x = p_shape->m_centerX;
 	y = p_shape->m_centerY;
@@ -791,32 +824,63 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 1;
 	}
 
+#ifdef MW2_MATROX
+	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
+#else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
+#endif
 	if (radius + depth < g_viewNearPlane) {
 		return 4;
 	}
 
+#ifdef MW2_MATROX
+	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
+#else
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
+#endif
 	fov = g_eyepoint->m_fovX;
+#ifdef MW2_MATROX
+	if (!FIXED_IS_NEGATIVE(side)) {
+		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+	}
+	else {
+		limit = (-side * fov + -depth) / g_eyepoint->m_frustumScaleX;
+	}
+#else
 	if (side > 0) {
 		limit = MulAddDiv(fov, side, -depth, g_eyepoint->m_frustumScaleX);
 	}
 	else {
 		limit = MulAddDiv(fov, -side, -depth, g_eyepoint->m_frustumScaleX);
 	}
+#endif
 
 	if (limit > radius) {
 		return 6;
 	}
 
+#ifdef MW2_MATROX
+	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
+#else
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
+#endif
 	fov = g_eyepoint->m_fovY;
+#ifdef MW2_MATROX
+	// The Matrox edition tests the sign of side here, not of height.
+	if (!FIXED_IS_NEGATIVE(side)) {
+		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+	}
+	else {
+		limit = (-height * fov + -depth) / g_eyepoint->m_frustumScaleY;
+	}
+#else
 	if (height > 0) {
 		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_frustumScaleY);
 	}
 	else {
 		limit = MulAddDiv(fov, -height, -depth, g_eyepoint->m_frustumScaleY);
 	}
+#endif
 
 	if (limit > radius) {
 		return 7;

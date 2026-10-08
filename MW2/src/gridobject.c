@@ -2,6 +2,7 @@
 
 #include "decomp.h"
 #include "eyepoint.h"
+#include "fixedfloat.h"
 #include "object.h"
 #include "polydraw.h"
 #include "shape.h"
@@ -16,12 +17,15 @@
 // snaps to the nearest cell.
 
 // GLOBAL: MW2 0x100a7114
+// GLOBAL: MW2MATROX 0x100a594c
 MechS32 g_gridCellSize = 0;
 
 // GLOBAL: MW2 0x100a7118
+// GLOBAL: MW2MATROX 0x100a5950
 MechS32 g_gridObjectSet = 0;
 
 // GLOBAL: MW2 0x100a711c
+// GLOBAL: MW2MATROX 0x100a5954
 MechS32 g_gridObjectPlaced = 0;
 
 // GLOBAL: MW2 0x100a7120
@@ -29,6 +33,7 @@ MechS32 g_gridObjectPlaced = 0;
 MechS32 g_gridObjectShown = 0;
 
 // GLOBAL: MW2 0x100a7124
+// GLOBAL: MW2MATROX 0x100a595c
 MechS32 g_gridObjectSnaps = 0;
 
 // GLOBAL: MW2 0x100a7128
@@ -37,14 +42,27 @@ SceneObject* g_gridObject = NULL;
 
 // The eyepoint's cell and the object's position.
 
+// The Matrox edition keeps only the cells' x and z.
+#ifdef MW2_MATROX
+typedef struct GridCell {
+	MechS32 m_x; // 0x00
+	MechS32 m_z; // 0x04
+} GridCell;
+#else
+#define GridCell Vector3
+#endif
+
 // GLOBAL: MW2 0x100be9e0
-static Vector3 g_gridCell;
+// GLOBAL: MW2MATROX 0x100c1fe8
+static GridCell g_gridCell;
 
 // GLOBAL: MW2 0x100be9f0
-static Vector3 g_gridAnchor;
+// GLOBAL: MW2MATROX 0x100c1ff0
+static GridCell g_gridAnchor;
 
 // How far the eyepoint may stray from the object before it snaps to another cell.
 // GLOBAL: MW2 0x100be9fc
+// GLOBAL: MW2MATROX 0x100c1fe0
 static MechS32 g_gridSnapDistance;
 
 // Makes p_obj the object that follows the eyepoint on a grid, a cell at a time: the cells are its
@@ -53,18 +71,18 @@ static MechS32 g_gridSnapDistance;
 // under the eyepoint.
 // Stack-slot permutation; depth > span compares in the other operand order.
 // FUNCTION: MW2 0x1004b130
-// STUB: MW2MATROX 0x100275e0
+// FUNCTION: MW2MATROX 0x100275e0
 void SetGridObject(SceneObject* p_obj)
 {
 	MechS32 depth;
-	MechS32 minX;
+	MechScalar minX;
 	Model* model;
-	MechS32 minZ;
+	MechScalar minZ;
 	Vertex* vertex;
 	MechS32 span;
 	MechS32 count;
-	MechS32 maxX;
-	MechS32 maxZ;
+	MechScalar maxX;
+	MechScalar maxZ;
 
 	if (!p_obj) {
 		return;
@@ -80,8 +98,8 @@ void SetGridObject(SceneObject* p_obj)
 	}
 
 	vertex = (Vertex*) (model + 1);
-	minX = minZ = 0x7fffffff;
-	maxX = maxZ = -0x7fffffff;
+	minX = minZ = FIXED_MAX;
+	maxX = maxZ = FIXED_MIN;
 	for (count = model->m_vertexCount; count--; vertex++) {
 		if (vertex->m_modelX > maxX) {
 			maxX = vertex->m_modelX;
@@ -124,16 +142,23 @@ void SetGridObject(SceneObject* p_obj)
 	g_gridObjectSet = 1;
 	g_gridObjectShown = 1;
 	g_gridObjectPlaced = 0;
+#ifdef MW2_MATROX
+	g_gridAnchor.m_x = g_gridAnchor.m_z = 0;
+	g_gridCell.m_x = g_gridCell.m_z = 0;
+#else
 	g_gridAnchor.m_x = g_gridAnchor.m_y = g_gridAnchor.m_z = 0;
 	g_gridCell.m_x = g_gridCell.m_y = g_gridCell.m_z = 0;
+#endif
 	HideObjTree(p_obj);
 	DisableObjTreeCollision(p_obj);
 }
 
 // Moves the grid object (SetGridObject) to the eyepoint's cell when that changes.
-// Stack-slot permutation; dz > g_gridSnapDistance compares in the other operand order.
+// Stack-slot permutation; dz > g_gridSnapDistance compares in the other operand order (in the
+// Matrox edition, both tests against g_gridSnapDistance, and cellX * g_gridCellSize multiplies in
+// the other order).
 // FUNCTION: MW2 0x1004b344
-// STUB: MW2MATROX 0x100277fe
+// FUNCTION: MW2MATROX 0x100277fe
 void UpdateGridObject(void)
 {
 	MechS32 dx;
@@ -186,17 +211,25 @@ void UpdateGridObject(void)
 
 		if (g_gridCell.m_x != cellX || g_gridCell.m_z != cellZ) {
 			g_gridAnchor.m_x = cellX * g_gridCellSize;
+#ifndef MW2_MATROX
 			g_gridAnchor.m_y = 0;
+#endif
 			g_gridAnchor.m_z = cellZ * g_gridCellSize;
 			if (g_gridObject) {
 				ShowObjTree(g_gridObject);
+#ifdef MW2_MATROX
+				SetObjPosition(g_gridObject, g_gridAnchor.m_x, 0, g_gridAnchor.m_z);
+#else
 				SetObjPosition(g_gridObject, g_gridAnchor.m_x, g_gridAnchor.m_y, g_gridAnchor.m_z);
+#endif
 				UpdateObj(g_gridObject);
 			}
 		}
 
 		g_gridCell.m_x = cellX;
+#ifndef MW2_MATROX
 		g_gridCell.m_y = 0;
+#endif
 		g_gridCell.m_z = cellZ;
 	}
 }

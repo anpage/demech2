@@ -73,10 +73,10 @@ static MechS32 g_criticalHeatWarningTime;
 // already reached and marking each one it reaches (turning off after the last); then the AI
 // steers, the throttle saved while AvoidObstacles has it.
 // Stack-slot permutation: index and first.
-// MW2MATROX (0x10010250) copies m_maneuverParam and the steering's float throttle into each
-// other as they are (the dword, no conversion).
+// The Matrox edition copies m_maneuverParam and the steering's float throttle into each other as
+// they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
-// STUB: MW2MATROX 0x10010250
+// FUNCTION: MW2MATROX 0x10010250
 void RunAutopilot(Mech* p_mech)
 {
 	MechS32 index;
@@ -131,11 +131,19 @@ void RunAutopilot(Mech* p_mech)
 	if (!AvoidObstacles(p_mech->m_player)) {
 		SteerToTarget(p_mech->m_player);
 		if (p_mech->m_player->m_maneuverFlag == 1) {
+#ifdef MW2_MATROX
+			*(MechS32*) &p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
+#else
 			p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
+#endif
 			p_mech->m_player->m_maneuverFlag = 0;
 		}
 
+#ifdef MW2_MATROX
+		p_mech->m_player->m_maneuverParam = *(MechS32*) &p_mech->m_player->m_steering->m_throttle;
+#else
 		p_mech->m_player->m_maneuverParam = p_mech->m_player->m_steering->m_throttle;
+#endif
 	}
 	else {
 		p_mech->m_player->m_maneuverFlag = 1;

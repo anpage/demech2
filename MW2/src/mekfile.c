@@ -386,7 +386,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // Stack-slot permutation: the kinds table sits elsewhere in the frame, so its accesses and the
 // jumps over them differ in their encoding.
 // FUNCTION: MW2 0x1005e534
-// STUB: MW2MATROX 0x1008d62b
+// FUNCTION: MW2MATROX 0x1008d62b
 MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_weapons)
 {
 	MechS32 armor;
@@ -405,7 +405,7 @@ MechU16 GetMechValue(MekHeader* p_header, MechSection* p_sections, MekWeapon* p_
 	armor = 0;
 	for (i = 0; i < 8; i++, p_sections++) {
 		for (j = 0; j < p_sections->m_slotCount; j++) {
-			armor += p_sections->m_armor[0] + p_sections->m_armor[1];
+			armor += SCALAR_TO_INT(p_sections->m_armor[0] + p_sections->m_armor[1]);
 			for (k = 22; k >= 0; k--) {
 				if (p_sections->m_slots[j] > kinds[k][0]) {
 					kinds[k][2]++;

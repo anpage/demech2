@@ -1,4 +1,7 @@
 /* The door gamepiece (GP_MW2DOOR, player type 7): its reset, update and allocation functions. */
+#ifdef MW2_MATROX
+#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
+#endif
 #include "door.h"
 
 #include "ai.h"
@@ -85,10 +88,10 @@ void FirstDoor(Player* p_player)
 // MW2MATROX (0x10088a5a) takes the heading's sine and cosine as floats, from the Matrox edition's
 // FixedSin of a float angle (the cosine is FixedSin(heading + 90)), without the >> 13.
 // FUNCTION: MW2 0x1006831a
-// STUB: MW2MATROX 0x10088a5a
+// FUNCTION: MW2MATROX 0x10088a5a
 void UpdateDoor(Mech* p_mech)
 {
-	MechS32 heading;
+	MechScalar heading;
 	Mech* mech;
 
 	if (!p_mech) {
@@ -118,8 +121,13 @@ void UpdateDoor(Mech* p_mech)
 		);
 		UpdateObj(mech->m_player->m_obj);
 		heading = mech->m_player->m_heading;
+#ifdef MW2_MATROX
+		mech->m_player->m_headingSin = FixedSin(heading);
+		mech->m_player->m_headingCos = FixedCos(heading);
+#else
 		mech->m_player->m_headingSin = FixedSin(heading) >> 13;
 		mech->m_player->m_headingCos = FixedCos(heading) >> 13;
+#endif
 	}
 }
 
