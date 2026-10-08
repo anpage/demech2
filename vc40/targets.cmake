@@ -17,8 +17,16 @@
 # object is a fragment both units include, one per target (config.c's cockpit panels end
 # staticmem.c's object, clock.c's rotation normalization transform.c's), and its float math
 # object is a unit of its own (matrox/floatmath.c), which replaces fixedtrig.c and approxlen.c.
-# The rest of its own objects (the A3D renderer, the units it rewrote) aren't written yet.
+# The rest of its own objects (the units it rewrote) aren't written yet. Its A3D renderer is
+# optimized code: VC++ 4.0 at /Ox /G5 /Op, where everything else is /Od (CLAUDE.md, "The A3D layer"),
+# and so is its depth sort object (depthsort.c, with /Oa too).
 function(demech2_add_mw2matrox)
+  set_source_files_properties("${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
+    PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Op")
+  # Its depth sort object is optimized code too, assuming no aliasing as well (/Oa): DrawShapeList
+  # keeps g_depthList and g_depthEntryCount in registers across its store to the shape's flags.
+  set_source_files_properties("${DEMECH2_SOURCE_DIR}/MW2/src/depthsort.c"
+    PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Oa;/Op")
   demech2_add_dll(mw2matrox
     ID MW2MATROX
     SOURCE_DIR MW2
@@ -116,7 +124,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/camerashake.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/error.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"
-      # The A3D renderer (0x1005a5f0 to 0x100673c0), stubbed
+      # The A3D renderer (0x1005a5f0 to 0x10067500), compiled with /Ox /G5 /Op (below)
       "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/keyboard.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/polydraw.c"
@@ -209,7 +217,8 @@ function(demech2_add_mw2matrox)
   # The Matrox edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
   # its __inline IsWithinRadius (inradius.h) into its callers, the DisplayDib header's __inline helpers
   # into dispdib.c's functions, and mapview.c its projection (view.c: IsWithinRadius).
-  set_source_files_properties(
+  # (Appended: demech2_add_dll gave every source its /Od.)
+  set_property(SOURCE
     "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/dispdib.c"
@@ -218,6 +227,6 @@ function(demech2_add_mw2matrox)
     "${DEMECH2_SOURCE_DIR}/MW2/src/objective.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/view.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
-    PROPERTIES COMPILE_OPTIONS /Ob1
+    APPEND PROPERTY COMPILE_OPTIONS /Ob1
   )
 endfunction()

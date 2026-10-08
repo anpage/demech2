@@ -37,6 +37,7 @@
 #include <windows.h>
 
 #ifdef MW2_MATROX
+#include "matrox/a3d.h"
 #include "matrox/vfx16.h"
 #endif
 
@@ -562,11 +563,3 @@ void DrawBoundingSpheres(Shape* p_root)
 		}
 	}
 }
-
-#ifdef MW2_MATROX
-// STUB: MW2MATROX 0x1005f8a0
-void FUN_1005f8a0(PANE* p_pane, MechS32 p_color)
-{
-	STUB(0x1005f8a0);
-}
-#endif

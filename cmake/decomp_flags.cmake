@@ -1,14 +1,20 @@
 # The compiler and linker flags of a VC++ 4.x build (see "Compiler and linker flags" in the
 # top-level CMakeLists.txt). Included by the top-level project with VC++ 4.1 and by vc40/.
 
+# /Od is not in CMAKE_<LANG>_FLAGS, so that a source can be compiled with other optimization
+# flags without cl overriding one with the other (D4025): a target adds it as a compile option,
+# unless it has DEMECH2_SOURCE_OPTIMIZATION set, in which case each of its sources gets /Od or its
+# own DEMECH2_OPTIMIZATION (cmake/game_dll.cmake; the Matrox edition's A3D renderer).
 foreach(lang C CXX)
-  set(CMAKE_${lang}_FLAGS "/DWIN32 /D_WINDOWS /W3 /Od /Oi")
+  set(CMAKE_${lang}_FLAGS "/DWIN32 /D_WINDOWS /W3 /Oi")
   set(CMAKE_${lang}_FLAGS_DEBUG "/Zi")
   set(CMAKE_${lang}_FLAGS_RELEASE "/DNDEBUG")
   set(CMAKE_${lang}_FLAGS_RELWITHDEBINFO "/Zi /DNDEBUG")
   set(CMAKE_${lang}_FLAGS_MINSIZEREL "/DNDEBUG")
   set(CMAKE_${lang}_STANDARD_LIBRARIES "")
 endforeach()
+add_compile_options(
+  "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<BOOL:$<TARGET_PROPERTY:DEMECH2_SOURCE_OPTIMIZATION>>>>:/Od>")
 # LINK 3.10 crashes on Windows ("Internal error during Pass1", at a varying object) once
 # the object names it is given total about 4K: MW2's 100 objects as CMakeFiles\mw2.dir\...
 # paths did (4226 bytes; 91 linked at 3843), and so did MW2SHELL's 60 as absolute paths

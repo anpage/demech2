@@ -4,3 +4,13 @@
 LIBRARY MSI95
 EXPORTS
     msiSync
+    msiExit
+    msiInit
+    msiBlitRect
+    msiAllocTextureHeap
+    msiFreeTextureHeap
+    msiDrawSingleLine
+    msiRenderTriangle
+    msiEndFrame
+    msiStartFrame
+    msiSetParameters

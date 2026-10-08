@@ -531,7 +531,7 @@ void DrawMapView(void)
 // Draws the map view's contents: the nav points, the center icon and the other players and
 // things, and the target.
 // The only diff is a stack-slot permutation of the locals. The original has an unused local (unused).
-// MW2MATROX: DrawMapTarget has no MW2MATROX annotation (the edition places it before IsNavReached),
+// MW2MATROX: DrawMapTarget has no MW2MATROX annotation (the Matrox edition places it before IsNavReached),
 // so its call stays unnamed.
 // FUNCTION: MW2 0x1003e32c
 // FUNCTION: MW2MATROX 0x10074024

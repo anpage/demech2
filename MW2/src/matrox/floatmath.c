@@ -1,5 +1,5 @@
 /* The Matrox edition's floating-point trigonometry and vector math: one object of its own,
-   between menucontrols.c's and missionsetup.c's, with the edition's versions of functions 1.1
+   between menucontrols.c's and missionsetup.c's, with the Matrox edition's versions of functions 1.1
    has in clock.c (the tables, Hypot2D), fixedtrig.c (the sine and arctangent), approxlen.c,
    shapegeom.c (ComputeTriangleNormal) and fixedsqrt.c (NormalizeVectorGuarded). 1.1's versions
    stay in those units, which the Matrox edition doesn't build or builds without them. */

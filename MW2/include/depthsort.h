@@ -43,7 +43,7 @@ extern "C"
 	extern MechU32 g_queuedShapeFlags;
 	extern MechS32 g_shapesConsidered;
 
-	MechS32 QueueShapeLod(struct Shape* p_shape, MechS32 p_depth);
+	MechS32 QueueShapeLod(struct Shape* p_shape, MechScalar p_depth);
 	void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last);
 	void DrawShapeList(struct Shape* p_root);
 	void DrawDepthQueue(void);

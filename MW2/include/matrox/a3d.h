@@ -11,12 +11,12 @@
 
 #include <windows.h>
 
-// The Matrox edition's A3D renderer (0x1005a5f0-0x100673c0, between damagepanel.c's and
-// keyboard.c's objects): optimized code the edition draws its polygons through, in place of VFX's
-// (CLAUDE.md, "The A3D layer"). It isn't written yet: matrox/a3d.c stubs the entry points the game
-// code calls.
+// The Matrox edition's A3D renderer (0x1005a5f0-0x10067500, between damagepanel.c's and
+// keyboard.c's objects): optimized code the Matrox edition draws its polygons through, in place of VFX's
+// (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op. matrox/a3d.c is partly written: the rest
+// of the entry points the game code calls are stubs.
 
-// A vertex of the textured polygons FUN_10062cd0 draws, in doubles: the screen position, the depth
+// A vertex of the textured polygons A3D_GroundSkyPolyPlot draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
 // (times m_w).
 // SIZE 0x60
@@ -42,13 +42,14 @@ extern "C"
 	extern MechU32 g_unk0x100ac924;
 	extern MechU32 g_unk0x100ac928;
 
-	// Clips the polygon p_in of p_count projected vertices (ProjectPolygon's) into p_out; returns
-	// the clipped polygon's vertex count.
-	MechU32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechU32 p_count, MechS32 p_unk0x10);
+	// Clips the polygon p_in of p_count projected vertices (ProjectPolygon's) against the view's
+	// planes p_flags selects into p_out; returns the clipped polygon's vertex count.
+	MechS32 FUN_1005a5f0(ProjectedVertex* p_out, ProjectedVertex* p_in, MechS32 p_count, MechU32 p_flags);
 	// Releases the texture cache (a jump to FUN_1005d0a0).
 	void FUN_1005d090(void);
-	// Returns the cached texture of the CEL resource p_id.
-	A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_unk0x08, MechU32 p_mode);
+	// Returns the cached texture of the CEL resource p_id (loading it with p_levels levels, 8-bit when
+	// p_paletted, if it isn't cached).
+	A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels);
 	// Starts a frame (msiStartFrame), unless one is started.
 	void FUN_1005f710(void);
 	// Ends the frame (msiEndFrame), if one is started.
@@ -59,14 +60,20 @@ extern "C"
 	void FUN_1005f810(MechS32 p_filter);
 	// Sets whether and in which 16-bit color the frame is cleared (red, green and blue as floats).
 	void FUN_1005f820(MechS32 p_clear, MechU32 p_color);
-	void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechS32 p_count);
-	void FUN_10061cb0(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices);
+	// Fills p_pane with a 16-bit color (DrawScene's pane wipe).
+	void FUN_1005f8a0(PANE* p_pane, MechS32 p_color);
+	// Draws the outline of the polygon p_vertices of p_count vertices on p_pane, in the color of its
+	// first vertex.
+	void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count);
+	// Draws the shaded polygon p_vertices of p_count vertices on p_pane.
+	void FUN_10061cb0(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices);
 	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
 	// for its shades and 2 for its fourth argument).
-	void FUN_10062010(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
+	void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
+	// Draws a textured polygon, perspective-corrected with p_flags 0x200 or 0x400.
 	void FUN_10062630(
 		PANE* p_pane,
-		MechS32 p_count,
+		MechU32 p_count,
 		A3DVertex* p_vertices,
 		MechU32 p_flags,
 		undefined4 p_unk0x10,
@@ -74,23 +81,26 @@ extern "C"
 		undefined4 p_unk0x18,
 		undefined4 p_unk0x1c
 	);
-	// Draws a textured polygon of p_count vertices on p_pane.
-	MechS32 FUN_10062cd0(
+	// "A3D_GroundSkyPolyPlot()": draws the textured polygon p_vertices of p_count vertices on p_pane
+	// (the ground's and the sky's), clipped to the depth p_depth or, negative, put at -p_depth.
+	void A3D_GroundSkyPolyPlot(
 		PANE* p_pane,
-		MechS32 p_count,
+		MechU32 p_count,
 		A3DPolyVertex* p_vertices,
 		A3DTexture* p_texture,
 		MechS32 p_unk0x10,
 		MechDouble p_depth,
-		MechS32 p_unk0x1c
+		MechS32 p_mip
 	);
+	// Puts in p_out the point where the edge from p_a to p_b crosses p_edge on the axis p_axis (1 x,
+	// 2 y), interpolating the colors (p_flags 1), the texture coordinates (4) and m_w (8).
 	void FUN_10066a50(
 		MechS32 p_axis,
 		MechFloat p_edge,
 		A3DVertex* p_a,
 		A3DVertex* p_b,
 		A3DVertex* p_out,
-		MechS32 p_unk0x14
+		MechU32 p_flags
 	);
 	// Frees the texture heap FUN_10066c10 allocated (msiFreeTextureHeap).
 	void FUN_10066c00(undefined* p_heap);
@@ -108,9 +118,9 @@ extern "C"
 	);
 	// Opens MSI95.DLL's display at p_width x p_height (msiInit), with p_windowProc as its window's
 	// procedure; returns 0 on success.
-	MechS32 FUN_10066d30(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height);
+	MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height);
 	// "A3D_shutdown()": closes the display (msiExit).
-	void FUN_100671e0(void);
+	void A3D_shutdown(void);
 
 #ifdef __cplusplus
 }

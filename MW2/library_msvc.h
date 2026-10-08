@@ -256,6 +256,16 @@
 // LIBRARY: MW2MATROX 0x10094e80 SYMBOL
 // _vsprintf
 
+// fabs.obj
+
+// LIBRARY: MW2MATROX 0x10094ef0 SYMBOL
+// _fabs
+
+// floor.obj
+
+// LIBRARY: MW2MATROX 0x10094fe0 SYMBOL
+// _floor
+
 // tolower.obj
 
 // LIBRARY: MW2 0x10082330 SYMBOL
@@ -2230,9 +2240,6 @@
 // __mb_cur_max
 
 // MW2MATROX's C runtime functions that only MW2SHELL's matched (tools/port_annotations.py).
-
-// LIBRARY: MW2MATROX 0x10067248 SYMBOL
-// ___inittime
 
 // LIBRARY: MW2MATROX 0x10093d70 SYMBOL
 // __initterm
