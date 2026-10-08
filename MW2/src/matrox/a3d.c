@@ -567,7 +567,7 @@ MechU32 FUN_10063150(
 	MechS32 p_perspective
 );
 MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count);
-MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_depth);
+MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechS32 p_count, MechDouble p_depth);
 void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3DTexture* p_texture, MechS32 p_mip);
 void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3DTexture* p_texture, MechS32 p_mip);
 __inline void FUN_10064e20(
@@ -1316,6 +1316,30 @@ void FUN_1005d140(A3DHeapBlock* p_block)
 	}
 }
 
+// Empties both caches: the texture cache (FUN_1005d0a0), then every item of the heap cache, with
+// its blocks. Nothing in the edition calls it.
+// FUNCTION: MW2MATROX 0x1005d300
+void FUN_1005d300(void)
+{
+	A3DTexture* item;
+	A3DTexture* next;
+
+	FUN_1005d0a0();
+	while ((item = g_unk0x100acb40) != NULL) {
+		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
+		g_unk0x100c2680[item->m_id] = NULL;
+		FUN_1005d140(item->m_vramBlock);
+		FUN_1005d440(item->m_heapBlock);
+		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
+		g_unk0x100d2680[item->m_id] = NULL;
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
+		g_unk0x100acb50--;
+	}
+	g_unk0x100acb48 = 0;
+	g_unk0x100acb4c = 0;
+	g_unk0x100acb50 = 0;
+}
+
 // Frees the heap block p_block, as FUN_1005d140 frees VRAM blocks.
 // Not matched yet (as FUN_1005d140): the original keeps size in a register and updates the counters
 // in memory; the logic follows it.
@@ -1328,8 +1352,8 @@ void FUN_1005d440(A3DHeapBlock* p_block)
 	MechU32 size;
 
 	if (p_block) {
-		g_unk0x100acb28--;
 		A3D_UNLIST_BLOCK(p_block, g_unk0x100acb0c);
+		g_unk0x100acb28--;
 		size = p_block->m_size;
 		p_block->m_free = TRUE;
 		p_block->m_owner->m_heapBlock = NULL;
@@ -1649,11 +1673,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 	MechU32 bytes;
 	MechU32 level;
 
-	if (p_id == 0x29b6) {
-		p_levels = 1;
-		size = 0x2000;
-	}
-	else {
+	if (p_id != 0x29b6) {
 		resourceSize = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], p_id);
 		if (resourceSize < 0) {
 			DebugPrint("HEAPCACHE_loaditem(): GetIndexedItemSize() failed on ID #%i\n", p_id);
@@ -1661,7 +1681,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 		}
 		if (p_paletted) {
 			size = 0;
-			bytes = (resourceSize - 4) >> 1;
+			bytes = (MechU32) (resourceSize - 4) >> 1;
 			for (level = p_levels; level; level--) {
 				size = ((((size + 0x1f) & ~0x1f) + bytes + 0x1f) & ~0x1f) + 0x200;
 				bytes >>= 2;
@@ -1682,6 +1702,10 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 			}
 			size += 4;
 		}
+	}
+	else {
+		p_levels = 1;
+		size = 0x2000;
 	}
 
 	item = (A3DTexture*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(A3DTexture));
@@ -1858,7 +1882,7 @@ A3DHeapBlock* HEAP_defrag(MechU32 p_size)
 	A3DHeapBlock* block;
 	A3DHeapBlock* prev;
 	MechU32 size;
-	MechU8 pass;
+	MechS32 pass;
 
 	g_unk0x100acb24++;
 	largest = NULL;
@@ -1987,7 +2011,7 @@ void FUN_1005ebb0(A3DTexture* p_item)
 
 // Builds the levels of p_item from its level p_level, p_pixels: 16-bit levels in the heap block,
 // each after the last, or (p_paletted) each level quantized by FUN_1005f0c0.
-// Not matched yet (38%): the original keeps the 2x2 filter's index in esi over row pointers it
+// Not matched yet: the original keeps the 2x2 filter's index in esi over row pointers it
 // reloads; this build strength-reduces them into walking pointers.
 // FUNCTION: MW2MATROX 0x1005ec40
 void FUN_1005ec40(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level, MechS32 p_paletted)
@@ -1995,24 +2019,24 @@ void FUN_1005ec40(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level, MechS3
 	MechU32 width;
 	MechU32 half;
 	MechU32 bytes;
-	MechU32 y;
-	MechU32 x;
-	MechU32 i;
+	MechS32 y;
+	MechS32 x;
+	MechS32 i;
 	MechU16* row0;
 	MechU16* row1;
 	MechU16* dest;
 	MechU16* destRow;
 	MechU16* next;
-	MechU16 a;
-	MechU16 b;
-	MechU16 c;
 	MechU16 d;
+	MechU16 c;
+	MechU16 b;
+	MechU16 a;
 
 	if (!p_level) {
 		p_item->m_offsets[p_level] = 0;
 		p_item->m_size = 0;
 	}
-	width = p_item->m_width / (MechU32) (1 << p_level);
+	width = p_item->m_width / (1 << p_level);
 
 	if (p_paletted) {
 		FUN_1005f0c0(p_item, p_pixels, p_level);
@@ -3400,9 +3424,9 @@ MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count)
 
 // Clips the polygon p_vertices of p_count vertices to the depth p_depth (by m_w, the projection
 // scale over the depth), in place; returns the clipped polygon's vertex count.
-// The original copies the polygon with rep movsd alone (no byte tail); register allocation differs.
+// Register allocation differs (a and p_vertices swap ebx and ebp).
 // FUNCTION: MW2MATROX 0x10065710
-MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_depth)
+MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechS32 p_count, MechDouble p_depth)
 {
 	MechDouble w;
 	MechDouble t;
@@ -3414,15 +3438,20 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 
 	w = g_eyepoint->m_projectScaleX / p_depth;
 	memcpy(polygon, p_vertices, p_count * sizeof(A3DPolyVertex));
+	count = 0;
 	a = polygon;
 	b = &polygon[1];
-	count = 0;
 	for (i = 0; i < p_count; i++) {
 		if (p_count - i == 1) {
 			b = polygon;
 		}
 		if (a->m_w >= w) {
-			if (b->m_w < w) {
+			if (b->m_w >= w) {
+				*p_vertices = *a;
+				count++;
+				p_vertices++;
+			}
+			else {
 				*p_vertices = *a;
 				count++;
 				p_vertices++;
@@ -3431,11 +3460,6 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 				A3D_LERP_DOUBLE(p_vertices->m_u, a->m_u, b->m_u, t)
 				A3D_LERP_DOUBLE(p_vertices->m_v, a->m_v, b->m_v, t)
 				p_vertices->m_w = w;
-				count++;
-				p_vertices++;
-			}
-			else {
-				*p_vertices = *a;
 				count++;
 				p_vertices++;
 			}
@@ -3458,15 +3482,13 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 
 // Draws the textured triangle p_a, p_b, p_c, choosing its MIP map level by its mean depth with
 // p_mip.
-// Register allocation differs (the original biases the triangle pointer by 0x10).
+// Register allocation differs (the original keeps g_eyepoint in a register).
 // FUNCTION: MW2MATROX 0x100659f0
 void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3DTexture* p_texture, MechS32 p_mip)
 {
 	A3DPolyVertex* vertices[3];
 	MechDouble depth;
-	A3DPolyVertex** from;
-	A3DPolyVertex* vertex;
-	A3DVertex* to;
+	MechU32 i;
 	MechU32 level;
 	MechU32 scale;
 	MechS32 minU;
@@ -3477,22 +3499,21 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 	vertices[0] = p_a;
 	vertices[1] = p_b;
 	vertices[2] = p_c;
-	for (from = vertices, to = triangle; from < vertices + 3; from++, to++) {
-		vertex = *from;
-		to->m_x = (MechFloat) vertex->m_x;
-		to->m_y = (MechFloat) vertex->m_y;
-		to->m_z = (MechFloat) vertex->m_z;
-		to->m_w = (MechFloat) vertex->m_w;
-		to->m_red = (MechFloat) vertex->m_red;
-		to->m_green = (MechFloat) vertex->m_green;
-		to->m_blue = (MechFloat) vertex->m_blue;
-		to->m_unk0x1c = to->m_red;
-		to->m_unk0x20 = to->m_green;
-		to->m_unk0x24 = to->m_blue;
-		to->m_u = (MechFloat) (vertex->m_u / vertex->m_w);
-		to->m_v = (MechFloat) (vertex->m_v / vertex->m_w);
+	for (i = 0; i < 3; i++) {
+		triangle[i].m_x = (MechFloat) vertices[i]->m_x;
+		triangle[i].m_y = (MechFloat) vertices[i]->m_y;
+		triangle[i].m_z = (MechFloat) vertices[i]->m_z;
+		triangle[i].m_w = (MechFloat) vertices[i]->m_w;
+		triangle[i].m_red = (MechFloat) vertices[i]->m_red;
+		triangle[i].m_green = (MechFloat) vertices[i]->m_green;
+		triangle[i].m_blue = (MechFloat) vertices[i]->m_blue;
+		triangle[i].m_unk0x1c = triangle[i].m_red;
+		triangle[i].m_unk0x20 = triangle[i].m_green;
+		triangle[i].m_unk0x24 = triangle[i].m_blue;
+		triangle[i].m_u = (MechFloat) (vertices[i]->m_u / vertices[i]->m_w);
+		triangle[i].m_v = (MechFloat) (vertices[i]->m_v / vertices[i]->m_w);
 		if (p_mip) {
-			depth += g_eyepoint->m_projectScaleX / vertex->m_w;
+			depth += g_eyepoint->m_projectScaleX / vertices[i]->m_w;
 		}
 	}
 
@@ -3523,17 +3544,17 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 
 	minU = (MechS32) triangle[0].m_u;
 	minV = (MechS32) triangle[0].m_v;
-	for (to = &triangle[1]; to < triangle + 3; to++) {
-		if ((MechS32) to->m_u < minU) {
-			minU = (MechS32) to->m_u;
+	for (i = 1; i < 3; i++) {
+		if ((MechS32) triangle[i].m_u < minU) {
+			minU = (MechS32) triangle[i].m_u;
 		}
-		if ((MechS32) to->m_v < minV) {
-			minV = (MechS32) to->m_v;
+		if ((MechS32) triangle[i].m_v < minV) {
+			minV = (MechS32) triangle[i].m_v;
 		}
 	}
-	for (to = triangle; to < triangle + 3; to++) {
-		to->m_u -= (MechFloat) minU;
-		to->m_v -= (MechFloat) minV;
+	for (i = 0; i < 3; i++) {
+		triangle[i].m_u -= (MechFloat) minU;
+		triangle[i].m_v -= (MechFloat) minV;
 	}
 
 	msiRenderTriangle(&triangle[0], &triangle[1], &triangle[2], 100);
@@ -3556,6 +3577,7 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 	MechDouble step;
 	MechDouble remain;
 	MechDouble dy;
+	MechDouble d;
 	MechU32 i;
 	MechS32 leftDone;
 	MechS32 rightDone;
@@ -3573,8 +3595,8 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 	top = p_vertices;
 	maxY = -1.0;
 	last = &p_vertices[p_count - 1];
-	vertex = p_vertices + 1;
 	for (i = 1; i < p_count; i++) {
+		vertex = &p_vertices[i];
 		vertex->m_x = floor(vertex->m_x + 0.5);
 		vertex->m_y = floor(vertex->m_y + 0.5);
 		if (vertex->m_y > maxY) {
@@ -3583,7 +3605,6 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 		if (vertex->m_y <= top->m_y && (vertex->m_y != top->m_y || top->m_x > vertex->m_x)) {
 			top = vertex;
 		}
-		vertex++;
 	}
 
 	leftEnd = top;
@@ -3593,7 +3614,8 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 		if (leftEnd < p_vertices) {
 			leftEnd = last;
 		}
-	} while (leftEnd != top && leftEnd->m_y - leftStart->m_y < 1.0);
+		d = leftEnd->m_y - leftStart->m_y;
+	} while (leftEnd != top && d < 1.0);
 	left = *leftStart;
 	left0 = left;
 	A3D_EDGE_STEP(leftStep, leftStart, leftEnd, dy)
@@ -3605,10 +3627,11 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 		if (rightEnd > last) {
 			rightEnd = p_vertices;
 		}
-	} while (rightEnd != leftEnd && rightEnd->m_y - rightStart->m_y < 1.0);
+		d = rightEnd->m_y - rightStart->m_y;
+	} while (rightEnd != leftEnd && d < 1.0);
 	right = *rightStart;
 	right0 = right;
-	A3D_EDGE_STEP(rightStep, rightStart, rightEnd, dy)
+	A3D_EDGE_STEP(rightStep, rightStart, rightEnd, d)
 
 	rows = (MechDouble) p_rows;
 	if (maxY - top->m_y < rows) {
@@ -3672,7 +3695,8 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 				if (leftEnd < p_vertices) {
 					leftEnd = last;
 				}
-			} while (rightEnd != leftEnd && leftEnd->m_y - leftStart->m_y < 1.0);
+				d = leftEnd->m_y - leftStart->m_y;
+			} while (rightEnd != leftEnd && d < 1.0);
 			left = *leftStart;
 			left0 = left;
 			A3D_EDGE_STEP(leftStep, leftStart, leftEnd, dy)
@@ -3689,11 +3713,12 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 				if (rightEnd > last) {
 					rightEnd = p_vertices;
 				}
-			} while (rightEnd != leftEnd && rightEnd->m_y - rightStart->m_y < 1.0);
+				d = rightEnd->m_y - rightStart->m_y;
+			} while (rightEnd != leftEnd && d < 1.0);
 			right = *rightStart;
 			right0 = right;
-			A3D_EDGE_STEP(rightStep, rightStart, rightEnd, dy)
-			if (dy < 1.0) {
+			A3D_EDGE_STEP(rightStep, rightStart, rightEnd, d)
+			if (d < 1.0) {
 				return;
 			}
 			rightDone = FALSE;
@@ -3877,7 +3902,8 @@ MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 	return 0;
 }
 
-// Starts the texture cache's heap: one free block of the card's texture memory.
+// Starts the texture cache's heap: one free block of the card's texture memory (0x20 bytes: a
+// VRAM block has no m_unk0x20).
 // Store scheduling differs.
 // FUNCTION: MW2MATROX 0x10066fd0
 void FUN_10066fd0(void)
@@ -3885,12 +3911,12 @@ void FUN_10066fd0(void)
 	g_unk0x100acaf8 = NULL;
 	g_unk0x100acaf0 = NULL;
 	g_unk0x100acaf4 = NULL;
-	g_unk0x100acafc = g_unk0x100ac930->m_unk0x50;
 	g_unk0x100acb04 = 0;
+	g_unk0x100acafc = g_unk0x100ac930->m_unk0x50;
 	DebugPrint("Texture Cache Size = %i\n", g_unk0x100acafc);
 
-	g_unk0x100acaf4 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(A3DHeapBlock));
-	memset(g_unk0x100acaf4, 0, sizeof(A3DHeapBlock));
+	g_unk0x100acaf4 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x20);
+	memset(g_unk0x100acaf4, 0, 0x20);
 	g_unk0x100acaf4->m_unk0x08 = NULL;
 	g_unk0x100acaf4->m_unk0x0c = NULL;
 	g_unk0x100acaf4->m_unk0x00 = NULL;
