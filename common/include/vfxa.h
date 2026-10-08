@@ -8,9 +8,9 @@
 
 // VFXA, Miles Design VFX's 2D primitives (3rdparty/vfx/VFXA.ASM; its portable C, common/src/vfxa.c,
 // in COMPAT_MODE), which both DLLs link.
-// The Matrox edition links it too, but its VFX_shape_draw, VFX_shape_translate_draw, VFX_pane_wipe
-// and VFX_character_draw differ from 1.1's (and from this source): they are STUBs for MW2MATROX,
-// named so that their callers compare.
+// The Matrox edition links it too, assembled with MW2_MATROX: its shape drawers, VFX_pane_wipe and
+// VFX_character_draw keep the release's fills and copies where 1.1's align them, and it has a
+// routine 1.1's doesn't, VFX_lookaside_write (one entry of the shape lookaside table; our name).
 #ifdef __cplusplus
 extern "C"
 {
@@ -184,11 +184,12 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x10032f84
 // FUNCTION: MW2 0x10061228
-// STUB: MW2MATROX 0x1004b858
+// FUNCTION: MW2MATROX 0x1004b858
 // VFX_shape_draw
 
 // FUNCTION: MW2SHELL 0x100333f8
 // FUNCTION: MW2 0x1006169c
+// FUNCTION: MW2MATROX 0x1004bc5c
 // DrawShapeUnclipped
 
 // FUNCTION: MW2SHELL 0x100334fb
@@ -196,13 +197,17 @@ extern "C"
 // FUNCTION: MW2MATROX 0x1004bd23
 // VFX_shape_lookaside
 
+// FUNCTION: MW2MATROX 0x1004bd42
+// VFX_lookaside_write
+
 // FUNCTION: MW2SHELL 0x1003351a
 // FUNCTION: MW2 0x100617be
-// STUB: MW2MATROX 0x1004bd5e
+// FUNCTION: MW2MATROX 0x1004bd5e
 // VFX_shape_translate_draw
 
 // FUNCTION: MW2SHELL 0x10033980
 // FUNCTION: MW2 0x10061c24
+// FUNCTION: MW2MATROX 0x1004c236
 // XlatShapeUnclipped
 
 // FUNCTION: MW2SHELL 0x10033a76
@@ -237,7 +242,7 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x10034e15
 // FUNCTION: MW2 0x100630b9
-// STUB: MW2MATROX 0x1004d708
+// FUNCTION: MW2MATROX 0x1004d708
 // VFX_pane_wipe
 
 // FUNCTION: MW2SHELL 0x10034f18
@@ -292,7 +297,7 @@ extern "C"
 
 // FUNCTION: MW2SHELL 0x10036adc
 // FUNCTION: MW2 0x10064d80
-// STUB: MW2MATROX 0x1004f3ab
+// FUNCTION: MW2MATROX 0x1004f3ab
 // VFX_character_draw
 
 // FUNCTION: MW2SHELL 0x10036c67

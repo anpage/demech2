@@ -474,7 +474,23 @@ RSTOSB32    MACRO   temp
             ELSE
 
 ; demech2: begin change. MW2 fills runs of more than 4 bytes with the destination aligned:
-; bytes up to a dword boundary, then dwords, then the remaining bytes.
+; bytes up to a dword boundary, then dwords, then the remaining bytes. The Matrox edition
+; (MW2_MATROX) fills the odd bytes first and then dwords, without aligning.
+            IFDEF   MW2_MATROX
+            push    ecx
+            and     ecx,11B
+            RSTOSB
+
+            mov     ah,al
+            rol     eax,8
+            mov     al,ah
+            rol     eax,8
+            mov     al,ah
+
+            pop     ecx
+            shr     ecx,2
+            RSTOSD
+            ELSE
             cmp     ecx,4
             jle     __bytes
             push    ebx
@@ -496,6 +512,7 @@ RSTOSB32    MACRO   temp
             mov     ecx,ebx
             pop     ebx
 __bytes:    RSTOSB
+            ENDIF
 
             ENDIF
 ; demech2: end change
@@ -520,7 +537,16 @@ RMOVSB32    MACRO   temp
             ELSE
 
 ; demech2: begin change. MW2 copies runs of more than 4 bytes with the destination aligned:
-; bytes up to a dword boundary, then dwords, then the remaining bytes.
+; bytes up to a dword boundary, then dwords, then the remaining bytes. The Matrox edition
+; (MW2_MATROX) copies the odd bytes first and then dwords, without aligning.
+            IFDEF   MW2_MATROX
+            push    ecx
+            and     ecx,11B
+            RMOVSB
+            pop     ecx
+            shr     ecx,2
+            RMOVSD
+            ELSE
             cmp     ecx,4
             jle     __bytes
             push    ebx
@@ -537,6 +563,7 @@ RMOVSB32    MACRO   temp
             mov     ecx,ebx
             pop     ebx
 __bytes:    RMOVSB
+            ENDIF
 
             ENDIF
 ; demech2: end change
@@ -551,7 +578,40 @@ RXLAT32     MACRO
             or ecx,ecx
             jz __exit
 
-; demech2: begin change. MW2 translates one byte at a time, without the four-byte unrolled loop.
+; demech2: begin change. MW2 translates one byte at a time, without the four-byte unrolled loop,
+; which the Matrox edition (MW2_MATROX) keeps.
+            IFDEF MW2_MATROX
+            cmp ecx,4
+            jl __xlat_1
+
+__xlat_4:   mov al,[esi]
+            mov al,lookaside[eax]
+            mov [edi],al
+            mov al,[esi+1]
+            mov al,lookaside[eax]
+            mov [edi+1],al
+            mov al,[esi+2]
+            mov al,lookaside[eax]
+            mov [edi+2],al
+            mov al,[esi+3]
+            mov al,lookaside[eax]
+            mov [edi+3],al
+            add esi,4
+            add edi,4
+            sub ecx,4
+            jz __exit
+            cmp ecx,4
+            jge __xlat_4
+
+__xlat_1:   mov al,[esi]
+            mov al,lookaside[eax]
+            mov [edi],al
+            inc esi
+            inc edi
+
+            dec ecx
+            jnz __xlat_1
+            ELSE
 __xlat_1:   mov al,[esi]
             inc esi
             mov al,lookaside[eax]
@@ -560,6 +620,7 @@ __xlat_1:   mov al,[esi]
 
             dec ecx
             jnz __xlat_1
+            ENDIF
 ; demech2: end change
 
 __exit:

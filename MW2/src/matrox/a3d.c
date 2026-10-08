@@ -78,6 +78,12 @@ void FUN_10061cb0(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices)
 	STUB(0x10061cb0);
 }
 
+// STUB: MW2MATROX 0x10062010
+void FUN_10062010(PANE* p_pane, MechS32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags)
+{
+	STUB(0x10062010);
+}
+
 // Draws a textured polygon.
 // STUB: MW2MATROX 0x10062630
 void FUN_10062630(
