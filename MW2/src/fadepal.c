@@ -67,13 +67,13 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
 #ifdef MW2_MATROX
-		saved0x28 = g_renderSettings.m_unk0x28[0];
-		saved0x2c = g_renderSettings.m_unk0x28[1];
-		g_renderSettings.m_unk0x28[0] = 0;
-		g_renderSettings.m_unk0x28[1] = 0;
+		saved0x28 = g_renderSettings.m_texturedSky;
+		saved0x2c = g_renderSettings.m_texturedGround;
+		g_renderSettings.m_texturedSky = 0;
+		g_renderSettings.m_texturedGround = 0;
 		DrawSkyAndGround(g_eyepoint);
-		g_renderSettings.m_unk0x28[0] = saved0x28;
-		g_renderSettings.m_unk0x28[1] = saved0x2c;
+		g_renderSettings.m_texturedSky = saved0x28;
+		g_renderSettings.m_texturedGround = saved0x2c;
 #else
 		DrawSkyAndGround(g_eyepoint);
 #endif

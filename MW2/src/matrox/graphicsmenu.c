@@ -114,10 +114,10 @@ MechS32 InitGraphicsPage(MenuDefinition* p_menu, MenuPage* p_page)
 MechS32 GetTexturedSky(MechS32 p_arg)
 {
 	if (ReadRegistryDword("Sky", (DWORD*) &g_texturedSky)) {
-		g_renderSettings.m_unk0x28[0] = g_texturedSky;
+		g_renderSettings.m_texturedSky = g_texturedSky;
 	}
 	else {
-		g_texturedSky = g_renderSettings.m_unk0x28[0];
+		g_texturedSky = g_renderSettings.m_texturedSky;
 	}
 
 	return g_texturedSky;
@@ -127,7 +127,7 @@ MechS32 GetTexturedSky(MechS32 p_arg)
 void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky)
 {
 	WriteRegistryDword("Sky", (DWORD*) &p_texturedSky);
-	g_renderSettings.m_unk0x28[0] = p_texturedSky;
+	g_renderSettings.m_texturedSky = p_texturedSky;
 	g_texturedSky = p_texturedSky;
 }
 
@@ -135,10 +135,10 @@ void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky)
 MechS32 GetTexturedGround(MechS32 p_arg)
 {
 	if (ReadRegistryDword("Ground", (DWORD*) &g_texturedGround)) {
-		g_renderSettings.m_unk0x28[1] = g_texturedGround;
+		g_renderSettings.m_texturedGround = g_texturedGround;
 	}
 	else {
-		g_texturedGround = g_renderSettings.m_unk0x28[1];
+		g_texturedGround = g_renderSettings.m_texturedGround;
 	}
 
 	return g_texturedGround;
@@ -148,7 +148,7 @@ MechS32 GetTexturedGround(MechS32 p_arg)
 void SetTexturedGround(MechS32 p_arg, MechS32 p_texturedGround)
 {
 	WriteRegistryDword("Ground", (DWORD*) &p_texturedGround);
-	g_renderSettings.m_unk0x28[1] = p_texturedGround;
+	g_renderSettings.m_texturedGround = p_texturedGround;
 	g_texturedGround = p_texturedGround;
 }
 

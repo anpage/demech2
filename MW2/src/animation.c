@@ -636,7 +636,8 @@ A3DTexture* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height, M
 }
 
 // FUN_10051c07 without its point count test (its callers pass a fifth argument it doesn't read), at a fixed depth
-// (-500000) and in its own texture mode. Stack-slot permutation of the locals. FUNCTION: MW2MATROX 0x10051ea2
+// (-500000) and in its own texture mode. Stack-slot permutation of the locals.
+// FUNCTION: MW2MATROX 0x10051ea2
 MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count, MechS32 p_unk0x0c, MechS32 p_unk0x10)
 {
 	A3DTexture* texture;

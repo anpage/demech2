@@ -214,12 +214,12 @@ void FUN_1008fad0(void)
 {
 	DWORD filter;
 
-	if (!ReadRegistryDword("Sky", (DWORD*) g_renderSettings.m_unk0x28)) {
-		g_renderSettings.m_unk0x28[0] = 1;
+	if (!ReadRegistryDword("Sky", (DWORD*) &g_renderSettings.m_texturedSky)) {
+		g_renderSettings.m_texturedSky = 1;
 	}
 
-	if (!ReadRegistryDword("Ground", (DWORD*) &g_renderSettings.m_unk0x28[1])) {
-		g_renderSettings.m_unk0x28[1] = 1;
+	if (!ReadRegistryDword("Ground", (DWORD*) &g_renderSettings.m_texturedGround)) {
+		g_renderSettings.m_texturedGround = 1;
 	}
 
 	if (!ReadRegistryDword("Filter", &filter)) {
@@ -592,7 +592,7 @@ int __stdcall SimMain(
 			UpdatePaletteFade();
 			ApplyPendingPalette();
 #ifdef MW2_MATROX
-			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_unk0x28[1]) {
+			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
 				FUN_1005f820(1, PIXEL_COLOR(g_groundColor));
 			}
 #else
