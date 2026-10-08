@@ -64,10 +64,10 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005d6d0
-// STUB: MW2MATROX 0x1008c850
+// FUNCTION: MW2MATROX 0x1008c850
 MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
-	MechS32 armorScale;
+	MechScalar armorScale;
 	MechS32 binSlot;
 	MechS32 group;
 	MechS32 i;
@@ -79,8 +79,8 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	MekWeapon* weapon;
 	MechS32 binCount;
 	WeaponSlot* slot;
-	MechS32 heat;
-	MechS32 jumpRatio;
+	MechScalar heat;
+	MechScalar jumpRatio;
 	MechS32 level;
 	MechS32 piece;
 	MechS32 j;
@@ -92,6 +92,9 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	MechS32 size;
 	MechSection* section;
 	MekHeader* header;
+#ifdef MW2_MATROX
+	MechS32* bits;
+#endif
 
 	fromResource = 0;
 	RememberLoadMech(p_mech, p_name, p_id, p_config);
@@ -176,6 +179,15 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			WriteToMw2Log(text);
 		}
 
+#ifdef MW2_MATROX
+		// The .MEK file holds integers, which the Matrox edition converts to floats in place.
+		bits = (MechS32*) &section->m_armor[0];
+		section->m_armor[0] = *bits;
+		bits = (MechS32*) &section->m_armor[1];
+		section->m_armor[1] = *bits;
+		bits = (MechS32*) &section->m_internal;
+		section->m_internal = *bits;
+#endif
 		section->m_flags &= 0xff00;
 		level = (section->m_armor[0] + section->m_internal) / 5;
 		if (level > 15) {
@@ -208,13 +220,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			section->m_armor[1] *= g_otherArmorPerLevel;
 		}
 
-#ifdef MW2_MATROX
-		// Unproven: the Matrox edition's armor and internal structure are floats (ApplyDamageToMech,
-		// DestroyCriticalSlot); 1.1's shifts kept as products until this function is matched.
-		section->m_armor[0] *= 0x10000;
-		section->m_armor[1] *= 0x10000;
-		section->m_internal *= 0x10000;
-#else
+#ifndef MW2_MATROX
 		section->m_armor[0] <<= 16;
 		section->m_armor[1] <<= 16;
 		section->m_internal <<= 16;
@@ -310,36 +316,42 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		ammo++;
 	}
 
+#ifdef MW2_MATROX
+	p_mech->m_topSpeed = header->m_speed * FIXED_RAW(0x697e98);
+#else
 	p_mech->m_topSpeed = FixedMul16(header->m_speed, 0x697e98);
+#endif
 	p_mech->m_tons = header->m_tons;
 	p_mech->m_weaponCount = header->m_weaponCount;
 	p_mech->m_ammoBinCount = header->m_ammoCount;
-	heat = 50;
+	heat = FIXED_RAW(50);
 	if (p_mech->m_player->m_index == g_localPlayerId) {
 		switch (g_difficulty->m_enemySkill) {
 		case 0:
-			heat *= 1.4;
+			heat *= FIXED_LITERAL(1.4, 1.4f);
 			if (g_temperature < -30) {
 				heat *= 2;
 			}
+#ifndef MW2_MATROX
 			else if (g_temperature > 50) {
 			}
+#endif
 			break;
 		case 1:
 			if (g_temperature < -30) {
 				heat *= 2;
 			}
 			else if (g_temperature > 50) {
-				heat *= 0.9;
+				heat *= FIXED_LITERAL(0.9, 0.9f);
 			}
 			break;
 		case 2:
-			heat *= 0.9;
+			heat *= FIXED_LITERAL(0.9, 0.9f);
 			if (g_temperature < -30) {
-				heat *= 1.5;
+				heat *= FIXED_LITERAL(1.5, 1.5f);
 			}
 			else if (g_temperature > 50) {
-				heat *= 0.8;
+				heat *= FIXED_LITERAL(0.8, 0.8f);
 			}
 			break;
 		}
@@ -348,7 +360,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		heat *= 2;
 	}
 	else if (g_temperature > 50) {
-		heat *= 0.9;
+		heat *= FIXED_LITERAL(0.9, 0.9f);
 	}
 
 	p_mech->m_cooling = header->m_heatSinks * heat;
@@ -365,8 +377,13 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	else {
 		p_mech->m_jumpFuel = 0x712;
 		p_mech->m_jumpJets = header->m_jump;
+#ifdef MW2_MATROX
+		jumpRatio = (MechScalar) header->m_jump / header->m_speed;
+		p_mech->m_jumpThrust = jumpRatio * FIXED_RAW(0x1e50);
+#else
 		jumpRatio = FixedDiv16(header->m_jump, header->m_speed);
 		p_mech->m_jumpThrust = FixedMul16(0x1e50, jumpRatio);
+#endif
 	}
 
 	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);

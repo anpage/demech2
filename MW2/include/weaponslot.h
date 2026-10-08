@@ -22,8 +22,8 @@ typedef struct WeaponBin {
 #else
 	MechU16 m_damage; // 0x0a — WeaponDef::m_damage
 #endif
-	MechS32 m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the Matrox edition)
-	MechS32 m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the Matrox edition)
+	MechScalar m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the Matrox edition)
+	MechScalar m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the Matrox edition)
 } WeaponBin;
 #ifdef MW2_MATROX
 #pragma pack(pop)
