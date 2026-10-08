@@ -10,6 +10,19 @@
 #include "types.h"
 #include "vfx3d.h"
 #include "window.h"
+#ifdef MW2_MATROX
+#include "eyepoint.h"
+#include "fixedfloat.h"
+#include "matrox/a3d.h"
+#include "palette.h"
+#include "polydraw.h"
+#include "prjfile.h"
+#include "projectedvertex.h"
+#include "simmain.h"
+#include "view.h"
+
+#include <windows.h>
+#endif
 
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
@@ -74,10 +87,39 @@ Animation g_animations[0x200];
 // GLOBAL: MW2 0x100e9210
 WINDOW g_animFrameBuffer;
 
+#ifdef MW2_MATROX
+// Rotates the texture point (*p_u, *p_v) about the texture's centre by the angle whose cosine and
+// sine are p_cos and p_sin.
+// The products' operands are loaded in the other order (commutative operand order).
+// FUNCTION: MW2MATROX 0x10050d60
+void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFloat* p_v)
+{
+	MechFloat u;
+	MechFloat v;
+
+	u = *p_u - 0.5f;
+	v = *p_v - 0.5f;
+	*p_u = u * p_cos - v * p_sin + 0.5;
+	*p_v = v * p_cos + u * p_sin + 0.5;
+}
+
+#endif
 // Stack-slot permutation: anim, data, height, i, luma, mode and useLuma and width.
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
 // FUNCTION: MW2 0x10068d10
 // STUB: MW2MATROX 0x10050dbc
+#ifdef MW2_MATROX
+MechS32 DrawAnimatedPolygon(
+	MechS32 p_index,
+	MechS32 p_count,
+	ProjectedVertex** p_points,
+	MechS32 p_luma,
+	MechS32 p_scale,
+	MechS32 p_direct,
+	MechS32 p_unk0x18,
+	MechS32 p_unk0x1c
+)
+#else
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
 	MechS32 p_count,
@@ -86,7 +128,12 @@ MechS32 DrawAnimatedPolygon(
 	MechS32 p_scale,
 	MechS32 p_direct
 )
+#endif
 {
+#ifdef MW2_MATROX
+	STUB(0x10050dbc);
+	return 0;
+#else
 	MechS16 height;
 	MechS32 i;
 	MechS32 useLuma;
@@ -168,6 +215,7 @@ MechS32 DrawAnimatedPolygon(
 	}
 
 	return 1;
+#endif
 }
 
 // Stack-slot permutation: frame, i and now and remainder. MW2MATROX: a comparison has its
@@ -425,3 +473,246 @@ void FreeAnimations(void)
 		anim->m_lastTime = -1;
 	}
 }
+
+#ifdef MW2_MATROX
+// Computes the average color of animation p_index's current texture, 0-31 per component (the
+// sums of the 5-bit components over an eighth of the pixel count); returns 0 if it has none.
+// pixels < end compares in the other operand order.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2MATROX 0x100519b0
+MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
+{
+	AnimFrame* frame;
+	MechU16 pixel;
+	MechU32 blue;
+	MechU32 red;
+	Animation* anim;
+	MechU32 green;
+	MechU16* end;
+	MechS16 height;
+	MechS32 size;
+	MechS16 width;
+	MechU16* data;
+	MechU32 count;
+	MechU16* pixels;
+
+	pixels = NULL;
+	red = 0;
+	green = 0;
+	blue = 0;
+	anim = &g_animations[p_index];
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return 0;
+	}
+
+	size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], frame->m_resourceId);
+	if (!size) {
+		return 0;
+	}
+
+	data = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size);
+	ReadPrjResource(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], frame->m_resourceId, data);
+	width = data[0];
+	height = data[1];
+	pixels = data + 2;
+	if (!pixels) {
+		return 0;
+	}
+
+	count = height * width;
+	end = pixels + count;
+	while (pixels < end) {
+		pixel = *pixels;
+		blue += pixel & 0x1f;
+		pixel >>= 5;
+		green += pixel & 0x1f;
+		pixel >>= 5;
+		red += pixel & 0x1f;
+		pixels++;
+	}
+
+	red /= count >> 3;
+	green /= count >> 3;
+	blue /= count >> 3;
+	*p_red = red;
+	*p_green = green;
+	*p_blue = blue;
+	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
+	return 1;
+}
+
+// Returns the average color of animation p_index's current frame (CalcAverageBitmapColors).
+// FUNCTION: MW2MATROX 0x10051ba1
+void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
+{
+	AnimFrame* frame;
+	Animation* anim;
+
+	anim = &g_animations[p_index];
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	*p_red = frame->m_red;
+	*p_green = frame->m_green;
+	*p_blue = frame->m_blue;
+}
+
+// Draws the polygon of p_count projected points with animation p_index + 0x100's texture, through
+// the renderer (FUN_10062cd0), at three quarters of the far plane's depth; returns 0 for fewer than
+// three points or no texture.
+// The v product takes its operands in the other order (commutative operand order).
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2MATROX 0x10051c07
+MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count, MechS32 p_unk0x0c)
+{
+	A3DTexture* texture;
+	MechS32 i;
+	MechS16 height;
+	MechS16 width;
+	ProjectedVertex* point;
+	A3DPolyVertex vertices[16];
+	A3DPolyVertex* vertex;
+
+	if (p_count < 3) {
+		return 0;
+	}
+
+	p_index += 0x100;
+	texture = FUN_10051dfe(p_index, &width, &height, g_unk0x100ac924);
+	if (!texture) {
+		return 0;
+	}
+
+	vertex = vertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points;
+		p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		vertex->m_z = point->m_z;
+		vertex->m_w = g_eyepoint->m_projectScaleX / vertex->m_z;
+		vertex->m_u = point->m_u * vertex->m_w;
+		vertex->m_v = point->m_v * vertex->m_w;
+		if (g_unk0x100aa1d0) {
+			vertex->m_blue = g_unk0x10184700[2];
+			vertex->m_green = g_unk0x10184700[1];
+			vertex->m_red = g_unk0x10184700[0];
+		}
+		else {
+			vertex->m_blue = 255.0;
+			vertex->m_green = 255.0;
+			vertex->m_red = 255.0;
+		}
+
+		vertex++;
+	}
+
+	// The result is left as the renderer's: the original returns without a return statement.
+	FUN_10062cd0(&g_currentPane, p_count, vertices, texture, p_unk0x0c, g_viewFarPlane * 0.75, g_unk0x100ac924 > 1);
+}
+
+// Returns the texture of animation p_index's current frame (FUN_1005d600), and its size.
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2MATROX 0x10051dfe
+A3DTexture* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height, MechU32 p_mode)
+{
+	A3DTexture* texture;
+	AnimFrame* frame;
+	Animation* anim;
+
+	anim = &g_animations[p_index];
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return NULL;
+	}
+
+	texture = FUN_1005d600(frame->m_resourceId, 1, p_mode);
+	if (!texture) {
+		return NULL;
+	}
+
+	*p_width = texture->m_unk0x1c;
+	*p_height = texture->m_unk0x20;
+	return texture;
+}
+
+// FUN_10051c07 without its point count test (its callers pass a fifth argument it doesn't read), at a fixed depth
+// (-500000) and in its own texture mode. Stack-slot permutation of the locals. FUNCTION: MW2MATROX 0x10051ea2
+MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count, MechS32 p_unk0x0c, MechS32 p_unk0x10)
+{
+	A3DTexture* texture;
+	MechS32 i;
+	MechS16 height;
+	MechS16 width;
+	ProjectedVertex* point;
+	A3DPolyVertex vertices[16];
+	A3DPolyVertex* vertex;
+
+	p_index += 0x100;
+	texture = FUN_10051dfe(p_index, &width, &height, g_unk0x100ac928);
+	if (!texture) {
+		return 0;
+	}
+
+	vertex = vertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points;
+		p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		vertex->m_z = point->m_z;
+		vertex->m_w = g_eyepoint->m_projectScaleX / vertex->m_z;
+		vertex->m_u = point->m_u * vertex->m_w;
+		vertex->m_v = point->m_v * vertex->m_w;
+		if (g_unk0x100aa1d0) {
+			vertex->m_blue = g_unk0x10184700[2];
+			vertex->m_green = g_unk0x10184700[1];
+			vertex->m_red = g_unk0x10184700[0];
+		}
+		else {
+			vertex->m_blue = 255.0;
+			vertex->m_green = 255.0;
+			vertex->m_red = 255.0;
+		}
+
+		vertex++;
+	}
+
+	// The result is left as the renderer's: the original returns without a return statement.
+	FUN_10062cd0(&g_currentPane, p_count, vertices, texture, p_unk0x0c, -500000.0, g_unk0x100ac928 > 1);
+}
+
+// Computes the average color of every playing animation's current frame (FUN_100519b0).
+// Stack-slot permutation of the locals.
+// FUNCTION: MW2MATROX 0x1005207d
+void CalcAverageBitmapColors(void)
+{
+	MechFloat blue;
+	MechFloat red;
+	AnimFrame* frame;
+	Animation* anim;
+	MechFloat green;
+	MechU32 i;
+
+	for (i = 0; i < 0x200; i++) {
+		anim = &g_animations[i];
+		if (!anim) {
+			continue;
+		}
+
+		if (anim->m_mode == 0 || anim->m_flags < 0) {
+			continue;
+		}
+
+		frame = &g_animFrames[anim->m_set][anim->m_frame];
+		if (frame->m_resourceId < 1) {
+			continue;
+		}
+
+		if (FUN_100519b0(i, &red, &green, &blue)) {
+			frame->m_red = red;
+			frame->m_green = green;
+			frame->m_blue = blue;
+		}
+	}
+}
+#endif

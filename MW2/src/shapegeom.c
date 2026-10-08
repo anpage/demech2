@@ -381,6 +381,7 @@ void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 	}
 }
 
+#ifndef MW2_MATROX
 // Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_distance = 0 for y at
 // (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_distance) / p_normalY, in 64 bits.
 // FUNCTION: MW2 0x10039c96
@@ -419,6 +420,7 @@ MechS32 SolvePlaneY(
 	return result;
 #endif
 }
+#endif
 
 // Returns an approximate distance from (p_x, p_y, p_z) to the shape's center, (4 * the largest +
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
@@ -878,6 +880,7 @@ normalize:
 }
 #endif
 
+#ifndef MW2_MATROX
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d
 MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value)
@@ -910,6 +913,7 @@ done:
 	return result;
 #endif
 }
+#endif
 
 // Returns how far along p_ray it passes closest to the shape's center, less the radius, or
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.

@@ -89,8 +89,9 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 }
 
 // Rescales the tables authored in 320x200 coordinates to the screen, and sets up what depends on
-// the resolution.
+// the resolution. MW2MATROX: stack-slot permutation of i and point.
 // FUNCTION: MW2 0x1005d4d3
+// FUNCTION: MW2MATROX 0x1008c280
 void SetRes(void)
 {
 	MechS32 i;
@@ -101,6 +102,8 @@ void SetRes(void)
 		ScaleRectToScreen(&g_mainPixelBuffer, &g_panes[i], &g_panes[i]);
 	}
 
+#ifndef MW2_MATROX
+	// The Matrox edition has no gauge panes to scale.
 	for (i = 0; i < 5; i++) {
 		ScaleRectFromLowRes(&g_cockpitGaugePanes[i], &g_cockpitGaugePanes[i]);
 		ScaleRectToScreen(&g_mainPixelBuffer, &g_cockpitGaugePanes[i], &g_cockpitGaugePanes[i]);
@@ -108,6 +111,7 @@ void SetRes(void)
 
 	ScalePointFromLowRes(g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
 	ScalePointToScreen(&g_mainPixelBuffer, g_unk0x100a5bb8[3], g_unk0x100a5bb8[3]);
+#endif
 	for (i = 0; i < 6; i++) {
 		ScalePointFromLowRes(&g_hudGaugePositions[i], &g_hudGaugePositions[i]);
 		ScalePointToScreen(&g_mainPixelBuffer, &g_hudGaugePositions[i], &g_hudGaugePositions[i]);

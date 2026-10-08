@@ -108,6 +108,7 @@ void InitPanes(PANE* p_target)
 	}
 }
 
+// MW2MATROX: the operands of the comparison with g_paneIndex are the other way.
 // FUNCTION: MW2 0x1000242f
 // FUNCTION: MW2MATROX 0x1002d5cf
 void SelectPane(MechS32 p_index)
@@ -516,23 +517,3 @@ MechS32 GetPaletteFadeSteps(void)
 {
 	return g_paletteFadeSteps;
 }
-
-#ifdef MW2_MATROX
-// STUB: MW2MATROX 0x1005f790
-void FUN_1005f790(PaletteColor* p_palette)
-{
-	STUB(0x1005f790);
-}
-
-// STUB: MW2MATROX 0x10088246
-void FUN_10088246(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
-{
-	STUB(0x10088246);
-}
-
-// STUB: MW2MATROX 0x10088280
-void FUN_10088280(PANE* p_pane)
-{
-	STUB(0x10088280);
-}
-#endif

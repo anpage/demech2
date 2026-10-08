@@ -30,10 +30,7 @@ NETMECHW split 0x1000f0a0  # IronLantern0x160::FUN_1000f0a0 (unk1000e410.cpp)
 # MW2MATROX: the Matrox edition's objects that hold code or data of more than one of 1.1's units,
 # not split yet. Edition-only functions annotated in palette.c sit in the edition's own objects:
 # the A3D renderer after damagepanel.c, and one after ray.c.
-MW2MATROX start 0x10028adb  # shape.c's and shapegeom.c's functions share objects in another layout (0x10027a60, 0x100285d0)
-MW2MATROX order 0x1005f790  # palette.c's and render.c's functions in the A3D renderer
-MW2MATROX order 0x100773f0  # ProjectVertex (objectanim.c) sits after mechcollision.c
-MW2MATROX order 0x10088246  # FUN_10088246, FUN_10088280 (palette.c) sit between ray.c and door.c
+MW2MATROX order 0x1005f8a0  # render.c's FUN_1005f8a0 sits in the A3D renderer, among matrox/a3d.c's stubs
 MW2MATROX order 0x100a4598  # g_jumpJetDrag, g_slideSlope (maneuvers.c) sit with mechclass.c's data
 MW2MATROX order 0x100a4940  # collision.c's colours sit with quadtree.c's and faceshade.c's data
 MW2MATROX order 0x100a4960  # commandpointmenu.c's menu sits between faceshade.c's and render.c's data

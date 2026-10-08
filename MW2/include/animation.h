@@ -2,6 +2,7 @@
 #define ANIMATION_H
 
 #include "animframe.h"
+#include "projectedvertex.h"
 #include "types.h"
 
 #pragma pack(push, 1)
@@ -29,14 +30,27 @@ extern "C"
 	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
 
+#ifdef MW2_MATROX
 	MechS32 DrawAnimatedPolygon(
 		MechS32 p_index,
 		MechS32 p_count,
-		MechU32* p_points,
+		ProjectedVertex** p_points,
 		MechS32 p_luma,
 		MechS32 p_scale,
-		MechS32 p_direct
+		MechS32 p_direct,
+		MechS32 p_unk0x18,
+		MechS32 p_unk0x1c
 	);
+#else
+MechS32 DrawAnimatedPolygon(
+	MechS32 p_index,
+	MechS32 p_count,
+	MechU32* p_points,
+	MechS32 p_luma,
+	MechS32 p_scale,
+	MechS32 p_direct
+);
+#endif
 	void AdvanceAnimations(void);
 	MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set);
 	void PreloadAnimCels(void);
@@ -48,6 +62,20 @@ extern "C"
 	void FUN_10069586(void);
 	void FUN_10069591(void);
 	void FreeAnimations(void);
+#ifdef MW2_MATROX
+	MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
+	void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
+	MechS32 FUN_10051c07(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count, MechS32 p_unk0x0c);
+	struct A3DTexture* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height, MechU32 p_mode);
+	MechS32 FUN_10051ea2(
+		MechS32 p_index,
+		struct ProjectedVertex** p_points,
+		MechS32 p_count,
+		MechS32 p_unk0x0c,
+		MechS32 p_unk0x10
+	);
+	void CalcAverageBitmapColors(void);
+#endif
 
 #ifdef __cplusplus
 }

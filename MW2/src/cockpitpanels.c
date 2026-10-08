@@ -217,11 +217,11 @@ MechS32 g_hitFadeCount = 0;
 
 // GLOBAL: MW2 0x100c326c
 // GLOBAL: MW2MATROX 0x1012f964
-MechS32 g_torsoTwistDegrees;
+MechScalar g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
 // GLOBAL: MW2MATROX 0x1012f960
-MechS32 g_headingDegrees;
+MechScalar g_headingDegrees;
 
 // The 26 cockpit panels InitCockpitPanels allocates.
 // GLOBAL: MW2 0x100c3280
@@ -559,13 +559,14 @@ void ResetCockpitPanels(void)
 // panels' handlers for the view mode (Mech::m_powerState: 1, 2 or the rest).
 // Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
 // FUNCTION: MW2 0x1007005a
+// FUNCTION: MW2MATROX 0x1007a0b2
 void UpdateCockpit(Mech* p_mech)
 {
-	MechS32 pitch;
-	MechS32 twistBearing;
+	MechScalar pitch;
+	MechScalar twistBearing;
 	MechS32 i;
-	MechS32 distance;
-	MechS32 bearing;
+	MechScalar distance;
+	MechScalar bearing;
 
 	if (p_mech->m_player->m_index != g_localPlayerId) {
 		return;
@@ -584,6 +585,24 @@ void UpdateCockpit(Mech* p_mech)
 		return;
 	}
 
+#ifdef MW2_MATROX
+	g_headingDegrees = fmod(fmod(p_mech->m_player->m_heading, 360.0) + 360.0, 360.0);
+	g_torsoTwistDegrees = fmod(p_mech->m_torsoTwist.m_value, 360.0);
+	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
+	if ((bearing = p_mech->m_player->m_targetInfo.m_heading - g_headingDegrees) > 180) {
+		bearing -= 360;
+	}
+	else if (bearing < -180) {
+		bearing += 360;
+	}
+
+	if ((twistBearing = bearing - g_torsoTwistDegrees) > 180) {
+		twistBearing -= 360;
+	}
+	else if (twistBearing < -180) {
+		twistBearing += 360;
+	}
+#else
 	g_headingDegrees = (FIXED_TO_INT(p_mech->m_player->m_heading) % 360 % 360 + 360) % 360;
 	g_torsoTwistDegrees = FIXED_TO_INT(p_mech->m_torsoTwist.m_value) % 360 % 360;
 	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
@@ -602,6 +621,7 @@ void UpdateCockpit(Mech* p_mech)
 	else if (twistBearing < -180) {
 		twistBearing += 360;
 	}
+#endif
 
 	distance = ApproximateVectorLength(
 		p_mech->m_player->m_targetInfo.m_position.m_x - p_mech->m_player->m_position.m_x,

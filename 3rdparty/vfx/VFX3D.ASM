@@ -391,7 +391,18 @@ __unclip_X:     sar eax,16              ;EAX = left endpoint (preserve sign)
                 add edi,eax             ;EDI -> start of line
 
 ; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
-; bytes up to a dword boundary, then dwords, then the remaining bytes.
+; bytes up to a dword boundary, then dwords, then the remaining bytes. The Matrox edition's
+; (MW2_MATROX) fills the odd bytes first and then dwords, without aligning.
+IFDEF MW2_MATROX
+                mov eax,color
+
+                mov edx,ecx
+                and ecx,3
+                rep stosb
+                mov ecx,edx
+                shr ecx,2
+                rep stosd
+ELSE
                 mov eax,color
 
                 cmp ecx,4
@@ -408,6 +419,7 @@ __unclip_X:     sar eax,16              ;EAX = left endpoint (preserve sign)
                 and edx,3
                 mov ecx,edx
 __fill_bytes:   rep stosb
+ENDIF
 ; demech2: end change
 
                 pop edi                 ;recover loop vars
@@ -487,7 +499,18 @@ __left_clipped: sub edx,VP_R            ;DX = # of right-clipped pixels
                 jg __clip_right
 
 ; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
-; bytes up to a dword boundary, then dwords, then the remaining bytes.
+; bytes up to a dword boundary, then dwords, then the remaining bytes. The Matrox edition's
+; (MW2_MATROX) fills the odd bytes first and then dwords, without aligning.
+IFDEF MW2_MATROX
+__clip_loop:    mov eax,color
+
+                mov edx,ecx
+                and ecx,3
+                rep stosb
+                mov ecx,edx
+                shr ecx,2
+                rep stosd
+ELSE
 __clip_loop:    mov eax,color
 
                 cmp ecx,4
@@ -504,6 +527,7 @@ __clip_loop:    mov eax,color
                 and edx,3
                 mov ecx,edx
 __clip_bytes:   rep stosb
+ENDIF
 ; demech2: end change
 
 __clip_next:    pop edi                 ;recover loop vars

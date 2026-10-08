@@ -39,8 +39,8 @@ extern "C"
 #endif
 
 	extern MechS32 g_hudLayoutValues[3];
-	extern MechS32 g_torsoTwistDegrees;
-	extern MechS32 g_headingDegrees;
+	extern MechScalar g_torsoTwistDegrees;
+	extern MechScalar g_headingDegrees;
 	extern CockpitPanel* g_cockpitPanels[c_panelCount];
 	extern MechS32 g_cockpitPanelEnabled[c_panelCount];
 	extern MechS32 g_cockpitPowerState;
@@ -67,13 +67,13 @@ extern "C"
 	void DrawPanelAnim(struct PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y);
 	MechS32 LoadMgdFile(
 		struct ResourceRef* p_ref,
-		MechS32* p_height,
-		MechS32* p_cockpitHeight,
-		MechS32* p_unk0x0c,
-		MechS32* p_unk0x10,
-		MechS32* p_unk0x14,
-		MechS32* p_maxTorsoTwist,
-		MechS32* p_radius
+		MechScalar* p_height,
+		MechScalar* p_cockpitHeight,
+		MechScalar* p_unk0x0c,
+		MechScalar* p_unk0x10,
+		MechScalar* p_unk0x14,
+		MechScalar* p_maxTorsoTwist,
+		MechScalar* p_radius
 	);
 	MechS32 LoadReels(struct ResourceRef* p_ref);
 	MechS32 LoadHudFile(struct ResourceRef* p_ref);

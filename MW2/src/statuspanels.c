@@ -607,6 +607,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 // Stack-slot permutation of mech and font.
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
+// FUNCTION: MW2MATROX 0x10022d91
 void DrawSpeedPanel(CockpitPanel* p_panel)
 {
 	MechS32 speed;
@@ -619,7 +620,11 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
+#ifdef MW2_MATROX
+	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) * 6.516f * 1.5;
+#else
 	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
+#endif
 	if (mech->m_speed.m_value < 0) {
 		speed = -speed;
 		g_textColors[0xe] = PIXEL_COLOR(6);

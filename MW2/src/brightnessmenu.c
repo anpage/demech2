@@ -11,9 +11,14 @@
 // MW2SND.CFG's record), and the preview undone.
 
 // FUNCTION: MW2 0x100745e0
+// FUNCTION: MW2MATROX 0x100171a0
 MechS32 GetBrightnessFraction(MechS32 p_arg)
 {
+#ifdef MW2_MATROX
+	return (MechS32) (g_displayBrightness / 15.0f * 65536.0f + 0.5f);
+#else
 	return FixedMul16(g_displayBrightness << 16, FixedDiv16(1, 15));
+#endif
 }
 
 // FUNCTION: MW2 0x1007460e

@@ -35,6 +35,7 @@ demech2_add_import_library(dplay DEF "${DEMECH2_SOURCE_DIR}/3rdparty/dplay/dplay
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/dplay/dplay.c")
 demech2_add_import_library(wail32 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32.def"
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32.c")
+demech2_add_import_library(msi95 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/msi95/msi95.def")
 
 include("${DEMECH2_SOURCE_DIR}/cmake/game_dll.cmake")
 include("${PROJECT_SOURCE_DIR}/targets.cmake")

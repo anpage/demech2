@@ -24,6 +24,11 @@ extern "C"
 	extern MechU8 g_polygonAndCodes;
 	extern ProjectedVertex* g_polygonPoints[20];
 	extern MechS32 g_polygonPointCount;
+	extern MechU8* g_polygonPointCursor;
+	extern MechS32 g_facesTried;
+	extern MechS32 g_facesFrontFacing;
+	extern MechS32 g_verticesTransformed;
+	extern MechS32 g_polygonsQueued;
 	extern Path g_paths[0x40];
 	extern Reel* g_reels[0x780];
 
@@ -42,6 +47,10 @@ extern "C"
 	ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex);
 	MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices);
 	void QueueFace(Face* p_face, Vertex* p_vertices);
+#ifdef MW2_MATROX
+	ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane);
+	MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08);
+#endif
 
 #ifdef __cplusplus
 }

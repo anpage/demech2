@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "decomp.h"
+#include "fixedfloat.h"
 #include "types.h"
 
 /* One level of detail of a shape's model (the list at Shape::m_models): the header is followed
@@ -11,7 +12,7 @@ typedef struct Model Model;
 
 // SIZE 0x18
 struct Model {
-	MechS32 m_key;                    // 0x00 — the list is sorted by it, ascending
+	MechScalar m_key;                 // 0x00 — the list is sorted by it, ascending
 	MechS16 m_vertexCount;            // 0x04
 	MechS16 m_faceCount;              // 0x06
 	MechU32 m_faceOffset;             // 0x08 — offset of the faces

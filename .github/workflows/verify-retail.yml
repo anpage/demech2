@@ -29,9 +29,11 @@ env:
   # 0x10092d30). The list lives here rather than in Build's targets job: a
   # workflow_run job can't read the Build run's outputs.
   RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597"
-  # The targets whose data, block layout and unit checks are reported but
-  # don't fail the job yet: the Matrox edition's matching is under way (its
-  # structs and object layout differ from 1.1's in places not modelled yet).
+  # The targets whose block layout and unit checks are reported but don't
+  # fail the job yet: the Matrox edition's matching is under way (its object
+  # layout differs from 1.1's in places not modelled yet, and reccmp can't
+  # resolve some of the element types in its LINK 3.00 PDB). Their datacmp
+  # issues fail the job like any target's.
   REPORT_ONLY: "MW2MATROX"
 
 jobs:
@@ -154,7 +156,7 @@ jobs:
         run: |
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
-            reccmp-datacmp --target "$target" || [[ " $REPORT_ONLY " == *" $target "* ]]
+            reccmp-datacmp --target "$target"
           done
 
       - name: Check Folding

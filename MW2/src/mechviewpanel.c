@@ -59,7 +59,7 @@ void CycleMechViewMode(void)
 // FUNCTION: MW2MATROX 0x1008ad78
 void DrawMechViewPanel(CockpitPanel* p_panel)
 {
-	MechS32* camera;
+	MechScalar* camera;
 	MechScalar view[7];
 	RenderSettings saved;
 	Mech* mech;

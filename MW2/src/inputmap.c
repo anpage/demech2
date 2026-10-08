@@ -46,7 +46,7 @@ PlayerSteering g_localSteering = {0};
 // glance sinks look aside while one is held.
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f480
-MechS32 g_sinkPilotTilt;
+MechScalar g_sinkPilotTilt;
 #else
 // GLOBAL: MW2 0x100b2548
 MechS32 g_sinkPilotTilt = 0;
@@ -54,7 +54,7 @@ MechS32 g_sinkPilotTilt = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f484
-MechS32 g_sinkPilotPan;
+MechScalar g_sinkPilotPan;
 #else
 // GLOBAL: MW2 0x100b254c
 MechS32 g_sinkPilotPan = 0;
@@ -62,7 +62,7 @@ MechS32 g_sinkPilotPan = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f488
-MechS32 g_sinkEyepointTilt;
+MechScalar g_sinkEyepointTilt;
 #else
 // GLOBAL: MW2 0x100b2550
 MechS32 g_sinkEyepointTilt = 0;
@@ -70,7 +70,7 @@ MechS32 g_sinkEyepointTilt = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f48c
-MechS32 g_sinkEyepointPanDelta;
+MechScalar g_sinkEyepointPanDelta;
 #else
 // GLOBAL: MW2 0x100b2554
 MechS32 g_sinkEyepointPanDelta = 0;
@@ -78,7 +78,7 @@ MechS32 g_sinkEyepointPanDelta = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f490
-MechS32 g_sinkEyepointSlideDelta;
+MechScalar g_sinkEyepointSlideDelta;
 #else
 // GLOBAL: MW2 0x100b2558
 MechS32 g_sinkEyepointSlideDelta = 0;
@@ -86,7 +86,7 @@ MechS32 g_sinkEyepointSlideDelta = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f494
-MechS32 g_sinkTrackDistanceDelta;
+MechScalar g_sinkTrackDistanceDelta;
 #else
 // GLOBAL: MW2 0x100b255c
 MechS32 g_sinkTrackDistanceDelta = 0;
@@ -94,7 +94,7 @@ MechS32 g_sinkTrackDistanceDelta = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f498
-MechS32 g_sinkTrackHeightDelta;
+MechScalar g_sinkTrackHeightDelta;
 #else
 // GLOBAL: MW2 0x100b2560
 MechS32 g_sinkTrackHeightDelta = 0;
@@ -102,7 +102,7 @@ MechS32 g_sinkTrackHeightDelta = 0;
 
 #ifdef MW2_MATROX
 // GLOBAL: MW2MATROX 0x1012f49c
-MechS32 g_sinkZoomFactor;
+MechScalar g_sinkZoomFactor;
 #else
 // GLOBAL: MW2 0x100b2564
 MechS32 g_sinkZoomFactor = 0;

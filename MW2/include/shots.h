@@ -66,7 +66,7 @@ extern "C"
 	extern MechS32 g_lastHitShooter;
 	extern MechS32 g_nukeTimeLeft;
 	extern MechScalar g_nukeMaxRadius;
-	extern MechS32 g_trackedShotView[7];
+	extern MechScalar g_trackedShotView[7];
 	extern MechScalar g_nukeRadius;
 	extern Vector3 g_nukePosition;
 	extern CareerRecord g_careerRecord;
@@ -140,7 +140,7 @@ extern "C"
 		MechScalar p_radius,
 		MechScalar p_rate
 	);
-	MechS32* GetTrackedShotView(void);
+	MechScalar* GetTrackedShotView(void);
 	MechS32 TrackLastShot(void);
 	void KillGameThing(MechU32 p_index);
 	void DamageGameThing(

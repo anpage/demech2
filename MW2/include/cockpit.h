@@ -6,10 +6,12 @@
 #include "mappoint.h"
 #include "navpoint.h"
 #include "point.h"
+#include "projectedvertex.h"
 #include "recttransition.h"
 #include "shape.h"
 #include "targeting.h"
 #include "types.h"
+#include "vector3.h"
 
 // A gauge-drawing function of a cockpit layout, or one of the map view's hooks.
 typedef MechS32 (*CockpitGaugeFn)();
@@ -81,7 +83,11 @@ extern "C"
 	void DrawCockpitView(void);
 	void DrawMapView(void);
 	void DrawMapContents(CockpitLayout* p_layout);
-	void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon);
+#ifdef MW2_MATROX
+	void DrawMapIcon(CockpitLayout* p_layout, Vector3* p_position, MechS32 p_icon);
+#else
+void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon);
+#endif
 	void DrawMapUnits(CockpitLayout* p_layout);
 	MechS32 IsNavReached(NavPoint* p_nav, MechS32 p_team);
 	void DrawMapTarget(CockpitLayout* p_layout);
@@ -95,8 +101,13 @@ extern "C"
 	void ZoomMapView(MechS32 p_zoom);
 	MechS32 MapShapeFilter(Shape* p_shape);
 	MechU32 SatelliteFaceColor(struct Face* p_face, undefined4 p_unk0x04, MechU32 p_flags);
-	void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
-	MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechS32 p_height);
+#ifdef MW2_MATROX
+	void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c);
+	void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags);
+#else
+void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
+#endif
+	MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height);
 	MechS32 DrawMapViewTransition(
 		MechS32 p_reverse,
 		CockpitLayout* p_layout,

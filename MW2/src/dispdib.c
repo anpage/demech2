@@ -88,12 +88,21 @@ RefreshMode g_dispDibRefreshMode =
 	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
 // GLOBAL: MW2 0x100ea7dc
+// GLOBAL: MW2MATROX 0x10125960
 MechS32 g_dispDibResult;
 
+// MW2MATROX: the window's empty title (DisplayDibWindowCreateEx) pairs with another "" of the
+// original's: reccmp pairs identical strings in address order.
 // FUNCTION: MW2 0x1004e760
+// FUNCTION: MW2MATROX 0x1008ecd0
 MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
+#ifdef MW2_MATROX
+	// The Matrox edition turns DisplayDib off: the test always fails.
+	if (p_width != 320 || p_height != 200 || TRUE) {
+#else
 	if (p_width != 320 || p_height != 200) {
+#endif
 		return -1;
 	}
 
@@ -221,6 +230,7 @@ MechS32 DispDibEnd(void)
 }
 
 // FUNCTION: MW2 0x1004eb72
+// FUNCTION: MW2MATROX 0x1008f185
 MechS32 DispDibFlip(void)
 {
 	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
@@ -234,6 +244,7 @@ MechS32 DispDibFlip(void)
 
 // DisplayDib can't draw part of the screen: the rectangle is ignored and the whole frame drawn.
 // FUNCTION: MW2 0x1004ebdb
+// FUNCTION: MW2MATROX 0x1008f225
 MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
@@ -246,6 +257,7 @@ MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 }
 
 // FUNCTION: MW2 0x1004ec44
+// FUNCTION: MW2MATROX 0x1008f2c5
 MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_dispDibResult = StretchBlt(
@@ -285,6 +297,7 @@ MechS32 DispDibAcquireFramebuffer(void)
 }
 
 // FUNCTION: MW2 0x1004ed3b
+// FUNCTION: MW2MATROX 0x1008f3f3
 MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 i;
@@ -314,6 +327,7 @@ MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 }
 
 // FUNCTION: MW2 0x1004eea7
+// FUNCTION: MW2MATROX 0x1008f58d
 MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 {
 	MechS32 i;
@@ -341,6 +355,7 @@ MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 
 // Fades from the current palette to p_palette in p_steps steps of 16 ms, at 8 bits per component.
 // FUNCTION: MW2 0x1004efd5
+// FUNCTION: MW2MATROX 0x1008f6e9
 MechS32 DispDibBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 {
 	MechS32 i;

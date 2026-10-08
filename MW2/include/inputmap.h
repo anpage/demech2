@@ -12,14 +12,14 @@ extern "C"
 #endif
 
 	extern PlayerSteering g_localSteering;
-	extern MechS32 g_sinkPilotTilt;
-	extern MechS32 g_sinkPilotPan;
-	extern MechS32 g_sinkEyepointTilt;
-	extern MechS32 g_sinkEyepointPanDelta;
-	extern MechS32 g_sinkEyepointSlideDelta;
-	extern MechS32 g_sinkTrackDistanceDelta;
-	extern MechS32 g_sinkTrackHeightDelta;
-	extern MechS32 g_sinkZoomFactor;
+	extern MechScalar g_sinkPilotTilt;
+	extern MechScalar g_sinkPilotPan;
+	extern MechScalar g_sinkEyepointTilt;
+	extern MechScalar g_sinkEyepointPanDelta;
+	extern MechScalar g_sinkEyepointSlideDelta;
+	extern MechScalar g_sinkTrackDistanceDelta;
+	extern MechScalar g_sinkTrackHeightDelta;
+	extern MechScalar g_sinkZoomFactor;
 	extern MechS8 g_sinkPilotTiltPlus;
 	extern MechS8 g_sinkPilotTiltMinus;
 	extern MechS8 g_sinkPilotTiltReset;

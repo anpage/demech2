@@ -51,9 +51,11 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechdamage.c"
       ${vfx3d}
       "${DEMECH2_SOURCE_DIR}/MW2/src/quadtree.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/registry.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/faceshade.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/brightnessmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/texturepoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/render.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/targetpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/maneuvers.c"
@@ -71,8 +73,8 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/joystick.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/callbacks.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/gridobject.c"
+      # shape.c includes shapegeom.c: the Matrox edition links their functions as one object.
       "${DEMECH2_SOURCE_DIR}/MW2/src/shape.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/shapegeom.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/view.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/bwd.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
@@ -93,6 +95,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/settings.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/audio.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fadepal.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/bandpoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/recttransition.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/world.c"
@@ -105,12 +108,15 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/shapecollision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
       # The 16-bit 2D primitives, a MASM object: only built with ML (this target needs a VC++ 4.x build)
       "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/vfx16.asm"
       "${DEMECH2_SOURCE_DIR}/MW2/src/camerashake.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/error.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"
+      # The A3D renderer (0x1005a5f0 to 0x100673c0), stubbed
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/keyboard.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/polydraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
@@ -125,6 +131,8 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/cockpit.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/dorcs.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechcollision.c"
+      # The projection of faces, objectanim.c's in 1.1
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/queueface.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/timedoverlays.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/perf.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/staticmem.c"
@@ -132,6 +140,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/startup.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mw2log.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/refreshmode.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/horizon.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/inputmap.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/menucontrols.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/floatmath.c"
@@ -143,7 +152,9 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/environment.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/soundfx.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/ray.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/msidraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/bargauges.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/netio.c"
@@ -167,14 +178,12 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/bandpoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/commandpointmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
@@ -189,19 +198,22 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/horizon.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
-    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_MATROX>"
+    # MW2_MATROX also selects the Matrox edition's code in VFX's assembly (VFX3D.ASM's fills).
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_MATROX>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_MATROX>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
-    LIBRARIES winmm.lib wail32 ddraw dplay kernel32.lib user32.lib gdi32.lib advapi32.lib
+    LIBRARIES winmm.lib wail32 ddraw dplay msi95 kernel32.lib user32.lib gdi32.lib advapi32.lib
   )
   # The Matrox edition expands mouse.c's __inline IsInsideWindow into MousePoll, where 1.1 calls it, and
-  # its __inline IsWithinRadius (inradius.h) into its callers.
+  # its __inline IsWithinRadius (inradius.h) into its callers, the DisplayDib header's __inline helpers
+  # into dispdib.c's functions, and mapview.c its projection.
   set_source_files_properties(
     "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/dispdib.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/objective.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
     PROPERTIES COMPILE_OPTIONS /Ob1

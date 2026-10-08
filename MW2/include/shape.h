@@ -54,19 +54,36 @@ extern "C"
 	void SelectNextModel(Shape* p_shape);
 	Model* AddModel(
 		Shape* p_shape,
-		MechS32 p_key,
+		MechScalar p_key,
 		MechS32 p_vertexCount,
 		MechS32 p_faceCount,
 		MechS32 p_extra,
 		void** p_extraData
 	);
 	void SelectModelByKey(Shape* p_shape, MechS32 p_key);
-	void SetModelKey(Shape* p_shape, MechS32 p_key);
+	void SetModelKey(Shape* p_shape, MechScalar p_key);
 	MechS32 GetModelKey(Shape* p_shape);
 	void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14);
 	MechU32 FUN_1003a889(Shape* p_shape);
 	Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData);
-	void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v);
+#ifdef MW2_MATROX
+	void AddShapeVertex(
+		Shape* p_shape,
+		MechScalar p_x,
+		MechScalar p_y,
+		MechScalar p_z,
+		MechFloat p_u,
+		MechFloat p_v,
+		MechFloat p_red,
+		MechFloat p_green,
+		MechFloat p_blue,
+		MechFloat p_normalX,
+		MechFloat p_normalY,
+		MechFloat p_normalZ
+	);
+#else
+void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v);
+#endif
 	struct Face* AddShapeFace(Shape* p_shape, MechU16 p_color, MechU8* p_indices);
 	void AddShapeFaceIndex(Shape* p_shape, struct Face* p_face, MechU32 p_index);
 	void FreeModel(Model* p_model);

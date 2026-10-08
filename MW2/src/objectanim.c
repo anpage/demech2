@@ -100,7 +100,7 @@ typedef struct ReelMotion {
 	Player* m_player;      // 0x0c
 	MechS32 m_rate;        // 0x10 — clock ticks per frame
 	MechS32 m_timer;       // 0x14 — until the next frame
-	MechS32 m_amount;      // 0x18 — left to move in this frame
+	MechScalar m_amount;   // 0x18 — left to move in this frame
 	MechS32 m_lastClock;   // 0x1c
 	MechS32 m_enabled;     // 0x20
 	MechS32 m_frame;       // 0x24 — -1 before the first
@@ -117,9 +117,9 @@ typedef struct PathFollower {
 	MechS32 m_duration;    // 0x10 — the points' times added up
 	MechS32 m_rotate;      // 0x14 — turns along the path
 	MechS32 m_mode;        // 0x18 — at the end: 0 "loop" runs on, 1 "repeat" restarts, 2 stops
-	Ramp m_x;              // 0x1c
-	Ramp m_y;              // 0x2c
-	Ramp m_z;              // 0x3c
+	ScalarRamp m_x;        // 0x1c
+	ScalarRamp m_y;        // 0x2c
+	ScalarRamp m_z;        // 0x3c
 	WrappedRamp m_pitch;   // 0x4c
 	WrappedRamp m_heading; // 0x60
 	WrappedRamp m_roll;    // 0x74
@@ -173,35 +173,44 @@ MechS32 g_directionalLight;
 
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
 // GLOBAL: MW2 0x1010b53c
+// GLOBAL: MW2MATROX 0x101d6900
 MechU8 g_polygonOrCodes;
 
 // GLOBAL: MW2 0x1010b5b8
+// GLOBAL: MW2MATROX 0x101d6974
 MechU8 g_polygonAndCodes;
 
 // The projected vertices of the polygon being built, and their count.
 // GLOBAL: MW2 0x1010b550
+// GLOBAL: MW2MATROX 0x101d6910
 ProjectedVertex* g_polygonPoints[20];
 
 // GLOBAL: MW2 0x1010b5b0
+// GLOBAL: MW2MATROX 0x101d6978
 MechS32 g_polygonPointCount;
 
 // Where QueueFace copies the next polygon's vertex pointers in the draw buffer.
 // GLOBAL: MW2 0x1010b534
+// GLOBAL: MW2MATROX 0x101d698c
 MechU8* g_polygonPointCursor;
 
 // QueueFace's counts: faces it took (5bc), faces past the back-face test (538), vertices it
 // projected (5b4) and polygons it queued (5a8).
 
 // GLOBAL: MW2 0x1010b5bc
+// GLOBAL: MW2MATROX 0x101d6904
 MechS32 g_facesTried;
 
 // GLOBAL: MW2 0x1010b538
+// GLOBAL: MW2MATROX 0x101d6988
 MechS32 g_facesFrontFacing;
 
 // GLOBAL: MW2 0x1010b5b4
+// GLOBAL: MW2MATROX 0x101d6984
 MechS32 g_verticesTransformed;
 
 // GLOBAL: MW2 0x1010b5a8
+// GLOBAL: MW2MATROX 0x101d68fc
 MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
@@ -225,33 +234,34 @@ AnimFile g_animFiles[60];
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
 // m_values[i] reads (index order).
 // FUNCTION: MW2 0x10046750
+// FUNCTION: MW2MATROX 0x1006ece0
 MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechS32 next;
 	MechS32 elapsed;
-	MechS32 y;
+	MechScalar y;
 	MechChar* token;
-	MechS32 z;
+	MechScalar z;
 	MechS32 jump;
 	ReelMotion* motion;
 	MechS32 thing;
 	MechS32 back;
 	MechS32 enabled;
 	MechS32 found;
-	MechS32 amount;
-	MechS32 turnX;
+	MechScalar amount;
+	MechScalar turnX;
 	MechS32 step;
 	MechS32 target;
-	MechS32 turnY;
+	MechScalar turnY;
 	MechS32 value;
 	MechS32 number;
-	MechS32 turnZ;
+	MechScalar turnZ;
 	MechS32 frame;
 	Shape* shape;
 	MechS32 rate;
 	MechS32 id;
 	void** slot;
-	MechS32 x;
+	MechScalar x;
 	MechS32 match;
 	MechS32 i;
 
@@ -1068,8 +1078,10 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // A timed callback (TimedCallbackFn) moving a star's object along a path. Its data is
 // "<star id>;<mode>,<rotate>,<path name>": mode "loop", "repeat" or else stop at the end, and
 // "rotate" to turn the object along the path. Event -1 restarts it.
-// Stack-slot permutation of the locals.
+// Stack-slot permutation of the locals. MW2MATROX: also the index order in the durations' sums
+// (the original scales i before it loads the path).
 // FUNCTION: MW2 0x10047f60
+// FUNCTION: MW2MATROX 0x100704f2
 MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar rotate[64];
@@ -1089,10 +1101,10 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 	MechS32 start;
 	MechS32 end;
 	PathPoint* point;
-	MechS32 t;
-	MechS32 delta;
+	MechScalar t;
+	MechScalar delta;
 	PathPoint* next;
-	MechS32 angle;
+	MechScalar angle;
 
 	switch (p_event) {
 	case -1:
@@ -1105,12 +1117,12 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		follower->m_startClock = p_clock;
 		if (follower->m_path) {
 			first = follower->m_path->m_points;
-			StartRamp(&follower->m_x, first->m_x, first->m_x, 0.3);
-			StartRamp(&follower->m_y, first->m_y, first->m_y, 0.3);
-			StartRamp(&follower->m_z, first->m_z, first->m_z, 0.3);
-			StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, 0x1680000);
-			StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, 0x1680000);
-			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
+			StartScalarRamp(&follower->m_x, first->m_x, first->m_x, 0.3);
+			StartScalarRamp(&follower->m_y, first->m_y, first->m_y, 0.3);
+			StartScalarRamp(&follower->m_z, first->m_z, first->m_z, 0.3);
+			StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, FIXED_CONST(360));
+			StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, FIXED_CONST(360));
+			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, FIXED_CONST(360));
 			total = 0;
 			for (i = 0; i < follower->m_path->m_count; i++) {
 				total += follower->m_path->m_points[i].m_duration;
@@ -1173,12 +1185,12 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 
 		if (follower->m_path) {
 			origin = follower->m_path->m_points;
-			StartRamp(&follower->m_x, origin->m_x, origin->m_x, 0.3);
-			StartRamp(&follower->m_y, origin->m_y, origin->m_y, 0.3);
-			StartRamp(&follower->m_z, origin->m_z, origin->m_z, 0.3);
-			StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, 0x1680000);
-			StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, 0x1680000);
-			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
+			StartScalarRamp(&follower->m_x, origin->m_x, origin->m_x, 0.3);
+			StartScalarRamp(&follower->m_y, origin->m_y, origin->m_y, 0.3);
+			StartScalarRamp(&follower->m_z, origin->m_z, origin->m_z, 0.3);
+			StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, FIXED_CONST(360));
+			StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, FIXED_CONST(360));
+			StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, FIXED_CONST(360));
 			total = 0;
 			for (i = 0; i < follower->m_path->m_count; i++) {
 				total += follower->m_path->m_points[i].m_duration;
@@ -1244,12 +1256,12 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 				follower->m_startClock = p_clock;
 				start = 0;
 				end = path->m_points[0].m_duration;
-				StartRamp(&follower->m_x, path->m_points[0].m_x, path->m_points[0].m_x, 0.3);
-				StartRamp(&follower->m_y, path->m_points[0].m_y, path->m_points[0].m_y, 0.3);
-				StartRamp(&follower->m_z, path->m_points[0].m_z, path->m_points[0].m_z, 0.3);
-				StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, 0x1680000);
-				StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, 0x1680000);
-				StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, 0x1680000);
+				StartScalarRamp(&follower->m_x, path->m_points[0].m_x, path->m_points[0].m_x, 0.3);
+				StartScalarRamp(&follower->m_y, path->m_points[0].m_y, path->m_points[0].m_y, 0.3);
+				StartScalarRamp(&follower->m_z, path->m_points[0].m_z, path->m_points[0].m_z, 0.3);
+				StartWrappedRamp(&follower->m_pitch, 0, 0, 0.3, FIXED_CONST(360));
+				StartWrappedRamp(&follower->m_heading, 0, 0, 0.3, FIXED_CONST(360));
+				StartWrappedRamp(&follower->m_roll, 0, 0, 0.3, FIXED_CONST(360));
 			}
 			else if (path->m_count == i) {
 				i = 0;
@@ -1268,15 +1280,22 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			next = &path->m_points[i + 1];
 		}
 
+#ifdef MW2_MATROX
+		t = (MechFloat) (elapsed - start) / point->m_duration;
+		follower->m_x.m_target = (next->m_x - point->m_x) * t + point->m_x;
+		follower->m_y.m_target = (next->m_y - point->m_y) * t + point->m_y;
+		follower->m_z.m_target = (next->m_z - point->m_z) * t + point->m_z;
+#else
 		t = FixedDiv16(elapsed - start, point->m_duration);
 		follower->m_x.m_target = point->m_x + FixedMul16(t, next->m_x - point->m_x);
 		follower->m_y.m_target = point->m_y + FixedMul16(t, next->m_y - point->m_y);
 		follower->m_z.m_target = point->m_z + FixedMul16(t, next->m_z - point->m_z);
+#endif
 		SetObjPosition(
 			follower->m_object,
-			UpdateRamp(&follower->m_x),
-			UpdateRamp(&follower->m_y),
-			UpdateRamp(&follower->m_z)
+			UpdateScalarRamp(&follower->m_x),
+			UpdateScalarRamp(&follower->m_y),
+			UpdateScalarRamp(&follower->m_z)
 		);
 		angle = point->m_heading;
 		if (follower->m_rotate) {
@@ -1284,40 +1303,44 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		}
 
 		delta = angle - follower->m_heading.m_value;
-		while (delta > 0xb40000) {
-			delta -= 0x1680000;
+		while (delta > FIXED_CONST(180)) {
+			delta -= FIXED_CONST(360);
 		}
 
-		while (delta < -0xb40000) {
-			delta += 0x1680000;
+		while (delta < -FIXED_CONST(180)) {
+			delta += FIXED_CONST(360);
 		}
 
 		follower->m_heading.m_target = angle;
 		follower->m_heading.m_value = angle - delta;
 		angle = point->m_pitch;
 		if (follower->m_rotate) {
+#ifdef MW2_MATROX
+			angle -= FixedAsin((next->m_y - point->m_y) / 65536.0f);
+#else
 			angle -= FixedAsin(FIXED_SHL(next->m_y - point->m_y, 13));
+#endif
 		}
 
 		delta = angle - follower->m_pitch.m_value;
-		while (delta > 0xb40000) {
-			delta -= 0x1680000;
+		while (delta > FIXED_CONST(180)) {
+			delta -= FIXED_CONST(360);
 		}
 
-		while (delta < -0xb40000) {
-			delta += 0x1680000;
+		while (delta < -FIXED_CONST(180)) {
+			delta += FIXED_CONST(360);
 		}
 
 		follower->m_pitch.m_target = angle;
 		follower->m_pitch.m_value = angle - delta;
 		angle = point->m_roll;
 		delta = angle - follower->m_roll.m_value;
-		while (delta > 0xb40000) {
-			delta -= 0x1680000;
+		while (delta > FIXED_CONST(180)) {
+			delta -= FIXED_CONST(360);
 		}
 
-		while (delta < -0xb40000) {
-			delta += 0x1680000;
+		while (delta < -FIXED_CONST(180)) {
+			delta += FIXED_CONST(360);
 		}
 
 		follower->m_roll.m_target = angle;
@@ -1338,6 +1361,9 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 	return 1;
 }
 
+// The Matrox edition has these in an object of their own, after mechcollision.c's, in floats
+// (matrox/queueface.c).
+#ifndef MW2_MATROX
 #ifdef PORTABLE_C_LABELS
 // The 64-bit product of two 32-bit values, as imul leaves it in edx:eax. Sums of products wrap,
 // like the add/adc chains.
@@ -1728,7 +1754,6 @@ jmp_10048e8f:
 // outcodes (m_unk0x1c: 1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the
 // polygon being built and adds the vertex to its list (up to 20). The body is an __asm block.
 // FUNCTION: MW2 0x10048ebe
-// STUB: MW2MATROX 0x100773f0
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 #ifdef PORTABLE_C_LABELS
@@ -2511,3 +2536,4 @@ jmp_100494d3:
 done:;
 #endif
 }
+#endif

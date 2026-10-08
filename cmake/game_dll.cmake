@@ -55,6 +55,7 @@ function(demech2_add_dll TARGET)
   target_include_directories(${TARGET} SYSTEM PRIVATE
     "${DEMECH2_SOURCE_DIR}/3rdparty/dispdib"
     "${DEMECH2_SOURCE_DIR}/3rdparty/dx2/INC"
+    "${DEMECH2_SOURCE_DIR}/3rdparty/msi95"
     "${DEMECH2_SOURCE_DIR}/3rdparty/mss"
     "${DEMECH2_SOURCE_DIR}/3rdparty/smacker"
   )

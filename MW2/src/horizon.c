@@ -1,7 +1,9 @@
 /* Conversions between the screen and the eyepoint's view, with the view matrix's second column.
    Hand-written assembly: each function's products and quotients are an __asm block (imul/idiv on
    64-bit intermediates). Their portable C (PORTABLE_C) is tested against the assembly by
-   tests/asmequiv: it replaces each whole function, whose C wraps where standard C overflows. */
+   tests/asmequiv: it replaces each whole function, whose C wraps where standard C overflows. The
+   Matrox edition's are C in floating point, one object of its own between refreshmode.c's and
+   inputmap.c's. */
 #include "horizon.h"
 
 #include "compat.h"
@@ -16,9 +18,32 @@
 // Returns whether the screen point (p_x, p_y) lies above the horizon of p_eyepoint's view.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10071930
+// FUNCTION: MW2MATROX 0x1007b8d0
 MechS32 IsAboveHorizon(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
-#if defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
+#ifdef MW2_MATROX
+	MechFloat offsetX;
+	MechFloat offsetY;
+	MechFloat b;
+	MechFloat d;
+	MechFloat a;
+	MechFloat c;
+	MechFloat e;
+
+	offsetX = p_x - p_eyepoint->m_centerX;
+	offsetY = -p_y + p_eyepoint->m_centerY;
+	b = p_eyepoint->m_projectScaleX;
+	d = p_eyepoint->m_projectScaleY;
+	a = p_eyepoint->m_viewMatrix.m_rows[0][1];
+	c = p_eyepoint->m_viewMatrix.m_rows[1][1];
+	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
+	if (offsetY * c / d + a * offsetX / b > -e) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+#elif defined(PORTABLE_C) || !defined(_MSC_VER) || _MSC_VER >= 1100
 	MechS32 offsetX = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
 	MechS32 offsetY = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);
 	MechU32 sum =
@@ -68,9 +93,26 @@ below:
 // Returns the screen y of the horizon at screen x p_x in p_eyepoint's view.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100719ca
+// FUNCTION: MW2MATROX 0x1007b99e
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
-#ifdef PORTABLE_C
+#ifdef MW2_MATROX
+	MechS32 y;
+	MechFloat a;
+	MechFloat b;
+	MechFloat d;
+	MechFloat c;
+	MechFloat e;
+
+	b = p_eyepoint->m_projectScaleX;
+	d = p_eyepoint->m_projectScaleY;
+	a = p_eyepoint->m_viewMatrix.m_rows[0][1];
+	c = p_eyepoint->m_viewMatrix.m_rows[1][1];
+	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
+	p_x -= p_eyepoint->m_centerX;
+	y = -((p_x * a / b + e) * d / c);
+	return -y + p_eyepoint->m_centerY;
+#elif defined(PORTABLE_C)
 	MechS32 x = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
 	MechU32 height =
 		(MechU32) PortableIdiv((MechS64) x * p_eyepoint->m_viewMatrix.m_rows[0][1], p_eyepoint->m_projectScaleX) +
@@ -114,9 +156,26 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 // Returns the screen x of the horizon at screen y p_y in p_eyepoint's view.
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10071a4c
+// FUNCTION: MW2MATROX 0x1007ba4c
 MechS32 HorizonXAtY(MechS32 p_y, Eyepoint* p_eyepoint)
 {
-#ifdef PORTABLE_C
+#ifdef MW2_MATROX
+	MechS32 x;
+	MechFloat a;
+	MechFloat b;
+	MechFloat d;
+	MechFloat c;
+	MechFloat e;
+
+	b = p_eyepoint->m_projectScaleX;
+	d = p_eyepoint->m_projectScaleY;
+	a = p_eyepoint->m_viewMatrix.m_rows[0][1];
+	c = p_eyepoint->m_viewMatrix.m_rows[1][1];
+	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
+	p_y = -p_y + p_eyepoint->m_centerY;
+	x = -((p_y * c / d + e) * b / a);
+	return p_eyepoint->m_centerX + x;
+#elif defined(PORTABLE_C)
 	MechS32 y = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);
 	MechU32 width =
 		(MechU32) PortableIdiv((MechS64) y * p_eyepoint->m_viewMatrix.m_rows[1][1], p_eyepoint->m_projectScaleY) +
