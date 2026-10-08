@@ -36,13 +36,13 @@ void FUN_100172c0(
 		flags |= 0x600;
 	}
 
-	if (p_texture->m_unk0x20 > 0x80) {
-		p_texture->m_unk0x20 = 0x80;
+	if (p_texture->m_height > 0x80) {
+		p_texture->m_height = 0x80;
 	}
 
-	if (p_texture->m_unk0x1c < p_texture->m_unk0x20) {
-		p_texture->m_unk0x20 = p_texture->m_unk0x1c;
+	if (p_texture->m_width < p_texture->m_height) {
+		p_texture->m_height = p_texture->m_width;
 	}
 
-	FUN_10062630(p_pane, p_count, p_vertices, flags, p_unk0x10, p_texture, p_unk0x14, 0);
+	A3D_polygon_clip_XY_and_render(p_pane, p_count, p_vertices, flags, p_unk0x10, p_texture, p_unk0x14, 0);
 }

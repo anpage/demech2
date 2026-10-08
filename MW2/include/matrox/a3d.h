@@ -13,8 +13,7 @@
 
 // The Matrox edition's A3D renderer (0x1005a5f0-0x10067500, between damagepanel.c's and
 // keyboard.c's objects): optimized code the Matrox edition draws its polygons through, in place of VFX's
-// (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op. matrox/a3d.c is partly written: the rest
-// of the entry points the game code calls are stubs.
+// (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op.
 
 // A vertex of the textured polygons A3D_GroundSkyPolyPlot draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
@@ -49,7 +48,7 @@ extern "C"
 	void FUN_1005d090(void);
 	// Returns the cached texture of the CEL resource p_id (loading it with p_levels levels, 8-bit when
 	// p_paletted, if it isn't cached).
-	A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels);
+	A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels);
 	// Starts a frame (msiStartFrame), unless one is started.
 	void FUN_1005f710(void);
 	// Ends the frame (msiEndFrame), if one is started.
@@ -69,9 +68,9 @@ extern "C"
 	void FUN_10061cb0(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices);
 	// Draws a textured polygon of p_count vertices on p_pane (DrawAnimatedPolygon's, with p_flags 1
 	// for its shades and 2 for its fourth argument).
-	void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
+	void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags);
 	// Draws a textured polygon, perspective-corrected with p_flags 0x200 or 0x400.
-	void FUN_10062630(
+	void A3D_polygon_clip_XY_and_render(
 		PANE* p_pane,
 		MechU32 p_count,
 		A3DVertex* p_vertices,

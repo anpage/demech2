@@ -21,9 +21,9 @@
 #include <windows.h>
 
 void MsiPumpMessages(void);
-void MsiClose(void);
-MechS32 MsiInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height);
-LRESULT CALLBACK MsiWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
+void DDRAW_Close(void);
+MechS32 DDRAW_Init(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height);
+LRESULT CALLBACK DDRAW_WindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 void MsiEnd(void);
 MechS32 MsiFlip(void);
 MechS32 MsiStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
@@ -57,8 +57,8 @@ DisplayBackend g_msiBackend = {
 	c_displayBackendDirectDraw,
 	c_windowModeFullscreen,
 	WS_POPUP,
-	MsiInit,
-	(MechS32 (*)()) MsiClose,
+	DDRAW_Init,
+	(MechS32 (*)()) DDRAW_Close,
 	MsiSetPalette,
 	MsiSetPaletteWithBrightness,
 	MsiBlendPalettes,
@@ -68,19 +68,19 @@ DisplayBackend g_msiBackend = {
 
 // GLOBAL: MW2MATROX 0x100bbc40
 RefreshMode g_msiFlipRefreshMode =
-	{0, c_displayBackendDirectDraw, 1, 0, MsiInit, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
+	{0, c_displayBackendDirectDraw, 1, 0, DDRAW_Init, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
 
 // GLOBAL: MW2MATROX 0x100bbc68
 RefreshMode g_msiBlitFlipRefreshMode =
-	{1, c_displayBackendDirectDraw, 1, 0, MsiInit, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
+	{1, c_displayBackendDirectDraw, 1, 0, DDRAW_Init, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
 
 // GLOBAL: MW2MATROX 0x100bbc90
 RefreshMode g_msiVideoMemoryRefreshMode =
-	{2, c_displayBackendDirectDraw, 1, 0, MsiInit, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
+	{2, c_displayBackendDirectDraw, 1, 0, DDRAW_Init, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
 
 // GLOBAL: MW2MATROX 0x100bbcb8
 RefreshMode g_msiSystemMemoryRefreshMode =
-	{3, c_displayBackendDirectDraw, 1, 0, MsiInit, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
+	{3, c_displayBackendDirectDraw, 1, 0, DDRAW_Init, (MechS32 (*)()) MsiEnd, MsiFlip, MsiBlitRect, MsiStretchBlit};
 
 // The display's window, which the renderer creates: set by its WM_CREATE.
 // GLOBAL: MW2MATROX 0x100bbcdc
@@ -98,7 +98,7 @@ void MsiPumpMessages(void)
 }
 
 // FUNCTION: MW2MATROX 0x10087f81
-void MsiClose(void)
+void DDRAW_Close(void)
 {
 	if (!g_msiInitialized) {
 		return;
@@ -112,7 +112,7 @@ void MsiClose(void)
 }
 
 // FUNCTION: MW2MATROX 0x10087fd2
-MechS32 MsiInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
+MechS32 DDRAW_Init(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	if (g_msiInitialized) {
 		return 0;
@@ -128,7 +128,7 @@ MechS32 MsiInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 	}
 
 	g_msiWindow = NULL;
-	if (A3D_Init(MsiWindowProc, p_width, p_height)) {
+	if (A3D_Init(DDRAW_WindowProc, p_width, p_height)) {
 		return -1;
 	}
 
@@ -156,7 +156,7 @@ MechS32 MsiInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 }
 
 // FUNCTION: MW2MATROX 0x10088120
-LRESULT CALLBACK MsiWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
+LRESULT CALLBACK DDRAW_WindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	if (p_msg >= WM_KEYFIRST && p_msg <= WM_KEYLAST) {
 		return SimWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
@@ -182,7 +182,7 @@ LRESULT CALLBACK MsiWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 // FUNCTION: MW2MATROX 0x100881fd
 void MsiEnd(void)
 {
-	MsiClose();
+	DDRAW_Close();
 }
 
 // FUNCTION: MW2MATROX 0x1008820d

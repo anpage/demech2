@@ -194,13 +194,13 @@ MechS32 DrawAnimatedPolygon(
 	}
 
 	frame->m_useCount++;
-	texture = FUN_1005d600(frame->m_resourceId, 1, 1);
+	texture = A3D_LoadTexture(frame->m_resourceId, 1, 1);
 	if (!texture) {
 		return 0;
 	}
 
-	width = texture->m_unk0x1c;
-	height = texture->m_unk0x20;
+	width = texture->m_width;
+	height = texture->m_height;
 	if (!(anim->m_flags & 4) && p_luma > -1 && p_luma < 15) {
 		useLuma = TRUE;
 	}
@@ -263,7 +263,7 @@ MechS32 DrawAnimatedPolygon(
 			flags |= 1;
 		}
 
-		FUN_10062010(&g_currentPane, p_count, g_a3dVertices, texture, flags);
+		A3D_map_polygon(&g_currentPane, p_count, g_a3dVertices, texture, flags);
 	}
 
 	return 1;
@@ -752,7 +752,7 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 	);
 }
 
-// Returns the texture of animation p_index's current frame (FUN_1005d600), and its size.
+// Returns the texture of animation p_index's current frame (A3D_LoadTexture), and its size.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10051dfe
 A3DTexture* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height, MechU32 p_mode)
@@ -767,13 +767,13 @@ A3DTexture* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height, M
 		return NULL;
 	}
 
-	texture = FUN_1005d600(frame->m_resourceId, 1, p_mode);
+	texture = A3D_LoadTexture(frame->m_resourceId, 1, p_mode);
 	if (!texture) {
 		return NULL;
 	}
 
-	*p_width = texture->m_unk0x1c;
-	*p_height = texture->m_unk0x20;
+	*p_width = texture->m_width;
+	*p_height = texture->m_height;
 	return texture;
 }
 
