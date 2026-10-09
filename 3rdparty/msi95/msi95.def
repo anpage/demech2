@@ -1,5 +1,5 @@
 ; Import library for MSI95.DLL (Matrox Simple Interface, the Mystique's 3D API): the functions the
-; Matrox edition's /Od code calls directly (its A3D renderer, not yet decompiled, calls the others).
+; Matrox edition calls (SimMain calls msiSync, the A3D renderer the others).
 ; The original imports them by name; __cdecl, so LIB resolves them without a symbol object.
 LIBRARY MSI95
 EXPORTS

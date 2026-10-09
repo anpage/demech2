@@ -1,5 +1,6 @@
 /* The Matrox edition's A3D renderer (0x1005a5f0 to 0x10067500): one object compiled with /Ox /G5 /Op,
-   where the rest of the Matrox edition is /Od (CLAUDE.md, "The A3D layer"). */
+   where the rest of the Matrox edition is /Od (CLAUDE.md, "The A3D layer"). Only VC++ 4.x builds the
+   Matrox edition, so its inline assembly (A3D_COPY_VERTICES, A3D_COMPUTE_BOUNDS) has no portable C. */
 #include "matrox/a3d.h"
 
 #include "debugprint.h"
@@ -40,29 +41,6 @@ typedef struct A3DDisplay {
 	MechU32 m_unk0x50;         // 0x50 — the texture cache's size
 } A3DDisplay;
 
-// An item of the texture caches, on two lists: its cache's (m_next, m_prev) and the heap cache's
-// (m_heapNext, m_heapPrev).
-typedef struct A3DCacheItem A3DCacheItem;
-struct A3DCacheItem {
-	A3DCacheItem* m_next;     // 0x00
-	A3DCacheItem* m_prev;     // 0x04
-	A3DCacheItem* m_heapNext; // 0x08
-	A3DCacheItem* m_heapPrev; // 0x0c
-	MechS32 m_id;             // 0x10
-	A3DHeapBlock* m_unk0x14;  // 0x14 (the VRAM block)
-	A3DHeapBlock* m_unk0x18;  // 0x18 (the heap block)
-	MechS32 m_width;          // 0x1c
-	MechS32 m_height;         // 0x20
-	MechS32 m_format;         // 0x24
-	undefined4 m_unk0x28;     // 0x28
-	undefined4 m_unk0x2c;     // 0x2c
-	MechU32 m_size;           // 0x30
-	MechU32 m_levels;         // 0x34
-	undefined4 m_unk0x38;     // 0x38
-	MechU32 m_offsets[9];     // 0x3c
-	MechU32 m_unk0x60[9];     // 0x60
-};
-
 // A block of the texture heap, on two lists: all blocks (m_unk0x00, m_unk0x04) and the used or the
 // free blocks (m_unk0x08, m_unk0x0c; the free ones in address order).
 struct A3DHeapBlock {
@@ -70,7 +48,7 @@ struct A3DHeapBlock {
 	A3DHeapBlock* m_unk0x04; // 0x04
 	A3DHeapBlock* m_unk0x08; // 0x08
 	A3DHeapBlock* m_unk0x0c; // 0x0c
-	A3DCacheItem* m_owner;   // 0x10
+	A3DTexture* m_owner;     // 0x10
 	MechS32 m_free;          // 0x14
 	MechU32 m_size;          // 0x18
 	MechU32 m_address;       // 0x1c
@@ -118,7 +96,7 @@ undefined4 g_unk0x100ac92c = 0x14;
 A3DDisplay* g_unk0x100ac930 = NULL;
 
 // GLOBAL: MW2MATROX 0x100ac934
-undefined4 g_unk0x100ac934 = 0;
+WNDPROC g_unk0x100ac934 = NULL;
 
 // The display's size in pixels.
 // GLOBAL: MW2MATROX 0x100ac938
@@ -233,10 +211,10 @@ MechS32 g_unk0x100acb28 = 0;
 undefined4 g_unk0x100acb2c = 0;
 
 // GLOBAL: MW2MATROX 0x100acb30
-A3DCacheItem* g_unk0x100acb30 = NULL;
+A3DTexture* g_unk0x100acb30 = NULL;
 
 // GLOBAL: MW2MATROX 0x100acb34
-A3DCacheItem* g_unk0x100acb34 = NULL;
+A3DTexture* g_unk0x100acb34 = NULL;
 
 // GLOBAL: MW2MATROX 0x100acb38
 MechU32 g_unk0x100acb38 = 0;
@@ -245,10 +223,10 @@ MechU32 g_unk0x100acb38 = 0;
 MechU32 g_unk0x100acb3c = 0;
 
 // GLOBAL: MW2MATROX 0x100acb40
-A3DCacheItem* g_unk0x100acb40 = NULL;
+A3DTexture* g_unk0x100acb40 = NULL;
 
 // GLOBAL: MW2MATROX 0x100acb44
-A3DCacheItem* g_unk0x100acb44 = NULL;
+A3DTexture* g_unk0x100acb44 = NULL;
 
 // GLOBAL: MW2MATROX 0x100acb48
 MechU32 g_unk0x100acb48 = 0;
@@ -270,10 +248,10 @@ MechU32 g_unk0x100acb5c = 1;
 
 // The cached items by ID.
 // GLOBAL: MW2MATROX 0x100c2680
-static A3DCacheItem* g_unk0x100c2680[0x4000];
+static A3DTexture* g_unk0x100c2680[0x4000];
 
 // GLOBAL: MW2MATROX 0x100d2680
-static A3DCacheItem* g_unk0x100d2680[0x4000];
+static A3DTexture* g_unk0x100d2680[0x4000];
 
 // The buffer FUN_10066c40 fills rectangles from.
 // GLOBAL: MW2MATROX 0x100e2680
@@ -291,7 +269,7 @@ static MechDouble g_unk0x100e2698;
 // GLOBAL: MW2MATROX 0x100e26a0
 static MechDouble g_unk0x100e26a0[8];
 
-// The 64x64 16-bit texture FUN_1005e2c0 loads for the ID 0x29b6.
+// The 64x64 16-bit texture HEAPCACHE_loaditem loads for the ID 0x29b6.
 // GLOBAL: MW2MATROX 0x100e26e0
 undefined g_unk0x100e26e0[0x2000];
 
@@ -384,9 +362,6 @@ MechFloat g_unk0x101246ec;
 #define A3D_POINT(p_vertex) ((MechS32) (p_vertex)->m_y << 16 | (MechS32) (p_vertex)->m_x & 0xffff)
 
 // Copies the p_count vertices p_from to p_to.
-#ifdef PORTABLE_C
-#define A3D_COPY_VERTICES(p_from, p_to, p_count) memcpy(p_to, p_from, (p_count) * sizeof(A3DVertex))
-#else
 #define A3D_COPY_VERTICES(p_from, p_to, p_count)                                                                       \
 	__asm {                                                                                                            \
 		__asm mov ebx, p_from                                                                                          \
@@ -421,32 +396,9 @@ MechFloat g_unk0x101246ec;
 		__asm add edx, 0x30                                                                                            \
 		__asm dec ecx                                                                                                  \
 		__asm jne copyLoop }
-#endif
 
 // Widens the bounds g_unk0x101246e0 to g_unk0x101246ec (set from the first vertex) by the p_count - 1
 // vertices from p_vertex on.
-#ifdef PORTABLE_C
-#define A3D_COMPUTE_BOUNDS(p_vertex, p_count)                                                                          \
-	{                                                                                                                  \
-		A3DVertex* boundsVertex = p_vertex;                                                                            \
-		MechS32 boundsCount = (p_count) - 1;                                                                           \
-		do {                                                                                                           \
-			if (boundsVertex->m_x < g_unk0x101246e8) {                                                                 \
-				g_unk0x101246e8 = boundsVertex->m_x;                                                                   \
-			}                                                                                                          \
-			if (boundsVertex->m_x > g_unk0x101246e0) {                                                                 \
-				g_unk0x101246e0 = boundsVertex->m_x;                                                                   \
-			}                                                                                                          \
-			if (boundsVertex->m_y < g_unk0x101246ec) {                                                                 \
-				g_unk0x101246ec = boundsVertex->m_y;                                                                   \
-			}                                                                                                          \
-			if (boundsVertex->m_y > g_unk0x101246e4) {                                                                 \
-				g_unk0x101246e4 = boundsVertex->m_y;                                                                   \
-			}                                                                                                          \
-			boundsVertex++;                                                                                            \
-		} while (--boundsCount);                                                                                       \
-	}
-#else
 #define A3D_COMPUTE_BOUNDS(p_vertex, p_count)                                                                          \
 	__asm {                                                                                                            \
 		__asm mov ebx, p_vertex                                                                                        \
@@ -488,7 +440,6 @@ MechFloat g_unk0x101246ec;
 		__asm add ebx, 0x30                                                                                            \
 		__asm dec ecx                                                                                                  \
 		__asm jne boundsLoop }
-#endif
 
 // A3D_LERP for doubles.
 #define A3D_LERP_DOUBLE(p_out, p_a, p_b, p_t)                                                                          \
@@ -589,15 +540,15 @@ MechFloat g_unk0x101246ec;
 void FUN_1005d0a0(void);
 void FUN_1005d140(A3DHeapBlock* p_block);
 void FUN_1005d440(A3DHeapBlock* p_block);
-void FUN_1005e220(A3DCacheItem* p_item);
-A3DHeapBlock* FUN_1005d990(A3DCacheItem* p_item, MechS32 p_defrag);
-A3DHeapBlock* FUN_1005dcf0(MechU32 p_size);
-A3DHeapBlock* FUN_1005e770(A3DCacheItem* p_item, MechU32 p_size, MechS32 p_defrag, MechS32 p_flush);
-A3DHeapBlock* FUN_1005e990(MechU32 p_size);
-A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels);
-void FUN_1005ec40(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level, MechS32 p_paletted);
-MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level);
-void FUN_1005ebb0(A3DCacheItem* p_item);
+void FUN_1005e220(A3DTexture* p_item);
+A3DHeapBlock* FUN_1005d990(A3DTexture* p_item, MechS32 p_defrag);
+A3DHeapBlock* VRAM_defrag(MechU32 p_size);
+A3DHeapBlock* FUN_1005e770(A3DTexture* p_item, MechU32 p_size, MechS32 p_defrag, MechS32 p_flush);
+A3DHeapBlock* HEAP_defrag(MechU32 p_size);
+A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels);
+void FUN_1005ec40(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level, MechS32 p_paletted);
+MechU32 FUN_1005f0c0(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level);
+void FUN_1005ebb0(A3DTexture* p_item);
 MechU32 FUN_1005fd70(A3DVertex* p_in, A3DVertex* p_out, MechU32 p_count, MechFloat* p_clip, MechS32 p_flags);
 __inline void FUN_10061510(
 	A3DVertex* p_out,
@@ -616,7 +567,7 @@ MechU32 FUN_10063150(
 	MechS32 p_perspective
 );
 MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count);
-MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_depth);
+MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechS32 p_count, MechDouble p_depth);
 void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3DTexture* p_texture, MechS32 p_mip);
 void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3DTexture* p_texture, MechS32 p_mip);
 __inline void FUN_10064e20(
@@ -630,7 +581,7 @@ __inline void FUN_10064e20(
 );
 void FUN_10061ca0(void);
 void FUN_10066fd0(void);
-void FUN_10067080(void);
+void HEAP_init(void);
 void FUN_10067170(void);
 void FUN_100671a0(void);
 void FUN_10066cf0(undefined* p_heap, undefined* p_buffer, MechS32 p_color);
@@ -705,7 +656,7 @@ __inline static void InsertChainBlock(A3DHeapBlock** p_head, A3DHeapBlock* p_blo
 }
 
 // "VRAM_copyfromheap()": copies the levels of p_item from its heap block into the VRAM block p_block.
-__inline static void CopyLevelsFromHeap(A3DCacheItem* p_item, A3DHeapBlock* p_block)
+__inline static void VRAM_copyfromheap(A3DTexture* p_item, A3DHeapBlock* p_block)
 {
 	MechU32 level;
 
@@ -714,14 +665,14 @@ __inline static void CopyLevelsFromHeap(A3DCacheItem* p_item, A3DHeapBlock* p_bl
 	for (level = 0; level < p_item->m_levels; level++) {
 		g_unk0x100aca98[1] = p_item->m_width / (1 << level);
 		g_unk0x100aca98[2] = p_item->m_height / (1 << level);
-		g_unk0x100aca98[4] = (undefined4) (p_item->m_unk0x18->m_unk0x20 + p_item->m_offsets[level]);
+		g_unk0x100aca98[4] = (undefined4) (p_item->m_heapBlock->m_unk0x20 + p_item->m_offsets[level]);
 		g_unk0x100aca98[6] = p_item->m_offsets[level] + p_block->m_address;
 		switch (p_item->m_format) {
 		case 4:
 		case 8:
-			g_unk0x100aca98[7] = (undefined4) (p_item->m_unk0x18->m_unk0x20 + p_item->m_unk0x60[level]);
+			g_unk0x100aca98[7] = (undefined4) (p_item->m_heapBlock->m_unk0x20 + p_item->m_paletteOffsets[level]);
 			g_unk0x100aca98[8] = (undefined4) g_unk0x100acb20;
-			g_unk0x100aca98[9] = p_item->m_unk0x60[level] + p_block->m_address;
+			g_unk0x100aca98[9] = p_item->m_paletteOffsets[level] + p_block->m_address;
 			break;
 		case 0xf:
 		case 0x10:
@@ -739,15 +690,15 @@ __inline static void CopyLevelsFromHeap(A3DCacheItem* p_item, A3DHeapBlock* p_bl
 			DebugPrint("VRAM_copyfromheap(): Unaligned VRAM palette cache address!\n");
 		}
 		g_unk0x100ac9d0 = -1;
-		msiSetParameters((int) g_unk0x100aca98);
+		msiSetParameters(g_unk0x100aca98);
 	}
 }
 
 // "TEXTURECACHE_finditem": the texture cache's item of p_id (one with no VRAM block stops in the
 // debugger).
-__inline static A3DCacheItem* TextureCacheFindItem(MechS32 p_id)
+__inline static A3DTexture* TEXTURECACHE_finditem(MechS32 p_id)
 {
-	A3DCacheItem* item;
+	A3DTexture* item;
 
 	if (p_id >= 0x4000) {
 		DebugPrint("TEXTURECACHE_finditem: Out of range ID: %i\n", p_id);
@@ -755,7 +706,7 @@ __inline static A3DCacheItem* TextureCacheFindItem(MechS32 p_id)
 	}
 
 	item = g_unk0x100c2680[p_id];
-	if (item && !item->m_unk0x14) {
+	if (item && !item->m_vramBlock) {
 #if defined(_MSC_VER) && defined(_M_IX86)
 		__asm int 3
 #endif
@@ -765,7 +716,7 @@ __inline static A3DCacheItem* TextureCacheFindItem(MechS32 p_id)
 }
 
 // "HEAPCACHE_finditem": the heap cache's item of p_id.
-__inline static A3DCacheItem* HeapCacheFindItem(MechS32 p_id)
+__inline static A3DTexture* HEAPCACHE_finditem(MechS32 p_id)
 {
 	if (p_id >= 0x4000) {
 		DebugPrint("HEAPCACHE_finditem: Out of range ID: %i\n", p_id);
@@ -1279,14 +1230,14 @@ void FUN_1005d090(void)
 // FUNCTION: MW2MATROX 0x1005d0a0
 void FUN_1005d0a0(void)
 {
-	A3DCacheItem* item;
-	A3DCacheItem* next;
+	A3DTexture* item;
+	A3DTexture* next;
 
 	while ((item = g_unk0x100acb30) != NULL) {
-		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb30, g_unk0x100acb34);
+		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
 		g_unk0x100c2680[item->m_id] = NULL;
-		FUN_1005d140(item->m_unk0x14);
-		item->m_unk0x14 = NULL;
+		FUN_1005d140(item->m_vramBlock);
+		item->m_vramBlock = NULL;
 	}
 	g_unk0x100acb38 = 0;
 	g_unk0x100acb3c = 0;
@@ -1307,7 +1258,7 @@ void FUN_1005d140(A3DHeapBlock* p_block)
 		A3D_UNLIST_BLOCK(p_block, g_unk0x100acaf0);
 		size = p_block->m_size;
 		p_block->m_free = TRUE;
-		p_block->m_owner->m_unk0x14 = NULL;
+		p_block->m_owner->m_vramBlock = NULL;
 		p_block->m_owner = NULL;
 		g_unk0x100acafc += size;
 
@@ -1365,6 +1316,30 @@ void FUN_1005d140(A3DHeapBlock* p_block)
 	}
 }
 
+// Empties both caches: the texture cache (FUN_1005d0a0), then every item of the heap cache, with
+// its blocks. Nothing in the edition calls it.
+// FUNCTION: MW2MATROX 0x1005d300
+void FUN_1005d300(void)
+{
+	A3DTexture* item;
+	A3DTexture* next;
+
+	FUN_1005d0a0();
+	while ((item = g_unk0x100acb40) != NULL) {
+		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
+		g_unk0x100c2680[item->m_id] = NULL;
+		FUN_1005d140(item->m_vramBlock);
+		FUN_1005d440(item->m_heapBlock);
+		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
+		g_unk0x100d2680[item->m_id] = NULL;
+		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
+		g_unk0x100acb50--;
+	}
+	g_unk0x100acb48 = 0;
+	g_unk0x100acb4c = 0;
+	g_unk0x100acb50 = 0;
+}
+
 // Frees the heap block p_block, as FUN_1005d140 frees VRAM blocks.
 // Not matched yet (as FUN_1005d140): the original keeps size in a register and updates the counters
 // in memory; the logic follows it.
@@ -1377,11 +1352,11 @@ void FUN_1005d440(A3DHeapBlock* p_block)
 	MechU32 size;
 
 	if (p_block) {
-		g_unk0x100acb28--;
 		A3D_UNLIST_BLOCK(p_block, g_unk0x100acb0c);
+		g_unk0x100acb28--;
 		size = p_block->m_size;
 		p_block->m_free = TRUE;
-		p_block->m_owner->m_unk0x18 = NULL;
+		p_block->m_owner->m_heapBlock = NULL;
 		p_block->m_owner = NULL;
 		g_unk0x100acb18 += size;
 
@@ -1440,40 +1415,40 @@ void FUN_1005d440(A3DHeapBlock* p_block)
 }
 
 // "A3D_LoadTexture()": the texture of the CEL resource p_id, from the texture cache, else from the
-// heap cache, else loaded (FUN_1005e2c0's p_paletted and p_levels); made the most recent in both.
+// heap cache, else loaded (HEAPCACHE_loaditem's p_paletted and p_levels); made the most recent in both.
 // FUNCTION: MW2MATROX 0x1005d600
-A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
+A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 {
-	A3DCacheItem* item;
-	A3DCacheItem* next;
-	A3DCacheItem* oldest;
-	A3DCacheItem* last;
+	A3DTexture* item;
+	A3DTexture* next;
+	A3DTexture* oldest;
+	A3DTexture* last;
 
 	if (p_id >= 0x4000) {
 		DebugPrint("A3D_LoadTexture(): Out of range ID: %i\n", p_id);
 		return NULL;
 	}
 
-	item = TextureCacheFindItem(p_id);
+	item = TEXTURECACHE_finditem(p_id);
 	if (item) {
 		g_unk0x100acb38++;
 		g_unk0x100acb48++;
-		A3D_UNLINK(item, next, m_next, m_prev, g_unk0x100acb40, g_unk0x100acb44);
+		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
 		g_unk0x100d2680[item->m_id] = NULL;
-		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb30, g_unk0x100acb34);
+		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
 		g_unk0x100c2680[item->m_id] = NULL;
 	}
 	else {
 		g_unk0x100acb3c++;
-		item = HeapCacheFindItem(p_id);
+		item = HEAPCACHE_finditem(p_id);
 		if (item) {
 			g_unk0x100acb48++;
-			A3D_UNLINK(item, next, m_next, m_prev, g_unk0x100acb40, g_unk0x100acb44);
+			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
 			g_unk0x100d2680[item->m_id] = NULL;
 		}
 		else {
 			g_unk0x100acb4c++;
-			item = FUN_1005e2c0(p_id, p_paletted, p_levels);
+			item = HEAPCACHE_loaditem(p_id, p_paletted, p_levels);
 			if (!item) {
 				DebugPrint("A3D_LoadTexture(): Can't load texture ID: %i\n", p_id);
 				return NULL;
@@ -1483,18 +1458,18 @@ A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 			oldest = g_unk0x100acb30;
 			if (oldest) {
 				FUN_1005e220(oldest);
-				FUN_1005d140(oldest->m_unk0x14);
-				oldest->m_unk0x14 = NULL;
+				FUN_1005d140(oldest->m_vramBlock);
+				oldest->m_vramBlock = NULL;
 			}
 		}
 	}
 
 	last = g_unk0x100acb44;
 	g_unk0x100acb44 = item;
-	item->m_prev = last;
-	item->m_next = NULL;
+	item->m_heapPrev = last;
+	item->m_heapNext = NULL;
 	if (last) {
-		last->m_next = item;
+		last->m_heapNext = item;
 	}
 	else {
 		g_unk0x100acb40 = item;
@@ -1503,24 +1478,24 @@ A3DTexture* FUN_1005d600(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 
 	last = g_unk0x100acb34;
 	g_unk0x100acb34 = item;
-	item->m_heapPrev = last;
-	item->m_heapNext = NULL;
+	item->m_vramPrev = last;
+	item->m_vramNext = NULL;
 	if (last) {
-		last->m_heapNext = item;
+		last->m_vramNext = item;
 	}
 	else {
 		g_unk0x100acb30 = item;
 	}
 	g_unk0x100c2680[item->m_id] = item;
 
-	return (A3DTexture*) item;
+	return item;
 }
 
 // Allocates a VRAM block for p_item (freeing the one it has), defragmenting VRAM if needed
 // (p_defrag), and copies the texture's levels into it from the heap.
 // Register and scheduling entropy remains (the free block's size is updated in memory).
 // FUNCTION: MW2MATROX 0x1005d990
-A3DHeapBlock* FUN_1005d990(A3DCacheItem* p_item, MechS32 p_defrag)
+A3DHeapBlock* FUN_1005d990(A3DTexture* p_item, MechS32 p_defrag)
 {
 	A3DHeapBlock* cur;
 	A3DHeapBlock* found;
@@ -1529,7 +1504,7 @@ A3DHeapBlock* FUN_1005d990(A3DCacheItem* p_item, MechS32 p_defrag)
 	MechU32 size;
 	MechU32 remaining;
 
-	FUN_1005d140(p_item->m_unk0x14);
+	FUN_1005d140(p_item->m_vramBlock);
 	size = (p_item->m_size + 0x1f) & ~0x1f;
 	if (size > g_unk0x100acafc) {
 		g_unk0x100acb00 = -2;
@@ -1547,7 +1522,7 @@ A3DHeapBlock* FUN_1005d990(A3DCacheItem* p_item, MechS32 p_defrag)
 	}
 	if (!found) {
 		if (p_defrag) {
-			found = FUN_1005dcf0(size);
+			found = VRAM_defrag(size);
 		}
 		else {
 			g_unk0x100acb00 = -1;
@@ -1573,10 +1548,10 @@ A3DHeapBlock* FUN_1005d990(A3DCacheItem* p_item, MechS32 p_defrag)
 	InsertUsedBlock(&g_unk0x100acaf0, block);
 	InsertChainBlock(&g_unk0x100acaf8, block);
 
-	CopyLevelsFromHeap(block->m_owner, block);
+	VRAM_copyfromheap(block->m_owner, block);
 	g_unk0x100acafc -= block->m_size;
 	g_unk0x100acb04++;
-	p_item->m_unk0x14 = block;
+	p_item->m_vramBlock = block;
 	g_unk0x100acb00 = 0;
 	return block;
 }
@@ -1585,7 +1560,7 @@ A3DHeapBlock* FUN_1005d990(A3DCacheItem* p_item, MechS32 p_defrag)
 // until it holds p_size bytes; returns it.
 // Not matched yet: register allocation and the order of the level copy's loads differ.
 // FUNCTION: MW2MATROX 0x1005dcf0
-A3DHeapBlock* FUN_1005dcf0(MechU32 p_size)
+A3DHeapBlock* VRAM_defrag(MechU32 p_size)
 {
 	A3DHeapBlock* largest;
 	A3DHeapBlock* cur;
@@ -1612,7 +1587,7 @@ A3DHeapBlock* FUN_1005dcf0(MechU32 p_size)
 			if (cur) {
 				for (block = cur->m_unk0x04; block != largest; block = block->m_unk0x04) {
 					block->m_address += cur->m_size;
-					CopyLevelsFromHeap(block->m_owner, block);
+					VRAM_copyfromheap(block->m_owner, block);
 				}
 				largest->m_size += cur->m_size;
 				A3D_UNLIST_BLOCK(cur, g_unk0x100acaf4);
@@ -1626,7 +1601,7 @@ A3DHeapBlock* FUN_1005dcf0(MechU32 p_size)
 			if (cur) {
 				for (block = cur->m_unk0x00; block != largest; block = block->m_unk0x00) {
 					block->m_address -= cur->m_size;
-					CopyLevelsFromHeap(block->m_owner, block);
+					VRAM_copyfromheap(block->m_owner, block);
 				}
 				largest->m_size += cur->m_size;
 				largest->m_address -= cur->m_size;
@@ -1644,16 +1619,16 @@ A3DHeapBlock* FUN_1005dcf0(MechU32 p_size)
 	return largest;
 }
 
-// Takes p_item off the texture cache (the items in VRAM; their list is m_heapNext and m_heapPrev).
-// Register entropy: next and the address of p_item->m_heapPrev take each other's registers.
+// Takes p_item off the texture cache (the items in VRAM; their list is m_vramNext and m_vramPrev).
+// Register entropy: next and the address of p_item->m_vramPrev take each other's registers.
 // FUNCTION: MW2MATROX 0x1005e220
-void FUN_1005e220(A3DCacheItem* p_item)
+void FUN_1005e220(A3DTexture* p_item)
 {
-	A3DCacheItem* prev;
-	A3DCacheItem* next;
+	A3DTexture* prev;
+	A3DTexture* next;
 
-	next = p_item->m_heapNext;
-	if (!next && !p_item->m_heapPrev) {
+	next = p_item->m_vramNext;
+	if (!next && !p_item->m_vramPrev) {
 		if (g_unk0x100acb30 == p_item) {
 			g_unk0x100acb30 = NULL;
 		}
@@ -1665,21 +1640,21 @@ void FUN_1005e220(A3DCacheItem* p_item)
 	}
 
 	if (next) {
-		next->m_heapPrev = p_item->m_heapPrev;
+		next->m_vramPrev = p_item->m_vramPrev;
 	}
 	else {
-		g_unk0x100acb34 = p_item->m_heapPrev;
+		g_unk0x100acb34 = p_item->m_vramPrev;
 	}
-	prev = p_item->m_heapPrev;
+	prev = p_item->m_vramPrev;
 	if (prev) {
-		prev->m_heapNext = next;
+		prev->m_vramNext = next;
 	}
 	else {
 		g_unk0x100acb30 = next;
 	}
-	p_item->m_heapNext = NULL;
+	p_item->m_vramNext = NULL;
 	g_unk0x100c2680[p_item->m_id] = NULL;
-	p_item->m_heapPrev = NULL;
+	p_item->m_vramPrev = NULL;
 }
 
 // "HEAPCACHE_loaditem()": loads the CEL resource p_id into a new item's heap block, with p_levels
@@ -1687,22 +1662,18 @@ void FUN_1005e220(A3DCacheItem* p_item)
 // Not matched yet: register allocation and block order differ; the calls and stores follow the
 // original.
 // FUNCTION: MW2MATROX 0x1005e2c0
-A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
+A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 {
-	A3DCacheItem* item;
-	A3DCacheItem* oldest;
-	A3DCacheItem* next;
+	A3DTexture* item;
+	A3DTexture* oldest;
+	A3DTexture* next;
 	MechS16* data;
 	MechS32 resourceSize;
 	MechU32 size;
 	MechU32 bytes;
 	MechU32 level;
 
-	if (p_id == 0x29b6) {
-		p_levels = 1;
-		size = 0x2000;
-	}
-	else {
+	if (p_id != 0x29b6) {
 		resourceSize = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], p_id);
 		if (resourceSize < 0) {
 			DebugPrint("HEAPCACHE_loaditem(): GetIndexedItemSize() failed on ID #%i\n", p_id);
@@ -1710,7 +1681,7 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 		}
 		if (p_paletted) {
 			size = 0;
-			bytes = (resourceSize - 4) >> 1;
+			bytes = (MechU32) (resourceSize - 4) >> 1;
 			for (level = p_levels; level; level--) {
 				size = ((((size + 0x1f) & ~0x1f) + bytes + 0x1f) & ~0x1f) + 0x200;
 				bytes >>= 2;
@@ -1732,37 +1703,41 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 			size += 4;
 		}
 	}
-
-	item = (A3DCacheItem*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(A3DCacheItem));
-	if (item) {
-		memset(item, 0, sizeof(A3DCacheItem));
+	else {
+		p_levels = 1;
+		size = 0x2000;
 	}
-	item->m_unk0x18 = FUN_1005e770(item, size, TRUE, TRUE);
-	if (!item->m_unk0x18) {
+
+	item = (A3DTexture*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(A3DTexture));
+	if (item) {
+		memset(item, 0, sizeof(A3DTexture));
+	}
+	item->m_heapBlock = FUN_1005e770(item, size, TRUE, TRUE);
+	if (!item->m_heapBlock) {
 		g_unk0x100ac9d0 = -1;
 		g_unk0x100acb2c++;
-		msiSetParameters(0);
-		msiSetParameters(-1);
-		while (!item->m_unk0x18) {
+		msiSetParameters(NULL);
+		msiSetParameters((void*) -1);
+		while (!item->m_heapBlock) {
 			oldest = g_unk0x100acb40;
 			if (oldest) {
 				FUN_1005e220(oldest);
-				FUN_1005d140(oldest->m_unk0x14);
-				FUN_1005d440(oldest->m_unk0x18);
+				FUN_1005d140(oldest->m_vramBlock);
+				FUN_1005d440(oldest->m_heapBlock);
 				FUN_1005ebb0(oldest);
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, oldest);
 				g_unk0x100acb50--;
 			}
-			item->m_unk0x18 = FUN_1005e770(item, size, TRUE, FALSE);
+			item->m_heapBlock = FUN_1005e770(item, size, TRUE, FALSE);
 		}
 	}
 
 	if (p_id == 0x29b6) {
-		data = (MechS16*) item->m_unk0x18->m_address;
+		data = (MechS16*) item->m_heapBlock->m_address;
 		memcpy(data, g_unk0x100e26e0, size);
 		item->m_format = 0xf;
 		item->m_id = 0x29b6;
-		item->m_unk0x18->m_unk0x20 = (undefined*) data;
+		item->m_heapBlock->m_unk0x20 = (undefined*) data;
 		item->m_width = 0x40;
 		item->m_height = 0x40;
 		g_unk0x100acb50++;
@@ -1776,8 +1751,8 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 			item->m_width = data[0];
 			item->m_height = data[1];
 			item->m_levels = p_levels;
-			item->m_unk0x38 = 0;
-			item->m_unk0x18->m_unk0x20 = (undefined*) item->m_unk0x18->m_address;
+			item->m_level = 0;
+			item->m_heapBlock->m_unk0x20 = (undefined*) item->m_heapBlock->m_address;
 			FUN_1005ec40(item, (MechU16*) (data + 2), 0, p_paletted);
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 			g_unk0x100acb50++;
@@ -1786,10 +1761,10 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 
 		DebugPrint("HEAPCACHE_loaditem(): RetrieveByIndex() failed on ID #%i\n", p_id);
 		if (item) {
-			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb30, g_unk0x100acb34);
+			A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
 			g_unk0x100c2680[item->m_id] = NULL;
-			FUN_1005d140(item->m_unk0x14);
-			FUN_1005d440(item->m_unk0x18);
+			FUN_1005d140(item->m_vramBlock);
+			FUN_1005d440(item->m_heapBlock);
 			FUN_1005ebb0(item);
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
 			g_unk0x100acb50--;
@@ -1798,7 +1773,7 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 		return NULL;
 	}
 
-	data = (MechS16*) item->m_unk0x18->m_address;
+	data = (MechS16*) item->m_heapBlock->m_address;
 	if (ReadPrjResource(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], p_id, data) >= 0) {
 		item->m_format = 0xf;
 		item->m_id = p_id;
@@ -1806,9 +1781,9 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 		item->m_height = data[1];
 		item->m_levels = p_levels;
 		item->m_unk0x28 = 0;
-		item->m_unk0x2c = 1;
-		item->m_unk0x38 = 0;
-		item->m_unk0x18->m_unk0x20 = (undefined*) (item->m_unk0x18->m_address + 4);
+		item->m_transparent = 1;
+		item->m_level = 0;
+		item->m_heapBlock->m_unk0x20 = (undefined*) (item->m_heapBlock->m_address + 4);
 		FUN_1005ec40(item, (MechU16*) (data + 2), 0, 0);
 		g_unk0x100acb50++;
 		return item;
@@ -1816,10 +1791,10 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 
 	DebugPrint("HEAPCACHE_loaditem(): RetrieveByIndex() failed on ID #%i\n", p_id);
 	if (item) {
-		A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb30, g_unk0x100acb34);
+		A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
 		g_unk0x100c2680[item->m_id] = NULL;
-		FUN_1005d140(item->m_unk0x14);
-		FUN_1005d440(item->m_unk0x18);
+		FUN_1005d140(item->m_vramBlock);
+		FUN_1005d440(item->m_heapBlock);
 		FUN_1005ebb0(item);
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, item);
 		g_unk0x100acb50--;
@@ -1832,7 +1807,7 @@ A3DCacheItem* FUN_1005e2c0(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 // Register entropy: the search loop's and the insertions' registers swap, and the counters
 // update through registers.
 // FUNCTION: MW2MATROX 0x1005e770
-A3DHeapBlock* FUN_1005e770(A3DCacheItem* p_item, MechU32 p_size, MechS32 p_defrag, MechS32 p_flush)
+A3DHeapBlock* FUN_1005e770(A3DTexture* p_item, MechU32 p_size, MechS32 p_defrag, MechS32 p_flush)
 {
 	A3DHeapBlock* cur;
 	A3DHeapBlock* found;
@@ -1861,10 +1836,10 @@ A3DHeapBlock* FUN_1005e770(A3DCacheItem* p_item, MechU32 p_size, MechS32 p_defra
 			if (p_flush) {
 				g_unk0x100ac9d0 = -1;
 				g_unk0x100acb2c++;
-				msiSetParameters(0);
-				msiSetParameters(-1);
+				msiSetParameters(NULL);
+				msiSetParameters((void*) -1);
 			}
-			found = FUN_1005e990(size);
+			found = HEAP_defrag(size);
 		}
 		else {
 			g_unk0x100acb1c = -1;
@@ -1891,7 +1866,7 @@ A3DHeapBlock* FUN_1005e770(A3DCacheItem* p_item, MechU32 p_size, MechS32 p_defra
 	InsertChainBlock(&g_unk0x100acb14, block);
 	g_unk0x100acb18 -= block->m_size;
 	g_unk0x100acb28++;
-	p_item->m_unk0x18 = block;
+	p_item->m_heapBlock = block;
 	g_unk0x100acb1c = 0;
 	return block;
 }
@@ -1900,14 +1875,14 @@ A3DHeapBlock* FUN_1005e770(A3DCacheItem* p_item, MechU32 p_size, MechS32 p_defra
 // it holds p_size bytes; returns it.
 // Not matched yet: register allocation of the defragmentation loop differs.
 // FUNCTION: MW2MATROX 0x1005e990
-A3DHeapBlock* FUN_1005e990(MechU32 p_size)
+A3DHeapBlock* HEAP_defrag(MechU32 p_size)
 {
 	A3DHeapBlock* largest;
 	A3DHeapBlock* cur;
 	A3DHeapBlock* block;
 	A3DHeapBlock* prev;
 	MechU32 size;
-	MechU8 pass;
+	MechS32 pass;
 
 	g_unk0x100acb24++;
 	largest = NULL;
@@ -1970,15 +1945,15 @@ A3DHeapBlock* FUN_1005e990(MechU32 p_size)
 }
 
 // Takes p_item off the heap cache (the items in the heap).
-// Register entropy: next and the address of p_item->m_prev take each other's registers.
+// Register entropy: next and the address of p_item->m_heapPrev take each other's registers.
 // FUNCTION: MW2MATROX 0x1005ebb0
-void FUN_1005ebb0(A3DCacheItem* p_item)
+void FUN_1005ebb0(A3DTexture* p_item)
 {
-	A3DCacheItem* prev;
-	A3DCacheItem* next;
+	A3DTexture* prev;
+	A3DTexture* next;
 
-	next = p_item->m_next;
-	if (!next && !p_item->m_prev) {
+	next = p_item->m_heapNext;
+	if (!next && !p_item->m_heapPrev) {
 		if (g_unk0x100acb40 == p_item) {
 			g_unk0x100acb40 = NULL;
 		}
@@ -1990,21 +1965,21 @@ void FUN_1005ebb0(A3DCacheItem* p_item)
 	}
 
 	if (next) {
-		next->m_prev = p_item->m_prev;
+		next->m_heapPrev = p_item->m_heapPrev;
 	}
 	else {
-		g_unk0x100acb44 = p_item->m_prev;
+		g_unk0x100acb44 = p_item->m_heapPrev;
 	}
-	prev = p_item->m_prev;
+	prev = p_item->m_heapPrev;
 	if (prev) {
-		prev->m_next = next;
+		prev->m_heapNext = next;
 	}
 	else {
 		g_unk0x100acb40 = next;
 	}
-	p_item->m_next = NULL;
+	p_item->m_heapNext = NULL;
 	g_unk0x100d2680[p_item->m_id] = NULL;
-	p_item->m_prev = NULL;
+	p_item->m_heapPrev = NULL;
 }
 
 // Averages the 2x2 blocks of the p_width x p_width 16-bit picture p_pixels into p_out (p_width / 2
@@ -2036,32 +2011,32 @@ void FUN_1005ebb0(A3DCacheItem* p_item)
 
 // Builds the levels of p_item from its level p_level, p_pixels: 16-bit levels in the heap block,
 // each after the last, or (p_paletted) each level quantized by FUN_1005f0c0.
-// Not matched yet (38%): the original keeps the 2x2 filter's index in esi over row pointers it
+// Not matched yet: the original keeps the 2x2 filter's index in esi over row pointers it
 // reloads; this build strength-reduces them into walking pointers.
 // FUNCTION: MW2MATROX 0x1005ec40
-void FUN_1005ec40(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level, MechS32 p_paletted)
+void FUN_1005ec40(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level, MechS32 p_paletted)
 {
 	MechU32 width;
 	MechU32 half;
 	MechU32 bytes;
-	MechU32 y;
-	MechU32 x;
-	MechU32 i;
+	MechS32 y;
+	MechS32 x;
+	MechS32 i;
 	MechU16* row0;
 	MechU16* row1;
 	MechU16* dest;
 	MechU16* destRow;
 	MechU16* next;
-	MechU16 a;
-	MechU16 b;
-	MechU16 c;
 	MechU16 d;
+	MechU16 c;
+	MechU16 b;
+	MechU16 a;
 
 	if (!p_level) {
 		p_item->m_offsets[p_level] = 0;
 		p_item->m_size = 0;
 	}
-	width = p_item->m_width / (MechU32) (1 << p_level);
+	width = p_item->m_width / (1 << p_level);
 
 	if (p_paletted) {
 		FUN_1005f0c0(p_item, p_pixels, p_level);
@@ -2127,7 +2102,7 @@ void FUN_1005ec40(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level, Mech
 // before it; returns the palette's color count. Colors past 255 fall back to 12-bit colors, and past
 // 255 of those, to the nearest of the 255 first.
 // FUNCTION: MW2MATROX 0x1005f0c0
-MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level)
+MechU32 FUN_1005f0c0(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level)
 {
 	A3DPaletteEntry reduced[256];
 	A3DPaletteEntry full[256];
@@ -2270,16 +2245,16 @@ MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level)
 		count++;
 	}
 	if (p_level == 0) {
-		p_item->m_unk0x60[p_level] = 0;
+		p_item->m_paletteOffsets[p_level] = 0;
 	}
 	p_item->m_unk0x28 = count;
-	p_item->m_unk0x2c = transparent;
+	p_item->m_transparent = transparent;
 
 	if (count <= 16 && p_item->m_levels == 1) {
 		p_item->m_format = 4;
-		p_item->m_offsets[p_level] = p_item->m_unk0x60[p_level] + 0x20;
+		p_item->m_offsets[p_level] = p_item->m_paletteOffsets[p_level] + 0x20;
 		p_item->m_size += (size >> 1) + 0x20;
-		dest = (MechU8*) p_item->m_unk0x18->m_unk0x20 + p_item->m_offsets[p_level];
+		dest = (MechU8*) p_item->m_heapBlock->m_unk0x20 + p_item->m_offsets[p_level];
 		for (i = 0; p_pixels < end; p_pixels++) {
 			if (!(*p_pixels & 0x8000)) {
 				index = 0;
@@ -2298,9 +2273,9 @@ MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level)
 	}
 	else {
 		p_item->m_format = 8;
-		p_item->m_offsets[p_level] = p_item->m_unk0x60[p_level] + 0x200;
+		p_item->m_offsets[p_level] = p_item->m_paletteOffsets[p_level] + 0x200;
 		p_item->m_size += size + 0x200;
-		dest = (MechU8*) p_item->m_unk0x18->m_unk0x20 + p_item->m_offsets[p_level];
+		dest = (MechU8*) p_item->m_heapBlock->m_unk0x20 + p_item->m_offsets[p_level];
 		for (; p_pixels < end; p_pixels++) {
 			if (!(*p_pixels & 0x8000)) {
 				*dest = 0;
@@ -2312,8 +2287,8 @@ MechU32 FUN_1005f0c0(A3DCacheItem* p_item, MechU16* p_pixels, MechU32 p_level)
 		}
 	}
 
-	p_item->m_unk0x60[p_level + 1] = p_item->m_offsets[p_level] + size;
-	palette = (MechU16*) (p_item->m_unk0x18->m_unk0x20 + p_item->m_unk0x60[p_level]);
+	p_item->m_paletteOffsets[p_level + 1] = p_item->m_offsets[p_level] + size;
+	palette = (MechU16*) (p_item->m_heapBlock->m_unk0x20 + p_item->m_paletteOffsets[p_level]);
 	if (transparent) {
 		*palette++ = 0;
 	}
@@ -2331,7 +2306,7 @@ void FUN_1005f6b0(void)
 	g_unk0x100acb54++;
 	if (!g_unk0x100ac904) {
 		g_unk0x100ac9d0 = -1;
-		msiSetParameters(0);
+		msiSetParameters(NULL);
 		g_unk0x100ac904 = 1;
 	}
 }
@@ -2342,7 +2317,7 @@ void FUN_1005f6e0(void)
 	g_unk0x100acb58++;
 	if (g_unk0x100ac904) {
 		g_unk0x100ac9d0 = -1;
-		msiSetParameters(-1);
+		msiSetParameters((void*) -1);
 		g_unk0x100ac904 = 0;
 	}
 }
@@ -2486,7 +2461,7 @@ void FUN_1005f8a0(PANE* p_pane, MechS32 p_color)
 
 	if (g_unk0x100ac9d0 != 1) {
 		g_unk0x100ac9d0 = 1;
-		msiSetParameters((int) g_unk0x100aca40);
+		msiSetParameters(g_unk0x100aca40);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -2683,7 +2658,7 @@ void FUN_10061cb0(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 	if (p_count >= 3) {
 		if (g_unk0x100ac9d0 != 1) {
 			g_unk0x100ac9d0 = 1;
-			msiSetParameters((int) g_unk0x100aca40);
+			msiSetParameters(g_unk0x100aca40);
 			g_unk0x100ac904 = 0;
 		}
 
@@ -2730,7 +2705,7 @@ void FUN_10061cb0(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 
 // Register allocation and store scheduling differ (the parameter block's setup).
 // FUNCTION: MW2MATROX 0x10062010
-void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags)
+void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags)
 {
 	MechS32 shade;
 	MechS32 transparent;
@@ -2758,21 +2733,21 @@ void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTextu
 
 	transparent = (p_flags & 2) >> 1;
 	shade = p_flags & 1;
-	if (g_unk0x100ac9d0 != 2 || p_texture->m_unk0x10 != g_unk0x100ac9d4 ||
-		(MechS32) p_texture->m_unk0x14->m_address != g_unk0x100ac9dc || transparent != g_unk0x100ac9e4 ||
-		shade != g_unk0x100ac9e0 || p_texture->m_unk0x38 != g_unk0x100ac9d8) {
-		g_unk0x100ac9d4 = p_texture->m_unk0x10;
+	if (g_unk0x100ac9d0 != 2 || p_texture->m_id != g_unk0x100ac9d4 ||
+		(MechS32) p_texture->m_vramBlock->m_address != g_unk0x100ac9dc || transparent != g_unk0x100ac9e4 ||
+		shade != g_unk0x100ac9e0 || p_texture->m_level != g_unk0x100ac9d8) {
+		g_unk0x100ac9d4 = p_texture->m_id;
 		g_unk0x100ac9e0 = shade;
 		g_unk0x100ac9e4 = transparent;
-		g_unk0x100ac9dc = p_texture->m_unk0x14->m_address;
-		g_unk0x100ac9d8 = p_texture->m_unk0x38;
-		scale = 1 << p_texture->m_unk0x38;
+		g_unk0x100ac9dc = p_texture->m_vramBlock->m_address;
+		g_unk0x100ac9d8 = p_texture->m_level;
+		scale = 1 << p_texture->m_level;
 		g_unk0x100ac9d0 = 2;
 		if (transparent) {
 			g_unk0x100acad0 = 1;
-			switch (p_texture->m_unk0x24) {
+			switch (p_texture->m_format) {
 			case 4:
-				if (p_texture->m_unk0x2c) {
+				if (p_texture->m_transparent) {
 					g_unk0x100acad4 = 0;
 					g_unk0x100acad6 = 0xf;
 				}
@@ -2783,7 +2758,7 @@ void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTextu
 				}
 				break;
 			case 8:
-				if (p_texture->m_unk0x2c) {
+				if (p_texture->m_transparent) {
 					g_unk0x100acad4 = 0;
 					g_unk0x100acad6 = 0xff;
 				}
@@ -2811,13 +2786,13 @@ void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTextu
 		}
 
 		g_unk0x100acac8 = shade;
-		g_unk0x100aca98[1] = p_texture->m_unk0x1c / scale;
-		g_unk0x100aca98[2] = p_texture->m_unk0x20 / scale;
-		g_unk0x100aca98[3] = p_texture->m_unk0x24;
+		g_unk0x100aca98[1] = p_texture->m_width / scale;
+		g_unk0x100aca98[2] = p_texture->m_height / scale;
+		g_unk0x100aca98[3] = p_texture->m_format;
 		g_unk0x100aca98[4] = 0;
 		g_unk0x100aca98[5] = 0;
-		g_unk0x100aca98[6] = p_texture->m_unk0x3c[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
-		if (p_texture->m_unk0x24 >= 0xf) {
+		g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+		if (p_texture->m_format >= 0xf) {
 			g_unk0x100aca98[7] = 0;
 			g_unk0x100aca98[8] = 0;
 			g_unk0x100aca98[9] = 0;
@@ -2825,9 +2800,9 @@ void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTextu
 		else {
 			g_unk0x100aca98[7] = 0;
 			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = p_texture->m_unk0x60[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
+			g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 		}
-		msiSetParameters((int) g_unk0x100aca98);
+		msiSetParameters(g_unk0x100aca98);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -2897,7 +2872,7 @@ void FUN_10062010(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTextu
 // Draws a textured polygon, perspective-corrected with p_flags 0x200 or 0x400.
 // Register allocation and store scheduling differ (the parameter block's setup).
 // FUNCTION: MW2MATROX 0x10062630
-void FUN_10062630(
+void A3D_polygon_clip_XY_and_render(
 	PANE* p_pane,
 	MechU32 p_count,
 	A3DVertex* p_vertices,
@@ -2934,20 +2909,20 @@ void FUN_10062630(
 
 	perspective = (p_flags & 0x600) != 0;
 	transparent = p_flags & 1;
-	if (g_unk0x100ac9d0 != 3 || p_texture->m_unk0x10 != g_unk0x100ac9d4 ||
-		(MechS32) p_texture->m_unk0x14->m_address != g_unk0x100ac9dc || transparent != g_unk0x100ac9e4 ||
-		p_texture->m_unk0x38 != g_unk0x100ac9d8) {
-		g_unk0x100ac9d4 = p_texture->m_unk0x10;
+	if (g_unk0x100ac9d0 != 3 || p_texture->m_id != g_unk0x100ac9d4 ||
+		(MechS32) p_texture->m_vramBlock->m_address != g_unk0x100ac9dc || transparent != g_unk0x100ac9e4 ||
+		p_texture->m_level != g_unk0x100ac9d8) {
+		g_unk0x100ac9d4 = p_texture->m_id;
 		g_unk0x100ac9e4 = transparent;
-		g_unk0x100ac9dc = p_texture->m_unk0x14->m_address;
-		g_unk0x100ac9d8 = p_texture->m_unk0x38;
-		scale = 1 << p_texture->m_unk0x38;
+		g_unk0x100ac9dc = p_texture->m_vramBlock->m_address;
+		g_unk0x100ac9d8 = p_texture->m_level;
+		scale = 1 << p_texture->m_level;
 		g_unk0x100ac9d0 = 3;
 		if (transparent) {
 			g_unk0x100acad0 = 1;
-			switch (p_texture->m_unk0x24) {
+			switch (p_texture->m_format) {
 			case 4:
-				if (p_texture->m_unk0x2c) {
+				if (p_texture->m_transparent) {
 					g_unk0x100acad4 = 0;
 					g_unk0x100acad6 = 0xf;
 				}
@@ -2958,7 +2933,7 @@ void FUN_10062630(
 				}
 				break;
 			case 8:
-				if (p_texture->m_unk0x2c) {
+				if (p_texture->m_transparent) {
 					g_unk0x100acad4 = 0;
 					g_unk0x100acad6 = 0xff;
 				}
@@ -2986,13 +2961,13 @@ void FUN_10062630(
 		}
 
 		g_unk0x100acac8 = 1;
-		g_unk0x100aca98[1] = p_texture->m_unk0x1c / scale;
-		g_unk0x100aca98[2] = p_texture->m_unk0x20 / scale;
-		g_unk0x100aca98[3] = p_texture->m_unk0x24;
+		g_unk0x100aca98[1] = p_texture->m_width / scale;
+		g_unk0x100aca98[2] = p_texture->m_height / scale;
+		g_unk0x100aca98[3] = p_texture->m_format;
 		g_unk0x100aca98[4] = 0;
 		g_unk0x100aca98[5] = 0;
-		g_unk0x100aca98[6] = p_texture->m_unk0x3c[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
-		if (p_texture->m_unk0x24 >= 0xf) {
+		g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+		if (p_texture->m_format >= 0xf) {
 			g_unk0x100aca98[7] = 0;
 			g_unk0x100aca98[8] = 0;
 			g_unk0x100aca98[9] = 0;
@@ -3000,9 +2975,9 @@ void FUN_10062630(
 		else {
 			g_unk0x100aca98[7] = 0;
 			g_unk0x100aca98[8] = 0;
-			g_unk0x100aca98[9] = p_texture->m_unk0x60[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
+			g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 		}
-		msiSetParameters((int) g_unk0x100aca98);
+		msiSetParameters(g_unk0x100aca98);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -3123,7 +3098,7 @@ void A3D_GroundSkyPolyPlot(
 	}
 	g_unk0x100ac9d0 = 4;
 	g_unk0x100ac9d8 = -1;
-	p_texture->m_unk0x38 = 0;
+	p_texture->m_level = 0;
 	g_unk0x100acad8 = 0;
 	g_unk0x100acad0 = 0;
 	g_unk0x100acada = 0;
@@ -3131,13 +3106,13 @@ void A3D_GroundSkyPolyPlot(
 	g_unk0x100acac8 = 1;
 	g_unk0x100acad4 = 0;
 	g_unk0x100acad6 = 0;
-	g_unk0x100aca98[1] = p_texture->m_unk0x1c;
-	g_unk0x100aca98[2] = p_texture->m_unk0x20;
-	g_unk0x100aca98[3] = p_texture->m_unk0x24;
+	g_unk0x100aca98[1] = p_texture->m_width;
+	g_unk0x100aca98[2] = p_texture->m_height;
+	g_unk0x100aca98[3] = p_texture->m_format;
 	g_unk0x100aca98[4] = 0;
 	g_unk0x100aca98[5] = 0;
-	g_unk0x100aca98[6] = p_texture->m_unk0x3c[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
-	if (p_texture->m_unk0x24 >= 0xf) {
+	g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+	if (p_texture->m_format >= 0xf) {
 		g_unk0x100aca98[7] = 0;
 		g_unk0x100aca98[8] = 0;
 		g_unk0x100aca98[9] = 0;
@@ -3145,10 +3120,10 @@ void A3D_GroundSkyPolyPlot(
 	else {
 		g_unk0x100aca98[7] = 0;
 		g_unk0x100aca98[8] = 0;
-		g_unk0x100aca98[9] = p_texture->m_unk0x60[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
+		g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
 	}
 	if (!p_mip) {
-		msiSetParameters((int) g_unk0x100aca98);
+		msiSetParameters(g_unk0x100aca98);
 		g_unk0x100ac904 = 0;
 	}
 
@@ -3449,9 +3424,9 @@ MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count)
 
 // Clips the polygon p_vertices of p_count vertices to the depth p_depth (by m_w, the projection
 // scale over the depth), in place; returns the clipped polygon's vertex count.
-// The original copies the polygon with rep movsd alone (no byte tail); register allocation differs.
+// Register allocation differs (a and p_vertices swap ebx and ebp).
 // FUNCTION: MW2MATROX 0x10065710
-MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_depth)
+MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechS32 p_count, MechDouble p_depth)
 {
 	MechDouble w;
 	MechDouble t;
@@ -3463,15 +3438,20 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 
 	w = g_eyepoint->m_projectScaleX / p_depth;
 	memcpy(polygon, p_vertices, p_count * sizeof(A3DPolyVertex));
+	count = 0;
 	a = polygon;
 	b = &polygon[1];
-	count = 0;
 	for (i = 0; i < p_count; i++) {
 		if (p_count - i == 1) {
 			b = polygon;
 		}
 		if (a->m_w >= w) {
-			if (b->m_w < w) {
+			if (b->m_w >= w) {
+				*p_vertices = *a;
+				count++;
+				p_vertices++;
+			}
+			else {
 				*p_vertices = *a;
 				count++;
 				p_vertices++;
@@ -3480,11 +3460,6 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 				A3D_LERP_DOUBLE(p_vertices->m_u, a->m_u, b->m_u, t)
 				A3D_LERP_DOUBLE(p_vertices->m_v, a->m_v, b->m_v, t)
 				p_vertices->m_w = w;
-				count++;
-				p_vertices++;
-			}
-			else {
-				*p_vertices = *a;
 				count++;
 				p_vertices++;
 			}
@@ -3507,15 +3482,13 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechU32 p_count, MechDouble p_de
 
 // Draws the textured triangle p_a, p_b, p_c, choosing its MIP map level by its mean depth with
 // p_mip.
-// Register allocation differs (the original biases the triangle pointer by 0x10).
+// Register allocation differs (the original keeps g_eyepoint in a register).
 // FUNCTION: MW2MATROX 0x100659f0
 void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3DTexture* p_texture, MechS32 p_mip)
 {
 	A3DPolyVertex* vertices[3];
 	MechDouble depth;
-	A3DPolyVertex** from;
-	A3DPolyVertex* vertex;
-	A3DVertex* to;
+	MechU32 i;
 	MechU32 level;
 	MechU32 scale;
 	MechS32 minU;
@@ -3526,22 +3499,21 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 	vertices[0] = p_a;
 	vertices[1] = p_b;
 	vertices[2] = p_c;
-	for (from = vertices, to = triangle; from < vertices + 3; from++, to++) {
-		vertex = *from;
-		to->m_x = (MechFloat) vertex->m_x;
-		to->m_y = (MechFloat) vertex->m_y;
-		to->m_z = (MechFloat) vertex->m_z;
-		to->m_w = (MechFloat) vertex->m_w;
-		to->m_red = (MechFloat) vertex->m_red;
-		to->m_green = (MechFloat) vertex->m_green;
-		to->m_blue = (MechFloat) vertex->m_blue;
-		to->m_unk0x1c = to->m_red;
-		to->m_unk0x20 = to->m_green;
-		to->m_unk0x24 = to->m_blue;
-		to->m_u = (MechFloat) (vertex->m_u / vertex->m_w);
-		to->m_v = (MechFloat) (vertex->m_v / vertex->m_w);
+	for (i = 0; i < 3; i++) {
+		triangle[i].m_x = (MechFloat) vertices[i]->m_x;
+		triangle[i].m_y = (MechFloat) vertices[i]->m_y;
+		triangle[i].m_z = (MechFloat) vertices[i]->m_z;
+		triangle[i].m_w = (MechFloat) vertices[i]->m_w;
+		triangle[i].m_red = (MechFloat) vertices[i]->m_red;
+		triangle[i].m_green = (MechFloat) vertices[i]->m_green;
+		triangle[i].m_blue = (MechFloat) vertices[i]->m_blue;
+		triangle[i].m_unk0x1c = triangle[i].m_red;
+		triangle[i].m_unk0x20 = triangle[i].m_green;
+		triangle[i].m_unk0x24 = triangle[i].m_blue;
+		triangle[i].m_u = (MechFloat) (vertices[i]->m_u / vertices[i]->m_w);
+		triangle[i].m_v = (MechFloat) (vertices[i]->m_v / vertices[i]->m_w);
 		if (p_mip) {
-			depth += g_eyepoint->m_projectScaleX / vertex->m_w;
+			depth += g_eyepoint->m_projectScaleX / vertices[i]->m_w;
 		}
 	}
 
@@ -3555,34 +3527,34 @@ void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3
 		if (level >= g_unk0x100ac920) {
 			level = g_unk0x100ac920 - 1;
 		}
-		if (level >= p_texture->m_unk0x34) {
-			level = p_texture->m_unk0x34 - 1;
+		if (level >= p_texture->m_levels) {
+			level = p_texture->m_levels - 1;
 		}
 		if (level != (MechU32) g_unk0x100ac9d8) {
 			scale = 1 << level;
-			g_unk0x100aca98[1] = p_texture->m_unk0x1c / scale;
+			g_unk0x100aca98[1] = p_texture->m_width / scale;
 			g_unk0x100ac9d8 = level;
-			p_texture->m_unk0x38 = level;
-			g_unk0x100aca98[2] = p_texture->m_unk0x20 / scale;
-			g_unk0x100aca98[6] = p_texture->m_unk0x3c[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
-			g_unk0x100aca98[9] = p_texture->m_unk0x60[p_texture->m_unk0x38] + p_texture->m_unk0x14->m_address;
-			msiSetParameters((int) g_unk0x100aca98);
+			p_texture->m_level = level;
+			g_unk0x100aca98[2] = p_texture->m_height / scale;
+			g_unk0x100aca98[6] = p_texture->m_offsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+			g_unk0x100aca98[9] = p_texture->m_paletteOffsets[p_texture->m_level] + p_texture->m_vramBlock->m_address;
+			msiSetParameters(g_unk0x100aca98);
 		}
 	}
 
 	minU = (MechS32) triangle[0].m_u;
 	minV = (MechS32) triangle[0].m_v;
-	for (to = &triangle[1]; to < triangle + 3; to++) {
-		if ((MechS32) to->m_u < minU) {
-			minU = (MechS32) to->m_u;
+	for (i = 1; i < 3; i++) {
+		if ((MechS32) triangle[i].m_u < minU) {
+			minU = (MechS32) triangle[i].m_u;
 		}
-		if ((MechS32) to->m_v < minV) {
-			minV = (MechS32) to->m_v;
+		if ((MechS32) triangle[i].m_v < minV) {
+			minV = (MechS32) triangle[i].m_v;
 		}
 	}
-	for (to = triangle; to < triangle + 3; to++) {
-		to->m_u -= (MechFloat) minU;
-		to->m_v -= (MechFloat) minV;
+	for (i = 0; i < 3; i++) {
+		triangle[i].m_u -= (MechFloat) minU;
+		triangle[i].m_v -= (MechFloat) minV;
 	}
 
 	msiRenderTriangle(&triangle[0], &triangle[1], &triangle[2], 100);
@@ -3605,6 +3577,7 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 	MechDouble step;
 	MechDouble remain;
 	MechDouble dy;
+	MechDouble d;
 	MechU32 i;
 	MechS32 leftDone;
 	MechS32 rightDone;
@@ -3622,8 +3595,8 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 	top = p_vertices;
 	maxY = -1.0;
 	last = &p_vertices[p_count - 1];
-	vertex = p_vertices + 1;
 	for (i = 1; i < p_count; i++) {
+		vertex = &p_vertices[i];
 		vertex->m_x = floor(vertex->m_x + 0.5);
 		vertex->m_y = floor(vertex->m_y + 0.5);
 		if (vertex->m_y > maxY) {
@@ -3632,7 +3605,6 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 		if (vertex->m_y <= top->m_y && (vertex->m_y != top->m_y || top->m_x > vertex->m_x)) {
 			top = vertex;
 		}
-		vertex++;
 	}
 
 	leftEnd = top;
@@ -3642,7 +3614,8 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 		if (leftEnd < p_vertices) {
 			leftEnd = last;
 		}
-	} while (leftEnd != top && leftEnd->m_y - leftStart->m_y < 1.0);
+		d = leftEnd->m_y - leftStart->m_y;
+	} while (leftEnd != top && d < 1.0);
 	left = *leftStart;
 	left0 = left;
 	A3D_EDGE_STEP(leftStep, leftStart, leftEnd, dy)
@@ -3654,10 +3627,11 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 		if (rightEnd > last) {
 			rightEnd = p_vertices;
 		}
-	} while (rightEnd != leftEnd && rightEnd->m_y - rightStart->m_y < 1.0);
+		d = rightEnd->m_y - rightStart->m_y;
+	} while (rightEnd != leftEnd && d < 1.0);
 	right = *rightStart;
 	right0 = right;
-	A3D_EDGE_STEP(rightStep, rightStart, rightEnd, dy)
+	A3D_EDGE_STEP(rightStep, rightStart, rightEnd, d)
 
 	rows = (MechDouble) p_rows;
 	if (maxY - top->m_y < rows) {
@@ -3721,7 +3695,8 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 				if (leftEnd < p_vertices) {
 					leftEnd = last;
 				}
-			} while (rightEnd != leftEnd && leftEnd->m_y - leftStart->m_y < 1.0);
+				d = leftEnd->m_y - leftStart->m_y;
+			} while (rightEnd != leftEnd && d < 1.0);
 			left = *leftStart;
 			left0 = left;
 			A3D_EDGE_STEP(leftStep, leftStart, leftEnd, dy)
@@ -3738,11 +3713,12 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 				if (rightEnd > last) {
 					rightEnd = p_vertices;
 				}
-			} while (rightEnd != leftEnd && rightEnd->m_y - rightStart->m_y < 1.0);
+				d = rightEnd->m_y - rightStart->m_y;
+			} while (rightEnd != leftEnd && d < 1.0);
 			right = *rightStart;
 			right0 = right;
-			A3D_EDGE_STEP(rightStep, rightStart, rightEnd, dy)
-			if (dy < 1.0) {
+			A3D_EDGE_STEP(rightStep, rightStart, rightEnd, d)
+			if (d < 1.0) {
 				return;
 			}
 			rightDone = FALSE;
@@ -3868,7 +3844,7 @@ MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 	MechFloat threshold;
 	MechFloat maxZ;
 
-	g_unk0x100ac934 = (undefined4) p_windowProc;
+	g_unk0x100ac934 = p_windowProc;
 	DebugPrint("A3D_Init() Called...");
 	if (g_unk0x100ac908) {
 		return 0;
@@ -3911,15 +3887,14 @@ MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 
 	g_unk0x100ac938 = (MechFloat) p_width;
 	g_unk0x100ac93c = (MechFloat) p_height;
-	g_unk0x100ac930 =
-		msiInit((MechS32) g_unk0x100ac938, (MechS32) g_unk0x100ac93c, 0x10, 0, 0, (void*) g_unk0x100ac934);
+	g_unk0x100ac930 = msiInit((MechS32) g_unk0x100ac938, (MechS32) g_unk0x100ac93c, 0x10, 0, 0, g_unk0x100ac934);
 	if (!g_unk0x100ac930) {
 		DebugPrint("A3D_Init(): msiInit() returned error!\n");
 		return 1;
 	}
 
 	FUN_10066fd0();
-	FUN_10067080();
+	HEAP_init();
 	FUN_100671a0();
 	FUN_10067170();
 	FUN_10061c90();
@@ -3927,7 +3902,8 @@ MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 	return 0;
 }
 
-// Starts the texture cache's heap: one free block of the card's texture memory.
+// Starts the texture cache's heap: one free block of the card's texture memory (0x20 bytes: a
+// VRAM block has no m_unk0x20).
 // Store scheduling differs.
 // FUNCTION: MW2MATROX 0x10066fd0
 void FUN_10066fd0(void)
@@ -3935,12 +3911,12 @@ void FUN_10066fd0(void)
 	g_unk0x100acaf8 = NULL;
 	g_unk0x100acaf0 = NULL;
 	g_unk0x100acaf4 = NULL;
-	g_unk0x100acafc = g_unk0x100ac930->m_unk0x50;
 	g_unk0x100acb04 = 0;
+	g_unk0x100acafc = g_unk0x100ac930->m_unk0x50;
 	DebugPrint("Texture Cache Size = %i\n", g_unk0x100acafc);
 
-	g_unk0x100acaf4 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, sizeof(A3DHeapBlock));
-	memset(g_unk0x100acaf4, 0, sizeof(A3DHeapBlock));
+	g_unk0x100acaf4 = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, 0x20);
+	memset(g_unk0x100acaf4, 0, 0x20);
 	g_unk0x100acaf4->m_unk0x08 = NULL;
 	g_unk0x100acaf4->m_unk0x0c = NULL;
 	g_unk0x100acaf4->m_unk0x00 = NULL;
@@ -3955,7 +3931,7 @@ void FUN_10066fd0(void)
 // list with one free block.
 // Store scheduling differs.
 // FUNCTION: MW2MATROX 0x10067080
-void FUN_10067080(void)
+void HEAP_init(void)
 {
 	g_unk0x100acb14 = NULL;
 	g_unk0x100acb0c = NULL;
@@ -4072,19 +4048,19 @@ void FUN_10067300(void)
 // FUNCTION: MW2MATROX 0x100673c0
 void FUN_100673c0(void)
 {
-	A3DCacheItem* item;
-	A3DCacheItem* next;
+	A3DTexture* item;
+	A3DTexture* next;
 	HANDLE heap;
 
 	item = g_unk0x100acb40;
 	if (item) {
 		while (item) {
-			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb30, g_unk0x100acb34);
+			A3D_UNLINK(item, next, m_vramNext, m_vramPrev, g_unk0x100acb30, g_unk0x100acb34);
 			g_unk0x100c2680[item->m_id] = NULL;
-			FUN_1005d140(item->m_unk0x14);
-			FUN_1005d440(item->m_unk0x18);
+			FUN_1005d140(item->m_vramBlock);
+			FUN_1005d440(item->m_heapBlock);
 			heap = g_primaryHeap;
-			A3D_UNLINK(item, next, m_next, m_prev, g_unk0x100acb40, g_unk0x100acb44);
+			A3D_UNLINK(item, next, m_heapNext, m_heapPrev, g_unk0x100acb40, g_unk0x100acb44);
 			g_unk0x100d2680[item->m_id] = NULL;
 			HeapFree(heap, HEAP_NO_SERIALIZE, item);
 			g_unk0x100acb50--;
