@@ -75,7 +75,7 @@ RefreshMode g_dispDibRefreshMode =
 	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
 // GLOBAL: MW2SHELL 0x1009675c
-UINT g_dispDibResult;
+MechU32 g_dispDibResult;
 
 // Empty and never called: there is nothing to name it after.
 // FUNCTION: MW2SHELL 0x1002ee30
