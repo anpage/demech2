@@ -659,8 +659,10 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // (g_animBase). Returns -1 if it was already loaded.
 // Stack-slot permutation; MW2MATROX: the loop tests compare with g_animFileCount in the other
 // operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10047380
 // FUNCTION: MW2MATROX 0x1006f955
+// FUNCTION: MW23DFX 0x1000e630
 MechS32 LoadAnimFile(ResourceRef* p_ref)
 {
 	MechS32 result;

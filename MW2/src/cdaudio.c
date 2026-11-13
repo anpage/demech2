@@ -268,6 +268,7 @@ void DeInitCdAudio(void)
 
 // FUNCTION: MW2 0x1005ac33
 // FUNCTION: MW2MATROX 0x10002a43
+// FUNCTION: MW23DFX 0x100309b0
 MechS32 GetCdStatus(void)
 {
 	MCI_STATUS_PARMS parms;
@@ -629,8 +630,10 @@ void PlayNewCdAudio(MechU32 p_from, MechU32 p_to)
 
 // Reads the disc's table of contents into p_tracks. Returns 0 on success.
 // Stack-slot permutation: count and track.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1005b49e
 // FUNCTION: MW2MATROX 0x100032ae
+// FUNCTION: MW23DFX 0x10030ee0
 MechS32 GetCdAudioTracks(CdAudioTracks* p_tracks)
 {
 	MechS32 count;

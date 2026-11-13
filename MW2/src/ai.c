@@ -1687,6 +1687,7 @@ MechScalar GetTargetRange(MechS16 p_target)
 // stopped inside it, slower while turning hard or running hot.
 // FUNCTION: MW2 0x10053811
 // FUNCTION: MW2MATROX 0x100829e1
+// FUNCTION: MW23DFX 0x100134c0
 MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 {
 	MechScalar throttle;
@@ -1704,7 +1705,7 @@ MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 	}
 
 	if ((MechFloat) fabs(throttle) >= 1e-7f && (MechFloat) fabs(p_player->m_steering->m_turn) > 45.0f) {
-		throttle = 0.015625f - (MechFloat) fabs(p_player->m_steering->m_turn) / 1.5f / 65536.0f;
+		throttle = 0.015625f - (MechFloat) ((MechFloat) fabs(p_player->m_steering->m_turn) / 1.5f / 65536.0f);
 		if (throttle < 0.0015625f) {
 			throttle = 0.0015625f;
 		}
@@ -2449,8 +2450,10 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 // The local player's teammate in formation slot p_slot, or -1.
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
 // team comparison loads the other operand first. Stack-slot permutation: player and team.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10054ccc
 // FUNCTION: MW2MATROX 0x10083f47
+// FUNCTION: MW23DFX 0x10014220
 MechS32 FindStarSlotPlayer(MechS32 p_slot)
 {
 	MechS32 team;
@@ -2508,12 +2511,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 				if (player->m_index != g_localPlayerId) {
 					if (player->m_ai.m_state != c_aiStateDead && HasAIState(player, p_state)) {
 						if (p_state == c_aiStateAttack) {
-							if (!player->m_engageAtWill) {
-								player->m_engageAtWill = 1;
-							}
-							else {
-								player->m_engageAtWill = 0;
-							}
+							player->m_engageAtWill = !player->m_engageAtWill;
 
 							player->m_ai.m_flags &= ~3;
 						}
@@ -3285,12 +3283,7 @@ void SweepTorso(Player* p_player)
 
 	if (abs(p_player->m_steering->m_torsoPan) > 0x2d0000) {
 #endif
-		if (!p_player->m_maneuverParam) {
-			p_player->m_maneuverParam = 1;
-		}
-		else {
-			p_player->m_maneuverParam = 0;
-		}
+		p_player->m_maneuverParam = !p_player->m_maneuverParam;
 	}
 
 	p_player->m_maneuverEnd = period + g_currentClock;

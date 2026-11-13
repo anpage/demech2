@@ -93,6 +93,7 @@ Point g_outlinePartOffsets[16] = {0};
 // Frames the outline's parts (OutlinePane) when set.
 // GLOBAL: MW2 0x100a5eb8
 // GLOBAL: MW2MATROX 0x100ac8e8
+// GLOBAL: MW23DFX 0x1024c800
 MechS32 g_frameOutlineParts = 0;
 
 // The armor bars' labels.

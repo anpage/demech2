@@ -142,6 +142,7 @@ StaticObject g_staticObjects[0x402];
 
 // GLOBAL: MW2 0x1012b7b4
 // GLOBAL: MW2MATROX 0x10181a38
+// GLOBAL: MW23DFX 0x101dd6d8
 MechS32 g_starCapacity;
 
 // GLOBAL: MW2 0x1012b7b0
@@ -168,6 +169,7 @@ Shape* g_blockBoxes[32];
 
 // GLOBAL: MW2 0x1010b6a0
 // GLOBAL: MW2MATROX 0x101829d0
+// GLOBAL: MW23DFX 0x101de670
 MechS32 g_thingCapacity;
 
 // Whether ToggleBlockBoxes shows the blocks' boxes.
@@ -182,8 +184,10 @@ MechS32 g_starCount;
 
 // Allocates the class, thing and star tables to the sizes in the mission's static memory table.
 // Returns whether it could.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001f3e0
 // FUNCTION: MW2MATROX 0x10052a80
+// FUNCTION: MW23DFX 0x10024780
 MechS32 AllocGeoTables(void)
 {
 	MechU32 size;
@@ -359,8 +363,10 @@ MechS32 FindStarIdxById(MechS32 p_id)
 // Takes the next free static object for ID p_id, mapping the ID to it. Returns its index, or -1
 // when the cache or the map is full.
 // MW2MATROX: g_starCount >= g_starCapacity compares in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001f7eb
 // FUNCTION: MW2MATROX 0x10052e8b
+// FUNCTION: MW23DFX 0x10024a20
 MechS32 AllocStaticObject(undefined4 p_id)
 {
 	MechS32 result = -1;
@@ -768,8 +774,10 @@ void LinkStaticObjectThing(MechS32 p_index, MechS32 p_replacement, MechS32 p_thi
 // and loads the entry that replaces it (m_replacement) where the old object was. Returns the
 // replacement's index, or -1.
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10020292
 // FUNCTION: MW2MATROX 0x100539da
+// FUNCTION: MW23DFX 0x10025180
 MechS32 DestroyStaticObject(MechS32 p_index)
 {
 	Matrix matrix;

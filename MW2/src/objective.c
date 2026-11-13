@@ -33,6 +33,7 @@
 // Set to end the mission as successful (a cheat).
 // GLOBAL: MW2 0x100a3748
 // GLOBAL: MW2MATROX 0x100a4ed4
+// GLOBAL: MW23DFX 0x1024b15c
 MechS32 g_forceMissionSuccess = 0;
 
 // Set once the local team's mission result has been announced (AnnounceMissionResult).
@@ -43,6 +44,7 @@ MechS32 g_missionResultAnnounced = 0;
 // The tag of the mission result EndTheMission2 writes.
 // GLOBAL: MW2 0x100a37bc
 // GLOBAL: MW2MATROX 0x100a4f48
+// GLOBAL: MW23DFX 0x1024b1d0
 MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
@@ -827,12 +829,8 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 			break;
 		}
 
-		if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
-			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
-		}
-		else {
-			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 0;
-		}
+		g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed =
+			!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed;
 
 		state = 5;
 		AnnounceObjective(p_star, p_objective, state);
@@ -1076,6 +1074,7 @@ void EndTheMission1(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001c9f7
 // FUNCTION: MW2MATROX 0x10020d5b
+// FUNCTION: MW23DFX 0x1000aba0
 MechS32 EndTheMission2(void)
 {
 	FILE* file;
@@ -1096,12 +1095,7 @@ MechS32 EndTheMission2(void)
 			continue;
 		}
 
-		if (mission->m_objectives[i].m_state == 5) {
-			result.m_objectives[count].m_succeeded = 1;
-		}
-		else {
-			result.m_objectives[count].m_succeeded = 0;
-		}
+		result.m_objectives[count].m_succeeded = mission->m_objectives[i].m_state == 5;
 
 		result.m_objectives[count].m_priority = mission->m_objectives[i].m_priority;
 		result.m_objectives[count].m_startTime = mission->m_objectives[i].m_startTime;
@@ -1140,12 +1134,8 @@ void RestartStarMission(MechS32 p_star)
 		objective = &mission->m_objectives[i];
 #ifndef MW2_ACCEL
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
-			if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
-				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
-			}
-			else {
-				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 0;
-			}
+			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed =
+				!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed;
 		}
 #endif
 

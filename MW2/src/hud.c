@@ -592,8 +592,10 @@ void DrawTargetMarker(Mech* p_mech)
 // Stack-slot permutation; the two y sums load g_compassOrigin.m_y first (commutative operands).
 // MW2MATROX: the two side arrows' y sums load g_compassOrigin.m_y first, and the bearing mark's
 // product p_bearing (commutative operands).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004161f
 // FUNCTION: MW2MATROX 0x1001d551
+// FUNCTION: MW23DFX 0x10022960
 void DrawCompassMarkers(
 	Mech* p_mech,
 	MechS32 p_x,

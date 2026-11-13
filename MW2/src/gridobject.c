@@ -167,8 +167,10 @@ void SetGridObject(SceneObject* p_obj)
 // Stack-slot permutation; dz > g_gridSnapDistance compares in the other operand order (in the
 // Matrox edition, both tests against g_gridSnapDistance, and cellX * g_gridCellSize multiplies in
 // the other order).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004b344
 // FUNCTION: MW2MATROX 0x100277fe
+// FUNCTION: MW23DFX 0x10011570
 void UpdateGridObject(void)
 {
 	MechS32 dx;

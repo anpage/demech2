@@ -420,8 +420,10 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 // Selects the next weapon of the selected one's group; p_wrap moves on to the next group when
 // there is none.
 // Stack-slot permutation: index, group, slot, found, i and selected.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10045449
 // FUNCTION: MW2MATROX 0x1002c1ef
+// FUNCTION: MW23DFX 0x10043f80
 void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 {
 	MechS32 index;
@@ -499,8 +501,10 @@ void SelectNextWeapon(Mech* p_mech)
 // Selects the first weapon of the next group that has one.
 // Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: group, i,
 // found, selected and current.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004567b
 // FUNCTION: MW2MATROX 0x1002c421
+// FUNCTION: MW23DFX 0x100440c0
 void SelectNextWeaponGroup(Mech* p_mech)
 {
 	MechS32 group;
@@ -790,8 +794,10 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
 // Stack-slot permutation: dx, dy, dz, twist, pitch, yaw, bearing, inRange, def and heading.
 // MW2MATROX: in floats (degrees); only a stack-slot permutation is left.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10045eac
 // FUNCTION: MW2MATROX 0x1002cc52
+// FUNCTION: MW23DFX 0x10044560
 void UpdateWeaponLock(Mech* p_mech)
 {
 	MechScalar dz;

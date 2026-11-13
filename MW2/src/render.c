@@ -61,6 +61,7 @@ MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 
 // GLOBAL: MW2 0x100a2454
 // GLOBAL: MW2MATROX 0x100a4a04
+// GLOBAL: MW23DFX 0x102498e4
 MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).

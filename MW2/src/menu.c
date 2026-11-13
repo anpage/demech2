@@ -505,8 +505,10 @@ void UpdateMenuKey(void)
 // (g_openMenuCount) when that frame's game keys run.
 // Stack-slot permutation: slot, done and requested. The original compares state against
 // requested in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003ce91
 // FUNCTION: MW2MATROX 0x1009207d
+// FUNCTION: MW23DFX 0x10065c20
 void UpdateMenus(void)
 {
 	MechS32 requested;

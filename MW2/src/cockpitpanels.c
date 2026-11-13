@@ -468,8 +468,10 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // Stack-slot permutation: rect, transition, i and target.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1006fba3
 // FUNCTION: MW2MATROX 0x10079bfb
+// FUNCTION: MW23DFX 0x1001e060
 void ScaleCockpitLayout(void)
 {
 	PANE* rect;

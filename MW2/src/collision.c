@@ -557,8 +557,10 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // The three sums of products (denom, d, num) call FixedMul29 in another order than the original
 // (commutative operands), and the locals are permuted.
 // MW2MATROX: the products of the d and num sums are added in the other order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100354d3
 // FUNCTION: MW2MATROX 0x1002444c
+// FUNCTION: MW23DFX 0x10010830
 MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 {
 #ifdef MW2_ACCEL

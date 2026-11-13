@@ -33,8 +33,10 @@ MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_
 	return result;
 }
 
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10049611
 // FUNCTION: MW2MATROX 0x1002e041
+// FUNCTION: MW23DFX 0x1003b740
 MechS32 UpdateRamp(Ramp* p_ramp)
 {
 	MechS32 delta;

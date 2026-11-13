@@ -30,8 +30,10 @@ void StopRectTransition(RectTransition* p_transition)
 
 // Moves p_out's edges to the fraction p_t (16.16) of the way from p_from to p_to: the horizontal
 // ones unless p_axis is 2, the vertical ones unless it is 1.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10012354
 // FUNCTION: MW2MATROX 0x10045dd4
+// FUNCTION: MW23DFX 0x10001630
 PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p_axis)
 {
 	MechS32 delta;

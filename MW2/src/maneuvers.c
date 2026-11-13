@@ -398,8 +398,10 @@ void InitializeManeuvers(Player* p_player)
 // when it applies, or else one its maneuver table lets follow the previous one (any one at
 // first), redrawn until its conditions hold.
 // Stack-slot permutation: mech, table, choice and index.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10013d81
 // FUNCTION: MW2MATROX 0x10019969
+// FUNCTION: MW23DFX 0x1001f030
 MechS32 ChooseManeuver(Player* p_player)
 {
 	Mech* mech;

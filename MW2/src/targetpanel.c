@@ -92,8 +92,10 @@ MechChar g_anonymousInstallationName[8];
 // name after a while), coloured by its side, and its distance.
 // Stack-slot permutation of the locals. g_currentClock > g_targetFullNameTime compares with its
 // operands reversed (it flipped when speech.h's declarations were added ahead of it).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2MATROX 0x10017e50
+// FUNCTION: MW23DFX 0x10020e40
 void DrawTargetPanelText(CockpitPanel* p_panel)
 {
 	MechS32 index;

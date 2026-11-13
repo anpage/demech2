@@ -178,8 +178,10 @@ void PunchInAutoHeading(Mech* p_mech)
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
 // Stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10007d06
 // FUNCTION: MW2MATROX 0x1001059a
+// FUNCTION: MW23DFX 0x10015e10
 void DestroyMech(MechS32 p_killer, Mech* p_mech)
 {
 	WeaponSlot* weapon;

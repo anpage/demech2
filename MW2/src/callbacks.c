@@ -122,8 +122,10 @@ void** GetCallbackData(TimedCallback* p_callback)
 	return &p_callback->m_data;
 }
 
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007d535
 // FUNCTION: MW2MATROX 0x10027505
+// FUNCTION: MW23DFX 0x100083d0
 void RunTimedCallbacks(TimedCallback** p_list)
 {
 	for (g_currentCallback = *p_list; g_currentCallback != NULL; g_currentCallback = g_currentCallback->m_next) {

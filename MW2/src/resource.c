@@ -212,8 +212,10 @@ void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, Mec
 }
 
 // Replaces the scenario table with a copy of p_table.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004f47a
 // FUNCTION: MW2MATROX 0x1004903a
+// FUNCTION: MW23DFX 0x100429b0
 MechS32 LoadScenarioTable(ScenarioTable* p_table)
 {
 	MechS32 result;
@@ -344,8 +346,10 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 // Runs p_fn on the stream an include record names. A name of "^" with id -1 or -2 takes the
 // scenario table's next name.
 // Stack-slot permutation: record, keyData, ok and buffer.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004f9a8
 // FUNCTION: MW2MATROX 0x1004959b
+// FUNCTION: MW23DFX 0x10042c60
 MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -397,8 +401,10 @@ MechS32 ExecuteInclude(IncludeRecord* p_record, BwdStreamFn p_fn)
 // Sets up the teams from a star record: each team's values, and its formation.
 // MW2MATROX: the local team is g_localStar itself, not the one after it. The loop test compares
 // count with i (operand order).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004fb0b
 // FUNCTION: MW2MATROX 0x100496fe
+// FUNCTION: MW23DFX 0x10042d40
 void LoadStarTable(StarTable* p_table)
 {
 	MechS32 count;
@@ -451,8 +457,10 @@ void SetTeamFormations(FormationNames* p_record)
 
 // Runs p_fn on the stream a record names.
 // Stack-slot permutation: record, keyData and buffer.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004fcac
 // FUNCTION: MW2MATROX 0x1004989d
+// FUNCTION: MW23DFX 0x10042e10
 MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 {
 	undefined buffer[0x20];
@@ -484,8 +492,10 @@ MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 }
 
 // Frees the mission tables' blocks.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004fd55
 // FUNCTION: MW2MATROX 0x10049946
+// FUNCTION: MW23DFX 0x10042e80
 void FreeMissionTables(void)
 {
 	MechS32 i;

@@ -1218,6 +1218,7 @@ BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, 
 // The only diff is a stack-slot permutation of result and desc.
 // FUNCTION: MW2 0x100100cc
 // FUNCTION: MW2MATROX 0x10005e8c
+// FUNCTION: MW23DFX 0x10035970
 MechS32 FindSession(LPDPSESSIONDESC p_desc)
 {
 	HRESULT result;
@@ -1233,6 +1234,10 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 	if (strcmp(p_desc->szSessionName, g_sessionName) == 0) {
 		return 1;
 	}
+#ifdef MW2_3DFX
+
+	return 0;
+#endif
 }
 
 // The only diff is a stack-slot permutation of result, desc, guid and unk0x04.

@@ -826,8 +826,10 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 // Returns the index of the device INPUT.MAP calls p_name, registering it the first time, or -1
 // if it isn't there.
 // Stack-slot permutation: index and i.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007959c
 // FUNCTION: MW2MATROX 0x1007bd5c
+// FUNCTION: MW23DFX 0x10038de0
 MechS32 FindInputDevice(MechChar* p_name)
 {
 	MechS32 index;
@@ -1571,8 +1573,10 @@ void FirstInputs(void)
 // instead.
 // The loops compare i with the counts (and the keyboard's index) in the other operand order, and
 // the locals are a stack-slot permutation.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007b19b
 // FUNCTION: MW2MATROX 0x1007d86f
+// FUNCTION: MW23DFX 0x1003a0a0
 void UpdateInputs(void)
 {
 	MechS32 i;
@@ -1748,8 +1752,10 @@ MechS16 LookupGameKey(MechS16 p_keyCode)
 
 // Reports an input device error p_code in a message box: 0x6e a missing device, 0x6f a missing
 // channel, 0x70 a device that doesn't open. Cancel exits the game.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007b7b1
 // FUNCTION: MW2MATROX 0x1007dea0
+// FUNCTION: MW23DFX 0x1003a3f0
 void ReportInputDeviceError(MechS32 p_code, MechChar* p_channel, MechChar* p_device)
 {
 	MechS32 hidden;

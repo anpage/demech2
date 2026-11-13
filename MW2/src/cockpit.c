@@ -157,6 +157,7 @@ void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &
 // Whether cockpit view 1 and 2's map animation shows this frame (DrawDamagedMapView).
 // GLOBAL: MW2 0x100a5bc8
 // GLOBAL: MW2MATROX 0x100ae428
+// GLOBAL: MW23DFX 0x102498c0
 MechS32 g_mapDamageAnimShown = 0;
 
 // The clock times the satellite view's static starts and stops at (DrawSatelliteStatic).
@@ -202,6 +203,7 @@ MechS32 g_requestedCockpitView;
 // Set while the map views follow the free eyepoint instead of the player (the free-eye cheat).
 // GLOBAL: MW2 0x10109c70
 // GLOBAL: MW2MATROX 0x1012fc74
+// GLOBAL: MW23DFX 0x10244cc4
 MechS32 g_mapFollowsFreeEye;
 
 // Set to draw the satellite view without its static once (DrawSatelliteStatic).
@@ -546,8 +548,10 @@ void DrawMapView(void)
 // The only diff is a stack-slot permutation of the locals. The original has an unused local (unused).
 // MW2MATROX: DrawMapTarget has no MW2MATROX annotation (the Matrox edition places it before IsNavReached),
 // so its call stays unnamed.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003e32c
 // FUNCTION: MW2MATROX 0x10074024
+// FUNCTION: MW23DFX 0x10003830
 void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
@@ -853,8 +857,10 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003eb22
 // FUNCTION: MW2MATROX 0x1007480f
+// FUNCTION: MW23DFX 0x10003d40
 void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 {
 	MechScalar halfFov;
@@ -1515,6 +1521,7 @@ void DrawSatelliteStatic(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f8d1
 // FUNCTION: MW2MATROX 0x1007568c
+// FUNCTION: MW23DFX 0x10004710
 void DrawDamagedMapView(void)
 {
 	MechS32 threshold;
@@ -1542,12 +1549,7 @@ void DrawDamagedMapView(void)
 				threshold = 3;
 			}
 
-			if (RandomIntBelow(10) < threshold) {
-				g_mapDamageAnimShown = 1;
-			}
-			else {
-				g_mapDamageAnimShown = 0;
-			}
+			g_mapDamageAnimShown = RandomIntBelow(10) < threshold;
 		}
 		else if (g_cockpitPanels[c_panelRadar]->m_damage == 2) {
 			g_mapDamageAnimShown = 1;

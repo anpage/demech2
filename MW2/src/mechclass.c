@@ -61,6 +61,7 @@ DECOMP_SIZE_ASSERT(Mech, 0x10e)
 // The "mightymouse" cheat: infinite jump jet fuel.
 // GLOBAL: MW2 0x100a2be4
 // GLOBAL: MW2MATROX 0x100a45a0
+// GLOBAL: MW23DFX 0x1024c548
 MechS32 g_infiniteJumpFuel = 0;
 
 // Set by a game key: run JettisonAmmo on the local mech next tick.

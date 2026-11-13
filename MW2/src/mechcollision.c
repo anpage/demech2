@@ -203,8 +203,10 @@ MechS32 MoveMechWithCollisions(
 // Stack-slot permutation of the locals.
 // MW2MATROX: a stack-slot permutation, and i < g_playerCount loads g_playerCount first in the
 // original.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10075d7b
 // FUNCTION: MW2MATROX 0x10075f6c
+// FUNCTION: MW23DFX 0x1000ba20
 MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Player** p_hit)
 {
 	MechScalar radius;
@@ -578,6 +580,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // first in the original. MW2MATROX multiplies p_damage * 2 * m_tons in another order.
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2MATROX 0x10076927
+// FUNCTION: MW23DFX 0x1000c1f0
 void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 {
 	MechS32 attacker;
@@ -598,7 +601,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 		else {
 #ifdef MW2_ACCEL
 			// Twice the damage scaled by the masses, where 1.1 has four times.
-			damage = p_damage * 2 * p_other->m_tons / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
+			damage = (p_damage * 2 * p_other->m_tons) / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 #else
 			damage = MulDiv64(p_damage << 2, p_other->m_tons, p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 #endif
