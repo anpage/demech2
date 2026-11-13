@@ -119,13 +119,13 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	strcpy(name, "mek\\");
 	strcat(name, p_config);
 	if (!strchr(name, '.')) {
-		strcat(name, g_resourceTypeExtensions[c_resExtMek]);
+		strcat(name, g_resExtMek);
 	}
 
 	file = LoadFile(BuildGamePath(name), &size, (void**) &header, NULL);
 	if (file == -1) {
 		if (p_id > 0) {
-			header = LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagMek], 0);
+			header = LoadCachedResource(g_mw2PrjHandle, p_id, g_resTagMek, 0);
 			if (header == NULL) {
 				Error(0x21, "%s ID %d", name, p_id, 0);
 			}
@@ -389,7 +389,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	sprintf(text, "\njet ddy: %ld", p_mech->m_jumpThrust);
 	WriteToMw2Log(text);
 	if (fromResource) {
-		UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagMek]);
+		UnlockCachedResource(p_id, g_resTagMek);
 	}
 	else {
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, header);

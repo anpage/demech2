@@ -226,15 +226,10 @@ void LayoutMenu(MenuDefinition* p_menu)
 	}
 
 	if (p_menu->m_backgroundId != -1) {
-		shape = LoadCachedResource(
-			g_mw2PrjHandle,
-			p_menu->m_backgroundId + g_artResolution,
-			g_resourceTypeTags[c_resTagShp],
-			0
-		);
+		shape = LoadCachedResource(g_mw2PrjHandle, p_menu->m_backgroundId + g_artResolution, g_resTagShp, 0);
 		if (shape) {
 			size = VFX_shape_bounds(shape, 0);
-			UnlockCachedResource(p_menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(p_menu->m_backgroundId + g_artResolution, g_resTagShp);
 			scale.m_x = size >> 16;
 			scale.m_y = size & 0xffff;
 			scale.m_x = FixedDiv16(scale.m_x, g_screenWidthMinus1 + 1);
@@ -271,31 +266,22 @@ void LayoutMenu(MenuDefinition* p_menu)
 void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
-		p_menu->m_background = LoadCachedResource(
-			g_mw2PrjHandle,
-			p_menu->m_backgroundId + g_artResolution,
-			g_resourceTypeTags[c_resTagShp],
-			0
-		);
+		p_menu->m_background =
+			LoadCachedResource(g_mw2PrjHandle, p_menu->m_backgroundId + g_artResolution, g_resTagShp, 0);
 	}
 	else {
 		p_menu->m_background = NULL;
 	}
 
 	if (p_menu->m_cursorShapeId != -1) {
-		p_menu->m_cursorShape = LoadCachedResource(
-			g_mw2PrjHandle,
-			p_menu->m_cursorShapeId + g_artResolution,
-			g_resourceTypeTags[c_resTagShp],
-			0
-		);
+		p_menu->m_cursorShape =
+			LoadCachedResource(g_mw2PrjHandle, p_menu->m_cursorShapeId + g_artResolution, g_resTagShp, 0);
 	}
 	else {
 		p_menu->m_cursorShape = NULL;
 	}
 
-	p_menu->m_font =
-		LoadCachedResource(g_mw2PrjHandle, p_menu->m_fontId + g_artResolution, g_resourceTypeTags[c_resTagFont], 0);
+	p_menu->m_font = LoadCachedResource(g_mw2PrjHandle, p_menu->m_fontId + g_artResolution, g_resTagFont, 0);
 }
 
 // Opens a menu on its root page. Menus with flag 1 take the controls, so this calls
@@ -346,17 +332,17 @@ void DeactivateMenu(MenuSlot* p_slot)
 	menu = p_slot->m_definition;
 	if (menu) {
 		if (menu->m_background) {
-			UnlockCachedResource(menu->m_backgroundId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(menu->m_backgroundId + g_artResolution, g_resTagShp);
 			menu->m_background = NULL;
 		}
 
 		if (menu->m_cursorShape) {
-			UnlockCachedResource(menu->m_cursorShapeId + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(menu->m_cursorShapeId + g_artResolution, g_resTagShp);
 			menu->m_cursorShape = NULL;
 		}
 
 		if (menu->m_font) {
-			UnlockCachedResource(menu->m_fontId + g_artResolution, g_resourceTypeTags[c_resTagFont]);
+			UnlockCachedResource(menu->m_fontId + g_artResolution, g_resTagFont);
 			menu->m_font = NULL;
 		}
 

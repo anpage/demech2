@@ -24,8 +24,7 @@ typedef struct ResourceTable {
 	ResourceEntry m_entries[1]; // 0x0c
 } ResourceTable;
 
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the reads of
-// g_resourceTypeTags[c_resTagTable], which has no symbol in the original (mw2prj.c).
+// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10013430
 MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 {
@@ -39,7 +38,7 @@ MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 	char name[12];
 
 	id = -1;
-	data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resourceTypeTags[c_resTagTable], 1);
+	data = LoadCachedResource(g_mw2PrjHandle, p_type, g_resTagTable, 1);
 	if (data != NULL) {
 		table = data;
 		entry = data->m_entries;
@@ -64,7 +63,7 @@ MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 			id = entry->m_id;
 		}
 
-		UnlockCachedResource(p_type, g_resourceTypeTags[c_resTagTable]);
+		UnlockCachedResource(p_type, g_resTagTable);
 	}
 
 	return id;

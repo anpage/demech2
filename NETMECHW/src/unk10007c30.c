@@ -56,8 +56,7 @@ MechS32 FUN_10007c30(MechTableEntry* p_table)
 // p_textSize, the size of p_text, goes unused.
 // Matches except for the stack slots of the locals, which VC++ 2.2 permutes, the operand order of
 // the ammunition comparison (the original loads ammo[j].m_type) and of the slot index (it scales
-// section first), and the reads of g_resourceTypeTags[c_resTagMek], which has no symbol in the
-// original (mw2prj.c).
+// section first).
 // FUNCTION: NETMECHW 0x10007c5a
 void FUN_10007c5a(MechChar* p_mechFile, MechChar* p_text, MechS32 p_textSize)
 {
@@ -91,7 +90,7 @@ void FUN_10007c5a(MechChar* p_mechFile, MechChar* p_text, MechS32 p_textSize)
 	}
 	else {
 		id = FindResourceIdByName(6, p_mechFile);
-		mech = (MechFile*) LoadCachedResource(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagMek], 0);
+		mech = (MechFile*) LoadCachedResource(g_mw2PrjHandle, id, g_resTagMek, 0);
 	}
 
 	sections = mech->m_sections;
@@ -149,7 +148,7 @@ void FUN_10007c5a(MechChar* p_mechFile, MechChar* p_text, MechS32 p_textSize)
 		free(mech);
 	}
 	else {
-		UnlockCachedResource(id, g_resourceTypeTags[c_resTagMek]);
+		UnlockCachedResource(id, g_resTagMek);
 	}
 }
 
@@ -229,7 +228,7 @@ MechS32 FUN_1000834d(MechChar* p_name, MechTableEntry* p_table)
 	MechS32 count;
 	MechS32 size;
 
-	id = FindResourceIdByName(c_resTagMpit, p_name);
+	id = FindResourceIdByName(0x11, p_name);
 	size = GetArchiveItemSize(g_mw2PrjHandle, "MTAB", id);
 	table = (MechTable*) LoadCachedResource(g_mw2PrjHandle, id, "MTAB", 0);
 	count = table->m_count;

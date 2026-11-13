@@ -189,7 +189,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 
 	id = &g_paletteResourceIds[p_slot];
 	if (*id > 0) {
-		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resourceTypeTags[c_resTagPal], 0);
+		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resTagPal, 0);
 		if (palette) {
 #ifdef MW2_ACCEL
 			// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
@@ -203,7 +203,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 #else
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 #endif
-			UnlockCachedResource(*id, g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(*id, g_resTagPal);
 		}
 	}
 }
@@ -250,11 +250,11 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 	}
 	else if (g_paletteFadeSteps <= 0) {
 		fromSlot = g_currentPalette;
-		from = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal], 0);
+		from = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[fromSlot], g_resTagPal, 0);
 	}
 
 	if (from) {
-		to = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal], 0);
+		to = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[p_palette], g_resTagPal, 0);
 		if (to) {
 			g_paletteFadeTarget = p_palette;
 			g_paletteFadeBack = fromSlot;
@@ -343,14 +343,14 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 
 			InitPaletteFade(&g_paletteFade, from, to, 0, 0x100, steps);
 			result = 1;
-			UnlockCachedResource(g_paletteResourceIds[p_palette], g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(g_paletteResourceIds[p_palette], g_resTagPal);
 		}
 
 		if (fromSlot == -1) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, from);
 		}
 		else {
-			UnlockCachedResource(g_paletteResourceIds[fromSlot], g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(g_paletteResourceIds[fromSlot], g_resTagPal);
 		}
 	}
 
@@ -377,7 +377,7 @@ void StartPaletteCycle(MechU8 p_first, MechS32 p_count)
 
 	g_paletteCycling = 1;
 	g_paletteCycleResource = g_paletteResourceIds[g_currentPalette];
-	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteCycleResource, g_resourceTypeTags[c_resTagPal], 0);
+	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteCycleResource, g_resTagPal, 0);
 	if (palette == NULL) {
 		return;
 	}
@@ -400,7 +400,7 @@ void StopPaletteCycle(void)
 
 	FreePaletteCycle(&g_paletteCycle);
 	g_paletteCycling = 0;
-	UnlockCachedResource(g_paletteCycleResource, g_resourceTypeTags[c_resTagPal]);
+	UnlockCachedResource(g_paletteCycleResource, g_resTagPal);
 	g_paletteCycleResource = -1;
 	ApplyPendingPalette();
 }
@@ -414,8 +414,8 @@ MechS32 SetPaletteResourceId(MechS32 p_id, MechS32 p_slot)
 
 	old = g_paletteResourceIds[p_slot];
 	g_paletteResourceIds[p_slot] = p_id;
-	LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagPal], 0);
-	UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagPal]);
+	LoadCachedResource(g_mw2PrjHandle, p_id, g_resTagPal, 0);
+	UnlockCachedResource(p_id, g_resTagPal);
 	return old;
 }
 
@@ -457,10 +457,10 @@ void StartPalettes(MechS32 p_dissolve)
 	// The Matrox edition has no dissolve.
 	hasPalette = g_paletteResourceIds[0x10] != -1;
 	if (hasPalette) {
-		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resTagPal, 0);
 		if (palette) {
 			g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
-			UnlockCachedResource(hasPalette, g_resourceTypeTags[c_resTagPal]);
+			UnlockCachedResource(hasPalette, g_resTagPal);
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 		}
 	}
@@ -481,11 +481,11 @@ void StartPalettes(MechS32 p_dissolve)
 	ticks = 0;
 	hasPalette = g_paletteResourceIds[0x10] != -1;
 	if (hasPalette) {
-		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+		palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resTagPal, 0);
 		if (palette) {
 			if (p_dissolve == 0) {
 				g_currentDisplayBackend->m_blendPalettes((PaletteColor*) palette, 30);
-				UnlockCachedResource(hasPalette, g_resourceTypeTags[c_resTagPal]);
+				UnlockCachedResource(hasPalette, g_resTagPal);
 				g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 			}
 			else {

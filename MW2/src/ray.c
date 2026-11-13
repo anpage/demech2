@@ -116,6 +116,7 @@ void BuildRayFixed(Ray* p_ray)
 // stack after its store), a commutative operand order.
 // FUNCTION: MW2 0x10003053
 // FUNCTION: MW2MATROX 0x10087a6a
+// FUNCTION: MW23DFX 0x1000afd0
 void BuildRayFloat(Ray* p_ray)
 {
 	MechDouble dx;

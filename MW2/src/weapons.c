@@ -642,13 +642,13 @@ void LoadWeaponSounds(void)
 	for (i = 0; i < 30; i++) {
 		def = &g_weaponDefs[i];
 		if (def->m_sound > 0) {
-			PreloadResource(def->m_sound, g_resourceTypeTags[c_resTagSnds]);
+			PreloadResource(def->m_sound, g_resTagSnds);
 		}
 	}
 
 	for (i = 0; i < 0x20; i++) {
 		if (g_effectInfo[i].m_sound > 0) {
-			PreloadResource(g_effectInfo[i].m_sound, g_resourceTypeTags[c_resTagSnds]);
+			PreloadResource(g_effectInfo[i].m_sound, g_resTagSnds);
 		}
 	}
 }

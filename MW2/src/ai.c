@@ -57,22 +57,27 @@ typedef MechS32 (*AiTransitionFn)(Player* p_player, AiRule* p_rule);
 
 // GLOBAL: MW2 0x100a88f0
 // GLOBAL: MW2MATROX 0x100bb008
+// GLOBAL: MW23DFX 0x1024b448
 MechS32 g_debugStar = -1;
 
 // GLOBAL: MW2 0x100a88f4
 // GLOBAL: MW2MATROX 0x100bb00c
+// GLOBAL: MW23DFX 0x1024b44c
 MechS32 g_debugObjective = 0;
 
 // GLOBAL: MW2 0x100a88f8
 // GLOBAL: MW2MATROX 0x100bb010
+// GLOBAL: MW23DFX 0x1024b450
 MechS32 g_debugLastLine = -1;
 
 // GLOBAL: MW2 0x100a88fc
 // GLOBAL: MW2MATROX 0x100bb014
+// GLOBAL: MW23DFX 0x1024b454
 MechS32 g_debugFirstLine = -1;
 
 // GLOBAL: MW2 0x100a8900
 // GLOBAL: MW2MATROX 0x100bb018
+// GLOBAL: MW23DFX 0x1024b458
 MechS32 g_debugListedStar = -1;
 
 // GLOBAL: MW2 0x100a8908
@@ -378,6 +383,7 @@ MechS16 g_helicopterScripts[15][2] = {
 
 // GLOBAL: MW2 0x100a90b4
 // GLOBAL: MW2MATROX 0x100bb7cc
+// GLOBAL: MW23DFX 0x1024bc24
 MechS32 g_lairdoCheat = 0;
 
 // GLOBAL: MW2 0x100a90b8
@@ -1362,6 +1368,7 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 // MW2MATROX: g_debugListedStar != g_debugStar compares in the other operand order.
 // FUNCTION: MW2 0x10053072
 // FUNCTION: MW2MATROX 0x10082215
+// FUNCTION: MW23DFX 0x10012d80
 void LogAIStatus(void)
 {
 	if (g_debugListedStar != g_debugStar) {
@@ -1988,6 +1995,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 // Stack-slot permutation: home and index.
 // FUNCTION: MW2 0x10054043
 // FUNCTION: MW2MATROX 0x10083294
+// FUNCTION: MW23DFX 0x10013a50
 MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 {
 	MechS16 result;
@@ -2413,7 +2421,7 @@ MechS32 LoadAIScripts(void)
 
 	g_aiScripts[0] = NULL;
 	for (i = 0; i < 9; i++) {
-		g_aiScripts[i + 1] = LoadCachedResource(g_mw2PrjHandle, i + 1, g_resourceTypeTags[c_resTagAit], 0);
+		g_aiScripts[i + 1] = LoadCachedResource(g_mw2PrjHandle, i + 1, g_resTagAit, 0);
 	}
 
 	return TRUE;

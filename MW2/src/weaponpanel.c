@@ -75,7 +75,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 		break;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (font) {
 #ifdef MW2_ACCEL
 		g_textColors[0xe] = PIXEL_COLOR(color);
@@ -110,7 +110,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 #else
 		g_textColors[0xe] = 0xe;
 #endif
-		UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	}
 
 	if (p_panel->m_weapon == mech->m_selectedWeapon) {
@@ -145,7 +145,7 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 	}
 
 	clock = g_currentClock;
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -157,5 +157,5 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 #endif
 	}
 
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 }

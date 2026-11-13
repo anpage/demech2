@@ -401,9 +401,9 @@ MechS32 StartSpeech(SpeechEntry* p_entry)
 	}
 
 	if (suffix) {
-		if (LoadCachedResource(0, suffix, g_resourceTypeTags[c_resTagSnds], 0)) {
-			if (!LoadCachedResource(0, id, g_resourceTypeTags[c_resTagSnds], 0)) {
-				UnlockCachedResource(suffix, g_resourceTypeTags[c_resTagSnds]);
+		if (LoadCachedResource(0, suffix, g_resTagSnds, 0)) {
+			if (!LoadCachedResource(0, id, g_resTagSnds, 0)) {
+				UnlockCachedResource(suffix, g_resTagSnds);
 			}
 			else {
 				slot = PlaySample(
@@ -560,6 +560,7 @@ void StopSpeech(void)
 // Stack slots: slot and volume are swapped.
 // FUNCTION: MW2 0x10059deb
 // FUNCTION: MW2MATROX 0x1008bf6b
+// FUNCTION: MW23DFX 0x10031790
 void ResumeSpeech(void)
 {
 	MechS32 slot;

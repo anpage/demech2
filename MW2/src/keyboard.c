@@ -101,7 +101,7 @@ const MechChar g_unk0x1009d150[] = "";
 
 // GLOBAL: MW2 0x1009d54c
 // GLOBAL: MW2MATROX 0x100a0b64
-// GLOBAL: MW23DFX 0x1024844c
+// GLOBAL: MW23DFX 0x10247dc4
 const MechChar g_unk0x1009d54c[] = "";
 
 // clang-format off
@@ -128,6 +128,7 @@ MechChar* g_keyShortNames[0x79] = {
 // The display name of each key.
 // GLOBAL: MW2 0x100a6120
 // GLOBAL: MW2MATROX 0x100ad2f0
+// GLOBAL: MW23DFX 0x10250b90
 MechChar* g_keyNames[0x79] = {
 	"Escape Key", "Number One", "Number Two", "Number Three", "Number Four", "Number Five", "Number Six",
 	"Number Seven", "Number Eight", "Number Nine", "Number Zero", "Minus (-) Key", "Equal (=) Key", "Backspace Key",

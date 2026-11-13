@@ -47,6 +47,7 @@ undefined4 g_unk0x100a831c = 0;
 
 // GLOBAL: MW2 0x100a8320
 // GLOBAL: MW2MATROX 0x100bbd80
+// GLOBAL: MW23DFX 0x1024c848
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
@@ -104,10 +105,12 @@ Point g_heatRateBarSize = {0xdf2e, 0x5555};
 // The jump jet fuel bar.
 // GLOBAL: MW2 0x100a8370
 // GLOBAL: MW2MATROX 0x100bbdd0
+// GLOBAL: MW23DFX 0x1024c898
 Point g_jumpFuelBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8378
 // GLOBAL: MW2MATROX 0x100bbdd8
+// GLOBAL: MW23DFX 0x1024c8a0
 Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 
 // Scales the gauges' rectangles to their panels.
@@ -359,6 +362,7 @@ void DrawThrottleGauge(PANE* p_target)
 // Draws the jump jet fuel bar.
 // FUNCTION: MW2 0x1004d660
 // FUNCTION: MW2MATROX 0x100896bf
+// FUNCTION: MW23DFX 0x1001c750
 void DrawJumpFuelBar(PANE* p_target)
 {
 	MechS32 fill;

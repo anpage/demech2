@@ -1674,7 +1674,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 	MechU32 level;
 
 	if (p_id != 0x29b6) {
-		resourceSize = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], p_id);
+		resourceSize = GetPrjResourceSize(g_mw2PrjHandle, g_resTagCel, p_id);
 		if (resourceSize < 0) {
 			DebugPrint("HEAPCACHE_loaditem(): GetIndexedItemSize() failed on ID #%i\n", p_id);
 			return NULL;
@@ -1746,7 +1746,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 
 	if (p_paletted) {
 		data = (MechS16*) HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, resourceSize);
-		if (ReadPrjResource(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], p_id, data) >= 0) {
+		if (ReadPrjResource(g_mw2PrjHandle, g_resTagCel, p_id, data) >= 0) {
 			item->m_id = p_id;
 			item->m_width = data[0];
 			item->m_height = data[1];
@@ -1774,7 +1774,7 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 	}
 
 	data = (MechS16*) item->m_heapBlock->m_address;
-	if (ReadPrjResource(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], p_id, data) >= 0) {
+	if (ReadPrjResource(g_mw2PrjHandle, g_resTagCel, p_id, data) >= 0) {
 		item->m_format = 0xf;
 		item->m_id = p_id;
 		item->m_width = data[0];

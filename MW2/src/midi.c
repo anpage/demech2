@@ -38,6 +38,7 @@ MechS32 g_midiInitialized = 0;
 // The resource ids of the sequences' data, or 0.
 // GLOBAL: MW2 0x1010b5e0
 // GLOBAL: MW2MATROX 0x101d4a70
+// GLOBAL: MW23DFX 0x1015a040
 MechS16 g_midiSequenceIds[8];
 
 // The sequence handles, or -1.
@@ -69,7 +70,7 @@ void StopMidiSequences(void)
 		}
 
 		if (g_midiSequenceIds[i]) {
-			UnlockCachedResource(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
+			UnlockCachedResource(g_midiSequenceIds[i], g_resTagXmid);
 			g_midiSequenceIds[i] = 0;
 		}
 	}
@@ -121,6 +122,7 @@ void ResumeMidiSequences(void)
 // Returns 1, -1 when already initialized or -5 when no MIDI device opens.
 // FUNCTION: MW2 0x1002161d
 // FUNCTION: MW2MATROX 0x10043d1d
+// FUNCTION: MW23DFX 0x100330a0
 MechS32 InitializeMidi(void)
 {
 	MechS32 i;
@@ -170,7 +172,7 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 			AIL_release_sequence_handle(sequence);
 			g_midiSequences[i] = (HSEQUENCE) -1;
 			sequence = g_midiSequences[i];
-			UnlockCachedResource(g_midiSequenceIds[i], g_resourceTypeTags[c_resTagXmid]);
+			UnlockCachedResource(g_midiSequenceIds[i], g_resTagXmid);
 			g_midiSequenceIds[i] = 0;
 		}
 
@@ -183,11 +185,11 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 		return -8;
 	}
 
-	data = LoadCachedResource(p_unk0x00, p_id, g_resourceTypeTags[c_resTagXmid], 0);
+	data = LoadCachedResource(p_unk0x00, p_id, g_resTagXmid, 0);
 	if (data && g_midiDriver) {
 		sequence = AIL_allocate_sequence_handle(g_midiDriver);
 		if (sequence == NULL) {
-			UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagXmid]);
+			UnlockCachedResource(p_id, g_resTagXmid);
 			return -10;
 		}
 
@@ -321,6 +323,7 @@ void StartEngineNote(void)
 // mech's power state is above 1.
 // FUNCTION: MW2 0x10021b2a
 // FUNCTION: MW2MATROX 0x1004422f
+// FUNCTION: MW23DFX 0x100333d0
 void UpdateEngineNote(MechU32 p_pitch)
 {
 	if (g_midiDriver == NULL) {
@@ -386,6 +389,7 @@ void MuteEngineNote(void)
 // Restores the held note's volume from the effects volume.
 // FUNCTION: MW2 0x10021c94
 // FUNCTION: MW2MATROX 0x10044399
+// FUNCTION: MW23DFX 0x10033510
 void UnmuteEngineNote(void)
 {
 	if (g_midiDriver == NULL) {

@@ -17,6 +17,7 @@ MechS32 g_displayBrightness = 9;
 
 // GLOBAL: MW2 0x100a946c
 // GLOBAL: MW2MATROX 0x100bcbe8
+// GLOBAL: MW23DFX 0x1024a84c
 MechS32 g_brightnessSetting = 9;
 
 // GLOBAL: MW2 0x100e96a0

@@ -268,7 +268,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		}
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -296,7 +296,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		DrawWrappedText(p_panel->m_target, text, font);
 	}
 
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
@@ -431,12 +431,12 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	heading = player->m_targetInfo.m_heading;
 	object = GetLocalTargetObject();
 	if (!object) {
-		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5e, g_resTagShp, 0);
 		if (noTarget) {
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
-			UnlockCachedResource(0x5e, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(0x5e, g_resTagShp);
 #ifdef MW2_MATROX
 			FUN_10088280(p_panel->m_target);
 #endif
@@ -445,12 +445,12 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		return;
 	}
 	else if (!object->m_shape) {
-		noObject = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
+		noObject = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resTagShp, 0);
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
-			UnlockCachedResource(0x5b, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(0x5b, g_resTagShp);
 #ifdef MW2_MATROX
 			FUN_10088280(p_panel->m_target);
 #endif
@@ -563,23 +563,23 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	heading = player->m_targetInfo.m_heading;
 	object = GetLocalTargetObject();
 	if (!object) {
-		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resourceTypeTags[c_resTagShp], 0);
+		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resTagShp, 0);
 		if (noTarget) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
-			UnlockCachedResource(0x5b, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(0x5b, g_resTagShp);
 		}
 
 		return;
 	}
 	else if (!object->m_shape) {
-		noObject = LoadCachedResource(g_mw2PrjHandle, 0x58, g_resourceTypeTags[c_resTagShp], 0);
+		noObject = LoadCachedResource(g_mw2PrjHandle, 0x58, g_resTagShp, 0);
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, 0);
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
-			UnlockCachedResource(0x58, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(0x58, g_resTagShp);
 		}
 
 		return;

@@ -63,9 +63,9 @@ void DrawPausedBanner(void)
 	void* shape;
 
 #ifdef MW2_ACCEL
-	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x61, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x61, g_resTagShp, 0);
 #else
-	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resTagShp, 0);
 #endif
 	if (shape) {
 		if (g_pausedBannerUnscaled) {

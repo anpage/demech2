@@ -964,9 +964,9 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 		return TRUE;
 	}
 
-	data = LoadCachedResource(g_mw2PrjHandle, entry->m_resource, g_resourceTypeTags[c_resTagPoly], 0);
+	data = LoadCachedResource(g_mw2PrjHandle, entry->m_resource, g_resTagPoly, 0);
 	if (data) {
-		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_resource);
+		size = GetPrjResourceSize(g_mw2PrjHandle, g_resTagPoly, entry->m_resource);
 	}
 	else {
 		return FALSE;
@@ -987,7 +987,7 @@ MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 
 	entry->m_shape = LoadShapes(data, &offset, size, parent);
 	g_shapeOwnerSet = 0;
-	UnlockCachedResource(entry->m_resource, g_resourceTypeTags[c_resTagPoly]);
+	UnlockCachedResource(entry->m_resource, g_resTagPoly);
 	if (!entry->m_shape) {
 		return FALSE;
 	}
@@ -1165,14 +1165,7 @@ MechS32 ToggleBlockBoxes(void)
 		ref->m_id = -1;
 		strncpy(ref->m_name, "unitbox", 12);
 		ref->m_name[12] = '\0';
-		data = LoadResourceByRef(
-			ref,
-			g_resourceTypeTags[c_resTagPoly],
-			g_resourceTypeExtensions[c_resExtWtb],
-			1,
-			&size,
-			NULL
-		);
+		data = LoadResourceByRef(ref, g_resTagPoly, g_resExtWtb, 1, &size, NULL);
 		if (data) {
 			for (i = 0; i < g_nextBlock; i++) {
 				block = &g_staticBlocks[i];
@@ -1214,13 +1207,13 @@ MechS32 ToggleBlockBoxes(void)
 				HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 			}
 			else {
-				UnlockCachedResource(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
+				UnlockCachedResource(ref->m_id, g_resTagPoly);
 			}
 		}
 		else {
 			file = fopen("symlog.txt", "a");
 			if (file) {
-				fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_resourceTypeTags[c_resTagPoly]);
+				fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_resTagPoly);
 			}
 
 			fclose(file);
@@ -1257,21 +1250,20 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 	ref->m_id = -1;
 	strncpy(ref->m_name, "unitbox", 12);
 	ref->m_name[12] = '\0';
-	data =
-		LoadResourceByRef(ref, g_resourceTypeTags[c_resTagPoly], g_resourceTypeExtensions[c_resExtWtb], 1, &size, NULL);
+	data = LoadResourceByRef(ref, g_resTagPoly, g_resExtWtb, 1, &size, NULL);
 	if (data) {
 		LoadQuadtreeBoxes(p_root, data, size);
 		if (ref->m_id == -1) {
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 		}
 		else {
-			UnlockCachedResource(ref->m_id, g_resourceTypeTags[c_resTagPoly]);
+			UnlockCachedResource(ref->m_id, g_resTagPoly);
 		}
 	}
 	else {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_resourceTypeTags[c_resTagPoly]);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", ref->m_name, g_resTagPoly);
 		}
 
 		fclose(file);

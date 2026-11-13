@@ -331,9 +331,9 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		entry->m_shape = NULL;
 	}
 
-	data = LoadCachedResource(g_mw2PrjHandle, entry->m_resourceIds[p_level], g_resourceTypeTags[c_resTagPoly], 0);
+	data = LoadCachedResource(g_mw2PrjHandle, entry->m_resourceIds[p_level], g_resTagPoly, 0);
 	if (data) {
-		size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], entry->m_resourceIds[p_level]);
+		size = GetPrjResourceSize(g_mw2PrjHandle, g_resTagPoly, entry->m_resourceIds[p_level]);
 	}
 	else {
 		return FALSE;
@@ -349,7 +349,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		}
 	}
 
-	UnlockCachedResource(entry->m_resourceIds[p_level], g_resourceTypeTags[c_resTagPoly]);
+	UnlockCachedResource(entry->m_resourceIds[p_level], g_resTagPoly);
 	if (entry->m_shape) {
 		parent = NULL;
 		placed = FALSE;

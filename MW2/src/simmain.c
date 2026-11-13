@@ -501,7 +501,7 @@ int __stdcall SimMain(
 		else {
 			hasPalette = g_paletteResourceIds[0x10] != -1;
 			if (hasPalette) {
-				palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resourceTypeTags[c_resTagPal], 0);
+				palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resTagPal, 0);
 				if (palette) {
 					g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
 				}

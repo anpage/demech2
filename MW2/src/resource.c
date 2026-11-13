@@ -764,9 +764,9 @@ void CreateObjectNode(
 #endif
 	flags = record->m_flags;
 	if (resource != -1) {
-		data = LoadCachedResource(g_mw2PrjHandle, resource, g_resourceTypeTags[c_resTagPoly], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, resource, g_resTagPoly, 0);
 		if (data) {
-			size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagPoly], resource);
+			size = GetPrjResourceSize(g_mw2PrjHandle, g_resTagPoly, resource);
 			fromResource = TRUE;
 		}
 		else {
@@ -791,7 +791,7 @@ void CreateObjectNode(
 
 			id = MapResourceId(id);
 			PlaceStaticObject(id, resource, xform, g_currentBlock, parentIndex, p_unk0x08, flags, kind, unk0x34);
-			UnlockCachedResource(resource, g_resourceTypeTags[c_resTagPoly]);
+			UnlockCachedResource(resource, g_resTagPoly);
 			return;
 		}
 		else if (p_class && g_thingCapacity > g_thingCount) {
@@ -803,7 +803,7 @@ void CreateObjectNode(
 			g_thingIndices[g_thingCount] =
 				AddClassEntryLevel(resource, xform.m_x, xform.m_y, xform.m_z, parentIndex, p_level, thing, unk0x34);
 			g_thingCount++;
-			UnlockCachedResource(resource, g_resourceTypeTags[c_resTagPoly]);
+			UnlockCachedResource(resource, g_resTagPoly);
 			return;
 		}
 	}
@@ -874,7 +874,7 @@ void CreateObjectNode(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		FreeCachedResource(resource, g_resourceTypeTags[c_resTagPoly]);
+		FreeCachedResource(resource, g_resTagPoly);
 	}
 }
 

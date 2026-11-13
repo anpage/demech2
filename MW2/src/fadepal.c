@@ -154,10 +154,10 @@ void FadeToEndPalette(MechS32 p_alternate)
 		slot = 0x10;
 	}
 
-	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal], 0);
+	palette = LoadCachedResource(g_mw2PrjHandle, g_paletteResourceIds[slot], g_resTagPal, 0);
 	if (palette) {
 		g_currentDisplayBackend->m_blendPalettes(palette, 0x3c);
-		UnlockCachedResource(g_paletteResourceIds[slot], g_resourceTypeTags[c_resTagPal]);
+		UnlockCachedResource(g_paletteResourceIds[slot], g_resTagPal);
 		ApplyPaletteResource(slot);
 	}
 }
