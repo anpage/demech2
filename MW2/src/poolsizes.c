@@ -51,7 +51,7 @@ typedef struct DtblRecord {
 // GLOBAL: MW2 0x100a9428
 // GLOBAL: MW2MATROX 0x100bbb40
 // GLOBAL: MW23DFX 0x10259f38
-MechU32 g_staticPoolTags[10] =
+BwdTag g_staticPoolTags[10] =
 	{0x504741, 0x50474d, 0x474553, 0x53494c54, 0x54414441, 0x4b544e41, 0x4c464e41, 0x494a424f, 0x444943, 0x534e4943};
 
 // The counts of a mission's data tables (and of the streams it includes), which size its static
@@ -170,6 +170,7 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 // operands changed nothing), and the byte swap takes its terms in the original's order.
 // FUNCTION: MW2 0x10056503
 // FUNCTION: MW2MATROX 0x100857c3
+// FUNCTION: MW23DFX 0x100410e0
 MechS32 CountMissionStream(BwdStream* p_stream)
 {
 	MechS32 result;
@@ -177,11 +178,11 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 	BwdNode* node;
 	DtblRecord* table;
 	MechS32 known;
-	MechU32 type;
+	BwdTag type;
 
 	result = TRUE;
 	rev = (RevRecord*) (node = GetNextNode(p_stream));
-	if (!rev || g_bwdTypeCodes[1] != rev->m_header.m_tag) {
+	if (!rev || g_bwdTypeCodes[1].m_code != rev->m_header.m_tag.m_code) {
 		result = FALSE;
 		Error(0x48, NULL);
 	}
@@ -191,7 +192,7 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 	}
 	else {
 		node = GetNextNode(p_stream);
-		if (!node || node->m_type != g_bwdTypeCodes[2]) {
+		if (!node || node->m_type.m_code != g_bwdTypeCodes[2].m_code) {
 			result = FALSE;
 			Error(0x3e, NULL);
 		}
@@ -223,13 +224,13 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 					LogKeywordName(type);
 				}
 
-				if (g_bwdTypeCodes[11] == type) {
+				if (g_bwdTypeCodes[11].m_code == type.m_code) {
 					result &= LoadScenarioTable((ScenarioTable*) node);
 				}
-				else if (g_bwdTypeCodes[50] == type) {
+				else if (g_bwdTypeCodes[50].m_code == type.m_code) {
 					result &= ExecuteInclude((IncludeRecord*) node, CountMissionStream);
 				}
-				else if (g_bwdTypeCodes[52] == type) {
+				else if (g_bwdTypeCodes[52].m_code == type.m_code) {
 					result &= RunIncludedStream((IncludeRecord2*) node, CountMissionStream);
 				}
 

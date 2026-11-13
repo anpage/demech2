@@ -30,6 +30,7 @@ MechU32 g_nextRenormalizeCountdown = 100;
 // The only diff is a stack-slot permutation of obj and last.
 // FUNCTION: MW2 0x100012d0
 // FUNCTION: MW2MATROX 0x10040dd0
+// FUNCTION: MW23DFX 0x1000f5e0
 SceneObject* CreateObj(SceneObject* p_parent, MechU32 p_flags)
 {
 	SceneObject* obj;
@@ -682,6 +683,7 @@ SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name)
 // The only diff is a stack-slot permutation of child and last.
 // FUNCTION: MW2 0x100020a6
 // FUNCTION: MW2MATROX 0x10041bb8
+// FUNCTION: MW23DFX 0x1000fe60
 SceneObject* GetObjLastChild(SceneObject* p_obj)
 {
 	SceneObject* child;

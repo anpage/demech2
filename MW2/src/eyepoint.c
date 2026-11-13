@@ -37,24 +37,29 @@
 // back from it.
 // GLOBAL: MW2 0x100a23ec
 // GLOBAL: MW2MATROX 0x100a362c
+// GLOBAL: MW23DFX 0x1024e644
 MechScalar g_trackDistance = 0;
 
 // The track view's distance limits, height and turn around the mech (UpdateTrackView).
 
 // GLOBAL: MW2 0x100a23f0
 // GLOBAL: MW2MATROX 0x100a3630
+// GLOBAL: MW23DFX 0x1024e648
 MechScalar g_trackMinDistance = 0;
 
 // GLOBAL: MW2 0x100a23f4
 // GLOBAL: MW2MATROX 0x100a3634
+// GLOBAL: MW23DFX 0x1024e64c
 MechScalar g_trackMaxDistance = 0;
 
 // GLOBAL: MW2 0x100a23f8
 // GLOBAL: MW2MATROX 0x100a3638
+// GLOBAL: MW23DFX 0x1024e650
 MechScalar g_trackHeight = 0;
 
 // GLOBAL: MW2 0x100a23fc
 // GLOBAL: MW2MATROX 0x100a363c
+// GLOBAL: MW23DFX 0x1024e654
 MechScalar g_trackTurn = FIXED_LITERAL(0xb40000, 180.0f);
 
 // GLOBAL: MW2 0x100a2400
@@ -94,6 +99,7 @@ MechS32 g_requestedViewMode = 0;
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
 // GLOBAL: MW2 0x100a2418
 // GLOBAL: MW2MATROX 0x100a3658
+// GLOBAL: MW23DFX 0x1024e670
 MechS32 g_autopilotStart = 1;
 
 // Set while the cockpit view is placed at the eye (GetCockpitEyeView), not shaking: the HUD
@@ -165,6 +171,7 @@ MechS32 g_dropStartClock = 0;
 // Set while no glance key is held (UpdateCockpitView).
 // GLOBAL: MW2 0x100a2448
 // GLOBAL: MW2MATROX 0x100a3688
+// GLOBAL: MW23DFX 0x1024e6a0
 MechS8 g_glanceReleased = 0;
 
 // The view UpdateOrdinanceView saves when it enters the ordinance view.
@@ -176,6 +183,7 @@ MechScalar g_ordinanceSavedView[7];
 // The track view's height limits (UpdateTrackView).
 // GLOBAL: MW2 0x10176f2c
 // GLOBAL: MW2MATROX 0x102182e0
+// GLOBAL: MW23DFX 0x1015efd0
 MechScalar g_trackMaxHeight;
 
 // The track view's eased offsets from the mech and its eased heading and pitch.
@@ -196,6 +204,7 @@ WrappedRamp g_trackHeading;
 
 // GLOBAL: MW2 0x10176f74
 // GLOBAL: MW2MATROX 0x10218344
+// GLOBAL: MW23DFX 0x1015f034
 MechScalar g_trackMinHeight;
 
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
@@ -508,6 +517,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // (p_home), skipping players who left or whose mechs are gone.
 // FUNCTION: MW2 0x100115f4
 // FUNCTION: MW2MATROX 0x10009362
+// FUNCTION: MW23DFX 0x1002e070
 void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 {
 	MechS32 step;
@@ -634,6 +644,7 @@ void UpdateOrdinanceView(void)
 // its stack slots.
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2MATROX 0x10009653
+// FUNCTION: MW23DFX 0x1002e280
 void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_tilt, MechScalar p_turn)
 {
 	MechScalar y;
@@ -842,6 +853,7 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 // eyepoint unless the camera is shaking.
 // FUNCTION: MW2 0x10011cb0
 // FUNCTION: MW2MATROX 0x10009ae7
+// FUNCTION: MW23DFX 0x1002e640
 void UpdateCockpitView(void)
 {
 	if (g_viewMode) {
@@ -957,6 +969,7 @@ void UpdateDropView(void)
 // The Matrox edition's differs in commutative operand order (its products) and its stack slots.
 // FUNCTION: MW2 0x10011f9a
 // FUNCTION: MW2MATROX 0x10009e0a
+// FUNCTION: MW23DFX 0x1002e8a0
 void UpdateFreeEyeView(
 	MechScalar p_climb,
 	MechScalar p_speed,

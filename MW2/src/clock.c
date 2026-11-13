@@ -36,6 +36,7 @@ MechS32 g_clockMode = 0;
 
 // GLOBAL: MW2 0x100ba558
 // GLOBAL: MW2MATROX 0x100a4e60
+// GLOBAL: MW23DFX 0x1024ab54
 MechS32 g_clockPaused = 0;
 
 // GLOBAL: MW2 0x100ba55c
@@ -45,6 +46,7 @@ HTIMER g_ticksTimer = -1;
 
 // GLOBAL: MW2 0x100ba560
 // GLOBAL: MW2MATROX 0x100a4e68
+// GLOBAL: MW23DFX 0x1024ab5c
 MechS32 g_timeCompressionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba564
@@ -54,6 +56,7 @@ MechS32 g_timeExpansionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba568
 // GLOBAL: MW2MATROX 0x100a4e70
+// GLOBAL: MW23DFX 0x1024ab64
 MechS32 g_framerateLimit = 0;
 
 // GLOBAL: MW2 0x100ba56c
@@ -83,6 +86,7 @@ MechS32 g_previousClock = 0;
 
 // GLOBAL: MW2 0x100ba580
 // GLOBAL: MW2MATROX 0x100a4e88
+// GLOBAL: MW23DFX 0x1024ab7c
 MechS32 g_clockModeBeforePause = 0;
 
 // GLOBAL: MW2 0x100ba584
@@ -111,6 +115,7 @@ MechS16 g_sqrtTableData[0x400];
 
 // GLOBAL: MW2 0x100c2290
 // GLOBAL: MW2MATROX 0x1012ec50
+// GLOBAL: MW23DFX 0x1015e6f0
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
 // The Matrox edition's tables, Hypot2D and trigonometry are its own float code, in accel/floatmath.c.
@@ -222,6 +227,7 @@ void FirstClock(void)
 
 // FUNCTION: MW2 0x1007ce2c
 // FUNCTION: MW2MATROX 0x1001e9bc
+// FUNCTION: MW23DFX 0x10007ff0
 void NextClock(void)
 {
 	if (!g_ticksTimerInitialized) {

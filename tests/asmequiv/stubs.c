@@ -69,7 +69,7 @@ MechU32 g_queuedShapeFlags;
 RenderSettings g_renderSettings;
 
 struct Player* g_lastPlayer;
-MechU32 g_staticPoolTags[10];
+BwdTag g_staticPoolTags[10];
 
 MechS32 InitSinAtanTables(void)
 {
@@ -243,7 +243,7 @@ MechS32 UpdateWrappedRamp(WrappedRamp* p_ramp)
 	return 0;
 }
 
-void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
+void* StaticPoolAlloc(MechU32 p_size, BwdTag p_tag)
 {
 	(void) p_size;
 	(void) p_tag;

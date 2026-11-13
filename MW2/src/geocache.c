@@ -57,10 +57,12 @@ MechS32* g_thingIds = NULL;
 // Set inside a world stream's repeated section (REPR to ENDR); g_repeatPass counts its passes.
 // GLOBAL: MW2 0x100a3858
 // GLOBAL: MW2MATROX 0x100aa380
+// GLOBAL: MW23DFX 0x1024daa0
 MechS32 g_inRepeat = 0;
 
 // GLOBAL: MW2 0x100a385c
 // GLOBAL: MW2MATROX 0x100aa384
+// GLOBAL: MW23DFX 0x1024daa4
 MechS32 g_repeatPass = 0;
 
 // GLOBAL: MW2 0x100a3860
@@ -875,6 +877,7 @@ void DestroyThingObject(GameThing* p_thing)
 // loads g_staticObjectCount first in the original.
 // FUNCTION: MW2 0x100204e8
 // FUNCTION: MW2MATROX 0x10053c30
+// FUNCTION: MW23DFX 0x10025310
 void PropagateStaticObjectStates(void)
 {
 	GameThing* thing;
@@ -948,6 +951,7 @@ MechS32 AreStaticObjectsComplete(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10020704
 // FUNCTION: MW2MATROX 0x10053e4e
+// FUNCTION: MW23DFX 0x10025450
 MechS32 LoadStaticObject(MechS32 p_index, MechS32 p_block)
 {
 	MechS32 size;
@@ -1290,6 +1294,7 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 // Stack-slot permutation; the original loads m_unk0x14 first in z's sum (commutative operand order).
 // FUNCTION: MW2 0x1002116a
 // FUNCTION: MW2MATROX 0x100548f9
+// FUNCTION: MW23DFX 0x10025b70
 void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 {
 	MechS32 result;

@@ -169,6 +169,7 @@ MechS32 g_viewProjectScaleY16;
 
 // GLOBAL: MW2 0x100ea890
 // GLOBAL: MW2MATROX 0x101d6874
+// GLOBAL: MW23DFX 0x1015ef1c
 MechScalar g_viewRotX0;
 
 // GLOBAL: MW2 0x100ea894
@@ -376,6 +377,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // also scaled by LOD.PAR's LOD_SCALE, read the first time.
 // FUNCTION: MW2 0x1004bc2e
 // FUNCTION: MW2MATROX 0x100292cc
+// FUNCTION: MW23DFX 0x1002f740
 void UpdateProjection(Eyepoint* p_eyepoint)
 {
 #ifdef MW2_ACCEL
@@ -640,6 +642,7 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // and compares the depth and the screen bounds in the other operand order (entropy).
 // FUNCTION: MW2 0x1004c11d
 // FUNCTION: MW2MATROX 0x1002975e
+// FUNCTION: MW23DFX 0x1002f9f0
 MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar x;
@@ -730,6 +733,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // reloads it.
 // FUNCTION: MW2 0x1004c2ef
 // FUNCTION: MW2MATROX 0x10029957
+// FUNCTION: MW23DFX 0x1002fba0
 MechS32 CullSceneShape(Shape* p_shape)
 {
 	MechScalar y;
@@ -844,6 +848,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 // operands in another order.
 // FUNCTION: MW2 0x1004c565
 // FUNCTION: MW2MATROX 0x10029c23
+// FUNCTION: MW23DFX 0x1002fdc0
 MechS32 CullShapeToFrustum(Shape* p_shape)
 {
 	MechScalar y;

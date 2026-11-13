@@ -219,6 +219,7 @@ MechS32 ClosePrjFile(MechS32 p_file)
 // Operand order: the original tests count > i with setg.
 // FUNCTION: MW2 0x100720b7
 // FUNCTION: MW2MATROX 0x1000c6f7
+// FUNCTION: MW23DFX 0x1003d410
 MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 {
 	MechS8 found;
@@ -286,6 +287,7 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 // Stack-slot permutation: entries, size, types, type and id.
 // FUNCTION: MW2 0x100722f5
 // FUNCTION: MW2MATROX 0x1000c935
+// FUNCTION: MW23DFX 0x1003d580
 MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 {
 	PrjIndexEntry* entries;

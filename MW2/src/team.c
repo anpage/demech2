@@ -182,6 +182,7 @@ MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 // leader < g_playerCount with g_playerCount in eax.
 // FUNCTION: MW2 0x1003bf40
 // FUNCTION: MW2MATROX 0x1007304d
+// FUNCTION: MW23DFX 0x10018dd0
 MechS32 PlaceTeam(MechS32 p_team, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_heading)
 {
 	MechS32 result;

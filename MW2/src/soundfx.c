@@ -32,6 +32,7 @@
 
 // GLOBAL: MW2 0x100ba620
 // GLOBAL: MW2MATROX 0x100bbbc8
+// GLOBAL: MW23DFX 0x1024a9a8
 MechS32 g_temperature = 25;
 
 // Set on a planet without a breathable atmosphere: the local player can't eject (the cockpit says
@@ -545,6 +546,7 @@ MechS32 PlaySoundRandomRate(
 // Stack slots: horizontal, delay, pitch, volume, bearing, distance and range are permuted.
 // FUNCTION: MW2 0x1007ea8c
 // FUNCTION: MW2MATROX 0x10087158
+// FUNCTION: MW23DFX 0x10032ad0
 MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, MechS32 p_sound, MechS32 p_half)
 {
 	MechScalar horizontal;
@@ -691,6 +693,7 @@ void StopSamples(MechS32 p_all)
 // Stack slots: i, x, started, distance and y are permuted.
 // FUNCTION: MW2 0x1007ed1e
 // FUNCTION: MW2MATROX 0x100873f7
+// FUNCTION: MW23DFX 0x10032cc0
 void UpdateAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;

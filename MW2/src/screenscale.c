@@ -59,6 +59,7 @@ MechS32 g_pulseStep = 0;
 // Maps 16.16 fractions of the screen onto pixels.
 // FUNCTION: MW2 0x10056920
 // FUNCTION: MW2MATROX 0x10071320
+// FUNCTION: MW23DFX 0x10005b70
 PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	p_dst->m_x0 = FixedMul16(g_screenWidthMinus1, p_src->m_x0);
@@ -72,6 +73,7 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x1005699f
 // FUNCTION: MW2MATROX 0x1007139f
+// FUNCTION: MW23DFX 0x10005c20
 PANE* ScaleRectToFrame(PANE* p_frame, PANE* p_src, PANE* p_dst)
 {
 	MechS32 width;
@@ -242,6 +244,7 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 // Stack-slot permutation: centerX and centerY.
 // FUNCTION: MW2 0x10056ec5
 // FUNCTION: MW2MATROX 0x100718d5
+// FUNCTION: MW23DFX 0x10006210
 PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 {
 	MechS32 centerX;
@@ -482,6 +485,7 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x100575b9
 // FUNCTION: MW2MATROX 0x10072023
+// FUNCTION: MW23DFX 0x10006860
 PANE* FitRectToText(MechChar* p_text, void* p_font, PANE* p_rect)
 {
 	MechS32 lineWidth;
@@ -595,6 +599,7 @@ void DrawPulsingFrame(PANE* p_target)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057896
 // FUNCTION: MW2MATROX 0x10072153
+// FUNCTION: MW23DFX 0x10006960
 void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 {
 	MechS32 size;
@@ -642,6 +647,7 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 // otherwise 0 with the slope in p_slope.
 // FUNCTION: MW2 0x1005798d
 // FUNCTION: MW2MATROX 0x1007224a
+// FUNCTION: MW23DFX 0x10006a20
 MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 {
 	MechS32 steep;
@@ -672,6 +678,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057a03
 // FUNCTION: MW2MATROX 0x100722b1
+// FUNCTION: MW23DFX 0x10006a60
 Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 {
 	GaugeQuadrant quadrant;

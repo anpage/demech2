@@ -94,6 +94,7 @@ below:
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100719ca
 // FUNCTION: MW2MATROX 0x1007b99e
+// FUNCTION: MW23DFX 0x10028f80
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_ACCEL
@@ -157,6 +158,7 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10071a4c
 // FUNCTION: MW2MATROX 0x1007ba4c
+// FUNCTION: MW23DFX 0x10028ff0
 MechS32 HorizonXAtY(MechS32 p_y, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_ACCEL

@@ -53,10 +53,12 @@
 
 // GLOBAL: MW2 0x100a244c
 // GLOBAL: MW2MATROX 0x100a49fc
+// GLOBAL: MW23DFX 0x102498dc
 MechS32 g_drawModeIndex = INITIAL_DRAW_MODE;
 
 // GLOBAL: MW2 0x100a2450
 // GLOBAL: MW2MATROX 0x100a4a00
+// GLOBAL: MW23DFX 0x102498e0
 MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 
 // GLOBAL: MW2 0x100a2454
@@ -67,6 +69,7 @@ MechS32 g_showBoundingSpheres = 0;
 // The banner's file name, instead of sbannr (ShowBanner).
 // GLOBAL: MW2 0x100a2458
 // GLOBAL: MW2MATROX 0x100a4a08
+// GLOBAL: MW23DFX 0x102498e8
 MechChar* g_bannerName = NULL;
 
 // GLOBAL: MW2 0x100a245c
@@ -292,6 +295,7 @@ void FirstRender(void)
 // 0x70 and type 4.
 // FUNCTION: MW2 0x100129b7
 // FUNCTION: MW2MATROX 0x10017607
+// FUNCTION: MW23DFX 0x10004a90
 void SecondRender(void)
 {
 	Shape* root;

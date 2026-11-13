@@ -17,24 +17,28 @@ DECOMP_SIZE_ASSERT(StaticPoolGroup, 0x0c)
 
 // GLOBAL: MW2 0x100a6ddc
 // GLOBAL: MW2MATROX 0x100b1450
+// GLOBAL: MW23DFX 0x1024d7c4
 MechS32 g_staticPoolGroupCount = 0;
 
 // GLOBAL: MW2 0x100a6de0
 // GLOBAL: MW2MATROX 0x100b1454
+// GLOBAL: MW23DFX 0x1024d7c8
 MechS32 g_staticPoolCount = 0;
 
 // GLOBAL: MW2 0x100be5e0
 // GLOBAL: MW2MATROX 0x101249b8
+// GLOBAL: MW23DFX 0x1007c678
 StaticPoolGroup g_staticPoolGroups[5];
 
 // GLOBAL: MW2 0x100be620
 // GLOBAL: MW2MATROX 0x10124738
+// GLOBAL: MW23DFX 0x1007c3f8
 StaticPool g_staticPools[32];
 
 void ResetStaticPools(void);
 MechS32 ParseStaticPoolConfig(char* p_mission);
 int __cdecl CompareStaticPools(const void* p_a, const void* p_b);
-MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag);
+MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag);
 
 // Reads the mission's pool sizes, places the pools in groups of up to 0xffdc bytes, largest
 // first, and allocates the groups. Returns whether it could read the sizes.
@@ -114,7 +118,8 @@ MechS32 InitStaticMem(char* p_mission)
 // g_staticPoolCount take the other operand order.
 // FUNCTION: MW2 0x10049afb
 // FUNCTION: MW2MATROX 0x1007916a
-void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
+// FUNCTION: MW23DFX 0x10023d40
+void* StaticPoolAlloc(MechU32 p_size, BwdTag p_tag)
 {
 	MechS32 i;
 	StaticPool* pool;
@@ -122,7 +127,7 @@ void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 	StaticPoolGroup* group;
 
 	block = NULL;
-	for (i = 0; i < g_staticPoolCount && g_staticPools[i].m_tag != p_tag; i++) {
+	for (i = 0; i < g_staticPoolCount && g_staticPools[i].m_tag.m_code != p_tag.m_code; i++) {
 	}
 
 	if (g_staticPoolCount == i) {
@@ -197,6 +202,7 @@ int __cdecl CompareStaticPools(const void* p_a, const void* p_b)
 
 // FUNCTION: MW2 0x10049d1f
 // FUNCTION: MW2MATROX 0x1007938c
+// FUNCTION: MW23DFX 0x10023ec0
 void ResetStaticPools(void)
 {
 }
@@ -205,6 +211,7 @@ void ResetStaticPools(void)
 // Returns whether the mission has the table.
 // FUNCTION: MW2 0x10049d2a
 // FUNCTION: MW2MATROX 0x10079397
+// FUNCTION: MW23DFX 0x10023ed0
 MechS32 ParseStaticPoolConfig(char* p_mission)
 {
 	StaticPoolSize* entry;
@@ -233,12 +240,13 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 // MW2MATROX: the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x10049da3
 // FUNCTION: MW2MATROX 0x10079410
-MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag)
+// FUNCTION: MW23DFX 0x10023f10
+MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag)
 {
 	StaticPool* pool;
 	MechS32 i;
 
-	for (i = 0; i < g_staticPoolCount && g_staticPools[i].m_tag != p_tag; i++) {
+	for (i = 0; i < g_staticPoolCount && g_staticPools[i].m_tag.m_code != p_tag.m_code; i++) {
 	}
 
 	pool = &g_staticPools[i];

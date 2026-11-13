@@ -354,6 +354,7 @@ void KeyboardQueueKeyCode(WPARAM p_virtualKey, LPARAM p_lParam)
 
 // FUNCTION: MW2 0x10042b90
 // FUNCTION: MW2MATROX 0x10067920
+// FUNCTION: MW23DFX 0x10038610
 void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_pressed)
 {
 	MechS32 key;

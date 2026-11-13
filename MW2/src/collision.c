@@ -54,14 +54,17 @@ MechScalar g_hitNormalZ = 0;
 // The normal of the ground GetTerrainHeight found.
 // GLOBAL: MW2 0x100a552c
 // GLOBAL: MW2MATROX 0x100a55bc
+// GLOBAL: MW23DFX 0x1024b414
 MechScalar g_groundNormalX = 0;
 
 // GLOBAL: MW2 0x100a5530
 // GLOBAL: MW2MATROX 0x100a55c0
+// GLOBAL: MW23DFX 0x1024b418
 MechScalar g_groundNormalY = 0;
 
 // GLOBAL: MW2 0x100a5534
 // GLOBAL: MW2MATROX 0x100a55c4
+// GLOBAL: MW23DFX 0x1024b41c
 MechScalar g_groundNormalZ = 0;
 
 // The normal of the surface TestSegmentCollision hit.
@@ -89,16 +92,19 @@ MechS32 g_backgroundColor = 0;
 // The sky's color (DrawSkyAndGround; the ground's is g_groundColor).
 // GLOBAL: MW2 0x100a5548
 // GLOBAL: MW2MATROX 0x100a4944
+// GLOBAL: MW23DFX 0x1024e414
 MechS32 g_skyColor = 0xe0;
 
 // The ground's color (DrawSkyAndGround; the sky's is g_skyColor).
 // GLOBAL: MW2 0x100a554c
 // GLOBAL: MW2MATROX 0x100a4948
+// GLOBAL: MW23DFX 0x1024e418
 MechS32 g_groundColor = 0xef;
 
 // The horizon map's (LoadMapBitmap, from the world stream's hrzm record).
 // GLOBAL: MW2 0x100a5550
 // GLOBAL: MW2MATROX 0x100a494c
+// GLOBAL: MW23DFX 0x1024e41c
 MechS32 g_horizonMapColor = 0xea;
 
 // GLOBAL: MW2 0x100a5558
@@ -170,6 +176,7 @@ MechS32 IsBelowFacePlane(
 // MW2MATROX: the below < top and best < top comparisons have their operands the other way round.
 // FUNCTION: MW2 0x10034b30
 // FUNCTION: MW2MATROX 0x100239fc
+// FUNCTION: MW23DFX 0x10010080
 MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Shape* root;
@@ -232,6 +239,7 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 // other way around.
 // FUNCTION: MW2 0x10034cbc
 // FUNCTION: MW2MATROX 0x10023bc0
+// FUNCTION: MW23DFX 0x100101f0
 MechScalar GetHighestSurface(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Shape* root;
@@ -478,6 +486,7 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100352ad
 // FUNCTION: MW2MATROX 0x100241af
+// FUNCTION: MW23DFX 0x10010650
 MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 {
 	MechS32 (*testRay)(Shape*, Ray*);
@@ -701,6 +710,7 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
 // FUNCTION: MW2 0x100357f8
 // FUNCTION: MW2MATROX 0x100246e2
+// FUNCTION: MW23DFX 0x10010a90
 MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_z)
 {
 	MechS32 count;
@@ -849,6 +859,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
 // FUNCTION: MW2 0x10035b5b
 // FUNCTION: MW2MATROX 0x10024aa5
+// FUNCTION: MW23DFX 0x10010db0
 MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_y)
 {
 	MechS32 count;
@@ -997,6 +1008,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
 // FUNCTION: MW2 0x10035ebe
 // FUNCTION: MW2MATROX 0x10024e68
+// FUNCTION: MW23DFX 0x100110d0
 MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 count;

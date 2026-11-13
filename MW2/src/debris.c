@@ -473,6 +473,7 @@ void ResetDebrisPiece(MechS32 p_index)
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10004c86
 // FUNCTION: MW2MATROX 0x1002b135
+// FUNCTION: MW23DFX 0x10015aa0
 MechS32 FindDebrisPiece(SceneObject* p_obj)
 {
 	MechS32 index;
@@ -493,6 +494,7 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 // Stack-slot permutation of the locals, and the operand order of radius + p_radius.
 // FUNCTION: MW2 0x10004ce5
 // FUNCTION: MW2MATROX 0x1002b194
+// FUNCTION: MW23DFX 0x10015ad0
 void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar p_radius, MechScalar p_damage)
 {
 	DebrisChunk* chunk;

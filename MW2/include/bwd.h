@@ -1,6 +1,7 @@
 #ifndef BWD_H
 #define BWD_H
 
+#include "bwdtag.h"
 #include "decomp.h"
 #include "types.h"
 
@@ -9,14 +10,14 @@ struct BwdStreamKey;
 // A node of a BWD stream: a keyword tag (g_bwdTypeCodes) and the node's size, header included.
 // SIZE 0x08
 typedef struct BwdNode {
-	MechU32 m_type; // 0x00
+	BwdTag m_type;  // 0x00
 	MechS32 m_size; // 0x04
 } BwdNode;
 
 // A BWD stream's first node: the stream's size and the largest node size it allows.
 // SIZE 0x0c
 typedef struct BwdHeader {
-	MechU32 m_type;        // 0x00 — "BWD"
+	BwdTag m_type;         // 0x00 — "BWD"
 	MechS32 m_size;        // 0x04
 	MechS32 m_maxNodeSize; // 0x08
 } BwdHeader;
@@ -50,9 +51,9 @@ extern "C"
 	BwdStream* OpenBwdStream(struct BwdStreamKey* p_key, BwdStream* p_stream);
 	BwdNode* GetNextNode(BwdStream* p_stream);
 	void UnloadResource(BwdStream* p_stream);
-	MechChar* GetKeywordName(MechU32 p_code);
+	MechChar* GetKeywordName(BwdTag p_code);
 	void LogDebugLine(MechChar* p_text);
-	void LogKeywordName(MechU32 p_code);
+	void LogKeywordName(BwdTag p_code);
 
 #ifdef __cplusplus
 }

@@ -610,6 +610,7 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 // Dumps the selected weapon's ammunition.
 // FUNCTION: MW2 0x1004597b
 // FUNCTION: MW2MATROX 0x1002c721
+// FUNCTION: MW23DFX 0x10044220
 MechS32 JettisonAmmo(Mech* p_mech)
 {
 	MechChar text[40];

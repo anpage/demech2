@@ -45,6 +45,7 @@ MechChar g_soundFileDir[0x100];
 // Stack-slot permutation of entry, added and slot.
 // FUNCTION: MW2 0x10007140
 // FUNCTION: MW2MATROX 0x10001000
+// FUNCTION: MW23DFX 0x100084e0
 ProjectFileEntry* FindSoundFile(MechChar* p_name, MechS32 p_add)
 {
 	ProjectFileEntry* entry;

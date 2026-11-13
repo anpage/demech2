@@ -178,6 +178,7 @@ void ApplyPendingPalette(void)
 // The Matrox edition ors the pixel's green and blue parts in the other order.
 // FUNCTION: MW2 0x1000258d
 // FUNCTION: MW2MATROX 0x1002d705
+// FUNCTION: MW23DFX 0x1002ac40
 void ApplyPaletteResource(MechS32 p_slot)
 {
 	MechU8* palette;

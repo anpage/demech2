@@ -35,11 +35,14 @@ PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 undefined4 g_unk0x100adf0c = 0;
 
 // GLOBAL: MW2 0x100c3360
+// GLOBAL: MW23DFX 0x10244d50
 static MechChar g_bottomMessageText[0x100];
 
 // GLOBAL: MW2 0x100c3460
+// GLOBAL: MW23DFX 0x10244e50
 static MechChar g_topMessageText[0x100];
 
+// The 3Dfx edition's (0x10249850) has other backgrounds: no MW23DFX annotation.
 // GLOBAL: MW2 0x100adf10
 // GLOBAL: MW2MATROX 0x100b10f8
 TimedOverlay g_timedOverlays[2] = {
@@ -53,6 +56,7 @@ TimedOverlay g_timedOverlays[2] = {
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006ee60
 // FUNCTION: MW2MATROX 0x10078690
+// FUNCTION: MW23DFX 0x10002e40
 void LayoutMessageBoxes(void)
 {
 	MechS32 fontHeight;
@@ -104,6 +108,7 @@ void LayoutMessageBoxes(void)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006efd4
 // FUNCTION: MW2MATROX 0x10078804
+// FUNCTION: MW23DFX 0x10002f20
 MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, MechS32 p_priority)
 {
 	MechS32 result;
@@ -175,6 +180,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f179
 // FUNCTION: MW2MATROX 0x100789a9
+// FUNCTION: MW23DFX 0x10003010
 void DrawTimedOverlays(void)
 {
 	MechS32 i;

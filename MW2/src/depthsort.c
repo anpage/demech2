@@ -77,6 +77,7 @@ MechScalar g_queueDepth;
 // The list being built: g_depthQueue or g_drawList.
 // GLOBAL: MW2 0x1010b5c4
 // GLOBAL: MW2MATROX 0x101d6980
+// GLOBAL: MW23DFX 0x101b0ee0
 DepthEntry* g_depthList;
 
 // The flags of the shape being queued.
@@ -292,6 +293,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 // whole and expanded after the sort (DrawDepthQueue).
 // FUNCTION: MW2 0x100338bb
 // FUNCTION: MW2MATROX 0x100235a0
+// FUNCTION: MW23DFX 0x1002a080
 void DrawShapeList(Shape* p_root)
 {
 	Shape* shape;

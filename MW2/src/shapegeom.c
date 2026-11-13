@@ -64,6 +64,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // operand order).
 // FUNCTION: MW2 0x10039a30
 // FUNCTION: MW2MATROX 0x10028adb
+// FUNCTION: MW23DFX 0x10029ab0
 void TransformModel(Model* p_model, Matrix* p_matrix)
 {
 #if defined(MW2_ACCEL)
@@ -274,6 +275,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 // operand order).
 // FUNCTION: MW2 0x10039b94
 // FUNCTION: MW2MATROX 0x10028cf4
+// FUNCTION: MW23DFX 0x10029c10
 void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 {
 	p_shape->m_flags &= ~0x200;
@@ -370,6 +372,7 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 // Transforms a shape and each of its models by p_matrix.
 // FUNCTION: MW2 0x10039c36
 // FUNCTION: MW2MATROX 0x10028db4
+// FUNCTION: MW23DFX 0x10029c80
 void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 {
 	Model* model;
@@ -427,6 +430,7 @@ MechS32 SolvePlaneY(
 // Stack-slot permutation: radius, deltaY and deltaZ.
 // FUNCTION: MW2 0x10039ccc
 // FUNCTION: MW2MATROX 0x10028e14
+// FUNCTION: MW23DFX 0x10029cb0
 MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 #if defined(MW2_ACCEL)
@@ -922,6 +926,7 @@ done:
 // the FPU stack after its store), a commutative operand order.
 // FUNCTION: MW2 0x1003a096
 // FUNCTION: MW2MATROX 0x10028f0e
+// FUNCTION: MW23DFX 0x10029db0
 MechScalar RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
 #if defined(MW2_ACCEL)

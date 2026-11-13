@@ -18,6 +18,7 @@
 // The heading sum has its operands the other way around.
 // FUNCTION: MW2 0x1006ca60
 // FUNCTION: MW2MATROX 0x1006d320
+// FUNCTION: MW23DFX 0x10015090
 MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 {
 	Ray ray;

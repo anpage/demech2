@@ -63,26 +63,31 @@ Point g_htalLabelTPosition = {0x5050, 0x199a};
 
 // GLOBAL: MW2 0x100a5cc8
 // GLOBAL: MW2MATROX 0x100ac6f8
+// GLOBAL: MW23DFX 0x1024c610
 Point g_htalLabelAPosition = {0x9697, 0x199a};
 
 // GLOBAL: MW2 0x100a5cd0
 // GLOBAL: MW2MATROX 0x100ac700
+// GLOBAL: MW23DFX 0x1024c618
 Point g_htalLabelLPosition = {0xd2d3, 0x199a};
 
 // The largest armor value of the local mech's sections.
 // GLOBAL: MW2 0x100a5cd8
 // GLOBAL: MW2MATROX 0x100ac708
+// GLOBAL: MW23DFX 0x1024c620
 MechScalar g_maxSectionArmor = 0;
 
 // The outline's rectangle, centered in the panel.
 // GLOBAL: MW2 0x100a5ce0
 // GLOBAL: MW2MATROX 0x100ac710
+// GLOBAL: MW23DFX 0x1024c628
 PANE g_outlineRect = {NULL, 0, 0, 0, 0};
 
 // The outline's sixteen parts: rectangles in the outline shape's pixels (LoadHudFile reads them)
 // until InitDamagePanel places them on the screen.
 // GLOBAL: MW2 0x100a5cf8
 // GLOBAL: MW2MATROX 0x100ac728
+// GLOBAL: MW23DFX 0x1024c640
 PANE g_outlinePartRects[16] = {0};
 
 // Where each part's shape is drawn from, relative to its rectangle.
@@ -131,6 +136,7 @@ MechU8 g_outlineRemap[0x100];
 // The armor bars' width and full height.
 // GLOBAL: MW2 0x100be598
 // GLOBAL: MW2MATROX 0x100c2638
+// GLOBAL: MW23DFX 0x1007c380
 Point g_armorBarSize;
 
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
@@ -138,6 +144,7 @@ Point g_armorBarSize;
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10040020
 // FUNCTION: MW2MATROX 0x10059940
+// FUNCTION: MW23DFX 0x1001b230
 void InitDamagePanel(void)
 {
 	CockpitPanel* panel;
@@ -243,6 +250,7 @@ void InitDamagePanel(void)
 // MW2MATROX: a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10040511
 // FUNCTION: MW2MATROX 0x10059e60
+// FUNCTION: MW23DFX 0x1001b620
 void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 {
 	MechS32 rear;
@@ -355,6 +363,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 // MW2MATROX: a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100407b6
 // FUNCTION: MW2MATROX 0x1005a18b
+// FUNCTION: MW23DFX 0x1001b890
 void DrawArmorBars(Mech* p_mech, PANE* p_target)
 {
 	MechScalar full;

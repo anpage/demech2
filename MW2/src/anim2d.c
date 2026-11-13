@@ -157,6 +157,7 @@ void FreeAnim2d(MechS32 p_index)
 // Stack-slot permutation: frame and anim.
 // FUNCTION: MW2 0x100077b3
 // FUNCTION: MW2MATROX 0x10001653
+// FUNCTION: MW23DFX 0x100022f0
 void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	MechS32 frame;

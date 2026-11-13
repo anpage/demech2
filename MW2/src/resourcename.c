@@ -70,13 +70,14 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10073922
 // FUNCTION: MW2MATROX 0x10073632
+// FUNCTION: MW23DFX 0x10025f70
 void* LoadResourceByRef(
 	ResourceRef* p_ref,
 	const char* p_type,
 	const char* p_ext,
 	MechS32 p_table,
 	MechS32* p_size,
-	MechU32* p_poolTag
+	BwdTag* p_poolTag
 )
 {
 	void* loaded;

@@ -113,15 +113,18 @@ MechS32 g_powerRequest = 0;
 // The local player's heading at the last tick, while the torso recenters (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c0c
 // GLOBAL: MW2MATROX 0x100a45cc
+// GLOBAL: MW23DFX 0x1024c574
 MechScalar g_recenterLastHeading = 0;
 
 // GLOBAL: MW2 0x100a2c10
 // GLOBAL: MW2MATROX 0x100a45c8
+// GLOBAL: MW23DFX 0x1024c570
 MechS32 g_mechPoweredUp = 0;
 
 // The clock at the last MASC malfunction roll (LateUpdateMech).
 // GLOBAL: MW2 0x100a2c14
 // GLOBAL: MW2MATROX 0x100a45d0
+// GLOBAL: MW23DFX 0x1024c578
 MechS32 g_lastMascRoll = 0;
 
 // GLOBAL: MW2 0x100a2c18
@@ -137,6 +140,7 @@ MechS32 g_ejectStarted = 0;
 // Set once the local mech's collision sound played; cleared when it moves freely (UpdateMech).
 // GLOBAL: MW2 0x100be00c
 // GLOBAL: MW2MATROX 0x100c1e20
+// GLOBAL: MW23DFX 0x1007c338
 MechS32 g_collisionSoundPlayed;
 
 // Puts p_player's mech back in its starting state: fresh parts for a new mech (and, for the local
@@ -144,6 +148,7 @@ MechS32 g_collisionSoundPlayed;
 // player's pose from it. With g_startOnAutopilot the local player starts on the autopilot.
 // FUNCTION: MW2 0x10016ad0
 // FUNCTION: MW2MATROX 0x1000ce80
+// FUNCTION: MW23DFX 0x100190d0
 void FirstMech(struct Player* p_player)
 {
 	Mech* mech;
@@ -241,6 +246,7 @@ void FirstMech(struct Player* p_player)
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
 // FUNCTION: MW2 0x10016edf
 // FUNCTION: MW2MATROX 0x1000d29c
+// FUNCTION: MW23DFX 0x10019310
 void UpdateMech(Mech* p_mech)
 {
 	MechScalar height;
@@ -817,6 +823,7 @@ void UpdateMech(Mech* p_mech)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2MATROX 0x1000e721
+// FUNCTION: MW23DFX 0x1001a180
 void LateUpdateMech(Mech* p_mech)
 {
 	MechScalar throttle;
@@ -1546,6 +1553,7 @@ void ShutdownMech(Mech* p_mech)
 // Stack-slot permutation of buffer, i, size and mech.
 // FUNCTION: MW2 0x100197ca
 // FUNCTION: MW2MATROX 0x1000ff8c
+// FUNCTION: MW23DFX 0x1001b120
 MechS32 CreateMech(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
@@ -1577,6 +1585,7 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10019881
 // FUNCTION: MW2MATROX 0x10010043
+// FUNCTION: MW23DFX 0x1001b170
 void InitMechArrays(struct Mech* p_mech)
 {
 	AmmoBin* bin;

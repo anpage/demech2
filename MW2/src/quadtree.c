@@ -28,6 +28,7 @@ MechS32 g_quadtreesDisabled = 0;
 // other way round.
 // FUNCTION: MW2 0x1001df00
 // FUNCTION: MW2MATROX 0x100158f0
+// FUNCTION: MW23DFX 0x1000c550
 void BuildShapeQuadtree(Shape* p_shape)
 {
 	Model* model;
@@ -355,6 +356,7 @@ MechS32 FaceOverlapsBox(
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001e6dc
 // FUNCTION: MW2MATROX 0x100161c7
+// FUNCTION: MW23DFX 0x1000cb10
 MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 result;
@@ -427,6 +429,7 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 // round.
 // FUNCTION: MW2 0x1001e90f
 // FUNCTION: MW2MATROX 0x10016422
+// FUNCTION: MW23DFX 0x1000ccf0
 MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechScalar tMin;
@@ -553,6 +556,7 @@ MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ebfa
 // FUNCTION: MW2MATROX 0x10016740
+// FUNCTION: MW23DFX 0x1000cf80
 MechS32 GetQuadtreeTop(
 	QuadtreeNode* p_node,
 	Model* p_model,
@@ -612,6 +616,7 @@ MechS32 GetQuadtreeTop(
 
 // FUNCTION: MW2 0x1001edfa
 // FUNCTION: MW2MATROX 0x1001695e
+// FUNCTION: MW23DFX 0x1000d160
 void DisableQuadtrees(void)
 {
 	g_quadtreesDisabled = 1;

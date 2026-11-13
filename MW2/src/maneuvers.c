@@ -123,10 +123,12 @@ MechS32 g_maneuverTablesReady = 0;
 
 // GLOBAL: MW2 0x100a2bdc
 // GLOBAL: MW2MATROX 0x100a4598
+// GLOBAL: MW23DFX 0x1024c540
 MechScalar g_jumpJetDrag = 100000;
 
 // GLOBAL: MW2 0x100a2be0
 // GLOBAL: MW2MATROX 0x100a459c
+// GLOBAL: MW23DFX 0x1024c544
 MechScalar g_slideSlope = FIXED_RAW(0x2000);
 
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the
@@ -666,6 +668,7 @@ void EndManeuver(Player* p_player)
 // The only diff is a stack-slot permutation of x, y, z and nav.
 // FUNCTION: MW2 0x10014723
 // FUNCTION: MW2MATROX 0x1001a31b
+// FUNCTION: MW23DFX 0x1001f630
 #ifdef MW2_ACCEL
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance)
 #else
@@ -693,6 +696,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // other diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100147d0
 // FUNCTION: MW2MATROX 0x1001a3c8
+// FUNCTION: MW23DFX 0x1001f6b0
 #ifdef MW2_ACCEL
 void GetOffsetPoint(
 	MechU32 p_target,
@@ -1276,6 +1280,7 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // Stack-slot permutation: line, value and mech.
 // FUNCTION: MW2 0x100155e1
 // FUNCTION: MW2MATROX 0x1001b359
+// FUNCTION: MW23DFX 0x100200f0
 MechS32 BrakeFall(Player* p_player)
 {
 	MechChar line[80];
@@ -1827,6 +1832,7 @@ MechS32 IsOutOfAmmo(Mech* p_mech)
 // Fires p_player's jump jets forward (p_value set) or backward.
 // FUNCTION: MW2 0x10016057
 // FUNCTION: MW2MATROX 0x1001bebb
+// FUNCTION: MW23DFX 0x100208e0
 void SetJumpDirection(Player* p_player, MechS16 p_value)
 {
 	p_player->m_steering->m_jumpJetFireForward = p_value;

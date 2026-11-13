@@ -8,6 +8,7 @@
 
 // GLOBAL: MW2 0x100a00f8
 // GLOBAL: MW2MATROX 0x100a20f0
+// GLOBAL: MW23DFX 0x1024a9b0
 MechChar g_gameCdDrive = 0;
 
 // GLOBAL: MW2 0x100a00fc

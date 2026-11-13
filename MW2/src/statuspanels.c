@@ -38,6 +38,7 @@
 // player.
 // GLOBAL: MW2 0x100a116c
 // GLOBAL: MW2MATROX 0x100a4ff4
+// GLOBAL: MW23DFX 0x1024c008
 MechS32 g_chatRecipient = 0;
 
 // Whether the objectives panel shows.
@@ -59,6 +60,7 @@ static MechChar g_secondsText[16];
 // The chat message being typed. HandleChatKey edits it.
 // GLOBAL: MW2 0x10179e90
 // GLOBAL: MW2MATROX 0x101d6990
+// GLOBAL: MW23DFX 0x101e4200
 MechChar g_chatMessage[0x30];
 
 // Formats a tick count (181 per second) as hours:minutes:seconds.
@@ -99,6 +101,7 @@ MechChar* FormatSeconds(MechS32 p_seconds)
 // Returns the width of p_text in p_font.
 // FUNCTION: MW2 0x1000507d
 // FUNCTION: MW2MATROX 0x100219c9
+// FUNCTION: MW23DFX 0x100176a0
 MechS32 GetTextWidth(const MechChar* p_text, void* p_font)
 {
 	MechS32 width;
@@ -334,6 +337,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // MW2MATROX: g_chatRecipient == g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x10005add
 // FUNCTION: MW2MATROX 0x100224b9
+// FUNCTION: MW23DFX 0x10017e10
 void DrawNetworkPanel(CockpitPanel* p_panel)
 {
 	MechChar* state;

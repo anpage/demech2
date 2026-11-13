@@ -25,6 +25,7 @@ undefined4 g_unk0x100a9474 = 0;
 
 // GLOBAL: MW2 0x100e9694
 // GLOBAL: MW2MATROX 0x101d4a90
+// GLOBAL: MW23DFX 0x1015984c
 BwdNameNode* g_bwdNamesTail;
 
 // Appends a copy of a BWD name to the list.

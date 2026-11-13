@@ -22,6 +22,7 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
 // GLOBAL: MW2MATROX 0x100aa738
+// GLOBAL: MW23DFX 0x1024c330
 PlayerType g_playerTypes[9] = {
 	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
 	{1, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},
@@ -76,6 +77,7 @@ void FirstClassFunctions(void)
 
 // FUNCTION: MW2 0x1006cffa
 // FUNCTION: MW2MATROX 0x10054e89
+// FUNCTION: MW23DFX 0x10018800
 void UpdateAllPlayers(void)
 {
 	PlayerMechFn update;
@@ -230,8 +232,10 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 // Stack-slot permutation of player and size; the original compares p_player with
 // g_localPlayerId in eax (operand order).
 // MW2MATROX: p_player == g_localPlayerId compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d340
 // FUNCTION: MW2MATROX 0x100551cf
+// FUNCTION: MW23DFX 0x100189e0
 MechS32 AllocPlayer(MechS32 p_player)
 {
 	Player* player;

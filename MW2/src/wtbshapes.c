@@ -35,10 +35,12 @@ MechS32 g_shapeLoadError = 0;
 
 // GLOBAL: MW2 0x100ba660
 // GLOBAL: MW2MATROX 0x100a55d8
+// GLOBAL: MW23DFX 0x1025a5cc
 MechS32 g_unk0x100ba660 = 0;
 
 // GLOBAL: MW2 0x100ba664
 // GLOBAL: MW2MATROX 0x100a55dc
+// GLOBAL: MW23DFX 0x1025a5d0
 MechS32 g_unk0x100ba664 = 0;
 
 // GLOBAL: MW2 0x100ba668
@@ -90,6 +92,7 @@ MechS32 g_unk0x100ba68c = 0;
 
 // GLOBAL: MW2 0x100bfabc
 // GLOBAL: MW2MATROX 0x100c1e94
+// GLOBAL: MW23DFX 0x1007dc34
 MechS32 g_shapeHasObject;
 
 // GLOBAL: MW2 0x100bfac0
@@ -99,6 +102,7 @@ MechU32* g_faceIds;
 
 // GLOBAL: MW2 0x100bfac4
 // GLOBAL: MW2MATROX 0x100c1e90
+// GLOBAL: MW23DFX 0x1007dc30
 MechS32 g_shapeHasKey;
 
 // GLOBAL: MW2 0x100bfd40

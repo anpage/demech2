@@ -92,11 +92,13 @@ RefreshMode* g_fastestRefreshMode = NULL;
 
 // GLOBAL: MW2 0x100b177c
 // GLOBAL: MW2MATROX 0x100b1a84
+// GLOBAL: MW23DFX 0x102492ec
 MechS32 g_refreshModeFallback = FALSE;
 
 // The last refresh mode the profiling tries.
 // GLOBAL: MW2 0x100b1780
 // GLOBAL: MW2MATROX 0x100b1a88
+// GLOBAL: MW23DFX 0x102492f0
 MechS32 g_lastProfiledRefreshMode = 4;
 
 // The buffer the active refresh mode renders into.
@@ -134,11 +136,13 @@ MechS32 g_profileFrame = 0;
 
 // GLOBAL: MW2 0x100bf1c8
 // GLOBAL: MW2MATROX 0x101249f8
+// GLOBAL: MW23DFX 0x1007b000
 static LARGE_INTEGER g_profileStart;
 
 // The window's position and size in windowed mode (SetWindowPos arguments, not corners).
 // GLOBAL: MW2 0x100c2890
 // GLOBAL: MW2MATROX 0x1012f950
+// GLOBAL: MW23DFX 0x102453b0
 RECT g_windowedRect;
 
 // GLOBAL: MW2 0x100c28a0

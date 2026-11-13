@@ -585,6 +585,7 @@ MenuDefinition g_dorcsMenu = {
 
 // GLOBAL: MW2 0x100b1350
 // GLOBAL: MW2MATROX 0x100b1038
+// GLOBAL: MW23DFX 0x102617e8
 MechS32 g_fledToWindows = 0;
 
 // The frame draw callback ShowDorcs replaces.

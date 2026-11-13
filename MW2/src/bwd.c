@@ -115,7 +115,7 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 
 	if (data) {
 		header = data;
-		if (header->m_type == g_bwdTypeCodes[0]) {
+		if (header->m_type.m_code == g_bwdTypeCodes[0].m_code) {
 			p_stream->m_size = header->m_size;
 			p_stream->m_maxNodeSize = header->m_maxNodeSize;
 			p_stream->m_data = data;
@@ -144,7 +144,7 @@ BwdNode* GetNextNode(BwdStream* p_stream)
 	BwdNode* result;
 
 	result = NULL;
-	if (p_stream->m_current->m_type == g_bwdTypeCodes[0]) {
+	if (p_stream->m_current->m_type.m_code == g_bwdTypeCodes[0].m_code) {
 		size = sizeof(BwdHeader);
 	}
 	else {
@@ -182,14 +182,16 @@ void UnloadResource(BwdStream* p_stream)
 }
 
 // Returns the name of the keyword with tag p_code, or "unknown".
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003ff09
 // FUNCTION: MW2MATROX 0x1002a2f9
-MechChar* GetKeywordName(MechU32 p_code)
+// FUNCTION: MW23DFX 0x10040f60
+MechChar* GetKeywordName(BwdTag p_code)
 {
 	MechS32 i;
 
 	for (i = 0; i < 0x48; i++) {
-		if (g_bwdTypeCodes[i] == p_code) {
+		if (g_bwdTypeCodes[i].m_code == p_code.m_code) {
 			break;
 		}
 	}
@@ -222,7 +224,8 @@ void LogDebugLine(MechChar* p_text)
 // Stack-slot permutation: line and name.
 // FUNCTION: MW2 0x1003ffcf
 // FUNCTION: MW2MATROX 0x1002a3bf
-void LogKeywordName(MechU32 p_code)
+// FUNCTION: MW23DFX 0x10040fe0
+void LogKeywordName(BwdTag p_code)
 {
 	MechChar line[256];
 	MechChar* name;

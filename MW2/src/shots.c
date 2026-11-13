@@ -80,6 +80,7 @@ Player* g_launchEffectPlayer = NULL;
 
 // GLOBAL: MW2 0x100ad454
 // GLOBAL: MW2MATROX 0x100ae0b8
+// GLOBAL: MW23DFX 0x1025a6a8
 MechS32 g_effectCameraEnabled = 1;
 
 // The player whose shot hit something last.
@@ -263,6 +264,7 @@ void UpdateAllShots(void)
 // groundY before comparing) and its stack slots.
 // FUNCTION: MW2 0x1006a533
 // FUNCTION: MW2MATROX 0x1006b033
+// FUNCTION: MW23DFX 0x10044f60
 void UpdateShot(MechS32 p_index)
 {
 	MechS32 hitResult;
@@ -706,6 +708,7 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // adds cameraX * cameraX + cameraZ * cameraZ the other way around.
 // FUNCTION: MW2 0x1006b1fb
 // FUNCTION: MW2MATROX 0x1006bdd0
+// FUNCTION: MW23DFX 0x10045d00
 void SpawnEffectEx(
 	MechS32 p_owner,
 	MechS32 p_type,
@@ -1128,6 +1131,7 @@ void DamageMechsInRadius(
 // other way around; MW2MATROX adds radius + p_radius the other way around too.
 // FUNCTION: MW2 0x1006bdb4
 // FUNCTION: MW2MATROX 0x1006c9d5
+// FUNCTION: MW23DFX 0x100468b0
 void DamageThingsInRadius(
 	MechS32 p_owner,
 	MechScalar p_x,

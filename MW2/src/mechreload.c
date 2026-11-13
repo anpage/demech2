@@ -25,6 +25,7 @@
 // The player whose mech ReloadPlayerMech is reloading, or -1.
 // GLOBAL: MW2 0x100ba690
 // GLOBAL: MW2MATROX 0x100bea18
+// GLOBAL: MW23DFX 0x1024d140
 MechS32 g_reloadingPlayer = -1;
 
 // GLOBAL: MW2 0x100ba694
@@ -48,6 +49,7 @@ MechSegment* g_mechSegments[60] = {NULL};
 // ResetCockpitPanels (config.c) has no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1007fbe0
 // FUNCTION: MW2MATROX 0x10090fd0
+// FUNCTION: MW23DFX 0x100235e0
 MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08, undefined4 p_unk0x0c)
 {
 	Mech* mech;

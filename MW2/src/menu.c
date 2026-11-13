@@ -199,6 +199,7 @@ void FreeMenus(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003c5a2
 // FUNCTION: MW2MATROX 0x10091772
+// FUNCTION: MW23DFX 0x10065580
 void LayoutMenu(MenuDefinition* p_menu)
 {
 	Point scale;
@@ -552,6 +553,7 @@ void UpdateMenus(void)
 // Stack-slot permutation: target and backgroundTarget.
 // FUNCTION: MW2 0x1003cf96
 // FUNCTION: MW2MATROX 0x10092182
+// FUNCTION: MW23DFX 0x10065cb0
 MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 {
 	MechS32 result;
@@ -647,6 +649,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003d1a7
 // FUNCTION: MW2MATROX 0x100923b4
+// FUNCTION: MW23DFX 0x10065df0
 void RunMenuItems(MenuDefinition* p_menu)
 {
 	MechS32 back;

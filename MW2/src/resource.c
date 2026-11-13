@@ -107,10 +107,12 @@ typedef struct FormationNames {
 
 // GLOBAL: MW2 0x100a8608
 // GLOBAL: MW2MATROX 0x100a85e0
+// GLOBAL: MW23DFX 0x1025a5f8
 ScenarioTable* g_scenarios = NULL;
 
 // GLOBAL: MW2 0x100a860c
 // GLOBAL: MW2MATROX 0x100a85e4
+// GLOBAL: MW23DFX 0x1025a5fc
 void* g_unk0x100a860c = NULL;
 
 // The next name of g_scenarios ExecuteInclude substitutes.
@@ -142,16 +144,19 @@ MechS32 g_nextMangleBase = 0;
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8630
 // GLOBAL: MW2MATROX 0x100a8608
+// GLOBAL: MW23DFX 0x1025a620
 MechChar* g_playerTeamFormation = NULL;
 
 // The formation LoadStarTable gives the other teams, or NULL to use the record's.
 // GLOBAL: MW2 0x100a8634
 // GLOBAL: MW2MATROX 0x100a860c
+// GLOBAL: MW23DFX 0x1025a624
 MechChar* g_otherTeamFormation = NULL;
 
 // The player the world stream (BwdExecuteStream) created last, for ReelMotionTask.
 // GLOBAL: MW2 0x100a8638
 // GLOBAL: MW2MATROX 0x100a8610
+// GLOBAL: MW23DFX 0x1025a628
 struct Player* g_lastPlayer = NULL;
 
 // The task kinds of a world stream's task record (BwdExecuteStream): 0 spins a star's object, 1
@@ -897,6 +902,7 @@ void CreateObjectNode(
 // MW2MATROX: g_nextThingRecord < g_thingRecordCount compares in the other operand order.
 // FUNCTION: MW2 0x100506d8
 // FUNCTION: MW2MATROX 0x1004a45a
+// FUNCTION: MW23DFX 0x100436f0
 struct SceneObject* NextThingRecordObject(void)
 {
 	MechS32 id;

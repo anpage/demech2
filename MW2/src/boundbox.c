@@ -105,6 +105,7 @@ void AttachShapeBoundBox(Shape* p_shape)
 // table), and model, vertex and selected sit in permuted stack slots.
 // FUNCTION: MW2 0x1006eb80
 // FUNCTION: MW2MATROX 0x1000a700
+// FUNCTION: MW23DFX 0x1000d920
 void ComputeModelBounds(
 	Shape* p_shape,
 	MechScalar* p_minX,

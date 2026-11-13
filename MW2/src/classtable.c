@@ -511,6 +511,7 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 // stack slot.
 // FUNCTION: MW2 0x1001da44
 // FUNCTION: MW2MATROX 0x1006e13f
+// FUNCTION: MW23DFX 0x100267d0
 void ChoosePlayerDetailLevels(void)
 {
 #ifdef MW2_ACCEL
@@ -774,6 +775,7 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 // MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1001de84
 // FUNCTION: MW2MATROX 0x1006e6ce
+// FUNCTION: MW23DFX 0x100269f0
 void ForgetObjShape(struct SceneObject* p_obj)
 {
 	ClassEntry* entry;

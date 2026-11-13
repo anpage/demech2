@@ -29,6 +29,7 @@ TimedCallback* GetCurrentCallback(void)
 
 // FUNCTION: MW2 0x1007d2f5
 // FUNCTION: MW2MATROX 0x100272c5
+// FUNCTION: MW23DFX 0x10008280
 TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, MechS32 p_period, MechChar* p_data)
 {
 	TimedCallback* callback;
@@ -97,6 +98,7 @@ void RemoveAllTasks(TimedCallback** p_list)
 
 // FUNCTION: MW2 0x1007d4b8
 // FUNCTION: MW2MATROX 0x10027488
+// FUNCTION: MW23DFX 0x10008380
 void SignalTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	p_callback->m_fn(-1, NULL, g_currentClock, p_callback->m_period);
