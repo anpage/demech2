@@ -3178,9 +3178,6 @@
 // GLOBAL: MW23DFX 0x10268210
 // __heap_desc
 
-// GLOBAL: MW23DFX 0x10245a48
-// __heap_descpages
-
 // GLOBAL: MW23DFX 0x10268230
 // __heap_maxregsize
 
