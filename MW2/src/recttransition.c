@@ -58,6 +58,7 @@ PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p
 // Stack-slot permutation: t, def, active, from, state, out and to.
 // FUNCTION: MW2 0x10012432
 // FUNCTION: MW2MATROX 0x10045eb2
+// FUNCTION: MW23DFX 0x10001710
 PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;
@@ -111,6 +112,7 @@ PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 // Stack-slot permutation: t, def, active, from, firstAxis, secondAxis, state, out and to.
 // FUNCTION: MW2 0x10012557
 // FUNCTION: MW2MATROX 0x10045fd7
+// FUNCTION: MW23DFX 0x100017f0
 PANE* UpdateRectTransitionByAxis(MechS32 p_reverse, RectTransition* p_transition)
 {
 	MechS32 t;

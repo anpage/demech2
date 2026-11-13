@@ -278,7 +278,7 @@ void PreloadCockpitSounds(void)
 	ids[6] = 0xce;
 	ids[7] = 0xfe;
 	for (i = 0; i < 8; i++) {
-		PreloadResource(ids[i], g_resourceTypeTags[c_resTagSnds]);
+		PreloadResource(ids[i], g_resTagSnds);
 	}
 }
 

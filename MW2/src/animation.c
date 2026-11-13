@@ -244,7 +244,7 @@ MechS32 DrawAnimatedPolygon(
 	if (!data) {
 		data = frame->m_data;
 		if (!data) {
-			data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+			data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resTagCel, 0);
 			if (!data) {
 				return 0;
 			}
@@ -554,7 +554,7 @@ MechS32 DrawAnimatedPolygon(
 	frame->m_useCount++;
 	data = frame->m_data;
 	if (!data) {
-		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resTagCel, 0);
 		if (!data) {
 			return 0;
 		}
@@ -580,7 +580,7 @@ MechS32 DrawAnimatedPolygon(
 	}
 
 	if (!g_lumaTables) {
-		g_lumaTables = LoadCachedResource(g_mw2PrjHandle, g_lumaResourceId, g_resourceTypeTags[c_resTagLuma], 0);
+		g_lumaTables = LoadCachedResource(g_mw2PrjHandle, g_lumaResourceId, g_resTagLuma, 0);
 	}
 
 	if (p_direct) {
@@ -719,10 +719,10 @@ void FUN_1002cfd0(void)
 	}
 
 	for (i = 1; i < 0x51c; i++) {
-		data = LoadCachedResource(g_mw2PrjHandle, i, g_resourceTypeTags[c_resTagCel], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, i, g_resTagCel, 0);
 		if (data) {
 			failed = FUN_10066c70(data + 2, data[0], data[1], i);
-			UnlockCachedResource(i, g_resourceTypeTags[c_resTagCel]);
+			UnlockCachedResource(i, g_resTagCel);
 			if (failed) {
 				break;
 			}
@@ -741,7 +741,7 @@ void PreloadAnimCels(void)
 	MechS32 i;
 
 	for (i = 0; g_preloadCels[i] != -1; i++) {
-		PreloadResource(g_preloadCels[i], g_resourceTypeTags[c_resTagCel]);
+		PreloadResource(g_preloadCels[i], g_resTagCel);
 	}
 }
 
@@ -883,7 +883,7 @@ void FreeAnimations(void)
 		for (j = 0; j < 0x20; j++) {
 			frame = &g_animFrames[i][j];
 			if (frame->m_data) {
-				UnlockCachedResource(frame->m_resourceId, g_resourceTypeTags[c_resTagCel]);
+				UnlockCachedResource(frame->m_resourceId, g_resTagCel);
 				frame->m_data = NULL;
 			}
 
@@ -892,7 +892,7 @@ void FreeAnimations(void)
 		}
 	}
 
-	UnlockCachedResource(g_lumaResourceId, g_resourceTypeTags[c_resTagLuma]);
+	UnlockCachedResource(g_lumaResourceId, g_resTagLuma);
 	for (i = 0; i < 0x200; i++) {
 		anim = &g_animations[i];
 		anim->m_set = -1;
@@ -923,7 +923,7 @@ MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
 
 	data = frame->m_data;
 	if (!data) {
-		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resTagCel, 0);
 		if (!data) {
 			return NULL;
 		}
@@ -1007,13 +1007,13 @@ MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, Mech
 		return 0;
 	}
 
-	size = GetPrjResourceSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], frame->m_resourceId);
+	size = GetPrjResourceSize(g_mw2PrjHandle, g_resTagCel, frame->m_resourceId);
 	if (!size) {
 		return 0;
 	}
 
 	data = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE, size);
-	ReadPrjResource(g_mw2PrjHandle, g_resourceTypeTags[c_resTagCel], frame->m_resourceId, data);
+	ReadPrjResource(g_mw2PrjHandle, g_resTagCel, frame->m_resourceId, data);
 	width = data[0];
 	height = data[1];
 	pixels = data + 2;

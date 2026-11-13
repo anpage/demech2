@@ -32,7 +32,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 	MechChar name[12];
 
 	result = -1;
-	table = LoadCachedResource(g_mw2PrjHandle, p_table, g_resourceTypeTags[c_resTagTable], 1);
+	table = LoadCachedResource(g_mw2PrjHandle, p_table, g_resTagTable, 1);
 	if (table) {
 		header = table;
 		entry = table + 0xc;
@@ -57,7 +57,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 			result = *(MechS16*) (entry + 0xa);
 		}
 
-		UnlockCachedResource(p_table, g_resourceTypeTags[c_resTagTable]);
+		UnlockCachedResource(p_table, g_resTagTable);
 	}
 
 	return result;

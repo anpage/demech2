@@ -294,13 +294,12 @@ void StartMissionMusic(void)
 
 	if (!g_musicStarted) {
 		g_musicStarted = 1;
-		if (g_musicResource <= 0 ||
-			(music = LoadCachedResource(0, g_musicResource, g_resourceTypeTags[c_resTagMus], 0)) == NULL) {
+		if (g_musicResource <= 0 || (music = LoadCachedResource(0, g_musicResource, g_resTagMus, 0)) == NULL) {
 			return;
 		}
 
 		sscanf(music, "%d %d", &g_cdTrack, &g_midiSequence);
-		UnlockCachedResource(g_musicResource, g_resourceTypeTags[c_resTagMus]);
+		UnlockCachedResource(g_musicResource, g_resTagMus);
 	}
 
 	if (!IsCdAudioInitialized() || GetCdStatus() == 1 || !IsCdTrackOnDisc(g_cdTrack)) {

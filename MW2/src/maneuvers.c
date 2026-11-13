@@ -1795,6 +1795,7 @@ MechS32 HasLineToTarget(Player* p_player, MechScalar p_y)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015fa8
 // FUNCTION: MW2MATROX 0x1001be0c
+// FUNCTION: MW23DFX 0x10020880
 MechS32 IsOutOfAmmo(Mech* p_mech)
 {
 	MechS16 i;

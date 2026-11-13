@@ -70,12 +70,7 @@ void LayoutMessageBoxes(void)
 		overlay = &g_timedOverlays[i];
 		target = overlay->m_target;
 		ScaleRectToScreen(&g_mainPixelBuffer, target, target);
-		shape = LoadCachedResource(
-			g_mw2PrjHandle,
-			overlay->m_background + HUD_ART_RESOLUTION,
-			g_resourceTypeTags[c_resTagShp],
-			0
-		);
+		shape = LoadCachedResource(g_mw2PrjHandle, overlay->m_background + HUD_ART_RESOLUTION, g_resTagShp, 0);
 		if (shape != NULL) {
 			FitRectToShape(target, target, shape, 0);
 		}
@@ -95,12 +90,7 @@ void LayoutMessageBoxes(void)
 		target->m_y1 += dy;
 		ScalePointToFrame(target, &overlay->m_textPos, &overlay->m_textPos);
 
-		font = LoadCachedResource(
-			g_mw2PrjHandle,
-			overlay->m_font + HUD_ART_RESOLUTION,
-			g_resourceTypeTags[c_resTagFont],
-			0
-		);
+		font = LoadCachedResource(g_mw2PrjHandle, overlay->m_font + HUD_ART_RESOLUTION, g_resTagFont, 0);
 		if (font != NULL) {
 			height = target->m_y1 - target->m_y0 + 1;
 			fontHeight = VFX_font_height(font);
@@ -196,19 +186,10 @@ void DrawTimedOverlays(void)
 		overlay = &g_timedOverlays[i];
 		if (overlay->m_active) {
 			if (GetGameClock() < overlay->m_expireTime) {
-				font = LoadCachedResource(
-					g_mw2PrjHandle,
-					overlay->m_font + HUD_ART_RESOLUTION,
-					g_resourceTypeTags[c_resTagFont],
-					0
-				);
+				font = LoadCachedResource(g_mw2PrjHandle, overlay->m_font + HUD_ART_RESOLUTION, g_resTagFont, 0);
 				if (font != NULL) {
-					background = LoadCachedResource(
-						g_mw2PrjHandle,
-						overlay->m_background + HUD_ART_RESOLUTION,
-						g_resourceTypeTags[c_resTagShp],
-						0
-					);
+					background =
+						LoadCachedResource(g_mw2PrjHandle, overlay->m_background + HUD_ART_RESOLUTION, g_resTagShp, 0);
 					if (background != NULL) {
 						VFX_shape_draw(overlay->m_target, background, 0, 0, 0);
 						VFX_string_draw(
@@ -251,11 +232,10 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 	}
 
 	if (p_background != -1) {
-		background =
-			LoadCachedResource(g_mw2PrjHandle, p_background + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
+		background = LoadCachedResource(g_mw2PrjHandle, p_background + HUD_ART_RESOLUTION, g_resTagShp, 0);
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, p_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_font + HUD_ART_RESOLUTION, g_resTagFont, 0);
 	if (font != NULL) {
 		rect.m_window = &g_mainPixelBuffer;
 		FitRectToText(p_text, font, &rect);
@@ -302,7 +282,7 @@ void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, Mec
 	MechChar* c;
 	MechS32 ch;
 
-	text = LoadCachedResource(g_mw2PrjHandle, p_id, g_resourceTypeTags[c_resTagText], 0);
+	text = LoadCachedResource(g_mw2PrjHandle, p_id, g_resTagText, 0);
 	if (text != NULL) {
 		c = text;
 		while (*c != '\0') {

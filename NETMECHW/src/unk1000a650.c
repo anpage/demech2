@@ -67,9 +67,7 @@ void FUN_1000a73b(HWND p_edit, MechChar* p_mission)
 }
 
 // Returns a copy of the NTXT resource p_name, up to its "&X"; the caller frees it.
-// The resource type's tag is the original's g_resourceTypeTags[c_resTagNtxt], which has no
-// symbol in the original (mw2prj.c), so its three reads score as diffs. The stack slots of the
-// locals differ too: VC++ 2.2 permutes them.
+// The stack slots of the locals differ: VC++ 2.2 permutes them.
 // FUNCTION: NETMECHW 0x1000a7b3
 MechChar* LoadMissionText(MechChar* p_name)
 {
@@ -80,8 +78,8 @@ MechChar* LoadMissionText(MechChar* p_name)
 	MechChar* text;
 
 	id = FindResourceIdByName(0x10, p_name);
-	size = GetArchiveItemSize(g_mw2PrjHandle, g_resourceTypeTags[c_resTagNtxt], id);
-	data = (MechChar*) LoadCachedResource(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagNtxt], 0);
+	size = GetArchiveItemSize(g_mw2PrjHandle, g_resTagNtxt, id);
+	data = (MechChar*) LoadCachedResource(g_mw2PrjHandle, id, g_resTagNtxt, 0);
 
 	for (i = 0; i < size; i++) {
 		if (data[i] == '&' && data[i + 1] == 'X') {
@@ -92,7 +90,7 @@ MechChar* LoadMissionText(MechChar* p_name)
 
 	text = (MechChar*) _mbsdup((unsigned char*) data);
 	data[i] = '&';
-	UnlockCachedResource(id, g_resourceTypeTags[c_resTagNtxt]);
+	UnlockCachedResource(id, g_resTagNtxt);
 	return text;
 }
 

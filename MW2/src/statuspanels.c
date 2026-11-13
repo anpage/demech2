@@ -273,7 +273,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 	}
 
 	mission = &g_objectiveTable[g_localStar];
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -321,7 +321,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 	g_textColors[0xe] = PIXEL_COLOR(6);
 	VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
@@ -356,7 +356,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -521,7 +521,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 		UnderlineText(p_panel->m_target, " ", pos, font, 0xe);
 	}
 
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
@@ -540,7 +540,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -557,7 +557,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 		);
 	}
 
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
@@ -591,7 +591,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -610,7 +610,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 #endif
 	}
 
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 }
 
 // Stack-slot permutation of mech and font.
@@ -643,7 +643,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 		g_textColors[0xe] = PIXEL_COLOR(0xe);
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -658,7 +658,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 		g_textColors
 	);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawThrottleGauge(p_panel->m_target);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
@@ -678,7 +678,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "MASC");
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -691,7 +691,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
@@ -712,7 +712,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 		return;
 	}
 
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -741,7 +741,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 		g_textColors
 	);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawHeatBar(p_panel->m_target);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
@@ -761,7 +761,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "dH/dT");
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -774,7 +774,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawHeatRateBar(p_panel->m_target);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
@@ -798,7 +798,7 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 	}
 
 	p_panel->m_setName(p_panel, "Jets");
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (!font) {
 		return;
 	}
@@ -811,7 +811,7 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 		p_panel->m_name,
 		g_textColors
 	);
-	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawJumpFuelBar(p_panel->m_target);
 #ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);

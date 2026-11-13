@@ -160,23 +160,18 @@ void InitDamagePanel(void)
 	}
 #endif
 
-	shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0], g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0], g_resTagShp, 0);
 	if (shape) {
 		height1 = VFX_shape_resolution(shape, 0);
-		UnlockCachedResource(g_hudLayoutValues[0], g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(g_hudLayoutValues[0], g_resTagShp);
 		width1 = height1 >> 16;
 		height1 &= 0xffff;
-		shape = LoadCachedResource(
-			g_mw2PrjHandle,
-			g_hudLayoutValues[0] + g_artResolution,
-			g_resourceTypeTags[c_resTagShp],
-			0
-		);
+		shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0] + g_artResolution, g_resTagShp, 0);
 	}
 
 	if (shape) {
 		height2 = VFX_shape_resolution(shape, 0);
-		UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resTagShp);
 		width2 = height2 >> 16;
 		height2 &= 0xffff;
 		g_outlineRect.m_window = &g_mainPixelBuffer;
@@ -262,8 +257,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 
 	rear = 0;
 	front = 0;
-	shape =
-		LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, g_hudLayoutValues[0] + g_artResolution, g_resTagShp, 0);
 	if (!shape) {
 		return;
 	}
@@ -347,7 +341,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		}
 	}
 
-	UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
+	UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resTagShp);
 #ifdef MW2_MATROX
 	FUN_10088280(&g_outlineRect);
 #endif
@@ -371,14 +365,14 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 	MechSection* section;
 
 	g_textColors[0xe] = PIXEL_COLOR(6);
-	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (font) {
 		VFX_string_draw(p_target, g_htalLabelHPosition.m_x, g_htalLabelHPosition.m_y, font, g_htalLabelH, g_textColors);
 		VFX_string_draw(p_target, g_htalLabelTPosition.m_x, g_htalLabelTPosition.m_y, font, g_htalLabelT, g_textColors);
 		VFX_string_draw(p_target, g_htalLabelAPosition.m_x, g_htalLabelAPosition.m_y, font, g_htalLabelA, g_textColors);
 		VFX_string_draw(p_target, g_htalLabelLPosition.m_x, g_htalLabelTPosition.m_y, font, g_htalLabelL, g_textColors);
 		g_textColors[0xe] = PIXEL_COLOR(0xe);
-		UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	}
 
 	for (i = 0; i < 8; i++) {

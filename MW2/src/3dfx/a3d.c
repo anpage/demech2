@@ -644,7 +644,7 @@ void FUN_10066e70(WINDOW* p_texture, MechS32 p_clamp)
 				break;
 			}
 
-			if (reset) {
+			if (reset == TRUE) {
 				texture->m_prev->m_next = texture->m_next;
 				texture->m_next->m_prev = texture->m_prev;
 				free(texture->m_info.data);
@@ -821,7 +821,8 @@ void A3D_DrawOutline(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
 
 // p_mode 0 draws the polygon's outline, 1 the polygon with 1 / w scaled to its largest, and 2 the
 // polygon subdivided where its depth varies much.
-// The mode branches are laid out in another order (the outline's last), and the registers differ.
+// The registers differ, and the original keeps subdivided in no register or slot: its paths jump
+// straight to the draw or past it (with the draw in each case instead, the frame is a slot short).
 // FUNCTION: MW23DFX 0x100674c0
 void FUN_100674c0(
 	PANE* p_pane,
@@ -889,7 +890,8 @@ void FUN_100674c0(
 		}
 	}
 
-	if (p_mode == 0) {
+	switch (p_mode) {
+	case 0:
 		for (i = 0; i < p_count; i++) {
 			p_vertices[i].m_x += g_a3dOffsetX;
 			p_vertices[i].m_y += g_a3dOffsetY;
@@ -900,8 +902,9 @@ void FUN_100674c0(
 		}
 
 		grDrawLine((GrVertex*) &p_vertices[p_count - 1], (GrVertex*) p_vertices);
-	}
-	else if (p_mode == 1) {
+		break;
+
+	case 1:
 		minDepth = 1.0f / p_vertices[0].m_w;
 		for (i = 1; i < p_count; i++) {
 			w = 1.0f / p_vertices[i].m_w;
@@ -919,8 +922,9 @@ void FUN_100674c0(
 			p_vertices[i].m_x += g_a3dOffsetX;
 			p_vertices[i].m_y += g_a3dOffsetY;
 		}
-	}
-	else {
+		break;
+
+	default:
 		nearest = 0;
 		for (i = 0; i < p_count; i++) {
 			vertices[i].m_vertex = p_vertices[i];
@@ -1004,6 +1008,7 @@ void FUN_100674c0(
 
 			p_vertices = polygon;
 		}
+		break;
 	}
 
 	if (!subdivided) {

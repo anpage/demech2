@@ -7,6 +7,7 @@
 #include "portable.h"
 #include "types.h"
 
+#ifndef MW2_3DFX                /* the 3Dfx edition expands it inline: see muldiv.h */
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // FUNCTION: MW2 0x100035a0
@@ -25,3 +26,4 @@ MechS32 MulDiv64(MechS32 p_a, MechS32 p_b, MechS32 p_c)
 	}
 #endif
 }
+#endif

@@ -7,6 +7,7 @@
 #include "portable.h"
 #include "types.h"
 
+#ifndef MW2_3DFX                /* the 3Dfx edition expands it inline: see fixedmul.h */
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // FUNCTION: MW2 0x10003580
@@ -25,3 +26,4 @@ MechS32 FixedMul16(MechS32 p_a, MechS32 p_b)
 	}
 #endif
 }
+#endif

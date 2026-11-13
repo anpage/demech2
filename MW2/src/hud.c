@@ -368,20 +368,20 @@ void InitHudGauges(void)
 
 	target = g_cockpitPanels[c_panelAltimeter]->m_target;
 	ScalePointToFrame(target, &g_altimeterOrigin, &g_altimeterOrigin);
-	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagShp, 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_altimeterMarkWidth = extent >> 16;
 		g_altimeterMarkHeight = extent & 0xffff;
-		UnlockCachedResource(extent + 1, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 1, g_resTagShp);
 	}
 
 	g_altimeterLevelX = g_altimeterOrigin.m_x;
 	g_altimeterGroundX = g_altimeterMarkWidth + g_altimeterLevelX;
 	g_altimeterTargetX = g_altimeterMarkWidth + g_altimeterGroundX;
-	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 7, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 7, g_resTagShp, 0);
 	if (shape) {
 		MechS32 extent;
 
@@ -389,7 +389,7 @@ void InitHudGauges(void)
 		width = extent >> 16;
 		height = extent & 0xffff;
 		g_altimeterOrigin.m_x -= width;
-		UnlockCachedResource(extent + 7, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + 7, g_resTagShp);
 #ifdef MW2_ACCEL
 		g_altimeterScale = height / 232.0f;
 #else
@@ -399,15 +399,14 @@ void InitHudGauges(void)
 
 	target = g_cockpitPanels[c_panelCompass]->m_target;
 	ScalePointToFrame(target, &g_compassOrigin, &g_compassOrigin);
-	shape =
-		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x19), g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x19), g_resTagShp, 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		width = extent >> 16;
 		height = extent & 0xffff;
-		UnlockCachedResource(extent + HUD_SHAPE(0x19), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x19), g_resTagShp);
 #ifdef MW2_ACCEL
 		g_compassScale = width / 360.0f;
 #else
@@ -415,8 +414,7 @@ void InitHudGauges(void)
 #endif
 	}
 
-	shape =
-		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x13), g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x13), g_resTagShp, 0);
 	if (shape) {
 		MechS32 extent;
 		MechS32 origin;
@@ -427,29 +425,27 @@ void InitHudGauges(void)
 		origin &= 0xffff;
 		g_compassTapeBelow = extent - origin;
 		g_compassTapeAbove = origin;
-		UnlockCachedResource(extent + HUD_SHAPE(0x13), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x13), g_resTagShp);
 	}
 
-	shape =
-		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x25), g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x25), g_resTagShp, 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_compassArrowWidth = extent >> 16;
 		g_compassArrowHeight = extent & 0xffff;
-		UnlockCachedResource(extent + HUD_SHAPE(0x25), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x25), g_resTagShp);
 	}
 
-	shape =
-		LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x1f), g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + HUD_SHAPE(0x1f), g_resTagShp, 0);
 	if (shape) {
 		MechS32 extent;
 
 		extent = VFX_shape_resolution(shape, 0);
 		g_compassSideArrowWidth = extent >> 16;
 		g_compassSideArrowHeight = extent & 0xffff;
-		UnlockCachedResource(extent + HUD_SHAPE(0x1f), g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(extent + HUD_SHAPE(0x1f), g_resTagShp);
 	}
 }
 
@@ -961,7 +957,7 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 	Rect bounds;
 #endif
 
-	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resTagShp, 0);
 	if (shape) {
 		VFX_shape_draw(&g_currentPane, shape, 0, p_x, p_y);
 #ifdef MW2_ACCEL
@@ -971,7 +967,7 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
 #endif
 #endif
-		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resTagShp);
 	}
 }
 
@@ -1003,7 +999,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 	void* shape;
 	Rect bounds;
 
-	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resTagShp, 0);
 	if (shape) {
 		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
 		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
@@ -1011,7 +1007,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 #ifdef MW2_MATROX
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
 #endif
-		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resTagShp);
 	}
 }
 #endif
@@ -1026,10 +1022,10 @@ void DrawPaneShape(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 {
 	void* shape;
 
-	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resTagShp, 0);
 	if (shape) {
 		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
-		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resTagShp);
 	}
 }
 

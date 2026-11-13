@@ -347,6 +347,7 @@ MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // stores first (fst, fcomp), an effect of the symbol order like the operand order of comparisons.
 // FUNCTION: MW2 0x10034f37
 // FUNCTION: MW2MATROX 0x10023e51
+// FUNCTION: MW23DFX 0x100103e0
 MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 {
 #ifdef MW2_ACCEL

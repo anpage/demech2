@@ -144,10 +144,7 @@ void FreeAnim2d(MechS32 p_index)
 {
 	if (g_anim2ds[p_index]) {
 		if (g_anim2ds[p_index]->m_shape) {
-			UnlockCachedResource(
-				g_anim2ds[p_index]->m_resourceId + HUD_ART_RESOLUTION,
-				g_resourceTypeTags[c_resTagShp]
-			);
+			UnlockCachedResource(g_anim2ds[p_index]->m_resourceId + HUD_ART_RESOLUTION, g_resTagShp);
 		}
 
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, g_anim2ds[p_index]);
@@ -180,12 +177,7 @@ void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 	}
 
 	if (!anim->m_shape) {
-		anim->m_shape = LoadCachedResource(
-			g_mw2PrjHandle,
-			anim->m_resourceId + g_artResolution,
-			g_resourceTypeTags[c_resTagShp],
-			0
-		);
+		anim->m_shape = LoadCachedResource(g_mw2PrjHandle, anim->m_resourceId + g_artResolution, g_resTagShp, 0);
 		if (!anim->m_shape) {
 			FreeAnim2ds(p_index);
 			return;

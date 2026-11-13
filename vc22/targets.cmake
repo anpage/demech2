@@ -129,7 +129,7 @@ function(demech2_add_netmechw)
     "${root}/util"
     "${root}/NETMECHW/include"
   )
-  target_include_directories(netmechw SYSTEM PRIVATE "${root}/3rdparty/dx2/INC")
+  target_include_directories(netmechw SYSTEM PRIVATE "${root}/3rdparty/dplay")
   if (DEMECH2_VC22 OR DEMECH2_DECOMP_ASSERT)
     target_compile_definitions(netmechw PRIVATE ENABLE_DECOMP_ASSERTS)
   endif()

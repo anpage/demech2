@@ -6,6 +6,7 @@
 #include "portable.h"
 #include "types.h"
 
+#ifndef MW2_3DFX                /* the 3Dfx edition expands it inline: see fixeddiv.h */
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // Divides two 16.16 fixed-point values (no check for a zero divisor).
@@ -26,3 +27,4 @@ MechS32 FixedDiv16(MechS32 p_a, MechS32 p_b)
 	}
 #endif
 }
+#endif

@@ -49,14 +49,14 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 #endif
 
 	if (visible) {
-		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + HUD_ART_RESOLUTION, g_resTagShp, 0);
 		if (shape) {
 #ifdef MW2_ACCEL
 			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);
 #endif
-			UnlockCachedResource(p_icon + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(p_icon + HUD_ART_RESOLUTION, g_resTagShp);
 		}
 	}
 }

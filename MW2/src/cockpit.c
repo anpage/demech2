@@ -567,10 +567,10 @@ void DrawMapContents(CockpitLayout* p_layout)
 		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
 		id = p_layout->m_icons[0][0] + HUD_ART_RESOLUTION;
-		shape = LoadCachedResource(g_mw2PrjHandle, id, g_resourceTypeTags[c_resTagShp], 0);
+		shape = LoadCachedResource(g_mw2PrjHandle, id, g_resTagShp, 0);
 		if (shape) {
 			VFX_shape_draw(viewport, shape, 0, x, y);
-			UnlockCachedResource(id, g_resourceTypeTags[c_resTagShp]);
+			UnlockCachedResource(id, g_resTagShp);
 			DrawMapUnits(p_layout);
 		}
 	}
@@ -742,7 +742,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		return;
 	}
 
-	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp], 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resTagShp, 0);
 	if (shape) {
 #ifdef MW2_ACCEL
 		if (visible) {
@@ -762,7 +762,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 		}
 #endif
 
-		UnlockCachedResource(HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp]);
+		UnlockCachedResource(HUD_ART_RESOLUTION + icon, g_resTagShp);
 	}
 }
 
@@ -832,19 +832,14 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 				}
 
 				if (icon != -1) {
-					shape = LoadCachedResource(
-						g_mw2PrjHandle,
-						HUD_ART_RESOLUTION + icon,
-						g_resourceTypeTags[c_resTagShp],
-						0
-					);
+					shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resTagShp, 0);
 					if (shape) {
 #ifdef MW2_ACCEL
 						VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
 #endif
-						UnlockCachedResource(HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp]);
+						UnlockCachedResource(HUD_ART_RESOLUTION + icon, g_resTagShp);
 					}
 				}
 			}
@@ -924,8 +919,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 
 	viewport = p_layout->m_viewport;
 	player = g_players[g_localPlayerId];
-	font =
-		LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont], 0);
+	font = LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + HUD_ART_RESOLUTION, g_resTagFont, 0);
 	if (font) {
 		if (p_layout->m_range != p_layout->m_formattedRange) {
 #ifdef MW2_ACCEL
@@ -988,7 +982,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 			);
 		}
 
-		UnlockCachedResource(p_layout->m_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont]);
+		UnlockCachedResource(p_layout->m_font + HUD_ART_RESOLUTION, g_resTagFont);
 	}
 }
 

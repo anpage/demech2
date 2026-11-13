@@ -113,18 +113,11 @@ MechS32 LoadMgdFile(
 	MechS32* cursor;
 	FILE* file;
 
-	data = LoadResourceByRef(
-		p_ref,
-		g_resourceTypeTags[c_resTagMgeo],
-		g_resourceTypeExtensions[c_resExtMgi],
-		5,
-		&size,
-		NULL
-	);
+	data = LoadResourceByRef(p_ref, g_resTagMgeo, g_resExtMgi, 5, &size, NULL);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagMgeo]);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resTagMgeo);
 			fclose(file);
 		}
 
@@ -149,7 +142,7 @@ MechS32 LoadMgdFile(
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		UnlockCachedResource(p_ref->m_id, g_resourceTypeTags[c_resTagMgeo]);
+		UnlockCachedResource(p_ref->m_id, g_resTagMgeo);
 	}
 
 	return TRUE;
@@ -183,18 +176,11 @@ MechS32 LoadReels(ResourceRef* p_ref)
 
 	offset = 0;
 	stride = sizeof(MechS32);
-	data = LoadResourceByRef(
-		p_ref,
-		g_resourceTypeTags[c_resTagAnim],
-		g_resourceTypeExtensions[c_resExt3di],
-		2,
-		&size,
-		&g_staticPoolTags[6]
-	);
+	data = LoadResourceByRef(p_ref, g_resTagAnim, g_resExt3di, 2, &size, &g_staticPoolTags[6]);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagAnim]);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resTagAnim);
 		}
 
 		fclose(file);
@@ -281,18 +267,11 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 	MechS32 top;
 	FILE* file;
 
-	data = LoadResourceByRef(
-		p_ref,
-		g_resourceTypeTags[c_resTagHud],
-		g_resourceTypeExtensions[c_resExtHdi],
-		4,
-		&size,
-		NULL
-	);
+	data = LoadResourceByRef(p_ref, g_resTagHud, g_resExtHdi, 4, &size, NULL);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagHud]);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resTagHud);
 		}
 
 		fclose(file);
@@ -336,7 +315,7 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		UnlockCachedResource(p_ref->m_id, g_resourceTypeTags[c_resTagHud]);
+		UnlockCachedResource(p_ref->m_id, g_resTagHud);
 	}
 
 	return TRUE;
@@ -362,18 +341,11 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 		return FALSE;
 	}
 
-	data = LoadResourceByRef(
-		p_ref,
-		g_resourceTypeTags[c_resTagCpit],
-		g_resourceTypeExtensions[c_resExtCpi],
-		3,
-		&size,
-		NULL
-	);
+	data = LoadResourceByRef(p_ref, g_resTagCpit, g_resExtCpi, 3, &size, NULL);
 	if (!data) {
 		file = fopen("symlog.txt", "a");
 		if (file) {
-			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resourceTypeTags[c_resTagCpit]);
+			fprintf(file, "Couldn't load ID=%s Type=%s\n", p_ref->m_name, g_resTagCpit);
 		}
 
 		fclose(file);
@@ -410,7 +382,7 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 		HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	}
 	else {
-		UnlockCachedResource(p_ref->m_id, g_resourceTypeTags[c_resTagCpit]);
+		UnlockCachedResource(p_ref->m_id, g_resTagCpit);
 	}
 
 	return TRUE;
@@ -434,7 +406,7 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 		return FALSE;
 	}
 
-	header = LoadCachedResource(g_mw2PrjHandle, 15, g_resourceTypeTags[c_resTagTable], 1);
+	header = LoadCachedResource(g_mw2PrjHandle, 15, g_resTagTable, 1);
 	if (header == NULL) {
 		close(file);
 		return FALSE;
@@ -445,7 +417,7 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 	pixels = g_mainPixelBuffer.m_buffer;
 	write(file, pixels, g_screenPixelCount);
 	close(file);
-	UnlockCachedResource(15, g_resourceTypeTags[c_resTagTable]);
+	UnlockCachedResource(15, g_resTagTable);
 	return TRUE;
 }
 

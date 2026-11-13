@@ -57,6 +57,7 @@ MechChar g_sampleTag[] = "SFLX";
 
 // GLOBAL: MW2 0x10174930
 // GLOBAL: MW2MATROX 0x10215d20
+// GLOBAL: MW23DFX 0x1015a060
 SoundInfo g_soundInfo[1200];
 
 // FUNCTION: MW2 0x1007d9d0
@@ -213,6 +214,7 @@ void ServeSamples(void)
 // Operand order: p_delay > g_deltaTime.
 // FUNCTION: MW2 0x1007dfe7
 // FUNCTION: MW2MATROX 0x100866b2
+// FUNCTION: MW23DFX 0x100328e0
 MechS32 PlaySample(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -369,7 +371,7 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 		g_audioEngine->m_data[slot] = p_data;
 	}
 	else {
-		g_audioEngine->m_data[slot] = LoadCachedResource(0, p_id, g_resourceTypeTags[c_resTagSnds], 0);
+		g_audioEngine->m_data[slot] = LoadCachedResource(0, p_id, g_resTagSnds, 0);
 		if (!g_audioEngine->m_data[slot]) {
 			return -6;
 		}
@@ -383,7 +385,7 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 			HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_data);
 		}
 		else {
-			UnlockCachedResource(p_id, g_resourceTypeTags[c_resTagSnds]);
+			UnlockCachedResource(p_id, g_resTagSnds);
 		}
 
 		g_audioEngine->m_data[slot] = NULL;
@@ -451,7 +453,7 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 	}
 
 	if (id && id > 0) {
-		UnlockCachedResource(id, g_resourceTypeTags[c_resTagSnds]);
+		UnlockCachedResource(id, g_resTagSnds);
 	}
 
 	data = (void*) AIL_sample_user_data(p_sample, 4);
@@ -462,7 +464,7 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 	if (next) {
 		if (next != -1) {
 			if (StartSample(next, NULL, g_audioEngine->m_flags[slot], slot, NULL) < 0) {
-				UnlockCachedResource(next, g_resourceTypeTags[c_resTagSnds]);
+				UnlockCachedResource(next, g_resTagSnds);
 				next = 0;
 			}
 			else {
@@ -734,7 +736,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 		}
 
 		if (!p_sound->m_data) {
-			p_sound->m_data = LoadCachedResource(0, p_sound->m_id, g_resourceTypeTags[c_resTagSnds], 0);
+			p_sound->m_data = LoadCachedResource(0, p_sound->m_id, g_resTagSnds, 0);
 			if (p_sound->m_data) {
 			}
 		}
@@ -742,7 +744,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 		if (!p_sound->m_data ||
 			(sample = AIL_allocate_file_sample(g_audioEngine->m_driver, p_sound->m_data, -1)) == NULL) {
 			if (p_sound->m_id != -1) {
-				UnlockCachedResource(p_sound->m_id, g_resourceTypeTags[c_resTagSnds]);
+				UnlockCachedResource(p_sound->m_id, g_resTagSnds);
 			}
 
 			p_sound->m_slot = -1;
@@ -795,7 +797,7 @@ void StopAmbientSound(AmbientSound* p_sound)
 	p_sound->m_slot = -1;
 	AIL_end_sample(sample);
 	AIL_release_sample_handle(sample);
-	UnlockCachedResource(p_sound->m_id, g_resourceTypeTags[c_resTagSnds]);
+	UnlockCachedResource(p_sound->m_id, g_resTagSnds);
 	p_sound->m_data = NULL;
 }
 
