@@ -4,7 +4,7 @@
 #include "fixedfloat.h"
 #include "types.h"
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "decomp.h"
 #endif
 
@@ -18,7 +18,7 @@ struct Shape;
 // shape whose polygons are queued once the list is sorted (QueuedPolygon::m_count bit 15).
 // SIZE 0x8 (0xc in the Matrox edition)
 typedef struct DepthEntry {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	undefined4 m_unk0x00;         // 0x00
 	struct QueuedPolygon* m_poly; // 0x04 — QueueFace writes these two
 	MechFloat m_depth;            // 0x08

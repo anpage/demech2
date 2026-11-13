@@ -6,11 +6,11 @@
    nothing here. */
 #include "matrox/msidraw.h"
 
+#include "accel/a3d.h"
 #include "brightness.h"
 #include "debugprint.h"
 #include "decomp.h"
 #include "displaybackend.h"
-#include "matrox/a3d.h"
 #include "palettecolor.h"
 #include "refreshmode.h"
 #include "render.h"

@@ -83,7 +83,7 @@ extern "C"
 	void DrawCockpitView(void);
 	void DrawMapView(void);
 	void DrawMapContents(CockpitLayout* p_layout);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	void DrawMapIcon(CockpitLayout* p_layout, Vector3* p_position, MechS32 p_icon);
 #else
 void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon);
@@ -101,7 +101,7 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon);
 	void ZoomMapView(MechS32 p_zoom);
 	MechS32 MapShapeFilter(Shape* p_shape);
 	MechU32 SatelliteFaceColor(struct Face* p_face, undefined4 p_unk0x04, MechU32 p_flags);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c);
 	void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags);
 #else

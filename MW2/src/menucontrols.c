@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 // A slider from 0 to 0x10000 (MenuControl::m_data holds its shapes: the left cap, the bar, the

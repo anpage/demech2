@@ -12,6 +12,7 @@
 // Arms the transition: the next update starts it from its first rectangle.
 // FUNCTION: MW2 0x10012310
 // FUNCTION: MW2MATROX 0x10045d90
+// FUNCTION: MW23DFX 0x10001610
 void StartRectTransition(RectTransition* p_transition)
 {
 	p_transition->m_state->m_active = TRUE;
@@ -20,6 +21,7 @@ void StartRectTransition(RectTransition* p_transition)
 
 // FUNCTION: MW2 0x10012332
 // FUNCTION: MW2MATROX 0x10045db2
+// FUNCTION: MW23DFX 0x10001620
 void StopRectTransition(RectTransition* p_transition)
 {
 	p_transition->m_state->m_active = FALSE;

@@ -41,6 +41,11 @@ OBJECTS = {
         ("VP_R", 0x100A4664, 0x1D0),
         ("dfactor_1", 0x100A6394, 0x1920),
     ],
+    "MW23DFX": [
+        ("VFX_describe_driver", 0x1025D0A4, 0x19F0),
+        ("VP_R", 0x1025B5B4, 0x1D0),
+        ("dfactor_1", 0x1025B784, 0x1920),
+    ],
 }
 
 HEADERS = ["vfxa.h", "vfx3d.h", "vfxrend.h"]

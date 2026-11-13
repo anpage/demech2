@@ -279,6 +279,7 @@ MechS32 g_nextShotRecord = 0;
 // The next g_effects slot an xplode record fills.
 // GLOBAL: MW2 0x100a1744
 // GLOBAL: MW2MATROX 0x100a85d0
+// GLOBAL: MW23DFX 0x10259c7c
 MechS32 g_nextEffectRecord = 0;
 
 // The name of the mission's music (the world stream's music record).
@@ -289,11 +290,13 @@ MechChar g_musicName[12];
 // The mission's "MUS" resource.
 // GLOBAL: MW2 0x100e9340
 // GLOBAL: MW2MATROX 0x1012587c
+// GLOBAL: MW23DFX 0x102441bc
 MechS32 g_musicResource;
 
 // Widens p_flags: any of the bits 0x730 sets them all, as does either of the bits 3.
 // FUNCTION: MW2 0x1000a9c0
 // FUNCTION: MW2MATROX 0x100461c0
+// FUNCTION: MW23DFX 0x1003ddf0
 MechU32 WidenEventFlags(MechU32 p_flags)
 {
 	if (p_flags & 0x730) {
@@ -338,14 +341,14 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdPlanetRecord* planet = (BwdPlanetRecord*) node;
 
 			if (g_difficulty->m_gravity) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				g_gravity = FIXED_TO_SCALAR((MechS32) g_difficulty->m_gravity) * FIXED_LITERAL(0x794, 0.0296f);
 #else
 				g_gravity = FixedMul16(g_difficulty->m_gravity, 0x794);
 #endif
 			}
 			else {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				g_gravity = FIXED_TO_SCALAR(planet->m_gravity) * FIXED_LITERAL(0x794, 0.0296f);
 #else
 				g_gravity = FixedMul16(planet->m_gravity, 0x794);
@@ -1059,13 +1062,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			Vector3 position;
 			MechU16 target;
 			NavPoint* nav;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			FileVector3 stored;
 #endif
 
 			if (g_navCount < 0x80 && g_navCount != -1) {
 				nav = &g_navTable[g_navCount];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				stored = navPoint->m_position;
 				position.m_x = stored.m_x;
 				position.m_y = stored.m_y;
@@ -1082,7 +1085,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				nav->m_team = navPoint->m_team;
 				nav->m_owner = navPoint->m_owner;
 				nav->m_heading = FIXED_TO_SCALAR(navPoint->m_heading);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				nav->m_radius = (MechU32) navPoint->m_radius * 100.0f;
 #else
 				nav->m_radius = navPoint->m_radius * 100;
@@ -1241,7 +1244,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (shape) {
 				obj = GetShapeObject(shape);
 				if (obj) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 					SetObjRotation(obj, x, y, z, 0);
 #else
 					SetObjRotation(
@@ -1378,6 +1381,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1000d30f
 // FUNCTION: MW2MATROX 0x10048c6d
+// FUNCTION: MW23DFX 0x1003f5e0
 MechS32 LoadWorld(MechChar* p_name)
 {
 	BwdStream* stream;
@@ -1422,7 +1426,7 @@ MechS32 LoadWorld(MechChar* p_name)
 		Error(0xb, "%s", key->m_name);
 		return FALSE;
 	}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 
 	return TRUE;
 #else

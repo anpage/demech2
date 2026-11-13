@@ -16,7 +16,7 @@
 #include "loadres.h"
 #include "types.h"
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition defines the draw buffer's globals in another order, all initialized.
 // GLOBAL: MW2MATROX 0x100a4fac
 DepthEntry* g_drawList = NULL;
@@ -25,21 +25,26 @@ DepthEntry* g_drawList = NULL;
 DepthEntry* g_depthQueue = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fb4
+// GLOBAL: MW23DFX 0x1024db98
 MechU8* g_drawBuffer = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fb8
+// GLOBAL: MW23DFX 0x1024db9c
 MechU8* g_drawBufferTop = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fbc
+// GLOBAL: MW23DFX 0x1024dba0
 MechU8* g_drawBufferBottom = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fc0
 MechS32 g_depthListCapacity = 0;
 
 // GLOBAL: MW2MATROX 0x100a4fc4
+// GLOBAL: MW23DFX 0x1024dba8
 MechS32 g_drawBufferSize = 0x140;
 
 // GLOBAL: MW2MATROX 0x100a4fc8
+// GLOBAL: MW23DFX 0x1024dbac
 MechU8* g_drawBufferMemory = NULL;
 #else
 // GLOBAL: MW2 0x100ba5cc
@@ -69,10 +74,12 @@ DepthEntry* g_depthQueue;
 
 // GLOBAL: MW2 0x1010b5ac
 // GLOBAL: MW2MATROX 0x101d6968
+// GLOBAL: MW23DFX 0x101b0ec8
 MechS32 g_queueHasRoom;
 
 // FUNCTION: MW2 0x1007d120
 // FUNCTION: MW2MATROX 0x100216a0
+// FUNCTION: MW23DFX 0x10025d60
 void ShutdownDrawBuffer(void)
 {
 	if (g_drawBufferMemory != NULL) {
@@ -91,7 +98,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 
 	g_depthListCapacity = p_entries;
 	g_drawBufferSize = p_kilobytes << 10;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	size = g_depthListCapacity * (2 * sizeof(DepthEntry)) + (p_kilobytes << 10);
 #else
 	size = (g_depthListCapacity << 4) + (p_kilobytes << 10);
@@ -106,7 +113,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 	g_drawList = (DepthEntry*) (g_drawBufferMemory + g_drawBufferSize);
 	g_depthQueue = g_drawList + g_depthListCapacity;
 	g_drawBufferBottom = g_drawBuffer;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_drawBufferTop = g_drawBuffer + g_drawBufferSize - 0x30;
 	DebugPrint("setup_render: npalloc=%x nvalloc=%x\n", g_drawBufferBottom, g_drawBufferTop);
 #else
@@ -119,6 +126,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 
 // FUNCTION: MW2 0x1007d220
 // FUNCTION: MW2MATROX 0x100217b3
+// FUNCTION: MW23DFX 0x10025e20
 void ResetDrawBuffer(void)
 {
 	g_drawBufferBottom = g_drawBuffer;
@@ -128,9 +136,10 @@ void ResetDrawBuffer(void)
 // The Matrox edition's is C, for its 0x3c-byte records.
 // FUNCTION: MW2 0x1007d248
 // FUNCTION: MW2MATROX 0x100217db
+// FUNCTION: MW23DFX 0x10025e40
 ProjectedVertex* AllocProjectedVertex(void)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	ProjectedVertex* record;
 
 	g_drawBufferTop -= 0x3c;
@@ -177,12 +186,13 @@ done:
 // The Matrox edition's takes 0x10-byte records.
 // FUNCTION: MW2 0x1007d296
 // FUNCTION: MW2MATROX 0x10021827
+// FUNCTION: MW23DFX 0x10025e70
 MechU8* AllocQueuedPolygon(void)
 {
 	MechS32 recordSize;
 	MechU8* record;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	recordSize = 0x10;
 #else
 	recordSize = 0xc;

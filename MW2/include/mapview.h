@@ -19,7 +19,7 @@ extern "C"
 	void EndMapView(void);
 	MechS32 CullMapViewShape(Shape* p_shape);
 	ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen);
 #else
 MechS32 ProjectMapPoint(MapPoint* p_point);

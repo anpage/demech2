@@ -130,7 +130,7 @@ InputDriverModule g_joystickDriver = {
 	JoystickFlushKeyCodes,
 };
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's JoystickPoll sums each axis over the reads between two polls that read the
 // joystick, then keeps the sums as the axes it returns until the next.
 // GLOBAL: MW2MATROX 0x100a5778
@@ -143,10 +143,12 @@ MechS32 g_joystickAxisSums[6] = {0};
 // The registry key and value ReadJoystickOemName reads.
 // GLOBAL: MW2 0x100be8a0
 // GLOBAL: MW2MATROX 0x100c1ea0
+// GLOBAL: MW23DFX 0x1007d418
 MechChar g_joystickOemName[0x40];
 
 // GLOBAL: MW2 0x100be8e0
 // GLOBAL: MW2MATROX 0x100c1ee0
+// GLOBAL: MW23DFX 0x1007d458
 MechChar g_joystickRegistryKey[0x100];
 
 // FUNCTION: MW2 0x10049e70
@@ -287,7 +289,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
 	JOYCAPS caps;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	JOYINFO info;
 #endif
 	MechDouble range;
@@ -295,7 +297,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 	JOYINFOEX infoEx;
 
 	data = p_info->m_driverData;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!data || joyGetDevCaps(data->m_id, &caps, sizeof(caps)) ||
 		joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
 		return 1;
@@ -446,7 +448,7 @@ MechS32 JoystickCenterAxis(void)
 	return 0;
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "joystickscale.c"
 #endif
 
@@ -458,7 +460,7 @@ MechS32 JoystickCenterAxis(void)
 // FUNCTION: MW2MATROX 0x10026b7e
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MMRESULT result;
 	MechS32 i;
 	JOYINFOEX info;
@@ -648,7 +650,7 @@ MechS32 JoystickFlushKeyCodes(void)
 	return 2;
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "joystickscale.c"
 #endif
 
@@ -656,6 +658,7 @@ MechS32 JoystickFlushKeyCodes(void)
 // p_name. Returns TRUE on success.
 // FUNCTION: MW2 0x1004ae29
 // FUNCTION: MW2MATROX 0x10026fa3
+// FUNCTION: MW23DFX 0x1003b0d0
 BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_name, MechU32 p_size)
 {
 	HKEY key;

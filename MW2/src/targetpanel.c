@@ -1,4 +1,4 @@
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "targetpanel.h"
@@ -40,8 +40,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #include "render.h"
 #include "view.h"
 
@@ -50,6 +50,7 @@ MechS32 IsPlayerInView(Player* p_player);
 
 // GLOBAL: MW2 0x100ba4bc
 // GLOBAL: MW2MATROX 0x100a4a4c
+// GLOBAL: MW23DFX 0x1024d04c
 MechS32 g_targetPanelMode = 1;
 
 // Set to announce the target's side with the next name the target panel shows.
@@ -57,7 +58,7 @@ MechS32 g_targetPanelMode = 1;
 // GLOBAL: MW2MATROX 0x100a4a50
 MechS32 g_announceTargetSide = 0;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The level of detail the target panel loads a target mech's class at (LOD.PAR's
 // TargetWindowREP, read once).
 // GLOBAL: MW2MATROX 0x100a4a54
@@ -272,7 +273,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_textColors[0xe] = PIXEL_COLOR(color);
 	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
@@ -297,7 +298,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -330,12 +331,12 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	void* noTarget;
 	void* noObject;
 	MechS32 targetIndex;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechChar line[0x100];
 	FILE* file;
 #endif
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
@@ -609,7 +610,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 #endif
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // Whether p_player's position projects into the main view (the target panel then leaves its
 // level of detail alone).
 // FUNCTION: MW2MATROX 0x10018d55
@@ -634,6 +635,7 @@ MechS32 IsPlayerInView(Player* p_player)
 // Draws a panel as static (animation 0).
 // FUNCTION: MW2 0x1007c6df
 // FUNCTION: MW2MATROX 0x10018db0
+// FUNCTION: MW23DFX 0x10021710
 void DrawTargetStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled) {
@@ -649,6 +651,7 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
 // FUNCTION: MW2MATROX 0x10018def
+// FUNCTION: MW23DFX 0x10021730
 void DrawTargetPanelStartup(CockpitPanel* p_panel)
 {
 	PANE* rect;
@@ -689,6 +692,7 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c81c
 // FUNCTION: MW2MATROX 0x10018eed
+// FUNCTION: MW23DFX 0x100217f0
 void DrawTargetPanelShutdown(CockpitPanel* p_panel)
 {
 	PANE* rect;

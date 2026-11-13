@@ -21,7 +21,7 @@
 #include <windows.h>
 
 // The Matrox edition's messages end in a newline.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define TEXT_LINE(text) text "\n"
 #else
 #define TEXT_LINE(text) text
@@ -64,15 +64,18 @@ RefreshMode* g_refreshModes[6] = {
 
 // GLOBAL: MW2 0x100b1770
 // GLOBAL: MW2MATROX 0x100b1a78
+// GLOBAL: MW23DFX 0x102492e0
 DisplayBackend* g_currentDisplayBackend = NULL;
 
 // GLOBAL: MW2 0x100b1774
 // GLOBAL: MW2MATROX 0x100b1a7c
+// GLOBAL: MW23DFX 0x102492e4
 RefreshMode* g_currentRefreshMode = NULL;
 
 // The fastest refresh mode found by the profiling, the one to return to from windowed mode.
 // GLOBAL: MW2 0x100b1778
 // GLOBAL: MW2MATROX 0x100b1a80
+// GLOBAL: MW23DFX 0x102492e8
 RefreshMode* g_fastestRefreshMode = NULL;
 
 // GLOBAL: MW2 0x100b177c
@@ -87,28 +90,34 @@ MechS32 g_lastProfiledRefreshMode = 4;
 // The buffer the active refresh mode renders into.
 // GLOBAL: MW2 0x100b1784
 // GLOBAL: MW2MATROX 0x100b1a8c
+// GLOBAL: MW23DFX 0x102492f4
 WINDOW* g_refreshModeBuffer = NULL;
 
 // GLOBAL: MW2 0x100b1788
 // GLOBAL: MW2MATROX 0x100b1a90
+// GLOBAL: MW23DFX 0x102492f8
 PaletteColor g_paletteColors[0x100] = {0};
 
 // The DIB bits of the GDI and DisplayDib back ends, restored into g_refreshModeBuffer by
 // m_acquireFramebuffer.
 // GLOBAL: MW2 0x100b1a88
 // GLOBAL: MW2MATROX 0x100b1d90
+// GLOBAL: MW23DFX 0x102495f8
 undefined* g_dibBits = NULL;
 
 // GLOBAL: MW2 0x100b1aa4
 // GLOBAL: MW2MATROX 0x100b1dac
+// GLOBAL: MW23DFX 0x10249614
 MechS32 g_windowMode = 0;
 
 // GLOBAL: MW2 0x100b1aa8
 // GLOBAL: MW2MATROX 0x100b1db0
+// GLOBAL: MW23DFX 0x10249618
 MechS32 g_refreshModeInactive = 1;
 
 // GLOBAL: MW2 0x100b1aac
 // GLOBAL: MW2MATROX 0x100b1db4
+// GLOBAL: MW23DFX 0x1024961c
 MechS32 g_profileFrame = 0;
 
 // GLOBAL: MW2 0x100bf1c8
@@ -122,19 +131,23 @@ RECT g_windowedRect;
 
 // GLOBAL: MW2 0x100c28a0
 // GLOBAL: MW2MATROX 0x1012f520
+// GLOBAL: MW23DFX 0x10244f80
 DrawBitmapInfo g_bitmapInfo;
 
 // The frame's size in pixels, p_width * p_height of InitRefreshMode.
 // GLOBAL: MW2 0x100c2cc8
 // GLOBAL: MW2MATROX 0x1012f510
+// GLOBAL: MW23DFX 0x10244f78
 MechS32 g_refreshModePixelCount;
 
 // GLOBAL: MW2 0x100c2ce4
 // GLOBAL: MW2MATROX 0x1012f50c
+// GLOBAL: MW23DFX 0x10244f74
 MechS32 g_refreshModeWidth;
 
 // GLOBAL: MW2 0x100c2ce8
 // GLOBAL: MW2MATROX 0x1012f508
+// GLOBAL: MW23DFX 0x10244f50
 MechS32 g_refreshModeHeight;
 
 // Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
@@ -223,7 +236,7 @@ MechS32 InitRefreshMode(
 	g_refreshModePixelCount = p_height * p_width;
 	g_refreshModeBuffer = p_buffer;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	while (g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
 #else
 	while (g_currentRefreshMode->m_available && g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
@@ -237,7 +250,7 @@ MechS32 InitRefreshMode(
 		g_currentRefreshMode = g_refreshModes[g_currentRefreshMode->m_index + 1];
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_currentRefreshMode->m_available = TRUE;
 #endif
 	if (g_refreshModeInactive && backend->m_id != c_displayBackendGdi) {
@@ -251,6 +264,7 @@ MechS32 InitRefreshMode(
 
 // FUNCTION: MW2 0x10077069
 // FUNCTION: MW2MATROX 0x1007b0e5
+// FUNCTION: MW23DFX 0x10002840
 void ShutdownRefreshMode(void)
 {
 	if (g_currentRefreshMode != NULL) {
@@ -342,6 +356,7 @@ void ProfileRefreshModes(void)
 // the other way.
 // FUNCTION: MW2 0x100772a4
 // FUNCTION: MW2MATROX 0x1007b31f
+// FUNCTION: MW23DFX 0x10002a20
 void SelectFastestRefreshMode(void)
 {
 	MechS32 i;
@@ -393,7 +408,7 @@ void ToggleFullScreen(void)
 	PauseTimer(0x80, TRUE);
 
 	if (g_currentDisplayBackend->m_windowMode == c_windowModeFullscreen) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		g_fastestRefreshMode = g_currentRefreshMode;
 #endif
 		for (i = 0; i < 6; i++) {
@@ -449,6 +464,7 @@ void ToggleFullScreen(void)
 // A top-down 8-bit DIB of p_width x p_height.
 // FUNCTION: MW2 0x100775b4
 // FUNCTION: MW2MATROX 0x1007b63a
+// FUNCTION: MW23DFX 0x10002c70
 void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 {
 	g_bitmapInfo.m_header.biSize = sizeof(BITMAPINFOHEADER);
@@ -518,6 +534,7 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 // Copies p_count colors of g_paletteColors from p_first into p_palette.
 // FUNCTION: MW2 0x100777a5
 // FUNCTION: MW2MATROX 0x1007b82b
+// FUNCTION: MW23DFX 0x10002de0
 MechS32 GetPaletteColors(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)
 {
 	MechS32 i;

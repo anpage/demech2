@@ -9,7 +9,7 @@
 // and eased values, which close a fixed fraction of the distance at each step.
 
 DECOMP_SIZE_ASSERT(Ramp, 0x10)
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 DECOMP_SIZE_ASSERT(FloatRamp, 0x10)
 #endif
 DECOMP_SIZE_ASSERT(WrappedRamp, 0x14)
@@ -17,6 +17,7 @@ DECOMP_SIZE_ASSERT(EasedValue, 0x0c)
 
 // FUNCTION: MW2 0x100495b0
 // FUNCTION: MW2MATROX 0x1002dfe0
+// FUNCTION: MW23DFX 0x1003b700
 MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -54,9 +55,10 @@ MechS32 UpdateRamp(Ramp* p_ramp)
 	return p_ramp->m_value;
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's ramps of float values (Mech's, the camera's).
 // FUNCTION: MW2MATROX 0x1002e0db
+// FUNCTION: MW23DFX 0x1003b7a0
 MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value, MechDouble p_seconds)
 {
 	MechS32 result = FALSE;
@@ -100,6 +102,7 @@ MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 
 // FUNCTION: MW2 0x100496ab
 // FUNCTION: MW2MATROX 0x1002e226
+// FUNCTION: MW23DFX 0x1003b8b0
 MechS32 StartWrappedRamp(
 	WrappedRamp* p_ramp,
 	MechScalar p_target,
@@ -127,7 +130,7 @@ MechS32 StartWrappedRamp(
 // FUNCTION: MW2MATROX 0x1002e295
 MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The declaration order puts the comparison with half after delta's store.
 	MechScalar delta;
 	MechScalar half;
@@ -137,7 +140,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 #endif
 	MechScalar step;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	half = p_ramp->m_period / 2.0f;
 	delta = p_ramp->m_target - p_ramp->m_value;
 	delta = fmod(delta, p_ramp->m_period);
@@ -154,7 +157,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 	}
 
 	step = (g_currentClock - p_ramp->m_time) * delta / p_ramp->m_duration;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if ((FIXED_IS_NEGATIVE(delta) && step <= delta) || (delta > 1e-07f && step >= delta)) {
 #else
 	if ((delta < 0 && step <= delta) || (delta > 0 && step >= delta)) {
@@ -165,7 +168,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 		p_ramp->m_value += step;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_ramp->m_value = fmod(p_ramp->m_value, p_ramp->m_period);
 #else
 	p_ramp->m_value = p_ramp->m_value % p_ramp->m_period;
@@ -177,9 +180,10 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 // Sets the target, brought within half a period of zero.
 // FUNCTION: MW2 0x10049805
 // FUNCTION: MW2MATROX 0x1002e3de
+// FUNCTION: MW23DFX 0x1003b9f0
 MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechScalar target;
 	MechScalar half;
 #else
@@ -187,7 +191,7 @@ MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 	MechScalar target;
 #endif
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	half = p_ramp->m_period / 2.0f;
 	target = fmod(p_target, p_ramp->m_period);
 #else
@@ -207,6 +211,7 @@ MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 
 // FUNCTION: MW2 0x10049871
 // FUNCTION: MW2MATROX 0x1002e471
+// FUNCTION: MW23DFX 0x1003ba60
 MechS32 UpdateEasedValue(EasedValue* p_value)
 {
 	MechS32 delta;

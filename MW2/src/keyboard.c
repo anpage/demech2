@@ -47,6 +47,7 @@ static undefined4 g_keyCodeReadIndex;
 // A ring buffer of key codes, filled by KeyboardQueueKeyCode.
 // GLOBAL: MW2 0x10109a30
 // GLOBAL: MW2MATROX 0x1015dc30
+// GLOBAL: MW23DFX 0x10159ed0
 MechS16 g_keyCodes[c_keyCodeBufferSize];
 
 // One bit per (remapped) scan code, set while the key is down. Word 3 also holds the modifier
@@ -54,6 +55,7 @@ MechS16 g_keyCodes[c_keyCodeBufferSize];
 // clears the modifiers too, and a copy of the states carries them.
 // GLOBAL: MW2 0x10109a20
 // GLOBAL: MW2MATROX 0x1015dc20
+// GLOBAL: MW23DFX 0x10159ec0
 undefined4 g_keyStates[4];
 
 // clang-format off
@@ -95,6 +97,7 @@ const MechChar g_unk0x1009d150[] = "";
 
 // GLOBAL: MW2 0x1009d54c
 // GLOBAL: MW2MATROX 0x100a0b64
+// GLOBAL: MW23DFX 0x1024844c
 const MechChar g_unk0x1009d54c[] = "";
 
 // clang-format off
@@ -167,6 +170,7 @@ InputDriverModule g_keyboardDriver = {
 
 // FUNCTION: MW2 0x10042770
 // FUNCTION: MW2MATROX 0x10067500
+// FUNCTION: MW23DFX 0x10038330
 MechS32 GetKeyboardDeviceCount(void)
 {
 	return 1;
@@ -174,6 +178,7 @@ MechS32 GetKeyboardDeviceCount(void)
 
 // FUNCTION: MW2 0x10042785
 // FUNCTION: MW2MATROX 0x10067515
+// FUNCTION: MW23DFX 0x10038340
 MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	p_info->m_axisCount = 0;
@@ -227,6 +232,7 @@ MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_k
 
 // FUNCTION: MW2 0x100428a9
 // FUNCTION: MW2MATROX 0x10067639
+// FUNCTION: MW23DFX 0x10038400
 MechS32 KeyboardReadKeyCode(MechS16* p_keyCode)
 {
 	if (g_keyCodeReadIndex == g_keyCodeWriteIndex) {
@@ -245,6 +251,7 @@ MechS32 KeyboardReadKeyCode(MechS16* p_keyCode)
 
 // FUNCTION: MW2 0x10042909
 // FUNCTION: MW2MATROX 0x10067699
+// FUNCTION: MW23DFX 0x10038440
 MechS32 KeyboardFlushKeyCodes(void)
 {
 	MSG msg;
@@ -260,6 +267,7 @@ MechS32 KeyboardFlushKeyCodes(void)
 // Unlike the shell's, the simulator queues a key's code when the key is released.
 // FUNCTION: MW2 0x10042966
 // FUNCTION: MW2MATROX 0x100676f6
+// FUNCTION: MW23DFX 0x10038490
 void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	MSG msg;
@@ -386,6 +394,7 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 
 // FUNCTION: MW2 0x10042d55
 // FUNCTION: MW2MATROX 0x10067ae5
+// FUNCTION: MW23DFX 0x100387a0
 void KeyboardClearKeyStates(void)
 {
 	MechS32 i;
@@ -397,6 +406,7 @@ void KeyboardClearKeyStates(void)
 
 // FUNCTION: MW2 0x10042d8f
 // FUNCTION: MW2MATROX 0x10067b1f
+// FUNCTION: MW23DFX 0x100387c0
 MechS16 KeyboardPollKeyCode(void)
 {
 	MSG msg;

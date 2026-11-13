@@ -33,7 +33,7 @@ typedef struct Eyepoint {
 	MechScalar m_farPlane;      // 0x40
 	MechScalar m_pixelAspect;   // 0x44 — pixel width / height
 	MechS32 m_unk0x48;          // 0x48 — nothing uses it
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition's is 0xa4 bytes: it has no projection offset, no 16-bit projection scales
 	// and no cull distance (CullSceneShape tests against m_farPlane), so the view matrix follows
 	// m_unk0x48 and the members past it move up.

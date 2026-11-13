@@ -82,6 +82,7 @@ void FirstArtillery(Player* p_player)
 // torso objects (m_pitchObj by the pitch, m_torsoObj by the player's view angles with the twist).
 // FUNCTION: MW2 0x1005a203
 // FUNCTION: MW2MATROX 0x1002e6f3
+// FUNCTION: MW23DFX 0x100219e0
 void UpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;

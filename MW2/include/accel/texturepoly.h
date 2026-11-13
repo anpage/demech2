@@ -1,12 +1,12 @@
-#ifndef MATROX_TEXTUREPOLY_H
-#define MATROX_TEXTUREPOLY_H
+#ifndef ACCEL_TEXTUREPOLY_H
+#define ACCEL_TEXTUREPOLY_H
 
+#include "accel/a3d.h"
 #include "decomp.h"
-#include "matrox/a3d.h"
 #include "pane.h"
 #include "types.h"
 
-// The functions of matrox/texturepoly.c (the Matrox edition's) that other units use.
+// The functions of accel/texturepoly.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
@@ -26,4 +26,4 @@ extern "C"
 }
 #endif
 
-#endif // MATROX_TEXTUREPOLY_H
+#endif // ACCEL_TEXTUREPOLY_H

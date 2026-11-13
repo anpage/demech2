@@ -27,22 +27,27 @@ DECOMP_SIZE_ASSERT(DebrisChunk, 0x14)
 
 // GLOBAL: MW2 0x100a1150
 // GLOBAL: MW2MATROX 0x100a5a28
+// GLOBAL: MW23DFX 0x1024bfa0
 MechS32 g_debrisCount = 0;
 
 // GLOBAL: MW2 0x100a1158
 // GLOBAL: MW2MATROX 0x100a5a30
+// GLOBAL: MW23DFX 0x1024bfa8
 DebrisChunk g_emptyDebrisChunk = {0};
 
 // GLOBAL: MW2 0x10179ec0
 // GLOBAL: MW2MATROX 0x101d5630
+// GLOBAL: MW23DFX 0x101e7630
 DebrisPiece g_debrisPieces[0x80];
 
 // GLOBAL: MW2 0x1017b0c0
 // GLOBAL: MW2MATROX 0x101d4c30
+// GLOBAL: MW23DFX 0x101e6c30
 DebrisChunk g_debrisChunks[0x80];
 
 // FUNCTION: MW2 0x100040b0
 // FUNCTION: MW2MATROX 0x1002a420
+// FUNCTION: MW23DFX 0x10015200
 MechS32 IsDebrisFull(void)
 {
 	MechS32 i;
@@ -56,6 +61,7 @@ MechS32 IsDebrisFull(void)
 // Stack-slot permutation: i and piece.
 // FUNCTION: MW2 0x10004111
 // FUNCTION: MW2MATROX 0x1002a481
+// FUNCTION: MW23DFX 0x10015230
 MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 {
 	MechS32 i;
@@ -100,7 +106,7 @@ void ThrowDebrisPiece(MechS32 p_index)
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	piece->m_velocityX = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
 	piece->m_velocityZ = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
 	piece->m_velocityY = (RandomNormal() + 0x400) / (g_gravityScale * 1024.0f) * 5.5f;
@@ -156,7 +162,7 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		chunk->m_obj = p_obj;
 		chunk->m_callback = p_callback;
 		chunk->m_startTime = g_currentClock;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		chunk->m_health = 16.0f;
 #else
 		chunk->m_health = 0x100000;
@@ -174,6 +180,7 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 // Stack-slot permutation: child and sibling.
 // FUNCTION: MW2 0x100044f3
 // FUNCTION: MW2MATROX 0x1002a8a0
+// FUNCTION: MW23DFX 0x10015530
 void BlowOffObjTree(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	SceneObject* child;
@@ -198,6 +205,7 @@ void BlowOffObjTree(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk
 
 // FUNCTION: MW2 0x1000457e
 // FUNCTION: MW2MATROX 0x1002a92b
+// FUNCTION: MW23DFX 0x10015580
 void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 index;
@@ -217,6 +225,7 @@ void DisposeDebris(SceneObject* p_obj, ObjectCallback p_callback)
 
 // FUNCTION: MW2 0x100045db
 // FUNCTION: MW2MATROX 0x1002a988
+// FUNCTION: MW23DFX 0x100155b0
 void UpdateDebris(void)
 {
 	MechS32 i;
@@ -237,6 +246,7 @@ void UpdateDebris(void)
 // Blows the chunk up.
 // FUNCTION: MW2 0x100046b2
 // FUNCTION: MW2MATROX 0x1002aa5f
+// FUNCTION: MW23DFX 0x10015620
 void ExplodeChunk(MechS32 p_index)
 {
 	DebrisChunk* chunk;
@@ -267,6 +277,7 @@ void ExplodeChunk(MechS32 p_index)
 
 // FUNCTION: MW2 0x10004783
 // FUNCTION: MW2MATROX 0x1002ab32
+// FUNCTION: MW23DFX 0x100156c0
 void DamageChunk(MechS32 p_index, MechScalar p_damage)
 {
 	g_debrisChunks[p_index].m_health -= p_damage;
@@ -309,14 +320,14 @@ void UpdateDebrisPiece(MechS32 p_index)
 	y = y - FIXED_SHR(radius, 1);
 	newY = y;
 	velocityY = piece->m_velocityY;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	rising = velocityY > 1e-07f;
 #else
 	rising = velocityY > 0;
 #endif
 	IntegrateMidpoint(&newY, &velocityY, piece->m_acceleration, g_deltaTime);
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (velocityY < 1e-07f && newY <= (ground = GetTerrainHeight(x, y, z))) {
 #else
 	if (velocityY <= 0 && newY <= (ground = GetTerrainHeight(x, y, z))) {
@@ -333,7 +344,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 		newY = ground;
 		velocityY = -FIXED_SHR(velocityY, 2);
 		if (RandomIntBelow(2)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			velocityY /= 2;
 #else
 			velocityY >>= 1;
@@ -348,7 +359,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 	}
 
 	piece->m_velocityY = velocityY;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	dx = piece->m_velocityX * g_deltaTime;
 	dy = newY - y;
 	dz = piece->m_velocityZ * g_deltaTime;
@@ -377,6 +388,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 // Stack-slot permutation: length, speed and piece; and the operand order of length < speed.
 // FUNCTION: MW2 0x10004a45
 // FUNCTION: MW2MATROX 0x1002aeed
+// FUNCTION: MW23DFX 0x10015920
 void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar length;
@@ -396,7 +408,7 @@ void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar
 	ThrowDebrisPiece(p_index);
 	speed = ApproximateVectorLength(piece->m_velocityX, piece->m_velocityY, piece->m_velocityZ);
 	if (length < speed) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		speed = length * 2 / speed;
 		piece->m_velocityX *= speed;
 		piece->m_velocityY *= speed;
@@ -418,6 +430,7 @@ void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar
 // reccmp leaves unmapped.
 // FUNCTION: MW2 0x10004b4f
 // FUNCTION: MW2MATROX 0x1002affe
+// FUNCTION: MW23DFX 0x10015a00
 void ZeroChunx(void)
 {
 	MechS32 i;
@@ -439,6 +452,7 @@ void ZeroChunx(void)
 
 // FUNCTION: MW2 0x10004c06
 // FUNCTION: MW2MATROX 0x1002b0b5
+// FUNCTION: MW23DFX 0x10015a50
 void ResetDebrisPiece(MechS32 p_index)
 {
 	DebrisPiece* piece;
@@ -500,7 +514,7 @@ void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechSc
 		dz = z - p_z;
 		reach = radius + p_radius;
 		if (IsWithinRadius(dx, dy, dz, reach)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			DamageChunk(i, p_damage * g_deltaTime);
 #else
 			DamageChunk(i, FixedMul16(p_damage, g_deltaTime));
@@ -511,6 +525,7 @@ void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechSc
 
 // FUNCTION: MW2 0x10004dcb
 // FUNCTION: MW2MATROX 0x1002b29d
+// FUNCTION: MW23DFX 0x10015b90
 void RemoveChunk(SceneObject* p_obj, ObjectCallback p_callback)
 {
 	MechS32 i;
@@ -531,6 +546,7 @@ void RemoveChunk(SceneObject* p_obj, ObjectCallback p_callback)
 
 // FUNCTION: MW2 0x10004e4d
 // FUNCTION: MW2MATROX 0x1002b31f
+// FUNCTION: MW23DFX 0x10015be0
 void HideDebrisObj(SceneObject* p_obj)
 {
 	if (p_obj) {

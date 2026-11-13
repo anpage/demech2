@@ -2,8 +2,8 @@
 #define POLYDRAW_H
 
 #include "eyepoint.h"
-#ifdef MW2_MATROX
-#include "matrox/a3d.h"
+#ifdef MW2_ACCEL
+#include "accel/a3d.h"
 #endif
 #include "projectedvertex.h"
 #include "rendersettings.h"
@@ -19,13 +19,13 @@ extern "C"
 	extern Eyepoint g_mainEyepoint;
 	extern RenderSettings g_renderSettings;
 	extern MechS32 g_horizonBandHeight;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	extern A3DVertex g_a3dClipped[16];
 	extern A3DVertex g_a3dVertices[16];
 	extern MechFloat g_paletteRgb[256][3];
 	void LoadSkyGroundSettings(const MechChar* p_mission);
 #endif
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	void DrawScenePolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c);
 #else
 void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
@@ -64,7 +64,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 		MechS32 p_y2,
 		MechU32 p_flags
 	);
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color);
 	void DrawPolygonOrLine(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 #endif

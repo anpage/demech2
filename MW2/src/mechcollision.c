@@ -111,7 +111,7 @@ MechS32 MoveMechWithCollisions(
 				lift = -lift;
 			}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			lift = p_mech->m_radius * (1 - lift) + p_mech->m_height * lift;
 #else
 			lift = FixedMul16(p_mech->m_radius, 0x10000 - lift) + FixedMul16(p_mech->m_height, lift);
@@ -137,7 +137,7 @@ MechS32 MoveMechWithCollisions(
 					g_segmentNormalZ = normal.m_dirZ;
 				}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				dot = g_segmentNormalX * 2 * ray.m_dirX + g_segmentNormalY * 2 * ray.m_dirY +
 					  g_segmentNormalZ * 2 * ray.m_dirZ;
 				nx = ray.m_dirX - dot * g_segmentNormalX;
@@ -166,7 +166,7 @@ MechS32 MoveMechWithCollisions(
 				SetRayLength(&ray, GetRayLength(&ray) - lift);
 				over = length - GetRayLength(&ray);
 				if (over > 0) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 					*p_x = over * nx / 4 + ray.m_x1;
 					*p_y = over * ny / 4 + ray.m_y1;
 					*p_z = over * nz / 4 + ray.m_z1;
@@ -256,7 +256,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 				dy = *p_y - pos->m_y;
 				dz = *p_z - pos->m_z;
 				dist = ApproximateVectorLength(dx, dy, dz);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				if (dist > 1e-07f) {
 					g_segmentNormalX = dx / dist;
 					g_segmentNormalY = dy / dist;
@@ -279,7 +279,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 #endif
 
 				reach = mech->m_radius + radius;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				*p_x = reach * g_segmentNormalX + pos->m_x;
 				*p_y = reach * g_segmentNormalY + pos->m_y;
 				*p_z = reach * g_segmentNormalZ + pos->m_z;
@@ -289,7 +289,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 				*p_z = pos->m_z + FixedMul16(g_segmentNormalZ, reach);
 #endif
 				p_mech->m_newVelocityZ = mech->m_newVelocityZ;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				speed = ApproximateVectorLength(
 							p_mech->m_newVelocityX - mech->m_newVelocityX,
 							p_mech->m_newVelocityY - mech->m_newVelocityY,
@@ -339,7 +339,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 				else {
 					result = 1;
 					*p_hit = player;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 					if (dist > 1e-07f) {
 						g_segmentNormalX = dx / dist;
 						g_segmentNormalY = dy / dist;
@@ -361,7 +361,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 					}
 #endif
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 					*p_x = reach * g_segmentNormalX + pos->m_x;
 					*p_y = reach * g_segmentNormalY + pos->m_y;
 					*p_z = reach * g_segmentNormalZ + pos->m_z;
@@ -371,7 +371,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 					*p_z = pos->m_z + FixedMul16(g_segmentNormalZ, reach);
 #endif
 					p_mech->m_newVelocityZ = mech->m_newVelocityZ;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 					speed = ApproximateVectorLength(
 								p_mech->m_newVelocityX - mech->m_newVelocityX,
 								p_mech->m_newVelocityY - mech->m_newVelocityY,
@@ -477,7 +477,7 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 				return 0;
 			}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (dist > 1e-07f) {
 				g_segmentNormalX = dx / dist;
 				g_segmentNormalY = dy / dist;
@@ -561,7 +561,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 		p_mech->m_newVelocityZ - p_other->m_newVelocityZ
 	);
 	if (speed > FIXED_LITERAL(200000, 3.0693676f)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		damage = (speed - 3.0693676f) / 19.95089f * 3;
 #else
 		damage = FixedDiv16(speed - 200000, 1300000) * 3;
@@ -595,7 +595,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 			damage = p_damage;
 		}
 		else {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			// Twice the damage scaled by the masses, where 1.1 has four times.
 			damage = p_damage * 2 * p_other->m_tons / (p_mech->m_tons > 0 ? p_mech->m_tons : 1);
 #else
@@ -609,7 +609,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 		ApplyDamageToMech(attacker, p_mech, damage, 1);
 	}
 	else if (g_segmentNormalY > FIXED_LITERAL(0xb505, 0.7071f)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		p_damage /= 2;
 #else
 		p_damage >>= 1;
@@ -672,7 +672,7 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 	else {
 		speed = ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ);
 		if (speed > FIXED_LITERAL(200000, 3.0693676f)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			damage = (speed - 3.0693676f) / 19.95089f * 3;
 #else
 			damage = FixedDiv16(speed - 200000, 1300000) * 3;

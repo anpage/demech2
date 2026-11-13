@@ -6,7 +6,7 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "debugprint.h"
 #endif
 #include "eyepoint.h"
@@ -39,6 +39,7 @@
 // A game-key toggle (GetSystemSetting's setting 0x3c).
 // GLOBAL: MW2 0x100a1590
 // GLOBAL: MW2MATROX 0x100a4618
+// GLOBAL: MW23DFX 0x1024bfbc
 MechS32 g_autoEject = 0;
 
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
@@ -52,6 +53,7 @@ MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
 // GLOBAL: MW2MATROX 0x100a4624
+// GLOBAL: MW23DFX 0x1024bfc8
 MechS32 g_localMechHidden = 0;
 
 // The kill count the cockpit shows in a network game.
@@ -131,7 +133,7 @@ void RunAutopilot(Mech* p_mech)
 	if (!AvoidObstacles(p_mech->m_player)) {
 		SteerToTarget(p_mech->m_player);
 		if (p_mech->m_player->m_maneuverFlag == 1) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			*(MechS32*) &p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
 #else
 			p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
@@ -139,7 +141,7 @@ void RunAutopilot(Mech* p_mech)
 			p_mech->m_player->m_maneuverFlag = 0;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		p_mech->m_player->m_maneuverParam = *(MechS32*) &p_mech->m_player->m_steering->m_throttle;
 #else
 		p_mech->m_player->m_maneuverParam = p_mech->m_player->m_steering->m_throttle;
@@ -154,6 +156,7 @@ void RunAutopilot(Mech* p_mech)
 // which the autopilot steers by) to where the torso faces, unless the autopilot is on.
 // FUNCTION: MW2 0x10007cb5
 // FUNCTION: MW2MATROX 0x1001053c
+// FUNCTION: MW23DFX 0x10015dd0
 void PunchInAutoHeading(Mech* p_mech)
 {
 	MechScalar heading;
@@ -162,7 +165,7 @@ void PunchInAutoHeading(Mech* p_mech)
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition wraps the sum first, then adds the full turn.
 	heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading + p_mech->m_torsoTwist.m_value) + 360.0);
 #else
@@ -185,7 +188,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 	MechSection* section;
 	AmmoBin* bin;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	DebugPrint("BlowAmmo\n");
 #endif
 	if (!g_mechPoweredUp) {
@@ -235,7 +238,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // FUNCTION: MW2MATROX 0x10010727
 void CalculateHeat(Mech* p_mech)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechFloat delta;
 	MechFloat cooling;
 	MechFloat heat;
@@ -264,7 +267,7 @@ void CalculateHeat(Mech* p_mech)
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition doubles the cooling of a shut-down mech with a factor, not a shift.
 	if (p_mech->m_powerState == 3) {
 		factor = 2.0f;
@@ -533,6 +536,7 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 // original (operand order).
 // FUNCTION: MW2 0x10008938
 // FUNCTION: MW2MATROX 0x100111e6
+// FUNCTION: MW23DFX 0x10016600
 void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechS32 i;
@@ -964,7 +968,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			break;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (FIXED_IS_NONZERO(p_mech->m_mobility) && p_mech->m_mobility < 0.4f) {
 			p_mech->m_mobility = 0.4f;
 		}
@@ -1020,7 +1024,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (p_damage < 1e-07f) {
 #else
 	if (p_damage <= 0) {
@@ -1064,7 +1068,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 
 	section->m_armor[side] -= p_damage;
 	section->m_flags |= 0x8000;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (section->m_armor[side] < 1e-07f) {
 #else
 	if (section->m_armor[side] <= 0) {
@@ -1081,7 +1085,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 			g_hitFadePending = 1;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (section->m_internal < 1e-07f) {
 #else
 		if (section->m_internal <= 0) {
@@ -1124,6 +1128,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 // ejects with a sound, or hears that the ejection system is disabled, and the mech is destroyed.
 // FUNCTION: MW2 0x10009d2a
 // FUNCTION: MW2MATROX 0x100126e4
+// FUNCTION: MW23DFX 0x100174f0
 void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 {
 	if (p_mech->m_powerState == 4 || p_mech->m_powerState == 5) {
@@ -1147,6 +1152,7 @@ void EjectPlayer(Mech* p_mech, MechS32 p_eject)
 // Toggles the local player's object between HideObjTree and ShowObjTree.
 // FUNCTION: MW2 0x10009dd2
 // FUNCTION: MW2MATROX 0x1001278c
+// FUNCTION: MW23DFX 0x10017560
 void ToggleLocalMechVisible(void)
 {
 	if (!g_localMechHidden) {

@@ -1,9 +1,9 @@
-/* The Matrox edition's textured polygons: one object of its own, between fixedmul.c's and
-   render.c's, that hands DrawAnimatedPolygon's polygons to the A3D renderer. */
-#include "matrox/texturepoly.h"
+/* The accelerated editions' textured polygons: one object of its own (between fixedmul.c's and
+   render.c's in the Matrox edition), that hands DrawAnimatedPolygon's polygons to the A3D renderer. */
+#include "accel/texturepoly.h"
 
+#include "accel/a3d.h"
 #include "decomp.h"
-#include "matrox/a3d.h"
 #include "pane.h"
 #include "polydraw.h"
 #include "types.h"

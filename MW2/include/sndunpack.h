@@ -1,6 +1,7 @@
 #ifndef SNDUNPACK_H
 #define SNDUNPACK_H
 
+#include "compat.h"
 #include "types.h"
 
 // The sound-block decoder of sndunpack.asm (sndunpack.c in COMPAT_MODE).
@@ -9,7 +10,13 @@ extern "C"
 {
 #endif
 
-	MechU8* DecodeSoundFrames(MechU8* p_src, MechU8* p_dst, MechU32 p_count, MechU32 p_frameSize, MechS32* p_state);
+	MechU8* __cdecl DecodeSoundFrames(
+		MechU8* p_src,
+		MechU8* p_dst,
+		MechU32 p_count,
+		MechU32 p_frameSize,
+		MechS32* p_state
+	);
 
 #ifdef __cplusplus
 }
@@ -20,26 +27,32 @@ extern "C"
 
 // FUNCTION: MW2 0x1001a63c
 // FUNCTION: MW2MATROX 0x1000a9f8
+// FUNCTION: MW23DFX 0x1003356c
 // DecodeSoundFrames
 
 // FUNCTION: MW2 0x1001a87b
 // FUNCTION: MW2MATROX 0x1000ac37
+// FUNCTION: MW23DFX 0x100337ab
 // UpsampleSoundFrame4
 
 // FUNCTION: MW2 0x1001a8d3
 // FUNCTION: MW2MATROX 0x1000ac8f
+// FUNCTION: MW23DFX 0x10033803
 // UpsampleSoundFrame2
 
 // GLOBAL: MW2 0x100a2f04
 // GLOBAL: MW2MATROX 0x100a36b8
+// GLOBAL: MW23DFX 0x1024f780
 // g_soundUpsampleBuffer
 
 // GLOBAL: MW2 0x100a3304
 // GLOBAL: MW2MATROX 0x100a3ab8
+// GLOBAL: MW23DFX 0x1024fb80
 // g_soundFrame
 
 // GLOBAL: MW2 0x100a3705
 // GLOBAL: MW2MATROX 0x100a3eb9
+// GLOBAL: MW23DFX 0x1024ff81
 // g_soundDeltas
 
 #endif // SNDUNPACK_H

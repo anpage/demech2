@@ -12,8 +12,8 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 // Frame projections (a table of 96) and 2D animations: up to seven SHP resources whose frames
@@ -24,6 +24,7 @@ DECOMP_SIZE_ASSERT(Anim2d, 0x1c)
 
 // GLOBAL: MW2 0x100a156c
 // GLOBAL: MW2MATROX 0x100a20a8
+// GLOBAL: MW23DFX 0x10249270
 MechS32 g_framePrjCount = -1;
 
 // GLOBAL: MW2 0x100a158c
@@ -32,10 +33,12 @@ MechS32 g_anim2dCount = 0;
 
 // GLOBAL: MW2 0x10179b60
 // GLOBAL: MW2MATROX 0x102184d0
+// GLOBAL: MW23DFX 0x102453d0
 Anim2d* g_anim2ds[7];
 
 // GLOBAL: MW2 0x10179b80
 // GLOBAL: MW2MATROX 0x102184f0
+// GLOBAL: MW23DFX 0x102453f0
 FramePrj g_framePrjs[0x60];
 
 // FUNCTION: MW2 0x10007510
@@ -61,6 +64,7 @@ MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 
 // FUNCTION: MW2 0x1000759c
 // FUNCTION: MW2MATROX 0x1000143c
+// FUNCTION: MW23DFX 0x100020e0
 void ResetFramePrjs(void)
 {
 	MechS32 i;
@@ -76,6 +80,7 @@ void ResetFramePrjs(void)
 
 // FUNCTION: MW2 0x100075eb
 // FUNCTION: MW2MATROX 0x1000148b
+// FUNCTION: MW23DFX 0x10002110
 void ClearFramePrj(FramePrj* p_prj)
 {
 	p_prj->m_id = -1;
@@ -119,6 +124,7 @@ MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16
 // Frees one animation, or all of them for a negative index.
 // FUNCTION: MW2 0x100076ea
 // FUNCTION: MW2MATROX 0x1000158a
+// FUNCTION: MW23DFX 0x100021e0
 void FreeAnim2ds(MechS32 p_index)
 {
 	if (p_index >= 0) {
@@ -133,6 +139,7 @@ void FreeAnim2ds(MechS32 p_index)
 
 // FUNCTION: MW2 0x1000773a
 // FUNCTION: MW2MATROX 0x100015da
+// FUNCTION: MW23DFX 0x10002200
 void FreeAnim2d(MechS32 p_index)
 {
 	if (g_anim2ds[p_index]) {
@@ -231,6 +238,7 @@ void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 // Restarts the animation. As in DrawAnim2d, the index test never rejects anything.
 // FUNCTION: MW2 0x10007987
 // FUNCTION: MW2MATROX 0x10001827
+// FUNCTION: MW23DFX 0x10002450
 void RestartAnim2d(MechS32 p_index)
 {
 	if (p_index < 0 && p_index >= 7) {

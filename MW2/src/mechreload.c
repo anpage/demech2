@@ -33,19 +33,22 @@ MechS32 g_unk0x100ba694 = 0;
 
 // GLOBAL: MW2 0x100ba698
 // GLOBAL: MW2MATROX 0x100bea20
+// GLOBAL: MW23DFX 0x1024d148
 RememberedMech g_rememberedMechs[60] = {0};
 
 // GLOBAL: MW2 0x100babc0
 // GLOBAL: MW2MATROX 0x100bef48
+// GLOBAL: MW23DFX 0x1024d670
 MechSegment* g_mechSegments[60] = {NULL};
 
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
-// flag 2 set.
+// flag 2 set. The last two parameters are unused: the callers pass zeros, and the 3Dfx edition,
+// where __fastcall's callee pops them (ret 8), shows that the function takes them.
 // MW2MATROX: p_player == g_localPlayerId compares in the other operand order, and
 // ResetCockpitPanels (config.c) has no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1007fbe0
 // FUNCTION: MW2MATROX 0x10090fd0
-MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
+MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08, undefined4 p_unk0x0c)
 {
 	Mech* mech;
 	MechS16 flags;
@@ -123,6 +126,7 @@ MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force)
 
 // FUNCTION: MW2 0x1007fecf
 // FUNCTION: MW2MATROX 0x100912be
+// FUNCTION: MW23DFX 0x100238c0
 void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config)
 {
 	MechS32 id;
@@ -144,6 +148,7 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_
 
 // FUNCTION: MW2 0x1007ff9c
 // FUNCTION: MW2MATROX 0x1009138b
+// FUNCTION: MW23DFX 0x100239a0
 void RememberMechSegments(Mech* p_mech)
 {
 	SceneObject* obj;
@@ -166,6 +171,7 @@ void RememberMechSegments(Mech* p_mech)
 
 // FUNCTION: MW2 0x10080014
 // FUNCTION: MW2MATROX 0x10091403
+// FUNCTION: MW23DFX 0x10023a20
 SceneObject* RestoreMechSegments(MechSegment* p_segment)
 {
 	SceneObject* obj;
@@ -190,6 +196,7 @@ SceneObject* RestoreMechSegments(MechSegment* p_segment)
 
 // FUNCTION: MW2 0x100800e3
 // FUNCTION: MW2MATROX 0x100914d2
+// FUNCTION: MW23DFX 0x10023ae0
 MechSegment* SaveMechSegments(SceneObject* p_obj)
 {
 	MechSegment* segment;

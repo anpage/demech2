@@ -23,16 +23,17 @@
 #include "types.h"
 
 #include <windows.h>
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include <stdio.h>
 #endif
 
 // The level of detail: 1 high, 2 low (TOGGLE_LOD_QUALITY); it divides Eyepoint::m_detailScale.
 // GLOBAL: MW2 0x100a712c
 // GLOBAL: MW2MATROX 0x100a5968
+// GLOBAL: MW23DFX 0x1024e6a4
 MechS32 g_lodQuality = 1;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's: a further scale of Eyepoint::m_detailScale, which UpdateProjection reads once
 // from LOD.PAR's LOD_SCALE line.
 // GLOBAL: MW2MATROX 0x100a596c
@@ -56,38 +57,47 @@ MechS32 g_viewFar;
 
 // GLOBAL: MW2 0x100ea830
 // GLOBAL: MW2MATROX 0x101d68e4
+// GLOBAL: MW23DFX 0x1015ef8c
 MechS32 g_viewLeft;
 
 // GLOBAL: MW2 0x100ea834
 // GLOBAL: MW2MATROX 0x101d684c
+// GLOBAL: MW23DFX 0x1015eef4
 MechS32 g_viewCenterX;
 
 // GLOBAL: MW2 0x100ea838
 // GLOBAL: MW2MATROX 0x101d6850
+// GLOBAL: MW23DFX 0x1015eef8
 MechS32 g_viewHalfHeight;
 
 // GLOBAL: MW2 0x100ea83c
 // GLOBAL: MW2MATROX 0x101d6854
+// GLOBAL: MW23DFX 0x1015eefc
 MechS32 g_viewHalfWidth;
 
 // GLOBAL: MW2 0x100ea840
 // GLOBAL: MW2MATROX 0x101d6864
+// GLOBAL: MW23DFX 0x1015ef0c
 MechS32 g_viewBottom;
 
 // GLOBAL: MW2 0x100ea844
 // GLOBAL: MW2MATROX 0x101d685c
+// GLOBAL: MW23DFX 0x1015ef04
 MechScalar g_viewProjectScaleX;
 
 // GLOBAL: MW2 0x100ea848
 // GLOBAL: MW2MATROX 0x101d6860
+// GLOBAL: MW23DFX 0x1015ef08
 MechScalar g_viewProjectScaleY;
 
 // GLOBAL: MW2 0x100ea84c
 // GLOBAL: MW2MATROX 0x101d68a4
+// GLOBAL: MW23DFX 0x1015ef4c
 MechS32 g_viewRight;
 
 // GLOBAL: MW2 0x100ea850
 // GLOBAL: MW2MATROX 0x101d6890
+// GLOBAL: MW23DFX 0x1015ef38
 MechS32 g_viewTop;
 
 // GLOBAL: MW2 0x100ea854
@@ -95,6 +105,7 @@ MechS32 g_viewLeftScaled;
 
 // GLOBAL: MW2 0x100ea858
 // GLOBAL: MW2MATROX 0x101d689c
+// GLOBAL: MW23DFX 0x1015ef44
 MechS32 g_viewCenterY;
 
 // GLOBAL: MW2 0x100ea85c
@@ -102,42 +113,52 @@ MechS32 g_viewBottomScaled;
 
 // GLOBAL: MW2 0x100ea860
 // GLOBAL: MW2MATROX 0x101d68a8
+// GLOBAL: MW23DFX 0x1015ef50
 MechScalar g_viewFarPlane;
 
 // GLOBAL: MW2 0x100ea864
 // GLOBAL: MW2MATROX 0x101d68c0
+// GLOBAL: MW23DFX 0x1015ef68
 MechScalar g_viewProjX0;
 
 // GLOBAL: MW2 0x100ea868
 // GLOBAL: MW2MATROX 0x101d68c4
+// GLOBAL: MW23DFX 0x1015ef6c
 MechScalar g_viewProjX1;
 
 // GLOBAL: MW2 0x100ea86c
 // GLOBAL: MW2MATROX 0x101d68c8
+// GLOBAL: MW23DFX 0x1015ef70
 MechScalar g_viewProjX2;
 
 // GLOBAL: MW2 0x100ea870
 // GLOBAL: MW2MATROX 0x101d68cc
+// GLOBAL: MW23DFX 0x1015ef74
 MechScalar g_viewProjY0;
 
 // GLOBAL: MW2 0x100ea874
 // GLOBAL: MW2MATROX 0x101d68d0
+// GLOBAL: MW23DFX 0x1015ef78
 MechScalar g_viewProjY1;
 
 // GLOBAL: MW2 0x100ea878
 // GLOBAL: MW2MATROX 0x101d68d4
+// GLOBAL: MW23DFX 0x1015ef7c
 MechScalar g_viewProjY2;
 
 // GLOBAL: MW2 0x100ea87c
 // GLOBAL: MW2MATROX 0x101d68d8
+// GLOBAL: MW23DFX 0x1015ef80
 MechScalar g_viewProjZ0;
 
 // GLOBAL: MW2 0x100ea880
 // GLOBAL: MW2MATROX 0x101d68dc
+// GLOBAL: MW23DFX 0x1015ef84
 MechScalar g_viewProjZ1;
 
 // GLOBAL: MW2 0x100ea884
 // GLOBAL: MW2MATROX 0x101d68e0
+// GLOBAL: MW23DFX 0x1015ef88
 MechScalar g_viewProjZ2;
 
 // GLOBAL: MW2 0x100ea888
@@ -152,58 +173,72 @@ MechScalar g_viewRotX0;
 
 // GLOBAL: MW2 0x100ea894
 // GLOBAL: MW2MATROX 0x101d6878
+// GLOBAL: MW23DFX 0x1015ef20
 MechScalar g_viewRotX1;
 
 // GLOBAL: MW2 0x100ea898
 // GLOBAL: MW2MATROX 0x101d687c
+// GLOBAL: MW23DFX 0x1015ef24
 MechScalar g_viewRotX2;
 
 // GLOBAL: MW2 0x100ea89c
 // GLOBAL: MW2MATROX 0x101d6880
+// GLOBAL: MW23DFX 0x1015ef28
 MechScalar g_viewRotY0;
 
 // GLOBAL: MW2 0x100ea8a0
 // GLOBAL: MW2MATROX 0x101d6884
+// GLOBAL: MW23DFX 0x1015ef2c
 MechScalar g_viewRotY1;
 
 // GLOBAL: MW2 0x100ea8a4
 // GLOBAL: MW2MATROX 0x101d6888
+// GLOBAL: MW23DFX 0x1015ef30
 MechScalar g_viewRotY2;
 
 // GLOBAL: MW2 0x100ea8a8
 // GLOBAL: MW2MATROX 0x101d688c
+// GLOBAL: MW23DFX 0x1015ef34
 MechScalar g_viewRotZ0;
 
 // GLOBAL: MW2 0x100ea8ac
 // GLOBAL: MW2MATROX 0x101d6894
+// GLOBAL: MW23DFX 0x1015ef3c
 MechScalar g_viewRotZ1;
 
 // GLOBAL: MW2 0x100ea8b0
 // GLOBAL: MW2MATROX 0x101d6898
+// GLOBAL: MW23DFX 0x1015ef40
 MechScalar g_viewRotZ2;
 
 // GLOBAL: MW2 0x100ea8b4
 // GLOBAL: MW2MATROX 0x101d686c
+// GLOBAL: MW23DFX 0x1015ef14
 MechScalar g_viewEyeY;
 
 // GLOBAL: MW2 0x100ea8b8
 // GLOBAL: MW2MATROX 0x101d6868
+// GLOBAL: MW23DFX 0x1015ef10
 MechScalar g_viewEyeX;
 
 // GLOBAL: MW2 0x100ea8bc
 // GLOBAL: MW2MATROX 0x101d6870
+// GLOBAL: MW23DFX 0x1015ef18
 MechScalar g_viewEyeZ;
 
 // GLOBAL: MW2 0x100ea8c0
 // GLOBAL: MW2MATROX 0x101d68b4
+// GLOBAL: MW23DFX 0x1015ef5c
 MechScalar g_viewLightZ;
 
 // GLOBAL: MW2 0x100ea8c4
 // GLOBAL: MW2MATROX 0x101d68ac
+// GLOBAL: MW23DFX 0x1015ef54
 MechScalar g_viewLightX;
 
 // GLOBAL: MW2 0x100ea8c8
 // GLOBAL: MW2MATROX 0x101d68b0
+// GLOBAL: MW23DFX 0x1015ef58
 MechScalar g_viewLightY;
 
 // GLOBAL: MW2 0x100ea8cc
@@ -211,21 +246,25 @@ MechS32 g_viewTopScaled;
 
 // GLOBAL: MW2 0x100ea8d0
 // GLOBAL: MW2MATROX 0x101d68bc
+// GLOBAL: MW23DFX 0x1015ef64
 MechScalar g_viewNearPlane;
 
 // GLOBAL: MW2 0x100ea8d4
 MechS32 g_viewRightScaled;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's shading: the ambient light as a fraction (out of 256), and the length of the
 // light's position and that over 128 (SelectEyepoint).
 // GLOBAL: MW2MATROX 0x101d68a0
+// GLOBAL: MW23DFX 0x1015ef48
 MechFloat g_viewAmbientScale;
 
 // GLOBAL: MW2MATROX 0x101d6858
+// GLOBAL: MW23DFX 0x1015ef00
 MechFloat g_viewLightLength;
 
 // GLOBAL: MW2MATROX 0x101d68b8
+// GLOBAL: MW23DFX 0x1015ef60
 MechFloat g_viewLightScale;
 #endif
 
@@ -235,13 +274,14 @@ MechFloat g_viewLightScale;
 // other order (commutative operand order).
 // FUNCTION: MW2 0x1004b980
 // FUNCTION: MW2MATROX 0x10029070
+// FUNCTION: MW23DFX 0x1002f560
 void SelectEyepoint(Eyepoint* p_eyepoint)
 {
 	Eyepoint* eyepoint;
 
 	g_eyepoint = eyepoint = p_eyepoint;
 	g_ambientLight = eyepoint->m_ambientLight;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_viewAmbientScale = g_ambientLight / 256.0f;
 	g_directionalLight = eyepoint->m_directionalLight;
 	g_viewProjectScaleX = eyepoint->m_projectScaleX;
@@ -338,7 +378,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x100292cc
 void UpdateProjection(Eyepoint* p_eyepoint)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 halfWidth;
 	MechS32 top;
 	MechS32 halfHeight;
@@ -505,20 +545,22 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 
 // FUNCTION: MW2 0x1004bf61
 // FUNCTION: MW2MATROX 0x10029608
+// FUNCTION: MW23DFX 0x1002f900
 void SetNearPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 {
 	p_eyepoint->m_nearPlane = g_viewNearPlane = p_value;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	g_viewNear = p_value << 2;
 #endif
 }
 
 // FUNCTION: MW2 0x1004bf8a
 // FUNCTION: MW2MATROX 0x10029627
+// FUNCTION: MW23DFX 0x1002f910
 void SetFarPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 {
 	p_eyepoint->m_farPlane = g_viewFarPlane = p_value;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	if (p_value < 0x1fffffff) {
 		g_viewFar = p_value << 2;
 		p_eyepoint->m_cullDistance = p_value;
@@ -534,6 +576,7 @@ void SetFarPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 // position and rotation.
 // FUNCTION: MW2 0x1004bfe8
 // FUNCTION: MW2MATROX 0x10029646
+// FUNCTION: MW23DFX 0x1002f920
 void UpdateViewMatrix(Eyepoint* p_eyepoint)
 {
 	Matrix matrix;
@@ -555,9 +598,10 @@ void UpdateViewMatrix(Eyepoint* p_eyepoint)
 
 // FUNCTION: MW2 0x1004c05c
 // FUNCTION: MW2MATROX 0x100296b7
+// FUNCTION: MW23DFX 0x1002f970
 void ResetEyepointView(Eyepoint* p_eyepoint)
 {
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	p_eyepoint->m_offsetX = 0;
 	p_eyepoint->m_offsetY = 0;
 #endif
@@ -568,6 +612,7 @@ void ResetEyepointView(Eyepoint* p_eyepoint)
 // Sets the eyepoint's view from a transform.
 // FUNCTION: MW2 0x1004c093
 // FUNCTION: MW2MATROX 0x100296da
+// FUNCTION: MW23DFX 0x1002f990
 void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 {
 	TransposeRotation(p_matrix, &p_eyepoint->m_viewMatrix);
@@ -579,6 +624,7 @@ void SetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // Gets the eyepoint's view as a transform.
 // FUNCTION: MW2 0x1004c0d8
 // FUNCTION: MW2MATROX 0x1002971c
+// FUNCTION: MW23DFX 0x1002f9c0
 void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 {
 	TransposeRotation(&p_eyepoint->m_viewMatrix, p_matrix);
@@ -603,7 +649,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 	MechScalar dy;
 	MechS32 behind;
 	MechScalar dz;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 screenX;
 	MechS32 screenY;
 #endif
@@ -614,7 +660,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition projects in floats, dividing by the depth.
 	x = dx * g_viewProjX0 + dy * g_viewProjX1 + dz * g_viewProjX2;
 	y = dx * g_viewProjY0 + dy * g_viewProjY1 + dz * g_viewProjY2;
@@ -715,7 +761,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 			dx,
 			dy,
 			dz,
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			g_eyepoint->m_farPlane + radius
 #else
 			g_eyepoint->m_cullDistance + radius
@@ -724,7 +770,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
 #else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
@@ -737,13 +783,13 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
 #else
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 #endif
 	fov = g_eyepoint->m_fovX;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!FIXED_IS_NEGATIVE(side)) {
 		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
@@ -763,13 +809,13 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 6;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
 #else
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 #endif
 	fov = g_eyepoint->m_fovY;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!FIXED_IS_NEGATIVE(height)) {
 		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
@@ -824,7 +870,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 1;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
 #else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
@@ -833,13 +879,13 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 4;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
 #else
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 #endif
 	fov = g_eyepoint->m_fovX;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!FIXED_IS_NEGATIVE(side)) {
 		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
@@ -859,13 +905,13 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 6;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
 #else
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 #endif
 	fov = g_eyepoint->m_fovY;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition tests the sign of side here, not of height.
 	if (!FIXED_IS_NEGATIVE(side)) {
 		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
@@ -891,6 +937,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 
 // FUNCTION: MW2 0x1004c779
 // FUNCTION: MW2MATROX 0x10029e62
+// FUNCTION: MW23DFX 0x1002ff70
 MechS32 CullHiddenShape(MechU16* p_flags)
 {
 	if (*p_flags & 0x1000) {
@@ -902,6 +949,7 @@ MechS32 CullHiddenShape(MechU16* p_flags)
 
 // FUNCTION: MW2 0x1004c7a6
 // FUNCTION: MW2MATROX 0x10029e8f
+// FUNCTION: MW23DFX 0x1002ff80
 MechS32 IsLodQualityHigh(undefined4 p_unk0x00)
 {
 	return g_lodQuality == 1;
@@ -909,6 +957,7 @@ MechS32 IsLodQualityHigh(undefined4 p_unk0x00)
 
 // FUNCTION: MW2 0x1004c7cf
 // FUNCTION: MW2MATROX 0x10029eb8
+// FUNCTION: MW23DFX 0x1002ff90
 void SetLodQualityHigh(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (p_enable) {

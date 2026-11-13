@@ -50,6 +50,7 @@ typedef struct DtblRecord {
 // ANFL, OBJI, CID and CINS.
 // GLOBAL: MW2 0x100a9428
 // GLOBAL: MW2MATROX 0x100bbb40
+// GLOBAL: MW23DFX 0x10259f38
 MechU32 g_staticPoolTags[10] =
 	{0x504741, 0x50474d, 0x474553, 0x53494c54, 0x54414441, 0x4b544e41, 0x4c464e41, 0x494a424f, 0x444943, 0x534e4943};
 
@@ -58,6 +59,7 @@ MechU32 g_staticPoolTags[10] =
 
 // GLOBAL: MW2 0x100e9da8
 // GLOBAL: MW2MATROX 0x1012c308
+// GLOBAL: MW23DFX 0x101597c8
 MechS16 g_missionPlayers;
 
 // GLOBAL: MW2 0x100e9daa
@@ -66,10 +68,12 @@ MechS16 g_unk0x100e9daa;
 
 // GLOBAL: MW2 0x100e9dac
 // GLOBAL: MW2MATROX 0x1012c30c
+// GLOBAL: MW23DFX 0x101597cc
 MechS16 g_missionObjects;
 
 // GLOBAL: MW2 0x100e9dae
 // GLOBAL: MW2MATROX 0x1012c30e
+// GLOBAL: MW23DFX 0x101597ce
 MechS16 g_missionClassEntries;
 
 // GLOBAL: MW2 0x100e9db0
@@ -82,24 +86,29 @@ MechS16 g_unk0x100e9db2;
 
 // GLOBAL: MW2 0x100e9db4
 // GLOBAL: MW2MATROX 0x1012c314
+// GLOBAL: MW23DFX 0x101597d4
 MechS16 g_missionAnims;
 
 // GLOBAL: MW2 0x100e9db6
 // GLOBAL: MW2MATROX 0x1012c316
+// GLOBAL: MW23DFX 0x101597d6
 MechS16 g_missionAnimTracks;
 
 // GLOBAL: MW2 0x100e9db8
 // GLOBAL: MW2MATROX 0x1012c318
+// GLOBAL: MW23DFX 0x101597d8
 MechS32 g_missionAnimFrameBytes;
 
 // The mission's static memory table, which ReadStaticMemoryTable fills.
 // GLOBAL: MW2 0x100e9dc0
 // GLOBAL: MW2MATROX 0x1012c320
+// GLOBAL: MW23DFX 0x101597e0
 StaticPoolSize g_staticPoolSizes[10];
 
 // Returns the size of the table's entry at an index, or 0.
 // FUNCTION: MW2 0x100563d0
 // FUNCTION: MW2MATROX 0x10085690
+// FUNCTION: MW23DFX 0x10041020
 MechU32 GetStaticPoolSize(MechS32 p_index)
 {
 	MechU32 size;
@@ -117,6 +126,7 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 // Stack-slot permutation: result, key, keyData and buffer.
 // FUNCTION: MW2 0x1005640e
 // FUNCTION: MW2MATROX 0x100856ce
+// FUNCTION: MW23DFX 0x10041040
 StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 {
 	BwdStream* stream;
@@ -234,6 +244,7 @@ MechS32 CountMissionStream(BwdStream* p_stream)
 // Fills the static memory table from the mission's counts: each pool's tag and size.
 // FUNCTION: MW2 0x100567ed
 // FUNCTION: MW2MATROX 0x10085aac
+// FUNCTION: MW23DFX 0x100412e0
 StaticPoolSize* BuildStaticMemoryTable(void)
 {
 	g_staticPoolSizes[0].m_size = g_missionPlayers * 0x1f2;

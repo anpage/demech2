@@ -92,7 +92,7 @@ MechS32 DecideAIFire(Player* p_player)
 
 		if (fire) {
 			fire = FALSE;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (def->m_heat + mech->m_heat < 65.0f && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 #else
@@ -115,7 +115,7 @@ MechS32 DecideAIFire(Player* p_player)
 		else if (type == 4) {
 			p_player->m_steering->m_torsoTilt += 0x3c000;
 		}
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 		else if (type == 21) {
 		}
 #endif

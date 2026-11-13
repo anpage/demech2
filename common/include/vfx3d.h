@@ -1,6 +1,7 @@
 #ifndef VFX3D_H
 #define VFX3D_H
 
+#include "compat.h"
 #include "decomp.h"
 #include "pane.h"
 #include "types.h"
@@ -13,13 +14,13 @@ extern "C"
 {
 #endif
 
-	void VFX_flat_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist);
-	void VFX_Gouraud_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist);
-	void VFX_dithered_Gouraud_polygon(PANE* p_pane, MechS32 p_ditherAmount, MechS32 p_vcnt, MechU32* p_vlist);
-	void VFX_illuminate_polygon(PANE* p_pane, MechS32 p_ditherAmount, MechS32 p_vcnt, MechU32* p_vlist);
-	void VFX_translate_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist, MechU8* p_lookaside);
-	void VFX_map_lookaside(MechU16* p_table);
-	void VFX_map_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist, WINDOW* p_texture, MechS32 p_flags);
+	void __cdecl VFX_flat_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist);
+	void __cdecl VFX_Gouraud_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist);
+	void __cdecl VFX_dithered_Gouraud_polygon(PANE* p_pane, MechS32 p_ditherAmount, MechS32 p_vcnt, MechU32* p_vlist);
+	void __cdecl VFX_illuminate_polygon(PANE* p_pane, MechS32 p_ditherAmount, MechS32 p_vcnt, MechU32* p_vlist);
+	void __cdecl VFX_translate_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist, MechU8* p_lookaside);
+	void __cdecl VFX_map_lookaside(MechU16* p_table);
+	void __cdecl VFX_map_polygon(PANE* p_pane, MechS32 p_vcnt, MechU32* p_vlist, WINDOW* p_texture, MechS32 p_flags);
 
 #ifdef __cplusplus
 }
@@ -30,31 +31,37 @@ extern "C"
 // FUNCTION: MW2SHELL 0x1002a968
 // FUNCTION: MW2 0x10036918
 // FUNCTION: MW2MATROX 0x10012800
+// FUNCTION: MW23DFX 0x1004720c
 // VFX_flat_polygon
 
 // FUNCTION: MW2SHELL 0x1002ae41
 // FUNCTION: MW2 0x10036df1
 // FUNCTION: MW2MATROX 0x10012cac
+// FUNCTION: MW23DFX 0x100476b8
 // VFX_Gouraud_polygon
 
 // FUNCTION: MW2SHELL 0x1002b68b
 // FUNCTION: MW2 0x1003763b
 // FUNCTION: MW2MATROX 0x100134f7
+// FUNCTION: MW23DFX 0x10047f03
 // VFX_dithered_Gouraud_polygon
 
 // FUNCTION: MW2SHELL 0x1002bf39
 // FUNCTION: MW2 0x10037ee9
 // FUNCTION: MW2MATROX 0x10013da5
+// FUNCTION: MW23DFX 0x100487b1
 // VFX_translate_polygon
 
 // FUNCTION: MW2SHELL 0x1002c48d
 // FUNCTION: MW2 0x1003843d
 // FUNCTION: MW2MATROX 0x100142f9
+// FUNCTION: MW23DFX 0x10048d05
 // VFX_illuminate_polygon
 
 // FUNCTION: MW2SHELL 0x1002cd3d
 // FUNCTION: MW2 0x10038ced
 // FUNCTION: MW2MATROX 0x10014ba9
+// FUNCTION: MW23DFX 0x100495b5
 // VFX_map_lookaside
 
 // About 93%: VFX keeps the table of span routines (__map_logic) and the span routines inside
@@ -63,6 +70,7 @@ extern "C"
 // FUNCTION: MW2SHELL 0x1002cd5d
 // FUNCTION: MW2 0x10038d0d
 // FUNCTION: MW2MATROX 0x10014bc9
+// FUNCTION: MW23DFX 0x100495d5
 // VFX_map_polygon
 
 #endif // VFX3D_H

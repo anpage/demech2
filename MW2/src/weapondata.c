@@ -8,6 +8,7 @@
 
 // GLOBAL: MW2 0x100a0258
 // GLOBAL: MW2MATROX 0x100bd340
+// GLOBAL: MW23DFX 0x1025a6c0
 WeaponDef g_weaponDefs[31] = {
 	{4, 3, 26, 27, 0, 1, 1, 20, 6, 189, 0, 100, 2, FIXED_LITERAL(39321, 0.6f), 0, 7500, 100100, 2534, 11, 905, "LRM20"},
 	{4, 3, 26, 27, 0, 1, 1, 15, 8, 189, 0, 100, 2, FIXED_LITERAL(39321, 0.6f), 0, 7500, 100100, 2172, 22, 905, "LRM15"},
@@ -67,6 +68,7 @@ WeaponDef g_weaponDefs[31] = {
 
 // GLOBAL: MW2 0x100a0d00
 // GLOBAL: MW2MATROX 0x100bdde8
+// GLOBAL: MW23DFX 0x1025b168
 EffectInfo g_effectInfo[0x20] = {
 	{271, -1, 251, -1, 0, 1, 0},  // 0x00
 	{271, -1, 251, -1, 0, 1, 0},  // 0x01

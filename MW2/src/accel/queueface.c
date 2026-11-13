@@ -1,17 +1,17 @@
-/* The Matrox edition's projection of faces: objectanim.c's GetViewVertex, ClipEdgeToNearPlane,
+/* The accelerated editions' projection of faces: objectanim.c's GetViewVertex, ClipEdgeToNearPlane,
    ProjectVertex, GetFaceShade and QueueFace in floats, with the vertices' shading for the
    renderer, and two functions of its own (ClipProjectedEdge and ProjectPolygon). 1.1 has these
    at the end of objectanim.c's object, as __asm blocks; the Matrox edition links them as an object
-   of their own, after mechcollision.c's. Only the Matrox edition builds this unit; the guard keeps the
+   of their own, after mechcollision.c's. Only the accelerated editions build this unit; the guard keeps the
    tools that parse every source (with 1.1's structures) out of it. */
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
+#include "accel/a3d.h"
 #include "approxlen.h"
 #include "decomp.h"
 #include "depthsort.h"
 #include "face.h"
 #include "faceshade.h"
 #include "fixedfloat.h"
-#include "matrox/a3d.h"
 #include "objectanim.h"
 #include "polydraw.h"
 #include "projectedvertex.h"

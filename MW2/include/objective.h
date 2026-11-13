@@ -35,7 +35,7 @@ extern "C"
 	MechS32 EndTheMission2(void);
 	void RestartStarMission(MechS32 p_star);
 	void FUN_1001cdd1(void);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 FUN_1001cde1(MechU16 p_unk0x00); // its callers push a word as loaded
 #else
 MechS32 FUN_1001cde1(undefined4 p_unk0x00);

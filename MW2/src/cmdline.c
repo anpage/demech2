@@ -63,7 +63,7 @@ MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p
 				g_missionTimerStopped = 1;
 				break;
 			case 'E':
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				remove("mw2debug.txt");
 #else
 				_rmdir("mw2debug.txt");

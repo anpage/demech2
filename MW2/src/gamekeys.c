@@ -54,6 +54,7 @@ MechS32 g_speechFlushTime = 0;
 // A game-key toggle (GetSystemSetting's setting 0x40).
 // GLOBAL: MW2 0x100aa298
 // GLOBAL: MW2MATROX 0x100a7cc0
+// GLOBAL: MW23DFX 0x10250514
 MechS32 g_overrideShutdown = 0;
 
 // Set by game key 0x11.
@@ -63,6 +64,7 @@ MechS32 g_feetToTorso = 0;
 
 // GLOBAL: MW2 0x100aa2a4
 // GLOBAL: MW2MATROX 0x100a7ccc
+// GLOBAL: MW23DFX 0x10250520
 MechS32 g_mechViewMode = 1;
 
 // GLOBAL: MW2 0x100aa2a8
@@ -94,6 +96,7 @@ MechS32 g_statusMessage = 0;
 // The last 15 characters typed, the newest last.
 // GLOBAL: MW2 0x100e9620
 // GLOBAL: MW2MATROX 0x101d4a80
+// GLOBAL: MW23DFX 0x10159f50
 MechChar g_typedKeys[0xf];
 
 // GLOBAL: MW2 0x100ea3e4
@@ -103,6 +106,7 @@ MechS32 g_frontViewForRear;
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
 // FUNCTION: MW2 0x1005b7c0
 // FUNCTION: MW2MATROX 0x10041ed0
+// FUNCTION: MW23DFX 0x10036d10
 MechS32 AppendTypedKey(MechS16 p_key)
 {
 	if ((p_key & 0xff00) != 0x700) {
@@ -119,6 +123,7 @@ MechS32 AppendTypedKey(MechS16 p_key)
 // Stack-slot permutation of n and c.
 // FUNCTION: MW2 0x1005b807
 // FUNCTION: MW2MATROX 0x10041f17
+// FUNCTION: MW23DFX 0x10036d40
 MechS32 TypedCodeMatches(MechChar* p_code)
 {
 	MechChar* typed;
@@ -160,7 +165,7 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Invulnerability OFF", 1, 0x16a, 0x32);
 		}
 	}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	else if (TypedCodeMatches("v\x7fwwc")) { // "lemmy"
 		g_difficulty->m_invulnerable = 1;
 		g_difficulty->m_unlimitedAmmo = 1;
@@ -193,7 +198,7 @@ void HandleCheatInput(MechS16 p_key)
 	else if (TypedCodeMatches("~\x7fs")) { // "dei"
 		ShowInGameMessage("F E I F", 1, 0x16a, 0x32);
 	}
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	else if (TypedCodeMatches("~uhyi")) { // "dorcs"
 		ShowDorcs();
 		ShowInGameMessage("You asked for it!", 1, 0x16a, 0x32);
@@ -335,6 +340,7 @@ void HandleCheatInput(MechS16 p_key)
 // Turns a typed character into the one its key gives with shift held (the US layout).
 // FUNCTION: MW2 0x1005bf7c
 // FUNCTION: MW2MATROX 0x100426b2
+// FUNCTION: MW23DFX 0x10037280
 void ShiftCharacter(MechChar* p_char)
 {
 	MechChar shifted[16] = {'<', '_', '>', '?', ')', '!', '@', '#', '$', '%', '^', '&', '*', '(', ':', ':'};
@@ -857,7 +863,7 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3d:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (mech->m_powerState == 7) {
 			break;
 		}
@@ -871,7 +877,7 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3e:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (mech->m_powerState == 7) {
 			break;
 		}
@@ -1025,7 +1031,7 @@ void RunGameKey(MechS32 p_key)
 		break;
 	case 0x5b:
 		PauseTimer(0x80, 1);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (g_windowActive) {
 			g_currentDisplayBackend->m_acquireFramebuffer();
 		}
@@ -1051,7 +1057,7 @@ void RunGameKey(MechS32 p_key)
 	}
 
 	if (step != -1) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		g_localSteering.m_throttle = step * (1.0f / 576.0f);
 #else
 		g_localSteering.m_throttle = step * 113;

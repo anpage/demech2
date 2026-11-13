@@ -13,8 +13,8 @@
 #include "vector3.h"
 #include "vfxa.h"
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 // Draws icon p_icon at the world position p_pos, if the map view shows it. The Matrox edition
@@ -22,7 +22,7 @@
 // MW2MATROX: stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003e40a
 // FUNCTION: MW2MATROX 0x1007426c
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 void DrawMapIcon(CockpitLayout* p_layout, Vector3* p_position, MechS32 p_icon)
 #else
 void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
@@ -31,12 +31,12 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	PANE* viewport;
 	void* shape;
 	MechS32 visible;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	Point screen;
 #endif
 
 	viewport = p_layout->m_viewport;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	visible = ProjectMapPoint(p_position, &screen);
 	if (visible && p_layout->m_gauges[1]) {
 		visible = p_layout->m_gauges[1](viewport, &screen);
@@ -51,7 +51,7 @@ void DrawMapIcon(CockpitLayout* p_layout, MapPoint p_pos, MechS32 p_icon)
 	if (visible) {
 		shape = LoadCachedResource(g_mw2PrjHandle, p_icon + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp], 0);
 		if (shape) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 			VFX_shape_draw(viewport, shape, 0, p_pos.m_xy.m_x, p_pos.m_xy.m_y);

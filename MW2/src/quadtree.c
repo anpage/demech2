@@ -18,6 +18,7 @@ DECOMP_SIZE_ASSERT(QuadtreeNode, 0x2c)
 
 // GLOBAL: MW2 0x100a37dc
 // GLOBAL: MW2MATROX 0x100a4834
+// GLOBAL: MW23DFX 0x1024b2f8
 MechS32 g_quadtreesDisabled = 0;
 
 // Builds p_shape's quadtree (m_collisionData) over its model's bounds, unless g_quadtreesDisabled is set.
@@ -212,6 +213,7 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 // The only diff is a stack-slot permutation of entries and node.
 // FUNCTION: MW2 0x1001e429
 // FUNCTION: MW2MATROX 0x10015ee6
+// FUNCTION: MW23DFX 0x1000c8c0
 QuadtreeNode* AllocQuadtreeNode(
 	MechScalar p_minX,
 	MechScalar p_maxX,
@@ -255,6 +257,7 @@ QuadtreeNode* AllocQuadtreeNode(
 // Frees a quadtree.
 // FUNCTION: MW2 0x1001e50d
 // FUNCTION: MW2MATROX 0x10015fca
+// FUNCTION: MW23DFX 0x1000c960
 void FreeQuadtree(QuadtreeNode* p_node)
 {
 	MechS32 i;
@@ -475,7 +478,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		tMin = 0;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if ((t0 = GetRayLength(p_ray)) < tMax) {
 #else
 	t0 = GetRayLength(p_ray);
@@ -513,6 +516,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001eb25
 // FUNCTION: MW2MATROX 0x10016662
+// FUNCTION: MW23DFX 0x1000ced0
 MechS32 TestQuadtreeChildrenRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 {
 	MechScalar length;

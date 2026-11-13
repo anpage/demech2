@@ -63,6 +63,7 @@
 // screen).
 // GLOBAL: MW2 0x100adf58
 // GLOBAL: MW2MATROX 0x100b1478
+// GLOBAL: MW23DFX 0x1024c8b8
 PANE g_cockpitPanelPanes[c_panelCount] = {
 	{&g_mainPixelBuffer, 13, 10, 80, 60},     {&g_mainPixelBuffer, 260, 145, 312, 197},
 	{&g_mainPixelBuffer, 258, 145, 309, 175}, {&g_mainPixelBuffer, 214, 15, 256, 23},
@@ -82,6 +83,7 @@ PANE g_cockpitPanelPanes[c_panelCount] = {
 // The panels' text positions (16.16 fractions of their rectangles).
 // GLOBAL: MW2 0x100ae160
 // GLOBAL: MW2MATROX 0x100b1680
+// GLOBAL: MW23DFX 0x1024cac0
 Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 												 {0, 0},           {0x11ec, 0x2148},
 												 {0x11ec, 0x2148}, {0x11ec, 0x2148},
@@ -187,11 +189,13 @@ MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
 // GLOBAL: MW2MATROX 0x100b18a0
+// GLOBAL: MW23DFX 0x1024cce0
 MechS32 g_hitFadePending = 0;
 
 // The clock times the panels light up at on startup (CockpitPanel::m_lightUpTime): the weapon panels in turn.
 // GLOBAL: MW2 0x100ae388
 // GLOBAL: MW2MATROX 0x100b18a8
+// GLOBAL: MW23DFX 0x1024cce8
 undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21f, 0x23d, 0x25b, 0x279, 0x297, 0x32e,
 													   0x310, 0x2f2, 0x2d4, 0x2b5, 0xb5,  0xb5,  0xb5,  0xb5,  0xb5,
 													   0xb5,  0xb5,  0xb5,  0xb5,  0xb5,  0x0,   0x0,   0x0};
@@ -199,18 +203,22 @@ undefined4 g_cockpitPanelLightUpTimes[c_panelCount] = {0x16a, 0xb5,  0xb5,  0x21
 // The local mech's state (Mech::m_powerState) when PlayCockpitWarnings last ran.
 // GLOBAL: MW2 0x100ae3f0
 // GLOBAL: MW2MATROX 0x100b1910
+// GLOBAL: MW23DFX 0x1024cd50
 MechS32 g_lastWarningPowerState = 0;
 
 // GLOBAL: MW2 0x100ae3f4
 // GLOBAL: MW2MATROX 0x100b1914
+// GLOBAL: MW23DFX 0x1024cd54
 MechS32 g_lockedTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3f8
 // GLOBAL: MW2MATROX 0x100b1918
+// GLOBAL: MW23DFX 0x1024cd58
 MechS32 g_lockingTonePlayed = 0;
 
 // GLOBAL: MW2 0x100ae3fc
 // GLOBAL: MW2MATROX 0x100b191c
+// GLOBAL: MW23DFX 0x1024cd5c
 MechS32 g_hitFadeCount = 0;
 
 // The local player's heading and torso twist, in whole degrees (UpdateCockpit).
@@ -226,11 +234,13 @@ MechScalar g_headingDegrees;
 // The 26 cockpit panels InitCockpitPanels allocates.
 // GLOBAL: MW2 0x100c3280
 // GLOBAL: MW2MATROX 0x1012f970
+// GLOBAL: MW23DFX 0x101de800
 CockpitPanel* g_cockpitPanels[c_panelCount];
 
 // Which of the panels are enabled when they are set up.
 // GLOBAL: MW2 0x100c32f0
 // GLOBAL: MW2MATROX 0x1012f9e0
+// GLOBAL: MW23DFX 0x101de870
 MechS32 g_cockpitPanelEnabled[c_panelCount];
 
 // GLOBAL: MW2 0x100c3358
@@ -240,6 +250,7 @@ MechS32 g_cockpitPowerState;
 // Loads eight sounds ahead of their use.
 // FUNCTION: MW2 0x1006f480
 // FUNCTION: MW2MATROX 0x100794d0
+// FUNCTION: MW23DFX 0x1001dc50
 void PreloadCockpitSounds(void)
 {
 	MechS32 ids[8];
@@ -475,6 +486,7 @@ void ScaleCockpitLayout(void)
 // handlers.
 // FUNCTION: MW2 0x1006fca5
 // FUNCTION: MW2MATROX 0x10079cfd
+// FUNCTION: MW23DFX 0x1001e0f0
 void InitCockpitPanels(void)
 {
 	Mech* mech;
@@ -537,6 +549,7 @@ void InitCockpitPanels(void)
 // Lays out the local mech's weapon panels again and resets every panel to its settings.
 // FUNCTION: MW2 0x1006ff7b
 // FUNCTION: MW2MATROX 0x10079fd3
+// FUNCTION: MW23DFX 0x1001e2d0
 void ResetCockpitPanels(void)
 {
 	Mech* mech;
@@ -585,7 +598,7 @@ void UpdateCockpit(Mech* p_mech)
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_headingDegrees = fmod(fmod(p_mech->m_player->m_heading, 360.0) + 360.0, 360.0);
 	g_torsoTwistDegrees = fmod(p_mech->m_torsoTwist.m_value, 360.0);
 	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
@@ -708,6 +721,7 @@ void UpdateCockpit(Mech* p_mech)
 // each panel's m_shutdown hook, then every 2D animation.
 // FUNCTION: MW2 0x100704c1
 // FUNCTION: MW2MATROX 0x1007a53c
+// FUNCTION: MW23DFX 0x1001e630
 void ShutdownCockpitPanels(void)
 {
 	MechS32 i;
@@ -755,6 +769,7 @@ void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 // Plays the cockpit's warning sounds for the local mech as its state and flags change.
 // FUNCTION: MW2 0x100705dd
 // FUNCTION: MW2MATROX 0x1007a658
+// FUNCTION: MW23DFX 0x1001e6c0
 void PlayCockpitWarnings(Mech* p_mech)
 {
 	if (g_hitFadePending) {
@@ -807,7 +822,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	FUN_10088280(p_target);
 #endif
 }

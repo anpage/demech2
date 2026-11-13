@@ -16,10 +16,12 @@ DECOMP_SIZE_ASSERT(TimedCallback, 0x18)
 // The callback being created, run or removed.
 // GLOBAL: MW2 0x100ba5d4
 // GLOBAL: MW2MATROX 0x100a5948
+// GLOBAL: MW23DFX 0x1024abc8
 TimedCallback* g_currentCallback = NULL;
 
 // FUNCTION: MW2 0x1007d2e0
 // FUNCTION: MW2MATROX 0x100272b0
+// FUNCTION: MW23DFX 0x10008270
 TimedCallback* GetCurrentCallback(void)
 {
 	return g_currentCallback;
@@ -99,6 +101,7 @@ void SignalTask(TimedCallback** p_list, TimedCallback* p_callback)
 
 // FUNCTION: MW2 0x1007d4dc
 // FUNCTION: MW2MATROX 0x100274ac
+// FUNCTION: MW23DFX 0x100083a0
 void SignalAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;
@@ -110,6 +113,7 @@ void SignalAllTasks(TimedCallback** p_list)
 
 // FUNCTION: MW2 0x1007d51f
 // FUNCTION: MW2MATROX 0x100274ef
+// FUNCTION: MW23DFX 0x100083c0
 void** GetCallbackData(TimedCallback* p_callback)
 {
 	return &p_callback->m_data;
@@ -134,6 +138,7 @@ void RunTimedCallbacks(TimedCallback** p_list)
 
 // FUNCTION: MW2 0x1007d5f1
 // FUNCTION: MW2MATROX 0x100275c1
+// FUNCTION: MW23DFX 0x10008450
 MechS32 GetTimedCallbackSize(void)
 {
 	return sizeof(TimedCallback);

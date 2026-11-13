@@ -16,19 +16,23 @@
 // The channel AIL_lock_channel gave the note (0-based), or -1.
 // GLOBAL: MW2 0x100a3948
 // GLOBAL: MW2MATROX 0x100a8154
+// GLOBAL: MW23DFX 0x1024f770
 MechS8 g_lockedChannel = -1;
 
 // GLOBAL: MW2 0x100a394c
 // GLOBAL: MW2MATROX 0x100a8158
+// GLOBAL: MW23DFX 0x1024f774
 HMDIDRIVER g_midiDriver = NULL;
 
 // Set by ShutdownMidi: the sequences are gone for good.
 // GLOBAL: MW2 0x100a3950
 // GLOBAL: MW2MATROX 0x100a815c
+// GLOBAL: MW23DFX 0x1024f778
 MechS32 g_midiShutDown = 0;
 
 // GLOBAL: MW2 0x100a3954
 // GLOBAL: MW2MATROX 0x100a8160
+// GLOBAL: MW23DFX 0x1024f77c
 MechS32 g_midiInitialized = 0;
 
 // The resource ids of the sequences' data, or 0.
@@ -39,6 +43,7 @@ MechS16 g_midiSequenceIds[8];
 // The sequence handles, or -1.
 // GLOBAL: MW2 0x1010b5f0
 // GLOBAL: MW2MATROX 0x101d4a50
+// GLOBAL: MW23DFX 0x1015a020
 HSEQUENCE g_midiSequences[8];
 
 // FUNCTION: MW2 0x10021460
@@ -72,6 +77,7 @@ void StopMidiSequences(void)
 
 // FUNCTION: MW2 0x1002152b
 // FUNCTION: MW2MATROX 0x10043c2b
+// FUNCTION: MW23DFX 0x10033010
 void PauseMidiSequences(void)
 {
 	HSEQUENCE sequence;
@@ -197,6 +203,7 @@ MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceN
 
 // FUNCTION: MW2 0x1002187c
 // FUNCTION: MW2MATROX 0x10043f7c
+// FUNCTION: MW23DFX 0x100332b0
 void ShutdownMidi(void)
 {
 	if (!g_midiInitialized) {
@@ -215,6 +222,7 @@ void ShutdownMidi(void)
 // Stack-slot permutation: i and playing.
 // FUNCTION: MW2 0x100218bf
 // FUNCTION: MW2MATROX 0x10043fbf
+// FUNCTION: MW23DFX 0x100332e0
 MechS16 AnyMidiPlaying(void)
 {
 	MechS32 i;
@@ -280,7 +288,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // FUNCTION: MW2MATROX 0x10044107
 void StartEngineNote(void)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition doesn't play the engine note.
 	return;
 #endif
@@ -346,6 +354,7 @@ void UpdateEngineNote(MechU32 p_pitch)
 // Ends the held note and unlocks its channel.
 // FUNCTION: MW2 0x10021be2
 // FUNCTION: MW2MATROX 0x100442e7
+// FUNCTION: MW23DFX 0x10033490
 void StopEngineNote(void)
 {
 	if (g_midiDriver == NULL) {
@@ -362,6 +371,7 @@ void StopEngineNote(void)
 // Silences the held note.
 // FUNCTION: MW2 0x10021c49
 // FUNCTION: MW2MATROX 0x1004434e
+// FUNCTION: MW23DFX 0x100334e0
 void MuteEngineNote(void)
 {
 	if (g_midiDriver == NULL) {

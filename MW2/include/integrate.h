@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition integrates floats in place: its callers read the arguments where they are.
 #define IntegrateMidpoint(p_position, p_velocity, p_acceleration, p_time)                                              \
 	{                                                                                                                  \

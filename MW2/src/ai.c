@@ -102,6 +102,7 @@ AiName g_aiTransitionNames[7] = {
 
 // GLOBAL: MW2 0x100a8980
 // GLOBAL: MW2MATROX 0x100bb098
+// GLOBAL: MW23DFX 0x1024b5d0
 AiName g_aiStateNames[13] = {
 	{"idle", c_aiStateIdle},
 	{"avoid", c_aiStateAvoid},
@@ -139,6 +140,7 @@ AiName g_aiStateShortNames[14] = {
 
 // GLOBAL: MW2 0x100a8a58
 // GLOBAL: MW2MATROX 0x100bb170
+// GLOBAL: MW23DFX 0x1024b740
 AiName g_aiSymbolicTargetNames[7] = {
 	{"agp_user", c_aiTargetUser},
 	{"agp_myleader", c_aiTargetMyLeader},
@@ -245,6 +247,7 @@ MechS16 g_invalidTargetLogCount = 0;
 
 // GLOBAL: MW2 0x100a8f38
 // GLOBAL: MW2MATROX 0x100bb650
+// GLOBAL: MW23DFX 0x1024baa8
 AiScriptTable g_mechScripts = {
 	{1, 1},
 	{7, 3},
@@ -266,6 +269,7 @@ AiScriptTable g_mechScripts = {
 
 // GLOBAL: MW2 0x100a8f78
 // GLOBAL: MW2MATROX 0x100bb690
+// GLOBAL: MW23DFX 0x1024bae8
 AiScriptTable g_artilleryScripts = {
 	{1, 1},
 	{7, 3},
@@ -287,6 +291,7 @@ AiScriptTable g_artilleryScripts = {
 
 // GLOBAL: MW2 0x100a8fb8
 // GLOBAL: MW2MATROX 0x100bb6d0
+// GLOBAL: MW23DFX 0x1024bb28
 AiScriptTable g_wandererScripts = {
 	{1, 1},
 	{7, 3},
@@ -308,6 +313,7 @@ AiScriptTable g_wandererScripts = {
 
 // GLOBAL: MW2 0x100a8ff8
 // GLOBAL: MW2MATROX 0x100bb710
+// GLOBAL: MW23DFX 0x1024bb68
 AiScriptTable g_truckScripts = {
 	{1, 1},
 	{7, 3},
@@ -329,6 +335,7 @@ AiScriptTable g_truckScripts = {
 
 // GLOBAL: MW2 0x100a9038
 // GLOBAL: MW2MATROX 0x100bb750
+// GLOBAL: MW23DFX 0x1024bba8
 AiScriptTable g_tankScripts = {
 	{1, 1},
 	{7, 3},
@@ -350,6 +357,7 @@ AiScriptTable g_tankScripts = {
 
 // GLOBAL: MW2 0x100a9078
 // GLOBAL: MW2MATROX 0x100bb790
+// GLOBAL: MW23DFX 0x1024bbe8
 MechS16 g_helicopterScripts[15][2] = {
 	{1, 1},
 	{7, 3},
@@ -374,6 +382,7 @@ MechS32 g_lairdoCheat = 0;
 
 // GLOBAL: MW2 0x100a90b8
 // GLOBAL: MW2MATROX 0x100bb7d0
+// GLOBAL: MW23DFX 0x1024bc28
 MechS32 g_aiSpreadTargets = 1;
 
 // GLOBAL: MW2 0x100a90c0
@@ -424,10 +433,12 @@ AiTransitionFn g_aiTransitionFns[5] = {
 
 // GLOBAL: MW2 0x100e9e10
 // GLOBAL: MW2MATROX 0x1012c380
+// GLOBAL: MW23DFX 0x101e8840
 void* g_aiScripts[10];
 
 // GLOBAL: MW2 0x100e9e38
 // GLOBAL: MW2MATROX 0x1012c374
+// GLOBAL: MW23DFX 0x101e8834
 MechS16 g_hiddenTargetCount;
 
 // GLOBAL: MW2 0x100e9e40
@@ -436,6 +447,7 @@ AiRule* g_aiRules[60][6];
 
 // GLOBAL: MW2 0x100ea3e0
 // GLOBAL: MW2MATROX 0x1012c370
+// GLOBAL: MW23DFX 0x101e8830
 MechS32 g_aiStateTime;
 
 // Runs p_player's AI for a tick: the star leader leads its star (LeadStar); an AI player runs
@@ -535,6 +547,7 @@ MechS32 RunAIRules(Player* p_player)
 // Stack-slot permutation: count, found, i, j, pos, rule and script and skip.
 // FUNCTION: MW2 0x1005141c
 // FUNCTION: MW2MATROX 0x1008059c
+// FUNCTION: MW23DFX 0x10011e40
 void CollectAIRules(Player* p_player)
 {
 	MechU16 count;
@@ -675,7 +688,7 @@ void InitializeAI(Player* p_player)
 	InitializeManeuvers(p_player);
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "aiattacker.c"
 #include "aireset.c"
 #endif
@@ -683,6 +696,7 @@ void InitializeAI(Player* p_player)
 // Returns the name of p_value in p_names, or NULL.
 // FUNCTION: MW2 0x10051ad8
 // FUNCTION: MW2MATROX 0x10080a4e
+// FUNCTION: MW23DFX 0x10011f80
 const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 {
 	MechS16 i;
@@ -697,7 +711,7 @@ const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 }
 
 // The Matrox edition places ResetAI here.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "aireset.c"
 #endif
 
@@ -858,7 +872,7 @@ void LogPlayerStatusLines(void)
 }
 
 // The Matrox edition places TargetAttacker here.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "aiattacker.c"
 #endif
 
@@ -917,6 +931,7 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 // Stack-slot permutation: i and player.
 // FUNCTION: MW2 0x100521e0
 // FUNCTION: MW2MATROX 0x1008131f
+// FUNCTION: MW23DFX 0x100126d0
 void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 {
 	MechS32 i;
@@ -934,6 +949,7 @@ void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target)
 // Resolves the symbolic target p_target for p_player (FindNearestTarget).
 // FUNCTION: MW2 0x10052284
 // FUNCTION: MW2MATROX 0x100813c2
+// FUNCTION: MW23DFX 0x10012a00
 MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 {
 	MechS16 nearest;
@@ -980,6 +996,7 @@ MechS16 AiMessageFalse(void)
 // range); reaching its anchor nav releases it, and a patrol moves on to the next nav.
 // FUNCTION: MW2 0x10052338
 // FUNCTION: MW2MATROX 0x10081476
+// FUNCTION: MW23DFX 0x10012a80
 MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 result;
@@ -1010,7 +1027,7 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 	return result;
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "aiprox.c"
 #endif
 
@@ -1053,11 +1070,11 @@ void LogPlayerSkillLines(void)
 }
 
 // The Matrox edition places AiMessageProx here.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "aiprox.c"
 #endif
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "aidist.c"
 #endif
 
@@ -1202,7 +1219,7 @@ void LogStarMissionLines(MechS32 p_team)
 }
 
 // The Matrox edition places AiMessageDist here.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "aidist.c"
 #endif
 
@@ -1211,6 +1228,7 @@ void LogStarMissionLines(MechS32 p_team)
 // (m_nextDetectCheck). Nothing calls it.
 // FUNCTION: MW2 0x10052cb7
 // FUNCTION: MW2MATROX 0x10081e45
+// FUNCTION: MW23DFX 0x10012cd0
 MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distance, MechS32 p_check)
 {
 	MechS32 dead;
@@ -1278,7 +1296,7 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 			continue;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if ((MechS32) p_player->m_targetInfo.m_distance < nearest) {
 #else
 		if (p_player->m_targetInfo.m_distance < nearest) {
@@ -1367,6 +1385,7 @@ void LogAIStatus(void)
 // -1: its resting one).
 // FUNCTION: MW2 0x100530f7
 // FUNCTION: MW2MATROX 0x1008229a
+// FUNCTION: MW23DFX 0x10012fd0
 MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 nearest;
@@ -1427,6 +1446,7 @@ MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target)
 // The state functions (g_aiStateFns), run each tick with the player's target.
 // FUNCTION: MW2 0x10053258
 // FUNCTION: MW2MATROX 0x10082414
+// FUNCTION: MW23DFX 0x100130e0
 void AiStateIdle(Player* p_player)
 {
 	p_player->m_targetInfo.m_distance = 0;
@@ -1436,6 +1456,7 @@ void AiStateIdle(Player* p_player)
 // Drives p_player towards p_target, or away from it when fleeing.
 // FUNCTION: MW2 0x10053275
 // FUNCTION: MW2MATROX 0x10082431
+// FUNCTION: MW23DFX 0x100130f0
 void AiStateMove(Player* p_player, MechU16 p_target)
 {
 	MechScalar heading;
@@ -1481,7 +1502,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFlee:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + 180.0);
 #else
 		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + FIXED_CONST(180));
@@ -1495,7 +1516,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		break;
 	default:
 		if (p_player->m_aiMode == 2) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			p_player->m_steering->m_throttle = 0.0125f; // 1.1's 0x333, rounded
 #else
 			p_player->m_steering->m_throttle = 0x333;
@@ -1508,6 +1529,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 // Runs p_player's maneuvers against p_target (RunManeuver).
 // FUNCTION: MW2 0x100534a0
 // FUNCTION: MW2MATROX 0x10082666
+// FUNCTION: MW23DFX 0x10013290
 void AiStateAttack(Player* p_player, MechU16 p_target)
 {
 	p_player->m_steering->m_weaponFire = 0;
@@ -1517,6 +1539,7 @@ void AiStateAttack(Player* p_player, MechU16 p_target)
 // The rule transitions (g_aiTransitionFns): whether the rule's new state is to be entered.
 // FUNCTION: MW2 0x100534c5
 // FUNCTION: MW2MATROX 0x1008268b
+// FUNCTION: MW23DFX 0x100132a0
 MechS32 AiTransitionNull(Player* p_player, AiRule* p_rule)
 {
 	return TRUE;
@@ -1524,6 +1547,7 @@ MechS32 AiTransitionNull(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x100534da
 // FUNCTION: MW2MATROX 0x100826a0
+// FUNCTION: MW23DFX 0x100132b0
 MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 {
 	p_player->m_stackCount = 0;
@@ -1551,6 +1575,7 @@ MechS32 AiTransitionPush(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x10053577
 // FUNCTION: MW2MATROX 0x1008273d
+// FUNCTION: MW23DFX 0x10013320
 MechS32 AiTransitionPop(Player* p_player, AiRule* p_rule)
 {
 	AiStackEntry entry;
@@ -1588,6 +1613,7 @@ MechU16 FindAttacker(Player* p_player)
 // Resolves a rule's target field: '@' the goal, '%' the target found, '*' the current target.
 // FUNCTION: MW2 0x100536b8
 // FUNCTION: MW2MATROX 0x1008287e
+// FUNCTION: MW23DFX 0x10013400
 MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, MechS16 p_target)
 {
 	MechS16 result;
@@ -1610,6 +1636,7 @@ MechS16 ResolveRuleTarget(MechU16 p_value, MechS16 p_goal, MechS16 p_found, Mech
 // Whether the target is valid.
 // FUNCTION: MW2 0x1005372c
 // FUNCTION: MW2MATROX 0x100828f2
+// FUNCTION: MW23DFX 0x10013430
 MechS32 SetTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
@@ -1619,6 +1646,7 @@ MechS32 SetTarget(Player* p_player, MechS16 p_target)
 // The range within which p_target counts as reached.
 // FUNCTION: MW2 0x10053769
 // FUNCTION: MW2MATROX 0x1008292f
+// FUNCTION: MW23DFX 0x10013450
 MechScalar GetTargetRange(MechS16 p_target)
 {
 	MechScalar range;
@@ -1652,7 +1680,7 @@ MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 {
 	MechScalar throttle;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	throttle = p_player->m_steering->m_throttle;
 	if (p_range * 2 < p_player->m_targetInfo.m_distance) {
 		throttle = 0.015625f;
@@ -1712,6 +1740,7 @@ MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 // The torso pan towards p_angle, off by p_delta (AddClamped).
 // FUNCTION: MW2 0x1005391f
 // FUNCTION: MW2MATROX 0x10082b46
+// FUNCTION: MW23DFX 0x100135a0
 MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 {
 	MechScalar value;
@@ -1723,6 +1752,7 @@ MechScalar AimTorsoPan(Player* p_player, MechScalar p_angle, MechS32 p_delta)
 // The torso tilt towards the target, off by p_delta (AddClamped).
 // FUNCTION: MW2 0x10053954
 // FUNCTION: MW2MATROX 0x10082b8f
+// FUNCTION: MW23DFX 0x100135d0
 MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 {
 	MechScalar value;
@@ -1735,9 +1765,10 @@ MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 // Stack-slot permutation: degrees and scaled.
 // FUNCTION: MW2 0x1005398f
 // FUNCTION: MW2MATROX 0x10082bde
+// FUNCTION: MW23DFX 0x10013600
 MechScalar SteerToTarget(Player* p_player)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition steers by the bearing wrapped to +-360 degrees, and returns it wrapped.
 	MechScalar delta;
 
@@ -1779,6 +1810,7 @@ MechScalar SteerToTarget(Player* p_player)
 // order.
 // FUNCTION: MW2 0x10053a2e
 // FUNCTION: MW2MATROX 0x10082c85
+// FUNCTION: MW23DFX 0x10013680
 void LeaveAIState(Player* p_player)
 {
 	MechS16 flags;
@@ -1825,6 +1857,7 @@ void LeaveAIState(Player* p_player)
 // and line and navName.
 // FUNCTION: MW2 0x10053be9
 // FUNCTION: MW2MATROX 0x10082e40
+// FUNCTION: MW23DFX 0x10013790
 void EnterAIState(Player* p_player, MechU16 p_state)
 {
 	MechU32 nav;
@@ -2046,6 +2079,7 @@ MechS16 NextTarget(Player* p_player, MechS16 p_target, MechS16 p_previous)
 // The bearing to p_player's target, 16.16 degrees either way.
 // FUNCTION: MW2 0x1005432f
 // FUNCTION: MW2MATROX 0x10083580
+// FUNCTION: MW23DFX 0x10013be0
 MechScalar GetTargetBearing(Player* p_player)
 {
 	MechScalar delta;
@@ -2066,6 +2100,7 @@ MechScalar GetTargetBearing(Player* p_player)
 // Stack-slot permutation: flags, index, mask and result and type.
 // FUNCTION: MW2 0x10054384
 // FUNCTION: MW2MATROX 0x100835ea
+// FUNCTION: MW23DFX 0x10013c40
 MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 {
 	MechU32 index;
@@ -2141,6 +2176,7 @@ MechS32 IsTargetDone(MechU16 p_target, MechS32 p_check)
 // Enters p_state for p_player now, or after its pushed state when it has one.
 // FUNCTION: MW2 0x10054584
 // FUNCTION: MW2MATROX 0x100837ea
+// FUNCTION: MW23DFX 0x10013d40
 void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 {
 	AiStackEntry entry;
@@ -2185,6 +2221,7 @@ MechS32 HasAIState(Player* p_player, MechS16 p_state)
 // scripts have the state.
 // FUNCTION: MW2 0x10054684
 // FUNCTION: MW2MATROX 0x100838ea
+// FUNCTION: MW23DFX 0x10013e00
 void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_push)
 {
 	if (p_state != -1 && HasAIState(p_player, p_state)) {
@@ -2300,6 +2337,7 @@ void PlacePatrolNavs(Player* p_player)
 // MW2MATROX: m_nav == m_targetInfo.m_target compares in the other operand order.
 // FUNCTION: MW2 0x10054a30
 // FUNCTION: MW2MATROX 0x10083caa
+// FUNCTION: MW23DFX 0x10014050
 void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 {
 	p_player->m_targetInfo.m_target = p_target;
@@ -2339,6 +2377,7 @@ void PlaceFormationNav(Player* p_player)
 // MW2MATROX: the comparison with g_localPlayerId loads its operands in the other order.
 // FUNCTION: MW2 0x10054b50
 // FUNCTION: MW2MATROX 0x10083dca
+// FUNCTION: MW23DFX 0x10014110
 void RecordAttack(MechS32 p_index, MechU32 p_target)
 {
 	MechChar line[80];
@@ -2380,6 +2419,7 @@ MechS32 LoadAIScripts(void)
 
 // FUNCTION: MW2 0x10054c6a
 // FUNCTION: MW2MATROX 0x10083ee5
+// FUNCTION: MW23DFX 0x100141e0
 MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 {
 	MechS16 leader;
@@ -2417,6 +2457,7 @@ MechS32 FindStarSlotPlayer(MechS32 p_slot)
 // Posts a message to p_player unless one is waiting.
 // FUNCTION: MW2 0x10054d4c
 // FUNCTION: MW2MATROX 0x10083fc6
+// FUNCTION: MW23DFX 0x10014270
 void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS16 p_arg)
 {
 	AiMessage* message;
@@ -2582,9 +2623,10 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 // Operand order: the two sign tests evaluate p_value and p_delta in the other order.
 // FUNCTION: MW2 0x10055131
 // FUNCTION: MW2MATROX 0x100843ac
+// FUNCTION: MW23DFX 0x10014490
 MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition tests the float's sign bit, and adds p_delta as 16.16.
 	if (p_sameSign && ((*(MechU32*) &p_value & 0x80000000) ? -1 : 1) != (p_delta < 0 ? -1 : 1)) {
 		p_delta = -p_delta;
@@ -2617,6 +2659,7 @@ MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 // Gives star p_team its orders for the current objective.
 // FUNCTION: MW2 0x100551ad
 // FUNCTION: MW2MATROX 0x10084448
+// FUNCTION: MW23DFX 0x10014510
 void ResetStarOrders(MechS32 p_team)
 {
 	HandleStarOrder(p_team, NULL);
@@ -2713,6 +2756,7 @@ void AssignStarObjective(MechS32 p_team)
 
 // FUNCTION: MW2 0x10055485
 // FUNCTION: MW2MATROX 0x10084720
+// FUNCTION: MW23DFX 0x100146e0
 MechS16 GetEngagementAIFlags(MechS32 p_value)
 {
 	if (p_value == 1) {
@@ -2732,6 +2776,7 @@ MechS16 GetEngagementAIFlags(MechS32 p_value)
 // differs the same way).
 // FUNCTION: MW2 0x100554c8
 // FUNCTION: MW2MATROX 0x10084763
+// FUNCTION: MW23DFX 0x10014700
 void SetAIScript(Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_leader)
 {
 	MechU16 follower;
@@ -2778,6 +2823,7 @@ void SetAIScript(Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_l
 // Target p_index of star p_team's current objective.
 // FUNCTION: MW2 0x100556a4
 // FUNCTION: MW2MATROX 0x1008493f
+// FUNCTION: MW23DFX 0x10014880
 MechU16 GetObjectiveTarget(MechS32 p_team, MechS16 p_objective, MechS32 p_index)
 {
 	StarMission* mission;
@@ -2792,6 +2838,7 @@ MechU16 GetObjectiveTarget(MechS32 p_team, MechS16 p_objective, MechS32 p_index)
 // Stack-slot permutation: count and i.
 // FUNCTION: MW2 0x100556fe
 // FUNCTION: MW2MATROX 0x10084999
+// FUNCTION: MW23DFX 0x100148c0
 MechS32 GetTeamMembers(MechS32 p_team, Player** p_members, MechS32 p_aliveOnly)
 {
 	MechS32 mask;
@@ -2821,6 +2868,7 @@ MechS32 GetTeamMembers(MechS32 p_team, Player** p_members, MechS32 p_aliveOnly)
 // gives the star its objective's orders.
 // FUNCTION: MW2 0x1005579a
 // FUNCTION: MW2MATROX 0x10084a35
+// FUNCTION: MW23DFX 0x10014920
 void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 {
 	if (p_order && p_order->m_message) {
@@ -3131,6 +3179,7 @@ void LeadStar(MechS32 p_team)
 // without the nav type bits, so the anchor stays placed.
 // FUNCTION: MW2 0x100561ea
 // FUNCTION: MW2MATROX 0x10085485
+// FUNCTION: MW23DFX 0x10014f60
 void ReleaseAnchorNav(Player* p_player)
 {
 	if (p_player->m_nav != 0) {
@@ -3144,6 +3193,7 @@ void ReleaseAnchorNav(Player* p_player)
 // The number of players in the local player's star.
 // FUNCTION: MW2 0x10056230
 // FUNCTION: MW2MATROX 0x100854cb
+// FUNCTION: MW23DFX 0x10014f90
 MechS32 GetLocalStarSize(void)
 {
 	return g_teams[g_players[g_localPlayerId]->m_team].m_memberCount;
@@ -3152,6 +3202,7 @@ MechS32 GetLocalStarSize(void)
 // Carries out the local player's star command: a formation (-1) or an order to slot p_slot.
 // FUNCTION: MW2 0x1005625d
 // FUNCTION: MW2MATROX 0x100854f8
+// FUNCTION: MW23DFX 0x10014fb0
 void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 {
 	if (p_command == -1) {
@@ -3173,7 +3224,7 @@ void SweepTorso(Player* p_player)
 {
 	MechS32 period;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (FIXED_IS_NONZERO(p_player->m_steering->m_throttle)) {
 		period = 0x20;
 	}
@@ -3201,7 +3252,7 @@ void SweepTorso(Player* p_player)
 		return;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (p_player->m_maneuverParam) {
 		p_player->m_steering->m_torsoPan += 5;
 	}

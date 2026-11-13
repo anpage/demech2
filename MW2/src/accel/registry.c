@@ -1,6 +1,6 @@
-/* The Matrox edition's registry settings: DWORD values under the game's key in
-   HKEY_LOCAL_MACHINE. One object of its own, after quadtree.c's. */
-#include "matrox/registry.h"
+/* The accelerated editions' registry settings: DWORD values under the game's key in
+   HKEY_LOCAL_MACHINE. One object of its own, after quadtree.c's in the Matrox edition. */
+#include "accel/registry.h"
 
 #include "debugprint.h"
 #include "decomp.h"
@@ -11,6 +11,7 @@
 // Reads the DWORD value p_name into p_value (0 when the value is missing). Returns whether the
 // value was read. Stack-slot permutation: result, key, value and type.
 // FUNCTION: MW2MATROX 0x100169e0
+// FUNCTION: MW23DFX 0x1003dcb0
 MechS32 ReadRegistryDword(LPCSTR p_name, DWORD* p_value)
 {
 	LONG result;
@@ -42,6 +43,7 @@ MechS32 ReadRegistryDword(LPCSTR p_name, DWORD* p_value)
 // Writes p_value to the DWORD value p_name, creating the key if needed. Returns whether it was
 // written. Stack-slot permutation: result and key.
 // FUNCTION: MW2MATROX 0x10016a9d
+// FUNCTION: MW23DFX 0x1003dd50
 MechS32 WriteRegistryDword(LPCSTR p_name, DWORD* p_value)
 {
 	LONG result;

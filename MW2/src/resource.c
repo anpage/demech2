@@ -49,7 +49,7 @@ typedef struct BitmapRecord {
 	MechS32 m_data[1];  // 0x10 — up to the record's end
 } BitmapRecord;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // A path record's waypoint: the Matrox edition's PathPoint holds floats, the record integers.
 typedef struct PathRecordPoint {
 	MechS32 m_x;        // 0x00
@@ -66,7 +66,7 @@ typedef struct PathRecordPoint {
 typedef struct PathRecord {
 	BwdRecord m_header;    // 0x00
 	MechChar m_name[0x40]; // 0x08
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	PathRecordPoint m_points[1]; // 0x48
 #else
 	PathPoint m_points[1]; // 0x48 — up to the record's end
@@ -121,14 +121,17 @@ MechS32 g_nextScenario = 0;
 // The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
 // GLOBAL: MW2 0x100a8620
 // GLOBAL: MW2MATROX 0x100a85f8
+// GLOBAL: MW23DFX 0x1025a610
 MechS32 g_thingRecordCount = 0;
 
 // GLOBAL: MW2 0x100a8624
 // GLOBAL: MW2MATROX 0x100a85fc
+// GLOBAL: MW23DFX 0x1025a614
 MechS32 g_nextThingRecord = 0;
 
 // GLOBAL: MW2 0x100a8628
 // GLOBAL: MW2MATROX 0x100a8600
+// GLOBAL: MW23DFX 0x1025a618
 MechS32 g_mangleBase = 0;
 
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
@@ -160,15 +163,18 @@ TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionT
 
 // GLOBAL: MW2 0x100ea500
 // GLOBAL: MW2MATROX 0x101d4770
+// GLOBAL: MW23DFX 0x10159510
 MissionTable* g_missionTables[16];
 
 // The number of entries of each of g_missionTables.
 // GLOBAL: MW2 0x100ea540
 // GLOBAL: MW2MATROX 0x101d4730
+// GLOBAL: MW23DFX 0x101594d0
 MechS32 g_missionTableCounts[16];
 
 // GLOBAL: MW2 0x100ea580
 // GLOBAL: MW2MATROX 0x101d47b0
+// GLOBAL: MW23DFX 0x10159550
 MechS32 g_thingRecordIndices[0x96];
 
 // The number of names in g_scenarios.
@@ -180,6 +186,7 @@ MechS32 g_scenarioCount;
 // Stack-slot permutation: record, count and i (and so the loop test's operand order).
 // FUNCTION: MW2 0x1004f3f0
 // FUNCTION: MW2MATROX 0x10048fb0
+// FUNCTION: MW23DFX 0x10042970
 void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, MechS32* p_data)
 {
 	BitmapRecord* record;
@@ -234,6 +241,7 @@ MechS32 LoadScenarioTable(ScenarioTable* p_table)
 // Replaces the mission table in p_table's slot with a copy of it.
 // FUNCTION: MW2 0x1004f545
 // FUNCTION: MW2MATROX 0x10049105
+// FUNCTION: MW23DFX 0x10042a50
 MechS32 LoadMissionTable(MissionTable* p_table)
 {
 	MechS32 result;
@@ -267,6 +275,7 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 // the order of the waypoint index's scaling).
 // FUNCTION: MW2 0x1004f64a
 // FUNCTION: MW2MATROX 0x1004920a
+// FUNCTION: MW23DFX 0x10042b00
 MechS32 LoadPathTable(PathRecord* p_record)
 {
 	MechS32 count;
@@ -304,6 +313,7 @@ MechS32 LoadPathTable(PathRecord* p_record)
 // MW2MATROX: the stores compute the template index and the slot index in the other order.
 // FUNCTION: MW2 0x1004f891
 // FUNCTION: MW2MATROX 0x1004946c
+// FUNCTION: MW23DFX 0x10042bc0
 MechS32 LoadFormationTable(FormationRecord* p_record)
 {
 	MechS32 count;
@@ -400,7 +410,7 @@ void LoadStarTable(StarTable* p_table)
 		g_teams[i].m_affiliation = table->m_stars[i].m_affiliation;
 		g_teams[i].m_side = table->m_stars[i].m_side;
 		g_starSides[table->m_stars[i].m_affiliation] = table->m_stars[i].m_side;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (g_localStar == i && g_playerTeamFormation) {
 			SetTeamFormationByName(i, g_playerTeamFormation);
 		}
@@ -501,6 +511,7 @@ void FreeMissionTables(void)
 // that small is left alone.
 // FUNCTION: MW2 0x1004fe0f
 // FUNCTION: MW2MATROX 0x10049a00
+// FUNCTION: MW23DFX 0x10042f00
 void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, undefined4* p_y, undefined4* p_z)
 {
 	MechFloat scale;
@@ -518,6 +529,7 @@ void ScaleNormal(MechFloat p_a, MechFloat p_b, MechFloat p_c, undefined4* p_x, u
 // Scales the plane (p_a, p_b, p_c, p_d) like ScaleNormal.
 // FUNCTION: MW2 0x1004fe85
 // FUNCTION: MW2MATROX 0x10049acb
+// FUNCTION: MW23DFX 0x10042fb0
 void ScalePlane(
 	MechFloat p_a,
 	MechFloat p_b,
@@ -548,6 +560,7 @@ void ScalePlane(
 // Stack-slot permutation of a and c (and so the operand order of vz * ux).
 // FUNCTION: MW2 0x1004ff16
 // FUNCTION: MW2MATROX 0x10049bc4
+// FUNCTION: MW23DFX 0x10043090
 void GetTriangleNormal(
 	MechFloat p_x1,
 	MechFloat p_y1,
@@ -664,6 +677,7 @@ void GetPointNormalPlane(
 // MW2MATROX: p_id + g_mangleBase loads g_mangleBase first (commutative operands).
 // FUNCTION: MW2 0x100500c3
 // FUNCTION: MW2MATROX 0x10049d71
+// FUNCTION: MW23DFX 0x10043250
 MechS32 MapResourceId(MechS32 p_id)
 {
 	return g_mangleBase + p_id;
@@ -671,6 +685,7 @@ MechS32 MapResourceId(MechS32 p_id)
 
 // FUNCTION: MW2 0x100500dc
 // FUNCTION: MW2MATROX 0x10049d8a
+// FUNCTION: MW23DFX 0x10043260
 void SetMangleBase(MechS32 p_base)
 {
 	g_mangleBase = p_base;
@@ -733,7 +748,7 @@ void CreateObjectNode(
 		kind = 4;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	xform.m_scaleX = record->m_xform.m_scaleX;
 	xform.m_scaleY = record->m_xform.m_scaleY;
 	xform.m_scaleZ = record->m_xform.m_scaleZ;
@@ -887,6 +902,7 @@ struct SceneObject* NextThingRecordObject(void)
 // Returns the next free game thing index, or -1 when all 254 are taken.
 // FUNCTION: MW2 0x1005072f
 // FUNCTION: MW2MATROX 0x1004a4b1
+// FUNCTION: MW23DFX 0x10043720
 MechS32 FindFreeGameThing(void)
 {
 	MechS32 index;

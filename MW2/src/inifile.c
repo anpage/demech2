@@ -10,10 +10,12 @@
 // Where FindIniSection found the section's entries in mw2.ini, or -1.
 // GLOBAL: MW2 0x100ad46c
 // GLOBAL: MW2MATROX 0x100a368c
+// GLOBAL: MW23DFX 0x102593e0
 MechS32 g_iniSectionOffset = -1;
 
 // GLOBAL: MW2 0x100bee88
 // GLOBAL: MW2MATROX 0x100c1c98
+// GLOBAL: MW23DFX 0x1007d558
 MechChar g_iniLine[0x85];
 
 // Finds the section p_section in mw2.ini for GetIniValue. Returns 0, 0x36 when the file can't
@@ -21,6 +23,7 @@ MechChar g_iniLine[0x85];
 // Stack-slot permutation: line, end and buffer.
 // FUNCTION: MW2 0x1006c6c0
 // FUNCTION: MW2MATROX 0x1000a170
+// FUNCTION: MW23DFX 0x1003b370
 MechS32 FindIniSection(MechChar* p_section)
 {
 	FILE* file;
@@ -67,6 +70,7 @@ MechS32 FindIniSection(MechChar* p_section)
 // Stack-slot permutation: value, length and line.
 // FUNCTION: MW2 0x1006c817
 // FUNCTION: MW2MATROX 0x1000a2a0
+// FUNCTION: MW23DFX 0x1003b450
 MechChar* GetIniValue(MechChar* p_key)
 {
 	FILE* file;
@@ -115,6 +119,7 @@ MechChar* GetIniValue(MechChar* p_key)
 // Cuts the whitespace off both ends of p_string, in place.
 // FUNCTION: MW2 0x1006c968
 // FUNCTION: MW2MATROX 0x1000a3f1
+// FUNCTION: MW23DFX 0x1003b540
 MechChar* TrimWhitespace(MechChar* p_string)
 {
 	MechS32 length;

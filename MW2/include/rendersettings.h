@@ -19,7 +19,7 @@ typedef struct RenderSettings {
 	MechS32 m_drawSky;     // 0x1c — the planet's sky (DrawSkyAndGround)
 	MechS32 m_drawGround;  // 0x20 — and its ground
 	MechS32 m_horizonBand; // 0x24 — a shaded band blends the sky into the ground
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition's is 0x70 bytes, with two members of its own here (initialized to 1; the Matrox edition's
 	// FadeToView clears them around DrawSkyAndGround), so that every member from 1.1's 0x28 on sits
 	// 8 bytes further: FirstRender sets m_clearFrame at 0x38 and the callbacks at 0x5c to 0x6c.
@@ -48,7 +48,7 @@ typedef struct RenderSettings {
 	MechS32 (*m_shapeFilter)();        // 0x58 — a shape filter: nonzero skips the shape
 	struct ProjectedVertex* (*m_projectVertex)(struct ProjectedVertex* p_vertex); // 0x5c — projects a vertex
 	MechS32 (*m_drawFace)();                                                      // 0x60 — draws a face (GetFaceColor)
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition's takes the projected vertices themselves, and a fourth argument.
 	void (*m_drawPolygon)(
 		MechS32 p_count,

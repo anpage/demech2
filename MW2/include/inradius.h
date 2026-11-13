@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition's is an __inline function of floats, which its callers expand (/Ob1).
 	__inline MechS32 IsWithinRadius(MechFloat p_x, MechFloat p_y, MechFloat p_z, MechFloat p_radius)
 	{

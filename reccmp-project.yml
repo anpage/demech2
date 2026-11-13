@@ -60,6 +60,22 @@ targets:
         - g_smallMapLayout
         - g_largeMapLayout
         - g_satelliteLayout
+  MW23DFX:
+    filename: MW2_3DFX.DLL
+    source-root:
+      - MW2
+      - common
+    hash:
+      sha256: e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f
+    data-sources:
+      - reccmp/mw23dfx-vfx.csv
+    report:
+      icon: assets/dll.png
+      # As MW2's.
+      ignore-variables:
+        - g_smallMapLayout
+        - g_largeMapLayout
+        - g_satelliteLayout
   NETMECHW:
     filename: NETMECHW.DLL
     source-root:

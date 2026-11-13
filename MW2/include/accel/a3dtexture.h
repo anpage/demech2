@@ -1,5 +1,5 @@
-#ifndef MATROX_A3DTEXTURE_H
-#define MATROX_A3DTEXTURE_H
+#ifndef ACCEL_A3DTEXTURE_H
+#define ACCEL_A3DTEXTURE_H
 
 #include "decomp.h"
 #include "types.h"
@@ -32,4 +32,4 @@ struct A3DTexture {
 	MechU32 m_paletteOffsets[9];      // 0x60 — each level's palette offset (formats under 0xf)
 };
 
-#endif // MATROX_A3DTEXTURE_H
+#endif // ACCEL_A3DTEXTURE_H

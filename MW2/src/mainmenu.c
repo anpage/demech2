@@ -1,13 +1,13 @@
 /* The main in-mission menu (menu 4): abort the mission, the monitor brightness (in the Matrox
-   edition, the graphics page of matrox/graphicsmenu.c), the audio and combat settings, flee to
+   edition, the graphics page of accel/graphicsmenu.c), the audio and combat settings, flee to
    Windows. A data-only object: its data follows network.c's. */
 #include "mainmenu.h"
 
 #include "audiomenu.h"
 #include "brightnessmenu.h"
 #include "dorcs.h"
-#ifdef MW2_MATROX
-#include "matrox/graphicsmenu.h"
+#ifdef MW2_ACCEL
+#include "accel/graphicsmenu.h"
 #endif
 #include "menu.h"
 #include "menuchoices.h"
@@ -28,7 +28,7 @@ MechChar g_mainMenuTitle[] = "MAIN MENU";
 // GLOBAL: MW2MATROX 0x100a2458
 MechChar g_abortMissionItem[] = "Abort Mission";
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // GLOBAL: MW2 0x100a1ab0
 MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
 #endif
@@ -53,7 +53,7 @@ MechChar g_fleeToWindowsTitle[] = "FLEE TO WINDOWS";
 // GLOBAL: MW2MATROX 0x100a24b0
 MechChar g_abortMissionTitle[] = "ABORT MISSION";
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // GLOBAL: MW2 0x100a1b20
 MechChar g_monitorBrightnessTitle[] = "MONITOR BRIGHTNESS";
 #endif
@@ -117,7 +117,7 @@ MenuChoices g_offLowMediumHighChoices = {NULL, 4, {g_offText, g_lowText, g_mediu
 // GLOBAL: MW2 0x100a1cc0
 // GLOBAL: MW2MATROX 0x100a2648
 MechS32 g_sliderShapes[8] = {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	70,
 	0,
 	67,
@@ -142,7 +142,7 @@ MechS32 g_sliderShapes[8] = {
 // GLOBAL: MW2MATROX 0x100a2668
 MenuControl g_confirmControl = {2, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL};
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // GLOBAL: MW2 0x100a1d08
 MenuControl g_brightnessControl = {
 	2,
@@ -169,7 +169,7 @@ MenuPage g_abortMissionPage = {
 	{{3, g_confirmationRequestedText, NULL, NULL, NULL}, {1, g_acceptText, AbortMissionAction, &g_confirmControl, NULL}}
 };
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // GLOBAL: MW2 0x100a1e88
 MenuPage g_brightnessPage = {
 	0,
@@ -204,7 +204,7 @@ MenuPage g_mainMenuPage = {
 	0,
 	NULL,
 	{{0, g_abortMissionItem, NULL, NULL, &g_abortMissionPage},
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	 {0, g_graphicsItem, NULL, NULL, &g_graphicsPage},
 #else
 	 {0, g_monitorBrightnessItem, NULL, NULL, &g_brightnessPage},
@@ -230,7 +230,7 @@ MenuDefinition g_mainMenu = {
 	17,
 	g_mainMenuPageStack,
 	0,
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	0x118,
 #else
 	0x112,

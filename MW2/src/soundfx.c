@@ -1,6 +1,6 @@
 /* The digital sound effects (AudioEngine): Miles samples streamed from the sound resources,
    positioned sounds panned by their bearing from the eyepoint, and the looping ambient sounds. */
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "soundfx.h"
@@ -38,14 +38,17 @@ MechS32 g_temperature = 25;
 // so), a life support hit kills, and a mech whose pilot ejects counts as lost.
 // GLOBAL: MW2 0x100ba624
 // GLOBAL: MW2MATROX 0x100bbbcc
+// GLOBAL: MW23DFX 0x1024a9ac
 MechS32 g_hostileAtmosphere = 0;
 
 // GLOBAL: MW2 0x100ba628
 // GLOBAL: MW2MATROX 0x100bbbd0
+// GLOBAL: MW23DFX 0x1024f738
 MechS32 g_sampleRates[10] = {9922, 10143, 10364, 10584, 10804, 11025, 11246, 11466, 11686, 11907};
 
 // GLOBAL: MW2 0x100ba650
 // GLOBAL: MW2MATROX 0x100bbbf8
+// GLOBAL: MW23DFX 0x1024f760
 AudioEngine* g_audioEngine = NULL;
 
 // GLOBAL: MW2 0x100ba654
@@ -489,6 +492,7 @@ void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
 
 // FUNCTION: MW2 0x1007e9dc
 // FUNCTION: MW2MATROX 0x100870a8
+// FUNCTION: MW23DFX 0x10032a30
 void PlayEffectsVolumeTest(void)
 {
 	PlaySample(0, 0, 0xd2, NULL, 100, g_soundConfig.m_effectsVolume, 0x40, RandomSampleRate(), (MechS32*) -1, 0x250);
@@ -496,6 +500,7 @@ void PlayEffectsVolumeTest(void)
 
 // FUNCTION: MW2 0x1007ea11
 // FUNCTION: MW2MATROX 0x100870dd
+// FUNCTION: MW23DFX 0x10032a60
 MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate)
 {
 	return PlaySample(0, 0, p_id, NULL, p_volume, g_soundConfig.m_effectsVolume, p_pan, p_rate, (MechS32*) -1, 0x450);
@@ -503,6 +508,7 @@ MechS32 PlaySoundOnce(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_r
 
 // FUNCTION: MW2 0x1007ea4c
 // FUNCTION: MW2MATROX 0x10087118
+// FUNCTION: MW23DFX 0x10032a90
 MechS32 PlaySoundRandomRate(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -539,12 +545,12 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 	MechS32 volume;
 	MechScalar bearing;
 	MechScalar distance;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechS32 range;
 #endif
 
 	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (BearingDistance*) &horizontal, &pitch);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	volume = GetDistanceVolume(distance);
 #else
 	range = distance;
@@ -555,7 +561,7 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 			volume >>= 1;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		delay = distance * g_soundDelayPerUnit;
 #else
 		delay = FixedMul16(distance, g_soundDelayPerUnit);
@@ -568,6 +574,7 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 
 // FUNCTION: MW2 0x1007eb23
 // FUNCTION: MW2MATROX 0x100871f4
+// FUNCTION: MW23DFX 0x10032b60
 MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_rate, MechU16 p_flags)
 {
 	return PlaySample(
@@ -586,6 +593,7 @@ MechS32 PlaySoundEffect(MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p
 
 // FUNCTION: MW2 0x1007eb64
 // FUNCTION: MW2MATROX 0x10087235
+// FUNCTION: MW23DFX 0x10032ba0
 MechS32 PlayDelayedSound(
 	MechS32 p_delay,
 	MechS32 p_bearing,
@@ -607,6 +615,7 @@ MechS32 PlayDelayedSound(
 
 // FUNCTION: MW2 0x1007ebd1
 // FUNCTION: MW2MATROX 0x100872a2
+// FUNCTION: MW23DFX 0x10032bf0
 MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_sound, MechS32 p_half)
 {
 	return PlayPositionalSound(p_x, p_y, p_z, p_sound, p_half);
@@ -615,13 +624,14 @@ MechS32 PlaySoundAt(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechS32 p_so
 // MW2MATROX scales the float sine by 64.
 // FUNCTION: MW2 0x1007ebfd
 // FUNCTION: MW2MATROX 0x100872ce
+// FUNCTION: MW23DFX 0x10032c10
 MechS32 CalculateSamplePan(MechScalar p_bearing)
 {
 	MechS32 pan;
 	MechScalar angle;
 
 	angle = g_eyepoint->m_heading - p_bearing;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	pan = FixedSin(angle) * 64.0;
 #else
 	pan = FixedSin(angle) >> 23;
@@ -639,6 +649,7 @@ MechS32 CalculateSamplePan(MechScalar p_bearing)
 
 // FUNCTION: MW2 0x1007ec5e
 // FUNCTION: MW2MATROX 0x10087337
+// FUNCTION: MW23DFX 0x10032c50
 MechS32 RandomSampleRate(void)
 {
 	return g_sampleRates[RandomIntBelow(10)];
@@ -681,7 +692,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	MechScalar bearing;
 	MechScalar y;
 	MechScalar z;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechScalar unused;
 #endif
 
@@ -699,7 +710,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	x = g_eyepoint->m_x - x;
 	y = g_eyepoint->m_y - y;
 	z = g_eyepoint->m_z - z;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	GetBearingAndRange(x, y, z, &bearing, &distance, &unused, &unused);
 #else
 	GetBearingAndRange(x, y, z, &bearing, &distance, (BearingDistance*) &i, &i);
@@ -768,6 +779,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 
 // FUNCTION: MW2 0x1007f01f
 // FUNCTION: MW2MATROX 0x10087708
+// FUNCTION: MW23DFX 0x10032f00
 void StopAmbientSound(AmbientSound* p_sound)
 {
 	HSAMPLE sample;
@@ -790,6 +802,7 @@ void StopAmbientSound(AmbientSound* p_sound)
 // The volume, 0-100, at p_distance: full at 0, silent from 50000.
 // FUNCTION: MW2 0x1007f0d9
 // FUNCTION: MW2MATROX 0x100877c2
+// FUNCTION: MW23DFX 0x10032f60
 MechS32 GetDistanceVolume(MechS32 p_distance)
 {
 	MechS32 volume;

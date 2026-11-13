@@ -13,15 +13,18 @@
 
 // GLOBAL: MW2 0x100a0110
 // GLOBAL: MW2MATROX 0x100bca68
+// GLOBAL: MW23DFX 0x1024b2b8
 MechS32 g_motionSounds[4][4] =
 	{{-1, 0x12e, 0x12e, -1}, {0x14f, -1, -1, 0x14f}, {0x11a, 0x11a, 0x148, 0x11a}, {0x119, 0x119, 0x119, 0x12d}};
 
 // GLOBAL: MW2 0x10181970
 // GLOBAL: MW2MATROX 0x1012c0f0
+// GLOBAL: MW23DFX 0x10207f00
 MechS32 g_lastMotionSound[60];
 
 // FUNCTION: MW2 0x10003620
 // FUNCTION: MW2MATROX 0x1008c3e0
+// FUNCTION: MW23DFX 0x1000b300
 void FirstGPAnim(void)
 {
 	MechS32 i;
@@ -33,6 +36,7 @@ void FirstGPAnim(void)
 
 // FUNCTION: MW2 0x1000365a
 // FUNCTION: MW2MATROX 0x1008c41a
+// FUNCTION: MW23DFX 0x1000b320
 void StartMotion(Player* p_player)
 {
 	if (p_player->m_index != g_localPlayerId) {
@@ -45,6 +49,7 @@ void StartMotion(Player* p_player)
 
 // FUNCTION: MW2 0x1000369e
 // FUNCTION: MW2MATROX 0x1008c45e
+// FUNCTION: MW23DFX 0x1000b350
 void StopMotion(Player* p_player)
 {
 	p_player->m_speedLevel = 0;
@@ -53,6 +58,7 @@ void StopMotion(Player* p_player)
 
 // FUNCTION: MW2 0x100036c3
 // FUNCTION: MW2MATROX 0x1008c483
+// FUNCTION: MW23DFX 0x1000b370
 MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 {
 	p_offset[0] = g_eyepoint->m_x - p_player->m_position.m_x;
@@ -67,6 +73,7 @@ MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 // Stack-slot permutation: offset and position.
 // FUNCTION: MW2 0x10003710
 // FUNCTION: MW2MATROX 0x1008c4d0
+// FUNCTION: MW23DFX 0x1000b3a0
 void UpdateMotion(Player* p_player)
 {
 	MechScalar* offset;
@@ -79,7 +86,7 @@ void UpdateMotion(Player* p_player)
 	}
 	else {
 		height = p_player->m_mech->m_throttle.m_value - FIXED_RAW(0x400);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (height < 1e-07f) {
 #else
 		if (height < 0) {
@@ -162,6 +169,7 @@ void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechScalar* p_
 
 // FUNCTION: MW2 0x10003a10
 // FUNCTION: MW2MATROX 0x1008c7ed
+// FUNCTION: MW23DFX 0x1000b5a0
 void ResetMotion(Player* p_player)
 {
 	MechS32 id;

@@ -80,6 +80,7 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 // Sends a message to one player.
 // FUNCTION: MW2 0x1000119a
 // FUNCTION: MW2MATROX 0x10089c9a
+// FUNCTION: MW23DFX 0x1003a5c0
 void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 {
 	g_directPlay->lpVtbl->Send(g_directPlay, g_localDpid, p_to, DPSEND_TRYONCE, p_msg, p_size);

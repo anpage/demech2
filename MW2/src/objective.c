@@ -47,10 +47,12 @@ MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
 // GLOBAL: MW2MATROX 0x101d69e0
+// GLOBAL: MW23DFX 0x10207ff0
 MechS32 g_missionTime;
 
 // GLOBAL: MW2 0x10138720
 // GLOBAL: MW2MATROX 0x101d69f0
+// GLOBAL: MW23DFX 0x10208000
 MechS32 g_currentObjective[16]; // by team
 
 // Whether each objective of the local team has been announced (AnnounceObjective).
@@ -60,10 +62,12 @@ MechS32 g_objectiveAnnounced[48];
 
 // GLOBAL: MW2 0x10138820
 // GLOBAL: MW2MATROX 0x101d6af0
+// GLOBAL: MW23DFX 0x10208100
 MechS32 g_objectiveCount;
 
 // GLOBAL: MW2 0x10138830
 // GLOBAL: MW2MATROX 0x101d6b00
+// GLOBAL: MW23DFX 0x10208110
 StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
@@ -107,7 +111,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 	MechScalar heading;
 	MechS32 found;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	found = FALSE;
 	x = y = z = heading = 0;
 	g_missionTime = g_currentClock / 181;
@@ -143,6 +147,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ab4a
 // FUNCTION: MW2MATROX 0x1001eee7
+// FUNCTION: MW23DFX 0x10009a50
 MechS32 GetObjectiveTargetState(MechU8* p_target)
 {
 	MechU16 index;
@@ -170,6 +175,7 @@ MechS32 GetObjectiveTargetState(MechU8* p_target)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ac06
 // FUNCTION: MW2MATROX 0x1001efa3
+// FUNCTION: MW23DFX 0x10009ab0
 MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -216,7 +222,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
 	MechU16 kind;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechS32 i;
 #endif
 	Player* target;
@@ -226,13 +232,13 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 	MechScalar z;
 	MechScalar radius;
 	NavPoint* nav;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	Player* leader;
 #endif
 
 	index = p_target[0];
 	kind = p_target[1] << 8;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition only tests the team's leader.
 	leader = g_players[g_teams[p_team].m_leader];
 	if (g_teams[p_team].m_leader < 0) {
@@ -504,6 +510,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // before other in the objective's address (index order).
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2MATROX 0x1001f8dd
+// FUNCTION: MW23DFX 0x1000a080
 MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_condition)
 {
 	MissionObjective* objective;
@@ -527,6 +534,7 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // objective's index before the star's (index order).
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2MATROX 0x1001f9c9
+// FUNCTION: MW23DFX 0x1000a110
 MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 all;
@@ -552,7 +560,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 		}
 
 		holds = TestObjectiveCondition(p_star, p_objective, i);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (all) {
 			result &= holds;
 			if (!result) {
@@ -577,7 +585,7 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 #endif
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (all) {
 		return TRUE;
 	}
@@ -625,7 +633,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	untouched = TRUE;
 	state = 3;
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!g_players[p_star] && g_isNetworkGame) {
 		return;
 	}
@@ -901,7 +909,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	case 0x400:
 	case 0x800:
 		if (expired) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (g_players[p_star] && g_isNetworkGame && (g_players[p_star]->m_flags & 2)) {
 				return;
 			}
@@ -1050,6 +1058,7 @@ void UpdateObjectives(void)
 // Counts the mission time in seconds.
 // FUNCTION: MW2 0x1001c9d5
 // FUNCTION: MW2MATROX 0x10020d39
+// FUNCTION: MW23DFX 0x1000ab80
 void EndTheMission1(void)
 {
 	g_missionTime = g_currentClock / 181;
@@ -1112,6 +1121,7 @@ MechS32 EndTheMission2(void)
 // it names is listed on the objectives panel (not in the Matrox edition).
 // FUNCTION: MW2 0x1001cc5c
 // FUNCTION: MW2MATROX 0x10020fde
+// FUNCTION: MW23DFX 0x1000acd0
 void RestartStarMission(MechS32 p_star)
 {
 	MissionObjective* objective;
@@ -1122,7 +1132,7 @@ void RestartStarMission(MechS32 p_star)
 	mission = &g_objectiveTable[p_star];
 	for (i = 0; i < mission->m_objectiveCount; i++) {
 		objective = &mission->m_objectives[i];
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
 			if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
 				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
@@ -1152,7 +1162,7 @@ void FUN_1001cdd1(void)
 
 // FUNCTION: MW2 0x1001cde1
 // FUNCTION: MW2MATROX 0x10021096
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 MechS32 FUN_1001cde1(MechU16 p_unk0x00)
 #else
 MechS32 FUN_1001cde1(undefined4 p_unk0x00)

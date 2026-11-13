@@ -52,7 +52,7 @@ extern "C"
 {
 #endif
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	extern undefined2 g_textColors[0x100];
 #else
 extern undefined g_textColors[0x100];

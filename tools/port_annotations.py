@@ -17,6 +17,21 @@ the displacement.
 
 With --write, the target's annotation goes on the line after the source's (the target
 follows the source in reccmp-project.yml's order). Without it, the tool prints statistics.
+
+--rebuild MAP takes the source binary for a rebuild of the target, with its map: an edition
+built with other flags than any annotated original (the 3Dfx edition's optimized code) can't
+match those byte for byte, but its rebuild does wherever the source is right. The source
+module is then every marker block that names its function or global (the definition after
+it, or a by-name `// name` line), at the address the map gives that name, and the target's
+annotation goes after the block's last marker of a module listed in --after:
+
+    python tools/port_annotations.py --from REBUILD build/vc22/MW2_3DFX.dll \
+        --rebuild build/vc22/MW2_3DFX.map --after MW2 MW2MATROX \
+        --to MW23DFX MW2_3DFX.DLL --dirs MW2 common --write
+
+The C runtime the rebuild links (the map's LIBCMT objects) is matched the same way:
+--library-to names the target's library_msvc.h, where an entry for the same symbol takes
+the target's marker, and the others are appended.
 --library-from MODULE BINARY HEADER adds the C runtime: LIBRARY entries of another module
 (the same CRT's release build, say) matched the same way, written to the target's
 library_msvc.h, stacked on an existing entry for the same symbol or appended at its end.
@@ -164,6 +179,90 @@ class Function:
             displacement = struct.unpack_from("<i", image.read(address + at, 4))[0]
             result.append((target, (address + at + 4 + displacement) & 0xFFFFFFFF))
         return result
+
+
+MAP_LINE = re.compile(r"^\s*(000[1-9]):[0-9a-f]{8}\s+(\S+)\s+([0-9a-f]{8})\s+(?:f\s+)?(?:i\s+)?(\S+)\s*$")
+
+
+def read_map(path):
+    """A LINK map's symbols, publics and statics: (address, name, section, object)."""
+    symbols = []
+    for line in open(path, errors="replace"):
+        m = MAP_LINE.match(line)
+        if m:
+            symbols.append((int(m.group(3), 16), m.group(2), m.group(1), m.group(4)))
+    return symbols
+
+
+def map_lookup(symbols):
+    """A C name's address in the map: the name as it is (a decorated public), or its __cdecl,
+    __stdcall or __fastcall decoration. Names with more than one address are left out."""
+    by_name = defaultdict(set)
+    for address, name, section, obj in symbols:
+        by_name[name].add(address)
+        undecorated = re.match(r"^[_@]([A-Za-z_]\w*?)(?:@\d+)?$", name)
+        if undecorated:
+            by_name["=" + undecorated.group(1)].add(address)
+
+    def lookup(name):
+        for key in (name, "=" + name):
+            found = by_name.get(key)
+            if found:
+                return next(iter(found)) if len(found) == 1 else None
+        return None
+
+    return lookup
+
+
+DEFINITION = re.compile(r"\b([A-Za-z_]\w*)\s*(\(|\[|=|;)")
+FUNCTION_POINTER = re.compile(r"\(\s*\*\s*([A-Za-z_]\w*)\s*\)")
+
+
+def marker_blocks(dirs, modules):
+    """Every block of consecutive markers with a marker of one of modules (a list): (path, index
+    of the block's last such marker, kind, rest, name). The name is the by-name line after the
+    block (`// name`) or the function or global its definition declares. A name marked twice (a
+    declaration per target behind #ifdef, or 1.1's version of a function and an edition's own)
+    keeps the block whose last such marker is of the module listed last."""
+    blocks = []
+    for d in dirs:
+        for ext in ("c", "cpp", "h"):
+            for path in sorted(glob.glob(os.path.join(ROOT, d, "**", "*." + ext), recursive=True)):
+                lines = open(path, encoding="utf-8", errors="replace").read().split("\n")
+                i = 0
+                while i < len(lines):
+                    if not MARKER.match(lines[i]):
+                        i += 1
+                        continue
+                    j = i
+                    last, kind, rest, rank = None, None, None, -1
+                    while j < len(lines) and MARKER.match(lines[j]):
+                        m = MARKER.match(lines[j])
+                        if m.group(3) in modules:
+                            last, kind, rest = j, m.group(2), m.group(5)
+                            rank = max(rank, modules.index(m.group(3)))
+                        j += 1
+                    i = j
+                    if last is None or j >= len(lines):
+                        continue
+                    by_name = re.match(r"^\s*//\s*([A-Za-z_?@$][\w?@$]*)\s*$", lines[j])
+                    if by_name:
+                        name = by_name.group(1)
+                    else:
+                        code = re.sub(r"__declspec\([^)]*\)", "", lines[j])
+                        if code.lstrip().startswith("//") or code.lstrip().startswith("#"):
+                            continue
+                        # A function pointer's name is inside its declarator: void (*g_x)(void).
+                        m = (kind == "GLOBAL" and FUNCTION_POINTER.search(code)) or DEFINITION.search(code)
+                        if not m:
+                            continue
+                        name = m.group(1)
+                    blocks.append((path, last, kind, rest, name, rank))
+    best = {}
+    for block in blocks:
+        if block[4] not in best or block[5] > best[block[4]][5]:
+            best[block[4]] = block
+    return [b[:5] for b in blocks if best[b[4]] is b]
 
 
 def scan_markers(dirs):
@@ -520,16 +619,36 @@ def main():
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--log", help="write the details here")
     parser.add_argument("--unmatched", help="list the source functions without a match here")
+    parser.add_argument("--rebuild", metavar="MAP", help="the source binary is a rebuild of the target, with this map")
+    parser.add_argument("--after", nargs="+", default=[], metavar="MODULE",
+                        help="with --rebuild: the modules whose marker blocks name the rebuild's symbols")
     args = parser.parse_args()
 
     src_module, tgt_module = args.source[0], args.target[0]
     source, target = Image(args.source[1]), Image(args.target[1])
     markers = scan_markers(args.dirs)
     log = []
+    rebuild_symbols = None
+    if args.rebuild:
+        # The rebuild's markers: one per block that names a symbol of the map, at its address.
+        rebuild_symbols = read_map(args.rebuild)
+        lookup = map_lookup(rebuild_symbols)
+        unresolved = 0
+        for path, i, kind, rest, name in marker_blocks(args.dirs, args.after):
+            address = lookup(name)
+            if address is None:
+                unresolved += 1
+                log.append("%s:%d: %s not in the rebuild's map" % (os.path.relpath(path, ROOT), i + 1, name))
+                continue
+            markers.append((path, i, kind, src_module, address, rest))
+        print("marker blocks not in the rebuild's map: %d" % unresolved)
 
     existing = {(path, i) for path, i, kind, module, address, rest in markers if module == tgt_module}
     src = [m for m in markers if m[3] == src_module]
     starts = [m[4] for m in src if m[2] in ("FUNCTION", "LIBRARY", "SYNTHETIC", "STUB")]
+    if rebuild_symbols:
+        # Every code symbol bounds a function: statics and the CRT's too.
+        starts += [a for a, name, section, obj in rebuild_symbols if section == "0001"]
     # A LIBRARY entry named by its CodeView name only exists in the source's CRT build.
     code = [m for m in src if m[2] in ("FUNCTION", "SYNTHETIC") or (m[2] == "LIBRARY" and m[5].strip() == "SYMBOL")]
     mapping, functions, ambiguous, dropped, permuted = match_functions(
@@ -622,6 +741,23 @@ def main():
                 taken.add(lib_map[address])
         print("%s library functions: %d of %d" % (lib_module, len(library_entries), len(lib_code)))
 
+    if rebuild_symbols and args.library_to:
+        # The rebuild's C runtime functions that library_msvc.h has no entry for: matched the same
+        # way, and appended under the map's public symbol.
+        named = {m[4] for m in src if m[2] == "LIBRARY"}
+        crt = {}
+        for address, name, section, obj in rebuild_symbols:
+            if section == "0001" and obj.startswith("LIBCMT:") and address not in named:
+                crt.setdefault(address, name)
+        crt_map, crt_functions, _, _, _ = match_functions(source, target, starts, list(crt), log)
+        taken = set(mapping.values())
+        for address in sorted(crt):
+            new = crt_map.get(address)
+            if new is not None and new not in taken and len(crt_functions[address].code) >= 8:
+                library_entries.append((new, " SYMBOL", crt[address]))
+                taken.add(new)
+        print("%s library functions without an entry: %d of %d matched" % (src_module, len(library_entries), len(crt)))
+
     if args.log:
         with open(args.log, "w") as f:
             f.write("\n".join(log) + "\n")
@@ -638,11 +774,21 @@ def main():
     if library_entries and args.library_to:
         args.library_to = os.path.abspath(args.library_to)
         lines = open(args.library_to, encoding="utf-8").read().split("\n")
+        # Each symbol's block of markers: the target's goes after the block's last marker of the
+        # modules it follows (the source's, or with --rebuild those of --after).
+        modules = set(args.after) if args.rebuild else {src_module}
         symbols = {}
-        for i, line in enumerate(lines):
-            m = MARKER.match(line)
-            if m and m.group(3) == src_module and m.group(5).strip() == "SYMBOL" and i + 1 < len(lines):
-                symbols[lines[i + 1][2:].strip()] = i
+        i = 0
+        while i < len(lines):
+            j, last = i, None
+            while j < len(lines) and MARKER.match(lines[j]):
+                m = MARKER.match(lines[j])
+                if m.group(3) in modules and m.group(2) == "LIBRARY" and m.group(5).strip() == "SYMBOL":
+                    last = j
+                j += 1
+            if last is not None and j < len(lines) and lines[j].startswith("//"):
+                symbols[lines[j][2:].strip()] = last
+            i = max(j, i + 1)
         appended = []
         already = {(m[4]) for m in markers if m[3] == tgt_module and m[2] == "LIBRARY"}
         for address, rest, symbol in sorted(library_entries):
@@ -659,7 +805,7 @@ def main():
             text = open(args.library_to, encoding="utf-8").read()
             end = text.rstrip().rfind("#endif")
             text = text[:end] + "// %s's C runtime functions that only %s's matched (tools/port_annotations.py).\n\n" \
-                % (tgt_module, args.library_from[0]) \
+                % (tgt_module, "the rebuild" if args.rebuild else args.library_from[0]) \
                 + "\n".join(appended) + "\n" + text[end:]
             with open(args.library_to, "w", encoding="utf-8", newline="\n") as f:
                 f.write(text)

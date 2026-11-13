@@ -13,6 +13,7 @@ DECOMP_SIZE_ASSERT(SoundTableEntry, 0x08)
 // values (-1: unset).
 // GLOBAL: MW2 0x100a24a0
 // GLOBAL: MW2MATROX 0x100a4110
+// GLOBAL: MW23DFX 0x1024e6a8
 SoundTableEntry g_soundTable[0x8c] = {
 	{15, 80, 1, -1},   {14, 80, 1, -1},    {64, 80, 1, -1},   {327, 10, 1, -1},   {136, 80, -1, -1}, {118, 80, -1, -1},
 	{120, 80, -1, -1}, {121, 80, -1, -1},  {131, 80, -1, -1}, {135, 80, -1, -1},  {64, 80, -1, -1},  {75, 80, -1, -1},
@@ -44,6 +45,7 @@ SoundTableEntry g_soundTable[0x8c] = {
 // Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x10013370
 // FUNCTION: MW2MATROX 0x1000be30
+// FUNCTION: MW23DFX 0x10030590
 void InitSoundInfo(void)
 {
 	MechU32 i;

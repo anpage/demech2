@@ -20,7 +20,7 @@
 #include "types.h"
 #include "wtbshapes.h"
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include <stdio.h>
 #endif
 
@@ -34,7 +34,7 @@ typedef struct PlayerDetail {
 	MechS32 m_player;   // 0x08
 } PlayerDetail;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // Whether ChoosePlayerDetailLevels has read LOD.PAR.
 // GLOBAL: MW2MATROX 0x100ae0d0
 MechS32 g_lodParRead = 0;
@@ -56,14 +56,17 @@ MechFloat g_lodLevel4 = 40000.0f;
 
 // GLOBAL: MW2 0x100a37d4
 // GLOBAL: MW2MATROX 0x100ae0e4
+// GLOBAL: MW23DFX 0x1024dbd8
 MechS32 g_classEntryCount = 0;
 
 // GLOBAL: MW2 0x100a37d8
 // GLOBAL: MW2MATROX 0x100ae0e8
+// GLOBAL: MW23DFX 0x1024dbdc
 MechS32 g_classTableReady = 0;
 
 // GLOBAL: MW2 0x1012b7e0
 // GLOBAL: MW2MATROX 0x10150690
+// GLOBAL: MW23DFX 0x101b16b0
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
@@ -107,6 +110,7 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x1001cf93
 // FUNCTION: MW2MATROX 0x1006d653
+// FUNCTION: MW23DFX 0x10026180
 MechS32 AddClassEntryLevel(
 	MechS32 p_unk0x00,
 	ClassEntryCoord p_unk0x04,
@@ -176,6 +180,7 @@ MechS32 AddClassEntryLevel(
 // Stack-slot permutation: entry and level.
 // FUNCTION: MW2 0x1001d12a
 // FUNCTION: MW2MATROX 0x1006d7ea
+// FUNCTION: MW23DFX 0x10026280
 void ResetClassTable(void)
 {
 	ClassEntry* entry;
@@ -207,6 +212,7 @@ void ResetClassTable(void)
 // MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1001d220
 // FUNCTION: MW2MATROX 0x1006d8e0
+// FUNCTION: MW23DFX 0x100262f0
 void ClaimNewClassEntries(Player* p_player)
 {
 	MechS32 i;
@@ -259,7 +265,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 	}
 
 	g_shapeOwnerSet = 0;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (result) {
 		g_players[p_owner]->m_detailLevel = p_level;
 	}
@@ -270,6 +276,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 // Releases the level-p_level shapes of p_owner's entries.
 // FUNCTION: MW2 0x1001d3a4
 // FUNCTION: MW2MATROX 0x1006da7e
+// FUNCTION: MW23DFX 0x100263f0
 void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
@@ -308,7 +315,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		return TRUE;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (entry->m_loadedLevel == p_level) {
 		return TRUE;
 	}
@@ -439,6 +446,7 @@ void ReleasePendingDetailLevel(void)
 // Releases entry p_index's shape if it is the one loaded for level p_level.
 // FUNCTION: MW2 0x1001d912
 // FUNCTION: MW2MATROX 0x1006e00e
+// FUNCTION: MW23DFX 0x10026730
 void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 {
 	ClassEntry* entry;
@@ -469,6 +477,7 @@ struct SceneObject* GetClassObject(MechS32 p_index)
 // MW2MATROX: p_index < g_classEntryCount compares in the other operand order.
 // FUNCTION: MW2 0x1001d9ca
 // FUNCTION: MW2MATROX 0x1006e0c6
+// FUNCTION: MW23DFX 0x10026770
 Shape* GetClassShape(MechS32 p_index)
 {
 	Shape* shape;
@@ -483,6 +492,7 @@ Shape* GetClassShape(MechS32 p_index)
 
 // FUNCTION: MW2 0x1001da14
 // FUNCTION: MW2MATROX 0x1006e10f
+// FUNCTION: MW23DFX 0x100267b0
 void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 {
 	ClassEntry* entry;
@@ -501,7 +511,7 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 // FUNCTION: MW2MATROX 0x1006e13f
 void ChoosePlayerDetailLevels(void)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	FILE* file;
 	MechChar line[0x100];
 	MechScalar length;

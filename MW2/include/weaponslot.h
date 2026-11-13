@@ -7,7 +7,7 @@
 
 // An ammunition bin of a weapon (WeaponSlot::m_bin). The Matrox edition's m_damage is a float, which
 // moves the members after it by two bytes (SIZE 0x16, as AmmoBin; SpawnShot steps by it).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #pragma pack(push, 1)
 #endif
 // SIZE 0x14
@@ -17,7 +17,7 @@ typedef struct WeaponBin {
 	MechU16 m_weapon;     // 0x04 — the index of its weapon in Mech::m_weapons
 	MechU16 m_id;         // 0x06 — its id in MechSection::m_slots
 	undefined2 m_unk0x08; // 0x08
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechScalar m_damage; // 0x0a — WeaponDef::m_damage
 #else
 	MechU16 m_damage; // 0x0a — WeaponDef::m_damage
@@ -25,7 +25,7 @@ typedef struct WeaponBin {
 	MechScalar m_shotHeat; // 0x0c — WeaponDef::m_shotHeat (0x0e in the Matrox edition)
 	MechScalar m_heat;     // 0x10 — WeaponDef::m_heat (0x12 in the Matrox edition)
 } WeaponBin;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #pragma pack(pop)
 #endif
 

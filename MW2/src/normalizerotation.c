@@ -11,9 +11,10 @@
 // Normalizes the rows and columns of the rotation (2.29 fixed point).
 // FUNCTION: MW2 0x1007cbf1
 // FUNCTION: MW2MATROX 0x10002479
+// FUNCTION: MW23DFX 0x1002f500
 void NormalizeRotation(Matrix* p_matrix)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	ScaleVectorToLength(&p_matrix->m_rows[0][0], &p_matrix->m_rows[0][1], &p_matrix->m_rows[0][2]);
 	ScaleVectorToLength(&p_matrix->m_rows[1][0], &p_matrix->m_rows[1][1], &p_matrix->m_rows[1][2]);
 	ScaleVectorToLength(&p_matrix->m_rows[2][0], &p_matrix->m_rows[2][1], &p_matrix->m_rows[2][2]);
@@ -43,7 +44,7 @@ void ScaleVectorToLength(SCALE_VECTOR_PARAMS)
 	x = *p_x;
 	y = *p_y;
 	z = *p_z;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	*p_x = (scale = 1.0 / sqrt(x * x + y * y + z * z)) * x;
 	*p_y = y * scale;
 	*p_z = z * scale;

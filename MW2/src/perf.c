@@ -110,6 +110,7 @@ MenuPage g_combatVariablesPage = {
 
 // FUNCTION: MW2 0x10076af0
 // FUNCTION: MW2MATROX 0x10078cc0
+// FUNCTION: MW23DFX 0x10065240
 void FirstPerfSetting(void)
 {
 	ApplyPerfSettings(NULL, NULL);
@@ -117,6 +118,7 @@ void FirstPerfSetting(void)
 
 // FUNCTION: MW2 0x10076b07
 // FUNCTION: MW2MATROX 0x10078cd7
+// FUNCTION: MW23DFX 0x10065250
 MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 result = 1;
@@ -134,6 +136,7 @@ MechS32 ApplyPerfSettings(MenuDefinition* p_menu, MenuPage* p_page)
 
 // FUNCTION: MW2 0x10076b9a
 // FUNCTION: MW2MATROX 0x10078d6a
+// FUNCTION: MW23DFX 0x100652c0
 MechS32 GetObjectTextmaps(MechS32 p_arg)
 {
 	return AreTextureMapsOn(0x100) || AreTextureMapsOn(0x200);
@@ -141,6 +144,7 @@ MechS32 GetObjectTextmaps(MechS32 p_arg)
 
 // FUNCTION: MW2 0x10076be0
 // FUNCTION: MW2MATROX 0x10078db0
+// FUNCTION: MW23DFX 0x100652f0
 void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 {
 	EnableTextureMaps(0x100, p_objectTextmaps);
@@ -150,6 +154,7 @@ void SetObjectTextmaps(MechS32 p_arg, MechS32 p_objectTextmaps)
 
 // FUNCTION: MW2 0x10076c19
 // FUNCTION: MW2MATROX 0x10078de9
+// FUNCTION: MW23DFX 0x10065320
 MechS32 GetTerrainTextmaps(MechS32 p_arg)
 {
 	return AreTextureMapsOn(0x800) || g_gridObjectShown;
@@ -157,6 +162,7 @@ MechS32 GetTerrainTextmaps(MechS32 p_arg)
 
 // FUNCTION: MW2 0x10076c57
 // FUNCTION: MW2MATROX 0x10078e27
+// FUNCTION: MW23DFX 0x10065340
 void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 {
 	EnableTextureMaps(0x800, p_terrainTextmaps);
@@ -166,6 +172,7 @@ void SetTerrainTextmaps(MechS32 p_arg, MechS32 p_terrainTextmaps)
 
 // FUNCTION: MW2 0x10076c8b
 // FUNCTION: MW2MATROX 0x10078e5b
+// FUNCTION: MW23DFX 0x10065360
 MechS32 GetDisplayDetail(MechS32 p_arg)
 {
 	return IsLodQualityHigh(p_arg) || ArePerspectiveTexturesOn(p_arg);
@@ -182,6 +189,7 @@ void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 
 // FUNCTION: MW2 0x10076d06
 // FUNCTION: MW2MATROX 0x10078ed6
+// FUNCTION: MW23DFX 0x100653b0
 MechS32 GetObjectDensity(MechS32 p_arg)
 {
 	return g_mw2SndCfgData->m_objectDensity;
@@ -189,6 +197,7 @@ MechS32 GetObjectDensity(MechS32 p_arg)
 
 // FUNCTION: MW2 0x10076d1e
 // FUNCTION: MW2MATROX 0x10078eee
+// FUNCTION: MW23DFX 0x100653c0
 void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity)
 {
 	ShowDensityShapes(p_objectDensity);

@@ -1,4 +1,4 @@
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "targeting.h"
@@ -38,6 +38,7 @@ DECOMP_SIZE_ASSERT(NavPoint, 0x54)
 
 // GLOBAL: MW2 0x100aaba4
 // GLOBAL: MW2MATROX 0x100a243c
+// GLOBAL: MW23DFX 0x1024c8a8
 MechS32 g_navCount = 0;
 
 // What inspecting the local player's target did (UpdateTarget): 1 inspected it, 2 too far, 3
@@ -365,6 +366,7 @@ CockpitLayout* g_cockpitLayouts[6] = {NULL, &g_smallMapLayout, &g_largeMapLayout
 
 // GLOBAL: MW2 0x10177160
 // GLOBAL: MW2MATROX 0x10212dd0
+// GLOBAL: MW23DFX 0x101e4230
 NavPoint g_navTable[128];
 
 // Places a nav point for player p_owner at (p_x, p_y, p_z), named "!". Returns its index, or
@@ -372,6 +374,7 @@ NavPoint g_navTable[128];
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005ec80
 // FUNCTION: MW2MATROX 0x100064f0
+// FUNCTION: MW23DFX 0x1001cab0
 MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 index;
@@ -575,6 +578,7 @@ void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 // Marks the local player's target (bit 0x1000).
 // FUNCTION: MW2 0x1005f284
 // FUNCTION: MW2MATROX 0x10006af2
+// FUNCTION: MW23DFX 0x1001ce80
 void ResetTargeting(void)
 {
 	Player* player;
@@ -942,7 +946,7 @@ MechS32 UpdateTarget(Player* p_player)
 			break;
 		case 0x400:
 			if (!(g_gameThings[index].m_teamsReached & (1 << p_player->m_team))) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				if (g_gameThings[index].m_radius + 20000.0f > p_player->m_targetInfo.m_distance) {
 #else
 				if (g_gameThings[index].m_radius + 20000 > p_player->m_targetInfo.m_distance) {
@@ -974,6 +978,7 @@ MechS32 UpdateTarget(Player* p_player)
 // The only diff is a stack-slot permutation of index, player and kind.
 // FUNCTION: MW2 0x1005fe63
 // FUNCTION: MW2MATROX 0x100076fe
+// FUNCTION: MW23DFX 0x1001d790
 MechS32 GetLocalTargetGamePiece(void)
 {
 	MechS32 index;
@@ -994,6 +999,7 @@ MechS32 GetLocalTargetGamePiece(void)
 // The only diff is a stack-slot permutation of index, player and kind.
 // FUNCTION: MW2 0x1005febe
 // FUNCTION: MW2MATROX 0x10007759
+// FUNCTION: MW23DFX 0x1001d7c0
 MechS32 GetLocalTargetGameThing(void)
 {
 	MechS32 index;
@@ -1013,6 +1019,7 @@ MechS32 GetLocalTargetGameThing(void)
 // Returns the shape of the local player's target, or NULL.
 // FUNCTION: MW2 0x1005ff19
 // FUNCTION: MW2MATROX 0x100077b4
+// FUNCTION: MW23DFX 0x1001d7f0
 Shape* GetLocalTargetShape(void)
 {
 	SceneObject* obj;
@@ -1111,7 +1118,7 @@ void TargetAtReticle(void)
 	g_reticleTargeting = 1;
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define BEARING_ABS(x) fabs(x)
 #define BEARING_DIV(p_a, p_b) ((p_a) / (p_b))
 #else
@@ -1127,6 +1134,7 @@ void TargetAtReticle(void)
 // stack-slot permutation of the locals is left.
 // FUNCTION: MW2 0x10060197
 // FUNCTION: MW2MATROX 0x10007a32
+// FUNCTION: MW23DFX 0x1001d970
 void GetBearingAndRange(
 	MechScalar p_dx,
 	MechScalar p_dy,
@@ -1183,6 +1191,7 @@ void GetBearingAndRange(
 // Steps p_player's nav point by p_step; with p_ownOnly, through the navs p_player placed only.
 // FUNCTION: MW2 0x100602b2
 // FUNCTION: MW2MATROX 0x10007b93
+// FUNCTION: MW23DFX 0x1001dac0
 void CycleNavTarget(Player* p_player, MechS32 p_step, MechS32 p_ownOnly)
 {
 	MechU32 flags;
@@ -1197,6 +1206,7 @@ void CycleNavTarget(Player* p_player, MechS32 p_step, MechS32 p_ownOnly)
 
 // FUNCTION: MW2 0x100602ec
 // FUNCTION: MW2MATROX 0x10007bcd
+// FUNCTION: MW23DFX 0x1001dae0
 void CycleGameThingTarget(MechS32 p_step)
 {
 	Player* player;
@@ -1207,6 +1217,7 @@ void CycleGameThingTarget(MechS32 p_step)
 
 // FUNCTION: MW2 0x1006031b
 // FUNCTION: MW2MATROX 0x10007bfc
+// FUNCTION: MW23DFX 0x1001db00
 void CycleGamePieceTarget(MechS32 p_step)
 {
 	Player* player;
@@ -1217,6 +1228,7 @@ void CycleGamePieceTarget(MechS32 p_step)
 
 // FUNCTION: MW2 0x1006034a
 // FUNCTION: MW2MATROX 0x10007c2b
+// FUNCTION: MW23DFX 0x1001db20
 void CycleFriendlyTarget(MechS32 p_step)
 {
 	Player* player;
@@ -1227,6 +1239,7 @@ void CycleFriendlyTarget(MechS32 p_step)
 
 // FUNCTION: MW2 0x1006037c
 // FUNCTION: MW2MATROX 0x10007c5d
+// FUNCTION: MW23DFX 0x1001db40
 void CycleEnemyTarget(MechS32 p_step)
 {
 	Player* player;

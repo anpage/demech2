@@ -62,7 +62,7 @@ extern "C"
 	void DrawPlayerBrackets(struct Player* p_player, MechS32 p_side);
 	void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side);
 	void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	void ClipRectToPane(PANE* p_pane, Rect* p_rect);
 	void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target);
 #endif

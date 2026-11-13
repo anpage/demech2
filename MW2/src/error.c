@@ -32,6 +32,7 @@ MechChar* g_warningTitle = "\nMW2.EXE - warning";
 // The code of the last error.
 // GLOBAL: MW2 0x100a58a4
 // GLOBAL: MW2MATROX 0x100ac634
+// GLOBAL: MW23DFX 0x10259658
 MechS32 g_errorCode = 0;
 
 // The error message; the length is unknown.
@@ -43,6 +44,7 @@ MechChar g_errorMessage[0x400];
 // others are fatal and end the game, most of them after shutting the subsystems down.
 // FUNCTION: MW2 0x1003b8c0
 // FUNCTION: MW2MATROX 0x10059620
+// FUNCTION: MW23DFX 0x1003ccb0
 void Error(MechS32 p_code, const char* p_format, ...)
 {
 	g_errorCode = p_code;
@@ -141,6 +143,7 @@ void Error(MechS32 p_code, const char* p_format, ...)
 // Shuts the subsystems down before the game exits on an error.
 // FUNCTION: MW2 0x1003ba07
 // FUNCTION: MW2MATROX 0x10059767
+// FUNCTION: MW23DFX 0x1003cdc0
 void ShutdownOnError(void)
 {
 	FreeBwdNames();

@@ -474,9 +474,9 @@ RSTOSB32    MACRO   temp
             ELSE
 
 ; demech2: begin change. MW2 fills runs of more than 4 bytes with the destination aligned:
-; bytes up to a dword boundary, then dwords, then the remaining bytes. The Matrox edition
-; (MW2_MATROX) fills the odd bytes first and then dwords, without aligning.
-            IFDEF   MW2_MATROX
+; bytes up to a dword boundary, then dwords, then the remaining bytes. The accelerated
+; editions (MW2_ACCEL) fill the odd bytes first and then dwords, without aligning.
+            IFDEF   MW2_ACCEL
             push    ecx
             and     ecx,11B
             RSTOSB
@@ -537,9 +537,9 @@ RMOVSB32    MACRO   temp
             ELSE
 
 ; demech2: begin change. MW2 copies runs of more than 4 bytes with the destination aligned:
-; bytes up to a dword boundary, then dwords, then the remaining bytes. The Matrox edition
-; (MW2_MATROX) copies the odd bytes first and then dwords, without aligning.
-            IFDEF   MW2_MATROX
+; bytes up to a dword boundary, then dwords, then the remaining bytes. The accelerated
+; editions (MW2_ACCEL) copy the odd bytes first and then dwords, without aligning.
+            IFDEF   MW2_ACCEL
             push    ecx
             and     ecx,11B
             RMOVSB
@@ -579,8 +579,8 @@ RXLAT32     MACRO
             jz __exit
 
 ; demech2: begin change. MW2 translates one byte at a time, without the four-byte unrolled loop,
-; which the Matrox edition (MW2_MATROX) keeps.
-            IFDEF MW2_MATROX
+; which the accelerated editions (MW2_ACCEL) keep.
+            IFDEF MW2_ACCEL
             cmp ecx,4
             jl __xlat_1
 
