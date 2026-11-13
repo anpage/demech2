@@ -433,8 +433,10 @@ void LoadStarTable(StarTable* p_table)
 }
 
 // Gives the sixteen teams the formations a record names.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1004fc48
 // FUNCTION: MW2MATROX 0x10049839
+// FUNCTION: MW23DFX 0x10042de0
 void SetTeamFormations(FormationNames* p_record)
 {
 	FormationNames* record;
@@ -698,8 +700,10 @@ void SetMangleBase(MechS32 p_base)
 // Stack-slot permutation of the locals.
 // MW2MATROX: the record's transform is converted member by member; g_thingCapacity > g_thingCount
 // compares in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100500ef
 // FUNCTION: MW2MATROX 0x10049d9d
+// FUNCTION: MW23DFX 0x10043270
 void CreateObjectNode(
 	BwdObjectRecord* p_record,
 	undefined4 p_unk0x04,

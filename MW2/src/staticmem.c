@@ -151,8 +151,10 @@ void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 // Frees the groups' blocks.
 // The loop test compares in the other operand order (the unit's symbol table).
 // MW2MATROX: the loop test compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10049c55
 // FUNCTION: MW2MATROX 0x100792c2
+// FUNCTION: MW23DFX 0x10023e40
 void FreeStaticMem(void)
 {
 	MechS32 i;

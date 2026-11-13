@@ -727,8 +727,10 @@ void FireRemoteWeapons(Mech* p_mech)
 
 // Fires every ready weapon of the local player's selected group.
 // Stack-slot permutation: selected, first, def and slot.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10045cd8
 // FUNCTION: MW2MATROX 0x1002ca7e
+// FUNCTION: MW23DFX 0x10044440
 void FireWeaponGroup(void)
 {
 	Mech* mech;

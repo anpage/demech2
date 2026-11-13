@@ -895,8 +895,10 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 // Closes on p_target. Whether it is within 8000, or more when closing fast (GetClosingRate, per
 // 500000).
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10014c3d
 // FUNCTION: MW2MATROX 0x1001a978
+// FUNCTION: MW23DFX 0x1001faf0
 MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 {
 #ifdef MW2_ACCEL
@@ -986,8 +988,10 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 }
 
 // Turns p_player toward its goal and closes on its target. Whether it is within 3000.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10014e5e
 // FUNCTION: MW2MATROX 0x1001ab92
+// FUNCTION: MW23DFX 0x1001fc40
 MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1196,8 +1200,10 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // PlacePatrolNavs) now and then while far from the target, and handing the target to AdvanceNavTarget
 // within 3000.
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100153e6
 // FUNCTION: MW2MATROX 0x1001b155
+// FUNCTION: MW23DFX 0x1001ffd0
 MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 {
 	MechScalar heading;
@@ -1558,8 +1564,10 @@ MechS32 IsStandableShape(Shape* p_shape)
 // Builds a probe ray for p_player in p_ray: p_length along direction p_step (mirrored for a
 // negative p_side) in the mech's frame, from its position or, with p_fromEdge, from its side.
 // Stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10015b9f
 // FUNCTION: MW2MATROX 0x1001b985
+// FUNCTION: MW23DFX 0x100204e0
 void BuildProbeRay(
 	Player* p_player,
 	Ray* p_ray,

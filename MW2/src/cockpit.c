@@ -584,8 +584,10 @@ void DrawMapContents(CockpitLayout* p_layout)
 
 // Draws the other live players and the live game things, by side.
 // Stack-slot permutation; i < g_gameThingCount compares in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003e4cd
 // FUNCTION: MW2MATROX 0x10074102
+// FUNCTION: MW23DFX 0x10003960
 void DrawMapUnits(CockpitLayout* p_layout)
 {
 	Player* player;
@@ -645,8 +647,10 @@ void DrawMapUnits(CockpitLayout* p_layout)
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // Stack-slot permutation; m_icons[row][side] loads the table before the row (index order).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003e689
 // FUNCTION: MW2MATROX 0x1007432d
+// FUNCTION: MW23DFX 0x10003a60
 void DrawMapTarget(CockpitLayout* p_layout)
 {
 	MechS32 index;
@@ -898,6 +902,7 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 // other operand order.
 // FUNCTION: MW2 0x1003ec35
 // FUNCTION: MW2MATROX 0x10074945
+// FUNCTION: MW23DFX 0x10003e50
 void DrawMapViewText(CockpitLayout* p_layout)
 {
 #ifdef MW2_ACCEL
@@ -1417,8 +1422,10 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 // The map view while the local mech starts up: slides the view's rectangle in (its transition),
 // then draws it.
 // MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003f66d
 // FUNCTION: MW2MATROX 0x10075428
+// FUNCTION: MW23DFX 0x10004560
 void PowerUpMapView(void)
 {
 	RectTransition* transition;
@@ -1562,8 +1569,10 @@ void DrawDamagedMapView(void)
 
 // The map view while the local mech shuts down or is off: slides the view's rectangle out.
 // MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003fa05
 // FUNCTION: MW2MATROX 0x100757c0
+// FUNCTION: MW23DFX 0x100047d0
 void PowerDownMapView(void)
 {
 	RectTransition* transition;

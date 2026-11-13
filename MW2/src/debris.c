@@ -125,8 +125,10 @@ void ThrowDebrisPiece(MechS32 p_index)
 
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
 // Stack-slot permutation: i and chunk.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10004356
 // FUNCTION: MW2MATROX 0x1002a703
+// FUNCTION: MW23DFX 0x10015410
 void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	MechS32 i;

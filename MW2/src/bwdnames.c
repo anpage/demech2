@@ -89,8 +89,10 @@ MechS16* FindBwdName(BwdName* p_name)
 	return found;
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100586ec
 // FUNCTION: MW2MATROX 0x1002df7c
+// FUNCTION: MW23DFX 0x1003f8c0
 void FreeBwdNames(void)
 {
 	BwdNameNode* node;

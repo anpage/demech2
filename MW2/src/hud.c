@@ -357,8 +357,10 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 // Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
 // its extent plus its id, not by the id it was loaded with.
 // Stack-slot permutation; the second g_altimeterMarkWidth sum loads its operands in the other order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10040f91
 // FUNCTION: MW2MATROX 0x1001ce3d
+// FUNCTION: MW23DFX 0x10022490
 void InitHudGauges(void)
 {
 	void* shape;

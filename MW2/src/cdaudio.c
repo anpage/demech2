@@ -53,8 +53,10 @@ MechS32 g_cdStatus;
 // Picks the auxiliary audio device the CD volume goes through: the CD audio output, or failing
 // that the first auxiliary input.
 // Stack-slot permutation: numDevs, device and found.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005a7a0
 // FUNCTION: MW2MATROX 0x100025b0
+// FUNCTION: MW23DFX 0x10030600
 MechS32 GetCdAudioAuxDevice(void)
 {
 	MechS32 numDevs;
@@ -99,6 +101,7 @@ MechS32 GetCdAudioAuxDevice(void)
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x1005a8b5
 // FUNCTION: MW2MATROX 0x100026c5
+// FUNCTION: MW23DFX 0x100306b0
 MechS32 InitCdAudio(void)
 {
 	MechS32 cdNumber;
@@ -200,6 +203,7 @@ void StopCdAudio(void)
 // Plays from p_from, up to p_to unless it is 0 (TMSF positions).
 // FUNCTION: MW2 0x1005aabe
 // FUNCTION: MW2MATROX 0x100028ce
+// FUNCTION: MW23DFX 0x100308a0
 void PlayCdAudio(MechU32 p_from, MechU32 p_to)
 {
 	MCI_PLAY_PARMS parms;
@@ -455,8 +459,10 @@ void FUN_1005aff8(undefined4 p_unk0x00)
 // a disc goes in (beeping on each failed attempt, and exiting after three). Returns whether the
 // state changed.
 // Stack-slot permutation: status and i.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005b00b
 // FUNCTION: MW2MATROX 0x10002e1b
+// FUNCTION: MW23DFX 0x10030c40
 MechS32 PollCdDrive(void)
 {
 	MechS32 status;
@@ -493,8 +499,10 @@ MechS32 PollCdDrive(void)
 
 // Skips p_step tracks from the current one.
 // Stack-slot permutation: status and track.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005b10b
 // FUNCTION: MW2MATROX 0x10002f1b
+// FUNCTION: MW23DFX 0x10030cc0
 void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step)
 {
 	MechS32 status;
@@ -676,6 +684,7 @@ void FreeCdAudioTracks(CdAudioTracks* p_tracks)
 
 // FUNCTION: MW2 0x1005b61d
 // FUNCTION: MW2MATROX 0x1000342d
+// FUNCTION: MW23DFX 0x10031020
 void GetCdAudioPosition(CdAudioPosition* p_position)
 {
 	MCI_STATUS_PARMS parms;
@@ -693,6 +702,7 @@ void GetCdAudioPosition(CdAudioPosition* p_position)
 
 // FUNCTION: MW2 0x1005b696
 // FUNCTION: MW2MATROX 0x100034a6
+// FUNCTION: MW23DFX 0x10031090
 MechS32 IsCdAudioInitialized(void)
 {
 	return g_cdAudioInitialized;

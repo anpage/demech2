@@ -546,6 +546,7 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 // The only diff is a stack-slot permutation of speed and damage.
 // FUNCTION: MW2 0x100765f8
 // FUNCTION: MW2MATROX 0x1007685c
+// FUNCTION: MW23DFX 0x1000c160
 void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 {
 	MechScalar speed;
@@ -562,7 +563,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 	);
 	if (speed > FIXED_LITERAL(200000, 3.0693676f)) {
 #ifdef MW2_ACCEL
-		damage = (speed - 3.0693676f) / 19.95089f * 3;
+		damage = 3 * ((speed - 3.0693676f) / 19.95089f);
 #else
 		damage = FixedDiv16(speed - 200000, 1300000) * 3;
 #endif
@@ -649,6 +650,7 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 // Stack-slot permutation: damage and speed.
 // FUNCTION: MW2 0x100768a8
 // FUNCTION: MW2MATROX 0x10076bc3
+// FUNCTION: MW23DFX 0x1000c3c0
 void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 {
 	MechScalar damage;
@@ -673,7 +675,7 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 		speed = ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ);
 		if (speed > FIXED_LITERAL(200000, 3.0693676f)) {
 #ifdef MW2_ACCEL
-			damage = (speed - 3.0693676f) / 19.95089f * 3;
+			damage = 3 * ((speed - 3.0693676f) / 19.95089f);
 #else
 			damage = FixedDiv16(speed - 200000, 1300000) * 3;
 #endif

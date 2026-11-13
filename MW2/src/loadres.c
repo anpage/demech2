@@ -70,8 +70,10 @@ void UnlockCacheEntry(ResourceCacheEntry* p_item)
 // Locks an item and takes it off the purge list.
 // The two list-end comparisons load their operands in the other order (the unit's symbol table).
 // MW2MATROX: the two list-end comparisons compare in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10019b63
 // FUNCTION: MW2MATROX 0x10055903
+// FUNCTION: MW23DFX 0x10023fd0
 void LockCacheEntry(ResourceCacheEntry* p_item)
 {
 	if (p_item->m_lock == 1) {
@@ -168,6 +170,7 @@ void InitializeResourceCache(void)
 
 // FUNCTION: MW2 0x10019da1
 // FUNCTION: MW2MATROX 0x10055b41
+// FUNCTION: MW23DFX 0x10024120
 void FUN_10019da1(void)
 {
 }
@@ -199,8 +202,10 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 // Frees an item. An item missing from its hash chain is reported instead.
 // Stack-slot permutation of prev and slot; the original adds type[3] before type[2] (commutative
 // operand order).
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10019e53
 // FUNCTION: MW2MATROX 0x10055bf3
+// FUNCTION: MW23DFX 0x10024190
 void FreeCacheEntry(ResourceCacheEntry* p_item)
 {
 	ResourceCacheEntry* prev = NULL;
@@ -251,8 +256,10 @@ void FreeCacheEntry(ResourceCacheEntry* p_item)
 
 // Writes the cache's hash chains and purge list to the next dbugcch<n>.log.
 // Stack-slot permutation of i, type, item and name.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10019fef
 // FUNCTION: MW2MATROX 0x10055d8e
+// FUNCTION: MW23DFX 0x100242a0
 void DumpResourceCache(void)
 {
 	FILE* file;
@@ -297,6 +304,7 @@ void DumpResourceCache(void)
 
 // FUNCTION: MW2 0x1001a158
 // FUNCTION: MW2MATROX 0x10055ef7
+// FUNCTION: MW23DFX 0x100243c0
 void FUN_1001a158(void)
 {
 }
@@ -417,6 +425,7 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 
 // FUNCTION: MW2 0x1001a4e5
 // FUNCTION: MW2MATROX 0x10056284
+// FUNCTION: MW23DFX 0x10024670
 void FreeCachedResource(MechS32 p_id, const char* p_type)
 {
 	ResourceCacheEntry* entry;
@@ -431,12 +440,14 @@ void FreeCachedResource(MechS32 p_id, const char* p_type)
 
 // FUNCTION: MW2 0x1001a521
 // FUNCTION: MW2MATROX 0x100562c0
+// FUNCTION: MW23DFX 0x10024690
 void FUN_1001a521(undefined4 p_unk0x00)
 {
 }
 
 // FUNCTION: MW2 0x1001a52c
 // FUNCTION: MW2MATROX 0x100562cb
+// FUNCTION: MW23DFX 0x100246a0
 undefined4 FUN_1001a52c(undefined4 p_unk0x00)
 {
 	return p_unk0x00;
@@ -541,6 +552,7 @@ void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 
 // FUNCTION: MW2 0x1001a61e
 // FUNCTION: MW2MATROX 0x100563bd
+// FUNCTION: MW23DFX 0x10024760
 void MemFree(void* p_block)
 {
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);

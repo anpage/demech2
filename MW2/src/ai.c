@@ -898,8 +898,10 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 // Makes the first able member of star p_team other than its leader the leader. Returns it, or -1.
 // Operand order: the loop test (i < count) compares with i in eax in the original. Stack-slot
 // permutation: count, i, member and members and newLeader.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005212a
 // FUNCTION: MW2MATROX 0x10081269
+// FUNCTION: MW23DFX 0x100125d0
 MechS32 ChooseTeamLeader(MechS32 p_team)
 {
 	Player* member;
@@ -2205,6 +2207,7 @@ void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 // Stack-slot permutation: i and script.
 // FUNCTION: MW2 0x100545ea
 // FUNCTION: MW2MATROX 0x10083850
+// FUNCTION: MW23DFX 0x10013d90
 MechS32 HasAIState(Player* p_player, MechS16 p_state)
 {
 	MechS32 i;
@@ -2415,6 +2418,7 @@ void RecordAttack(MechS32 p_index, MechU32 p_target)
 // Loads the nine AIT scripts.
 // FUNCTION: MW2 0x10054c05
 // FUNCTION: MW2MATROX 0x10083e80
+// FUNCTION: MW23DFX 0x100141a0
 MechS32 LoadAIScripts(void)
 {
 	MechS32 i;

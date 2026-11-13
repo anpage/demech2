@@ -54,8 +54,10 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 	return callback;
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007d3bf
 // FUNCTION: MW2MATROX 0x1002738f
+// FUNCTION: MW23DFX 0x10008300
 void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 {
 	TimedCallback* callback;
@@ -83,6 +85,7 @@ void RemoveTask(TimedCallback** p_list, TimedCallback* p_callback)
 
 // FUNCTION: MW2 0x1007d475
 // FUNCTION: MW2MATROX 0x10027445
+// FUNCTION: MW23DFX 0x10008360
 void RemoveAllTasks(TimedCallback** p_list)
 {
 	TimedCallback* callback;

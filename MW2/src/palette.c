@@ -232,8 +232,10 @@ void UpdatePaletteFade(void)
 }
 
 // Matches except for the stack slots of fromSlot, steps and to (a consistent permutation).
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10002687
 // FUNCTION: MW2MATROX 0x1002d865
+// FUNCTION: MW23DFX 0x1002ad50
 MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 {
 	MechU8* to;
@@ -365,8 +367,10 @@ MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 	return StartPaletteFade(p_offset + g_basePalette, p_duration, p_mode);
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100028b7
 // FUNCTION: MW2MATROX 0x1002db75
+// FUNCTION: MW23DFX 0x1002af80
 void StartPaletteCycle(MechU8 p_first, MechS32 p_count)
 {
 	MechU8* palette;

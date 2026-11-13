@@ -220,10 +220,9 @@ endfunction()
 # the accelerated editions share (MW2/src/accel), MW2_3DFX this edition's own.
 #
 # The sources are MW2's and the accelerated editions' (MW2/src/accel), in this edition's link
-# order as far as its functions place them. Its own back end (the Glide renderer, at 0x10066570)
-# isn't written yet: the Matrox edition's A3D and MSI back ends (MW2/src/matrox) are linked in its
-# place. Only the VC++ 2.2 sub-project builds this target: it needs ML, and its sources'
-# optimization flags would apply to MW2's targets in the top-level project.
+# order as far as its functions place them, with its own Glide back ends (MW2/src/3dfx) in place
+# of the Matrox edition's. Only the VC++ 2.2 sub-project builds this target: it needs ML, and its
+# sources' optimization flags would apply to MW2's targets in the top-level project.
 function(demech2_add_mw23dfx)
   # 3dfx's Texus, which the renderer (3dfx/a3d.c) converts its textures with.
   include("${DEMECH2_SOURCE_DIR}/3rdparty/texus/texus.cmake")
@@ -232,6 +231,11 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
+  )
+  # Optimized without /Oa: the original keeps stores to locals whose address a call takes as an
+  # integer (GetCdAudioPosition's MCI_STATUS_PARMS), which /Oa drops.
+  set(no_alias
+    "${DEMECH2_SOURCE_DIR}/MW2/src/cdaudio.c"
   )
   set(sources
     "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
@@ -401,7 +405,9 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
   )
   foreach(source IN LISTS sources)
-    if (source MATCHES "\\.c$" AND NOT source IN_LIST od)
+    if (source IN_LIST no_alias)
+      set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox")
+    elseif (source MATCHES "\\.c$" AND NOT source IN_LIST od)
       set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Oa")
     endif()
   endforeach()

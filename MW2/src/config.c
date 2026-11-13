@@ -252,8 +252,10 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_outlinePartRects), any of
 // them out of range cleared.
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2MATROX 0x1000b1c6
+// FUNCTION: MW23DFX 0x100403a0
 MechS32 LoadHudFile(ResourceRef* p_ref)
 {
 	MechS32 size;
@@ -617,8 +619,10 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 }
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100715a2
 // FUNCTION: MW2MATROX 0x1000bb8e
+// FUNCTION: MW23DFX 0x10040a60
 void SaveScreenshot(void)
 {
 	MechS32 count;

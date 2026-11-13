@@ -937,8 +937,10 @@ InputSink* FindInputSink(MechChar* p_name)
 
 // Reads the next line of INPUT.MAP that isn't blank once its comment is cut off. Returns 0 at
 // the end of the file.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100799b7
 // FUNCTION: MW2MATROX 0x1007c176
+// FUNCTION: MW23DFX 0x10039090
 MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 {
 	MechChar* p;
@@ -972,8 +974,10 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 // keys move its position directly.
 // The loop compares i and g_inputAxisCount in the other operand order, and i, suffix, sink and
 // name are a stack-slot permutation.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10079aac
 // FUNCTION: MW2MATROX 0x1007c26b
+// FUNCTION: MW23DFX 0x10039140
 InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 {
 	MechChar* suffix;
@@ -1341,8 +1345,10 @@ MechS32 ParseInputMap(FILE* p_file)
 // Loads INPUT.MAP, then each present device's own map: giddi\<device name without its trailing
 // digits>.std.
 // Stack-slot permutation: name and i.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007a97a
 // FUNCTION: MW2MATROX 0x1007d0ba
+// FUNCTION: MW23DFX 0x10039ac0
 MechS32 LoadInputMap(void)
 {
 	MechChar name[256];
@@ -1381,8 +1387,10 @@ MechS32 LoadInputMap(void)
 // Loads GAMEKEY.MAP: an action name and its key sequence ("CTRL+F1") a line.
 // Stack-slot permutation: keyCode, i, keys, action, file and code. The Matrox edition compares the two
 // game key actions in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007aba9
 // FUNCTION: MW2MATROX 0x1007d2c1
+// FUNCTION: MW23DFX 0x10039c90
 MechS32 LoadGamekeyMap(void)
 {
 	MechChar line[256];

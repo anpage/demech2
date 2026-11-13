@@ -148,8 +148,10 @@ void ScaleBarGauges(void)
 // MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol); the remaining diff is a
 // stack-slot permutation, the operand order of `level >= width`, and DrawHorizontalBar, which
 // the Matrox edition changed and has no MW2MATROX annotation yet.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004d175
 // FUNCTION: MW2MATROX 0x10089195
+// FUNCTION: MW23DFX 0x1001c350
 void DrawHeatBar(PANE* p_target)
 {
 	MechS32 heat;

@@ -98,8 +98,10 @@ void PauseMidiSequences(void)
 	}
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100215a4
 // FUNCTION: MW2MATROX 0x10043ca4
+// FUNCTION: MW23DFX 0x10033050
 void ResumeMidiSequences(void)
 {
 	HSEQUENCE sequence;
@@ -151,8 +153,10 @@ MechS32 InitializeMidi(void)
 // p_id in a free slot. Returns 1, 0 when there is nothing to play, -8 when no slot is free or
 // -10 when Miles has no sequence handle. The slot's resource id isn't recorded.
 // Stack-slot permutation: slot and i.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x100216d3
 // FUNCTION: MW2MATROX 0x10043dd3
+// FUNCTION: MW23DFX 0x10033150
 MechS32 PlayMidiSequence(undefined4 p_unk0x00, MechS16 p_id, MechS16 p_sequenceNum)
 {
 	HSEQUENCE sequence;
@@ -250,8 +254,10 @@ MechS16 AnyMidiPlaying(void)
 }
 
 // Fades the playing sequences to p_volume (0 to 127) over a second.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10021956
 // FUNCTION: MW2MATROX 0x10044056
+// FUNCTION: MW23DFX 0x10033340
 void SetMidiVolume(MechS16 p_volume)
 {
 	MechS32 i;
@@ -271,6 +277,7 @@ void SetMidiVolume(MechS16 p_volume)
 
 // FUNCTION: MW2 0x100219ea
 // FUNCTION: MW2MATROX 0x100440ea
+// FUNCTION: MW23DFX 0x100333a0
 void ApplyMidiVolume(void)
 {
 }
@@ -279,6 +286,7 @@ void ApplyMidiVolume(void)
 // 0 or less.
 // FUNCTION: MW2 0x100219f5
 // FUNCTION: MW2MATROX 0x100440f5
+// FUNCTION: MW23DFX 0x100333b0
 MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p_volume, MechS32 p_pan, MechS32 p_flags)
 {
 	return 0;
@@ -288,6 +296,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // silent until UpdateEngineNote sets its volume.
 // FUNCTION: MW2 0x10021a07
 // FUNCTION: MW2MATROX 0x10044107
+// FUNCTION: MW23DFX 0x100333c0
 void StartEngineNote(void)
 {
 #ifdef MW2_ACCEL

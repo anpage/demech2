@@ -168,8 +168,10 @@ MechS32 g_refreshModeHeight;
 // Stack-slot permutation: mode, backend, screenWidth, screenHeight and unused.
 // The Matrox edition's rebuild compares p_height and the mode index in the other operand order
 // (entropy).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10076d50
 // FUNCTION: MW2MATROX 0x1007add0
+// FUNCTION: MW23DFX 0x100025e0
 MechS32 InitRefreshMode(
 	MechS32 p_mode,
 	MechS32 p_allowFallback,
@@ -293,8 +295,10 @@ void ShutdownRefreshMode(void)
 // then moves to the next one; after the last, SelectFastestRefreshMode picks the fastest.
 // Operand order: the original compares the high parts as `cmp [g_profileStart+4], eax` with
 // end.HighPart in eax; swapping the operands doesn't flip it.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100770a8
 // FUNCTION: MW2MATROX 0x1007b124
+// FUNCTION: MW23DFX 0x10002870
 void ProfileRefreshModes(void)
 {
 	LARGE_INTEGER end;

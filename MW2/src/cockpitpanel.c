@@ -43,6 +43,7 @@ void InitCockpitPanel(CockpitPanel* p_panel)
 
 // FUNCTION: MW2 0x100747c9
 // FUNCTION: MW2MATROX 0x1001c8d9
+// FUNCTION: MW23DFX 0x100234e0
 void ShutdownCockpitPanel(CockpitPanel* p_panel)
 {
 }

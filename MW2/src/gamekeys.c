@@ -365,8 +365,10 @@ void ShiftCharacter(MechChar* p_char)
 // edits, Enter sends it (to everyone from -1), Esc cancels, F-keys e and f pick the team (-3) or
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
 // Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005c057
 // FUNCTION: MW2MATROX 0x1004278d
+// FUNCTION: MW23DFX 0x10037310
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
 	MechChar text[80];
@@ -460,8 +462,10 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // Runs the frame's game keys: after the mission ends, waits a while before offering to quit (or,
 // with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005c2e1
 // FUNCTION: MW2MATROX 0x10042a17
+// FUNCTION: MW23DFX 0x100374e0
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
 	if (g_simPaused) {

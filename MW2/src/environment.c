@@ -128,8 +128,10 @@ void FirstEnvironment(void)
 
 // Stack slots: seconds, time and i are permuted. MW2MATROX: the g_currentClock and
 // g_nextTimeOfDayUpdate comparison has its operands the other way around.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007d6bb
 // FUNCTION: MW2MATROX 0x10085d3b
+// FUNCTION: MW23DFX 0x10007900
 void UpdateTimeOfDay(void)
 {
 	MechS32 phase;

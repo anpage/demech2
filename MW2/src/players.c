@@ -145,8 +145,10 @@ void DrawLocalPlayer(void)
 
 // Stack slots: shutdown and i are swapped.
 // MW2MATROX: the loop test (i < g_playerCount) compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d18d
 // FUNCTION: MW2MATROX 0x1005501b
+// FUNCTION: MW23DFX 0x100188e0
 void ShutdownAllPlayers(void)
 {
 	PlayerMechFn shutdown;
@@ -191,8 +193,10 @@ void ZeroGamethings(void)
 // Creates player p_player: allocates it, sets it up, gives it its steering (the input sinks for
 // the local player, the room after it otherwise), and passes it to p_fn if given.
 // The original loads g_localPlayerId into eax for the comparison with p_player (operand order).
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d282
 // FUNCTION: MW2MATROX 0x10055110
+// FUNCTION: MW23DFX 0x10018970
 void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 {
 	PlayerCreatedFn fn;
