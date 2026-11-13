@@ -35,5 +35,5 @@ The rest of 3rdparty (the import-library definitions and the declarations of Dir
 DirectDraw, DisplayDib, Glide, MSI95, the Miles Sound System and Smacker) is this project's
 own, written for it from what the game uses, and is covered by the license above.
 
-GLIDE is a trademark of 3dfx Interactive, Inc. This project is not affiliated with 3dfx,
-Microsoft, Miles Design, MicroProse or Activision.
+GLIDE is a trademark of 3dfx Interactive, Inc. This project is not affiliated with 3dfx, Matrox,
+Microsoft, Miles Design or Activision.
