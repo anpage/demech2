@@ -22,18 +22,22 @@ MechChar g_gameCtrlItem[] = "Game Ctrl";
 
 // GLOBAL: MW2 0x100aa880
 // GLOBAL: MW2MATROX 0x100a8178
+// GLOBAL: MW23DFX 0x10264b88
 MechChar g_systemsStatusTitle[] = "SYSTEMS STATUS";
 
 // GLOBAL: MW2 0x100aa890
 // GLOBAL: MW2MATROX 0x100a8188
+// GLOBAL: MW23DFX 0x10264b98
 MechChar g_lightAmplificationItem[] = "Light Amplification";
 
 // GLOBAL: MW2 0x100aa8a8
 // GLOBAL: MW2MATROX 0x100a81a0
+// GLOBAL: MW23DFX 0x10264bb0
 MechChar g_imageEnhancementItem[] = "Image Emhancement";
 
 // GLOBAL: MW2 0x100aa8bc
 // GLOBAL: MW2MATROX 0x100a81b4
+// GLOBAL: MW23DFX 0x10264bc4
 MechChar g_hudItem[] = "HUD";
 
 // GLOBAL: MW2 0x100aa8c0
@@ -42,19 +46,23 @@ MechChar g_autoThermOverrideItem[] = "Auto Therm Override";
 
 // GLOBAL: MW2 0x100aa8d8
 // GLOBAL: MW2MATROX 0x100a81d0
+// GLOBAL: MW23DFX 0x10264be0
 MechChar g_autoEjectItem[] = "Auto Eject";
 
 // GLOBAL: MW2 0x100aa8e8
 // GLOBAL: MW2MATROX 0x100a81e0
+// GLOBAL: MW23DFX 0x10264bf0
 MenuControl g_infraredControl = {3, 0, &g_offOnChoices, 166, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa910
 // GLOBAL: MW2MATROX 0x100a8208
+// GLOBAL: MW23DFX 0x10264c18
 MenuControl g_enhancedVisionControl =
 	{3, 0, &g_offOnChoices, 167, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa938
 // GLOBAL: MW2MATROX 0x100a8230
+// GLOBAL: MW23DFX 0x10264c40
 MenuControl g_hudControl = {3, 0, &g_offOnChoices, 19, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa960
@@ -64,10 +72,12 @@ MenuControl g_overrideShutdownControl =
 
 // GLOBAL: MW2 0x100aa988
 // GLOBAL: MW2MATROX 0x100a8280
+// GLOBAL: MW23DFX 0x10264c90
 MenuControl g_autoEjectControl = {3, 0, &g_offOnChoices, 60, NULL, GetSystemSetting, NULL, SetSystemSetting, NULL};
 
 // GLOBAL: MW2 0x100aa9b0
 // GLOBAL: MW2MATROX 0x100a82a8
+// GLOBAL: MW23DFX 0x10264cb8
 MenuPage g_systemsStatusPage = {
 	0,
 	g_systemsStatusTitle,
@@ -84,14 +94,17 @@ MenuPage g_systemsStatusPage = {
 
 // GLOBAL: MW2 0x100aab08
 // GLOBAL: MW2MATROX 0x100a8400
+// GLOBAL: MW23DFX 0x10264e10
 PANE g_systemsMenuTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 
 // GLOBAL: MW2 0x100aab20
 // GLOBAL: MW2MATROX 0x100a8418
+// GLOBAL: MW23DFX 0x10264e28
 PANE g_systemsMenuBackgroundTarget = {NULL, 0x8ccd, 0x547b, 0x10000, 0x9eb8};
 
 // GLOBAL: MW2 0x100aab38
 // GLOBAL: MW2MATROX 0x100a8430
+// GLOBAL: MW23DFX 0x10264e40
 MenuDefinition g_systemsMenu = {
 	&g_systemsMenuTarget,
 	2,
@@ -118,6 +131,7 @@ MenuDefinition g_systemsMenu = {
 };
 
 // GLOBAL: MW2 0x100e95f0
+// GLOBAL: MW23DFX 0x101534d0
 MenuPage* g_systemsMenuPageStack[8];
 
 // The systems status menu's settings, by the game key that toggles each (GAMEKEY.MAP): 0x13

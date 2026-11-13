@@ -119,6 +119,7 @@ MechChar g_hatLeftShortName[] = "HatLeft";
 
 // GLOBAL: MW2 0x100a6f58
 // GLOBAL: MW2MATROX 0x100a5758
+// GLOBAL: MW23DFX 0x10259220
 InputDriverModule g_joystickDriver = {
 	GetJoystickDeviceCount,
 	FillJoystickDeviceInfo,
@@ -153,6 +154,7 @@ MechChar g_joystickRegistryKey[0x100];
 
 // FUNCTION: MW2 0x10049e70
 // FUNCTION: MW2MATROX 0x10025f40
+// FUNCTION: MW23DFX 0x1003a680
 MechS32 GetJoystickDeviceCount(void)
 {
 	return joyGetNumDevs();
@@ -164,6 +166,7 @@ MechS32 GetJoystickDeviceCount(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049e86
 // FUNCTION: MW2MATROX 0x10025f56
+// FUNCTION: MW23DFX 0x1003a690
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	JOYCAPS caps;
@@ -285,6 +288,7 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004a3be
 // FUNCTION: MW2MATROX 0x10026380
+// FUNCTION: MW23DFX 0x1003a9c0
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
@@ -406,6 +410,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 // Frees the names and the driver data FillJoystickDeviceInfo and JoystickOpenDevice allocated.
 // FUNCTION: MW2 0x1004a947
 // FUNCTION: MW2MATROX 0x1002699d
+// FUNCTION: MW23DFX 0x1003adc0
 MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 {
 	if (p_info) {
@@ -443,6 +448,7 @@ MechS32 JoystickCloseDevice(InputDeviceInfo* p_info)
 
 // FUNCTION: MW2 0x1004aa59
 // FUNCTION: MW2MATROX 0x10026aaf
+// FUNCTION: MW23DFX 0x1003ae70
 MechS32 JoystickCenterAxis(void)
 {
 	return 0;
@@ -458,6 +464,7 @@ MechS32 JoystickCenterAxis(void)
 // The Matrox edition's differs from the original only in its stack slots (i and info).
 // FUNCTION: MW2 0x1004aa6b
 // FUNCTION: MW2MATROX 0x10026b7e
+// FUNCTION: MW23DFX 0x1003ae80
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
 #ifdef MW2_ACCEL
@@ -638,6 +645,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 
 // FUNCTION: MW2 0x1004ad42
 // FUNCTION: MW2MATROX 0x10026f79
+// FUNCTION: MW23DFX 0x1003b030
 MechS32 JoystickReadKeyCode(void)
 {
 	return 2;
@@ -645,6 +653,7 @@ MechS32 JoystickReadKeyCode(void)
 
 // FUNCTION: MW2 0x1004ad57
 // FUNCTION: MW2MATROX 0x10026f8e
+// FUNCTION: MW23DFX 0x1003b040
 MechS32 JoystickFlushKeyCodes(void)
 {
 	return 2;

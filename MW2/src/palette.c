@@ -89,10 +89,12 @@ MechFloat g_unk0x10184700[3];
 
 // GLOBAL: MW2 0x100bcd20
 // GLOBAL: MW2MATROX 0x100c1ff8
+// GLOBAL: MW23DFX 0x1007c6b8
 static PaletteFade g_paletteFade;
 
 // GLOBAL: MW2 0x100bcd40
 // GLOBAL: MW2MATROX 0x100c2018
+// GLOBAL: MW23DFX 0x1007c6d8
 static PaletteCycle g_paletteCycle;
 
 // GLOBAL: MW2 0x10181a60

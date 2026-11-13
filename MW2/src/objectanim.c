@@ -179,19 +179,23 @@ MechS32 g_directionalLight;
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
 // GLOBAL: MW2 0x1010b53c
 // GLOBAL: MW2MATROX 0x101d6900
+// GLOBAL: MW23DFX 0x101b0e50
 MechU8 g_polygonOrCodes;
 
 // GLOBAL: MW2 0x1010b5b8
 // GLOBAL: MW2MATROX 0x101d6974
+// GLOBAL: MW23DFX 0x101b0ed4
 MechU8 g_polygonAndCodes;
 
 // The projected vertices of the polygon being built, and their count.
 // GLOBAL: MW2 0x1010b550
 // GLOBAL: MW2MATROX 0x101d6910
+// GLOBAL: MW23DFX 0x101b0e70
 ProjectedVertex* g_polygonPoints[20];
 
 // GLOBAL: MW2 0x1010b5b0
 // GLOBAL: MW2MATROX 0x101d6978
+// GLOBAL: MW23DFX 0x101b0ed8
 MechS32 g_polygonPointCount;
 
 // Where QueueFace copies the next polygon's vertex pointers in the draw buffer.
@@ -241,6 +245,7 @@ AnimFile g_animFiles[60];
 // m_values[i] reads (index order).
 // FUNCTION: MW2 0x10046750
 // FUNCTION: MW2MATROX 0x1006ece0
+// FUNCTION: MW23DFX 0x1000dec0
 MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechS32 next;
@@ -706,6 +711,7 @@ MechS32 GetReelMotionSize(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004748c
 // FUNCTION: MW2MATROX 0x1006fa61
+// FUNCTION: MW23DFX 0x1000e6e0
 MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -795,6 +801,7 @@ MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // MW2MATROX: the rates and the period are floats, the rates in degrees.
 // FUNCTION: MW2 0x1004771e
 // FUNCTION: MW2MATROX 0x1006fcf3
+// FUNCTION: MW23DFX 0x1000e880
 MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechScalar dz;
@@ -897,6 +904,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 // MW2MATROX: the angle, rates and steps are floats, the angle in degrees.
 // FUNCTION: MW2 0x100479ec
 // FUNCTION: MW2MATROX 0x1006ff89
+// FUNCTION: MW23DFX 0x1000ea50
 MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -1092,6 +1100,7 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // (the original scales i before it loads the path).
 // FUNCTION: MW2 0x10047f60
 // FUNCTION: MW2MATROX 0x100704f2
+// FUNCTION: MW23DFX 0x1000ee10
 MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar rotate[64];

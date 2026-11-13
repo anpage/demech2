@@ -48,10 +48,12 @@ MechS32 g_showObjectives = 0;
 
 // GLOBAL: MW2 0x100bcd88
 // GLOBAL: MW2MATROX 0x100c1e70
+// GLOBAL: MW23DFX 0x1007c318
 static MechChar g_ticksText[16];
 
 // GLOBAL: MW2 0x100bcd98
 // GLOBAL: MW2MATROX 0x100c1e80
+// GLOBAL: MW23DFX 0x1007c328
 static MechChar g_secondsText[16];
 
 // The chat message being typed. HandleChatKey edits it.

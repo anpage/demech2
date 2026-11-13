@@ -23,6 +23,7 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10065f50
 // FUNCTION: MW2MATROX 0x1008e640
+// FUNCTION: MW23DFX 0x10064390
 MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 marked;
@@ -69,6 +70,7 @@ MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100660c2
 // FUNCTION: MW2MATROX 0x1008e7b2
+// FUNCTION: MW23DFX 0x10064480
 MechS32 PrepareCommandPointPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	MechS32 count;
@@ -291,6 +293,7 @@ void OrderShutdown(MechS32 p_index, MechS32 p_value)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100664cb
 // FUNCTION: MW2MATROX 0x1008ebbc
+// FUNCTION: MW23DFX 0x100646f0
 MechChar* GetSlotGoalName(
 	MenuDefinition* p_menu,
 	MenuControl* p_control,

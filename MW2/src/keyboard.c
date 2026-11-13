@@ -38,10 +38,12 @@ enum KeyStateWord {
 
 // GLOBAL: MW2 0x100be5d0
 // GLOBAL: MW2MATROX 0x101246f4
+// GLOBAL: MW23DFX 0x1007cb3c
 static undefined4 g_keyCodeWriteIndex;
 
 // GLOBAL: MW2 0x100be5cc
 // GLOBAL: MW2MATROX 0x101246f0
+// GLOBAL: MW23DFX 0x1007cb38
 static undefined4 g_keyCodeReadIndex;
 
 // A ring buffer of key codes, filled by KeyboardQueueKeyCode.
@@ -93,6 +95,7 @@ MechS32 g_extendedScanCodeMap[0x59] = {
 // Being the empty string is their only role, so they keep their placeholders.
 // GLOBAL: MW2 0x1009d150
 // GLOBAL: MW2MATROX 0x100a0768
+// GLOBAL: MW23DFX 0x102479c8
 const MechChar g_unk0x1009d150[] = "";
 
 // GLOBAL: MW2 0x1009d54c
@@ -104,6 +107,7 @@ const MechChar g_unk0x1009d54c[] = "";
 // The short name of each key, as INPUT.MAP writes it.
 // GLOBAL: MW2 0x100a5f38
 // GLOBAL: MW2MATROX 0x100ad108
+// GLOBAL: MW23DFX 0x102509a8
 MechChar* g_keyShortNames[0x79] = {
 	"*Esc", "*One", "*Two", "*Three", "*Four", "*Five", "*Six", "*Seven", "*Eight", "*Nine", "*Zero", "Minus", "Equal",
 	"*Backspace", "Tab", "*Q", "*W", "*E", "*R", "*T", "Y", "*U", "*I", "*O", "*P", "LeftBracket", "RightBracket",
@@ -157,6 +161,7 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 
 // GLOBAL: MW2 0x100a6670
 // GLOBAL: MW2MATROX 0x100ad840
+// GLOBAL: MW23DFX 0x102510e0
 InputDriverModule g_keyboardDriver = {
 	GetKeyboardDeviceCount,
 	FillKeyboardDeviceInfo,
@@ -196,6 +201,7 @@ MechS32 FillKeyboardDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 
 // FUNCTION: MW2 0x10042816
 // FUNCTION: MW2MATROX 0x100675a6
+// FUNCTION: MW23DFX 0x100383a0
 MechS32 KeyboardOpenDevice(void)
 {
 	return 0;
@@ -203,6 +209,7 @@ MechS32 KeyboardOpenDevice(void)
 
 // FUNCTION: MW2 0x10042828
 // FUNCTION: MW2MATROX 0x100675b8
+// FUNCTION: MW23DFX 0x100383b0
 MechS32 KeyboardCloseDevice(void)
 {
 	return 0;
@@ -210,6 +217,7 @@ MechS32 KeyboardCloseDevice(void)
 
 // FUNCTION: MW2 0x1004283a
 // FUNCTION: MW2MATROX 0x100675ca
+// FUNCTION: MW23DFX 0x100383c0
 MechS32 KeyboardCenterAxis(void)
 {
 	return 0;
@@ -217,6 +225,7 @@ MechS32 KeyboardCenterAxis(void)
 
 // FUNCTION: MW2 0x1004284c
 // FUNCTION: MW2MATROX 0x100675dc
+// FUNCTION: MW23DFX 0x100383d0
 MechS32 KeyboardPoll(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4* p_keyStates)
 {
 	MechS32 i;

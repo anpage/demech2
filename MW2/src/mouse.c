@@ -57,6 +57,7 @@ void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height);
 
 // GLOBAL: MW2 0x100ad250
 // GLOBAL: MW2MATROX 0x100aa180
+// GLOBAL: MW23DFX 0x10250368
 InputDriverModule g_mouseDriver = {
 	GetMouseDeviceCount,
 	FillMouseDeviceInfo,
@@ -116,6 +117,7 @@ MechS32 FillMouseDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 
 // FUNCTION: MW2 0x10068986
 // FUNCTION: MW2MATROX 0x100509f6
+// FUNCTION: MW23DFX 0x100360a0
 MechS32 MouseOpenDevice(void)
 {
 	return 0;
@@ -157,6 +159,7 @@ MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 
 // FUNCTION: MW2 0x10068a49
 // FUNCTION: MW2MATROX 0x10050ab9
+// FUNCTION: MW23DFX 0x10036150
 MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 {
 	MechS16 left;
@@ -220,6 +223,7 @@ MechS32 MousePoll(undefined4 p_unk0x00, MechS32* p_position, MechU32* p_buttons)
 
 // FUNCTION: MW2 0x10068c19
 // FUNCTION: MW2MATROX 0x10050ccf
+// FUNCTION: MW23DFX 0x100362e0
 MechS32 MouseReadKeyCode(void)
 {
 	return 0;
@@ -227,6 +231,7 @@ MechS32 MouseReadKeyCode(void)
 
 // FUNCTION: MW2 0x10068c2b
 // FUNCTION: MW2MATROX 0x10050ce1
+// FUNCTION: MW23DFX 0x100362f0
 MechS32 MouseFlushKeyCodes(void)
 {
 	return 0;

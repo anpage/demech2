@@ -55,11 +55,13 @@ MechFloat g_skyScroll = 0;
 
 // GLOBAL: MW2 0x100a6be0
 // GLOBAL: MW2MATROX 0x100addd0
+// GLOBAL: MW23DFX 0x1024e128
 Eyepoint g_mainEyepoint = {0,       0, 0, 0, 0, 0,  FIXED_CONST(1), 1000, 10000, -1000, 1, 0x48, 0, 319, 0, 199, 0x40,
 						   0x249f0, 0, 0, 0, 0, {0}};
 
 // GLOBAL: MW2 0x100a6cc0
 // GLOBAL: MW2MATROX 0x100ade74
+// GLOBAL: MW23DFX 0x1024e1cc
 Eyepoint* g_eyepoint = &g_mainEyepoint;
 
 // GLOBAL: MW2 0x100a6cc8

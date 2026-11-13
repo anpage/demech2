@@ -119,6 +119,7 @@ MechS32 g_sinkZoomFactor = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a0
+// GLOBAL: MW23DFX 0x10159e30
 MechS8 g_sinkPilotTiltPlus;
 #else
 // GLOBAL: MW2 0x100b2568
@@ -127,6 +128,7 @@ MechS8 g_sinkPilotTiltPlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a1
+// GLOBAL: MW23DFX 0x10159e31
 MechS8 g_sinkPilotTiltMinus;
 #else
 // GLOBAL: MW2 0x100b2569
@@ -135,6 +137,7 @@ MechS8 g_sinkPilotTiltMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a2
+// GLOBAL: MW23DFX 0x10159e32
 MechS8 g_sinkPilotTiltReset;
 #else
 // GLOBAL: MW2 0x100b256a
@@ -143,6 +146,7 @@ MechS8 g_sinkPilotTiltReset = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a3
+// GLOBAL: MW23DFX 0x10159e33
 MechS8 g_sinkPilotPanPlus;
 #else
 // GLOBAL: MW2 0x100b256b
@@ -151,6 +155,7 @@ MechS8 g_sinkPilotPanPlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a4
+// GLOBAL: MW23DFX 0x10159e34
 MechS8 g_sinkPilotPanMinus;
 #else
 // GLOBAL: MW2 0x100b256c
@@ -159,6 +164,7 @@ MechS8 g_sinkPilotPanMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a5
+// GLOBAL: MW23DFX 0x10159e35
 MechS8 g_sinkPilotPanReset;
 #else
 // GLOBAL: MW2 0x100b256d
@@ -167,6 +173,7 @@ MechS8 g_sinkPilotPanReset = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a6
+// GLOBAL: MW23DFX 0x10159e36
 MechS8 g_sinkGlanceLeft;
 #else
 // GLOBAL: MW2 0x100b256e
@@ -175,6 +182,7 @@ MechS8 g_sinkGlanceLeft = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a7
+// GLOBAL: MW23DFX 0x10159e37
 MechS8 g_sinkGlanceRight;
 #else
 // GLOBAL: MW2 0x100b256f
@@ -183,6 +191,7 @@ MechS8 g_sinkGlanceRight = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a8
+// GLOBAL: MW23DFX 0x10159e38
 MechS8 g_sinkGlanceUp;
 #else
 // GLOBAL: MW2 0x100b2570
@@ -191,6 +200,7 @@ MechS8 g_sinkGlanceUp = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4a9
+// GLOBAL: MW23DFX 0x10159e39
 MechS8 g_sinkGlanceDown;
 #else
 // GLOBAL: MW2 0x100b2571
@@ -199,6 +209,7 @@ MechS8 g_sinkGlanceDown = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4aa
+// GLOBAL: MW23DFX 0x10159e3a
 MechS8 g_sinkEyepointTiltPlus;
 #else
 // GLOBAL: MW2 0x100b2572
@@ -207,6 +218,7 @@ MechS8 g_sinkEyepointTiltPlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ab
+// GLOBAL: MW23DFX 0x10159e3b
 MechS8 g_sinkEyepointTiltMinus;
 #else
 // GLOBAL: MW2 0x100b2573
@@ -224,6 +236,7 @@ MechS8 g_sinkEyepointTiltReset = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ad
+// GLOBAL: MW23DFX 0x10159e3d
 MechS8 g_sinkEyepointPanPlus;
 #else
 // GLOBAL: MW2 0x100b2575
@@ -232,6 +245,7 @@ MechS8 g_sinkEyepointPanPlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4ae
+// GLOBAL: MW23DFX 0x10159e3e
 MechS8 g_sinkEyepointPanMinus;
 #else
 // GLOBAL: MW2 0x100b2576
@@ -240,6 +254,7 @@ MechS8 g_sinkEyepointPanMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4af
+// GLOBAL: MW23DFX 0x10159e3f
 MechS8 g_sinkEyepointPanReset;
 #else
 // GLOBAL: MW2 0x100b2577
@@ -248,6 +263,7 @@ MechS8 g_sinkEyepointPanReset = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b0
+// GLOBAL: MW23DFX 0x10159e40
 MechS8 g_sinkEyepointSlidePlus;
 #else
 // GLOBAL: MW2 0x100b2578
@@ -256,6 +272,7 @@ MechS8 g_sinkEyepointSlidePlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b1
+// GLOBAL: MW23DFX 0x10159e41
 MechS8 g_sinkEyepointSlideMinus;
 #else
 // GLOBAL: MW2 0x100b2579
@@ -264,6 +281,7 @@ MechS8 g_sinkEyepointSlideMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b2
+// GLOBAL: MW23DFX 0x10159e42
 MechS8 g_sinkTrackDistancePlus;
 #else
 // GLOBAL: MW2 0x100b257a
@@ -272,6 +290,7 @@ MechS8 g_sinkTrackDistancePlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b3
+// GLOBAL: MW23DFX 0x10159e43
 MechS8 g_sinkTrackDistanceMinus;
 #else
 // GLOBAL: MW2 0x100b257b
@@ -280,6 +299,7 @@ MechS8 g_sinkTrackDistanceMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b4
+// GLOBAL: MW23DFX 0x10159e44
 MechS8 g_sinkTrackHeightPlus;
 #else
 // GLOBAL: MW2 0x100b257c
@@ -288,6 +308,7 @@ MechS8 g_sinkTrackHeightPlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b5
+// GLOBAL: MW23DFX 0x10159e45
 MechS8 g_sinkTrackHeightMinus;
 #else
 // GLOBAL: MW2 0x100b257d
@@ -296,6 +317,7 @@ MechS8 g_sinkTrackHeightMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b6
+// GLOBAL: MW23DFX 0x10159e46
 MechS8 g_sinkZoomFactorPlus;
 #else
 // GLOBAL: MW2 0x100b257e
@@ -304,6 +326,7 @@ MechS8 g_sinkZoomFactorPlus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b7
+// GLOBAL: MW23DFX 0x10159e47
 MechS8 g_sinkZoomFactorMinus;
 #else
 // GLOBAL: MW2 0x100b257f
@@ -312,6 +335,7 @@ MechS8 g_sinkZoomFactorMinus = 0;
 
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012f4b8
+// GLOBAL: MW23DFX 0x10159e48
 MechS8 g_sinkZoomFactorReset;
 #else
 // GLOBAL: MW2 0x100b2580
@@ -420,22 +444,33 @@ MechS32 g_inputDeviceCount = 0;
 // The input driver classes, in the order RegisterInputDevice asks them for a device.
 // GLOBAL: MW2 0x100b7378
 // GLOBAL: MW2MATROX 0x100b6da0
+// GLOBAL: MW23DFX 0x10255f50
 InputDriverModule* g_inputDriverClasses[3] = {&g_keyboardDriver, &g_mouseDriver, &g_joystickDriver};
 
 // The sinks INPUT.MAP can bind.
 // GLOBAL: MW2 0x100b7388
 // GLOBAL: MW2MATROX 0x100b6db0
+// GLOBAL: MW23DFX 0x10256540
 InputSink g_inputSinks[] = {
 	{"torso_tilt", &g_localSteering.m_torsoTilt, 0, 0, -60, 60, 4, 0},
 	{"torso_tilt_plus", &g_localSteering.m_torsoTiltPlus, 1, 0, 0, 0, 0, 0},
 	{"torso_tilt_minus", &g_localSteering.m_torsoTiltMinus, 1, 0, 0, 0, 0, 0},
 	{"torso_tilt_reset", &g_localSteering.m_torsoTiltReset, 1, 0, 0, 0, 0, 0},
+#ifdef MW2_3DFX
+	// The 3Dfx edition has other ranges for the torso pan and the throttle.
+	{"torso_pan", &g_localSteering.m_torsoPan, 0, 0, -90, 90, 3, 0},
+#else
 	{"torso_pan", &g_localSteering.m_torsoPan, 0, 0, -140, 140, 3, 0},
+#endif
 	{"torso_pan_plus", &g_localSteering.m_torsoPanPlus, 1, 0, 0, 0, 0, 0},
 	{"torso_pan_minus", &g_localSteering.m_torsoPanMinus, 1, 0, 0, 0, 0, 0},
 	{"torso_pan_set", &g_localSteering.m_torsoPanSet, 1, 0, 0, 0, 0, 0},
 	{"torso_pan_reset", &g_localSteering.m_torsoPanReset, 1, 0, 0, 0, 0, 0},
+#ifdef MW2_3DFX
+	{"throttle", &g_localSteering.m_throttle, 0, 0, 0, 1024, 6, 16},
+#else
 	{"throttle", &g_localSteering.m_throttle, 0, 0, -120, 1082, 6, 16},
+#endif
 	{"legs_pan_delta", &g_localSteering.m_legsPanDelta, 0, 0, -1024, 1024, 7, 0},
 	{"jumpjet_enabled", &g_localSteering.m_jumpJetEnabled, 1, 0, 0, 0, 0, 0},
 	{"jumpjet_fire_left", &g_localSteering.m_jumpJetFireLeft, 1, 0, 0, 0, 0, 0},

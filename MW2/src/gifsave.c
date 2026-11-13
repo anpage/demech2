@@ -77,18 +77,22 @@ static void GifCloseFile(void);
 
 // GLOBAL: MW2 0x100bf1b4
 // GLOBAL: MW2MATROX 0x1012542c
+// GLOBAL: MW23DFX 0x1007d71c
 static FILE* g_outFile;
 
 // GLOBAL: MW2 0x100bf0a0
 // GLOBAL: MW2MATROX 0x10125318
+// GLOBAL: MW23DFX 0x1007d608
 static MechU8 g_gifBuffer[256];
 
 // GLOBAL: MW2 0x100bf1b0
 // GLOBAL: MW2MATROX 0x10125310
+// GLOBAL: MW23DFX 0x1007d600
 static MechS32 g_gifIndex;
 
 // GLOBAL: MW2 0x100bf1b8
 // GLOBAL: MW2MATROX 0x10125308
+// GLOBAL: MW23DFX 0x1007d5f8
 static MechS32 g_bitsLeft;
 
 // The LZW string table: each string's last byte, its prefix string, and the hash table.
@@ -103,58 +107,72 @@ static MechU32* g_strNxt = NULL;
 
 // GLOBAL: MW2 0x100b1424
 // GLOBAL: MW2MATROX 0x100bbe80
+// GLOBAL: MW23DFX 0x10259418
 static MechU32* g_strHsh = NULL;
 
 // GLOBAL: MW2 0x100bf1c0
 // GLOBAL: MW2MATROX 0x10125420
+// GLOBAL: MW23DFX 0x1007d710
 static MechU32 g_numStrings;
 
 // GLOBAL: MW2 0x100bf09c
 // GLOBAL: MW2MATROX 0x101252f4
+// GLOBAL: MW23DFX 0x1007d5e4
 static MechS32 g_bitsPrPrimColor;
 
 // GLOBAL: MW2 0x100bf1bc
 // GLOBAL: MW2MATROX 0x1012530c
+// GLOBAL: MW23DFX 0x1007d5fc
 static MechS32 g_numColors;
 
 // GLOBAL: MW2 0x100b1428
 // GLOBAL: MW2MATROX 0x100bbe84
+// GLOBAL: MW23DFX 0x1025941c
 static MechU8* g_colorTable = NULL;
 
 // GLOBAL: MW2 0x100bf08c
 // GLOBAL: MW2MATROX 0x101252fc
+// GLOBAL: MW23DFX 0x1007d5ec
 static MechU32 g_gifScreenHeight;
 
 // GLOBAL: MW2 0x100bf088
 // GLOBAL: MW2MATROX 0x10125300
+// GLOBAL: MW23DFX 0x1007d5f0
 static MechU32 g_gifScreenWidth;
 
 // GLOBAL: MW2 0x100bf1a0
 // GLOBAL: MW2MATROX 0x10125304
+// GLOBAL: MW23DFX 0x1007d5f4
 static MechU32 g_imageHeight;
 
 // GLOBAL: MW2 0x100bf1ac
 // GLOBAL: MW2MATROX 0x10125424
+// GLOBAL: MW23DFX 0x1007d714
 static MechU32 g_imageWidth;
 
 // GLOBAL: MW2 0x100bf1a8
 // GLOBAL: MW2MATROX 0x101252f8
+// GLOBAL: MW23DFX 0x1007d5e8
 static MechU32 g_imageLeft;
 
 // GLOBAL: MW2 0x100bf090
 // GLOBAL: MW2MATROX 0x10125428
+// GLOBAL: MW23DFX 0x1007d718
 static MechU32 g_imageTop;
 
 // GLOBAL: MW2 0x100bf098
 // GLOBAL: MW2MATROX 0x10125418
+// GLOBAL: MW23DFX 0x1007d708
 static MechU32 g_relPixX;
 
 // GLOBAL: MW2 0x100bf094
 // GLOBAL: MW2MATROX 0x1012541c
+// GLOBAL: MW23DFX 0x1007d70c
 static MechU32 g_relPixY;
 
 // GLOBAL: MW2 0x100bf1a4
 // GLOBAL: MW2MATROX 0x101252f0
+// GLOBAL: MW23DFX 0x1007d5e0
 static MechS32 (*g_getPixel)(MechS32 p_x, MechS32 p_y);
 
 // Operand order: the loop test (q < tabSize) compares with tabSize in eax in the original, and the
