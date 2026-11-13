@@ -288,8 +288,10 @@ void PreloadCockpitSounds(void)
 // at odd ones, renumbering their bins, and clears the slots left empty.
 // The locals are a stack-slot permutation, and right > left takes its operands in the other
 // order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1006f4fa
 // FUNCTION: MW2MATROX 0x1007954a
+// FUNCTION: MW23DFX 0x1001dcc0
 void LayoutWeaponPanels(Mech* p_mech)
 {
 	MechS32 rightStart;
@@ -466,8 +468,10 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // Stack-slot permutation: rect, transition, i and target.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1006fba3
 // FUNCTION: MW2MATROX 0x10079bfb
+// FUNCTION: MW23DFX 0x1001e060
 void ScaleCockpitLayout(void)
 {
 	PANE* rect;
@@ -754,8 +758,10 @@ void ShutdownCockpitPanels(void)
 
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
 // (p_heavy: five) in ten chance of stepping its damage.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007053d
 // FUNCTION: MW2MATROX 0x1007a5b8
+// FUNCTION: MW23DFX 0x1001e670
 void DamageCockpitPanels(Mech* p_mech, MechS32 p_heavy)
 {
 	MechS32 chance;

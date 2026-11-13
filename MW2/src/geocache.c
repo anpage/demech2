@@ -142,6 +142,7 @@ StaticObject g_staticObjects[0x402];
 
 // GLOBAL: MW2 0x1012b7b4
 // GLOBAL: MW2MATROX 0x10181a38
+// GLOBAL: MW23DFX 0x101dd6d8
 MechS32 g_starCapacity;
 
 // GLOBAL: MW2 0x1012b7b0
@@ -168,6 +169,7 @@ Shape* g_blockBoxes[32];
 
 // GLOBAL: MW2 0x1010b6a0
 // GLOBAL: MW2MATROX 0x101829d0
+// GLOBAL: MW23DFX 0x101de670
 MechS32 g_thingCapacity;
 
 // Whether ToggleBlockBoxes shows the blocks' boxes.
@@ -182,8 +184,10 @@ MechS32 g_starCount;
 
 // Allocates the class, thing and star tables to the sizes in the mission's static memory table.
 // Returns whether it could.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001f3e0
 // FUNCTION: MW2MATROX 0x10052a80
+// FUNCTION: MW23DFX 0x10024780
 MechS32 AllocGeoTables(void)
 {
 	MechU32 size;
@@ -243,8 +247,10 @@ MechS32 AddClass(MechS32 p_id, Shape* p_class)
 }
 
 // Returns the class of an ID (the last one added), or NULL.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1001f564
 // FUNCTION: MW2MATROX 0x10052c04
+// FUNCTION: MW23DFX 0x10024860
 Shape* FindClassById(MechS32 p_id)
 {
 	Shape* result;
@@ -264,6 +270,7 @@ Shape* FindClassById(MechS32 p_id)
 // Frees the class, thing and star tables.
 // FUNCTION: MW2 0x1001f5cb
 // FUNCTION: MW2MATROX 0x10052c6b
+// FUNCTION: MW23DFX 0x10024890
 void FreeGeoTables(void)
 {
 	if (g_classes) {
@@ -356,8 +363,10 @@ MechS32 FindStarIdxById(MechS32 p_id)
 // Takes the next free static object for ID p_id, mapping the ID to it. Returns its index, or -1
 // when the cache or the map is full.
 // MW2MATROX: g_starCount >= g_starCapacity compares in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001f7eb
 // FUNCTION: MW2MATROX 0x10052e8b
+// FUNCTION: MW23DFX 0x10024a20
 MechS32 AllocStaticObject(undefined4 p_id)
 {
 	MechS32 result = -1;
@@ -550,6 +559,7 @@ void BeginBlock(BwdBlockRecord* p_record)
 
 // FUNCTION: MW2 0x1001fe41
 // FUNCTION: MW2MATROX 0x100534fb
+// FUNCTION: MW23DFX 0x10024e50
 void HandleElseBlock(void)
 {
 }
@@ -645,6 +655,7 @@ void ResetStaticCache(void)
 // sit in permuted stack slots.
 // FUNCTION: MW2 0x10020029
 // FUNCTION: MW2MATROX 0x10053770
+// FUNCTION: MW23DFX 0x10024fe0
 void FirstStaticCache(void)
 {
 	MechS32 i;
@@ -671,6 +682,7 @@ void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, Me
 // The only diff is a stack-slot permutation of i and entry.
 // FUNCTION: MW2 0x100200bd
 // FUNCTION: MW2MATROX 0x10053804
+// FUNCTION: MW23DFX 0x10025040
 void RunStaticObjectTasks(void)
 {
 	MechS32 i;
@@ -762,8 +774,10 @@ void LinkStaticObjectThing(MechS32 p_index, MechS32 p_replacement, MechS32 p_thi
 // and loads the entry that replaces it (m_replacement) where the old object was. Returns the
 // replacement's index, or -1.
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10020292
 // FUNCTION: MW2MATROX 0x100539da
+// FUNCTION: MW23DFX 0x10025180
 MechS32 DestroyStaticObject(MechS32 p_index)
 {
 	Matrix matrix;
@@ -907,6 +921,7 @@ void PropagateStaticObjectStates(void)
 // Returns whether every static object in use has a resource (the world loader's check).
 // FUNCTION: MW2 0x10020684
 // FUNCTION: MW2MATROX 0x10053dcd
+// FUNCTION: MW23DFX 0x10025410
 MechS32 AreStaticObjectsComplete(void)
 {
 	MechS32 i;
@@ -1104,6 +1119,7 @@ Shape* GetStaticObjectShape(MechS32 p_index)
 // g_staticObjectCount first in the original.
 // FUNCTION: MW2 0x10020c6f
 // FUNCTION: MW2MATROX 0x100543ba
+// FUNCTION: MW23DFX 0x100257a0
 void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	struct SceneObject* obj;
@@ -1338,8 +1354,10 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 // Frees cache entry p_index and, first, every entry hanging from it, zeroing its game thing.
 // Returns whether p_index is an entry.
 // Stack-slot permutation; the loop test compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10021314
 // FUNCTION: MW2MATROX 0x10054b2f
+// FUNCTION: MW23DFX 0x10025ca0
 MechS32 FreeStaticObjectTree(MechU32 p_index)
 {
 	MechS32 result;

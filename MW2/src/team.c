@@ -72,8 +72,10 @@ void ResetTeams(void)
 
 // Operand order: the loop test (i < g_formationTemplateCount) compares with i in eax in the
 // original.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003bc55
 // FUNCTION: MW2MATROX 0x10072d35
+// FUNCTION: MW23DFX 0x10018bb0
 MechS32 SetTeamFormationByName(MechS32 p_team, const MechChar* p_name)
 {
 	MechS32 result = FALSE;
@@ -277,8 +279,10 @@ MechS32 GetTeamLeader(MechS32 p_team)
 
 // Numbers the team's active members' formation slots from 1, the leader taking slot 0.
 // Stack-slot permutation: team, player, i, slot and leader.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003c1ef
 // FUNCTION: MW2MATROX 0x100732fe
+// FUNCTION: MW23DFX 0x10018fb0
 MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04)
 {
 	Team* team;

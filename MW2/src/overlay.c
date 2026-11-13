@@ -337,8 +337,10 @@ void DrawDebugOverlays(void)
 
 // Draws the 256 palette colours as a grid of 16 swatches per row.
 // Stack-slot permutation: x, y, color and i.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100588a7
 // FUNCTION: MW2MATROX 0x1008dd05
+// FUNCTION: MW23DFX 0x1003c630
 void DrawPaletteGrid(void)
 {
 	MechS32 x;
@@ -694,8 +696,10 @@ void MonoClear(void)
 
 // Writes text to the debug console, 80 columns and rows 3 to 23, clearing it when it fills.
 // Stack-slot permutation: newline, ch and length.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100591d1
 // FUNCTION: MW2MATROX 0x1008e48c
+// FUNCTION: MW23DFX 0x1003cb80
 void MonoPrint(MechChar* p_text)
 {
 	MechS32 newline;

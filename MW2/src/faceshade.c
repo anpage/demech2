@@ -401,8 +401,10 @@ void ToggleTextureMaps(MechU32 p_flags)
 	g_renderSettings.m_untexturedKinds ^= p_flags;
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10036867
 // FUNCTION: MW2MATROX 0x100170ec
+// FUNCTION: MW23DFX 0x1002a890
 MechS32 AreTextureMapsOn(MechU32 p_flags)
 {
 	return !(p_flags & g_renderSettings.m_untexturedKinds);

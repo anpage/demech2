@@ -20,6 +20,7 @@
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100737e0
 // FUNCTION: MW2MATROX 0x100734f0
+// FUNCTION: MW23DFX 0x10025eb0
 MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 {
 	MechS32 j;

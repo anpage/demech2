@@ -518,8 +518,10 @@ static MechS32 ResetOutBitFile(void)
 
 // Stack-slot permutation: bitsWritten and numBytes. Operand order: the original compares
 // p_numBits <= g_bitsLeft with g_bitsLeft in eax.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100751a0
 // FUNCTION: MW2MATROX 0x1008a650
+// FUNCTION: MW23DFX 0x1003bc10
 static MechS32 WriteBits(MechS32 p_bits, MechS32 p_numBits)
 {
 	MechS32 bitsWritten = 0;
@@ -598,8 +600,10 @@ static MechS32 AllocStringTable(void)
 	return c_gifOk;
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10075446
 // FUNCTION: MW2MATROX 0x1008a8f6
+// FUNCTION: MW23DFX 0x1003be00
 static MechU32 AddCharString(MechU32 p_index, MechU8 p_byte)
 {
 	MechU32 hshIdx;
@@ -620,8 +624,10 @@ static MechU32 AddCharString(MechU32 p_index, MechU8 p_byte)
 	return g_numStrings++;
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10075523
 // FUNCTION: MW2MATROX 0x1008a9d3
+// FUNCTION: MW23DFX 0x1003be90
 static MechU32 FindCharString(MechU32 p_index, MechU8 p_byte)
 {
 	MechU32 hshIdx;

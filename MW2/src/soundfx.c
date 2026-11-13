@@ -60,8 +60,10 @@ MechChar g_sampleTag[] = "SFLX";
 // GLOBAL: MW23DFX 0x1015a060
 SoundInfo g_soundInfo[1200];
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007d9d0
 // FUNCTION: MW2MATROX 0x10086090
+// FUNCTION: MW23DFX 0x10032530
 MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 {
 	MechU32 i;
@@ -115,8 +117,10 @@ MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 	return 1;
 }
 
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007dbce
 // FUNCTION: MW2MATROX 0x1008628e
+// FUNCTION: MW23DFX 0x10032670
 void ShutdownDigitalAudio(void)
 {
 	MechU32 i;
@@ -142,8 +146,10 @@ void ShutdownDigitalAudio(void)
 // finished with.
 // Stack slots: i, size and buffer are permuted. Operand order: the index of m_buffers[i][buffer],
 // m_remaining[i] <= m_chunkFrames[i] and the product for size.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007dc89
 // FUNCTION: MW2MATROX 0x10086349
+// FUNCTION: MW23DFX 0x10032700
 void ServeSamples(void)
 {
 	MechU32 i;
@@ -658,8 +664,10 @@ MechS32 RandomSampleRate(void)
 }
 
 // Stops the playing samples; p_all stops the speech sample too.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007ec7f
 // FUNCTION: MW2MATROX 0x10087358
+// FUNCTION: MW23DFX 0x10032c70
 void StopSamples(MechS32 p_all)
 {
 	MechS32 i;

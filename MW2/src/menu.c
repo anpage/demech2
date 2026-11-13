@@ -172,8 +172,10 @@ MechS32 ToggleMenu(MechS32 p_id)
 }
 
 // Stack-slot permutation: slot and freed.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003c53c
 // FUNCTION: MW2MATROX 0x1009170c
+// FUNCTION: MW23DFX 0x100654b0
 void FreeMenus(void)
 {
 	MenuSlot* slot;
@@ -261,8 +263,10 @@ void LayoutMenu(MenuDefinition* p_menu)
 }
 
 // Loads a menu's background shapes and font.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003c844
 // FUNCTION: MW2MATROX 0x10091a14
+// FUNCTION: MW23DFX 0x100657f0
 void LoadMenuResources(MenuDefinition* p_menu)
 {
 	if (p_menu->m_backgroundId != -1) {
@@ -372,8 +376,10 @@ void RequestMenuClose(MechS32 p_id)
 // First draws the menus' panes to the main pixel buffer and loads their layout; drops
 // the definitions whose root page or its subpages fail their init callbacks.
 // The only diff is a stack-slot permutation of the locals.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003cadc
 // FUNCTION: MW2MATROX 0x10091cac
+// FUNCTION: MW23DFX 0x100659c0
 void FirstMenu(void)
 {
 	MechS32 ok;
@@ -499,8 +505,10 @@ void UpdateMenuKey(void)
 // (g_openMenuCount) when that frame's game keys run.
 // Stack-slot permutation: slot, done and requested. The original compares state against
 // requested in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003ce91
 // FUNCTION: MW2MATROX 0x1009207d
+// FUNCTION: MW23DFX 0x10065c20
 void UpdateMenus(void)
 {
 	MechS32 requested;

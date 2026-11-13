@@ -19,8 +19,10 @@ MechS32 g_gameCdNumber = 0;
 // letter; g_gameCdNumber counts the CD-ROM drives up to it.
 // MW2MATROX: a stack-slot permutation of the locals (its longer displacements cut the compare
 // short).
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10002cb0
 // FUNCTION: MW2MATROX 0x10003ca0
+// FUNCTION: MW23DFX 0x10007b70
 MechChar FindGameCdDrive(void)
 {
 	LPSTR drive;

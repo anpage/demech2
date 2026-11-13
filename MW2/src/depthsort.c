@@ -93,8 +93,10 @@ MechS32 g_shapesConsidered;
 // eyepoint, lies beyond it, or the last) and queues its faces. Returns 1 if it has no model.
 // Stack-slot permutation: every local.
 // MW2MATROX: register allocation (model, prev, cursor and the eyepoint swap registers).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100335d0
 // FUNCTION: MW2MATROX 0x100232f0
+// FUNCTION: MW23DFX 0x10029f00
 MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 {
 	Model* model;

@@ -979,6 +979,7 @@ void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar
 // MW2MATROX: g_localPlayerId == p_slot compares in the other operand order.
 // FUNCTION: MW2 0x1000fb8f
 // FUNCTION: MW2MATROX 0x100058d3
+// FUNCTION: MW23DFX 0x10035360
 void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 {
 	MechScalar volume;
@@ -1217,6 +1218,7 @@ BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, 
 // The only diff is a stack-slot permutation of result and desc.
 // FUNCTION: MW2 0x100100cc
 // FUNCTION: MW2MATROX 0x10005e8c
+// FUNCTION: MW23DFX 0x10035970
 MechS32 FindSession(LPDPSESSIONDESC p_desc)
 {
 	HRESULT result;
@@ -1232,6 +1234,10 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 	if (strcmp(p_desc->szSessionName, g_sessionName) == 0) {
 		return 1;
 	}
+#ifdef MW2_3DFX
+
+	return 0;
+#endif
 }
 
 // The only diff is a stack-slot permutation of result, desc, guid and unk0x04.
@@ -1353,6 +1359,7 @@ MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 // Sends SS and leaves the session, then stops the network.
 // FUNCTION: MW2 0x10010539
 // FUNCTION: MW2MATROX 0x100062de
+// FUNCTION: MW23DFX 0x10035e00
 MechS32 StopExternalIO(void)
 {
 	MechChar msg[] = "SS";
@@ -1385,6 +1392,9 @@ MechS32 StopExternalIO(void)
 
 	g_netRole = 0;
 	g_clockMode = 0;
+#ifdef MW2_3DFX
+	return 0;
+#endif
 }
 
 // Counts the players and elects the one with the lowest id master. Alone, the network stops.

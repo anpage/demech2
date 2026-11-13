@@ -713,8 +713,10 @@ BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_nam
 
 // Picks the name INPUT.MAP knows the joystick by: from its display name, or from the axes, hat
 // and buttons it reports.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004af8c
 // FUNCTION: MW2MATROX 0x10027106
+// FUNCTION: MW23DFX 0x1003b210
 void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps)
 {
 	MechU16 caps;

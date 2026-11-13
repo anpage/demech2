@@ -73,11 +73,13 @@ MechS32 g_missionEnded = 0;
 
 // GLOBAL: MW2 0x100aa2ac
 // GLOBAL: MW2MATROX 0x100a7cd4
+// GLOBAL: MW23DFX 0x10250528
 MechS32 g_missionTimerStopped = 0;
 
 // The "meepmeep" cheat: enables the time compression key.
 // GLOBAL: MW2 0x100aa2b0
 // GLOBAL: MW2MATROX 0x100a7cd8
+// GLOBAL: MW23DFX 0x1025052c
 MechS32 g_timeCompressionCheat = 0;
 
 // The length of the chat message being typed (HandleChatKey).
@@ -102,6 +104,7 @@ MechChar g_typedKeys[0xf];
 
 // GLOBAL: MW2 0x100ea3e4
 // GLOBAL: MW2MATROX 0x1012c1ec
+// GLOBAL: MW23DFX 0x101e8e10
 MechS32 g_frontViewForRear;
 
 // Appends a character key (key code type 7) to the typed keys. Returns whether it was one.
@@ -147,6 +150,7 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 // Stack-slot permutation: target and victim.
 // FUNCTION: MW2 0x1005b883
 // FUNCTION: MW2MATROX 0x10041f93
+// FUNCTION: MW23DFX 0x10036d80
 void HandleCheatInput(MechS16 p_key)
 {
 	MechS32 target;
@@ -235,12 +239,7 @@ void HandleCheatInput(MechS16 p_key)
 		}
 	}
 	else if (TypedCodeMatches("r{t}{huot~")) { // "hangaround"
-		if (!g_missionTimerStopped) {
-			g_missionTimerStopped = 1;
-		}
-		else {
-			g_missionTimerStopped = 0;
-		}
+		g_missionTimerStopped = !g_missionTimerStopped;
 
 		if (g_missionTimerStopped) {
 			ShowInGameMessage("That's better........", 1, 0xb5, 0x32);
@@ -257,22 +256,12 @@ void HandleCheatInput(MechS16 p_key)
 		RunGameKey(0x3b);
 	}
 	else if (TypedCodeMatches("v{sh~u")) { // "lairdo"
-		if (!g_lairdoCheat) {
-			g_lairdoCheat = 1;
-		}
-		else {
-			g_lairdoCheat = 0;
-		}
+		g_lairdoCheat = !g_lairdoCheat;
 
 		ShowInGameMessage("ATTENTION ENEMIES: Don't mess with the blimp.", 1, 0xb5, 0x32);
 	}
 	else if (TypedCodeMatches("w\x7f\x7fjw\x7f\x7fj")) { // "meepmeep"
-		if (!g_timeCompressionCheat) {
-			g_timeCompressionCheat = 1;
-		}
-		else {
-			g_timeCompressionCheat = 0;
-		}
+		g_timeCompressionCheat = !g_timeCompressionCheat;
 
 		if (g_timeCompressionCheat) {
 			ShowInGameMessage("Time Compression key enabled", 1, 0xb5, 0x32);
@@ -282,19 +271,9 @@ void HandleCheatInput(MechS16 p_key)
 		}
 	}
 	else if (TypedCodeMatches("wsyr\x7fvst")) { // "michelin"
-		if (!g_frameOutlineParts) {
-			g_frameOutlineParts = 1;
-		}
-		else {
-			g_frameOutlineParts = 0;
-		}
+		g_frameOutlineParts = !g_frameOutlineParts;
 
-		if (!g_showBoundingSpheres) {
-			g_showBoundingSpheres = 1;
-		}
-		else {
-			g_showBoundingSpheres = 0;
-		}
+		g_showBoundingSpheres = !g_showBoundingSpheres;
 
 		ShowInGameMessage("bounding spheres", 1, 0x16a, 0x32);
 	}
@@ -322,12 +301,7 @@ void HandleCheatInput(MechS16 p_key)
 		ShowInGameMessage("X-Ray vision enabled", 1, 0x16a, 0x32);
 	}
 	else if (TypedCodeMatches("`w{q")) { // "zmak"
-		if (!g_timeExpansionEnabled) {
-			g_timeExpansionEnabled = 1;
-		}
-		else {
-			g_timeExpansionEnabled = 0;
-		}
+		g_timeExpansionEnabled = !g_timeExpansionEnabled;
 
 		if (g_timeExpansionEnabled) {
 			ShowInGameMessage("Time expansion enabled", 1, 0x16a, 0x32);
@@ -365,8 +339,10 @@ void ShiftCharacter(MechChar* p_char)
 // edits, Enter sends it (to everyone from -1), Esc cancels, F-keys e and f pick the team (-3) or
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
 // Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005c057
 // FUNCTION: MW2MATROX 0x1004278d
+// FUNCTION: MW23DFX 0x10037310
 MechS32 HandleChatKey(MechU32 p_keyCode)
 {
 	MechChar text[80];
@@ -460,8 +436,10 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // Runs the frame's game keys: after the mission ends, waits a while before offering to quit (or,
 // with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005c2e1
 // FUNCTION: MW2MATROX 0x10042a17
+// FUNCTION: MW23DFX 0x100374e0
 void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 {
 	if (g_simPaused) {
@@ -709,12 +687,7 @@ void RunGameKey(MechS32 p_key)
 		g_localSteering.m_inspectTarget = 1;
 		break;
 	case 0x13:
-		if (!g_showHud) {
-			g_showHud = 1;
-		}
-		else {
-			g_showHud = 0;
-		}
+		g_showHud = !g_showHud;
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 8, 0x32);
@@ -903,12 +876,7 @@ void RunGameKey(MechS32 p_key)
 #endif
 		break;
 	case 0x3f:
-		if (!g_localSteering.m_reverse) {
-			g_localSteering.m_reverse = 1;
-		}
-		else {
-			g_localSteering.m_reverse = 0;
-		}
+		g_localSteering.m_reverse = !g_localSteering.m_reverse;
 		break;
 	case 0x40:
 		g_overrideShutdown = 1;
@@ -928,12 +896,7 @@ void RunGameKey(MechS32 p_key)
 		break;
 	case 0x41:
 		g_chatRecipient = 0;
-		if (!g_showObjectives) {
-			g_showObjectives = 1;
-		}
-		else {
-			g_showObjectives = 0;
-		}
+		g_showObjectives = !g_showObjectives;
 		break;
 	case 0x4a:
 		g_localSteering.m_autopilot = 1;
@@ -1014,12 +977,7 @@ void RunGameKey(MechS32 p_key)
 			break;
 		}
 
-		if (!g_timeCompressionEnabled) {
-			g_timeCompressionEnabled = 1;
-		}
-		else {
-			g_timeCompressionEnabled = 0;
-		}
+		g_timeCompressionEnabled = !g_timeCompressionEnabled;
 
 		if (g_timeCompressionEnabled) {
 			sprintf(text, "Time compression enabled");

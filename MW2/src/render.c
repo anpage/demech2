@@ -61,6 +61,7 @@ MechS32 g_initDrawModeParam2 = INITIAL_DRAW_MODE_FALLBACK;
 
 // GLOBAL: MW2 0x100a2454
 // GLOBAL: MW2MATROX 0x100a4a04
+// GLOBAL: MW23DFX 0x102498e4
 MechS32 g_showBoundingSpheres = 0;
 
 // The banner's file name, instead of sbannr (ShowBanner).
@@ -503,8 +504,10 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 // fades its palette in. Nothing calls it.
 // Stack-slot permutation of the locals. The Matrox edition's takes the suffix from the art
 // resolution before its 512x384 override (g_unk0x1012c1e4).
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10012f3c
 // FUNCTION: MW2MATROX 0x10017b8f
+// FUNCTION: MW23DFX 0x10004ec0
 void ShowBanner(void)
 {
 	void* gif;

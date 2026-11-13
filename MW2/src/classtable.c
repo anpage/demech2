@@ -426,8 +426,10 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
 // Operand order: i < g_playerCount loads g_playerCount first in the original.
 // MW2MATROX: the loop test compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1001d88b
 // FUNCTION: MW2MATROX 0x1006df87
+// FUNCTION: MW23DFX 0x100266e0
 void ReleasePendingDetailLevel(void)
 {
 	MechS32 i;

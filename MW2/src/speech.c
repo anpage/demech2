@@ -191,8 +191,10 @@ SpeechEntry g_speechEntries[8];
 // was queued.
 // Stack slots: entry, i, prev and cur are permuted. Operand order: cur->m_priority <
 // entry->m_priority.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10059390
 // FUNCTION: MW2MATROX 0x1008b510
+// FUNCTION: MW23DFX 0x10031150
 MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority)
 {
 	SpeechEntry* entry;
@@ -329,8 +331,10 @@ MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority
 }
 
 // Moves to the next queued message once the current one has finished.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10059827
 // FUNCTION: MW2MATROX 0x1008b9a7
+// FUNCTION: MW23DFX 0x100313d0
 void AdvanceSpeechQueue(void)
 {
 	MechS32 done;
@@ -516,8 +520,10 @@ void FlushSpeechQueue(MechS32 p_keep)
 }
 
 // Frees an entry's sound data. Returns the next entry.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10059d15
 // FUNCTION: MW2MATROX 0x1008be95
+// FUNCTION: MW23DFX 0x10031700
 SpeechEntry* FreeSpeechEntry(SpeechEntry* p_entry)
 {
 	SpeechEntry* next;

@@ -97,6 +97,7 @@ MechS32 AddDebrisPiece(SceneObject* p_obj, MechS32 p_unk0x00)
 // Throws the piece off in a random direction, spinning.
 // FUNCTION: MW2 0x10004218
 // FUNCTION: MW2MATROX 0x1002a589
+// FUNCTION: MW23DFX 0x100152e0
 void ThrowDebrisPiece(MechS32 p_index)
 {
 	DebrisPiece* piece;
@@ -110,9 +111,9 @@ void ThrowDebrisPiece(MechS32 p_index)
 	piece->m_velocityX = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
 	piece->m_velocityZ = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
 	piece->m_velocityY = (RandomNormal() + 0x400) / (g_gravityScale * 1024.0f) * 5.5f;
-	piece->m_spinX = RandomNormal() * 0.5f / 1024.0f;
-	piece->m_spinY = RandomNormal() * 0.5f / 1024.0f;
-	piece->m_spinZ = RandomNormal() * 0.5f / 1024.0f;
+	piece->m_spinX = (RandomNormal() * 0.5f) / 1024.0f;
+	piece->m_spinY = (RandomNormal() * 0.5f) / 1024.0f;
+	piece->m_spinZ = (RandomNormal() * 0.5f) / 1024.0f;
 #else
 	piece->m_velocityX = FixedMul16((RandomNormal() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
 	piece->m_velocityZ = FixedMul16((RandomNormal() << 16) / ((g_gravityScale << 10) >> 16), 0x57e98);
@@ -125,8 +126,10 @@ void ThrowDebrisPiece(MechS32 p_index)
 
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
 // Stack-slot permutation: i and chunk.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10004356
 // FUNCTION: MW2MATROX 0x1002a703
+// FUNCTION: MW23DFX 0x10015410
 void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x16)
 {
 	MechS32 i;
@@ -289,8 +292,10 @@ void DamageChunk(MechS32 p_index, MechScalar p_damage)
 // Stack-slot permutation of the locals, and the operand order of newY <= ground. MW2MATROX
 // stores velocityY and ground before comparing them (fst, fcomp) where the rebuild compares first
 // (fcom, fstp), the symbol-order entropy of UpdateWrappedRamp's comparison.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100047c2
 // FUNCTION: MW2MATROX 0x1002ab7a
+// FUNCTION: MW23DFX 0x100156f0
 void UpdateDebrisPiece(MechS32 p_index)
 {
 	MechScalar velocityY;

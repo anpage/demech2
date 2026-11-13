@@ -113,8 +113,10 @@ void SetUpStarMission(MissionTable* p_table)
 // waiting (7): bit j for objective j, bit 16 + i for mission table i.
 // Stack-slot permutation: every local.
 // MW2MATROX: the loop test (i < g_objectiveCount) compares in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004e35b
 // FUNCTION: MW2MATROX 0x1007fe7b
+// FUNCTION: MW23DFX 0x1003fe70
 MechU32 FindEventList(MechChar* p_name)
 {
 	MechU32 unk0x04;

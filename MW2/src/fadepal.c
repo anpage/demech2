@@ -112,6 +112,7 @@ void FlashZappedPalette(void)
 // Flashes palette slot 0x11 (ZAPPED) over p_level (0-15) fifteenths of two seconds.
 // FUNCTION: MW2 0x1004ca29
 // FUNCTION: MW2MATROX 0x1004528b
+// FUNCTION: MW23DFX 0x1001bda0
 void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
@@ -121,7 +122,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 		duration = 0x16a;
 	}
 	else {
-		duration = p_level / 15.0f * 362.0f;
+		duration = (p_level / 15.0f) * 362.0f;
 	}
 #else
 	if (p_level > 15) {

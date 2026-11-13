@@ -687,8 +687,10 @@ void ResetTargeting(void)
 // (flag 0x100 accepts only a nav its owner placed).
 // Stack-slot permutation of the locals; p_nav >= g_navCount compares in the other operand order.
 // MW2MATROX: p_nav >= g_navCount compares in the other operand order, and stack-slot permutation.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1005f2ae
 // FUNCTION: MW2MATROX 0x10006b1c
+// FUNCTION: MW23DFX 0x1001cea0
 MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 {
 	Player* player;

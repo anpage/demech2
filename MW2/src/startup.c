@@ -8,6 +8,7 @@
 // Prints the revision strings of the simulator and of its project file.
 // FUNCTION: MW2 0x10071790
 // FUNCTION: MW2MATROX 0x1007ac30
+// FUNCTION: MW23DFX 0x1000adc0
 void PrintVersion(void)
 {
 	printf("\n%s\n", "MW2 FM $Name: BETA_PATCH $            $Revision: 1.61 $ $Date: 1995/06/25 15:47:38 $");

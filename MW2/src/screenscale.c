@@ -933,8 +933,10 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 
 // Where the needle of the gauge ellipse towards p_point ends.
 // Stack-slot permutation: the locals.
+// Matches but for the registers, and the original folds the quadrant's zero into the bit it sets.
 // FUNCTION: MW2 0x1005806a
 // FUNCTION: MW2MATROX 0x100728f3
+// FUNCTION: MW23DFX 0x10006f70
 Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 {
 	MechScalar angle;

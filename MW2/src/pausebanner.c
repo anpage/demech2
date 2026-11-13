@@ -267,12 +267,7 @@ void HandleDebugKey(MechU16 p_key)
 		ToggleTextureMaps(0x800);
 		break;
 	case 0x82:
-		if (!g_showMemInfo) {
-			g_showMemInfo = 1;
-		}
-		else {
-			g_showMemInfo = 0;
-		}
+		g_showMemInfo = !g_showMemInfo;
 
 		g_showMemInfoMain = g_showMemInfo;
 		break;
@@ -290,32 +285,17 @@ void HandleDebugKey(MechU16 p_key)
 		}
 		break;
 	case 0x85:
-		if (!g_showFrameRate) {
-			g_showFrameRate = 1;
-		}
-		else {
-			g_showFrameRate = 0;
-		}
+		g_showFrameRate = !g_showFrameRate;
 
 		g_showFrameRateMain = g_showFrameRate;
 		break;
 	case 0x87:
-		if (!g_showSceneInfo) {
-			g_showSceneInfo = 1;
-		}
-		else {
-			g_showSceneInfo = 0;
-		}
+		g_showSceneInfo = !g_showSceneInfo;
 
 		g_showSceneInfoMain = g_showSceneInfo;
 		break;
 	case 0x88:
-		if (!g_showEyePosition) {
-			g_showEyePosition = 1;
-		}
-		else {
-			g_showEyePosition = 0;
-		}
+		g_showEyePosition = !g_showEyePosition;
 
 		g_showEyePositionMain = g_showEyePosition;
 		break;
@@ -373,36 +353,16 @@ void HandleDebugKey(MechU16 p_key)
 	case 0x90:
 		break;
 	case 0x91:
-		if (!g_showFrameRate) {
-			g_showFrameRate = 1;
-		}
-		else {
-			g_showFrameRate = 0;
-		}
+		g_showFrameRate = !g_showFrameRate;
 		break;
 	case 0x86:
-		if (!g_cockpitPanels[c_panelRadar]->m_damage) {
-			g_cockpitPanels[c_panelRadar]->m_damage = 1;
-		}
-		else {
-			g_cockpitPanels[c_panelRadar]->m_damage = 0;
-		}
+		g_cockpitPanels[c_panelRadar]->m_damage = !g_cockpitPanels[c_panelRadar]->m_damage;
 		break;
 	case 0x93:
-		if (!g_showEyePosition) {
-			g_showEyePosition = 1;
-		}
-		else {
-			g_showEyePosition = 0;
-		}
+		g_showEyePosition = !g_showEyePosition;
 		break;
 	case 0x94:
-		if (!g_showSceneInfo) {
-			g_showSceneInfo = 1;
-		}
-		else {
-			g_showSceneInfo = 0;
-		}
+		g_showSceneInfo = !g_showSceneInfo;
 		break;
 	case 0x95:
 		switch (g_renderSettings.m_wireframe) {
@@ -418,12 +378,7 @@ void HandleDebugKey(MechU16 p_key)
 		}
 		break;
 	case 0x96:
-		if (!g_showPalette) {
-			g_showPalette = 1;
-		}
-		else {
-			g_showPalette = 0;
-		}
+		g_showPalette = !g_showPalette;
 		break;
 	default:
 		break;

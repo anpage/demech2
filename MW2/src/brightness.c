@@ -32,8 +32,10 @@ MechU8 g_gammaTable[16][64];
 
 // Row i maps a 6-bit color component c to 63 * (c / 63) ^ (1 / (0.5 + i / 16)).
 // Stack-slot permutation: i, j, row, x and exponent.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10058400
 // FUNCTION: MW2MATROX 0x1008da50
+// FUNCTION: MW23DFX 0x100072a0
 void InitGammaTable(void)
 {
 	double x;

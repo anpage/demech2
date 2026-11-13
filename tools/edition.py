@@ -23,6 +23,11 @@ comparisons and of commutative operations. Run it from the repository root.
 
 Options: --build DIR (default build-wine): the Matrox edition's rebuild is DIR/vc40/MW2_MATROX.dll and
 its map. The cache is DIR/edition-MW2MATROX.json.
+
+--target MW23DFX works on the 3Dfx edition instead (tools/edition_3dfx.py): state, report, cmp,
+auto, annotate, fix-order and audit, against the rebuild in DIR/vc22, and
+
+    python tools/edition.py --target MW23DFX unpaired   # the original's functions nothing paired
 """
 
 import argparse
@@ -602,6 +607,7 @@ def cmd_scalar_locals(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--build", default="build-wine")
+    parser.add_argument("--target", choices=["MW2MATROX", "MW23DFX"], default="MW2MATROX")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("state").set_defaults(fn=cmd_state)
     p = sub.add_parser("report")
@@ -614,13 +620,14 @@ def main():
     p.set_defaults(fn=cmd_cmp)
     p = sub.add_parser("auto")
     p.add_argument("--unit")
+    p.add_argument("--registers", action="store_true", help="MW23DFX: also annotate register-only differences")
     p.set_defaults(fn=cmd_auto)
     sub.add_parser("fix-order").set_defaults(fn=cmd_fix_order)
     sub.add_parser("crt").set_defaults(fn=cmd_crt)
     p = sub.add_parser("audit")
     p.add_argument("json")
     p.add_argument("--kind", choices=["entropy", "unnamed", "other"])
-    p.add_argument("--code-end", type=lambda x: int(x, 16), default=0x10092D30)
+    p.add_argument("--code-end", type=lambda x: int(x, 16))
     p.set_defaults(fn=cmd_audit)
     p = sub.add_parser("annotate")
     p.add_argument("items", nargs="+")
@@ -643,7 +650,25 @@ def main():
     p.add_argument("function")
     p.add_argument("vars", nargs="+")
     p.set_defaults(fn=cmd_scalar_locals)
+    sub.add_parser("unpaired").set_defaults(fn=None)
     args = parser.parse_args()
+    if args.target == "MW23DFX":
+        import edition_3dfx
+
+        global TARGET
+        TARGET = "MW23DFX"
+        if args.command == "global":
+            return cmd_global(args)
+        if args.command == "audit":
+            args.code_end = args.code_end or edition_3dfx.CODE_END
+            return cmd_audit(args)
+        fn = getattr(edition_3dfx, "cmd_" + args.command.replace("-", "_"), None)
+        if fn is None:
+            sys.exit("%s isn't available for MW23DFX" % args.command)
+        return fn(args)
+    if args.fn is None:
+        sys.exit("%s is for --target MW23DFX" % args.command)
+    args.code_end = getattr(args, "code_end", None) or 0x10092D30
     args.fn(args)
 
 

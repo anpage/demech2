@@ -33,6 +33,7 @@
 // Set to end the mission as successful (a cheat).
 // GLOBAL: MW2 0x100a3748
 // GLOBAL: MW2MATROX 0x100a4ed4
+// GLOBAL: MW23DFX 0x1024b15c
 MechS32 g_forceMissionSuccess = 0;
 
 // Set once the local team's mission result has been announced (AnnounceMissionResult).
@@ -43,6 +44,7 @@ MechS32 g_missionResultAnnounced = 0;
 // The tag of the mission result EndTheMission2 writes.
 // GLOBAL: MW2 0x100a37bc
 // GLOBAL: MW2MATROX 0x100a4f48
+// GLOBAL: MW23DFX 0x1024b1d0
 MechU32 g_missionResultTag = 0x4d32574d;
 
 // GLOBAL: MW2 0x10138710
@@ -397,8 +399,10 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
 // Stack-slot permutation; score > best compares in the other operand order.
 // MW2MATROX: score > best compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1001b21a
 // FUNCTION: MW2MATROX 0x1001f577
+// FUNCTION: MW23DFX 0x10009e70
 void ChooseNetworkWinner(void)
 {
 	MissionObjective* objective;
@@ -462,8 +466,10 @@ void ChooseNetworkWinner(void)
 
 // Announces the local team's mission result: successful (2), failed (3) or out of time (4). In a
 // network game, only the first result; a successful one names the local player the winner.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1001b3f4
 // FUNCTION: MW2MATROX 0x1001f751
+// FUNCTION: MW23DFX 0x10009f50
 MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 {
 	MechChar text[100];
@@ -609,8 +615,10 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // The only diff is a stack-slot permutation of the locals. MW2MATROX: the objectives the
 // types 0x10000 and up name compute their star's index before the objective's (index order), and
 // the jump table's entries differ by address only.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2MATROX 0x1001faf7
+// FUNCTION: MW23DFX 0x1000a1d0
 void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 {
 	MechS32 done;
@@ -821,12 +829,8 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 			break;
 		}
 
-		if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
-			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
-		}
-		else {
-			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 0;
-		}
+		g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed =
+			!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed;
 
 		state = 5;
 		AnnounceObjective(p_star, p_objective, state);
@@ -1070,6 +1074,7 @@ void EndTheMission1(void)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001c9f7
 // FUNCTION: MW2MATROX 0x10020d5b
+// FUNCTION: MW23DFX 0x1000aba0
 MechS32 EndTheMission2(void)
 {
 	FILE* file;
@@ -1090,12 +1095,7 @@ MechS32 EndTheMission2(void)
 			continue;
 		}
 
-		if (mission->m_objectives[i].m_state == 5) {
-			result.m_objectives[count].m_succeeded = 1;
-		}
-		else {
-			result.m_objectives[count].m_succeeded = 0;
-		}
+		result.m_objectives[count].m_succeeded = mission->m_objectives[i].m_state == 5;
 
 		result.m_objectives[count].m_priority = mission->m_objectives[i].m_priority;
 		result.m_objectives[count].m_startTime = mission->m_objectives[i].m_startTime;
@@ -1134,12 +1134,8 @@ void RestartStarMission(MechS32 p_star)
 		objective = &mission->m_objectives[i];
 #ifndef MW2_ACCEL
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
-			if (!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed) {
-				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 1;
-			}
-			else {
-				g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed = 0;
-			}
+			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed =
+				!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed;
 		}
 #endif
 

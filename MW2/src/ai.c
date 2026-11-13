@@ -898,8 +898,10 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 // Makes the first able member of star p_team other than its leader the leader. Returns it, or -1.
 // Operand order: the loop test (i < count) compares with i in eax in the original. Stack-slot
 // permutation: count, i, member and members and newLeader.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005212a
 // FUNCTION: MW2MATROX 0x10081269
+// FUNCTION: MW23DFX 0x100125d0
 MechS32 ChooseTeamLeader(MechS32 p_team)
 {
 	Player* member;
@@ -1685,6 +1687,7 @@ MechScalar GetTargetRange(MechS16 p_target)
 // stopped inside it, slower while turning hard or running hot.
 // FUNCTION: MW2 0x10053811
 // FUNCTION: MW2MATROX 0x100829e1
+// FUNCTION: MW23DFX 0x100134c0
 MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 {
 	MechScalar throttle;
@@ -1702,7 +1705,7 @@ MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 	}
 
 	if ((MechFloat) fabs(throttle) >= 1e-7f && (MechFloat) fabs(p_player->m_steering->m_turn) > 45.0f) {
-		throttle = 0.015625f - (MechFloat) fabs(p_player->m_steering->m_turn) / 1.5f / 65536.0f;
+		throttle = 0.015625f - (MechFloat) ((MechFloat) fabs(p_player->m_steering->m_turn) / 1.5f / 65536.0f);
 		if (throttle < 0.0015625f) {
 			throttle = 0.0015625f;
 		}
@@ -2205,6 +2208,7 @@ void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 // Stack-slot permutation: i and script.
 // FUNCTION: MW2 0x100545ea
 // FUNCTION: MW2MATROX 0x10083850
+// FUNCTION: MW23DFX 0x10013d90
 MechS32 HasAIState(Player* p_player, MechS16 p_state)
 {
 	MechS32 i;
@@ -2415,6 +2419,7 @@ void RecordAttack(MechS32 p_index, MechU32 p_target)
 // Loads the nine AIT scripts.
 // FUNCTION: MW2 0x10054c05
 // FUNCTION: MW2MATROX 0x10083e80
+// FUNCTION: MW23DFX 0x100141a0
 MechS32 LoadAIScripts(void)
 {
 	MechS32 i;
@@ -2445,8 +2450,10 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 // The local player's teammate in formation slot p_slot, or -1.
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
 // team comparison loads the other operand first. Stack-slot permutation: player and team.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10054ccc
 // FUNCTION: MW2MATROX 0x10083f47
+// FUNCTION: MW23DFX 0x10014220
 MechS32 FindStarSlotPlayer(MechS32 p_slot)
 {
 	MechS32 team;
@@ -2504,12 +2511,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 				if (player->m_index != g_localPlayerId) {
 					if (player->m_ai.m_state != c_aiStateDead && HasAIState(player, p_state)) {
 						if (p_state == c_aiStateAttack) {
-							if (!player->m_engageAtWill) {
-								player->m_engageAtWill = 1;
-							}
-							else {
-								player->m_engageAtWill = 0;
-							}
+							player->m_engageAtWill = !player->m_engageAtWill;
 
 							player->m_ai.m_flags &= ~3;
 						}
@@ -3281,12 +3283,7 @@ void SweepTorso(Player* p_player)
 
 	if (abs(p_player->m_steering->m_torsoPan) > 0x2d0000) {
 #endif
-		if (!p_player->m_maneuverParam) {
-			p_player->m_maneuverParam = 1;
-		}
-		else {
-			p_player->m_maneuverParam = 0;
-		}
+		p_player->m_maneuverParam = !p_player->m_maneuverParam;
 	}
 
 	p_player->m_maneuverEnd = period + g_currentClock;

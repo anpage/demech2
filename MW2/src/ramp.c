@@ -33,8 +33,10 @@ MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_
 	return result;
 }
 
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10049611
 // FUNCTION: MW2MATROX 0x1002e041
+// FUNCTION: MW23DFX 0x1003b740
 MechS32 UpdateRamp(Ramp* p_ramp)
 {
 	MechS32 delta;
@@ -42,7 +44,7 @@ MechS32 UpdateRamp(Ramp* p_ramp)
 
 	delta = p_ramp->m_target - p_ramp->m_value;
 	if (delta != 0) {
-		step = (g_currentClock - p_ramp->m_time) * delta / p_ramp->m_duration;
+		step = ((g_currentClock - p_ramp->m_time) * delta) / p_ramp->m_duration;
 		if ((delta < 0 && step <= delta) || (delta > 0 && step >= delta)) {
 			p_ramp->m_value = p_ramp->m_target;
 		}
@@ -76,6 +78,7 @@ MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value,
 
 // Unlike UpdateRamp, a value within 1e-07 of the target lands on it.
 // FUNCTION: MW2MATROX 0x1002e141
+// FUNCTION: MW23DFX 0x1003b7e0
 MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 {
 	MechFloat delta;
@@ -83,7 +86,7 @@ MechFloat UpdateFloatRamp(FloatRamp* p_ramp)
 
 	delta = p_ramp->m_target - p_ramp->m_value;
 	if (FIXED_IS_NONZERO(delta)) {
-		step = (g_currentClock - p_ramp->m_time) * delta / p_ramp->m_duration;
+		step = ((g_currentClock - p_ramp->m_time) * delta) / p_ramp->m_duration;
 		if ((FIXED_IS_NEGATIVE(delta) && step <= delta) || (delta > 1e-07f && step >= delta)) {
 			p_ramp->m_value = p_ramp->m_target;
 		}
@@ -128,6 +131,7 @@ MechS32 StartWrappedRamp(
 // Moves the value the short way around the period.
 // FUNCTION: MW2 0x10049715
 // FUNCTION: MW2MATROX 0x1002e295
+// FUNCTION: MW23DFX 0x1003b900
 MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 {
 #ifdef MW2_ACCEL
@@ -156,7 +160,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 		delta += p_ramp->m_period;
 	}
 
-	step = (g_currentClock - p_ramp->m_time) * delta / p_ramp->m_duration;
+	step = ((g_currentClock - p_ramp->m_time) * delta) / p_ramp->m_duration;
 #ifdef MW2_ACCEL
 	if ((FIXED_IS_NEGATIVE(delta) && step <= delta) || (delta > 1e-07f && step >= delta)) {
 #else

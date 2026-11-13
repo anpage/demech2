@@ -49,6 +49,7 @@ MechS32 g_timeCompressionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba564
 // GLOBAL: MW2MATROX 0x100a4e6c
+// GLOBAL: MW23DFX 0x1024ab60
 MechS32 g_timeExpansionEnabled = 0;
 
 // GLOBAL: MW2 0x100ba568

@@ -40,8 +40,10 @@ MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag);
 // first, and allocates the groups. Returns whether it could read the sizes.
 // Stack-slot permutation: i, pool, j, group and best. The loop tests and the comparisons of the
 // groups' free room follow the unit's symbol table in the other operand order.
+// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100498b0
 // FUNCTION: MW2MATROX 0x10078f20
+// FUNCTION: MW23DFX 0x10023bb0
 MechS32 InitStaticMem(char* p_mission)
 {
 	MechS32 i;
@@ -151,8 +153,10 @@ void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag)
 // Frees the groups' blocks.
 // The loop test compares in the other operand order (the unit's symbol table).
 // MW2MATROX: the loop test compares in the other operand order.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10049c55
 // FUNCTION: MW2MATROX 0x100792c2
+// FUNCTION: MW23DFX 0x10023e40
 void FreeStaticMem(void)
 {
 	MechS32 i;

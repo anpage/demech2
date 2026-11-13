@@ -691,9 +691,11 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 }
 
 // Draws a shaded polygon in each vertex's color: lit by its light, unless the vertex's shade (in
-// m_u) is between 0 and 48. With p_unk0x0c set, only a polygon of three points or more.
+// m_u) is between 0 and 48. With p_unk0x0c set, only a polygon of three points or more (the 3Dfx
+// edition's after clipping it to the pane edges p_unk0x0c names).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x100689f5
+// FUNCTION: MW23DFX 0x100273c0
 void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c)
 {
 	MechFloat light;
@@ -722,9 +724,17 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 	}
 
 	if (p_unk0x0c) {
+#ifdef MW2_3DFX
+		// The 3Dfx edition's clips the polygon to the pane's edges in p_unk0x0c first.
+		p_count = FUN_10067b90(p_count, p_unk0x0c, 1);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+#else
 		if (p_count > 2) {
 			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 		}
+#endif
 	}
 	else if (g_renderSettings.m_gouraud) {
 		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);

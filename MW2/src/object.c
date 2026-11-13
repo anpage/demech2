@@ -516,6 +516,7 @@ SceneObject* GetObjRoot(SceneObject* p_obj)
 
 // FUNCTION: MW2 0x10001d8f
 // FUNCTION: MW2MATROX 0x100418a1
+// FUNCTION: MW23DFX 0x1000fc80
 SceneObject* GetObjParent(SceneObject* p_obj)
 {
 	return p_obj->m_parent;
@@ -571,8 +572,10 @@ void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 
 // The only diff is a stack-slot permutation of parent and first.
 // Unlinks the object from its parent, keeping its world placement.
+// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10001e32
 // FUNCTION: MW2MATROX 0x10041944
+// FUNCTION: MW23DFX 0x1000fd10
 void DetachObj(SceneObject* p_obj)
 {
 	SceneObject* parent;
