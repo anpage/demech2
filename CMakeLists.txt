@@ -66,7 +66,7 @@ function(add_warning WARNING)
   cmake_pop_check_state()
 
   if (${varname})
-    add_compile_options(${compiler_option})
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS ${compiler_option})
   endif()
 endfunction()
 
@@ -375,13 +375,17 @@ elseif (MSVC_FOR_DECOMP)
 endif()
 
 # --- Modern compiler compatibility ---
+#
+# Directory-wide flags go through the directory's properties: CMake 4.5 warns about
+# add_definitions and add_compile_options (non-target-directive), an error under the modern
+# CI build's -Werror=author.
 if (MSVC)
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "15")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
   endif()
   # Visual Studio 2017 version 15.7 needs "/Zc:__cplusplus" for __cplusplus
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "19.14.26428")
-    add_compile_options(-Zc:__cplusplus)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Zc:__cplusplus)
   endif()
 endif()
 

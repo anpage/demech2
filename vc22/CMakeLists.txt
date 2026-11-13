@@ -47,8 +47,8 @@ foreach(lang C CXX)
 endforeach()
 # /Od is a compile option rather than one of CMAKE_<LANG>_FLAGS, as in the VC++ 4.x builds
 # (cmake/decomp_flags.cmake): a target whose sources carry DEMECH2_OPTIMIZATION (the 3Dfx
-# edition's) gives each C source /Od or its own flags instead.
-add_compile_options(
+# edition's) gives each C source /Od or its own flags instead (a directory property, as there).
+set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS
   "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<BOOL:$<TARGET_PROPERTY:DEMECH2_SOURCE_OPTIMIZATION>>>>:/Od>")
 foreach(kind SHARED EXE)
   set(CMAKE_${kind}_LINKER_FLAGS "/machine:I386")

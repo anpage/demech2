@@ -13,7 +13,8 @@ foreach(lang C CXX)
   set(CMAKE_${lang}_FLAGS_MINSIZEREL "/DNDEBUG")
   set(CMAKE_${lang}_STANDARD_LIBRARIES "")
 endforeach()
-add_compile_options(
+# (A directory property rather than add_compile_options, which CMake 4.5 warns about.)
+set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS
   "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<BOOL:$<TARGET_PROPERTY:DEMECH2_SOURCE_OPTIMIZATION>>>>:/Od>")
 # LINK 3.10 crashes on Windows ("Internal error during Pass1", at a varying object) once
 # the object names it is given total about 4K: MW2's 100 objects as CMakeFiles\mw2.dir\...
