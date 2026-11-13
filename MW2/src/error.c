@@ -159,6 +159,7 @@ void ShutdownOnError(void)
 // Shows a fatal error's message, logs it, and exits.
 // FUNCTION: MW2 0x1003ba3a
 // FUNCTION: MW2MATROX 0x1005979a
+// FUNCTION: MW23DFX 0x1003cdf0
 void ShowFatalError(const char** p_args)
 {
 	ShutdownRender();
@@ -207,6 +208,7 @@ MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_a
 // Logs a warning's message and clears the error code.
 // FUNCTION: MW2 0x1003bbb1
 // FUNCTION: MW2MATROX 0x10059911
+// FUNCTION: MW23DFX 0x1003cf40
 void LogWarning(const char** p_args)
 {
 	FormatErrorMessage(g_warningTitle, g_errorCode, p_args);

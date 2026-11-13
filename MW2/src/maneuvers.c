@@ -128,6 +128,7 @@ MechScalar g_jumpJetDrag = 100000;
 
 // GLOBAL: MW2 0x100a2be0
 // GLOBAL: MW2MATROX 0x100a459c
+// GLOBAL: MW23DFX 0x1024c544
 MechScalar g_slideSlope = FIXED_RAW(0x2000);
 
 // The maneuver table of each player type (m_type, 1 to 8), and in entry 8 the alternative to the

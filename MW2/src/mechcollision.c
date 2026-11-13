@@ -35,6 +35,7 @@
 // MW2MATROX: a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100758a0
 // FUNCTION: MW2MATROX 0x10075a80
+// FUNCTION: MW23DFX 0x1000b5e0
 MechS32 MoveMechWithCollisions(
 	Mech* p_mech,
 	Shape** p_hit,
@@ -423,6 +424,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // the normal first in the original.
 // FUNCTION: MW2 0x10076295
 // FUNCTION: MW2MATROX 0x1007649e
+// FUNCTION: MW23DFX 0x1000be60
 MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z, Shape** p_hit)
 {
 	MechScalar dz;

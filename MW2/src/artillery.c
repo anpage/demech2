@@ -27,6 +27,7 @@
 // its object up where it is and clears the player's steering.
 // FUNCTION: MW2 0x10059fc0
 // FUNCTION: MW2MATROX 0x1002e4b0
+// FUNCTION: MW23DFX 0x100218b0
 void FirstArtillery(Player* p_player)
 {
 	Mech* mech;
@@ -123,6 +124,7 @@ void UpdateArtillery(Mech* p_mech)
 // Stack-slot permutation: mech, twist and delta.
 // FUNCTION: MW2 0x1005a2ea
 // FUNCTION: MW2MATROX 0x1002e7de
+// FUNCTION: MW23DFX 0x10021a50
 void LateUpdateArtillery(Mech* p_mech)
 {
 	Mech* mech;
@@ -212,6 +214,7 @@ void LateUpdateArtillery(Mech* p_mech)
 
 // FUNCTION: MW2 0x1005a61d
 // FUNCTION: MW2MATROX 0x1002eb3a
+// FUNCTION: MW23DFX 0x10021c80
 void ShutdownArtillery(Mech* p_mech)
 {
 	if (!p_mech) {
@@ -223,6 +226,7 @@ void ShutdownArtillery(Mech* p_mech)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1005a637
 // FUNCTION: MW2MATROX 0x1002eb54
+// FUNCTION: MW23DFX 0x10021c90
 MechS32 CreateArtillery(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;

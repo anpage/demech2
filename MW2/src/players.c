@@ -22,6 +22,7 @@ DECOMP_SIZE_ASSERT(PlayerSteering, 0x48)
 // callbacks (artillery.c), 7 another (door.c); the others are mechs.
 // GLOBAL: MW2 0x100ad4a0
 // GLOBAL: MW2MATROX 0x100aa738
+// GLOBAL: MW23DFX 0x1024c330
 PlayerType g_playerTypes[9] = {
 	{0, NULL, NULL, NULL, NULL, NULL, NULL, NULL},
 	{1, CreateMech, FirstMech, UpdateMech, LateUpdateMech, UpdateLocalMech, DrawMechCockpit, ShutdownMech},

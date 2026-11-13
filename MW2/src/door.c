@@ -33,6 +33,7 @@
 // place and starts its position ramps there.
 // FUNCTION: MW2 0x100680a0
 // FUNCTION: MW2MATROX 0x100887e0
+// FUNCTION: MW23DFX 0x10021d20
 void FirstDoor(Player* p_player)
 {
 	Mech* mech;
@@ -89,6 +90,7 @@ void FirstDoor(Player* p_player)
 // FixedSin of a float angle (the cosine is FixedSin(heading + 90)), without the >> 13.
 // FUNCTION: MW2 0x1006831a
 // FUNCTION: MW2MATROX 0x10088a5a
+// FUNCTION: MW23DFX 0x10021e60
 void UpdateDoor(Mech* p_mech)
 {
 	MechScalar heading;
@@ -138,6 +140,7 @@ void UpdateDoor(Mech* p_mech)
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1006844e
 // FUNCTION: MW2MATROX 0x10088b99
+// FUNCTION: MW23DFX 0x10021f20
 void LateUpdateDoor(Mech* p_mech)
 {
 	Mech* mech;
@@ -237,6 +240,7 @@ void LateUpdateDoor(Mech* p_mech)
 
 // FUNCTION: MW2 0x10068758
 // FUNCTION: MW2MATROX 0x10088eba
+// FUNCTION: MW23DFX 0x10022190
 void ShutdownDoor(Mech* p_mech)
 {
 	if (!p_mech) {
@@ -248,6 +252,7 @@ void ShutdownDoor(Mech* p_mech)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10068772
 // FUNCTION: MW2MATROX 0x10088ed4
+// FUNCTION: MW23DFX 0x100221a0
 MechS32 CreateDoor(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;

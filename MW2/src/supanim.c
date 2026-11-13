@@ -100,7 +100,7 @@ PANE g_supAnimTarget;
 // GLOBAL: MW23DFX 0x1007b040
 WINDOW g_supAnimBuffer;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 void __stdcall SupAnimTimerCallback(MechU32 p_user);
 #else
 void SupAnimTimerCallback(void);
@@ -224,8 +224,9 @@ void StartSupAnim(MechS32 p_slowFade)
 // FUNCTION: MW2 0x10003f3d
 // FUNCTION: MW2MATROX 0x1004a9b0
 // FUNCTION: MW23DFX 0x10007730
-#ifdef MW2_ACCEL
-// The Matrox edition's pops the timer's argument (AIL's callbacks are __stdcall).
+#ifdef MW2_MATROX
+// The Matrox edition's pops the timer's argument (AIL's callbacks are __stdcall); the 3Dfx
+// edition's is 1.1's.
 void __stdcall SupAnimTimerCallback(MechU32 p_user)
 #else
 void SupAnimTimerCallback(void)

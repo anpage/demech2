@@ -166,6 +166,7 @@ void FadeToEndPalette(MechS32 p_alternate)
 // Sets off the smoke of a wrecked mech, or now and then a spark while m_stateTime is set.
 // FUNCTION: MW2 0x1004cb11
 // FUNCTION: MW2MATROX 0x10045388
+// FUNCTION: MW23DFX 0x1001be40
 void EmitWreckSmoke(Mech* p_mech)
 {
 	MechScalar x;
@@ -224,6 +225,7 @@ void BreakUpMech(Mech* p_mech)
 // Stack-slot permutation: x, y, z, player, jet and fired.
 // FUNCTION: MW2 0x1004ccba
 // FUNCTION: MW2MATROX 0x10045571
+// FUNCTION: MW23DFX 0x1001bf90
 void FireJumpJetEffects(Mech* p_mech)
 {
 	MechScalar z;
@@ -268,6 +270,7 @@ void FireJumpJetEffects(Mech* p_mech)
 // Plays a mech's landing: the thud, and the camera shake for the local player.
 // FUNCTION: MW2 0x1004ce3e
 // FUNCTION: MW2MATROX 0x100456ef
+// FUNCTION: MW23DFX 0x1001c0a0
 void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 {
 	MechS32 sound;

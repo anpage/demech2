@@ -582,7 +582,8 @@ def unnamed_operands(report, loose=False):
 
 def add_global(name, address):
     """Insert the MW23DFX marker after the last marker of a global's definition under MW2/src (a
-    definition with markers above it and none for MW23DFX). False when there's no such single one."""
+    definition with markers above it and none for MW23DFX). False when there's no such single one,
+    or when its comment says "no MW23DFX annotation" (the edition's data differs)."""
     found = []
     for path in sorted(glob.glob("MW2/src/**/*.c", recursive=True)):
         lines = open(path, encoding="utf-8").read().split("\n")
@@ -597,6 +598,11 @@ def add_global(name, address):
     j = i
     while j and MARKER.match(lines[j - 1]):
         j -= 1
+    k = j
+    while k and lines[k - 1].startswith("//"):
+        k -= 1
+    if any("no %s annotation" % TARGET in l for l in lines[k:j]):
+        return False  # left out on purpose: the edition's data differs
     block = [MARKER.match(l) for l in lines[j:i]]
     if any(m.group(2) != "GLOBAL" or m.group(3) == TARGET for m in block):
         return False

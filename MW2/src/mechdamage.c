@@ -82,6 +82,7 @@ static MechS32 g_criticalHeatWarningTime;
 // they are (the dword, no conversion).
 // FUNCTION: MW2 0x100079d0
 // FUNCTION: MW2MATROX 0x10010250
+// FUNCTION: MW23DFX 0x10015c00
 void RunAutopilot(Mech* p_mech)
 {
 	MechS32 index;
@@ -241,6 +242,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // multiplies its operands in another order.
 // FUNCTION: MW2 0x10007e86
 // FUNCTION: MW2MATROX 0x10010727
+// FUNCTION: MW23DFX 0x10015f50
 void CalculateHeat(Mech* p_mech)
 {
 #ifdef MW2_ACCEL
@@ -561,6 +563,7 @@ void DestroySectionSlots(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // Of sections 7 and 8, the first to go only marks the mech (0x20); the second destroys 1 and 3.
 // FUNCTION: MW2 0x1000899d
 // FUNCTION: MW2MATROX 0x1001124b
+// FUNCTION: MW23DFX 0x10016640
 void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 {
 	MechSection* section;
