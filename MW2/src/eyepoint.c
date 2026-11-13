@@ -82,6 +82,7 @@ MechS32 g_ordinanceReturnMode = -1;
 // The view mode FirstEyepoint starts the camera in.
 // GLOBAL: MW2 0x100a2410
 // GLOBAL: MW2MATROX 0x100a3650
+// GLOBAL: MW23DFX 0x1024e668
 MechS32 g_initialViewMode = 0;
 
 // The view mode SetViewMode asked for; UpdateEyepoint switches to it.
@@ -130,6 +131,7 @@ struct Player* g_localPlayer = NULL;
 // The player the camera tracks.
 // GLOBAL: MW2 0x100a2430
 // GLOBAL: MW2MATROX 0x100a3670
+// GLOBAL: MW23DFX 0x1024e688
 MechS32 g_trackedPlayer = 0;
 
 // The local mech's cockpit height and torso twist (InitCockpitPanels): the first raises the eye
@@ -179,14 +181,17 @@ MechScalar g_trackMaxHeight;
 // The track view's eased offsets from the mech and its eased heading and pitch.
 // GLOBAL: MW2 0x10176f30
 // GLOBAL: MW2MATROX 0x10218310
+// GLOBAL: MW23DFX 0x1015f000
 ScalarRamp g_trackOffsetZ;
 
 // GLOBAL: MW2 0x10176f40
 // GLOBAL: MW2MATROX 0x10218330
+// GLOBAL: MW23DFX 0x1015f020
 WrappedRamp g_trackPitch;
 
 // GLOBAL: MW2 0x10176f60
 // GLOBAL: MW2MATROX 0x102182f0
+// GLOBAL: MW23DFX 0x1015efe0
 WrappedRamp g_trackHeading;
 
 // GLOBAL: MW2 0x10176f74
@@ -201,10 +206,12 @@ ScalarRamp g_pilotTilt;
 
 // GLOBAL: MW2 0x10176f90
 // GLOBAL: MW2MATROX 0x102182d0
+// GLOBAL: MW23DFX 0x1015efc0
 ScalarRamp g_trackOffsetY;
 
 // GLOBAL: MW2 0x10176fa0
 // GLOBAL: MW2MATROX 0x10218370
+// GLOBAL: MW23DFX 0x1015f060
 SavedView g_savedViews[5];
 
 // The cockpit view's pan, eased toward g_sinkPilotPan.
@@ -216,16 +223,19 @@ ScalarRamp g_pilotPan;
 // The free camera's forward speed.
 // GLOBAL: MW2 0x10177040
 // GLOBAL: MW2MATROX 0x102182b0
+// GLOBAL: MW23DFX 0x1015efa0
 ScalarRamp g_freeEyeSpeed;
 
 // GLOBAL: MW2 0x10177050
 // GLOBAL: MW2MATROX 0x102182a0
+// GLOBAL: MW23DFX 0x1015ef90
 ScalarRamp g_trackOffsetX;
 
 // Resets the camera: its ramps, the saved views and the view scale, follows the local player
 // and resets the camera shake and the zoom.
 // FUNCTION: MW2 0x10010ee0
 // FUNCTION: MW2MATROX 0x10008b70
+// FUNCTION: MW23DFX 0x1002db70
 void FirstEyepoint(void)
 {
 	MechS32 i;
@@ -537,6 +547,7 @@ void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 // The Matrox edition's adds g_eyeHeightOffset in the other operand order.
 // FUNCTION: MW2 0x100116c3
 // FUNCTION: MW2MATROX 0x10009431
+// FUNCTION: MW23DFX 0x1002e0f0
 void GetPlayerEyeView(
 	MechScalar* p_pitch,
 	MechScalar* p_heading,

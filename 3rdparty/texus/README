@@ -1,0 +1,21 @@
+Texus, 3dfx Interactive's texture utility library, as the 3Dfx edition of MechWarrior 2
+(MW2_3DFX.DLL, the Diamond Monster disc's MW2.DLL) links it.
+
+This directory is not under the repository's licence: it is licensed under the 3DFX GLIDE
+Source Code General Public License, in glide_license.txt.
+
+Source: swlibs/texus/lib of the Glide source tree 3dfx released, as Debian packages it
+(glide_2002.04.10ds1.orig.tar.gz). Only the files whose objects MW2_3DFX.DLL links are here:
+texuslib.c, util.c, quantize.c, mipmap.c, clamp.c, resample.c, dequant.c, pal256.c, ncc.c,
+diffuse.c and nccnnet.c, with texus.h and texusint.h. Every file keeps 3dfx's header (pal256.c
+also Craig Kolb's notice). Line endings are LF.
+
+The DLL's Texus is from 1996, about four years older than this source. Where the DLL shows that
+the 1996 code differed, the source is changed as far as needed to reproduce it, between
+"demech2: begin change (date): why" and "demech2: end change" comments; the code it replaces
+stays in an #if 0 branch. Functions the DLL's objects don't have are left out the same way.
+What the changes don't reproduce is register allocation and scheduling: VC++ 2.2's choices
+there depend on the symbols the unit declares, which this source can't recover.
+
+texus.cmake builds the library for the vc22/ sub-project: VC++ 2.2, /Ox /G5 /QIfdiv-. The
+Glide declarations it includes are in ../glide.

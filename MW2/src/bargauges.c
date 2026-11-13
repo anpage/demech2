@@ -436,6 +436,7 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 // Stack-slot permutation: half, dark, end, darker, right and i.
 // FUNCTION: MW2 0x1004d8ae
 // FUNCTION: MW2MATROX 0x10089931
+// FUNCTION: MW23DFX 0x1001c960
 void DrawHorizontalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;

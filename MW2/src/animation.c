@@ -26,6 +26,9 @@
 #include <windows.h>
 #endif
 
+#ifdef MW2_3DFX
+#endif
+
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
 
@@ -61,6 +64,14 @@ MechS32 g_animSetUsed = 0;
 // GLOBAL: MW23DFX 0x1024e490
 MechS32 g_animSetIsSequence = 0;
 
+#ifdef MW2_ACCEL
+// The accelerated editions' tint of the animated textures, for the palettes 0xc, 0x10 and 0x11
+// (StartPaletteFade): whether it is on, and its color.
+// GLOBAL: MW2MATROX 0x100aa1d0
+// GLOBAL: MW23DFX 0x1024e494
+MechS32 g_unk0x100aa1d0 = 0;
+#endif
+
 // GLOBAL: MW2 0x100ad29c
 MechU16* g_lumaTables = NULL;
 
@@ -84,6 +95,12 @@ MechS32 g_preloadCels[] = {
 #endif
 };
 
+#ifdef MW2_3DFX
+// The mode the ground's (2) and the sky's (1) polygons are drawn in (FUN_100674c0's p_mode).
+// GLOBAL: MW23DFX 0x1024e634
+MechS32 g_unk0x1024e634 = 0;
+#endif
+
 // GLOBAL: MW2 0x100c7610
 // GLOBAL: MW2MATROX 0x10184710
 // GLOBAL: MW23DFX 0x10160d20
@@ -94,15 +111,23 @@ AnimFrame g_animFrames[0x200][0x20];
 // GLOBAL: MW23DFX 0x1015f0f0
 Animation g_animations[0x200];
 
-// GLOBAL: MW2 0x100e9210
+#ifdef MW2_ACCEL
+// GLOBAL: MW2MATROX 0x10184700
 // GLOBAL: MW23DFX 0x10160cf0
+MechFloat g_unk0x10184700[3];
+#endif
+
+// GLOBAL: MW2 0x100e9210
+// GLOBAL: MW23DFX 0x10160d00
 WINDOW g_animFrameBuffer;
 
 #ifdef MW2_ACCEL
 // Rotates the texture point (*p_u, *p_v) about the texture's centre by the angle whose cosine and
 // sine are p_cos and p_sin.
-// The products' operands are loaded in the other order (commutative operand order).
+// The products' operands are loaded in the other order (commutative operand order); MW23DFX
+// computes u * p_sin after v * p_cos.
 // FUNCTION: MW2MATROX 0x10050d60
+// FUNCTION: MW23DFX 0x1002c830
 void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFloat* p_v)
 {
 	MechFloat u;
@@ -119,8 +144,13 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
 // MW2MATROX: a stack-slot permutation of the locals, and the loop's i < p_count has its operands
 // the other way around.
+// MW23DFX's (0x1002c880) draws through its own renderer, in Glide's texture coordinates, and
+// clips the polygon to the pane edges p_unk0x18 selects. MW23DFX: register allocation (the
+// original keeps data on the stack and anim in ebx, the rebuild the other way around), which
+// shifts every stack offset by 4.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
+// FUNCTION: MW23DFX 0x1002c880
 #ifdef MW2_ACCEL
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
@@ -143,7 +173,220 @@ MechS32 DrawAnimatedPolygon(
 )
 #endif
 {
-#ifdef MW2_ACCEL
+#if defined(MW2_3DFX)
+	Animation* anim;
+	MechS16 height;
+	MechS16 width;
+	MechU32 flags;
+	MechS32 rotate;
+	MechS32 useLuma;
+	MechS32 shade;
+	MechFloat offset;
+	MechFloat angle;
+	MechFloat cosine;
+	MechFloat sine;
+	A3DVertex color;
+	MechFloat uScale;
+	MechFloat vScale;
+	MechFloat w;
+	AnimFrame* frame;
+	A3DVertex* vertex;
+	ProjectedVertex* point;
+	ProjectedVertex** points;
+	MechS32 i;
+	MechU16* data;
+
+	points = p_points;
+	flags = 0;
+	rotate = FALSE;
+	if (p_unk0x1c) {
+		flags = 2;
+	}
+
+	if (p_count < 3) {
+		return 0;
+	}
+
+	if (p_index == 0x8c) {
+		rotate = TRUE;
+		angle = p_unk0x1c * 0.017453292f;
+		offset = p_scale / 100000.0f;
+		cosine = cos(angle);
+		sine = sin(angle);
+		p_unk0x1c = 0;
+		p_scale = 0;
+		p_index += 0x100;
+	}
+	else {
+		rotate = FALSE;
+		if (!p_scale) {
+			p_index += 0x100;
+		}
+	}
+
+	anim = &g_animations[p_index];
+	if (anim->m_mode == 0 || anim->m_flags < 0) {
+		return 0;
+	}
+
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return 0;
+	}
+
+	frame->m_useCount++;
+	// A translucent texture is drawn from MW2.MIP, if it has it.
+	data = NULL;
+	if (p_unk0x1c) {
+		data = (MechU16*) FUN_100669f0(frame->m_resourceId);
+	}
+
+	if (!data) {
+		data = frame->m_data;
+		if (!data) {
+			data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+			if (!data) {
+				return 0;
+			}
+
+			frame->m_data = data;
+		}
+	}
+
+	width = data[0];
+	height = data[1];
+	data += 2;
+	if (!(anim->m_flags & 4) && p_luma > -1 && p_luma < 15) {
+		useLuma = TRUE;
+	}
+	else {
+		useLuma = FALSE;
+	}
+
+	if (g_unk0x100aa1d0) {
+		flags |= 1;
+		shade = FALSE;
+		color.m_red = g_unk0x10184700[0];
+		color.m_green = g_unk0x10184700[1];
+		color.m_blue = g_unk0x10184700[2];
+	}
+	else if ((p_direct || useLuma) && p_luma != (MechS32) 0x80000000) {
+		shade = TRUE;
+	}
+	else {
+		shade = FALSE;
+		color.m_red = 255;
+		color.m_green = 255;
+		color.m_blue = 255;
+	}
+
+	vertex = g_a3dVertices;
+	if (shade) {
+		for (i = 0; i < p_count; i++) {
+			point = *p_points++;
+			vertex->m_x = point->m_screenX;
+			vertex->m_blue = vertex->m_green = vertex->m_red = point->m_light * 255;
+			vertex->m_y = point->m_screenY;
+			vertex++;
+		}
+	}
+	else {
+		for (i = 0; i < p_count; i++) {
+			point = *p_points++;
+			vertex->m_red = color.m_red;
+			vertex->m_green = color.m_green;
+			vertex->m_blue = color.m_blue;
+			vertex->m_x = point->m_screenX;
+			vertex->m_y = point->m_screenY;
+			vertex++;
+		}
+	}
+
+	// Glide's texture coordinates run from 0 to 255 over the texture.
+	vertex = g_a3dVertices;
+	if (p_direct && !g_renderSettings.m_affineTextures) {
+		uScale = 255.0f / width;
+		vScale = 255.0f / height;
+		for (i = 0; i < p_count; i++) {
+			point = *points++;
+			w = 2000.0f / point->m_z;
+			vertex->m_tmuW = w;
+			vertex->m_w = w;
+			vertex->m_u = point->m_u * w * uScale;
+			vertex->m_v = point->m_v * w * vScale;
+			vertex++;
+		}
+	}
+	else if (p_scale) {
+		for (i = 0; i < p_count; i++) {
+			point = *points++;
+			vertex->m_tmuW = 1.0f;
+			vertex->m_w = 1.0f;
+			vertex->m_u = point->m_u * 255;
+			vertex->m_v = point->m_v * 255;
+			vertex++;
+		}
+	}
+	else {
+		uScale = 255.0f / width;
+		vScale = 255.0f / height;
+		if (rotate) {
+			offset *= 255;
+			for (i = 0; i < p_count; i++) {
+				point = *points++;
+				vertex->m_tmuW = 1.0f;
+				vertex->m_u = point->m_u * uScale;
+				vertex->m_v = point->m_v * vScale;
+				vertex->m_u += offset;
+				vertex->m_w = 1.0f;
+				RotateTexturePoint(cosine, sine, &vertex->m_u, &vertex->m_v);
+				vertex++;
+			}
+		}
+		else {
+			for (i = 0; i < p_count; i++) {
+				point = *points++;
+				vertex->m_tmuW = 1.0f;
+				vertex->m_w = 1.0f;
+				vertex->m_u = point->m_u * uScale;
+				vertex->m_v = point->m_v * vScale;
+				vertex++;
+			}
+		}
+	}
+
+	if (p_unk0x18) {
+		p_count = FUN_10067b90(p_count, p_unk0x18, 0xd);
+		if (p_count < 3) {
+			return 0;
+		}
+	}
+
+	if (p_direct) {
+		FUN_1002d760(
+			&g_currentPane,
+			data,
+			width,
+			height,
+			p_count,
+			p_unk0x18 ? g_a3dClipped : g_a3dVertices,
+			0,
+			0,
+			p_unk0x1c
+		);
+		return 1;
+	}
+
+	if (useLuma) {
+		flags |= 1;
+	}
+
+	g_animFrameBuffer.m_buffer = (undefined*) data;
+	g_animFrameBuffer.m_xMax = width - 1;
+	g_animFrameBuffer.m_yMax = height - 1;
+	A3D_map_polygon(&g_currentPane, p_count, p_unk0x18 ? g_a3dClipped : g_a3dVertices, &g_animFrameBuffer, flags);
+	return 1;
+#elif defined(MW2_MATROX)
 	A3DTexture* texture;
 	MechFloat w;
 	AnimFrame* frame;
@@ -362,9 +605,11 @@ MechS32 DrawAnimatedPolygon(
 }
 
 // Stack-slot permutation: frame, i and now and remainder. MW2MATROX: a comparison has its
-// operands the other way around.
+// operands the other way around. MW23DFX: the same comparison and an addition's operand order,
+// and the loop's end (0x10160cf0, g_unk0x10184700 in the original).
 // FUNCTION: MW2 0x10068fb8
 // FUNCTION: MW2MATROX 0x10051278
+// FUNCTION: MW23DFX 0x1002ce50
 void AdvanceAnimations(void)
 {
 	MechS32 remainder;
@@ -410,9 +655,10 @@ void AdvanceAnimations(void)
 }
 
 // Stack-slot permutation: found and slot. MW2MATROX: index order, g_animFrames[p_set][slot]
-// loads p_set first.
+// loads p_set first. MW23DFX: register allocation of p_set, found and slot.
 // FUNCTION: MW2 0x10069124
 // FUNCTION: MW2MATROX 0x100513ed
+// FUNCTION: MW23DFX 0x1002cf10
 MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 {
 	MechS32 found;
@@ -457,6 +703,35 @@ MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 	g_animFrames[p_set][slot].m_resourceId = p_resourceId;
 	return 0;
 }
+
+#ifdef MW2_3DFX
+// Creates MW2.MIP from the CEL resources 1-0x51b, unless it exists (FUN_10066b90): converts each
+// into the file (FUN_10066c70), stopping at the first failure, and closes it.
+// FUNCTION: MW23DFX 0x1002cfd0
+void FUN_1002cfd0(void)
+{
+	MechS32 i;
+	MechS32 failed;
+	MechS16* data;
+
+	if (FUN_10066b90()) {
+		return;
+	}
+
+	for (i = 1; i < 0x51c; i++) {
+		data = LoadCachedResource(g_mw2PrjHandle, i, g_resourceTypeTags[c_resTagCel], 0);
+		if (data) {
+			failed = FUN_10066c70(data + 2, data[0], data[1], i);
+			UnlockCachedResource(i, g_resourceTypeTags[c_resTagCel]);
+			if (failed) {
+				break;
+			}
+		}
+	}
+
+	FUN_10066c20();
+}
+#endif
 
 // FUNCTION: MW2 0x1006923c
 // FUNCTION: MW2MATROX 0x1005151a
@@ -577,14 +852,19 @@ void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 
 // FUNCTION: MW2 0x10069586
 // FUNCTION: MW2MATROX 0x10051875
+// FUNCTION: MW23DFX 0x1002d200
 void FUN_10069586(void)
 {
 }
 
 // FUNCTION: MW2 0x10069591
 // FUNCTION: MW2MATROX 0x10051880
+// FUNCTION: MW23DFX 0x1002d210
 void FUN_10069591(void)
 {
+#ifdef MW2_3DFX
+	FUN_100667f0();
+#endif
 }
 
 // Index order: &g_animFrames[i][j] loads i first in the original (InitAnimations matches with the
@@ -625,13 +905,84 @@ void FreeAnimations(void)
 }
 
 #ifdef MW2_ACCEL
+#ifdef MW2_3DFX
+// Returns the pixels of animation p_index's current frame (its CEL resource, from the cache), and
+// its size; NULL if it has none.
+// FUNCTION: MW23DFX 0x1002d2b0
+MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height)
+{
+	MechU16* data;
+	AnimFrame* frame;
+	Animation* anim;
+
+	anim = &g_animations[p_index];
+	frame = &g_animFrames[anim->m_set][anim->m_frame];
+	if (frame->m_resourceId < 1) {
+		return NULL;
+	}
+
+	data = frame->m_data;
+	if (!data) {
+		data = LoadCachedResource(g_mw2PrjHandle, frame->m_resourceId, g_resourceTypeTags[c_resTagCel], 0);
+		if (!data) {
+			return NULL;
+		}
+	}
+
+	*p_width = data[0];
+	*p_height = data[1];
+	return data + 2;
+}
+
+#endif
 // Computes the average color of animation p_index's current texture, 0-31 per component (the
 // sums of the 5-bit components over an eighth of the pixel count); returns 0 if it has none.
 // pixels < end compares in the other operand order.
 // Stack-slot permutation of the locals.
+// MW23DFX takes the texture from FUN_10051dfe (the resource cache) rather than reading it.
 // FUNCTION: MW2MATROX 0x100519b0
+// FUNCTION: MW23DFX 0x1002d330
 MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
+#ifdef MW2_3DFX
+	MechU16* pixels;
+	MechU16* end;
+	MechU16 pixel;
+	MechS16 width;
+	MechS16 height;
+	MechU32 count;
+	MechU32 red;
+	MechU32 green;
+	MechU32 blue;
+
+	red = 0;
+	green = 0;
+	blue = 0;
+	pixels = FUN_10051dfe(p_index, &width, &height);
+	if (!pixels) {
+		return 0;
+	}
+
+	count = height * width;
+	end = pixels + count;
+	while (pixels < end) {
+		pixel = *pixels;
+		blue += pixel & 0x1f;
+		pixel >>= 5;
+		green += pixel & 0x1f;
+		pixel >>= 5;
+		red += pixel & 0x1f;
+		pixels++;
+	}
+
+	red /= count >> 3;
+	green /= count >> 3;
+	blue /= count >> 3;
+	*p_red = red;
+	*p_green = green;
+	*p_blue = blue;
+	return 1;
+#else
 	AnimFrame* frame;
 	MechU16 pixel;
 	MechU32 blue;
@@ -690,10 +1041,14 @@ MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, Mech
 	*p_blue = blue;
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, data);
 	return 1;
+
+#endif
 }
 
 // Returns the average color of animation p_index's current frame (CalcAverageBitmapColors).
+// MW23DFX: index order, g_animFrames[anim->m_set][anim->m_frame] loads m_set first.
 // FUNCTION: MW2MATROX 0x10051ba1
+// FUNCTION: MW23DFX 0x1002d410
 void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue)
 {
 	AnimFrame* frame;
@@ -705,6 +1060,8 @@ void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFlo
 	*p_green = frame->m_green;
 	*p_blue = frame->m_blue;
 }
+
+#ifdef MW2_MATROX
 
 // Draws the polygon of p_count projected points with animation p_index + 0x100's texture, through
 // the renderer (A3D_GroundSkyPolyPlot), at three quarters of the far plane's depth; returns 0 for fewer than
@@ -840,9 +1197,123 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 	A3D_GroundSkyPolyPlot(&g_currentPane, p_count, vertices, texture, p_unk0x0c, -500000.0, g_unk0x100ac928 > 1);
 }
 
+#endif
+#ifdef MW2_3DFX
+// Draws the polygon of p_count projected points with animation p_index + 0x100's texture (the
+// ground's), clipped to the pane, subdivided for its perspective (FUN_100674c0's mode 2). Returns 0.
+// Register allocation: the original keeps vertex in edi and g_unk0x100aa1d0 in ebx.
+// FUNCTION: MW23DFX 0x1002d460
+MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
+{
+	MechU16* pixels;
+	MechS32 i;
+	MechS16 height;
+	MechS16 width;
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+	MechFloat w;
+
+	p_index += 0x100;
+	pixels = FUN_10051dfe(p_index, &width, &height);
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points;
+		p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		w = 2000.0f / point->m_z;
+		vertex->m_w = w;
+		vertex->m_u = point->m_u * w;
+		vertex->m_v = point->m_v * w;
+		if (g_unk0x100aa1d0) {
+			vertex->m_blue = g_unk0x10184700[2];
+			vertex->m_green = g_unk0x10184700[1];
+			vertex->m_red = g_unk0x10184700[0];
+		}
+		else {
+			vertex->m_red = 255.0f;
+			vertex->m_green = 255.0f;
+			vertex->m_blue = 255.0f;
+		}
+
+		vertex++;
+	}
+
+	p_count = FUN_10067b90(p_count, 0xf, 0xc);
+	if (p_count < 3) {
+		return 0;
+	}
+
+	g_unk0x1024e634 = 2;
+	FUN_1002d760(&g_currentPane, pixels, width, height, p_count, g_a3dClipped, 1, 0, 0);
+	g_unk0x1024e634 = 0;
+	return 0;
+}
+
+// FUN_10051c07 for the sky: its texture coordinates scaled to Glide's 0-255, drawn unclipped when
+// the clipper leaves it whole, in FUN_100674c0's mode 1.
+// Register allocation of p_count and vertex.
+// FUNCTION: MW23DFX 0x1002d590
+MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
+{
+	MechU16* pixels;
+	MechS32 i;
+	MechS32 count;
+	MechS16 height;
+	MechS16 width;
+	ProjectedVertex* point;
+	A3DVertex* vertex;
+	MechFloat w;
+
+	p_index += 0x100;
+	pixels = FUN_10051dfe(p_index, &width, &height);
+	vertex = g_a3dVertices;
+	for (i = 0; i < p_count; i++) {
+		point = *p_points;
+		p_points++;
+		vertex->m_x = point->m_screenX;
+		vertex->m_y = point->m_screenY;
+		w = 2000.0f / point->m_z;
+		vertex->m_tmuW = w;
+		vertex->m_w = w;
+		vertex->m_u = point->m_u * w * 255.0f;
+		vertex->m_v = point->m_v * w * 255.0f;
+		if (g_unk0x100aa1d0) {
+			vertex->m_blue = g_unk0x10184700[2];
+			vertex->m_green = g_unk0x10184700[1];
+			vertex->m_red = g_unk0x10184700[0];
+		}
+		else {
+			vertex->m_red = 255.0f;
+			vertex->m_green = 255.0f;
+			vertex->m_blue = 255.0f;
+		}
+
+		vertex++;
+	}
+
+	count = FUN_10067b90(p_count, 0xf, 0xc);
+	if (count < 0) {
+		return 0;
+	}
+
+	g_unk0x1024e634 = 1;
+	if (!count) {
+		FUN_1002d760(&g_currentPane, pixels, width, height, p_count, g_a3dVertices, 1, 0, 0);
+	}
+	else {
+		FUN_1002d760(&g_currentPane, pixels, width, height, count, g_a3dClipped, 1, 0, 0);
+	}
+
+	g_unk0x1024e634 = 0;
+	return 0;
+}
+#endif
+
 // Computes the average color of every playing animation's current frame (FUN_100519b0).
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x1005207d
+// FUNCTION: MW23DFX 0x1002d6e0
 void CalcAverageBitmapColors(void)
 {
 	MechFloat blue;
@@ -854,9 +1325,11 @@ void CalcAverageBitmapColors(void)
 
 	for (i = 0; i < 0x200; i++) {
 		anim = &g_animations[i];
+#ifndef MW2_3DFX
 		if (!anim) {
 			continue;
 		}
+#endif
 
 		if (anim->m_mode == 0 || anim->m_flags < 0) {
 			continue;
@@ -873,5 +1346,37 @@ void CalcAverageBitmapColors(void)
 			frame->m_blue = blue;
 		}
 	}
+}
+#endif
+
+#ifdef MW2_3DFX
+// Draws the textured polygon of p_count vertices p_vertices on p_pane (FUN_100674c0, in
+// g_unk0x1024e634's mode), its texture the p_width x p_height pixels p_pixels, translucent with
+// p_unk0x20.
+// FUNCTION: MW23DFX 0x1002d760
+void FUN_1002d760(
+	PANE* p_pane,
+	MechU16* p_pixels,
+	MechS16 p_width,
+	MechS16 p_height,
+	MechS32 p_count,
+	A3DVertex* p_vertices,
+	undefined4 p_unk0x18,
+	undefined4 p_unk0x1c,
+	MechS32 p_unk0x20
+)
+{
+	WINDOW texture;
+	MechU32 flags;
+
+	flags = 0;
+	if (p_unk0x20) {
+		flags = 2;
+	}
+
+	texture.m_buffer = (undefined*) p_pixels;
+	texture.m_xMax = p_width - 1;
+	texture.m_yMax = p_height - 1;
+	FUN_100674c0(p_pane, p_count, p_vertices, &texture, flags, g_unk0x1024e634);
 }
 #endif

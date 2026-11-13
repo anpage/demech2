@@ -15,6 +15,7 @@ extern "C"
 	extern MechChar g_acceptText[];
 	extern MechChar g_escToExitText[];
 	extern MenuChoices g_offOnChoices;
+	extern MenuChoices g_noYesChoices;
 	extern MenuChoices g_lowHighChoices;
 	extern MechS32 g_sliderShapes[8];
 	extern MenuDefinition g_mainMenu;

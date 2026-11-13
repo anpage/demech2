@@ -1,10 +1,10 @@
-#ifndef ACCEL_COLORKEY_H
-#define ACCEL_COLORKEY_H
+#ifndef MATROX_COLORKEY_H
+#define MATROX_COLORKEY_H
 
 #include "pane.h"
 #include "types.h"
 
-// The accelerated editions draw the 2D panels on top of the 3D view, and mark the screen areas the
+// The Matrox edition draws the 2D panels on top of the 3D view, and marks the screen areas the
 // panels cover with the key color 0xfffe. The functions that fill them, called from the panels' and
 // the HUD's drawing; the Matrox edition's are in matrox/msidraw.c (its MSI back end).
 #ifdef __cplusplus
@@ -21,4 +21,4 @@ extern "C"
 }
 #endif
 
-#endif // ACCEL_COLORKEY_H
+#endif // MATROX_COLORKEY_H

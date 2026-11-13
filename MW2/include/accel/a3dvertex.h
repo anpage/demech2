@@ -4,6 +4,30 @@
 #include "decomp.h"
 #include "types.h"
 
+#ifdef MW2_3DFX
+// A vertex as the 3Dfx edition's renderer takes it: Glide's GrVertex, which it hands to Glide
+// as it is: the screen position, the depth, the color (0-255 per component), 65535 / z, the alpha,
+// 1 / w and the texture coordinates over w of the two texture units (the second unused). The
+// members the Matrox edition's vertex has too keep its names.
+// SIZE 0x3c
+typedef struct A3DVertex {
+	MechFloat m_x;       // 0x00
+	MechFloat m_y;       // 0x04
+	MechFloat m_z;       // 0x08
+	MechFloat m_red;     // 0x0c
+	MechFloat m_green;   // 0x10
+	MechFloat m_blue;    // 0x14
+	MechFloat m_ooz;     // 0x18
+	MechFloat m_alpha;   // 0x1c
+	MechFloat m_w;       // 0x20 — 1 / w (1 for flat polygons)
+	MechFloat m_u;       // 0x24 — s over w, of the first texture unit
+	MechFloat m_v;       // 0x28 — t over w
+	MechFloat m_tmuW;    // 0x2c — the first texture unit's 1 / w
+	MechFloat m_unk0x30; // 0x30 — the second texture unit's
+	MechFloat m_unk0x34; // 0x34
+	MechFloat m_unk0x38; // 0x38
+} A3DVertex;
+#else
 // A vertex as the A3D renderer takes it: the screen position, the depth and its reciprocal, the
 // color (0-255 per component) and the texture coordinates.
 // SIZE 0x30
@@ -21,5 +45,6 @@ typedef struct A3DVertex {
 	MechFloat m_u;       // 0x28
 	MechFloat m_v;       // 0x2c
 } A3DVertex;
+#endif
 
 #endif // ACCEL_A3DVERTEX_H

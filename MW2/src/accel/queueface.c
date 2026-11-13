@@ -33,6 +33,7 @@ typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flag
 // g_viewProjX0's rows, from the eyepoint g_viewEyeX) the first time.
 // Stack-slot permutation; the products sum in another order (commutative operand order).
 // FUNCTION: MW2MATROX 0x10076e20
+// FUNCTION: MW23DFX 0x1002b140
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 {
 	MechFloat dx;
@@ -68,6 +69,7 @@ ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 // (g_viewNearPlane), its values interpolated.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10076f41
+// FUNCTION: MW23DFX 0x1002b200
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 {
 	MechFloat x0;
@@ -175,6 +177,7 @@ ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 // and adds the vertex to its list (up to 20).
 // Stack-slot permutation; the edge tests compare in the other operand order.
 // FUNCTION: MW2MATROX 0x100773f0
+// FUNCTION: MW23DFX 0x1002b730
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 {
 	MechS32 screenX;
@@ -231,6 +234,7 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 // g_directionalLight.
 // Stack-slot permutation; the dot product sums in another order (commutative operand order).
 // FUNCTION: MW2MATROX 0x10077579
+// FUNCTION: MW23DFX 0x1002b830
 MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 {
 	MechFloat normalX;
@@ -278,6 +282,7 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 // Stack-slot permutation; the dot products sum in another order (commutative operand order),
 // and the loops' and the depth list's tests compare in the other operand order.
 // FUNCTION: MW2MATROX 0x1007770c
+// FUNCTION: MW23DFX 0x1002b9b0
 void QueueFace(Face* p_face, Vertex* p_vertices)
 {
 	MechS8 clipped;
@@ -517,6 +522,7 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 // takes g_viewNearPlane's depth).
 // Stack-slot permutation; z1 <= z0 compares in the other operand order.
 // FUNCTION: MW2MATROX 0x10077fa7
+// FUNCTION: MW23DFX 0x1002c250
 ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane)
 {
 	MechFloat x0;
@@ -619,10 +625,45 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 // (FUN_1005a5f0) and projects the clipped vertices (ProjectVertex); returns their count. Its
 // callers pass a third argument it doesn't read.
 // Stack-slot permutation; the products sum in another order (commutative operand order), and
-// i < p_count compares in the other operand order.
+// i < p_count compares in the other operand order. MW23DFX: the products sum in another order.
 // FUNCTION: MW2MATROX 0x10078432
+// FUNCTION: MW23DFX 0x1002c770
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 {
+#ifdef MW2_3DFX
+	// The 3Dfx edition's clips the polygon to the near plane the way 1.1's QueueFace does, and
+	// projects the vertices in front of it and the crossings.
+	MechU32 i;
+	Vertex* vertex;
+	Vertex* previous;
+
+	g_polygonPointCount = 0;
+	vertex = p_vertices;
+	for (i = 0; i < p_count; i++) {
+		vertex->m_depth = (vertex->m_worldX - g_viewEyeX) * g_viewProjZ0 +
+						  (vertex->m_worldY - g_viewEyeY) * g_viewProjZ1 +
+						  (vertex->m_worldZ - g_viewEyeZ) * g_viewProjZ2;
+		vertex->m_flags = vertex->m_depth < g_viewNearPlane;
+		vertex++;
+	}
+
+	vertex = p_vertices;
+	previous = &p_vertices[p_count - 1];
+	for (i = 0; i < p_count; i++) {
+		if (previous->m_flags != vertex->m_flags) {
+			ProjectVertex(ClipEdgeToNearPlane(previous, vertex));
+		}
+
+		if (!vertex->m_flags) {
+			ProjectVertex(GetViewVertex(vertex));
+		}
+
+		previous = vertex;
+		vertex++;
+	}
+
+	return g_polygonPointCount;
+#else
 	ProjectedVertex* point;
 	MechU32 i;
 	ProjectedVertex in[20];
@@ -666,5 +707,6 @@ MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)
 	}
 
 	return g_polygonPointCount;
+#endif
 }
 #endif

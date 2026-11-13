@@ -158,6 +158,7 @@ MechFloat g_groundRed;
 
 // The polygon the Matrox edition's clipper leaves.
 // GLOBAL: MW2MATROX 0x1015d600
+// GLOBAL: MW23DFX 0x101b0f10
 A3DVertex g_a3dClipped[16];
 
 // GLOBAL: MW2MATROX 0x1015d900
@@ -165,6 +166,7 @@ MechFloat g_skyScrollSpeed;
 
 // The polygon the Matrox edition hands its renderer.
 // GLOBAL: MW2MATROX 0x1015d910
+// GLOBAL: MW23DFX 0x101b12e0
 A3DVertex g_a3dVertices[16];
 
 // The point count of g_a3dClipped.
@@ -173,6 +175,7 @@ MechU32 g_a3dClippedCount;
 
 // The palette's colors as the renderer takes them (0-255 per component).
 // GLOBAL: MW2MATROX 0x1015dcb0
+// GLOBAL: MW23DFX 0x101528c0
 MechFloat g_paletteRgb[256][3];
 
 void FUN_10068856(
@@ -196,10 +199,11 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 
 // Clips the polygon of the p_count first vertices of g_a3dVertices to the pane's edges in
 // p_edges (1 left, 2 right, 4 top, 8 bottom), adding the vertices on the edges after them
-// (FUN_10066a50), and copies the result to g_a3dClipped. Returns its point count, -1 if nothing
-// is left, or 0 without p_edges. Nothing calls it. The only diff is a stack-slot permutation of
-// the locals.
+// (A3D_EdgeCrossing), and copies the result to g_a3dClipped. Returns its point count, -1 if nothing
+// is left, or 0 without p_edges. The Matrox edition doesn't call it; its only diff is a stack-slot
+// permutation of the locals.
 // FUNCTION: MW2MATROX 0x10067b90
+// FUNCTION: MW23DFX 0x10026a30
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 {
 	A3DVertex* next;
@@ -236,7 +240,7 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 
 			if ((cur->m_x <= CLIP_WIDTH && next->m_x > CLIP_WIDTH) ||
 				(cur->m_x > CLIP_WIDTH && next->m_x <= CLIP_WIDTH)) {
-				FUN_10066a50(1, CLIP_WIDTH, next, cur, &g_a3dVertices[added], p_unk0x08);
+				A3D_EdgeCrossing(1, CLIP_WIDTH, next, cur, &g_a3dVertices[added], p_unk0x08);
 				*out = &g_a3dVertices[added];
 				added++;
 				out++;
@@ -276,7 +280,7 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 			}
 
 			if ((cur->m_y < 0.0f && next->m_y >= 0.0f) || (cur->m_y >= 0.0f && next->m_y < 0.0f)) {
-				FUN_10066a50(2, 0, next, cur, &g_a3dVertices[added], p_unk0x08);
+				A3D_EdgeCrossing(2, 0, next, cur, &g_a3dVertices[added], p_unk0x08);
 				*out = &g_a3dVertices[added];
 				added++;
 				out++;
@@ -316,7 +320,7 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 			}
 
 			if ((cur->m_x < 0.0f && next->m_x >= 0.0f) || (cur->m_x >= 0.0f && next->m_x < 0.0f)) {
-				FUN_10066a50(1, 0, next, cur, &g_a3dVertices[added], p_unk0x08);
+				A3D_EdgeCrossing(1, 0, next, cur, &g_a3dVertices[added], p_unk0x08);
 				*out = &g_a3dVertices[added];
 				added++;
 				out++;
@@ -357,7 +361,7 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 
 			if ((cur->m_y <= CLIP_HEIGHT && next->m_y > CLIP_HEIGHT) ||
 				(cur->m_y > CLIP_HEIGHT && next->m_y <= CLIP_HEIGHT)) {
-				FUN_10066a50(2, CLIP_HEIGHT, next, cur, &g_a3dVertices[added], p_unk0x08);
+				A3D_EdgeCrossing(2, CLIP_HEIGHT, next, cur, &g_a3dVertices[added], p_unk0x08);
 				*out = &g_a3dVertices[added];
 				added++;
 				out++;
@@ -654,7 +658,7 @@ void FUN_10068856(
 		vertex++;
 	}
 
-	FUN_10061cb0(&g_currentPane, p_count, g_a3dVertices);
+	A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 }
 
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
@@ -683,7 +687,7 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		vertex++;
 	}
 
-	FUN_10061cb0(&g_currentPane, p_count, g_a3dVertices);
+	A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 }
 
 // Draws a shaded polygon in each vertex's color: lit by its light, unless the vertex's shade (in
@@ -719,19 +723,21 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 
 	if (p_unk0x0c) {
 		if (p_count > 2) {
-			FUN_10061cb0(&g_currentPane, p_count, g_a3dVertices);
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 		}
 	}
 	else if (g_renderSettings.m_gouraud) {
-		FUN_10061cb0(&g_currentPane, p_count, g_a3dVertices);
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 	}
 	else {
-		FUN_10061cb0(&g_currentPane, p_count, g_a3dVertices);
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
 	}
 }
 
 // Draws the outline of a polygon in palette color p_color.
+// MW23DFX: the colors are stored in the other order (scheduling).
 // FUNCTION: MW2MATROX 0x10068b57
+// FUNCTION: MW23DFX 0x10027490
 void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 {
 	ProjectedVertex* point;
@@ -747,10 +753,14 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex->m_red = 0;
 		vertex->m_green = 0;
 		vertex->m_blue = 0;
+#ifdef MW2_3DFX
+		vertex->m_alpha = 255.0f;
+#else
 		vertex->m_unk0x1c = 0;
 		vertex->m_unk0x20 = 0;
 		vertex->m_unk0x24 = 0;
 		vertex->m_w = 1.0f;
+#endif
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
 		vertex->m_blue = g_paletteRgb[p_color][2];
@@ -759,9 +769,18 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 		vertex++;
 	}
 
+#ifdef MW2_3DFX
+	// The 3Dfx edition's clips the outline to the pane and closes it.
+	p_count = FUN_10067b90(p_count, 0xf, 0);
 	if (p_count > 2) {
-		FUN_10061890(&g_currentPane, g_a3dVertices, p_count);
+		g_a3dClipped[p_count] = g_a3dClipped[0];
+		A3D_DrawOutline(&g_currentPane, g_a3dClipped, p_count + 1);
 	}
+#else
+	if (p_count > 2) {
+		A3D_DrawOutline(&g_currentPane, g_a3dVertices, p_count);
+	}
+#endif
 }
 
 // Reads a line of at most p_size - 1 characters, with its newline, from p_file into p_buffer.
@@ -922,7 +941,11 @@ void FUN_10068e33(Eyepoint* p_eyepoint)
 			continue;
 		}
 
+#ifdef MW2_3DFX
+		FUN_10051ea2(0x8c, g_polygonPoints, count);
+#else
 		FUN_10051ea2(0x8c, g_polygonPoints, count, 0, 0);
+#endif
 	}
 }
 
@@ -951,7 +974,11 @@ void FUN_10069172(Eyepoint* p_eyepoint)
 		return;
 	}
 
+#ifdef MW2_3DFX
+	FUN_10051ea2(0x8c, g_polygonPoints, count);
+#else
 	FUN_10051ea2(0x8c, g_polygonPoints, count, 0, 0);
+#endif
 }
 
 // Draws the ground as one quad, its texture repeated every g_groundTile.
@@ -977,7 +1004,11 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 		return;
 	}
 
+#ifdef MW2_3DFX
+	FUN_10051c07(8, g_polygonPoints, count);
+#else
 	FUN_10051c07(8, g_polygonPoints, count, 0);
+#endif
 }
 #endif
 
@@ -1104,7 +1135,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 			rect.m_y0 += y0;
 			rect.m_x1 = rect.m_x0 + x1 - x0;
 			rect.m_y1 = rect.m_y0 + y1 - y0;
-			FUN_1005f8a0(&rect, PIXEL_COLOR(g_groundColor));
+			A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_groundColor));
 		}
 		break;
 	case 15:
@@ -1129,7 +1160,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 			rect.m_y0 += y0;
 			rect.m_x1 = rect.m_x0 + x1 - x0;
 			rect.m_y1 = rect.m_y0 + y1 - y0;
-			FUN_1005f8a0(&rect, PIXEL_COLOR(g_skyColor));
+			A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_skyColor));
 		}
 		break;
 	case 3:
@@ -1153,7 +1184,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + yLeft - y0;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_skyColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_skyColor));
 			}
 
 			if (g_renderSettings.m_drawGround) {
@@ -1162,7 +1193,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += yLeft;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + y1 - yLeft;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_groundColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_groundColor));
 			}
 		}
 		else {
@@ -1196,7 +1227,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + yLeft - y0;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_groundColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_groundColor));
 			}
 
 			if (g_renderSettings.m_drawSky) {
@@ -1205,7 +1236,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += yLeft;
 				rect.m_x1 = rect.m_x0 + x1 - x0;
 				rect.m_y1 = rect.m_y0 + y1 - yLeft;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_skyColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_skyColor));
 			}
 		}
 		else {
@@ -1227,7 +1258,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_skyColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_skyColor));
 			}
 
 			if (g_renderSettings.m_drawGround) {
@@ -1236,7 +1267,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - xTop - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_groundColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_groundColor));
 			}
 		}
 		else {
@@ -1270,7 +1301,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + xTop - x0 - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_groundColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_groundColor));
 			}
 
 			if (g_renderSettings.m_drawSky) {
@@ -1279,7 +1310,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 				rect.m_y0 += y0;
 				rect.m_x1 = rect.m_x0 + x1 - xTop - 1;
 				rect.m_y1 = rect.m_y0 + y1 - y0 - 1;
-				FUN_1005f8a0(&rect, PIXEL_COLOR(g_skyColor));
+				A3D_PANE_WIPE(&rect, PIXEL_COLOR(g_skyColor));
 			}
 		}
 		else {
@@ -1419,7 +1450,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	}
 
 	if (gradient && g_renderSettings.m_gouraud) {
-		FUN_10061cb0(&g_currentPane, 4, band);
+		A3D_DrawPolygon(&g_currentPane, 4, band);
 	}
 #else
 	MechS32 y1;

@@ -34,6 +34,5 @@ MW2MATROX order 0x100a4598  # g_jumpJetDrag, g_slideSlope (maneuvers.c) sit with
 MW2MATROX order 0x100a4940  # collision.c's colours sit with quadtree.c's and faceshade.c's data
 MW2MATROX order 0x100a4960  # commandpointmenu.c's menu sits between faceshade.c's and render.c's data
 MW2MATROX order 0x100a84a0  # commandmenu.c's menus sit between settings.c's and audio.c's data
-MW2MATROX order 0x100aa1d0  # g_unk0x100aa1d0 (palette.c) sits inside animation.c's data
 MW2MATROX order 0x100ba8b0  # commandmenu.c's pages sit between inputmap.c's and ai.c's data
 MW2MATROX order 0x100bcdd0  # targeting.c's readout labels sit between overlay.c's and lancemenu.c's data

@@ -18,14 +18,17 @@
 
 // GLOBAL: MW2 0x100a7114
 // GLOBAL: MW2MATROX 0x100a594c
+// GLOBAL: MW23DFX 0x1024b42c
 MechS32 g_gridCellSize = 0;
 
 // GLOBAL: MW2 0x100a7118
 // GLOBAL: MW2MATROX 0x100a5950
+// GLOBAL: MW23DFX 0x1024b430
 MechS32 g_gridObjectSet = 0;
 
 // GLOBAL: MW2 0x100a711c
 // GLOBAL: MW2MATROX 0x100a5954
+// GLOBAL: MW23DFX 0x1024b434
 MechS32 g_gridObjectPlaced = 0;
 
 // GLOBAL: MW2 0x100a7120
@@ -35,6 +38,7 @@ MechS32 g_gridObjectShown = 0;
 
 // GLOBAL: MW2 0x100a7124
 // GLOBAL: MW2MATROX 0x100a595c
+// GLOBAL: MW23DFX 0x1024b43c
 MechS32 g_gridObjectSnaps = 0;
 
 // GLOBAL: MW2 0x100a7128
@@ -56,15 +60,18 @@ typedef struct GridCell {
 
 // GLOBAL: MW2 0x100be9e0
 // GLOBAL: MW2MATROX 0x100c1fe8
+// GLOBAL: MW23DFX 0x1007c300
 static GridCell g_gridCell;
 
 // GLOBAL: MW2 0x100be9f0
 // GLOBAL: MW2MATROX 0x100c1ff0
+// GLOBAL: MW23DFX 0x1007c308
 static GridCell g_gridAnchor;
 
 // How far the eyepoint may stray from the object before it snaps to another cell.
 // GLOBAL: MW2 0x100be9fc
 // GLOBAL: MW2MATROX 0x100c1fe0
+// GLOBAL: MW23DFX 0x1007c2f8
 static MechS32 g_gridSnapDistance;
 
 // Makes p_obj the object that follows the eyepoint on a grid, a cell at a time: the cells are its
@@ -74,6 +81,7 @@ static MechS32 g_gridSnapDistance;
 // Stack-slot permutation; depth > span compares in the other operand order.
 // FUNCTION: MW2 0x1004b130
 // FUNCTION: MW2MATROX 0x100275e0
+// FUNCTION: MW23DFX 0x100113f0
 void SetGridObject(SceneObject* p_obj)
 {
 	MechS32 depth;

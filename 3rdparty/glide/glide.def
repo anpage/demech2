@@ -1,0 +1,37 @@
+; Import library for GLIDE.DLL (3Dfx Interactive's Glide 1.x, the Voodoo's API): the functions the
+; 3Dfx edition imports. The original imports the __stdcall-decorated names (_grGlideInit@0 ...);
+; LIB takes the decorations from glide.c.
+LIBRARY glide
+EXPORTS
+    _grAlphaBlendFunction@16
+    _grAlphaCombine@20
+    _grAlphaTestFunction@4
+    _grBufferClear@12
+    _grBufferNumPending@0
+    _grBufferSwap@4
+    _grChromakeyMode@4
+    _grDrawLine@8
+    _grDrawPolygonVertexList@8
+    _grDrawTriangle@12
+    _grGlideGetState@4
+    _grGlideInit@0
+    _grGlideSetState@4
+    _grGlideShutdown@0
+    _grLfbBegin@0
+    _grLfbBypassMode@4
+    _grLfbEnd@0
+    _grLfbGetWritePtr@4
+    _grLfbWriteMode@4
+    _grSstIsBusy@0
+    _grSstOpen@24
+    _grSstQueryHardware@4
+    _grSstSelect@4
+    _grTexCalcMemRequired@16
+    _grTexClampMode@12
+    _grTexCombineFunction@8
+    _guAlphaSource@4
+    _guColorCombineFunction@4
+    _guTexAllocateMemory@60
+    _guTexDownloadMipMap@12
+    _guTexMemReset@0
+    _guTexSource@4

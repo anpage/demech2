@@ -59,6 +59,7 @@ MechS32 g_localMechHidden = 0;
 // The kill count the cockpit shows in a network game.
 // GLOBAL: MW2 0x100a15a0
 // GLOBAL: MW2MATROX 0x100a4628
+// GLOBAL: MW23DFX 0x1024bfcc
 MechS32 g_killCount = 0;
 
 // Set while the local player has been warned of critical heat (CalculateHeat).

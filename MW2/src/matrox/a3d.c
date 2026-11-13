@@ -2345,7 +2345,7 @@ void FUN_1005f760(void)
 
 // Register entropy: ecx and edx swapped (the probe that defines the table in this unit matches).
 // FUNCTION: MW2MATROX 0x1005f790
-void FUN_1005f790(PaletteColor* p_palette)
+void A3D_SetPalette(PaletteColor* p_palette)
 {
 	MechS32 i;
 
@@ -2569,7 +2569,7 @@ __inline void FUN_10061510(
 // Draws the outline of a polygon in the color of its first vertex.
 // Register allocation and stack slots differ.
 // FUNCTION: MW2MATROX 0x10061890
-void FUN_10061890(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
+void A3D_DrawOutline(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
 {
 	MechU32 color;
 	MechFloat dx;
@@ -2642,7 +2642,7 @@ void FUN_10061ca0(void)
 // Draws a shaded polygon.
 // Register allocation, the offset loop's scheduling and the clip test's operand order differ.
 // FUNCTION: MW2MATROX 0x10061cb0
-void FUN_10061cb0(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
+void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 {
 	MechFloat dx;
 	MechFloat dy;
@@ -3729,7 +3729,14 @@ void FUN_10065ce0(A3DPolyVertex* p_vertices, MechU32 p_count, MechS32 p_rows, A3
 // The original interleaves the color and texture interpolations on the FPU stack, which neither
 // direct stores nor locals (stored under /Op) reproduce, and /Oa (which does) breaks the others.
 // FUNCTION: MW2MATROX 0x10066a50
-void FUN_10066a50(MechS32 p_axis, MechFloat p_edge, A3DVertex* p_a, A3DVertex* p_b, A3DVertex* p_out, MechU32 p_flags)
+void A3D_EdgeCrossing(
+	MechS32 p_axis,
+	MechFloat p_edge,
+	A3DVertex* p_a,
+	A3DVertex* p_b,
+	A3DVertex* p_out,
+	MechU32 p_flags
+)
 {
 	MechFloat t;
 

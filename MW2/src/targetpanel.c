@@ -298,7 +298,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -369,7 +369,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
 		VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 		OutlinePane(p_panel->m_target, 8);
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
+#endif
 		return;
 	}
 
@@ -387,7 +389,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 			FUN_1001e01a(centerX, centerY, icon, p_panel->m_target);
 			OutlinePane(p_panel->m_target, 8);
+#ifdef MW2_MATROX
 			FUN_10088280(p_panel->m_target);
+#endif
 		}
 
 		return;
@@ -433,7 +437,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
 			UnlockCachedResource(0x5e, g_resourceTypeTags[c_resTagShp]);
+#ifdef MW2_MATROX
 			FUN_10088280(p_panel->m_target);
+#endif
 		}
 
 		return;
@@ -445,7 +451,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
 			UnlockCachedResource(0x5b, g_resourceTypeTags[c_resTagShp]);
+#ifdef MW2_MATROX
 			FUN_10088280(p_panel->m_target);
+#endif
 		}
 
 		return;
@@ -476,7 +484,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	}
 
 	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
-	FUN_1005f8a0(p_panel->m_target, PIXEL_COLOR(0));
+	A3D_PANE_WIPE(p_panel->m_target, PIXEL_COLOR(0));
 	if (g_cockpitPowerState == 2) {
 		RenderViewToPane(7, FIXED_CONST(2), view, object);
 	}
@@ -484,7 +492,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	VFX_pane_wipe(p_panel->m_target, 0xfffe);
 	OutlinePane(p_panel->m_target, 8);
 	g_renderSettings = saved;
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
+#endif
 #else
 	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;

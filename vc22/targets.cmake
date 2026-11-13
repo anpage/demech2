@@ -225,6 +225,9 @@ endfunction()
 # place. Only the VC++ 2.2 sub-project builds this target: it needs ML, and its sources'
 # optimization flags would apply to MW2's targets in the top-level project.
 function(demech2_add_mw23dfx)
+  # 3dfx's Texus, which the renderer (3dfx/a3d.c) converts its textures with.
+  include("${DEMECH2_SOURCE_DIR}/3rdparty/texus/texus.cmake")
+  demech2_add_texus(texus)
   set(od
     "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
@@ -241,6 +244,7 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/cockpit.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/render.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/gdi.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/3dfx/glidedraw.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/screenscale.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/brightness.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/supanim.c"
@@ -358,19 +362,17 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/perf.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/3dfx/a3d.c"
     # Not placed yet: units with nothing found in the 3Dfx edition (fixed-point helpers it
-    # replaced, the Matrox edition's renderer, directdraw.c), linked after the others in the
-    # Matrox edition's order.
+    # replaced), linked after the others in the Matrox edition's order. Its display back end and
+    # renderer (3dfx/glidedraw.c, 3dfx/a3d.c) replace directdraw.c and the Matrox edition's.
     "${DEMECH2_SOURCE_DIR}/MW2/src/namehash.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mainmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/brightnessmenu.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/texturepoly.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/bwdkeywords.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/msidraw.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/weapondata.c"
@@ -397,7 +399,6 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
-    "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
   )
   foreach(source IN LISTS sources)
     if (source MATCHES "\\.c$" AND NOT source IN_LIST od)
@@ -409,13 +410,20 @@ function(demech2_add_mw23dfx)
     SOURCE_DIR MW2
     OUTPUT_NAME MW2_3DFX
     LINK_DIR 3d
-    RUNTIME MultiThreaded
+    # The single-threaded CRT (2.2's LIBC, /ML): the original imports no TLS or critical
+    # section functions, and its fclose takes no lock. CMake has no MSVC_RUNTIME_LIBRARY value
+    # for /ML: an empty one adds no flag.
+    RUNTIME ""
     SOURCES
       ${sources}
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
-    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_3DFX>"
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_3DFX>"
       "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
-    LIBRARIES winmm.lib wail32 ddraw dplay msi95 kernel32.lib user32.lib gdi32.lib advapi32.lib
+    LIBRARIES texus kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay glide wail32
+  )
+  target_include_directories(mw23dfx SYSTEM PRIVATE
+    "${DEMECH2_SOURCE_DIR}/3rdparty/glide"
+    "${DEMECH2_SOURCE_DIR}/3rdparty/texus"
   )
 endfunction()

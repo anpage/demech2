@@ -99,10 +99,12 @@ static MechS32 g_bitsLeft;
 
 // GLOBAL: MW2 0x100b141c
 // GLOBAL: MW2MATROX 0x100bbe78
+// GLOBAL: MW23DFX 0x10259410
 static MechU8* g_strChr = NULL;
 
 // GLOBAL: MW2 0x100b1420
 // GLOBAL: MW2MATROX 0x100bbe7c
+// GLOBAL: MW23DFX 0x10259414
 static MechU32* g_strNxt = NULL;
 
 // GLOBAL: MW2 0x100b1424
@@ -313,6 +315,7 @@ static MechS32 WriteScreenDescriptor(GifScreenDescriptor* p_descriptor)
 
 // FUNCTION: MW2 0x10074cba
 // FUNCTION: MW2MATROX 0x1008a16a
+// FUNCTION: MW23DFX 0x1003bac0
 static MechS32 GifWriteByte(MechU8 p_byte)
 {
 	if (putc(p_byte, g_outFile) == EOF) {
@@ -324,6 +327,7 @@ static MechS32 GifWriteByte(MechU8 p_byte)
 
 // FUNCTION: MW2 0x10074cf3
 // FUNCTION: MW2MATROX 0x1008a1a3
+// FUNCTION: MW23DFX 0x1003bb00
 static MechS32 GifWriteWord(MechU32 p_word)
 {
 	if (putc(p_word & 0xff, g_outFile) == EOF) {
@@ -554,6 +558,7 @@ static MechS32 WriteBits(MechS32 p_bits, MechS32 p_numBits)
 
 // FUNCTION: MW2 0x1007532b
 // FUNCTION: MW2MATROX 0x1008a7db
+// FUNCTION: MW23DFX 0x1003bd30
 static void FreeStringTable(void)
 {
 	if (g_strHsh) {
@@ -572,6 +577,7 @@ static void FreeStringTable(void)
 
 // FUNCTION: MW2 0x100753a5
 // FUNCTION: MW2MATROX 0x1008a855
+// FUNCTION: MW23DFX 0x1003bd90
 static MechS32 AllocStringTable(void)
 {
 	FreeStringTable();
@@ -712,6 +718,7 @@ static MechS32 WriteImageDescriptor(GifImageDescriptor* p_descriptor)
 
 // FUNCTION: MW2 0x10075823
 // FUNCTION: MW2MATROX 0x1008acd3
+// FUNCTION: MW23DFX 0x1003c500
 MechS32 GifClose(void)
 {
 	GifImageDescriptor id;

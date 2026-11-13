@@ -50,7 +50,7 @@ endforeach()
 # edition's) gives each C source /Od or its own flags instead (a directory property, as there).
 set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS
   "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<BOOL:$<TARGET_PROPERTY:DEMECH2_SOURCE_OPTIMIZATION>>>>:/Od>")
-foreach(kind SHARED EXE)
+foreach(kind SHARED EXE STATIC)
   set(CMAKE_${kind}_LINKER_FLAGS "/machine:I386")
   foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
     set(CMAKE_${kind}_LINKER_FLAGS_${config} "")
@@ -74,6 +74,8 @@ demech2_add_import_library(ddraw DEF "${DEMECH2_SOURCE_DIR}/3rdparty/ddraw/ddraw
 demech2_add_import_library(wail32 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32.def"
   SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/mss/wail32.c")
 demech2_add_import_library(msi95 DEF "${DEMECH2_SOURCE_DIR}/3rdparty/msi95/msi95.def")
+demech2_add_import_library(glide DEF "${DEMECH2_SOURCE_DIR}/3rdparty/glide/glide.def"
+  SOURCES "${DEMECH2_SOURCE_DIR}/3rdparty/glide/glide.c")
 
 option(DEMECH2_DECOMP_ASSERT "Assert struct size" TRUE)
 

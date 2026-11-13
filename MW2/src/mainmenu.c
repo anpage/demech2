@@ -81,10 +81,12 @@ MechChar g_confirmationRequestedText[] = "Confirmation requested";
 
 // GLOBAL: MW2 0x100a1b78
 // GLOBAL: MW2MATROX 0x100a2500
+// GLOBAL: MW23DFX 0x10264540
 MechChar g_noText[] = "No";
 
 // GLOBAL: MW2 0x100a1b7c
 // GLOBAL: MW2MATROX 0x100a2504
+// GLOBAL: MW23DFX 0x10264544
 MechChar g_yesText[] = "Yes";
 
 // GLOBAL: MW2 0x100a1b80
@@ -118,6 +120,7 @@ MenuChoices g_offOnChoices = {NULL, 2, {g_offText, g_onText}};
 
 // GLOBAL: MW2 0x100a1be8
 // GLOBAL: MW2MATROX 0x100a2570
+// GLOBAL: MW23DFX 0x102645b0
 MenuChoices g_noYesChoices = {NULL, 2, {g_noText, g_yesText}};
 
 // GLOBAL: MW2 0x100a1c30
@@ -213,10 +216,9 @@ MenuPage g_fleePage = {
 	{{3, g_confirmCowardiceText, NULL, NULL, NULL}, {1, g_acceptText, FleeToWindowsAction, &g_confirmControl, NULL}}
 };
 
-// The 3Dfx edition's (0x10264980) is unannotated until its graphics page is written
-// (accel/graphicsmenu.c), and so are g_mainMenu and menu.c's g_menuDefinitions, which point to it.
 // GLOBAL: MW2 0x100a2138
 // GLOBAL: MW2MATROX 0x100a2940
+// GLOBAL: MW23DFX 0x10264980
 MenuPage g_mainMenuPage = {
 	0,
 	g_mainMenuTitle,
@@ -248,6 +250,7 @@ PANE g_mainMenuBackgroundTarget = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100a22c0
 // GLOBAL: MW2MATROX 0x100a2ac8
+// GLOBAL: MW23DFX 0x10264b08
 MenuDefinition g_mainMenu = {
 	&g_mainMenuTarget,
 	17,

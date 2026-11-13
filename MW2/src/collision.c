@@ -83,6 +83,7 @@ MechScalar g_segmentNormalZ = 0;
 // The background color the 3D view is cleared to.
 // GLOBAL: MW2 0x100a5544
 // GLOBAL: MW2MATROX 0x100a4940
+// GLOBAL: MW23DFX 0x1024e410
 MechS32 g_backgroundColor = 0;
 
 // The sky's color (DrawSkyAndGround; the ground's is g_groundColor).

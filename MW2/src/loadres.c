@@ -303,6 +303,7 @@ void FUN_1001a158(void)
 
 // FUNCTION: MW2 0x1001a163
 // FUNCTION: MW2MATROX 0x10055f02
+// FUNCTION: MW23DFX 0x100243d0
 void UnlockCachedResource(MechS32 p_id, const char* p_type)
 {
 	ResourceCacheEntry* entry;
@@ -321,6 +322,7 @@ void UnlockCachedResource(MechS32 p_id, const char* p_type)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001a19f
 // FUNCTION: MW2MATROX 0x10055f3e
+// FUNCTION: MW23DFX 0x100243f0
 void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undefined4 p_unk0x0c)
 {
 	ResourceCacheEntry* entry;

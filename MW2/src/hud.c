@@ -279,7 +279,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 #endif
 	DrawPaneShape(g_altimeterGroundX, mark, 4, target);
 	if (!(p_mech->m_player->m_targetInfo.m_target & 0xf00) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(target);
 #endif
 		return;
@@ -349,7 +349,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	}
 
 	DrawShapeOverPane(x, y, shape, target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(target);
 #endif
 }
@@ -746,7 +746,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 	}
 
 	DrawPaneShape(g_compassOrigin.m_x, g_compassOrigin.m_y, HUD_SHAPE(0x13), target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(target);
 #endif
 }
@@ -967,7 +967,9 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 #ifdef MW2_ACCEL
 		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
 		ClipRectToPane(&g_currentPane, &bounds);
+#ifdef MW2_MATROX
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
+#endif
 #endif
 		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
 	}
@@ -1006,7 +1008,9 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
 		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
 		ClipRectToPane(p_target, &bounds);
+#ifdef MW2_MATROX
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
+#endif
 		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagShp]);
 	}
 }

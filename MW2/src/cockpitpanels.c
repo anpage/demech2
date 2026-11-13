@@ -832,10 +832,11 @@ void PlayCockpitWarnings(Mech* p_mech)
 
 // FUNCTION: MW2 0x1007079d
 // FUNCTION: MW2MATROX 0x1007a818
+// FUNCTION: MW23DFX 0x1001e800
 void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_target);
 #endif
 }

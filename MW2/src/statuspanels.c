@@ -256,6 +256,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // MW2MATROX: the original's longer displacements shift the jump table's offsets.
 // FUNCTION: MW2 0x100056f0
 // FUNCTION: MW2MATROX 0x100220de
+// FUNCTION: MW23DFX 0x10017b80
 void DrawObjectivesPanel(CockpitPanel* p_panel)
 {
 	StarMission* mission;
@@ -321,7 +322,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 	VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -479,14 +480,14 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			}
 
 			if (!g_players[player] || g_players[player]->m_type != c_playerTypeMech) {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 				FUN_10088280(p_panel->m_target);
 #endif
 				return;
 			}
 
 			if (g_players[player]->m_flags & 0x4800) {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 				FUN_10088280(p_panel->m_target);
 #endif
 				return;
@@ -521,7 +522,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 	}
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -529,6 +530,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 // Shows the local player's kill count in a network game.
 // FUNCTION: MW2 0x100060b6
 // FUNCTION: MW2MATROX 0x10022b98
+// FUNCTION: MW23DFX 0x10018330
 void DrawKillsPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -556,7 +558,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 	}
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -565,6 +567,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 // Stack-slot permutation of text and font.
 // FUNCTION: MW2 0x10006189
 // FUNCTION: MW2MATROX 0x10022c7a
+// FUNCTION: MW23DFX 0x100183d0
 void DrawAutopilotPanel(CockpitPanel* p_panel)
 {
 	MechChar* text;
@@ -602,7 +605,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 			text,
 			g_textColors
 		);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
 #endif
 	}
@@ -614,6 +617,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
 // FUNCTION: MW2MATROX 0x10022d91
+// FUNCTION: MW23DFX 0x10018470
 void DrawSpeedPanel(CockpitPanel* p_panel)
 {
 	MechS32 speed;
@@ -656,7 +660,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawThrottleGauge(p_panel->m_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -664,6 +668,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 // Labels the MASC panel while MASC is available.
 // FUNCTION: MW2 0x100063cd
 // FUNCTION: MW2MATROX 0x10022ef9
+// FUNCTION: MW23DFX 0x10018570
 void DrawMascPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -687,7 +692,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 		g_textColors
 	);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -696,6 +701,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
 // FUNCTION: MW2MATROX 0x10022fbf
+// FUNCTION: MW23DFX 0x100185e0
 void DrawHeatPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -737,7 +743,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawHeatBar(p_panel->m_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -745,6 +751,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 // Labels the heat rate panel and draws its bar.
 // FUNCTION: MW2 0x100065c3
 // FUNCTION: MW2MATROX 0x10023131
+// FUNCTION: MW23DFX 0x100186c0
 void DrawHeatRatePanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -769,7 +776,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 	);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawHeatRateBar(p_panel->m_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -777,6 +784,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 // Labels the jump jet panel of a mech with jump jets and draws the fuel bar.
 // FUNCTION: MW2 0x1000667c
 // FUNCTION: MW2MATROX 0x100231f9
+// FUNCTION: MW23DFX 0x10018730
 void DrawJetsPanel(CockpitPanel* p_panel)
 {
 	void* font;
@@ -805,7 +813,7 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 	);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resourceTypeTags[c_resTagFont]);
 	DrawJumpFuelBar(p_panel->m_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(p_panel->m_target);
 #endif
 }

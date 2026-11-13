@@ -219,7 +219,7 @@ void DrawTimedOverlays(void)
 							overlay->m_text,
 							g_textColors
 						);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 						FUN_10088280(overlay->m_target);
 #endif
 					}
@@ -237,6 +237,7 @@ void DrawTimedOverlays(void)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f28f
 // FUNCTION: MW2MATROX 0x10078ace
+// FUNCTION: MW23DFX 0x100030c0
 void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32 p_x, MechS32 p_y)
 {
 	PANE centered;
@@ -285,7 +286,7 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 		}
 
 		DrawWrappedText(&rect, p_text, font);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(&rect);
 #endif
 	}

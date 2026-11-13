@@ -29,6 +29,10 @@ extern "C"
 	extern AnimFrame g_animFrames[0x200][0x20];
 	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
+#ifdef MW2_ACCEL
+	extern MechS32 g_unk0x100aa1d0;
+	extern MechFloat g_unk0x10184700[3];
+#endif
 
 #ifdef MW2_ACCEL
 	MechS32 DrawAnimatedPolygon(
@@ -65,6 +69,24 @@ MechS32 DrawAnimatedPolygon(
 #ifdef MW2_ACCEL
 	MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
 	void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
+#ifdef MW2_3DFX
+	extern MechS32 g_unk0x1024e634;
+	void FUN_1002cfd0(void);
+	MechU16* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height);
+	MechS32 FUN_10051c07(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count);
+	MechS32 FUN_10051ea2(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count);
+	void FUN_1002d760(
+		struct PANE* p_pane,
+		MechU16* p_pixels,
+		MechS16 p_width,
+		MechS16 p_height,
+		MechS32 p_count,
+		struct A3DVertex* p_vertices,
+		undefined4 p_unk0x18,
+		undefined4 p_unk0x1c,
+		MechS32 p_unk0x20
+	);
+#else
 	MechS32 FUN_10051c07(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count, MechS32 p_unk0x0c);
 	struct A3DTexture* FUN_10051dfe(MechS32 p_index, MechS16* p_width, MechS16* p_height, MechU32 p_mode);
 	MechS32 FUN_10051ea2(
@@ -74,6 +96,7 @@ MechS32 DrawAnimatedPolygon(
 		MechS32 p_unk0x0c,
 		MechS32 p_unk0x10
 	);
+#endif
 	void CalcAverageBitmapColors(void);
 #endif
 

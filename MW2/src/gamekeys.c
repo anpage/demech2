@@ -91,6 +91,7 @@ MechS32 g_missionResolved = 0;
 
 // GLOBAL: MW2 0x100aa2c0
 // GLOBAL: MW2MATROX 0x100a7ce8
+// GLOBAL: MW23DFX 0x1025053c
 MechS32 g_statusMessage = 0;
 
 // The last 15 characters typed, the newest last.
