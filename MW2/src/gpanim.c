@@ -134,6 +134,7 @@ void UpdateMotion(Player* p_player)
 // the order the p_sounds index loads its row and column in.
 // FUNCTION: MW2 0x100038c2
 // FUNCTION: MW2MATROX 0x1008c69f
+// FUNCTION: MW23DFX 0x1000b4e0
 void UpdateMotionSounds(Player* p_player, MechS32 (*p_sounds)[4], MechScalar* p_offset)
 {
 	MechScalar offset[3];

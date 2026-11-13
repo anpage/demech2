@@ -64,10 +64,19 @@ COMMON_INCLUDES = [
     "util",
     "common/include",
     "3rdparty/dispdib",
+    "3rdparty/glide",
     "3rdparty/mss",
     "3rdparty/msi95",
     "3rdparty/smacker",
+    "3rdparty/texus",
 ]
+
+# The simulator's edition folders, which only their edition builds, parsed with its macros.
+EDITION_DEFINES = {
+    "accel": ["MW2_ACCEL", "MW2_MATROX"],
+    "matrox": ["MW2_ACCEL", "MW2_MATROX"],
+    "3dfx": ["MW2_ACCEL", "MW2_3DFX"],
+}
 
 COMMON_DEFINES = ["WIN32", "_WINDOWS"]
 
@@ -405,7 +414,8 @@ def main():
                         continue
                     path = os.path.join(dirpath, filename)
                     language = ["-x", "c++"] if filename.endswith(".cpp") else ["-x", "c"]
-                    file_findings, fatal = check_file(index, lib, path, base_args + language, lines, stats)
+                    edition = ["-D" + d for d in EDITION_DEFINES.get(os.path.basename(dirpath), [])]
+                    file_findings, fatal = check_file(index, lib, path, base_args + edition + language, lines, stats)
                     findings += file_findings
                     if fatal:
                         parse_errors += 1

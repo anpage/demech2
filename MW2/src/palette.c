@@ -1,5 +1,6 @@
 #include "palette.h"
 
+#include "animation.h"
 #include "clock.h"
 #include "decomp.h"
 #include "fixeddiv.h"
@@ -25,6 +26,7 @@
 
 // GLOBAL: MW2 0x100a00cc
 // GLOBAL: MW2MATROX 0x100a61f8
+// GLOBAL: MW23DFX 0x1024e450
 MechS32 g_paneIndex = -1;
 
 // GLOBAL: MW2 0x100a00d0
@@ -77,16 +79,6 @@ MechS32 g_paletteCycling = 0;
 // GLOBAL: MW23DFX 0x1024e478
 MechS32 g_paletteCycleResource = -1;
 
-#ifdef MW2_ACCEL
-// The Matrox edition's tint for the palettes 0xc, 0x10 and 0x11 (StartPaletteFade): whether it is on, and
-// its color.
-// GLOBAL: MW2MATROX 0x100aa1d0
-MechS32 g_unk0x100aa1d0 = 0;
-
-// GLOBAL: MW2MATROX 0x10184700
-MechFloat g_unk0x10184700[3];
-#endif
-
 // GLOBAL: MW2 0x100bcd20
 // GLOBAL: MW2MATROX 0x100c1ff8
 // GLOBAL: MW23DFX 0x1007c6b8
@@ -126,6 +118,7 @@ void InitPanes(PANE* p_target)
 // MW2MATROX: the operands of the comparison with g_paneIndex are the other way.
 // FUNCTION: MW2 0x1000242f
 // FUNCTION: MW2MATROX 0x1002d5cf
+// FUNCTION: MW23DFX 0x1002ab50
 void SelectPane(MechS32 p_index)
 {
 	PANE* target;
@@ -206,7 +199,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 			}
 
 			ResetTextColors();
-			FUN_1005f790((PaletteColor*) palette);
+			A3D_SetPalette((PaletteColor*) palette);
 #else
 			g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) palette);
 #endif

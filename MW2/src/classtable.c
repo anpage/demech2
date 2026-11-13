@@ -746,6 +746,7 @@ void ChoosePlayerDetailLevels(void)
 // Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x1001ddf2
 // FUNCTION: MW2MATROX 0x1006e63c
+// FUNCTION: MW23DFX 0x100269a0
 void ReleaseObjShape(struct SceneObject* p_obj)
 {
 	MechS32 i;

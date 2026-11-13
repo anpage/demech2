@@ -40,6 +40,7 @@ MechS32 g_menuRepeatTimer = -1;
 // command computer, 7 and 8 command points 2 and 3, 3 the programmers' page.
 // GLOBAL: MW2 0x100a59e8
 // GLOBAL: MW2MATROX 0x100bf0a8
+// GLOBAL: MW23DFX 0x102653f0
 MenuDefinition* g_menuDefinitions[11] = {
 	NULL,
 	&g_commandMenu,
@@ -581,7 +582,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 
 	if (p_menu->m_background) {
 		VFX_shape_draw(backgroundTarget, p_menu->m_background, 0, 0, 0);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(backgroundTarget);
 #endif
 	}
@@ -591,7 +592,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 	}
 
 	RunMenuItems(p_menu);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(target);
 #endif
 	if (!IsMenuPageStackEmpty(p_menu)) {

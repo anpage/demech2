@@ -90,6 +90,7 @@ MechS32 g_framePane = 0;
 
 // GLOBAL: MW2 0x100a246c
 // GLOBAL: MW2MATROX 0x100a4a1c
+// GLOBAL: MW23DFX 0x102498fc
 MechS32 g_hasLightObject = 0;
 
 // Cleared while an effect has the camera, set again when it gives it back.
@@ -100,16 +101,19 @@ MechS32 g_lightFollowsObject = 1;
 
 // GLOBAL: MW2 0x100a2474
 // GLOBAL: MW2MATROX 0x100a4a24
+// GLOBAL: MW23DFX 0x10249904
 MechS32 g_lightObject = -1;
 
 // The object of the scene's shape of kind 0x90, made by SecondRender.
 // GLOBAL: MW2 0x100a2478
 // GLOBAL: MW2MATROX 0x100a4a28
+// GLOBAL: MW23DFX 0x10249908
 SceneObject* g_skyObject = NULL;
 
 // The object of the scene's shape of kind 0xa0.
 // GLOBAL: MW2 0x100a247c
 // GLOBAL: MW2MATROX 0x100a4a2c
+// GLOBAL: MW23DFX 0x1024990c
 SceneObject* g_cockpitObject = NULL;
 
 // GLOBAL: MW2 0x100a2480
@@ -326,9 +330,9 @@ void SecondRender(void)
 	}
 }
 
-// The 3D view's pane wipe: the Matrox edition's goes through its A3D layer, with a 16-bit pixel.
+// The 3D view's pane wipe: the accelerated editions' take a 16-bit pixel (A3D_PANE_WIPE).
 #ifdef MW2_ACCEL
-#define SCENE_PANE_WIPE(p_pane, p_color) FUN_1005f8a0(p_pane, PIXEL_COLOR(p_color))
+#define SCENE_PANE_WIPE(p_pane, p_color) A3D_PANE_WIPE(p_pane, PIXEL_COLOR(p_color))
 #else
 #define SCENE_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
 #endif
@@ -341,6 +345,7 @@ void SecondRender(void)
 // float, and doesn't draw the bounding spheres.
 // FUNCTION: MW2 0x10012afe
 // FUNCTION: MW2MATROX 0x1001774e
+// FUNCTION: MW23DFX 0x10004b30
 void DrawScene(void)
 {
 	MechScalar saved;

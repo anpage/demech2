@@ -170,3 +170,19 @@ Contributions are welcome. Please follow the conventions established in the code
 - Follow the clang-format configuration
 - Use NCC naming conventions (`FUN_XXXXXXXX` for unknown functions, `g_unk0xXXXXXXXX` for unknown globals)
 - Keep pull requests small and focused
+
+## License
+
+The project's own code is licensed under the **GNU Lesser General Public License, version 3** ([LICENSE](LICENSE)). That covers everything in this repository except the third-party files listed below: the decompiled sources, the headers, the build scripts, the tools, and the declarations in `3rdparty/` that were written for this project (the import-library definitions and the DirectPlay, DirectDraw, DisplayDib, Glide, MSI95, Miles Sound System and Smacker declarations).
+
+The LGPL comes with one **additional permission**, granted under section 7 of the GPL, version 3, which the LGPL builds on. The project may be combined with code under the 3DFX GLIDE Source Code General Public License, the licence of 3dfx's Texus library, which the 3Dfx edition's simulator links. The result may be distributed, with that code staying under its own licence. That licence's terms don't count as extra restrictions on the rest of the project. The exact wording is in [NOTICE](NOTICE).
+
+**Third-party code** in `3rdparty/` keeps its own terms:
+
+| Directory | What it is | Terms |
+| --- | --- | --- |
+| `3rdparty/vfx` | Miles Design's VFX graphics library, by John Miles | Open-source freeware since July 2000: usable for any purpose without restriction ([README.TXT](3rdparty/vfx/README.TXT)) |
+| `3rdparty/texus` | 3dfx Interactive's Texus texture library, from the 1999 Glide source release | 3DFX GLIDE Source Code General Public License ([glide_license.txt](3rdparty/texus/glide_license.txt), [README](3rdparty/texus/README)). Changes are marked and dated in the source. |
+| `3rdparty/dx2/INC` | Headers from Microsoft's DirectX 2 SDK | Copyright Microsoft Corporation, all rights reserved |
+
+**Not included:** MechWarrior 2 itself. The game's binaries, data and resources aren't in this repository and aren't covered by any of these licences. The build reads a few icons and bitmaps from your own copy of the original binaries, if you have them, and they're never committed. The game and its trademarks belong to their owners. This project isn't affiliated with Activision, 3dfx, Matrox, Microsoft or Miles Design.

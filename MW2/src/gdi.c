@@ -91,6 +91,7 @@ GdiLogPalette g_gdiLogPalette = {0x300, 256};
 
 // GLOBAL: MW2 0x100ade18
 // GLOBAL: MW2MATROX 0x100a3568
+// GLOBAL: MW23DFX 0x1024a158
 DisplayBackend g_gdiBackend = {
 	c_displayBackendGdi,
 	c_windowModeWindowed,
@@ -443,6 +444,7 @@ MechS32 GdiSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette,
 // Keeps p_palette in g_paletteColorsPreBrightness and loads their brightness-adjusted copies.
 // FUNCTION: MW2 0x1006e633
 // FUNCTION: MW2MATROX 0x1000878d
+// FUNCTION: MW23DFX 0x10005740
 MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 {
 	MechS32 i;
@@ -462,6 +464,7 @@ MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 // in-between palette to p_palette (which ends back at the target).
 // FUNCTION: MW2 0x1006e6d0
 // FUNCTION: MW2MATROX 0x1000882a
+// FUNCTION: MW23DFX 0x100057a0
 MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 {
 	MechS32 i;
@@ -498,6 +501,7 @@ MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 
 // FUNCTION: MW2 0x1006e94f
 // FUNCTION: MW2MATROX 0x10008b45
+// FUNCTION: MW23DFX 0x10005990
 MechS32 GdiAcquireFramebuffer(void)
 {
 	g_refreshModeBuffer->m_buffer = g_dibBits;

@@ -74,6 +74,7 @@ MechS32 g_dispDibInitialized = FALSE;
 
 // GLOBAL: MW2 0x100a83a0
 // GLOBAL: MW2MATROX 0x100be258
+// GLOBAL: MW23DFX 0x10249028
 DisplayBackend g_dispDibBackend = {
 	c_displayBackendDisplayDib,
 	c_windowModeFullscreen,
@@ -302,6 +303,7 @@ MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS
 
 // FUNCTION: MW2 0x1004ed1c
 // FUNCTION: MW2MATROX 0x1008f3d4
+// FUNCTION: MW23DFX 0x10001c20
 MechS32 DispDibAcquireFramebuffer(void)
 {
 	g_refreshModeBuffer->m_buffer = g_dibBits;

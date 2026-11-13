@@ -17,6 +17,9 @@
 #include "debugprint.h"
 #include "decomp.h"
 #include "directdraw.h"
+#ifdef MW2_3DFX
+#include "3dfx/glidedraw.h"
+#endif
 #include "dispdibmode.h"
 #include "displaybackend.h"
 #include "dorcs.h"
@@ -224,12 +227,18 @@ MechU32 g_windowedSwitchDeadline;
 VideoDriverChoice g_videoDriverChoice;
 
 #ifdef MW2_ACCEL
-// The Matrox edition's: reads the renderer's settings from the registry, the sky and the ground
-// (drawn unless set to 0) and the texture filter.
+// The accelerated editions': reads the renderer's settings from the registry, the sky and the
+// ground (drawn unless set to 0) and the Matrox edition's texture filter or the 3Dfx edition's
+// resolution (off unless set).
 // FUNCTION: MW2MATROX 0x1008fad0
+// FUNCTION: MW23DFX 0x100087e0
 void FUN_1008fad0(void)
 {
+#ifdef MW2_3DFX
+	DWORD res800x600;
+#else
 	DWORD filter;
+#endif
 
 	if (!ReadRegistryDword("Sky", (DWORD*) &g_renderSettings.m_texturedSky)) {
 		g_renderSettings.m_texturedSky = 1;
@@ -239,11 +248,19 @@ void FUN_1008fad0(void)
 		g_renderSettings.m_texturedGround = 1;
 	}
 
+#ifdef MW2_3DFX
+	if (!ReadRegistryDword("Res800x600", &res800x600)) {
+		res800x600 = 0;
+	}
+
+	FUN_10066920(res800x600);
+#else
 	if (!ReadRegistryDword("Filter", &filter)) {
 		filter = 1;
 	}
 
 	FUN_1005f810(filter);
+#endif
 }
 #endif
 
@@ -585,9 +602,15 @@ int __stdcall SimMain(
 #else
 			if (g_refreshModeFallback) {
 				while (g_refreshModeFallback) {
+#ifdef MW2_3DFX
+					if (g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
+						GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
+					}
+#else
 					if (g_currentDisplayBackend->m_id == 0) {
 						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
 					}
+#endif
 
 					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
 						g_renderSettings.m_frameDrawCallback();
@@ -614,10 +637,14 @@ int __stdcall SimMain(
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
 				FUN_1005f820(1, PIXEL_COLOR(g_groundColor));
 			}
-#else
-			if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
-				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
+#elif defined(MW2_3DFX)
+			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
+				GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
 			}
+#else
+		if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
+			DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
+		}
 #endif
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {

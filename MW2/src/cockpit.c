@@ -514,7 +514,7 @@ void DrawMapView(void)
 		ChoosePlayerDetailLevels();
 		SetViewMode(zoom);
 #ifdef MW2_ACCEL
-		FUN_1005f8a0(viewport, PIXEL_COLOR(g_groundColor));
+		A3D_PANE_WIPE(viewport, PIXEL_COLOR(g_groundColor));
 #else
 		VFX_pane_wipe(viewport, PIXEL_COLOR(g_groundColor));
 #endif
@@ -535,7 +535,7 @@ void DrawMapView(void)
 	if (g_mapViewMode == 4 && (g_cockpitLayoutIndex != 4 || g_satelliteStaticState <= 1)) {
 		DrawMapViewText(layout);
 	}
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 
 	FUN_10088280(viewport);
 #endif
@@ -1340,10 +1340,10 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 	}
 
 	if (g_renderSettings.m_gouraud) {
-		FUN_10061cb0(&g_currentPane, p_count, vertices);
+		A3D_DrawPolygon(&g_currentPane, p_count, vertices);
 	}
 	else {
-		FUN_10061cb0(&g_currentPane, p_count, vertices);
+		A3D_DrawPolygon(&g_currentPane, p_count, vertices);
 	}
 }
 #endif

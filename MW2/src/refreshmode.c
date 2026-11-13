@@ -10,6 +10,9 @@
 #ifdef MW2_MATROX
 #include "matrox/msidraw.h"
 #endif
+#ifdef MW2_3DFX
+#include "3dfx/glidedraw.h"
+#endif
 #include "menu.h"
 #include "mouse.h"
 #include "palettecolor.h"
@@ -30,13 +33,16 @@
 // The refresh mode manager, the simulator's copy of the shell's. The DirectDraw back end lives in
 // directdraw.c, the DisplayDib one in dispdib.c, the GDI one in gdi.c.
 
-// Indexed by DisplayBackend::m_id. The Matrox edition's first back end and refresh modes are
-// matrox/msidraw.c's, in DirectDraw's place.
+// Indexed by DisplayBackend::m_id. The accelerated editions' first back end and refresh modes
+// are their own, in DirectDraw's place: matrox/msidraw.c's and 3dfx/glidedraw.c's.
 // GLOBAL: MW2 0x100b1748
 // GLOBAL: MW2MATROX 0x100b1a50
+// GLOBAL: MW23DFX 0x102492b8
 DisplayBackend* g_displayBackends[3] = {
-#ifdef MW2_MATROX
+#if defined(MW2_MATROX)
 	&g_msiBackend,
+#elif defined(MW2_3DFX)
+	&g_glideBackend,
 #else
 	&g_directDrawBackend,
 #endif
@@ -46,12 +52,18 @@ DisplayBackend* g_displayBackends[3] = {
 
 // GLOBAL: MW2 0x100b1758
 // GLOBAL: MW2MATROX 0x100b1a60
+// GLOBAL: MW23DFX 0x102492c8
 RefreshMode* g_refreshModes[6] = {
-#ifdef MW2_MATROX
+#if defined(MW2_MATROX)
 	&g_msiFlipRefreshMode,
 	&g_msiBlitFlipRefreshMode,
 	&g_msiVideoMemoryRefreshMode,
 	&g_msiSystemMemoryRefreshMode,
+#elif defined(MW2_3DFX)
+	&g_glideFlipRefreshMode,
+	&g_glideBlitFlipRefreshMode,
+	&g_glideVideoMemoryRefreshMode,
+	&g_glideSystemMemoryRefreshMode,
 #else
 	&g_ddrawFlipRefreshMode,
 	&g_ddrawBlitFlipRefreshMode,
@@ -484,6 +496,7 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 // covers the whole screen counts as fullscreen.
 // FUNCTION: MW2 0x1007762f
 // FUNCTION: MW2MATROX 0x1007b6b5
+// FUNCTION: MW23DFX 0x10002cc0
 void AdjustWindowSize(DisplayBackend* p_backend)
 {
 	if (p_backend == NULL) {

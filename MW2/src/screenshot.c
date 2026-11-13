@@ -93,6 +93,7 @@ MechS32 ScreenshotWriteImage(PANE* p_target)
 
 // FUNCTION: MW2 0x1006cf35
 // FUNCTION: MW2MATROX 0x1006ec95
+// FUNCTION: MW23DFX 0x1003b6d0
 void ScreenshotEnd(void)
 {
 	g_screenshotState = c_screenshotIdle;

@@ -121,7 +121,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		}
 
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xfd));
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -141,7 +141,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 #endif
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xf7));
 		g_renderSettings = saved;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -170,13 +170,13 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		}
 
 		g_renderSettings = saved;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
 	case 2:
 		DrawArmorBars(mech, p_panel->m_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;

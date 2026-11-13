@@ -47,14 +47,17 @@ MechS32 g_debugSection = -1;
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
 // GLOBAL: MW2 0x100a15e0
 // GLOBAL: MW2MATROX 0x100a6238
+// GLOBAL: MW23DFX 0x102503b0
 PANE g_pausedBannerRect = {NULL, 0, 0x3333, 0x10000, 0x6666};
 
 // GLOBAL: MW2 0x100a15f4
 // GLOBAL: MW2MATROX 0x100a624c
+// GLOBAL: MW23DFX 0x102503c4
 MechS32 g_pausedBannerUnscaled = 1;
 
 // FUNCTION: MW2 0x10009e50
 // FUNCTION: MW2MATROX 0x1002ecc0
+// FUNCTION: MW23DFX 0x10036370
 void DrawPausedBanner(void)
 {
 	void* shape;
@@ -73,7 +76,7 @@ void DrawPausedBanner(void)
 		}
 
 		VFX_shape_draw(&g_pausedBannerRect, shape, 0, 0, 0);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(&g_pausedBannerRect);
 #endif
 	}

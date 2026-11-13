@@ -64,6 +64,7 @@ undefined4 g_keyStates[4];
 // The key code for each virtual key; 0 falls back to MapVirtualKey.
 // GLOBAL: MW2 0x100a6308
 // GLOBAL: MW2MATROX 0x100ad4d8
+// GLOBAL: MW23DFX 0x10250d78
 MechS16 g_keyCodeMap[256] = {
 	0,     0,     0,     0,     0,     0,     0,     0,     0x08,  0x09,  0,     0,     0,     0x0d,  0,     0,
 	0,     0,     0,     0x1ff, 0,     0,     0,     0,     0,     0,     0,     0x1b,  0,     0,     0,     0,
@@ -314,6 +315,7 @@ void HandleKeyboardMessages(UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 
 // FUNCTION: MW2 0x10042a71
 // FUNCTION: MW2MATROX 0x10067801
+// FUNCTION: MW23DFX 0x10038560
 void KeyboardQueueKeyCode(WPARAM p_virtualKey, LPARAM p_lParam)
 {
 	MechS16 keyCode;

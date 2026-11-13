@@ -138,6 +138,7 @@ void StartCameraShake(void)
 // original compares p_key >= g_cameraShakeKeyCount with p_key in eax.
 // FUNCTION: MW2 0x10066798
 // FUNCTION: MW2MATROX 0x1005934c
+// FUNCTION: MW23DFX 0x1002d920
 void StartCameraShakeKey(MechS32 p_key)
 {
 	MechScalar x;

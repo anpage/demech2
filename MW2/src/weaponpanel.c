@@ -28,6 +28,7 @@
 // swapping them didn't flip it), and stack-slot permutation: color, font, mech, text and weapon.
 // FUNCTION: MW2 0x10033280
 // FUNCTION: MW2MATROX 0x10055510
+// FUNCTION: MW23DFX 0x1001e820
 void DrawWeaponPanel(CockpitPanel* p_panel)
 {
 	Mech* mech;
@@ -115,7 +116,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 	if (p_panel->m_weapon == mech->m_selectedWeapon) {
 		OutlinePane(p_panel->m_target, color);
 	}
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 
 	FUN_10088280(p_panel->m_target);
 #endif
@@ -151,7 +152,7 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 
 	if (p_panel->m_enabled && p_panel->m_lightUpTime < clock) {
 		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_10088280(p_panel->m_target);
 #endif
 	}

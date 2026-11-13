@@ -1,6 +1,7 @@
 #include "mw2prj.h"
 
 #include "ai.h"
+#include "animation.h"
 #include "config.h"
 #include "error.h"
 #include "loadres.h"
@@ -71,13 +72,18 @@ void ShutdownMw2Prj(void)
 	ClosePrjFile(g_mw2PrjHandle);
 }
 
+// The 3Dfx edition also writes MW2.MIP, the converted textures, on its first run.
 // FUNCTION: MW2 0x10050848
 // FUNCTION: MW2MATROX 0x1002b428
+// FUNCTION: MW23DFX 0x1003d000
 void CachePreloads(void)
 {
 	LoadWeaponSounds();
 	PreloadCockpitSounds();
 	LoadAIScripts();
+#ifdef MW2_3DFX
+	FUN_1002cfd0();
+#endif
 }
 
 // FUNCTION: MW2 0x10050862

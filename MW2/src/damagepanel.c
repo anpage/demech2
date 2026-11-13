@@ -26,8 +26,10 @@
 #include "vfxa.h"
 
 #ifdef MW2_ACCEL
-#include "accel/colorkey.h"
 #include "accel/vfx16.h"
+#endif
+#ifdef MW2_MATROX
+#include "matrox/colorkey.h"
 #endif
 
 // The damage panel (panel 2): the mech's outline, its sections shaded by damage, and bars of each
@@ -346,7 +348,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 	}
 
 	UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resourceTypeTags[c_resTagShp]);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	FUN_10088280(&g_outlineRect);
 #endif
 }

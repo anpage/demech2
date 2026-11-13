@@ -23,6 +23,8 @@ extern "C"
 	extern A3DVertex g_a3dClipped[16];
 	extern A3DVertex g_a3dVertices[16];
 	extern MechFloat g_paletteRgb[256][3];
+
+	MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08);
 	void LoadSkyGroundSettings(const MechChar* p_mission);
 #endif
 #ifdef MW2_ACCEL

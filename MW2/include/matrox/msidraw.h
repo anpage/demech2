@@ -1,8 +1,8 @@
 #ifndef MATROX_MSIDRAW_H
 #define MATROX_MSIDRAW_H
 
-#include "accel/colorkey.h"
 #include "displaybackend.h"
+#include "matrox/colorkey.h"
 #include "pane.h"
 #include "refreshmode.h"
 #include "types.h"

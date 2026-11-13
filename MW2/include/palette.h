@@ -8,10 +8,12 @@
 #include "types.h"
 
 #ifdef MW2_ACCEL
-// FUN_1005f790 (the A3D renderer) and FUN_10088246/FUN_10088280 (the key color fills), for
+// A3D_SetPalette (the A3D renderer) and FUN_10088246/FUN_10088280 (the key color fills), for
 // palette.h's users.
 #include "accel/a3d.h"
-#include "accel/colorkey.h"
+#ifdef MW2_MATROX
+#include "matrox/colorkey.h"
+#endif
 #endif
 
 // The functions and globals of palette.c that other units use.
@@ -51,8 +53,6 @@ extern "C"
 	MechS32 __cdecl VFX_lookaside_read16(MechS32 p_color);
 	// Sets a palette color's 16-bit pixel in the lookaside table.
 	void __cdecl VFX_lookaside_write16(MechS32 p_index, MechS32 p_pixel);
-	extern MechS32 g_unk0x100aa1d0;
-	extern MechFloat g_unk0x10184700[3];
 #endif
 
 // A color passed to a drawing primitive: the Matrox edition draws 16-bit pixels.

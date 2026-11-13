@@ -872,7 +872,7 @@ def main():
         named = {m[4] for m in src if m[2] == "LIBRARY"}
         crt = {}
         for address, name, section, obj in rebuild_symbols:
-            if section == "0001" and obj.startswith("LIBCMT:") and address not in named:
+            if section == "0001" and obj.startswith(("LIBCMT:", "LIBC:")) and address not in named:
                 crt.setdefault(address, name)
         crt_map, crt_functions, _, _, _ = match_functions(source, target, starts, list(crt), log)
         taken = set(mapping.values())
