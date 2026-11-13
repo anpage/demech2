@@ -170,3 +170,7 @@ Contributions are welcome. Please follow the conventions established in the code
 - Follow the clang-format configuration
 - Use NCC naming conventions (`FUN_XXXXXXXX` for unknown functions, `g_unk0xXXXXXXXX` for unknown globals)
 - Keep pull requests small and focused
+
+## License
+
+demech2 is licensed under the GNU Lesser General Public License, version 3 ([LICENSE](LICENSE)), with an additional permission for combining it with code under the 3DFX GLIDE Source Code General Public License. The vendored third-party code in `3rdparty/` (Miles Design's VFX, 3dfx's Texus and the DirectX 2 SDK headers) is under its own terms. See [NOTICE](NOTICE) for both.
