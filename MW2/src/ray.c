@@ -14,6 +14,7 @@ DECOMP_SIZE_ASSERT(Ray, 0x38)
 
 // FUNCTION: MW2 0x10002e20
 // FUNCTION: MW2MATROX 0x10087830
+// FUNCTION: MW23DFX 0x1000ae00
 void BuildRayFromSegment(
 	Ray* p_ray,
 	MechScalar p_x0,
@@ -40,6 +41,7 @@ void BuildRayFromSegment(
 // MW2MATROX: the products p_length * p_dir load their operands in the other order.
 // FUNCTION: MW2 0x10002ebc
 // FUNCTION: MW2MATROX 0x100878cc
+// FUNCTION: MW23DFX 0x1000ae70
 void BuildRayFromDirection(
 	Ray* p_ray,
 	MechScalar p_x0,
@@ -57,7 +59,7 @@ void BuildRayFromDirection(
 	p_ray->m_dirX = p_dirX;
 	p_ray->m_dirY = p_dirY;
 	p_ray->m_dirZ = p_dirZ;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_ray->m_dx = p_length * p_dirX;
 	p_ray->m_dy = p_length * p_dirY;
 	p_ray->m_dz = p_length * p_dirZ;
@@ -75,6 +77,7 @@ void BuildRayFromDirection(
 
 // FUNCTION: MW2 0x10002f7e
 // FUNCTION: MW2MATROX 0x10087970
+// FUNCTION: MW23DFX 0x1000af00
 MechScalar GetRayLength(Ray* p_ray)
 {
 	if (p_ray->m_state == c_rayNone) {
@@ -86,6 +89,7 @@ MechScalar GetRayLength(Ray* p_ray)
 
 // FUNCTION: MW2 0x10002fad
 // FUNCTION: MW2MATROX 0x1008799f
+// FUNCTION: MW23DFX 0x1000af20
 void BuildRayFixed(Ray* p_ray)
 {
 	MechScalar length;
@@ -94,7 +98,7 @@ void BuildRayFixed(Ray* p_ray)
 		p_ray->m_length = ApproximateVectorLength(p_ray->m_dx, p_ray->m_dy, p_ray->m_dz);
 		length = p_ray->m_length;
 		if (length > 0) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			p_ray->m_dirX = p_ray->m_dx / length;
 			p_ray->m_dirY = p_ray->m_dy / length;
 			p_ray->m_dirZ = p_ray->m_dz / length;
@@ -129,7 +133,7 @@ void BuildRayFloat(Ray* p_ray)
 	dx /= length = sqrt(dx * dx + dy * dy + dz * dz);
 	dy /= length;
 	dz /= length;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_ray->m_dirX = dx;
 	p_ray->m_dirY = dy;
 	p_ray->m_dirZ = dz;
@@ -145,6 +149,7 @@ void BuildRayFloat(Ray* p_ray)
 
 // FUNCTION: MW2 0x1000313e
 // FUNCTION: MW2MATROX 0x10087b59
+// FUNCTION: MW23DFX 0x1000b060
 void SetRayLength(Ray* p_ray, MechScalar p_length)
 {
 	if (p_ray->m_state == c_rayNone) {
@@ -152,7 +157,7 @@ void SetRayLength(Ray* p_ray, MechScalar p_length)
 	}
 
 	if (p_ray->m_state != c_rayNone) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		p_ray->m_x1 = p_ray->m_dirX * p_length + p_ray->m_x0;
 		p_ray->m_y1 = p_ray->m_dirY * p_length + p_ray->m_y0;
 		p_ray->m_z1 = p_ray->m_dirZ * p_length + p_ray->m_z0;
@@ -170,6 +175,7 @@ void SetRayLength(Ray* p_ray, MechScalar p_length)
 
 // FUNCTION: MW2 0x1000320f
 // FUNCTION: MW2MATROX 0x10087c06
+// FUNCTION: MW23DFX 0x1000b0d0
 void AdvanceRayStart(Ray* p_ray, MechScalar p_distance)
 {
 	MechS32 state;
@@ -180,7 +186,7 @@ void AdvanceRayStart(Ray* p_ray, MechScalar p_distance)
 	}
 
 	if (p_ray->m_length > 0) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		p_ray->m_x0 += p_ray->m_dirX * p_distance;
 		p_ray->m_y0 += p_ray->m_dirY * p_distance;
 		p_ray->m_z0 += p_ray->m_dirZ * p_distance;
@@ -204,6 +210,7 @@ void AdvanceRayStart(Ray* p_ray, MechScalar p_distance)
 
 // FUNCTION: MW2 0x100032f9
 // FUNCTION: MW2MATROX 0x10087ced
+// FUNCTION: MW23DFX 0x1000b160
 void SetRayEnd(Ray* p_ray, MechScalar p_x1, MechScalar p_y1, MechScalar p_z1)
 {
 	MechS32 state;
@@ -235,7 +242,7 @@ void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 {
 	MechScalar length;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if ((MechFloat) fabs(p_ray->m_dy) >= 1e-07f) {
 		length = (p_y - p_ray->m_y0) * p_ray->m_length / p_ray->m_dy;
 		SetRayLength(p_ray, length);
@@ -250,6 +257,7 @@ void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 
 // FUNCTION: MW2 0x1000342d
 // FUNCTION: MW2MATROX 0x10087e35
+// FUNCTION: MW23DFX 0x1000b220
 void CopyRay(Ray* p_dst, Ray* p_src)
 {
 	*p_dst = *p_src;
@@ -260,6 +268,7 @@ void CopyRay(Ray* p_dst, Ray* p_src)
 // round.
 // FUNCTION: MW2 0x10003445
 // FUNCTION: MW2MATROX 0x10087e4d
+// FUNCTION: MW23DFX 0x1000b230
 MechS32 ClipRaySlab(
 	MechScalar p_origin,
 	MechScalar p_delta,
@@ -269,7 +278,7 @@ MechS32 ClipRaySlab(
 	MechScalar* p_tMax
 )
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechScalar t0;
 	MechScalar t1;
 	MechScalar toMin;

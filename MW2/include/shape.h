@@ -66,7 +66,7 @@ extern "C"
 	void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14);
 	MechU32 FUN_1003a889(Shape* p_shape);
 	Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	void AddShapeVertex(
 		Shape* p_shape,
 		MechScalar p_x,

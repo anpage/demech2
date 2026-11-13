@@ -14,6 +14,7 @@ DECOMP_SIZE_ASSERT(BoundBox, 0x18)
 
 // FUNCTION: MW2 0x1006e970
 // FUNCTION: MW2MATROX 0x1000a4f0
+// FUNCTION: MW23DFX 0x1000d820
 BoundBox* CreateBoundBox(void)
 {
 	BoundBox* box;
@@ -30,6 +31,7 @@ BoundBox* CreateBoundBox(void)
 // Gives the shape a bounding box, once.
 // FUNCTION: MW2 0x1006e9e6
 // FUNCTION: MW2MATROX 0x1000a566
+// FUNCTION: MW23DFX 0x1000d850
 void EnsureBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -57,6 +59,7 @@ void EnsureBoundBox(Shape* p_shape)
 
 // FUNCTION: MW2 0x1006ea90
 // FUNCTION: MW2MATROX 0x1000a610
+// FUNCTION: MW23DFX 0x1000d8a0
 BoundBox* CreateShapeBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -72,6 +75,7 @@ BoundBox* CreateShapeBoundBox(Shape* p_shape)
 
 // FUNCTION: MW2 0x1006eb02
 // FUNCTION: MW2MATROX 0x1000a682
+// FUNCTION: MW23DFX 0x1000d8f0
 void AttachShapeBoundBox(Shape* p_shape)
 {
 	BoundBox* box;
@@ -162,6 +166,7 @@ void ComputeModelBounds(
 // Frees the shape's bounding data.
 // FUNCTION: MW2 0x1006ed30
 // FUNCTION: MW2MATROX 0x1000a8ce
+// FUNCTION: MW23DFX 0x1000da90
 void FreeBoundBox(Shape* p_shape)
 {
 	void* data;
@@ -190,6 +195,7 @@ void FreeBoundBox(Shape* p_shape)
 // Returns the bytes the shape's bounding data take.
 // FUNCTION: MW2 0x1006edc3
 // FUNCTION: MW2MATROX 0x1000a961
+// FUNCTION: MW23DFX 0x1000dae0
 MechS32 GetBoundBoxSize(Shape* p_shape)
 {
 	MechS32 size;

@@ -1,8 +1,8 @@
-/* The Matrox edition's floating-point trigonometry and vector math: one object of its own,
-   between menucontrols.c's and missionsetup.c's, with the Matrox edition's versions of functions 1.1
+/* The accelerated editions' floating-point trigonometry and vector math: one object of its own
+   (between menucontrols.c's and missionsetup.c's in the Matrox edition), with their versions of functions 1.1
    has in clock.c (the tables, Hypot2D), fixedtrig.c (the sine and arctangent), approxlen.c,
    shapegeom.c (ComputeTriangleNormal) and fixedsqrt.c (NormalizeVectorGuarded). 1.1's versions
-   stay in those units, which the Matrox edition doesn't build or builds without them. */
+   stay in those units, which the accelerated editions don't build or build without them. */
 #define FIXEDTRIG_FLOAT_SINE
 #include "approxlen.h"
 #include "clock.h"
@@ -36,6 +36,7 @@ MechS32 InitSinAtanTables(void)
 // Returns the sine of p_angle (degrees) from the table's quarter wave, whose 512 steps make
 // 512 / 90 of them to the degree, mirrored and negated by quadrant.
 // FUNCTION: MW2MATROX 0x1007ee7b
+// FUNCTION: MW23DFX 0x10030030
 MechScalar FixedSin(MechScalar p_angle)
 {
 	MechScalar sine;
@@ -245,6 +246,7 @@ MechS32 ComputeTriangleNormal(
 
 // Scales the vector to length 1.0; a zero vector stays as it is.
 // FUNCTION: MW2MATROX 0x1007f461
+// FUNCTION: MW23DFX 0x10030500
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	MechScalar length;

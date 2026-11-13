@@ -154,6 +154,7 @@ MechU32 FindEventList(MechChar* p_name)
 // in the other operand order.
 // FUNCTION: MW2 0x1004e4e6
 // FUNCTION: MW2MATROX 0x10080007
+// FUNCTION: MW23DFX 0x1003ff60
 void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 {
 	MechS32 count;

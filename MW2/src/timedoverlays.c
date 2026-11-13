@@ -16,8 +16,8 @@
 
 #include <string.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
@@ -162,7 +162,7 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 		overlay->m_active = 1;
 		overlay->m_priority = p_priority;
 		overlay->m_expireTime = p_duration + GetGameClock();
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (p_font > 0) {
 			overlay->m_font = p_font;
 		}
@@ -219,7 +219,7 @@ void DrawTimedOverlays(void)
 							overlay->m_text,
 							g_textColors
 						);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 						FUN_10088280(overlay->m_target);
 #endif
 					}
@@ -285,7 +285,7 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 		}
 
 		DrawWrappedText(&rect, p_text, font);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_10088280(&rect);
 #endif
 	}
@@ -294,6 +294,7 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 // Draws a TEXT resource, stored with each character negated (mod 256), as DrawTextBox does.
 // FUNCTION: MW2 0x1006f3ea
 // FUNCTION: MW2MATROX 0x10078c33
+// FUNCTION: MW23DFX 0x10003200
 void DrawTextResourceBox(MechS32 p_background, MechS32 p_font, MechS32 p_id, MechS32 p_x, MechS32 p_y)
 {
 	MechChar* text;

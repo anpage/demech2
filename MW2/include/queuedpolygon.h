@@ -13,7 +13,7 @@ typedef struct QueuedPolygon {
 	MechS16 m_count;     // 0x00 — bit 15 marks a shape queued in its place (DrawShapeList)
 	MechU16 m_flags;     // 0x02 — the drawing flags
 	struct Face* m_face; // 0x04
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechFloat m_depth;  // 0x08
 	MechU32 m_outcodes; // 0x0c — its vertices' outcodes, or-ed
 #else

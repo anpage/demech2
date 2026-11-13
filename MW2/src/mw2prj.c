@@ -29,14 +29,17 @@ char* g_resourceTypeExtensions[25] = {".sfl", ".xel", ".xyc", ".shp", ".fnt", ".
 
 // GLOBAL: MW2 0x100a8740
 // GLOBAL: MW2MATROX 0x100a5b10
+// GLOBAL: MW23DFX 0x102598d4
 MechS32 g_mw2PrjHandle = -1;
 
 // GLOBAL: MW2 0x100a8744
 // GLOBAL: MW2MATROX 0x100a5b14
+// GLOBAL: MW23DFX 0x102598d8
 char* g_mw2PrjPath = NULL;
 
 // FUNCTION: MW2 0x10050780
 // FUNCTION: MW2MATROX 0x1002b360
+// FUNCTION: MW23DFX 0x1003cf70
 MechS32 FirstResource(void)
 {
 	MechS32 result;
@@ -62,6 +65,7 @@ MechS32 FirstResource(void)
 
 // FUNCTION: MW2 0x1005082f
 // FUNCTION: MW2MATROX 0x1002b40f
+// FUNCTION: MW23DFX 0x1003cff0
 void ShutdownMw2Prj(void)
 {
 	ClosePrjFile(g_mw2PrjHandle);
@@ -78,6 +82,7 @@ void CachePreloads(void)
 
 // FUNCTION: MW2 0x10050862
 // FUNCTION: MW2MATROX 0x1002b442
+// FUNCTION: MW23DFX 0x1003d020
 MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 {
 	MechS32 result;
@@ -97,6 +102,7 @@ MechS32 PreloadResource(MechS32 p_id, const char* p_type)
 
 // FUNCTION: MW2 0x100508c0
 // FUNCTION: MW2MATROX 0x1002b4a0
+// FUNCTION: MW23DFX 0x1003d060
 void* Mw2PrjAlloc(MechU32 p_size)
 {
 	return MemAlloc(p_size);
@@ -104,6 +110,7 @@ void* Mw2PrjAlloc(MechU32 p_size)
 
 // FUNCTION: MW2 0x100508dc
 // FUNCTION: MW2MATROX 0x1002b4bc
+// FUNCTION: MW23DFX 0x1003d070
 void Mw2PrjFree(void* p_block)
 {
 	HeapFree(g_primaryHeap, HEAP_NO_SERIALIZE, p_block);

@@ -1,9 +1,9 @@
-#ifndef MATROX_SKYCORNER_H
-#define MATROX_SKYCORNER_H
+#ifndef ACCEL_SKYCORNER_H
+#define ACCEL_SKYCORNER_H
 
 #include "types.h"
 
-// A corner of the Matrox edition's textured sky (g_skyCorners): its position, and whether it
+// A corner of the accelerated editions' textured sky (g_skyCorners): its position, and whether it
 // takes the texture's far edge in u and in v.
 // SIZE 0x14
 typedef struct SkyCorner {
@@ -14,4 +14,4 @@ typedef struct SkyCorner {
 	MechS32 m_farV; // 0x10
 } SkyCorner;
 
-#endif // MATROX_SKYCORNER_H
+#endif // ACCEL_SKYCORNER_H

@@ -1,15 +1,15 @@
-/* The Matrox edition's in-mission "Graphics" menu page: the textured sky and ground, kept in
-   the registry (matrox/registry.c) and in g_renderSettings, and the texture filter, which the
+/* The accelerated editions' in-mission "Graphics" menu page: the textured sky and ground, kept in
+   the registry (accel/registry.c) and in g_renderSettings, and the texture filter, which the
    renderer applies. Its controls for the monitor brightness (1.1's main menu page of its own) and
    the texture filter, and a fourth, unused setting, aren't on the page. One object of its own,
-   between geocache.c's and players.c's. */
-#include "matrox/graphicsmenu.h"
+   between geocache.c's and players.c's in the Matrox edition. */
+#include "accel/graphicsmenu.h"
 
+#include "accel/a3d.h"
+#include "accel/registry.h"
 #include "brightnessmenu.h"
 #include "decomp.h"
 #include "mainmenu.h"
-#include "matrox/a3d.h"
-#include "matrox/registry.h"
 #include "menu.h"
 #include "menucontrol.h"
 #include "menucontrols.h"
@@ -52,15 +52,19 @@ MechChar g_filterTexturesItem[] = "Filter Textures";
 MechChar g_unusedItem[] = "Unused";
 
 // GLOBAL: MW2MATROX 0x100aa4e0
+// GLOBAL: MW23DFX 0x10265498
 MechS32 g_texturedSky = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4e4
+// GLOBAL: MW23DFX 0x1026549c
 MechS32 g_texturedGround = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4e8
+// GLOBAL: MW23DFX 0x102654a0
 MechS32 g_filterTextures = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4ec
+// GLOBAL: MW23DFX 0x102654a4
 MechS32 g_unusedSetting = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4f0
@@ -105,12 +109,14 @@ MenuPage g_graphicsPage = {
 };
 
 // FUNCTION: MW2MATROX 0x10054c80
+// FUNCTION: MW23DFX 0x10066400
 MechS32 InitGraphicsPage(MenuDefinition* p_menu, MenuPage* p_page)
 {
 	return TRUE;
 }
 
 // FUNCTION: MW2MATROX 0x10054c95
+// FUNCTION: MW23DFX 0x10066410
 MechS32 GetTexturedSky(MechS32 p_arg)
 {
 	if (ReadRegistryDword("Sky", (DWORD*) &g_texturedSky)) {
@@ -124,6 +130,7 @@ MechS32 GetTexturedSky(MechS32 p_arg)
 }
 
 // FUNCTION: MW2MATROX 0x10054cdd
+// FUNCTION: MW23DFX 0x10066450
 void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky)
 {
 	WriteRegistryDword("Sky", (DWORD*) &p_texturedSky);
@@ -132,6 +139,7 @@ void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky)
 }
 
 // FUNCTION: MW2MATROX 0x10054d09
+// FUNCTION: MW23DFX 0x10066480
 MechS32 GetTexturedGround(MechS32 p_arg)
 {
 	if (ReadRegistryDword("Ground", (DWORD*) &g_texturedGround)) {
@@ -145,6 +153,7 @@ MechS32 GetTexturedGround(MechS32 p_arg)
 }
 
 // FUNCTION: MW2MATROX 0x10054d51
+// FUNCTION: MW23DFX 0x100664c0
 void SetTexturedGround(MechS32 p_arg, MechS32 p_texturedGround)
 {
 	WriteRegistryDword("Ground", (DWORD*) &p_texturedGround);
@@ -163,6 +172,7 @@ MechS32 GetFilterTextures(MechS32 p_arg)
 }
 
 // FUNCTION: MW2MATROX 0x10054db6
+// FUNCTION: MW23DFX 0x10066520
 void SetFilterTextures(MechS32 p_arg, MechS32 p_filterTextures)
 {
 	WriteRegistryDword("Filter", (DWORD*) &p_filterTextures);
@@ -171,12 +181,14 @@ void SetFilterTextures(MechS32 p_arg, MechS32 p_filterTextures)
 }
 
 // FUNCTION: MW2MATROX 0x10054de6
+// FUNCTION: MW23DFX 0x10066550
 MechS32 GetUnusedSetting(MechS32 p_arg)
 {
 	return g_unusedSetting;
 }
 
 // FUNCTION: MW2MATROX 0x10054dfb
+// FUNCTION: MW23DFX 0x10066560
 void SetUnusedSetting(MechS32 p_arg, MechS32 p_unusedSetting)
 {
 	g_unusedSetting = p_unusedSetting;

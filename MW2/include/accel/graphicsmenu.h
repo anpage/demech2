@@ -1,10 +1,10 @@
-#ifndef MATROX_GRAPHICSMENU_H
-#define MATROX_GRAPHICSMENU_H
+#ifndef ACCEL_GRAPHICSMENU_H
+#define ACCEL_GRAPHICSMENU_H
 
 #include "menupage.h"
 #include "types.h"
 
-// The globals of matrox/graphicsmenu.c that other units use.
+// The globals of accel/graphicsmenu.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
@@ -17,4 +17,4 @@ extern "C"
 }
 #endif
 
-#endif // MATROX_GRAPHICSMENU_H
+#endif // ACCEL_GRAPHICSMENU_H

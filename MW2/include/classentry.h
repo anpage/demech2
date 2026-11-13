@@ -7,9 +7,9 @@
 struct SceneObject;
 struct Shape;
 
-// The type of an entry's position: a float in the Matrox edition (MW2_MATROX). A macro, so
+// The type of an entry's position: a float in the accelerated editions (MW2_ACCEL). A macro, so
 // that 1.1's units see no new symbols.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define ClassEntryCoord MechFloat
 #else
 #define ClassEntryCoord undefined4

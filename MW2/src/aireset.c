@@ -32,6 +32,7 @@
 // Clears p_player's AI state, target, goal, scripts, stack and posted message.
 // FUNCTION: MW2 0x100518cd
 // FUNCTION: MW2MATROX 0x10080aab
+// FUNCTION: MW23DFX 0x100124a0
 void ResetAI(Player* p_player)
 {
 	MechS32 i;

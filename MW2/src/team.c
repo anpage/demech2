@@ -23,8 +23,9 @@ DECOMP_SIZE_ASSERT(Team, 0x38)
 // The Matrox edition starts it at 0, 1.1 at -1.
 // GLOBAL: MW2 0x100a5918
 // GLOBAL: MW2MATROX 0x100ae338
+// GLOBAL: MW23DFX 0x1024c478
 MechS32 g_localStar =
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	0;
 #else
 	-1;
@@ -32,26 +33,32 @@ MechS32 g_localStar =
 
 // GLOBAL: MW2 0x100a591c
 // GLOBAL: MW2MATROX 0x100ae33c
+// GLOBAL: MW23DFX 0x1024c47c
 MechS32 g_formationTemplateCount = 0;
 
 // GLOBAL: MW2 0x10109c90
 // GLOBAL: MW2MATROX 0x10130400
+// GLOBAL: MW23DFX 0x101deff0
 TeamFormation g_formationTemplates[32];
 
 // GLOBAL: MW2 0x1010aa90
 // GLOBAL: MW2MATROX 0x10131200
+// GLOBAL: MW23DFX 0x101dfdf0
 Team g_teams[16];
 
 // GLOBAL: MW2 0x1010ae10
 // GLOBAL: MW2MATROX 0x10131580
+// GLOBAL: MW23DFX 0x101e0170
 MechS32 g_starSides[8];
 
 // GLOBAL: MW2 0x1010ae30
 // GLOBAL: MW2MATROX 0x1012fd00
+// GLOBAL: MW23DFX 0x101de8f0
 TeamFormation g_teamFormations[16];
 
 // FUNCTION: MW2 0x1003bbe0
 // FUNCTION: MW2MATROX 0x10072cc0
+// FUNCTION: MW23DFX 0x10018b70
 void ResetTeams(void)
 {
 	MechU32 i;
@@ -90,6 +97,7 @@ MechS32 SetTeamFormationByName(MechS32 p_team, const MechChar* p_name)
 
 // FUNCTION: MW2 0x1003bd1a
 // FUNCTION: MW2MATROX 0x10072df9
+// FUNCTION: MW23DFX 0x10018c50
 MechS32 GetTeamFormation(MechS32 p_team)
 {
 	if (p_team >= 16) {
@@ -101,6 +109,7 @@ MechS32 GetTeamFormation(MechS32 p_team)
 
 // FUNCTION: MW2 0x1003bd4c
 // FUNCTION: MW2MATROX 0x10072e2b
+// FUNCTION: MW23DFX 0x10018c70
 void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 {
 	if (p_team >= 16 || p_formation >= 32) {
@@ -136,6 +145,7 @@ MechS32 SetPlayerSlot(MechU32 p_player, MechU32 p_slot)
 // p_player < g_playerCount with p_player in eax.
 // FUNCTION: MW2 0x1003be18
 // FUNCTION: MW2MATROX 0x10072ef7
+// FUNCTION: MW23DFX 0x10018d00
 MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 {
 	MechS32 result;
@@ -216,6 +226,7 @@ MechS32 PlaceTeam(MechS32 p_team, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // second.
 // FUNCTION: MW2 0x1003c07e
 // FUNCTION: MW2MATROX 0x1007318d
+// FUNCTION: MW23DFX 0x10018ec0
 MechS32 GetTeamSlotPosition(MechU32 p_player, MechScalar* p_x, MechScalar* p_z, MechScalar* p_heading)
 {
 	MechS32 slot;
@@ -252,6 +263,7 @@ MechS32 GetTeamSlotPosition(MechU32 p_player, MechScalar* p_x, MechScalar* p_z, 
 
 // FUNCTION: MW2 0x1003c1b4
 // FUNCTION: MW2MATROX 0x100732c3
+// FUNCTION: MW23DFX 0x10018f90
 MechS32 GetTeamLeader(MechS32 p_team)
 {
 	MechS32 result = 0;
@@ -302,6 +314,7 @@ MechS32 AssignTeamSlots(MechS32 p_team, MechS32 p_unk0x04)
 
 // FUNCTION: MW2 0x1003c2e3
 // FUNCTION: MW2MATROX 0x100733f2
+// FUNCTION: MW23DFX 0x10019040
 MechS32 GetPlayerSide(MechS32 p_player)
 {
 	return g_teams[g_players[p_player]->m_team].m_side;
@@ -309,6 +322,7 @@ MechS32 GetPlayerSide(MechS32 p_player)
 
 // FUNCTION: MW2 0x1003c30e
 // FUNCTION: MW2MATROX 0x1007341d
+// FUNCTION: MW23DFX 0x10019060
 MechS32 GetThingSide(MechS32 p_thing)
 {
 	MechS32 index;
@@ -325,6 +339,7 @@ MechS32 GetThingSide(MechS32 p_thing)
 // The side of the team that owns nav p_nav; 2 past the first 16 navs.
 // FUNCTION: MW2 0x1003c353
 // FUNCTION: MW2MATROX 0x10073462
+// FUNCTION: MW23DFX 0x10019080
 MechS32 GetNavSide(MechU32 p_nav)
 {
 	MechS32 side;
@@ -341,6 +356,7 @@ MechS32 GetNavSide(MechU32 p_nav)
 // compiles the same).
 // FUNCTION: MW2 0x1003c39d
 // FUNCTION: MW2MATROX 0x100734ac
+// FUNCTION: MW23DFX 0x100190b0
 MechS32 OnSameSide(MechS32 p_playerA, MechS32 p_playerB)
 {
 	return GetPlayerSide(p_playerB) == GetPlayerSide(p_playerA);

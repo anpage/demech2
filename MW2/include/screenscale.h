@@ -42,7 +42,7 @@ extern "C"
 	Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_slope, Point* p_out);
 	void DrawGaugeEllipse(PANE* p_target, MechS32 p_color);
 	void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 IsInsideGaugeEllipse(PANE* p_target, Point* p_point);
 #else
 MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y);

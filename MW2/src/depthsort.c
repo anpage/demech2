@@ -26,20 +26,20 @@
 #include "vertex.h"
 #include "view.h"
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #include "palette.h"
 #include "render.h"
 #endif
 
 #include <string.h>
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
 #else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
 #endif
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 DECOMP_SIZE_ASSERT(ProjectedVertex, 0x3c)
 DECOMP_SIZE_ASSERT(QueuedPolygon, 0x10)
 #else
@@ -54,19 +54,23 @@ MechS32 g_depthEntryCount = 0;
 
 // GLOBAL: MW2 0x100a54b4
 // GLOBAL: MW2MATROX 0x100a5544
+// GLOBAL: MW23DFX 0x1024e408
 MechS32 g_polygonCount = 0;
 
 // GLOBAL: MW2 0x100a54b8
 // GLOBAL: MW2MATROX 0x100a5548
+// GLOBAL: MW23DFX 0x1024e40c
 MechS32 g_maxPolygons = 0;
 
 // GLOBAL: MW2 0x1010b5a0
 // GLOBAL: MW2MATROX 0x101d696c
+// GLOBAL: MW23DFX 0x101b0ecc
 MechS32 g_shapesDrawn;
 
 // The depth the shapes are queued at.
 // GLOBAL: MW2 0x1010b5a4
 // GLOBAL: MW2MATROX 0x101d6964
+// GLOBAL: MW23DFX 0x101b0ec4
 MechScalar g_queueDepth;
 
 // The list being built: g_depthQueue or g_drawList.
@@ -81,6 +85,7 @@ MechU32 g_queuedShapeFlags;
 
 // GLOBAL: MW2 0x1010b5cc
 // GLOBAL: MW2MATROX 0x101d6970
+// GLOBAL: MW23DFX 0x101b0ed0
 MechS32 g_shapesConsidered;
 
 // Selects the shape's level of detail for p_depth (the first model whose distance, scaled by the
@@ -119,7 +124,7 @@ MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 	else {
 		prev = cursor;
 		while (cursor) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (cursor->m_key * g_eyepoint->m_detailScale > p_depth) {
 #else
 			if (FixedMul16(g_eyepoint->m_detailScale, cursor->m_key) > p_depth) {
@@ -168,7 +173,7 @@ MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 	return 0;
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's draws a queued polygon itself: a pixel or a line (when g_renderSettings
 // draws those), else through m_drawPolygon, first filled and outlined in wireframe mode 1.
 // FUNCTION: MW2MATROX 0x100233e0
@@ -369,7 +374,7 @@ void DrawDepthQueue(void)
 	}
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "drawobjtreeshapes.c"
 #endif
 
@@ -377,6 +382,7 @@ void DrawDepthQueue(void)
 // MW2MATROX: the g_polygonCount/g_maxPolygons comparison loads its operands in the opposite order.
 // FUNCTION: MW2 0x10033c4b
 // FUNCTION: MW2MATROX 0x100237e0
+// FUNCTION: MW23DFX 0x1002a300
 void QueueObjTree(SceneObject* p_object)
 {
 	SceneObject* child;
@@ -400,19 +406,20 @@ void QueueObjTree(SceneObject* p_object)
 	}
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "drawobjtreeshapes.c"
 #endif
 
 // FUNCTION: MW2 0x10033d0f
 // FUNCTION: MW2MATROX 0x100238f0
+// FUNCTION: MW23DFX 0x1002a370
 void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
 {
 	SelectEyepoint(p_eyepoint);
 	DrawShapeList(p_root);
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.
 // Stack-slot permutation: every local.
 // FUNCTION: MW2 0x10033d32

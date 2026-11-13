@@ -20,14 +20,17 @@ enum ScreenshotState {
 
 // GLOBAL: MW2 0x100ad498
 // GLOBAL: MW2MATROX 0x100ae2b0
+// GLOBAL: MW23DFX 0x1025940c
 MechS32 g_screenshotState = c_screenshotIdle;
 
 // GLOBAL: MW2 0x100c75e0
 // GLOBAL: MW2MATROX 0x10150680
+// GLOBAL: MW23DFX 0x10159df4
 PANE* g_screenshotTarget;
 
 // FUNCTION: MW2 0x1006cdc0
 // FUNCTION: MW2MATROX 0x1006eb20
+// FUNCTION: MW23DFX 0x1003b5e0
 MechS32 ScreenshotBegin(const MechChar* p_filename)
 {
 	MechS32 result = c_gifErrCreate;
@@ -49,6 +52,7 @@ MechS32 ScreenshotBegin(const MechChar* p_filename)
 // Stack-slot permutation: color and i.
 // FUNCTION: MW2 0x1006ce29
 // FUNCTION: MW2MATROX 0x1006eb89
+// FUNCTION: MW23DFX 0x1003b620
 void ScreenshotWritePalette(void)
 {
 	PaletteColor color;
@@ -69,6 +73,7 @@ void ScreenshotWritePalette(void)
 // Stack-slot permutation: width and result.
 // FUNCTION: MW2 0x1006cea9
 // FUNCTION: MW2MATROX 0x1006ec09
+// FUNCTION: MW23DFX 0x1003b680
 MechS32 ScreenshotWriteImage(PANE* p_target)
 {
 	MechS32 width;
@@ -97,6 +102,7 @@ void ScreenshotEnd(void)
 
 // FUNCTION: MW2 0x1006cf54
 // FUNCTION: MW2MATROX 0x1006ecb4
+// FUNCTION: MW23DFX 0x1003b6e0
 MechS32 ScreenshotGetPixel(MechS32 p_x, MechS32 p_y)
 {
 	return VFX_pixel_read(g_screenshotTarget, p_x, p_y);

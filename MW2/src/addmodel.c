@@ -41,7 +41,7 @@ Model* AddModel(
 		return NULL;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!p_faceCount) {
 		p_faceCount = 1;
 	}

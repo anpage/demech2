@@ -36,26 +36,31 @@ PlayerType g_playerTypes[9] = {
 
 // GLOBAL: MW2 0x100ad5e0
 // GLOBAL: MW2MATROX 0x100aa878
+// GLOBAL: MW23DFX 0x1024c470
 MechS32 g_playerCount = 0;
 
 // GLOBAL: MW2 0x100ad5e4
 // GLOBAL: MW2MATROX 0x100aa87c
+// GLOBAL: MW23DFX 0x1024c474
 MechS32 g_gameThingCount = 0;
 
 // The world loader stops at 0x3c players (BwdExecuteStream), which fill the original's room
 // before g_gameThings.
 // GLOBAL: MW2 0x100c3570
 // GLOBAL: MW2MATROX 0x1015e8d0
+// GLOBAL: MW23DFX 0x101e0190
 Player* g_players[0x3c];
 
 // GLOBAL: MW2 0x100c3660
 // GLOBAL: MW2MATROX 0x1015e9c0
+// GLOBAL: MW23DFX 0x101e0280
 GameThing g_gameThings[254];
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
 // MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1006cf80
 // FUNCTION: MW2MATROX 0x10054e10
+// FUNCTION: MW23DFX 0x100187c0
 void FirstClassFunctions(void)
 {
 	MechS32 i;
@@ -90,6 +95,7 @@ void UpdateAllPlayers(void)
 // MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1006d068
 // FUNCTION: MW2MATROX 0x10054ef7
+// FUNCTION: MW23DFX 0x10018840
 void LateUpdateAllPlayers(void)
 {
 	MechS32 i;
@@ -105,6 +111,7 @@ void LateUpdateAllPlayers(void)
 
 // FUNCTION: MW2 0x1006d0e5
 // FUNCTION: MW2MATROX 0x10054f73
+// FUNCTION: MW23DFX 0x10018880
 void UpdateLocalPlayer(void)
 {
 	Player* player;
@@ -121,6 +128,7 @@ void UpdateLocalPlayer(void)
 
 // FUNCTION: MW2 0x1006d139
 // FUNCTION: MW2MATROX 0x10054fc7
+// FUNCTION: MW23DFX 0x100188b0
 void DrawLocalPlayer(void)
 {
 	Player* player;
@@ -154,6 +162,7 @@ void ShutdownAllPlayers(void)
 
 // FUNCTION: MW2 0x1006d1f5
 // FUNCTION: MW2MATROX 0x10055083
+// FUNCTION: MW23DFX 0x10018920
 void ZeroGameThing(MechS32 p_index)
 {
 	GameThing* thing;
@@ -169,6 +178,7 @@ void ZeroGameThing(MechS32 p_index)
 
 // FUNCTION: MW2 0x1006d247
 // FUNCTION: MW2MATROX 0x100550d5
+// FUNCTION: MW23DFX 0x10018950
 void ZeroGamethings(void)
 {
 	MechS32 i;
@@ -240,6 +250,7 @@ MechS32 AllocPlayer(MechS32 p_player)
 // Sets up a newly allocated player.
 // FUNCTION: MW2 0x1006d3a4
 // FUNCTION: MW2MATROX 0x10055234
+// FUNCTION: MW23DFX 0x10018a20
 void InitPlayer(Player* p_player)
 {
 	p_player->m_type = 0;

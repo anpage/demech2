@@ -18,6 +18,14 @@
 #define PORTABLE_C
 #endif
 
+// The C calling convention, spelled out on the declarations of the routines written in assembly
+// and of the callbacks the C runtime calls. The 3Dfx edition is built with /Gr, which makes
+// __fastcall the default; for every other target __cdecl is the default already. Compilers for
+// other platforms than Windows have no such keyword.
+#if !defined(_WIN32)
+#define __cdecl
+#endif
+
 #if defined(_MSC_VER)
 // Disable "identifier was truncated to '255' characters" warning.
 // Impossible to avoid this if using STL map or set.

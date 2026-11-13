@@ -14,20 +14,24 @@
 
 // GLOBAL: MW2 0x100ba548
 // GLOBAL: MW2MATROX 0x100a4e50
+// GLOBAL: MW23DFX 0x1024ab44
 MechS32 g_currentClock = 0;
 
 // Ticks that run on while the game clock is paused; the network times its messages by them.
 // GLOBAL: MW2 0x100ba54c
 // GLOBAL: MW2MATROX 0x100a4e54
+// GLOBAL: MW23DFX 0x1024ab48
 MechS32 g_realClock = 0;
 
 // GLOBAL: MW2 0x100ba550
 // GLOBAL: MW2MATROX 0x100a4e58
+// GLOBAL: MW23DFX 0x1024ab4c
 MechS32 g_deltaTime = 0;
 
 // 0 the game clock runs on its own ticks, 2 a slave's follows the master's, 3 paused.
 // GLOBAL: MW2 0x100ba554
 // GLOBAL: MW2MATROX 0x100a4e5c
+// GLOBAL: MW23DFX 0x1024ab50
 MechS32 g_clockMode = 0;
 
 // GLOBAL: MW2 0x100ba558
@@ -36,6 +40,7 @@ MechS32 g_clockPaused = 0;
 
 // GLOBAL: MW2 0x100ba55c
 // GLOBAL: MW2MATROX 0x100a4e64
+// GLOBAL: MW23DFX 0x1024ab58
 HTIMER g_ticksTimer = -1;
 
 // GLOBAL: MW2 0x100ba560
@@ -52,12 +57,14 @@ MechS32 g_framerateLimit = 0;
 
 // GLOBAL: MW2 0x100ba56c
 // GLOBAL: MW2MATROX 0x100a4e74
+// GLOBAL: MW23DFX 0x1024ab68
 MechS32 g_clockHandle = -1;
 
 // The ticks since a slave's last UpdateNetwork: they advance its game clock when the master's
 // clock didn't arrive.
 // GLOBAL: MW2 0x100ba570
 // GLOBAL: MW2MATROX 0x100a4e78
+// GLOBAL: MW23DFX 0x1024ab6c
 MechS32 g_syncTicksHandle = -1;
 
 // GLOBAL: MW2 0x100ba574
@@ -65,10 +72,12 @@ MechS32 g_unk0x100ba574 = -1;
 
 // GLOBAL: MW2 0x100ba578
 // GLOBAL: MW2MATROX 0x100a4e80
+// GLOBAL: MW23DFX 0x1024ab74
 MechS32 g_realClockHandle = -1;
 
 // GLOBAL: MW2 0x100ba57c
 // GLOBAL: MW2MATROX 0x100a4e84
+// GLOBAL: MW23DFX 0x1024ab78
 MechS32 g_previousClock = 0;
 
 // GLOBAL: MW2 0x100ba580
@@ -77,6 +86,7 @@ MechS32 g_clockModeBeforePause = 0;
 
 // GLOBAL: MW2 0x100ba584
 // GLOBAL: MW2MATROX 0x100a4e8c
+// GLOBAL: MW23DFX 0x1024ab80
 BOOL g_ticksTimerInitialized = FALSE;
 
 // GLOBAL: MW2 0x100bfd54
@@ -92,6 +102,7 @@ MechScalar g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
 // GLOBAL: MW2MATROX 0x1012e450
+// GLOBAL: MW23DFX 0x1015dee0
 MechScalar g_sinTable[TRIG_TABLE_SIZE];
 
 // GLOBAL: MW2 0x100c1a80
@@ -101,8 +112,8 @@ MechS16 g_sqrtTableData[0x400];
 // GLOBAL: MW2MATROX 0x1012ec50
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
-// The Matrox edition's tables, Hypot2D and trigonometry are its own float code, in matrox/floatmath.c.
-#ifndef MW2_MATROX
+// The Matrox edition's tables, Hypot2D and trigonometry are its own float code, in accel/floatmath.c.
+#ifndef MW2_ACCEL
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
 // FUNCTION: MW2 0x1007c930
@@ -152,7 +163,7 @@ MechS32 InitSqrtTable(void)
 	return TRUE;
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // FUNCTION: MW2 0x1007caf7
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
@@ -181,12 +192,13 @@ void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS3
 }
 
 // The rotation's normalization: 1.1 has it here, the Matrox edition at the end of transform.c's object.
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "normalizerotation.c"
 #endif
 
 // FUNCTION: MW2 0x1007cd50
 // FUNCTION: MW2MATROX 0x1001e8e0
+// FUNCTION: MW23DFX 0x10007f20
 void FirstClock(void)
 {
 	if (!g_ticksTimerInitialized) {
@@ -264,6 +276,7 @@ void NextClock(void)
 
 // FUNCTION: MW2 0x1007cff5
 // FUNCTION: MW2MATROX 0x1001eb85
+// FUNCTION: MW23DFX 0x10008190
 void StopTimers(void)
 {
 	if (g_ticksTimerInitialized) {
@@ -279,6 +292,7 @@ void StopTimers(void)
 
 // FUNCTION: MW2 0x1007d05d
 // FUNCTION: MW2MATROX 0x1001ebed
+// FUNCTION: MW23DFX 0x100081f0
 MechS32 GetGameClock(void)
 {
 	return GetTicks(g_clockHandle);
@@ -286,6 +300,7 @@ MechS32 GetGameClock(void)
 
 // FUNCTION: MW2 0x1007d07b
 // FUNCTION: MW2MATROX 0x1001ec0b
+// FUNCTION: MW23DFX 0x10008200
 MechS32 GetTicksSinceSync(void)
 {
 	return GetTicks(g_syncTicksHandle);
@@ -293,6 +308,7 @@ MechS32 GetTicksSinceSync(void)
 
 // FUNCTION: MW2 0x1007d099
 // FUNCTION: MW2MATROX 0x1001ec29
+// FUNCTION: MW23DFX 0x10008210
 void ResetSyncTicks(void)
 {
 	ResetTicks(g_syncTicksHandle);
@@ -300,6 +316,7 @@ void ResetSyncTicks(void)
 
 // FUNCTION: MW2 0x1007d0b2
 // FUNCTION: MW2MATROX 0x1001ec42
+// FUNCTION: MW23DFX 0x10008220
 void ResetClocks(void)
 {
 	ResetTicks(g_realClockHandle);
@@ -310,6 +327,7 @@ void ResetClocks(void)
 
 // FUNCTION: MW2 0x1007d0fb
 // FUNCTION: MW2MATROX 0x1001ec8b
+// FUNCTION: MW23DFX 0x10008260
 MechS32 GetRealClock(void)
 {
 	return GetTicks(g_realClockHandle);

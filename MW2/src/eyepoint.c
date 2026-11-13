@@ -1,4 +1,4 @@
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "eyepoint.h"
@@ -59,20 +59,24 @@ MechScalar g_trackTurn = FIXED_LITERAL(0xb40000, 180.0f);
 
 // GLOBAL: MW2 0x100a2400
 // GLOBAL: MW2MATROX 0x100a3640
+// GLOBAL: MW23DFX 0x1024e658
 MechScalar g_normalFov = FIXED_CONST(1);
 
 // GLOBAL: MW2 0x100a2404
 // GLOBAL: MW2MATROX 0x100a3644
+// GLOBAL: MW23DFX 0x1024e65c
 MechScalar g_zoomFov = FIXED_CONST(1);
 
 // The view mode the camera was updated in last (c_view...), or -1.
 // GLOBAL: MW2 0x100a2408
 // GLOBAL: MW2MATROX 0x100a3648
+// GLOBAL: MW23DFX 0x1024e660
 MechS32 g_viewMode = -1;
 
 // The view mode to return to from the ordinance view.
 // GLOBAL: MW2 0x100a240c
 // GLOBAL: MW2MATROX 0x100a364c
+// GLOBAL: MW23DFX 0x1024e664
 MechS32 g_ordinanceReturnMode = -1;
 
 // The view mode FirstEyepoint starts the camera in.
@@ -83,6 +87,7 @@ MechS32 g_initialViewMode = 0;
 // The view mode SetViewMode asked for; UpdateEyepoint switches to it.
 // GLOBAL: MW2 0x100a2414
 // GLOBAL: MW2MATROX 0x100a3654
+// GLOBAL: MW23DFX 0x1024e66c
 MechS32 g_requestedViewMode = 0;
 
 // Set when a mech starts under the autopilot (mechclass.c); nothing reads it.
@@ -94,27 +99,32 @@ MechS32 g_autopilotStart = 1;
 // draws the crosshair only then.
 // GLOBAL: MW2 0x100a241c
 // GLOBAL: MW2MATROX 0x100a365c
+// GLOBAL: MW23DFX 0x1024e674
 MechS32 g_cockpitEyeSteady = 0;
 
 // Set while the camera is in the cockpit view: the cockpit's own shape (g_cockpitObject) is drawn
 // separately, and the 3D sound calls get it.
 // GLOBAL: MW2 0x100a2420
 // GLOBAL: MW2MATROX 0x100a3660
+// GLOBAL: MW23DFX 0x1024e678
 undefined4 g_inCockpitView = 0;
 
 // The view mode SetViewMode forces once the local mech is lost (g_localMechLost): the track view.
 // GLOBAL: MW2 0x100a2424
 // GLOBAL: MW2MATROX 0x100a3664
+// GLOBAL: MW23DFX 0x1024e67c
 MechS32 g_lostViewMode = -1;
 
 // Set while a network game's lost player advances the viewpoint between players; until then the
 // track view circles the mech.
 // GLOBAL: MW2 0x100a2428
 // GLOBAL: MW2MATROX 0x100a3668
+// GLOBAL: MW23DFX 0x1024e680
 MechS32 g_spectating = 0;
 
 // GLOBAL: MW2 0x100a242c
 // GLOBAL: MW2MATROX 0x100a366c
+// GLOBAL: MW23DFX 0x1024e684
 struct Player* g_localPlayer = NULL;
 
 // The player the camera tracks.
@@ -126,23 +136,28 @@ MechS32 g_trackedPlayer = 0;
 // (GetPlayerEyeView, the aim ray); nothing reads the second.
 // GLOBAL: MW2 0x100a2434
 // GLOBAL: MW2MATROX 0x100a3674
+// GLOBAL: MW23DFX 0x1024e68c
 MechScalar* g_eyeHeightOffset = NULL;
 
 // GLOBAL: MW2 0x100a2438
 // GLOBAL: MW2MATROX 0x100a3678
+// GLOBAL: MW23DFX 0x1024e690
 MechS32* g_eyeTwist = NULL;
 
 // The drop camera (UpdateDropView): its vertical speed, acceleration and start clock.
 // GLOBAL: MW2 0x100a243c
 // GLOBAL: MW2MATROX 0x100a367c
+// GLOBAL: MW23DFX 0x1024e694
 MechScalar g_dropSpeed = 0;
 
 // GLOBAL: MW2 0x100a2440
 // GLOBAL: MW2MATROX 0x100a3680
+// GLOBAL: MW23DFX 0x1024e698
 MechScalar g_dropAcceleration = FIXED_LITERAL(0x3ca0, 0.2368f);
 
 // GLOBAL: MW2 0x100a2444
 // GLOBAL: MW2MATROX 0x100a3684
+// GLOBAL: MW23DFX 0x1024e69c
 MechS32 g_dropStartClock = 0;
 
 // Set while no glance key is held (UpdateCockpitView).
@@ -153,6 +168,7 @@ MechS8 g_glanceReleased = 0;
 // The view UpdateOrdinanceView saves when it enters the ordinance view.
 // GLOBAL: MW2 0x10176f10
 // GLOBAL: MW2MATROX 0x10218350
+// GLOBAL: MW23DFX 0x1015f040
 MechScalar g_ordinanceSavedView[7];
 
 // The track view's height limits (UpdateTrackView).
@@ -180,6 +196,7 @@ MechScalar g_trackMinHeight;
 // The cockpit view's tilt, eased toward g_sinkPilotTilt.
 // GLOBAL: MW2 0x10176f80
 // GLOBAL: MW2MATROX 0x10218320
+// GLOBAL: MW23DFX 0x1015f010
 ScalarRamp g_pilotTilt;
 
 // GLOBAL: MW2 0x10176f90
@@ -193,6 +210,7 @@ SavedView g_savedViews[5];
 // The cockpit view's pan, eased toward g_sinkPilotPan.
 // GLOBAL: MW2 0x10177030
 // GLOBAL: MW2MATROX 0x102182c0
+// GLOBAL: MW23DFX 0x1015efb0
 ScalarRamp g_pilotPan;
 
 // The free camera's forward speed.
@@ -242,6 +260,7 @@ void FirstEyepoint(void)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100110f7
 // FUNCTION: MW2MATROX 0x10008d87
+// FUNCTION: MW23DFX 0x1002dc90
 void UpdateEyepoint(void)
 {
 	MechS32 mode;
@@ -277,7 +296,7 @@ void UpdateEyepoint(void)
 		UpdateOrdinanceView();
 		break;
 	case c_viewTrack:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		speed = g_deltaTime * g_sinkTrackDistanceDelta / 0xb5;
 		strafe = g_deltaTime * g_sinkTrackHeightDelta / 0xb5;
 		turn = g_sinkEyepointTilt;
@@ -305,7 +324,7 @@ void UpdateEyepoint(void)
 		UpdateDropView();
 		break;
 	default:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		climb = g_deltaTime * g_sinkTrackHeightDelta / 0xb5 * 2;
 		speed = g_deltaTime * g_sinkTrackDistanceDelta / 0xb5 * 2;
 		strafe = g_deltaTime * g_sinkEyepointSlideDelta / 0xb5;
@@ -347,12 +366,13 @@ void UpdateEyepoint(void)
 
 // FUNCTION: MW2 0x100113af
 // FUNCTION: MW2MATROX 0x10009107
+// FUNCTION: MW23DFX 0x1002ded0
 MechScalar GetCameraFloor(Eyepoint* p_eyepoint)
 {
 	MechScalar height;
 
 	height = GetHighestSurface(p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (height > 1e-07f) {
 #else
 	if (height > 0) {
@@ -368,6 +388,7 @@ MechScalar GetCameraFloor(Eyepoint* p_eyepoint)
 
 // FUNCTION: MW2 0x10011401
 // FUNCTION: MW2MATROX 0x1000916a
+// FUNCTION: MW23DFX 0x1002df20
 void SetViewMode(MechS32 p_zoom)
 {
 	if (g_localMechLost) {
@@ -383,6 +404,7 @@ void SetViewMode(MechS32 p_zoom)
 
 // FUNCTION: MW2 0x10011440
 // FUNCTION: MW2MATROX 0x100091a9
+// FUNCTION: MW23DFX 0x1002df50
 MechS32 GetViewMode(void)
 {
 	return g_requestedViewMode;
@@ -392,6 +414,7 @@ MechS32 GetViewMode(void)
 // p_reset), and plays a sound when it changes.
 // FUNCTION: MW2 0x10011455
 // FUNCTION: MW2MATROX 0x100091be
+// FUNCTION: MW23DFX 0x1002df60
 void ApplyCameraFov(MechS32 p_reset)
 {
 	MechScalar fov;
@@ -419,6 +442,7 @@ void ApplyCameraFov(MechS32 p_reset)
 // as set. Returns 0 without both.
 // FUNCTION: MW2 0x100114ea
 // FUNCTION: MW2MATROX 0x10009258
+// FUNCTION: MW23DFX 0x1002dfe0
 MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
@@ -431,7 +455,7 @@ MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 	p_view[3] = p_eyepoint->m_heading;
 	p_view[4] = p_eyepoint->m_pitch;
 	p_view[5] = p_eyepoint->m_roll;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	/* The mark stays an integer word after the Matrox edition's floats. */
 	*(MechS32*) &p_view[6] = 1;
 #else
@@ -444,13 +468,14 @@ MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 // 0 without both, or when the view is not set.
 // FUNCTION: MW2 0x1001156a
 // FUNCTION: MW2MATROX 0x100092d8
+// FUNCTION: MW23DFX 0x1002e020
 MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 {
 	if (p_view == NULL || p_eyepoint == NULL) {
 		return 0;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!*(MechS32*) &p_view[6]) {
 		return 0;
 	}
@@ -565,6 +590,7 @@ void GetPlayerEyeView(
 // camera).
 // FUNCTION: MW2 0x10011819
 // FUNCTION: MW2MATROX 0x100095b0
+// FUNCTION: MW23DFX 0x1002e210
 void UpdateOrdinanceView(void)
 {
 	MechScalar* camera;
@@ -622,7 +648,7 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 	MechScalar unused;
 	Mech* mech;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	GetPlayerEyeView(&pitch, &heading, &roll, &x, &y, &z);
 	if (g_viewMode != c_viewTrack) {
 		if (!g_localMechLost) {
@@ -858,6 +884,7 @@ void UpdateCockpitView(void)
 // Stack-slot permutation: pan and tilt.
 // FUNCTION: MW2 0x10011e45
 // FUNCTION: MW2MATROX 0x10009c7c
+// FUNCTION: MW23DFX 0x1002e750
 void GetCockpitEyeView(
 	MechScalar* p_pitch,
 	MechScalar* p_heading,
@@ -889,6 +916,7 @@ void GetCockpitEyeView(
 // Stack-slot permutation: the six locals.
 // FUNCTION: MW2 0x10011edc
 // FUNCTION: MW2MATROX 0x10009d1d
+// FUNCTION: MW23DFX 0x1002e7d0
 void UpdateDropView(void)
 {
 	MechScalar unk0x10;
@@ -933,7 +961,7 @@ void UpdateFreeEyeView(
 	MechScalar speed;
 	MechScalar cosPitch;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	sinHeading = FixedSin(g_eyepoint->m_heading);
 	cosHeading = FixedCos(g_eyepoint->m_heading);
 	sinPitch = FixedSin(g_eyepoint->m_pitch);
@@ -1024,6 +1052,7 @@ void UpdateFreeEyeView(
 // IsSatelliteView is set.
 // FUNCTION: MW2 0x1001220a
 // FUNCTION: MW2MATROX 0x1000a065
+// FUNCTION: MW23DFX 0x1002ea80
 void TurnBillboards(void)
 {
 	MechScalar pitch;

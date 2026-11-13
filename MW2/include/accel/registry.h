@@ -1,11 +1,11 @@
-#ifndef MATROX_REGISTRY_H
-#define MATROX_REGISTRY_H
+#ifndef ACCEL_REGISTRY_H
+#define ACCEL_REGISTRY_H
 
 #include "types.h"
 
 #include <windows.h>
 
-// The functions of matrox/registry.c that other units use.
+// The functions of accel/registry.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
@@ -18,4 +18,4 @@ extern "C"
 }
 #endif
 
-#endif // MATROX_REGISTRY_H
+#endif // ACCEL_REGISTRY_H

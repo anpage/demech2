@@ -28,7 +28,7 @@ tools/check_block_sizes.py checks the same calls in the source; this tool also
 covers calls whose size the source computes (`sizeof` of the wrong object).
 
 The Miles Design VFX objects (3rdparty/vfx, and the Matrox edition's 16-bit port of
-VFXA, MW2/src/matrox/vfx16.asm) are left out: their source declares its
+VFXA, MW2/src/accel/vfx16.asm) are left out: their source declares its
 buffers as labels and untyped data, which ML's debug information sizes as one
 element, and runs of separately named variables are one block there by design
 (VFX_register_driver copies the driver's table over its 13 entry points).

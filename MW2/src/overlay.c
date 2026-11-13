@@ -21,12 +21,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 // The debug overlays' text color (the Matrox edition's palette has it elsewhere).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define OVERLAY_TEXT_COLOR 0x52
 #else
 #define OVERLAY_TEXT_COLOR 0x4f
@@ -43,6 +43,7 @@
 // The spaces the Hide functions blank a readout with.
 // GLOBAL: MW2 0x100a9478
 // GLOBAL: MW2MATROX 0x100bcbf0
+// GLOBAL: MW23DFX 0x10259430
 MechChar g_blankText[] = "                                 ";
 
 // GLOBAL: MW2 0x100a949c
@@ -55,18 +56,22 @@ MechS32 g_unk0x100a94a0 = 0;
 // The row MonoPrint last wrote to; MonoClear resets it and its neighbours to the top row.
 // GLOBAL: MW2 0x100a94a4
 // GLOBAL: MW2MATROX 0x100bcc1c
+// GLOBAL: MW23DFX 0x1025945c
 MechS32 g_monoLastRow = 3;
 
 // GLOBAL: MW2 0x100a94a8
 // GLOBAL: MW2MATROX 0x100bcc20
+// GLOBAL: MW23DFX 0x10259460
 MechS32 g_unk0x100a94a8 = 3;
 
 // GLOBAL: MW2 0x100a94ac
 // GLOBAL: MW2MATROX 0x100bcc24
+// GLOBAL: MW23DFX 0x10259464
 MechChar g_unk0x100a94ac[4] = "";
 
 // GLOBAL: MW2 0x100a94b0
 // GLOBAL: MW2MATROX 0x100bcc28
+// GLOBAL: MW23DFX 0x10259468
 MechS32 g_frameRateShown = 0;
 
 // GLOBAL: MW2 0x100a94b4
@@ -75,6 +80,7 @@ MechS32 g_showFrameRate = 0;
 
 // GLOBAL: MW2 0x100a94b8
 // GLOBAL: MW2MATROX 0x100bcc30
+// GLOBAL: MW23DFX 0x10259470
 MechS32 g_showFrameRateMain = 0;
 
 // GLOBAL: MW2 0x100a94bc
@@ -84,14 +90,17 @@ MechS32 g_unk0x100a94bc = 0;
 // ScaleOverlayPositions scales them to pixels.
 // GLOBAL: MW2 0x100a94c0
 // GLOBAL: MW2MATROX 0x100bcc38
+// GLOBAL: MW23DFX 0x10259478
 Point g_frameRateOrigin = {0x51f, 0x147b};
 
 // GLOBAL: MW2 0x100a94c8
 // GLOBAL: MW2MATROX 0x100bcc40
+// GLOBAL: MW23DFX 0x10259480
 Point g_memInfoOrigin = {0x51f, 0x2148};
 
 // GLOBAL: MW2 0x100a94d0
 // GLOBAL: MW2MATROX 0x100bcc48
+// GLOBAL: MW23DFX 0x10259488
 Point g_eyePositionOrigin = {0xccd, 0xb333};
 
 // GLOBAL: MW2 0x100a94d8
@@ -100,10 +109,12 @@ MechS32 g_showSceneInfo = 0;
 
 // GLOBAL: MW2 0x100a94dc
 // GLOBAL: MW2MATROX 0x100bcc54
+// GLOBAL: MW23DFX 0x10259494
 MechS32 g_showSceneInfoMain = 0;
 
 // GLOBAL: MW2 0x100a94e0
 // GLOBAL: MW2MATROX 0x100bcc58
+// GLOBAL: MW23DFX 0x10259498
 MechS32 g_sceneInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94e4
@@ -123,10 +134,12 @@ MechS32 g_showMemInfo = 1;
 
 // GLOBAL: MW2 0x100a94f4
 // GLOBAL: MW2MATROX 0x100bcc6c
+// GLOBAL: MW23DFX 0x102594ac
 MechS32 g_showMemInfoMain = 0;
 
 // GLOBAL: MW2 0x100a94f8
 // GLOBAL: MW2MATROX 0x100bcc70
+// GLOBAL: MW23DFX 0x102594b0
 MechS32 g_memInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94fc
@@ -135,6 +148,7 @@ MechS32 g_showCacheInfo = 0;
 
 // GLOBAL: MW2 0x100a9500
 // GLOBAL: MW2MATROX 0x100bcc78
+// GLOBAL: MW23DFX 0x102594b8
 MechS32 g_cacheInfoShown = 0;
 
 // GLOBAL: MW2 0x100a9504
@@ -167,26 +181,32 @@ MechS32 g_unk0x100a9518 = 0;
 // The frame rate, in whole frames per second and tenths, over the last ten frames.
 // GLOBAL: MW2 0x100a951c
 // GLOBAL: MW2MATROX 0x100bcc94
+// GLOBAL: MW23DFX 0x102594d4
 MechS32 g_frameRate = 0;
 
 // GLOBAL: MW2 0x100a9520
 // GLOBAL: MW2MATROX 0x100bcc98
+// GLOBAL: MW23DFX 0x102594d8
 MechS32 g_frameRateTenths = 0;
 
 // GLOBAL: MW2 0x100a9524
 // GLOBAL: MW2MATROX 0x100bcc9c
+// GLOBAL: MW23DFX 0x102594dc
 MechS32 g_frameRateTime = 0;
 
 // GLOBAL: MW2 0x100a9528
 // GLOBAL: MW2MATROX 0x100bcca0
+// GLOBAL: MW23DFX 0x102594e0
 MechS32 g_frameRateFrames = 0;
 
 // GLOBAL: MW2 0x100a952c
 // GLOBAL: MW2MATROX 0x100bcca4
+// GLOBAL: MW23DFX 0x102594e4
 MechS32 g_spinnerDelay = 4;
 
 // GLOBAL: MW2 0x100a9530
 // GLOBAL: MW2MATROX 0x100bcca8
+// GLOBAL: MW23DFX 0x102594e8
 MechS32 g_spinnerArrow = 3;
 
 // The cursor of MonoPrint.
@@ -196,6 +216,7 @@ MechS32 g_monoRow = 3;
 
 // GLOBAL: MW2 0x100a9538
 // GLOBAL: MW2MATROX 0x100bccb0
+// GLOBAL: MW23DFX 0x102594f0
 MechS32 g_monoColumn = 0;
 
 // The debug build drew each text it formatted while g_monoEnabled was set; the release
@@ -227,15 +248,18 @@ static MechS32 g_sceneFaceCount;
 // /M switch's InitializeMono could have set it, in a branch compiled out.
 // GLOBAL: MW2 0x100e9630
 // GLOBAL: MW2MATROX 0x1012b980
+// GLOBAL: MW23DFX 0x10159d9c
 MechS32 g_monoEnabled;
 
 // A line of spaces, with its terminator.
 // GLOBAL: MW2 0x100e9640
 // GLOBAL: MW2MATROX 0x1012b990
+// GLOBAL: MW23DFX 0x10159da0
 MechChar g_monoBlankLine[0x50];
 
 // GLOBAL: MW2 0x100e9690
 // GLOBAL: MW2MATROX 0x1012b9e0
+// GLOBAL: MW23DFX 0x10159df0
 MechChar g_monoBlankLineEnd;
 
 // Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
@@ -264,7 +288,7 @@ void DrawDebugOverlays(void)
 		HideSceneInfo();
 	}
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	if (g_showEyePosition) {
 		ShowEyePosition(g_eyepoint);
 	}
@@ -328,6 +352,7 @@ void DrawPaletteGrid(void)
 // stopped the mission timer here).
 // FUNCTION: MW2 0x10058958
 // FUNCTION: MW2MATROX 0x1008ddbf
+// FUNCTION: MW23DFX 0x1003c6a0
 void InitializeMono(void)
 {
 	MechS32 i;
@@ -346,6 +371,7 @@ void InitializeMono(void)
 // Stack-slot permutation: text and rate.
 // FUNCTION: MW2 0x100589ae
 // FUNCTION: MW2MATROX 0x1008de15
+// FUNCTION: MW23DFX 0x1003c6c0
 void ShowFrameRate(void)
 {
 	MechChar text[64];
@@ -380,6 +406,7 @@ void ShowFrameRate(void)
 
 // FUNCTION: MW2 0x10058ae5
 // FUNCTION: MW2MATROX 0x1008df4c
+// FUNCTION: MW23DFX 0x1003c7c0
 void HideFrameRate(void)
 {
 	MechChar text[16];
@@ -393,6 +420,7 @@ void HideFrameRate(void)
 
 // FUNCTION: MW2 0x10058b34
 // FUNCTION: MW2MATROX 0x1008df9b
+// FUNCTION: MW23DFX 0x1003c800
 void ShowSceneInfo(void)
 {
 	MechChar text[80];
@@ -443,6 +471,7 @@ void ShowSceneInfo(void)
 
 // FUNCTION: MW2 0x10058cda
 // FUNCTION: MW2MATROX 0x1008e141
+// FUNCTION: MW23DFX 0x1003c940
 void HideSceneInfo(void)
 {
 	MechChar text[32];
@@ -459,6 +488,7 @@ void HideSceneInfo(void)
 // Stack-slot permutation: vertexCount and faceCount.
 // FUNCTION: MW2 0x10058d36
 // FUNCTION: MW2MATROX 0x1008e19d
+// FUNCTION: MW23DFX 0x1003c980
 void CountSceneShape(Shape* p_shape)
 {
 	MechS32 vertexCount;
@@ -526,6 +556,7 @@ void HideEyePosition(void)
 
 // FUNCTION: MW2 0x10058f3c
 // FUNCTION: MW2MATROX 0x1008e1f7
+// FUNCTION: MW23DFX 0x1003c9e0
 void ShowCacheInfo(void)
 {
 	MechChar text[28];
@@ -549,6 +580,7 @@ void HideCacheInfo(void)
 // Stack-slot permutation: text and value.
 // FUNCTION: MW2 0x10058fb2
 // FUNCTION: MW2MATROX 0x1008e26d
+// FUNCTION: MW23DFX 0x1003ca40
 void ShowMemInfo(void)
 {
 	MechChar text[40];
@@ -569,6 +601,7 @@ void ShowMemInfo(void)
 
 // FUNCTION: MW2 0x10059036
 // FUNCTION: MW2MATROX 0x1008e2f1
+// FUNCTION: MW23DFX 0x1003caa0
 void HideMemInfo(void)
 {
 	MechChar text[16];
@@ -583,6 +616,7 @@ void HideMemInfo(void)
 // Steps the activity spinner.
 // FUNCTION: MW2 0x10059085
 // FUNCTION: MW2MATROX 0x1008e340
+// FUNCTION: MW23DFX 0x1003cae0
 void StepSpinner(void)
 {
 	MechChar text[2];
@@ -603,6 +637,7 @@ void StepSpinner(void)
 // Stack-slot permutation: i, text and dst.
 // FUNCTION: MW2 0x100590ea
 // FUNCTION: MW2MATROX 0x1008e3a5
+// FUNCTION: MW23DFX 0x1003cb10
 void MonoPrintLine(MechChar* p_text)
 {
 	MechS32 i;
@@ -628,6 +663,7 @@ void MonoPrintLine(MechChar* p_text)
 // Clears the debug console's rows 3 to 23.
 // FUNCTION: MW2 0x1005917d
 // FUNCTION: MW2MATROX 0x1008e438
+// FUNCTION: MW23DFX 0x1003cb60
 void MonoClear(void)
 {
 	MechS32 i;
@@ -683,6 +719,7 @@ void MonoPrint(MechChar* p_text)
 // Scales the _MAIN readouts' positions to the screen, after a change of resolution.
 // FUNCTION: MW2 0x100592b0
 // FUNCTION: MW2MATROX 0x1008e56b
+// FUNCTION: MW23DFX 0x1003cc00
 void ScaleOverlayPositions(void)
 {
 	ScalePointToScreen(&g_mainPixelBuffer, &g_frameRateOrigin, &g_frameRateOrigin);
@@ -692,6 +729,7 @@ void ScaleOverlayPositions(void)
 
 // FUNCTION: MW2 0x10059300
 // FUNCTION: MW2MATROX 0x1008e5bb
+// FUNCTION: MW23DFX 0x1003cc40
 void SimEntranceDbug(MechChar* p_mission, MechS32 p_memory)
 {
 	MechChar text[80];

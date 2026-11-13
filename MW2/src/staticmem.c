@@ -33,7 +33,7 @@ StaticPool g_staticPools[32];
 
 void ResetStaticPools(void);
 MechS32 ParseStaticPoolConfig(char* p_mission);
-int CompareStaticPools(const void* p_a, const void* p_b);
+int __cdecl CompareStaticPools(const void* p_a, const void* p_b);
 MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag);
 
 // Reads the mission's pool sizes, places the pools in groups of up to 0xffdc bytes, largest
@@ -170,7 +170,8 @@ void FreeStaticMem(void)
 // Stack-slot permutation: b and difference.
 // FUNCTION: MW2 0x10049cc7
 // FUNCTION: MW2MATROX 0x10079334
-int CompareStaticPools(const void* p_a, const void* p_b)
+// FUNCTION: MW23DFX 0x10023e90
+int __cdecl CompareStaticPools(const void* p_a, const void* p_b)
 {
 	StaticPool* a;
 	MechS32 difference;
@@ -255,6 +256,6 @@ MechS32 AddStaticPoolType(MechS32 p_size, MechU32 p_tag)
 }
 
 // The Matrox edition ends this object with the cockpit panels, which 1.1 has in config.c's.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "cockpitpanels.c"
 #endif

@@ -2,7 +2,7 @@
    functions with __asm bodies, and QueueFace has __asm blocks. Their portable C (PORTABLE_C)
    is tested against the assembly by tests/asmequiv: it replaces each whole function, whose C
    wraps where standard C overflows. */
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "objectanim.h"
@@ -151,6 +151,7 @@ MechS32 g_reelMotionError = 0;
 // The number of entries in g_paths.
 // GLOBAL: MW2 0x100a6d68
 // GLOBAL: MW2MATROX 0x100ae2b8
+// GLOBAL: MW23DFX 0x1024b32c
 MechS32 g_pathCount = 0;
 
 // GLOBAL: MW2 0x100a6d6c
@@ -160,16 +161,19 @@ MechS32 g_maxAnimNumber = 0;
 // The base of the animation numbers of the file being loaded.
 // GLOBAL: MW2 0x100a6d70
 // GLOBAL: MW2MATROX 0x100ae2c0
+// GLOBAL: MW23DFX 0x1024b334
 MechS32 g_animBase = 0;
 
 // The number of entries in g_animFiles.
 // GLOBAL: MW2 0x100a6d74
 // GLOBAL: MW2MATROX 0x100ae2c4
+// GLOBAL: MW23DFX 0x1024b338
 MechS32 g_animFileCount = 0;
 
 // Set to shade from the origin rather than the light (GetFaceShade).
 // GLOBAL: MW2 0x1010b530
 // GLOBAL: MW2MATROX 0x101d6908
+// GLOBAL: MW23DFX 0x101b0e58
 MechS32 g_directionalLight;
 
 // The outcodes of the polygon being built: any vertex's (or) and every vertex's (and).
@@ -216,6 +220,7 @@ MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
 // GLOBAL: MW2MATROX 0x101315a0
+// GLOBAL: MW23DFX 0x101e8e20
 Path g_paths[0x40];
 
 // The animations of the loaded animation files, by number.
@@ -622,6 +627,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // Scales p_value by mode p_mode: 1 by 1.5, 3 by 0.75, any other mode leaves it.
 // FUNCTION: MW2 0x100472fe
 // FUNCTION: MW2MATROX 0x1006f8d3
+// FUNCTION: MW23DFX 0x1000e600
 MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 {
 	MechS32 result;
@@ -681,6 +687,7 @@ MechS32 LoadAnimFile(ResourceRef* p_ref)
 
 // FUNCTION: MW2 0x10047462
 // FUNCTION: MW2MATROX 0x1006fa37
+// FUNCTION: MW23DFX 0x1000e6c0
 MechS32 GetAnimBase(void)
 {
 	return g_animBase;
@@ -688,6 +695,7 @@ MechS32 GetAnimBase(void)
 
 // FUNCTION: MW2 0x10047477
 // FUNCTION: MW2MATROX 0x1006fa4c
+// FUNCTION: MW23DFX 0x1000e6d0
 MechS32 GetReelMotionSize(void)
 {
 	return 0x2c;
@@ -819,7 +827,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			*token = '\0';
 			token++;
 			sscanf(token, "%f,%f,%f,%f", &x, &y, &z, &period);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			spin->m_rateX = x;
 			spin->m_rateY = y;
 			spin->m_rateZ = z;
@@ -861,7 +869,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		}
 
 		spin->m_object = GetShapeObject(*spin->m_shape);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		t = (p_clock - spin->m_lastClock) / spin->m_period;
 		dx = t * spin->m_rateX;
 		dy = spin->m_rateY * t;
@@ -923,7 +931,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 			*token = '\0';
 			token++;
 			sscanf(token, "%f,%f,%d,%d", &radius, &period, &enabled, &unused);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			orbit->m_turnRate = 360.0 / period;
 			orbit->m_speed = radius * 6.283185307179586 / period;
 #else
@@ -962,7 +970,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 		orbit->m_object = GetShapeObject(*orbit->m_shape);
 		cosine = FixedCos(orbit->m_angle);
 		sine = FixedSin(orbit->m_angle);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		t = (p_clock - orbit->m_lastClock) / 181.0f;
 		orbit->m_lastClock = p_clock;
 		step = t * orbit->m_speed;
@@ -977,7 +985,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 #endif
 		MoveObj(orbit->m_object, x, 0, z);
 		UpdateObj(orbit->m_object);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		step = orbit->m_turnRate * t;
 #else
 		step = FixedMul16(orbit->m_turnRate, t);
@@ -985,7 +993,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 		RotateObj(orbit->m_object, 0, step, 0, 0);
 		UpdateObj(orbit->m_object);
 		orbit->m_angle += step;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		orbit->m_angle = FIXED_MOD360(orbit->m_angle);
 #else
 		orbit->m_angle %= 0x1680000;
@@ -1003,6 +1011,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10047d10
 // FUNCTION: MW2MATROX 0x100702a2
+// FUNCTION: MW23DFX 0x1000ec90
 MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_period)
 {
 	MechChar* token;
@@ -1281,7 +1290,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			next = &path->m_points[i + 1];
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		t = (MechFloat) (elapsed - start) / point->m_duration;
 		follower->m_x.m_target = (next->m_x - point->m_x) * t + point->m_x;
 		follower->m_y.m_target = (next->m_y - point->m_y) * t + point->m_y;
@@ -1316,7 +1325,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		follower->m_heading.m_value = angle - delta;
 		angle = point->m_pitch;
 		if (follower->m_rotate) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			angle -= FixedAsin((next->m_y - point->m_y) / 65536.0f);
 #else
 			angle -= FixedAsin(FIXED_SHL(next->m_y - point->m_y, 13));
@@ -1363,8 +1372,8 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 }
 
 // The Matrox edition has these in an object of their own, after mechcollision.c's, in floats
-// (matrox/queueface.c).
-#ifndef MW2_MATROX
+// (accel/queueface.c).
+#ifndef MW2_ACCEL
 #ifdef PORTABLE_C_LABELS
 // The 64-bit product of two 32-bit values, as imul leaves it in edx:eax. Sums of products wrap,
 // like the add/adc chains.

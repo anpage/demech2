@@ -37,14 +37,17 @@ ShapeCollisionFns g_shapeCollisionFns[8] = {
 // The normal of the surface the last collision test hit, 16.16.
 // GLOBAL: MW2 0x100a5520
 // GLOBAL: MW2MATROX 0x100a55b0
+// GLOBAL: MW23DFX 0x1024b408
 MechScalar g_hitNormalX = 0;
 
 // GLOBAL: MW2 0x100a5524
 // GLOBAL: MW2MATROX 0x100a55b4
+// GLOBAL: MW23DFX 0x1024b40c
 MechScalar g_hitNormalY = 0;
 
 // GLOBAL: MW2 0x100a5528
 // GLOBAL: MW2MATROX 0x100a55b8
+// GLOBAL: MW23DFX 0x1024b410
 MechScalar g_hitNormalZ = 0;
 
 // The normal of the ground GetTerrainHeight found.
@@ -63,14 +66,17 @@ MechScalar g_groundNormalZ = 0;
 // The normal of the surface TestSegmentCollision hit.
 // GLOBAL: MW2 0x100a5538
 // GLOBAL: MW2MATROX 0x100a55c8
+// GLOBAL: MW23DFX 0x1024b420
 MechScalar g_segmentNormalX = 0;
 
 // GLOBAL: MW2 0x100a553c
 // GLOBAL: MW2MATROX 0x100a55cc
+// GLOBAL: MW23DFX 0x1024b424
 MechScalar g_segmentNormalY = 0;
 
 // GLOBAL: MW2 0x100a5540
 // GLOBAL: MW2MATROX 0x100a55d0
+// GLOBAL: MW23DFX 0x1024b428
 MechScalar g_segmentNormalZ = 0;
 
 // The background color the 3D view is cleared to.
@@ -95,10 +101,12 @@ MechS32 g_horizonMapColor = 0xea;
 
 // GLOBAL: MW2 0x100a5558
 // GLOBAL: MW2MATROX 0x100a4954
+// GLOBAL: MW23DFX 0x1024e424
 MechS32 g_unk0x100a5558 = -1;
 
 // FUNCTION: MW2 0x10034a40
 // FUNCTION: MW2MATROX 0x10023910
+// FUNCTION: MW23DFX 0x1000ffd0
 void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 {
 	p_shape->m_collisionType = p_collisionType;
@@ -116,6 +124,7 @@ void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 // MW2MATROX: the two products of the plane's height are summed in the other order.
 // FUNCTION: MW2 0x10034a7b
 // FUNCTION: MW2MATROX 0x1002394b
+// FUNCTION: MW23DFX 0x1000fff0
 MechS32 IsBelowFacePlane(
 	Face* p_face,
 	Vertex* p_vertices,
@@ -128,7 +137,7 @@ MechS32 IsBelowFacePlane(
 	Vertex* vertex;
 
 	vertex = &p_vertices[*((MechU8*) p_face + p_face->m_indexOffset)];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	*p_height = vertex->m_worldY -
 				((p_x - vertex->m_worldX) * p_face->m_normal[0] + (p_z - vertex->m_worldZ) * p_face->m_normal[2]) /
 					p_face->m_normal[1];
@@ -261,6 +270,7 @@ MechScalar GetHighestSurface(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 
 // FUNCTION: MW2 0x10034db8
 // FUNCTION: MW2MATROX 0x10023cd0
+// FUNCTION: MW23DFX 0x100102c0
 MechS32 HasHeightTest(Shape* p_shape)
 {
 	return g_shapeCollisionFns[p_shape->m_collisionType].m_getHeight != NULL;
@@ -269,6 +279,7 @@ MechS32 HasHeightTest(Shape* p_shape)
 // Tests the point against the world's shape nearest to it, returned in p_hit.
 // FUNCTION: MW2 0x10034deb
 // FUNCTION: MW2MATROX 0x10023d03
+// FUNCTION: MW23DFX 0x100102e0
 MechS32 TestPointCollision(MechScalar p_x, MechScalar p_y, MechScalar p_z, Shape** p_hit)
 {
 	*p_hit = FindNearestShape(g_sceneShapes, p_x, p_y, p_z);
@@ -284,6 +295,7 @@ MechS32 TestPointCollision(MechScalar p_x, MechScalar p_y, MechScalar p_z, Shape
 // Stack-slot permutation: best, distance, nearest and shape.
 // FUNCTION: MW2 0x10034e59
 // FUNCTION: MW2MATROX 0x10023d71
+// FUNCTION: MW23DFX 0x10010330
 Shape* FindNearestShape(Shape* p_root, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar best;
@@ -311,6 +323,7 @@ Shape* FindNearestShape(Shape* p_root, MechScalar p_x, MechScalar p_y, MechScala
 // Tests the point against the shape; a shape type without a point test always hits.
 // FUNCTION: MW2 0x10034ee7
 // FUNCTION: MW2MATROX 0x10023e01
+// FUNCTION: MW23DFX 0x100103a0
 MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 (*testPoint)(Shape*, MechScalar, MechScalar, MechScalar);
@@ -334,7 +347,7 @@ MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW2MATROX 0x10023e51
 MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechU16 surface;
 	Shape* root;
 	Ray hitRay;
@@ -405,6 +418,7 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 // stores first (fst, fcomp), an effect of the symbol order.
 // FUNCTION: MW2 0x10035107
 // FUNCTION: MW2MATROX 0x10024016
+// FUNCTION: MW23DFX 0x10010530
 MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 {
 	MechU16 surface;
@@ -514,6 +528,7 @@ MechS32 TestShapeRay(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // centre to the ray's end (to its start when p_distance is 10).
 // FUNCTION: MW2 0x10035423
 // FUNCTION: MW2MATROX 0x10024382
+// FUNCTION: MW23DFX 0x100107b0
 void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 {
 	if (p_distance > 0) {
@@ -543,7 +558,7 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // FUNCTION: MW2MATROX 0x1002444c
 MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechScalar t;
 	MechScalar d;
 	MechScalar nx;
@@ -645,6 +660,7 @@ MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 // MW2MATROX: the comparisons of ny with nx and nz have their operands the other way round.
 // FUNCTION: MW2 0x10035722
 // FUNCTION: MW2MATROX 0x10024606
+// FUNCTION: MW23DFX 0x100109e0
 MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar nx;
@@ -655,7 +671,7 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 		return FALSE;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	nx = fabs(p_face->m_normal[0]);
 	ny = fabs(p_face->m_normal[1]);
 	nz = fabs(p_face->m_normal[2]);
@@ -780,7 +796,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 			continue;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		offset = vertex->m_worldX - p_x +
 				 (prev->m_worldX - vertex->m_worldX) * (p_z - vertex->m_worldZ) / (prev->m_worldZ - vertex->m_worldZ);
 		if (FIXED_IS_NEGATIVE(offset)) {
@@ -801,7 +817,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 
 			left = TRUE;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		else if (offset > 1e-07f) {
 #else
 		else if (offset > 0) {
@@ -928,7 +944,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 			continue;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		offset = vertex->m_worldX - p_x +
 				 (prev->m_worldX - vertex->m_worldX) * (p_y - vertex->m_worldY) / (prev->m_worldY - vertex->m_worldY);
 		if (FIXED_IS_NEGATIVE(offset)) {
@@ -949,7 +965,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 
 			left = TRUE;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		else if (offset > 1e-07f) {
 #else
 		else if (offset > 0) {
@@ -1076,7 +1092,7 @@ MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechSc
 			continue;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		offset = vertex->m_worldY - p_y +
 				 (prev->m_worldY - vertex->m_worldY) * (p_z - vertex->m_worldZ) / (prev->m_worldZ - vertex->m_worldZ);
 		if (FIXED_IS_NEGATIVE(offset)) {
@@ -1097,7 +1113,7 @@ MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechSc
 
 			left = TRUE;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		else if (offset > 1e-07f) {
 #else
 		else if (offset > 0) {

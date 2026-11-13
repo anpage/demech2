@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // A vertex of a shape record (WtbHeader). The Matrox edition's records carry a vertex normal, and
 // three bytes it copies into Vertex::m_red to m_blue, which overlap the texture coordinates.
 #pragma pack(push, 4)

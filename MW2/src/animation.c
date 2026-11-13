@@ -10,11 +10,11 @@
 #include "types.h"
 #include "vfx3d.h"
 #include "window.h"
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
+#include "accel/a3d.h"
+#include "accel/texturepoly.h"
 #include "eyepoint.h"
 #include "fixedfloat.h"
-#include "matrox/a3d.h"
-#include "matrox/texturepoly.h"
 #include "palette.h"
 #include "polydraw.h"
 #include "prjfile.h"
@@ -29,7 +29,7 @@
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 DECOMP_SIZE_ASSERT(AnimFrame, 0x14)
 #else
 DECOMP_SIZE_ASSERT(AnimFrame, 0x08)
@@ -38,22 +38,27 @@ DECOMP_SIZE_ASSERT(Animation, 0x0e)
 
 // GLOBAL: MW2 0x100ad288
 // GLOBAL: MW2MATROX 0x100aa1b8
+// GLOBAL: MW23DFX 0x1024e480
 MechS32 g_animInitialized = -2;
 
 // GLOBAL: MW2 0x100ad28c
 // GLOBAL: MW2MATROX 0x100aa1bc
+// GLOBAL: MW23DFX 0x1024e484
 MechS32 g_lumaResourceId = 0;
 
 // GLOBAL: MW2 0x100ad290
 // GLOBAL: MW2MATROX 0x100aa1c0
+// GLOBAL: MW23DFX 0x1024e488
 MechS32 g_currentAnimSet = 0;
 
 // GLOBAL: MW2 0x100ad294
 // GLOBAL: MW2MATROX 0x100aa1c4
+// GLOBAL: MW23DFX 0x1024e48c
 MechS32 g_animSetUsed = 0;
 
 // GLOBAL: MW2 0x100ad298
 // GLOBAL: MW2MATROX 0x100aa1c8
+// GLOBAL: MW23DFX 0x1024e490
 MechS32 g_animSetIsSequence = 0;
 
 // GLOBAL: MW2 0x100ad29c
@@ -61,8 +66,9 @@ MechU16* g_lumaTables = NULL;
 
 // GLOBAL: MW2 0x100ad2a0
 // GLOBAL: MW2MATROX 0x100aa1d8
+// GLOBAL: MW23DFX 0x1024e498
 MechS32 g_preloadCels[] = {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition's resource file numbers the cels differently.
 	598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618,
 	619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 94,  95,  96,  97,  98,  99,  100, 101, 102, 103,
@@ -80,16 +86,19 @@ MechS32 g_preloadCels[] = {
 
 // GLOBAL: MW2 0x100c7610
 // GLOBAL: MW2MATROX 0x10184710
+// GLOBAL: MW23DFX 0x10160d20
 AnimFrame g_animFrames[0x200][0x20];
 
 // GLOBAL: MW2 0x100e7610
 // GLOBAL: MW2MATROX 0x10182b00
+// GLOBAL: MW23DFX 0x1015f0f0
 Animation g_animations[0x200];
 
 // GLOBAL: MW2 0x100e9210
+// GLOBAL: MW23DFX 0x10160cf0
 WINDOW g_animFrameBuffer;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // Rotates the texture point (*p_u, *p_v) about the texture's centre by the angle whose cosine and
 // sine are p_cos and p_sin.
 // The products' operands are loaded in the other order (commutative operand order).
@@ -112,7 +121,7 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 // the other way around.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
 	MechS32 p_count,
@@ -134,7 +143,7 @@ MechS32 DrawAnimatedPolygon(
 )
 #endif
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	A3DTexture* texture;
 	MechFloat w;
 	AnimFrame* frame;
@@ -451,6 +460,7 @@ MechS32 AddAnimFrame(MechS32 p_resourceId, MechS32 p_set)
 
 // FUNCTION: MW2 0x1006923c
 // FUNCTION: MW2MATROX 0x1005151a
+// FUNCTION: MW23DFX 0x1002d030
 void PreloadAnimCels(void)
 {
 	MechS32 i;
@@ -462,6 +472,7 @@ void PreloadAnimCels(void)
 
 // FUNCTION: MW2 0x10069288
 // FUNCTION: MW2MATROX 0x10051566
+// FUNCTION: MW23DFX 0x1002d060
 MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 {
 	if (p_set == -1) {
@@ -487,6 +498,7 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 // MW2MATROX: stack-slot permutation of i and j.
 // FUNCTION: MW2 0x10069360
 // FUNCTION: MW2MATROX 0x1005163e
+// FUNCTION: MW23DFX 0x1002d0e0
 void InitAnimations(void)
 {
 	MechS32 j;
@@ -521,6 +533,7 @@ void InitAnimations(void)
 
 // FUNCTION: MW2 0x1006946f
 // FUNCTION: MW2MATROX 0x10051755
+// FUNCTION: MW23DFX 0x1002d150
 void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 {
 	if (g_animations[p_index].m_flags != -2) {
@@ -534,6 +547,7 @@ void SetAnimMode(MechS16 p_index, MechS16 p_mode)
 
 // FUNCTION: MW2 0x100694df
 // FUNCTION: MW2MATROX 0x100517c5
+// FUNCTION: MW23DFX 0x1002d190
 void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 {
 	Animation* anim;
@@ -555,6 +569,7 @@ void SetAnimFrame(MechS16 p_index, MechU16 p_frame)
 
 // FUNCTION: MW2 0x10069564
 // FUNCTION: MW2MATROX 0x10051853
+// FUNCTION: MW23DFX 0x1002d1e0
 void SetAnimDelay(MechS16 p_index, MechU16 p_delay)
 {
 	g_animations[p_index].m_delay = p_delay;
@@ -576,6 +591,7 @@ void FUN_10069591(void)
 // same statement). MW2MATROX loads them the other way around.
 // FUNCTION: MW2 0x1006959c
 // FUNCTION: MW2MATROX 0x1005188b
+// FUNCTION: MW23DFX 0x1002d220
 void FreeAnimations(void)
 {
 	MechS32 j;
@@ -608,7 +624,7 @@ void FreeAnimations(void)
 	}
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // Computes the average color of animation p_index's current texture, 0-31 per component (the
 // sums of the 5-bit components over an eighth of the pixel count); returns 0 if it has none.
 // pixels < end compares in the other operand order.

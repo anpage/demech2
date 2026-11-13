@@ -30,8 +30,8 @@
 
 #include <stdio.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 // The debug keys' selections (HandleDebugKey): a number, and a mech section.
@@ -59,7 +59,7 @@ void DrawPausedBanner(void)
 {
 	void* shape;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x61, g_resourceTypeTags[c_resTagShp], 0);
 #else
 	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resourceTypeTags[c_resTagShp], 0);
@@ -73,7 +73,7 @@ void DrawPausedBanner(void)
 		}
 
 		VFX_shape_draw(&g_pausedBannerRect, shape, 0, 0, 0);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_10088280(&g_pausedBannerRect);
 #endif
 	}
@@ -81,6 +81,7 @@ void DrawPausedBanner(void)
 
 // FUNCTION: MW2 0x10009ef1
 // FUNCTION: MW2MATROX 0x1002ed6e
+// FUNCTION: MW23DFX 0x100363f0
 void PlayPauseSound(void)
 {
 	PlaySoundOnce(0xc6, 100, 0x40, RandomSampleRate());
@@ -88,6 +89,7 @@ void PlayPauseSound(void)
 
 // FUNCTION: MW2 0x10009f13
 // FUNCTION: MW2MATROX 0x1002ed90
+// FUNCTION: MW23DFX 0x10036410
 void PlayResumeSound(void)
 {
 	PlaySoundOnce(0xf1, 0x32, 0x40, RandomSampleRate());
@@ -96,6 +98,7 @@ void PlayResumeSound(void)
 // Pauses the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f35
 // FUNCTION: MW2MATROX 0x1002edb2
+// FUNCTION: MW23DFX 0x10036430
 void PauseGame(void)
 {
 	if (!g_netRole) {
@@ -107,6 +110,7 @@ void PauseGame(void)
 // Resumes the clock and the audio, outside a network game.
 // FUNCTION: MW2 0x10009f61
 // FUNCTION: MW2MATROX 0x1002edde
+// FUNCTION: MW23DFX 0x10036450
 void ResumeGame(void)
 {
 	if (!g_netRole) {

@@ -46,6 +46,7 @@
 
 // GLOBAL: MW2 0x100a6d34
 // GLOBAL: MW2MATROX 0x100a61c8
+// GLOBAL: MW23DFX 0x1025a664
 Shape* g_aimedShape = NULL;
 
 // The fire button fires only the selected weapon; cleared, it fires them all.
@@ -58,16 +59,19 @@ MechS32 g_singleWeaponFire = 1;
 
 // GLOBAL: MW2 0x101099c0
 // GLOBAL: MW2MATROX 0x101d4bd0
+// GLOBAL: MW23DFX 0x10159470
 MechS32 g_remoteWeaponsFired[10];
 
 // GLOBAL: MW2 0x101099f0
 // GLOBAL: MW2MATROX 0x101d4c00
+// GLOBAL: MW23DFX 0x101594a0
 MechS32 g_localWeaponsFired[10];
 
 // Index order: the original computes the slot address index first, `&p_mech->m_weapons[i]` loads the base
 // first here (it flips with the symbols declared ahead of it).
 // FUNCTION: MW2 0x10044740
 // FUNCTION: MW2MATROX 0x1002b4e0
+// FUNCTION: MW23DFX 0x10043760
 void ReleaseWeaponTriggers(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -388,7 +392,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_velocity[0] = dx * speed;
 			shot->m_velocity[1] = dy * speed;
 			shot->m_velocity[2] = dz * speed;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			shot->m_steering[1] = -(def->m_gravity * g_gravity);
 #else
 			shot->m_steering[1] = FixedMul16(-g_gravity, def->m_gravity << 16);
@@ -459,6 +463,7 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 // Stack-slot permutation: done and tries.
 // FUNCTION: MW2 0x10045567
 // FUNCTION: MW2MATROX 0x1002c30d
+// FUNCTION: MW23DFX 0x10044030
 void SelectNextWeapon(Mech* p_mech)
 {
 	MechS32 done;
@@ -538,6 +543,7 @@ void SelectNextWeaponGroup(Mech* p_mech)
 // selected and current.
 // FUNCTION: MW2 0x100457d3
 // FUNCTION: MW2MATROX 0x1002c579
+// FUNCTION: MW23DFX 0x10044160
 MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 {
 	MechS32 i;
@@ -579,6 +585,7 @@ MechS32 SelectWeaponGroup(Mech* p_mech, MechS32 p_group)
 // Returns 1 if the selected weapon is ready, 0 if not, -1 without one.
 // FUNCTION: MW2 0x10045919
 // FUNCTION: MW2MATROX 0x1002c6bf
+// FUNCTION: MW23DFX 0x100441f0
 MechS32 IsSelectedWeaponReady(Mech* p_mech)
 {
 	MechS32 result;
@@ -626,6 +633,7 @@ MechS32 JettisonAmmo(Mech* p_mech)
 // Stack-slot permutation: i and def.
 // FUNCTION: MW2 0x10045a5b
 // FUNCTION: MW2MATROX 0x1002c801
+// FUNCTION: MW23DFX 0x100442e0
 void LoadWeaponSounds(void)
 {
 	MechS32 i;
@@ -648,6 +656,7 @@ void LoadWeaponSounds(void)
 // MW2MATROX: index order, the original loads the index of `&p_mech->m_weapons[...]` first.
 // FUNCTION: MW2 0x10045b14
 // FUNCTION: MW2MATROX 0x1002c8ba
+// FUNCTION: MW23DFX 0x10044330
 void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 {
 	WeaponSlot* slot;
@@ -661,6 +670,7 @@ void SetWeaponGroup(Mech* p_mech, MechS32 p_index, MechS32 p_group)
 // Moves the local player's selected weapon to p_group.
 // FUNCTION: MW2 0x10045b56
 // FUNCTION: MW2MATROX 0x1002c8fc
+// FUNCTION: MW23DFX 0x10044350
 void SetSelectedWeaponGroup(MechS32 p_group)
 {
 	Mech* mech;
@@ -673,6 +683,7 @@ void SetSelectedWeaponGroup(MechS32 p_group)
 
 // FUNCTION: MW2 0x10045b9c
 // FUNCTION: MW2MATROX 0x1002c942
+// FUNCTION: MW23DFX 0x10044380
 void CycleLocalWeaponGroup(void)
 {
 	Mech* mech;
@@ -686,6 +697,7 @@ void CycleLocalWeaponGroup(void)
 // slot, def and i. MW2MATROX: the same index, loading the index first.
 // FUNCTION: MW2 0x10045bc8
 // FUNCTION: MW2MATROX 0x1002c96e
+// FUNCTION: MW23DFX 0x100443a0
 void FireRemoteWeapons(Mech* p_mech)
 {
 	WeaponSlot* slot;
@@ -755,6 +767,7 @@ void FireWeaponGroup(void)
 // Moves the next weapon into the selected one's group.
 // FUNCTION: MW2 0x10045e25
 // FUNCTION: MW2MATROX 0x1002cbcb
+// FUNCTION: MW23DFX 0x10044520
 void AddNextWeaponToGroup(Mech* p_mech)
 {
 	MechS32 group;
@@ -831,7 +844,7 @@ void UpdateWeaponLock(Mech* p_mech)
 			pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (inRange && fabs(yaw) < 16 && fabs(pitch) < 16) {
 #else
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {
@@ -881,7 +894,7 @@ Shape* UpdateAimDistance(Player* p_player)
 	if (collided && hit) {
 		flags = hit->m_kind;
 		if ((flags & 0x100) || (flags & 0x200)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if ((length = GetRayLength(&ray)) > 2000) {
 				p_player->m_aimDistance.m_value = length;
 			}
@@ -906,6 +919,7 @@ Shape* UpdateAimDistance(Player* p_player)
 
 // FUNCTION: MW2 0x1004635c
 // FUNCTION: MW2MATROX 0x1002d1bc
+// FUNCTION: MW23DFX 0x100448d0
 MechScalar GetAimRange(Player* p_player)
 {
 	return p_player->m_aimRange.m_value;
@@ -913,6 +927,7 @@ MechScalar GetAimRange(Player* p_player)
 
 // FUNCTION: MW2 0x10046375
 // FUNCTION: MW2MATROX 0x1002d1de
+// FUNCTION: MW23DFX 0x100448e0
 void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Ray ray;
@@ -932,6 +947,7 @@ void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mec
 // Stack-slot permutation: x, y, z, dx, dy and dz.
 // FUNCTION: MW2 0x100463e5
 // FUNCTION: MW2MATROX 0x1002d253
+// FUNCTION: MW23DFX 0x10044950
 void BuildAimRay(Player* p_player, Ray* p_ray)
 {
 	MechScalar z;
@@ -953,10 +969,11 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 // The direction the player aims in.
 // FUNCTION: MW2 0x10046466
 // FUNCTION: MW2MATROX 0x1002d2d7
+// FUNCTION: MW23DFX 0x100449d0
 void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Matrix matrix;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechScalar z;
 	MechScalar y;
 	Mech* mech;
@@ -969,7 +986,7 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 #endif
 
 	*p_x = *p_y = 0;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	*p_z = 1.0f;
 #else
 	*p_z = 0x10000;
@@ -983,6 +1000,7 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 
 // FUNCTION: MW2 0x100464f3
 // FUNCTION: MW2MATROX 0x1002d364
+// FUNCTION: MW23DFX 0x10044a50
 void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	GetObjPosition(p_player->m_firingObj, p_x, p_y, p_z);
@@ -991,6 +1009,7 @@ void GetFiringPosition(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechS
 // Places p_obj at the player's current hardpoint.
 // FUNCTION: MW2 0x10046519
 // FUNCTION: MW2MATROX 0x1002d38a
+// FUNCTION: MW23DFX 0x10044a70
 void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 {
 	MechScalar z;
@@ -1032,7 +1051,7 @@ void SpawnLaunchFx(
 	MechScalar sideY;
 
 	yaw = FixedAtan2(p_dx, p_dz);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	pitch = FixedAsin(p_dy);
 #else
 	pitch = FixedAsin(p_dy << 13);
@@ -1045,7 +1064,7 @@ void SpawnLaunchFx(
 		sideY = 0;
 		sideZ = p_dx;
 		NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		x += offset * sideX;
 		z += offset * sideZ;
 		upX = p_dy * sideZ;
@@ -1068,7 +1087,7 @@ void SpawnLaunchFx(
 
 	SetObjPosition(p_obj, x, y, z);
 	speed = p_obj->m_shape->m_radius * 2;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_dx *= speed;
 	p_dy *= speed;
 	p_dz *= speed;

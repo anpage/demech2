@@ -30,7 +30,7 @@ extern "C"
 	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 DrawAnimatedPolygon(
 		MechS32 p_index,
 		MechS32 p_count,
@@ -62,7 +62,7 @@ MechS32 DrawAnimatedPolygon(
 	void FUN_10069586(void);
 	void FUN_10069591(void);
 	void FreeAnimations(void);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
 	void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
 	MechS32 FUN_10051c07(MechS32 p_index, struct ProjectedVertex** p_points, MechS32 p_count, MechS32 p_unk0x0c);

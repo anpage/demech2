@@ -21,7 +21,7 @@
 // FUNCTION: MW2MATROX 0x1007b8d0
 MechS32 IsAboveHorizon(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechFloat offsetX;
 	MechFloat offsetY;
 	MechFloat b;
@@ -96,7 +96,7 @@ below:
 // FUNCTION: MW2MATROX 0x1007b99e
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 y;
 	MechFloat a;
 	MechFloat b;
@@ -159,7 +159,7 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x1007ba4c
 MechS32 HorizonXAtY(MechS32 p_y, Eyepoint* p_eyepoint)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 x;
 	MechFloat a;
 	MechFloat b;

@@ -36,14 +36,14 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_MATROX
-#include "matrox/a3d.h"
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/a3d.h"
+#include "accel/vfx16.h"
 #endif
 
 // The draw mode the game starts in: none in 1.1, the first in the Matrox edition, which doesn't
 // fall back to the others (InitRefreshMode's p_allowFallback).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define INITIAL_DRAW_MODE 0
 #define INITIAL_DRAW_MODE_FALLBACK 0
 #else
@@ -70,18 +70,22 @@ MechChar* g_bannerName = NULL;
 
 // GLOBAL: MW2 0x100a245c
 // GLOBAL: MW2MATROX 0x100a4a0c
+// GLOBAL: MW23DFX 0x102498ec
 void* g_bannerBuffer = NULL;
 
 // GLOBAL: MW2 0x100a2460
 // GLOBAL: MW2MATROX 0x100a4a10
+// GLOBAL: MW23DFX 0x102498f0
 MechS32 g_projectionDirty = 1;
 
 // GLOBAL: MW2 0x100a2464
 // GLOBAL: MW2MATROX 0x100a4a14
+// GLOBAL: MW23DFX 0x102498f4
 MechS32 g_displayReady = 0;
 
 // GLOBAL: MW2 0x100a2468
 // GLOBAL: MW2MATROX 0x100a4a18
+// GLOBAL: MW23DFX 0x102498f8
 MechS32 g_framePane = 0;
 
 // GLOBAL: MW2 0x100a246c
@@ -91,6 +95,7 @@ MechS32 g_hasLightObject = 0;
 // Cleared while an effect has the camera, set again when it gives it back.
 // GLOBAL: MW2 0x100a2470
 // GLOBAL: MW2MATROX 0x100a4a20
+// GLOBAL: MW23DFX 0x10249900
 MechS32 g_lightFollowsObject = 1;
 
 // GLOBAL: MW2 0x100a2474
@@ -109,63 +114,78 @@ SceneObject* g_cockpitObject = NULL;
 
 // GLOBAL: MW2 0x100a2480
 // GLOBAL: MW2MATROX 0x100a4a30
+// GLOBAL: MW23DFX 0x10249910
 MechS32 g_drawnPolygonCount = 0;
 
 // GLOBAL: MW2 0x100bdff8
 // GLOBAL: MW2MATROX 0x100c1e28
+// GLOBAL: MW23DFX 0x1007b010
 PANE g_screenPane;
 
 // GLOBAL: MW2 0x10176eb4
 // GLOBAL: MW2MATROX 0x10212da8
+// GLOBAL: MW23DFX 0x10244cb8
 GameWindowGeometry* g_gameWindowGeometry;
 
 // GLOBAL: MW2 0x10176eb8
 // GLOBAL: MW2MATROX 0x10212dac
+// GLOBAL: MW23DFX 0x10244cbc
 MechS32 g_screenHeight;
 
 // GLOBAL: MW2 0x10176eb0
 // GLOBAL: MW2MATROX 0x10212d9c
+// GLOBAL: MW23DFX 0x10244cac
 undefined4 g_unk0x10176eb0;
 
 // Set when the next Blit should stretch the current pane over the window.
 // GLOBAL: MW2 0x10176ebc
 // GLOBAL: MW2MATROX 0x10212da4
+// GLOBAL: MW23DFX 0x10244cb4
 MechS32 g_stretchPending;
 
 // GLOBAL: MW2 0x10176ec0
 // GLOBAL: MW2MATROX 0x10212da0
+// GLOBAL: MW23DFX 0x10244cb0
 MechS32 g_screenHeightMinus1;
 
 // GLOBAL: MW2 0x10176ec4
 // GLOBAL: MW2MATROX 0x10212d50
+// GLOBAL: MW23DFX 0x10244c60
 MechS32 g_screenPixelCount;
 
 // GLOBAL: MW2 0x10176ec8
 // GLOBAL: MW2MATROX 0x10212d74
+// GLOBAL: MW23DFX 0x10244c84
 MechS32 g_screenWidth;
 
 // GLOBAL: MW2 0x10176ed0
 // GLOBAL: MW2MATROX 0x10212d80
+// GLOBAL: MW23DFX 0x10244c90
 PANE g_currentPane;
 
 // GLOBAL: MW2 0x10176ee4
 // GLOBAL: MW2MATROX 0x10212d54
+// GLOBAL: MW23DFX 0x10244c64
 MechS32 g_screenWidthMinus1;
 
 // GLOBAL: MW2 0x10176ee8
 // GLOBAL: MW2MATROX 0x10212d94
+// GLOBAL: MW23DFX 0x10244ca4
 MechS32 g_screenHalfWidth;
 
 // GLOBAL: MW2 0x10176eec
 // GLOBAL: MW2MATROX 0x10212d98
+// GLOBAL: MW23DFX 0x10244ca8
 MechS32 g_screenHalfHeight;
 
 // GLOBAL: MW2 0x10176ef0
 // GLOBAL: MW2MATROX 0x10212d60
+// GLOBAL: MW23DFX 0x10244c70
 WINDOW g_mainPixelBuffer;
 
 // FUNCTION: MW2 0x10012720
 // FUNCTION: MW2MATROX 0x10017370
+// FUNCTION: MW23DFX 0x10004870
 MechS32 InitGameWindowGeometry(void)
 {
 	g_gameWindowGeometry = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, sizeof(GameWindowGeometry));
@@ -191,6 +211,7 @@ MechS32 InitGameWindowGeometry(void)
 
 // FUNCTION: MW2 0x10012802
 // FUNCTION: MW2MATROX 0x10017452
+// FUNCTION: MW23DFX 0x10004910
 MechS32 InitDisplayGeometry(void)
 {
 	MechS32 result;
@@ -219,6 +240,7 @@ MechS32 InitDisplayGeometry(void)
 // Stack-slot permutation: size, start, segment and oldProtect.
 // FUNCTION: MW2 0x100128b5
 // FUNCTION: MW2MATROX 0x10017505
+// FUNCTION: MW23DFX 0x10004990
 void FirstRender(void)
 {
 	MechS32 segment;
@@ -240,7 +262,7 @@ void FirstRender(void)
 		Error(0x4d, NULL);
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	InitializeDrawBuffer(0x140, 0xbb8);
 	g_maxPolygons = 0xaf0;
 #else
@@ -305,7 +327,7 @@ void SecondRender(void)
 }
 
 // The 3D view's pane wipe: the Matrox edition's goes through its A3D layer, with a 16-bit pixel.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define SCENE_PANE_WIPE(p_pane, p_color) FUN_1005f8a0(p_pane, PIXEL_COLOR(p_color))
 #else
 #define SCENE_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
@@ -383,7 +405,7 @@ void DrawScene(void)
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	if (g_showBoundingSpheres) {
 		DrawBoundingSpheres(g_sceneShapes);
 	}
@@ -395,6 +417,7 @@ void DrawScene(void)
 
 // FUNCTION: MW2 0x10012dca
 // FUNCTION: MW2MATROX 0x10017a14
+// FUNCTION: MW23DFX 0x10004d80
 void SetFramePane(MechS32 p_value)
 {
 	if (p_value >= 0 && p_value < 11) {
@@ -407,6 +430,7 @@ void SetFramePane(MechS32 p_value)
 
 // FUNCTION: MW2 0x10012e00
 // FUNCTION: MW2MATROX 0x10017a4a
+// FUNCTION: MW23DFX 0x10004da0
 void ResetPane(void)
 {
 	SelectPane(0);
@@ -416,6 +440,7 @@ void ResetPane(void)
 // pending, restoring the pane afterwards.
 // FUNCTION: MW2 0x10012e15
 // FUNCTION: MW2MATROX 0x10017a5f
+// FUNCTION: MW23DFX 0x10004db0
 void Blit(void)
 {
 	if (g_stretchPending) {
@@ -433,6 +458,7 @@ void Blit(void)
 // MW2MATROX: wipes with a 16-bit pixel, through the Matrox edition's own (16-bit) VFX_pane_wipe.
 // FUNCTION: MW2 0x10012e91
 // FUNCTION: MW2MATROX 0x10017adb
+// FUNCTION: MW23DFX 0x10004e20
 void ShutdownRender(void)
 {
 	FreeSceneShapes();
@@ -454,6 +480,7 @@ void ShutdownRender(void)
 
 // FUNCTION: MW2 0x10012f14
 // FUNCTION: MW2MATROX 0x10017b67
+// FUNCTION: MW23DFX 0x10004ea0
 undefined4 FUN_10012f14(void)
 {
 	return g_unk0x10176eb0;
@@ -461,6 +488,7 @@ undefined4 FUN_10012f14(void)
 
 // FUNCTION: MW2 0x10012f29
 // FUNCTION: MW2MATROX 0x10017b7c
+// FUNCTION: MW23DFX 0x10004eb0
 void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 {
 	g_unk0x10176eb0 = p_value;
@@ -482,7 +510,7 @@ void ShowBanner(void)
 
 	if (g_bannerName == NULL || *g_bannerName == '\0') {
 		strcpy(path, "sbannr");
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		strcat(path, g_artResolutionSuffixes[g_unk0x1012c1e4]);
 #else
 		strcat(path, g_artResolutionSuffixes[g_artResolution]);
@@ -492,7 +520,7 @@ void ShowBanner(void)
 	}
 	else {
 		strcpy(path, g_bannerName);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		strcat(path, g_artResolutionSuffixes[g_unk0x1012c1e4]);
 #else
 		strcat(path, g_artResolutionSuffixes[g_artResolution]);

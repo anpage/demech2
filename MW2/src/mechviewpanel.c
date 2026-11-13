@@ -20,8 +20,8 @@
 #include "targeting.h"
 #include "types.h"
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 // The handlers of the cockpit panel InitCockpitPanels sets up second (g_cockpitPanels[c_panelMechView]): it
@@ -34,6 +34,7 @@ MechS32 g_mechViewStatic = 0;
 
 // FUNCTION: MW2 0x100509a0
 // FUNCTION: MW2MATROX 0x1008ad50
+// FUNCTION: MW23DFX 0x10011700
 void CycleMechViewMode(void)
 {
 	g_mechViewMode++;
@@ -42,7 +43,7 @@ void CycleMechViewMode(void)
 	}
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition clears the rendered view's pane with its transparent pixel (0xfffe) for the
 // 3D card's picture to show through, and its frames' shapes come 6 entries further on.
 #define MECH_VIEW_WIPE 0xfffe
@@ -79,7 +80,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			DrawMechViewStatic(p_panel);
 			return;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		else if (RandomIntBelow(10) < 3) {
 			g_mechViewStatic = 1;
 		}
@@ -114,13 +115,13 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			camera[4] = 0;
 			RenderViewToPane(5, FIXED_CONST(2), camera, 0);
 			g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		}
 
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xfd));
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -135,12 +136,12 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, FIXED_CONST(2), view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xf7));
 		g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -158,7 +159,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, FIXED_CONST(2), view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		if (g_frontViewForRear) {
@@ -169,13 +170,13 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		}
 
 		g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
 	case 2:
 		DrawArmorBars(mech, p_panel->m_target);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -191,6 +192,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 // 0x28 and 0x2c), not at the end.
 // FUNCTION: MW2 0x10050dc3
 // FUNCTION: MW2MATROX 0x1008b1da
+// FUNCTION: MW23DFX 0x100119f0
 void SetMechViewRenderSettings(RenderSettings* p_saved)
 {
 	*p_saved = g_renderSettings;
@@ -205,6 +207,7 @@ void SetMechViewRenderSettings(RenderSettings* p_saved)
 
 // FUNCTION: MW2 0x10050e20
 // FUNCTION: MW2MATROX 0x1008b237
+// FUNCTION: MW23DFX 0x10011a40
 void DrawMechViewStatic(CockpitPanel* p_panel)
 {
 	if (!p_panel->m_enabled || !g_mechViewMode) {
@@ -218,6 +221,7 @@ void DrawMechViewStatic(CockpitPanel* p_panel)
 // Stack-slot permutation: target and y.
 // FUNCTION: MW2 0x10050e6c
 // FUNCTION: MW2MATROX 0x1008b283
+// FUNCTION: MW23DFX 0x10011a70
 void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId)
 {
 	PANE* target;
@@ -234,6 +238,7 @@ void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050ebe
 // FUNCTION: MW2MATROX 0x1008b2d5
+// FUNCTION: MW23DFX 0x10011aa0
 void DrawMechViewStartup(CockpitPanel* p_panel)
 {
 	PANE savedTarget;
@@ -272,6 +277,7 @@ void DrawMechViewStartup(CockpitPanel* p_panel)
 // Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050fd6
 // FUNCTION: MW2MATROX 0x1008b3ed
+// FUNCTION: MW23DFX 0x10011b70
 void DrawMechViewShutdown(CockpitPanel* p_panel)
 {
 	PANE savedTarget;

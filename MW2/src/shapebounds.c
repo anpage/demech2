@@ -66,7 +66,7 @@ void ComputeShapeBounds(Shape* p_shape)
 		}
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_shape->m_modelCenterX = p_shape->m_centerX = (maxX + minX) * 0.5f;
 	p_shape->m_modelCenterY = p_shape->m_centerY = (maxY + minY) * 0.5f;
 	p_shape->m_modelCenterZ = p_shape->m_centerZ = (maxZ + minZ) * 0.5f;
@@ -89,7 +89,7 @@ void ComputeShapeBounds(Shape* p_shape)
 		}
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_shape->m_radius = sqrt(max);
 #else
 	p_shape->m_radius = (MechS32) sqrt(max);

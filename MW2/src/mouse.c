@@ -17,23 +17,28 @@ __inline MechS32 IsInsideWindow(MechS32 p_x, MechS32 p_y);
 
 // GLOBAL: MW2 0x100ad218
 // GLOBAL: MW2MATROX 0x100aa148
+// GLOBAL: MW23DFX 0x10250330
 MechChar* g_mouseAxisNames[] = {"Mouse Down/Up Movement", "Mouse Left/Right Movement"};
 
 // GLOBAL: MW2 0x100ad220
 // GLOBAL: MW2MATROX 0x100aa150
+// GLOBAL: MW23DFX 0x10250338
 MechChar* g_mouseAxisTypes[] = {"Down/Up", "Left/Right"};
 
 // GLOBAL: MW2 0x100ad228
 // GLOBAL: MW2MATROX 0x100aa158
+// GLOBAL: MW23DFX 0x10250340
 MechChar* g_mouseButtonNames[] = {"Left button", "Middle button", "Right button", NULL};
 
 // Three entries, no terminator: g_cursorClipped follows in the original.
 // GLOBAL: MW2 0x100ad238
 // GLOBAL: MW2MATROX 0x100aa168
+// GLOBAL: MW23DFX 0x10250350
 MechChar* g_mouseButtonTypes[] = {"LeftBtn", "MiddleBtn", "RightBtn"};
 
 // GLOBAL: MW2 0x100ad244
 // GLOBAL: MW2MATROX 0x100aa174
+// GLOBAL: MW23DFX 0x1025035c
 BOOL g_cursorClipped = FALSE;
 
 // GLOBAL: MW2 0x100ad248
@@ -65,14 +70,17 @@ InputDriverModule g_mouseDriver = {
 
 // GLOBAL: MW2 0x100ad270
 // GLOBAL: MW2MATROX 0x100aa1a0
+// GLOBAL: MW23DFX 0x10250388
 MechChar g_mouseDeviceName[8] = "mouse";
 
 // GLOBAL: MW2 0x100ad278
 // GLOBAL: MW2MATROX 0x100aa1a8
+// GLOBAL: MW23DFX 0x10250390
 MechChar g_mouseDisplayName[8] = "Mouse";
 
 // GLOBAL: MW2 0x100ad280
 // GLOBAL: MW2MATROX 0x100aa1b0
+// GLOBAL: MW23DFX 0x10250398
 MechChar g_mouseTypeName[8] = "mouse";
 
 // GLOBAL: MW2 0x100e9230
@@ -81,6 +89,7 @@ RECT g_cursorClipRect;
 
 // FUNCTION: MW2 0x100688e0
 // FUNCTION: MW2MATROX 0x10050950
+// FUNCTION: MW23DFX 0x10036020
 MechS32 GetMouseDeviceCount(void)
 {
 	return 1;
@@ -88,6 +97,7 @@ MechS32 GetMouseDeviceCount(void)
 
 // FUNCTION: MW2 0x100688f5
 // FUNCTION: MW2MATROX 0x10050965
+// FUNCTION: MW23DFX 0x10036030
 MechS32 FillMouseDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
 	p_info->m_axisCount = 2;
@@ -113,6 +123,7 @@ MechS32 MouseOpenDevice(void)
 
 // FUNCTION: MW2 0x10068998
 // FUNCTION: MW2MATROX 0x10050a08
+// FUNCTION: MW23DFX 0x100360b0
 MechS32 MouseCloseDevice(void)
 {
 	ClipCursor(NULL);
@@ -122,6 +133,7 @@ MechS32 MouseCloseDevice(void)
 
 // FUNCTION: MW2 0x100689bc
 // FUNCTION: MW2MATROX 0x10050a2c
+// FUNCTION: MW23DFX 0x100360d0
 MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 {
 	POINT point;
@@ -222,6 +234,7 @@ MechS32 MouseFlushKeyCodes(void)
 
 // FUNCTION: MW2 0x10068c3d
 // FUNCTION: MW2MATROX 0x10050cf3
+// FUNCTION: MW23DFX 0x10036300
 void GetClientScreenRect(RECT* p_rect, MechS32 p_width, MechS32 p_height)
 {
 	POINT point;

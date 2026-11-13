@@ -41,9 +41,9 @@
 #include <string.h>
 #include <windows.h>
 
-// The messages carry 16.16 fixed point: the Matrox edition (MW2_MATROX) converts its floats,
+// The messages carry 16.16 fixed point: the accelerated editions (MW2_ACCEL) convert their floats,
 // rounding.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define NET_FIXED(x) ((MechS32) ((x) * 65536.0f + 0.5f))
 #define NET_UNFIXED(x) ((x) * (1.0f / 65536.0f))
 #else
@@ -52,7 +52,7 @@
 #endif
 
 // The damage level (0 to 15) of a section with p_armor and p_internal left, out of p_levels.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define SECTION_DAMAGE_LEVEL(p_armor, p_internal, p_levels)                                                            \
 	(15 - (MechS32) (((p_internal) + (p_armor) / g_localArmorPerLevel) * 3 / (MechS32) (p_levels)))
 #else
@@ -136,15 +136,18 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc);
 
 // GLOBAL: MW2 0x100a1758
 // GLOBAL: MW2MATROX 0x100a2108
+// GLOBAL: MW23DFX 0x1024ffc8
 MechS32 g_stateInterval = 36;
 
 // The number of players of a network game, or 0.
 // GLOBAL: MW2 0x100a175c
 // GLOBAL: MW2MATROX 0x100a210c
+// GLOBAL: MW23DFX 0x1024ffcc
 MechS32 g_isNetworkGame = 0;
 
 // GLOBAL: MW2 0x100a1760
 // GLOBAL: MW2MATROX 0x100a2110
+// GLOBAL: MW23DFX 0x1024ffd0
 MechChar* g_sessionName = NULL;
 
 // Set when this tick's messages brought the master's clock.
@@ -155,10 +158,12 @@ MechS16 g_clockSynced = 0;
 // Set when the shell launched the game with its own DirectPlay session.
 // GLOBAL: MW2 0x100a1768
 // GLOBAL: MW2MATROX 0x100a2118
+// GLOBAL: MW23DFX 0x1024ffd8
 MechS16 g_launchedByShell = 0;
 
 // GLOBAL: MW2 0x100a1770
 // GLOBAL: MW2MATROX 0x100a2120
+// GLOBAL: MW23DFX 0x1024ffe0
 MechS32 g_stateCount = 0;
 
 // GLOBAL: MW2 0x100a1774
@@ -171,112 +176,137 @@ MechS32 g_unrecognizedMessages = 0;
 
 // GLOBAL: MW2 0x100a177c
 // GLOBAL: MW2MATROX 0x100a212c
+// GLOBAL: MW23DFX 0x1024ffec
 MechS32 g_successSent = 0;
 
 // GLOBAL: MW2 0x100a1780
 // GLOBAL: MW2MATROX 0x100a2130
+// GLOBAL: MW23DFX 0x1024fff0
 MechS16 g_gameStarted = 0;
 
 // GLOBAL: MW2 0x100a1788
 // GLOBAL: MW2MATROX 0x100a2138
+// GLOBAL: MW23DFX 0x1024fff8
 NetLaunchInfo* g_netLaunch = NULL;
 
 // The send buffers. The weapons message shares the state message's.
 
 // GLOBAL: MW2 0x100a178c
 // GLOBAL: MW2MATROX 0x100a213c
+// GLOBAL: MW23DFX 0x1024fffc
 NetStateMsg* g_stateMsg = NULL;
 
 // GLOBAL: MW2 0x100a1790
 // GLOBAL: MW2MATROX 0x100a2140
+// GLOBAL: MW23DFX 0x10250000
 NetWeaponsMsg* g_weaponsMsg = NULL;
 
 // SN: the game things destroyed so far. After the tag, the sender's g_stateCount (an older
 // message is ignored) and a bit for each thing, the first in the high bit of the first byte.
 // GLOBAL: MW2 0x100a1794
 // GLOBAL: MW2MATROX 0x100a2144
+// GLOBAL: MW23DFX 0x10250004
 MechU8* g_thingsMsg = NULL;
 
 // GLOBAL: MW2 0x100a1798
 // GLOBAL: MW2MATROX 0x100a2148
+// GLOBAL: MW23DFX 0x10250008
 NetChatMsg* g_chatMsg = NULL;
 
 // 1 while the network runs, 2 once it has stopped.
 // GLOBAL: MW2 0x100a179c
 // GLOBAL: MW2MATROX 0x100a214c
+// GLOBAL: MW23DFX 0x1025000c
 MechS32 g_netState = 0;
 
 // 0 alone, 1 the master (it keeps the clock), 2 a slave.
 // GLOBAL: MW2 0x100a17a0
 // GLOBAL: MW2MATROX 0x100a2150
+// GLOBAL: MW23DFX 0x10250010
 MechS32 g_netRole = 0;
 
 // GLOBAL: MW2 0x100a17a8
 // GLOBAL: MW2MATROX 0x100a2158
+// GLOBAL: MW23DFX 0x10250018
 GUID g_sessionGuid = {0x5a237e00, 0xea03, 0x11ce, {0x97, 0xdc, 0x00, 0x20, 0xaf, 0x24, 0xc6, 0x4a}};
 
 // GLOBAL: MW2 0x100a17b8
 // GLOBAL: MW2MATROX 0x100a2168
+// GLOBAL: MW23DFX 0x10250028
 LPDIRECTPLAY g_directPlay = NULL;
 
 // GLOBAL: MW2 0x100a17bc
 // GLOBAL: MW2MATROX 0x100a216c
+// GLOBAL: MW23DFX 0x1025002c
 DPID g_localDpid = 99;
 
 // The lowest id among the players: the master's.
 // GLOBAL: MW2 0x100a17c0
 // GLOBAL: MW2MATROX 0x100a2170
+// GLOBAL: MW23DFX 0x10250030
 DPID g_masterDpid = 0;
 
 // GLOBAL: MW2 0x100a17c4
 // GLOBAL: MW2MATROX 0x100a2174
+// GLOBAL: MW23DFX 0x10250034
 LPGUID g_serviceProvider = NULL;
 
 // GLOBAL: MW2 0x100a17c8
 // GLOBAL: MW2MATROX 0x100a2178
+// GLOBAL: MW23DFX 0x10250038
 MechS32 g_nextStateTime = 0;
 
 // GLOBAL: MW2 0x101770a0
 // GLOBAL: MW2MATROX 0x102184b0
+// GLOBAL: MW23DFX 0x10159ff0
 MechChar* g_netRecvBuffer;
 
 // GLOBAL: MW2 0x101770cc
 // GLOBAL: MW2MATROX 0x10218468
+// GLOBAL: MW23DFX 0x10159fa8
 void* g_unk0x101770cc;
 
 // GLOBAL: MW2 0x101770d0
 // GLOBAL: MW2MATROX 0x102184b4
+// GLOBAL: MW23DFX 0x10159ff4
 MechU32 g_stateMsgSize;
 
 // When each player was last heard from.
 // GLOBAL: MW2 0x101770e0
 // GLOBAL: MW2MATROX 0x10218490
+// GLOBAL: MW23DFX 0x10159fd0
 MechS32 g_lastHeard[8];
 
 // The clock of each player's last state message.
 // GLOBAL: MW2 0x10177100
 // GLOBAL: MW2MATROX 0x10218440
+// GLOBAL: MW23DFX 0x10159f80
 MechS32 g_lastStateClock[8];
 
 // GLOBAL: MW2 0x10177120
 // GLOBAL: MW2MATROX 0x102184b8
+// GLOBAL: MW23DFX 0x10159ff8
 MechS8 g_playerReady[8];
 
 // GLOBAL: MW2 0x10177128
 // GLOBAL: MW2MATROX 0x10218430
+// GLOBAL: MW23DFX 0x10159f70
 MechS32 g_playersFound;
 
 // GLOBAL: MW2 0x1017712c
 // GLOBAL: MW2MATROX 0x102184c0
+// GLOBAL: MW23DFX 0x1015a01c
 MechU32 g_thingsMsgSize;
 
 // GLOBAL: MW2 0x10177130
 // GLOBAL: MW2MATROX 0x10218460
+// GLOBAL: MW23DFX 0x10159fa0
 MechS8 g_playerDestroyed[8];
 
 // The count of each player's last things message.
 // GLOBAL: MW2 0x10177140
 // GLOBAL: MW2MATROX 0x10218470
+// GLOBAL: MW23DFX 0x10159fb0
 MechS32 g_lastThingsCount[8];
 
 // The only diff is the order the m_playerIds index loads its base and index in.
@@ -314,6 +344,7 @@ void FUN_1000e488(void)
 
 // FUNCTION: MW2 0x1000e493
 // FUNCTION: MW2MATROX 0x10003e73
+// FUNCTION: MW23DFX 0x10033900
 void FirstNetwork(NetLaunchInfo* p_netLaunch)
 {
 	MechS32 i;
@@ -362,6 +393,7 @@ void FirstNetwork(NetLaunchInfo* p_netLaunch)
 
 // FUNCTION: MW2 0x1000e677
 // FUNCTION: MW2MATROX 0x10004057
+// FUNCTION: MW23DFX 0x10033ae0
 MechS32 FirstExternalCtrl(void)
 {
 	return 1;
@@ -492,6 +524,7 @@ MechS32 UpdateNetwork(void)
 
 // FUNCTION: MW2 0x1000eb05
 // FUNCTION: MW2MATROX 0x100044e6
+// FUNCTION: MW23DFX 0x10033f50
 void ShutdownNetwork(void)
 {
 	StopExternalIO();
@@ -616,6 +649,7 @@ void SendStateMsg(void)
 // comparison of i with g_localPlayerId and the order the m_playerIds[p_to] index loads in.
 // FUNCTION: MW2 0x1000efa4
 // FUNCTION: MW2MATROX 0x10004a71
+// FUNCTION: MW23DFX 0x100344e0
 MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text)
 {
 	MechS32 i;
@@ -657,6 +691,7 @@ MechS32 SendChatMsg(MechS32 p_to, MechChar* p_text)
 
 // FUNCTION: MW2 0x1000f171
 // FUNCTION: MW2MATROX 0x10004c3f
+// FUNCTION: MW23DFX 0x100346a0
 void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text[100];
@@ -823,7 +858,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		}
 
 		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (section->m_internal < 1e-07f && !(section->m_flags & 0x2000)) {
 #else
 		if (section->m_internal <= 0 && !(section->m_flags & 0x2000)) {
@@ -862,6 +897,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 // Sends the weapons the local player fired since the last time, if any.
 // FUNCTION: MW2 0x1000f989
 // FUNCTION: MW2MATROX 0x10005666
+// FUNCTION: MW23DFX 0x100350e0
 void SendWeaponsMsg(void)
 {
 	Player* player;
@@ -889,6 +925,7 @@ void SendWeaponsMsg(void)
 // The only diff is a stack-slot permutation of player, msg, bit, mech and i.
 // FUNCTION: MW2 0x1000fa58
 // FUNCTION: MW2MATROX 0x10005735
+// FUNCTION: MW23DFX 0x100351b0
 void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 {
 	Player* player;
@@ -920,6 +957,7 @@ void ReceiveWeaponsMsg(NetWeaponsMsg* p_msg, MechS32 p_slot)
 // MW2MATROX: the m_playerIds[p_slot] index loads in the other order.
 // FUNCTION: MW2 0x1000faef
 // FUNCTION: MW2MATROX 0x100057cc
+// FUNCTION: MW23DFX 0x10035250
 void SendCollisionMsg(MechS32 p_slot, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Mech* mech;
@@ -959,7 +997,7 @@ void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 	mech->m_newVelocityX = NET_UNFIXED(msg->m_velocityX);
 	mech->m_newVelocityY = NET_UNFIXED(msg->m_velocityY);
 	mech->m_newVelocityZ = NET_UNFIXED(msg->m_velocityZ);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if ((volume = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ)) >
 		23.020258f) {
 		volume = 23.020258f;
@@ -981,6 +1019,7 @@ void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 // Sends GO: a slave is ready, or the master starts the game.
 // FUNCTION: MW2 0x1000fca8
 // FUNCTION: MW2MATROX 0x10005a67
+// FUNCTION: MW23DFX 0x10035500
 void SendGoMsg(void)
 {
 	MechChar msg[] = "GO";
@@ -1025,6 +1064,7 @@ void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 // The only diff is a stack-slot permutation of out, i, count and bits.
 // FUNCTION: MW2 0x1000fda6
 // FUNCTION: MW2MATROX 0x10005b66
+// FUNCTION: MW23DFX 0x10035610
 void SendThingsMsg(void)
 {
 	MechU8* out;
@@ -1060,6 +1100,7 @@ void SendThingsMsg(void)
 // The only diff is a stack-slot permutation of in, msgCount, i, count and bits.
 // FUNCTION: MW2 0x1000fe61
 // FUNCTION: MW2MATROX 0x10005c21
+// FUNCTION: MW23DFX 0x100356d0
 void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot)
 {
 	MechU8* in;
@@ -1096,6 +1137,7 @@ void ReceiveThingsMsg(MechU8* p_msg, MechS32 p_slot)
 // Sends SU once: the local player's objectives succeeded.
 // FUNCTION: MW2 0x1000ff29
 // FUNCTION: MW2MATROX 0x10005ce9
+// FUNCTION: MW23DFX 0x100357a0
 void SendSuccessMsg(void)
 {
 	MechChar msg[] = "SU";
@@ -1130,6 +1172,7 @@ void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 // MW2MATROX: the comparison of p_id with g_masterDpid loads its operands in the other order.
 // FUNCTION: MW2 0x1000ffe6
 // FUNCTION: MW2MATROX 0x10005da6
+// FUNCTION: MW23DFX 0x10035870
 BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formalName, DWORD p_flags, LPVOID p_context)
 {
 	if (p_id < g_masterDpid) {
@@ -1143,6 +1186,7 @@ BOOL PASCAL CountPlayersCallback(DPID p_id, LPSTR p_friendlyName, LPSTR p_formal
 // Copies the session named g_sessionName into p_context.
 // FUNCTION: MW2 0x1001001a
 // FUNCTION: MW2MATROX 0x10005dda
+// FUNCTION: MW23DFX 0x100358b0
 BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWORD p_timeout, DWORD p_flags)
 {
 	if (p_flags & DPESC_TIMEDOUT) {
@@ -1159,6 +1203,7 @@ BOOL PASCAL FindSessionCallback(LPDPSESSIONDESC p_desc, LPVOID p_context, LPDWOR
 // Picks the IPX service provider.
 // FUNCTION: MW2 0x10010098
 // FUNCTION: MW2MATROX 0x10005e58
+// FUNCTION: MW23DFX 0x10035930
 BOOL PASCAL FindIpxProviderCallback(LPGUID p_guid, LPSTR p_name, DWORD p_major, DWORD p_minor, LPVOID p_context)
 {
 	if (memcmp(p_name, "WinSock IPX Connection For DirectPlay", 38) == 0) {
@@ -1193,6 +1238,7 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 // MW2MATROX: the g_playersFound comparison loads its operands in the other order.
 // FUNCTION: MW2 0x10010178
 // FUNCTION: MW2MATROX 0x10005f38
+// FUNCTION: MW23DFX 0x10035a40
 MechS32 StartExternalIO(NetLaunchInfo* p_netLaunch)
 {
 	HRESULT result;
@@ -1344,6 +1390,7 @@ MechS32 StopExternalIO(void)
 // Counts the players and elects the one with the lowest id master. Alone, the network stops.
 // FUNCTION: MW2 0x10010669
 // FUNCTION: MW2MATROX 0x1000640e
+// FUNCTION: MW23DFX 0x10035f40
 void ElectMaster(void)
 {
 	HRESULT result;

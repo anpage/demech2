@@ -1,5 +1,5 @@
-#ifndef MATROX_A3DVERTEX_H
-#define MATROX_A3DVERTEX_H
+#ifndef ACCEL_A3DVERTEX_H
+#define ACCEL_A3DVERTEX_H
 
 #include "decomp.h"
 #include "types.h"
@@ -22,4 +22,4 @@ typedef struct A3DVertex {
 	MechFloat m_v;       // 0x2c
 } A3DVertex;
 
-#endif // MATROX_A3DVERTEX_H
+#endif // ACCEL_A3DVERTEX_H

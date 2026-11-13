@@ -1,5 +1,5 @@
 /* The door gamepiece (GP_MW2DOOR, player type 7): its reset, update and allocation functions. */
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "door.h"
@@ -121,7 +121,7 @@ void UpdateDoor(Mech* p_mech)
 		);
 		UpdateObj(mech->m_player->m_obj);
 		heading = mech->m_player->m_heading;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		mech->m_player->m_headingSin = FixedSin(heading);
 		mech->m_player->m_headingCos = FixedCos(heading);
 #else
@@ -162,7 +162,7 @@ void LateUpdateDoor(Mech* p_mech)
 		objective = &g_objectiveTable[team].m_objectives[g_currentObjective[team]];
 		mech->m_player->m_targetInfo.m_target = 0;
 		mech->m_player->m_steering->m_autopilot = 0;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (objective->m_type == 0x100 && objective->m_targetCount > 0 &&
 			(MechU16) ((MechU8) (objective->m_targets[0] >> 8) << 8) == 0x100) {
 #else
@@ -176,14 +176,14 @@ void LateUpdateDoor(Mech* p_mech)
 			dx = navX - x;
 			dy = navY - y;
 			dz = navZ - z;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			step = mech->m_topSpeed * g_deltaTime / FIXED_RAW(0x697e98);
 #else
 			step = FixedDiv16(mech->m_topSpeed * g_deltaTime, 0x697e98);
 #endif
 			if (IsWithinRadius(dx, dy, dz, step)) {
 				NormalizeVectorGuarded(&dx, &dy, &dz);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				dx *= step;
 				dy *= step;
 				dz *= step;

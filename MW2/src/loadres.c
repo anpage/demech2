@@ -21,6 +21,7 @@ DECOMP_SIZE_ASSERT(ResourceCacheEntry, 0x14)
 // The resource cache's hash chains, 0x3f1 of them.
 // GLOBAL: MW2 0x100a2c5c
 // GLOBAL: MW2MATROX 0x100aa88c
+// GLOBAL: MW23DFX 0x1024d7ec
 ResourceCacheEntry** g_cacheTable = NULL;
 
 // The number of the next cache log.
@@ -30,19 +31,23 @@ MechS32 g_cacheDumpNumber = 0;
 
 // GLOBAL: MW2 0x101748d0
 // GLOBAL: MW2MATROX 0x1015e8c4
+// GLOBAL: MW23DFX 0x101de79c
 MechS32 g_cacheEntryCount;
 
 // The purge list: unlocked items, oldest first.
 // GLOBAL: MW2 0x101748d4
 // GLOBAL: MW2MATROX 0x1015e8bc
+// GLOBAL: MW23DFX 0x101de794
 ResourceCacheEntry* g_purgeListHead;
 
 // GLOBAL: MW2 0x101748d8
 // GLOBAL: MW2MATROX 0x1015e8c0
+// GLOBAL: MW23DFX 0x101de798
 ResourceCacheEntry* g_purgeListTail;
 // Unlocks an item and appends it to the purge list.
 // FUNCTION: MW2 0x10019af0
 // FUNCTION: MW2MATROX 0x10055890
+// FUNCTION: MW23DFX 0x10023f90
 void UnlockCacheEntry(ResourceCacheEntry* p_item)
 {
 	if (p_item->m_lock == 0) {
@@ -96,6 +101,7 @@ void LockCacheEntry(ResourceCacheEntry* p_item)
 
 // FUNCTION: MW2 0x10019c0c
 // FUNCTION: MW2MATROX 0x100559ac
+// FUNCTION: MW23DFX 0x10024030
 void AllocateCacheTable(void)
 {
 	g_cacheTable = HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, 0x3f1 * sizeof(ResourceCacheEntry*));
@@ -104,6 +110,7 @@ void AllocateCacheTable(void)
 // Rebuilds the purge list from the unlocked items.
 // FUNCTION: MW2 0x10019c2f
 // FUNCTION: MW2MATROX 0x100559cf
+// FUNCTION: MW23DFX 0x10024050
 void RebuildPurgeList(void)
 {
 	ResourceCacheEntry* item;
@@ -124,6 +131,7 @@ void RebuildPurgeList(void)
 // Frees every cached item and the hash table.
 // FUNCTION: MW2 0x10019cc2
 // FUNCTION: MW2MATROX 0x10055a62
+// FUNCTION: MW23DFX 0x100240a0
 void ShutdownResourceCache(void)
 {
 	ResourceCacheEntry* item;
@@ -149,6 +157,7 @@ void ShutdownResourceCache(void)
 
 // FUNCTION: MW2 0x10019d73
 // FUNCTION: MW2MATROX 0x10055b13
+// FUNCTION: MW23DFX 0x10024100
 void InitializeResourceCache(void)
 {
 	g_cacheEntryCount = 0;
@@ -167,6 +176,7 @@ void FUN_10019da1(void)
 // The only diff is a stack-slot permutation of item and slot.
 // FUNCTION: MW2 0x10019dac
 // FUNCTION: MW2MATROX 0x10055b4c
+// FUNCTION: MW23DFX 0x10024130
 ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 {
 	ResourceCacheEntry* item;
@@ -432,6 +442,7 @@ undefined4 FUN_1001a52c(undefined4 p_unk0x00)
 
 // FUNCTION: MW2 0x1001a53f
 // FUNCTION: MW2MATROX 0x100562de
+// FUNCTION: MW23DFX 0x100246b0
 void* FUN_1001a53f(MechS32 p_id, const char* p_type)
 {
 	return LoadCachedResource(0, p_id, p_type, 0);
@@ -439,6 +450,7 @@ void* FUN_1001a53f(MechS32 p_id, const char* p_type)
 
 // FUNCTION: MW2 0x1001a563
 // FUNCTION: MW2MATROX 0x10056302
+// FUNCTION: MW23DFX 0x100246c0
 MechS32 PurgeOldestCacheEntry(void)
 {
 	if (g_purgeListHead) {
@@ -451,6 +463,7 @@ MechS32 PurgeOldestCacheEntry(void)
 
 // FUNCTION: MW2 0x1001a59a
 // FUNCTION: MW2MATROX 0x10056339
+// FUNCTION: MW23DFX 0x100246e0
 void* MemAlloc(MechU32 p_size)
 {
 	return HeapAlloc(g_primaryHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, p_size);

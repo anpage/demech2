@@ -10,13 +10,15 @@
 # the release CRT (4.0's LIBCMT, which its CRT matches far better than 4.1's), drawing through
 # Matrox's MSI95.DLL instead of DirectDraw. Most of its functions are 1.1's, byte for byte or
 # with their stack slots permuted, and carry MW2MATROX annotations next to MW2's
-# (tools/port_annotations.py). MW2_MATROX is defined for the Matrox edition's own code.
+# (tools/port_annotations.py). MW2_ACCEL is defined for what it shares with the other
+# accelerated (3D-card) editions (the float conversion, the 16-bit VFXA port, MW2/src/accel), and
+# MW2_MATROX for the Matrox edition's own code (its MSI95.DLL renderer, MW2/src/matrox).
 #
 # The sources are MW2's, in the Matrox edition's link order: its objects hold MW2's units in another
 # order, found from the functions and data they share. Code the Matrox edition moved into another
 # object is a fragment both units include, one per target (config.c's cockpit panels end
 # staticmem.c's object, clock.c's rotation normalization transform.c's), and its float math
-# object is a unit of its own (matrox/floatmath.c), which replaces fixedtrig.c and approxlen.c.
+# object is a unit of its own (accel/floatmath.c), which replaces fixedtrig.c and approxlen.c.
 # The rest of its own objects (the units it rewrote) aren't written yet. Its A3D renderer is
 # optimized code: VC++ 4.0 at /Ox /G5 /Op, where everything else is /Od (CLAUDE.md, "The A3D layer"),
 # and so is its depth sort object (depthsort.c, with /Oa too).
@@ -59,11 +61,11 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechdamage.c"
       ${vfx3d}
       "${DEMECH2_SOURCE_DIR}/MW2/src/quadtree.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/registry.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/accel/registry.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/faceshade.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/brightnessmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/texturepoly.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/accel/texturepoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/render.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/targetpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/maneuvers.c"
@@ -115,12 +117,12 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/animation.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/shapecollision.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/graphicsmenu.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
       # The 16-bit 2D primitives, a MASM object: only built with ML (this target needs a VC++ 4.x build)
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/vfx16.asm"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/accel/vfx16.asm"
       "${DEMECH2_SOURCE_DIR}/MW2/src/camerashake.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/error.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"
@@ -141,7 +143,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/dorcs.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/mechcollision.c"
       # The projection of faces, objectanim.c's in 1.1
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/queueface.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/accel/queueface.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/timedoverlays.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/perf.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/staticmem.c"
@@ -152,7 +154,7 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/horizon.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/inputmap.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/menucontrols.c"
-      "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/floatmath.c"
+      "${DEMECH2_SOURCE_DIR}/MW2/src/accel/floatmath.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/missionsetup.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/ai.c"
@@ -209,8 +211,8 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
-    # MW2_MATROX also selects the Matrox edition's code in VFX's assembly (VFX3D.ASM's fills).
-    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_MATROX>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_MATROX>"
+    # MW2_ACCEL also selects the accelerated editions' code in VFX's assembly (VFX3D.ASM's fills).
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_ACCEL;/DMW2_MATROX>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay msi95 kernel32.lib user32.lib gdi32.lib advapi32.lib
   )

@@ -10,8 +10,8 @@
 #include "window.h"
 
 // The type of GetBearingAndRange's distance: unsigned 16.16 in 1.1, a float in the Matrox
-// edition (MW2_MATROX).
-#ifdef MW2_MATROX
+// edition (MW2_ACCEL).
+#ifdef MW2_ACCEL
 #define BearingDistance MechFloat
 #else
 #define BearingDistance MechU32

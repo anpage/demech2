@@ -32,6 +32,7 @@
 // The launch sound of the local player's weapon, in the cockpit (p_shotType is unused).
 // FUNCTION: MW2 0x1004c890
 // FUNCTION: MW2MATROX 0x100450c0
+// FUNCTION: MW23DFX 0x1001bc30
 void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_pan)
 {
 	if (p_sound > 0) {
@@ -45,12 +46,13 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 // Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
 // FUNCTION: MW2MATROX 0x100450ed
+// FUNCTION: MW23DFX 0x1001bc50
 void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, struct SceneObject* p_object)
 {
 	MechScalar fovX;
 	MechS32 palette;
 	MechS32 view[7];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	undefined4 saved0x28;
 	undefined4 saved0x2c;
 #endif
@@ -66,7 +68,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		saved0x28 = g_renderSettings.m_texturedSky;
 		saved0x2c = g_renderSettings.m_texturedGround;
 		g_renderSettings.m_texturedSky = 0;
@@ -101,6 +103,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 // Flashes palette slot 0x11 (the ZAPPED palette, solid red) over two seconds (0x16a clock ticks).
 // FUNCTION: MW2 0x1004ca0d
 // FUNCTION: MW2MATROX 0x1004526f
+// FUNCTION: MW23DFX 0x1001bd80
 void FlashZappedPalette(void)
 {
 	StartPaletteFade(0x11, 0x16a, 1);
@@ -113,7 +116,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (p_level > 15) {
 		duration = 0x16a;
 	}
@@ -138,6 +141,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 // Stack-slot permutation: slot and palette.
 // FUNCTION: MW2 0x1004ca82
 // FUNCTION: MW2MATROX 0x100452f9
+// FUNCTION: MW23DFX 0x1001bde0
 void FadeToEndPalette(MechS32 p_alternate)
 {
 	MechS32 slot;
@@ -174,7 +178,7 @@ void EmitWreckSmoke(Mech* p_mech)
 		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		x += RandomNormal() / 2.0f;
 		z += RandomNormal() / 2.0f;
 #else
@@ -292,6 +296,7 @@ void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 // MW2MATROX: the products are float products; only a stack-slot permutation is left.
 // FUNCTION: MW2 0x1004cee2
 // FUNCTION: MW2MATROX 0x100457ab
+// FUNCTION: MW23DFX 0x1001c120
 void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar off10;
@@ -312,7 +317,7 @@ void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 
 	off0c = 0;
 	off14 = 0;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_x = p_x * -25;
 	p_y = p_y * -25;
 	p_z = p_z * -25;

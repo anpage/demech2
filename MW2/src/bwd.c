@@ -25,11 +25,13 @@ DECOMP_SIZE_ASSERT(BwdStream, 0x1f)
 // resource id.
 // GLOBAL: MW2 0x100a5bec
 // GLOBAL: MW2MATROX 0x100a5998
+// GLOBAL: MW23DFX 0x10259ea8
 MechS32 g_streamsFromFiles = 0;
 
 // Set by a command-line switch: OpenBwdStream logs each stream it opens to mw2debug.txt.
 // GLOBAL: MW2 0x100a5bf0
 // GLOBAL: MW2MATROX 0x100a599c
+// GLOBAL: MW23DFX 0x10259eac
 MechS32 g_logStreams = 0;
 
 // Only LogKeywordName's dead first store takes its address.
@@ -45,6 +47,7 @@ MechChar g_unk0x10109c40[1];
 // round.
 // FUNCTION: MW2 0x1003fb00
 // FUNCTION: MW2MATROX 0x10029ef0
+// FUNCTION: MW23DFX 0x10040c60
 BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 {
 	MechChar line[256];
@@ -133,6 +136,7 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 // p_stream->m_maxNodeSize has its operands the other way round.
 // FUNCTION: MW2 0x1003fdfb
 // FUNCTION: MW2MATROX 0x1002a1eb
+// FUNCTION: MW23DFX 0x10040eb0
 BwdNode* GetNextNode(BwdStream* p_stream)
 {
 	BwdNode* next;
@@ -164,6 +168,7 @@ BwdNode* GetNextNode(BwdStream* p_stream)
 // Frees a stream's data, or releases its resource.
 // FUNCTION: MW2 0x1003feb8
 // FUNCTION: MW2MATROX 0x1002a2a8
+// FUNCTION: MW23DFX 0x10040f20
 void UnloadResource(BwdStream* p_stream)
 {
 	if (p_stream) {
@@ -200,6 +205,7 @@ MechChar* GetKeywordName(MechU32 p_code)
 // Appends a line to mw2debug.txt and shows it on screen.
 // FUNCTION: MW2 0x1003ff75
 // FUNCTION: MW2MATROX 0x1002a365
+// FUNCTION: MW23DFX 0x10040fa0
 void LogDebugLine(MechChar* p_text)
 {
 	FILE* file;

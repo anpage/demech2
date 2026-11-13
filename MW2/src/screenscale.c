@@ -1,4 +1,4 @@
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
 #endif
 #include "screenscale.h"
@@ -26,8 +26,8 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 DECOMP_SIZE_ASSERT(GaugeQuadrant, 0x04)
@@ -153,7 +153,7 @@ PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect)
 {
 	MechScalar scale;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	scale = p_aspect / 0.8333333f;
 	p_rect->m_x0 = FixedMul16(p_rect->m_x0, 319);
 	p_rect->m_y0 = FixedMul16(p_rect->m_y0, 199);
@@ -208,6 +208,7 @@ Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 // Centers a rectangle of p_src's size on the screen.
 // FUNCTION: MW2 0x10056e22
 // FUNCTION: MW2MATROX 0x10071832
+// FUNCTION: MW23DFX 0x100061a0
 PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	PANE rect;
@@ -294,6 +295,7 @@ PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
 // Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x100570e9
 // FUNCTION: MW2MATROX 0x10071af9
+// FUNCTION: MW23DFX 0x10006450
 void OutlinePane(PANE* p_target, MechS32 p_color)
 {
 	MechS32 width;
@@ -364,7 +366,7 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 	}
 
 	left = p_pos.m_x;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	top = p_pos.m_y - 1;
 	right = p_pos.m_x + width;
 	bottom = p_pos.m_y + height + 1;
@@ -613,7 +615,7 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 }
 
 // The Matrox edition's slopes are floats: a product or a quotient with one converts to an integer.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define SLOPE_DIV(a, b) ((MechS32) ((a) / (b)))
 #define SLOPE_MUL(a, b) ((MechS32) ((a) * (b)))
 #else
@@ -629,7 +631,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 {
 	MechS32 steep;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (!FIXED_IS_NONZERO(p_dx)) {
 #else
 	if (p_dx == 0 || p_dy / p_dx > 0x7fff || p_dy / p_dx < -0x8000) {
@@ -641,7 +643,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 	}
 
 	if (!steep) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		*p_slope = p_dy / p_dx;
 #else
 		*p_slope = FixedDiv16(p_dy, p_dx);
@@ -695,7 +697,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	MechScalar dx;
 	MechScalar dy;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_angle = fmod(fmod(p_angle, 360.0) + 360.0, 360.0);
 #else
 	p_angle = (p_angle % 0x1680000 + 0x1680000) % 0x1680000;
@@ -718,7 +720,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_up = 0;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
@@ -739,6 +741,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 // slope p_slope and the direction bits of p_quadrant (GetRectNeedleToward).
 // FUNCTION: MW2 0x10057bf3
 // FUNCTION: MW2MATROX 0x100724c7
+// FUNCTION: MW23DFX 0x10006c20
 Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_slope, Point* p_out)
 {
 	MechS32 height;
@@ -753,7 +756,7 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_
 		ratio = 0;
 	}
 	else {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		ratio = (MechScalar) p_half->m_y / p_half->m_x;
 #else
 		ratio = FixedDiv16(p_half->m_y, p_half->m_x);
@@ -824,13 +827,14 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057e56
 // FUNCTION: MW2MATROX 0x100727aa
+// FUNCTION: MW23DFX 0x10006e80
 void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 {
 	MechS32 centerX;
 	MechS32 centerY;
 	MechS32 radiusY;
 	MechS32 radius;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	centerX = (p_target->m_x1 - p_target->m_x0 + 1) >> 1;
 	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
 	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
@@ -880,7 +884,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // The Matrox edition takes the point as a Point and divides by the float aspect.
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2MATROX 0x10072834
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 MechS32 IsInsideGaugeEllipse(PANE* p_target, Point* p_point)
 #else
 MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
@@ -892,7 +896,7 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 	MechS32 dx;
 	MechS32 dy;
 	MechS32 distanceSquared;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechS32 aspect;
 
 	aspect = g_eyepoint->m_pixelAspect;
@@ -901,7 +905,7 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
 	radiusSquared = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
 	radiusSquared = radiusSquared * radiusSquared;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	dx = p_point->m_x - centerX;
 	dy = (p_point->m_y - centerY) / g_eyepoint->m_pixelAspect;
 #else
@@ -945,7 +949,7 @@ Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 		quadrant.m_bits.m_steep = 0;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	dy = dy / g_eyepoint->m_pixelAspect;
 #else
 	dy = FixedDiv16(dy, g_eyepoint->m_pixelAspect);
@@ -967,7 +971,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	MechScalar dx;
 	MechScalar dy;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_angle = fmod(fmod(p_angle, 360.0) + 360.0, 360.0);
 #else
 	p_angle = (p_angle % 0x1680000 + 0x1680000) % 0x1680000;
@@ -990,7 +994,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_up = 0;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
@@ -1016,6 +1020,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x100582c4
 // FUNCTION: MW2MATROX 0x10072b74
+// FUNCTION: MW23DFX 0x100071a0
 Point* GetEllipseEdgeAtAngle(
 	PANE* p_target,
 	Point* p_center,
@@ -1031,7 +1036,7 @@ Point* GetEllipseEdgeAtAngle(
 
 	center = *p_center;
 	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	radiusY = radius * g_eyepoint->m_pixelAspect;
 #else
 	radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
@@ -1044,7 +1049,7 @@ Point* GetEllipseEdgeAtAngle(
 	case 1:
 	case 2:
 	case 3:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		result.m_x = center.m_x - (MechS32) (radius * FixedCos(p_angle));
 		result.m_y = center.m_y - (MechS32) (radiusY * FixedSin(p_angle));
 #else

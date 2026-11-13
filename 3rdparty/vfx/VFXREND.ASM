@@ -2757,8 +2757,8 @@ VFX_polygon_render PROC USES ebx esi edi es,\
                 VColor,\
                 PTexture:PTR,PCueing:PTR,PTranslucency:PTR
 
-; demech2: begin change. The Matrox edition (MW2_MATROX) doesn't set ES here.
-                IFNDEF MW2_MATROX
+; demech2: begin change. The accelerated editions (MW2_ACCEL) don't set ES here.
+                IFNDEF MW2_ACCEL
                 IFDEF FLAT_MODEL        ;if in flat model, make sure ES=DS
                 push ds                 ;(for background calls, etc.)
                 pop es
@@ -2808,8 +2808,8 @@ VFX_polygon_render PROC USES ebx esi edi es,\
                 ;
 
                 mov ebx,[Operation]
-; demech2: begin change. The Matrox edition (MW2_MATROX) reads the table through CS.
-                IFDEF MW2_MATROX
+; demech2: begin change. The accelerated editions (MW2_ACCEL) read the table through CS.
+                IFDEF MW2_ACCEL
                 mov eax,cs:poly_vectors[ebx*4]
                 ELSE
                 mov eax,poly_vectors[ebx*4]
@@ -3669,8 +3669,8 @@ __finished:
                 ;
 
                 mov ebx,[Operation]
-; demech2: begin change. The Matrox edition (MW2_MATROX) reads the table through CS.
-                IFDEF MW2_MATROX
+; demech2: begin change. The accelerated editions (MW2_ACCEL) read the table through CS.
+                IFDEF MW2_ACCEL
                 mov eax,cs:poly_vectors[ebx*4]
                 ELSE
                 mov eax,poly_vectors[ebx*4]

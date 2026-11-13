@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 // The texture coordinates of a band's corners (DrawBand).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x100a85a8
 FloatPoint g_bandTexCoords[4] = {{0, 0}, {1.0f, 0}, {1.0f, 1.0f}, {0, 1.0f}};
 #else
@@ -21,7 +21,7 @@ Point g_bandTexCoords[4] = {{0, 0}, {0x10000, 0}, {0x10000, 0x10000}, {0, 0x1000
 // Draws a polygon of p_count points in the mode in p_flags' low four bits, in the color in bits
 // 4-11: modes 0 and 3 draw it filled (DrawBand) when the render settings allow.
 // The Matrox edition has no DrawBandPolygon: its DrawScenePolygon calls DrawBand itself.
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // FUNCTION: MW2 0x10010750
 void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c)
 {
@@ -54,7 +54,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // The only other diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100107de
 // FUNCTION: MW2MATROX 0x100459b0
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 MechS32 DrawBand(
 	MechU32 p_color,
 	MechS32 p_count,
@@ -67,7 +67,7 @@ MechS32 DrawBand(
 MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_luma, MechS32 p_mode)
 #endif
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 haveStart;
 	ProjectedVertex* point;
 	ProjectedVertex* points[4];
@@ -271,7 +271,7 @@ MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_
 }
 
 // The Matrox edition has no DrawBandWithFlash.
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // FUNCTION: MW2 0x10010a7f
 MechS32 DrawBandWithFlash(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4* p_unk0x08)
 {

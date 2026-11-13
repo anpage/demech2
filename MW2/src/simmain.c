@@ -49,11 +49,15 @@
 #include "players.h"
 #include "point.h"
 #include "polydraw.h"
-#ifdef MW2_MATROX
-#include "matrox/a3d.h"
-#include "matrox/msidraw.h"
-#include "matrox/registry.h"
+#ifdef MW2_ACCEL
+#include "accel/registry.h"
 #include "mouse.h"
+#endif
+#ifdef MW2_ACCEL
+#include "accel/a3d.h"
+#endif
+#ifdef MW2_MATROX
+#include "matrox/msidraw.h"
 #endif
 #include "random.h"
 #include "refreshmode.h"
@@ -84,8 +88,8 @@
 #include <msi95.h>
 #endif
 
-#ifdef MW2_MATROX
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/vfx16.h"
 #endif
 
 DECOMP_SIZE_ASSERT(SoundConfig, 0x3c)
@@ -94,10 +98,12 @@ DECOMP_SIZE_ASSERT(MissionObjective, 0x13f)
 
 // GLOBAL: MW2 0x100acb18
 // GLOBAL: MW2MATROX 0x100be4c0
+// GLOBAL: MW23DFX 0x1024ac60
 MechS32 g_shouldQuit = 0;
 
 // GLOBAL: MW2 0x100acb1c
 // GLOBAL: MW2MATROX 0x100be4c4
+// GLOBAL: MW23DFX 0x1024ac64
 MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
@@ -106,10 +112,12 @@ TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
 // GLOBAL: MW2MATROX 0x100be4cc
+// GLOBAL: MW23DFX 0x1024ac6c
 DifficultyCfg* g_difficulty = NULL;
 
 // GLOBAL: MW2 0x100acb28
 // GLOBAL: MW2MATROX 0x100be4d0
+// GLOBAL: MW23DFX 0x1024ac70
 MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
@@ -129,6 +137,7 @@ HWND g_unk0x100be508 = NULL;
 #endif
 // GLOBAL: MW2 0x100acb60
 // GLOBAL: MW2MATROX 0x100be50c
+// GLOBAL: MW23DFX 0x1024aca8
 HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
@@ -137,18 +146,22 @@ HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
 // GLOBAL: MW2MATROX 0x100be514
+// GLOBAL: MW23DFX 0x1024acb0
 HANDLE g_primaryHeap = NULL;
 
 // GLOBAL: MW2 0x100acb6c
 // GLOBAL: MW2MATROX 0x100be518
+// GLOBAL: MW23DFX 0x1024acb4
 MechS32 g_gameWindowWidth = 0;
 
 // GLOBAL: MW2 0x100acb70
 // GLOBAL: MW2MATROX 0x100be51c
+// GLOBAL: MW23DFX 0x1024acb8
 MechS32 g_gameWindowHeight = 0;
 
 // GLOBAL: MW2 0x100acb74
 // GLOBAL: MW2MATROX 0x100be520
+// GLOBAL: MW23DFX 0x1024acbc
 MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
@@ -169,10 +182,12 @@ MechS32 g_desktopHeight = 0;
 
 // GLOBAL: MW2 0x100acb88
 // GLOBAL: MW2MATROX 0x100be534
+// GLOBAL: MW23DFX 0x1024acd0
 MechS32 g_simPaused = 0;
 
 // GLOBAL: MW2 0x100acb8c
 // GLOBAL: MW2MATROX 0x100be538
+// GLOBAL: MW23DFX 0x1024acd4
 MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
@@ -181,6 +196,7 @@ undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
 // GLOBAL: MW2MATROX 0x100be540
+// GLOBAL: MW23DFX 0x1024acdc
 MechS32 g_mouseOutsideClientWindow = 0;
 
 #ifdef MW2_MATROX
@@ -192,6 +208,7 @@ MechS32 g_unk0x100be544 = 0;
 #endif
 // GLOBAL: MW2 0x100acb98
 // GLOBAL: MW2MATROX 0x100be548
+// GLOBAL: MW23DFX 0x1024ace0
 MechS32 g_goLaunch = 0;
 
 // GLOBAL: MW2 0x100e9240
@@ -206,7 +223,7 @@ MechU32 g_windowedSwitchDeadline;
 // GLOBAL: MW2MATROX 0x101d69c0
 VideoDriverChoice g_videoDriverChoice;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's: reads the renderer's settings from the registry, the sky and the ground
 // (drawn unless set to 0) and the texture filter.
 // FUNCTION: MW2MATROX 0x1008fad0
@@ -363,7 +380,7 @@ int __stdcall SimMain(
 		}
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	LoadSkyGroundSettings(missionName);
 #endif
 	DebugPrint("FirstClock()\n");
@@ -477,6 +494,8 @@ int __stdcall SimMain(
 		g_drawModeReady = 1;
 #ifdef MW2_MATROX
 		g_unk0x100be544 = 1;
+#endif
+#ifdef MW2_ACCEL
 		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
 #else
 		DebugPrint("InitDrawMode()\n");
@@ -492,7 +511,7 @@ int __stdcall SimMain(
 			Error(0x50, "Error profiling video modes.");
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_1008fad0();
 #endif
 		while (ShowCursor(FALSE) >= 0) {
@@ -512,7 +531,7 @@ int __stdcall SimMain(
 		ShowWindow(g_unk0x100be508, SW_HIDE);
 #endif
 		while (g_quitStage < 3) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (g_goLaunch == 7) {
 #else
 			if (g_goLaunch == 3) {
@@ -547,7 +566,7 @@ int __stdcall SimMain(
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
 			RunTimedCallbacks(&g_detachedTasks);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			UpdateAllPlayers();
 #else
 			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
@@ -634,7 +653,7 @@ int __stdcall SimMain(
 				g_drawModeReady = 0;
 			}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			g_goLaunch |= 6;
 #else
 			g_goLaunch |= 2;
@@ -818,7 +837,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			ValidateRect(p_hWnd, NULL);
 			return 0;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		break;
 #else
 		else {
@@ -859,7 +878,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			}
 			return 0;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		break;
 #else
 		else {
@@ -871,7 +890,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 			return 1;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		return 0;
 #else
 		else {
@@ -903,7 +922,7 @@ void HandleMessages(void)
 
 	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				return;
 			}
@@ -924,6 +943,7 @@ void HandleMessages(void)
 
 // FUNCTION: MW2 0x10067c79
 // FUNCTION: MW2MATROX 0x10090d71
+// FUNCTION: MW23DFX 0x10009740
 void UpdatePauseState(void)
 {
 	if (g_pauseRequested) {

@@ -34,6 +34,7 @@
 // Stack-slot permutation: best, nearest and other and target.
 // FUNCTION: MW2 0x100519b3
 // FUNCTION: MW2MATROX 0x10081144
+// FUNCTION: MW23DFX 0x10012520
 void TargetAttacker(Player* p_player)
 {
 	MechS16 target;

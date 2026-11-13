@@ -13,7 +13,7 @@ typedef struct Ramp {
 	MechS32 m_duration; // 0x0c — in clock ticks
 } Ramp;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's ramp of a float value, with its duration in (fractional) clock ticks.
 // SIZE 0x10
 typedef struct FloatRamp {
@@ -26,7 +26,7 @@ typedef struct FloatRamp {
 
 // ScalarRamp: a ramp of a MechScalar value (a Ramp in 1.1, a FloatRamp in the Matrox edition,
 // which keeps 1.1's integer ramps for the player's aim distance only).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define ScalarRamp FloatRamp
 #define StartScalarRamp StartFloatRamp
 #define UpdateScalarRamp UpdateFloatRamp
@@ -61,7 +61,7 @@ extern "C"
 
 	MechS32 StartRamp(Ramp* p_ramp, MechS32 p_target, MechS32 p_value, MechDouble p_seconds);
 	MechS32 UpdateRamp(Ramp* p_ramp);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 StartFloatRamp(FloatRamp* p_ramp, MechFloat p_target, MechFloat p_value, MechDouble p_seconds);
 	MechFloat UpdateFloatRamp(FloatRamp* p_ramp);
 #endif

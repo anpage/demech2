@@ -2,7 +2,7 @@
    DivDifference17 and RayShapeDistance are C functions with __asm bodies, and TransformModel has an __asm block. Their
    portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it replaces
    TransformShapeCenter's __asm block, and the others' whole bodies, whose C wraps where standard C
-   overflows. The Matrox edition (MW2_MATROX) replaced the assembly of TransformModel,
+   overflows. The accelerated editions (MW2_ACCEL) replaced the assembly of TransformModel,
    TransformShapeCenter and RayShapeDistance with float C. */
 #include "shapegeom.h"
 
@@ -66,7 +66,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // FUNCTION: MW2MATROX 0x10028adb
 void TransformModel(Model* p_model, Matrix* p_matrix)
 {
-#if defined(MW2_MATROX)
+#if defined(MW2_ACCEL)
 	Face* face;
 	Vertex* vertex;
 	MechS32 count;
@@ -277,7 +277,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 {
 	p_shape->m_flags &= ~0x200;
-#if defined(MW2_MATROX)
+#if defined(MW2_ACCEL)
 	p_shape->m_centerX = p_shape->m_modelCenterX * p_matrix->m_rows[0][0] +
 						 p_shape->m_modelCenterY * p_matrix->m_rows[0][1] +
 						 p_shape->m_modelCenterZ * p_matrix->m_rows[0][2] + p_matrix->m_rows[3][0];
@@ -381,7 +381,7 @@ void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 	}
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_distance = 0 for y at
 // (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_distance) / p_normalY, in 64 bits.
 // FUNCTION: MW2 0x10039c96
@@ -429,7 +429,7 @@ MechS32 SolvePlaneY(
 // FUNCTION: MW2MATROX 0x10028e14
 MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-#if defined(MW2_MATROX)
+#if defined(MW2_ACCEL)
 	MechScalar deltaX;
 	MechScalar deltaY;
 	MechScalar deltaZ;
@@ -577,8 +577,8 @@ done:;
 // triangle gets the normal (-1, -1, -1) and 0. The products and the scaling are __asm blocks.
 // Stack-slot permutation of the locals.
 // The Matrox edition's is float C, which returns the cross product's length: it sits with the
-// trigonometry, in matrox/floatmath.c.
-#ifndef MW2_MATROX
+// trigonometry, in accel/floatmath.c.
+#ifndef MW2_ACCEL
 // FUNCTION: MW2 0x10039dda
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
@@ -880,7 +880,7 @@ normalize:
 }
 #endif
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d
 MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value)
@@ -924,7 +924,7 @@ done:
 // FUNCTION: MW2MATROX 0x10028f0e
 MechScalar RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
-#if defined(MW2_MATROX)
+#if defined(MW2_ACCEL)
 	MechScalar radius;
 	MechScalar deltaX;
 	MechScalar check;

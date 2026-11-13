@@ -8,7 +8,7 @@
 // An Xform as the world streams store it: 16.16 values. 1.1 reads it as it is; the Matrox
 // edition, whose Xform holds floats, converts it member by member (the angles scaled down by
 // 65536, the scale and the position as they are).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // SIZE 0x24
 typedef struct FileXform {
 	MechS32 m_scaleX; // 0x00

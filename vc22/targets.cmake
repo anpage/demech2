@@ -1,5 +1,5 @@
-# The targets the originals built with VC++ 2.2: MECH2.EXE, the launcher, and NETMECHW.DLL,
-# NetMech's lobby.
+# The targets the originals built with VC++ 2.2: MECH2.EXE, the launcher, NETMECHW.DLL,
+# NetMech's lobby, and MW2_3DFX.DLL, the 3Dfx edition's simulator.
 #
 # Included by vc22/CMakeLists.txt, the VC++ 2.2 sub-project, and by the top-level project
 # when it has no VC++ 2.2 to hand them to: a VC++ 4.1 build without DEMECH2_MSVC22_ROOT, or a
@@ -207,4 +207,215 @@ function(demech2_add_netmechw)
   else()
     message(STATUS "Lobby images: none (no original NETMECHW.DLL at ${DEMECH2_NETMECHW_ORIGINAL})")
   endif()
+endfunction()
+
+# MW2_3DFX.DLL (linked 1996-10-21 by LINK 2.55): the simulator of the 3Dfx edition (the Diamond
+# Monster disc's MW2.DLL), drawing through Glide (GLIDE.DLL). It is the C the accelerated editions
+# share with the Matrox edition's (the float conversion, the 16-bit VFXA port), built with VC++ 2.2
+# and optimized: /Ox /Oa /G5 /Gr,
+# which reproduce the original exactly, with __fastcall the default calling convention (/Gr).
+# network.c, shots.c and mechreload.c are /Od (still /Gr). Every function is a COMDAT of its own
+# (/Gy): the linker pads between them with int3, inside an object as between objects. Its CRT is 2.2's LIBCMT, and it links
+# 3dfx's Texus (not built yet). MW2_ACCEL and MW2_3DFX are defined: MW2_ACCEL selects the code
+# the accelerated editions share (MW2/src/accel), MW2_3DFX this edition's own.
+#
+# The sources are MW2's and the accelerated editions' (MW2/src/accel), in this edition's link
+# order as far as its functions place them. Its own back end (the Glide renderer, at 0x10066570)
+# isn't written yet: the Matrox edition's A3D and MSI back ends (MW2/src/matrox) are linked in its
+# place. Only the VC++ 2.2 sub-project builds this target: it needs ML, and its sources'
+# optimization flags would apply to MW2's targets in the top-level project.
+function(demech2_add_mw23dfx)
+  set(od
+    "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
+  )
+  set(sources
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/recttransition.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/dispdib.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/anim2d.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/setres.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/refreshmode.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/timedoverlays.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/cockpit.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/render.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/gdi.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/screenscale.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/brightness.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/supanim.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/environment.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/gamecd.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/logwindow.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/clock.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/callbacks.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/debugprint.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/missionaudio.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/simmain.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/objective.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/startup.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/ray.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/gpanim.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mechcollision.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/quadtree.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/shapecollision.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/boundbox.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/shapelists.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/objectanim.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/object.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/collision.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/gridobject.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mechviewpanel.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/ai.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/lineofsight.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/debris.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mechdamage.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/statuspanels.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/players.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/team.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mechclass.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/damagepanel.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fadepal.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/bargauges.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/targeting.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/weaponpanel.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/maneuvers.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/targetpanel.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/artillery.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/hud.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/aiweapons.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/cockpitpanel.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/staticmem.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/loadres.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/geocache.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/recordstacks.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/resourcename.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/classtable.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/polydraw.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/horizon.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/shape.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/depthsort.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/faceshade.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/bandpoly.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/palette.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/queueface.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/animation.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/camerashake.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/eyepoint.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/transform.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/view.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/floatmath.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/soundlimits.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/cdaudio.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/speech.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/audio.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/soundfx.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/midi.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/sndunpack.${asm_or_c}"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/debugbreak.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mouse.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/pausebanner.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/gamekeys.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/keyboard.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/cmdline.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/inputmap.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/netio.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/joystick.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/inifile.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/screenshot.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/ramp.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/gifsave.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/overlay.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/error.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mw2prj.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/prjfile.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/random.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mw2log.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/ticks.${asm_or_c}"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/registry.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/world.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/bwdnames.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/missionsetup.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/config.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/bwd.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/poolsizes.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mekfile.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/wtbshapes.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/resource.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/weapons.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
+    ${vfx3d}
+    ${vfxrend}
+    ${vfxa}
+    "${DEMECH2_SOURCE_DIR}/MW2/src/palfade.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/vfx16.asm"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/dorcs.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/lancemenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/menucontrols.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/settings.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/perf.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/menu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/graphicsmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
+    # Not placed yet: units with nothing found in the 3Dfx edition (fixed-point helpers it
+    # replaced, the Matrox edition's renderer, directdraw.c), linked after the others in the
+    # Matrox edition's order.
+    "${DEMECH2_SOURCE_DIR}/MW2/src/namehash.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mainmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/brightnessmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/accel/texturepoly.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/bwdkeywords.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/palidentity.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/matrox/msidraw.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/door.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/weapondata.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/integrate.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/inradius.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/emptyfns.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/commandpointmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/muldiv14.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedsqrt.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/sqrtguess.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddiv29.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul29.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/audiomenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/scaledelta.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/crossdiv.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/lerp.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot27.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddot29.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/shiftdiv.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixeddivu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/fixedmul30.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/commandmenu.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mulratio.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/mulnorm16.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/muladddiv.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
+    "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
+  )
+  foreach(source IN LISTS sources)
+    if (source MATCHES "\\.c$" AND NOT source IN_LIST od)
+      set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Oa")
+    endif()
+  endforeach()
+  demech2_add_dll(mw23dfx
+    ID MW23DFX
+    SOURCE_DIR MW2
+    OUTPUT_NAME MW2_3DFX
+    LINK_DIR 3d
+    RUNTIME MultiThreaded
+    SOURCES
+      ${sources}
+      "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_3DFX>"
+      "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL>"
+    LINK_OPTIONS /DEBUG /INCREMENTAL:no
+    LIBRARIES winmm.lib wail32 ddraw dplay msi95 kernel32.lib user32.lib gdi32.lib advapi32.lib
+  )
 endfunction()

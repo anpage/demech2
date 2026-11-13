@@ -22,6 +22,7 @@ MechS32 g_rayBoxEntryBehind = 0;
 // Stack-slot permutation: inColumn and top.
 // FUNCTION: MW2 0x100699a0
 // FUNCTION: MW2MATROX 0x10052170
+// FUNCTION: MW23DFX 0x1000d1b0
 MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 inColumn;
@@ -36,6 +37,7 @@ MechS32 TestPointInBox(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // p_top and an upward normal.
 // FUNCTION: MW2 0x100699da
 // FUNCTION: MW2MATROX 0x100521aa
+// FUNCTION: MW23DFX 0x1000d1f0
 MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	MechScalar top;
@@ -57,6 +59,7 @@ MechS32 GetBoxTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // within it, with the box's top in p_top, and p_inside when p_y does as well.
 // FUNCTION: MW2 0x10069a4b
 // FUNCTION: MW2MATROX 0x1005221b
+// FUNCTION: MW23DFX 0x1000d250
 void ClassifyPointInBox(
 	Shape* p_shape,
 	MechScalar p_x,
@@ -147,7 +150,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 	}
 
 	if (tNear < 0) {
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 		g_rayBoxEntryBehind = tNear;
 #endif
 		tNear = 0;
@@ -199,6 +202,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 // Tests whether (p_x, p_z) lies over the shape's bounding box.
 // FUNCTION: MW2 0x10069dd4
 // FUNCTION: MW2MATROX 0x10052602
+// FUNCTION: MW23DFX 0x1000d520
 MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	BoundBox* box;
@@ -214,6 +218,7 @@ MechS32 TestPointInBoxColumn(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mec
 
 // FUNCTION: MW2 0x10069e54
 // FUNCTION: MW2MATROX 0x10052696
+// FUNCTION: MW23DFX 0x1000d580
 MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	return 0;
@@ -263,6 +268,7 @@ MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 
 // FUNCTION: MW2 0x10069f67
 // FUNCTION: MW2MATROX 0x100527b3
+// FUNCTION: MW23DFX 0x1000d640
 MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	Model* model;
@@ -278,6 +284,7 @@ MechS32 TestPointTerrain(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechSca
 
 // FUNCTION: MW2 0x10069fd4
 // FUNCTION: MW2MATROX 0x10052820
+// FUNCTION: MW23DFX 0x1000d680
 MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 {
 	return TestQuadtreeRay(p_shape->m_collisionData, p_shape->m_models, p_ray) & 1;
@@ -285,6 +292,7 @@ MechS32 TestRayTerrain(Shape* p_shape, Ray* p_ray)
 
 // FUNCTION: MW2 0x1006a001
 // FUNCTION: MW2MATROX 0x1005284d
+// FUNCTION: MW23DFX 0x1000d690
 MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z, MechScalar* p_top)
 {
 	return GetQuadtreeTop(p_shape->m_collisionData, p_shape->m_models, p_x, p_y, p_z, p_top);
@@ -314,7 +322,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 		if (face->m_normal[1] < 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
 			done = TRUE;
 			vertex = &vertices[*((MechU8*) face + face->m_indexOffset)];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			height = vertex->m_worldY -
 					 ((p_z - vertex->m_worldZ) * face->m_normal[2] + (p_x - vertex->m_worldX) * face->m_normal[0]) /
 						 face->m_normal[1];

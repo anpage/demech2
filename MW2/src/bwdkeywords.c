@@ -53,11 +53,13 @@ MechChar* g_bwdKeywordNames[0x48] = {
 // The extension OpenBwdStream gives a file name without one.
 // GLOBAL: MW2 0x100a67e0
 // GLOBAL: MW2MATROX 0x100a5dc8
+// GLOBAL: MW23DFX 0x1025a4a0
 MechChar g_bwdExtension[8] = "BWD";
 
 // The node tags, four characters each. The first is a stream's header node (BwdHeader).
 // GLOBAL: MW2 0x100a67e8
 // GLOBAL: MW2MATROX 0x100a5dd0
+// GLOBAL: MW23DFX 0x1025a4a8
 MechU32 g_bwdTypeCodes[0x48] = {
 	0x00445742, // BWD
 	0x00564552, // REV

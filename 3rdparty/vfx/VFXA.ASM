@@ -91,8 +91,8 @@
                 PUBLIC VFX_shape_visible_rectangle
 
                 PUBLIC VFX_shape_lookaside
-; demech2: begin change. The Matrox edition's lookaside writer (below).
-                IFDEF MW2_MATROX
+; demech2: begin change. The accelerated editions' lookaside writer (below).
+                IFDEF MW2_ACCEL
                 PUBLIC VFX_lookaside_write
                 ENDIF
 ; demech2: end change
@@ -3019,13 +3019,13 @@ VFX_shape_lookaside ENDP
 
                 ENDIF
 
-; demech2: begin change. The Matrox edition (MW2_MATROX) has a routine VFX doesn't, here: it
+; demech2: begin change. The accelerated editions (MW2_ACCEL) have a routine VFX doesn't, here: it
 ; sets one entry of the lookaside table, the 8-bit counterpart of its 16-bit drawing's
-; VFX_lookaside_write16 (MW2/src/matrox/vfx16.asm). Its name is ours.
+; VFX_lookaside_write16 (MW2/src/accel/vfx16.asm). Its name is ours.
 ;
 ; void cdecl VFX_lookaside_write (int index, int color)
 
-                IFDEF MW2_MATROX
+                IFDEF MW2_ACCEL
 
 VFX_lookaside_write PROC C USES ebx esi edi es,\
                 index,color
@@ -6007,7 +6007,7 @@ VFX_pane_wipe PROC C USES ebx esi edi es,\
             LOCAL    CP_CX  ;Window x coord. = Pane x coord. + CP_CX
             LOCAL    CP_CY  ;Window y coord. = Pane x coord. + CP_CY
 ; demech2: begin change. MW2 keeps the row width for its aligned fill below.
-            IFNDEF   MW2_MATROX
+            IFNDEF   MW2_ACCEL
             LOCAL    wipe_width
             ENDIF
 ; demech2: end change
@@ -6059,10 +6059,10 @@ VFX_pane_wipe PROC C USES ebx esi edi es,\
         ;    }
 
 ; demech2: begin change. MW2 fills rows of 4 bytes or fewer byte by byte, and wider rows with the
-; destination aligned: bytes up to a dword boundary, then dwords, then the rest. The Matrox
-; edition (MW2_MATROX) fills every row's odd bytes first and then dwords, without aligning.
+; destination aligned: bytes up to a dword boundary, then dwords, then the rest. The accelerated
+; editions (MW2_ACCEL) fill every row's odd bytes first and then dwords, without aligning.
             mov     edx,CP_T
-            IFDEF   MW2_MATROX
+            IFDEF   MW2_ACCEL
             jmp     nextY
 loopY:
             mov     ecx,ebx
@@ -7827,8 +7827,8 @@ __setup_copy:
 __copy_line:                                    ;do 16-bit writes for overhead        
 
 ; demech2: begin change. MW2 copies the character's rows a byte at a time, without the word copy,
-; which the Matrox edition (MW2_MATROX) keeps.
-                IFDEF MW2_MATROX
+; which the accelerated editions (MW2_ACCEL) keep.
+                IFDEF MW2_ACCEL
                 shr ecx,1
                 rep movsw
                 adc ecx,0

@@ -4,7 +4,7 @@
 #include "decomp.h"
 #include "types.h"
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // A face of a shape record (WtbHeader): 0x28 bytes with up to four vertex indices, 0x2e with
 // more. The Matrox edition's records carry the face's normal, and three bytes it copies into its
 // vertices (Vertex::m_red to m_blue) for faces of draw mode 4.

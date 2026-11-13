@@ -48,9 +48,9 @@
 
 #include <stdio.h>
 
-#ifdef MW2_MATROX
-#include "matrox/a3d.h"
-#include "matrox/vfx16.h"
+#ifdef MW2_ACCEL
+#include "accel/a3d.h"
+#include "accel/vfx16.h"
 #endif
 
 // The satellite view's display option, 0 or 1 (DrawSatelliteStatic).
@@ -72,6 +72,7 @@ MechS32 g_savedShowCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5a24
 // GLOBAL: MW2MATROX 0x100ae40c
+// GLOBAL: MW23DFX 0x102498a4
 undefined4 g_savedShowHud = 1;
 
 // GLOBAL: MW2 0x100a5a28
@@ -85,15 +86,18 @@ MechS32 g_hudSettingsSaved = 0;
 // The height the map view's shading starts at (GetMapHeightShade).
 // GLOBAL: MW2 0x100a5a30
 // GLOBAL: MW2MATROX 0x100ae418
+// GLOBAL: MW23DFX 0x102498b0
 MechS32 g_mapShadeBase = 0;
 
 // GLOBAL: MW2 0x100a5a34
 // GLOBAL: MW2MATROX 0x100ae41c
+// GLOBAL: MW23DFX 0x102498b4
 MechS32 g_mapShadeTop = 0x1900;
 
 // The height range the map view's shading spans (GetMapHeightShade).
 // GLOBAL: MW2 0x100a5a38
 // GLOBAL: MW2MATROX 0x100ae420
+// GLOBAL: MW23DFX 0x102498b8
 MechS32 g_mapShadeRange = 0x1900;
 
 // The gauge functions of the cockpit layouts, by index.
@@ -112,7 +116,7 @@ CockpitGaugeFn g_cockpitGauges[10] = {
 };
 
 // The Matrox edition leaves them uninitialized (in .bss).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012fc80
 PANE g_cockpitGaugePanes[5];
 #else
@@ -168,6 +172,7 @@ static MechS32 g_staticNoiseUntil;
 // The cockpit view before the current one (SwitchCockpitView).
 // GLOBAL: MW2 0x10109c5c
 // GLOBAL: MW2MATROX 0x1012fc78
+// GLOBAL: MW23DFX 0x10244cc8
 MechS32 g_previousCockpitView;
 
 // The map view's power mode, and the one before: 1 sliding in while the mech starts up
@@ -175,19 +180,23 @@ MechS32 g_previousCockpitView;
 // 0 reset (ResetMapView). The readouts draw only while it runs.
 // GLOBAL: MW2 0x10109c60
 // GLOBAL: MW2MATROX 0x1012fce4
+// GLOBAL: MW23DFX 0x10244d34
 MechS32 g_previousMapViewMode;
 
 // GLOBAL: MW2 0x10109c64
 // GLOBAL: MW2MATROX 0x1012fcec
+// GLOBAL: MW23DFX 0x10244d3c
 MechS32 g_cockpitLayoutIndex;
 
 // GLOBAL: MW2 0x10109c68
 // GLOBAL: MW2MATROX 0x1012fc70
+// GLOBAL: MW23DFX 0x10244cc0
 MechS32 g_mapViewMode;
 
 // The view g_cockpitLayoutIndex switches to; 3 and 5 enter and leave the satellite view (4).
 // GLOBAL: MW2 0x10109c6c
 // GLOBAL: MW2MATROX 0x1012fcf8
+// GLOBAL: MW23DFX 0x10244d48
 MechS32 g_requestedCockpitView;
 
 // Set while the map views follow the free eyepoint instead of the player (the free-eye cheat).
@@ -206,9 +215,10 @@ MechS32 g_satelliteClean;
 // Stack-slot permutation: index, rect, transition and viewport.
 // FUNCTION: MW2 0x1003dab0
 // FUNCTION: MW2MATROX 0x10073800
+// FUNCTION: MW23DFX 0x10003250
 void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 {
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechS32 index;
 #endif
 	PANE* rect;
@@ -257,7 +267,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		rect->m_window = &g_mainPixelBuffer;
 	}
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[0]);
 	p_layout->m_gauges[0] = g_cockpitGauges[index];
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[1]);
@@ -274,6 +284,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 // readout and the map view's shading range.
 // FUNCTION: MW2 0x1003dce8
 // FUNCTION: MW2MATROX 0x100739c2
+// FUNCTION: MW23DFX 0x10003380
 void InitCockpitViews(void)
 {
 	MechS32 i;
@@ -294,6 +305,7 @@ void InitCockpitViews(void)
 // callback (DrawCockpitView), or the satellite view's own.
 // FUNCTION: MW2 0x1003dd82
 // FUNCTION: MW2MATROX 0x10073a5c
+// FUNCTION: MW23DFX 0x100033e0
 void RunMapView(void)
 {
 	g_previousMapViewMode = g_mapViewMode;
@@ -396,6 +408,7 @@ MechS32 SwitchCockpitView(void)
 // asked, then draws the map, damaged while the radar panel is.
 // FUNCTION: MW2 0x1003e03c
 // FUNCTION: MW2MATROX 0x10073d16
+// FUNCTION: MW23DFX 0x10003600
 void DrawCockpitView(void)
 {
 	SwitchCockpitView();
@@ -500,7 +513,7 @@ void DrawMapView(void)
 		SetViewMode(c_viewSatellite);
 		ChoosePlayerDetailLevels();
 		SetViewMode(zoom);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		FUN_1005f8a0(viewport, PIXEL_COLOR(g_groundColor));
 #else
 		VFX_pane_wipe(viewport, PIXEL_COLOR(g_groundColor));
@@ -522,7 +535,7 @@ void DrawMapView(void)
 	if (g_mapViewMode == 4 && (g_cockpitLayoutIndex != 4 || g_satelliteStaticState <= 1)) {
 		DrawMapViewText(layout);
 	}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 
 	FUN_10088280(viewport);
 #endif
@@ -539,7 +552,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
 	PANE* viewport;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechS32 unused;
 #endif
 	MechS32 y;
@@ -565,7 +578,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 	DrawMapTarget(p_layout);
 }
 
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "mapicon.c"
 #endif
 
@@ -579,7 +592,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 	MechS32 icon;
 	GameThing* thing;
 	MechS32 i;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	Vector3 pos;
 #else
 	MapPoint pos;
@@ -590,7 +603,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 			player = g_players[i];
 			if ((player->m_flags & 0x1400) && !(player->m_flags & 0x800) && !(player->m_flags & 0x4000) &&
 				!(player->m_flags & 0x16)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 				pos.m_x = player->m_position.m_x;
 				pos.m_y = player->m_position.m_y;
 				pos.m_z = player->m_position.m_z;
@@ -610,7 +623,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 	for (i = 0; i < g_gameThingCount; i++) {
 		thing = &g_gameThings[i];
 		if ((thing->m_flags & 0x1400) && !(thing->m_flags & 0x1e)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			GetStaticObjectPosition(thing->m_staticObject, &pos.m_x, &pos.m_y, &pos.m_z);
 			icon = p_layout->m_icons[1][GetThingSide(i)];
 			DrawMapIcon(p_layout, &pos, icon);
@@ -624,7 +637,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 }
 
 // The Matrox edition places DrawMapIcon here, and IsNavReached after DrawMapTarget.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "mapicon.c"
 #else
 #include "navreached.c"
@@ -643,7 +656,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	MechS32 side;
 	MechS32 kind;
 	PANE* viewport;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	Vector3 pos;
 	Point screen;
 #else
@@ -656,7 +669,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	viewport = p_layout->m_viewport;
 	icon = -1;
 	player = g_players[g_localPlayerId];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	pos.m_x = player->m_targetInfo.m_position.m_x;
 	pos.m_y = player->m_targetInfo.m_position.m_y;
 	pos.m_z = player->m_targetInfo.m_position.m_z;
@@ -731,7 +744,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 
 	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resourceTypeTags[c_resTagShp], 0);
 	if (shape) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		if (visible) {
 			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 		}
@@ -753,7 +766,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	}
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include "navreached.c"
 #endif
 
@@ -763,7 +776,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // FUNCTION: MW2MATROX 0x1007465e
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	Vector3 pos;
 	Point screen;
 #else
@@ -780,7 +793,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 	for (i = 0; i < g_navCount; i++) {
 		nav = &g_navTable[i];
 		if (nav->m_team == g_localStar && nav->m_used && !(nav->m_flags & 1)) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			if (nav->m_obj) {
 				GetObjPosition(nav->m_obj, &pos.m_x, &pos.m_y, &pos.m_z);
 			}
@@ -826,7 +839,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 						0
 					);
 					if (shape) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 						VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
@@ -854,21 +867,21 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 
 	viewport = p_layout->m_viewport;
 	colors = p_layout->m_colors;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	p_heading = fmod(fmod(p_heading, 360.0) + 360.0, 360.0);
 #else
 	p_heading = (p_heading % 0x1680000 + 0x1680000) % 0x1680000;
 #endif
 	x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 	y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	halfFov = FixedAtan2(1.0f, g_eyepoint->m_fovX);
 #else
 	halfFov = FixedAtan2(0x10000, g_eyepoint->m_fovX);
 #endif
 	p_heading = FIXED_CONST(90) - p_heading;
 	if (p_layout->m_gauges[3]) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		// The Matrox edition's map gauge takes a float heading.
 		((void (*)(PANE*, MechFloat, Point*)) p_layout->m_gauges[3])(viewport, p_heading - halfFov, &end);
 		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, PIXEL_COLOR(colors[11]));
@@ -892,20 +905,20 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 // FUNCTION: MW2MATROX 0x10074945
 void DrawMapViewText(CockpitLayout* p_layout)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechFloat value;
 #else
 	MechDouble value;
 #endif
 	MechChar* units;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechS32 range;
 #endif
 	void* font;
 	PANE* viewport;
 	MechScalar heading;
 	Player* player;
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 	MechDouble degrees;
 #endif
 
@@ -915,7 +928,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 		LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + HUD_ART_RESOLUTION, g_resourceTypeTags[c_resTagFont], 0);
 	if (font) {
 		if (p_layout->m_range != p_layout->m_formattedRange) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			value = p_layout->m_range / 2;
 			if (value >= 100000) {
 				value = value / 100000;
@@ -952,7 +965,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 		);
 		if (g_cockpitLayoutIndex == 4) {
 			heading = player->m_heading;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			heading = fmod(fmod(heading, 360.0) + 360.0, 360.0);
 			if (p_layout->m_formattedHeading != heading) {
 				sprintf(p_layout->m_headingText, "%s%3.1lf", p_layout->m_headingLabel, heading);
@@ -982,6 +995,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 // Cycles the three cockpit views.
 // FUNCTION: MW2 0x1003ee26
 // FUNCTION: MW2MATROX 0x10074b45
+// FUNCTION: MW23DFX 0x10003fb0
 void CycleCockpitView(void)
 {
 	if (g_cockpitLayoutIndex <= 2 && g_requestedCockpitView <= 2) {
@@ -992,6 +1006,7 @@ void CycleCockpitView(void)
 
 // FUNCTION: MW2 0x1003ee69
 // FUNCTION: MW2MATROX 0x10074b88
+// FUNCTION: MW23DFX 0x10003fe0
 MechS32 IsSatelliteView(void)
 {
 	return g_cockpitLayoutIndex == 4;
@@ -999,6 +1014,7 @@ MechS32 IsSatelliteView(void)
 
 // FUNCTION: MW2 0x1003ee92
 // FUNCTION: MW2MATROX 0x10074bb1
+// FUNCTION: MW23DFX 0x10003ff0
 void LeaveSatelliteView(void)
 {
 	if (g_cockpitLayoutIndex == 4) {
@@ -1009,6 +1025,7 @@ void LeaveSatelliteView(void)
 // Leaves the satellite view, or else enters it from a cockpit view.
 // FUNCTION: MW2 0x1003eeaf
 // FUNCTION: MW2MATROX 0x10074bce
+// FUNCTION: MW23DFX 0x10004000
 void ToggleSatelliteView(void)
 {
 	if (g_cockpitLayoutIndex == 4 && g_requestedCockpitView == 4) {
@@ -1023,6 +1040,7 @@ void ToggleSatelliteView(void)
 // below the shortest) and 2 doubles it (wrapping to the shortest).
 // FUNCTION: MW2 0x1003ef07
 // FUNCTION: MW2MATROX 0x10074c26
+// FUNCTION: MW23DFX 0x10004040
 void ZoomMapView(MechS32 p_zoom)
 {
 	CockpitLayout* layout;
@@ -1037,7 +1055,7 @@ void ZoomMapView(MechS32 p_zoom)
 		layout->m_range = layout->m_startRange;
 		break;
 	case 1:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		layout->m_range /= 2;
 #else
 		layout->m_range = FixedDiv16(layout->m_range, 0x20000);
@@ -1047,7 +1065,7 @@ void ZoomMapView(MechS32 p_zoom)
 		}
 		break;
 	case 2:
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		layout->m_range <<= 1;
 #else
 		layout->m_range = FixedMul16(layout->m_range, 0x20000);
@@ -1058,7 +1076,7 @@ void ZoomMapView(MechS32 p_zoom)
 		break;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	layout->m_zoom = layout->m_startRange / layout->m_range;
 #else
 	layout->m_zoom = FixedDiv16(layout->m_startRange, layout->m_range);
@@ -1070,6 +1088,7 @@ void ZoomMapView(MechS32 p_zoom)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f00d
 // FUNCTION: MW2MATROX 0x10074d0c
+// FUNCTION: MW23DFX 0x100040b0
 MechS32 MapShapeFilter(Shape* p_shape)
 {
 	MechS32 type;
@@ -1107,7 +1126,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 	return skip;
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define FACE_KIND_MASK 0xf000
 #else
 #define FACE_KIND_MASK 0x7000
@@ -1196,7 +1215,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 			result = color | 0x4000;
 			break;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		break;
 #endif
 	}
@@ -1210,13 +1229,13 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f393
 // FUNCTION: MW2MATROX 0x10075097
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
 void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #endif
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechU32 kind;
 	CockpitLayout* layout;
 	MechU32 color;
@@ -1290,7 +1309,7 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #endif
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
 // in the colors p_flags picks.
 // Stack-slot permutation of the locals.
@@ -1333,13 +1352,14 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f513
 // FUNCTION: MW2MATROX 0x100752b7
+// FUNCTION: MW23DFX 0x10004440
 MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height)
 {
 	MechS32 shade;
 	MechS32 height;
 	MechScalar fraction;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	height = p_layout->m_range - (MechS32) p_height;
 	height -= g_mapShadeBase;
 	fraction = (MechFloat) height / g_mapShadeRange;
@@ -1586,6 +1606,7 @@ void PowerDownMapView(void)
 // Resets the map view's power modes (ShutdownCockpitPanels).
 // FUNCTION: MW2 0x1003fad9
 // FUNCTION: MW2MATROX 0x10075894
+// FUNCTION: MW23DFX 0x10004860
 void ResetMapView(void)
 {
 	g_previousMapViewMode = 0;

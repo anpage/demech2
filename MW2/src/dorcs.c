@@ -625,6 +625,7 @@ void* ReadVfxBin(MechChar* p_name)
 
 // FUNCTION: MW2 0x10073cb5
 // FUNCTION: MW2MATROX 0x10075a32
+// FUNCTION: MW23DFX 0x10064350
 void CloseInGameMenus(void)
 {
 	RequestMenuClose(6);

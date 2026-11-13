@@ -7,7 +7,7 @@
 
 // A Vector3 as the world streams store it: 16.16 values. 1.1 reads it as it is; the Matrox
 // edition, whose Vector3 holds floats, converts it member by member.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // SIZE 0xc
 typedef struct FileVector3 {
 	MechS32 m_x; // 0x00

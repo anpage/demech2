@@ -21,7 +21,7 @@
 
 // The map (satellite) view's projection: a top-down view of p_worldSpan units across.
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The Matrox edition's projection of a view coordinate onto the screen, an __inline function this
 // unit's /Ob1 expands (its return leaves two jumps to the next instruction where it is assigned).
 __inline MechS32 ProjectMapCoordinate(MechFloat p_value, MechFloat p_scale, MechS32 p_center)
@@ -32,10 +32,12 @@ __inline MechS32 ProjectMapCoordinate(MechFloat p_value, MechFloat p_scale, Mech
 
 // GLOBAL: MW2 0x10109ab0
 // GLOBAL: MW2MATROX 0x10212cc0
+// GLOBAL: MW23DFX 0x10245a20
 MechS32 g_savedPalettePending;
 
 // GLOBAL: MW2 0x10109ac0
 // GLOBAL: MW2MATROX 0x10212ba0
+// GLOBAL: MW23DFX 0x10245900
 Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
@@ -68,6 +70,7 @@ MechScalar g_mapViewScale;
 
 // GLOBAL: MW2 0x10109bc0
 // GLOBAL: MW2MATROX 0x10212c50
+// GLOBAL: MW23DFX 0x102459b0
 RenderSettings g_savedRenderSettings;
 
 // Saves the eyepoint and the rendering settings, and sets up a view from p_pose (position, then
@@ -76,7 +79,7 @@ RenderSettings g_savedRenderSettings;
 // FUNCTION: MW2MATROX 0x1001e170
 void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_mapViewScale = (MechFloat) p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2.0f));
 #else
@@ -100,7 +103,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 	g_renderSettings.m_shapeFilter = CullMapViewShape;
 	g_renderSettings.m_projectVertex = ProjectMapViewVertex;
 	UpdateProjection(g_eyepoint);
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_eyepoint->m_projectScaleX = 1.0;
 	g_eyepoint->m_projectScaleY = g_eyepoint->m_pixelAspect;
 #else
@@ -130,6 +133,7 @@ void DrawMapViewScene(MechU32 p_flags)
 // Restores the eyepoint and the rendering settings BeginMapView saved.
 // FUNCTION: MW2 0x10042195
 // FUNCTION: MW2MATROX 0x1001e3a3
+// FUNCTION: MW23DFX 0x100011b0
 void EndMapView(void)
 {
 	g_renderSettings = g_savedRenderSettings;
@@ -173,7 +177,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
 #else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
@@ -186,7 +190,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 		return 5;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
 	if (!FIXED_IS_NEGATIVE(side)) {
 #else
@@ -203,7 +207,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 		return 6;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
 	if (!FIXED_IS_NEGATIVE(height)) {
 #else
@@ -237,7 +241,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 
 	outcode = 0;
 	if (!p_vertex->m_projected) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		x = ProjectMapCoordinate(p_vertex->m_x, g_mapViewScale, g_viewCenterX);
 		y = g_viewBottom - g_viewTop - ProjectMapCoordinate(p_vertex->m_y, g_mapViewScale, g_viewCenterY);
 #else
@@ -286,13 +290,13 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen)
 #else
 MechS32 ProjectMapPoint(MapPoint* p_point)
 #endif
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 visible;
 	MechS32 screenX;
 	MechScalar dx;

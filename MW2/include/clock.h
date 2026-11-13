@@ -9,14 +9,14 @@
 
 // The sizes of the sine and arctangent tables: a quarter wave in 256 steps and two copies of the
 // last value in 1.1, 512 steps in the Matrox edition (floats).
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define TRIG_TABLE_SIZE 0x200
 #else
 #define TRIG_TABLE_SIZE 0x102
 #endif
 
 // ScaleVectorToLength's parameters: the Matrox edition only normalizes, to length 1.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #define SCALE_VECTOR_PARAMS MechScalar *p_x, MechScalar *p_y, MechScalar *p_z
 #else
 #define SCALE_VECTOR_PARAMS MechS32 p_length, MechS32 *p_x, MechS32 *p_y, MechS32 *p_z

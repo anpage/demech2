@@ -13,37 +13,45 @@
 
 // GLOBAL: MW2 0x100a5730
 // GLOBAL: MW2MATROX 0x100ae138
+// GLOBAL: MW23DFX 0x1024a9c8
 MechS32 g_debugOutputMode = 0;
 
 // GLOBAL: MW2 0x100a5734
 // GLOBAL: MW2MATROX 0x100ae13c
+// GLOBAL: MW23DFX 0x1024a9cc
 HWND g_debugWindow = NULL;
 
 // GLOBAL: MW2 0x100a5738
 // GLOBAL: MW2MATROX 0x100ae140
+// GLOBAL: MW23DFX 0x1024a9d0
 UINT g_debugMessageBoxType = MB_ICONINFORMATION;
 
 // GLOBAL: MW2 0x100a573c
 // GLOBAL: MW2MATROX 0x100ae144
+// GLOBAL: MW23DFX 0x1024a9d4
 FILE* g_debugLogFile = NULL;
 
 // GLOBAL: MW2 0x100a5740
 // GLOBAL: MW2MATROX 0x100ae148
+// GLOBAL: MW23DFX 0x1024a9d8
 MechChar g_debugLogName[0x100] = "debug.log";
 
 // GLOBAL: MW2 0x100a5840
 // GLOBAL: MW2MATROX 0x100ae248
+// GLOBAL: MW23DFX 0x1024aad8
 MechChar g_debugMessageTitle[0x50] = "DEBUG Message";
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // The digits MonoPrintHex writes.
 // GLOBAL: MW2MATROX 0x100ae298
+// GLOBAL: MW23DFX 0x1024ab28
 MechChar g_monoHexDigits[16] = "0123456789abcdef";
 #endif
 
 // Scrolls the monochrome screen up a line.
 // FUNCTION: MW2 0x1003a1c0
 // FUNCTION: MW2MATROX 0x1006e750
+// FUNCTION: MW23DFX 0x10007c70
 void ScrollMonoDisplay(void)
 {
 	memmove((void*) 0xb0000, (void*) 0xb00a0, 0xf00);
@@ -52,6 +60,7 @@ void ScrollMonoDisplay(void)
 // Clears the characters of the monochrome screen's last line, keeping their attributes.
 // FUNCTION: MW2 0x1003a1e2
 // FUNCTION: MW2MATROX 0x1006e772
+// FUNCTION: MW23DFX 0x10007c90
 void ClearMonoLastLine(void)
 {
 	MechS32* cell;
@@ -106,6 +115,7 @@ void PrintMono(MechChar* p_text)
 
 // FUNCTION: MW2 0x1003a2e6
 // FUNCTION: MW2MATROX 0x1006e876
+// FUNCTION: MW23DFX 0x10007d30
 void CreateDebugLog(void)
 {
 	g_debugLogFile = fopen(g_debugLogName, "wt");
@@ -113,6 +123,7 @@ void CreateDebugLog(void)
 
 // FUNCTION: MW2 0x1003a308
 // FUNCTION: MW2MATROX 0x1006e898
+// FUNCTION: MW23DFX 0x10007d50
 void AppendDebugLog(MechChar* p_text)
 {
 	if (g_debugLogFile == NULL) {
@@ -129,6 +140,7 @@ void AppendDebugLog(MechChar* p_text)
 
 // FUNCTION: MW2 0x1003a37c
 // FUNCTION: MW2MATROX 0x1006e90c
+// FUNCTION: MW23DFX 0x10007db0
 MechS32 SetDebugOutputMode(MechS32 p_mode)
 {
 	if (p_mode >= 0 && p_mode <= 4) {
@@ -142,6 +154,7 @@ MechS32 SetDebugOutputMode(MechS32 p_mode)
 
 // FUNCTION: MW2 0x1003a3b9
 // FUNCTION: MW2MATROX 0x1006e949
+// FUNCTION: MW23DFX 0x10007dd0
 void SetDebugWindow(HWND p_window)
 {
 	g_debugWindow = p_window;
@@ -149,6 +162,7 @@ void SetDebugWindow(HWND p_window)
 
 // FUNCTION: MW2 0x1003a3cc
 // FUNCTION: MW2MATROX 0x1006e95c
+// FUNCTION: MW23DFX 0x10007de0
 void SetDebugMessageBoxType(UINT p_type)
 {
 	g_debugMessageBoxType = p_type;
@@ -156,6 +170,7 @@ void SetDebugMessageBoxType(UINT p_type)
 
 // FUNCTION: MW2 0x1003a3df
 // FUNCTION: MW2MATROX 0x1006e96f
+// FUNCTION: MW23DFX 0x10007df0
 void SetDebugMessageTitle(const MechChar* p_format, ...)
 {
 	va_list args;
@@ -167,6 +182,7 @@ void SetDebugMessageTitle(const MechChar* p_format, ...)
 
 // FUNCTION: MW2 0x1003a411
 // FUNCTION: MW2MATROX 0x1006e9a1
+// FUNCTION: MW23DFX 0x10007e10
 void SetDebugLogName(const MechChar* p_path)
 {
 	strncpy(g_debugLogName, p_path, sizeof(g_debugLogName));
@@ -175,6 +191,7 @@ void SetDebugLogName(const MechChar* p_path)
 // Stack-slot permutation: message and args (which moves the jump table targets).
 // FUNCTION: MW2 0x1003a432
 // FUNCTION: MW2MATROX 0x1006e9c2
+// FUNCTION: MW23DFX 0x10007e30
 void DebugPrintInternal(const MechChar* p_format, ...)
 {
 	MechChar message[0x100];
@@ -204,7 +221,7 @@ void DebugPrintInternal(const MechChar* p_format, ...)
 	}
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 // Writes p_value's low four hex digits on the monochrome display's row p_row + 1, ending at its
 // last column.
 // FUNCTION: MW2MATROX 0x1006eab0

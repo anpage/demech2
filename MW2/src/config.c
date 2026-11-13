@@ -65,23 +65,26 @@ enum FilePermission {
 };
 
 // The cockpit panels: 1.1 has them here, the Matrox edition at the end of staticmem.c's object.
-#ifndef MW2_MATROX
+#ifndef MW2_ACCEL
 #include "cockpitpanels.c"
 #endif
 
 // The game directory (the MECHWARRIOR environment variable).
 // GLOBAL: MW2 0x100ae400
 // GLOBAL: MW2MATROX 0x100a3f00
+// GLOBAL: MW23DFX 0x10259c90
 MechChar g_gameDir[256] = {0};
 
 // The number of the next screenshot SaveScreenshot saves.
 // GLOBAL: MW2 0x100ae500
 // GLOBAL: MW2MATROX 0x100a4000
+// GLOBAL: MW23DFX 0x10259d90
 MechS32 g_screenshotCount = 0;
 
 // The path BuildGamePath returns.
 // GLOBAL: MW2 0x100bef58
 // GLOBAL: MW2MATROX 0x100c1d20
+// GLOBAL: MW23DFX 0x1007db30
 MechChar g_gamePath[0x50];
 
 // The three values of the HUD layout (LoadHudFile).
@@ -93,6 +96,7 @@ MechS32 g_hudLayoutValues[3];
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100707c0
 // FUNCTION: MW2MATROX 0x1000acd0
+// FUNCTION: MW23DFX 0x100400b0
 MechS32 LoadMgdFile(
 	ResourceRef* p_ref,
 	MechScalar* p_height,
@@ -172,7 +176,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 	MechU8* end;
 	MechS32 index;
 	FILE* file;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	MechS32 j;
 	MechS32* amount;
 #endif
@@ -221,7 +225,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		if (!g_reels[index]) {
 			return FALSE;
 		}
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 
 		// The Matrox edition's reels hold floats: plain values below kind 3, 16.16 from it.
 		if (frameCount) {
@@ -343,6 +347,7 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070e22
 // FUNCTION: MW2MATROX 0x1000b40e
+// FUNCTION: MW23DFX 0x100404f0
 MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p_point)
 {
 	MechS32 size;
@@ -416,6 +421,7 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 // Stack-slot permutation: header, file and pixels.
 // FUNCTION: MW2 0x10071026
 // FUNCTION: MW2MATROX 0x1000b612
+// FUNCTION: MW23DFX 0x10040660
 MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 {
 	void* header;
@@ -491,6 +497,7 @@ MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_po
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071251
 // FUNCTION: MW2MATROX 0x1000b83d
+// FUNCTION: MW23DFX 0x10040800
 MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 {
 	MechS32 size;
@@ -509,6 +516,7 @@ MechS32 ReadGameFile(MechChar* p_name, void** p_data)
 
 // FUNCTION: MW2 0x100712b0
 // FUNCTION: MW2MATROX 0x1000b89c
+// FUNCTION: MW23DFX 0x10040850
 MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 {
 	MechS32 file;
@@ -532,6 +540,7 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071326
 // FUNCTION: MW2MATROX 0x1000b912
+// FUNCTION: MW23DFX 0x100408a0
 MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 {
 	MechS32 size;
@@ -571,6 +580,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 
 // FUNCTION: MW2 0x10071440
 // FUNCTION: MW2MATROX 0x1000ba2c
+// FUNCTION: MW23DFX 0x10040960
 MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 {
 	MechS32 file;
@@ -593,6 +603,7 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 // Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x100714b3
 // FUNCTION: MW2MATROX 0x1000ba9f
+// FUNCTION: MW23DFX 0x100409b0
 MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 {
 	MechS32 size;
@@ -640,7 +651,7 @@ void SaveScreenshot(void)
 	MechS32 count;
 	PANE target;
 	MechChar name[16];
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	FILE* file;
 	MechU16* pixel;
 	MechU32 n;
@@ -656,7 +667,7 @@ void SaveScreenshot(void)
 	target.m_y1 = g_screenHeightMinus1;
 	if (g_screenshotCount < 1000) {
 		count = g_screenshotCount++;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		// The Matrox edition saves the 16-bit screen as raw 24-bit pixels, after a header of two words
 		// it never sets.
 		sprintf(name, "mw2%04d.888", count);
@@ -690,6 +701,7 @@ void SaveScreenshot(void)
 // Returns the path of a game file: in g_gameDir unless the name has a directory already.
 // FUNCTION: MW2 0x1007162a
 // FUNCTION: MW2MATROX 0x1000bcd2
+// FUNCTION: MW23DFX 0x10040b60
 MechChar* BuildGamePath(MechChar* p_name)
 {
 	MechS32 i;
@@ -711,6 +723,7 @@ MechChar* BuildGamePath(MechChar* p_name)
 // Returns the path of a file in g_gameDir.
 // FUNCTION: MW2 0x100716ec
 // FUNCTION: MW2MATROX 0x1000bd94
+// FUNCTION: MW23DFX 0x10040bf0
 MechChar* BuildGameDirPath(MechChar* p_name)
 {
 	MechS32 i;

@@ -16,8 +16,7 @@ extern "C"
 
 	extern MechS32 g_reloadingPlayer;
 
-	// Declared without a prototype: network.c calls it with two more (zero) arguments.
-	MechS32 ReloadPlayerMech();
+	MechS32 ReloadPlayerMech(MechS32 p_player, MechS32 p_force, undefined4 p_unk0x08, undefined4 p_unk0x0c);
 	void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_config);
 	void RememberMechSegments(Mech* p_mech);
 	SceneObject* RestoreMechSegments(MechSegment* p_segment);

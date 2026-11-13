@@ -1,9 +1,9 @@
-#ifndef MATROX_A3D_H
-#define MATROX_A3D_H
+#ifndef ACCEL_A3D_H
+#define ACCEL_A3D_H
 
+#include "accel/a3dtexture.h"
+#include "accel/a3dvertex.h"
 #include "decomp.h"
-#include "matrox/a3dtexture.h"
-#include "matrox/a3dvertex.h"
 #include "palettecolor.h"
 #include "pane.h"
 #include "projectedvertex.h"
@@ -11,9 +11,10 @@
 
 #include <windows.h>
 
-// The Matrox edition's A3D renderer (0x1005a5f0-0x10067500, between damagepanel.c's and
-// keyboard.c's objects): optimized code the Matrox edition draws its polygons through, in place of VFX's
-// (CLAUDE.md, "The A3D layer"), compiled with /Ox /G5 /Op.
+// The A3D renderer, which the accelerated editions draw their polygons through in place of VFX's
+// (CLAUDE.md, "The A3D layer"): the game's interface to one back end per card. The Matrox edition's
+// is matrox/a3d.c (0x1005a5f0-0x10067500, between damagepanel.c's and keyboard.c's objects),
+// optimized code compiled with /Ox /G5 /Op.
 
 // A vertex of the textured polygons A3D_GroundSkyPolyPlot draws, in doubles: the screen position, the depth
 // and the projection scale over it, the color (0-255 per component) and the texture coordinates
@@ -125,4 +126,4 @@ extern "C"
 }
 #endif
 
-#endif // MATROX_A3D_H
+#endif // ACCEL_A3D_H

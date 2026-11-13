@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-// The Matrox edition (MW2_MATROX) keeps the simulation's 16.16 fixed-point values as floats in
-// plain units: a member that 1.1 shifts down to its integer part, the Matrox edition converts (fld,
+// The accelerated editions (MW2_ACCEL) keep the simulation's 16.16 fixed-point values as floats in
+// plain units: a member that 1.1 shifts down to its integer part, they convert (fld,
 // then __ftol). Macros only, so that 1.1's units see no new symbols.
 // MechScalar: the type of such a value (a member, a local, a parameter).
 // FIXED_CONST(n): the constant n (180 for 180 degrees); FIXED_MOD360(x): an angle wrapped to
@@ -20,7 +20,7 @@
 // angle) as a MechScalar; FIXED_LITERAL(x, f): 1.1's raw 16.16 constant x where the Matrox edition wrote
 // its own float literal f (0.0296f for gravity's 0x794); SCALAR_TO_INT(x): a MechScalar in whole
 // units (a distance) as an integer, which 1.1's is already.
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 #include <math.h>
 
 #define MechScalar MechFloat

@@ -37,6 +37,7 @@ enum DispDibDrawFlags {
 
 // GLOBAL: MW2 0x100a8380
 // GLOBAL: MW2MATROX 0x100be238
+// GLOBAL: MW23DFX 0x10249008
 HWND g_dispDibWindow = NULL;
 
 // GLOBAL: MW2 0x100a8384
@@ -45,10 +46,12 @@ HDC g_dispDibWindowDc = NULL;
 
 // GLOBAL: MW2 0x100a8388
 // GLOBAL: MW2MATROX 0x100be240
+// GLOBAL: MW23DFX 0x10249010
 HDC g_dispDibDc = NULL;
 
 // GLOBAL: MW2 0x100a838c
 // GLOBAL: MW2MATROX 0x100be244
+// GLOBAL: MW23DFX 0x10249014
 HDC g_dispDibStretchDc = NULL;
 
 // GLOBAL: MW2 0x100a8390
@@ -61,10 +64,12 @@ HBITMAP g_dispDibStretchBitmap = NULL;
 
 // GLOBAL: MW2 0x100a8398
 // GLOBAL: MW2MATROX 0x100be250
+// GLOBAL: MW23DFX 0x10249020
 undefined* g_dispDibStretchBits = NULL;
 
 // GLOBAL: MW2 0x100a839c
 // GLOBAL: MW2MATROX 0x100be254
+// GLOBAL: MW23DFX 0x10249024
 MechS32 g_dispDibInitialized = FALSE;
 
 // GLOBAL: MW2 0x100a83a0
@@ -89,15 +94,17 @@ RefreshMode g_dispDibRefreshMode =
 
 // GLOBAL: MW2 0x100ea7dc
 // GLOBAL: MW2MATROX 0x10125960
+// GLOBAL: MW23DFX 0x102456f0
 MechS32 g_dispDibResult;
 
 // MW2MATROX: the window's empty title (DisplayDibWindowCreateEx) pairs with another "" of the
 // original's: reccmp pairs identical strings in address order.
 // FUNCTION: MW2 0x1004e760
 // FUNCTION: MW2MATROX 0x1008ecd0
+// FUNCTION: MW23DFX 0x10001970
 MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	// The Matrox edition turns DisplayDib off: the test always fails.
 	if (p_width != 320 || p_height != 200 || TRUE) {
 #else
@@ -231,6 +238,7 @@ MechS32 DispDibEnd(void)
 
 // FUNCTION: MW2 0x1004eb72
 // FUNCTION: MW2MATROX 0x1008f185
+// FUNCTION: MW23DFX 0x10001a40
 MechS32 DispDibFlip(void)
 {
 	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
@@ -245,6 +253,7 @@ MechS32 DispDibFlip(void)
 // DisplayDib can't draw part of the screen: the rectangle is ignored and the whole frame drawn.
 // FUNCTION: MW2 0x1004ebdb
 // FUNCTION: MW2MATROX 0x1008f225
+// FUNCTION: MW23DFX 0x10001ac0
 MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_dispDibResult = DisplayDibWindowDraw(g_dispDibWindow, c_dispDibDrawFlags, g_dibBits, g_refreshModePixelCount);
@@ -258,6 +267,7 @@ MechS32 DispDibBlitRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 
 // FUNCTION: MW2 0x1004ec44
 // FUNCTION: MW2MATROX 0x1008f2c5
+// FUNCTION: MW23DFX 0x10001b40
 MechS32 DispDibStretchBlit(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_dispDibResult = StretchBlt(
@@ -298,6 +308,7 @@ MechS32 DispDibAcquireFramebuffer(void)
 
 // FUNCTION: MW2 0x1004ed3b
 // FUNCTION: MW2MATROX 0x1008f3f3
+// FUNCTION: MW23DFX 0x10001c30
 MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
 	MechS32 i;
@@ -328,6 +339,7 @@ MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 
 // FUNCTION: MW2 0x1004eea7
 // FUNCTION: MW2MATROX 0x1008f58d
+// FUNCTION: MW23DFX 0x10001d50
 MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 {
 	MechS32 i;
@@ -356,6 +368,7 @@ MechS32 DispDibSetPaletteWithBrightness(PaletteColor* p_palette)
 // Fades from the current palette to p_palette in p_steps steps of 16 ms, at 8 bits per component.
 // FUNCTION: MW2 0x1004efd5
 // FUNCTION: MW2MATROX 0x1008f6e9
+// FUNCTION: MW23DFX 0x10001e40
 MechS32 DispDibBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 {
 	MechS32 i;

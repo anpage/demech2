@@ -24,10 +24,12 @@ DECOMP_SIZE_ASSERT(TimeOfDayPhase, 0x08)
 
 // GLOBAL: MW2 0x100ba5d8
 // GLOBAL: MW2MATROX 0x100bbb80
+// GLOBAL: MW23DFX 0x1024a960
 TimeOfDayPhase g_timeOfDayPhases[4] = {{4, 2715}, {0, 2715}, {4, 3620}, {8, 2715}};
 
 // GLOBAL: MW2 0x100ba5f8
 // GLOBAL: MW2MATROX 0x100bbba0
+// GLOBAL: MW23DFX 0x1024a980
 MechS32 g_timeOfDayPhase = -1;
 
 // The Matrox edition keeps these three as floats, in plain units.
@@ -38,10 +40,12 @@ MechScalar g_soundDelayPerUnit = FIXED_LITERAL(0x168, 0.00549f);
 
 // GLOBAL: MW2 0x100ba600
 // GLOBAL: MW2MATROX 0x100bbba8
+// GLOBAL: MW23DFX 0x1024a988
 MechScalar g_gravity = FIXED_LITERAL(0x794, 0.0296f);
 
 // GLOBAL: MW2 0x100ba604
 // GLOBAL: MW2MATROX 0x100bbbac
+// GLOBAL: MW23DFX 0x1024a98c
 MechScalar g_gravityScale = FIXED_RAW(0x10000);
 
 // GLOBAL: MW2 0x100ba608
@@ -50,6 +54,7 @@ MechS32 g_unk0x100ba608 = 0;
 
 // GLOBAL: MW2 0x100ba60c
 // GLOBAL: MW2MATROX 0x100bbbb4
+// GLOBAL: MW23DFX 0x1024a994
 MechS32 g_secondsPerDay = 86400;
 
 // GLOBAL: MW2 0x100ba610
@@ -62,34 +67,42 @@ MechS32 g_dayOfYear = 0;
 
 // GLOBAL: MW2 0x100ba618
 // GLOBAL: MW2MATROX 0x100bbbc0
+// GLOBAL: MW23DFX 0x1024a9a0
 MechS32 g_timeOfDay = 43200;
 
 // GLOBAL: MW2 0x100ba61c
 // GLOBAL: MW2MATROX 0x100bbbc4
+// GLOBAL: MW23DFX 0x1024a9a4
 MechS32 g_startTimeOfDay = 43200;
 
 // GLOBAL: MW2 0x100bfaa0
 // GLOBAL: MW2MATROX 0x101252d4
+// GLOBAL: MW23DFX 0x1007b064
 MechS32 g_timeOfDayFrames;
 
 // GLOBAL: MW2 0x100bfaa8
 // GLOBAL: MW2MATROX 0x101252d8
+// GLOBAL: MW23DFX 0x1007b068
 MechS32 g_timeOfDayStarts[4];
 
 // GLOBAL: MW2 0x100bfab8
 // GLOBAL: MW2MATROX 0x101252d0
+// GLOBAL: MW23DFX 0x1007b060
 MechS32 g_timeOfDayEnabled;
 
 // GLOBAL: MW2 0x100bfd4c
 // GLOBAL: MW2MATROX 0x1012c1f0
+// GLOBAL: MW23DFX 0x102443a0
 MechS32 g_nextTimeOfDayUpdate;
 
 // GLOBAL: MW2 0x100bfd50
 // GLOBAL: MW2MATROX 0x1012c1f4
+// GLOBAL: MW23DFX 0x102443a4
 MechS32 g_infraredOn;
 
 // FUNCTION: MW2 0x1007d610
 // FUNCTION: MW2MATROX 0x10085c80
+// FUNCTION: MW23DFX 0x10007870
 void FirstEnvironment(void)
 {
 	MechS32 hour;
@@ -106,7 +119,7 @@ void FirstEnvironment(void)
 
 	g_startTimeOfDay = g_timeOfDay;
 	g_timeOfDayPhase = -1;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	g_gravityScale = g_gravity / FIXED_LITERAL(0x794, 0.0296f);
 #else
 	g_gravityScale = FixedDiv16(g_gravity, 0x794);
@@ -161,11 +174,12 @@ void UpdateTimeOfDay(void)
 // Operand order: the original compares p_phase != g_timeOfDayPhase with g_timeOfDayPhase in eax.
 // FUNCTION: MW2 0x1007d7e3
 // FUNCTION: MW2MATROX 0x10085e63
+// FUNCTION: MW23DFX 0x100079d0
 void FadeToTimeOfDayPhase(MechS32 p_phase)
 {
 	MechS32 duration;
 
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 	if (g_timeOfDayEnabled == 1 && g_timeOfDayPhase == -1) {
 #else
 	if (g_timeOfDayEnabled == 1 && p_phase != g_timeOfDayPhase) {
@@ -190,6 +204,7 @@ void FadeToTimeOfDayPhase(MechS32 p_phase)
 
 // FUNCTION: MW2 0x1007d875
 // FUNCTION: MW2MATROX 0x10085ef4
+// FUNCTION: MW23DFX 0x10007a40
 MechS32 IsInfraredOn(undefined4 p_unk0x00)
 {
 	return g_infraredOn;
@@ -198,6 +213,7 @@ MechS32 IsInfraredOn(undefined4 p_unk0x00)
 // Operand order: the original compares g_infraredOn != p_state with p_state in eax.
 // FUNCTION: MW2 0x1007d88a
 // FUNCTION: MW2MATROX 0x10085f09
+// FUNCTION: MW23DFX 0x10007a50
 void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 {
 	if (g_infraredOn != p_state) {
@@ -211,7 +227,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 			}
 		}
 		else if (p_state == 0) {
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 			FadeToBasePalette(0, 181);
 #endif
 			g_timeOfDayEnabled = 1;
@@ -225,6 +241,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 // operands the other way around.
 // FUNCTION: MW2 0x1007d931
 // FUNCTION: MW2MATROX 0x10085fbe
+// FUNCTION: MW23DFX 0x10007af0
 void QuadrupleMechCooling(void)
 {
 	MechS32 i;
@@ -232,7 +249,7 @@ void QuadrupleMechCooling(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		mech->m_cooling *= 4;
 #else
 		mech->m_cooling <<= 2;
@@ -244,6 +261,7 @@ void QuadrupleMechCooling(void)
 // operands the other way around.
 // FUNCTION: MW2 0x1007d97c
 // FUNCTION: MW2MATROX 0x10086017
+// FUNCTION: MW23DFX 0x10007b30
 void QuarterMechCooling(void)
 {
 	MechS32 i;
@@ -251,7 +269,7 @@ void QuarterMechCooling(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
-#ifdef MW2_MATROX
+#ifdef MW2_ACCEL
 		mech->m_cooling /= 4;
 #else
 		mech->m_cooling >>= 2;

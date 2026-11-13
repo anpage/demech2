@@ -111,6 +111,7 @@ MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 
 // range, 2 within the long one, 1 right at it and 0 beyond it.
 // FUNCTION: MW2 0x1006cd45
 // FUNCTION: MW2MATROX 0x1006d4b9
+// FUNCTION: MW23DFX 0x100151a0
 MechS32 GetTargetRangeBand(Player* p_player, WeaponDef* p_weapon)
 {
 	if (p_player->m_targetInfo.m_distance < p_weapon->m_shortRange) {

@@ -1,6 +1,7 @@
 #ifndef MATROX_MSIDRAW_H
 #define MATROX_MSIDRAW_H
 
+#include "accel/colorkey.h"
 #include "displaybackend.h"
 #include "pane.h"
 #include "refreshmode.h"
@@ -21,10 +22,6 @@ extern "C"
 	extern RefreshMode g_msiSystemMemoryRefreshMode;
 	extern HWND g_msiWindow;
 
-	// Fills a rectangle of the screen (right and bottom exclusive) with the color 0xfffe.
-	void FUN_10088246(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom);
-	// Fills a pane's rectangle of the screen with the color 0xfffe.
-	void FUN_10088280(PANE* p_pane);
 	void MsiClearFrame(void);
 	void MsiSwapBuffers(void);
 

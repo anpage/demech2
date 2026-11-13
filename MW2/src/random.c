@@ -118,6 +118,7 @@ MechS32 RandomNormalMean(void)
 
 // FUNCTION: MW2 0x100737c5
 // FUNCTION: MW2MATROX 0x1000c0f1
+// FUNCTION: MW23DFX 0x1003d9e0
 MechS32 RandomNormalDeviation(void)
 {
 	return 0x400;

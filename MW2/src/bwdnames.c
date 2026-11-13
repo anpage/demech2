@@ -17,6 +17,7 @@ DECOMP_SIZE_ASSERT(BwdNameNode, 0xf)
 // The list of BWD names AddBwdName adds to.
 // GLOBAL: MW2 0x100a9470
 // GLOBAL: MW2MATROX 0x100a6224
+// GLOBAL: MW23DFX 0x10259c8c
 BwdNameNode* g_bwdNames = NULL;
 
 // GLOBAL: MW2 0x100a9474
@@ -64,6 +65,7 @@ MechS32 AddBwdName(BwdName* p_name)
 // Stack-slot permutation: node and found.
 // FUNCTION: MW2 0x1005860e
 // FUNCTION: MW2MATROX 0x1002de9e
+// FUNCTION: MW23DFX 0x1003f850
 MechS16* FindBwdName(BwdName* p_name)
 {
 	BwdNameNode* node;

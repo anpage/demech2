@@ -4,8 +4,9 @@ name: Verify retail targets and comment
 # executes in the base-repo context, with a writable token (which lets it
 # comment on pull requests opened from forks) and with the repository's
 # secrets: the deploy key that checks out the retail targets' originals
-# (NETMECHW.DLL, MECH2.EXE, and the Matrox edition's MW2_MATROX.DLL), which
-# aren't freely downloadable the way mw2bin.yml fetches the 1.1 patch.
+# (NETMECHW.DLL, MECH2.EXE, and the Matrox and 3Dfx editions' MW2_MATROX.DLL
+# and MW2_3DFX.DLL), which aren't freely downloadable the way mw2bin.yml
+# fetches the 1.1 patch.
 #
 # Only code from the base branch runs here: this workflow, the tools/ scripts
 # and reccmp. The PR's checkout is data (its annotated sources and
@@ -26,9 +27,11 @@ env:
   # workflow's targets job (NETMECHW: the 244 functions before the DPLAY
   # import thunks at 0x10013b70; MECH2: the 21 functions before its import
   # thunks at 0x004022be; MW2MATROX: the 1597 functions before its CRT at
-  # 0x10092d30). The list lives here rather than in Build's targets job: a
-  # workflow_run job can't read the Build run's outputs.
-  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597"
+  # 0x10092d30; MW23DFX: the 1485 functions before Texus at 0x10068270, the
+  # 1313 Ghidra finds and the 172 more the annotations place). The list lives
+  # here rather than in Build's targets job: a workflow_run job can't read the
+  # Build run's outputs.
+  RETAIL_ENTRIES: "NETMECHW:NETMECHW.DLL:244 MECH2:MECH2.EXE:21 MW2MATROX:MW2_MATROX.DLL:1597 MW23DFX:MW2_3DFX.DLL:1485"
   # The targets whose block layout check is reported but doesn't fail the
   # job yet: reccmp can't resolve some of the element types in the Matrox
   # edition's LINK 3.00 PDB, and falls back on the gap to the next symbol.
@@ -80,6 +83,7 @@ jobs:
           3f4d1508238d847213127e46623a85b249985686d6053a3d9e1c6deea87c0095 *NETMECHW.DLL
           064a9f1f45cfd18f0bef1dea9711b7fd582755cfbb8a8e9694f8cef2e5c3690c *MECH2.EXE
           444e19ad054cbe852ec8a54ddb8a6ffa019de2ce7ab97571fea62f9666982220 *MW2_MATROX.DLL
+          e15b8ca2013a365df11723aa97f9e7ea2914e1139090800f9b452fb7ea08282f *MW2_3DFX.DLL
           SUMS
 
       - name: Download the Build run's binaries
@@ -104,8 +108,8 @@ jobs:
       # and every reccmp command below runs from pr/ to find them. The public
       # targets' originals aren't here, so detect warns about them; only the
       # retail targets are compared. The artifact keeps the nested builds'
-      # layout: NETMECHW.DLL and MECH2.EXE sit in build/vc22 (VC++ 2.2),
-      # MW2_MATROX.DLL in build/vc40 (VC++ 4.0).
+      # layout: NETMECHW.DLL, MECH2.EXE and MW2_3DFX.DLL sit in build/vc22
+      # (VC++ 2.2), MW2_MATROX.DLL in build/vc40 (VC++ 4.0).
       - name: Detect binaries
         id: detection
         shell: bash
@@ -190,11 +194,14 @@ jobs:
           # tools/check_units_expected.txt (tools/check_units.py). Not for
           # MECH2: the nested build writes no map file for it (/MAP would turn
           # its incremental link off), and the tool doesn't know an incremental
-          # link's layout. The known findings are data: they come from the PR's
-          # checkout, like the sources, so a PR can list the ones it adds.
+          # link's layout. Not for MW23DFX yet: its units are only roughly in the
+          # 3Dfx edition's order, and the Matrox edition's fragments (code moved
+          # between objects) don't match its layout. The known findings are
+          # data: they come from the PR's checkout, like the sources, so a PR
+          # can list the ones it adds.
           for entry in $RETAIL_ENTRIES; do
             target="${entry%%:*}"
-            if [ "$target" = MECH2 ]; then
+            if [ "$target" = MECH2 ] || [ "$target" = MW23DFX ]; then
               continue
             fi
             python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt
