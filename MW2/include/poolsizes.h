@@ -1,6 +1,7 @@
 #ifndef POOLSIZES_H
 #define POOLSIZES_H
 
+#include "bwdtag.h"
 #include "types.h"
 
 struct BwdStream;
@@ -8,7 +9,7 @@ struct BwdStream;
 // One entry of a mission's static memory table: a pool tag and its size.
 // SIZE 0x08
 typedef struct StaticPoolSize {
-	MechU32 m_tag;  // 0x00
+	BwdTag m_tag;   // 0x00
 	MechU32 m_size; // 0x04
 } StaticPoolSize;
 
@@ -18,7 +19,7 @@ extern "C"
 {
 #endif
 
-	extern MechU32 g_staticPoolTags[10];
+	extern BwdTag g_staticPoolTags[10];
 
 	MechU32 GetStaticPoolSize(MechS32 p_index);
 	StaticPoolSize* ReadStaticMemoryTable(char* p_mission);

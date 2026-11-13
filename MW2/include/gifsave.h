@@ -38,4 +38,27 @@ extern "C"
 }
 #endif
 
+// The 3Dfx edition places these out of gifsave.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW23DFX 0x1003bb80
+// GifCloseFile
+
+// FUNCTION: MW23DFX 0x1003bf60
+// LzwCompress
+
+// FUNCTION: MW23DFX 0x1003c070
+// BitsNeeded
+
+// FUNCTION: MW23DFX 0x1003c0f0
+// WriteScreenDescriptor
+
+// FUNCTION: MW23DFX 0x1003c1e0
+// GifCreate
+
+// FUNCTION: MW23DFX 0x1003c360
+// GifSetColor
+
+// FUNCTION: MW23DFX 0x1003c3c0
+// GifCompressImage
+
 #endif // GIFSAVE_H

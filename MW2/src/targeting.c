@@ -45,6 +45,7 @@ MechS32 g_navCount = 0;
 // already inspected by the team, 0 nothing. The target panel reports it.
 // GLOBAL: MW2 0x100aaba8
 // GLOBAL: MW2MATROX 0x100a2440
+// GLOBAL: MW23DFX 0x1024c8ac
 MechS32 g_inspectResult = 0;
 
 // Set once the local player has targeted at the reticle (TargetAtReticle), cleared when they
@@ -503,6 +504,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // MW2MATROX: both loop tests compare in the other operand order.
 // FUNCTION: MW2 0x1005ed4f
 // FUNCTION: MW2MATROX 0x100065bf
+// FUNCTION: MW23DFX 0x1001cb40
 MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 {
 	MechS32 index;
@@ -562,6 +564,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2MATROX 0x100067cc
+// FUNCTION: MW23DFX 0x1001cca0
 void CycleTarget(Player* p_player, MechS32 p_step, MechU32 p_flags)
 {
 	MechS32 target;
@@ -962,6 +965,7 @@ MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // The only diff is a stack-slot permutation of lost, claim, index and kind.
 // FUNCTION: MW2 0x1005fa22
 // FUNCTION: MW2MATROX 0x100072a6
+// FUNCTION: MW23DFX 0x1001d510
 MechS32 UpdateTarget(Player* p_player)
 {
 	MechS32 isLocal;
@@ -1133,6 +1137,7 @@ Shape* GetLocalTargetShape(void)
 // The only diff is a stack-slot permutation of index, player, obj, kind and id.
 // FUNCTION: MW2 0x1005ff56
 // FUNCTION: MW2MATROX 0x100077f1
+// FUNCTION: MW23DFX 0x1001d810
 SceneObject* GetLocalTargetObject(void)
 {
 	MechS32 index;

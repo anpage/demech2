@@ -769,6 +769,7 @@ MechU32 GetShapeLoadFlags(Shape* p_shape)
 
 // FUNCTION: MW2 0x1003b72f
 // FUNCTION: MW2MATROX 0x1002893e
+// FUNCTION: MW23DFX 0x100299c0
 void SetShapeLoadFlags(Shape* p_shape, MechU32 p_flags)
 {
 	p_shape->m_flags = (p_shape->m_flags & ~0x10f) | (p_flags & 0x10f) | 0x8000;
@@ -812,6 +813,7 @@ void DestroyObjShape(Shape* p_shape)
 // The only diff is a stack-slot permutation of model, vertex and size.
 // FUNCTION: MW2 0x1003b7cc
 // FUNCTION: MW2MATROX 0x100289f3
+// FUNCTION: MW23DFX 0x10029a40
 MechS32 GetShapeMemorySize(Shape* p_shape)
 {
 	Model* model;

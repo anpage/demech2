@@ -10,10 +10,12 @@
 
 // GLOBAL: MW2 0x100ae74c
 // GLOBAL: MW2MATROX 0x100a4570
+// GLOBAL: MW23DFX 0x10259914
 MechS32 g_randomIndex = 0;
 
 // GLOBAL: MW2 0x100ae750
 // GLOBAL: MW2MATROX 0x100a4574
+// GLOBAL: MW23DFX 0x10259918
 MechS32 g_normalRandomIndex = 0;
 
 // A second pair of indices, so a second stream of callers doesn't disturb the first.
@@ -28,15 +30,18 @@ MechS32 g_normalRandomIndex2 = 0;
 
 // GLOBAL: MW2 0x100c2d20
 // GLOBAL: MW2MATROX 0x10215920
+// GLOBAL: MW23DFX 0x10159850
 MechS32 g_normalRandomInts[127];
 
 // GLOBAL: MW2 0x100c2f20
 // GLOBAL: MW2MATROX 0x10215b20
+// GLOBAL: MW23DFX 0x10159a50
 MechS32 g_randomInts[127];
 
 // Stack-slot permutation: sum, scale, i, j and range.
 // FUNCTION: MW2 0x100735e0
 // FUNCTION: MW2MATROX 0x1000bef0
+// FUNCTION: MW23DFX 0x1003d880
 void InitRandom(MechU32 p_seed)
 {
 	MechS32 sum;
@@ -63,6 +68,7 @@ void InitRandom(MechU32 p_seed)
 
 // FUNCTION: MW2 0x100736b3
 // FUNCTION: MW2MATROX 0x1000bfdf
+// FUNCTION: MW23DFX 0x1003d910
 MechS32 RandomIntBelow(MechS32 p_max)
 {
 	MechS32 value;
@@ -75,6 +81,7 @@ MechS32 RandomIntBelow(MechS32 p_max)
 
 // FUNCTION: MW2 0x100736f5
 // FUNCTION: MW2MATROX 0x1000c021
+// FUNCTION: MW23DFX 0x1003d940
 MechS32 RandomNormal(void)
 {
 	MechS32 value;

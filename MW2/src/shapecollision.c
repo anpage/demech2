@@ -237,6 +237,7 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 // Stack-slot permutation: i, done, face and height.
 // FUNCTION: MW2 0x10069e78
 // FUNCTION: MW2MATROX 0x100526ba
+// FUNCTION: MW23DFX 0x1000d5a0
 MechS32 TestPointUnderFloor(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;

@@ -398,6 +398,7 @@ MechS8 g_sinkMenuAbort = 0;
 
 // GLOBAL: MW2 0x100b2598
 // GLOBAL: MW2MATROX 0x100b1fc0
+// GLOBAL: MW23DFX 0x10251170
 MechS32 g_analogBindingCount = 0;
 
 // GLOBAL: MW2 0x100b259c
@@ -406,6 +407,7 @@ MechS32 g_inputAxisCount = 0;
 
 // GLOBAL: MW2 0x100b25a0
 // GLOBAL: MW2MATROX 0x100b1fc8
+// GLOBAL: MW23DFX 0x10251178
 MechS32 g_discreteBindingCount = 0;
 
 // GLOBAL: MW2 0x100b25a4
@@ -553,6 +555,7 @@ InputSink g_inputSinks[] = {
 // The GAMEKEY.MAP action names.
 // GLOBAL: MW2 0x100b7e68
 // GLOBAL: MW2MATROX 0x100b7890
+// GLOBAL: MW23DFX 0x10257bc0
 GameKeyName g_gameKeyNames[] = {
 	{"RESET_INPUTS", 1},
 	{"MFD_CYCLE", 2},
@@ -739,6 +742,7 @@ GameKeyModifier g_gameKeyModifiers[] = {
 // The text of ReportInputDeviceError's message box.
 // GLOBAL: MW2 0x100bf1d0
 // GLOBAL: MW2MATROX 0x10124d40
+// GLOBAL: MW23DFX 0x1007ce80
 MechChar g_inputErrorText[0x400];
 
 // GLOBAL: MW2 0x100bf5d0
@@ -1076,6 +1080,7 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x10079f71
 // FUNCTION: MW2MATROX 0x1007c72f
+// FUNCTION: MW23DFX 0x10039440
 MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_channel)
 {
 	MechS32 device;
@@ -1138,6 +1143,7 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 // Stack-slot permutation: device, line, sign, button and name.
 // FUNCTION: MW2 0x1007a168
 // FUNCTION: MW2MATROX 0x1007c926
+// FUNCTION: MW23DFX 0x10039590
 MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_conditions)
 {
 	MechS32 device;
@@ -1215,6 +1221,7 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // Stack-slot permutation: index, channelName, deviceName, channel and sign.
 // FUNCTION: MW2 0x1007a3d1
 // FUNCTION: MW2MATROX 0x1007cb6b
+// FUNCTION: MW23DFX 0x10039730
 MechS32 ParseInputMap(FILE* p_file)
 {
 	MechChar line[256];
@@ -1474,6 +1481,7 @@ MechS32 LoadGamekeyMap(void)
 // Stack-slot permutation: driven, device, channel and position.
 // FUNCTION: MW2 0x1007aecc
 // FUNCTION: MW2MATROX 0x1007d57b
+// FUNCTION: MW23DFX 0x10039ee0
 MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 {
 	InputAxis* axis;

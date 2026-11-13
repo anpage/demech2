@@ -19,6 +19,7 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
 // FUNCTION: MW2 0x1004da30
 // FUNCTION: MW2MATROX 0x1007f550
+// FUNCTION: MW23DFX 0x1003f900
 void SetUpStarMission(MissionTable* p_table)
 {
 	MechS32 i;

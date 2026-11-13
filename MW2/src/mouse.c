@@ -43,6 +43,7 @@ BOOL g_cursorClipped = FALSE;
 
 // GLOBAL: MW2 0x100ad248
 // GLOBAL: MW2MATROX 0x100aa178
+// GLOBAL: MW23DFX 0x10250360
 undefined4 g_reclipCursor = 0;
 
 MechS32 GetMouseDeviceCount(void);
@@ -86,6 +87,7 @@ MechChar g_mouseTypeName[8] = "mouse";
 
 // GLOBAL: MW2 0x100e9230
 // GLOBAL: MW2MATROX 0x101d4710
+// GLOBAL: MW23DFX 0x10159f60
 RECT g_cursorClipRect;
 
 // FUNCTION: MW2 0x100688e0

@@ -75,6 +75,7 @@ void ClearMonoLastLine(void)
 // Stack-slot permutation: cell, i, text and length.
 // FUNCTION: MW2 0x1003a21c
 // FUNCTION: MW2MATROX 0x1006e7ac
+// FUNCTION: MW23DFX 0x10007cb0
 void PrintMonoLine(MechChar* p_text)
 {
 	MechChar* cell;

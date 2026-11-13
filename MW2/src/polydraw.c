@@ -50,6 +50,7 @@ MechFloat g_skyTileV = 2.4f;
 MechFloat g_groundTile = 50.0f;
 
 // GLOBAL: MW2MATROX 0x100addcc
+// GLOBAL: MW23DFX 0x1024e124
 MechFloat g_skyScroll = 0;
 #endif
 
@@ -132,28 +133,35 @@ SkyCorner g_skyCorners[16] = {
 
 // DrawSkyAndGround has read the sky's and the ground's colors.
 // GLOBAL: MW2MATROX 0x100ae030
+// GLOBAL: MW23DFX 0x1024e388
 MechS32 g_skyColorsRead = 0;
 
 // The sky's and the ground's colors (0-255 per component), from their textures (DrawSkyAndGround).
 // GLOBAL: MW2MATROX 0x1015d5d8
+// GLOBAL: MW23DFX 0x101b0ef0
 MechFloat g_skyBlue;
 
 // GLOBAL: MW2MATROX 0x1015d5dc
+// GLOBAL: MW23DFX 0x101b0ef4
 MechFloat g_skyGreen;
 
 // GLOBAL: MW2MATROX 0x1015d5e0
+// GLOBAL: MW23DFX 0x101b0ef8
 MechFloat g_skyRed;
 
 // GLOBAL: MW2MATROX 0x1015d5e4
 MechFloat g_skyScrollEnd;
 
 // GLOBAL: MW2MATROX 0x1015d5e8
+// GLOBAL: MW23DFX 0x101b0f04
 MechFloat g_groundBlue;
 
 // GLOBAL: MW2MATROX 0x1015d5ec
+// GLOBAL: MW23DFX 0x101b0f08
 MechFloat g_groundGreen;
 
 // GLOBAL: MW2MATROX 0x1015d5f0
+// GLOBAL: MW23DFX 0x101b0f0c
 MechFloat g_groundRed;
 
 // The polygon the Matrox edition's clipper leaves.
@@ -416,6 +424,7 @@ MechS32 g_lineEndY;
 // and 0xf are its own (lit textures and animation colors), and it draws through its renderer.
 // FUNCTION: MW2 0x10042e00
 // FUNCTION: MW2MATROX 0x100683ba
+// FUNCTION: MW23DFX 0x10026e80
 #ifdef MW2_ACCEL
 void DrawScenePolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
@@ -634,6 +643,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #ifdef MW2_ACCEL
 // Draws a polygon in the color p_red, p_green, p_blue, lit by each vertex's light.
 // FUNCTION: MW2MATROX 0x10068856
+// FUNCTION: MW23DFX 0x10027240
 void FUN_10068856(
 	MechS32 p_count,
 	ProjectedVertex** p_points,
@@ -664,6 +674,7 @@ void FUN_10068856(
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x100688fe
+// FUNCTION: MW23DFX 0x100272e0
 void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c, MechS32 p_lit)
 {
 	ProjectedVertex* point;

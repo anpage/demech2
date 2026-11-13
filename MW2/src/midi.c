@@ -49,6 +49,7 @@ HSEQUENCE g_midiSequences[8];
 
 // FUNCTION: MW2 0x10021460
 // FUNCTION: MW2MATROX 0x10043b60
+// FUNCTION: MW23DFX 0x10032fa0
 void StopMidiSequences(void)
 {
 	HSEQUENCE sequence;

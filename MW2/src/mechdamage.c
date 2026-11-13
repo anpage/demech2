@@ -45,10 +45,12 @@ MechS32 g_autoEject = 0;
 // The armor per damage level of other players' sections (the local player's: g_localArmorPerLevel).
 // GLOBAL: MW2 0x100a1594
 // GLOBAL: MW2MATROX 0x100a461c
+// GLOBAL: MW23DFX 0x1024bfc0
 MechScalar g_otherArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a1598
 // GLOBAL: MW2MATROX 0x100a4620
+// GLOBAL: MW23DFX 0x1024bfc4
 MechScalar g_localArmorPerLevel = 4;
 
 // GLOBAL: MW2 0x100a159c
@@ -365,6 +367,7 @@ void CalculateHeat(Mech* p_mech)
 // indexes m_unk0x52 in the other operand order.
 // FUNCTION: MW2 0x1000832b
 // FUNCTION: MW2MATROX 0x10010bd8
+// FUNCTION: MW23DFX 0x10016280
 void KillMech(MechS32 p_killer, Mech* p_mech)
 {
 	MechS32 leader;
@@ -624,6 +627,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2MATROX 0x100114bd
+// FUNCTION: MW23DFX 0x100167b0
 void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, MechS32 p_slot, MechS32 p_recursing)
 {
 	MechS32 id;
@@ -999,6 +1003,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // permutation of the locals.
 // FUNCTION: MW2 0x1000991b
 // FUNCTION: MW2MATROX 0x10012243
+// FUNCTION: MW23DFX 0x100171d0
 void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, MechS32 p_section)
 {
 	MechS32 side;

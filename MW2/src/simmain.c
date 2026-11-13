@@ -111,6 +111,7 @@ MechS32 g_quitStage = 0;
 
 // GLOBAL: MW2 0x100acb20
 // GLOBAL: MW2MATROX 0x100be4c8
+// GLOBAL: MW23DFX 0x1024ac68
 TimedCallback* g_detachedTasks = NULL;
 
 // GLOBAL: MW2 0x100acb24
@@ -130,6 +131,7 @@ MechS32 g_remoteWaitTime = 0;
 // Set when the local player starts on the autopilot (FirstMech).
 // GLOBAL: MW2 0x100acb34
 // GLOBAL: MW2MATROX 0x100be4dc
+// GLOBAL: MW23DFX 0x1024ac7c
 MechS32 g_startOnAutopilot = 0;
 
 #ifdef MW2_MATROX
@@ -145,6 +147,7 @@ HWND g_gameWindow = NULL;
 
 // GLOBAL: MW2 0x100acb64
 // GLOBAL: MW2MATROX 0x100be510
+// GLOBAL: MW23DFX 0x1024acac
 HINSTANCE g_simModule = NULL;
 
 // GLOBAL: MW2 0x100acb68
@@ -169,6 +172,7 @@ MechS32 g_windowActive = 0;
 
 // GLOBAL: MW2 0x100acb78
 // GLOBAL: MW2MATROX 0x100be524
+// GLOBAL: MW23DFX 0x1024acc0
 MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
@@ -177,10 +181,12 @@ undefined4 g_shouldToggleFullscreen = 0;
 
 // GLOBAL: MW2 0x100acb80
 // GLOBAL: MW2MATROX 0x100be52c
+// GLOBAL: MW23DFX 0x1024acc8
 MechS32 g_desktopWidth = 0;
 
 // GLOBAL: MW2 0x100acb84
 // GLOBAL: MW2MATROX 0x100be530
+// GLOBAL: MW23DFX 0x1024accc
 MechS32 g_desktopHeight = 0;
 
 // GLOBAL: MW2 0x100acb88
@@ -195,6 +201,7 @@ MechS32 g_pauseRequested = 0;
 
 // GLOBAL: MW2 0x100acb90
 // GLOBAL: MW2MATROX 0x100be53c
+// GLOBAL: MW23DFX 0x1024acd8
 undefined4 g_windowedSwitchPending = 0;
 
 // GLOBAL: MW2 0x100acb94
@@ -216,14 +223,17 @@ MechS32 g_goLaunch = 0;
 
 // GLOBAL: MW2 0x100e9240
 // GLOBAL: MW2MATROX 0x1012595c
+// GLOBAL: MW23DFX 0x1024429c
 MechU32 g_windowedSwitchTime;
 
 // GLOBAL: MW2 0x100e933c
 // GLOBAL: MW2MATROX 0x10125958
+// GLOBAL: MW23DFX 0x10244298
 MechU32 g_windowedSwitchDeadline;
 
 // GLOBAL: MW2 0x1012b7c0
 // GLOBAL: MW2MATROX 0x101d69c0
+// GLOBAL: MW23DFX 0x10159ea0
 VideoDriverChoice g_videoDriverChoice;
 
 #ifdef MW2_ACCEL
@@ -939,6 +949,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 // FUNCTION: MW2 0x10067bbc
 // FUNCTION: MW2MATROX 0x10090ca7
+// FUNCTION: MW23DFX 0x10009680
 void HandleMessages(void)
 {
 	MSG msg;
@@ -1028,6 +1039,7 @@ void UpdatePauseState(void)
 
 // FUNCTION: MW2 0x10067e23
 // FUNCTION: MW2MATROX 0x10090f1b
+// FUNCTION: MW23DFX 0x10009890
 void SetGameResolution(char* p_driverName)
 {
 	if (_strcmpi(p_driverName, "MCGA.DLL") == 0) {

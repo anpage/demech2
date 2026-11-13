@@ -714,6 +714,7 @@ MechS32 IsCdAudioInitialized(void)
 // Returns whether p_track is on the disc.
 // FUNCTION: MW2 0x1005b6ab
 // FUNCTION: MW2MATROX 0x100034bb
+// FUNCTION: MW23DFX 0x100310a0
 MechS32 IsCdTrackOnDisc(MechS32 p_track)
 {
 	if (p_track >= g_cdAudioTracks.m_firstTrack && p_track <= g_cdAudioTracks.m_numberOfTracks) {

@@ -35,6 +35,7 @@
 // MW2MATROX: the same comparison, and a stack-slot permutation of its own.
 // FUNCTION: MW2 0x10052445
 // FUNCTION: MW2MATROX 0x10081676
+// FUNCTION: MW23DFX 0x10012b40
 MechS16 AiMessageProx(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	MechS16 nearestTarget;

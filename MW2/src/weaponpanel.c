@@ -127,6 +127,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 // Stack-slot permutation: clock, font, mech and weapon.
 // FUNCTION: MW2 0x100334d3
 // FUNCTION: MW2MATROX 0x10055785
+// FUNCTION: MW23DFX 0x1001e9a0
 void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 {
 	Mech* mech;

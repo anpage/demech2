@@ -58,6 +58,7 @@
 // The size of the altimeter's mark shape (InitHudGauges), which spaces its columns.
 // GLOBAL: MW2 0x100a5ed0
 // GLOBAL: MW2MATROX 0x100a4de8
+// GLOBAL: MW23DFX 0x1024d0d8
 MechS32 g_altimeterMarkWidth = 0xf0f;
 
 // GLOBAL: MW2 0x100a5ed4
@@ -72,6 +73,7 @@ Point g_altimeterOrigin = {0xb333, 0x8000};
 // The compass's place, likewise.
 // GLOBAL: MW2 0x100a5ee0
 // GLOBAL: MW2MATROX 0x100a4df8
+// GLOBAL: MW23DFX 0x1024d0e8
 Point g_compassOrigin = {0x8000, 0x6666};
 
 // GLOBAL: MW2 0x100a5ee8
@@ -110,6 +112,7 @@ MechS32 g_showAltimeter = 1;
 
 // GLOBAL: MW2 0x100be5a0
 // GLOBAL: MW2MATROX 0x100c1e58
+// GLOBAL: MW23DFX 0x1007c3e0
 static MechS32 g_compassArrowWidth;
 
 // GLOBAL: MW2 0x100be5a4
@@ -118,14 +121,17 @@ static MechS32 g_compassArrowHeight;
 
 // GLOBAL: MW2 0x100be5a8
 // GLOBAL: MW2MATROX 0x100c1e50
+// GLOBAL: MW23DFX 0x1007c3d8
 static MechS32 g_compassSideArrowWidth;
 
 // GLOBAL: MW2 0x100be5ac
 // GLOBAL: MW2MATROX 0x100c1e54
+// GLOBAL: MW23DFX 0x1007c3dc
 static MechS32 g_compassSideArrowHeight;
 
 // GLOBAL: MW2 0x100be5b0
 // GLOBAL: MW2MATROX 0x100c1e48
+// GLOBAL: MW23DFX 0x1007c3d0
 static MechS32 g_altimeterGroundX;
 
 // GLOBAL: MW2 0x100be5b4
@@ -135,19 +141,23 @@ static MechS32 g_altimeterTargetX;
 // The altimeter's scale: pixels per 16.16 unit of height.
 // GLOBAL: MW2 0x100be5b8
 // GLOBAL: MW2MATROX 0x100c1e6c
+// GLOBAL: MW23DFX 0x1007c3f4
 static MechScalar g_altimeterScale;
 
 // The compass's scale: pixels per degree, 16.16.
 // GLOBAL: MW2 0x100be5bc
 // GLOBAL: MW2MATROX 0x100c1e44
+// GLOBAL: MW23DFX 0x1007c3cc
 static MechScalar g_compassScale;
 
 // GLOBAL: MW2 0x100be5c0
 // GLOBAL: MW2MATROX 0x100c1e68
+// GLOBAL: MW23DFX 0x1007c3f0
 static MechS32 g_compassTapeAbove;
 
 // GLOBAL: MW2 0x100be5c4
 // GLOBAL: MW2MATROX 0x100c1e40
+// GLOBAL: MW23DFX 0x1007c3c8
 static MechS32 g_altimeterLevelX;
 
 // GLOBAL: MW2 0x100be5c8
@@ -239,6 +249,7 @@ void DrawHud(
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10040cbc
 // FUNCTION: MW2MATROX 0x1001caef
+// FUNCTION: MW23DFX 0x100222e0
 void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 {
 	CockpitPanel* gauge;
@@ -688,6 +699,7 @@ void DrawCompassMarkers(
 // (commutative operands).
 // FUNCTION: MW2 0x1004183a
 // FUNCTION: MW2MATROX 0x1001d7b6
+// FUNCTION: MW23DFX 0x10022b10
 void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_twist)
 {
 	CockpitPanel* gauge;
@@ -756,6 +768,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 // Stack-slot permutation: result, ray, x, y and z.
 // FUNCTION: MW2 0x10041998
 // FUNCTION: MW2MATROX 0x1001d942
+// FUNCTION: MW23DFX 0x10022c40
 MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 {
 	MechS32 result;
@@ -780,6 +793,7 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10041a14
 // FUNCTION: MW2MATROX 0x1001d9cd
+// FUNCTION: MW23DFX 0x10022cc0
 void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 {
 	MechS32 topLeft;
@@ -863,6 +877,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10041c3c
 // FUNCTION: MW2MATROX 0x1001dc23
+// FUNCTION: MW23DFX 0x10022ea0
 void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 {
 	MechScalar maxSize;
@@ -954,6 +969,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 // current pane.
 // FUNCTION: MW2 0x10041e98
 // FUNCTION: MW2MATROX 0x1001dee6
+// FUNCTION: MW23DFX 0x100230c0
 void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
 	void* shape;

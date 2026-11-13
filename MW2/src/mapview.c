@@ -42,26 +42,32 @@ Eyepoint g_savedEyepoint;
 
 // GLOBAL: MW2 0x10109ba0
 // GLOBAL: MW2MATROX 0x10212cd0
+// GLOBAL: MW23DFX 0x10245a30
 MechScalar g_mapViewMinX;
 
 // GLOBAL: MW2 0x10109ba4
 // GLOBAL: MW2MATROX 0x10212cd4
+// GLOBAL: MW23DFX 0x10245a34
 MechScalar g_mapViewMaxX;
 
 // GLOBAL: MW2 0x10109ba8
 // GLOBAL: MW2MATROX 0x10212cd8
+// GLOBAL: MW23DFX 0x10245a38
 MechScalar g_mapViewMaxY;
 
 // GLOBAL: MW2 0x10109bac
 // GLOBAL: MW2MATROX 0x10212cdc
+// GLOBAL: MW23DFX 0x10245a3c
 MechScalar g_mapViewMinY;
 
 // GLOBAL: MW2 0x10109bb0
 // GLOBAL: MW2MATROX 0x10212ce0
+// GLOBAL: MW23DFX 0x10245a40
 MechScalar g_mapViewNear;
 
 // GLOBAL: MW2 0x10109bb4
 // GLOBAL: MW2MATROX 0x10212ce4
+// GLOBAL: MW23DFX 0x10245a44
 MechScalar g_mapViewFar;
 
 // GLOBAL: MW2 0x10109bb8
@@ -78,6 +84,7 @@ RenderSettings g_savedRenderSettings;
 // rotation) of p_worldSpan units across pane p_slot, as far as p_far.
 // FUNCTION: MW2 0x10041fa0
 // FUNCTION: MW2MATROX 0x1001e170
+// FUNCTION: MW23DFX 0x10001000
 void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
 #ifdef MW2_ACCEL
@@ -153,6 +160,7 @@ void EndMapView(void)
 // operands in another order.
 // FUNCTION: MW2 0x10042206
 // FUNCTION: MW2MATROX 0x1001e414
+// FUNCTION: MW23DFX 0x10001220
 MechS32 CullMapViewShape(Shape* p_shape)
 {
 	MechScalar y;
@@ -292,6 +300,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743
+// FUNCTION: MW23DFX 0x100014b0
 #ifdef MW2_ACCEL
 MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen)
 #else

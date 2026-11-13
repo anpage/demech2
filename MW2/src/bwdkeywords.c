@@ -60,7 +60,7 @@ MechChar g_bwdExtension[8] = "BWD";
 // GLOBAL: MW2 0x100a67e8
 // GLOBAL: MW2MATROX 0x100a5dd0
 // GLOBAL: MW23DFX 0x1025a4a8
-MechU32 g_bwdTypeCodes[0x48] = {
+BwdTag g_bwdTypeCodes[0x48] = {
 	0x00445742, // BWD
 	0x00564552, // REV
 	0x4c425444, // DTBL

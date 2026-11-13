@@ -128,6 +128,7 @@ MechS32 InitPaletteFade(
 // p_count * 3 and p_first * 3 in the other operand order.
 // FUNCTION: MW2 0x10010d99
 // FUNCTION: MW2MATROX 0x10050809
+// FUNCTION: MW23DFX 0x10061480
 void StepPaletteFade(PaletteFade* p_fade)
 {
 	MechU8* palette;

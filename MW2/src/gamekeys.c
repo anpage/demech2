@@ -45,10 +45,12 @@
 
 // GLOBAL: MW2 0x100aa290
 // GLOBAL: MW2MATROX 0x100a7cb8
+// GLOBAL: MW23DFX 0x1025050c
 MechS32 g_missionEndTime = 0;
 
 // GLOBAL: MW2 0x100aa294
 // GLOBAL: MW2MATROX 0x100a7cbc
+// GLOBAL: MW23DFX 0x10250510
 MechS32 g_speechFlushTime = 0;
 
 // A game-key toggle (GetSystemSetting's setting 0x40).
@@ -69,6 +71,7 @@ MechS32 g_mechViewMode = 1;
 
 // GLOBAL: MW2 0x100aa2a8
 // GLOBAL: MW2MATROX 0x100a7cd0
+// GLOBAL: MW23DFX 0x10250524
 MechS32 g_missionEnded = 0;
 
 // GLOBAL: MW2 0x100aa2ac
@@ -85,10 +88,12 @@ MechS32 g_timeCompressionCheat = 0;
 // The length of the chat message being typed (HandleChatKey).
 // GLOBAL: MW2 0x100aa2b8
 // GLOBAL: MW2MATROX 0x100a7ce0
+// GLOBAL: MW23DFX 0x10250534
 MechS32 g_chatLength = 0;
 
 // GLOBAL: MW2 0x100aa2bc
 // GLOBAL: MW2MATROX 0x100a7ce4
+// GLOBAL: MW23DFX 0x10250538
 MechS32 g_missionResolved = 0;
 
 // GLOBAL: MW2 0x100aa2c0
@@ -569,6 +574,7 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // Stack-slot permutation: mech, step and text.
 // FUNCTION: MW2 0x1005c78a
 // FUNCTION: MW2MATROX 0x10042ec0
+// FUNCTION: MW23DFX 0x10037880
 void RunGameKey(MechS32 p_key)
 {
 	Mech* mech;

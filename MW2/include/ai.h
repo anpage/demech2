@@ -158,4 +158,12 @@ extern "C"
 }
 #endif
 
+// The 3Dfx edition places these out of ai.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW23DFX 0x10011fc0
+// FirstAI
+
+// FUNCTION: MW23DFX 0x10012de0
+// FindNearestTarget
+
 #endif // AI_H

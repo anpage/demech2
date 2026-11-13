@@ -39,6 +39,7 @@ MechS32 g_forceMissionSuccess = 0;
 // Set once the local team's mission result has been announced (AnnounceMissionResult).
 // GLOBAL: MW2 0x100a374c
 // GLOBAL: MW2MATROX 0x100a4ed8
+// GLOBAL: MW23DFX 0x1024b160
 MechS32 g_missionResultAnnounced = 0;
 
 // The tag of the mission result EndTheMission2 writes.
@@ -60,6 +61,7 @@ MechS32 g_currentObjective[16]; // by team
 // Whether each objective of the local team has been announced (AnnounceObjective).
 // GLOBAL: MW2 0x10138760
 // GLOBAL: MW2MATROX 0x101d6a30
+// GLOBAL: MW23DFX 0x10208040
 MechS32 g_objectiveAnnounced[48];
 
 // GLOBAL: MW2 0x10138820
@@ -104,6 +106,7 @@ void CollapseWhitespace(MechChar* p_text)
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
 // FUNCTION: MW2 0x1001aa02
 // FUNCTION: MW2MATROX 0x1001eda2
+// FUNCTION: MW23DFX 0x10009990
 MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 {
 	MechScalar x;
@@ -220,6 +223,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // squared distances' terms in another order (entropy).
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
+// FUNCTION: MW23DFX 0x10009b80
 MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
@@ -360,6 +364,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 // and compares p_star with g_localStar in the other operand order.
 // FUNCTION: MW2 0x1001b0cb
 // FUNCTION: MW2MATROX 0x1001f428
+// FUNCTION: MW23DFX 0x10009d60
 MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 {
 	MechChar text[100];
@@ -980,6 +985,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // its terms in the other order (index order).
 // FUNCTION: MW2 0x1001c69e
 // FUNCTION: MW2MATROX 0x10020a02
+// FUNCTION: MW23DFX 0x1000a9b0
 void UpdateObjectives(void)
 {
 	MechS32 star;
@@ -1151,6 +1157,7 @@ void RestartStarMission(MechS32 p_star)
 
 // FUNCTION: MW2 0x1001cdd1
 // FUNCTION: MW2MATROX 0x10021086
+// FUNCTION: MW23DFX 0x1000ad40
 void FUN_1001cdd1(void)
 {
 	return;
@@ -1158,6 +1165,7 @@ void FUN_1001cdd1(void)
 
 // FUNCTION: MW2 0x1001cde1
 // FUNCTION: MW2MATROX 0x10021096
+// FUNCTION: MW23DFX 0x1000ad50
 #ifdef MW2_ACCEL
 MechS32 FUN_1001cde1(MechU16 p_unk0x00)
 #else
@@ -1172,6 +1180,7 @@ MechS32 FUN_1001cde1(undefined4 p_unk0x00)
 // Stack-slot permutation: mission and i.
 // FUNCTION: MW2 0x1001cdf6
 // FUNCTION: MW2MATROX 0x100210ab
+// FUNCTION: MW23DFX 0x1000ad60
 MechU16 GetTeamHomeTarget(MechS32 p_team)
 {
 	StarMission* mission;

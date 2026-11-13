@@ -75,9 +75,12 @@ def definitions():
                 markers[k.group(3)] = int(k.group(4), 16)
                 kinds.add(k.group(2))
                 j += 1
-            if j < len(lines) and kinds & {"FUNCTION", "STUB"}:
-                n = re.match(r"^[A-Za-z].*?\b(\w+)\(", lines[j])
-                if n and not lines[j].rstrip().endswith(";"):
+            k = j
+            while k < len(lines) and lines[k].startswith(("#if", "//")):  # a signature per edition
+                k += 1
+            if k < len(lines) and kinds & {"FUNCTION", "STUB"}:
+                n = re.match(r"^[A-Za-z].*?\b(\w+)\(", lines[k])
+                if n and not lines[k].rstrip().endswith(";"):
                     result.append({"name": n.group(1), "path": path, "first": i, "last": j - 1, "markers": markers})
             i = j
     return result
@@ -382,16 +385,54 @@ def text(x):
 REGISTERS_NOTE = "// Matches but for the registers, which VC++ 2.2 allocates differently."
 
 
+BY_NAME_INTRO = "// The 3Dfx edition places these out of %s's order, so they are annotated here, by name."
+
+
+def add_by_name(path, name, address):
+    """Annotate a function by name in its unit's header (MW2/include/<unit>.h), in the header's
+    block of the 3Dfx edition's functions that are out of the unit's order, kept in address order.
+    The linter's order rule skips markers by name. False when the unit has no header."""
+    unit = os.path.splitext(os.path.basename(path))[0]
+    header = os.path.join("MW2", "include", os.path.relpath(os.path.dirname(path), "MW2/src"), unit + ".h")
+    if not os.path.exists(header):
+        return False
+    lines = open(header, encoding="utf-8").read().split("\n")
+    if any(MARKER.match(l) and MARKER.match(l).group(3) == TARGET and n == "// " + name for l, n in zip(lines, lines[1:])):
+        return False  # annotated by name already
+    intro = BY_NAME_INTRO % os.path.basename(path)
+    if intro not in lines:
+        guard = max(i for i, l in enumerate(lines) if l.startswith("#endif"))
+        lines[guard:guard] = [intro, ""]
+    start = lines.index(intro) + 2
+    entries, k = [], start
+    while k + 1 < len(lines) and MARKER.match(lines[k]):
+        entries.append((int(MARKER.match(lines[k]).group(4), 16), lines[k + 1]))
+        k += 3
+    entries.append((address, "// " + name))
+    block = []
+    for a, n in sorted(entries):
+        block += ["// FUNCTION: %s %#010x" % (TARGET, a), n, ""]
+    lines[start:k] = block
+    with open(header, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines))
+    return True
+
+
 def add_annotation(name, address, note=None):
     """Insert the MW23DFX marker into name's block, after the modules that come before it, with an
     optional comment line above the block. Refuses when the file's MW23DFX annotations would leave
     address order."""
     defs = [d for d in definitions() if d["name"] == name]
+    if len(defs) > 1:  # 1.1's version and the accelerated editions' (accel/, 3dfx/)
+        defs = [d for d in defs if re.search(r"/(accel|3dfx)/", d["path"])]
     if len(defs) != 1 or TARGET in defs[0]["markers"]:
         return False
     d = defs[0]
     same_file = [(e["first"], e["markers"][TARGET]) for e in definitions() if e["path"] == d["path"] and TARGET in e["markers"]]
     if any(i < d["first"] and a > address or i > d["first"] and a < address for i, a in same_file):
+        if add_by_name(d["path"], name, address):
+            print("%s at %#x would break %s's address order; annotated by name in its header" % (name, address, os.path.basename(d["path"])))
+            return True
         print("%s at %#x would break %s's address order; left out" % (name, address, os.path.basename(d["path"])))
         return False
     lines = open(d["path"], encoding="utf-8").read().split("\n")
@@ -471,6 +512,127 @@ def cmd_auto(args):
         elif args.registers and loose == 1.0 and add_annotation(name, v["address"], REGISTERS_NOTE):
             added.append(name)
     print("annotated %d: %s" % (len(added), " ".join(added)))
+
+
+OPERAND_NAME = re.compile(r"([A-Za-z_@?$][\w@?$:.`']*) \((?:FUNCTION|DATA|OFFSET|UNK|IMPORT|POINTER|FLOAT|STRING|VTABLE)\)")
+
+
+INDEXED = re.compile(r"\[[^\]]*\b(?:e[abcd]x|e[sd]i|e[sb]p)\b[^\]]*\((?:DATA|OFFSET)\)")
+
+
+def unnamed_operands(report, loose=False):
+    """From a reccmp JSON report: the functions whose only differences are operands the original's
+    side can't name (<OFFSETn>), each with the names the rebuild's side gives them and the
+    original's addresses, {function: {name: address}}, and the names whose call sites disagree."""
+    image, names = Image(BINARY), original_names()
+    by_name = {}
+    for a, n in names.items():
+        by_name.setdefault(n, set()).add(a)
+    dis = disasm()
+
+    def targets(address):
+        x = next(dis.disasm(image.read(address, 16), address))
+        found = [int(x.op_str, 16)] if x.mnemonic in ("call", "jmp") and x.op_str.startswith("0x") else []
+        return found + [image.u32(a) for a in range(x.address, x.address + x.size) if a in image.relocs]
+
+    def masked(line, pattern):
+        return re.sub(r"\t\(.*", "", pattern.sub("X", line)).strip()
+
+    offset = re.compile(r"<OFFSET\d+>")
+    result, votes = {}, {}
+    for f in json.load(open(report))["data"]:
+        if f.get("matching", 1) >= 1 or not f["diff"]:
+            continue
+        needed = {}
+        pairs = [
+            (block.get("orig", []), block.get("recomp", []))
+            for _, hunk in f["diff"]
+            for block in hunk
+            if "both" not in block
+        ]
+        for o, r in pairs:
+            # A block counts only when each of its lines is the other side's but for the names:
+            # in a block that differs otherwise, a line can face a different load or call.
+            ok, block = len(o) == len(r), {}
+            for (oa, ot), (_, rt) in zip(o, r) if ok else ():
+                ok = masked(ot, offset) == masked(rt, OPERAND_NAME)
+                if ok and loose and INDEXED.search(rt):
+                    ok = False  # a folded displacement names whatever symbol it lands on
+                if ok:
+                    found = targets(int(oa, 16))
+                    unknown = [t for t in found if t not in names]
+                    wanted = [n for n in OPERAND_NAME.findall(rt) if not by_name.get(n, set()) & set(found)]
+                    ok = wanted and len(wanted) == len(unknown)
+                if not ok:
+                    break
+                block.update(zip(wanted, unknown))
+            if ok:
+                needed.update(block)
+            elif not loose:  # without --all, any other difference rules the function out
+                needed = None
+                break
+        if needed:
+            result[f["name"]] = needed
+            for n, a in needed.items():
+                votes.setdefault(n, set()).add(a)
+    claims = Counter(a for v in votes.values() for a in v)
+    conflicts = {n for n, a in votes.items() if len(a) > 1 or n in by_name or any(claims[x] > 1 for x in a)}
+    return result, conflicts
+
+
+def add_global(name, address):
+    """Insert the MW23DFX marker after the last marker of a global's definition under MW2/src (a
+    definition with markers above it and none for MW23DFX). False when there's no such single one."""
+    found = []
+    for path in sorted(glob.glob("MW2/src/**/*.c", recursive=True)):
+        lines = open(path, encoding="utf-8").read().split("\n")
+        for i, line in enumerate(lines):
+            m = re.match(r"^[A-Za-z][\w\s*]*?\b(\w+)\s*(?:\[[^\]]*\])*\s*(?:=.*)?[;{]?$", line)
+            if m and m.group(1) == name and i and MARKER.match(lines[i - 1]):
+                found.append((path, i))
+    if len(found) != 1:
+        return False
+    path, i = found[0]
+    lines = open(path, encoding="utf-8").read().split("\n")
+    j = i
+    while j and MARKER.match(lines[j - 1]):
+        j -= 1
+    block = [MARKER.match(l) for l in lines[j:i]]
+    if any(m.group(2) != "GLOBAL" or m.group(3) == TARGET for m in block):
+        return False
+    at = j + sum(1 for m in block if m.group(3) in MODULES and MODULES.index(m.group(3)) < MODULES.index(TARGET))
+    lines.insert(at, "// GLOBAL: %s %#010x" % (TARGET, address))
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines))
+    return True
+
+
+def cmd_names(args):
+    """Annotate the source functions and globals whose names the original's side of the annotated
+    functions lacks: a function that differs only in unnamed operands matches once they're named."""
+    needed, conflicts = unnamed_operands(args.json, args.all)
+    wanted = {n: a for v in needed.values() for n, a in v.items() if n not in conflicts}
+    defined = {d["name"] for d in definitions()}
+    added, other = [], []
+    for name, address in sorted(wanted.items()):
+        if name not in defined:
+            if args.write and name.startswith("g_") and add_global(name, address):
+                added.append(name)
+            else:
+                other.append(name)
+        elif args.write and add_annotation(name, address):
+            added.append(name)
+    ok = set(added) if args.write else {n for n in wanted if n in defined}
+    ready = [f for f, v in needed.items() if all(n in ok for n in v)]
+    print("%d functions differ %sin unnamed operands; %d names, %d of them disagreeing" % (
+        len(needed), "" if args.all else "only ", len(wanted), len(conflicts)))
+    if args.write:
+        print("annotated %d: %s" % (len(added), " ".join(added)))
+    print("%d functions have every name they need%s" % (len(ready), " now" if args.write else " among the source's functions"))
+    print("left to annotate by hand (the C runtime, statics, globals): " + " ".join(
+        "%s=%#x" % (n, wanted[n]) for n in sorted(other)))
+    for n in sorted(conflicts):
+        print("disagreeing: %s" % n)
 
 
 def cmd_annotate(args):

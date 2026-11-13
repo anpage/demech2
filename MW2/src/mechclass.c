@@ -117,6 +117,7 @@ MechScalar g_recenterLastHeading = 0;
 
 // GLOBAL: MW2 0x100a2c10
 // GLOBAL: MW2MATROX 0x100a45c8
+// GLOBAL: MW23DFX 0x1024c570
 MechS32 g_mechPoweredUp = 0;
 
 // The clock at the last MASC malfunction roll (LateUpdateMech).
@@ -144,6 +145,7 @@ MechS32 g_collisionSoundPlayed;
 // player's pose from it. With g_startOnAutopilot the local player starts on the autopilot.
 // FUNCTION: MW2 0x10016ad0
 // FUNCTION: MW2MATROX 0x1000ce80
+// FUNCTION: MW23DFX 0x100190d0
 void FirstMech(struct Player* p_player)
 {
 	Mech* mech;
@@ -1546,6 +1548,7 @@ void ShutdownMech(Mech* p_mech)
 // Stack-slot permutation of buffer, i, size and mech.
 // FUNCTION: MW2 0x100197ca
 // FUNCTION: MW2MATROX 0x1000ff8c
+// FUNCTION: MW23DFX 0x1001b120
 MechS32 CreateMech(MechS32 p_index, Player* p_player)
 {
 	void* buffer = NULL;
@@ -1577,6 +1580,7 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10019881
 // FUNCTION: MW2MATROX 0x10010043
+// FUNCTION: MW23DFX 0x1001b170
 void InitMechArrays(struct Mech* p_mech)
 {
 	AmmoBin* bin;

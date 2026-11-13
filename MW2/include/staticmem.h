@@ -1,13 +1,14 @@
 #ifndef STATICMEM_H
 #define STATICMEM_H
 
+#include "bwdtag.h"
 #include "decomp.h"
 #include "types.h"
 
 // A static pool: the room reserved for the blocks of one tag, inside one of the groups.
 // SIZE 0x14
 typedef struct StaticPool {
-	MechU32 m_tag;    // 0x00 — a keyword code
+	BwdTag m_tag;     // 0x00 — a keyword code
 	MechS32 m_size;   // 0x04
 	MechS32 m_used;   // 0x08
 	MechS32 m_group;  // 0x0c — the index in g_staticPoolGroups
@@ -29,7 +30,7 @@ extern "C"
 #endif
 
 	MechS32 InitStaticMem(char* p_mission);
-	void* StaticPoolAlloc(MechU32 p_size, MechU32 p_tag);
+	void* StaticPoolAlloc(MechU32 p_size, BwdTag p_tag);
 	void FreeStaticMem(void);
 
 #ifdef __cplusplus

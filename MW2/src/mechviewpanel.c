@@ -30,6 +30,7 @@
 
 // GLOBAL: MW2 0x100a88e8
 // GLOBAL: MW2MATROX 0x100bbe94
+// GLOBAL: MW23DFX 0x1024b444
 MechS32 g_mechViewStatic = 0;
 
 // FUNCTION: MW2 0x100509a0
@@ -58,6 +59,7 @@ void CycleMechViewMode(void)
 // else joins the static test; the rest is a stack-slot permutation (and the jump table's offsets).
 // FUNCTION: MW2 0x100509c8
 // FUNCTION: MW2MATROX 0x1008ad78
+// FUNCTION: MW23DFX 0x10011720
 void DrawMechViewPanel(CockpitPanel* p_panel)
 {
 	MechScalar* camera;

@@ -27,6 +27,7 @@ ResourceCacheEntry** g_cacheTable = NULL;
 // The number of the next cache log.
 // GLOBAL: MW2 0x100a2c60
 // GLOBAL: MW2MATROX 0x100aa890
+// GLOBAL: MW23DFX 0x1024d7f0
 MechS32 g_cacheDumpNumber = 0;
 
 // GLOBAL: MW2 0x101748d0
@@ -484,6 +485,7 @@ void* MemAlloc(MechU32 p_size)
 
 // FUNCTION: MW2 0x1001a5bc
 // FUNCTION: MW2MATROX 0x1005635b
+// FUNCTION: MW23DFX 0x10024700
 void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 {
 #ifdef PORTABLE_C

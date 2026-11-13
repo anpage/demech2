@@ -70,4 +70,9 @@ extern "C"
 }
 #endif
 
+// The 3Dfx edition places these out of soundfx.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW23DFX 0x10032000
+// StartSample
+
 #endif // SOUNDFX_H

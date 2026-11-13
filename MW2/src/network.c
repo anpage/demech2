@@ -153,6 +153,7 @@ MechChar* g_sessionName = NULL;
 // Set when this tick's messages brought the master's clock.
 // GLOBAL: MW2 0x100a1764
 // GLOBAL: MW2MATROX 0x100a2114
+// GLOBAL: MW23DFX 0x1024ffd4
 MechS16 g_clockSynced = 0;
 
 // Set when the shell launched the game with its own DirectPlay session.
@@ -312,6 +313,7 @@ MechS32 g_lastThingsCount[8];
 // The only diff is the order the m_playerIds index loads its base and index in.
 // FUNCTION: MW2 0x1000e410
 // FUNCTION: MW2MATROX 0x10003df0
+// FUNCTION: MW23DFX 0x10033840
 MechS32 GetPlayerSlotFromNetId(DPID p_id)
 {
 	MechS32 i;
@@ -404,6 +406,7 @@ MechS32 FirstExternalCtrl(void)
 // MW2MATROX: the comparisons with g_localPlayerId load their operands in the other order.
 // FUNCTION: MW2 0x1000e68c
 // FUNCTION: MW2MATROX 0x1000406c
+// FUNCTION: MW23DFX 0x10033b00
 MechS32 UpdateNetwork(void)
 {
 	MechChar text[80];
@@ -552,6 +555,7 @@ void ShutdownNetwork(void)
 // other order (entropy).
 // FUNCTION: MW2 0x1000ebad
 // FUNCTION: MW2MATROX 0x1000458e
+// FUNCTION: MW23DFX 0x10034000
 void SendStateMsg(void)
 {
 	Player* player;
@@ -710,6 +714,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 // The only diff is a stack-slot permutation of its locals.
 // FUNCTION: MW2 0x1000f1ee
 // FUNCTION: MW2MATROX 0x10004cbc
+// FUNCTION: MW23DFX 0x10034730
 void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 {
 	MechChar text2[40];
@@ -1035,6 +1040,7 @@ void SendGoMsg(void)
 // MW2MATROX: the comparison with g_localPlayerId loads its operands in the other order.
 // FUNCTION: MW2 0x1000fcf5
 // FUNCTION: MW2MATROX 0x10005ab4
+// FUNCTION: MW23DFX 0x10035550
 void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechS32 i;
@@ -1152,6 +1158,7 @@ void SendSuccessMsg(void)
 // MW2MATROX: the comparison with g_localPlayerId loads its operands in the other order.
 // FUNCTION: MW2 0x1000ff70
 // FUNCTION: MW2MATROX 0x10005d30
+// FUNCTION: MW23DFX 0x100357f0
 void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 {
 	MechChar text[80];

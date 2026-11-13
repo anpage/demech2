@@ -665,10 +665,12 @@
 
 // LIBRARY: MW2 0x10085982 SYMBOL
 // LIBRARY: MW2MATROX 0x10092e62 SYMBOL
+// LIBRARY: MW23DFX 0x100705de SYMBOL
 // __CIasin
 
 // LIBRARY: MW2 0x1008598c SYMBOL
 // LIBRARY: MW2MATROX 0x10092e6c SYMBOL
+// LIBRARY: MW23DFX 0x100705e8 SYMBOL
 // __CIacos
 
 // LIBRARY: MW2 0x10085993 SYMBOL
@@ -976,6 +978,7 @@
 
 // LIBRARY: MW2 0x1008a170 SYMBOL
 // LIBRARY: MW2MATROX 0x100984d0 SYMBOL
+// LIBRARY: MW23DFX 0x10073159 SYMBOL
 // __ftbuf
 
 // _open.obj
@@ -2098,6 +2101,7 @@
 // ___tzset
 
 // LIBRARY: MW2 0x100967d0 SYMBOL
+// LIBRARY: MW23DFX 0x10077e31 SYMBOL
 // __tzset
 
 // LIBRARY: MW2 0x10096800
@@ -2177,6 +2181,7 @@
 // matherr.obj
 
 // LIBRARY: MW2 0x10097dc0 SYMBOL
+// LIBRARY: MW23DFX 0x10079630 SYMBOL
 // __matherr
 
 // fpctrl.obj
@@ -3094,5 +3099,98 @@
 
 // LIBRARY: MW23DFX 0x10079aaa SYMBOL
 // __heap_findaddr
+
+// GLOBAL: MW23DFX 0x10268918
+// __First_FPE_Indx
+
+// GLOBAL: MW23DFX 0x1026891c
+// __Num_FPE
+
+// GLOBAL: MW23DFX 0x10267d08
+// __OP_EXPjmptab
+
+// GLOBAL: MW23DFX 0x10267cc8
+// __OP_LOG10jmptab
+
+// GLOBAL: MW23DFX 0x10267ce8
+// __OP_LOGjmptab
+
+// GLOBAL: MW23DFX 0x10267c78
+// __OP_POWjmptab
+
+// GLOBAL: MW23DFX 0x102686fc
+// ___fcntrlcomp
+
+// GLOBAL: MW23DFX 0x102687a0
+// ___invalid_mb_chars
+
+// GLOBAL: MW23DFX 0x10268228
+// __amblksiz
+
+// GLOBAL: MW23DFX 0x10267870
+// __doserrno
+
+// GLOBAL: MW23DFX 0x10268924
+// __fpecode
+
+// GLOBAL: MW23DFX 0x10245a50
+// __heap_regions
+
+// GLOBAL: MW23DFX 0x10268224
+// __heap_resetsize
+
+// GLOBAL: MW23DFX 0x10267b50
+// __lastiob
+
+// GLOBAL: MW23DFX 0x10268adc
+// __matherr_flag
+
+// GLOBAL: MW23DFX 0x10268090
+// __osfile
+
+// GLOBAL: MW23DFX 0x10246d54
+// __pRawDllMain
+
+// GLOBAL: MW23DFX 0x102678b4
+// __pnhHeap
+
+// GLOBAL: MW23DFX 0x10268928
+// __pxcptinfoptrs
+
+// GLOBAL: MW23DFX 0x1026786c
+// _errno
+
+// GLOBAL: MW23DFX 0x10267de4
+// __OP_ACOSjmptab
+
+// GLOBAL: MW23DFX 0x10267dc4
+// __OP_ASINjmptab
+
+// GLOBAL: MW23DFX 0x10248778
+// ___lookuptable
+
+// GLOBAL: MW23DFX 0x10246d50
+// __acmdln
+
+// GLOBAL: MW23DFX 0x10268b28
+// __fmode
+
+// GLOBAL: MW23DFX 0x10268210
+// __heap_desc
+
+// GLOBAL: MW23DFX 0x10245a48
+// __heap_descpages
+
+// GLOBAL: MW23DFX 0x10268230
+// __heap_maxregsize
+
+// GLOBAL: MW23DFX 0x1026822c
+// __heap_regionsize
+
+// GLOBAL: MW23DFX 0x102680d0
+// __osfhnd
+
+// GLOBAL: MW23DFX 0x102681d0
+// __pipech
 
 #endif

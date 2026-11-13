@@ -4,6 +4,8 @@
 #include "resourceref.h"
 #include "types.h"
 
+struct BwdTag;
+
 // The functions of resourcename.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -17,7 +19,7 @@ extern "C"
 		const char* p_ext,
 		MechS32 p_table,
 		MechS32* p_size,
-		MechU32* p_poolTag
+		struct BwdTag* p_poolTag
 	);
 
 #ifdef __cplusplus

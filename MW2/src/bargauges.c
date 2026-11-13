@@ -56,23 +56,28 @@ undefined4 g_unk0x100a832c = 0;
 // The size of the throttle gauge.
 // GLOBAL: MW2 0x100a8330
 // GLOBAL: MW2MATROX 0x100bbd90
+// GLOBAL: MW23DFX 0x1024c858
 Point g_throttleGaugeSize = {0x1e7a, 0x8dc9};
 
 // The throttle gauge's frame: left, top, right and bottom.
 // GLOBAL: MW2 0x100a8338
 // GLOBAL: MW2MATROX 0x100bbd98
+// GLOBAL: MW23DFX 0x1024c860
 MechS32 g_throttleFrameLeft = 0;
 
 // GLOBAL: MW2 0x100a833c
 // GLOBAL: MW2MATROX 0x100bbd9c
+// GLOBAL: MW23DFX 0x1024c864
 MechS32 g_throttleFrameTop = 0;
 
 // GLOBAL: MW2 0x100a8340
 // GLOBAL: MW2MATROX 0x100bbda0
+// GLOBAL: MW23DFX 0x1024c868
 MechS32 g_throttleFrameRight = 0;
 
 // GLOBAL: MW2 0x100a8344
 // GLOBAL: MW2MATROX 0x100bbda4
+// GLOBAL: MW23DFX 0x1024c86c
 MechS32 g_throttleFrameBottom = 0;
 
 // The left of the throttle bar and the level of zero throttle.
@@ -87,6 +92,7 @@ MechS32 g_throttleZeroY = 0;
 // The heat bar: its position and size.
 // GLOBAL: MW2 0x100a8350
 // GLOBAL: MW2MATROX 0x100bbdb0
+// GLOBAL: MW23DFX 0x1024c878
 Point g_heatBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8358
@@ -96,6 +102,7 @@ Point g_heatBarSize = {0xea4e, 0x5555};
 // The heat rate bar.
 // GLOBAL: MW2 0x100a8360
 // GLOBAL: MW2MATROX 0x100bbdc0
+// GLOBAL: MW23DFX 0x1024c888
 Point g_heatRateBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8368
@@ -116,6 +123,7 @@ Point g_jumpFuelBarSize = {0xdf2e, 0x5555};
 // Scales the gauges' rectangles to their panels.
 // FUNCTION: MW2 0x1004d020
 // FUNCTION: MW2MATROX 0x10089040
+// FUNCTION: MW23DFX 0x1001c250
 void ScaleBarGauges(void)
 {
 	CockpitPanel* panel;
@@ -211,6 +219,7 @@ void DrawHeatBar(PANE* p_target)
 // Stack-slot permutation: level, backColor, fill, fillColor and mech.
 // FUNCTION: MW2 0x1004d310
 // FUNCTION: MW2MATROX 0x10089332
+// FUNCTION: MW23DFX 0x1001c4a0
 void DrawHeatRateBar(PANE* p_target)
 {
 	MechS32 level;
@@ -280,6 +289,7 @@ void DrawHeatRateBar(PANE* p_target)
 // Stack-slot permutation: color, mech, width, height, x, y and value.
 // FUNCTION: MW2 0x1004d48a
 // FUNCTION: MW2MATROX 0x100894b4
+// FUNCTION: MW23DFX 0x1001c5b0
 void DrawThrottleGauge(PANE* p_target)
 {
 	MechS32 color;

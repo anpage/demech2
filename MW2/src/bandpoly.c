@@ -12,6 +12,7 @@
 // The texture coordinates of a band's corners (DrawBand).
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x100a85a8
+// GLOBAL: MW23DFX 0x1024e430
 FloatPoint g_bandTexCoords[4] = {{0, 0}, {1.0f, 0}, {1.0f, 1.0f}, {0, 1.0f}};
 #else
 // GLOBAL: MW2 0x100a2330
@@ -54,6 +55,7 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // The only other diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100107de
 // FUNCTION: MW2MATROX 0x100459b0
+// FUNCTION: MW23DFX 0x1002a8e0
 #ifdef MW2_ACCEL
 MechS32 DrawBand(
 	MechU32 p_color,

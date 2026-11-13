@@ -725,6 +725,7 @@ const MechChar* FindAIName(MechS16 p_value, AiName* p_names, MechS16 p_count)
 // Clears the AI log page's lines (the drawing is compiled out).
 // FUNCTION: MW2 0x10051b35
 // FUNCTION: MW2MATROX 0x10080b91
+// FUNCTION: MW23DFX 0x10011ff0
 void ClearAILog(void)
 {
 	MechS32 i;
@@ -1604,6 +1605,7 @@ MechS32 AiTransitionPop(Player* p_player, AiRule* p_rule)
 // Stack-slot permutation: index and players.
 // FUNCTION: MW2 0x100535e3
 // FUNCTION: MW2MATROX 0x100827a9
+// FUNCTION: MW23DFX 0x10013370
 MechU16 FindAttacker(Player* p_player)
 {
 	Player** players;
@@ -2264,6 +2266,7 @@ void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_p
 // Releases the nav points p_player placed, except its anchor.
 // FUNCTION: MW2 0x10054778
 // FUNCTION: MW2MATROX 0x100839de
+// FUNCTION: MW23DFX 0x10013e90
 void ReleaseNavPoints(Player* p_player)
 {
 	MechU32 i;
@@ -2288,6 +2291,7 @@ void ReleaseNavPoints(Player* p_player)
 // Stack-slot permutation: found, index, nav, owner, player and range and y.
 // FUNCTION: MW2 0x10054851
 // FUNCTION: MW2MATROX 0x10083ab7
+// FUNCTION: MW23DFX 0x10013f00
 void PlacePatrolNavs(Player* p_player)
 {
 	MechU32 index;
@@ -2367,6 +2371,7 @@ void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 // Stack-slot permutation: heading, nav and x and z.
 // FUNCTION: MW2 0x10054a93
 // FUNCTION: MW2MATROX 0x10083d0d
+// FUNCTION: MW23DFX 0x100140a0
 void PlaceFormationNav(Player* p_player)
 {
 	MechScalar z;
@@ -2492,6 +2497,7 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // in the other operand order.
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2MATROX 0x10084002
+// FUNCTION: MW23DFX 0x10014290
 MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS16 p_target)
 {
 	MechS16 skipped;
@@ -2553,6 +2559,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 // permutation: local and speech.
 // FUNCTION: MW2 0x10054f50
 // FUNCTION: MW2MATROX 0x100841ca
+// FUNCTION: MW23DFX 0x10014390
 MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 {
 	MechS16 target;
@@ -3232,6 +3239,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 // first m_maneuverEnd comparison loads its operands in the other order.
 // FUNCTION: MW2 0x100562b4
 // FUNCTION: MW2MATROX 0x1008554f
+// FUNCTION: MW23DFX 0x10014ff0
 void SweepTorso(Player* p_player)
 {
 	MechS32 period;

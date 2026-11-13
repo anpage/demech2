@@ -90,6 +90,7 @@ MechChar g_gamePath[0x50];
 // The three values of the HUD layout (LoadHudFile).
 // GLOBAL: MW2 0x10109c30
 // GLOBAL: MW2MATROX 0x1015e8b0
+// GLOBAL: MW23DFX 0x101de8e0
 MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.
@@ -153,6 +154,7 @@ MechS32 LoadMgdFile(
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
+// FUNCTION: MW23DFX 0x100401c0
 MechS32 LoadReels(ResourceRef* p_ref)
 {
 	MechS32 ids[32];
@@ -428,7 +430,8 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 // Stack-slot permutation: log and file.
 // FUNCTION: MW2 0x10071108
 // FUNCTION: MW2MATROX 0x1000b6f4
-MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, MechU32* p_poolTag)
+// FUNCTION: MW23DFX 0x10040700
+MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, BwdTag* p_poolTag)
 {
 	FILE* log;
 	MechS32 file;

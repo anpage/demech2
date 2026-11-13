@@ -57,6 +57,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // MW2MATROX: commutative operand order, the products of each sum are loaded in another order.
 // FUNCTION: MW2 0x1000d650
 // FUNCTION: MW2MATROX 0x10001870
+// FUNCTION: MW23DFX 0x1002eb50
 void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 #if defined(MW2_ACCEL)
@@ -153,6 +154,7 @@ void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScal
 // MW2MATROX: commutative operand order, the products of each sum are loaded in another order.
 // FUNCTION: MW2 0x1000d708
 // FUNCTION: MW2MATROX 0x10001913
+// FUNCTION: MW23DFX 0x1002ebc0
 void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 #if defined(MW2_ACCEL)
@@ -245,6 +247,7 @@ void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar*
 // Stack-slot permutation: the column values and x, y and z.
 // FUNCTION: MW2 0x1000d7c0
 // FUNCTION: MW2MATROX 0x100019a4
+// FUNCTION: MW23DFX 0x1002ec20
 void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column)
 {
 #if defined(MW2_ACCEL)
@@ -488,6 +491,7 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 // Stack-slot permutation of the locals the __asm block names.
 // FUNCTION: MW2 0x1000da0c
 // FUNCTION: MW2MATROX 0x10001b59
+// FUNCTION: MW23DFX 0x1002ed60
 void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
 #if defined(MW2_ACCEL)
@@ -834,6 +838,7 @@ void CopyRotation(Matrix* p_src, Matrix* p_dst)
 // Stack-slot permutation: t, the sines and the cosines.
 // FUNCTION: MW2 0x1000de3b
 // FUNCTION: MW2MATROX 0x10001f5f
+// FUNCTION: MW23DFX 0x1002f070
 void BuildMatrixEx(
 	Matrix* p_matrix,
 	MechScalar p_angleX,

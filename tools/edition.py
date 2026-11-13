@@ -28,6 +28,7 @@ its map. The cache is DIR/edition-MW2MATROX.json.
 auto, annotate, fix-order and audit, against the rebuild in DIR/vc22, and
 
     python tools/edition.py --target MW23DFX unpaired   # the original's functions nothing paired
+    python tools/edition.py --target MW23DFX names REPORT.json [--all] [--write]   # name what matched code calls
 """
 
 import argparse
@@ -651,6 +652,11 @@ def main():
     p.add_argument("vars", nargs="+")
     p.set_defaults(fn=cmd_scalar_locals)
     sub.add_parser("unpaired").set_defaults(fn=None)
+    p = sub.add_parser("names")
+    p.add_argument("json")
+    p.add_argument("--all", action="store_true", help="also the names in functions that differ otherwise")
+    p.add_argument("--write", action="store_true")
+    p.set_defaults(fn=None)
     args = parser.parse_args()
     if args.target == "MW23DFX":
         import edition_3dfx

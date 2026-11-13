@@ -31,6 +31,7 @@
 // MW2MATROX: /E deletes mw2debug.txt with remove; only a stack-slot permutation is left.
 // FUNCTION: MW2 0x1001ee80
 // FUNCTION: MW2MATROX 0x10021140
+// FUNCTION: MW23DFX 0x10038820
 MechS32 ProcessCmdLineArgs(MechChar* p_cmdLine, undefined4* p_flags, MechChar* p_mission)
 {
 	MechS32 result;

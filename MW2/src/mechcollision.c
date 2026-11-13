@@ -704,6 +704,7 @@ void DamageMechHittingShape(Mech* p_mech, Shape* p_shape)
 // marks it fallen and plays the crash sound.
 // FUNCTION: MW2 0x10076a23
 // FUNCTION: MW2MATROX 0x10076d51
+// FUNCTION: MW23DFX 0x1000c4d0
 void KnockMechOver(Mech* p_mech)
 {
 	MechScalar x;

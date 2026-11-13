@@ -198,6 +198,7 @@ RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 // Set when UpdateCockpit should run PunchInAutoHeading on its next frame.
 // GLOBAL: MW2 0x100ae37c
 // GLOBAL: MW2MATROX 0x100b189c
+// GLOBAL: MW23DFX 0x1024ccdc
 MechS32 g_punchInAutoHeadingRequested = 0;
 
 // GLOBAL: MW2 0x100ae380
@@ -258,6 +259,7 @@ MechS32 g_cockpitPanelEnabled[c_panelCount];
 
 // GLOBAL: MW2 0x100c3358
 // GLOBAL: MW2MATROX 0x1012f9d8
+// GLOBAL: MW23DFX 0x101de868
 MechS32 g_cockpitPowerState;
 
 // Loads eight sounds ahead of their use.

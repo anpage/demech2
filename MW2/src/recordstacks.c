@@ -19,6 +19,7 @@
 #ifdef MW2_ACCEL
 // The Matrox edition defines the draw buffer's globals in another order, all initialized.
 // GLOBAL: MW2MATROX 0x100a4fac
+// GLOBAL: MW23DFX 0x1024db90
 DepthEntry* g_drawList = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fb0
@@ -92,6 +93,7 @@ void ShutdownDrawBuffer(void)
 // (both front ends reorder commutative operands).
 // FUNCTION: MW2 0x1007d150
 // FUNCTION: MW2MATROX 0x100216d0
+// FUNCTION: MW23DFX 0x10025d80
 void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 {
 	MechU32 size;

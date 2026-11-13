@@ -40,4 +40,12 @@ extern "C"
 }
 #endif
 
+// The 3Dfx edition places these out of wtbshapes.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW23DFX 0x10042000
+// MapFaceId
+
+// FUNCTION: MW23DFX 0x10042140
+// LoadShapeRecord
+
 #endif // WTBSHAPES_H

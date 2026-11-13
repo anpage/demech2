@@ -269,11 +269,13 @@ typedef struct BwdAnim2dRecord {
 // Set by the local player's gpspec record: its hudfile record loads the HUD once.
 // GLOBAL: MW2 0x100a173c
 // GLOBAL: MW2MATROX 0x100a85c8
+// GLOBAL: MW23DFX 0x10259c74
 MechS32 g_loadHudFile = 0;
 
 // The next g_shots slot a booyowthing record fills.
 // GLOBAL: MW2 0x100a1740
 // GLOBAL: MW2MATROX 0x100a85cc
+// GLOBAL: MW23DFX 0x10259c78
 MechS32 g_nextShotRecord = 0;
 
 // The next g_effects slot an xplode record fills.
@@ -285,6 +287,7 @@ MechS32 g_nextEffectRecord = 0;
 // The name of the mission's music (the world stream's music record).
 // GLOBAL: MW2 0x100e9330
 // GLOBAL: MW2MATROX 0x10125870
+// GLOBAL: MW23DFX 0x102441b0
 MechChar g_musicName[12];
 
 // The mission's "MUS" resource.
@@ -318,12 +321,13 @@ MechU32 WidenEventFlags(MechU32 p_flags)
 // Operand order: the rep record's i < g_thingCapacity loads g_thingCapacity first in the original.
 // FUNCTION: MW2 0x1000a9f5
 // FUNCTION: MW2MATROX 0x100461f5
+// FUNCTION: MW23DFX 0x1003de10
 MechS32 BwdExecuteStream(BwdStream* p_stream)
 {
 	MechS32 result;
 	BwdNode* node;
 	MechU32 eventList;
-	MechU32 type;
+	BwdTag type;
 	MechChar* eventName;
 	undefined4 unk0x18;
 	MechS32 affiliation;
@@ -337,7 +341,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 	while ((node = GetNextNode(p_stream)) != NULL) {
 		type = node->m_type;
-		if (type == g_bwdTypeCodes[c_bwdPlanet]) {
+		if (type.m_code == g_bwdTypeCodes[c_bwdPlanet].m_code) {
 			BwdPlanetRecord* planet = (BwdPlanetRecord*) node;
 
 			if (g_difficulty->m_gravity) {
@@ -383,23 +387,23 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_slideSlope = FIXED_TO_SCALAR(planet->m_slideSlope);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdClimate]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdClimate].m_code) {
 			BwdClimateRecord* climate = (BwdClimateRecord*) node;
 
 			g_unk0x100ba608 = climate->m_unk0x0c;
 		}
-		else if (type == g_bwdTypeCodes[c_bwdHiddenText]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdHiddenText].m_code) {
 			BwdTextRecord* text = (BwdTextRecord*) node;
 
 			strcpy(g_anonymousInstallationName, text->m_text);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdView]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdView].m_code) {
 			BwdPairRecord* view = (BwdPairRecord*) node;
 
 			g_mainEyepoint.m_nearPlane = view->m_a;
 			g_mainEyepoint.m_farPlane = view->m_b;
 		}
-		else if (type == g_bwdTypeCodes[c_bwdLuma]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdLuma].m_code) {
 			MechS32 id;
 			BwdResourceRecord* luma = (BwdResourceRecord*) node;
 
@@ -412,7 +416,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_lumaResourceId = id;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdMusic]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdMusic].m_code) {
 			BwdResourceRecord* music = (BwdResourceRecord*) node;
 
 			g_musicResource = music->m_ref.m_id;
@@ -422,7 +426,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			strcpy(g_musicName, music->m_ref.m_name);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdAnimSound]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdAnimSound].m_code) {
 			BwdResourceRecord* sound = (BwdResourceRecord*) node;
 
 			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
@@ -432,14 +436,14 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdAffiliation]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdAffiliation].m_code) {
 			BwdPairRecord* affil = (BwdPairRecord*) node;
 
 			affiliation = affil->m_a;
 		}
-		else if (type == g_bwdTypeCodes[c_bwdTerrain]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdTerrain].m_code) {
 		}
-		else if (type == g_bwdTypeCodes[c_bwdNow]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdNow].m_code) {
 			BwdNowRecord* now = (BwdNowRecord*) node;
 
 			if (g_isNetworkGame && g_difficulty) {
@@ -451,7 +455,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			g_dayOfYear = now->m_dayOfYear;
 		}
-		else if (type == g_bwdTypeCodes[c_bwdPaletteGroup]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdPaletteGroup].m_code) {
 			MechS32 slot;
 			MechS32 i;
 			BwdPaletteGroupRecord* group = (BwdPaletteGroupRecord*) node;
@@ -473,7 +477,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			SetPaletteResourceId(group->m_ids[18], 0x12);
 			SetPaletteResourceId(group->m_ids[19], 0x13);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdLight]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdLight].m_code) {
 			BwdLightRecord* light = (BwdLightRecord*) node;
 
 			g_mainEyepoint.m_lightX = FIXED_TO_SCALAR(light->m_x);
@@ -486,16 +490,16 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_renderSettings.m_distanceFade = 1;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdGroundMap]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdGroundMap].m_code) {
 			LoadMapBitmap((BwdRecord*) node, &g_groundColor, NULL, NULL);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdHorizonMap]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdHorizonMap].m_code) {
 			LoadMapBitmap((BwdRecord*) node, &g_horizonMapColor, &g_horizonBandHeight, NULL);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdSkyMap]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdSkyMap].m_code) {
 			LoadMapBitmap((BwdRecord*) node, &g_skyColor, NULL, NULL);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdWindow]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdWindow].m_code) {
 			MechS32 count;
 			BwdWindowEntry* entry;
 			MechS32 i;
@@ -524,7 +528,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdStart]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdStart].m_code) {
 			BwdStartRecord* start = (BwdStartRecord*) node;
 
 			g_mainEyepoint.m_x = start->m_values[0];
@@ -535,24 +539,24 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			g_mainEyepoint.m_roll = FIXED_TO_SCALAR(start->m_values[5]);
 			g_mainEyepoint.m_fovX = FIXED_TO_SCALAR(start->m_values[6]);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdScenarioTable]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdScenarioTable].m_code) {
 			LoadScenarioTable((ScenarioTable*) node);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdStar]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdStar].m_code) {
 			LoadStarTable((struct StarTable*) node);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdPath]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdPath].m_code) {
 			LoadPathTable((struct PathRecord*) node);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdFormation]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdFormation].m_code) {
 			LoadFormationTable((struct FormationRecord*) node);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdMissionTable]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdMissionTable].m_code) {
 			LoadMissionTable((MissionTable*) node);
 			eventList = FindEventList("$");
 			eventName = "$";
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBitmapPrj]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBitmapPrj].m_code) {
 			BwdResourceRecord* prj = (BwdResourceRecord*) node;
 			MechS32 id;
 
@@ -568,14 +572,14 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				Error(0x28, NULL);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBitmapIdList]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBitmapIdList].m_code) {
 			BwdResourceRecord* list = (BwdResourceRecord*) node;
 			MechS32 id;
 
 			id = list->m_ref.m_id;
 			StartAnimation(id, -1);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBitmapSection]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBitmapSection].m_code) {
 			BwdIdPairRecord* section = (BwdIdPairRecord*) node;
 			MechS16 delay;
 			MechS16 index;
@@ -585,7 +589,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			SetAnimDelay(index, delay);
 			SetAnimMode(index, 1);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBitmapEnable]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBitmapEnable].m_code) {
 			BwdIdPairRecord* enable = (BwdIdPairRecord*) node;
 			MechS16 mode;
 			MechS16 index;
@@ -594,7 +598,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			mode = enable->m_b;
 			SetAnimMode(index, mode);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdFramePrj]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdFramePrj].m_code) {
 			MechS16 b;
 			MechS16 id;
 			BwdFramePrjRecord* frame = (BwdFramePrjRecord*) node;
@@ -615,7 +619,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				LoadFramePrj(id, a, b);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdPolyOffset]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdPolyOffset].m_code) {
 			MechS32 x;
 			MechS32 y;
 			MechS32 z;
@@ -626,12 +630,12 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			z = offset->m_z;
 			SetShapeOffset(x, y, z);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBlockXform]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBlockXform].m_code) {
 			BwdXformRecord* xform = (BwdXformRecord*) node;
 
 			ApplyBlockXform(xform->m_xform);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdRep]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdRep].m_code) {
 			MechS32 i;
 
 			if (!g_inRepeat) {
@@ -646,22 +650,22 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_repeatPass++;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdEndRep]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdEndRep].m_code) {
 			g_inRepeat = 0;
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBlock]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBlock].m_code) {
 			BeginBlock((BwdBlockRecord*) node);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdElseBlock]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdElseBlock].m_code) {
 			HandleElseBlock();
 		}
-		else if (type == g_bwdTypeCodes[c_bwdEndBlock]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdEndBlock].m_code) {
 			EndBlock(p_stream);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdObject]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdObject].m_code) {
 			CreateObjectNode((BwdObjectRecord*) node, unk0x18, 0, g_blockDepth, g_inRepeat, g_repeatPass);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdAnimFile]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdAnimFile].m_code) {
 			ResourceRef* ref;
 			BwdResourceRecord* anim = (BwdResourceRecord*) node;
 
@@ -670,7 +674,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				Error(0x4f, NULL);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdScrounge]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdScrounge].m_code) {
 			SceneObject* obj;
 			Shape* shape;
 			MechS32 id;
@@ -686,7 +690,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				Error(0x2e, NULL);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdThing]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdThing].m_code) {
 			MechS32 index;
 			MechS32 id;
 			BwdIdRecord* thing = (BwdIdRecord*) node;
@@ -704,7 +708,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdGamepiece]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdGamepiece].m_code) {
 			MechS32 kind;
 			Player* player;
 			PlayerType* playerType;
@@ -786,7 +790,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				Error(0x30, NULL);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdCptFile]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdCptFile].m_code) {
 			ResourceRef* ref;
 			BwdResourceRecord* cockpit = (BwdResourceRecord*) node;
 
@@ -795,7 +799,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				LoadCptFile(ref, g_cockpitGaugePanes, g_cockpitPanelPanes, g_unk0x100a5bb8[3]);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdPitFile]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdPitFile].m_code) {
 			BwdStream* stream;
 			BwdStreamKey* key;
 			BwdStreamKey keyData;
@@ -816,7 +820,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdVptFile]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdVptFile].m_code) {
 			BwdStream* stream;
 			BwdStreamKey* key;
 			BwdStreamKey keyData;
@@ -837,7 +841,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdHudFile]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdHudFile].m_code) {
 			ResourceRef* ref;
 			BwdResourceRecord* hud = (BwdResourceRecord*) node;
 
@@ -847,7 +851,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_loadHudFile = 0;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdMgdFile]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdMgdFile].m_code) {
 			ResourceRef* ref;
 			Mech* mech;
 			BwdResourceRecord* mgd = (BwdResourceRecord*) node;
@@ -867,7 +871,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdEyeObj]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdEyeObj].m_code) {
 			SceneObject* obj;
 			MechS32 index;
 			MechS32 id;
@@ -885,7 +889,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdPof]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdPof].m_code) {
 			Mech* mech;
 			BwdIdRecord* pof = (BwdIdRecord*) node;
 			SceneObject* obj;
@@ -905,7 +909,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdGameThing]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdGameThing].m_code) {
 			MechS32 i;
 			MechU32 events;
 			GameThing* thing;
@@ -964,7 +968,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdObjLoc]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdObjLoc].m_code) {
 			MechS32 index;
 			MechS32 value;
 			MechS32 id;
@@ -980,7 +984,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdBooyowThing]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdBooyowThing].m_code) {
 			MechS32 shotType;
 			BwdIdRecord* booyow = (BwdIdRecord*) node;
 			SceneObject* obj;
@@ -1009,7 +1013,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_nextShotRecord++;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdXplode]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdXplode].m_code) {
 			Effect* effect;
 			BwdIdRecord* xplode = (BwdIdRecord*) node;
 			MechS32 effectType;
@@ -1056,7 +1060,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				g_nextEffectRecord++;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdNavPoint]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdNavPoint].m_code) {
 			BwdNavPointRecord* navPoint = (BwdNavPointRecord*) node;
 			MechU32 events;
 			Vector3 position;
@@ -1101,7 +1105,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdNavObject]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdNavObject].m_code) {
 			BwdNavObjectRecord* navObject = (BwdNavObjectRecord*) node;
 			SceneObject* obj;
 			MechS32 index;
@@ -1153,7 +1157,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdLightObj]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdLightObj].m_code) {
 			MechS32 index;
 			BwdIdRecord* lightObj = (BwdIdRecord*) node;
 			MechS32 id;
@@ -1169,7 +1173,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdTask]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdTask].m_code) {
 			MechS32 period;
 			MechChar* semicolon;
 			MechChar* data;
@@ -1203,7 +1207,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				Error(0x33, NULL);
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdPosition]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdPosition].m_code) {
 			SceneObject* obj;
 			BwdPlaceRecord* position = (BwdPlaceRecord*) node;
 			MechScalar x;
@@ -1226,7 +1230,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdRotate]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdRotate].m_code) {
 			SceneObject* obj;
 			MechScalar x;
 			MechScalar y;
@@ -1259,13 +1263,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				}
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdInclude]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdInclude].m_code) {
 			result &= ExecuteInclude((IncludeRecord*) node, BwdExecuteStream);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdGroup]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdGroup].m_code) {
 			SetTeamFormations((struct FormationNames*) node);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdGpSpec]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdGpSpec].m_code) {
 			Mech* mech;
 			MechS32 isLocal;
 			MechS32 leader;
@@ -1346,23 +1350,23 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				result = FALSE;
 			}
 		}
-		else if (type == g_bwdTypeCodes[c_bwdMangleOff]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdMangleOff].m_code) {
 			SetMangleBase(0);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdMangleOn]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdMangleOn].m_code) {
 			g_nextMangleBase += 0x10000;
 			SetMangleBase(g_nextMangleBase);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdAnim2d]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdAnim2d].m_code) {
 			BwdAnim2dSpec* spec;
 			BwdAnim2dRecord* anim2d = (BwdAnim2dRecord*) node;
 
 			spec = &anim2d->m_spec;
 			LoadAnim2d(spec->m_flags, spec->m_frameTime, spec->m_type, &spec->m_resourceId);
 		}
-		else if (type == g_bwdTypeCodes[c_bwdRev]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdRev].m_code) {
 		}
-		else if (type == g_bwdTypeCodes[c_bwdDtbl]) {
+		else if (type.m_code == g_bwdTypeCodes[c_bwdDtbl].m_code) {
 		}
 		else {
 			Error(8, NULL);

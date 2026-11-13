@@ -19,6 +19,7 @@
 // dimming them.
 // GLOBAL: MW2 0x100a555c
 // GLOBAL: MW2MATROX 0x100a4958
+// GLOBAL: MW23DFX 0x1024e428
 MechS32 g_brightenDamage = 0;
 
 // The eyepoint's ambient light (SelectEyepoint): ComputeShade's base shade, out of 0x80.
@@ -38,6 +39,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
 // draws untextured faces in mode 0xf000 (an animation's color) rather than 0x1000.
 // FUNCTION: MW2 0x10036230
 // FUNCTION: MW2MATROX 0x10016b60
+// FUNCTION: MW23DFX 0x1002a4b0
 MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
 #ifdef MW2_ACCEL
@@ -434,6 +436,7 @@ MechS32 ArePerspectiveTexturesOn(undefined4 p_unk0x00)
 
 // FUNCTION: MW2 0x100368e8
 // FUNCTION: MW2MATROX 0x1001716d
+// FUNCTION: MW23DFX 0x1002a8d0
 void EnablePerspectiveTextures(undefined4 p_unk0x00, MechS32 p_enable)
 {
 	if (!p_enable) {

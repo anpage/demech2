@@ -56,6 +56,7 @@ MechS32 g_targetPanelMode = 1;
 // Set to announce the target's side with the next name the target panel shows.
 // GLOBAL: MW2 0x100ba4c0
 // GLOBAL: MW2MATROX 0x100a4a50
+// GLOBAL: MW23DFX 0x1024d050
 MechS32 g_announceTargetSide = 0;
 
 #ifdef MW2_ACCEL
@@ -71,21 +72,25 @@ MechS32 g_targetLodParRead = 0;
 // When the target panel goes from the target's short name to its name.
 // GLOBAL: MW2 0x100ba4c4
 // GLOBAL: MW2MATROX 0x100a4a5c
+// GLOBAL: MW23DFX 0x1024d054
 MechS32 g_targetFullNameTime = 0;
 
 // The target the panel showed last.
 // GLOBAL: MW2 0x100ba4c8
 // GLOBAL: MW2MATROX 0x100a4a60
+// GLOBAL: MW23DFX 0x1024d058
 MechS32 g_lastPanelTarget = 0;
 
 // The target panel flickers to static while set.
 // GLOBAL: MW2 0x100ba4cc
 // GLOBAL: MW2MATROX 0x100a4a64
+// GLOBAL: MW23DFX 0x1024d05c
 MechS32 g_targetPanelStatic = 0;
 
 // The name the target panel shows for an unknown installation.
 // GLOBAL: MW2 0x100c26a0
 // GLOBAL: MW2MATROX 0x10212d40
+// GLOBAL: MW23DFX 0x101de7a0
 MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
@@ -310,6 +315,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c126
 // FUNCTION: MW2MATROX 0x10018683
+// FUNCTION: MW23DFX 0x10021300
 void DrawTargetPanel(CockpitPanel* p_panel)
 {
 	MechS32 index;

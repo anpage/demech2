@@ -19,6 +19,7 @@
 // entries are written one past each table: g_sinTable's lands on g_atanTable[0] in the original,
 // and on other globals in this build, which the two stores' diffs show.
 // FUNCTION: MW2MATROX 0x1007edd0
+// FUNCTION: MW23DFX 0x1002ffb0
 MechS32 InitSinAtanTables(void)
 {
 	MechS32 i;
@@ -76,6 +77,7 @@ MechScalar FixedSin(MechScalar p_angle)
 // component from the table, folded into its quadrant.
 // Stack-slot permutation; p_z > p_x compares in the other operand order.
 // FUNCTION: MW2MATROX 0x1007ef93
+// FUNCTION: MW23DFX 0x10030120
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 {
 	MechS32 zNegative;
@@ -137,6 +139,7 @@ MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16.
 // FUNCTION: MW2MATROX 0x1007f15b
+// FUNCTION: MW23DFX 0x100302c0
 MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
@@ -153,6 +156,7 @@ MechS32 InitSlopeTables(void)
 
 // The Matrox edition's is C, on floats, and takes the absolute values in the order x, z, y.
 // FUNCTION: MW2MATROX 0x1007f25b
+// FUNCTION: MW23DFX 0x10030330
 MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechScalar z;
@@ -199,6 +203,7 @@ MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_
 
 // Operand order: the original reloads y for its square after x's, this build keeps it on the FPU stack.
 // FUNCTION: MW2MATROX 0x1007f336
+// FUNCTION: MW23DFX 0x100303f0
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {
 	MechDouble x;

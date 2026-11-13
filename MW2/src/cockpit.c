@@ -56,11 +56,13 @@
 // The satellite view's display option, 0 or 1 (DrawSatelliteStatic).
 // GLOBAL: MW2 0x100a5a18
 // GLOBAL: MW2MATROX 0x100ae400
+// GLOBAL: MW23DFX 0x10249898
 MechS32 g_satelliteStaticState = 0;
 
 // The frame callback the satellite view replaces (SwitchCockpitView).
 // GLOBAL: MW2 0x100a5a1c
 // GLOBAL: MW2MATROX 0x100ae404
+// GLOBAL: MW23DFX 0x1024989c
 void (*g_savedFrameDrawCallback)(void) = DrawScene;
 
 // The overlay settings the satellite view keeps while a cockpit view shows (SwitchCockpitView):
@@ -81,6 +83,7 @@ MechS32 g_savedShowTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5a2c
 // GLOBAL: MW2MATROX 0x100ae414
+// GLOBAL: MW23DFX 0x102498ac
 MechS32 g_hudSettingsSaved = 0;
 
 // The height the map view's shading starts at (GetMapHeightShade).
@@ -209,6 +212,7 @@ MechS32 g_mapFollowsFreeEye;
 // Set to draw the satellite view without its static once (DrawSatelliteStatic).
 // GLOBAL: MW2 0x10109c74
 // GLOBAL: MW2MATROX 0x1012fce8
+// GLOBAL: MW23DFX 0x10244d38
 MechS32 g_satelliteClean;
 
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
@@ -329,6 +333,7 @@ void RunMapView(void)
 // MW2MATROX: the same comparison, the other way around.
 // FUNCTION: MW2 0x1003ddd7
 // FUNCTION: MW2MATROX 0x10073ab1
+// FUNCTION: MW23DFX 0x10003420
 MechS32 SwitchCockpitView(void)
 {
 	MechS32 changed;
@@ -432,6 +437,7 @@ void DrawCockpitView(void)
 // EndMapView (mapview.c) have no MW2MATROX annotation yet.
 // FUNCTION: MW2 0x1003e06c
 // FUNCTION: MW2MATROX 0x10073d46
+// FUNCTION: MW23DFX 0x10003620
 void DrawMapView(void)
 {
 	MechS32 farPlane;
@@ -782,6 +788,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // Stack-slot permutation; i < g_navCount compares in the other operand order.
 // FUNCTION: MW2 0x1003e974
 // FUNCTION: MW2MATROX 0x1007465e
+// FUNCTION: MW23DFX 0x10003c10
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
 #ifdef MW2_ACCEL
@@ -1234,6 +1241,7 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f393
 // FUNCTION: MW2MATROX 0x10075097
+// FUNCTION: MW23DFX 0x100042e0
 #ifdef MW2_ACCEL
 void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
@@ -1319,6 +1327,7 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 // in the colors p_flags picks.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x100751a9
+// FUNCTION: MW23DFX 0x10004390
 void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags)
 {
 	A3DVertex* vertices;
@@ -1390,6 +1399,7 @@ MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height)
 // transition's final rectangle and has it stretched to the screen.
 // FUNCTION: MW2 0x1003f594
 // FUNCTION: MW2MATROX 0x1007534f
+// FUNCTION: MW23DFX 0x100044b0
 MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTransition* p_transition, MechS32 p_final)
 {
 	MechS32 result;
@@ -1474,6 +1484,7 @@ void PowerUpMapView(void)
 // MW2MATROX: the same two clock comparisons, the other way around.
 // FUNCTION: MW2 0x1003f74e
 // FUNCTION: MW2MATROX 0x10075509
+// FUNCTION: MW23DFX 0x100045f0
 void DrawSatelliteStatic(void)
 {
 	RectTransition* transition;

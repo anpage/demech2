@@ -1,6 +1,7 @@
 #ifndef BWDKEYWORDS_H
 #define BWDKEYWORDS_H
 
+#include "bwdtag.h"
 #include "types.h"
 
 // The indices of the node tags in g_bwdTypeCodes, by keyword (g_bwdKeywordNames).
@@ -80,7 +81,7 @@ extern "C"
 	extern MechChar g_bwdVersion[];
 	extern MechChar* g_bwdKeywordNames[0x48];
 	extern MechChar g_bwdExtension[8];
-	extern MechU32 g_bwdTypeCodes[0x48];
+	extern BwdTag g_bwdTypeCodes[0x48];
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,7 @@ static HRESULT g_sendResult;
 // Sends a message to every player of the session.
 // FUNCTION: MW2 0x10001000
 // FUNCTION: MW2MATROX 0x10089b00
+// FUNCTION: MW23DFX 0x1003a4f0
 void NetSend(MechU8* p_msg, MechU32 p_size)
 {
 	DWORD flags;

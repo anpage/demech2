@@ -222,6 +222,7 @@ MechS32 g_spinnerArrow = 3;
 // The cursor of MonoPrint.
 // GLOBAL: MW2 0x100a9534
 // GLOBAL: MW2MATROX 0x100bccac
+// GLOBAL: MW23DFX 0x102594ec
 MechS32 g_monoRow = 3;
 
 // GLOBAL: MW2 0x100a9538
@@ -585,6 +586,7 @@ void ShowCacheInfo(void)
 
 // FUNCTION: MW2 0x10058f78
 // FUNCTION: MW2MATROX 0x1008e233
+// FUNCTION: MW23DFX 0x1003ca10
 void HideCacheInfo(void)
 {
 	MechChar text[28];
