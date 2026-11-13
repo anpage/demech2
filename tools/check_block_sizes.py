@@ -15,7 +15,7 @@ counted for `&g.m_member` runs to the end of `g`. Pointers into unknown objects
 
 Sources are parsed as 32-bit MSVC code against the VC++ 4.1 headers, so type
 sizes match the real build. The headers are case-insensitive on Windows only:
-the tool makes a lowercase copy of them (and of the DirectX 2 SDK headers), with oaidl.h's member named `bool`
+the tool makes a lowercase copy of them, with oaidl.h's member named `bool`
 renamed so that the C++ parse succeeds.
 
 A call can be exempted with a `check_block_sizes: allow` comment on its line.
@@ -63,7 +63,9 @@ TARGET_DEFINES = {
 COMMON_INCLUDES = [
     "util",
     "common/include",
+    "3rdparty/ddraw",
     "3rdparty/dispdib",
+    "3rdparty/dplay",
     "3rdparty/glide",
     "3rdparty/mss",
     "3rdparty/msi95",
@@ -79,9 +81,6 @@ EDITION_DEFINES = {
 }
 
 COMMON_DEFINES = ["WIN32", "_WINDOWS"]
-
-# Header directories with uppercase file names, folded into the lowercase copy.
-UPPERCASE_INCLUDES = ["3rdparty/dx2/INC"]
 
 
 def setup_evaluate(lib):
@@ -110,13 +109,8 @@ def evaluate_int(lib, cursor):
         lib.clang_EvalResult_dispose(result)
 
 
-def prepare_headers(include_dirs, out_dir):
-    """Lowercase copy of the VC++ 4.1 and DirectX 2 headers, with oaidl.h patched."""
-    for include_dir in include_dirs:
-        copy_lowercase(include_dir, out_dir)
-
-
-def copy_lowercase(include_dir, out_dir):
+def prepare_headers(include_dir, out_dir):
+    """Lowercase copy of the VC++ 4.1 headers, with oaidl.h patched."""
     for name in os.listdir(include_dir):
         src = os.path.join(include_dir, name)
         if not os.path.isfile(src):
@@ -389,7 +383,7 @@ def main():
     parse_errors = 0
     stats = {"calls": 0, "unknown size": 0, "unknown object": 0, "checked": 0, "verbose": args.verbose}
     with tempfile.TemporaryDirectory() as headers:
-        prepare_headers([args.msvc_include] + [os.path.join(args.root, d) for d in UPPERCASE_INCLUDES], headers)
+        prepare_headers(args.msvc_include, headers)
         for target in args.targets:
             target_dir = os.path.join(args.root, target)
             name = os.path.basename(os.path.normpath(target))

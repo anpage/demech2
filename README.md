@@ -137,7 +137,7 @@ Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actio
 - `MW2/` - Decompilation of `MW2.DLL`
 - `NETMECHW/` - Decompilation of the retail `NETMECHW.DLL`, NetMech's lobby (a reccmp target with Visual C++ 2.2)
 - `util/` - Utility headers for decompilation
-- `3rdparty/` - Import libraries (`.def` files), DirectX 2 SDK headers, and our own Miles/Smacker declarations
+- `3rdparty/` - Import libraries (`.def` files), our own DirectDraw, DirectPlay, Glide, MSI95, Miles and Smacker declarations, and the third-party code listed under "License"
 - `cmake/` - CMake modules
 - `tools/` - Python tools and requirements
 - `reccmp/` - reccmp data sources
@@ -183,6 +183,5 @@ The LGPL comes with one **additional permission**, granted under section 7 of th
 | --- | --- | --- |
 | `3rdparty/vfx` | Miles Design's VFX graphics library, by John Miles | Open-source freeware since July 2000: usable for any purpose without restriction ([README.TXT](3rdparty/vfx/README.TXT)) |
 | `3rdparty/texus` | 3dfx Interactive's Texus texture library, from the 1999 Glide source release | 3DFX GLIDE Source Code General Public License ([glide_license.txt](3rdparty/texus/glide_license.txt), [README](3rdparty/texus/README)). Changes are marked and dated in the source. |
-| `3rdparty/dx2/INC` | Headers from Microsoft's DirectX 2 SDK | Copyright Microsoft Corporation, all rights reserved |
 
 **Not included:** MechWarrior 2 itself. The game's binaries, data and resources aren't in this repository and aren't covered by any of these licences. The build reads a few icons and bitmaps from your own copy of the original binaries, if you have them, and they're never committed. The game and its trademarks belong to their owners. This project isn't affiliated with Activision, 3dfx, Matrox, Microsoft or Miles Design.

@@ -566,8 +566,8 @@ MW2/          # MW2.DLL      (include/, src/, MW2.def, library_msvc.h; loads no 
 NETMECHW/     # NETMECHW.DLL reccmp target (include/, src/, NETMECHW.def, library_msvc.h; built by vc22/)
 common/       # what both DLLs share: Miles Design VFX's headers (include/) and portable C and stubs (src/)
 3rdparty/     # import-library .def files (DDRAW, DPLAY, WAIL32, SMACKW32, MSI95, GLIDE; the .libs are generated at build time),
-              # DirectX 2 SDK headers, our own Miles Sound System (mss/) and Smacker declarations (no SDK: only
-              # what the game uses), our own Glide declarations (glide/), Miles Design VFX's source (vfx/:
+              # our own declarations of what the game uses (no SDK headers): DirectDraw (ddraw/), DirectPlay
+              # (dplay/), the Miles Sound System (mss/), Smacker, Glide (glide/) and MSI95, Miles Design VFX's source (vfx/:
               # VFXA.ASM, VFX3D.ASM, VFXREND.ASM, …) from its July 2000 open-source release, as both DLLs link
               # it, and 3dfx's Texus (texus/, under its own licence), as the 3Dfx edition links it (changes marked)
 util/         # decomp.h, compat.h, types.h

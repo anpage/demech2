@@ -28,9 +28,6 @@ its own terms:
   GLIDE Source Code General Public License (3rdparty/texus/glide_license.txt; see
   3rdparty/texus/README). Changes are marked and dated in the source.
 
-- 3rdparty/dx2/INC: headers from Microsoft's DirectX 2 SDK, copyright Microsoft
-  Corporation, all rights reserved.
-
 The rest of 3rdparty (the import-library definitions and the declarations of DirectPlay,
 DirectDraw, DisplayDib, Glide, MSI95, the Miles Sound System and Smacker) is this project's
 own, written for it from what the game uses, and is covered by the license above.
