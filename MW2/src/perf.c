@@ -30,30 +30,37 @@ void SetObjectDensity(MechS32 p_arg, MechS32 p_objectDensity);
 
 // GLOBAL: MW2 0x100b1438
 // GLOBAL: MW2MATROX 0x100b1140
+// GLOBAL: MW23DFX 0x10264eb0
 MechChar g_combatVariablesItem[] = "Combat Variables";
 
 // GLOBAL: MW2 0x100b1450
 // GLOBAL: MW2MATROX 0x100b1158
+// GLOBAL: MW23DFX 0x10264ec8
 MechChar g_combatVariablesTitle[] = "COMBAT VARIABLES";
 
 // GLOBAL: MW2 0x100b1468
 // GLOBAL: MW2MATROX 0x100b1170
+// GLOBAL: MW23DFX 0x10264ee0
 MechChar g_objectTextmapsItem[] = "Object textmaps";
 
 // GLOBAL: MW2 0x100b1478
 // GLOBAL: MW2MATROX 0x100b1180
+// GLOBAL: MW23DFX 0x10264ef0
 MechChar g_terrainTextmapsItem[] = "Terrain textmaps";
 
 // GLOBAL: MW2 0x100b1490
 // GLOBAL: MW2MATROX 0x100b1198
+// GLOBAL: MW23DFX 0x10264f08
 MechChar g_displayDetailItem[] = "Display detail";
 
 // GLOBAL: MW2 0x100b14a0
 // GLOBAL: MW2MATROX 0x100b11a8
+// GLOBAL: MW23DFX 0x10264f18
 MechChar g_objectDensityItem[] = "Object density";
 
 // GLOBAL: MW2 0x100b14b0
 // GLOBAL: MW2MATROX 0x100b11b8
+// GLOBAL: MW23DFX 0x10264f28
 MechChar g_explosionChunksItem[] = "Explosion chunks";
 
 // GLOBAL: MW2 0x100b14c8
@@ -70,29 +77,35 @@ MenuChoices g_affinePerspectiveChoices = {NULL, 2, {g_affineText, g_perspectiveT
 
 // GLOBAL: MW2 0x100b1528
 // GLOBAL: MW2MATROX 0x100b1230
+// GLOBAL: MW23DFX 0x10264fa0
 MenuControl g_objectTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetObjectTextmaps, NULL, SetObjectTextmaps, NULL};
 
 // GLOBAL: MW2 0x100b1550
 // GLOBAL: MW2MATROX 0x100b1258
+// GLOBAL: MW23DFX 0x10264fc8
 MenuControl g_terrainTextmapsControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTerrainTextmaps, NULL, SetTerrainTextmaps, NULL};
 
 // GLOBAL: MW2 0x100b1578
 // GLOBAL: MW2MATROX 0x100b1280
+// GLOBAL: MW23DFX 0x10264ff0
 MenuControl g_displayDetailControl = {2, 0, &g_lowHighChoices, 0, NULL, GetDisplayDetail, NULL, SetDisplayDetail, NULL};
 
 // GLOBAL: MW2 0x100b15a0
 // GLOBAL: MW2MATROX 0x100b12a8
+// GLOBAL: MW23DFX 0x10265018
 MenuControl g_objectDensityControl = {2, 0, &g_lowHighChoices, 0, NULL, GetObjectDensity, NULL, SetObjectDensity, NULL};
 
 // GLOBAL: MW2 0x100b15c8
 // GLOBAL: MW2MATROX 0x100b12d0
+// GLOBAL: MW23DFX 0x10265040
 MenuControl g_explosionChunksControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetExplosionChunks, NULL, SetExplosionChunks, NULL};
 
 // GLOBAL: MW2 0x100b15f0
 // GLOBAL: MW2MATROX 0x100b12f8
+// GLOBAL: MW23DFX 0x10265068
 MenuPage g_combatVariablesPage = {
 	0,
 	g_combatVariablesTitle,
@@ -180,6 +193,7 @@ MechS32 GetDisplayDetail(MechS32 p_arg)
 
 // FUNCTION: MW2 0x10076ccf
 // FUNCTION: MW2MATROX 0x10078e9f
+// FUNCTION: MW23DFX 0x10065390
 void SetDisplayDetail(MechS32 p_arg, MechS32 p_displayDetail)
 {
 	SetLodQualityHigh(p_arg, p_displayDetail);

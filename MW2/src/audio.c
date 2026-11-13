@@ -56,6 +56,7 @@ MechS32 g_musicStarted = 0;
 
 // GLOBAL: MW2 0x100bcda8
 // GLOBAL: MW2MATROX 0x100c2028
+// GLOBAL: MW23DFX 0x1007cb28
 static PCMWAVEFORMAT g_waveFormat;
 
 // GLOBAL: MW2 0x10179e80

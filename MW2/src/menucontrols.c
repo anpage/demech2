@@ -28,6 +28,7 @@
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10072840
 // FUNCTION: MW2MATROX 0x1007e020
+// FUNCTION: MW23DFX 0x10064780
 void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -205,6 +206,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // FUNCTION: MW2 0x10072dab
 // FUNCTION: MW2MATROX 0x1007e58b
+// FUNCTION: MW23DFX 0x10064b60
 void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -337,6 +339,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // FUNCTION: MW2 0x10073136
 // FUNCTION: MW2MATROX 0x1007e92e
+// FUNCTION: MW23DFX 0x10064d90
 void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MechS32 pressed;
@@ -478,6 +481,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100734ad
 // FUNCTION: MW2MATROX 0x1007eca5
+// FUNCTION: MW23DFX 0x10064fa0
 void RunMenuTextBox(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
 	MenuTextBox* box;

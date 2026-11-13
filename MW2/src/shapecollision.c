@@ -101,6 +101,7 @@ void ClassifyPointInBox(
 // MW2MATROX: the tNear/tEnter and tFar/tExit comparisons have their operands the other way round.
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2MATROX 0x10052318
+// FUNCTION: MW23DFX 0x1000d310
 MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 {
 	MechScalar tNear;
@@ -226,6 +227,7 @@ MechS32 TestPointNever(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 
 // FUNCTION: MW2 0x10069e66
 // FUNCTION: MW2MATROX 0x100526a8
+// FUNCTION: MW23DFX 0x1000d590
 MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 {
 	return 0;
@@ -305,6 +307,7 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 // fcomp), where the rebuild stores and reloads it, an effect of the symbol order.
 // FUNCTION: MW2 0x1006a037
 // FUNCTION: MW2MATROX 0x10052883
+// FUNCTION: MW23DFX 0x1000d6b0
 MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
 	MechS32 i;
@@ -365,6 +368,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 // Stack-slot permutation: vertices, i and face.
 // FUNCTION: MW2 0x1006a190
 // FUNCTION: MW2MATROX 0x100529df
+// FUNCTION: MW23DFX 0x1000d7b0
 MechS32 TestRayFaces(Shape* p_shape, Ray* p_ray)
 {
 	Model* model;

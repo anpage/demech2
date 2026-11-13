@@ -625,6 +625,7 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 
 // FUNCTION: MW2 0x1007152f
 // FUNCTION: MW2MATROX 0x1000bb1b
+// FUNCTION: MW23DFX 0x10040a10
 MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 {
 	MechS32 file;

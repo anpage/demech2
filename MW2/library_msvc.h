@@ -1460,6 +1460,7 @@
 // __rtnospopde
 
 // LIBRARY: MW2 0x1008fff4 SYMBOL
+// LIBRARY: MW23DFX 0x10072028 SYMBOL
 // __rtzeropop
 
 // LIBRARY: MW2 0x1008fff6 SYMBOL
@@ -1481,6 +1482,7 @@
 // __tosnan1
 
 // LIBRARY: MW2 0x1009002d SYMBOL
+// LIBRARY: MW23DFX 0x10072061 SYMBOL
 // __nosnan2
 
 // LIBRARY: MW2 0x1009002f SYMBOL
@@ -1494,6 +1496,7 @@
 // __nan2
 
 // LIBRARY: MW2 0x10090096 SYMBOL
+// LIBRARY: MW23DFX 0x100720ca SYMBOL
 // __rtindfpop
 
 // LIBRARY: MW2 0x10090098 SYMBOL
@@ -2409,6 +2412,7 @@
 
 // GLOBAL: MW2 0x100bad40
 // GLOBAL: MW2MATROX 0x100bf2e0
+// GLOBAL: MW23DFX 0x10267650
 // _pctype
 
 // GLOBAL: MW2 0x100bad48
@@ -2416,6 +2420,7 @@
 
 // The release CRT names it by its public symbol.
 // GLOBAL: MW2MATROX 0x100bf2e8
+// GLOBAL: MW23DFX 0x10267658
 // __ctype
 
 // nlsdata1.obj

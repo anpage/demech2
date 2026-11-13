@@ -23,6 +23,7 @@ DECOMP_SIZE_ASSERT(ShapeCollisionFns, 0xc)
 // The collision tests of each shape type (Shape::m_collisionType).
 // GLOBAL: MW2 0x100a54c0
 // GLOBAL: MW2MATROX 0x100a5550
+// GLOBAL: MW23DFX 0x1024b3a8
 ShapeCollisionFns g_shapeCollisionFns[8] = {
 	{TestPointInBox, TestRayBox, GetBoxTop},
 	{TestPointInBoxColumn, TestRayBox, NULL},

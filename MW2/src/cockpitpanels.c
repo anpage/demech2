@@ -102,57 +102,70 @@ Point g_cockpitPanelTextOrigins[c_panelCount] = {{0, 0},           {0, 0},
 
 // GLOBAL: MW2 0x100ae230
 // GLOBAL: MW2MATROX 0x100b1750
+// GLOBAL: MW23DFX 0x1024cb90
 RectTransitionState g_targetTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae240
 // GLOBAL: MW2MATROX 0x100b1760
+// GLOBAL: MW23DFX 0x1024cba0
 RectTransitionState g_mechViewTransitionState = {0, 0, 0};
 
 // GLOBAL: MW2 0x100ae250
 // GLOBAL: MW2MATROX 0x100b1770
+// GLOBAL: MW23DFX 0x1024cbb0
 PANE g_targetTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae268
 // GLOBAL: MW2MATROX 0x100b1788
+// GLOBAL: MW23DFX 0x1024cbc8
 PANE g_targetTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae280
 // GLOBAL: MW2MATROX 0x100b17a0
+// GLOBAL: MW23DFX 0x1024cbe0
 PANE g_targetTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae298
 // GLOBAL: MW2MATROX 0x100b17b8
+// GLOBAL: MW23DFX 0x1024cbf8
 RectTransitionDef g_targetTransitionDef =
 	{0xb5, &g_targetTransitionFirst, &g_targetTransitionSecond, &g_targetTransitionRect};
 
 // GLOBAL: MW2 0x100ae2a8
 // GLOBAL: MW2MATROX 0x100b17c8
+// GLOBAL: MW23DFX 0x1024cc08
 RectTransition g_targetTransition = {&g_targetTransitionState, &g_targetTransitionDef};
 
 // GLOBAL: MW2 0x100ae2b0
 // GLOBAL: MW2MATROX 0x100b17d0
+// GLOBAL: MW23DFX 0x1024cc10
 PANE g_mechViewTransitionFirst = {NULL, 0x8000, 0x8000, 0x8000, 0x8000};
 
 // GLOBAL: MW2 0x100ae2c8
 // GLOBAL: MW2MATROX 0x100b17e8
+// GLOBAL: MW23DFX 0x1024cc28
 PANE g_mechViewTransitionSecond = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100ae2e0
 // GLOBAL: MW2MATROX 0x100b1800
+// GLOBAL: MW23DFX 0x1024cc40
 PANE g_mechViewTransitionRect = {NULL, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100ae2f8
 // GLOBAL: MW2MATROX 0x100b1818
+// GLOBAL: MW23DFX 0x1024cc58
 RectTransitionDef g_mechViewTransitionDef =
 	{0xb5, &g_mechViewTransitionFirst, &g_mechViewTransitionSecond, &g_mechViewTransitionRect};
 
 // GLOBAL: MW2 0x100ae308
 // GLOBAL: MW2MATROX 0x100b1828
+// GLOBAL: MW23DFX 0x1024cc68
 RectTransition g_mechViewTransition = {&g_mechViewTransitionState, &g_mechViewTransitionDef};
 
 // The panels' transitions.
 // GLOBAL: MW2 0x100ae310
 // GLOBAL: MW2MATROX 0x100b1830
+// GLOBAL: MW23DFX 0x1024cc70
 RectTransition* g_cockpitPanelTransitions[c_panelCount] = {
 	NULL,
 	NULL,

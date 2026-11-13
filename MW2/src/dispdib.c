@@ -89,6 +89,7 @@ DisplayBackend g_dispDibBackend = {
 
 // GLOBAL: MW2 0x100a83c8
 // GLOBAL: MW2MATROX 0x100be280
+// GLOBAL: MW23DFX 0x10249050
 RefreshMode g_dispDibRefreshMode =
 	{4, c_displayBackendDisplayDib, 1, 0, DispDibBegin, DispDibEnd, DispDibFlip, DispDibBlitRect, DispDibStretchBlit};
 
@@ -209,6 +210,7 @@ MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 
 // FUNCTION: MW2 0x1004ea78
 // FUNCTION: MW2MATROX 0x1008f08b
+// FUNCTION: MW23DFX 0x10001980
 MechS32 DispDibEnd(void)
 {
 	MechS32 result;

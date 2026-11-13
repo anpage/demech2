@@ -125,15 +125,6 @@ address,type,name
 0x1025d098,global,UV_clip
 0x1025d09c,global,W_clip
 0x1025d0a0,global,C_clip
-0x1025d0a8,global,VFX_init_driver
-0x1025d0ac,global,VFX_shutdown_driver
-0x1025d0b0,global,VFX_area_wipe
-0x1025d0b4,global,VFX_wait_vblank
-0x1025d0bc,global,VFX_window_refresh
-0x1025d0c0,global,VFX_window_read
-0x1025d0cc,global,VFX_bank_reset
-0x1025d0d0,global,VFX_pane_refresh
-0x1025d0d4,global,VFX_line_address
 0x1025d0e5,global,SHP_building
 0x1025d0e9,global,SHP_skipCount
 0x1025d0ed,global,SHP_LinePtr

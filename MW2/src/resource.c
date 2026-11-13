@@ -159,6 +159,7 @@ struct Player* g_lastPlayer = NULL;
 // animation, 4 loops a sound on a star's object, 5 moves it along a path.
 // GLOBAL: MW2 0x100a8640
 // GLOBAL: MW2MATROX 0x100a8618
+// GLOBAL: MW23DFX 0x1025a630
 TimedCallbackFn g_taskFns[6] = {SpinTask, ColorCycleTask, OrbitTask, ReelMotionTask, AmbientSoundTask, PathTask};
 
 // GLOBAL: MW2 0x100ea500

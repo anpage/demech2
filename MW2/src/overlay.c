@@ -48,6 +48,7 @@ MechChar g_blankText[] = "                                 ";
 
 // GLOBAL: MW2 0x100a949c
 // GLOBAL: MW2MATROX 0x100bcc14
+// GLOBAL: MW23DFX 0x10259454
 MechS32 g_showPalette = 0;
 
 // GLOBAL: MW2 0x100a94a0
@@ -76,6 +77,7 @@ MechS32 g_frameRateShown = 0;
 
 // GLOBAL: MW2 0x100a94b4
 // GLOBAL: MW2MATROX 0x100bcc2c
+// GLOBAL: MW23DFX 0x1025946c
 MechS32 g_showFrameRate = 0;
 
 // GLOBAL: MW2 0x100a94b8
@@ -105,6 +107,7 @@ Point g_eyePositionOrigin = {0xccd, 0xb333};
 
 // GLOBAL: MW2 0x100a94d8
 // GLOBAL: MW2MATROX 0x100bcc50
+// GLOBAL: MW23DFX 0x10259490
 MechS32 g_showSceneInfo = 0;
 
 // GLOBAL: MW2 0x100a94dc
@@ -130,6 +133,7 @@ MechS32 g_eyePositionShown = 0;
 
 // GLOBAL: MW2 0x100a94f0
 // GLOBAL: MW2MATROX 0x100bcc68
+// GLOBAL: MW23DFX 0x102594a8
 MechS32 g_showMemInfo = 1;
 
 // GLOBAL: MW2 0x100a94f4
@@ -144,6 +148,7 @@ MechS32 g_memInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94fc
 // GLOBAL: MW2MATROX 0x100bcc74
+// GLOBAL: MW23DFX 0x102594b4
 MechS32 g_showCacheInfo = 0;
 
 // GLOBAL: MW2 0x100a9500
@@ -153,6 +158,7 @@ MechS32 g_cacheInfoShown = 0;
 
 // GLOBAL: MW2 0x100a9504
 // GLOBAL: MW2MATROX 0x100bcc7c
+// GLOBAL: MW23DFX 0x102594bc
 MechS32 g_showSpinner = 1;
 
 // The spinner StepSpinner steps through: the CP437 arrows up, left, down and right.
@@ -164,18 +170,22 @@ MechChar g_spinnerArrows[4] = {0x1e, 0x11, 0x1f, 0x10};
 // second.
 // GLOBAL: MW2 0x100a950c
 // GLOBAL: MW2MATROX 0x100bcc84
+// GLOBAL: MW23DFX 0x102594c4
 MechS32 g_nextCacheDump = 0;
 
 // GLOBAL: MW2 0x100a9510
 // GLOBAL: MW2MATROX 0x100bcc88
+// GLOBAL: MW23DFX 0x102594c8
 MechS32 g_dumpCacheRepeat = 0;
 
 // GLOBAL: MW2 0x100a9514
 // GLOBAL: MW2MATROX 0x100bcc8c
+// GLOBAL: MW23DFX 0x102594cc
 MechS32 g_unk0x100a9514 = 0;
 
 // GLOBAL: MW2 0x100a9518
 // GLOBAL: MW2MATROX 0x100bcc90
+// GLOBAL: MW23DFX 0x102594d0
 MechS32 g_unk0x100a9518 = 0;
 
 // The frame rate, in whole frames per second and tenths, over the last ten frames.
@@ -230,18 +240,22 @@ MechS32 g_monoColumn = 0;
 // The totals CountSceneShape adds up for ShowSceneInfo.
 // GLOBAL: MW2 0x100bea00
 // GLOBAL: MW2MATROX 0x101256c8
+// GLOBAL: MW23DFX 0x1007d720
 static MechS32 g_sceneVertexCount;
 
 // GLOBAL: MW2 0x100bea04
 // GLOBAL: MW2MATROX 0x101256d4
+// GLOBAL: MW23DFX 0x1007d72c
 static MechS32 g_sceneMemory;
 
 // GLOBAL: MW2 0x100bea08
 // GLOBAL: MW2MATROX 0x101256d0
+// GLOBAL: MW23DFX 0x1007d728
 static MechS32 g_sceneShapeCount;
 
 // GLOBAL: MW2 0x100bea0c
 // GLOBAL: MW2MATROX 0x101256cc
+// GLOBAL: MW23DFX 0x1007d724
 static MechS32 g_sceneFaceCount;
 
 // Set when the monochrome debug screen is in use; the AI logs its state to it too. Only the
@@ -265,6 +279,7 @@ MechChar g_monoBlankLineEnd;
 // Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
 // FUNCTION: MW2 0x10058750
 // FUNCTION: MW2MATROX 0x1008dbe0
+// FUNCTION: MW23DFX 0x1003c550
 void DrawDebugOverlays(void)
 {
 	if (g_showPalette) {

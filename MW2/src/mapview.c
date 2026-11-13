@@ -66,6 +66,7 @@ MechScalar g_mapViewFar;
 
 // GLOBAL: MW2 0x10109bb8
 // GLOBAL: MW2MATROX 0x10212cc4
+// GLOBAL: MW23DFX 0x10245a24
 MechScalar g_mapViewScale;
 
 // GLOBAL: MW2 0x10109bc0
@@ -233,6 +234,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 // their operands in the other order.
 // FUNCTION: MW2 0x100423b3
 // FUNCTION: MW2MATROX 0x1001e5c0
+// FUNCTION: MW23DFX 0x100013a0
 ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 {
 	MechS32 x;

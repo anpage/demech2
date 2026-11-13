@@ -423,6 +423,7 @@ AiMessageFn g_aiMessageFns[8] = {
 
 // GLOBAL: MW2 0x100a9120
 // GLOBAL: MW2MATROX 0x100bb838
+// GLOBAL: MW23DFX 0x1024bc90
 AiTransitionFn g_aiTransitionFns[5] = {
 	AiTransitionNull,
 	AiTransitionClearStack,
@@ -1556,6 +1557,7 @@ MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 
 // FUNCTION: MW2 0x100534fb
 // FUNCTION: MW2MATROX 0x100826c1
+// FUNCTION: MW23DFX 0x100132c0
 MechS32 AiTransitionPush(Player* p_player, AiRule* p_rule)
 {
 	AiStackEntry entry;

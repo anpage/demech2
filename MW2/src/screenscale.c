@@ -313,6 +313,7 @@ void OutlinePane(PANE* p_target, MechS32 p_color)
 // Stack-slot permutation: height and width.
 // FUNCTION: MW2 0x1005718d
 // FUNCTION: MW2MATROX 0x10071bc1
+// FUNCTION: MW23DFX 0x100064e0
 void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 height;
@@ -349,6 +350,7 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 // Stack-slot permutation: the locals. The Matrox edition's build loads p_text[i]'s index before its base.
 // FUNCTION: MW2 0x10057282
 // FUNCTION: MW2MATROX 0x10071cc8
+// FUNCTION: MW23DFX 0x100065c0
 void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS32 p_color)
 {
 	MechS32 left;

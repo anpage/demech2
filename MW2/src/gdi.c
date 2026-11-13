@@ -106,6 +106,7 @@ DisplayBackend g_gdiBackend = {
 
 // GLOBAL: MW2 0x100ade40
 // GLOBAL: MW2MATROX 0x100a3590
+// GLOBAL: MW23DFX 0x1024a180
 RefreshMode g_gdiRefreshMode =
 	{5, c_displayBackendGdi, 1, 0, GdiBegin, GdiEnd, GdiBlitFlip, GdiBitBltRect, GdiStretchBlit};
 
@@ -143,6 +144,7 @@ HPALETTE g_gdiOldPalette;
 // MW2MATROX: the two p_width * p_height load p_height first (commutative operands).
 // FUNCTION: MW2 0x1006de70
 // FUNCTION: MW2MATROX 0x10007fb0
+// FUNCTION: MW23DFX 0x10005120
 MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
 	MechU16* indices;
@@ -281,6 +283,7 @@ MechS32 GdiBlitFlip(void)
 // Presents the inclusive rectangle (p_left, p_top)-(p_right, p_bottom). The DIB is bottom-up.
 // FUNCTION: MW2 0x1006e21f
 // FUNCTION: MW2MATROX 0x10008379
+// FUNCTION: MW23DFX 0x10005430
 MechS32 GdiBitBltRect(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bottom)
 {
 	g_gdiResult = SetDIBitsToDevice(

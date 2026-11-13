@@ -10,7 +10,11 @@ order. Matches whose calls disagree with the other matches are dropped.
 Globals are mapped through the matched code: each relocation the two functions share pairs
 a source address with a target address, and an annotated global (or a row of the module's
 data-source CSV) takes the target address when every pair that falls inside it agrees on
-the displacement.
+the displacement. Then the mapped globals' pointers map what they point to: a table's entry
+in the source and the same entry in the target place a function or global (the small
+functions found more than once, data no matched code references), and outweigh the
+relocations' vote for a global. A function whose code differs at the place its pointers give
+is annotated only with --located-differing.
 
     python tools/port_annotations.py --from MW2 MW2.DLL --to MW2MATROX MW2_MATROX.DLL \
         --dirs MW2 common [--csv reccmp/mw2-vfx.csv:reccmp/mw2matrox-vfx.csv] [--write]
@@ -26,8 +30,12 @@ it, or a by-name `// name` line), at the address the map gives that name, and th
 annotation goes after the block's last marker of a module listed in --after:
 
     python tools/port_annotations.py --from REBUILD build/vc22/MW2_3DFX.dll \
-        --rebuild build/vc22/MW2_3DFX.map --after MW2 MW2MATROX \
-        --to MW23DFX MW2_3DFX.DLL --dirs MW2 common --write
+        --rebuild build/vc22/MW2_3DFX.map --rebuild-pdb build/vc22/MW2_3DFX.pdb \
+        --after MW2 MW2MATROX --to MW23DFX MW2_3DFX.DLL --dirs MW2 common --write
+
+The map lists only public symbols: --rebuild-pdb names the statics too, from the rebuild's
+PDB (its S_LPROC32 and S_LDATA32 records, read with reccmp's cvdump, which runs under wine
+as for reccmp itself).
 
 The C runtime the rebuild links (the map's LIBCMT objects) is matched the same way:
 --library-to names the target's library_msvc.h, where an entry for the same symbol takes
@@ -212,6 +220,27 @@ def map_lookup(symbols):
         return None
 
     return lookup
+
+
+PDB_SYMBOL = re.compile(r"S_L(PROC|DATA)32: \[([0-9A-F]{4}):([0-9A-F]{8})\].*, (\w+)$")
+
+
+def read_pdb_statics(pdb, image):
+    """The statics of a rebuild's PDB, which its map doesn't list: (address, name, section) of each
+    S_LPROC32 and S_LDATA32 record, read with reccmp's cvdump (run through wine, as reccmp runs it)."""
+    import subprocess
+
+    from reccmp.cvdump.runner import Cvdump
+
+    sections = list(image.sections.values())
+    out = subprocess.run(Cvdump(pdb).symbols().globals().cmd_line(), capture_output=True, check=True)
+    statics = set()
+    for line in out.stdout.decode("utf-8", "replace").splitlines():
+        m = PDB_SYMBOL.search(line.strip())
+        if m and not m.group(4).startswith("$$"):
+            section = int(m.group(2), 16)
+            statics.add((sections[section - 1][0] + int(m.group(3), 16), m.group(4), "%04x" % section))
+    return sorted(statics)
 
 
 DEFINITION = re.compile(r"\b([A-Za-z_]\w*)\s*(\(|\[|=|;)")
@@ -572,6 +601,77 @@ def match_globals(source, target, exact_pairs, near_pairs, globals_, log):
     return result
 
 
+def follow_pointers(source, target, mapping, functions, global_map, bounds, differing, log):
+    """Map what the mapped globals point to: a pointer table's entries, in the source and in the
+    target, give the target address of each function and global they point at (the small
+    functions found more than once, the functions the edition compiled differently, the data no
+    matched code references), when every pointer to it agrees. A function whose code differs
+    there is taken only with differing. Repeats until
+    nothing changes; returns the number of functions and globals added. A global the relocations
+    mapped elsewhere takes the pointers' address."""
+    import bisect
+    from collections import Counter
+
+    ordered = sorted(set(bounds))
+    added_functions = added_globals = 0
+    pending = list(global_map.items())
+    while pending:
+        votes = defaultdict(Counter)
+        for g, t in pending:
+            i = bisect.bisect_right(ordered, g)
+            end = ordered[i] if i < len(ordered) else g + 4
+            for r in range(g, end):
+                if r not in source.relocs:
+                    continue
+                if t + (r - g) not in target.relocs:
+                    continue
+                ps, pt = source.u32(r), target.u32(t + (r - g))
+                if source.text[0] <= ps < source.text[1]:
+                    if ps in functions and ps not in mapping and (differing or functions[ps].matches(target, pt)):
+                        votes[("f", ps)][pt] += 1
+                    elif ps in mapping and mapping[ps] != pt:
+                        log.append("pointer at 0x%08x: function 0x%08x -> 0x%08x, not 0x%08x"
+                                   % (r, ps, pt, mapping[ps]))
+                    continue
+                # Only pointers to a global's start: past it, a pointer can as well be to a
+                # string literal or other data no symbol names.
+                j = bisect.bisect_left(ordered, ps)
+                if j < len(ordered) and ordered[j] == ps:
+                    votes[("g", ps)][pt] += 1
+        pending = []
+        taken_functions = set(mapping.values())
+        taken_globals = set(global_map.values())
+        for (kind, a), ballot in sorted(votes.items()):
+            if len(ballot) > 1:
+                log.append("pointers to 0x%08x disagree: %s" % (a, dict(ballot)))
+                continue
+            t = next(iter(ballot))
+            if kind == "f":
+                if t not in taken_functions:
+                    mapping[a] = t
+                    taken_functions.add(t)
+                    added_functions += 1
+                    same = functions[a].matches(target, t)
+                    log.append("function 0x%08x -> 0x%08x from a pointer%s" % (a, t, "" if same else " (its code differs)"))
+            elif a in global_map:
+                # A pointer to the global's start outweighs the relocation votes.
+                if global_map[a] != t and t not in taken_globals:
+                    log.append("pointers to global 0x%08x give 0x%08x, replacing 0x%08x" % (a, t, global_map[a]))
+                    taken_globals.discard(global_map[a])
+                    global_map[a] = t
+                    taken_globals.add(t)
+                    pending.append((a, t))
+                elif global_map[a] != t:
+                    log.append("pointers to global 0x%08x give 0x%08x, taken; kept 0x%08x" % (a, t, global_map[a]))
+            elif t not in taken_globals:
+                global_map[a] = t
+                taken_globals.add(t)
+                pending.append((a, t))
+                added_globals += 1
+                log.append("global 0x%08x -> 0x%08x from a pointer" % (a, t))
+    return added_functions, added_globals
+
+
 def longest_increasing(values):
     """Indices of a longest strictly increasing subsequence of values."""
     import bisect
@@ -620,6 +720,10 @@ def main():
     parser.add_argument("--log", help="write the details here")
     parser.add_argument("--unmatched", help="list the source functions without a match here")
     parser.add_argument("--rebuild", metavar="MAP", help="the source binary is a rebuild of the target, with this map")
+    parser.add_argument("--rebuild-pdb", metavar="PDB",
+                        help="with --rebuild: the rebuild's PDB, for the statics the map doesn't list")
+    parser.add_argument("--located-differing", action="store_true",
+                        help="annotate the functions the globals' pointers locate even where their code differs")
     parser.add_argument("--after", nargs="+", default=[], metavar="MODULE",
                         help="with --rebuild: the modules whose marker blocks name the rebuild's symbols")
     args = parser.parse_args()
@@ -633,6 +737,20 @@ def main():
         # The rebuild's markers: one per block that names a symbol of the map, at its address.
         rebuild_symbols = read_map(args.rebuild)
         lookup = map_lookup(rebuild_symbols)
+        if args.rebuild_pdb:
+            # A static's name, where it's unique and the map has no public of that name.
+            by_name = defaultdict(set)
+            for address, name, section in read_pdb_statics(args.rebuild_pdb, source):
+                by_name[name].add((address, section))
+            public = lookup
+
+            def lookup(name):
+                found = public(name)
+                if found is None and len(by_name.get(name, ())) == 1:
+                    found = next(iter(by_name[name]))[0]
+                return found
+
+            rebuild_symbols += [(a, n, sec, "static") for n, v in by_name.items() if len(v) == 1 for a, sec in v]
         unresolved = 0
         for path, i, kind, rest, name in marker_blocks(args.dirs, args.after):
             address = lookup(name)
@@ -686,6 +804,13 @@ def main():
             flipped.add(a)
     print("%s functions placed by their neighbours that only differ in comparison order: %d"
           % (src_module, sum(1 for m in game if m[4] in flipped)))
+    bounds = list(globals_)
+    if rebuild_symbols:
+        bounds += [a for a, name, section, obj in rebuild_symbols if section != "0001"]
+    added_functions, added_globals = follow_pointers(
+        source, target, mapping, functions, global_map, bounds, args.located_differing, log)
+    print("%s functions and globals found through the mapped globals' pointers: %d, %d"
+          % (src_module, added_functions, added_globals))
     annotated_globals = [m for m in src if m[2] == "GLOBAL"]
     print("%s globals: %d of %d mapped" % (src_module, sum(1 for m in annotated_globals if m[4] in global_map),
                                           len(annotated_globals)))

@@ -2,7 +2,11 @@
    the registry (accel/registry.c) and in g_renderSettings, and the texture filter, which the
    renderer applies. Its controls for the monitor brightness (1.1's main menu page of its own) and
    the texture filter, and a fourth, unused setting, aren't on the page. One object of its own,
-   between geocache.c's and players.c's in the Matrox edition. */
+   between geocache.c's and players.c's in the Matrox edition. The 3Dfx edition's page lists all
+   four items, its third a "Resolution 800x600" choice (the "Res800x600" registry value, off by
+   default, which its setter passes to the Glide back end) in the texture filter's place; that
+   version isn't written yet, so its page, the setting and its functions carry no MW23DFX
+   annotations. */
 #include "accel/graphicsmenu.h"
 
 #include "accel/a3d.h"
@@ -31,18 +35,22 @@ MechS32 GetUnusedSetting(MechS32 p_arg);
 void SetUnusedSetting(MechS32 p_arg, MechS32 p_unusedSetting);
 
 // GLOBAL: MW2MATROX 0x100aa470
+// GLOBAL: MW23DFX 0x10265420
 MechChar g_graphicsItem[] = "Graphics";
 
 // GLOBAL: MW2MATROX 0x100aa480
+// GLOBAL: MW23DFX 0x10265430
 MechChar g_graphicsTitle[] = "GRAPHICS";
 
 // GLOBAL: MW2MATROX 0x100aa490
 MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
 
 // GLOBAL: MW2MATROX 0x100aa4a8
+// GLOBAL: MW23DFX 0x10265458
 MechChar g_texturedSkyItem[] = "Textured Sky";
 
 // GLOBAL: MW2MATROX 0x100aa4b8
+// GLOBAL: MW23DFX 0x10265468
 MechChar g_texturedGroundItem[] = "Textured Ground";
 
 // GLOBAL: MW2MATROX 0x100aa4c8
@@ -60,7 +68,6 @@ MechS32 g_texturedSky = 1;
 MechS32 g_texturedGround = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4e8
-// GLOBAL: MW23DFX 0x102654a0
 MechS32 g_filterTextures = 1;
 
 // GLOBAL: MW2MATROX 0x100aa4ec
@@ -81,9 +88,11 @@ MenuControl g_brightnessControl = {
 };
 
 // GLOBAL: MW2MATROX 0x100aa518
+// GLOBAL: MW23DFX 0x102654d0
 MenuControl g_texturedSkyControl = {2, 0, &g_offOnChoices, 0, NULL, GetTexturedSky, NULL, SetTexturedSky, NULL};
 
 // GLOBAL: MW2MATROX 0x100aa540
+// GLOBAL: MW23DFX 0x102654f8
 MenuControl g_texturedGroundControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTexturedGround, NULL, SetTexturedGround, NULL};
 
@@ -172,7 +181,6 @@ MechS32 GetFilterTextures(MechS32 p_arg)
 }
 
 // FUNCTION: MW2MATROX 0x10054db6
-// FUNCTION: MW23DFX 0x10066520
 void SetFilterTextures(MechS32 p_arg, MechS32 p_filterTextures)
 {
 	WriteRegistryDword("Filter", (DWORD*) &p_filterTextures);

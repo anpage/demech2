@@ -22,10 +22,12 @@
 
 // GLOBAL: MW2 0x100a1a90
 // GLOBAL: MW2MATROX 0x100a2448
+// GLOBAL: MW23DFX 0x10264488
 MechChar g_mainMenuTitle[] = "MAIN MENU";
 
 // GLOBAL: MW2 0x100a1aa0
 // GLOBAL: MW2MATROX 0x100a2458
+// GLOBAL: MW23DFX 0x10264498
 MechChar g_abortMissionItem[] = "Abort Mission";
 
 #ifndef MW2_ACCEL
@@ -35,22 +37,27 @@ MechChar g_monitorBrightnessItem[] = "Monitor Brightness";
 
 // GLOBAL: MW2 0x100a1ac8
 // GLOBAL: MW2MATROX 0x100a2468
+// GLOBAL: MW23DFX 0x102644a8
 MechChar g_fleeToWindowsItem[] = "Flee to Windows";
 
 // GLOBAL: MW2 0x100a1ad8
 // GLOBAL: MW2MATROX 0x100a2478
+// GLOBAL: MW23DFX 0x102644b8
 MechChar g_acceptText[] = "Accept (Esc to cancel)";
 
 // GLOBAL: MW2 0x100a1af0
 // GLOBAL: MW2MATROX 0x100a2490
+// GLOBAL: MW23DFX 0x102644d0
 MechChar g_escToExitText[] = "(Esc to exit)";
 
 // GLOBAL: MW2 0x100a1b00
 // GLOBAL: MW2MATROX 0x100a24a0
+// GLOBAL: MW23DFX 0x102644e0
 MechChar g_fleeToWindowsTitle[] = "FLEE TO WINDOWS";
 
 // GLOBAL: MW2 0x100a1b10
 // GLOBAL: MW2MATROX 0x100a24b0
+// GLOBAL: MW23DFX 0x102644f0
 MechChar g_abortMissionTitle[] = "ABORT MISSION";
 
 #ifndef MW2_ACCEL
@@ -64,10 +71,12 @@ MechChar g_areYouSureText[] = "Are you sure?";
 
 // GLOBAL: MW2 0x100a1b48
 // GLOBAL: MW2MATROX 0x100a24d0
+// GLOBAL: MW23DFX 0x10264510
 MechChar g_confirmCowardiceText[] = "Confirm your cowardice";
 
 // GLOBAL: MW2 0x100a1b60
 // GLOBAL: MW2MATROX 0x100a24e8
+// GLOBAL: MW23DFX 0x10264528
 MechChar g_confirmationRequestedText[] = "Confirmation requested";
 
 // GLOBAL: MW2 0x100a1b78
@@ -80,14 +89,17 @@ MechChar g_yesText[] = "Yes";
 
 // GLOBAL: MW2 0x100a1b80
 // GLOBAL: MW2MATROX 0x100a2508
+// GLOBAL: MW23DFX 0x10264548
 MechChar g_offText[] = "Off";
 
 // GLOBAL: MW2 0x100a1b84
 // GLOBAL: MW2MATROX 0x100a250c
+// GLOBAL: MW23DFX 0x1026454c
 MechChar g_onText[] = "On";
 
 // GLOBAL: MW2 0x100a1b88
 // GLOBAL: MW2MATROX 0x100a2510
+// GLOBAL: MW23DFX 0x10264550
 MechChar g_lowText[] = "Low";
 
 // GLOBAL: MW2 0x100a1b90
@@ -96,10 +108,12 @@ MechChar g_mediumText[] = "Medium";
 
 // GLOBAL: MW2 0x100a1b98
 // GLOBAL: MW2MATROX 0x100a2520
+// GLOBAL: MW23DFX 0x10264560
 MechChar g_highText[] = "High";
 
 // GLOBAL: MW2 0x100a1ba0
 // GLOBAL: MW2MATROX 0x100a2528
+// GLOBAL: MW23DFX 0x10264568
 MenuChoices g_offOnChoices = {NULL, 2, {g_offText, g_onText}};
 
 // GLOBAL: MW2 0x100a1be8
@@ -108,6 +122,7 @@ MenuChoices g_noYesChoices = {NULL, 2, {g_noText, g_yesText}};
 
 // GLOBAL: MW2 0x100a1c30
 // GLOBAL: MW2MATROX 0x100a25b8
+// GLOBAL: MW23DFX 0x102645f8
 MenuChoices g_lowHighChoices = {NULL, 2, {g_lowText, g_highText}};
 
 // GLOBAL: MW2 0x100a1c78
@@ -116,6 +131,7 @@ MenuChoices g_offLowMediumHighChoices = {NULL, 4, {g_offText, g_lowText, g_mediu
 
 // GLOBAL: MW2 0x100a1cc0
 // GLOBAL: MW2MATROX 0x100a2648
+// GLOBAL: MW23DFX 0x10264688
 MechS32 g_sliderShapes[8] = {
 #ifdef MW2_ACCEL
 	70,
@@ -140,6 +156,7 @@ MechS32 g_sliderShapes[8] = {
 
 // GLOBAL: MW2 0x100a1ce0
 // GLOBAL: MW2MATROX 0x100a2668
+// GLOBAL: MW23DFX 0x102646a8
 MenuControl g_confirmControl = {2, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL};
 
 #ifndef MW2_ACCEL
@@ -159,6 +176,7 @@ MenuControl g_brightnessControl = {
 
 // GLOBAL: MW2 0x100a1d30
 // GLOBAL: MW2MATROX 0x100a2690
+// GLOBAL: MW23DFX 0x102646d0
 MenuPage g_abortMissionPage = {
 	0,
 	g_abortMissionTitle,
@@ -184,6 +202,7 @@ MenuPage g_brightnessPage = {
 
 // GLOBAL: MW2 0x100a1fe0
 // GLOBAL: MW2MATROX 0x100a27e8
+// GLOBAL: MW23DFX 0x10264828
 MenuPage g_fleePage = {
 	0,
 	g_fleeToWindowsTitle,
@@ -194,6 +213,8 @@ MenuPage g_fleePage = {
 	{{3, g_confirmCowardiceText, NULL, NULL, NULL}, {1, g_acceptText, FleeToWindowsAction, &g_confirmControl, NULL}}
 };
 
+// The 3Dfx edition's (0x10264980) is unannotated until its graphics page is written
+// (accel/graphicsmenu.c), and so are g_mainMenu and menu.c's g_menuDefinitions, which point to it.
 // GLOBAL: MW2 0x100a2138
 // GLOBAL: MW2MATROX 0x100a2940
 MenuPage g_mainMenuPage = {
@@ -217,10 +238,12 @@ MenuPage g_mainMenuPage = {
 
 // GLOBAL: MW2 0x100a2290
 // GLOBAL: MW2MATROX 0x100a2a98
+// GLOBAL: MW23DFX 0x10264ad8
 PANE g_mainMenuTarget = {NULL, 0x4000, 0x3333, 0x10000, 0xcccd};
 
 // GLOBAL: MW2 0x100a22a8
 // GLOBAL: MW2MATROX 0x100a2ab0
+// GLOBAL: MW23DFX 0x10264af0
 PANE g_mainMenuBackgroundTarget = {NULL, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100a22c0
@@ -256,4 +279,5 @@ MenuDefinition g_mainMenu = {
 
 // GLOBAL: MW2 0x10177080
 // GLOBAL: MW2MATROX 0x10218410
+// GLOBAL: MW23DFX 0x101534f0
 MenuPage* g_mainMenuPageStack[8];
