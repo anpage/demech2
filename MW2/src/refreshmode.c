@@ -169,9 +169,6 @@ MechS32 g_refreshModeHeight;
 // Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
 // is unavailable if p_allowFallback is set. The window covers the screen unless p_width x
 // p_height is smaller.
-// The Matrox edition's rebuild compares p_height and the mode index in the other operand order
-// (entropy).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10076d50
 // FUNCTION: MW2MATROX 0x1007add0
 // FUNCTION: MW23DFX 0x100025e0

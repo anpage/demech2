@@ -95,10 +95,7 @@ void ClassifyPointInBox(
 
 // Clips the ray against the shape's bounding box, one slab per axis. On a hit, advances the
 // ray's start to the entry point and sets the normal of the face it entered through.
-// Stack-slot permutation of the locals; the tNear/tEnter and tFar/tExit comparisons
-// have their operands the other way around.
 // MW2MATROX: the tNear/tEnter and tFar/tExit comparisons have their operands the other way round.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310

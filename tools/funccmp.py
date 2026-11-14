@@ -159,6 +159,12 @@ class Difference(Exception):
     pass
 
 
+def ends(following):
+    """Whether the bytes after a function's last instruction end it: padding (int3, nop, or zeros,
+    which no code starts with), the next function's /Od frame, or an import thunk."""
+    return following[:1] in (b"\xcc", b"\x90", b"") or following[:2] == b"\x00\x00" or following[:3] == b"\x55\x8b\xec" or following[:2] == b"\xff\x25"
+
+
 class Comparison:
     """A rebuilt function against the original at an address.
 
@@ -206,21 +212,39 @@ class Comparison:
                     i, j = i + 1, j + 1
                 continue
             a, b = self.decode(code, i), self.decode(original, j)
-            if a is None or b is None:
-                raise Difference("+%#x: undecodable" % i)
+            if a is None:
+                # Data a routine keeps in its code (a MASM table): the rest compares as bytes, a
+                # relocated field by its target.
+                while i < len(code):
+                    if i in relocations:
+                        self.target(relocations[i], code[i : i + 4], original[j : j + 4], j + 4, branches, i, False)
+                        i, j = i + 4, j + 4
+                    elif code[i] != original[j]:
+                        raise Difference("+%#x: data byte %#04x, the original's %#04x" % (i, code[i], original[j]))
+                    else:
+                        i, j = i + 1, j + 1
+                break
+            if b is None:
+                raise Difference("+%#x: the original's code is undecodable here" % i)
             if not self.same(a, b, branches):
                 raise Difference("+%#x: %s %s    the original's: %s %s" % (i, a.mnemonic, a.op_str, b.mnemonic, b.op_str))
             i, j = i + a.size, j + b.size
         starts[i] = j
-        for ours, theirs, where, _ in branches:
-            if starts.get(ours) != theirs:
+        for ours, theirs, where, code_target in branches:
+            mapped = starts.get(ours)
+            if mapped is None and not code_target:
+                # A reference into the middle of an instruction (a self-patching routine's operand,
+                # `jmp_x+3`): the instruction's place plus the offset into it.
+                at = max((s for s in starts if s <= ours), default=None)
+                mapped = None if at is None else starts[at] + ours - at
+            if mapped != theirs:
                 raise Difference("+%#x: branches to +%#x, the original's elsewhere (+%#x)" % (where, ours, theirs))
         # The original's function must end here too: what follows is padding or the next function.
         end = self.address + j
         following = self.image.at(end, 16)
         later = [a for a in self.annotations.addresses if a > self.address]
         next_function = min(later) if later else None
-        if end == next_function or following[:1] in (b"\xcc", b"\x90", b"") or following[:3] == b"\x55\x8b\xec" or following[:2] == b"\xff\x25":
+        if end == next_function or ends(following):
             return
         raise Difference("+%#x: the original goes on (%s)" % (j, following[:4].hex()))
 
@@ -249,7 +273,13 @@ class Comparison:
             elif x.type == X86_OP_IMM:
                 if "imm" in kinds:
                     continue
-                if branch:
+                if branch and not 0 <= x.imm <= len(self.function.code):
+                    # A direct branch out of the function without a relocation (ML resolves one to
+                    # another routine of its object): the original must reach the same offset.
+                    if x.imm != y.imm:
+                        return False
+                    masked_imm = True
+                elif branch:
                     branches.append((x.imm, y.imm, a.address, True))
                     masked_imm = True
                 elif x.imm != y.imm:
@@ -305,8 +335,15 @@ class Comparison:
         function = self.function
         if symbol.section == function.symbol.section and symbol.section > 0:
             offset = symbol.value + addend - function.start
-            if 0 <= offset <= len(function.code) and (symbol.storage != IMAGE_SYM_CLASS_EXTERNAL or symbol is function.symbol):
+            other_function = symbol.kind == 0x20 and symbol is not function.symbol
+            if 0 <= offset <= len(function.code) and (symbol.storage != IMAGE_SYM_CLASS_EXTERNAL or symbol is function.symbol) and not other_function:
                 branches.append((offset, value - self.address, where, code_target))
+                return
+            if other_function and self.annotations.address_of(symbol.name) is None:
+                # A static function of the unit no annotation names (a MASM object's helper): where
+                # the object's layout puts it, if the original's agrees; otherwise unverified.
+                if value != (self.address + offset) & 0xFFFFFFFF:
+                    self.unverified.append(symbol.name)
                 return
         expected = self.annotations.address_of(symbol.name)
         if expected is not None:

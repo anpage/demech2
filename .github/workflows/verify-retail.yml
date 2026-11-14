@@ -246,6 +246,7 @@ jobs:
             else
               echo "(main has no states yet: no gate)" >>"${target}-certify.txt"
             fi
+            python ../tools/audit.py --tree . --target "$target" --objects "../certify/$target" --original "../retailbin/$file" --check --json "${target}AUDIT.json" >>"${target}-certify.txt" 2>&1 || status=1
             cat "${target}-certify.txt"
           done
           echo "$status" >../certify-status.txt
@@ -294,6 +295,7 @@ jobs:
             pr/*PROGRESS*
             pr/*STATES.json
             pr/*STATES.md
+            pr/*AUDIT.json
 
       - name: Upload PR comment payload
         if: ${{ github.event.workflow_run.event == 'pull_request' && always() }}
@@ -401,6 +403,7 @@ jobs:
               "${target}PROGRESS.json"
               "${target}STATES.json"
               "${target}STATES.md"
+              "${target}AUDIT.json"
             )
           done
 
@@ -440,6 +443,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          # The whole history: the corpus check compiles past revisions (git archive).
+          fetch-depth: 0
 
       - name: "Setup toolchains"
         uses: ./.github/actions/setup-msvc41
@@ -475,6 +480,17 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220" "-DDEMECH2_MSVC40_ROOT:PATH=%CD%\msvc400"
           cmake --build build --target vc22-configure vc40-configure
 
+      - name: Point reccmp-user.yml at the originals
+        shell: bash
+        run: |
+          # The corpus check below reads the originals' paths from it.
+          {
+            echo "targets:"
+            echo "  MW2SHELL:"; echo "    path: mw2bin/MW2SHELL.DLL"
+            echo "  MW2:"; echo "    path: mw2bin/MW2.DLL"
+            for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "  $t:"; echo "    path: retailbin/$f"; done
+          } >reccmp-user.yml
+
       - name: Search
         shell: bash
         run: |
@@ -487,6 +503,13 @@ jobs:
           done
           git diff -- tools/witnesses >witness-sweep.patch
           git diff --stat -- tools/witnesses
+
+      - name: Check the audit's corpus
+        shell: bash
+        run: |
+          # The real differences that once passed for entropy (tools/audit_corpus.txt): each
+          # revision compiled again, and the classifier must still call each unexplained.
+          python tools/audit.py --corpus --build build
 
       - name: Upload the results
         uses: actions/upload-artifact@main

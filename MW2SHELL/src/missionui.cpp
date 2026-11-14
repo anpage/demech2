@@ -249,7 +249,6 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 }
 
 // Shows the name of mech type p_type at (p_left, p_top), replacing the tag's previous glyph.
-// Not 100%: the stack slot of text is permuted with the delete temporaries.
 // FUNCTION: MW2SHELL 0x10037feb
 void ShowMechName(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_top)
 {

@@ -637,9 +637,6 @@ void UpdateOrdinanceView(void)
 // The track view: places the camera behind the tracked player's mech: p_distance and p_height move it out and up,
 // within limits taken from the mech's size the first time, p_turn turns it around the mech and
 // p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
-// Stack-slot permutation of the locals. The original compares g_trackHeight with
-// g_trackMaxHeight in the other operand order.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280

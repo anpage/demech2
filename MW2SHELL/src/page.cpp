@@ -288,8 +288,6 @@ MechS32 Page::AppendWord(MechChar* p_line, MechChar* p_word, MechS32 p_width)
 
 // Lays out p_text until the page is full or a \S code. Returns where the next page starts, or
 // NULL at the end of the text.
-// Only a stack-slot permutation of the locals remains. Declaring count and i ahead of tabs
-// makes the two string loops compare their operands in the original order.
 // FUNCTION: MW2SHELL 0x1004506f
 MechChar* Page::Layout(MechChar* p_text)
 {

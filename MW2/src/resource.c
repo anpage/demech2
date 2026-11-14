@@ -350,8 +350,6 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 
 // Runs p_fn on the stream an include record names. A name of "^" with id -1 or -2 takes the
 // scenario table's next name.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004f9a8
 // FUNCTION: MW2MATROX 0x1004959b
 // FUNCTION: MW23DFX 0x10042c60
@@ -706,7 +704,6 @@ void SetMangleBase(MechS32 p_base)
 // Creates the shape of a world stream's object record: a static object of the current block
 // (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,
 // in the world or under its parent's object.
-// Stack-slot permutation of the locals.
 // MW2MATROX: the record's transform is converted member by member.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.

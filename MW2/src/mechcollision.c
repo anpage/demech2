@@ -214,7 +214,6 @@ MechS32 MoveMechWithCollisions(
 // gives p_mech a velocity away from it. A mech pushing into one that pushed into it first (whose
 // m_collidedWith is p_mech's player) always collides. A mech in state 4 is knocked down
 // (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10075d7b
 // FUNCTION: MW2MATROX 0x10075f6c
 // FUNCTION: MW23DFX 0x1000ba20

@@ -85,7 +85,6 @@ TMPackDataBase::TMPackDataBase(char* p_name)
 	next->m_size = fileSize - next->m_offset;
 }
 
-// Stack-slot permutation: entry and i.
 // FUNCTION: MW2SHELL 0x10047f03
 TMPackDataBase::~TMPackDataBase()
 {

@@ -1143,9 +1143,8 @@ void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, 
 
 // Shows the static blocks' boxes (the "unitbox" model scaled to each), or frees them when they are
 // shown. Returns whether any is shown.
-// Stack-slot permutation; the loop tests compare in the other operand order.
-// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those, where 2.2
-// computes ours into the argument slots. Otherwise registers and scheduling.
+// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those, where 2.2 computes
+// ours into the argument slots.
 // FUNCTION: MW2 0x10020d51
 // FUNCTION: MW2MATROX 0x1005449d
 // FUNCTION: MW23DFX 0x10025840
@@ -1350,8 +1349,6 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 
 // Frees cache entry p_index and, first, every entry hanging from it, zeroing its game thing.
 // Returns whether p_index is an entry.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x10021314
 // FUNCTION: MW2MATROX 0x10054b2f
 // FUNCTION: MW23DFX 0x10025ca0

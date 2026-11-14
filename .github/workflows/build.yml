@@ -421,6 +421,9 @@ jobs:
             else
               echo "(main has no states yet: no gate)" >>"${target}-certify.txt"
             fi
+            # What certify leaves unproven, classified constructively (tools/audit.py); an
+            # unexplained function needs its line in tools/known_diffs.txt.
+            python tools/audit.py --target "$target" --objects "certify/$target" --check --json "${target}AUDIT.json" >>"${target}-certify.txt" 2>&1 || status=1
             cat "${target}-certify.txt"
           done
           echo "$status" >certify-status.txt
@@ -472,6 +475,7 @@ jobs:
             *PROGRESS*
             *STATES.json
             *STATES.md
+            *AUDIT.json
 
       - name: Upload PR comment payload
         if: ${{ github.event_name == 'pull_request' && always() }}
@@ -535,6 +539,7 @@ jobs:
               "${target}PROGRESS.json"
               "${target}STATES.json"
               "${target}STATES.md"
+              "${target}AUDIT.json"
             )
           done
 

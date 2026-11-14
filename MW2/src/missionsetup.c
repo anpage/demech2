@@ -138,8 +138,7 @@ MechU32 FindEventList(MechChar* p_name)
 // Adds the target p_target to the waiting objectives on the event list p_name whose type is in
 // p_types.
 // The objective's address scales i and j in the opposite order (index order), and stack-slot
-// permutation: count, i, j and state. MW2MATROX: the loop test (i < g_objectiveCount) compares
-// in the other operand order.
+// permutation: count, i, j and state.
 // FUNCTION: MW2 0x1004e4e6
 // FUNCTION: MW2MATROX 0x10080007
 // FUNCTION: MW23DFX 0x1003ff60

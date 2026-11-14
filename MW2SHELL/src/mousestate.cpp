@@ -140,7 +140,6 @@ void MouseState::PressButton(MechS32 p_button)
 	}
 }
 
-// The only diff is a stack-slot permutation of point, leftDown, rightDown and middleDown.
 // FUNCTION: MW2SHELL 0x1003aac5
 void MouseState::ReadMouseState()
 {

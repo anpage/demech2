@@ -118,8 +118,6 @@ MechS32 g_refreshModeHeight;
 // Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
 // is unavailable if p_allowFallback is set. The window covers the screen unless p_width x
 // p_height is smaller.
-// Stack-slot permutation: mode, backend, screenWidth and unused. The original also compares
-// the screen size against p_width and p_height the other way round.
 // FUNCTION: MW2SHELL 0x10010a30
 MechS32 InitRefreshMode(
 	MechS32 p_mode,

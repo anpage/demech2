@@ -120,12 +120,13 @@ class Certify:
         self.records = read_records(self.tree / "tools" / "witnesses" / (target + ".txt"))
         self.failures = []
 
-    def compile(self, out):
-        """Compile every unit, and each unit once per padding its records use with their renames
-        applied; copy the objects to `out` with a manifest."""
+    def compile(self, out, listings=True):
+        """Compile every unit (with its /Fa listing, which tools/audit.py reads), and each unit once
+        per padding its records use with their renames applied; copy the objects to `out` with a
+        manifest."""
         units = [u for u in self.target.units if u.path(self.tree).exists()]
         by_name = {u.name: u for u in units}
-        requests = [Request(u, self.tree, "plain") for u in units]
+        requests = [Request(u, self.tree, "plain", listing=listings and u.language != "ASM_MASM") for u in units]
         groups = defaultdict(list)
         for record in self.records:
             groups[(record["unit"], record["pads"])].append(record)
@@ -160,7 +161,12 @@ class Certify:
             name = "%d.obj" % k
             shutil.copy(request.obj, out / name)
             if request.tag == "plain":
-                manifest["units"][request.unit.name] = {"obj": name, "source": request.unit.source, "language": request.unit.language}
+                entry = {"obj": name, "source": request.unit.source, "language": request.unit.language,
+                         "optimized": bool(re.search(r"(?:^|\s)[/-]O[x12]", request.unit.arguments))}
+                if request.asm and Path(request.asm).exists():
+                    entry["asm"] = "%d.asm" % k
+                    shutil.copy(request.asm, out / entry["asm"])
+                manifest["units"][request.unit.name] = entry
         for unit_name, pads, request in variants:
             if not request.error:
                 manifest["variants"].append({"unit": unit_name, "pads": pads, "obj": "%d.obj" % requests.index(request)})

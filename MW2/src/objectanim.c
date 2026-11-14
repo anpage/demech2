@@ -251,7 +251,6 @@ AnimFile g_animFiles[60];
 // the frame it reached, and m_nextMotionState, the one it wants).
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
 // m_values[i] reads (index order).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10046750
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
@@ -1106,8 +1105,8 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // A timed callback (TimedCallbackFn) moving a star's object along a path. Its data is
 // "<star id>;<mode>,<rotate>,<path name>": mode "loop", "repeat" or else stop at the end, and
 // "rotate" to turn the object along the path. Event -1 restarts it.
-// Stack-slot permutation of the locals. MW2MATROX: also the index order in the durations' sums
-// (the original scales i before it loads the path).
+// MW2MATROX: also the index order in the durations' sums (the original scales i before it loads the
+// path).
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10047f60
 // FUNCTION: MW2MATROX 0x100704f2
@@ -2081,7 +2080,6 @@ jmp_10049103:
 // the average (2), nearest (4) or farthest of its vertices' depths. The back-face test, the
 // projection, the clipping walk and the depth rules are __asm blocks; the first keeps the normal's
 // z in depth.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049155
 void QueueFace(Face* p_face, Vertex* p_vertices)
 {

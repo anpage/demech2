@@ -256,10 +256,8 @@ void UpdateAllShots(void)
 // Moves the shot on by g_deltaTime and tests the segment it covered for a hit: a mech, a game
 // thing or the ground. A hit detonates the shot, just short of the point of impact; otherwise
 // it detonates when its lifetime runs out, or steers on toward its target.
-// Stack-slot permutation of the locals; the y < groundY comparison has its operands the
-// other way around. The Matrox edition's applies the damage after RecordAttack; it differs in a
-// comparison's operand order (victim with g_localPlayerId), the y < groundY test (it stores
-// groundY before comparing) and its stack slots.
+// Stack-slot permutation of the locals; the y < groundY comparison has its operands the other way
+// around. The Matrox edition's applies the damage after RecordAttack.
 // The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006a533
 // FUNCTION: MW2MATROX 0x1006b033

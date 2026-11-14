@@ -45,7 +45,6 @@ SessionList::~SessionList()
 	CloseHandle(m_stateMutex);
 }
 
-// Matches except for the stack slots of session and next, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10001567
 void SessionList::Clear()
 {
@@ -174,7 +173,6 @@ MechS32 SessionList::Add(DPSESSIONDESC* p_desc)
 }
 
 // Removes the sessions the last enumeration didn't find, from the list and the list box.
-// Matches except for the stack slots of stale, prev, session and index, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000189c
 void SessionList::RemoveStale()
 {

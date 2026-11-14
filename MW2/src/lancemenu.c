@@ -20,7 +20,6 @@ MechS32 g_lanceOrders[8] = {7, 7, 7, 7, 7, 0, 0, 0};
 // Fills the page with an item per AI slot (from template 5) and a last one (template 6), marking
 // the slots whose player is in AI state 12. With no slot, or every slot marked, the page has only
 // templates 7 and 6.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10065f50
 // FUNCTION: MW2MATROX 0x1008e640
 // FUNCTION: MW23DFX 0x10064390

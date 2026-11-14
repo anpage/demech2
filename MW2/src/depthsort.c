@@ -231,9 +231,6 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 #endif
 
 // Sorts the entries from p_first to p_last, farthest first (a quicksort).
-// The p_last/p_first comparison loads its operands in the opposite order (one attempt at swapping
-// them didn't flip it), and stack-slot permutation: the swaps' temporaries.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003378e
 // FUNCTION: MW2MATROX 0x10023500
 // FUNCTION: MW23DFX 0x10029ff0
@@ -339,11 +336,8 @@ void DrawShapeList(Shape* p_root)
 
 // Sorts the queue DrawShapeList built, moves its polygons to g_drawList in order, expanding
 // each whole shape into its own sorted run of polygons, and draws them.
-// The i/count and g_polygonCount/g_maxPolygons comparisons load their operands in the opposite
-// order (reccmp scores it as an effective match).
 // MW2MATROX: the comparisons load their operands in the opposite order, and i and its offset swap
 // registers.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10033a06
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170

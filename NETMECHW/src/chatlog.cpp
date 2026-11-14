@@ -33,7 +33,6 @@ ChatLog::ChatLog()
 
 // Adds p_text from the player p_from (0: the lobby itself) to the chat, word-wrapped to the
 // list box's width in lines of their own, and shows the new lines if the dialog is open.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000c273
 void ChatLog::AddLine(DPID p_from, MechChar* p_text)
 {
@@ -343,8 +342,6 @@ void ChatLog::SendToAll(HWND p_dialog)
 }
 
 // Sends the typed text to the players of the local player's team, and shows it.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of team == myTeam and player.m_id != m_playerId (one declaration order tried).
 // FUNCTION: NETMECHW 0x1000cec1
 void ChatLog::SendToTeam(HWND p_dialog)
 {

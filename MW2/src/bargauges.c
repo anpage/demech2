@@ -147,7 +147,6 @@ void ScaleBarGauges(void)
 // Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
 // height, target and color).
 // MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol).
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d175
 // FUNCTION: MW2MATROX 0x10089195
 // FUNCTION: MW23DFX 0x1001c350
@@ -277,7 +276,6 @@ void DrawHeatRateBar(PANE* p_target)
 }
 
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d48a
 // FUNCTION: MW2MATROX 0x100894b4
 // FUNCTION: MW23DFX 0x1001c5b0

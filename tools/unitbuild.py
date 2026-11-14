@@ -229,10 +229,9 @@ class Compiler:
                         request.asm = work / ("%d.asm" % k)
                         listing = "/Fa%s " % to_tool(request.asm)
                     response = work / ("%d.rsp" % k)
-                    response.write_text(
-                        "/nologo %s %s/Fo%s /Fd%s\\ %s-c %s\n"
-                        % (unit.options(request.tree), include, to_tool(obj), to_tool(work), listing, to_tool(source))
-                    )
+                    # One option a line: VC++ 2.2's cl cuts a response file's line at 1024 characters.
+                    text = "/nologo %s %s/Fo%s /Fd%s\\ %s-c %s" % (unit.options(request.tree), include, to_tool(obj), to_tool(work), listing, to_tool(source))
+                    response.write_text("\n".join(re.findall(r'(?:"[^"]*"|\S)+', text)) + "\n")
                     lines.append("%s @%s" % (unit.compiler, to_tool(response)))
                 request.obj = obj
                 self.count += 1
@@ -248,7 +247,7 @@ class Compiler:
         for request in requests:
             if not request.obj.exists():
                 text = (request.obj.parent / "log.txt").read_text(errors="replace")
-                errors = [line.strip() for line in text.split("\n") if re.search(r"\berror\b", line)]
+                errors = [line.strip() for line in text.split("\n") if re.search(r"\b(fatal )?error [A-Z]+\d+|error A\d+|Can't recognize", line)]
                 request.error = "compile failed: " + (errors[0] if errors else "no object")
                 request.obj = None
         return requests
@@ -400,6 +399,23 @@ class Image:
             at = pe + 24 + optional + n * 40
             virtual_size, address, size, pointer = struct.unpack_from("<IIII", self.data, at + 8)
             self.sections.append((self.base + address, max(virtual_size, size), size, pointer))
+        # The import address table: {imported name: the address of its entry}.
+        self.imports = {}
+        rva = struct.unpack_from("<I", self.data, pe + 24 + 104)[0] if optional >= 112 else 0
+        while rva:
+            lookup, _, _, _, iat = struct.unpack("<IIIII", self.at(self.base + rva, 20))
+            if not iat:
+                break
+            k = 0
+            while True:
+                entry = struct.unpack("<I", self.at(self.base + (lookup or iat) + 4 * k, 4))[0]
+                if not entry:
+                    break
+                if not entry & 0x80000000:  # by name (a hint, then the name)
+                    name = self.at(self.base + entry + 2, 256).split(b"\0")[0].decode("latin-1")
+                    self.imports.setdefault(name, self.base + iat + 4 * k)
+                k += 1
+            rva += 20
 
     def at(self, address, count):
         for start, virtual_size, size, pointer in self.sections:

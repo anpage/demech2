@@ -1940,7 +1940,6 @@ Shape* GetTargetShape(MechS16 p_target)
 // AI player that sees the shot coming (a guided weapon or type 21, and the target inside its
 // sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
 // (state 4).
-// Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2MATROX 0x1001c1ca

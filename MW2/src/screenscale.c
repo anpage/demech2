@@ -239,7 +239,6 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 }
 
 // Scales p_src about its center by p_scale (16.16).
-// The 3Dfx edition's diff is register allocation, scheduling and stack slots only.
 // FUNCTION: MW2 0x10056ec5
 // FUNCTION: MW2MATROX 0x100718d5
 // FUNCTION: MW23DFX 0x10006210
@@ -474,7 +473,6 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 }
 
 // Sizes p_rect to fit a block of text, lines separated by newlines, plus the margins.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100575b9
 // FUNCTION: MW2MATROX 0x10072023
 // FUNCTION: MW23DFX 0x10006860
