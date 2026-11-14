@@ -75,6 +75,7 @@ MechS32 g_objectiveCount;
 StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001a910
 // FUNCTION: MW2MATROX 0x1001ecb0
 // FUNCTION: MW23DFX 0x100098f0
@@ -105,6 +106,7 @@ void CollapseWhitespace(MechChar* p_text)
 // objective, when that is a nav (or at the origin). Returns whether it was.
 // Stack-slot permutation of the locals. The original tests the target's kind by loading its high
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001aa02
 // FUNCTION: MW2MATROX 0x1001eda2
 // FUNCTION: MW23DFX 0x10009990
@@ -222,6 +224,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
 // The only diff is a stack-slot permutation of the locals. The Matrox edition's rebuild sums the
 // squared distances' terms in another order (entropy).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
@@ -406,6 +409,7 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 // Stack-slot permutation; score > best compares in the other operand order.
 // MW2MATROX: score > best compares in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001b21a
 // FUNCTION: MW2MATROX 0x1001f577
 // FUNCTION: MW23DFX 0x10009e70
@@ -520,6 +524,7 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
 // Stack-slot permutation of objective, other, star, state and kind; the original scales star
 // before other in the objective's address (index order).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
@@ -544,6 +549,7 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // every one. A finished objective's don't; a type 0x10 objective's always do.
 // Stack-slot permutation of all, objective, result, i and holds; the original computes the
 // objective's index before the star's (index order).
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
@@ -984,6 +990,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
 // MW2MATROX: the loop tests compare in the other operand order, and the m_objectives index scales
 // its terms in the other order (index order).
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001c69e
 // FUNCTION: MW2MATROX 0x10020a02
 // FUNCTION: MW23DFX 0x1000a9b0
@@ -1126,6 +1133,7 @@ MechS32 EndTheMission2(void)
 // Restarts star p_star's mission (a player's own, in a network game): every objective goes back
 // to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
 // it names is listed on the objectives panel (not in the Matrox edition).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001cc5c
 // FUNCTION: MW2MATROX 0x10020fde
 // FUNCTION: MW23DFX 0x1000acd0
@@ -1179,6 +1187,7 @@ MechS32 FUN_1001cde1(undefined4 p_unk0x00)
 // The target of team p_team's return objective (type 0x20), or else its first objective's
 // first target: the AI's "home" nav.
 // Stack-slot permutation: mission and i.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001cdf6
 // FUNCTION: MW2MATROX 0x100210ab
 // FUNCTION: MW23DFX 0x1000ad60

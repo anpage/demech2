@@ -70,6 +70,7 @@ void (*g_savedFrameDrawCallback)(void) = DrawScene;
 
 // GLOBAL: MW2 0x100a5a20
 // GLOBAL: MW2MATROX 0x100ae408
+// GLOBAL: MW23DFX 0x102498a0
 MechS32 g_savedShowCrosshair = 1;
 
 // GLOBAL: MW2 0x100a5a24
@@ -79,6 +80,7 @@ undefined4 g_savedShowHud = 1;
 
 // GLOBAL: MW2 0x100a5a28
 // GLOBAL: MW2MATROX 0x100ae410
+// GLOBAL: MW23DFX 0x102498a8
 MechS32 g_savedShowTargetMarker = 1;
 
 // GLOBAL: MW2 0x100a5a2c
@@ -121,6 +123,7 @@ CockpitGaugeFn g_cockpitGauges[10] = {
 // The Matrox edition leaves them uninitialized (in .bss).
 #ifdef MW2_ACCEL
 // GLOBAL: MW2MATROX 0x1012fc80
+// GLOBAL: MW23DFX 0x10244cd0
 PANE g_cockpitGaugePanes[5];
 #else
 // GLOBAL: MW2 0x100a5a68
@@ -167,10 +170,12 @@ MechS32 g_mapDamageAnimShown = 0;
 
 // GLOBAL: MW2 0x100be410
 // GLOBAL: MW2MATROX 0x1012472c
+// GLOBAL: MW23DFX 0x1007b008
 static MechS32 g_staticCleanUntil;
 
 // GLOBAL: MW2 0x100be414
 // GLOBAL: MW2MATROX 0x10124730
+// GLOBAL: MW23DFX 0x1007b00c
 static MechS32 g_staticNoiseUntil;
 
 // The cockpit view before the current one (SwitchCockpitView).
@@ -331,6 +336,7 @@ void RunMapView(void)
 // Stack-slot permutation; g_cockpitLayoutIndex != g_requestedCockpitView compares in the other operand
 // order.
 // MW2MATROX: the same comparison, the other way around.
+// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x1003ddd7
 // FUNCTION: MW2MATROX 0x10073ab1
 // FUNCTION: MW23DFX 0x10003420
@@ -435,6 +441,7 @@ void DrawCockpitView(void)
 // locals.
 // MW2MATROX clears the satellite view with the A3D pane wipe (FUN_1005f8a0); BeginMapView and
 // EndMapView (mapview.c) have no MW2MATROX annotation yet.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003e06c
 // FUNCTION: MW2MATROX 0x10073d46
 // FUNCTION: MW23DFX 0x10003620
@@ -454,7 +461,7 @@ void DrawMapView(void)
 	MechScalar x;
 	MechS32 slot;
 	Player* player;
-	MechU32 flags;
+	MapViewFlags flags;
 
 	if (g_cockpitLayoutIndex == 0) {
 		return;
@@ -526,7 +533,7 @@ void DrawMapView(void)
 #else
 		VFX_pane_wipe(viewport, PIXEL_COLOR(g_groundColor));
 #endif
-		flags = 0;
+		flags.m_bits = 0;
 		DrawMapViewScene(flags);
 	}
 
@@ -554,7 +561,6 @@ void DrawMapView(void)
 // The only diff is a stack-slot permutation of the locals. The original has an unused local (unused).
 // MW2MATROX: DrawMapTarget has no MW2MATROX annotation (the Matrox edition places it before IsNavReached),
 // so its call stays unnamed.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1003e32c
 // FUNCTION: MW2MATROX 0x10074024
 // FUNCTION: MW23DFX 0x10003830
@@ -594,7 +600,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 
 // Draws the other live players and the live game things, by side.
 // Stack-slot permutation; i < g_gameThingCount compares in the other operand order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003e4cd
 // FUNCTION: MW2MATROX 0x10074102
 // FUNCTION: MW23DFX 0x10003960
@@ -657,7 +663,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // Stack-slot permutation; m_icons[row][side] loads the table before the row (index order).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003e689
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
@@ -786,6 +792,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 
 // Draws the local team's nav points, marking the ones reached.
 // Stack-slot permutation; i < g_navCount compares in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003e974
 // FUNCTION: MW2MATROX 0x1007465e
 // FUNCTION: MW23DFX 0x10003c10
@@ -864,7 +871,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
 // The only diff is a stack-slot permutation of the locals.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003eb22
 // FUNCTION: MW2MATROX 0x1007480f
 // FUNCTION: MW23DFX 0x10003d40
@@ -1146,6 +1153,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 
 // The satellite view's face hook (RenderSettings::m_drawFace): the color a face of p_face's shape
 // draws in, from the view's colors by the shape's kind and side, or the face's own (p_flags).
+// It takes the hook's four arguments: the 3Dfx edition pops p_depth too (ret 8), unused.
 // Faces of a textured kind (0x3000) draw in the view's color 10.
 // The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
 // MW2MATROX tests the kind with the face flags' whole top nibble (0xf000).
@@ -1153,7 +1161,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 // FUNCTION: MW2 0x1003f0e7
 // FUNCTION: MW2MATROX 0x10074de6
 // FUNCTION: MW23DFX 0x10004100
-MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
+MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, MechS32 p_depth)
 {
 	MechU32 color;
 	MechU32 type;
@@ -1327,6 +1335,7 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 // The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
 // in the colors p_flags picks.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100751a9
 // FUNCTION: MW23DFX 0x10004390
 void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags)
@@ -1348,9 +1357,15 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 		vertex->m_x = x;
 		vertex->m_y = y;
 		shade = GetMapHeightShade(p_layout, point->m_z);
+#ifdef MW2_3DFX
+		vertex->m_red = g_paletteRgb[shade | p_flags][0];
+		vertex->m_green = g_paletteRgb[shade | p_flags][1];
+		vertex->m_blue = g_paletteRgb[shade | p_flags][2];
+#else
 		vertex->m_blue = g_paletteRgb[shade | p_flags][2];
 		vertex->m_green = g_paletteRgb[shade | p_flags][1];
 		vertex->m_red = g_paletteRgb[shade | p_flags][0];
+#endif
 		vertex++;
 	}
 
@@ -1439,7 +1454,7 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 // The map view while the local mech starts up: slides the view's rectangle in (its transition),
 // then draws it.
 // MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003f66d
 // FUNCTION: MW2MATROX 0x10075428
 // FUNCTION: MW23DFX 0x10004560
@@ -1483,6 +1498,7 @@ void PowerUpMapView(void)
 // transition breaks it up until another random time.
 // The two clock comparisons compare in the other operand order.
 // MW2MATROX: the same two clock comparisons, the other way around.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003f74e
 // FUNCTION: MW2MATROX 0x10075509
 // FUNCTION: MW23DFX 0x100045f0
@@ -1583,7 +1599,7 @@ void DrawDamagedMapView(void)
 
 // The map view while the local mech shuts down or is off: slides the view's rectangle out.
 // MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003fa05
 // FUNCTION: MW2MATROX 0x100757c0
 // FUNCTION: MW23DFX 0x100047d0

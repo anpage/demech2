@@ -103,6 +103,7 @@ undefined4 g_staticCacheReady = 0;
 // The block BeginBlock opens next.
 // GLOBAL: MW2 0x100a387c
 // GLOBAL: MW2MATROX 0x100aa3a4
+// GLOBAL: MW23DFX 0x1024dac4
 MechS32 g_nextBlock = 0;
 
 // The block BeginBlock opened last, -1: none.
@@ -125,6 +126,7 @@ Xform g_pendingXform = {1, 1, 1, 0, 0, 0, 0, 0, 0};
 // The transform BeginBlock resets g_pendingXform to.
 // GLOBAL: MW2 0x100a38b0
 // GLOBAL: MW2MATROX 0x100aa3d8
+// GLOBAL: MW23DFX 0x1024daf8
 Xform g_defaultXform = {1, 1, 1, 0, 0, 0, 0, 0, 0};
 
 // GLOBAL: MW2 0x100a38d4
@@ -167,6 +169,7 @@ MechS32 g_staticObjectsChanged;
 // The shapes ToggleBlockBoxes shows for the blocks' boxes.
 // GLOBAL: MW2 0x1010b620
 // GLOBAL: MW2MATROX 0x101829e0
+// GLOBAL: MW23DFX 0x101de680
 Shape* g_blockBoxes[32];
 
 // GLOBAL: MW2 0x1010b6a0
@@ -177,6 +180,7 @@ MechS32 g_thingCapacity;
 // Whether ToggleBlockBoxes shows the blocks' boxes.
 // GLOBAL: MW2 0x1010b6a4
 // GLOBAL: MW2MATROX 0x10181a40
+// GLOBAL: MW23DFX 0x101dd6e0
 MechS32 g_blockBoxesShown;
 
 // GLOBAL: MW2 0x1010b6a8
@@ -187,6 +191,7 @@ MechS32 g_starCount;
 // Allocates the class, thing and star tables to the sizes in the mission's static memory table.
 // Returns whether it could.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001f3e0
 // FUNCTION: MW2MATROX 0x10052a80
 // FUNCTION: MW23DFX 0x10024780
@@ -250,6 +255,7 @@ MechS32 AddClass(MechS32 p_id, Shape* p_class)
 
 // Returns the class of an ID (the last one added), or NULL.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001f564
 // FUNCTION: MW2MATROX 0x10052c04
 // FUNCTION: MW23DFX 0x10024860
@@ -270,6 +276,7 @@ Shape* FindClassById(MechS32 p_id)
 }
 
 // Frees the class, thing and star tables.
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1001f5cb
 // FUNCTION: MW2MATROX 0x10052c6b
 // FUNCTION: MW23DFX 0x10024890
@@ -366,6 +373,7 @@ MechS32 FindStarIdxById(MechS32 p_id)
 // when the cache or the map is full.
 // MW2MATROX: g_starCount >= g_starCapacity compares in the other operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001f7eb
 // FUNCTION: MW2MATROX 0x10052e8b
 // FUNCTION: MW23DFX 0x10024a20
@@ -475,6 +483,7 @@ MechS32 PlaceStaticObject(
 // center sum adds its operands in the other order.
 // MW2MATROX: reccmp can't name the original's g_blockStack[g_blockDepth - 1] (the address before
 // the array).
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x1001fa05
 // FUNCTION: MW2MATROX 0x100530a5
 // FUNCTION: MW23DFX 0x10024ba0
@@ -683,6 +692,7 @@ void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, Me
 
 // Runs the timed callbacks of the cache entries.
 // The only diff is a stack-slot permutation of i and entry.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100200bd
 // FUNCTION: MW2MATROX 0x10053804
 // FUNCTION: MW23DFX 0x10025040
@@ -876,6 +886,7 @@ void DestroyThingObject(GameThing* p_thing)
 // thing's object marked when the thing has bit 0x8000.
 // Stack-slot permutation of the locals. Operand order: the loop test (i < g_staticObjectCount)
 // loads g_staticObjectCount first in the original.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100204e8
 // FUNCTION: MW2MATROX 0x10053c30
 // FUNCTION: MW23DFX 0x10025310
@@ -923,6 +934,7 @@ void PropagateStaticObjectStates(void)
 }
 
 // Returns whether every static object in use has a resource (the world loader's check).
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10020684
 // FUNCTION: MW2MATROX 0x10053dcd
 // FUNCTION: MW23DFX 0x10025410
@@ -950,6 +962,7 @@ MechS32 AreStaticObjectsComplete(void)
 // frame, otherwise on its object. Returns TRUE while the shape is loaded, FALSE if it can't be or
 // shouldn't be: a hidden entry (0x800), or a destroyed game thing's (without explosion chunks).
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x10020704
 // FUNCTION: MW2MATROX 0x10053e4e
 // FUNCTION: MW23DFX 0x10025450
@@ -1157,6 +1170,8 @@ void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, 
 // Shows the static blocks' boxes (the "unitbox" model scaled to each), or frees them when they are
 // shown. Returns whether any is shown.
 // Stack-slot permutation; the loop tests compare in the other operand order.
+// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those, where 2.2
+// computes ours into the argument slots. Otherwise registers and scheduling.
 // FUNCTION: MW2 0x10020d51
 // FUNCTION: MW2MATROX 0x1005449d
 // FUNCTION: MW23DFX 0x10025840
@@ -1294,6 +1309,8 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 
 // Loads model p_data scaled to the box of p_node at its center, then to its children's.
 // Stack-slot permutation; the original loads m_unk0x14 first in z's sum (commutative operand order).
+// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those, where 2.2
+// computes ours into the argument slots. Otherwise registers and scheduling.
 // FUNCTION: MW2 0x1002116a
 // FUNCTION: MW2MATROX 0x100548f9
 // FUNCTION: MW23DFX 0x10025b70
@@ -1362,6 +1379,7 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 // Returns whether p_index is an entry.
 // Stack-slot permutation; the loop test compares in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x10021314
 // FUNCTION: MW2MATROX 0x10054b2f
 // FUNCTION: MW23DFX 0x10025ca0

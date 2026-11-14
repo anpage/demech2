@@ -62,6 +62,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // Stack-slot permutation of the locals.
 // MW2MATROX: the float products and their sums take their operands in other orders (commutative
 // operand order).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10039a30
 // FUNCTION: MW2MATROX 0x10028adb
 // FUNCTION: MW23DFX 0x10029ab0
@@ -273,6 +274,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 // transform count (m_transformCount). The products are an __asm block.
 // MW2MATROX: the float products and their sums take their operands in other orders (commutative
 // operand order).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10039b94
 // FUNCTION: MW2MATROX 0x10028cf4
 // FUNCTION: MW23DFX 0x10029c10
@@ -370,6 +372,7 @@ void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 }
 
 // Transforms a shape and each of its models by p_matrix.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10039c36
 // FUNCTION: MW2MATROX 0x10028db4
 // FUNCTION: MW23DFX 0x10029c80
@@ -428,6 +431,7 @@ MechS32 SolvePlaneY(
 // Returns an approximate distance from (p_x, p_y, p_z) to the shape's center, (4 * the largest +
 // the others) / 4 of the offsets, or 0x7fffffff outside its bounding sphere.
 // Stack-slot permutation: radius, deltaY and deltaZ.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10039ccc
 // FUNCTION: MW2MATROX 0x10028e14
 // FUNCTION: MW23DFX 0x10029cb0
@@ -924,6 +928,7 @@ done:
 // The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the sum of squares starts from deltaX where the original's starts from deltaZ (kept on
 // the FPU stack after its store), a commutative operand order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1003a096
 // FUNCTION: MW2MATROX 0x10028f0e
 // FUNCTION: MW23DFX 0x10029db0

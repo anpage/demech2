@@ -8,6 +8,12 @@
 #include "types.h"
 #include "vector3.h"
 
+// DrawMapViewScene's flags (bit 0: draw the terrain). A structure: the 3Dfx edition passes it on
+// the stack, as /Gr passes only aggregates.
+typedef struct MapViewFlags {
+	MechU32 m_bits; // 0x00
+} MapViewFlags;
+
 // The functions and globals of mapview.c that other units use.
 #ifdef __cplusplus
 extern "C"
@@ -15,7 +21,7 @@ extern "C"
 #endif
 
 	void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far);
-	void DrawMapViewScene(MechU32 p_flags);
+	void DrawMapViewScene(MapViewFlags p_flags);
 	void EndMapView(void);
 	MechS32 CullMapViewShape(Shape* p_shape);
 	ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex);

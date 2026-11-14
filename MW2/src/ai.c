@@ -216,6 +216,7 @@ AiName g_powerStateNames[8] = {
 
 // GLOBAL: MW2 0x100a8b60
 // GLOBAL: MW2MATROX 0x100bb278
+// GLOBAL: MW23DFX 0x1024b948
 AiName g_objectiveTypeNames[15] = {
 	{"non", 0},
 	{"ann", 1},
@@ -400,6 +401,7 @@ MechS32 g_aiSpreadTargets = 1;
 
 // GLOBAL: MW2 0x100a90c0
 // GLOBAL: MW2MATROX 0x100bb7d8
+// GLOBAL: MW23DFX 0x1024bc30
 MechS32 g_localStarAssigned = 0;
 
 // GLOBAL: MW2 0x100a90c8
@@ -458,6 +460,7 @@ MechS16 g_hiddenTargetCount;
 
 // GLOBAL: MW2 0x100e9e40
 // GLOBAL: MW2MATROX 0x1012c3b0
+// GLOBAL: MW23DFX 0x101e8870
 AiRule* g_aiRules[60][6];
 
 // GLOBAL: MW2 0x100ea3e0
@@ -470,6 +473,7 @@ MechS32 g_aiStateTime;
 // drive records an attack on a side-1 player its mech runs into (RecordAttack).
 // reccmp leaves the call through g_aiStateFns unresolved (its call regex only matches a bare
 // [address]), so both sides show raw addresses.
+// The 3Dfx edition's diff is the indexed call through the state table, which reccmp can't name.
 // FUNCTION: MW2 0x10051100
 // FUNCTION: MW2MATROX 0x10080280
 // FUNCTION: MW23DFX 0x10011c50
@@ -516,6 +520,7 @@ void UpdateAI(Player* p_player)
 // reccmp leaves the call through g_aiMessageFns and g_aiTransitionFns unresolved (its call regex
 // only matches a bare [address]), so both sides show raw addresses. Stack-slot permutation: arg,
 // i, rule and target and valid.
+// The 3Dfx edition's diff is register allocation and the indexed calls, which reccmp can't name.
 // FUNCTION: MW2 0x10051251
 // FUNCTION: MW2MATROX 0x100803d1
 // FUNCTION: MW23DFX 0x10011d20
@@ -661,12 +666,7 @@ void InitializeAI(Player* p_player)
 	p_player->m_nav = 0x1000;
 	ResetAI(p_player);
 
-	if (g_players[g_localPlayerId]->m_team != p_player->m_team) {
-		p_player->m_engageAtWill = 1;
-	}
-	else {
-		p_player->m_engageAtWill = 0;
-	}
+	p_player->m_engageAtWill = p_player->m_team != g_players[g_localPlayerId]->m_team;
 
 	if (p_player->m_aiMode == 2) {
 		SetAIScript(p_player, 0, 0, GetTeamLeader(p_player->m_team));
@@ -711,6 +711,7 @@ void InitializeAI(Player* p_player)
 #endif
 
 // Returns the name of p_value in p_names, or NULL.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10051ad8
 // FUNCTION: MW2MATROX 0x10080a4e
 // FUNCTION: MW23DFX 0x10011f80
@@ -911,6 +912,7 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 // Operand order: the loop test (i < count) compares with i in eax in the original. Stack-slot
 // permutation: count, i, member and members and newLeader.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1005212a
 // FUNCTION: MW2MATROX 0x10081269
 // FUNCTION: MW23DFX 0x100125d0
@@ -1249,6 +1251,7 @@ void LogStarMissionLines(MechS32 p_team)
 // Whether p_player can detect player p_target: a powered-down target (flag 0x10) within
 // p_distance it has no line of sight to is hidden, checked with p_check at most every 0x21f ticks
 // (m_nextDetectCheck). Nothing calls it.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10052cb7
 // FUNCTION: MW2MATROX 0x10081e45
 // FUNCTION: MW23DFX 0x10012cd0
@@ -1581,6 +1584,7 @@ MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 	return TRUE;
 }
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100534fb
 // FUNCTION: MW2MATROX 0x100826c1
 // FUNCTION: MW23DFX 0x100132c0
@@ -2014,6 +2018,7 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 // The target after p_previous (-1 for the first) of p_target for p_player: a plain target
 // once, or each player a symbolic target names. Returns -1 after the last.
 // Stack-slot permutation: home and index.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054043
 // FUNCTION: MW2MATROX 0x10083294
 // FUNCTION: MW23DFX 0x10013a50
@@ -2224,6 +2229,7 @@ void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 
 // Whether one of p_player's scripts has rules for p_state.
 // Stack-slot permutation: i and script.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100545ea
 // FUNCTION: MW2MATROX 0x10083850
 // FUNCTION: MW23DFX 0x10013d90
@@ -2280,6 +2286,7 @@ void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_p
 }
 
 // Releases the nav points p_player placed, except its anchor.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10054778
 // FUNCTION: MW2MATROX 0x100839de
 // FUNCTION: MW23DFX 0x10013e90
@@ -2410,6 +2417,7 @@ void PlaceFormationNav(Player* p_player)
 // player or on a network game.
 // Stack-slot permutation: line and player.
 // MW2MATROX: the comparison with g_localPlayerId loads its operands in the other order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054b50
 // FUNCTION: MW2MATROX 0x10083dca
 // FUNCTION: MW23DFX 0x10014110
@@ -2438,6 +2446,7 @@ void RecordAttack(MechS32 p_index, MechU32 p_target)
 }
 
 // Loads the nine AIT scripts.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054c05
 // FUNCTION: MW2MATROX 0x10083e80
 // FUNCTION: MW23DFX 0x100141a0
@@ -2511,6 +2520,7 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 // star). Returns how many it skipped.
 // Stack-slot permutation: player and skipped and target. MW2MATROX: p_target == target compares
 // in the other operand order.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2MATROX 0x10084002
 // FUNCTION: MW23DFX 0x10014290
@@ -2573,6 +2583,7 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 // says it.
 // Operand order: index == g_localPlayerId compares the other way in the original. Stack-slot
 // permutation: local and speech.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054f50
 // FUNCTION: MW2MATROX 0x100841ca
 // FUNCTION: MW23DFX 0x10014390
@@ -2704,6 +2715,7 @@ void ResetStarOrders(MechS32 p_team)
 // or follow the leader.
 // Operand order: the (1 << bit) & type test evaluates type first in the original. Stack-slot
 // permutation: bit, count, i, leader, member, members, objective and state and type.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100551c6
 // FUNCTION: MW2MATROX 0x10084461
 // FUNCTION: MW23DFX 0x10014520
@@ -2857,6 +2869,7 @@ void SetAIScript(Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_l
 }
 
 // Target p_index of star p_team's current objective.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100556a4
 // FUNCTION: MW2MATROX 0x1008493f
 // FUNCTION: MW23DFX 0x10014880
@@ -2925,6 +2938,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // nearest the target's value (or the leader). Whether one went.
 // Stack-slot permutation: chosen, count, diff, i, leader, member, members, mission, nearest,
 // objective, required, result and slot and team.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950
@@ -3029,6 +3043,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 // Operand order: g_localPlayerId == leader and the loop tests compare the other way in the
 // original. Stack-slot permutation: count, i, j, leader, members, mission, objective,
 // objectiveIndex, player, remaining, state, target, targets and team and type.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10055bb7
 // FUNCTION: MW2MATROX 0x10084e52
 // FUNCTION: MW23DFX 0x10014ba0

@@ -34,7 +34,7 @@
 
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
 #else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
@@ -83,6 +83,7 @@ DepthEntry* g_depthList;
 // The flags of the shape being queued.
 // GLOBAL: MW2 0x1010b5c8
 // GLOBAL: MW2MATROX 0x101d697c
+// GLOBAL: MW23DFX 0x101b0edc
 MechU32 g_queuedShapeFlags;
 
 // GLOBAL: MW2 0x1010b5cc
@@ -95,6 +96,7 @@ MechS32 g_shapesConsidered;
 // Stack-slot permutation: every local.
 // MW2MATROX: register allocation (model, prev, cursor and the eyepoint swap registers).
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100335d0
 // FUNCTION: MW2MATROX 0x100232f0
 // FUNCTION: MW23DFX 0x10029f00
@@ -216,7 +218,12 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 	}
 	else if (g_renderSettings.m_wireframe == 1) {
 		g_renderSettings.m_drawPolygon(count, vertices, 0, 0xf);
+#ifdef MW2_3DFX
+		// The 3Dfx edition's outline also clears bits 12, 14 and 15 of the flags.
+		g_renderSettings.m_drawPolygon(count, vertices, (flags & ~0xd000) | 0x2000, p_poly->m_outcodes);
+#else
 		g_renderSettings.m_drawPolygon(count, vertices, flags | 0x2000, p_poly->m_outcodes);
+#endif
 	}
 	else {
 		g_renderSettings.m_drawPolygon(count, vertices, flags | 0x2000, p_poly->m_outcodes);
@@ -228,6 +235,7 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 // The p_last/p_first comparison loads its operands in the opposite order (one attempt at swapping
 // them didn't flip it), and stack-slot permutation: the swaps' temporaries.
 // MW2MATROX: register allocation (p_last and hi swap esi and ebx, and their comparisons the operands).
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003378e
 // FUNCTION: MW2MATROX 0x10023500
 // FUNCTION: MW23DFX 0x10029ff0
@@ -292,6 +300,7 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
 // whole and expanded after the sort (DrawDepthQueue).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100338bb
 // FUNCTION: MW2MATROX 0x100235a0
 // FUNCTION: MW23DFX 0x1002a080
@@ -337,6 +346,7 @@ void DrawShapeList(Shape* p_root)
 // order (reccmp scores it as an effective match).
 // MW2MATROX: the comparisons load their operands in the opposite order, and i and its offset swap
 // registers.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10033a06
 // FUNCTION: MW2MATROX 0x100236a0
 // FUNCTION: MW23DFX 0x1002a170

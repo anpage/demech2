@@ -64,6 +64,7 @@ MechS16 g_missionPlayers;
 
 // GLOBAL: MW2 0x100e9daa
 // GLOBAL: MW2MATROX 0x1012c30a
+// GLOBAL: MW23DFX 0x101597ca
 MechS16 g_unk0x100e9daa;
 
 // GLOBAL: MW2 0x100e9dac
@@ -78,10 +79,12 @@ MechS16 g_missionClassEntries;
 
 // GLOBAL: MW2 0x100e9db0
 // GLOBAL: MW2MATROX 0x1012c310
+// GLOBAL: MW23DFX 0x101597d0
 MechS16 g_unk0x100e9db0;
 
 // GLOBAL: MW2 0x100e9db2
 // GLOBAL: MW2MATROX 0x1012c312
+// GLOBAL: MW23DFX 0x101597d2
 MechS16 g_unk0x100e9db2;
 
 // GLOBAL: MW2 0x100e9db4
@@ -168,6 +171,7 @@ StaticPoolSize* ReadStaticMemoryTable(char* p_mission)
 // rev, node, table, known and type are a stack-slot permutation. MW2MATROX: the version test
 // and the data table's tag test compare in the other operand order (swapping the version test's
 // operands changed nothing), and the byte swap takes its terms in the original's order.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10056503
 // FUNCTION: MW2MATROX 0x100857c3
 // FUNCTION: MW23DFX 0x100410e0

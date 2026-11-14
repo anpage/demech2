@@ -54,6 +54,7 @@ MechS32 g_cdStatus;
 // that the first auxiliary input.
 // Stack-slot permutation: numDevs, device and found.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005a7a0
 // FUNCTION: MW2MATROX 0x100025b0
 // FUNCTION: MW23DFX 0x10030600
@@ -461,6 +462,7 @@ void FUN_1005aff8(undefined4 p_unk0x00)
 // state changed.
 // Stack-slot permutation: status and i.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005b00b
 // FUNCTION: MW2MATROX 0x10002e1b
 // FUNCTION: MW23DFX 0x10030c40
@@ -501,6 +503,7 @@ MechS32 PollCdDrive(void)
 // Skips p_step tracks from the current one.
 // Stack-slot permutation: status and track.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005b10b
 // FUNCTION: MW2MATROX 0x10002f1b
 // FUNCTION: MW23DFX 0x10030cc0
@@ -712,6 +715,7 @@ MechS32 IsCdAudioInitialized(void)
 }
 
 // Returns whether p_track is on the disc.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1005b6ab
 // FUNCTION: MW2MATROX 0x100034bb
 // FUNCTION: MW23DFX 0x100310a0

@@ -18,6 +18,7 @@
 // A quarter wave of sines and the arctangents of 0 to 1 in 512 steps (degrees). The last
 // entries are written one past each table: g_sinTable's lands on g_atanTable[0] in the original,
 // and on other globals in this build, which the two stores' diffs show.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2MATROX 0x1007edd0
 // FUNCTION: MW23DFX 0x1002ffb0
 MechS32 InitSinAtanTables(void)
@@ -76,6 +77,7 @@ MechScalar FixedSin(MechScalar p_angle)
 // Returns the bearing of (p_x, p_z) in degrees: the arctangent of the smaller over the larger
 // component from the table, folded into its quadrant.
 // Stack-slot permutation; p_z > p_x compares in the other operand order.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x1007ef93
 // FUNCTION: MW23DFX 0x10030120
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
@@ -138,23 +140,36 @@ MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 }
 
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2MATROX 0x1007f15b
 // FUNCTION: MW23DFX 0x100302c0
 MechS32 InitSlopeTables(void)
 {
 	MechS32 i;
 	MechDouble cosine;
+#ifdef MW2_3DFX
+	MechDouble slope;
+#endif
 
 	for (i = 0; i < 800; i++) {
+#ifdef MW2_3DFX
+		// The 3Dfx edition's computes the slope once.
+		slope = i / 16.0;
+		cosine = 1.0 / sqrt(slope * slope + 1.0);
+		g_slopeCosines[i] = cosine;
+		g_slopeSines[i] = slope * cosine;
+#else
 		cosine = 1.0 / sqrt(i / 16.0 * (i / 16.0) + 1.0);
 		g_slopeCosines[i] = cosine;
 		g_slopeSines[i] = i / 16.0 * cosine;
+#endif
 	}
 
 	return TRUE;
 }
 
 // The Matrox edition's is C, on floats, and takes the absolute values in the order x, z, y.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x1007f25b
 // FUNCTION: MW23DFX 0x10030330
 MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
@@ -218,6 +233,7 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 // cross product of its edges over its length; returns the length.
 // Commutative operand order: the original computes each product's factors the other way round, and
 // reloads nz for its square. Stack-slot permutation: length, nx, ny and nz.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x1007f368
 // FUNCTION: MW23DFX 0x10030410
 MechS32 ComputeTriangleNormal(

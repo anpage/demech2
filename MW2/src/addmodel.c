@@ -17,6 +17,7 @@
 // The size sum adds p_extra and vertexBytes in the other order, and the locals sit in
 // permuted stack slots.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003a5f3
 // FUNCTION: MW2MATROX 0x10027cb8
 // FUNCTION: MW23DFX 0x10029460

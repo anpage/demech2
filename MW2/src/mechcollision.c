@@ -33,6 +33,7 @@
 // Stack-slot permutation of the locals. The original sums dot's three products in source order;
 // the build starts with the second.
 // MW2MATROX: a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100758a0
 // FUNCTION: MW2MATROX 0x10075a80
 // FUNCTION: MW23DFX 0x1000b5e0
@@ -138,7 +139,20 @@ MechS32 MoveMechWithCollisions(
 					g_segmentNormalZ = normal.m_dirZ;
 				}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_3DFX
+				dot = g_segmentNormalX * 2 * ray.m_dirX;
+				dot += g_segmentNormalY * 2 * ray.m_dirY;
+				dot += g_segmentNormalZ * 2 * ray.m_dirZ;
+				nx = ray.m_dirX - dot * g_segmentNormalX;
+				ny = ray.m_dirY - dot * g_segmentNormalY;
+				nz = ray.m_dirZ - dot * g_segmentNormalZ;
+				bounce =
+					-ApproximateVectorLength(p_mech->m_newVelocityX, p_mech->m_newVelocityY, p_mech->m_newVelocityZ) /
+					4;
+				p_mech->m_velocityX = nx * bounce;
+				p_mech->m_velocityY = ny * bounce;
+				p_mech->m_velocityZ = nz * bounce;
+#elif defined(MW2_ACCEL)
 				dot = g_segmentNormalX * 2 * ray.m_dirX + g_segmentNormalY * 2 * ray.m_dirY +
 					  g_segmentNormalZ * 2 * ray.m_dirZ;
 				nx = ray.m_dirX - dot * g_segmentNormalX;
@@ -422,6 +436,7 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // original.
 // MW2MATROX: a stack-slot permutation, and the products of the normal with reach and bounce load
 // the normal first in the original.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10076295
 // FUNCTION: MW2MATROX 0x1007649e
 // FUNCTION: MW23DFX 0x1000be60
@@ -580,6 +595,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
 // Stack-slot permutation: attacker and angle. Operand order: damage < p_damage loads p_damage
 // first in the original. MW2MATROX multiplies p_damage * 2 * m_tons in another order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2MATROX 0x10076927
 // FUNCTION: MW23DFX 0x1000c1f0

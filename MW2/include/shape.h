@@ -128,6 +128,7 @@ void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undef
 
 // The 3Dfx edition places these out of shape.c's order, so they are annotated here, by name.
 
+// The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
 // FUNCTION: MW23DFX 0x10029210
 // ComputeFaceNormal
 

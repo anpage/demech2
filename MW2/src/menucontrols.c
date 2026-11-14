@@ -26,6 +26,7 @@
 // right cap and the knob): while selected, Space or Right (0xc8) raises it by a tenth and Left
 // (0xc9) lowers it, and its number key raises it too.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10072840
 // FUNCTION: MW2MATROX 0x1007e020
 // FUNCTION: MW23DFX 0x10064780
@@ -204,6 +205,7 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
 // callbacks.
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
+// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10072dab
 // FUNCTION: MW2MATROX 0x1007e58b
 // FUNCTION: MW23DFX 0x10064b60
@@ -284,8 +286,10 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 			value = p_control->m_value;
 		}
 		break;
+#ifndef MW2_3DFX
 	case 2:
 		break;
+#endif
 	case 4:
 		if (p_control->m_set) {
 			p_control->m_set(p_control->m_arg, value);
@@ -300,8 +304,10 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 		apply = FALSE;
 		break;
+#ifndef MW2_3DFX
 	case 3:
 		break;
+#endif
 	}
 
 	if (((MenuChoices*) p_control->m_data)->m_count > 0) {
@@ -337,6 +343,7 @@ void RunMenuStatus(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A list of choices (MenuChoices): while selected, Space or Right (0xc8) picks the next and Left
 // (0xc9) the previous, wrapping, and its number key the next.
 // Stack-slot permutation; m_texts[value] loads the array before the index (index order).
+// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10073136
 // FUNCTION: MW2MATROX 0x1007e92e
 // FUNCTION: MW23DFX 0x10064d90
@@ -479,6 +486,7 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 // A text box (MenuTextBox) in the menu's font; its rectangle is placed in the menu's target the
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100734ad
 // FUNCTION: MW2MATROX 0x1007eca5
 // FUNCTION: MW23DFX 0x10064fa0

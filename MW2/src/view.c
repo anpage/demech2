@@ -33,7 +33,7 @@
 // GLOBAL: MW23DFX 0x1024e6a4
 MechS32 g_lodQuality = 1;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 // The Matrox edition's: a further scale of Eyepoint::m_detailScale, which UpdateProjection reads once
 // from LOD.PAR's LOD_SCALE line.
 // GLOBAL: MW2MATROX 0x100a596c
@@ -273,6 +273,7 @@ MechFloat g_viewLightScale;
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
 // MW2MATROX: the products of the rotation with the projection scales load their operands in the
 // other order (commutative operand order).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004b980
 // FUNCTION: MW2MATROX 0x10029070
 // FUNCTION: MW23DFX 0x1002f560
@@ -375,6 +376,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // Stack-slot permutation: every local.
 // MW2MATROX: floats, without the projection offset and the 16-bit scales; the detail scale is
 // also scaled by LOD.PAR's LOD_SCALE, read the first time.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004bc2e
 // FUNCTION: MW2MATROX 0x100292cc
 // FUNCTION: MW23DFX 0x1002f740
@@ -397,8 +399,10 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	MechS32 left;
 	MechScalar fov;
 	MechScalar fovY;
+#ifdef MW2_MATROX
 	MechChar line[0x100];
 	FILE* file;
+#endif
 
 	eyepoint = p_eyepoint;
 	fov = eyepoint->m_fovX;
@@ -440,6 +444,8 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	}
 
 	eyepoint->m_detailScale = scaleX / (g_lodQuality * 160.0f);
+#ifdef MW2_MATROX
+	// LOD.PAR is the Matrox edition's.
 	if (!g_lodScaleLoaded) {
 		file = fopen("LOD.PAR", "rt");
 		if (file) {
@@ -460,6 +466,7 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	}
 
 	eyepoint->m_detailScale *= g_lodScale;
+#endif
 #else
 	MechS32 centerX;
 	MechS32 bottom;
@@ -640,6 +647,7 @@ void GetEyepointTransform(Eyepoint* p_eyepoint, Matrix* p_matrix)
 // screen.
 // Stack-slot permutation of the locals. The Matrox edition's rebuild sums the dot products' terms
 // and compares the depth and the screen bounds in the other operand order (entropy).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004c11d
 // FUNCTION: MW2MATROX 0x1002975e
 // FUNCTION: MW23DFX 0x1002f9f0
@@ -731,6 +739,8 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // Stack-slot permutation of the locals. In the Matrox edition, the sums and products take their
 // operands in another order, and the range test keeps dz on the FPU stack (fst) where the rebuild
 // reloads it.
+// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd), where 2.2
+// folds ours into an fsub; no source form tried keeps it. Otherwise registers and operand order.
 // FUNCTION: MW2 0x1004c2ef
 // FUNCTION: MW2MATROX 0x10029957
 // FUNCTION: MW23DFX 0x1002fba0
@@ -846,6 +856,8 @@ MechS32 CullSceneShape(Shape* p_shape)
 // hidden shape (bit 0x1000).
 // Stack-slot permutation of the locals. In the Matrox edition, the sums and products take their
 // operands in another order.
+// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd), where 2.2
+// folds ours into an fsub; no source form tried keeps it. Otherwise registers and operand order.
 // FUNCTION: MW2 0x1004c565
 // FUNCTION: MW2MATROX 0x10029c23
 // FUNCTION: MW23DFX 0x1002fdc0

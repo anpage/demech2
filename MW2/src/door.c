@@ -138,6 +138,7 @@ void UpdateDoor(Mech* p_mech)
 // destroyed after a delay.
 // Stack-slot permutation of the locals. The original tests the target's kind by loading its high
 // byte and shifting it back ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1006844e
 // FUNCTION: MW2MATROX 0x10088b99
 // FUNCTION: MW23DFX 0x10021f20
@@ -250,6 +251,7 @@ void ShutdownDoor(Mech* p_mech)
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10068772
 // FUNCTION: MW2MATROX 0x10088ed4
 // FUNCTION: MW23DFX 0x100221a0

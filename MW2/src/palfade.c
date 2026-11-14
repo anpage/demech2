@@ -82,6 +82,7 @@ void FreePaletteCycle(PaletteCycle* p_cycle)
 // Matches except for the stack slots of i and accum (a consistent permutation). The Matrox edition adds
 // p_count * 3 and p_first * 3 in the other operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10010c85
 // FUNCTION: MW2MATROX 0x100506f5
 // FUNCTION: MW23DFX 0x100613c0

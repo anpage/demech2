@@ -40,6 +40,17 @@
 // g_skyTileU by g_skyTileV, the ground's every g_groundTile, and the sky's texture scrolls from
 // g_skyScroll to g_skyScrollEnd by g_skyScrollSpeed a frame.
 
+// The 3Dfx edition's defaults are its own.
+#ifdef MW2_3DFX
+// GLOBAL: MW23DFX 0x1024e118
+MechFloat g_skyTileU = 4.0f;
+
+// GLOBAL: MW23DFX 0x1024e11c
+MechFloat g_skyTileV = 0.8f;
+
+// GLOBAL: MW23DFX 0x1024e120
+MechFloat g_groundTile = 20000.0f;
+#else
 // GLOBAL: MW2MATROX 0x100addc0
 MechFloat g_skyTileU = 12.0f;
 
@@ -48,6 +59,7 @@ MechFloat g_skyTileV = 2.4f;
 
 // GLOBAL: MW2MATROX 0x100addc8
 MechFloat g_groundTile = 50.0f;
+#endif
 
 // GLOBAL: MW2MATROX 0x100addcc
 // GLOBAL: MW23DFX 0x1024e124
@@ -112,6 +124,7 @@ MechS32 g_unk0x100adeec = 0;
 // The textured sky's four quads, four corners each: a position, and whether the corner takes the
 // texture's far edge in u and in v.
 // GLOBAL: MW2MATROX 0x100adef0
+// GLOBAL: MW23DFX 0x1024e248
 SkyCorner g_skyCorners[16] = {
 	{-64000000.0f, 2200000.0f, -64000000.0f, 0, 0},
 	{64000000.0f, 2200000.0f, -64000000.0f, 1, 0},
@@ -150,6 +163,7 @@ MechFloat g_skyGreen;
 MechFloat g_skyRed;
 
 // GLOBAL: MW2MATROX 0x1015d5e4
+// GLOBAL: MW23DFX 0x101b0efc
 MechFloat g_skyScrollEnd;
 
 // GLOBAL: MW2MATROX 0x1015d5e8
@@ -170,6 +184,7 @@ MechFloat g_groundRed;
 A3DVertex g_a3dClipped[16];
 
 // GLOBAL: MW2MATROX 0x1015d900
+// GLOBAL: MW23DFX 0x101b12d0
 MechFloat g_skyScrollSpeed;
 
 // The polygon the Matrox edition hands its renderer.
@@ -179,6 +194,7 @@ A3DVertex g_a3dVertices[16];
 
 // The point count of g_a3dClipped.
 // GLOBAL: MW2MATROX 0x1015dc10
+// GLOBAL: MW23DFX 0x101b16a0
 MechU32 g_a3dClippedCount;
 
 // The palette's colors as the renderer takes them (0-255 per component).
@@ -210,6 +226,7 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 // (A3D_EdgeCrossing), and copies the result to g_a3dClipped. Returns its point count, -1 if nothing
 // is left, or 0 without p_edges. The Matrox edition doesn't call it; its only diff is a stack-slot
 // permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x10067b90
 // FUNCTION: MW23DFX 0x10026a30
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
@@ -668,11 +685,25 @@ void FUN_10068856(
 		vertex++;
 	}
 
+#ifdef MW2_3DFX
+	// The 3Dfx edition's clips the polygon to the pane's edges in p_unk0x14 first.
+	if (p_unk0x14) {
+		p_count = FUN_10067b90(p_count, p_unk0x14, 1);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+#else
 	A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+#endif
 }
 
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100688fe
 // FUNCTION: MW23DFX 0x100272e0
 void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c, MechS32 p_lit)
@@ -698,7 +729,20 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		vertex++;
 	}
 
+#ifdef MW2_3DFX
+	// The 3Dfx edition's clips the polygon to the pane's edges in p_unk0x0c first.
+	if (p_unk0x0c) {
+		p_count = FUN_10067b90(p_count, p_unk0x0c, p_lit != 0);
+		if (p_count > 2) {
+			A3D_DrawPolygon(&g_currentPane, p_count, g_a3dClipped);
+		}
+	}
+	else {
+		A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+	}
+#else
 	A3D_DrawPolygon(&g_currentPane, p_count, g_a3dVertices);
+#endif
 }
 
 // Draws a shaded polygon in each vertex's color: lit by its light, unless the vertex's shade (in
@@ -863,15 +907,25 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 		}
 	}
 
+#ifdef MW2_3DFX
+	g_skyTileU = 4.0f;
+	g_skyTileV = 0.8f;
+	g_skyScroll = 0;
+	g_skyScrollEnd = 4.0f;
+	g_skyScrollSpeed = g_skyTileU * 0.0001f;
+	g_groundTile = 20000.0f;
+#else
 	g_skyTileU = 12.0f;
 	g_skyTileV = 2.4f;
 	g_skyScroll = 0;
 	g_skyScrollEnd = 12.0f;
 	g_skyScrollSpeed = g_skyTileU * 0.0001f;
 	g_groundTile = 50.0f;
+#endif
 }
 
 // Draws the textured sky's four quads (g_skyCorners).
+// The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10068e33
 void FUN_10068e33(Eyepoint* p_eyepoint)
@@ -958,19 +1012,20 @@ void FUN_10068e33(Eyepoint* p_eyepoint)
 		vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection =
 			NULL;
 		count = ProjectPolygon(vertices, 4, 1);
+#ifdef MW2_3DFX
+		FUN_10051ea2(0x8c, g_polygonPoints, count);
+#else
 		if (!count) {
 			continue;
 		}
 
-#ifdef MW2_3DFX
-		FUN_10051ea2(0x8c, g_polygonPoints, count);
-#else
 		FUN_10051ea2(0x8c, g_polygonPoints, count, 0, 0);
 #endif
 	}
 }
 
 // Draws the sky as one quad, its texture scrolled by g_skyScrollSpeed.
+// The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10069172
 void FUN_10069172(Eyepoint* p_eyepoint)
@@ -991,18 +1046,19 @@ void FUN_10069172(Eyepoint* p_eyepoint)
 	vertices[3].m_v = vertices[2].m_v = g_skyScrollEnd;
 	vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection = NULL;
 	count = ProjectPolygon(vertices, 4, 1);
+#ifdef MW2_3DFX
+	FUN_10051ea2(0x8c, g_polygonPoints, count);
+#else
 	if (!count) {
 		return;
 	}
 
-#ifdef MW2_3DFX
-	FUN_10051ea2(0x8c, g_polygonPoints, count);
-#else
 	FUN_10051ea2(0x8c, g_polygonPoints, count, 0, 0);
 #endif
 }
 
 // Draws the ground as one quad, its texture repeated every g_groundTile.
+// The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x100692db
 void FUN_100692db(Eyepoint* p_eyepoint)
@@ -1021,16 +1077,23 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 	vertices[3].m_v = vertices[2].m_v = g_groundTile;
 	vertices[0].m_projection = vertices[1].m_projection = vertices[2].m_projection = vertices[3].m_projection = NULL;
 	count = ProjectPolygon(vertices, 4, 1);
+#ifdef MW2_3DFX
+	FUN_10051c07(8, g_polygonPoints, count);
+#else
 	if (!count) {
 		return;
 	}
 
-#ifdef MW2_3DFX
-	FUN_10051c07(8, g_polygonPoints, count);
-#else
 	FUN_10051c07(8, g_polygonPoints, count, 0);
 #endif
 }
+#endif
+
+// A 16-bit pixel from 8-bit components: RGB555 in the 3Dfx edition, RGB565 in the Matrox edition.
+#ifdef MW2_3DFX
+#define PIXEL_RGB16(r, g, b) ((((MechU8) (r) & ~7) << 5 | ((MechU8) (g) & ~7)) << 2 | (MechU8) (b) >> 3)
+#else
+#define PIXEL_RGB16(r, g, b) (((MechU8) (r) & ~7) << 8 | ((MechU8) (g) & ~3) << 3 | (MechU8) (b) >> 3)
 #endif
 
 // Draws the sky and the ground of the view from p_eyepoint: the horizon, rolled with the view,
@@ -1112,7 +1175,11 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		FUN_100519b0(0x18c, &g_skyRed, &g_skyGreen, &g_skyBlue);
 		FUN_100519b0(0x108, &g_groundRed, &g_groundGreen, &g_groundBlue);
 		DebugPrint(
+#ifdef MW2_3DFX
+			"sky %d=(%f,%f,%f)  ground %d=(%f,%f,%f)",
+#else
 			"sky %d=(%f,%f,%f)\n  ground %d=(%f,%f,%f)\n",
+#endif
 			g_skyColor,
 			g_skyRed,
 			g_skyGreen,
@@ -1125,20 +1192,20 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		g_skyColorsRead = TRUE;
 	}
 
+#ifdef MW2_3DFX
+	// The 3Dfx edition's sets the sky's and the ground's palette entries, and its 16-bit pixels are
+	// RGB555.
+	g_skyColor = 0xe0;
+	g_groundColor = 0xef;
+#endif
 	g_paletteRgb[g_skyColor][0] = g_skyRed;
 	g_paletteRgb[g_skyColor][1] = g_skyGreen;
 	g_paletteRgb[g_skyColor][2] = g_skyBlue;
-	VFX_lookaside_write16(
-		g_skyColor,
-		((MechU8) g_skyRed & ~7) << 8 | ((MechU8) g_skyGreen & ~3) << 3 | (MechU8) g_skyBlue >> 3
-	);
+	VFX_lookaside_write16(g_skyColor, PIXEL_RGB16(g_skyRed, g_skyGreen, g_skyBlue));
 	g_paletteRgb[g_groundColor][0] = g_groundRed;
 	g_paletteRgb[g_groundColor][1] = g_groundGreen;
 	g_paletteRgb[g_groundColor][2] = g_groundBlue;
-	VFX_lookaside_write16(
-		g_groundColor,
-		((MechU8) g_groundRed & ~7) << 8 | ((MechU8) g_groundGreen & ~3) << 3 | (MechU8) g_groundBlue >> 3
-	);
+	VFX_lookaside_write16(g_groundColor, PIXEL_RGB16(g_groundRed, g_groundGreen, g_groundBlue));
 	band[0].m_blue = g_paletteRgb[g_skyColor][2];
 	band[0].m_green = g_paletteRgb[g_skyColor][1];
 	band[0].m_red = g_paletteRgb[g_skyColor][0];

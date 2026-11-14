@@ -36,6 +36,7 @@ MechS32 g_timeOfDayPhase = -1;
 
 // GLOBAL: MW2 0x100ba5fc
 // GLOBAL: MW2MATROX 0x100bbba4
+// GLOBAL: MW23DFX 0x1024a984
 MechScalar g_soundDelayPerUnit = FIXED_LITERAL(0x168, 0.00549f);
 
 // GLOBAL: MW2 0x100ba600
@@ -50,6 +51,7 @@ MechScalar g_gravityScale = FIXED_RAW(0x10000);
 
 // GLOBAL: MW2 0x100ba608
 // GLOBAL: MW2MATROX 0x100bbbb0
+// GLOBAL: MW23DFX 0x1024a990
 MechS32 g_unk0x100ba608 = 0;
 
 // GLOBAL: MW2 0x100ba60c
@@ -131,6 +133,7 @@ void FirstEnvironment(void)
 // Stack slots: seconds, time and i are permuted. MW2MATROX: the g_currentClock and
 // g_nextTimeOfDayUpdate comparison has its operands the other way around.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007d6bb
 // FUNCTION: MW2MATROX 0x10085d3b
 // FUNCTION: MW23DFX 0x10007900

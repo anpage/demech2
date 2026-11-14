@@ -294,6 +294,7 @@ void FreeModel(Model* p_model)
 // Removes the selected model from the shape's list and frees it.
 // The only diff is a stack-slot permutation of model and cursor.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003aba5
 // FUNCTION: MW2MATROX 0x100281d6
 // FUNCTION: MW23DFX 0x10029760
@@ -442,6 +443,7 @@ MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, Mech
 
 // Computes the selected model's face normals, then the shape's center and radius (a shape
 // LoadShapeRecord has just built).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003ae1e
 // FUNCTION: MW2MATROX 0x1002844f
 // FUNCTION: MW23DFX 0x100298c0
@@ -610,6 +612,7 @@ void GetModelCounts(Shape* p_shape, MechS32* p_vertexCount, MechS32* p_faceCount
 
 // Calls p_fn for each shape of the list after p_shape.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003b48f
 // FUNCTION: MW2MATROX 0x10028877
 // FUNCTION: MW23DFX 0x10029950
@@ -768,6 +771,7 @@ MechU32 GetShapeLoadFlags(Shape* p_shape)
 }
 #endif
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003b72f
 // FUNCTION: MW2MATROX 0x1002893e
 // FUNCTION: MW23DFX 0x100299c0
@@ -790,6 +794,7 @@ void DestroyShape(Shape* p_shape)
 
 // Detaches the shape from its scene object and frees it. A ShapeCallback (DestroyObjTree).
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003b78b
 // FUNCTION: MW2MATROX 0x1002899a
 // FUNCTION: MW23DFX 0x10029a00
@@ -812,6 +817,7 @@ void DestroyObjShape(Shape* p_shape)
 
 // Returns the bytes the shape, its models and its bounding data take.
 // The only diff is a stack-slot permutation of model, vertex and size.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003b7cc
 // FUNCTION: MW2MATROX 0x100289f3
 // FUNCTION: MW23DFX 0x10029a40

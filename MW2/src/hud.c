@@ -42,7 +42,7 @@
 #endif
 
 // The compass's bearing marks are drawn with the Matrox edition's FUN_1001e01a.
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 #define DRAW_MARK_SHAPE FUN_1001e01a
 #else
 #define DRAW_MARK_SHAPE DrawPaneShape
@@ -63,11 +63,13 @@ MechS32 g_altimeterMarkWidth = 0xf0f;
 
 // GLOBAL: MW2 0x100a5ed4
 // GLOBAL: MW2MATROX 0x100a4dec
+// GLOBAL: MW23DFX 0x1024d0dc
 MechS32 g_altimeterMarkHeight = 0xd79;
 
 // The altimeter's place, in 16.16 fractions of its gauge until InitHudGauges scales it.
 // GLOBAL: MW2 0x100a5ed8
 // GLOBAL: MW2MATROX 0x100a4df0
+// GLOBAL: MW23DFX 0x1024d0e0
 Point g_altimeterOrigin = {0xb333, 0x8000};
 
 // The compass's place, likewise.
@@ -117,6 +119,7 @@ static MechS32 g_compassArrowWidth;
 
 // GLOBAL: MW2 0x100be5a4
 // GLOBAL: MW2MATROX 0x100c1e5c
+// GLOBAL: MW23DFX 0x1007c3e4
 static MechS32 g_compassArrowHeight;
 
 // GLOBAL: MW2 0x100be5a8
@@ -136,6 +139,7 @@ static MechS32 g_altimeterGroundX;
 
 // GLOBAL: MW2 0x100be5b4
 // GLOBAL: MW2MATROX 0x100c1e64
+// GLOBAL: MW23DFX 0x1007c3ec
 static MechS32 g_altimeterTargetX;
 
 // The altimeter's scale: pixels per 16.16 unit of height.
@@ -162,6 +166,7 @@ static MechS32 g_altimeterLevelX;
 
 // GLOBAL: MW2 0x100be5c8
 // GLOBAL: MW2MATROX 0x100c1e60
+// GLOBAL: MW23DFX 0x1007c3e8
 static MechS32 g_compassTapeBelow;
 
 // Draws the HUD's overlays the display options enable: the compass and its target markers, the
@@ -247,6 +252,7 @@ void DrawHud(
 // Draws the altimeter: the mech's height, the height of m_player's mark (Player::m_unk0x74) and
 // the height of the target, clamped to the gauge. p_x and p_y go unused.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10040cbc
 // FUNCTION: MW2MATROX 0x1001caef
 // FUNCTION: MW23DFX 0x100222e0
@@ -368,7 +374,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 // Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
 // its extent plus its id, not by the id it was loaded with.
 // Stack-slot permutation; the second g_altimeterMarkWidth sum loads its operands in the other order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10040f91
 // FUNCTION: MW2MATROX 0x1001ce3d
 // FUNCTION: MW23DFX 0x10022490
@@ -603,7 +609,7 @@ void DrawTargetMarker(Mech* p_mech)
 // Stack-slot permutation; the two y sums load g_compassOrigin.m_y first (commutative operands).
 // MW2MATROX: the two side arrows' y sums load g_compassOrigin.m_y first, and the bearing mark's
 // product p_bearing (commutative operands).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004161f
 // FUNCTION: MW2MATROX 0x1001d551
 // FUNCTION: MW23DFX 0x10022960
@@ -658,7 +664,7 @@ void DrawCompassMarkers(
 	}
 	else {
 #ifdef MW2_ACCEL
-		FUN_1001e01a(
+		DRAW_MARK_SHAPE(
 			g_compassOrigin.m_x + (MechS32) (g_compassScale * p_bearing),
 			g_compassOrigin.m_y,
 			HUD_SHAPE(0xd),
@@ -697,6 +703,7 @@ void DrawCompassMarkers(
 // The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the negative twist bar's x converts the offset before it loads g_compassOrigin.m_x
 // (commutative operands).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004183a
 // FUNCTION: MW2MATROX 0x1001d7b6
 // FUNCTION: MW23DFX 0x10022b10
@@ -791,6 +798,7 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 // Marks player p_player on the screen: brackets at the corners of its mech, sized by its radius
 // and depth, in its side's shapes; off the screen, an arrow at the edge.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10041a14
 // FUNCTION: MW2MATROX 0x1001d9cd
 // FUNCTION: MW23DFX 0x10022cc0
@@ -875,6 +883,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 // Marks the object p_object on the screen like DrawPlayerBrackets a player: brackets around its shape,
 // at most half the screen apart, or an arrow at the edge.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10041c3c
 // FUNCTION: MW2MATROX 0x1001dc23
 // FUNCTION: MW23DFX 0x10022ea0
@@ -918,7 +927,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 	}
 	else {
 #ifdef MW2_ACCEL
-		size = size / 2 * g_eyepoint->m_projectScaleX / z;
+		size = ((size / 2) * g_eyepoint->m_projectScaleX) / z;
 		if (size > (maxSize = (MechScalar) g_eyepoint->m_halfWidth / 2)) {
 			size = maxSize;
 		}
@@ -967,31 +976,30 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y of the
 // current pane.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10041e98
 // FUNCTION: MW2MATROX 0x1001dee6
 // FUNCTION: MW23DFX 0x100230c0
 void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
 	void* shape;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	Rect bounds;
 #endif
 
 	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resTagShp, 0);
 	if (shape) {
 		VFX_shape_draw(&g_currentPane, shape, 0, p_x, p_y);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
 		ClipRectToPane(&g_currentPane, &bounds);
-#ifdef MW2_MATROX
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
-#endif
 #endif
 		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resTagShp);
 	}
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 // The Matrox edition's: clips p_rect to p_pane's rectangle.
 // The last comparison loads its operands in the other order.
 // FUNCTION: MW2MATROX 0x1001df99
@@ -1024,9 +1032,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 		VFX_shape_draw(p_target, shape, 0, p_x, p_y);
 		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
 		ClipRectToPane(p_target, &bounds);
-#ifdef MW2_MATROX
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
-#endif
 		UnlockCachedResource(p_id + HUD_ART_RESOLUTION, g_resTagShp);
 	}
 }
@@ -1035,6 +1041,7 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y.
 // Operand order: p_id + HUD_ART_RESOLUTION loads p_id first in the original.
 // MW2MATROX: p_id + HUD_ART_RESOLUTION loads the art resolution first (commutative operands).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10041f06
 // FUNCTION: MW2MATROX 0x1001e0cb
 // FUNCTION: MW23DFX 0x10023120

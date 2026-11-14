@@ -43,6 +43,7 @@ MechChar g_soundFileDir[0x100];
 
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
 // Stack-slot permutation of entry, added and slot.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10007140
 // FUNCTION: MW2MATROX 0x10001000
 // FUNCTION: MW23DFX 0x100084e0

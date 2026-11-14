@@ -26,6 +26,7 @@
 
 // GLOBAL: MW2 0x1009de38
 // GLOBAL: MW2MATROX 0x100a0414
+// GLOBAL: MW23DFX 0x10248544
 const MechS32 g_wtbTag = 0x4f425457;
 
 // GLOBAL: MW2 0x100ba65c
@@ -85,6 +86,7 @@ MechU32 g_faceIdCount = 0;
 
 // GLOBAL: MW2 0x100ba688
 // GLOBAL: MW2MATROX 0x100a5600
+// GLOBAL: MW23DFX 0x1025a5f4
 MechS32 g_subShapeCollisionType = 4;
 
 // GLOBAL: MW2 0x100ba68c

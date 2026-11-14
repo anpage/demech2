@@ -346,6 +346,7 @@ void ShiftCharacter(MechChar* p_char)
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
 // Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005c057
 // FUNCTION: MW2MATROX 0x1004278d
 // FUNCTION: MW23DFX 0x10037310
@@ -598,60 +599,35 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3:
-		if (g_mechViewMode == 2) {
-			g_mechViewMode = 0;
-		}
-		else {
-			g_mechViewMode = 2;
-		}
+		g_mechViewMode = g_mechViewMode == 2 ? 0 : 2;
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 1, 0x32);
 		}
 		break;
 	case 0x4:
-		if (g_mechViewMode == 3) {
-			g_mechViewMode = 0;
-		}
-		else {
-			g_mechViewMode = 3;
-		}
+		g_mechViewMode = g_mechViewMode == 3 ? 0 : 3;
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 2, 0x32);
 		}
 		break;
 	case 0x5:
-		if (g_mechViewMode == 4) {
-			g_mechViewMode = 0;
-		}
-		else {
-			g_mechViewMode = 4;
-		}
+		g_mechViewMode = g_mechViewMode == 4 ? 0 : 4;
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 3, 0x32);
 		}
 		break;
 	case 0x6:
-		if (g_mechViewMode == 5) {
-			g_mechViewMode = 0;
-		}
-		else {
-			g_mechViewMode = 5;
-		}
+		g_mechViewMode = g_mechViewMode == 5 ? 0 : 5;
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 4, 0x32);
 		}
 		break;
 	case 0x7:
-		if (g_mechViewMode == 1) {
-			g_mechViewMode = 0;
-		}
-		else {
-			g_mechViewMode = 1;
-		}
+		g_mechViewMode = g_mechViewMode == 1 ? 0 : 1;
 
 		if (g_players[g_localPlayerId]->m_flags & 0x2000) {
 			PlaySoundEffect(0xdc, 100, 0x40, 6, 0x32);
@@ -844,7 +820,7 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3d:
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		if (mech->m_powerState == 7) {
 			break;
 		}
@@ -859,10 +835,12 @@ void RunGameKey(MechS32 p_key)
 		break;
 	case 0x3e:
 #ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		if (mech->m_powerState == 7) {
 			break;
 		}
 
+#endif
 		if (mech->m_powerState == 3) {
 			g_powerRequest = 1;
 		}

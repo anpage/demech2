@@ -32,6 +32,7 @@ typedef MechS32 (*DrawFaceHook)(Face* p_face, Vertex* p_vertices, MechS32 p_flag
 // Returns the vertex's projected copy (m_projection), transforming it into view space (by
 // g_viewProjX0's rows, from the eyepoint g_viewEyeX) the first time.
 // Stack-slot permutation; the products sum in another order (commutative operand order).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10076e20
 // FUNCTION: MW23DFX 0x1002b140
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
@@ -68,6 +69,7 @@ ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 // Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
 // (g_viewNearPlane), its values interpolated.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x10076f41
 // FUNCTION: MW23DFX 0x1002b200
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
@@ -176,6 +178,7 @@ ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 // outcodes (1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the polygon being built
 // and adds the vertex to its list (up to 20).
 // Stack-slot permutation; the edge tests compare in the other operand order.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x100773f0
 // FUNCTION: MW23DFX 0x1002b730
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
@@ -192,8 +195,10 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 		depth = p_vertex->m_z;
 		p_vertex->m_screenX = g_viewCenterX + (MechS32) (p_vertex->m_x / depth);
 		screenX = p_vertex->m_screenX;
+#ifndef MW2_3DFX
 		p_vertex->m_screenY = -(MechS32) (p_vertex->m_y / depth) + g_viewCenterY;
 		screenY = p_vertex->m_screenY;
+#endif
 		if (screenX > g_viewRight) {
 			outcode |= 2;
 		}
@@ -202,6 +207,11 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 			outcode |= 1;
 		}
 
+#ifdef MW2_3DFX
+		// The 3Dfx edition's projects y after testing x.
+		p_vertex->m_screenY = -(MechS32) (p_vertex->m_y / depth) + g_viewCenterY;
+		screenY = p_vertex->m_screenY;
+#endif
 		if (screenY > g_viewBottom) {
 			outcode |= 8;
 		}
@@ -233,6 +243,7 @@ ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
 // from its first vertex to the light (g_viewLightX), or the light's direction itself with
 // g_directionalLight.
 // Stack-slot permutation; the dot product sums in another order (commutative operand order).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10077579
 // FUNCTION: MW23DFX 0x1002b830
 MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
@@ -274,6 +285,11 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 	return shade;
 }
 
+#ifdef MW2_3DFX
+// The 3Dfx edition compiled QueueFace without optimization (/Od, with /Gr's convention).
+#pragma optimize("", off)
+#endif
+
 // Queues p_face for drawing unless it faces away: transforms its vertices' depths (with their near
 // (1) and far (2) clip codes) if not done this frame, clips it to the near plane through the
 // projection hook (g_renderSettings) and adds the polygon to the list being built (g_depthList)
@@ -281,6 +297,8 @@ MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 // vertices' depths. The vertices take their shades from the light, scaled by the shape's damage.
 // Stack-slot permutation; the dot products sum in another order (commutative operand order),
 // and the loops' and the depth list's tests compare in the other operand order.
+// The 3Dfx edition's is a stack-slot permutation, and it keeps the face normal in three more
+// locals (a 0x84-byte frame against 0x74).
 // FUNCTION: MW2MATROX 0x1007770c
 // FUNCTION: MW23DFX 0x1002b9b0
 void QueueFace(Face* p_face, Vertex* p_vertices)
@@ -517,10 +535,14 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 		g_queueHasRoom = 0;
 	}
 }
+#ifdef MW2_3DFX
+#pragma optimize("", on)
+#endif
 
 // ClipEdgeToNearPlane for two projected vertices, at the depth p_plane (the new vertex still
 // takes g_viewNearPlane's depth).
 // Stack-slot permutation; z1 <= z0 compares in the other operand order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10077fa7
 // FUNCTION: MW23DFX 0x1002c250
 ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, MechFloat p_plane)
@@ -626,6 +648,7 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 // callers pass a third argument it doesn't read.
 // Stack-slot permutation; the products sum in another order (commutative operand order), and
 // i < p_count compares in the other operand order. MW23DFX: the products sum in another order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10078432
 // FUNCTION: MW23DFX 0x1002c770
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)

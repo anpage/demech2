@@ -59,7 +59,7 @@ MechS32 g_targetPanelMode = 1;
 // GLOBAL: MW23DFX 0x1024d050
 MechS32 g_announceTargetSide = 0;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 // The level of detail the target panel loads a target mech's class at (LOD.PAR's
 // TargetWindowREP, read once).
 // GLOBAL: MW2MATROX 0x100a4a54
@@ -97,7 +97,7 @@ MechChar g_anonymousInstallationName[8];
 // name after a while), coloured by its side, and its distance.
 // Stack-slot permutation of the locals. g_currentClock > g_targetFullNameTime compares with its
 // operands reversed (it flipped when speech.h's declarations were added ahead of it).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2MATROX 0x10017e50
 // FUNCTION: MW23DFX 0x10020e40
@@ -313,6 +313,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 // Draws the target panel: the locked target through a camera behind it, a nav point's icon, or
 // static while the panel is damaged (m_damage).
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007c126
 // FUNCTION: MW2MATROX 0x10018683
 // FUNCTION: MW23DFX 0x10021300
@@ -339,7 +340,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	void* noTarget;
 	void* noObject;
 	MechS32 targetIndex;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	MechChar line[0x100];
 	FILE* file;
 #endif
@@ -395,7 +396,11 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 
 		if (icon) {
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
+#ifdef MW2_MATROX
 			FUN_1001e01a(centerX, centerY, icon, p_panel->m_target);
+#else
+			DrawPaneShape(centerX, centerY, icon, p_panel->m_target);
+#endif
 			OutlinePane(p_panel->m_target, 8);
 #ifdef MW2_MATROX
 			FUN_10088280(p_panel->m_target);
@@ -406,6 +411,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	}
 
 	if (kind == 0x200) {
+#ifdef MW2_MATROX
 		if (!g_targetLodParRead) {
 			file = fopen("LOD.PAR", "rt");
 			if (file) {
@@ -429,6 +435,10 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		if (!IsPlayerInView(targetPlayer)) {
 			LoadClassLevel(targetPlayer->m_index, g_targetWindowRep);
 		}
+#else
+		targetPlayer = g_players[mech->m_player->m_targetInfo.m_target & 0xff];
+		LoadClassLevel(targetPlayer->m_index, 0);
+#endif
 	}
 
 	SaveView(g_eyepoint, view);
@@ -497,7 +507,9 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		RenderViewToPane(7, FIXED_CONST(2), view, object);
 	}
 
+#ifdef MW2_MATROX
 	VFX_pane_wipe(p_panel->m_target, 0xfffe);
+#endif
 	OutlinePane(p_panel->m_target, 8);
 	g_renderSettings = saved;
 #ifdef MW2_MATROX

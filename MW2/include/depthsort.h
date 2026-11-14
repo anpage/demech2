@@ -18,13 +18,13 @@ struct Shape;
 // shape whose polygons are queued once the list is sorted (QueuedPolygon::m_count bit 15).
 // SIZE 0x8 (0xc in the Matrox edition)
 typedef struct DepthEntry {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	undefined4 m_unk0x00;         // 0x00
 	struct QueuedPolygon* m_poly; // 0x04 — QueueFace writes these two
 	MechFloat m_depth;            // 0x08
 #else
 	struct QueuedPolygon* m_poly; // 0x00
-	MechS32 m_depth;              // 0x04
+	MechScalar m_depth;           // 0x04
 #endif
 } DepthEntry;
 
@@ -72,6 +72,7 @@ extern "C"
 
 // The 3Dfx edition places these out of depthsort.c's order, so they are annotated here, by name.
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1002a390
 // DrawQueuedPolygon
 

@@ -319,6 +319,7 @@ MechU32 WidenEventFlags(MechU32 p_flags)
 // read). Returns whether every stream it executed loaded.
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
 // Operand order: the rep record's i < g_thingCapacity loads g_thingCapacity first in the original.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1000a9f5
 // FUNCTION: MW2MATROX 0x100461f5
 // FUNCTION: MW23DFX 0x1003de10

@@ -681,6 +681,7 @@ SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name)
 }
 
 // The only diff is a stack-slot permutation of child and last.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100020a6
 // FUNCTION: MW2MATROX 0x10041bb8
 // FUNCTION: MW23DFX 0x1000fe60
@@ -768,6 +769,7 @@ SceneObject* FindObjByPart(SceneObject* p_obj, MechU32 p_partId)
 // Raises the damage level (shape flags 0xf0) of mech part p_partId's shapes to p_level (1 to 15).
 // The remaining diffs are a stack-slot permutation of current and child, and the operand
 // order of p_level > current (declaration order didn't flip it).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10002246
 // FUNCTION: MW2MATROX 0x10041d58
 // FUNCTION: MW23DFX 0x1000ff00

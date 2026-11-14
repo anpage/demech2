@@ -23,6 +23,7 @@
 DepthEntry* g_drawList = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fb0
+// GLOBAL: MW23DFX 0x1024db94
 DepthEntry* g_depthQueue = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fb4
@@ -38,6 +39,7 @@ MechU8* g_drawBufferTop = NULL;
 MechU8* g_drawBufferBottom = NULL;
 
 // GLOBAL: MW2MATROX 0x100a4fc0
+// GLOBAL: MW23DFX 0x1024dba4
 MechS32 g_depthListCapacity = 0;
 
 // GLOBAL: MW2MATROX 0x100a4fc4
@@ -91,6 +93,7 @@ void ShutdownDrawBuffer(void)
 
 // Operand order: the original computes g_depthListCapacity << 4 before p_kilobytes << 10 in size
 // (both front ends reorder commutative operands).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007d150
 // FUNCTION: MW2MATROX 0x100216d0
 // FUNCTION: MW23DFX 0x10025d80

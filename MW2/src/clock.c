@@ -99,10 +99,12 @@ MechS16* g_sqrtTable;
 
 // GLOBAL: MW2 0x100bfd60
 // GLOBAL: MW2MATROX 0x1012d7d0
+// GLOBAL: MW23DFX 0x1015d260
 MechScalar g_slopeSines[800];
 
 // GLOBAL: MW2 0x100c09e0
 // GLOBAL: MW2MATROX 0x1012cb50
+// GLOBAL: MW23DFX 0x1015c5e0
 MechScalar g_slopeCosines[800];
 
 // GLOBAL: MW2 0x100c1660
@@ -225,6 +227,7 @@ void FirstClock(void)
 	g_realClock = 0;
 }
 
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1007ce2c
 // FUNCTION: MW2MATROX 0x1001e9bc
 // FUNCTION: MW23DFX 0x10007ff0

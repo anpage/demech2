@@ -403,6 +403,7 @@ MechS32 g_analogBindingCount = 0;
 
 // GLOBAL: MW2 0x100b259c
 // GLOBAL: MW2MATROX 0x100b1fc4
+// GLOBAL: MW23DFX 0x10251174
 MechS32 g_inputAxisCount = 0;
 
 // GLOBAL: MW2 0x100b25a0
@@ -428,14 +429,17 @@ MechS32 g_inputMapLine = 0;
 
 // GLOBAL: MW2 0x100b25b0
 // GLOBAL: MW2MATROX 0x100b1fd8
+// GLOBAL: MW23DFX 0x10251188
 AnalogBinding g_analogBindings[50] = {0};
 
 // GLOBAL: MW2 0x100b3eb0
 // GLOBAL: MW2MATROX 0x100b38d8
+// GLOBAL: MW23DFX 0x10252a88
 InputAxis g_inputAxes[50] = {0};
 
 // GLOBAL: MW2 0x100b4878
 // GLOBAL: MW2MATROX 0x100b42a0
+// GLOBAL: MW23DFX 0x10253450
 DiscreteBinding g_discreteBindings[100] = {0};
 
 // GLOBAL: MW2 0x100b7370
@@ -758,6 +762,7 @@ InputDeviceInfo g_inputDeviceInfos[5];
 // What each device's last poll reported.
 // GLOBAL: MW2 0x100bf830
 // GLOBAL: MW2MATROX 0x10125140
+// GLOBAL: MW23DFX 0x1007d280
 InputDeviceState g_inputDeviceStates[5];
 
 // The INPUT.MAP name of each device.
@@ -831,6 +836,7 @@ MechS32 RegisterInputDevice(MechChar* p_name)
 // if it isn't there.
 // Stack-slot permutation: index and i.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007959c
 // FUNCTION: MW2MATROX 0x1007bd5c
 // FUNCTION: MW23DFX 0x10038de0
@@ -944,6 +950,7 @@ InputSink* FindInputSink(MechChar* p_name)
 // Reads the next line of INPUT.MAP that isn't blank once its comment is cut off. Returns 0 at
 // the end of the file.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100799b7
 // FUNCTION: MW2MATROX 0x1007c176
 // FUNCTION: MW23DFX 0x10039090
@@ -981,6 +988,7 @@ MechS32 ReadInputMapLine(MechChar* p_buffer, MechS32 p_size, FILE* p_file)
 // The loop compares i and g_inputAxisCount in the other operand order, and i, suffix, sink and
 // name are a stack-slot permutation.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10079aac
 // FUNCTION: MW2MATROX 0x1007c26b
 // FUNCTION: MW23DFX 0x10039140
@@ -1078,6 +1086,7 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // sink p_sink. A binding of the axis without a channel takes the channel. Returns the binding's
 // index, or -1.
 // Stack-slot permutation: index and i.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10079f71
 // FUNCTION: MW2MATROX 0x1007c72f
 // FUNCTION: MW23DFX 0x10039440
@@ -1128,12 +1137,7 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 		g_analogBindings[index].m_channelValue = NULL;
 	}
 
-	if (!strncmp(p_sink->m_name, "menu_", 5)) {
-		g_analogBindings[index].m_menuOnly = TRUE;
-	}
-	else {
-		g_analogBindings[index].m_menuOnly = FALSE;
-	}
+	g_analogBindings[index].m_menuOnly = !strncmp(p_sink->m_name, "menu_", 5);
 
 	return index;
 }
@@ -1141,6 +1145,7 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 // Reads a binding's conditions, "+ device button" or "- device button" a line, up to the closing
 // brace. Returns 0 on an error, or if the last button isn't there.
 // Stack-slot permutation: device, line, sign, button and name.
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1007a168
 // FUNCTION: MW2MATROX 0x1007c926
 // FUNCTION: MW23DFX 0x10039590
@@ -1174,12 +1179,7 @@ MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_c
 		device = FindInputDevice(deviceName);
 		button = FindInputButton(device, buttonName);
 		if (button != -1) {
-			if (sign[0] == '-') {
-				p_conditions[*p_count].m_negate = 1;
-			}
-			else {
-				p_conditions[*p_count].m_negate = 0;
-			}
+			p_conditions[*p_count].m_negate = sign[0] == '-';
 
 			p_conditions[*p_count].m_word = &g_inputDeviceStates[device].m_buttons[button >> 5];
 			p_conditions[*p_count].m_mask = 1 << (button & 0x1f);
@@ -1191,6 +1191,7 @@ MechS32 ParseInputConditions(FILE* p_file, MechS32* p_count, InputCondition* p_c
 }
 
 // Returns whether all p_count conditions hold.
+// The 3Dfx edition's diff is comparison operand order only.
 // FUNCTION: MW2 0x1007a330
 // FUNCTION: MW2MATROX 0x1007caca
 // FUNCTION: MW23DFX 0x100396e0
@@ -1219,6 +1220,7 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // conditions, and a _plus or _minus button also binds its axis (or the axis's _delta sink) so its
 // keys move it.
 // Stack-slot permutation: index, channelName, deviceName, channel and sign.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007a3d1
 // FUNCTION: MW2MATROX 0x1007cb6b
 // FUNCTION: MW23DFX 0x10039730
@@ -1264,12 +1266,7 @@ MechS32 ParseInputMap(FILE* p_file)
 					return FALSE;
 				}
 
-				if (sign[0] == '-') {
-					g_analogBindings[index].m_sign = -1;
-				}
-				else {
-					g_analogBindings[index].m_sign = 1;
-				}
+				g_analogBindings[index].m_sign = sign[0] == '-' ? -1 : 1;
 
 				if (!ParseInputConditions(
 						p_file,
@@ -1302,12 +1299,7 @@ MechS32 ParseInputMap(FILE* p_file)
 
 				g_discreteBindings[index].m_output = sink->m_output;
 				g_discreteBindings[index].m_edge = FALSE;
-				if (!strncmp(sink->m_name, "menu_", 5)) {
-					g_discreteBindings[index].m_menuOnly = TRUE;
-				}
-				else {
-					g_discreteBindings[index].m_menuOnly = FALSE;
-				}
+				g_discreteBindings[index].m_menuOnly = !strncmp(sink->m_name, "menu_", 5);
 
 				suffix = strstr(name, "_plus");
 				if (!suffix) {
@@ -1338,12 +1330,7 @@ MechS32 ParseInputMap(FILE* p_file)
 				g_discreteBindingCount++;
 				g_discreteBindings[index].m_output = sink->m_output;
 				g_discreteBindings[index].m_edge = TRUE;
-				if (!strncmp(sink->m_name, "menu_", 5)) {
-					g_discreteBindings[index].m_menuOnly = TRUE;
-				}
-				else {
-					g_discreteBindings[index].m_menuOnly = FALSE;
-				}
+				g_discreteBindings[index].m_menuOnly = !strncmp(sink->m_name, "menu_", 5);
 			}
 		}
 	}
@@ -1355,6 +1342,7 @@ MechS32 ParseInputMap(FILE* p_file)
 // digits>.std.
 // Stack-slot permutation: name and i.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007a97a
 // FUNCTION: MW2MATROX 0x1007d0ba
 // FUNCTION: MW23DFX 0x10039ac0
@@ -1397,6 +1385,7 @@ MechS32 LoadInputMap(void)
 // Stack-slot permutation: keyCode, i, keys, action, file and code. The Matrox edition compares the two
 // game key actions in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007aba9
 // FUNCTION: MW2MATROX 0x1007d2c1
 // FUNCTION: MW23DFX 0x10039c90
@@ -1582,6 +1571,7 @@ void FirstInputs(void)
 // The loops compare i with the counts (and the keyboard's index) in the other operand order, and
 // the locals are a stack-slot permutation.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007b19b
 // FUNCTION: MW2MATROX 0x1007d86f
 // FUNCTION: MW23DFX 0x1003a0a0

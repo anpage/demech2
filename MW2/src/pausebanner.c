@@ -38,10 +38,12 @@
 
 // GLOBAL: MW2 0x100a15d0
 // GLOBAL: MW2MATROX 0x100a6228
+// GLOBAL: MW23DFX 0x102503a0
 MechS32 g_debugSlot = -1;
 
 // GLOBAL: MW2 0x100a15d4
 // GLOBAL: MW2MATROX 0x100a622c
+// GLOBAL: MW23DFX 0x102503a4
 MechS32 g_debugSection = -1;
 
 // The banner's rectangle, in 16.16 fractions of the screen until the first draw scales it.
@@ -126,6 +128,7 @@ void ResumeGame(void)
 // debug render flags and overlays, the difficulty switches, the objective state of the selected
 // star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
 // The original compares g_debugStar with g_objectiveCount in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10009f8d
 // FUNCTION: MW2MATROX 0x1002ee0a
 // FUNCTION: MW23DFX 0x10036470
@@ -232,12 +235,16 @@ void HandleDebugKey(MechU16 p_key)
 		}
 		break;
 	case 0x78:
+#ifdef MW2_3DFX
+		g_debugStar = g_debugStar == -1 ? -2 : -1;
+#else
 		if (g_debugStar == -1) {
 			g_debugStar = -2;
 		}
 		else {
 			g_debugStar = -1;
 		}
+#endif
 		break;
 	case 0x79:
 		g_debugObjective--;

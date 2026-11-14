@@ -66,6 +66,7 @@ extern "C"
 // The 3Dfx edition places these out of normalizerotation.c's order, so they are annotated here, by
 // name.
 
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x1002f4a0
 // ScaleVectorToLength
 

@@ -400,6 +400,7 @@ MechS32 FirstAudio(void)
 // operand first in the original.
 // MW2MATROX: both comparisons compare in the other operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10006ef1
 // FUNCTION: MW2MATROX 0x10044e61
 // FUNCTION: MW23DFX 0x10031e30

@@ -38,6 +38,7 @@
 // The section each of the outline's sixteen parts shows, plus one (0: none).
 // GLOBAL: MW2 0x100a5c78
 // GLOBAL: MW2MATROX 0x100ac6a8
+// GLOBAL: MW23DFX 0x1024c5c0
 MechS32 g_outlinePartSections[16] = {1, 3, 3, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0};
 
 // The Matrox edition keeps the full armor values as floats.
@@ -55,10 +56,12 @@ typedef struct ArmorPoint {
 
 // GLOBAL: MW2 0x100a5cb8
 // GLOBAL: MW2MATROX 0x100ac6e8
+// GLOBAL: MW23DFX 0x1024c600
 Point g_htalLabelHPosition = {0x1e1e, 0x199a};
 
 // GLOBAL: MW2 0x100a5cc0
 // GLOBAL: MW2MATROX 0x100ac6f0
+// GLOBAL: MW23DFX 0x1024c608
 Point g_htalLabelTPosition = {0x5050, 0x199a};
 
 // GLOBAL: MW2 0x100a5cc8
@@ -93,6 +96,7 @@ PANE g_outlinePartRects[16] = {0};
 // Where each part's shape is drawn from, relative to its rectangle.
 // GLOBAL: MW2 0x100a5e38
 // GLOBAL: MW2MATROX 0x100ac868
+// GLOBAL: MW23DFX 0x1024c780
 Point g_outlinePartOffsets[16] = {0};
 
 // Frames the outline's parts (OutlinePane) when set.
@@ -105,28 +109,34 @@ MechS32 g_frameOutlineParts = 0;
 
 // GLOBAL: MW2 0x100a5ebc
 // GLOBAL: MW2MATROX 0x100ac8ec
+// GLOBAL: MW23DFX 0x1024c808
 MechChar g_htalLabelH[4] = "H";
 
 // GLOBAL: MW2 0x100a5ec0
 // GLOBAL: MW2MATROX 0x100ac8f0
+// GLOBAL: MW23DFX 0x1024c80c
 MechChar g_htalLabelT[4] = "T";
 
 // GLOBAL: MW2 0x100a5ec4
 // GLOBAL: MW2MATROX 0x100ac8f4
+// GLOBAL: MW23DFX 0x1024c810
 MechChar g_htalLabelA[4] = "A";
 
 // GLOBAL: MW2 0x100a5ec8
 // GLOBAL: MW2MATROX 0x100ac8f8
+// GLOBAL: MW23DFX 0x1024c814
 MechChar g_htalLabelL[4] = "L";
 
 // The armor bars' places, one per section (m_x the bar's left, m_y its bottom).
 // GLOBAL: MW2 0x100be418
 // GLOBAL: MW2MATROX 0x100c25f8
+// GLOBAL: MW23DFX 0x1007c340
 Point g_armorBarPositions[8];
 
 // Each section's full front and rear armor.
 // GLOBAL: MW2 0x100be458
 // GLOBAL: MW2MATROX 0x100c2640
+// GLOBAL: MW23DFX 0x1007c388
 ArmorPoint g_fullSectionArmor[8];
 
 // The remap table that colors an outline part (entry 6) by its damage.
@@ -142,6 +152,7 @@ Point g_armorBarSize;
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
 // labels and armor bars' places, and the local mech's full armor.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and stack slots only.
 // FUNCTION: MW2 0x10040020
 // FUNCTION: MW2MATROX 0x10059940
 // FUNCTION: MW23DFX 0x1001b230
@@ -244,10 +255,19 @@ void InitDamagePanel(void)
 	}
 }
 
+// The mask of the front armor's scale (the section flags' bits 4-7): the 3Dfx edition's is signed,
+// which VC++ 2.2 computes in a word.
+#ifdef MW2_3DFX
+#define SCALE_MASK 0xf0
+#else
+#define SCALE_MASK 0xf0U
+#endif
+
 // Draws the damage panel's outline, each part shaded by its section's damage: yellow, then red
 // as its armor goes, black once the section is destroyed.
 // The original loads m_sections before scaling index, and the locals are a stack-slot permutation.
 // MW2MATROX: a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10040511
 // FUNCTION: MW2MATROX 0x10059e60
 // FUNCTION: MW23DFX 0x1001b620
@@ -285,10 +305,10 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		color = 6;
 		index = g_outlinePartSections[i] - 1;
 		section = &p_mech->m_sections[index];
-		scale = (section->m_flags & 0xf0U) >> 4;
+		scale = (section->m_flags & SCALE_MASK) >> 4;
 		if (scale) {
 #ifdef MW2_ACCEL
-			front = 15 - (MechS32) ((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3 / scale);
+			front = 15 - (MechS32) (((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) / scale);
 #else
 			front = 15 - (section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3 / (scale << 16);
 #endif
@@ -304,7 +324,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		scale = section->m_flags & 0xf;
 		if (scale) {
 #ifdef MW2_ACCEL
-			rear = 15 - (MechS32) ((section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3 / scale);
+			rear = 15 - (MechS32) (((section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3) / scale);
 #else
 			rear = 15 - (section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3 / (scale << 16);
 #endif
@@ -361,6 +381,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 // The two full > armor tests take their operands in the other order, and the locals are a
 // stack-slot permutation.
 // MW2MATROX: a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100407b6
 // FUNCTION: MW2MATROX 0x1005a18b
 // FUNCTION: MW23DFX 0x1001b890

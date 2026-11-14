@@ -56,6 +56,7 @@ MechS32 g_starSides[8];
 // GLOBAL: MW23DFX 0x101de8f0
 TeamFormation g_teamFormations[16];
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003bbe0
 // FUNCTION: MW2MATROX 0x10072cc0
 // FUNCTION: MW23DFX 0x10018b70
@@ -181,6 +182,7 @@ MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 // Places the team's leader, then every member at its formation slot around the leader.
 // Stack-slot permutation: result, z, heading, x and i. Operand order: the original compares
 // leader < g_playerCount with g_playerCount in eax.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003bf40
 // FUNCTION: MW2MATROX 0x1007304d
 // FUNCTION: MW23DFX 0x10018dd0
@@ -228,6 +230,7 @@ MechS32 PlaceTeam(MechS32 p_team, MechScalar p_x, MechScalar p_y, MechScalar p_z
 // compares p_player >= g_playerCount with p_player in eax. MW2MATROX: the same comparisons
 // with the operands the other way round, and g_teamFormations indexed with the slot loaded
 // second.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003c07e
 // FUNCTION: MW2MATROX 0x1007318d
 // FUNCTION: MW23DFX 0x10018ec0

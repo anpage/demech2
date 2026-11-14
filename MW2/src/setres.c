@@ -23,6 +23,7 @@
 // The file name suffixes of the art resolutions (ShowBanner).
 // GLOBAL: MW2 0x100aa710
 // GLOBAL: MW2MATROX 0x100bca48
+// GLOBAL: MW23DFX 0x10249298
 MechChar g_artResolutionSuffixes[4][2] = {"", "6", "k", ""};
 
 // The largest coordinates of the three resolutions the art comes in.
@@ -61,6 +62,7 @@ void SetPixelAspect(GameWindowGeometry* p_geometry)
 }
 
 // Picks the art resolution (g_artResolution) closest to the window's.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005d44e
 // FUNCTION: MW2MATROX 0x1008c195
 // FUNCTION: MW23DFX 0x100024b0
@@ -70,6 +72,21 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 	MechS32 distance;
 	MechS32 i;
 
+#ifdef MW2_3DFX
+	// The 3Dfx edition's: the first size sets the distance to beat, and no overrides follow.
+	g_artResolution = g_unk0x1012c1e4 = 0;
+	for (i = 0; i < 3; i++) {
+		distance = abs(g_artResolutionSizes[i].m_y - (p_geometry->m_height - 1)) +
+				   abs(g_artResolutionSizes[i].m_x - (p_geometry->m_width - 1));
+		if (i == 0) {
+			best = distance;
+		}
+		else if (distance < best) {
+			best = distance;
+			g_artResolution = g_unk0x1012c1e4 = i;
+		}
+	}
+#else
 	best = 7;
 	for (i = 0; i < 3; i++) {
 		distance = abs(g_artResolutionSizes[i].m_y - (p_geometry->m_height - 1)) +
@@ -91,6 +108,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 	if (p_geometry->m_width == 640 && p_geometry->m_height == 400) {
 		g_artResolution = g_unk0x1012c1e4 = 1;
 	}
+#endif
 #endif
 }
 

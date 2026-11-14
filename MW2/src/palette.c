@@ -99,6 +99,7 @@ PANE g_panes[11];
 // GLOBAL: MW23DFX 0x101b0d20
 MechS32 g_paletteResourceIds[20];
 
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x100023c0
 // FUNCTION: MW2MATROX 0x1002d560
 // FUNCTION: MW23DFX 0x1002ab20
@@ -116,6 +117,7 @@ void InitPanes(PANE* p_target)
 }
 
 // MW2MATROX: the operands of the comparison with g_paneIndex are the other way.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1000242f
 // FUNCTION: MW2MATROX 0x1002d5cf
 // FUNCTION: MW23DFX 0x1002ab50
@@ -176,6 +178,7 @@ void ApplyPendingPalette(void)
 }
 
 // The Matrox edition ors the pixel's green and blue parts in the other order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1000258d
 // FUNCTION: MW2MATROX 0x1002d705
 // FUNCTION: MW23DFX 0x1002ac40
@@ -193,10 +196,15 @@ void ApplyPaletteResource(MechS32 p_slot)
 		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resTagPal, 0);
 		if (palette) {
 #ifdef MW2_ACCEL
-			// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
 			for (i = 0; i < 0x100; i++) {
 				color = ((PaletteColor*) palette)[i];
+#ifdef MW2_3DFX
+				// The 3Dfx edition's 16-bit pixels: RGB555 from the 6-bit components.
+				VFX_lookaside_write16(i, (color.m_red & ~1) << 9 | (color.m_green & ~1) << 4 | color.m_blue >> 1);
+#else
+				// The Matrox edition's 16-bit pixels: RGB565 from the 6-bit components.
 				VFX_lookaside_write16(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
+#endif
 			}
 
 			ResetTextColors();
@@ -234,6 +242,7 @@ void UpdatePaletteFade(void)
 
 // Matches except for the stack slots of fromSlot, steps and to (a consistent permutation).
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10002687
 // FUNCTION: MW2MATROX 0x1002d865
 // FUNCTION: MW23DFX 0x1002ad50
@@ -369,6 +378,7 @@ MechS32 StartPaletteFlash(MechS32 p_offset, MechS32 p_duration, MechS32 p_mode)
 }
 
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100028b7
 // FUNCTION: MW2MATROX 0x1002db75
 // FUNCTION: MW23DFX 0x1002af80

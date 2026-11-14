@@ -43,6 +43,7 @@ extern "C"
 // FUNCTION: MW23DFX 0x1003bb80
 // GifCloseFile
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1003bf60
 // LzwCompress
 

@@ -54,6 +54,7 @@ typedef struct MekAmmo {
 
 // The value each weapon type adds to a mech's (GetMechValue).
 // GLOBAL: MW2 0x100aa730
+// GLOBAL: MW23DFX 0x10259f60
 MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2,   228, 42, 82, 123,
 							  157, 74,  144, 247, 329, 4,  228, 166, 51, 21, 177, 74,  16, 50, 40};
 
@@ -63,6 +64,7 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // g_otherArmorPerLevel), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1005d6d0
 // FUNCTION: MW2MATROX 0x1008c850
 // FUNCTION: MW23DFX 0x10041410
@@ -163,7 +165,11 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	for (piece = 0; piece < 8; piece++) {
 		sprintf(
 			text,
+#ifdef MW2_3DFX
+			"\n\npiece %d- armor: %ff %fr int: %f flags:%d\n",
+#else
 			"\n\npiece %d- armor: %df %dr int: %d flags:%d\n",
+#endif
 			piece,
 			section->m_armor[0],
 			section->m_armor[1],
@@ -403,6 +409,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 // armor and the value of each of its weapons (up to ten).
 // Stack-slot permutation: the kinds table sits elsewhere in the frame, so its accesses and the
 // jumps over them differ in their encoding.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005e534
 // FUNCTION: MW2MATROX 0x1008d62b
 // FUNCTION: MW23DFX 0x10041c80

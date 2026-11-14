@@ -212,8 +212,9 @@ endfunction()
 # MW2_3DFX.DLL (linked 1996-10-21 by LINK 2.55): the simulator of the 3Dfx edition (the Diamond
 # Monster disc's MW2.DLL), drawing through Glide (GLIDE.DLL). It is the C the accelerated editions
 # share with the Matrox edition's (the float conversion, the 16-bit VFXA port), built with VC++ 2.2
-# and optimized: /Ox /Oa /G5 /Gr,
-# which reproduce the original exactly, with __fastcall the default calling convention (/Gr).
+# and optimized: /Ox /Ow /G5 /Gr, which reproduce the original exactly, with __fastcall the
+# default calling convention (/Gr). /Ow, not /Oa: the original reloads memory a call may have
+# changed (CycleTarget's target id, read again after each call), which /Oa keeps in registers.
 # network.c, shots.c and mechreload.c are /Od (still /Gr). Every function is a COMDAT of its own
 # (/Gy): the linker pads between them with int3, inside an object as between objects. Its CRT is 2.2's LIBCMT, and it links
 # 3dfx's Texus (not built yet). MW2_ACCEL and MW2_3DFX are defined: MW2_ACCEL selects the code
@@ -231,11 +232,6 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/network.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/shots.c"
     "${DEMECH2_SOURCE_DIR}/MW2/src/mechreload.c"
-  )
-  # Optimized without /Oa: the original keeps stores to locals whose address a call takes as an
-  # integer (GetCdAudioPosition's MCI_STATUS_PARMS), which /Oa drops.
-  set(no_alias
-    "${DEMECH2_SOURCE_DIR}/MW2/src/cdaudio.c"
   )
   set(sources
     "${DEMECH2_SOURCE_DIR}/MW2/src/mapview.c"
@@ -405,10 +401,8 @@ function(demech2_add_mw23dfx)
     "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
   )
   foreach(source IN LISTS sources)
-    if (source IN_LIST no_alias)
-      set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox")
-    elseif (source MATCHES "\\.c$" AND NOT source IN_LIST od)
-      set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Oa")
+    if (source MATCHES "\\.c$" AND NOT source IN_LIST od)
+      set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Ow")
     endif()
   endforeach()
   demech2_add_dll(mw23dfx
@@ -424,7 +418,7 @@ function(demech2_add_mw23dfx)
       ${sources}
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_3DFX>"
-      "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL>"
+      "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL;/DMW2_3DFX>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
     LIBRARIES texus kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay glide wail32
   )

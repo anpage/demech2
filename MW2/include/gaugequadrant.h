@@ -13,7 +13,7 @@ typedef union GaugeQuadrant {
 		MechU32 m_up : 1;    // 0x00 — bit 1
 		MechU32 m_steep : 1; // 0x00 — bit 2
 	} m_bits;
-	MechS32 m_value; // 0x00
+	MechU32 m_value; // 0x00
 } GaugeQuadrant;
 
 #endif // GAUGEQUADRANT_H

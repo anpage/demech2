@@ -5,12 +5,19 @@
 #include "types.h"
 
 // The BWD version this build reads: a mission stream's REV record must be at least this.
+#ifdef MW2_3DFX
+// The 3Dfx edition's has no terminator: the keyword names follow it directly.
+// GLOBAL: MW23DFX 0x1025a0a0
+MechChar g_bwdVersion[4] = "1.22";
+#else
 // GLOBAL: MW2 0x100a66b8
 MechChar g_bwdVersion[] = "1.22";
+#endif
 
 // The name of each keyword in g_bwdTypeCodes.
 // GLOBAL: MW2 0x100a66c0
 // GLOBAL: MW2MATROX 0x100a5ca8
+// GLOBAL: MW23DFX 0x1025a380
 MechChar* g_bwdKeywordNames[0x48] = {
 	"bwd",           "rev",
 	"dtbl",          "planet",
