@@ -1,0 +1,57 @@
+# Real source differences that once passed for entropy: the verdict tools/audit.py must give at
+# the revision (the parent of the commit that fixed them, which changed the function's own tokens
+# or, for 9263274, the type of a global it uses). `tools/audit.py --corpus` checks them; found with
+# --find-corpus. A classifier that calls one of these entropy is wrong.
+#
+# revision target function expected
+
+# 9263274: g_dispDibResult was MechS32 where the original's is UINT; reccmp scored the six 100%* (effective).
+9263274^ MW2SHELL DispDibBlendPalettes unexplained
+9263274^ MW2SHELL DispDibBlitRect unexplained
+9263274^ MW2SHELL DispDibFlip unexplained
+9263274^ MW2SHELL DispDibSetPalette unexplained
+9263274^ MW2SHELL DispDibSetPaletteWithBrightness unexplained
+9263274^ MW2SHELL DispDibStretchBlit unexplained
+
+# cda0056: the 3Dfx edition's real near-misses (float folds, setcc flags, inline expansions, frames).
+cda0056^ MW23DFX ApplyDamageToMech unexplained
+cda0056^ MW23DFX ApplyPaletteResource unexplained
+cda0056^ MW23DFX BeginMapView unexplained
+cda0056^ MW23DFX ChooseArtResolution unexplained
+cda0056^ MW23DFX DrawMapViewScene unexplained
+cda0056^ MW23DFX EnablePerspectiveTextures unexplained
+cda0056^ MW23DFX FUN_1000e47d unexplained
+cda0056^ MW23DFX FUN_1000e488 unexplained
+cda0056^ MW23DFX FUN_10068856 unexplained
+cda0056^ MW23DFX FormatErrorMessage unexplained
+cda0056^ MW23DFX GetBrightnessFraction unexplained
+cda0056^ MW23DFX GetEllipseNeedleAt unexplained
+cda0056^ MW23DFX GetLineSlope unexplained
+cda0056^ MW23DFX GetRectNeedleAt unexplained
+cda0056^ MW23DFX HideCacheInfo unexplained
+cda0056^ MW23DFX HorizonXAtY unexplained
+cda0056^ MW23DFX HorizonYAtX unexplained
+cda0056^ MW23DFX InitRandom unexplained
+cda0056^ MW23DFX InitSlopeTables unexplained
+cda0056^ MW23DFX InitializeManeuvers unexplained
+cda0056^ MW23DFX JoystickOpenDevice unexplained
+cda0056^ MW23DFX KeyboardRecordKeyState unexplained
+cda0056^ MW23DFX LayoutMenu unexplained
+cda0056^ MW23DFX MemCopy unexplained
+cda0056^ MW23DFX MemSet unexplained
+cda0056^ MW23DFX MousePoll unexplained
+cda0056^ MW23DFX OrbitTask unexplained
+cda0056^ MW23DFX PlayMechLanding unexplained
+cda0056^ MW23DFX ProjectVertex unexplained
+cda0056^ MW23DFX RunAIWeapons unexplained
+cda0056^ MW23DFX RunGameKey unexplained
+cda0056^ MW23DFX RunManeuver unexplained
+cda0056^ MW23DFX SatelliteFaceColor unexplained
+cda0056^ MW23DFX ScaleBarGauges unexplained
+cda0056^ MW23DFX SetGameResolution unexplained
+cda0056^ MW23DFX SetJumpDirection unexplained
+cda0056^ MW23DFX SetUpStarMission unexplained
+cda0056^ MW23DFX SimWindowProc unexplained
+cda0056^ MW23DFX StartManeuver unexplained
+cda0056^ MW23DFX UpdateFreeEyeView unexplained
+cda0056^ MW23DFX UpdateTrackView unexplained
