@@ -399,6 +399,23 @@ class Image:
             at = pe + 24 + optional + n * 40
             virtual_size, address, size, pointer = struct.unpack_from("<IIII", self.data, at + 8)
             self.sections.append((self.base + address, max(virtual_size, size), size, pointer))
+        # The import address table: {imported name: the address of its entry}.
+        self.imports = {}
+        rva = struct.unpack_from("<I", self.data, pe + 24 + 104)[0] if optional >= 112 else 0
+        while rva:
+            lookup, _, _, _, iat = struct.unpack("<IIIII", self.at(self.base + rva, 20))
+            if not iat:
+                break
+            k = 0
+            while True:
+                entry = struct.unpack("<I", self.at(self.base + (lookup or iat) + 4 * k, 4))[0]
+                if not entry:
+                    break
+                if not entry & 0x80000000:  # by name (a hint, then the name)
+                    name = self.at(self.base + entry + 2, 256).split(b"\0")[0].decode("latin-1")
+                    self.imports.setdefault(name, self.base + iat + 4 * k)
+                k += 1
+            rva += 20
 
     def at(self, address, count):
         for start, virtual_size, size, pointer in self.sections:

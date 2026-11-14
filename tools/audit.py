@@ -18,12 +18,35 @@ instruction. Each kind is a rewrite that keeps what the code computes:
 
 Each rewrite also checks that what it changes is dead afterwards: a register the swapped loads
 leave holding the other value, and the flags a mirrored comparison sets (written again before
-they're read, conservatively within the straight line). No kind changes an operation's width or signedness, a constant, a displacement of a member, a
-referenced global or function, or the number of instructions. At /Od those kinds are all the
-entropy there is (CLAUDE.md, "Codegen Patterns"): an instruction moved, merged, added or missing is
-a source difference, and so is everything this tool can't reproduce. Optimized code (/Ox) has
-more (registers, scheduling), which this tool doesn't reproduce yet: its functions are
-`unexplained` unless the kinds above suffice.
+they're read, conservatively within the straight line). No kind changes an operation's width or
+signedness, a constant, a displacement of a member, a referenced global or function, or the number
+of instructions. At /Od those kinds are all the entropy there is (CLAUDE.md, "Codegen Patterns"):
+an instruction moved, merged, added or missing is a source difference, and so is everything this
+tool can't reproduce.
+
+Optimized code (/Ox units) has more, and four more kinds, checked together:
+
+  registers    each side's registers named by their webs (the definitions and the uses they
+               reach, over the function's control flow); a web keeps its register where the
+               register is fixed (entry and exit: the parameters, the return value by the
+               definition's return type, the preserved registers; a call's register arguments, by
+               the callee's decorated name, and what it clobbers; an implicit operand, a shift
+               count, a string instruction; esp), and the free webs map one to one
+  scheduling   our instructions reordered within their basic blocks, each only past instructions
+               it is independent of (registers, the x87 stack, memory: two accesses commute only
+               when both read, or they are provably apart: different globals, different stack
+               slots, one base register's offsets; a call commutes with no memory access), and
+               every condition still reading the flags of the same instructions
+  frame        our stack variables (the compiler's listing names them) each moved by one shift
+               into what the original's `sub esp` allocates, everything under them (saved
+               registers, outgoing arguments) by one shift, the rest of the frame and the
+               parameters not at all, with esp followed through pushes, pops and each callee's
+               `ret N`; one shift for all variables when an address is taken
+  mirror, commutative   as above, inside the same search (a cmp's operands swapped with every
+               condition its flags reach; test's; an address's base and index)
+
+An operand nothing names (an unannotated symbol, an import the original's import table doesn't
+list) matches nothing.
 
 What remains `unexplained` is either a difference to fix or one to record in
 `tools/known_diffs.txt`: a line per target and function, with a hash of the function's rebuilt and
@@ -54,6 +77,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import struct
 import sys
 from collections import Counter
@@ -97,9 +121,11 @@ class Ins:
     the two sides: ("reg", name), ("imm", value), ("mem", segment, base, index, scale, disp, size),
     where a relocated value is ("addr", address), ("data", bytes) or ("label", position)."""
 
-    def __init__(self, offset, mnemonic, ops, text, kind="code", reads=(), writes=()):
+    def __init__(self, offset, mnemonic, ops, text, kind="code", reads=(), writes=(), access=None, raw=((), ())):
         self.offset, self.mnemonic, self.ops, self.text, self.kind = offset, mnemonic, ops, text, kind
         self.reads, self.writes = set(reads), set(writes)  # register families (eax for al), "flags"
+        self.access = access or [0] * len(ops)  # per operand: capstone's CS_AC_READ (1) | CS_AC_WRITE (2)
+        self.raw = raw  # the registers read and written, by their own names (al, not eax)
 
     def __repr__(self):
         return "%s %s" % (self.mnemonic, self.text)
@@ -138,11 +164,11 @@ def register(x, reg):
     return x.reg_name(reg) if reg else None
 
 
-def lift(code, start, relocate, table_at, extent):
+def lift(code, start, relocate, table_at, extent, tables=()):
     """The instructions of a function's code, decoded from offset 0: `relocate(offset)` gives the
     value of a relocated field (or None), `table_at(offset)` the entries of a jump table that starts
     there (or None). Decoding stops after a terminator with no branch target beyond it."""
-    out, offset, targets = [], 0, set()
+    out, offset, targets = [], 0, set(tables)  # tables: where the jump tables a jmp reads start
     while offset < len(code) and offset < extent:
         entries = table_at(offset)
         if entries is not None:
@@ -180,11 +206,14 @@ def lift(code, start, relocate, table_at, extent):
                 disp = relocate(offset + e.disp_offset) if e.disp_size == 4 else None
                 if disp is None:
                     disp = op.mem.disp
+                elif disp[0] == "label" and x.group(CS_GRP_JUMP):
+                    targets.add(disp[1])  # a jump table in the function: decode up to it
                 ops.append(("mem", register(x, op.mem.segment), register(x, op.mem.base), register(x, op.mem.index), op.mem.scale, disp, op.size))
         read, written = x.regs_access()
-        reads = {family(x.reg_name(r)) for r in read}
-        writes = {family(x.reg_name(r)) for r in written}
-        out.append(Ins(offset, x.mnemonic, ops, x.op_str, "code", reads, writes))
+        raw = (tuple(x.reg_name(r) for r in read), tuple(x.reg_name(r) for r in written))
+        reads = {family(r) for r in raw[0]}
+        writes = {family(r) for r in raw[1]}
+        out.append(Ins(offset, x.mnemonic, ops, x.op_str, "code", reads, writes, [op.access for op in x.operands], raw))
         offset += x.size
         if (x.group(CS_GRP_RET) or x.mnemonic == "jmp") and not any(t >= offset for t in targets):
             break
@@ -218,6 +247,7 @@ class Lifted:
     def __init__(self, function, obj, image, address, annotations, next_address):
         self.unverified = []
         self.image = image
+        self.callees = {}  # address: the symbol our code names there (its calling convention)
         relocations = function.relocations
 
         def ours_value(at):
@@ -232,7 +262,14 @@ class Lifted:
                     return ("label", offset)
             target = annotations.address_of(symbol.name)
             if target is not None:
+                self.callees[(target + addend) & 0xFFFFFFFF] = symbol.name
                 return ("addr", (target + addend) & 0xFFFFFFFF)
+            if symbol.name.startswith("__imp__"):  # an import: its entry in the original's table
+                bare = symbol.name[len("__imp_"):]  # _Name@N: a DLL may export the decorated name
+                entry = image.imports.get(bare[1:].split("@")[0], image.imports.get(bare))
+                if entry is not None:
+                    self.callees[(entry + addend) & 0xFFFFFFFF] = symbol.name
+                    return ("addr", (entry + addend) & 0xFFFFFFFF)
             data = obj.data_at(symbol, addend) if symbol.section > 0 else None
             if data:
                 return ("data", bytes(data))
@@ -270,7 +307,7 @@ class Lifted:
         # The original's jump tables: the `jmp [reg*4 + table]` operands inside the function.
         self.theirs = None
         for _ in range(4):  # each pass knows the tables the one before found
-            lifted = lift(original, 0, theirs_value, theirs_table, extent)
+            lifted = lift(original, 0, theirs_value, theirs_table, extent, tables)
             found = {}
             for ins in lifted:
                 if ins.mnemonic == "jmp" and ins.ops and ins.ops[0][0] == "mem" and ins.ops[0][4] == 4:
@@ -343,7 +380,12 @@ def same_value(a, b, image):
         value = b[1] if isinstance(b, tuple) and b[0] in ("addr", "imm") else b
         return isinstance(value, int) and image.at(value, len(a[1])) == a[1]
     if isinstance(a, tuple) and a[0] == "unknown":
-        return True
+        # An import called through its thunk (jmp [entry]); anything else nothing names, so nothing
+        # shows it is the original's.
+        value = b[1] if isinstance(b, tuple) and b[0] in ("addr", "imm") else b
+        bare = a[1].lstrip("_")
+        entry = image.imports.get(bare.split("@")[0], image.imports.get("_" + bare))
+        return isinstance(value, int) and entry is not None and image.at(value, 6) == b"\xff\x25" + struct.pack("<I", entry)
     return False
 
 
@@ -415,7 +457,8 @@ def apply_slots(ours, theirs, local_list, image):
 
 
 def copy(ins, mnemonic=None, ops=None):
-    return Ins(ins.offset, mnemonic or ins.mnemonic, list(ins.ops if ops is None else ops), ins.text, ins.kind, ins.reads, ins.writes)
+    return Ins(ins.offset, mnemonic or ins.mnemonic, list(ins.ops if ops is None else ops), ins.text, ins.kind, ins.reads, ins.writes,
+               ins.access, ins.raw)
 
 
 def rewrites(ours, k):
@@ -483,6 +526,705 @@ def rewrites(ours, k):
     return out
 
 
+# ---------------------------------------------------------------------------------------------
+# Optimized code: register allocation and scheduling
+#
+# Each side's registers are named by their webs (the definitions and uses reaching definitions
+# connect, computed over the function's control flow): a program with its registers replaced by
+# web names computes what the program computes. A web keeps its physical register where the
+# register is fixed: at entry and exit (parameters, the return value, the registers a function
+# preserves), at a call (its register arguments, what it clobbers), where an instruction names it
+# implicitly or requires it (cdq, a shift by cl, the string instructions, fnstsw ax), and esp
+# always. Our code, reordered within its basic blocks only past instructions it is independent
+# of, must then equal the original's under a one-to-one map of the free webs.
+
+GPR = ("eax", "ecx", "edx", "ebx", "esi", "edi", "ebp", "esp")
+PART = {}
+for _fam, (_x, _l, _h) in {"eax": ("ax", "al", "ah"), "ecx": ("cx", "cl", "ch"), "edx": ("dx", "dl", "dh"), "ebx": ("bx", "bl", "bh")}.items():
+    PART.update({_fam: (_fam, "e"), _x: (_fam, "x"), _l: (_fam, "l"), _h: (_fam, "h")})
+for _fam, _x in {"esi": "si", "edi": "di", "ebp": "bp", "esp": "sp"}.items():
+    PART.update({_fam: (_fam, "e"), _x: (_fam, "x")})
+STRING = ("movs", "stos", "lods", "scas", "cmps", "ins", "outs", "xlat")
+SHIFTS = {"sal", "sar", "shl", "shr", "rol", "ror", "rcl", "rcr", "shld", "shrd"}
+FIXED_OPERANDS = {"fnstsw", "in", "out"}
+FULL_FLAGS = {"cmp", "test", "add", "sub", "and", "or", "xor", "neg", "adc", "sbb", "sahf", "call"}
+PRESERVED = ("ebx", "esi", "edi", "ebp", "esp")
+EXIT_READS = ("eax", "edx") + PRESERVED
+# Return types that come back in eax alone (a pointer does too); a float comes back in st0.
+SCALARS = {"int", "long", "unsigned", "signed", "char", "short", "MechS8", "MechU8", "MechS16", "MechU16", "MechS32", "MechU32",
+           "MechChar", "MechBool", "BOOL", "DWORD", "WORD", "BYTE", "UINT", "LONG", "ULONG", "HANDLE", "HWND", "HDC", "HRESULT",
+           "LRESULT", "HINSTANCE", "HMODULE", "HGLOBAL", "LPARAM", "WPARAM", "MMRESULT", "undefined", "undefined2", "undefined4",
+           "size_t", "FxBool", "FxU32", "FxI32", "GrMipMapId_t", "MCIERROR", "HBITMAP", "HPALETTE", "HFONT", "HMENU", "ATOM"}
+FLOATS = {"float", "double", "MechFloat", "MechDouble", "FxFloat"}
+QUALIFIERS = {"static", "extern", "__inline", "inline", "__cdecl", "__stdcall", "__fastcall", "WINAPI", "CALLBACK", "APIENTRY",
+              "const", "volatile", "__declspec", "naked", "AILCALLBACK", "AILCALL", "FAR", "PASCAL"}
+
+
+def exit_reads(annotation):
+    """The registers a function's caller reads when it returns, from its definition's return type:
+    the preserved ones, and eax (and edx: a 64-bit value or a small struct) for a value. Anything
+    not recognized counts as both."""
+    try:
+        lines = Path(annotation.filename).read_text(encoding="utf-8", errors="replace").split("\n")[annotation.line_number - 1 : annotation.line_number + 4]
+    except (OSError, AttributeError, TypeError):
+        return EXIT_READS
+    head = " ".join(lines).split("(")[0]
+    words = [w for w in re.findall(r"[A-Za-z_]\w*|\*", head) if w not in QUALIFIERS]
+    if not words:
+        return EXIT_READS
+    kind = words[:-1]  # the last word is the function's name (Class::Name leaves the class in front)
+    if kind == ["void"]:
+        return PRESERVED
+    if "*" in kind:
+        return ("eax",) + PRESERVED
+    if kind and set(kind) <= FLOATS:
+        return PRESERVED
+    if kind and set(kind) <= SCALARS:
+        return ("eax",) + PRESERVED
+    return EXIT_READS
+CLOBBERED = ("eax", "ecx", "edx")
+UNKNOWN_MEMORY = ("call", "ret", "leave", "enter", "pushal", "popal", "pushad", "popad", "pushfd", "popfd")
+
+
+def is_terminator(ins):
+    return ins.kind != "code" or ins.mnemonic.startswith(("j", "ret", "loop")) or ins.mnemonic == "(the original goes on)"
+
+
+def call_reads(name):
+    """The registers a call passes arguments in, from the callee's decorated name (/Gr: __fastcall,
+    @name@N, the first two dword arguments in ecx and edx; _name and _name@N take none)."""
+    if name is None:
+        return ("ecx", "edx")
+    if name.startswith("@") and name.rsplit("@", 1)[1].isdigit():
+        size = int(name.rsplit("@", 1)[1])
+        return () if size == 0 else ("ecx",) if size == 4 else ("ecx", "edx")
+    if name.startswith("_"):
+        return ()
+    return ("ecx", "edx")
+
+
+class Flow:
+    """One side's code: blocks, webs and dependencies."""
+
+    def __init__(self, code, callees, exits=EXIT_READS):
+        self.code = code
+        # Per instruction: registers read and written (families), operand tokens, fixed occurrences.
+        self.reads, self.writes, self.fixed_reads, self.fixed_writes = [], [], [], []
+        self.rw = []  # families both read and written by one operand (or written in part): one web
+        self.operands = []  # per operand: list of (family, part, "r" or "w") in it
+        for ins in code:
+            reads, writes, fixed_r, fixed_w, rw, operands = set(), set(), set(), set(), set(), []
+            if ins.kind == "code":
+                explicit = set()
+                fix_all = ins.mnemonic.startswith(STRING) or ins.mnemonic.startswith("rep") or ins.mnemonic in FIXED_OPERANDS
+                zero = ins.mnemonic in ("xor", "sub") and len(ins.ops) == 2 and ins.ops[0] == ins.ops[1] and ins.ops[0][0] == "reg"
+                for k, (op, access) in enumerate(zip(ins.ops, ins.access)):
+                    found = []
+                    if op[0] == "reg" and op[1] in PART:
+                        fam, part = PART[op[1]]
+                        if zero:
+                            access = 2
+                        if access & 2:
+                            found.append((fam, part, "w"))
+                            writes.add(fam)
+                            if access & 1 or part != "e":
+                                rw.add(fam)
+                                reads.add(fam)
+                        elif access & 1 or access == 0:
+                            found.append((fam, part, "r"))
+                            reads.add(fam)
+                        if fix_all or ins.mnemonic in SHIFTS and k > 0:
+                            (fixed_w if access & 2 else fixed_r).add(fam)
+                        explicit.add(fam)
+                    elif op[0] == "mem":
+                        for name in (op[2], op[3]):
+                            if name in PART:
+                                fam, part = PART[name]
+                                found.append((fam, part, "r"))
+                                reads.add(fam)
+                                explicit.add(fam)
+                                if fix_all:
+                                    fixed_r.add(fam)
+                    operands.append(found)
+                raw_r = {family(r) for r in ins.raw[0]} & set(GPR)
+                raw_w = {family(r) for r in ins.raw[1]} & set(GPR)
+                for fam in raw_r - explicit:
+                    reads.add(fam)
+                    fixed_r.add(fam)
+                for fam in raw_w - explicit:
+                    writes.add(fam)
+                    fixed_w.add(fam)
+                for name in ins.raw[1]:
+                    if name in PART and PART[name][1] != "e" and PART[name][0] not in explicit:
+                        rw.add(PART[name][0])  # an implicit partial write (fnstsw ax) keeps the rest
+                        reads.add(PART[name][0])
+                        fixed_r.add(PART[name][0])
+                if ins.mnemonic == "call":
+                    target = ins.ops[0] if ins.ops else None
+                    name = None
+                    if target and target[0] == "addr":
+                        name = callees.get(target[1])
+                    elif target and target[0] == "unknown":
+                        name = target[1]
+                    elif target and target[0] == "mem" and isinstance(target[5], tuple) and target[5][0] == "addr" and target[2] is None:
+                        name = callees.get(target[5][1])
+                    for fam in call_reads(name):
+                        reads.add(fam)
+                        fixed_r.add(fam)
+                    for fam in CLOBBERED:
+                        writes.add(fam)
+                        fixed_w.add(fam)
+                elif ins.mnemonic.startswith("ret"):
+                    reads |= set(exits)
+                    fixed_r |= set(exits)
+                elif ins.mnemonic == "jmp" and not (ins.ops and ins.ops[0][0] == "label") and not self._table_jump(ins):
+                    reads |= set(GPR)  # a tail call or an indirect jump: everything may be read
+                    fixed_r |= set(GPR)
+            self.reads.append(reads)
+            self.writes.append(writes)
+            self.fixed_reads.append(fixed_r)
+            self.fixed_writes.append(fixed_w)
+            self.rw.append(rw)
+            self.operands.append(operands)
+        self._blocks()
+        self._webs()
+
+    def _table_jump(self, ins):
+        op = ins.ops[0] if ins.ops else None
+        return op is not None and op[0] == "mem" and isinstance(op[5], tuple) and op[5][0] == "label" \
+            and op[5][1] < len(self.code) and self.code[op[5][1]].kind == "table"
+
+    def _blocks(self):
+        code, n = self.code, len(self.code)
+        leaders = {0}
+        for k, ins in enumerate(code):
+            if is_terminator(ins) or ins.kind != "code":
+                leaders.add(k + 1)
+            if ins.kind != "code" and k > 0:
+                leaders.add(k)
+            for op in ins.ops:
+                if op[0] == "label":
+                    leaders.add(op[1])
+        self.leaders = sorted(l for l in leaders if l < n)
+        self.blocks = [(s, e) for s, e in zip(self.leaders, self.leaders[1:] + [n])]
+        self.block_of = {}
+        for b, (s, e) in enumerate(self.blocks):
+            for k in range(s, e):
+                self.block_of[k] = b
+        self.successors = []
+        for s, e in self.blocks:
+            last = code[e - 1]
+            out = []
+            if last.kind != "code" or last.mnemonic == "(the original goes on)":
+                pass
+            elif last.mnemonic.startswith("ret"):
+                pass
+            elif last.mnemonic == "jmp":
+                if last.ops and last.ops[0][0] == "label":
+                    out.append(last.ops[0][1])
+                elif self._table_jump(last):
+                    out += [op[1] for op in code[last.ops[0][5][1]].ops if op[0] == "label"]
+            elif last.mnemonic.startswith(("j", "loop")):
+                out += [op[1] for op in last.ops if op[0] == "label"]
+                out.append(e)
+            else:
+                out.append(e)
+            self.successors.append([self.block_of[t] for t in out if t in self.block_of and t in self.leaders])
+
+    def _webs(self):
+        parent = {}
+
+        def find(x):
+            parent.setdefault(x, x)
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a, b):
+            a, b = find(a), find(b)
+            if a != b:
+                parent[a] = b
+
+        n = len(self.blocks)
+        entry = {fam: frozenset([("entry", fam)]) for fam in GPR}
+        ins_state = [None] * n
+        ins_state[0] = entry
+        changed, work = True, 0
+        while changed and work < 100:
+            changed, work = False, work + 1
+            outs = []
+            for b, (s, e) in enumerate(self.blocks):
+                state = dict(ins_state[b] or {})
+                for k in range(s, e):
+                    for fam in self.writes[k]:
+                        state[fam] = frozenset([("d", k, fam)])
+                outs.append(state)
+            for b in range(n):
+                for t in self.successors[b]:
+                    merged = dict(ins_state[t] or {})
+                    for fam, defs in outs[b].items():
+                        merged[fam] = merged.get(fam, frozenset()) | defs
+                    if merged != (ins_state[t] or {}):
+                        ins_state[t] = merged
+                        changed = True
+        fixed = {("entry", fam) for fam in GPR}
+        self.read_node, self.write_node = [], []
+        for b, (s, e) in enumerate(self.blocks):
+            state = dict(ins_state[b] or {})
+            for k in range(s, e):
+                reads = {}
+                for fam in self.reads[k]:
+                    defs = state.get(fam) or frozenset([("u", k, fam)])
+                    if ("u", k, fam) in defs:
+                        fixed.add(("u", k, fam))  # unreachable: no definition reaches it
+                    first = next(iter(defs))
+                    for d in defs:
+                        union(first, d)
+                    reads[fam] = first
+                    if fam in self.fixed_reads[k] or fam == "esp":
+                        fixed.add(first)
+                writes = {}
+                for fam in self.writes[k]:
+                    node = ("d", k, fam)
+                    find(node)
+                    writes[fam] = node
+                    if fam in self.fixed_writes[k] or fam == "esp":
+                        fixed.add(node)
+                    if fam in self.rw[k] and fam in reads:
+                        union(node, reads[fam])
+                    state[fam] = frozenset([node])
+                self.read_node.append(reads)
+                self.write_node.append(writes)
+        self.find = find
+        self.fixed = {find(x) for x in fixed}
+
+    def tokens(self, k, j):
+        """The web tokens of operand j of instruction k: [(web, part, fixed)]."""
+        out = []
+        for fam, part, role in self.operands[k][j]:
+            node = self.write_node[k][fam] if role == "w" else self.read_node[k][fam]
+            web = self.find(node)
+            out.append((web, part, web in self.fixed, fam))
+        return out
+
+    # Dependencies (in our order), for reordering.
+
+    def regs(self, k):
+        ins = self.code[k]
+        reads, writes = set(self.reads[k]), set(self.writes[k])
+        if ins.kind == "code" and (ins.mnemonic.startswith(("f", "wait")) or ins.mnemonic == "call" or ins.mnemonic.startswith("ret")):
+            reads.add("st")
+            writes.add("st")
+        return reads, writes
+
+    def memory(self, k):
+        """(location, size, write) of each memory access."""
+        ins = self.code[k]
+        if ins.kind != "code" or ins.mnemonic in ("lea", "nop"):
+            return []
+        if ins.mnemonic in UNKNOWN_MEMORY or ins.mnemonic.startswith(STRING) or ins.mnemonic.startswith("rep"):
+            return [(("all",), 0, True)]
+        out = []
+        if ins.mnemonic == "push":
+            out.append((("stack", -4), 4, True))
+        elif ins.mnemonic == "pop":
+            out.append((("stack", 0), 4, False))
+        for op, access in zip(ins.ops, ins.access):
+            if op[0] != "mem":
+                continue
+            seg, base, index, scale, disp, size = op[1:7]
+            write = bool(access & 2)
+            if base == "esp" and index is None and isinstance(disp, int):
+                out.append((("stack", disp), size, write))
+            elif base is None and index is None and isinstance(disp, tuple) and disp[0] == "addr":
+                out.append((("global", disp[1]), size, write))
+            elif base is None and index is None:
+                out.append((("any_global",), size, write))
+            elif isinstance(disp, int):
+                out.append((("ptr", base, index, scale, disp), size, write))
+            else:
+                out.append((("global_index",), size, write))
+            if not access:
+                out[-1] = (out[-1][0], size, True)  # unknown access: assume a write
+        return out
+
+    def written_between(self, k, i, fams):
+        return any(self.writes[x] & fams for x in range(k + 1, i))
+
+    def disjoint(self, a, b, k, i):
+        (la, sa, _), (lb, sb, _) = a, b
+        ka, kb = la[0], lb[0]
+        if "all" in (ka, kb):
+            return False
+        if {ka, kb} == {"stack"}:
+            return not self.written_between(k, i, {"esp"}) and (la[1] + sa <= lb[1] or lb[1] + sb <= la[1])
+        if "stack" in (ka, kb):
+            return {ka, kb} <= {"stack", "global", "any_global", "global_index"}
+        if ka == kb == "global":
+            return la[1] + sa <= lb[1] or lb[1] + sb <= la[1]
+        if ka == kb == "ptr" and la[1:4] == lb[1:4]:
+            fams = {PART[r][0] for r in la[1:3] if r in PART}
+            return not self.written_between(k, i, fams) and (la[4] + sa <= lb[4] or lb[4] + sb <= la[4])
+        return False
+
+    def independent(self, k, i):
+        a, b = self.code[k], self.code[i]
+        if is_terminator(a) or is_terminator(b):
+            return False
+        ra, wa = self.regs(k)
+        rb, wb = self.regs(i)
+        if wa & (rb | wb) or ra & wb:
+            return False
+        for x in self.memory(k):
+            for y in self.memory(i):
+                if (x[2] or y[2]) and not self.disjoint(x, y, k, i):
+                    return False
+        return True
+
+
+def flag_chains(code, blocks, order_of):
+    """For each instruction that reads the flags: the writers whose flags reach it, back to one that
+    writes them all (by position), in the given order of each block."""
+    out = {}
+    for s, e in blocks:
+        chain = ["entry"]
+        for k in order_of(s, e):
+            ins = code[k]
+            if "flags" in ins.reads:
+                out[k] = tuple(chain)
+            if "flags" in ins.writes or ins.mnemonic == "call":
+                chain = [k] if ins.mnemonic in FULL_FLAGS else chain + [k]
+        out[("end", s)] = tuple(chain)  # what the block's successors read
+    return out
+
+
+def callee_pops(ins, image, callees, code, cache={}):
+    """The bytes a call's callee pops (its ret N), or None when unknown."""
+    target = ins.ops[0] if ins.ops else None
+    name, address = None, None
+    if target == ("label", 0):  # the function itself
+        pops = {x.ops[0][1] if x.ops else 0 for x in code if x.kind == "code" and x.mnemonic.startswith("ret")}
+        return pops.pop() if len(pops) == 1 else None
+    if target and target[0] == "addr":
+        address = target[1]
+        name = callees.get(address)
+    elif target and target[0] == "unknown":
+        name = target[1]
+    elif target and target[0] == "mem" and target[2] is None and target[3] is None and isinstance(target[5], tuple) and target[5][0] == "addr":
+        name = callees.get(target[5][1])
+        if name is None:
+            return None
+    else:
+        return None
+    if name is not None:
+        bare = name[len("__imp_"):] if name.startswith("__imp_") else name
+        if bare.startswith("_"):
+            tail = bare.rsplit("@", 1)
+            if len(tail) == 2 and tail[1].isdigit():
+                return int(tail[1])  # _name@N pops N
+            if not bare.startswith("__"):
+                return 0  # _name: __cdecl (a helper named __x is read from its code)
+    if address is None:
+        return None
+    if address not in cache:
+        cache[address] = None
+        code = image.at(address, 0x4000)
+        for x in DISASSEMBLER.disasm(bytes(code), address):
+            if x.group(CS_GRP_RET):
+                cache[address] = x.operands[0].imm if x.operands else 0
+                break
+    return cache[address]
+
+
+def esp_deltas(code, flow, image, callees):
+    """Each instruction's esp, relative to the entry's (the return address's slot), or None (an esp
+    no rule follows, or two paths that disagree)."""
+    blocks, successors = flow.blocks, flow.successors
+    deltas = [None] * len(code)
+    entry = [None] * len(blocks)
+    entry[0] = 0
+    work = [0]
+    while work:
+        b = work.pop()
+        d = entry[b]
+        s, e = blocks[b]
+        for k in range(s, e):
+            deltas[k] = d
+            ins = code[k]
+            if ins.kind != "code":
+                d = None
+            elif ins.mnemonic.startswith("push"):
+                d = d - 4 if ins.mnemonic in ("push", "pushfd", "pushal") else None
+            elif ins.mnemonic in ("pop", "popfd"):
+                d += 4
+            elif ins.mnemonic in ("sub", "add") and ins.ops and ins.ops[0] == ("reg", "esp") and ins.ops[1][0] == "imm":
+                d += ins.ops[1][1] if ins.mnemonic == "add" else -ins.ops[1][1]
+            elif ins.mnemonic == "call":
+                pops = callee_pops(ins, image, callees, code)
+                d = None if pops is None else d + pops
+            elif ins.mnemonic.startswith("ret"):
+                if d != 0:
+                    return [None] * len(code)
+            elif "esp" in ins.writes:
+                d = None
+            if d is None:
+                break
+        if d is None:
+            continue
+        for t in successors[b]:
+            if entry[t] is None:
+                entry[t] = d
+                work.append(t)
+            elif entry[t] != d:
+                return [None] * len(code)
+    return deltas
+
+
+class Frame:
+    """Our stack variables (from the compiler's listing) mapped onto the original's frame, each by
+    one shift: (start, end) relative to the entry's esp, end the next variable's start."""
+
+    def __init__(self, local_list, ours, theirs, mine, other, image, callees):
+        self.mine_deltas = esp_deltas(ours, mine, image, callees)
+        self.other_deltas = esp_deltas(theirs, other, image, callees)
+        # An optimized (esp-framed) listing gives a local's offset from the entry's esp itself
+        # (`_height$ = -24`: [entry esp - 24]); a parameter's from a virtual ebp, 4 below.
+        starts = sorted({offset for _, offset, _ in local_list if offset < 0})
+        self.objects = [(s, e) for s, e in zip(starts, starts[1:] + [0])]
+        # The original's frame: what its `sub esp, N` allocate.
+        self.allocated = []
+        for k, ins in enumerate(theirs):
+            d = self.other_deltas[k]
+            if d is not None and ins.mnemonic == "sub" and ins.ops and ins.ops[0] == ("reg", "esp") and ins.ops[1][0] == "imm":
+                self.allocated.append((d - ins.ops[1][1], d))
+        self.usable = bool(self.objects) and all(d is not None for d in self.mine_deltas + self.other_deltas)
+        # An ebp frame's listing counts from ebp: not this convention.
+        if any(ins.mnemonic == "mov" and ins.ops == [("reg", "ebp"), ("reg", "esp")] for ins in ours):
+            self.usable = False
+        # A variable whose address is taken can be reached past the next one's start (variables of
+        # other scopes overlap): then every variable moves by the same shift.
+        self.rigid = any(ins.mnemonic == "lea" and op[0] == "mem" and op[2] == "esp" for ins in ours for op in ins.ops[1:]) or \
+            any(op[0] == "mem" and op[2] == "esp" and op[3] is not None for ins in ours for op in ins.ops)
+
+    def image(self, k, shift):
+        """Where variable k (or "below": everything under our lowest variable) lands."""
+        if k == "below":
+            return (float("-inf"), self.objects[0][0] + shift)
+        return (self.objects[k][0] + shift, self.objects[k][1] + shift)
+
+    def bind(self, shifts, i, j, ours_disp, theirs_disp):
+        """The shifts extended so that ours[i]'s [esp+ours_disp] is theirs[j]'s, or None. Our
+        variables each move by one shift into what the original's `sub esp` allocate; what is
+        under them (the saved registers, outgoing arguments: pushes) moves by one shift too; the
+        rest of the frame stays where it is, and the return address and parameters do."""
+        f_ours, f_theirs = self.mine_deltas[i] + ours_disp, self.other_deltas[j] + theirs_disp
+        if f_ours >= 0 or f_theirs >= 0:
+            return shifts if f_ours == f_theirs else None
+        if f_ours < self.objects[0][0]:
+            k = "below"
+        else:
+            k = next((n for n, (s, e) in enumerate(self.objects) if s <= f_ours < e), None)
+        shift = f_theirs - f_ours
+        if k is None:
+            if shift:
+                return None
+            key = ("same", f_ours)
+            if any(a <= f_ours < b for a, b in (self.image(n, sh) for n, sh in shifts.items() if not isinstance(n, tuple))):
+                return None
+            return {**shifts, key: 0}
+        if self.rigid and k != "below":
+            fixed = {sh for n, sh in shifts.items() if not isinstance(n, tuple) and n != "below"}
+            if fixed and fixed != {shift}:
+                return None
+        if k in shifts:
+            return shifts if shifts[k] == shift else None
+        a, b = self.image(k, shift)
+        if k != "below" and shift and not any(x <= a and b <= y for x, y in self.allocated):
+            return None
+        if any(a <= n[1] < b for n in shifts if isinstance(n, tuple)):
+            return None
+        for n, other_shift in shifts.items():
+            if isinstance(n, tuple):
+                continue
+            c, d = self.image(n, other_shift)
+            if a < d and c < b:
+                return None
+        return {**shifts, k: shift}
+
+
+def schedule(lifted, local_list=(), budget=20000):
+    """Our code reordered within its blocks and its registers renamed, if that gives the original's:
+    (kinds, None), else (None, the first difference). A comparison may also be mirrored (operands
+    swapped, every condition that reads it mirrored), a commutative test's operands and an address's
+    base and index (scale 1) swapped."""
+    ours, theirs, image = lifted.ours, lifted.theirs, lifted.image
+    if len(ours) != len(theirs):
+        return None, inserted(ours, theirs)
+    exits = getattr(lifted, "exit_reads", EXIT_READS)
+    mine, other = Flow(ours, lifted.callees, exits), Flow(theirs, lifted.callees, exits)
+    if mine.leaders != other.leaders:
+        first = next((a for a, b in zip(mine.leaders, other.leaders) if a != b), None)
+        return None, "the blocks differ (at #%s)" % first
+
+    frame = Frame(local_list, ours, theirs, mine, other, image, lifted.callees)
+
+    def bind(state, x, y):
+        """state: (forward, backward, shifts), dicts; returns the extended state or None."""
+        (wx, px, fx, fam_x), (wy, py, fy, fam_y) = x, y
+        if px != py or fx != fy or fx and fam_x != fam_y:
+            return None
+        forward, backward, shifts = state
+        if wx in forward:
+            return state if forward[wx] == wy else None
+        if wy in backward:
+            return None
+        return ({**forward, wx: wy}, {**backward, wy: wx}, shifts)
+
+    def bind_all(state, xs, ys):
+        if len(xs) != len(ys):
+            return None
+        for x, y in zip(xs, ys):
+            state = bind(state, x, y)
+            if state is None:
+                return None
+        return state
+
+    def operand(state, i, j, n, x, y, ty):
+        tx = mine.tokens(i, n)
+        if x[0] == "reg" and y[0] == "reg":
+            if (x[1] in PART) != (y[1] in PART) or x[1] not in PART and x[1] != y[1]:
+                return None
+            return bind_all(state, tx, ty)
+        if x[0] == "mem" and y[0] == "mem" and frame.usable and x[2] == y[2] == "esp" and x[3] is None and y[3] is None \
+                and isinstance(x[5], int) and isinstance(y[5], int):
+            if x[1] != y[1] or x[6] != y[6]:
+                return None
+            shifts = frame.bind(state[2], i, j, x[5], y[5])
+            return None if shifts is None else (state[0], state[1], shifts)
+        if x[0] == "mem" and y[0] == "mem":
+            if x[1] != y[1] or x[6] != y[6] or not same_value(x[5], y[5], image):
+                return None
+            options = [(x[2:5], ty)]
+            if x[4] == 1 and x[2] and x[3]:
+                options.append(((x[3], x[2], 1), ty[::-1]))  # [a+b] is [b+a]
+            for (base, index, scale), tokens in options:
+                if (base is None) != (y[2] is None) or (index is None) != (y[3] is None) or scale != y[4]:
+                    continue
+                result = bind_all(state, tx if (base, index) == (x[2], x[3]) else tx[::-1], tokens)
+                if result is not None:
+                    return result
+            return None
+        return state if same_operand(x, y, image) else None
+
+    def unify(state, i, j):
+        """[(state, mirrored)] for the ways ours[i] can be theirs[j]."""
+        a, b = ours[i], theirs[j]
+        if a.kind != b.kind:
+            return []
+        if a.kind != "code":
+            return [(state, False)] if same(a, b, image) else []
+        out = []
+        if frame.usable and a.mnemonic == b.mnemonic in ("sub", "add") and a.ops[0] == b.ops[0] == ("reg", "esp") \
+                and a.ops[1][0] == b.ops[1][0] == "imm":
+            return [(state, False)]  # the frame's size: the deltas account for it
+        if a.mnemonic == b.mnemonic and len(a.ops) == len(b.ops):
+            orders = [(list(range(len(a.ops))), False)]
+            if a.mnemonic in ("cmp", "test") and len(a.ops) == 2:
+                orders.append(([1, 0], a.mnemonic == "cmp"))
+        elif MIRROR.get(a.mnemonic) == b.mnemonic:
+            orders = [(list(range(len(a.ops))), "reader")]
+        else:
+            return []
+        for order, mirrored in orders:
+            s = state
+            for n, m in zip(range(len(a.ops)), order):
+                s = s and operand(s, i, j, n, a.ops[n], b.ops[m], other.tokens(j, m))
+            if s is not None and frame.usable and a.mnemonic in ("push", "pop", "call"):
+                # The slot it writes or reads implicitly maps like any other: so the stack is as
+                # deep on both sides wherever it is used outside our variables.
+                disp = 0 if a.mnemonic == "pop" else -4
+                shifts = frame.bind(s[2], i, j, disp, disp)
+                s = None if shifts is None else (s[0], s[1], shifts)
+            if s is not None:
+                out.append((s, mirrored))
+        return out
+
+    nodes, deepest = [0], [0]
+    order, mirrored = {}, {}
+
+    def block(state, s, pending, j, e):
+        deepest[0] = max(deepest[0], j)
+        if j == e:
+            return state
+        nodes[0] += 1
+        if nodes[0] > budget:
+            return None
+        for n, i in enumerate(pending):
+            if any(not mine.independent(k, i) for k in pending[:n]):
+                continue
+            for new, mirror in unify(state, i, j):
+                order[s].append(i)
+                mirrored[i] = mirror
+                done = block(new, s, pending[:n] + pending[n + 1 :], j + 1, e)
+                if done is not None:
+                    return done
+                order[s].pop()
+                del mirrored[i]
+        return None
+
+    state = ({}, {}, {})
+    for s, e in mine.blocks:
+        order[s] = []
+        result = block(state, s, list(range(s, e)), s, e)
+        if result is None:
+            j = deepest[0]
+            return None, describe(ours, theirs, j, "no instruction of ours in its block reaches it" if nodes[0] <= budget else "too many ways")
+        state = result
+    before = flag_chains(ours, mine.blocks, lambda s, e: range(s, e))
+    after = flag_chains(ours, mine.blocks, lambda s, e: order[s])
+    for k, chain in before.items():
+        if after.get(k) != chain:
+            return None, describe(ours, theirs, k, "the flags it reads come from elsewhere once reordered")
+    # A mirrored comparison: every condition its flags reach is mirrored, and nothing else reads them.
+    ends = {}
+    for b, (s, e) in enumerate(mine.blocks):
+        writers = [k for k in range(s, e) if "flags" in ours[k].writes or ours[k].mnemonic == "call"]
+        ends[b] = writers[-1] if writers else None
+    predecessors = {b: [p for p in range(len(mine.blocks)) if b in mine.successors[p]] for b in range(len(mine.blocks))}
+    for k, chain in before.items():
+        if isinstance(k, tuple):
+            continue
+        if chain[0] == "entry":
+            sources = [ends[p] for p in predecessors[mine.block_of[k]]]
+            if any(w is None for w in sources):
+                sources = None  # flags from further back: only unmirrored readers pass
+        else:
+            sources = [chain[0]]
+        flips = {mirrored.get(w) is True for w in sources or []} | ({mirrored.get(c) is True for c in chain[1:]} if chain[0] != "entry" else set())
+        reader = mirrored.get(k)
+        same_either_way = MIRROR.get(ours[k].mnemonic) == ours[k].mnemonic
+        if sources is None or len(chain) > 1:
+            if reader == "reader" and not same_either_way or True in flips:
+                return None, describe(ours, theirs, k, "a mirrored comparison's flags reach it")
+            continue
+        if len(flips) > 1:
+            return None, describe(ours, theirs, k, "the flags it reads are mirrored on one path only")
+        flipped = True in flips
+        if not same_either_way and (reader == "reader") != flipped:
+            return None, describe(ours, theirs, k, "its condition and its comparison disagree")
+    kinds = Counter()
+    if any(order[s] != list(range(s, e)) for s, e in mine.blocks):
+        kinds["scheduling"] += 1
+    if any(web[-1] != theirs_web[-1] for web, theirs_web in state[0].items()):  # a web's nodes end in its register
+        kinds["registers"] += 1
+    if any(m is True for m in mirrored.values()):
+        kinds["mirror"] += 1
+    if any(shift for n, shift in state[2].items() if not isinstance(n, tuple)):
+        kinds["frame"] += 1
+    return kinds, None
+
+
 def classify(lifted, local_list, optimized_unit, steps=None):
     """(kinds Counter, None) when the kinds reproduce the original, else (kinds so far, the first
     remaining difference). `steps` collects each rewrite: (kind, position, before, after)."""
@@ -491,6 +1233,11 @@ def classify(lifted, local_list, optimized_unit, steps=None):
     steps = [] if steps is None else steps
     if len(ours) != len(theirs):
         return kinds, inserted(ours, theirs)
+    scheduled = None
+    if optimized_unit:
+        found, scheduled = schedule(lifted, local_list)
+        if found is not None:
+            return found, None
     if not optimized_unit:
         remapped = apply_slots(ours, theirs, local_list, image)
         if remapped is not None:
@@ -509,8 +1256,8 @@ def classify(lifted, local_list, optimized_unit, steps=None):
                 kinds[kind] += 1
                 break
         else:
-            return kinds, describe(ours, theirs, k)
-    return kinds, describe(ours, theirs, 0, "no progress")
+            return kinds, scheduled or describe(ours, theirs, k)
+    return kinds, scheduled or describe(ours, theirs, 0, "no progress")
 
 
 def show(ins):
@@ -530,7 +1277,7 @@ def show(ins):
 def describe(ours, theirs, k, prefix=None):
     a = ours[k] if k < len(ours) else None
     b = theirs[k] if k < len(theirs) else None
-    text = "#%d: %s    the original's: %s" % (k, a, b)
+    text = "#%d: %s    the original's: %s" % (k, a and show(a), b and show(b))
     return (prefix + "; " if prefix else "") + text
 
 
@@ -551,9 +1298,9 @@ def inserted(ours, theirs):
     matcher = difflib.SequenceMatcher(None, [skeleton(i) for i in ours], [skeleton(i) for i in theirs], autojunk=False)
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
         if tag != "equal":
-            show = lambda side, a, b: "; ".join(repr(x) for x in side[a : min(b, a + 3)]) or "nothing"
+            text = lambda side, a, b: "; ".join(show(x) for x in side[a : min(b, a + 3)]) or "nothing"
             return "%d instructions, the original's %d; #%d: %s    the original's (#%d): %s" % (
-                len(ours), len(theirs), i1, show(ours, i1, i2), j1, show(theirs, j1, j2))
+                len(ours), len(theirs), i1, text(ours, i1, i2), j1, text(theirs, j1, j2))
     return "%d instructions, the original's %d" % (len(ours), len(theirs))
 
 
@@ -623,9 +1370,10 @@ def audit_tree(target, tree, build, wine, jobs, scratch, names=None):
         obj = Object(scratch / entry["obj"])
         listing = read_listing(scratch / entry["asm"]) if entry.get("asm") else {}
         address = int(state["address"], 16)
-        symbol = next(s for s, a in unit_annotations(certify.annotations, _Unit(entry), obj, Path(tree)).items() if a.offset == address)
+        symbol, annotation = next((s, a) for s, a in unit_annotations(certify.annotations, _Unit(entry), obj, Path(tree)).items() if a.offset == address)
         later = [a for a in certify.annotations.addresses if a > address]
         lifted = Lifted(obj.functions[symbol], obj, image, address, certify.annotations, min(later) if later else None)
+        lifted.exit_reads = exit_reads(annotation)
         kinds, difference = classify(lifted, listing.get(symbol, []), entry.get("optimized"))
         out[state["name"]] = ("unproven", "classified" if difference is None else "unexplained", difference or "")
     return out
@@ -713,6 +1461,7 @@ def main():
     parser.add_argument("--objects", help="certify.py's objects (with listings): no compile")
     parser.add_argument("--tree", default=str(ROOT))
     parser.add_argument("--function", nargs="*")
+    parser.add_argument("--show", action="store_true", help="Print both sides of each --function, as lifted")
     parser.add_argument("--check", action="store_true", help="Fail on what tools/known_diffs.txt doesn't cover")
     parser.add_argument("--write", action="store_true", help="Rewrite the target's lines of tools/known_diffs.txt")
     parser.add_argument("--json")
@@ -751,9 +1500,15 @@ def main():
             continue
         obj = objs[state["unit"]]
         address = int(state["address"], 16)
-        symbol = next(s for s, a in unit_annotations(certify.annotations, _unit(manifest, state["unit"]), obj, tree).items() if a.offset == address)
+        symbol, annotation = next((s, a) for s, a in unit_annotations(certify.annotations, _unit(manifest, state["unit"]), obj, tree).items() if a.offset == address)
         later = [a for a in addresses if a > address]
         lifted = Lifted(obj.functions[symbol], obj, image, address, certify.annotations, min(later) if later else None)
+        lifted.exit_reads = exit_reads(annotation)
+        if args.show:
+            for k in range(max(len(lifted.ours), len(lifted.theirs))):
+                a = show(lifted.ours[k]) if k < len(lifted.ours) else ""
+                b = show(lifted.theirs[k]) if k < len(lifted.theirs) else ""
+                print("%4d  %-48s %s %s" % (k, a, "  " if a == b else "| ", b))
         steps = []
         kinds, difference = classify(lifted, listings.get(state["unit"], {}).get(symbol, []), state["unit"] in optimized_units, steps)
         if steps:
