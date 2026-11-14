@@ -53,13 +53,21 @@ jobs:
         env:
           BASE: ${{ github.base_ref || 'main' }}
         run: |
-          # The asmequiv suites take 5 to 10 minutes a job, so they only run
-          # when a change can affect them: one of the tests' sources, a file
-          # they include, or the build around them (tools/asmequiv_changed.py),
-          # compared with the merge base of the target branch (pull requests)
-          # or main (pushes). Pushes to main always run them.
+          # The asmequiv suites take 5 to 10 minutes a job. For now they only
+          # run on pushes to main, while the work goes through the other
+          # editions: nearly every change touches a header the tests include,
+          # so they ran on most pull requests. Run them locally before pushing
+          # a change to the portable C, the hand-written assembly or
+          # tests/asmequiv. To run them on pull requests again when a change
+          # can affect them, set ASMEQUIV_ON_PULL_REQUESTS to true:
+          # tools/asmequiv_changed.py decides from the tests' sources, the files
+          # they include and the build around them, compared with the merge
+          # base of the target branch.
+          ASMEQUIV_ON_PULL_REQUESTS=false
           if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF" = refs/heads/main ]; then
             result=true
+          elif [ "$ASMEQUIV_ON_PULL_REQUESTS" != true ]; then
+            result=false
           else
             # The tests' sources and include directories, as the standalone
             # project compiles them
