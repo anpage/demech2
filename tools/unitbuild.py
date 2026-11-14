@@ -229,10 +229,9 @@ class Compiler:
                         request.asm = work / ("%d.asm" % k)
                         listing = "/Fa%s " % to_tool(request.asm)
                     response = work / ("%d.rsp" % k)
-                    response.write_text(
-                        "/nologo %s %s/Fo%s /Fd%s\\ %s-c %s\n"
-                        % (unit.options(request.tree), include, to_tool(obj), to_tool(work), listing, to_tool(source))
-                    )
+                    # One option a line: VC++ 2.2's cl cuts a response file's line at 1024 characters.
+                    text = "/nologo %s %s/Fo%s /Fd%s\\ %s-c %s" % (unit.options(request.tree), include, to_tool(obj), to_tool(work), listing, to_tool(source))
+                    response.write_text("\n".join(re.findall(r'(?:"[^"]*"|\S)+', text)) + "\n")
                     lines.append("%s @%s" % (unit.compiler, to_tool(response)))
                 request.obj = obj
                 self.count += 1
@@ -248,7 +247,7 @@ class Compiler:
         for request in requests:
             if not request.obj.exists():
                 text = (request.obj.parent / "log.txt").read_text(errors="replace")
-                errors = [line.strip() for line in text.split("\n") if re.search(r"\berror\b", line)]
+                errors = [line.strip() for line in text.split("\n") if re.search(r"\b(fatal )?error [A-Z]+\d+|error A\d+|Can't recognize", line)]
                 request.error = "compile failed: " + (errors[0] if errors else "no object")
                 request.obj = None
         return requests

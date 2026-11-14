@@ -18,16 +18,16 @@ What counts is proof, not similarity. `tools/certify.py` gives every annotated f
 
 - **byte-identical**: the source compiles to the original's code, every relocated address pointing where the original's does;
 - **proven**: it does once its stack locals are renamed and/or a number of symbols are declared ahead of its unit, as a committed record (`tools/witnesses/`) says. Neither is recoverable from the original: its locals' names are lost, and its headers declared another number of things, both of which only move stack slots, operand order and (in optimized code) registers. The source keeps its readable names; the record is the proof;
-- **unproven**: neither. reccmp's percentage still shows how close it is.
+- **unproven**: neither. `tools/audit.py` says which of these still differ only by compiler entropy (classified, by rewrites that reproduce the original exactly), and `tools/known_diffs.txt` lists the rest, with the reason where it is known. reccmp's percentage still shows how close each is.
 
 | Binary | Functions | Byte-identical | Proven | Unproven |
 |---|---|---|---|---|
-| `MW2SHELL.DLL` (1.1) | 798 | 604 | 126 | 68 |
-| `MW2.DLL` (1.1) | 1557 | 959 | 480 | 118 |
+| `MW2SHELL.DLL` (1.1) | 798 | 639 | 126 | 33 |
+| `MW2.DLL` (1.1) | 1557 | 995 | 480 | 82 |
 | `NETMECHW.DLL` (retail) | 228 | 128 | 87 | 13 |
 | `MECH2.EXE` (retail) | 21 | 15 | 6 | 0 |
-| `MW2_MATROX.DLL` (Matrox Mystique) | 1608 | 956 | 482 | 170 |
-| `MW2_3DFX.DLL` (3Dfx) | 1548 | 1102 | 204 | 242 |
+| `MW2_MATROX.DLL` (Matrox Mystique) | 1608 | 996 | 482 | 130 |
+| `MW2_3DFX.DLL` (3Dfx) | 1548 | 1141 | 204 | 203 |
 
 These are the annotated functions as of November 2026; each target's current list (`<TARGET>STATES.md` and `.json`) is published with the progress reports in the [continuous release](https://github.com/anpage/demech2/releases/tag/continuous). A match proves the code, the types, the data layout and the constants; it proves nothing about names, comments and descriptions, which are readings of the code. The original's hand-written assembly is reproduced as MASM source (its own objects) or inline assembly, and every function with inline assembly is listed in `tools/asm_allowlist.txt` with what in the original shows it was hand-written: everything else matches as C or C++.
 
