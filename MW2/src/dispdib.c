@@ -212,7 +212,6 @@ MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 	return 0;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004ea78
 // FUNCTION: MW2MATROX 0x1008f08b
 // FUNCTION: MW23DFX 0x10001980

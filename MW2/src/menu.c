@@ -540,7 +540,6 @@ void UpdateMenuKey(void)
 // Opens and closes in-mission menus as requested, then draws and runs the open one. Called from
 // SimMain after UpdateMenuKey and HandleGameKeys, so a menu closed this frame still counts as open
 // (g_openMenuCount) when that frame's game keys run.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003ce91
 // FUNCTION: MW2MATROX 0x1009207d
 // FUNCTION: MW23DFX 0x10065c20

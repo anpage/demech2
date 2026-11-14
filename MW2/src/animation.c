@@ -139,8 +139,6 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 
 #endif
 // MW2MATROX's (0x10050dbc) is another function: it draws through the Matrox edition's renderer.
-// MW2MATROX: a stack-slot permutation of the locals, and the loop's i < p_count has its operands
-// the other way around.
 // MW23DFX's (0x1002c880) draws through its own renderer, in Glide's texture coordinates, and
 // clips the polygon to the pane edges p_unk0x18 selects. MW23DFX: register allocation (the
 // original keeps data on the stack and anim in ebx, the rebuild the other way around), which

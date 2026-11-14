@@ -1039,9 +1039,7 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 #include "aiprox.c"
 #endif
 
-// Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
-// player == g_localPlayer subtraction runs the other way. Stack-slot permutation: color, i and line
-// and player.
+// The player == g_localPlayer subtraction runs the other way.
 // FUNCTION: MW2 0x1005253c
 // FUNCTION: MW2MATROX 0x1008159c
 void LogPlayerSkillLines(void)
@@ -1859,8 +1857,6 @@ void LeaveAIState(Player* p_player)
 }
 
 // Enters AI state p_state for p_player, and logs it.
-// Stack-slot permutation: the logging block's targetType, goalType, mech, logged, gt, goalName
-// and line and navName.
 // FUNCTION: MW2 0x10053be9
 // FUNCTION: MW2MATROX 0x10082e40
 // FUNCTION: MW23DFX 0x10013790
@@ -2884,7 +2880,6 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // nearest the target's value (or the leader). Whether one went.
 // Stack-slot permutation: chosen, count, diff, i, leader, member, members, mission, nearest,
 // objective, required, result and slot and team.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2MATROX 0x10084aac
 // FUNCTION: MW23DFX 0x10014950

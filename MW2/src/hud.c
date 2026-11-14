@@ -371,7 +371,6 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 
 // Lays out the altimeter and the compass from their shapes' extents. Each shape is released by
 // its extent plus its id, not by the id it was loaded with.
-// Stack-slot permutation; the second g_altimeterMarkWidth sum loads its operands in the other order.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10040f91
 // FUNCTION: MW2MATROX 0x1001ce3d
@@ -602,7 +601,6 @@ void DrawTargetMarker(Mech* p_mech)
 // Draws the compass's target markers: the target's bearing p_bearing from the heading (from the
 // torso, p_twistBearing, unless the target is a nav point), and the arrows above and below while
 // its pitch p_pitch is beyond 3 degrees. p_x and p_y go unused.
-// Stack-slot permutation; the two y sums load g_compassOrigin.m_y first (commutative operands).
 // MW2MATROX: the two side arrows' y sums load g_compassOrigin.m_y first, and the bearing mark's
 // product p_bearing (commutative operands).
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.

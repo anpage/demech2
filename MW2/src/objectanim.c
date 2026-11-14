@@ -251,7 +251,6 @@ AnimFile g_animFiles[60];
 // the frame it reached, and m_nextMotionState, the one it wants).
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
 // m_values[i] reads (index order).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10046750
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
@@ -2081,7 +2080,6 @@ jmp_10049103:
 // the average (2), nearest (4) or farthest of its vertices' depths. The back-face test, the
 // projection, the clipping walk and the depth rules are __asm blocks; the first keeps the normal's
 // z in depth.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10049155
 void QueueFace(Face* p_face, Vertex* p_vertices)
 {

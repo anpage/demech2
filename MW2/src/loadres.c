@@ -197,8 +197,6 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 }
 
 // Frees an item. An item missing from its hash chain is reported instead.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10019e53
 // FUNCTION: MW2MATROX 0x10055bf3
 // FUNCTION: MW23DFX 0x10024190

@@ -594,8 +594,6 @@ void DrawMapContents(CockpitLayout* p_layout)
 #endif
 
 // Draws the other live players and the live game things, by side.
-// Stack-slot permutation; i < g_gameThingCount compares in the other operand order.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003e4cd
 // FUNCTION: MW2MATROX 0x10074102
 // FUNCTION: MW23DFX 0x10003960
@@ -862,7 +860,6 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 }
 
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003eb22
 // FUNCTION: MW2MATROX 0x1007480f
 // FUNCTION: MW23DFX 0x10003d40
@@ -1437,7 +1434,6 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 
 // The map view while the local mech starts up: slides the view's rectangle in (its transition),
 // then draws it.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003f66d
 // FUNCTION: MW2MATROX 0x10075428
 // FUNCTION: MW23DFX 0x10004560
@@ -1580,7 +1576,6 @@ void DrawDamagedMapView(void)
 }
 
 // The map view while the local mech shuts down or is off: slides the view's rectangle out.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003fa05
 // FUNCTION: MW2MATROX 0x100757c0
 // FUNCTION: MW23DFX 0x100047d0

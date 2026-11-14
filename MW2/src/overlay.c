@@ -700,8 +700,6 @@ void MonoClear(void)
 }
 
 // Writes text to the debug console, 80 columns and rows 3 to 23, clearing it when it fills.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100591d1
 // FUNCTION: MW2MATROX 0x1008e48c
 // FUNCTION: MW23DFX 0x1003cb80

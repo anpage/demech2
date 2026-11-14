@@ -271,8 +271,6 @@ MechFloat g_viewLightScale;
 
 // Makes p_eyepoint the current eyepoint and copies what the renderer uses each frame out of it:
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
-// MW2MATROX: the products of the rotation with the projection scales load their operands in the
-// other order (commutative operand order).
 // FUNCTION: MW2 0x1004b980
 // FUNCTION: MW2MATROX 0x10029070
 // FUNCTION: MW23DFX 0x1002f560

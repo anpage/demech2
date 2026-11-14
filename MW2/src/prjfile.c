@@ -55,7 +55,6 @@ void PrjFreeBlock(void* p_block)
 }
 
 // Writes in chunks of at most 16K. Returns p_length, or -1 on a short write.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10071b20
 // FUNCTION: MW2MATROX 0x1000c160
 // FUNCTION: MW23DFX 0x1003d0c0
@@ -82,7 +81,6 @@ MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 }
 
 // Reads in chunks of at most 16K. Returns p_length, or -1 on a short read.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10071b9e
 // FUNCTION: MW2MATROX 0x1000c1de
 // FUNCTION: MW23DFX 0x1003d110

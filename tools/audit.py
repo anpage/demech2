@@ -14,11 +14,13 @@ instruction. Each kind is a rewrite that keeps what the code computes:
                (the forms the compiler gives a C comparison and its mirror, a <= b and b >= a,
                which differ only for unordered operands, where C doesn't tell them apart either)
   commutative  the operands of add, imul, and, or, xor swapped (with the loads that feed them);
-               x87: fadd and fmul, and fsub/fsubr, fdiv/fdivr with theirs
+               a chain of one of add, and, or, xor (mov r, a; add r, b; add r, c) in any order of
+               its operands, none of which reads r; x87: fadd and fmul, and fsub/fsubr,
+               fdiv/fdivr with theirs
 
 Each rewrite also checks that what it changes is dead afterwards: a register the swapped loads
 leave holding the other value, and the flags a mirrored comparison sets (written again before
-they're read, conservatively within the straight line). No kind changes an operation's width or
+they're read on every path, following the function's jumps). No kind changes an operation's width or
 signedness, a constant, a displacement of a member, a referenced global or function, or the number
 of instructions. At /Od those kinds are all the entropy there is (CLAUDE.md, "Codegen Patterns"):
 an instruction moved, merged, added or missing is a source difference, and so is everything this
@@ -144,20 +146,39 @@ def family(name):
 
 
 def dead_after(code, position, name):
-    """Whether a register (or "flags") is dead after `position`: written before it is read, before
-    anything leaves the straight line (a branch, a call that may read it, a return). Conservative."""
-    for ins in code[position + 1 :]:
-        if ins.kind != "code":
-            return False
-        if name in ins.reads:
-            return False
-        if ins.mnemonic == "call":
-            return name in ("eax", "flags")  # a call clobbers eax and the flags; /Gr passes ecx, edx
-        if name in ins.writes:
-            return True
-        if ins.mnemonic.startswith(("j", "ret", "loop")):
-            return False
-    return False
+    """Whether a register (or "flags") is dead after `position`: on every path, written before it
+    is read (following jumps to positions in the function; a call may read it, a return or a jump
+    out of the function does). Conservative."""
+    seen = set()
+    work = [position + 1]
+    while work:
+        k = work.pop()
+        while True:
+            if k in seen:
+                break
+            seen.add(k)
+            if k >= len(code) or code[k].kind != "code":
+                return False
+            ins = code[k]
+            if name in ins.reads:
+                return False
+            if ins.mnemonic == "call":
+                if name in ("eax", "flags"):  # a call clobbers eax and the flags; /Gr passes ecx, edx
+                    break
+                return False
+            if name in ins.writes:
+                break
+            if ins.mnemonic.startswith(("ret", "loop")):
+                return False
+            if ins.mnemonic.startswith("j"):
+                targets = [op[1] for op in ins.ops if op[0] == "label"]
+                if not targets:
+                    return False  # an indirect jump or one out of the function
+                work += targets
+                if ins.mnemonic == "jmp":
+                    break
+            k += 1
+    return True
 
 
 def register(x, reg):
@@ -453,7 +474,7 @@ def apply_slots(ours, theirs, local_list, image):
         k = max(i for i, s in enumerate(starts) if s <= op[5])
         return op[:5] + (op[5] + shift.get(k, 0),) + op[6:]
 
-    return [Ins(i.offset, i.mnemonic, [remap(op) for op in i.ops], i.text, i.kind) for i in ours]
+    return [copy(i, ops=[remap(op) for op in i.ops]) for i in ours]
 
 
 def copy(ins, mnemonic=None, ops=None):
@@ -483,6 +504,11 @@ def rewrites(ours, k):
             load = ours[c - 1]
             if b[0] == "mem" and load.ops[1][0] == "mem" and b[6] == load.ops[1][6] or b[0] != "mem" and load.mnemonic == "mov":
                 out.append(("mirror", c - 1, [copy(load, ops=[a, b]), copy(cmp, ops=[a, load.ops[1]]), mirrored]))
+        if c >= 1 and ours[c - 1].mnemonic == "mov" and b[0] == "reg" and ours[c - 1].ops[0] == b and a[0] == "mem" \
+                and ours[c - 1].ops[1][0] == "mem" and ours[c - 1].ops[1][6] == a[6] and dead_after(ours, c + 1, family(b[1])):
+            # mov r, x; cmp y, r  becomes  mov r, y; cmp x, r (the condition mirrored)
+            load = ours[c - 1]
+            out.append(("mirror", c - 1, [copy(load, ops=[b, a]), copy(cmp, ops=[load.ops[1], b]), mirrored]))
     # A commutative operation and the load that feeds it.
     for c in (k - 1, k, k + 1):
         if not 1 <= c < n:
@@ -1225,6 +1251,50 @@ def schedule(lifted, local_list=(), budget=20000):
     return kinds, None
 
 
+def reassociate(ours, theirs, k, image):
+    """A chain `mov r, a; op r, b; op r, c ...` (one commutative, associative op: add, imm... and,
+    or, xor) around position k with its operands in the original's order, or None. No operand may
+    read r, and the flags the last op sets must be dead."""
+    n = len(ours)
+    start = k
+    while start > 0 and not (ours[start].mnemonic == "mov" and ours[start].ops and ours[start].ops[0][0] == "reg"):
+        start -= 1
+    first = ours[start]
+    if first.mnemonic != "mov" or not first.ops or first.ops[0][0] != "reg":
+        return None
+    r = first.ops[0]
+    end = start + 1
+    while end < n and ours[end].mnemonic in ("add", "and", "or", "xor") and len(ours[end].ops) == 2 and ours[end].ops[0] == r:
+        end += 1
+    if end - start < 3 or not start <= k < end or end > len(theirs):
+        return None
+    op = ours[start + 1].mnemonic
+    if any(ours[x].mnemonic != op for x in range(start + 1, end)) or theirs[start].mnemonic != "mov" or theirs[start].ops[0] != r:
+        return None
+    if any(theirs[x].mnemonic != op or theirs[x].ops[0] != r for x in range(start + 1, end)):
+        return None
+    family_r = family(r[1])
+
+    def reads_r(o):
+        return o[0] == "reg" and family(o[1]) == family_r or o[0] == "mem" and family_r in (o[2] and family(o[2]), o[3] and family(o[3]))
+
+    mine = [ours[x].ops[1] for x in range(start, end)]
+    other = [theirs[x].ops[1] for x in range(start, end)]
+    if any(reads_r(o) for o in mine) or not dead_after(ours, end - 1, "flags"):
+        return None
+    sizes = {o[6] for o in mine if o[0] == "mem"}
+    if len(sizes) > 1:
+        return None
+    left, order = list(mine), []
+    for o in other:
+        match = next((m for m in left if same_operand(m, o, image)), None)
+        if match is None:
+            return None
+        left.remove(match)
+        order.append(match)
+    return start, [copy(ours[x], ops=[r, order[x - start]]) for x in range(start, end)]
+
+
 def classify(lifted, local_list, optimized_unit, steps=None):
     """(kinds Counter, None) when the kinds reproduce the original, else (kinds so far, the first
     remaining difference). `steps` collects each rewrite: (kind, position, before, after)."""
@@ -1248,7 +1318,9 @@ def classify(lifted, local_list, optimized_unit, steps=None):
         if not bad:
             return kinds, None
         k = bad[0]
-        for kind, first, new in rewrites(ours, k):
+        chain = reassociate(ours, theirs, k, image)
+        candidates = rewrites(ours, k) + ([("commutative", chain[0], chain[1])] if chain else [])
+        for kind, first, new in candidates:
             window = range(first, first + len(new))
             if all(same(new[i - first], theirs[i], image) for i in window):
                 steps.append((kind, first, [show(i) for i in ours[first : first + len(new)]], [show(i) for i in new]))

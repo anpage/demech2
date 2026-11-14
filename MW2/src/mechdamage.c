@@ -81,7 +81,6 @@ static MechS32 g_criticalHeatWarningTime;
 // steers, the throttle saved while AvoidObstacles has it.
 // The Matrox edition copies m_maneuverParam and the steering's float throttle into each other as
 // they are (the dword, no conversion).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100079d0
 // FUNCTION: MW2MATROX 0x10010250
 // FUNCTION: MW23DFX 0x10015c00

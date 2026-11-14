@@ -99,8 +99,6 @@ void PauseMidiSequences(void)
 	}
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100215a4
 // FUNCTION: MW2MATROX 0x10043ca4
 // FUNCTION: MW23DFX 0x10033050
@@ -253,8 +251,6 @@ MechS16 AnyMidiPlaying(void)
 }
 
 // Fades the playing sequences to p_volume (0 to 127) over a second.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10021956
 // FUNCTION: MW2MATROX 0x10044056
 // FUNCTION: MW23DFX 0x10033340

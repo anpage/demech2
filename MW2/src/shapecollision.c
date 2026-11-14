@@ -98,7 +98,6 @@ void ClassifyPointInBox(
 // Stack-slot permutation of the locals; the tNear/tEnter and tFar/tExit comparisons
 // have their operands the other way around.
 // MW2MATROX: the tNear/tEnter and tFar/tExit comparisons have their operands the other way round.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310

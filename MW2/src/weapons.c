@@ -1017,7 +1017,6 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // direction, and sets it moving. p_spread moves it up to 100 units off the line.
 // Commutative operand order: the original calls FixedMul16(p_dz, sideX) first for upY. Stack-slot
 // permutation of the locals.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10046573
 // FUNCTION: MW2MATROX 0x1002d3e4
 // FUNCTION: MW23DFX 0x10044ac0

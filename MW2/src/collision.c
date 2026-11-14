@@ -172,7 +172,6 @@ MechS32 IsBelowFacePlane(
 // within 1000 units of p_y, else the highest one below p_y, else 0. Its normal goes to
 // g_groundNormal.
 // MW2MATROX: the below < top and best < top comparisons have their operands the other way round.
-// The 3Dfx edition's diff is register allocation, scheduling, compare and float operand order.
 // FUNCTION: MW2 0x10034b30
 // FUNCTION: MW2MATROX 0x100239fc
 // FUNCTION: MW23DFX 0x10010080

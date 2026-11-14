@@ -30,7 +30,6 @@
 #include <stdlib.h>
 
 // M_PROX: the nearest of p_target's targets closer than p_arg hundreds.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10052445
 // FUNCTION: MW2MATROX 0x10081676
 // FUNCTION: MW23DFX 0x10012b40

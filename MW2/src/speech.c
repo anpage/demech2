@@ -190,8 +190,6 @@ SpeechEntry g_speechEntries[8];
 
 // Queues p_line, followed by p_suffix, by priority (-1: the sound's own). Returns whether it
 // was queued.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10059390
 // FUNCTION: MW2MATROX 0x1008b510
 // FUNCTION: MW23DFX 0x10031150
@@ -331,8 +329,6 @@ MechS32 QueueSpeech(SpeechLine* p_line, SpeechLine* p_suffix, MechS32 p_priority
 }
 
 // Moves to the next queued message once the current one has finished.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10059827
 // FUNCTION: MW2MATROX 0x1008b9a7
 // FUNCTION: MW23DFX 0x100313d0

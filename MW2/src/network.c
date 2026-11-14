@@ -407,8 +407,6 @@ MechS32 FirstExternalCtrl(void)
 	return 1;
 }
 
-// Matches except for a stack-slot permutation of from, player, i, tag and text, and the
-// operand order of the comparisons of slot and i with g_localPlayerId and of the state timer.
 // The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000e68c
 // FUNCTION: MW2MATROX 0x1000406c

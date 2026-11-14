@@ -172,7 +172,6 @@ MechS32 SetTeamLeader(MechS32 p_team, MechS32 p_player)
 }
 
 // Places the team's leader, then every member at its formation slot around the leader.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003bf40
 // FUNCTION: MW2MATROX 0x1007304d
 // FUNCTION: MW23DFX 0x10018dd0

@@ -558,7 +558,6 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // things, in that cycle; with p_step 0, or no target, it starts over from the first player. Marks
 // the target missing (0x1000) when none qualifies, and a change of target outside the nav points
 // turns the autopilot's steering over.
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2MATROX 0x100067cc

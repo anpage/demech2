@@ -174,10 +174,8 @@ static MechFloat g_a3dOffsetY;
 // GLOBAL: MW23DFX 0x101528b8
 undefined* g_a3dLfb;
 
-// The counters of the loop and of the opened display are in each other's registers (register
-// entropy), and the end of g_a3dMipEntries names the static after it in either build (2.2 lays
-// statics out in an order of its own).
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
+// reccmp names the end of g_a3dMipEntries after the static that follows it, which differs between
+// the builds (2.2 lays statics out in an order of its own).
 // FUNCTION: MW23DFX 0x10066570
 MechS32 A3D_Init(void)
 {
@@ -317,9 +315,8 @@ MechFloat FUN_10066800(MechU8 p_component)
 }
 
 // Sets g_paletteRgb: at 800x600 through g_a3dBrightness, at 640x480 times 4.
-// One load is scheduled earlier, and the end of g_paletteRgb names the next global of either
-// build.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
+// reccmp names the end of g_paletteRgb after the global that follows it, which differs between the
+// builds.
 // FUNCTION: MW23DFX 0x10066840
 void A3D_SetPalette(PaletteColor* p_palette)
 {
@@ -424,9 +421,8 @@ A3DMipEntry* FUN_100669f0(MechS16 p_id)
 // Converts the texture p_data of *p_width x *p_height texels into p_info, or reads it from MW2.MIP
 // when p_data is the m_offset of its entry (DrawAnimatedPolygon's textures from the file). Returns
 // nonzero on failure.
-// The fseek arguments are scheduled in another order, and the end of g_a3dMipEntries names the
-// static after it in either build.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
+// reccmp names the end of g_a3dMipEntries after the static that follows it, which differs between
+// the builds (2.2 lays statics out in an order of its own).
 // FUNCTION: MW23DFX 0x10066a30
 MechS32 FUN_10066a30(Gu3dfInfo* p_info, MechS32* p_width, MechS32* p_height, void* p_data)
 {

@@ -343,8 +343,6 @@ void ChatLog::SendToAll(HWND p_dialog)
 }
 
 // Sends the typed text to the players of the local player's team, and shows it.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of team == myTeam and player.m_id != m_playerId (one declaration order tried).
 // FUNCTION: NETMECHW 0x1000cec1
 void ChatLog::SendToTeam(HWND p_dialog)
 {

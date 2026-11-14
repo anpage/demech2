@@ -247,8 +247,6 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
 // (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_outlinePartRects), any of
 // them out of range cleared.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
@@ -610,8 +608,6 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 }
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100715a2
 // FUNCTION: MW2MATROX 0x1000bb8e
 // FUNCTION: MW23DFX 0x10040a60

@@ -52,8 +52,6 @@ MechS32 g_cdStatus;
 
 // Picks the auxiliary audio device the CD volume goes through: the CD audio output, or failing
 // that the first auxiliary input.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005a7a0
 // FUNCTION: MW2MATROX 0x100025b0
 // FUNCTION: MW23DFX 0x10030600
@@ -497,8 +495,6 @@ MechS32 PollCdDrive(void)
 
 // Skips p_step tracks from the current one.
 // Stack-slot permutation: status and track.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005b10b
 // FUNCTION: MW2MATROX 0x10002f1b
 // FUNCTION: MW23DFX 0x10030cc0
