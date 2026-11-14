@@ -23,7 +23,6 @@ MechS32 g_unk0x10023758[8] = {0x7d1, 0x7d2, 0x7da, 0x7db, 0x7dc, 0x7dd, 0x7de, 0
 
 // Shows the players' names and ready check boxes in the slots of the dialog p_dialog, if the
 // options changed since they were last shown, p_force is set or the local player is the host.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000e410
 void FUN_1000e410(HWND p_dialog, MechS32 p_force)
 {

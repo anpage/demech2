@@ -254,8 +254,6 @@ MechS32 AddClass(MechS32 p_id, Shape* p_class)
 }
 
 // Returns the class of an ID (the last one added), or NULL.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001f564
 // FUNCTION: MW2MATROX 0x10052c04
 // FUNCTION: MW23DFX 0x10024860
@@ -314,7 +312,6 @@ void FreeGeoTables(void)
 }
 
 // Returns the thing index of an ID (the last one listed), or -1.
-// The loop test compares in the other operand order (the unit's symbol table).
 // FUNCTION: MW2 0x1001f6e9
 // FUNCTION: MW2MATROX 0x10052d89
 // FUNCTION: MW23DFX 0x10024970
@@ -348,7 +345,6 @@ void UpdateGeoCache(void)
 }
 
 // Returns the star index of an ID (the last one listed), or -1.
-// The loop test compares in the other operand order (the unit's symbol table).
 // FUNCTION: MW2 0x1001f77d
 // FUNCTION: MW2MATROX 0x10052e1d
 // FUNCTION: MW23DFX 0x100249e0
@@ -371,9 +367,6 @@ MechS32 FindStarIdxById(MechS32 p_id)
 
 // Takes the next free static object for ID p_id, mapping the ID to it. Returns its index, or -1
 // when the cache or the map is full.
-// MW2MATROX: g_starCount >= g_starCapacity compares in the other operand order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001f7eb
 // FUNCTION: MW2MATROX 0x10052e8b
 // FUNCTION: MW23DFX 0x10024a20
@@ -414,7 +407,6 @@ Shape* GetStaticShape(MechS32 p_index)
 
 // Places static object p_id: its resource, transform, block and parent, and the object it hangs
 // from (none for a shape-only entry, -2). Returns its index, or -1 if p_id isn't cached.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001f8b5
 // FUNCTION: MW2MATROX 0x10052f55
 // FUNCTION: MW23DFX 0x10024aa0
@@ -479,11 +471,8 @@ MechS32 PlaceStaticObject(
 // size, its center, and the matrix that places its objects, from the pending transform
 // (g_pendingXform, reset afterwards) and every enclosing block's matrix. The outermost block
 // also clears the placed-object list.
-// Stack-slot permutation; i < g_starCapacity compares in the other operand order, and the second
-// center sum adds its operands in the other order.
 // MW2MATROX: reccmp can't name the original's g_blockStack[g_blockDepth - 1] (the address before
 // the array).
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x1001fa05
 // FUNCTION: MW2MATROX 0x100530a5
 // FUNCTION: MW23DFX 0x10024ba0
@@ -663,8 +652,6 @@ void ResetStaticCache(void)
 	g_staticCacheReady = 1;
 }
 
-// The loop test compares in the other operand order (the unit's symbol table), and i and entry
-// sit in permuted stack slots.
 // FUNCTION: MW2 0x10020029
 // FUNCTION: MW2MATROX 0x10053770
 // FUNCTION: MW23DFX 0x10024fe0
@@ -691,8 +678,6 @@ void AttachTaskToObj(MechS32 p_index, TimedCallbackFn p_fn, MechS32 p_period, Me
 }
 
 // Runs the timed callbacks of the cache entries.
-// The only diff is a stack-slot permutation of i and entry.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100200bd
 // FUNCTION: MW2MATROX 0x10053804
 // FUNCTION: MW23DFX 0x10025040
@@ -758,7 +743,6 @@ void SetStaticObjectKind(MechS32 p_index, MechU32 p_kind)
 
 // Links cache entry p_index to its game thing and to the entry that replaces it when the thing is
 // destroyed (DestroyStaticObject), which stays unloaded (0x800) until then.
-// Stack-slot permutation; p_index >= g_staticObjectCount compares in the other operand order.
 // FUNCTION: MW2 0x100201fe
 // FUNCTION: MW2MATROX 0x10053946
 // FUNCTION: MW23DFX 0x10025110
@@ -786,8 +770,6 @@ void LinkStaticObjectThing(MechS32 p_index, MechS32 p_replacement, MechS32 p_thi
 // Destroys the game thing of cache entry p_index: marks both (0x200 and 0x800, 4), frees its shape
 // and loads the entry that replaces it (m_replacement) where the old object was. Returns the
 // replacement's index, or -1.
-// The only diff is a stack-slot permutation of the locals.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10020292
 // FUNCTION: MW2MATROX 0x100539da
 // FUNCTION: MW23DFX 0x10025180
@@ -850,7 +832,6 @@ MechS32 DestroyStaticObject(MechS32 p_index)
 
 // Marks p_thing's cache entry (flag 0x200) and has DestroyStaticObject replace it. When the replacement's
 // game thing has flag 0x8000, its object tree is handed to BlowOffObjTree and FreeStaticObjectTree.
-// Stack-slot permutation: index, current and entry.
 // FUNCTION: MW2 0x10020429
 // FUNCTION: MW2MATROX 0x10053b71
 // FUNCTION: MW23DFX 0x10025290
@@ -884,9 +865,6 @@ void DestroyThingObject(GameThing* p_thing)
 // hides the entry (DestroyStaticObject); a parent flagged 0x800 flags the entry and unloads it
 // (UnloadStaticObject), and an entry whose parent no longer is is loaded again (LoadStaticObject), its game
 // thing's object marked when the thing has bit 0x8000.
-// Stack-slot permutation of the locals. Operand order: the loop test (i < g_staticObjectCount)
-// loads g_staticObjectCount first in the original.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100204e8
 // FUNCTION: MW2MATROX 0x10053c30
 // FUNCTION: MW23DFX 0x10025310
@@ -961,7 +939,6 @@ MechS32 AreStaticObjectsComplete(void)
 // Loads cache entry p_index's shape and places it: a shape-only entry (-2) in block p_block's
 // frame, otherwise on its object. Returns TRUE while the shape is loaded, FALSE if it can't be or
 // shouldn't be: a hidden entry (0x800), or a destroyed game thing's (without explosion chunks).
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x10020704
 // FUNCTION: MW2MATROX 0x10053e4e
@@ -1115,7 +1092,6 @@ struct SceneObject* GetStaticSceneObject(MechS32 p_index)
 	return result;
 }
 
-// MW2MATROX: the bounds test compares p_index with g_staticObjectCount in the other operand order.
 // FUNCTION: MW2 0x10020c26
 // FUNCTION: MW2MATROX 0x10054371
 // FUNCTION: MW23DFX 0x10025780
@@ -1133,8 +1109,6 @@ Shape* GetStaticObjectShape(MechS32 p_index)
 
 // Returns a cache entry's position: its shape's, or its object's. A bad index (the test lets
 // g_staticObjectCount itself through) or an empty entry gives 0, 0, 0.
-// Stack-slot permutation: obj and entry. Operand order: p_index > g_staticObjectCount loads
-// g_staticObjectCount first in the original.
 // FUNCTION: MW2 0x10020c6f
 // FUNCTION: MW2MATROX 0x100543ba
 // FUNCTION: MW23DFX 0x100257a0
@@ -1271,7 +1245,6 @@ MechS32 ToggleBlockBoxes(void)
 }
 
 // Loads the "unitbox" model into every box of the tree p_root.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10021067
 // FUNCTION: MW2MATROX 0x100547f6
 // FUNCTION: MW23DFX 0x10025a90
@@ -1377,7 +1350,6 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 
 // Frees cache entry p_index and, first, every entry hanging from it, zeroing its game thing.
 // Returns whether p_index is an entry.
-// Stack-slot permutation; the loop test compares in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x10021314

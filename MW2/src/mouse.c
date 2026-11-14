@@ -159,7 +159,6 @@ MechS32 CenterCursor(undefined4 p_unk0x00, MechS32 p_axis)
 	return 0;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10068a49
 // FUNCTION: MW2MATROX 0x10050ab9
 // FUNCTION: MW23DFX 0x10036150

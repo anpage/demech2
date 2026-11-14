@@ -787,10 +787,6 @@ int __stdcall SimMain(
 	return result;
 }
 
-// Operand order: the timer test's time > g_windowedSwitchDeadline loads g_windowedSwitchDeadline
-// first in the original. The test's comparisons follow the unit's symbol table: the other two flipped when
-// the shell's Miles declarations joined mss.h and back when the unit's declarations moved into
-// headers.
 // MW2MATROX: stack-slot permutation of windowPos and time, and the operands of time < g_windowedSwitchTime
 // the other way.
 // FUNCTION: MW2 0x10067757

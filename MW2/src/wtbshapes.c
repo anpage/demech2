@@ -195,7 +195,6 @@ void SetShapeFlags(MechU32 p_flags)
 
 // Reads the shape records from p_offset up to p_size; the first becomes the shape, the others
 // its levels of detail.
-// Stack slots: next and count are swapped.
 // FUNCTION: MW2 0x1007f1f9
 // FUNCTION: MW2MATROX 0x1002532b
 // FUNCTION: MW23DFX 0x100428c0

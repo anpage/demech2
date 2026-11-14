@@ -70,9 +70,6 @@ MechS32 g_classTableReady = 0;
 ClassEntry g_classTable[0x30c];
 
 // Loads the shapes of p_player's entries for its base level (m_baseLevel) into one pool block.
-// Stack-slot permutation: count, i and buffer.
-// Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
-// MW2MATROX: the loop tests compare in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2MATROX 0x1006d550
@@ -109,7 +106,6 @@ MechS32 LoadBaseLevelShapes(Player* p_player)
 // Adds p_unk0x00 as level p_level of a class entry: level 0 starts a new entry, a later level
 // goes to entry p_index. The unset levels above it take the same value. Returns the entry's
 // index, or -1.
-// Stack-slot permutation: index and i.
 // FUNCTION: MW2 0x1001cf93
 // FUNCTION: MW2MATROX 0x1006d653
 // FUNCTION: MW23DFX 0x10026180
@@ -179,8 +175,6 @@ MechS32 AddClassEntryLevel(
 	return index;
 }
 
-// Stack-slot permutation: entry and level.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x1001d12a
 // FUNCTION: MW2MATROX 0x1006d7ea
 // FUNCTION: MW23DFX 0x10026280
@@ -211,8 +205,6 @@ void ResetClassTable(void)
 }
 
 // Gives the entries added since the last call (owner -2) to p_player.
-// Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
-// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1001d220
 // FUNCTION: MW2MATROX 0x1006d8e0
 // FUNCTION: MW23DFX 0x100262f0
@@ -234,7 +226,6 @@ void ClaimNewClassEntries(Player* p_player)
 
 // Loads the level-p_level shapes of p_owner's entries, or, for a player with flag 2, keeps the
 // shape already loaded. Returns 0 when a shape doesn't load.
-// Stack-slot permutation: i and result.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001d292
 // FUNCTION: MW2MATROX 0x1006d952
@@ -296,8 +287,6 @@ void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 // Loads the level-p_level shape of entry p_index in place of the one it has, and gives it an object:
 // under its player's object, or under the object (or shape object) of entry m_unk0x1c, made in
 // p_buffer if given. Returns whether the entry has its shape.
-// Stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001d3ff
 // FUNCTION: MW2MATROX 0x1006dad9
 // FUNCTION: MW23DFX 0x10026430
@@ -431,10 +420,6 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 }
 
 // Releases the shapes of the first player whose m_detailLevel names a level, and clears it.
-// Operand order: i < g_playerCount loads g_playerCount first in the original.
-// MW2MATROX: the loop test compares in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001d88b
 // FUNCTION: MW2MATROX 0x1006df87
 // FUNCTION: MW23DFX 0x100266e0
@@ -469,7 +454,6 @@ void ReleaseClassEntryShape(MechS32 p_index, MechS32 p_level)
 	}
 }
 
-// The 3Dfx edition's diff is comparison operand order only.
 // FUNCTION: MW2 0x1001d980
 // FUNCTION: MW2MATROX 0x1006e07c
 // FUNCTION: MW23DFX 0x10026770
@@ -485,9 +469,6 @@ struct SceneObject* GetClassObject(MechS32 p_index)
 	return obj;
 }
 
-// Operand order: p_index < g_classEntryCount loads p_index first in the original.
-// MW2MATROX: p_index < g_classEntryCount compares in the other operand order.
-// The 3Dfx edition's diff is comparison operand order only.
 // FUNCTION: MW2 0x1001d9ca
 // FUNCTION: MW2MATROX 0x1006e0c6
 // FUNCTION: MW23DFX 0x10026790
@@ -773,8 +754,6 @@ void ChoosePlayerDetailLevels(void)
 }
 
 // Releases the shape of the entry whose object is p_obj.
-// Stack-slot permutation: i and entry.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001ddf2
 // FUNCTION: MW2MATROX 0x1006e63c
 // FUNCTION: MW23DFX 0x100269a0
@@ -799,9 +778,6 @@ void ReleaseObjShape(struct SceneObject* p_obj)
 }
 
 // Forgets the shape of the entry whose object is p_obj without releasing it.
-// Operand order: i < g_classEntryCount loads g_classEntryCount first in the original.
-// MW2MATROX: the loop test compares in the other operand order.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001de84
 // FUNCTION: MW2MATROX 0x1006e6ce
 // FUNCTION: MW23DFX 0x100269f0

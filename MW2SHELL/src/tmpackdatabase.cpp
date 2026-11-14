@@ -122,7 +122,6 @@ TMPackDataBase::TMPackDBEntry* TMPackDataBase::GetEntry(MechS32 p_id)
 	return entry;
 }
 
-// Stack-slot permutation: entry and data.
 // FUNCTION: MW2SHELL 0x10048051
 MechS32 TMPackDataBase::GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size)
 {
@@ -150,7 +149,6 @@ MechS32 TMPackDataBase::GetDBItem(MechS32 p_id, void** p_data, MechS32* p_size)
 	return 0;
 }
 
-// Stack-slot permutation: remaining, entry, dst and out.
 // FUNCTION: MW2SHELL 0x1004813f
 MechS32 TMPackDataBase::GetDBItemLZ(MechS32 p_id, void** p_data, MechS32* p_size)
 {
@@ -248,7 +246,6 @@ MechS32 TMPackDataBase::ReadDBItemData(MechS32 p_id, MechS32 p_offset, void* p_b
 }
 
 // Reads a line; returns 2 if it ended at a NUL rather than a newline.
-// Stack-slot permutation: entry, c and i.
 // FUNCTION: MW2SHELL 0x1004843e
 MechS32 TMPackDataBase::ReadDBItemLine(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer)
 {
@@ -277,7 +274,6 @@ MechS32 TMPackDataBase::ReadDBItemLine(MechS32 p_id, MechS32 p_offset, MechChar*
 }
 
 // Reads a NUL-terminated string.
-// Stack-slot permutation: entry, c and i.
 // FUNCTION: MW2SHELL 0x10048501
 MechS32 TMPackDataBase::ReadDBItemString(MechS32 p_id, MechS32 p_offset, MechChar* p_buffer)
 {

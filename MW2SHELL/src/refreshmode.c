@@ -333,7 +333,6 @@ void SelectFastestRefreshMode()
 
 // Switches between fullscreen and the first available windowed refresh mode, or back to the
 // fullscreen mode last selected.
-// Not 100%: the stack slots of i, mode and backend are permuted.
 // FUNCTION: MW2SHELL 0x10011071
 void ToggleFullScreen()
 {
@@ -465,8 +464,6 @@ void AdjustWindowSize(DisplayBackend* p_backend)
 }
 
 // Copies p_count colors of g_paletteColors from p_first into p_palette.
-// Operand order: the original compares i < p_count as `cmp [p_count], eax` and adds p_first + i
-// with p_first loaded first; the order follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10011450
 MechS32 GetPaletteColors(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette)
 {

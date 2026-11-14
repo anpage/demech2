@@ -31,10 +31,6 @@
 
 // M_DIST: the farthest of p_target's targets farther than p_arg hundreds (-4: p_player's leash
 // range, -2: its alert range).
-// Operand order: the final test (limit < farthest) compares the other way in the original.
-// Stack-slot permutation: farthest, farthestTarget, limit and result and target.
-// MW2MATROX: the same comparison, and a stack-slot permutation of its own.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10052617
 // FUNCTION: MW2MATROX 0x10081ce3
 // FUNCTION: MW23DFX 0x10012bf0

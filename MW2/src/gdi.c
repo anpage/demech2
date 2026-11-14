@@ -142,8 +142,6 @@ HPALETTE g_gdiOldPalette;
 // Switches to the GDI extension and allocates the frame p_buffer describes: a p_width x p_height
 // buffer of palette indices, presented with SetDIBitsToDevice. Returns 0 on success, -1 if the
 // palette fails, 2 if the allocation fails and 1 if the first present fails.
-// MW2MATROX: the two p_width * p_height load p_height first (commutative operands).
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1006de70
 // FUNCTION: MW2MATROX 0x10007fb0
 // FUNCTION: MW23DFX 0x10005120
@@ -283,7 +281,6 @@ MechS32 GdiBlitFlip(void)
 }
 
 // Presents the inclusive rectangle (p_left, p_top)-(p_right, p_bottom). The DIB is bottom-up.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006e21f
 // FUNCTION: MW2MATROX 0x10008379
 // FUNCTION: MW23DFX 0x10005430
@@ -389,7 +386,6 @@ MechS32 GdiStretchBlit2(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 
 
 // Stores p_count colours from p_first in g_paletteColors, then loads all 256 into the GDI palette
 // (scaled from 6 to 8 bits) and realizes it.
-// MW2MATROX: p_first + i loads i first (commutative operands).
 // FUNCTION: MW2 0x1006e453
 // FUNCTION: MW2MATROX 0x100085ad
 // FUNCTION: MW23DFX 0x10005620
@@ -444,7 +440,6 @@ MechS32 GdiSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette,
 }
 
 // Keeps p_palette in g_paletteColorsPreBrightness and loads their brightness-adjusted copies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006e633
 // FUNCTION: MW2MATROX 0x1000878d
 // FUNCTION: MW23DFX 0x10005740
@@ -465,7 +460,6 @@ MechS32 GdiSetPaletteWithBrightness(PaletteColor* p_palette)
 
 // Fades linearly from the current palette to p_palette over p_steps / 2 frames, writing each
 // in-between palette to p_palette (which ends back at the target).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006e6d0
 // FUNCTION: MW2MATROX 0x1000882a
 // FUNCTION: MW23DFX 0x100057a0
@@ -503,7 +497,6 @@ MechS32 GdiBlendPalettes(PaletteColor* p_palette, MechS32 p_steps)
 	return 0;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006e94f
 // FUNCTION: MW2MATROX 0x10008b45
 // FUNCTION: MW23DFX 0x10005990

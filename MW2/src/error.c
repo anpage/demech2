@@ -184,9 +184,8 @@ void ShowFatalError(const char** p_args)
 
 // Formats an error's message: p_title, the code, the code's text from the "SystemError" section,
 // and the printf-style message p_args points at, if any. The message is logged and shown.
-// Stack-slot permutation of code and args. MW2MATROX: the inlined strlen reads g_errorMessage - 1,
-// which reccmp names after a different neighbour on each side.
-// The 3Dfx edition's diff is registers and the strlen's neighbour naming only.
+// MW2MATROX: the inlined strlen reads g_errorMessage - 1, which reccmp names after a different
+// neighbour on each side.
 // FUNCTION: MW2 0x1003bad1
 // FUNCTION: MW2MATROX 0x10059831
 // FUNCTION: MW23DFX 0x1003ce80

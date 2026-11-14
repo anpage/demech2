@@ -196,7 +196,6 @@ MechS32 g_unk0x10023188 = 0;
 
 // NetMech's lobby. MECH2.EXE calls it with the launch record to fill in, runs the simulator
 // when it returns nonzero, and calls it again when the mission is over.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10003684
 extern "C" MechS32 __stdcall Launcher(NetLaunchInfo* p_info)
 {
@@ -600,8 +599,6 @@ void FUN_100042ab()
 }
 
 // The lobby window's procedure.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of the WM_PALETTECHANGED comparison (the original loads p_wParam).
 // FUNCTION: NETMECHW 0x100042d9
 LRESULT CALLBACK FUN_100042d9(HWND p_hWnd, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -842,7 +839,6 @@ BOOL CALLBACK FUN_10004909(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 
 // Creates *p_palette from the colors of bitmap 105, with the system's twenty static colors.
 // It reads the colors from the start of the bitmap's header rather than from its color table.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10004a40
 void FUN_10004a40(HPALETTE* p_palette)
 {
@@ -896,7 +892,6 @@ void FUN_10004a40(HPALETTE* p_palette)
 // Draws the lobby's owner-drawn button p_wParam, as WM_DRAWITEM's p_lParam describes it: pressed
 // while it is selected or while its pane is the current one (g_unk0x1001ca90.m_unk0x15c).
 // The bitmap is the same whether the button has the focus or not.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10004be3
 void FUN_10004be3(WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -1287,8 +1282,6 @@ void FUN_100057ba()
 // and ready bits and the mech files of the slots from p_index up move up a slot.
 // The new team bit is set only for a player on team 1 when no slot above p_index is on team 1,
 // and the bits above stay in place.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes; reccmp also names
-// the addresses one element before g_unk0x1001ca90's m_mechs and g_unk0x1001ce18 differently.
 // FUNCTION: NETMECHW 0x100057fa
 void FUN_100057fa(NetPlayer p_player, MechS32 p_index)
 {
@@ -1318,7 +1311,6 @@ void FUN_100057fa(NetPlayer p_player, MechS32 p_index)
 
 // Removes the slot p_index from the game options: the team and ready bits and the mech files of
 // the slots above it move down a slot.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10005923
 void FUN_10005923(MechS32 p_index)
 {
@@ -1430,7 +1422,6 @@ void FUN_10005b5d(DPID* p_ids)
 
 // Reads MechWarrior 2's callsign from the registry into p_name, of *p_size bytes; returns whether
 // it is set.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10005cdc
 MechS32 FUN_10005cdc(MechChar* p_name, DWORD* p_size)
 {
@@ -1456,7 +1447,6 @@ MechS32 FUN_10005cdc(MechChar* p_name, DWORD* p_size)
 
 // Writes the callsign p_name, of p_size bytes, to MechWarrior 2's registry key; returns whether it
 // succeeded.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10005d9e
 MechS32 FUN_10005d9e(MechChar* p_name, DWORD p_size)
 {

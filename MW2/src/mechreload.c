@@ -45,9 +45,6 @@ MechSegment* g_mechSegments[60] = {NULL};
 // Reloads player p_player's mech as it was remembered. Without p_force, only a player with
 // flag 2 set. The last two parameters are unused: the callers pass zeros, and the 3Dfx edition,
 // where __fastcall's callee pops them (ret 8), shows that the function takes them.
-// MW2MATROX: p_player == g_localPlayerId compares in the other operand order, and
-// ResetCockpitPanels (config.c) has no MW2MATROX annotation yet.
-// The 3Dfx edition's diff is a stack-slot permutation and comparison operand order only.
 // FUNCTION: MW2 0x1007fbe0
 // FUNCTION: MW2MATROX 0x10090fd0
 // FUNCTION: MW23DFX 0x100235e0
@@ -149,7 +146,6 @@ void RememberLoadMech(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p_
 	strcpy(g_rememberedMechs[id].m_config, p_config);
 }
 
-// The 3Dfx edition's diff is a stack-slot permutation only.
 // FUNCTION: MW2 0x1007ff9c
 // FUNCTION: MW2MATROX 0x1009138b
 // FUNCTION: MW23DFX 0x100239a0

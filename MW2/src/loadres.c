@@ -69,10 +69,6 @@ void UnlockCacheEntry(ResourceCacheEntry* p_item)
 }
 
 // Locks an item and takes it off the purge list.
-// The two list-end comparisons load their operands in the other order (the unit's symbol table).
-// MW2MATROX: the two list-end comparisons compare in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10019b63
 // FUNCTION: MW2MATROX 0x10055903
 // FUNCTION: MW23DFX 0x10023fd0
@@ -178,7 +174,6 @@ void FUN_10019da1(void)
 }
 
 // Returns the cached item of an ID and type, or NULL.
-// The only diff is a stack-slot permutation of item and slot.
 // FUNCTION: MW2 0x10019dac
 // FUNCTION: MW2MATROX 0x10055b4c
 // FUNCTION: MW23DFX 0x10024130
@@ -202,8 +197,6 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 }
 
 // Frees an item. An item missing from its hash chain is reported instead.
-// Stack-slot permutation of prev and slot; the original adds type[3] before type[2] (commutative
-// operand order).
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10019e53
@@ -258,9 +251,6 @@ void FreeCacheEntry(ResourceCacheEntry* p_item)
 }
 
 // Writes the cache's hash chains and purge list to the next dbugcch<n>.log.
-// Stack-slot permutation of i, type, item and name.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10019fef
 // FUNCTION: MW2MATROX 0x10055d8e
 // FUNCTION: MW23DFX 0x100242a0

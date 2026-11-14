@@ -110,7 +110,6 @@ void SupAnimTimerCallback(void);
 // in a network game, or the command line's override), from the CD if it isn't on the current
 // drive, draws it and fades its palette in (slowly with p_slowFade), then loads the dropship
 // (launch6.shp) and animates it on an AIL timer. On the DisplayDib back end it draws one frame.
-// Stack-slot permutation: backdropPath, shapePath and palette.
 // FUNCTION: MW2 0x10003a70
 // FUNCTION: MW2MATROX 0x1004a510
 // FUNCTION: MW23DFX 0x100073b0

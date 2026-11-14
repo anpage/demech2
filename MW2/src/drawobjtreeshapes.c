@@ -7,8 +7,6 @@
 #include "types.h"
 
 // Draws the shapes of the scene tree p_root, farthest first.
-// MW2MATROX: the loop's comparison loads its operands in the opposite order, and the load of
-// g_drawList after the sort is duplicated into both paths.
 // FUNCTION: MW2 0x10033b9e
 // FUNCTION: MW2MATROX 0x10023860
 // FUNCTION: MW23DFX 0x1002a280

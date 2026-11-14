@@ -329,7 +329,6 @@ MechS32 DdrawCreateSurfaces(MechS32 p_width, MechS32 p_height)
 	return g_ddrawResult;
 }
 
-// Stack-slot permutation: caps and entries.
 // FUNCTION: MW2SHELL 0x10011a15
 MechS32 DdrawInit(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
@@ -643,8 +642,8 @@ MechS32 DdrawFill(MechS32 p_left, MechS32 p_top, MechS32 p_right, MechS32 p_bott
 	return 0;
 }
 
-// Stack-slot permutation: entries, relock and i. The original also compares i < p_count as
-// `cmp [i], ...` and adds p_first + i with i loaded first; the declaration order doesn't flip it.
+// The original also compares i < p_count as `cmp [i], ...` and adds p_first + i with i loaded
+// first.
 // FUNCTION: MW2SHELL 0x10012add
 MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor* p_palette, MechS32 p_allColors)
 {
@@ -695,7 +694,6 @@ MechS32 DdrawWritePaletteEntries(MechS32 p_first, MechS32 p_count, PaletteColor*
 	return 0;
 }
 
-// Stack-slot permutation: entries, relock and i.
 // FUNCTION: MW2SHELL 0x10012db7
 MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 {
@@ -744,7 +742,6 @@ MechS32 DdrawWritePaletteGamma(PaletteColor* p_palette)
 }
 
 // Fades the palette from g_paletteColors to p_palette in p_steps steps, a step every 16 ms.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10013068
 MechS32 DdrawPaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 {

@@ -467,7 +467,6 @@ MechS32 FUN_10066a30(Gu3dfInfo* p_info, MechS32* p_width, MechS32* p_height, voi
 }
 
 // The end of g_a3dMipEntries names the static after it in either build.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW23DFX 0x10066b90
 MechS32 FUN_10066b90(void)
 {

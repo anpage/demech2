@@ -75,7 +75,6 @@ void AppendBwdNode(void* p_node, MechS32 p_size)
 }
 
 // Starts a new stream: the header, the REV node and an empty DTBL node.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000f7a6
 void BeginBwdStream(void)
 {

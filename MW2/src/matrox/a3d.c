@@ -2343,7 +2343,6 @@ void FUN_1005f760(void)
 	}
 }
 
-// Register entropy: ecx and edx swapped (the probe that defines the table in this unit matches).
 // FUNCTION: MW2MATROX 0x1005f790
 void A3D_SetPalette(PaletteColor* p_palette)
 {

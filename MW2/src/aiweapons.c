@@ -21,7 +21,6 @@
 // of the heading p_heading (always against the local player, else one time in three) it aims at
 // its goal and may fire (DecideAIFire). Then turns and pitches the torso. Returns whether it
 // fired.
-// Stack-slot permutation: fired, roll and delta.
 // FUNCTION: MW2 0x1004b5a0
 // FUNCTION: MW2MATROX 0x1007a850
 // FUNCTION: MW23DFX 0x100231a0
@@ -67,8 +66,7 @@ MechS32 RunAIWeapons(Player* p_player, MechScalar p_heading)
 // Decides whether p_player's AI fires its selected weapon: in range of its target, cool enough, the
 // weapon ready and loaded, and by chance per recycle time; otherwise it selects the next weapon.
 // Firing weapon types 0 and 4 also steers; a guided weapon's volley may lock on.
-// The only diff is a stack-slot permutation of the locals. The Matrox edition's rebuild also adds
-// the two heats in the other order (entropy).
+// The Matrox edition's rebuild also adds the two heats in the other order (entropy).
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004b724
 // FUNCTION: MW2MATROX 0x1007a9d9

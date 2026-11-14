@@ -177,8 +177,6 @@ static MechU32 g_relPixY;
 // GLOBAL: MW23DFX 0x1007d5e0
 static MechS32 (*g_getPixel)(MechS32 p_x, MechS32 p_y);
 
-// Operand order: the loop test (q < tabSize) compares with tabSize in eax in the original, and the
-// color table size's bitfield store loads the byte before the value.
 // FUNCTION: MW2 0x10074920
 // FUNCTION: MW2MATROX 0x10089dd0
 MechS32 GifCreate(
@@ -285,7 +283,6 @@ static MechS32 BitsNeeded(MechU32 p_n)
 	return ret;
 }
 
-// Operand order: the original evaluates the flag bits' `|` operands in a different order.
 // FUNCTION: MW2 0x10074bb1
 // FUNCTION: MW2MATROX 0x1008a061
 static MechS32 WriteScreenDescriptor(GifScreenDescriptor* p_descriptor)
@@ -425,7 +422,6 @@ MechS32 GifCompressImage(
 	return c_gifOk;
 }
 
-// Stack-slot permutation: clearCode, endOfInfo and limit.
 // FUNCTION: MW2 0x10074f76
 // FUNCTION: MW2MATROX 0x1008a426
 static MechS32 LzwCompress(MechS32 p_codeSize, MechS32 (*p_inputByte)(void))
@@ -516,10 +512,6 @@ static MechS32 ResetOutBitFile(void)
 	return 0;
 }
 
-// Stack-slot permutation: bitsWritten and numBytes. Operand order: the original compares
-// p_numBits <= g_bitsLeft with g_bitsLeft in eax.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100751a0
 // FUNCTION: MW2MATROX 0x1008a650
 // FUNCTION: MW23DFX 0x1003bc10
@@ -601,8 +593,6 @@ static MechS32 AllocStringTable(void)
 	return c_gifOk;
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is the operand order of an address only.
 // FUNCTION: MW2 0x10075446
 // FUNCTION: MW2MATROX 0x1008a8f6
 // FUNCTION: MW23DFX 0x1003be00
@@ -626,8 +616,6 @@ static MechU32 AddCharString(MechU32 p_index, MechU8 p_byte)
 	return g_numStrings++;
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is the operand order of an address only.
 // FUNCTION: MW2 0x10075523
 // FUNCTION: MW2MATROX 0x1008a9d3
 // FUNCTION: MW23DFX 0x1003be90
@@ -693,7 +681,6 @@ static MechS32 InputByte(void)
 	return ret;
 }
 
-// Operand order: the original evaluates the flag bits' `|` operands in a different order.
 // FUNCTION: MW2 0x100756e1
 // FUNCTION: MW2MATROX 0x1008ab91
 // FUNCTION: MW23DFX 0x1003c160

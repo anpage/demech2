@@ -42,8 +42,6 @@ static ProjectFileEntry* g_soundFileTable[0x65];
 MechChar g_soundFileDir[0x100];
 
 // Returns the entry named p_name, or adds it if p_add; NULL when it is missing.
-// Stack-slot permutation of entry, added and slot.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10007140
 // FUNCTION: MW2MATROX 0x10001000
 // FUNCTION: MW23DFX 0x100084e0
@@ -127,7 +125,6 @@ void CollectMissionAudio(void)
 
 // Reads the sound file p_name (".sfl" appended) from the mission's directory, if the project
 // file lists it. Returns the data, or NULL.
-// Stack-slot permutation of path and name.
 // FUNCTION: MW2 0x100073bb
 // FUNCTION: MW2MATROX 0x10001257
 // FUNCTION: MW23DFX 0x100086d0

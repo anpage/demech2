@@ -53,7 +53,6 @@ void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS3
 // The Matrox edition's takes the projected vertices themselves (their texture coordinates mark the
 // ends; a negative v flips the texture where 1.1 tests u), and the renderer's argument p_unk0x14.
 // The only other diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100107de
 // FUNCTION: MW2MATROX 0x100459b0
 // FUNCTION: MW23DFX 0x1002a8e0

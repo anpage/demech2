@@ -95,8 +95,6 @@ MechChar g_anonymousInstallationName[8];
 
 // Writes the target panel's text: the locked target's name (its short name when it changes, its
 // name after a while), coloured by its side, and its distance.
-// Stack-slot permutation of the locals. g_currentClock > g_targetFullNameTime compares with its
-// operands reversed (it flipped when speech.h's declarations were added ahead of it).
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007b930
 // FUNCTION: MW2MATROX 0x10017e50
@@ -678,7 +676,6 @@ void DrawTargetStatic(CockpitPanel* p_panel)
 
 // Draws the target panel while its transition opens it, the view resized to the transition's
 // rectangle (g_panes[7] and the panel's target) for the frame.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c71e
 // FUNCTION: MW2MATROX 0x10018def
 // FUNCTION: MW23DFX 0x10021730
@@ -719,7 +716,6 @@ void DrawTargetPanelStartup(CockpitPanel* p_panel)
 
 // Draws the target panel while its transition closes it, unless the view it last drew (0, 3 or
 // 4) already had it closed.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1007c81c
 // FUNCTION: MW2MATROX 0x10018eed
 // FUNCTION: MW23DFX 0x100217f0

@@ -23,7 +23,6 @@ static MechChar g_resourcePath[0x50];
 
 // Read a whole file into memory, allocated here unless p_preallocated; returns the open handle,
 // or -1 on failure.
-// Stack-slot permutation (VC++ 2.2): handle and log.
 // FUNCTION: NETMECHW 0x10013580
 MechS32 LoadFile(MechChar* p_name, MechS32* p_size, void** p_data, MechS32 p_preallocated)
 {

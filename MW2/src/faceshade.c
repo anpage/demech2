@@ -404,8 +404,6 @@ void ToggleTextureMaps(MechU32 p_flags)
 	g_renderSettings.m_untexturedKinds ^= p_flags;
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10036867
 // FUNCTION: MW2MATROX 0x100170ec
 // FUNCTION: MW23DFX 0x1002a890

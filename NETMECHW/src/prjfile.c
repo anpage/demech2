@@ -76,7 +76,6 @@ void ArchiveFree(void* p_block)
 }
 
 // Writes p_size bytes in chunks of at most 0x4000. Returns p_size, or -1 on a short write.
-// Stack-slot permutation (VC++ 2.2): buffer, remaining and chunk.
 // FUNCTION: NETMECHW 0x10011d60
 MechS32 ArchiveWrite(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 {
@@ -100,7 +99,6 @@ MechS32 ArchiveWrite(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 }
 
 // Reads p_size bytes in chunks of at most 0x4000. Returns p_size, or -1 on a short read.
-// Stack-slot permutation (VC++ 2.2): buffer, remaining and chunk.
 // FUNCTION: NETMECHW 0x10011dde
 MechS32 ArchiveRead(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 {
@@ -125,7 +123,6 @@ MechS32 ArchiveRead(MechS32 p_fd, MechU8* p_buffer, MechU32 p_size)
 
 // Opens the project archive p_name in a free slot: p_mode 2 for reading and writing (a project
 // marked 0xfe returns -2), 0 for reading. Loads its header and returns the slot, or -1.
-// Stack-slot permutation (VC++ 2.2): header, slot, size, fd and tag.
 // FUNCTION: NETMECHW 0x10011e5c
 MechS32 OpenArchive(char* p_name, MechChar p_mode)
 {
@@ -225,7 +222,6 @@ MechS32 CloseArchive(MechS32 p_handle)
 }
 
 // Find an archive entry by its four-byte type tag. Returns 0xffff if absent.
-// Stack-slot permutation (VC++ 2.2): found, index, count and entries.
 // FUNCTION: NETMECHW 0x100122f7
 MechU16 FindArchiveEntry(MechS32 p_handle, MechChar* p_name)
 {
@@ -256,7 +252,6 @@ MechU16 FindArchiveEntry(MechS32 p_handle, MechChar* p_name)
 }
 
 // Read and cache every archive entry whose on-disk data offset is nonzero.
-// Stack-slot permutation (VC++ 2.2): count and data.
 // FUNCTION: NETMECHW 0x100123cf
 MechS32 LoadArchiveEntries(MechS32 p_handle)
 {
@@ -290,7 +285,6 @@ MechS32 LoadArchiveEntries(MechS32 p_handle)
 }
 
 // Compute a cached subresource length, clamping non-positive lengths to zero.
-// Stack-slot permutation (VC++ 2.2): entry, index and length.
 // FUNCTION: NETMECHW 0x10012535
 MechS32 GetArchiveItemSize(MechS32 p_handle, MechChar* p_name, MechU16 p_index)
 {
@@ -363,7 +357,6 @@ void ReadArchiveAt(void* p_data, MechS32 p_handle, void* p_offset, MechU32 p_siz
 }
 
 // Read a cached archive subresource into the caller's buffer.
-// Stack-slot permutation (VC++ 2.2): entry, index, entries, offsets, size and offset.
 // FUNCTION: NETMECHW 0x100127ee
 MechS32 ReadArchiveItem(MechS32 p_handle, MechChar* p_name, MechU16 p_index, void* p_data)
 {
@@ -402,7 +395,6 @@ MechS32 ReadArchiveItem(MechS32 p_handle, MechChar* p_name, MechU16 p_index, voi
 }
 
 // Return the archive offset and descriptor of a cached subresource.
-// Stack-slot permutation (VC++ 2.2): entry, index, offsets, entries and offset.
 // FUNCTION: NETMECHW 0x10012974
 MechS32 GetArchiveItemOffset(MechS32 p_handle, MechChar* p_name, MechU16 p_index, MechS32* p_fd)
 {

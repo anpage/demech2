@@ -79,7 +79,6 @@ void ResetCameraShake(void)
 }
 
 // Moves the eyepoint by the shake's current offset. Returns FALSE when no shake is playing.
-// Stack-slot permutation: base10, base0c, base14, x, y and z.
 // FUNCTION: MW2 0x100665f0
 // FUNCTION: MW2MATROX 0x100591b0
 // FUNCTION: MW23DFX 0x1002d7c0
@@ -134,9 +133,6 @@ void StartCameraShake(void)
 
 // Starts the ramps toward a key, from the eyepoint's current offset (the first key) or from the
 // previous key.
-// Stack-slot permutation: x, seconds, off14, off0c, off10, z, key and y. Operand order: the
-// original compares p_key >= g_cameraShakeKeyCount with p_key in eax.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10066798
 // FUNCTION: MW2MATROX 0x1005934c
 // FUNCTION: MW23DFX 0x1002d920

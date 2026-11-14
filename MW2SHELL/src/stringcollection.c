@@ -150,7 +150,6 @@ void DumpStrings(MechChar* p_title, Collection* p_collection)
 	fflush(stdout);
 }
 
-// Stack-slot permutation: copy, i, collection and item.
 // FUNCTION: MW2SHELL 0x10005d79
 Collection* CopyStringCollection(Collection* p_source)
 {
@@ -169,7 +168,6 @@ Collection* CopyStringCollection(Collection* p_source)
 	return collection;
 }
 
-// Stack-slot permutation: a, b, entryA and entryB.
 // FUNCTION: MW2SHELL 0x10005df8
 int CompareStringEntries(const void* p_a, const void* p_b)
 {

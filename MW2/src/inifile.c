@@ -20,7 +20,6 @@ MechChar g_iniLine[0x85];
 
 // Finds the section p_section in mw2.ini for GetIniValue. Returns 0, 0x36 when the file can't
 // be opened or 0x3f when the section isn't there. A line starting with '[' ends the search.
-// Stack-slot permutation: line, end and buffer.
 // FUNCTION: MW2 0x1006c6c0
 // FUNCTION: MW2MATROX 0x1000a170
 // FUNCTION: MW23DFX 0x1003b370
@@ -67,7 +66,6 @@ MechS32 FindIniSection(MechChar* p_section)
 
 // Returns the value of p_key in the section FindIniSection found, or an empty string. The
 // value's last character (the newline) is cut off.
-// Stack-slot permutation: value, length and line.
 // FUNCTION: MW2 0x1006c817
 // FUNCTION: MW2MATROX 0x1000a2a0
 // FUNCTION: MW23DFX 0x1003b450

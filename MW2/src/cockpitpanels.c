@@ -290,8 +290,6 @@ void PreloadCockpitSounds(void)
 // hardpoints 5, 3 and 7, the right ones (8 to 12) those on 4, 1 and 6, and the weapons on 2 and 0
 // fill the rest, alternating. Then reorders the weapons to match, left at even indices and right
 // at odd ones, renumbering their bins, and clears the slots left empty.
-// The locals are a stack-slot permutation, and right > left takes its operands in the other
-// order.
 // The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1006f4fa
 // FUNCTION: MW2MATROX 0x1007954a
@@ -471,7 +469,6 @@ void LayoutWeaponPanels(Mech* p_mech)
 }
 
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
-// Stack-slot permutation: rect, transition, i and target.
 // FUNCTION: MW2 0x1006fba3
 // FUNCTION: MW2MATROX 0x10079bfb
 // FUNCTION: MW23DFX 0x1001e060
@@ -590,8 +587,6 @@ void ResetCockpitPanels(void)
 // Updates the cockpit for the local mech's frame: the heading and the torso twist the panels show,
 // the target's bearing relative to both and its distance, a one-time warning sound, and the
 // panels' handlers for the view mode (Mech::m_powerState: 1, 2 or the rest).
-// Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
-// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1007005a
 // FUNCTION: MW2MATROX 0x1007a0b2
 // FUNCTION: MW23DFX 0x1001e340
@@ -741,7 +736,6 @@ void UpdateCockpit(Mech* p_mech)
 
 // Shuts the cockpit panels down: ResetMapView with the radar on (DifficultyCfg::m_radar),
 // each panel's m_shutdown hook, then every 2D animation.
-// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x100704c1
 // FUNCTION: MW2MATROX 0x1007a53c
 // FUNCTION: MW23DFX 0x1001e630
@@ -764,7 +758,6 @@ void ShutdownCockpitPanels(void)
 
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
 // (p_heavy: five) in ten chance of stepping its damage.
-// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1007053d
 // FUNCTION: MW2MATROX 0x1007a5b8
 // FUNCTION: MW23DFX 0x1001e670

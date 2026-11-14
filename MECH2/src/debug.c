@@ -44,7 +44,6 @@ void MonoClearLastLine(void)
 	}
 }
 
-// Stack-slot permutation: dst and i.
 // FUNCTION: MECH2 0x00401edc
 void MonoPrintLine(const MechChar* p_text)
 {
@@ -145,7 +144,6 @@ void SetDebugLogName(const MechChar* p_name)
 	strncpy(g_debugLogName, p_name, sizeof(g_debugLogName));
 }
 
-// Stack-slot permutation: buffer and args.
 // FUNCTION: MECH2 0x004020f2
 void DebugPrint(const MechChar* p_format, ...)
 {

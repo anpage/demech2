@@ -91,8 +91,6 @@ void AddSceneShape(Shape* p_shape)
 	}
 }
 
-// Operand order: the original compares p_shape with g_sceneShapes the other way round.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d7fb
 // FUNCTION: MW2MATROX 0x1000374b
 // FUNCTION: MW23DFX 0x1000dbe0
@@ -127,8 +125,6 @@ void DetachShape(Shape* p_shape)
 	LinkShape(p_shape, (Shape*) &g_detachedShapeHead);
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006d8d1
 // FUNCTION: MW2MATROX 0x10003822
 // FUNCTION: MW23DFX 0x1000dc60

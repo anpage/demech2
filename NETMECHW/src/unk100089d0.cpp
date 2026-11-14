@@ -118,9 +118,6 @@ UINT g_unk0x10023508[3] = {0x6e, 0x6f, 0x70};
 
 // The guest's lobby dialog: the game options the host set, and the chat. When the host is ready
 // (message 0x416), it moves on to the player-slot pane of the game's kind.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of the second | of pane tests (the original computes the test for 5 first), whose longer
-// encoding also shifts the WM_HOTKEY jump table.
 // FUNCTION: NETMECHW 0x10008d5d
 BOOL CALLBACK FUN_10008d5d(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {

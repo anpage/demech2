@@ -407,8 +407,6 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 
 // Returns a mech's value: its tonnage, scaled by the critical slots it fills (by kind), plus its
 // armor and the value of each of its weapons (up to ten).
-// Stack-slot permutation: the kinds table sits elsewhere in the frame, so its accesses and the
-// jumps over them differ in their encoding.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005e534
 // FUNCTION: MW2MATROX 0x1008d62b

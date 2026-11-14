@@ -130,7 +130,6 @@ MechS32 AppendTypedKey(MechS16 p_key)
 
 // Returns whether the typed keys end with the code p_code, whose characters are stored XORed
 // with 0x1a.
-// Stack-slot permutation of n and c.
 // FUNCTION: MW2 0x1005b807
 // FUNCTION: MW2MATROX 0x10041f17
 // FUNCTION: MW23DFX 0x10036d40
@@ -153,7 +152,6 @@ MechS32 TypedCodeMatches(MechChar* p_code)
 
 // Takes a typed key for the cheat codes: when the last keys typed spell one (TypedCodeMatches; the codes
 // are stored XORed with 0x1a), toggles or runs its cheat and says so.
-// Stack-slot permutation: target and victim.
 // FUNCTION: MW2 0x1005b883
 // FUNCTION: MW2MATROX 0x10041f93
 // FUNCTION: MW23DFX 0x10036d80
@@ -344,9 +342,6 @@ void ShiftCharacter(MechChar* p_char)
 // Takes a key while a chat message is being typed (g_chatRecipient is the recipient): Backspace
 // edits, Enter sends it (to everyone from -1), Esc cancels, F-keys e and f pick the team (-3) or
 // everyone (-2), and printable characters are added up to 40. Returns whether it took the key.
-// Stack-slot permutation; g_localPlayerId == g_chatRecipient compares in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005c057
 // FUNCTION: MW2MATROX 0x1004278d
 // FUNCTION: MW23DFX 0x10037310
@@ -443,7 +438,6 @@ MechS32 HandleChatKey(MechU32 p_keyCode)
 // Runs the frame's game keys: after the mission ends, waits a while before offering to quit (or,
 // with DifficultyCfg::m_regenerate, to regenerate); otherwise passes the key code (from the local
 // steering, through the cheat codes, the chat message and LookupGameKey) to RunGameKey.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1005c2e1
 // FUNCTION: MW2MATROX 0x10042a17
 // FUNCTION: MW23DFX 0x100374e0
@@ -573,7 +567,6 @@ void HandleGameKeys(MechS32 p_unk0x00, MechS32 p_unk0x04, MechU16 p_key)
 // the controls the local steering takes (a flag set for the frame), the menus, the chat
 // recipients, ejecting (0x3b) and the screenshot (0x5b). Any other key goes to HandleDebugKey while
 // the mission timer is stopped.
-// Stack-slot permutation: mech, step and text.
 // FUNCTION: MW2 0x1005c78a
 // FUNCTION: MW2MATROX 0x10042ec0
 // FUNCTION: MW23DFX 0x10037880

@@ -68,8 +68,6 @@ MechS32 g_remoteWeaponsFired[10];
 // GLOBAL: MW23DFX 0x101594a0
 MechS32 g_localWeaponsFired[10];
 
-// Index order: the original computes the slot address index first, `&p_mech->m_weapons[i]` loads the base
-// first here (it flips with the symbols declared ahead of it).
 // FUNCTION: MW2 0x10044740
 // FUNCTION: MW2MATROX 0x1002b4e0
 // FUNCTION: MW23DFX 0x10043760
@@ -91,9 +89,6 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 	}
 }
 
-// Stack-slot permutation: dx, dy, dz, first, slot, time, def, i, pan and fired. MW2MATROX: index
-// order (&p_mech->m_weapons[i] loads i first) and the operand order of m_deltaHeat += m_heat.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100447e1
 // FUNCTION: MW2MATROX 0x1002b581
 // FUNCTION: MW23DFX 0x100437a0
@@ -311,7 +306,6 @@ void UpdateWeaponFireState(Mech* p_mech)
 // weapon can't fire again: no hardpoint, or out of ammunition.
 // Stack-slot permutation: result, shot, def, found, dx, dy, dz, i and speed. Comparison order: the
 // original compares m_binCount with m_binIndex the other way round (either source order compiles alike).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004506c
 // FUNCTION: MW2MATROX 0x1002be15
 // FUNCTION: MW23DFX 0x10043cc0
@@ -424,8 +418,6 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 
 // Selects the next weapon of the selected one's group; p_wrap moves on to the next group when
 // there is none.
-// Stack-slot permutation: index, group, slot, found, i and selected.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10045449
 // FUNCTION: MW2MATROX 0x1002c1ef
 // FUNCTION: MW23DFX 0x10043f80
@@ -467,8 +459,6 @@ void SelectNextWeaponInGroup(Mech* p_mech, MechS32 p_wrap)
 }
 
 // Selects the next weapon that still has ammunition.
-// Stack-slot permutation: done and tries.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10045567
 // FUNCTION: MW2MATROX 0x1002c30d
 // FUNCTION: MW23DFX 0x10044030
@@ -505,9 +495,6 @@ void SelectNextWeapon(Mech* p_mech)
 }
 
 // Selects the first weapon of the next group that has one.
-// Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: group, i,
-// found, selected and current.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004567b
 // FUNCTION: MW2MATROX 0x1002c421
 // FUNCTION: MW23DFX 0x100440c0
@@ -549,8 +536,6 @@ void SelectNextWeaponGroup(Mech* p_mech)
 }
 
 // Selects the first weapon of p_group. Returns 1 if the group has one.
-// Index order: the original loads p_mech->m_weapons before scaling i; stack-slot permutation: i, found,
-// selected and current.
 // FUNCTION: MW2 0x100457d3
 // FUNCTION: MW2MATROX 0x1002c579
 // FUNCTION: MW23DFX 0x10044160
@@ -614,7 +599,6 @@ MechS32 IsSelectedWeaponReady(Mech* p_mech)
 }
 
 // Dumps the selected weapon's ammunition.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004597b
 // FUNCTION: MW2MATROX 0x1002c721
 // FUNCTION: MW23DFX 0x10044220
@@ -642,8 +626,6 @@ MechS32 JettisonAmmo(Mech* p_mech)
 }
 
 // Loads the launch sounds of the weapons and the sounds of the effects.
-// Stack-slot permutation: i and def.
-// The 3Dfx edition's diff is register allocation and the loop's end, which names the neighbour.
 // FUNCTION: MW2 0x10045a5b
 // FUNCTION: MW2MATROX 0x1002c801
 // FUNCTION: MW23DFX 0x100442e0
@@ -666,7 +648,6 @@ void LoadWeaponSounds(void)
 	}
 }
 
-// MW2MATROX: index order, the original loads the index of `&p_mech->m_weapons[...]` first.
 // FUNCTION: MW2 0x10045b14
 // FUNCTION: MW2MATROX 0x1002c8ba
 // FUNCTION: MW23DFX 0x10044330
@@ -706,9 +687,6 @@ void CycleLocalWeaponGroup(void)
 }
 
 // Fires the weapons g_remoteWeaponsFired lists from p_mech.
-// Index order: `&p_mech->m_weapons[i]` loads the base first in the original; stack-slot permutation:
-// slot, def and i. MW2MATROX: the same index, loading the index first.
-// The 3Dfx edition's diff is register allocation and the loop's end, which names the neighbour.
 // FUNCTION: MW2 0x10045bc8
 // FUNCTION: MW2MATROX 0x1002c96e
 // FUNCTION: MW23DFX 0x100443a0
@@ -740,9 +718,6 @@ void FireRemoteWeapons(Mech* p_mech)
 }
 
 // Fires every ready weapon of the local player's selected group.
-// Stack-slot permutation: selected, first, def and slot.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10045cd8
 // FUNCTION: MW2MATROX 0x1002ca7e
 // FUNCTION: MW23DFX 0x10044440
@@ -803,8 +778,7 @@ void AddNextWeaponToGroup(Mech* p_mech)
 
 // Updates the target lock of the selected weapon: with the target between its two ranges and
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
-// Stack-slot permutation: dx, dy, dz, twist, pitch, yaw, bearing, inRange, def and heading.
-// MW2MATROX: in floats (degrees); only a stack-slot permutation is left.
+// MW2MATROX: in floats (degrees).
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10045eac
 // FUNCTION: MW2MATROX 0x1002cc52
@@ -895,7 +869,6 @@ void UpdateWeaponLock(Mech* p_mech)
 
 // Casts the player's aim ray and returns the shape it hits, if any. A hit on a mech or a
 // building sets the distance the weapons converge at.
-// Stack-slot permutation: length, hit, flags and collided.
 // FUNCTION: MW2 0x10046269
 // FUNCTION: MW2MATROX 0x1002d0b1
 // FUNCTION: MW23DFX 0x10044810
@@ -964,7 +937,6 @@ void GetMechAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mec
 }
 
 // Builds the player's aim ray, 150000 long.
-// Stack-slot permutation: x, y, z, dx, dy and dz.
 // FUNCTION: MW2 0x100463e5
 // FUNCTION: MW2MATROX 0x1002d253
 // FUNCTION: MW23DFX 0x10044950

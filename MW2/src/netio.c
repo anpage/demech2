@@ -96,8 +96,6 @@ void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 
 // Receives the next message into g_netRecvBuffer. Returns the sender, or -1 when there is none.
 // The 3Dfx edition logs only the bad packets.
-// The only diff is a stack-slot permutation of from, result and size.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100011c9
 // FUNCTION: MW2MATROX 0x10089cc9
 // FUNCTION: MW23DFX 0x1003a5e0

@@ -64,7 +64,6 @@ TimedOverlay g_timedOverlays[2] = {
 // Lays out the message boxes: scales their rectangles to the screen and to their background
 // shapes, moves them to the top (the first) and bottom (the second) edge, and centers the
 // text vertically.
-// Stack-slot permutation: the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006ee60
 // FUNCTION: MW2MATROX 0x10078690
@@ -190,7 +189,6 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 	return result;
 }
 
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f179
 // FUNCTION: MW2MATROX 0x100789a9
 // FUNCTION: MW23DFX 0x10003010
@@ -234,7 +232,6 @@ void DrawTimedOverlays(void)
 
 // Draws text in a box sized to it, on a tiled background shape (p_background, -1 for none),
 // at p_x, p_y or centered on the screen along an axis where that is negative.
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1006f28f
 // FUNCTION: MW2MATROX 0x10078ace
 // FUNCTION: MW23DFX 0x100030c0

@@ -27,7 +27,6 @@ DECOMP_SIZE_ASSERT(SceneObject, 0x7c)
 // GLOBAL: MW23DFX 0x1024b3a0
 MechU32 g_nextRenormalizeCountdown = 100;
 
-// The only diff is a stack-slot permutation of obj and last.
 // FUNCTION: MW2 0x100012d0
 // FUNCTION: MW2MATROX 0x10040dd0
 // FUNCTION: MW23DFX 0x1000f5e0
@@ -300,7 +299,6 @@ void RotateObj(SceneObject* p_obj, MechScalar p_angleX, MechScalar p_angleY, Mec
 	RotateObjMatrix(p_obj, &matrix);
 }
 
-// The only diff is a stack-slot permutation of model and obj.
 // FUNCTION: MW2 0x1000188b
 // FUNCTION: MW2MATROX 0x1004139d
 // FUNCTION: MW23DFX 0x1000fa10
@@ -571,9 +569,7 @@ void SetObjWorldMatrix(SceneObject* p_obj, Matrix* p_matrix)
 	p_obj->m_world = *p_matrix;
 }
 
-// The only diff is a stack-slot permutation of parent and first.
 // Unlinks the object from its parent, keeping its world placement.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10001e32
 // FUNCTION: MW2MATROX 0x10041944
 // FUNCTION: MW23DFX 0x1000fd10
@@ -680,7 +676,6 @@ SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name)
 	return NULL;
 }
 
-// The only diff is a stack-slot permutation of child and last.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100020a6
 // FUNCTION: MW2MATROX 0x10041bb8
@@ -703,7 +698,6 @@ SceneObject* GetObjLastChild(SceneObject* p_obj)
 }
 
 // Returns child p_index in the order the children were added (they are prepended), or NULL.
-// The only diff is a stack-slot permutation of child and count.
 // FUNCTION: MW2 0x100020fa
 // FUNCTION: MW2MATROX 0x10041c0c
 // FUNCTION: MW23DFX 0x1000fe80
@@ -767,9 +761,6 @@ SceneObject* FindObjByPart(SceneObject* p_obj, MechU32 p_partId)
 }
 
 // Raises the damage level (shape flags 0xf0) of mech part p_partId's shapes to p_level (1 to 15).
-// The remaining diffs are a stack-slot permutation of current and child, and the operand
-// order of p_level > current (declaration order didn't flip it).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10002246
 // FUNCTION: MW2MATROX 0x10041d58
 // FUNCTION: MW23DFX 0x1000ff00

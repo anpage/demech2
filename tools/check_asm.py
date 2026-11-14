@@ -9,7 +9,9 @@ declared `naked`, must be listed in `tools/asm_allowlist.txt` with a fingerprint
 hold nothing else.
 
 A fingerprint is a property of the original's code that a VC++ compiler at /Od doesn't produce,
-checked against each /Od original that annotates the function and is available (`--verify`):
+checked against the original of the first /Od target that annotates the function, in the order
+MW2, MW2SHELL, NETMECHW, MECH2, MW2MATROX (`--verify`; a later edition may compile the function from
+other code, as the Matrox edition's float C replaces 1.1's assembly):
 
   div64       a `div`/`idiv` of a 64-bit dividend: edx not set by `cdq` or `xor edx, edx` just
               before (C divides an `__int64` through `__alldiv`)
@@ -219,7 +221,7 @@ def verify(entries, scanned, targets, tree):
     from funccmp import Annotations, read_yaml_paths, source_roots
 
     paths = read_yaml_paths(tree)
-    loaded = {}
+    loaded, images = {}, {}
     failures, verified, unchecked = [], 0, []
     for (path, name), entry in sorted(entries.items()):
         machine = [f for f in entry["fingerprints"] if not f.startswith("copy:")]
@@ -232,18 +234,25 @@ def verify(entries, scanned, targets, tree):
                     failures.append("%s %s: its assembly isn't %s's" % (path, name, f[5:]))
         if not machine:
             continue
+        # The fingerprint is the first /Od target's that annotates the function, in OD_TARGETS's
+        # order: a later edition may compile the function from other code (the Matrox edition's
+        # are floats in C where 1.1's are assembly). Without that target's original here, the
+        # entry isn't checkable here: it isn't checked against the next target instead.
         done = False
-        for target in targets:
-            if target not in paths or not Path(paths[target]).exists():
-                continue
+        for target in OD_TARGETS:
             if not any(path.startswith(r + "/") for r in source_roots(target, tree)):
                 continue
             if target not in loaded:
-                loaded[target] = (Annotations(target, source_roots(target, tree), tree), Image(paths[target]))
-            annotations, image = loaded[target]
+                loaded[target] = Annotations(target, source_roots(target, tree), tree)
+            annotations = loaded[target]
             found = [a for a in annotations.functions.get(name, []) if Path(a.filename).resolve() == (tree / path).resolve()]
             if not found:
                 continue
+            if target not in targets or target not in paths or not Path(paths[target]).exists():
+                break
+            if target not in images:
+                images[target] = Image(paths[target])
+            image = images[target]
             start = found[0].offset
             later = [a for a in annotations.addresses if a > start]
             end = min(later) if later else start + 0x1000
@@ -263,7 +272,7 @@ def verify(entries, scanned, targets, tree):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--verify", action="store_true", help="Check the fingerprints against the originals in reccmp-user.yml")
-    parser.add_argument("--targets", nargs="*", default=list(OD_TARGETS), help="The originals to verify against, in order")
+    parser.add_argument("--targets", nargs="*", default=list(OD_TARGETS), help="The originals to verify against (the others' entries are reported as not checkable here)")
     parser.add_argument("--tree", default=str(ROOT), help="The source tree to check (default: this one)")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
@@ -289,7 +298,7 @@ def main():
         failures += more
         message += "; %d verified against an original" % verified
         if unchecked:
-            message += ", %d not checkable here (no original that annotates them)" % len(unchecked)
+            message += ", %d not checkable here (the original of the first target that annotates them isn't)" % len(unchecked)
             if args.verbose:
                 for line in unchecked:
                     print("  not checked: " + line)

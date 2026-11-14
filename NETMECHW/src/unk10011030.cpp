@@ -11,7 +11,6 @@
 
 // The host's settings broadcast: sends the settings ("ST") to every player every 200 ms, until
 // it receives message 0x418.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10011030
 DWORD WINAPI BroadcastSettingsThread(LPVOID)
 {

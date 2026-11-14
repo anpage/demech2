@@ -135,8 +135,6 @@ InputControl g_inputControls[0x35] = {
 #undef CONTROL
 
 // Enumerate the devices of every driver, once unless p_reset; returns the device count.
-// Stack-slot permutation: index, device and count. The original loads g_inputDeviceCount for
-// the capacity comparison; reordering the global definitions didn't flip it.
 // FUNCTION: MW2SHELL 0x10031bf0
 MechS32 InputEnumDevices(MechS32 p_reset)
 {
@@ -177,8 +175,6 @@ MechS32 InputEnumDevices(MechS32 p_reset)
 	return g_inputDeviceCount;
 }
 
-// Operand order: the original compares p_index < g_inputDeviceCount with g_inputDeviceCount
-// loaded first (one declaration-order attempt didn't flip it).
 // FUNCTION: MW2SHELL 0x10031d34
 InputDevice* InputGetDevice(MechS32 p_index)
 {
@@ -351,7 +347,6 @@ void InputWriteButtonBinding(InputControl* p_control)
 	InputWriteModifiers(p_control->m_modifiers);
 }
 
-// Stack-slot permutation: i and device.
 // FUNCTION: MW2SHELL 0x100321ad
 void InputWriteModifiers(MechS32* p_modifiers)
 {

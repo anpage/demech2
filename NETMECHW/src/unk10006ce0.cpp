@@ -23,7 +23,6 @@ UINT g_unk0x10023368 = 0;
 
 // Creates the session, as its host, and the local player in it, and starts the host's threads.
 // Returns whether it succeeded; tells the user why not otherwise.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10006ce0
 MechS32 HostSession(HWND p_dialog)
 {
@@ -89,7 +88,6 @@ MechS32 HostSession(HWND p_dialog)
 // Joins the session selected in the list box (control 0x418) of the dialog p_dialog, creates the
 // local player in it, and starts the client's threads. Returns whether it succeeded; tells the
 // user why not otherwise.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10006f81
 MechS32 JoinSession(HWND p_dialog)
 {
@@ -163,7 +161,6 @@ MechS32 JoinSession(HWND p_dialog)
 
 // The session dialog: the sessions found, and the buttons to join one or host a new one (or,
 // for a modem, to dial or to answer).
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100072a2
 BOOL CALLBACK FUN_100072a2(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM)
 {

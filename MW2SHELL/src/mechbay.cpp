@@ -503,7 +503,6 @@ MechS32 RoundTons(MechS32 p_value)
 	return RoundDownTons(p_value + 50);
 }
 
-// Stack-slot permutation: top and height.
 // FUNCTION: MW2SHELL 0x100078cd
 void ShowFields(ScreenField* p_tabs)
 {
@@ -614,9 +613,6 @@ MechS32 RemoveCriticals(MechS32 p_id)
 	return count;
 }
 
-// Array index order: the original loads i before p_location in m_criticals[p_location][i]. The
-// order follows the unit's symbol table: renaming the unit's globals flipped it here and fixed it
-// in RemoveCriticals.
 // FUNCTION: MW2SHELL 0x10007bee
 MechS32 PlaceCriticals(MechS32 p_location, MechS32 p_id, MechS32 p_count)
 {
@@ -717,8 +713,6 @@ MechS32 AssignItem(MechS32 p_location, MechS32 p_id, MechS32 p_count)
 	return FALSE;
 }
 
-// Stack-slot permutation: id, group, index, i and j. m_criticals[i][j] also loads the base before
-// the index, the reverse of the original.
 // FUNCTION: MW2SHELL 0x10007e90
 void DeleteItem(MechS32 p_id)
 {
@@ -817,7 +811,6 @@ MechS32 AddAmmo(MechS32 p_id)
 	return 0;
 }
 
-// Stack-slot permutation: count and i.
 // FUNCTION: MW2SHELL 0x10008254
 MechS32 CountAmmo(MechS32 p_id)
 {
@@ -935,8 +928,6 @@ void RemoveWeapon(MechS32 p_id)
 	}
 }
 
-// Operand order: the original adds m_engineMass last in the m_usedMass sum; it follows the unit's
-// symbol table.
 // FUNCTION: MW2SHELL 0x10008686
 void UpdateMass()
 {
@@ -1573,7 +1564,6 @@ TextGlyph* DrawLocationName(ScreenField* p_tab)
 
 // Draws the item in one critical slot (p_tab->m_data) of the selected location: a weapon, a
 // piece of equipment or ammunition (ids from 10000 up).
-// Not 100%: the stack slots of id and i are permuted.
 // FUNCTION: MW2SHELL 0x10009da9
 TextGlyph* DrawCritical(ScreenField* p_tab)
 {
@@ -1616,7 +1606,6 @@ TextGlyph* DrawCritical(ScreenField* p_tab)
 }
 
 // Draws one entry (p_tab->m_data) of the items list with its count, like DrawCritical.
-// Not 100%: the stack slots of id, count and i are permuted.
 // FUNCTION: MW2SHELL 0x10009f92
 TextGlyph* DrawUnassigned(ScreenField* p_tab)
 {
@@ -1675,7 +1664,6 @@ TextGlyph* DrawYesNo(ScreenField* p_tab)
 		->AddOverlayText(p_tab->m_left, p_tab->m_top, (MechChar*) (value ? "Yes" : "No"), p_tab->m_colors);
 }
 
-// Stack-slot permutation: id and text.
 // FUNCTION: MW2SHELL 0x1000a208
 TextGlyph* DrawEquipmentName(ScreenField* p_tab)
 {
@@ -1800,9 +1788,6 @@ void ClickFaster(ScreenField* p_tab)
 	UpdateStats();
 }
 
-// The rating product differs only in evaluation order: the original divides m_maxMass before
-// loading m_walkingSpeed - 1, as ClickFaster does; the order follows the unit's symbol table (it has
-// flipped between the two functions as declarations moved).
 // FUNCTION: MW2SHELL 0x1000a5a3
 void ClickSlower(ScreenField* p_tab)
 {
@@ -2200,7 +2185,6 @@ void SelectLocation(ScreenField* p_tab)
 	g_variant.m_selectedLocation = MECH_PTR_TO_S32(p_tab->m_data);
 }
 
-// Stack-slot permutation: id and count.
 // FUNCTION: MW2SHELL 0x1000afef
 void ClickUnassigned(ScreenField* p_tab)
 {
@@ -2255,8 +2239,6 @@ void ClickCritical(ScreenField* p_tab)
 	UnassignItem(id);
 }
 
-// Comparison operand order: the original loads m_armorAllocated into eax and compares m_armorFactor with
-// it, the reverse of ours; flipping the source didn't change it.
 // FUNCTION: MW2SHELL 0x1000b166
 void AddFrontArmor(ScreenField* p_tab)
 {
@@ -2303,8 +2285,6 @@ void RemoveFrontArmor(ScreenField* p_tab)
 	}
 }
 
-// Comparison operand order: the original loads m_armorAllocated into eax and compares m_armorFactor with
-// it, the reverse of ours; flipping the source didn't change it.
 // FUNCTION: MW2SHELL 0x1000b284
 void AddRearArmor(ScreenField* p_tab)
 {
@@ -2420,8 +2400,6 @@ void ToggleEquipment(ScreenField* p_tab)
 }
 
 // Returns the first tab with a click callback that contains the point.
-// Operand order: the original loads m_width before m_left; swapping them in the source didn't
-// change it.
 // FUNCTION: MW2SHELL 0x1000b5ed
 ScreenField* FindFieldAt(ScreenField* p_tabs, MechS32 p_x, MechS32 p_y)
 {
@@ -2456,7 +2434,6 @@ MechS32 FindMekItemInLocation(MechS32 p_id, MechS32 p_location, MechS32* p_slot)
 	return FALSE;
 }
 
-// Stack-slot permutation: location and slot.
 // FUNCTION: MW2SHELL 0x1000b6f4
 MechS32 FindMekItem(MechS32 p_id, MechS32* p_location, MechS32* p_slot)
 {
@@ -2480,7 +2457,6 @@ MechS32 FindMekItem(MechS32 p_id, MechS32* p_location, MechS32* p_slot)
 
 // Saves the variant being edited to the .mek file p_name in the mek directory, creating the
 // directory if needed. Returns 1, or 0 on failure.
-// Not 100%: the original loads the index before the base in m_criticals[i][j] in the slot loop.
 // FUNCTION: MW2SHELL 0x1000b771
 MechS32 SaveMekFile(MechChar* p_name)
 {
@@ -2660,8 +2636,6 @@ void SetCritical(MechS32 p_location, MechS32 p_slot, MechS32 p_id)
 
 // Loads the .mek file p_name into the variant being edited, keeping the previous variant in
 // g_previousVariant, and derives the engine, armor and internal structure from it.
-// Not 100%: the stack slots of the locals are permuted, and m_items[j] of g_mekLocations loads the
-// base before the index.
 // FUNCTION: MW2SHELL 0x1000befe
 void LoadMekFile(MechChar* p_name)
 {
@@ -2970,8 +2944,6 @@ void PlayChassisName()
 	g_chassisNameSound->Start();
 }
 
-// Comparison operand order: the original loads g_chassisCount into eax and compares
-// g_selectedChassis with it, the reverse of ours; flipping the source didn't change it.
 // FUNCTION: MW2SHELL 0x1000cce5
 void NextChassis()
 {
@@ -3550,7 +3522,6 @@ void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar** p
 
 // Opens the mech bay: its sounds, color maps, menu and videos, the chassis and variant of the
 // current star's selected mech, and its fields.
-// Not 100%: the stack slots of data, i and size are permuted.
 // FUNCTION: MW2SHELL 0x1000d0d4
 void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam)
 {
@@ -3720,7 +3691,6 @@ void DrawMechBay(TMPackDataBase* p_database, MechS32 p_campaign, WPARAM p_wParam
 
 // The mech bay's frame: the fields' clicks and the menu (EXIT LAB, STAR CONFIG, the chassis and
 // variant arrows, CUSTOMIZE, ACCEPT MECH, SAVE, ABORT and DELETE).
-// Not 100%: the stack slots of the locals and the delete temporaries are permuted.
 // FUNCTION: MW2SHELL 0x1000db35
 void MechBayCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, MechChar**, MechS32 p_msg)
 {

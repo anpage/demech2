@@ -110,7 +110,6 @@ MechS32 g_gdiStaticColorCount;
 // GLOBAL: MW2SHELL 0x10096600
 HPALETTE g_gdiOldPalette;
 
-// Stack-slot permutation: the original puts colors at [ebp-4] and i at [ebp-8].
 // FUNCTION: MW2SHELL 0x10030b90
 MechS32 GdiBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
@@ -377,8 +376,6 @@ MechS32 GdiRealizePalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 
 // On an 8-bit display, copies the system palette's static colors into both ends of the logical
 // palette and the DIB color table.
-// Operand order: the original compares i < g_gdiStaticColorCount as
-// `cmp [g_gdiStaticColorCount], eax`; one declaration-order attempt didn't flip it.
 // FUNCTION: MW2SHELL 0x10031424
 void GdiLoadStaticColors()
 {

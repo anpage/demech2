@@ -24,7 +24,6 @@ MechS32 g_playerCount = 0;
 // their mech copies (MEK\<xxx><slot>PLR.MEK, CopyPlayerMech) are renamed after their new slots.
 // The new player joins team 1 if team 0 has two more players, team 0 otherwise. Returns
 // whether the table had room.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000aa90
 MechS32 FUN_1000aa90(MechChar* p_name, DPID p_id)
 {
@@ -81,7 +80,6 @@ MechS32 FUN_1000aa90(MechChar* p_name, DPID p_id)
 // Removes the player p_id from the table: deletes its mech copy, and the players after it move
 // down a slot, their mech copies renamed after their new slots. Returns whether the player was
 // in the table.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000acc9
 MechS32 FUN_1000acc9(DPID p_id)
 {
@@ -249,7 +247,6 @@ DPID FUN_1000b178()
 }
 
 // Sets the players' teams from p_teams, one bit per slot: set for team 1.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000b1fe
 void FUN_1000b1fe(MechU8 p_teams)
 {

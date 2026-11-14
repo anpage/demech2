@@ -68,7 +68,6 @@ ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 
 // Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
 // (g_viewNearPlane), its values interpolated.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x10076f41
 // FUNCTION: MW23DFX 0x1002b200
@@ -177,8 +176,6 @@ ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 // Projects a view-space vertex onto the screen once per frame (m_projected bit 0), with its clip
 // outcodes (1 left, 2 right, 4 top, 8 bottom), accumulates the outcodes of the polygon being built
 // and adds the vertex to its list (up to 20).
-// Stack-slot permutation; the edge tests compare in the other operand order.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x100773f0
 // FUNCTION: MW23DFX 0x1002b730
 ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex)
@@ -541,7 +538,6 @@ void QueueFace(Face* p_face, Vertex* p_vertices)
 
 // ClipEdgeToNearPlane for two projected vertices, at the depth p_plane (the new vertex still
 // takes g_viewNearPlane's depth).
-// Stack-slot permutation; z1 <= z0 compares in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2MATROX 0x10077fa7
 // FUNCTION: MW23DFX 0x1002c250
@@ -646,9 +642,8 @@ ProjectedVertex* ClipProjectedEdge(ProjectedVertex* p_a, ProjectedVertex* p_b, M
 // Transforms p_count vertices into view space, clips the polygon they make through the renderer
 // (FUN_1005a5f0) and projects the clipped vertices (ProjectVertex); returns their count. Its
 // callers pass a third argument it doesn't read.
-// Stack-slot permutation; the products sum in another order (commutative operand order), and
-// i < p_count compares in the other operand order. MW23DFX: the products sum in another order.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
+// Stack-slot permutation; the products sum in another order (commutative operand order), and i <
+// p_count compares in the other operand order.
 // FUNCTION: MW2MATROX 0x10078432
 // FUNCTION: MW23DFX 0x1002c770
 MechS32 ProjectPolygon(Vertex* p_vertices, MechU32 p_count, MechS32 p_unk0x08)

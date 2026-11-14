@@ -302,7 +302,6 @@ void StreamVideoSound(FmvSlot* p_video)
 }
 
 // Plays the next frame of the full-screen video in slot 0, closing it after the last.
-// Stack-slot permutation: video, palette and result.
 // FUNCTION: MW2SHELL 0x100164f2
 void PlayFullscreenVideoFrame()
 {
@@ -351,8 +350,6 @@ void PlayFullscreenVideoFrame()
 // Advances and draws the videos of all slots: Smacker videos frame by frame, sprite sheets
 // (m_shp) on their timer. A video past its last frame stops (flag 4), loops (flag 8) or
 // closes.
-// Not 100%: the stack slots of video and i are permuted, and m_drawnTop != m_top loads m_drawnTop
-// first (reversing the operands or retyping the member doesn't flip it).
 // FUNCTION: MW2SHELL 0x1001661b
 void UpdateVideos()
 {
@@ -579,7 +576,6 @@ void ResumeFullscreenVideo()
 	g_fmvSlots[0].m_frame++;
 }
 
-// The original loads p_mask before p_value in p_mask & p_value; swapping the operands didn't flip it.
 // The first statement reloads and stores the flags instead of and-ing them in place: an unsigned
 // operation on a signed field does that, which is why the mask is cast.
 // FUNCTION: MW2SHELL 0x10016cc0

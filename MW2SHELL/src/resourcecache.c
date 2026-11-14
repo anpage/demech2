@@ -60,8 +60,6 @@ void UnlockCacheEntry(ResourceCacheEntry* p_entry)
 	}
 }
 
-// Operand order: the original compares p_entry against g_purgeListHead and g_purgeListTail with
-// the globals loaded first; it follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10013703
 void LockCacheEntry(ResourceCacheEntry* p_entry)
 {
@@ -148,9 +146,6 @@ void FUN_10013935(void)
 {
 }
 
-// Stack-slot permutation: bucket and entry exchange [ebp-8] and [ebp-4]. The hash
-// loads type[3] before type[2] in the recompilation; reversing their source order
-// does not change VC++ 4.1's load order.
 // FUNCTION: MW2SHELL 0x10013940
 ResourceCacheEntry* FindCacheEntry(MechS32 p_id, char* p_type)
 {
@@ -171,9 +166,6 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, char* p_type)
 	return entry;
 }
 
-// Stack-slot permutation only: entry uses [ebp-10] instead of [ebp-4], the
-// four type bytes use [ebp-8..-5] instead of [ebp-c..-9], the terminator uses
-// [ebp-4] instead of [ebp-8], and bucket uses [ebp-c] instead of [ebp-10].
 // FUNCTION: MW2SHELL 0x100139e7
 void FreeCacheEntry(ResourceCacheEntry* p_entry)
 {
@@ -213,7 +205,6 @@ void FreeCacheEntry(ResourceCacheEntry* p_entry)
 }
 
 // Writes the cache to dbugcch<n>.log: every entry by bucket, then the purge list.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10013b11
 void DumpResourceCache(void)
 {
@@ -263,7 +254,6 @@ void UnlockCachedResource(MechS32 p_id, char* p_type)
 // Returns the data of p_type item p_id of p_handle, loading it into the cache when needed and
 // purging the least recently used entries to make room. p_unk0x0c is ignored (the name tables
 // pass 1), so nothing gives it a name.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10013cb5
 void* LoadCachedResource(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
 {

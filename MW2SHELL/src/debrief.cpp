@@ -167,7 +167,6 @@ MechU8 HasEasyOptions()
 
 // The qsort order of the debriefing's objectives: by the time they were reached, the ones never
 // reached last.
-// Not 100%: the stack slots of a, b, first and second are permuted.
 // FUNCTION: MW2SHELL 0x10001056
 int CompareObjectives(const void* p_a, const void* p_b)
 {
@@ -193,7 +192,6 @@ int CompareObjectives(const void* p_a, const void* p_b)
 }
 
 // Appends the honor breakdown of the mission to p_text and returns the honor it earns.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x100010ed
 MechS32 AppendHonorBreakdown(
 	DifficultyConfig* p_difficulty,
@@ -471,7 +469,6 @@ void CollapseWhitespace(MechChar* p_dst, MechChar* p_src)
 
 // Builds the debriefing's text in p_text: the objectives, sorted by time, and the honor
 // breakdown, whose honor a completed mission adds to the pilot's.
-// Not 100%: the stack slots of i, seconds, minutes, honor and width are permuted.
 // FUNCTION: MW2SHELL 0x10001ca0
 void BuildDebriefText(
 	CareerRecord* p_career,
@@ -640,7 +637,6 @@ void LayoutDebriefPages(
 
 // Returns the rank a trial earns: its successful primary objectives, when a clan pilot has
 // completed a trial without the options that make it easier (p_difficulty, g_difficultyConfig).
-// Not 100%: the stack slots of count and i are permuted.
 // FUNCTION: MW2SHELL 0x100023bf
 MechS32 GetTrialRank(MissionResults* p_results, DifficultyConfig* p_difficulty)
 {

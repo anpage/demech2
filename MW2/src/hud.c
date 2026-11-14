@@ -251,8 +251,6 @@ void DrawHud(
 
 // Draws the altimeter: the mech's height, the height of m_player's mark (Player::m_unk0x74) and
 // the height of the target, clamped to the gauge. p_x and p_y go unused.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10040cbc
 // FUNCTION: MW2MATROX 0x1001caef
 // FUNCTION: MW23DFX 0x100222e0
@@ -481,7 +479,6 @@ Point* GetHudGaugePositions(void)
 // target, the locked shape when the target is in range and within 3 units and 3 degrees of the
 // aim (returns TRUE then); otherwise the lock or guided-state shapes, or 0x67 without a ready
 // weapon.
-// Stack-slot permutation; range > p_pitch compares in the other operand order.
 // FUNCTION: MW2 0x100412dd
 // FUNCTION: MW2MATROX 0x1001d1b9
 // FUNCTION: MW23DFX 0x10022710
@@ -550,7 +547,6 @@ MechS32 DrawCrosshair(Mech* p_mech, MechScalar p_bearing, MechScalar p_pitch, Me
 // Marks the player's target on the screen: a player's or a game thing's mech with its side's
 // markers (DrawPlayerBrackets, DrawObjectBrackets), a nav with shape 0xe5, or 0xeb at the edge when it is
 // off the screen.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100414ab
 // FUNCTION: MW2MATROX 0x1001d3c9
 // FUNCTION: MW23DFX 0x10022830
@@ -700,10 +696,6 @@ void DrawCompassMarkers(
 
 // Draws the compass tape at heading p_heading (degrees), twice to wrap around, and the torso twist
 // p_twist as a bar from the center. p_x and p_y go unused.
-// The only diff is a stack-slot permutation of the locals.
-// MW2MATROX: the negative twist bar's x converts the offset before it loads g_compassOrigin.m_x
-// (commutative operands).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004183a
 // FUNCTION: MW2MATROX 0x1001d7b6
 // FUNCTION: MW23DFX 0x10022b10
@@ -772,7 +764,6 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 
 // Projects the end of the mech's player's aim ray to the screen: returns ProjectWorldPoint's result,
 // and the point in p_x and p_y.
-// Stack-slot permutation: result, ray, x, y and z.
 // FUNCTION: MW2 0x10041998
 // FUNCTION: MW2MATROX 0x1001d942
 // FUNCTION: MW23DFX 0x10022c40
@@ -797,7 +788,6 @@ MechS32 ProjectAimPoint(Mech* p_mech, MechS32* p_x, MechS32* p_y)
 
 // Marks player p_player on the screen: brackets at the corners of its mech, sized by its radius
 // and depth, in its side's shapes; off the screen, an arrow at the edge.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10041a14
 // FUNCTION: MW2MATROX 0x1001d9cd
@@ -882,7 +872,6 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 
 // Marks the object p_object on the screen like DrawPlayerBrackets a player: brackets around its shape,
 // at most half the screen apart, or an arrow at the edge.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10041c3c
 // FUNCTION: MW2MATROX 0x1001dc23
@@ -976,7 +965,6 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y of the
 // current pane.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10041e98
 // FUNCTION: MW2MATROX 0x1001dee6
 // FUNCTION: MW23DFX 0x100230c0
@@ -1001,7 +989,6 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 
 #ifdef MW2_MATROX
 // The Matrox edition's: clips p_rect to p_pane's rectangle.
-// The last comparison loads its operands in the other order.
 // FUNCTION: MW2MATROX 0x1001df99
 void ClipRectToPane(PANE* p_pane, Rect* p_rect)
 {
@@ -1039,9 +1026,6 @@ void FUN_1001e01a(MechS32 p_x, MechS32 p_y, MechS32 p_id, PANE* p_target)
 #endif
 
 // Draws frame 0 of the "SHP" resource p_id (relative to g_artResolution) at p_x, p_y.
-// Operand order: p_id + HUD_ART_RESOLUTION loads p_id first in the original.
-// MW2MATROX: p_id + HUD_ART_RESOLUTION loads the art resolution first (commutative operands).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10041f06
 // FUNCTION: MW2MATROX 0x1001e0cb
 // FUNCTION: MW23DFX 0x10023120

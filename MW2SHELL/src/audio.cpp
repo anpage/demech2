@@ -393,7 +393,6 @@ void AudioSample::SetLoopCount(MechS32 p_loopCount)
 
 // Allocates a Miles sample for streaming stereo or mono, 16-bit (p_wide) or 8-bit samples, with two buffers of at least
 // p_size samples. Without a digital driver, a sample or the buffers, it stays silent.
-// Not 100%: the stack slots of minimum and format are permuted.
 // FUNCTION: MW2SHELL 0x1003d884
 VideoSound::VideoSound(AudioSubsystem* p_subsystem, MechS32 p_stereo, MechS32 p_wide, MechS32 p_size)
 {

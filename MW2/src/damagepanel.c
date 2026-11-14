@@ -151,7 +151,6 @@ Point g_armorBarSize;
 
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
 // labels and armor bars' places, and the local mech's full armor.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and stack slots only.
 // FUNCTION: MW2 0x10040020
 // FUNCTION: MW2MATROX 0x10059940
@@ -265,8 +264,6 @@ void InitDamagePanel(void)
 
 // Draws the damage panel's outline, each part shaded by its section's damage: yellow, then red
 // as its armor goes, black once the section is destroyed.
-// The original loads m_sections before scaling index, and the locals are a stack-slot permutation.
-// MW2MATROX: a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10040511
 // FUNCTION: MW2MATROX 0x10059e60
@@ -378,10 +375,6 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 
 // Draws the damage panel's armor bars: each section's front armor, and the rear armor of the
 // torso sections (1 to 3) beside it, full height for the section's full armor.
-// The two full > armor tests take their operands in the other order, and the locals are a
-// stack-slot permutation.
-// MW2MATROX: a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100407b6
 // FUNCTION: MW2MATROX 0x1005a18b
 // FUNCTION: MW23DFX 0x1001b890

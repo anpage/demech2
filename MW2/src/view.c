@@ -273,7 +273,6 @@ MechFloat g_viewLightScale;
 // its rotation (also scaled by the projection factors), position, view rectangle and shading.
 // MW2MATROX: the products of the rotation with the projection scales load their operands in the
 // other order (commutative operand order).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004b980
 // FUNCTION: MW2MATROX 0x10029070
 // FUNCTION: MW23DFX 0x1002f560
@@ -736,11 +735,10 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 // The scene's shape filter (RenderSettings::m_shapeFilter): culls a shape against the view frustum,
 // like CullMapViewShape the map view's. 1: a shape of kind 0xa0 with g_inCockpitView, 5: out of
 // range or past the far plane, 4: in front of the near plane, 6 and 7: outside the side planes.
-// Stack-slot permutation of the locals. In the Matrox edition, the sums and products take their
-// operands in another order, and the range test keeps dz on the FPU stack (fst) where the rebuild
-// reloads it.
-// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd), where 2.2
-// folds ours into an fsub; no source form tried keeps it. Otherwise registers and operand order.
+// In the Matrox edition, the sums and products take their operands in another order, and the range
+// test keeps dz on the FPU stack (fst) where the rebuild reloads it.
+// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd), where 2.2 folds
+// ours into an fsub; no source form tried keeps it.
 // FUNCTION: MW2 0x1004c2ef
 // FUNCTION: MW2MATROX 0x10029957
 // FUNCTION: MW23DFX 0x1002fba0
@@ -854,10 +852,9 @@ MechS32 CullSceneShape(Shape* p_shape)
 
 // Culls a shape against the view frustum like CullSceneShape, without its range test. 1 for a
 // hidden shape (bit 0x1000).
-// Stack-slot permutation of the locals. In the Matrox edition, the sums and products take their
-// operands in another order.
-// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd), where 2.2
-// folds ours into an fsub; no source form tried keeps it. Otherwise registers and operand order.
+// In the Matrox edition, the sums and products take their operands in another order.
+// The 3Dfx edition negates the depth once for both side tests (fchs, then fadd), where 2.2 folds
+// ours into an fsub; no source form tried keeps it.
 // FUNCTION: MW2 0x1004c565
 // FUNCTION: MW2MATROX 0x10029c23
 // FUNCTION: MW23DFX 0x1002fdc0

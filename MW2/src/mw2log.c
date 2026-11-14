@@ -41,7 +41,6 @@ MechS32 OpenMw2Log(void)
 }
 
 // Writes the time to mw2.log and closes it. Returns whether it was open.
-// Stack-slot permutation: line and now.
 // FUNCTION: MW2 0x10071869
 // FUNCTION: MW2MATROX 0x1007ad09
 // FUNCTION: MW23DFX 0x1003da60

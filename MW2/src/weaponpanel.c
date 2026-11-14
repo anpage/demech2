@@ -24,9 +24,6 @@
 // Draws a weapon panel: the name of the local mech's weapon p_panel->m_weapon with its ammo,
 // in the color of its state (and the weapon group's, while it is ready), and frames the panel
 // in that color if the weapon is selected.
-// The selected-weapon comparison loads its operands in the opposite order (one attempt at
-// swapping them didn't flip it), and stack-slot permutation: color, font, mech, text and weapon.
-// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10033280
 // FUNCTION: MW2MATROX 0x10055510
 // FUNCTION: MW23DFX 0x1001e820
@@ -125,7 +122,6 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 
 // Draws a panel's name once the clock passes p_panel->m_lightUpTime, if the local mech has the
 // weapon p_panel->m_weapon.
-// Stack-slot permutation: clock, font, mech and weapon.
 // FUNCTION: MW2 0x100334d3
 // FUNCTION: MW2MATROX 0x10055785
 // FUNCTION: MW23DFX 0x1001e9a0

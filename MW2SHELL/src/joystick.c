@@ -45,7 +45,6 @@ MechS32 JoystickCloseDevice(InputDeviceInfo* p_device);
 
 // Fills in joystick p_index: its names, its axes (a tracker's third axis is its head roll) and
 // its buttons and POV hat. Returns 0, or 1 on failure.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003ad36
 MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 {
@@ -156,7 +155,6 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // Reads joystick p_info's capabilities: the axes it reports, their centers, dead zones and
 // scales, and the button words and bits of the POV hat's four directions. Returns 0, or 1
 // when the joystick is missing or unplugged.
-// Not 100%: the stack slots of the locals are permuted (which also changes their encodings).
 // FUNCTION: MW2SHELL 0x1003b246
 MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
@@ -299,7 +297,6 @@ MechS32 JoystickScaleAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center,
 
 // Polls a joystick: its six axes into p_axes (y and x first, then the ones it has) and its
 // buttons, with the POV hat's directions mapped to buttons, into p_buttons.
-// Not 100%: the stack slots of info and i are permuted.
 // FUNCTION: MW2SHELL 0x1003b8c9
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
@@ -411,7 +408,6 @@ MechS32 JoystickScaleAxis(MechS32 p_value, MechS32 p_deadZone, MechS32 p_center,
 }
 
 // Looks up the OEM name of joystick p_index (0-based) of the driver p_driver in the registry.
-// Not 100%: the stack slots of result, size, type and key are permuted.
 // FUNCTION: MW2SHELL 0x1003bc87
 BOOL GetJoystickRegistryName(MechS32 p_index, const MechChar* p_driver, MechChar* p_name, size_t p_size)
 {

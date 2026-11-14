@@ -52,7 +52,6 @@ MechS32 g_cdStatus;
 
 // Picks the auxiliary audio device the CD volume goes through: the CD audio output, or failing
 // that the first auxiliary input.
-// Stack-slot permutation: numDevs, device and found.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005a7a0
@@ -99,7 +98,6 @@ MechS32 GetCdAudioAuxDevice(void)
 }
 
 // Opens the CD audio device of the drive holding the game disc, in TMSF time format.
-// Stack-slot permutation: every local.
 // FUNCTION: MW2 0x1005a8b5
 // FUNCTION: MW2MATROX 0x100026c5
 // FUNCTION: MW23DFX 0x100306b0
@@ -460,9 +458,6 @@ void FUN_1005aff8(undefined4 p_unk0x00)
 // Tracks the drive's state: frees the table of contents when the tray opens, and rereads it when
 // a disc goes in (beeping on each failed attempt, and exiting after three). Returns whether the
 // state changed.
-// Stack-slot permutation: status and i.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005b00b
 // FUNCTION: MW2MATROX 0x10002e1b
 // FUNCTION: MW23DFX 0x10030c40
@@ -543,7 +538,6 @@ void SkipCdTracks(CdAudioTracks* p_tracks, MechS32 p_step)
 }
 
 // Plays track p_track to its end.
-// Stack-slot permutation: tracks and status.
 // FUNCTION: MW2 0x1005b22f
 // FUNCTION: MW2MATROX 0x1000303f
 // FUNCTION: MW23DFX 0x10030d80
@@ -632,8 +626,6 @@ void PlayNewCdAudio(MechU32 p_from, MechU32 p_to)
 }
 
 // Reads the disc's table of contents into p_tracks. Returns 0 on success.
-// Stack-slot permutation: count and track.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1005b49e
 // FUNCTION: MW2MATROX 0x100032ae
 // FUNCTION: MW23DFX 0x10030ee0
@@ -715,7 +707,6 @@ MechS32 IsCdAudioInitialized(void)
 }
 
 // Returns whether p_track is on the disc.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1005b6ab
 // FUNCTION: MW2MATROX 0x100034bb
 // FUNCTION: MW23DFX 0x100310a0

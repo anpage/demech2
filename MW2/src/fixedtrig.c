@@ -89,7 +89,6 @@ MechS32 FixedCos(MechS32 p_angle)
 }
 // Returns the arcsine of p_sine (2.29 fixed point, as the table holds it) in 16.16 degrees: a
 // binary search of the table's quarter wave, interpolated between the two entries found.
-// Stack-slot permutation: result and table.
 // FUNCTION: MW2 0x1006975b
 MechS32 FixedAsin(MechS32 p_sine)
 {

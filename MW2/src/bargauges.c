@@ -146,9 +146,7 @@ void ScaleBarGauges(void)
 // Draws the heat bar: a band from each end that meets in the middle as the heat rises.
 // Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
 // height, target and color).
-// MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol); the remaining diff is a
-// stack-slot permutation, the operand order of `level >= width`, and DrawHorizontalBar, which
-// the Matrox edition changed and has no MW2MATROX annotation yet.
+// MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol).
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d175
 // FUNCTION: MW2MATROX 0x10089195
@@ -209,7 +207,6 @@ void DrawHeatBar(PANE* p_target)
 }
 
 // Draws the heat rate bar.
-// Stack-slot permutation: level, backColor, fill, fillColor and mech.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d310
 // FUNCTION: MW2MATROX 0x10089332
@@ -280,7 +277,6 @@ void DrawHeatRateBar(PANE* p_target)
 }
 
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
-// Stack-slot permutation: color, mech, width, height, x, y and value.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d48a
 // FUNCTION: MW2MATROX 0x100894b4
@@ -367,7 +363,6 @@ void DrawThrottleGauge(PANE* p_target)
 }
 
 // Draws the jump jet fuel bar.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d660
 // FUNCTION: MW2MATROX 0x100896bf
 // FUNCTION: MW23DFX 0x1001c750
@@ -405,7 +400,6 @@ void DrawJumpFuelBar(PANE* p_target)
 }
 
 // Draws a bar p_height up from (p_x, p_y), shaded darker towards its edges.
-// Stack-slot permutation: half, dark, end, darker, top and i.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d732
 // FUNCTION: MW2MATROX 0x10089791
@@ -447,8 +441,6 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 }
 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
-// Stack-slot permutation: half, dark, end, darker, right and i.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d8ae
 // FUNCTION: MW2MATROX 0x10089931
 // FUNCTION: MW23DFX 0x1001c960

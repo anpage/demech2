@@ -61,7 +61,6 @@ MechChar g_sampleTag[] = "SFLX";
 // GLOBAL: MW23DFX 0x1015a060
 SoundInfo g_soundInfo[1200];
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007d9d0
 // FUNCTION: MW2MATROX 0x10086090
 // FUNCTION: MW23DFX 0x10032530
@@ -118,7 +117,6 @@ MechS32 InitializeDigitalAudio(MechU32 p_numSamples)
 	return 1;
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1007dbce
 // FUNCTION: MW2MATROX 0x1008628e
 // FUNCTION: MW23DFX 0x10032670
@@ -145,9 +143,6 @@ void ShutdownDigitalAudio(void)
 
 // Loads the next part of each playing sample into whichever half of its buffer Miles has
 // finished with.
-// Stack slots: i, size and buffer are permuted. Operand order: the index of m_buffers[i][buffer],
-// m_remaining[i] <= m_chunkFrames[i] and the product for size.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1007dc89
 // FUNCTION: MW2MATROX 0x10086349
 // FUNCTION: MW23DFX 0x10032700
@@ -218,8 +213,6 @@ void ServeSamples(void)
 
 // Plays a sound resource (p_id), or the sound data at p_data, after p_delay clock ticks.
 // Returns the sample slot, or a negative error.
-// Operand order: p_delay > g_deltaTime.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007dfe7
 // FUNCTION: MW2MATROX 0x100866b2
 // FUNCTION: MW23DFX 0x100328e0
@@ -296,8 +289,6 @@ MechS32 PlaySample(
 // Sets up a sample slot for a sound: p_slot, or a free one, or one playing a sound of lower
 // priority. The m_flags bits: 0x100 keeps the slot, 0x200 restarts the same sound, 0x400
 // plays it only once, 0x1000 loops.
-// Stack slots: sample, victim, i, slot and flags are permuted. Operand order:
-// m_chunkFrames[slot] > m_remaining[slot].
 // FUNCTION: MW2 0x1007e1cf
 // FUNCTION: MW2MATROX 0x1008689b
 MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot, MechS32* p_userData)
@@ -441,7 +432,6 @@ MechS32 StartSample(MechS32 p_id, void* p_data, MechU16 p_flags, MechS16 p_slot,
 
 // The sample's user data: 0 the flag to clear, 1 the sound, 2 the slot, 3 the sound to play
 // next (-1 for none), 4 heap data to free.
-// Stack slots: id, data, next, slot and done are permuted.
 // FUNCTION: MW2 0x1007e80e
 // FUNCTION: MW2MATROX 0x10086eda
 void AILCALLBACK SampleEosCallback(HSAMPLE p_sample)
@@ -545,8 +535,6 @@ MechS32 PlaySoundRandomRate(
 
 // Plays p_sound at the offset (p_dx, p_dy, p_dz) from the eyepoint, delayed by its distance
 // and fading with it; p_half halves the volume. Returns the distance.
-// Stack slots: horizontal, delay, pitch, volume, bearing, distance and range are permuted.
-// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x1007ea8c
 // FUNCTION: MW2MATROX 0x10087158
 // FUNCTION: MW23DFX 0x10032ad0
@@ -693,7 +681,6 @@ void StopSamples(MechS32 p_all)
 	}
 }
 
-// Stack slots: i, x, started, distance and y are permuted.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007ed1e
 // FUNCTION: MW2MATROX 0x100873f7

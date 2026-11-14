@@ -190,8 +190,6 @@ SpeechEntry g_speechEntries[8];
 
 // Queues p_line, followed by p_suffix, by priority (-1: the sound's own). Returns whether it
 // was queued.
-// Stack slots: entry, i, prev and cur are permuted. Operand order: cur->m_priority <
-// entry->m_priority.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10059390
@@ -368,7 +366,6 @@ void AdvanceSpeechQueue(void)
 }
 
 // Plays a queued message: the line and its suffix as sounds, or its text.
-// Stack slots: id and slot are swapped.
 // FUNCTION: MW2 0x100598f6
 // FUNCTION: MW2MATROX 0x1008ba76
 // FUNCTION: MW23DFX 0x10031440
@@ -473,7 +470,6 @@ void PlayVoiceVolumeTest(void)
 
 // Stops the queue taking messages and drops the queued ones; p_keep keeps sound data and
 // messages of priority 0x50 and above.
-// Stack slots: remove and cur are swapped.
 // FUNCTION: MW2 0x10059be3
 // FUNCTION: MW2MATROX 0x1008bd63
 // FUNCTION: MW23DFX 0x10031640
@@ -523,8 +519,6 @@ void FlushSpeechQueue(MechS32 p_keep)
 }
 
 // Frees an entry's sound data. Returns the next entry.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10059d15
 // FUNCTION: MW2MATROX 0x1008be95
 // FUNCTION: MW23DFX 0x10031700
@@ -567,7 +561,6 @@ void StopSpeech(void)
 	}
 }
 
-// Stack slots: slot and volume are swapped.
 // FUNCTION: MW2 0x10059deb
 // FUNCTION: MW2MATROX 0x1008bf6b
 // FUNCTION: MW23DFX 0x10031790

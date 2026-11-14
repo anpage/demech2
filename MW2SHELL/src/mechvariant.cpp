@@ -389,7 +389,6 @@ void WriteStarFiles()
 #define STAR_LAYOUT(formation, i) g_formationLayout[formation].m_posts[i]
 
 // Returns the mech whose video is under a point, or -1.
-// Stack-slot permutation: mech, left, right, i, top and bottom.
 // FUNCTION: MW2SHELL 0x10003320
 MechS32 FindMechAt(MechS32 p_x, MechS32 p_y)
 {
@@ -417,8 +416,6 @@ MechS32 FindMechAt(MechS32 p_x, MechS32 p_y)
 }
 
 // Returns as much of p_text as fits in p_width pixels of p_font.
-// Stack-slot permutation: out and width. The original compares p_width against width; the
-// declaration order doesn't flip it.
 // FUNCTION: MW2SHELL 0x1000345a
 MechChar* FitText(MechChar* p_text, Font* p_font, MechS32 p_width)
 {
@@ -442,8 +439,6 @@ MechChar* FitText(MechChar* p_text, Font* p_font, MechS32 p_width)
 }
 
 // A click on a pilot name edits it.
-// Stack-slot permutation: i, mech, label, left and top. The original loads left and top ahead of
-// p_x and p_y in the bounds test; the declaration order doesn't flip it.
 // FUNCTION: MW2SHELL 0x100034de
 void EditPilotName(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 {
@@ -479,7 +474,6 @@ void EditPilotName(MechS32 p_x, MechS32 p_y, MechS32 p_campaign)
 
 // Shows the mech at a formation position: its video, pilot name, type and mass, or hides the
 // position when the star has fewer mechs.
-// Stack-slot permutation: label, type and mech.
 // FUNCTION: MW2SHELL 0x10003690
 void ShowFormationMech(MechS32 p_formation, MechS32 p_position, ButtonMenu* p_menu)
 {
@@ -671,7 +665,6 @@ void DrawStarConfig(TMPackDataBase* p_database, MechS32 p_campaign)
 // The star screen's buttons: 0 exits, 1 opens the mech lab, 2 and 3 cycle the formation, 4 and 5
 // add and remove a mech, 6 to 8 change the mech at a label position. A double click on a mech
 // changes it too.
-// Stack-slot permutation: i, button and mech.
 // FUNCTION: MW2SHELL 0x100043c2
 void StarConfigCallback(TMPackDataBase*, MechS32* p_campaign, MechU8*, char**, MechS32 p_msg)
 {

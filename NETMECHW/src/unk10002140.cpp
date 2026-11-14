@@ -18,7 +18,6 @@ MechS32 g_unk0x10023040 = 0;
 
 // Receives the DirectPlay messages and hands each to p_handler (HostMessageHandler or
 // ClientMessageHandler), until it receives message 0x418.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10002140
 DWORD WINAPI ReceiveThread(LPVOID p_handler)
 {
@@ -67,7 +66,6 @@ DWORD WINAPI ReceiveThread(LPVOID p_handler)
 	return 0;
 }
 
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10002289
 void HostMessageHandler(void* p_message, DPID p_from)
 {
@@ -119,7 +117,6 @@ void HostMessageHandler(void* p_message, DPID p_from)
 	}
 }
 
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10002424
 void ClientMessageHandler(void* p_message, DPID p_from)
 {

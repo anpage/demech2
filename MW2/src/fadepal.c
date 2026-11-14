@@ -43,7 +43,6 @@ void PlayWeaponLaunchSound(undefined4 p_shotType, MechS32 p_sound, undefined4 p_
 // Renders the scene into pane p_target from the camera p_view with a field of view of
 // p_fovX (only the objects under p_object, if set), then restores the eyepoint, its field of view
 // and the pending palette.
-// Stack-slot permutation: palette and view.
 // FUNCTION: MW2 0x1004c8bd
 // FUNCTION: MW2MATROX 0x100450ed
 // FUNCTION: MW23DFX 0x1001bc50
@@ -139,7 +138,6 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 
 // Fades (blocking, over 60 steps) to palette slot 0x10, or 0x11 if p_alternate is set, then applies
 // that slot.
-// Stack-slot permutation: slot and palette.
 // FUNCTION: MW2 0x1004ca82
 // FUNCTION: MW2MATROX 0x100452f9
 // FUNCTION: MW23DFX 0x1001bde0
@@ -197,7 +195,6 @@ void EmitWreckSmoke(Mech* p_mech)
 }
 
 // Breaks a destroyed mech's model into debris.
-// Stack-slot permutation: obj, upper, lower and the three indices.
 // FUNCTION: MW2 0x1004cc27
 // FUNCTION: MW2MATROX 0x100454de
 // FUNCTION: MW23DFX 0x1001bf30
@@ -223,8 +220,6 @@ void BreakUpMech(Mech* p_mech)
 }
 
 // Sets off the flames of the jump jets and plays their sound.
-// Stack-slot permutation: x, y, z, player, jet and fired.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004ccba
 // FUNCTION: MW2MATROX 0x10045571
 // FUNCTION: MW23DFX 0x1001bf90
@@ -293,8 +288,7 @@ void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 }
 
 // Shakes the camera away from a hit's direction, unless a shake is already playing.
-// Stack-slot permutation: off10 and off0c.
-// MW2MATROX: the products are float products; only a stack-slot permutation is left.
+// MW2MATROX: the products are float products.
 // FUNCTION: MW2 0x1004cee2
 // FUNCTION: MW2MATROX 0x100457ab
 // FUNCTION: MW23DFX 0x1001c120

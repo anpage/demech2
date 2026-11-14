@@ -149,7 +149,6 @@ void ButtonMenu::RemoveButtonsFrom(MechS32 p_id)
 	DestroyCollection(retained);
 }
 
-// Stack-slot permutation: i and item exchange [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x100489e9
 MechS32 ButtonMenu::HitTest(MechS32 p_x, MechS32 p_y)
 {
@@ -168,7 +167,6 @@ MechS32 ButtonMenu::HitTest(MechS32 p_x, MechS32 p_y)
 	return id;
 }
 
-// Stack-slot permutation: i and item exchange [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x10048a7c
 void ButtonMenu::DrawRects()
 {

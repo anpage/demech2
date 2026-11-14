@@ -121,7 +121,6 @@ void UpdateArtillery(Mech* p_mech)
 // full turn, otherwise within the limit) and stops on overheating; otherwise the steering is
 // cleared. Then the heat, and the power states: 0 starts powering up, 1 runs once the power-up
 // time has passed, 3 starts over and 4 is destroyed.
-// Stack-slot permutation: mech, twist and delta.
 // FUNCTION: MW2 0x1005a2ea
 // FUNCTION: MW2MATROX 0x1002e7de
 // FUNCTION: MW23DFX 0x10021a50
@@ -224,7 +223,6 @@ void ShutdownArtillery(Mech* p_mech)
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005a637
 // FUNCTION: MW2MATROX 0x1002eb54
 // FUNCTION: MW23DFX 0x10021c90

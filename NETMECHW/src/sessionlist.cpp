@@ -80,7 +80,6 @@ void SessionList::MarkStale()
 }
 
 // Copies the session named p_name to p_session (if not NULL); returns whether it was found.
-// Matches except for the stack slots of unused and found, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10001626
 MechS32 SessionList::Find(MechChar* p_name, Session* p_session)
 {
@@ -111,7 +110,6 @@ MechS32 SessionList::Find(MechChar* p_name, Session* p_session)
 	return found;
 }
 
-// Matches except for the stack slots of unused and found, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100016f4
 MechS32 SessionList::FindEntry(MechChar* p_name, Session** p_session)
 {
@@ -309,7 +307,6 @@ MechS32 SessionList::GetState()
 
 BOOL PASCAL EnumPlayersCallback(DPID, LPSTR, LPSTR p_formalName, DWORD, LPVOID p_context);
 
-// Matches except for the stack slots of i, session and result, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10001c0c
 void SessionList::EnumPlayers()
 {
@@ -336,7 +333,6 @@ void SessionList::EnumPlayers()
 }
 
 // Lists the players of the session selected in the dialog's session list box.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10001cf1
 MechS32 SessionList::ShowPlayers(HWND p_dialog)
 {
@@ -387,7 +383,6 @@ BOOL PASCAL EnumSessionsCallback(LPDPSESSIONDESC p_desc, LPVOID, LPDWORD, DWORD 
 
 // Enumerates the sessions, then their players, whenever the list's state asks for it, until
 // it receives WM_QUIT.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10001e63
 DWORD WINAPI SessionThread(LPVOID)
 {

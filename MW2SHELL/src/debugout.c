@@ -47,9 +47,6 @@ void ClearMonoLastLine(void)
 	}
 }
 
-// Stack-slot permutation: original source/destination/length/index are at
-// [ebp-0xc]/[ebp-4]/[ebp-0x10]/[ebp-8]; VC++ assigns
-// [ebp-4]/[ebp-0x10]/[ebp-8]/[ebp-0xc] here.
 // FUNCTION: MW2SHELL 0x1001776c
 void PrintMonoLine(MechChar* p_message)
 {
@@ -72,8 +69,6 @@ void PrintMonoLine(MechChar* p_message)
 	}
 }
 
-// Stack-slot permutation: original length/offset are at [ebp-8]/[ebp-4];
-// VC++ assigns [ebp-4]/[ebp-8] here.
 // FUNCTION: MW2SHELL 0x100177e9
 void PrintMono(MechChar* p_message)
 {

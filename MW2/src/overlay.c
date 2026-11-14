@@ -340,7 +340,6 @@ void DrawDebugOverlays(void)
 }
 
 // Draws the 256 palette colours as a grid of 16 swatches per row.
-// Stack-slot permutation: x, y, color and i.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100588a7
@@ -390,8 +389,6 @@ void InitializeMono(void)
 	g_monoBlankLineEnd = '\0';
 }
 
-// Stack-slot permutation: text and rate.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100589ae
 // FUNCTION: MW2MATROX 0x1008de15
 // FUNCTION: MW23DFX 0x1003c6c0
@@ -508,7 +505,6 @@ void HideSceneInfo(void)
 }
 
 // Adds a shape's counts to the totals ShowSceneInfo shows.
-// Stack-slot permutation: vertexCount and faceCount.
 // FUNCTION: MW2 0x10058d36
 // FUNCTION: MW2MATROX 0x1008e19d
 // FUNCTION: MW23DFX 0x1003c980
@@ -605,7 +601,6 @@ void HideCacheInfo(void)
 	g_cacheInfoShown = 0;
 }
 
-// Stack-slot permutation: text and value.
 // FUNCTION: MW2 0x10058fb2
 // FUNCTION: MW2MATROX 0x1008e26d
 // FUNCTION: MW23DFX 0x1003ca40
@@ -642,7 +637,6 @@ void HideMemInfo(void)
 }
 
 // Steps the activity spinner.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10059085
 // FUNCTION: MW2MATROX 0x1008e340
 // FUNCTION: MW23DFX 0x1003cae0
@@ -663,7 +657,6 @@ void StepSpinner(void)
 }
 
 // Formats a line for the debug console: a leading space, padded with spaces to 79 characters.
-// Stack-slot permutation: i, text and dst.
 // FUNCTION: MW2 0x100590ea
 // FUNCTION: MW2MATROX 0x1008e3a5
 // FUNCTION: MW23DFX 0x1003cb10
@@ -707,7 +700,6 @@ void MonoClear(void)
 }
 
 // Writes text to the debug console, 80 columns and rows 3 to 23, clearing it when it fills.
-// Stack-slot permutation: newline, ch and length.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100591d1

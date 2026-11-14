@@ -30,9 +30,6 @@
 #include <stdlib.h>
 
 // M_PROX: the nearest of p_target's targets closer than p_arg hundreds.
-// Operand order: the final test (nearest < limit) compares with nearest in eax in the original.
-// Stack-slot permutation: limit, nearest, nearestTarget and result and target.
-// MW2MATROX: the same comparison, and a stack-slot permutation of its own.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10052445
 // FUNCTION: MW2MATROX 0x10081676

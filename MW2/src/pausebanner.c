@@ -127,7 +127,6 @@ void ResumeGame(void)
 // The debug keys, which RunGameKey passes on while the mission timer is stopped: views, the
 // debug render flags and overlays, the difficulty switches, the objective state of the selected
 // star (g_debugStar) and objective (g_debugObjective), and a number and mech section selection.
-// The original compares g_debugStar with g_objectiveCount in the other operand order.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10009f8d
 // FUNCTION: MW2MATROX 0x1002ee0a

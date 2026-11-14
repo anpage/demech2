@@ -47,7 +47,6 @@ MechS16 g_midiSequenceIds[8];
 // GLOBAL: MW23DFX 0x1015a020
 HSEQUENCE g_midiSequences[8];
 
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10021460
 // FUNCTION: MW2MATROX 0x10043b60
 // FUNCTION: MW23DFX 0x10032fa0
@@ -78,7 +77,6 @@ void StopMidiSequences(void)
 	}
 }
 
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x1002152b
 // FUNCTION: MW2MATROX 0x10043c2b
 // FUNCTION: MW23DFX 0x10033010
@@ -156,9 +154,6 @@ MechS32 InitializeMidi(void)
 // Releases the sequences that are done and starts sequence p_sequenceNum of the "XMID" resource
 // p_id in a free slot. Returns 1, 0 when there is nothing to play, -8 when no slot is free or
 // -10 when Miles has no sequence handle. The slot's resource id isn't recorded.
-// Stack-slot permutation: slot and i.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100216d3
 // FUNCTION: MW2MATROX 0x10043dd3
 // FUNCTION: MW23DFX 0x10033150
@@ -230,8 +225,6 @@ void ShutdownMidi(void)
 }
 
 // Returns whether a sequence is playing; when none is, releases them all.
-// Stack-slot permutation: i and playing.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100218bf
 // FUNCTION: MW2MATROX 0x10043fbf
 // FUNCTION: MW23DFX 0x100332e0
