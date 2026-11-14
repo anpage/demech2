@@ -143,6 +143,7 @@ ManeuverTable g_maneuverTables[9];
 // Stack-slot permutation: done, mech and leader.
 // FUNCTION: MW2 0x10013430
 // FUNCTION: MW2MATROX 0x10019000
+// FUNCTION: MW23DFX 0x1001ea40
 void RunManeuver(Player* p_player, MechU16 p_target)
 {
 	MechS32 done;
@@ -299,6 +300,7 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 // the maneuver tables the first time.
 // FUNCTION: MW2 0x100139e9
 // FUNCTION: MW2MATROX 0x100195d1
+// FUNCTION: MW23DFX 0x1001ee30
 void InitializeManeuvers(Player* p_player)
 {
 	MechS16 i;
@@ -502,6 +504,7 @@ MechS32 ChooseManeuver(Player* p_player)
 // The original loads the index before m_entries (index order).
 // FUNCTION: MW2 0x100140e4
 // FUNCTION: MW2MATROX 0x10019cd8
+// FUNCTION: MW23DFX 0x1001f260
 MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 {
 	MechS16 i;
@@ -519,6 +522,7 @@ MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id)
 // ends (m_maneuverEnd).
 // FUNCTION: MW2 0x10014149
 // FUNCTION: MW2MATROX 0x10019d3d
+// FUNCTION: MW23DFX 0x1001f290
 void StartManeuver(Player* p_player)
 {
 	p_player->m_ai.m_goal = p_player->m_ai.m_target;
@@ -1945,6 +1949,7 @@ Shape* GetTargetShape(MechS16 p_target)
 // MW2MATROX: pitch < range and bearing < maxAngle compare in the other operand order.
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2MATROX 0x1001c1ca
+// FUNCTION: MW23DFX 0x10020ac0
 void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 {
 	MechScalar maxAngle;

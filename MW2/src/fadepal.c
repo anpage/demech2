@@ -200,6 +200,7 @@ void EmitWreckSmoke(Mech* p_mech)
 // Stack-slot permutation: obj, upper, lower and the three indices.
 // FUNCTION: MW2 0x1004cc27
 // FUNCTION: MW2MATROX 0x100454de
+// FUNCTION: MW23DFX 0x1001bf30
 void BreakUpMech(Mech* p_mech)
 {
 	SceneObject* obj;

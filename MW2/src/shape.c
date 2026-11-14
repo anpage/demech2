@@ -444,6 +444,7 @@ MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, Mech
 // LoadShapeRecord has just built).
 // FUNCTION: MW2 0x1003ae1e
 // FUNCTION: MW2MATROX 0x1002844f
+// FUNCTION: MW23DFX 0x100298c0
 void ComputeNormalsAndBounds(Shape* p_shape)
 {
 	Model* model;

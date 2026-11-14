@@ -621,6 +621,7 @@ void GetTriangleNormal(
 // MW2MATROX: commutative operand order of the products.
 // FUNCTION: MW2 0x1004ffaa
 // FUNCTION: MW2MATROX 0x10049c58
+// FUNCTION: MW23DFX 0x10043130
 void GetTrianglePlane(
 	MechFloat p_x1,
 	MechFloat p_y1,
@@ -666,6 +667,7 @@ void GetTrianglePlane(
 // MW2MATROX: commutative operand order of the products.
 // FUNCTION: MW2 0x1005005e
 // FUNCTION: MW2MATROX 0x10049d0f
+// FUNCTION: MW23DFX 0x100431f0
 void GetPointNormalPlane(
 	MechFloat p_x,
 	MechFloat p_y,

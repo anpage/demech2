@@ -412,6 +412,7 @@ void DrawJumpFuelBar(PANE* p_target)
 // Stack-slot permutation: half, dark, end, darker, top and i.
 // FUNCTION: MW2 0x1004d732
 // FUNCTION: MW2MATROX 0x10089791
+// FUNCTION: MW23DFX 0x1001c810
 void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, MechS32 p_height, MechS32 p_color)
 {
 	MechS32 half;

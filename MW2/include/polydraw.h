@@ -77,6 +77,21 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 
 // The 3Dfx edition places these out of polydraw.c's order, so they are annotated here, by name.
 
+// FUNCTION: MW23DFX 0x10027750
+// ReadTextLine
+
+// FUNCTION: MW23DFX 0x100277b0
+// LoadSkyGroundSettings
+
+// FUNCTION: MW23DFX 0x100278b0
+// FUN_10068e33
+
+// FUNCTION: MW23DFX 0x10027ab0
+// FUN_10069172
+
+// FUNCTION: MW23DFX 0x10027bb0
+// FUN_100692db
+
 // FUNCTION: MW23DFX 0x10027c80
 // DrawSkyAndGround
 

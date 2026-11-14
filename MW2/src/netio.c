@@ -91,6 +91,7 @@ void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 // The only diff is a stack-slot permutation of from, result and size.
 // FUNCTION: MW2 0x100011c9
 // FUNCTION: MW2MATROX 0x10089cc9
+// FUNCTION: MW23DFX 0x1003a5e0
 DPID NetReceive(void)
 {
 	DPID from;

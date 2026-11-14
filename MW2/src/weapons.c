@@ -94,6 +94,7 @@ void ReleaseWeaponTriggers(Mech* p_mech)
 // order (&p_mech->m_weapons[i] loads i first) and the operand order of m_deltaHeat += m_heat.
 // FUNCTION: MW2 0x100447e1
 // FUNCTION: MW2MATROX 0x1002b581
+// FUNCTION: MW23DFX 0x100437a0
 void UpdateWeaponFireState(Mech* p_mech)
 {
 	MechScalar dy;
@@ -310,6 +311,7 @@ void UpdateWeaponFireState(Mech* p_mech)
 // original compares m_binCount with m_binIndex the other way round (either source order compiles alike).
 // FUNCTION: MW2 0x1004506c
 // FUNCTION: MW2MATROX 0x1002be15
+// FUNCTION: MW23DFX 0x10043cc0
 MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 {
 	MechS32 result;
@@ -888,6 +890,7 @@ void UpdateWeaponLock(Mech* p_mech)
 // Stack-slot permutation: length, hit, flags and collided.
 // FUNCTION: MW2 0x10046269
 // FUNCTION: MW2MATROX 0x1002d0b1
+// FUNCTION: MW23DFX 0x10044810
 Shape* UpdateAimDistance(Player* p_player)
 {
 	Ray ray;
@@ -1036,6 +1039,7 @@ void PlaceAtFiringObj(Player* p_player, SceneObject* p_obj)
 // permutation of the locals.
 // FUNCTION: MW2 0x10046573
 // FUNCTION: MW2MATROX 0x1002d3e4
+// FUNCTION: MW23DFX 0x10044ac0
 void SpawnLaunchFx(
 	Player* p_player,
 	SceneObject* p_obj,

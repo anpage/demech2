@@ -22,10 +22,12 @@ MechS32 g_normalRandomIndex = 0;
 
 // GLOBAL: MW2 0x100ae754
 // GLOBAL: MW2MATROX 0x100a4578
+// GLOBAL: MW23DFX 0x1025991c
 MechS32 g_randomIndex2 = 0;
 
 // GLOBAL: MW2 0x100ae758
 // GLOBAL: MW2MATROX 0x100a457c
+// GLOBAL: MW23DFX 0x10259920
 MechS32 g_normalRandomIndex2 = 0;
 
 // GLOBAL: MW2 0x100c2d20
@@ -94,6 +96,7 @@ MechS32 RandomNormal(void)
 
 // FUNCTION: MW2 0x10073733
 // FUNCTION: MW2MATROX 0x1000c05f
+// FUNCTION: MW23DFX 0x1003d970
 MechS32 RandomIntBelow2(MechS32 p_max)
 {
 	MechS32 value;
@@ -106,6 +109,7 @@ MechS32 RandomIntBelow2(MechS32 p_max)
 
 // FUNCTION: MW2 0x10073775
 // FUNCTION: MW2MATROX 0x1000c0a1
+// FUNCTION: MW23DFX 0x1003d9a0
 MechS32 RandomNormal2(void)
 {
 	MechS32 value;
@@ -118,6 +122,7 @@ MechS32 RandomNormal2(void)
 
 // FUNCTION: MW2 0x100737b3
 // FUNCTION: MW2MATROX 0x1000c0df
+// FUNCTION: MW23DFX 0x1003d9d0
 MechS32 RandomNormalMean(void)
 {
 	return 0;

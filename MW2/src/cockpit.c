@@ -1152,6 +1152,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 // MW2MATROX: also ends the outer default with a break.
 // FUNCTION: MW2 0x1003f0e7
 // FUNCTION: MW2MATROX 0x10074de6
+// FUNCTION: MW23DFX 0x10004100
 MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags)
 {
 	MechU32 color;

@@ -592,6 +592,7 @@ void ResetCockpitPanels(void)
 // Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
 // FUNCTION: MW2 0x1007005a
 // FUNCTION: MW2MATROX 0x1007a0b2
+// FUNCTION: MW23DFX 0x1001e340
 void UpdateCockpit(Mech* p_mech)
 {
 	MechScalar pitch;

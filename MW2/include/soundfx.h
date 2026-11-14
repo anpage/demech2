@@ -75,4 +75,7 @@ extern "C"
 // FUNCTION: MW23DFX 0x10032000
 // StartSample
 
+// FUNCTION: MW23DFX 0x10032410
+// SampleEosCallback
+
 #endif // SOUNDFX_H

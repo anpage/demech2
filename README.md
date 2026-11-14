@@ -123,7 +123,7 @@ reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
 reccmp-reccmp --target NETMECHW --nolib --total 244
 reccmp-reccmp --target MECH2 --nolib --total 21
 reccmp-reccmp --target MW2MATROX --nolib --total 1597
-reccmp-reccmp --target MW23DFX --nolib --total 1485
+reccmp-reccmp --target MW23DFX --nolib --total 1574
 ```
 
 #### Continuous integration

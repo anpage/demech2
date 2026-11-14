@@ -280,6 +280,7 @@ void FUN_1008fad0(void)
 // symbol table: both have flipped back and forth as declarations moved between units.
 // FUNCTION: MW2 0x10066a50
 // FUNCTION: MW2MATROX 0x1008fb5a
+// FUNCTION: MW23DFX 0x10008850
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -766,6 +767,7 @@ int __stdcall SimMain(
 // the other way.
 // FUNCTION: MW2 0x10067757
 // FUNCTION: MW2MATROX 0x100908a4
+// FUNCTION: MW23DFX 0x10009400
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;

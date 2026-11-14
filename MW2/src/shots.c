@@ -1378,6 +1378,7 @@ void SaveCareerRecord(void)
 // i != g_localPlayerId compares in the other operand order.
 // FUNCTION: MW2 0x1006c362
 // FUNCTION: MW2MATROX 0x1006cf8d
+// FUNCTION: MW23DFX 0x10046e70
 void HeatMechsNearFires(void)
 {
 	Shape* root;

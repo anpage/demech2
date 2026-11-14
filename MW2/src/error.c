@@ -185,6 +185,7 @@ void ShowFatalError(const char** p_args)
 // which reccmp names after a different neighbour on each side.
 // FUNCTION: MW2 0x1003bad1
 // FUNCTION: MW2MATROX 0x10059831
+// FUNCTION: MW23DFX 0x1003ce80
 MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args)
 {
 	MechChar code[4];

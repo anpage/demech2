@@ -128,6 +128,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 // Draws the map view's scene: the terrain when bit 0 of p_flags is set, then the shapes.
 // FUNCTION: MW2 0x1004215f
 // FUNCTION: MW2MATROX 0x1001e36d
+// FUNCTION: MW23DFX 0x10001180
 void DrawMapViewScene(MechU32 p_flags)
 {
 	if (p_flags & 1) {

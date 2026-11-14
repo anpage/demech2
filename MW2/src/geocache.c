@@ -477,6 +477,7 @@ MechS32 PlaceStaticObject(
 // the array).
 // FUNCTION: MW2 0x1001fa05
 // FUNCTION: MW2MATROX 0x100530a5
+// FUNCTION: MW23DFX 0x10024ba0
 void BeginBlock(BwdBlockRecord* p_record)
 {
 	StaticBlock* block;
@@ -1158,6 +1159,7 @@ void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, 
 // Stack-slot permutation; the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x10020d51
 // FUNCTION: MW2MATROX 0x1005449d
+// FUNCTION: MW23DFX 0x10025840
 MechS32 ToggleBlockBoxes(void)
 {
 	MechS32 result;

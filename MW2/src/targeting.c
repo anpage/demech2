@@ -774,6 +774,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // order. MW2MATROX: so do p_player == g_localPlayerId and p_index >= g_playerCount.
 // FUNCTION: MW2 0x1005f4ac
 // FUNCTION: MW2MATROX 0x10006d1a
+// FUNCTION: MW23DFX 0x1001d050
 MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	MechS32 breakpoint;
@@ -877,6 +878,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // MW2MATROX: p_index < g_gameThingCount compares in the other operand order too.
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2MATROX 0x10007012
+// FUNCTION: MW23DFX 0x1001d2d0
 MechS32 TargetGameThing(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 {
 	Player* player;
@@ -1171,6 +1173,7 @@ SceneObject* GetLocalTargetObject(void)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10060010
 // FUNCTION: MW2MATROX 0x100078ab
+// FUNCTION: MW23DFX 0x1001d870
 void TargetAtReticle(void)
 {
 	MechS32 autopilot;
@@ -1357,6 +1360,7 @@ void CycleEnemyTarget(MechS32 p_step)
 // comparison, as floats.
 // FUNCTION: MW2 0x100603ae
 // FUNCTION: MW2MATROX 0x10007c8f
+// FUNCTION: MW23DFX 0x1001db60
 void TargetNearestEnemy(void)
 {
 	MechS32 autopilot;

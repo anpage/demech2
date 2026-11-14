@@ -55,6 +55,13 @@ typedef void (*AiStateFn)(Player* p_player, MechU16 p_target);
 typedef MechS16 (*AiMessageFn)(Player* p_player, MechS16 p_target, MechS16 p_arg);
 typedef MechS32 (*AiTransitionFn)(Player* p_player, AiRule* p_rule);
 
+// The message handlers no other unit calls, before g_aiMessageFns needs them.
+MechS16 AiMessageTrue(Player* p_player, MechU16 p_target, MechS16 p_arg);
+MechS16 AiMessageFalse(Player* p_player, MechS16 p_target, MechS16 p_arg);
+MechS16 FUN_100531d1(Player* p_player, MechS16 p_target, MechS16 p_arg);
+MechS16 FUN_100531e4(Player* p_player, MechS16 p_target, MechS16 p_arg);
+MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target, MechS16 p_arg);
+
 // GLOBAL: MW2 0x100a88f0
 // GLOBAL: MW2MATROX 0x100bb008
 // GLOBAL: MW23DFX 0x1024b448
@@ -416,6 +423,7 @@ AiStateFn g_aiStateFns[14] = {
 
 // GLOBAL: MW2 0x100a9100
 // GLOBAL: MW2MATROX 0x100bb818
+// GLOBAL: MW23DFX 0x1024bc70
 AiMessageFn g_aiMessageFns[8] = {
 	NULL,
 	AiMessageProx,
@@ -464,6 +472,7 @@ MechS32 g_aiStateTime;
 // [address]), so both sides show raw addresses.
 // FUNCTION: MW2 0x10051100
 // FUNCTION: MW2MATROX 0x10080280
+// FUNCTION: MW23DFX 0x10011c50
 void UpdateAI(Player* p_player)
 {
 	if (p_player->m_aiMode == 1) {
@@ -509,6 +518,7 @@ void UpdateAI(Player* p_player)
 // i, rule and target and valid.
 // FUNCTION: MW2 0x10051251
 // FUNCTION: MW2MATROX 0x100803d1
+// FUNCTION: MW23DFX 0x10011d20
 MechS32 RunAIRules(Player* p_player)
 {
 	AiRule* rule;
@@ -744,6 +754,7 @@ void ClearAILog(void)
 // compares with the operands the other way round.
 // FUNCTION: MW2 0x10051b6e
 // FUNCTION: MW2MATROX 0x10080bca
+// FUNCTION: MW23DFX 0x10012150
 void LogPlayerStatusLines(void)
 {
 	const MechChar* behavior;
@@ -989,7 +1000,8 @@ MechS16 ResolveTarget(Player* p_player, MechS16 p_target)
 // for p_player, or 0. M_TRUE always matches.
 // FUNCTION: MW2 0x10052311
 // FUNCTION: MW2MATROX 0x1008144f
-MechS16 AiMessageTrue(Player* p_player, MechU16 p_target)
+// FUNCTION: MW23DFX 0x10012a60
+MechS16 AiMessageTrue(Player* p_player, MechU16 p_target, MechS16 p_arg)
 {
 	return p_target;
 }
@@ -997,7 +1009,8 @@ MechS16 AiMessageTrue(Player* p_player, MechU16 p_target)
 // M_FALSE never matches.
 // FUNCTION: MW2 0x10052325
 // FUNCTION: MW2MATROX 0x10081463
-MechS16 AiMessageFalse(void)
+// FUNCTION: MW23DFX 0x10012a70
+MechS16 AiMessageFalse(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	return 0;
 }
@@ -1427,14 +1440,16 @@ MechS16 AiMessageTargetable(Player* p_player, MechS16 p_target, MechS16 p_arg)
 
 // FUNCTION: MW2 0x100531d1
 // FUNCTION: MW2MATROX 0x1008238d
-MechS16 FUN_100531d1(void)
+// FUNCTION: MW23DFX 0x10013070
+MechS16 FUN_100531d1(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	return 0;
 }
 
 // FUNCTION: MW2 0x100531e4
 // FUNCTION: MW2MATROX 0x100823a0
-MechS16 FUN_100531e4(void)
+// FUNCTION: MW23DFX 0x10013080
+MechS16 FUN_100531e4(Player* p_player, MechS16 p_target, MechS16 p_arg)
 {
 	return 0;
 }
@@ -1442,7 +1457,8 @@ MechS16 FUN_100531e4(void)
 // M_DESTROY: p_target when it is destroyed, reporting it when the local player leads the star.
 // FUNCTION: MW2 0x100531f7
 // FUNCTION: MW2MATROX 0x100823b3
-MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target)
+// FUNCTION: MW23DFX 0x10013090
+MechS16 AiMessageDestroy(Player* p_player, MechU16 p_target, MechS16 p_arg)
 {
 	if (!IsTargetDone(p_target, 2)) {
 		p_target = 0;
@@ -2690,6 +2706,7 @@ void ResetStarOrders(MechS32 p_team)
 // permutation: bit, count, i, leader, member, members, objective and state and type.
 // FUNCTION: MW2 0x100551c6
 // FUNCTION: MW2MATROX 0x10084461
+// FUNCTION: MW23DFX 0x10014520
 void AssignStarObjective(MechS32 p_team)
 {
 	MechS16 target;
@@ -2910,6 +2927,7 @@ void HandleStarOrder(MechS32 p_team, AiMessage* p_order)
 // objective, required, result and slot and team.
 // FUNCTION: MW2 0x10055811
 // FUNCTION: MW2MATROX 0x10084aac
+// FUNCTION: MW23DFX 0x10014950
 MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 {
 	MechS32 required;
@@ -3013,6 +3031,7 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 // objectiveIndex, player, remaining, state, target, targets and team and type.
 // FUNCTION: MW2 0x10055bb7
 // FUNCTION: MW2MATROX 0x10084e52
+// FUNCTION: MW23DFX 0x10014ba0
 void LeadStar(MechS32 p_team)
 {
 	MechU16* targets;
