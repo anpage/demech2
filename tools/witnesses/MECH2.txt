@@ -1,0 +1,10 @@
+# MECH2: witnesses that a function differs from the original only by compiler entropy.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
+# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+
+0x004011d5 CreateGameWindow winmain.c pad 3 rename exStyle=zqak rect=zqbg screenHeight=zqai screenWidth=zqaj style=zqbv window=zqbf wndClass=zqaz
+0x00401448 StartShell winmain.c rename module=zqaz result=zqai shellMain=zqaj
+0x0040161d WinMain winmain.c rename launchResult=zqap launcher=zqab missionName=zqan netLaunch=zqal netMechLibrary=zqaa netMechModule=zqaj paramFile=zqak params=zqam result=zqao window=zqai
+0x00401ce0 CdCheck cdcheck.c rename drive=zqbu driveStrings=zqa9 find=zqay findData=zqbe path=zqai
+0x00401edc MonoPrintLine debug.c rename dst=zqaz i=zqaj length=zqai src=zqbf
+0x004020f2 DebugPrint debug.c rename args=zqai buffer=zqay

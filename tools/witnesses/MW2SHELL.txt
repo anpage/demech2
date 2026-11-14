@@ -1,0 +1,130 @@
+# MW2SHELL: witnesses that a function differs from the original only by compiler entropy.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
+# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+
+0x10001056 CompareObjectives debrief.cpp pad 1 rename a=zqae b=zqad first=zqag second=zqaf
+0x100010ed AppendHonorBreakdown debrief.cpp rename bonus=zqao hit=zqae hitBonus=zqaj honor=zqaf i=zqah multiplier=zqap objective=zqan points=zqam secondary=zqai star=zqak tertiary=zqad tons=zqag width=zqal
+0x10001ca0 BuildDebriefText debrief.cpp rename honor=zqaf i=zqah minutes=zqag seconds=zqad time=zqae width=zqai
+0x100023bf GetTrialRank debrief.cpp rename count=zqae i=zqad
+0x10003320 FindMechAt mechvariant.cpp rename bottom=zqai i=zqag left=zqae mech=zqad right=zqaf top=zqah
+0x1000345a FitText mechvariant.cpp pad 6 rename out=zqad width=zqae
+0x100034de EditPilotName mechvariant.cpp rename i=zqag label=zqad left=zqae mech=zqah top=zqaf
+0x10003690 ShowFormationMech mechvariant.cpp rename label=zqad left=zqaf mech=zqai name=zqag top=zqah type=zqae
+0x100043c2 StarConfigCallback mechvariant.cpp rename button=zqae i=zqad mech=zqaf
+0x100050f0 FindResourceIdByName resourcename.c rename c=zqaj data=zqag entry=zqah i=zqai id=zqaf j=zqad name=zqak table=zqae
+0x10005232 FindResourceNameById resourcename.c rename c=zqaj data=zqaf entry=zqag i=zqai j=zqad result=zqah table=zqae
+0x10005d79 CopyStringCollection stringcollection.c rename collection=zqaf copy=zqad i=zqae item=zqag
+0x10005df8 CompareStringEntries stringcollection.c rename a=zqad b=zqae entryA=zqag entryB=zqaf
+0x10006502 VideoDriver::DrawShell videodriver.cpp pad 3
+0x10006842 VideoDriver::DrawFmv videodriver.cpp pad 16
+0x100074d2 VideoDriver::DrawString videodriver.cpp rename acquired=zqaf cursor=zqad width=zqae
+0x10007603 VideoDriver::DrawChar videodriver.cpp rename acquired=zqae width=zqad
+0x100078cd ShowFields mechbay.cpp rename height=zqad top=zqae
+0x10007e90 DeleteItem mechbay.cpp rename group=zqae i=zqag id=zqad index=zqaf j=zqah
+0x10008254 CountAmmo mechbay.cpp rename count=zqae i=zqad
+0x10008a16 UpdateArmor mechbay.cpp pad 1
+0x10009da9 DrawCritical mechbay.cpp rename i=zqae id=zqad
+0x10009f92 DrawUnassigned mechbay.cpp rename count=zqae i=zqaf id=zqad
+0x1000a208 DrawEquipmentName mechbay.cpp rename id=zqad text=zqae
+0x1000a5a3 ClickSlower mechbay.cpp pad 10
+0x1000afef ClickUnassigned mechbay.cpp rename count=zqae id=zqad
+0x1000b166 AddFrontArmor mechbay.cpp pad 1
+0x1000b284 AddRearArmor mechbay.cpp pad 1
+0x1000b6f4 FindMekItem mechbay.cpp rename location=zqad slot=zqae
+0x1000befe LoadMekFile mechbay.cpp pad 4 rename data=zqae i=zqaf id=zqad j=zqag k=zqah
+0x1000d0d4 DrawMechBay mechbay.cpp rename data=zqae i=zqaf size=zqah star=zqad variant=zqag
+0x1000db35 MechBayCallback mechbay.cpp rename button=zqaf i=zqae pressed=zqad tab=zqag
+0x1000e670 ShellWindowProc shellmain.cpp rename helpFile=zqad mouseY=zqaf msg=zqae paint=zqag
+0x100103e2 LoadSettingsFromRegistry shellmain.cpp rename key=zqah result=zqae size=zqaf type=zqag value=zqad
+0x1001053e SaveSettingsToRegistry shellmain.cpp rename key=zqaf result=zqae value=zqad
+0x10010d88 ProfileRefreshModes refreshmode.c pad 1
+0x10011071 ToggleFullScreen refreshmode.c rename backend=zqae i=zqaf mode=zqad
+0x10011450 GetPaletteColors refreshmode.c pad 12
+0x10011a15 DdrawInit directdraw.c rename caps=zqad entries=zqae
+0x10012add DdrawWritePaletteEntries directdraw.c rename entries=zqaf i=zqad relock=zqae
+0x10012db7 DdrawWritePaletteGamma directdraw.c rename entries=zqaf i=zqad relock=zqae
+0x10013068 DdrawPaletteFade directdraw.c rename deltas=zqag entries=zqad i=zqae j=zqaf relock=zqah
+0x10013703 LockCacheEntry resourcecache.c pad 3
+0x10013940 FindCacheEntry resourcecache.c rename bucket=zqae entry=zqad
+0x100139e7 FreeCacheEntry resourcecache.c rename bucket=zqaf entry=zqad type=zqae
+0x10013b11 DumpResourceCache resourcecache.c rename entry=zqae file=zqah i=zqag name=zqad type=zqaf
+0x10013cb5 LoadCachedResource resourcecache.c rename block=zqae bucket=zqaf entry=zqad file=zqai log=zqah size=zqag
+0x10014b60 ShowPilotCallsigns rosterscreen.cpp rename i=zqaf pilot=zqad top=zqae
+0x10014dfe DrawMissionListEntry rosterscreen.cpp pad 3
+0x1001534c PilotRosterCallback rosterscreen.cpp pad 6 rename button=zqae pilot=zqad tab=zqaf
+0x100164f2 PlayFullscreenVideoFrame video.cpp rename palette=zqae result=zqaf video=zqad
+0x1001661b UpdateVideos video.cpp pad 10
+0x10016cc0 SetVideoFlags video.cpp pad 9
+0x1001776c PrintMonoLine debugout.c rename destination=zqad index=zqae length=zqag source=zqaf
+0x100177e9 PrintMono debugout.c rename length=zqae offset=zqad
+0x100296df ArchiveReader::NextPage archivereader.cpp rename button=zqad i=zqae link=zqaf page=zqag
+0x1002da80 LoadPilotRoster pilotroster.cpp rename file=zqae i=zqaf pilot=zqad
+0x1002dc60 ExpandTextEscapes textpages.cpp rename file=zqai i=zqad length=zqae number=zqaf rank=zqah textLength=zqag
+0x1002e1b1 LoadTextPages textpages.cpp rename i=zqad node=zqae
+0x1002e47a ProjectArchive::FindNextBwdNode projectarchive.cpp rename end=zqad node=zqae type=zqaf
+0x1002e67f BwdAddRegistryTemplate projectarchive.cpp pad 12
+0x1002e703 BwdInitRegistry projectarchive.cpp rename revision=zqae root=zqad table=zqaf
+0x1002e830 PrjBuildMechVariantTemplate projectarchive.cpp rename i=zqae node=zqad variant=zqaf
+0x1002ea62 PrjWriteStarTemplates projectarchive.cpp pad 2 rename difficulty=zqaf file=zqai fileName=zqae i=zqah level=zqag settings=zqad
+0x1002ec0e PrjBuildPlayerStarTemplates projectarchive.cpp rename buffer=zqaf link=zqag node=zqae size=zqad
+0x1002fbe0 ArchiveWrite prjfile.c rename buffer=zqad chunk=zqaf remaining=zqae
+0x1002fc5e ArchiveRead prjfile.c rename buffer=zqad chunk=zqaf remaining=zqae
+0x1002fcdc OpenArchive prjfile.c rename fd=zqag header=zqad size=zqaf slot=zqae tag=zqah
+0x10030177 FindArchiveEntry prjfile.c rename count=zqad entries=zqae found=zqag index=zqaf
+0x1003024f LoadArchiveEntries prjfile.c rename count=zqae data=zqaf entries=zqad index=zqag size=zqah
+0x100303b5 GetArchiveItemSize prjfile.c rename entries=zqaf entry=zqag index=zqah length=zqae offsets=zqad
+0x100304c5 SeekArchiveItem prjfile.c rename entries=zqae entry=zqag offset=zqaf offsets=zqad
+0x1003066e ReadArchiveItem prjfile.c rename entries=zqae entry=zqag index=zqai offset=zqaf offsets=zqad size=zqah
+0x100307f4 GetArchiveItemOffset prjfile.c rename entries=zqae entry=zqag index=zqah offset=zqaf offsets=zqad
+0x10030b90 GdiBegin gdi.c rename colors=zqad i=zqae
+0x10030ef9 GdiBlitFlip gdi.c pad 4
+0x10030f77 GdiBitBltRect gdi.c pad 4
+0x10031001 GdiBitBltRectWithMenu gdi.c pad 4
+0x10031095 GdiStretchBlit gdi.c pad 4
+0x10031106 GdiBlitCentered gdi.c pad 4
+0x10031171 GdiRealizePalette gdi.c pad 8
+0x10031bf0 InputEnumDevices input.c pad 1 rename count=zqag device=zqaf driver=zqae index=zqad
+0x10031d34 InputGetDevice input.c pad 1
+0x10031d75 InputFreeDevices input.c pad 1
+0x100321ad InputWriteModifiers input.c rename button=zqaf device=zqae i=zqad
+0x10037cf7 ShellApplyMissionUiInfo missionui.cpp rename briefing=zqad file=zqag i=zqah j=zqaj name=zqae pos=zqai star=zqaf title=zqak
+0x10038744 MissionBriefingCallback missionui.cpp rename button=zqag i=zqaf pos=zqad variant=zqae
+0x10039280 ReadTokens tokenstream.c rename count=zqae result=zqad token=zqaf
+0x1003949e ReadFileToken tokenstream.c rename buffer=zqag c=zqaf last=zqah length=zqad trimmed=zqae
+0x1003ad36 FillJoystickDeviceInfo joystick.c rename axisNames=zqah axisShortNames=zqae buttonNames=zqaf buttonShortNames=zqai caps=zqad count=zqag data=zqaj
+0x1003b246 JoystickOpenDevice joystick.c rename button=zqah caps=zqae data=zqai info=zqag infoEx=zqad range=zqaf
+0x1003b8c9 JoystickPoll joystick.c rename i=zqae info=zqad
+0x1003bc87 GetJoystickRegistryName joystick.c rename key=zqag result=zqad size=zqae type=zqaf
+0x1003c0a0 CreateCollection collection.c rename collection=zqad i=zqaf items=zqae
+0x1003c3ba CollectionRemove collection.c rename i=zqae index=zqad item=zqaf
+0x1003c45f CollectionFind collection.c rename found=zqad i=zqag item=zqae key=zqaf
+0x1003c5f0 CollectionGet collection.c pad 5
+0x1003d884 VideoSound::VideoSound audio.cpp rename format=zqae minimum=zqad
+0x1003ea0f CpcEditTextField cockpitcontrols.cpp rename glyph=zqag key=zqad length=zqaf width=zqae
+0x1003ef32 CpcDrawBinding cockpitcontrols.cpp rename colors=zqag control=zqah device=zqad glyph=zqae label=zqaf
+0x1003f136 CpcDrawAxisButton cockpitcontrols.cpp rename button=zqah colors=zqag device=zqad glyph=zqae label=zqaf
+0x1003f39e CpcDrawAxisDirection cockpitcontrols.cpp rename glyph=zqae inverted=zqad
+0x1003f677 CpcAdvanceBinding cockpitcontrols.cpp rename count=zqag device=zqad index=zqaf names=zqae
+0x100401b8 CpcDrawScrollArrow cockpitcontrols.cpp rename colors=zqad count=zqae
+0x10040272 CpcScrollButtons cockpitcontrols.cpp rename count=zqae step=zqad
+0x1004059e CpcDrawDeviceName cockpitcontrols.cpp rename colors=zqag device=zqad name=zqae number=zqaf
+0x10040cc7 CpcOpenJoystickControlPanel cockpitcontrols.cpp rename commandLine=zqag created=zqae processInfo=zqad startupInfo=zqaf
+0x10040e5c CpcWriteAxisBinding cockpitcontrols.cpp rename axis=zqae device=zqad
+0x10040fe2 CpcWriteAxisButtonBinding cockpitcontrols.cpp rename delta=zqad first=zqae saved=zqag second=zqaf
+0x1004154b CpcCheckControlCount cockpitcontrols.cpp rename binding=zqae file=zqah i=zqaf j=zqag mask=zqad
+0x10041c7e CpcRemapDeviceSlots cockpitcontrols.cpp rename device=zqad i=zqae j=zqaf k=zqag missing=zqah
+0x10042314 CpcLoadDeviceFile cockpitcontrols.cpp rename binding=zqad config=zqaf file=zqai index=zqae other=zqag path=zqah
+0x100425d3 CpcLoadConfigSlot cockpitcontrols.cpp rename file=zqaf path=zqae slot=zqad
+0x100429cf CpcSaveDeviceFile cockpitcontrols.cpp rename binding=zqad config=zqaf file=zqah index=zqae path=zqag
+0x1004381b DragVolumeSlider options.cpp rename previous=zqad value=zqae volume=zqaf
+0x10044451 EditTextField keyboardinput.cpp rename glyph=zqag key=zqad length=zqaf width=zqae
+0x100460a0 InitGammaTable brightness.c rename exponent=zqah i=zqaf j=zqae row=zqag x=zqad
+0x100474f0 TextGlyph::DrawNextChar textglyph.cpp pad 1
+0x100479b7 TextGlyph::TextGlyph textglyph.cpp pad 1
+0x10048051 TMPackDataBase::GetDBItem tmpackdatabase.cpp rename data=zqae entry=zqad
+0x1004813f TMPackDataBase::GetDBItemLZ tmpackdatabase.cpp rename dst=zqag entry=zqaf flags=zqad n=zqaj out=zqai remaining=zqae src=zqah
+0x1004843e TMPackDataBase::ReadDBItemLine tmpackdatabase.cpp rename c=zqae entry=zqad i=zqaf
+0x10048501 TMPackDataBase::ReadDBItemString tmpackdatabase.cpp rename c=zqae entry=zqad i=zqaf
+0x100485f0 ButtonMenu::ButtonMenu buttonmenu.cpp pad 8
+0x100489e9 ButtonMenu::HitTest buttonmenu.cpp rename i=zqad id=zqaf item=zqae
+0x10048a7c ButtonMenu::DrawRects buttonmenu.cpp rename i=zqad item=zqae

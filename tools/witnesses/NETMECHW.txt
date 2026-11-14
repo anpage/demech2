@@ -1,0 +1,91 @@
+# NETMECHW: witnesses that a function differs from the original only by compiler entropy.
+# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or
+# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.
+
+0x1000111a CenterWindow unk10001070.cpp rename desktop=zqak desktopRect=zqaj rect=zqai
+0x1000120a FUN_1000120a unk10001070.cpp pad 1 rename desktop=zqan desktopRect=zqaj height=zqao placement=zqab rect=zqai screenHeight=zqaa screenWidth=zqam unk0x24=zqak unk0x28=zqal width=zqap
+0x100013c2 IsBlankString unk10001070.cpp rename blank=zqai copy=zqaj
+0x10001626 SessionList::Find sessionlist.cpp rename found=zqaj session=zqai unused=zqak
+0x100016f4 SessionList::FindEntry sessionlist.cpp rename found=zqaj session=zqai unused=zqak
+0x10001c0c SessionList::EnumPlayers sessionlist.cpp rename i=zqak result=zqai session=zqaj
+0x10001cf1 SessionList::ShowPlayers sessionlist.cpp rename i=zqan index=zqai name=zqak players=zqal result=zqaj session=zqao sessions=zqam
+0x10001e63 SessionThread sessionlist.cpp rename context=zqaj desc=zqak msg=zqam result=zqal running=zqai state=zqan
+0x10002140 ReceiveThread unk10002140.cpp rename buffer=zqal from=zqaj handler=zqao msg=zqap result=zqai running=zqak size=zqan to=zqam
+0x10002289 HostMessageHandler unk10002140.cpp rename add=zqam deleted=zqal message=zqaj name=zqai system=zqak
+0x10002424 ClientMessageHandler unk10002140.cpp rename add=zqam deleted=zqal message=zqaj name=zqai system=zqak
+0x1000268a FUN_1000268a unk100025f0.cpp rename command=zqao dc=zqam info=zqal memoryDC=zqaj notify=zqak paint=zqai rect=zqan
+0x10002e0e FUN_10002e0e unk100025f0.cpp rename index=zqal listBox=zqaj text=zqai unused0=zqak unused1=zqam
+0x10002ec3 FUN_10002ec3 unk100025f0.cpp pad 1 rename description=zqam index=zqao mech=zqan mechList=zqal name=zqak text=zqap variant=zqai variantList=zqaj
+0x10003154 FUN_10003154 unk100025f0.cpp rename i=zqai index=zqaj
+0x100031f8 CopyPlayerMech unk100025f0.cpp rename find=zqam findData=zqal index=zqaj more=zqai path=zqan source=zqak
+0x10003684 Launcher unk10003660.cpp rename done=zqal error=zqao i=zqak message=zqan mission=zqai msg=zqaj options=zqam peeked=zqaa unused=zqap
+0x100042d9 FUN_100042d9 unk10003660.cpp pad 13 rename button=zqal changed=zqam command=zqan dc=zqaj index=zqaa index2=zqab menu=zqao notify=zqak palette=zqai text=zqap
+0x10004a40 FUN_10004a40 unk10003660.cpp rename bits=zqap count=zqai data=zqal dc=zqak i=zqan info=zqao memory=zqam palette=zqaa resource=zqaj
+0x10004be3 FUN_10004be3 unk10003660.cpp rename bitmap=zqan dc=zqaj focus=zqal id=zqam info=zqak item=zqai
+0x100057fa FUN_100057fa unk10003660.cpp rename high=zqai i=zqaj low=zqak
+0x10005923 FUN_10005923 unk10003660.cpp rename high=zqai i=zqaj low=zqak
+0x10005cdc FUN_10005cdc unk10003660.cpp rename key=zqaj result=zqai type=zqak
+0x10005d9e FUN_10005d9e unk10003660.cpp rename disposition=zqaj key=zqak result=zqai type=zqal
+0x100062d9 AddServiceProvider unk10006060.cpp rename context=zqaj index=zqai listBox=zqak
+0x1000633a FUN_1000633a unk10006060.cpp rename index=zqal listBox=zqai message=zqam message2=zqan name=zqaj provider=zqak
+0x10006ce0 HostSession unk10006ce0.cpp rename event=zqal failed=zqaj name=zqai unused=zqak
+0x10006f81 JoinSession unk10006ce0.cpp rename desc=zqam event=zqaa index=zqaj listBox=zqal name=zqai result=zqan session=zqap sessionName=zqak unused=zqao
+0x100072a2 FUN_100072a2 unk10006ce0.cpp rename command=zqak hosted=zqal notify=zqaj selection=zqai
+0x10007c5a FUN_10007c5a unk10007c30.c pad 7 rename ammo=zqcg ammoCount=zqac fromFile=zqb7 handle=zqai i=zqao id=zqan j=zqap line=zqaj location=zqab mech=zqam path=zqcw section=zqa0 sections=zqbw size=zqal slot=zqaa text=zqak trailer=zqbk weapons=zqbg
+0x1000834d FUN_1000834d unk10007c30.c rename count=zqak id=zqaj size=zqal table=zqai
+0x100083e3 FUN_100083e3 unk10007c30.c pad 2 rename ammo=zqao i=zqal j=zqam mech=zqak sections=zqaj trailer=zqan weapons=zqai
+0x100086b1 FUN_100086b1 unk10007c30.c rename ammo=zqao i=zqal j=zqam mech=zqak sections=zqaj trailer=zqan weapons=zqai
+0x10008d5d FUN_10008d5d unk100089d0.cpp rename command=zqaj notify=zqai
+0x10009230 FUN_10009230 unk10009230.cpp rename data=zqam flags=zqai i=zqak index=zqal text=zqaj
+0x100098a2 FUN_100098a2 unk10009230.cpp pad 5 rename command=zqaa dc=zqal delta=zqaf header=zqae i=zqab index=zqac info=zqak memoryDC=zqaj mission=zqad notify=zqam paint=zqai rect=zqao text=zqan upDown=zqap
+0x1000a650 FUN_1000a650 unk1000a650.c rename code=zqal index=zqam length=zqao line=zqak missionName=zqan name=zqai text=zqaj
+0x1000a7b3 LoadMissionText unk1000a650.c rename data=zqai i=zqak id=zqaj size=zqam text=zqal
+0x1000a893 FormatMissionText unk1000a650.c rename code=zqal copy=zqak line=zqaj noBreak=zqai
+0x1000aa90 FUN_1000aa90 unk1000aa90.cpp pad 5 rename find=zqam findData=zqal i=zqaj index=zqai newPath=zqan path=zqak
+0x1000acc9 FUN_1000acc9 unk1000aa90.cpp rename find=zqal findData=zqak index=zqai newPath=zqam path=zqaj
+0x1000b1fe FUN_1000b1fe unk1000aa90.cpp rename bit=zqai i=zqaj
+0x1000b6cb FUN_1000b6cb unk1000b400.cpp rename i=zqaj ready=zqai
+0x1000ba4d FUN_1000ba4d unk1000b400.cpp rename buffer=zqak data=zqai file=zqam mech=zqal message=zqaj path=zqan read=zqao
+0x1000bbb0 FUN_1000bbb0 unk1000b400.cpp rename copy=zqab file=zqam find=zqaa findData=zqap index=zqal mech=zqaj more=zqai path=zqan size=zqak written=zqao
+0x1000c08c FUN_1000c08c unk1000b400.cpp rename buffer=zqak change=zqai message=zqaj
+0x1000c142 FUN_1000c142 unk1000b400.cpp rename buffer=zqaj copy=zqam message=zqai name=zqal player=zqak
+0x1000cb99 ChatLog::Attach chatlog.cpp rename scrollInfo=zqai tabStop=zqaj
+0x1000d092 ChatLog::Send chatlog.cpp rename chat=zqal message=zqaj packet=zqak self=zqai
+0x1000d250 FUN_1000d250 unk1000d250.cpp rename count=zqal i=zqak id=zqaj player=zqai unused=zqam
+0x1000d31f FUN_1000d31f unk1000d250.cpp rename command=zqao dc=zqal info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqan
+0x1000d91f FUN_1000d91f unk1000d250.cpp rename count0=zqal count1=zqam i=zqak id=zqaj player=zqai
+0x1000dae1 FUN_1000dae1 unk1000d250.cpp rename command=zqap dc=zqam info=zqal memoryDC=zqaj notify=zqan paint=zqai point=zqak rect=zqao
+0x1000e410 FUN_1000e410 unk1000e410.cpp rename count=zqan i=zqak id=zqaj player=zqai unused0=zqam unused1=zqal
+0x1000f27f FUN_1000f27f unk1000f0f0.cpp rename code=zqaj flags=zqam index=zqai node=zqal plrId=zqak
+0x1000f52c WriteNetDifficultyCfg unk1000f0f0.cpp rename cfg=zqaj file=zqai
+0x1000f7a6 BeginBwdStream bwdwriter.c rename dtbl=zqai header=zqak rev=zqaj
+0x1000f8e0 FUN_1000f8e0 unk1000f8e0.cpp rename desc=zqan dialog=zqap event=zqac index=zqaj listBox=zqal name=zqai player=zqam result=zqao session=zqab sessionName=zqak unused=zqaa
+0x1000fca7 FUN_1000fca7 unk1000f8e0.cpp rename event=zqal failed=zqaj name=zqai unused=zqak
+0x1000ffcf FUN_1000ffcf unk1000f8e0.cpp rename buffer=zqam dialog=zqao from=zqaj message=zqak msg=zqaa result=zqai running=zqal size=zqap to=zqan
+0x10010475 FUN_10010475 unk10010460.cpp pad 8 rename i=zqak score=zqai text=zqaj
+0x100105ee FUN_100105ee unk10010460.cpp rename command=zqap dc=zqal i=zqan info=zqak memoryDC=zqaj notify=zqam paint=zqai rect=zqao
+0x10010920 FUN_10010920 unk10010460.cpp pad 10 rename block=zqak i=zqai j=zqaj
+0x10010b7f FUN_10010b7f unk10010460.cpp rename file=zqaj handle=zqai read=zqak
+0x10010c06 FUN_10010c06 unk10010460.cpp rename best=zqai i=zqak j=zqal swap=zqaj
+0x10010d00 CdCheck unk10010460.cpp rename drive=zqam driveStrings=zqak findData=zqal hFindFile=zqaj path=zqai
+0x10010e50 WatchPlayersThread unk10010e50.cpp rename i=zqao msg=zqak ping=zqal player=zqam result=zqaj running=zqai status=zqan
+0x10010fab AddMissingPlayer unk10010e50.cpp rename index=zqaj name=zqai
+0x10011030 BroadcastSettingsThread unk10011030.cpp rename buffer=zqak message=zqai msg=zqam running=zqal settings=zqaj
+0x10011d60 ArchiveWrite prjfile.c rename buffer=zqaj chunk=zqak remaining=zqai
+0x10011dde ArchiveRead prjfile.c rename buffer=zqaj chunk=zqak remaining=zqai
+0x10011e5c OpenArchive prjfile.c rename fd=zqaj header=zqai size=zqal slot=zqak tag=zqam
+0x100122f7 FindArchiveEntry prjfile.c rename count=zqal entries=zqai found=zqaj index=zqak
+0x100123cf LoadArchiveEntries prjfile.c rename count=zqal data=zqai entries=zqaj index=zqak size=zqam
+0x10012535 GetArchiveItemSize prjfile.c rename entries=zqak entry=zqal index=zqai length=zqam offsets=zqaj
+0x100127ee ReadArchiveItem prjfile.c rename entries=zqal entry=zqan index=zqai offset=zqaj offsets=zqak size=zqam
+0x10012974 GetArchiveItemOffset prjfile.c rename entries=zqal entry=zqam index=zqai offset=zqaj offsets=zqak
+0x10012bb9 RebuildPurgeList resourcecache.c rename entry=zqai i=zqaj
+0x10012c4c ShutdownResourceCache resourcecache.c rename entry=zqai i=zqak next=zqaj
+0x10012d30 FindCacheEntry resourcecache.c rename bucket=zqaj entry=zqai
+0x10012dd7 FreeCacheEntry resourcecache.c rename bucket=zqak entry=zqaj type=zqai
+0x10012f01 DumpResourceCache resourcecache.c rename entry=zqai file=zqal i=zqak name=zqam type=zqaj
+0x100130a5 LoadCachedResource resourcecache.c pad 1 rename block=zqal bucket=zqaj entry=zqai file=zqan log=zqam size=zqak
+0x10013430 FindResourceIdByName resourcename.c rename c=zqam data=zqap entry=zqaj i=zqak id=zqan j=zqai name=zqal table=zqao
+0x10013580 LoadFile resourcefile.c rename handle=zqai log=zqaj
+0x1001385c PrintMonoLine debugout.c rename destination=zqak index=zqaj length=zqai source=zqal
+0x10013a72 DebugPrintInternal debugout.c rename args=zqai message=zqaj
