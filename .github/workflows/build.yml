@@ -170,6 +170,53 @@ jobs:
             build/vc40/MW2_MATROX.pdb
             build/vc40/MW2_MATROX.map
 
+  certify:
+    name: "Certify: compile"
+    # A job of its own beside the build: tools/certify.py's first half compiles every unit of
+    # every target and each recorded witness (tools/witnesses/), with the build's own commands,
+    # from makefiles alone (the nested builds' configure steps, not their builds). The verify
+    # jobs, which have the originals, compare the objects with them: the public targets in
+    # verify below, the retail ones in verify-retail.yml.
+    runs-on: windows-latest
+
+    steps:
+      - name: "Checkout demech2 sources"
+        uses: actions/checkout@v6
+
+      - name: "Setup toolchains"
+        uses: ./.github/actions/setup-msvc41
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install python packages
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+
+      - name: Configure
+        shell: cmd
+        run: |
+          call .\msvc410\bin\VCVARS32.BAT x86
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220" "-DDEMECH2_MSVC40_ROOT:PATH=%CD%\msvc400"
+          cmake --build build --target vc22-configure vc40-configure
+
+      - name: Compile the units and the witnesses
+        shell: bash
+        run: |
+          for target in MW2SHELL MW2 MW2MATROX MW23DFX NETMECHW MECH2; do
+            start=$(date +%s)
+            python tools/certify.py --target "$target" --build build --compile-only --objects "certify/$target"
+            echo "$target: $(( $(date +%s) - start )) s"
+          done
+
+      - name: Upload the objects
+        uses: actions/upload-artifact@main
+        with:
+          name: Certify objects
+          path: certify/
+
   asmequiv:
     name: "asmequiv (MSVC 4.1)"
     # A job of its own, so that verify (which only needs the DLLs) doesn't wait
@@ -236,7 +283,7 @@ jobs:
 
   verify:
     name: Verify decomp
-    needs: [build, fetch-deps, targets]
+    needs: [build, certify, fetch-deps, targets]
     runs-on: windows-latest
     permissions:
       contents: read
@@ -256,6 +303,11 @@ jobs:
         with:
           name: Win32
           path: build
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: Certify objects
+          path: certify
 
       - name: Restore cached original binaries
         id: cache-original-binaries
@@ -347,6 +399,40 @@ jobs:
             python tools/check_units.py --target "${entry%%:*}"
           done
 
+      - name: Certify
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        env:
+          RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Every function's state: byte-identical, proven by its witness record, or unproven
+          # (tools/certify.py, from the certify job's objects). The gate fails a PR in which a
+          # function that main has byte-identical or proven is neither any more, unless the PR's
+          # description lists it: a line "Gate exception: <TARGET> <function> <reason>". The
+          # failure is reported by the last step, after the PR comment is written.
+          printf '%s\n' "$PR_BODY" >gate-exceptions.txt
+          status=0
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+            python tools/certify.py --target "$target" --objects "certify/$target" --json "${target}STATES.json" --markdown "${target}STATES.md" >"${target}-certify.txt" 2>&1 || status=1
+            if curl -fLSs -o "${target}STATES-old.json" "$RELEASE_URL/${target}STATES.json"; then
+              python tools/certify.py --gate "${target}STATES-old.json" "${target}STATES.json" --exceptions gate-exceptions.txt >>"${target}-certify.txt" 2>&1 || status=1
+            else
+              echo "(main has no states yet: no gate)" >>"${target}-certify.txt"
+            fi
+            cat "${target}-certify.txt"
+          done
+          echo "$status" >certify-status.txt
+
+      - name: Check Assembly
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        run: |
+          # Every function with __asm, _emit or naked is in tools/asm_allowlist.txt, with a
+          # fingerprint the original shows (tools/check_asm.py).
+          python tools/check_asm.py --verify
+
       - name: "Create comment on PR"
         if: ${{ github.event_name == 'pull_request' }}
         shell: bash
@@ -370,6 +456,7 @@ jobs:
             for entry in $TARGET_ENTRIES; do
               target="${entry%%:*}"
               section "$target ($target.DLL)" "$target-diff.txt"
+              section "$target: certified" "$target-certify.txt"
             done
           } >reccmp-pr-message.txt
 
@@ -383,6 +470,8 @@ jobs:
           name: Accuracy Report
           path: |
             *PROGRESS*
+            *STATES.json
+            *STATES.md
 
       - name: Upload PR comment payload
         if: ${{ github.event_name == 'pull_request' && always() }}
@@ -392,6 +481,13 @@ jobs:
           path: |
             reccmp-pr-message.txt
             pr-number.txt
+
+      - name: Fail on certify
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          # The Certify step's result: a record failure or a function no longer proven.
+          test "$(cat certify-status.txt 2>/dev/null || echo 1)" = 0
 
   upload:
     name: Upload artifacts
@@ -418,7 +514,8 @@ jobs:
         run: |
           # The release distributes the built binaries and progress reports; the
           # verify job's compare-with-main step also downloads
-          # ${target}PROGRESS.json from here. The README does not embed the
+          # ${target}PROGRESS.json and the certify step ${target}STATES.json (the
+          # per-function gate's base) from here. The README does not embed the
           # SVGs from release assets (GitHub serves them with a content type
           # browsers refuse for SVG in <img> tags): verify-retail.yml's
           # publish job deploys them to GitHub Pages, together with the
@@ -436,6 +533,8 @@ jobs:
               "${target}PROGRESS.SVG"
               "${target}PROGRESS.HTML"
               "${target}PROGRESS.json"
+              "${target}STATES.json"
+              "${target}STATES.md"
             )
           done
 

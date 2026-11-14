@@ -1,0 +1,71 @@
+# Every function and macro of the game's sources with assembly (__asm, _emit, __declspec(naked)),
+# and the fingerprint in the original that shows it was assembly: tools/check_asm.py lists the
+# kinds and checks them (--verify: against each /Od original that annotates the function).
+# path, function (or macro:NAME), fingerprints; or `reviewed:` and why, where no fingerprint holds.
+
+MW2/include/debugbreak.h DebugBreakpoint copy:MW2/src/debugbreak.c
+MW2/include/fixeddiv.h FixedDiv16 copy:MW2/src/fixeddiv.c
+MW2/include/fixedmul.h FixedMul16 copy:MW2/src/fixedmul.c
+MW2/include/muldiv.h MulDiv64 copy:MW2/src/muldiv.c
+MW2/include/namehash.h HashName copy:MW2/src/namehash.c
+MW2/src/approxlen.c ApproximateVectorLength eax-result
+MW2/src/crossdiv.c CrossDiv div64
+MW2/src/debugbreak.c DebugBreakpoint insn:int3
+MW2/src/fixeddiv.c FixedDiv16 div64
+MW2/src/fixeddiv29.c FixedDiv29 div64
+MW2/src/fixeddivu.c FixedDivU16 div64
+MW2/src/fixeddot27.c FixedDot27 eax-result round
+MW2/src/fixeddot29.c FixedDot29 eax-result round
+MW2/src/fixedmul.c FixedMul16 eax-result round
+MW2/src/fixedmul29.c FixedMul29 eax-result round
+MW2/src/fixedmul30.c FixedMul30 eax-result round
+MW2/src/fixedtrig.c FixedAsin div64
+MW2/src/fixedtrig.c FixedAtan2 div64 round
+MW2/src/fixedtrig.c FixedSin round
+MW2/src/horizon.c HorizonXAtY div64
+MW2/src/horizon.c HorizonYAtX div64
+MW2/src/horizon.c IsAboveHorizon div64
+MW2/src/inradius.c IsWithinRadius reviewed: the three squares summed in esi:edi with add/adc across statements; /Od C keeps no value in a register from one statement to the next
+MW2/src/integrate.c IntegrateMidpoint reviewed: the product and the old velocity kept in eax and edi across three statements (imul; mov edi, [ebx]; add [ebx], eax; sar eax, 1; add eax, edi)
+MW2/src/lerp.c Lerp div64
+MW2/src/loadres.c MemCopy reviewed: p_size loaded once into eax for both counts (shr ecx, 2; rep movsd; and ecx, 3; rep movsb); the /Oi intrinsics also emit rep movsd, so no instruction proves it
+MW2/src/loadres.c MemSet reviewed: the fill byte widened to a dword in cl/ch/ax, and p_size kept in edx for both counts of rep stosd/rep stosb
+MW2/src/matrox/a3d.c A3DClipEdge insn:int3
+MW2/src/matrox/a3d.c TEXTURECACHE_finditem reviewed: __asm int 3 (a debug break) in an __inline helper that only its callers' code shows
+MW2/src/matrox/a3d.c macro:A3D_COMPUTE_BOUNDS reviewed: a loop through ebx with fcomp/fnstsw tests in an /Ox unit (the renderer), whose optimizer leaves none of the /Od fingerprints
+MW2/src/matrox/a3d.c macro:A3D_COPY_VERTICES reviewed: a copy loop through ebx/edx counted in ecx (copyLoop:) in an /Ox unit (the renderer), whose optimizer leaves none of the /Od fingerprints
+MW2/src/matrox/msidraw.c MsiClearFrame reviewed: sixteen stores through ebx per pass, the bound kept in ecx and the fill in eax across the loop; /Od C reloads them for every statement
+MW2/src/muladddiv.c MulAddDiv div64
+MW2/src/muldiv.c MulDiv64 div64
+MW2/src/muldiv14.c ProjectRadius div64 eax-result
+MW2/src/mulnorm16.c MulNormalize16 insn:bsr
+MW2/src/mulratio.c MulRatio div64 eax-result
+MW2/src/namehash.c HashName reviewed: the hash kept in eax and the pointer in edx across the loop, rotated with rol ax, 1
+MW2/src/objectanim.c ClipEdgeToNearPlane div64
+MW2/src/objectanim.c GetFaceShade div64 insn:bsr
+MW2/src/objectanim.c GetViewVertex round
+MW2/src/objectanim.c ProjectVertex div64
+MW2/src/objectanim.c QueueFace div64 insn:loop round
+MW2/src/recordstacks.c AllocProjectedVertex reviewed: the new top kept in eax across three statements (mov record, eax; mov g_drawBufferTop, eax; sub eax, 0xc8)
+MW2/src/recordstacks.c AllocQueuedPolygon reviewed: the new bottom kept in eax across three statements (mov record, eax; add eax, ecx; mov g_drawBufferBottom, eax)
+MW2/src/scaledelta.c UnprojectCoordinate eax-result
+MW2/src/shapegeom.c ApproximateShapeDistance reviewed: the squares summed in ebx:ecx with add/adc and compared by sub/sbb; jae, all in registers across statements
+MW2/src/shapegeom.c ComputeTriangleNormal div64 insn:bsr
+MW2/src/shapegeom.c DivDifference17 div64
+MW2/src/shapegeom.c RayShapeDistance div64
+MW2/src/shapegeom.c SolvePlaneY div64
+MW2/src/shapegeom.c TransformModel round
+MW2/src/shapegeom.c TransformShapeCenter round
+MW2/src/shiftdiv.c ProjectCoordinate div64 eax-result
+MW2/src/sqrtguess.c FixedSqrtGuess insn:bsr
+MW2/src/transform.c BuildMatrixEx round
+MW2/src/transform.c MatrixDot29 round
+MW2/src/transform.c MatrixMul29 round
+MW2/src/transform.c MultiplyRotations round
+MW2/src/transform.c OrthogonalizeMatrixColumn round
+MW2/src/transform.c RotatePoint round
+MW2/src/transform.c TransformPoint round
+MW2SHELL/src/resourcecache.c CopyMemoryFast reviewed: MW2's MemCopy: p_size kept in eax for both counts of rep movsd/rep movsb
+MW2SHELL/src/resourcecache.c FillMemoryFast reviewed: MW2's MemSet: the fill widened in registers, p_size kept in edx for rep stosd/rep stosb
+NETMECHW/src/resourcecache.c CopyMemoryFast reviewed: MW2's MemCopy: p_size kept in eax for both counts of rep movsd/rep movsb
+NETMECHW/src/resourcecache.c FillMemoryFast reviewed: MW2's MemSet: the fill widened in registers, p_size kept in edx for rep stosd/rep stosb

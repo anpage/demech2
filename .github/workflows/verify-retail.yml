@@ -50,6 +50,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      pull-requests: read
     steps:
       # The default ref of a workflow_run job is the default branch: this
       # checkout supplies the trusted tools.
@@ -92,6 +93,16 @@ jobs:
         with:
           name: Win32
           path: pr/build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      # The objects the Build run's certify job compiled from the PR's sources and witness
+      # records: data, like the binaries, compared here with the originals.
+      - name: Download the Build run's certify objects
+        uses: actions/download-artifact@v8
+        with:
+          name: Certify objects
+          path: certify
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
@@ -208,6 +219,46 @@ jobs:
             python ../tools/check_units.py --target "$target" --expected tools/check_units_expected.txt
           done
 
+      - name: Certify
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        env:
+          RELEASE_URL: https://github.com/anpage/demech2/releases/download/continuous
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        run: |
+          # As the Build workflow's Certify step: every function's state, and the per-function
+          # gate against main's, with the exceptions the PR's description lists ("Gate
+          # exception: <TARGET> <function> <reason>"). The base branch's certify.py reads the
+          # PR's annotations and records (--tree .) and the Build run's objects.
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq .body >gate-exceptions.txt || : >gate-exceptions.txt
+          else
+            : >gate-exceptions.txt
+          fi
+          status=0
+          for entry in $RETAIL_ENTRIES; do
+            IFS=: read -r target file total <<<"$entry"
+            python ../tools/certify.py --tree . --target "$target" --objects "../certify/$target" --original "../retailbin/$file" --json "${target}STATES.json" --markdown "${target}STATES.md" >"${target}-certify.txt" 2>&1 || status=1
+            if curl -fLSs -o "${target}STATES-old.json" "$RELEASE_URL/${target}STATES.json"; then
+              python ../tools/certify.py --gate "${target}STATES-old.json" "${target}STATES.json" --exceptions gate-exceptions.txt >>"${target}-certify.txt" 2>&1 || status=1
+            else
+              echo "(main has no states yet: no gate)" >>"${target}-certify.txt"
+            fi
+            cat "${target}-certify.txt"
+          done
+          echo "$status" >../certify-status.txt
+
+      - name: Check Assembly
+        if: ${{ steps.detection.conclusion == 'success' && always() }}
+        shell: bash
+        working-directory: pr
+        run: |
+          # The fingerprints of tools/asm_allowlist.txt for the functions only the retail
+          # originals annotate (tools/check_asm.py; the Build workflow checks the public ones).
+          python ../tools/check_asm.py --tree . --verify --targets NETMECHW MECH2 MW2MATROX
+
       - name: Create the retail sections of the PR comment
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
         shell: bash
@@ -229,6 +280,7 @@ jobs:
             for entry in $RETAIL_ENTRIES; do
               IFS=: read -r target file total <<<"$entry"
               section "$target ($file)" "$target-diff.txt"
+              section "$target: certified" "$target-certify.txt"
             done
           } >../reccmp-retail-message.txt
 
@@ -240,6 +292,8 @@ jobs:
           name: Retail Accuracy Report
           path: |
             pr/*PROGRESS*
+            pr/*STATES.json
+            pr/*STATES.md
 
       - name: Upload PR comment payload
         if: ${{ github.event.workflow_run.event == 'pull_request' && always() }}
@@ -248,6 +302,13 @@ jobs:
           name: reccmp-retail-comment
           path: |
             reccmp-retail-message.txt
+
+      - name: Fail on certify
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          # The Certify step's result: a record failure or a function no longer proven.
+          test "$(cat certify-status.txt 2>/dev/null || echo 1)" = 0
 
   comment:
     name: Comment reccmp report
@@ -338,6 +399,8 @@ jobs:
               "${target}PROGRESS.SVG"
               "${target}PROGRESS.HTML"
               "${target}PROGRESS.json"
+              "${target}STATES.json"
+              "${target}STATES.md"
             )
           done
 
@@ -350,7 +413,7 @@ jobs:
       - name: Prepare Pages
         run: |
           mkdir -p progress
-          cp ./*PROGRESS.SVG ./*PROGRESS.HTML progress/
+          cp ./*PROGRESS.SVG ./*PROGRESS.HTML ./*STATES.md progress/
           ls progress
 
       - uses: actions/upload-pages-artifact@v3
@@ -359,3 +422,84 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v5
+
+  sweep:
+    name: Witness sweep
+    # On pushes to main, after the Build run: the witness search (tools/witness.py) runs again
+    # over every unit of every target, at up to 24 symbols of padding. It takes tens of minutes,
+    # so PRs don't run it: a PR's certify step only replays the records. The sweep shows what
+    # the records miss (witnesses found that aren't recorded, records the search no longer
+    # finds) as a patch to tools/witnesses/, and publishes each target's search results.
+    if: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success' && github.repository == 'anpage/demech2' }}
+    runs-on: windows-latest
+    timeout-minutes: 180
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout the pushed commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: "Setup toolchains"
+        uses: ./.github/actions/setup-msvc41
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install python packages
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+
+      - name: Restore cached original binaries
+        uses: actions/cache/restore@v5
+        with:
+          enableCrossOsArchive: true
+          path: mw2bin
+          key: mw2bin
+
+      - name: Checkout the retail originals
+        uses: actions/checkout@v6
+        with:
+          repository: anpage/demech2-originals
+          path: retailbin
+          ssh-key: ${{ secrets.ORIGINALS_DEPLOY_KEY }}
+          persist-credentials: false
+
+      - name: Configure
+        shell: cmd
+        run: |
+          call .\msvc410\bin\VCVARS32.BAT x86
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" "-DCMAKE_ASM_MASM_COMPILER=%CD%\masm611\BIN\ML.EXE" "-DDEMECH2_MSVC22_ROOT:PATH=%CD%\msvc220" "-DDEMECH2_MSVC40_ROOT:PATH=%CD%\msvc400"
+          cmake --build build --target vc22-configure vc40-configure
+
+      - name: Search
+        shell: bash
+        run: |
+          for entry in MW2SHELL:mw2bin/MW2SHELL.DLL MW2:mw2bin/MW2.DLL $(for e in $RETAIL_ENTRIES; do IFS=: read -r t f n <<<"$e"; echo "$t:retailbin/$f"; done); do
+            target="${entry%%:*}"
+            original="${entry#*:}"
+            start=$(date +%s)
+            python tools/witness.py --target "$target" --build build --original "$original" --pads 24 --write --json "${target}SWEEP.json" | tee "${target}SWEEP.txt"
+            echo "$target: $(( $(date +%s) - start )) s"
+          done
+          git diff -- tools/witnesses >witness-sweep.patch
+          git diff --stat -- tools/witnesses
+
+      - name: Upload the results
+        uses: actions/upload-artifact@main
+        with:
+          name: Witness sweep
+          path: |
+            *SWEEP.json
+            *SWEEP.txt
+            witness-sweep.patch
+
+      - name: Publish the results
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release upload continuous ./*SWEEP.json witness-sweep.patch --clobber --repo "$GITHUB_REPOSITORY"

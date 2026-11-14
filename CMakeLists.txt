@@ -303,6 +303,9 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC22_ROOT)
     BUILD_COMMAND ${vc22_env} "${CMAKE_COMMAND}" --build <BINARY_DIR>
     INSTALL_COMMAND ""
     BUILD_ALWAYS TRUE
+    # <name>-configure: the nested build's makefiles alone, which tools/certify.py compiles
+    # from (CI configures without building: .github/workflows/build.yml's certify job)
+    STEP_TARGETS configure
   )
   # The nested build's outputs, for reccmp-build.yml (single-configuration generators only,
   # like the rest of this build)
@@ -363,6 +366,9 @@ if (MSVC_FOR_DECOMP AND DEMECH2_MSVC40_ROOT)
     BUILD_COMMAND ${vc40_env} "${CMAKE_COMMAND}" --build <BINARY_DIR>
     INSTALL_COMMAND ""
     BUILD_ALWAYS TRUE
+    # <name>-configure: the nested build's makefiles alone, which tools/certify.py compiles
+    # from (CI configures without building: .github/workflows/build.yml's certify job)
+    STEP_TARGETS configure
   )
   reccmp_add_external_target(MW2MATROX
     PATH "${PROJECT_BINARY_DIR}/vc40/MW2_MATROX.dll"

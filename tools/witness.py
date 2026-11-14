@@ -1,129 +1,81 @@
 #!/usr/bin/env python3
-"""Prove that a function differs from the original only by compiler entropy.
+"""Search for witnesses that a function differs from the original only by compiler entropy.
 
-At /Od the compilers give every named local a stack slot in the order of a hash of its name, and
-number the duplicates of a nested scope (`i$99`) with a counter that every symbol declared ahead
-of the function advances. Neither is recoverable from the original: its locals' names are lost.
-So a function can be right and still differ from the original in its `[ebp-N]` operands.
+At /Od the compilers give every named local a stack slot in the order of a hash of its name (and
+within one bucket of the hash, mostly in the order of declaration), then the temporaries ($T123) in
+the order they're created, outside the hash; and they number the duplicates of a nested
+scope (`i$99`) with a counter that every symbol declared ahead of the function advances. Neither is
+recoverable from the original: its locals' names are lost. So a function can be right and still
+differ from the original in its `[ebp-N]` operands. Optimized code (/Ox: the 3Dfx edition, the
+Matrox edition's renderer and depth sort) moves with the symbols declared ahead of it too, in its
+registers and its order.
 
 This tool looks for a witness: a variant of the unit that changes only the locals' names or the
 number of symbols declared ahead of it (`--pads N`: up to N typedefs ahead of the unit), and
 compiles the function to the original's bytes. A witness proves that the function's tokens are
-right. The source keeps its readable names; the witness is a record.
+right. The source keeps its readable names; the witness is a record in
+`tools/witnesses/<TARGET>.txt`, which `tools/certify.py` checks. This tool is the finder: nothing
+rests on it, and it may be as clever as it needs to be.
 
 For each unit it compiles the source as the build does (tools/unitbuild.py), compares each
-annotated function with the original instruction by instruction, and reports one of:
+annotated function with the original (tools/funccmp.py), and reports one of:
 
   exact      the bytes are the original's (relocated fields compared by their targets)
   witness    exact once the locals are renamed and/or with N symbols declared ahead
   slots      the only differences are stack slots, but no renaming tried reproduces them
   other      the first difference isn't a stack slot: it is printed
 
-The comparison is of the whole original function (reccmp reads only as many bytes as the rebuilt
-function has): it walks both until the rebuilt function's end, then requires the original's next
-bytes to be padding or the next annotated function. A relocated field is checked against the
-annotation of the symbol it names, a string or constant against the original's bytes at that
-address; a symbol with neither is counted as unverified, not as a difference.
-
-The renaming: where the only differences are `[ebp-N]` operands, the order in which the original
-allocated the named locals follows from them (each local must map to one place, without overlap).
-The locals are renamed, in a scratch copy, to names the compiler allocates in that order: a probe
-compiled twice (its locals declared forward, then reversed) finds a ladder of such names, one per
-bucket of the compiler's hash, without knowing the hash.
+The renaming (unoptimized units): where the only differences are `[ebp-N]` operands, the order in
+which the original allocated the named locals follows from them (each local must map to one place,
+without overlap). The locals are renamed, in a scratch copy, to names the compiler allocates in
+that order: a probe compiled twice (its locals declared forward, then reversed) sorts a pool of
+names into the hash's buckets and finds the order of the buckets, and within a bucket whether the
+first declared comes first, without knowing the hash. A C++ unit's probe is a member function,
+which places `this` (a name that can't change) among the buckets. Optimized units are searched by
+padding alone.
 
 usage (from the repository root, with reccmp's environment):
   python tools/witness.py --target MW2 [--build build-wine] [--wine PATH] [--unit ai.c ...]
-                          [--function NAME ...] [--pads N] [--jobs N] [--write | --check]
-                          [--json FILE] [-v]
+                          [--function NAME ...] [--pads N] [--jobs N] [--write] [--json FILE] [-v]
 
---write records the witnesses in tools/witnesses/<TARGET>.txt; --check verifies that file: every
-record must still give an exact function, and a function that is exact without its record fails
-(remove the record).
-
-C units only, for now: a C++ unit's functions are reported as skipped.
+--write records the witnesses in tools/witnesses/<TARGET>.txt: the records of the units and
+functions searched are replaced, the others kept.
 """
 
 import argparse
 import json
 import os
 import re
-import struct
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from capstone import CS_ARCH_X86, CS_GRP_CALL, CS_GRP_JUMP, CS_MODE_32, Cs
-from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG, X86_REG_EBP
-from reccmp.dir import walk_source_dir
-from reccmp.formats import TextFile
-from reccmp.parser import DecompCodebase
-from reccmp.parser.marker import MarkerType
-
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from unitbuild import (  # noqa: E402
-    IMAGE_REL_I386_DIR32,
-    IMAGE_REL_I386_REL32,
-    IMAGE_SYM_CLASS_EXTERNAL,
-    ROOT,
-    TARGETS,
-    Compiler,
-    Image,
-    Object,
-    Request,
-    Target,
-    Unit,
-)
+from certify import TOKEN, pads_text, read_records, recipe, rename, unit_annotations  # noqa: E402
+from funccmp import Annotations, Comparison, read_yaml_paths, source_roots, symbol_name  # noqa: E402
+from unitbuild import ROOT, TARGETS, Compiler, Image, Object, Request, Target, Unit  # noqa: E402
 
-PAD = "typedef int ZqWitnessPad%d;\n"
+FIXED = ("this",)  # locals the compiler names itself: they can't be renamed
 
 
-def pads_text(count):
-    return "".join(PAD % i for i in range(count))
-
-
-def read_yaml_paths():
-    """The originals' paths from reccmp-user.yml (a flat file: no YAML library needed)."""
-    paths, target = {}, None
-    user = ROOT / "reccmp-user.yml"
-    if not user.exists():
-        return paths
-    for line in user.read_text().split("\n"):
-        m = re.match(r"^  (\w+):\s*$", line)
-        if m:
-            target = m.group(1)
-        m = re.match(r"^\s+path:\s*(\S.*)$", line)
-        if m and target:
-            paths[target] = m.group(1).strip().strip("'\"")
-    return paths
-
-
-def source_roots(target):
-    """The target's source roots, from reccmp-project.yml."""
-    roots, inside, in_roots = [], False, False
-    for line in (ROOT / "reccmp-project.yml").read_text().split("\n"):
-        if re.match(r"^  \w+:\s*$", line):
-            inside = line.strip() == target + ":"
-            in_roots = False
-        elif inside and line.strip() == "source-root:":
-            in_roots = True
-        elif inside and in_roots:
-            m = re.match(r"^\s+- (\S+)", line)
-            if m:
-                roots.append(m.group(1))
-            else:
-                in_roots = False
-    return roots
+def optimized(unit):
+    """Whether a unit is compiled with the optimizer (`/Ox`, `/O1`, `/O2`; `/Ob1` alone isn't)."""
+    return bool(re.search(r"(?:^|\s)[/-]O[x12]", unit.arguments))
 
 
 def read_listing(path):
     """{function symbol: [(local name, offset, renameable)]} from a /Fa listing."""
     result, pending = {}, []
     for line in Path(path).read_text(errors="replace").split("\n"):
+        m = re.match(r"^__\$\w+\$ = (-?\d+)\s*$", line)
+        if m:  # the C++ EH record: a fixed area at the top of the frame
+            continue
         m = re.match(r"^_(\S+)\$ = (-?\d+)\s*$", line)
         if m:
-            pending.append((m.group(1), int(m.group(2)), "$" not in m.group(1)))
+            name = m.group(1)
+            pending.append((name, int(m.group(2)), "$" not in name and name not in FIXED))
             continue
-        m = re.match(r"^(\S+) = (-?\d+)\s*$", line)
+        m = re.match(r"^_?(\S+) = (-?\d+)\s*$", line)
         if m:  # a nested scope's duplicate (_i$99) or a named temporary ($T123)
             pending.append((m.group(1), int(m.group(2)), False))
             continue
@@ -132,218 +84,6 @@ def read_listing(path):
             result[m.group(1)] = pending
             pending = []
     return result
-
-
-def function_name(text):
-    for m in re.finditer(r"(\w+)\s*\(", text):
-        if m.group(1) not in ("__declspec", "__attribute__", "naked"):
-            return m.group(1)
-    return None
-
-
-class Annotations:
-    def __init__(self, target, roots):
-        files = [p for root in roots for p in walk_source_dir(ROOT / root)]
-        codebase = DecompCodebase(TextFile.from_files(files), target)
-        self.functions = defaultdict(list)  # name -> [ParserFunction] (FUNCTION markers in sources)
-        self.names = defaultdict(set)  # a symbol's or an entity's name -> addresses
-        addresses = set()
-        for function in codebase.iter_line_functions():
-            name = function_name(function.name) or self.name_from_source(function)
-            if name:
-                if function.type == MarkerType.FUNCTION:
-                    self.functions[name].append(function)
-                self.names[name].add(function.offset)
-            addresses.add(function.offset)
-        for function in codebase.iter_name_functions():
-            self.names[function.name].add(function.offset)
-            addresses.add(function.offset)
-        for variable in codebase.iter_variables():
-            self.names[variable.name].add(variable.offset)
-        self.addresses = sorted(addresses)
-
-    @staticmethod
-    def name_from_source(function):
-        """The name of a function whose definition starts with a preprocessor line (reccmp's parser
-        then takes the directive for its name): the first identifier before a "(" in the lines
-        that follow, directives skipped."""
-        lines = Path(function.filename).read_text(encoding="utf-8").split("\n")[function.line_number - 1 : function.end_line]
-        return function_name(" ".join(line for line in lines if not line.lstrip().startswith("#")))
-
-    def address_of(self, symbol):
-        """The annotated address of a COFF symbol's entity, or None."""
-        plain = re.sub(r"^[_@]|@\d+$|\$S\d+$", "", symbol)  # a function's static: _x$S123
-        for name in (symbol, plain):
-            found = self.names.get(name)
-            if found and len(found) == 1:
-                return next(iter(found))
-        return None
-
-
-# ---------------------------------------------------------------------------------------------
-# The comparison
-
-
-class Difference(Exception):
-    pass
-
-
-class Comparison:
-    """A rebuilt function against the original at an address."""
-
-    disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
-    disassembler.detail = True
-
-    def __init__(self, function, obj, image, address, annotations):
-        self.function, self.obj, self.image, self.address, self.annotations = function, obj, image, address, annotations
-        self.slots = []  # (our displacement, the original's)
-        self.unverified = []  # relocation targets no annotation names
-        self.difference = None
-        try:
-            self.walk()
-        except Difference as e:
-            self.difference = str(e)
-        self.exact = self.difference is None and all(a == b for a, b in self.slots)
-        self.slots_only = self.difference is None and not self.exact
-
-    def decode(self, data, offset):
-        return next(self.disassembler.disasm(data[offset : offset + 16], offset, 1), None)
-
-    def walk(self):
-        code, relocations = self.function.code, self.function.relocations
-        original = self.image.at(self.address, len(code) * 2 + 64)
-        starts, branches = {}, []
-        i = j = 0
-        while i < len(code):
-            starts[i] = j
-            if i in relocations:
-                # A switch's jump table (relocated dwords), then possibly its index table (bytes),
-                # inside the function: the code resumes at the first branch target past them.
-                while i in relocations:
-                    self.target(relocations[i], code[i : i + 4], original[j : j + 4], j + 4, branches, i, True)
-                    i, j = i + 4, j + 4
-                    starts[i] = j
-                later = [ours for ours, _, _, code_target in branches if ours >= i and code_target]
-                resume = min(later) if later else len(code)
-                while i < resume and i not in relocations:
-                    if code[i] != original[j]:
-                        raise Difference("+%#x: table byte %#04x, the original's %#04x" % (i, code[i], original[j]))
-                    i, j = i + 1, j + 1
-                continue
-            a, b = self.decode(code, i), self.decode(original, j)
-            if a is None or b is None:
-                raise Difference("+%#x: undecodable" % i)
-            if not self.same(a, b, branches):
-                raise Difference("+%#x: %s %s    the original's: %s %s" % (i, a.mnemonic, a.op_str, b.mnemonic, b.op_str))
-            i, j = i + a.size, j + b.size
-        starts[i] = j
-        for ours, theirs, where, _ in branches:
-            if starts.get(ours) != theirs:
-                raise Difference("+%#x: branches to +%#x, the original's elsewhere (+%#x)" % (where, ours, theirs))
-        # The original's function must end here too: what follows is padding or the next function.
-        end = self.address + j
-        following = self.image.at(end, 16)
-        later = [a for a in self.annotations.addresses if a > self.address]
-        next_function = min(later) if later else None
-        if end != next_function and following[:1] not in (b"\xcc", b"\x90", b"") and following[:3] != b"\x55\x8b\xec" and following[:2] != b"\xff\x25":
-            raise Difference("+%#x: the original goes on (%s)" % (j, following[:4].hex()))
-
-    def same(self, a, b, branches):
-        if a.mnemonic != b.mnemonic or len(a.operands) != len(b.operands) or a.size != b.size and not self.slot_sized(a, b):
-            return False
-        relocated = {r - a.address: self.function.relocations[r] for r in range(a.address, a.address + a.size) if r in self.function.relocations}
-        ea, eb = a.encoding, b.encoding
-        fields_a = {"disp": (ea.disp_offset, ea.disp_size), "imm": (ea.imm_offset, ea.imm_size)}
-        fields_b = {"disp": (eb.disp_offset, eb.disp_size), "imm": (eb.imm_offset, eb.imm_size)}
-        kinds = {}
-        for offset, relocation in relocated.items():
-            kind = next((k for k, (o, size) in fields_a.items() if size == 4 and o == offset), None)
-            if kind is None or fields_b[kind][1] != 4:
-                return False
-            kinds[kind] = relocation
-        moved = False
-        branch = a.group(CS_GRP_JUMP) or a.group(CS_GRP_CALL)
-        masked_imm = False
-        for x, y in zip(a.operands, b.operands):
-            if x.type != y.type or x.size != y.size:
-                return False
-            if x.type == X86_OP_REG:
-                if x.reg != y.reg:
-                    return False
-            elif x.type == X86_OP_IMM:
-                if "imm" in kinds:
-                    continue
-                if branch:
-                    branches.append((x.imm, y.imm, a.address, True))
-                    masked_imm = True
-                elif x.imm != y.imm:
-                    return False
-            elif x.type == X86_OP_MEM:
-                if (x.mem.segment, x.mem.base, x.mem.index, x.mem.scale) != (y.mem.segment, y.mem.base, y.mem.index, y.mem.scale):
-                    return False
-                if "disp" in kinds:
-                    continue
-                if x.mem.base == X86_REG_EBP and x.mem.disp < 0 and y.mem.disp < 0:
-                    self.slots.append((x.mem.disp, y.mem.disp))
-                    moved = moved or x.mem.disp != y.mem.disp
-                elif x.mem.disp != y.mem.disp:
-                    return False
-        # The encodings: equal outside the relocated fields and a branch's displacement, or, where
-        # a slot moved, outside the displacement and the ModRM byte's mod bits (disp8 or disp32).
-        ba, bb = bytearray(a.bytes), bytearray(b.bytes)
-        for kind in kinds:
-            ba[fields_a[kind][0] : fields_a[kind][0] + 4] = bb[fields_b[kind][0] : fields_b[kind][0] + 4] = b"\0\0\0\0"
-        if masked_imm:
-            if ea.imm_size != eb.imm_size and not (ea.imm_size == 0 or eb.imm_size == 0):
-                return False
-            for buf, (o, size) in ((ba, fields_a["imm"]), (bb, fields_b["imm"])):
-                if size:
-                    buf[o : o + size] = b"\0" * size
-        if moved:
-            ma, mb = ea.modrm_offset, eb.modrm_offset
-            if ma != mb or ba[:ma] != bb[:mb] or (ba[ma] ^ bb[mb]) & 0x3F:
-                return False
-            if bytes(ba[ea.disp_offset + ea.disp_size :]) != bytes(bb[eb.disp_offset + eb.disp_size :]):
-                return False
-        elif ba != bb:
-            return False
-        for kind, relocation in kinds.items():
-            (oa, _), (ob, _) = fields_a[kind], fields_b[kind]
-            self.target(relocation, a.bytes[oa : oa + 4], b.bytes[ob : ob + 4], b.address + b.size, branches, a.address, branch)
-        return True
-
-    @staticmethod
-    def slot_sized(a, b):
-        """Two instructions whose sizes may differ by a moved slot's displacement (disp8/disp32)."""
-        return a.encoding.disp_size != b.encoding.disp_size and a.size - a.encoding.disp_size == b.size - b.encoding.disp_size
-
-    def target(self, relocation, ours, theirs, end, branches, where=0, code_target=False):
-        """Check a relocated field: the original's must hold the address of the symbol ours names."""
-        symbol, kind = relocation
-        addend = struct.unpack("<i", bytes(ours))[0]
-        value = struct.unpack("<I", bytes(theirs))[0]
-        if kind == IMAGE_REL_I386_REL32:
-            value = (self.address + end + value) & 0xFFFFFFFF
-        elif kind != IMAGE_REL_I386_DIR32:
-            raise Difference("+%#x: relocation type %d" % (where, kind))
-        function = self.function
-        if symbol.section == function.symbol.section and symbol.section > 0:
-            offset = symbol.value + addend - function.start
-            if 0 <= offset <= len(function.code) and (symbol.storage != IMAGE_SYM_CLASS_EXTERNAL or symbol is function.symbol):
-                branches.append((offset, value - self.address, where, code_target))
-                return
-        expected = self.annotations.address_of(symbol.name)
-        if expected is not None:
-            if (expected + addend) & 0xFFFFFFFF != value:
-                raise Difference("+%#x: refers to %s+%d (%#x), the original's to %#x" % (where, symbol.name, addend, expected + addend, value))
-            return
-        if symbol.section > 0:
-            data = self.obj.data_at(symbol, addend)
-            if data is not None and len(data):
-                if self.image.at(value, len(data)) != data:
-                    raise Difference("+%#x: %s holds other data than the original's %#x" % (where, symbol.name, value))
-                return
-        self.unverified.append(symbol.name)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -389,31 +129,7 @@ def slot_plan(local_list, slots):
         bases[k] = gap[1] - sizes[k]
         gap[1] -= sizes[k]
     order = sorted(bases, key=lambda k: -bases[k])
-    if any(not named[k][2] for k in order):
-        return None, "a nested scope's duplicate name (%s)" % next(named[k][1] for k in order if not named[k][2])
     return [named[k][1] for k in order], None
-
-
-TOKEN = re.compile(r"""//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|[A-Za-z_$][\w$]*|\d[\w.]*|->|\S""", re.S)
-
-
-def rename(text, first, last, names):
-    """The text with the identifiers in `names` renamed between two lines (1-based, inclusive),
-    member names and preprocessor lines left alone."""
-    lines = text.split("\n")
-    body = "\n".join(lines[first - 1 : last])
-    out, at, previous = [], 0, ""
-    for m in TOKEN.finditer(body):
-        token = m.group(0)
-        line_start = body.rfind("\n", 0, m.start()) + 1
-        directive = body[line_start : m.start()].lstrip().startswith("#")
-        if token in names and previous not in (".", "->") and not directive:
-            out.append(body[at : m.start()] + names[token])
-            at = m.end()
-        if not token.startswith(("//", "/*")):
-            previous = token
-    out.append(body[at:])
-    return "\n".join(lines[: first - 1] + "".join(out).split("\n") + lines[last:])
 
 
 class ProbeUnit(Unit):
@@ -428,14 +144,23 @@ class ProbeUnit(Unit):
         return {}
 
 
-def ladder(compiler, target, unit):
-    """Names whose slots a function gets in this order, whatever the order of declaration: one
-    name from each bucket of the compiler's hash, found by compiling a probe twice."""
+def ladder(compiler, target, unit, extras=()):
+    """The compiler's allocation order as a list of entries: ("bucket", names, direction) for one
+    bucket of the hash (names that all hash there; direction +1 if the first declared is allocated
+    first, -1 if last, 0 for a single name) and ("fixed", name) for a name that can't be renamed
+    (`this`; `extras`: a nested scope's duplicates, `i$99`, declared in the probe under their own
+    names, after its pool), in the order the buckets are allocated.
+    Found by compiling a probe twice."""
     alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
     pool = ["zq" + a + b for a in alphabet[:12] for b in alphabet]
+    member = unit.language == "CXX"
 
     def probe(names):
-        return "void ZqProbe(void)\n{\n%s%s}\n" % ("".join("\tint %s;\n" % n for n in names), "".join("\t%s = 0;\n" % n for n in names))
+        names = names + list(extras)  # after the locals, as a nested scope's are
+        body = "".join("\tint %s;\n" % n for n in names) + "".join("\t%s = 0;\n" % n for n in names)
+        if member:
+            return "struct ZqProbeClass { int m_zq; void ZqProbe(); };\nvoid ZqProbeClass::ZqProbe()\n{\n%s\tm_zq = 0;\n}\n" % body
+        return "void ZqProbe(void)\n{\n%s}\n" % body
 
     forward, backward = ProbeUnit(unit, "a"), ProbeUnit(unit, "b")
     requests = [Request(forward, ROOT, "probe", {forward.name: probe(pool)}, listing=True),
@@ -448,11 +173,70 @@ def ladder(compiler, target, unit):
         local_list = next(iter(read_listing(request.asm).values()))
         orders.append([name for _, name in sorted(((offset, name) for name, offset, _ in local_list), reverse=True)])
     rank = {name: k for k, name in enumerate(orders[1])}
-    names = [orders[0][0]]
+    index = {name: k for k, name in enumerate(pool)}
+    groups = [[orders[0][0]]]
     for name in orders[0][1:]:
-        if rank[names[-1]] < rank[name]:  # the same order both ways: another bucket
-            names.append(name)
-    return names
+        if rank[groups[-1][-1]] < rank[name]:  # the same order both ways: another bucket
+            groups.append([name])
+        else:
+            groups[-1].append(name)
+    entries = []
+    for group in groups:
+        fixed = [n for n in group if n not in index]
+        if fixed:
+            entries.append(("fixed", fixed[0]))
+            continue
+        direction = 0 if len(group) < 2 else (1 if index[group[1]] > index[group[0]] else -1)
+        entries.append(("bucket", sorted(group, key=lambda n: index[n]), direction))
+    return entries
+
+
+def declaration_order(text, first, last, names):
+    """The position of each local's first appearance in the function's text: its declaration."""
+    body = "\n".join(text.split("\n")[first - 1 : last])
+    body = body[body.find("{") :]
+    seen, previous = {}, ""
+    for m in TOKEN.finditer(body):
+        token = m.group(0)
+        if token in names and token not in seen and previous not in (".", "->", "::"):
+            seen[token] = len(seen)
+        if not token.startswith(("//", "/*")):
+            previous = token
+    return seen
+
+
+def assign(order, entries, declared, fixed, share=False):
+    """{local: new name} that the compiler allocates in `order`, or (None, a reason). Each local
+    takes the next bucket, a fixed name (`this`, `i$99`) is where the compiler puts it, and with
+    `share` (more locals than buckets), a local stays in the current bucket when the order of
+    declaration allows it. Sharing is the fallback, not the default: the order within a bucket
+    doesn't always follow the declarations as `declaration_order` reads them, and sharing whenever
+    it was allowed lost 14 of MW2's witnesses that one local per bucket finds."""
+    mapping, placed = {}, set()
+    position, last = -1, None  # the current entry, the last local put in it
+    for local in order:
+        if local in fixed:
+            k = next((k for k in range(position + 1, len(entries)) if entries[k] == ("fixed", local)), None)
+            if k is None:
+                return None, "%s can't come this late" % local
+            position, last = k, None
+            placed.add(local)
+            continue
+        entry = entries[position] if position >= 0 else None
+        used = sum(1 for v in mapping.values() if entry and entry[0] == "bucket" and v in entry[1])
+        if share and entry and entry[0] == "bucket" and last and used < len(entry[1]) and entry[2] * (declared.get(local, -1) - declared.get(last, -1)) > 0:
+            mapping[local], last = entry[1][used], local
+            continue
+        k = position + 1
+        while k < len(entries) and entries[k][0] != "bucket":
+            if entries[k][1] in order and entries[k][1] not in placed:
+                return None, "%s would come before %s" % (entries[k][1], local)
+            k += 1
+        if k >= len(entries):
+            return None, "%d locals, and the hash has %d buckets" % (len(order), sum(1 for e in entries if e[0] == "bucket"))
+        position, last = k, local
+        mapping[local] = entries[k][1][0]
+    return mapping, None
 
 
 # ---------------------------------------------------------------------------------------------
@@ -477,12 +261,7 @@ class Entry:
             self.status, self.detail = status, detail + (" (with %d pads)" % pads if pads else "")
 
     def recipe(self):
-        parts = []
-        if self.pads:
-            parts.append("pad %d" % self.pads)
-        if self.renames:
-            parts.append("rename " + " ".join("%s=%s" % item for item in sorted(self.renames.items())))
-        return " ".join(parts)
+        return recipe({"pads": self.pads, "renames": self.renames})
 
 
 class Search:
@@ -499,18 +278,7 @@ class Search:
         self.compiler = Compiler(scratch, args.wine, args.jobs)
         self.ladders = {}
         self.entries = []
-        self.skipped = Counter()
-
-    def entries_of(self, unit, obj):
-        """The unit's annotated functions: {COFF symbol: annotation in the unit's own files}."""
-        files = {str(path.resolve()) for path in unit.files(ROOT).values()}
-        found = {}
-        for symbol in obj.functions:
-            plain = re.sub(r"^[_@]|@\d+$", "", symbol)
-            own = [c for c in self.annotations.functions.get(plain, []) if str(c.filename) in files]
-            if len(own) == 1:
-                found[symbol] = own[0]
-        return found
+        self.pads = 0
 
     def compare(self, request, wanted=None):
         """{symbol: (Comparison, the function's locals, annotation)} of one compile, or an error."""
@@ -518,7 +286,7 @@ class Search:
             return request.error
         obj, local_lists = Object(request.obj), read_listing(request.asm)
         out = {}
-        for symbol, annotation in self.entries_of(request.unit, obj).items():
+        for symbol, annotation in unit_annotations(self.annotations, request.unit, obj).items():
             if wanted is None or symbol in wanted:
                 comparison = Comparison(obj.functions[symbol], obj, self.image, annotation.offset, self.annotations)
                 out[symbol] = (comparison, local_lists.get(symbol, []), annotation)
@@ -526,37 +294,53 @@ class Search:
 
     def plan(self, unit, compared, pending):
         """The renamed files of the unit for the functions that differ only in slots."""
-        if unit.language not in self.ladders:
-            self.ladders[unit.language] = ladder(self.compiler, self.target, unit)
-            if self.args.verbose:
-                print("ladder (%s, %d names): %s" % (unit.language, len(self.ladders[unit.language]), " ".join(self.ladders[unit.language])))
-        names = self.ladders[unit.language]
-        texts, plans = {}, {}
+        texts, plans, orders = {}, {}, {}
         pads = self.pads
         for symbol, entry in pending.items():
             comparison, local_list, annotation = compared[symbol]
             if comparison.difference:
                 entry.note("other", comparison.difference, pads)
                 continue
+            if optimized(unit):
+                entry.note("slots", "an optimized unit: padding only", pads)
+                continue
             order, reason = slot_plan(local_list, comparison.slots)
             if order is None:
                 entry.note("slots", reason, pads)
                 continue
-            if len(order) > len(names):
-                entry.note("slots", "%d locals, and the compiler's hash has %d buckets" % (len(order), len(names)), pads)
+            # The compiler's temporaries ($T123) come after the named locals, in the order it
+            # creates them, outside the hash: they must end the order.
+            while order and order[-1].startswith("$T"):
+                order = order[:-1]
+            fixed = {name for name, _, renameable in local_list if not renameable} & set(order)
+            if any(name.startswith("$T") for name in fixed):
+                entry.note("slots", "a temporary among the named locals", pads)
                 continue
+            orders[symbol] = (order, fixed)
+        if not orders:
+            return texts, plans
+        extras = sorted({n for _, fixed in orders.values() for n in fixed} - set(FIXED))
+        key = (unit.language, unit.compiler, tuple(extras))
+        if key not in self.ladders:
+            self.ladders[key] = ladder(self.compiler, self.target, unit, extras)
+        entries = self.ladders[key]
+        for symbol, (order, fixed) in orders.items():
+            entry, annotation = pending[symbol], compared[symbol][2]
             path = Path(annotation.filename)
             text = texts.get(path.name) or path.read_text(encoding="utf-8")
-            plans[symbol] = dict(zip(order, names))
-            texts[path.name] = rename(text, annotation.line_number, annotation.end_line, plans[symbol])
+            declared = declaration_order(path.read_text(encoding="utf-8"), annotation.line_number, annotation.end_line, set(order))
+            names, reason = assign(order, entries, declared, fixed)
+            if names is None:
+                names, reason = assign(order, entries, declared, fixed, share=True)
+            if names is None:
+                entry.note("slots", reason, pads)
+                continue
+            plans[symbol] = names
+            texts[path.name] = rename(text, annotation.line_number, annotation.end_line, names)
         return texts, plans
 
     def run(self):
         units = [u for u in self.units if not self.args.unit or u.name in self.args.unit]
-        for unit in units:
-            if unit.language != "C":
-                self.skipped["C++ unit"] += 1
-        units = [u for u in units if u.language == "C"]
         base = {r.unit.name: r for r in self.compiler.run(self.target, [Request(u, ROOT, "base", listing=True) for u in units])}
         pending = {}  # unit name -> {symbol: Entry}
         exact = defaultdict(set)
@@ -566,7 +350,7 @@ class Search:
                 print("%s: %s" % (unit.name, compared))
                 continue
             for symbol, (comparison, _, annotation) in compared.items():
-                name = function_name(annotation.name) or Annotations.name_from_source(annotation)
+                name = symbol_name(symbol)
                 if self.args.function and name not in self.args.function:
                     continue
                 entry = Entry(unit, name, annotation)
@@ -576,7 +360,6 @@ class Search:
                     entry.status = "exact"
                     exact[unit.name].add(symbol)
                 else:
-                    entry.status = None
                     entry.note("other" if comparison.difference else "slots", comparison.difference or "", 0)
                     pending.setdefault(unit.name, {})[symbol] = entry
         by_name = {u.name: u for u in units}
@@ -624,72 +407,6 @@ class Search:
                 self.compiler.discard(padded.values())
         self.compiler.discard(base.values())
 
-    def check(self, records):
-        """Verify the recorded witnesses. Returns the list of failures."""
-        failures = []
-        by_name = {u.name: u for u in self.units}
-        groups = defaultdict(list)
-        for record in records:
-            groups[(record["unit"], record["pads"])].append(record)
-        base = {r.unit.name: r for r in self.compiler.run(self.target, [Request(by_name[u], ROOT, "base", listing=True) for u in {u for u, _ in groups} if u in by_name])}
-        requests, keys = [], []
-        for (unit_name, pads), group in groups.items():
-            unit = by_name.get(unit_name)
-            if unit is None:
-                failures += ["%s: no such unit (%s)" % (r["name"], unit_name) for r in group]
-                continue
-            texts = {}
-            for record in group:
-                candidates = [a for a in self.annotations.functions.get(record["name"], []) if a.offset == record["address"]]
-                if not candidates:
-                    failures.append("%s: no annotation at %#x" % (record["name"], record["address"]))
-                    continue
-                annotation = candidates[0]
-                record["annotation"] = annotation
-                if record["renames"]:
-                    path = Path(annotation.filename)
-                    text = texts.get(path.name) or path.read_text(encoding="utf-8")
-                    texts[path.name] = rename(text, annotation.line_number, annotation.end_line, record["renames"])
-            requests.append(Request(unit, ROOT, "pad%d" % pads, texts, prefix=pads_text(pads), listing=True))
-            keys.append((unit_name, pads))
-        self.compiler.run(self.target, requests)
-        for (unit_name, pads), request in zip(keys, requests):
-            plain = self.compare(base[unit_name])
-            compared = self.compare(request)
-            for record in groups[(unit_name, pads)]:
-                if "annotation" not in record:
-                    continue
-                if isinstance(compared, str) or isinstance(plain, str):
-                    failures.append("%s: %s" % (record["name"], compared if isinstance(compared, str) else plain))
-                    continue
-                at = {a.offset: s for s, (_, _, a) in compared.items()}
-                symbol = at.get(record["address"])
-                if symbol is None or not compared[symbol][0].exact:
-                    failures.append("%s (%s): the witness no longer gives the original's bytes" % (record["name"], unit_name))
-                elif symbol in plain and plain[symbol][0].exact:
-                    failures.append("%s (%s): exact without its witness: remove the record" % (record["name"], unit_name))
-        return failures
-
-
-def read_records(path):
-    records = []
-    for line in path.read_text().split("\n"):
-        if not line.strip() or line.startswith("#"):
-            continue
-        address, name, unit, *recipe = line.split()
-        record = {"address": int(address, 16), "name": name, "unit": unit, "pads": 0, "renames": {}}
-        mode = None
-        for word in recipe:
-            if word in ("pad", "rename"):
-                mode = word
-            elif mode == "pad":
-                record["pads"] = int(word)
-            else:
-                old, new = word.split("=")
-                record["renames"][old] = new
-        records.append(record)
-    return records
-
 
 def claims(entry):
     """What the comments above the function's annotations say its diff is: 'slots' for a stack-slot
@@ -708,6 +425,20 @@ def claims(entry):
     return ""
 
 
+def write_records(path, target, entries, searched):
+    """Replace the records of the searched functions, keep the others."""
+    kept = [r for r in read_records(path) if (r["unit"], r["address"]) not in searched]
+    lines = {r["address"]: "%#010x %s %s %s" % (r["address"], r["name"], r["unit"], recipe(r)) for r in kept}
+    for e in entries:
+        if e.status == "witness":
+            lines[e.address] = "%#010x %s %s %s" % (e.address, e.name, e.unit.name, e.recipe())
+    header = ["# %s: witnesses that a function differs from the original only by compiler entropy." % target,
+              "# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or",
+              "# `rename old=new ...` of the function's locals. Found by tools/witness.py, checked by tools/certify.py.", ""]
+    path.parent.mkdir(exist_ok=True)
+    path.write_text("\n".join(header + [lines[a] for a in sorted(lines)]) + "\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--target", required=True, choices=sorted(TARGETS))
@@ -719,21 +450,11 @@ def main():
     parser.add_argument("--pads", type=int, default=0, help="Also try up to N symbols declared ahead of the unit")
     parser.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
     parser.add_argument("--write", action="store_true", help="Record the witnesses in tools/witnesses/<TARGET>.txt")
-    parser.add_argument("--check", action="store_true", help="Verify tools/witnesses/<TARGET>.txt")
     parser.add_argument("--json", help="Write every function's result to this file")
     parser.add_argument("-v", "--verbose", action="store_true", help="List every function that isn't exact")
     args = parser.parse_args()
 
     search = Search(args, args.target)
-    record_file = ROOT / "tools" / "witnesses" / (args.target + ".txt")
-    if args.check:
-        records = read_records(record_file) if record_file.exists() else []
-        failures = search.check(records)
-        for failure in failures:
-            print(failure)
-        print("%d witnesses, %d failures (%d compiles)" % (len(records), len(failures), search.compiler.count))
-        return 1 if failures else 0
-
     search.run()
     entries = sorted(search.entries, key=lambda e: e.address)
     counts = Counter(e.status for e in entries)
@@ -744,8 +465,6 @@ def main():
     print("%s: %d functions in %d units (%d compiles)" % (args.target, len(entries), len({e.unit.name for e in entries}), search.compiler.count))
     for status in ("exact", "witness", "slots", "other"):
         print("  %-8s %d" % (status, counts[status]))
-    for reason, count in search.skipped.items():
-        print("  skipped: %d %s" % (count, reason))
     said = Counter((claims(e), e.status) for e in entries if e.status != "exact")
     for claim in ("slots", "other", ""):
         row = {s: said[(claim, s)] for s in ("witness", "slots", "other")}
@@ -762,12 +481,8 @@ def main():
              "pads": e.pads, "renames": e.renames, "unverified": e.unverified, "claim": claims(e) if e.status != "exact" else ""}
             for e in entries], indent=1) + "\n")
     if args.write:
-        record_file.parent.mkdir(exist_ok=True)
-        lines = ["# Witnesses that a function differs from the original only by compiler entropy (tools/witness.py).",
-                 "# address, function, unit, then the recipe: `pad N` symbols declared ahead of the unit, and/or",
-                 "# `rename old=new ...` of the function's locals. Checked by `tools/witness.py --check`.", ""]
-        lines += ["%#010x %s %s %s" % (e.address, e.name, e.unit.name, e.recipe()) for e in entries if e.status == "witness"]
-        record_file.write_text("\n".join(lines) + "\n")
+        record_file = ROOT / "tools" / "witnesses" / (args.target + ".txt")
+        write_records(record_file, args.target, entries, {(e.unit.name, e.address) for e in entries})
         print("wrote %s" % record_file.relative_to(ROOT))
     return 0
 
