@@ -77,6 +77,7 @@ StarMission g_objectiveTable[16];
 // Collapses each run of whitespace after a character of p_text into one space.
 // FUNCTION: MW2 0x1001a910
 // FUNCTION: MW2MATROX 0x1001ecb0
+// FUNCTION: MW23DFX 0x100098f0
 void CollapseWhitespace(MechChar* p_text)
 {
 	MechChar* src;

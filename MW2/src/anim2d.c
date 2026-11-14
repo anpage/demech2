@@ -15,6 +15,9 @@
 #ifdef MW2_ACCEL
 #include "accel/vfx16.h"
 #endif
+#ifdef MW2_3DFX
+#include "render.h"
+#endif
 
 // Frame projections (a table of 96) and 2D animations: up to seven SHP resources whose frames
 // play on the clock, once or looping, drawn into a pane.
@@ -43,6 +46,7 @@ FramePrj g_framePrjs[0x60];
 
 // FUNCTION: MW2 0x10007510
 // FUNCTION: MW2MATROX 0x100013b0
+// FUNCTION: MW23DFX 0x10002080
 MechS32 LoadFramePrj(MechU16 p_id, MechS16 p_unk0x04, MechS16 p_unk0x06)
 {
 	FramePrj* prj;
@@ -90,6 +94,7 @@ void ClearFramePrj(FramePrj* p_prj)
 
 // FUNCTION: MW2 0x10007611
 // FUNCTION: MW2MATROX 0x100014b1
+// FUNCTION: MW23DFX 0x10002130
 MechS16 LoadAnim2d(MechU32 p_flags, MechS32 p_frameTime, MechS32 p_type, MechS16* p_resourceId)
 {
 	Anim2d* anim;
@@ -151,6 +156,36 @@ void FreeAnim2d(MechS32 p_index)
 		g_anim2ds[p_index] = NULL;
 	}
 }
+
+#ifdef MW2_3DFX
+// Tiles p_target with a shape frame drawn at (p_x, p_y), stepping the pane's origin by the
+// frame's size, then restores the origin (DrawAnim2d's animation 0 at 800x600).
+// FUNCTION: MW23DFX 0x10002250
+void TileShapeFrame(PANE* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x, MechS32 p_y)
+{
+	MechS32 size;
+	MechS32 tileWidth;
+	MechS32 tileHeight;
+	MechS32 x0;
+	MechS32 y0;
+
+	size = VFX_shape_bounds(p_shape, p_frame);
+	tileWidth = size >> 16;
+	tileHeight = size & 0xffff;
+	x0 = p_target->m_x0;
+	y0 = p_target->m_y0;
+	for (; p_target->m_y0 < p_target->m_y1; p_target->m_y0 += tileHeight) {
+		for (; p_target->m_x0 < p_target->m_x1; p_target->m_x0 += tileWidth) {
+			VFX_shape_draw(p_target, p_shape, p_frame, p_x, p_y);
+		}
+
+		p_target->m_x0 = x0;
+	}
+
+	p_target->m_x0 = x0;
+	p_target->m_y0 = y0;
+}
+#endif
 
 // Draws the animation's current frame, loading its shape on first use. The index test never
 // rejects anything (the original tests p_index < 0 && p_index >= 7).
@@ -221,7 +256,17 @@ void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 	}
 
 	if (anim->m_state != c_anim2dDone) {
+#ifdef MW2_3DFX
+		// At 800x600, animation 0 tiles the pane.
+		if (g_screenWidthMinus1 > 700 && p_index == 0) {
+			TileShapeFrame(p_target, anim->m_shape, shown, p_x, p_y);
+		}
+		else {
+			VFX_shape_draw(p_target, anim->m_shape, shown, p_x, p_y);
+		}
+#else
 		VFX_shape_draw(p_target, anim->m_shape, shown, p_x, p_y);
+#endif
 	}
 	else if (anim->m_flags & c_anim2dFreeWhenDone) {
 		FreeAnim2ds(p_index);

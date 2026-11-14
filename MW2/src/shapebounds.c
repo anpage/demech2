@@ -17,6 +17,7 @@
 // fcomp), an effect of the symbol order.
 // FUNCTION: MW2 0x1003ae96
 // FUNCTION: MW2MATROX 0x10027a60
+// FUNCTION: MW23DFX 0x10029060
 void ComputeShapeBounds(Shape* p_shape)
 {
 	MechDouble dz;

@@ -219,6 +219,7 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 // Commutative operand order: the original computes each product's factors the other way round, and
 // reloads nz for its square. Stack-slot permutation: length, nx, ny and nz.
 // FUNCTION: MW2MATROX 0x1007f368
+// FUNCTION: MW23DFX 0x10030410
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
 	MechScalar p_y0,

@@ -228,6 +228,7 @@ void DebugPrintInternal(const MechChar* p_format, ...)
 // Writes p_value's low four hex digits on the monochrome display's row p_row + 1, ending at its
 // last column.
 // FUNCTION: MW2MATROX 0x1006eab0
+// FUNCTION: MW23DFX 0x10007ee0
 void MonoPrintHex(MechU32 p_value, MechU32 p_row)
 {
 	MechChar* cell;

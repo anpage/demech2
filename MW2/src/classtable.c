@@ -75,6 +75,7 @@ ClassEntry g_classTable[0x30c];
 // MW2MATROX: the loop tests compare in the other operand order.
 // FUNCTION: MW2 0x1001ce90
 // FUNCTION: MW2MATROX 0x1006d550
+// FUNCTION: MW23DFX 0x100260e0
 MechS32 LoadBaseLevelShapes(Player* p_player)
 {
 	MechS32 i;
@@ -234,6 +235,7 @@ void ClaimNewClassEntries(Player* p_player)
 // Stack-slot permutation: i and result.
 // FUNCTION: MW2 0x1001d292
 // FUNCTION: MW2MATROX 0x1006d952
+// FUNCTION: MW23DFX 0x10026330
 MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 {
 	MechS32 i;
@@ -294,6 +296,7 @@ void ReleaseClassLevel(MechS32 p_owner, MechS32 p_level)
 // Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001d3ff
 // FUNCTION: MW2MATROX 0x1006dad9
+// FUNCTION: MW23DFX 0x10026430
 MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 {
 	MechS32 kind;

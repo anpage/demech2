@@ -157,6 +157,7 @@ extern "C"
 // FUNCTION: MW23DFX 0x10062763
 // DrawShapeUnclipped16
 
+// The 3Dfx edition's port doesn't have this one (its VFX_pane_wipe16 follows DrawShapeUnclipped16).
 // FUNCTION: MW2MATROX 0x10057725
 // VFX_shape_visible_rectangle16
 

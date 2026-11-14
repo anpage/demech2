@@ -102,6 +102,7 @@ void BuildShapeQuadtree(Shape* p_shape)
 // entries sits in another stack slot.
 // FUNCTION: MW2 0x1001e0a7
 // FUNCTION: MW2MATROX 0x10015ab5
+// FUNCTION: MW23DFX 0x1000c640
 QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model* p_model)
 {
 	MechS32 j;
@@ -283,6 +284,7 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // MW2MATROX: the min/max tests and the final bounds tests have their operands the other way round.
 // FUNCTION: MW2 0x1001e57a
 // FUNCTION: MW2MATROX 0x10016037
+// FUNCTION: MW23DFX 0x1000c9a0
 MechS32 FaceOverlapsBox(
 	Face* p_face,
 	Model* p_model,
@@ -625,6 +627,7 @@ void DisableQuadtrees(void)
 // Returns the bytes a quadtree takes.
 // FUNCTION: MW2 0x1001ee0f
 // FUNCTION: MW2MATROX 0x10016973
+// FUNCTION: MW23DFX 0x1000d170
 MechS32 GetQuadtreeSize(QuadtreeNode* p_node)
 {
 	MechS32 i;

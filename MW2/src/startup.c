@@ -21,6 +21,7 @@ void PrintVersion(void)
 // Always returns 0. SimMain raises Error(0x51) if it doesn't, so it's a stubbed-out startup check.
 // FUNCTION: MW2 0x100717bf
 // FUNCTION: MW2MATROX 0x1007ac5f
+// FUNCTION: MW23DFX 0x1000adf0
 MechS32 StartupCheckStub(void)
 {
 	return 0;

@@ -187,6 +187,7 @@ void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 // Stack-slot permutation: i and j.
 // FUNCTION: MW2 0x1004e69c
 // FUNCTION: MW2MATROX 0x100801be
+// FUNCTION: MW23DFX 0x10040060
 void FlushEventLists(MechU32 p_lists)
 {
 	MechS32 j;

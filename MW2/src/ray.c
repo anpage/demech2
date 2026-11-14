@@ -239,6 +239,7 @@ void SetRayEnd(Ray* p_ray, MechScalar p_x1, MechScalar p_y1, MechScalar p_z1)
 
 // FUNCTION: MW2 0x100033df
 // FUNCTION: MW2MATROX 0x10087dd3
+// FUNCTION: MW23DFX 0x1000b1d0
 void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 {
 	MechScalar length;

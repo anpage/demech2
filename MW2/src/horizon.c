@@ -19,6 +19,7 @@
 // The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10071930
 // FUNCTION: MW2MATROX 0x1007b8d0
+// FUNCTION: MW23DFX 0x10028ee0
 MechS32 IsAboveHorizon(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_ACCEL

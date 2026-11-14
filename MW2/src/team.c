@@ -130,6 +130,7 @@ void SetTeamFormation(MechS32 p_team, MechS32 p_formation)
 // MW2MATROX: p_player < g_playerCount compares in the other operand order.
 // FUNCTION: MW2 0x1003bdcb
 // FUNCTION: MW2MATROX 0x10072eaa
+// FUNCTION: MW23DFX 0x10018cd0
 MechS32 SetPlayerSlot(MechU32 p_player, MechU32 p_slot)
 {
 	MechS32 result = FALSE;

@@ -367,6 +367,7 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 // Stack-slot permutation: entries, types, offset, type, size and id.
 // FUNCTION: MW2 0x100725ae
 // FUNCTION: MW2MATROX 0x1000cbee
+// FUNCTION: MW23DFX 0x1003d720
 MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, void* p_buffer)
 {
 	PrjIndexEntry* entries;

@@ -85,8 +85,6 @@ extern "C"
 	MechS32 ChooseTeamLeader(MechS32 p_team);
 	void RetargetGoals(MechS32 p_team, MechS32 p_index, MechS32 p_target);
 	MechS16 ResolveTarget(struct Player* p_player, MechS16 p_target);
-	MechS16 AiMessageTrue(struct Player* p_player, MechU16 p_target);
-	MechS16 AiMessageFalse(void);
 	MechS16 AiMessageReach(struct Player* p_player, MechS16 p_target, MechS16 p_arg);
 	MechS16 AiMessageProx(struct Player* p_player, MechS16 p_target, MechS16 p_arg);
 	void LogPlayerSkillLines(void);
@@ -102,9 +100,6 @@ extern "C"
 	);
 	void LogAIStatus(void);
 	MechS16 AiMessageTargetable(struct Player* p_player, MechS16 p_target, MechS16 p_arg);
-	MechS16 FUN_100531d1(void);
-	MechS16 FUN_100531e4(void);
-	MechS16 AiMessageDestroy(struct Player* p_player, MechU16 p_target);
 	void AiStateIdle(struct Player* p_player);
 	void AiStateMove(struct Player* p_player, MechU16 p_target);
 	void AiStateAttack(struct Player* p_player, MechU16 p_target);
@@ -162,6 +157,15 @@ extern "C"
 
 // FUNCTION: MW23DFX 0x10011fc0
 // FirstAI
+
+// FUNCTION: MW23DFX 0x10012000
+// InitializeAI
+
+// FUNCTION: MW23DFX 0x10012650
+// LogPlayerSkillLines
+
+// FUNCTION: MW23DFX 0x10012730
+// LogStarMissionLines
 
 // FUNCTION: MW23DFX 0x10012de0
 // FindNearestTarget

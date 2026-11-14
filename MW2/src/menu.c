@@ -5,6 +5,9 @@
 #include "decomp.h"
 #include "dorcs.h"
 #include "fixeddiv.h"
+#ifdef MW2_3DFX
+#include "fixedmul.h"
+#endif
 #include "inputmap.h"
 #include "loadres.h"
 #include "mainmenu.h"
@@ -193,6 +196,28 @@ void FreeMenus(void)
 	g_menuSlotsTail = NULL;
 }
 
+#ifdef MW2_3DFX
+// ScalePointToFrame for the menus: at 800x600 they keep the size they have at 640x480, eight
+// tenths of the frame.
+// FUNCTION: MW23DFX 0x100654f0
+Point* ScaleMenuPointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
+{
+	MechS32 width;
+	MechS32 height;
+
+	width = p_frame->m_x1 - p_frame->m_x0;
+	height = p_frame->m_y1 - p_frame->m_y0;
+	if (g_screenWidthMinus1 > 700) {
+		width = width * 8 / 10;
+		height = height * 8 / 10;
+	}
+
+	p_dst->m_x = FixedMul16(width, p_src->m_x);
+	p_dst->m_y = FixedMul16(height, p_src->m_y);
+	return p_dst;
+}
+#endif
+
 // Lays out a menu on the screen: scales its background target to the background shape, spaces
 // its m_lineCount lines evenly down the target, and converts its points to pixels. With flag 0x10
 // the background moves to the target's left edge.
@@ -249,11 +274,19 @@ void LayoutMenu(MenuDefinition* p_menu)
 	p_menu->m_cursorOrigin.m_y = p_menu->m_itemOrigin.m_y = p_menu->m_controlOrigin.m_y = origin.m_y + origin.m_y;
 	ScaleRectToScreen(target->m_window, target, target);
 	ScaleRectToScreen(background->m_window, background, background);
+#ifdef MW2_3DFX
+	ScaleMenuPointToFrame(target, &origin, &origin);
+	ScaleMenuPointToFrame(target, &p_menu->m_titleOrigin, &p_menu->m_titleOrigin);
+	ScaleMenuPointToFrame(target, &p_menu->m_cursorOrigin, &p_menu->m_cursorOrigin);
+	ScaleMenuPointToFrame(target, &p_menu->m_itemOrigin, &p_menu->m_itemOrigin);
+	ScaleMenuPointToFrame(target, &p_menu->m_controlOrigin, &p_menu->m_controlOrigin);
+#else
 	ScalePointToFrame(target, &origin, &origin);
 	ScalePointToFrame(target, &p_menu->m_titleOrigin, &p_menu->m_titleOrigin);
 	ScalePointToFrame(target, &p_menu->m_cursorOrigin, &p_menu->m_cursorOrigin);
 	ScalePointToFrame(target, &p_menu->m_itemOrigin, &p_menu->m_itemOrigin);
 	ScalePointToFrame(target, &p_menu->m_controlOrigin, &p_menu->m_controlOrigin);
+#endif
 	if (p_menu->m_flags & 0x10) {
 		dx = background->m_x0 - target->m_x0;
 		background->m_x0 -= dx;

@@ -410,6 +410,7 @@ void SelectFastestRefreshMode(void)
 // Stack-slot permutation: i, mode and backend.
 // FUNCTION: MW2 0x10077392
 // FUNCTION: MW2MATROX 0x1007b40e
+// FUNCTION: MW23DFX 0x10002aa0
 void ToggleFullScreen(void)
 {
 	MechS32 i;

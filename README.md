@@ -4,7 +4,7 @@ This is a work-in-progress decompilation of the Windows 95 release of MechWarrio
 
 This project is modeled after the [LEGO Island](https://github.com/isledecomp/isle) and [LEGO Racers](https://github.com/isledecomp/racers) decompilations.
 
-> **Note:** This repository is for decompilation only and its code is true to the original release. It will not compile for targets other than 32-bit Windows. A modern, portable adaptation of the MechWarrior 2 codebase is planned.
+> **Note:** This repository is for decompilation only and its code is true to the original release. It will not compile for targets other than 32-bit Windows. A modern, portable adaptation of the MechWarrior 2 codebase is in progress as [ReMech2](https://github.com/anpage/remech2-rs).
 
 ## Status
 
@@ -59,14 +59,14 @@ cmake <path-to-source> -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 
 The build configuration for each binary (comparison builds use Visual C++ 4.1's linker with Visual C++ 2.2's libraries for the Visual C++ 2.2 targets, so reccmp can read their PDBs):
 
-| Target         | Language                   | `cl` flags                                 | CRT                     | Link                             |
-| -------------- | -------------------------- | ------------------------------------------ | ----------------------- | -------------------------------- |
-| `MW2.DLL`      | C                          | `/Od /Oi /G5`                              | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no`    |
-| `MW2SHELL.DLL` | C++ (some C files)         | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`) | `/MT` (static)          | `/DLL`                           |
-| `NETMECHW.DLL` | C and C++ (Visual C++ 2.2) | `/Od /Oi /Z7` (no `/GX`)                   | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
-| `MECH2.EXE`    | C (Visual C++ 2.2)         | `/Od /Oi /G5 /Z7`                          | `/ML` (single-threaded) | incremental EXE, `/DEBUG`        |
-| `MW2_MATROX.DLL` | C (Visual C++ 4.0)       | `/Od /Oi /G5`                              | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
-| `MW2_3DFX.DLL` | C (Visual C++ 2.2)         | `/Ox /Oa /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/MT` (static)   | `/DLL /DEBUG /INCREMENTAL:no`    |
+| Target           | Language                   | `cl` flags                                        | CRT                     | Link                             |
+| ---------------- | -------------------------- | ------------------------------------------------- | ----------------------- | -------------------------------- |
+| `MW2.DLL`        | C                          | `/Od /Oi /G5`                                     | `/MTd` (static debug)   | `/DLL /DEBUG /INCREMENTAL:no`    |
+| `MW2SHELL.DLL`   | C++ (some C files)         | `/Od /Oi /G5 /Ob1 /GX` (C files: no `/GX`)        | `/MT` (static)          | `/DLL`                           |
+| `NETMECHW.DLL`   | C and C++ (Visual C++ 2.2) | `/Od /Oi /Z7` (no `/GX`)                          | `/MT` (static)          | `/DLL`, `/DEBUG /INCREMENTAL:no` |
+| `MECH2.EXE`      | C (Visual C++ 2.2)         | `/Od /Oi /G5 /Z7`                                 | `/ML` (single-threaded) | incremental EXE, `/DEBUG`        |
+| `MW2_MATROX.DLL` | C (Visual C++ 4.0)         | `/Od /Oi /G5`                                     | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
+| `MW2_3DFX.DLL`   | C (Visual C++ 2.2)         | `/Ox /Oa /Oi /G5 /Gr /Gy /Z7` (three files `/Od`) | `/MT` (static)          | `/DLL /DEBUG /INCREMENTAL:no`    |
 
 ### Docker
 
@@ -123,7 +123,7 @@ reccmp-reccmp --target MW2 -S MW2PROGRESS.SVG
 reccmp-reccmp --target NETMECHW --nolib --total 244
 reccmp-reccmp --target MECH2 --nolib --total 21
 reccmp-reccmp --target MW2MATROX --nolib --total 1597
-reccmp-reccmp --target MW23DFX --nolib --total 1485
+reccmp-reccmp --target MW23DFX --nolib --total 1574
 ```
 
 #### Continuous integration
@@ -179,9 +179,9 @@ The LGPL comes with one **additional permission**, granted under section 7 of th
 
 **Third-party code** in `3rdparty/` keeps its own terms:
 
-| Directory | What it is | Terms |
-| --- | --- | --- |
-| `3rdparty/vfx` | Miles Design's VFX graphics library, by John Miles | Open-source freeware since July 2000: usable for any purpose without restriction ([README.TXT](3rdparty/vfx/README.TXT)) |
+| Directory        | What it is                                                                   | Terms                                                                                                                                                                               |
+| ---------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `3rdparty/vfx`   | Miles Design's VFX graphics library, by John Miles                           | Open-source freeware since July 2000: usable for any purpose without restriction ([README.TXT](3rdparty/vfx/README.TXT))                                                            |
 | `3rdparty/texus` | 3dfx Interactive's Texus texture library, from the 1999 Glide source release | 3DFX GLIDE Source Code General Public License ([glide_license.txt](3rdparty/texus/glide_license.txt), [README](3rdparty/texus/README)). Changes are marked and dated in the source. |
 
 **Not included:** MechWarrior 2 itself. The game's binaries, data and resources aren't in this repository and aren't covered by any of these licences. The build reads a few icons and bitmaps from your own copy of the original binaries, if you have them, and they're never committed. The game and its trademarks belong to their owners. This project isn't affiliated with Activision, 3dfx, Matrox, Microsoft or Miles Design.

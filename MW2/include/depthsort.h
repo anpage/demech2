@@ -70,4 +70,9 @@ extern "C"
 }
 #endif
 
+// The 3Dfx edition places these out of depthsort.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW23DFX 0x1002a390
+// DrawQueuedPolygon
+
 #endif // DEPTHSORT_H

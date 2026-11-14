@@ -525,6 +525,7 @@ void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 
 // FUNCTION: MW2 0x1001a5e6
 // FUNCTION: MW2MATROX 0x10056385
+// FUNCTION: MW23DFX 0x10024730
 void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 {
 #ifdef PORTABLE_C

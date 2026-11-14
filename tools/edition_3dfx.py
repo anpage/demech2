@@ -97,15 +97,18 @@ def candidates(defs):
     return by_name
 
 
-def original_names():
-    """The original's addresses the sources name for MW23DFX: {address: name}."""
+def original_names(kinds=None):
+    """The original's addresses the sources name for MW23DFX: {address: name}; with kinds, only
+    the markers of those kinds (FUNCTION, GLOBAL…), and not the VFX data names."""
     from port_annotations import marker_blocks
 
     names = {}
     for path, last, kind, rest, name in marker_blocks(DIRS, [TARGET]):
         m = MARKER.match(open(path, encoding="utf-8").read().split("\n")[last])
-        if m and m.group(3) == TARGET:
+        if m and m.group(3) == TARGET and (kinds is None or m.group(2) in kinds):
             names[int(m.group(4), 16)] = name
+    if kinds is not None:
+        return names
     csv = "reccmp/mw23dfx-vfx.csv"
     if os.path.exists(csv):
         for line in open(csv, encoding="utf-8"):
@@ -669,6 +672,113 @@ def cmd_fix_order(args):
             print("%s: dropped %s (%#x)" % (os.path.basename(path), name, a))
         with open(path, "w", encoding="utf-8", newline="\n") as f:
             f.write("\n".join(lines))
+
+
+THUNKS = 0x100680b2  # the import thunks before Texus: the end of the game code
+
+
+def function_starts(image, names, data=()):
+    """Every function start in the game code: the annotated ones, the call targets of the code
+    they reach, 16-aligned starts after int3 padding that no traced code covers (an 0xCC byte can
+    be an operand's), the same again from those, and pointers to code nothing reaches (callbacks,
+    after padding, a ret or a jmp). Tracing follows branches and jump tables, and stops at a known start.
+    data: the annotated data in .text, which pointers reach too. Returns (starts, the pointer-only
+    starts)."""
+    lo, code = image.text[0], image.text_bytes
+    dis = disasm()
+    starts = {a for a in names if lo <= a < THUNKS}
+    padded = [lo + o for o in range(16, THUNKS - lo, 16) if code[o - 1] == 0xCC and code[o] != 0xCC]
+    covered, tables, calls, done = set(), set(), set(), set()
+
+    def after_end(t):  # padding, or the end of a ret, a ret N or a jmp before t
+        o = t - lo
+        return code[o - 1] in (0xCC, 0xC3, 0x90) or code[o - 3] == 0xC2 or code[o - 5] == 0xE9
+
+    def trace(start):
+        work, seen = [start], set()
+        while work:
+            a = work.pop()
+            while lo <= a < THUNKS and a not in seen and (a == start or a not in starts):
+                seen.add(a)
+                x = next(dis.disasm(image.read(a, 16), a), None)
+                if x is None or not x.id:
+                    break
+                covered.update(range(a, a + x.size))
+                if x.mnemonic in ("ret", "int3"):
+                    break
+                target = int(x.op_str, 16) if x.op_str.startswith("0x") else None
+                if x.mnemonic == "call" and target and lo <= target < THUNKS:
+                    calls.add(target)
+                if x.mnemonic == "jmp":
+                    m = re.match(r"dword ptr \[\w+\*4 \+ (0x[0-9a-f]+)\]", x.op_str)
+                    if target:
+                        work.append(target)
+                    elif m:
+                        t = int(m.group(1), 16)
+                        while t in image.relocs and lo <= image.u32(t) < THUNKS:
+                            tables.update(range(t, t + 4))
+                            work.append(image.u32(t))
+                            t += 4
+                    break
+                if x.mnemonic.startswith(("j", "loop")) and target:
+                    work.append(target)
+                a += x.size
+
+    def settle():
+        while starts - done:
+            for a in sorted(starts - done):
+                trace(a)
+                done.add(a)
+            starts.update(calls - starts)
+
+    settle()
+    while True:
+        new = [a for a in padded if a not in covered and a not in starts]
+        if not new:
+            break
+        starts.update(new)
+        settle()
+    pointers = sorted({image.u32(r) for r in image.relocs if lo <= image.u32(r) < THUNKS})
+    extra = [
+        t
+        for t in pointers
+        if t not in covered and t not in tables and t not in starts and t not in data and after_end(t)
+    ]
+    starts.update(extra)
+    settle()
+    return sorted(starts), extra
+
+
+def cmd_functions(args):
+    """Count the original's game-code functions and list the starts without an annotation (the
+    game-code --total, and what is left to find)."""
+    names = original_names({"FUNCTION", "STUB", "LIBRARY", "SYNTHETIC"})
+    names.update({d["markers"][TARGET]: d["name"] for d in definitions() if TARGET in d["markers"]})
+    image = Image(BINARY)
+    data = set(original_names()) - set(names)
+    starts, extra = function_starts(image, names, data)
+    # A start only pointers reach, off the 16-byte alignment every /Gy function has, with every
+    # pointer inside the function that encloses it, is that function's own code (SimMain's
+    # exception handler, VFX_map_polygon's span routines): not a function of its own. A callback
+    # its registrar points to starts aligned (StartSample's).
+    refs = {}
+    for r in image.relocs:
+        refs.setdefault(image.u32(r), []).append(r)
+    real = [x for x in starts if x not in extra]
+    following = dict(zip(real, real[1:] + [THUNKS]))
+    inner = []
+    for a in starts:
+        enclosing = max((x for x in real if x < a), default=None)
+        if a in extra and a % 16 and enclosing and all(enclosing <= r < following[enclosing] for r in refs.get(a, [])):
+            inner.append(a)
+            print("%#x is inner code of the function at %#x, not counted" % (a, enclosing))
+    starts = [a for a in starts if a not in inner]
+    missing = [a for a in starts if a not in names]
+    print("%d functions before %#x, %d annotated, %d not" % (len(starts), THUNKS, len(starts) - len(missing), len(missing)))
+    following = dict(zip(starts, starts[1:] + [THUNKS]))
+    for a in missing:
+        before = max((n for n in names if n < a), default=None)
+        print("%#x %5d bytes  %s after %s" % (a, following[a] - a, "pointer" if a in extra else "       ", names.get(before, "?")))
 
 
 def cmd_unpaired(args):

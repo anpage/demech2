@@ -770,6 +770,7 @@ SceneObject* FindObjByPart(SceneObject* p_obj, MechU32 p_partId)
 // order of p_level > current (declaration order didn't flip it).
 // FUNCTION: MW2 0x10002246
 // FUNCTION: MW2MATROX 0x10041d58
+// FUNCTION: MW23DFX 0x1000ff00
 void RaisePartDamageLevel(SceneObject* p_obj, MechS32 p_level, MechU32 p_partId)
 {
 	MechS32 current;

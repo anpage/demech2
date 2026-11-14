@@ -48,4 +48,9 @@ extern "C"
 }
 #endif
 
+// The 3Dfx edition places these out of classtable.c's order, so they are annotated here, by name.
+
+// FUNCTION: MW23DFX 0x10026790
+// GetClassObject
+
 #endif // CLASSTABLE_H

@@ -711,6 +711,7 @@ Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057ac4
 // FUNCTION: MW2MATROX 0x10072388
+// FUNCTION: MW23DFX 0x10006b10
 Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 {
 	GaugeQuadrant quadrant;
@@ -906,6 +907,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // The Matrox edition takes the point as a Point and divides by the float aspect.
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2MATROX 0x10072834
+// FUNCTION: MW23DFX 0x10006ef0
 #ifdef MW2_ACCEL
 MechS32 IsInsideGaugeEllipse(PANE* p_target, Point* p_point)
 #else
@@ -987,6 +989,7 @@ Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 // Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1005816f
 // FUNCTION: MW2MATROX 0x10072a22
+// FUNCTION: MW23DFX 0x10007070
 Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 {
 	MechScalar angle;

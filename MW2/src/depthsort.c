@@ -230,6 +230,7 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 // MW2MATROX: register allocation (p_last and hi swap esi and ebx, and their comparisons the operands).
 // FUNCTION: MW2 0x1003378e
 // FUNCTION: MW2MATROX 0x10023500
+// FUNCTION: MW23DFX 0x10029ff0
 void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 {
 	MechScalar pivot;
@@ -338,6 +339,7 @@ void DrawShapeList(Shape* p_root)
 // registers.
 // FUNCTION: MW2 0x10033a06
 // FUNCTION: MW2MATROX 0x100236a0
+// FUNCTION: MW23DFX 0x1002a170
 void DrawDepthQueue(void)
 {
 	MechS32 count;
