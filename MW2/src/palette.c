@@ -99,7 +99,6 @@ PANE g_panes[11];
 // GLOBAL: MW23DFX 0x101b0d20
 MechS32 g_paletteResourceIds[20];
 
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x100023c0
 // FUNCTION: MW2MATROX 0x1002d560
 // FUNCTION: MW23DFX 0x1002ab20
@@ -117,7 +116,6 @@ void InitPanes(PANE* p_target)
 }
 
 // MW2MATROX: the operands of the comparison with g_paneIndex are the other way.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1000242f
 // FUNCTION: MW2MATROX 0x1002d5cf
 // FUNCTION: MW23DFX 0x1002ab50
@@ -145,7 +143,6 @@ void SelectPane(MechS32 p_index)
 	}
 }
 
-// The Matrox edition adds m_viewLeft and m_viewRight in the other operand order.
 // FUNCTION: MW2 0x100024f0
 // FUNCTION: MW2MATROX 0x1002d678
 // FUNCTION: MW23DFX 0x1002abd0
@@ -178,7 +175,6 @@ void ApplyPendingPalette(void)
 }
 
 // The Matrox edition ors the pixel's green and blue parts in the other order.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1000258d
 // FUNCTION: MW2MATROX 0x1002d705
 // FUNCTION: MW23DFX 0x1002ac40
@@ -240,9 +236,6 @@ void UpdatePaletteFade(void)
 	}
 }
 
-// Matches except for the stack slots of fromSlot, steps and to (a consistent permutation).
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10002687
 // FUNCTION: MW2MATROX 0x1002d865
 // FUNCTION: MW23DFX 0x1002ad50
@@ -459,7 +452,6 @@ void SetBasePalette(MechS32 p_palette)
 // Brings up the start palette (slot 0x10): with p_dissolve, it dissolves the screen to black
 // over 0x10f ticks first. It passes the result of the slot test, not the slot's resource id,
 // to the loader, so it always loads PAL resource 1 (SimMain has the same test).
-// Matches except for the stack slots of all its locals (a consistent permutation).
 // FUNCTION: MW2 0x10002a75
 // FUNCTION: MW2MATROX 0x1002dd33
 // FUNCTION: MW23DFX 0x1002b0c0

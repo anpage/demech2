@@ -16,7 +16,6 @@
 #pragma warning(disable : 4102) /* a label only the __asm block jumps to */
 
 // Returns whether the screen point (p_x, p_y) lies above the horizon of p_eyepoint's view.
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10071930
 // FUNCTION: MW2MATROX 0x1007b8d0
@@ -93,7 +92,6 @@ below:
 }
 
 // Returns the screen y of the horizon at screen x p_x in p_eyepoint's view.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100719ca
 // FUNCTION: MW2MATROX 0x1007b99e
 // FUNCTION: MW23DFX 0x10028f80
@@ -166,7 +164,6 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 }
 
 // Returns the screen x of the horizon at screen y p_y in p_eyepoint's view.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10071a4c
 // FUNCTION: MW2MATROX 0x1007ba4c
 // FUNCTION: MW23DFX 0x10028ff0

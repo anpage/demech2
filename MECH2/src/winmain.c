@@ -89,8 +89,6 @@ LRESULT CALLBACK MechWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM
 
 // Creates the game window: a centered captioned window when the desktop is larger than
 // the game's resolution, a full-screen popup otherwise.
-// Stack-slot permutation: every local. The window-size test also compares with reversed
-// operands (the original loads the parameter), which declaration order didn't flip.
 // FUNCTION: MECH2 0x004011d5
 HWND CreateGameWindow(HINSTANCE p_hInstance, MechS32 p_width, MechS32 p_height, BOOL p_isNetGame)
 {
@@ -189,7 +187,6 @@ MechS32 StartSim(HWND p_hWnd, LPSTR p_cmdLine, NetLaunchInfo* p_netLaunch, undef
 	return result;
 }
 
-// Stack-slot permutation: shellMain and result.
 // FUNCTION: MECH2 0x00401448
 MechS32 StartShell(HWND p_hWnd, LPSTR p_cmdLine, int p_cmdShow)
 {
@@ -262,8 +259,6 @@ void RunSetup(LPCSTR p_message)
 // The command line selects the mode: "net..." runs NetMech, an empty command line runs
 // the shell (which hands over to the simulator through mw2prm.cfg), and anything else
 // goes straight to the simulator.
-// Stack-slot permutation: every local. Shorter recompiled stack displacements also
-// shift branch targets and truncate the original's tail in reccmp.
 // FUNCTION: MECH2 0x0040161d
 int WINAPI WinMain(HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_cmdLine, int p_cmdShow)
 {

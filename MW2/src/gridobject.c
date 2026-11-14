@@ -78,7 +78,6 @@ static MechS32 g_gridSnapDistance;
 // model's span (with children) or a third of it, in steps of 0x4000, and it is snapped to the
 // nearest cell once the eyepoint strays past 9/16 of a cell (with children) or kept on the cell
 // under the eyepoint.
-// Stack-slot permutation; depth > span compares in the other operand order.
 // FUNCTION: MW2 0x1004b130
 // FUNCTION: MW2MATROX 0x100275e0
 // FUNCTION: MW23DFX 0x100113f0

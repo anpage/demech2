@@ -79,7 +79,6 @@ static MechS32 g_criticalHeatWarningTime;
 // Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
 // already reached and marking each one it reaches (turning off after the last); then the AI
 // steers, the throttle saved while AvoidObstacles has it.
-// Stack-slot permutation: index and first.
 // The Matrox edition copies m_maneuverParam and the steering's float throttle into each other as
 // they are (the dword, no conversion).
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
@@ -183,7 +182,6 @@ void PunchInAutoHeading(Mech* p_mech)
 
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
-// Stack-slot permutation of the locals.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10007d06
 // FUNCTION: MW2MATROX 0x1001059a
@@ -241,8 +239,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
-// The only diff is a stack-slot permutation of the locals. MW2MATROX: the cooling product
-// multiplies its operands in another order.
+// MW2MATROX: the cooling product multiplies its operands in another order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10007e86
 // FUNCTION: MW2MATROX 0x10010727
@@ -369,9 +366,6 @@ void CalculateHeat(Mech* p_mech)
 }
 
 // Destroys p_mech, on behalf of player p_killer (-2: its player left the game).
-// Stack-slot permutation: next and text. The original compares p_killer with g_localPlayerId and
-// indexes m_unk0x52 in the other operand order.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1000832b
 // FUNCTION: MW2MATROX 0x10010bd8
 // FUNCTION: MW23DFX 0x10016280
@@ -545,8 +539,6 @@ void KillMech(MechS32 p_killer, Mech* p_mech)
 }
 
 // Calls DestroyCriticalSlot once for each of section p_section's m_slotCount.
-// Stack-slot permutation of i, section and count; the loop test compares with i in eax in the
-// original (operand order).
 // FUNCTION: MW2 0x10008938
 // FUNCTION: MW2MATROX 0x100111e6
 // FUNCTION: MW23DFX 0x10016600
@@ -632,7 +624,6 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // 10000) explodes with its shots, damaging the section, and the equipment loses its function (the
 // jump jets, the heat sinks, the engine, the gyro...). The local player hears which, unless
 // p_recursing; 8000 and 9000 hit another, random slot instead.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2MATROX 0x100114bd
@@ -1008,9 +999,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // which may destroy the section or hit its critical slots. Section 3 stands for a random one of
 // 2 to 4. The local player takes none while invulnerable, and in a network game each machine
 // only damages its own mech.
-// The original ends in an explicit return (the jmp to the epilogue). The only diff is a stack-slot
-// permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
+// The original ends in an explicit return (the jmp to the epilogue).
 // FUNCTION: MW2 0x1000991b
 // FUNCTION: MW2MATROX 0x10012243
 // FUNCTION: MW23DFX 0x100171d0

@@ -9,7 +9,7 @@
 #include <windows.h>
 
 // Reads the DWORD value p_name into p_value (0 when the value is missing). Returns whether the
-// value was read. Stack-slot permutation: result, key, value and type.
+// value was read.
 // FUNCTION: MW2MATROX 0x100169e0
 // FUNCTION: MW23DFX 0x1003dcb0
 MechS32 ReadRegistryDword(LPCSTR p_name, DWORD* p_value)
@@ -41,7 +41,7 @@ MechS32 ReadRegistryDword(LPCSTR p_name, DWORD* p_value)
 }
 
 // Writes p_value to the DWORD value p_name, creating the key if needed. Returns whether it was
-// written. Stack-slot permutation: result and key.
+// written.
 // FUNCTION: MW2MATROX 0x10016a9d
 // FUNCTION: MW23DFX 0x1003dd50
 MechS32 WriteRegistryDword(LPCSTR p_name, DWORD* p_value)

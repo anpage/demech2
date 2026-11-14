@@ -14,7 +14,6 @@ DECOMP_SIZE_ASSERT(TokenStream, 0x14)
 
 // Reads up to 100 more tokens from the file. Returns c_tokenEndOfFile when the file is already
 // at its end.
-// Stack-slot permutation: token and count.
 // FUNCTION: MW2SHELL 0x10039280
 MechS32 ReadTokens(TokenStream* p_stream)
 {
@@ -85,7 +84,6 @@ void SkipBlanks(FILE* p_file)
 	}
 }
 
-// Stack-slot permutation: buffer, length, last, c and trimmed.
 // FUNCTION: MW2SHELL 0x1003949e
 MechS32 ReadFileToken(FILE* p_file, MechChar* p_token)
 {

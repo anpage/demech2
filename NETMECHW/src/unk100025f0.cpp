@@ -61,7 +61,6 @@ void FUN_100025f0(HWND p_dialog, MechS32 p_force)
 
 // The mech selection dialog (pane 7): the player picks a mech and a variant while the host
 // sets up the game, and chats.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000268a
 BOOL CALLBACK FUN_1000268a(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -273,7 +272,6 @@ BOOL CALLBACK FUN_1000268a(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 }
 
 // Takes the mech selected in the list box (control 0x3fe) of the dialog p_dialog, and shows it.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10002e0e
 void FUN_10002e0e(HWND p_dialog)
 {
@@ -300,8 +298,6 @@ void FUN_10002e0e(HWND p_dialog)
 // Takes the mech and variant selected in the dialog p_dialog's list boxes (controls 0x3fe and
 // 0x400) as the local player's mech file, shows its description and sends it to the others: a
 // standard variant by name, a variant of the player's own as a copy (CopyPlayerMech).
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of the first comparison (the original loads g_unk0x1001fe74).
 // FUNCTION: NETMECHW 0x10002ec3
 void FUN_10002ec3(HWND p_dialog)
 {
@@ -366,7 +362,6 @@ void FUN_10002ec3(HWND p_dialog)
 }
 
 // Fills the list box p_listBox with the mechs of g_unk0x1001c318 and selects g_unk0x10023388.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10003154
 void FUN_10003154(HWND p_listBox)
 {
@@ -386,7 +381,6 @@ void FUN_10003154(HWND p_listBox)
 // Copies the mech MEK\<p_mechFile>.MEK to the local player's MEK\<xxx><slot>PLR.MEK, deleting
 // the slot's earlier copies, unless it is the mech copied last; then renames p_mechFile to the
 // copy.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100031f8
 void CopyPlayerMech(MechChar* p_mechFile)
 {

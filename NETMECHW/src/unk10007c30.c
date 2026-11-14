@@ -54,9 +54,6 @@ MechS32 FUN_10007c30(MechTableEntry* p_table)
 // then each weapon with its location and ammunition. A player's copy (<xxx><nn>PLR) is read from
 // the MEK directory, any other mech from mw2.prj. Sets g_unk0x10023390 to the mech's mass.
 // p_textSize, the size of p_text, goes unused.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, the operand order of
-// the ammunition comparison (the original loads ammo[j].m_type) and of the slot index (it scales
-// section first).
 // FUNCTION: NETMECHW 0x10007c5a
 void FUN_10007c5a(MechChar* p_mechFile, MechChar* p_text, MechS32 p_textSize)
 {
@@ -219,7 +216,6 @@ void FUN_100080e1(HWND p_hWnd, MechChar* p_code)
 }
 
 // Loads the mech table p_name of mw2.prj into p_table; returns its entry count.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000834d
 MechS32 FUN_1000834d(MechChar* p_name, MechTableEntry* p_table)
 {
@@ -239,7 +235,6 @@ MechS32 FUN_1000834d(MechChar* p_name, MechTableEntry* p_table)
 
 // Packs the mech file p_data into p_packed, keeping at most 14 weapons and 25 ammunition bins in
 // the counts (but copying all of them).
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100083e3
 void FUN_100083e3(void* p_data, PackedMech* p_packed)
 {
@@ -294,7 +289,6 @@ void FUN_100083e3(void* p_data, PackedMech* p_packed)
 }
 
 // Unpacks p_packed into the mech file p_data; returns its size in *p_size.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100086b1
 void FUN_100086b1(PackedMech* p_packed, void* p_data, MechS32* p_size)
 {

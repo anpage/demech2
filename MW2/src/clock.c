@@ -140,7 +140,6 @@ MechS32 InitSinAtanTables(void)
 }
 
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16 (2.29).
-// Stack-slot permutation: i and cosine.
 // FUNCTION: MW2 0x1007c9e3
 MechS32 InitSlopeTables(void)
 {
@@ -186,8 +185,6 @@ MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 #endif
 
 // Sets p_matrix to the rotation that points along (p_x, p_y, p_z).
-// Operand order: the original loads the squares of p_x, p_z and p_y in that order; this
-// build loads p_z, p_y and p_x, and swaps the stack slots of pitch and yaw.
 // FUNCTION: MW2 0x1007cb3d
 void BuildMatrixFromDirection(Matrix* p_matrix, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {
@@ -227,7 +224,6 @@ void FirstClock(void)
 	g_realClock = 0;
 }
 
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1007ce2c
 // FUNCTION: MW2MATROX 0x1001e9bc
 // FUNCTION: MW23DFX 0x10007ff0

@@ -27,8 +27,7 @@
 // Parses the command line MECH2.EXE passes: switches start with / or -, anything else names the
 // mission (p_mission, "s.$" by default), which is shown with MonoPrintLine. /C sets p_flags[0];
 // /S and /X clear p_flags[1]. Returns FALSE without a command line (not launched by MECH2.EXE).
-// Stack-slot permutation of the locals.
-// MW2MATROX: /E deletes mw2debug.txt with remove; only a stack-slot permutation is left.
+// MW2MATROX: /E deletes mw2debug.txt with remove.
 // FUNCTION: MW2 0x1001ee80
 // FUNCTION: MW2MATROX 0x10021140
 // FUNCTION: MW23DFX 0x10038820

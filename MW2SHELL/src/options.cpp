@@ -265,7 +265,6 @@ TextGlyph* DrawVolumeSlider(ScreenField* p_option)
 
 // Drags a volume slider while the left button is held: the value follows the mouse, and a
 // change of 0xa00 or more plays the test sample at the new volume.
-// Not 100%: the stack slots of previous, value and volume are permuted.
 // FUNCTION: MW2SHELL 0x1004381b
 void DragVolumeSlider(ScreenField* p_option)
 {

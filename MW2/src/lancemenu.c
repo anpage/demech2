@@ -67,7 +67,6 @@ MechS32 PrepareCommandComputerPage(MenuDefinition* p_menu, MenuPage* p_page)
 
 // Unless the page's AI slot holds a player outside AI state 12, keeps only the page's last two
 // items.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100660c2
 // FUNCTION: MW2MATROX 0x1008e7b2
 // FUNCTION: MW23DFX 0x10064480
@@ -139,7 +138,6 @@ void SelectFormation(MechS32 p_formation, MechS32 p_value)
 }
 
 // Returns the AI state of the player in AI slot p_index, plus one (0: none).
-// Stack-slot permutation: player, ai, index and state.
 // FUNCTION: MW2 0x10066272
 // FUNCTION: MW2MATROX 0x1008e963
 // FUNCTION: MW23DFX 0x10064570
@@ -183,7 +181,6 @@ void SetControlSlot(MenuPage* p_page, MenuControl* p_control)
 }
 
 // Installs GetSlotGoalName as the suffix of the control's choices.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10066314
 // FUNCTION: MW2MATROX 0x1008ea05
 // FUNCTION: MW23DFX 0x100645b0
@@ -290,7 +287,6 @@ void OrderShutdown(MechS32 p_index, MechS32 p_value)
 }
 
 // Returns the name of the goal of the control's AI player: a nav, a player or a game thing.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100664cb
 // FUNCTION: MW2MATROX 0x1008ebbc
 // FUNCTION: MW23DFX 0x100646f0

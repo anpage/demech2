@@ -345,7 +345,6 @@ MechS32 DispDibSetPalette(MechS32 p_first, MechS32 p_count, PaletteColor* p_pale
 	return 0;
 }
 
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x1004eea7
 // FUNCTION: MW2MATROX 0x1008f58d
 // FUNCTION: MW23DFX 0x10001d50

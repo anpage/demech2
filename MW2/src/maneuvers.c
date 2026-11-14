@@ -148,8 +148,6 @@ ManeuverTable g_maneuverTables[9];
 // Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
 // is done, when another is asked for (m_nextManeuver: out of ammunition, the mech jumps in or
 // runs at the target, or flees) or when its time is up; with no maneuver, chooses and starts one.
-// Stack-slot permutation: done, mech and leader.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10013430
 // FUNCTION: MW2MATROX 0x10019000
 // FUNCTION: MW23DFX 0x1001ea40
@@ -425,7 +423,6 @@ void InitializeManeuvers(Player* p_player)
 // Picks p_player's next maneuver: one an order asked for, an AI player's escape, attack or chase
 // when it applies, or else one its maneuver table lets follow the previous one (any one at
 // first), redrawn until its conditions hold.
-// Stack-slot permutation: mech, table, choice and index.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10013d81
 // FUNCTION: MW2MATROX 0x10019969
@@ -525,7 +522,6 @@ MechS32 ChooseManeuver(Player* p_player)
 }
 
 // Returns the index of maneuver p_id in p_table, or -1.
-// The original loads the index before m_entries (index order).
 // FUNCTION: MW2 0x100140e4
 // FUNCTION: MW2MATROX 0x10019cd8
 // FUNCTION: MW23DFX 0x1001f260
@@ -688,7 +684,6 @@ void EndManeuver(Player* p_player)
 }
 
 // Places a nav point for p_player where GetOffsetPoint puts it, and makes it the player's target.
-// The only diff is a stack-slot permutation of x, y, z and nav.
 // FUNCTION: MW2 0x10014723
 // FUNCTION: MW2MATROX 0x1001a31b
 // FUNCTION: MW23DFX 0x1001f630
@@ -715,8 +710,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // Finds the point p_distance units out in direction p_direction (of g_probeDirections's 16) from
 // target p_target, a player (0x200) or a game thing (0x400), in world coordinates; for a player
 // *p_y takes its heading. A game thing without an object is offset from its position.
-// The empty else arms give the original's jmp to the next statement after each offset. The only
-// other diff is a stack-slot permutation of the locals.
+// The empty else arms give the original's jmp to the next statement after each offset.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100147d0
 // FUNCTION: MW2MATROX 0x1001a3c8
@@ -924,8 +918,6 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 
 // Closes on p_target. Whether it is within 8000, or more when closing fast (GetClosingRate, per
 // 500000).
-// The only diff is a stack-slot permutation of the locals.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10014c3d
 // FUNCTION: MW2MATROX 0x1001a978
 // FUNCTION: MW23DFX 0x1001faf0
@@ -999,7 +991,6 @@ MechS32 ManeuverKama(Player* p_player, MechS16 p_target)
 }
 
 // Backs p_player away from p_target at full throttle, facing it. Whether its mech collides.
-// The only diff is a stack-slot permutation of heading and result.
 // FUNCTION: MW2 0x10014df1
 // FUNCTION: MW2MATROX 0x1001ab25
 // FUNCTION: MW23DFX 0x1001fc00
@@ -1041,7 +1032,6 @@ MechS32 ManeuverWchick(Player* p_player, MechS16 p_target)
 
 // Turns p_player toward p_target and runs an attack in three steps (m_maneuverParam): steer at it
 // while it can fire and has a line to it, then for a second, then BrakeFall. Whether that ended.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10014f23
 // FUNCTION: MW2MATROX 0x1001ac60
 // FUNCTION: MW23DFX 0x1001fcc0
@@ -1127,7 +1117,6 @@ MechS32 ManeuverSprint(Player* p_player, MechS16 p_target)
 // forward or backward by how fast it closes; closer in, it cuts them, counting the ticks it was
 // still jumping (m_maneuverParam; it stops at 2). Whether it is done: on the ground, colliding, or unable to
 // jump on.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015172
 // FUNCTION: MW2MATROX 0x1001aeb7
 // FUNCTION: MW23DFX 0x1001fe30
@@ -1229,7 +1218,6 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // Turns p_player toward its goal and closes on its target, giving up the goal (ReleaseNavPoints,
 // PlacePatrolNavs) now and then while far from the target, and handing the target to AdvanceNavTarget
 // within 3000.
-// The only diff is a stack-slot permutation of the locals.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100153e6
 // FUNCTION: MW2MATROX 0x1001b155
@@ -1268,7 +1256,6 @@ MechS32 ManeuverCircle(Player* p_player, MechS16 p_target)
 
 // Whether p_player, targeting a player it has no clear line to, is more than 800 below it, with
 // jump jets (its jump fuel not negative).
-// The only diff is a stack-slot permutation of index and below.
 // FUNCTION: MW2 0x10015520
 // FUNCTION: MW2MATROX 0x1001b292
 // FUNCTION: MW23DFX 0x10020090
@@ -1301,7 +1288,6 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // Near the ground, fires the player's jump jets while its mech falls faster than 85% of the fall
 // damage speed and clears it once it is slower than 75%, and logs a fall faster than that speed.
 // Returns whether the player is on the ground.
-// Stack-slot permutation: line, value and mech.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100155e1
 // FUNCTION: MW2MATROX 0x1001b359
@@ -1355,7 +1341,6 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // the avoiding side m_avoidSide, as long as the mech's speed (m_probeScale), and turns away from what
 // they hit, slowing down if the first one hits. Returns whether it steered. Between checks (every
 // 10 ticks for the local player, 90 or 181 for others) it returns whether it is avoiding a shape.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015709
 // FUNCTION: MW2MATROX 0x1001b48d
 // FUNCTION: MW23DFX 0x100201c0
@@ -1595,8 +1580,6 @@ MechS32 IsStandableShape(Shape* p_shape)
 
 // Builds a probe ray for p_player in p_ray: p_length along direction p_step (mirrored for a
 // negative p_side) in the mech's frame, from its position or, with p_fromEdge, from its side.
-// Stack-slot permutation of the locals.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10015b9f
 // FUNCTION: MW2MATROX 0x1001b985
 // FUNCTION: MW23DFX 0x100204e0
@@ -1701,7 +1684,6 @@ void BuildProbeRay(
 }
 
 // Which side of p_player the point (p_x, p_y, p_z) is, seen from p_shape: 1 or -1.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015d2a
 // FUNCTION: MW2MATROX 0x1001bb6c
 // FUNCTION: MW23DFX 0x10020670
@@ -1792,7 +1774,6 @@ MechScalar ClampMagnitude(MechScalar p_value, MechScalar p_limit)
 }
 
 // Whether the segment from p_player at height p_y to its target is clear, or hits the target.
-// The only diff is a stack-slot permutation of ray, hit, target and flags.
 // FUNCTION: MW2 0x10015e74
 // FUNCTION: MW2MATROX 0x1001bcd8
 // FUNCTION: MW23DFX 0x100207b0
@@ -1832,7 +1813,6 @@ MechS32 HasLineToTarget(Player* p_player, MechScalar p_y)
 }
 
 // Whether p_mech has weapons but none left that can fire: every one is out of ammunition.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10015fa8
 // FUNCTION: MW2MATROX 0x1001be0c
 // FUNCTION: MW23DFX 0x10020880
@@ -1932,7 +1912,6 @@ MechS32 CanJump(Player* p_player, MechS32 p_limit)
 }
 
 // The shape of the player or game thing an AI target id names, or NULL.
-// The only diff is a stack-slot permutation of index, id and obj.
 // FUNCTION: MW2 0x1001627f
 // FUNCTION: MW2MATROX 0x1001c11d
 // FUNCTION: MW23DFX 0x10020a70
@@ -1962,7 +1941,6 @@ Shape* GetTargetShape(MechS16 p_target)
 // sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
 // (state 4).
 // Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
-// MW2MATROX: pitch < range and bearing < maxAngle compare in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2MATROX 0x1001c1ca
@@ -2075,7 +2053,6 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 // Picks p_player's place around its goal player (eight places, 45 degrees apart): the one it is
 // nearest, moved off the front and back, or else the first free one on its side. Returns twice
 // the place.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100166b1
 // FUNCTION: MW2MATROX 0x1001c584
 // FUNCTION: MW23DFX 0x10020d00

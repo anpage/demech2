@@ -152,7 +152,6 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 
 // Returns the state bits (0xe) of an objective target: a player's or a game thing's flags. A target
 // is an AI target id stored as two bytes, the index and the type.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ab4a
 // FUNCTION: MW2MATROX 0x1001eee7
 // FUNCTION: MW23DFX 0x10009a50
@@ -180,7 +179,6 @@ MechS32 GetObjectiveTargetState(MechU8* p_target)
 }
 
 // Returns whether team p_team has reached an objective target.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001ac06
 // FUNCTION: MW2MATROX 0x1001efa3
 // FUNCTION: MW23DFX 0x10009ab0
@@ -222,8 +220,7 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 
 // Returns whether a live member of team p_team is near an objective target (within 20000, or a
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
-// The only diff is a stack-slot permutation of the locals. The Matrox edition's rebuild sums the
-// squared distances' terms in another order (entropy).
+// The Matrox edition's rebuild sums the squared distances' terms in another order (entropy).
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
@@ -364,8 +361,6 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 }
 
 // Announces the local team's objective p_objective as successful (p_state 5) or failed (6), once.
-// Stack-slot permutation; the original computes the objective's index before the star's (index order)
-// and compares p_star with g_localStar in the other operand order.
 // FUNCTION: MW2 0x1001b0cb
 // FUNCTION: MW2MATROX 0x1001f428
 // FUNCTION: MW23DFX 0x10009d60
@@ -406,8 +401,6 @@ MechS32 AnnounceObjective(MechS32 p_star, MechS32 p_objective, MechS32 p_state)
 
 // In a network game with a single listed objective, a secondary one, picks the player with the
 // best kill score (kills of others minus kills of itself) as the winner, -2 on a tie.
-// Stack-slot permutation; score > best compares in the other operand order.
-// MW2MATROX: score > best compares in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001b21a
@@ -476,7 +469,6 @@ void ChooseNetworkWinner(void)
 
 // Announces the local team's mission result: successful (2), failed (3) or out of time (4). In a
 // network game, only the first result; a successful one names the local player the winner.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1001b3f4
 // FUNCTION: MW2MATROX 0x1001f751
 // FUNCTION: MW23DFX 0x10009f50
@@ -524,7 +516,6 @@ MechS32 AnnounceMissionResult(MechS32 p_star, MechS32 p_status)
 // Returns whether condition p_condition of star p_star's objective p_objective holds.
 // Stack-slot permutation of objective, other, star, state and kind; the original scales star
 // before other in the objective's address (index order).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001b580
 // FUNCTION: MW2MATROX 0x1001f8dd
 // FUNCTION: MW23DFX 0x1000a080
@@ -549,7 +540,6 @@ MechS32 TestObjectiveCondition(MechS32 p_star, MechS32 p_objective, MechS32 p_co
 // every one. A finished objective's don't; a type 0x10 objective's always do.
 // Stack-slot permutation of all, objective, result, i and holds; the original computes the
 // objective's index before the star's (index order).
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001b66c
 // FUNCTION: MW2MATROX 0x1001f9c9
 // FUNCTION: MW23DFX 0x1000a110
@@ -624,9 +614,8 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // done (by its type: destroyed, reached, ...), whether its time is up, and what it does when done
 // (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
 // 6 failed, 8 failed for another star, 3 still going.
-// The only diff is a stack-slot permutation of the locals. MW2MATROX: the objectives the
-// types 0x10000 and up name compute their star's index before the objective's (index order), and
-// the jump table's entries differ by address only.
+// MW2MATROX: the objectives the types 0x10000 and up name compute their star's index before the
+// objective's (index order), and the jump table's entries differ by address only.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2MATROX 0x1001faf7
@@ -988,8 +977,6 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // Updates every star's mission each frame: its objectives (UpdateObjective), then, while it is in
 // progress, whether it succeeded (every listed objective done), failed or ran out of time; and
 // its current objective, the first whose conditions hold (ResetStarOrders hears of changes).
-// MW2MATROX: the loop tests compare in the other operand order, and the m_objectives index scales
-// its terms in the other order (index order).
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001c69e
 // FUNCTION: MW2MATROX 0x10020a02
@@ -1085,7 +1072,6 @@ void EndTheMission1(void)
 
 // Writes the local team's mission result to mw2msn.cfg for the shell: the mission's times and
 // status and the objectives listed on the objectives panel. Returns whether it could.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1001c9f7
 // FUNCTION: MW2MATROX 0x10020d5b
 // FUNCTION: MW23DFX 0x1000aba0
@@ -1133,7 +1119,6 @@ MechS32 EndTheMission2(void)
 // Restarts star p_star's mission (a player's own, in a network game): every objective goes back
 // to state 3 with no times. A completed objective of type 0x40000 toggles whether the objective
 // it names is listed on the objectives panel (not in the Matrox edition).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001cc5c
 // FUNCTION: MW2MATROX 0x10020fde
 // FUNCTION: MW23DFX 0x1000acd0
@@ -1186,8 +1171,6 @@ MechS32 FUN_1001cde1(undefined4 p_unk0x00)
 
 // The target of team p_team's return objective (type 0x20), or else its first objective's
 // first target: the AI's "home" nav.
-// Stack-slot permutation: mission and i.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001cdf6
 // FUNCTION: MW2MATROX 0x100210ab
 // FUNCTION: MW23DFX 0x1000ad60

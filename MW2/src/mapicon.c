@@ -19,7 +19,6 @@
 
 // Draws icon p_icon at the world position p_pos, if the map view shows it. The Matrox edition
 // takes the position by address, and adds p_icon and the HUD's art resolution in the other operand order.
-// MW2MATROX: stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003e40a
 // FUNCTION: MW2MATROX 0x1007426c
 // FUNCTION: MW23DFX 0x100038d0

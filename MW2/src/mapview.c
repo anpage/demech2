@@ -161,8 +161,7 @@ void EndMapView(void)
 
 // Culls a shape against the map view's frustum: 1 hidden, 4 in front of the near plane, 5 past
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
-// Stack-slot permutation of the locals. In the Matrox edition, the dot products' sums take their
-// operands in another order.
+// In the Matrox edition, the dot products' sums take their operands in another order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10042206
 // FUNCTION: MW2MATROX 0x1001e414
@@ -244,9 +243,6 @@ MechS32 CullMapViewShape(Shape* p_shape)
 
 // Projects a vertex onto the map view (ProjectCoordinate's scaling) once per frame, with its clip
 // outcodes, and adds it to the polygon being built: ProjectVertex's map-view counterpart.
-// Stack-slot permutation: outcode and y. In the Matrox edition, the |= and &= of the outcodes load
-// their operands in the other order.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100423b3
 // FUNCTION: MW2MATROX 0x1001e5c0
 // FUNCTION: MW23DFX 0x100013a0
@@ -304,7 +300,6 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 
 // Projects p_point onto the map view in place. Returns whether it is in front of the eye and
 // on the screen. The Matrox edition projects the position p_position to p_screen instead.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743

@@ -454,7 +454,6 @@ MechChar g_cpcEditText[0x100];
 // Edits p_text with a cursor ('_') drawn after it, like EditTextField but keeping the screen's
 // video running. Return or a click store the text and return 1; Escape stores it and returns
 // 0. When the window closes it gives up without a return value.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1003ea0f
 MechS32 CpcEditTextField(
 	Font* p_font,
@@ -599,7 +598,6 @@ TextGlyph* FUN_1003eef3(ScreenField* p_tab)
 }
 
 // The device and axis or button bound to a control.
-// Stack-slot permutation: device, label, colors and control.
 // FUNCTION: MW2SHELL 0x1003ef32
 TextGlyph* CpcDrawBinding(ScreenField* p_tab)
 {
@@ -654,7 +652,6 @@ TextGlyph* CpcDrawBinding(ScreenField* p_tab)
 }
 
 // The button of a control bound to an axis with a button, placed after the previous field.
-// Stack-slot permutation: device, glyph, colors and button.
 // FUNCTION: MW2SHELL 0x1003f136
 TextGlyph* CpcDrawAxisButton(ScreenField* p_tab)
 {
@@ -730,7 +727,6 @@ void CpcNextConfig(ScreenField* p_tab)
 }
 
 // An axis's direction, placed after the previous field.
-// Stack-slot permutation: inverted and glyph.
 // FUNCTION: MW2SHELL 0x1003f39e
 TextGlyph* CpcDrawAxisDirection(ScreenField* p_tab)
 {
@@ -820,7 +816,6 @@ void CpcScrollToSelection()
 
 // Advance a binding to the device's next named axis or button (p_mode: the axis's button);
 // past the last one, the binding loses its device.
-// Stack-slot permutation: names, index and count.
 // FUNCTION: MW2SHELL 0x1003f677
 void CpcAdvanceBinding(CpcBinding* p_binding, MechS32 p_mode)
 {
@@ -1014,8 +1009,6 @@ void CpcClickAxisButton(ScreenField* p_tab)
 }
 
 // An axis of the current device.
-// Operand order: the original loads the index p_tab->m_data before the name tables; it follows
-// the unit's symbol table.
 // FUNCTION: MW2SHELL 0x1003fe7b
 TextGlyph* CpcDrawDeviceAxis(ScreenField* p_tab)
 {
@@ -1112,7 +1105,6 @@ void CpcBindAxis(ScreenField* p_tab)
 }
 
 // The button list's scroll arrows: up for a negative step, down otherwise.
-// Stack-slot permutation: colors and count.
 // FUNCTION: MW2SHELL 0x100401b8
 TextGlyph* CpcDrawScrollArrow(ScreenField* p_tab)
 {
@@ -1143,7 +1135,6 @@ TextGlyph* CpcDrawScrollArrow(ScreenField* p_tab)
 }
 
 // Scroll the button list while a mouse button is held; the right button scrolls twice as fast.
-// Stack-slot permutation: count and step.
 // FUNCTION: MW2SHELL 0x10040272
 void CpcScrollButtons(ScreenField* p_tab)
 {
@@ -1234,7 +1225,6 @@ void CpcBindButton(ScreenField* p_tab)
 }
 
 // The current device's name: "Joystick N" for a joystick.
-// Stack-slot permutation: name and number.
 // FUNCTION: MW2SHELL 0x1004059e
 TextGlyph* CpcDrawDeviceName(ScreenField* p_tab)
 {
@@ -1423,8 +1413,6 @@ TextGlyph* CpcDrawNoJoysticks(ScreenField* p_tab)
 }
 
 // Enumerate the devices again, and explain when there is no joystick.
-// Operand order: the original compares count <= g_curInputDeviceIdx with count loaded first; it
-// follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x10040b8e
 void CpcCheckJoysticks(ScreenField*)
 {
@@ -1475,7 +1463,6 @@ void CpcShowBindingsPage(ScreenField*)
 }
 
 // Open the Windows joystick control panel.
-// Stack-slot permutation: created and processInfo.
 // FUNCTION: MW2SHELL 0x10040cc7
 void CpcOpenJoystickControlPanel(ScreenField*)
 {
@@ -1526,7 +1513,6 @@ void CpcWriteModifiers(FILE* p_file, CpcBinding* p_binding)
 }
 
 // Write an axis binding to input.map.
-// Stack-slot permutation: device and axis.
 // FUNCTION: MW2SHELL 0x10040e5c
 void CpcWriteAxisBinding(FILE* p_file, MechChar* p_name, CpcBinding* p_binding)
 {
@@ -1577,7 +1563,6 @@ void CpcWriteButtonBinding(FILE* p_file, MechChar* p_name, CpcBinding* p_binding
 
 // Write a binding to an axis with a button to input.map, as two buttons: the control's _minus
 // and _plus.
-// Stack-slot permutation: saved, second, first and delta.
 // FUNCTION: MW2SHELL 0x10040fe2
 void CpcWriteAxisButtonBinding(FILE* p_file, MechChar* p_name, CpcBinding* p_binding)
 {
@@ -1661,7 +1646,6 @@ void CpcWriteBinding(FILE* p_file, MechChar* p_name, CpcBinding* p_binding)
 // Works out the modifier flags each binding must exclude (the modifiers of the other bindings of
 // the same axis or button), writes the bindings to temp.map, and returns whether the sim can
 // take their analog and discrete counts.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x1004154b
 MechS32 CpcCheckControlCount()
 {
@@ -1827,7 +1811,6 @@ void CpcValidateActiveDevices()
 // Maps the device slots of loaded bindings onto the devices present: by name, then for a
 // missing joystick onto an unused one (explaining either way), and drops the bindings whose
 // device, axis or button is gone. Then records the present devices in the slots.
-// Not 100%: the stack slots of the locals are permuted.
 // FUNCTION: MW2SHELL 0x10041c7e
 void CpcRemapDeviceSlots(CpcBinding* p_bindings)
 {
@@ -2007,7 +1990,6 @@ void CpcResetBindingsToDevice(ScreenField* p_tab)
 }
 
 // Load the current device's .cpc file and merge its bindings into the free ones.
-// Stack-slot permutation: path, other, config, index and binding.
 // FUNCTION: MW2SHELL 0x10042314
 void CpcLoadDeviceFile(ScreenField* p_tab)
 {
@@ -2067,7 +2049,6 @@ void CpcLoadDeviceFile(ScreenField* p_tab)
 }
 
 // Load giddi\configNN.cpc: slot 0 without a field, the field's slot, or the current slot.
-// Stack-slot permutation: path and slot.
 // FUNCTION: MW2SHELL 0x100425d3
 void CpcLoadConfigSlot(ScreenField* p_tab)
 {
@@ -2185,7 +2166,6 @@ void CpcAcceptAndCommit(ScreenField* p_tab)
 }
 
 // Save the current device's bindings to its .cpc file.
-// Stack-slot permutation: path, config, index and binding.
 // FUNCTION: MW2SHELL 0x100429cf
 void CpcSaveDeviceFile(ScreenField* p_tab)
 {

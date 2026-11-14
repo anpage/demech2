@@ -20,7 +20,6 @@
 
 // Fills the list box p_listBox with the names of the missions p_name lists, each with its line
 // of the list as item data.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000a650
 void FUN_1000a650(HWND p_listBox, MechChar* p_name)
 {
@@ -67,7 +66,6 @@ void FUN_1000a73b(HWND p_edit, MechChar* p_mission)
 }
 
 // Returns a copy of the NTXT resource p_name, up to its "&X"; the caller frees it.
-// The stack slots of the locals differ: VC++ 2.2 permutes them.
 // FUNCTION: NETMECHW 0x1000a7b3
 MechChar* LoadMissionText(MechChar* p_name)
 {
@@ -95,7 +93,6 @@ MechChar* LoadMissionText(MechChar* p_name)
 }
 
 // Replaces the inline codes of the mission text p_text, in place.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000a893
 void FormatMissionText(MechChar* p_text)
 {

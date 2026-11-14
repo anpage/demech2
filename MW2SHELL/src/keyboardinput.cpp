@@ -160,8 +160,6 @@ MechS32 KeyboardInput::EditText(MechChar* p_text, MechU8 p_upperCase)
 
 // Edits p_text with a cursor ('_') drawn after it. Return, a click or the window closing store
 // the text and return 1; Escape stores it and returns 0.
-// Stack-slot permutation: key and glyph. The p_maxLength == length comparison also loads its
-// operands in the opposite order, and swapping them in the source doesn't change the output.
 // FUNCTION: MW2SHELL 0x10044451
 MechS32 EditTextField(
 	Font* p_font,

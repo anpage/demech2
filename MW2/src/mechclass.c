@@ -1415,7 +1415,6 @@ void LateUpdateMech(Mech* p_mech)
 // other system keys; a destroyed one (4) ends the mission once; an ejecting one (5) runs the
 // ejection camera and then ends it. Except while destroyed or ejecting, a power request shuts the
 // mech down, or powers up a shut-down mech that isn't overheating.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10019368
 // FUNCTION: MW2MATROX 0x1000fb2d
 // FUNCTION: MW23DFX 0x1001adf0
@@ -1565,7 +1564,6 @@ void ShutdownMech(Mech* p_mech)
 }
 
 // Allocates p_player's mech and sets it up.
-// Stack-slot permutation of buffer, i, size and mech.
 // FUNCTION: MW2 0x100197ca
 // FUNCTION: MW2MATROX 0x1000ff8c
 // FUNCTION: MW23DFX 0x1001b120

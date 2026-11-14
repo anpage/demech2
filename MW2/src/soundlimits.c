@@ -42,7 +42,6 @@ SoundTableEntry g_soundTable[0x8c] = {
 };
 
 // Fills g_soundInfo from the sound table.
-// Stack-slot permutation: i and entry.
 // FUNCTION: MW2 0x10013370
 // FUNCTION: MW2MATROX 0x1000be30
 // FUNCTION: MW23DFX 0x10030590

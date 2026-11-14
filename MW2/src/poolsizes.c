@@ -126,7 +126,6 @@ MechU32 GetStaticPoolSize(MechS32 p_index)
 
 // Reads a mission's static memory table (seven tag and size pairs), or returns NULL. A mission
 // named by a number is looked up by that resource id.
-// Stack-slot permutation: result, key, keyData and buffer.
 // FUNCTION: MW2 0x1005640e
 // FUNCTION: MW2MATROX 0x100856ce
 // FUNCTION: MW23DFX 0x10041040

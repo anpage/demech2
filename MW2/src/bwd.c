@@ -42,9 +42,6 @@ MechChar g_unk0x10109c40[1];
 // Opens the BWD stream p_key names into p_stream: from a file when the key has no resource id
 // (a name without an extension gets ".BWD"), or always with g_streamsFromFiles, and otherwise, or
 // when there is no such file, from the resource file. Returns p_stream, or NULL.
-// Stack-slot permutation: line, result, id, dot, file, size and data.
-// MW2MATROX: the comparison of the node's type with g_bwdTypeCodes has its operands the other way
-// round.
 // FUNCTION: MW2 0x1003fb00
 // FUNCTION: MW2MATROX 0x10029ef0
 // FUNCTION: MW23DFX 0x10040c60
@@ -132,8 +129,6 @@ BwdStream* OpenBwdStream(BwdStreamKey* p_key, BwdStream* p_stream)
 
 // Steps p_stream to its next node and returns it, or NULL at the end of the stream or on a node
 // of a bad size.
-// Stack-slot permutation: next and result. MW2MATROX: the comparison next->m_size <=
-// p_stream->m_maxNodeSize has its operands the other way round.
 // FUNCTION: MW2 0x1003fdfb
 // FUNCTION: MW2MATROX 0x1002a1eb
 // FUNCTION: MW23DFX 0x10040eb0
@@ -222,7 +217,6 @@ void LogDebugLine(MechChar* p_text)
 }
 
 // Logs a keyword's name with LogDebugLine.
-// Stack-slot permutation: line and name.
 // FUNCTION: MW2 0x1003ffcf
 // FUNCTION: MW2MATROX 0x1002a3bf
 // FUNCTION: MW23DFX 0x10040fe0

@@ -120,7 +120,6 @@ void FUN_1000b6a6(DPID p_from, void* p_data)
 }
 
 // New settings from the host ("ST"), or from the local host itself (FUN_1000bd99).
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000b6cb
 void FUN_1000b6cb(void* p_settings)
 {
@@ -224,7 +223,6 @@ void FUN_1000b6cb(void* p_settings)
 
 // A player asks for the local player's mech ("MQ"): sends it back to them as "MI", if it is a
 // player mech (MEK\<xxx><slot>PLR.MEK).
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000ba4d
 void FUN_1000ba4d(DPID p_to)
 {
@@ -265,7 +263,6 @@ void FUN_1000ba4d(DPID p_to)
 
 // A player's mech ("MI", the answer to FUN_1000c142's "MQ"): writes it to the player's mech copy,
 // MEK\<xxx><slot>PLR.MEK, replacing their earlier copies.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000bbb0
 void FUN_1000bbb0(DPID p_from, MechChar* p_data)
 {
@@ -405,7 +402,6 @@ void FUN_1000c072()
 }
 
 // Sends a settings change to the host, or applies it directly on the host.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000c08c
 void FUN_1000c08c(MechU32 p_type, void* p_data, MechU32 p_size, MechU8 p_flag)
 {
@@ -433,7 +429,6 @@ void FUN_1000c08c(MechU32 p_type, void* p_data, MechU32 p_size, MechU8 p_flag)
 
 // Asks the player in slot p_index for their mech ("MQ") if the copy named p_name isn't the one
 // the lobby has; returns whether it asked.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000c142
 MechS32 FUN_1000c142(MechS32 p_index, MechChar* p_name)
 {

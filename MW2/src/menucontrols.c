@@ -204,7 +204,6 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 // A list of choices shown with a suffix from MenuChoices::m_suffix; it changes only through its
 // callbacks.
-// Stack-slot permutation; m_texts[value] loads the array before the index (index order).
 // The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10072dab
 // FUNCTION: MW2MATROX 0x1007e58b
@@ -485,8 +484,6 @@ void RunMenuChoice(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 
 // A text box (MenuTextBox) in the menu's font; its rectangle is placed in the menu's target the
 // first time. Reports 0 through m_preview unless the menu is being accepted or cancelled.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100734ad
 // FUNCTION: MW2MATROX 0x1007eca5
 // FUNCTION: MW23DFX 0x10064fa0

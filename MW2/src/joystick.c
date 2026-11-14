@@ -185,8 +185,6 @@ MechS32 GetJoystickDeviceCount(void)
 // Fills p_info for joystick p_index: its OEM name from the registry (or "Joystick n"), its short
 // name, its driver data and the names of its axes (a tracker's third axis is head roll) and
 // buttons, the POV directions after the buttons. Returns 1 on failure.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10049e86
 // FUNCTION: MW2MATROX 0x10025f56
 // FUNCTION: MW23DFX 0x1003a690
@@ -308,7 +306,6 @@ MechS32 FillJoystickDeviceInfo(MechS32 p_index, InputDeviceInfo* p_info)
 // an eighth for the rudder) and scale to +-0x10000, and the buttons the POV directions set: the
 // four after the device's own. The Matrox edition reads the extended position only, without
 // setting its size.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004a3be
 // FUNCTION: MW2MATROX 0x10026380
 // FUNCTION: MW23DFX 0x1003a9c0
@@ -411,7 +408,6 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 }
 
 // Frees the names and the driver data FillJoystickDeviceInfo and JoystickOpenDevice allocated.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1004a947
 // FUNCTION: MW2MATROX 0x1002699d
 // FUNCTION: MW23DFX 0x1003adc0
@@ -465,8 +461,7 @@ MechS32 JoystickCenterAxis(void)
 // Reads the joystick into the six axes (Y and X first, then Z, R, U and V as far as the device has
 // them) and the two button words, the POV hat setting the buttons its directions map to.
 // Returns 1 without somewhere to put them, else 0.
-// The Matrox edition's differs from the original only in its stack slots (i and info). The 3Dfx
-// edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
+// The 3Dfx edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
 // FUNCTION: MW2 0x1004aa6b
 // FUNCTION: MW2MATROX 0x10026b7e
 // FUNCTION: MW23DFX 0x1003ae80
@@ -720,7 +715,6 @@ BOOL ReadJoystickOemName(MechS32 p_index, MechChar* p_driverKey, MechChar* p_nam
 
 // Picks the name INPUT.MAP knows the joystick by: from its display name, or from the axes, hat
 // and buttons it reports.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004af8c
 // FUNCTION: MW2MATROX 0x10027106
 // FUNCTION: MW23DFX 0x1003b210

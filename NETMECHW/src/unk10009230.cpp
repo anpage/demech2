@@ -59,7 +59,6 @@ HWND g_unk0x1001efc8;
 HWND g_unk0x1001efcc;
 
 // Sets up the options pane p_dialog: fills the mission lists and shows the game options.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10009230
 void FUN_10009230(HWND p_dialog)
 {
@@ -183,8 +182,6 @@ MechS32 FUN_10009838(HWND p_dialog)
 
 // The host's options dialog (pane 2): the mission lists, the options, and the chat. "Start"
 // (0x43a) takes the options and moves on to the player-slot pane of the game's kind.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes (which moves the
-// targets of the WM_HOTKEY jump table).
 // FUNCTION: NETMECHW 0x100098a2
 BOOL CALLBACK FUN_100098a2(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {

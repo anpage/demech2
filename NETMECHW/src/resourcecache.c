@@ -62,8 +62,6 @@ void UnlockCacheEntry(ResourceCacheEntry* p_entry)
 	}
 }
 
-// Operand order: the original compares p_entry against g_purgeListHead and g_purgeListTail with
-// the globals loaded first; it follows the unit's symbol table.
 // FUNCTION: NETMECHW 0x10012af3
 void LockCacheEntry(ResourceCacheEntry* p_entry)
 {
@@ -94,7 +92,6 @@ void AllocateCacheTable(void)
 	g_cacheTable = (ResourceCacheEntry**) calloc(0x3f1, 4);
 }
 
-// Stack-slot permutation (VC++ 2.2): i and entry.
 // FUNCTION: NETMECHW 0x10012bb9
 void RebuildPurgeList(void)
 {
@@ -113,7 +110,6 @@ void RebuildPurgeList(void)
 	}
 }
 
-// Stack-slot permutation (VC++ 2.2): i, entry and next.
 // FUNCTION: NETMECHW 0x10012c4c
 void ShutdownResourceCache(void)
 {
@@ -152,7 +148,6 @@ void FUN_10013935(void)
 {
 }
 
-// Stack-slot permutation (VC++ 2.2): bucket and entry.
 // FUNCTION: NETMECHW 0x10012d30
 ResourceCacheEntry* FindCacheEntry(MechS32 p_id, char* p_type)
 {
@@ -173,7 +168,6 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, char* p_type)
 	return entry;
 }
 
-// Stack-slot permutation (VC++ 2.2): bucket, entry and type.
 // FUNCTION: NETMECHW 0x10012dd7
 void FreeCacheEntry(ResourceCacheEntry* p_entry)
 {
@@ -213,7 +207,6 @@ void FreeCacheEntry(ResourceCacheEntry* p_entry)
 }
 
 // Writes the cache to dbugcch<n>.log: every entry by bucket, then the purge list.
-// Stack-slot permutation (VC++ 2.2): entry and file.
 // FUNCTION: NETMECHW 0x10012f01
 void DumpResourceCache(void)
 {
@@ -263,9 +256,6 @@ void UnlockCachedResource(MechS32 p_id, char* p_type)
 // Returns the data of p_type item p_id of p_handle, loading it into the cache when needed and
 // purging the least recently used entries to make room. p_unk0x0c is ignored (the name tables
 // pass 1), so nothing gives it a name.
-// Stack-slot permutation (VC++ 2.2): entry, bucket, size, log and file. Operand order: the
-// original adds the type bytes in source order (p_type[2] first); VC++ 2.2 loads them from
-// p_type[0] up, where the shell's copy keeps the source order under VC++ 4.1.
 // FUNCTION: NETMECHW 0x100130a5
 void* LoadCachedResource(MechS32 p_handle, MechS32 p_id, char* p_type, MechS32 p_unk0x0c)
 {

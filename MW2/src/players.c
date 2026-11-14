@@ -57,8 +57,6 @@ Player* g_players[0x3c];
 // GLOBAL: MW23DFX 0x101e0280
 GameThing g_gameThings[254];
 
-// Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
-// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1006cf80
 // FUNCTION: MW2MATROX 0x10054e10
 // FUNCTION: MW23DFX 0x100187c0
@@ -93,8 +91,6 @@ void UpdateAllPlayers(void)
 	}
 }
 
-// Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
-// MW2MATROX: the loop test compares in the other operand order.
 // FUNCTION: MW2 0x1006d068
 // FUNCTION: MW2MATROX 0x10054ef7
 // FUNCTION: MW23DFX 0x10018840
@@ -145,9 +141,6 @@ void DrawLocalPlayer(void)
 	}
 }
 
-// Stack slots: shutdown and i are swapped.
-// MW2MATROX: the loop test (i < g_playerCount) compares in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d18d
 // FUNCTION: MW2MATROX 0x1005501b
 // FUNCTION: MW23DFX 0x100188e0
@@ -194,8 +187,6 @@ void ZeroGamethings(void)
 
 // Creates player p_player: allocates it, sets it up, gives it its steering (the input sinks for
 // the local player, the room after it otherwise), and passes it to p_fn if given.
-// The original loads g_localPlayerId into eax for the comparison with p_player (operand order).
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d282
 // FUNCTION: MW2MATROX 0x10055110
 // FUNCTION: MW23DFX 0x10018970
@@ -229,10 +220,6 @@ void CreateSimPlayer(MechS32 p_player, PlayerCreatedFn p_fn)
 }
 
 // Allocates player p_player: a remote player gets room for its steering after it.
-// Stack-slot permutation of player and size; the original compares p_player with
-// g_localPlayerId in eax (operand order).
-// MW2MATROX: p_player == g_localPlayerId compares in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1006d340
 // FUNCTION: MW2MATROX 0x100551cf
 // FUNCTION: MW23DFX 0x100189e0

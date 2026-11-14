@@ -57,7 +57,7 @@ void CycleMechViewMode(void)
 // Stack-slot permutation: camera, mech and saved and view. The original's longer displacements
 // make its code longer, so reccmp compares only the recompiled length of it.
 // MW2MATROX: clears each rendered view with the transparent pixel and presents the pane, and an
-// else joins the static test; the rest is a stack-slot permutation (and the jump table's offsets).
+// else joins the static test.
 // FUNCTION: MW2 0x100509c8
 // FUNCTION: MW2MATROX 0x1008ad78
 // FUNCTION: MW23DFX 0x10011720
@@ -221,7 +221,6 @@ void DrawMechViewStatic(CockpitPanel* p_panel)
 	DrawPanelAnim(p_panel->m_target, 0, 0, 0);
 }
 
-// Stack-slot permutation: target and y.
 // FUNCTION: MW2 0x10050e6c
 // FUNCTION: MW2MATROX 0x1008b283
 // FUNCTION: MW23DFX 0x10011a70
@@ -238,7 +237,6 @@ void DrawMechViewFrame(CockpitPanel* p_panel, MechS32 p_color, MechS32 p_shapeId
 	DrawPaneShape(x, y, p_shapeId, target);
 }
 
-// Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050ebe
 // FUNCTION: MW2MATROX 0x1008b2d5
 // FUNCTION: MW23DFX 0x10011aa0
@@ -277,7 +275,6 @@ void DrawMechViewStartup(CockpitPanel* p_panel)
 	p_panel->m_lastPowerState = g_cockpitPowerState;
 }
 
-// Stack-slot permutation: frame, savedSlot and savedTarget and transition.
 // FUNCTION: MW2 0x10050fd6
 // FUNCTION: MW2MATROX 0x1008b3ed
 // FUNCTION: MW23DFX 0x10011b70

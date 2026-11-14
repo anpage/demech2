@@ -214,7 +214,6 @@ void ArchiveReader::PrevPage()
 	}
 }
 
-// Stack-slot permutation: page, button, i and link.
 // FUNCTION: MW2SHELL 0x100296df
 void ArchiveReader::NextPage()
 {

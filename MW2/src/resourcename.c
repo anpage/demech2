@@ -17,7 +17,6 @@
 
 // Returns the id of the resource named p_name in TABL resource p_table, or -1. The table's entries
 // are 12 bytes from 0x0c: a name of 10 bytes, each stored as 0x100 minus the character, and the id.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100737e0
 // FUNCTION: MW2MATROX 0x100734f0
 // FUNCTION: MW23DFX 0x10025eb0
@@ -67,8 +66,6 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // Loads a resource of type p_type by p_ref's id, or by its name when the id is -1 (looked up in TABL
 // resource p_table), or else the file of that name with extension p_ext. With p_poolTag, the data
 // is copied into the static pool. Stores the id found (-1 for a file) and returns the data.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10073922
 // FUNCTION: MW2MATROX 0x10073632
 // FUNCTION: MW23DFX 0x10025f70

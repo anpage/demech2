@@ -242,7 +242,6 @@ ScalarRamp g_trackOffsetX;
 
 // Resets the camera: its ramps, the saved views and the view scale, follows the local player
 // and resets the camera shake and the zoom.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x10010ee0
 // FUNCTION: MW2MATROX 0x10008b70
 // FUNCTION: MW23DFX 0x1002db70
@@ -555,8 +554,6 @@ void CycleTrackedPlayer(MechS32 p_next, MechS32 p_home)
 
 // Returns the camera player's view: its orientation and, from the cockpit, the position of its
 // eye object (at half the object's height outside the external views).
-// Stack-slot permutation of player, x, y and z.
-// The Matrox edition's adds g_eyeHeightOffset in the other operand order.
 // FUNCTION: MW2 0x100116c3
 // FUNCTION: MW2MATROX 0x10009431
 // FUNCTION: MW23DFX 0x1002e0f0
@@ -642,8 +639,6 @@ void UpdateOrdinanceView(void)
 // p_tilt tilts it. The first call after another view starts its ramps from the current eyepoint.
 // Stack-slot permutation of the locals. The original compares g_trackHeight with
 // g_trackMaxHeight in the other operand order.
-// The Matrox edition's differs in commutative operand order (height, the turn, the offsets) and
-// its stack slots.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2MATROX 0x10009653
@@ -854,8 +849,7 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
 // the view towards a held glance key (or back ahead once all are released), then places the
 // eyepoint unless the camera is shaking.
-// The 3Dfx edition reloads the glance flags after each store, which /Ow doesn't. Otherwise
-// registers and scheduling.
+// The 3Dfx edition reloads the glance flags after each store, which /Ow doesn't.
 // FUNCTION: MW2 0x10011cb0
 // FUNCTION: MW2MATROX 0x10009ae7
 // FUNCTION: MW23DFX 0x1002e640
@@ -909,7 +903,6 @@ void UpdateCockpitView(void)
 }
 
 // GetPlayerEyeView's view, turned from the cockpit by the pilot's pan and tilt.
-// Stack-slot permutation: pan and tilt.
 // FUNCTION: MW2 0x10011e45
 // FUNCTION: MW2MATROX 0x10009c7c
 // FUNCTION: MW23DFX 0x1002e750
@@ -941,7 +934,6 @@ void GetCockpitEyeView(
 }
 
 // Switches to the drop view (mode 4): the camera starts level at the mech and falls, turning.
-// Stack-slot permutation: the six locals.
 // FUNCTION: MW2 0x10011edc
 // FUNCTION: MW2MATROX 0x10009d1d
 // FUNCTION: MW23DFX 0x1002e7d0
@@ -970,9 +962,6 @@ void UpdateDropView(void)
 
 // Moves the free camera (mode 2): p_climb raises it, p_speed drives it forward (eased),
 // p_strafe moves it sideways, and p_turn and p_pitch turn it. It stays above the ground.
-// Stack-slot permutation: sinHeading, cosHeading, cosPitch and speed.
-// The Matrox edition's differs in commutative operand order (its products) and its stack slots.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10011f9a
 // FUNCTION: MW2MATROX 0x10009e0a
 // FUNCTION: MW23DFX 0x1002e8a0

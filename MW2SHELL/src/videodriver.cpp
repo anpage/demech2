@@ -66,10 +66,6 @@ void ClearPalette()
 	g_currentDisplayBackend->m_setPalette(0, 0x100, g_tempPalette, 1);
 }
 
-// Matches except for the operand order of m_width * m_height in the back buffer allocation
-// (the original loads m_height first). It tracks the number of symbols declared ahead of this
-// unit: declaring AudioSubsystem's seventh new method flipped it (while fixing RestoreBackground's
-// additions); neither the declaration order nor the source operand order flips it back.
 // FUNCTION: MW2SHELL 0x10005f21
 VideoDriver::VideoDriver()
 {
@@ -264,8 +260,6 @@ void VideoDriver::DrawShell()
 
 // DrawShell for movie frames: the dirty rectangle is stretched to the screen, or drawn unscaled
 // at (160, 140) with g_littleMovies.
-// Operand order: the original loads m_height first in both m_width * m_height (as in
-// FUN_10005f21; the source operand order doesn't flip it).
 // FUNCTION: MW2SHELL 0x10006842
 void VideoDriver::DrawFmv()
 {
@@ -607,8 +601,6 @@ void VideoDriver::DrawShpFrameClipped(
 	ExpandRectBySize(p_left, p_top, p_width, p_height);
 }
 
-// Only the stack slots differ: the original puts cursor at [ebp-4] and acquired at [ebp-0xc];
-// VC++ 4.1 assigns them [ebp-0xc] and [ebp-4] here. width stays at [ebp-8].
 // FUNCTION: MW2SHELL 0x100074d2
 MechS32 VideoDriver::DrawString(MechS32 p_left, MechS32 p_top, void* p_font, MechChar* p_text, undefined* p_colorMap)
 {
@@ -646,8 +638,6 @@ MechS32 VideoDriver::DrawString(MechS32 p_left, MechS32 p_top, void* p_font, Mec
 	return width;
 }
 
-// Only the stack slots differ: the original puts width at [ebp-4] and acquired at [ebp-8];
-// VC++ 4.1 assigns them [ebp-8] and [ebp-4] here.
 // FUNCTION: MW2SHELL 0x10007603
 MechS32 VideoDriver::DrawChar(MechS32 p_left, MechS32 p_top, void* p_font, MechChar p_char, undefined* p_colorMap)
 {

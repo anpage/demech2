@@ -518,8 +518,7 @@ void UpdateAI(Player* p_player)
 // fires makes its transition and, unless that says otherwise, enters its new state. Whether one
 // did.
 // reccmp leaves the call through g_aiMessageFns and g_aiTransitionFns unresolved (its call regex
-// only matches a bare [address]), so both sides show raw addresses. Stack-slot permutation: arg,
-// i, rule and target and valid.
+// only matches a bare [address]), so both sides show raw addresses.
 // The 3Dfx edition's diff is register allocation and the indexed calls, which reccmp can't name.
 // FUNCTION: MW2 0x10051251
 // FUNCTION: MW2MATROX 0x100803d1
@@ -566,7 +565,6 @@ MechS32 RunAIRules(Player* p_player)
 
 // Collects the rules of p_player's state from its scripts into m_rules, the higher-priority
 // script's first; a rule for the same message and target as one collected is skipped.
-// Stack-slot permutation: count, found, i, j, pos, rule and script and skip.
 // FUNCTION: MW2 0x1005141c
 // FUNCTION: MW2MATROX 0x1008059c
 // FUNCTION: MW23DFX 0x10011e40
@@ -638,7 +636,6 @@ void CollectAIRules(Player* p_player)
 	}
 }
 
-// Operand order: the loop test (i < g_objectiveCount) compares with i in eax in the original.
 // FUNCTION: MW2 0x1005166e
 // FUNCTION: MW2MATROX 0x100807ee
 void FirstAI(void)
@@ -711,7 +708,6 @@ void InitializeAI(Player* p_player)
 #endif
 
 // Returns the name of p_value in p_names, or NULL.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10051ad8
 // FUNCTION: MW2MATROX 0x10080a4e
 // FUNCTION: MW23DFX 0x10011f80
@@ -747,12 +743,6 @@ void ClearAILog(void)
 	}
 }
 
-// Stack-slot permutation: behavior, color, i, input, line, objective, player, saved,
-// secondsLeft, sensor and steering and target. The original addresses player at [ebp-0x1b4]
-// (disp32), so its code is longer and reccmp compares only the recompiled length of it. Operand
-// order: the loop test (i < g_playerCount) compares with i in eax in the original. The four
-// inputs are summed in a different order (commutative). MW2MATROX: player == g_localPlayer
-// compares with the operands the other way round.
 // FUNCTION: MW2 0x10051b6e
 // FUNCTION: MW2MATROX 0x10080bca
 // FUNCTION: MW23DFX 0x10012150
@@ -897,7 +887,6 @@ void LogPlayerStatusLines(void)
 #endif
 
 // Returns the distance between the points p_a and p_b.
-// Stack-slot permutation: distance and unused.
 // FUNCTION: MW2 0x100520d7
 MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 {
@@ -909,10 +898,6 @@ MechU32 GetPointDistance(MechS32* p_a, MechS32* p_b)
 }
 
 // Makes the first able member of star p_team other than its leader the leader. Returns it, or -1.
-// Operand order: the loop test (i < count) compares with i in eax in the original. Stack-slot
-// permutation: count, i, member and members and newLeader.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1005212a
 // FUNCTION: MW2MATROX 0x10081269
 // FUNCTION: MW23DFX 0x100125d0
@@ -950,8 +935,6 @@ MechS32 ChooseTeamLeader(MechS32 p_team)
 
 // Points the goal of every member of star p_team that has player p_index as its goal at
 // player p_target instead.
-// Operand order: the loop test (i < g_playerCount) compares with i in eax in the original.
-// Stack-slot permutation: i and player.
 // FUNCTION: MW2 0x100521e0
 // FUNCTION: MW2MATROX 0x1008131f
 // FUNCTION: MW23DFX 0x100126d0
@@ -1057,8 +1040,8 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 #endif
 
 // Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
-// player == g_localPlayer subtraction runs the other way. Stack-slot permutation: color, i and
-// line and player. MW2MATROX: the same comparisons the other way round.
+// player == g_localPlayer subtraction runs the other way. Stack-slot permutation: color, i and line
+// and player.
 // FUNCTION: MW2 0x1005253c
 // FUNCTION: MW2MATROX 0x1008159c
 void LogPlayerSkillLines(void)
@@ -1103,10 +1086,6 @@ void LogPlayerSkillLines(void)
 #include "aidist.c"
 #endif
 
-// Operand order: g_debugFirstLine > g_debugObjective compares the other way in the original.
-// Stack-slot permutation: activity, color, line, marker, mission, objective, prefix, priority
-// and secondsLeft and typeName. (which also moves the jump table targets). MW2MATROX: the same
-// comparisons the other way round.
 // FUNCTION: MW2 0x1005276a
 // FUNCTION: MW2MATROX 0x10081777
 void LogStarMissionLines(MechS32 p_team)
@@ -1251,7 +1230,6 @@ void LogStarMissionLines(MechS32 p_team)
 // Whether p_player can detect player p_target: a powered-down target (flag 0x10) within
 // p_distance it has no line of sight to is hidden, checked with p_check at most every 0x21f ticks
 // (m_nextDetectCheck). Nothing calls it.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10052cb7
 // FUNCTION: MW2MATROX 0x10081e45
 // FUNCTION: MW23DFX 0x10012cd0
@@ -1280,9 +1258,6 @@ MechS32 IsTargetDetectable(Player* p_player, MechS16 p_target, MechS16 p_distanc
 
 // Finds the nearest of p_target's targets for p_player (*p_best) and the nearest that no
 // teammate already attacks (*p_nearest), both within p_arg. Returns the teammate that does.
-// Stack-slot permutation: blocker, closer, count, i, member, mission, nearest, objective and
-// target and type. MW2MATROX: also members, and p_player->m_index == member->m_index compares
-// with the operands the other way round.
 // FUNCTION: MW2 0x10052d8b
 // FUNCTION: MW2MATROX 0x10081f24
 Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, MechS16* p_nearest, MechS16* p_best)
@@ -1384,7 +1359,6 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 
 // Logs the AI status page g_debugStar selects: the players (-1), their skills (-2) or a
 // star's mission.
-// MW2MATROX: g_debugListedStar != g_debugStar compares in the other operand order.
 // FUNCTION: MW2 0x10053072
 // FUNCTION: MW2MATROX 0x10082215
 // FUNCTION: MW23DFX 0x10012d80
@@ -1622,7 +1596,6 @@ MechS32 AiTransitionPop(Player* p_player, AiRule* p_rule)
 	return FALSE;
 }
 
-// Stack-slot permutation: index and players.
 // FUNCTION: MW2 0x100535e3
 // FUNCTION: MW2MATROX 0x100827a9
 // FUNCTION: MW23DFX 0x10013370
@@ -1796,7 +1769,6 @@ MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 }
 
 // Turns p_player towards its target. Returns the bearing to it.
-// Stack-slot permutation: degrees and scaled.
 // FUNCTION: MW2 0x1005398f
 // FUNCTION: MW2MATROX 0x10082bde
 // FUNCTION: MW23DFX 0x10013600
@@ -2017,8 +1989,6 @@ void EnterAIState(Player* p_player, MechU16 p_state)
 
 // The target after p_previous (-1 for the first) of p_target for p_player: a plain target
 // once, or each player a symbolic target names. Returns -1 after the last.
-// Stack-slot permutation: home and index.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054043
 // FUNCTION: MW2MATROX 0x10083294
 // FUNCTION: MW23DFX 0x10013a50
@@ -2133,7 +2103,6 @@ MechScalar GetTargetBearing(Player* p_player)
 
 // Whether p_target is done for an objective of type p_check: its flag 4 (destroyed) or 0x20
 // (inspected) is set.
-// Stack-slot permutation: flags, index, mask and result and type.
 // FUNCTION: MW2 0x10054384
 // FUNCTION: MW2MATROX 0x100835ea
 // FUNCTION: MW23DFX 0x10013c40
@@ -2228,8 +2197,6 @@ void QueueAIState(Player* p_player, MechS16 p_state, MechU16 p_target)
 }
 
 // Whether one of p_player's scripts has rules for p_state.
-// Stack-slot permutation: i and script.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100545ea
 // FUNCTION: MW2MATROX 0x10083850
 // FUNCTION: MW23DFX 0x10013d90
@@ -2286,7 +2253,6 @@ void SetAIState(Player* p_player, MechS16 p_state, MechS16 p_target, MechS32 p_p
 }
 
 // Releases the nav points p_player placed, except its anchor.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10054778
 // FUNCTION: MW2MATROX 0x100839de
 // FUNCTION: MW23DFX 0x10013e90
@@ -2311,7 +2277,6 @@ void ReleaseNavPoints(Player* p_player)
 }
 
 // Places four nav points around p_player's target and targets them.
-// Stack-slot permutation: found, index, nav, owner, player and range and y.
 // FUNCTION: MW2 0x10054851
 // FUNCTION: MW2MATROX 0x10083ab7
 // FUNCTION: MW23DFX 0x10013f00
@@ -2375,7 +2340,6 @@ void PlacePatrolNavs(Player* p_player)
 
 // Targets p_target and steps p_player's target on to the next of its own nav points, past its
 // anchor nav, and makes that its AI target.
-// MW2MATROX: m_nav == m_targetInfo.m_target compares in the other operand order.
 // FUNCTION: MW2 0x10054a30
 // FUNCTION: MW2MATROX 0x10083caa
 // FUNCTION: MW23DFX 0x10014050
@@ -2391,7 +2355,6 @@ void AdvanceNavTarget(Player* p_player, MechS16 p_target)
 }
 
 // Places a nav point at p_player's place in its star's formation and targets it.
-// Stack-slot permutation: heading, nav and x and z.
 // FUNCTION: MW2 0x10054a93
 // FUNCTION: MW2MATROX 0x10083d0d
 // FUNCTION: MW23DFX 0x100140a0
@@ -2415,9 +2378,6 @@ void PlaceFormationNav(Player* p_player)
 
 // Makes player p_index attack player p_target (logging the first time), when it is the local
 // player or on a network game.
-// Stack-slot permutation: line and player.
-// MW2MATROX: the comparison with g_localPlayerId loads its operands in the other order.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054b50
 // FUNCTION: MW2MATROX 0x10083dca
 // FUNCTION: MW23DFX 0x10014110
@@ -2446,7 +2406,6 @@ void RecordAttack(MechS32 p_index, MechU32 p_target)
 }
 
 // Loads the nine AIT scripts.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054c05
 // FUNCTION: MW2MATROX 0x10083e80
 // FUNCTION: MW23DFX 0x100141a0
@@ -2518,8 +2477,6 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 
 // Orders the players of p_targets into p_state with p_target (the local player's orders to its
 // star). Returns how many it skipped.
-// Stack-slot permutation: player and skipped and target. MW2MATROX: p_target == target compares
-// in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2MATROX 0x10084002
@@ -2581,9 +2538,6 @@ MechS16 OrderPlayers(Player* p_player, MechS16 p_targets, MechS16 p_state, MechS
 
 // Carries out the local player's command p_command to formation slot p_slot (or the star), and
 // says it.
-// Operand order: index == g_localPlayerId compares the other way in the original. Stack-slot
-// permutation: local and speech.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10054f50
 // FUNCTION: MW2MATROX 0x100841ca
 // FUNCTION: MW23DFX 0x10014390
@@ -2666,7 +2620,6 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 }
 
 // Adds p_delta to p_value (with p_value's sign with p_sameSign), clamped to +/-0x400.
-// Operand order: the two sign tests evaluate p_value and p_delta in the other order.
 // FUNCTION: MW2 0x10055131
 // FUNCTION: MW2MATROX 0x100843ac
 // FUNCTION: MW23DFX 0x10014490
@@ -2713,9 +2666,6 @@ void ResetStarOrders(MechS32 p_team)
 
 // Gives star p_team's AI players the script and state of its current objective: rest, shut down
 // or follow the leader.
-// Operand order: the (1 << bit) & type test evaluates type first in the original. Stack-slot
-// permutation: bit, count, i, leader, member, members, objective and state and type.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100551c6
 // FUNCTION: MW2MATROX 0x10084461
 // FUNCTION: MW23DFX 0x10014520
@@ -2820,8 +2770,6 @@ MechS16 GetEngagementAIFlags(MechS32 p_value)
 
 // Sets p_player's script slot p_slot to script p_script of its player type, as its star's
 // leader or a follower; -1 clears the slot.
-// Index order: each table lookup loads follower before p_script in the original (every case
-// differs the same way).
 // FUNCTION: MW2 0x100554c8
 // FUNCTION: MW2MATROX 0x10084763
 // FUNCTION: MW23DFX 0x10014700
@@ -2869,7 +2817,6 @@ void SetAIScript(Player* p_player, MechS16 p_slot, MechS16 p_script, MechS16 p_l
 }
 
 // Target p_index of star p_team's current objective.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100556a4
 // FUNCTION: MW2MATROX 0x1008493f
 // FUNCTION: MW23DFX 0x10014880
@@ -2884,7 +2831,6 @@ MechU16 GetObjectiveTarget(MechS32 p_team, MechS16 p_objective, MechS32 p_index)
 
 // Fills p_members with star p_team's members that are in play (alive, with p_aliveOnly).
 // Returns how many.
-// Stack-slot permutation: count and i.
 // FUNCTION: MW2 0x100556fe
 // FUNCTION: MW2MATROX 0x10084999
 // FUNCTION: MW23DFX 0x100148c0
@@ -3040,9 +2986,6 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 
 // Run by star p_team's leader: hands its posted order on and sends an idle member after the
 // first target of the star's objective that isn't covered yet.
-// Operand order: g_localPlayerId == leader and the loop tests compare the other way in the
-// original. Stack-slot permutation: count, i, j, leader, members, mission, objective,
-// objectiveIndex, player, remaining, state, target, targets and team and type.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10055bb7
 // FUNCTION: MW2MATROX 0x10084e52
@@ -3269,8 +3212,7 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 
 // Sweeps a mech's torso pan from side to side, 5 degrees every 0x20 ticks (0x40 while stopped),
 // turning back past 45.
-// Operand order: period + g_currentClock adds in the other order (commutative). MW2MATROX: the
-// first m_maneuverEnd comparison loads its operands in the other order.
+// MW2MATROX: the first m_maneuverEnd comparison loads its operands in the other order.
 // FUNCTION: MW2 0x100562b4
 // FUNCTION: MW2MATROX 0x1008554f
 // FUNCTION: MW23DFX 0x10014ff0

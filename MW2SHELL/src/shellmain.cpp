@@ -95,7 +95,6 @@ BOOL CALLBACK LittleMoviesDialogProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, L
 void RunScreenFrame();
 void CloseMenuFunction();
 
-// Matches except for the stack slots of helpFile, msg and mouseY (a consistent permutation).
 // FUNCTION: MW2SHELL 0x1000e670
 extern "C" LRESULT CALLBACK ShellWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -734,7 +733,6 @@ void DisableShellMenu(HMENU p_menu)
 	result = DrawMenuBar(g_gameWindow);
 }
 
-// Stack-slot permutation: value and result swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x100103e2
 MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_showDialog, MechS32* p_littleMovies)
 {
@@ -784,7 +782,6 @@ MechS32 LoadSettingsFromRegistry(MechU32* p_quickTips, MechS32* p_showDialog, Me
 	return (MechU8) (result == 0);
 }
 
-// Stack-slot permutation: value and result swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x1001053e
 MechS32 SaveSettingsToRegistry(MechS32 p_quickTips, MechS32 p_showDialog, MechS32 p_littleMovies)
 {

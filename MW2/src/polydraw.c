@@ -436,7 +436,6 @@ MechS32 g_lineEndX;
 MechS32 g_lineEndY;
 #endif
 
-// Stack-slot permutation: luma, saved, mode, index, scale, shade and fraction.
 // The Matrox edition's takes the projected vertices themselves, and modes in bits 12 to 15: 8 to 11
 // and 0xf are its own (lit textures and animation colors), and it draws through its renderer.
 // FUNCTION: MW2 0x10042e00
@@ -702,7 +701,6 @@ void FUN_10068856(
 }
 
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100688fe
 // FUNCTION: MW23DFX 0x100272e0
@@ -748,7 +746,6 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 // Draws a shaded polygon in each vertex's color: lit by its light, unless the vertex's shade (in
 // m_u) is between 0 and 48. With p_unk0x0c set, only a polygon of three points or more (the 3Dfx
 // edition's after clipping it to the pane edges p_unk0x0c names).
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x100689f5
 // FUNCTION: MW23DFX 0x100273c0
 void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c)
@@ -871,9 +868,8 @@ MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 	return i;
 }
 
-// Reads the textured sky's and ground's settings for mission p_mission from skygnd.par, or sets
-// the defaults without the file (but not when the file has no line for the mission). The only diff
-// is rate * g_skyTileU's operand order.
+// Reads the textured sky's and ground's settings for mission p_mission from skygnd.par, or sets the
+// defaults without the file (but not when the file has no line for the mission).
 // FUNCTION: MW2MATROX 0x10068d0f
 void LoadSkyGroundSettings(const MechChar* p_mission)
 {
@@ -926,7 +922,6 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 
 // Draws the textured sky's four quads (g_skyCorners).
 // The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10068e33
 void FUN_10068e33(Eyepoint* p_eyepoint)
 {
@@ -1026,7 +1021,6 @@ void FUN_10068e33(Eyepoint* p_eyepoint)
 
 // Draws the sky as one quad, its texture scrolled by g_skyScrollSpeed.
 // The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10069172
 void FUN_10069172(Eyepoint* p_eyepoint)
 {
@@ -1059,7 +1053,6 @@ void FUN_10069172(Eyepoint* p_eyepoint)
 
 // Draws the ground as one quad, its texture repeated every g_groundTile.
 // The 3Dfx edition draws the polygon even when ProjectPolygon leaves no points.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x100692db
 void FUN_100692db(Eyepoint* p_eyepoint)
 {
@@ -1894,7 +1887,6 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 }
 
 // Draws a closed polygon of five points.
-// MW2MATROX: stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1004440d
 // FUNCTION: MW2MATROX 0x1006ab1d
 // FUNCTION: MW23DFX 0x10027570
@@ -1949,7 +1941,6 @@ void DrawPentagon(
 #endif
 }
 
-// MW2MATROX: stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100444a6
 // FUNCTION: MW2MATROX 0x1006abde
 // FUNCTION: MW23DFX 0x10027630
@@ -1998,7 +1989,6 @@ void DrawQuad(
 #endif
 }
 
-// MW2MATROX: stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10044527
 // FUNCTION: MW2MATROX 0x1006ac8d
 // FUNCTION: MW23DFX 0x100276d0

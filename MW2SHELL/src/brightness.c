@@ -20,7 +20,7 @@ PaletteColor g_paletteColorsPreBrightness[0x100];
 MechU8 g_gammaTable[16][64];
 
 // Row i maps a 6-bit color component c to 63 * (c / 63) ^ (1 / (0.5 + i / 16)).
-// Unused. Stack-slot permutation: i, j, row, x and exponent.
+// Unused.
 // FUNCTION: MW2SHELL 0x100460a0
 void InitGammaTable()
 {

@@ -91,8 +91,6 @@ void ShutdownDrawBuffer(void)
 	}
 }
 
-// Operand order: the original computes g_depthListCapacity << 4 before p_kilobytes << 10 in size
-// (both front ends reorder commutative operands).
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007d150
 // FUNCTION: MW2MATROX 0x100216d0

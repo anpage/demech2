@@ -251,7 +251,6 @@ void ShutdownDoor(Mech* p_mech)
 
 // Allocates p_player's mech, its weapons and sections, and sets them up.
 // The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10068772
 // FUNCTION: MW2MATROX 0x10088ed4
 // FUNCTION: MW23DFX 0x100221a0

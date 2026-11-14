@@ -43,7 +43,6 @@ MechChar* LoadResString(UINT p_id)
 	return string;
 }
 
-// Matches except for the stack slots of desktop, desktopRect and rect, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000111a
 void CenterWindow(HWND p_hWnd)
 {
@@ -77,7 +76,6 @@ void SetBusyCursor(MechS32 p_busy)
 
 // Sizes p_hWnd to fit p_child's window rectangle in a bordered frame with a caption, and centers
 // it on the desktop.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000120a
 void FUN_1000120a(HWND p_hWnd, HWND p_child, undefined4)
 {
@@ -135,7 +133,6 @@ void TrimLeadingSpace(MechChar* p_string)
 	_strrev(p_string);
 }
 
-// Matches except for the stack slots of blank and copy, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100013c2
 MechS32 IsBlankString(MechChar* p_string)
 {

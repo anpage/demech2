@@ -15,7 +15,6 @@
 // Watches the session every 100 ms, until it receives message 0x418: the host pings ("XX") the
 // players it hasn't heard from for 20 periods and drops those silent for 50 (FUN_1000b30e), and
 // every player adds the remote players missing from the player table (AddMissingPlayer).
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10010e50
 DWORD WINAPI WatchPlayersThread(LPVOID)
 {
@@ -65,7 +64,6 @@ DWORD WINAPI WatchPlayersThread(LPVOID)
 
 // The EnumPlayers callback of WatchPlayersThread: adds the player to the player table if it
 // isn't in it yet.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10010fab
 BOOL FAR PASCAL AddMissingPlayer(DPID p_id, LPSTR p_friendlyName, LPSTR, DWORD, LPVOID)
 {

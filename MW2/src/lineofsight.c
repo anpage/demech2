@@ -15,7 +15,6 @@
 // Tests whether the player can see its target: nothing but the target itself lies on the line
 // to it. With p_ahead, a target behind the player (between 90 and 270 degrees off the view)
 // is never seen.
-// The heading sum has its operands the other way around.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1006ca60
 // FUNCTION: MW2MATROX 0x1006d320
@@ -65,8 +64,6 @@ MechS32 CanSeeTarget(Player* p_player, MechS32 p_ahead)
 
 // Walks the ground from (p_x, p_y, p_z) toward the player in steps of 1000 units, and tests
 // that the terrain stays within 1000 units of height 0 all the way.
-// Stack-slot permutation of the locals; one height comparison has its operands the other
-// way around.
 // FUNCTION: MW2 0x1006cbe7
 MechS32 IsGroundLevelToward(Player* p_player, MechS32 p_x, MechS32 p_y, MechS32 p_z)
 {

@@ -48,7 +48,6 @@ MechChar g_rosterFieldText[0x100];
 // GLOBAL: MW2SHELL 0x1007cda8
 PilotRecord* g_rosterPilots[10];
 
-// Stack-slot permutation: top and i.
 // FUNCTION: MW2SHELL 0x10014b60
 void ShowPilotCallsigns()
 {
@@ -332,8 +331,6 @@ void DrawPilotRoster(TMPackDataBase* p_database, MechS32 p_campaign, MechU8* p_p
 
 // The pilot roster's frame: EXIT, the ten pilot slots (an empty one asks for a callsign),
 // ACCEPT, DELETE MECHWARRIOR, LAUNCH OLD MISSION and PILOT INFO.
-// Not 100%: the stack slots are permuted, and the mission test loads the tab before the pilot
-// (reversing the comparison's operands doesn't flip it).
 // FUNCTION: MW2SHELL 0x1001534c
 void PilotRosterCallback(
 	TMPackDataBase*,

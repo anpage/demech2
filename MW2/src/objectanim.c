@@ -670,8 +670,6 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 
 // Loads the animation file p_ref unless it has been, and sets the base of its animation numbers
 // (g_animBase). Returns -1 if it was already loaded.
-// Stack-slot permutation; MW2MATROX: the loop tests compare with g_animFileCount in the other
-// operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10047380
@@ -724,8 +722,6 @@ MechS32 GetReelMotionSize(void)
 
 // A timed callback (TimedCallbackFn) cycling the face colors of a star's shape. Its data is
 // "<star id>;<color>,<color>,...": up to sixteen colors, each a palette row.
-// The only diff is a stack-slot permutation of the locals.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004748c
 // FUNCTION: MW2MATROX 0x1006fa61
 // FUNCTION: MW23DFX 0x1000e6e0
@@ -814,9 +810,7 @@ MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 
 // A timed callback (TimedCallbackFn) turning a star's object. Its data is
 // "<star id>;<x>,<y>,<z>,<period>": the turns in degrees per period of seconds.
-// The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the rates and the period are floats, the rates in degrees.
-// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x1004771e
 // FUNCTION: MW2MATROX 0x1006fcf3
 // FUNCTION: MW23DFX 0x1000e880
@@ -918,9 +912,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 
 // A timed callback (TimedCallbackFn) moving a star's object around a circle. Its data is
 // "<star id>;<radius>,<period>,<enabled>,<unused>".
-// The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the angle, rates and steps are floats, the angle in degrees.
-// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x100479ec
 // FUNCTION: MW2MATROX 0x1006ff89
 // FUNCTION: MW23DFX 0x1000ea50
@@ -1035,7 +1027,6 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 
 // A timed callback (TimedCallbackFn) looping a sound on a star's object. Its data is
 // "<star id>;<range>,<sound name>,<enabled>".
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10047d10
 // FUNCTION: MW2MATROX 0x100702a2
 // FUNCTION: MW23DFX 0x1000ec90
@@ -1454,7 +1445,6 @@ static MechS32 Interpolate(MechS32 p_from, MechS32 p_to, MechS32 p_toPlane, Mech
 // Returns the vertex's projected copy (m_projection), transforming it into view space
 // (g_viewProjX0's rows, from the eyepoint g_viewEyeY) the first time. The transform is an
 // __asm block.
-// Stack-slot permutation of the locals the __asm blocks name.
 // FUNCTION: MW2 0x10048c50
 ProjectedVertex* GetViewVertex(Vertex* p_vertex)
 {
@@ -1570,7 +1560,6 @@ jmp_10048c72:
 // Returns a new projected vertex where the edge from p_a to p_b crosses the near plane
 // (g_viewNear), its position and texture coordinates interpolated. The body is an __asm
 // block.
-// Stack-slot permutation of the locals the __asm block names.
 // FUNCTION: MW2 0x10048d46
 ProjectedVertex* ClipEdgeToNearPlane(Vertex* p_a, Vertex* p_b)
 {
@@ -1899,7 +1888,6 @@ jmp_10048f8c:
 // Returns the shade (0x7f: full) of p_face from the angle between its normal and the direction
 // from its first vertex to the light (g_viewLightZ, or the origin with g_directionalLight). The
 // shading is an __asm block.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10048faf
 MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices)
 {

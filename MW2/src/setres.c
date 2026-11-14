@@ -62,7 +62,6 @@ void SetPixelAspect(GameWindowGeometry* p_geometry)
 }
 
 // Picks the art resolution (g_artResolution) closest to the window's.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005d44e
 // FUNCTION: MW2MATROX 0x1008c195
 // FUNCTION: MW23DFX 0x100024b0
@@ -113,7 +112,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 }
 
 // Rescales the tables authored in 320x200 coordinates to the screen, and sets up what depends on
-// the resolution. MW2MATROX: stack-slot permutation of i and point.
+// the resolution.
 // FUNCTION: MW2 0x1005d4d3
 // FUNCTION: MW2MATROX 0x1008c280
 // FUNCTION: MW23DFX 0x10002520

@@ -174,8 +174,6 @@ MechS32 ToggleMenu(MechS32 p_id)
 	return result;
 }
 
-// Stack-slot permutation: slot and freed.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003c53c
 // FUNCTION: MW2MATROX 0x1009170c
 // FUNCTION: MW23DFX 0x100654b0
@@ -221,7 +219,6 @@ Point* ScaleMenuPointToFrame(PANE* p_frame, Point* p_src, Point* p_dst)
 // Lays out a menu on the screen: scales its background target to the background shape, spaces
 // its m_lineCount lines evenly down the target, and converts its points to pixels. With flag 0x10
 // the background moves to the target's left edge.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003c5a2
 // FUNCTION: MW2MATROX 0x10091772
 // FUNCTION: MW23DFX 0x10065580
@@ -417,7 +414,6 @@ void RequestMenuClose(MechS32 p_id)
 
 // First draws the menus' panes to the main pixel buffer and loads their layout; drops
 // the definitions whose root page or its subpages fail their init callbacks.
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003cadc
 // FUNCTION: MW2MATROX 0x10091cac
@@ -466,7 +462,6 @@ void FirstMenu(void)
 
 // Works out g_menuKey for the open menu from the key code, or from the menu bindings in menus
 // that take navigation keys (repeating while they are held), and takes the key code it uses.
-// Stack-slot permutation: menu and flags.
 // FUNCTION: MW2 0x1003cc20
 // FUNCTION: MW2MATROX 0x10091df0
 // FUNCTION: MW23DFX 0x10065a70
@@ -545,8 +540,6 @@ void UpdateMenuKey(void)
 // Opens and closes in-mission menus as requested, then draws and runs the open one. Called from
 // SimMain after UpdateMenuKey and HandleGameKeys, so a menu closed this frame still counts as open
 // (g_openMenuCount) when that frame's game keys run.
-// Stack-slot permutation: slot, done and requested. The original compares state against
-// requested in the other operand order.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003ce91
 // FUNCTION: MW2MATROX 0x1009207d
@@ -591,7 +584,6 @@ void UpdateMenus(void)
 }
 
 // Draws the open in-mission menu and acts on g_menuKey. Returns FALSE when the menu should close.
-// Stack-slot permutation: target and backgroundTarget.
 // FUNCTION: MW2 0x1003cf96
 // FUNCTION: MW2MATROX 0x10092182
 // FUNCTION: MW23DFX 0x10065cb0
@@ -687,7 +679,6 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // through ApplyMenuKey, which skips headings), then draws the title and the items, numbered from 1
 // with the accepting or closing item as 0, calling each item's m_run, which sees g_menuKey too.
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003d1a7
 // FUNCTION: MW2MATROX 0x100923b4
@@ -1035,7 +1026,6 @@ MenuDefinition* GetOpenMenu(void)
 }
 
 // Returns a menu's state (1: open), or 0 if it isn't registered.
-// Stack-slot permutation: slot and result.
 // FUNCTION: MW2 0x1003da65
 // FUNCTION: MW2MATROX 0x10092c99
 // FUNCTION: MW23DFX 0x100663e0

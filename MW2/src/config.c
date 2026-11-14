@@ -94,7 +94,6 @@ MechChar g_gamePath[0x50];
 MechS32 g_hudLayoutValues[3];
 
 // Loads seven values from resource p_ref.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100707c0
 // FUNCTION: MW2MATROX 0x1000acd0
 // FUNCTION: MW23DFX 0x100400b0
@@ -151,7 +150,6 @@ MechS32 LoadMgdFile(
 
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
 // (GetAnimBase), into g_reels.
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
@@ -249,7 +247,6 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // Loads the cockpit layout resource p_ref: the gauge positions (g_hudGaugePositions), three values
 // (g_hudLayoutValues) and fifteen rectangles in percent of the screen (g_outlinePartRects), any of
 // them out of range cleared.
-// The only diff is a stack-slot permutation of the locals.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10070bda
@@ -324,7 +321,6 @@ MechS32 LoadHudFile(ResourceRef* p_ref)
 
 // Loads the cockpit layout resource p_ref: five rectangles into p_gauges, fifteen into p_panels
 // and a point.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x10070e22
 // FUNCTION: MW2MATROX 0x1000b40e
 // FUNCTION: MW23DFX 0x100404f0
@@ -391,7 +387,6 @@ MechS32 LoadCptFile(ResourceRef* p_ref, PANE* p_gauges, PANE* p_panels, Point* p
 
 // Writes the screen as a picture: a 0x20-byte header from TABL resource 15, the palette, then
 // the main pixel buffer. Returns whether it could.
-// Stack-slot permutation: header, file and pixels.
 // FUNCTION: MW2 0x10071026
 // FUNCTION: MW2MATROX 0x1000b612
 // FUNCTION: MW23DFX 0x10040660
@@ -424,7 +419,6 @@ MechS32 WriteScreenPicture(MechChar* p_path, void* p_palette)
 
 // Reads a whole file into memory from the heap, or from a static pool when p_poolTag is given.
 // Returns the open file, or -1 (logging the path to symlog.txt when it can't be opened).
-// Stack-slot permutation: log and file.
 // FUNCTION: MW2 0x10071108
 // FUNCTION: MW2MATROX 0x1000b6f4
 // FUNCTION: MW23DFX 0x10040700
@@ -468,7 +462,6 @@ MechS32 LoadFile(MechChar* p_path, MechS32* p_size, void** p_data, BwdTag* p_poo
 }
 
 // Reads a game file into memory. Returns the file (closed), or -1.
-// Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071251
 // FUNCTION: MW2MATROX 0x1000b83d
 // FUNCTION: MW23DFX 0x10040800
@@ -511,7 +504,6 @@ MechS32 WriteCareerRecordFile(MechChar* p_name, void* p_data)
 
 // Reads the difficulty settings into a new block, then overrides some of them in network games.
 // Returns 1, or -1 if there is no block.
-// Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x10071326
 // FUNCTION: MW2MATROX 0x1000b912
 // FUNCTION: MW23DFX 0x100408a0
@@ -552,7 +544,6 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 	return 1;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10071440
 // FUNCTION: MW2MATROX 0x1000ba2c
 // FUNCTION: MW23DFX 0x10040960
@@ -575,7 +566,6 @@ MechS32 SaveDifficultyCfg(MechChar* p_name, DifficultyCfg* p_cfg)
 }
 
 // Reads the sound settings, or allocates cleared ones. Returns 1, or -1 if it couldn't read them.
-// Stack-slot permutation: file and data.
 // FUNCTION: MW2 0x100714b3
 // FUNCTION: MW2MATROX 0x1000ba9f
 // FUNCTION: MW23DFX 0x100409b0
@@ -598,7 +588,6 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 	return 1;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007152f
 // FUNCTION: MW2MATROX 0x1000bb1b
 // FUNCTION: MW23DFX 0x10040a10

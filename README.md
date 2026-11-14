@@ -14,7 +14,24 @@ This project is modeled after the [LEGO Island](https://github.com/isledecomp/is
 
 Progress only counts game code. The statically linked C runtime and the import thunks are left out of both the matched and the total counts. The totals come from Ghidra’s analysis of the original binaries and may grow slightly as decompilation turns up missed functions.
 
-Every game-code function of the four binaries of the 1.1 patch and the retail release is decompiled. Two more targets, the simulators of the Matrox Mystique edition (`MW2_MATROX.DLL`) and the 3Dfx edition (`MW2_3DFX.DLL`), are built from the same simulator source, where their differences (they keep the simulation's values as floats, and draw through Matrox's API and 3Dfx's Glide; the 3Dfx edition is optimized code) are being worked in. Beyond those editions, two kinds of work remain. One is raising the match: plenty of functions are still short of byte-identical, and many of those differ only by compiler artifacts (stack-slot assignment, operand order), which reccmp still scores as differences. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
+What counts is proof, not similarity. `tools/certify.py` gives every annotated function one of three states:
+
+- **byte-identical**: the source compiles to the original's code, every relocated address pointing where the original's does;
+- **proven**: it does once its stack locals are renamed and/or a number of symbols are declared ahead of its unit, as a committed record (`tools/witnesses/`) says. Neither is recoverable from the original: its locals' names are lost, and its headers declared another number of things, both of which only move stack slots, operand order and (in optimized code) registers. The source keeps its readable names; the record is the proof;
+- **unproven**: neither. reccmp's percentage still shows how close it is.
+
+| Binary | Functions | Byte-identical | Proven | Unproven |
+|---|---|---|---|---|
+| `MW2SHELL.DLL` (1.1) | 798 | 604 | 126 | 68 |
+| `MW2.DLL` (1.1) | 1557 | 959 | 480 | 118 |
+| `NETMECHW.DLL` (retail) | 228 | 128 | 87 | 13 |
+| `MECH2.EXE` (retail) | 21 | 15 | 6 | 0 |
+| `MW2_MATROX.DLL` (Matrox Mystique) | 1608 | 956 | 482 | 170 |
+| `MW2_3DFX.DLL` (3Dfx) | 1548 | 1102 | 204 | 242 |
+
+These are the annotated functions as of November 2026; each target's current list (`<TARGET>STATES.md` and `.json`) is published with the progress reports in the [continuous release](https://github.com/anpage/demech2/releases/tag/continuous). A match proves the code, the types, the data layout and the constants; it proves nothing about names, comments and descriptions, which are readings of the code. The original's hand-written assembly is reproduced as MASM source (its own objects) or inline assembly, and every function with inline assembly is listed in `tools/asm_allowlist.txt` with what in the original shows it was hand-written: everything else matches as C or C++.
+
+Every game-code function of the four binaries of the 1.1 patch and the retail release is decompiled. Two more targets, the simulators of the Matrox Mystique edition (`MW2_MATROX.DLL`) and the 3Dfx edition (`MW2_3DFX.DLL`), are built from the same simulator source, where their differences (they keep the simulation's values as floats, and draw through Matrox's API and 3Dfx's Glide; the 3Dfx edition is optimized code) are being worked in. Beyond those editions, two kinds of work remain. One is raising the match: the unproven functions above, whose differences are real until shown otherwise. The other is understanding the code: much of it still carries placeholder names (`FUN_10003580`, `m_unk0x04`, `g_unk0x100a00dc`) that need to be studied and replaced with meaningful names and types. Contributions are welcome.
 
 The continuous release ([`continuous`](https://github.com/anpage/demech2/releases/tag/continuous)) carries the latest recompiled binaries from `main`, with their PDBs and progress reports.
 
@@ -126,9 +143,17 @@ reccmp-reccmp --target MW2MATROX --nolib --total 1597
 reccmp-reccmp --target MW23DFX --nolib --total 1574
 ```
 
+To certify the build (from the repository root, after building; it compiles each unit again with the build's own commands, applies the witness records, and compares every function with the original):
+
+```
+python tools/certify.py --target MW2 [--build <build-folder>] [-v]
+```
+
+`-v` lists the unproven functions with their first difference. Under Wine, pass `--wine <path-to-wine>`, with `WINEPREFIX` set.
+
 #### Continuous integration
 
-Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actions. The 1.1 patch's `MW2SHELL.DLL` and `MW2.DLL` are downloaded by the Build workflow itself. The retail `NETMECHW.DLL` and `MECH2.EXE` aren't freely downloadable, so a second workflow (`verify-retail.yml`) runs after Build with access to a private repository holding the originals: it compares the Build run's binaries against them with reccmp and appends the results to the Build workflow's PR comment. Pull requests from forks get the same report.
+Pull requests are built and verified with Visual C++ 4.1 and 2.2 on GitHub Actions. The 1.1 patch's `MW2SHELL.DLL` and `MW2.DLL` are downloaded by the Build workflow itself. The retail `NETMECHW.DLL` and `MECH2.EXE` aren't freely downloadable, so a second workflow (`verify-retail.yml`) runs after Build with access to a private repository holding the originals: it compares the Build run's binaries against them with reccmp and appends the results to the Build workflow's PR comment. Both certify every function: a pull request fails when a function `main` has byte-identical or proven is neither any more, unless its description lists it (`Gate exception: <TARGET> <function> <reason>`). Pull requests from forks get the same report.
 
 ## Project Structure
 

@@ -88,8 +88,6 @@ MechS32 FUN_10010460(HWND)
 }
 
 // Shows the results in the dialog p_dialog: each player's name and score, and the winner.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of i < g_unk0x1001f160 (the original loads i).
 // FUNCTION: NETMECHW 0x10010475
 void FUN_10010475(HWND p_dialog)
 {
@@ -122,7 +120,6 @@ void FUN_10010475(HWND p_dialog)
 // The results dialog, shown when the lobby starts after a mission (pane 9): the local player's
 // line is in green. OK goes back to the lobby.
 // The original tests notify for EN_SETFOCUS before it sets it.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100105ee
 BOOL CALLBACK FUN_100105ee(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -233,8 +230,6 @@ BOOL CALLBACK FUN_100105ee(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 
 // Reads the results of the last mission from MW2CAR.CFG for the players p_ids: their scores,
 // sorted, and the winner's name in g_unk0x1001f108. Returns whether the file opened.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes, and the operand
-// order of the loops' comparisons with g_unk0x1001f160 (the original loads the counter).
 // FUNCTION: NETMECHW 0x10010920
 MechS32 FUN_10010920(DPID* p_ids)
 {
@@ -283,7 +278,6 @@ MechS32 FUN_10010920(DPID* p_ids)
 }
 
 // Reads the block at 0x50 of MW2CAR.CFG into p_block; returns whether the file opened.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10010b7f
 MechS32 FUN_10010b7f(SilverBlock0x86* p_block)
 {
@@ -303,7 +297,6 @@ MechS32 FUN_10010b7f(SilverBlock0x86* p_block)
 }
 
 // Sorts the p_count records p_records by m_unk0x24, largest first.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10010c06
 void FUN_10010c06(AmberRecord0x26* p_records, MechS32 p_count)
 {
@@ -326,8 +319,6 @@ void FUN_10010c06(AmberRecord0x26* p_records, MechS32 p_count)
 	}
 }
 
-// Stack-slot permutation (VC++ 2.2): drive, driveStrings, findData, hFindFile and path. The
-// shorter recompiled stack displacements truncate the original's tail in reccmp.
 // FUNCTION: NETMECHW 0x10010d00
 char CdCheck()
 {

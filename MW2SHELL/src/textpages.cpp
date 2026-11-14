@@ -32,8 +32,6 @@ MechU8 g_textPageColors[0x100];
 MechChar g_expandedText[0x2000];
 
 // Expands the escapes of p_text into g_expandedText and returns a copy of the result.
-// Not 100%: the stack slots of the locals are permuted (i and length move past the buffer, which
-// lengthens their encodings).
 // FUNCTION: MW2SHELL 0x1002dc60
 MechChar* ExpandTextEscapes(MechChar* p_text, MechChar* p_quote)
 {
@@ -161,7 +159,6 @@ void LayoutTextPages(
 
 // Lays out the text (HTXT node) of the project file p_name on pages, in colors that draw 0
 // transparent and everything else in color 1.
-// Not 100%: the stack slots of node and i are permuted.
 // FUNCTION: MW2SHELL 0x1002e1b1
 void LoadTextPages(
 	Collection* p_pages,

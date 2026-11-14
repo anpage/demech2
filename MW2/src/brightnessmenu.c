@@ -22,7 +22,6 @@ MechS32 GetBrightnessFraction(MechS32 p_arg)
 #endif
 }
 
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007460e
 // FUNCTION: MW2MATROX 0x100171eb
 // FUNCTION: MW23DFX 0x100641d0

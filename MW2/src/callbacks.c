@@ -55,8 +55,6 @@ TimedCallback* CreateDetachedTask(TimedCallback** p_list, TimedCallbackFn p_fn, 
 	return callback;
 }
 
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007d3bf
 // FUNCTION: MW2MATROX 0x1002738f
 // FUNCTION: MW23DFX 0x10008300
@@ -126,8 +124,6 @@ void** GetCallbackData(TimedCallback* p_callback)
 	return &p_callback->m_data;
 }
 
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007d535
 // FUNCTION: MW2MATROX 0x10027505
 // FUNCTION: MW23DFX 0x100083d0

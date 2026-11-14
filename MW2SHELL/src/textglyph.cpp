@@ -179,8 +179,6 @@ MechU8 TextGlyph::TypeStep()
 	return DrawNextChar();
 }
 
-// Operand order: the original computes m_right from m_left + m_width with m_left loaded first; it
-// follows the unit's symbol table.
 // FUNCTION: MW2SHELL 0x100479b7
 TextGlyph::TextGlyph(MechChar* p_text, MechS32 p_left, MechS32 p_top, undefined* p_colors, Font* p_font)
 {

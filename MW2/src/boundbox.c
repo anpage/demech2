@@ -101,9 +101,6 @@ void AttachShapeBoundBox(Shape* p_shape)
 }
 
 // Computes the bounding box of the shape's first model, transforming it first if it is out of date.
-// The model/shape stamp comparison loads its operands in the other order (the unit's symbol
-// table), and model, vertex and selected sit in permuted stack slots.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1006eb80
 // FUNCTION: MW2MATROX 0x1000a700
 // FUNCTION: MW23DFX 0x1000d920

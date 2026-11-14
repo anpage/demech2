@@ -50,7 +50,6 @@ void ClearMonoLastLine(void)
 	}
 }
 
-// Stack-slot permutation (VC++ 2.2): source, destination and index.
 // FUNCTION: NETMECHW 0x1001385c
 void PrintMonoLine(MechChar* p_message)
 {
@@ -146,8 +145,6 @@ void SetDebugLogName(MechChar* p_fileName)
 	strncpy(g_debugLogName, p_fileName, 0x100);
 }
 
-// Stack-slot permutation (VC++ 2.2): message and args. The jump table's entries move with
-// the longer encodings the permutation gives the recompiled cases.
 // FUNCTION: NETMECHW 0x10013a72
 void DebugPrintInternal(MechChar* p_message, ...)
 {

@@ -101,7 +101,6 @@ void FUN_1000f172()
 }
 
 // Appends the GPS node of the player in slot p_index to the BWD stream.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000f27f
 void FUN_1000f27f(MechS32 p_index, MechU8 p_unk0x0c, MechU8 p_unk0x0d)
 {
@@ -163,7 +162,6 @@ void FUN_1000f27f(MechS32 p_index, MechU8 p_unk0x0c, MechU8 p_unk0x0d)
 }
 
 // Returns the index in g_unk0x1001c318 of the chassis p_code, or -1.
-// Matches except for the comparison i < g_unk0x1001fe70, whose operands VC++ 2.2 swaps.
 // FUNCTION: NETMECHW 0x1000f487
 MechS32 FUN_1000f487(MechChar* p_code)
 {
@@ -184,7 +182,6 @@ MechS32 FUN_1000f487(MechChar* p_code)
 
 // Writes the game options into the difficulty settings for the simulator, MW2NET.CFG, starting
 // from MW2NET.CFG or else MW2DIF.CFG.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000f52c
 void WriteNetDifficultyCfg(
 	CopperField0x4d::Options p_options,

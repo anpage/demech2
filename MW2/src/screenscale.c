@@ -57,7 +57,6 @@ MechS32 g_pulseTime = 0;
 MechS32 g_pulseStep = 0;
 
 // Maps 16.16 fractions of the screen onto pixels.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10056920
 // FUNCTION: MW2MATROX 0x10071320
 // FUNCTION: MW23DFX 0x10005b70
@@ -71,7 +70,6 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 }
 
 // Maps 16.16 fractions of p_frame onto pixels.
-// Stack-slot permutation: width and height.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005699f
 // FUNCTION: MW2MATROX 0x1007139f
@@ -119,7 +117,6 @@ Point* ScalePointToScreen(WINDOW* p_buffer, Point* p_src, Point* p_dst)
 
 // Maps 16.16 fractions of p_frame's size onto pixels, relative to the frame (unlike
 // ScaleRectToFrame, it doesn't add the frame's origin).
-// Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x10056b2b
 // FUNCTION: MW2MATROX 0x1007152b
 // FUNCTION: MW23DFX 0x10005e10
@@ -138,7 +135,6 @@ Rect* ScaleBoundsToFrame(PANE* p_frame, Rect* p_src, Rect* p_dst)
 }
 
 // Maps a point in 16.16 fractions of p_frame's size onto pixels, relative to the frame.
-// Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x10056bc1
 // FUNCTION: MW2MATROX 0x100715c1
 // FUNCTION: MW23DFX 0x10005ec0
@@ -243,7 +239,6 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 }
 
 // Scales p_src about its center by p_scale (16.16).
-// Stack-slot permutation: centerX and centerY.
 // The 3Dfx edition's diff is register allocation, scheduling and stack slots only.
 // FUNCTION: MW2 0x10056ec5
 // FUNCTION: MW2MATROX 0x100718d5
@@ -271,7 +266,6 @@ PANE* ScaleRectAboutCenter(PANE* p_src, PANE* p_dst, Point p_scale)
 }
 
 // Scales p_src about its center to the size of a shape frame.
-// Stack-slot permutation: size and scale.
 // FUNCTION: MW2 0x10056fcf
 // FUNCTION: MW2MATROX 0x100719df
 // FUNCTION: MW23DFX 0x10006310
@@ -290,7 +284,6 @@ PANE* FitRectToShape(PANE* p_src, PANE* p_dst, void* p_shape, MechS32 p_frame)
 }
 
 // Scales p_src about its center to the size of a shape.
-// Stack-slot permutation: size and scale.
 // FUNCTION: MW2 0x1005705e
 // FUNCTION: MW2MATROX 0x10071a6e
 // FUNCTION: MW23DFX 0x100063b0
@@ -309,7 +302,6 @@ PANE* FitRectToGif(PANE* p_src, PANE* p_dst, void* p_shape)
 }
 
 // Outlines a pane.
-// Stack-slot permutation: width and height.
 // FUNCTION: MW2 0x100570e9
 // FUNCTION: MW2MATROX 0x10071af9
 // FUNCTION: MW23DFX 0x10006450
@@ -327,8 +319,6 @@ void OutlinePane(PANE* p_target, MechS32 p_color)
 }
 
 // Draws a line across the pane under a line of text at p_pos.
-// Stack-slot permutation: height and width.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005718d
 // FUNCTION: MW2MATROX 0x10071bc1
 // FUNCTION: MW23DFX 0x100064e0
@@ -345,8 +335,6 @@ void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color
 }
 
 // Underlines text drawn at p_pos.
-// Stack-slot permutation: width, height and i.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100571ea
 // FUNCTION: MW2MATROX 0x10071c27
 // FUNCTION: MW23DFX 0x10006520
@@ -368,7 +356,6 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
 // Stack-slot permutation: the locals. The Matrox edition's build loads p_text[i]'s index before its base.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057282
 // FUNCTION: MW2MATROX 0x10071cc8
 // FUNCTION: MW23DFX 0x100065c0
@@ -405,7 +392,6 @@ void BoxText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, MechS3
 }
 
 // Draws text word-wrapped into a pane, inside the margins, until it runs out of lines.
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057396
 // FUNCTION: MW2MATROX 0x10071e00
 // FUNCTION: MW23DFX 0x100066c0
@@ -488,7 +474,6 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 }
 
 // Sizes p_rect to fit a block of text, lines separated by newlines, plus the margins.
-// Stack-slot permutation: the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100575b9
 // FUNCTION: MW2MATROX 0x10072023
@@ -543,7 +528,6 @@ typedef struct CenteredDraw {
 
 // Plots a pixel of p_draw's colour at (p_width / 2, -p_height / 2) from the centre of its target
 // (16.16 fractions of the target), shows the frame, and returns FALSE if Esc was pressed.
-// Stack-slot permutation: target and pos.
 // FUNCTION: MW2 0x100576e9
 MechS32 PlotCenteredPixel(CenteredDraw* p_draw, MechS32 p_width, MechS32 p_height)
 {
@@ -603,7 +587,6 @@ void DrawPulsingFrame(PANE* p_target)
 }
 
 // Tiles a pane with a shape frame.
-// Stack-slot permutation: the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057896
 // FUNCTION: MW2MATROX 0x10072153
@@ -683,7 +666,6 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 }
 
 // Where the needle from the center of a gauge rectangle towards p_point leaves the rectangle.
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057a03
 // FUNCTION: MW2MATROX 0x100722b1
 // FUNCTION: MW23DFX 0x10006a60
@@ -716,7 +698,6 @@ Point* GetRectNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 
 // Where the needle from the center of a gauge rectangle at the heading p_angle (16.16 degrees)
 // leaves the rectangle.
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057ac4
 // FUNCTION: MW2MATROX 0x10072388
 // FUNCTION: MW23DFX 0x10006b10
@@ -770,8 +751,6 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	return p_out;
 }
 
-// Stack-slot permutation: width, height, ratio and result; the comparisons with p_slope load
-// the other operand first.
 // Where a line from the center of a rectangle (p_half: its half size) leaves it, for the
 // slope p_slope and the direction bits of p_quadrant (GetRectNeedleToward).
 // FUNCTION: MW2 0x10057bf3
@@ -859,7 +838,6 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_
 }
 
 // Draws the ellipse inscribed in a pane, corrected for the pixel aspect.
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x10057e56
 // FUNCTION: MW2MATROX 0x100727aa
 // FUNCTION: MW23DFX 0x10006e80
@@ -888,7 +866,6 @@ void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 }
 
 // Fills the part of the ellipse inscribed in a pane that lies in p_rect.
-// Stack-slot permutation: the locals; clip.m_top loads p_rect->m_top first in the original.
 // FUNCTION: MW2 0x10057edc
 void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 {
@@ -915,9 +892,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 }
 
 // Tests whether a point lies inside the ellipse inscribed in a pane.
-// Stack-slot permutation: the locals.
 // The Matrox edition takes the point as a Point and divides by the float aspect.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2MATROX 0x10072834
 // FUNCTION: MW23DFX 0x10006ef0
@@ -954,8 +929,6 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 }
 
 // Where the needle of the gauge ellipse towards p_point ends.
-// Stack-slot permutation: the locals.
-// Matches but for the registers, and the original folds the quadrant's zero into the bit it sets.
 // FUNCTION: MW2 0x1005806a
 // FUNCTION: MW2MATROX 0x100728f3
 // FUNCTION: MW23DFX 0x10006f70
@@ -999,7 +972,6 @@ Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 }
 
 // Where the needle of the gauge ellipse at the heading p_angle (16.16 degrees) ends.
-// Stack-slot permutation: the locals.
 // FUNCTION: MW2 0x1005816f
 // FUNCTION: MW2MATROX 0x10072a22
 // FUNCTION: MW23DFX 0x10007070
@@ -1070,8 +1042,6 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 }
 
 // Where a needle of the gauge ellipse at p_angle ends, from p_center.
-// Stack-slot permutation: the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100582c4
 // FUNCTION: MW2MATROX 0x10072b74
 // FUNCTION: MW23DFX 0x100071a0

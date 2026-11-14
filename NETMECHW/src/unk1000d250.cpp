@@ -26,7 +26,6 @@ MechS32 g_unk0x10023708[16] =
 
 // Shows the players' names in the slots of the dialog p_dialog, if the options changed since they
 // were last shown or p_force is set.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000d250
 void FUN_1000d250(HWND p_dialog, MechS32 p_force)
 {
@@ -60,7 +59,6 @@ void FUN_1000d250(HWND p_dialog, MechS32 p_force)
 }
 
 // The free-for-all slot dialog (pane 4): the players in their slots, and the chat.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000d31f
 BOOL CALLBACK FUN_1000d31f(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {
@@ -238,7 +236,6 @@ BOOL CALLBACK FUN_1000d31f(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARA
 // Shows the players' names in the slots of the dialog p_dialog by team, if the options changed
 // since they were last shown or p_force is set, and disables control 0x42c when the local
 // player is alone on their team.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000d91f
 void FUN_1000d91f(HWND p_dialog, MechS32 p_force)
 {
@@ -299,7 +296,6 @@ void FUN_1000d91f(HWND p_dialog, MechS32 p_force)
 
 // The team slot dialog (pane 5): the players in their teams' slots, the team labels in their
 // colors, and the chat, to everyone or to the team.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000dae1
 BOOL CALLBACK FUN_1000dae1(HWND p_dialog, UINT p_message, WPARAM p_wParam, LPARAM p_lParam)
 {

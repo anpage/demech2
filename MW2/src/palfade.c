@@ -11,7 +11,6 @@
 DECOMP_SIZE_ASSERT(PaletteCycle, 0x0d)
 DECOMP_SIZE_ASSERT(PaletteFade, 0x19)
 
-// Matches except for the stack slots of i and dst (a consistent permutation).
 // FUNCTION: MW2 0x10010ad0
 // FUNCTION: MW2MATROX 0x10050540
 // FUNCTION: MW23DFX 0x100612a0
@@ -79,10 +78,6 @@ void FreePaletteCycle(PaletteCycle* p_cycle)
 	g_currentDisplayBackend->m_setPaletteWithBrightness((PaletteColor*) p_cycle->m_original);
 }
 
-// Matches except for the stack slots of i and accum (a consistent permutation). The Matrox edition adds
-// p_count * 3 and p_first * 3 in the other operand order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10010c85
 // FUNCTION: MW2MATROX 0x100506f5
 // FUNCTION: MW23DFX 0x100613c0
@@ -125,8 +120,6 @@ MechS32 InitPaletteFade(
 	return 1;
 }
 
-// Matches except for the stack slots of i and accum (a consistent permutation). The Matrox edition adds
-// p_count * 3 and p_first * 3 in the other operand order.
 // FUNCTION: MW2 0x10010d99
 // FUNCTION: MW2MATROX 0x10050809
 // FUNCTION: MW23DFX 0x10061480

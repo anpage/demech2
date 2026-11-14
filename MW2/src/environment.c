@@ -130,10 +130,6 @@ void FirstEnvironment(void)
 #endif
 }
 
-// Stack slots: seconds, time and i are permuted. MW2MATROX: the g_currentClock and
-// g_nextTimeOfDayUpdate comparison has its operands the other way around.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007d6bb
 // FUNCTION: MW2MATROX 0x10085d3b
 // FUNCTION: MW23DFX 0x10007900
@@ -178,7 +174,6 @@ void UpdateTimeOfDay(void)
 	}
 }
 
-// Operand order: the original compares p_phase != g_timeOfDayPhase with g_timeOfDayPhase in eax.
 // FUNCTION: MW2 0x1007d7e3
 // FUNCTION: MW2MATROX 0x10085e63
 // FUNCTION: MW23DFX 0x100079d0
@@ -217,7 +212,6 @@ MechS32 IsInfraredOn(undefined4 p_unk0x00)
 	return g_infraredOn;
 }
 
-// Operand order: the original compares g_infraredOn != p_state with p_state in eax.
 // FUNCTION: MW2 0x1007d88a
 // FUNCTION: MW2MATROX 0x10085f09
 // FUNCTION: MW23DFX 0x10007a50
@@ -244,8 +238,6 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 	}
 }
 
-// Stack slots: i and mech are swapped. MW2MATROX: the i < g_playerCount comparison has its
-// operands the other way around.
 // FUNCTION: MW2 0x1007d931
 // FUNCTION: MW2MATROX 0x10085fbe
 // FUNCTION: MW23DFX 0x10007af0
@@ -264,8 +256,6 @@ void QuadrupleMechCooling(void)
 	}
 }
 
-// Stack slots: i and mech are swapped. MW2MATROX: the i < g_playerCount comparison has its
-// operands the other way around.
 // FUNCTION: MW2 0x1007d97c
 // FUNCTION: MW2MATROX 0x10086017
 // FUNCTION: MW23DFX 0x10007b30

@@ -18,7 +18,6 @@
 // A quarter wave of sines and the arctangents of 0 to 1 in 512 steps (degrees). The last
 // entries are written one past each table: g_sinTable's lands on g_atanTable[0] in the original,
 // and on other globals in this build, which the two stores' diffs show.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2MATROX 0x1007edd0
 // FUNCTION: MW23DFX 0x1002ffb0
 MechS32 InitSinAtanTables(void)
@@ -76,8 +75,6 @@ MechScalar FixedSin(MechScalar p_angle)
 }
 // Returns the bearing of (p_x, p_z) in degrees: the arctangent of the smaller over the larger
 // component from the table, folded into its quadrant.
-// Stack-slot permutation; p_z > p_x compares in the other operand order.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x1007ef93
 // FUNCTION: MW23DFX 0x10030120
 MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
@@ -140,7 +137,6 @@ MechScalar FixedAtan2(MechScalar p_x, MechScalar p_z)
 }
 
 // The cosines and sines of the angles whose tangents are 0 to 50 in steps of 1/16.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2MATROX 0x1007f15b
 // FUNCTION: MW23DFX 0x100302c0
 MechS32 InitSlopeTables(void)
@@ -169,7 +165,6 @@ MechS32 InitSlopeTables(void)
 }
 
 // The Matrox edition's is C, on floats, and takes the absolute values in the order x, z, y.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2MATROX 0x1007f25b
 // FUNCTION: MW23DFX 0x10030330
 MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_z)
@@ -216,7 +211,6 @@ MechScalar ApproximateVectorLength(MechScalar p_x, MechScalar p_y, MechScalar p_
 	return (x * 4 + y + z) / 4;
 }
 
-// Operand order: the original reloads y for its square after x's, this build keeps it on the FPU stack.
 // FUNCTION: MW2MATROX 0x1007f336
 // FUNCTION: MW23DFX 0x100303f0
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)

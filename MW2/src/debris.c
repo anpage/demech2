@@ -45,7 +45,6 @@ DebrisPiece g_debrisPieces[0x80];
 // GLOBAL: MW23DFX 0x101e6c30
 DebrisChunk g_debrisChunks[0x80];
 
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100040b0
 // FUNCTION: MW2MATROX 0x1002a420
 // FUNCTION: MW23DFX 0x10015200
@@ -59,8 +58,6 @@ MechS32 IsDebrisFull(void)
 	return i == 0x80;
 }
 
-// Stack-slot permutation: i and piece.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10004111
 // FUNCTION: MW2MATROX 0x1002a481
 // FUNCTION: MW23DFX 0x10015230
@@ -127,9 +124,6 @@ void ThrowDebrisPiece(MechS32 p_index)
 }
 
 // Blows p_obj off its model as a chunk of debris; p_callback gets it when it's gone.
-// Stack-slot permutation: i and chunk.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10004356
 // FUNCTION: MW2MATROX 0x1002a703
 // FUNCTION: MW23DFX 0x10015410
@@ -183,7 +177,6 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 	}
 }
 
-// Stack-slot permutation: child and sibling.
 // FUNCTION: MW2 0x100044f3
 // FUNCTION: MW2MATROX 0x1002a8a0
 // FUNCTION: MW23DFX 0x10015530
@@ -292,10 +285,8 @@ void DamageChunk(MechS32 p_index, MechScalar p_damage)
 	}
 }
 
-// Stack-slot permutation of the locals, and the operand order of newY <= ground. MW2MATROX
-// stores velocityY and ground before comparing them (fst, fcomp) where the rebuild compares first
-// (fcom, fstp), the symbol-order entropy of UpdateWrappedRamp's comparison.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// MW2MATROX stores velocityY and ground before comparing them (fst, fcomp) where the rebuild
+// compares first (fcom, fstp), the symbol-order entropy of UpdateWrappedRamp's comparison.
 // FUNCTION: MW2 0x100047c2
 // FUNCTION: MW2MATROX 0x1002ab7a
 // FUNCTION: MW23DFX 0x100156f0
@@ -393,7 +384,6 @@ void UpdateDebrisPiece(MechS32 p_index)
 }
 
 // Pushes the piece by (p_x, p_y, p_z) on top of a random throw.
-// Stack-slot permutation: length, speed and piece; and the operand order of length < speed.
 // FUNCTION: MW2 0x10004a45
 // FUNCTION: MW2MATROX 0x1002aeed
 // FUNCTION: MW23DFX 0x10015920
@@ -473,8 +463,6 @@ void ResetDebrisPiece(MechS32 p_index)
 	piece->m_acceleration = 0;
 }
 
-// Stack-slot permutation: index and i.
-// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10004c86
 // FUNCTION: MW2MATROX 0x1002b135
 // FUNCTION: MW23DFX 0x10015aa0
@@ -495,8 +483,6 @@ MechS32 FindDebrisPiece(SceneObject* p_obj)
 }
 
 // Damages the chunks within p_radius of (p_x, p_y, p_z) by p_damage per second.
-// Stack-slot permutation of the locals, and the operand order of radius + p_radius.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10004ce5
 // FUNCTION: MW2MATROX 0x1002b194
 // FUNCTION: MW23DFX 0x10015ad0

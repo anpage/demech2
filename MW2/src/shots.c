@@ -161,8 +161,6 @@ Shot g_shots[0xaf];
 // GLOBAL: MW23DFX 0x10156c50
 Effect g_effects[0x100];
 
-// Stack-slot permutation: i, shot and effect.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006a230
 // FUNCTION: MW2MATROX 0x1006ad30
 // FUNCTION: MW23DFX 0x10044c40
@@ -231,8 +229,6 @@ void ResetShotSlot(MechS32 p_index)
 }
 
 // Ages every shot in flight by g_deltaTime and moves it on.
-// Stack-slot permutation: i and shot.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006a486
 // FUNCTION: MW2MATROX 0x1006af86
 // FUNCTION: MW23DFX 0x10044eb0
@@ -512,9 +508,7 @@ void UpdateShot(MechS32 p_index)
 
 // Sways (p_x, p_y, p_z) sideways and up and down around the shot's line of flight, by the
 // phase in m_swayPhase, and advances the phase.
-// MW2MATROX: in floats, with the phase in degrees (3.9779005 a tick) and no scaling of the sway;
-// only the stack slots differ.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
+// MW2MATROX: in floats, with the phase in degrees (3.9779005 a tick) and no scaling of the sway.
 // FUNCTION: MW2 0x1006ad78
 // FUNCTION: MW2MATROX 0x1006b93e
 // FUNCTION: MW23DFX 0x10045840
@@ -545,8 +539,6 @@ void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 
 // Steers a guided missile at (p_x, p_y, p_z) toward its target, and arms its proximity fuse
 // within 100 units of it.
-// Stack-slot permutation: every local but distance.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006ae5a
 // FUNCTION: MW2MATROX 0x1006ba0e
 // FUNCTION: MW23DFX 0x10045910
@@ -631,7 +623,6 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 
 // Removes the shot from the world and frees its slot; p_explode spawns the effect its impact
 // calls for at (p_x, p_y, p_z), with the camera looking from (p_camX, p_camY, p_camZ).
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006b0b4
 // FUNCTION: MW2MATROX 0x1006bc89
 // FUNCTION: MW23DFX 0x10045b90
@@ -709,9 +700,8 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // (c_impactMech etc.), which picks a variant of it, and 0x4000 keeps its sound at full volume.
 // The effect takes a free slot of its type (none if three of them already burn within 500
 // units), and the effect camera may follow it from (p_camX, p_camY, p_camZ).
-// Stack-slot permutation of the locals; one distance comparison has its operands the other
-// way around. MW2MATROX (0x1006bdd0) matches but for m_distanceFade (see UpdateEffects), and
-// adds cameraX * cameraX + cameraZ * cameraZ the other way around.
+// Stack-slot permutation of the locals; one distance comparison has its operands the other way
+// around.
 // The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006b1fb
 // FUNCTION: MW2MATROX 0x1006bdd0
@@ -982,11 +972,7 @@ void SpawnEffectEx(
 
 // Counts down the effects, lets the damaging ones hurt what is near them, and frees them when
 // their time runs out, giving the camera back if one had it.
-// Stack-slot permutation of the locals; the i == g_effectCameraEffect comparison has its
-// operands the other way around. MW2MATROX (0x1006c584) matches but for m_distanceFade, at 0x44 in
-// the Matrox edition's RenderSettings (two more dwords from 0x28 on; see SetMechViewRenderSettings).
 // GetPaletteFadeSteps (palette.c) has no MW2MATROX annotation yet.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006b99a
 // FUNCTION: MW2MATROX 0x1006c584
 // FUNCTION: MW23DFX 0x10046490
@@ -1067,10 +1053,6 @@ void UpdateEffects(void)
 
 // Damages every mech within p_radius (plus its own radius) of (p_x, p_y, p_z) by p_rate per
 // tick in each of its sections, twice as much when its power is off.
-// Stack-slot permutation of the locals; the i != g_localPlayerId comparison and the
-// p_rate * g_deltaTime product have their operands the other way around.
-// MW2MATROX: i != g_localPlayerId compares in the other operand order.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006bc13
 // FUNCTION: MW2MATROX 0x1006c803
 // FUNCTION: MW23DFX 0x10046700
@@ -1136,8 +1118,6 @@ void DamageMechsInRadius(
 }
 
 // Damages every game thing whose shape comes within p_radius of (p_x, p_y, p_z).
-// Stack-slot permutation of the locals; the distance < reach comparison has its operands the
-// other way around; MW2MATROX adds radius + p_radius the other way around too.
 // The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006bdb4
 // FUNCTION: MW2MATROX 0x1006c9d5
@@ -1229,9 +1209,6 @@ MechS32 TrackLastShot(void)
 
 // Counts the destruction of game thing p_index for the last shooter's side and team, and
 // removes it.
-// The shooter and local player comparisons have their operands the other way around.
-// MW2MATROX: g_lastHitShooter == g_localPlayerId compares in the other operand order.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006bf8c
 // FUNCTION: MW2MATROX 0x1006cbb0
 // FUNCTION: MW23DFX 0x10046a90
@@ -1287,7 +1264,6 @@ void KillGameThing(MechU32 p_index)
 
 // Takes p_damage off the hit points of the game thing p_shape belongs to; when they run out,
 // blows it up and counts it destroyed.
-// Stack-slot permutation: index and thing.
 // FUNCTION: MW2 0x1006c11c
 // FUNCTION: MW2MATROX 0x1006cd40
 // FUNCTION: MW23DFX 0x10046c20
@@ -1387,7 +1363,6 @@ void SaveCareerRecord(void)
 // MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts by
 // 3; distance < reach stores before it compares (fst, fcomp) where the rebuild compares first, and
 // i != g_localPlayerId compares in the other operand order.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006c362
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70
@@ -1453,8 +1428,6 @@ void HeatMechsNearFires(void)
 
 // Sets off a nuke at the player's position: the palette flash, the effect, and the blast that
 // grows over the next ticks (UpdateNuke).
-// Stack-slot permutation: duration, effect and shape.
-// The 3Dfx edition's diff is a stack-slot permutation only (shots.c is /Od).
 // FUNCTION: MW2 0x1006c4e2
 // FUNCTION: MW2MATROX 0x1006d136
 // FUNCTION: MW23DFX 0x10047020
@@ -1493,9 +1466,6 @@ void StartNuke(Player* p_player)
 }
 
 // Grows the nuke's blast and damages everything in it.
-// The g_nukeRadius > g_nukeMaxRadius comparison has its operands the other way around;
-// defining the two globals the other way around didn't flip it. MW2MATROX stores g_nukeRadius before
-// the comparison (fst, fcomp) where the rebuild compares first (fcom, fstp), the same entropy.
 // FUNCTION: MW2 0x1006c5e7
 // FUNCTION: MW2MATROX 0x1006d239
 // FUNCTION: MW23DFX 0x10047130

@@ -49,7 +49,6 @@ MechS32 ScreenshotBegin(const MechChar* p_filename)
 	return result;
 }
 
-// Stack-slot permutation: color and i.
 // FUNCTION: MW2 0x1006ce29
 // FUNCTION: MW2MATROX 0x1006eb89
 // FUNCTION: MW23DFX 0x1003b620
@@ -70,7 +69,6 @@ void ScreenshotWritePalette(void)
 	}
 }
 
-// Stack-slot permutation: width and result.
 // FUNCTION: MW2 0x1006cea9
 // FUNCTION: MW2MATROX 0x1006ec09
 // FUNCTION: MW23DFX 0x1003b680

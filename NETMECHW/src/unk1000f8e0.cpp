@@ -36,7 +36,6 @@ void FUN_100103ea(HWND p_dialog, MechS32 p_result);
 // Dials the host of the session selected in the list box (control 0x418) of the dialog
 // p_dialog, joins the session and creates the local player in it, and starts the client's
 // threads. Returns whether it succeeded; tells the user why not otherwise.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000f8e0
 MechS32 FUN_1000f8e0(HWND p_dialog)
 {
@@ -124,7 +123,6 @@ MechS32 FUN_1000fc72()
 // Creates the session of a modem connection, as its host, waits for the call, creates the local
 // player in it and starts the host's threads. Returns whether it succeeded; tells the user why
 // not otherwise.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000fca7
 MechS32 FUN_1000fca7(HWND p_dialog)
 {
@@ -203,7 +201,6 @@ MechS32 FUN_1000ff61()
 
 // While the host waits for a call, passes DirectPlay's system messages on to the waiting dialog
 // p_dialog as messages 0x400 to 0x406, until it receives message 0x418.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000ffcf
 DWORD WINAPI FUN_1000ffcf(LPVOID p_dialog)
 {

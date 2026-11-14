@@ -223,7 +223,6 @@ MechS32 g_satelliteClean;
 // Places the cockpit view p_cockpit on the screen: its viewport (kept in the render-target table,
 // and for the normal cockpit also in g_cockpitPanelPanes), its points and extra rectangles, and its
 // gauge functions.
-// Stack-slot permutation: index, rect, transition and viewport.
 // FUNCTION: MW2 0x1003dab0
 // FUNCTION: MW2MATROX 0x10073800
 // FUNCTION: MW23DFX 0x10003250
@@ -333,9 +332,6 @@ void RunMapView(void)
 // (4) with its own frame callback, and 5 back out to the view it was entered from. Keeps the
 // overlay settings the satellite view changes while a cockpit view shows, and leaves it when the
 // player dies. Returns whether the view changed.
-// Stack-slot permutation; g_cockpitLayoutIndex != g_requestedCockpitView compares in the other operand
-// order.
-// MW2MATROX: the same comparison, the other way around.
 // The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x1003ddd7
 // FUNCTION: MW2MATROX 0x10073ab1
@@ -437,8 +433,7 @@ void DrawCockpitView(void)
 // the player's weapon object (or the free eyepoint) from the view's range. The satellite view (4)
 // draws the terrain with its own shape filter, face and polygon hooks, over a cleared view. Then
 // the field of view, the icons, the view's own gauge and, in the map views, the readouts.
-// The pose has a seventh element nothing uses. The only diff is a stack-slot permutation of the
-// locals.
+// The pose has a seventh element nothing uses.
 // MW2MATROX clears the satellite view with the A3D pane wipe (FUN_1005f8a0); BeginMapView and
 // EndMapView (mapview.c) have no MW2MATROX annotation yet.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
@@ -663,7 +658,6 @@ void DrawMapUnits(CockpitLayout* p_layout)
 
 // Draws the local player's target: in the view, or clamped to its edge when outside it.
 // Stack-slot permutation; m_icons[row][side] loads the table before the row (index order).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003e689
 // FUNCTION: MW2MATROX 0x1007432d
 // FUNCTION: MW23DFX 0x10003a60
@@ -791,8 +785,6 @@ void DrawMapTarget(CockpitLayout* p_layout)
 #endif
 
 // Draws the local team's nav points, marking the ones reached.
-// Stack-slot permutation; i < g_navCount compares in the other operand order.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003e974
 // FUNCTION: MW2MATROX 0x1007465e
 // FUNCTION: MW23DFX 0x10003c10
@@ -870,7 +862,6 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 }
 
 // Draws the two lines of the view's field of view from the center, around heading p_heading.
-// The only diff is a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003eb22
 // FUNCTION: MW2MATROX 0x1007480f
@@ -917,9 +908,7 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 
 // Draws the view's range readout and, in the satellite view, the heading readout, formatting them
 // again only when they change.
-// Stack-slot permutation: every local.
-// MW2MATROX: formats the range and heading as floats; m_range != m_formattedRange compares in the
-// other operand order.
+// MW2MATROX: formats the range and heading as floats.
 // FUNCTION: MW2 0x1003ec35
 // FUNCTION: MW2MATROX 0x10074945
 // FUNCTION: MW23DFX 0x10003e50
@@ -1104,7 +1093,6 @@ void ZoomMapView(MechS32 p_zoom)
 
 // The map view's shape filter (RenderSettings::m_shapeFilter): skips dead players' shapes and
 // shapes of types 0x30 and 0x70, then culls through CullMapViewShape.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f00d
 // FUNCTION: MW2MATROX 0x10074d0c
 // FUNCTION: MW23DFX 0x100040b0
@@ -1155,7 +1143,6 @@ MechS32 MapShapeFilter(Shape* p_shape)
 // draws in, from the view's colors by the shape's kind and side, or the face's own (p_flags).
 // It takes the hook's four arguments: the 3Dfx edition pops p_depth too (ret 8), unused.
 // Faces of a textured kind (0x3000) draw in the view's color 10.
-// The only diff is a stack-slot permutation of the locals (and the jump tables' addresses).
 // MW2MATROX tests the kind with the face flags' whole top nibble (0xf000).
 // MW2MATROX: also ends the outer default with a break.
 // FUNCTION: MW2 0x1003f0e7
@@ -1247,7 +1234,6 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, 
 // The satellite view's polygon hook (RenderSettings::m_drawPolygon): terrain faces (0x4000) are
 // shaded by height, textured ones (0x3000) drawn as bands, and the rest as usual; plain faces
 // (0) twice, the second time outlined (0x2000).
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f393
 // FUNCTION: MW2MATROX 0x10075097
 // FUNCTION: MW23DFX 0x100042e0
@@ -1334,7 +1320,6 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #ifdef MW2_ACCEL
 // The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
 // in the colors p_flags picks.
-// Stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100751a9
 // FUNCTION: MW23DFX 0x10004390
@@ -1379,7 +1364,6 @@ void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_
 #endif
 
 // Returns the shade (0-15) of a height p_height in the map view.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f513
 // FUNCTION: MW2MATROX 0x100752b7
 // FUNCTION: MW23DFX 0x10004440
@@ -1453,7 +1437,6 @@ MechS32 DrawMapViewTransition(MechS32 p_reverse, CockpitLayout* p_layout, RectTr
 
 // The map view while the local mech starts up: slides the view's rectangle in (its transition),
 // then draws it.
-// MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003f66d
 // FUNCTION: MW2MATROX 0x10075428
@@ -1546,7 +1529,6 @@ void DrawSatelliteStatic(void)
 // Draws the current cockpit view while the radar panel is damaged: the satellite view through its
 // static, or the map with the view's damage animation over it, flickering at damage 1 and steady
 // at 2.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x1003f8d1
 // FUNCTION: MW2MATROX 0x1007568c
 // FUNCTION: MW23DFX 0x10004710
@@ -1598,7 +1580,6 @@ void DrawDamagedMapView(void)
 }
 
 // The map view while the local mech shuts down or is off: slides the view's rectangle out.
-// MW2MATROX: g_mapViewMode != g_previousMapViewMode compares in the other operand order.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003fa05
 // FUNCTION: MW2MATROX 0x100757c0

@@ -93,7 +93,6 @@ MechS32 g_shapesConsidered;
 
 // Selects the shape's level of detail for p_depth (the first model whose distance, scaled by the
 // eyepoint, lies beyond it, or the last) and queues its faces. Returns 1 if it has no model.
-// Stack-slot permutation: every local.
 // MW2MATROX: register allocation (model, prev, cursor and the eyepoint swap registers).
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
@@ -234,7 +233,6 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 // Sorts the entries from p_first to p_last, farthest first (a quicksort).
 // The p_last/p_first comparison loads its operands in the opposite order (one attempt at swapping
 // them didn't flip it), and stack-slot permutation: the swaps' temporaries.
-// MW2MATROX: register allocation (p_last and hi swap esi and ebx, and their comparisons the operands).
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003378e
 // FUNCTION: MW2MATROX 0x10023500
@@ -300,7 +298,6 @@ void SortDepthEntries(DepthEntry* p_first, DepthEntry* p_last)
 
 // Draws the shapes of the list p_root heads, farthest first. Shapes flagged 0x100 are queued
 // whole and expanded after the sort (DrawDepthQueue).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100338bb
 // FUNCTION: MW2MATROX 0x100235a0
 // FUNCTION: MW23DFX 0x1002a080
@@ -396,7 +393,6 @@ void DrawDepthQueue(void)
 #endif
 
 // Queues the polygons of p_object's shape and of its descendants' shapes.
-// MW2MATROX: the g_polygonCount/g_maxPolygons comparison loads its operands in the opposite order.
 // FUNCTION: MW2 0x10033c4b
 // FUNCTION: MW2MATROX 0x100237e0
 // FUNCTION: MW23DFX 0x1002a300
@@ -438,7 +434,6 @@ void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
 
 #ifndef MW2_ACCEL
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.
-// Stack-slot permutation: every local.
 // FUNCTION: MW2 0x10033d32
 void DrawQueuedPolygon(QueuedPolygon* p_poly)
 {
@@ -481,7 +476,6 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 
 // Clips a queued polygon to the screen (right, left, top and bottom in turn) and stores the
 // result in p_points, six dwords per vertex. Returns the number of vertices.
-// Stack-slot permutation: every local.
 // FUNCTION: MW2 0x10033e92
 MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 {
@@ -668,7 +662,6 @@ MechS32 ClipPolygonToScreen(QueuedPolygon* p_poly, MechU32* p_points)
 
 // Returns the depth where the edge from (p_a0, p_z0) to (p_a1, p_z1), in view space, crosses
 // the screen column (p_isX) or row p_edge.
-// Stack-slot permutation: da, dz, t and z.
 // FUNCTION: MW2 0x10034499
 MechS32 GetEdgeCrossingDepth(MechS32 p_a0, MechS32 p_a1, MechS32 p_edge, MechS32 p_isX, MechS32 p_z0, MechS32 p_z1)
 {

@@ -16,8 +16,6 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 
 // Sets up star p_table->m_star's mission from its mission table: the mission's times and sounds
 // and each objective's, with its conditions.
-// Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004da30
 // FUNCTION: MW2MATROX 0x1007f550
 // FUNCTION: MW23DFX 0x1003f900
@@ -102,9 +100,6 @@ void SetUpStarMission(MissionTable* p_table)
 
 // Returns the objectives that wait (state 0, 1 or 7) on the event list p_name, marking them as
 // waiting (7): bit j for objective j, bit 16 + i for mission table i.
-// Stack-slot permutation: every local.
-// MW2MATROX: the loop test (i < g_objectiveCount) compares in the other operand order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1004e35b
 // FUNCTION: MW2MATROX 0x1007fe7b
 // FUNCTION: MW23DFX 0x1003fe70
@@ -174,7 +169,6 @@ void PostEventToList(MechChar* p_name, MechS32 p_types, MechU16 p_target)
 
 // Walks the waiting objectives of the lists p_lists (FindEventList's bits) and does nothing
 // with them.
-// Stack-slot permutation: i and j.
 // FUNCTION: MW2 0x1004e69c
 // FUNCTION: MW2MATROX 0x100801be
 // FUNCTION: MW23DFX 0x10040060

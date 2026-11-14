@@ -55,7 +55,6 @@ void PrjFreeBlock(void* p_block)
 }
 
 // Writes in chunks of at most 16K. Returns p_length, or -1 on a short write.
-// Stack-slot permutation: chunk, left and buffer.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10071b20
 // FUNCTION: MW2MATROX 0x1000c160
@@ -83,7 +82,6 @@ MechS32 WritePrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 }
 
 // Reads in chunks of at most 16K. Returns p_length, or -1 on a short read.
-// Stack-slot permutation: chunk, left and buffer.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x10071b9e
 // FUNCTION: MW2MATROX 0x1000c1de
@@ -112,7 +110,6 @@ MechS32 ReadPrjBytes(MechS32 p_fd, void* p_buffer, MechU32 p_length)
 
 // Opens a PROJ file (p_mode 0: read-only, 2: read-write, which rejects a file marked 0xfe).
 // Returns its slot, -1 on failure or -2 for a rejected file.
-// Stack-slot permutation: tag, fd, size, slot and header.
 // FUNCTION: MW2 0x10071c1c
 // FUNCTION: MW2MATROX 0x1000c25c
 // FUNCTION: MW23DFX 0x1003d160
@@ -216,7 +213,6 @@ MechS32 ClosePrjFile(MechS32 p_file)
 }
 
 // Returns the type's index in the header, or 0xffff.
-// Operand order: the original tests count > i with setg.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100720b7
 // FUNCTION: MW2MATROX 0x1000c6f7
@@ -250,7 +246,6 @@ MechU16 FindPrjType(MechS32 p_file, const MechChar* p_type)
 }
 
 // Loads every type's index.
-// Stack-slot permutation: types, count, index, i and size.
 // FUNCTION: MW2 0x1007218f
 // FUNCTION: MW2MATROX 0x1000c7cf
 // FUNCTION: MW23DFX 0x1003d4a0
@@ -285,8 +280,6 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 	return 0;
 }
 
-// Stack-slot permutation: entries, size, types, type and id.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100722f5
 // FUNCTION: MW2MATROX 0x1000c935
 // FUNCTION: MW23DFX 0x1003d580
@@ -321,7 +314,6 @@ MechS32 GetPrjResourceSize(MechS32 p_file, const MechChar* p_type, MechU16 p_id)
 
 // Seeks the file to a resource, and returns its offset and size. The type test never fails (a
 // 16-bit index compared with -1).
-// Stack-slot permutation: entries, types, offset and type.
 // FUNCTION: MW2 0x10072405
 // FUNCTION: MW2MATROX 0x1000ca45
 // FUNCTION: MW23DFX 0x1003d620
@@ -366,8 +358,6 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 	return ReadPrjBytes(p_file, p_buffer, p_length);
 }
 
-// Stack-slot permutation: entries, types, offset, type, size and id.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100725ae
 // FUNCTION: MW2MATROX 0x1000cbee
 // FUNCTION: MW23DFX 0x1003d720
@@ -408,7 +398,6 @@ MechS32 ReadPrjResource(MechS32 p_file, const MechChar* p_type, MechU16 p_id, vo
 }
 
 // Returns a resource's offset in the file, and the file's descriptor.
-// Stack-slot permutation: entries, types, offset, type and id.
 // FUNCTION: MW2 0x10072734
 // FUNCTION: MW2MATROX 0x1000cd74
 // FUNCTION: MW23DFX 0x1003d7f0

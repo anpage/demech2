@@ -38,7 +38,6 @@ void BuildRayFromSegment(
 	p_ray->m_state = c_rayNone;
 }
 
-// MW2MATROX: the products p_length * p_dir load their operands in the other order.
 // FUNCTION: MW2 0x10002ebc
 // FUNCTION: MW2MATROX 0x100878cc
 // FUNCTION: MW23DFX 0x1000ae70
@@ -112,8 +111,6 @@ void BuildRayFixed(Ray* p_ray)
 	}
 }
 
-// MW2MATROX: the sum of squares starts from dx where the original's starts from dz (kept on the FPU
-// stack after its store), a commutative operand order.
 // FUNCTION: MW2 0x10003053
 // FUNCTION: MW2MATROX 0x10087a6a
 // FUNCTION: MW23DFX 0x1000afd0
@@ -265,10 +262,6 @@ void CopyRay(Ray* p_dst, Ray* p_src)
 	*p_dst = *p_src;
 }
 
-// Matches except for the stack slots of toMax and quotient (a consistent permutation).
-// MW2MATROX: the comparisons of p_origin with p_min and p_max have their operands the other way
-// round.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10003445
 // FUNCTION: MW2MATROX 0x10087e4d
 // FUNCTION: MW23DFX 0x1000b230

@@ -178,7 +178,6 @@ void LoadStar(MechS32 p_star, BwdStar* p_data)
 
 // Reads the mission's BWD file (the scenario's first four letters + "brf2"): its briefing
 // name, optionally its two stars (p_stars) and its briefing video and text (p_video).
-// Not 100%: the stack slots of name, file, title, star and the loop locals are permuted.
 // FUNCTION: MW2SHELL 0x10037cf7
 void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_video)
 {
@@ -391,7 +390,6 @@ void DrawMissionBriefing(TMPackDataBase* p_database, MechChar** p_scenario, WPAR
 
 // The mission briefing's frame: LAUNCH, EXIT, the next mission, both clans' videos, the mechs
 // and formations of both stars (next and previous), and the two stars' accept and config.
-// Not 100%: the stack slots of pos, variant, i and button are permuted.
 // FUNCTION: MW2SHELL 0x10038744
 void MissionBriefingCallback(TMPackDataBase*, MechS32*, MechU8*, MechChar** p_scenario, MechS32 p_msg)
 {

@@ -24,7 +24,6 @@ typedef struct ResourceTable {
 	ResourceEntry m_entries[1]; // 0x0c
 } ResourceTable;
 
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x10013430
 MechS32 FindResourceIdByName(MechS32 p_type, char* p_name)
 {

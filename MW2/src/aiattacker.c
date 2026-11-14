@@ -31,8 +31,6 @@
 
 // Turns p_player on a player attacking it (FindAttacker), unless its AI flags hold it (bit 0) or
 // it is busy with that player already, calling off the teammate on it (FindNearestTarget).
-// Stack-slot permutation: best, nearest and other and target.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100519b3
 // FUNCTION: MW2MATROX 0x10081144
 // FUNCTION: MW23DFX 0x10012520

@@ -262,7 +262,6 @@ void ChatLog::SaveTopIndex()
 	Unlock();
 }
 
-// Matches except for the stack slots of tabStop and scrollInfo, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000cb99
 void ChatLog::Attach(HWND p_dialog)
 {
@@ -401,7 +400,6 @@ void ChatLog::SendToTeam(HWND p_dialog)
 
 // Sends p_text from p_from to the player p_to (0: everyone); to the local player itself, it
 // posts the text to the lobby window instead.
-// Matches except for the stack slots of chat, packet, message and self, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000d092
 void ChatLog::Send(DPID p_from, DPID p_to, MechChar* p_text)
 {

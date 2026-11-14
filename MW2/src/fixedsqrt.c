@@ -12,7 +12,6 @@
 
 // Returns the square root of a 16.16 fixed-point value: a binary search between half and twice
 // FixedSqrtGuess's estimate, for at most 100 steps.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100168f0
 MechU32 FixedSqrt16(MechU32 p_value)
 {

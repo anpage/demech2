@@ -396,9 +396,6 @@ MechS32 FirstAudio(void)
 
 // Serves the samples and, every five seconds, sounds a warning while an AI player within
 // 150000 attacks the local player.
-// Operand order: g_nextEngageCheck <= g_currentClock and i < g_playerCount load the other
-// operand first in the original.
-// MW2MATROX: both comparisons compare in the other operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10006ef1

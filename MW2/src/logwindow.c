@@ -72,8 +72,6 @@ void ClearMonoLastLine(void)
 	}
 }
 
-// Stack-slot permutation: cell, i, text and length.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003a21c
 // FUNCTION: MW2MATROX 0x1006e7ac
 // FUNCTION: MW23DFX 0x10007cb0
@@ -99,7 +97,6 @@ void PrintMonoLine(MechChar* p_text)
 	}
 }
 
-// Stack-slot permutation: i and length.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003a299
@@ -193,7 +190,6 @@ void SetDebugLogName(const MechChar* p_path)
 	strncpy(g_debugLogName, p_path, sizeof(g_debugLogName));
 }
 
-// Stack-slot permutation: message and args (which moves the jump table targets).
 // FUNCTION: MW2 0x1003a432
 // FUNCTION: MW2MATROX 0x1006e9c2
 // FUNCTION: MW23DFX 0x10007e30
@@ -229,7 +225,6 @@ void DebugPrintInternal(const MechChar* p_format, ...)
 #ifdef MW2_ACCEL
 // Writes p_value's low four hex digits on the monochrome display's row p_row + 1, ending at its
 // last column.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2MATROX 0x1006eab0
 // FUNCTION: MW23DFX 0x10007ee0
 void MonoPrintHex(MechU32 p_value, MechU32 p_row)

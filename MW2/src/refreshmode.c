@@ -169,7 +169,6 @@ MechS32 g_refreshModeHeight;
 // Switches to refresh mode p_mode (-1: the first), falling through the later modes while a mode
 // is unavailable if p_allowFallback is set. The window covers the screen unless p_width x
 // p_height is smaller.
-// Stack-slot permutation: mode, backend, screenWidth, screenHeight and unused.
 // The Matrox edition's rebuild compares p_height and the mode index in the other operand order
 // (entropy).
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
@@ -297,8 +296,6 @@ void ShutdownRefreshMode(void)
 
 // Called once a frame while the refresh modes are profiled: times four frames of the current mode,
 // then moves to the next one; after the last, SelectFastestRefreshMode picks the fastest.
-// Operand order: the original compares the high parts as `cmp [g_profileStart+4], eax` with
-// end.HighPart in eax; swapping the operands doesn't flip it.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100770a8
@@ -372,9 +369,7 @@ void ProfileRefreshModes(void)
 	}
 }
 
-// Switches to the available refresh mode with the shortest profile time. MW2MATROX: stack-slot
-// permutation of i and best, and the operands of the comparison with g_currentRefreshMode
-// the other way.
+// Switches to the available refresh mode with the shortest profile time.
 // FUNCTION: MW2 0x100772a4
 // FUNCTION: MW2MATROX 0x1007b31f
 // FUNCTION: MW23DFX 0x10002a20
@@ -408,7 +403,6 @@ void SelectFastestRefreshMode(void)
 // Switches between fullscreen and the first available windowed refresh mode, or back to the
 // fullscreen mode last selected. Unlike the shell's, it does nothing while the frame covers the
 // whole screen, unless g_shouldToggleFullscreen is set.
-// Stack-slot permutation: i, mode and backend.
 // The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10077392
 // FUNCTION: MW2MATROX 0x1007b40e
@@ -505,7 +499,6 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 
 // Restyles the game window for p_backend's window mode, and sets g_windowMode: a mode that
 // covers the whole screen counts as fullscreen.
-// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x1007762f
 // FUNCTION: MW2MATROX 0x1007b6b5
 // FUNCTION: MW23DFX 0x10002cc0

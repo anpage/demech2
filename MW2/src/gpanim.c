@@ -70,7 +70,6 @@ MechScalar* GetEyepointOffset(Player* p_player, MechScalar* p_offset)
 // Picks the player's motion state from its mech's throttle (m_speedLevel, m_nextMotionState; 2
 // while its steering's m_reverse is set), plays its pending sound m_pendingSound once (bit 8 of
 // m_animFlags), and for the local player updates the looping sounds (UpdateMotionSounds).
-// Stack-slot permutation: offset and position.
 // FUNCTION: MW2 0x10003710
 // FUNCTION: MW2MATROX 0x1008c4d0
 // FUNCTION: MW23DFX 0x1000b3a0
@@ -130,8 +129,6 @@ void UpdateMotion(Player* p_player)
 	}
 }
 
-// Matches except for the stack slots of offset, sound and id (a consistent permutation) and
-// the order the p_sounds index loads its row and column in.
 // FUNCTION: MW2 0x100038c2
 // FUNCTION: MW2MATROX 0x1008c69f
 // FUNCTION: MW23DFX 0x1000b4e0

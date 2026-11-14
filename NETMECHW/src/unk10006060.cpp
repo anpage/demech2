@@ -59,7 +59,6 @@ MechS32 FUN_100060dc(MechChar* p_name)
 
 // The DirectPlayEnumerate callback of the connection dialog: adds the service provider to the
 // list box *p_context, with its GUID as item data.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x100062d9
 BOOL FAR PASCAL AddServiceProvider(LPGUID p_guid, LPSTR p_name, DWORD, DWORD, LPVOID p_context)
 {
@@ -79,7 +78,6 @@ BOOL FAR PASCAL AddServiceProvider(LPGUID p_guid, LPSTR p_name, DWORD, DWORD, LP
 
 // Takes the player name and the service provider from the connection dialog p_dialog; returns
 // whether both are set.
-// Matches except for the stack slots of the locals, which VC++ 2.2 permutes.
 // FUNCTION: NETMECHW 0x1000633a
 MechS32 FUN_1000633a(HWND p_dialog)
 {

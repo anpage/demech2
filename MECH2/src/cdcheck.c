@@ -13,8 +13,6 @@ MechS32 g_cdDriveNumber = 0;
 
 // Finds the CD-ROM drive holding the MechWarrior 2 CD (identified by OLD_HERC.DRV)
 // and returns its drive letter, or 0 if there is none. The result is cached.
-// Stack-slot permutation: drive, driveStrings, find, path and findData. The shorter
-// recompiled stack displacements truncate the original's tail in reccmp.
 // FUNCTION: MECH2 0x00401ce0
 MechChar CdCheck(void)
 {

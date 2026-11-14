@@ -19,7 +19,6 @@
 // GLOBAL: MW2 0x100ad43c
 MechS32 g_rayBoxEntryBehind = 0;
 
-// Stack-slot permutation: inColumn and top.
 // FUNCTION: MW2 0x100699a0
 // FUNCTION: MW2MATROX 0x10052170
 // FUNCTION: MW23DFX 0x1000d1b0
@@ -235,7 +234,6 @@ MechS32 TestRayNever(Shape* p_shape, Ray* p_ray)
 }
 
 // Finds the upward-facing face under (p_x, p_z) and tests whether p_y lies below it.
-// Stack-slot permutation: i, done, face and height.
 // FUNCTION: MW2 0x10069e78
 // FUNCTION: MW2MATROX 0x100526ba
 // FUNCTION: MW23DFX 0x1000d5a0
@@ -303,8 +301,6 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 }
 
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.
-// Stack-slot permutation of the locals; the p_y > height comparison has its operands the
-// other way around.
 // MW2MATROX: height stays on the FPU stack past the hit normal's stores in the original (fst, then
 // fcomp), where the rebuild stores and reloads it, an effect of the symbol order.
 // FUNCTION: MW2 0x1006a037
@@ -367,8 +363,6 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 }
 
 // Tests the ray against each face of the shape's model.
-// Stack-slot permutation: vertices, i and face.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006a190
 // FUNCTION: MW2MATROX 0x100529df
 // FUNCTION: MW23DFX 0x1000d7b0

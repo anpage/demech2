@@ -219,7 +219,6 @@ MechS32 GlidePaletteFade(PaletteColor* p_palette, MechS32 p_steps)
 }
 
 // Opens the frame buffer for the 2D drawing, which draws straight into it.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10005b40
 MechS32 GlideLockBuffer(void)
 {

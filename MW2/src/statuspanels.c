@@ -97,7 +97,6 @@ MechChar* FormatSeconds(MechS32 p_seconds)
 	return g_secondsText;
 }
 
-// Matches except for the stack slots of width and c (a consistent permutation).
 // Returns the width of p_text in p_font.
 // FUNCTION: MW2 0x1000507d
 // FUNCTION: MW2MATROX 0x100219c9
@@ -255,9 +254,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 
 // Draws the objectives panel: the objectives by priority, then the mission clock or how the
 // mission ended.
-// Stack-slot permutation of the locals (cursor, mission, font, height, gap, ticks and text).
 // MW2MATROX: the original's longer displacements shift the jump table's offsets.
-// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x100056f0
 // FUNCTION: MW2MATROX 0x100220de
 // FUNCTION: MW23DFX 0x10017b80
@@ -334,9 +331,6 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // Draws the network status panel: whom the camera tracks, or how to regenerate, or that the
 // game waits for the other players; then the chat message being typed, with its recipients and
 // a cursor.
-// Stack-slot permutation of the locals (state, cursor, pos, color, height, player, gap, text and font).
-// MW2MATROX: g_chatRecipient == g_localPlayerId compares in the other operand order.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10005add
 // FUNCTION: MW2MATROX 0x100224b9
 // FUNCTION: MW23DFX 0x10017e10
@@ -570,7 +564,6 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 }
 
 // Shows the autopilot's state.
-// Stack-slot permutation of text and font.
 // FUNCTION: MW2 0x10006189
 // FUNCTION: MW2MATROX 0x10022c7a
 // FUNCTION: MW23DFX 0x100183d0
@@ -619,7 +612,6 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 }
 
-// Stack-slot permutation of mech and font.
 // Shows the local mech's speed in kph, in a different color while it backs up, and its throttle bar.
 // FUNCTION: MW2 0x10006291
 // FUNCTION: MW2MATROX 0x10022d91
@@ -703,7 +695,6 @@ void DrawMascPanel(CockpitPanel* p_panel)
 #endif
 }
 
-// Stack-slot permutation of mech and font.
 // Labels the heat panel with the shutdown state and draws the heat bar.
 // FUNCTION: MW2 0x10006484
 // FUNCTION: MW2MATROX 0x10022fbf

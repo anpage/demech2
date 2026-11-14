@@ -32,7 +32,6 @@
 // free); *p_hit is the shape it hit and *p_player the mech's player.
 // Stack-slot permutation of the locals. The original sums dot's three products in source order;
 // the build starts with the second.
-// MW2MATROX: a stack-slot permutation of the locals.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100758a0
 // FUNCTION: MW2MATROX 0x10075a80
@@ -215,9 +214,6 @@ MechS32 MoveMechWithCollisions(
 // gives p_mech a velocity away from it. A mech pushing into one that pushed into it first (whose
 // m_collidedWith is p_mech's player) always collides. A mech in state 4 is knocked down
 // (KnockMechOver) instead. Returns 1 on a collision, with *p_hit the other mech's player.
-// Stack-slot permutation of the locals.
-// MW2MATROX: a stack-slot permutation, and i < g_playerCount loads g_playerCount first in the
-// original.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10075d7b
 // FUNCTION: MW2MATROX 0x10075f6c
@@ -432,10 +428,6 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // Pushes the point (*p_x, *p_y, *p_z) of p_mech out of the first building (a shape of type 6)
 // it overlaps and bounces its velocity away. A shape of kind 0x50 isn't solid: it only gets a
 // push and a sound. Returns 1 on a collision, with *p_hit the shape.
-// Stack-slot permutation of the locals. Operand order: dist < reach loads reach first in the
-// original.
-// MW2MATROX: a stack-slot permutation, and the products of the normal with reach and bounce load
-// the normal first in the original.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10076295
 // FUNCTION: MW2MATROX 0x1007649e
@@ -562,7 +554,6 @@ MechS32 CollideWithBuildings(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, Mec
 
 // Damages p_mech and p_other by their collision, when the difficulty has collision damage and
 // they met faster than 200000.
-// The only diff is a stack-slot permutation of speed and damage.
 // FUNCTION: MW2 0x100765f8
 // FUNCTION: MW2MATROX 0x1007685c
 // FUNCTION: MW23DFX 0x1000c160
@@ -593,8 +584,7 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // Damages p_mech by a collision along the last collision normal: from below (the normal points
 // down) the legs, scaled by the other mech's mass, from above both side torsos at half, and
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
-// Stack-slot permutation: attacker and angle. Operand order: damage < p_damage loads p_damage
-// first in the original. MW2MATROX multiplies p_damage * 2 * m_tons in another order.
+// MW2MATROX multiplies p_damage * 2 * m_tons in another order.
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2MATROX 0x10076927
@@ -668,7 +658,6 @@ void ApplyCollisionDamage(Mech* p_mech, Mech* p_other, MechScalar p_damage)
 
 // Damages p_mech for hitting p_shape (NULL: the ground) faster than 200000, and the shape too
 // when it can be damaged. In a network game, a shape of kind 0xb0 destroys both legs and itself.
-// Stack-slot permutation: damage and speed.
 // FUNCTION: MW2 0x100768a8
 // FUNCTION: MW2MATROX 0x10076bc3
 // FUNCTION: MW23DFX 0x1000c3c0

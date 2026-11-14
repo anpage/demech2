@@ -30,8 +30,6 @@ void StopRectTransition(RectTransition* p_transition)
 
 // Moves p_out's edges to the fraction p_t (16.16) of the way from p_from to p_to: the horizontal
 // ones unless p_axis is 2, the vertical ones unless it is 1.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10012354
 // FUNCTION: MW2MATROX 0x10045dd4
 // FUNCTION: MW23DFX 0x10001630
@@ -58,7 +56,6 @@ PANE* LerpPaneRect(PANE* p_from, PANE* p_to, PANE* p_out, MechS32 p_t, MechS32 p
 
 // Advances the transition, forward or (p_reverse) backward, and returns its rectangle, or NULL
 // when it isn't running.
-// Stack-slot permutation: t, def, active, from, state, out and to.
 // FUNCTION: MW2 0x10012432
 // FUNCTION: MW2MATROX 0x10045eb2
 // FUNCTION: MW23DFX 0x10001710
@@ -112,7 +109,6 @@ PANE* UpdateRectTransition(MechS32 p_reverse, RectTransition* p_transition)
 
 // As UpdateRectTransition, but the horizontal edges move in the first half and the vertical ones
 // in the second (the other way around in reverse).
-// Stack-slot permutation: t, def, active, from, firstAxis, secondAxis, state, out and to.
 // FUNCTION: MW2 0x10012557
 // FUNCTION: MW2MATROX 0x10045fd7
 // FUNCTION: MW23DFX 0x100017f0

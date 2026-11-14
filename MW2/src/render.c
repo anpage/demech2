@@ -245,7 +245,6 @@ MechS32 InitDisplayGeometry(void)
 
 // Makes the code block writable (the drawing routines patch themselves), sets up the vertex
 // buffers and the scene, and installs the normal render hooks.
-// Stack-slot permutation: size, start, segment and oldProtect.
 // FUNCTION: MW2 0x100128b5
 // FUNCTION: MW2MATROX 0x10017505
 // FUNCTION: MW23DFX 0x10004990
@@ -507,10 +506,8 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 
 // Shows the banner GIF (sbannr, or g_bannerName's name, with the art resolution's suffix) and
 // fades its palette in. Nothing calls it.
-// Stack-slot permutation of the locals. The Matrox edition's takes the suffix from the art
-// resolution before its 512x384 override (g_unk0x1012c1e4).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and the name of an address past an array.
+// The Matrox edition's takes the suffix from the art resolution before its 512x384 override
+// (g_unk0x1012c1e4).
 // FUNCTION: MW2 0x10012f3c
 // FUNCTION: MW2MATROX 0x10017b8f
 // FUNCTION: MW23DFX 0x10004ec0
@@ -573,7 +570,6 @@ void ShowBanner(void)
 
 // Draws the bounding spheres (the "michelin" cheat) of the list p_root's colliding mech shapes
 // (kind 0x100 without flag 0x800) and of kind 0x50, as circles of their radius in color 0xf.
-// The only diff is a stack-slot permutation of the locals.
 // FUNCTION: MW2 0x100131f1
 void DrawBoundingSpheres(Shape* p_root)
 {

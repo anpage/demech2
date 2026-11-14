@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// Stack-slot permutation: file and i swap [ebp-N] slots with the original.
 // FUNCTION: MW2SHELL 0x1002da80
 void LoadPilotRoster()
 {
