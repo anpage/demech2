@@ -282,6 +282,7 @@
 0x10054851 PlacePatrolNavs ai.c rename found=zqaj index=zqad nav=zqal owner=zqag player=zqak range=zqae x=zqaf y=zqah z=zqai
 0x10054a93 PlaceFormationNav ai.c rename heading=zqae nav=zqag x=zqad z=zqaf
 0x10054b50 RecordAttack ai.c rename line=zqae player=zqad
+0x10054ccc FindStarSlotPlayer ai.c pad 8 rename i=zqaf local=zqad player=zqae
 0x10054d88 OrderPlayers ai.c pad 7 rename player=zqae skipped=zqad target=zqaf
 0x10054f50 OrderStarSlot ai.c rename index=zqaf local=zqad speech=zqae target=zqag
 0x10055131 AddClamped ai.c pad 9
@@ -397,6 +398,7 @@
 0x1006e453 GdiRealizePalette gdi.c pad 6
 0x1006eb80 ComputeModelBounds boundbox.c pad 9 rename count=zqaf model=zqad selected=zqag vertex=zqae
 0x1006ee60 LayoutMessageBoxes timedoverlays.c rename dx=zqag dy=zqaf font=zqai fontHeight=zqad height=zqam i=zqaj overlay=zqak shape=zqal sign=zqae target=zqah
+0x1006efd4 ShowInGameMessage timedoverlays.c rename done=zqaf i=zqag latest=zqah lowestPriority=zqad overlay=zqae result=zqaj slot=zqai
 0x1006f179 DrawTimedOverlays timedoverlays.c rename background=zqag font=zqad i=zqae overlay=zqaf
 0x1006f28f DrawTextBox timedoverlays.c rename background=zqaf centered=zqag font=zqad rect=zqae
 0x1006f4fa LayoutWeaponPanels config.c rename alternate=zqam bin=zqan dst=zqah i=zqag index=zqal j=zqak left=zqaj panel=zqaf right=zqao rightStart=zqad slot=zqae weapons=zqai

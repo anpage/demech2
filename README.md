@@ -23,11 +23,11 @@ What counts is proof, not similarity. `tools/certify.py` gives every annotated f
 | Binary | Functions | Byte-identical | Proven | Unproven |
 |---|---|---|---|---|
 | `MW2SHELL.DLL` (1.1) | 798 | 639 | 126 | 33 |
-| `MW2.DLL` (1.1) | 1557 | 995 | 480 | 82 |
+| `MW2.DLL` (1.1) | 1557 | 995 | 482 | 80 |
 | `NETMECHW.DLL` (retail) | 228 | 128 | 87 | 13 |
 | `MECH2.EXE` (retail) | 21 | 15 | 6 | 0 |
-| `MW2_MATROX.DLL` (Matrox Mystique) | 1608 | 996 | 482 | 130 |
-| `MW2_3DFX.DLL` (3Dfx) | 1548 | 1141 | 204 | 203 |
+| `MW2_MATROX.DLL` (Matrox Mystique) | 1608 | 996 | 483 | 129 |
+| `MW2_3DFX.DLL` (3Dfx) | 1548 | 1141 | 205 | 202 |
 
 These are the annotated functions as of November 2026; each target's current list (`<TARGET>STATES.md` and `.json`) is published with the progress reports in the [continuous release](https://github.com/anpage/demech2/releases/tag/continuous). A match proves the code, the types, the data layout and the constants; it proves nothing about names, comments and descriptions, which are readings of the code. The original's hand-written assembly is reproduced as MASM source (its own objects) or inline assembly, and every function with inline assembly is listed in `tools/asm_allowlist.txt` with what in the original shows it was hand-written: everything else matches as C or C++.
 

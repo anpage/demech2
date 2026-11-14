@@ -422,6 +422,7 @@
 0x10083ab7 PlacePatrolNavs ai.c rename found=zqaj index=zqan nav=zqaa owner=zqai player=zqap range=zqao x=zqak y=zqal z=zqam
 0x10083d0d PlaceFormationNav ai.c rename heading=zqaj nav=zqal x=zqai z=zqak
 0x10083dca RecordAttack ai.c pad 11
+0x10083f47 FindStarSlotPlayer ai.c rename i=zqak local=zqai player=zqaj
 0x10084002 OrderPlayers ai.c pad 3 rename player=zqak skipped=zqai target=zqaj
 0x100841ca OrderStarSlot ai.c pad 2 rename index=zqal local=zqaj speech=zqai target=zqak
 0x10084461 AssignStarObjective ai.c pad 1 rename bit=zqan count=zqao flags=zqai i=zqal leader=zqab member=zqac members=zqad mission=zqap objective=zqak state=zqam target=zqaa type=zqaj

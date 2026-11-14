@@ -36,7 +36,6 @@ MW2 0x1000d30f LoadWorld facca6927543 undiagnosed
 MW2 0x1000efa4 SendChatMsg 9b53030777cb undiagnosed
 MW2 0x100107de DrawBand 737cec5ca408 undiagnosed
 MW2 0x100110f7 UpdateEyepoint aa3ed90923e1 undiagnosed
-MW2 0x1001632c DodgeShot 175326116a3e undiagnosed
 MW2 0x10019881 InitMechArrays 554965f867f1 undiagnosed
 MW2 0x1001a19f LoadCachedResource 34ed7fb47d0d undiagnosed
 MW2 0x1001a910 CollapseWhitespace b85880dc99a2 undiagnosed
@@ -61,7 +60,6 @@ MW2 0x1004320b DrawSkyAndGround a3c0a12615f3 undiagnosed
 MW2 0x1004506c SpawnShot d0af35e01656 undiagnosed
 MW2 0x10046573 SpawnLaunchFx a85c731114c8 undiagnosed
 MW2 0x10046750 ReelMotionTask e8c6fab7178d undiagnosed
-MW2 0x10047f60 PathTask 0cf51bf09340 undiagnosed
 MW2 0x100498b0 InitStaticMem 1ecb50ed34c3 undiagnosed
 MW2 0x1004b344 UpdateGridObject 1f7744b8298b undiagnosed
 MW2 0x1004bc2e UpdateProjection 07bf347bdaa9 undiagnosed
@@ -70,24 +68,19 @@ MW2 0x1004d175 DrawHeatBar 70d84f39b0e0 undiagnosed
 MW2 0x1004e4e6 PostEventToList 015219f7193d undiagnosed
 MW2 0x1004f64a LoadPathTable cc7a60acc2e5 undiagnosed
 MW2 0x100509c8 DrawMechViewPanel f4c9920a8624 undiagnosed
-MW2 0x10054ccc FindStarSlotPlayer 589fbbe5e796 undiagnosed
 MW2 0x10055811 AssignStarTarget c8e82bc582f7 undiagnosed
 MW2 0x10056503 CountMissionStream 3bbe8d22ac69 undiagnosed
 MW2 0x10056e22 CenterRectOnScreen 16c5af23ad30 undiagnosed
 MW2 0x10057282 BoxText 50636654188e undiagnosed
 MW2 0x1005a637 CreateArtillery 0f51a34af645 undiagnosed
 MW2 0x1005b10b SkipCdTracks 0c0ada71a85f undiagnosed
-MW2 0x10065f50 PrepareCommandComputerPage 35225e094548 undiagnosed
 MW2 0x10066a50 SimMain 0ca8fee397bf undiagnosed
 MW2 0x1006844e LateUpdateDoor 19df3c5a1033 undiagnosed
 MW2 0x10068772 CreateDoor d7148abf2dbd undiagnosed
-MW2 0x10069b2a TestRayBox 5ceb8fe761aa undiagnosed
 MW2 0x1006a533 UpdateShot fad7b6a72882 undiagnosed
 MW2 0x1006b1fb SpawnEffectEx 10f0202b3b24 undiagnosed
-MW2 0x1006bdb4 DamageThingsInRadius 5afdeb6dd61f undiagnosed
 MW2 0x1006c237 ScatterDebris 3a701819395d undiagnosed
 MW2 0x1006c362 HeatMechsNearFires 8d62cddad7f4 undiagnosed
-MW2 0x1006efd4 ShowInGameMessage 330a557a0be9 undiagnosed
 MW2 0x10072840 RunMenuSlider 4ffd5aad6555 undiagnosed
 MW2 0x10073136 RunMenuChoice 953414a3a682 undiagnosed
 MW2 0x100758a0 MoveMechWithCollisions 391b4467c7e8 undiagnosed
@@ -95,10 +88,8 @@ MW2 0x1007a97a LoadInputMap 9a3970f3a51e undiagnosed
 MW2 0x1007c126 DrawTargetPanel fb9025326591 undiagnosed
 MW2 0x1007f2d5 LoadShapeRecord ede42aac0bdb undiagnosed
 MW2MATROX 0x100014b1 LoadAnim2d b2663f7dc69a undiagnosed
-MW2MATROX 0x100019a4 OrthogonalizeMatrixColumn 61de4d64ba73 undiagnosed
 MW2MATROX 0x10001b59 MultiplyRotations b93b7f6a221d undiagnosed
 MW2MATROX 0x10001f5f BuildMatrixEx a6d36e87fa9f undiagnosed
-MW2MATROX 0x1000252c ScaleVectorToLength 8816f283f37d undiagnosed
 MW2MATROX 0x10002f1b SkipCdTracks 37f8f1a97c64 undiagnosed
 MW2MATROX 0x10004a71 SendChatMsg 7af099561cd6 undiagnosed
 MW2MATROX 0x10006d1a TargetGamePiece be57a36286e6 undiagnosed
@@ -122,8 +113,6 @@ MW2MATROX 0x1001f8dd TestObjectiveCondition 582c8d024c94 undiagnosed
 MW2MATROX 0x10021a1d DrawObjectiveList 306fb792d52b undiagnosed
 MW2MATROX 0x100232f0 QueueShapeLod 42f9f07c1826 undiagnosed
 MW2MATROX 0x100236a0 DrawDepthQueue 7306385c6f3c undiagnosed
-MW2MATROX 0x100239fc GetTerrainHeight b83e9a227d29 undiagnosed
-MW2MATROX 0x10025407 LoadShapeRecord 58303ac0313a undiagnosed
 MW2MATROX 0x100277fe UpdateGridObject 0cde48c81f37 undiagnosed
 MW2MATROX 0x10027a60 ComputeShapeBounds 204af0ac0047 undiagnosed
 MW2MATROX 0x100284c7 ComputeFaceNormal 6b6801e67255 undiagnosed
@@ -183,7 +172,6 @@ MW2MATROX 0x100673c0 FUN_100673c0 9835e85963c9 undiagnosed
 MW2MATROX 0x10067b90 FUN_10067b90 7bc9402da13e undiagnosed
 MW2MATROX 0x10068c7b ReadTextLine 7cd4210b8014 undiagnosed
 MW2MATROX 0x10069419 DrawSkyAndGround ad69c7f6aad5 undiagnosed
-MW2MATROX 0x1006b033 UpdateShot 240ed8d96bfd undiagnosed
 MW2MATROX 0x1006e13f ChoosePlayerDetailLevels bb3cae49b424 undiagnosed
 MW2MATROX 0x100704f2 PathTask bd41f71b6946 undiagnosed
 MW2MATROX 0x10071832 CenterRectOnScreen fa9de8fd56d3 undiagnosed
@@ -199,7 +187,6 @@ MW2MATROX 0x1007a9d9 DecideAIFire 0097fd3f1fc6 undiagnosed
 MW2MATROX 0x1007d2c1 LoadGamekeyMap 02eacc8431eb undiagnosed
 MW2MATROX 0x1007e92e RunMenuChoice bfa7616ede35 undiagnosed
 MW2MATROX 0x1007f368 ComputeTriangleNormal 6c631e457aa7 undiagnosed
-MW2MATROX 0x10083f47 FindStarSlotPlayer d7d587b3d7f7 undiagnosed
 MW2MATROX 0x10084aac AssignStarTarget a53329c77c32 undiagnosed
 MW2MATROX 0x1008554f SweepTorso ee1806f52a8e undiagnosed
 MW2MATROX 0x100857c3 CountMissionStream a65122cd68ae undiagnosed
@@ -250,7 +237,6 @@ MW23DFX 0x100110d0 IsPointInFaceYZ 0338029451c0 undiagnosed
 MW23DFX 0x10011570 UpdateGridObject 33e42907c479 undiagnosed
 MW23DFX 0x10012150 LogPlayerStatusLines 440b52ad34cf undiagnosed
 MW23DFX 0x100132c0 AiTransitionPush d924b278239a undiagnosed
-MW23DFX 0x10014220 FindStarSlotPlayer e64a01d69a9b undiagnosed
 MW23DFX 0x10014290 OrderPlayers 486b93f8ef94 undiagnosed
 MW23DFX 0x10014ba0 LeadStar 447292b494f5 undiagnosed
 MW23DFX 0x10015090 CanSeeTarget 68a64fc25174 undiagnosed
@@ -371,7 +357,6 @@ NETMECHW 0x10005e50 FUN_10005e50 ddd75f332e87 undiagnosed
 NETMECHW 0x1000654c FUN_1000654c 95993a2d3994 undiagnosed
 NETMECHW 0x100080e1 FUN_100080e1 6743e365242a undiagnosed
 NETMECHW 0x100089d0 FUN_100089d0 bbf5d08e8250 undiagnosed
-NETMECHW 0x1000c273 ChatLog::AddLine d607ebf80903 undiagnosed
 NETMECHW 0x1000e58d FUN_1000e58d 3e1f001be351 undiagnosed
 NETMECHW 0x1000f720 AppendBwdNode f106816c50dd undiagnosed
 NETMECHW 0x100113ec FUN_100113ec b854ba9dc0a5 undiagnosed

@@ -116,7 +116,6 @@ void LayoutMessageBoxes(void)
 
 // Shows p_text in a free message box for p_duration ticks, or replaces the one of the lowest
 // priority not above p_priority (of those, the one that expires last). Returns 1 if shown.
-// Stack-slot permutation: the locals.
 // The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006efd4
 // FUNCTION: MW2MATROX 0x10078804
@@ -169,21 +168,12 @@ MechS32 ShowInGameMessage(MechChar* p_text, MechS32 p_font, MechS32 p_duration, 
 		overlay->m_active = 1;
 		overlay->m_priority = p_priority;
 		overlay->m_expireTime = p_duration + GetGameClock();
-#ifdef MW2_ACCEL
 		if (p_font > 0) {
 			overlay->m_font = p_font;
 		}
 		else {
 			overlay->m_font = 1;
 		}
-#else
-		if (p_font < 1) {
-			overlay->m_font = 1;
-		}
-		else {
-			overlay->m_font = p_font;
-		}
-#endif
 	}
 
 	return result;

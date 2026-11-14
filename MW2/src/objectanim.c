@@ -1105,8 +1105,8 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // A timed callback (TimedCallbackFn) moving a star's object along a path. Its data is
 // "<star id>;<mode>,<rotate>,<path name>": mode "loop", "repeat" or else stop at the end, and
 // "rotate" to turn the object along the path. Event -1 restarts it.
-// Stack-slot permutation of the locals. MW2MATROX: also the index order in the durations' sums
-// (the original scales i before it loads the path).
+// MW2MATROX: also the index order in the durations' sums (the original scales i before it loads the
+// path).
 // The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10047f60
 // FUNCTION: MW2MATROX 0x100704f2

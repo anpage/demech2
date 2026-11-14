@@ -56,6 +56,7 @@
 0x10013e90 ReleaseNavPoints ai.c pad 1
 0x10014110 RecordAttack ai.c pad 6
 0x100141a0 LoadAIScripts ai.c pad 4
+0x10014220 FindStarSlotPlayer ai.c pad 8
 0x10014390 OrderStarSlot ai.c pad 2
 0x10014520 AssignStarObjective ai.c pad 10
 0x10014880 GetObjectiveTarget ai.c pad 1

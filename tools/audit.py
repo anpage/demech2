@@ -442,7 +442,8 @@ def is_slot(op):
 
 
 def apply_slots(ours, theirs, local_list, image):
-    """Rewrite our [ebp-N] by a one-to-one map of whole locals, if one maps us onto the original."""
+    """Rewrite our [ebp-N] by a one-to-one map of whole locals, if one maps us onto the original:
+    (the rewritten code, None), or (None, why there is none: None when no slot differs)."""
     pairs = []
     for a, b in zip(ours, theirs):
         if a.mnemonic != b.mnemonic or len(a.ops) != len(b.ops):
@@ -451,10 +452,23 @@ def apply_slots(ours, theirs, local_list, image):
             if is_slot(x) and is_slot(y):
                 pairs.append((x[5], y[5]))
     if not any(x != y for x, y in pairs):
-        return None
+        return None, None
+    # Each local's place by majority: a pair from a comparison the original mirrors, or from
+    # operands it swaps, names the other operand's slot. Any one-to-one map of whole locals is a
+    # rewrite that keeps what the code computes, and the rest must still match exactly.
+    named_starts = sorted({offset for _, offset, _ in local_list if offset < 0})
+    if named_starts:
+        votes = {}
+        for ours_disp, theirs_disp in pairs:
+            if ours_disp >= named_starts[0]:
+                index = max(k for k, start in enumerate(named_starts) if start <= ours_disp)
+                votes.setdefault(index, Counter())[theirs_disp - (ours_disp - named_starts[index])] += 1
+        best = {index: counts.most_common(1)[0][0] for index, counts in votes.items()}
+        pairs = [(o, t) for o, t in pairs if o < named_starts[0] or
+                 t - (o - named_starts[max(k for k, start in enumerate(named_starts) if start <= o)]) == best[max(k for k, start in enumerate(named_starts) if start <= o)]]
     order, reason = slot_plan(local_list, pairs)
     if order is None:
-        return None
+        return None, reason
     named = sorted((offset, name) for name, offset, _ in local_list if offset < 0)
     starts = [offset for offset, _ in named]
     shift = {}
@@ -464,9 +478,9 @@ def apply_slots(ours, theirs, local_list, image):
         k = max(i for i, s in enumerate(starts) if s <= ours_disp)
         base = theirs_disp - (ours_disp - starts[k])
         if shift.setdefault(k, base - starts[k]) != base - starts[k]:
-            return None
+            return None, "%s is at two places in the original" % named[k][1]
     if not shift:
-        return None
+        return None, None
 
     def remap(op):
         if not is_slot(op) or op[5] < starts[0]:
@@ -474,7 +488,7 @@ def apply_slots(ours, theirs, local_list, image):
         k = max(i for i, s in enumerate(starts) if s <= op[5])
         return op[:5] + (op[5] + shift.get(k, 0),) + op[6:]
 
-    return [copy(i, ops=[remap(op) for op in i.ops]) for i in ours]
+    return [copy(i, ops=[remap(op) for op in i.ops]) for i in ours], None
 
 
 def copy(ins, mnemonic=None, ops=None):
@@ -1308,8 +1322,9 @@ def classify(lifted, local_list, optimized_unit, steps=None):
         found, scheduled = schedule(lifted, local_list)
         if found is not None:
             return found, None
+    unmapped = None
     if not optimized_unit:
-        remapped = apply_slots(ours, theirs, local_list, image)
+        remapped, unmapped = apply_slots(ours, theirs, local_list, image)
         if remapped is not None:
             ours = remapped
             kinds["slots"] += 1
@@ -1328,7 +1343,7 @@ def classify(lifted, local_list, optimized_unit, steps=None):
                 kinds[kind] += 1
                 break
         else:
-            return kinds, scheduled or describe(ours, theirs, k)
+            return kinds, scheduled or describe(ours, theirs, k, unmapped and "no map of the slots: " + unmapped)
     return kinds, scheduled or describe(ours, theirs, 0, "no progress")
 
 

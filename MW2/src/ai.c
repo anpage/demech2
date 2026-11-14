@@ -2433,22 +2433,20 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 }
 
 // The local player's teammate in formation slot p_slot, or -1.
-// Operand order: the loop test (i < g_playerCount) compares with i in eax in the original. The
-// team comparison loads the other operand first. Stack-slot permutation: player and team.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The team comparison loads the other operand first.
 // FUNCTION: MW2 0x10054ccc
 // FUNCTION: MW2MATROX 0x10083f47
 // FUNCTION: MW23DFX 0x10014220
 MechS32 FindStarSlotPlayer(MechS32 p_slot)
 {
-	MechS32 team;
+	Player* local;
 	Player* player;
 	MechS32 i;
 
-	team = g_players[g_localPlayerId]->m_team;
+	local = g_players[g_localPlayerId];
 	for (i = 0; i < g_playerCount; i++) {
 		player = g_players[i];
-		if (player->m_team == team && player->m_slot == p_slot) {
+		if (player->m_team == local->m_team && player->m_slot == p_slot) {
 			return i;
 		}
 	}
