@@ -26,23 +26,29 @@
 
 // GLOBAL: MW2 0x100a82f0
 // GLOBAL: MW2MATROX 0x100bbd50
+// GLOBAL: MW23DFX 0x1024c818
 EasedValue g_heatBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a82fc
+// GLOBAL: MW23DFX 0x1024c824
 undefined4 g_unk0x100a82fc = 0;
 
 // GLOBAL: MW2 0x100a8300
 // GLOBAL: MW2MATROX 0x100bbd60
+// GLOBAL: MW23DFX 0x1024c828
 EasedValue g_throttleBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a830c
+// GLOBAL: MW23DFX 0x1024c834
 undefined4 g_unk0x100a830c = 0;
 
 // GLOBAL: MW2 0x100a8310
 // GLOBAL: MW2MATROX 0x100bbd70
+// GLOBAL: MW23DFX 0x1024c838
 EasedValue g_heatRateBarLevel = {0, 0, 4};
 
 // GLOBAL: MW2 0x100a831c
+// GLOBAL: MW23DFX 0x1024c844
 undefined4 g_unk0x100a831c = 0;
 
 // GLOBAL: MW2 0x100a8320
@@ -51,43 +57,28 @@ undefined4 g_unk0x100a831c = 0;
 EasedValue g_jumpFuelBarLevel = {0, 0, 1};
 
 // GLOBAL: MW2 0x100a832c
+// GLOBAL: MW23DFX 0x1024c854
 undefined4 g_unk0x100a832c = 0;
 
-// The size of the throttle gauge.
+// The throttle gauge: its size, its frame (left, top, right and bottom), the left of its bar
+// and the level of zero throttle. One block: the 3Dfx edition's ScaleBarGauges reads the panel
+// again after each store to it, as it does only for an object whose address it passed on.
+typedef struct ThrottleGauge {
+	Point m_size;          // 0x00
+	MechS32 m_frameLeft;   // 0x08
+	MechS32 m_frameTop;    // 0x0c
+	MechS32 m_frameRight;  // 0x10
+	MechS32 m_frameBottom; // 0x14
+	MechS32 m_barLeft;     // 0x18
+	MechS32 m_zeroY;       // 0x1c
+} ThrottleGauge;
+
+DECOMP_SIZE_ASSERT(ThrottleGauge, 0x20)
+
 // GLOBAL: MW2 0x100a8330
 // GLOBAL: MW2MATROX 0x100bbd90
 // GLOBAL: MW23DFX 0x1024c858
-Point g_throttleGaugeSize = {0x1e7a, 0x8dc9};
-
-// The throttle gauge's frame: left, top, right and bottom.
-// GLOBAL: MW2 0x100a8338
-// GLOBAL: MW2MATROX 0x100bbd98
-// GLOBAL: MW23DFX 0x1024c860
-MechS32 g_throttleFrameLeft = 0;
-
-// GLOBAL: MW2 0x100a833c
-// GLOBAL: MW2MATROX 0x100bbd9c
-// GLOBAL: MW23DFX 0x1024c864
-MechS32 g_throttleFrameTop = 0;
-
-// GLOBAL: MW2 0x100a8340
-// GLOBAL: MW2MATROX 0x100bbda0
-// GLOBAL: MW23DFX 0x1024c868
-MechS32 g_throttleFrameRight = 0;
-
-// GLOBAL: MW2 0x100a8344
-// GLOBAL: MW2MATROX 0x100bbda4
-// GLOBAL: MW23DFX 0x1024c86c
-MechS32 g_throttleFrameBottom = 0;
-
-// The left of the throttle bar and the level of zero throttle.
-// GLOBAL: MW2 0x100a8348
-// GLOBAL: MW2MATROX 0x100bbda8
-MechS32 g_throttleBarLeft = 0;
-
-// GLOBAL: MW2 0x100a834c
-// GLOBAL: MW2MATROX 0x100bbdac
-MechS32 g_throttleZeroY = 0;
+ThrottleGauge g_throttleGauge = {{0x1e7a, 0x8dc9}, 0, 0, 0, 0, 0, 0};
 
 // The heat bar: its position and size.
 // GLOBAL: MW2 0x100a8350
@@ -97,6 +88,7 @@ Point g_heatBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8358
 // GLOBAL: MW2MATROX 0x100bbdb8
+// GLOBAL: MW23DFX 0x1024c880
 Point g_heatBarSize = {0xea4e, 0x5555};
 
 // The heat rate bar.
@@ -107,6 +99,7 @@ Point g_heatRateBarPosition = {0, 0x3333};
 
 // GLOBAL: MW2 0x100a8368
 // GLOBAL: MW2MATROX 0x100bbdc8
+// GLOBAL: MW23DFX 0x1024c890
 Point g_heatRateBarSize = {0xdf2e, 0x5555};
 
 // The jump jet fuel bar.
@@ -129,13 +122,13 @@ void ScaleBarGauges(void)
 	CockpitPanel* panel;
 
 	panel = g_cockpitPanels[c_panelSpeed];
-	ScalePointToFrame(panel->m_target, &g_throttleGaugeSize, &g_throttleGaugeSize);
-	g_throttleFrameLeft = panel->m_width - g_throttleGaugeSize.m_x - 1;
-	g_throttleFrameTop = panel->m_height - (g_throttleGaugeSize.m_y + g_throttleGaugeSize.m_y / 2) - 3;
-	g_throttleFrameRight = panel->m_width - 1;
-	g_throttleFrameBottom = panel->m_height - 1;
-	g_throttleBarLeft = g_throttleFrameLeft + 1;
-	g_throttleZeroY = panel->m_height - g_throttleGaugeSize.m_y / 2 - 2;
+	ScalePointToFrame(panel->m_target, &g_throttleGauge.m_size, &g_throttleGauge.m_size);
+	g_throttleGauge.m_frameLeft = panel->m_width - g_throttleGauge.m_size.m_x - 1;
+	g_throttleGauge.m_frameTop = panel->m_height - (g_throttleGauge.m_size.m_y + g_throttleGauge.m_size.m_y / 2) - 3;
+	g_throttleGauge.m_frameRight = panel->m_width - 1;
+	g_throttleGauge.m_frameBottom = panel->m_height - 1;
+	g_throttleGauge.m_barLeft = g_throttleGauge.m_frameLeft + 1;
+	g_throttleGauge.m_zeroY = panel->m_height - g_throttleGauge.m_size.m_y / 2 - 2;
 
 	panel = g_cockpitPanels[c_panelHeat];
 	ScalePointToFrame(panel->m_target, &g_heatBarSize, &g_heatBarSize);
@@ -156,7 +149,7 @@ void ScaleBarGauges(void)
 // MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol); the remaining diff is a
 // stack-slot permutation, the operand order of `level >= width`, and DrawHorizontalBar, which
 // the Matrox edition changed and has no MW2MATROX annotation yet.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d175
 // FUNCTION: MW2MATROX 0x10089195
 // FUNCTION: MW23DFX 0x1001c350
@@ -217,6 +210,7 @@ void DrawHeatBar(PANE* p_target)
 
 // Draws the heat rate bar.
 // Stack-slot permutation: level, backColor, fill, fillColor and mech.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d310
 // FUNCTION: MW2MATROX 0x10089332
 // FUNCTION: MW23DFX 0x1001c4a0
@@ -287,6 +281,7 @@ void DrawHeatRateBar(PANE* p_target)
 
 // Draws the throttle gauge: its frame and a bar up from zero, or down in reverse.
 // Stack-slot permutation: color, mech, width, height, x, y and value.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d48a
 // FUNCTION: MW2MATROX 0x100894b4
 // FUNCTION: MW23DFX 0x1001c5b0
@@ -303,37 +298,37 @@ void DrawThrottleGauge(PANE* p_target)
 	mech = g_players[g_localPlayerId]->m_mech;
 	VFX_line_draw(
 		p_target,
-		g_throttleFrameLeft,
-		g_throttleFrameTop,
-		g_throttleFrameLeft,
-		g_throttleFrameBottom,
+		g_throttleGauge.m_frameLeft,
+		g_throttleGauge.m_frameTop,
+		g_throttleGauge.m_frameLeft,
+		g_throttleGauge.m_frameBottom,
 		0,
 		PIXEL_COLOR(10)
 	);
 	VFX_line_draw(
 		p_target,
-		g_throttleFrameRight,
-		g_throttleFrameTop,
-		g_throttleFrameRight,
-		g_throttleFrameBottom,
+		g_throttleGauge.m_frameRight,
+		g_throttleGauge.m_frameTop,
+		g_throttleGauge.m_frameRight,
+		g_throttleGauge.m_frameBottom,
 		0,
 		PIXEL_COLOR(10)
 	);
 	VFX_line_draw(
 		p_target,
-		g_throttleFrameLeft,
-		g_throttleFrameTop,
-		g_throttleFrameRight,
-		g_throttleFrameTop,
+		g_throttleGauge.m_frameLeft,
+		g_throttleGauge.m_frameTop,
+		g_throttleGauge.m_frameRight,
+		g_throttleGauge.m_frameTop,
 		0,
 		PIXEL_COLOR(10)
 	);
 	VFX_line_draw(
 		p_target,
-		g_throttleFrameLeft,
-		g_throttleFrameBottom,
-		g_throttleFrameRight,
-		g_throttleFrameBottom,
+		g_throttleGauge.m_frameLeft,
+		g_throttleGauge.m_frameBottom,
+		g_throttleGauge.m_frameRight,
+		g_throttleGauge.m_frameBottom,
 		0,
 		PIXEL_COLOR(10)
 	);
@@ -342,29 +337,29 @@ void DrawThrottleGauge(PANE* p_target)
 #else
 	value = mech->m_player->m_steering->m_throttle << 16;
 #endif
-	value = MulDiv64(value, g_throttleGaugeSize.m_y, 0x400);
+	value = MulDiv64(value, g_throttleGauge.m_size.m_y, 0x400);
 	if (mech->m_player->m_steering->m_reverse) {
 		value /= -2;
 	}
 
 	g_throttleBarLevel.m_target = value;
 	value = UpdateEasedValue(&g_throttleBarLevel) >> 16;
-	x = g_throttleBarLeft;
-	y = g_throttleZeroY;
-	width = g_throttleGaugeSize.m_x - 1;
+	x = g_throttleGauge.m_barLeft;
+	y = g_throttleGauge.m_zeroY;
+	width = g_throttleGauge.m_size.m_x - 1;
 	height = value;
 	color = 0xf;
 	if (mech->m_player->m_steering->m_reverse) {
 		height = -height;
-		if (height > g_throttleGaugeSize.m_y / 2) {
-			height = g_throttleGaugeSize.m_y / 2;
+		if (height > g_throttleGauge.m_size.m_y / 2) {
+			height = g_throttleGauge.m_size.m_y / 2;
 		}
 
 		color = 7;
 		y += height;
 	}
-	else if (height > g_throttleGaugeSize.m_y) {
-		height = g_throttleGaugeSize.m_y;
+	else if (height > g_throttleGauge.m_size.m_y) {
+		height = g_throttleGauge.m_size.m_y;
 	}
 
 	height++;
@@ -372,6 +367,7 @@ void DrawThrottleGauge(PANE* p_target)
 }
 
 // Draws the jump jet fuel bar.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d660
 // FUNCTION: MW2MATROX 0x100896bf
 // FUNCTION: MW23DFX 0x1001c750
@@ -410,6 +406,7 @@ void DrawJumpFuelBar(PANE* p_target)
 
 // Draws a bar p_height up from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, top and i.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d732
 // FUNCTION: MW2MATROX 0x10089791
 // FUNCTION: MW23DFX 0x1001c810
@@ -451,6 +448,7 @@ void DrawVerticalBar(PANE* p_target, MechS32 p_x, MechS32 p_y, MechS32 p_width, 
 
 // Draws a bar p_width across from (p_x, p_y), shaded darker towards its edges.
 // Stack-slot permutation: half, dark, end, darker, right and i.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004d8ae
 // FUNCTION: MW2MATROX 0x10089931
 // FUNCTION: MW23DFX 0x1001c960

@@ -169,10 +169,12 @@ MechS32 g_stateCount = 0;
 
 // GLOBAL: MW2 0x100a1774
 // GLOBAL: MW2MATROX 0x100a2124
+// GLOBAL: MW23DFX 0x1024ffe4
 MechS32 g_messagesReceived = 0;
 
 // GLOBAL: MW2 0x100a1778
 // GLOBAL: MW2MATROX 0x100a2128
+// GLOBAL: MW23DFX 0x1024ffe8
 MechS32 g_unrecognizedMessages = 0;
 
 // GLOBAL: MW2 0x100a177c
@@ -311,6 +313,7 @@ MechS8 g_playerDestroyed[8];
 MechS32 g_lastThingsCount[8];
 
 // The only diff is the order the m_playerIds index loads its base and index in.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000e410
 // FUNCTION: MW2MATROX 0x10003df0
 // FUNCTION: MW23DFX 0x10033840
@@ -332,17 +335,20 @@ MechS32 GetPlayerSlotFromNetId(DPID p_id)
 	}
 }
 
+// Empty, with three parameters: the 3Dfx edition's /Gr stores the two in registers and pops the
+// third (ret 4).
 // FUNCTION: MW2 0x1000e47d
 // FUNCTION: MW2MATROX 0x10003e5d
 // FUNCTION: MW23DFX 0x100338c0
-void FUN_1000e47d(void)
+void FUN_1000e47d(undefined4 p_unk0x00, undefined4 p_unk0x04, undefined4 p_unk0x08)
 {
 }
 
+// Empty, with two parameters (the 3Dfx edition stores them).
 // FUNCTION: MW2 0x1000e488
 // FUNCTION: MW2MATROX 0x10003e68
 // FUNCTION: MW23DFX 0x100338e0
-void FUN_1000e488(void)
+void FUN_1000e488(undefined4 p_unk0x00, undefined4 p_unk0x04)
 {
 }
 
@@ -406,6 +412,7 @@ MechS32 FirstExternalCtrl(void)
 // Matches except for a stack-slot permutation of from, player, i, tag and text, and the
 // operand order of the comparisons of slot and i with g_localPlayerId and of the state timer.
 // MW2MATROX: the comparisons with g_localPlayerId load their operands in the other order.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000e68c
 // FUNCTION: MW2MATROX 0x1000406c
 // FUNCTION: MW23DFX 0x10033b00
@@ -555,6 +562,7 @@ void ShutdownNetwork(void)
 // The only diff is a stack-slot permutation of player, thing, mech, i, section and steering.
 // The Matrox edition's rebuild also loads the operands of `m_flags |= m_powerState & 0xf` in the
 // other order (entropy).
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000ebad
 // FUNCTION: MW2MATROX 0x1000458e
 // FUNCTION: MW23DFX 0x10034000
@@ -653,6 +661,7 @@ void SendStateMsg(void)
 // everybody (-1). Fails on a line of 80 characters or more.
 // Matches except for a stack-slot permutation of i and size, the operand order of the
 // comparison of i with g_localPlayerId and the order the m_playerIds[p_to] index loads in.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000efa4
 // FUNCTION: MW2MATROX 0x10004a71
 // FUNCTION: MW23DFX 0x100344e0
@@ -714,6 +723,7 @@ void ReceiveChatMsg(NetChatMsg* p_msg, MechS32 p_slot)
 
 // Applies a player's state message.
 // The only diff is a stack-slot permutation of its locals.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000f1ee
 // FUNCTION: MW2MATROX 0x10004cbc
 // FUNCTION: MW23DFX 0x10034730
@@ -902,6 +912,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 }
 
 // Sends the weapons the local player fired since the last time, if any.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000f989
 // FUNCTION: MW2MATROX 0x10005666
 // FUNCTION: MW23DFX 0x100350e0
@@ -930,6 +941,7 @@ void SendWeaponsMsg(void)
 
 // Fires the weapons of a player's weapons message.
 // The only diff is a stack-slot permutation of player, msg, bit, mech and i.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000fa58
 // FUNCTION: MW2MATROX 0x10005735
 // FUNCTION: MW23DFX 0x100351b0
@@ -1071,6 +1083,7 @@ void ReceiveGoMsg(MechChar* p_msg, MechS32 p_slot)
 
 // Sends the game things destroyed so far.
 // The only diff is a stack-slot permutation of out, i, count and bits.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000fda6
 // FUNCTION: MW2MATROX 0x10005b66
 // FUNCTION: MW23DFX 0x10035610
@@ -1107,6 +1120,7 @@ void SendThingsMsg(void)
 
 // Destroys the game things a player's things message has destroyed.
 // The only diff is a stack-slot permutation of in, msgCount, i, count and bits.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x1000fe61
 // FUNCTION: MW2MATROX 0x10005c21
 // FUNCTION: MW23DFX 0x100356d0
@@ -1180,6 +1194,7 @@ void ReceiveSuccessMsg(MechChar* p_msg, MechS32 p_slot)
 // Counts the players and keeps the lowest id as the master's.
 // The only diff is the operand order of the comparison of p_id with g_masterDpid.
 // MW2MATROX: the comparison of p_id with g_masterDpid loads its operands in the other order.
+// The 3Dfx edition's diff is stack slots and comparison operand order only (network.c is /Od).
 // FUNCTION: MW2 0x1000ffe6
 // FUNCTION: MW2MATROX 0x10005da6
 // FUNCTION: MW23DFX 0x10035870
@@ -1251,6 +1266,7 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 
 // The only diff is a stack-slot permutation of result, desc, guid and unk0x04.
 // MW2MATROX: the g_playersFound comparison loads its operands in the other order.
+// The 3Dfx edition's diff is stack-slot permutation only (network.c is /Od).
 // FUNCTION: MW2 0x10010178
 // FUNCTION: MW2MATROX 0x10005f38
 // FUNCTION: MW23DFX 0x10035a40

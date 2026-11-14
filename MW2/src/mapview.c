@@ -89,7 +89,11 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 {
 #ifdef MW2_ACCEL
 	g_mapViewScale = (MechFloat) p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
+#ifdef MW2_3DFX
+	g_mapViewMaxX = -(g_mapViewMinX = p_worldSpan / -2.0f);
+#else
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2.0f));
+#endif
 #else
 	g_mapViewScale = p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
 	g_mapViewMaxX = -(g_mapViewMinX = -(p_worldSpan / 2));
@@ -129,9 +133,9 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 // FUNCTION: MW2 0x1004215f
 // FUNCTION: MW2MATROX 0x1001e36d
 // FUNCTION: MW23DFX 0x10001180
-void DrawMapViewScene(MechU32 p_flags)
+void DrawMapViewScene(MapViewFlags p_flags)
 {
-	if (p_flags & 1) {
+	if (p_flags.m_bits & 1) {
 		DrawSkyAndGround(g_eyepoint);
 	}
 
@@ -159,6 +163,7 @@ void EndMapView(void)
 // the far plane, 6 and 7 outside the side planes, 0 visible. Keeps its depth in g_queueDepth.
 // Stack-slot permutation of the locals. In the Matrox edition, the dot products' sums take their
 // operands in another order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10042206
 // FUNCTION: MW2MATROX 0x1001e414
 // FUNCTION: MW23DFX 0x10001220
@@ -241,6 +246,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 // outcodes, and adds it to the polygon being built: ProjectVertex's map-view counterpart.
 // Stack-slot permutation: outcode and y. In the Matrox edition, the |= and &= of the outcodes load
 // their operands in the other order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100423b3
 // FUNCTION: MW2MATROX 0x1001e5c0
 // FUNCTION: MW23DFX 0x100013a0
@@ -299,6 +305,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // Projects p_point onto the map view in place. Returns whether it is in front of the eye and
 // on the screen. The Matrox edition projects the position p_position to p_screen instead.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743
 // FUNCTION: MW23DFX 0x100014b0

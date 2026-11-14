@@ -45,6 +45,7 @@ extern "C"
 // FUNCTION: MW23DFX 0x10042000
 // MapFaceId
 
+// The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
 // FUNCTION: MW23DFX 0x10042140
 // LoadShapeRecord
 

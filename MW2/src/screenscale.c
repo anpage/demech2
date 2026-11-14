@@ -57,6 +57,7 @@ MechS32 g_pulseTime = 0;
 MechS32 g_pulseStep = 0;
 
 // Maps 16.16 fractions of the screen onto pixels.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10056920
 // FUNCTION: MW2MATROX 0x10071320
 // FUNCTION: MW23DFX 0x10005b70
@@ -71,6 +72,7 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 
 // Maps 16.16 fractions of p_frame onto pixels.
 // Stack-slot permutation: width and height.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005699f
 // FUNCTION: MW2MATROX 0x1007139f
 // FUNCTION: MW23DFX 0x10005c20
@@ -242,6 +244,7 @@ PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 
 // Scales p_src about its center by p_scale (16.16).
 // Stack-slot permutation: centerX and centerY.
+// The 3Dfx edition's diff is register allocation, scheduling and stack slots only.
 // FUNCTION: MW2 0x10056ec5
 // FUNCTION: MW2MATROX 0x100718d5
 // FUNCTION: MW23DFX 0x10006210
@@ -325,6 +328,7 @@ void OutlinePane(PANE* p_target, MechS32 p_color)
 
 // Draws a line across the pane under a line of text at p_pos.
 // Stack-slot permutation: height and width.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005718d
 // FUNCTION: MW2MATROX 0x10071bc1
 // FUNCTION: MW23DFX 0x100064e0
@@ -342,6 +346,7 @@ void DrawRuleUnderRow(PANE* p_target, Point p_pos, void* p_font, MechS32 p_color
 
 // Underlines text drawn at p_pos.
 // Stack-slot permutation: width, height and i.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100571ea
 // FUNCTION: MW2MATROX 0x10071c27
 // FUNCTION: MW23DFX 0x10006520
@@ -363,6 +368,7 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
 // Stack-slot permutation: the locals. The Matrox edition's build loads p_text[i]'s index before its base.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057282
 // FUNCTION: MW2MATROX 0x10071cc8
 // FUNCTION: MW23DFX 0x100065c0
@@ -483,6 +489,7 @@ void DrawWrappedText(PANE* p_target, MechChar* p_text, void* p_font)
 
 // Sizes p_rect to fit a block of text, lines separated by newlines, plus the margins.
 // Stack-slot permutation: the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100575b9
 // FUNCTION: MW2MATROX 0x10072023
 // FUNCTION: MW23DFX 0x10006860
@@ -597,6 +604,7 @@ void DrawPulsingFrame(PANE* p_target)
 
 // Tiles a pane with a shape frame.
 // Stack-slot permutation: the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057896
 // FUNCTION: MW2MATROX 0x10072153
 // FUNCTION: MW23DFX 0x10006960
@@ -653,15 +661,15 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 	MechS32 steep;
 
 #ifdef MW2_ACCEL
-	if (!FIXED_IS_NONZERO(p_dx)) {
+	steep = !FIXED_IS_NONZERO(p_dx);
 #else
 	if (p_dx == 0 || p_dy / p_dx > 0x7fff || p_dy / p_dx < -0x8000) {
-#endif
 		steep = 1;
 	}
 	else {
 		steep = 0;
 	}
+#endif
 
 	if (!steep) {
 #ifdef MW2_ACCEL
@@ -736,12 +744,16 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_left = 0;
 	}
 
+#ifdef MW2_3DFX
+	quadrant.m_bits.m_up = p_angle <= FIXED_CONST(180);
+#else
 	if (p_angle <= FIXED_CONST(180)) {
 		quadrant.m_bits.m_up = 1;
 	}
 	else {
 		quadrant.m_bits.m_up = 0;
 	}
+#endif
 
 #ifdef MW2_ACCEL
 	dx = FixedCos(p_angle);
@@ -905,6 +917,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // Tests whether a point lies inside the ellipse inscribed in a pane.
 // Stack-slot permutation: the locals.
 // The Matrox edition takes the point as a Point and divides by the float aspect.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2MATROX 0x10072834
 // FUNCTION: MW23DFX 0x10006ef0
@@ -1014,29 +1027,42 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 		quadrant.m_bits.m_left = 0;
 	}
 
+#ifdef MW2_3DFX
+	quadrant.m_bits.m_up = p_angle <= FIXED_CONST(180);
+#else
 	if (p_angle <= FIXED_CONST(180)) {
 		quadrant.m_bits.m_up = 1;
 	}
 	else {
 		quadrant.m_bits.m_up = 0;
 	}
+#endif
 
 #ifdef MW2_ACCEL
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
-	if (!FIXED_IS_NONZERO(dx)) {
+#ifdef MW2_3DFX
+	quadrant.m_bits.m_steep = !FIXED_IS_NONZERO(dx);
 #else
-	dx = FixedCos(p_angle) >> 13;
-	dy = FixedSin(p_angle) >> 13;
-	dy = FixedMul16(dy, g_eyepoint->m_pixelAspect);
-	if (dx == 0 || dy / dx > 0x7fff || dy / dx < -0x8000) {
-#endif
+	if (!FIXED_IS_NONZERO(dx)) {
 		quadrant.m_bits.m_steep = 1;
 	}
 	else {
 		quadrant.m_bits.m_steep = 0;
 	}
+#endif
+#else
+	dx = FixedCos(p_angle) >> 13;
+	dy = FixedSin(p_angle) >> 13;
+	dy = FixedMul16(dy, g_eyepoint->m_pixelAspect);
+	if (dx == 0 || dy / dx > 0x7fff || dy / dx < -0x8000) {
+		quadrant.m_bits.m_steep = 1;
+	}
+	else {
+		quadrant.m_bits.m_steep = 0;
+	}
+#endif
 
 	angle = FixedAtan2(dy, -dx);
 	GetEllipseEdgeAtAngle(p_target, &half, quadrant, angle, p_out);
@@ -1045,6 +1071,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 
 // Where a needle of the gauge ellipse at p_angle ends, from p_center.
 // Stack-slot permutation: the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100582c4
 // FUNCTION: MW2MATROX 0x10072b74
 // FUNCTION: MW23DFX 0x100071a0

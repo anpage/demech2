@@ -268,6 +268,7 @@ void CopyRay(Ray* p_dst, Ray* p_src)
 // Matches except for the stack slots of toMax and quotient (a consistent permutation).
 // MW2MATROX: the comparisons of p_origin with p_min and p_max have their operands the other way
 // round.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10003445
 // FUNCTION: MW2MATROX 0x10087e4d
 // FUNCTION: MW23DFX 0x1000b230

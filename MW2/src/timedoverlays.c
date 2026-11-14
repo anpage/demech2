@@ -23,15 +23,19 @@
 DECOMP_SIZE_ASSERT(TimedOverlay, 0x24)
 
 // GLOBAL: MW2 0x100adee0
+// GLOBAL: MW23DFX 0x10249820
 PANE g_topMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adef4
+// GLOBAL: MW23DFX 0x10249834
 undefined4 g_unk0x100adef4 = 0;
 
 // GLOBAL: MW2 0x100adef8
+// GLOBAL: MW23DFX 0x10249838
 PANE g_bottomMessagePane = {&g_mainPixelBuffer, 0, 0, 0x10000, 0x10000};
 
 // GLOBAL: MW2 0x100adf0c
+// GLOBAL: MW23DFX 0x1024984c
 undefined4 g_unk0x100adf0c = 0;
 
 // GLOBAL: MW2 0x100c3360
@@ -42,18 +46,26 @@ static MechChar g_bottomMessageText[0x100];
 // GLOBAL: MW23DFX 0x10244e50
 static MechChar g_topMessageText[0x100];
 
-// The 3Dfx edition's (0x10249850) has other backgrounds: no MW23DFX annotation.
+// The 3Dfx edition's backgrounds are three shapes further on.
+#ifdef MW2_3DFX
+#define MESSAGE_BACKGROUND 0x4f
+#else
+#define MESSAGE_BACKGROUND 0x4c
+#endif
+
 // GLOBAL: MW2 0x100adf10
 // GLOBAL: MW2MATROX 0x100b10f8
+// GLOBAL: MW23DFX 0x10249850
 TimedOverlay g_timedOverlays[2] = {
-	{g_topMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_topMessagePane},
-	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, 0x4c, 0, &g_bottomMessagePane}
+	{g_topMessageText, {0x28f, 0}, 0, 0, 1, MESSAGE_BACKGROUND, 0, &g_topMessagePane},
+	{g_bottomMessageText, {0x28f, 0}, 0, 0, 1, MESSAGE_BACKGROUND, 0, &g_bottomMessagePane}
 };
 
 // Lays out the message boxes: scales their rectangles to the screen and to their background
 // shapes, moves them to the top (the first) and bottom (the second) edge, and centers the
 // text vertically.
 // Stack-slot permutation: the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006ee60
 // FUNCTION: MW2MATROX 0x10078690
 // FUNCTION: MW23DFX 0x10002e40
@@ -106,6 +118,7 @@ void LayoutMessageBoxes(void)
 // Shows p_text in a free message box for p_duration ticks, or replaces the one of the lowest
 // priority not above p_priority (of those, the one that expires last). Returns 1 if shown.
 // Stack-slot permutation: the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006efd4
 // FUNCTION: MW2MATROX 0x10078804
 // FUNCTION: MW23DFX 0x10002f20

@@ -53,6 +53,7 @@ MechS32 g_inspectResult = 0;
 // and anything without flag 0x400 or 0x1000.
 // GLOBAL: MW2 0x100aabac
 // GLOBAL: MW2MATROX 0x100a2444
+// GLOBAL: MW23DFX 0x1024c8b0
 MechS32 g_reticleTargeting = 0;
 
 // The cockpit layouts' text buffers and saved viewports.
@@ -502,6 +503,7 @@ MechS32 AddNavPoint(MechU32 p_owner, MechScalar p_x, MechScalar p_y, MechScalar 
 // Stack-slot permutation of the locals. Operand order: the second loop test (i < g_playerCount)
 // compares with i in eax in the original.
 // MW2MATROX: both loop tests compare in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005ed4f
 // FUNCTION: MW2MATROX 0x100065bf
 // FUNCTION: MW23DFX 0x1001cb40
@@ -562,6 +564,7 @@ MechS32 RemoveNavPoint(MechU32 p_owner, MechU32 p_nav)
 // turns the autopilot's steering over.
 // The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the loop test compares in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005ef5e
 // FUNCTION: MW2MATROX 0x100067cc
 // FUNCTION: MW23DFX 0x1001cca0
@@ -690,7 +693,7 @@ void ResetTargeting(void)
 // (flag 0x100 accepts only a nav its owner placed).
 // Stack-slot permutation of the locals; p_nav >= g_navCount compares in the other operand order.
 // MW2MATROX: p_nav >= g_navCount compares in the other operand order, and stack-slot permutation.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1005f2ae
 // FUNCTION: MW2MATROX 0x10006b1c
 // FUNCTION: MW23DFX 0x1001cea0
@@ -772,6 +775,7 @@ MechS32 TargetNavPoint(MechU32 p_player, MechS32 p_nav, MechU32 p_flags)
 // pick, and -8 for a player without a shape.
 // Stack-slot permutation of the locals; p_player == g_localPlayerId compares in the other operand
 // order. MW2MATROX: so do p_player == g_localPlayerId and p_index >= g_playerCount.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005f4ac
 // FUNCTION: MW2MATROX 0x10006d1a
 // FUNCTION: MW23DFX 0x1001d050
@@ -876,6 +880,7 @@ MechS32 TargetGamePiece(MechS32 p_player, MechS32 p_index, MechU32 p_flags)
 // order.
 // MW2MATROX: the comparisons with g_localPlayerId load their operands in the other order.
 // MW2MATROX: p_index < g_gameThingCount compares in the other operand order too.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1005f798
 // FUNCTION: MW2MATROX 0x10007012
 // FUNCTION: MW23DFX 0x1001d2d0
@@ -1137,6 +1142,7 @@ Shape* GetLocalTargetShape(void)
 
 // Returns the scene object of the local player's target: a player's or a game thing's.
 // The only diff is a stack-slot permutation of index, player, obj, kind and id.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005ff56
 // FUNCTION: MW2MATROX 0x100077f1
 // FUNCTION: MW23DFX 0x1001d810
@@ -1171,6 +1177,7 @@ SceneObject* GetLocalTargetObject(void)
 // game thing (0x200), when TargetGamePiece or TargetGameThing allows it. When UpdateTarget rejects the
 // new target, the old one comes back, with the autopilot.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10060010
 // FUNCTION: MW2MATROX 0x100078ab
 // FUNCTION: MW23DFX 0x1001d870
@@ -1358,6 +1365,7 @@ void CycleEnemyTarget(MechS32 p_step)
 // The distance/bestDistance comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: every local. MW2MATROX: the same
 // comparison, as floats.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100603ae
 // FUNCTION: MW2MATROX 0x10007c8f
 // FUNCTION: MW23DFX 0x1001db60

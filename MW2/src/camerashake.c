@@ -136,6 +136,7 @@ void StartCameraShake(void)
 // previous key.
 // Stack-slot permutation: x, seconds, off14, off0c, off10, z, key and y. Operand order: the
 // original compares p_key >= g_cameraShakeKeyCount with p_key in eax.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10066798
 // FUNCTION: MW2MATROX 0x1005934c
 // FUNCTION: MW23DFX 0x1002d920

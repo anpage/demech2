@@ -16,6 +16,7 @@
 // to it. With p_ahead, a target behind the player (between 90 and 270 degrees off the view)
 // is never seen.
 // The heading sum has its operands the other way around.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1006ca60
 // FUNCTION: MW2MATROX 0x1006d320
 // FUNCTION: MW23DFX 0x10015090

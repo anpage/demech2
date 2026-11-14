@@ -203,6 +203,7 @@ MechS32 g_polygonPointCount;
 // Where QueueFace copies the next polygon's vertex pointers in the draw buffer.
 // GLOBAL: MW2 0x1010b534
 // GLOBAL: MW2MATROX 0x101d698c
+// GLOBAL: MW23DFX 0x101b0eec
 MechU8* g_polygonPointCursor;
 
 // QueueFace's counts: faces it took (5bc), faces past the back-face test (538), vertices it
@@ -210,18 +211,22 @@ MechU8* g_polygonPointCursor;
 
 // GLOBAL: MW2 0x1010b5bc
 // GLOBAL: MW2MATROX 0x101d6904
+// GLOBAL: MW23DFX 0x101b0e54
 MechS32 g_facesTried;
 
 // GLOBAL: MW2 0x1010b538
 // GLOBAL: MW2MATROX 0x101d6988
+// GLOBAL: MW23DFX 0x101b0ee8
 MechS32 g_facesFrontFacing;
 
 // GLOBAL: MW2 0x1010b5b4
 // GLOBAL: MW2MATROX 0x101d6984
+// GLOBAL: MW23DFX 0x101b0ee4
 MechS32 g_verticesTransformed;
 
 // GLOBAL: MW2 0x1010b5a8
 // GLOBAL: MW2MATROX 0x101d68fc
+// GLOBAL: MW23DFX 0x101b0e4c
 MechS32 g_polygonsQueued;
 
 // GLOBAL: MW2 0x100ea8e0
@@ -232,6 +237,7 @@ Path g_paths[0x40];
 // The animations of the loaded animation files, by number.
 // GLOBAL: MW2 0x101079e0
 // GLOBAL: MW2MATROX 0x1014e880
+// GLOBAL: MW23DFX 0x10206100
 Reel* g_reels[0x780];
 
 // GLOBAL: MW2 0x101097e0
@@ -245,6 +251,7 @@ AnimFile g_animFiles[60];
 // the frame it reached, and m_nextMotionState, the one it wants).
 // Stack-slot permutation of the locals. The original adds i before scaling frame in the
 // m_values[i] reads (index order).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10046750
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
@@ -404,7 +411,7 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 				amount = motion->m_amount;
 			}
 			else {
-				amount = motion->m_amount * elapsed / motion->m_timer;
+				amount = (motion->m_amount * elapsed) / motion->m_timer;
 			}
 
 			if (motion->m_amount < 0) {
@@ -488,11 +495,15 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 
 				if (motion->m_reel->m_events[frame].m_flags & 0x100) {
 					target = motion->m_reel->m_events[frame].m_values[2];
+#ifdef MW2_3DFX
+					jump |= motion->m_player->m_nextMotionState == -1;
+#else
 					if (motion->m_player->m_nextMotionState == -1) {
 						jump |= TRUE;
 					}
 					else {
 					}
+#endif
 				}
 
 				if (jump) {
@@ -662,6 +673,7 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 // Stack-slot permutation; MW2MATROX: the loop tests compare with g_animFileCount in the other
 // operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10047380
 // FUNCTION: MW2MATROX 0x1006f955
 // FUNCTION: MW23DFX 0x1000e630
@@ -713,6 +725,7 @@ MechS32 GetReelMotionSize(void)
 // A timed callback (TimedCallbackFn) cycling the face colors of a star's shape. Its data is
 // "<star id>;<color>,<color>,...": up to sixteen colors, each a palette row.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004748c
 // FUNCTION: MW2MATROX 0x1006fa61
 // FUNCTION: MW23DFX 0x1000e6e0
@@ -803,6 +816,7 @@ MechS32 ColorCycleTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 // "<star id>;<x>,<y>,<z>,<period>": the turns in degrees per period of seconds.
 // The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the rates and the period are floats, the rates in degrees.
+// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x1004771e
 // FUNCTION: MW2MATROX 0x1006fcf3
 // FUNCTION: MW23DFX 0x1000e880
@@ -906,6 +920,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 // "<star id>;<radius>,<period>,<enabled>,<unused>".
 // The only diff is a stack-slot permutation of the locals.
 // MW2MATROX: the angle, rates and steps are floats, the angle in degrees.
+// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x100479ec
 // FUNCTION: MW2MATROX 0x1006ff89
 // FUNCTION: MW23DFX 0x1000ea50
@@ -945,7 +960,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 			sscanf(token, "%f,%f,%d,%d", &radius, &period, &enabled, &unused);
 #ifdef MW2_ACCEL
 			orbit->m_turnRate = 360.0 / period;
-			orbit->m_speed = radius * 6.283185307179586 / period;
+			orbit->m_speed = (radius * 6.283185307179586) / period;
 #else
 			orbit->m_turnRate = 360.0 / period * 65536.0 + 0.5;
 			orbit->m_speed = radius * 6.283185307179586 / period * 65536.0 + 0.5;
@@ -1102,6 +1117,7 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // "rotate" to turn the object along the path. Event -1 restarts it.
 // Stack-slot permutation of the locals. MW2MATROX: also the index order in the durations' sums
 // (the original scales i before it loads the path).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10047f60
 // FUNCTION: MW2MATROX 0x100704f2
 // FUNCTION: MW23DFX 0x1000ee10
@@ -1191,12 +1207,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 				follower->m_mode = 2;
 			}
 
-			if (_strcmpi(rotate, "rotate") == 0) {
-				follower->m_rotate = 1;
-			}
-			else {
-				follower->m_rotate = 0;
-			}
+			follower->m_rotate = _strcmpi(rotate, "rotate") == 0;
 
 			for (i = 0; i < g_pathCount; i++) {
 				if (_strcmpi(name, g_paths[i].m_name) == 0) {

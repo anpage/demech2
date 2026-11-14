@@ -99,6 +99,7 @@ void ClassifyPointInBox(
 // Stack-slot permutation of the locals; the tNear/tEnter and tFar/tExit comparisons
 // have their operands the other way around.
 // MW2MATROX: the tNear/tEnter and tFar/tExit comparisons have their operands the other way round.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310
@@ -367,6 +368,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 
 // Tests the ray against each face of the shape's model.
 // Stack-slot permutation: vertices, i and face.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006a190
 // FUNCTION: MW2MATROX 0x100529df
 // FUNCTION: MW23DFX 0x1000d7b0

@@ -152,6 +152,7 @@ MechS32 LoadMgdFile(
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
 // (GetAnimBase), into g_reels.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0
@@ -232,12 +233,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		g_reels[index]->m_amounts = (MechScalar*) frames;
 		g_reels[index]->m_kind = unk0x08;
 		g_reels[index]->m_frameCount = frameCount;
-		if (p_ref->m_id == -1) {
-			g_reels[index]->m_byName = 1;
-		}
-		else {
-			g_reels[index]->m_byName = 0;
-		}
+		g_reels[index]->m_byName = p_ref->m_id == -1;
 
 		ids[i] = index;
 	}
@@ -255,6 +251,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 // them out of range cleared.
 // The only diff is a stack-slot permutation of the locals.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10070bda
 // FUNCTION: MW2MATROX 0x1000b1c6
 // FUNCTION: MW23DFX 0x100403a0
@@ -555,6 +552,7 @@ MechS32 LoadDifficultyCfg(MechChar* p_name, DifficultyCfg** p_cfg)
 	return 1;
 }
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10071440
 // FUNCTION: MW2MATROX 0x1000ba2c
 // FUNCTION: MW23DFX 0x10040960
@@ -600,6 +598,7 @@ MechS32 LoadSndCfg(MechChar* p_name, SoundConfig** p_cfg)
 	return 1;
 }
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007152f
 // FUNCTION: MW2MATROX 0x1000bb1b
 // FUNCTION: MW23DFX 0x10040a10
@@ -623,6 +622,7 @@ MechS32 SaveSndCfg(MechChar* p_name, SoundConfig* p_cfg)
 
 // Saves the screen as the next of mw2NNNN.gif, up to 1000 of them.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100715a2
 // FUNCTION: MW2MATROX 0x1000bb8e
 // FUNCTION: MW23DFX 0x10040a60

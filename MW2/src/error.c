@@ -23,10 +23,12 @@
 
 // GLOBAL: MW2 0x100a589c
 // GLOBAL: MW2MATROX 0x100ac62c
+// GLOBAL: MW23DFX 0x1025963c
 MechChar* g_fatalErrorTitle = "\nMW2.EXE - fatal error";
 
 // GLOBAL: MW2 0x100a58a0
 // GLOBAL: MW2MATROX 0x100ac630
+// GLOBAL: MW23DFX 0x10259654
 MechChar* g_warningTitle = "\nMW2.EXE - warning";
 
 // The code of the last error.
@@ -38,6 +40,7 @@ MechS32 g_errorCode = 0;
 // The error message; the length is unknown.
 // GLOBAL: MW2 0x100be010
 // GLOBAL: MW2MATROX 0x100c21f8
+// GLOBAL: MW23DFX 0x1007d730
 MechChar g_errorMessage[0x400];
 
 // Reports error p_code, with a printf-style message: codes that are warnings are logged, the
@@ -183,10 +186,11 @@ void ShowFatalError(const char** p_args)
 // and the printf-style message p_args points at, if any. The message is logged and shown.
 // Stack-slot permutation of code and args. MW2MATROX: the inlined strlen reads g_errorMessage - 1,
 // which reccmp names after a different neighbour on each side.
+// The 3Dfx edition's diff is registers and the strlen's neighbour naming only.
 // FUNCTION: MW2 0x1003bad1
 // FUNCTION: MW2MATROX 0x10059831
 // FUNCTION: MW23DFX 0x1003ce80
-MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args)
+MechChar* __cdecl FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args)
 {
 	MechChar code[4];
 	va_list args;

@@ -242,6 +242,7 @@ ScalarRamp g_trackOffsetX;
 
 // Resets the camera: its ramps, the saved views and the view scale, follows the local player
 // and resets the camera shake and the zoom.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x10010ee0
 // FUNCTION: MW2MATROX 0x10008b70
 // FUNCTION: MW23DFX 0x1002db70
@@ -515,6 +516,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 
 // Moves the camera to the next (p_next) or previous player, or back to the local player
 // (p_home), skipping players who left or whose mechs are gone.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100115f4
 // FUNCTION: MW2MATROX 0x10009362
 // FUNCTION: MW23DFX 0x1002e070
@@ -642,6 +644,7 @@ void UpdateOrdinanceView(void)
 // g_trackMaxHeight in the other operand order.
 // The Matrox edition's differs in commutative operand order (height, the turn, the offsets) and
 // its stack slots.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100118bc
 // FUNCTION: MW2MATROX 0x10009653
 // FUNCTION: MW23DFX 0x1002e280
@@ -720,7 +723,7 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 	dz = z - g_eyepoint->m_z;
 	dx = x - g_eyepoint->m_x;
 	GetBearingAndRange(dx, dy, dz, &turn, &unused, &distance, &tilt);
-	SetWrappedRampTarget(&g_trackPitch, -tilt - p_tilt / 2);
+	SetWrappedRampTarget(&g_trackPitch, -tilt - (MechScalar) (p_tilt / 2));
 	g_eyepoint->m_pitch = UpdateWrappedRamp(&g_trackPitch);
 	SetWrappedRampTarget(&g_trackHeading, turn);
 	g_eyepoint->m_heading = UpdateWrappedRamp(&g_trackHeading);
@@ -851,6 +854,8 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 // Updates the cockpit view each frame: resets the pilot's look ramps after an external view, turns
 // the view towards a held glance key (or back ahead once all are released), then places the
 // eyepoint unless the camera is shaking.
+// The 3Dfx edition reloads the glance flags after each store, which /Ow doesn't. Otherwise
+// registers and scheduling.
 // FUNCTION: MW2 0x10011cb0
 // FUNCTION: MW2MATROX 0x10009ae7
 // FUNCTION: MW23DFX 0x1002e640
@@ -967,6 +972,7 @@ void UpdateDropView(void)
 // p_strafe moves it sideways, and p_turn and p_pitch turn it. It stays above the ground.
 // Stack-slot permutation: sinHeading, cosHeading, cosPitch and speed.
 // The Matrox edition's differs in commutative operand order (its products) and its stack slots.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10011f9a
 // FUNCTION: MW2MATROX 0x10009e0a
 // FUNCTION: MW23DFX 0x1002e8a0
@@ -1021,8 +1027,8 @@ void UpdateFreeEyeView(
 	}
 
 	g_eyepoint->m_heading += p_turn;
-	g_eyepoint->m_x -= speed * sinHeading * cosPitch;
-	g_eyepoint->m_z -= speed * cosHeading * cosPitch;
+	g_eyepoint->m_x -= (speed * sinHeading) * cosPitch;
+	g_eyepoint->m_z -= (speed * cosHeading) * cosPitch;
 	floor = GetCameraFloor(g_eyepoint);
 	if (g_eyepoint->m_y < floor) {
 		g_eyepoint->m_y = max(g_eyepoint->m_y, floor);

@@ -31,6 +31,7 @@ BwdNameNode* g_bwdNamesTail;
 // Appends a copy of a BWD name to the list.
 // Stack-slot permutation: result and node.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10058560
 // FUNCTION: MW2MATROX 0x1002ddf0
 // FUNCTION: MW23DFX 0x1003f7e0
@@ -93,6 +94,7 @@ MechS16* FindBwdName(BwdName* p_name)
 }
 
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100586ec
 // FUNCTION: MW2MATROX 0x1002df7c
 // FUNCTION: MW23DFX 0x1003f8c0

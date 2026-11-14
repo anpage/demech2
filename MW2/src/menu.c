@@ -175,7 +175,7 @@ MechS32 ToggleMenu(MechS32 p_id)
 }
 
 // Stack-slot permutation: slot and freed.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003c53c
 // FUNCTION: MW2MATROX 0x1009170c
 // FUNCTION: MW23DFX 0x100654b0
@@ -294,10 +294,18 @@ void LayoutMenu(MenuDefinition* p_menu)
 	}
 
 	p_menu->m_textOrigin = origin;
+#ifdef MW2_3DFX
+	// At 800x600, the menus keep their 640x480 size: their lines move down by 30 pixels.
+	if (g_screenWidthMinus1 > 700) {
+		p_menu->m_titleOrigin.m_y += 0x1e;
+		p_menu->m_cursorOrigin.m_y += 0x1e;
+		p_menu->m_itemOrigin.m_y += 0x1e;
+		p_menu->m_controlOrigin.m_y += 0x1e;
+	}
+#endif
 }
 
 // Loads a menu's background shapes and font.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
 // FUNCTION: MW2 0x1003c844
 // FUNCTION: MW2MATROX 0x10091a14
 // FUNCTION: MW23DFX 0x100657f0
@@ -410,7 +418,7 @@ void RequestMenuClose(MechS32 p_id)
 // First draws the menus' panes to the main pixel buffer and loads their layout; drops
 // the definitions whose root page or its subpages fail their init callbacks.
 // The only diff is a stack-slot permutation of the locals.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003cadc
 // FUNCTION: MW2MATROX 0x10091cac
 // FUNCTION: MW23DFX 0x100659c0
@@ -539,7 +547,7 @@ void UpdateMenuKey(void)
 // (g_openMenuCount) when that frame's game keys run.
 // Stack-slot permutation: slot, done and requested. The original compares state against
 // requested in the other operand order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003ce91
 // FUNCTION: MW2MATROX 0x1009207d
 // FUNCTION: MW23DFX 0x10065c20
@@ -680,6 +688,7 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // with the accepting or closing item as 0, calling each item's m_run, which sees g_menuKey too.
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003d1a7
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0

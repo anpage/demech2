@@ -72,9 +72,11 @@ extern "C"
 
 // The 3Dfx edition places these out of soundfx.c's order, so they are annotated here, by name.
 
+// The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
 // FUNCTION: MW23DFX 0x10032000
 // StartSample
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10032410
 // SampleEosCallback
 

@@ -122,10 +122,12 @@ MechS32 g_sceneInfoShown = 0;
 
 // GLOBAL: MW2 0x100a94e4
 // GLOBAL: MW2MATROX 0x100bcc5c
+// GLOBAL: MW23DFX 0x1025949c
 MechS32 g_showEyePosition = 0;
 
 // GLOBAL: MW2 0x100a94e8
 // GLOBAL: MW2MATROX 0x100bcc60
+// GLOBAL: MW23DFX 0x102594a0
 MechS32 g_showEyePositionMain = 0;
 
 // GLOBAL: MW2 0x100a94ec
@@ -278,6 +280,7 @@ MechChar g_monoBlankLine[0x50];
 MechChar g_monoBlankLineEnd;
 
 // Draws each debug overlay that is on, or blanks it once it goes off; called every frame.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10058750
 // FUNCTION: MW2MATROX 0x1008dbe0
 // FUNCTION: MW23DFX 0x1003c550
@@ -339,6 +342,7 @@ void DrawDebugOverlays(void)
 // Draws the 256 palette colours as a grid of 16 swatches per row.
 // Stack-slot permutation: x, y, color and i.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100588a7
 // FUNCTION: MW2MATROX 0x1008dd05
 // FUNCTION: MW23DFX 0x1003c630
@@ -387,6 +391,7 @@ void InitializeMono(void)
 }
 
 // Stack-slot permutation: text and rate.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100589ae
 // FUNCTION: MW2MATROX 0x1008de15
 // FUNCTION: MW23DFX 0x1003c6c0
@@ -591,7 +596,11 @@ void HideCacheInfo(void)
 {
 	MechChar text[28];
 
+#ifdef MW2_3DFX
+	sprintf(text, "                           ");
+#else
 	sprintf(text, "                           ", 0x19, 0x19);
+#endif
 	DRAW_DEBUG_TEXT();
 	g_cacheInfoShown = 0;
 }
@@ -633,6 +642,7 @@ void HideMemInfo(void)
 }
 
 // Steps the activity spinner.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10059085
 // FUNCTION: MW2MATROX 0x1008e340
 // FUNCTION: MW23DFX 0x1003cae0
@@ -699,6 +709,7 @@ void MonoClear(void)
 // Writes text to the debug console, 80 columns and rows 3 to 23, clearing it when it fills.
 // Stack-slot permutation: newline, ch and length.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100591d1
 // FUNCTION: MW2MATROX 0x1008e48c
 // FUNCTION: MW23DFX 0x1003cb80

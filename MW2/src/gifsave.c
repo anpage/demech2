@@ -519,6 +519,7 @@ static MechS32 ResetOutBitFile(void)
 // Stack-slot permutation: bitsWritten and numBytes. Operand order: the original compares
 // p_numBits <= g_bitsLeft with g_bitsLeft in eax.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100751a0
 // FUNCTION: MW2MATROX 0x1008a650
 // FUNCTION: MW23DFX 0x1003bc10
@@ -601,6 +602,7 @@ static MechS32 AllocStringTable(void)
 }
 
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is the operand order of an address only.
 // FUNCTION: MW2 0x10075446
 // FUNCTION: MW2MATROX 0x1008a8f6
 // FUNCTION: MW23DFX 0x1003be00
@@ -625,6 +627,7 @@ static MechU32 AddCharString(MechU32 p_index, MechU8 p_byte)
 }
 
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is the operand order of an address only.
 // FUNCTION: MW2 0x10075523
 // FUNCTION: MW2MATROX 0x1008a9d3
 // FUNCTION: MW23DFX 0x1003be90

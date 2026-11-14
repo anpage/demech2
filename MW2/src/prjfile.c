@@ -217,6 +217,7 @@ MechS32 ClosePrjFile(MechS32 p_file)
 
 // Returns the type's index in the header, or 0xffff.
 // Operand order: the original tests count > i with setg.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100720b7
 // FUNCTION: MW2MATROX 0x1000c6f7
 // FUNCTION: MW23DFX 0x1003d410
@@ -285,6 +286,7 @@ MechS32 LoadPrjIndexes(MechS32 p_file)
 }
 
 // Stack-slot permutation: entries, size, types, type and id.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100722f5
 // FUNCTION: MW2MATROX 0x1000c935
 // FUNCTION: MW23DFX 0x1003d580
@@ -365,6 +367,7 @@ MechS32 ReadPrjAt(void* p_buffer, MechS32 p_file, MechS32 p_offset, MechU32 p_le
 }
 
 // Stack-slot permutation: entries, types, offset, type, size and id.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100725ae
 // FUNCTION: MW2MATROX 0x1000cbee
 // FUNCTION: MW23DFX 0x1003d720

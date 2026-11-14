@@ -177,6 +177,7 @@ undefined* g_a3dLfb;
 // The counters of the loop and of the opened display are in each other's registers (register
 // entropy), and the end of g_a3dMipEntries names the static after it in either build (2.2 lays
 // statics out in an order of its own).
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW23DFX 0x10066570
 MechS32 A3D_Init(void)
 {
@@ -318,6 +319,7 @@ MechFloat FUN_10066800(MechU8 p_component)
 // Sets g_paletteRgb: at 800x600 through g_a3dBrightness, at 640x480 times 4.
 // One load is scheduled earlier, and the end of g_paletteRgb names the next global of either
 // build.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW23DFX 0x10066840
 void A3D_SetPalette(PaletteColor* p_palette)
 {
@@ -424,6 +426,7 @@ A3DMipEntry* FUN_100669f0(MechS16 p_id)
 // nonzero on failure.
 // The fseek arguments are scheduled in another order, and the end of g_a3dMipEntries names the
 // static after it in either build.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW23DFX 0x10066a30
 MechS32 FUN_10066a30(Gu3dfInfo* p_info, MechS32* p_width, MechS32* p_height, void* p_data)
 {
@@ -464,6 +467,7 @@ MechS32 FUN_10066a30(Gu3dfInfo* p_info, MechS32* p_width, MechS32* p_height, voi
 }
 
 // The end of g_a3dMipEntries names the static after it in either build.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW23DFX 0x10066b90
 MechS32 FUN_10066b90(void)
 {
@@ -554,6 +558,7 @@ MechS32 FUN_10066c70(void* p_pixels, MechS32 p_width, MechS32 p_height, MechS32 
 // Makes p_texture the texture drawn, with the clamp mode p_clamp.
 // Register allocation: the original keeps reset in ebp, rereads p_texture->m_buffer where this
 // keeps it in a register, and has a smaller frame.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10066e70
 void FUN_10066e70(WINDOW* p_texture, MechS32 p_clamp)
 {
@@ -823,6 +828,7 @@ void A3D_DrawOutline(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
 // polygon subdivided where its depth varies much.
 // The registers differ, and the original keeps subdivided in no register or slot: its paths jump
 // straight to the draw or past it (with the draw in each case instead, the frame is a slot short).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x100674c0
 void FUN_100674c0(
 	PANE* p_pane,
@@ -1054,6 +1060,7 @@ MechS32 FUN_10067a90(A3DSubVertex* p_a, A3DSubVertex* p_b, A3DSubVertex* p_out)
 // Draws the triangle p_triangle unless it is too deep or its texture coordinates span more than
 // 128 texels; returns 0 when it isn't drawn for its texture coordinates.
 // The loops' pointer is in another register, and the x87 stores are scheduled differently.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x10067b60
 MechS32 FUN_10067b60(A3DSubVertex* p_triangle)
 {
@@ -1113,6 +1120,7 @@ MechS32 FUN_10067b60(A3DSubVertex* p_triangle)
 // Draws the triangle p_triangle, split in two through the midpoint of its long edge until it can
 // be drawn (FUN_10067b60), at most 8 levels deep.
 // The comparison is made before the first copy in the original.
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW23DFX 0x10067d00
 MechS32 FUN_10067d00(A3DSubVertex* p_triangle, MechS32 p_level)
 {
@@ -1180,6 +1188,7 @@ void FUN_10067e60(A3DVertex* p_vertices, MechS32 p_count)
 }
 
 // The x87 interpolations are scheduled differently.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x10067ef0
 void A3D_EdgeCrossing(
 	MechS32 p_axis,

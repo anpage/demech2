@@ -118,6 +118,7 @@ void* g_unk0x100a860c = NULL;
 // The next name of g_scenarios ExecuteInclude substitutes.
 // GLOBAL: MW2 0x100a8610
 // GLOBAL: MW2MATROX 0x100a85e8
+// GLOBAL: MW23DFX 0x1025a600
 MechS32 g_nextScenario = 0;
 
 // The number of entries in g_thingRecordIndices, and the next one NextThingRecordObject returns.
@@ -139,6 +140,7 @@ MechS32 g_mangleBase = 0;
 // The mangle base of the world stream's next mangle_on section (BwdExecuteStream).
 // GLOBAL: MW2 0x100a862c
 // GLOBAL: MW2MATROX 0x100a8604
+// GLOBAL: MW23DFX 0x1025a61c
 MechS32 g_nextMangleBase = 0;
 
 // The formation LoadStarTable gives the player's team, or NULL to use the record's.
@@ -186,6 +188,7 @@ MechS32 g_thingRecordIndices[0x96];
 // The number of names in g_scenarios.
 // GLOBAL: MW2 0x100ea7d8
 // GLOBAL: MW2MATROX 0x101d4720
+// GLOBAL: MW23DFX 0x101594cc
 MechS32 g_scenarioCount;
 
 // Copies a bitmap record's size to p_width and p_height and its data to p_data, each if not NULL.
@@ -218,6 +221,7 @@ void LoadMapBitmap(BwdRecord* p_record, MechS32* p_width, MechS32* p_height, Mec
 
 // Replaces the scenario table with a copy of p_table.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004f47a
 // FUNCTION: MW2MATROX 0x1004903a
 // FUNCTION: MW23DFX 0x100429b0
@@ -352,6 +356,7 @@ MechS32 LoadFormationTable(FormationRecord* p_record)
 // scenario table's next name.
 // Stack-slot permutation: record, keyData, ok and buffer.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004f9a8
 // FUNCTION: MW2MATROX 0x1004959b
 // FUNCTION: MW23DFX 0x10042c60
@@ -445,6 +450,7 @@ void LoadStarTable(StarTable* p_table)
 
 // Gives the sixteen teams the formations a record names.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004fc48
 // FUNCTION: MW2MATROX 0x10049839
 // FUNCTION: MW23DFX 0x10042de0
@@ -463,6 +469,7 @@ void SetTeamFormations(FormationNames* p_record)
 // Runs p_fn on the stream a record names.
 // Stack-slot permutation: record, keyData and buffer.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004fcac
 // FUNCTION: MW2MATROX 0x1004989d
 // FUNCTION: MW23DFX 0x10042e10
@@ -498,6 +505,7 @@ MechS32 RunIncludedStream(IncludeRecord2* p_record, BwdStreamFn p_fn)
 
 // Frees the mission tables' blocks.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004fd55
 // FUNCTION: MW2MATROX 0x10049946
 // FUNCTION: MW23DFX 0x10042e80
@@ -619,6 +627,7 @@ void GetTriangleNormal(
 // The plane of the triangle, scaled by ScalePlane.
 // Stack-slot permutation of the locals, which also swaps the operands of two products.
 // MW2MATROX: commutative operand order of the products.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004ffaa
 // FUNCTION: MW2MATROX 0x10049c58
 // FUNCTION: MW23DFX 0x10043130
@@ -718,6 +727,7 @@ void SetMangleBase(MechS32 p_base)
 // MW2MATROX: the record's transform is converted member by member; g_thingCapacity > g_thingCount
 // compares in the other operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100500ef
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270

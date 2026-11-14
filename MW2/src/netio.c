@@ -12,19 +12,22 @@
 
 // GLOBAL: MW2 0x100a0030
 // GLOBAL: MW2MATROX 0x100bbde0
+// GLOBAL: MW23DFX 0x102590b4
 MechS32 g_sendRetries = 0;
 
 // GLOBAL: MW2 0x100a0034
 // GLOBAL: MW2MATROX 0x100bbde4
+// GLOBAL: MW23DFX 0x102590b8
 MechS32 g_recvRetries = 0;
 
 // The result of the last broadcast, or 5 after a failed one: a send after a failure goes out
 // guaranteed.
 // GLOBAL: MW2 0x100bcd18
 // GLOBAL: MW2MATROX 0x101252e8
+// GLOBAL: MW23DFX 0x1007d410
 static HRESULT g_sendResult;
 
-// Sends a message to every player of the session.
+// Sends a message to every player of the session. The 3Dfx edition logs nothing here.
 // FUNCTION: MW2 0x10001000
 // FUNCTION: MW2MATROX 0x10089b00
 // FUNCTION: MW23DFX 0x1003a4f0
@@ -41,7 +44,9 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 
 	g_sendResult = g_directPlay->lpVtbl->Send(g_directPlay, g_localDpid, 0, flags, p_msg, p_size);
 	if (g_sendResult == DPERR_BUSY) {
+#ifndef MW2_3DFX
 		DebugPrint("Send '%c%c' --- Busy=%d\n", p_msg[0], p_msg[1], g_sendResult);
+#endif
 		switch (g_sendRetries++) {
 		case 0:
 		case 1:
@@ -60,12 +65,14 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 		g_sendResult = 5;
 	}
 	else if (g_sendResult) {
+#ifndef MW2_3DFX
 		if (g_sendResult < 0) {
 			DebugPrint("Send '%c%c' --- Error %d\n", g_sendResult & 0xff);
 		}
 		else {
 			DebugPrint("Send '%c%c' --- %d outgoing messages\n", p_msg[0], p_msg[1], g_sendResult);
 		}
+#endif
 
 		if (g_sendRetries++) {
 			Sleep(100);
@@ -88,7 +95,9 @@ void NetSendTo(DPID p_to, void* p_msg, MechU32 p_size)
 }
 
 // Receives the next message into g_netRecvBuffer. Returns the sender, or -1 when there is none.
+// The 3Dfx edition logs only the bad packets.
 // The only diff is a stack-slot permutation of from, result and size.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100011c9
 // FUNCTION: MW2MATROX 0x10089cc9
 // FUNCTION: MW23DFX 0x1003a5e0
@@ -103,7 +112,9 @@ DPID NetReceive(void)
 	result = g_directPlay->lpVtbl->Receive(g_directPlay, &from, &to, DPRECEIVE_ALL, g_netRecvBuffer, &size);
 	if (result == DP_OK) {
 		g_recvRetries = 0;
+#ifndef MW2_3DFX
 		DebugPrint("Recv '%c%c' from %d (%i)\n", g_netRecvBuffer[0], g_netRecvBuffer[1], from, g_currentClock);
+#endif
 		return from;
 	}
 	else if (result == DPERR_NOMESSAGES) {

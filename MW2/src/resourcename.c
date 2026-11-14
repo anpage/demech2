@@ -68,6 +68,7 @@ MechS32 FindResourceIdByName(MechS32 p_table, MechChar* p_name)
 // resource p_table), or else the file of that name with extension p_ext. With p_poolTag, the data
 // is copied into the static pool. Stores the id found (-1 for a file) and returns the data.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10073922
 // FUNCTION: MW2MATROX 0x10073632
 // FUNCTION: MW23DFX 0x10025f70

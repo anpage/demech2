@@ -641,6 +641,7 @@ MechS32 g_dorcsReverse = 1;
 
 // A menu item's action: ejects the local player (game key 0x3b) without its sound.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10073af0
 // FUNCTION: MW2MATROX 0x100758c0
 // FUNCTION: MW23DFX 0x10064280
@@ -668,6 +669,7 @@ void AbortMissionAction(MenuDefinition* p_menu, MenuControl* p_control, MechS32 
 
 // A menu item's action: ejects the local player's mech.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10073ba6
 // FUNCTION: MW2MATROX 0x10075976
 // FUNCTION: MW23DFX 0x100642e0

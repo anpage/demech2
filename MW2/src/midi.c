@@ -47,6 +47,7 @@ MechS16 g_midiSequenceIds[8];
 // GLOBAL: MW23DFX 0x1015a020
 HSEQUENCE g_midiSequences[8];
 
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10021460
 // FUNCTION: MW2MATROX 0x10043b60
 // FUNCTION: MW23DFX 0x10032fa0
@@ -77,6 +78,7 @@ void StopMidiSequences(void)
 	}
 }
 
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x1002152b
 // FUNCTION: MW2MATROX 0x10043c2b
 // FUNCTION: MW23DFX 0x10033010
@@ -100,6 +102,7 @@ void PauseMidiSequences(void)
 }
 
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100215a4
 // FUNCTION: MW2MATROX 0x10043ca4
 // FUNCTION: MW23DFX 0x10033050
@@ -155,6 +158,7 @@ MechS32 InitializeMidi(void)
 // -10 when Miles has no sequence handle. The slot's resource id isn't recorded.
 // Stack-slot permutation: slot and i.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100216d3
 // FUNCTION: MW2MATROX 0x10043dd3
 // FUNCTION: MW23DFX 0x10033150
@@ -227,6 +231,7 @@ void ShutdownMidi(void)
 
 // Returns whether a sequence is playing; when none is, releases them all.
 // Stack-slot permutation: i and playing.
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x100218bf
 // FUNCTION: MW2MATROX 0x10043fbf
 // FUNCTION: MW23DFX 0x100332e0
@@ -256,6 +261,7 @@ MechS16 AnyMidiPlaying(void)
 
 // Fades the playing sequences to p_volume (0 to 127) over a second.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x10021956
 // FUNCTION: MW2MATROX 0x10044056
 // FUNCTION: MW23DFX 0x10033340

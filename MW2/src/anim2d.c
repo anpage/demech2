@@ -32,6 +32,7 @@ MechS32 g_framePrjCount = -1;
 
 // GLOBAL: MW2 0x100a158c
 // GLOBAL: MW2MATROX 0x100a20c8
+// GLOBAL: MW23DFX 0x10249290
 MechS32 g_anim2dCount = 0;
 
 // GLOBAL: MW2 0x10179b60
@@ -44,6 +45,7 @@ Anim2d* g_anim2ds[7];
 // GLOBAL: MW23DFX 0x102453f0
 FramePrj g_framePrjs[0x60];
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10007510
 // FUNCTION: MW2MATROX 0x100013b0
 // FUNCTION: MW23DFX 0x10002080
@@ -190,6 +192,7 @@ void TileShapeFrame(PANE* p_target, void* p_shape, MechS32 p_frame, MechS32 p_x,
 // Draws the animation's current frame, loading its shape on first use. The index test never
 // rejects anything (the original tests p_index < 0 && p_index >= 7).
 // Stack-slot permutation: frame and anim.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100077b3
 // FUNCTION: MW2MATROX 0x10001653
 // FUNCTION: MW23DFX 0x100022f0

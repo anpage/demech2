@@ -239,10 +239,12 @@ MechS32 g_hitFadeCount = 0;
 
 // GLOBAL: MW2 0x100c326c
 // GLOBAL: MW2MATROX 0x1012f964
+// GLOBAL: MW23DFX 0x101de7fc
 MechScalar g_torsoTwistDegrees;
 
 // GLOBAL: MW2 0x100c3270
 // GLOBAL: MW2MATROX 0x1012f960
+// GLOBAL: MW23DFX 0x101de7f8
 MechScalar g_headingDegrees;
 
 // The 26 cockpit panels InitCockpitPanels allocates.
@@ -290,7 +292,7 @@ void PreloadCockpitSounds(void)
 // at odd ones, renumbering their bins, and clears the slots left empty.
 // The locals are a stack-slot permutation, and right > left takes its operands in the other
 // order.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1006f4fa
 // FUNCTION: MW2MATROX 0x1007954a
 // FUNCTION: MW23DFX 0x1001dcc0
@@ -470,7 +472,6 @@ void LayoutWeaponPanels(Mech* p_mech)
 
 // Scales the panels' rectangles, text positions and transition rectangles to the screen.
 // Stack-slot permutation: rect, transition, i and target.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1006fba3
 // FUNCTION: MW2MATROX 0x10079bfb
 // FUNCTION: MW23DFX 0x1001e060
@@ -590,6 +591,7 @@ void ResetCockpitPanels(void)
 // the target's bearing relative to both and its distance, a one-time warning sound, and the
 // panels' handlers for the view mode (Mech::m_powerState: 1, 2 or the rest).
 // Stack-slot permutation: pitch, twistBearing, i, distance and bearing.
+// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1007005a
 // FUNCTION: MW2MATROX 0x1007a0b2
 // FUNCTION: MW23DFX 0x1001e340
@@ -739,6 +741,7 @@ void UpdateCockpit(Mech* p_mech)
 
 // Shuts the cockpit panels down: ResetMapView with the radar on (DifficultyCfg::m_radar),
 // each panel's m_shutdown hook, then every 2D animation.
+// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x100704c1
 // FUNCTION: MW2MATROX 0x1007a53c
 // FUNCTION: MW23DFX 0x1001e630
@@ -761,7 +764,7 @@ void ShutdownCockpitPanels(void)
 
 // Knocks the cockpit panels about when the local player's mech is hit: each panel has a two
 // (p_heavy: five) in ten chance of stepping its damage.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is registers, scheduling and the rebuild's .bss order (g_cockpitPanels).
 // FUNCTION: MW2 0x1007053d
 // FUNCTION: MW2MATROX 0x1007a5b8
 // FUNCTION: MW23DFX 0x1001e670

@@ -93,10 +93,12 @@ MechS32 g_manualWeaponCycle = 0;
 // Set when the local mech lands while g_unk0x100a2c00 is on (UpdateMech).
 // GLOBAL: MW2 0x100a2bfc
 // GLOBAL: MW2MATROX 0x100a45b8
+// GLOBAL: MW23DFX 0x1024c560
 MechS32 g_unk0x100a2bfc = 0;
 
 // GLOBAL: MW2 0x100a2c00
 // GLOBAL: MW2MATROX 0x100a45bc
+// GLOBAL: MW23DFX 0x1024c564
 MechS32 g_unk0x100a2c00 = 1;
 
 // GLOBAL: MW2 0x100a2c04
@@ -244,6 +246,7 @@ void FirstMech(struct Player* p_player)
 // collisions with shapes and other mechs, lands it on the terrain (with falling damage), slides
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
 // Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10016edf
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
@@ -363,14 +366,21 @@ void UpdateMech(Mech* p_mech)
 			topSpeed = mech->m_topSpeed * 0.0390625f;
 			if (length > 1e-07f && topSpeed > 1e-07f && mech->m_jumpThrust > 1e-07f) {
 				topSpeed2 = topSpeed * topSpeed;
-				a = mech->m_jumpThrust - mech->m_jumpThrust / topSpeed / 3;
-				c = topSpeed2 - topSpeed * 0.75f;
+				a = mech->m_jumpThrust - (mech->m_jumpThrust / topSpeed) / 3;
+				c = topSpeed2 - (MechFloat) (topSpeed * 0.75f);
 				a = a / c;
 				b = mech->m_jumpThrust - a * topSpeed2;
 				b = b / topSpeed;
+#ifdef MW2_3DFX
+				// The 3Dfx edition divides by the length once.
+				drag = -((b + a * length) * length) / length;
+				dragX = drag * velX;
+				dragZ = drag * velZ;
+#else
 				drag = -((b + a * length) * length);
 				dragX = drag * velX / length;
 				dragZ = drag * velZ / length;
+#endif
 			}
 #else
 			topSpeed = MulDiv64(0x1400, mech->m_topSpeed, 2);
@@ -821,6 +831,7 @@ void UpdateMech(Mech* p_mech)
 // running, shut down, destroyed (exploding until the timer runs out) and ejecting.
 // Every player type's late update (PlayerType::m_lateUpdateFn).
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
@@ -1068,7 +1079,7 @@ void LateUpdateMech(Mech* p_mech)
 #endif
 			mech->m_player->m_animFlags &= ~4;
 			mech->m_player->m_animFlags &= ~1;
-			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
+			turn = (mech->m_player->m_steering->m_turn / 1024) * 90;
 		}
 
 		mech->m_turnRate.m_target = turn * 2;
@@ -1081,7 +1092,7 @@ void LateUpdateMech(Mech* p_mech)
 				speed = 80;
 			}
 
-			turn = mech->m_player->m_steering->m_turn / 1024 * 90;
+			turn = (mech->m_player->m_steering->m_turn / 1024) * 90;
 			cosine = FixedCos(speed);
 			turnRate = cosine * turn;
 #else
@@ -1204,12 +1215,16 @@ void LateUpdateMech(Mech* p_mech)
 				mech->m_torsoTwist.m_value = mech->m_torsoTwist.m_target = mech->m_torsoTwist.m_value - delta;
 			}
 		}
-
 #endif
 
+#ifdef MW2_ACCEL
+		// isLocal holds here: the accelerated editions don't test it again.
+		g_recenterLastHeading = mech->m_player->m_heading;
+#else
 		if (isLocal) {
 			g_recenterLastHeading = mech->m_player->m_heading;
 		}
+#endif
 	}
 
 	if (active) {
@@ -1247,7 +1262,7 @@ void LateUpdateMech(Mech* p_mech)
 					ShowInGameMessage(text, 1, 0x16a, 0x32);
 					PlaySoundEffect(0xc9, 100, 0x40, 5, 0x50);
 #ifdef MW2_ACCEL
-					mech->m_heat += mech->m_heat / 4;
+					mech->m_heat += (MechFloat) (mech->m_heat / 4);
 #else
 					mech->m_heat += mech->m_heat >> 2;
 #endif
@@ -1583,6 +1598,7 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 // Lays out p_mech's allocation (its ten weapons, eight sections and 25 ammunition bins after it)
 // and empties the weapons and the bins.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10019881
 // FUNCTION: MW2MATROX 0x10010043
 // FUNCTION: MW23DFX 0x1001b170

@@ -300,6 +300,7 @@ void ShutdownRefreshMode(void)
 // Operand order: the original compares the high parts as `cmp [g_profileStart+4], eax` with
 // end.HighPart in eax; swapping the operands doesn't flip it.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100770a8
 // FUNCTION: MW2MATROX 0x1007b124
 // FUNCTION: MW23DFX 0x10002870
@@ -408,6 +409,7 @@ void SelectFastestRefreshMode(void)
 // fullscreen mode last selected. Unlike the shell's, it does nothing while the frame covers the
 // whole screen, unless g_shouldToggleFullscreen is set.
 // Stack-slot permutation: i, mode and backend.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10077392
 // FUNCTION: MW2MATROX 0x1007b40e
 // FUNCTION: MW23DFX 0x10002aa0
@@ -429,7 +431,7 @@ void ToggleFullScreen(void)
 	PauseTimer(0x80, TRUE);
 
 	if (g_currentDisplayBackend->m_windowMode == c_windowModeFullscreen) {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		g_fastestRefreshMode = g_currentRefreshMode;
 #endif
 		for (i = 0; i < 6; i++) {
@@ -503,6 +505,7 @@ void InitBitmapInfo(MechS32 p_width, MechS32 p_height)
 
 // Restyles the game window for p_backend's window mode, and sets g_windowMode: a mode that
 // covers the whole screen counts as fullscreen.
+// The 3Dfx edition's diff is register allocation, scheduling and reloads after calls only.
 // FUNCTION: MW2 0x1007762f
 // FUNCTION: MW2MATROX 0x1007b6b5
 // FUNCTION: MW23DFX 0x10002cc0

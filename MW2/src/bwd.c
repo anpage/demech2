@@ -183,6 +183,7 @@ void UnloadResource(BwdStream* p_stream)
 
 // Returns the name of the keyword with tag p_code, or "unknown".
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is registers and a loop's end address, which names another global only.
 // FUNCTION: MW2 0x1003ff09
 // FUNCTION: MW2MATROX 0x1002a2f9
 // FUNCTION: MW23DFX 0x10040f60

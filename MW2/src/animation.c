@@ -148,6 +148,7 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 // clips the polygon to the pane edges p_unk0x18 selects. MW23DFX: register allocation (the
 // original keeps data on the stack and anim in ebx, the rebuild the other way around), which
 // shifts every stack offset by 4.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
 // FUNCTION: MW23DFX 0x1002c880
@@ -607,6 +608,7 @@ MechS32 DrawAnimatedPolygon(
 // Stack-slot permutation: frame, i and now and remainder. MW2MATROX: a comparison has its
 // operands the other way around. MW23DFX: the same comparison and an addition's operand order,
 // and the loop's end (0x10160cf0, g_unk0x10184700 in the original).
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x10068fb8
 // FUNCTION: MW2MATROX 0x10051278
 // FUNCTION: MW23DFX 0x1002ce50
@@ -656,6 +658,7 @@ void AdvanceAnimations(void)
 
 // Stack-slot permutation: found and slot. MW2MATROX: index order, g_animFrames[p_set][slot]
 // loads p_set first. MW23DFX: register allocation of p_set, found and slot.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10069124
 // FUNCTION: MW2MATROX 0x100513ed
 // FUNCTION: MW23DFX 0x1002cf10
@@ -771,6 +774,7 @@ MechS32 StartAnimation(MechS32 p_index, MechS32 p_set)
 }
 
 // MW2MATROX: stack-slot permutation of i and j.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x10069360
 // FUNCTION: MW2MATROX 0x1005163e
 // FUNCTION: MW23DFX 0x1002d0e0
@@ -869,6 +873,7 @@ void FUN_10069591(void)
 
 // Index order: &g_animFrames[i][j] loads i first in the original (InitAnimations matches with the
 // same statement). MW2MATROX loads them the other way around.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x1006959c
 // FUNCTION: MW2MATROX 0x1005188b
 // FUNCTION: MW23DFX 0x1002d220
@@ -1202,6 +1207,7 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 // Draws the polygon of p_count projected points with animation p_index + 0x100's texture (the
 // ground's), clipped to the pane, subdivided for its perspective (FUN_100674c0's mode 2). Returns 0.
 // Register allocation: the original keeps vertex in edi and g_unk0x100aa1d0 in ebx.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1002d460
 MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
 {
@@ -1253,6 +1259,7 @@ MechS32 FUN_10051c07(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 // FUN_10051c07 for the sky: its texture coordinates scaled to Glide's 0-255, drawn unclipped when
 // the clipper leaves it whole, in FUN_100674c0's mode 1.
 // Register allocation of p_count and vertex.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x1002d590
 MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_count)
 {
@@ -1312,6 +1319,7 @@ MechS32 FUN_10051ea2(MechS32 p_index, ProjectedVertex** p_points, MechS32 p_coun
 
 // Computes the average color of every playing animation's current frame (FUN_100519b0).
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2MATROX 0x1005207d
 // FUNCTION: MW23DFX 0x1002d6e0
 void CalcAverageBitmapColors(void)

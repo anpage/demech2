@@ -67,11 +67,13 @@ MechS32 g_killCount = 0;
 // Set while the local player has been warned of critical heat (CalculateHeat).
 // GLOBAL: MW2 0x100a15a4
 // GLOBAL: MW2MATROX 0x100a462c
+// GLOBAL: MW23DFX 0x1024bfd0
 MechS32 g_criticalHeatWarned = 0;
 
 // When the warning was given.
 // GLOBAL: MW2 0x100bdff0
 // GLOBAL: MW2MATROX 0x100c1e24
+// GLOBAL: MW23DFX 0x1007c310
 static MechS32 g_criticalHeatWarningTime;
 
 // Runs the autopilot (m_autopilot): mode 1 follows the nav points in order, skipping the ones
@@ -80,6 +82,7 @@ static MechS32 g_criticalHeatWarningTime;
 // Stack-slot permutation: index and first.
 // The Matrox edition copies m_maneuverParam and the steering's float throttle into each other as
 // they are (the dword, no conversion).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100079d0
 // FUNCTION: MW2MATROX 0x10010250
 // FUNCTION: MW23DFX 0x10015c00
@@ -240,6 +243,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
 // The only diff is a stack-slot permutation of the locals. MW2MATROX: the cooling product
 // multiplies its operands in another order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10007e86
 // FUNCTION: MW2MATROX 0x10010727
 // FUNCTION: MW23DFX 0x10015f50
@@ -367,6 +371,7 @@ void CalculateHeat(Mech* p_mech)
 // Destroys p_mech, on behalf of player p_killer (-2: its player left the game).
 // Stack-slot permutation: next and text. The original compares p_killer with g_localPlayerId and
 // indexes m_unk0x52 in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1000832b
 // FUNCTION: MW2MATROX 0x10010bd8
 // FUNCTION: MW23DFX 0x10016280
@@ -628,6 +633,7 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // jump jets, the heat sinks, the engine, the gyro...). The local player hears which, unless
 // p_recursing; 8000 and 9000 hit another, random slot instead.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0
@@ -831,7 +837,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			}
 
 			if (p_mech->m_jumpJets > 0) {
-				p_mech->m_jumpThrust -= p_mech->m_jumpThrust / p_mech->m_jumpJets;
+				p_mech->m_jumpThrust -= (MechScalar) (p_mech->m_jumpThrust / p_mech->m_jumpJets);
 			}
 			else {
 				p_mech->m_jumpThrust = 0;
@@ -1004,6 +1010,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 // only damages its own mech.
 // The original ends in an explicit return (the jmp to the epilogue). The only diff is a stack-slot
 // permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1000991b
 // FUNCTION: MW2MATROX 0x10012243
 // FUNCTION: MW23DFX 0x100171d0
@@ -1126,8 +1133,15 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 									(MechS32) FIXED_FROM_INT(levels));
 		}
 		else {
+#ifdef MW2_3DFX
+			// The 3Dfx edition divides before it multiplies here.
+			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) /
+									 (MechS32) FIXED_FROM_INT(levels)) *
+									3);
+#else
 			level = 15 - (MechS32) (((section->m_internal + section->m_armor[side] / g_otherArmorPerLevel) * 3) /
 									(MechS32) FIXED_FROM_INT(levels));
+#endif
 		}
 	}
 

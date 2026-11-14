@@ -348,6 +348,7 @@ void SecondRender(void)
 // distances, the scene's objects, and the animations.
 // MW2MATROX: wipes with the background's 16-bit pixel, keeps the clip distance it restores as a
 // float, and doesn't draw the bounding spheres.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10012afe
 // FUNCTION: MW2MATROX 0x1001774e
 // FUNCTION: MW23DFX 0x10004b30
@@ -509,6 +510,7 @@ void FUN_10012f29(undefined4 p_unk0x00, undefined4 p_value)
 // Stack-slot permutation of the locals. The Matrox edition's takes the suffix from the art
 // resolution before its 512x384 override (g_unk0x1012c1e4).
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and the name of an address past an array.
 // FUNCTION: MW2 0x10012f3c
 // FUNCTION: MW2MATROX 0x10017b8f
 // FUNCTION: MW23DFX 0x10004ec0

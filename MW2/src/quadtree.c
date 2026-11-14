@@ -26,6 +26,7 @@ MechS32 g_quadtreesDisabled = 0;
 // the vertex's first in the original.
 // MW2MATROX: the comparisons of root's bounds with the vertex's coordinates have their operands the
 // other way round.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001df00
 // FUNCTION: MW2MATROX 0x100158f0
 // FUNCTION: MW23DFX 0x1000c550
@@ -100,6 +101,7 @@ void BuildShapeQuadtree(Shape* p_shape)
 // MW2MATROX: the sums of the node's bounds add their operands in the other order, the minX >= maxX,
 // minZ >= maxZ and faceHigh > highY comparisons have their operands the other way round, and
 // entries sits in another stack slot.
+// The 3Dfx edition's diff is register allocation, scheduling, compare and float operand order.
 // FUNCTION: MW2 0x1001e0a7
 // FUNCTION: MW2MATROX 0x10015ab5
 // FUNCTION: MW23DFX 0x1000c640
@@ -282,6 +284,7 @@ void FreeQuadtree(QuadtreeNode* p_node)
 // Stack-slot permutation; the min/max tests and the final bounds tests compare in the other operand
 // order.
 // MW2MATROX: the min/max tests and the final bounds tests have their operands the other way round.
+// The 3Dfx edition's diff is register allocation, scheduling, compare and float operand order.
 // FUNCTION: MW2 0x1001e57a
 // FUNCTION: MW2MATROX 0x10016037
 // FUNCTION: MW23DFX 0x1000c9a0
@@ -356,6 +359,7 @@ MechS32 FaceOverlapsBox(
 // Classifies the point (p_x, p_y, p_z) against the quadtree's faces: 0 outside the tree's
 // ground area, 2 above the faces under it, 3 below one of them.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001e6dc
 // FUNCTION: MW2MATROX 0x100161c7
 // FUNCTION: MW23DFX 0x1000cb10
@@ -429,6 +433,7 @@ MechS32 ClassifyQuadtreePoint(QuadtreeNode* p_node, Model* p_model, MechScalar p
 // Stack-slot permutation; the t1 < tMax and t0 < tMax tests compare in the other operand order.
 // MW2MATROX: the comparisons of t0 and t1 with tMin and tMax have their operands the other way
 // round.
+// The 3Dfx edition's diff is register allocation, scheduling, compare and float operand order.
 // FUNCTION: MW2 0x1001e90f
 // FUNCTION: MW2MATROX 0x10016422
 // FUNCTION: MW23DFX 0x1000ccf0
@@ -625,6 +630,7 @@ void DisableQuadtrees(void)
 }
 
 // Returns the bytes a quadtree takes.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001ee0f
 // FUNCTION: MW2MATROX 0x10016973
 // FUNCTION: MW23DFX 0x1000d170

@@ -31,90 +31,112 @@ void ChooseJoystickMapName(InputDeviceInfo* p_info, JOYCAPS* p_caps);
 
 // GLOBAL: MW2 0x100a6e08
 // GLOBAL: MW2MATROX 0x100a5608
+// GLOBAL: MW23DFX 0x102590d0
 MechChar g_downUpAxisName[] = "Down/Up Movement";
 
 // GLOBAL: MW2 0x100a6e20
 // GLOBAL: MW2MATROX 0x100a5620
+// GLOBAL: MW23DFX 0x102590e8
 MechChar g_leftRightAxisName[] = "Left/Right Movement";
 
 // GLOBAL: MW2 0x100a6e38
 // GLOBAL: MW2MATROX 0x100a5638
+// GLOBAL: MW23DFX 0x10259100
 MechChar g_throttleAxisName[] = "Throttle Control";
 
 // GLOBAL: MW2 0x100a6e50
 // GLOBAL: MW2MATROX 0x100a5650
+// GLOBAL: MW23DFX 0x10259118
 MechChar g_rudderAxisName[] = "Rudder Movement";
 
 // GLOBAL: MW2 0x100a6e60
 // GLOBAL: MW2MATROX 0x100a5660
+// GLOBAL: MW23DFX 0x10259128
 MechChar g_fifthAxisName[] = "5th axis Movement";
 
 // GLOBAL: MW2 0x100a6e78
 // GLOBAL: MW2MATROX 0x100a5678
+// GLOBAL: MW23DFX 0x10259140
 MechChar g_sixthAxisName[] = "6th axis Movement";
 
 // GLOBAL: MW2 0x100a6e90
 // GLOBAL: MW2MATROX 0x100a5690
+// GLOBAL: MW23DFX 0x10259158
 MechChar g_downUpAxisShortName[] = "Down/Up";
 
 // GLOBAL: MW2 0x100a6e98
 // GLOBAL: MW2MATROX 0x100a5698
+// GLOBAL: MW23DFX 0x10259160
 MechChar g_leftRightAxisShortName[] = "Left/Right";
 
 // GLOBAL: MW2 0x100a6ea8
 // GLOBAL: MW2MATROX 0x100a56a8
+// GLOBAL: MW23DFX 0x10259170
 MechChar g_throttleAxisShortName[] = "Throttle";
 
 // GLOBAL: MW2 0x100a6eb8
 // GLOBAL: MW2MATROX 0x100a56b8
+// GLOBAL: MW23DFX 0x10259180
 MechChar g_rudderAxisShortName[] = "Rudder";
 
 // GLOBAL: MW2 0x100a6ec0
 // GLOBAL: MW2MATROX 0x100a56c0
+// GLOBAL: MW23DFX 0x10259188
 MechChar g_fifthAxisShortName[] = "5thAxis";
 
 // GLOBAL: MW2 0x100a6ec8
 // GLOBAL: MW2MATROX 0x100a56c8
+// GLOBAL: MW23DFX 0x10259190
 MechChar g_sixthAxisShortName[] = "6thAxis";
 
 // GLOBAL: MW2 0x100a6ed0
 // GLOBAL: MW2MATROX 0x100a56d0
+// GLOBAL: MW23DFX 0x10259198
 MechChar g_headRollAxisName[] = "Left/Right Head Roll";
 
 // GLOBAL: MW2 0x100a6ee8
 // GLOBAL: MW2MATROX 0x100a56e8
+// GLOBAL: MW23DFX 0x102591b0
 MechChar g_headRollAxisShortName[] = "HeadRoll";
 
 // GLOBAL: MW2 0x100a6ef8
 // GLOBAL: MW2MATROX 0x100a56f8
+// GLOBAL: MW23DFX 0x102591c0
 MechChar g_hatUpName[] = "Hat Up";
 
 // GLOBAL: MW2 0x100a6f00
 // GLOBAL: MW2MATROX 0x100a5700
+// GLOBAL: MW23DFX 0x102591c8
 MechChar g_hatRightName[] = "Hat Right";
 
 // GLOBAL: MW2 0x100a6f10
 // GLOBAL: MW2MATROX 0x100a5710
+// GLOBAL: MW23DFX 0x102591d8
 MechChar g_hatDownName[] = "Hat Down";
 
 // GLOBAL: MW2 0x100a6f20
 // GLOBAL: MW2MATROX 0x100a5720
+// GLOBAL: MW23DFX 0x102591e8
 MechChar g_hatLeftName[] = "Hat Left";
 
 // GLOBAL: MW2 0x100a6f30
 // GLOBAL: MW2MATROX 0x100a5730
+// GLOBAL: MW23DFX 0x102591f8
 MechChar g_hatUpShortName[] = "HatUp";
 
 // GLOBAL: MW2 0x100a6f38
 // GLOBAL: MW2MATROX 0x100a5738
+// GLOBAL: MW23DFX 0x10259200
 MechChar g_hatRightShortName[] = "HatRight";
 
 // GLOBAL: MW2 0x100a6f48
 // GLOBAL: MW2MATROX 0x100a5748
+// GLOBAL: MW23DFX 0x10259210
 MechChar g_hatDownShortName[] = "HatDown";
 
 // GLOBAL: MW2 0x100a6f50
 // GLOBAL: MW2MATROX 0x100a5750
+// GLOBAL: MW23DFX 0x10259218
 MechChar g_hatLeftShortName[] = "HatLeft";
 
 // GLOBAL: MW2 0x100a6f58
@@ -131,7 +153,7 @@ InputDriverModule g_joystickDriver = {
 	JoystickFlushKeyCodes,
 };
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 // The Matrox edition's JoystickPoll sums each axis over the reads between two polls that read the
 // joystick, then keeps the sums as the axes it returns until the next.
 // GLOBAL: MW2MATROX 0x100a5778
@@ -164,6 +186,7 @@ MechS32 GetJoystickDeviceCount(void)
 // name, its driver data and the names of its axes (a tracker's third axis is head roll) and
 // buttons, the POV directions after the buttons. Returns 1 on failure.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10049e86
 // FUNCTION: MW2MATROX 0x10025f56
 // FUNCTION: MW23DFX 0x1003a690
@@ -367,39 +390,19 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 	if (caps.wCaps & JOYCAPS_HASPOV) {
 		data->m_flags |= JOY_RETURNPOV;
 		button = caps.wNumButtons;
-		if (button >= 32) {
-			data->m_povButtons[0] = 1;
-		}
-		else {
-			data->m_povButtons[0] = 0;
-		}
+		data->m_povButtons[0] = button >= 32;
 
 		data->m_povMasks[0] = 1 << (button % 32);
 		button++;
-		if (button >= 32) {
-			data->m_povButtons[1] = 1;
-		}
-		else {
-			data->m_povButtons[1] = 0;
-		}
+		data->m_povButtons[1] = button >= 32;
 
 		data->m_povMasks[1] = 1 << (button % 32);
 		button++;
-		if (button >= 32) {
-			data->m_povButtons[2] = 1;
-		}
-		else {
-			data->m_povButtons[2] = 0;
-		}
+		data->m_povButtons[2] = button >= 32;
 
 		data->m_povMasks[2] = 1 << (button % 32);
 		button++;
-		if (button >= 32) {
-			data->m_povButtons[3] = 1;
-		}
-		else {
-			data->m_povButtons[3] = 0;
-		}
+		data->m_povButtons[3] = button >= 32;
 
 		data->m_povMasks[3] = 1 << (button % 32);
 	}
@@ -408,6 +411,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 }
 
 // Frees the names and the driver data FillJoystickDeviceInfo and JoystickOpenDevice allocated.
+// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1004a947
 // FUNCTION: MW2MATROX 0x1002699d
 // FUNCTION: MW23DFX 0x1003adc0
@@ -461,13 +465,14 @@ MechS32 JoystickCenterAxis(void)
 // Reads the joystick into the six axes (Y and X first, then Z, R, U and V as far as the device has
 // them) and the two button words, the POV hat setting the buttons its directions map to.
 // Returns 1 without somewhere to put them, else 0.
-// The Matrox edition's differs from the original only in its stack slots (i and info).
+// The Matrox edition's differs from the original only in its stack slots (i and info). The 3Dfx
+// edition's is 1.1's, without clearing the JOYINFOEX or setting its size.
 // FUNCTION: MW2 0x1004aa6b
 // FUNCTION: MW2MATROX 0x10026b7e
 // FUNCTION: MW23DFX 0x1003ae80
 MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 	MMRESULT result;
 	MechS32 i;
 	JOYINFOEX info;
@@ -576,8 +581,10 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 	MechS32 i;
 	JOYINFOEX info;
 
+#ifndef MW2_ACCEL
 	memset(&info, 0, sizeof(info));
 	info.dwSize = sizeof(info);
+#endif
 	if (!p_buttons || !p_axes) {
 		return 1;
 	}

@@ -26,6 +26,7 @@
 // in that color if the weapon is selected.
 // The selected-weapon comparison loads its operands in the opposite order (one attempt at
 // swapping them didn't flip it), and stack-slot permutation: color, font, mech, text and weapon.
+// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x10033280
 // FUNCTION: MW2MATROX 0x10055510
 // FUNCTION: MW23DFX 0x1001e820

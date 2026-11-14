@@ -81,6 +81,7 @@ MechS16 g_keyCodeMap[256] = {
 // The key state index of the extended (0xe0-prefixed) scan codes.
 // GLOBAL: MW2 0x100a6508
 // GLOBAL: MW2MATROX 0x100ad6d8
+// GLOBAL: MW23DFX 0x10250f78
 MechS32 g_extendedScanCodeMap[0x59] = {
 	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0x55,  0x70,  0,     0,
@@ -225,6 +226,7 @@ MechS32 KeyboardCenterAxis(void)
 	return 0;
 }
 
+// The 3Dfx edition keeps the copy as a loop, which /Ow unrolls (plain /Ox doesn't).
 // FUNCTION: MW2 0x1004284c
 // FUNCTION: MW2MATROX 0x100675dc
 // FUNCTION: MW23DFX 0x100383d0
@@ -360,7 +362,7 @@ void KeyboardRecordKeyState(WPARAM p_virtualKey, MechU32 p_lParam, BOOL p_presse
 	MechS32 key;
 
 	key = (p_lParam >> 16) & 0xff;
-	if (key != 0 && ((p_lParam >> 16) & 0x100) && key < 0x59) {
+	if (key != 0 && ((MechU16) (p_lParam >> 16) & 0x100) && key < 0x59) {
 		key = g_extendedScanCodeMap[key];
 	}
 

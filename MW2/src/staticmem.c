@@ -45,6 +45,7 @@ MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag);
 // Stack-slot permutation: i, pool, j, group and best. The loop tests and the comparisons of the
 // groups' free room follow the unit's symbol table in the other operand order.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100498b0
 // FUNCTION: MW2MATROX 0x10078f20
 // FUNCTION: MW23DFX 0x10023bb0
@@ -116,6 +117,7 @@ MechS32 InitStaticMem(char* p_mission)
 // Takes a block from the pool of a tag, logging the call to mw2.log.
 // Stack-slot permutation: i, pool, block and group. MW2MATROX: the tests of i against
 // g_staticPoolCount take the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10049afb
 // FUNCTION: MW2MATROX 0x1007916a
 // FUNCTION: MW23DFX 0x10023d40
@@ -238,6 +240,7 @@ MechS32 ParseStaticPoolConfig(char* p_mission)
 // Stack-slot permutation: pool and i. Both tests against g_staticPoolCount compare in the other
 // operand order (the unit's symbol table).
 // MW2MATROX: the loop tests compare in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10049da3
 // FUNCTION: MW2MATROX 0x10079410
 // FUNCTION: MW23DFX 0x10023f10

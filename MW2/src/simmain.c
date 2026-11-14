@@ -126,6 +126,7 @@ MechS32 g_localPlayerId = 0;
 
 // GLOBAL: MW2 0x100acb2c
 // GLOBAL: MW2MATROX 0x100be4d4
+// GLOBAL: MW23DFX 0x1024ac74
 MechS32 g_remoteWaitTime = 0;
 
 // Set when the local player starts on the autopilot (FirstMech).
@@ -177,6 +178,7 @@ MechS32 g_drawModeReady = 0;
 
 // GLOBAL: MW2 0x100acb7c
 // GLOBAL: MW2MATROX 0x100be528
+// GLOBAL: MW23DFX 0x1024acc4
 undefined4 g_shouldToggleFullscreen = 0;
 
 // GLOBAL: MW2 0x100acb80
@@ -278,6 +280,7 @@ void FUN_1008fad0(void)
 // assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The
 // operand order of the DoFirstObjtv loop test and of the network start test follows the unit's
 // symbol table: both have flipped back and forth as declarations moved between units.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10066a50
 // FUNCTION: MW2MATROX 0x1008fb5a
 // FUNCTION: MW23DFX 0x10008850
@@ -302,6 +305,9 @@ int __stdcall SimMain(
 	MechS32 quitLatched;
 #ifdef MW2_MATROX
 	MechChar cmdLine[512];
+#endif
+#ifdef MW2_3DFX
+	HDC dc;
 #endif
 
 	quitLatched = 0;
@@ -411,11 +417,20 @@ int __stdcall SimMain(
 #ifdef MW2_ACCEL
 	LoadSkyGroundSettings(missionName);
 #endif
+#ifdef MW2_3DFX
+	FUN_1008fad0();
+#endif
 	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
 		DebugPrint("StartSupAnim()\n");
+#ifdef MW2_3DFX
+		dc = GetDC(g_gameWindow);
+		StartSupAnim(GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+		ReleaseDC(g_gameWindow, dc);
+#else
 		StartSupAnim(GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+#endif
 		DebugPrint("FirstResource()\n");
 		FirstResource();
 		DebugPrint("InitStaticMem()\n");
@@ -461,6 +476,8 @@ int __stdcall SimMain(
 #ifdef MW2_MATROX
 		DebugPrint("CalcAverageBitmapColors()\n");
 		CalcAverageBitmapColors();
+#elif defined(MW2_3DFX)
+		CalcAverageBitmapColors();
 #endif
 		DebugPrint("FirstGPAnim()\n");
 		FirstGPAnim();
@@ -505,7 +522,12 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
+#ifdef MW2_3DFX
+		dc = GetDC(g_gameWindow);
+		if (GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+#else
 		if (GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+#endif
 			DebugPrint("StartPalettes()\n");
 			StartPalettes(0);
 		}
@@ -519,6 +541,9 @@ int __stdcall SimMain(
 			}
 		}
 
+#ifdef MW2_3DFX
+		ReleaseDC(g_gameWindow, dc);
+#endif
 		g_drawModeReady = 1;
 #ifdef MW2_MATROX
 		g_unk0x100be544 = 1;
@@ -539,7 +564,7 @@ int __stdcall SimMain(
 			Error(0x50, "Error profiling video modes.");
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		FUN_1008fad0();
 #endif
 		while (ShowCursor(FALSE) >= 0) {
@@ -653,9 +678,9 @@ int __stdcall SimMain(
 				GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
 			}
 #else
-		if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
-			DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
-		}
+	if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
+		DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
+	}
 #endif
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
@@ -709,6 +734,9 @@ int __stdcall SimMain(
 #else
 		DebugPrint("Calling Blit()\n");
 		Blit();
+#endif
+#ifdef MW2_3DFX
+		FUN_10066910();
 #endif
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		}
@@ -825,6 +853,20 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			return 0;
 		}
 
+		return 0;
+#elif defined(MW2_3DFX)
+		g_windowActive = p_wParam;
+		if (g_windowActive == TRUE) {
+			KeyboardClearKeyStates();
+			ShowWindow(g_gameWindow, SW_RESTORE);
+		}
+		else {
+			ShowWindow(g_gameWindow, SW_MINIMIZE);
+		}
+
+		if (g_currentDisplayBackend) {
+			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
+		}
 		return 0;
 #else
 		g_windowActive = p_wParam;
@@ -949,6 +991,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10067bbc
 // FUNCTION: MW2MATROX 0x10090ca7
 // FUNCTION: MW23DFX 0x10009680
@@ -1044,6 +1087,25 @@ void UpdatePauseState(void)
 // FUNCTION: MW23DFX 0x10009890
 void SetGameResolution(char* p_driverName)
 {
+#ifdef MW2_3DFX
+	// The 3Dfx edition's: 800x600 with the registry's "Res800x600" setting, 640x480 otherwise.
+	DWORD res800x600;
+
+	if (!ReadRegistryDword("Res800x600", &res800x600)) {
+		res800x600 = 0;
+	}
+
+	FUN_10066920(res800x600);
+
+	if (g_a3dRes800x600) {
+		g_gameWindowWidth = 800;
+		g_gameWindowHeight = 600;
+	}
+	else {
+		g_gameWindowWidth = 640;
+		g_gameWindowHeight = 480;
+	}
+#else
 	if (_strcmpi(p_driverName, "MCGA.DLL") == 0) {
 		g_gameWindowWidth = 320;
 		g_gameWindowHeight = 200;
@@ -1060,4 +1122,5 @@ void SetGameResolution(char* p_driverName)
 		g_gameWindowWidth = 320;
 		g_gameWindowHeight = 200;
 	}
+#endif
 }

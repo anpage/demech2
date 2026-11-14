@@ -224,6 +224,7 @@ void BreakUpMech(Mech* p_mech)
 
 // Sets off the flames of the jump jets and plays their sound.
 // Stack-slot permutation: x, y, z, player, jet and fired.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004ccba
 // FUNCTION: MW2MATROX 0x10045571
 // FUNCTION: MW23DFX 0x1001bf90
@@ -280,12 +281,7 @@ void PlayMechLanding(Mech* p_mech, MechScalar p_speed)
 		PlayPlayerHitFeedback(0, -p_speed, 0);
 	}
 
-	if (p_speed >= FIXED_RAW(-0x102762)) {
-		sound = 0xe6;
-	}
-	else {
-		sound = 0xe5;
-	}
+	sound = p_speed >= FIXED_RAW(-0x102762) ? 0xe6 : 0xe5;
 
 	PlaySoundAt(
 		p_mech->m_player->m_position.m_x - g_eyepoint->m_x,

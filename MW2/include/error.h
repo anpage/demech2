@@ -12,7 +12,7 @@ extern "C"
 	void Error(MechS32 p_code, const char* p_format, ...);
 	void ShutdownOnError(void);
 	void ShowFatalError(const char** p_args);
-	MechChar* FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args);
+	MechChar* __cdecl FormatErrorMessage(MechChar* p_title, MechS32 p_code, const char** p_args);
 	void LogWarning(const char** p_args);
 
 #ifdef __cplusplus

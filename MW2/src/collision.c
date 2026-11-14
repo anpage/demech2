@@ -130,6 +130,7 @@ void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 // Returns whether p_y lies below the plane of the face at (p_x, p_z), with the plane's height
 // there in p_height, and sets the hit normal to the face's.
 // MW2MATROX: the two products of the plane's height are summed in the other order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10034a7b
 // FUNCTION: MW2MATROX 0x1002394b
 // FUNCTION: MW23DFX 0x1000fff0
@@ -174,6 +175,7 @@ MechS32 IsBelowFacePlane(
 // Stack-slot permutation of the locals; two comparisons have their operands the other way
 // around.
 // MW2MATROX: the below < top and best < top comparisons have their operands the other way round.
+// The 3Dfx edition's diff is register allocation, scheduling, compare and float operand order.
 // FUNCTION: MW2 0x10034b30
 // FUNCTION: MW2MATROX 0x100239fc
 // FUNCTION: MW23DFX 0x10010080
@@ -237,6 +239,7 @@ MechScalar GetTerrainHeight(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 // normal goes to g_groundNormal.
 // Stack-slot permutation of the locals; the best < top comparison has its operands the
 // other way around.
+// The 3Dfx edition's diff is register allocation, scheduling, compare and float operand order.
 // FUNCTION: MW2 0x10034cbc
 // FUNCTION: MW2MATROX 0x10023bc0
 // FUNCTION: MW23DFX 0x100101f0
@@ -484,6 +487,7 @@ MechS32 TestSceneryCollision(Ray* p_ray, Shape** p_hit)
 // Tests the ray against the shape: with the type's ray test, else by its point test at four
 // steps along the ray (cutting the ray at the first hit), else by the shape's bounding sphere.
 // Stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100352ad
 // FUNCTION: MW2MATROX 0x100241af
 // FUNCTION: MW23DFX 0x10010650
@@ -708,6 +712,7 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 // Tests whether (p_x, p_z) lies within the face, seen from above: the point must have vertices on
 // each side, and the edges crossing its z must pass it on both sides.
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100357f8
 // FUNCTION: MW2MATROX 0x100246e2
 // FUNCTION: MW23DFX 0x10010a90
@@ -857,6 +862,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 
 // Tests whether (p_x, p_y) lies within the face, seen along z.
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10035b5b
 // FUNCTION: MW2MATROX 0x10024aa5
 // FUNCTION: MW23DFX 0x10010db0
@@ -1006,6 +1012,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 
 // Tests whether (p_y, p_z) lies within the face, seen along x.
 // The only diff is a stack-slot permutation of the locals (vertex and prev).
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10035ebe
 // FUNCTION: MW2MATROX 0x10024e68
 // FUNCTION: MW23DFX 0x100110d0

@@ -2046,9 +2046,11 @@
 // __safe_fprem1
 
 // LIBRARY: MW2 0x100954c5 SYMBOL
+// LIBRARY: MW23DFX 0x1006f7f9 SYMBOL
 // __adj_fpatan
 
 // LIBRARY: MW2 0x100954c8 SYMBOL
+// LIBRARY: MW23DFX 0x1006f7fc SYMBOL
 // __adj_fptan
 
 // aw_cmp.obj
@@ -3019,6 +3021,14 @@
 
 // GLOBAL: MW2MATROX 0x10125754
 // _pnhHeap@@3P6AHI@ZA
+
+// MW23DFX's import thunks for DPLAY.DLL, which it imports by ordinal (reccmp can't name them).
+
+// LIBRARY: MW23DFX 0x1006e8b0 SYMBOL
+// _DirectPlayCreate@12
+
+// LIBRARY: MW23DFX 0x1006e8b6 SYMBOL
+// _DirectPlayEnumerate@8
 
 // MW23DFX's C runtime functions that only the rebuild's matched (tools/port_annotations.py).
 

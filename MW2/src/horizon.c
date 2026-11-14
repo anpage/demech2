@@ -17,6 +17,7 @@
 
 // Returns whether the screen point (p_x, p_y) lies above the horizon of p_eyepoint's view.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10071930
 // FUNCTION: MW2MATROX 0x1007b8d0
 // FUNCTION: MW23DFX 0x10028ee0
@@ -99,7 +100,11 @@ below:
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
 #ifdef MW2_ACCEL
+#ifdef MW2_3DFX
+	MechFloat y;
+#else
 	MechS32 y;
+#endif
 	MechFloat a;
 	MechFloat b;
 	MechFloat d;
@@ -112,8 +117,13 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 	c = p_eyepoint->m_viewMatrix.m_rows[1][1];
 	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
 	p_x -= p_eyepoint->m_centerX;
-	y = -((p_x * a / b + e) * d / c);
+	y = -(((p_x * a) / b + e) * d / c);
+#ifdef MW2_3DFX
+	// The 3Dfx edition's converts y to an integer only for the return.
+	return -(MechS32) y + p_eyepoint->m_centerY;
+#else
 	return -y + p_eyepoint->m_centerY;
+#endif
 #elif defined(PORTABLE_C)
 	MechS32 x = PortableS32((MechU32) p_x - (MechU32) p_eyepoint->m_centerX);
 	MechU32 height =
@@ -176,7 +186,7 @@ MechS32 HorizonXAtY(MechS32 p_y, Eyepoint* p_eyepoint)
 	c = p_eyepoint->m_viewMatrix.m_rows[1][1];
 	e = p_eyepoint->m_viewMatrix.m_rows[2][1];
 	p_y = -p_y + p_eyepoint->m_centerY;
-	x = -((p_y * c / d + e) * b / a);
+	x = -(((p_y * c) / d + e) * b / a);
 	return p_eyepoint->m_centerX + x;
 #elif defined(PORTABLE_C)
 	MechS32 y = PortableS32((MechU32) p_eyepoint->m_centerY - (MechU32) p_y);

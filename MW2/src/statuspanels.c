@@ -257,6 +257,7 @@ void DrawObjectiveList(CockpitPanel* p_panel, Point* p_pos, void* p_font, MechU8
 // mission ended.
 // Stack-slot permutation of the locals (cursor, mission, font, height, gap, ticks and text).
 // MW2MATROX: the original's longer displacements shift the jump table's offsets.
+// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x100056f0
 // FUNCTION: MW2MATROX 0x100220de
 // FUNCTION: MW23DFX 0x10017b80
@@ -335,6 +336,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 // a cursor.
 // Stack-slot permutation of the locals (state, cursor, pos, color, height, player, gap, text and font).
 // MW2MATROX: g_chatRecipient == g_localPlayerId compares in the other operand order.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10005add
 // FUNCTION: MW2MATROX 0x100224b9
 // FUNCTION: MW23DFX 0x10017e10

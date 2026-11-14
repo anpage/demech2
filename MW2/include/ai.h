@@ -155,18 +155,22 @@ extern "C"
 
 // The 3Dfx edition places these out of ai.c's order, so they are annotated here, by name.
 
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10011fc0
 // FirstAI
 
 // FUNCTION: MW23DFX 0x10012000
 // InitializeAI
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10012650
 // LogPlayerSkillLines
 
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10012730
 // LogStarMissionLines
 
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW23DFX 0x10012de0
 // FindNearestTarget
 

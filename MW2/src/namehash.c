@@ -6,6 +6,7 @@
 #include "portable.h"
 #include "types.h"
 
+#ifndef MW2_3DFX                /* the 3Dfx edition expands it inline: see namehash.h */
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // Hashes a name, ignoring case: each character is added and the low word rotated left.
@@ -43,3 +44,4 @@ check:
 	}
 #endif
 }
+#endif

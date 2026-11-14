@@ -41,6 +41,7 @@ MechS32 g_normalRandomInts[127];
 MechS32 g_randomInts[127];
 
 // Stack-slot permutation: sum, scale, i, j and range.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100735e0
 // FUNCTION: MW2MATROX 0x1000bef0
 // FUNCTION: MW23DFX 0x1003d880
@@ -57,7 +58,7 @@ void InitRandom(MechU32 p_seed)
 		g_randomInts[i] = rand();
 	}
 
-	scale = (range = sqrt(90.0)) * 2.0 / (30 * RAND_MAX);
+	scale = ((range = sqrt(90.0)) * 2.0) / (30 * RAND_MAX);
 	for (i = 0; i < 127; i++) {
 		sum = 0;
 		for (j = 0; j < 30; j++) {

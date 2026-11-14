@@ -16,12 +16,13 @@
 MechS32 GetBrightnessFraction(MechS32 p_arg)
 {
 #ifdef MW2_ACCEL
-	return (MechS32) (g_displayBrightness / 15.0f * 65536.0f + 0.5f);
+	return (MechS32) ((g_displayBrightness / 15.0f) * 65536.0f + 0.5f);
 #else
 	return FixedMul16(g_displayBrightness << 16, FixedDiv16(1, 15));
 #endif
 }
 
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007460e
 // FUNCTION: MW2MATROX 0x100171eb
 // FUNCTION: MW23DFX 0x100641d0
@@ -46,6 +47,7 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 	PreviewBrightness(g_displayBrightness);
 }
 
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10074693
 // FUNCTION: MW2MATROX 0x10017270
 // FUNCTION: MW23DFX 0x10064260

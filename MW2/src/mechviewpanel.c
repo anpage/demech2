@@ -46,7 +46,8 @@ void CycleMechViewMode(void)
 
 #ifdef MW2_ACCEL
 // The Matrox edition clears the rendered view's pane with its transparent pixel (0xfffe) for the
-// 3D card's picture to show through, and its frames' shapes come 6 entries further on.
+// 3D card's picture to show through (the 3Dfx edition doesn't), and the accelerated editions'
+// frames' shapes come 6 entries further on.
 #define MECH_VIEW_WIPE 0xfffe
 #define MECH_VIEW_SHAPE(id) ((id) + 6)
 #else
@@ -117,7 +118,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			camera[4] = 0;
 			RenderViewToPane(5, FIXED_CONST(2), camera, 0);
 			g_renderSettings = saved;
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 			VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		}
@@ -138,7 +139,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, FIXED_CONST(2), view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xf7));
@@ -161,7 +162,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, FIXED_CONST(2), view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-#ifdef MW2_ACCEL
+#ifdef MW2_MATROX
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		if (g_frontViewForRear) {

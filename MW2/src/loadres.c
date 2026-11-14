@@ -1,6 +1,6 @@
 /* Hand-written assembly: MemCopy and MemSet are C functions whose bodies are an __asm block
    (rep movsd/stosd). Their portable C (PORTABLE_C) is tested against the assembly by
-   tests/asmequiv. */
+   tests/asmequiv. The 3Dfx edition's are C: memcpy and memset, which /Ox expands inline. */
 #include "loadres.h"
 
 #include "compat.h"
@@ -72,6 +72,7 @@ void UnlockCacheEntry(ResourceCacheEntry* p_item)
 // The two list-end comparisons load their operands in the other order (the unit's symbol table).
 // MW2MATROX: the two list-end comparisons compare in the other operand order.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10019b63
 // FUNCTION: MW2MATROX 0x10055903
 // FUNCTION: MW23DFX 0x10023fd0
@@ -204,6 +205,7 @@ ResourceCacheEntry* FindCacheEntry(MechS32 p_id, const char* p_type)
 // Stack-slot permutation of prev and slot; the original adds type[3] before type[2] (commutative
 // operand order).
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10019e53
 // FUNCTION: MW2MATROX 0x10055bf3
 // FUNCTION: MW23DFX 0x10024190
@@ -258,6 +260,7 @@ void FreeCacheEntry(ResourceCacheEntry* p_item)
 // Writes the cache's hash chains and purge list to the next dbugcch<n>.log.
 // Stack-slot permutation of i, type, item and name.
 // Matches but for the registers, which VC++ 2.2 allocates differently.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10019fef
 // FUNCTION: MW2MATROX 0x10055d8e
 // FUNCTION: MW23DFX 0x100242a0
@@ -329,6 +332,7 @@ void UnlockCachedResource(MechS32 p_id, const char* p_type)
 // copy, or one read in, purging unlocked items while the cache is full or memory runs out. A
 // missing resource is logged to symlog.txt and reported. p_unk0x0c goes unused.
 // The only diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and stack layout only.
 // FUNCTION: MW2 0x1001a19f
 // FUNCTION: MW2MATROX 0x10055f3e
 // FUNCTION: MW23DFX 0x100243f0
@@ -341,7 +345,9 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 	FILE* file;
 	MechChar message[100];
 	FILE* file2;
+#ifndef MW2_3DFX
 	MechChar message2[100];
+#endif
 
 	if (p_id < 0) {
 		return NULL;
@@ -405,8 +411,14 @@ void* LoadCachedResource(MechS32 p_file, MechS32 p_id, const char* p_type, undef
 
 		Error(0x20, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 		if (g_missionTimerStopped) {
+#ifdef MW2_3DFX
+			// The 3Dfx edition formats both messages in one buffer.
+			sprintf(message, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
+			ShowInGameMessage(message, 1, 0x712, 100);
+#else
 			sprintf(message2, "Non-existant resource (type: %s  id: %i)\n", p_type, p_id);
 			ShowInGameMessage(message2, 1, 0x712, 100);
+#endif
 		}
 
 		return NULL;
@@ -488,7 +500,10 @@ void* MemAlloc(MechU32 p_size)
 // FUNCTION: MW23DFX 0x10024700
 void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_3DFX)
+	// The 3Dfx edition's is C: the library's memcpy, which /Ox expands inline.
+	memcpy(p_dst, p_src, p_size);
+#elif defined(PORTABLE_C)
 	/* Forwards, a dword at a time and then the remaining bytes, as rep movsd/movsb copy
 	   overlapping blocks. */
 	MechU8* dst = (MechU8*) p_dst;
@@ -528,7 +543,10 @@ void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 // FUNCTION: MW23DFX 0x10024730
 void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 {
-#ifdef PORTABLE_C
+#if defined(MW2_3DFX)
+	// The 3Dfx edition's is C: the library's memset, which /Ox expands inline.
+	memset(p_dst, p_value, p_size);
+#elif defined(PORTABLE_C)
 	memset(p_dst, (MechU8) p_value, p_size);
 #else
 	__asm {

@@ -17,6 +17,7 @@ DECOMP_SIZE_ASSERT(MissionEntry, 0x97)
 // Sets up star p_table->m_star's mission from its mission table: the mission's times and sounds
 // and each objective's, with its conditions.
 // Index order: the original scales j in the m_conditions[j] stores (j * 12 as the scaled index).
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004da30
 // FUNCTION: MW2MATROX 0x1007f550
 // FUNCTION: MW23DFX 0x1003f900
@@ -48,19 +49,8 @@ void SetUpStarMission(MissionTable* p_table)
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_endTime = -1;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_targetStar = p_table->m_entries[i].m_targetStar;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_targetObjective = p_table->m_entries[i].m_targetObjective;
-		if (p_table->m_entries[i].m_listed == 'V') {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = 1;
-		}
-		else {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = 0;
-		}
-
-		if (p_table->m_entries[i].m_requirement == 'M') {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_mandatory = 1;
-		}
-		else {
-			g_objectiveTable[p_table->m_star].m_objectives[i].m_mandatory = 0;
-		}
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_listed = p_table->m_entries[i].m_listed == 'V';
+		g_objectiveTable[p_table->m_star].m_objectives[i].m_mandatory = p_table->m_entries[i].m_requirement == 'M';
 
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_requiredCount = p_table->m_entries[i].m_requiredCount;
 		g_objectiveTable[p_table->m_star].m_objectives[i].m_engagement = p_table->m_entries[i].m_engagement;

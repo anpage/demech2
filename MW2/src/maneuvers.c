@@ -43,6 +43,7 @@
 // and GetOffsetPoint's offsets.
 // GLOBAL: MW2 0x100a2900
 // GLOBAL: MW2MATROX 0x100a4b08
+// GLOBAL: MW23DFX 0x1024cd70
 ProbeDirection g_probeDirections[16] = {
 	{0, 1},
 	{2, 1},
@@ -66,6 +67,7 @@ ProbeDirection g_probeDirections[16] = {
 
 // GLOBAL: MW2 0x100a2980
 // GLOBAL: MW2MATROX 0x100a4b88
+// GLOBAL: MW23DFX 0x1024cdf0
 ManeuverEntry g_mechManeuvers[13] = {
 	{{0, 6, 0, 1, 2, 3, 4, 4, 0}},
 	{{1, 5, 0, 1, 2, 3, 4, 0, 0}},
@@ -84,19 +86,23 @@ ManeuverEntry g_mechManeuvers[13] = {
 
 // GLOBAL: MW2 0x100a2a70
 // GLOBAL: MW2MATROX 0x100a4c78
+// GLOBAL: MW23DFX 0x1024cee0
 ManeuverEntry g_stupidManeuvers = {{0, 1, 0, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2a88
 // GLOBAL: MW2MATROX 0x100a4c90
+// GLOBAL: MW23DFX 0x1024cef8
 ManeuverEntry g_circleManeuvers = {{12, 1, 12, 0, 0, 0, 0, 0, 0}};
 
 // GLOBAL: MW2 0x100a2aa0
 // GLOBAL: MW2MATROX 0x100a4ca8
+// GLOBAL: MW23DFX 0x1024cf10
 ManeuverEntry g_behindManeuvers = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
 
 // The table of a mech whose m_tons is 1 (ChooseManeuver).
 // GLOBAL: MW2 0x100a2ab8
 // GLOBAL: MW2MATROX 0x100a4cc0
+// GLOBAL: MW23DFX 0x1024cf28
 ManeuverEntry g_altMechManeuvers[13] = {
 	{{0, 7, 0, 1, 2, 3, 4, 4, 4}},
 	{{1, 6, 0, 1, 2, 3, 4, 4, 0}},
@@ -116,6 +122,7 @@ ManeuverEntry g_altMechManeuvers[13] = {
 // Set once InitializeManeuvers has filled g_maneuverTables.
 // GLOBAL: MW2 0x100a2ba4
 // GLOBAL: MW2MATROX 0x100a4dac
+// GLOBAL: MW23DFX 0x1024d014
 MechS32 g_maneuverTablesReady = 0;
 
 // Set from the world stream's planet record when positive: the jump jets' drag divisor, and the
@@ -135,12 +142,14 @@ MechScalar g_slideSlope = FIXED_RAW(0x2000);
 // first.
 // GLOBAL: MW2 0x101748e0
 // GLOBAL: MW2MATROX 0x10212cf0
+// GLOBAL: MW23DFX 0x101de7b0
 ManeuverTable g_maneuverTables[9];
 
 // Runs p_player's current maneuver (m_maneuver) against p_target for a tick, and ends it when it
 // is done, when another is asked for (m_nextManeuver: out of ammunition, the mech jumps in or
 // runs at the target, or flees) or when its time is up; with no maneuver, chooses and starts one.
 // Stack-slot permutation: done, mech and leader.
+// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10013430
 // FUNCTION: MW2MATROX 0x10019000
 // FUNCTION: MW23DFX 0x1001ea40
@@ -259,12 +268,7 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 				p_player->m_maneuverFlag = 1;
 			}
 			else {
-				if (RandomIntBelow(2)) {
-					p_player->m_nextManeuver = c_maneuverKama;
-				}
-				else {
-					p_player->m_nextManeuver = -2;
-				}
+				p_player->m_nextManeuver = RandomIntBelow(2) ? c_maneuverKama : -2;
 
 				if (!p_player->m_skillFlag5) {
 					p_player->m_nextManeuver = -2;
@@ -317,26 +321,38 @@ void InitializeManeuvers(Player* p_player)
 		p_player->m_piloting = 1;
 	}
 
+#ifdef MW2_3DFX
+	p_player->m_skillFlag0 = p_player->m_piloting <= 3;
+#else
 	if (p_player->m_piloting <= 3) {
 		p_player->m_skillFlag0 = 1;
 	}
 	else {
 		p_player->m_skillFlag0 = 0;
 	}
+#endif
 
+#ifdef MW2_3DFX
+	p_player->m_skillFlag1 = p_player->m_piloting <= 3;
+#else
 	if (p_player->m_piloting <= 3) {
 		p_player->m_skillFlag1 = 1;
 	}
 	else {
 		p_player->m_skillFlag1 = 0;
 	}
+#endif
 
+#ifdef MW2_3DFX
+	p_player->m_skillFlag2 = p_player->m_piloting <= 2;
+#else
 	if (p_player->m_piloting <= 2) {
 		p_player->m_skillFlag2 = 1;
 	}
 	else {
 		p_player->m_skillFlag2 = 0;
 	}
+#endif
 
 	if (p_player->m_type == c_playerTypeMech && p_player->m_piloting <= 5) {
 		p_player->m_skillFlag3 = 1;
@@ -345,12 +361,16 @@ void InitializeManeuvers(Player* p_player)
 		p_player->m_skillFlag3 = 0;
 	}
 
+#ifdef MW2_3DFX
+	p_player->m_skillFlag4 = p_player->m_piloting <= 4;
+#else
 	if (p_player->m_piloting <= 4) {
 		p_player->m_skillFlag4 = 1;
 	}
 	else {
 		p_player->m_skillFlag4 = 0;
 	}
+#endif
 
 	if (p_player->m_type == c_playerTypeMech && p_player->m_piloting <= 1) {
 		p_player->m_skillFlag5 = 1;
@@ -359,12 +379,16 @@ void InitializeManeuvers(Player* p_player)
 		p_player->m_skillFlag5 = 0;
 	}
 
+#ifdef MW2_3DFX
+	p_player->m_skillFlag6 = p_player->m_piloting <= 5;
+#else
 	if (p_player->m_piloting <= 5) {
 		p_player->m_skillFlag6 = 1;
 	}
 	else {
 		p_player->m_skillFlag6 = 0;
 	}
+#endif
 
 	if (!g_maneuverTablesReady) {
 		for (i = 0; i < 8; i++) {
@@ -544,12 +568,7 @@ void StartManeuver(Player* p_player)
 		p_player->m_maneuverFlag = -1;
 		break;
 	case c_maneuverAsrp:
-		if (RandomIntBelow(2)) {
-			p_player->m_maneuverParam = 1;
-		}
-		else {
-			p_player->m_maneuverParam = -1;
-		}
+		p_player->m_maneuverParam = RandomIntBelow(2) ? 1 : -1;
 		break;
 	case c_maneuverAjmpin:
 		p_player->m_steering->m_throttle = 0;
@@ -698,6 +717,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // *p_y takes its heading. A game thing without an object is offset from its position.
 // The empty else arms give the original's jmp to the next statement after each offset. The only
 // other diff is a stack-slot permutation of the locals.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100147d0
 // FUNCTION: MW2MATROX 0x1001a3c8
 // FUNCTION: MW23DFX 0x1001f6b0
@@ -1282,6 +1302,7 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // damage speed and clears it once it is slower than 75%, and logs a fall faster than that speed.
 // Returns whether the player is on the ground.
 // Stack-slot permutation: line, value and mech.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100155e1
 // FUNCTION: MW2MATROX 0x1001b359
 // FUNCTION: MW23DFX 0x100200f0
@@ -1840,12 +1861,7 @@ MechS32 IsOutOfAmmo(Mech* p_mech)
 void SetJumpDirection(Player* p_player, MechS16 p_value)
 {
 	p_player->m_steering->m_jumpJetFireForward = p_value;
-	if (!p_value) {
-		p_player->m_steering->m_jumpJetFireBackward = 1;
-	}
-	else {
-		p_player->m_steering->m_jumpJetFireBackward = 0;
-	}
+	p_player->m_steering->m_jumpJetFireBackward = !p_value;
 }
 
 // How fast p_player closes on its target since the last call, per tick.
@@ -1947,6 +1963,7 @@ Shape* GetTargetShape(MechS16 p_target)
 // (state 4).
 // Stack-slot permutation; pitch < range and bearing < maxAngle compare in the other operand order.
 // MW2MATROX: pitch < range and bearing < maxAngle compare in the other operand order.
+// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2MATROX 0x1001c1ca
 // FUNCTION: MW23DFX 0x10020ac0

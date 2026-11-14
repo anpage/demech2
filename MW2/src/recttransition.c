@@ -31,6 +31,7 @@ void StopRectTransition(RectTransition* p_transition)
 // Moves p_out's edges to the fraction p_t (16.16) of the way from p_from to p_to: the horizontal
 // ones unless p_axis is 2, the vertical ones unless it is 1.
 // Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
+// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10012354
 // FUNCTION: MW2MATROX 0x10045dd4
 // FUNCTION: MW23DFX 0x10001630
