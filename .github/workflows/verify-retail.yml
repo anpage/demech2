@@ -266,6 +266,8 @@ jobs:
                 coverage=(--coverage --digests ../certify/coverage.json --cover-states MW2MATROXAUDIT.json ../public-report/MW2STATES.json) ;;
             esac
             python ../tools/audit.py --tree . --target "$target" --objects "../certify/$target" --original "../retailbin/$file" --check --json "${target}AUDIT.json" --markdown "${target}AUDIT.md" "${coverage[@]}" >>"${target}-certify.txt" 2>&1 || status=1
+            # main's, for the PR comment's changes (tools/pr_comment.py)
+            curl -fLSs -o "${target}AUDIT-main.json" "$RELEASE_URL/${target}AUDIT.json" || rm -f "${target}AUDIT-main.json"
             cat "${target}-certify.txt"
           done
           echo "$status" >../certify-status.txt
@@ -279,32 +281,21 @@ jobs:
           # originals annotate (tools/check_asm.py; the Build workflow checks the public ones).
           python ../tools/check_asm.py --tree . --verify --targets NETMECHW MECH2 MW2MATROX
 
-      - name: Create the retail sections of the PR comment
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+      - name: Create the retail part of the PR comment
+        if: ${{ github.event.workflow_run.event == 'pull_request' && always() }}
         shell: bash
         working-directory: pr
         run: |
-          section() {
-            echo "## $1"
-            echo '```'
-            if [ -f "$2" ]; then
-              sed -i -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "$2"
-              python -c "print(open('$2').read().strip())";
-            else
-              echo '(no diff available)';
-            fi
-            echo '```'
-          }
-
-          {
-            for entry in $RETAIL_ENTRIES; do
-              IFS=: read -r target file total <<<"$entry"
-              section "$target ($file)" "$target-diff.txt"
-              section "$target: certified" "$target-certify.txt"
+          # As the Build workflow's: each retail target's audit, main's, and the tools' output, for
+          # the comment job (tools/pr_comment.py).
+          mkdir -p ../comment-retail
+          for entry in $RETAIL_ENTRIES; do
+            IFS=: read -r target file total <<<"$entry"
+            echo "$target $file" >>../comment-retail/targets.txt
+            for f in "${target}AUDIT.json" "${target}AUDIT-main.json" "${target}-certify.txt" "${target}-diff.txt"; do
+              if [ -f "$f" ]; then cp "$f" ../comment-retail/; fi
             done
-          } >../reccmp-retail-message.txt
-
-          cat ../reccmp-retail-message.txt
+          done
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -323,7 +314,7 @@ jobs:
         with:
           name: reccmp-retail-comment
           path: |
-            reccmp-retail-message.txt
+            comment-retail/
 
       - name: Fail on certify
         if: ${{ always() }}
@@ -344,6 +335,15 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      # The comment's script is main's, like every tool this workflow runs: the payloads are the
+      # PR's, read as data.
+      - name: Checkout the base branch (the comment's script)
+        uses: actions/checkout@v6
+        with:
+          path: base
+          sparse-checkout: tools/pr_comment.py
+          sparse-checkout-cone-mode: false
+
       - name: Download PR comment payload
         id: download
         continue-on-error: true
@@ -367,19 +367,31 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RETAIL_RESULT: ${{ needs.retail.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT_PR: ${{ github.event.workflow_run.pull_requests[0].number }}
         run: |
-          if [ -f retail/reccmp-retail-message.txt ]; then
-            cat retail/reccmp-retail-message.txt >>reccmp-pr-message.txt
-          elif [ "$RETAIL_RESULT" != skipped ]; then
-            echo "" >>reccmp-pr-message.txt
-            echo "Retail targets: verification $RETAIL_RESULT, see $RUN_URL" >>reccmp-pr-message.txt
+          pr="${EVENT_PR:-$(cat pr-number.txt)}"
+          args=()
+          # The Gate exception lines of the PR's description
+          if gh pr view "$pr" --repo "$GITHUB_REPOSITORY" --json body --jq .body >pr-body.txt; then
+            args+=(--exceptions pr-body.txt)
+          fi
+          # The retail targets are certified with main's tools: a PR that changes them may show
+          # changes there that are only the tools'.
+          if gh api "repos/$GITHUB_REPOSITORY/pulls/$pr/files" --paginate --jq '.[].filename' \
+              | grep -qE '^tools/(certify|audit|funccmp|unitbuild|witness|coverage)\.py$'; then
+            args+=(--tools-changed)
+          fi
+          if [ "$RETAIL_RESULT" != success ] && [ "$RETAIL_RESULT" != skipped ]; then
+            args+=(--note "The retail targets' check ended with *$RETAIL_RESULT*: see $RUN_URL")
           fi
 
-          gh pr comment "$(cat pr-number.txt)" \
+          python3 base/tools/pr_comment.py comment retail "${args[@]}" -o comment.md
+
+          gh pr comment "$pr" \
             --repo "${{ github.repository }}" \
             --create-if-none \
             --edit-last \
-            --body-file reccmp-pr-message.txt
+            --body-file comment.md
 
   publish:
     name: Publish progress
