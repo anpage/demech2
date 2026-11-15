@@ -340,9 +340,9 @@ void DrawShapeList(Shape* p_root)
 // FUNCTION: MW23DFX 0x1002a170
 void DrawDepthQueue(void)
 {
-	MechS32 count;
 	MechS32 i;
 	MechS32 start;
+	MechS32 count;
 
 	start = 0;
 	if (g_depthEntryCount > 1) {

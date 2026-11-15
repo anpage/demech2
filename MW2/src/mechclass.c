@@ -1152,11 +1152,11 @@ void LateUpdateMech(Mech* p_mech)
 	MechScalar previousDegrees;
 	MechScalar degrees;
 	MechScalar heading;
-	MechScalar delta;
-	MechChar text[40];
-	MechScalar x;
-	MechScalar y;
 	MechScalar z;
+	MechScalar y;
+	MechScalar x;
+	MechChar text[40];
+	MechScalar delta;
 
 	jumping = 0;
 	speed = 0;

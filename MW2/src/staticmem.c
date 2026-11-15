@@ -48,10 +48,10 @@ MechS32 AddStaticPoolType(MechS32 p_size, BwdTag p_tag);
 MechS32 InitStaticMem(char* p_mission)
 {
 	MechS32 i;
-	StaticPool* pool;
 	MechS32 j;
 	StaticPoolGroup* group;
 	MechS32 best;
+	StaticPool* pool;
 
 	g_staticPoolGroupCount = 0;
 	g_staticPoolCount = 0;

@@ -100,12 +100,12 @@ void ClassifyPointInBox(
 // FUNCTION: MW23DFX 0x1000d310
 MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 {
-	MechScalar tNear;
 	MechS32 axis;
 	MechScalar tEnter;
 	BoundBox* box;
-	MechScalar tFar;
 	MechScalar tExit;
+	MechScalar tNear;
+	MechScalar tFar;
 
 	EnsureBoundBox(p_shape);
 	box = p_shape->m_collisionData;

@@ -1955,10 +1955,10 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 	MechS32 sy;
 	Shape* hit;
 	MechScalar heading;
-	Ray ray;
-	MechS16 side;
-	MechS16 j;
 	MechS16 step;
+	MechS16 j;
+	MechS16 side;
+	Ray ray;
 
 	id = 0;
 	target = NULL;

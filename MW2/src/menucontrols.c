@@ -30,6 +30,7 @@
 // FUNCTION: MW23DFX 0x10064780
 void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_index, Point p_pos, MenuPage* p_page)
 {
+	MechS32 width;
 	MechS32 pressed;
 	MechS32 step;
 	MechS32* shapes;
@@ -42,12 +43,11 @@ void RunMenuSlider(MenuDefinition* p_menu, MenuControl* p_control, MechS32 p_ind
 	void* font;
 	PANE* target;
 	MechS32 apply;
-	MechS32 width;
 	void* knob;
 	void* bar;
-	MechS32 value;
-	void* right;
 	void* left;
+	void* right;
+	MechS32 value;
 
 	step = 0;
 	apply = TRUE;

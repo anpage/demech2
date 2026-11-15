@@ -285,9 +285,9 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 // FUNCTION: MW23DFX 0x10042b00
 MechS32 LoadPathTable(PathRecord* p_record)
 {
+	MechS32 index;
 	MechS32 count;
 	MechS32 result;
-	MechS32 index;
 	MechS32 i;
 	PathRecord* record;
 
@@ -722,14 +722,14 @@ void CreateObjectNode(
 	Shape* shape;
 	MechS32 thing;
 	Matrix matrix;
-	MechS32 resource;
-	MechS32 first;
-	MechS32 id;
-	MechS32 size;
-	MechS32 handle;
-	SceneObject* parentObj;
-	SceneObject* obj;
 	Shape* classShape;
+	SceneObject* obj;
+	SceneObject* parentObj;
+	MechS32 handle;
+	MechS32 size;
+	MechS32 id;
+	MechS32 first;
+	MechS32 resource;
 
 	record = p_record;
 	flags = 0;

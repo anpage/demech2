@@ -1159,8 +1159,8 @@ MechS32 ToggleBlockBoxes(void)
 	MechS32 i;
 	ResourceRef local;
 	Matrix matrix;
-	MechU8* data;
 	FILE* file;
+	MechU8* data;
 
 	result = FALSE;
 	if (!g_blockBoxesShown) {

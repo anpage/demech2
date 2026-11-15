@@ -83,16 +83,16 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	MechScalar heat;
 	MechScalar jumpRatio;
 	MechS32 level;
-	MechS32 piece;
-	MechS32 j;
-	MechS32 type;
-	MechS32 file;
-	MekAmmo* ammo;
-	MekAmmo* ammos;
-	MekWeapon* weapons;
-	MechS32 size;
-	MechSection* section;
 	MekHeader* header;
+	MechSection* section;
+	MechS32 size;
+	MekWeapon* weapons;
+	MekAmmo* ammos;
+	MekAmmo* ammo;
+	MechS32 file;
+	MechS32 type;
+	MechS32 j;
+	MechS32 piece;
 #ifdef MW2_FLOAT_SCALARS
 	MechS32* bits;
 #endif
