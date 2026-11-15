@@ -332,12 +332,12 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	MechScalar heading;
 	MechScalar x;
 	MechScalar y;
-	MechScalar z;
-	MechScalar dx;
-	MechS32 icon;
-	void* noTarget;
-	void* noObject;
 	MechS32 targetIndex;
+	void* noObject;
+	void* noTarget;
+	MechS32 icon;
+	MechScalar dx;
+	MechScalar z;
 #ifdef MW2_LOD_PAR
 	MechChar line[0x100];
 	FILE* file;

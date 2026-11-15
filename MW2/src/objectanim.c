@@ -262,23 +262,23 @@ MechS32 ReelMotionTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS
 	MechS32 thing;
 	MechS32 back;
 	MechS32 enabled;
-	MechS32 found;
-	MechScalar amount;
 	MechScalar turnX;
-	MechS32 step;
-	MechS32 target;
+	MechScalar amount;
+	MechS32 found;
 	MechScalar turnY;
+	MechS32 target;
+	MechS32 step;
 	MechS32 value;
-	MechS32 number;
-	MechScalar turnZ;
-	MechS32 frame;
-	Shape* shape;
-	MechS32 rate;
-	MechS32 id;
-	void** slot;
-	MechScalar x;
-	MechS32 match;
 	MechS32 i;
+	MechS32 frame;
+	MechScalar turnZ;
+	MechScalar x;
+	void** slot;
+	MechS32 id;
+	MechS32 rate;
+	Shape* shape;
+	MechS32 match;
+	MechS32 number;
 
 	rate = 0;
 	enabled = 0;
@@ -1119,12 +1119,12 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 	MechS32 elapsed;
 	Path* path;
 	MechS32 start;
-	MechS32 end;
-	PathPoint* point;
-	MechScalar t;
-	MechScalar delta;
-	PathPoint* next;
 	MechScalar angle;
+	PathPoint* next;
+	MechScalar delta;
+	MechScalar t;
+	PathPoint* point;
+	MechS32 end;
 
 	switch (p_event) {
 	case -1:

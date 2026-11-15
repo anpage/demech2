@@ -621,10 +621,10 @@ void DrawMapContents(CockpitLayout* p_layout)
 // FUNCTION: MW23DFX 0x10003960
 void DrawMapUnits(CockpitLayout* p_layout)
 {
+	MechS32 i;
 	Player* player;
 	MechS32 icon;
 	GameThing* thing;
-	MechS32 i;
 #ifdef MW2_FLOAT_SCALARS
 	Vector3 pos;
 #else

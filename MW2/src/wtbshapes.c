@@ -229,7 +229,6 @@ Shape* LoadShapes(MechU8* p_data, MechS32* p_offset, MechS32 p_size, SceneObject
 // FUNCTION: MW2MATROX 0x10025407
 MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, SceneObject* p_parent, MechS32* p_count)
 {
-	MechChar* suffix;
 	MechS32 checksum;
 	MechU16* indices;
 	MechScalar key;
@@ -240,30 +239,31 @@ MechS32 LoadShapeRecord(MechU8* p_data, MechS32* p_offset, Shape** p_shape, Scen
 	MechS32 count;
 	WtbVertex* vertices;
 	MechS32 id;
+	MechS32 vertexCount;
 #ifdef MW2_FLOAT_SCALARS
 	MechFloat u;
 #else
 	MechS32 u;
 #endif
-	MechS32 vertexCount;
+	MechScalar x;
 #ifdef MW2_FLOAT_SCALARS
 	MechFloat v;
 #else
 	MechS32 v;
 #endif
-	MechScalar x;
 	MechChar name[40];
-	MechS32 size;
-	MechU8* face;
-	MechU8* faces;
-	MechScalar y;
-	MechS32 i;
-	WtbHeader* header;
-	MechU8* record;
-	MechScalar z;
-	MechS32 j;
-	struct Face* polygon;
 	WtbVertex* vertex;
+	struct Face* polygon;
+	MechS32 j;
+	MechScalar z;
+	MechU8* record;
+	WtbHeader* header;
+	MechS32 i;
+	MechScalar y;
+	MechU8* faces;
+	MechU8* face;
+	MechS32 size;
+	MechChar* suffix;
 #ifdef MW2_VERTEX_SHADING
 	MechFloat red;
 	MechFloat green;

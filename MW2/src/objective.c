@@ -945,12 +945,12 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 // FUNCTION: MW23DFX 0x1000a9b0
 void UpdateObjectives(void)
 {
-	MechS32 star;
 	MechS32 i;
 	MechS32 current;
 	StarMission* mission;
 	MechS32 success;
 	MechS32 failed;
+	MechS32 star;
 
 	g_missionTime = g_currentClock / 181;
 	for (star = 0; star < g_objectiveCount; star++) {

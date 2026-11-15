@@ -27,7 +27,9 @@ annotated function with the original (tools/funccmp.py), and reports one of:
 
 The renaming (unoptimized units): where the only differences are `[ebp-N]` operands, the order in
 which the original allocated the named locals follows from them (each local must map to one place,
-without overlap). The locals are renamed, in a scratch copy, to names the compiler allocates in
+without overlap; where the original mirrors a comparison or swaps a commutative operation's
+operands, the one access paired with the other operand's slot is outvoted by the local's others).
+The locals are renamed, in a scratch copy, to names the compiler allocates in
 that order: a probe compiled twice (its locals declared forward, then reversed) sorts a pool of
 names into the hash's buckets and finds the order of the buckets, and within a bucket whether the
 first declared comes first, without knowing the hash. A C++ unit's probe is a member function,
@@ -89,6 +91,30 @@ def read_listing(path):
 
 # ---------------------------------------------------------------------------------------------
 # Renaming
+
+
+def majority(local_list, slots):
+    """The slot pairs with each named local's place decided by majority: where the original mirrors
+    a comparison or swaps a commutative operation's operands, one access pairs a local with the
+    other operand's slot, and the local's other accesses outvote it (as tools/audit.py's slot map
+    does). A witness built on the vote still has to compile to the original's bytes."""
+    starts = sorted({offset for name, offset, _ in local_list if offset < 0 and name != "$EHRec"})
+    if not starts:
+        return slots
+    votes = {}
+    for ours, theirs in slots:
+        if ours >= starts[0]:
+            k = max(i for i, s in enumerate(starts) if s <= ours)
+            votes.setdefault(k, Counter())[theirs - (ours - starts[k])] += 1
+    best = {k: counts.most_common(1)[0][0] for k, counts in votes.items()}
+    kept = []
+    for ours, theirs in slots:
+        if ours >= starts[0]:
+            k = max(i for i, s in enumerate(starts) if s <= ours)
+            if theirs - (ours - starts[k]) != best[k]:
+                continue
+        kept.append((ours, theirs))
+    return kept
 
 
 def slot_plan(local_list, slots, unlisted=()):
@@ -331,6 +357,10 @@ class Search:
                 if m and m.group(1) not in listed:
                     unlisted.append((m.group(1), 4))
             order, reason = slot_plan(local_list, comparison.slots, unlisted)
+            if order is None and reason.endswith("at two places in the original"):
+                order, voted = slot_plan(local_list, majority(local_list, comparison.slots), unlisted)
+                if order is None:
+                    reason = voted
             if order is None:
                 entry.note("slots", reason, pads)
                 continue

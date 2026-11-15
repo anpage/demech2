@@ -168,14 +168,14 @@ void SetGridObject(SceneObject* p_obj)
 // FUNCTION: MW23DFX 0x10011570
 void UpdateGridObject(void)
 {
-	MechS32 dx;
 	MechS32 dz;
-	MechS32 halfZ;
 	MechS32 halfX;
 	MechS32 x;
 	MechS32 cellZ;
 	MechS32 cellX;
 	MechS32 z;
+	MechS32 halfZ;
+	MechS32 dx;
 
 	if (g_gridObjectShown && g_gridObjectSet) {
 		x = g_eyepoint->m_x;

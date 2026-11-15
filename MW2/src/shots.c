@@ -275,16 +275,16 @@ void UpdateShot(MechS32 p_index)
 	MechScalar y;
 	MechScalar backZ;
 	MechScalar y0;
-	MechScalar z;
-	MechScalar z0;
-	MechS32 dt;
-	MechScalar hitX;
-	MechScalar hitY;
-	Ray ray;
-	MechScalar hitZ;
-	MechScalar velX;
-	MechScalar bearing;
 	MechScalar velY;
+	MechScalar bearing;
+	MechScalar velX;
+	MechScalar hitZ;
+	Ray ray;
+	MechScalar hitY;
+	MechScalar hitX;
+	MechS32 dt;
+	MechScalar z0;
+	MechScalar z;
 	MechScalar groundY;
 
 	hit = NULL;
@@ -724,7 +724,6 @@ void SpawnEffectEx(
 	MechScalar distance;
 	MechScalar dy;
 	MechS32 flags;
-	MechScalar dx;
 	MechS32 chainType;
 	MechS32 chain;
 	MechScalar cameraX;
@@ -735,11 +734,12 @@ void SpawnEffectEx(
 	MechS32 slot;
 	MechS32 i;
 	MechScalar cameraZ;
-	Effect* effect;
-	MechS32 take;
-	MechS32 closer;
-	MechS32 count;
 	MechS32 volume;
+	MechS32 count;
+	MechS32 closer;
+	MechS32 take;
+	Effect* effect;
+	MechScalar dx;
 
 	effect = NULL;
 	info = NULL;
@@ -1134,7 +1134,6 @@ void DamageThingsInRadius(
 	MechScalar p_rate
 )
 {
-	MechScalar distance;
 	GameThing* thing;
 	MechS32 i;
 	MechScalar dx;
@@ -1146,6 +1145,7 @@ void DamageThingsInRadius(
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
+	MechScalar distance;
 
 	i = g_gameThingCount;
 	while (i--) {
@@ -1365,20 +1365,20 @@ void SaveCareerRecord(void)
 void HeatMechsNearFires(void)
 {
 	Shape* root;
-	MechScalar heat;
 	Player* player;
-	MechScalar reach;
 	MechScalar radius;
 	MechScalar distance;
 	MechScalar x;
 	MechScalar y;
 	MechScalar z;
 	Mech* mech;
-	MechS32 i;
 	MechScalar dx;
 	MechScalar dy;
 	Shape* shape;
 	MechScalar dz;
+	MechScalar heat;
+	MechS32 i;
+	MechScalar reach;
 
 	root = g_sceneShapes;
 	if (!root) {

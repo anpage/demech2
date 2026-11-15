@@ -98,8 +98,8 @@ QuadtreeNode* BuildQuadtreeChild(QuadtreeNode* p_node, MechS32 p_quadrant, Model
 {
 	MechS32 j;
 	MechS32 i;
-	Face* entries[25];
 	QuadtreeNode* node;
+	Face* entries[25];
 	MechScalar maxX;
 	MechScalar maxZ;
 	MechScalar lowY;
@@ -283,19 +283,19 @@ MechS32 FaceOverlapsBox(
 	MechScalar* p_maxY
 )
 {
+	MechScalar x;
 	MechS32 count;
-	MechScalar maxY;
-	MechScalar maxZ;
+	MechScalar maxX;
 	MechScalar minX;
 	Vertex* vertices;
 	Vertex* vertex;
-	MechScalar x;
-	MechScalar y;
 	MechS32 i;
+	MechScalar y;
+	MechScalar maxY;
 	MechScalar z;
+	MechScalar maxZ;
 	MechScalar minY;
 	MechScalar minZ;
-	MechScalar maxX;
 
 	count = p_face->m_indexCount;
 	vertices = (Vertex*) (p_model + 1);

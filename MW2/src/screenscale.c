@@ -218,20 +218,19 @@ Point* ScalePointFromLowRes(Point* p_src, Point* p_dst)
 PANE* CenterRectOnScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 {
 	PANE rect;
-	MechS32 left;
-	MechS32 top;
+	Point origin;
 
 	rect = *p_src;
 	rect.m_x1 -= rect.m_x0;
 	rect.m_x0 = 0;
 	rect.m_y1 -= rect.m_y0;
 	rect.m_y0 = 0;
-	left = (g_screenWidthMinus1 - (rect.m_x1 - rect.m_x0 + 1) - 1) / 2;
-	top = (g_screenHeightMinus1 - (rect.m_y1 - rect.m_y0 + 1) - 1) / 2;
-	p_dst->m_x0 = rect.m_x0 + left;
-	p_dst->m_x1 = rect.m_x1 + left;
-	p_dst->m_y0 = top + rect.m_y0;
-	p_dst->m_y1 = top + rect.m_y1;
+	origin.m_x = (g_screenWidthMinus1 - (rect.m_x1 - rect.m_x0 + 1) - 1) / 2;
+	origin.m_y = (g_screenHeightMinus1 - (rect.m_y1 - rect.m_y0 + 1) - 1) / 2;
+	p_dst->m_x0 = rect.m_x0 + origin.m_x;
+	p_dst->m_x1 = rect.m_x1 + origin.m_x;
+	p_dst->m_y0 = origin.m_y + rect.m_y0;
+	p_dst->m_y1 = origin.m_y + rect.m_y1;
 	return p_dst;
 }
 
