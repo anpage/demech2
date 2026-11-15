@@ -276,11 +276,6 @@ void FUN_1008fad0(void)
 }
 #endif
 
-// Matches except for the stack slots of seven locals (a consistent permutation; the original
-// assigns them in declaration order, which VC++ 4.1 doesn't reproduce from this source). The
-// operand order of the DoFirstObjtv loop test and of the network start test follows the unit's
-// symbol table: both have flipped back and forth as declarations moved between units.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10066a50
 // FUNCTION: MW2MATROX 0x1008fb5a
 // FUNCTION: MW23DFX 0x10008850
@@ -787,8 +782,6 @@ int __stdcall SimMain(
 	return result;
 }
 
-// MW2MATROX: stack-slot permutation of windowPos and time, and the operands of time < g_windowedSwitchTime
-// the other way.
 // FUNCTION: MW2 0x10067757
 // FUNCTION: MW2MATROX 0x100908a4
 // FUNCTION: MW23DFX 0x10009400

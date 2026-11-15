@@ -54,8 +54,7 @@ MechS32 g_unk0x1001fe70;
 MechS32 g_unk0x1001fe74;
 
 // Appends the node p_node of p_size bytes to the stream, padded to four bytes, if it fits.
-// The original computes the padded size times one (mov ecx, eax; add eax, eax; sub eax, ecx);
-// no expression tried makes VC++ 2.2 emit that.
+// The original computes the padded size times one (mov ecx, eax; add eax, eax; sub eax, ecx).
 // FUNCTION: NETMECHW 0x1000f720
 void AppendBwdNode(void* p_node, MechS32 p_size)
 {

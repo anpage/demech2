@@ -1,4 +1,4 @@
-"""Rule 5: an exact or witnessed /Od function covers an optimized one of another target.
+"""Coverage: an exact or witnessed /Od function covers an optimized one of another target.
 
 The optimized editions (the 3Dfx edition, the Matrox edition's renderer and depth sort) compile
 some of the same C as an /Od target. Where the two targets compile the same function from the same
@@ -23,8 +23,8 @@ in that both targets declare the same costs nothing, and one that differs (the c
 headers do, between VC++ 2.2 and 4.0) leaves the function uncovered.
 
 Which targets cover which (COVERERS): the 3Dfx edition only by the Matrox edition, whose C it
-shares (1.1's float-free code never covers it, by the plan's rule 5), and the Matrox edition's
-optimized units (the depth sort) by 1.1, where the tokens agree.
+shares (1.1's fixed-point code never covers it: the editions' float conversion changes the
+tokens), and the Matrox edition's optimized units (the depth sort) by 1.1, where the tokens agree.
 """
 
 import hashlib
@@ -237,3 +237,216 @@ def difference(mine, other):
     for text in sorted(a ^ b):
         names |= declared(text.split()) or {text.split()[0]}
     return "the declarations of %s differ" % ", ".join(sorted(names)[:4]) + (" (and %d more)" % (len(names) - 4) if len(names) > 4 else "")
+
+
+# ---------------------------------------------------------------------------------------------
+# Digests: what the comparison needs, without the compilers
+#
+# The verify jobs that compare the objects with the originals have no compilers, so the job that
+# compiles the objects (certify.py --compile-only, which has them) writes each function's closure
+# as digests: the definition's hash and the sorted hashes of the items it reaches, and for each
+# item hash the names it declares (to say which declarations differ). `tools/audit.py --coverage
+# --digests FILE` compares them as it compares the closures.
+
+
+def short_hash(text):
+    return hashlib.sha1(text.encode("latin-1")).hexdigest()[:12]
+
+
+def item_names(text):
+    return " ".join(sorted(declared(text.split()) or {text.split()[0]}))
+
+
+def optimized_unit(unit):
+    return bool(re.search(r"(?:^|\s)[/-]O[x12]", unit.arguments))
+
+
+def unit_closures(work):
+    """{name: (the definition's hash, [(an item's hash, its names)], the closure's fingerprint) or
+    None} of the named functions of one preprocessed unit."""
+    unit_name, text, names = work
+    parsed = Items(text)
+    out = {}
+    for name in names:
+        closure = parsed.closure(name)
+        if closure is None:
+            out[name] = None
+            continue
+        own, rest = closure
+        out[name] = (short_hash(own), [(short_hash(t), item_names(t)) for t in rest], fingerprint(closure))
+    return out
+
+
+def target_digests(name, build, tree, wine, jobs, scratch, keys=None):
+    """{"functions": {address: entry}, "items": {hash: names}} of a target's annotated C functions:
+    those of its optimized units (keys None), or those defined at the given (file, line) keys. An
+    entry: the function's name, file (relative to the tree), line, unit, whether the unit is
+    optimized, and its closure's digest (`own`, `rest`, `tokens`) or why there is none (`error`)."""
+    from funccmp import Annotations, source_roots
+    from unitbuild import Target
+
+    tree = Path(tree).resolve()
+    target = Target(name, build)
+    annotations = Annotations(name, source_roots(name, tree), tree)
+    units = [u for u in target.units if u.language in ("C", "CXX") and u.path(tree).exists()]
+    units_of = {}
+    for unit in units:
+        for path in unit.files(tree).values():
+            units_of.setdefault(str(path.resolve()), []).append(unit)
+    wanted = []  # (address, name, file, line, candidate units)
+    for fname, found in annotations.functions.items():
+        for a in found:
+            path = Path(a.filename).resolve()
+            try:
+                rel = path.relative_to(tree).as_posix()
+            except ValueError:
+                continue
+            candidates = units_of.get(str(path), [])
+            if keys is None:
+                candidates = [u for u in candidates if optimized_unit(u)]
+                if not candidates:
+                    continue
+            elif (rel, a.line_number) not in keys:
+                continue
+            wanted.append(("%#010x" % a.offset, fname, rel, a.line_number, candidates))
+    needed = {u.name: u for *_, candidates in wanted for u in candidates}
+    texts = preprocess(target, list(needed.values()), tree, scratch, wine, jobs)
+    # Each unit parsed once, in parallel: {unit: {name: (own, [(hash, names)], tokens) or None}}.
+    names_of = {}
+    for _, fname, _, _, candidates in wanted:
+        for unit in candidates:
+            names_of.setdefault(unit.name, set()).add(fname)
+    closures = {}
+    work = [(u, texts[u], sorted(n)) for u, n in names_of.items() if texts.get(u)]
+    if jobs > 1 and len(work) > 1:
+        from concurrent.futures import ProcessPoolExecutor
+
+        with ProcessPoolExecutor(max_workers=jobs) as pool:
+            for unit_name, found in zip([w[0] for w in work], pool.map(unit_closures, work, chunksize=1)):
+                closures[unit_name] = found
+    else:
+        for w in work:
+            closures[w[0]] = unit_closures(w)
+    items, functions = {}, {}
+    for address, fname, rel, line, candidates in wanted:
+        entry = {"name": fname, "file": rel, "line": line}
+        for unit in candidates:
+            found = closures.get(unit.name, {}).get(fname)
+            if found is None:
+                continue
+            own, rest, tokens = found
+            for h, names in rest:
+                items.setdefault(h, names)
+            entry.update(unit=unit.name, optimized=optimized_unit(unit), own=own, rest=sorted(h for h, _ in rest), tokens=tokens)
+            break
+        else:
+            entry["unit"] = candidates[0].name if candidates else None
+            entry["optimized"] = bool(candidates) and optimized_unit(candidates[0])
+            entry["error"] = "no unit compiles it" if not candidates else "its definition isn't found in the preprocessed unit"
+        functions[address] = entry
+    return {"functions": functions, "items": items}
+
+
+def digests(targets, build, tree, wine="wine", jobs=4):
+    """The digests coverage needs for `targets` (covered targets: their optimized functions; and
+    their coverers: the functions defined where those are)."""
+    build, out = Path(build), {}
+    scratch = build / "certify" / "coverage"
+    for name in targets:
+        if name in COVERERS:
+            out[name] = target_digests(name, build, tree, wine, jobs, scratch / name)
+    for name in list(out):
+        keys = {(e["file"], e["line"]) for e in out[name]["functions"].values() if e["optimized"]}
+        for other in COVERERS[name]:
+            found = target_digests(other, build, tree, wine, jobs, scratch / other, keys)
+            if other in out:
+                out[other]["functions"].update({a: e for a, e in found["functions"].items() if a not in out[other]["functions"]})
+                out[other]["items"].update(found["items"])
+            else:
+                out[other] = found
+    return out
+
+
+def compare(target, data, states):
+    """{address: ("covered", {...}) or ("uncovered", why)} of the target's optimized functions in
+    `data` (digests), against its coverers' digests and `states` ({target: {address: state}}, or
+    None for a coverer whose states aren't known)."""
+    mine = data.get(target, {}).get("functions", {})
+    out = {}
+    for address, entry in mine.items():
+        if not entry.get("optimized"):
+            continue
+        key = (entry["file"], entry["line"])
+        why = None
+        for other in COVERERS.get(target, []):
+            theirs = data.get(other, {}).get("functions", {})
+            match = next(((a, e) for a, e in theirs.items() if (e["file"], e["line"]) == key), None)
+            if match is None:
+                continue  # no function of the coverer is defined there
+            if match[1].get("error") == "no unit compiles it":
+                why = why or "%s doesn't compile it" % other
+                continue
+            other_address, other_entry = match
+            known = states.get(other)
+            state = known.get(other_address) if known is not None else None
+            if known is None:
+                why = why or "no states of %s" % other
+            elif state is None:
+                why = why or "%s doesn't compile it" % other
+            elif other_entry.get("optimized"):
+                why = why or "%s compiles it optimized too" % other
+            elif state not in ("exact", "witness"):
+                why = why or "%s's /Od function is %s" % (other, state)
+            elif "error" in entry or "error" in other_entry:
+                why = why or "its definition isn't found in the preprocessed unit"
+            elif entry["own"] != other_entry["own"]:
+                why = "%s: the definitions differ" % other
+            elif entry["rest"] != other_entry["rest"]:
+                a, b = set(entry["rest"]), set(other_entry["rest"])
+                names = set()
+                for h in a - b:
+                    names |= set(data[target]["items"].get(h, "?").split())
+                for h in b - a:
+                    names |= set(data[other]["items"].get(h, "?").split())
+                why = "%s: the declarations of %s differ" % (other, ", ".join(sorted(names)[:4])) + (" (and %d more)" % (len(names) - 4) if len(names) > 4 else "")
+            else:
+                out[address] = ("covered", {"target": other, "address": other_address, "state": state, "tokens": entry["tokens"]})
+                break
+        else:
+            out[address] = ("uncovered", why or "no /Od target compiles it")
+    return out
+
+
+def main():
+    import argparse
+    import json
+    import os
+
+    from unitbuild import ROOT
+
+    parser = argparse.ArgumentParser(description=__doc__ + """
+usage (from the repository root): python tools/coverage.py --build build --out certify/coverage.json
+  writes the digests of every covered target (COVERERS) and its coverers, which
+  `tools/audit.py --coverage --digests FILE` reads where there are no compilers (the verify jobs)""",
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--build", default="build-wine" if (ROOT / "build-wine").exists() else "build")
+    parser.add_argument("--tree", default=str(ROOT))
+    parser.add_argument("--wine", default=os.environ.get("WINE", "wine"))
+    parser.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
+    parser.add_argument("--target", nargs="*", default=sorted(COVERERS), help="The covered targets (default: all)")
+    parser.add_argument("--out", required=True)
+    args = parser.parse_args()
+    data = digests(args.target, ROOT / args.build, args.tree, args.wine, args.jobs)
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.out).write_text(json.dumps({"targets": data}, separators=(",", ":")) + "\n")
+    for name, d in data.items():
+        print("%s: %d functions digested (%d without a closure), %d items"
+              % (name, len(d["functions"]), sum("error" in e for e in d["functions"].values()), len(d["items"])))
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    sys.exit(main())

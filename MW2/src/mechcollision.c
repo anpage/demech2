@@ -30,9 +30,6 @@
 // stops it at the first mech (CollideWithMechs), building (CollideWithBuildings) or terrain shape it hits,
 // bouncing its velocity off the surface. Returns the number of ticks it has been colliding (0:
 // free); *p_hit is the shape it hit and *p_player the mech's player.
-// Stack-slot permutation of the locals. The original sums dot's three products in source order;
-// the build starts with the second.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100758a0
 // FUNCTION: MW2MATROX 0x10075a80
 // FUNCTION: MW23DFX 0x1000b5e0
@@ -427,7 +424,6 @@ MechS32 CollideWithMechs(Mech* p_mech, MechScalar* p_x, MechScalar* p_y, MechSca
 // Pushes the point (*p_x, *p_y, *p_z) of p_mech out of the first building (a shape of type 6)
 // it overlaps and bounces its velocity away. A shape of kind 0x50 isn't solid: it only gets a
 // push and a sound. Returns 1 on a collision, with *p_hit the shape.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10076295
 // FUNCTION: MW2MATROX 0x1007649e
 // FUNCTION: MW23DFX 0x1000be60
@@ -583,7 +579,6 @@ void DamageMechsInCollision(Mech* p_mech, Mech* p_other)
 // Damages p_mech by a collision along the last collision normal: from below (the normal points
 // down) the legs, scaled by the other mech's mass, from above both side torsos at half, and
 // otherwise the section facing the normal. p_other is NULL for a building or the ground.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1007669e
 // FUNCTION: MW2MATROX 0x10076927
 // FUNCTION: MW23DFX 0x1000c1f0

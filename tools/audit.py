@@ -23,6 +23,24 @@ instruction. Each kind is a rewrite that keeps what the code computes:
                with the comparison's operands; or two chains that give an address's base and index
                (p->m_items[i]), evaluated in the other order or registers; the chains only load
                (no stores or calls) and read no register but their own and ebp
+  operands     the two computations of a commutative operation's operands (dx*dx + dz*dz: each a
+               run of instructions, not a single load), or of an address's base and index
+               (g_paths[index].m_points[i]'s two scaled indices), evaluated in the other order,
+               each with its own registers renamed one to one; integer add, imul, and, or, xor of
+               two registers, and x87 faddp, fmulp (fsubp, fdivp with their reversed forms)
+  sums         the terms of an integer chain (mov r, a; add r, b; add r, c, or imul, and, or, xor)
+               in another order, each term the computation that gives it and the instruction that
+               combines it: a sum of calls, x*FixedMul16(a, b) + ..., moves whole
+
+The computations that `operands` and `sums` move are straight-line runs nothing jumps into that
+store nothing (their pushes are their calls' arguments, popped again), read the flags and the x87
+stack only after setting them, and call only the fixed-point helpers, which write no memory
+(FixedMul16, FixedMul29, FixedMul30, FixedDot27, FixedDot29, FixedDiv16, FixedDiv29, FixedDivU16,
+MulDiv64, by their annotated names); other calls keep their order. They read nothing the other
+writes. A float sum is never reassociated: x87 operands swap only within each operation, so a
+float sum of three terms in another order ((a + c) + b against (a + b) + c) stays unexplained. An
+address sum the original folds into fewer instructions (PostEventToList, ReelMotionTask) does too:
+no kind changes the number of instructions.
 
 Each rewrite also checks that what it changes is dead afterwards: a register the swapped loads
 leave holding the other value, and the flags a mirrored comparison sets (written again before
@@ -59,14 +77,17 @@ An operand nothing names (an unannotated symbol, an import the original's import
 list) matches nothing.
 
 In optimized code, a source difference whose only effect is scheduling still looks like entropy.
-`--coverage` narrows that (the plan's rule 5, tools/coverage.py): an optimized function is
+`--coverage` narrows that (tools/coverage.py): an optimized function is
 covered when an /Od target proves the same function (exact or witnessed) and both targets'
 preprocessed units give it the same tokens and the same declarations, every one it reaches
 transitively (types, struct layouts, prototypes, inline bodies; macros are expanded). The 3Dfx
 edition is covered by the Matrox edition only, the Matrox edition's optimized units by 1.1. The
-report and the JSON (`covered_by`, or `uncovered` and why) say which; it changes no function's
-verdict or cost. It needs the compilers (cl /EP) and the covering targets' states
-(`--cover-states`, their certify.py or audit.py --json, or certified here).
+report, the JSON (`covered_by`, or `uncovered` and why) and the Markdown (a column of its own) say
+which; it changes no function's verdict or cost. It compares preprocessed units, which needs the
+compilers (cl /EP): where there are none (CI's verify jobs), `--digests FILE` reads what
+`tools/coverage.py --out FILE` wrote where they are (CI's certify job: each function's closure as
+hashes). The covering targets' states come from `--cover-states` (their certify.py or audit.py
+--json), or are certified here.
 
 What remains `unexplained` is either a difference to fix or one to record in
 `tools/known_diffs.txt`: a line per target and function, with a hash of the function's rebuilt and
@@ -89,7 +110,7 @@ byte-identical or witnessed, with the verdict at REV^.
 usage (from the repository root, with reccmp's environment):
   python tools/audit.py --target MW2 [--build build-wine] [--wine PATH] [--function NAME ...]
                         [--check | --write] [--json FILE] [--markdown FILE] [-v]
-                        [--coverage [--cover-states JSON ...]]
+                        [--coverage [--cover-states JSON ...] [--digests FILE]]
   python tools/audit.py --target MW2 --objects DIR ...   (objects and listings from certify.py)
   python tools/audit.py --corpus [--wine PATH]
   python tools/audit.py --find-corpus REV --target MW23DFX [--wine PATH]
@@ -115,6 +136,7 @@ from unitbuild import IMAGE_REL_I386_DIR32, IMAGE_SYM_CLASS_EXTERNAL, NUMBERED, 
 from witness import read_listing, slot_plan  # noqa: E402
 
 KNOWN = ROOT / "tools" / "known_diffs.txt"
+DEBUG = False
 WEIGHTS = dict(COST, classified=25, known=250, unexplained=1000)
 
 DISASSEMBLER = Cs(CS_ARCH_X86, CS_MODE_32)
@@ -165,11 +187,12 @@ def family(name):
     return "flags" if name in ("eflags", "flags") else FAMILIES.get(name, name)
 
 
-def dead_after(code, position, name, callees=None):
+def dead_after(code, position, name, callees=None, exits=None):
     """Whether a register (or "flags") is dead after `position`: on every path, written before it
     is read (following jumps to positions in the function; a call may read it, a return or a jump
     out of the function does). Conservative. With `callees` (address: decorated name), a call
-    reads only the registers its callee's name says it takes, and clobbers eax, ecx and edx."""
+    reads only the registers its callee's name says it takes, and clobbers eax, ecx and edx. With
+    `exits`, a return reads only those (the return value's and the preserved registers)."""
     seen = set()
     work = [position + 1]
     while work:
@@ -192,8 +215,8 @@ def dead_after(code, position, name, callees=None):
                 return False
             if name in ins.writes:
                 break
-            if ins.mnemonic.startswith("ret") and name == "flags":
-                break  # no convention returns anything in the flags
+            if ins.mnemonic.startswith("ret") and (name == "flags" or exits is not None and name not in exits):
+                break  # no convention returns anything in the flags, nor outside `exits`
             if ins.mnemonic.startswith(("ret", "loop")):
                 return False
             if ins.mnemonic.startswith("j"):
@@ -849,6 +872,357 @@ def load_chains(ours, k, callees=None):
                             if [show(i) for i in candidate] != [show(i) for i in ours[first : c + 2]]:
                                 out.append(("chains", first, candidate))
         break
+    return out
+
+
+# Whole operand computations in another order.
+#
+# An operation's operands can each be a computation of several instructions: the products of
+# dx*dx + dz*dz (mov eax, [dx]; imul eax, [dx]; mov ecx, [dz]; imul ecx, [dz]; add eax, ecx), the
+# scaled indices of g_paths[index].m_points[i], an x87 product (fld [a]; fmul [b]), a call to a
+# fixed-point helper. Two rewrites move such computations as wholes:
+#
+#   operands  the two segments that compute a commutative operation's operands (add, imul, and,
+#             or, xor of two registers; x87 faddp, fmulp, and fsubp, fdivp with their reversed
+#             forms), or an address's base and index, evaluated in the other order, each with its
+#             own registers renamed one to one;
+#   sums      the terms of a chain mov r, a; add r, b; add r, c (one of add, imul, and, or, xor),
+#             each the segment that computes it and the instruction that adds it, in another order.
+#
+# A segment can move when it is straight-line code nothing jumps into, stores nothing (its pushes
+# are balanced and below esp: the arguments of its calls), calls only the fixed-point helpers
+# (PURE_CALLS, by their annotated names: their assembly writes no memory but their own frame, and
+# reads only their arguments), reads the flags only after setting them, and, on the x87 stack,
+# reaches only what it pushed itself. The segments must be independent: neither reads a register
+# the other writes, nor the accumulator (sums). Every register they write but the operation's
+# result, and the flags (unless the operation sets them from the same operands: add, and, or, xor),
+# must be dead after it. An x87 operation's segments each leave one value, and the swap mustn't
+# deepen the stack. A float sum of three or more terms in another order is another association
+# ((a + c) + b against (a + b) + c), which floats don't allow: only each operation's two operands
+# swap, so a reassociated float sum stays unexplained. Calls other than the helpers keep their
+# order, since their side effects could depend on it. A segment that can fault (a load, a helper
+# that divides) runs before anything is stored in either order, so the swap changes only which of
+# two faults comes first, as the load chains' do. An address sum the original folds differently
+# (an add merged into the addressing mode: PostEventToList, ReelMotionTask) has another number of
+# instructions, which no kind changes: at /Od that is a source difference.
+
+PURE_CALLS = {"FixedMul16", "FixedMul29", "FixedMul30", "FixedDot27", "FixedDot29", "FixedDiv16", "FixedDiv29", "FixedDivU16",
+              "MulDiv64"}
+X87_PUSH = {"fld", "fild", "fld1", "fldz", "fldpi"}
+X87_ARITH = {"fadd", "fmul", "fsub", "fsubr", "fdiv", "fdivr", "fiadd", "fimul", "fisub", "fisubr", "fidiv", "fidivr"}
+X87_ARITH_POP = {"faddp", "fmulp", "fsubp", "fsubrp", "fdivp", "fdivrp"}
+X87_UNARY = {"fchs", "fabs", "fsqrt"}
+SYMMETRIC_FLAGS = {"add", "and", "or", "xor"}  # the flags they set don't depend on their operands' order
+
+
+def bare_name(name):
+    """A decorated name without its decoration: _FixedMul16, @FixedMul16@8 -> FixedMul16."""
+    name = name[len("__imp_"):] if name.startswith("__imp_") else name
+    return name.lstrip("_@").split("@")[0]
+
+
+def stack_index(op):
+    """The x87 register an operand names (st(1) -> 1), or None."""
+    if op[0] == "reg" and op[1].startswith("st"):
+        return int(op[1][3:-1]) if "(" in op[1] else 0
+    return None
+
+
+class Segment:
+    """What a run of instructions does: `None` from `of` when one of them can't move, and `whole`
+    when the run can (it leaves esp as it found it, and reads no x87 value or flags from before)."""
+
+    @staticmethod
+    def of(code, callees, image):
+        live_in, writes, fixed = set(), set(), {"ebp", "esp"}
+        flags_set, esp, depth, peak, reaches = False, 0, 0, 0, False
+        for ins in code:
+            m = ins.mnemonic
+            if ins.kind != "code" or is_terminator(ins) or m.startswith(STRING) or m.startswith("rep") \
+                    or m in ("pop", "leave", "enter", "xchg", "cmpxchg") or m.startswith(("push", "pop")) and m != "push":
+                return None
+            if any(op[0] == "mem" and ("esp" in (op[2], op[3]) or op[1] not in (None, "ds")) for op in ins.ops):
+                return None
+            if m == "call":
+                name = callee_name(ins, callees)
+                if name is None or bare_name(name) not in PURE_CALLS or callee_pops(ins, image, callees, code) != 0:
+                    return None
+                reads, written = set(), set(CLOBBERED) | {"flags"}
+                fixed |= set(CLOBBERED)
+            else:
+                if m in UNKNOWN_MEMORY or any(op[0] == "mem" and access & 2 for op, access in zip(ins.ops, ins.access)):
+                    return None  # a store (a push writes below esp only)
+                zeroing = m in ("xor", "sub") and len(ins.ops) == 2 and ins.ops[0] == ins.ops[1] and ins.ops[0][0] == "reg"
+                reads = {f for f in ins.reads if f in GPR or f == "flags"}
+                if zeroing:
+                    reads.discard(family(ins.ops[0][1]))
+                written = {f for f in ins.writes if f in GPR or f == "flags"}
+                explicit = {f for op in ins.ops for f in operand_registers(op)}
+                fixed |= ({family(r) for r in ins.raw[0] + ins.raw[1]} & set(GPR)) - explicit
+                if m.startswith("f"):
+                    refs = [stack_index(op) for op in ins.ops if stack_index(op) is not None]
+                    if m in X87_PUSH:
+                        delta = 1  # fld st(i) reads st(i) as it was before the push
+                    elif m in X87_ARITH or m in X87_UNARY:
+                        delta, refs = 0, refs + [0]
+                    elif m in X87_ARITH_POP:
+                        delta, refs = -1, (refs or [1]) + [0]
+                    else:
+                        return None  # a store, a comparison, the control word...
+                    if any(r >= depth for r in refs):
+                        reaches = True  # a value the segment didn't push
+                    depth += delta
+                    peak = max(peak, depth)
+            if "esp" in written or "esp" in ins.writes:
+                if m == "push":
+                    esp -= 4
+                elif m in ("add", "sub") and ins.ops[0] == ("reg", "esp") and ins.ops[1][0] == "imm":
+                    esp += ins.ops[1][1] if m == "add" else -ins.ops[1][1]
+                elif m != "call":
+                    return None
+            if "flags" in reads and not flags_set:
+                reaches = True  # flags set before the segment
+            flags_set = flags_set or "flags" in written
+            live_in |= reads - writes - {"flags", "esp"}
+            writes |= written - {"esp"}
+        segment = Segment()
+        segment.whole = not esp and not reaches  # balanced, and nothing read from before but registers
+        segment.code, segment.live_in, segment.fixed = list(code), live_in, fixed
+        segment.writes = writes - {"flags"}
+        segment.depth, segment.peak = depth, peak
+        return segment
+
+
+def rename_ins(ins, mapping):
+    """An instruction with its registers' families renamed (what it reads and writes too)."""
+    if not mapping or all(k == v for k, v in mapping.items()):
+        return copy(ins)
+    new = copy(ins, ops=[renamed(op, mapping) for op in ins.ops])
+    new.reads = {mapping.get(f, f) for f in ins.reads}
+    new.writes = {mapping.get(f, f) for f in ins.writes}
+    raw = []
+    for names in ins.raw:
+        raw.append(tuple(renamed(("reg", r), mapping)[1] if r in PART else r for r in names))
+    new.raw = tuple(raw)
+    return new
+
+
+def unify_registers(ours, theirs, image, loose=False):
+    """A one-to-one map of register families that turns `ours` into `theirs` (mnemonics, operand
+    forms and everything else the same), or None. `loose`: any local matches any local (slots
+    aren't mapped yet)."""
+    forward, backward = {}, {}
+
+    def bind(a, b):
+        if a is None or b is None:
+            return a == b
+        if a not in PART or b not in PART:
+            return a == b
+        (fa, pa), (fb, pb) = PART[a], PART[b]
+        if pa != pb or forward.get(fa, fb) != fb or backward.get(fb, fa) != fa:
+            return False
+        forward[fa], backward[fb] = fb, fa
+        return True
+
+    if len(ours) != len(theirs):
+        return None
+    for x, y in zip(ours, theirs):
+        if x.kind != y.kind or x.mnemonic != y.mnemonic or len(x.ops) != len(y.ops):
+            return None
+        for p, q in zip(x.ops, y.ops):
+            if p[0] == "reg" and q[0] == "reg":
+                ok = bind(p[1], q[1])
+            elif p[0] == "mem" and q[0] == "mem":
+                ok = p[1] == q[1] and p[4] == q[4] and p[6] == q[6] and bind(p[2], q[2]) and bind(p[3], q[3]) \
+                    and (same_value(p[5], q[5], image) or loose and is_local(p) and is_local(q))
+            else:
+                ok = same_operand(p, q, image)
+            if not ok:
+                return None
+    return forward
+
+
+def identity(mapping):
+    return mapping is not None and all(k == v for k, v in mapping.items())
+
+
+def window_free(code, start, end):
+    """Whether nothing jumps into code[start+1 .. end]."""
+    for ins in code:
+        for op in ins.ops:
+            target = op[1] if op[0] == "label" else op[5][1] if op[0] == "mem" and isinstance(op[5], tuple) and op[5][0] == "label" else None
+            if isinstance(target, int) and start < target <= end:
+                return False
+    return True
+
+
+def fits(segment, mapping):
+    """Whether a segment may be renamed by `mapping`: its inputs and fixed registers stay."""
+    return all(mapping.get(f, f) == f for f in segment.live_in | segment.fixed)
+
+
+def operand_swaps(ours, theirs, k, image, callees, loose=False, exits=None):
+    """The `operands` rewrites around position k that give the original's instructions (see above)."""
+    out = []
+    n = len(ours)
+    matches = (lambda a, b: identity(unify_registers([a], [b], image, True))) if loose else (lambda a, b: same(a, b, image))
+    for u in range(k, min(n, k + 48)):
+        use = ours[u]
+        if use.kind != "code" or u < 2 or "flags" in use.reads:
+            continue
+        x87 = use.mnemonic in X87_ARITH_POP and all(stack_index(op) in (1, 0) for op in use.ops)
+        regs = [family(op[1]) for op in use.ops if op[0] == "reg" and op[1] in PART]
+        if x87:
+            results = None
+        elif use.mnemonic in COMMUTATIVE and len(use.ops) == 2 and len(regs) == 2 and regs[0] != regs[1]:
+            results = regs
+        else:
+            memory = [op for op in use.ops if op[0] == "mem"]
+            if len(memory) != 1 or not memory[0][2] or not memory[0][3] or "flags" in use.reads:
+                continue
+            results = [family(memory[0][2]), family(memory[0][3])]
+            if results[0] == results[1] or {"ebp", "esp"} & set(results):
+                continue
+        through = {f for f in use.reads if f in GPR} - set(results or [])  # what the use reads from before
+        output = {f for f in use.writes if f in GPR}
+        for j in range(u - 1, max(0, u - 32), -1):
+            second = Segment.of(ours[j:u], callees, image)
+            if second is None:
+                break
+            if not second.whole:
+                continue
+            for i in range(j - 1, max(-1, j - 32), -1):
+                first = Segment.of(ours[i:j], callees, image)
+                if first is None:
+                    break
+                if i > k or not first.whole or first.live_in & second.writes or second.live_in & first.writes or not window_free(ours, i, u):
+                    continue
+                if x87:
+                    if first.depth != 1 or second.depth != 1 or max(first.peak + 1, second.peak) > max(first.peak, second.peak + 1):
+                        continue
+                    r1 = r2 = None
+                else:
+                    if first.depth or second.depth or first.peak or second.peak:
+                        continue
+                    r1 = next((r for r in results if r in first.writes and r not in second.writes), None)
+                    r2 = next((r for r in results if r in second.writes and r != r1), None)
+                    if r1 is None or r2 is None or through & (first.writes | second.writes):
+                        continue
+                m2 = unify_registers(second.code, theirs[i : i + u - j], image, loose)
+                m1 = unify_registers(first.code, theirs[i + u - j : u], image, loose)
+                if m1 is None or m2 is None or not fits(first, m1) or not fits(second, m2):
+                    continue
+                w1 = {m1.get(f, f) for f in first.writes}
+                w2 = {m2.get(f, f) for f in second.writes}
+                if w2 & (first.live_in | through) or w1 & (through | ({m2.get(r2, r2)} if r2 else set())):
+                    continue  # the one evaluated first would clobber what the other still needs
+                if any(f not in output and not dead_after(ours, u, f, callees, exits) for f in first.writes | second.writes | w1 | w2):
+                    continue
+                if not (use.mnemonic in SYMMETRIC_FLAGS and not x87) and not dead_after(ours, u, "flags", callees, exits):
+                    continue
+                if x87:
+                    uses = [copy(use, X87_COMMUTATIVE[use.mnemonic])]
+                else:
+                    mapping = {r1: m1.get(r1, r1), r2: m2.get(r2, r2)}
+                    renamed_use = rename_ins(use, mapping)
+                    uses = [renamed_use]
+                    if use.mnemonic in COMMUTATIVE:
+                        uses.append(copy(renamed_use, ops=renamed_use.ops[::-1]))
+                    else:
+                        mem = next(n_ for n_, op in enumerate(renamed_use.ops) if op[0] == "mem")
+                        op = renamed_use.ops[mem]
+                        if op[4] == 1:
+                            ops = list(renamed_use.ops)
+                            ops[mem] = op[:2] + (op[3], op[2]) + op[4:]
+                            uses.append(copy(renamed_use, ops=ops))
+                for candidate in uses:
+                    written = {family(op[1]) for op, access in zip(candidate.ops, candidate.access) if op[0] == "reg" and access & 2}
+                    explicit_out = {family(op[1]) for op, access in zip(use.ops, use.access) if op[0] == "reg" and access & 2}
+                    if written != explicit_out or not matches(candidate, theirs[u]):
+                        continue
+                    if not x87:
+                        candidate.reads = (use.reads - set(results)) | {mapping[r1], mapping[r2]}
+                    new = [rename_ins(x, m2) for x in second.code] + [rename_ins(x, m1) for x in first.code] + [candidate]
+                    out.append(("operands", i, new))
+    return out
+
+
+def sum_terms(ours, theirs, k, image, callees, loose=False, exits=None):
+    """The `sums` rewrites around position k that give the original's instructions (see above)."""
+    out = []
+    n = len(ours)
+    matches = (lambda a, b: identity(unify_registers(a, b, image, True))) if loose else \
+        (lambda a, b: len(a) == len(b) and all(same(x, y, image) for x, y in zip(a, b)))
+    for c in range(max(1, k - 64), min(n, k + 40)):
+        head = ours[c]
+        if head.mnemonic != "mov" or len(head.ops) != 2 or head.ops[0][0] != "reg" or head.ops[0][1] not in GPR:
+            continue
+        r = head.ops[0][1]
+        if r in operand_registers(head.ops[1]):
+            continue
+        combines, op, q = [c], None, c + 1
+        while q < n:
+            ins = ours[q]
+            if family(r) in ins.writes or family(r) in ins.reads:
+                if ins.mnemonic in ("add", "imul", "and", "or", "xor") and len(ins.ops) == 2 and ins.ops[0] == ("reg", r) \
+                        and r not in operand_registers(ins.ops[1]) and (op is None or ins.mnemonic == op):
+                    op = ins.mnemonic
+                    combines.append(q)
+                else:
+                    break
+            elif is_terminator(ins):
+                break
+            q += 1
+        if len(combines) < 2:
+            continue
+        for last in range(len(combines), 1, -1):
+            end = combines[last - 1]
+            if end < k or not dead_after(ours, end, "flags", callees, exits):
+                continue
+            later = []
+            for t in range(1, last):
+                segment = Segment.of(ours[combines[t - 1] + 1 : combines[t]], callees, image)
+                if segment is None or not segment.whole or segment.peak or family(r) in segment.live_in | segment.writes:
+                    break
+                later.append((segment, ours[combines[t]].ops[1]))
+            if len(later) != last - 1:
+                continue
+            for s in range(c, max(-1, c - 40), -1):
+                first = Segment.of(ours[s:c], callees, image)
+                if first is None:
+                    break
+                if s > k or not first.whole or first.peak or family(r) in first.live_in | first.writes:
+                    continue
+                terms = [(first, head.ops[1])] + later
+                writes = [t.writes for t, _ in terms]
+                ok = window_free(ours, s, end)
+                for a, (segment, operand) in enumerate(terms):
+                    others = set().union(*(w for b, w in enumerate(writes) if b != a))
+                    if segment.live_in & others or operand_registers(operand) - segment.writes & others:
+                        ok = False
+                if not ok or any(not dead_after(ours, end, f, callees, exits) for f in set().union(*writes) - {family(r)}):
+                    continue
+                order, position, left = [], s, list(range(len(terms)))
+                while left:
+                    for a in left:
+                        segment, operand = terms[a]
+                        if not order:
+                            combine = Ins(head.offset, "mov", [("reg", r), operand], "", "code", operand_registers(operand), {family(r)}, [2, 1],
+                                          ((), (r,)))
+                        else:
+                            template = ours[combines[1]]
+                            combine = Ins(template.offset, op, [("reg", r), operand], "", "code", operand_registers(operand) | {family(r)},
+                                          {family(r), "flags"}, [3, 1], template.raw)
+                        piece = segment.code + [combine]
+                        if matches(piece, theirs[position : position + len(piece)]):
+                            order.append(piece)
+                            position += len(piece)
+                            left.remove(a)
+                            break
+                    else:
+                        break
+                if not left and [show(i) for p in order for i in p] != [show(i) for i in ours[s : end + 1]]:
+                    out.append(("sums", s, [i for p in order for i in p]))
     return out
 
 
@@ -1611,15 +1985,51 @@ def classify(lifted, local_list, optimized_unit, steps=None):
     """(kinds Counter, None) when the kinds reproduce the original, else (kinds so far, the first
     remaining difference). `steps` collects each rewrite: (kind, position, before, after)."""
     ours, theirs, image = lifted.ours, lifted.theirs, lifted.image
-    kinds = Counter()
     steps = [] if steps is None else steps
     if len(ours) != len(theirs):
-        return kinds, inserted(ours, theirs)
+        return Counter(), inserted(ours, theirs)
     scheduled = None
     if optimized_unit:
         found, scheduled = schedule(lifted, local_list)
         if found is not None:
             return found, None
+    kinds, difference = rewrite(lifted, ours, local_list, optimized_unit, steps, scheduled)
+    if difference is None or optimized_unit:
+        return kinds, difference
+    # Operands moved as wholes pair the wrong locals instructions apart, and the slot map's vote
+    # can go wrong on them: move them first, choosing by the instructions with any local matching
+    # any local, then map the slots. (Each rewrite is sound on its own, however it was chosen.)
+    early, moved, start = [], Counter(), 0
+    exits = getattr(lifted, "exit_reads", EXIT_READS)
+    for _ in range(64):
+        bad = next((k for k in range(start, len(ours)) if not identity(unify_registers([ours[k]], [theirs[k]], image, True))), None)
+        if bad is None:
+            break
+        for kind, first, new in sum_terms(ours, theirs, bad, image, lifted.callees, True, exits) + \
+                operand_swaps(ours, theirs, bad, image, lifted.callees, True, exits):
+            if identity(unify_registers(new, theirs[first : first + len(new)], image, True)):
+                early.append((kind, first, [show(i) for i in ours[first : first + len(new)]], [show(i) for i in new]))
+                ours = ours[:first] + new + ours[first + len(new) :]
+                moved[kind] += 1
+                break
+        else:
+            if DEBUG:
+                print("early: nothing at", describe(ours, theirs, bad))
+            start = bad + 1  # another kind's (a mirror), or none: the slots and the rest decide
+    if not early:
+        return kinds, difference
+    again, second = rewrite(lifted, ours, local_list, optimized_unit, early, scheduled)
+    if second is not None:
+        return kinds, difference
+    steps[:] = early
+    return moved + again, None
+
+
+def rewrite(lifted, ours, local_list, optimized_unit, steps, scheduled):
+    """The kinds applied one after another from the first difference on (see classify)."""
+    theirs, image = lifted.theirs, lifted.image
+    exits = getattr(lifted, "exit_reads", EXIT_READS)
+    kinds = Counter()
     unmapped = None
     if not optimized_unit:
         remapped, unmapped = apply_slots(ours, theirs, local_list, image)
@@ -1631,11 +2041,18 @@ def classify(lifted, local_list, optimized_unit, steps=None):
         if not bad:
             return kinds, None
         k = bad[0]
-        chain = reassociate(ours, theirs, k, image)
-        candidates = rewrites(ours, k, lifted.callees) + ([("commutative", chain[0], chain[1])] if chain else [])
-        for kind, first, new in candidates:
+
+        def candidates():
+            yield from rewrites(ours, k, lifted.callees)
+            chain = reassociate(ours, theirs, k, image)
+            if chain:
+                yield ("commutative", chain[0], chain[1])
+            yield from sum_terms(ours, theirs, k, image, lifted.callees, exits=exits)
+            yield from operand_swaps(ours, theirs, k, image, lifted.callees, exits=exits)
+
+        for kind, first, new in candidates():
             window = range(first, first + len(new))
-            if all(same(new[i - first], theirs[i], image) for i in window):
+            if first + len(new) <= len(theirs) and all(same(new[i - first], theirs[i], image) for i in window):
                 steps.append((kind, first, [show(i) for i in ours[first : first + len(new)]], [show(i) for i in new]))
                 ours = ours[:first] + new + ours[first + len(new) :]
                 kinds[kind] += 1
@@ -1850,10 +2267,11 @@ def main():
     parser.add_argument("--show", action="store_true", help="Print both sides of each --function, as lifted")
     parser.add_argument("--check", action="store_true", help="Fail on what tools/known_diffs.txt doesn't cover")
     parser.add_argument("--write", action="store_true", help="Rewrite the target's lines of tools/known_diffs.txt")
-    parser.add_argument("--coverage", action="store_true", help="Report which optimized functions an /Od proof covers (rule 5; needs the compilers)")
+    parser.add_argument("--coverage", action="store_true", help="Report which optimized functions an /Od proof covers (needs the compilers)")
     parser.add_argument("--cover-states", nargs="*", metavar="JSON", help="For --coverage: the covering targets' certify.py or audit.py --json (else certified here)")
+    parser.add_argument("--digests", help="For --coverage: tools/coverage.py's digests (no compilers needed)")
     parser.add_argument("--json")
-    parser.add_argument("--markdown")
+    parser.add_argument("--markdown", help="Write the verdicts, the cost and the residue (and coverage) as Markdown")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
     if args.corpus:
@@ -1962,7 +2380,44 @@ def main():
         if coverage_summary is not None:
             data["coverage"] = coverage_summary
         Path(args.json).write_text(json.dumps(data, indent=1) + "\n")
+    if args.markdown:
+        Path(args.markdown).write_text(markdown(args.target, results, counts, total, coverage_summary))
     return 1 if args.check and failures else 0
+
+
+def markdown(target, results, counts, total, coverage_summary):
+    """The verdicts, the cost and every function that isn't exact or witnessed, as Markdown; with
+    --coverage, a column of its own (never part of the cost or the verdicts)."""
+    lines = ["# %s: %d functions, audited" % (target, len(results)), "", "| Verdict | Functions | Weight |", "|---|---|---|"]
+    names = {"exact": "byte-identical", "witness": "proven by a witness", "classified": "classified (constructive rewrites)",
+             "known": "a known difference with a reason", "unexplained": "unexplained, undiagnosed or to investigate"}
+    weights = {"exact": "0", "witness": "1 or 2", "classified": "25", "known": "250", "unexplained": "1000"}
+    for verdict in ("exact", "witness", "classified", "known", "unexplained"):
+        lines.append("| %s | %d | %s |" % (names[verdict], counts[verdict], weights[verdict]))
+    lines += ["", "Cost: %d." % total, ""]
+    if coverage_summary is not None:
+        lines += ["## Coverage by an /Od proof (report-only, not part of the cost)", "",
+                  "| Verdict | Optimized functions | Covered |", "|---|---|---|"]
+        for verdict, c in coverage_summary.items():
+            lines.append("| %s | %d | %d |" % (verdict, c["functions"], c["covered"]))
+        lines.append("")
+    column = coverage_summary is not None
+    lines += ["## Not exact or witnessed", "",
+              "| Address | Function | Unit | Verdict | Cost | %sKinds, reason or first difference |" % ("Coverage | " if column else ""),
+              "|---|---|---|---|---|%s---|" % ("---|" if column else "")]
+    for r in results:
+        if r["verdict"] in ("exact", "witness"):
+            continue
+        what = r.get("reason") or r.get("difference") or " ".join("%s %d" % kv for kv in sorted(r.get("kinds", {}).items()))
+        cells = [r["address"], "`%s`" % r["name"], r["unit"], r["verdict"], str(r.get("cost", ""))]
+        if column:
+            if "covered_by" in r:
+                cells.append("%(target)s %(address)s (%(state)s)" % r["covered_by"])
+            else:
+                cells.append(("not covered: " + r["uncovered"]) if "uncovered" in r else "")
+        cells.append(what)
+        lines.append("| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |")
+    return "\n".join(lines) + "\n"
 
 
 def _unit(manifest, name):
@@ -1970,89 +2425,42 @@ def _unit(manifest, name):
 
 
 def cover(args, target, tree, manifest, results, annotations):
-    """Rule 5 (tools/coverage.py): sets each optimized function's `covered_by` (the target, address
-    and state of the /Od proof that covers it) or `uncovered` (why not). Report-only."""
+    """Coverage (tools/coverage.py): sets each optimized function's `covered_by` (the target, address
+    and state of the /Od proof that covers it) or `uncovered` (why not). Report-only. From
+    `--digests` (written where the compilers are: no compile here), or computed with the
+    compilers; the coverers' states from `--cover-states`, else (with the compilers) certified."""
     import coverage
-    from funccmp import Annotations, source_roots
-    from unitbuild import Target
 
     optimized = {u for u, e in manifest["units"].items() if e.get("optimized")}
     wanted = [r for r in results if r["unit"] in optimized]
     if not wanted:
         return []
-    build = ROOT / args.build
-    mine = Target(target, build)
-    scratch = build / "certify" / (target + "-coverage")
-    names = {}  # address -> (name, the definition's file and line)
-    for r in wanted:
-        found = [a for a in annotations.functions.get(r["name"], []) if a.offset == int(r["address"], 16)]
-        if found:
-            names[r["address"]] = (str(Path(found[0].filename).resolve()), found[0].line_number)
-    proofs = {}  # (file, line) -> (target, address, state, unit name) of a covering /Od proof
-    reasons = {}  # (file, line) -> why a coverer doesn't cover
-    coverer_units = {}  # coverer target -> {unit name: Unit}
-    for other in coverage.COVERERS.get(target, []):
-        theirs = Target(other, build)
-        units = {u.name: u for u in theirs.units if u.language in ("C", "CXX")}
-        unit_of = {str(p.resolve()): u for u in units.values() for p in u.files(tree).values()}
-        states = None
+    coverers = coverage.COVERERS.get(target, [])
+    states = {}
+    for other in coverers:
         for path in args.cover_states or []:
+            if not Path(path).exists():
+                continue  # a coverer not audited (yet) in this run: no states, no coverage
             data = json.loads(Path(path).read_text())
             if (data.get("summary") or data).get("target") == other:
-                states = {s["address"]: (s.get("verdict", s["state"]), s.get("unit")) for s in data["functions"]}
-        if states is None:
-            print("coverage: certifying %s" % other)
-            certifier = Certify(other, build, args.wine, args.jobs, tree)
-            out = build / "certify" / (other + "-cover")
-            certifier.compile(out, listings=False)
-            states = {s["address"]: (s["state"], s["unit"]) for s in certifier.compare(out, Image(read_yaml_paths(tree).get(other)))}
-        other_annotations = Annotations(other, source_roots(other, tree), tree)
-        for name, found in other_annotations.functions.items():
-            for a in found:
-                key = (str(Path(a.filename).resolve()), a.line_number)
-                if key in proofs:
-                    continue
-                state, unit = states.get("%#010x" % a.offset, (None, None))
-                unit = units.get(unit) or unit_of.get(key[0])  # a fragment two units include: certify's
-                if unit is None or state is None:
-                    reasons.setdefault(key, "%s doesn't compile it" % other)
-                elif re.search(r"(?:^|\s)[/-]O[x12]", unit.arguments):
-                    reasons.setdefault(key, "%s compiles it optimized too" % other)
-                elif state not in ("exact", "witness"):
-                    reasons.setdefault(key, "%s's /Od function is %s" % (other, state))
-                else:
-                    proofs[key] = (other, "%#010x" % a.offset, state, unit.name)
-                    coverer_units.setdefault(other, {})[unit.name] = unit
-    # The preprocessed units, each target's own.
-    own_units = {u.name: u for u in mine.units if u.name in {r["unit"] for r in wanted}}
-    texts = {target: coverage.preprocess(mine, list(own_units.values()), tree, scratch / target, args.wine, args.jobs)}
-    for other, units in coverer_units.items():
-        texts[other] = coverage.preprocess(Target(other, build), list(units.values()), tree, scratch / other, args.wine, args.jobs)
-    parsed = {}
-
-    def closure(t, unit, name):
-        if (t, unit) not in parsed:
-            text = texts[t].get(unit)
-            parsed[(t, unit)] = coverage.Items(text) if text else None
-        items = parsed[(t, unit)]
-        return items.closure(name) if items else None
-
+                states[other] = {s["address"]: s.get("verdict", s["state"]) for s in data["functions"]}
+    if args.digests:
+        path = Path(args.digests)
+        data = json.loads(path.read_text())["targets"] if path.exists() else {}
+    else:
+        data = coverage.digests([target], ROOT / args.build, tree, args.wine, args.jobs)
+        for other in coverers:
+            if other not in states:
+                print("coverage: certifying %s" % other)
+                certifier = Certify(other, ROOT / args.build, args.wine, args.jobs, tree)
+                out = ROOT / args.build / "certify" / (other + "-cover")
+                certifier.compile(out, listings=False)
+                states[other] = {s["address"]: s["state"] for s in certifier.compare(out, Image(read_yaml_paths(tree).get(other)))}
+    found = coverage.compare(target, data, states) if target in data else {}
     for r in wanted:
-        key = names.get(r["address"])
-        proof = proofs.get(key) if key else None
-        if proof is None:
-            r["uncovered"] = reasons.get(key, "no /Od target compiles it") if key else "no annotation in a source file"
-            continue
-        other, address, state, unit = proof
-        a, b = closure(target, r["unit"], r["name"]), closure(other, unit, r["name"])
-        if a is None or b is None:
-            r["uncovered"] = "its definition isn't found in the preprocessed unit"
-        elif a != b:
-            r["uncovered"] = "%s: %s" % (other, coverage.difference(a, b))
-        else:
-            r["covered_by"] = {"target": other, "address": address, "state": state, "tokens": coverage.fingerprint(a)}
+        verdict, what = found.get(r["address"], ("uncovered", "no digest (%s)" % ("not in " + args.digests if args.digests else "no annotation in a source file")))
+        r["covered_by" if verdict == "covered" else "uncovered"] = what
     return wanted
-
 
 if __name__ == "__main__":
     sys.exit(main())

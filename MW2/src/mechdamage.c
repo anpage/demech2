@@ -181,7 +181,6 @@ void PunchInAutoHeading(Mech* p_mech)
 
 // Destroys p_mech on behalf of player p_killer, unless g_mechPoweredUp is clear: an intact
 // section holding an ammunition bin with ammunition left blows up first (DestroyCriticalSlot) instead.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10007d06
 // FUNCTION: MW2MATROX 0x1001059a
 // FUNCTION: MW23DFX 0x10015e10
@@ -238,7 +237,6 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // in m_heat, 16.16 percent: overheating (bit 4, above 80) shuts the mech down after 6 seconds
 // (state 3), and above 100 the ammunition may explode (with bit 8) or the mech is destroyed after
 // 25 seconds; the local player hears the warnings. Cooling below 65 ends the shutdown.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10007e86
 // FUNCTION: MW2MATROX 0x10010727
 // FUNCTION: MW23DFX 0x10015f50
@@ -622,7 +620,6 @@ void DestroySection(MechS32 p_attacker, Mech* p_mech, MechU32 p_section)
 // 10000) explodes with its shots, damaging the section, and the equipment loses its function (the
 // jump jets, the heat sinks, the engine, the gyro...). The local player hears which, unless
 // p_recursing; 8000 and 9000 hit another, random slot instead.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10008c0f
 // FUNCTION: MW2MATROX 0x100114bd
 // FUNCTION: MW23DFX 0x100167b0

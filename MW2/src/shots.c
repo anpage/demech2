@@ -256,9 +256,8 @@ void UpdateAllShots(void)
 // Moves the shot on by g_deltaTime and tests the segment it covered for a hit: a mech, a game
 // thing or the ground. A hit detonates the shot, just short of the point of impact; otherwise
 // it detonates when its lifetime runs out, or steers on toward its target.
-// Stack-slot permutation of the locals; the y < groundY comparison has its operands the other way
-// around. The Matrox edition applies the damage after RecordAttack; the 3Dfx edition skips the
-// local player's hit feedback while its flag 2 is set.
+// The Matrox edition applies the damage after RecordAttack; the 3Dfx edition skips the local
+// player's hit feedback while its flag 2 is set.
 // FUNCTION: MW2 0x1006a533
 // FUNCTION: MW2MATROX 0x1006b033
 // FUNCTION: MW23DFX 0x10044f60
@@ -706,8 +705,6 @@ void SpawnLaunchEffect(MechS32 p_type, Player* p_player)
 // (c_impactMech etc.), which picks a variant of it, and 0x4000 keeps its sound at full volume.
 // The effect takes a free slot of its type (none if three of them already burn within 500
 // units), and the effect camera may follow it from (p_camX, p_camY, p_camZ).
-// Stack-slot permutation of the locals; one distance comparison has its operands the other way
-// around.
 // FUNCTION: MW2 0x1006b1fb
 // FUNCTION: MW2MATROX 0x1006bdd0
 // FUNCTION: MW23DFX 0x10045d00
@@ -1362,11 +1359,8 @@ void SaveCareerRecord(void)
 }
 
 // Heats up the mechs near burning game things (shapes of type 0x10), the more the closer.
-// Stack-slot permutation of the locals; the i != g_localPlayerId and distance < reach
-// comparisons have their operands the other way around.
-// MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts by
-// 3; distance < reach stores before it compares (fst, fcomp) where the rebuild compares first, and
-// i != g_localPlayerId compares in the other operand order.
+// MW2MATROX: in floats, with the heat scaled by FIXED_TO_SCALAR and a quarter where 1.1 shifts
+// by 3.
 // FUNCTION: MW2 0x1006c362
 // FUNCTION: MW2MATROX 0x1006cf8d
 // FUNCTION: MW23DFX 0x10046e70

@@ -224,9 +224,7 @@ void FUN_100692db(Eyepoint* p_eyepoint);
 // Clips the polygon of the p_count first vertices of g_a3dVertices to the pane's edges in
 // p_edges (1 left, 2 right, 4 top, 8 bottom), adding the vertices on the edges after them
 // (A3D_EdgeCrossing), and copies the result to g_a3dClipped. Returns its point count, -1 if nothing
-// is left, or 0 without p_edges. The Matrox edition doesn't call it; its only diff is a stack-slot
-// permutation of the locals.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
+// is left, or 0 without p_edges. The Matrox edition doesn't call it.
 // FUNCTION: MW2MATROX 0x10067b90
 // FUNCTION: MW23DFX 0x10026a30
 MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
@@ -701,7 +699,6 @@ void FUN_10068856(
 }
 
 // Draws a polygon in palette color p_color, lit by each vertex's light if p_lit is set.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100688fe
 // FUNCTION: MW23DFX 0x100272e0
 void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, MechS32 p_unk0x0c, MechS32 p_lit)
@@ -715,9 +712,16 @@ void FUN_100688fe(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 		point = *p_points++;
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
+		// The 3Dfx edition stores the color's components red first, the Matrox edition blue first.
+#ifdef MW2_3DFX
+		vertex->m_red = g_paletteRgb[p_color][0];
+		vertex->m_green = g_paletteRgb[p_color][1];
+		vertex->m_blue = g_paletteRgb[p_color][2];
+#else
 		vertex->m_blue = g_paletteRgb[p_color][2];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_red = g_paletteRgb[p_color][0];
+#endif
 		if (p_lit) {
 			vertex->m_red *= point->m_light;
 			vertex->m_green *= point->m_light;
@@ -797,7 +801,6 @@ void FUN_100689f5(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color, 
 }
 
 // Draws the outline of a polygon in palette color p_color.
-// MW23DFX: the colors are stored in the other order (scheduling).
 // FUNCTION: MW2MATROX 0x10068b57
 // FUNCTION: MW23DFX 0x10027490
 void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
@@ -825,9 +828,16 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 #endif
 		vertex->m_x = point->m_screenX;
 		vertex->m_y = point->m_screenY;
+		// The 3Dfx edition stores the color's components red first, as in FUN_100688fe.
+#ifdef MW2_3DFX
+		vertex->m_red = g_paletteRgb[p_color][0];
+		vertex->m_green = g_paletteRgb[p_color][1];
+		vertex->m_blue = g_paletteRgb[p_color][2];
+#else
 		vertex->m_blue = g_paletteRgb[p_color][2];
 		vertex->m_green = g_paletteRgb[p_color][1];
 		vertex->m_red = g_paletteRgb[p_color][0];
+#endif
 		vertex++;
 	}
 
@@ -847,7 +857,6 @@ void FUN_10068b57(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_color)
 
 // Reads a line of at most p_size - 1 characters, with its newline, from p_file into p_buffer.
 // Returns its length plus one, or 0 at the end of the file.
-// Stack-slot permutation of the locals.
 // FUNCTION: MW2MATROX 0x10068c7b
 MechU32 ReadTextLine(FILE* p_file, MechChar* p_buffer, MechS32 p_size)
 {

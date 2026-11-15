@@ -34,10 +34,8 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
 // (ComputeShade, from the face's light and p_distance) with the color bits of p_color, or in the
 // wireframe views (m_wireframe) a fixed color by the shape's type. Textured faces of the kinds in
 // m_untexturedKinds are drawn in a flat color instead.
-// Stack-slot permutation of the locals.
 // The Matrox edition's lights its vertices instead (FUN_100689f5): it returns no shade, and
 // draws untextured faces in mode 0xf000 (an animation's color) rather than 0x1000.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10036230
 // FUNCTION: MW2MATROX 0x10016b60
 // FUNCTION: MW23DFX 0x1002a4b0

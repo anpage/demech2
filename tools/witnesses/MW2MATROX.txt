@@ -358,8 +358,9 @@
 0x100734f0 FindResourceIdByName resourcename.c rename c=zqam entry=zqaj header=zqao i=zqak j=zqai name=zqal result=zqan table=zqap
 0x10073632 LoadResourceByRef resourcename.c rename data=zqan fromResource=zqal handle=zqai id=zqak loaded=zqam name=zqaj
 0x10073ab1 SwitchCockpitView cockpit.c pad 14 rename changed=zqaj layout=zqai sound=zqak
-0x10073d46 DrawMapView cockpit.c pad 6 rename angle=zqal farPlane=zqab flags=zqaa heading=zqak layout=zqaj obj=zqac player=zqai pose=zqae range=zqap slot=zqaf viewport=zqag x=zqao y=zqan z=zqam zoom=zqad
+0x10073d46 DrawMapView cockpit.c pad 9 rename angle=zqal farPlane=zqab flags=zqaa heading=zqak layout=zqaj obj=zqac player=zqai pose=zqae range=zqap slot=zqaf viewport=zqag x=zqao y=zqan z=zqam zoom=zqad
 0x10074024 DrawMapContents cockpit.c rename id=zqam player=zqai shape=zqal viewport=zqan x=zqak y=zqaj
+0x10074102 DrawMapUnits cockpit.c rename i=zqak icon=zqal player=zqam pos=zqaj thing=zqai
 0x1007426c DrawMapIcon cockpit.c rename screen=zqaj shape=zqak viewport=zqal visible=zqai
 0x1007432d DrawMapTarget cockpit.c pad 6 rename icon=zqaa index=zqal kind=zqap player=zqac pos=zqak row=zqai screen=zqam shape=zqao side=zqab target=zqan viewport=zqad visible=zqaj
 0x1007480f DrawMapFieldOfView cockpit.c rename colors=zqam end=zqaj halfFov=zqai viewport=zqan x=zqal y=zqak
@@ -367,7 +368,7 @@
 0x10074d0c MapShapeFilter cockpit.c rename flags=zqai kind=zqal skip=zqak type=zqaj
 0x10074de6 SatelliteFaceColor cockpit.c rename color=zqan colors=zqam index=zqal kind=zqap layout=zqaj result=zqai shape=zqak type=zqao
 0x10075097 SatelliteDrawPolygon cockpit.c rename color=zqaj kind=zqak layout=zqai
-0x100751a9 FUN_100751a9 cockpit.c pad 7 rename i=zqam point=zqao shade=zqal vertex=zqan vertices=zqai x=zqaj y=zqak
+0x100751a9 FUN_100751a9 cockpit.c rename i=zqam point=zqao shade=zqal vertex=zqan vertices=zqai x=zqaj y=zqak
 0x100752b7 GetMapHeightShade cockpit.c rename fraction=zqaj height=zqak shade=zqai
 0x10075428 PowerUpMapView cockpit.c pad 15
 0x10075509 DrawSatelliteStatic cockpit.c pad 4

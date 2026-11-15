@@ -496,10 +496,6 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 // Chooses each player's model level (Player::m_detailLevel) by its distance from the eyepoint: the
 // nearest player within range gets level 0, the next two level 1, the rest 2 or 3 by distance.
 // The local player's own view (GetViewMode == 0) takes level 4, and dead players 0 or 1.
-// Stack-slot permutation; i == g_localPlayerId compares in the other operand order. MW2MATROX: the
-// loop tests (i < g_playerCount) compare in the other operand order, and entries sits in another
-// stack slot.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001da44
 // FUNCTION: MW2MATROX 0x1006e13f
 // FUNCTION: MW23DFX 0x100267d0

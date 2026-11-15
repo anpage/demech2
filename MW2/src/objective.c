@@ -75,7 +75,6 @@ MechS32 g_objectiveCount;
 StarMission g_objectiveTable[16];
 
 // Collapses each run of whitespace after a character of p_text into one space.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001a910
 // FUNCTION: MW2MATROX 0x1001ecb0
 // FUNCTION: MW23DFX 0x100098f0
@@ -104,7 +103,6 @@ void CollapseWhitespace(MechChar* p_text)
 // objective, when that is a nav (or at the origin). Returns whether it was.
 // The original tests the target's kind by loading its high byte and shifting it back
 // ((MechU16) (kind << 8) == 0x100); the mask compiles to a byte compare.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1001aa02
 // FUNCTION: MW2MATROX 0x1001eda2
 // FUNCTION: MW23DFX 0x10009990
@@ -216,8 +214,6 @@ MechS32 HasTeamReachedTarget(MechU8* p_target, MechS32 p_team)
 
 // Returns whether a live member of team p_team is near an objective target (within 20000, or a
 // nav's radius). The local player reaching a nav marks it reached and plays sound 0xe7.
-// The Matrox edition's rebuild sums the squared distances' terms in another order (entropy).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001ad5b
 // FUNCTION: MW2MATROX 0x1001f0f8
 // FUNCTION: MW23DFX 0x10009b80
@@ -584,7 +580,6 @@ MechS32 ObjectiveConditionsHold(MechS32 p_star, MechS32 p_objective)
 // done (by its type: destroyed, reached, ...), whether its time is up, and what it does when done
 // (types 0x10000 and up end or reset other objectives and missions). Sets its state: 5 successful,
 // 6 failed, 8 failed for another star, 3 still going.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x1001b79a
 // FUNCTION: MW2MATROX 0x1001faf7
 // FUNCTION: MW23DFX 0x1000a1d0

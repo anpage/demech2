@@ -106,6 +106,17 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
+      # The public targets' states (the Build run's verify job), for the audit's coverage of the
+      # Matrox edition's optimized units by 1.1's /Od proofs.
+      - name: Download the Build run's progress reports
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: Accuracy Report
+          path: public-report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -246,7 +257,15 @@ jobs:
             else
               echo "(main has no states yet: no gate)" >>"${target}-certify.txt"
             fi
-            python ../tools/audit.py --tree . --target "$target" --objects "../certify/$target" --original "../retailbin/$file" --check --json "${target}AUDIT.json" >>"${target}-certify.txt" 2>&1 || status=1
+            # Coverage by an /Od proof for the targets with optimized units, from the certify job's
+            # digests and the covering targets' states: a column of its own, not part of the cost.
+            # RETAIL_ENTRIES lists MW2MATROX before MW23DFX, which it covers.
+            coverage=()
+            case "$target" in
+              MW2MATROX | MW23DFX)
+                coverage=(--coverage --digests ../certify/coverage.json --cover-states MW2MATROXAUDIT.json ../public-report/MW2STATES.json) ;;
+            esac
+            python ../tools/audit.py --tree . --target "$target" --objects "../certify/$target" --original "../retailbin/$file" --check --json "${target}AUDIT.json" --markdown "${target}AUDIT.md" "${coverage[@]}" >>"${target}-certify.txt" 2>&1 || status=1
             cat "${target}-certify.txt"
           done
           echo "$status" >../certify-status.txt
@@ -296,6 +315,7 @@ jobs:
             pr/*STATES.json
             pr/*STATES.md
             pr/*AUDIT.json
+            pr/*AUDIT.md
 
       - name: Upload PR comment payload
         if: ${{ github.event.workflow_run.event == 'pull_request' && always() }}
@@ -404,6 +424,7 @@ jobs:
               "${target}STATES.json"
               "${target}STATES.md"
               "${target}AUDIT.json"
+              "${target}AUDIT.md"
             )
           done
 
@@ -416,7 +437,7 @@ jobs:
       - name: Prepare Pages
         run: |
           mkdir -p progress
-          cp ./*PROGRESS.SVG ./*PROGRESS.HTML ./*STATES.md progress/
+          cp ./*PROGRESS.SVG ./*PROGRESS.HTML ./*STATES.md ./*AUDIT.md progress/
           ls progress
 
       - uses: actions/upload-pages-artifact@v3

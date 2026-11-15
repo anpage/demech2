@@ -63,7 +63,6 @@ MechU16 g_weaponValues[30] = {183, 137, 91,  46,  51,  34, 17,  74,  49, 25, 2, 
 // scales (the local player's by g_localArmorPerLevel, its side's by armorScale, the others' by
 // g_otherArmorPerLevel), the weapons and their ammunition bins, the heat sinks (scaled by the difficulty
 // and the temperature, g_temperature) and the jump jets. Returns TRUE.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1005d6d0
 // FUNCTION: MW2MATROX 0x1008c850
 // FUNCTION: MW23DFX 0x10041410
@@ -406,7 +405,6 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 
 // Returns a mech's value: its tonnage, scaled by the critical slots it fills (by kind), plus its
 // armor and the value of each of its weapons (up to ten).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005e534
 // FUNCTION: MW2MATROX 0x1008d62b
 // FUNCTION: MW23DFX 0x10041c80

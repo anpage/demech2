@@ -95,7 +95,6 @@ void ClassifyPointInBox(
 
 // Clips the ray against the shape's bounding box, one slab per axis. On a hit, advances the
 // ray's start to the entry point and sets the normal of the face it entered through.
-// MW2MATROX: the tNear/tEnter and tFar/tExit comparisons have their operands the other way round.
 // FUNCTION: MW2 0x10069b2a
 // FUNCTION: MW2MATROX 0x10052318
 // FUNCTION: MW23DFX 0x1000d310
@@ -298,8 +297,6 @@ MechS32 GetTerrainShapeTop(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechS
 }
 
 // Finds the downward-facing face over (p_x, p_z) and tests whether p_y lies above it.
-// MW2MATROX: height stays on the FPU stack past the hit normal's stores in the original (fst, then
-// fcomp), where the rebuild stores and reloads it, an effect of the symbol order.
 // FUNCTION: MW2 0x1006a037
 // FUNCTION: MW2MATROX 0x10052883
 // FUNCTION: MW23DFX 0x1000d6b0

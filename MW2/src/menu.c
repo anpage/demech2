@@ -414,7 +414,6 @@ void RequestMenuClose(MechS32 p_id)
 
 // First draws the menus' panes to the main pixel buffer and loads their layout; drops
 // the definitions whose root page or its subpages fail their init callbacks.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003cadc
 // FUNCTION: MW2MATROX 0x10091cac
 // FUNCTION: MW23DFX 0x100659c0
@@ -678,7 +677,6 @@ void ApplyMenuKey(MechS32 p_key, MechS32 p_itemType, MechS32* p_action, MechS32*
 // through ApplyMenuKey, which skips headings), then draws the title and the items, numbered from 1
 // with the accepting or closing item as 0, calling each item's m_run, which sees g_menuKey too.
 // Finally opens the selected item's subpage (state 3) or closes the page (states 4 and 5).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003d1a7
 // FUNCTION: MW2MATROX 0x100923b4
 // FUNCTION: MW23DFX 0x10065df0

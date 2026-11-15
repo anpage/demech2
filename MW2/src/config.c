@@ -150,7 +150,6 @@ MechS32 LoadMgdFile(
 
 // Loads the animation file p_ref: up to 32 animations, numbered from the current base
 // (GetAnimBase), into g_reels.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100708f4
 // FUNCTION: MW2MATROX 0x1000ae34
 // FUNCTION: MW23DFX 0x100401c0

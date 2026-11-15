@@ -144,8 +144,6 @@ void ScaleBarGauges(void)
 }
 
 // Draws the heat bar: a band from each end that meets in the middle as the heat rises.
-// Stack-slot permutation of the locals (heat, width, middle, level, middleX, mech, rightX, x, y, edge,
-// height, target and color).
 // MW2MATROX: the heat converts as the Matrox edition does (fld, __ftol).
 // FUNCTION: MW2 0x1004d175
 // FUNCTION: MW2MATROX 0x10089195
@@ -206,7 +204,6 @@ void DrawHeatBar(PANE* p_target)
 }
 
 // Draws the heat rate bar.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d310
 // FUNCTION: MW2MATROX 0x10089332
 // FUNCTION: MW23DFX 0x1001c4a0
@@ -398,7 +395,6 @@ void DrawJumpFuelBar(PANE* p_target)
 }
 
 // Draws a bar p_height up from (p_x, p_y), shaded darker towards its edges.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1004d732
 // FUNCTION: MW2MATROX 0x10089791
 // FUNCTION: MW23DFX 0x1001c810

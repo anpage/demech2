@@ -129,7 +129,6 @@ void SetShapeCollisionType(Shape* p_shape, MechS32 p_collisionType)
 
 // Returns whether p_y lies below the plane of the face at (p_x, p_z), with the plane's height
 // there in p_height, and sets the hit normal to the face's.
-// MW2MATROX: the two products of the plane's height are summed in the other order.
 // FUNCTION: MW2 0x10034a7b
 // FUNCTION: MW2MATROX 0x1002394b
 // FUNCTION: MW23DFX 0x1000fff0
@@ -414,8 +413,6 @@ MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 }
 
 // TestSegmentCollision against the world's scenery only: no mechs, nor shapes of type 6.
-// MW2MATROX: distance < best compares before it stores distance (fcom, fstp) where the original
-// stores first (fst, fcomp), an effect of the symbol order.
 // FUNCTION: MW2 0x10035107
 // FUNCTION: MW2MATROX 0x10024016
 // FUNCTION: MW23DFX 0x10010530
@@ -551,9 +548,6 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 
 // Intersects p_ray with the face's plane from its front side and, if the point lies within the
 // face, ends the ray there and keeps the face's normal as the hit normal.
-// The three sums of products (denom, d, num) call FixedMul29 in another order than the original
-// (commutative operands), and the locals are permuted.
-// MW2MATROX: the products of the d and num sums are added in the other order.
 // FUNCTION: MW2 0x100354d3
 // FUNCTION: MW2MATROX 0x1002444c
 // FUNCTION: MW23DFX 0x10010830

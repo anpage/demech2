@@ -70,7 +70,6 @@ PANE* ScaleRectToScreen(WINDOW* p_buffer, PANE* p_src, PANE* p_dst)
 }
 
 // Maps 16.16 fractions of p_frame onto pixels.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1005699f
 // FUNCTION: MW2MATROX 0x1007139f
 // FUNCTION: MW23DFX 0x10005c20
@@ -354,7 +353,6 @@ void UnderlineText(PANE* p_target, MechChar* p_text, Point p_pos, void* p_font, 
 }
 
 // Draws a box around text drawn at p_pos.m_x, p_pos.m_y.
-// Stack-slot permutation: the locals. The Matrox edition's build loads p_text[i]'s index before its base.
 // FUNCTION: MW2 0x10057282
 // FUNCTION: MW2MATROX 0x10071cc8
 // FUNCTION: MW23DFX 0x100065c0
@@ -579,7 +577,6 @@ void DrawPulsingFrame(PANE* p_target)
 }
 
 // Tiles a pane with a shape frame.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10057896
 // FUNCTION: MW2MATROX 0x10072153
 // FUNCTION: MW23DFX 0x10006960

@@ -551,9 +551,6 @@ MechS32 FUN_10066c70(void* p_pixels, MechS32 p_width, MechS32 p_height, MechS32 
 }
 
 // Makes p_texture the texture drawn, with the clamp mode p_clamp.
-// Register allocation: the original keeps reset in ebp, rereads p_texture->m_buffer where this
-// keeps it in a register, and has a smaller frame.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW23DFX 0x10066e70
 void FUN_10066e70(WINDOW* p_texture, MechS32 p_clamp)
 {
@@ -821,9 +818,6 @@ void A3D_DrawOutline(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
 
 // p_mode 0 draws the polygon's outline, 1 the polygon with 1 / w scaled to its largest, and 2 the
 // polygon subdivided where its depth varies much.
-// The registers differ, and the original keeps subdivided in no register or slot: its paths jump
-// straight to the draw or past it (with the draw in each case instead, the frame is a slot short).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW23DFX 0x100674c0
 void FUN_100674c0(
 	PANE* p_pane,

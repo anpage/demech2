@@ -6,8 +6,10 @@
 0x10002080 LoadFramePrj anim2d.c pad 17
 0x100022f0 DrawAnim2d anim2d.c pad 49
 0x100024b0 ChooseArtResolution setres.c pad 14
-0x10003a60 DrawMapTarget cockpit.c pad 22
-0x10003c10 DrawMapNavPoints cockpit.c pad 8
+0x10003420 SwitchCockpitView cockpit.c pad 43
+0x10003830 DrawMapContents cockpit.c pad 3
+0x10003a60 DrawMapTarget cockpit.c pad 25
+0x10003c10 DrawMapNavPoints cockpit.c pad 11
 0x10004ec0 ShowBanner render.c pad 14
 0x10005120 GdiBegin gdi.c pad 2
 0x10005430 GdiBitBltRect gdi.c pad 13
@@ -50,8 +52,10 @@
 0x10010830 IntersectRayFace collision.c pad 5
 0x100110d0 IsPointInFaceYZ collision.c pad 16
 0x10011f80 FindAIName ai.c pad 8
+0x10011fc0 FirstAI ai.c pad 7
 0x10012520 TargetAttacker ai.c pad 3
 0x100125d0 ChooseTeamLeader ai.c pad 7
+0x10012650 LogPlayerSkillLines ai.c pad 11
 0x10012bf0 AiMessageDist ai.c pad 13
 0x10012cd0 IsTargetDetectable ai.c pad 2
 0x10013a50 NextTarget ai.c pad 1
@@ -118,8 +122,10 @@
 0x10026770 GetClassObject classtable.c pad 10
 0x100269a0 ReleaseObjShape classtable.c pad 14
 0x100269f0 ForgetObjShape classtable.c pad 3
+0x10027750 ReadTextLine polydraw.c pad 2
 0x10028ee0 IsAboveHorizon horizon.c pad 2
 0x10029060 ComputeShapeBounds shape.c pad 3
+0x10029210 ComputeFaceNormal shape.c pad 6
 0x10029460 AddModel shape.c pad 3
 0x10029760 RemoveSelectedModel shape.c pad 13
 0x10029950 ForEachShape shape.c pad 1
@@ -128,6 +134,7 @@
 0x10029c10 TransformShapeCenter shape.c pad 13
 0x10029cb0 ApproximateShapeDistance shape.c pad 13
 0x1002a080 DrawShapeList depthsort.c pad 21
+0x1002a390 DrawQueuedPolygon depthsort.c pad 6
 0x1002a890 AreTextureMapsOn faceshade.c pad 1
 0x1002a8e0 DrawBand bandpoly.c pad 4
 0x1002ab50 SelectPane palette.c pad 3
@@ -139,6 +146,7 @@
 0x1002d920 StartCameraShakeKey camerashake.c pad 5
 0x1002e8a0 UpdateFreeEyeView eyepoint.c pad 4
 0x1002ebc0 RotatePoint transform.c pad 2
+0x1002f4a0 ScaleVectorToLength transform.c pad 1
 0x1002f560 SelectEyepoint view.c pad 15
 0x1002ffb0 InitSinAtanTables floatmath.c pad 5
 0x10030120 FixedAtan2 floatmath.c pad 12
@@ -181,6 +189,7 @@
 0x1003bc10 WriteBits gifsave.c pad 9
 0x1003be00 AddCharString gifsave.c pad 5
 0x1003be90 FindCharString gifsave.c pad 1
+0x1003bf60 LzwCompress gifsave.c pad 4
 0x1003c6c0 ShowFrameRate overlay.c pad 6
 0x1003cae0 StepSpinner overlay.c pad 4
 0x1003d580 GetPrjResourceSize prjfile.c pad 11

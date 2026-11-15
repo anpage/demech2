@@ -190,8 +190,6 @@ MechS32 g_starCount;
 
 // Allocates the class, thing and star tables to the sizes in the mission's static memory table.
 // Returns whether it could.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1001f3e0
 // FUNCTION: MW2MATROX 0x10052a80
 // FUNCTION: MW23DFX 0x10024780
@@ -274,7 +272,6 @@ Shape* FindClassById(MechS32 p_id)
 }
 
 // Frees the class, thing and star tables.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1001f5cb
 // FUNCTION: MW2MATROX 0x10052c6b
 // FUNCTION: MW23DFX 0x10024890
@@ -912,7 +909,6 @@ void PropagateStaticObjectStates(void)
 }
 
 // Returns whether every static object in use has a resource (the world loader's check).
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10020684
 // FUNCTION: MW2MATROX 0x10053dcd
 // FUNCTION: MW23DFX 0x10025410
@@ -939,7 +935,6 @@ MechS32 AreStaticObjectsComplete(void)
 // Loads cache entry p_index's shape and places it: a shape-only entry (-2) in block p_block's
 // frame, otherwise on its object. Returns TRUE while the shape is loaded, FALSE if it can't be or
 // shouldn't be: a hidden entry (0x800), or a destroyed game thing's (without explosion chunks).
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x10020704
 // FUNCTION: MW2MATROX 0x10053e4e
 // FUNCTION: MW23DFX 0x10025450
@@ -1143,8 +1138,7 @@ void GetStaticObjectPosition(MechS32 p_index, MechScalar* p_x, MechScalar* p_y, 
 
 // Shows the static blocks' boxes (the "unitbox" model scaled to each), or frees them when they are
 // shown. Returns whether any is shown.
-// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those, where 2.2 computes
-// ours into the argument slots.
+// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those.
 // FUNCTION: MW2 0x10020d51
 // FUNCTION: MW2MATROX 0x1005449d
 // FUNCTION: MW23DFX 0x10025840
@@ -1280,9 +1274,7 @@ void ShowQuadtreeBoxes(QuadtreeNode* p_root)
 }
 
 // Loads model p_data scaled to the box of p_node at its center, then to its children's.
-// Stack-slot permutation; the original loads m_unk0x14 first in z's sum (commutative operand order).
-// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those, where 2.2
-// computes ours into the argument slots. Otherwise registers and scheduling.
+// The 3Dfx edition stores SetShapeScale's arguments to locals and pushes those.
 // FUNCTION: MW2 0x1002116a
 // FUNCTION: MW2MATROX 0x100548f9
 // FUNCTION: MW23DFX 0x10025b70

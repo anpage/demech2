@@ -133,6 +133,7 @@ AiName g_aiStateNames[13] = {
 
 // GLOBAL: MW2 0x100a89e8
 // GLOBAL: MW2MATROX 0x100bb100
+// GLOBAL: MW23DFX 0x1024b670
 AiName g_aiStateShortNames[14] = {
 	{"nil", -1},
 	{"idl", c_aiStateIdle},
@@ -173,6 +174,7 @@ AiName g_aiTargetTypeNames[3] = {
 
 // GLOBAL: MW2 0x100a8aa8
 // GLOBAL: MW2MATROX 0x100bb1c0
+// GLOBAL: MW23DFX 0x1024b7b0
 AiName g_aiTargetTypeLetters[3] = {
 	{"n", c_aiTargetNav},
 	{"p", c_aiTargetPlayer},
@@ -181,6 +183,7 @@ AiName g_aiTargetTypeLetters[3] = {
 
 // GLOBAL: MW2 0x100a8ac0
 // GLOBAL: MW2MATROX 0x100bb1d8
+// GLOBAL: MW23DFX 0x1024b7d8
 AiName g_shapeKindNames[3] = {
 	{"p", 0x100},
 	{"t", 0x200},
@@ -203,6 +206,7 @@ AiName g_playerTypeNames[9] = {
 
 // GLOBAL: MW2 0x100a8b20
 // GLOBAL: MW2MATROX 0x100bb238
+// GLOBAL: MW23DFX 0x1024b8c8
 AiName g_powerStateNames[8] = {
 	{"of", 0},
 	{"su", 1},
@@ -237,6 +241,7 @@ AiName g_objectiveTypeNames[15] = {
 
 // GLOBAL: MW2 0x100a8bd8
 // GLOBAL: MW2MATROX 0x100bb2f0
+// GLOBAL: MW23DFX 0x1024ba30
 AiName g_aiBehaviorNames[14] = {
 	{"      ", -1},
 	{"stupid", 0},
@@ -473,7 +478,6 @@ MechS32 g_aiStateTime;
 // drive records an attack on a side-1 player its mech runs into (RecordAttack).
 // reccmp leaves the call through g_aiStateFns unresolved (its call regex only matches a bare
 // [address]), so both sides show raw addresses.
-// The 3Dfx edition's diff is the indexed call through the state table, which reccmp can't name.
 // FUNCTION: MW2 0x10051100
 // FUNCTION: MW2MATROX 0x10080280
 // FUNCTION: MW23DFX 0x10011c50
@@ -519,7 +523,6 @@ void UpdateAI(Player* p_player)
 // did.
 // reccmp leaves the call through g_aiMessageFns and g_aiTransitionFns unresolved (its call regex
 // only matches a bare [address]), so both sides show raw addresses.
-// The 3Dfx edition's diff is register allocation and the indexed calls, which reccmp can't name.
 // FUNCTION: MW2 0x10051251
 // FUNCTION: MW2MATROX 0x100803d1
 // FUNCTION: MW23DFX 0x10011d20
@@ -1039,7 +1042,6 @@ MechS16 AiMessageReach(Player* p_player, MechS16 p_target, MechS16 p_arg)
 #include "aiprox.c"
 #endif
 
-// The player == g_localPlayer subtraction runs the other way.
 // FUNCTION: MW2 0x1005253c
 // FUNCTION: MW2MATROX 0x1008159c
 void LogPlayerSkillLines(void)
@@ -1556,7 +1558,6 @@ MechS32 AiTransitionClearStack(Player* p_player, AiRule* p_rule)
 	return TRUE;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100534fb
 // FUNCTION: MW2MATROX 0x100826c1
 // FUNCTION: MW23DFX 0x100132c0
@@ -2433,7 +2434,6 @@ MechS32 AiTransitionNotify(Player* p_player, AiRule* p_rule)
 }
 
 // The local player's teammate in formation slot p_slot, or -1.
-// The team comparison loads the other operand first.
 // FUNCTION: MW2 0x10054ccc
 // FUNCTION: MW2MATROX 0x10083f47
 // FUNCTION: MW23DFX 0x10014220
@@ -2471,7 +2471,6 @@ void PostAIMessage(Player* p_player, MechS16 p_message, MechU16 p_target, MechS1
 
 // Orders the players of p_targets into p_state with p_target (the local player's orders to its
 // star). Returns how many it skipped.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10054d88
 // FUNCTION: MW2MATROX 0x10084002
 // FUNCTION: MW23DFX 0x10014290
@@ -2977,7 +2976,6 @@ MechS32 AssignStarTarget(MechS32 p_team, MechU16 p_target)
 
 // Run by star p_team's leader: hands its posted order on and sends an idle member after the
 // first target of the star's objective that isn't covered yet.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10055bb7
 // FUNCTION: MW2MATROX 0x10084e52
 // FUNCTION: MW23DFX 0x10014ba0
@@ -3203,7 +3201,6 @@ void RunStarCommand(MechS32 p_command, MechS32 p_slot)
 
 // Sweeps a mech's torso pan from side to side, 5 degrees every 0x20 ticks (0x40 while stopped),
 // turning back past 45.
-// MW2MATROX: the first m_maneuverEnd comparison loads its operands in the other order.
 // FUNCTION: MW2 0x100562b4
 // FUNCTION: MW2MATROX 0x1008554f
 // FUNCTION: MW23DFX 0x10014ff0

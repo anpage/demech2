@@ -779,7 +779,6 @@ void AddNextWeaponToGroup(Mech* p_mech)
 // Updates the target lock of the selected weapon: with the target between its two ranges and
 // within 16 degrees of the aim, it locks on after 0x16a ticks.
 // MW2MATROX: in floats (degrees).
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10045eac
 // FUNCTION: MW2MATROX 0x1002cc52
 // FUNCTION: MW23DFX 0x10044560

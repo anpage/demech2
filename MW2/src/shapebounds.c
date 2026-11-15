@@ -10,11 +10,6 @@
 
 // Sets p_shape's center to the middle of its first model's bounding box, and its radius to the
 // distance from there to the farthest vertex.
-// Stack-slot permutation of the locals. The vertex address loads the index first where the
-// original loads the model first (index order), and 4.1 sums the squares in another order, which
-// also compares d before storing it; a probe of the same source picks yet another order.
-// MW2MATROX: d > max compares before it stores d (fcom, fstp) where the original stores first (fst,
-// fcomp), an effect of the symbol order.
 // FUNCTION: MW2 0x1003ae96
 // FUNCTION: MW2MATROX 0x10027a60
 // FUNCTION: MW23DFX 0x10029060

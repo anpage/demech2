@@ -91,7 +91,6 @@ void ShutdownDrawBuffer(void)
 	}
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007d150
 // FUNCTION: MW2MATROX 0x100216d0
 // FUNCTION: MW23DFX 0x10025d80

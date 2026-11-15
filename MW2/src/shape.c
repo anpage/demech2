@@ -439,7 +439,6 @@ MechScalar GetShapeBounds(Shape* p_shape, MechScalar* p_x, MechScalar* p_y, Mech
 
 // Computes the selected model's face normals, then the shape's center and radius (a shape
 // LoadShapeRecord has just built).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003ae1e
 // FUNCTION: MW2MATROX 0x1002844f
 // FUNCTION: MW23DFX 0x100298c0
@@ -656,8 +655,6 @@ void GetTransformedVertex(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32
 }
 
 // Returns a vertex's position in the model.
-// The vertex address adds the model and the index in the other order (GetTransformedVertex's
-// identical expression doesn't).
 // FUNCTION: MW2 0x1003b55a
 void GetVertexPosition(Shape* p_shape, MechS32 p_index, MechS32* p_x, MechS32* p_y, MechS32* p_z)
 {
@@ -808,7 +805,6 @@ void DestroyObjShape(Shape* p_shape)
 }
 
 // Returns the bytes the shape, its models and its bounding data take.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003b7cc
 // FUNCTION: MW2MATROX 0x100289f3
 // FUNCTION: MW23DFX 0x10029a40

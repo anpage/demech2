@@ -317,9 +317,6 @@ MechU32 WidenEventFlags(MechU32 p_flags)
 // gamepiece and cockpit file records execute their own streams. Events of the things and nav
 // points it creates are posted to the stream's event list (the mission table's, once one is
 // read). Returns whether every stream it executed loaded.
-// Stack-slot permutation of the locals (its wider [ebp-N] encodings also shift the jumps).
-// Operand order: the rep record's i < g_thingCapacity loads g_thingCapacity first in the original.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1000a9f5
 // FUNCTION: MW2MATROX 0x100461f5
 // FUNCTION: MW23DFX 0x1003de10
@@ -797,7 +794,11 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 
 			ref = &cockpit->m_ref;
 			if (g_lastPlayer && !g_lastPlayer->m_aiMode) {
+#ifdef MW2_ACCEL
+				LoadCptFile(ref, g_cockpitGaugePanes, g_cockpitPanelPanes, g_unk0x100ae424);
+#else
 				LoadCptFile(ref, g_cockpitGaugePanes, g_cockpitPanelPanes, g_unk0x100a5bb8[3]);
+#endif
 			}
 		}
 		else if (type.m_code == g_bwdTypeCodes[c_bwdPitFile].m_code) {

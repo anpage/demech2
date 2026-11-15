@@ -59,9 +59,6 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 
 // Transforms p_model's vertices (their positions into m_worldX-m_worldZ) and face normals by
 // p_matrix. The products are an __asm block.
-// MW2MATROX: the float products and their sums take their operands in other orders (commutative
-// operand order).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10039a30
 // FUNCTION: MW2MATROX 0x10028adb
 // FUNCTION: MW23DFX 0x10029ab0
@@ -271,8 +268,6 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 
 // Transforms the shape's position (m_modelCenterX-Z) by p_matrix into m_centerX-Z, and bumps its
 // transform count (m_transformCount). The products are an __asm block.
-// MW2MATROX: the float products and their sums take their operands in other orders (commutative
-// operand order).
 // FUNCTION: MW2 0x10039b94
 // FUNCTION: MW2MATROX 0x10028cf4
 // FUNCTION: MW23DFX 0x10029c10
@@ -578,7 +573,6 @@ done:;
 // The normal of the triangle (p_x0, p_y0, p_z0), (p_x1, p_y1, p_z1), (p_x2, p_y2, p_z2): the cross
 // product of its edges, scaled to 2.29 fixed point; returns the scale's exponent. A degenerate
 // triangle gets the normal (-1, -1, -1) and 0. The products and the scaling are __asm blocks.
-// Stack-slot permutation of the locals.
 // The Matrox edition's is float C, which returns the cross product's length: it sits with the
 // trigonometry, in accel/floatmath.c.
 #ifndef MW2_ACCEL
@@ -920,7 +914,6 @@ done:
 
 // Returns how far along p_ray it passes closest to the shape's center, less the radius, or
 // 0x7fffffff when it misses the bounding sphere or ends first; 10 when the ray starts inside it.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1003a096
 // FUNCTION: MW2MATROX 0x10028f0e
 // FUNCTION: MW23DFX 0x10029db0

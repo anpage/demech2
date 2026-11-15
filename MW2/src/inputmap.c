@@ -1075,7 +1075,6 @@ InputAxis* GetOrCreateInputAxis(InputSink* p_sink)
 // Binds channel p_channel of device p_deviceName (NULL: none, for the axis's keys) to the axis
 // sink p_sink. A binding of the axis without a channel takes the channel. Returns the binding's
 // index, or -1.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10079f71
 // FUNCTION: MW2MATROX 0x1007c72f
 // FUNCTION: MW23DFX 0x10039440
@@ -1133,7 +1132,6 @@ MechS32 AddAnalogBinding(InputSink* p_sink, MechChar* p_deviceName, MechS32 p_ch
 
 // Reads a binding's conditions, "+ device button" or "- device button" a line, up to the closing
 // brace. Returns 0 on an error, or if the last button isn't there.
-// The 3Dfx edition's diff is register allocation, scheduling and block layout only.
 // FUNCTION: MW2 0x1007a168
 // FUNCTION: MW2MATROX 0x1007c926
 // FUNCTION: MW23DFX 0x10039590
@@ -1206,7 +1204,6 @@ MechS32 CheckInputConditions(MechS32 p_count, InputCondition* p_conditions)
 // reads "+ device channel" (- inverts it) and the binding's conditions; a button sink reads its
 // conditions, and a _plus or _minus button also binds its axis (or the axis's _delta sink) so its
 // keys move it.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007a3d1
 // FUNCTION: MW2MATROX 0x1007cb6b
 // FUNCTION: MW23DFX 0x10039730
@@ -1326,7 +1323,6 @@ MechS32 ParseInputMap(FILE* p_file)
 
 // Loads INPUT.MAP, then each present device's own map: giddi\<device name without its trailing
 // digits>.std.
-// Stack-slot permutation: name and i.
 // FUNCTION: MW2 0x1007a97a
 // FUNCTION: MW2MATROX 0x1007d0ba
 // FUNCTION: MW23DFX 0x10039ac0
@@ -1366,9 +1362,6 @@ MechS32 LoadInputMap(void)
 }
 
 // Loads GAMEKEY.MAP: an action name and its key sequence ("CTRL+F1") a line.
-// The Matrox edition compares the two game key actions in the other operand order.
-// Matches but for the registers, which VC++ 2.2 allocates differently.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1007aba9
 // FUNCTION: MW2MATROX 0x1007d2c1
 // FUNCTION: MW23DFX 0x10039c90
@@ -1550,8 +1543,6 @@ void FirstInputs(void)
 // polls the devices (the keyboard only outside the chat), runs the bindings (only the menu_ ones
 // while gameplay input is off) and reads the frame's key code. Alt+Enter toggles full screen
 // instead.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1007b19b
 // FUNCTION: MW2MATROX 0x1007d86f
 // FUNCTION: MW23DFX 0x1003a0a0

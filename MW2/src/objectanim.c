@@ -249,8 +249,6 @@ AnimFile g_animFiles[60];
 // (g_lastPlayer). Each frame moves or turns the object by the frame's amount, spread over
 // the rate; the frame events jump to other frames by the player's animation state (m_motionState,
 // the frame it reached, and m_nextMotionState, the one it wants).
-// Stack-slot permutation of the locals. The original adds i before scaling frame in the
-// m_values[i] reads (index order).
 // FUNCTION: MW2 0x10046750
 // FUNCTION: MW2MATROX 0x1006ece0
 // FUNCTION: MW23DFX 0x1000dec0
@@ -669,8 +667,6 @@ MechS32 ScaleBySpeedLevel(MechS32 p_mode, MechS32 p_value)
 
 // Loads the animation file p_ref unless it has been, and sets the base of its animation numbers
 // (g_animBase). Returns -1 if it was already loaded.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x10047380
 // FUNCTION: MW2MATROX 0x1006f955
 // FUNCTION: MW23DFX 0x1000e630
@@ -1105,9 +1101,6 @@ MechS32 AmbientSoundTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, Mec
 // A timed callback (TimedCallbackFn) moving a star's object along a path. Its data is
 // "<star id>;<mode>,<rotate>,<path name>": mode "loop", "repeat" or else stop at the end, and
 // "rotate" to turn the object along the path. Event -1 restarts it.
-// MW2MATROX: also the index order in the durations' sums (the original scales i before it loads the
-// path).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10047f60
 // FUNCTION: MW2MATROX 0x100704f2
 // FUNCTION: MW23DFX 0x1000ee10

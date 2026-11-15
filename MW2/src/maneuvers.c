@@ -423,7 +423,6 @@ void InitializeManeuvers(Player* p_player)
 // Picks p_player's next maneuver: one an order asked for, an AI player's escape, attack or chase
 // when it applies, or else one its maneuver table lets follow the previous one (any one at
 // first), redrawn until its conditions hold.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10013d81
 // FUNCTION: MW2MATROX 0x10019969
 // FUNCTION: MW23DFX 0x1001f030
@@ -711,7 +710,6 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // target p_target, a player (0x200) or a game thing (0x400), in world coordinates; for a player
 // *p_y takes its heading. A game thing without an object is offset from its position.
 // The empty else arms give the original's jmp to the next statement after each offset.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x100147d0
 // FUNCTION: MW2MATROX 0x1001a3c8
 // FUNCTION: MW23DFX 0x1001f6b0
@@ -1009,7 +1007,6 @@ MechS32 ManeuverWbackp(Player* p_player, MechS16 p_target)
 }
 
 // Turns p_player toward its goal and closes on its target. Whether it is within 3000.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x10014e5e
 // FUNCTION: MW2MATROX 0x1001ab92
 // FUNCTION: MW23DFX 0x1001fc40
@@ -1218,7 +1215,6 @@ void ManeuverAvoid(Player* p_player, MechS16 p_target)
 // Turns p_player toward its goal and closes on its target, giving up the goal (ReleaseNavPoints,
 // PlacePatrolNavs) now and then while far from the target, and handing the target to AdvanceNavTarget
 // within 3000.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
 // FUNCTION: MW2 0x100153e6
 // FUNCTION: MW2MATROX 0x1001b155
 // FUNCTION: MW23DFX 0x1001ffd0
@@ -1288,7 +1284,6 @@ MechS32 IsBelowHiddenTarget(Player* p_player)
 // Near the ground, fires the player's jump jets while its mech falls faster than 85% of the fall
 // damage speed and clears it once it is slower than 75%, and logs a fall faster than that speed.
 // Returns whether the player is on the ground.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100155e1
 // FUNCTION: MW2MATROX 0x1001b359
 // FUNCTION: MW23DFX 0x100200f0
@@ -1940,7 +1935,6 @@ Shape* GetTargetShape(MechS16 p_target)
 // AI player that sees the shot coming (a guided weapon or type 21, and the target inside its
 // sights within 3 units and 15 degrees) sidesteps along a clear path (state 11), or else braces
 // (state 4).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1001632c
 // FUNCTION: MW2MATROX 0x1001c1ca
 // FUNCTION: MW23DFX 0x10020ac0

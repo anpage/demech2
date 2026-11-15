@@ -151,7 +151,6 @@ Point g_armorBarSize;
 
 // Sets up the damage panel: the identity remap table, the outline's rectangle and parts, the
 // labels and armor bars' places, and the local mech's full armor.
-// The 3Dfx edition's diff is register allocation, scheduling and stack slots only.
 // FUNCTION: MW2 0x10040020
 // FUNCTION: MW2MATROX 0x10059940
 // FUNCTION: MW23DFX 0x1001b230
@@ -264,7 +263,6 @@ void InitDamagePanel(void)
 
 // Draws the damage panel's outline, each part shaded by its section's damage: yellow, then red
 // as its armor goes, black once the section is destroyed.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10040511
 // FUNCTION: MW2MATROX 0x10059e60
 // FUNCTION: MW23DFX 0x1001b620

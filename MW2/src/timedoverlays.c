@@ -64,7 +64,6 @@ TimedOverlay g_timedOverlays[2] = {
 // Lays out the message boxes: scales their rectangles to the screen and to their background
 // shapes, moves them to the top (the first) and bottom (the second) edge, and centers the
 // text vertically.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006ee60
 // FUNCTION: MW2MATROX 0x10078690
 // FUNCTION: MW23DFX 0x10002e40
@@ -116,7 +115,6 @@ void LayoutMessageBoxes(void)
 
 // Shows p_text in a free message box for p_duration ticks, or replaces the one of the lowest
 // priority not above p_priority (of those, the one that expires last). Returns 1 if shown.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1006efd4
 // FUNCTION: MW2MATROX 0x10078804
 // FUNCTION: MW23DFX 0x10002f20

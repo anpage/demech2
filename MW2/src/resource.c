@@ -280,8 +280,6 @@ MechS32 LoadMissionTable(MissionTable* p_table)
 }
 
 // Adds a path to g_paths, or returns FALSE if the table or the path is full.
-// Stack-slot permutation: count, index, i and record (and so the loop test's operand order and
-// the order of the waypoint index's scaling).
 // FUNCTION: MW2 0x1004f64a
 // FUNCTION: MW2MATROX 0x1004920a
 // FUNCTION: MW23DFX 0x10042b00
@@ -318,7 +316,6 @@ MechS32 LoadPathTable(PathRecord* p_record)
 
 // Adds a formation to g_formationTemplates, or returns FALSE if the table or the formation is
 // full.
-// MW2MATROX: the stores compute the template index and the slot index in the other order.
 // FUNCTION: MW2 0x1004f891
 // FUNCTION: MW2MATROX 0x1004946c
 // FUNCTION: MW23DFX 0x10042bc0
@@ -456,8 +453,6 @@ void SetTeamFormations(FormationNames* p_record)
 }
 
 // Runs p_fn on the stream a record names.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1004fcac
 // FUNCTION: MW2MATROX 0x1004989d
 // FUNCTION: MW23DFX 0x10042e10
@@ -610,8 +605,6 @@ void GetTriangleNormal(
 }
 
 // The plane of the triangle, scaled by ScalePlane.
-// MW2MATROX: commutative operand order of the products.
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x1004ffaa
 // FUNCTION: MW2MATROX 0x10049c58
 // FUNCTION: MW23DFX 0x10043130
@@ -654,9 +647,6 @@ void GetTrianglePlane(
 	ScalePlane(a, b, c, d, p_x, p_y, p_z, p_w);
 }
 
-/* The only diff is the order of the three products in d (and of each product's operands), which
-   follows the symbol table, not the source. It matches with seven more symbols declared ahead of
-   the function (placeholder prototypes do it); stubbing the object's other functions does not. */
 // FUNCTION: MW2 0x1005005e
 // FUNCTION: MW2MATROX 0x10049d0f
 // FUNCTION: MW23DFX 0x100431f0
@@ -705,8 +695,6 @@ void SetMangleBase(MechS32 p_base)
 // (p_static), an entry of the class table (p_class, for level p_level), or else a shape of its own,
 // in the world or under its parent's object.
 // MW2MATROX: the record's transform is converted member by member.
-// Matches but for register allocation, operand order and scheduling, which VC++ 2.2's /Ox varies.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x100500ef
 // FUNCTION: MW2MATROX 0x10049d9d
 // FUNCTION: MW23DFX 0x10043270

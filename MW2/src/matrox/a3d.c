@@ -1499,7 +1499,6 @@ A3DTexture* A3D_LoadTexture(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 
 // Allocates a VRAM block for p_item (freeing the one it has), defragmenting VRAM if needed
 // (p_defrag), and copies the texture's levels into it from the heap.
-// Register and scheduling entropy remains (the free block's size is updated in memory).
 // FUNCTION: MW2MATROX 0x1005d990
 A3DHeapBlock* FUN_1005d990(A3DTexture* p_item, MechS32 p_defrag)
 {
@@ -1564,7 +1563,6 @@ A3DHeapBlock* FUN_1005d990(A3DTexture* p_item, MechS32 p_defrag)
 
 // "VRAM_defrag()": merges free VRAM blocks into the largest one, moving the textures between them,
 // until it holds p_size bytes; returns it.
-// Not matched yet: register allocation and the order of the level copy's loads differ.
 // FUNCTION: MW2MATROX 0x1005dcf0
 A3DHeapBlock* VRAM_defrag(MechU32 p_size)
 {
@@ -1627,7 +1625,6 @@ A3DHeapBlock* VRAM_defrag(MechU32 p_size)
 
 #pragma optimize("w", on)
 // Takes p_item off the texture cache (the items in VRAM; their list is m_vramNext and m_vramPrev).
-// Register entropy: next and the address of p_item->m_vramPrev take each other's registers.
 // FUNCTION: MW2MATROX 0x1005e220
 void FUN_1005e220(A3DTexture* p_item)
 {
@@ -1667,8 +1664,6 @@ void FUN_1005e220(A3DTexture* p_item)
 
 // "HEAPCACHE_loaditem()": loads the CEL resource p_id into a new item's heap block, with p_levels
 // levels (p_paletted: 8-bit with a palette per level, else 16-bit).
-// Not matched yet: register allocation and block order differ; the calls and stores follow the
-// original.
 // FUNCTION: MW2MATROX 0x1005e2c0
 A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_levels)
 {
@@ -1812,8 +1807,6 @@ A3DTexture* HEAPCACHE_loaditem(MechS32 p_id, MechS32 p_paletted, MechU32 p_level
 
 // Allocates a heap block of p_size bytes for p_item, defragmenting the heap if needed (p_defrag;
 // p_flush flushes the card first).
-// Register entropy: the search loop's and the insertions' registers swap, and the counters
-// update through registers.
 // FUNCTION: MW2MATROX 0x1005e770
 A3DHeapBlock* FUN_1005e770(A3DTexture* p_item, MechU32 p_size, MechS32 p_defrag, MechS32 p_flush)
 {
@@ -1881,7 +1874,6 @@ A3DHeapBlock* FUN_1005e770(A3DTexture* p_item, MechU32 p_size, MechS32 p_defrag,
 
 // "HEAP_defrag()": merges free heap blocks into the largest one, moving the data between them, until
 // it holds p_size bytes; returns it.
-// Not matched yet: register allocation of the defragmentation loop differs.
 // FUNCTION: MW2MATROX 0x1005e990
 A3DHeapBlock* HEAP_defrag(MechU32 p_size)
 {
@@ -1954,7 +1946,6 @@ A3DHeapBlock* HEAP_defrag(MechU32 p_size)
 
 #pragma optimize("w", on)
 // Takes p_item off the heap cache (the items in the heap).
-// Register entropy: next and the address of p_item->m_heapPrev take each other's registers.
 // FUNCTION: MW2MATROX 0x1005ebb0
 void FUN_1005ebb0(A3DTexture* p_item)
 {
@@ -2021,8 +2012,6 @@ void FUN_1005ebb0(A3DTexture* p_item)
 
 // Builds the levels of p_item from its level p_level, p_pixels: 16-bit levels in the heap block,
 // each after the last, or (p_paletted) each level quantized by FUN_1005f0c0.
-// Not matched yet: the original keeps the 2x2 filter's index in esi over row pointers it
-// reloads; this build strength-reduces them into walking pointers.
 // FUNCTION: MW2MATROX 0x1005ec40
 void FUN_1005ec40(A3DTexture* p_item, MechU16* p_pixels, MechU32 p_level, MechS32 p_paletted)
 {
@@ -2413,8 +2402,6 @@ __inline MechS32 A3DClipPolygon(
 	return p_count;
 }
 
-// Register allocation and stack slots differ, and the clip call reloads its first argument from
-// memory in the original.
 // FUNCTION: MW2MATROX 0x1005f8a0
 void FUN_1005f8a0(PANE* p_pane, MechS32 p_color)
 {
@@ -2579,7 +2566,6 @@ __inline void FUN_10061510(
 }
 
 // Draws the outline of a polygon in the color of its first vertex.
-// Register allocation and stack slots differ.
 // FUNCTION: MW2MATROX 0x10061890
 void A3D_DrawOutline(PANE* p_pane, A3DVertex* p_vertices, MechU32 p_count)
 {
@@ -2654,7 +2640,6 @@ void FUN_10061ca0(void)
 
 #pragma optimize("w", on)
 // Draws a shaded polygon.
-// Register allocation, the offset loop's scheduling and the clip test's operand order differ.
 // FUNCTION: MW2MATROX 0x10061cb0
 void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 {
@@ -2719,7 +2704,6 @@ void A3D_DrawPolygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices)
 #pragma optimize("", on)
 
 #pragma optimize("a", on)
-// Register allocation and store scheduling differ (the parameter block's setup).
 // FUNCTION: MW2MATROX 0x10062010
 void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTexture* p_texture, MechU32 p_flags)
 {
@@ -2887,7 +2871,6 @@ void A3D_map_polygon(PANE* p_pane, MechU32 p_count, A3DVertex* p_vertices, A3DTe
 #pragma optimize("", on)
 
 // Draws a textured polygon, perspective-corrected with p_flags 0x200 or 0x400.
-// Register allocation and store scheduling differ (the parameter block's setup).
 // FUNCTION: MW2MATROX 0x10062630
 void A3D_polygon_clip_XY_and_render(
 	PANE* p_pane,
@@ -3446,7 +3429,6 @@ MechU32 FUN_100651a0(A3DPolyVertex* p_vertices, MechU32 p_count)
 #pragma optimize("w", on)
 // Clips the polygon p_vertices of p_count vertices to the depth p_depth (by m_w, the projection
 // scale over the depth), in place; returns the clipped polygon's vertex count.
-// Register allocation differs (a and p_vertices swap ebx and ebp).
 // FUNCTION: MW2MATROX 0x10065710
 MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechS32 p_count, MechDouble p_depth)
 {
@@ -3504,7 +3486,6 @@ MechU32 FUN_10065710(A3DPolyVertex* p_vertices, MechS32 p_count, MechDouble p_de
 
 // Draws the textured triangle p_a, p_b, p_c, choosing its MIP map level by its mean depth with
 // p_mip.
-// Register allocation differs (the original keeps g_eyepoint in a register).
 // FUNCTION: MW2MATROX 0x100659f0
 void FUN_100659f0(A3DPolyVertex* p_a, A3DPolyVertex* p_b, A3DPolyVertex* p_c, A3DTexture* p_texture, MechS32 p_mip)
 {
@@ -3866,7 +3847,6 @@ void FUN_10066cf0(undefined* p_heap, undefined* p_buffer, MechS32 p_color)
 }
 
 // Opens MSI95.DLL's display; reads the MIP map settings from MYSTIQUE.PAR first.
-// Store scheduling differs.
 // FUNCTION: MW2MATROX 0x10066d30
 MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 {
@@ -3936,7 +3916,6 @@ MechS32 A3D_Init(WNDPROC p_windowProc, MechS32 p_width, MechS32 p_height)
 
 // Starts the texture cache's heap: one free block of the card's texture memory (0x20 bytes: a
 // VRAM block has no m_unk0x20).
-// Store scheduling differs.
 // FUNCTION: MW2MATROX 0x10066fd0
 void FUN_10066fd0(void)
 {
@@ -3961,7 +3940,6 @@ void FUN_10066fd0(void)
 
 // HEAP_init (its log string): allocates the texture heap (g_unk0x100ac91c pages) and starts its
 // list with one free block.
-// Store scheduling differs.
 // FUNCTION: MW2MATROX 0x10067080
 void HEAP_init(void)
 {
@@ -4076,7 +4054,6 @@ void FUN_10067300(void)
 	g_unk0x100acb20 = NULL;
 }
 
-// Register allocation differs (the original holds both texture list ends in registers).
 // FUNCTION: MW2MATROX 0x100673c0
 void FUN_100673c0(void)
 {

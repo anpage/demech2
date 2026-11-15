@@ -46,7 +46,6 @@ void SetBrightnessFraction(MechS32 p_arg, MechS32 p_value)
 	PreviewBrightness(g_displayBrightness);
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10074693
 // FUNCTION: MW2MATROX 0x10017270
 // FUNCTION: MW23DFX 0x10064260

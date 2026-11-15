@@ -136,6 +136,17 @@ PANE g_cockpitGaugePanes[5] = {
 };
 #endif
 
+#ifdef MW2_ACCEL
+// The accelerated editions keep only the cockpit layout's point (LoadCptFile), in .bss, and a
+// pointer to it, where 1.1 has a table of four pointers whose last one is the point.
+// GLOBAL: MW2MATROX 0x1012fcf0
+// GLOBAL: MW23DFX 0x10244d40
+Point g_unk0x100a5bb0;
+
+// GLOBAL: MW2MATROX 0x100ae424
+// GLOBAL: MW23DFX 0x102498bc
+Point* g_unk0x100ae424 = &g_unk0x100a5bb0;
+#else
 // GLOBAL: MW2 0x100a5ad0
 PANE g_unk0x100a5ad0[8] = {
 	{&g_mainPixelBuffer, 0, 0, 0, 0},
@@ -159,6 +170,7 @@ Point g_unk0x100a5bb0 = {0, 0};
 
 // GLOBAL: MW2 0x100a5bb8
 void* g_unk0x100a5bb8[4] = {g_unk0x100a5b90, g_unk0x100a5b70, g_unk0x100a5ad0, &g_unk0x100a5bb0};
+#endif
 
 // Whether cockpit view 1 and 2's map animation shows this frame (DrawDamagedMapView).
 // GLOBAL: MW2 0x100a5bc8
@@ -332,7 +344,6 @@ void RunMapView(void)
 // (4) with its own frame callback, and 5 back out to the view it was entered from. Keeps the
 // overlay settings the satellite view changes while a cockpit view shows, and leaves it when the
 // player dies. Returns whether the view changed.
-// The 3Dfx edition's diff is register allocation, scheduling and jump table addresses only.
 // FUNCTION: MW2 0x1003ddd7
 // FUNCTION: MW2MATROX 0x10073ab1
 // FUNCTION: MW23DFX 0x10003420
@@ -436,7 +447,6 @@ void DrawCockpitView(void)
 // The pose has a seventh element nothing uses.
 // MW2MATROX clears the satellite view with the A3D pane wipe (FUN_1005f8a0); BeginMapView and
 // EndMapView (mapview.c) have no MW2MATROX annotation yet.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x1003e06c
 // FUNCTION: MW2MATROX 0x10073d46
 // FUNCTION: MW23DFX 0x10003620
@@ -553,7 +563,7 @@ void DrawMapView(void)
 
 // Draws the map view's contents: the nav points, the center icon and the other players and
 // things, and the target.
-// The only diff is a stack-slot permutation of the locals. The original has an unused local (unused).
+// The original has an unused local (unused).
 // MW2MATROX: DrawMapTarget has no MW2MATROX annotation (the Matrox edition places it before IsNavReached),
 // so its call stays unnamed.
 // FUNCTION: MW2 0x1003e32c
@@ -1326,7 +1336,6 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #ifdef MW2_ACCEL
 // The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
 // in the colors p_flags picks.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2MATROX 0x100751a9
 // FUNCTION: MW23DFX 0x10004390
 void FUN_100751a9(CockpitLayout* p_layout, MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags)
@@ -1484,9 +1493,6 @@ void PowerUpMapView(void)
 // Draws the satellite view through its static: while the mission menu is open, or after a
 // reset (g_satelliteClean), cleanly; otherwise clean until a random time, then the view's
 // transition breaks it up until another random time.
-// The two clock comparisons compare in the other operand order.
-// MW2MATROX: the same two clock comparisons, the other way around.
-// The 3Dfx edition's diff is register allocation, scheduling and comparison operand order only.
 // FUNCTION: MW2 0x1003f74e
 // FUNCTION: MW2MATROX 0x10075509
 // FUNCTION: MW23DFX 0x100045f0

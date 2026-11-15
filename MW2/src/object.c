@@ -676,7 +676,6 @@ SceneObject* FindObjByName(SceneObject* p_obj, const MechChar* p_name)
 	return NULL;
 }
 
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100020a6
 // FUNCTION: MW2MATROX 0x10041bb8
 // FUNCTION: MW23DFX 0x1000fe60

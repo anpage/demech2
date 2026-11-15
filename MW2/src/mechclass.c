@@ -245,7 +245,6 @@ void FirstMech(struct Player* p_player)
 // driven at on the ground, or under gravity, drag and jump jet thrust in the air), resolves
 // collisions with shapes and other mechs, lands it on the terrain (with falling damage), slides
 // it down slopes, then poses its objects. Every player type's update (PlayerType::m_updateFn).
-// The 3Dfx edition's diff is register allocation, scheduling and float operand order only.
 // FUNCTION: MW2 0x10016edf
 // FUNCTION: MW2MATROX 0x1000d29c
 // FUNCTION: MW23DFX 0x10019310
@@ -829,7 +828,6 @@ void UpdateMech(Mech* p_mech)
 // recentering, the MASC (which can fail), the heat, and the power state machine: starting up,
 // running, shut down, destroyed (exploding until the timer runs out) and ejecting.
 // Every player type's late update (PlayerType::m_lateUpdateFn).
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x100180cd
 // FUNCTION: MW2MATROX 0x1000e721
 // FUNCTION: MW23DFX 0x1001a180
@@ -1593,7 +1591,6 @@ MechS32 CreateMech(MechS32 p_index, Player* p_player)
 
 // Lays out p_mech's allocation (its ten weapons, eight sections and 25 ammunition bins after it)
 // and empties the weapons and the bins.
-// The 3Dfx edition's diff is register allocation and instruction scheduling only.
 // FUNCTION: MW2 0x10019881
 // FUNCTION: MW2MATROX 0x10010043
 // FUNCTION: MW23DFX 0x1001b170
