@@ -435,6 +435,8 @@ jobs:
             # What certify leaves unproven, classified constructively (tools/audit.py); an
             # unexplained function needs its line in tools/known_diffs.txt.
             python tools/audit.py --target "$target" --objects "certify/$target" --check --json "${target}AUDIT.json" --markdown "${target}AUDIT.md" >>"${target}-certify.txt" 2>&1 || status=1
+            # main's, for the PR comment's changes (tools/pr_comment.py)
+            curl -fLSs -o "${target}AUDIT-main.json" "$RELEASE_URL/${target}AUDIT.json" || rm -f "${target}AUDIT-main.json"
             cat "${target}-certify.txt"
           done
           echo "$status" >certify-status.txt
@@ -448,35 +450,22 @@ jobs:
           python tools/check_asm.py --verify
 
       - name: "Create comment on PR"
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && always() }}
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          section() {
-            echo "## $1"
-            echo '```'
-            if [ -f "$2" ]; then
-              sed -i -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "$2"
-              python -c "print(open('$2').read().strip())";
-            else
-              echo '(no diff available)';
-            fi
-            echo '```'
-          }
-
-          {
-            echo '# reccmp report'
-            for entry in $TARGET_ENTRIES; do
-              target="${entry%%:*}"
-              section "$target ($target.DLL)" "$target-diff.txt"
-              section "$target: certified" "$target-certify.txt"
+          # The PR comment's payload for the public targets: each target's audit (every function's
+          # state), main's, and the tools' output. The retail workflow's comment job writes the
+          # comment from it and its own targets' (tools/pr_comment.py).
+          mkdir -p comment
+          for entry in $TARGET_ENTRIES; do
+            target="${entry%%:*}"
+            echo "$target $target.DLL" >>comment/targets.txt
+            for f in "${target}AUDIT.json" "${target}AUDIT-main.json" "${target}-certify.txt" "${target}-diff.txt"; do
+              if [ -f "$f" ]; then cp "$f" comment/; fi
             done
-          } >reccmp-pr-message.txt
-
+          done
           echo "${{ github.event.number }}" >pr-number.txt
-
-          cat reccmp-pr-message.txt
+          python tools/pr_comment.py comment
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -495,7 +484,7 @@ jobs:
         with:
           name: reccmp-pr-comment
           path: |
-            reccmp-pr-message.txt
+            comment/
             pr-number.txt
 
       - name: Fail on certify
