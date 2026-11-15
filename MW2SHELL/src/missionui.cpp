@@ -252,21 +252,17 @@ void ShellApplyMissionUiInfo(MechChar* p_scenario, MechS32 p_stars, MechS32 p_vi
 // FUNCTION: MW2SHELL 0x10037feb
 void ShowMechName(MechNameTag* p_tag, MechS32 p_type, MechS32 p_left, MechS32 p_top)
 {
-	MechChar* text;
-
 	p_tag->m_type = p_type;
 	if (p_tag->m_glyph) {
 		delete p_tag->m_glyph;
 	}
 
-	if (p_type >= 0) {
-		text = g_mechChassis[p_tag->m_type].m_name;
-	}
-	else {
-		text = "[none]";
-	}
-
-	p_tag->m_glyph = g_textFont->AddText(p_left, p_top, text, g_briefingTextColors);
+	p_tag->m_glyph = g_textFont->AddText(
+		p_left,
+		p_top,
+		p_type >= 0 ? g_mechChassis[p_tag->m_type].m_name : (MechChar*) "[none]",
+		g_briefingTextColors
+	);
 }
 
 // Shows the formation names of both stars.

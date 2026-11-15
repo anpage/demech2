@@ -26,6 +26,7 @@ usage: python tools/pr_comment.py PAYLOAD... [--exceptions PR_BODY_FILE] [--note
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 # The audit's verdicts, best first, and the column each counts in.
@@ -73,7 +74,7 @@ def fence(text):
 
 def load(path):
     try:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
 
@@ -89,7 +90,7 @@ def exceptions(path):
     """The functions the PR's description excuses: {(target, function)}."""
     if not path:
         return set()
-    text = Path(path).read_text(errors="replace")
+    text = Path(path).read_text(encoding="utf-8", errors="replace")
     return {(m.group(1), m.group(2)) for m in re.finditer(r"^\s*Gate exception:\s*(\S+)\s+(\S+)", text, re.M)}
 
 
@@ -103,7 +104,7 @@ class Target:
 
     def text(self, path):
         try:
-            return re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", path.read_text(errors="replace"))
+            return re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", path.read_text(encoding="utf-8", errors="replace"))
         except OSError:
             return ""
 
@@ -145,7 +146,7 @@ def main():
         listing = payload / "targets.txt"
         if not listing.exists():
             continue
-        for line in listing.read_text().split("\n"):
+        for line in listing.read_text(encoding="utf-8").split("\n"):
             if line.strip():
                 name, binary = (line.split() + [""])[:2]
                 targets.append(Target(payload, name, binary))
@@ -246,9 +247,10 @@ def main():
 
     text = "\n".join(out) + "\n"
     if args.output:
-        args.output.write_text(text)
+        args.output.write_text(text, encoding="utf-8")
     else:
-        print(text, end="")
+        # The comment has arrows and dashes: never the console's code page (cp1252 on Windows).
+        sys.stdout.buffer.write(text.encode("utf-8"))
 
 
 if __name__ == "__main__":

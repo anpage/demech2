@@ -42,6 +42,7 @@
 0x1000fe86 PlayMidiSong shellmain.cpp pad 5 rename data=zqae result=zqaf size=zqad song=zqag
 0x100103e2 LoadSettingsFromRegistry shellmain.cpp rename key=zqah result=zqae size=zqaf type=zqag value=zqad
 0x1001053e SaveSettingsToRegistry shellmain.cpp rename key=zqaf result=zqae value=zqad
+0x10010a30 InitRefreshMode refreshmode.c pad 7 rename backend=zqaf mode=zqag rect=zqad screenHeight=zqah screenWidth=zqae unused=zqai
 0x10010d88 ProfileRefreshModes refreshmode.c pad 1
 0x10011071 ToggleFullScreen refreshmode.c rename backend=zqae i=zqaf mode=zqad
 0x10011450 GetPaletteColors refreshmode.c pad 12
@@ -139,8 +140,9 @@
 0x10043a72 DrawOptions options.cpp rename audioData=zqae audioSize=zqaf paletteSize=zqad
 0x10043e25 ShowDialog options.cpp rename count=zqad id=zqaf line=zqae
 0x10044451 EditTextField keyboardinput.cpp rename glyph=zqag key=zqad length=zqaf width=zqae
-0x10044880 Page::Page page.cpp pad 3 rename data=zqaf glyphs=zqad result=zqae size=zqag
+0x10044880 Page::Page page.cpp rename data=zqaf glyphs=zqad result=zqae size=zqag
 0x10044a96 Page::ReadToken page.cpp pad 1
+0x1004506f Page::Layout page.cpp rename center=zqab count=zqbj gap=zqaf half=zqaa i=zqbh length=zqal lineWidth=zqah link=zqae offset=zqad pos=zqaj rect=zqap stop=zqan tabs=zqag token=zqak width=zqao wordStart=zqam wrapped=zqai
 0x100460a0 InitGammaTable brightness.c rename exponent=zqah i=zqaf j=zqae row=zqag x=zqad
 0x10046200 DrawBriefing briefing.cpp rename height=zqaf i=zqah left=zqad name=zqag top=zqae width=zqai
 0x100474f0 TextGlyph::DrawNextChar textglyph.cpp pad 1
