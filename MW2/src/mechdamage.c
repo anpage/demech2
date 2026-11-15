@@ -6,7 +6,7 @@
 #include "clock.h"
 #include "config.h"
 #include "decomp.h"
-#ifdef MW2_ACCEL
+#ifdef MW2_EXTRA_DEBUG_PRINTS
 #include "debugprint.h"
 #endif
 #include "eyepoint.h"
@@ -138,7 +138,7 @@ void RunAutopilot(Mech* p_mech)
 	if (!AvoidObstacles(p_mech->m_player)) {
 		SteerToTarget(p_mech->m_player);
 		if (p_mech->m_player->m_maneuverFlag == 1) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			p_mech->m_player->m_steering->m_throttle = *(MechFloat*) &p_mech->m_player->m_maneuverParam;
 #else
 			p_mech->m_player->m_steering->m_throttle = p_mech->m_player->m_maneuverParam;
@@ -146,7 +146,7 @@ void RunAutopilot(Mech* p_mech)
 			p_mech->m_player->m_maneuverFlag = 0;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		p_mech->m_player->m_maneuverParam = *(MechS32*) &p_mech->m_player->m_steering->m_throttle;
 #else
 		p_mech->m_player->m_maneuverParam = p_mech->m_player->m_steering->m_throttle;
@@ -170,7 +170,7 @@ void PunchInAutoHeading(Mech* p_mech)
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// The Matrox edition wraps the sum first, then adds the full turn.
 	heading = FIXED_MOD360(FIXED_MOD360(p_mech->m_player->m_heading + p_mech->m_torsoTwist.m_value) + 360.0);
 #else
@@ -193,7 +193,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 	MechSection* section;
 	AmmoBin* bin;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_EXTRA_DEBUG_PRINTS
 	DebugPrint("BlowAmmo\n");
 #endif
 	if (!g_mechPoweredUp) {
@@ -242,7 +242,7 @@ void DestroyMech(MechS32 p_killer, Mech* p_mech)
 // FUNCTION: MW23DFX 0x10015f50
 void CalculateHeat(Mech* p_mech)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechFloat delta;
 	MechFloat cooling;
 	MechFloat heat;
@@ -271,7 +271,7 @@ void CalculateHeat(Mech* p_mech)
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// The Matrox edition doubles the cooling of a shut-down mech with a factor, not a shift.
 	if (p_mech->m_powerState == 3) {
 		factor = 2.0f;
@@ -970,7 +970,7 @@ void DestroyCriticalSlot(MechS32 p_attacker, Mech* p_mech, MechU32 p_section, Me
 			break;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (FIXED_IS_NONZERO(p_mech->m_mobility) && p_mech->m_mobility < 0.4f) {
 			p_mech->m_mobility = 0.4f;
 		}
@@ -1026,7 +1026,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (p_damage < 1e-07f) {
 #else
 	if (p_damage <= 0) {
@@ -1070,7 +1070,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 
 	section->m_armor[side] -= p_damage;
 	section->m_flags |= 0x8000;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (section->m_armor[side] < 1e-07f) {
 #else
 	if (section->m_armor[side] <= 0) {
@@ -1087,7 +1087,7 @@ void ApplyDamageToMech(MechS32 p_attacker, Mech* p_mech, MechScalar p_damage, Me
 			g_hitFadePending = 1;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (section->m_internal < 1e-07f) {
 #else
 		if (section->m_internal <= 0) {

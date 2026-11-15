@@ -44,7 +44,7 @@ extern "C"
 	MechS16 FindManeuver(ManeuverTable* p_table, MechS16 p_id);
 	void StartManeuver(struct Player* p_player);
 	void EndManeuver(struct Player* p_player);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	void PlaceOffsetNav(struct Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance);
 	void GetOffsetPoint(
 		MechU32 p_target,

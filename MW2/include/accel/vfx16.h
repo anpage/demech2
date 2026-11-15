@@ -14,7 +14,7 @@
 // interface, storing 16-bit pixels. MW2/src/accel/vfx16.asm, a MASM object; the 3Dfx, ATI and S3
 // editions carry it too. The game code draws through it wherever 1.1 calls VFXA's drawing primitives; VFXA
 // itself is still linked, for its non-drawing helpers and supanim.c's offscreen panes. A unit that
-// draws to the screen includes this header after vfxa.h (behind #ifdef MW2_ACCEL), and its VFXA
+// draws to the screen includes this header after vfxa.h (behind #ifdef MW2_VFX16), and its VFXA
 // calls compile as calls to these.
 //
 // The routines take VFXA's names with a 16 suffix (VFX_line_draw16): VFXA's own publics are linked
@@ -106,7 +106,7 @@ extern "C"
 }
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #define VFX_line_draw VFX_line_draw16
 #define VFX_shape_draw VFX_shape_draw16
 #define VFX_shape_visible_rectangle VFX_shape_visible_rectangle16

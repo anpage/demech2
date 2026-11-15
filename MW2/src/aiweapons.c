@@ -95,7 +95,7 @@ MechS32 DecideAIFire(Player* p_player)
 
 		if (fire) {
 			fire = FALSE;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			if (def->m_heat + mech->m_heat < 65.0f && IsSelectedWeaponReady(mech) == 1 && slot->m_ammo &&
 				!RandomIntBelow(def->m_recycle / 90 + 1)) {
 #else
@@ -115,14 +115,14 @@ MechS32 DecideAIFire(Player* p_player)
 		// The 3Dfx edition raises the torso by these 16.16 amounts in degrees, where the Matrox
 		// edition adds the raw values.
 		if (type == 0) {
-#ifdef MW2_3DFX
+#ifdef MW2_AI_TILT_DEGREES
 			p_player->m_steering->m_torsoTilt += FIXED_RAW(0x1e000);
 #else
 			p_player->m_steering->m_torsoTilt += 0x1e000;
 #endif
 		}
 		else if (type == 4) {
-#ifdef MW2_3DFX
+#ifdef MW2_AI_TILT_DEGREES
 			p_player->m_steering->m_torsoTilt += FIXED_RAW(0x3c000);
 #else
 			p_player->m_steering->m_torsoTilt += 0x3c000;

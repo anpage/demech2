@@ -30,26 +30,26 @@
 #include "weapondata.h"
 #include "weapons.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
 // The Matrox edition's HUD art numbers the compass's and the crosshair's shapes three further on.
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_ART
 #define HUD_SHAPE(id) ((id) + 3)
 #else
 #define HUD_SHAPE(id) (id)
 #endif
 
 // The compass's bearing marks are drawn with the Matrox edition's FUN_1001e01a.
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 #define DRAW_MARK_SHAPE FUN_1001e01a
 #else
 #define DRAW_MARK_SHAPE DrawPaneShape
 #endif
 
 // And the target markers six further on.
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_ART
 #define HUD_MARKER_SHAPE(id) ((id) + 6)
 #else
 #define HUD_MARKER_SHAPE(id) (id)
@@ -266,20 +266,23 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	MechScalar unused;
 	MechS32 shape;
 	MechS32 level;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar objectY;
 #endif
 
 	gauge = g_cockpitPanels[c_panelAltimeter];
 	target = g_cockpitPanels[c_panelAltimeter]->m_target;
 	height = p_mech->m_player->m_position.m_y - p_mech->m_height;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	level = (MechS32) ((height - 20100.0f) * g_altimeterScale / 100.0f) + g_altimeterOrigin.m_y;
+#else
+	level = (MulDiv64(g_altimeterScale, height - 20100, 100) >> 16) + g_altimeterOrigin.m_y;
+#endif
+#ifdef MW2_HUD_ART
 	if (g_altimeterOrigin.m_y < level) {
 		DrawPaneShape(g_altimeterOrigin.m_x, g_altimeterOrigin.m_y, 10, target);
 	}
 #else
-	level = (MulDiv64(g_altimeterScale, height - 20100, 100) >> 16) + g_altimeterOrigin.m_y;
 	if (g_altimeterOrigin.m_y < level) {
 		DrawPaneShape(g_altimeterOrigin.m_x, g_altimeterOrigin.m_y, 0x115, target);
 	}
@@ -287,14 +290,14 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 
 	DrawPaneShape(g_altimeterOrigin.m_x, level, 7, target);
 	DrawPaneShape(g_altimeterLevelX, g_altimeterOrigin.m_y, 1, target);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	mark = (MechS32) ((height - p_mech->m_player->m_groundHeight) * g_altimeterScale / 100.0f) + g_altimeterOrigin.m_y;
 #else
 	mark = (MulDiv64(g_altimeterScale, height - p_mech->m_player->m_groundHeight, 100) >> 16) + g_altimeterOrigin.m_y;
 #endif
 	DrawPaneShape(g_altimeterGroundX, mark, 4, target);
 	if (!(p_mech->m_player->m_targetInfo.m_target & 0xf00) || (p_mech->m_player->m_targetInfo.m_target & 0x1000)) {
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(target);
 #endif
 		return;
@@ -303,7 +306,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	x = g_altimeterTargetX;
 	if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x200) {
 		mech = g_players[p_mech->m_player->m_targetInfo.m_target & 0xff]->m_mech;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		y = (MechS32) ((height - (mech->m_player->m_position.m_y - mech->m_height)) * g_altimeterScale / 100.0f) +
 			g_altimeterOrigin.m_y;
 #else
@@ -312,7 +315,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 #endif
 	}
 	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x400) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		GetStaticObjectPosition(
 			g_gameThings[p_mech->m_player->m_targetInfo.m_target & 0xff].m_staticObject,
 			&unused,
@@ -331,7 +334,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 #endif
 	}
 	else if ((p_mech->m_player->m_targetInfo.m_target & 0xf00) == 0x100) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		y = (MechS32) ((height - g_navTable[p_mech->m_player->m_targetInfo.m_target & 0xff].m_position[1]) *
 					   g_altimeterScale / 100.0f) +
 			g_altimeterOrigin.m_y;
@@ -364,7 +367,7 @@ void DrawAltimeter(Mech* p_mech, MechS32 p_x, MechS32 p_y)
 	}
 
 	DrawShapeOverPane(x, y, shape, target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(target);
 #endif
 }
@@ -405,7 +408,7 @@ void InitHudGauges(void)
 		height = extent & 0xffff;
 		g_altimeterOrigin.m_x -= width;
 		UnlockCachedResource(extent + 7, g_resTagShp);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		g_altimeterScale = height / 232.0f;
 #else
 		g_altimeterScale = (height << 16) / 0xe8;
@@ -422,7 +425,7 @@ void InitHudGauges(void)
 		width = extent >> 16;
 		height = extent & 0xffff;
 		UnlockCachedResource(extent + HUD_SHAPE(0x19), g_resTagShp);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		g_compassScale = width / 360.0f;
 #else
 		g_compassScale = (width << 16) / 0x168;
@@ -653,7 +656,7 @@ void DrawCompassMarkers(
 		DRAW_MARK_SHAPE(g_compassOrigin.m_x, g_compassOrigin.m_y, HUD_SHAPE(0x10), target);
 	}
 	else {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		DRAW_MARK_SHAPE(
 			g_compassOrigin.m_x + (MechS32) (g_compassScale * p_bearing),
 			g_compassOrigin.m_y,
@@ -704,7 +707,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 
 	gauge = g_cockpitPanels[c_panelCompass];
 	target = g_cockpitPanels[c_panelCompass]->m_target;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	heading = fmod(fmod(p_heading, 360.0) + 360.0, 360.0);
 	x = g_compassOrigin.m_x + (MechS32) (heading * g_compassScale);
 	if (gauge->m_width > x) {
@@ -751,7 +754,7 @@ void DrawCompass(MechS32 p_x, MechS32 p_y, MechScalar p_heading, MechScalar p_tw
 	}
 
 	DrawPaneShape(g_compassOrigin.m_x, g_compassOrigin.m_y, HUD_SHAPE(0x13), target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(target);
 #endif
 }
@@ -822,7 +825,7 @@ void DrawPlayerBrackets(Player* p_player, MechS32 p_side)
 	}
 	else {
 		size = p_player->m_mech->m_radius;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		size = g_eyepoint->m_projectScaleX * size / z;
 #else
 		size = ProjectRadius(g_eyepoint->m_projectScaleX, size, z);
@@ -907,7 +910,7 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 		DrawHudShape(point.m_x, point.m_y, topLeft);
 	}
 	else {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		size = ((size / 2) * g_eyepoint->m_projectScaleX) / z;
 		if (size > (maxSize = (MechScalar) g_eyepoint->m_halfWidth / 2)) {
 			size = maxSize;
@@ -963,14 +966,14 @@ void DrawObjectBrackets(struct SceneObject* p_object, MechS32 p_side)
 void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 {
 	void* shape;
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	Rect bounds;
 #endif
 
 	shape = LoadCachedResource(g_mw2PrjHandle, p_id + HUD_ART_RESOLUTION, g_resTagShp, 0);
 	if (shape) {
 		VFX_shape_draw(&g_currentPane, shape, 0, p_x, p_y);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		VFX_shape_visible_rectangle(shape, 0, p_x, p_y, 0, &bounds.m_left);
 		ClipRectToPane(&g_currentPane, &bounds);
 		FUN_10088246(bounds.m_left, bounds.m_top, bounds.m_right, bounds.m_bottom);
@@ -979,7 +982,7 @@ void DrawHudShape(MechS32 p_x, MechS32 p_y, MechS32 p_id)
 	}
 }
 
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 // The Matrox edition's: clips p_rect to p_pane's rectangle.
 // FUNCTION: MW2MATROX 0x1001df99
 void ClipRectToPane(PANE* p_pane, Rect* p_rect)

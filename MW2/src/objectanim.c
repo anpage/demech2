@@ -2,9 +2,7 @@
    functions with __asm bodies, and QueueFace has __asm blocks. Their portable C (PORTABLE_C)
    is tested against the assembly by tests/asmequiv: it replaces each whole function, whose C
    wraps where standard C overflows. */
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "objectanim.h"
 
 #include "ambientsound.h"
@@ -841,7 +839,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			*token = '\0';
 			token++;
 			sscanf(token, "%f,%f,%f,%f", &x, &y, &z, &period);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			spin->m_rateX = x;
 			spin->m_rateY = y;
 			spin->m_rateZ = z;
@@ -883,7 +881,7 @@ MechS32 SpinTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		}
 
 		spin->m_object = GetShapeObject(*spin->m_shape);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		t = (p_clock - spin->m_lastClock) / spin->m_period;
 		dx = t * spin->m_rateX;
 		dy = spin->m_rateY * t;
@@ -945,7 +943,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 			*token = '\0';
 			token++;
 			sscanf(token, "%f,%f,%d,%d", &radius, &period, &enabled, &unused);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			orbit->m_turnRate = 360.0 / period;
 			orbit->m_speed = (radius * 6.283185307179586) / period;
 #else
@@ -984,7 +982,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 		orbit->m_object = GetShapeObject(*orbit->m_shape);
 		cosine = FixedCos(orbit->m_angle);
 		sine = FixedSin(orbit->m_angle);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		t = (p_clock - orbit->m_lastClock) / 181.0f;
 		orbit->m_lastClock = p_clock;
 		step = t * orbit->m_speed;
@@ -999,7 +997,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 #endif
 		MoveObj(orbit->m_object, x, 0, z);
 		UpdateObj(orbit->m_object);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		step = orbit->m_turnRate * t;
 #else
 		step = FixedMul16(orbit->m_turnRate, t);
@@ -1007,7 +1005,7 @@ MechS32 OrbitTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_
 		RotateObj(orbit->m_object, 0, step, 0, 0);
 		UpdateObj(orbit->m_object);
 		orbit->m_angle += step;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		orbit->m_angle = FIXED_MOD360(orbit->m_angle);
 #else
 		orbit->m_angle %= 0x1680000;
@@ -1297,7 +1295,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 			next = &path->m_points[i + 1];
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		t = (MechFloat) (elapsed - start) / point->m_duration;
 		follower->m_x.m_target = (next->m_x - point->m_x) * t + point->m_x;
 		follower->m_y.m_target = (next->m_y - point->m_y) * t + point->m_y;
@@ -1332,7 +1330,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 		follower->m_heading.m_value = angle - delta;
 		angle = point->m_pitch;
 		if (follower->m_rotate) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			angle -= FixedAsin((next->m_y - point->m_y) / 65536.0f);
 #else
 			angle -= FixedAsin(FIXED_SHL(next->m_y - point->m_y, 13));
@@ -1380,7 +1378,7 @@ MechS32 PathTask(MechS32 p_event, MechChar* p_data, MechS32 p_clock, MechS32 p_p
 
 // The Matrox edition has these in an object of their own, after mechcollision.c's, in floats
 // (accel/queueface.c).
-#ifndef MW2_ACCEL
+#ifndef MW2_A3D
 #ifdef PORTABLE_C_LABELS
 // The 64-bit product of two 32-bit values, as imul leaves it in edx:eax. Sums of products wrap,
 // like the add/adc chains.

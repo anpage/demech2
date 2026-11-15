@@ -21,7 +21,7 @@
 
 // The map (satellite) view's projection: a top-down view of p_worldSpan units across.
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 // The Matrox edition's projection of a view coordinate onto the screen, an __inline function this
 // unit's /Ob1 expands (its return leaves two jumps to the next instruction where it is assigned).
 __inline MechS32 ProjectMapCoordinate(MechFloat p_value, MechFloat p_scale, MechS32 p_center)
@@ -87,7 +87,7 @@ RenderSettings g_savedRenderSettings;
 // FUNCTION: MW23DFX 0x10001000
 void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS32 p_far)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_mapViewScale = (MechFloat) p_worldSpan / (g_panes[p_slot].m_x1 - g_panes[p_slot].m_x0 + 1);
 #ifdef MW2_3DFX
 	g_mapViewMaxX = -(g_mapViewMinX = p_worldSpan / -2.0f);
@@ -115,7 +115,7 @@ void BeginMapView(MechScalar* p_pose, MechS32 p_slot, MechS32 p_worldSpan, MechS
 	g_renderSettings.m_shapeFilter = CullMapViewShape;
 	g_renderSettings.m_projectVertex = ProjectMapViewVertex;
 	UpdateProjection(g_eyepoint);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_eyepoint->m_projectScaleX = 1.0;
 	g_eyepoint->m_projectScaleY = g_eyepoint->m_pixelAspect;
 #else
@@ -189,7 +189,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
 #else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
@@ -202,7 +202,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 		return 5;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
 	if (!FIXED_IS_NEGATIVE(side)) {
 #else
@@ -219,7 +219,7 @@ MechS32 CullMapViewShape(Shape* p_shape)
 		return 6;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
 	if (!FIXED_IS_NEGATIVE(height)) {
 #else
@@ -252,7 +252,7 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 
 	outcode = 0;
 	if (!p_vertex->m_projected) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		x = ProjectMapCoordinate(p_vertex->m_x, g_mapViewScale, g_viewCenterX);
 		y = g_viewBottom - g_viewTop - ProjectMapCoordinate(p_vertex->m_y, g_mapViewScale, g_viewCenterY);
 #else
@@ -301,13 +301,13 @@ ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex)
 // FUNCTION: MW2 0x1004251e
 // FUNCTION: MW2MATROX 0x1001e743
 // FUNCTION: MW23DFX 0x100014b0
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen)
 #else
 MechS32 ProjectMapPoint(MapPoint* p_point)
 #endif
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 visible;
 	MechS32 screenX;
 	MechScalar dx;

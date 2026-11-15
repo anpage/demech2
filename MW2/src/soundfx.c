@@ -1,8 +1,6 @@
 /* The digital sound effects (AudioEngine): Miles samples streamed from the sound resources,
    positioned sounds panned by their bearing from the eyepoint, and the looping ambient sounds. */
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "soundfx.h"
 
 #include "ambientsound.h"
@@ -546,12 +544,12 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 	MechS32 volume;
 	MechScalar bearing;
 	MechScalar distance;
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	MechS32 range;
 #endif
 
 	GetBearingAndRange(p_dx, p_dy, p_dz, &bearing, &distance, (BearingDistance*) &horizontal, &pitch);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	volume = GetDistanceVolume(distance);
 #else
 	range = distance;
@@ -562,7 +560,7 @@ MechS32 PlayPositionalSound(MechScalar p_dx, MechScalar p_dy, MechScalar p_dz, M
 			volume >>= 1;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		delay = distance * g_soundDelayPerUnit;
 #else
 		delay = FixedMul16(distance, g_soundDelayPerUnit);
@@ -632,7 +630,7 @@ MechS32 CalculateSamplePan(MechScalar p_bearing)
 	MechScalar angle;
 
 	angle = g_eyepoint->m_heading - p_bearing;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	pan = FixedSin(angle) * 64.0;
 #else
 	pan = FixedSin(angle) >> 23;
@@ -694,7 +692,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	MechScalar bearing;
 	MechScalar y;
 	MechScalar z;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar unused;
 #endif
 
@@ -712,7 +710,7 @@ void UpdateAmbientSound(AmbientSound* p_sound)
 	x = g_eyepoint->m_x - x;
 	y = g_eyepoint->m_y - y;
 	z = g_eyepoint->m_z - z;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	GetBearingAndRange(x, y, z, &bearing, &distance, &unused, &unused);
 #else
 	GetBearingAndRange(x, y, z, &bearing, &distance, (BearingDistance*) &i, &i);

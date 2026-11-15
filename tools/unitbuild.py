@@ -17,6 +17,31 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# The simulators' edition macros (vc40/targets.cmake, vc22/targets.cmake define them).
+EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX")
+
+
+def edition_features(root=ROOT):
+    """The features util/types.h defines for each edition macro: {macro: [feature, ...]}, each
+    #define inside an #ifdef of the macro."""
+    out, stack = {m: [] for m in EDITION_MACROS}, []
+    path = Path(root) / "util" / "types.h"
+    if not path.exists():
+        return out
+    for line in path.read_text().splitlines():
+        m = re.match(r"\s*#\s*(\w+)\s*(\w*)", line)
+        if not m:
+            continue
+        if m.group(1) in ("if", "ifdef", "ifndef"):
+            stack.append(m.group(2) if m.group(1) == "ifdef" and m.group(2) in EDITION_MACROS else None)
+        elif m.group(1) == "endif" and stack:
+            stack.pop()
+        elif m.group(1) == "define" and stack and stack[-1] and m.group(2) not in out[stack[-1]]:
+            out[stack[-1]].append(m.group(2))
+    return out
+
+
 WINDOWS = sys.platform == "win32"
 
 # The CMake target directory of each reccmp target, relative to the build tree, and the nested

@@ -115,7 +115,7 @@ MechS32 DoFirstObjtv(StarMission* p_mission, MechS32 p_team)
 	MechScalar heading;
 	MechS32 found;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	found = FALSE;
 	x = y = z = heading = 0;
 #else
@@ -221,7 +221,7 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 {
 	MechU16 index;
 	MechU16 kind;
-#ifndef MW2_ACCEL
+#ifndef MW2_LEADER_NEAR_TARGET
 	MechS32 i;
 #endif
 	Player* target;
@@ -231,13 +231,13 @@ MechS32 IsTeamNearTarget(MechU8* p_target, MechS32 p_team)
 	MechScalar z;
 	MechScalar radius;
 	NavPoint* nav;
-#ifdef MW2_ACCEL
+#ifdef MW2_LEADER_NEAR_TARGET
 	Player* leader;
 #endif
 
 	index = p_target[0];
 	kind = p_target[1] << 8;
-#ifdef MW2_ACCEL
+#ifdef MW2_LEADER_NEAR_TARGET
 	// The Matrox edition only tests the team's leader.
 	leader = g_players[g_teams[p_team].m_leader];
 	if (g_teams[p_team].m_leader < 0) {
@@ -605,7 +605,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	untouched = TRUE;
 	state = 3;
 	objective = &g_objectiveTable[p_star].m_objectives[p_objective];
-#ifdef MW2_ACCEL
+#ifdef MW2_NETWORK_STAR_PLAYERS
 	if (!g_players[p_star] && g_isNetworkGame) {
 		return;
 	}
@@ -877,7 +877,7 @@ void UpdateObjective(MechS32 p_star, MechS32 p_objective)
 	case 0x400:
 	case 0x800:
 		if (expired) {
-#ifdef MW2_ACCEL
+#ifdef MW2_NETWORK_STAR_PLAYERS
 			if (g_players[p_star] && g_isNetworkGame && (g_players[p_star]->m_flags & 2)) {
 				return;
 			}
@@ -1094,7 +1094,7 @@ void RestartStarMission(MechS32 p_star)
 	mission = &g_objectiveTable[p_star];
 	for (i = 0; i < mission->m_objectiveCount; i++) {
 		objective = &mission->m_objectives[i];
-#ifndef MW2_ACCEL
+#ifndef MW2_RESTART_KEEPS_LISTED
 		if (objective->m_type == 0x40000 && objective->m_state == 5) {
 			g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed =
 				!g_objectiveTable[objective->m_targetStar].m_objectives[objective->m_targetObjective].m_listed;
@@ -1122,7 +1122,7 @@ void FUN_1001cdd1(void)
 // FUNCTION: MW2 0x1001cde1
 // FUNCTION: MW2MATROX 0x10021096
 // FUNCTION: MW23DFX 0x1000ad50
-#ifdef MW2_ACCEL
+#ifdef MW2_TARGET_ID_U16
 MechS32 FUN_1001cde1(MechU16 p_unk0x00)
 #else
 MechS32 FUN_1001cde1(undefined4 p_unk0x00)

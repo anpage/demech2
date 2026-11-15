@@ -100,7 +100,7 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 
 	g_depthListCapacity = p_entries;
 	g_drawBufferSize = p_kilobytes << 10;
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	size = g_depthListCapacity * (2 * sizeof(DepthEntry)) + (p_kilobytes << 10);
 #else
 	size = (g_depthListCapacity << 4) + (p_kilobytes << 10);
@@ -115,11 +115,15 @@ void InitializeDrawBuffer(MechS32 p_kilobytes, MechS32 p_entries)
 	g_drawList = (DepthEntry*) (g_drawBufferMemory + g_drawBufferSize);
 	g_depthQueue = g_drawList + g_depthListCapacity;
 	g_drawBufferBottom = g_drawBuffer;
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	g_drawBufferTop = g_drawBuffer + g_drawBufferSize - 0x30;
-	DebugPrint("setup_render: npalloc=%x nvalloc=%x\n", g_drawBufferBottom, g_drawBufferTop);
 #else
 	g_drawBufferTop = g_drawBuffer + (g_drawBufferSize << 5) - 0x600;
+#endif
+#ifdef MW2_EXTRA_DEBUG_PRINTS
+	DebugPrint("setup_render: npalloc=%x nvalloc=%x\n", g_drawBufferBottom, g_drawBufferTop);
+#endif
+#ifndef MW2_FLOAT_SCALARS
 	InitSqrtTable();
 #endif
 	InitSinAtanTables();
@@ -141,7 +145,7 @@ void ResetDrawBuffer(void)
 // FUNCTION: MW23DFX 0x10025e40
 ProjectedVertex* AllocProjectedVertex(void)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	ProjectedVertex* record;
 
 	g_drawBufferTop -= 0x3c;
@@ -194,7 +198,7 @@ MechU8* AllocQueuedPolygon(void)
 	MechS32 recordSize;
 	MechU8* record;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	recordSize = 0x10;
 #else
 	recordSize = 0xc;

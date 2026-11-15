@@ -147,7 +147,7 @@ MechS32 TestRayBox(Shape* p_shape, Ray* p_ray)
 	}
 
 	if (tNear < 0) {
-#ifndef MW2_ACCEL
+#ifndef MW2_NO_RAY_BOX_ENTRY_BEHIND
 		g_rayBoxEntryBehind = tNear;
 #endif
 		tNear = 0;
@@ -317,7 +317,7 @@ MechS32 TestPointAboveFaces(Shape* p_shape, MechScalar p_x, MechScalar p_y, Mech
 		if (face->m_normal[1] < 0 && IsPointInFaceXZ(face, vertices, p_x, p_z)) {
 			done = TRUE;
 			vertex = &vertices[*((MechU8*) face + face->m_indexOffset)];
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			height = vertex->m_worldY -
 					 ((p_z - vertex->m_worldZ) * face->m_normal[2] + (p_x - vertex->m_worldX) * face->m_normal[0]) /
 						 face->m_normal[1];

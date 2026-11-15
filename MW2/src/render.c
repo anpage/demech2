@@ -36,14 +36,16 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #include "accel/a3d.h"
+#endif
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
 // The draw mode the game starts in: none in 1.1, the first in the Matrox edition, which doesn't
 // fall back to the others (InitRefreshMode's p_allowFallback).
-#ifdef MW2_ACCEL
+#ifdef MW2_DEFAULT_DRAW_MODE
 #define INITIAL_DRAW_MODE 0
 #define INITIAL_DRAW_MODE_FALLBACK 0
 #else
@@ -269,7 +271,7 @@ void FirstRender(void)
 		Error(0x4d, NULL);
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_LARGER_POLYGON_BUFFERS
 	InitializeDrawBuffer(0x140, 0xbb8);
 	g_maxPolygons = 0xaf0;
 #else
@@ -335,7 +337,7 @@ void SecondRender(void)
 }
 
 // The 3D view's pane wipe: the accelerated editions' take a 16-bit pixel (A3D_PANE_WIPE).
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #define SCENE_PANE_WIPE(p_pane, p_color) A3D_PANE_WIPE(p_pane, PIXEL_COLOR(p_color))
 #else
 #define SCENE_PANE_WIPE(p_pane, p_color) VFX_pane_wipe(p_pane, p_color)
@@ -414,7 +416,7 @@ void DrawScene(void)
 		g_renderSettings.m_shapeFilter = CullSceneShape;
 	}
 
-#ifndef MW2_ACCEL
+#ifndef MW2_NO_BOUNDING_SPHERES
 	if (g_showBoundingSpheres) {
 		DrawBoundingSpheres(g_sceneShapes);
 	}
@@ -520,7 +522,7 @@ void ShowBanner(void)
 
 	if (g_bannerName == NULL || *g_bannerName == '\0') {
 		strcpy(path, "sbannr");
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_ART
 		strcat(path, g_artResolutionSuffixes[g_unk0x1012c1e4]);
 #else
 		strcat(path, g_artResolutionSuffixes[g_artResolution]);
@@ -530,7 +532,7 @@ void ShowBanner(void)
 	}
 	else {
 		strcpy(path, g_bannerName);
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_ART
 		strcat(path, g_artResolutionSuffixes[g_unk0x1012c1e4]);
 #else
 		strcat(path, g_artResolutionSuffixes[g_artResolution]);

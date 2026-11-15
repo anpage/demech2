@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -64,10 +64,10 @@ void DrawPausedBanner(void)
 {
 	void* shape;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_SHAPE_IDS
 	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x61, g_resTagShp, 0);
 #else
-	shape = LoadCachedResource(g_mw2PrjHandle, g_artResolution + 0x5e, g_resTagShp, 0);
+	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 0x5e, g_resTagShp, 0);
 #endif
 	if (shape) {
 		if (g_pausedBannerUnscaled) {
@@ -78,7 +78,7 @@ void DrawPausedBanner(void)
 		}
 
 		VFX_shape_draw(&g_pausedBannerRect, shape, 0, 0, 0);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(&g_pausedBannerRect);
 #endif
 	}

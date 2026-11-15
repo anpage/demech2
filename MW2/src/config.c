@@ -169,7 +169,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 	MechU8* end;
 	MechS32 index;
 	FILE* file;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 j;
 	MechS32* amount;
 #endif
@@ -211,7 +211,7 @@ MechS32 LoadReels(ResourceRef* p_ref)
 		if (!g_reels[index]) {
 			return FALSE;
 		}
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 
 		// The Matrox edition's reels hold floats: plain values below kind 3, 16.16 from it.
 		if (frameCount) {
@@ -615,7 +615,7 @@ void SaveScreenshot(void)
 	MechS32 count;
 	PANE target;
 	MechChar name[16];
-#ifdef MW2_ACCEL
+#ifdef MW2_RAW_SCREENSHOTS
 	FILE* file;
 	MechU16* pixel;
 	MechU32 n;
@@ -631,7 +631,7 @@ void SaveScreenshot(void)
 	target.m_y1 = g_screenHeightMinus1;
 	if (g_screenshotCount < 1000) {
 		count = g_screenshotCount++;
-#ifdef MW2_ACCEL
+#ifdef MW2_RAW_SCREENSHOTS
 		// The Matrox edition saves the 16-bit screen as raw 24-bit pixels, after a header of two words
 		// it never sets.
 		sprintf(name, "mw2%04d.888", count);

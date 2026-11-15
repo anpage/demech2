@@ -343,14 +343,14 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			BwdPlanetRecord* planet = (BwdPlanetRecord*) node;
 
 			if (g_difficulty->m_gravity) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				g_gravity = FIXED_TO_SCALAR((MechS32) g_difficulty->m_gravity) * FIXED_LITERAL(0x794, 0.0296f);
 #else
 				g_gravity = FixedMul16(g_difficulty->m_gravity, 0x794);
 #endif
 			}
 			else {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				g_gravity = FIXED_TO_SCALAR(planet->m_gravity) * FIXED_LITERAL(0x794, 0.0296f);
 #else
 				g_gravity = FixedMul16(planet->m_gravity, 0x794);
@@ -1068,13 +1068,13 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			Vector3 position;
 			MechU16 target;
 			NavPoint* nav;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			FileVector3 stored;
 #endif
 
 			if (g_navCount < 0x80 && g_navCount != -1) {
 				nav = &g_navTable[g_navCount];
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				stored = navPoint->m_position;
 				position.m_x = stored.m_x;
 				position.m_y = stored.m_y;
@@ -1091,7 +1091,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 				nav->m_team = navPoint->m_team;
 				nav->m_owner = navPoint->m_owner;
 				nav->m_heading = FIXED_TO_SCALAR(navPoint->m_heading);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				nav->m_radius = (MechU32) navPoint->m_radius * 100.0f;
 #else
 				nav->m_radius = navPoint->m_radius * 100;
@@ -1250,7 +1250,7 @@ MechS32 BwdExecuteStream(BwdStream* p_stream)
 			if (shape) {
 				obj = GetShapeObject(shape);
 				if (obj) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 					SetObjRotation(obj, x, y, z, 0);
 #else
 					SetObjRotation(

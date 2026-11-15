@@ -36,7 +36,7 @@ Point g_artResolutionSizes[3] = {{319, 199}, {639, 479}, {1023, 767}};
 // GLOBAL: MW23DFX 0x102453c0
 MechScalar g_pixelAspect;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_ART
 // The Matrox edition's: the art resolution ChooseArtResolution picked before its 512x384 override.
 // GLOBAL: MW2MATROX 0x1012c1e4
 // GLOBAL: MW23DFX 0x102453c4
@@ -53,7 +53,7 @@ MechS32 g_artResolution;
 // FUNCTION: MW23DFX 0x10002470
 void SetPixelAspect(GameWindowGeometry* p_geometry)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_eyepoint->m_pixelAspect = g_pixelAspect = p_geometry->m_height * 1.3333334f / p_geometry->m_width;
 #else
 	g_eyepoint->m_pixelAspect = g_pixelAspect =
@@ -71,7 +71,7 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 	MechS32 distance;
 	MechS32 i;
 
-#ifdef MW2_3DFX
+#ifdef MW2_ART_RESOLUTION_NEAREST
 	// The 3Dfx edition's: the first size sets the distance to beat, and no overrides follow.
 	g_artResolution = g_unk0x1012c1e4 = 0;
 	for (i = 0; i < 3; i++) {
@@ -92,14 +92,14 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 				   abs(g_artResolutionSizes[i].m_x - (p_geometry->m_width - 1));
 		if (distance < best) {
 			best = distance;
-#ifdef MW2_ACCEL
+#ifdef MW2_HUD_ART
 			g_artResolution = g_unk0x1012c1e4 = i;
 #else
 			g_artResolution = i;
 #endif
 		}
 	}
-#ifdef MW2_ACCEL
+#ifdef MW2_RES_640X400
 
 	if (p_geometry->m_width == 512 && p_geometry->m_height == 384) {
 		g_artResolution = 1;
@@ -126,7 +126,7 @@ void SetRes(void)
 		ScaleRectToScreen(&g_mainPixelBuffer, &g_panes[i], &g_panes[i]);
 	}
 
-#ifndef MW2_ACCEL
+#ifndef MW2_COCKPIT_POINT_ONLY
 	// The Matrox edition has no gauge panes to scale.
 	for (i = 0; i < 5; i++) {
 		ScaleRectFromLowRes(&g_cockpitGaugePanes[i], &g_cockpitGaugePanes[i]);

@@ -7,9 +7,9 @@
 struct SceneObject;
 struct Shape;
 
-// The type of an entry's position: a float in the accelerated editions (MW2_ACCEL). A macro, so
-// that 1.1's units see no new symbols.
-#ifdef MW2_ACCEL
+// The type of an entry's position: a float in the accelerated editions (MW2_FLOAT_SCALARS). A
+// macro, so that 1.1's units see no new symbols.
+#ifdef MW2_FLOAT_SCALARS
 #define ClassEntryCoord MechFloat
 #else
 #define ClassEntryCoord undefined4

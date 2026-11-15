@@ -10,7 +10,7 @@
 #include "simmain.h"
 #include "types.h"
 #include "vertex.h"
-#ifdef MW2_ACCEL
+#ifdef MW2_AIMED_SHAPE_RESET
 #include "weapons.h"
 #endif
 
@@ -198,15 +198,17 @@ void AddShapeVertex(
 	MechScalar p_x,
 	MechScalar p_y,
 	MechScalar p_z,
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechFloat p_u,
 	MechFloat p_v,
+#ifdef MW2_A3D
 	MechFloat p_red,
 	MechFloat p_green,
 	MechFloat p_blue,
 	MechFloat p_normalX,
 	MechFloat p_normalY,
 	MechFloat p_normalZ
+#endif
 #else
 	undefined4 p_u,
 	undefined4 p_v
@@ -227,7 +229,7 @@ void AddShapeVertex(
 	vertex->m_worldZ = vertex->m_modelZ = p_z;
 	vertex->m_u = p_u;
 	vertex->m_v = p_v;
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	vertex->m_red = p_red;
 	vertex->m_green = p_green;
 	vertex->m_blue = p_blue;
@@ -489,7 +491,7 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 
 	i = 0;
 	best = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_face->m_modelNormalX = p_face->m_normal[0] = 1.0f;
 #else
 	p_face->m_modelNormalX = p_face->m_normal[0] = 0x20000000;
@@ -527,7 +529,7 @@ void ComputeFaceNormal(Face* p_face, Vertex* p_vertices)
 	prev = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset]];
 	for (i = p_face->m_indexCount; i--; prev = vertex) {
 		vertex = &p_vertices[((MechU8*) p_face)[p_face->m_indexOffset + i]];
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if ((length = ApproximateVectorLength(
 				 prev->m_modelX - vertex->m_modelX,
 				 prev->m_modelY - vertex->m_modelY,
@@ -796,7 +798,7 @@ void DestroyObjShape(Shape* p_shape)
 		SetObjShape(obj, NULL);
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_AIMED_SHAPE_RESET
 	if (p_shape == g_aimedShape) {
 		g_aimedShape = NULL;
 	}

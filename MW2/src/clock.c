@@ -121,7 +121,7 @@ MechS16 g_sqrtTableData[0x400];
 MechScalar g_atanTable[TRIG_TABLE_SIZE];
 
 // The Matrox edition's tables, Hypot2D and trigonometry are its own float code, in accel/floatmath.c.
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 // A quarter wave of sines (2.29 fixed point, 1024 steps to the circle) and the arctangents of
 // 0 to 1 in 256 steps (16.16 degrees), each padded with two copies of its last value.
 // FUNCTION: MW2 0x1007c930
@@ -170,7 +170,7 @@ MechS32 InitSqrtTable(void)
 	return TRUE;
 }
 
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x1007caf7
 MechScalar Hypot2D(MechScalar p_x, MechScalar p_y)
 {

@@ -16,7 +16,7 @@
 #include "targeting.h"
 #include "types.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -172,7 +172,7 @@ void DrawHeatBar(PANE* p_target)
 	height = g_heatBarSize.m_y - 1;
 	target = MulDiv64(heat, width, 100);
 	g_heatBarLevel.m_target = target;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// The Matrox edition's heat is in plain units already.
 	level = UpdateEasedValue(&g_heatBarLevel);
 #else
@@ -218,7 +218,7 @@ void DrawHeatRateBar(PANE* p_target)
 	mech = g_players[g_localPlayerId]->m_mech;
 	fill = 0;
 	level = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_heatRateBarLevel.m_target = (MechS32) (mech->m_deltaHeat - mech->m_cooling * g_deltaTime) << 10;
 #else
 	g_heatRateBarLevel.m_target = FIXED_SHR(mech->m_deltaHeat - mech->m_cooling * g_deltaTime, 6);
@@ -323,7 +323,7 @@ void DrawThrottleGauge(PANE* p_target)
 		0,
 		PIXEL_COLOR(10)
 	);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	value = (MechS32) (mech->m_player->m_steering->m_throttle * 65536.0f + 0.5f) << 16;
 #else
 	value = mech->m_player->m_steering->m_throttle << 16;

@@ -153,7 +153,7 @@ InputDriverModule g_joystickDriver = {
 	JoystickFlushKeyCodes,
 };
 
-#ifdef MW2_MATROX
+#ifdef MW2_JOYSTICK_AXIS_SUMS
 // The Matrox edition's JoystickPoll sums each axis over the reads between two polls that read the
 // joystick, then keeps the sums as the axes it returns until the next.
 // GLOBAL: MW2MATROX 0x100a5778
@@ -313,7 +313,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 {
 	JoystickData* data;
 	JOYCAPS caps;
-#ifndef MW2_ACCEL
+#ifndef MW2_JOYSTICK_OPEN_POSEX
 	JOYINFO info;
 #endif
 	MechDouble range;
@@ -321,7 +321,7 @@ MechS32 JoystickOpenDevice(InputDeviceInfo* p_info)
 	JOYINFOEX infoEx;
 
 	data = p_info->m_driverData;
-#ifdef MW2_ACCEL
+#ifdef MW2_JOYSTICK_OPEN_POSEX
 	if (!data || joyGetDevCaps(data->m_id, &caps, sizeof(caps)) ||
 		joyGetPosEx(data->m_id, &infoEx) == JOYERR_UNPLUGGED) {
 		return 1;
@@ -461,7 +461,7 @@ MechS32 JoystickCenterAxis(void)
 // Reads the joystick into the six axes (Y and X first, then Z, R, U and V as far as the device has
 // them) and the two button words, the POV hat setting the buttons its directions map to.
 // Returns 1 without somewhere to put them, else 0.
-#ifdef MW2_MATROX
+#ifdef MW2_JOYSTICK_AXIS_SUMS
 // The Matrox edition's adds each reading to g_joystickAxisSums and hands the sums on (as
 // g_joystickAxes) only when the read succeeds, keeping the last axes otherwise.
 // FUNCTION: MW2MATROX 0x10026b7e
@@ -581,7 +581,7 @@ MechS32 JoystickPoll(JoystickData* p_data, MechS32* p_axes, MechU32* p_buttons)
 	MechS32 i;
 	JOYINFOEX info;
 
-#ifndef MW2_ACCEL
+#ifndef MW2_JOYINFOEX_UNCLEARED
 	memset(&info, 0, sizeof(info));
 	info.dwSize = sizeof(info);
 #endif

@@ -109,7 +109,7 @@ MechS32 g_dispDibResult;
 // FUNCTION: MW23DFX 0x10001970
 MechS32 DispDibBegin(WINDOW* p_buffer, MechS32 p_width, MechS32 p_height)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_DISPLAYDIB_DISABLED
 	// The Matrox edition turns DisplayDib off: the test always fails.
 	if (p_width != 320 || p_height != 200 || TRUE) {
 #else

@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -318,7 +318,7 @@ void DrawObjectivesPanel(CockpitPanel* p_panel)
 	VFX_string_draw(p_panel->m_target, cursor->m_x, cursor->m_y, font, text, g_textColors);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -475,14 +475,14 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 			}
 
 			if (!g_players[player] || g_players[player]->m_type != c_playerTypeMech) {
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 				FUN_10088280(p_panel->m_target);
 #endif
 				return;
 			}
 
 			if (g_players[player]->m_flags & 0x4800) {
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 				FUN_10088280(p_panel->m_target);
 #endif
 				return;
@@ -517,7 +517,7 @@ void DrawNetworkPanel(CockpitPanel* p_panel)
 	}
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -553,7 +553,7 @@ void DrawKillsPanel(CockpitPanel* p_panel)
 	}
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -599,7 +599,7 @@ void DrawAutopilotPanel(CockpitPanel* p_panel)
 			text,
 			g_textColors
 		);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 	}
@@ -623,7 +623,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	}
 
 	mech = g_players[g_localPlayerId]->m_mech;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) * 6.516f * 1.5;
 #else
 	speed = ApproximateVectorLength(mech->m_velocityX, mech->m_velocityY, mech->m_velocityZ) / 10002 * 1.5;
@@ -653,7 +653,7 @@ void DrawSpeedPanel(CockpitPanel* p_panel)
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawThrottleGauge(p_panel->m_target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -685,7 +685,7 @@ void DrawMascPanel(CockpitPanel* p_panel)
 		g_textColors
 	);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -735,7 +735,7 @@ void DrawHeatPanel(CockpitPanel* p_panel)
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawHeatBar(p_panel->m_target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -768,7 +768,7 @@ void DrawHeatRatePanel(CockpitPanel* p_panel)
 	);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawHeatRateBar(p_panel->m_target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -805,7 +805,7 @@ void DrawJetsPanel(CockpitPanel* p_panel)
 	);
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	DrawJumpFuelBar(p_panel->m_target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }

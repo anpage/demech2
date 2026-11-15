@@ -3,7 +3,7 @@
 
 #include "decomp.h"
 #include "point.h"
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 #include "accel/floatpoint.h"
 #endif
 #include "projectedvertex.h"
@@ -15,13 +15,13 @@ extern "C"
 {
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	extern FloatPoint g_bandTexCoords[4];
 #else
 extern Point g_bandTexCoords[4];
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechS32 DrawBand(
 		MechU32 p_color,
 		MechS32 p_count,
@@ -34,7 +34,7 @@ extern Point g_bandTexCoords[4];
 void DrawBandPolygon(MechU32 p_flags, MechS32 p_count, MechU32* p_points, MechS32 p_unk0x0c);
 MechS32 DrawBand(MechU32 p_color, MechS32 p_count, MechS32* p_points, MechS32 p_luma, MechS32 p_mode);
 #endif
-#ifndef MW2_ACCEL
+#ifndef MW2_A3D
 	MechS32 DrawBandWithFlash(undefined4 p_unk0x00, MechS32 p_unk0x04, undefined4* p_unk0x08);
 #endif
 

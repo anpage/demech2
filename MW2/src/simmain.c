@@ -52,11 +52,13 @@
 #include "players.h"
 #include "point.h"
 #include "polydraw.h"
-#ifdef MW2_ACCEL
+#ifdef MW2_REGISTRY_SETTINGS
 #include "accel/registry.h"
-#include "mouse.h"
 #endif
 #ifdef MW2_ACCEL
+#include "mouse.h"
+#endif
+#ifdef MW2_A3D
 #include "accel/a3d.h"
 #endif
 #ifdef MW2_MATROX
@@ -91,7 +93,7 @@
 #include <msi95.h>
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -238,7 +240,7 @@ MechU32 g_windowedSwitchDeadline;
 // GLOBAL: MW23DFX 0x10159ea0
 VideoDriverChoice g_videoDriverChoice;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_REGISTRY_SETTINGS
 // The accelerated editions': reads the renderer's settings from the registry, the sky and the
 // ground (drawn unless set to 0) and the Matrox edition's texture filter or the 3Dfx edition's
 // resolution (off unless set).
@@ -246,9 +248,10 @@ VideoDriverChoice g_videoDriverChoice;
 // FUNCTION: MW23DFX 0x100087e0
 void FUN_1008fad0(void)
 {
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 	DWORD res800x600;
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 	DWORD filter;
 #endif
 
@@ -260,13 +263,14 @@ void FUN_1008fad0(void)
 		g_renderSettings.m_texturedGround = 1;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 	if (!ReadRegistryDword("Res800x600", &res800x600)) {
 		res800x600 = 0;
 	}
 
 	FUN_10066920(res800x600);
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 	if (!ReadRegistryDword("Filter", &filter)) {
 		filter = 1;
 	}
@@ -298,10 +302,10 @@ int __stdcall SimMain(
 	MechS32 unk0x24;
 	MechS32 seed;
 	MechS32 quitLatched;
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 	MechChar cmdLine[512];
 #endif
-#ifdef MW2_3DFX
+#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
 	HDC dc;
 #endif
 
@@ -352,21 +356,21 @@ int __stdcall SimMain(
 		}
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 	strcpy(cmdLine, p_cmdLine);
 #endif
 	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
 		return 0;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 	DebugPrint("SimMain(): lpszCmdParam = %s\n\n", cmdLine);
 #endif
 	if (StartupCheckStub()) {
 		Error(0x51, NULL);
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_RES_640X400
 	// The Matrox edition always runs at 640x400.
 	g_gameWindowWidth = 640;
 	g_gameWindowHeight = 400;
@@ -409,17 +413,17 @@ int __stdcall SimMain(
 		}
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	LoadSkyGroundSettings(missionName);
 #endif
-#ifdef MW2_3DFX
+#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
 	FUN_1008fad0();
 #endif
 	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
 		DebugPrint("StartSupAnim()\n");
-#ifdef MW2_3DFX
+#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
 		dc = GetDC(g_gameWindow);
 		StartSupAnim(GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
 		ReleaseDC(g_gameWindow, dc);
@@ -442,7 +446,7 @@ int __stdcall SimMain(
 		FirstNetwork(p_netLaunch);
 		DebugPrint("ResetClocks()\n");
 		ResetClocks();
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 		DebugPrint("WinMain(1): pause_timer(TRUE)\n");
 #else
 		DebugPrint("WinMain(1): pause_timer(TRUE)");
@@ -468,10 +472,10 @@ int __stdcall SimMain(
 		CachePreloads();
 		DebugPrint("AfterWorldLoader()\n");
 		AfterWorldLoader();
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 		DebugPrint("CalcAverageBitmapColors()\n");
-		CalcAverageBitmapColors();
-#elif defined(MW2_3DFX)
+#endif
+#ifdef MW2_AVERAGE_BITMAP_COLORS
 		CalcAverageBitmapColors();
 #endif
 		DebugPrint("FirstGPAnim()\n");
@@ -517,7 +521,7 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
-#ifdef MW2_3DFX
+#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
 		dc = GetDC(g_gameWindow);
 		if (GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
 #else
@@ -536,14 +540,14 @@ int __stdcall SimMain(
 			}
 		}
 
-#ifdef MW2_3DFX
+#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
 		ReleaseDC(g_gameWindow, dc);
 #endif
 		g_drawModeReady = 1;
 #ifdef MW2_MATROX
 		g_unk0x100be544 = 1;
 #endif
-#ifdef MW2_ACCEL
+#ifdef MW2_EXTRA_DEBUG_PRINTS
 		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
 #else
 		DebugPrint("InitDrawMode()\n");
@@ -559,7 +563,7 @@ int __stdcall SimMain(
 			Error(0x50, "Error profiling video modes.");
 		}
 
-#ifdef MW2_MATROX
+#if defined(MW2_REGISTRY_SETTINGS) && !defined(MW2_SIMPLE_WINDOW_LIFECYCLE)
 		FUN_1008fad0();
 #endif
 		while (ShowCursor(FALSE) >= 0) {
@@ -579,14 +583,14 @@ int __stdcall SimMain(
 		ShowWindow(g_unk0x100be508, SW_HIDE);
 #endif
 		while (g_quitStage < 3) {
-#ifdef MW2_ACCEL
+#ifdef MW2_LAUNCH_SYNC
 			if (g_goLaunch == 7) {
 #else
 			if (g_goLaunch == 3) {
 #endif
 				DebugPrint("GoLaunch == GO_READY\n");
 				g_goLaunch |= 0x80000000;
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 				DebugPrint("WinMain(2): pause_timer(false)\n");
 #else
 				DebugPrint("WinMain(2): pause_timer(false)");
@@ -614,7 +618,7 @@ int __stdcall SimMain(
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
 			RunTimedCallbacks(&g_detachedTasks);
-#ifdef MW2_ACCEL
+#ifdef MW2_LAUNCH_SYNC
 			UpdateAllPlayers();
 #else
 			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
@@ -711,7 +715,7 @@ int __stdcall SimMain(
 				g_drawModeReady = 0;
 			}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_LAUNCH_SYNC
 			g_goLaunch |= 6;
 #else
 			g_goLaunch |= 2;
@@ -723,12 +727,12 @@ int __stdcall SimMain(
 			VFX_pane_wipe(&g_currentPane, PIXEL_COLOR(0));
 		}
 
-#ifdef MW2_MATROX
-		Blit();
-		g_unk0x100be544 = 0;
-#else
+#ifndef MW2_DEBUG_LOG_TEXT
 		DebugPrint("Calling Blit()\n");
+#endif
 		Blit();
+#ifdef MW2_MATROX
+		g_unk0x100be544 = 0;
 #endif
 #ifdef MW2_3DFX
 		FUN_10066910();
@@ -843,7 +847,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 		}
 
 		return 0;
-#elif defined(MW2_3DFX)
+#elif defined(MW2_SIMPLE_WINDOW_LIFECYCLE)
 		g_windowActive = p_wParam;
 		if (g_windowActive == TRUE) {
 			KeyboardClearKeyStates();
@@ -994,7 +998,7 @@ void HandleMessages(void)
 
 	if (!g_shouldQuit && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		while (!g_mouseOutsideClientWindow && msg.message >= WM_MOUSEFIRST && msg.message <= WM_MBUTTONDBLCLK) {
-#ifdef MW2_MATROX
+#ifdef MW2_MOUSE_PEEK_RETURNS
 			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				return;
 			}
@@ -1035,7 +1039,7 @@ void UpdatePauseState(void)
 			}
 
 			g_mouseOutsideClientWindow = FALSE;
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 			DebugPrint("WinMain(3): pause_timer(false)\n");
 #else
 			DebugPrint("WinMain(3): pause_timer(false)");
@@ -1059,7 +1063,7 @@ void UpdatePauseState(void)
 			g_mouseOutsideClientWindow = TRUE;
 		}
 
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 		DebugPrint("WinMain(4): pause_timer(TRUE)\n");
 #else
 		DebugPrint("WinMain(4): pause_timer(TRUE)");
@@ -1071,7 +1075,7 @@ void UpdatePauseState(void)
 	}
 }
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // The 3Dfx edition's: 800x600 with the registry's "Res800x600" setting, 640x480 otherwise.
 // FUNCTION: MW23DFX 0x10009890
 void SetGameResolution(char* p_driverName)

@@ -9,7 +9,7 @@
 // and eased values, which close a fixed fraction of the distance at each step.
 
 DECOMP_SIZE_ASSERT(Ramp, 0x10)
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 DECOMP_SIZE_ASSERT(FloatRamp, 0x10)
 #endif
 DECOMP_SIZE_ASSERT(WrappedRamp, 0x14)
@@ -56,7 +56,7 @@ MechS32 UpdateRamp(Ramp* p_ramp)
 	return p_ramp->m_value;
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 // The Matrox edition's ramps of float values (Mech's, the camera's).
 // FUNCTION: MW2MATROX 0x1002e0db
 // FUNCTION: MW23DFX 0x1003b7a0
@@ -143,7 +143,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 #endif
 	MechScalar step;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	half = p_ramp->m_period / 2.0f;
 	delta = p_ramp->m_target - p_ramp->m_value;
 	delta = fmod(delta, p_ramp->m_period);
@@ -160,7 +160,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 	}
 
 	step = ((g_currentClock - p_ramp->m_time) * delta) / p_ramp->m_duration;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if ((FIXED_IS_NEGATIVE(delta) && step <= delta) || (delta > 1e-07f && step >= delta)) {
 #else
 	if ((delta < 0 && step <= delta) || (delta > 0 && step >= delta)) {
@@ -171,7 +171,7 @@ MechScalar UpdateWrappedRamp(WrappedRamp* p_ramp)
 		p_ramp->m_value += step;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_ramp->m_value = fmod(p_ramp->m_value, p_ramp->m_period);
 #else
 	p_ramp->m_value = p_ramp->m_value % p_ramp->m_period;
@@ -194,7 +194,7 @@ MechScalar SetWrappedRampTarget(WrappedRamp* p_ramp, MechScalar p_target)
 	MechScalar target;
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	half = p_ramp->m_period / 2.0f;
 	target = fmod(p_target, p_ramp->m_period);
 #else

@@ -106,7 +106,7 @@ void ThrowDebrisPiece(MechS32 p_index)
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	piece->m_velocityX = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
 	piece->m_velocityZ = RandomNormal() / (g_gravityScale * 1024.0f) * 5.5f;
 	piece->m_velocityY = (RandomNormal() + 0x400) / (g_gravityScale * 1024.0f) * 5.5f;
@@ -162,7 +162,7 @@ void BlowOffChunk(SceneObject* p_obj, ObjectCallback p_callback, MechU32 p_unk0x
 		chunk->m_obj = p_obj;
 		chunk->m_callback = p_callback;
 		chunk->m_startTime = g_currentClock;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		chunk->m_health = 16.0f;
 #else
 		chunk->m_health = 0x100000;
@@ -317,14 +317,14 @@ void UpdateDebrisPiece(MechS32 p_index)
 	y = y - FIXED_SHR(radius, 1);
 	newY = y;
 	velocityY = piece->m_velocityY;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	rising = velocityY > 1e-07f;
 #else
 	rising = velocityY > 0;
 #endif
 	IntegrateMidpoint(&newY, &velocityY, piece->m_acceleration, g_deltaTime);
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (velocityY < 1e-07f && newY <= (ground = GetTerrainHeight(x, y, z))) {
 #else
 	if (velocityY <= 0 && newY <= (ground = GetTerrainHeight(x, y, z))) {
@@ -341,7 +341,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 		newY = ground;
 		velocityY = -FIXED_SHR(velocityY, 2);
 		if (RandomIntBelow(2)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			velocityY /= 2;
 #else
 			velocityY >>= 1;
@@ -356,7 +356,7 @@ void UpdateDebrisPiece(MechS32 p_index)
 	}
 
 	piece->m_velocityY = velocityY;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dx = piece->m_velocityX * g_deltaTime;
 	dy = newY - y;
 	dz = piece->m_velocityZ * g_deltaTime;
@@ -404,7 +404,7 @@ void PushDebrisPiece(MechS32 p_index, MechScalar p_x, MechScalar p_y, MechScalar
 	ThrowDebrisPiece(p_index);
 	speed = ApproximateVectorLength(piece->m_velocityX, piece->m_velocityY, piece->m_velocityZ);
 	if (length < speed) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		speed = length * 2 / speed;
 		piece->m_velocityX *= speed;
 		piece->m_velocityY *= speed;
@@ -509,7 +509,7 @@ void DamageChunksInRadius(MechScalar p_x, MechScalar p_y, MechScalar p_z, MechSc
 		dz = z - p_z;
 		reach = radius + p_radius;
 		if (IsWithinRadius(dx, dy, dz, reach)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			DamageChunk(i, p_damage * g_deltaTime);
 #else
 			DamageChunk(i, FixedMul16(p_damage, g_deltaTime));

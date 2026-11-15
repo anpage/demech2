@@ -614,7 +614,7 @@ void UpdateCockpit(Mech* p_mech)
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_headingDegrees = fmod(fmod(p_mech->m_player->m_heading, 360.0) + 360.0, 360.0);
 	g_torsoTwistDegrees = fmod(p_mech->m_torsoTwist.m_value, 360.0);
 	pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
@@ -840,7 +840,7 @@ void PlayCockpitWarnings(Mech* p_mech)
 void DrawPanelAnim(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 {
 	DrawAnim2d(p_target, p_index, p_x, p_y);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_target);
 #endif
 }

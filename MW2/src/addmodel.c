@@ -40,7 +40,7 @@ Model* AddModel(
 		return NULL;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_MODEL_MIN_ONE_FACE
 	if (!p_faceCount) {
 		p_faceCount = 1;
 	}

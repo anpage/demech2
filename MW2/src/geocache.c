@@ -527,7 +527,7 @@ void BeginBlock(BwdBlockRecord* p_record)
 		block->m_centerZ = (block->m_maxZ + block->m_minZ) / 2;
 		matrix = &block->m_matrix;
 		SetIdentityMatrix(&rotation);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		rotation.m_rows[0][0] = block->m_xform.m_scaleX;
 		rotation.m_rows[1][1] = block->m_xform.m_scaleY;
 		rotation.m_rows[2][2] = block->m_xform.m_scaleZ;
@@ -584,7 +584,7 @@ void EndBlock(struct BwdStream* p_stream)
 // FUNCTION: MW23DFX 0x10024e90
 void ApplyBlockXform(FileXform p_xform)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_pendingXform.m_scaleX = p_xform.m_scaleX;
 	g_pendingXform.m_scaleY = p_xform.m_scaleY;
 	g_pendingXform.m_scaleZ = p_xform.m_scaleZ;
@@ -1180,7 +1180,7 @@ MechS32 ToggleBlockBoxes(void)
 				dx = block->m_maxX - block->m_minX;
 				dy = block->m_maxY - block->m_minY;
 				dz = block->m_maxZ - block->m_minZ;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				dx = fabs(dx);
 				dy = fabs(dy);
 				dz = fabs(dz);
@@ -1303,7 +1303,7 @@ void LoadQuadtreeBoxes(QuadtreeNode* p_node, MechU8* p_data, MechS32 p_size)
 	dx = p_node->m_maxX - p_node->m_minX;
 	dy = p_node->m_maxY - p_node->m_minY;
 	dz = p_node->m_maxZ - p_node->m_minZ;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dx = fabs(dx);
 	dy = fabs(dy);
 	dz = fabs(dz);

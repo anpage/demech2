@@ -21,7 +21,7 @@
 // FUNCTION: MW23DFX 0x10028ee0
 MechS32 IsAboveHorizon(MechS32 p_x, MechS32 p_y, Eyepoint* p_eyepoint)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechFloat offsetX;
 	MechFloat offsetY;
 	MechFloat b;
@@ -96,7 +96,7 @@ below:
 // FUNCTION: MW23DFX 0x10028f80
 MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 #ifdef MW2_3DFX
 	MechFloat y;
 #else
@@ -168,7 +168,7 @@ MechS32 HorizonYAtX(MechS32 p_x, Eyepoint* p_eyepoint)
 // FUNCTION: MW23DFX 0x10028ff0
 MechS32 HorizonXAtY(MechS32 p_y, Eyepoint* p_eyepoint)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 x;
 	MechFloat a;
 	MechFloat b;

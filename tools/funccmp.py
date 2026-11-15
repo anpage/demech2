@@ -23,7 +23,14 @@ from reccmp.formats import TextFile
 from reccmp.parser import DecompCodebase
 from reccmp.parser.marker import MarkerType
 
-from unitbuild import IMAGE_REL_I386_DIR32, IMAGE_REL_I386_REL32, IMAGE_SYM_CLASS_EXTERNAL, ROOT
+from unitbuild import (
+    EDITION_MACROS,
+    IMAGE_REL_I386_DIR32,
+    IMAGE_REL_I386_REL32,
+    IMAGE_SYM_CLASS_EXTERNAL,
+    ROOT,
+    edition_features,
+)
 
 
 def read_yaml_paths(root=ROOT):
@@ -119,10 +126,16 @@ class LineFunction:
         return getattr(self.marker, attribute)
 
 
-# The edition macros each target defines (vc40/targets.cmake, vc22/targets.cmake): they decide
-# which of a function's #ifdef'd definitions a by-name marker names.
-EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX")
-EDITION_DEFINES = {"MW2MATROX": {"MW2_ACCEL", "MW2_MATROX"}, "MW23DFX": {"MW2_ACCEL", "MW2_3DFX"}}
+# The edition macros each target defines (vc40/targets.cmake, vc22/targets.cmake), and the
+# features util/types.h defines for them: they decide which of a function's #ifdef'd definitions
+# a by-name marker names.
+EDITION_FEATURES = edition_features()
+FEATURES = tuple(dict.fromkeys(f for m in EDITION_MACROS for f in EDITION_FEATURES[m]))
+EDITION_DEFINES = {
+    target: set(macros) | {f for m in macros for f in EDITION_FEATURES[m]}
+    for target, macros in (("MW2MATROX", ("MW2_ACCEL", "MW2_MATROX")), ("MW23DFX", ("MW2_ACCEL", "MW2_3DFX")))
+}
+DECIDED = set(EDITION_MACROS) | set(FEATURES)
 BLANKED = re.compile(r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
 CONDITIONAL = re.compile(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)")
 
@@ -134,7 +147,7 @@ def code_only(text):
 
 def active_lines(text, defines):
     """Per line (0-based), whether the line is compiled: an #ifdef, #ifndef or #if [!]defined() of
-    an edition macro, or #if 0 or 1, decides by `defines`; any other condition takes its first
+    an edition macro or a feature, or #if 0 or 1, decides by `defines`; any other condition takes its first
     branch (so that each function's braces are counted once, as a consistent build sees them)."""
     out, stack = [], []  # per open #if: (this branch is active, a branch was taken)
     for line in text.split("\n"):
@@ -146,7 +159,7 @@ def active_lines(text, defines):
                 macro = rest.split()[0] if kind != "if" and rest else c and (c.group(2) or c.group(3))
                 if kind == "if" and rest in ("0", "1"):
                     value = rest == "1"
-                elif macro in EDITION_MACROS:
+                elif macro in DECIDED:
                     value = (macro in defines) != (kind == "ifndef" or bool(c and c.group(1)))
                 else:
                     value = True

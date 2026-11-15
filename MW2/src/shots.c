@@ -1,6 +1,4 @@
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "shots.h"
 
 #include "ai.h"
@@ -333,7 +331,7 @@ void UpdateShot(MechS32 p_index)
 			hitX = ray.m_x1;
 			hitY = ray.m_y1;
 			hitZ = ray.m_z1;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			backX = hitX - ray.m_dirX * 100;
 			backY = hitY - ray.m_dirY * 100;
 			backZ = hitZ - ray.m_dirZ * 100;
@@ -356,7 +354,7 @@ void UpdateShot(MechS32 p_index)
 			}
 
 			bearing = g_players[victim]->m_heading - FixedAtan2(shot->m_velocity[0], shot->m_velocity[2]);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			bearing = fmod(bearing, 360.0);
 #else
 			bearing %= 0x1680000;
@@ -408,7 +406,7 @@ void UpdateShot(MechS32 p_index)
 				g_careerRecord.m_teamHitsTaken++;
 			}
 
-#if !defined(MW2_ACCEL) || defined(MW2_3DFX)
+#ifndef MW2_SHOT_DAMAGE_AFTER_RECORD
 			if (!g_netRole || victim == g_localPlayerId) {
 				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
 				ApplyDamageToMech(
@@ -420,7 +418,7 @@ void UpdateShot(MechS32 p_index)
 			}
 #endif
 
-#ifdef MW2_3DFX
+#ifdef MW2_HIT_FEEDBACK_FLAG_CHECK
 			if (victim == g_localPlayerId && !(g_players[g_localPlayerId]->m_flags & 2)) {
 #else
 			if (victim == g_localPlayerId) {
@@ -434,7 +432,7 @@ void UpdateShot(MechS32 p_index)
 			}
 
 			RecordAttack(shot->m_shooter, victim);
-#ifdef MW2_MATROX
+#ifdef MW2_SHOT_DAMAGE_AFTER_RECORD
 
 			if (!g_netRole || victim == g_localPlayerId) {
 				g_players[victim]->m_mech->m_deltaHeat += shot->m_heat;
@@ -501,7 +499,7 @@ void UpdateShot(MechS32 p_index)
 			g_trackedShotView[3] = FixedAtan2(velX, velZ);
 			g_trackedShotView[4] = 0;
 			g_trackedShotView[5] = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			/* The mark stays an integer word after the Matrox edition's floats (SaveView). */
 			*(MechS32*) &g_trackedShotView[6] = 1;
 #else
@@ -527,7 +525,7 @@ void SwayShot(Shot* p_shot, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 	sideY = 0;
 	sideZ = p_shot->m_velocity[0];
 	NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	*p_x += sideX * FixedSin(p_shot->m_swayPhase);
 	*p_z += sideZ * FixedSin(p_shot->m_swayPhase);
 	*p_y += sideZ * FixedCos(p_shot->m_swayPhase);
@@ -601,7 +599,7 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 		p_shot->m_flags |= c_shotProximityFuse;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dx /= distance;
 	dy /= distance;
 	dz /= distance;
@@ -618,7 +616,7 @@ void GuideMissileToTarget(Shot* p_shot, MechScalar p_x, MechScalar p_y, MechScal
 	p_shot->m_steering[1] = dy - vy;
 	p_shot->m_steering[2] = dz - vz;
 	targetY = FixedAtan2(vx, vz);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	targetX = -FixedAsin(vy);
 #else
 	targetX = -FixedAsin(vy << 13);
@@ -1099,14 +1097,14 @@ void DamageMechsInRadius(
 		if (ApproximateVectorLength(dx, dy, dz) < reach) {
 			damage = p_rate * g_deltaTime;
 			if (mech->m_powerState == 4) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				damage *= 2;
 #else
 				damage <<= 1;
 #endif
 			}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_RADIUS_HEAD_DAMAGE_HALF
 			// Half the damage to the head, where 1.1 gives a quarter.
 			ApplyDamageToMech(p_owner, mech, damage / 2, 1);
 #else
@@ -1172,7 +1170,7 @@ void DamageThingsInRadius(
 		distance = ApproximateVectorLength(dx, dy, dz);
 		if (distance < reach) {
 #endif
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			DamageGameThing(p_owner, shape, p_rate * g_deltaTime, x, y, z);
 #else
 			DamageGameThing(p_owner, shape, FixedMul16(p_rate, g_deltaTime), x, y, z);
@@ -1411,7 +1409,7 @@ void HeatMechsNearFires(void)
 			reach = mech->m_radius + radius;
 			distance = ApproximateVectorLength(dx, dy, dz);
 			if (distance < reach) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				heat = FIXED_TO_SCALAR(radius);
 				heat = (heat - heat * distance / reach) * 0.25f;
 #else

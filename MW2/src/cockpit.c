@@ -48,8 +48,10 @@
 
 #include <stdio.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #include "accel/a3d.h"
+#endif
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -136,7 +138,7 @@ PANE g_cockpitGaugePanes[5] = {
 };
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_COCKPIT_POINT_ONLY
 // The accelerated editions keep only the cockpit layout's point (LoadCptFile), in .bss, and a
 // pointer to it, where 1.1 has a table of four pointers whose last one is the point.
 // GLOBAL: MW2MATROX 0x1012fcf0
@@ -240,7 +242,7 @@ MechS32 g_satelliteClean;
 // FUNCTION: MW23DFX 0x10003250
 void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 {
-#ifndef MW2_ACCEL
+#ifndef MW2_UNRESOLVED_GAUGE_INDICES
 	MechS32 index;
 #endif
 	PANE* rect;
@@ -289,7 +291,7 @@ void LoadCockpitLayout(MechS32 p_cockpit, CockpitLayout* p_layout)
 		rect->m_window = &g_mainPixelBuffer;
 	}
 
-#ifndef MW2_ACCEL
+#ifndef MW2_UNRESOLVED_GAUGE_INDICES
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[0]);
 	p_layout->m_gauges[0] = g_cockpitGauges[index];
 	index = MECH_PTR_TO_S32(p_layout->m_gauges[1]);
@@ -533,7 +535,7 @@ void DrawMapView(void)
 		SetViewMode(c_viewSatellite);
 		ChoosePlayerDetailLevels();
 		SetViewMode(zoom);
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 		A3D_PANE_WIPE(viewport, PIXEL_COLOR(g_groundColor));
 #else
 		VFX_pane_wipe(viewport, PIXEL_COLOR(g_groundColor));
@@ -555,7 +557,7 @@ void DrawMapView(void)
 	if (g_mapViewMode == 4 && (g_cockpitLayoutIndex != 4 || g_satelliteStaticState <= 1)) {
 		DrawMapViewText(layout);
 	}
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 
 	FUN_10088280(viewport);
 #endif
@@ -573,7 +575,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 {
 	MechS32 id;
 	PANE* viewport;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 y;
 	MechS32 x;
 #else
@@ -586,7 +588,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 	player = g_players[g_localPlayerId];
 	DrawMapNavPoints(p_layout);
 	if (g_cockpitLayoutIndex != 4) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 		y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
 #else
@@ -596,7 +598,7 @@ void DrawMapContents(CockpitLayout* p_layout)
 		id = p_layout->m_icons[0][0] + HUD_ART_RESOLUTION;
 		shape = LoadCachedResource(g_mw2PrjHandle, id, g_resTagShp, 0);
 		if (shape) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			VFX_shape_draw(viewport, shape, 0, x, y);
 #else
 			VFX_shape_draw(viewport, shape, 0, center.m_xy.m_x, center.m_xy.m_y);
@@ -623,7 +625,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 	MechS32 icon;
 	GameThing* thing;
 	MechS32 i;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	Vector3 pos;
 #else
 	MapPoint pos;
@@ -634,7 +636,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 			player = g_players[i];
 			if ((player->m_flags & 0x1400) && !(player->m_flags & 0x800) && !(player->m_flags & 0x4000) &&
 				!(player->m_flags & 0x16)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				pos.m_x = player->m_position.m_x;
 				pos.m_y = player->m_position.m_y;
 				pos.m_z = player->m_position.m_z;
@@ -654,7 +656,7 @@ void DrawMapUnits(CockpitLayout* p_layout)
 	for (i = 0; i < g_gameThingCount; i++) {
 		thing = &g_gameThings[i];
 		if ((thing->m_flags & 0x1400) && !(thing->m_flags & 0x1e)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			GetStaticObjectPosition(thing->m_staticObject, &pos.m_x, &pos.m_y, &pos.m_z);
 			icon = p_layout->m_icons[1][GetThingSide(i)];
 			DrawMapIcon(p_layout, &pos, icon);
@@ -688,7 +690,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	MechS32 side;
 	MechS32 kind;
 	PANE* viewport;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	Vector3 pos;
 	Point screen;
 #else
@@ -700,7 +702,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 	viewport = p_layout->m_viewport;
 	icon = -1;
 	player = g_players[g_localPlayerId];
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	pos.m_x = player->m_targetInfo.m_position.m_x;
 	pos.m_y = player->m_targetInfo.m_position.m_y;
 	pos.m_z = player->m_targetInfo.m_position.m_z;
@@ -775,7 +777,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 
 	shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resTagShp, 0);
 	if (shape) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (visible) {
 			VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 		}
@@ -807,7 +809,7 @@ void DrawMapTarget(CockpitLayout* p_layout)
 // FUNCTION: MW23DFX 0x10003c10
 void DrawMapNavPoints(CockpitLayout* p_layout)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	Vector3 pos;
 	Point screen;
 #else
@@ -824,7 +826,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 	for (i = 0; i < g_navCount; i++) {
 		nav = &g_navTable[i];
 		if (nav->m_team == g_localStar && nav->m_used && !(nav->m_flags & 1)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			if (nav->m_obj) {
 				GetObjPosition(nav->m_obj, &pos.m_x, &pos.m_y, &pos.m_z);
 			}
@@ -865,7 +867,7 @@ void DrawMapNavPoints(CockpitLayout* p_layout)
 				if (icon != -1) {
 					shape = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + icon, g_resTagShp, 0);
 					if (shape) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 						VFX_shape_draw(viewport, shape, 0, screen.m_x, screen.m_y);
 #else
 						VFX_shape_draw(viewport, shape, 0, pos.m_xy.m_x, pos.m_xy.m_y);
@@ -893,21 +895,21 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 
 	viewport = p_layout->m_viewport;
 	colors = p_layout->m_colors;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_heading = fmod(fmod(p_heading, 360.0) + 360.0, 360.0);
 #else
 	p_heading = (p_heading % 0x1680000 + 0x1680000) % 0x1680000;
 #endif
 	x = (viewport->m_x1 - viewport->m_x0 + 1) >> 1;
 	y = (viewport->m_y1 - viewport->m_y0 + 1) >> 1;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	halfFov = FixedAtan2(1.0f, g_eyepoint->m_fovX);
 #else
 	halfFov = FixedAtan2(0x10000, g_eyepoint->m_fovX);
 #endif
 	p_heading = FIXED_CONST(90) - p_heading;
 	if (p_layout->m_gauges[3]) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		// The Matrox edition's map gauge takes a float heading.
 		((void (*)(PANE*, MechFloat, Point*)) p_layout->m_gauges[3])(viewport, p_heading - halfFov, &end);
 		VFX_line_draw(viewport, x, y, end.m_x, end.m_y, 0, PIXEL_COLOR(colors[11]));
@@ -930,20 +932,20 @@ void DrawMapFieldOfView(CockpitLayout* p_layout, MechScalar p_heading)
 // FUNCTION: MW23DFX 0x10003e50
 void DrawMapViewText(CockpitLayout* p_layout)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechFloat value;
 #else
 	MechDouble value;
 #endif
 	MechChar* units;
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	MechS32 range;
 #endif
 	void* font;
 	PANE* viewport;
 	MechScalar heading;
 	Player* player;
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	MechDouble degrees;
 #endif
 
@@ -952,7 +954,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 	font = LoadCachedResource(g_mw2PrjHandle, p_layout->m_font + HUD_ART_RESOLUTION, g_resTagFont, 0);
 	if (font) {
 		if (p_layout->m_range != p_layout->m_formattedRange) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			value = p_layout->m_range / 2;
 			if (value >= 100000) {
 				value = value / 100000;
@@ -989,7 +991,7 @@ void DrawMapViewText(CockpitLayout* p_layout)
 		);
 		if (g_cockpitLayoutIndex == 4) {
 			heading = player->m_heading;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			heading = fmod(fmod(heading, 360.0) + 360.0, 360.0);
 			if (p_layout->m_formattedHeading != heading) {
 				sprintf(p_layout->m_headingText, "%s%3.1lf", p_layout->m_headingLabel, heading);
@@ -1079,7 +1081,7 @@ void ZoomMapView(MechS32 p_zoom)
 		layout->m_range = layout->m_startRange;
 		break;
 	case 1:
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		layout->m_range /= 2;
 #else
 		layout->m_range = FixedDiv16(layout->m_range, 0x20000);
@@ -1089,7 +1091,7 @@ void ZoomMapView(MechS32 p_zoom)
 		}
 		break;
 	case 2:
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		layout->m_range <<= 1;
 #else
 		layout->m_range = FixedMul16(layout->m_range, 0x20000);
@@ -1100,7 +1102,7 @@ void ZoomMapView(MechS32 p_zoom)
 		break;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	layout->m_zoom = layout->m_startRange / layout->m_range;
 #else
 	layout->m_zoom = FixedDiv16(layout->m_startRange, layout->m_range);
@@ -1149,7 +1151,7 @@ MechS32 MapShapeFilter(Shape* p_shape)
 	return skip;
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FACE_KIND_BIT15
 #define FACE_KIND_MASK 0xf000
 #else
 #define FACE_KIND_MASK 0x7000
@@ -1253,13 +1255,13 @@ MechU32 SatelliteFaceColor(Face* p_face, undefined4 p_unk0x04, MechU32 p_flags, 
 // FUNCTION: MW2 0x1003f393
 // FUNCTION: MW2MATROX 0x10075097
 // FUNCTION: MW23DFX 0x100042e0
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 void SatelliteDrawPolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
 void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #endif
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechU32 kind;
 	CockpitLayout* layout;
 	MechU32 color;
@@ -1333,7 +1335,7 @@ void SatelliteDrawPolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #endif
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // The Matrox edition's terrain faces in the satellite view: shaded by height (GetMapHeightShade)
 // in the colors p_flags picks.
 // FUNCTION: MW2MATROX 0x100751a9
@@ -1388,7 +1390,7 @@ MechS32 GetMapHeightShade(CockpitLayout* p_layout, MechScalar p_height)
 	MechS32 height;
 	MechScalar fraction;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	height = p_layout->m_range - (MechS32) p_height;
 	height -= g_mapShadeBase;
 	fraction = (MechFloat) height / g_mapShadeRange;

@@ -1,6 +1,4 @@
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "eyepoint.h"
 
 #include "camerashake.h"
@@ -314,7 +312,7 @@ void UpdateEyepoint(void)
 		UpdateOrdinanceView();
 		break;
 	case c_viewTrack:
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		speed = g_deltaTime * g_sinkTrackDistanceDelta / 0xb5;
 		strafe = g_deltaTime * g_sinkTrackHeightDelta / 0xb5;
 		turn = g_sinkEyepointTilt;
@@ -342,7 +340,7 @@ void UpdateEyepoint(void)
 		UpdateDropView();
 		break;
 	default:
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		climb = g_deltaTime * g_sinkTrackHeightDelta / 0xb5 * 2;
 		speed = g_deltaTime * g_sinkTrackDistanceDelta / 0xb5 * 2;
 		strafe = g_deltaTime * g_sinkEyepointSlideDelta / 0xb5;
@@ -390,7 +388,7 @@ MechScalar GetCameraFloor(Eyepoint* p_eyepoint)
 	MechScalar height;
 
 	height = GetHighestSurface(p_eyepoint->m_x, p_eyepoint->m_y, p_eyepoint->m_z);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (height > 1e-07f) {
 #else
 	if (height > 0) {
@@ -473,7 +471,7 @@ MechS32 SaveView(Eyepoint* p_eyepoint, MechScalar* p_view)
 	p_view[3] = p_eyepoint->m_heading;
 	p_view[4] = p_eyepoint->m_pitch;
 	p_view[5] = p_eyepoint->m_roll;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	/* The mark stays an integer word after the Matrox edition's floats. */
 	*(MechS32*) &p_view[6] = 1;
 #else
@@ -493,7 +491,7 @@ MechS32 RestoreView(Eyepoint* p_eyepoint, MechScalar* p_view)
 		return 0;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (!*(MechS32*) &p_view[6]) {
 		return 0;
 	}
@@ -663,7 +661,7 @@ void UpdateTrackView(MechScalar p_distance, MechScalar p_height, MechScalar p_ti
 	MechScalar unused;
 	Mech* mech;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	GetPlayerEyeView(&pitch, &heading, &roll, &x, &y, &z);
 	if (g_viewMode != c_viewTrack) {
 		if (!g_localMechLost) {
@@ -975,7 +973,7 @@ void UpdateFreeEyeView(
 	MechScalar speed;
 	MechScalar cosPitch;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	sinHeading = FixedSin(g_eyepoint->m_heading);
 	cosHeading = FixedCos(g_eyepoint->m_heading);
 	sinPitch = FixedSin(g_eyepoint->m_pitch);

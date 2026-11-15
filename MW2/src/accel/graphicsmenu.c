@@ -27,10 +27,11 @@ MechS32 GetTexturedSky(MechS32 p_arg);
 void SetTexturedSky(MechS32 p_arg, MechS32 p_texturedSky);
 MechS32 GetTexturedGround(MechS32 p_arg);
 void SetTexturedGround(MechS32 p_arg, MechS32 p_texturedGround);
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 MechS32 GetRes800x600(MechS32 p_arg);
 void SetRes800x600(MechS32 p_arg, MechS32 p_res800x600);
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 MechS32 GetFilterTextures(MechS32 p_arg);
 void SetFilterTextures(MechS32 p_arg, MechS32 p_filterTextures);
 #endif
@@ -57,10 +58,11 @@ MechChar g_texturedSkyItem[] = "Textured Sky";
 // GLOBAL: MW23DFX 0x10265468
 MechChar g_texturedGroundItem[] = "Textured Ground";
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // GLOBAL: MW23DFX 0x10265478
 MechChar g_res800x600Item[] = "Resolution 800x600";
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa4c8
 MechChar g_filterTexturesItem[] = "Filter Textures";
 #endif
@@ -77,10 +79,11 @@ MechS32 g_texturedSky = 1;
 // GLOBAL: MW23DFX 0x1026549c
 MechS32 g_texturedGround = 1;
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // GLOBAL: MW23DFX 0x102654a0
 MechS32 g_res800x600 = 1;
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa4e8
 MechS32 g_filterTextures = 1;
 #endif
@@ -112,10 +115,11 @@ MenuControl g_texturedSkyControl = {2, 0, &g_offOnChoices, 0, NULL, GetTexturedS
 MenuControl g_texturedGroundControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetTexturedGround, NULL, SetTexturedGround, NULL};
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // GLOBAL: MW23DFX 0x10265520
 MenuControl g_res800x600Control = {2, 0, &g_noYesChoices, 0, NULL, GetRes800x600, NULL, SetRes800x600, NULL};
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 // GLOBAL: MW2MATROX 0x100aa568
 MenuControl g_filterTexturesControl =
 	{2, 0, &g_offOnChoices, 0, NULL, GetFilterTextures, NULL, SetFilterTextures, NULL};
@@ -137,7 +141,7 @@ MenuPage g_graphicsPage = {
 	InitGraphicsPage,
 	{{1, g_texturedSkyItem, RunMenuChoice, &g_texturedSkyControl, NULL},
 	 {1, g_texturedGroundItem, RunMenuChoice, &g_texturedGroundControl, NULL},
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 	 {1, g_res800x600Item, RunMenuChoice, &g_res800x600Control, NULL},
 #endif
 	 {2, g_acceptText, NULL, NULL, NULL}}
@@ -196,7 +200,7 @@ void SetTexturedGround(MechS32 p_arg, MechS32 p_texturedGround)
 	g_texturedGround = p_texturedGround;
 }
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // FUNCTION: MW23DFX 0x100664f0
 MechS32 GetRes800x600(MechS32 p_arg)
 {
@@ -214,7 +218,8 @@ void SetRes800x600(MechS32 p_arg, MechS32 p_res800x600)
 	g_res800x600 = p_res800x600;
 	FUN_100667e0(p_res800x600);
 }
-#else
+#endif
+#ifdef MW2_TEXTURE_FILTER
 // FUNCTION: MW2MATROX 0x10054d7d
 MechS32 GetFilterTextures(MechS32 p_arg)
 {

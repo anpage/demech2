@@ -1,6 +1,4 @@
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "polydraw.h"
 
 #include "animation.h"
@@ -22,7 +20,7 @@
 #include "vfx3d.h"
 #include "vfxa.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #include "accel/a3d.h"
 #include "accel/skycorner.h"
 #include "accel/vfx16.h"
@@ -35,13 +33,13 @@
 #include <string.h>
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // The Matrox edition's textured sky and ground (skygnd.par): the sky's texture repeats every
 // g_skyTileU by g_skyTileV, the ground's every g_groundTile, and the sky's texture scrolls from
 // g_skyScroll to g_skyScrollEnd by g_skyScrollSpeed a frame.
 
 // The 3Dfx edition's defaults are its own.
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_TILE_DEFAULTS
 // GLOBAL: MW23DFX 0x1024e118
 MechFloat g_skyTileU = 4.0f;
 
@@ -91,7 +89,7 @@ RenderSettings g_renderSettings = {
 	1,
 	1,
 	1,
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	1,
 	1,
 #endif
@@ -117,7 +115,7 @@ RenderSettings g_renderSettings = {
 // GLOBAL: MW23DFX 0x1024e240
 MechS32 g_horizonBandHeight = 0x24;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // GLOBAL: MW2MATROX 0x100adeec
 MechS32 g_unk0x100adeec = 0;
 
@@ -425,7 +423,7 @@ MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08)
 // Polygon drawing: a polygon is p_count points of 6 dwords each (x, y, a shade, two texture
 // coordinates and a depth), and the mode in bits 12 to 14 of p_flags picks how it is drawn.
 
-#ifndef MW2_ACCEL
+#ifndef MW2_A3D
 // The end of the last line DrawLineTo drew.
 // GLOBAL: MW2 0x100be5d4
 MechS32 g_lineEndX;
@@ -439,13 +437,13 @@ MechS32 g_lineEndY;
 // FUNCTION: MW2 0x10042e00
 // FUNCTION: MW2MATROX 0x100683ba
 // FUNCTION: MW23DFX 0x10026e80
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 void DrawScenePolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c)
 #else
 void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #endif
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechFloat blue;
 	MechFloat red;
 	MechS32 index;
@@ -654,7 +652,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags)
 #endif
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // Draws a polygon in the color p_red, p_green, p_blue, lit by each vertex's light.
 // FUNCTION: MW2MATROX 0x10068856
 // FUNCTION: MW23DFX 0x10027240
@@ -912,7 +910,7 @@ void LoadSkyGroundSettings(const MechChar* p_mission)
 		}
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_TILE_DEFAULTS
 	g_skyTileU = 4.0f;
 	g_skyTileV = 0.8f;
 	g_skyScroll = 0;
@@ -1092,7 +1090,7 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 #endif
 
 // A 16-bit pixel from 8-bit components: RGB555 in the 3Dfx edition, RGB565 in the Matrox edition.
-#ifdef MW2_3DFX
+#if MW2_PIXEL_FORMAT == 555
 #define PIXEL_RGB16(r, g, b) ((((MechU8) (r) & ~7) << 5 | ((MechU8) (g) & ~7)) << 2 | (MechU8) (b) >> 3)
 #else
 #define PIXEL_RGB16(r, g, b) (((MechU8) (r) & ~7) << 8 | ((MechU8) (g) & ~3) << 3 | (MechU8) (b) >> 3)
@@ -1112,7 +1110,7 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 // FUNCTION: MW2MATROX 0x10069419
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechS32 y1;
 	MechS32 x1;
 	MechS32 yLeft;
@@ -1177,7 +1175,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		FUN_100519b0(0x18c, &g_skyRed, &g_skyGreen, &g_skyBlue);
 		FUN_100519b0(0x108, &g_groundRed, &g_groundGreen, &g_groundBlue);
 		DebugPrint(
-#ifdef MW2_3DFX
+#ifdef MW2_DEBUG_LOG_FORMATS
 			"sky %d=(%f,%f,%f)  ground %d=(%f,%f,%f)",
 #else
 			"sky %d=(%f,%f,%f)\n  ground %d=(%f,%f,%f)\n",
@@ -1194,7 +1192,7 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 		g_skyColorsRead = TRUE;
 	}
 
-#ifdef MW2_3DFX
+#ifdef MW2_SKY_GROUND_COLORS
 	// The 3Dfx edition's sets the sky's and the ground's palette entries, and its 16-bit pixels are
 	// RGB555.
 	g_skyColor = 0xe0;
@@ -1913,7 +1911,7 @@ void DrawPentagon(
 	MechU32 p_flags
 )
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	ProjectedVertex* points[5];
 	MechS32 i;
 	ProjectedVertex vertices[5];
@@ -1965,7 +1963,7 @@ void DrawQuad(
 	MechU32 p_flags
 )
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	ProjectedVertex* points[4];
 	MechS32 i;
 	ProjectedVertex vertices[4];
@@ -2003,7 +2001,7 @@ void DrawQuad(
 // FUNCTION: MW23DFX 0x100276d0
 void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS32 p_x2, MechS32 p_y2, MechU32 p_flags)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	ProjectedVertex* points[3];
 	MechS32 i;
 	ProjectedVertex vertices[3];
@@ -2032,7 +2030,7 @@ void DrawTriangle(MechS32 p_x0, MechS32 p_y0, MechS32 p_x1, MechS32 p_y1, MechS3
 #endif
 }
 
-#ifndef MW2_ACCEL
+#ifndef MW2_A3D
 // Draws a line from the end of the last one to (p_x, p_y).
 // FUNCTION: MW2 0x10044590
 void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color)

@@ -52,7 +52,7 @@ MechU32 FixedSqrt16(MechU32 p_value)
 
 // Scales the vector to length 1.0 (16.16); a zero vector stays as it is. The Matrox edition's
 // is in accel/floatmath.c.
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x100169b4
 void NormalizeVectorGuarded(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {

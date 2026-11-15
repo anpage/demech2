@@ -466,7 +466,7 @@ MechS32 TestQuadtreeRay(QuadtreeNode* p_node, Model* p_model, Ray* p_ray)
 		tMin = 0;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if ((t0 = GetRayLength(p_ray)) < tMax) {
 #else
 	t0 = GetRayLength(p_ray);

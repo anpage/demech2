@@ -58,7 +58,7 @@ void BuildRayFromDirection(
 	p_ray->m_dirX = p_dirX;
 	p_ray->m_dirY = p_dirY;
 	p_ray->m_dirZ = p_dirZ;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_ray->m_dx = p_length * p_dirX;
 	p_ray->m_dy = p_length * p_dirY;
 	p_ray->m_dz = p_length * p_dirZ;
@@ -97,7 +97,7 @@ void BuildRayFixed(Ray* p_ray)
 		p_ray->m_length = ApproximateVectorLength(p_ray->m_dx, p_ray->m_dy, p_ray->m_dz);
 		length = p_ray->m_length;
 		if (length > 0) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			p_ray->m_dirX = p_ray->m_dx / length;
 			p_ray->m_dirY = p_ray->m_dy / length;
 			p_ray->m_dirZ = p_ray->m_dz / length;
@@ -131,7 +131,7 @@ void BuildRayFloat(Ray* p_ray)
 	dx /= length = sqrt(dx * dx + dy * dy + dz * dz);
 	dy /= length;
 	dz /= length;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_ray->m_dirX = dx;
 	p_ray->m_dirY = dy;
 	p_ray->m_dirZ = dz;
@@ -155,7 +155,7 @@ void SetRayLength(Ray* p_ray, MechScalar p_length)
 	}
 
 	if (p_ray->m_state != c_rayNone) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		p_ray->m_x1 = p_ray->m_dirX * p_length + p_ray->m_x0;
 		p_ray->m_y1 = p_ray->m_dirY * p_length + p_ray->m_y0;
 		p_ray->m_z1 = p_ray->m_dirZ * p_length + p_ray->m_z0;
@@ -184,7 +184,7 @@ void AdvanceRayStart(Ray* p_ray, MechScalar p_distance)
 	}
 
 	if (p_ray->m_length > 0) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		p_ray->m_x0 += p_ray->m_dirX * p_distance;
 		p_ray->m_y0 += p_ray->m_dirY * p_distance;
 		p_ray->m_z0 += p_ray->m_dirZ * p_distance;
@@ -241,7 +241,7 @@ void ClipRayToGround(Ray* p_ray, MechScalar p_y)
 {
 	MechScalar length;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if ((MechFloat) fabs(p_ray->m_dy) >= 1e-07f) {
 		length = (p_y - p_ray->m_y0) * p_ray->m_length / p_ray->m_dy;
 		SetRayLength(p_ray, length);
@@ -274,7 +274,7 @@ MechS32 ClipRaySlab(
 	MechScalar* p_tMax
 )
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar t0;
 	MechScalar t1;
 	MechScalar toMin;

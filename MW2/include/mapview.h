@@ -25,7 +25,7 @@ extern "C"
 	void EndMapView(void);
 	MechS32 CullMapViewShape(Shape* p_shape);
 	ProjectedVertex* ProjectMapViewVertex(ProjectedVertex* p_vertex);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 ProjectMapPoint(Vector3* p_position, Point* p_screen);
 #else
 MechS32 ProjectMapPoint(MapPoint* p_point);

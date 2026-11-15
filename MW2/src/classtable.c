@@ -34,7 +34,7 @@ typedef struct PlayerDetail {
 	MechS32 m_player;   // 0x08
 } PlayerDetail;
 
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 // Whether ChoosePlayerDetailLevels has read LOD.PAR.
 // GLOBAL: MW2MATROX 0x100ae0d0
 MechS32 g_lodParRead = 0;
@@ -259,7 +259,7 @@ MechS32 LoadClassLevel(MechS32 p_owner, MechS32 p_level)
 	}
 
 	g_shapeOwnerSet = 0;
-#ifdef MW2_MATROX
+#ifdef MW2_DETAIL_LEVEL_IN_LOADER
 	if (result) {
 		g_players[p_owner]->m_detailLevel = p_level;
 	}
@@ -309,7 +309,7 @@ MechS32 LoadClassEntryShape(MechS32 p_index, MechS32 p_level, void* p_buffer)
 		return TRUE;
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_SKIP_LOADED_LEVEL
 	if (entry->m_loadedLevel == p_level) {
 		return TRUE;
 	}
@@ -501,8 +501,8 @@ void SetClassEntryPartId(MechS32 p_index, MechU16 p_value)
 // FUNCTION: MW23DFX 0x100267d0
 void ChoosePlayerDetailLevels(void)
 {
-#ifdef MW2_ACCEL
-#ifdef MW2_MATROX
+#ifdef MW2_FLOAT_SCALARS
+#ifdef MW2_LOD_PAR
 	FILE* file;
 	MechChar line[0x100];
 #endif
@@ -537,7 +537,7 @@ void ChoosePlayerDetailLevels(void)
 	second = -1;
 	third = -1;
 	scale = g_eyepoint->m_detailScale;
-#ifdef MW2_3DFX
+#ifndef MW2_LOD_PAR
 	range0 = scale * 3600.0f;
 	range1 = scale * 8500.0f;
 	range2 = scale * 22500.0f;
@@ -634,7 +634,7 @@ void ChoosePlayerDetailLevels(void)
 
 		player = g_players[entry->m_player];
 		level = player->m_detailLevel;
-#ifdef MW2_3DFX
+#ifndef MW2_DETAIL_LEVEL_IN_LOADER
 		if (entry->m_level >= 0 && entry->m_level != level && LoadClassLevel(player->m_index, entry->m_level)) {
 			player->m_detailLevel = entry->m_level;
 		}

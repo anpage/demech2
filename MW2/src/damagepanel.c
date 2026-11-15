@@ -25,10 +25,10 @@
 #include "types.h"
 #include "vfxa.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 #include "matrox/colorkey.h"
 #endif
 
@@ -42,7 +42,7 @@
 MechS32 g_outlinePartSections[16] = {1, 3, 3, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0};
 
 // The Matrox edition keeps the full armor values as floats.
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 typedef struct ArmorPoint {
 	MechScalar m_x; // 0x00
 	MechScalar m_y; // 0x04
@@ -170,7 +170,7 @@ void InitDamagePanel(void)
 	MechSection* section;
 
 	panel = g_cockpitPanels[c_panelMechView];
-#ifndef MW2_ACCEL
+#ifndef MW2_VFX16
 	i = 0x100;
 	while (i--) {
 		g_outlineRemap[i] = i;
@@ -302,7 +302,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		section = &p_mech->m_sections[index];
 		scale = (section->m_flags & SCALE_MASK) >> 4;
 		if (scale) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			front = 15 - (MechS32) (((section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3) / scale);
 #else
 			front = 15 - (section->m_internal + section->m_armor[1] / g_localArmorPerLevel) * 3 / (scale << 16);
@@ -318,7 +318,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 
 		scale = section->m_flags & 0xf;
 		if (scale) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			rear = 15 - (MechS32) (((section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3) / scale);
 #else
 			rear = 15 - (section->m_internal + section->m_armor[0] / g_localArmorPerLevel) * 3 / (scale << 16);
@@ -344,7 +344,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 		}
 
 		if (color != 6) {
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 			// The Matrox edition recolors the lookaside table's entry 6 for the part, then restores it.
 			remap = VFX_lookaside_read16(6);
 			VFX_lookaside_write16(6, VFX_lookaside_read16(color));
@@ -366,7 +366,7 @@ void DrawDamageOutline(Mech* p_mech, PANE* p_target)
 	}
 
 	UnlockCachedResource(g_hudLayoutValues[0] + g_artResolution, g_resTagShp);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(&g_outlineRect);
 #endif
 }
@@ -417,7 +417,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 				color = 3;
 			}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
 #else
 #ifdef MW2_ACCEL
@@ -428,7 +428,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 #endif
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		full = g_armorBarSize.m_y * g_fullSectionArmor[i].m_x / g_maxSectionArmor;
 #else
 		full = MulDiv64(g_fullSectionArmor[i].m_x, g_armorBarSize.m_y, g_maxSectionArmor);
@@ -469,14 +469,14 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 					color = 3;
 				}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
 #else
 				armor = MulDiv64(armor, g_armorBarSize.m_y, g_maxSectionArmor);
 #endif
 			}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			full = g_armorBarSize.m_y * g_fullSectionArmor[i].m_y / g_maxSectionArmor;
 #else
 			full = MulDiv64(g_fullSectionArmor[i].m_y, g_armorBarSize.m_y, g_maxSectionArmor);

@@ -462,7 +462,7 @@ InputSink g_inputSinks[] = {
 	{"torso_tilt_plus", &g_localSteering.m_torsoTiltPlus, 1, 0, 0, 0, 0, 0},
 	{"torso_tilt_minus", &g_localSteering.m_torsoTiltMinus, 1, 0, 0, 0, 0, 0},
 	{"torso_tilt_reset", &g_localSteering.m_torsoTiltReset, 1, 0, 0, 0, 0, 0},
-#ifdef MW2_3DFX
+#ifdef MW2_NARROW_TORSO_PAN
 	// The 3Dfx edition has other ranges for the torso pan and the throttle.
 	{"torso_pan", &g_localSteering.m_torsoPan, 0, 0, -90, 90, 3, 0},
 #else
@@ -472,7 +472,7 @@ InputSink g_inputSinks[] = {
 	{"torso_pan_minus", &g_localSteering.m_torsoPanMinus, 1, 0, 0, 0, 0, 0},
 	{"torso_pan_set", &g_localSteering.m_torsoPanSet, 1, 0, 0, 0, 0, 0},
 	{"torso_pan_reset", &g_localSteering.m_torsoPanReset, 1, 0, 0, 0, 0, 0},
-#ifdef MW2_3DFX
+#ifdef MW2_NO_REVERSE_THROTTLE
 	{"throttle", &g_localSteering.m_throttle, 0, 0, 0, 1024, 6, 16},
 #else
 	{"throttle", &g_localSteering.m_throttle, 0, 0, -120, 1082, 6, 16},
@@ -1468,7 +1468,7 @@ MechS32 UpdateAxisFromKeys(AnalogBinding* p_binding)
 		driven = TRUE;
 	}
 	else if (axis->m_setHeld && *axis->m_setHeld) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		position = (MechS32) (*axis->m_output * 65536.0f + 0.5f) << axis->m_outputShift;
 #else
 		position = *axis->m_output << axis->m_outputShift;
@@ -1575,7 +1575,7 @@ void UpdateInputs(void)
 			binding->m_lastValue = 0;
 		}
 		else if (axis->m_setHeld && *axis->m_setHeld) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			position = (MechS32) (*axis->m_output * 65536.0f + 0.5f) << axis->m_outputShift;
 #else
 			position = *axis->m_output << axis->m_outputShift;
@@ -1630,7 +1630,7 @@ void UpdateInputs(void)
 				if (g_analogBindings[i].m_lastValue != value) {
 					g_analogBindings[i].m_axis->m_position = value;
 				}
-#ifdef MW2_ACCEL
+#ifdef MW2_AXIS_RATE_POINTER_TEST
 				else if (g_analogBindings[i].m_axis->m_rate == &g_analogBindings[i].m_axis->m_position) {
 #else
 				else if (*g_analogBindings[i].m_axis->m_rate == g_analogBindings[i].m_axis->m_position) {
@@ -1654,7 +1654,7 @@ void UpdateInputs(void)
 			value = g_analogBindings[i].m_axis->m_range * value;
 			value /= 2;
 			value += g_analogBindings[i].m_axis->m_minFixed;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			value >>= g_analogBindings[i].m_axis->m_outputShift;
 			*g_analogBindings[i].m_axis->m_output = value * (1.0f / 65536.0f);
 #else
@@ -1667,7 +1667,7 @@ void UpdateInputs(void)
 		g_inputDrivers[g_keyboardDeviceIndex]->m_readKeyCode(&keyCode);
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_NO_FULLSCREEN_KEY
 	g_localSteering.m_keyCode = keyCode;
 #else
 	if (keyCode == 0x40d) {

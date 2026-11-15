@@ -41,7 +41,7 @@ MechS32 ComputeShade(MechS32 p_light, MechS32 p_value, MechScalar p_distance);
 // FUNCTION: MW23DFX 0x1002a4b0
 MechU32 GetFaceColor(Face* p_face, Vertex* p_vertices, MechU32 p_color, MechS32 p_distance)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechU32 result;
 	MechU32 kind;
 	MechS32 mode;

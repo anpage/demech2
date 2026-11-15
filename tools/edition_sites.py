@@ -2,10 +2,11 @@
 """List every conditional site the three simulator targets disagree on, and what proves it.
 
 The simulators (MW2, MW2MATROX, MW23DFX) build one tree, which tells the editions apart with the
-edition macros: MW2_ACCEL (the accelerated editions), MW2_MATROX and MW2_3DFX. A site is an
+edition macros, MW2_ACCEL (the accelerated editions), MW2_MATROX and MW2_3DFX, and the features
+util/types.h defines for each edition (MW2_FLOAT_SCALARS, MW2_KEY_COLOR...). A site is an
 #if/#ifdef/#ifndef group (with its #elif and #else branches) in MW2/ or common/, or an
 IF/IFDEF/IFNDEF group in the MASM sources the targets assemble (3rdparty/vfx, MW2/src/accel),
-whose condition names an edition macro, alone or with other macros. A group nested in another
+whose condition names an edition macro or a feature, alone or with other macros. A group nested in another
 site is a site of its own, with its parent recorded.
 
 Which target compiles which branch comes from the targets' own compile commands, not from a list
@@ -68,11 +69,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from unitbuild import ROOT, Target, to_host  # noqa: E402
+from unitbuild import EDITION_MACROS, ROOT, Target, edition_features, to_host  # noqa: E402
 
 SIMULATORS = ("MW2", "MW2MATROX", "MW23DFX")
-EDITION_MACROS = ("MW2_ACCEL", "MW2_MATROX", "MW2_3DFX")
-EDITION_RE = re.compile(r"\b(MW2_ACCEL|MW2_MATROX|MW2_3DFX)\b")
+FEATURES = tuple(dict.fromkeys(f for fs in edition_features().values() for f in fs))
+EDITION_RE = re.compile(r"\b(%s)\b" % "|".join(EDITION_MACROS + FEATURES))
 SCAN_DIRS = ("MW2", "common", "3rdparty/vfx")
 C_SUFFIXES = (".c", ".cpp", ".h")
 ASM_SUFFIXES = (".asm", ".inc")

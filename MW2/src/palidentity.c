@@ -15,7 +15,7 @@ void ResetTextColors(void)
 	for (i = 0; i < 0x100; i++) {
 		g_textColors[i] = PIXEL_COLOR(i);
 	}
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 
 	g_textColors[0xff] = 0x8000;
 #endif

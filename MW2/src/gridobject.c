@@ -49,7 +49,7 @@ SceneObject* g_gridObject = NULL;
 // The eyepoint's cell and the object's position.
 
 // The Matrox edition keeps only the cells' x and z.
-#ifdef MW2_ACCEL
+#ifdef MW2_GRID_CELL_XZ
 typedef struct GridCell {
 	MechS32 m_x; // 0x00
 	MechS32 m_z; // 0x04
@@ -151,7 +151,7 @@ void SetGridObject(SceneObject* p_obj)
 	g_gridObjectSet = 1;
 	g_gridObjectShown = 1;
 	g_gridObjectPlaced = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_GRID_CELL_XZ
 	g_gridAnchor.m_x = g_gridAnchor.m_z = 0;
 	g_gridCell.m_x = g_gridCell.m_z = 0;
 #else
@@ -218,13 +218,13 @@ void UpdateGridObject(void)
 
 		if (g_gridCell.m_x != cellX || g_gridCell.m_z != cellZ) {
 			g_gridAnchor.m_x = cellX * g_gridCellSize;
-#ifndef MW2_ACCEL
+#ifndef MW2_GRID_CELL_XZ
 			g_gridAnchor.m_y = 0;
 #endif
 			g_gridAnchor.m_z = cellZ * g_gridCellSize;
 			if (g_gridObject) {
 				ShowObjTree(g_gridObject);
-#ifdef MW2_ACCEL
+#ifdef MW2_GRID_CELL_XZ
 				SetObjPosition(g_gridObject, g_gridAnchor.m_x, 0, g_gridAnchor.m_z);
 #else
 				SetObjPosition(g_gridObject, g_gridAnchor.m_x, g_gridAnchor.m_y, g_gridAnchor.m_z);
@@ -234,7 +234,7 @@ void UpdateGridObject(void)
 		}
 
 		g_gridCell.m_x = cellX;
-#ifndef MW2_ACCEL
+#ifndef MW2_GRID_CELL_XZ
 		g_gridCell.m_y = 0;
 #endif
 		g_gridCell.m_z = cellZ;

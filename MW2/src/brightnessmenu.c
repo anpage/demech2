@@ -15,7 +15,7 @@
 // FUNCTION: MW23DFX 0x100641a0
 MechS32 GetBrightnessFraction(MechS32 p_arg)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	return (MechS32) ((g_displayBrightness / 15.0f) * 65536.0f + 0.5f);
 #else
 	return FixedMul16(g_displayBrightness << 16, FixedDiv16(1, 15));
