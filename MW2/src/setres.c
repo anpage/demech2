@@ -61,9 +61,8 @@ void SetPixelAspect(GameWindowGeometry* p_geometry)
 #endif
 }
 
+#ifdef MW2_ART_RESOLUTION_NEAREST
 // Picks the art resolution (g_artResolution) closest to the window's.
-// FUNCTION: MW2 0x1005d44e
-// FUNCTION: MW2MATROX 0x1008c195
 // FUNCTION: MW23DFX 0x100024b0
 void ChooseArtResolution(GameWindowGeometry* p_geometry)
 {
@@ -71,7 +70,6 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 	MechS32 distance;
 	MechS32 i;
 
-#ifdef MW2_ART_RESOLUTION_NEAREST
 	// The 3Dfx edition's: the first size sets the distance to beat, and no overrides follow.
 	g_artResolution = g_unk0x1012c1e4 = 0;
 	for (i = 0; i < 3; i++) {
@@ -85,7 +83,17 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 			g_artResolution = g_unk0x1012c1e4 = i;
 		}
 	}
+}
 #else
+// Picks the art resolution (g_artResolution) closest to the window's.
+// FUNCTION: MW2 0x1005d44e
+// FUNCTION: MW2MATROX 0x1008c195
+void ChooseArtResolution(GameWindowGeometry* p_geometry)
+{
+	MechS32 best;
+	MechS32 distance;
+	MechS32 i;
+
 	best = 7;
 	for (i = 0; i < 3; i++) {
 		distance = abs(g_artResolutionSizes[i].m_y - (p_geometry->m_height - 1)) +
@@ -108,8 +116,8 @@ void ChooseArtResolution(GameWindowGeometry* p_geometry)
 		g_artResolution = g_unk0x1012c1e4 = 1;
 	}
 #endif
-#endif
 }
+#endif
 
 // Rescales the tables authored in 320x200 coordinates to the screen, and sets up what depends on
 // the resolution.

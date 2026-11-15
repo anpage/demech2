@@ -1096,6 +1096,7 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 #define PIXEL_RGB16(r, g, b) (((MechU8) (r) & ~7) << 8 | ((MechU8) (g) & ~3) << 3 | (MechU8) (b) >> 3)
 #endif
 
+#ifdef MW2_A3D
 // Draws the sky and the ground of the view from p_eyepoint: the horizon, rolled with the view,
 // splits the view rectangle (m_viewLeft-m_viewBottom). Each corner's side of it (IsAboveHorizon) makes
 // one bit of the case; the parts are filled in g_skyColor (the sky, with m_drawSky) and
@@ -1103,14 +1104,12 @@ void FUN_100692db(Eyepoint* p_eyepoint)
 // horizon blends the sky into the ground.
 // The original calls IsAboveHorizon for the corners in the order of the terms, (x0, y1) first,
 // which the corner bits written as shifts keep.
-// The Matrox edition's draws the textured sky and ground first (skygnd.par), takes the colors from
-// their textures, and draws through its renderer. Its original converts each 16-bit color from
-// the green term first.
-// FUNCTION: MW2 0x1004320b
+// The accelerated editions' draws the textured sky and ground first (skygnd.par), takes the colors
+// from their textures, and draws through the renderer. The Matrox edition's original converts each
+// 16-bit color from the green term first.
 // FUNCTION: MW2MATROX 0x10069419
 void DrawSkyAndGround(Eyepoint* p_eyepoint)
 {
-#ifdef MW2_A3D
 	MechS32 y1;
 	MechS32 x1;
 	MechS32 yLeft;
@@ -1540,7 +1539,18 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	if (gradient && g_renderSettings.m_gouraud) {
 		A3D_DrawPolygon(&g_currentPane, 4, band);
 	}
+}
 #else
+// Draws the sky and the ground of the view from p_eyepoint: the horizon, rolled with the view,
+// splits the view rectangle (m_viewLeft-m_viewBottom). Each corner's side of it (IsAboveHorizon) makes
+// one bit of the case; the parts are filled in g_skyColor (the sky, with m_drawSky) and
+// g_groundColor (the ground, with m_drawGround), and with m_horizonBand a shaded band over the
+// horizon blends the sky into the ground.
+// The original calls IsAboveHorizon for the corners in the order of the terms, (x0, y1) first,
+// which the corner bits written as shifts keep.
+// FUNCTION: MW2 0x1004320b
+void DrawSkyAndGround(Eyepoint* p_eyepoint)
+{
 	MechS32 dy;
 	MechS32 y1;
 	MechS32 x1;
@@ -1890,8 +1900,8 @@ void DrawSkyAndGround(Eyepoint* p_eyepoint)
 	if (gradient && g_renderSettings.m_gouraud) {
 		VFX_dithered_Gouraud_polygon(&g_currentPane, 0x8000, 4, band);
 	}
-#endif
 }
+#endif
 
 // Draws a closed polygon of five points.
 // FUNCTION: MW2 0x1004440d
