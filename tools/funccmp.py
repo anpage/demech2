@@ -261,12 +261,12 @@ class Annotations:
     def name_of(function):
         """A line function's name. reccmp's parser takes a preprocessor line for the name of a
         definition that starts with one: then the first name before a "(" in the lines that
-        follow, directives skipped."""
+        follow, directives and comment lines skipped."""
         name = function_name(function.name)
         if name:
             return name
         lines = Path(function.filename).read_text(encoding="utf-8").split("\n")[function.line_number - 1 : function.end_line]
-        return function_name(" ".join(line for line in lines if not line.lstrip().startswith("#")))
+        return function_name(" ".join(line for line in lines if not line.lstrip().startswith(("#", "//"))))
 
     # The CRT's aliases: two public names at one address, of which the annotations name the one
     # reccmp keeps (library_msvc.h).

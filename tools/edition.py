@@ -113,6 +113,23 @@ def functions_in_sources():
                 if n and not lines[k].startswith("//"):
                     result[n.group(1)] = (path, i, int(m.group(1), 16), target)
                     break
+    # A function the editions define apart (one definition per edition, under its #ifdef): the
+    # edition's definition carries its own marker without MW2's. Its address joins MW2's entry.
+    for path in sorted(glob.glob("MW2/src/**/*.c", recursive=True)):
+        lines = open(path, encoding="utf-8").read().split("\n")
+        for i, line in enumerate(lines):
+            m = re.match(r"// FUNCTION: %s (0x[0-9a-f]+)$" % TARGET, line)
+            if not m or (i > 0 and re.match(r"// FUNCTION: %s " % SOURCE, lines[i - 1])):
+                continue
+            for k in range(i + 1, min(i + 6, len(lines))):
+                n = re.match(r"^[A-Za-z].*?\b(\w+)\(", lines[k])
+                if n and not lines[k].startswith("//"):
+                    name, address = n.group(1), int(m.group(1), 16)
+                    if name in result and result[name][3] is None:
+                        result[name] = result[name][:3] + (address,)
+                    elif name not in result:
+                        result[name] = (path, i, None, address)
+                    break
     return result
 
 
