@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-#ifdef MW2_3DFX
+#ifdef MW2_INLINE_HELPERS
 	// The 3Dfx edition expands FixedDiv16 inline in every caller (its /Ox implies /Ob1), so the
 	// header defines it there, with fixeddiv.c's assembly; the other targets call fixeddiv.c's.
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */

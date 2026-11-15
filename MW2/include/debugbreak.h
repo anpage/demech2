@@ -1,13 +1,15 @@
 #ifndef DEBUGBREAK_H
 #define DEBUGBREAK_H
 
+#include "types.h"
+
 // The functions and globals of debugbreak.c that other units use.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#ifdef MW2_3DFX
+#ifdef MW2_INLINE_HELPERS
 	// The 3Dfx edition expands DebugBreakpoint inline in its callers (its /Ox implies /Ob1), so the
 	// header defines it there; the other targets call debugbreak.c's.
 	// clang-format off

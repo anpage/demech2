@@ -55,6 +55,8 @@
 #ifdef MW2_REGISTRY_SETTINGS
 #include "accel/registry.h"
 #endif
+// Both accelerated editions' sources include it (the 3Dfx edition's code shows it), for the Matrox
+// edition's g_reclipCursor.
 #ifdef MW2_ACCEL
 #include "mouse.h"
 #endif

@@ -405,6 +405,7 @@ function(demech2_add_mw23dfx)
       set_source_files_properties("${source}" PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Ow")
     endif()
   endforeach()
+  demech2_edition_masm_defines(tdfx_masm_defines MW2_ACCEL MW2_3DFX)
   demech2_add_dll(mw23dfx
     ID MW23DFX
     SOURCE_DIR MW2
@@ -418,7 +419,7 @@ function(demech2_add_mw23dfx)
       ${sources}
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
     COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/ML;/G5;/Gr;/Gy;/DMW2_ACCEL;/DMW2_3DFX>"
-      "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL;/DMW2_3DFX>"
+      "$<$<COMPILE_LANGUAGE:ASM_MASM>:${tdfx_masm_defines}>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
     LIBRARIES texus kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib dplay glide wail32
   )

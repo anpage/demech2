@@ -420,11 +420,7 @@ void DrawArmorBars(Mech* p_mech, PANE* p_target)
 #ifdef MW2_FLOAT_SCALARS
 			armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
 #else
-#ifdef MW2_ACCEL
-			armor = g_armorBarSize.m_y * armor / g_maxSectionArmor;
-#else
 			armor = MulDiv64(armor, g_armorBarSize.m_y, g_maxSectionArmor);
-#endif
 #endif
 		}
 

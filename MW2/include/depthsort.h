@@ -4,6 +4,8 @@
 #include "fixedfloat.h"
 #include "types.h"
 
+// Both accelerated editions' sources include it (the 3Dfx edition's code shows it), for the Matrox
+// edition's DepthEntry.
 #ifdef MW2_ACCEL
 #include "decomp.h"
 #endif

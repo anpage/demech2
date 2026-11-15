@@ -42,6 +42,8 @@ extern "C"
 	void HandleMessages(void);
 	void UpdatePauseState(void);
 	void SetGameResolution(char* p_driverName);
+// Both accelerated editions' sources declare it (the 3Dfx edition's code shows it); only the
+// Matrox edition's back end calls it.
 #ifdef MW2_ACCEL
 	LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam);
 #endif

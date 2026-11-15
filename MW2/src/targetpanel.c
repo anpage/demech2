@@ -38,8 +38,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
+#endif
+#ifdef MW2_LOD_PAR
 #include "render.h"
 #include "view.h"
 
@@ -652,7 +654,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 #endif
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_LOD_PAR
 // Whether p_player's position projects into the main view (the target panel then leaves its
 // level of detail alone).
 // FUNCTION: MW2MATROX 0x10018d55

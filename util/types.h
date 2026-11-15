@@ -70,6 +70,11 @@ typedef char MechChar;
 #define MW2_VERTEX_SHADING
 /* The 2D drawing goes to the 16-bit port of VFXA */
 #define MW2_VFX16
+/* VFX as released (unaligned fills and runs, word-wise character copies), where 1.1 modified it; the
+   assembly gets it from cmake/editions.cmake */
+#define MW2_VFX_STOCK
+/* VFXA's VFX_lookaside_write, which sets one lookaside entry (cmake/editions.cmake) */
+#define MW2_VFX_LOOKASIDE_WRITE
 /* A larger draw buffer and polygon limit */
 #define MW2_LARGER_POLYGON_BUFFERS
 /* StartPalettes blends through the display back end, without 1.1's pixel dissolve */
@@ -179,6 +184,8 @@ typedef char MechChar;
 #define MW2_PIXEL_FORMAT 565
 /* Key colour fills and 0xfffe wipes for the renderer's overlay, ClipRectToPane */
 #define MW2_KEY_COLOR
+/* VFXREND's polygon renderer reads its table through CS and leaves ES as it is (cmake/editions.cmake) */
+#define MW2_VFXREND_CS_SEGMENT
 /* LOD.PAR's LOD_SCALE scales the detail scale */
 #define MW2_LOD_PAR
 /* The "Filter" registry setting, passed to the renderer */
@@ -193,7 +200,7 @@ typedef char MechChar;
 #define MW2_SKIP_LOADED_LEVEL
 /* A shot's heat and damage are applied after RecordAttack */
 #define MW2_SHOT_DAMAGE_AFTER_RECORD
-/* The power keys do nothing in power state 7 */
+/* Both power keys do nothing in power state 7, tested first (1.1: key 0x3e only) */
 #define MW2_POWER_STATE_7_KEYS
 /* JoystickPoll sums the axes between polls */
 #define MW2_JOYSTICK_AXIS_SUMS
@@ -236,6 +243,11 @@ typedef char MechChar;
 #define MW2_NET_RETURN_ZERO
 /* NetSend and NetReceive log nothing */
 #define MW2_NO_NET_DEBUG_PRINTS
+/* Key 0x3e asks for power down in power state 7 too, where 1.1 ignores it */
+#define MW2_NO_STATE_7_POWER_TEST
+/* Not a difference of the game: the edition's headers define FixedMul16, FixedDiv16, MulDiv64, HashName and
+   DebugBreakpoint __inline (its /Ox expands them in every caller), and MemCopy and MemSet are C */
+#define MW2_INLINE_HELPERS
 /* The debug log's own formats (the sky's colours on one line, the armor as %f) */
 #define MW2_DEBUG_LOG_FORMATS
 #endif

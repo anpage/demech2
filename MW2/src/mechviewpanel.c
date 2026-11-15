@@ -44,11 +44,13 @@ void CycleMechViewMode(void)
 	}
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_KEY_COLOR
 // The Matrox edition clears the rendered view's pane with its transparent pixel (0xfffe) for the
-// 3D card's picture to show through (the 3Dfx edition doesn't), and the accelerated editions'
-// frames' shapes come 6 entries further on.
+// 3D card's picture to show through (the 3Dfx edition doesn't).
 #define MECH_VIEW_WIPE 0xfffe
+#endif
+#ifdef MW2_HUD_ART
+// The accelerated editions' frames' shapes come 6 entries further on.
 #define MECH_VIEW_SHAPE(id) ((id) + 6)
 #else
 #define MECH_VIEW_SHAPE(id) (id)
