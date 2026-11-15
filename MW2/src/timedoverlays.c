@@ -16,7 +16,7 @@
 
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -47,7 +47,7 @@ static MechChar g_bottomMessageText[0x100];
 static MechChar g_topMessageText[0x100];
 
 // The 3Dfx edition's backgrounds are three shapes further on.
-#ifdef MW2_3DFX
+#ifdef MW2_MESSAGE_BACKGROUND_SHAPES
 #define MESSAGE_BACKGROUND 0x4f
 #else
 #define MESSAGE_BACKGROUND 0x4c
@@ -205,7 +205,7 @@ void DrawTimedOverlays(void)
 							overlay->m_text,
 							g_textColors
 						);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 						FUN_10088280(overlay->m_target);
 #endif
 					}
@@ -270,7 +270,7 @@ void DrawTextBox(MechS32 p_background, MechS32 p_font, MechChar* p_text, MechS32
 		}
 
 		DrawWrappedText(&rect, p_text, font);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(&rect);
 #endif
 	}

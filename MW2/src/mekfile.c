@@ -93,7 +93,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	MechS32 size;
 	MechSection* section;
 	MekHeader* header;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32* bits;
 #endif
 
@@ -163,7 +163,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	for (piece = 0; piece < 8; piece++) {
 		sprintf(
 			text,
-#ifdef MW2_3DFX
+#ifdef MW2_DEBUG_LOG_FORMATS
 			"\n\npiece %d- armor: %ff %fr int: %f flags:%d\n",
 #else
 			"\n\npiece %d- armor: %df %dr int: %d flags:%d\n",
@@ -184,7 +184,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			WriteToMw2Log(text);
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		// The .MEK file holds integers, which the Matrox edition converts to floats in place.
 		bits = (MechS32*) &section->m_armor[0];
 		section->m_armor[0] = *bits;
@@ -225,7 +225,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 			section->m_armor[1] *= g_otherArmorPerLevel;
 		}
 
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 		section->m_armor[0] <<= 16;
 		section->m_armor[1] <<= 16;
 		section->m_internal <<= 16;
@@ -321,7 +321,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 		ammo++;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_mech->m_topSpeed = header->m_speed * FIXED_RAW(0x697e98);
 #else
 	p_mech->m_topSpeed = FixedMul16(header->m_speed, 0x697e98);
@@ -382,7 +382,7 @@ MechS32 LoadMechConfig(Mech* p_mech, MechChar* p_name, MechS32 p_id, MechChar* p
 	else {
 		p_mech->m_jumpFuel = 0x712;
 		p_mech->m_jumpJets = header->m_jump;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		jumpRatio = (MechScalar) header->m_jump / header->m_speed;
 		p_mech->m_jumpThrust = jumpRatio * FIXED_RAW(0x1e50);
 #else

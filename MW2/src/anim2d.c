@@ -12,10 +12,10 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 #include "render.h"
 #endif
 
@@ -160,7 +160,7 @@ void FreeAnim2d(MechS32 p_index)
 	}
 }
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // Tiles p_target with a shape frame drawn at (p_x, p_y), stepping the pane's origin by the
 // frame's size, then restores the origin (DrawAnim2d's animation 0 at 800x600).
 // FUNCTION: MW23DFX 0x10002250
@@ -258,7 +258,7 @@ void DrawAnim2d(PANE* p_target, MechS32 p_index, MechS32 p_x, MechS32 p_y)
 	}
 
 	if (anim->m_state != c_anim2dDone) {
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 		// At 800x600, animation 0 tiles the pane.
 		if (g_screenWidthMinus1 > 700 && p_index == 0) {
 			TileShapeFrame(p_target, anim->m_shape, shown, p_x, p_y);

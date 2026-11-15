@@ -1297,7 +1297,7 @@ Player* FindNearestTarget(Player* p_player, MechS16 p_target, MechS16 p_arg, Mec
 			continue;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if ((MechS32) p_player->m_targetInfo.m_distance < nearest) {
 #else
 		if (p_player->m_targetInfo.m_distance < nearest) {
@@ -1506,7 +1506,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		g_aiStateTime += 0xb5;
 		break;
 	case c_aiStateFlee:
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + 180.0);
 #else
 		p_player->m_targetInfo.m_heading = FIXED_MOD360(p_player->m_targetInfo.m_heading + FIXED_CONST(180));
@@ -1520,7 +1520,7 @@ void AiStateMove(Player* p_player, MechU16 p_target)
 		break;
 	default:
 		if (p_player->m_aiMode == 2) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			p_player->m_steering->m_throttle = 0.0125f; // 1.1's 0x333, rounded
 #else
 			p_player->m_steering->m_throttle = 0x333;
@@ -1686,7 +1686,7 @@ MechScalar GetApproachThrottle(Player* p_player, MechScalar p_range)
 {
 	MechScalar throttle;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	throttle = p_player->m_steering->m_throttle;
 	if (p_range * 2 < p_player->m_targetInfo.m_distance) {
 		throttle = 0.015625f;
@@ -1773,7 +1773,7 @@ MechScalar AimTorsoTilt(Player* p_player, MechS32 p_delta)
 // FUNCTION: MW23DFX 0x10013600
 MechScalar SteerToTarget(Player* p_player)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// The Matrox edition steers by the bearing wrapped to +-360 degrees, and returns it wrapped.
 	MechScalar delta;
 
@@ -2618,7 +2618,7 @@ MechS32 OrderStarSlot(MechS32 p_slot, MechS16 p_command)
 // FUNCTION: MW23DFX 0x10014490
 MechScalar AddClamped(MechScalar p_value, MechS32 p_delta, MechS32 p_sameSign)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// The Matrox edition tests the float's sign bit, and adds p_delta as 16.16.
 	if (p_sameSign && ((*(MechU32*) &p_value & 0x80000000) ? -1 : 1) != (p_delta < 0 ? -1 : 1)) {
 		p_delta = -p_delta;
@@ -3208,7 +3208,7 @@ void SweepTorso(Player* p_player)
 {
 	MechS32 period;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (FIXED_IS_NONZERO(p_player->m_steering->m_throttle)) {
 		period = 0x20;
 	}
@@ -3236,7 +3236,7 @@ void SweepTorso(Player* p_player)
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (p_player->m_maneuverParam) {
 		p_player->m_steering->m_torsoPan += 5;
 	}

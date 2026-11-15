@@ -2,7 +2,7 @@
 #define POLYDRAW_H
 
 #include "eyepoint.h"
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #include "accel/a3d.h"
 #endif
 #include "projectedvertex.h"
@@ -19,7 +19,7 @@ extern "C"
 	extern Eyepoint g_mainEyepoint;
 	extern RenderSettings g_renderSettings;
 	extern MechS32 g_horizonBandHeight;
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	extern A3DVertex g_a3dClipped[16];
 	extern A3DVertex g_a3dVertices[16];
 	extern MechFloat g_paletteRgb[256][3];
@@ -27,7 +27,7 @@ extern "C"
 	MechS32 FUN_10067b90(MechU32 p_count, MechU32 p_edges, MechS32 p_unk0x08);
 	void LoadSkyGroundSettings(const MechChar* p_mission);
 #endif
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	void DrawScenePolygon(MechS32 p_count, ProjectedVertex** p_points, MechU32 p_flags, MechS32 p_unk0x0c);
 #else
 void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
@@ -66,7 +66,7 @@ void DrawScenePolygon(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 		MechS32 p_y2,
 		MechU32 p_flags
 	);
-#ifndef MW2_ACCEL
+#ifndef MW2_A3D
 	void DrawLineTo(MechS32 p_x, MechS32 p_y, MechU32 p_color);
 	void DrawPolygonOrLine(MechS32 p_count, MechU32* p_points, MechU32 p_flags);
 #endif

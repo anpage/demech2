@@ -7,11 +7,11 @@
 #include "targeting.h"
 #include "types.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // A3D_SetPalette (the A3D renderer) and FUN_10088246/FUN_10088280 (the key color fills), for
 // palette.h's users.
 #include "accel/a3d.h"
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 #include "matrox/colorkey.h"
 #endif
 #endif
@@ -46,7 +46,7 @@ extern "C"
 	void StartPalettes(MechS32 p_dissolve);
 	MechS32 GetPaletteFadeSteps(void);
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 	// The Matrox edition's 16-bit 2D object (accel/vfx16.asm, annotated in accel/vfx16.h), declared
 	// here for PIXEL_COLOR's users. The 16-bit pixel of a palette color, from the object's lookaside
 	// table; its callers use the whole of eax (they called it undeclared, as an int function).
@@ -56,7 +56,7 @@ extern "C"
 #endif
 
 // A color passed to a drawing primitive: the Matrox edition draws 16-bit pixels.
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #define PIXEL_COLOR(c) VFX_lookaside_read16(c)
 #else
 #define PIXEL_COLOR(c) (c)

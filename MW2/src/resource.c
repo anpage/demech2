@@ -49,7 +49,7 @@ typedef struct BitmapRecord {
 	MechS32 m_data[1];  // 0x10 — up to the record's end
 } BitmapRecord;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 // A path record's waypoint: the Matrox edition's PathPoint holds floats, the record integers.
 typedef struct PathRecordPoint {
 	MechS32 m_x;        // 0x00
@@ -66,7 +66,7 @@ typedef struct PathRecordPoint {
 typedef struct PathRecord {
 	BwdRecord m_header;    // 0x00
 	MechChar m_name[0x40]; // 0x08
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	PathRecordPoint m_points[1]; // 0x48
 #else
 	PathPoint m_points[1]; // 0x48 — up to the record's end
@@ -415,7 +415,7 @@ void LoadStarTable(StarTable* p_table)
 		g_teams[i].m_affiliation = table->m_stars[i].m_affiliation;
 		g_teams[i].m_side = table->m_stars[i].m_side;
 		g_starSides[table->m_stars[i].m_affiliation] = table->m_stars[i].m_side;
-#ifdef MW2_ACCEL
+#ifdef MW2_LOCAL_STAR_FROM_ZERO
 		if (g_localStar == i && g_playerTeamFormation) {
 			SetTeamFormationByName(i, g_playerTeamFormation);
 		}
@@ -747,7 +747,7 @@ void CreateObjectNode(
 		kind = 4;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	xform.m_scaleX = record->m_xform.m_scaleX;
 	xform.m_scaleY = record->m_xform.m_scaleY;
 	xform.m_scaleZ = record->m_xform.m_scaleZ;

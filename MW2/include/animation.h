@@ -29,12 +29,12 @@ extern "C"
 	extern AnimFrame g_animFrames[0x200][0x20];
 	extern MechS32 g_lumaResourceId;
 	extern Animation g_animations[0x200];
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	extern MechS32 g_unk0x100aa1d0;
 	extern MechFloat g_unk0x10184700[3];
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechS32 DrawAnimatedPolygon(
 		MechS32 p_index,
 		MechS32 p_count,
@@ -66,7 +66,7 @@ MechS32 DrawAnimatedPolygon(
 	void FUN_10069586(void);
 	void FUN_10069591(void);
 	void FreeAnimations(void);
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	MechS32 FUN_100519b0(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
 	void FUN_10051ba1(MechS32 p_index, MechFloat* p_red, MechFloat* p_green, MechFloat* p_blue);
 #ifdef MW2_3DFX

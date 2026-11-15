@@ -14,7 +14,7 @@
 #include "targeting.h"
 #include "types.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #include "palette.h"
 #endif
@@ -75,7 +75,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 
 	font = LoadCachedResource(g_mw2PrjHandle, HUD_ART_RESOLUTION + 1, g_resTagFont, 0);
 	if (font) {
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 		g_textColors[0xe] = PIXEL_COLOR(color);
 #else
 		g_textColors[0xe] = color;
@@ -103,7 +103,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 			);
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 		g_textColors[0xe] = PIXEL_COLOR(0xe);
 #else
 		g_textColors[0xe] = 0xe;
@@ -114,7 +114,7 @@ void DrawWeaponPanel(CockpitPanel* p_panel)
 	if (p_panel->m_weapon == mech->m_selectedWeapon) {
 		OutlinePane(p_panel->m_target, color);
 	}
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 
 	FUN_10088280(p_panel->m_target);
 #endif
@@ -150,7 +150,7 @@ void DrawWeaponPanelStartup(CockpitPanel* p_panel)
 
 	if (p_panel->m_enabled && p_panel->m_lightUpTime < clock) {
 		VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 	}

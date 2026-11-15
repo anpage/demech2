@@ -66,7 +66,7 @@ extern "C"
 	void FUN_1003a859(Shape* p_shape, MechS32 p_unk0x14);
 	MechU32 FUN_1003a889(Shape* p_shape);
 	Shape* CreateShape(MechS32 p_vertexCount, MechS32 p_faceCount, MechS32 p_extra, void** p_extraData);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	void AddShapeVertex(
 		Shape* p_shape,
 		MechScalar p_x,
@@ -74,12 +74,14 @@ extern "C"
 		MechScalar p_z,
 		MechFloat p_u,
 		MechFloat p_v,
+#ifdef MW2_A3D
 		MechFloat p_red,
 		MechFloat p_green,
 		MechFloat p_blue,
 		MechFloat p_normalX,
 		MechFloat p_normalY,
 		MechFloat p_normalZ
+#endif
 	);
 #else
 void AddShapeVertex(Shape* p_shape, MechS32 p_x, MechS32 p_y, MechS32 p_z, undefined4 p_u, undefined4 p_v);

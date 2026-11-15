@@ -24,7 +24,7 @@
 #include <windows.h>
 
 // The Matrox edition's messages end in a newline.
-#ifdef MW2_MATROX
+#ifdef MW2_DEBUG_LOG_TEXT
 #define TEXT_LINE(text) text "\n"
 #else
 #define TEXT_LINE(text) text
@@ -250,7 +250,7 @@ MechS32 InitRefreshMode(
 	g_refreshModePixelCount = p_height * p_width;
 	g_refreshModeBuffer = p_buffer;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_REFRESH_MODE_RETRY
 	while (g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
 #else
 	while (g_currentRefreshMode->m_available && g_currentRefreshMode->m_begin(p_buffer, p_width, p_height)) {
@@ -264,7 +264,7 @@ MechS32 InitRefreshMode(
 		g_currentRefreshMode = g_refreshModes[g_currentRefreshMode->m_index + 1];
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_REFRESH_MODE_RETRY
 	g_currentRefreshMode->m_available = TRUE;
 #endif
 	if (g_refreshModeInactive && backend->m_id != c_displayBackendGdi) {
@@ -419,7 +419,7 @@ void ToggleFullScreen(void)
 	PauseTimer(0x80, TRUE);
 
 	if (g_currentDisplayBackend->m_windowMode == c_windowModeFullscreen) {
-#ifdef MW2_MATROX
+#ifdef MW2_FULLSCREEN_SAVES_MODE
 		g_fastestRefreshMode = g_currentRefreshMode;
 #endif
 		for (i = 0; i < 6; i++) {

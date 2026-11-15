@@ -20,7 +20,7 @@
 #include "targeting.h"
 #include "types.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -108,13 +108,13 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 			camera[4] = 0;
 			RenderViewToPane(5, FIXED_CONST(2), camera, 0);
 			g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 			VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		}
 
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xfd));
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -129,12 +129,12 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, FIXED_CONST(2), view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		DrawMechViewFrame(p_panel, 6, MECH_VIEW_SHAPE(0xf7));
 		g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
@@ -152,7 +152,7 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		HideObjTree(mech->m_player->m_obj);
 		RenderViewToPane(5, FIXED_CONST(2), view, 0);
 		ShowObjTree(mech->m_player->m_obj);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		VFX_pane_wipe(p_panel->m_target, MECH_VIEW_WIPE);
 #endif
 		if (g_frontViewForRear) {
@@ -163,13 +163,13 @@ void DrawMechViewPanel(CockpitPanel* p_panel)
 		}
 
 		g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;
 	case 2:
 		DrawArmorBars(mech, p_panel->m_target);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 		break;

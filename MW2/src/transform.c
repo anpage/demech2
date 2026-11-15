@@ -2,9 +2,7 @@
    are __asm blocks, and TransformPoint, RotatePoint, OrthogonalizeMatrixColumn and BuildMatrixEx have __asm
    blocks. Their portable C (PORTABLE_C) is tested against the assembly by tests/asmequiv: it
    replaces BuildMatrixEx's whole body, whose C wraps where standard C overflows. */
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "transform.h"
 
 #include "clock.h"
@@ -58,7 +56,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // FUNCTION: MW23DFX 0x1002eb50
 void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechFloat x;
 	MechFloat y;
 	MechFloat z;
@@ -153,7 +151,7 @@ void TransformPoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScal
 // FUNCTION: MW23DFX 0x1002ebc0
 void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechFloat x;
 	MechFloat y;
 	MechFloat z;
@@ -245,7 +243,7 @@ void RotatePoint(Matrix* p_matrix, MechScalar* p_x, MechScalar* p_y, MechScalar*
 // FUNCTION: MW23DFX 0x1002ec20
 void OrthogonalizeMatrixColumn(Matrix* p_matrix, MechS32 p_column)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechFloat a0;
 	MechFloat b0;
 	MechFloat a1;
@@ -488,7 +486,7 @@ MechS32 MatrixDot29(MechS32 p_ax, MechS32 p_ay, MechS32 p_az, MechS32 p_bx, Mech
 // FUNCTION: MW23DFX 0x1002ed60
 void MultiplyRotations(Matrix* p_a, Matrix* p_b, Matrix* p_dst)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechDouble a00;
 	MechDouble a01;
 	MechDouble a02;
@@ -801,7 +799,7 @@ void InvertMatrix(Matrix* p_src, Matrix* p_dst)
 // FUNCTION: MW23DFX 0x1002f030
 void SetIdentityMatrix(Matrix* p_matrix)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2] = 1.0;
 #else
 	p_matrix->m_rows[0][0] = p_matrix->m_rows[1][1] = p_matrix->m_rows[2][2] = 0x20000000;
@@ -843,7 +841,7 @@ void BuildMatrixEx(
 	MechU32 p_flags
 )
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechDouble ca;
 	MechDouble cb;
 	MechDouble cc;
@@ -1298,7 +1296,7 @@ void GetMatrixAngles(Matrix* p_matrix, MechScalar* p_angleX, MechScalar* p_angle
 	MechScalar length;
 	MechScalar yaw;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (p_matrix->m_rows[1][2] > 0.1 || p_matrix->m_rows[1][2] < -0.1) {
 		if ((length = Hypot2D(p_matrix->m_rows[0][2], p_matrix->m_rows[2][2])) > 0.003725290298462) {
 			pitch = acos(length) * 57.29577951308232;

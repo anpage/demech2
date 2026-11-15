@@ -64,7 +64,7 @@ static MechS32 TransformRow(Matrix* p_matrix, MechS32 p_row, MechS32 p_x, MechS3
 // FUNCTION: MW23DFX 0x10029ab0
 void TransformModel(Model* p_model, Matrix* p_matrix)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	Face* face;
 	Vertex* vertex;
 	MechS32 count;
@@ -79,6 +79,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 						   vertex->m_modelZ * p_matrix->m_rows[1][2] + p_matrix->m_rows[3][1];
 		vertex->m_worldZ = vertex->m_modelX * p_matrix->m_rows[2][0] + vertex->m_modelY * p_matrix->m_rows[2][1] +
 						   vertex->m_modelZ * p_matrix->m_rows[2][2] + p_matrix->m_rows[3][2];
+#ifdef MW2_VERTEX_SHADING
 		vertex->m_normalX = vertex->m_modelNormalX * p_matrix->m_rows[0][0] +
 							vertex->m_modelNormalY * p_matrix->m_rows[0][1] +
 							vertex->m_modelNormalZ * p_matrix->m_rows[0][2];
@@ -88,6 +89,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 		vertex->m_normalZ = vertex->m_modelNormalX * p_matrix->m_rows[2][0] +
 							vertex->m_modelNormalY * p_matrix->m_rows[2][1] +
 							vertex->m_modelNormalZ * p_matrix->m_rows[2][2];
+#endif
 		vertex++;
 	}
 
@@ -274,7 +276,7 @@ void TransformModel(Model* p_model, Matrix* p_matrix)
 void TransformShapeCenter(struct Shape* p_shape, Matrix* p_matrix)
 {
 	p_shape->m_flags &= ~0x200;
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	p_shape->m_centerX = p_shape->m_modelCenterX * p_matrix->m_rows[0][0] +
 						 p_shape->m_modelCenterY * p_matrix->m_rows[0][1] +
 						 p_shape->m_modelCenterZ * p_matrix->m_rows[0][2] + p_matrix->m_rows[3][0];
@@ -379,7 +381,7 @@ void TransformShape(struct Shape* p_shape, Matrix* p_matrix)
 	}
 }
 
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 // Solves the plane p_normalX * x + p_normalY * y + p_normalZ * z + p_distance = 0 for y at
 // (p_dx, p_dz): (p_normalX * p_dx + p_normalZ * p_dz + p_distance) / p_normalY, in 64 bits.
 // FUNCTION: MW2 0x10039c96
@@ -427,7 +429,7 @@ MechS32 SolvePlaneY(
 // FUNCTION: MW23DFX 0x10029cb0
 MechScalar ApproximateShapeDistance(struct Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechScalar deltaX;
 	MechScalar deltaY;
 	MechScalar deltaZ;
@@ -575,7 +577,7 @@ done:;
 // triangle gets the normal (-1, -1, -1) and 0. The products and the scaling are __asm blocks.
 // The Matrox edition's is float C, which returns the cross product's length: it sits with the
 // trigonometry, in accel/floatmath.c.
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 // FUNCTION: MW2 0x10039dda
 MechS32 ComputeTriangleNormal(
 	MechScalar p_x0,
@@ -877,7 +879,7 @@ normalize:
 }
 #endif
 
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 // Returns p_value / (p_a - p_b) in 15.17 fixed point, or 0 if p_a and p_b are equal.
 // FUNCTION: MW2 0x1003a05d
 MechS32 DivDifference17(MechS32 p_a, MechS32 p_b, MechS32 p_value)
@@ -919,7 +921,7 @@ done:
 // FUNCTION: MW23DFX 0x10029db0
 MechScalar RayShapeDistance(struct Shape* p_shape, Ray* p_ray)
 {
-#if defined(MW2_ACCEL)
+#if defined(MW2_FLOAT_SCALARS)
 	MechScalar radius;
 	MechScalar deltaX;
 	MechScalar check;

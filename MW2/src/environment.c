@@ -123,7 +123,7 @@ void FirstEnvironment(void)
 
 	g_startTimeOfDay = g_timeOfDay;
 	g_timeOfDayPhase = -1;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_gravityScale = g_gravity / FIXED_LITERAL(0x794, 0.0296f);
 #else
 	g_gravityScale = FixedDiv16(g_gravity, 0x794);
@@ -181,7 +181,7 @@ void FadeToTimeOfDayPhase(MechS32 p_phase)
 {
 	MechS32 duration;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_TIME_OF_DAY_FADE_ONCE
 	if (g_timeOfDayEnabled == 1 && g_timeOfDayPhase == -1) {
 #else
 	if (g_timeOfDayEnabled == 1 && p_phase != g_timeOfDayPhase) {
@@ -228,7 +228,7 @@ void SetInfrared(undefined4 p_unk0x00, MechS32 p_state)
 			}
 		}
 		else if (p_state == 0) {
-#ifdef MW2_ACCEL
+#ifdef MW2_INFRARED_OFF_FADE
 			FadeToBasePalette(0, 181);
 #endif
 			g_timeOfDayEnabled = 1;
@@ -248,7 +248,7 @@ void QuadrupleMechCooling(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		mech->m_cooling *= 4;
 #else
 		mech->m_cooling <<= 2;
@@ -266,7 +266,7 @@ void QuarterMechCooling(void)
 
 	for (i = 0; i < g_playerCount; i++) {
 		mech = g_players[i]->m_mech;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		mech->m_cooling /= 4;
 #else
 		mech->m_cooling >>= 2;

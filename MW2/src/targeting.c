@@ -1,6 +1,4 @@
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "targeting.h"
 
 #include "cockpit.h"
@@ -174,7 +172,7 @@ MechChar g_metersUnit[4] = "m";
 MechChar g_kilometersUnit[8] = "km";
 
 // The accelerated editions' map colors are other palette entries.
-#ifdef MW2_ACCEL
+#ifdef MW2_BRIGHT_MAP_COLORS
 // GLOBAL: MW2MATROX 0x100bce48
 // GLOBAL: MW23DFX 0x1024a2a0
 MechS32 g_smallMapColors[7][3] = {
@@ -199,7 +197,7 @@ MechS32 g_smallMapColors[7][3] = {
 };
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_BRIGHT_MAP_COLORS
 // GLOBAL: MW2MATROX 0x100bcea0
 // GLOBAL: MW23DFX 0x1024a2f8
 MechS32 g_largeMapColors[7][3] = {
@@ -224,7 +222,7 @@ MechS32 g_largeMapColors[7][3] = {
 };
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_BRIGHT_MAP_COLORS
 // GLOBAL: MW2MATROX 0x100bcef8
 // GLOBAL: MW23DFX 0x1024a350
 MechS32 g_satelliteColors[7][3] = {
@@ -1033,7 +1031,7 @@ MechS32 UpdateTarget(Player* p_player)
 			break;
 		case 0x400:
 			if (!(g_gameThings[index].m_teamsReached & (1 << p_player->m_team))) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				if (g_gameThings[index].m_radius + 20000.0f > p_player->m_targetInfo.m_distance) {
 #else
 				if (g_gameThings[index].m_radius + 20000 > p_player->m_targetInfo.m_distance) {
@@ -1203,7 +1201,7 @@ void TargetAtReticle(void)
 	g_reticleTargeting = 1;
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 #define BEARING_ABS(x) fabs(x)
 #define BEARING_DIV(p_a, p_b) ((p_a) / (p_b))
 #else

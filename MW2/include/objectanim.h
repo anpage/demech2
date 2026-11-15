@@ -47,7 +47,7 @@ extern "C"
 	ProjectedVertex* ProjectVertex(ProjectedVertex* p_vertex);
 	MechS32 GetFaceShade(Face* p_face, Vertex* p_vertices);
 	void QueueFace(Face* p_face, Vertex* p_vertices);
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	ProjectedVertex* ClipProjectedEdge(
 		ProjectedVertex* p_a,
 		ProjectedVertex* p_b,

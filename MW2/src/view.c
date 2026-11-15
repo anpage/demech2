@@ -33,7 +33,7 @@
 // GLOBAL: MW23DFX 0x1024e6a4
 MechS32 g_lodQuality = 1;
 
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 // The Matrox edition's: a further scale of Eyepoint::m_detailScale, which UpdateProjection reads once
 // from LOD.PAR's LOD_SCALE line.
 // GLOBAL: MW2MATROX 0x100a596c
@@ -253,7 +253,7 @@ MechScalar g_viewNearPlane;
 // GLOBAL: MW2 0x100ea8d4
 MechS32 g_viewRightScaled;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 // The Matrox edition's shading: the ambient light as a fraction (out of 256), and the length of the
 // light's position and that over 128 (SelectEyepoint).
 // GLOBAL: MW2MATROX 0x101d68a0
@@ -280,7 +280,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 
 	g_eyepoint = eyepoint = p_eyepoint;
 	g_ambientLight = eyepoint->m_ambientLight;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	g_viewAmbientScale = g_ambientLight / 256.0f;
 	g_directionalLight = eyepoint->m_directionalLight;
 	g_viewProjectScaleX = eyepoint->m_projectScaleX;
@@ -377,7 +377,7 @@ void SelectEyepoint(Eyepoint* p_eyepoint)
 // FUNCTION: MW23DFX 0x1002f740
 void UpdateProjection(Eyepoint* p_eyepoint)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 halfWidth;
 	MechS32 top;
 	MechS32 halfHeight;
@@ -394,7 +394,7 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	MechS32 left;
 	MechScalar fov;
 	MechScalar fovY;
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 	MechChar line[0x100];
 	FILE* file;
 #endif
@@ -439,7 +439,7 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 	}
 
 	eyepoint->m_detailScale = scaleX / (g_lodQuality * 160.0f);
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 	// LOD.PAR is the Matrox edition's.
 	if (!g_lodScaleLoaded) {
 		file = fopen("LOD.PAR", "rt");
@@ -553,7 +553,7 @@ void UpdateProjection(Eyepoint* p_eyepoint)
 void SetNearPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 {
 	p_eyepoint->m_nearPlane = g_viewNearPlane = p_value;
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	g_viewNear = p_value << 2;
 #endif
 }
@@ -564,7 +564,7 @@ void SetNearPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 void SetFarPlane(Eyepoint* p_eyepoint, MechScalar p_value)
 {
 	p_eyepoint->m_farPlane = g_viewFarPlane = p_value;
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	if (p_value < 0x1fffffff) {
 		g_viewFar = p_value << 2;
 		p_eyepoint->m_cullDistance = p_value;
@@ -605,7 +605,7 @@ void UpdateViewMatrix(Eyepoint* p_eyepoint)
 // FUNCTION: MW23DFX 0x1002f970
 void ResetEyepointView(Eyepoint* p_eyepoint)
 {
-#ifndef MW2_ACCEL
+#ifndef MW2_NO_PROJECTION_OFFSET
 	p_eyepoint->m_offsetX = 0;
 	p_eyepoint->m_offsetY = 0;
 #endif
@@ -654,7 +654,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 	MechScalar dy;
 	MechS32 behind;
 	MechScalar dz;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechS32 screenX;
 	MechS32 screenY;
 #endif
@@ -665,7 +665,7 @@ MechS32 ProjectWorldPoint(MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 	dx = x - g_viewEyeX;
 	dy = y - g_viewEyeY;
 	dz = z - g_viewEyeZ;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// The Matrox edition projects in floats, dividing by the depth.
 	x = dx * g_viewProjX0 + dy * g_viewProjX1 + dz * g_viewProjX2;
 	y = dx * g_viewProjY0 + dy * g_viewProjY1 + dz * g_viewProjY2;
@@ -766,7 +766,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 			dx,
 			dy,
 			dz,
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			g_eyepoint->m_farPlane + radius
 #else
 			g_eyepoint->m_cullDistance + radius
@@ -775,7 +775,7 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
 #else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
@@ -788,13 +788,13 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 5;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
 #else
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 #endif
 	fov = g_eyepoint->m_fovX;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (!FIXED_IS_NEGATIVE(side)) {
 		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
@@ -814,13 +814,13 @@ MechS32 CullSceneShape(Shape* p_shape)
 		return 6;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
 #else
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 #endif
 	fov = g_eyepoint->m_fovY;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (!FIXED_IS_NEGATIVE(height)) {
 		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
@@ -875,7 +875,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 1;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	depth = g_queueDepth = dx * g_viewRotZ0 + dy * g_viewRotZ1 + dz * g_viewRotZ2;
 #else
 	depth = g_queueDepth = FixedDot29(dx, g_viewRotZ0, dy, g_viewRotZ1, dz, g_viewRotZ2);
@@ -884,13 +884,13 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 4;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	side = dx * g_viewRotX0 + dy * g_viewRotX1 + dz * g_viewRotX2;
 #else
 	side = FixedDot29(dx, g_viewRotX0, dy, g_viewRotX1, dz, g_viewRotX2);
 #endif
 	fov = g_eyepoint->m_fovX;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (!FIXED_IS_NEGATIVE(side)) {
 		limit = (side * fov + -depth) / g_eyepoint->m_frustumScaleX;
 	}
@@ -910,13 +910,14 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 		return 6;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	height = dx * g_viewRotY0 + dy * g_viewRotY1 + dz * g_viewRotY2;
 #else
 	height = FixedDot29(dx, g_viewRotY0, dy, g_viewRotY1, dz, g_viewRotY2);
 #endif
 	fov = g_eyepoint->m_fovY;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
+#ifdef MW2_FRUSTUM_HEIGHT_SIGN_FROM_SIDE
 	// The Matrox edition tests the sign of side here, not of height.
 	if (!FIXED_IS_NEGATIVE(side)) {
 		limit = (height * fov + -depth) / g_eyepoint->m_frustumScaleY;
@@ -924,6 +925,7 @@ MechS32 CullShapeToFrustum(Shape* p_shape)
 	else {
 		limit = (-height * fov + -depth) / g_eyepoint->m_frustumScaleY;
 	}
+#endif
 #else
 	if (height > 0) {
 		limit = MulAddDiv(fov, height, -depth, g_eyepoint->m_frustumScaleY);

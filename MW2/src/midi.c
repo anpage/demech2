@@ -295,7 +295,7 @@ MechS32 FUN_100219f5(MechS32 p_delay, MechS32 p_bearing, MechS32 p_id, MechU32 p
 // FUNCTION: MW23DFX 0x100333c0
 void StartEngineNote(void)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_NO_ENGINE_NOTE
 	// The Matrox edition doesn't play the engine note.
 	return;
 #endif

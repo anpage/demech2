@@ -11,7 +11,7 @@
 
 // The type of GetBearingAndRange's distance: unsigned 16.16 in 1.1, a float in the Matrox
 // edition (MW2_ACCEL).
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 #define BearingDistance MechFloat
 #else
 #define BearingDistance MechU32

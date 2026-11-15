@@ -20,7 +20,7 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -132,7 +132,7 @@ void SelectPane(MechS32 p_index)
 		g_eyepoint->m_viewTop = 0;
 		g_eyepoint->m_viewRight = target->m_x1 - target->m_x0;
 		g_eyepoint->m_viewBottom = target->m_y1 - target->m_y0;
-#ifndef MW2_ACCEL
+#ifndef MW2_NO_PROJECTION_OFFSET
 		g_eyepoint->m_offsetX = 0;
 		g_eyepoint->m_offsetY = 0;
 #endif
@@ -150,7 +150,7 @@ void GetViewCenter(Eyepoint* p_eyepoint, MechS32* p_x, MechS32* p_y)
 	MechS32 x;
 	MechS32 y;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_NO_PROJECTION_OFFSET
 	x = (p_eyepoint->m_viewLeft + p_eyepoint->m_viewRight) / 2;
 	y = (p_eyepoint->m_viewTop + p_eyepoint->m_viewBottom) / 2;
 #else
@@ -180,7 +180,7 @@ void ApplyPaletteResource(MechS32 p_slot)
 {
 	MechU8* palette;
 	MechS32* id;
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 	MechS32 i;
 	PaletteColor color;
 #endif
@@ -189,10 +189,10 @@ void ApplyPaletteResource(MechS32 p_slot)
 	if (*id > 0) {
 		palette = LoadCachedResource(g_mw2PrjHandle, *id, g_resTagPal, 0);
 		if (palette) {
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 			for (i = 0; i < 0x100; i++) {
 				color = ((PaletteColor*) palette)[i];
-#ifdef MW2_3DFX
+#if MW2_PIXEL_FORMAT == 555
 				// The 3Dfx edition's 16-bit pixels: RGB555 from the 6-bit components.
 				VFX_lookaside_write16(i, (color.m_red & ~1) << 9 | (color.m_green & ~1) << 4 | color.m_blue >> 1);
 #else
@@ -200,7 +200,9 @@ void ApplyPaletteResource(MechS32 p_slot)
 				VFX_lookaside_write16(i, (color.m_red & ~1) << 10 | color.m_green << 5 | color.m_blue >> 1);
 #endif
 			}
+#endif
 
+#ifdef MW2_A3D
 			ResetTextColors();
 			A3D_SetPalette((PaletteColor*) palette);
 #else
@@ -266,7 +268,7 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 					p_duration >>= 1;
 				}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				if (g_deltaTime > 0) {
 					steps = (MechFloat) p_duration / g_deltaTime + 0.5f;
 				}
@@ -304,14 +306,23 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 				g_paletteFadeSteps = steps;
 			}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FADE_BACK_DURATION
 			if (p_mode == 1 || p_mode == 2) {
 				g_paletteFadeBackSteps = p_duration;
 			}
 			else {
 				g_paletteFadeBackSteps = 0;
 			}
+#else
+			if (p_mode == 1 || p_mode == 2) {
+				g_paletteFadeBackSteps = steps;
+			}
+			else {
+				g_paletteFadeBackSteps = 0;
+			}
+#endif
 
+#ifdef MW2_A3D
 			switch (p_palette) {
 			case 0xc:
 				g_unk0x100aa1d0 = 1;
@@ -334,13 +345,6 @@ MechS32 StartPaletteFade(MechS32 p_palette, MechS32 p_duration, MechS32 p_mode)
 			default:
 				g_unk0x100aa1d0 = 0;
 				break;
-			}
-#else
-			if (p_mode == 1 || p_mode == 2) {
-				g_paletteFadeBackSteps = steps;
-			}
-			else {
-				g_paletteFadeBackSteps = 0;
 			}
 #endif
 
@@ -454,7 +458,7 @@ void SetBasePalette(MechS32 p_palette)
 void StartPalettes(MechS32 p_dissolve)
 {
 	MechU8* palette;
-#ifdef MW2_ACCEL
+#ifdef MW2_NO_DISSOLVE
 	MechS32 hasPalette;
 
 	// The Matrox edition has no dissolve.

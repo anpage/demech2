@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 

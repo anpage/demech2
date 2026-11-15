@@ -144,7 +144,7 @@ MechS32 IsBelowFacePlane(
 	Vertex* vertex;
 
 	vertex = &p_vertices[*((MechU8*) p_face + p_face->m_indexOffset)];
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	*p_height = vertex->m_worldY -
 				((p_x - vertex->m_worldX) * p_face->m_normal[0] + (p_z - vertex->m_worldZ) * p_face->m_normal[2]) /
 					p_face->m_normal[1];
@@ -347,7 +347,7 @@ MechS32 TestShapePoint(Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScala
 // FUNCTION: MW23DFX 0x100103e0
 MechS32 TestSegmentCollision(Ray* p_ray, Shape** p_hit, MechS32 p_exclude)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechU16 surface;
 	Shape* root;
 	Ray hitRay;
@@ -553,7 +553,7 @@ void EndRayAtShape(Shape* p_shape, Ray* p_ray, MechScalar p_distance)
 // FUNCTION: MW23DFX 0x10010830
 MechS32 IntersectRayFace(Face* p_face, Vertex* p_vertices, Ray* p_ray)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar t;
 	MechScalar d;
 	MechScalar nx;
@@ -664,7 +664,7 @@ MechS32 IsPointInFace(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechScal
 		return FALSE;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	nx = fabs(p_face->m_normal[0]);
 	ny = fabs(p_face->m_normal[1]);
 	nz = fabs(p_face->m_normal[2]);
@@ -789,7 +789,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 			continue;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		offset = (vertex->m_worldX - p_x) +
 				 (prev->m_worldX - vertex->m_worldX) * (p_z - vertex->m_worldZ) / (prev->m_worldZ - vertex->m_worldZ);
 		if (FIXED_IS_NEGATIVE(offset)) {
@@ -810,7 +810,7 @@ MechS32 IsPointInFaceXZ(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 
 			left = TRUE;
 		}
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		else if (offset > 1e-07f) {
 #else
 		else if (offset > 0) {
@@ -937,7 +937,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 			continue;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		offset = (vertex->m_worldX - p_x) +
 				 (prev->m_worldX - vertex->m_worldX) * (p_y - vertex->m_worldY) / (prev->m_worldY - vertex->m_worldY);
 		if (FIXED_IS_NEGATIVE(offset)) {
@@ -958,7 +958,7 @@ MechS32 IsPointInFaceXY(Face* p_face, Vertex* p_vertices, MechScalar p_x, MechSc
 
 			left = TRUE;
 		}
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		else if (offset > 1e-07f) {
 #else
 		else if (offset > 0) {
@@ -1085,7 +1085,7 @@ MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechSc
 			continue;
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		offset = (vertex->m_worldY - p_y) +
 				 (prev->m_worldY - vertex->m_worldY) * (p_z - vertex->m_worldZ) / (prev->m_worldZ - vertex->m_worldZ);
 		if (FIXED_IS_NEGATIVE(offset)) {
@@ -1106,7 +1106,7 @@ MechS32 IsPointInFaceYZ(Face* p_face, Vertex* p_vertices, MechScalar p_y, MechSc
 
 			left = TRUE;
 		}
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		else if (offset > 1e-07f) {
 #else
 		else if (offset > 0) {

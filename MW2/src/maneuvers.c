@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 // The Matrox edition divides by a probe direction only when it isn't 1.
 #define PROBE_DIVIDE(p_n, p_d) ((MechFloat) ((p_d) == 1 ? (p_n) : (p_n) / (p_d)))
 #endif
@@ -199,7 +199,7 @@ void RunManeuver(Player* p_player, MechU16 p_target)
 			}
 
 			if (!AvoidObstacles(p_player)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 				p_player->m_steering->m_turn += p_player->m_maneuverParam * 450;
 #else
 				p_player->m_steering->m_turn += p_player->m_maneuverParam * 0x1c20000;
@@ -546,7 +546,7 @@ void StartManeuver(Player* p_player)
 {
 	p_player->m_ai.m_goal = p_player->m_ai.m_target;
 	p_player->m_maneuverTimer = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_player->m_lastTargetDistance = 0;
 	p_player->m_maneuverParam = p_player->m_maneuverFlag = 0;
 #else
@@ -686,7 +686,7 @@ void EndManeuver(Player* p_player)
 // FUNCTION: MW2 0x10014723
 // FUNCTION: MW2MATROX 0x1001a31b
 // FUNCTION: MW23DFX 0x1001f630
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechFloat p_distance)
 #else
 void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, MechS16 p_distance)
@@ -713,7 +713,7 @@ void PlaceOffsetNav(Player* p_player, MechU32 p_target, MechS16 p_direction, Mec
 // FUNCTION: MW2 0x100147d0
 // FUNCTION: MW2MATROX 0x1001a3c8
 // FUNCTION: MW23DFX 0x1001f6b0
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 void GetOffsetPoint(
 	MechU32 p_target,
 	MechS16 p_direction,
@@ -731,7 +731,7 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 	Matrix* matrix;
 	struct SceneObject* obj;
 	MechScalar y;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar divisor;
 #endif
 
@@ -748,7 +748,7 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 		if (!obj) {
 			GetStaticObjectPosition(thing, p_x, p_y, p_z);
 			*p_y = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			divisor = g_probeDirections[p_direction].m_x;
 			*p_x += (MechFloat) (divisor == 0 ? 0 : PROBE_DIVIDE(p_distance, divisor));
 			divisor = g_probeDirections[p_direction].m_y;
@@ -774,7 +774,7 @@ void GetOffsetPoint(MechU32 p_target, MechS16 p_direction, MechS32* p_x, MechS32
 		break;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	divisor = g_probeDirections[p_direction].m_x;
 	*p_x = (MechFloat) (divisor == 0 ? 0 : PROBE_DIVIDE(p_distance, divisor));
 	divisor = g_probeDirections[p_direction].m_y;
@@ -809,7 +809,7 @@ MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 	MechS32 sharp;
 
 	sharp = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if ((MechFloat) fabs(p_turn) > 5.0f) {
 		sharp = 1;
 		if (!p_player->m_steering->m_throttle) {
@@ -834,14 +834,14 @@ MechS32 IsSharpTurn(Player* p_player, MechScalar p_turn)
 // FUNCTION: MW23DFX 0x1001f950
 void ManeuverStupid(Player* p_player, MechS16 p_target)
 {
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	MechS32 range;
 #endif
 	MechScalar heading;
 
 	SetTarget(p_player, p_target);
 	if (!AvoidObstacles(p_player)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 15000);
 #else
 		range = 15000;
@@ -881,7 +881,7 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 			p_player->m_steering->m_throttle = GetApproachThrottle(p_player, 4000);
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if ((MechFloat) fabs(p_player->m_steering->m_throttle) < 1e-7f && fabs(heading) > 5.0) {
 #else
 		if (!p_player->m_steering->m_throttle && abs(heading) > 0x50000) {
@@ -921,7 +921,7 @@ void ManeuverBehind(Player* p_player, MechS16 p_target)
 // FUNCTION: MW23DFX 0x1001faf0
 MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechFloat scale;
 #else
 	MechDouble scale;
@@ -940,7 +940,7 @@ MechS32 ManeuverAchick(Player* p_player, MechS16 p_target)
 	}
 
 	RunAIWeapons(p_player, heading);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	scale = GetClosingRate(p_player) / 7.7f;
 	if (scale < 1) {
 		scale = 1;
@@ -1140,7 +1140,7 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 		return result;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	turn = fabs(turn);
 #else
 	turn = abs(turn);
@@ -1156,7 +1156,7 @@ MechS32 ManeuverAdfa(Player* p_player, MechS16 p_target)
 
 	if (p_player->m_targetInfo.m_distance > 1000) {
 		rate = GetClosingRate(p_player);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (rate > (p_player->m_targetInfo.m_distance <= 6000 ? 9.0f : 36.0f)) {
 #else
 		if (rate > (p_player->m_targetInfo.m_distance <= 6000 ? 9 : 36)) {
@@ -1341,7 +1341,7 @@ void SetJumpJets(Player* p_player, MechS8 p_value)
 // FUNCTION: MW23DFX 0x100201c0
 MechS32 AvoidObstacles(Player* p_player)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar length;
 	Shape* hit;
 	Ray ray;
@@ -1561,7 +1561,7 @@ MechS32 AvoidObstacles(Player* p_player)
 // FUNCTION: MW23DFX 0x100204b0
 MechS32 IsStandableShape(Shape* p_shape)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	// 0.766 (cos 40 degrees), where 1.1 has 0xc41b.
 	if (HasHeightTest(p_shape) && g_segmentNormalY >= 0.766f) {
 #else
@@ -1587,7 +1587,7 @@ void BuildProbeRay(
 	MechS32 p_fromEdge
 )
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	Matrix* matrix;
 	MechScalar x;
 	MechScalar y;
@@ -1684,7 +1684,7 @@ void BuildProbeRay(
 // FUNCTION: MW23DFX 0x10020670
 MechS16 GetAvoidSide(Player* p_player, Shape* p_shape, MechScalar p_x, MechScalar p_y, MechScalar p_z)
 {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar dz;
 	MechScalar unused;
 	MechScalar distance;
@@ -1743,7 +1743,7 @@ MechScalar GetHeadingTo(Player* p_player, MechS16 p_target)
 
 	target = p_player->m_targetInfo.m_target;
 	SetTarget(p_player, p_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	heading = FIXED_MOD360(GetTargetBearing(p_player) + 360.0);
 #else
 	heading = FIXED_MOD360(GetTargetBearing(p_player) + FIXED_CONST(360));
@@ -1873,7 +1873,7 @@ void JumpToTurn(Player* p_player)
 	}
 
 	SetTarget(p_player, p_player->m_ai.m_target);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	turn = fabs(GetTargetBearing(p_player));
 #else
 	turn = abs(GetTargetBearing(p_player));
@@ -1898,7 +1898,7 @@ MechS32 CanJump(Player* p_player, MechS32 p_limit)
 	Mech* mech;
 
 	mech = p_player->m_mech;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	return mech->m_jumpFuel >= 6 && (MechFloat) fabs(mech->m_jumpThrust) >= 1e-7f &&
 		   FIXED_TO_INT(mech->m_heat) < p_limit;
 #else
@@ -1998,7 +1998,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 			range = FIXED_CONST(3);
 			maxAngle = 15;
 			pitch = p_mech->m_player->m_targetInfo.m_pitch / 0xf00;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			bearing = fmod(GetTargetBearing(p_mech->m_player), 360.0);
 #else
 			bearing = FIXED_TO_INT(GetTargetBearing(p_mech->m_player)) % 360;
@@ -2012,7 +2012,7 @@ void DodgeShot(WeaponSlot* p_slot, Mech* p_mech)
 	if (target && CanJump(target, 0x41)) {
 		if (RandomIntBelow(3)) {
 			heading = GetHeadingTo(target, p_mech->m_player->m_index);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			step = heading / 90;
 #else
 			step = FixedDiv16(heading, 0x5a0000) >> 16;
@@ -2058,7 +2058,7 @@ MechS16 ChooseFlankPlace(Player* p_player)
 	Player* leader;
 
 	leader = g_players[p_player->m_ai.m_goal & 0xff];
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	angle = GetHeadingTo(leader, p_player->m_index | 0x200) / 45;
 	place = angle + 0.5f;
 #else

@@ -85,7 +85,7 @@ void UpdateMotion(Player* p_player)
 	}
 	else {
 		height = p_player->m_mech->m_throttle.m_value - FIXED_RAW(0x400);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (height < 1e-07f) {
 #else
 		if (height < 0) {

@@ -1,6 +1,4 @@
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "targetpanel.h"
 
 #include "classtable.h"
@@ -59,7 +57,7 @@ MechS32 g_targetPanelMode = 1;
 // GLOBAL: MW23DFX 0x1024d050
 MechS32 g_announceTargetSide = 0;
 
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 // The level of detail the target panel loads a target mech's class at (LOD.PAR's
 // TargetWindowREP, read once).
 // GLOBAL: MW2MATROX 0x100a4a54
@@ -277,17 +275,20 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 		return;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 	g_textColors[0xe] = PIXEL_COLOR(color);
 	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
 	g_textColors[0xe] = PIXEL_COLOR(0xe);
-	meters = FIXED_TO_INT(mech->m_player->m_targetInfo.m_range) / 100;
-	if (meters > 1000) {
-		km = meters / 1000.0f;
 #else
 	g_textColors[0xe] = color;
 	VFX_string_draw(p_panel->m_target, 0, 0, font, p_panel->m_name, g_textColors);
 	g_textColors[0xe] = 0xe;
+#endif
+#ifdef MW2_FLOAT_SCALARS
+	meters = FIXED_TO_INT(mech->m_player->m_targetInfo.m_range) / 100;
+	if (meters > 1000) {
+		km = meters / 1000.0f;
+#else
 	meters = mech->m_player->m_targetInfo.m_range / 100;
 	if (meters > 1000) {
 		km = meters / 1000.0;
@@ -302,7 +303,7 @@ void DrawTargetPanelText(CockpitPanel* p_panel)
 
 	UnlockCachedResource(HUD_ART_RESOLUTION + 1, g_resTagFont);
 	g_lastPanelTarget = mech->m_player->m_targetInfo.m_target;
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 }
@@ -335,12 +336,12 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	void* noTarget;
 	void* noObject;
 	MechS32 targetIndex;
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 	MechChar line[0x100];
 	FILE* file;
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 	if (!p_panel->m_enabled || !g_targetPanelMode) {
 		return;
 	}
@@ -373,7 +374,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	if (!kind || (player->m_targetInfo.m_target & 0x1000)) {
 		VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 		OutlinePane(p_panel->m_target, 8);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(p_panel->m_target);
 #endif
 		return;
@@ -382,22 +383,24 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	if (kind == 0x100) {
 		centerX = (p_panel->m_target->m_x1 - p_panel->m_target->m_x0) / 2;
 		centerY = (p_panel->m_target->m_y1 - p_panel->m_target->m_y0) / 2;
+#ifdef MW2_HUD_SHAPE_IDS
 		if (!(g_navTable[index].m_flags & 0x20)) {
 			icon = 0x106;
 		}
 		else {
 			icon = 0x109;
 		}
+#endif
 
 		if (icon) {
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 			FUN_1001e01a(centerX, centerY, icon, p_panel->m_target);
 #else
 			DrawPaneShape(centerX, centerY, icon, p_panel->m_target);
 #endif
 			OutlinePane(p_panel->m_target, 8);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 			FUN_10088280(p_panel->m_target);
 #endif
 		}
@@ -406,7 +409,7 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	}
 
 	if (kind == 0x200) {
-#ifdef MW2_MATROX
+#ifdef MW2_LOD_PAR
 		if (!g_targetLodParRead) {
 			file = fopen("LOD.PAR", "rt");
 			if (file) {
@@ -444,13 +447,17 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	heading = player->m_targetInfo.m_heading;
 	object = GetLocalTargetObject();
 	if (!object) {
+#ifdef MW2_HUD_SHAPE_IDS
 		noTarget = LoadCachedResource(g_mw2PrjHandle, 0x5e, g_resTagShp, 0);
+#endif
 		if (noTarget) {
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 			VFX_shape_draw(p_panel->m_target, noTarget, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
+#ifdef MW2_HUD_SHAPE_IDS
 			UnlockCachedResource(0x5e, g_resTagShp);
-#ifdef MW2_MATROX
+#endif
+#ifdef MW2_KEY_COLOR
 			FUN_10088280(p_panel->m_target);
 #endif
 		}
@@ -458,13 +465,17 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		return;
 	}
 	else if (!object->m_shape) {
+#ifdef MW2_HUD_SHAPE_IDS
 		noObject = LoadCachedResource(g_mw2PrjHandle, 0x5b, g_resTagShp, 0);
+#endif
 		if (noObject) {
 			VFX_pane_wipe(p_panel->m_target, PIXEL_COLOR(0));
 			VFX_shape_draw(p_panel->m_target, noObject, 0, 1, 1);
 			OutlinePane(p_panel->m_target, 8);
+#ifdef MW2_HUD_SHAPE_IDS
 			UnlockCachedResource(0x5b, g_resTagShp);
-#ifdef MW2_MATROX
+#endif
+#ifdef MW2_KEY_COLOR
 			FUN_10088280(p_panel->m_target);
 #endif
 		}
@@ -480,10 +491,14 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 		distance = g_players[targetIndex]->m_mech->m_radius * 3;
 	}
 
+#ifdef MW2_FLOAT_SCALARS
 	dx = -(FixedSin(heading) * distance);
+#endif
 	view[0] = x + dx;
 	view[1] = y;
+#ifdef MW2_FLOAT_SCALARS
 	dz = -(FixedCos(heading) * distance);
+#endif
 	view[2] = z + dz;
 	view[3] = heading;
 	view[4] = 0;
@@ -497,17 +512,19 @@ void DrawTargetPanel(CockpitPanel* p_panel)
 	}
 
 	g_renderSettings.m_drawSky = g_renderSettings.m_drawGround = 0;
+#ifdef MW2_A3D
 	A3D_PANE_WIPE(p_panel->m_target, PIXEL_COLOR(0));
+#endif
 	if (g_cockpitPowerState == 2) {
 		RenderViewToPane(7, FIXED_CONST(2), view, object);
 	}
 
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	VFX_pane_wipe(p_panel->m_target, 0xfffe);
 #endif
 	OutlinePane(p_panel->m_target, 8);
 	g_renderSettings = saved;
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(p_panel->m_target);
 #endif
 #else

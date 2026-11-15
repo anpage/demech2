@@ -390,7 +390,7 @@ MechS32 SpawnShot(Player* p_player, WeaponSlot* p_slot)
 			shot->m_velocity[0] = dx * speed;
 			shot->m_velocity[1] = dy * speed;
 			shot->m_velocity[2] = dz * speed;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			shot->m_steering[1] = -(def->m_gravity * g_gravity);
 #else
 			shot->m_steering[1] = FixedMul16(-g_gravity, def->m_gravity << 16);
@@ -836,7 +836,7 @@ void UpdateWeaponLock(Mech* p_mech)
 			pitch = FIXED_MOD360(p_mech->m_player->m_targetInfo.m_pitch + p_mech->m_torsoPitch.m_value);
 		}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (inRange && fabs(yaw) < 16 && fabs(pitch) < 16) {
 #else
 		if (inRange && abs(yaw) < 0x100000 && abs(pitch) < 0x100000) {
@@ -886,7 +886,7 @@ Shape* UpdateAimDistance(Player* p_player)
 	if (collided && hit) {
 		flags = hit->m_kind;
 		if ((flags & 0x100) || (flags & 0x200)) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			if ((length = GetRayLength(&ray)) > 2000) {
 				p_player->m_aimDistance.m_value = length;
 			}
@@ -964,7 +964,7 @@ void BuildAimRay(Player* p_player, Ray* p_ray)
 void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, MechScalar* p_z)
 {
 	Matrix matrix;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar z;
 	MechScalar y;
 	Mech* mech;
@@ -977,7 +977,7 @@ void GetEyeAimDirection(Player* p_player, MechScalar* p_x, MechScalar* p_y, Mech
 #endif
 
 	*p_x = *p_y = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	*p_z = 1.0f;
 #else
 	*p_z = 0x10000;
@@ -1041,7 +1041,7 @@ void SpawnLaunchFx(
 	MechScalar sideY;
 
 	yaw = FixedAtan2(p_dx, p_dz);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	pitch = FixedAsin(p_dy);
 #else
 	pitch = FixedAsin(p_dy << 13);
@@ -1054,7 +1054,7 @@ void SpawnLaunchFx(
 		sideY = 0;
 		sideZ = p_dx;
 		NormalizeVectorGuarded(&sideX, &sideY, &sideZ);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		x += offset * sideX;
 		z += offset * sideZ;
 		upX = p_dy * sideZ;
@@ -1077,7 +1077,7 @@ void SpawnLaunchFx(
 
 	SetObjPosition(p_obj, x, y, z);
 	speed = p_obj->m_shape->m_radius * 2;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_dx *= speed;
 	p_dy *= speed;
 	p_dz *= speed;

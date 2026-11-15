@@ -21,12 +21,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
 // The debug overlays' text color (the Matrox edition's palette has it elsewhere).
-#ifdef MW2_ACCEL
+#ifdef MW2_DEBUG_OVERLAY_COLOR
 #define OVERLAY_TEXT_COLOR 0x52
 #else
 #define OVERLAY_TEXT_COLOR 0x4f
@@ -306,7 +306,7 @@ void DrawDebugOverlays(void)
 		HideSceneInfo();
 	}
 
-#ifndef MW2_ACCEL
+#ifndef MW2_NO_EYE_POSITION_OVERLAY
 	if (g_showEyePosition) {
 		ShowEyePosition(g_eyepoint);
 	}

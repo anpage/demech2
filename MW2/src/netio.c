@@ -44,7 +44,7 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 
 	g_sendResult = g_directPlay->lpVtbl->Send(g_directPlay, g_localDpid, 0, flags, p_msg, p_size);
 	if (g_sendResult == DPERR_BUSY) {
-#ifndef MW2_3DFX
+#ifndef MW2_NO_NET_DEBUG_PRINTS
 		DebugPrint("Send '%c%c' --- Busy=%d\n", p_msg[0], p_msg[1], g_sendResult);
 #endif
 		switch (g_sendRetries++) {
@@ -65,7 +65,7 @@ void NetSend(MechU8* p_msg, MechU32 p_size)
 		g_sendResult = 5;
 	}
 	else if (g_sendResult) {
-#ifndef MW2_3DFX
+#ifndef MW2_NO_NET_DEBUG_PRINTS
 		if (g_sendResult < 0) {
 			DebugPrint("Send '%c%c' --- Error %d\n", g_sendResult & 0xff);
 		}
@@ -110,7 +110,7 @@ DPID NetReceive(void)
 	result = g_directPlay->lpVtbl->Receive(g_directPlay, &from, &to, DPRECEIVE_ALL, g_netRecvBuffer, &size);
 	if (result == DP_OK) {
 		g_recvRetries = 0;
-#ifndef MW2_3DFX
+#ifndef MW2_NO_NET_DEBUG_PRINTS
 		DebugPrint("Recv '%c%c' from %d (%i)\n", g_netRecvBuffer[0], g_netRecvBuffer[1], from, g_currentClock);
 #endif
 		return from;

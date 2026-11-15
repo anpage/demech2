@@ -41,9 +41,9 @@
 #include <string.h>
 #include <windows.h>
 
-// The messages carry 16.16 fixed point: the accelerated editions (MW2_ACCEL) convert their floats,
-// rounding.
-#ifdef MW2_ACCEL
+// The messages carry 16.16 fixed point: the accelerated editions (MW2_FLOAT_SCALARS) convert
+// their floats, rounding.
+#ifdef MW2_FLOAT_SCALARS
 #define NET_FIXED(x) ((MechS32) ((x) * 65536.0f + 0.5f))
 #define NET_UNFIXED(x) ((x) * (1.0f / 65536.0f))
 #else
@@ -52,7 +52,7 @@
 #endif
 
 // The damage level (0 to 15) of a section with p_armor and p_internal left, out of p_levels.
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 #define SECTION_DAMAGE_LEVEL(p_armor, p_internal, p_levels)                                                            \
 	(15 - (MechS32) (((p_internal) + (p_armor) / g_localArmorPerLevel) * 3 / (MechS32) (p_levels)))
 #else
@@ -860,7 +860,7 @@ void ReceiveStateMsg(NetStateMsg* p_msg, MechS32 p_slot)
 		}
 
 		RaisePartDamageLevel(mech->m_player->m_obj, damage2 > damage1 ? damage2 : damage1, i + 1);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		if (section->m_internal < 1e-07f && !(section->m_flags & 0x2000)) {
 #else
 		if (section->m_internal <= 0 && !(section->m_flags & 0x2000)) {
@@ -997,7 +997,7 @@ void ReceiveCollisionMsg(NetCollisionMsg* p_msg, MechS32 p_slot)
 	mech->m_newVelocityX = NET_UNFIXED(msg->m_velocityX);
 	mech->m_newVelocityY = NET_UNFIXED(msg->m_velocityY);
 	mech->m_newVelocityZ = NET_UNFIXED(msg->m_velocityZ);
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if ((volume = ApproximateVectorLength(mech->m_newVelocityX, mech->m_newVelocityY, mech->m_newVelocityZ)) >
 		23.020258f) {
 		volume = 23.020258f;
@@ -1228,7 +1228,7 @@ MechS32 FindSession(LPDPSESSIONDESC p_desc)
 	if (strcmp(p_desc->szSessionName, g_sessionName) == 0) {
 		return 1;
 	}
-#ifdef MW2_3DFX
+#ifdef MW2_NET_RETURN_ZERO
 
 	return 0;
 #endif
@@ -1384,7 +1384,7 @@ MechS32 StopExternalIO(void)
 
 	g_netRole = 0;
 	g_clockMode = 0;
-#ifdef MW2_3DFX
+#ifdef MW2_NET_RETURN_ZERO
 	return 0;
 #endif
 }

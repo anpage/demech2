@@ -10,7 +10,7 @@
 #include "types.h"
 #include "vfx3d.h"
 #include "window.h"
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #include "accel/a3d.h"
 #include "accel/texturepoly.h"
 #include "eyepoint.h"
@@ -32,7 +32,7 @@
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 DECOMP_SIZE_ASSERT(AnimFrame, 0x14)
 #else
 DECOMP_SIZE_ASSERT(AnimFrame, 0x08)
@@ -64,7 +64,7 @@ MechS32 g_animSetUsed = 0;
 // GLOBAL: MW23DFX 0x1024e490
 MechS32 g_animSetIsSequence = 0;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // The accelerated editions' tint of the animated textures, for the palettes 0xc, 0x10 and 0x11
 // (StartPaletteFade): whether it is on, and its color.
 // GLOBAL: MW2MATROX 0x100aa1d0
@@ -79,7 +79,7 @@ MechU16* g_lumaTables = NULL;
 // GLOBAL: MW2MATROX 0x100aa1d8
 // GLOBAL: MW23DFX 0x1024e498
 MechS32 g_preloadCels[] = {
-#ifdef MW2_ACCEL
+#ifdef MW2_PRJ_CEL_IDS
 	// The Matrox edition's resource file numbers the cels differently.
 	598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618,
 	619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 94,  95,  96,  97,  98,  99,  100, 101, 102, 103,
@@ -111,7 +111,7 @@ AnimFrame g_animFrames[0x200][0x20];
 // GLOBAL: MW23DFX 0x1015f0f0
 Animation g_animations[0x200];
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // GLOBAL: MW2MATROX 0x10184700
 // GLOBAL: MW23DFX 0x10160cf0
 MechFloat g_unk0x10184700[3];
@@ -121,7 +121,7 @@ MechFloat g_unk0x10184700[3];
 // GLOBAL: MW23DFX 0x10160d00
 WINDOW g_animFrameBuffer;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // Rotates the texture point (*p_u, *p_v) about the texture's centre by the angle whose cosine and
 // sine are p_cos and p_sin.
 // FUNCTION: MW2MATROX 0x10050d60
@@ -144,7 +144,7 @@ void RotateTexturePoint(MechFloat p_cos, MechFloat p_sin, MechFloat* p_u, MechFl
 // FUNCTION: MW2 0x10068d10
 // FUNCTION: MW2MATROX 0x10050dbc
 // FUNCTION: MW23DFX 0x1002c880
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 MechS32 DrawAnimatedPolygon(
 	MechS32 p_index,
 	MechS32 p_count,
@@ -889,7 +889,7 @@ void FreeAnimations(void)
 	}
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 #ifdef MW2_3DFX
 // Returns the pixels of animation p_index's current frame (its CEL resource, from the cache), and
 // its size; NULL if it has none.

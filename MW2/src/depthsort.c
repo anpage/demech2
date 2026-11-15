@@ -26,20 +26,22 @@
 #include "vertex.h"
 #include "view.h"
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #include "palette.h"
+#endif
+#ifdef MW2_A3D
 #include "render.h"
 #endif
 
 #include <string.h>
 
-#ifdef MW2_MATROX
+#ifdef MW2_DEPTH_ENTRY_TAG
 DECOMP_SIZE_ASSERT(DepthEntry, 0xc)
 #else
 DECOMP_SIZE_ASSERT(DepthEntry, 0x8)
 #endif
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 DECOMP_SIZE_ASSERT(ProjectedVertex, 0x3c)
 DECOMP_SIZE_ASSERT(QueuedPolygon, 0x10)
 #else
@@ -126,7 +128,7 @@ MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 	else {
 		prev = cursor;
 		while (cursor) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 			if (cursor->m_key * g_eyepoint->m_detailScale > p_depth) {
 #else
 			if (FixedMul16(g_eyepoint->m_detailScale, cursor->m_key) > p_depth) {
@@ -175,7 +177,7 @@ MechS32 QueueShapeLod(Shape* p_shape, MechScalar p_depth)
 	return 0;
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 // The Matrox edition's draws a queued polygon itself: a pixel or a line (when g_renderSettings
 // draws those), else through m_drawPolygon, first filled and outlined in wireframe mode 1.
 // FUNCTION: MW2MATROX 0x100233e0
@@ -214,7 +216,7 @@ void DrawQueuedPolygon(QueuedPolygon* p_poly)
 	}
 	else if (g_renderSettings.m_wireframe == 1) {
 		g_renderSettings.m_drawPolygon(count, vertices, 0, 0xf);
-#ifdef MW2_3DFX
+#ifdef MW2_OUTLINE_CLEARS_FLAGS
 		// The 3Dfx edition's outline also clears bits 12, 14 and 15 of the flags.
 		g_renderSettings.m_drawPolygon(count, vertices, (flags & ~0xd000) | 0x2000, p_poly->m_outcodes);
 #else
@@ -421,7 +423,7 @@ void DrawShapeListFrom(Shape* p_root, Eyepoint* p_eyepoint)
 	DrawShapeList(p_root);
 }
 
-#ifndef MW2_ACCEL
+#ifndef MW2_A3D
 // Draws a queued polygon, clipping it to the screen first if a vertex lies far outside it.
 // FUNCTION: MW2 0x10033d32
 void DrawQueuedPolygon(QueuedPolygon* p_poly)

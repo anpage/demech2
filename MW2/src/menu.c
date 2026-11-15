@@ -5,7 +5,7 @@
 #include "decomp.h"
 #include "dorcs.h"
 #include "fixeddiv.h"
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 #include "fixedmul.h"
 #endif
 #include "inputmap.h"
@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <windows.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -58,7 +58,7 @@ MenuDefinition* g_menuDefinitions[11] = {
 	NULL,
 };
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 // GLOBAL: MW2MATROX 0x1012c950
 // GLOBAL: MW23DFX 0x10245700
 undefined2 g_textColors[0x100];
@@ -194,7 +194,7 @@ void FreeMenus(void)
 	g_menuSlotsTail = NULL;
 }
 
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 // ScalePointToFrame for the menus: at 800x600 they keep the size they have at 640x480, eight
 // tenths of the frame.
 // FUNCTION: MW23DFX 0x100654f0
@@ -271,7 +271,7 @@ void LayoutMenu(MenuDefinition* p_menu)
 	p_menu->m_cursorOrigin.m_y = p_menu->m_itemOrigin.m_y = p_menu->m_controlOrigin.m_y = origin.m_y + origin.m_y;
 	ScaleRectToScreen(target->m_window, target, target);
 	ScaleRectToScreen(background->m_window, background, background);
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 	ScaleMenuPointToFrame(target, &origin, &origin);
 	ScaleMenuPointToFrame(target, &p_menu->m_titleOrigin, &p_menu->m_titleOrigin);
 	ScaleMenuPointToFrame(target, &p_menu->m_cursorOrigin, &p_menu->m_cursorOrigin);
@@ -291,7 +291,7 @@ void LayoutMenu(MenuDefinition* p_menu)
 	}
 
 	p_menu->m_textOrigin = origin;
-#ifdef MW2_3DFX
+#ifdef MW2_RES_800X600
 	// At 800x600, the menus keep their 640x480 size: their lines move down by 30 pixels.
 	if (g_screenWidthMinus1 > 700) {
 		p_menu->m_titleOrigin.m_y += 0x1e;
@@ -609,7 +609,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 
 	if (p_menu->m_background) {
 		VFX_shape_draw(backgroundTarget, p_menu->m_background, 0, 0, 0);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 		FUN_10088280(backgroundTarget);
 #endif
 	}
@@ -619,7 +619,7 @@ MechS32 DrawAndRunMenu(MenuDefinition* p_menu)
 	}
 
 	RunMenuItems(p_menu);
-#ifdef MW2_MATROX
+#ifdef MW2_KEY_COLOR
 	FUN_10088280(target);
 #endif
 	if (!IsMenuPageStackEmpty(p_menu)) {

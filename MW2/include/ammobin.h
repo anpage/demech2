@@ -17,7 +17,7 @@ typedef struct AmmoBin {
 	MechS16 m_weapon;  // 0x04 — an index into Mech::m_weapons, or -1
 	MechS16 m_id;      // 0x06 — the id in MechSection::m_slots
 	MechS16 m_unk0x08; // 0x08
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	MechScalar m_damage; // 0x0a
 #else
 	MechS16 m_damage; // 0x0a

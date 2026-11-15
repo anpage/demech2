@@ -41,7 +41,7 @@ MechChar g_debugLogName[0x100] = "debug.log";
 // GLOBAL: MW23DFX 0x1024aad8
 MechChar g_debugMessageTitle[0x50] = "DEBUG Message";
 
-#ifdef MW2_ACCEL
+#ifdef MW2_EXTRA_DEBUG_PRINTS
 // The digits MonoPrintHex writes.
 // GLOBAL: MW2MATROX 0x100ae298
 // GLOBAL: MW23DFX 0x1024ab28
@@ -220,7 +220,7 @@ void DebugPrintInternal(const MechChar* p_format, ...)
 	}
 }
 
-#ifdef MW2_ACCEL
+#ifdef MW2_EXTRA_DEBUG_PRINTS
 // Writes p_value's low four hex digits on the monochrome display's row p_row + 1, ending at its
 // last column.
 // FUNCTION: MW2MATROX 0x1006eab0

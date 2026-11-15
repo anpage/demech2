@@ -1,6 +1,4 @@
-#ifdef MW2_ACCEL
-#define FIXEDTRIG_FLOAT_SINE /* the Matrox edition's sine (fixedtrig.h) */
-#endif
+#define FIXEDTRIG_FLOAT_SINE /* the accelerated editions' float sine, where they have it (fixedtrig.h) */
 #include "screenscale.h"
 
 #include "clock.h"
@@ -26,7 +24,7 @@
 #include <string.h>
 #include <windows.h>
 
-#ifdef MW2_ACCEL
+#ifdef MW2_VFX16
 #include "accel/vfx16.h"
 #endif
 
@@ -158,7 +156,7 @@ PANE* ScaleRectToLowRes(PANE* p_rect, MechScalar p_aspect)
 {
 	MechScalar scale;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	scale = p_aspect / 0.8333333f;
 	p_rect->m_x0 = FixedMul16(p_rect->m_x0, 319);
 	p_rect->m_y0 = FixedMul16(p_rect->m_y0, 199);
@@ -615,7 +613,7 @@ void TilePane(PANE* p_target, void* p_shape, MechS32 p_frame)
 }
 
 // The Matrox edition's slopes are floats: a product or a quotient with one converts to an integer.
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 #define SLOPE_DIV(a, b) ((MechS32) ((a) / (b)))
 #define SLOPE_MUL(a, b) ((MechS32) ((a) * (b)))
 #else
@@ -632,7 +630,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 {
 	MechS32 steep;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	steep = !FIXED_IS_NONZERO(p_dx);
 #else
 	if (p_dx == 0 || p_dy / p_dx > 0x7fff || p_dy / p_dx < -0x8000) {
@@ -644,7 +642,7 @@ MechS32 GetLineSlope(MechScalar p_dx, MechScalar p_dy, MechScalar* p_slope)
 #endif
 
 	if (!steep) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		*p_slope = p_dy / p_dx;
 #else
 		*p_slope = FixedDiv16(p_dy, p_dx);
@@ -698,7 +696,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	MechScalar dx;
 	MechScalar dy;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_angle = fmod(fmod(p_angle, 360.0) + 360.0, 360.0);
 #else
 	p_angle = (p_angle % 0x1680000 + 0x1680000) % 0x1680000;
@@ -725,7 +723,7 @@ Point* GetRectNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	}
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
@@ -759,7 +757,7 @@ Point* GetRectEdgeAtSlope(Point* p_half, GaugeQuadrant p_quadrant, MechScalar p_
 		ratio = 0;
 	}
 	else {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		ratio = (MechScalar) p_half->m_y / p_half->m_x;
 #else
 		ratio = FixedDiv16(p_half->m_y, p_half->m_x);
@@ -836,12 +834,11 @@ void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 	MechS32 centerY;
 	MechS32 radiusY;
 	MechS32 radius;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	centerX = (p_target->m_x1 - p_target->m_x0 + 1) >> 1;
 	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
 	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
 	radiusY = (MechS32) (radius * g_eyepoint->m_pixelAspect);
-	VFX_ellipse_draw(p_target, centerX, centerY, radius, radiusY, PIXEL_COLOR(p_color));
 #else
 	MechS32 aspect;
 
@@ -850,6 +847,10 @@ void DrawGaugeEllipse(PANE* p_target, MechS32 p_color)
 	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
 	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
 	radiusY = FixedMul16(radius, aspect);
+#endif
+#ifdef MW2_VFX16
+	VFX_ellipse_draw(p_target, centerX, centerY, radius, radiusY, PIXEL_COLOR(p_color));
+#else
 	VFX_ellipse_draw(p_target, centerX, centerY, radius, radiusY, p_color);
 #endif
 }
@@ -885,7 +886,7 @@ void FillGaugeEllipse(PANE* p_target, Rect* p_rect, MechS32 p_color)
 // FUNCTION: MW2 0x10057fbe
 // FUNCTION: MW2MATROX 0x10072834
 // FUNCTION: MW23DFX 0x10006ef0
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 MechS32 IsInsideGaugeEllipse(PANE* p_target, Point* p_point)
 #else
 MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
@@ -897,7 +898,7 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 	MechS32 dx;
 	MechS32 dy;
 	MechS32 distanceSquared;
-#ifndef MW2_ACCEL
+#ifndef MW2_FLOAT_SCALARS
 	MechS32 aspect;
 
 	aspect = g_eyepoint->m_pixelAspect;
@@ -906,7 +907,7 @@ MechS32 IsInsideGaugeEllipse(PANE* p_target, MechS32 p_x, MechS32 p_y)
 	centerY = (p_target->m_y1 - p_target->m_y0 + 1) >> 1;
 	radiusSquared = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
 	radiusSquared = radiusSquared * radiusSquared;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dx = p_point->m_x - centerX;
 	dy = (p_point->m_y - centerY) / g_eyepoint->m_pixelAspect;
 #else
@@ -950,7 +951,7 @@ Point* GetEllipseNeedleToward(PANE* p_target, Point* p_point, Point* p_out)
 		quadrant.m_bits.m_steep = 0;
 	}
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dy = dy / g_eyepoint->m_pixelAspect;
 #else
 	dy = FixedDiv16(dy, g_eyepoint->m_pixelAspect);
@@ -972,7 +973,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	MechScalar dx;
 	MechScalar dy;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_angle = fmod(fmod(p_angle, 360.0) + 360.0, 360.0);
 #else
 	p_angle = (p_angle % 0x1680000 + 0x1680000) % 0x1680000;
@@ -999,7 +1000,7 @@ Point* GetEllipseNeedleAt(PANE* p_target, MechScalar p_angle, Point* p_out)
 	}
 #endif
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	dx = FixedCos(p_angle);
 	dy = FixedSin(p_angle);
 	dy = dy * g_eyepoint->m_pixelAspect;
@@ -1049,7 +1050,7 @@ Point* GetEllipseEdgeAtAngle(
 
 	center = *p_center;
 	radius = (p_target->m_x1 - p_target->m_x0 + 1) / 2 - 1;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	radiusY = radius * g_eyepoint->m_pixelAspect;
 #else
 	radiusY = FixedMul16(radius, g_eyepoint->m_pixelAspect);
@@ -1062,7 +1063,7 @@ Point* GetEllipseEdgeAtAngle(
 	case 1:
 	case 2:
 	case 3:
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		result.m_x = center.m_x - (MechS32) (radius * FixedCos(p_angle));
 		result.m_y = center.m_y - (MechS32) (radiusY * FixedSin(p_angle));
 #else

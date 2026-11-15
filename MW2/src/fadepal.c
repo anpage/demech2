@@ -51,7 +51,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 	MechScalar fovX;
 	MechS32 palette;
 	MechS32 view[7];
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 	undefined4 saved0x28;
 	undefined4 saved0x2c;
 #endif
@@ -67,7 +67,7 @@ void RenderViewToPane(MechU32 p_target, MechScalar p_fovX, MechS32* p_view, stru
 	UpdateViewMatrix(g_eyepoint);
 	SelectEyepoint(g_eyepoint);
 	if (g_renderSettings.m_drawSky || g_renderSettings.m_drawGround) {
-#ifdef MW2_ACCEL
+#ifdef MW2_A3D
 		saved0x28 = g_renderSettings.m_texturedSky;
 		saved0x2c = g_renderSettings.m_texturedGround;
 		g_renderSettings.m_texturedSky = 0;
@@ -116,7 +116,7 @@ void FlashZappedPaletteLevel(MechU32 p_level)
 {
 	MechS32 duration;
 
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	if (p_level > 15) {
 		duration = 0x16a;
 	}
@@ -178,7 +178,7 @@ void EmitWreckSmoke(Mech* p_mech)
 		SpawnEffect(p_mech->m_player->m_killer, 0xd, x, y, z, x, y, z);
 	}
 	else if (RandomIntBelow(100) <= 20) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		x += RandomNormal() / 2.0f;
 		z += RandomNormal() / 2.0f;
 #else
@@ -312,7 +312,7 @@ void PlayPlayerHitFeedback(MechScalar p_x, MechScalar p_y, MechScalar p_z)
 
 	off0c = 0;
 	off14 = 0;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	p_x = p_x * -25;
 	p_y = p_y * -25;
 	p_z = p_z * -25;

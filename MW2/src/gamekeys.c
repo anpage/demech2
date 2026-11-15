@@ -174,7 +174,7 @@ void HandleCheatInput(MechS16 p_key)
 			ShowInGameMessage("Invulnerability OFF", 1, 0x16a, 0x32);
 		}
 	}
-#ifdef MW2_ACCEL
+#ifdef MW2_LEMMY_CHEAT
 	else if (TypedCodeMatches("v\x7fwwc")) { // "lemmy"
 		g_difficulty->m_invulnerable = 1;
 		g_difficulty->m_unlimitedAmmo = 1;
@@ -207,7 +207,7 @@ void HandleCheatInput(MechS16 p_key)
 	else if (TypedCodeMatches("~\x7fs")) { // "dei"
 		ShowInGameMessage("F E I F", 1, 0x16a, 0x32);
 	}
-#ifndef MW2_ACCEL
+#ifndef MW2_NO_DORCS_CHEAT
 	else if (TypedCodeMatches("~uhyi")) { // "dorcs"
 		ShowDorcs();
 		ShowInGameMessage("You asked for it!", 1, 0x16a, 0x32);
@@ -813,7 +813,7 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3d:
-#ifdef MW2_MATROX
+#ifdef MW2_POWER_STATE_7_KEYS
 		if (mech->m_powerState == 7) {
 			break;
 		}
@@ -828,7 +828,7 @@ void RunGameKey(MechS32 p_key)
 		break;
 	case 0x3e:
 #ifdef MW2_ACCEL
-#ifdef MW2_MATROX
+#ifdef MW2_POWER_STATE_7_KEYS
 		if (mech->m_powerState == 7) {
 			break;
 		}
@@ -968,7 +968,7 @@ void RunGameKey(MechS32 p_key)
 		break;
 	case 0x5b:
 		PauseTimer(0x80, 1);
-#ifdef MW2_ACCEL
+#ifdef MW2_RAW_SCREENSHOTS
 		if (g_windowActive) {
 			g_currentDisplayBackend->m_acquireFramebuffer();
 		}
@@ -994,7 +994,7 @@ void RunGameKey(MechS32 p_key)
 	}
 
 	if (step != -1) {
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 		g_localSteering.m_throttle = step * (1.0f / 576.0f);
 #else
 		g_localSteering.m_throttle = step * 113;

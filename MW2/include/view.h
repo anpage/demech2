@@ -50,7 +50,7 @@ extern "C"
 	extern MechScalar g_viewLightX;
 	extern MechScalar g_viewLightY;
 	extern MechScalar g_viewNearPlane;
-#ifdef MW2_ACCEL
+#ifdef MW2_FLOAT_SCALARS
 	extern MechFloat g_viewLightLength;
 	extern MechFloat g_viewLightScale;
 	extern MechFloat g_viewAmbientScale;
