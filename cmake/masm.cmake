@@ -30,3 +30,5 @@ else()
   set(vfx3d ${DEMECH2_SOURCE_DIR}/common/src/vfx3d.c)
   set(vfxrend ${DEMECH2_SOURCE_DIR}/common/src/vfxrend.c)
 endif()
+
+include("${DEMECH2_SOURCE_DIR}/cmake/editions.cmake")

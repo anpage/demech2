@@ -827,7 +827,6 @@ void RunGameKey(MechS32 p_key)
 		}
 		break;
 	case 0x3e:
-#ifdef MW2_ACCEL
 #ifdef MW2_POWER_STATE_7_KEYS
 		if (mech->m_powerState == 7) {
 			break;
@@ -838,20 +837,14 @@ void RunGameKey(MechS32 p_key)
 			g_powerRequest = 1;
 		}
 		else {
-			g_powerRequest = -1;
-		}
-#else
-		if (mech->m_powerState == 3) {
-			g_powerRequest = 1;
-		}
-		else {
+#if !defined(MW2_POWER_STATE_7_KEYS) && !defined(MW2_NO_STATE_7_POWER_TEST)
 			if (mech->m_powerState == 7) {
 				break;
 			}
 
+#endif
 			g_powerRequest = -1;
 		}
-#endif
 		break;
 	case 0x3f:
 		g_localSteering.m_reverse = !g_localSteering.m_reverse;

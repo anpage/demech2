@@ -23,6 +23,8 @@
 #include "types.h"
 
 #include <windows.h>
+// Both accelerated editions' sources include it (the 3Dfx edition's code shows it), for the Matrox
+// edition's LOD.PAR reader.
 #ifdef MW2_ACCEL
 #include <stdio.h>
 #endif

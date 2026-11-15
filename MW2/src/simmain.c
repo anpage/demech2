@@ -55,6 +55,8 @@
 #ifdef MW2_REGISTRY_SETTINGS
 #include "accel/registry.h"
 #endif
+// Both accelerated editions' sources include it (the 3Dfx edition's code shows it), for the Matrox
+// edition's g_reclipCursor.
 #ifdef MW2_ACCEL
 #include "mouse.h"
 #endif
@@ -280,9 +282,9 @@ void FUN_1008fad0(void)
 }
 #endif
 
-// FUNCTION: MW2 0x10066a50
+#ifdef MW2_MATROX
+// The Matrox edition's SimMain.
 // FUNCTION: MW2MATROX 0x1008fb5a
-// FUNCTION: MW23DFX 0x10008850
 int __stdcall SimMain(
 	HINSTANCE p_module,
 	undefined4 p_unk0x0c,
@@ -302,21 +304,12 @@ int __stdcall SimMain(
 	MechS32 unk0x24;
 	MechS32 seed;
 	MechS32 quitLatched;
-#ifdef MW2_DEBUG_LOG_TEXT
 	MechChar cmdLine[512];
-#endif
-#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
-	HDC dc;
-#endif
 
 	quitLatched = 0;
 	seed = 0;
-#ifdef MW2_MATROX
 	g_unk0x100be544 = 0;
 	g_unk0x100be508 = g_gameWindow = p_hWnd;
-#else
-	g_gameWindow = p_hWnd;
-#endif
 	g_simModule = p_module;
 	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
 	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -356,39 +349,26 @@ int __stdcall SimMain(
 		}
 	}
 
-#ifdef MW2_DEBUG_LOG_TEXT
 	strcpy(cmdLine, p_cmdLine);
-#endif
 	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
 		return 0;
 	}
 
-#ifdef MW2_DEBUG_LOG_TEXT
 	DebugPrint("SimMain(): lpszCmdParam = %s\n\n", cmdLine);
-#endif
 	if (StartupCheckStub()) {
 		Error(0x51, NULL);
 	}
 
-#ifdef MW2_RES_640X400
 	// The Matrox edition always runs at 640x400.
 	g_gameWindowWidth = 640;
 	g_gameWindowHeight = 400;
-#else
-	SetGameResolution(g_videoDriverChoice.m_name);
-#endif
 	if (g_logFileEnabled) {
 		OpenMw2Log();
 	}
 
 	InitRefreshMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
-#ifdef MW2_MATROX
 	SendMessage(g_unk0x100be508, 0x41f, 0, 0);
 	SendMessage(g_unk0x100be508, WM_ACTIVATEAPP, TRUE, 0);
-#else
-	SendMessage(g_gameWindow, 0x41f, 0, 0);
-	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
-#endif
 	if (!InitDisplayGeometry()) {
 		Error(0x50, NULL);
 	}
@@ -413,23 +393,12 @@ int __stdcall SimMain(
 		}
 	}
 
-#ifdef MW2_A3D
 	LoadSkyGroundSettings(missionName);
-#endif
-#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
-	FUN_1008fad0();
-#endif
 	DebugPrint("FirstClock()\n");
 	__try {
 		FirstClock();
 		DebugPrint("StartSupAnim()\n");
-#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
-		dc = GetDC(g_gameWindow);
-		StartSupAnim(GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
-		ReleaseDC(g_gameWindow, dc);
-#else
 		StartSupAnim(GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
-#endif
 		DebugPrint("FirstResource()\n");
 		FirstResource();
 		DebugPrint("InitStaticMem()\n");
@@ -446,11 +415,7 @@ int __stdcall SimMain(
 		FirstNetwork(p_netLaunch);
 		DebugPrint("ResetClocks()\n");
 		ResetClocks();
-#ifdef MW2_DEBUG_LOG_TEXT
 		DebugPrint("WinMain(1): pause_timer(TRUE)\n");
-#else
-		DebugPrint("WinMain(1): pause_timer(TRUE)");
-#endif
 		PauseTimer(0x80, TRUE);
 		DebugPrint("FirstShots()\n");
 		FirstShots();
@@ -472,12 +437,8 @@ int __stdcall SimMain(
 		CachePreloads();
 		DebugPrint("AfterWorldLoader()\n");
 		AfterWorldLoader();
-#ifdef MW2_DEBUG_LOG_TEXT
 		DebugPrint("CalcAverageBitmapColors()\n");
-#endif
-#ifdef MW2_AVERAGE_BITMAP_COLORS
 		CalcAverageBitmapColors();
-#endif
 		DebugPrint("FirstGPAnim()\n");
 		FirstGPAnim();
 		DebugPrint("FirstEyepoint()\n");
@@ -521,12 +482,7 @@ int __stdcall SimMain(
 
 		DebugPrint("StopSupAnim()\n");
 		StopSupAnim();
-#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
-		dc = GetDC(g_gameWindow);
-		if (GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
-#else
 		if (GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
-#endif
 			DebugPrint("StartPalettes()\n");
 			StartPalettes(0);
 		}
@@ -540,18 +496,9 @@ int __stdcall SimMain(
 			}
 		}
 
-#ifdef MW2_SIMPLE_WINDOW_LIFECYCLE
-		ReleaseDC(g_gameWindow, dc);
-#endif
 		g_drawModeReady = 1;
-#ifdef MW2_MATROX
 		g_unk0x100be544 = 1;
-#endif
-#ifdef MW2_EXTRA_DEBUG_PRINTS
 		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
-#else
-		DebugPrint("InitDrawMode()\n");
-#endif
 		if (!InitRefreshMode(
 				g_drawModeIndex,
 				g_initDrawModeParam2,
@@ -563,9 +510,7 @@ int __stdcall SimMain(
 			Error(0x50, "Error profiling video modes.");
 		}
 
-#if defined(MW2_REGISTRY_SETTINGS) && !defined(MW2_SIMPLE_WINDOW_LIFECYCLE)
 		FUN_1008fad0();
-#endif
 		while (ShowCursor(FALSE) >= 0) {
 		}
 
@@ -576,25 +521,15 @@ int __stdcall SimMain(
 
 		g_careerRecord.m_outcome = 1;
 		g_careerRecord.m_winner = -1;
-#ifdef MW2_MATROX
 		DebugPrint("Entering Main Loop...\n");
 		g_gameWindow = g_msiWindow;
 		g_reclipCursor = 1;
 		ShowWindow(g_unk0x100be508, SW_HIDE);
-#endif
 		while (g_quitStage < 3) {
-#ifdef MW2_LAUNCH_SYNC
 			if (g_goLaunch == 7) {
-#else
-			if (g_goLaunch == 3) {
-#endif
 				DebugPrint("GoLaunch == GO_READY\n");
 				g_goLaunch |= 0x80000000;
-#ifdef MW2_DEBUG_LOG_TEXT
 				DebugPrint("WinMain(2): pause_timer(false)\n");
-#else
-				DebugPrint("WinMain(2): pause_timer(false)");
-#endif
 				PauseTimer(0x80, FALSE);
 				StartMissionMusic();
 				g_statusMessage = 0;
@@ -611,20 +546,12 @@ int __stdcall SimMain(
 			HandleMessages();
 			UpdateNetwork();
 			NextClock();
-#ifdef MW2_MATROX
 			msiSync();
-#endif
 			UpdateInputs();
 			UpdateMenuKey();
 			HandleGameKeys(0, 0, 0);
 			RunTimedCallbacks(&g_detachedTasks);
-#ifdef MW2_LAUNCH_SYNC
 			UpdateAllPlayers();
-#else
-			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
-				UpdateAllPlayers();
-			}
-#endif
 
 			UpdateEyepoint();
 			UpdateAllShots();
@@ -632,34 +559,7 @@ int __stdcall SimMain(
 			UpdateLocalPlayer();
 			LateUpdateAllPlayers();
 			UpdateDebris();
-#ifdef MW2_MATROX
 			FUN_1005f820(1, 0);
-#else
-			if (g_refreshModeFallback) {
-				while (g_refreshModeFallback) {
-#ifdef MW2_3DFX
-					if (g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
-						GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
-					}
-#else
-					if (g_currentDisplayBackend->m_id == 0) {
-						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
-					}
-#endif
-
-					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-						g_renderSettings.m_frameDrawCallback();
-						DrawLocalPlayer();
-						UpdateMenus();
-						DrawTimedOverlays();
-						DrawDebugOverlays();
-					}
-
-					Blit();
-					ProfileRefreshModes();
-				}
-			}
-#endif
 
 			if (g_goLaunch & 0x80000000) {
 				UpdateGeoCache();
@@ -668,24 +568,12 @@ int __stdcall SimMain(
 			AdvanceAnimations();
 			UpdatePaletteFade();
 			ApplyPendingPalette();
-#ifdef MW2_MATROX
 			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
 				FUN_1005f820(1, PIXEL_COLOR(g_groundColor));
 			}
-#elif defined(MW2_3DFX)
-			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
-				GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
-			}
-#else
-	if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
-		DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
-	}
-#endif
 
 			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
-#ifdef MW2_MATROX
 				MsiClearFrame();
-#endif
 				g_renderSettings.m_frameDrawCallback();
 				DrawLocalPlayer();
 				UpdateMenus();
@@ -694,9 +582,7 @@ int __stdcall SimMain(
 				if (g_simPaused && g_pauseRequested) {
 					DrawPausedBanner();
 				}
-#ifdef MW2_MATROX
 				MsiSwapBuffers();
-#endif
 			}
 
 			Blit();
@@ -715,11 +601,7 @@ int __stdcall SimMain(
 				g_drawModeReady = 0;
 			}
 
-#ifdef MW2_LAUNCH_SYNC
 			g_goLaunch |= 6;
-#else
-			g_goLaunch |= 2;
-#endif
 		}
 
 		FadeToEndPalette(g_careerRecord.m_outcome & 4);
@@ -727,24 +609,12 @@ int __stdcall SimMain(
 			VFX_pane_wipe(&g_currentPane, PIXEL_COLOR(0));
 		}
 
-#ifndef MW2_DEBUG_LOG_TEXT
-		DebugPrint("Calling Blit()\n");
-#endif
 		Blit();
-#ifdef MW2_MATROX
 		g_unk0x100be544 = 0;
-#endif
-#ifdef MW2_3DFX
-		FUN_10066910();
-#endif
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		}
 
-#ifdef MW2_MATROX
 		SendMessage(g_unk0x100be508, 0x41e, 0, 0);
-#else
-		SendMessage(g_gameWindow, 0x41e, 0, 0);
-#endif
 		SaveCareerRecord();
 		ShutdownAllPlayers();
 		ShutdownNetwork();
@@ -753,9 +623,7 @@ int __stdcall SimMain(
 		StopTimers();
 		ShutdownMw2Prj();
 		ShutdownRender();
-#ifdef MW2_MATROX
 		g_gameWindow = g_unk0x100be508;
-#endif
 		CloseInputDevices();
 		if (g_logFileEnabled) {
 			CloseMw2Log();
@@ -767,11 +635,7 @@ int __stdcall SimMain(
 	}
 	__finally {
 		if (AbnormalTermination() && g_ticksTimerInitialized) {
-#ifdef MW2_MATROX
 			SendMessage(g_unk0x100be508, 0x41e, 0, 0);
-#else
-			SendMessage(g_gameWindow, 0x41e, 0, 0);
-#endif
 			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
 			AIL_shutdown();
 		}
@@ -785,21 +649,761 @@ int __stdcall SimMain(
 	result = g_fledToWindows ? 0xff : 0;
 	return result;
 }
+#elif defined(MW2_3DFX)
+// The 3Dfx edition's SimMain.
+// FUNCTION: MW23DFX 0x10008850
+int __stdcall SimMain(
+	HINSTANCE p_module,
+	undefined4 p_unk0x0c,
+	LPSTR p_cmdLine,
+	NetLaunchInfo* p_netLaunch,
+	undefined4 p_isNetGameUnused,
+	HWND p_hWnd
+)
+{
+	MSG msg;
+	void* palette;
+	MechS32 hasPalette;
+	int result;
+	MechS32 i;
+	char missionName[64];
+	undefined4 unk0x28;
+	MechS32 unk0x24;
+	MechS32 seed;
+	MechS32 quitLatched;
+	HDC dc;
 
-// FUNCTION: MW2 0x10067757
+	quitLatched = 0;
+	seed = 0;
+	g_gameWindow = p_hWnd;
+	g_simModule = p_module;
+	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
+	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
+	g_primaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
+	if (g_primaryHeap == NULL) {
+		Error(9, "Insufficient memory available.");
+	}
+
+	unk0x24 = 1;
+	unk0x28 = 0;
+	if (getenv("MECHWARRIOR")) {
+		strcpy(g_gameDir, getenv("MECHWARRIOR"));
+	}
+
+	if (LoadSndCfg("mw2snd.cfg", &g_mw2SndCfgData) == -1) {
+		if (g_mw2SndCfgData == NULL) {
+			Error(0x11, "%s", "mw2snd.cfg");
+		}
+		else {
+			*g_mw2SndCfgData = g_soundConfig;
+		}
+	}
+	else {
+		g_soundConfig = *g_mw2SndCfgData;
+	}
+
+	g_displayBrightness = g_brightnessSetting = g_mw2SndCfgData->m_displayBrightness;
+	g_videoDriverChoice.m_flags = 0;
+	if (g_mw2SndCfgData->m_videoDriver[0]) {
+		g_videoDriverChoice.m_flags |= 1;
+		if (_stricmp(g_mw2SndCfgData->m_videoDriver, "scan") == 0) {
+			g_videoDriverChoice.m_name[0] = 0;
+		}
+		else {
+			strncpy(g_videoDriverChoice.m_name, g_mw2SndCfgData->m_videoDriver, 12);
+			g_videoDriverChoice.m_name[12] = 0;
+		}
+	}
+
+	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
+		return 0;
+	}
+
+	if (StartupCheckStub()) {
+		Error(0x51, NULL);
+	}
+
+	SetGameResolution(g_videoDriverChoice.m_name);
+	if (g_logFileEnabled) {
+		OpenMw2Log();
+	}
+
+	InitRefreshMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
+	SendMessage(g_gameWindow, 0x41f, 0, 0);
+	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
+	if (!InitDisplayGeometry()) {
+		Error(0x50, NULL);
+	}
+
+	if (p_netLaunch) {
+		g_isNetworkGame = 1;
+		if (p_netLaunch->m_localPlayerId == 1) {
+			g_netRole = 1;
+		}
+		else {
+			g_netRole = 2;
+		}
+
+		strncpy(missionName, p_netLaunch->m_missionName, sizeof(missionName));
+		if (LoadDifficultyCfg("MW2NET.CFG", &g_difficulty) == -1 || g_difficulty == NULL) {
+			Error(0x11, "%s", "MW2NET.CFG");
+		}
+	}
+	else {
+		if (LoadDifficultyCfg("mw2dif.cfg", &g_difficulty) == -1 || g_difficulty == NULL) {
+			Error(0x11, "%s", "mw2dif.cfg");
+		}
+	}
+
+	LoadSkyGroundSettings(missionName);
+	FUN_1008fad0();
+	DebugPrint("FirstClock()\n");
+	__try {
+		FirstClock();
+		DebugPrint("StartSupAnim()\n");
+		dc = GetDC(g_gameWindow);
+		StartSupAnim(GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+		ReleaseDC(g_gameWindow, dc);
+		DebugPrint("FirstResource()\n");
+		FirstResource();
+		DebugPrint("InitStaticMem()\n");
+		InitStaticMem(missionName);
+		DebugPrint("generate_gammas()\n");
+		InitGammaTable();
+		DebugPrint("InitRandom()\n");
+		InitRandom(seed);
+		DebugPrint("FirstAudio()\n");
+		FirstAudio();
+		DebugPrint("FirstRender()\n");
+		FirstRender();
+		DebugPrint("FirstNetwork()\n");
+		FirstNetwork(p_netLaunch);
+		DebugPrint("ResetClocks()\n");
+		ResetClocks();
+		DebugPrint("WinMain(1): pause_timer(TRUE)");
+		PauseTimer(0x80, TRUE);
+		DebugPrint("FirstShots()\n");
+		FirstShots();
+		DebugPrint("ZeroGamethings()\n");
+		ZeroGamethings();
+		DebugPrint("ZeroChunx()\n");
+		ZeroChunx();
+		DebugPrint("LoadWorld()\n");
+		LoadWorld(missionName);
+		DebugPrint("CollectMissionAudio()\n");
+		CollectMissionAudio();
+		DebugPrint("SetRes()\n");
+		SetRes();
+		DebugPrint("FirstEnvironment()\n");
+		FirstEnvironment();
+		DebugPrint("FirstStaticCache()\n");
+		FirstStaticCache();
+		DebugPrint("CachePreloads()\n");
+		CachePreloads();
+		DebugPrint("AfterWorldLoader()\n");
+		AfterWorldLoader();
+		CalcAverageBitmapColors();
+		DebugPrint("FirstGPAnim()\n");
+		FirstGPAnim();
+		DebugPrint("FirstEyepoint()\n");
+		FirstEyepoint();
+		DebugPrint("FirstInputs()\n");
+		FirstInputs();
+		DebugPrint("FirstMenu()\n");
+		FirstMenu();
+		DebugPrint("RegisterMenu()...\n");
+		RegisterMenu(4);
+		RegisterMenu(5);
+		RegisterMenu(1);
+		RegisterMenu(7);
+		RegisterMenu(8);
+		RegisterMenu(3);
+		DebugPrint("DoFirstObjtv()...\n");
+		for (i = 0; i < g_objectiveCount; i++) {
+			DoFirstObjtv(&g_objectiveTable[i], i);
+		}
+
+		DebugPrint("FirstClassFunctions()\n");
+		FirstClassFunctions();
+		DebugPrint("FirstAI()\n");
+		FirstAI();
+		DebugPrint("FirstExternalCtrl()\n");
+		if (!FirstExternalCtrl()) {
+			g_shouldQuit = 1;
+			g_quitStage = 3;
+		}
+
+		DebugPrint("UpdateGeoCache()\n");
+		UpdateGeoCache();
+		DebugPrint("SecondRender()\n");
+		SecondRender();
+		DebugPrint("FirstPerfSetting()\n");
+		FirstPerfSetting();
+		if (g_missionTimerStopped) {
+			DebugPrint("SimEntranceDbug()\n");
+			SimEntranceDbug(missionName, 0);
+		}
+
+		DebugPrint("StopSupAnim()\n");
+		StopSupAnim();
+		dc = GetDC(g_gameWindow);
+		if (GetDeviceCaps(dc, NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+			DebugPrint("StartPalettes()\n");
+			StartPalettes(0);
+		}
+		else {
+			hasPalette = g_paletteResourceIds[0x10] != -1;
+			if (hasPalette) {
+				palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resTagPal, 0);
+				if (palette) {
+					g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
+				}
+			}
+		}
+
+		ReleaseDC(g_gameWindow, dc);
+		g_drawModeReady = 1;
+		DebugPrint("InitDrawMode(%d,%d)\n", g_gameWindowWidth, g_gameWindowHeight);
+		if (!InitRefreshMode(
+				g_drawModeIndex,
+				g_initDrawModeParam2,
+				&g_mainPixelBuffer,
+				g_gameWindowWidth,
+				g_gameWindowHeight,
+				0
+			)) {
+			Error(0x50, "Error profiling video modes.");
+		}
+
+		while (ShowCursor(FALSE) >= 0) {
+		}
+
+		g_mouseOutsideClientWindow = 0;
+		if (!g_refreshModeFallback) {
+			g_goLaunch |= 2;
+		}
+
+		g_careerRecord.m_outcome = 1;
+		g_careerRecord.m_winner = -1;
+		while (g_quitStage < 3) {
+			if (g_goLaunch == 7) {
+				DebugPrint("GoLaunch == GO_READY\n");
+				g_goLaunch |= 0x80000000;
+				DebugPrint("WinMain(2): pause_timer(false)");
+				PauseTimer(0x80, FALSE);
+				StartMissionMusic();
+				g_statusMessage = 0;
+			}
+			else if (g_isNetworkGame && !(g_goLaunch & 0x80000000)) {
+				if (g_remoteWaitTime == 0) {
+					g_remoteWaitTime = g_realClock + 0xb5;
+				}
+				else if (g_remoteWaitTime < g_realClock) {
+					g_statusMessage = 3;
+				}
+			}
+
+			HandleMessages();
+			UpdateNetwork();
+			NextClock();
+			UpdateInputs();
+			UpdateMenuKey();
+			HandleGameKeys(0, 0, 0);
+			RunTimedCallbacks(&g_detachedTasks);
+			UpdateAllPlayers();
+
+			UpdateEyepoint();
+			UpdateAllShots();
+			UpdateEffects();
+			UpdateLocalPlayer();
+			LateUpdateAllPlayers();
+			UpdateDebris();
+			if (g_refreshModeFallback) {
+				while (g_refreshModeFallback) {
+					if (g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
+						GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
+					}
+
+					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+						g_renderSettings.m_frameDrawCallback();
+						DrawLocalPlayer();
+						UpdateMenus();
+						DrawTimedOverlays();
+						DrawDebugOverlays();
+					}
+
+					Blit();
+					ProfileRefreshModes();
+				}
+			}
+
+			if (g_goLaunch & 0x80000000) {
+				UpdateGeoCache();
+			}
+
+			AdvanceAnimations();
+			UpdatePaletteFade();
+			ApplyPendingPalette();
+			if (g_windowActive && g_currentDisplayBackend->m_id == 0 && !g_renderSettings.m_texturedGround) {
+				GlideFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, PIXEL_COLOR(g_groundColor));
+			}
+
+			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+				g_renderSettings.m_frameDrawCallback();
+				DrawLocalPlayer();
+				UpdateMenus();
+				DrawTimedOverlays();
+				DrawDebugOverlays();
+				if (g_simPaused && g_pauseRequested) {
+					DrawPausedBanner();
+				}
+			}
+
+			Blit();
+			if (g_goLaunch & 0x80000000) {
+				DoAudio();
+				AdvanceSpeechQueue();
+			}
+
+			UpdateTimeOfDay();
+			UpdateObjectives();
+			LoopCdMusic();
+			UpdatePauseState();
+			if (g_shouldQuit && !quitLatched) {
+				g_quitStage++;
+				quitLatched = 1;
+				g_drawModeReady = 0;
+			}
+
+			g_goLaunch |= 6;
+		}
+
+		FadeToEndPalette(g_careerRecord.m_outcome & 4);
+		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+			VFX_pane_wipe(&g_currentPane, PIXEL_COLOR(0));
+		}
+
+		DebugPrint("Calling Blit()\n");
+		Blit();
+		FUN_10066910();
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		}
+
+		SendMessage(g_gameWindow, 0x41e, 0, 0);
+		SaveCareerRecord();
+		ShutdownAllPlayers();
+		ShutdownNetwork();
+		ShutdownAudio();
+		FreeMenus();
+		StopTimers();
+		ShutdownMw2Prj();
+		ShutdownRender();
+		CloseInputDevices();
+		if (g_logFileEnabled) {
+			CloseMw2Log();
+		}
+
+		DebugPrint("Calling EndTheMission()\n");
+		EndTheMission1();
+		EndTheMission2();
+	}
+	__finally {
+		if (AbnormalTermination() && g_ticksTimerInitialized) {
+			SendMessage(g_gameWindow, 0x41e, 0, 0);
+			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
+			AIL_shutdown();
+		}
+	}
+
+	HeapDestroy(g_primaryHeap);
+	g_primaryHeap = NULL;
+	while (ShowCursor(TRUE) < 1) {
+	}
+
+	result = g_fledToWindows ? 0xff : 0;
+	return result;
+}
+#else
+// 1.1's SimMain.
+// FUNCTION: MW2 0x10066a50
+int __stdcall SimMain(
+	HINSTANCE p_module,
+	undefined4 p_unk0x0c,
+	LPSTR p_cmdLine,
+	NetLaunchInfo* p_netLaunch,
+	undefined4 p_isNetGameUnused,
+	HWND p_hWnd
+)
+{
+	MSG msg;
+	void* palette;
+	MechS32 hasPalette;
+	int result;
+	MechS32 i;
+	char missionName[64];
+	undefined4 unk0x28;
+	MechS32 unk0x24;
+	MechS32 seed;
+	MechS32 quitLatched;
+
+	quitLatched = 0;
+	seed = 0;
+	g_gameWindow = p_hWnd;
+	g_simModule = p_module;
+	g_desktopWidth = GetSystemMetrics(SM_CXSCREEN);
+	g_desktopHeight = GetSystemMetrics(SM_CYSCREEN);
+	g_primaryHeap = HeapCreate(HEAP_NO_SERIALIZE, 1000000, 0);
+	if (g_primaryHeap == NULL) {
+		Error(9, "Insufficient memory available.");
+	}
+
+	unk0x24 = 1;
+	unk0x28 = 0;
+	if (getenv("MECHWARRIOR")) {
+		strcpy(g_gameDir, getenv("MECHWARRIOR"));
+	}
+
+	if (LoadSndCfg("mw2snd.cfg", &g_mw2SndCfgData) == -1) {
+		if (g_mw2SndCfgData == NULL) {
+			Error(0x11, "%s", "mw2snd.cfg");
+		}
+		else {
+			*g_mw2SndCfgData = g_soundConfig;
+		}
+	}
+	else {
+		g_soundConfig = *g_mw2SndCfgData;
+	}
+
+	g_displayBrightness = g_brightnessSetting = g_mw2SndCfgData->m_displayBrightness;
+	g_videoDriverChoice.m_flags = 0;
+	if (g_mw2SndCfgData->m_videoDriver[0]) {
+		g_videoDriverChoice.m_flags |= 1;
+		if (_stricmp(g_mw2SndCfgData->m_videoDriver, "scan") == 0) {
+			g_videoDriverChoice.m_name[0] = 0;
+		}
+		else {
+			strncpy(g_videoDriverChoice.m_name, g_mw2SndCfgData->m_videoDriver, 12);
+			g_videoDriverChoice.m_name[12] = 0;
+		}
+	}
+
+	if (!ProcessCmdLineArgs(p_cmdLine, &unk0x28, missionName)) {
+		return 0;
+	}
+
+	if (StartupCheckStub()) {
+		Error(0x51, NULL);
+	}
+
+	SetGameResolution(g_videoDriverChoice.m_name);
+	if (g_logFileEnabled) {
+		OpenMw2Log();
+	}
+
+	InitRefreshMode(5, 0, &g_mainPixelBuffer, 640, 480, 0);
+	SendMessage(g_gameWindow, 0x41f, 0, 0);
+	SendMessage(g_gameWindow, WM_ACTIVATEAPP, TRUE, 0);
+	if (!InitDisplayGeometry()) {
+		Error(0x50, NULL);
+	}
+
+	if (p_netLaunch) {
+		g_isNetworkGame = 1;
+		if (p_netLaunch->m_localPlayerId == 1) {
+			g_netRole = 1;
+		}
+		else {
+			g_netRole = 2;
+		}
+
+		strncpy(missionName, p_netLaunch->m_missionName, sizeof(missionName));
+		if (LoadDifficultyCfg("MW2NET.CFG", &g_difficulty) == -1 || g_difficulty == NULL) {
+			Error(0x11, "%s", "MW2NET.CFG");
+		}
+	}
+	else {
+		if (LoadDifficultyCfg("mw2dif.cfg", &g_difficulty) == -1 || g_difficulty == NULL) {
+			Error(0x11, "%s", "mw2dif.cfg");
+		}
+	}
+
+	DebugPrint("FirstClock()\n");
+	__try {
+		FirstClock();
+		DebugPrint("StartSupAnim()\n");
+		StartSupAnim(GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen);
+		DebugPrint("FirstResource()\n");
+		FirstResource();
+		DebugPrint("InitStaticMem()\n");
+		InitStaticMem(missionName);
+		DebugPrint("generate_gammas()\n");
+		InitGammaTable();
+		DebugPrint("InitRandom()\n");
+		InitRandom(seed);
+		DebugPrint("FirstAudio()\n");
+		FirstAudio();
+		DebugPrint("FirstRender()\n");
+		FirstRender();
+		DebugPrint("FirstNetwork()\n");
+		FirstNetwork(p_netLaunch);
+		DebugPrint("ResetClocks()\n");
+		ResetClocks();
+		DebugPrint("WinMain(1): pause_timer(TRUE)");
+		PauseTimer(0x80, TRUE);
+		DebugPrint("FirstShots()\n");
+		FirstShots();
+		DebugPrint("ZeroGamethings()\n");
+		ZeroGamethings();
+		DebugPrint("ZeroChunx()\n");
+		ZeroChunx();
+		DebugPrint("LoadWorld()\n");
+		LoadWorld(missionName);
+		DebugPrint("CollectMissionAudio()\n");
+		CollectMissionAudio();
+		DebugPrint("SetRes()\n");
+		SetRes();
+		DebugPrint("FirstEnvironment()\n");
+		FirstEnvironment();
+		DebugPrint("FirstStaticCache()\n");
+		FirstStaticCache();
+		DebugPrint("CachePreloads()\n");
+		CachePreloads();
+		DebugPrint("AfterWorldLoader()\n");
+		AfterWorldLoader();
+		DebugPrint("FirstGPAnim()\n");
+		FirstGPAnim();
+		DebugPrint("FirstEyepoint()\n");
+		FirstEyepoint();
+		DebugPrint("FirstInputs()\n");
+		FirstInputs();
+		DebugPrint("FirstMenu()\n");
+		FirstMenu();
+		DebugPrint("RegisterMenu()...\n");
+		RegisterMenu(4);
+		RegisterMenu(5);
+		RegisterMenu(1);
+		RegisterMenu(7);
+		RegisterMenu(8);
+		RegisterMenu(3);
+		DebugPrint("DoFirstObjtv()...\n");
+		for (i = 0; i < g_objectiveCount; i++) {
+			DoFirstObjtv(&g_objectiveTable[i], i);
+		}
+
+		DebugPrint("FirstClassFunctions()\n");
+		FirstClassFunctions();
+		DebugPrint("FirstAI()\n");
+		FirstAI();
+		DebugPrint("FirstExternalCtrl()\n");
+		if (!FirstExternalCtrl()) {
+			g_shouldQuit = 1;
+			g_quitStage = 3;
+		}
+
+		DebugPrint("UpdateGeoCache()\n");
+		UpdateGeoCache();
+		DebugPrint("SecondRender()\n");
+		SecondRender();
+		DebugPrint("FirstPerfSetting()\n");
+		FirstPerfSetting();
+		if (g_missionTimerStopped) {
+			DebugPrint("SimEntranceDbug()\n");
+			SimEntranceDbug(missionName, 0);
+		}
+
+		DebugPrint("StopSupAnim()\n");
+		StopSupAnim();
+		if (GetDeviceCaps(GetDC(g_gameWindow), NUMCOLORS) == -1 || g_windowMode == c_windowModeFullscreen) {
+			DebugPrint("StartPalettes()\n");
+			StartPalettes(0);
+		}
+		else {
+			hasPalette = g_paletteResourceIds[0x10] != -1;
+			if (hasPalette) {
+				palette = LoadCachedResource(g_mw2PrjHandle, hasPalette, g_resTagPal, 0);
+				if (palette) {
+					g_currentDisplayBackend->m_setPalette(0, 0x100, palette, 1);
+				}
+			}
+		}
+
+		g_drawModeReady = 1;
+		DebugPrint("InitDrawMode()\n");
+		if (!InitRefreshMode(
+				g_drawModeIndex,
+				g_initDrawModeParam2,
+				&g_mainPixelBuffer,
+				g_gameWindowWidth,
+				g_gameWindowHeight,
+				0
+			)) {
+			Error(0x50, "Error profiling video modes.");
+		}
+
+		while (ShowCursor(FALSE) >= 0) {
+		}
+
+		g_mouseOutsideClientWindow = 0;
+		if (!g_refreshModeFallback) {
+			g_goLaunch |= 2;
+		}
+
+		g_careerRecord.m_outcome = 1;
+		g_careerRecord.m_winner = -1;
+		while (g_quitStage < 3) {
+			if (g_goLaunch == 3) {
+				DebugPrint("GoLaunch == GO_READY\n");
+				g_goLaunch |= 0x80000000;
+				DebugPrint("WinMain(2): pause_timer(false)");
+				PauseTimer(0x80, FALSE);
+				StartMissionMusic();
+				g_statusMessage = 0;
+			}
+			else if (g_isNetworkGame && !(g_goLaunch & 0x80000000)) {
+				if (g_remoteWaitTime == 0) {
+					g_remoteWaitTime = g_realClock + 0xb5;
+				}
+				else if (g_remoteWaitTime < g_realClock) {
+					g_statusMessage = 3;
+				}
+			}
+
+			HandleMessages();
+			UpdateNetwork();
+			NextClock();
+			UpdateInputs();
+			UpdateMenuKey();
+			HandleGameKeys(0, 0, 0);
+			RunTimedCallbacks(&g_detachedTasks);
+			if (!g_isNetworkGame || (g_goLaunch & 0x80000000)) {
+				UpdateAllPlayers();
+			}
+
+			UpdateEyepoint();
+			UpdateAllShots();
+			UpdateEffects();
+			UpdateLocalPlayer();
+			LateUpdateAllPlayers();
+			UpdateDebris();
+			if (g_refreshModeFallback) {
+				while (g_refreshModeFallback) {
+					if (g_currentDisplayBackend->m_id == 0) {
+						DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
+					}
+
+					if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+						g_renderSettings.m_frameDrawCallback();
+						DrawLocalPlayer();
+						UpdateMenus();
+						DrawTimedOverlays();
+						DrawDebugOverlays();
+					}
+
+					Blit();
+					ProfileRefreshModes();
+				}
+			}
+
+			if (g_goLaunch & 0x80000000) {
+				UpdateGeoCache();
+			}
+
+			AdvanceAnimations();
+			UpdatePaletteFade();
+			ApplyPendingPalette();
+			if (g_windowActive && g_currentDisplayBackend->m_id == 0) {
+				DdrawFill(0, 0, g_gameWindowWidth, g_gameWindowHeight, g_groundColor);
+			}
+
+			if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+				g_renderSettings.m_frameDrawCallback();
+				DrawLocalPlayer();
+				UpdateMenus();
+				DrawTimedOverlays();
+				DrawDebugOverlays();
+				if (g_simPaused && g_pauseRequested) {
+					DrawPausedBanner();
+				}
+			}
+
+			Blit();
+			if (g_goLaunch & 0x80000000) {
+				DoAudio();
+				AdvanceSpeechQueue();
+			}
+
+			UpdateTimeOfDay();
+			UpdateObjectives();
+			LoopCdMusic();
+			UpdatePauseState();
+			if (g_shouldQuit && !quitLatched) {
+				g_quitStage++;
+				quitLatched = 1;
+				g_drawModeReady = 0;
+			}
+
+			g_goLaunch |= 2;
+		}
+
+		FadeToEndPalette(g_careerRecord.m_outcome & 4);
+		if ((g_windowActive ? g_currentDisplayBackend->m_acquireFramebuffer() : -1) == 0) {
+			VFX_pane_wipe(&g_currentPane, PIXEL_COLOR(0));
+		}
+
+		DebugPrint("Calling Blit()\n");
+		Blit();
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		}
+
+		SendMessage(g_gameWindow, 0x41e, 0, 0);
+		SaveCareerRecord();
+		ShutdownAllPlayers();
+		ShutdownNetwork();
+		ShutdownAudio();
+		FreeMenus();
+		StopTimers();
+		ShutdownMw2Prj();
+		ShutdownRender();
+		CloseInputDevices();
+		if (g_logFileEnabled) {
+			CloseMw2Log();
+		}
+
+		DebugPrint("Calling EndTheMission()\n");
+		EndTheMission1();
+		EndTheMission2();
+	}
+	__finally {
+		if (AbnormalTermination() && g_ticksTimerInitialized) {
+			SendMessage(g_gameWindow, 0x41e, 0, 0);
+			MessageBox(NULL, "Attempting to shutdown from an unknown fatal error.", "MECHWARRIOR 2", MB_ICONHAND);
+			AIL_shutdown();
+		}
+	}
+
+	HeapDestroy(g_primaryHeap);
+	g_primaryHeap = NULL;
+	while (ShowCursor(TRUE) < 1) {
+	}
+
+	result = g_fledToWindows ? 0xff : 0;
+	return result;
+}
+#endif
+
+#ifdef MW2_MATROX
+// The Matrox edition's window procedure, which the MSI95 back end's windows call too.
 // FUNCTION: MW2MATROX 0x100908a4
-// FUNCTION: MW23DFX 0x10009400
 LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
 {
 	WINDOWPOS* windowPos;
 
-#ifdef MW2_MATROX
 	// The renderer's window takes the messages, and the other windows only their activation.
 	if (g_msiWindow && p_hWnd != g_msiWindow && p_msg != WM_ACTIVATEAPP) {
 		return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 	}
 
-#endif
 	if (p_msg >= WM_KEYFIRST && p_msg <= WM_KEYLAST) {
 		HandleKeyboardMessages(p_msg, p_wParam, p_lParam);
 		return 0;
@@ -811,7 +1415,6 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			break;
 		}
 
-#ifdef MW2_MATROX
 		if (p_hWnd == g_unk0x100be508 && !g_unk0x100be544) {
 			g_windowActive = p_wParam;
 			if (g_windowActive) {
@@ -847,7 +1450,84 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 		}
 
 		return 0;
-#elif defined(MW2_SIMPLE_WINDOW_LIFECYCLE)
+	case WM_PAINT:
+		if (g_drawModeReady && g_windowMode == c_windowModeWindowed) {
+			g_currentRefreshMode->m_flip();
+			ValidateRect(p_hWnd, NULL);
+			return 0;
+		}
+		break;
+	case WM_NCMOUSEMOVE:
+		if (g_mouseOutsideClientWindow == FALSE && g_windowMode == c_windowModeWindowed) {
+			while (ShowCursor(TRUE) < 0) {
+			}
+			g_mouseOutsideClientWindow = TRUE;
+		}
+		break;
+	case WM_MOUSEMOVE:
+		if (g_mouseOutsideClientWindow) {
+			if (!g_simPaused || GetMenuSlotState(4) == 1) {
+				while (ShowCursor(FALSE) >= 0) {
+				}
+				g_mouseOutsideClientWindow = FALSE;
+			}
+		}
+		return 0;
+	case WM_WINDOWPOSCHANGING:
+		windowPos = (WINDOWPOS*) p_lParam;
+		if (g_windowedSwitchPending) {
+			LONG time;
+
+			time = GetMessageTime();
+			if (time > g_windowedSwitchDeadline &&
+				(g_windowedSwitchDeadline > g_windowedSwitchTime || time < g_windowedSwitchTime)) {
+				g_windowedSwitchPending = FALSE;
+			}
+			else {
+				windowPos->x = g_windowedRect.left;
+				windowPos->y = g_windowedRect.top;
+				windowPos->cx = g_windowedRect.right;
+				windowPos->cy = g_windowedRect.bottom;
+			}
+			return 0;
+		}
+		break;
+	case WM_QUERYNEWPALETTE:
+		if (g_currentDisplayBackend) {
+			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
+			return 1;
+		}
+		return 0;
+	case WM_CLOSE:
+		g_shouldQuit = TRUE;
+		g_quitStage += 2;
+		return 0;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+		break;
+	}
+
+	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
+}
+#elif defined(MW2_3DFX)
+// The 3Dfx edition's window procedure.
+// FUNCTION: MW23DFX 0x10009400
+LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
+{
+	WINDOWPOS* windowPos;
+
+	if (p_msg >= WM_KEYFIRST && p_msg <= WM_KEYLAST) {
+		HandleKeyboardMessages(p_msg, p_wParam, p_lParam);
+		return 0;
+	}
+
+	switch (p_msg) {
+	case WM_ACTIVATEAPP:
+		if (g_shouldQuit) {
+			break;
+		}
+
 		g_windowActive = p_wParam;
 		if (g_windowActive == TRUE) {
 			KeyboardClearKeyStates();
@@ -861,7 +1541,84 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 		}
 		return 0;
+	case WM_PAINT:
+		if (g_drawModeReady && g_windowMode == c_windowModeWindowed) {
+			g_currentRefreshMode->m_flip();
+			ValidateRect(p_hWnd, NULL);
+			return 0;
+		}
+		break;
+	case WM_NCMOUSEMOVE:
+		if (g_mouseOutsideClientWindow == FALSE && g_windowMode == c_windowModeWindowed) {
+			while (ShowCursor(TRUE) < 0) {
+			}
+			g_mouseOutsideClientWindow = TRUE;
+		}
+		break;
+	case WM_MOUSEMOVE:
+		if (g_mouseOutsideClientWindow) {
+			if (!g_simPaused || GetMenuSlotState(4) == 1) {
+				while (ShowCursor(FALSE) >= 0) {
+				}
+				g_mouseOutsideClientWindow = FALSE;
+			}
+		}
+		return 0;
+	case WM_WINDOWPOSCHANGING:
+		windowPos = (WINDOWPOS*) p_lParam;
+		if (g_windowedSwitchPending) {
+			LONG time;
+
+			time = GetMessageTime();
+			if (time > g_windowedSwitchDeadline &&
+				(g_windowedSwitchDeadline > g_windowedSwitchTime || time < g_windowedSwitchTime)) {
+				g_windowedSwitchPending = FALSE;
+			}
+			else {
+				windowPos->x = g_windowedRect.left;
+				windowPos->y = g_windowedRect.top;
+				windowPos->cx = g_windowedRect.right;
+				windowPos->cy = g_windowedRect.bottom;
+			}
+			return 0;
+		}
+		break;
+	case WM_QUERYNEWPALETTE:
+		if (g_currentDisplayBackend) {
+			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
+			return 1;
+		}
+		return 0;
+	case WM_CLOSE:
+		g_shouldQuit = TRUE;
+		g_quitStage += 2;
+		return 0;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+		break;
+	}
+
+	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
+}
 #else
+// 1.1's window procedure.
+// FUNCTION: MW2 0x10067757
+LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
+{
+	WINDOWPOS* windowPos;
+
+	if (p_msg >= WM_KEYFIRST && p_msg <= WM_KEYLAST) {
+		HandleKeyboardMessages(p_msg, p_wParam, p_lParam);
+		return 0;
+	}
+
+	switch (p_msg) {
+	case WM_ACTIVATEAPP:
+		if (g_shouldQuit) {
+			break;
+		}
+
 		g_windowActive = p_wParam;
 		if (g_windowActive == TRUE) {
 			KeyboardClearKeyStates();
@@ -904,20 +1661,15 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 		}
 		return 0;
-#endif
 	case WM_PAINT:
 		if (g_drawModeReady && g_windowMode == c_windowModeWindowed) {
 			g_currentRefreshMode->m_flip();
 			ValidateRect(p_hWnd, NULL);
 			return 0;
 		}
-#ifdef MW2_ACCEL
-		break;
-#else
 		else {
 			break;
 		}
-#endif
 	case WM_NCMOUSEMOVE:
 		if (g_mouseOutsideClientWindow == FALSE && g_windowMode == c_windowModeWindowed) {
 			while (ShowCursor(TRUE) < 0) {
@@ -952,25 +1704,17 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 			}
 			return 0;
 		}
-#ifdef MW2_ACCEL
-		break;
-#else
 		else {
 			break;
 		}
-#endif
 	case WM_QUERYNEWPALETTE:
 		if (g_currentDisplayBackend) {
 			g_currentDisplayBackend->m_setPalette(0, 0x100, g_paletteColors, 1);
 			return 1;
 		}
-#ifdef MW2_ACCEL
-		return 0;
-#else
 		else {
 			return 0;
 		}
-#endif
 	case WM_CLOSE:
 		g_shouldQuit = TRUE;
 		g_quitStage += 2;
@@ -983,6 +1727,7 @@ LRESULT CALLBACK SimWindowProc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM 
 
 	return DefWindowProc(p_hWnd, p_msg, p_wParam, p_lParam);
 }
+#endif
 
 // The Matrox edition returns when the mouse message loop's PeekMessage finds nothing.
 // FUNCTION: MW2 0x10067bbc

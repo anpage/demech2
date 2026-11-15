@@ -26,9 +26,6 @@
 #include <windows.h>
 #endif
 
-#ifdef MW2_3DFX
-#endif
-
 // Animated textures: up to 0x200 animations, each playing one of 0x200 sets of up to 0x20 CEL
 // frames. The frames load on first use; each animation advances with the clock.
 

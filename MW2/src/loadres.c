@@ -489,7 +489,7 @@ void* MemAlloc(MechU32 p_size)
 // FUNCTION: MW23DFX 0x10024700
 void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 {
-#if defined(MW2_3DFX)
+#if defined(MW2_INLINE_HELPERS)
 	// The 3Dfx edition's is C: the library's memcpy, which /Ox expands inline.
 	memcpy(p_dst, p_src, p_size);
 #elif defined(PORTABLE_C)
@@ -532,7 +532,7 @@ void* MemCopy(void* p_dst, const void* p_src, MechU32 p_size)
 // FUNCTION: MW23DFX 0x10024730
 void* MemSet(void* p_dst, MechS32 p_value, MechU32 p_size)
 {
-#if defined(MW2_3DFX)
+#if defined(MW2_INLINE_HELPERS)
 	// The 3Dfx edition's is C: the library's memset, which /Ox expands inline.
 	memset(p_dst, p_value, p_size);
 #elif defined(PORTABLE_C)

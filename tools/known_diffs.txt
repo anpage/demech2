@@ -137,7 +137,6 @@ MW23DFX 0x1001fc40 ManeuverWchick d2450c8336ad the original loads [+334] into an
 MW23DFX 0x1001ffd0 ManeuverCircle bd0b8b133fdb the original loads [+334] into another register (mov ax where the rebuild has mov dx) and has more instructions (1 to 5); to investigate
 MW23DFX 0x100200f0 BrakeFall 3116fbd65c5d register allocation and stack offsets the audit's webs and frame map don't reproduce; to investigate
 MW23DFX 0x10020ac0 DodgeShot 9d1a4e36ec91 the rebuild's frame is 4 bytes larger (0x58 against 0x54): a local the original keeps in a register or packs; to investigate
-MW23DFX 0x10020e40 DrawTargetPanelText edd1d263c243 register allocation and scheduling the audit's webs and search don't reach; to investigate
 MW23DFX 0x10021f20 LateUpdateDoor 0b4a91b250e5 the original has 13 more instructions (#23: a reload of [ecx+76]), and loads the kind's bytes 240 and 239 separately where 2.2 shares one word load (mov ax; cmp ah); neither the shift nor the mask form changes this; to investigate
 MW23DFX 0x10022490 InitHudGauges 11e40fd61b9a register allocation and scheduling the audit's webs and search don't reach; to investigate
 MW23DFX 0x10022960 DrawCompassMarkers 2201e0053916 as the Matrox edition's: g_compassOrigin.m_y + g_compassSideArrowHeight / 2 evaluated in the other order, plus commutative x87 operands

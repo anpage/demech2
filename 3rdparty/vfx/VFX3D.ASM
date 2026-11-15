@@ -392,8 +392,8 @@ __unclip_X:     sar eax,16              ;EAX = left endpoint (preserve sign)
 
 ; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
 ; bytes up to a dword boundary, then dwords, then the remaining bytes. The accelerated
-; editions (MW2_ACCEL) fill the odd bytes first and then dwords, without aligning.
-IFDEF MW2_ACCEL
+; editions (MW2_VFX_STOCK) fill the odd bytes first and then dwords, without aligning.
+IFDEF MW2_VFX_STOCK
                 mov eax,color
 
                 mov edx,ecx
@@ -500,8 +500,8 @@ __left_clipped: sub edx,VP_R            ;DX = # of right-clipped pixels
 
 ; demech2: begin change. MW2 fills spans of more than 4 pixels with the destination aligned:
 ; bytes up to a dword boundary, then dwords, then the remaining bytes. The accelerated
-; editions (MW2_ACCEL) fill the odd bytes first and then dwords, without aligning.
-IFDEF MW2_ACCEL
+; editions (MW2_VFX_STOCK) fill the odd bytes first and then dwords, without aligning.
+IFDEF MW2_VFX_STOCK
 __clip_loop:    mov eax,color
 
                 mov edx,ecx

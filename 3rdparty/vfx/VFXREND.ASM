@@ -2757,15 +2757,10 @@ VFX_polygon_render PROC USES ebx esi edi es,\
                 VColor,\
                 PTexture:PTR,PCueing:PTR,PTranslucency:PTR
 
-; demech2: begin change. The Matrox edition (MW2_ACCEL without MW2_3DFX) doesn't set ES here.
-                IFNDEF MW2_ACCEL
+; demech2: begin change. The Matrox edition's (MW2_VFXREND_CS_SEGMENT) doesn't set ES here.
+                IFNDEF MW2_VFXREND_CS_SEGMENT
                 IFDEF FLAT_MODEL        ;if in flat model, make sure ES=DS
                 push ds                 ;(for background calls, etc.)
-                pop es
-                ENDIF
-                ELSEIFDEF MW2_3DFX
-                IFDEF FLAT_MODEL
-                push ds
                 pop es
                 ENDIF
                 ENDIF
@@ -2813,14 +2808,10 @@ VFX_polygon_render PROC USES ebx esi edi es,\
                 ;
 
                 mov ebx,[Operation]
-; demech2: begin change. The Matrox edition (MW2_ACCEL without MW2_3DFX) reads the table
+; demech2: begin change. The Matrox edition's (MW2_VFXREND_CS_SEGMENT) reads the table
 ; through CS.
-                IFDEF MW2_ACCEL
-                IFNDEF MW2_3DFX
+                IFDEF MW2_VFXREND_CS_SEGMENT
                 mov eax,cs:poly_vectors[ebx*4]
-                ELSE
-                mov eax,poly_vectors[ebx*4]
-                ENDIF
                 ELSE
                 mov eax,poly_vectors[ebx*4]
                 ENDIF
@@ -3679,14 +3670,10 @@ __finished:
                 ;
 
                 mov ebx,[Operation]
-; demech2: begin change. The Matrox edition (MW2_ACCEL without MW2_3DFX) reads the table
+; demech2: begin change. The Matrox edition's (MW2_VFXREND_CS_SEGMENT) reads the table
 ; through CS.
-                IFDEF MW2_ACCEL
-                IFNDEF MW2_3DFX
+                IFDEF MW2_VFXREND_CS_SEGMENT
                 mov eax,cs:poly_vectors[ebx*4]
-                ELSE
-                mov eax,poly_vectors[ebx*4]
-                ENDIF
                 ELSE
                 mov eax,poly_vectors[ebx*4]
                 ENDIF

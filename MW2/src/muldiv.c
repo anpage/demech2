@@ -7,7 +7,7 @@
 #include "portable.h"
 #include "types.h"
 
-#ifndef MW2_3DFX                /* the 3Dfx edition expands it inline: see muldiv.h */
+#ifndef MW2_INLINE_HELPERS      /* the 3Dfx edition expands it inline: see muldiv.h */
 #pragma warning(disable : 4035) /* no return value: the result is left in eax */
 
 // FUNCTION: MW2 0x100035a0

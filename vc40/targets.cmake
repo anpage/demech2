@@ -23,6 +23,7 @@
 # optimized code: VC++ 4.0 at /Ox /G5 /Op, where everything else is /Od (CLAUDE.md, "The A3D layer"),
 # and so is its depth sort object (depthsort.c, with /Oa too).
 function(demech2_add_mw2matrox)
+  demech2_edition_masm_defines(matrox_masm_defines MW2_ACCEL MW2_MATROX)
   set_source_files_properties("${DEMECH2_SOURCE_DIR}/MW2/src/matrox/a3d.c"
     PROPERTIES DEMECH2_OPTIMIZATION "/Ox;/Op")
   # Its depth sort object is optimized code too, assuming no aliasing as well (/Oa): DrawShapeList
@@ -211,8 +212,9 @@ function(demech2_add_mw2matrox)
       "${DEMECH2_SOURCE_DIR}/MW2/src/texpoly.c"
       "${DEMECH2_SOURCE_DIR}/MW2/src/directdraw.c"
       "${DEMECH2_SOURCE_DIR}/MW2/MW2.def"
-    # MW2_ACCEL also selects the accelerated editions' code in VFX's assembly (VFX3D.ASM's fills).
-    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_ACCEL;/DMW2_MATROX>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:/DMW2_ACCEL>"
+    # ML gets the edition's features from util/types.h's table (cmake/editions.cmake): VFX's
+    # assembly tests them too.
+    COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:C,CXX>:/G5;/DMW2_ACCEL;/DMW2_MATROX>" "$<$<COMPILE_LANGUAGE:ASM_MASM>:${matrox_masm_defines}>"
     LINK_OPTIONS /DEBUG /INCREMENTAL:no
     LIBRARIES winmm.lib wail32 ddraw dplay msi95 kernel32.lib user32.lib gdi32.lib advapi32.lib
   )
